@@ -24,6 +24,7 @@
 #define HAVE_COOT_COORD_EXTRAS_HH
 
 #include <iostream>
+#include <fstream>
 #include <map>
 #include "tree.hh" // Kasper Peeters tree
 
@@ -622,8 +623,33 @@ namespace coot {
    std::ostream& operator<<(std::ostream &o, const linked_residue_t &lr);
 
    class glyco_tree_t {
+   public:
+      class residue_id_t {
+      public:
+	 enum prime_arm_flag_t { UNSET, PRIME, NON_PRIME };
+	 std::string res_type; // this is tested as empty to see if this object is filled
+	 std::string link_type;
+	 std::string parent_res_type;
+	 residue_spec_t parent_res_spec;
+	 unsigned int level;
+	 prime_arm_flag_t prime_arm_flag; // are we in the (4') arm?
+	 residue_id_t() {}
+	 residue_id_t(int level_in,
+		      prime_arm_flag_t prime_flag_in,
+		      const std::string &res_type_in,
+		      const std::string &link_type_in,
+		      const std::string &parent_res_type_in,
+		      const residue_spec_t &parent_res_spec_in) : res_type(res_type_in),
+								  link_type(link_type_in),
+								  parent_res_type(parent_res_type_in),
+								  parent_res_spec(parent_res_spec_in),
+								  level(level_in),
+								  prime_arm_flag(prime_flag_in) {}
+      };
+   private:
       protein_geometry *geom_p;
       std::vector<mmdb::Residue *> linked_residues;
+      tree<linked_residue_t> glyco_tree; // 20170503 the constructor now stores its own tree
 
       bool is_pyranose(mmdb::Residue *r) const; 
       tree<linked_residue_t> find_rooted_tree(mmdb::Residue *residue_root_p,
@@ -639,14 +665,31 @@ namespace coot {
       tree<linked_residue_t>       hybrid_tree() const;
       static bool residue_comparitor(mmdb::Residue *res1, mmdb::Residue *res2) {
 	 return (residue_spec_t(res1) < residue_spec_t(res2));
-      } 
+      }
       void print(const tree<linked_residue_t> &glyco_tree) const;
       std::vector<mmdb::Residue *> residues(const tree<linked_residue_t> &glyco_tree) const;
-      
+      void output_internal_distances(mmdb::Residue *residue_p,
+				     mmdb::Residue *parent_residue_p,
+				     double dist_lim,
+				     std::ofstream &f) const;
+      // old, all-residue
+      void output_internal_distances(mmdb::Residue *residue_p,
+				     std::vector<mmdb::Residue *> residues,
+				     double dist_lim,
+				     std::ofstream &f) const;
+      residue_id_t::prime_arm_flag_t get_prime(mmdb::Residue *residue_p) const;
+      int get_level(mmdb::Residue *residue_p) const;
+
    public:
       glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol, protein_geometry *geom_p_in);
       std::vector<mmdb::Residue *> residues(const coot::residue_spec_t &containing_res_spec) const;
-   }; 
+      void internal_distances(double dist_lim, const std::string &file_name) const;
+      residue_id_t get_id(mmdb::Residue *residue_p) const;
+      // for tree comparison
+      tree<linked_residue_t> get_glyco_tree() const { return glyco_tree; }
+      bool compare_trees(const tree<linked_residue_t> &tree_in) const;
+      std::vector<std::pair<coot::residue_spec_t, coot::residue_spec_t> > matched_pairs(const tree<linked_residue_t> &t_in) const;
+   };
 }
 
 #endif // HAVE_COOT_COORD_EXTRAS_HH

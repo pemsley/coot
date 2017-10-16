@@ -103,7 +103,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "density-contour/density-contour-triangles.hh"
 
 #include "gl-bits.hh"
-#include "lbg/flev-annotations.hh" // animated ligand interactions
+#include "pli/flev-annotations.hh" // animated ligand interactions
 
 #include "pick.h"
 
@@ -111,9 +111,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "named-rotamer-score.hh"
 
 #include "c-interface-sequence.hh"
-
 #include "map-statistics.hh"
-
 #include "animated-ligand.hh"
 
 namespace molecule_map_type {
@@ -739,7 +737,7 @@ public:        //                      public
 
       // bespoke colouring
       use_bespoke_grey_colour_for_carbon_atoms = false;
-      bespoke_carbon_atoms_colour = coot::colour_t(0.6, 0.6, 0.6);
+      bespoke_carbon_atoms_colour = coot::colour_t(0.4, 0.4, 0.4);
 
       // 
       rotate_colour_map_for_difference_map = 240.0; // degrees
@@ -981,6 +979,7 @@ public:        //                      public
    void set_b_factor_residue_range(const std::string &chain_id, int ires1, int ires2, float b_val);
    void set_b_factor_atom_selection(const atom_selection_container_t &asc, float b_val, bool moving_atoms);
    void set_b_factor_residues(const std::vector<std::pair<coot::residue_spec_t, double> > &rbs); // all atoms of specified
+   void set_b_factor_residue(coot::residue_spec_t spec, float bf);
 
 
    std::vector<coot::atom_spec_t> fixed_atom_specs;
@@ -1068,9 +1067,9 @@ public:        //                      public
       return draw_hydrogens_flag;
    }
 
-   void makebonds(const coot::protein_geometry *geom_p);
-   void makebonds(float max_dist, const coot::protein_geometry *geom_p); // maximum distance for bond (search)
-   void makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p); 
+   void makebonds(const coot::protein_geometry *geom_p, bool add_residue_indices=false);
+   void makebonds(float max_dist, const coot::protein_geometry *geom_p, bool add_residue_indices=false); // maximum distance for bond (search)
+   void makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p, bool add_residue_indices=false); 
    void make_ca_bonds(float min_dist, float max_dist); 
    void make_ca_bonds();
    void make_ca_plus_ligands_bonds(coot::protein_geometry *pg);
@@ -1089,7 +1088,7 @@ public:        //                      public
    void occupancy_representation();
    void user_defined_colours_representation(coot::protein_geometry *geom_p, bool all_atoms_mode); // geom needed for ligands
 
-   void make_bonds_type_checked(); 
+   void make_bonds_type_checked(bool add_residue_indices=false);
 
 
    void label_atoms(int brief_atom_labels_flag);
@@ -1603,9 +1602,6 @@ public:        //                      public
 							   bool is_nucleic_acid_flag = false) const;
 
 
-   // These create an object that is not specific to a molecule, there
-   // is only one environment bonds box, no matter how many molecules. Hmm.
-   // The symmetry version is now added 030624 - PE.
    //
    graphical_bonds_container make_environment_bonds_box(int atom_index,
 							coot::protein_geometry *protein_geom_p) const;
@@ -1676,6 +1672,11 @@ public:        //                      public
 					   int resno, 
 					   const std::string &inscode,
 					   const std::string &altconf);
+
+   // Return 1 if at least one atom was deleted, else 0.
+   //
+   short int delete_residues(const std::vector<coot::residue_spec_t> &specs);
+   
    short int delete_residue_sidechain(const std::string &chain_id,
 				      int resno,
 				      const std::string &inscode);
@@ -1693,6 +1694,7 @@ public:        //                      public
 
    int delete_hydrogens(); // return status of atoms deleted (0 -> none deleted).
 
+   int delete_chain(const std::string &chain_id);
 
    // closing molecules, delete maps and atom sels as appropriate
    // and unset "filled" variables.  Set name_ to "".
@@ -1959,6 +1961,7 @@ public:        //                      public
    // more refmac stuff
    //
    int write_pdb_file(const std::string &filename); // not const because of shelx/name manip
+   int write_cif_file(const std::string &filename); // not const because of shelx/name manip
    short int Have_sensible_refmac_params() const { return has_xmap() && have_sensible_refmac_params; }
    short int Have_refmac_phase_params()    const { return have_refmac_phase_params; }
    void increment_refmac_count() { refmac_count++; }
@@ -2635,18 +2638,19 @@ public:        //                      public
 				     const gl_context_info_t &glci,
 				     const coot::protein_geometry *geom); 
 
-   int adjust_additional_representation(int represenation_number, 
+   int adjust_additional_representation(int representation_number,
 					const int &bonds_box_type_in, 
 					float bonds_width,
 					bool draw_hydrogens_flag,
 					const coot::atom_selection_info_t &info, 
-					bool show_it_flag_in); 
+					bool show_it_flag_in);
 
    void clear_additional_representation(int representation_number);
    void set_show_additional_representation(int representation_number, bool on_off_flag);
    void set_show_all_additional_representations(bool on_off_flag);
    void all_additional_representations_off_except(int rep_no,
 						  bool ball_and_sticks_off_too_flag);
+   graphical_bonds_container get_bonds_representation() { make_bonds_type_checked(true); return bonds_box; }
    // 
    std::vector<coot::residue_spec_t> residues_near_residue(const coot::residue_spec_t &rspec, float radius) const; 
 
@@ -2754,12 +2758,13 @@ public:        //                      public
    coot::extra_restraints_representation_t extra_restraints_representation;
    void draw_extra_restraints_representation();
    void draw_parallel_plane_restraints_representation();
-   void set_extra_restraints_prosmart_sigma_limits(double limit_low, double limit_high);   
-   
+   void set_extra_restraints_prosmart_sigma_limits(double limit_low, double limit_high);
+
    // return an index of the new restraint
    int add_extra_bond_restraint(coot::atom_spec_t atom_1,
 				coot::atom_spec_t atom_2,
 				double bond_dist, double esd);
+   int add_extra_bond_restraints(const std::vector<coot::extra_restraints_t::extra_bond_restraint_t> &bond_specs);
    int add_extra_angle_restraint(coot::atom_spec_t atom_1,
 				 coot::atom_spec_t atom_2,
 				 coot::atom_spec_t atom_3,
@@ -2948,7 +2953,7 @@ public:        //                      public
    // single model view
    void single_model_view_model_number(int imodel);
    int single_model_view_this_model_number() const;
-   int single_model_view_next_model_number(); // changes the represenation
+   int single_model_view_next_model_number(); // changes the representation
    int single_model_view_prev_model_number(); //    ditto.
 
    // multi-residue torsion map fitting interface
@@ -3067,6 +3072,10 @@ public:        //                      public
 
    void update_bonds_using_phenix_geo(const coot::phenix_geo_bonds &b);
 
+   void export_map_fragment_to_plain_file(float radius,
+					  clipper::Coord_orth centre,
+					  const std::string &filename) const;
+
    void globularize();
 
    bool is_EM_map() const;
@@ -3087,6 +3096,7 @@ public:        //                      public
    std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> >
    get_contours(float contour_level, float radius, const coot::Cartesian &centre) const;
 
+
 #ifdef USE_MOLECULES_TO_TRIANGLES
 #ifdef HAVE_CXX11
    std::vector<std::shared_ptr<MolecularRepresentationInstance> > molrepinsts;
@@ -3099,6 +3109,20 @@ public:        //                      public
 				    const std::string &style);
    
 
+   // carbohydrate validation tools
+   void glyco_tree_internal_distances_fn(const coot::residue_spec_t &base_residue_spec,
+					 coot::protein_geometry *geom_p,
+					 const std::string &file_name);
+
+   // hacky function to retrive the atom based on the position
+   // (silly thing to do)
+   mmdb::Atom *get_atom_at_pos(const coot::Cartesian &pt) const;
+
+   void add_secondary_structure_header_records(bool overwrite=false);
+
+   // angle in degrees.
+   void spin_N(const coot::residue_spec_t &residue_spec, float angle);
+   
 };
 
 #endif // MOLECULE_CLASS_INFO_T

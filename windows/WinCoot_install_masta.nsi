@@ -110,8 +110,8 @@ Var STARTDIR
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 
 !ifndef binary_dir
-; default to nightlies output dir
-!define binary_dir "C:\msys\home\bernhard\public_html\software\binaries\nightlies\pre-release"
+; default to pre-release output dir
+!define binary_dir "C:\MinGW\msys\1.0\home\bernhard\public_html\software\binaries\pre-release"
 !endif
 ; just in case something goes wrong, we define src to be pre-release (default)
 !ifndef src_dir
@@ -176,17 +176,14 @@ Section "!WinCoot" SEC01
   File /oname=$INSTDIR\runwincoot.bat.tmp "C:\msys\home\bernhard\Projects\coot\windows\runwincoot.bat"
 
   SetOverwrite ifnewer
-; libexec DIR
-  SetOutPath "$INSTDIR\libexec"
-  SetOverwrite on
-  File "${src_dir}\libexec\coot-bin.exe"
-  File "${src_dir}\libexec\density-score-by-residue-bin.exe"
-  File "${src_dir}\libexec\findligand-bin.exe"
-  File "${src_dir}\libexec\findwaters-bin.exe"
-  File "${src_dir}\libexec\mini-rsr-bin.exe"
-  SetOverwrite ifnewer
 ; bin DIR
   SetOutPath "$INSTDIR\bin"
+  SetOverwrite on
+  File "${src_dir}\bin\coot-bin.exe"
+  File "${src_dir}\bin\coot-density-score-by-residue-bin.exe"
+  File "${src_dir}\bin\findligand-bin.exe"
+  File "${src_dir}\bin\findwaters-bin.exe"
+  File "${src_dir}\bin\mini-rsr-bin.exe"
   SetOverwrite ifnewer
   File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\coot-icon.ico"
   File "${src_dir}\bin\*.dll"
@@ -195,10 +192,12 @@ Section "!WinCoot" SEC01
   File "${src_dir}\bin\coot-mini-rsr"
   File "${src_dir}\bin\coot-available-comp-id.exe"
   File "${src_dir}\bin\coot-compare-dictionaries.exe"
-  File "${src_dir}\bin\coot-dictionary-bond-distributions.exe"
+;  File "${src_dir}\bin\coot-dictionary-bond-distributions.exe"
   File "${src_dir}\bin\coot-make-shelx-restraints.exe"
+  File "${src_dir}\bin\coot-density-score-by-residue"
+  File "${src_dir}\bin\findligand"
   File "${src_dir}\bin\findwaters"
-  File "${src_dir}\bin\fix-nomenclature-errors.exe"
+  File "${src_dir}\bin\coot-fix-nomenclature-errors.exe"
   File "${src_dir}\bin\gdk-pixbuf-csource.exe"
   File "${src_dir}\bin\gdk-pixbuf-query-loaders.exe"
   File "${src_dir}\bin\glib-genmarshal.exe"
@@ -545,16 +544,14 @@ Section Uninstall
   Delete "$INSTDIR\bin\coot-bfactan.exe"
   Delete "$INSTDIR\bin\coot"
   Delete "$INSTDIR\bin\coot-real.exe"
-  Delete "$INSTDIR\libexec\coot-bin.exe"
-  Delete "$INSTDIR\libexec\density-score-by-residue-bin.exe"
-  Delete "$INSTDIR\libexec\findligand-bin.exe"
-  Delete "$INSTDIR\libexec\findwaters-bin.exe"
-  Delete "$INSTDIR\libexec\mini-rsr-bin.exe"
+  Delete "$INSTDIR\libexec\*.exe"
+  Delete "$INSTDIR\bin\coot-density-score-by-residue"
   Delete "$INSTDIR\bin\density-score-by-residue"
   Delete "$INSTDIR\bin\findligand"
   Delete "$INSTDIR\bin\findligand-real.exe"
   Delete "$INSTDIR\bin\findwaters"
   Delete "$INSTDIR\bin\findwaters-real.exe"
+  Delete "$INSTDIR\bin\coot-fix-nomenclature-errors.exe"
   Delete "$INSTDIR\bin\fix-nomenclature-errors.exe"
   Delete "$INSTDIR\bin\gdk-pixbuf-csource.exe"
   Delete "$INSTDIR\bin\gdk-pixbuf-query-loaders.exe"

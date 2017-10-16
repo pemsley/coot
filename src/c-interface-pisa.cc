@@ -66,7 +66,7 @@ int pisa_interaction(int imol_1, int imol_2) {
 	 
 	 if (res_pair.first.size() > 0) { 
 	    std::pair<bool, mmdb::Manager *> nm =
-	       coot::util::create_mmdbmanager_from_residue_vector(res_pair.first);
+	       coot::util::create_mmdbmanager_from_residue_vector(res_pair.first, mol1);
 	    if (nm.second) {
 	       int imol = graphics_info_t::create_molecule();
 	       atom_selection_container_t asc = make_asc(nm.second);
@@ -82,7 +82,7 @@ int pisa_interaction(int imol_1, int imol_2) {
 	 
 	 if (res_pair.second.size() > 0) { 
 	    std::pair<bool, mmdb::Manager *> nm =
-	       coot::util::create_mmdbmanager_from_residue_vector(res_pair.second);
+	       coot::util::create_mmdbmanager_from_residue_vector(res_pair.second, mol1);
 	    if (nm.second) {
 	       int imol = graphics_info_t::create_molecule();
 	       atom_selection_container_t asc = make_asc(nm.second);

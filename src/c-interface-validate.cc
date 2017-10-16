@@ -1052,12 +1052,15 @@ difference_map_peaks(int imol, int imol_coords,
 	       ps.get_peaks(graphics_info_t::molecules[imol].xmap,
 			    graphics_info_t::molecules[imol_coords].atom_sel.mol,
 			    n_sigma, do_positive_level_flag, do_negative_levels_flag);
+	    for (unsigned int ii=0; ii<centres.size(); ii++)
+	       std::cout << centres[ii].second << " " << centres[ii].first.format()
+			 << std::endl;
 	 } else { 
 	    centres =
 	       ps.get_peaks(graphics_info_t::molecules[imol].xmap,
 			    n_sigma, do_positive_level_flag, do_negative_levels_flag);
 	 }
-	 
+
 	 if (centres.size() == 0) {
 	    if (graphics_info_t::use_graphics_interface_flag) { 
 	       std::string info_string("No difference map peaks\nat ");
@@ -1241,6 +1244,215 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
 }
 
 
+#ifdef USE_PYTHON
+PyObject *map_peaks_around_molecule_py(int imol_map, float n_sigma, int do_negative_also_flag, int imol_coords) {
+
+   PyObject *r = Py_False;
+   if (is_valid_map_molecule(imol_map)) {
+      if (is_valid_model_molecule(imol_coords)) {
+	 const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+	 coot::peak_search ps(xmap);
+	 ps.set_max_closeness(graphics_info_t::difference_map_peaks_max_closeness);
+	 std::cout << "using max_closeness " << graphics_info_t::difference_map_peaks_max_closeness
+		   << std::endl;
+	 int do_positive_level_flag = 1;
+	 std::cout << "getting centres with negative-flag " << do_negative_also_flag
+		   << std::endl;
+	 std::vector<std::pair<clipper::Coord_orth, float> > centres = 
+	    ps.get_peaks(graphics_info_t::molecules[imol_map].xmap,
+			 graphics_info_t::molecules[imol_coords].atom_sel.mol,
+			 n_sigma, do_positive_level_flag, do_negative_also_flag);
+	 r = PyList_New(centres.size());
+	 for (unsigned int i=0; i<centres.size(); i++) {
+	    PyObject *coords = PyList_New(3);
+	    PyObject *pair_py = PyList_New(2);
+	    PyList_SetItem(coords, 0, PyFloat_FromDouble(centres[i].first.x()));
+	    PyList_SetItem(coords, 1, PyFloat_FromDouble(centres[i].first.y()));
+	    PyList_SetItem(coords, 2, PyFloat_FromDouble(centres[i].first.z()));
+	    PyList_SetItem(pair_py, 0, PyFloat_FromDouble(centres[i].second));
+	    PyList_SetItem(pair_py, 1, coords);
+	    PyList_SetItem(r, i, pair_py);
+	 }
+      }
+   }
+   if (PyBool_Check(r))
+     Py_INCREF(r);
+   return r;
+}
+#endif // USE_PYTHON
+
+#ifdef USE_PYTHON 
+PyObject *map_peaks_py(int imol_map, float n_sigma) {
+
+   PyObject *r = Py_False;
+
+   if (is_valid_map_molecule(imol_map)) {
+      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+      int do_positive_levels_flag = 1;
+      int also_negative_levels_flag = 0;
+      coot::peak_search ps(xmap);
+      std::vector<std::pair<clipper::Coord_orth, float> > peaks = 
+	 ps.get_peaks(xmap, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
+      r = PyList_New(peaks.size());
+      for (unsigned int i=0; i<peaks.size(); i++) {
+	 PyObject *coords = PyList_New(3);
+	 PyList_SetItem(coords, 0, PyFloat_FromDouble(peaks[i].first.x()));
+	 PyList_SetItem(coords, 1, PyFloat_FromDouble(peaks[i].first.y()));
+	 PyList_SetItem(coords, 2, PyFloat_FromDouble(peaks[i].first.z()));
+	 PyList_SetItem(r, i, coords);
+      }
+   }
+ 
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *map_peaks_near_point_py(int imol_map, float n_sigma, float x, float y, float z,
+				  float radius) {
+   
+   PyObject *r = Py_False;
+
+   if (is_valid_map_molecule(imol_map)) {
+
+      mmdb::Atom *at = new mmdb::Atom;
+      at->SetCoordinates(x,y,z, 1.0, 10.0);
+      at->SetAtomName(" CA ");
+      at->SetElementName(" C");
+
+      graphics_info_t g;
+      mmdb::Manager *mol = coot::util::create_mmdbmanager_from_atom(at);
+      mol->SetSpaceGroup(g.molecules[imol_map].xmap.spacegroup().symbol_hm().c_str());
+      coot::util::set_mol_cell(mol, g.molecules[imol_map].xmap.cell());
+      
+      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+      int do_positive_levels_flag = 1;
+      int also_negative_levels_flag = 0;
+      coot::peak_search ps(xmap);
+      std::vector<std::pair<clipper::Coord_orth, float> > peaks = 
+	 ps.get_peaks(xmap, mol, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
+      clipper::Coord_orth ref_pt(x,y,z);
+      std::vector<std::pair<clipper::Coord_orth, float> > close_peaks;
+      for (unsigned int i=0; i<peaks.size(); i++) {
+	 if (clipper::Coord_orth::length(ref_pt, peaks[i].first) < radius) {
+	    close_peaks.push_back(peaks[i]);
+	 }
+      } 
+      r = PyList_New(close_peaks.size());
+      for (unsigned int i=0; i<close_peaks.size(); i++) {
+	 PyObject *coords = PyList_New(4);
+	 PyList_SetItem(coords, 0, PyFloat_FromDouble(close_peaks[i].first.x()));
+	 PyList_SetItem(coords, 1, PyFloat_FromDouble(close_peaks[i].first.y()));
+	 PyList_SetItem(coords, 2, PyFloat_FromDouble(close_peaks[i].first.z()));
+	 PyList_SetItem(coords, 3, PyFloat_FromDouble(close_peaks[i].second));
+	 PyList_SetItem(r, i, coords);
+      }
+      delete mol;
+   } 
+
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+
+   return r;
+}
+#endif 
+
+
+#ifdef USE_GUILE
+SCM map_peaks_scm(int imol_map, float n_sigma) {
+
+   SCM r = SCM_BOOL_F;
+
+   if (is_valid_map_molecule(imol_map)) {
+      r = SCM_EOL;
+      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+      int do_positive_levels_flag = 1;
+      int also_negative_levels_flag = 0;
+      coot::peak_search ps(xmap);
+      std::vector<std::pair<clipper::Coord_orth, float> > peaks = 
+	 ps.get_peaks(xmap, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
+      for (unsigned int i=0; i<peaks.size(); i++) {
+	 SCM pt = SCM_EOL;
+	 SCM x_scm = scm_double2num(peaks[i].first.x());
+	 SCM y_scm = scm_double2num(peaks[i].first.y());
+	 SCM z_scm = scm_double2num(peaks[i].first.z());
+	 pt = scm_cons(x_scm, pt);
+	 pt = scm_cons(y_scm, pt);
+	 pt = scm_cons(z_scm, pt);
+	 pt = scm_reverse(pt);
+	 r = scm_cons(pt, r);
+      }
+   }
+   return r;
+} 
+#endif 
+
+#ifdef USE_GUILE
+SCM map_peaks_near_point_scm(int imol_map, float n_sigma, float x, float y, float z,
+			     float radius) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_map_molecule(imol_map)) {
+
+      graphics_info_t g;
+      mmdb::Atom *at = new mmdb::Atom;
+      at->SetCoordinates(x,y,z,1.0,10.0);
+      at->SetAtomName(" CA ");
+      at->SetElementName(" C");
+
+      mmdb::Manager *mol = coot::util::create_mmdbmanager_from_atom(at);
+      mol->SetSpaceGroup(g.molecules[imol_map].xmap.spacegroup().symbol_hm().c_str());
+      coot::util::set_mol_cell(mol, g.molecules[imol_map].xmap.cell());
+      
+      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+      int do_positive_levels_flag = 1;
+      int also_negative_levels_flag = 0;
+      coot::peak_search ps(xmap);
+      std::vector<std::pair<clipper::Coord_orth, float> > peaks = 
+	 ps.get_peaks(xmap, mol, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
+      clipper::Coord_orth ref_pt(x,y,z);
+      r = SCM_EOL;
+      std::vector<std::pair<clipper::Coord_orth, float> > close_peaks;
+      for (unsigned int i=0; i<peaks.size(); i++) {
+	 if (clipper::Coord_orth::length(ref_pt, peaks[i].first) < radius) {
+	    close_peaks.push_back(peaks[i]);
+	 }
+      }
+
+      if (1) { // debug
+	 for (unsigned int i=0; i<close_peaks.size(); i++) {
+	    std::cout << "close peak " << i << " " << close_peaks[i].first.format() << "   "
+		      << close_peaks[i].second << std::endl;
+	 }
+      } 
+      
+      for (unsigned int i=0; i<close_peaks.size(); i++) {
+	 SCM pt = SCM_EOL;
+	 SCM d     = scm_double2num(close_peaks[i].second);
+	 SCM x_scm = scm_double2num(close_peaks[i].first.x());
+	 SCM y_scm = scm_double2num(close_peaks[i].first.y());
+	 SCM z_scm = scm_double2num(close_peaks[i].first.z());
+	 pt = scm_cons(d, pt);
+	 pt = scm_cons(x_scm, pt);
+	 pt = scm_cons(y_scm, pt);
+	 pt = scm_cons(z_scm, pt);
+	 pt = scm_reverse(pt);
+	 r = scm_cons(pt, r);
+      }
+      r = scm_reverse(r);
+      delete mol;
+   }
+   return r;
+} 
+#endif 
+// (map-peaks-near-point-scm 1 4 44.7 11 13.6 6)
+
+
 // ----------------------------------------------------------------------------------
 //                            ramachandran plot
 // ----------------------------------------------------------------------------------
@@ -1317,8 +1529,8 @@ int do_ramachandran_plot_differences_by_widget(GtkWidget *w) {
       } else {
 	 std::cout << "INFO:: incomprehensible molecule/chain selection" << std::endl;
 	 std::string s = "Can't make sense of chain selection.  Try again?";
-	 GtkWidget *w = wrapped_nothing_bad_dialog(s);
-	 gtk_widget_show(w);
+	 GtkWidget *nbd = wrapped_nothing_bad_dialog(s);
+	 gtk_widget_show(nbd);
       }
    }
    return istat;
@@ -2198,8 +2410,34 @@ SCM all_molecule_ramachandran_score(int imol) {
       SCM c_scm = scm_double2num(rs.score_non_sec_str);
       SCM d_scm = SCM_MAKINUM(rs.n_residues_non_sec_str());
       SCM e_scm = SCM_MAKINUM(rs.n_zeros);
-      r = SCM_LIST5(a_scm, b_scm, c_scm, d_scm, e_scm);
-   } 
+      SCM by_residue_scm = SCM_EOL;
+      for (std::size_t ii=0; ii<rs.scores.size(); ii++) {
+	 SCM residue_spec_scm = residue_spec_to_scm(rs.scores[ii].res_spec);
+	 SCM d_scm = scm_double2num(rs.scores[ii].score);
+	 SCM phi_scm = scm_double2num(rs.scores[ii].phi_psi.phi());
+	 SCM psi_scm = scm_double2num(rs.scores[ii].phi_psi.psi());
+	 SCM phi_psi_scm = SCM_LIST2(phi_scm, psi_scm);
+	 if (false)
+	    std::cout << "here with residue pointers "
+		      << rs.scores[ii].residue_prev << " "
+		      << rs.scores[ii].residue_this << " "
+		      << rs.scores[ii].residue_next << " "
+		      << std::endl;
+	 if (rs.scores[ii].residue_prev &&
+	     rs.scores[ii].residue_this &&
+	     rs.scores[ii].residue_next) {
+	    SCM res_names_scm = SCM_LIST3(scm_makfrom0str(rs.scores[ii].residue_prev->GetResName()),
+					  scm_makfrom0str(rs.scores[ii].residue_this->GetResName()),
+					  scm_makfrom0str(rs.scores[ii].residue_next->GetResName()));
+	    SCM residue_results_scm = SCM_LIST4(phi_psi_scm, residue_spec_scm, d_scm, res_names_scm);
+	    by_residue_scm = scm_cons(residue_results_scm, by_residue_scm);
+	 } else {
+	    SCM residue_results_scm = SCM_LIST3(phi_psi_scm, residue_spec_scm, d_scm);
+	    by_residue_scm = scm_cons(residue_results_scm, by_residue_scm);
+	 }
+      }
+      r = SCM_LIST6(a_scm, b_scm, c_scm, d_scm, e_scm, by_residue_scm);
+   }
 
    return r;
 } 
@@ -2218,13 +2456,13 @@ PyObject *all_molecule_ramachandran_score_py(int imol) {
       PyList_SetItem(r, 0, a_py);
       PyList_SetItem(r, 1, b_py);
       PyList_SetItem(r, 2, c_py);
-   } 
+   }
 
    if (PyBool_Check(r)) {
      Py_INCREF(r);
    }
    return r;
-} 
+}
 
 PyObject *all_molecule_ramachandran_region_py(int imol) {
 

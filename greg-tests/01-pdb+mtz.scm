@@ -1632,11 +1632,11 @@
 (greg-testcase "Make a glycosidic linkage" #t 
    (lambda ()
 
-     (let* ((carbo "multi-carbo-coot-2.pdb")
+     (let* ((carbo "multi-carbo-coot-3.pdb")
 	    (imol (greg-pdb carbo)))
 
        (if (not (valid-model-molecule? imol))
-	   (begin 
+	   (begin
 	     (format #t "file not found: ~s~%" carbo)
 	     #f)
 	   
@@ -1670,7 +1670,7 @@
        (if (not (valid-model-molecule? imol))
 	   (throw 'failed-to-find-pdb2qc1-sans-cho))
        
-       (let ((status (add-linked-residue imol "B" 141 "" "NAG" "NAG-ASN")))
+       (let ((status (add-linked-residue imol "B" 141 "" "NAG" "NAG-ASN" 3000)))
 
 	 (with-auto-accept (refine-residues imol (list (list "B" 141 "") (list "B" 464 ""))))
 
@@ -2868,4 +2868,38 @@
 		 (throw 'fail)))))
 
        #t)))
+
+
+
+(greg-testcase "Fix for Oliver Clarke fit by atom selection bug"  #t
+   (lambda ()
+
+     ;; Atoms of the A chain (up to residue 71) moves when the B chain is refined
+     ;;
+
+     (let ((imol-rnase (greg-pdb "tutorial-modern.pdb"))
+	   (imol-map (make-and-draw-map rnase-mtz "FWT" "PHWT" "" 0 0)))
+
+       (set-imol-refinement-map imol-map)
+
+       (with-auto-accept
+	(rigid-body-refine-by-atom-selection imol-rnase "//B"))
+
+       ;; did we get silly superposition?
+       ;; test that the A-chain atom is close to where it should be
+
+       (let ((atom (get-atom imol-rnase "A" 43 "" " CA " "")))
+	 (if (not (list? atom))
+	     (begin
+	       (format #t "Failure to extract atom~%~!")
+	       #f)
+	     (let ((atom-pos (list-ref atom 2)))
+	       (let ((bl (bond-length atom-pos (list 46.4 11.6 12.1))))
+		 (format #t "bl: ~s~%" bl)
+		 (if (> bl 1.0)
+		     (begin
+		       (format #t  "Fail: moved atom ~s~%" bl)
+		       #f)
+		     #t ; OK, it didn't move much
+		     ))))))))
 

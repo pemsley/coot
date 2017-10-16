@@ -11,6 +11,12 @@ namespace std {
 
 %{
 #include "pyrogen/restraints.hh"
-%} 
+// #include "pyrogen/geometry-store.hh"
+// #include "pyrogen/geometry-store-interface.hh"
+%}
 
 %include "pyrogen/restraints.hh"
+
+// %include "mmdb2.i"
+// %include "pyrogen/geometry-store.hh"
+// %include "pyrogen/geometry-store-interface.hh"

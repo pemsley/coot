@@ -1295,7 +1295,7 @@ void restraints_editor_save_restraint_by_widget(GtkWidget *w) {
    graphics_info_t g;
    coot::restraints_editor re = g.get_restraints_editor(w);
    if (re.is_valid()) {
-      GtkWidget *w = create_save_restraint_chooserdialog();
+      GtkWidget *ww = create_save_restraint_chooserdialog();
       coot::dictionary_residue_restraints_t r = re.make_restraint();
       std::string filename = "monomer-";
 
@@ -1305,15 +1305,13 @@ void restraints_editor_save_restraint_by_widget(GtkWidget *w) {
 #else
       gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(w), TRUE);
 #endif      
-      gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(w), filename.c_str());
-      add_ccp4i_project_optionmenu(w, COOT_CIF_DICTIONARY_FILE_SELECTION);
-      add_filename_filter_button(w, 
-                                 COOT_CIF_DICTIONARY_FILE_SELECTION);
-      // somehow attach the restraint r to the widget file chooser widget, w.
+      gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(ww), filename.c_str());
+      add_ccp4i_project_optionmenu(ww, COOT_CIF_DICTIONARY_FILE_SELECTION);
+      add_filename_filter_button(ww, COOT_CIF_DICTIONARY_FILE_SELECTION);
       coot::dictionary_residue_restraints_t *ptr = new coot::dictionary_residue_restraints_t("", 0);
       *ptr = r;
-      g_object_set_data(G_OBJECT(w), "restraints", (gpointer) ptr);
-      gtk_widget_show(w);
+      g_object_set_data(G_OBJECT(ww), "restraints", (gpointer) ptr);
+      gtk_widget_show(ww);
    }
 }
 

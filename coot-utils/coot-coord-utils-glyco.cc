@@ -690,23 +690,28 @@ coot::glyco_tree_t::glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol,
       std::sort(linked_residues.begin(), linked_residues.end(), residue_comparitor);
 
       bool have_ASN_rooted_tree = false;
-      std::cout << ":::::::::: " << linked_residues.size() << " glycan/ASN residues" << std::endl;
 
-      for (unsigned int ires=0; ires<linked_residues.size(); ires++) { 
+      if (false) // debugging
+	 std::cout << "INFO:: " << linked_residues.size() << " glycan/ASN residues" << std::endl;
+
+      for (unsigned int ires=0; ires<linked_residues.size(); ires++) {
 	 std::string residue_name(linked_residues[ires]->name);
 	 if (residue_name == "ASN") {
-	    tree<coot::linked_residue_t> tr = find_ASN_rooted_tree(linked_residues[ires], linked_residues);
-	    if (tr.size() > 1) {
-	       // std::cout << "found tree with " << tr.size() << " nodes " << std::endl;
+	    if (false)
+	       std::cout << "... replacing glyco_tree based on " << residue_spec_t(linked_residues[ires])
+			 << std::endl;
+	    tree<linked_residue_t>  glyco_tree_new = find_ASN_rooted_tree(linked_residues[ires], linked_residues);
+	    if (glyco_tree_new.size() > glyco_tree.size()) {
+	       glyco_tree = glyco_tree_new;
 	       have_ASN_rooted_tree = true;
-	       compare_vs_allowed_trees(tr);
+	       // compare_vs_allowed_trees(glyco_tree);
 	    }
-	 } 
+	 }
       }
 
       if (! have_ASN_rooted_tree) {
-	 tree<coot::linked_residue_t> tr = find_stand_alone_tree(linked_residues);
-      } 
+	 glyco_tree = find_stand_alone_tree(linked_residues);
+      }
    }
 }
 
@@ -714,12 +719,16 @@ bool
 coot::glyco_tree_t::is_pyranose(mmdb::Residue *residue_p) const {
 
    bool is_pyranose = false;
-   try { 
+   try {
+
+      // CCD and Acedrg use D-SACCHARIDE or SACCHARIDE (FUC) for monomer groups
+      //
       std::string group = geom_p->get_group(residue_p);
-      if (group == "pyranose" || group == "D-pyranose" || group == "L-pyranose")
+      if (group == "pyranose" || group == "D-pyranose" || group == "L-pyranose" ||
+	  group == "D-SACCHARIDE" || group == "SACCHARIDE")
 	 is_pyranose = true;
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "ERROR::" << rte.what() << std::endl;
    } 
 
@@ -746,6 +755,7 @@ tree<coot::linked_residue_t>
 coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
 				     const std::vector<mmdb::Residue *> &residues) const {
 
+   bool debug = false;
    linked_residue_t first_res(residue_p, "");
    tree<linked_residue_t> glyco_tree;
    tree<linked_residue_t>::iterator top = glyco_tree.insert(glyco_tree.begin(), first_res);
@@ -761,7 +771,7 @@ coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
 	 done_residues[i] = std::pair<bool, mmdb::Residue *>(0, residues[i]);
       }
    }
-      
+  
    while (something_added) {
       something_added = false; 
       for (unsigned int ires=0; ires<done_residues.size(); ires++) {
@@ -772,7 +782,7 @@ coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
 	    tree<linked_residue_t>::iterator it;
 	    for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
 	       if (it->residue != done_residues[ires].second) {
-		  if (0)
+		  if (debug)
 		     std::cout << "      considering if "
 			       << coot::residue_spec_t(done_residues[ires].second)
 			       << "  was linked to tree residue "
@@ -785,7 +795,7 @@ coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
 
 		     if (link.first == "NAG-ASN") {
 			if (link.second == true) {
-			   if (false)
+			   if (debug)
 			      std::cout << "   Adding "
 					<< coot::residue_spec_t(done_residues[ires].second)
 					<< " " << "via NAG-ASN" << " to parent "
@@ -797,12 +807,12 @@ coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
 			   done_residues[ires].first = true;
 			}
 		     } else {
-			if (false)
+			if (debug)
 			   std::cout << "found link type " << link.first << " order-switch " 
 				     << link.second << std::endl;
 			linked_residue_t this_linked_residue(done_residues[ires].second, link.first);
 			this_linked_residue.order_switch = link.second;
-			if (false)
+			if (debug)
 			   std::cout << "   Adding " << coot::residue_spec_t(done_residues[ires].second)
 				     << " via " << link.first << " to parent " 
 				     << coot::residue_spec_t(it->residue)
@@ -817,8 +827,12 @@ coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
 	 }
       }
    }
-   if (glyco_tree.size() > 1)
-      print(glyco_tree);
+   if (glyco_tree.size() > 1) {
+      if (debug) {
+	 std::cout << "find_rooted_tree returns tree:" << std::endl;
+	 print(glyco_tree);
+      }
+   }
    return glyco_tree;
 }
 
@@ -856,8 +870,8 @@ coot::glyco_tree_t::find_stand_alone_tree(const std::vector<mmdb::Residue *> &re
 		  something_added = true;
 		  break;
 	       }
-	    } 
-	 } 
+	    }
+	 }
       }
    }
 
@@ -874,7 +888,7 @@ coot::glyco_tree_t::find_stand_alone_tree(const std::vector<mmdb::Residue *> &re
 }
 
 
-void 
+void
 coot::glyco_tree_t::print(const tree<linked_residue_t> &glyco_tree) const {
 
    tree<linked_residue_t>::iterator it, this_one;
@@ -888,13 +902,122 @@ coot::glyco_tree_t::print(const tree<linked_residue_t> &glyco_tree) const {
 	 } else { 
 	    n_space -= 4;
 	    this_one = this_one.node->parent;
-	 } 
+	 }
       }
       std::string s;
       for (int i=0; i<n_space; i++)
 	 s += " ";
       std::cout << "   " << s << " " << *it << std::endl;
    }
+}
+
+coot::glyco_tree_t::residue_id_t
+coot::glyco_tree_t::get_id(mmdb::Residue *residue_p) const {
+
+   residue_id_t id;
+   tree<linked_residue_t>::iterator it;
+   bool debug = false;
+
+   int n_in_tree = 0;
+   if (debug) {
+      std::vector<residue_spec_t> specs;
+      for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
+	 if (it->residue) {
+	    n_in_tree++;
+	    specs.push_back(it->residue);
+	 }
+      }
+      if (debug) {
+	 std::cout << "DEBUG:: get_id() found " << n_in_tree << " residues in tree" << std::endl;
+	 for (unsigned int i=0; i<specs.size(); i++)
+	    std::cout << "   " << specs[i] << std::endl;
+      }
+   }
+   for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
+      if (it->residue == residue_p) {
+ 	 if (it.node->parent) {
+	    tree<linked_residue_t>::iterator it_parent = it.node->parent;
+ 	    mmdb::Residue *parent_res = it_parent->residue;
+ 	    std::string parent_res_type = parent_res->GetResName();
+	    std::string link_type = it->link_type;
+	    std::string res_type = residue_p->GetResName();
+	    unsigned int level = get_level(residue_p);
+	    residue_id_t::prime_arm_flag_t prime_flag = get_prime(residue_p);
+	    id = residue_id_t(level, prime_flag, res_type, link_type, parent_res_type,
+			      residue_spec_t(parent_res));
+	    break;
+ 	 }
+      }
+   }
+   return id;
+}
+
+int
+coot::glyco_tree_t::get_level(mmdb::Residue *residue_p) const {
+
+   int level = -1;
+   tree<linked_residue_t>::iterator it;
+   for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
+      if (it->residue == residue_p) {
+	 level = 0;
+	 tree<linked_residue_t>::iterator this_one = it;
+	 bool has_parent = true;
+	 bool it_has_parent = true;
+	 tree<linked_residue_t>::iterator parent_node = it.node->parent;
+	 while (has_parent) {
+	    if (! this_one.node->parent) { 
+	       has_parent = false;
+	    } else {
+	       this_one = this_one.node->parent;
+	       level++;
+	    }
+	 }
+      }
+   }
+   return level;
+}
+
+// in future, if you are fixing this, consider to combine it with the above
+// to return a simple class that contains both the level and the prime flag.
+//
+coot::glyco_tree_t::residue_id_t::prime_arm_flag_t
+coot::glyco_tree_t::get_prime(mmdb::Residue *residue_p) const {
+
+   // a prime is a residue connected via a a-3 link to the BMA.
+
+   // scoped enums mean removal of prime_arm_flag_t (maybe fixed in C++11?)
+   residue_id_t::prime_arm_flag_t arm = residue_id_t::UNSET;
+
+   int level      = -1; // unset
+   int arm_level  = -1; // unset
+   int base_level = -1; // unset
+
+   tree<linked_residue_t>::iterator it;
+   for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
+      if (it->residue == residue_p) {
+	 level = 0;
+	 tree<linked_residue_t>::iterator this_one = it;
+	 bool has_parent = true;
+	 bool it_has_parent = true;
+	 tree<linked_residue_t>::iterator parent_node = it.node->parent;
+	 while (has_parent) {
+
+	    if (! this_one.node->parent) { 
+	       has_parent = false;
+	    } else {
+	       if (this_one.node->parent->data.residue_name == "BMA") {
+		  if (this_one->link_type == "ALPHA1-3")
+		     arm = residue_id_t::NON_PRIME;
+		  if (this_one->link_type == "ALPHA1-6")
+		     arm = residue_id_t::PRIME;
+	       }
+	       this_one = this_one.node->parent;
+	       level++;
+	    }
+	 }
+      }
+   }
+   return arm;
 }
 
 std::vector<mmdb::Residue *>
@@ -911,14 +1034,15 @@ coot::glyco_tree_t::residues(const tree<linked_residue_t> &glyco_tree) const {
 std::vector<mmdb::Residue *>
 coot::glyco_tree_t::residues(const coot::residue_spec_t &containing_res_spec) const {
 
-   // will this always find the right ASN? (consider in protien chain ASN next to ASN)
+   // will this always find the right ASN? (consider in protein chain ASN next to ASN)
    //
    std::vector<mmdb::Residue *> v;
    for (unsigned int ires=0; ires<linked_residues.size(); ires++) {
       mmdb::Residue *this_res = linked_residues[ires];
       std::string residue_name(this_res->name);
-      std::cout << "residues(): considering residue " << coot::residue_spec_t(this_res) << " "
-		<< residue_name << std::endl;
+      if (false)
+	 std::cout << "residues(): considering residue " << coot::residue_spec_t(this_res) << " "
+		   << residue_name << std::endl;
       if (residue_name == "ASN") {
 	 std::vector<mmdb::Residue *> res_store;
 	 tree<coot::linked_residue_t> tr = find_ASN_rooted_tree(this_res, linked_residues);
@@ -935,6 +1059,199 @@ coot::glyco_tree_t::residues(const coot::residue_spec_t &containing_res_spec) co
   return v;
 }
 
+// currently void until I discover what I want to return
+void
+coot::glyco_tree_t::internal_distances(double dist_lim, const std::string &file_name) const {
+   
+   for (unsigned int ires=0; ires<linked_residues.size(); ires++) { 
+      std::string residue_name(linked_residues[ires]->name);
+      if (residue_name == "ASN") {
+	 tree<coot::linked_residue_t> tr = find_ASN_rooted_tree(linked_residues[ires], linked_residues);
+	 if (tr.size() < 2) {
+	    std::cout << "WARNING:: No tree" << std::endl;
+	 } else {
+	    std::ofstream f(file_name.c_str());
+	    if (f) {
+	       std::vector<mmdb::Residue *> residues;
+	       std::cout << "DEBUG:: found tree with " << tr.size() << " nodes " << std::endl;
+	       tree<linked_residue_t>::iterator it, this_one;
+	       for (it=tr.begin(); it != tr.end(); it++)
+		  residues.push_back(it->residue);
+	       for (it=tr.begin(); it != tr.end(); it++) {
+		  unsigned int level = 0;
+		  this_one = it;
+		  bool has_parent = true;
+		  bool it_has_parent = true;
+		  tree<linked_residue_t>::iterator parent_node = it.node->parent;
+		  if (! it.node->parent)
+		     it_has_parent = false;
+		  while (has_parent) {
+		     if (! this_one.node->parent) { 
+			has_parent = false;
+		     } else {
+			this_one = this_one.node->parent;
+			level++;
+		     }
+		  }
+		  // std::cout << "debug:: level " << level << " " << *it << std::endl;
+		  f << "level " << level << " this "
+		    << it->residue->GetChainID() << " "
+		    << it->residue->GetSeqNum() << " "
+		    << it->residue->GetResName() << " "
+		    << it->link_type << " "
+		    << " from ";
+		  if (it_has_parent) {
+		     if (parent_node->residue) {
+			f << parent_node->residue->GetChainID() << " "
+			  << parent_node->residue->GetSeqNum() << " "
+			  << parent_node->residue->GetResName() << " ";
+		     } else {
+			f << "NULL";
+		     }
+		  } else {
+		     f << "NULL";
+		  }
+		  f << std::endl;
+		  // output_internal_distances(it->residue, residues, dist_lim, f);
+		  if (it_has_parent)
+		     output_internal_distances(it->residue, parent_node->residue, dist_lim, f);
+		  else
+		     output_internal_distances(it->residue, 0, dist_lim, f);
+	       }
+	    }
+	 }
+      }
+   }
+}
+
+// write non-bond-or-angle self distances and distances from self to parent
+//
+// parent can be null (e.g. residue_p is an ASN)
+void
+coot::glyco_tree_t::output_internal_distances(mmdb::Residue *residue_p,
+					      mmdb::Residue *parent_p,
+					      double dist_crit,
+					      std::ofstream &f) const {
+
+   double dist_min = 2.66; // A. Distances less than this are bonds or angles.
+                           // No need to consider extra restraints for these.
+                           //
+                           // That's true, but here is not the place to filter it
+                           // let's filter out bonds and angles when we know the
+                           // mean distance (from all such pairs)
+
+   bool include_hydrogen_atoms = false;
+
+   mmdb::Atom **residue_atoms = 0;
+   int n_residue_atoms;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+
+   // self distances
+   for (int iat=0; iat<n_residue_atoms; iat++) {
+      mmdb::Atom *at_i = residue_atoms[iat];
+      if (! at_i->isTer()) {
+	 std::string ele(at_i->element);
+	 if (include_hydrogen_atoms || (ele != " H")) { // PDBv3 FIXME and below
+	    clipper::Coord_orth pos_atom_i = co(at_i);
+	    // don't do forwards and backwards distances
+	    for (int jat=iat; jat<n_residue_atoms; jat++) {
+	       if (iat != jat) {
+		  mmdb::Atom *at_j = residue_atoms[jat];
+		  std::string ele(at_j->element);
+		  if (include_hydrogen_atoms || (ele != " H")) {
+		     if (! at_j->isTer()) {
+			clipper::Coord_orth pos_atom_j = co(at_j);
+			double d = clipper::Coord_orth::length(pos_atom_i, pos_atom_j);
+			if (d < dist_crit)
+			   if (d > 0) // dist_min
+			      f << " "
+				<< coot::atom_spec_t(at_i) << " "
+				<< coot::atom_spec_t(at_j) << " " << d << std::endl;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   // self-parent distances
+   if (parent_p) {
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+	 mmdb::Atom *at_i = residue_atoms[iat];
+	 if (! at_i->isTer()) {
+	    std::string ele(at_i->element);
+	    if (include_hydrogen_atoms || (ele != " H")) { // PDBv3 FIXME
+	       clipper::Coord_orth pos_atom_i = co(at_i);
+	       mmdb::Atom **parent_residue_atoms = 0;
+	       int n_parent_residue_atoms;
+	       parent_p->GetAtomTable(parent_residue_atoms, n_parent_residue_atoms);
+	       for (int jat=0; jat<n_parent_residue_atoms; jat++) {
+		  mmdb::Atom *at_j = parent_residue_atoms[jat];
+		  clipper::Coord_orth pos_atom_j = co(at_j);
+		  if (! at_j->isTer()) {
+		     std::string ele(at_j->element);
+		     if (include_hydrogen_atoms || (ele != " H")) { // PDBv3 FIXME
+			double d = clipper::Coord_orth::length(pos_atom_i, pos_atom_j);
+			if (! at_j->isTer()) {
+			   if (d < dist_crit)
+			      if (d > 0) // dist_min
+				 f << " "
+				   << coot::atom_spec_t(at_i) << " "
+				   << coot::atom_spec_t(at_j) << " " << d << std::endl;
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+}
+
+
+// Old.  residue to all-residue
+//
+void
+coot::glyco_tree_t::output_internal_distances(mmdb::Residue *residue_p,
+					      std::vector<mmdb::Residue *> residues,
+					      double dist_crit,
+					      std::ofstream &f) const {
+
+   double dist_min = 2.66; // A. Distances less than this are bonds or angles.
+                           // No need to consider extra restraints for these.
+   mmdb::Atom **central_residue_atoms = 0;
+   int n_central_residue_atoms;
+   residue_p->GetAtomTable(central_residue_atoms, n_central_residue_atoms);
+   for (unsigned int i=0; i<residues.size(); i++) {
+      if (residues[i] != residue_p) {
+	 mmdb::Atom **residue_atoms = 0;
+	 int n_residue_atoms;
+	 residues[i]->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (int iat=0; iat<n_residue_atoms; iat++) {
+	    mmdb::Atom *at = residue_atoms[iat];
+	    if (! at->isTer()) {
+	       clipper::Coord_orth pos_atom = co(at);
+	       for (int jat=0; jat<n_central_residue_atoms; jat++) {
+		  mmdb::Atom *at_c = central_residue_atoms[jat];
+		  if (at_c != at) {
+		     if (! at_c->isTer()) {
+			clipper::Coord_orth pos_central_atom = co(at_c);
+			double d = clipper::Coord_orth::length(pos_atom, pos_central_atom);
+			if (d < dist_crit)
+			   if (d > dist_min) 
+			      f << " "
+				<< coot::atom_spec_t(at) << " "
+				<< coot::atom_spec_t(at_c) << " " << d << std::endl;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   
+}
 
 void
 coot::glyco_tree_t::compare_vs_allowed_trees(const tree<linked_residue_t> &tr_for_testing) const {
@@ -966,6 +1283,13 @@ coot::glyco_tree_t::compare_vs_allowed_trees(const tree<linked_residue_t> &tr_fo
       std::cout << "This tree is not \"complex\"" << std::endl;
 
 }
+
+bool
+coot::glyco_tree_t::compare_trees(const tree<linked_residue_t> &tree_in) const {
+
+   return compare_trees(glyco_tree, tree_in);
+}
+
 
 bool
 coot::glyco_tree_t::compare_trees(const tree<linked_residue_t> &tr_for_testing,
@@ -1047,6 +1371,59 @@ coot::glyco_tree_t::compare_trees(const tree<linked_residue_t> &tr_for_testing,
    return success;
 }
 
+std::vector<std::pair<coot::residue_spec_t, coot::residue_spec_t> >
+coot::glyco_tree_t::matched_pairs(const tree<linked_residue_t> &t_in) const {
+
+   std::vector<std::pair<coot::residue_spec_t, coot::residue_spec_t> > pv;
+
+   tree<linked_residue_t> tree_1 = glyco_tree;
+   tree<linked_residue_t> tree_2 = t_in;
+
+   tree<linked_residue_t>::iterator it_leaf;
+   tree<linked_residue_t>::iterator it_ref;
+
+   // leaf iterators in the ref_tree that have already
+
+   // get a item in tr_for_testing
+   //    find a potential corresponding item in ref_tree
+   //      compare the parents of the item
+   //      if they are the same, add the pair
+   //
+
+   for (it_leaf=tree_2.begin(); it_leaf != tree_2.end(); it_leaf++) {
+      for (it_ref=tree_1.begin(); it_ref != tree_1.end(); it_ref++) {
+	 if (*it_leaf == *it_ref) { // test residue name and link type
+	    tree<linked_residue_t>::iterator it_p, it_p_ref;
+	    it_p = it_leaf;
+	    it_p_ref = it_ref;
+	    bool parents_match = true;
+	    while (parents_match && it_p.node->parent && it_p_ref.node->parent) {
+	       it_p = it_p.node->parent;
+	       it_p_ref = it_p_ref.node->parent;
+	       coot::residue_spec_t rs1(it_p->residue);
+	       coot::residue_spec_t rs2(it_p_ref->residue);
+	       if (*it_p == *it_p_ref) {
+		  // Good...
+	       } else {
+		  parents_match = false;
+		  break;
+	       }
+	    }
+
+	    if (parents_match) {
+	       coot::residue_spec_t rs1(it_ref->residue);
+	       coot::residue_spec_t rs2(it_leaf->residue);
+	       std::pair<coot::residue_spec_t, coot::residue_spec_t> pair(rs1, rs2);
+	       pv.push_back(pair);
+	    }
+	 }
+      }
+   }
+   std::reverse(pv.begin(), pv.end());
+   return pv;
+}
+
+
 tree<coot::linked_residue_t>
 coot::glyco_tree_t::oligomannose_tree() const {
 
@@ -1104,7 +1481,7 @@ coot::glyco_tree_t::hybrid_tree() const {
    linked_residue_t NAG_7_1("NAG", "BETA1-2");  // parent is MAN_6_1
    linked_residue_t GAL_7_2("GAL", "BETA1-4");  // parent is NAG_7_1
    linked_residue_t SIA_7_3("SIA", "ALPHA1-3"); // parent is GAL_7_2
-   linked_residue_t FUC_1  ("FUC", "BETA1-6");  // parent is NAG_1
+   linked_residue_t FUC_1  ("FUC", "ALPHA1-6");  // parent is NAG_1
    
    tree<linked_residue_t> t;
    tree<linked_residue_t>::iterator asn     = t.insert(t.begin(), ASN);
@@ -1131,8 +1508,8 @@ coot::glyco_tree_t::complex_tree() const {
 
    linked_residue_t ASN    ("ASN", "");
    linked_residue_t NAG_1  ("NAG", "NAG-ASN");  // parent is ASN
-   linked_residue_t FUC_1  ("FUC", "BETA1-6");  // parent is NAG_1
-   linked_residue_t FUC_2  ("FUC", "BETA1-3");  // parent is NAG_1
+   linked_residue_t FUC_1  ("FUC", "ALPHA1-6");  // parent is NAG_1
+   linked_residue_t FUC_2  ("FUC", "ALPHA1-3");  // parent is NAG_1
    linked_residue_t NAG_2  ("NAG", "BETA1-4");  // parent is NAG_1
    linked_residue_t MAN_3  ("BMA", "BETA1-4");  // parent is NAG_2
    linked_residue_t NAG_4  ("NAG", "BETA1-4");  // parent is MAN_3

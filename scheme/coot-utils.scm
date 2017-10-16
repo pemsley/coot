@@ -96,12 +96,13 @@
 	     (begin
 	       (add-status-bar-text "No residue found"))
 
-	     (let ((aa-imol      (list-ref active-atom 0))
-		   (aa-chain-id  (list-ref active-atom 1))
-		   (aa-res-no    (list-ref active-atom 2))
-		   (aa-ins-code  (list-ref active-atom 3))
-		   (aa-atom-name (list-ref active-atom 4))
-		   (aa-alt-conf  (list-ref active-atom 5)))
+	     (let* ((aa-imol      (list-ref active-atom 0))
+		    (aa-chain-id  (list-ref active-atom 1))
+		    (aa-res-no    (list-ref active-atom 2))
+		    (aa-ins-code  (list-ref active-atom 3))
+		    (aa-atom-name (list-ref active-atom 4))
+		    (aa-alt-conf  (list-ref active-atom 5))
+                    (aa-res-spec (list aa-chain-id aa-res-no aa-ins-code)))
 
 	       ,@funcs
 	       
@@ -195,7 +196,7 @@
 			 "refmac5"
 			 (list "XYZIN" out-file-name  ;; yes (coot out)
 			       "XYZOUT" in-file-name)
-			 (list "MAKE HOUT YES" "END")
+			 (list "MAKE HOUT YES" "NCYCLE 0" "END")
 			 "refmac-H-addition.log"
 			 #f)))
       (if (not (ok-goosh-status? goosh-status))
@@ -219,6 +220,9 @@
 ;      (display "Something was deleted"))
 ;; 
 (define post-manipulation-hook #f)
+
+;; do something based on the active residue (presumably)
+(define post-set-rotation-centre-hook #f)
 
 ;; Return a boolean
 ;; 

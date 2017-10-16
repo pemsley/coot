@@ -1114,13 +1114,13 @@ parse_ccp4i_defs(const std::string &filename) {
      return v;
    } 
 
-   std::ifstream cin(filename.c_str());
+   std::ifstream c_in(filename.c_str());
 
    // Let's also add ccp4_scratch to the list if the environment
    // variable is declared and if directory exists
    char *scratch = getenv("CCP4_SCR");
    if (scratch) {
-      struct stat buf;
+      // struct stat buf; no shadow
       // in Windows stat needs to have a last / or \ removed, if existent
 #ifdef WINDOWS_MINGW
       if (scratch[strlen(scratch) - 1] == '/') {
@@ -1139,7 +1139,7 @@ parse_ccp4i_defs(const std::string &filename) {
       }
    }
 
-   if (! cin) {
+   if (! c_in) {
       std::cout << "WARNING:: failed to open " << filename << std::endl;
    } else {
       // std::string s;
@@ -1153,8 +1153,8 @@ parse_ccp4i_defs(const std::string &filename) {
       short int path_coming = 0;
       short int alias_coming = 0;
       bool alias_flag = 0;
-      while (! cin.eof()) {
-	 cin >> s;
+      while (! c_in.eof()) {
+	 c_in >> s;
 	 std::string ss(s);
 	 // std::cout << "parsing:" << ss << std::endl;
 	 if (path_coming == 2) {
@@ -1242,8 +1242,8 @@ parse_ccp4i_defs(const std::string &filename) {
 		  // widget, we go into the directory, rather than being in the
 		  // directory above with the tail as the selected file.
 		  //
-		  struct stat buf;
-		  int status = stat(path_str.c_str(), &buf);
+		  struct stat buf_l;
+		  int status = stat(path_str.c_str(), &buf_l);
 	       
 		  // valgrind says that buf.st_mode is uninitialised here
 		  // strangely.  Perhaps we should first test for status?
@@ -1254,7 +1254,7 @@ parse_ccp4i_defs(const std::string &filename) {
 		  // std::cout << "stating "<< path_str << std::endl;
 
 		  if (status == 0) { 
-		     if (S_ISDIR(buf.st_mode)) {
+		     if (S_ISDIR(buf_l.st_mode)) {
 			path_str += "/";
 
 			if (alias_str == "\"\"") {

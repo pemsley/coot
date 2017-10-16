@@ -34,6 +34,9 @@ namespace coot {
    //
    RDKit::RWMol rdkit_mol_sanitized(mmdb::Residue *residue_p, int imol_enc,
 				    const protein_geometry &geom);
+
+   // sets properties _Name, ResName ResName ChainID alt_id
+   //
    RDKit::RWMol rdkit_mol(mmdb::Residue *residue_p, int imol_enc,
 			  const protein_geometry &geom);
 
@@ -164,12 +167,14 @@ namespace coot {
    // These work on the valence model of sulphate and phospates: i.e. those
    // that have single bonds and a double bond to their oxygens from the P/S.
    // 
-   void remove_phosphate_hydrogens(RDKit::RWMol *m, bool deloc_bonds); 
-   void remove_sulphate_hydrogens (RDKit::RWMol *m, bool deloc_bonds); 
+   int remove_phosphate_hydrogens(RDKit::RWMol *m, bool deloc_bonds); 
+   int remove_sulphate_hydrogens (RDKit::RWMol *m, bool deloc_bonds); 
    // which are wrappers for the non-user function
-   void remove_PO4_SO4_hydrogens(RDKit::RWMol *m, 
-                                 unsigned int atomic_num, 
-                                 bool deloc_bonds);
+   int remove_PO4_SO4_hydrogens(RDKit::RWMol *m, 
+				unsigned int atomic_num, 
+				bool deloc_bonds);
+
+   int remove_carboxylate_hydrogens(RDKit::RWMol *m, bool deloc_bonds); 
 
    // account for Ns with "too many" hydrogens by assigning deleting a
    // hydrogen.
@@ -193,7 +198,24 @@ namespace coot {
    //
    bool is_aromatic_ring(const std::vector<int> &ring_atom_indices,
 			 RDKit::ROMol &rdkm);
-   
+
+
+   // add "energy_type" properties to the atoms
+   void set_energy_lib_atom_types(RDKit::ROMol *mol);
+
+   // dicitionaries from CCDs don't have energy atom types. We need them for ligand
+   // environment analysis (flev).  It is presumed that mol has energy_type atom types
+   // (e.g. set from the above function). mol is not modified.
+   //
+   void set_dictionary_atom_types_from_mol(dictionary_residue_restraints_t *dictionary,
+					   const RDKit::ROMol *mol);
+
+   // make an rdkit molecule from dictionary and use the above function to the energy types
+   // why is this here and not in protein-geometry? (e.g. after having parsed a cif file
+   // check for the existance of atom types and if they are not there, add them)
+   // Currently protein-geometry doesn't know about the RDKit.  This is the lowest
+   // level of Coot that know about the RDKit.
+   void set_dictionary_atom_types(dictionary_residue_restraints_t *dictionary);
 
    // update the atom positions of the rdkit_molecule from residue_p
    // 
@@ -213,6 +235,9 @@ namespace coot {
    // 
    std::vector<RDKit::ROMol *> join_molecules(const RDKit::ROMol &mol, int atom_index,
 					      const RDKit::ROMol &trial_fragment);
+
+   // test calling with bad conf_id
+   mmdb::Residue *residue_from_rdkit_mol(const RDKit::ROMol &mol_in, int conf_id, const std::string &new_comp_id);
 }
 
 #endif // RDKIT_INTERFACE_HH

@@ -75,11 +75,11 @@ coot::trace::action() {
    bool do_trace_by_spin_pairs = true;
    minimol::molecule flood_mol = get_flood_molecule();
 
-   mmdb::Manager *mol = flood_mol.pcmmdbmanager();
+   mmdb::Manager *action_mol = flood_mol.pcmmdbmanager();
 
-   if (mol) { 
+   if (action_mol) {
       std::vector<std::pair<unsigned int, unsigned int> > apwd =
-	 atom_pairs_within_distance(mol, 3.81, 1.0);
+	 atom_pairs_within_distance(action_mol, 3.81, 1.0);
       std::vector<std::pair<unsigned int, scored_node_t> > scores = spin_score_pairs(apwd);
 
       // Now start from the best peptide and try to put coordinate there
@@ -1116,13 +1116,13 @@ coot::trace::print_interesting_trees() const {
 } 
 
 void
-coot::trace::optimize_weights(mmdb::Manager *mol) {
+coot::trace::optimize_weights(mmdb::Manager *mol_in) {
 
    using_test_model = true; // makes sense only when use use template pdb
                             // for atom seeding
    
    std::vector<std::pair<unsigned int, unsigned int> > apwd =
-      atom_pairs_within_distance(mol, 3.81, 1);
+      atom_pairs_within_distance(mol_in, 3.81, 1);
 
    double s[8], s_orig[8];
    s[0] = scale_CO;
@@ -1158,9 +1158,8 @@ coot::trace::optimize_weights(mmdb::Manager *mol) {
 	 
       set_scales(s);
 
-      std::vector<std::pair<unsigned int, scored_node_t> > scores =
-	 spin_score_pairs(apwd);
-      double ks = ks_test(scores);
+      std::vector<std::pair<unsigned int, scored_node_t> > spin_scores = spin_score_pairs(apwd);
+      double ks = ks_test(spin_scores);
 
       std::cout << "ks: " << ks << "  ";
       for (unsigned int i=0; i<8; i++) std::cout << " " << s[i];
@@ -1169,13 +1168,13 @@ coot::trace::optimize_weights(mmdb::Manager *mol) {
 }
 
 void
-coot::trace::test_model(mmdb::Manager *mol) {
+coot::trace::test_model(mmdb::Manager *mol_in) {
 
    using_test_model = true; // makes sense only when use use template pdb
                                         // for atom seeding
    
    std::vector<std::pair<unsigned int, unsigned int> > apwd =
-      atom_pairs_within_distance(mol, 3.81, 1);
+      atom_pairs_within_distance(mol_in, 3.81, 1);
 
    std::vector<std::pair<unsigned int, scored_node_t> > scores = spin_score_pairs(apwd);
 

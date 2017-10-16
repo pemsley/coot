@@ -2745,7 +2745,7 @@ on_cif_dictionary_fileselection_ok_button_clicked (GtkButton       *button,
   GtkWidget *checkbutton;
   GtkWidget *menu;
   int new_compid_idx;
-  int imol_enc = -3;		/* unset value */
+  int imol_enc = -999997;	/* unset value */
 
   fileselection = lookup_widget(GTK_WIDGET(button), "cif_dictionary_fileselection");
 
@@ -3341,6 +3341,20 @@ on_delete_item_sidechain_radiobutton_toggled
 
 
 }
+
+
+void
+on_delete_item_chain_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(togglebutton),
+				      "delete_item_chain_radiobutton"))->active)
+    set_delete_chain_mode();
+}
+
+
 
 
 void
@@ -10910,7 +10924,7 @@ on_cif_dictionary_filechooserdialog1_response(GtkDialog * dialog,
 
   int new_compid_idx;
   GtkWidget *checkbutton;
-  int imol_enc = -3;
+  int imol_enc = -999997;	/* unset */
   const char *filename;
   GtkWidget *fileselection;
   GtkWidget *dictionary_molecule_selector_option_menu;

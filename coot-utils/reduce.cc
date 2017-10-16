@@ -1,5 +1,6 @@
 
 #include <algorithm>
+#include <iomanip>
 #include <string.h>
 #include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
@@ -534,9 +535,36 @@ coot::reduce::add_hydrogen_atom(std::string atom_name, clipper::Coord_orth &pos,
    new_H->SetCoordinates(pos.x(), pos.y(), pos.z(), 1.0, bf);
    if (! altconf.empty())
       strncpy(new_H->altLoc, altconf.c_str(), 18); // 19 is mmdb limit, I think
+
+   // now test if the atom is there already.
+   //
+   // It it was, then modify the coords and if not, then add it as before
+
    int n_atoms = residue_p->GetNumberOfAtoms();
-   int idx = residue_p->AddAtom(new_H);
-   return new_H;
+   mmdb::Atom **residue_atoms = 0;
+   mmdb::Atom *at = 0;
+   bool already_exits = 0;
+   residue_p->GetAtomTable(residue_atoms, n_atoms);
+   for (int i=0; i<n_atoms; i++) {
+      std::string residue_atom_name = residue_atoms[i]->name;
+      std::string residue_atom_alt_conf  = residue_atoms[i]->altLoc;
+      if (residue_atom_name == atom_name) {
+	 if (residue_atom_alt_conf == altconf) {
+	    already_exits = true;
+	    at = residue_atoms[i];
+	    break;
+	 }
+      }
+   }
+
+   if (! already_exits) {
+      residue_p->AddAtom(new_H);
+      return new_H;
+   } else {
+      delete new_H;
+      at->SetCoordinates(pos.x(), pos.y(), pos.z(), 1.0, bf);
+      return at;
+   }
 }
 
 
@@ -700,11 +728,13 @@ coot::reduce::add_2_sp3_hydrogens(const std::string &H_at_name_1,
 	 }
       } else {
 	 if (!alt_confs[i].empty()) {
-	    std::cout << "Residue " << residue_spec_t(residue_p) << " " << residue_p->GetResName()
-		      << " alt-conf \"" << alt_confs[i] << "\"" << std::endl;
-	    std::cout << "Fail to add " << H_at_name_1 << " " << H_at_name_2 << " at_1: " << at_1 << std::endl;
-	    std::cout << "            " << H_at_name_1 << " " << H_at_name_2 << " at_2: " << at_2 << std::endl;
-	    std::cout << "            " << H_at_name_1 << " " << H_at_name_2 << " at_3: " << at_3 << std::endl;
+            if (verbose_output) {
+	       std::cout << "Residue " << residue_spec_t(residue_p) << " " << residue_p->GetResName()
+		         << " alt-conf \"" << alt_confs[i] << "\"" << std::endl;
+	       std::cout << "Fail to add " << H_at_name_1 << " " << H_at_name_2 << " at_1: " << at_1 << std::endl;
+	       std::cout << "            " << H_at_name_1 << " " << H_at_name_2 << " at_2: " << at_2 << std::endl;
+	       std::cout << "            " << H_at_name_1 << " " << H_at_name_2 << " at_3: " << at_3 << std::endl;
+            }
 	 }
       }
    }
@@ -895,7 +925,7 @@ coot::reduce::add_guanidinium_hydrogens(mmdb::Residue *residue_p) {
       } else {
 	 std::cout << "Fail Residue " << residue_spec_t(residue_p) << " " << residue_p->GetResName()
 		   << " alt-conf \"" << alt_confs[i] << "\""
-		   << " failed in add_aromatic_hydrogen " << std::endl;
+		   << " failed in add_guanidinium_hydrogens " << std::endl;
 	 std::cout << "Fail to add guanidinium-H " << " CD " << " at_1: " << at_n_1 << std::endl;
 	 std::cout << "                          " << " NE " << " at_2: " << at_n_2 << std::endl;
 	 std::cout << "                          " << " CZ " << " at_3: " << at_n_3 << std::endl;
@@ -1140,8 +1170,11 @@ coot::reduce::find_best_his_protonation_orientation(mmdb::Residue *residue_p) {
  	 atom_overlaps_container_t ao_2(residue_p, neighbs, mol, geom_p, 0.5);
  	 atom_overlaps_dots_container_t aod_2 = ao_2.contact_dots_for_ligand();
  	 double s2 = aod_2.score();
- 	 std::cout << "scores: " << residue_spec_t(residue_p) << " " << s1 << " " << s2
- 		   << std::endl;
+ 	 std::cout << "DEBUG:: HIS protonation scores: " << residue_spec_t(residue_p)
+		   << " NE2: "
+		   << std::right << std::setprecision(1) << std::fixed << s1
+		   << " vs ND1: "
+		   << std::right << std::setprecision(1) << std::fixed << s2 << std::endl;
 	 if (v.size() > 0) { // sanity check
 	    if (s1 > s2) {
 	       // delete HD1
@@ -1490,7 +1523,9 @@ coot::reduce::place_hydrogen_by_connected_atom_energy_type(const std::string &en
    }
 
    if (v.empty()) {
-      std::cout << "FAIL: ------------------------------ " << first_neighb << " "
+      std::cout << "FAIL: -------- place_hydrogen_by_connected_atom_energy_type()"
+		<< " H_at_name \"" << H_at_name << "\" neighb: \""
+		<< first_neighb << "\" energy_type "
 		<< energy_type << " for comp_id " << rest.residue_info.comp_id
 		<< std::endl;
    }

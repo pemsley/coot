@@ -141,7 +141,7 @@ void do_add_terminal_residue(short int state) {
 }
 
 void 
-set_add_terminal_residue_n_phi_psi_trials(int n) { 
+set_add_terminal_residue_n_phi_psi_trials(int n) {
    graphics_info_t g;
    g.add_terminal_residue_n_phi_psi_trials = n;
    std::vector<std::string> command_strings;
@@ -159,7 +159,7 @@ set_add_terminal_residue_add_other_residue_flag(int i) {
    add_to_history(command_strings);
 }
 
-void set_terminal_residue_do_rigid_body_refine(short int v) { 
+void set_add_terminal_residue_do_rigid_body_refine(short int v) { 
 
    graphics_info_t g;
    g.terminal_residue_do_rigid_body_refine = v;
@@ -168,6 +168,13 @@ void set_terminal_residue_do_rigid_body_refine(short int v) {
    command_strings.push_back(graphics_info_t::int_to_string(v));
    add_to_history(command_strings);
 
+}
+
+// deprecate this at some stage (its 201709025) now that we have the canonically
+// named function above.
+//
+void set_terminal_residue_do_rigid_body_refine(short int v) { 
+   set_add_terminal_residue_do_rigid_body_refine(v);
 }
 
 void set_add_terminal_residue_do_post_refine(short int istat) {
@@ -218,18 +225,16 @@ int add_terminal_residue(int imol,
 	 // molecule_class_info_t class.
 	 //
 
-	 graphics_info_t g;
 	 int atom_indx = atom_index(imol, chain_id, residue_number, " CA ");
 	 if (atom_indx >= 0) {
 	    std::string term_type = g.molecules[imol].get_term_type(atom_indx);
 	    std::string inscode = "";
 	    mmdb::Residue *res_p =
-	       g.molecules[imol].residue_from_external(residue_number, inscode,
-						       std::string(chain_id));
+	       g.molecules[imol].get_residue(chain_id, residue_number, inscode);
 
-	    
-	    g.execute_add_terminal_residue(imol, term_type, res_p, chain_id,
-					   residue_type_string, immediate_add);
+	    if (res_p)
+	       g.execute_add_terminal_residue(imol, term_type, res_p, chain_id,
+					      residue_type_string, immediate_add);
 	    
 	    istate = 1;
 	 } else {

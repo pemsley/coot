@@ -25,15 +25,36 @@ namespace coot {
    // ------------ molecule probability scoring ------------
    class rama_score_t {
    public:
+      class scored_phi_psi_t {
+      public:
+	 residue_spec_t res_spec;
+	 double score;
+	 util::phi_psi_with_residues_t phi_psi;
+	 mmdb::Residue *residue_prev;
+	 mmdb::Residue *residue_this;
+	 mmdb::Residue *residue_next;
+	 scored_phi_psi_t(const residue_spec_t &rs, const double &s, const util::phi_psi_with_residues_t &pp) : res_spec(rs), score(s), phi_psi(pp) {
+	    residue_prev = 0;
+	    residue_this = 0;
+	    residue_next = 0;
+	 }
+	 void set_residues(const util::phi_psi_with_residues_t &pp) {
+	    residue_prev = pp.residue_prev;
+	    residue_this = pp.residue_this;
+	    residue_next = pp.residue_next;
+	 }
+      };
+   public:
       rama_score_t() {
 	 score = 0.0;
 	 score_non_sec_str = 0.0;
 	 n_zeros = 0;
       }
       // for all residues
-      std::vector<std::pair<residue_spec_t, double> >  scores;
+      // std::vector<std::pair<residue_spec_t, double> >  scores; // old
+      std::vector<scored_phi_psi_t> scores;
       // for non-Secondary structure residues
-      std::vector<std::pair<residue_spec_t, double> >  scores_non_sec_str;
+      std::vector<scored_phi_psi_t>  scores_non_sec_str;
       double score;
       double score_non_sec_str;
       int n_residues() const { return scores.size(); }

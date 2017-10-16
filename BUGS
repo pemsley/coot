@@ -1,4 +1,16 @@
 
+19/05/17
+
+Tryin gto invert a chiral centre I get:
+
+WARNING:: No symmetry available for this molecule
+WARNING:: No Symmetry for this model
+
+Maybe just me....
+
+-----
+
+
 Reading Non-CCP4 maps cause a crash.
 
 Refining, Regularizing and Geometry validation with insertion codes

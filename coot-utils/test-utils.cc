@@ -435,6 +435,48 @@ int test_all_atom_overlaps() {
    return status;
 }
 
+// #include "cp.hh"
+
+int test_cp() {
+   mmdb::Manager *mol = new mmdb::Manager;
+   std::string file_name = "MAN.pdb";
+   mol->ReadCoorFile(file_name.c_str());
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (! model_p) {
+      std::cout << "Null model" << std::endl;
+   } else {
+      mmdb::Chain *chain_p;
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 if (! chain_p) {
+	    std::cout << "Null chain" << std::endl;
+	 } else {
+	    int nres = chain_p->GetNumberOfResidues();
+	    mmdb::Residue *residue_p;
+	    mmdb::Atom *at;
+	    for (int ires=0; ires<nres; ires++) {
+	       residue_p = chain_p->GetResidue(ires);
+	       if (! residue_p) {
+		  std::cout << "Null residue" << std::endl;
+	       } else {
+		  /*
+		  coot::cp_t cp;
+		  double a = cp.amplitude(residue_p);
+		  std::vector<double> t(6);
+		  t[0] = -62.576; t[1] =  38.474; t[2] =  16.080;
+		  t[3] = -56.662; t[4] =  32.146; t[5] =  28.071;
+		  // cp.amplitude(t);
+		  */
+	       }
+	    }
+	 }
+      }
+   }
+   return 1;
+}
+
 #include "reduce.hh"
 
 int test_reduce() {
@@ -459,13 +501,13 @@ int main(int argv, char **argc) {
    if (0)
       test_string_manipulation();
 
-   if (0) 
+   if (0)
       test_sort_chains();
 
-   if (0) 
+   if (0)
       test_euler_angles();
 
-   if (0) 
+   if (0)
       test_lsq_improve();
 
    if (0)
@@ -483,14 +525,16 @@ int main(int argv, char **argc) {
    if (0)
       test_atom_overlaps();
 
-   
-   if (1)
+   if (0)
       for (unsigned int i=0; i<2; i++) {
 	 test_all_atom_overlaps();
       }
    
    if (0)
       test_reduce();
+
+//    if (true)
+//       test_cp();
    
    return 0;
 }

@@ -520,7 +520,7 @@ coot::restraints_container_t::make_link_restraints(const coot::protein_geometry 
 						   bool do_trans_peptide_restraints) {
 
    if (from_residue_vector) {
-      // coot::bonded_pair_container_t bonded_pair_container;
+      // coot::bonded_pair_container_t bonded_pairs_container;
       bonded_pairs_container = make_link_restraints_from_res_vec(geom,
 								 do_rama_plot_restraints,
 								 do_trans_peptide_restraints);      
@@ -1301,13 +1301,14 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 						 short int is_fixed_second_res,
 						 const coot::protein_geometry &geom) {
 
-   if (false) 
+   bool debug = false;
+   if (debug)
       std::cout << "DEBUG:: add_link_plane() ::::::::  for type " << link_type << " "
 		<< first->GetChainID() << " " << first->GetSeqNum()
 		<< " :" << first->GetInsCode() << ":"
 		<< " -> " << second->GetChainID() << " " << second->GetSeqNum()
 		<< " :" << second->GetInsCode() << ":" << std::endl;
-   
+
    int n_plane = 0;
 
    mmdb::PPAtom first_sel = 0;
@@ -1349,13 +1350,11 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 	 atom_indices_map[alt_loc] = v;
       }
    }
-   
-   
 
    for (int i=0; i<geom.link_size(); i++) {
       if (geom.link(i).link_id == link_type) { // typically "TRANS"
 	 for (unsigned int ip=0; ip<geom.link(i).link_plane_restraint.size(); ip++) {
-	    std::vector<bool> fixed_flag(geom.link(i).link_plane_restraint[ip].n_atoms(), 0);
+	    std::vector<bool> fixed_flags(geom.link(i).link_plane_restraint[ip].n_atoms(), false);
 
 	    std::map<std::string, std::vector<int> >::iterator it;
 	    for (it = atom_indices_map.begin(); it != atom_indices_map.end(); it++)
@@ -1367,18 +1366,18 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 		  link_res_n_atoms = n_first_res_atoms;
 		  atom_sel = first_sel;
 		  res = first;
-		  fixed_flag[irest_at] = is_fixed_first_res;
+		  fixed_flags[irest_at] = is_fixed_first_res;
 	       } else {
 		  // std::cout << "comp_id: 2 " << std::endl;
 		  link_res_n_atoms = n_second_res_atoms;
 		  atom_sel = second_sel;
 		  res = second; 
-		  fixed_flag[irest_at] = is_fixed_second_res;
+		  fixed_flags[irest_at] = is_fixed_second_res;
 	       }
 	       for (int iat=0; iat<link_res_n_atoms; iat++) { 
 		  std::string pdb_atom_name(atom_sel[iat]->name);
 		  if (geom.link(i).link_plane_restraint[ip].atom_id(irest_at) == pdb_atom_name) {
-		     if (0)
+		     if (debug)
 			std::cout << "     pushing back to :" << atom_sel[iat]->altLoc << ": vector "
 				  << res->GetChainID() << " "
 				  << res->seqNum << " :"
@@ -1399,7 +1398,7 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 	       
 	       if (it->second.size() > 3) {
 		  
-		  if (false) {  // debugging.
+		  if (debug) {
 		     std::cout << "DEBUG:: add_link_plane() atom indices: for plane restraint for"
 			       << " atoms with alt-conf \"" << it->first << "\"" << std::endl;
 		     for (unsigned int indx=0; indx<it->second.size(); indx++) {
@@ -1418,9 +1417,15 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 		  }
 		  
 		  std::vector<bool> other_fixed_flags = make_fixed_flags(it->second);
-		  for (int ii=0; ii<2; ii++)
+
+		  if (debug) { // debug
+		     for (unsigned int ii=0; ii<other_fixed_flags.size(); ii++) {
+			std::cout << "other fixed flags " << other_fixed_flags[ii] << std::endl;
+		     }
+		  }
+		  for (unsigned int ii=0; ii<other_fixed_flags.size(); ii++)
 		     if (other_fixed_flags[ii])
-			fixed_flag[ii] = 1;
+			fixed_flags[ii] = true;
 
 		  // geom.link(i).link_plane_restraint[ip].dist_esd()
 
@@ -1429,8 +1434,8 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 		     double sigma_esd = geom.link(i).link_plane_restraint[ip].dist_esd();
 		     pos_sigma.push_back(std::pair<int, double> (it->second[ii], sigma_esd));
 		  }
-		  
-		  add_plane(pos_sigma, fixed_flag);
+
+		  add_plane(pos_sigma, fixed_flags);
 		  n_plane++;
 	       }
 	    }

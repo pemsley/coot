@@ -214,14 +214,16 @@ namespace coot {
 				TORSIONS = 4,
 				NON_BONDED = 16,
 				CHIRAL_VOLUMES = 32,
-				// PLANES_ANC = 8, // planes on their own are not used.
-				//                    PLANES is defined by wretched windows
-				//                    ANC: avoid name conflict
+				PLANES_ANC = 8, // planes on their own are not used.
+				//                 PLANES is defined by wretched windows
+				//                 ANC: avoid name conflict
 				RAMA = 64,
+				TRANS_PEPTIDE_RESTRAINTS=1024,
 				BONDS_ANGLES_AND_TORSIONS = 7,
 				BONDS_ANGLES_TORSIONS_AND_PLANES = 15,
 				BONDS_AND_PLANES = 9,
 				BONDS_ANGLES_AND_PLANES = 11, // no torsions
+				BONDS_ANGLES_AND_CHIRALS = 35, // no torsions
 				BONDS_AND_NON_BONDED = 17,
 				BONDS_ANGLES_AND_NON_BONDED = 19,
 				BONDS_ANGLES_TORSIONS_AND_NON_BONDED = 23,
@@ -231,6 +233,8 @@ namespace coot {
 				BONDS_ANGLES_TORSIONS_PLANES_AND_CHIRALS = 47,
 				BONDS_ANGLES_PLANES_AND_CHIRALS = 43,
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS = 63,
+				BONDS_ANGLES_TORSIONS_NON_BONDED_AND_CHIRALS = 55,
+				BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS = 55+1024,
 				
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA = 127,
 				
@@ -244,6 +248,7 @@ namespace coot {
 				// typical restraints add trans-peptide restraints
 				TYPICAL_RESTRAINTS               = 1+2+  8+16+32+128+256+512+1024,
 				TYPICAL_RESTRAINTS_WITH_TORSIONS = 1+2+4+8+16+32+128+256+512+1024,
+				TYPICAL_NO_PLANES = 1+2+4 +16+32+128+256+512+1024,
 				ALL_RESTRAINTS = 1+2+4+8+16+32+64+128+256+512+1024
    };
 
@@ -906,7 +911,7 @@ namespace coot {
       mmdb::PPResidue SelResidue_active;
       int nSelResidues_active;
 
-      void init() {
+      void init(bool unset_deriv_locks) {
       	 verbose_geometry_reporting = NORMAL;
 	 n_atoms = 0;
 	 mol = 0;
@@ -919,6 +924,8 @@ namespace coot {
 	 from_residue_vector = 0;
 #ifdef HAVE_CXX_THREAD
 	 thread_pool_p = 0; // null pointer
+	 if (unset_deriv_locks)
+	    gsl_vector_atom_pos_deriv_locks = 0;
 #endif // HAVE_CXX_THREAD
       }
 
@@ -1012,8 +1019,8 @@ namespace coot {
 
       // internal function, most of the job of the constructor:
       void init_from_mol(int istart_res_in, int iend_res_in,
-			 short int have_flanking_residue_at_start,
-			 short int have_flanking_residue_at_end,
+			 bool have_flanking_residue_at_start,
+			 bool have_flanking_residue_at_end,
 			 short int have_disulfide_residues,
 			 const std::string &altloc,
 			 const std::string &chain_id,
@@ -1031,6 +1038,12 @@ namespace coot {
       // neighbour residues already are fixed.
       void add_fixed_atoms_from_flanking_residues(const bonded_pair_container_t &bpc);
 
+      // 20171012 - to help with debugging gradients, we want to know what the fixed
+      // atoms are in the atom list when we have a linear residue selection. So
+      // set them with the function - called from init_from_mol().
+      void add_fixed_atoms_from_flanking_residues(bool have_flanking_residue_at_start,
+						  bool have_flanking_residue_at_end,
+						  int iselection_start_res, int iselection_end_res);
    
       // 
       clipper::Xmap<float> map; 
@@ -1607,7 +1620,7 @@ namespace coot {
 //       }
 
       restraints_container_t(atom_selection_container_t asc_in) {
-	 init();
+	 init(true); // initially locks pointer should be null
 	 n_atoms = asc_in.n_selected_atoms; 
 	 mol = asc_in.mol;
 	 n_atoms = asc_in.n_selected_atoms;
@@ -1630,8 +1643,8 @@ namespace coot {
       // Interface used by Regularize button callback:
       // 
       restraints_container_t(int istart_res, int iend_res,
-			     short int have_flanking_residue_at_start,
-			     short int have_flanking_residue_at_end,
+			     bool have_flanking_residue_at_start,
+			     bool have_flanking_residue_at_end,
 			     short int have_disulfide_residues,
 			     const std::string &altloc,
 			     const std::string &chain_id,
@@ -1713,6 +1726,9 @@ namespace coot {
       restraints_container_t(){
 	 from_residue_vector = 0;
 	 include_map_terms_flag = 0;
+#ifdef HAVE_CXX_THREAD
+	 gsl_vector_atom_pos_deriv_locks = 0;
+#endif
       };
 
       ~restraints_container_t() {
@@ -1794,15 +1810,27 @@ namespace coot {
 	 map_weight = mw;
       }
 
-      void setup_multimin_func() { 
+      void setup_multimin_func() {
 
 	 multimin_func.f   = &distortion_score; 
 	 multimin_func.df  = &my_df; 
 	 multimin_func.fdf = &my_fdf; 
 	 multimin_func.n = n_variables(); 
 	 multimin_func.params = (double *) this; 
-      } 
+      }
 
+#ifdef HAVE_CXX_THREAD
+      // we can't have a vector of atomic (unsigned int)s for
+      // reasons of deleted copy/delete constructors that I don't follow.
+      //
+      // std::vector<std::atomic<unsigned int> > gsl_vector_atom_pos_deriv_locks;
+      //
+      // Do it with pointers (haha) - is this what the designers of C++ atomics
+      // has in mind?
+      //
+      std::shared_ptr<std::atomic<unsigned int> > gsl_vector_atom_pos_deriv_locks;
+#endif
+      void setup_gsl_vector_atom_pos_deriv_locks();
       int n_variables() { 
 	 // return 3 * the number of atoms
 	 return 3*n_atoms; 
@@ -1959,8 +1987,12 @@ namespace coot {
       std::pair<unsigned int, unsigned int> restraints_limits_torsions;
       std::pair<unsigned int, unsigned int> restraints_limits_chirals;
       std::pair<unsigned int, unsigned int> restraints_limits_planes;
+      std::pair<unsigned int, unsigned int> restraints_limits_parallel_planes;
       std::pair<unsigned int, unsigned int> restraints_limits_non_bonded_contacts;
       std::pair<unsigned int, unsigned int> restraints_limits_geman_mclure;
+      std::pair<unsigned int, unsigned int> restraints_limits_start_pos;
+
+      void set_geman_mcclure_alpha(double alpha_in) { geman_mcclure_alpha = alpha_in; }
 
 #ifdef HAVE_CXX_THREAD
       // thread pool!
@@ -1984,7 +2016,7 @@ namespace coot {
 
       void clear() {
 	 restraints_vec.clear();
-	 init();
+	 init(false);
       }
 
    }; 

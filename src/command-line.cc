@@ -261,6 +261,40 @@ parse_command_line(int argc, char ** argv ) {
 			if (arg_str == "version-full") {
 			   std::cout  << VERSION << " " << coot_version_extra_info() << std::endl;
 			   std::cout << "Binary type: " << COOT_SYS_BUILD_TYPE << std::endl;
+			   std::vector<std::string> enableds;
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+			   enableds.push_back("Enhanced-ligand-tools");
+#endif
+#ifdef HAVE_CXX11
+			   enableds.push_back("C++-11");
+#endif
+#ifdef HAVE_CXX_THREAD
+			   enableds.push_back("Threads");
+#endif
+#ifdef USE_MOLECULES_TO_TRIANGLES
+			   enableds.push_back("Molecular-triangles");
+#endif
+#ifdef HAVE_GOOCANVAS
+			   enableds.push_back("Goocanvas");
+#endif
+#ifdef HAVE_GSL
+			   enableds.push_back("GSL");
+#endif
+#ifdef USE_SQLITE3
+			   enableds.push_back("SQLite3");
+#endif
+#ifdef HAVE_CCP4SRS
+			   enableds.push_back("CCP4SRS");
+#endif
+#ifdef USE_LIBCURL
+			   enableds.push_back("LibCurl");
+#endif
+			   if (enableds.size()) {
+			      std::cout << "Enabled: ";
+			      for (unsigned int i=0; i<enableds.size(); i++)
+				 std::cout << enableds[i] << " ";
+			      std::cout << std::endl;
+			   }
 			   std::string s = COOT_BUILD_INFO_STRING;
 			   if (s.length())
 			      std::cout << "Builder_info: " << s << std::endl;

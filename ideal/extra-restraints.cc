@@ -173,9 +173,13 @@ coot::restraints_container_t::add_extra_restraints(int imol,
 						   const protein_geometry &geom) {
 
 
-   if (0) { 
+   if (false) {
+      std::cout << "--------------------- in add_extra_restraints() restraints_vec size() "
+		<< restraints_vec.size() << " extra bond restraints "
+		<< std::endl;
       std::cout << "--------------------- in add_extra_restraints() bond "
-		<< extra_restraints.bond_restraints.size() << " pp restraints " << std::endl;
+		<< extra_restraints.bond_restraints.size() << " extra bond restraints "
+		<< std::endl;
       std::cout << "--------------------- in add_extra_restraints() par-plan "
 		<< extra_restraints.parallel_plane_restraints.size() << " pp restraints "
 		<< std::endl;
@@ -186,6 +190,7 @@ coot::restraints_container_t::add_extra_restraints(int imol,
    add_extra_torsion_restraints(extra_restraints);
    add_extra_start_pos_restraints(extra_restraints);
    add_extra_parallel_plane_restraints(imol, extra_restraints, geom);
+   make_restraint_types_index_limits();
 }
 
 void
@@ -297,8 +302,10 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
 			 1.2 /* dummy value */);
                   
 		  //mark these atoms as bonded so that we don't add a non-bonded restraint between them
-		  bonded_atom_indices[index_1].push_back(index_2);
-		  bonded_atom_indices[index_2].push_back(index_1);
+		  // 20170423 - but we *do* want NBC between these atoms...
+		  //          otherwise we get horrid crunching.
+		  // bonded_atom_indices[index_1].push_back(index_2);
+		  // bonded_atom_indices[index_2].push_back(index_1);
 	       }
 	    } 
 	 } 

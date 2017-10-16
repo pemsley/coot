@@ -23,6 +23,7 @@
 
 #include <string.h>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <map>
 #include <algorithm>  // needed for sort? Yes.
@@ -203,7 +204,7 @@ coot::protein_geometry::filter_chiral_centres(int imol, const std::vector<std::s
    for (unsigned int ichir=0; ichir<comp_ids_for_filtering.size(); ichir++) {
       bool minimal = false;
       int idx = get_monomer_restraints_index(comp_ids_for_filtering[ichir], imol, minimal);
-      if (idx != -1) { 
+      if (idx != -1) {
 	 const coot::dictionary_residue_restraints_t &restraints =
 	    dict_res_restraints[idx].second;
 	 std::vector<coot::dict_chiral_restraint_t> new_chirals =
@@ -211,7 +212,7 @@ coot::protein_geometry::filter_chiral_centres(int imol, const std::vector<std::s
 	 dict_res_restraints[idx].second.chiral_restraint = new_chirals;
       }
    }
-} 
+}
 
 // Return a filtered list, that is don't include chiral centers that
 // are connected to more than one hydrogen.
@@ -362,7 +363,8 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
       // also fill atom_info with dict_atom objects
       for (int iat=0; iat<nResidueAtoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
-	 dict_atom da(at->name, at->name, "", "", std::pair<bool, float> (false, 0));
+	 std::string ele(residue_atoms[iat]->element);
+	 dict_atom da(at->name, at->name, ele, "", std::pair<bool, float> (false, 0));
 	 atom_info.push_back(da);
       }
 
@@ -810,11 +812,14 @@ coot::dictionary_residue_restraints_t::get_non_const_torsions(bool include_hydro
 }
 
 bool
-coot::dict_torsion_restraint_t::is_pyranose_ring_torsion() const {
+coot::dict_torsion_restraint_t::is_pyranose_ring_torsion(const std::string &comp_id) const {
 
    // Needs fixup for PDBv3
    bool status = false;
    std::string ring_atoms[6] = { " C1 ", " C2 ", " C3 ", " C4 ", " C5 ", " O5 " };
+   if (comp_id == "XYP")
+      for (unsigned int i=0; i<6; i++)
+	 ring_atoms[i][3] = 'B'; // danger on PDBv3 fixup.
 
    int n_matches = 0;
    for (unsigned int i=0; i<6; i++) { 
@@ -1234,8 +1239,16 @@ coot::operator<<(std::ostream &s, const dict_atom &at) {
    s << "dict_atom: "
      << "atom_id :" << at.atom_id << ":  "
      << "atom-id-4c :" << at.atom_id_4c << ":  "
-     << "type-symbol :" << at.type_symbol << ":  "
-     << "model-pos " << at.model_Cartn.first << " ";
+     << "type-symbol :" << at.type_symbol << ":  ";
+   if (at.formal_charge.first)
+      s << "formal-charge " << at.formal_charge.second << " ";
+   else 
+      s << "no-formal-charge ";
+   if (at.partial_charge.first)
+      s << "partial-charge " << at.partial_charge.second << " ";
+   else 
+      s << "no-partial-charge ";
+   s << "model-pos " << at.model_Cartn.first << " ";
    if (at.model_Cartn.first)
       s << at.model_Cartn.second.format() << " ";
    s << "ideal-pos " << at.pdbx_model_Cartn_ideal.first << " ";
@@ -1251,7 +1264,7 @@ coot::operator<<(std::ostream &s, const dict_bond_restraint_t &rest) {
    s << "[bond-restraint: " 
      << rest.atom_id_1_4c() << " "
      << rest.atom_id_2_4c() << " "
-     << rest.type() << " " << rest.value_dist() << " " << rest.value_esd()
+     << rest.type() << " " << std::setw(7) << rest.value_dist() << " " << rest.value_esd()
      <<  "]";
    return s;
 }
@@ -1459,6 +1472,10 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
    if (local_group_2 == "M-peptide")  local_group_2 = "peptide";
    if (local_group_1 == "D-pyranose") local_group_1 = "pyranose";
    if (local_group_2 == "D-pyranose") local_group_2 = "pyranose";
+   if (local_group_1 == "D-SACCHARIDE") local_group_1 = "pyranose";  // CCD annotation for MAN, etc
+   if (local_group_1 == "SACCHARIDE") local_group_1 = "pyranose";    // CCD annotation for FUC
+   if (local_group_2 == "D-SACCHARIDE") local_group_2 = "pyranose";
+   if (local_group_2 == "SACCHARIDE") local_group_2 = "pyranose";
    
    if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == local_group_1)) &&
        ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == local_group_2)))
@@ -1538,8 +1555,14 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 
    // Fixup needed for PDBv3
 
-   double critical_dist = 3.0; // A, less than that and Coot should
+   bool debug = false;
+   double critical_dist = 2.4; // A, less than that and Coot should
 			       // try to make the bond.
+                               // 20170505: changed to 2.4, was 3.0.
+                               // Needed to stop the beta1-6 linked MAN
+                               // on a BMA linkinking to the NAG to which
+                               // the BMA is bonded (A605-602 in 3whe).
+                              
    mmdb::PPAtom res_selection_1 = NULL;
    mmdb::PPAtom res_selection_2 = NULL;
    int i_no_res_atoms_1;
@@ -1574,8 +1597,9 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
    // of the residues involved: the "residue 1" should have the O4 and
    // the "residue 2" (+1 residue number) should have the C1.
    // 
-   if (false) { 
-      std::cout << "DEBUG:: number of sorted distances in glycosidic_linkage: "
+   if (debug) {
+      std::cout << "DEBUG:: find_glycosidic_linkage_type() "
+		<< "number of sorted distances: "
 		<< close.size() << std::endl;
       for (unsigned int i=0; i<close.size(); i++) {
 	 std::cout << "#### glyco close: " << close[i].distance << "  "
@@ -1640,7 +1664,7 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 		  }
 	       }
       
-	       
+
 	 // This should never happen :-)
 	 // There are no biosynthetic pathways to make an BETA2-3 link for a SIA.
 	 // (SIA BETA2-3 would be axial if it existed)
@@ -2378,6 +2402,7 @@ coot::protein_geometry::standard_protein_monomer_files() const {
    s.push_back("s/SO4.cif");
    s.push_back("g/GOL.cif");
    s.push_back("c/CIT.cif");
+   s.push_back("e/EDO.cif");
    // s.push_back("e/ETH.cif");
 
    // s.push_back("a/AR.cif"); // argon
@@ -2403,6 +2428,7 @@ coot::protein_geometry::standard_protein_monomer_files() const {
    s.push_back("d/DT.cif");
    
    s.push_back("h/HOH.cif");
+   s.push_back("n/NA.cif"); // for quiet
 
    return s;
 }
@@ -2419,14 +2445,17 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    int ndict = dict_res_restraints.size();
    read_number = read_number_in;
 
-   int idr = get_monomer_restraints_index(monomer_type, imol_enc, false);
+   // ---------------- FIXME ----------------------------------------------------
+   // ---------------- FIXME ----------------------------------------------------
+   // ---------------- FIXME ----------------------------------------------------
+   int idr = get_monomer_restraints_index(monomer_type, imol_enc, true);
    if (idr >= 0) {
       ifound = true;
    }
 
    // check synonyms before checking three-letter-codes
    
-   if (! ifound) { 
+   if (! ifound) {
       // OK, that failed to, perhaps there is a synonym?
       for (unsigned int i=0; i<residue_name_synonyms.size(); i++) { 
 	 if (residue_name_synonyms[i].comp_alternative_id == monomer_type) {
@@ -2832,7 +2861,7 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
 	    break;
       }
    }
-   
+
    if (!r.first) {
       for (unsigned int i=0; i<nrest; i++) {
 	 if (dict_res_restraints[i].second.residue_info.three_letter_code == monomer_type) {
@@ -2863,9 +2892,10 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
 	 std::cout << "in get_monomer_restraints_index() comparing \""
 		   << dict_res_restraints[i].second.residue_info.comp_id << "\" vs \"" << monomer_type
 		   << "\" and " << dict_res_restraints[i].first << " " <<  imol_enc
-		   << std::endl;
+		   << " with allow_minimal_flag " << allow_minimal_flag << std::endl;
       if (dict_res_restraints[i].second.residue_info.comp_id == monomer_type) {
-	 if (dict_res_restraints[i].first == imol_enc) {
+	 if (matches_imol(dict_res_restraints[i].first, imol_enc)) {
+	    // if (dict_res_restraints[i].first == imol_enc) {
 	    if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].second.is_bond_order_data_only())) { 
 	       r = i;
 	       break;
@@ -3019,11 +3049,11 @@ coot::dictionary_residue_restraints_t::is_hydrogen(const std::string &atom_name)
 
    bool r = false;
    for (unsigned int i=0; i<atom_info.size(); i++) {
-      if (0)
-	 std::cout << "in is_hydrogen() comparing \"" << atom_info[i].atom_id_4c << "\" with \"" << atom_name
-		   << "\"" << std::endl;
+      if (false)
+	 std::cout << "in is_hydrogen() comparing \"" << atom_info[i].atom_id_4c << "\" with \""
+		   << atom_name << "\"" << std::endl;
       if (atom_info[i].atom_id_4c == atom_name) {
-	 if (0)
+	 if (false)
 	    std::cout << "in is_hydrogen found atom name " << atom_name << " and atom has type_symbol \""
 		      << atom_info[i].type_symbol << "\"" << std::endl;
 	 if (atom_info[i].type_symbol == "H" ||
@@ -3919,7 +3949,7 @@ coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
    mmdb::Residue *residue_p = NULL;
 
    // might use try_dynamic_add (if needed).
-   bool r = have_dictionary_for_residue_type(comp_id, 42, try_autoload_if_needed);
+   bool r = have_dictionary_for_residue_type(comp_id, imol_enc, try_autoload_if_needed);
    if (r) {
       for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
 	 if (dict_res_restraints[i].second.residue_info.comp_id == comp_id) {
@@ -4510,6 +4540,104 @@ coot::protein_geometry::get_energy_lib_atom(const std::string &ener_type) const 
    
 }
 
+// use auto-load if not present
+void
+coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std::string &res_name,
+							     int mmcif_read_number) {
+
+ bool minimal = false;
+   int idx = get_monomer_restraints_index(res_name, imol, minimal);
+   if (idx == -1) {
+      try_dynamic_add(res_name, mmcif_read_number);
+      idx = get_monomer_restraints_index(res_name, imol, minimal);
+   }
+
+   if (idx != -1) {
+      // continue
+
+      // (first is the imol)
+      std::vector <dict_torsion_restraint_t> &torsion_restraints =
+	 dict_res_restraints[idx].second.torsion_restraint;
+
+      // We don't want to clear them all, just the ring torsions
+      // orig_torsion_restraints.clear();
+      std::vector<std::string> ring_atom_names;
+      ring_atom_names.push_back(" C1 "); ring_atom_names.push_back(" C2 ");
+      ring_atom_names.push_back(" C3 "); ring_atom_names.push_back(" C4 ");
+      ring_atom_names.push_back(" C5 "); ring_atom_names.push_back(" O5 ");
+      if (res_name == "XYP")
+	 for (unsigned int i=0; i<ring_atom_names.size(); i++)
+	    ring_atom_names[i][3] = 'B';
+
+      if (false) {
+	 for (unsigned int i=0; i<torsion_restraints.size(); i++)
+	    std::cout << " torsion restraint: " << i << " " << torsion_restraints[i] << std::endl;
+	 std::cout << "...............  pre-delete size: " << torsion_restraints.size()
+		   << " for " << res_name << std::endl;
+      }
+
+      torsion_restraints.erase(std::remove_if(torsion_restraints.begin(),
+					      torsion_restraints.end(),
+					      restraint_eraser(ring_atom_names)), torsion_restraints.end());
+
+      if (false)
+	 std::cout << "............... post-delete size: " << torsion_restraints.size()
+		   << " for " << res_name << std::endl;
+      
+      std::vector<atom_name_torsion_quad> quads = get_reference_monomodal_torsion_quads(res_name);
+      for (unsigned int i=0; i<quads.size(); i++) {
+	 const atom_name_torsion_quad &quad = quads[i];
+	 dict_torsion_restraint_t tors(quad.id,
+				       quad.atom_name(0), quad.atom_name(1), quad.atom_name(2), quad.atom_name(3),
+				       quad.torsion, 4.0, 1);
+	 torsion_restraints.push_back(tors);
+      }
+   }
+}
+
+std::vector<coot::atom_name_torsion_quad>
+coot::protein_geometry::get_reference_monomodal_torsion_quads(const std::string &res_name) const {
+
+   std::vector<coot::atom_name_torsion_quad> v;
+   if (res_name == "MAN" || res_name == "GLC" || res_name == "GAL") {
+      v.push_back(coot::atom_name_torsion_quad("var_4",  "O5", "C5", "C4", "C3", -61.35));
+      v.push_back(coot::atom_name_torsion_quad("var_2",  "C1", "O5", "C5", "C4",  67.67));
+      v.push_back(coot::atom_name_torsion_quad("var_11", "C5", "O5", "C1", "C2", -67.59));
+      v.push_back(coot::atom_name_torsion_quad("var_9",  "C3", "C2", "C1", "O5",  61.20));
+      v.push_back(coot::atom_name_torsion_quad("var_6",  "C5", "C4", "C3", "C2",  53.75));
+   }
+   if (res_name == "BMA") {
+      v.push_back(coot::atom_name_torsion_quad("var_2",  "C1", "O5", "C5", "C4",  67.57));
+      v.push_back(coot::atom_name_torsion_quad("var_4",  "O5", "C5", "C4", "C3", -61.31));
+      v.push_back(coot::atom_name_torsion_quad("var_6",  "C5", "C4", "C3", "C2",  53.80));
+      v.push_back(coot::atom_name_torsion_quad("var_9",  "C3", "C2", "C1", "O5",  61.28));
+      v.push_back(coot::atom_name_torsion_quad("var_11", "C5", "O5", "C1", "C2", -67.52));
+   }
+   if (res_name == "NAG") {
+      v.push_back(coot::atom_name_torsion_quad("var_2",  "C1", "O5", "C5", "C4",  61.18));
+      v.push_back(coot::atom_name_torsion_quad("var_5",  "O5", "C5", "C4", "C3", -57.63));
+      v.push_back(coot::atom_name_torsion_quad("var_7",  "C5", "C4", "C3", "C2",  57.01));
+      v.push_back(coot::atom_name_torsion_quad("var_10", "C3", "C2", "C1", "O5",  57.60));
+      v.push_back(coot::atom_name_torsion_quad("var_1",  "C5", "O5", "C1", "C2", -61.19));
+   }
+   if (res_name == "FUC") {
+      v.push_back(coot::atom_name_torsion_quad("var_2",  "C1", "O5", "C5", "C4", -67.61));
+      v.push_back(coot::atom_name_torsion_quad("var_5",  "C5", "C4", "C3", "C2", -53.87));
+      v.push_back(coot::atom_name_torsion_quad("var_11", "C5", "O5", "C1", "C2",  67.595));
+      v.push_back(coot::atom_name_torsion_quad("var_9",  "C3", "C2", "C1", "O5", -61.26));
+      v.push_back(coot::atom_name_torsion_quad("var_4",  "O5", "C5", "C4", "C3",  61.32));
+   }
+   if (res_name == "XYP") {
+      v.push_back(coot::atom_name_torsion_quad("var_4",  "O5B", "C5B", "C4B", "C3B", -61.35));
+      v.push_back(coot::atom_name_torsion_quad("var_2",  "C1B", "O5B", "C5B", "C4B",  67.67));
+      v.push_back(coot::atom_name_torsion_quad("var_11", "C5B", "O5B", "C1B", "C2B", -67.59));
+      v.push_back(coot::atom_name_torsion_quad("var_9",  "C3B", "C2B", "C1B", "O5B",  61.20));
+      v.push_back(coot::atom_name_torsion_quad("var_6",  "C5B", "C4B", "C3B", "C2B",  53.75));
+   }
+
+   return v;
+}
+
 
 // debug
 void
@@ -4528,4 +4656,247 @@ coot::protein_geometry::debug() const {
       std::cout << "     " << i << " imol: " << imol_str << " \""
 		<< dict_res_restraints[i].second.residue_info << "\"" << std::endl;
    }
+}
+
+void
+coot::dictionary_residue_restraints_t::remove_phosphate_hydrogens() {
+
+   remove_PO4_SO4_hydrogens(" P");
+
+}
+
+void
+coot::dictionary_residue_restraints_t::remove_sulphate_hydrogens() {
+
+   remove_PO4_SO4_hydrogens(" S");
+}
+
+void
+coot::dictionary_residue_restraints_t::remove_PO4_SO4_hydrogens(const std::string &P_ele) {
+
+   // This is needed to make the dictionary match the modifications to the RDKit molecule
+   // when removing Hydrogen atoms from Oxygen atoms on phosphates (and we need to do that
+   // so that the atom types match the Acedrg tables (no bonds to Hydrogens in phosphates).
+
+   // find Ps
+   // find Os connected to Ps
+   // find Hs connected to Os.
+   // delete bond, angle, etc, restraints that contain those Hs
+   std::vector<std::string> H_atoms_to_be_deleted;
+
+   unsigned int n_atoms = atom_info.size();
+   for (unsigned int i=0; i<n_atoms; i++) {
+      if (element(atom_info[i].atom_id_4c) == P_ele) {
+
+	 // this block needs reverse indexing check also - e.g. the P can be the second atom
+	 //
+
+	 std::vector<std::string> oxygen_list;
+	 // is there a bond from an O to this P?
+	 unsigned int n_bonds = bond_restraint.size();
+	 for (unsigned int j=0; j<n_bonds; j++) {
+	    const dict_bond_restraint_t &br = bond_restraint[j];
+	    // is an atom of this bond the phosphate atom?
+	    if (br.atom_id_1_4c() == atom_info[i].atom_id_4c) {
+	       // yes it is.  Is there an oxygen atom bonded to this phosphate atom?
+	       for (unsigned int k=0; k<n_bonds; k++) {
+		  if (j != k) {
+		     const dict_bond_restraint_t &br_inner = bond_restraint[k];
+		     if (br_inner.atom_id_1_4c() == atom_info[i].atom_id_4c) {
+			// is this an oxygen on the other side of the bond?
+			if (element(br_inner.atom_id_2_4c()) == " O") {
+			   // add it if it was not already in the list:
+			   if (std::find(oxygen_list.begin(),
+					 oxygen_list.end(),
+					 br_inner.atom_id_2_4c()) == oxygen_list.end()) {
+			      if (false)
+				 std::cout << "adding " << util::single_quote(br_inner.atom_id_2_4c())
+					   << std::endl;
+			      oxygen_list.push_back(br_inner.atom_id_2_4c());
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+
+	 if (oxygen_list.size() > 1) { // 20170603 unsure about this test
+	    if (false)
+	       std::cout << "found " << oxygen_list.size() << " oxygen atoms attached to "
+			 << util::single_quote(atom_info[i].atom_id_4c) << std::endl;
+	    // All these oxygen atoms are bonded to the same phosphate atoms
+	    // delete all hydrogen atoms attached to all these oxygen atoms
+	    //
+	    std::vector<std::string> hydrogen_atom_delete_list;
+	    std::vector<std::string> oxygen_atom_charge_list;
+	    for (unsigned int j=0; j<n_bonds; j++) {
+	       const dict_bond_restraint_t &br = bond_restraint[j];
+	       if (std::find(oxygen_list.begin(),
+			     oxygen_list.end(),
+			     br.atom_id_1_4c()) != oxygen_list.end()) {
+		  if (element(br.atom_id_2_4c()) == " H") {
+		     hydrogen_atom_delete_list.push_back(br.atom_id_2_4c());
+		     oxygen_atom_charge_list.push_back(br.atom_id_1_4c());
+		  }
+	       }
+	       // reverse indexing
+	       if (std::find(oxygen_list.begin(),
+			     oxygen_list.end(),
+			     br.atom_id_2_4c()) != oxygen_list.end()) {
+		  if (element(br.atom_id_1_4c()) == " H") {
+		     hydrogen_atom_delete_list.push_back(br.atom_id_1_4c());
+		     oxygen_atom_charge_list.push_back(br.atom_id_2_4c());
+		  }
+	       }
+	    }
+	    if (false) {
+	       std::cout << "Delete these " << hydrogen_atom_delete_list.size() << " hydrogen atoms"
+			 << std::endl;
+	       std::cout << "Charge these " << oxygen_atom_charge_list.size() << " oxygen atoms"
+			 << std::endl;
+	    }
+
+	    delete_atoms_from_restraints(hydrogen_atom_delete_list);
+
+	    for (unsigned int j=0; j<oxygen_atom_charge_list.size(); j++) {
+	       for (unsigned int k=0; k<atom_info.size(); k++) {
+		  if (atom_info[k].atom_id_4c == oxygen_atom_charge_list[j]) {
+		     atom_info[k].formal_charge.first = true;
+		     atom_info[k].formal_charge.first = -1;
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   
+}
+
+void
+coot::dictionary_residue_restraints_t::remove_carboxylate_hydrogens() {
+
+   // This is a pain.
+
+   std::vector<std::string> H_atoms_to_be_deleted;
+   std::vector<std::string> oxygen_atom_charge_list;
+
+   unsigned int n_atoms = atom_info.size();
+   for (unsigned int i=0; i<n_atoms; i++) {
+
+      if (element(atom_info[i].atom_id_4c) == " C") { // PDBv3 FIXME
+	 std::vector<std::string> oxygen_list;
+	 int n_bonds_to_C = 0;
+	 int C_O_bond_idx = -1; // initially unset
+	 std::string O_with_possibly_H;
+	 int n_single_bonds = 0;
+	 int n_double_bonds = 0;
+	 unsigned int n_bonds = bond_restraint.size();
+	 for (unsigned int j=0; j<n_bonds; j++) {
+	    const dict_bond_restraint_t &br = bond_restraint[j];
+
+	    //
+	    // note to self - do reverse indexing also
+	    //
+
+	    // is an atom of this bond the C atom?
+	    //
+	    if (br.atom_id_1_4c() == atom_info[i].atom_id_4c) {
+	       // yes it is.
+	       n_bonds_to_C++;
+
+	       std::string atom_id_O = br.atom_id_2_4c();
+	       if (element(atom_id_O) == " O") {
+		  if (br.type() == "single") {
+		     C_O_bond_idx = j;
+		     O_with_possibly_H = atom_id_O;
+		     oxygen_atom_charge_list.push_back(O_with_possibly_H);
+		     n_single_bonds++;
+		  }
+		  if (br.type() == "double") {
+		     n_double_bonds++;
+		  }
+	       }
+	    }
+	    if (br.atom_id_2_4c() == atom_info[i].atom_id_4c) {
+	       // yes it is.
+	       n_bonds_to_C++;
+
+	       std::string atom_id_O = br.atom_id_1_4c();
+	       if (element(atom_id_O) == " O") {
+		  if (br.type() == "single") {
+		     C_O_bond_idx = j;
+		     O_with_possibly_H = atom_id_O;
+		     oxygen_atom_charge_list.push_back(O_with_possibly_H);
+		     n_single_bonds++;
+		  }
+		  if (br.type() == "double") {
+		     n_double_bonds++;
+		  }
+	       }
+	    }
+	 }
+
+	 if (n_bonds_to_C == 3) {
+	    if (n_single_bonds == 1) {
+	       if (n_double_bonds == 1) {
+		  if (! O_with_possibly_H.empty()) {
+		     // go through the bond restraints looking for both the named Oxygen atom
+		     // and a hydrogen.
+		     std::string delete_H_atom;
+		     for (unsigned int k=0; k<n_bonds; k++) {
+			const dict_bond_restraint_t &br = bond_restraint[k];
+			if (br.atom_id_1_4c() == O_with_possibly_H) {
+			   if (element(br.atom_id_2_4c()) == " H") {
+			      // delete this hydrogen and this bond
+			      H_atoms_to_be_deleted.push_back(br.atom_id_2_4c());
+			   }
+			}
+			if (br.atom_id_2_4c() == O_with_possibly_H) {
+			   if (element(br.atom_id_1_4c()) == " H") {
+			      // delete this hydrogen and this bond
+			      H_atoms_to_be_deleted.push_back(br.atom_id_1_4c());
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   std::cout << "Here with H_atoms_to_be_deleted size() " << H_atoms_to_be_deleted.size() << std::endl;
+   if (H_atoms_to_be_deleted.size() > 0) {
+      delete_atoms_from_restraints(H_atoms_to_be_deleted);
+      for (unsigned int j=0; j<oxygen_atom_charge_list.size(); j++) {
+	 for (unsigned int k=0; k<atom_info.size(); k++) {
+	    if (atom_info[k].atom_id_4c == oxygen_atom_charge_list[j]) {
+	       atom_info[k].formal_charge.first = true;
+	       atom_info[k].formal_charge.first = -1;
+	    }
+	 }
+      }
+   }
+}
+
+
+void
+coot::dictionary_residue_restraints_t::delete_atoms_from_restraints(const std::vector<std::string> &hydrogen_atom_delete_list) {
+
+   if (hydrogen_atom_delete_list.size()) {
+      for (unsigned int j=0; j<hydrogen_atom_delete_list.size(); j++) {
+	 atom_info.erase(std::remove_if(atom_info.begin(), atom_info.end(), eraser(hydrogen_atom_delete_list)),
+			 atom_info.end());
+	 bond_restraint.erase(std::remove_if(bond_restraint.begin(),
+					     bond_restraint.end(),
+					     eraser(hydrogen_atom_delete_list)),
+			      bond_restraint.end());
+	 angle_restraint.erase(std::remove_if(angle_restraint.begin(),
+					      angle_restraint.end(),
+					      eraser(hydrogen_atom_delete_list)),
+			       angle_restraint.end());
+      }
+   }
+   
 }

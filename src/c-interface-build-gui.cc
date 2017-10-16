@@ -170,7 +170,16 @@ void delete_object_handle_delete_dialog(short int do_delete_dialog) {
 	 }
       }
    }
-} 
+}
+
+void
+post_delete_item_dialog() {
+
+   GtkWidget *w = wrapped_create_delete_item_dialog();
+   gtk_widget_show(w);
+
+}
+
 
 
 
@@ -192,8 +201,22 @@ GtkWidget *wrapped_create_delete_item_dialog() {
 							"delete_item_water_radiobutton");
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(water_toggle_button), TRUE);
       } else { 
+	 if (delete_item_mode_is_sidechain_p()) {
+	 GtkWidget *sidechain_toggle_button = lookup_widget(widget,
+							"delete_item_sidechain_radiobutton");
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sidechain_toggle_button), TRUE);
 	 set_delete_residue_mode(); // The widget default radio button
 	 std::cout << "Click on an atom in the residue that you wish to delete\n";
+	 } else {
+	    if (delete_item_mode_is_chain_p()) {
+	       GtkWidget *chain_toggle_button = lookup_widget(widget,
+								  "delete_item_chain_radiobutton");
+	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chain_toggle_button), TRUE);
+	    } else {
+	       set_delete_residue_mode(); // The widget default radio button
+	       std::cout << "Click on an atom in the residue that you wish to delete\n";
+	    }
+	 }
       }
    }
    graphics_info_t::pick_pending_flag = 1;
@@ -510,10 +533,10 @@ void apply_add_OXT_from_widget(GtkWidget *w) {
 
    if (resno > -9999) { 
       if (is_valid_model_molecule(imol)) { 
-	 if (graphics_info_t::molecules[imol].has_model()) { 
-	    std::cout << "DEBUG:: adding OXT to " << imol << " "
-		      << chain_id << " " << resno << std::endl;
-	    
+	 if (graphics_info_t::molecules[imol].has_model()) {
+	    if (false)
+	       std::cout << "DEBUG:: adding OXT to " << imol << " "
+			 << chain_id << " " << resno << std::endl;
 	    add_OXT_to_residue(imol, resno, "", chain_id.c_str());
 	 }
       }
@@ -1003,10 +1026,8 @@ GtkWidget *wrapped_fit_loop_rama_search_dialog() {
    gtk_widget_hide(mutate_ok_button);
    gtk_widget_hide(checkbutton);
    gtk_widget_show(fit_loop_ok_button);
-#if (GTK_MAJOR_VERSION > 1)
    gtk_widget_show(rama_checkbutton);
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rama_checkbutton), TRUE);
-#endif
 
    gtk_widget_show(method_frame);
 
@@ -1093,11 +1114,9 @@ void fit_loop_from_widget(GtkWidget *dialog) {
 
    // use Ramachandran restraints?
    int use_rama_restraints = 0;
-#if (GTK_MAJOR_VERSION > 1)   
    GtkWidget *rama_checkbutton   = lookup_widget(dialog, "mutate_sequence_use_ramachandran_restraints_checkbutton");
    if (GTK_TOGGLE_BUTTON(rama_checkbutton)->active) 
       use_rama_restraints = 1;
-#endif   
 
    if (imol>= 0) { // redundant
       if (is_valid_model_molecule(imol)) {
@@ -1106,14 +1125,6 @@ void fit_loop_from_widget(GtkWidget *dialog) {
 	 GtkWidget *text = lookup_widget(dialog, "mutate_molecule_sequence_text");
 	 char *txt = NULL;
 
-
-#if (GTK_MAJOR_VERSION == 1) 
-	 gint start_pos = 0;
-	 gint end_pos = -1;
-	 txt = gtk_editable_get_chars(GTK_EDITABLE(text), start_pos, end_pos);
-#else
-	 // std::cout << "Gtk2 text view code... " << std::endl;
-	 // text is a GtkTextView in GTK2
 	 GtkTextView *tv = GTK_TEXT_VIEW(text);
 	 GtkTextBuffer* tb = gtk_text_view_get_buffer(tv);
 	 GtkTextIter startiter;
@@ -1121,7 +1132,6 @@ void fit_loop_from_widget(GtkWidget *dialog) {
 	 gtk_text_buffer_get_iter_at_offset(tb, &startiter, 0);
 	 gtk_text_buffer_get_iter_at_offset(tb, &enditer, -1);
 	 txt = gtk_text_buffer_get_text(tb, &startiter, &enditer, 0);
-#endif
 	 
 	 if (txt) {
 	    std::string sequence(txt);
@@ -1266,7 +1276,6 @@ int do_align_mutate_sequence(GtkWidget *w) {
 	    std::string sequence(txt);
 
 	    if (is_valid_model_molecule(imol)) {
-	       graphics_info_t g;
 	       g.mutate_chain(imol, chain_id, sequence, do_auto_fit, renumber_residues_flag);
 	       g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
 	       graphics_draw();
@@ -1468,8 +1477,8 @@ show_fix_nomenclature_errors_gui(int imol,
 	       s = nomenclature_errors[i].first; // the residue type
 	       s += " ";
 	       s += nomenclature_errors[i].second.format();
-	       GtkWidget *label = gtk_label_new(s.c_str());
-	       gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(label), FALSE, FALSE, 2);
+	       GtkWidget *l = gtk_label_new(s.c_str());
+	       gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(l), FALSE, FALSE, 2);
 	       gtk_widget_show(GTK_WIDGET(label));
 	    }
 	 }
@@ -1602,7 +1611,6 @@ void   place_strand_here_dialog() {
 GtkWidget *
 wrapped_create_fast_ss_search_dialog() {
 
-#if (GTK_MAJOR_VERSION > 1)
   GtkWidget *dialog;
   GtkWidget *helix_temp_combobox;
   GtkWidget *strand_temp_combobox;
@@ -1626,8 +1634,4 @@ wrapped_create_fast_ss_search_dialog() {
   gtk_combo_box_set_active(GTK_COMBO_BOX(radius_combobox),1);
 
   return dialog;
-#else
-  GtkWidget *w = 0;
-  return w;
-#endif // GTK_MAJOR_VERSION
 }

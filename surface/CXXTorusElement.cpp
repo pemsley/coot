@@ -31,7 +31,8 @@ CXX_mot::CXXTorusElement::~CXXTorusElement()
 
 void CXX_mot::CXXTorusElement::init()
 {
-	flatTriangles.resize(0);
+	// flatTriangles.resize(0);
+	flatTriangles.clear();
 }
 
 CXX_mot::CXXTorusElement::CXXTorusElement(const CXXCircle &aCircle, int iEdge, double delta, double probeRadius) :

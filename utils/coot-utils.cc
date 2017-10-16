@@ -196,12 +196,32 @@ coot::util::intelligent_debackslash(const std::string &s) {
 std::string
 coot::util::remove_trailing_slash(const std::string &s) {
 
+   // BL says:: On Windows the null termination doesnt seem to work
+   //    by subsituting null.
+   // That was ugly anyway, let's erase the last character.
    std::string scratch = s;
-   if (scratch.substr(scratch.length()-1) == "/")
-      scratch.replace(scratch.end()-1, scratch.end(), '/', '\0');
-   if (scratch.substr(scratch.length()-1) == "\\")
-      scratch.replace(scratch.end()-1, scratch.end(), '\\', '\0');   
 
+   if (s.length() > 0) {
+#ifdef HAVE_CXX11
+      if (s.back() == '/')
+         scratch.erase(scratch.end()-1);
+      if (s.back() == '\\')
+         scratch.erase(scratch.end()-1);
+#else
+      std::string g = scratch.substr(scratch.length()-1);
+      if (scratch.substr(scratch.length()-1) == "/") {
+	 std::string::iterator it = scratch.end();
+         // scratch.erase(it-1);
+	 std::string::size_type l = scratch.length();
+	 scratch=scratch.substr(0,l-1);
+      } else {
+	 // we need an else, because above makes "/" -> ""
+	 // so scratch.length would be 0
+	 if (scratch.substr(scratch.length()-1) == "\\")
+	    scratch.erase(scratch.end()-1);
+      }
+#endif
+   }
    return scratch;
 }
 

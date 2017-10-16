@@ -35,6 +35,7 @@
 
 #ifdef HAVE_CXX_THREAD
 #include <thread>
+#include <chrono>
 #endif
 
 #include <fstream>
@@ -47,6 +48,11 @@ void
 coot::numerical_gradients(gsl_vector *v, 
 			  void *params, 
 			  gsl_vector *df) {
+
+   // Not that (at present) user-only fixed atoms re removed from numerical gradient calculations,
+   // Other fixed atom (in flanking residues) continue to have numerical gradients calculated for them.
+   // This is confusing and undesirable.
+   // What are the flanking residues?
 
 //    clipper::Coord_orth a(0,0,2); 
 //    cout << "length test: " << a.lengthsq() << endl; 
@@ -65,32 +71,52 @@ coot::numerical_gradients(gsl_vector *v,
       std::cout << "in numerical_gradients: v ->size is " <<  v->size << std::endl;
    }
 
+   coot::restraints_container_t *restraints = (coot::restraints_container_t *)params;
+
    std::vector<double> analytical_derivs(v->size);
    std::vector<double>  numerical_derivs(v->size);
 
    for (unsigned int i=0; i<df->size; i++)
-      analytical_derivs[i] = gsl_vector_get(df, i); 
+      analytical_derivs[i] = gsl_vector_get(df, i);
+
+   if (false) {
+      std::cout << "debug:: in numerical_gradients() here are the " << restraints->fixed_atom_indices.size()
+		<< " fixed_atom indices: \n";
+      for (std::size_t ii=0; ii<restraints->fixed_atom_indices.size(); ii++)
+	 std::cout << " " << restraints->fixed_atom_indices[ii];
+      std::cout << "\n";
+   }
 
    for (unsigned int i=0; i<v->size; i++) { 
 
-      tmp = gsl_vector_get(v, i); 
-      gsl_vector_set(v, i, tmp+micro_step); 
-      new_S_plus = coot::distortion_score(v, params); 
-      gsl_vector_set(v, i, tmp-micro_step); 
-      new_S_minu = coot::distortion_score(v, params);
-      // new_S_minu = 2*tmp - new_S_plus; 
+      int iat = i/3; // if iat is a fixed atom, then we shouldn't generate val
+      bool make_val = true;
+      std::vector<int>::const_iterator it;
+      if (std::find(restraints->fixed_atom_indices.begin(),
+		    restraints->fixed_atom_indices.end(), iat) != restraints->fixed_atom_indices.end())
+	 make_val = false;
 
-      // now put v[i] back to tmp
-      gsl_vector_set(v, i, tmp);
+      if (make_val) {
+	 tmp = gsl_vector_get(v, i);
+	 gsl_vector_set(v, i, tmp+micro_step);
+	 new_S_plus = coot::distortion_score(v, params);
+	 gsl_vector_set(v, i, tmp-micro_step);
+	 new_S_minu = coot::distortion_score(v, params);
+	 // new_S_minu = 2*tmp - new_S_plus;
 
-      val = (new_S_plus - new_S_minu)/(2*micro_step);
+	 // now put v[i] back to tmp
+	 gsl_vector_set(v, i, tmp);
 
+	 val = (new_S_plus - new_S_minu)/(2*micro_step);
+      } else {
+	 val = 0; // does the constructor of numerical_derivs make this unnecessary?
+      }
       numerical_derivs[i] = val;
 
       // overwrite the analytical gradients with numerical ones:
       // gsl_vector_set(df, i, val);
    }
-   
+
    for (unsigned int i=0; i<v->size; i++) {
       std::cout << i << " analytical: " << analytical_derivs[i]
 		<< " numerical: " << numerical_derivs[i] << "\n";
@@ -246,12 +272,12 @@ void coot::my_df_bonds(const gsl_vector *v,
 	    z_l_contrib = constant_part*(a2.z()-a1.z());
 
 	    if (!(*restraints)[i].fixed_atom_flags[0]) { 
-	       idx = 3*((*restraints)[i].atom_index_1 - 0);  
+	       idx = 3*(*restraints)[i].atom_index_1;
 
 	       *gsl_vector_ptr(df, idx  ) += x_k_contrib;
 	       *gsl_vector_ptr(df, idx+1) += y_k_contrib;
 	       *gsl_vector_ptr(df, idx+2) += z_k_contrib;
-	       
+
 	    } else {
 	       // debug
 	       if (0) {
@@ -265,7 +291,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 			    << gsl_vector_get(df, idx+1) << " "
 			    << gsl_vector_get(df, idx+2) << std::endl;
 	       }
-	    } 
+	    }
 
 	    if (!(*restraints)[i].fixed_atom_flags[1]) { 
 	       idx = 3*((*restraints)[i].atom_index_2 - 0); 
@@ -276,7 +302,6 @@ void coot::my_df_bonds(const gsl_vector *v,
 	       *gsl_vector_ptr(df, idx+1) += y_l_contrib;
 	       *gsl_vector_ptr(df, idx+2) += z_l_contrib;
 
-	       
 	    } else {
 	       // debug
 	       if (false) {
@@ -310,6 +335,11 @@ coot::my_df_non_bonded_single(const gsl_vector *v,
 
    int idx_1 = 3*this_restraint.atom_index_1;
    int idx_2 = 3*this_restraint.atom_index_2;
+
+   // no need to calculate anything if both these atoms are non-moving
+   //
+   if (this_restraint.fixed_atom_flags[0] && this_restraint.fixed_atom_flags[1])
+      return;
 
    // check for both-ways nbcs (seems OK)
    //
@@ -431,8 +461,8 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 
       std::atomic<unsigned int> done_count_for_threads(0); // updated by my_df_non_bonded_thread_dispatcher
 
-      if (restraints_p->thread_pool_p) {
-	 // if (false) {
+      if ((restraints_p->thread_pool_p) && (restraints_p->n_threads > 0)) {
+
 	 unsigned int n_per_thread = restraints_size/restraints_p->n_threads;
 
 	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
@@ -456,7 +486,8 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 	 for (unsigned int i=0; i<restraints_size; i++) {
 	    const simple_restraint &this_restraint = (*restraints_p)[i];
 	    if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
-	       my_df_non_bonded_single(v, df, this_restraint);
+	       if (this_restraint.fixed_atom_flags[0]==false || this_restraint.fixed_atom_flags[1]==false)
+		  my_df_non_bonded_single(v, df, this_restraint);
 	    }
 	 }
       }
@@ -465,7 +496,10 @@ coot::my_df_non_bonded(const  gsl_vector *v,
       for (unsigned int i=0; i<restraints_size; i++) {
 	 const simple_restraint &this_restraint = (*restraints_p)[i];
 	 if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
-	    my_df_non_bonded_single(v, df, this_restraint);
+	    // no need to calculate anything if both these atoms are non-moving
+	    //
+	    if (this_restraint.fixed_atom_flags[0]==false || this_restraint.fixed_atom_flags[1]==false)
+	       my_df_non_bonded_single(v, df, this_restraint);
 	 }
       }
 #endif
@@ -492,7 +526,7 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
    // 
    // int n_var = restraints->n_variables();
    // float derivative_value; 
-   int idx; 
+   int idx;
 
    if (restraints->restraints_usage_flag & GEMAN_MCCLURE_DISTANCE_MASK) { 
 
@@ -585,19 +619,45 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
  	       y_l_contrib = constant_part*(a2.y()-a1.y());
  	       z_l_contrib = constant_part*(a2.z()-a1.z());
 
-	       if (! rest.fixed_atom_flags[0]) { 
+	       if (! rest.fixed_atom_flags[0]) {
+#ifdef HAVE_CXX_THREAD
+		  // use atomic lock to access derivs of atom atom_idx_1
+		  unsigned int unlocked = 0;
+		  while (! restraints->gsl_vector_atom_pos_deriv_locks.get()[rest.atom_index_1].compare_exchange_weak(unlocked, 1)) {
+		     std::cout << "oops locked! [0] " << rest.atom_index_1 << std::endl;
+		     std::this_thread::sleep_for(std::chrono::nanoseconds(10));
+		     unlocked = 0;
+		  }
+#endif
 		  idx = 3*rest.atom_index_1;
 		  *gsl_vector_ptr(df, idx  ) += x_k_contrib;
 		  *gsl_vector_ptr(df, idx+1) += y_k_contrib;
 		  *gsl_vector_ptr(df, idx+2) += z_k_contrib;
+		  // std::cout << "unlock [0] " << rest.atom_index_1 << std::endl;
+#ifdef HAVE_CXX_THREAD
+		  restraints->gsl_vector_atom_pos_deriv_locks.get()[rest.atom_index_1] = 0; // unlock
+#endif
 	       }
 
 	       if (! rest.fixed_atom_flags[1]) { 
+#ifdef HAVE_CXX_THREAD
+		  // use atomic lock to access derivs of atom atom_idx_2
+		  unsigned int unlocked = 0;
+		  while (! restraints->gsl_vector_atom_pos_deriv_locks.get()[rest.atom_index_2].compare_exchange_weak(unlocked, 1)) {
+		     std::cout << "oops locked! [1] " << rest.atom_index_2 << std::endl;
+		     std::this_thread::sleep_for(std::chrono::nanoseconds(10));
+		     unlocked = 0;
+		  }
+#endif
 		  idx = 3*rest.atom_index_2;
 		  *gsl_vector_ptr(df, idx  ) += x_l_contrib;
 		  *gsl_vector_ptr(df, idx+1) += y_l_contrib;
 		  *gsl_vector_ptr(df, idx+2) += z_l_contrib;
-	       } 
+		  // std::cout << "unlock [1] " << rest.atom_index_1 << std::endl;
+#ifdef HAVE_CXX_THREAD
+		  restraints->gsl_vector_atom_pos_deriv_locks.get()[rest.atom_index_2] = 0; // unlock
+#endif
+	       }
 	    }
 	 }
       }
@@ -1441,12 +1501,9 @@ coot::my_df_planes(const gsl_vector *v,
    //
    coot::restraints_container_t *restraints =
       (coot::restraints_container_t *)params;
-   
+
    int idx; 
 
-   coot::plane_distortion_info_t plane_info;
-
-   
    if (restraints->restraints_usage_flag & coot::PLANES_MASK) {
       
       int n_plane_atoms;
@@ -1458,11 +1515,23 @@ coot::my_df_planes(const gsl_vector *v,
 	 if ( (*restraints)[i].restraint_type == coot::PLANE_RESTRAINT) {
 
 	    const simple_restraint &plane_restraint = (*restraints)[i];
-	    plane_info = distortion_score_plane_internal(plane_restraint, v);
+
+	    if (false) { // debug
+	       std::cout << "restraint index " << i << " plane with fixed atom indices:\n";
+	       for (std::size_t jj=0; jj<plane_restraint.fixed_atom_flags.size(); jj++) {
+		  std::cout << " " << plane_restraint.fixed_atom_flags[jj];
+		  mmdb::Atom *at = restraints->get_atom(plane_restraint.plane_atom_index[jj].first);
+		  std::cout << "    " << atom_spec_t(at) << std::endl;
+	       }
+	       std::cout << "\n";
+	    }
+
+	    coot::plane_distortion_info_t plane_info =
+	       distortion_score_plane_internal(plane_restraint, v);
 	    n_plane_atoms = plane_restraint.plane_atom_index.size();
 	    // weight = 1/((*restraints)[i].sigma * (*restraints)[i].sigma);
 	    for (int j=0; j<n_plane_atoms; j++) {
-	       if (! (*restraints)[i].fixed_atom_flags[j] ) { 
+	       if (! plane_restraint.fixed_atom_flags[j] ) {
 		  idx = 3*plane_restraint.plane_atom_index[j].first;
 		  devi_len =
 		     plane_info.abcd[0]*gsl_vector_get(v,idx  ) + 
@@ -1476,6 +1545,17 @@ coot::my_df_planes(const gsl_vector *v,
 		  clipper::Grad_orth<double> d(2.0 * weight * devi_len * plane_info.abcd[0],
 					       2.0 * weight * devi_len * plane_info.abcd[1],
 					       2.0 * weight * devi_len * plane_info.abcd[2]);
+
+		  if (false) { // debug
+		     if (plane_restraint.plane_atom_index.size() >= 4) {
+			std::cout << "   gradients plane_restraint " << plane_restraint << " "
+				  << d.format() << std::endl;
+			int idxp = plane_restraint.plane_atom_index[j].first;
+			mmdb::Atom *at = restraints->get_atom(idxp);
+			std::cout << "   plane atom " << j << " " << atom_spec_t(at) << std::endl;
+		     }
+		  }
+
 
 		  *gsl_vector_ptr(df, idx  ) += d.dx();
 		  *gsl_vector_ptr(df, idx+1) += d.dy();
@@ -1502,7 +1582,7 @@ coot::my_df_parallel_planes(const gsl_vector *v,
    coot::restraints_container_t *restraints = (coot::restraints_container_t *)params;
    
    if (restraints->restraints_usage_flag & coot::PARALLEL_PLANES_MASK) {
-      for (int i=0; i<restraints->size(); i++) {
+      for (unsigned int i=restraints->restraints_limits_parallel_planes.first; i<=restraints->restraints_limits_parallel_planes.second; i++) {
        
 	 if ( (*restraints)[i].restraint_type == coot::PARALLEL_PLANES_RESTRAINT) {
 	    const simple_restraint &ppr = (*restraints)[i];

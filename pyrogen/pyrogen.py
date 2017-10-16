@@ -17,6 +17,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
+"""
+pyrogen contains tools for converting molecules to mmcif restraints dictionaries,
+utilities for retrival, extraction and depction.
+"""
+
 import sys
 import os
 import copy
@@ -25,8 +30,11 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 
 import coot_git
-import pyrogen_swig as pysw
-import pyrogen_boost
+
+# Hello from 20170701, library resolution problems?
+# $ otool -L .libs/_pyrogen_swig.so -> @rpath substition... how does that work?
+import pyrogen_swig as pysw # relies on above rdkit.Chem import AllChem (but ideally should not)
+import pyrogen_boost        # ditto
 import atom_types
 
 from optparse import OptionParser
@@ -168,18 +176,44 @@ def read_file(file_name):
 
 # return False or a file_name
 #
+# downloaded file is put in the CCD directory as CCD/x/xyz.cif
+#
 def get_pdbe_cif_for_comp_id(comp_id):
 
    try:
-      file_name = "PDBe-" + comp_id + ".cif"
       url = 'ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/' + comp_id + '.cif'
-      status = urllib.urlretrieve(url, file_name)
-      return file_name
+      CCD_dir = 'CCD'
+      # file_name = "PDBe-" + comp_id + ".cif"
+      first_char = comp_id[0]
+      try:
+         sub_dir = os.path.join(CCD_dir, first_char)
+         file_name = os.path.join(sub_dir, comp_id + ".cif")
+         if not os.path.isdir(CCD_dir):
+            os.mkdir(CCD_dir)
+         if not os.path.isdir(sub_dir):
+            os.mkdir(sub_dir)
+         if os.path.isfile(file_name):
+            return file_name
+         else:
+            url = 'ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/' + comp_id + '.cif'
+            status = urllib.urlretrieve(url, file_name)
+            print('urllib.urllib returned with status', status)
+            return file_name
+
+      except OSError as e:
+         print e
+         print "Failed: Can't ftp from", url, "and write file", file_name
+
    except IOError as e:
       print e
-      print "Failed: Can't ftp fr", url, "and write file", file_name
-      exit(2)
+      print "Failed: Can't ftp from", url, "and write file", file_name
 
+
+def MolFromFetchedCode(code):
+   f = get_pdbe_cif_for_comp_id(code)
+   m = pyrogen_boost.MolFromPDBXr(f, code)
+   m.Compute2DCoords()
+   return m
         
 def make_restraints_for_bond_orders(mol):
     restraints = {}
@@ -262,7 +296,10 @@ def make_picture_to_file(mol, conf_id, output_file_name):
 
    try:
       from rdkit.Chem import Draw
-      import Image
+      # The import of Image may change depending on how it was provided.
+      # What about pillow? Hmm. Not sure of the details.
+      # import Image
+      from PIL import Image
       state = Draw.MolToFile(mol, size=(300,300), fileName=output_file_name, confId=conf_id)
       # print 'INFO:: wrote PNG   "' + output_file_name + '"'
 
@@ -440,7 +477,8 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
       sane_H_mol = m_H
 
    # This makes UFF types, which can fail sometimes.
-   conf_id = AllChem.EmbedMolecule(sane_H_mol, maxAttempts=n_attempts)
+   # conf_id = AllChem.EmbedMolecule(sane_H_mol, AllChem.ETKDG(), maxAttempts=n_attempts)
+   conf_id = AllChem.EmbedMolecule(sane_H_mol, AllChem.ETKDG())
 
    if use_mmff:
       AllChem.MMFFOptimizeMolecule(sane_H_mol, confId=conf_id)
@@ -508,7 +546,7 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
          charge = atom.GetProp('_GasteigerCharge') # string?
          name   = atom.GetProp('name')
          try:
-            atom_type   = atom.GetProp('atom_type')
+            atom_type   = atom.GetProp('type_energy')
             is_aromatic = atom.GetIsAromatic()
             hybrid      = atom.GetHybridization()
             f_charge    = float(charge)
@@ -734,6 +772,10 @@ if __name__ == "__main__":
 
     (options, args) = parser.parse_args()
     # print 'DEBUG:: options:', options
+    # print 'DEBUG:: args:', args
+
+    if len(args) == 0:
+       print("Usage: pyrogen --help")
 
     if options.show_version:
        print 'pyrogen-' + pyrogen_version, "revision", coot_git.revision_count()

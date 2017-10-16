@@ -62,25 +62,31 @@ def add_module_prosmart():
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
                     generate_local_self_restraints(aa_imol, aa_chain_id, sig)
 
-            def generate_self_restraint_in_sphere_func(sig):
+            def generate_self_restraint_in_sphere_func():
                 with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
-                    current_residue_spec = [aa_chain_id, aa_res_no, aa_ins_code]
-                    residue_specs = residues_near_residue(aa_imol, current_residue_spec, 6)
-                    residue_specs.append(current_residue_spec)
-                    generate_local_self_restraints_by_residues_py(aa_imol, residue_specs, sig)
+                    centred_residue = [aa_chain_id, aa_res_no, aa_ins_code]
+                    radius = 10
+                    local_dist_max = 4.2
+                    other_residues = residues_near_residue(aa_imol,
+                                                           centred_residue,
+                                                           radius)
+                    residue_specs = (centred_residue + other_residues) if isinstance(other_residues, list) else centred_residue
+                    generate_local_self_restraints_by_residues_py(aa_imol,
+                                                                  residue_specs,
+                                                                  local_dist_max)
 
             add_simple_coot_menu_menuitem(
-                menu, "Generate Chain Self Restraints 4.3",
+                menu, "Generate Chain Self Restraints 4.3 for Chain",
                 lambda func: generate_self_restraint_func(4.3))
 
             add_simple_coot_menu_menuitem(
-                menu, "Generate Chain Self Restraints 6",
+                menu, "Generate Chain Self Restraints 6 for Chain",
                 lambda func: generate_self_restraint_func(6))
 
             add_simple_coot_menu_menuitem(
                 menu, "Generate Local Self Restraints 6",
-                lambda func: generate_self_restraint_in_sphere_func(4.2))
+                lambda func: generate_self_restraint_in_sphere_func())
 
                 
             

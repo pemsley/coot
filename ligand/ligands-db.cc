@@ -517,7 +517,7 @@ static int coot::db_callback(void *NotUsed, int argc, char **argv, char **azColN
 static int coot::db_select_callback(void *data_store, int argc, char **argv, char **azColName) {
    int status = 0;
    std::vector<double> *v = (std::vector<double> *)(data_store);
-   for(int i=0; i<argc; i++){
+   for (int i=0; i<argc; i++) {
       if (argv[i] != NULL)
 	 v->push_back(util::string_to_float(argv[i]));
       else
@@ -600,9 +600,9 @@ coot::ligand_metrics::update_resolutions_by_line(const std::string &line) {
 	       char *zErrMsg = 0;
 	       int rc = sqlite3_exec(db_, cmd.c_str(), db_callback, 0, &zErrMsg);
 	       if (rc !=  SQLITE_OK) {
-		  if (zErrMsg) { 
+		  if (zErrMsg) {
 		     std::cout << "ERROR: processing command: " << cmd << " " << zErrMsg << std::endl;
-		  } else { 
+		  } else {
 		     std::cout << "ERROR when processing command: " << cmd << std::endl;
 		     sqlite3_free(zErrMsg);
 		  }

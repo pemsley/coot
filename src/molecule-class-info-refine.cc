@@ -74,14 +74,49 @@ molecule_class_info_t::add_extra_bond_restraint(coot::atom_spec_t atom_1,
       at_2->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
       atom_2.int_user_data = atom_index;
    }
-   if (at_1 && at_2) { 
+   if (at_1 && at_2) {
       coot::extra_restraints_t::extra_bond_restraint_t bond(atom_1, atom_2, bond_dist, esd);
       extra_restraints.bond_restraints.push_back(bond);
       update_extra_restraints_representation();
       r = extra_restraints.bond_restraints.size() -1;
+   } else {
+      std::cout << "WARNING:: add_extra_bond_restraint() oops: " << at_1 << " " << atom_1 << " "
+		<< at_2 << " " << atom_2 << std::endl;
    }
    return r;
 }
+
+int
+molecule_class_info_t::add_extra_bond_restraints(const std::vector<coot::extra_restraints_t::extra_bond_restraint_t> &bond_specs) {
+
+   int r = -1; // unset
+   for (unsigned int i=0; i<bond_specs.size(); i++) {
+      coot::extra_restraints_t::extra_bond_restraint_t bond_spec = bond_specs[i]; // gets modified by addition of atom indices
+      mmdb::Atom *at_1 = get_atom(bond_spec.atom_1);
+      mmdb::Atom *at_2 = get_atom(bond_spec.atom_2);
+      if (at_1) {
+	 int atom_index = -1;
+	 at_1->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
+	 bond_spec.atom_1.int_user_data = atom_index;
+      }
+      if (at_2) {
+	 int atom_index = -1;
+	 at_2->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
+	 bond_spec.atom_2.int_user_data = atom_index;
+      }
+      if (at_1 && at_2) {
+	 // coot::extra_restraints_t::extra_bond_restraint_t bond(bond_spec.atom_1_spec, bond_spec.atom_2_spec, bond_spec.dist, bond_spec.esd);
+	 extra_restraints.bond_restraints.push_back(bond_spec);
+	 r = extra_restraints.bond_restraints.size() -1;
+      } else {
+	 std::cout << "WARNING:: add_extra_bond_restraint() oops: " << at_1 << " " << bond_spec.atom_1 << " "
+		   << at_2 << " " << bond_spec.atom_2 << std::endl;
+      }
+   }
+   update_extra_restraints_representation();
+   return r;
+}
+
 
 
 void molecule_class_info_t::remove_extra_bond_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2) {
@@ -1051,6 +1086,9 @@ molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::stri
 
 	 int nhelix = model_p->GetNumberOfHelices();
 	 int nsheet = model_p->GetNumberOfSheets();
+
+	 if (nhelix == 0 && nsheet == 0)
+	    add_secondary_structure_header_records(true);
 	mmdb::Helix * helix_p;
 	mmdb::Sheet * sheet_p;
 	mmdb::Strand * strand_p;
@@ -1143,12 +1181,12 @@ molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::stri
 		  residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 		  clipper::Coord_orth centre = it_ss->second.first;
 		  for (int iat=0; iat<n_residue_atoms; iat++) {
-		     mmdb::Atom *at = residue_atoms[iat];
-		     clipper::Coord_orth pt_1 = coot::co(at);
+		     mmdb::Atom *at_l = residue_atoms[iat];
+		     clipper::Coord_orth pt_1 = coot::co(at_l);
 		     clipper::Coord_orth pt_2 = pt_1 - centre;
 		     clipper::Coord_orth pt_3 = pt_2.transform(it_ss->second.second);
 		     clipper::Coord_orth pt_4 = pt_3 + centre;
-		     coot::update_position(at, pt_4);
+		     coot::update_position(at_l, pt_4);
 		  }
 		  
 	       } else {
@@ -1179,12 +1217,12 @@ molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::stri
 		  // cache).
 		  std::vector<mmdb::Residue *> env_residues =
 		     coot::residues_near_residue(residue_p, atom_sel.mol, local_radius);
-		  for (unsigned int ires=0; ires<env_residues.size(); ires++) { 
-		     if (residue_centres.find(env_residues[ires]) == residue_centres.end()) {
+		  for (unsigned int jres=0; jres<env_residues.size(); jres++) {
+		     if (residue_centres.find(env_residues[jres]) == residue_centres.end()) {
 			std::pair<bool, clipper::Coord_orth> pp =
-			   coot::util::get_residue_centre(env_residues[ires]);
+			   coot::util::get_residue_centre(env_residues[jres]);
 			if (pp.first)
-			   residue_centres[env_residues[ires]] = pp.second;
+			   residue_centres[env_residues[jres]] = pp.second;
 		     }
 		  }
 

@@ -128,7 +128,7 @@ namespace lig_build {
 	 return pos_t(new_x, new_y);
       }
       
-      pos_t operator*(float sc) {
+      pos_t operator*(float sc) const {
 	 return pos_t(x*sc, y*sc);
       }
       double length() const {
@@ -1573,13 +1573,13 @@ namespace lig_build {
 	    }
 	    if (charge == +1) { // very typical
 	       if (sum_neigb_bond_order == 0)
-		  atom_id = "N+H4"; // ammonium
+		  atom_id = "NH4+"; // ammonium
 	       if (sum_neigb_bond_order == 1)
-		  atom_id = "N+H3"; // lys
+		  atom_id = "NH3+"; // lys
 	       if (sum_neigb_bond_order == 2)
-		  atom_id = "N+H2";
+		  atom_id = "NH2+";
 	       if (sum_neigb_bond_order == 3)
-		  atom_id = "N+H";
+		  atom_id = "NH+";
 	       if (sum_neigb_bond_order == 4)
 		  atom_id = "N+";
 	       if (sum_neigb_bond_order == 5)
@@ -1591,9 +1591,9 @@ namespace lig_build {
 	       if (sum_neigb_bond_order == 1)
 		  atom_id = "N+2H3";
 	       if (sum_neigb_bond_order == 2)
-		  atom_id = "N+2H2";
+		  atom_id = "N2H2+";
 	       if (sum_neigb_bond_order == 3)
-		  atom_id = "N+2H";
+		  atom_id = "NH+2";
 	       if (sum_neigb_bond_order == 4)
 		  atom_id = "N+2";
 	    }
@@ -1669,7 +1669,9 @@ namespace lig_build {
 		     h_count = "2";
 
 		  pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
-		  if (sum_delta.x < 3.2) { // prefer CH3 to H3C when (nearly) vertical.
+		  double theta = (180.0/M_PI) * atan2(sum_delta.y, sum_delta.x);
+		  if (! (theta > -95.0 && theta < 95.0)) {
+		     // if (sum_delta.x < 3.2) { // prefer CH3 to H3C when (nearly) vertical. (old)
 		     atom_id_info_t id("CH");
 		     offset_text_t ot(h_count);
 		     ot.tweak = pos_t(18, 0);
@@ -1712,9 +1714,13 @@ namespace lig_build {
 		  // H2N, with the 2 subscripted.
 		  // 
 		  pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
-		  if (sum_delta.x < 3.2) { // prefer NH2 to H2N when (nearly) vertical.
-		     return atom_id_info_t("NH", "2");
-		  } else {
+		  double theta = (180.0/M_PI) * atan2(sum_delta.y, sum_delta.x);
+		  // std::cout << "::: here for NH2 with sum_delta " << sum_delta
+		  // << " theta " << theta << std::endl;
+		  // old (dependent on molecule scaling)
+		  // if (sum_delta.x < 3.2) { // prefer NH2 to H2N when (nearly) vertical.
+
+		  if (theta > -95.0 && theta < 95.0) {
 		     // more tricky case then...
 		     atom_id_info_t id;
 		     offset_text_t otH("H");
@@ -1724,10 +1730,13 @@ namespace lig_build {
 		     otH.tweak = pos_t(-16, 0);
 		     ot2.tweak = pos_t(-7, 0);
 		     otN.tweak = pos_t(0, 0);
+		     id.set_atom_id("NH2");
 		     id.add(otH);
 		     id.add(ot2);
 		     id.add(otN);
 		     return id;
+		  } else {
+		     return atom_id_info_t("NH", "2");
 		  }
 	       }
 
@@ -1832,7 +1841,7 @@ namespace lig_build {
 			} else {
 			   // what is the madness?
 			   return atom_id_info_t("NH+");
-			} 
+			}
 		     } 
 		  } else {
 		     

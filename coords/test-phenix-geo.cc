@@ -1,4 +1,4 @@
-/* canyon/test-phenix-geo.cc
+/* coords/test-phenix-geo.cc
  * 
  * Copyright 2014 by Medical Research Council
  * Author: Paul Emsley

@@ -35,7 +35,7 @@
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb-crystal.h"
 
-#include "lbg/flev-annotations.hh" // animated ligand interactions
+#include "pli/flev-annotations.hh" // animated ligand interactions
 #include "named-rotamer-score.hh"
 
 #include "coords/phenix-geo.hh"
@@ -699,6 +699,10 @@ PyObject *residues_near_residue_py(int imol, PyObject *residue_in, float radius)
 //!
 PyObject *residues_near_position_py(int imol, PyObject *pos_in, float radius);
 
+//! \brief return a Python object for the bonds
+//
+PyObject *get_bonds_representation(int imol);
+
 #endif // USE_PYTHON
 
 //! \}
@@ -880,6 +884,13 @@ void spin_search_by_atom_vectors(int imol_map, int imol, const std::string &chai
 //!   fit to density of imol_map map of the first atom in
 //!   moving_atom_list.  Works (only) with atoms in altconf "" 
 void spin_search(int imol_map, int imol, const char *chain_id, int resno, const char *ins_code, SCM direction_atoms_list, SCM moving_atoms_list);
+//! \brief Spin N and CB (and the rest of the side chain if extant)
+//!
+//!  Sometime on N-terminal addition, then N ends up pointing the wrong way.
+//!  The allows us to (more or less) interchange the positions of the CB and the N.
+//!  angle is in degrees.
+//!
+void spin_N_scm(int imol, SCM residue_spec_scm, float angle);
 #endif
 
 #ifdef USE_PYTHON
@@ -888,7 +899,15 @@ void spin_search(int imol_map, int imol, const char *chain_id, int resno, const 
 //!   fit to density of imom_map map of the first atom in
 //!   moving_atom_list.  Works (only) with atoms in altconf ""
 void spin_search_py(int imol_map, int imol, const char *chain_id, int resno, const char *ins_code, PyObject *direction_atoms_list, PyObject *moving_atoms_list);
+//! \brief Spin N and CB (and the rest of the side chain if extant)
+//!
+//!  Sometime on N-terminal addition, then N ends up pointing the wrong way.
+//!  The allows us to (more or less) interchange the positions of the CB and the N.
+//!  angle is in degrees.
+//!
+void spin_N_py(int imol, PyObject *residue_spec, float angle);
 #endif
+
 //! \}
 
 
@@ -1277,6 +1296,14 @@ void set_map_correlation_atom_radius(float r);
 // points of (potentially overlapping) neighbour_residue_spec.
 // 
 #ifdef USE_GUILE
+//! \brief atom-mask-mode is as follows:
+// 0: all-atoms
+// 1: main-chain atoms if is standard amino-acid, else all atoms
+// 2: side-chain atoms if is standard amino-acid, else all atoms
+// 3: side-chain atoms-excluding CB if is standard amino-acid, else all atoms
+// 4: main-chain atoms if is standard amino-acid, else nothing
+// 5: side-chain atoms if is standard amino-acid, else nothing
+// 10: atom radius is dependent atom atom B-factor
 SCM map_to_model_correlation_scm(int imol,
 				 SCM residue_specs,
 				 SCM neighb_residue_specs,

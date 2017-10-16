@@ -52,6 +52,7 @@ GTKGL_CONTEXT_LIBS   = $(GTKGL_LIBS) $(GTKGLEXT_LIBS)
 
 COOT_EXTRA_LIBS = \
 	$(top_builddir)/lbg/libcoot-lidia.la      		\
+	$(top_builddir)/pli/libcoot-pli.la      		\
 	$(top_builddir)/ligand/libcoot-ligand.la      		\
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la      	\
 	$(top_builddir)/goograph/libcoot-goograph.la      	\
@@ -202,8 +203,31 @@ AM_CPPFLAGS = \
 
 pkginclude_HEADERS = crunch-model.hh
 
+if COOT_USE_PYTHON
+if MAKE_ENHANCED_LIGAND_TOOLS
+coot_embedded_la_SOURCES = coot-embedded.cc
+coot_extended_la_SOURCES = coot-extended.cc
+# use -Wl,--no-undefined or  -Wl,-undefined,error (clang) ?
+coot_embedded_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
+coot_embedded_la_LIBADD = \
+                       $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
+                       $(RDKIT_LIBS) $(L_BOOST_PYTHON)
+coot_extended_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
+coot_extended_la_LIBADD = \
+                       $(top_builddir)/pli/libcoot-pli.la   \
+                       $(RDKIT_LIBS) $(L_BOOST_PYTHON)
+pyexec_LTLIBRARIES = coot_embedded.la coot_extended.la
+endif
+endif
+
+if OS_WIN32
+# no more libexec for windows
+bin_PROGRAMS =  coot-bin coot-density-score-by-residue-bin \
+	coot-fix-nomenclature-errors
+else
 libexec_PROGRAMS = coot-bin coot-density-score-by-residue-bin
 bin_PROGRAMS =  coot-fix-nomenclature-errors
+endif
 dist_bin_SCRIPTS = coot coot-density-score-by-residue
 check_PROGRAMS = test-coot-align test-cholesky
 
@@ -223,6 +247,7 @@ coot_bin_SOURCES = \
 	scm-boot-guile.cc 	 \
 	c-interface.h            \
 	c-interface-analysis.cc	 \
+	c-interface-bonds.cc	 \
 	c-interface-build.cc	 \
 	c-interface-build-morph.cc	 \
 	c-interface-build-main-chain.cc	 \

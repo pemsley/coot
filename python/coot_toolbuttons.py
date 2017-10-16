@@ -620,6 +620,7 @@ def list_of_toolbar_functions():
         ["Refinement",
          ["Sphere Refine", "sphere_refine()", "RSR around active residue", "reset-view.svg"],
          ["Sphere Refine +", "sphere_refine_plus()", "RSR around active residue +/- 1 residue", "reset-view.svg"],
+         ["Repeat Refine Zone", "repeat_refine_zone()", "Repeat (so that I don't need to click the atoms again)", "rrz.svg"],
          ["Sphere Regularization", "sphere_regularize()", "Regularize around active residue", "reset-view.svg"],
          ["Sphere Regularization +", "sphere_regularize_plus()", "Regularize around active residue +/- 1 residue", "reset-view.svg"],
          ["Refine residue", "refine_active_residue()", "RSR active residue"],

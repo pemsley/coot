@@ -100,12 +100,12 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 			std::vector<coot::residue_spec_t> neighbs_waters; // fill this
 			std::vector<coot::residue_spec_t> neighbs_raw =
 			   coot::residues_near_residue(ligand_spec, mol, radius_1);
-			for (unsigned int i=0; i<neighbs_raw.size(); i++) { 
-			   mmdb::Residue *res = coot::util::get_residue(neighbs_raw[i], mol);
+			for (unsigned int i_neighb=0; i_neighb<neighbs_raw.size(); i_neighb++) { 
+			   mmdb::Residue *res = coot::util::get_residue(neighbs_raw[i_neighb], mol);
 			   if (res) {
 			      std::string res_name = res->GetResName();
 			      if (res_name == "HOH")
-				 neighbs_waters.push_back(neighbs_raw[i]);
+				 neighbs_waters.push_back(neighbs_raw[i_neighb]);
 			   }
 			}
 

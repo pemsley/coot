@@ -412,6 +412,31 @@ cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_base_p,
 				     const RDKit::ROMol &rdkm,
 				     int nb_level) {
 
+   // std::cout << "get_cod_atom_type() called with nb_level " << nb_level << std::endl;
+
+   // this could/should be in its own block
+   if (nb_level == atom_type_t::COLON_DEGREE_TYPE) {
+      // c.f. the atom_level_2_component_type constructor
+      RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
+      boost::tie(nbrIdx, endNbrs) = rdkm.getAtomNeighbors(atom_base_p);
+      std::vector<unsigned int> v; // hybridizations
+      while (nbrIdx != endNbrs) {
+	 RDKit::ATOM_SPTR at = rdkm[*nbrIdx];
+	 RDKit::Atom *neigh_atom_p = at.get();
+	 if (neigh_atom_p != atom_parent_p) {
+	    // RDKit::Atom::HybridizationType hy = neigh_atom_p->getHybridization();
+	    // int h = hybridization_to_int(hy);
+	    int h = neigh_atom_p->getDegree();
+	    v.push_back(h);
+	 }
+	 nbrIdx++;
+      }
+      std::sort(v.begin(), v.end());
+      std::reverse(v.begin(), v.end());
+      cod::atom_type_t at(v);
+      return at;
+   }
+
    atom_type_t atom_type; // returned type
       
    std::list<third_neighbour_info_t> tnil;
@@ -427,7 +452,7 @@ cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_base_p,
    std::vector<int> ring_arom_vec; // key: "ring_arom"
    // std::vector<ring_info_t> ring_info_vec;
 
-   if (nb_level != 3) {
+   if (nb_level != 3 && nb_level != atom_type_t::COLON_DEGREE_TYPE) {
 
       atom_ring_string = make_ring_info_string(atom_p).second;
       
@@ -456,15 +481,15 @@ cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_base_p,
 	       // std::pair<std::string, std::list<third_neighbour_info_t> > s_pair =
 	       // get_cod_atom_type(atom_base_p, atom_parent_p, atom_p, neigh_atom_p,
 	       //                   rdkm, nb_level+1);
-	       atom_type_t atom_type = 
+	       atom_type_t atom_type_local =
 		  get_cod_atom_type(atom_base_p, atom_parent_p, atom_p, neigh_atom_p,
 				    rdkm, nb_level+1);
 	       
-	       neighbour_types.push_back(atom_type);
+	       neighbour_types.push_back(atom_type_local);
 
-	       if (atom_type.tnil.size()) {
+	       if (atom_type_local.tnil.size()) {
 		  std::list<third_neighbour_info_t>::const_iterator it;
-		  for (it=atom_type.tnil.begin(); it!=atom_type.tnil.end(); it++)
+		  for (it=atom_type_local.tnil.begin(); it!=atom_type_local.tnil.end(); it++)
 		     tnil.push_back(*it);
 		  tnil.sort();
 		  tnil.unique();
@@ -505,8 +530,15 @@ cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_base_p,
       std::pair<std::string, std::string> sp =
 	 make_cod_level_3_and_4_atom_type(atom_base_p, atom_ele, nt, tnil, nb_level);
 
+      // std::cout << "reseting atom_type " << nb_level << std::endl;
       atom_type = atom_type_t(sp.first, sp.second);
       atom_type.tnil = tnil;
+   }
+
+   if (nb_level == 0) {
+      cod::atom_type_t at_for_colon = get_cod_atom_type(atom_base_p, 0, 0, 0, rdkm,
+							atom_type_t::COLON_DEGREE_TYPE);
+      atom_type.extract_degree_info(at_for_colon);
    }
 
    if (nb_level == 0) {
@@ -867,6 +899,8 @@ cod::atom_types_t::make_cod_3rd_neighb_info_type(const std::list<third_neighbour
 
    if (tnil.size()) {
 
+      // std::cout << "tnil size " << tnil.size() << std::endl;
+
       std::list<third_neighbour_info_t>::const_iterator it;
       std::map<std::string, int> type_map;
       std::map<std::string, int>::iterator it_map;
@@ -915,10 +949,24 @@ cod::atom_types_t::make_cod_3rd_neighb_info_type(const std::list<third_neighbour
 	       counted_neighbs.push_back(sl);
 	    }
 
+	    if (false) {
+	       std::cout << "pre-sort " << std::endl;
+	       for (unsigned int jj=0; jj<counted_neighbs.size(); jj++)
+		  std::cout << "   \"" << counted_neighbs[jj] << "\"";
+	       std::cout << std::endl;
+	    }
+
 	    // now sort counted_neighbs
 	    //
 	    std::sort(counted_neighbs.begin(), counted_neighbs.end(),
 		      fei_neighb_sorter);
+
+	    if (false) {
+	       std::cout << "post-sort " << std::endl;
+	       for (unsigned int jj=0; jj<counted_neighbs.size(); jj++)
+		  std::cout << "   " << counted_neighbs[jj];
+	       std::cout << std::endl;
+	    }
 
 	    s = "{";
 	    for (unsigned int ii=0; ii<counted_neighbs.size(); ii++) { 
@@ -936,18 +984,23 @@ cod::atom_types_t::make_cod_3rd_neighb_info_type(const std::list<third_neighbour
 // static 
 bool
 cod::atom_types_t::fei_neighb_sorter(const std::string &a, const std::string &b) {
+
+   // std::cout << "sort a: \"" << a << "\" b: \"" << b << "\"" << std::endl;
    if (a.length() > b.length()) {
       return true;
    } else {
       if (a.length() < b.length()) {
 	 return false;
       } else {
+	 if (a.size() == 0)
+	    return true;
 	 unsigned int i=0;
 	 while ((i<a.length()) && (i<b.length())) {
+	    // std::cout << "a: " << a << " b: " << b << " " << i << std::endl;
 	    if (std::toupper(a[i]) < std::toupper(b[i]))
 	       return true;
 	    else
-	       if (std::toupper(a[i]) > std::toupper(b[i]))
+	       if (std::toupper(a[i]) >= std::toupper(b[i]))
 		  return false;
 	    i++;
 	 }

@@ -979,11 +979,11 @@ coot::util::quaternion::centroid_rtop(const std::vector<std::pair<clipper::RTop_
 	 if (n > 0) {
 
 	    normalize();
-	    double inv_n = 1.0/double(n);
+	    double inv_n_local = 1.0/double(n);
 	    clipper::Mat33<double> m = matrix();
-	    clipper::Coord_orth td(sum_trn_filtered_dev.x() * inv_n,
-				   sum_trn_filtered_dev.y() * inv_n,
-				   sum_trn_filtered_dev.z() * inv_n);
+	    clipper::Coord_orth td(sum_trn_filtered_dev.x() * inv_n_local,
+				   sum_trn_filtered_dev.y() * inv_n_local,
+				   sum_trn_filtered_dev.z() * inv_n_local);
 	    return clipper::RTop_orth(m, td);
 	 } else { 
        
@@ -2551,6 +2551,40 @@ coot::util::get_first_residue(mmdb::Manager *mol) {
    return res;
 }
 
+std::vector<mmdb::Residue *>
+coot::util::get_hetgroups(mmdb::Manager *mol, bool include_waters) {
+
+   std::vector<mmdb::Residue *> het_residues;
+   if (mol) {
+      mmdb::Model *model_p = mol->GetModel(1);
+      if (model_p) {
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int i_chain=0; i_chain<n_chains; i_chain++) {
+	    mmdb::Chain *chain_p = model_p->GetChain(i_chain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    for (int ires=0; ires<nres; ires++) {
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	       if (residue_p) {
+		  std::string res_name = residue_p->GetResName();
+		  if (include_waters || res_name != "HOH") {
+		     int n_atoms = residue_p->GetNumberOfAtoms();
+		     for (int iat=0; iat<n_atoms; iat++) {
+			mmdb::Atom *atom_p = residue_p->GetAtom(iat);
+			if (atom_p->Het) {
+			   het_residues.push_back(residue_p);
+			   break;
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return het_residues;
+}
+
+
 mmdb::Residue *
 coot::util::get_biggest_hetgroup(mmdb::Manager *mol) {
 
@@ -2920,7 +2954,8 @@ coot::util::create_mmdbmanager_from_res_selection(mmdb::Manager *orig_mol,
 // The returned mol has the same chain ids as do the input residues.
 // 
 std::pair<bool, mmdb::Manager *>
-coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec) {
+coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec,
+						   mmdb::Manager *old_mol) {
 
    // So, first make a vector of residue sets, one residue set for each chain.
    std::vector<coot::util::chain_id_residue_vec_helper_t> residues_of_chain;
@@ -2999,8 +3034,43 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
    mmdb::Manager *mol = new mmdb::Manager;
    mol->AddModel(model_p);
 
-   return std::pair<bool, mmdb::Manager *> (1, mol);
+   if (old_mol) {
+      int imodel = 1;
+      mmdb::Model *mol_old_model_p = old_mol->GetModel(imodel);
+      if (mol_old_model_p) {
+	 int n_links = mol_old_model_p->GetNumberOfLinks();
+	 if (n_links > 0) {
+	    for (int i_link=1; i_link<=n_links; i_link++) {
+	       mmdb::Link *link = mol_old_model_p->GetLink(i_link);
+	       std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link, mol_old_model_p);
+	       // are those atoms in (new) mol?
+	       mmdb::Atom *at_1 = get_atom(linked_atoms.first,  mol);
+	       mmdb::Atom *at_2 = get_atom(linked_atoms.second, mol);
+	       if (at_1 && at_2) {
+		  // add this link to mol
+		  mmdb::Link *link = new mmdb::Link; // sym ids default to 1555 1555
 
+		  strncpy(link->atName1,  at_1->GetAtomName(), 19);
+		  strncpy(link->aloc1,    at_1->altLoc, 9);
+		  strncpy(link->resName1, at_1->GetResName(), 19);
+		  strncpy(link->chainID1, at_1->GetChainID(), 9);
+		  strncpy(link->insCode1, at_1->GetInsCode(), 9);
+		  link->seqNum1         = at_1->GetSeqNum();
+
+		  strncpy(link->atName2,  at_2->GetAtomName(), 19);
+		  strncpy(link->aloc2,    at_2->altLoc, 9);
+		  strncpy(link->resName2, at_2->GetResName(), 19);
+		  strncpy(link->chainID2, at_2->GetChainID(), 9);
+		  strncpy(link->insCode2, at_2->GetInsCode(), 9);
+		  link->seqNum2         = at_2->GetSeqNum();
+
+		  model_p->AddLink(link);
+	       }
+	    }
+	 }
+      }
+   }
+   return std::pair<bool, mmdb::Manager *> (1, mol);
 }
 
 
@@ -3015,7 +3085,7 @@ coot::util::create_mmdbmanager_from_residue_specs(const std::vector<coot::residu
 	 residues.push_back(res);
       }
    }
-   mmdb::Manager *new_mol = coot::util::create_mmdbmanager_from_residue_vector(residues).second;
+   mmdb::Manager *new_mol = coot::util::create_mmdbmanager_from_residue_vector(residues, mol).second;
    return new_mol;
 }
 
@@ -3079,6 +3149,54 @@ coot::util::chain_id_residue_vec_helper_t::residues_sort_func(mmdb::Residue *fir
    }
    return false; // not reached.
 }
+
+// return true if something was removed from header info
+//
+ bool
+    coot::util::delete_residue_references_in_header_info(mmdb::Residue *residue_p, mmdb::Manager *mol) {
+
+    bool was_deleted = false;
+    if (residue_p) {
+       residue_spec_t residue_for_deletion_spec(residue_p);
+
+       // ----------------------------------------------------------------------------------
+       //                             Links
+       // ----------------------------------------------------------------------------------
+
+       for (int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+	  mmdb::Model *model_p = mol->GetModel(imod);
+	  if (model_p) {
+	     std::vector<mmdb::Link *> saved_links;
+	     unsigned int n_links = model_p->GetNumberOfLinks();
+	     for (unsigned int ilink=1; ilink<=n_links; ilink++) {
+		mmdb::Link *link = model_p->GetLink(ilink);
+		std::pair<atom_spec_t, atom_spec_t> la = link_atoms(link, model_p);
+		residue_spec_t r1(la.first);
+		residue_spec_t r2(la.second);
+		if (r1 == residue_for_deletion_spec)
+		   continue;
+		if (r2 == residue_for_deletion_spec)
+		   continue;
+		mmdb::Link *link_copy = new mmdb::Link(*link);
+		saved_links.push_back(link_copy);
+	     }
+	     if (saved_links.size() < n_links) {
+		was_deleted = true;
+		model_p->RemoveLinks();
+		for (unsigned int i=0; i<saved_links.size(); i++)
+		   model_p->AddLink(saved_links[i]);
+	     }
+	  }
+       }
+
+       // ------------------------------------------------------------------------------------
+       //                Others :-) CisPeps, HetCompounds, (Helix, Strand, Turn)
+       // ------------------------------------------------------------------------------------
+
+    }
+    return was_deleted;
+ }
+
 
 
 bool
@@ -4433,17 +4551,6 @@ coot::lsq_plane_info_t::lsq_plane_info_t(const std::vector<clipper::Coord_orth> 
 
 }
 
-// the header for this is (in) residue-and-atom-specs.hh.  Hmm... should be fixed.
-//
-std::pair<coot::atom_spec_t, coot::atom_spec_t>
-coot::link_atoms(mmdb::Link *link) {
-
-   atom_spec_t a1(link->chainID1, link->seqNum1, link->insCode1, link->atName1, link->aloc1);
-   atom_spec_t a2(link->chainID2, link->seqNum2, link->insCode2, link->atName2, link->aloc2);
-
-   return std::pair<coot::atom_spec_t, coot::atom_spec_t> (a1, a2);
-}
-
 
 bool
 coot::compare_atom_specs_user_float(const coot::atom_spec_t &a1, const coot::atom_spec_t &a2) {
@@ -5176,6 +5283,11 @@ coot::util::mutate_internal(mmdb::Residue *residue,
 	 if (coot::is_main_chain_p(residue_atoms[i])) {
 	    if (to_residue_type == "MSE") {
 	       residue_atoms[i]->Het = 1;
+	    }
+	    if (to_residue_type == "PRO") {
+	       std::string atom_name(residue_atoms[i]->name);
+	       if (atom_name == " H  ")
+		  residue->DeleteAtom(i);
 	    }
 	 } else { 
 	    residue->DeleteAtom(i);
@@ -6316,7 +6428,7 @@ coot::util::correct_link_distances(mmdb::Manager *mol) {
 	 if (n_links > 0) { 
 	    for (int i_link=1; i_link<=n_links; i_link++) {
 	       mmdb::Link *link = model_p->GetLink(i_link);
-	       std::pair<atom_spec_t, atom_spec_t> lp = link_atoms(link);
+	       std::pair<atom_spec_t, atom_spec_t> lp = link_atoms(link, model_p);
 	       mmdb::Atom *at_1 = get_atom(lp.first,  mol);
 	       mmdb::Atom *at_2 = get_atom(lp.second, mol);
 	       if (at_1) {
@@ -6435,6 +6547,16 @@ coot::write_coords_pdb(mmdb::Manager *mol, const std::string &file_name) {
    util::remove_wrong_cis_peptides(mol);
    util::correct_link_distances(mol);
    int r = mol->WritePDBASCII(file_name.c_str());
+   return r;
+}
+
+// Perhaps this should be a class function of a class derived from mmdb::Manager?
+int
+coot::write_coords_cif(mmdb::Manager *mol, const std::string &file_name) {
+
+   util::remove_wrong_cis_peptides(mol);
+   // util::correct_link_distances(mol);  // this duplicates the molecule.  Needs investigation - GetLink()?
+   int r = mol->WriteCIFASCII(file_name.c_str());
    return r;
 }
 
@@ -7080,6 +7202,28 @@ coot::util::average_position(std::vector<clipper::Coord_orth> &pts) {
       return clipper::Coord_orth(0,0,0);
    }
 }
+
+clipper::Coord_orth
+coot::util::average_position(mmdb::Residue *residue_p) {
+
+   mmdb::Atom **residue_atoms = 0;
+   int n_residue_atoms;
+   clipper::Coord_orth sum(0,0,0);
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int i=0; i<n_residue_atoms; i++) {
+      mmdb::Atom *at = residue_atoms[i];
+      clipper::Coord_orth atom_pos = co(at);
+      sum += atom_pos;
+   }
+   if (n_residue_atoms > 0) {
+      double r = 1.0/double(n_residue_atoms);
+      clipper::Coord_orth pt(sum.x() * r, sum.y() * r, sum.z() * r);
+      return pt;
+   } else {
+      return sum;
+   }
+}
+
 
 
 

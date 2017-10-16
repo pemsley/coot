@@ -423,8 +423,15 @@
 	   (generic-chooser-and-entry "Create a new Molecule\nFrom which molecule shall we seed?"
 				      "Atom selection for fragment"
 				      "//A/1-10" 
+
+				      ;; this function needs to return false when
+				      ;; a new molecule is not created.
+				      ;;
 				      (lambda (imol text)
-					(new-molecule-by-atom-selection imol text)))))
+					(let ((imol (new-molecule-by-atom-selection imol text)))
+					  (valid-model-molecule? imol)))
+				      #f
+				      )))
 
 	;; --- D --- 
 
@@ -1219,6 +1226,17 @@
 				 (lambda (imol)
 				   (clear-ball-and-stick imol)))))
 
+	(add-simple-coot-menu-menuitem
+	 submenu-representation "Grey Carbons for Molecule"
+	 (lambda()
+	   (using-active-atom
+	    (set-use-grey-carbons-for-molecule aa-imol 1))))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-representation "Coloured Carbons for Molecule"
+	 (lambda()
+	   (using-active-atom
+	    (set-use-grey-carbons-for-molecule aa-imol 0))))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-representation "Electrostatic Surface..."

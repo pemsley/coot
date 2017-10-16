@@ -140,6 +140,9 @@ def three_letter_code2single_letter(residue_type):
     return res_type_1lc
 
 
+# Mutate a residue range of nucleotides
+# where sequence is a string (for example: "atgccgta")
+#
 def mutate_nucleotide_range(imol, chain_id, resno_start, resno_end, sequence):
 
    from types import StringType
@@ -257,6 +260,11 @@ def poly_ala(imol, res_type = False):
 # 
 def delete_sidechain_range(imol, chain_id, resno_start, resno_end):
 
+   make_backup(imol)
+   backup_mode = backup_state(imol)
+   turn_off_backup(imol)
    for resno in number_list(resno_start,resno_end):
       delete_residue_sidechain(imol, chain_id, resno, "", 0)
+   if (backup_mode == 1):
+      turn_on_backup(imol)
                 

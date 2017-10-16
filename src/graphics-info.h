@@ -434,6 +434,16 @@ namespace coot {
     Cartesian screen_z;
   };
 
+  class saved_strand_info_t {
+  public:
+    coot::residue_spec_t start;
+    coot::residue_spec_t end;
+    int strand_idx;
+    saved_strand_info_t(const coot::residue_spec_t &s, const coot::residue_spec_t &e, int idx) {
+      start = s; end = e; strand_idx = idx;
+    }
+  };
+
 
 #ifdef USE_LIBCURL
   class simple_curl_handler_t { 
@@ -695,6 +705,15 @@ class graphics_info_t {
 #endif    
 #ifdef USE_PYTHON
    void run_post_manipulation_hook_py(int imol, int mode);
+#endif
+
+   void run_post_set_rotation_centre_hook();
+   // which uses the following...
+#ifdef USE_GUILE
+   void run_post_set_rotation_centre_hook_scm();
+#endif
+#ifdef USE_PYTHON
+   void run_post_set_rotation_centre_hook_py();
 #endif
 
    // edit ramachandran store:
@@ -2045,6 +2064,7 @@ public:
    // Was private, but need to be used by auto_fit_best_rotamer() scripting function.
    void update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelResidues, int imol_coords, int imol_map);
    void delete_residue_from_geometry_graphs(int imol, coot::residue_spec_t res_spec); 
+   void delete_chain_from_geometry_graphs(int imol, const std::string &chain_id);
 
 
    void execute_rotate_translate_ready(); // manual movement
@@ -2134,6 +2154,8 @@ public:
 			std::string chain_id_1); 
    static void flash_position(const clipper::Coord_orth &pos);
 
+   void repeat_refine_zone(); // no interesting return value because it uses refine() 
+                              // as in check_if_in_refine_define().
    std::pair<int, int> auto_range_residues(int atom_index, int imol) const; 
 
 
@@ -2239,11 +2261,11 @@ public:
 
 
    // Display the graphical object of the regularization
-   static void moving_atoms_graphics_object(); // filled by flash_selection
+   static void draw_moving_atoms_graphics_object(bool against_a_dark_background); // filled by flash_selection
 
    static int mol_no_for_environment_distances;
    static bool display_environment_graphics_object_as_solid_flag;
-   static void environment_graphics_object();
+   static void draw_environment_graphics_object();
    // void symmetry_environment_graphics_object() const;
 
    // for flashing the picked intermediate atom.
@@ -2620,13 +2642,14 @@ public:
    static int   ligand_water_n_cycles;
    static short int ligand_water_write_peaksearched_atoms; 
 
-   // Delete item mode:
+   // Delete item mode: (this is a terrible way of doing it). Use one variable!
    static short int delete_item_atom; 
    static short int delete_item_residue;
    static short int delete_item_residue_zone;
    static short int delete_item_residue_hydrogens;
    static short int delete_item_water;
    static short int delete_item_sidechain;
+   static short int delete_item_chain;
    // must save the widget so that it can be deleted when the item is selected.
    static GtkWidget *delete_item_widget;
    static int keep_delete_item_active_flag;
@@ -3337,6 +3360,13 @@ public:
 							 mmdb::PAtom *atom_selection1, 
 							 mmdb::PAtom *atom_selection2, 
 							 int n_selected_atoms_1, int n_selected_atoms_2) const;
+
+   void map_secondary_structure_headers(ssm::Align *SSMAlign,
+					atom_selection_container_t asc_ref,
+					atom_selection_container_t asc_mov,
+					mmdb::PAtom *atom_selection1,
+					mmdb::PAtom *atom_selection2,
+					int n_selected_atoms_1, int n_selected_atoms_2) const;
    // 
    void print_horizontal_ssm_sequence_alignment(std::pair<std::string, std::string> aligned_sequences) const;
 
@@ -3977,6 +4007,10 @@ string   static std::string sessionid;
    static GtkWidget *cfc_dialog;
 
    static bool cif_dictionary_file_selector_create_molecule_flag;
+
+   static double geman_mcclure_alpha;
+
+   static bool update_maps_on_recentre_flag;
 
 #ifdef HAVE_CXX_THREAD
    static ctpl::thread_pool static_thread_pool;

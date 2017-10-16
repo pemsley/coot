@@ -111,7 +111,7 @@ namespace coot {
    // set of short sticks (particularly for the ring representing
    // aromaticity).  So now (20100831 Bond_lines_container contains a
    // number of torus descriptions).
-   // 
+   //
    class torus_description_t {
    public:
       double inner_radius;
@@ -135,42 +135,84 @@ namespace coot {
 
 class graphics_line_t {
 public:
+   enum cylinder_class_t { UNK, SINGLE, DOUBLE, TRIPLE }; // so that double bonds can be drawn thinner
+                                                          // than single bonds (likewise triple)
+   cylinder_class_t cylinder_class;
    coot::CartesianPair positions;
    bool has_begin_cap;
    bool has_end_cap;
+   int residue_index;
+   // restore this when finished
+   mmdb::Residue *residue_p; // the residue for the bond (maybe there should be 2 residues_ps? because
+                             // sometimes there will be 2 residues for the same graphics_line_t.
+                             // Hmm.
+#if 0
+   // default single bond constructor
    graphics_line_t(const coot::CartesianPair &p, bool b, bool e) {
       positions = p;
       has_begin_cap = b;
       has_end_cap = e;
+      cylinder_class = SINGLE;
+      residue_index = -1; // unset
+      residue_p = 0;
+   }
+#endif
+   graphics_line_t(const coot::CartesianPair &p, cylinder_class_t cc, bool b, bool e, mmdb::Residue *residue_p_in) {
+      positions = p;
+      has_begin_cap = b;
+      has_end_cap = e;
+      cylinder_class = cc;
+      residue_index = -1; // unset
+      residue_p = residue_p_in;
    }
    graphics_line_t() { }
 };
  
-// A poor man's vector.  For use when we can't use vectors
+// A poor man's vector. Contains the set of lines for each element (well,
+// basically colour) type.
 // 
-class graphical_bonds_lines_list { 
+template<class T> class graphical_bonds_lines_list {
 
- public:   
-   // contain a number of elements
+ public:
    int num_lines;
-   // CartesianPair *pair_list;
-   graphics_line_t *pair_list;
+   T *pair_list;
    bool thin_lines_flag;
-   
-   graphical_bonds_lines_list() { 
+
+   graphical_bonds_lines_list() {
       pair_list = NULL;
       thin_lines_flag = 0;
    }
 };
 
-class graphical_bonds_points_list {
+class graphical_bonds_atom_info_t {
+public:
+   bool is_hydrogen_atom;
+   coot::Cartesian position;
+   mmdb::Atom *atom_p; // this should be a shared pointer I think.
+                       // we don't want to be looking at this pointer
+                       // if some other part of the code has deleted the atom.
+   int residue_index;
+   graphical_bonds_atom_info_t(const coot::Cartesian &pos, bool is_hydrogen_atom_in) {
+      position = pos;
+      is_hydrogen_atom = is_hydrogen_atom_in;
+      residue_index = -1; // unset
+      atom_p = 0;
+   }
+   graphical_bonds_atom_info_t() {
+      is_hydrogen_atom = false;
+      residue_index = -1; // unset
+      atom_p = 0;
+   }
+};
+
+template<class T> class graphical_bonds_points_list {
 
 public:
    unsigned int num_points;
    unsigned int current_count;
 
    // use a is-H-atom-flag for first
-   std::pair<bool, coot::Cartesian> *points;
+   T *points;
    
    graphical_bonds_points_list() {
       current_count = 0;
@@ -181,10 +223,10 @@ public:
    graphical_bonds_points_list(unsigned int size) {
       current_count = 0;
       num_points = size;
-      points = new std::pair<bool, coot::Cartesian>[size];
+      points = new T[size];
    }
 
-   void add_point(const std::pair<bool, coot::Cartesian> &pt) {
+   void add_point(const T &pt) {
       points[current_count] = pt;
       current_count++;
    } 
@@ -229,10 +271,10 @@ class graphical_bonds_container {
  public:
    
    int num_colours;
-   graphical_bonds_lines_list *bonds_; 
+   graphical_bonds_lines_list<graphics_line_t> *bonds_; 
 
    int symmetry_has_been_created;
-   graphical_bonds_lines_list *symmetry_bonds_;
+   graphical_bonds_lines_list<graphics_line_t> *symmetry_bonds_;
 
    coot::Cartesian *zero_occ_spots_ptr;
    coot::Cartesian *deuterium_spots_ptr;
@@ -242,12 +284,12 @@ class graphical_bonds_container {
    int n_ramachandran_goodness_spots;
 
    // first is is-H-atom-flag
-   std::pair<bool,coot::Cartesian> *atom_centres_;
+   graphical_bonds_atom_info_t *atom_centres_;
    int n_atom_centres_;
    int *atom_centres_colour_;
    std::vector<coot::torus_description_t> rings;
    int n_consolidated_atom_centres;
-   graphical_bonds_points_list *consolidated_atom_centres;
+   graphical_bonds_points_list<graphical_bonds_atom_info_t> *consolidated_atom_centres;
    int n_cis_peptide_markups;
    graphical_bonds_cis_peptide_markup *cis_peptide_markups;
    
@@ -320,7 +362,7 @@ class graphical_bonds_container {
 
       num_colours = 1;
       
-      bonds_ = new graphical_bonds_lines_list[1]; // only 1 graphical_bonds_lines_list needed
+      bonds_ = new graphical_bonds_lines_list<graphics_line_t>[1]; // only 1 graphical_bonds_lines_list needed
       bonds_[0].pair_list = new graphics_line_t[(a.size())];
       bonds_[0].num_lines = a.size();
 
@@ -347,34 +389,32 @@ class graphical_bonds_container {
       
    void add_colour(const  std::vector<graphics_line_t> &a ) {
       
- /*       cout << "filling a graphical_bonds_container from a vector "  */
-/* 	   << "of size " << a.size() << endl; */
+      graphical_bonds_lines_list<graphics_line_t> *new_bonds_ =
+	 new graphical_bonds_lines_list<graphics_line_t>[num_colours+1];
+      if ( bonds_ != NULL ) {
+	 for (int i = 0; i < num_colours; i++ ) new_bonds_[i] = bonds_[i];
+	 delete[] bonds_;
+      }
+      bonds_ = new_bonds_;
+      // bonds_[num_colours].pair_list = new coot::CartesianPair[(a.size())];
+      bonds_[num_colours].pair_list = new graphics_line_t[(a.size())];
+      bonds_[num_colours].num_lines = a.size();
 
-     graphical_bonds_lines_list *new_bonds_ = new graphical_bonds_lines_list[num_colours+1];
-     if ( bonds_ != NULL ) {
-       for (int i = 0; i < num_colours; i++ ) new_bonds_[i] = bonds_[i];
-       delete[] bonds_;
-     }
-     bonds_ = new_bonds_;
-     // bonds_[num_colours].pair_list = new coot::CartesianPair[(a.size())];
-     bonds_[num_colours].pair_list = new graphics_line_t[(a.size())];
-     bonds_[num_colours].num_lines = a.size();
+      // copy over
+      for(unsigned int i=0; i<a.size(); i++) { 
+	 bonds_[num_colours].pair_list[i] = a[i];
+      }
+      num_colours++;
 
-     // copy over
-     for(unsigned int i=0; i<a.size(); i++) { 
-	bonds_[num_colours].pair_list[i] = a[i];
-     }
-     num_colours++;
-
-     symmetry_bonds_ = NULL;
-     symmetry_has_been_created = 0; 
+      symmetry_bonds_ = NULL;
+      symmetry_has_been_created = 0; 
    }
 
    void add_zero_occ_spots(const std::vector<coot::Cartesian> &spots);
    void add_deuterium_spots(const std::vector<coot::Cartesian> &spots);
    void add_ramachandran_goodness_spots(const std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > &spots,
 					const ramachandrans_container_t &rc);
-   void add_atom_centres(const std::vector<std::pair<bool,coot::Cartesian> > &centres,
+   void add_atom_centres(const std::vector<graphical_bonds_atom_info_t> &centres,
 			 const std::vector<int> &colours);
    bool have_rings() const { return rings.size(); }
    bool empty() const { return (bonds_ == NULL); }
@@ -397,8 +437,10 @@ class Bond_lines {
    Bond_lines(int col);
 
    void add_bond(const coot::CartesianPair &p,
+		 graphics_line_t::cylinder_class_t cc,
 		 bool begin_end_cap,
-		 bool end_end_cap);
+		 bool end_end_cap,
+		 mmdb::Residue *residue_p);
    int size() const; 
 
    // return the coordinates of the start and finish points of the i'th bond.
@@ -475,7 +517,7 @@ class Bond_lines_container {
    void write(std::string) const;
 
    mmdb::PPAtom trans_sel(atom_selection_container_t AtomSel, 
-		     const std::pair<symm_trans_t, Cell_Translation> &symm_trans) const;
+			  const std::pair<symm_trans_t, Cell_Translation> &symm_trans) const;
 
    void add_zero_occ_spots(const atom_selection_container_t &SelAtom);
    void add_deuterium_spots(const atom_selection_container_t &SelAtom);
@@ -526,13 +568,15 @@ class Bond_lines_container {
    enum { NOT_HALF_BOND, HALF_BOND_FIRST_ATOM, HALF_BOND_SECOND_ATOM };
 
  protected:
-   std::vector<Bond_lines> bonds; 
+   std::vector<Bond_lines> bonds;
    std::vector<coot::Cartesian>  zero_occ_spots;
    std::vector<coot::Cartesian>  deuterium_spots;
    std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> >  ramachandran_goodness_spots;
-   std::vector<std::pair<bool, coot::Cartesian> >  atom_centres;
+   std::vector<graphical_bonds_atom_info_t>  atom_centres;
    std::vector<int>        atom_centres_colour;
    void addBond(int colour, const coot::Cartesian &first, const coot::Cartesian &second,
+		graphics_line_t::cylinder_class_t cc,		
+		mmdb::Residue *residue_p=0,
 		bool add_begin_end_cap = false,
 		bool add_end_end_cap = false);
    void addBondtoHydrogen(const coot::Cartesian &first, const coot::Cartesian &second);
@@ -541,7 +585,8 @@ class Bond_lines_container {
    void add_dashed_bond(int col,
 			const coot::Cartesian &start,
 			const coot::Cartesian &end,
-			int half_bond_type_flag);
+			int half_bond_type_flag,
+			graphics_line_t::cylinder_class_t cc);
    void addAtom(int colour, const coot::Cartesian &pos);
    int atom_colour(mmdb::Atom *at, int bond_colour_type, coot::my_atom_colour_map_t *atom_colour_map = 0);
    void bonds_size_colour_check(int icol) {
@@ -557,7 +602,7 @@ class Bond_lines_container {
 					     int draw_hydrogens_flag);
 
    void try_set_b_factor_scale(mmdb::Manager *mol);
-   graphical_bonds_container make_graphical_bonds(bool thinning_flag) const;
+   graphical_bonds_container make_graphical_bonds_with_thinning_flag(bool thinning_flag, bool add_residue_indices) const;
    void add_bonds_het_residues(const std::vector<std::pair<bool, mmdb::Residue *> > &het_residues, int imol, int atom_colour_t, short int have_udd_atoms, int udd_handle);
    void het_residue_aromatic_rings(mmdb::Residue *res, const coot::dictionary_residue_restraints_t &restraints, int col);
    // pass a list of atom name that are part of the aromatic ring system.
@@ -775,8 +820,8 @@ public:
 				float symm_distance,
 				const std::pair<coot::coot_mat44, symm_trans_t> &strict_ncs_mat);
 
-   graphical_bonds_container make_graphical_bonds() const;
-   graphical_bonds_container make_graphical_bonds_no_thinning() const;
+   graphical_bonds_container make_graphical_bonds(bool add_residue_indices=false) const;
+   graphical_bonds_container make_graphical_bonds_no_thinning(bool add_residue_indices) const;
    graphical_bonds_container make_graphical_bonds(const ramachandrans_container_t &rc,
 						  bool do_ramachandran_markup) const;
 

@@ -65,10 +65,14 @@ deltaRadians(del) {
 	}
 }
 
-int CXX_mot::CXXSphereElement::calculate(){
-	theVertices.resize(0);
-	theTriangles.resize(0);
-	flatTriangles.resize(0);
+int CXXSphereElement::calculate(){
+	// 	theVertices.resize(0);
+	// 	theTriangles.resize(0);
+	// 	flatTriangles.resize(0);
+
+	theVertices.clear();
+	theTriangles.clear();
+	flatTriangles.clear();
 	
 	CXXCoord xAxis(1.,0.,0.,0.);
 	CXXCoord yAxis(0.,1.,0.,0.);

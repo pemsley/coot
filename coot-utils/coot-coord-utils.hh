@@ -76,6 +76,7 @@ namespace coot {
 
    // Perhaps this should be a class function of a class derived from mmdb::Manager?
    int write_coords_pdb(mmdb::Manager *mol, const std::string &file_name);
+   int write_coords_cif(mmdb::Manager *mol, const std::string &file_name);
 
    std::string pad_atom_name(const std::string &atom_name_in,
 			     const std::string &element);
@@ -751,6 +752,8 @@ namespace coot {
 
       mmdb::Residue *get_first_residue(mmdb::Manager *mol);
 
+      std::vector<mmdb::Residue *> get_hetgroups(mmdb::Manager *mol, bool include_waters=false);
+
       mmdb::Residue *get_biggest_hetgroup(mmdb::Manager *mol);
 
       // Trivial helper function.
@@ -1007,11 +1010,14 @@ namespace coot {
 
       // We don't mess with the chain ids (give as we get), but also
       // return the handle for the atom index transfer.
-      std::pair<mmdb::Manager *, int> create_mmdbmanager_from_mmdbmanager(mmdb::Manager *);
+      std::pair<mmdb::Manager *, int> create_mmdbmanager_from_mmdbmanager(mmdb::Manager *mol);
 
 
-     std::pair<bool, mmdb::Manager *>
-     create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec);
+      // we pass the mol_old so that selected header info can be transfered also
+      // currently only LINKs.
+      std::pair<bool, mmdb::Manager *>
+      create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec,
+					    mmdb::Manager *mol_old);
 
       // ignore atom index transfer, return NULL on error.
       // 
@@ -1090,6 +1096,9 @@ namespace coot {
       // deleted by calling process
       std::pair<mmdb::Manager *, std::vector<residue_spec_t> > 
       get_fragment_from_atom_spec(const atom_spec_t &atom_spec, mmdb::Manager *mol);
+
+      // return true if something was removed from header info
+      bool delete_residue_references_in_header_info(mmdb::Residue *residue_p, mmdb::Manager *mol);
 
       // transform the atoms in mol that are in moving_chain
       // it seems (for some reason) that atom::Transform(mat) now needs a (non-const)
@@ -1345,6 +1354,8 @@ namespace coot {
 						 const clipper::Mat33<double> &orientation_in);
 
       clipper::Coord_orth average_position(std::vector<clipper::Coord_orth> &pts);
+
+      clipper::Coord_orth average_position(mmdb::Residue *r);
 
       // Return the median position.  Throw an exception on failure
       // (e.g no atoms).

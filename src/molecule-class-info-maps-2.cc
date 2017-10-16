@@ -74,7 +74,7 @@ molecule_class_info_t::export_map_fragment_with_origin_shift(float radius,
       clipper::Cell nxmap_cell(nxmap_cell_descr);
 
       // init nxmap
-      clipper::NXmap<float> nxmap(nxmap_cell, nxmap_grid_sampling, nxmap_grid_range);
+      clipper::NXmap<float> nxmap_local(nxmap_cell, nxmap_grid_sampling, nxmap_grid_range);
       
       clipper::Xmap<float>::Map_reference_coord ix(xmap);
       clipper::Coord_orth centre_radius(centre.x() - radius,
@@ -88,11 +88,11 @@ molecule_class_info_t::export_map_fragment_with_origin_shift(float radius,
 
       typedef clipper::NXmap<float>::Map_reference_index NRI;
       double limited_radius = radius * 0.92;
-      for (NRI inx = nxmap.first(); !inx.last(); inx.next()) {
+      for (NRI inx = nxmap_local.first(); !inx.last(); inx.next()) {
 	 clipper::Coord_orth p = inx.coord().coord_frac(nxmap_grid_sampling).coord_orth(nxmap_cell);
 	 double d_to_c_sq = clipper::Coord_orth(p-nxmap_centre).lengthsq();
 	 if (d_to_c_sq > limited_radius*limited_radius) {
-	    nxmap[inx] = 0.0;
+	    nxmap_local[inx] = 0.0;
 	    if (0) 
 	       std::cout << " inx " << inx.coord().format() << " " << d_to_c_sq << "  " << p.format() << " "
 			 << centre.format() << " vs " << limited_radius*limited_radius << " is outside "
@@ -110,7 +110,7 @@ molecule_class_info_t::export_map_fragment_with_origin_shift(float radius,
 	    double gompertz_b = 0.1; 
 	    double gompertz_c = 3;
 	    double gompertz_scale = 1 - (-gompertz_a*1.1 + gompertz_a * exp (gompertz_b * exp(gompertz_c * x)));
-	    nxmap[inx] = xmap[ix] * gompertz_scale;
+	    nxmap_local[inx] = xmap[ix] * gompertz_scale;
 	    if (0)
 	       std::cout << " inx " << inx.coord().format() << " " << d_to_c_sq << "  " << p.format() << " " << centre.format()
 			 << " vs " << limited_radius*limited_radius << " " << gompertz_scale << std::endl;
@@ -120,7 +120,7 @@ molecule_class_info_t::export_map_fragment_with_origin_shift(float radius,
       clipper::CCP4MAPfile mapout;
       mapout.open_write(file_name);
       mapout.set_cell(nxmap_cell);
-      mapout.export_nxmap(nxmap);
+      mapout.export_nxmap(nxmap_local);
       mapout.close_write();
       std::cout << "Exported map " << file_name << std::endl;
    }

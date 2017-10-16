@@ -619,8 +619,8 @@ if (have_coot_python):
      def make_link_ext_func(*args):
        m_spec_1 = args[0]
        m_spec_2 = args[1]
-       imol_1 = atom_spec2imol(m_spec_1)
-       imol_2 = atom_spec2imol(m_spec_2)
+       imol_1 = atom_spec_to_imol(m_spec_1)
+       imol_2 = atom_spec_to_imol(m_spec_2)
        spec_1 = m_spec_1[2:]
        spec_2 = m_spec_2[2:]
        if not (imol_1 == imol_2):
@@ -1593,6 +1593,19 @@ if (have_coot_python):
                                          "coot_annotations.py",
                                          " Load ",
                                          lambda file_name: load_annotations(file_name)))
+
+     
+     add_simple_coot_menu_menuitem(
+       submenu,
+       "Remove annotation here",
+       lambda func: remove_annotation_here())
+
+     
+     add_simple_coot_menu_menuitem(
+       submenu,
+       "Remove annotation near click",
+       lambda func: remove_annotation_at_click())
+     
 
      #---------------------------------------------------------------------
      #     Other Representation Programs

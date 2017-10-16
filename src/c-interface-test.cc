@@ -177,10 +177,12 @@ int test_function(int i, int j) {
    
 	       mmdb::Manager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
 
+	       std::vector<std::pair<bool, clipper::Coord_orth> > avoid_these_atoms;
+
 	       // do we need to send over the base atom too?  Or just say
 	       // that it's the first atom in moving_mol?
 	       // 
-	       coot::multi_residue_torsion_fit_map(imol, moving_mol, xmap, 400, g.Geom_p());
+	       coot::multi_residue_torsion_fit_map(imol, moving_mol, xmap, avoid_these_atoms, 400, g.Geom_p());
 
 	       atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
 
@@ -677,7 +679,8 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	       std::cout << "round " << iround << std::endl;
 	       mmdb::Manager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
 
-	       coot::multi_residue_torsion_fit_map(imol, moving_mol, xmap, 400, g.Geom_p());
+	       std::vector<std::pair<bool, clipper::Coord_orth> > avoid_these_atoms;
+	       coot::multi_residue_torsion_fit_map(imol, moving_mol, xmap, avoid_these_atoms, 400, g.Geom_p());
 	       atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
 	       std::pair<mmdb::Manager *, int> new_mol =
 		  coot::util::create_mmdbmanager_from_mmdbmanager(moving_mol);
@@ -785,7 +788,8 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 	       std::cout << "round " << iround << std::endl;
 	       mmdb::Manager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
 	       
-	       coot::multi_residue_torsion_fit_map(imol, moving_mol, xmap, 400, g.Geom_p());
+	       std::vector<std::pair<bool, clipper::Coord_orth> > avoid_these_atoms;
+	       coot::multi_residue_torsion_fit_map(imol, moving_mol, xmap, avoid_these_atoms, 400, g.Geom_p());
 	       atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
 	       std::pair<mmdb::Manager *, int> new_mol =
              coot::util::create_mmdbmanager_from_mmdbmanager(moving_mol);

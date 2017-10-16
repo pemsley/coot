@@ -4770,73 +4770,11 @@ void fill_go_to_atom_window(GtkWidget *widget) {
 				     "go_to_atom_residue_scrolledwindow");
      residue_gtklist=gtk_list_new();
 
-#if (GTK_MAJOR_VERSION == 1)
-
-     GtkWidget *residue_tree = gtk_tree_new();
-     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
-					   residue_tree);
-     gtk_tree_set_selection_mode (GTK_TREE(residue_tree),
-				  GTK_SELECTION_SINGLE);
-     gtk_widget_show(residue_tree);
-
-     // now set the adjustment of the viewport/scrolledwindow to the
-     // gtklist for residue
-     // 
-     // This bit of magic took 2 full days to find and is necessary
-     // for well-formed ajustments on the residue list, which means
-     // that gtk_list_scroll_vertical GTK_SCROLL_JUMP works! (See
-     // make_synthetic_select_on_residue_list). The $1000 feature.
-     // Jan, I hope you are satisfied - it was a struggle.
-
-//      gtk_container_set_focus_vadjustment(GTK_CONTAINER(residue_tree), 
-// 					 gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW (scrolled_window)));
-     
-     gtk_widget_ref(residue_tree);
-     gtk_object_set_data_full(GTK_OBJECT(widget), "go_to_atom_residue_tree",
-			      residue_tree, 
-			      (GtkDestroyNotify) gtk_widget_unref);
-
-     gtk_signal_connect(GTK_OBJECT(residue_tree),
-  			"selection_changed",
-  			GTK_SIGNAL_FUNC(on_go_to_atom_residue_tree_selection_changed_gtk1),
-  			NULL);
-     
-     /* The atom list */
-     scrolled_window = lookup_widget(GTK_WIDGET(widget),
-				     "go_to_atom_atom_scrolledwindow");
-     GtkWidget *atom_gtklist=gtk_list_new();
-     gtk_scrolled_window_add_with_viewport( GTK_SCROLLED_WINDOW(scrolled_window),
-					    atom_gtklist);
-     /* attach the name to the widget (by hand (as interface.c does
-	it) so that we can look it up in the callback of residue selection changed */
-     gtk_widget_ref(atom_gtklist);
-     gtk_object_set_data_full(GTK_OBJECT(widget), "go_to_atom_atom_list", 
-			      atom_gtklist, 
-			      (GtkDestroyNotify) gtk_widget_unref);
-
-     gtk_widget_show(atom_gtklist);
-
-
-      gtk_signal_connect(GTK_OBJECT(atom_gtklist),
- 			"selection_changed",
- 			GTK_SIGNAL_FUNC(on_go_to_atom_atom_list_selection_changed_gtk1),
- 			NULL);
-
-     /* fill those atom and residue lists (which uses
-	graphics_info_t::go_to_atom_residue()) */
-      g.fill_go_to_atom_residue_list_gtk1(residue_tree);
-
-#else
-     // -----------------------------------------------------------------
-     //                GTK2 path
-     // -----------------------------------------------------------------
      GtkWidget *atom_list_scrolled_window =
 	lookup_widget(GTK_WIDGET(widget), "go_to_atom_atom_scrolledwindow");
      g.fill_go_to_atom_window_gtk2(widget, // the go to atom window
 				   scrolled_window,
 				   atom_list_scrolled_window);
-
-#endif      
 
      /* store the widget */
      save_go_to_atom_widget(widget);
@@ -5509,6 +5447,7 @@ void show_restraints_editor(const char *monomer_type) {
 	    coot::dictionary_residue_restraints_t restraints = p.second;
 	    coot::restraints_editor r;
 	    r.fill_dialog(restraints);
+	    set_transient_and_position(COOT_EDIT_RESTRAINTS_DIALOG, r.get_dialog());
 	    g.restraints_editors.push_back(r);
 	 } 
       }
@@ -6030,6 +5969,7 @@ generic_objects_dialog_table_add_object_internal(const coot::generic_display_obj
       GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (_("Display"));
       std::string label_str = gdo.name;
       GtkWidget *label = gtk_label_new(label_str.c_str());
+      gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5); // not gtk_label_set_justify
 
       std::string stub = "generic_object_" + coot::util::int_to_string(io);
       std::string toggle_button_name = stub + "_toggle_button";
@@ -6044,12 +5984,12 @@ generic_objects_dialog_table_add_object_internal(const coot::generic_display_obj
       gtk_object_set_data_full (GTK_OBJECT (dialog), label_name.c_str(), 
 				label,
 				(GtkDestroyNotify) gtk_widget_unref);
-	    
+
       gtk_table_attach (GTK_TABLE (table), label,
 			0, 1, io, io+1,
 			(GtkAttachOptions) (GTK_FILL),
-			(GtkAttachOptions) (0), 8, 0);
-      
+			(GtkAttachOptions) (0), 8, 0); // pad-x pad-y
+
       gtk_table_attach (GTK_TABLE (table), checkbutton,
 			1, 2, io, io+1,
 			(GtkAttachOptions) (GTK_FILL),
@@ -6061,7 +6001,7 @@ generic_objects_dialog_table_add_object_internal(const coot::generic_display_obj
       gtk_signal_connect(GTK_OBJECT(checkbutton), "toggled",
 			 GTK_SIGNAL_FUNC(on_generic_objects_dialog_object_toggle_button_toggled),
 			 GINT_TO_POINTER(io));
-	       
+
       gtk_widget_show (label);
       gtk_widget_show (checkbutton);
    }

@@ -37,7 +37,7 @@ namespace coot {
    namespace util { 
    
       class phi_psi_t {
-      
+
 	 //
 	 double phi_;
 	 double psi_;
@@ -71,7 +71,7 @@ namespace coot {
 	 };
 	 // this can throw an exception (e.g. bonding atoms too far
 	 // apart).  Uses get_phi_psi() below
-	 phi_psi_t(mmdb::Residue *prev, mmdb::Residue *this_res, mmdb::Residue *next); 
+	 phi_psi_t(mmdb::Residue *prev, mmdb::Residue *this_res, mmdb::Residue *next);
       
 	 double phi() const {return phi_;}
 	 double psi() const {return psi_;}
@@ -89,11 +89,35 @@ namespace coot {
       // throw an exception on failure to get angles or nSelResidues is not 3.
       phi_psi_t ramachandran_angles(mmdb::PResidue *SelResidues, int nSelResidues);
 
+      class phi_psi_with_residues_t : public phi_psi_t {
+      public:
+	 mmdb::Residue *residue_prev;
+	 mmdb::Residue *residue_this;
+	 mmdb::Residue *residue_next;
+	 phi_psi_with_residues_t(mmdb::Residue *r_1,
+				 mmdb::Residue *r_2,
+				 mmdb::Residue *r_3) : phi_psi_t(r_1, r_2, r_3) {
+	    residue_prev = r_1;
+	    residue_this = r_2;
+	    residue_next = r_3;
+	 }
+	 phi_psi_with_residues_t(const phi_psi_t &pp) : phi_psi_t(pp) {
+	    residue_prev = 0;
+	    residue_this = 0;
+	    residue_next = 0;
+	 }
+	 phi_psi_with_residues_t() : phi_psi_t() {
+	    residue_prev = 0;
+	    residue_this = 0;
+	    residue_next = 0;
+	 }
+      };
+
       // used by ramachandran_angles:
-      std::pair<bool, phi_psi_t> get_phi_psi(mmdb::PResidue *SelResidue);
-      std::pair<bool, phi_psi_t> get_phi_psi(mmdb::Residue *residue_0,
-					     mmdb::Residue *residue_1,
-					     mmdb::Residue *residue_2);
+      std::pair<bool, phi_psi_with_residues_t> get_phi_psi(mmdb::PResidue *SelResidue);
+      std::pair<bool, phi_psi_with_residues_t> get_phi_psi(mmdb::Residue *residue_0,
+							   mmdb::Residue *residue_1,
+							   mmdb::Residue *residue_2);
 
       class phi_psi_pair_helper_t {
       public:

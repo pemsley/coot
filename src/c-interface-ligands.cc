@@ -1678,176 +1678,6 @@ PyObject *non_standard_residue_names_py(int imol) {
 #endif
 
 
-#ifdef USE_PYTHON 
-PyObject *map_peaks_py(int imol_map, float n_sigma) {
-
-   PyObject *r = Py_False;
-
-   if (is_valid_map_molecule(imol_map)) {
-      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
-      int do_positive_levels_flag = 1;
-      int also_negative_levels_flag = 0;
-      coot::peak_search ps(xmap);
-      std::vector<std::pair<clipper::Coord_orth, float> > peaks = 
-	 ps.get_peaks(xmap, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
-      r = PyList_New(peaks.size());
-      for (unsigned int i=0; i<peaks.size(); i++) {
-	 PyObject *coords = PyList_New(3);
-	 PyList_SetItem(coords, 0, PyFloat_FromDouble(peaks[i].first.x()));
-	 PyList_SetItem(coords, 1, PyFloat_FromDouble(peaks[i].first.y()));
-	 PyList_SetItem(coords, 2, PyFloat_FromDouble(peaks[i].first.z()));
-	 PyList_SetItem(r, i, coords);
-      }
-   }
- 
-   if (PyBool_Check(r)) {
-     Py_INCREF(r);
-   }
-
-   return r;
-}
-#endif 
-
-#ifdef USE_PYTHON
-PyObject *map_peaks_near_point_py(int imol_map, float n_sigma, float x, float y, float z,
-				  float radius) {
-   
-   PyObject *r = Py_False;
-
-   if (is_valid_map_molecule(imol_map)) {
-
-      mmdb::Atom *at = new mmdb::Atom;
-      at->SetCoordinates(x,y,z, 1.0, 10.0);
-      at->SetAtomName(" CA ");
-      at->SetElementName(" C");
-
-      graphics_info_t g;
-      mmdb::Manager *mol = coot::util::create_mmdbmanager_from_atom(at);
-      mol->SetSpaceGroup(g.molecules[imol_map].xmap.spacegroup().symbol_hm().c_str());
-      coot::util::set_mol_cell(mol, g.molecules[imol_map].xmap.cell());
-      
-      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
-      int do_positive_levels_flag = 1;
-      int also_negative_levels_flag = 0;
-      coot::peak_search ps(xmap);
-      std::vector<std::pair<clipper::Coord_orth, float> > peaks = 
-	 ps.get_peaks(xmap, mol, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
-      clipper::Coord_orth ref_pt(x,y,z);
-      std::vector<std::pair<clipper::Coord_orth, float> > close_peaks;
-      for (unsigned int i=0; i<peaks.size(); i++) {
-	 if (clipper::Coord_orth::length(ref_pt, peaks[i].first) < radius) {
-	    close_peaks.push_back(peaks[i]);
-	 }
-      } 
-      r = PyList_New(close_peaks.size());
-      for (unsigned int i=0; i<close_peaks.size(); i++) {
-	 PyObject *coords = PyList_New(4);
-	 PyList_SetItem(coords, 0, PyFloat_FromDouble(close_peaks[i].first.x()));
-	 PyList_SetItem(coords, 1, PyFloat_FromDouble(close_peaks[i].first.y()));
-	 PyList_SetItem(coords, 2, PyFloat_FromDouble(close_peaks[i].first.z()));
-	 PyList_SetItem(coords, 3, PyFloat_FromDouble(close_peaks[i].second));
-	 PyList_SetItem(r, i, coords);
-      }
-      delete mol;
-   } 
-
-   if (PyBool_Check(r)) {
-     Py_INCREF(r);
-   }
-
-   return r;
-}
-#endif 
-
-
-#ifdef USE_GUILE
-SCM map_peaks_scm(int imol_map, float n_sigma) {
-
-   SCM r = SCM_BOOL_F;
-
-   if (is_valid_map_molecule(imol_map)) {
-      r = SCM_EOL;
-      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
-      int do_positive_levels_flag = 1;
-      int also_negative_levels_flag = 0;
-      coot::peak_search ps(xmap);
-      std::vector<std::pair<clipper::Coord_orth, float> > peaks = 
-	 ps.get_peaks(xmap, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
-      for (unsigned int i=0; i<peaks.size(); i++) {
-	 SCM pt = SCM_EOL;
-	 SCM x_scm = scm_double2num(peaks[i].first.x());
-	 SCM y_scm = scm_double2num(peaks[i].first.y());
-	 SCM z_scm = scm_double2num(peaks[i].first.z());
-	 pt = scm_cons(x_scm, pt);
-	 pt = scm_cons(y_scm, pt);
-	 pt = scm_cons(z_scm, pt);
-	 pt = scm_reverse(pt);
-	 r = scm_cons(pt, r);
-      }
-   }
-   return r;
-} 
-#endif 
-
-#ifdef USE_GUILE
-SCM map_peaks_near_point_scm(int imol_map, float n_sigma, float x, float y, float z,
-			     float radius) {
-
-   SCM r = SCM_BOOL_F;
-   if (is_valid_map_molecule(imol_map)) {
-
-      graphics_info_t g;
-      mmdb::Atom *at = new mmdb::Atom;
-      at->SetCoordinates(x,y,z,1.0,10.0);
-      at->SetAtomName(" CA ");
-      at->SetElementName(" C");
-
-      mmdb::Manager *mol = coot::util::create_mmdbmanager_from_atom(at);
-      mol->SetSpaceGroup(g.molecules[imol_map].xmap.spacegroup().symbol_hm().c_str());
-      coot::util::set_mol_cell(mol, g.molecules[imol_map].xmap.cell());
-      
-      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
-      int do_positive_levels_flag = 1;
-      int also_negative_levels_flag = 0;
-      coot::peak_search ps(xmap);
-      std::vector<std::pair<clipper::Coord_orth, float> > peaks = 
-	 ps.get_peaks(xmap, mol, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
-      clipper::Coord_orth ref_pt(x,y,z);
-      r = SCM_EOL;
-      std::vector<std::pair<clipper::Coord_orth, float> > close_peaks;
-      for (unsigned int i=0; i<peaks.size(); i++) {
-	 if (clipper::Coord_orth::length(ref_pt, peaks[i].first) < radius) {
-	    close_peaks.push_back(peaks[i]);
-	 }
-      }
-
-      if (1) { // debug
-	 for (unsigned int i=0; i<close_peaks.size(); i++) {
-	    std::cout << "close peak " << i << " " << close_peaks[i].first.format() << "   "
-		      << close_peaks[i].second << std::endl;
-	 }
-      } 
-      
-      for (unsigned int i=0; i<close_peaks.size(); i++) {
-	 SCM pt = SCM_EOL;
-	 SCM d     = scm_double2num(close_peaks[i].second);
-	 SCM x_scm = scm_double2num(close_peaks[i].first.x());
-	 SCM y_scm = scm_double2num(close_peaks[i].first.y());
-	 SCM z_scm = scm_double2num(close_peaks[i].first.z());
-	 pt = scm_cons(d, pt);
-	 pt = scm_cons(x_scm, pt);
-	 pt = scm_cons(y_scm, pt);
-	 pt = scm_cons(z_scm, pt);
-	 pt = scm_reverse(pt);
-	 r = scm_cons(pt, r);
-      }
-      r = scm_reverse(r);
-      delete mol;
-   }
-   return r;
-} 
-#endif 
-// (map-peaks-near-point-scm 1 4 44.7 11 13.6 6)
 
 #ifdef USE_GUILE
 /*! \brief return a list of compoundIDs of in SBase of which the
@@ -2791,6 +2621,29 @@ double kolmogorov_smirnov_scm(SCM l1, SCM l2) {
 }
 #endif
 
+#include "analysis/stats.hh"
+
+#ifdef USE_GUILE
+double kolmogorov_smirnov_vs_normal_scm(SCM l1, double mean, double std_dev) {
+
+   double result = -1;
+   SCM result_scm = SCM_BOOL_F;
+   if (scm_is_true(scm_list_p(l1))) {
+      SCM length_scm_1 = scm_length(l1);
+      unsigned int len_l1 = scm_to_int(length_scm_1);
+      std::vector<double> v1;
+      for (unsigned int i=0; i<len_l1; i++) {
+	 SCM item = scm_list_ref(l1, SCM_MAKINUM(i));
+	 if (scm_is_true(scm_number_p(item)))
+	    v1.push_back(scm_to_double(item));
+      }
+      result = coot::stats::get_kolmogorov_smirnov_vs_normal(v1, mean, std_dev);
+   }
+   return result;
+}
+#endif // USE_GUILE
+
+
 #ifdef USE_GUILE
 SCM kullback_liebler_scm(SCM l1, SCM l2) {
 
@@ -2846,6 +2699,26 @@ double kolmogorov_smirnov_py(PyObject *l1, PyObject *l2) {
 #endif
 
 #ifdef USE_PYTHON
+double kolmogorov_smirnov_vs_normal_py(PyObject *l1, double mean, double std_dev) {
+
+   double result = -1;
+
+   if (PyList_Check(l1)) {
+      unsigned int len_l1 = PyList_Size(l1);
+      std::vector<double> v1;
+      for (unsigned int i=0; i<len_l1; i++) {
+         PyObject *item = PyList_GetItem(l1, i);
+         if (PyFloat_Check(item))
+            v1.push_back(PyFloat_AsDouble(item));
+      }
+      result = coot::stats::get_kolmogorov_smirnov_vs_normal(v1, mean, std_dev);
+   }
+   return result;
+}
+#endif // USE_PYTHON
+
+
+#ifdef USE_PYTHON
 PyObject *kullback_liebler_py(PyObject *l1, PyObject *l2) {
 
    PyObject *result_py = Py_False;
@@ -2865,7 +2738,7 @@ PyObject *kullback_liebler_py(PyObject *l1, PyObject *l2) {
             v2.push_back(PyFloat_AsDouble(item));
       }
       std::pair<double, double> result = nicholls::get_KL(v1, v2);
-      PyObject *result_py = PyList_New(2);
+      result_py = PyList_New(2);
       PyList_SetItem(result_py, 0, PyFloat_FromDouble(result.first));
       PyList_SetItem(result_py, 1, PyFloat_FromDouble(result.second));
    }
@@ -3515,7 +3388,8 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
       for (it=c.dots.begin(); it!=c.dots.end(); it++) {
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
-	 std::string obj_name = type;
+	 std::string obj_name = "Molecule ";
+	 obj_name += coot::util::int_to_string(imol) + ": " + type;
 	 int obj = new_generic_object_number(obj_name.c_str());
 	 int point_size = 2;
 	 if (type == "vdw-surface") point_size = 1;
@@ -3526,7 +3400,9 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
 	 if (type != "vdw-surface")
 	    set_display_generic_object(obj, 1); // should be a function with no redraw
       }
-      int clashes_obj = new_generic_object_number("clashes");
+      std::string clashes_name = "Molecule " + coot::util::int_to_string(imol) + ":";
+      clashes_name += " clashes";
+      int clashes_obj = new_generic_object_number(clashes_name.c_str()); // change this func to use std::string arg
       for (unsigned int i=0; i<c.clashes.size(); i++) {
 	 to_generic_object_add_line(clashes_obj, "#ff59b4", 2,
 				    c.clashes[i].first.x(),  c.clashes[i].first.y(),  c.clashes[i].first.z(),
@@ -3629,19 +3505,22 @@ void coot_all_atom_contact_dots(int imol) {
       for (it=c.dots.begin(); it!=c.dots.end(); it++) {
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
-	 std::string obj_name = type;
+	 std::string obj_name = "Molecule ";
+	 obj_name += coot::util::int_to_string(imol) + ": " + type;
 	 int obj = new_generic_object_number(obj_name.c_str());
 	 std::string col = "#445566";
 	 int point_size = 2;
 	 if (type == "vdw-surface") point_size = 1;
 	 for (unsigned int i=0; i<v.size(); i++) {
-	    const std::string &col = v[i].col;
-	    to_generic_object_add_point_internal(obj, col, colour_map[col], point_size, v[i].pos);
+	    const std::string &col_inner = v[i].col;
+	    to_generic_object_add_point_internal(obj, col_inner, colour_map[col_inner], point_size, v[i].pos);
 	 }
 	 if (type != "vdw-surface")
 	    set_display_generic_object_simple(obj, 1); // should be a function with no redraw
       }
-      int clashes_obj = new_generic_object_number("clashes");
+      std::string clashes_name = "Molecule " + coot::util::int_to_string(imol) + ":";
+      clashes_name += " clashes";
+      int clashes_obj = new_generic_object_number(clashes_name.c_str());
       for (unsigned int i=0; i<c.clashes.size(); i++) {
 	 to_generic_object_add_line(clashes_obj, "#ff59b4", 2,
 				    c.clashes[i].first.x(),  c.clashes[i].first.y(),  c.clashes[i].first.z(),

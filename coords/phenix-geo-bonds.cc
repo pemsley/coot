@@ -1,4 +1,4 @@
-/* canyon/phenix-geo-bonds.cc
+/* coords/phenix-geo-bonds.cc
  * 
  * Copyright 2014 by Medical Research Council
  * Author: Paul Emsley
@@ -169,7 +169,7 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
 
 	 atom_1 = coot::util::get_atom(atom_1_spec, mol);
 	 res_1_spec = coot::residue_spec_t(atom_1);
-	 
+
 	 if (atom_1) {
 
 	    atom_1_res=atom_1->residue;
@@ -191,16 +191,16 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
 		  bonded_atom_pairs.push_back(ap);
 	       } else {
 		  std::cout << "Null atom 2 - [H path] this should not happen " << std::endl;
-	       } 
-	       
-	    } 
-	    
+	       }
+
+	    }
+
 	 } else {
 	    std::cout << "Null atom_1 - Path Z " << atom_1_spec << " mol: " << mol 
 		      << " - this should not happen" << std::endl;
 	 }
       }
-      
+
       // for next round 
       previous_atom_spec = atom_1_spec;
       previous_atom_1 = atom_1;
@@ -228,7 +228,8 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
 			    coot::Cartesian(a2->x, a2->y, a2->z));
       a1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
       a2->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
-      bonds[0].add_bond(p, true, true);
+      graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+      bonds[0].add_bond(p, cc, true, true, 0); // no residue_p addition
    }
 
    stars_for_unbonded_atoms(mol, uddHnd);
@@ -278,6 +279,7 @@ void
 Bond_lines_container::stars_for_unbonded_atoms(mmdb::Manager *mol, int uddHnd) {
 
    float star_size = 0.2;
+   graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 
    coot::Cartesian small_vec_x(star_size, 0.1, 0.1);
    coot::Cartesian small_vec_y(0.1, star_size, 0.1);
@@ -313,9 +315,9 @@ Bond_lines_container::stars_for_unbonded_atoms(mmdb::Manager *mol, int uddHnd) {
 			   if (at->GetUDData(uddHnd, ic) == mmdb::UDDATA_Ok) {
 			      if (ic == NO_BOND) {
 				 coot::Cartesian atom_pos(at->x, at->y, at->z);
-				 addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x);
-				 addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y);
-				 addBond(col, atom_pos+small_vec_z, atom_pos-small_vec_z);
+				 addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x, cc);
+				 addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y, cc);
+				 addBond(col, atom_pos+small_vec_z, atom_pos-small_vec_z, cc);
 			      } 
 			   }
 			}

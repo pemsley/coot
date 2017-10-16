@@ -398,9 +398,13 @@ void sort_residues(int imol);
 /*! \brief a gui dialog showing remarks header info (for a model molecule). */
 void remarks_dialog(int imol);
 
-/*! \brief simply print secondardy structure info to the
+/*! \brief simply print secondary structure info to the
   terminal/console.  In future, this could/should return the info.  */
 void print_header_secondary_structure_info(int imol);
+
+/*! \brief add secondary structure info to the
+  internal representation of the model */
+void add_header_secondary_structure_info(int imol);
 
 
 /*  Placeholder only.
@@ -1216,6 +1220,8 @@ void export_map_fragment_with_text_radius(int imol, const char *radius_text, con
 /*! \brief export a fragment of the map about (x,y,z)  */
 int export_map_fragment_with_origin_shift(int imol, float x, float y, float z, float radius, const char *filename);
 
+/*! \brief tmp interface for Hamish */
+int export_map_fragment_to_plain_file(int imol, float x, float y, float z, float radius, const char *filename);
 
 /* return the new molecule number. The cell is given in Angstroms and
    the angles in degrees.  The ref_space_group can be a H-M symbol or
@@ -1609,7 +1615,11 @@ PyObject *cell_py(int imol);
 
 /*! \brief write molecule number imol as a PDB to file file_name */
 /*  return 0 on success, 1 on error. */
-int write_pdb_file(int imol, const char *file_name); 
+int write_pdb_file(int imol, const char *file_name);
+
+/*! \brief write molecule number imol as a mmCIF to file file_name */
+/*  return 0 on success, 1 on error. */
+int write_cif_file(int imol, const char *file_name);
 
 /*! \brief write molecule number imol's residue range as a PDB to file
   file_name */
@@ -2373,6 +2383,12 @@ void set_reset_b_factor_moved_atoms(int state);
   moved atoms */
 int get_reset_b_factor_moved_atoms_state();
 
+#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_GUILE
+void set_temperature_factors_for_atoms_in_residue_scm(int imol, SCM residue_spec_scm, float bf);
+#endif
+#endif
+
 /*! \brief set a numberical attibute to the atom with the given specifier.
 
 Attributes can be "x", "y","z", "B", "occ" and the attribute val is a floating point number*/
@@ -2753,10 +2769,18 @@ void glyco_tree_test();
 #ifdef USE_GUILE
 SCM glyco_tree_scm(int imol, SCM active_residue_scm);
 SCM glyco_tree_residues_scm(int imol, SCM active_residue_scm);
+SCM glyco_tree_internal_distances_fn_scm(int imol, SCM residue_spec, const std::string &file_name); // testing function
+SCM glyco_tree_residue_id_scm(int imol, SCM residue_spec_scm);
+SCM glyco_tree_compare_trees_scm(int imol_1, SCM res_spec_1, int imol_2, SCM res_spec_2);
+SCM glyco_tree_matched_residue_pairs_scm(int imol_1, SCM res_spec_1, int imol_2, SCM res_spec_2);
 #endif
 #ifdef USE_PYTHON
 PyObject *glyco_tree_py(int imol, PyObject *active_residue_py);
 PyObject *glyco_tree_residues_py(int imol, PyObject *active_residue_py);
+PyObject *glyco_tree_internal_distances_fn_py(int imol, PyObject *residue_spec, const std::string &file_name); // testing function
+PyObject *glyco_tree_residue_id_py(int imol, PyObject *residue_spec_py);
+PyObject *glyco_tree_compare_trees_py(int imol_1, PyObject *res_spec_1, int imol_2, PyObject *res_spec_2);
+PyObject *glyco_tree_matched_residue_pairs_py(int imol_1, PyObject *res_spec_1, int imol_2, PyObject *res_spec_2);
 #endif /* PYTHON */
 #endif
 
@@ -3225,6 +3249,8 @@ void refine_zone_atom_index_define(int imol, int ind1, int ind2);
 
  presumes that imol_Refinement_Map has been set */
 void refine_zone(int imol, const char *chain_id, int resno1, int resno2, const char *altconf);
+/*! \brief repeat the previous (user-selected) refine zone */
+void repeat_refine_zone(); /* use stored atom indices to re-run the refinement using the same atoms as previous */
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
 SCM refine_zone_with_score_scm(int imol, const char *chain_id, int resno1, int resno2, const char *altconf);
@@ -3351,12 +3377,20 @@ int delete_restraints(const char *comp_id);
    restraint was stored.  */
 
 int add_extra_bond_restraint(int imol, const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, const char *chain_id_2, int res_no_2, const char *ins_code_2, const char *atom_name_2, const char *alt_conf_2, double bond_dist, double esd);
-int add_extra_angle_restraint(int imol, 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+int add_extra_bond_restraints_scm(int imol, SCM extra_bond_restraints_scm);
+#endif // USE_GUILE
+#ifdef USE_PYTHON
+int add_extra_bond_restraints_py(int imol, PyObject *extra_bond_restraints_py);
+#endif // USE_GUILE
+#endif
+int add_extra_angle_restraint(int imol,
 				const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, 
 				const char *chain_id_2, int res_no_2, const char *ins_code_2, const char *atom_name_2, const char *alt_conf_2, 
 				const char *chain_id_3, int res_no_3, const char *ins_code_3, const char *atom_name_3, const char *alt_conf_3, 
 				double torsion_angle, double esd);
-int add_extra_torsion_restraint(int imol, 
+int add_extra_torsion_restraint(int imol,
 				const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, 
 				const char *chain_id_2, int res_no_2, const char *ins_code_2, const char *atom_name_2, const char *alt_conf_2, 
 				const char *chain_id_3, int res_no_3, const char *ins_code_3, const char *atom_name_3, const char *alt_conf_3, 
@@ -3378,6 +3412,15 @@ void delete_all_extra_restraints(int imol);
 
 /*! \brief clear out all the extra/user-defined restraints for this residue in molecule number imol  */
 void delete_extra_restraints_for_residue(int imol, const char *chain_id, int res_no, const char *ins_code);
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+void delete_extra_restraints_for_residue_spec_scm(int imol, SCM residue_spec_in);
+#endif // USE_GUILE
+#ifdef USE_PYTHON
+void delete_extra_restraints_for_residue_spec_py(int imol, PyObject *residue_spec_in_py);
+#endif // USE_PYTHON
+#endif // __cplusplus
 
 void delete_extra_restraints_worse_than(int imol, float n_sigma);
 
@@ -3575,6 +3618,22 @@ double add_atom_geometry_distance_py(int imol_1, PyObject *atom_spec_1, int imol
 /* \} */
 
 
+/*  ----------------------------------------------------------------------- */
+/*                  pointer position                                        */
+/*  ----------------------------------------------------------------------- */
+/* section Pointer Position Function */
+/*! \name Pointer Position Function */
+/* \{ */
+/*! \brief return the [x,y] position of the pointer in fractional coordinates.
+
+the origin is top-left.
+may return false if pointer is not available */
+#ifdef __cplusplus
+#ifdef USE_PYTHON
+PyObject *get_pointer_position_frac_py();
+#endif // USE_PYTHON
+#endif	/* c++ */
+/* \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  pointer distances                                      */
@@ -3774,6 +3833,8 @@ void gln_asn_b_factor_outliers_py(int imol);
 PyObject *map_peaks_py(int imol_map, float n_sigma);
 PyObject *map_peaks_near_point_py(int imol_map, float n_sigma, float x, float y, float z, float radius);
 PyObject *map_peaks_near_point_from_list_py(int imol_map, PyObject *peak_list, float x, float y, float z, float radius);
+PyObject *map_peaks_around_molecule_py(int imol_map, float sigma, int negative_also_flag, int imol_coords);
+
 /* BL says:: this probably shouldnt be here but cluster with KK code */
 PyObject *screen_vectors_py();
 #endif /*  USE_PYTHON */
@@ -4380,7 +4441,7 @@ float get_bond_colour_rotation_for_molecule(int imol);
 
 void set_unbonded_atom_star_size(float f);
 
-/*! \brief set the default represenation type (default 1).*/
+/*! \brief set the default representation type (default 1).*/
 void set_default_representation_type(int type);
 
 /*! \brief get the default thickness for bonds*/
@@ -4678,6 +4739,7 @@ void set_add_terminal_residue_n_phi_psi_trials(int n);
 /* Add Terminal Residues actually build 2 residues, this allows us to
    see both residues - default is 0 (off). */
 void set_add_terminal_residue_add_other_residue_flag(int i);
+void set_add_terminal_residue_do_rigid_body_refine(short int v); 
 void set_terminal_residue_do_rigid_body_refine(short int v); 
 int add_terminal_residue_immediate_addition_state(); 
 
@@ -4738,6 +4800,16 @@ void delete_residue_range(int imol, const char *chain_id, int resno_start, int e
 void delete_residue(int imol, const char *chain_id, int resno, const char *inscode); 
 /*! \brief delete residue with altconf  */
 void delete_residue_with_full_spec(int imol, int imodel, const char *chain_id, int resno, const char *inscode, const char *altloc); 
+#ifdef __cplusplus 
+#ifdef USE_GUILE
+/*! \brief delete residues in the residue spec list */
+void delete_residues_scm(int imol, SCM residue_specs_scm);
+#endif
+#ifdef USE_PYTHON
+/*! \brief delete residues in the residue spec list */
+void delete_residues_py(int imol, PyObject *residue_specs_py);
+#endif
+#endif	/* c++ */
 /*! \brief delete hydrogen atoms in residue  */
 void delete_residue_hydrogens(int imol, const char *chain_id, int resno, const char *inscode, const char *altloc); 
 /*! \brief delete atom in residue */
@@ -4750,6 +4822,12 @@ void delete_residue_sidechain(int imol, const char *chain_id, int resno, const c
    @return number of hydrogens deleted. */
 int delete_hydrogens(int imol);
 
+/*! \brief delete the chain  */
+void delete_chain(int imol, const char *chain_id);
+
+void post_delete_item_dialog();
+
+
 /* toggle callbacks */
 void set_delete_atom_mode();
 void set_delete_residue_mode();
@@ -4757,10 +4835,12 @@ void set_delete_residue_zone_mode();
 void set_delete_residue_hydrogens_mode();
 void set_delete_water_mode();
 void set_delete_sidechain_mode();
+void set_delete_chain_mode();
 short int delete_item_mode_is_atom_p(); /* (predicate) a boolean */
 short int delete_item_mode_is_residue_p(); /* predicate again */
 short int delete_item_mode_is_water_p();
 short int delete_item_mode_is_sidechain_p();
+short int delete_item_mode_is_chain_p();
 void clear_pending_delete_item(); /* for when we cancel with picking an atom */
 void clear_delete_item_widget();
 void store_delete_item_widget_position();
@@ -5462,7 +5542,7 @@ void citation_notice_off();
 
 Superpose all residues of imol2 onto imol1.  imol1 is reference, we
 can either move imol2 or copy it to generate a new molecule depending
-on the vaule of move_imol2_flag (1 for move 0 for copy). */
+on the vaule of move_imol2_flag (1 for copy 0 for move). */
 void superpose(int imol1, int imol2, short int move_imol2_flag); 
 
 
@@ -5794,7 +5874,7 @@ int new_molecule_by_residue_specs_py(int imol, PyObject *residue_spec_list_py);
 /*! \brief create a new molecule that consists of only the atoms 
   of the specified list of residues
 @return the new molecule number, -1 means an error. */
-int new_molecule_by_residue_specs_scm(int imol, SCM *residue_spec_list_scm);
+int new_molecule_by_residue_specs_scm(int imol, SCM residue_spec_list_scm);
 #endif /* USE_GUILE */
 #endif /* __cplusplus */
 
@@ -6479,12 +6559,13 @@ int add_linked_residue(int imol, const char *chain_id, int resno, const char *in
 		       const char *new_residue_comp_id, const char *link_type, int n_trials);
 #ifdef __cplusplus
 #ifdef USE_GUILE
+// mode is either 1: add  2: add and fit  3: add, fit and refine
 SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char *ins_code, 
-			   const char *new_residue_comp_id, const char *link_type);
+			   const char *new_residue_comp_id, const char *link_type, int mode);
 #endif 
 #ifdef USE_PYTHON
 PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const char *ins_code, 
-				const char *new_residue_comp_id, const char *link_type);
+				const char *new_residue_comp_id, const char *link_type, int mode);
 #endif 
 #endif 		       
 void set_add_linked_residue_do_fit_and_refine(int state);

@@ -94,6 +94,32 @@ coot::operator<<(std::ostream &s, coot::bonded_pair_t bp) {
 
 
 void
+coot::bonded_pair_t::reorder_as_needed() {
+
+   if (res_2->GetSeqNum() < res_1->GetSeqNum()) {
+      std::string chain_id_1_i = res_1->GetChainID();
+      std::string chain_id_2_i = res_2->GetChainID();
+      if (chain_id_1_i == chain_id_2_i) {
+	 if (res_1->isAminoacid()) {
+	    if (res_2->isAminoacid()) {
+	       mmdb::Residue *r = res_1;
+	       res_1 = res_2;
+	       res_2 = r;
+	    }
+	 }
+	 if (res_1->isNucleotide()) {
+	    if (res_2->isNucleotide()) {
+	       mmdb::Residue *r = res_1;
+	       res_1 = res_2;
+	       res_2 = r;
+	    }
+	 }
+      }
+   }
+   // check here for ins code ordering
+}
+
+void
 coot::bonded_pair_t::apply_chem_mods(const coot::protein_geometry &geom) {
 
    int imol = protein_geometry::IMOL_ENC_ANY;
@@ -165,19 +191,8 @@ coot::bonded_pair_t::delete_atom(mmdb::Residue *res, const std::string &atom_nam
 void
 coot::bonded_pair_container_t::reorder() {
 
-   for (unsigned int i=0; i<bonded_residues.size(); i++) {
-      const bonded_pair_t &bp_i = bonded_residues[i];
-      if (bp_i.res_2->GetSeqNum() < bp_i.res_1->GetSeqNum()) {
-	 std::string chain_id_1_i = bp_i.res_1->GetChainID();
-	 std::string chain_id_2_i = bp_i.res_2->GetChainID();
-	 if (chain_id_1_i == chain_id_2_i) {
-	    mmdb::Residue *r = bp_i.res_1;
-	    bonded_residues[i].res_1 = bp_i.res_2;
-	    bonded_residues[i].res_2 = r;
-	 }
-      }
-      // check here for ins code ordering
-   }
+   for (unsigned int i=0; i<bonded_residues.size(); i++)
+      bonded_residues[i].reorder_as_needed();
 }
 
 
@@ -185,15 +200,17 @@ coot::bonded_pair_container_t::reorder() {
 void
 coot::bonded_pair_container_t::filter() {
 
-   // reorder(); // 201501123 - don't reorder. Why? because reorder changes the residue order and
+   reorder(); // 201501123 - don't reorder. Why? because reorder changes the residue order and
                  // the residues are currently in the correct order (with say, the NAG as res_1
                  // and the ASN as res_2).  Why did I think I needed this?
-   
+                 // 20170422 use reorder. But reorder now only reorders protein and nucleotides.
+                 // reorder is needed for too-distant-by-residue-numbering comparison filter below.
+
    std::vector<bonded_pair_t> new_bonded_residues;
    bool debug = false;
 
    if (debug) {
-      std::cout << ":::: we have these bonded pairs" << std::endl;
+      std::cout << "DEBUG::: bonded_pair_container_t::filter(): we have these bonded pairs" << std::endl;
       for (unsigned int i=0; i<bonded_residues.size(); i++) {
 	 const bonded_pair_t &bp_i = bonded_residues[i];
 	 std::cout << i << "   "
@@ -205,27 +222,45 @@ coot::bonded_pair_container_t::filter() {
    for (unsigned int i=0; i<bonded_residues.size(); i++) {
       bool keep_this = true;
       const bonded_pair_t &bp_i = bonded_residues[i];
-      if (bp_i.res_1 && bp_i.res_2) { 
+      if (bp_i.res_1 && bp_i.res_2) {
 	 int resno_delta_i = bp_i.res_2->GetSeqNum() - bp_i.res_1->GetSeqNum();
-	 if (abs(resno_delta_i) > 1) { 
+	 if (abs(resno_delta_i) > 1) {
 	    std::string chain_id_1_i = bp_i.res_1->GetChainID();
 	    std::string chain_id_2_i = bp_i.res_2->GetChainID();
-	    if (chain_id_1_i == chain_id_2_i) {
+	    if (chain_id_1_i != chain_id_2_i) {
+
+	       if (bp_i.link_type == "SS" || bp_i.link_type == "disulf") {
+		  // this might be OK then
+	       } else {
+		  keep_this = false; // 20170422 covalently linked residues and carbohydrate must be in
+		                     // the same chain now
+	       }
+	    } else {
 	       for (unsigned int j=0; j<bonded_residues.size(); j++) {
 		  if (j!=i) {
 		     const bonded_pair_t &bp_j = bonded_residues[j];
 		     int resno_delta_j = bp_j.res_2->GetSeqNum() - bp_j.res_1->GetSeqNum();
 
+		     // We need to ask if the j'th linked-pair has a residue in
+		     // common with the i'th linked pair. If so, which one? If it's
+		     // the first one, then we are interested in comparing linked residues
+		     // with residue numbers greater than the first, and likewise, if it's
+		     // the second residue, then we are interested in comparing the
+		     // residue numbers of the first.
+		     //
+		     // Is the j'th linked-pair more reasonable than the i'th linked-pair?
+		     // as judged by the residue number difference being smaller
+		     //
 		     if (((resno_delta_i > 0) && (bp_i.res_1 == bp_j.res_1)) ||
 			 ((resno_delta_i < 0) && (bp_i.res_2 == bp_j.res_2))) {
 		     
-			if (abs(resno_delta_j) < resno_delta_i) {
+			if (abs(resno_delta_j) < abs(resno_delta_i)) {
 			   std::string chain_id_1_j = bp_j.res_1->GetChainID();
 			   std::string chain_id_2_j = bp_j.res_2->GetChainID();
 			   if (chain_id_1_j == chain_id_2_j) {
 			      if (chain_id_1_j == chain_id_1_i) {
-				 if (bp_i.link_type == "CIS" || bp_i.link_type == "TRANS") {
-				    if (bp_j.link_type == "CIS" || bp_j.link_type == "TRANS") {
+				 if (bp_i.link_type == "CIS" || bp_i.link_type == "TRANS" || bp_i.link_type == "PTRANS") {
+				    if (bp_j.link_type == "CIS" || bp_j.link_type == "TRANS" || bp_j.link_type == "PTRANS") {
 				       keep_this = false;
 				       if (debug)
 					  std::cout << ":::::::::::::::::::::: delete bonded pair "

@@ -297,8 +297,9 @@ coot::minimol::molecule::setup(mmdb::Manager *mol, bool udd_atom_index_to_user_d
 // 	 std::cout << "INFO:: setup minimol has spacegroup: "
 // 		   << mmdb_spacegroup << std::endl;
       } else {
-	 std::cout << "INFO:: setup minimol from mol: no spacegroup"
-		   << std::endl;
+	 if (false) // too noisy
+	    std::cout << "INFO:: setup minimol from mol: no spacegroup"
+		      << std::endl;
       }
    }
    return istat;
@@ -986,14 +987,14 @@ coot::minimol::molecule::pcmmdbmanager() const {
 		     if (this_atom.int_user_data >= 0)
 			atom_p->PutUDData(udd_atom_index_handle, this_atom.int_user_data);
 		  i_add = res_p->AddAtom(atom_p);
-		  if (i_add < 0) 
+		  if (i_add < 0)
 		     std::cout << "addatom addition error" << std::endl;
 	       }
 	    }
 	 }
       }
    }
-	 
+
    mol->AddModel(model_p);
    
    if (have_cell) {

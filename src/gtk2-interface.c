@@ -524,7 +524,7 @@ create_window1 (void)
   gtk_widget_show (image10939);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_pdb_and_map_using_eds1), image10939);
 
-  fetch_pdb_and_map_using_pdbredo1 = gtk_menu_item_new_with_mnemonic (_("Fetch PDB & Map using PDB REDO..."));
+  fetch_pdb_and_map_using_pdbredo1 = gtk_menu_item_new_with_mnemonic (_("Fetch PDB & Map using PDB-REDO..."));
   gtk_widget_set_name (fetch_pdb_and_map_using_pdbredo1, "fetch_pdb_and_map_using_pdbredo1");
   gtk_widget_show (fetch_pdb_and_map_using_pdbredo1);
   gtk_container_add (GTK_CONTAINER (file1_menu), fetch_pdb_and_map_using_pdbredo1);
@@ -6764,6 +6764,14 @@ create_dynarama_window (void)
   GtkWidget *dynarama_window;
   GtkWidget *dynarama_vbox;
   GtkWidget *dynarama_label;
+  GtkWidget *frame307;
+  GtkWidget *alignment168;
+  GtkWidget *hbox442;
+  GtkWidget *rama_plot_selection_all_radiobutton;
+  GSList *rama_plot_selection_all_radiobutton_group = NULL;
+  GtkWidget *rama_plot_selection_use_selection_radiobutton;
+  GtkWidget *rama_plot_selection_entry;
+  GtkWidget *label806;
   GtkWidget *dynarama_scrolledwindow;
   GtkWidget *dynarama_viewport;
   GtkWidget *hbox437;
@@ -6795,10 +6803,55 @@ create_dynarama_window (void)
   gtk_widget_show (dynarama_vbox);
   gtk_container_add (GTK_CONTAINER (dynarama_window), dynarama_vbox);
 
-  dynarama_label = gtk_label_new (_("Ramachandran Plot "));
+  dynarama_label = gtk_label_new (_("<b>Ramachandran Plot</b>"));
   gtk_widget_set_name (dynarama_label, "dynarama_label");
   gtk_widget_show (dynarama_label);
   gtk_box_pack_start (GTK_BOX (dynarama_vbox), dynarama_label, FALSE, FALSE, 2);
+  gtk_label_set_use_markup (GTK_LABEL (dynarama_label), TRUE);
+
+  frame307 = gtk_frame_new (NULL);
+  gtk_widget_set_name (frame307, "frame307");
+  gtk_widget_show (frame307);
+  gtk_box_pack_start (GTK_BOX (dynarama_vbox), frame307, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame307), 2);
+
+  alignment168 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_set_name (alignment168, "alignment168");
+  gtk_widget_show (alignment168);
+  gtk_container_add (GTK_CONTAINER (frame307), alignment168);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment168), 0, 0, 12, 0);
+
+  hbox442 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_set_name (hbox442, "hbox442");
+  gtk_widget_show (hbox442);
+  gtk_container_add (GTK_CONTAINER (alignment168), hbox442);
+
+  rama_plot_selection_all_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("All"));
+  gtk_widget_set_name (rama_plot_selection_all_radiobutton, "rama_plot_selection_all_radiobutton");
+  gtk_widget_show (rama_plot_selection_all_radiobutton);
+  gtk_box_pack_start (GTK_BOX (hbox442), rama_plot_selection_all_radiobutton, FALSE, FALSE, 21);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (rama_plot_selection_all_radiobutton), rama_plot_selection_all_radiobutton_group);
+  rama_plot_selection_all_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rama_plot_selection_all_radiobutton));
+
+  rama_plot_selection_use_selection_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Use Selection"));
+  gtk_widget_set_name (rama_plot_selection_use_selection_radiobutton, "rama_plot_selection_use_selection_radiobutton");
+  gtk_widget_show (rama_plot_selection_use_selection_radiobutton);
+  gtk_box_pack_start (GTK_BOX (hbox442), rama_plot_selection_use_selection_radiobutton, FALSE, FALSE, 2);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (rama_plot_selection_use_selection_radiobutton), rama_plot_selection_all_radiobutton_group);
+  rama_plot_selection_all_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rama_plot_selection_use_selection_radiobutton));
+
+  rama_plot_selection_entry = gtk_entry_new ();
+  gtk_widget_set_name (rama_plot_selection_entry, "rama_plot_selection_entry");
+  gtk_widget_show (rama_plot_selection_entry);
+  gtk_box_pack_start (GTK_BOX (hbox442), rama_plot_selection_entry, FALSE, TRUE, 0);
+  gtk_entry_set_text (GTK_ENTRY (rama_plot_selection_entry), _("//"));
+  gtk_entry_set_invisible_char (GTK_ENTRY (rama_plot_selection_entry), 8226);
+
+  label806 = gtk_label_new (_("Residue Selection"));
+  gtk_widget_set_name (label806, "label806");
+  gtk_widget_show (label806);
+  gtk_frame_set_label_widget (GTK_FRAME (frame307), label806);
+  gtk_label_set_use_markup (GTK_LABEL (label806), TRUE);
 
   dynarama_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_set_name (dynarama_scrolledwindow, "dynarama_scrolledwindow");
@@ -6936,6 +6989,13 @@ create_dynarama_window (void)
   GLADE_HOOKUP_OBJECT_NO_REF (dynarama_window, dynarama_window, "dynarama_window");
   GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_vbox, "dynarama_vbox");
   GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_label, "dynarama_label");
+  GLADE_HOOKUP_OBJECT (dynarama_window, frame307, "frame307");
+  GLADE_HOOKUP_OBJECT (dynarama_window, alignment168, "alignment168");
+  GLADE_HOOKUP_OBJECT (dynarama_window, hbox442, "hbox442");
+  GLADE_HOOKUP_OBJECT (dynarama_window, rama_plot_selection_all_radiobutton, "rama_plot_selection_all_radiobutton");
+  GLADE_HOOKUP_OBJECT (dynarama_window, rama_plot_selection_use_selection_radiobutton, "rama_plot_selection_use_selection_radiobutton");
+  GLADE_HOOKUP_OBJECT (dynarama_window, rama_plot_selection_entry, "rama_plot_selection_entry");
+  GLADE_HOOKUP_OBJECT (dynarama_window, label806, "label806");
   GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_scrolledwindow, "dynarama_scrolledwindow");
   GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_viewport, "dynarama_viewport");
   GLADE_HOOKUP_OBJECT (dynarama_window, hbox437, "hbox437");
@@ -11124,6 +11184,7 @@ create_delete_item_dialog (void)
   GtkWidget *delete_item_water_radiobutton;
   GtkWidget *delete_item_atom_radiobutton;
   GtkWidget *delete_item_sidechain_radiobutton;
+  GtkWidget *delete_item_chain_radiobutton;
   GtkWidget *delete_item_residue_hydrogens_radiobutton;
   GtkWidget *delete_item_residue_range_radiobutton;
   GtkWidget *delete_item_keep_active_checkbutton;
@@ -11199,6 +11260,14 @@ create_delete_item_dialog (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (delete_item_sidechain_radiobutton), delete_item_residue_radiobutton_group);
   delete_item_residue_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (delete_item_sidechain_radiobutton));
 
+  delete_item_chain_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Chain"));
+  gtk_widget_set_name (delete_item_chain_radiobutton, "delete_item_chain_radiobutton");
+  gtk_widget_show (delete_item_chain_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox63), delete_item_chain_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (delete_item_chain_radiobutton), 3);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (delete_item_chain_radiobutton), delete_item_residue_radiobutton_group);
+  delete_item_residue_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (delete_item_chain_radiobutton));
+
   delete_item_residue_hydrogens_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("Hydrogens in Residue"));
   gtk_widget_set_name (delete_item_residue_hydrogens_radiobutton, "delete_item_residue_hydrogens_radiobutton");
   gtk_widget_show (delete_item_residue_hydrogens_radiobutton);
@@ -11249,12 +11318,12 @@ create_delete_item_dialog (void)
   gtk_widget_show (hbox201);
   gtk_container_add (GTK_CONTAINER (alignment50), hbox201);
 
-  image1519 = gtk_image_new_from_stock ("gtk-cancel", GTK_ICON_SIZE_BUTTON);
+  image1519 = gtk_image_new_from_stock ("gtk-close", GTK_ICON_SIZE_BUTTON);
   gtk_widget_set_name (image1519, "image1519");
   gtk_widget_show (image1519);
   gtk_box_pack_start (GTK_BOX (hbox201), image1519, FALSE, FALSE, 0);
 
-  label375 = gtk_label_new_with_mnemonic (_("  Cancel  "));
+  label375 = gtk_label_new_with_mnemonic (_("  Close  "));
   gtk_widget_set_name (label375, "label375");
   gtk_widget_show (label375);
   gtk_box_pack_start (GTK_BOX (hbox201), label375, FALSE, FALSE, 0);
@@ -11276,6 +11345,9 @@ create_delete_item_dialog (void)
                     NULL);
   g_signal_connect ((gpointer) delete_item_sidechain_radiobutton, "toggled",
                     G_CALLBACK (on_delete_item_sidechain_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) delete_item_chain_radiobutton, "toggled",
+                    G_CALLBACK (on_delete_item_chain_radiobutton_toggled),
                     NULL);
   g_signal_connect ((gpointer) delete_item_residue_hydrogens_radiobutton, "toggled",
                     G_CALLBACK (on_delete_item_residue_hydrogens_radiobutton_toggled),
@@ -11300,6 +11372,7 @@ create_delete_item_dialog (void)
   GLADE_HOOKUP_OBJECT (delete_item_dialog, delete_item_water_radiobutton, "delete_item_water_radiobutton");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, delete_item_atom_radiobutton, "delete_item_atom_radiobutton");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, delete_item_sidechain_radiobutton, "delete_item_sidechain_radiobutton");
+  GLADE_HOOKUP_OBJECT (delete_item_dialog, delete_item_chain_radiobutton, "delete_item_chain_radiobutton");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, delete_item_residue_hydrogens_radiobutton, "delete_item_residue_hydrogens_radiobutton");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, delete_item_residue_range_radiobutton, "delete_item_residue_range_radiobutton");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, delete_item_keep_active_checkbutton, "delete_item_keep_active_checkbutton");
@@ -32451,7 +32524,7 @@ create_generic_objects_dialog (void)
   generic_objects_dialog = gtk_dialog_new ();
   gtk_widget_set_name (generic_objects_dialog, "generic_objects_dialog");
   gtk_window_set_title (GTK_WINDOW (generic_objects_dialog), _("Generic Objects"));
-  gtk_window_set_default_size (GTK_WINDOW (generic_objects_dialog), 330, 220);
+  gtk_window_set_default_size (GTK_WINDOW (generic_objects_dialog), 330, 360);
   gtk_window_set_type_hint (GTK_WINDOW (generic_objects_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
   gtk_dialog_set_has_separator (GTK_DIALOG (generic_objects_dialog), FALSE);
 
