@@ -411,7 +411,8 @@ int CXXCircle::sortNodes(){
 	}
 	if (startNode == 0) {
         if (theNodes.size()>0) std::cout << theNodes.size() << "nodes but no startpoint\n";
-		theNodes.resize(0);
+	//			theNodes.resize(0);
+			theNodes.clear();
 		return 0;
 	}	
 	referenceUnitRadius = startNode->getUnitRadius();

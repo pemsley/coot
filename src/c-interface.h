@@ -3249,6 +3249,8 @@ void refine_zone_atom_index_define(int imol, int ind1, int ind2);
 
  presumes that imol_Refinement_Map has been set */
 void refine_zone(int imol, const char *chain_id, int resno1, int resno2, const char *altconf);
+/*! \brief repeat the previous (user-selected) refine zone */
+void repeat_refine_zone(); /* use stored atom indices to re-run the refinement using the same atoms as previous */
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
 SCM refine_zone_with_score_scm(int imol, const char *chain_id, int resno1, int resno2, const char *altconf);

@@ -5969,6 +5969,7 @@ generic_objects_dialog_table_add_object_internal(const coot::generic_display_obj
       GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (_("Display"));
       std::string label_str = gdo.name;
       GtkWidget *label = gtk_label_new(label_str.c_str());
+      gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5); // not gtk_label_set_justify
 
       std::string stub = "generic_object_" + coot::util::int_to_string(io);
       std::string toggle_button_name = stub + "_toggle_button";
@@ -5983,12 +5984,12 @@ generic_objects_dialog_table_add_object_internal(const coot::generic_display_obj
       gtk_object_set_data_full (GTK_OBJECT (dialog), label_name.c_str(), 
 				label,
 				(GtkDestroyNotify) gtk_widget_unref);
-	    
+
       gtk_table_attach (GTK_TABLE (table), label,
 			0, 1, io, io+1,
 			(GtkAttachOptions) (GTK_FILL),
-			(GtkAttachOptions) (0), 8, 0);
-      
+			(GtkAttachOptions) (0), 8, 0); // pad-x pad-y
+
       gtk_table_attach (GTK_TABLE (table), checkbutton,
 			1, 2, io, io+1,
 			(GtkAttachOptions) (GTK_FILL),
@@ -6000,7 +6001,7 @@ generic_objects_dialog_table_add_object_internal(const coot::generic_display_obj
       gtk_signal_connect(GTK_OBJECT(checkbutton), "toggled",
 			 GTK_SIGNAL_FUNC(on_generic_objects_dialog_object_toggle_button_toggled),
 			 GINT_TO_POINTER(io));
-	       
+
       gtk_widget_show (label);
       gtk_widget_show (checkbutton);
    }

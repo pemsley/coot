@@ -49,6 +49,11 @@ coot::numerical_gradients(gsl_vector *v,
 			  void *params, 
 			  gsl_vector *df) {
 
+   // Not that (at present) user-only fixed atoms re removed from numerical gradient calculations,
+   // Other fixed atom (in flanking residues) continue to have numerical gradients calculated for them.
+   // This is confusing and undesirable.
+   // What are the flanking residues?
+
 //    clipper::Coord_orth a(0,0,2); 
 //    cout << "length test: " << a.lengthsq() << endl; 
 
@@ -72,7 +77,15 @@ coot::numerical_gradients(gsl_vector *v,
    std::vector<double>  numerical_derivs(v->size);
 
    for (unsigned int i=0; i<df->size; i++)
-      analytical_derivs[i] = gsl_vector_get(df, i); 
+      analytical_derivs[i] = gsl_vector_get(df, i);
+
+   if (false) {
+      std::cout << "debug:: in numerical_gradients() here are the " << restraints->fixed_atom_indices.size()
+		<< " fixed_atom indices: \n";
+      for (std::size_t ii=0; ii<restraints->fixed_atom_indices.size(); ii++)
+	 std::cout << " " << restraints->fixed_atom_indices[ii];
+      std::cout << "\n";
+   }
 
    for (unsigned int i=0; i<v->size; i++) { 
 
@@ -103,7 +116,7 @@ coot::numerical_gradients(gsl_vector *v,
       // overwrite the analytical gradients with numerical ones:
       // gsl_vector_set(df, i, val);
    }
-   
+
    for (unsigned int i=0; i<v->size; i++) {
       std::cout << i << " analytical: " << analytical_derivs[i]
 		<< " numerical: " << numerical_derivs[i] << "\n";
@@ -1488,7 +1501,7 @@ coot::my_df_planes(const gsl_vector *v,
    //
    coot::restraints_container_t *restraints =
       (coot::restraints_container_t *)params;
-   
+
    int idx; 
 
    if (restraints->restraints_usage_flag & coot::PLANES_MASK) {
@@ -1502,6 +1515,17 @@ coot::my_df_planes(const gsl_vector *v,
 	 if ( (*restraints)[i].restraint_type == coot::PLANE_RESTRAINT) {
 
 	    const simple_restraint &plane_restraint = (*restraints)[i];
+
+	    if (false) { // debug
+	       std::cout << "restraint index " << i << " plane with fixed atom indices:\n";
+	       for (std::size_t jj=0; jj<plane_restraint.fixed_atom_flags.size(); jj++) {
+		  std::cout << " " << plane_restraint.fixed_atom_flags[jj];
+		  mmdb::Atom *at = restraints->get_atom(plane_restraint.plane_atom_index[jj].first);
+		  std::cout << "    " << atom_spec_t(at) << std::endl;
+	       }
+	       std::cout << "\n";
+	    }
+
 	    coot::plane_distortion_info_t plane_info =
 	       distortion_score_plane_internal(plane_restraint, v);
 	    n_plane_atoms = plane_restraint.plane_atom_index.size();

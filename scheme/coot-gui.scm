@@ -798,9 +798,17 @@
 ;; A pair of widgets, a molecule chooser and an entry.  The
 ;; callback-function is a function that takes a molecule number and a
 ;; text string.
+;;
+;; if always-dismiss-on-ok-clicked? is false then the dialog is not dismissed if 
+;; callback-function returns #f.
 ;; 
-(define (generic-chooser-and-entry chooser-label entry-hint-text defaut-entry-text callback-function)
-  
+(define (generic-chooser-and-entry chooser-label entry-hint-text defaut-entry-text callback-function . always-dismiss-on-ok-clicked?)
+
+  ;; (format #t "always-dismiss-on-ok-clicked? is ~s~% " always-dismiss-on-ok-clicked?)
+  ;; if this function is called without the always-dismiss-on-ok-clicked? then
+  ;; always-dismiss-on-ok-clicked? here is ().
+  ;; otherwise it is a list containing the passed always-dismiss-on-ok-clicked? value.
+
   (let* ((window (gtk-window-new 'toplevel))
 	 (label (gtk-label-new chooser-label))
 	 (vbox (gtk-vbox-new #f 2))
@@ -837,14 +845,22 @@
 			  (let ((active-mol-no (get-option-menu-active-molecule 
 						option-menu
 						model-mol-list)))
-			    
+
 			    (if (number? active-mol-no)
 				(begin
-				  (let ((text (gtk-entry-get-text entry)))
-				    (callback-function active-mol-no text)))))
-			  
-			  (gtk-widget-destroy window)))
-    
+				  (let* ((text (gtk-entry-get-text entry))
+					 (func-return-value (callback-function active-mol-no text)))
+
+				    (format #t "func-return-value: ~s~%" func-return-value)
+
+				    (if (null? always-dismiss-on-ok-clicked?) ;; default
+					(gtk-widget-destroy window)
+					(if func-return-value
+					    (gtk-widget-destroy window)
+					    (begin
+					      ;; (format #t "not going anywhere\n")
+					      #t)))))))))
+
     (gtk-signal-connect cancel-button "clicked"
 			(lambda args
 			  (gtk-widget-destroy window)))

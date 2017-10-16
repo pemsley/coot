@@ -729,6 +729,10 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
    //
    // v   = -cos(istep/nsteps * pi)
 
+   // for theta (0->2pi) for frac (0,1)
+   // how about acc = sin(theta) + pi * 0.032 * sin(3 * theta)
+   // so v  = ? -cos(theta) + pi * 0.032 * 3 * -cos(3*theta)
+   
    float xd = x - rotation_centre_x;
    float yd = y - rotation_centre_y;
    float zd = z - rotation_centre_z;

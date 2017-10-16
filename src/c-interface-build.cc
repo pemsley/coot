@@ -3818,10 +3818,14 @@ int place_strand_here(int n_residues, int n_sample_strands) {
    int imol_map = g.Imol_Refinement_Map();
    if (imol_map != -1) {
 
-      float s = graphics_info_t::molecules[imol_map].map_sigma();
       coot::helix_placement p(graphics_info_t::molecules[imol_map].xmap);
+      float s = graphics_info_t::molecules[imol_map].map_sigma();
+      float ff = graphics_info_t::place_helix_here_fudge_factor;
+      if (graphics_info_t::molecules[imol_map].is_EM_map())
+	 ff = 3.0;
+      float s_with_ff = s * ff;
       coot::helix_placement_info_t si =
-	 p.place_strand(pt, n_residues, n_sample_strands, s * graphics_info_t::place_helix_here_fudge_factor);
+	 p.place_strand(pt, n_residues, n_sample_strands, s_with_ff);
       if (si.success) {
 	 // nice to refine the fragment here, but the interface
 	 // doesn't work that way, so put the refinement after the

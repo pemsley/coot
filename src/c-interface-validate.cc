@@ -2410,7 +2410,33 @@ SCM all_molecule_ramachandran_score(int imol) {
       SCM c_scm = scm_double2num(rs.score_non_sec_str);
       SCM d_scm = SCM_MAKINUM(rs.n_residues_non_sec_str());
       SCM e_scm = SCM_MAKINUM(rs.n_zeros);
-      r = SCM_LIST5(a_scm, b_scm, c_scm, d_scm, e_scm);
+      SCM by_residue_scm = SCM_EOL;
+      for (std::size_t ii=0; ii<rs.scores.size(); ii++) {
+	 SCM residue_spec_scm = residue_spec_to_scm(rs.scores[ii].res_spec);
+	 SCM d_scm = scm_double2num(rs.scores[ii].score);
+	 SCM phi_scm = scm_double2num(rs.scores[ii].phi_psi.phi());
+	 SCM psi_scm = scm_double2num(rs.scores[ii].phi_psi.psi());
+	 SCM phi_psi_scm = SCM_LIST2(phi_scm, psi_scm);
+	 if (false)
+	    std::cout << "here with residue pointers "
+		      << rs.scores[ii].residue_prev << " "
+		      << rs.scores[ii].residue_this << " "
+		      << rs.scores[ii].residue_next << " "
+		      << std::endl;
+	 if (rs.scores[ii].residue_prev &&
+	     rs.scores[ii].residue_this &&
+	     rs.scores[ii].residue_next) {
+	    SCM res_names_scm = SCM_LIST3(scm_makfrom0str(rs.scores[ii].residue_prev->GetResName()),
+					  scm_makfrom0str(rs.scores[ii].residue_this->GetResName()),
+					  scm_makfrom0str(rs.scores[ii].residue_next->GetResName()));
+	    SCM residue_results_scm = SCM_LIST4(phi_psi_scm, residue_spec_scm, d_scm, res_names_scm);
+	    by_residue_scm = scm_cons(residue_results_scm, by_residue_scm);
+	 } else {
+	    SCM residue_results_scm = SCM_LIST3(phi_psi_scm, residue_spec_scm, d_scm);
+	    by_residue_scm = scm_cons(residue_results_scm, by_residue_scm);
+	 }
+      }
+      r = SCM_LIST6(a_scm, b_scm, c_scm, d_scm, e_scm, by_residue_scm);
    }
 
    return r;

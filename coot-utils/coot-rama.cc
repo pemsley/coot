@@ -58,14 +58,14 @@ coot::util::ramachandran_angles(mmdb::PResidue *SelResidues, int nSelResidues) {
 
 // SelResidue is guaranteed to have 3 residues (there is no protection
 // for that in this function).
-std::pair<bool, coot::util::phi_psi_t>
+std::pair<bool, coot::util::phi_psi_with_residues_t>
 coot::util::get_phi_psi(mmdb::PResidue *SelResidue) {
    return get_phi_psi(SelResidue[0], SelResidue[1], SelResidue[2]);
 } 
 
 // SelResidue is guaranteed to have 3 residues (there is no protection
 // for that in this function).
-std::pair<bool, coot::util::phi_psi_t>
+std::pair<bool, coot::util::phi_psi_with_residues_t>
 coot::util::get_phi_psi(mmdb::Residue *residue_0, mmdb::Residue *residue_1, mmdb::Residue *residue_2) {
 
    bool is_valid_flag = 0;
@@ -147,7 +147,6 @@ coot::util::get_phi_psi(mmdb::Residue *residue_0, mmdb::Residue *residue_1, mmdb
 				      ires,
 				      inscode,
 				      segid);
-
       // peptide bonding atoms have to be within 2.0A, or this is not
       // a valid peptide.
       // 
@@ -160,8 +159,14 @@ coot::util::get_phi_psi(mmdb::Residue *residue_0, mmdb::Residue *residue_1, mmdb
       
    } else {
       // std::cout << "only found " << natom << " atoms " << std::endl;
-   } 
-   return std::pair<bool, coot::util::phi_psi_t> (is_valid_flag, phi_psi);
+   }
+
+   coot::util::phi_psi_with_residues_t phi_psi_with_residues(phi_psi);
+   phi_psi_with_residues.residue_prev = residue_0;
+   phi_psi_with_residues.residue_this = residue_1;
+   phi_psi_with_residues.residue_next = residue_2;
+
+   return std::pair<bool, coot::util::phi_psi_with_residues_t> (is_valid_flag, phi_psi_with_residues);
 }
 
 
@@ -169,7 +174,7 @@ coot::util::get_phi_psi(mmdb::Residue *residue_0, mmdb::Residue *residue_1, mmdb
 // apart).
 coot::util::phi_psi_t::phi_psi_t(mmdb::Residue *prev, mmdb::Residue *this_res, mmdb::Residue *next) {
 
-   std::pair<bool, coot::util::phi_psi_t> bpp = coot::util::get_phi_psi(prev, this_res, next);
+   std::pair<bool, coot::util::phi_psi_with_residues_t> bpp = coot::util::get_phi_psi(prev, this_res, next);
 
    if (! bpp.first) {
       std::string mess = "bad residues for phi,psi calculation";
