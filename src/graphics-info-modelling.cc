@@ -805,7 +805,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 		  restraints.thread_pool(&static_thread_pool, n_threads);
 #endif // HAVE_CXX_THREAD
 
-	       if (true)
+	       if (false)
 		  std::cout << "---------- debug:: in generate_molecule_and_refine() "
 			    << " calling restraints.make_restraints() with imol "
 			    << imol << " "
