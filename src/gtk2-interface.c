@@ -32578,7 +32578,7 @@ create_generic_objects_dialog (void)
   generic_objects_dialog = gtk_dialog_new ();
   gtk_widget_set_name (generic_objects_dialog, "generic_objects_dialog");
   gtk_window_set_title (GTK_WINDOW (generic_objects_dialog), _("Generic Objects"));
-  gtk_window_set_default_size (GTK_WINDOW (generic_objects_dialog), 330, 220);
+  gtk_window_set_default_size (GTK_WINDOW (generic_objects_dialog), 330, 360);
   gtk_window_set_type_hint (GTK_WINDOW (generic_objects_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
   gtk_dialog_set_has_separator (GTK_DIALOG (generic_objects_dialog), FALSE);
 

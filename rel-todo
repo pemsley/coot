@@ -1,5 +1,14 @@
 
    For Release 0.8.9
+ 
+   o make cryo-EM mode in refinement work ::: 4
+
+   o add an arg to init_from_residue_vec() and so the restraints_container_t constructor from 
+     which it is called that says "don't make links to residues that have a residue number 
+     difference greater than 1" - which will stop annoying linking in add_terminal_residue_complicado.
+
+   o build NAG, NAG, BMA.  In coot-reduce, HO4 should not be added at the links.
+     And check that coot-probe looks good.  ::: 1
 
    o read in dictionary for PF-56. The bond lines of the O-S are too close.
 
@@ -47,15 +56,8 @@
    o In refinement, pull the structure arround to create a cis peptide, then fix it.
      Is the dialog message removed? ::: 1
 
-   o Make it easy for me to re-run the previous refinement ::: 1
-
-   o run lidia -> hydrogenate, then coot reduce - don't double protonate atoms  ::: 1
-
    o segment_map(0, 0.03) for EMD-6224 doesn't do good things (300 empty (?) maps). 
      segment EMD-1832. (puntable) ::: 6
-
-   o Copy fragment dialog should not dismiss if a new molecule is not created because it
-     failed find atoms. ::: 1
 
    o the hydrogen is not drawn correctly on AC6 in Colour by Atoms. Additional half-bond. ::: 2
 
@@ -69,9 +71,6 @@
    o make cfc work again ::: 3
 
    o FLEV fail on A2005 in 5pb8 failure to construct rdkit molecule (in alt conf D) ::: 1
-
-   o repeat previous refinement: wrap refine-zone using (stored) atom indices
-     residue_range_atom_index_1 and residue_range_atom_index_2
 
    o make a mode "don't recontour the map on recentre". Add a "recontour" 
      toolbar button ::: 2
@@ -122,7 +121,7 @@
 
    o do a better job of scaling the density fit analysis (say low resolution data).
 
-     ::: 1
+     ::: 2
 
    o For glyco tree validation (matching vs oligomannose-tree etc) allow modes 
      liberal (current) and correct which needs correct residue types
@@ -136,10 +135,6 @@
      loaded at runtime (but (of course)) is conditionally evaluated).
 
      ::: 1
-
-   o on mutating a THR (or anything) to a PRO, remember to delete H. ::: 1
-
-* Done (I think).
 
    o I don't like fat hydrogen (bonds) in Colour by Chain mode. ::: 2
 
@@ -159,9 +154,6 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
 
    ::: 4
 
-   o build NAG, NAG, BMA.  In coot-reduce, HO4 should not be added at the links.
-     And check that coot-probe looks good.  ;:: 1
-
    o undo and redo should update the Ramachandran plot ::: 1
 
    o delete_all_extra_restraints() should updates the extra restraints display ::: 1
@@ -169,8 +161,6 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
    o need a delete extra restraints menu item ::: 1
 
    o update the display of the restraints even if the molecule is not displayed ::: 1
-
-   o make cryo-EM mode in refinement work ::: 4
 
    o --splash-screen arb-image.png - does that work? ::: 1
 
@@ -183,18 +173,6 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
      (undo).  Now get lots of warning about missing atoms on the
      terminal (as coot tries to find the atoms for the extra
      restraints).  Tricky to fix, I think. ::: 4
-
-   o get rid of this: 
-     INFO:: setup minimol from mol: no spacegroup
-     ::: 1
-
-* Done.
-
-   o get rid of this:
-.... step_count: 880 step_count_lim 5000
-     ::: 1
-
-* Done, was fixed in refinement
 
    o fetch Bernie branch. consider new rama ::: 6
 
@@ -463,3 +441,43 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
      ::: 6
 
 * Done.
+
+   o draw sequence view: which molecule number are we looking at? ::: 1
+
+* Done
+
+   o all atom contact dots labels should have a molecule number attached. ::: 1
+
+* Done.
+
+   o on mutating a THR (or anything) to a PRO, remember to delete H. ::: 1
+
+* Done.
+
+   o Make it easy for me to re-run the previous refinement ::: 1
+   o repeat previous refinement: wrap refine-zone using (stored) atom indices
+     residue_range_atom_index_1 and residue_range_atom_index_2
+
+* Done.
+
+   o Copy fragment dialog should not dismiss if a new molecule is not created because it
+     failed find atoms. ::: 1
+
+* Done.
+
+   o run lidia -> hydrogenate, then coot reduce - don't double protonate atoms  ::: 1
+
+* Done.
+
+   o get rid of this: 
+     INFO:: setup minimol from mol: no spacegroup
+     ::: 1
+
+* Done.
+
+   o get rid of this:
+.... step_count: 880 step_count_lim 5000
+     ::: 1
+
+* Done, was fixed in refinement
+

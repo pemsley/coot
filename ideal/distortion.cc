@@ -1485,7 +1485,7 @@ coot::distortion_score_non_bonded_contact(const coot::simple_restraint &nbc_rest
 	 // << " " << atom_spec_t(atom[nbc_restraint.atom_index_2]) 
 		<< " comparing model: " << sqrt(dist_sq) << " min_dist: " << nbc_restraint.target_value
 		<< " with sigma " << nbc_restraint.sigma << std::endl;
-   
+
    if (dist_sq < nbc_restraint.target_value * nbc_restraint.target_value) {
       double weight = 1.0/(nbc_restraint.sigma * nbc_restraint.sigma);
       double dist = sqrt(dist_sq);
@@ -1563,7 +1563,7 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
       mat(2,0) = mat(0,2);
       mat(2,1) = mat(1,2);
 
-      if (0) { // debug
+      if (false) { // debug
 	 std::cout << "mat pre  eigens:\n";
 	 for (unsigned int ii=0; ii<3; ii++) { 
 	    for (unsigned int jj=0; jj<3; jj++) { 
@@ -1572,13 +1572,8 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 	    std::cout << "\n";
 	 }
       }
-      
+
       std::vector<double> eigens = mat.eigen(true);
-      
-//       std::cout << "we get eigen values: "
-//  		<< eigens[0] << "  "
-//  		<< eigens[1] << "  "
-//  		<< eigens[2] << std::endl;
 
       // Let's now extract the values of a,b,c normalize them
       std::vector<double> abcd(4);
@@ -1595,7 +1590,6 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 	    std::cout << "\n";
 	 }
       }
-      
       
       double sqsum = 1e-20;
 
@@ -1614,13 +1608,17 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 	 idx = 3*(plane_restraint.plane_atom_index[i].first);
 	 if (idx < 0) {
 	 } else { 
-	    val = 
-	       abcd[0]*gsl_vector_get(v,idx  ) +
-	       abcd[1]*gsl_vector_get(v,idx+1) +
-	       abcd[2]*gsl_vector_get(v,idx+2) -
-	       abcd[3];
-	    double r = val/plane_restraint.plane_atom_index[i].second; // .second is the weight
-	    sum_devi += r*r;
+	    // if (! plane_restraint.fixed_atom_flags[i] ) {
+	    if (true) { // should fixed atoms contribute to the distortion of the plane?
+	                // yes.
+	       val = 
+		  abcd[0]*gsl_vector_get(v,idx  ) +
+		  abcd[1]*gsl_vector_get(v,idx+1) +
+		  abcd[2]*gsl_vector_get(v,idx+2) -
+		  abcd[3];
+	       double r = val/plane_restraint.plane_atom_index[i].second; // .second is the weight
+	       sum_devi += r*r;
+	    }
 	 }
       }
 
@@ -1629,7 +1627,7 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
       }
    }
 
-   if (false) 
+   if (false)
       std::cout << "DEBUG:: distortion_score_plane_internal() returning "
 		<< sum_devi << " for " << plane_restraint.plane_atom_index.size() << " atoms"
 		<< std::endl;

@@ -69,13 +69,18 @@ PyObject *get_bonds_representation(int imol) {
 	       long residue_index = bonds_box.consolidated_atom_centres[icol].points[i].residue_index;
 	       PyObject *atom_info_quad_py = PyTuple_New(4);
 	       PyObject *coords_py = PyTuple_New(3);
+	       PyObject *atom_spec_py = Py_False;
 	       std::string s = "attrib-filled-later";
 	       // Hmm.
 	       // Perhaps we actually want the atom spec (as a python object).
 	       // In that case, graphical_bonds_atom_info_t should store the atom, not the residue
 	       //
-	       if (bonds_box.consolidated_atom_centres[icol].points[i].residue_p) {
-		  coot::residue_spec_t spec(bonds_box.consolidated_atom_centres[icol].points[i].residue_p);
+	       mmdb::Atom *at = bonds_box.consolidated_atom_centres[icol].points[i].atom_p;
+	       if (at) {
+		  atom_spec_py = atom_spec_to_py(at);
+
+		  // needed?
+		  coot::residue_spec_t spec(bonds_box.consolidated_atom_centres[icol].points[i].atom_p);
 		  s = spec.format();
 	       }
 
@@ -96,7 +101,8 @@ PyObject *get_bonds_representation(int imol) {
 	       PyTuple_SetItem(coords_py, 2, PyFloat_FromDouble(pt.z()));
 	       PyTuple_SetItem(atom_info_quad_py, 0, coords_py);
 	       PyTuple_SetItem(atom_info_quad_py, 1, PyBool_FromLong(is_H_flag));
-	       PyTuple_SetItem(atom_info_quad_py, 2, PyString_FromString(s.c_str()));
+	       // PyTuple_SetItem(atom_info_quad_py, 2, PyString_FromString(s.c_str())); old
+	       PyTuple_SetItem(atom_info_quad_py, 2, atom_spec_py);
 	       PyTuple_SetItem(atom_info_quad_py, 3, residue_index_py);
 	       PyTuple_SetItem(atom_set_py, i, atom_info_quad_py);
 	    }
