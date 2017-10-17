@@ -46,6 +46,9 @@ libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
         base-pairing.cc backrub-rotamer.cc trace.cc trace-2.cc multi-peptide.cc \
         ligands-db.cc
 
+
+# chi-angles, monomer-utils, rotamer torsion-general use coot::Cartesian
+# from libcoot-coords
 #   $(top_builddir)/coords/libcoot-coords.la           # library re-order
 
 # clean

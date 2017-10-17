@@ -29,6 +29,8 @@ ACLOCAL_AMFLAGS=-I macros
 # geometry depends on utils
 #
 
+# also: coords depends on ligand because now we do rotamer markup.
+#       so ligand functions must not use coot::Cartesian
 if COND_LIDIA_ONLY
    SUBDIRS = compat utils mini-mol geometry lidia-core lbg
 else

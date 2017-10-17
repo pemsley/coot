@@ -19,8 +19,9 @@
  * 02110-1301, USA.
  */
 
-#include "coords/mmdb-extras.h" // this and next 
-#include "coords/mmdb.h"        // for nice printing of atom pointer
+// no dependency on coords files
+// #include "coords/mmdb-extras.h" // this and next
+// #include "coords/mmdb.h"        // for nice printing of atom pointer
 
 #include <stdexcept>
 #include "utils/coot-utils.hh" // for int_to_string()

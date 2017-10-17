@@ -19,9 +19,12 @@
  * 02110-1301, USA.
  */
 
+#include <fstream>
+
 #include "utils/coot-utils.hh"
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+// no dependency on coords files
+// #include "coords/mmdb-extras.h"
+// #include "coords/mmdb.h"
 
 #include "residue_by_phi_psi.hh"
 
@@ -235,9 +238,9 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 	    }
 	 }
 	 auto tp_4 = std::chrono::high_resolution_clock::now();
-	 auto d21 = chrono::duration_cast<chrono::milliseconds>(tp_2 - tp_1).count();
-	 auto d32 = chrono::duration_cast<chrono::milliseconds>(tp_3 - tp_2).count();
-	 auto d43 = chrono::duration_cast<chrono::milliseconds>(tp_4 - tp_3).count();
+	 auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+	 auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+	 auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
 	 std::cout << "Timings: " << d21 << " " << d32 << " " << d43 << " ms" << std::endl;
       } else {
 	 // standard non-threaded
@@ -255,7 +258,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 	    }
 	 }
 	 auto tp_2 = std::chrono::high_resolution_clock::now();
-	 auto d21 = chrono::duration_cast<chrono::milliseconds>(tp_2 - tp_1).count();
+	 auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
 	 std::cout << "Timings: " << d21 << " ms " << std::endl;
       }
 
@@ -381,7 +384,7 @@ coot::residue_by_phi_psi::add_characteristic_low_points(coot::ligand_score_card 
       float db = score_position(ld_pos, xmap_in);
 
       if (false) {
-	 std::cout << "ld_pos: " << ld_pos << " scores " << db << " c.f. " << s->score_per_atom
+	 std::cout << "ld_pos: " << ld_pos.format() << " scores " << db << " c.f. " << s->score_per_atom
 		   << std::endl;
 	 std::ofstream f("debug-pos.txt");
 	 f << "set_rotation_centre( " << ld_pos.x() << ", " << ld_pos.y() << ", " << ld_pos.z()
@@ -509,7 +512,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner(int itrial,
 	 float db = score_position(ld_pos, xmap_in);
 
 	 if (true) {
-	    std::cout << "ld_pos: " << ld_pos << " scores " << db << " c.f. " << s.score_per_atom
+	    std::cout << "ld_pos: " << ld_pos.format() << " scores " << db << " c.f. " << s.score_per_atom
 		      << std::endl;
 	    std::ofstream f("debug-pos.txt");
 	    f << "set_rotation_centre( " << ld_pos.x() << ", " << ld_pos.y() << ", " << ld_pos.z()

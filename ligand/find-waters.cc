@@ -38,8 +38,10 @@
 
 #include <stdlib.h>
 
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+// no dependency on coords files
+
+// #include "coords/mmdb-extras.h"
+// #include "coords/mmdb.h"
 #include "ligand.hh"
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
@@ -367,16 +369,31 @@ main(int argc, char **argv) {
 		  clipper::Xmap<float> xmap;
 		  coot::util::map_fill_from_mtz(&xmap, mtz_filename, f_col, phi_col, "", 
 						use_weights, is_diff_map);
-		  atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
-		  short int waters_only_flag = 1;
-		  short int remove_or_zero_occ_flag = coot::util::TRIM_BY_MAP_DELETE;
-		  clipper::Map_stats stats(xmap);
-		  float map_level = stats.mean() + input_sigma_level * stats.std_dev();
-		  int n_atoms = coot::util::trim_molecule_by_map(asc.mol, xmap, map_level,
-								 remove_or_zero_occ_flag,
-								 waters_only_flag);
-		  std::cout << "INFO:: " << n_atoms << " waters removed" << std::endl;
-		  asc.mol->WritePDBASCII(output_pdb.c_str());
+
+		  // we can't use atom_selection_container_t here
+		  // libcoot-coords depends on libcoot-ligand - not the other way round.
+		  //
+		  // atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
+
+		  mmdb::Manager *mol = new mmdb::Manager;
+		  std::cout << "Reading coordinate file: " << pdb_file_name.c_str() << "\n";
+		  mmdb::ERROR_CODE err = mol->ReadCoorFile(pdb_file_name.c_str());
+
+		  if (err) {
+		     std::cout << "There was an error reading " << pdb_file_name.c_str() << ". \n";
+		     std::cout << "ERROR " << err << " READ: "
+			       << mmdb::GetErrorDescription(err) << std::endl;
+		  } else {
+		     short int waters_only_flag = 1;
+		     short int remove_or_zero_occ_flag = coot::util::TRIM_BY_MAP_DELETE;
+		     clipper::Map_stats stats(xmap);
+		     float map_level = stats.mean() + input_sigma_level * stats.std_dev();
+		     int n_atoms = coot::util::trim_molecule_by_map(mol, xmap, map_level,
+								    remove_or_zero_occ_flag,
+								    waters_only_flag);
+		     std::cout << "INFO:: " << n_atoms << " waters removed" << std::endl;
+		     mol->WritePDBASCII(output_pdb.c_str());
+		  }
 	       }
 	    }
 	 } else {

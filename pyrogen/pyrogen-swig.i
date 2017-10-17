@@ -10,7 +10,7 @@ namespace std {
 };
 
 %{
-#include <stddef.h>
+#include <cstddef>
 #include "pyrogen/restraints.hh"
 // #include "pyrogen/geometry-store.hh"
 // #include "pyrogen/geometry-store-interface.hh"
