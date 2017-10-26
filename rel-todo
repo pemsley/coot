@@ -309,3 +309,7 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
 
 * Done. from PIL import Image
 
+   o save map dialog needs to be a transient  ::: 0.5
+
+* Done
+
