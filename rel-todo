@@ -1,5 +1,11 @@
 
    For Release 0.8.9
+
+   o on quick-save-as, if there are 2 molecules called "Helix" (or whatever) they should be
+     saved to different file names.
+
+   o on merging molecules, remove the TER card if we are adding to an already existing chain
+     Consider adding helices made of ALA.  Coot should make a new chain for these. Does it?
  
    o read the comp_id cifs with CSD coords ::: 4
 
