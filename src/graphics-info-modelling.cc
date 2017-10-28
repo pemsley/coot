@@ -1,4 +1,4 @@
-e* src/graphics-info.cc
+/* src/graphics-info.cc
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006 by The University of York
  * Copyright 2007, 2008, 2009 by the University of Oxford
