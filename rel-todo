@@ -1,6 +1,14 @@
 
    For Release 0.8.9
 
+   o Add bis tris BTB and Hepes EPE
+
+   o open a phs file - it asks me for model already read - make this a transient.
+
+   o difference map peaks needs to be antisubmarined. Also unmodelled blobs? Go to Atom?
+
+   o how do I delete-all-hydrogens?
+
    o on quick-save-as, if there are 2 molecules called "Helix" (or whatever) they should be
      saved to different file names.
 
@@ -10,6 +18,8 @@
    o read the comp_id cifs with CSD coords ::: 4
 
 * Needs a test
+
+   o (NAG) Links from mmCIF coordinates? e.g. 5uk0.
 
    o make cryo-EM mode in refinement work ::: 4
 
