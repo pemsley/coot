@@ -701,6 +701,7 @@ public:        //                      public
       map_min_ = -100.0;
       sharpen_b_factor_ = 0.0;
       sharpen_b_factor_kurtosis_optimised_ = -999999.0;
+      pending_contour_level_change_count = 0;
 
       // fourier (for phase recombination (potentially) in refmac:
       fourier_weight_label = ""; // unset initially.
@@ -3096,7 +3097,8 @@ public:        //                      public
    // angle in degrees.
    void spin_N(const coot::residue_spec_t &residue_spec, float angle);
 
- 
+   int pending_contour_level_change_count;
+   
 };
 
 #endif // MOLECULE_CLASS_INFO_T
