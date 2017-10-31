@@ -16,17 +16,21 @@ molecule_class_info_t::make_molecularrepresentationinstance() {
       // (.. (seletionText, name), "colour")
       // sheet colour: 130 190 170 -> #82BEAA
 
-//       auto init_cr        = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("/*/*/*.*/*:*", "NoSecondary"), "chocolate");
-//       auto none_cr        = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_None", "SSE_None"), "chocolate");
-//       auto dark_helix_cr  = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Helix", "SSE_Helix"), "#3A2314");
-//       auto stand_cr       = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Strand", "SSE_Strand"), "#82ce9a");
-//       auto brown_dna_cr   = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("NUCLEICACIDS", "NucleicAcids"), "brown");
+       // auto init_cr        = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("/*/*/*.*/*:*", "NoSecondary"), "chocolate");
+       // auto none_cr        = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_None", "SSE_None"), "chocolate");
+       auto init_cr        = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("/*/*/*.*/*:*", "NoSecondary"), "#707070");
+       auto none_cr        = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_None", "SSE_None"), "#707070");
+       auto dark_helix_cr  = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Helix", "SSE_Helix"), "#3A2314");
+       auto stand_cr       = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Strand", "SSE_Strand"), "#82ce9a");
+       auto brown_dna_cr   = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("NUCLEICACIDS", "NucleicAcids"), "brown");
 
+       if (false) {
       auto init_cr        = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("/*/*/*.*/*:*", "NoSecondary"), "grey");
       auto none_cr        = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_None", "SSE_None"), "grey");
       auto dark_helix_cr  = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Helix", "SSE_Helix"), "forestgreen");
       auto stand_cr       = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Strand", "SSE_Strand"), "firebrick");
       auto brown_dna_cr   = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("NUCLEICACIDS", "NucleicAcids"), "brown");
+       }
 
       // in a molecularrepresentation, set the following:
       // radiusOneHelix=0.95;
@@ -78,7 +82,7 @@ molecule_class_info_t::make_molecularrepresentationinstance() {
 	       selection_str += chain_id;
 
 	       FCXXCoord green(0.4, 0.7, 0.4);
-	       auto green_cr = SolidColorRule::colorRuleForSelectionStringAndColor("//", green);
+	       auto green_cr = SolidColorRule::colorRuleForSelectionStringAndColor(selection_str, green);
 	       auto green_chains_cs      = ColorScheme::colorChainsScheme();
 	       green_chains_cs->addRule(green_cr);
 
@@ -89,8 +93,9 @@ molecule_class_info_t::make_molecularrepresentationinstance() {
 	       // auto molrepinst_2 = MolecularRepresentationInstance::create(my_mol, chains_cs, mmdb_chain, "DishyBases");
 	       // auto molrepinst_2 = MolecularRepresentationInstance::create(my_mol, chains_cs, mmdb_chain, "Calpha");
 
-	       auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol, ele_cs, "//A/22-24/CA", "MolecularSurface");
+	       auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol, ss_cs, selection_str, "Ribbon");
 	       graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(molrepinst_1);
+
 	       molrepinsts.push_back(molrepinst_1);
 
 	    } else {
