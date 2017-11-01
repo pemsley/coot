@@ -16,6 +16,34 @@
    o make a mode "don't recontour the map on recentre". Add a "recontour" 
      toolbar button ::: 2
 
+
+   o fix this crash cfc_crashes_coot.py ::: 2
+* thread #1: tid = 0x0000, 0x000000011279fbfd libglib-2.0.0.dylib`g_slice_alloc + 909, stop reason = signal SIGSTOP
+  * frame #0: 0x000000011279fbfd libglib-2.0.0.dylib`g_slice_alloc + 909
+    frame #1: 0x00000001127a030f libglib-2.0.0.dylib`g_slice_alloc0 + 15
+    frame #2: 0x0000000112719905 libgobject-2.0.0.dylib`g_type_create_instance + 229
+    frame #3: 0x0000000112705e46 libgobject-2.0.0.dylib`g_object_constructor + 22
+    frame #4: 0x0000000111ec7e80 libgtk-x11-2.0.0.dylib`gtk_button_constructor + 16
+    frame #5: 0x0000000112705856 libgobject-2.0.0.dylib`g_object_newv + 790
+    frame #6: 0x0000000112705d94 libgobject-2.0.0.dylib`g_object_new_valist + 884
+    frame #7: 0x00000001127054f3 libgobject-2.0.0.dylib`g_object_new + 179
+    frame #8: 0x000000010d5c1b78 coot-bin`cfc::cfc_dialog_add_waters(site_number=0, extracted_cluster_info=extracted_cluster_info_from_python at 0x00007fff529ed7f8, cfc_dialog=0x00007fb8a11311e0) + 14376 at cfc.cc:510
+    frame #9: 0x000000010d5bc19a coot-bin`cfc::chemical_feature_clusters_add_site_info(site_number=0, eci=0x00007fff529ed8e0, cfc_dialog=0x00007fb8a11311e0) + 90 at cfc.cc:1532
+    frame #10: 0x000000010d5bc00f coot-bin`chemical_feature_clusters_accept_info_py(site_number=0, env_residue=0x000000011d4b2680, mol_ligand_specs=0x000000011bce22d8, cluster_info=0x000000011d4bb440) + 239 at cfc.cc:220
+    frame #11: 0x000000010dda8153 coot-bin`_wrap_chemical_feature_clusters_accept_info_py((null)=0x0000000000000000, args=0x000000011bccefc8) + 291 at coot_wrap_python.cc:67808
+    frame #12: 0x0000000111c74053 libpython2.7.dylib`PyEval_EvalFrameEx + 30563
+    frame #13: 0x0000000111c6c492 libpython2.7.dylib`PyEval_EvalCodeEx + 1666
+    frame #14: 0x0000000111c78a76 libpython2.7.dylib`fast_function + 118
+    frame #15: 0x0000000111c73a7a libpython2.7.dylib`PyEval_EvalFrameEx + 29066
+    frame #16: 0x0000000111c6c492 libpython2.7.dylib`PyEval_EvalCodeEx + 1666
+    frame #17: 0x0000000111c78a76 libpython2.7.dylib`fast_function + 118
+    frame #18: 0x0000000111c73a7a libpython2.7.dylib`PyEval_EvalFrameEx + 29066
+    frame #19: 0x0000000111c6c492 libpython2.7.dylib`PyEval_EvalCodeEx + 1666
+    frame #20: 0x0000000111c6be06 libpython2.7.dylib`PyEval_EvalCode + 54
+    frame #21: 0x0000000111c9ad14 libpython2.7.dylib`PyRun_FileExFlags + 164
+    frame #22: 0x0000000111c6837b libpython2.7.dylib`builtin_execfile + 507
+
+
    o add an arg to init_from_residue_vec() and so the restraints_container_t 
      constructor from which it is called that says "don't make links to residues 
      that have a residue number difference greater than 1" - which will stop annoying 
