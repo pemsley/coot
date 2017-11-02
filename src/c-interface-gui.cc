@@ -2030,7 +2030,7 @@ void set_contour_by_sigma_step_maybe(GtkWidget *window, int imol) {
 
    if (GTK_TOGGLE_BUTTON(button)->active) { 
       const gchar *text = gtk_entry_get_text(GTK_ENTRY(entry));
-      if (text) { 
+      if (text) {
 	 float v = atof(text);
 // 	 graphics_info_t::molecules[imol].contour_by_sigma_flag = 1;
 // 	 graphics_info_t::molecules[imol].contour_sigma_step = v;
@@ -5136,6 +5136,7 @@ void on_export_map_dialog_ok_button_clicked_cc(GtkButton *button) {
       // std::cout << "here in on_export_map_dialog_ok_button_clicked_cc() c is :" << c << ":" << std::endl;
       g_object_set_data(G_OBJECT(file_selection_dialog), "export_map_radius_entry_text",  c);
       g_object_set_data(G_OBJECT(file_selection_dialog), "map_molecule_number",  GINT_TO_POINTER(imol_map));
+      set_transient_and_position(COOT_UNDEFINED_WINDOW, file_selection_dialog);
       gtk_widget_show(file_selection_dialog);
    }
   

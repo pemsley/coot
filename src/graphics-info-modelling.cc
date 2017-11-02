@@ -776,7 +776,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	 // We only want to act on these new residues and molecule, if
 	 // there is something there.
 	 // 
-	 if (residues_mol_and_res_vec.first > 0) {
+	 if (residues_mol_and_res_vec.first != 0) {
 
 	    // Now we want to do an atom name check.  This stops exploding residues.
 	    //
@@ -824,7 +824,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 
 #endif // HAVE_CXX_THREAD
 
-	       if (true)
+	       if (false)
 		  std::cout << "---------- debug:: in generate_molecule_and_refine() "
 			    << " calling restraints.make_restraints() with imol "
 			    << imol << " "

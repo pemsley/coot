@@ -316,7 +316,10 @@ def make_picture_to_file(mol, conf_id, output_file_name):
 
    try:
       from rdkit.Chem import Draw
-      import Image
+      # The import of Image may change depending on how it was provided.
+      # What about pillow? Hmm. Not sure of the details.
+      # import Image
+      from PIL import Image
       state = Draw.MolToFile(mol, size=(300,300), fileName=output_file_name, confId=conf_id)
       # print 'INFO:: wrote PNG   "' + output_file_name + '"'
 
