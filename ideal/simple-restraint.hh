@@ -176,8 +176,10 @@ namespace coot {
 // for protein dictionary container:
 #include "geometry/protein-geometry.hh"
 
-// For Kevin's (Log) Ramachandran Plot and derivatives
+// For Kevin's (Log) Ramachandran Plot and derivativesn
 #include "lograma.h"
+// For ZO's Ramachandran Plot and derivatives
+#include "zo-rama.hh"
 
 #ifndef DEGTORAD 
 #define DEGTORAD 0.017453293
@@ -233,6 +235,7 @@ namespace coot {
 				BONDS_ANGLES_TORSIONS_PLANES_AND_CHIRALS = 47,
 				BONDS_ANGLES_PLANES_AND_CHIRALS = 43,
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS = 63,
+				JUST_RAMAS = 64,
 				BONDS_ANGLES_TORSIONS_NON_BONDED_AND_CHIRALS = 55,
 				BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS = 55+1024,
 				
@@ -747,6 +750,10 @@ namespace coot {
    double distortion_score_rama(const simple_restraint &chiral_restraint,
 				const gsl_vector *v,
 				const LogRamachandran &lograma);
+   double distortion_score_rama(const simple_restraint &chiral_restraint,
+				const gsl_vector *v,
+				const zo::rama_table_set &rama,
+				float rama_plot_weight);
    double distortion_score_start_pos(const simple_restraint &start_pos_restraint,
 			    void *params,
 			    const gsl_vector *v);
@@ -921,7 +928,12 @@ namespace coot {
 	 have_oxt_flag = 0;
 	 do_numerical_gradients_flag = 0;
 	 lograma.init(LogRamachandran::All, 2.0, true);
+	 zo_rama.init();
 	 from_residue_vector = 0;
+	 rama_type = RAMA_TYPE_ZO;
+	 // rama_type = RAMA_TYPE_LOGRAMA;
+	 rama_plot_weight = 40.0;
+	 
 #ifdef HAVE_CXX_THREAD
 	 thread_pool_p = 0; // null pointer
 	 if (unset_deriv_locks)
@@ -1016,7 +1028,10 @@ namespace coot {
       short int include_map_terms_flag;
 
       LogRamachandran lograma;
-
+      zo::rama_table_set zo_rama;
+      double rama_plot_weight; // get_rama_plot_weight() is public
+      // rama_type is public
+      
       // internal function, most of the job of the constructor:
       void init_from_mol(int istart_res_in, int iend_res_in,
 			 bool have_flanking_residue_at_start,
@@ -1899,6 +1914,11 @@ namespace coot {
 					       const extra_restraints_t &extra_restraints,
 					       const protein_geometry &geom);
 
+      // rama_type is public, maybe instead use get_rama_type()
+      enum { RAMA_TYPE_ZO, RAMA_TYPE_LOGRAMA };
+      int rama_type;
+      float get_rama_plot_weight() const { return rama_plot_weight; }
+
       void update_atoms(gsl_vector *s);
       // return the WritePDBASCII() status, or -1 if mol was 0.
       int write_new_atoms(std::string pdb_file_name);
@@ -1920,7 +1940,9 @@ namespace coot {
       mmdb::Manager *results() const;
       void adjust_variables(const atom_selection_container_t &asc);
 
-      LogRamachandran LogRama() const { return lograma; };
+      const LogRamachandran &LogRama() const { return lograma; };
+
+      const zo::rama_table_set &ZO_Rama() const { return zo_rama; };
 
       // here phi and psi are in clipper units (radians).
       double rama_prob(const double &phi_rads, const double &psi_rads) const {
@@ -1928,7 +1950,19 @@ namespace coot {
       }
       LogRamachandran::Lgrad rama_grad(const double &phir, const double &psir) const {
 	 return lograma.interp_grad(phir, psir);
-      } 
+      }
+
+      // calling function should also provide the plot type
+      //
+      float zo_rama_prob(const double &phir, const double &psir) {
+	 return zo_rama.value(phir, psir);
+      }
+
+      // calling function should also provide the plot type.  For now, kludge!
+      //
+      std::pair<float, float> zo_rama_grad(const double &phir, const double &psir) const {
+	 return zo_rama.df(phir, psir);
+      }
 
 
       // Allow public access to this - the general method for knowing if 2 residues have a (dictionary) link.
