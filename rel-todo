@@ -1,6 +1,8 @@
 
    For Release 0.8.9
  
+   o update the ramachandran plot on pepflip-complicado ::: 1
+
    o read the comp_id cifs with CSD coords ::: 4
 
 * Needs a test
