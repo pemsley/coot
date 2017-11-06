@@ -928,7 +928,12 @@ namespace coot {
 	 have_oxt_flag = 0;
 	 do_numerical_gradients_flag = 0;
 	 lograma.init(LogRamachandran::All, 2.0, true);
-	 zo_rama.init();
+	 try {
+	    zo_rama.init();
+	 }
+	 catch (const std::runtime_error &rte) {
+	    std::cout << "ERROR:: ZO Rama tables failed. " << rte.what() << std::endl;
+	 }
 	 from_residue_vector = 0;
 	 rama_type = RAMA_TYPE_ZO;
 	 // rama_type = RAMA_TYPE_LOGRAMA;

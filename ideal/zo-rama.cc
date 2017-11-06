@@ -41,8 +41,8 @@ zo::rama_table::make_a_png(int width, const std::string &file_name) {
       }
    }
 
-   // replace by gradient
-   if (true) {
+   // replace by gradient for testing
+   if (false) {
       for (int j=0; j<width; j++) {
 	 for (int i=0; i<height; i++) {
 	    zo::realtype phi = M_PI *  2.0 * double(i-0.5*height)/double(height);

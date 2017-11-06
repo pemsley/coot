@@ -81,11 +81,13 @@ namespace zo {
    public:
       std::vector<rama_coeffs> rama_vec;
 
+      // this can throw a runtime_error
       rama_table() {
 	 std::string fn = "all-non-pre-pro.tab";
 	 init(fn);
       }
 
+      // this can throw a runtime_error
       rama_table(const std::string &fn) {
 	 init(fn);
       }
@@ -125,9 +127,13 @@ namespace zo {
 
       }
 
+      // this can throw a runtime_error.
+      //
       void read(const std::string &file_name) {
 	 std::ifstream f(file_name);
 	 std::string line;
+
+	 std::cout << "INFO:: reading file " << file_name << std::endl;
 
 	 if (f) {
 	    while(std::getline(f, line)) {
@@ -150,11 +156,12 @@ namespace zo {
 	 }
       }
 
+      // this can throw a runtime_error
       void init(const std::string &local_file_name) {
 	 std::string dir1 = coot::package_data_dir();
 	 std::string dir2 = coot::util::append_dir_dir(dir1, "data");
-	 std::string dir3 = coot::util::append_dir_dir(dir1, "rama");
-	 std::string dir4 = coot::util::append_dir_dir(dir1, "zo-tables");
+	 std::string dir3 = coot::util::append_dir_dir(dir2, "rama");
+	 std::string dir4 = coot::util::append_dir_dir(dir3, "zo-tables");
 
 	 std::string full = coot::util::append_dir_file(dir4, local_file_name);
 	 read(full);
