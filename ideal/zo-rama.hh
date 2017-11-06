@@ -4,12 +4,14 @@
 
 #include <utility>
 #include <vector>
+#include <stdexcept>
 #include <string>
 #include <map>
 #include <iostream>
 #include <fstream>
 #include <cmath>
 
+#define PNG_SKIP_SETJMP_CHECK true
 #define PNG_DEBUG 3
 #include <png.h>
 
@@ -130,7 +132,7 @@ namespace zo {
       // this can throw a runtime_error.
       //
       void read(const std::string &file_name) {
-	 std::ifstream f(file_name);
+	 std::ifstream f(file_name.c_str());
 	 std::string line;
 
 	 std::cout << "INFO:: reading file " << file_name << std::endl;
