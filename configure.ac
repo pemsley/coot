@@ -182,8 +182,11 @@ coot_gtk2=TRUE
 # AM_PATH_GTK(2.4.14)
 PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.12)
 
-# libgnomecanvas is not provided on new GNU/Linux systems
-# PKG_CHECK_MODULES(GNOME_CANVAS, libgnomecanvas-2.0 >= 0.15.0)
+# libgnomecanvas is not provided on new GNU/Linux systems.
+# So until all libgnomecanvas-using code is replaced I will have to install that myself
+# rather than rely on the system for it
+#
+PKG_CHECK_MODULES(GNOME_CANVAS, libgnomecanvas-2.0 >= 0.15.0)
 if test -n "$GNOME_CANVAS_CFLAGS" ; then 
    GNOME_CANVAS_CFLAGS="-DHAVE_GNOME_CANVAS $GNOME_CANVAS_CFLAGS"
 fi
@@ -403,6 +406,7 @@ src/Makefile
 src/coot
 python/coot_load_modules.py
 data/Makefile
+data/rama-coeffs/Makefile
 pixmaps/Makefile
 pixmaps/icons/Makefile
 rama-data/Makefile

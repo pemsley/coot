@@ -44,41 +44,68 @@
 
    o click-click refinement with fixed atoms gives NOPROGRESS. Must fix. ::: 5
 
-   o In refinement, pull the structure arround to create a cis peptide, then fix it.
-     Is the dialog message removed? ::: 1
+   o on quick-save-as, if there are 2 molecules called "Helix" (or whatever) they should be
+     saved to different file names.
 
-   o Make it easy for me to re-run the previous refinement ::: 1
+   o on merging molecules, remove the TER card if we are adding to an already existing chain
+     Consider adding helices made of ALA.  Coot should make a new chain for these. Does it?
+ 
+   o read the comp_id cifs with CSD coords ::: 4
 
-   o run lidia -> hydrogenate, then coot reduce - don't double protonate atoms  ::: 1
+* Needs a test
 
-   o segment_map(0, 0.03) for EMD-6224 doesn't do good things (300 empty (?) maps). 
-     segment EMD-1832. (puntable) ::: 6
-
-   o Copy fragment dialog should not dismiss if a new molecule is not created because it
-     failed find atoms. ::: 1
-
-   o the hydrogen is not drawn correctly on AC6 in Colour by Atoms. Additional half-bond. ::: 2
-
-   o fix the oxygen charge on the ligand thumbnail of 3GP ::: 1
-
-   o thumbnail chemical diagram for ZES in 1iei - Carboxyl O should be O- or OH. Check others.
-     (Interestingly FLEV has a O-).
-
-   o does pyrogen -p work? (after cairo fiddling) ::: 1
-
-   o make cfc work again ::: 3
-
-   o FLEV fail on A2005 in 5pb8 failure to construct rdkit molecule (in alt conf D) ::: 1
-
-   o repeat previous refinement: wrap refine-zone using (stored) atom indices
-     residue_range_atom_index_1 and residue_range_atom_index_2
+   o make cryo-EM mode in refinement work ::: 4
 
    o make a mode "don't recontour the map on recentre". Add a "recontour" 
      toolbar button ::: 2
 
-   o qq-plot-map-and-model - is it in the documentation (and redefines)? ::: 1
 
-   o ACE, PCA and MSE should not be considered as ligands in go-to-ligand ::: 1
+   o fix this crash cfc_crashes_coot.py ::: 2
+* thread #1: tid = 0x0000, 0x000000011279fbfd libglib-2.0.0.dylib`g_slice_alloc + 909, stop reason = signal SIGSTOP
+  * frame #0: 0x000000011279fbfd libglib-2.0.0.dylib`g_slice_alloc + 909
+    frame #1: 0x00000001127a030f libglib-2.0.0.dylib`g_slice_alloc0 + 15
+    frame #2: 0x0000000112719905 libgobject-2.0.0.dylib`g_type_create_instance + 229
+    frame #3: 0x0000000112705e46 libgobject-2.0.0.dylib`g_object_constructor + 22
+    frame #4: 0x0000000111ec7e80 libgtk-x11-2.0.0.dylib`gtk_button_constructor + 16
+    frame #5: 0x0000000112705856 libgobject-2.0.0.dylib`g_object_newv + 790
+    frame #6: 0x0000000112705d94 libgobject-2.0.0.dylib`g_object_new_valist + 884
+    frame #7: 0x00000001127054f3 libgobject-2.0.0.dylib`g_object_new + 179
+    frame #8: 0x000000010d5c1b78 coot-bin`cfc::cfc_dialog_add_waters(site_number=0, extracted_cluster_info=extracted_cluster_info_from_python at 0x00007fff529ed7f8, cfc_dialog=0x00007fb8a11311e0) + 14376 at cfc.cc:510
+    frame #9: 0x000000010d5bc19a coot-bin`cfc::chemical_feature_clusters_add_site_info(site_number=0, eci=0x00007fff529ed8e0, cfc_dialog=0x00007fb8a11311e0) + 90 at cfc.cc:1532
+    frame #10: 0x000000010d5bc00f coot-bin`chemical_feature_clusters_accept_info_py(site_number=0, env_residue=0x000000011d4b2680, mol_ligand_specs=0x000000011bce22d8, cluster_info=0x000000011d4bb440) + 239 at cfc.cc:220
+    frame #11: 0x000000010dda8153 coot-bin`_wrap_chemical_feature_clusters_accept_info_py((null)=0x0000000000000000, args=0x000000011bccefc8) + 291 at coot_wrap_python.cc:67808
+    frame #12: 0x0000000111c74053 libpython2.7.dylib`PyEval_EvalFrameEx + 30563
+    frame #13: 0x0000000111c6c492 libpython2.7.dylib`PyEval_EvalCodeEx + 1666
+    frame #14: 0x0000000111c78a76 libpython2.7.dylib`fast_function + 118
+    frame #15: 0x0000000111c73a7a libpython2.7.dylib`PyEval_EvalFrameEx + 29066
+    frame #16: 0x0000000111c6c492 libpython2.7.dylib`PyEval_EvalCodeEx + 1666
+    frame #17: 0x0000000111c78a76 libpython2.7.dylib`fast_function + 118
+    frame #18: 0x0000000111c73a7a libpython2.7.dylib`PyEval_EvalFrameEx + 29066
+    frame #19: 0x0000000111c6c492 libpython2.7.dylib`PyEval_EvalCodeEx + 1666
+    frame #20: 0x0000000111c6be06 libpython2.7.dylib`PyEval_EvalCode + 54
+    frame #21: 0x0000000111c9ad14 libpython2.7.dylib`PyRun_FileExFlags + 164
+    frame #22: 0x0000000111c6837b libpython2.7.dylib`builtin_execfile + 507
+
+
+   o add an arg to init_from_residue_vec() and so the restraints_container_t 
+     constructor from which it is called that says "don't make links to residues 
+     that have a residue number difference greater than 1" - which will stop annoying 
+     linking in add_terminal_residue_complicado.
+     allow_non_trival_linking
+
+   o build NAG, NAG, BMA.  In coot-reduce, HO4 should not be added at the links.
+     And check that coot-probe looks good.  ::: 1
+
+   o In refinement, pull the structure arround to create a cis peptide, then fix it.
+     Is the dialog message removed? ::: 1
+
+   o lidia molfile.mol should Do The Right Thing :::: 2
+
+   o make cfc work again ::: 3
+
+   o qq-plot-map-and-model - is it in the documentation (and redefines)? ::: 0.5
+
+   o ACE, PCA and MSE should not be considered as ligands in go-to-ligand ::: 0.5
 
    o make benzoic acid in lidia - does it generate correctly in acedrg and
      pyrogen? ::: 2
@@ -88,22 +115,6 @@
    o chemical diagram for Acedrg dictionary for this molecule:
      COC(=O)C(=COC)c1ccccc1COC(N1C)=CC(=N1)C(=C2O)C=C(Cl)C=C2"
      Disable the conversion to NH+ if any bond to the nitrogen is aromatic.
-
-   o Sat 3 Jun 2017 08:57:29 CEST should accept_moving_atoms() (which
-     can be called via scripting) dismiss the add_alt_conf dialog?  I
-     think yes at the moment. [Georg Kempf] ::: 1
-
-   o add_alt_conf interface should have something like this:
-
-      if (use_graphics_interface_flag) {
-         if (refinement_immediate_replacement_flag) {
-	    // dismiss dialog, act as if OK was pressed
-	 }
-      }
-
-      Is this the same thing as above?
-
-      ::: 1
 
    o Copy-molecule loses the NCS ghost info/tranformations (i.e. O doesn't work) ::: 1
 
@@ -137,10 +148,6 @@
 
      ::: 1
 
-   o on mutating a THR (or anything) to a PRO, remember to delete H. ::: 1
-
-* Done (I think).
-
    o I don't like fat hydrogen (bonds) in Colour by Chain mode. ::: 2
 
    o when first molecule is not a protein.  Copy NCS residue range. coot-utils.scm 1533 ::: 1
@@ -159,53 +166,20 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
 
    ::: 4
 
-   o build NAG, NAG, BMA.  In coot-reduce, HO4 should not be added at the links.
-     And check that coot-probe looks good.  ;:: 1
-
    o undo and redo should update the Ramachandran plot ::: 1
-
-   o delete_all_extra_restraints() should updates the extra restraints display ::: 1
-
-   o need a delete extra restraints menu item ::: 1
-
-   o update the display of the restraints even if the molecule is not displayed ::: 1
-
-   o make cryo-EM mode in refinement work ::: 4
 
    o --splash-screen arb-image.png - does that work? ::: 1
 
    o GM distance summary. How many too long, how many too short. And (if possible) by 
      what amounts. ::: 1
 
-   o parse Sameer's xml ::: 12
-
    o add a glyco, with extra GM distance restraints - delete residue
      (undo).  Now get lots of warning about missing atoms on the
      terminal (as coot tries to find the atoms for the extra
      restraints).  Tricky to fix, I think. ::: 4
 
-   o get rid of this: 
-     INFO:: setup minimol from mol: no spacegroup
-     ::: 1
-
-* Done.
-
-   o get rid of this:
-.... step_count: 880 step_count_lim 5000
-     ::: 1
-
-* Done, was fixed in refinement
-
-   o fetch Bernie branch. consider new rama ::: 6
-
-   o lidia molfile.mol should Do The Right Thing :::: 2
-
    o doing a merge and doing a chain chain ids should move over the Link records also.
      Add a test ::: 1
-
-   o read the comp_id cifs with CSD coords ::: 4
-
-* Needs a test
 
    o read in a monomer cif, get monomer.  Bond orders good?  ::: 2
 
@@ -214,16 +188,6 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
    o Re: go to ligand: JED: Can I make a list of "non-interesting comp-ids?" ::: 1
 
    o Fetch molecule: acyclovir, (edit?) click Apply ::: 2
-
-   o does saving the state of backrub rotamers work? Yes, but the button doesn't show the 
-     state at startup. ::: 2
-
-   o add a colour-blind-enabled constructor for the coot::colour_holder (probably should 
-     be in the default constructor, then make it an optional arg). ::: 1
-
-   o Add a test for CISPEP card addition for the introduction of a cis peptide.
-     Currently coot deletes wrong cispeps (only) (not adds new ones).  Needs
-     thought. ::: 3
 
    o It appears that merging coordinates (read from cif with
      multi-character label_asym_id and auth_asym_id) in to another set
@@ -332,8 +296,6 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
    o graphics-info-modelling.cc: for (int iflash=0; iflash<2; iflash++) { 
 	allow flash of 1.
 
-   o in interface to render: make bonds to hydrogens be thinner. ::: 1
-
    Lukasz Wojtas:
 
    1) From res file When I try to show ANISO atoms WinCOOT stops working and shuts down. 
@@ -347,25 +309,15 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
     ::: 1
 
    3) When I try to fix coordinates temporarily by adding 10 - WinCOOT treats 
-      it as actual coordinate and not fixed one so atom is shifted. 
+      it as actual coordinate and not fixed one so atom is shifted.  ::: 1
 
    o when you mutate from an MSE the mainchain should revert to ATOMs ::: 1
 
    o import imidaloze from lidia in coot. c.f. stand-alone ::: 1
 
-   o put the bond, angle, plane, nbc most distorted bonds in the refinement lights dialog ::: 2
+   o put the bond, angle, plane, nbc most distorted bonds in the refinement 
+     lights dialog ::: 2
 
-   o think about this leak:     ::: 1
-
-==9640== 
-==9640== 414,024 (240 direct, 413,784 indirect) bytes in 1 blocks are definitely lost in loss record 12,495 of 12,514
-==9640==    at 0x4A08152: operator new[](unsigned long) (vg_replace_malloc.c:363)
-==9640==    by 0x6E26DA9: Bond_lines_container::make_graphical_bonds(bool) const (Bond_lines.cc:3062)
-==9640==    by 0x6E26FAF: Bond_lines_container::make_graphical_bonds_no_thinning() const (Bond_lines.cc:3052)
-==9640==    by 0x811BA0: molecule_class_info_t::make_colour_by_chain_bonds(short) (molecule-class-info.cc:3213)
-==9640==    by 0x8190F3: molecule_class_info_t::make_bonds_type_checked() (molecule-class-info.cc:3265)
-==9640==    by 0x81D63B: molecule_class_info_t::handle_read_draw_molecule(int, std::string, std::string, short, short, bool, bool, float, int) (molecule-class-info.cc
-:219)
 
 --------------
 
@@ -463,3 +415,56 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
      ::: 6
 
 * Done.
+
+   o draw sequence view: which molecule number are we looking at? ::: 1
+
+* Done
+
+   o all atom contact dots labels should have a molecule number attached. ::: 1
+
+* Done.
+
+   o on mutating a THR (or anything) to a PRO, remember to delete H. ::: 0.5
+
+* Done.
+
+   o Make it easy for me to re-run the previous refinement ::: 1
+   o repeat previous refinement: wrap refine-zone using (stored) atom indices
+     residue_range_atom_index_1 and residue_range_atom_index_2
+
+* Done.
+
+   o Copy fragment dialog should not dismiss if a new molecule is not created because it
+     failed find atoms. ::: 1
+
+* Done.
+
+   o run lidia -> hydrogenate, then coot reduce - don't double protonate atoms  ::: 0.5
+
+* Done.
+
+   o get rid of this: 
+     INFO:: setup minimol from mol: no spacegroup
+     ::: 0.5
+
+* Done.
+
+   o get rid of this:
+.... step_count: 880 step_count_lim 5000
+     ::: 0.5
+
+* Done, was fixed in refinement
+
+
+   o click-click refinement with fixed atoms gives NOPROGRESS. Must fix. ::: 6
+
+* Done.
+
+   o does pyrogen -p work? (after cairo fiddling) ::: 0.5
+
+* Done. from PIL import Image
+
+   o save map dialog needs to be a transient  ::: 0.5
+
+* Done
+

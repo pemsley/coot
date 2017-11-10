@@ -47,11 +47,11 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
       std::cout << "no atoms in second residue!? " << std::endl;
    }
 
-   std::vector<bool> fixed_flag(4);
-   fixed_flag[0] = 0;  // not fixed
-   fixed_flag[1] = 0;
-   fixed_flag[2] = 0;
-   fixed_flag[3] = 0;
+   std::vector<bool> fixed_flags(4);
+   fixed_flags[0] = 0;  // not fixed
+   fixed_flags[1] = 0;
+   fixed_flags[2] = 0;
+   fixed_flags[3] = 0;
 
    atom_1_sel = first_sel;
    atom_2_sel = first_sel;
@@ -62,10 +62,10 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
    n_atom_2 = n_first_res_atoms;
    n_atom_3 = n_second_res_atoms;
    n_atom_4 = n_second_res_atoms;
-   fixed_flag[0] = is_fixed_first;
-   fixed_flag[1] = is_fixed_first;
-   fixed_flag[2] = is_fixed_second;
-   fixed_flag[3] = is_fixed_second;
+   fixed_flags[0] = is_fixed_first;
+   fixed_flags[1] = is_fixed_first;
+   fixed_flags[2] = is_fixed_second;
+   fixed_flags[3] = is_fixed_second;
 
    for (int ifat=0; ifat<n_atom_1; ifat++) { 
       std::string pdb_atom_name_1(atom_1_sel[ifat]->name);
@@ -136,12 +136,16 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
 					<< " and N-C dist " << dist << std::endl;
 				 
 			   if (dist < 2.0) {
-			      if ((omega > 0.5 * M_PI) || (omega < -0.5 * M_PI)) { 
+			      if ((omega > 0.5 * M_PI) || (omega < -0.5 * M_PI)) {
 
+				 std::vector<bool> other_fixed_flags = make_fixed_flags(index1, index2, index3, index4);
+				 for (unsigned int ii=0; ii<other_fixed_flags.size(); ii++)
+				    if (other_fixed_flags[ii])
+				       fixed_flags[ii] = true;
 				 double target_omega = 180.0;
 				 double esd = 2.0; // 5.0 lets slip 72A in 2bmd to trans
 				 add(TRANS_PEPTIDE_RESTRAINT, index1, index2, index3, index4,
-				     fixed_flag,
+				     fixed_flags,
 				     target_omega,
 				     esd,
 				     1.2, // dummy value

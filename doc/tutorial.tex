@@ -633,19 +633,22 @@ Blob 4 is like Blob 3 (isn't it?)
 Click on the button \textsf{``Blob 2''} and examine the density.
 Something is missing from the model.  What?
 
-This protein and has been co-crystallized with its ligand substrate.
-That's what missing: 3' GMP.  So let's add it\ldots
+%% That's what missing: 3' GMP.  So let's add it\ldots
+
+This protein and has been co-crystallized with its ligand substrate, 3' guanosine monophosphate.
+
+How do we add that?
 
 \begin{itemize}
-\item \textsf{File $\rightarrow$ Get Monomer\ldots}
-\item Type \texttt{3GP} in the box (Use Upper Case).  Press return\ldots
+\item \textsf{File $\rightarrow$ Seach Monomer library\ldots}
+\item Type \texttt{guanosine} in the box.  
 
-\textsl{ [Coot pauses for a few seconds while LIBCHECK and REFMAC run]}
+\item Find the box for 3GP and press return\ldots
 
 \textsl{ [3GP appears]}
 
-It is generally easier to work without hydrogens, so let's delete
-them
+It is often easier to work without hydrogens, so let's delete
+them for now
 
 \item \textsf{``Delete\ldots''} from the Modelling Toolbar
   \footnote{Found in the Model/Fit/Refine window too}
@@ -655,7 +658,6 @@ them
 \textsl{ [Hydrogens disappear]}
 
 The 3GP is displaced from where we want it to be.
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

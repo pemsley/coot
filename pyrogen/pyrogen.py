@@ -316,7 +316,10 @@ def make_picture_to_file(mol, conf_id, output_file_name):
 
    try:
       from rdkit.Chem import Draw
-      import Image
+      # The import of Image may change depending on how it was provided.
+      # What about pillow? Hmm. Not sure of the details.
+      # import Image
+      from PIL import Image
       state = Draw.MolToFile(mol, size=(300,300), fileName=output_file_name, confId=conf_id)
       # print 'INFO:: wrote PNG   "' + output_file_name + '"'
 
@@ -981,6 +984,10 @@ if __name__ == "__main__":
 
     (options, args) = parser.parse_args()
     # print 'DEBUG:: options:', options
+    # print 'DEBUG:: args:', args
+
+    if len(args) == 0:
+       print("Usage: pyrogen --help")
 
     if options.show_version:
        print('pyrogen-' + pyrogen_version, "revision", coot_git.revision_count())

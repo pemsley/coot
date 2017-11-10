@@ -72,9 +72,14 @@ exptl::nsv::nsv(mmdb::Manager *mol,
 
    GtkWidget *top_lev = gtk_dialog_new();
    gtk_object_set_data(GTK_OBJECT(top_lev), "nsv_dialog", top_lev);
+   gtk_window_set_title(GTK_WINDOW(top_lev), "Coot Sequence View");
    GtkWidget *vbox = GTK_DIALOG(top_lev)->vbox;
    canvas = GNOME_CANVAS(gnome_canvas_new()); // gnome_canvas_new_aa() is very slow
-   GtkWidget *name_label = gtk_label_new(molecule_name.c_str());
+   std::string label_string = "Molecule Number ";
+   label_string += coot::util::int_to_string(molecule_number_in);
+   label_string += ": ";
+   label_string += molecule_name;
+   GtkWidget *name_label = gtk_label_new(label_string.c_str());
    gtk_box_pack_start(GTK_BOX(vbox), name_label, FALSE, FALSE, 1);
    scrolled_window = gtk_scrolled_window_new(NULL, NULL);
    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 1);

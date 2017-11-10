@@ -15,10 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
-cootdatadir = $(pkgdatadir)/data
-
-SUBDIRS = rama-coeffs
+cootdatadir = $(pkgdatadir)/data/rama/zo-tables
 
 dist_cootdata_DATA = \
-	tutorial-modern.pdb rnasa-1.8-all_refmac1.mtz ligands.db
-
+	all-non-pre-pro.tab

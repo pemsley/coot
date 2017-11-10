@@ -511,7 +511,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner(int itrial,
 	 clipper::Coord_orth ld_pos(next_n, c_pos, ca_pos, 1.8, a, t);
 	 float db = score_position(ld_pos, xmap_in);
 
-	 if (true) {
+	 if (false) {
 	    std::cout << "ld_pos: " << ld_pos.format() << " scores " << db << " c.f. " << s.score_per_atom
 		      << std::endl;
 	    std::ofstream f("debug-pos.txt");
