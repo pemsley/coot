@@ -1628,7 +1628,10 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 		  if (ic == NO_BOND) {
 	       
 		     // no contact found
-		     mmdb::Residue *residue_p = non_Hydrogen_atoms[i]->residue;
+		     mmdb::Residue *residue_p = Hydrogen_atoms[i]->residue;
+		     if (! residue_p)
+			std::cout << "ERROR:: catched condition for crashetty crash!" << std::endl;
+
 		     col = atom_colour(Hydrogen_atoms[i], atom_colour_type);
 		     coot::Cartesian atom(Hydrogen_atoms[i]->x,
 					  Hydrogen_atoms[i]->y,

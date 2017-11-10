@@ -443,7 +443,6 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
 	    flags = coot::ALL_RESTRAINTS;
 
-	 
 	 // coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 
 	 // 20080108 Recall that we do secondary structure restraints
@@ -736,6 +735,8 @@ graphics_info_t::generate_molecule_and_refine(int imol,
       if (do_rama_restraints)
 	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
       
+      // flags = coot::JUST_RAMAS;
+ 
       std::vector<coot::atom_spec_t> fixed_atom_specs = molecules[imol].get_fixed_atoms();
 
       // OK, so the passed residues are the residues in the graphics_info_t::molecules[imol]
@@ -766,7 +767,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	 // We only want to act on these new residues and molecule, if
 	 // there is something there.
 	 // 
-	 if (residues_mol_and_res_vec.first > 0) {
+	 if (residues_mol_and_res_vec.first != 0) {
 
 	    // Now we want to do an atom name check.  This stops exploding residues.
 	    //
