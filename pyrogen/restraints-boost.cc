@@ -78,8 +78,9 @@ BOOST_PYTHON_MODULE(pyrogen_boost) {
    def("mmff_bonds_and_angles",    coot::mmff_bonds_and_angles,    return_value_policy<manage_new_object>());
    // rdkit-like function name
    def("MolFromPDBXr", coot::rdkit_mol_chem_comp_pdbx, return_value_policy<manage_new_object>());
-   def("cairo_png_depict",         coot::cairo_png_depict);
-   def("cairo_png_depict_to_string", coot::cairo_png_string_from_mol);
+   def("cairo_png_depict_from_mmcif", coot::cairo_png_depict_from_mmcif);
+   def("cairo_png_depict_to_string",  coot::cairo_png_string_from_mol);
+   def("cairo_svg_depict_to_string",  coot::cairo_svg_string_from_mol);
 
    class_<coot::mmff_bond_restraint_info_t>("mmff_bond_restraint_info_t")
       .def("get_idx_1",         &coot::mmff_bond_restraint_info_t::get_idx_1)

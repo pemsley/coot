@@ -520,7 +520,7 @@ coot::restraints_container_t::make_link_restraints(const coot::protein_geometry 
 						   bool do_trans_peptide_restraints) {
 
    if (from_residue_vector) {
-      // coot::bonded_pair_container_t bonded_pair_container;
+      // coot::bonded_pair_container_t bonded_pairs_container;
       bonded_pairs_container = make_link_restraints_from_res_vec(geom,
 								 do_rama_plot_restraints,
 								 do_trans_peptide_restraints);      

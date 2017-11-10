@@ -1,4 +1,7 @@
 
+#ifndef CONTACT_INFO_HH
+#define CONTACT_INFO_HH
+
 #include "atom-selection-container.hh"
 
 namespace coot {
@@ -108,3 +111,5 @@ namespace coot {
 
    
 }
+
+#endif // CONTACT_INFO_HH

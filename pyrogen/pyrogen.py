@@ -18,6 +18,12 @@
 # 02110-1301, USA
 
 from __future__ import print_function
+
+"""
+pyrogen contains tools for converting molecules to mmcif restraints dictionaries,
+utilities for retrival, extraction and depction.
+"""
+
 import sys
 import os
 import copy
@@ -187,21 +193,37 @@ def read_file(file_name):
 
 # return False or a file_name
 #
+# downloaded file is put in the CCD directory as CCD/x/xyz.cif
+#
 def get_pdbe_cif_for_comp_id(comp_id):
 
    try:
-      file_name = "PDBe-" + comp_id + ".cif"
-      if os.path.isfile(file_name):
-         return file_name
-      else:
-         url = 'ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/' + comp_id + '.cif'
-         status = urllib.urlretrieve(url, file_name)
-         print('urllib.urllib returned with status', status)
-         return file_name
+      url = 'ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/' + comp_id + '.cif'
+      CCD_dir = 'CCD'
+      # file_name = "PDBe-" + comp_id + ".cif"
+      first_char = comp_id[0]
+      try:
+         sub_dir = os.path.join(CCD_dir, first_char)
+         file_name = os.path.join(sub_dir, comp_id + ".cif")
+         if not os.path.isdir(CCD_dir):
+            os.mkdir(CCD_dir)
+         if not os.path.isdir(sub_dir):
+            os.mkdir(sub_dir)
+         if os.path.isfile(file_name):
+            return file_name
+         else:
+            url = 'ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/' + comp_id + '.cif'
+            status = urllib.urlretrieve(url, file_name)
+            print('urllib.urllib returned with status', status)
+            return file_name
+
+      except OSError as e:
+         print(e)
+         print("Failed: Can't ftp from", url, "and write file", file_name)
+
    except IOError as e:
       print(e)
       print("Failed: Can't ftp from", url, "and write file", file_name)
-      # exit(2)
 
 def fetch(comp_id):
     return get_pdbe_cif_for_comp_id(comp_id)
@@ -730,7 +752,7 @@ def coot_png_from_mmcif_file(mmcif_file_name_in, comp_id, png_file_name, n_pixel
 
 def depict(mol, iconf = -1, npx=300, highlightAtoms=[], highlightBonds=None, highlightAtomColours=None, highlightBondColours=None):
     import IPython
-    import Image
+    # import Image
     import io
     try:
        n_confs = mol.GetNumConformers()
@@ -749,8 +771,14 @@ def depict(mol, iconf = -1, npx=300, highlightAtoms=[], highlightBonds=None, hig
 	# maybe mol was not a RDKit molecule
 	print('ERROR::', e)
 
-def coot_depict_to_string(m, n_px=300):
-   return pyrogen_boost.cairo_png_depict_to_string(m, -1, [], n_px)
+def coot_depict_to_png_string(mol, iconf=-1, n_px=300, highlightAtoms=[], highlightBonds=None, highlightAtomColours=None, highlightBondColours=None):
+       s = pyrogen_boost.cairo_png_depict_to_string(mol, iconf, highlightAtoms, highlightBonds, highlightAtomColours, highlightBondColours, n_px)
+       return s
+
+
+def coot_depict_to_svg_string(mol, iconf=-1, n_px=300, highlightAtoms=[], highlightBonds=None, highlightAtomColours=None, highlightBondColours=None):
+       s = pyrogen_boost.cairo_svg_depict_to_string(mol, iconf, highlightAtoms, highlightBonds, highlightAtomColours, highlightBondColours, n_px)
+       return s
 
 # make MolFromPDBXr available in pyrogen
 def MolFromPDBXr(cif_file_name, comp_id):
@@ -782,8 +810,10 @@ def MolsToGridImage(mols, mols_per_row=3, sub_image_size=(200,200), legends=None
           return None
 
     import IPython
-    import Image
-    import ImageFont
+    # import Image
+    # import ImageFont
+    from PIL import Image
+    from PIL import ImageFont
     import PIL
     import PIL.ImageDraw
     import io

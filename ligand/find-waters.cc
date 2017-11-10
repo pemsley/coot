@@ -38,8 +38,10 @@
 
 #include <stdlib.h>
 
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+// no dependency on coords files
+
+// #include "coords/mmdb-extras.h"
+// #include "coords/mmdb.h"
 #include "ligand.hh"
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
@@ -57,7 +59,7 @@ void show_usage(std::string pname) {
 	     << " --pdbout waters-filename"
 	     << " --sigma sigma-level"
 	     << " --min-dist min-dist-to-protein"
-	     << " --max-dist min-dist-to-protein"
+	     << " --max-dist max-dist-to-protein"
 	     << " --flood"
 	     << " --flood-atom-radius"
 	     << " --chop"
@@ -219,10 +221,10 @@ main(int argc, char **argv) {
 
       short int do_it = 0;  // vs do flood
       short int do_it_with_map = 0;
-      short int have_map = 0;
+      bool have_map = false; // meaning map was specified on the command line (was-given map)
       if (map_file_name.length() > 0)
-	 have_map = 1;
-      
+	 have_map = true;
+
       if ( (pdb_file_name.length() == 0) && !do_flood_flag) {
 	 std::cout << "Missing input PDB file\n";
 	 exit(1);
@@ -292,19 +294,26 @@ main(int argc, char **argv) {
 	       std::cout << "WARNING:: unable to convert: " << e.what() << std::endl;
 	    }
 	 }
-	 
+
 	 coot::ligand lig;
 	 if (have_map) {
 	    clipper::CCP4MAPfile file;
 	    clipper::Xmap<float> xmap;
-	    file.open_read(map_file_name);
-	    file.import_xmap(xmap);
-	    file.close_read();
-	    clipper::Xmap<float> fine_xmap =
-	       coot::util::reinterp_map_fine_gridding(xmap);
-	    lig.import_map_from(fine_xmap);
-	    // lig.output_map("fine-map.map");
-	    xmap = fine_xmap;
+	    if (coot::file_exists(map_file_name)) {
+	       file.open_read(map_file_name);
+	       file.import_xmap(xmap);
+	       file.close_read();
+	       // this can take a long time for a cryo-em map
+	       // is it needed for cryoem flooding?
+	       clipper::Xmap<float> fine_xmap =
+		  coot::util::reinterp_map_fine_gridding(xmap);
+	       lig.import_map_from(fine_xmap);
+	       // lig.output_map("fine-map.map");
+	       xmap = fine_xmap;
+	    } else {
+	       std::cout << "ERROR:: Missing map " << map_file_name << "\n";
+	       exit(1);
+	    }
 	 } else {
 	    clipper::Xmap<float> xmap;
 	    bool stat = coot::util::map_fill_from_mtz(&xmap,
@@ -312,7 +321,7 @@ main(int argc, char **argv) {
 						      f_col, phi_col, "", 
 						      use_weights, is_diff_map);
 
-	    if (! stat) { 
+	    if (! stat) {
 	       std::cout << "ERROR: in filling map from mtz file: " << mtz_filename
 			 << std::endl;
 	       exit(1);
@@ -344,12 +353,12 @@ main(int argc, char **argv) {
 		     // 			    << input_sigma_level << std::endl;
 
 		     if (set_wpdl)
-			lig.set_water_to_protein_distance_limits(wpdl_max, wpdl_max);
+			lig.set_water_to_protein_distance_limits(wpdl_max, wpdl_min); // max min
 		     
 		     lig.water_fit(input_sigma_level, 3); // e.g. 2.0 sigma for 3 cycles 
 		     coot::minimol::molecule water_mol = lig.water_mol();
 		     water_mol.write_file(output_pdb, 20.0);
-		  } else { 
+		  } else {
 		     std::cout << "No atoms found in masking molecule: " 
 			       << pdb_file_name << std::endl;
 		  }
@@ -357,20 +366,34 @@ main(int argc, char **argv) {
 	       } else {
 
 		  // chop[py] waters!
-		  float input_sigma_level = atof(sigma_str.c_str());
 		  clipper::Xmap<float> xmap;
 		  coot::util::map_fill_from_mtz(&xmap, mtz_filename, f_col, phi_col, "", 
 						use_weights, is_diff_map);
-		  atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
-		  short int waters_only_flag = 1;
-		  short int remove_or_zero_occ_flag = coot::util::TRIM_BY_MAP_DELETE;
-		  clipper::Map_stats stats(xmap);
-		  float map_level = stats.mean() + input_sigma_level * stats.std_dev();
-		  int n_atoms = coot::util::trim_molecule_by_map(asc.mol, xmap, map_level,
-								 remove_or_zero_occ_flag,
-								 waters_only_flag);
-		  std::cout << "INFO:: " << n_atoms << " waters removed" << std::endl;
-		  asc.mol->WritePDBASCII(output_pdb.c_str());
+
+		  // we can't use atom_selection_container_t here
+		  // libcoot-coords depends on libcoot-ligand - not the other way round.
+		  //
+		  // atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
+
+		  mmdb::Manager *mol = new mmdb::Manager;
+		  std::cout << "Reading coordinate file: " << pdb_file_name.c_str() << "\n";
+		  mmdb::ERROR_CODE err = mol->ReadCoorFile(pdb_file_name.c_str());
+
+		  if (err) {
+		     std::cout << "There was an error reading " << pdb_file_name.c_str() << ". \n";
+		     std::cout << "ERROR " << err << " READ: "
+			       << mmdb::GetErrorDescription(err) << std::endl;
+		  } else {
+		     short int waters_only_flag = 1;
+		     short int remove_or_zero_occ_flag = coot::util::TRIM_BY_MAP_DELETE;
+		     clipper::Map_stats stats(xmap);
+		     float map_level = stats.mean() + input_sigma_level * stats.std_dev();
+		     int n_atoms = coot::util::trim_molecule_by_map(mol, xmap, map_level,
+								    remove_or_zero_occ_flag,
+								    waters_only_flag);
+		     std::cout << "INFO:: " << n_atoms << " waters removed" << std::endl;
+		     mol->WritePDBASCII(output_pdb.c_str());
+		  }
 	       }
 	    }
 	 } else {

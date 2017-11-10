@@ -19,20 +19,21 @@
 # 02110-1301, USA
 
 # Cambridge
-# MMDB    = $(HOME)/build
-# CLIPPER = $(HOME)/crystal/clipper
-# MCCP4   = $(HOME)/crystal/clipper/mccp4-0.6.3
+PRFX    = $(HOME)/autobuild/build-coot+rdkit-pre-release-gtk2-python
+MMDB    = $(PRFX)
+CLIPPER = $(PRFX)
+MCCP4   = $(PRFX)
 
 # York
 MMDB    = $(HOME)/mapview
 # CLIPPER = $(HOME)/mapview
-CLIPPER = $(HOME)/test/install
-MCCP4   = $(HOME)/mapview
+# CLIPPER = $(HOME)/test/install
+# MCCP4   = $(HOME)/mapview
 
 
 CPPFLAGS = -g
 CXXFLAGS = -I. -I$(MMDB)/include -I$(CLIPPER)/include -I$(MCCP4)/include \
-	   -I../coords
+	   -I..
 
 LDFLAGS = \
 	-L$(MMDB)/lib -lmmdb \
@@ -43,12 +44,12 @@ LDFLAGS = \
 	-L../atom-utils -lcoot-atomutils
 
 
-OBJS = ligand.o 
+OBJS = findligand.o
 
 findligand: findligand.o libcoot-ligand.a
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
-findligand.o: coot-ligand.hh 
+findligand.o: find-ligand.cc ligand.hh
 
 libcoot-ligand.a: $(OBJS)
 	ar r $@ $^

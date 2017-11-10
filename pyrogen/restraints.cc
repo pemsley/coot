@@ -1349,14 +1349,14 @@ coot::add_chem_comp_aromatic_plane_quartet_planes(const RDKit::MatchVectType &ma
 
 	       // We need neighbours of neighbours then:
 	       //
-	       std::vector<unsigned int> quartet_indices;
-	       quartet_indices.push_back(match[ii].second);
+	       std::vector<unsigned int> q_indices;
+	       q_indices.push_back(match[ii].second);
 	       
 	       RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
 	       boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_p);
 	       while(nbr_idx_1 != end_nbrs_1){
 		  if (mol[*nbr_idx_1]->getAtomicNum() != 1) {
-		     quartet_indices.push_back(*nbr_idx_1);
+		     q_indices.push_back(*nbr_idx_1);
 		  }
 		  ++nbr_idx_1;
 	       }
@@ -1365,10 +1365,10 @@ coot::add_chem_comp_aromatic_plane_quartet_planes(const RDKit::MatchVectType &ma
 	       // OK quartet_indices should be 3 now.  Root atom and
 	       // its two neighbours.
 	       //
-	       if (0) {  // debug
+	       if (0) { // debug
 		  std::cout << "debug quartet_indices.size() (should be 3): "
-			    << quartet_indices.size() << std::endl;
-		  for (unsigned int jj=0; jj<quartet_indices.size(); jj++) { 
+			    << q_indices.size() << std::endl;
+		  for (unsigned int jj=0; jj<q_indices.size(); jj++) { 
 		     std::string name;
 		     mol[quartet_indices[jj]]->getProp("name", name);
 		     std::cout << "   " << name;

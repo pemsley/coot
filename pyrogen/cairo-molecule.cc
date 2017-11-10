@@ -691,6 +691,7 @@ coot::cairo_molecule_t::get_scale() const {
 void
 coot::cairo_molecule_t::render(cairo_t *cr) {
 
+   bool debug = true;
    double scale = get_scale();
    lig_build::pos_t centre = get_ligand_centre();
 
@@ -745,7 +746,7 @@ coot::cairo_molecule_t::render(cairo_t *cr) {
       }
    }
 
-   for (unsigned int iat=0; iat<atoms.size(); iat++) { 
+   for (unsigned int iat=0; iat<atoms.size(); iat++) {
       std::string ele = atoms[iat].element;
       std::vector<unsigned int> local_bonds = bonds_having_atom_with_atom_index(iat);
       bool gl_flag = false;
@@ -769,6 +770,39 @@ coot::cairo_molecule_t::render(cairo_t *cr) {
 	 }
       }
    }
+   if (false)
+      debug_box(cr);
+}
+
+void
+coot::cairo_molecule_t::debug_box(cairo_t *cr) {
+
+   cairo_set_line_width(cr, 0.02);
+
+   cairo_set_source_rgb(cr, 1, 0, 0); // red
+   cairo_move_to(cr, 0.01, 0.01);
+   cairo_line_to(cr, 0.01, 0.99);
+   cairo_stroke(cr);
+
+   cairo_set_source_rgb(cr, 0.6, 0.4, 0); // darker red
+   cairo_move_to(cr, 0.01, 0.99);
+   cairo_line_to(cr, 0.99, 0.99);
+   cairo_stroke(cr);
+
+   cairo_set_source_rgb(cr, 0, 1, 1); // cyan
+   cairo_move_to(cr, 0.99, 0.99);
+   cairo_line_to(cr, 0.99, 0.01);
+   cairo_stroke(cr);
+
+   cairo_set_source_rgb(cr, 0.3, 0.4, 0.5); // dark cyan
+   cairo_move_to(cr, 0.99, 0.01);
+   cairo_line_to(cr, 0.01, 0.01);
+   cairo_stroke(cr);
+
+   cairo_rectangle (cr, 0.25, 0.25, 0.5, 0.5);
+   // cairo_set_source_rgb(cr, 0, 0.5, 0);
+   // ncairo_rectangle (cr, 0.02, 0.02, 0.98, 0.98);
+   cairo_stroke(cr);
 }
 
 void
@@ -808,10 +842,10 @@ coot::cairo_molecule_t::png_stream_writer(void *closure_in,
 }
 
 std::string
-coot::cairo_molecule_t::render_to_string(const std::vector<unsigned int> &atom_highlight_list,
-					 const std::vector<unsigned int> &bond_highlight_list,
-					 bool use_highlight_bond_indices_flag,
-					 unsigned int npx) {
+coot::cairo_molecule_t::render_to_png_string(const std::vector<unsigned int> &atom_highlight_list,
+					     const std::vector<unsigned int> &bond_highlight_list,
+					     bool use_highlight_bond_indices_flag,
+					     unsigned int npx) {
 
    bool set_background = false; // this (or a non-None background colour) should be passed
    std::string s;
@@ -832,11 +866,46 @@ coot::cairo_molecule_t::render_to_string(const std::vector<unsigned int> &atom_h
    draw_atom_highlights(cr, centre, scale, atom_highlight_list,
 			bond_highlight_list, use_highlight_bond_indices_flag);
    render(cr);
-   cairo_surface_write_to_png_stream(surface, png_stream_writer, (void *) &s);
+   cairo_surface_write_to_png_stream(surface, png_stream_writer, reinterpret_cast<void *> (&s));
    cairo_destroy(cr);
    cairo_surface_destroy(surface);
    return s;
 }
+
+#if CAIRO_HAS_SVG_SURFACE
+#include <cairo/cairo-svg.h>
+#endif // CAIRO_HAS_SVG_SURFACE
+
+std::string
+coot::cairo_molecule_t::render_to_svg_string(const std::vector<unsigned int> &atom_highlight_list,
+					     const std::vector<unsigned int> &bond_highlight_list,
+					     bool use_highlight_bond_indices_flag,
+					     unsigned int npx) {
+
+   // consider consolidating this and the png string version
+
+   std::string s;
+
+#ifdef CAIRO_HAS_SVG_SURFACE
+   s.reserve(12000);
+
+   cairo_surface_t *surface = cairo_svg_surface_create_for_stream(png_stream_writer, reinterpret_cast<void *>(&s),
+								  npx, npx);
+   cairo_t *cr = cairo_create(surface);
+   cairo_scale(cr, npx, npx);
+   double scale = get_scale();
+   lig_build::pos_t centre = get_ligand_centre();
+
+   draw_atom_highlights(cr, centre, scale, atom_highlight_list,
+			bond_highlight_list, use_highlight_bond_indices_flag);
+   render(cr);
+
+   cairo_destroy(cr);
+   cairo_surface_destroy(surface);
+#endif // CAIRO_HAS_SVG_SURFACE
+   return s;
+}
+
 
 void
 coot::cairo_molecule_t::set_highlight_colour(cairo_t *cr, unsigned int idx) {
@@ -922,11 +991,11 @@ coot::cairo_molecule_t::draw_atom_highlights(cairo_t *cr,
 // npx is a option arg, default 300
 // background_colour is an option arg, default Null
 void
-coot::cairo_png_depict(const std::string &mmcif_file_name,
-		       const std::string &comp_id,
-		       const std::string png_file_name,
-		       unsigned int npx,
-		       PyObject *background_colour_py) {
+coot::cairo_png_depict_from_mmcif(const std::string &mmcif_file_name,
+				  const std::string &comp_id,
+				  const std::string png_file_name,
+				  unsigned int npx,
+				  PyObject *background_colour_py) {
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
@@ -1021,6 +1090,44 @@ coot::cairo_png_string_from_mol(RDKit::ROMol *m, int iconf,
 				PyObject *highlight_bond_colours_dict,
 				unsigned int npx) {
 
+   bool png_vs_svg_mode = true;
+   return cairo_image_string_from_mol(m, iconf, highlight_atom_list, highlight_bond_list,
+				      highlight_atom_colours_dict, highlight_bond_colours_dict,
+				      png_vs_svg_mode, npx);
+}
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+std::string
+coot::cairo_svg_string_from_mol(RDKit::ROMol *m, int iconf,
+				PyObject *highlight_atom_list,
+				PyObject *highlight_bond_list,
+				PyObject *highlight_atom_colours_dict,
+				PyObject *highlight_bond_colours_dict,
+				unsigned int npx) {
+
+   bool png_vs_svg_mode = false; // make an svg
+   return cairo_image_string_from_mol(m, iconf, highlight_atom_list, highlight_bond_list,
+				      highlight_atom_colours_dict, highlight_bond_colours_dict,
+				      png_vs_svg_mode, npx);
+}
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+// highlightAtoms default arg null pointer.
+// draw_atom_highlights is optional arg, default true
+//
+// If highlight_atom_indices comes from a GetSubstructMatch, then
+// the result will be a tuple.  We should allow that too.
+std::string
+coot::cairo_image_string_from_mol(RDKit::ROMol *m, int iconf,
+				  PyObject *highlight_atom_list,
+				  PyObject *highlight_bond_list,
+				  PyObject *highlight_atom_colours_dict,
+				  PyObject *highlight_bond_colours_dict,
+				  bool png_vs_svg_mode,
+				  unsigned int npx) {
+
    // we need to distinguish between highlight_bond_list being
    // an empty list (which was set by the user)
    // and None (default value)
@@ -1028,7 +1135,9 @@ coot::cairo_png_string_from_mol(RDKit::ROMol *m, int iconf,
    std::string s;
    int n_confs = m->getNumConformers();
 
-   if (n_confs > 0) {
+   if (n_confs == 0) {
+      std::cout << "WARNING:: molecule has no conformers" << std::endl;
+   } else {
       if (iconf == -1) {
 	 // use the most recent one
 	 iconf = n_confs -1;
@@ -1100,9 +1209,13 @@ coot::cairo_png_string_from_mol(RDKit::ROMol *m, int iconf,
 	    }
 	 }
       }
-      s = mol.render_to_string(highlight_atom_indices, highlight_bond_indices,
-			       use_highlight_bond_indices_flag, npx);
+      if (png_vs_svg_mode)
+	 s = mol.render_to_png_string(highlight_atom_indices, highlight_bond_indices,
+				      use_highlight_bond_indices_flag, npx);
+      else
+	 s = mol.render_to_svg_string(highlight_atom_indices, highlight_bond_indices,
+				      use_highlight_bond_indices_flag, npx);
    }
    return s;
-#endif
 }
+#endif

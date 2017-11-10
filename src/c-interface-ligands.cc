@@ -2762,7 +2762,7 @@ PyObject *kullback_liebler_py(PyObject *l1, PyObject *l2) {
             v2.push_back(PyFloat_AsDouble(item));
       }
       std::pair<double, double> result = nicholls::get_KL(v1, v2);
-      PyObject *result_py = PyList_New(2);
+      result_py = PyList_New(2);
       PyList_SetItem(result_py, 0, PyFloat_FromDouble(result.first));
       PyList_SetItem(result_py, 1, PyFloat_FromDouble(result.second));
    }
@@ -3534,8 +3534,8 @@ void coot_all_atom_contact_dots(int imol) {
 	 int point_size = 2;
 	 if (type == "vdw-surface") point_size = 1;
 	 for (unsigned int i=0; i<v.size(); i++) {
-	    const std::string &col = v[i].col;
-	    to_generic_object_add_point_internal(obj, col, colour_map[col], point_size, v[i].pos);
+	    const std::string &col_inner = v[i].col;
+	    to_generic_object_add_point_internal(obj, col_inner, colour_map[col_inner], point_size, v[i].pos);
 	 }
 	 if (type != "vdw-surface")
 	    set_display_generic_object_simple(obj, 1); // should be a function with no redraw

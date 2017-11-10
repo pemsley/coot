@@ -443,7 +443,7 @@ int test_output_link_distances_are_correct() {
 	    filename = "pdb4rqd-with-moved-CA.pdb";
 	    coot::write_coords_pdb(atom_sel.mol, filename);
 	    if (coot::file_exists(filename)) {
-	       atom_selection_container_t atom_sel = get_atom_selection(filename, true, true);
+	       atom_sel = get_atom_selection(filename, true, true);
 	       if (atom_sel.mol) {
 		  mmdb::Model *model_p = atom_sel.mol->GetModel(1);
 		  int n_links = model_p->GetNumberOfLinks();
@@ -1889,7 +1889,6 @@ mmdb::Residue *test_get_residue(mmdb::Manager *mol, const std::string &chain_id_
       std::string chain_id = chain_p->GetChainID();
       if (chain_id == chain_id_ref) {
 	 int nres = chain_p->GetNumberOfResidues();
-	 mmdb::PResidue res;
 	 for (int ires=0; ires<nres; ires++) { 
 	    res = chain_p->GetResidue(ires);
 	    int resno = res->GetSeqNum();

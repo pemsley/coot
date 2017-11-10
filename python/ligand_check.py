@@ -162,9 +162,9 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
         def filter_out_waters(imol, env_residues):
             def is_not_water(residue_item):
                 rn = residue_name(imol,
-                                  residue_spec2chain_id(residue_item),
-                                  residue_spec2res_no(residue_item),
-                                  residue_spec2ins_code(residue_item))
+                                  residue_spec_to_chain_id(residue_item),
+                                  residue_spec_to_res_no(residue_item),
+                                  residue_spec_to_ins_code(residue_item))
                 return (rn != "HOH" and rn != "WAT")
             return [res_item for res_item in env_residues if is_not_water(res_item)]
 
@@ -185,15 +185,15 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
         #
         def ligand_environment_temperature_factors(imol, ligand_spec, radius):
             atoms = residue_info(imol,
-                                 residue_spec2chain_id(ligand_spec),
-                                 residue_spec2res_no(ligand_spec),
-                                 residue_spec2ins_code(ligand_spec))
+                                 residue_spec_to_chain_id(ligand_spec),
+                                 residue_spec_to_res_no(ligand_spec),
+                                 residue_spec_to_ins_code(ligand_spec))
             env_residues = residues_near_residue(imol, ligand_spec, radius)
             non_water_env_residues = filter_out_waters(imol, env_residues)
             env_residues = map(lambda res_spec: residue_info(imol,
-                                                             residue_spec2chain_id(res_spec),
-                                                             residue_spec2res_no(res_spec),
-                                                             residue_spec2ins_code(res_spec)),
+                                                             residue_spec_to_chain_id(res_spec),
+                                                             residue_spec_to_res_no(res_spec),
+                                                             residue_spec_to_ins_code(res_spec)),
                                non_water_env_residues)
             # this is a list of residue info not atoms, so flatten
             env_atoms = []

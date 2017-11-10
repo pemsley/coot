@@ -7901,7 +7901,111 @@ what's this?
    PHASE: a new engine for pharmacophore perception, 3D QSAR model development,
    and 3D database screening: 1. Methodology and preliminary results.
    J. Comput. Aided Mol. Des. 20, 647-671,
-   doi: 10.1007/s10822-006-9087-6   (2006).
+  doi: 10.1007/s10822-006-9087-6   (2006).
+
+---
+Sat 19 Aug 2017 00:09:10 BST
+
+   jupyter notebook intereting rdkit and pymol usage from years ago
+
+   http://nbviewer.jupyter.org/gist/greglandrum/4316435
+
+---
+Thu Jul 27 19:48:52 BST 2017
+
+   To compile newest Python 2.7.x on Mac, use additional configure argument
+   MACOSX_DEPLOYMENT_TARGET=10.10
+   to get past
+   compile python configure: error cannot compute sizeof size_t
+
+---
+Thu Jul 27 20:07:08 BST 2017
+
+   to upgrade ipython using pip:
+
+   $ pip install ipython --upgrade
+
+   to force PIL (say)
+
+   $ pip install --upgrade --force-reinstall PIL
+
+   (this didn't work for version-related issues)
+  
+   $ pip install --upgrade --force-reinstall pillow
+
+---
+Sat 29 Jul 2017 15:37:06 BST
+
+  read this: https://autotools.io/index.html
 
 
 ---
+Fri Aug 11 14:19:34 BST 2017
+
+https://stackoverflow.com/questions/21971449/how-do-i-increase-the-cell-width-of-the-jupyter-ipython-notebook-in-my-browser
+
+~/.ipython/profile_default/static/custom/custom.css (iPython) or ~/.jupyter/custom/custom.css (Jupyter) with content
+
+.container { width:100% !important; }
+
+
+---
+Fri  1 Sep 2017 05:52:26 BST
+
+   server threaded:
+
+   https://stackoverflow.com/questions/15074393/python-multithreading-xmlrpc-server
+
+
+---
+Fri  1 Sep 2017 17:51:38 BST
+
+   WebVR and Coot - I discover:
+
+   https://forums.oculus.com/community/discussion/4232/visualizing-protein-structures
+
+   unitymol, molvr
+
+   http://www.molvr.org/category/downloads/
+
+
+---
+Tue 12 Sep 2017 12:19:45 BST
+
+   Try deleting sidechains of a chain in a cryo em map (I was using chain J from 3771) then
+   Extensions -> All Molecule -> Fill partial
+
+   It takes forever (copying the map).
+
+----
+Mon Sep 11 13:06:17 BST 2017
+
+Thunderbird says this:
+
+(firefox:11665): Gdk-WARNING **: Native children wider or taller than 65535 pixels are not supported
+
+(firefox:11665): Gdk-WARNING **: Native children wider or taller than 65535 pixels are not supported
+
+----
+Fri 29 Sep 2017 06:03:42 BST
+
+ Use -Wl,-rpath (if passing to cc) or -rpath (if passing to ld) as more portable than 
+       -R. ephemient Mar 30 '09 at 17:35
+
+ also
+
+ https://www.eyrie.org/~eagle/notes/rpath.html
+
+----
+Tue  3 Oct 2017 11:49:21 BST
+
+   Tristan Croll mentions PyOpenCL
+
+   https://mathema.tician.de/software/pyopencl/
+
+----
+Wed  4 Oct 2017 06:36:53 BST
+
+   sounds
+
+   https://freesound.org/browse/tags/effect/?page=13#sound

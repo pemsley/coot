@@ -716,7 +716,7 @@ std::vector<std::vector<int> > graphics_info_t::torsion_general_contact_indices;
 
 //
 short int graphics_info_t::in_residue_info_define = 0;
-int graphics_info_t::residue_selection_flash_frames_number = 3;
+int graphics_info_t::residue_selection_flash_frames_number = 2; // was 3
 short int graphics_info_t::in_torsion_general_define = 0;
 
 short int graphics_info_t::in_save_symmetry_define = 0; 
@@ -837,6 +837,7 @@ short int graphics_info_t::delete_item_residue_zone = 0;
 short int graphics_info_t::delete_item_residue_hydrogens = 0;
 short int graphics_info_t::delete_item_water = 0;
 short int graphics_info_t::delete_item_sidechain = 0;
+short int graphics_info_t::delete_item_chain = 0;
 GtkWidget *graphics_info_t::delete_item_widget = NULL;
 int       graphics_info_t::keep_delete_item_active_flag = 0;
 coot::residue_spec_t graphics_info_t::delete_item_residue_zone_1;

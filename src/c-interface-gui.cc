@@ -5447,6 +5447,7 @@ void show_restraints_editor(const char *monomer_type) {
 	    coot::dictionary_residue_restraints_t restraints = p.second;
 	    coot::restraints_editor r;
 	    r.fill_dialog(restraints);
+	    set_transient_and_position(COOT_EDIT_RESTRAINTS_DIALOG, r.get_dialog());
 	    g.restraints_editors.push_back(r);
 	 } 
       }

@@ -126,15 +126,15 @@ coot::rama_plot::init(const std::string &type) {
 void
 coot::rama_plot::resize_rama_canvas_internal(GtkWidget *widget, 
                                              GdkEventConfigure *even) {
-    GtkWidget *canvas = lookup_widget(widget, "canvas");
-    float wf = GTK_WIDGET(canvas)->allocation.width;
-    float hf = GTK_WIDGET(canvas)->allocation.height;
-    float mini = std::min(wf, hf);
-    coot::rama_plot *plot =
-        (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(canvas));
-    float new_zoom = mini/400.0*0.8;
-    plot->zoom=new_zoom;
-    gtk_canvas_set_pixels_per_unit(GNOME_CANVAS(canvas), new_zoom);
+   GtkWidget *canvas_local = lookup_widget(widget, "canvas");
+   float wf = GTK_WIDGET(canvas_local)->allocation.width;
+   float hf = GTK_WIDGET(canvas_local)->allocation.height;
+   float mini = std::min(wf, hf);
+   coot::rama_plot *plot =
+      (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(canvas_local));
+   float new_zoom = mini/400.0*0.8;
+   plot->zoom=new_zoom;
+   gtk_canvas_set_pixels_per_unit(GNOME_CANVAS(canvas_local), new_zoom);
 }
 
 //  The mapview entry point
@@ -600,7 +600,7 @@ coot::rama_plot::black_border() {
 
 
 void
-coot::rama_plot::cell_border(int i, int j, int step) {
+coot::rama_plot::cell_border(int i, int j, int step_in) {
 
    // put a border round the canvas one pixel shifted right and up
    //
@@ -610,14 +610,14 @@ coot::rama_plot::cell_border(int i, int j, int step) {
    points->coords[0] = i+1;
    points->coords[1] = j+1;
 
-   points->coords[2] = i+step+1;
+   points->coords[2] = i+step_in+1;
    points->coords[3] = j+1;
 
-   points->coords[4] = i+step+1;
-   points->coords[5] = j+step+1;
+   points->coords[4] = i+step_in+1;
+   points->coords[5] = j+step_in+1;
 
    points->coords[6] = i+1;
-   points->coords[7] = j+step+1;
+   points->coords[7] = j+step_in+1;
 
    points->coords[8] = i+1;
    points->coords[9] = j+1;
@@ -634,7 +634,6 @@ coot::rama_plot::cell_border(int i, int j, int step) {
 
    gtk_canvas_points_free(points); 
 
-   
 } 
 
 // return the region of the point
@@ -869,7 +868,7 @@ coot::rama_plot::draw_phi_psi_points_for_model(const coot::phi_psis_for_model_t 
    coot::rama_stats_container_t counts;
    bool as_white_flag = 0;
 
-   std::map<coot::residue_spec_t, coot::util::phi_psi_t>::const_iterator it;
+   std::map<coot::residue_spec_t, coot::util::phi_psi_with_residues_t>::const_iterator it;
    
    for (it=pp_set.phi_psi.begin(); it!=pp_set.phi_psi.end(); it++) {
       int type = draw_phi_psi_point(it->second, as_white_flag);
@@ -938,7 +937,7 @@ coot::rama_plot::generate_phi_psis(mmdb::Manager *mol_in, bool is_primary) {
 			// coot::phi_psi_t constructor can throw an error
 			// (e.g. bonding atoms too far apart).
 			coot::residue_spec_t spec(residue_p);
-			coot::util::phi_psi_t pp(res_prev, residue_p, res_next);
+			coot::util::phi_psi_with_residues_t pp(res_prev, residue_p, res_next);
 			model_phi_psis.add_phi_psi(spec, pp);
 		     }
 		     catch (const std::runtime_error &rte) {
@@ -1046,7 +1045,7 @@ coot::rama_plot::map_mouse_pos(double x, double y) {
 					    t.spec.res_no+1,
 					    t.spec.ins_code);
 
-	 std::map<residue_spec_t, util::phi_psi_t>::const_iterator it = 
+	 std::map<residue_spec_t, util::phi_psi_with_residues_t>::const_iterator it = 
 	    phi_psi_model_sets[t.model_number].phi_psi.find(next_res_spec);
 
 	 if (it != phi_psi_model_sets[t.model_number].phi_psi.end()) { 
@@ -1254,7 +1253,7 @@ coot::rama_plot::mouse_point_check_internal(const coot::phi_psis_for_model_t &ph
 					    bool is_secondary) const {
 
    coot::mouse_util_t t;
-   std::map<coot::residue_spec_t, coot::util::phi_psi_t>::const_iterator it;
+   std::map<coot::residue_spec_t, coot::util::phi_psi_with_residues_t>::const_iterator it;
    double diff1x, diff1y;
    double smallest_diff = 999999; 
    for (it=phi_psi_set.phi_psi.begin(); it!=phi_psi_set.phi_psi.end(); it++) {
@@ -1855,7 +1854,7 @@ coot::rama_plot::find_phi_psi_differences_internal(const std::string &chain_id1,
 
    double d1, d2;
 
-   std::map<coot::residue_spec_t, coot::util::phi_psi_t>::const_iterator it;
+   std::map<coot::residue_spec_t, coot::util::phi_psi_with_residues_t>::const_iterator it;
 
    diff_sq.clear();
    for (unsigned int imod=1; imod<phi_psi_model_sets.size(); imod++) {

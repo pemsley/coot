@@ -252,8 +252,8 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		  // those Hs were just attached with non-good geometry, we
 		  // need to minimise.  Keep all atoms fixed except all hydrogens.
 		  std::vector<std::pair<bool,mmdb::Residue *> > residues;
-		  std::pair<bool, mmdb::Residue *> p(0, residue_cp_p);
-		  residues.push_back(p);
+		  std::pair<bool, mmdb::Residue *> pp(0, residue_cp_p);
+		  residues.push_back(pp);
 
 		  coot::restraints_container_t restraints(residues,
 							  atom_sel.links,
@@ -548,6 +548,7 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
 
    coot::rama_score_t rs;
 
+#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    coot::rama_plot rp;
    rp.generate_phi_psis(atom_sel.mol, true);
 
@@ -563,7 +564,7 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
    ftype level_prefered = graphics_info_t::rama_level_prefered;
    ftype level_allowed = graphics_info_t::rama_level_allowed;
    
-   //clipper defaults: 0.01 0.0005
+   // clipper defaults: 0.01 0.0005
 
    r_gly.init(clipper::Ramachandran::Gly5);
    r_gly.set_thresholds(level_prefered, level_allowed);
@@ -585,23 +586,22 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
 
    for (int imod=1; imod<n; imod++) {
       if (imod<=atom_sel.mol->GetNumberOfModels()) {
-	 
+
          coot::phi_psis_for_model_t pp = rp.get_phi_psis_for_model(imod);
          atom_sel.mol->GetModel(pp.model_number)->CalcSecStructure();
-         std::map<coot::residue_spec_t, coot::util::phi_psi_t>::const_iterator it;
+         std::map<coot::residue_spec_t, coot::util::phi_psi_with_residues_t>::const_iterator it;
          for (it=pp.phi_psi.begin(); it!=pp.phi_psi.end(); it++) {
             mmdb::Residue *residue_p = get_residue(it->first);
-            if (residue_p) { 
+            if (residue_p) {
                bool do_it = true; // unset for secondary structure
                int sse = residue_p->SSE;
-               // std::cout << "residue->SSE is " << sse << " vs " <<mmdb::SSE_Strand << " and " <<mmdb::SSE_Helix
-               // << std::endl;
+
                switch (residue_p->SSE)  {
                case mmdb::SSE_Strand:
-                  do_it = 0;
+                  do_it = false;
                   break;
                case mmdb::SSE_Helix:
-                  do_it = 0;
+                  do_it = false;
                   break;
                }
 	    
@@ -634,13 +634,19 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
                   // std::cout << "........ was a zero" << std::endl;
                   rs.n_zeros++;
                } else {
-                  std::pair<coot::residue_spec_t, double> pair(it->first, p);
-                  rs.scores.push_back(pair);
+		  // old
+                  // std::pair<coot::residue_spec_t, double> pair(it->first, p);
+                  // rs.scores.push_back(pair);
+
+		  coot::rama_score_t::scored_phi_psi_t scored_phi_psi(it->first, p, it->second);
+		  scored_phi_psi.set_residues(it->second);
+
+                  rs.scores.push_back(scored_phi_psi);
                   log_p_sum += log(p);
                   if (do_it) {
-                     rs.scores_non_sec_str.push_back(pair);
+                     rs.scores_non_sec_str.push_back(scored_phi_psi);
                      log_p_non_sec_str_sum += log(p);
-                  } 
+                  }
                }
             }
          }
@@ -650,6 +656,7 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
    rs.score = log_p_sum;
    rs.score_non_sec_str = log_p_non_sec_str_sum;
 
+#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    return rs;
 }
 
@@ -2023,6 +2030,38 @@ molecule_class_info_t::residue_partial_alt_locs_split_residue(coot::residue_spec
    }
 }
 
+
+int
+molecule_class_info_t::delete_chain(const std::string &chain_id) {
+
+   int done = false;
+   for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      if (model_p) {
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	    if (chain_p) {
+	       std::string this_chain_id = chain_p->GetChainID();
+	       if (this_chain_id == chain_id) {
+		  model_p->DeleteChain(ichain);
+		  done = true;
+	       }
+	    }
+	 }
+      }
+   }
+
+   if (done) {
+      atom_sel.mol->FinishStructEdit();
+      update_molecule_after_additions();
+   }
+
+   return done;
+
+}
+
+
 // carbohydrate validation tools
 //
 // should pass the cif read number pointer
@@ -2045,6 +2084,87 @@ molecule_class_info_t::glyco_tree_internal_distances_fn(const coot::residue_spec
 	 coot::glyco_tree_t t(residue_p, mol, geom_p);
 	 double dist_lim = 20;
 	 t.internal_distances(dist_lim, file_name);
+      }
+   }
+}
+
+#include "coot-utils/secondary-structure-headers.hh"
+
+void
+molecule_class_info_t::add_secondary_structure_header_records(bool overwrite) {
+
+   // if there is secondary structure already, don't overwrite it.
+   bool do_it = true;
+   if (atom_sel.mol) {
+      if (! overwrite) {
+	 mmdb::Model *model_p = atom_sel.mol->GetModel(1);
+	 int nhelix = model_p->GetNumberOfHelices();
+	 int nsheet = model_p->GetNumberOfSheets();
+	 if ((nhelix > 0) || (nsheet > 0)) {
+	    do_it = false;
+	 }
+      }
+      if (do_it) {
+	 int n_models = atom_sel.mol->GetNumberOfModels();
+	 for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+	    mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+	    int ss_status = model_p->CalcSecStructure(1);
+	    coot::secondary_structure_header_records ssr(atom_sel.mol, false);
+	    if (ss_status == mmdb::SSERC_Ok) {
+	       std::cout << "INFO:: SSE status was OK\n";
+	    } else {
+	       std::cout << "INFO:: SSE status was not OK\n";
+	    }
+	 }
+      }
+   }
+}
+
+
+
+// Spin N and the sidechain around the CA-C vector
+//
+// useful for add terminal residue N-terminal addition extension
+//
+// angle in degrees.
+void molecule_class_info_t::spin_N(const coot::residue_spec_t &residue_spec, float angle) {
+
+   mmdb::Residue *residue_p = get_residue(residue_spec);
+   if (residue_p) {
+
+      double a = clipper::Util::d2rad(angle);
+      // PDBv3 FIXME
+      coot::atom_spec_t ca_spec(residue_spec.chain_id, residue_spec.res_no, residue_spec.ins_code, " CA ", "");
+      coot::atom_spec_t  c_spec(residue_spec.chain_id, residue_spec.res_no, residue_spec.ins_code, " C  ", "");
+      coot::atom_spec_t  o_spec(residue_spec.chain_id, residue_spec.res_no, residue_spec.ins_code, " O  ", "");
+      mmdb::Atom *ca = coot::util::get_atom(ca_spec, residue_p);
+      mmdb::Atom *c  = coot::util::get_atom( c_spec, residue_p);
+      mmdb::Atom *o  = coot::util::get_atom( o_spec, residue_p);
+      if (ca && c && o) {
+	 make_backup();
+	 clipper::Coord_orth ca_pos = coot::co(ca);
+	 clipper::Coord_orth  c_pos = coot::co(c);
+	 clipper::Coord_orth dir = ca_pos - c_pos;
+	 clipper::Coord_orth origin_shift = c_pos;
+	 mmdb::Atom **residue_atoms = 0;
+	 int n_residue_atoms;
+	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (int iat=0; iat<n_residue_atoms; iat++) {
+	    mmdb::Atom *at = residue_atoms[iat];
+	    if (at) {
+	       if (at != ca && at!=c && at!=o) {
+		  clipper::Coord_orth pos = coot::co(at);
+		  clipper::Coord_orth pt = coot::util::rotate_around_vector(dir, pos, origin_shift, a);
+		  coot::update_position(at, pt);
+	       }
+	    }
+	 }
+
+	 have_unsaved_changes_flag = 1;
+	 atom_sel.mol->FinishStructEdit();
+	 atom_sel = make_asc(atom_sel.mol);
+	 make_bonds_type_checked();
+
       }
    }
 }

@@ -105,7 +105,7 @@ namespace coot {
       void setup_normal_cumulative_table() {
 
 	 // set up cumulative 
-	 float cumulative_step=0.01;
+	 cumulative_step=0.01;
 	 float sigma_lim = 4.0; // from -4.0 to +4.0 sigma.
 	 float sum = 0.0;
 	 for (float v= -sigma_lim; v<sigma_lim; v+=cumulative_step) {
@@ -183,7 +183,7 @@ namespace coot {
 				    bool optimize_geometry_flag,
 				    bool fill_returned_molecules_vector_flag);
 
-      // install one by one for diallog updating
+      // install one by one for dialog updating
       installed_wiggly_ligand_info_t
       install_simple_wiggly_ligand(protein_geometry *pg,
 				   const minimol::molecule &ligand,

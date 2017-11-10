@@ -224,14 +224,16 @@ coot::monomer_utils::get_quads(const std::vector<coot::atom_name_quad> &atom_nam
 }
 
 
-coot::Cartesian
-coot::monomer_utils::coord_orth_to_cartesian(const clipper::Coord_orth &c) {
-   return coot::Cartesian(c.x(), c.y(), c.z());
-}
+// files in ligand directory cannot depend on coords headers!
 
-clipper::Coord_orth coot::monomer_utils::coord_orth_to_cart(const Cartesian &c) {
-   return clipper::Coord_orth(c.x(), c.y(), c.z());
-} 
+// coot::Cartesian
+// coot::monomer_utils::coord_orth_to_cartesian(const clipper::Coord_orth &c) {
+//    return coot::Cartesian(c.x(), c.y(), c.z());
+// }
+
+// clipper::Coord_orth coot::monomer_utils::coord_orth_to_cart(const Cartesian &c) {
+//    return clipper::Coord_orth(c.x(), c.y(), c.z());
+// } 
 
 clipper::Coord_orth
 coot::monomer_utils::atom_to_co(mmdb::Atom *at) const {

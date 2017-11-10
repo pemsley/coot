@@ -40,8 +40,10 @@
 
 #include <iostream>
 
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+// no dependency on coords files
+//
+// #include "coords/mmdb-extras.h"
+// #include "coords/mmdb.h"
 #include "ligand.hh"
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
@@ -283,7 +285,7 @@ main(int argc, char **argv) {
 	    peaks_mol.write_file("fffear-search-peaks.pdb", 20.0); 
 	    
 	    for (unsigned int iop=0; iop<possible_rtops.size(); iop++) { 
-	       clipper::RTop_orth rtop = possible_rtops[iop];
+	       clipper::RTop_orth rtop_local = possible_rtops[iop];
 	       mmdb::Manager *new_mol = new mmdb::Manager;
 	       new_mol->Copy(atom_sel.mol, mmdb::MMDBFCM_All);
 	       // now apply rtop to all atoms of new_mol:
@@ -306,7 +308,7 @@ main(int argc, char **argv) {
 			at = residue_p->GetAtom(iat);
 			clipper::Coord_orth co(at->x, at->y, at->z);
 			co += mid_point_transformation.trn();
-			clipper::Coord_orth pt = co.transform(rtop);
+			clipper::Coord_orth pt = co.transform(rtop_local);
 			at->x = pt.x();
 			at->y = pt.y();
 			at->z = pt.z();
@@ -322,7 +324,7 @@ main(int argc, char **argv) {
 	    }
 
 	    for (unsigned int iop=0; iop<p.size(); iop++) {
-	       clipper::RTop_orth rtop = p[iop].second;
+	       clipper::RTop_orth rtop_local = p[iop].second;
 	       mmdb::Manager *new_mol = new mmdb::Manager;
 	       new_mol->Copy(atom_sel.mol, mmdb::MMDBFCM_All);
 	       // now apply rtop to all atoms of new_mol:
@@ -345,7 +347,7 @@ main(int argc, char **argv) {
 			at = residue_p->GetAtom(iat);
 			clipper::Coord_orth co(at->x, at->y, at->z);
 			co += mid_point_transformation.trn();
-			clipper::Coord_orth pt = co.transform(rtop);
+			clipper::Coord_orth pt = co.transform(rtop_local);
 			at->x = pt.x();
 			at->y = pt.y();
 			at->z = pt.z();

@@ -606,7 +606,7 @@ coot::sequence_view::colour_by_secstr(mmdb::Residue *residue_p, mmdb::Model *mod
 }
 
 
-coot::sequence_view::sequence_view(mmdb::Manager *mol_in, GtkWidget *container_widget) {
+coot::sequence_view::sequence_view(mmdb::Manager *mol_in, GtkWidget *container_widget_in) {
 
    // we need to create a canvas in container_widget
    //

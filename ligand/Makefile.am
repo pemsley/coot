@@ -33,7 +33,9 @@ pkginclude_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh
 	chi-angles.hh dunbrack.hh helix-placement.hh fast-ss-search.hh        \
 	rigid-body.hh ideal-rna.hh rotamer.hh richardson-rotamer.hh           \
 	torsion-general.hh primitive-chi-angles.hh dipole.hh    \
-	base-pairing.hh backrub-rotamer.hh trace.hh multi-peptide.hh ligands-db.hh
+	base-pairing.hh backrub-rotamer.hh trace.hh multi-peptide.hh ligands-db.hh \
+        scored-coord.hh ligand-score-card.hh scored-molecule.hh map-point-cluster.hh
+
 pkgincludedir = $(includedir)/coot/ligand
 
 libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
@@ -44,6 +46,9 @@ libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
         base-pairing.cc backrub-rotamer.cc trace.cc trace-2.cc multi-peptide.cc \
         ligands-db.cc
 
+
+# chi-angles, monomer-utils, rotamer torsion-general use coot::Cartesian
+# from libcoot-coords
 #   $(top_builddir)/coords/libcoot-coords.la           # library re-order
 
 # clean

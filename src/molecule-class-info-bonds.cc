@@ -82,14 +82,16 @@ molecule_class_info_t::user_defined_colours_representation(coot::protein_geometr
    if (all_atoms_mode) {
 
       Bond_lines_container bonds(atom_sel, Bond_lines_container::COLOUR_BY_USER_DEFINED_COLOURS);
-      bonds_box = bonds.make_graphical_bonds_no_thinning();
+      bool add_residue_indices = true;
+      bonds_box = bonds.make_graphical_bonds_no_thinning(add_residue_indices);
       bonds_box_type = coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS;
       
    } else {
 
       Bond_lines_container bonds(geom_p);
       bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7, coot::COLOUR_BY_USER_DEFINED_COLOURS, false);
-      bonds_box = bonds.make_graphical_bonds_no_thinning();
+      bool add_residue_indices = true;
+      bonds_box = bonds.make_graphical_bonds_no_thinning(add_residue_indices);
       bonds_box_type = coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS;
    }
 }
@@ -104,4 +106,44 @@ molecule_class_info_t::clear_user_defined_atom_colours() {
 	 udd_handle = 0; // reset
       }
    }
+}
+
+// This is used in getting atom specs from a bonds box. Not a sensible thing to do
+//
+// instead the bonds box should contain atom specs
+//
+mmdb::Atom *
+molecule_class_info_t::get_atom_at_pos(const coot::Cartesian &pt) const {
+
+   mmdb::Atom *at = NULL;
+
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 for (int ires=0; ires<nres; ires++) {
+	    mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	    int n_atoms = residue_p->GetNumberOfAtoms();
+	    for (int iat=0; iat<n_atoms; iat++) {
+	       mmdb::Atom *atl = residue_p->GetAtom(iat);
+	       coot::Cartesian at_pos(atl->x, atl->y, atl->z);
+	       at_pos -= pt;
+	       float d = at_pos.amplitude_squared();
+	       if (d < 0.001) {
+		  at = atl;
+		  break;
+	       }
+	    }
+	    if (at) break;
+	 }
+	 if (at) break;
+      }
+   }
+
+   return at;
+
+
 }

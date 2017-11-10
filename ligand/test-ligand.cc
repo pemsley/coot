@@ -127,9 +127,9 @@ compare_by_overlap(std::string chain_id, int resno, mmdb::Manager *mol1, mmdb::M
 			      at_2 = residue_p_2->GetAtom(iat_2);
 			      if (s.matches_spec(at_2)) {
 				 n_atoms_matched++;
-				 coot::Cartesian p1(at_1->x, at_1->y, at_1->z);
-				 coot::Cartesian p2(at_2->x, at_2->y, at_2->z);
-				 float d = coot::Cartesian::LineLength(p1, p2);
+				 ::Cartesian p1(at_1->x, at_1->y, at_1->z);
+				 ::Cartesian p2(at_2->x, at_2->y, at_2->z);
+				 float d = ::Cartesian::LineLength(p1, p2);
 				 atom_dist_diff += d;
 			      }
 			   }
@@ -222,7 +222,7 @@ int test_torsion_general(atom_selection_container_t asc, std::string pdb_filenam
 		  mmdb::PPAtom residue_atoms;
 		  int n_residue_atoms;
 		  res_copy_1->GetAtomTable(residue_atoms, n_residue_atoms);
-		  std::vector< coot::Cartesian > coords;
+		  std::vector<::Cartesian > coords;
 
 		  res_mol_1->WritePDBASCII("rotated-1.pdb");
 		  res_mol_2->WritePDBASCII("rotated-2.pdb");

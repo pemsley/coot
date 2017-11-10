@@ -5907,7 +5907,7 @@ PyObject *residue_spec_make_triple_py(PyObject *res_spec_py) {
       PyList_SetItem(r, 1, res_no_py);
       PyList_SetItem(r, 2, ins_code_py);
    } else {
-      PyObject *r = PyList_New(3);
+      r = PyList_New(3);
       PyList_SetItem(r, 0, PyString_FromString(res_spec_default.chain_id.c_str()));
       PyList_SetItem(r, 1, PyInt_FromLong(res_spec_default.res_no));
       PyList_SetItem(r, 2, PyString_FromString(res_spec_default.ins_code.c_str()));

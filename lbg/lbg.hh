@@ -1362,11 +1362,11 @@ public:
    void scale_canvas(double sf);
 
    // -- actually run the functions if they were set:
-   void orient_view(int imol,
+   void orient_view(int imol_in,
 		    const coot::residue_spec_t &central_residue_spec,
 		    const coot::residue_spec_t &neighbour_residue_spec) {
       if (orient_view_func) {
-	 (*orient_view_func)(imol, central_residue_spec, neighbour_residue_spec);
+	 (*orient_view_func)(imol_in, central_residue_spec, neighbour_residue_spec);
       } 
    } 
    void set_rotation_centre(const clipper::Coord_orth &pos) {
@@ -1374,15 +1374,15 @@ public:
 	 (*set_rotation_centre_func)(pos);
       } 
    } 
-   void set_show_additional_representation(int imol, int representation_number, int on_off_flag) {
+   void set_show_additional_representation(int imol_in, int representation_number, int on_off_flag) {
       if (set_show_additional_representation_func) {
-	 (*set_show_additional_representation_func)(imol, representation_number, on_off_flag);
+	 (*set_show_additional_representation_func)(imol_in, representation_number, on_off_flag);
       }
    } 
-   void all_additional_representations_off_except(int imol, int representation_number,
+   void all_additional_representations_off_except(int imol_in, int representation_number,
 						  short int ball_and_sticks_off_too_flag) {
       if (all_additional_representations_off_except_func) {
-	 (*all_additional_representations_off_except_func) (imol, representation_number, ball_and_sticks_off_too_flag);
+	 (*all_additional_representations_off_except_func) (imol_in, representation_number, ball_and_sticks_off_too_flag);
       }
    }
 

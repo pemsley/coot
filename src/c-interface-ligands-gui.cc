@@ -666,7 +666,6 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
       // create_find_ligand_many_atoms_dialog() widget.  We don't want
       // to mess with set_user_data for many data.
       // 
-      graphics_info_t g;
       g.set_find_ligands_mols(find_ligand_map_mol,
 			      find_ligand_protein_mol,
 			      wiggly_ligand_info);
@@ -1174,7 +1173,11 @@ void setup_ligands_progress_bar_idle(coot::wligand *wlig,
    ligand_wiggly_ligand_data_t *ldb = new ligand_wiggly_ligand_data_t(ld);
 
    // this GtkFunction returns a gboolean and takes a gpointer
-   gint idle = gtk_idle_add((GtkFunction) install_simple_wiggly_ligand_idle_fn, ldb);
+
+   // 20170925 do we need this cast I doubt it.
+   // gint idle = gtk_idle_add((GtkFunction) install_simple_wiggly_ligand_idle_fn, ldb);
+   gint idle = gtk_idle_add(install_simple_wiggly_ligand_idle_fn, ldb);
+
    graphics_info_t g;
    g.ligand_wiggly_ligand_count = 0;
 
@@ -1203,6 +1206,8 @@ gboolean install_simple_wiggly_ligand_idle_fn(gpointer data) {
       } else {
 	 // continue one more round
 	 gtk_label_set_text(GTK_LABEL(ldp->progress_bar_label), "Searching density clusters");
+	 gdouble frac = 0;
+	 gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR (ldp->progress_bar), frac);
 	 ldp->finish = true; // set for next time round
       }
       
