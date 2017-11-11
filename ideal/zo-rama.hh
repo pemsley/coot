@@ -15,7 +15,7 @@
 #define PNG_DEBUG 3
 #include <png.h>
 
-#include "coot/utils/coot-utils.hh"
+#include "utils/coot-utils.hh"
 
 namespace zo {
 
