@@ -142,7 +142,7 @@ zo::rama_table_set::init() {
 
    std::string full = coot::util::append_dir_file(dir4, "coeffsolution.dat");
 
-   std::ifstream f(full);
+   std::ifstream f(full.c_str());
    std::string line;
 
    // std::cout << "INFO:: reading file " << full << std::endl;
