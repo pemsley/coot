@@ -104,7 +104,8 @@ zo::rama_table::make_a_png(int width, const std::string &file_name) {
 	 zo::realtype vv = v[j][i] * sf;
 	 vv = 255 * (1 - vv);
 	 if (vv < 0) vv = 0;
-	 int pixel_value = std::lround(vv);
+	 // int pixel_value = std::lround(vv);
+	 int pixel_value = int(vv+0.5);
 	 row_pointers[j][i] = pixel_value;
       }
    }

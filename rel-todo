@@ -39,6 +39,8 @@ Program terminated with signal 11, Segmentation fault.
 
    o ZO: refine a helix, delete it's molecule - the intermediate atoms should be removed too. ::: 0.5
  
+   o update the ramachandran plot on pepflip-complicado ::: 1
+
    o read the comp_id cifs with CSD coords ::: 4
 
 * Needs a test

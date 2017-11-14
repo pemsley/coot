@@ -4,12 +4,14 @@
 
 #include <utility>
 #include <vector>
+#include <stdexcept>
 #include <string>
 #include <map>
 #include <iostream>
 #include <fstream>
 #include <cmath>
 
+#define PNG_SKIP_SETJMP_CHECK true
 #define PNG_DEBUG 3
 #include <png.h>
 
