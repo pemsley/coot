@@ -1350,7 +1350,7 @@ coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
 
    double lr = lograma.interp(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
    double R = 10.0 * lr;
-   std::cout << "rama (lograma) distortion for " << phi << " " << psi << " is " << R << std::endl;
+   // std::cout << "rama (lograma) distortion for " << phi << " " << psi << " is " << R << std::endl;
 
    if ( clipper::Util::isnan(phi) ) {
       std::cout << "WARNING: observed torsion phi is a NAN!" << std::endl;
@@ -1491,7 +1491,8 @@ coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
    // double lr_kdc = lograma.interp(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
    // double R = 10.0 * lr;
 
-   double lr = rama.value(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
+   std::string residue_type = "ALL!nP";
+   double lr = rama.value(residue_type, clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
    double R = -rama_plot_weight * lr;
 
    // std::cout << "zo-rama-distortion for " << phi << " " << psi << " is " << lr << " kdc: "
@@ -1576,9 +1577,8 @@ coot::distortion_score_non_bonded_contact(const coot::simple_restraint &nbc_rest
 
    if (false)
       std::cout << "in distortion_score_non_bonded_contact: " << idx_1 << " " << idx_2
-	 // << " " << atom_spec_t(atom[nbc_restraint.atom_index_1]) 
-	 // << " " << atom_spec_t(atom[nbc_restraint.atom_index_2]) 
-		<< " comparing model: " << sqrt(dist_sq) << " min_dist: " << nbc_restraint.target_value
+		<< " comparing model: " << sqrt(dist_sq) << " min_dist: "
+		<< nbc_restraint.target_value
 		<< " with sigma " << nbc_restraint.sigma << std::endl;
 
    if (dist_sq < nbc_restraint.target_value * nbc_restraint.target_value) {

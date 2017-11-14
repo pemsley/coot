@@ -232,7 +232,8 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
              GdkColor color = colour_by_distortion(ref_results.lights[i_rest_type].value);
              set_colour_accept_reject_event_box(w, &color);
            } else {
-             GdkColor color = colour_by_rama_plot_distortion(ref_results.lights[i_rest_type].value);
+	      GdkColor color = colour_by_rama_plot_distortion(ref_results.lights[i_rest_type].value,
+							      ref_results.lights[i_rest_type].rama_type);
              set_colour_accept_reject_event_box(w, &color);
            }
            gtk_widget_show(p); // event boxes don't get coloured

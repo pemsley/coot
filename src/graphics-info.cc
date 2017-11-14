@@ -187,7 +187,20 @@ GdkColor colour_by_distortion(float dist) {
    return col;
 }
 
-GdkColor colour_by_rama_plot_distortion(float plot_value) {
+GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
+
+   if (false)
+      std::cout << "in colour_by_rama_plot_distortion plot_value "
+		<< plot_value << " rama_type " << rama_type
+		<< " c.f. coot::RAMA_TYPE_LOGRAMA " << coot::RAMA_TYPE_LOGRAMA
+		<< " coot;:RAMA_TYPE_ZO " << coot::RAMA_TYPE_ZO
+		<< std::endl;
+
+   // ZO type data need to scaled to match
+   // 20*zo_type_data-80 = log_rama_type_data
+   //
+   if (rama_type == coot::RAMA_TYPE_ZO)
+      plot_value = 20*plot_value -80;
 
    GdkColor col;
    float scale = 10.0; 
@@ -195,23 +208,30 @@ GdkColor colour_by_rama_plot_distortion(float plot_value) {
    col.pixel = 1;
    col.blue  = 0;
 
-   if (plot_value < -15.0*scale) { 
-      col.red   = 0;
-      col.green = 55535;
-   } else {
-      if (plot_value < -13.0*scale) {
-	 col.red   = 55000;
-	 col.green = 55000;
-	 // col.blue  = 22000;
+   if (rama_type == coot::RAMA_TYPE_LOGRAMA) {
+      if (plot_value < -15.0*scale) {
+	 col.red   = 0;
+	 col.green = 55535;
       } else {
-	 if (plot_value < -10.0*scale) {
-	    col.red   = 64000;
-	    col.green = 32000;
+	 if (plot_value < -13.0*scale) {
+	    col.red   = 55000;
+	    col.green = 55000;
+	    // col.blue  = 22000;
 	 } else {
-	    col.red   = 65535;
-	    col.green = 0;
+	    if (plot_value < -10.0*scale) {
+	       col.red   = 64000;
+	       col.green = 32000;
+	    } else {
+	       col.red   = 65535;
+	       col.green = 0;
+	    }
 	 }
       }
+   } else {
+      // RAMA_TYPE_ZO
+      col.red   = 33000;
+      col.green = 33000;
+      col.blue = 33000;
    }
    return col;
 } 

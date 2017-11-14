@@ -491,6 +491,7 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 				       pseudo_bonds_type);
 
 	 restraints.set_geman_mcclure_alpha(geman_mcclure_alpha);
+         restraints.set_rama_type(restraints_rama_type);
 
 	 if (molecules[imol_for_atoms].extra_restraints.has_restraints())
 	    restraints.add_extra_restraints(imol_for_atoms, molecules[imol_for_atoms].extra_restraints,
@@ -725,18 +726,18 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 
    if (is_valid_map_molecule(Imol_Refinement_Map()) || (! use_map_flag)) {
       float weight = geometry_vs_map_weight;
-      coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+      // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+      coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
       short int do_residue_internal_torsions = 0;
       if (do_torsion_restraints) { 
 	 do_residue_internal_torsions = 1;
-	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
+	 flags = coot::TYPICAL_RESTRAINTS_WITH_TORSIONS;
       } 
       
       if (do_rama_restraints)
-	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+	 // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+	 flags = coot::ALL_RESTRAINTS;
       
-      // flags = coot::JUST_RAMAS;
- 
       std::vector<coot::atom_spec_t> fixed_atom_specs = molecules[imol].get_fixed_atoms();
 
       // OK, so the passed residues are the residues in the graphics_info_t::molecules[imol]
@@ -821,12 +822,14 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 							     rama_plot_restraint_weight,
 							     do_rama_restraints,
 							     pseudo_bonds_type);
+            	                                             // link and flank args default true
 
 	       restraints.set_geman_mcclure_alpha(geman_mcclure_alpha);
+               restraints.set_rama_type(restraints_rama_type);
 
 	       if (molecules[imol].extra_restraints.has_restraints())
 		  restraints.add_extra_restraints(imol, molecules[imol].extra_restraints, *Geom_p());
-	       
+
 	       if (do_numerical_gradients)
 		  restraints.set_do_numerical_gradients();
 

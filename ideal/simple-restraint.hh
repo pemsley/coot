@@ -51,15 +51,19 @@ namespace coot {
 
    enum { UNSET_INDEX = -1 };
 
+   enum { RAMA_TYPE_ZO, RAMA_TYPE_LOGRAMA };
+
    class refinement_lights_info_t {
    public:
       std::string name;   // e.g. "Bonds" or "Angles"
       std::string label;  // e.g. "Bonds:  6.543" 
       float value;        // e.g. 6.543
+      int rama_type;
       refinement_lights_info_t(const std::string &name_in, const std::string label_in, float value_in) {
 	 name = name_in;
 	 label = label_in;
 	 value = value_in;
+	 rama_type = RAMA_TYPE_LOGRAMA;
       }
    };
 
@@ -308,6 +312,8 @@ namespace coot {
       std::vector<bool> fixed_atom_flags;
       std::vector<bool> fixed_atom_flags_other_plane;
       bool is_user_defined_restraint;
+      std::string rama_plot_residue_type; // so that we look up the correct residue type
+                                          // for this (middle-of-three) residue
 
       // allocator for geometry_distortion_info_t
       simple_restraint() { is_user_defined_restraint = 0; }
@@ -928,17 +934,17 @@ namespace coot {
 	 have_oxt_flag = 0;
 	 do_numerical_gradients_flag = 0;
 	 lograma.init(LogRamachandran::All, 2.0, true);
-	 try {
-	    zo_rama.init();
-	 }
-	 catch (const std::runtime_error &rte) {
-	    std::cout << "ERROR:: ZO Rama tables failed. " << rte.what() << std::endl;
-	 }
+	 // when zo_rama is a static, this is already done
+// 	 try {
+// 	    zo_rama.init();
+// 	 }
+// 	 catch (const std::runtime_error &rte) {
+// 	    std::cout << "ERROR:: ZO Rama tables failed. " << rte.what() << std::endl;
+// 	 }
 	 from_residue_vector = 0;
-	 rama_type = RAMA_TYPE_ZO;
-	 // rama_type = RAMA_TYPE_LOGRAMA;
+	 rama_type = RAMA_TYPE_LOGRAMA;
 	 rama_plot_weight = 40.0;
-	 
+
 #ifdef HAVE_CXX_THREAD
 	 thread_pool_p = 0; // null pointer
 	 if (unset_deriv_locks)
@@ -1033,7 +1039,7 @@ namespace coot {
       short int include_map_terms_flag;
 
       LogRamachandran lograma;
-      zo::rama_table_set zo_rama;
+      static zo::rama_table_set zo_rama;
       double rama_plot_weight; // get_rama_plot_weight() is public
       // rama_type is public
       
@@ -1434,6 +1440,7 @@ namespace coot {
       
       void make_helix_pseudo_bond_restraints();
       void make_strand_pseudo_bond_restraints();
+      void make_helix_pseudo_bond_restraints_from_res_vec();
 
       bool link_infos_are_glycosidic_p(const std::vector<std::pair<chem_link, bool> > &link_infos) const;
 
@@ -1792,6 +1799,16 @@ namespace coot {
 
       atom_spec_t get_atom_spec(int atom_index) const;
 
+      // rama_type_in is either RAMA_TYPE_ZO or RAMA_TYPE_LOGRAMA
+      //
+      void set_rama_type(int rama_type_in) {
+	 rama_type = rama_type_in;
+      }
+
+      void set_rama_plot_weight(float w) {
+	 rama_plot_weight = w;
+      }
+
       void set_verbose_geometry_reporting() { 
 	 verbose_geometry_reporting = VERBOSE;
       }
@@ -1958,15 +1975,17 @@ namespace coot {
       }
 
       // calling function should also provide the plot type
+      // residue type eg "ALL!nP" "ALLnP" "GLY!nP"  "GLYnP" "PRO!nP"
       //
-      float zo_rama_prob(const double &phir, const double &psir) {
-	 return zo_rama.value(phir, psir);
+      float zo_rama_prob(const std::string &residue_type, const double &phir, const double &psir) {
+	 return zo_rama.value(residue_type, phir, psir);
       }
 
-      // calling function should also provide the plot type.  For now, kludge!
+      // calling function should now also provides the plot/residue type
       //
-      std::pair<float, float> zo_rama_grad(const double &phir, const double &psir) const {
-	 return zo_rama.df(phir, psir);
+      std::pair<float, float> zo_rama_grad(const std::string &residue_type,
+					   const double &phir, const double &psir) const {
+	 return zo_rama.df(residue_type, phir, psir);
       }
 
 

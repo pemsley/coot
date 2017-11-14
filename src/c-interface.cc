@@ -5543,6 +5543,17 @@ void set_refine_ramachandran_angles(int state) {
    graphics_info_t::do_rama_restraints = state;
 } 
 
+
+void set_refine_ramachandran_restraints_type(int type) {
+   graphics_info_t::restraints_rama_type = type;
+}
+
+
+void set_refine_ramachandren_restraints_weight(float w) {
+   graphics_info_t::rama_restraints_weight = w;
+}
+
+
 int refine_ramachandran_angles_state() {
    return graphics_info_t::do_rama_restraints;
 }

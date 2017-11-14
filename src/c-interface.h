@@ -3308,6 +3308,9 @@ void set_refinement_drag_elasticity(float e);
 /*! name consistent with set_refine_with_torsion_restraints() !?  */
 void set_refine_ramachandran_angles(int state);
 
+void set_refine_ramachandran_restraints_type(int type);
+void set_refine_ramachandren_restraints_weight(float w);
+
 int refine_ramachandran_angles_state();
 
 void set_numerical_gradients(int istate);
