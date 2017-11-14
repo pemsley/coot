@@ -5549,7 +5549,7 @@ void set_refine_ramachandran_restraints_type(int type) {
 }
 
 
-void set_refine_ramachandren_restraints_weight(float w) {
+void set_refine_ramachandran_restraints_weight(float w) {
    graphics_info_t::rama_restraints_weight = w;
 }
 

@@ -335,8 +335,7 @@ namespace coot {
 	 
 	 // This finds a coding error
 	 if (rest_type != BOND_RESTRAINT) { 
-	    std::cout << "BOND ERROR" << std::endl; 
-	    exit(1); 
+	    std::cout << "ERROR:: BOND ERROR" << std::endl;
 	 }
       };
 
@@ -356,8 +355,7 @@ namespace coot {
 
 	 // This finds a coding error
 	 if (rest_type != GEMAN_MCCLURE_DISTANCE_MASK) { 
-	    std::cout << "BOND ERROR" << std::endl; 
-	    exit(1); 
+	    std::cout << "ERROR:: GEMAN_MCCLURE_DISTANCE ERROR" << std::endl;
 	 }
       };
       
@@ -379,12 +377,12 @@ namespace coot {
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = 0;
 	 if (rest_type != ANGLE_RESTRAINT) { 
-	    std::cout << "ERROR::::: PROGRAM ERROR - ANGLE ERROR" << std::endl; 
+	    std::cout << "ERROR::::: PROGRAM ERROR - ANGLE ERROR" << std::endl;
 	 }
       };
 
       // Torsion
-      simple_restraint(short int rest_type, int atom_1, int atom_2, 
+      simple_restraint(short int rest_type, int atom_1, int atom_2,
 		       int atom_3, int atom_4, 
 		       const std::vector<bool> &fixed_atom_flags_in,
 		       float tar, 
@@ -402,16 +400,19 @@ namespace coot {
 	 periodicity = periodicity_in; 
 	 is_user_defined_restraint = 0;
 	 if ((rest_type != TORSION_RESTRAINT) && (rest_type != TRANS_PEPTIDE_RESTRAINT)) {
-	    std::cout << "ERROR::::: PROGRAM ERROR - TORSION/TRANSP-PEP ERROR" << std::endl; 
+	    std::cout << "ERROR::::: PROGRAM ERROR - TORSION/TRANSP-PEP ERROR" << std::endl;
 	 }
       }
 
       // Rama
-      simple_restraint(short int rest_type, int atom_1, int atom_2, 
-		       int atom_3, int atom_4, int atom_5, 
+      simple_restraint(short int rest_type,
+		       const std::string &rama_plot_zo_residue_type,
+		       int atom_1, int atom_2,
+		       int atom_3, int atom_4, int atom_5,
 		       const std::vector<bool> &fixed_atom_flags_in) { 
 
-	 restraint_type = rest_type; 
+	 restraint_type = rest_type;
+	 rama_plot_residue_type = rama_plot_zo_residue_type;
 	 atom_index_1 = atom_1; 
 	 atom_index_2 = atom_2;
 	 atom_index_3 = atom_3;
@@ -420,8 +421,7 @@ namespace coot {
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = 0;
 	 if (rest_type != RAMACHANDRAN_RESTRAINT) { 
-	    std::cout << "RAMACHANDRAN_RESTRAINT ERROR" << std::endl; 
-	    exit(1); 
+	    std::cout << "ERROR:: RAMACHANDRAN_RESTRAINT ERROR" << std::endl;
 	 }
       }
       
@@ -590,8 +590,7 @@ namespace coot {
 	 is_user_defined_restraint = 0;
 	 
 	 if (rest_type != START_POS_RESTRAINT) { 
-	    std::cout << "START POS ERROR" << std::endl; 
-	    exit(1); 
+	    std::cout << "ERROR:: START POS ERROR" << std::endl;
 	 }
       }
 
@@ -1075,10 +1074,10 @@ namespace coot {
       clipper::Xmap<float> map; 
       double map_weight; 
 
-      void add(short int rest_type, int atom_1, int atom_2, 
+      void add(short int rest_type, int atom_1, int atom_2,
 	       const std::vector<bool> &fixed_atom_flags,
-	       float tar, 
-	       float sig, float obs){
+	       float tar,
+	       float sig, float obs) {
 
 	 if (sig > 0.0) { 
 	    simple_restraint r(rest_type, atom_1, atom_2, fixed_atom_flags, tar, sig, obs);
@@ -1093,28 +1092,24 @@ namespace coot {
          
 	 bool r = 0;
 	 if (sig > 0.0) { 
-	    restraints_vec.push_back(simple_restraint(rest_type, atom_1, atom_2, 
-						      atom_3,
-						      fixed_atom_flags,
-						      tar, sig, obs));
+	    restraints_vec.push_back(simple_restraint(rest_type, atom_1, atom_2, atom_3,
+						      fixed_atom_flags, tar, sig, obs));
 	    r = 1;
 	 }
 	 return r;
       }
 
-      bool add(short int rest_type, int atom_1, int atom_2, 
-	       int atom_3, int atom_4,
+      bool add(short int rest_type,
+	       int atom_1, int atom_2, int atom_3, int atom_4,
 	       const std::vector<bool> &fixed_atom_flags,
-	       float tar, 
-	       float sig, float obs, int periodicty){
+	       float tar, float sig, float obs, int periodicty) {
 
 	 bool r = 0;
 	 if (sig > 0.0) {
 
-	    restraints_vec.push_back(simple_restraint(rest_type, atom_1, atom_2, 
-						      atom_3, atom_4,
-						      fixed_atom_flags,
-						      tar, sig, obs, periodicty));
+	    restraints_vec.push_back(simple_restraint(rest_type,
+						      atom_1, atom_2, atom_3, atom_4,
+						      fixed_atom_flags, tar, sig, obs, periodicty));
 	    r = 1;
 	 }
 	 return r;
@@ -1133,11 +1128,10 @@ namespace coot {
 	 }
       }
       
-      void add_user_defined_angle_restraint(short int rest_type, int atom_1, int atom_2, 
-					      int atom_3,
-					      const std::vector<bool> &fixed_atom_flags,
-					      float tar, 
-					      float sig, float obs) {
+      void add_user_defined_angle_restraint(short int rest_type,
+					    int atom_1, int atom_2, int atom_3,
+					    const std::vector<bool> &fixed_atom_flags,
+					    float tar, float sig, float obs) {
 	 bool r = add(rest_type, atom_1, atom_2, atom_3,
 		      fixed_atom_flags, tar, sig, obs);
 	 if (r) {
@@ -1145,16 +1139,17 @@ namespace coot {
 	    restraints_vec.back().is_user_defined_restraint = 1;
 	 }
       }
-
       
 
       // used for Ramachandran restraint
       void add(short int rest_type,
+	       const std::string &rama_plot_zo_residue_type,
 	       int atom_1, int atom_2, int atom_3, 
 	       int atom_4, int atom_5, 
 	       const std::vector<bool> &fixed_atom_flag){
     
 	 restraints_vec.push_back(simple_restraint(rest_type,
+						   rama_plot_zo_residue_type,
 						   atom_1, atom_2, atom_3,
 						   atom_4, atom_5, 
 						   fixed_atom_flag));

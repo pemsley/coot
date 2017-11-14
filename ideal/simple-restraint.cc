@@ -1198,19 +1198,16 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       if (print_summary)
 	 std::cout << "rama plot:  N/A " << std::endl;
    } else {
-      double rd_raw = rama_distortion/double(n_rama_restraints);
-      double rd = rd_raw;
-      if (rama_type == restraints_container_t::RAMA_TYPE_ZO)
-	 rd = rd_raw*20.0 -80.0; // puts ZO distortions on the same scale as LogRama
+      double rd = rama_distortion/double(n_rama_restraints);
+
       if (print_summary)
 	 std::cout << "rama plot:  " << rd << " " << n_rama_restraints << std::endl;
 
-      std::cout << "debug:: rd_raw: " << rd_raw << " rd " << rd << std::endl;
       r += "   rama plot: ";
-      r += coot::util::float_to_string_using_dec_pl(rd, 3);
+      r += util::float_to_string_using_dec_pl(rd, 3);
       std::string s = "Rama Plot: ";
-      s += coot::util::float_to_string_using_dec_pl(rd, 3);
-      coot::refinement_lights_info_t rli("Rama", s, rd);
+      s += util::float_to_string_using_dec_pl(rd, 3);
+      refinement_lights_info_t rli("Rama", s, rd);
       if (rama_type == RAMA_TYPE_ZO)
 	 rli.rama_type = RAMA_TYPE_ZO;
       lights_vec.push_back(rli);
@@ -4826,8 +4823,12 @@ coot::restraints_container_t::add_rama(std::string link_type,
 // 		   << fixed_flag[2] << " " << fixed_flag[3] << " " 
 // 		   << fixed_flag[4]
 // 		   << std::endl;
-	 
+
+
+	 std::string zort = zo_rama.get_residue_type(this_res->GetResName(),
+						     post_res->GetResName());
 	 add(RAMACHANDRAN_RESTRAINT,
+	     zort,
 	     atom_indices[0], atom_indices[1], atom_indices[2],
 	     atom_indices[3], atom_indices[4], fixed_flag);
 	 n_rama++;

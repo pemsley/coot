@@ -154,7 +154,7 @@ zo::rama_table_set::init() {
    table_type[4] = "PRO!nP";
    table_type[5] = "PROnP";
    table_type[6] = "VI!nP";
-   table_type[7] = "VIP";
+   table_type[7] = "VInP";
    table_type[8] = "DN!nP";
    table_type[9] = "DNnP";
    table_type[10] = "ST!nP";
@@ -193,7 +193,7 @@ zo::rama_table_set::init() {
 std::pair<zo::realtype, zo::realtype>
 zo::rama_table_set::df(const std::string &residue_type,
 		       const zo::realtype &phi, const zo::realtype &psi) const {
-   // e.g. "ALL!nP"
+   // residue type is e.g. "ALL!nP"
    std::map<std::string, rama_table>::const_iterator it = table_map.find(residue_type);
    return it->second.df(phi,psi);
 }
@@ -202,7 +202,10 @@ zo::rama_table_set::df(const std::string &residue_type,
 zo::realtype
 zo::rama_table_set::value(const std::string &residue_type,
 			  const zo::realtype &phi, const zo::realtype &psi) const {
-   // e.g. "ALL!nP"
+
+   // residue type is e.g. "ALL!nP"
+
+   // std::cout << "debug:: in rama_table_set::value residue_type was " << residue_type << std::endl;
    std::map<std::string, rama_table>::const_iterator it = table_map.find(residue_type);
    if (it != table_map.end()) {
       return it->second.value(phi,psi);
@@ -210,4 +213,41 @@ zo::rama_table_set::value(const std::string &residue_type,
       std::cout << "ERROR:: unknown residue/table type " << residue_type << std::endl;
       return 0.0;
    }
+}
+
+std::string
+zo::rama_table_set::get_residue_type(const std::string &this_residue_type,
+				     const std::string &next_residue_type) const {
+
+   std::string r;
+   if (next_residue_type == "PRO") {
+      r = "ALLnP";
+      if (this_residue_type == "GLY") r = "GLYnP";
+      if (this_residue_type == "PRO") r = "PROnP";
+      if (this_residue_type == "VAL") r = "VInP";
+      if (this_residue_type == "ILE") r = "VInP";
+      if (this_residue_type == "ASP") r = "DNnP";
+      if (this_residue_type == "ASN") r = "DNnP";
+      if (this_residue_type == "SER") r = "STnP";
+      if (this_residue_type == "THR") r = "STnP";
+      if (this_residue_type == "GLU") r = "EQnP";
+      if (this_residue_type == "GLN") r = "EQnP";
+      if (this_residue_type == "LEU") r = "LAnP";
+      if (this_residue_type == "ALA") r = "LAnP";
+   } else {
+      r = "ALL!nP";
+      if (this_residue_type == "GLY") r = "GLY!nP";
+      if (this_residue_type == "PRO") r = "PRO!nP";
+      if (this_residue_type == "VAL") r = "VI!nP";
+      if (this_residue_type == "ILE") r = "VI!nP";
+      if (this_residue_type == "ASP") r = "DN!nP";
+      if (this_residue_type == "ASN") r = "DN!nP";
+      if (this_residue_type == "SER") r = "ST!nP";
+      if (this_residue_type == "THR") r = "ST!nP";
+      if (this_residue_type == "GLU") r = "EQ!nP";
+      if (this_residue_type == "GLN") r = "EQ!nP";
+      if (this_residue_type == "LEU") r = "LA!nP";
+      if (this_residue_type == "ALA") r = "LA!nP";
+   }
+   return r;
 }

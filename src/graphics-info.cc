@@ -193,7 +193,7 @@ GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
       std::cout << "in colour_by_rama_plot_distortion plot_value "
 		<< plot_value << " rama_type " << rama_type
 		<< " c.f. coot::RAMA_TYPE_LOGRAMA " << coot::RAMA_TYPE_LOGRAMA
-		<< " coot;:RAMA_TYPE_ZO " << coot::RAMA_TYPE_ZO
+		<< " coot::RAMA_TYPE_ZO " << coot::RAMA_TYPE_ZO
 		<< std::endl;
 
    // ZO type data need to scaled to match
@@ -208,7 +208,9 @@ GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
    col.pixel = 1;
    col.blue  = 0;
 
-   if (rama_type == coot::RAMA_TYPE_LOGRAMA) {
+   // if (rama_type == coot::RAMA_TYPE_LOGRAMA) {
+   if (true) { // now that RAMA_TYPE_ZO are on the same scale this colour
+               // scheme will do for both
       if (plot_value < -15.0*scale) {
 	 col.red   = 0;
 	 col.green = 55535;

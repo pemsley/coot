@@ -1491,7 +1491,7 @@ coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
    // double lr_kdc = lograma.interp(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
    // double R = 10.0 * lr;
 
-   std::string residue_type = "ALL!nP";
+   std::string residue_type = rama_restraint.rama_plot_residue_type;
    double lr = rama.value(residue_type, clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
    double R = -rama_plot_weight * lr;
 

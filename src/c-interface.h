@@ -3309,7 +3309,7 @@ void set_refinement_drag_elasticity(float e);
 void set_refine_ramachandran_angles(int state);
 
 void set_refine_ramachandran_restraints_type(int type);
-void set_refine_ramachandren_restraints_weight(float w);
+void set_refine_ramachandran_restraints_weight(float w);
 
 int refine_ramachandran_angles_state();
 

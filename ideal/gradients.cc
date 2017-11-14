@@ -1284,6 +1284,12 @@ void coot::my_df_rama(const gsl_vector *v,
 
 	       if (restraints->rama_type == restraints_container_t::RAMA_TYPE_ZO) {
 		  std::pair<float,float> zo_rama_pair = restraints->zo_rama_grad(rama_restraint.rama_plot_residue_type, phir, psir);
+		  if (false)
+		     std::cout << "debug:: in my_df_rama() rama_plot_residue_type is "
+			       << rama_restraint.rama_plot_residue_type << " gradients "
+			       << zo_rama_pair.first << " " << zo_rama_pair.second
+			       << std::endl;
+
 		  multiplier_phi = -restraints->get_rama_plot_weight()/(1.0 + tan_phir*tan_phir) * zo_rama_pair.first;
 		  multiplier_psi = -restraints->get_rama_plot_weight()/(1.0 + tan_psir*tan_psir) * zo_rama_pair.second;
 	       } else {
