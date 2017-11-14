@@ -5,7 +5,7 @@
 //
 void
 zo::rama_table::read(const std::string &file_name) {
-   std::ifstream f(file_name);
+   std::ifstream f(file_name.c_str());
    std::string line;
    // std::cout << "INFO:: reading file " << file_name << std::endl;
 
