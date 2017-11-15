@@ -1,6 +1,11 @@
 
    For Release 0.8.9
 
+   o in Find Ligands - make Conformer Options frame/entry dependent on flexible having been
+     clicked on.
+
+   o add in get-restraints-from-models.scm and files.
+
    o fix this mtz file reading problem:
 
    Quin Yu:
