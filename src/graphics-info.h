@@ -2566,10 +2566,12 @@ public:
 
    // uses cif_dictionary_filename_vec.
    //imol_enc can be the model molecule number or
-   // -1 for all
-   // -2 for auto
-   // -3 for unset
-   int add_cif_dictionary(std::string cif_dictionary_filename,
+   // IMOL_ENC_ANY = -999999, IMOL_ENC_AUTO = -999998, IMOL_ENC_UNSET = -999997.
+   // 
+   // @return the index of the monomer in the geometry store.
+   //
+   coot::read_refmac_mon_lib_info_t
+   add_cif_dictionary(std::string cif_dictionary_filename,
 			  int imol_enc,
 			  short int show_no_bonds_dialog_maybe_flag);
    void import_all_refmac_cifs();

@@ -3726,11 +3726,10 @@ int read_cif_dictionary(const char *filename);
  Apply to the given molecule.
 
  imol_enc can be the model molecule number or
- -1 for all
- -2 for auto
- -3 for unset
+ IMOL_ENC_ANY = -999999, IMOL_ENC_AUTO = -999998, IMOL_ENC_UNSET = -999997
+
  */
-int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc);
+int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc, short int new_molecule_from_dictionary_cif_checkbutton_state);
 
 int write_connectivity(const char* monomer_name, const char *filename);
 /*! \brief open the cif dictionary file selector dialog */

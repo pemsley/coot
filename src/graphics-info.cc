@@ -342,14 +342,26 @@ graphics_info_t::draw_anti_aliasing() {
 // imol_enc can be a specific model molecule number or
 // IMOL_ENC_AUTO, IMOL_ENC_ANY are the interesting values
 // otherwise mol number.
-// 
-int
+//
+// if imol_enc_in is IMOL_ENC_AUTO, then try to find to which
+// molecule this dictionary refers.
+// If the residue type is on the non-auto load list, simply go through
+// the molecule list backwards, starting from the hightest molecule number looking for
+// a molecule that is a valid model molecule - that's the one.
+// If the residue type is not in the non-auto list, then
+// it is a dictionary for all molecules, i.e. IMOL_ENC_ANY.
+//
+// return the index of the monomer in the geometry store. Return -1 on failure
+//
+coot::read_refmac_mon_lib_info_t
 graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 				    int imol_enc_in,
 				    short int show_no_bonds_dialog_maybe_flag) {
 
-   std::cout << "::: add_cif_dictionary() called with "
-	     << cif_dictionary_filename << " " << imol_enc_in << " " << show_no_bonds_dialog_maybe_flag << std::endl;
+   if (false)
+      std::cout << "::: add_cif_dictionary() called with "
+		<< cif_dictionary_filename << " " << imol_enc_in << " "
+		<< show_no_bonds_dialog_maybe_flag << std::endl;
 
    int imol_enc = imol_enc_in;
 
@@ -380,8 +392,8 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 			       cif_dictionary_read_number,
 			       imol_enc);
 
-   cif_dictionary_read_number++; 
-   if (rmit.success > 0) { 
+   cif_dictionary_read_number++;
+   if (rmit.success > 0) {
       cif_dictionary_filename_vec->push_back(cif_dictionary_filename);
       if (show_no_bonds_dialog_maybe_flag) {
 	 display_density_level_this_image = 1;
@@ -398,7 +410,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
    } else {
       std::cout << "init_refmac_mon_lib "  << cif_dictionary_filename
 		<< " had no bond restraints\n";
-      if (use_graphics_interface_flag) { 
+      if (use_graphics_interface_flag) {
 	 if (show_no_bonds_dialog_maybe_flag) {
 	    GtkWidget *widget = create_no_cif_dictionary_bonds_dialog();
 	    gtk_widget_show(widget);
@@ -406,20 +418,21 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
       }
 
       std::string s;
-      for (unsigned int i=0; i<rmit.error_messages.size(); i++) { 
+      for (unsigned int i=0; i<rmit.error_messages.size(); i++) {
 	 s += rmit.error_messages[i];
 	 s += "\n";
       }
       info_dialog(s);
    }
 
+   // Redraw all molecules! Yikes!
    for (unsigned int i=0; i<molecules.size(); i++) {
       if (is_valid_model_molecule(i)) {
 	 molecules[i].make_bonds_type_checked();
       }
    }
    // return rmit.n_atoms;
-   return rmit.monomer_idx;
+   return rmit;
 }
 
 

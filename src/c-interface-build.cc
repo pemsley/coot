@@ -4902,7 +4902,9 @@ float residue_density_fit_scale_factor() {
 // dictionary
 int handle_cif_dictionary(const char *filename) {
 
-   return handle_cif_dictionary_for_molecule(filename, coot::protein_geometry::IMOL_ENC_ANY);
+   short int new_molecule_flag = 0; // no
+   return handle_cif_dictionary_for_molecule(filename, coot::protein_geometry::IMOL_ENC_ANY,
+					     new_molecule_flag);
 }
 
 // imol_enc can be the model molecule number or
@@ -4910,18 +4912,57 @@ int handle_cif_dictionary(const char *filename) {
 // IMOL_ENC_AUTO for auto
 // IMOL_ENC_UNSET for unset - not useful.
 //
-int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc) {
+// This function now handles the optional generation of a new molecule
+// based on the value of new_molecule_from_dictionary_cif_checkbutton_state
+//
+int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc,
+				       short int new_molecule_from_dictionary_cif_checkbutton_state) {
 
    graphics_info_t g;
    short int show_dialog_flag = 0;
    if (graphics_info_t::use_graphics_interface_flag)
       show_dialog_flag = 1;
    // add_cif_dictionary() returns the comp_id index
-   int r = g.add_cif_dictionary(coot::util::intelligent_debackslash(filename),
-				imol_enc,
-                                show_dialog_flag);
+   coot::read_refmac_mon_lib_info_t rmit =
+      g.add_cif_dictionary(coot::util::intelligent_debackslash(filename),
+			   imol_enc, show_dialog_flag);
+
+
+   /* if we choose a specific molecule for this dictionary, then it doesn't make
+       sense to create a new molecule to which this dictionary does not refer!
+   */
+   bool do_new_molecule = true;
+
+   const char *s1 = "Molecule Select type Auto disables Generate a Molecule for non-auto-load residue type";
+   const char *s2 = "Molecule Select type for a specific molecule disables Generate a Molecule";
+
+   if (rmit.success) {
+      if (imol_enc >= 0 || imol_enc == coot::protein_geometry::IMOL_ENC_AUTO) {
+	 if (imol_enc == coot::protein_geometry::IMOL_ENC_AUTO) {
+	    if (g.Geom_p()->is_non_auto_load_ligand(rmit.comp_id)) {
+	       std::cout << "INFO:: " << s1 << std::endl;
+	       add_status_bar_text(s1);
+	       do_new_molecule = false;
+	    }
+	 } else {
+	    std::cout << "INFO:: " << s2 << std::endl;
+	    add_status_bar_text(s2);
+	    do_new_molecule = false;
+	 }
+
+	 if (false)
+	    std::cout << "handle_cif_dictionary_for_molecule here with rmit "
+		      << rmit.success << " " << rmit.comp_id << " "
+		      << do_new_molecule << std::endl;
+      }
+
+      if (do_new_molecule)
+	 if (new_molecule_from_dictionary_cif_checkbutton_state)
+	    get_monomer_for_molecule_by_index(rmit.monomer_idx, imol_enc);
+   }
+
    graphics_draw();
-   return r;
+   return rmit.monomer_idx;
 }
 
 int read_cif_dictionary(const char *filename) {

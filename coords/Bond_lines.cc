@@ -335,7 +335,6 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 
 		     bool bond_het_residue_by_dictionary =
 			add_bond_by_dictionary_maybe(imol, atom_p_1, atom_p_2, &het_residues); // add to het_residues maybe
-
 		     if (0)
 			std::cout << atom_p_1 <<  " " << atom_p_2 << " bonded by dictionary: "
 				  << bond_het_residue_by_dictionary << std::endl;
@@ -523,13 +522,13 @@ Bond_lines_container::add_bond_by_dictionary_maybe(int imol, mmdb::Atom *atom_p_
 
 	       std::pair<bool, mmdb::Residue *> tp0(0, atom_p_1->residue);
 	       std::pair<bool, mmdb::Residue *> tp1(1, atom_p_1->residue);
-			      
+
 	       // add this residue to the vector if it is not there already)
 	       // 
 	       // We have to check both pairs against
 	       // the cached results (where we have a
 	       // dictionary and where we don't).
-	       // 
+	       //
 	       std::vector<std::pair<bool, mmdb::Residue *> >::const_iterator it_1 =
 		  std::find(het_residues->begin(), het_residues->end(), tp0);
 
@@ -540,7 +539,7 @@ Bond_lines_container::add_bond_by_dictionary_maybe(int imol, mmdb::Atom *atom_p_
 				 
 		  if (it_2 == het_residues->end()) {
 
-		     if (geom->have_at_least_minimal_dictionary_for_residue_type(atom_p_1->residue->GetResName())) {
+		     if (geom->have_at_least_minimal_dictionary_for_residue_type(atom_p_1->residue->GetResName(), imol)) {
 
 			if (geom->atoms_match_dictionary(imol, atom_p_1->residue, true, true).first) {
 
@@ -935,7 +934,7 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
 	    std::pair<bool, coot::dictionary_residue_restraints_t> restraints = 
 	       geom->get_monomer_restraints_at_least_minimal(res_name, imol);
 
-	    if (0)
+	    if (false)
 	       if (res_name != "HOH")
 		  std::cout << "          ============== Considering bonding HET residue: "
 			    << coot::residue_spec_t(het_residues[ires].second) << " "
@@ -4304,7 +4303,7 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 			// can we do this residue by dictionary?
 			bool done_by_dict = false; // initially
 			if (have_dictionary) {
-			   if (geom->have_at_least_minimal_dictionary_for_residue_type(resname)) {
+			   if (geom->have_at_least_minimal_dictionary_for_residue_type(resname, imol)) {
 			      het_residues.push_back(std::pair<bool, mmdb::Residue *>(true, residue_p));
 			      done_by_dict = true;
 			   } else {
