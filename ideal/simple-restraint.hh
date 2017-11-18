@@ -31,7 +31,7 @@
 #include <stdexcept>
 
 #ifdef HAVE_CXX_THREAD
-#include "utils/ctpl_stl.h"
+#include "utils/ctpl.h"
 #endif // HAVE_CXX_THREAD
 
 #include <mmdb2/mmdb_manager.h>

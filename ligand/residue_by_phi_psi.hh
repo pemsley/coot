@@ -24,7 +24,7 @@
 #ifdef HAVE_CXX_THREAD
 #include <thread>
 #include <chrono>
-#include "utils/ctpl_stl.h"
+#include "utils/ctpl.h" // match that included in simple-restraint.hh
 #endif // HAVE_CXX_THREAD
 
 #include "ligand.hh"
