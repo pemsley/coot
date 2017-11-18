@@ -4,7 +4,9 @@
    o in Find Ligands - make Conformer Options frame/entry dependent on flexible having been
      clicked on.
 
-   o add in get-restraints-from-models.scm and files.
+   o add in get-restraints-from-models.scm and files. ::: 0.5
+
+* Done.
 
    o fix this mtz file reading problem:
 
@@ -24,9 +26,13 @@ Program terminated with signal 11, Segmentation fault.
 
    o Nice to have: Update density fit graph on delete residue and delete residue range.
 
-   o Andrea: ncs_control_change_ncs_master_to_chain(1,0) crashes Coot instantly. ::: 0.5
+   o Andrea: ncs_control_change_ncs_master_to_chain(1,0) crashes Coot instantly.
+     *Note: can't reproduce in trivial test on tutorial data.
+     ::: 0.5
 
    o don't display the aniso atoms for hydrogens if hydrogens are not displayed ::: 0.5
+
+* Done - not tested.
 
    o ZO: make a default so that hydrogens are not displayed by default - rather than turning them off 
          after I have read it in. ::: 1
@@ -55,7 +61,7 @@ Program terminated with signal 11, Segmentation fault.
    o make a mode "don't recontour the map on recentre". Add a "recontour" 
      toolbar button ::: 2
 
-   o ZO: I have lots of fragments - overlapping by a residue or so - do the merge for me.
+   o ZO: I have lots of fragments - overlapping by a residue or so - do the merge for me.  Punt.
 
    o perhaps this will do: "merge these molecules/chains" - click, click.
 
