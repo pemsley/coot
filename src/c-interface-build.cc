@@ -3748,6 +3748,7 @@ int place_helix_here() {
       float iqr_2 = 0.5*f_iqr;
 	 
       float min_density_limit = iqr_2;
+      min_density_limit = iqr_2 * g.place_helix_here_fudge_factor; // 20171117
       float high_density_turning_point = f_iqr * 4 * g.place_helix_here_fudge_factor;
       std::cout << "DEBUG:: choosing map min_density limit: " << min_density_limit << std::endl;
       std::cout << "DEBUG:: choosing map high_density_turning_point limit: " << high_density_turning_point
@@ -3755,6 +3756,10 @@ int place_helix_here() {
 
       float map_rmsd = g.molecules[imol_map].map_sigma();
       float bf = g.default_new_atoms_b_factor;
+
+      // 20171117
+      // min-density_limit min_density_limit_for_trim should be higher for cryo-EM maps
+      //
       coot::helix_placement_info_t n =
 	 p.place_alpha_helix_near_kc_version(pt, 20, min_density_limit, high_density_turning_point, bf, map_rmsd);
        if (! n.success) {
