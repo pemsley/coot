@@ -1068,9 +1068,17 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       }
 
       if (restraints_usage_flag & coot::RAMA_PLOT_MASK) {
-  	 if ( restraints_vec[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) { 
+  	 if ( restraints_vec[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
   	    n_rama_restraints++;
-  	    rama_distortion += coot::distortion_score_rama(restraints_vec[i], v, lograma);
+	    if (rama_type == restraints_container_t::RAMA_TYPE_ZO) {
+	       rama_distortion = coot::distortion_score_rama( restraints_vec[i], v, ZO_Rama(), get_rama_plot_weight());
+	    } else {
+	       rama_distortion = coot::distortion_score_rama(restraints_vec[i], v, lograma);
+	    }
+	    std::cout << "about to call distortion_score_rama() for LogRama..." << std::endl;
+	    double d1 = distortion_score_rama( restraints_vec[i], v, LogRama());
+	    double d2 = coot::distortion_score_rama(restraints_vec[i], v, ZO_Rama(), get_rama_plot_weight());
+	    std::cout << "distortion-comparision lograms " << d1 << " zo " << d2 << std::endl;
   	 }
       }
 
@@ -1196,9 +1204,12 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       if (print_summary)
 	 std::cout << "rama plot:  N/A " << std::endl;
    } else {
-      double rd = rama_distortion/double(n_rama_restraints);
+      double rd_raw = rama_distortion/double(n_rama_restraints);
+      double rd = rd_raw;
+      if (rama_type == restraints_container_t::RAMA_TYPE_ZO)
+	 rd = rd_raw*20.0 -80.0; // puts ZO distortions on the same scale as LogRama
       if (print_summary)
-	 std::cout << "rama plot:  " << rd << std::endl;
+	 std::cout << "rama plot:  " << rd << " " << n_rama_restraints << std::endl;
       r += "   rama plot: ";
       r += coot::util::float_to_string_using_dec_pl(rd, 3);
       std::string s = "Rama Plot: ";
@@ -1256,7 +1267,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       std::string s = "GemanMcCl: ";
       s += coot::util::float_to_string_using_dec_pl(sspd, 3);
       lights_vec.push_back(coot::refinement_lights_info_t("GemanMcCl", s, sspd));
-   } 
+   }
    return lights_vec;
 } 
 
@@ -1697,7 +1708,7 @@ coot::restraints_container_t::make_restraints(int imol,
 					      bool do_link_restraints,
 					      bool do_flank_restraints) {
 
-   // if a peptider is trans, add a restraint to penalize non-trans configuration
+   // if a peptide is trans, add a restraint to penalize non-trans configuration
    // (currently a torsion restraint on peptide w of 180)
    //
 
@@ -1740,6 +1751,8 @@ coot::restraints_container_t::make_restraints(int imol,
 	 do_link_restraints_internal = false;
       if (! do_flank_restraints)
 	 do_flank_restraints_internal = false;
+
+      rama_plot_weight = rama_plot_target_weight;
 
       // sets bonded_pairs_container
       if (do_link_restraints_internal)

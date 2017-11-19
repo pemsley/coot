@@ -443,7 +443,6 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
 	    flags = coot::ALL_RESTRAINTS;
 
-	 
 	 // coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 
 	 // 20080108 Recall that we do secondary structure restraints
@@ -746,8 +745,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
       if (do_rama_restraints)
 	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
 
-
-      flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+      // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
 
       std::vector<coot::atom_spec_t> fixed_atom_specs = molecules[imol].get_fixed_atoms();
 

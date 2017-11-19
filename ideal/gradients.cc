@@ -65,6 +65,7 @@ coot::numerical_gradients(gsl_vector *v,
    double micro_step = 0.0001;  // the difference between the gradients
 			        // seems not to depend on the
 			        // micro_step size (0.0001 vs 0.001)
+                                // ... Hmm... is does for rama restraints?
 
    if (false) {
       std::cout << "in numerical_gradients: df->size is " << df->size << std::endl;
@@ -1462,17 +1463,24 @@ void coot::my_df_rama(const gsl_vector *v,
 		  fill_distortion_torsion_gradients(P2, P3, P4, P5);
 
 	       // Faster to use these, not calculate them above?
-	       // 
-	       // phir = clipper::Util::d2rad(dtg_phi.theta);
-	       // psir = clipper::Util::d2rad(dtg_psi.theta);
-	       LogRamachandran::Lgrad lgrd = restraints->rama_grad(phir, psir);
+	       //
 
 	       double tan_phir = tan(phir);
 	       double tan_psir = tan(psir);
 
-	       double multiplier_phi = 10.0/(1.0 + tan_phir*tan_phir) * lgrd.DlogpDphi;
-	       double multiplier_psi = 10.0/(1.0 + tan_psir*tan_psir) * lgrd.DlogpDpsi;
-	    
+	       double multiplier_phi = 1.0;
+	       double multiplier_psi = 1.0;
+
+	       if (restraints->rama_type == restraints_container_t::RAMA_TYPE_ZO) {
+		  std::pair<float,float> zo_rama_pair = restraints->zo_rama_grad(phir, psir);
+		  multiplier_phi = -restraints->get_rama_plot_weight()/(1.0 + tan_phir*tan_phir) * zo_rama_pair.first;
+		  multiplier_psi = -restraints->get_rama_plot_weight()/(1.0 + tan_psir*tan_psir) * zo_rama_pair.second;
+	       } else {
+		  LogRamachandran::Lgrad lgrd = restraints->rama_grad(phir, psir);
+		  multiplier_phi = 10.0/(1.0 + tan_phir*tan_phir) * lgrd.DlogpDphi;
+		  multiplier_psi = 10.0/(1.0 + tan_psir*tan_psir) * lgrd.DlogpDpsi;
+	       }
+
 	       double xP1_contrib = multiplier_phi*dtg_phi.dD_dxP1;
 	       double yP1_contrib = multiplier_phi*dtg_phi.dD_dyP1;
 	       double zP1_contrib = multiplier_phi*dtg_phi.dD_dzP1;
@@ -1519,7 +1527,7 @@ void coot::my_df_rama(const gsl_vector *v,
 		  yP4_contrib = 0.0;
 		  zP4_contrib = 0.0;
 	       }
-	    
+
 	       double xP5_contrib = multiplier_psi*dtg_psi.dD_dxP4;
 	       double yP5_contrib = multiplier_psi*dtg_psi.dD_dyP4;
 	       double zP5_contrib = multiplier_psi*dtg_psi.dD_dzP4;
@@ -1562,7 +1570,7 @@ void coot::my_df_rama(const gsl_vector *v,
 	 }
       }
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "ERROR:: my_df_rama() caught " << rte.what() << std::endl;
    } 
 }

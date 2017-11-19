@@ -406,6 +406,7 @@ src/Makefile
 src/coot
 python/coot_load_modules.py
 data/Makefile
+data/rama-coeffs/Makefile
 pixmaps/Makefile
 pixmaps/icons/Makefile
 rama-data/Makefile

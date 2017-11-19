@@ -1,6 +1,49 @@
 
    For Release 0.8.9
 
+   o read in dictionary for PF-56. The bond lines of the O-S are too close.
+
+   o I want to be able to see the formal charge of atoms (e.g. from sdf - does that
+     come via RDKit?) and (probably more importantly) dictionaries.
+
+   o pyrogen.depict pf-3.sdf - the aromatic bond is drawn on the wrong side.
+
+   o master branch: in rdkit_mol() // wedge bonds should have the chiral centre as the first atom
+     do an additional chiral check based on pdbx_stereo_config (currently the check is
+     based only on chiral restraints). Look at FAX - why even is the P-OH bond wedged?
+     what is marking either of these atoms as chiral?
+
+   o why are the hydrogens red (if I don't delete them)
+
+   o the hydrogen is not drawn correctly on AC6 in Colour by Atoms
+
+   o CLD, CL6: bond to central ("chiral") atom is facing the wrong way
+
+   o IN5: OH on the P, chiral is round the wrong way.
+
+   o GGD has no atoms in pyrogen.MolFromPDBXr(). Why?
+
+   o pf-43.sdf aromatic bonds drawn wrongly.
+
+   o HNI causes a crash
+
+   o in FAP is CH3 is chopped
+
+   o FAK chiral FC wedge is round the wrong way,
+     FAI chiral P  wedge is round the wrong way,
+
+   o 8RV, the bond runs into the Br.  We need to bring the atom_t to the bond coords generator.
+
+   o 8RP, the bond runs into the +
+
+   o ING has twisted sheared bond - why?
+
+   o FLEV fail on A2005 in 5pb8 failure to construct rdkit molecule (in alt conf D)
+
+   o unhide (unsubmarine) Edit Restraints window
+
+   o click-click refinement with fixed atoms gives NOPROGRESS. Must fix. ::: 5
+
    o on quick-save-as, if there are 2 molecules called "Helix" (or whatever) they should be
      saved to different file names.
 
