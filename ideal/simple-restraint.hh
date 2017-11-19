@@ -30,9 +30,12 @@
 #include <string>
 #include <stdexcept>
 
+#ifdef HAVE_BOOST
 #ifdef HAVE_CXX_THREAD
+#define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #include "utils/ctpl.h"
 #endif // HAVE_CXX_THREAD
+#endif // HAVE_BOOST
 
 #include <mmdb2/mmdb_manager.h>
 #include "coot-utils/bonded-pairs.hh"
@@ -2049,7 +2052,7 @@ namespace coot {
 
       void set_geman_mcclure_alpha(double alpha_in) { geman_mcclure_alpha = alpha_in; }
 
-#ifdef HAVE_CXX_THREAD
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
       // thread pool!
       //
       ctpl::thread_pool *thread_pool_p;
@@ -2067,7 +2070,7 @@ namespace coot {
       //
       // ctpl::thread_pool another_thread_pool;
 
-#endif // HAVE_CXX_THREAD
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
       void clear() {
 	 restraints_vec.clear();

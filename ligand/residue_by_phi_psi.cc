@@ -35,10 +35,10 @@ coot::residue_by_phi_psi::residue_by_phi_psi(const std::string &terminus,
 					     const std::string &res_type,
 					     float b_factor_in) {
    
-#ifdef HAVE_CXX_THREAD
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
    thread_pool_p = 0;
    n_threads = 0;
-#endif // HAVE_CXX_THREAD
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
    chain_id      = chain_id_in;
    residue_type  = res_type;
    terminus_type = terminus;
@@ -199,7 +199,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 	 next_residue_seq_num = residue_p->GetSeqNum() - 1;
       }
 
-#ifdef HAVE_CXX_THREAD
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
       if (n_threads > 1) {
 	 auto tp_1 = std::chrono::high_resolution_clock::now();
@@ -395,8 +395,8 @@ coot::residue_by_phi_psi::add_characteristic_low_points(coot::ligand_score_card 
       s->scored_characteristic_low_density_points.push_back(sp);
       s->atom_point_score -= db;
    } else {
-      std::cout << "DEBUG:: oops residue subject_res_num " << subject_res_num << " - No atoms"
-		<< std::endl;
+      std::cout << "DEBUG:: in add_characteristic_low_points() oops residue subject_res_num "
+		<< subject_res_num << " - No atoms" << std::endl;
    }
 }
 
@@ -504,14 +504,14 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner(int itrial,
       double t = clipper::Util::d2rad(p1.psi-125);
       // this is for N-terminal addition
       int neighb_seqnum = residue_p->GetSeqNum();
-      int subject_res_num = neighb_seqnum-1;
+      int subject_res_num = neighb_seqnum + offset;
       if (frag[subject_res_num].atoms.size() > 0) {
 	 clipper::Coord_orth c_pos  = frag[subject_res_num][" C  "].pos;
 	 clipper::Coord_orth ca_pos = frag[subject_res_num][" CA "].pos;
 	 clipper::Coord_orth ld_pos(next_n, c_pos, ca_pos, 1.8, a, t);
 	 float db = score_position(ld_pos, xmap_in);
 
-	 if (true) {
+	 if (false) {
 	    std::cout << "ld_pos: " << ld_pos.format() << " scores " << db << " c.f. " << s.score_per_atom
 		      << std::endl;
 	    std::ofstream f("debug-pos.txt");
@@ -523,8 +523,8 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner(int itrial,
 	 s.scored_characteristic_low_density_points.push_back(sp);
 	 s.atom_point_score -= db;
       } else {
-	 std::cout << "DEBUG:: oops residue subject_res_num " << subject_res_num << " - No atoms"
-		   << std::endl;
+	 std::cout << "DEBUG:: oops in fit_terminal_residue_generic_trial_inner() residue subject_res_num "
+		   << subject_res_num << " - No atoms" << std::endl;
       }
    }
 
