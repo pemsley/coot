@@ -21,10 +21,10 @@
 #ifndef RESIDUE_BY_PHI_PSI_HH
 #define RESIDUE_BY_PHI_PSI_HH
 
-#ifdef HAVE_CXX_THREAD
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #include <thread>
 #include <chrono>
-#include "utils/ctpl_stl.h"
+#include "utils/ctpl.h"
 #endif // HAVE_CXX_THREAD
 
 #include "ligand.hh"

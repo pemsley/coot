@@ -171,7 +171,6 @@ namespace zo {
 
       rama_table_set() { init(); }
 
-      // actually write this at some stage
       std::string get_residue_type(const std::string &this_residue_type,
 				   const std::string &next_residue_type) const;
 

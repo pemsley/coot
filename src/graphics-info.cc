@@ -1838,7 +1838,7 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 	 // now we want to draw out our bonds in white, 
 	 glColor3f (0.9, 0.9, 0.9);
       } else {
-	 glColor3f (0.6, 0.6, 0.6);
+	 glColor3f (0.4, 0.4, 0.4);
       }
       
       glLineWidth(graphics_info_t::bond_thickness_intermediate_atoms);
@@ -1875,12 +1875,13 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 	 glEnd();
       }
 
-      if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
-	 for (int i=0; i<graphics_info_t::regularize_object_bonds_box.n_ramachandran_goodness_spots; i++) {
-	    const coot::Cartesian &pos = regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].first;
-	    const float &size          = regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].second;
+      // we don't want disks any more
+      if (false) { 
+	 if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
+	    for (int i=0; i<graphics_info_t::regularize_object_bonds_box.n_ramachandran_goodness_spots; i++) {
+	       const coot::Cartesian &pos = regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].first;
+	       const float &size          = regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].second;
 
-	    if (false) { 
 	       double base = size * 0.3;
 	       int slices = 10;
 	       GLUquadric* quad = gluNewQuadric();
