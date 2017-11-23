@@ -2455,11 +2455,29 @@ PyObject *all_molecule_ramachandran_score_py(int imol) {
       coot::rama_score_t rs = graphics_info_t::molecules[imol].get_all_molecule_rama_score();
       PyObject *a_py = PyFloat_FromDouble(rs.score);
       PyObject *b_py = PyInt_FromLong(rs.n_residues());
-      PyObject *c_py = PyInt_FromLong(rs.n_zeros);
-      r = PyList_New(3);
+      PyObject *c_py = PyFloat_FromDouble(rs.score_non_sec_str);
+      PyObject *d_py = PyInt_FromLong(rs.n_residues_non_sec_str());
+      PyObject *e_py = PyInt_FromLong(rs.n_zeros);
+      PyObject *info_by_residue_py = PyList_New(rs.scores.size());
+      for (std::size_t ii=0; ii<rs.scores.size(); ii++) {
+	 PyObject *info_for_residue_py = PyList_New(4);
+	 PyObject *residue_spec_py = residue_spec_to_py(rs.scores[ii].res_spec);
+	 if (rs.scores[ii].residue_prev &&
+	     rs.scores[ii].residue_this &&
+	     rs.scores[ii].residue_next) {
+	    
+	    PyList_SetItem(info_by_residue_py, ii, info_for_residue_py);
+	 } else {
+	    PyList_SetItem(info_by_residue_py, ii, PyInt_FromLong(-1)); // shouldn't happen
+	 }
+      }
+      r = PyList_New(6);
       PyList_SetItem(r, 0, a_py);
       PyList_SetItem(r, 1, b_py);
       PyList_SetItem(r, 2, c_py);
+      PyList_SetItem(r, 3, d_py);
+      PyList_SetItem(r, 4, e_py);
+      PyList_SetItem(r, 5, info_by_residue_py);
    }
 
    if (PyBool_Check(r)) {

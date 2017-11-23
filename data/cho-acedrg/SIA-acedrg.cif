@@ -1,0 +1,257 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+SIA     SIA     "O-SIALICACID"     NON-POLYMER     39     21     .     
+#
+data_comp_SIA
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+SIA     C11     C       CH3     0       -0.787      4.192       0.910       
+SIA     C10     C       C       0       -0.706      3.092       -0.106      
+SIA     O10     O       O       0       -0.744      3.334       -1.310      
+SIA     N5      N       NH1     0       -0.575      1.848       0.389       
+SIA     C5      C       CH1     0       -0.803      0.606       -0.353      
+SIA     C4      C       CH1     0       -2.266      0.186       -0.185      
+SIA     C3      C       CH2     0       -2.524      -1.198      -0.761      
+SIA     C2      C       CT      0       -1.561      -2.232      -0.205      
+SIA     O6      O       O2      0       -0.203      -1.790      -0.417      
+SIA     C6      C       CH1     0       0.188       -0.486      0.094       
+SIA     C7      C       CH1     0       1.606       -0.197      -0.400      
+SIA     C8      C       CH1     0       2.713       -0.806      0.490       
+SIA     C9      C       CH2     0       4.114       -0.703      -0.082      
+SIA     O9      O       OH1     0       4.423       0.627       -0.492      
+SIA     O8      O       OH1     0       2.714       -0.147      1.754       
+SIA     O7      O       OH1     0       1.769       -0.637      -1.755      
+SIA     C1      C       C       0       -1.800      -2.606      1.273       
+SIA     O1A     O       O       0       -2.926      -2.692      1.710       
+SIA     O1B     O       OC      -1      -0.856      -2.841      1.992       
+SIA     O2      O       OH1     0       -1.715      -3.385      -0.977      
+SIA     O4      O       OH1     0       -3.134      1.123       -0.825      
+SIA     H111    H       H       0       0.040       4.229       1.416       
+SIA     H112    H       H       0       -1.528      4.022       1.515       
+SIA     H113    H       H       0       -0.928      5.041       0.460       
+SIA     HN5     H       H       0       -0.333      1.768       1.229       
+SIA     H5      H       H       0       -0.640      0.761       -1.316      
+SIA     H4      H       H       0       -2.483      0.178       0.786       
+SIA     H31     H       H       0       -2.424      -1.163      -1.736      
+SIA     H32     H       H       0       -3.446      -1.467      -0.563      
+SIA     H6      H       H       0       0.196       -0.519      1.081       
+SIA     H7      H       H       0       1.740       0.788       -0.399      
+SIA     H8      H       H       0       2.510       -1.764      0.648       
+SIA     H91     H       H       0       4.203       -1.310      -0.856      
+SIA     H92     H       H       0       4.767       -0.985      0.604       
+SIA     HO9     H       H       0       5.068       0.594       -1.039      
+SIA     HO8     H       H       0       3.126       -0.626      2.320       
+SIA     HO7     H       H       0       1.376       -0.095      -2.275      
+SIA     HO2     H       H       0       -1.109      -3.944      -0.786      
+SIA     HO4     H       H       0       -2.958      1.166       -1.648      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+SIA         C11         C10      SINGLE       n     1.498   0.010
+SIA         C10         O10      DOUBLE       n     1.227   0.012
+SIA         C10          N5      SINGLE       n     1.334   0.013
+SIA          N5          C5      SINGLE       n     1.456   0.011
+SIA          C5          C4      SINGLE       n     1.525   0.010
+SIA          C4          C3      SINGLE       n     1.519   0.010
+SIA          C3          C2      SINGLE       n     1.514   0.010
+SIA          C2          O6      SINGLE       n     1.435   0.011
+SIA          O6          C6      SINGLE       n     1.440   0.012
+SIA          C6          C7      SINGLE       n     1.521   0.010
+SIA          C7          C8      SINGLE       n     1.531   0.018
+SIA          C8          C9      SINGLE       n     1.514   0.010
+SIA          C9          O9      SINGLE       n     1.425   0.010
+SIA          C8          O8      SINGLE       n     1.424   0.020
+SIA          C7          O7      SINGLE       n     1.430   0.011
+SIA          C2          C1      SINGLE       n     1.525   0.016
+SIA          C1         O1A      DOUBLE       n     1.207   0.020
+SIA          C1         O1B      SINGLE       n     1.207   0.020
+SIA          C2          O2      SINGLE       n     1.390   0.013
+SIA          C4          O4      SINGLE       n     1.427   0.010
+SIA          C5          C6      SINGLE       n     1.532   0.010
+SIA         C11        H111      SINGLE       n     0.971   0.014
+SIA         C11        H112      SINGLE       n     0.971   0.014
+SIA         C11        H113      SINGLE       n     0.971   0.014
+SIA          N5         HN5      SINGLE       n     0.876   0.020
+SIA          C5          H5      SINGLE       n     0.990   0.015
+SIA          C4          H4      SINGLE       n     0.995   0.010
+SIA          C3         H31      SINGLE       n     0.981   0.017
+SIA          C3         H32      SINGLE       n     0.981   0.017
+SIA          C6          H6      SINGLE       n     0.989   0.017
+SIA          C7          H7      SINGLE       n     0.995   0.017
+SIA          C8          H8      SINGLE       n     0.992   0.019
+SIA          C9         H91      SINGLE       n     0.988   0.020
+SIA          C9         H92      SINGLE       n     0.988   0.020
+SIA          O9         HO9      SINGLE       n     0.846   0.020
+SIA          O8         HO8      SINGLE       n     0.848   0.020
+SIA          O7         HO7      SINGLE       n     0.848   0.020
+SIA          O2         HO2      SINGLE       n     0.842   0.020
+SIA          O4         HO4      SINGLE       n     0.841   0.020
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+SIA         C10         C11        H111     109.527    1.50
+SIA         C10         C11        H112     109.527    1.50
+SIA         C10         C11        H113     109.527    1.50
+SIA        H111         C11        H112     109.365    1.50
+SIA        H111         C11        H113     109.365    1.50
+SIA        H112         C11        H113     109.365    1.50
+SIA         C11         C10         O10     122.067    1.50
+SIA         C11         C10          N5     115.988    1.50
+SIA         O10         C10          N5     121.945    1.50
+SIA         C10          N5          C5     123.128    1.53
+SIA         C10          N5         HN5     118.802    2.66
+SIA          C5          N5         HN5     118.071    2.07
+SIA          N5          C5          C4     110.454    2.38
+SIA          N5          C5          C6     110.829    2.03
+SIA          N5          C5          H5     108.143    1.50
+SIA          C4          C5          C6     111.124    1.57
+SIA          C4          C5          H5     107.258    1.68
+SIA          C6          C5          H5     106.721    1.50
+SIA          C5          C4          C3     110.472    1.50
+SIA          C5          C4          O4     110.124    1.87
+SIA          C5          C4          H4     108.987    1.50
+SIA          C3          C4          O4     109.687    1.93
+SIA          C3          C4          H4     109.129    1.50
+SIA          O4          C4          H4     108.626    1.50
+SIA          C4          C3          C2     111.124    1.57
+SIA          C4          C3         H31     109.270    1.50
+SIA          C4          C3         H32     109.270    1.50
+SIA          C2          C3         H31     109.068    1.50
+SIA          C2          C3         H32     109.068    1.50
+SIA         H31          C3         H32     108.019    1.50
+SIA          C3          C2          O6     110.767    1.50
+SIA          C3          C2          C1     111.056    2.52
+SIA          C3          C2          O2     108.467    2.07
+SIA          O6          C2          C1     107.807    2.54
+SIA          O6          C2          O2     105.355    3.00
+SIA          C1          C2          O2     108.672    2.53
+SIA          C2          O6          C6     111.559    2.21
+SIA          O6          C6          C7     106.618    1.87
+SIA          O6          C6          C5     107.969    1.58
+SIA          O6          C6          H6     108.995    1.50
+SIA          C7          C6          C5     111.163    2.25
+SIA          C7          C6          H6     108.632    1.50
+SIA          C5          C6          H6     108.738    2.27
+SIA          C6          C7          C8     113.198    2.74
+SIA          C6          C7          O7     109.970    1.76
+SIA          C6          C7          H7     108.382    1.50
+SIA          C8          C7          O7     109.285    2.10
+SIA          C8          C7          H7     108.089    1.50
+SIA          O7          C7          H7     107.882    1.57
+SIA          C7          C8          C9     113.484    1.50
+SIA          C7          C8          O8     109.285    2.10
+SIA          C7          C8          H8     109.350    1.50
+SIA          C9          C8          O8     109.314    1.96
+SIA          C9          C8          H8     108.656    1.50
+SIA          O8          C8          H8     108.183    1.96
+SIA          C8          C9          O9     111.469    1.50
+SIA          C8          C9         H91     109.582    1.50
+SIA          C8          C9         H92     109.582    1.50
+SIA          O9          C9         H91     109.268    1.50
+SIA          O9          C9         H92     109.268    1.50
+SIA         H91          C9         H92     108.313    1.50
+SIA          C9          O9         HO9     108.280    3.00
+SIA          C8          O8         HO8     109.265    3.00
+SIA          C7          O7         HO7     109.010    3.00
+SIA          C2          C1         O1A     119.643    2.54
+SIA          C2          C1         O1B     119.643    2.54
+SIA         O1A          C1         O1B     120.713    1.50
+SIA          C2          O2         HO2     108.879    1.50
+SIA          C4          O4         HO4     109.344    1.84
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+SIA             sp2_sp3_1         O10         C10         C11        H111       0.000   10.00     6
+SIA            sp3_sp3_46          O7          C7          C8          C9      60.000   10.00     3
+SIA            sp3_sp3_68          C8          C7          O7         HO7      60.000   10.00     3
+SIA            sp3_sp3_52          C7          C8          C9          O9     180.000   10.00     3
+SIA            sp3_sp3_64          C7          C8          O8         HO8     180.000   10.00     3
+SIA            sp3_sp3_61          C8          C9          O9         HO9     180.000   10.00     3
+SIA             sp2_sp2_1         C11         C10          N5          C5     180.000   10.00     2
+SIA             sp2_sp3_7         C10          N5          C5          C4       0.000   10.00     6
+SIA             sp3_sp3_5          O4          C4          C5          N5     -60.000   10.00     3
+SIA            sp3_sp3_80          N5          C5          C6          C7     180.000   10.00     3
+SIA            sp3_sp3_73          C5          C4          O4         HO4     180.000   10.00     3
+SIA            sp3_sp3_11          C2          C3          C4          O4      60.000   10.00     3
+SIA            sp3_sp3_22          C1          C2          C3          C4     180.000   10.00     3
+SIA            sp2_sp3_15         O1A          C1          C2          O2    -120.000   10.00     6
+SIA            sp3_sp3_72          C1          C2          O2         HO2     -60.000   10.00     3
+SIA            sp3_sp3_29          C1          C2          O6          C6      60.000   10.00     3
+SIA            sp3_sp3_32          C7          C6          O6          C2     -60.000   10.00     3
+SIA            sp3_sp3_34          O6          C6          C7          C8     180.000   10.00     3
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+SIA    chir_1    C5    N5    C6    C4    negative
+SIA    chir_2    C4    O4    C5    C3    positive
+SIA    chir_3    C2    O6    O2    C1    negative
+SIA    chir_4    C6    O6    C7    C5    negative
+SIA    chir_5    C7    O7    C6    C8    negative
+SIA    chir_6    C8    O8    C7    C9    negative
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+SIA    plan-1         C10   0.020
+SIA    plan-1         C11   0.020
+SIA    plan-1          N5   0.020
+SIA    plan-1         O10   0.020
+SIA    plan-2         C10   0.020
+SIA    plan-2          C5   0.020
+SIA    plan-2         HN5   0.020
+SIA    plan-2          N5   0.020
+SIA    plan-3          C1   0.020
+SIA    plan-3          C2   0.020
+SIA    plan-3         O1A   0.020
+SIA    plan-3         O1B   0.020
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+SIA SMILES           ACDLabs              10.04 "O=C(O)C1(O)OC(C(O)C(O)CO)C(NC(=O)C)C(O)C1"
+SIA SMILES_CANONICAL CACTVS               3.341 "CC(=O)N[C@@H]1[C@@H](O)C[C@@](O)(O[C@H]1[C@H](O)[C@H](O)CO)C(O)=O"
+SIA SMILES           CACTVS               3.341 "CC(=O)N[CH]1[CH](O)C[C](O)(O[CH]1[CH](O)[CH](O)CO)C(O)=O"
+SIA SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 "CC(=O)N[C@@H]1[C@H](C[C@@](O[C@H]1[C@@H]([C@@H](CO)O)O)(C(=O)O)O)O"
+SIA SMILES           "OpenEye OEToolkits" 1.5.0 "CC(=O)NC1C(CC(OC1C(C(CO)O)O)(C(=O)O)O)O"
+SIA InChI            InChI                1.03  "InChI=1S/C11H19NO9/c1-4(14)12-7-5(15)2-11(20,10(18)19)21-9(7)8(17)6(16)3-13/h5-9,13,15-17,20H,2-3H2,1H3,(H,12,14)(H,18,19)/t5-,6+,7+,8+,9+,11+/m0/s1"
+SIA InChIKey         InChI                1.03  SQVRNKJHWKZAKO-YRMXFSIDSA-N

@@ -243,7 +243,8 @@ coot::distortion_score_trans_peptide(const coot::simple_restraint &restraint,
 void coot::my_df_trans_peptides(const gsl_vector *v, 
 				void *params, 
 				gsl_vector *df) {
-   
+
+   // std::cout << "starting my_df_trans_peptides() " << std::endl;
    int n_trans_peptide_restr = 0; 
    int idx; 
 
@@ -251,7 +252,7 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
    //
    restraints_container_t *restraints = (restraints_container_t *)params;
 
-   if (restraints->restraints_usage_flag & TRANS_PEPTIDE_MASK) { 
+   if (restraints->restraints_usage_flag & TRANS_PEPTIDE_MASK) {
      
       int restraints_size = restraints->size();
       for (int i=0; i< restraints_size; i++) {
@@ -259,6 +260,8 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
 	 const simple_restraint &restraint = (*restraints)[i];
       
 	 if ( restraint.restraint_type == TRANS_PEPTIDE_RESTRAINT) {
+
+	    // std::cout << "my_df_trans_peptides() 3 " << " " << i << std::endl;
 
 	    n_trans_peptide_restr++;
 
@@ -279,7 +282,7 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
 				   gsl_vector_get(v,idx+1), 
 				   gsl_vector_get(v,idx+2));
 
-	    try { 
+	    try {
 	       distortion_torsion_gradients_t dtg =
 		  fill_distortion_torsion_gradients(P1, P2, P3, P4);
 
@@ -301,9 +304,9 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
 
 		  double weight = 1/(restraint.sigma * restraint.sigma);
 
-		  // 	       std::cout << "trans_peptide weight: " << weight << std::endl;
-		  // 	       std::cout << "trans_peptide_scale : " << trans_peptide_scale << std::endl; 
-		  // 	       std::cout << "diff          : " << trans_peptide_scale << std::endl; 	       
+		  // std::cout << "trans_peptide weight: " << weight << std::endl;
+		  // std::cout << "trans_peptide_scale : " << trans_peptide_scale << std::endl; 
+		  // std::cout << "diff          : " << trans_peptide_scale << std::endl; 	       
 
 		  double xP1_contrib = 2.0*diff*dtg.dD_dxP1*trans_peptide_scale * weight;
 		  double xP2_contrib = 2.0*diff*dtg.dD_dxP2*trans_peptide_scale * weight;
@@ -319,7 +322,7 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
 		  double zP2_contrib = 2.0*diff*dtg.dD_dzP2*trans_peptide_scale * weight;
 		  double zP3_contrib = 2.0*diff*dtg.dD_dzP3*trans_peptide_scale * weight;
 		  double zP4_contrib = 2.0*diff*dtg.dD_dzP4*trans_peptide_scale * weight;
-	    
+
 		  if (! restraint.fixed_atom_flags[0]) { 
 		     idx = 3*(restraint.atom_index_1);
 		     *gsl_vector_ptr(df, idx  ) += xP1_contrib;
@@ -355,4 +358,5 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
 	 } 
       }
    }
+   // std::cout << "done my_df_trans_peptides() " << std::endl;
 }

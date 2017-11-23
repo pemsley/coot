@@ -2371,7 +2371,19 @@ the geometry dictionary entries for only the standard
 residues are read in at the start  @footnote{And a few extras, such as
   phosphate}.  It may be that your particular ligand is not amongst
 these.  To interactively add a dictionary entry use @command{File
-  -> Import CIF Dictionary}.  Alternatively, you can use
+  -> Import CIF Dictionary}.
+
+There is a selector in the cif dictionary file chooser that allow you to
+select the molecule to which molecule refers. Each of the indididual
+molecules can be specifically selected. ``All`` means that the dictionary
+refers to all loaded molecules and ``Auto`` means that the dictionary will
+be applied to all model molecules if the comp_id/residue name is not on the
+non-auto-load list and will choose the latest model molecule if the comp_id/residue
+name is on the non-auto-load list. By default the non-auto-load list
+consists of INH, LIG, DRG, XXX, and the series LG0-9.
+
+
+Alternatively, you can use
 the function:
 
 @code{(read-cif-dictionary @emph{filename})}

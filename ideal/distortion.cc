@@ -612,6 +612,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 				   int idx_start, int idx_end, double *distortion,
 				   std::atomic<unsigned int> &done_count_for_threads) {
 
+   // std::cout << "here in distortion_score_multithread() " << idx_start << " " << idx_end << std::endl;
    // first extract the object from params
    //
    coot::restraints_container_t *restraints = static_cast<coot::restraints_container_t *>(params);
@@ -648,7 +649,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 
       if (restraints->restraints_usage_flag & TRANS_PEPTIDE_MASK) {
 	 if ( (*restraints)[i].restraint_type == TRANS_PEPTIDE_RESTRAINT) {
-	       double d =  coot::distortion_score_trans_peptide((*restraints)[i], v);
+	    double d =  coot::distortion_score_trans_peptide((*restraints)[i], v);
 	    *distortion += d;
 	    // std::cout << "dsm: trans-peptide " << thread_id << " idx " << i << " " << d << std::endl;
 	    continue;
@@ -845,7 +846,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	 auto d61 = chrono::duration_cast<chrono::microseconds>(tp_6 - tp_1).count();
 
 	 if (false)
-	    std::cout << "d21 " << std::setw(5) << d21 << " "
+	    std::cout << "timings:: distortion d21 " << std::setw(5) << d21 << " "
 		      << "d32 " << std::setw(5) << d32 << " "
 		      << "d43 " << std::setw(5) << d43 << " "
 		      << "d54 " << std::setw(5) << d54 << " "
@@ -1417,7 +1418,7 @@ coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
 
    double lr = lograma.interp(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
    double R = 10.0 * lr;
-   std::cout << "rama (lograma) distortion for " << phi << " " << psi << " is " << R << std::endl;
+   // std::cout << "rama (lograma) distortion for " << phi << " " << psi << " is " << R << std::endl;
 
    if ( clipper::Util::isnan(phi) ) {
       std::cout << "WARNING: observed torsion phi is a NAN!" << std::endl;
@@ -1558,7 +1559,8 @@ coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
    // double lr_kdc = lograma.interp(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
    // double R = 10.0 * lr;
 
-   double lr = rama.value(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
+   std::string residue_type = rama_restraint.rama_plot_residue_type;
+   double lr = rama.value(residue_type, clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
    double R = -rama_plot_weight * lr;
 
    // std::cout << "zo-rama-distortion for " << phi << " " << psi << " is " << lr << " kdc: "
@@ -1643,9 +1645,8 @@ coot::distortion_score_non_bonded_contact(const coot::simple_restraint &nbc_rest
 
    if (false)
       std::cout << "in distortion_score_non_bonded_contact: " << idx_1 << " " << idx_2
-	 // << " " << atom_spec_t(atom[nbc_restraint.atom_index_1]) 
-	 // << " " << atom_spec_t(atom[nbc_restraint.atom_index_2]) 
-		<< " comparing model: " << sqrt(dist_sq) << " min_dist: " << nbc_restraint.target_value
+		<< " comparing model: " << sqrt(dist_sq) << " min_dist: "
+		<< nbc_restraint.target_value
 		<< " with sigma " << nbc_restraint.sigma << std::endl;
 
    if (dist_sq < nbc_restraint.target_value * nbc_restraint.target_value) {

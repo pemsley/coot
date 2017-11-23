@@ -66,10 +66,20 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    if (! g.last_restraints.include_map_terms())
       steps_per_frame *= 6;
 
-   flags = coot::BONDS_AND_NON_BONDED;
-   flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+   // flags = coot::BONDS_AND_NON_BONDED;
+   // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS; // seems OK in parallel
+   // flags = coot::BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS;
+   flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_GEMAN_MCCLURE_DISTANCES; // crashes
+   // flags = coot::TYPICAL_RESTRAINTS; // crashes
+   flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS; // seems OK in parallel
 
-   if (false)
+   // It is inconvenient that we can't do this:
+   // flags += coot::restraint_usage_Flags(coot::JUST_RAMAS);
+   // so turn restraint_usage_Flags into a class
+
+   // so, 1087 is crashy,  59 is fine
+
+   if (true)
       std::cout << "debug:: in drag_refine_refine_intermediate_atoms() calling minimize() with "
 		<< flags << std::endl;
 

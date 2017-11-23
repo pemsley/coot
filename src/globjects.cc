@@ -771,6 +771,9 @@ short int graphics_info_t::do_torsion_restraints = 0;
 short int graphics_info_t::do_peptide_omega_torsion_restraints = 0;
 bool      graphics_info_t::do_rama_restraints = 0; // No.
 bool      graphics_info_t::do_numerical_gradients = 0; // No.
+int       graphics_info_t::restraints_rama_type = coot::RAMA_TYPE_LOGRAMA;
+float     graphics_info_t::rama_restraints_weight = 40;
+
 // for Kevin Keating 
 bool      graphics_info_t::use_only_extra_torsion_restraints_for_torsions_flag = 0; 
 

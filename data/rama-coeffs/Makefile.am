@@ -18,4 +18,4 @@
 cootdatadir = $(pkgdatadir)/data/rama/zo-tables
 
 dist_cootdata_DATA = \
-	all-non-pre-pro.tab
+	all-non-pre-pro.tab coeffsolution.dat

@@ -1,0 +1,172 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+FUC     FUC     ALPHA-L-FUCOSE     SACCHARIDE     23     11     .     
+#
+data_comp_FUC
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+FUC     C6      C       CH3     0       2.638       0.482       0.491       
+FUC     C5      C       CH1     0       1.239       0.431       -0.077      
+FUC     C4      C       CH1     0       0.628       -0.968      -0.064      
+FUC     C3      C       CH1     0       -0.806      -0.903      -0.587      
+FUC     C2      C       CH1     0       -1.640      0.101       0.212       
+FUC     C1      C       CH1     0       -0.949      1.467       0.304       
+FUC     O5      O       O2      0       0.428       1.327       0.725       
+FUC     O1      O       OH1     0       -1.017      2.134       -0.921      
+FUC     O2      O       OH1     0       -2.949      0.236       -0.340      
+FUC     O3      O       OH1     0       -1.419      -2.191      -0.524      
+FUC     O4      O       OH1     0       0.647       -1.501      1.261       
+FUC     H61     H       H       0       2.598       0.445       1.460       
+FUC     H62     H       H       0       3.069       1.308       0.216       
+FUC     H63     H       H       0       3.150       -0.274      0.160       
+FUC     H5      H       H       0       1.262       0.759       -1.010      
+FUC     H4      H       H       0       1.158       -1.553      -0.654      
+FUC     H3      H       H       0       -0.782      -0.610      -1.533      
+FUC     H2      H       H       0       -1.730      -0.237      1.135       
+FUC     H1      H       H       0       -1.423      2.012       0.981       
+FUC     HO1     H       H       0       -0.675      2.903       -0.829      
+FUC     HO2     H       H       0       -2.891      0.531       -1.126      
+FUC     HO3     H       H       0       -2.136      -2.173      -0.962      
+FUC     HO4     H       H       0       0.441       -2.316      1.240       
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+FUC          C6          C5      SINGLE       n     1.510   0.010
+FUC          C5          C4      SINGLE       n     1.523   0.010
+FUC          C4          C3      SINGLE       n     1.520   0.016
+FUC          C3          C2      SINGLE       n     1.519   0.020
+FUC          C2          C1      SINGLE       n     1.516   0.020
+FUC          C1          O5      SINGLE       n     1.431   0.017
+FUC          C1          O1      SINGLE       n     1.392   0.020
+FUC          C2          O2      SINGLE       n     1.425   0.011
+FUC          C3          O3      SINGLE       n     1.427   0.014
+FUC          C4          O4      SINGLE       n     1.425   0.018
+FUC          C5          O5      SINGLE       n     1.445   0.010
+FUC          C6         H61      SINGLE       n     0.971   0.017
+FUC          C6         H62      SINGLE       n     0.971   0.017
+FUC          C6         H63      SINGLE       n     0.971   0.017
+FUC          C5          H5      SINGLE       n     0.989   0.012
+FUC          C4          H4      SINGLE       n     0.986   0.013
+FUC          C3          H3      SINGLE       n     0.991   0.012
+FUC          C2          H2      SINGLE       n     0.987   0.014
+FUC          C1          H1      SINGLE       n     0.990   0.020
+FUC          O1         HO1      SINGLE       n     0.846   0.020
+FUC          O2         HO2      SINGLE       n     0.841   0.020
+FUC          O3         HO3      SINGLE       n     0.841   0.020
+FUC          O4         HO4      SINGLE       n     0.841   0.020
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+FUC          C5          C6         H61     109.468    1.50
+FUC          C5          C6         H62     109.468    1.50
+FUC          C5          C6         H63     109.468    1.50
+FUC         H61          C6         H62     109.383    1.59
+FUC         H61          C6         H63     109.383    1.59
+FUC         H62          C6         H63     109.383    1.59
+FUC          C6          C5          C4     113.299    1.50
+FUC          C6          C5          O5     106.787    1.50
+FUC          C6          C5          H5     109.193    1.50
+FUC          C4          C5          O5     109.213    1.50
+FUC          C4          C5          H5     108.992    1.50
+FUC          O5          C5          H5     109.141    1.50
+FUC          C5          C4          C3     109.500    1.50
+FUC          C5          C4          O4     109.789    1.62
+FUC          C5          C4          H4     108.901    1.50
+FUC          C3          C4          O4     110.101    1.97
+FUC          C3          C4          H4     109.032    1.50
+FUC          O4          C4          H4     109.194    1.50
+FUC          C4          C3          C2     110.687    1.67
+FUC          C4          C3          O3     110.243    1.88
+FUC          C4          C3          H3     108.653    1.50
+FUC          C2          C3          O3     109.587    2.09
+FUC          C2          C3          H3     108.712    1.50
+FUC          O3          C3          H3     108.767    1.50
+FUC          C3          C2          C1     111.543    1.84
+FUC          C3          C2          O2     111.053    2.62
+FUC          C3          C2          H2     108.505    1.50
+FUC          C1          C2          O2     109.956    1.70
+FUC          C1          C2          H2     107.431    2.02
+FUC          O2          C2          H2     108.551    1.50
+FUC          C2          C1          O5     110.495    2.07
+FUC          C2          C1          O1     109.304    2.75
+FUC          C2          C1          H1     109.287    1.97
+FUC          O5          C1          O1     110.093    3.00
+FUC          O5          C1          H1     108.645    1.60
+FUC          O1          C1          H1     108.897    1.73
+FUC          C1          O5          C5     113.152    1.70
+FUC          C1          O1         HO1     108.606    2.51
+FUC          C2          O2         HO2     109.126    2.06
+FUC          C3          O3         HO3     108.895    2.41
+FUC          C4          O4         HO4     109.564    3.00
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+FUC            sp3_sp3_40          C4          C5          C6         H61     180.000   10.00     3
+FUC             sp3_sp3_5          O4          C4          C5          C6     -60.000   10.00     3
+FUC            sp3_sp3_62          C6          C5          O5          C1      60.000   10.00     3
+FUC            sp3_sp3_58          C5          C4          O4         HO4     180.000   10.00     3
+FUC            sp3_sp3_14          O3          C3          C4          O4     180.000   10.00     3
+FUC            sp3_sp3_23          O2          C2          C3          O3     -60.000   10.00     3
+FUC            sp3_sp3_55          C4          C3          O3         HO3     180.000   10.00     3
+FUC            sp3_sp3_32          O1          C1          C2          O2     180.000   10.00     3
+FUC            sp3_sp3_52          C3          C2          O2         HO2     180.000   10.00     3
+FUC            sp3_sp3_38          O1          C1          O5          C5     -60.000   10.00     3
+FUC            sp3_sp3_49          C2          C1          O1         HO1     180.000   10.00     3
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+FUC    chir_1    C5    O5    C4    C6    positive
+FUC    chir_2    C4    O4    C5    C3    positive
+FUC    chir_3    C3    O3    C2    C4    negative
+FUC    chir_4    C2    O2    C1    C3    positive
+FUC    chir_5    C1    O5    O1    C2    negative
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+FUC SMILES           ACDLabs              10.04 "OC1C(O)C(OC(O)C1O)C"
+FUC SMILES_CANONICAL CACTVS               3.341 "C[C@@H]1O[C@@H](O)[C@@H](O)[C@H](O)[C@@H]1O"
+FUC SMILES           CACTVS               3.341 "C[CH]1O[CH](O)[CH](O)[CH](O)[CH]1O"
+FUC SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 "C[C@H]1[C@H]([C@H]([C@@H]([C@@H](O1)O)O)O)O"
+FUC SMILES           "OpenEye OEToolkits" 1.5.0 "CC1C(C(C(C(O1)O)O)O)O"
+FUC InChI            InChI                1.03  "InChI=1S/C6H12O5/c1-2-3(7)4(8)5(9)6(10)11-2/h2-10H,1H3/t2-,3+,4+,5-,6+/m0/s1"
+FUC InChIKey         InChI                1.03  SHZGCJCMOBCMKK-SXUWKVJYSA-N

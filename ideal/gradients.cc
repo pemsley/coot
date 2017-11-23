@@ -152,10 +152,11 @@ void coot::my_df(const gsl_vector *v,
 
    // std::cout << "debug:: in my_df() usage_flags " << restraints->restraints_usage_flag
    // << std::endl;
+
+   my_df_trans_peptides(v, params, df);
    my_df_bonds     (v, params, df); 
    my_df_angles    (v, params, df);
    my_df_torsions  (v, params, df);
-   my_df_trans_peptides(v, params, df);
    my_df_rama      (v, params, df);
    my_df_planes    (v, params, df);
    my_df_non_bonded(v, params, df);
@@ -165,9 +166,11 @@ void coot::my_df(const gsl_vector *v,
    my_df_parallel_planes(v, params, df);
    my_df_geman_mcclure_distances(v, params, df);
 
+   // std::cout << "debug:: in my_df() done my_df_* block " << std::endl;
+
    if (restraints->include_map_terms()) {
       // std::cout << "Using map terms " << std::endl;
-      coot::my_df_electron_density(v, params, df);
+      my_df_electron_density(v, params, df);
    } 
 
    if (restraints->do_numerical_gradients_status())
@@ -175,6 +178,11 @@ void coot::my_df(const gsl_vector *v,
 
 #ifdef ANALYSE_REFINEMENT_TIMING
 #endif // ANALYSE_REFINEMENT_TIMING
+
+//    if (v->size == 375)
+//       std::cout << "debug:: my_df() v size OK" << std::endl;
+//    else
+//       std::cout << "debug:: my_df() v size OK" << std::endl;
 
    // std::cout << "debug:: exit my_df() v->size " << v->size << std::endl;
 }
@@ -1472,7 +1480,13 @@ void coot::my_df_rama(const gsl_vector *v,
 	       double multiplier_psi = 1.0;
 
 	       if (restraints->rama_type == restraints_container_t::RAMA_TYPE_ZO) {
-		  std::pair<float,float> zo_rama_pair = restraints->zo_rama_grad(phir, psir);
+		  std::pair<float,float> zo_rama_pair = restraints->zo_rama_grad(rama_restraint.rama_plot_residue_type, phir, psir);
+		  if (false)
+		     std::cout << "debug:: in my_df_rama() rama_plot_residue_type is "
+			       << rama_restraint.rama_plot_residue_type << " gradients "
+			       << zo_rama_pair.first << " " << zo_rama_pair.second
+			       << std::endl;
+
 		  multiplier_phi = -restraints->get_rama_plot_weight()/(1.0 + tan_phir*tan_phir) * zo_rama_pair.first;
 		  multiplier_psi = -restraints->get_rama_plot_weight()/(1.0 + tan_psir*tan_psir) * zo_rama_pair.second;
 	       } else {

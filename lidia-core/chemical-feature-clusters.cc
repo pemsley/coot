@@ -184,6 +184,9 @@ coot::chem_feat_clust::fill_ligands(const std::vector<chem_feat_solvated_ligand_
 bool
 coot::chem_feat_clust::check_dictionaries() {
 
+   // I think that imol should be part of the class chem_feat_clust
+   // for now I will fake up an imol
+   int imol_fake = 0;
    bool success = true;
    for (unsigned int ilig=0; ilig<ligands.size(); ilig++) {
       mmdb::Residue *res = ligands[ilig].residue;
@@ -191,7 +194,7 @@ coot::chem_feat_clust::check_dictionaries() {
 	 // it should be set by now
 	 std::string res_name = res->GetResName();
 
-	 bool have = geometry_p->have_at_least_minimal_dictionary_for_residue_type(res_name);
+	 bool have = geometry_p->have_at_least_minimal_dictionary_for_residue_type(res_name, imol_fake);
 
 	 if (! have) {
 	    success = false;
