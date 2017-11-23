@@ -305,6 +305,9 @@ class rama_plot {
 					   double worldx, double worldy,
 					   bool is_secondary) const;
 
+   double drag_x, drag_y;
+   gboolean dragging;
+
    bool is_outlier(const coot::util::phi_psi_t &phi_psi) const;
    bool draw_outliers_only;
    int psi_axis_mode;
@@ -469,6 +472,9 @@ public:
    void set_data_for_phi_psi_point_item(const std::string &label,
                                         const coot::util::phi_psi_t &phi_psi,
                                         GooCanvasItem *item);
+   void set_data_for_phi_psi_point_item_other(const std::string &label,
+					      const coot::util::phi_psi_t &phi_psi,
+					      GooCanvasItem *item);
 #endif
 
    rama_stats_container_t draw_phi_psi_points();
@@ -588,9 +594,8 @@ public:
    }
    
    void show_outliers_only(mmdb::Manager *mol, int state);
+   void show_outliers_only(int state);
    
-   } 
-
    void write_pdf(std::string &file_name);
    void write_png(std::string &file_name);
    void write_png_simple(std::string &file_name, GooCanvasItem *item = NULL);
@@ -602,8 +607,6 @@ public:
    void fill_kleywegt_comboboxes(mmdb::Manager *mol1,
                                  mmdb::Manager *mol2);
 
-   void show_outliers_only(mmdb::Manager *mol, int state);
-   void show_outliers_only(int state);
    void psi_axis_changed();
    void set_rama_psi_axis(int state);
    void show_selection_widget(int state);

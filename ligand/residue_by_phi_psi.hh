@@ -24,8 +24,8 @@
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #include <thread>
 #include <chrono>
-#include "utils/ctpl.h"
-#endif // HAVE_CXX_THREAD
+#include "utils/ctpl.h" // match that included in simple-restraint.hh
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
 #include "ligand.hh"
 #include "clipper/core/ramachandran.h"
@@ -157,7 +157,7 @@ namespace coot {
      // offset: N or C addition (-1 or 1).
      minimol::fragment best_fit_phi_psi(int n_trials, int offset); 
 
-#ifdef HAVE_CXX_THREAD
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
      ctpl::thread_pool *thread_pool_p;
      unsigned int n_threads;
      void thread_pool(ctpl::thread_pool *tp_in, int n_threads_in) {
@@ -165,8 +165,7 @@ namespace coot {
 	n_threads = n_threads_in;
      }
    
-#endif // HAVE_CXX_THREAD
-   
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
   };
 

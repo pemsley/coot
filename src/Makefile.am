@@ -217,8 +217,15 @@ AM_CPPFLAGS = \
 
 pkginclude_HEADERS = crunch-model.hh
 
-libexec_PROGRAMS = coot-bin dynarama-bin
-bin_PROGRAMS = density-score-by-residue-real fix-nomenclature-errors
+if OS_WIN32
+# libexec_PROGRAMS =
+bin_PROGRAMS = coot-bin dynarama-bin coot-density-score-by-residue-bin coot-fix-nomenclature-errors
+else
+libexec_PROGRAMS = coot-bin dynarama-bin coot-density-score-by-residue-bin
+# shouldn't coot-fix-nomenclature-errors be in libexec too? (it needs a shell wrapper for portability)
+bin_PROGRAMS = coot-fix-nomenclature-errors
+endif
+
 dist_bin_SCRIPTS = coot density-score-by-residue dynarama
 check_PROGRAMS = test-coot-align test-cholesky
 

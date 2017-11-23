@@ -2196,7 +2196,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	 float bf = default_new_atoms_b_factor;
 	 coot::residue_by_phi_psi addres(terminus_type, res_p, chain_id, res_type, bf);
 
-#ifdef HAVE_CXX_THREAD
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 	 unsigned int n_threads = coot::get_max_number_of_threads();
 	 if (n_threads > 1)
 	    addres.thread_pool(&static_thread_pool, n_threads);

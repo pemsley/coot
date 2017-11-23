@@ -334,18 +334,6 @@ coot::rama_plot::init_internal(const std::string &mol_name,
    // fixed_font_str = "Sans 9"
    fixed_font_str = coot::get_fixed_font();
 
-   GtkWidget *app1 = create_dynarama_window();
-   if (hide_buttons == 1) {
-      GtkWidget *w;
-      w = lookup_widget(app1, "dynarama_ok_button");
-      gtk_widget_destroy(w);
-      w = lookup_widget(app1, "dynarama_cancel_button");
-      gtk_widget_destroy(w);
-   }
-   dialog = app1;
-#ifdef HAVE_GTK_CANVAS
-   gtk_canvas_init(); 
-#endif
    dragging = FALSE;
    drag_x = 0;
    drag_y = 0;
@@ -663,8 +651,8 @@ coot::rama_plot::setup_background(bool blocks, bool isolines) {
 
    // use a pre-made rama picture if we have standard settings,
    // otherwise make a block background to specifications
-   if (abs(rama_threshold_preferred - 0.02) < 0.000001 &&
-       abs(rama_threshold_allowed - 0.002) < 0.000001 &&
+   if (fabs(rama_threshold_preferred - 0.02) < 0.000001 &&
+       fabs(rama_threshold_allowed - 0.002) < 0.000001 &&
        psi_axis_mode == PSI_CLASSIC)
    {
       take_bg_image = make_background_from_image(rama, bg_all, "rama_all.png");
@@ -1390,8 +1378,9 @@ coot::rama_plot::set_data_for_phi_psi_point_item(const std::string &label,
 
 }
 
+// is this the real one?
 void
-coot::rama_plot::set_data_for_phi_psi_point_item(const std::string &label,
+coot::rama_plot::set_data_for_phi_psi_point_item_other(const std::string &label,
                                                  const coot::util::phi_psi_t &phi_psi,
                                                  GooCanvasItem *item) {
 

@@ -32,10 +32,10 @@ coot::residue_by_phi_psi::residue_by_phi_psi(const std::string &terminus,
 					     const std::string &res_type,
 					     float b_factor_in) {
    
-#ifdef HAVE_CXX_THREAD
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
    thread_pool_p = 0;
    n_threads = 0;
-#endif // HAVE_CXX_THREAD
+#endif
    chain_id      = chain_id_in;
    residue_type  = res_type;
    terminus_type = terminus;
@@ -196,7 +196,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 	 next_residue_seq_num = residue_p->GetSeqNum() - 1;
       }
 
-#ifdef HAVE_CXX_THREAD
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
       if (n_threads > 1) {
 	 auto tp_1 = std::chrono::high_resolution_clock::now();
