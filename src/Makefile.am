@@ -226,7 +226,7 @@ libexec_PROGRAMS = coot-bin dynarama-bin coot-density-score-by-residue-bin
 bin_PROGRAMS = coot-fix-nomenclature-errors
 endif
 
-dist_bin_SCRIPTS = coot density-score-by-residue dynarama
+dist_bin_SCRIPTS = coot coot-density-score-by-residue dynarama
 check_PROGRAMS = test-coot-align test-cholesky
 
 coot_fix_nomenclature_errors_SOURCES = \

@@ -362,7 +362,9 @@ public:
       pad_w = 0.;
       pad_h = 0.;
       resize_canvas_with_window = 0;
-      dialog_position_x = -100; dialog_position_y = -100; }
+      dialog_position_x = -100; dialog_position_y = -100;
+      psi_axis_mode = PSI_CLASSIC;
+   }
 
    rama_stats_container_t saved_counts;
    std::string rama_mol_name;
