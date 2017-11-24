@@ -2744,7 +2744,7 @@ coot::rama_plot::draw_axes() {
    GooCanvasItem *item;
    GooCanvasItem *axis_grp;
 
-   float shift, shift_label;
+   float shift = 0, shift_label = 0;
    if (psi_axis_mode == PSI_CLASSIC) {
       shift = 0.0;
    } else {
