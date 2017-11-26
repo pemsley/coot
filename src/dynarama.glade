@@ -23,7 +23,7 @@
   <object class="GtkImage" id="image3">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">pixmaps/stock-zoom-follow-window-12.svg</property>
+    <property name="pixbuf">pixmaps/stock-zoom-follow-window-12.png</property>
   </object>
   <object class="GtkWindow" id="dynarama2_window">
     <property name="visible">True</property>
