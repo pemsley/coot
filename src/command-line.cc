@@ -271,6 +271,9 @@ parse_command_line(int argc, char ** argv ) {
 #ifdef HAVE_CXX_THREAD
 			   enableds.push_back("Threads");
 #endif
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+			   enableds.push_back("Boost-based-thread-pool");
+#endif
 #ifdef USE_MOLECULES_TO_TRIANGLES
 			   enableds.push_back("Molecular-triangles");
 #endif

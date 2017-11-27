@@ -23,7 +23,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    // coot::restraint_usage_Flags flags = coot::BONDS_AND_PLANES;
    // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES;
    coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
-   
+
    if (do_torsion_restraints) {
       if (use_only_extra_torsion_restraints_for_torsions_flag) { 
 	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
@@ -51,7 +51,6 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 // 	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
 //       }
 
-      flags = coot::ALL_RESTRAINTS;
    }
 
    if (g.auto_clear_atom_pull_restraint_flag) {
@@ -66,6 +65,13 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    int steps_per_frame = dragged_refinement_steps_per_frame;
    if (! g.last_restraints.include_map_terms())
       steps_per_frame *= 6;
+
+   flags = coot::BONDS_AND_NON_BONDED;
+   flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+
+   if (false)
+      std::cout << "debug:: in drag_refine_refine_intermediate_atoms() calling minimize() with "
+		<< flags << std::endl;
 
    graphics_info_t::saved_dragged_refinement_results =
       g.last_restraints.minimize(flags, steps_per_frame, print_initial_chi_squareds_flag);

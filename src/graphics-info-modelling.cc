@@ -748,6 +748,8 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	 // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
 	 flags = coot::ALL_RESTRAINTS;
       
+      }
+      
       std::vector<coot::atom_spec_t> fixed_atom_specs = molecules[imol].get_fixed_atoms();
 
       // OK, so the passed residues are the residues in the graphics_info_t::molecules[imol]
@@ -810,7 +812,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 		  restraints.add_map(xmap, weight);
 	       }
 
-#ifdef HAVE_CXX_THREAD
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
 	       // This is a hack which stops the refinement crashing (note that
 	       // sphere regularization works with a valid thread pool)
@@ -824,7 +826,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	       if (n_threads > 1)
 		  restraints.thread_pool(&static_thread_pool, n_threads);
 
-#endif // HAVE_CXX_THREAD
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
 	       if (false)
 		  std::cout << "---------- debug:: in generate_molecule_and_refine() "
@@ -1887,7 +1889,7 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) {
    
 
    std::string chain(chain_id_1);
-   
+
 //    std::cout << "-----------------------------------------------------" << std::endl;
 //    std::cout << "-----------------------------------------------------" << std::endl;
 //    std::cout << " Rigid Body Refinement "
@@ -1904,7 +1906,7 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) {
    } else {
 
       coot::minimol::molecule mol(molecules[imol_rigid_body_refine].atom_sel.mol);
-      
+
       coot::minimol::molecule range_mol;
       int ir = range_mol.fragment_for_chain(chain);
 

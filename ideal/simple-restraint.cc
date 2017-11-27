@@ -702,6 +702,8 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 				       int nsteps_max,
 				       short int print_initial_chi_sq_flag) {
 
+   // std::cout << "debug:: minimize called with usage_flags " << usage_flags << std::endl;
+
    restraints_usage_flag = usage_flags;
    // restraints_usage_flag = BONDS_AND_ANGLES;
    // restraints_usage_flag = GEMAN_MCCLURE_DISTANCE_RESTRAINTS;
@@ -760,7 +762,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
    if (! include_map_terms())
       tolerance = 0.18;
 
-   double step_size = 0.1 * gsl_blas_dnrm2(x);
+   double step_size = 0.5 * gsl_blas_dnrm2(x);
 
    // std::cout << ":::: starting with step_size " << step_size << std::endl;
 
@@ -1674,7 +1676,7 @@ void coot::my_fdf(const gsl_vector *x, void *params,
 
    // 20170423 these can be done in parallel? ... check the timings at least.
    *f = coot::distortion_score(x, params); 
-    coot::my_df(x, params, df); 
+    coot::my_df(x, params, df);
 }
 
 
@@ -1714,7 +1716,10 @@ coot::restraints_container_t::make_restraints(int imol,
 
    // if a peptide is trans, add a restraint to penalize non-trans configuration
    // (currently a torsion restraint on peptide w of 180)
-   // 
+   //
+
+   if (false)
+      std::cout << "debug:: make_restraints() called with flags " << flags_in << std::endl;
 
    // debugging SRS inclusion.
    if (false) {
@@ -1729,6 +1734,9 @@ coot::restraints_container_t::make_restraints(int imol,
    // restraints_usage_flag = BONDS_AND_ANGLES;
    // restraints_usage_flag = GEMAN_MCCLURE_DISTANCE_RESTRAINTS;
    // restraints_usage_flag = NO_GEOMETRY_RESTRAINTS;
+
+   // restraints_usage_flag = BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+   // restraints_usage_flag = BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS;
 
    if (n_atoms) {
 
@@ -1788,6 +1796,8 @@ coot::restraints_container_t::make_restraints(int imol,
       }
       make_restraint_types_index_limits();
    }
+   std::cout << "returning from make_restraints() and restraints_usage_flag is "
+	     << restraints_usage_flag << std::endl;
    return restraints_vec.size();
 }
 
@@ -3892,7 +3902,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
    //  8 -> 2.9 s
    // 11 -> 3.1 s
    //
-   const double dist_crit = 11.0;
+   const double dist_crit = 9.0;
    
    filtered_non_bonded_atom_indices.resize(bonded_atom_indices.size());
 

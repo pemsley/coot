@@ -735,6 +735,8 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 //
 double coot::distortion_score(const gsl_vector *v, void *params) {
 
+   // std::cout << "debug:: entered distortion_score(), size " << v->size << std::endl;
+
 #ifdef ANALYSE_REFINEMENT_TIMING
 #endif // ANALYSE_REFINEMENT_TIMING
 
@@ -762,6 +764,8 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 		<< restraints_p->thread_pool_p << std::endl;
 
    if (restraints_p->thread_pool_p) {
+
+      // if (false) { // de-thread the distortion score
 
       if (restraints_p->n_threads > 0) {
 
@@ -820,7 +824,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 		      << restraints_p->thread_pool_p->size() << " idle: "
 		      << restraints_p->thread_pool_p->n_idle() 
 		      << std::endl;
-	 
+
 	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++)
 	    distortion += distortions[i_thread];
 
@@ -874,7 +878,9 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 #ifdef ANALYSE_REFINEMENT_TIMING
 #endif // ANALYSE_REFINEMENT_TIMING
 
-   // std::cout << "distortion (in distortion_score): " << distortion << std::endl;
+   if (false)
+      std::cout << "debug:: exit distortion_score()  distortion: " << distortion <<  " size  "
+		<< v->size << std::endl;
    return distortion; 
 }
 

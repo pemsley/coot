@@ -47,7 +47,7 @@
 #include <gtk/gtkgl.h>
 
 #ifdef HAVE_CXX_THREAD
-#include <utils/ctpl_stl.h>
+#include <utils/ctpl.h>
 #endif // HAVE_CXX_THREAD
 
 #ifdef WII_INTERFACE_WIIUSE

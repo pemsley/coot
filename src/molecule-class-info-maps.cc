@@ -3207,14 +3207,14 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
    std::vector<std::pair<clipper::RTop_orth, float> > trial_results(n_trials);
    bool do_multi_thread = false;
-#ifdef HAVE_CXX_THREAD
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
    int n_threads = coot::get_max_number_of_threads();
    if (n_threads > 0)
       do_multi_thread = true;
 #endif
 
    if (do_multi_thread) {
-#ifdef HAVE_CXX_THREAD
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
       unsigned int n_threads = coot::get_max_number_of_threads();
 
       for (int itrial=0; itrial<n_trials; itrial++) {
@@ -3228,7 +3228,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 	 auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
 	 // not to self: it takes 40ms to copy a const xmap reference to the function.
 	 //
-	 // std::cout << "pushing trial " << itrial << " " << d21 << " microseconds" << std::endl;
+	 std::cout << "pushing trial " << itrial << " " << d21 << " microseconds" << std::endl;
       }
 
       // wait for thread pool to finish jobs.
@@ -3288,7 +3288,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
    float best_score_so_far = -999999;
 
-#ifdef HAVE_CXX_THREAD
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
    // fit and score best random jiggled results
 

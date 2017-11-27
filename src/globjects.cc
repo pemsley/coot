@@ -159,9 +159,9 @@ std::vector<coot::generic_text_object_t> *graphics_info_t::generic_texts_p = 0;
 std::vector<coot::view_info_t> *graphics_info_t::views = 0;
 bool graphics_info_t::do_expose_swap_buffers_flag = 1;
 
-#ifdef HAVE_CXX_THREAD
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 ctpl::thread_pool graphics_info_t::static_thread_pool(coot::get_max_number_of_threads());
-#endif // HAVE_CXX_THREAD
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
 //WII
 #ifdef WII_INTERFACE_WIIUSE

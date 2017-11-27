@@ -30,9 +30,12 @@
 #include <string>
 #include <stdexcept>
 
+#ifdef HAVE_BOOST
 #ifdef HAVE_CXX_THREAD
-#include "utils/ctpl_stl.h"
+#define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+#include "utils/ctpl.h"
 #endif // HAVE_CXX_THREAD
+#endif // HAVE_BOOST
 
 #include <mmdb2/mmdb_manager.h>
 #include "coot-utils/bonded-pairs.hh"
@@ -226,7 +229,8 @@ namespace coot {
 				CHIRAL_VOLUMES = 32,
                                 //PLANES = 8,
 				RAMA = 64,
-				TRANS_PEPTIDE_RESTRAINTS=1024,
+				GEMAN_MCCLURE_DISTANCE_RESTRAINTS=1024,
+				TRANS_PEPTIDE_RESTRAINTS=2048,
 				BONDS_ANGLES_AND_TORSIONS = 7,
 				BONDS_ANGLES_TORSIONS_AND_PLANES = 15,
 				BONDS_AND_PLANES = 9,
@@ -244,14 +248,23 @@ namespace coot {
 				JUST_RAMAS = 64,
 				BONDS_ANGLES_TORSIONS_NON_BONDED_AND_CHIRALS = 55,
 				BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS = 55+1024,
-				
+
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA = 127,
-				
+
 				BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES = 187,
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES = 191,
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES = 255,
 
-				GEMAN_MCCLURE_DISTANCE_RESTRAINTS = 1024,
+                                // These become pushed along one slot to fit in target pos restraints
+				// GEMAN_MCCLURE_DISTANCE_RESTRAINTS = 512,
+				// BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_GEMAN_MCCLURE_DISTANCES = 63+512,
+				// TYPICAL_RESTRAINTS               = 1+2+  8+16+32+128+256+512,
+				// typical restraints add trans-peptide restraints
+				// TYPICAL_RESTRAINTS               = 1+2+  8+16+32+128+256+512+1024,
+				// TYPICAL_RESTRAINTS_WITH_TORSIONS = 1+2+4+8+16+32+128+256+512+1024,
+				// TYPICAL_NO_PLANES = 1+2+4 +16+32+128+256+512+1024,
+				// ALL_RESTRAINTS = 1+2+4+8+16+32+64+128+256+512+1024
+
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_GEMAN_MCCLURE_DISTANCES = 63+1024,
 				// typical restraints add trans peptide restraints and geman-mcclure
 				TYPICAL_RESTRAINTS               = 1+2+  8+16+32+128+512+1024+2048,
@@ -2094,7 +2107,7 @@ namespace coot {
 
       void set_geman_mcclure_alpha(double alpha_in) { geman_mcclure_alpha = alpha_in; }
 
-#ifdef HAVE_CXX_THREAD
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
       // thread pool!
       //
       ctpl::thread_pool *thread_pool_p;
@@ -2112,7 +2125,7 @@ namespace coot {
       //
       // ctpl::thread_pool another_thread_pool;
 
-#endif // HAVE_CXX_THREAD
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
       void clear() {
 	 restraints_vec.clear();
