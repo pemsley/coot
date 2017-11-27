@@ -423,7 +423,7 @@ molecule_class_info_t::no_dictionary_for_residue_type_as_yet(const coot::protein
 	       for (int ires=0; ires<nres; ires++) { 
 		  residue_p = chain_p->GetResidue(ires);
 		  std::string residue_name = residue_p->GetResName();
-		  if (! geom.have_at_least_minimal_dictionary_for_residue_type(residue_name)) {
+		  if (! geom.have_at_least_minimal_dictionary_for_residue_type(residue_name, imol_no)) {
 
 // 		  // now check the HETSYNs
 // 		  for (unsigned int ihet=0; ihet<model_p->HetCompounds.nHets; ihet++) { 

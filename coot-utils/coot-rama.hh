@@ -42,7 +42,6 @@ namespace coot {
 	 double phi_;
 	 double psi_;
 	 std::string lab;
-	 int residue_number;
 	 std::string ins_code;
 	 //    enum residue_type {ALA,GLY,SER,THR,ASP,GLU,ASN,GLN, 
 	 // 		      LEU,ILE,PHE,TYR,HIS,CYS,MET,TRP,
@@ -78,6 +77,7 @@ namespace coot {
 	 std::string label() const {return lab;}
 	 std::string residue_name() const { return residue_name_; }
 	 std::string chain_id;
+	 int residue_number;
 	 bool is_filled() const {
 	    return is_filled_;
 	 }

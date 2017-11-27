@@ -1149,6 +1149,7 @@ namespace coot {
       int monomer_idx;
       std::vector<std::string> error_messages;
       bool success;
+      std::string comp_id; // the first if there are many.  Test for blank when used.
       read_refmac_mon_lib_info_t() {
 	 n_atoms = 0;
 	 n_bonds = 0;
@@ -1749,7 +1750,8 @@ namespace coot {
       //
       // if there is (even) a ccp4srs entry, then this returns true.
       // 
-      bool have_at_least_minimal_dictionary_for_residue_type(const std::string &monomer_type) const;
+      bool have_at_least_minimal_dictionary_for_residue_type(const std::string &monomer_type,
+							     int imol) const;
       
       // likewise not const
       bool have_dictionary_for_residue_types(const std::vector<std::string> &residue_types,

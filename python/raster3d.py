@@ -33,9 +33,10 @@ def render_image():
     import sys
 
     coot_r3d_file_name="coot.r3d"
-    if (os.name == 'nt'):
-	coot_image_file_name = "coot.tif"
-	image_format = " -tiff "
+    version = raster3d_version()
+    if (os.name == 'nt' and version[0] == 2):
+        coot_image_file_name = "coot.tif"
+        image_format = " -tiff "
     else:
 	coot_image_file_name = "coot.png"
 	image_format = " -png "
@@ -77,14 +78,19 @@ def raytrace(image_type, source_file_name, image_file_name, x_size, y_size):
 
    if (image_type == "raster3d"):
     # BL says: this is for windows, since tif file
-    if os.name == "nt":
-	render_exe = "render.exe"
-	image_file_name += ".tif"
-	image_format = " -tiff "
+    version = raster3d_version()
+    do_tif = False
+    if version:
+        if version[0] == 2:
+            do_tif = True
+    if (os.name == 'nt' and do_tif):
+        render_exe = "render.exe"
+        image_file_name += ".tif"
+        image_format = " -tiff "
     else:
 	render_exe = "render"
 	image_format = " -png "
-    r3d_exe = find_exe("render", "PATH")
+    r3d_exe = find_exe("render", "CCP4_BIN", "PATH")
     if (r3d_exe):
        r3d_dir = os.path.dirname(r3d_exe)
        os.environ['R3D_LIB'] = r3d_dir + "/materials"
@@ -222,3 +228,69 @@ def check_file_names_for_space_and_move(image_file_name,source_file_name):
        return image_file_name, source_file_name, space_flag
        
 #raytrace("povray","coot.pov","coot.png",600,600)
+
+# return version as a tuple of 3 numbers (or 2 plus letter)
+# or False if not found or problems running raster3d
+#
+def raster3d_version():
+
+    import os
+
+    raster3d_exe = find_exe("render", "CCP4_BIN", "PATH")
+
+    if not raster3d_exe:
+        return False
+    else:
+        log_file = "raster3_version.tmp"
+        # BL note: currently -i is a bogus switch, so gives info
+        status = popen_command(raster3d_exe, ["-i"], [], log_file)
+        if (status != 0):
+            return False
+        else:
+            fin = open(log_file, 'r')
+            lines = fin.readlines()
+            fin.close()
+            os.remove(log_file)
+            for line in lines:
+                if ("Raster3D" in line):
+                    version_string = line[9:]
+                    tmp = version_string.split(".")
+                    try:
+                        major_version = int(tmp[0])
+                    except:
+                        print "BL INFO:: problem extracting major version " + \
+                              "from raster3d"
+                        return False
+                    if ("-" in tmp[1]):
+                        # have new style version
+                        tmp_min = tmp[1].split("-")
+                        try:
+                            minor = int(tmp_min[0])
+                            micro = int(tmp_min[1])
+                        except:
+                            print "BL INFO:: problem extracting minor version " + \
+                                  "from raster3d"
+                            
+                            return False
+                        return [major, minor, micro]
+                    else:
+                        # old style
+                        if (len(tmp[1]) != 2):
+                            print "BL INFO:: cannot deal with this version."
+                            return False
+                        else:
+                            try:
+                                minor = int(tmp[1][0])
+                            except:
+                                print "BL INFO:: problem extracting minor " + \
+                                      "version of raster3d (old style)."
+                                return False
+                            micro = tmp[1][1]
+                            return [major, minor, micro]
+            return False
+                            
+                            
+                    
+                    
+                    
+    

@@ -1,6 +1,35 @@
 
 #include "zo-rama.hh"
 
+// this can throw a runtime_error.
+//
+void
+zo::rama_table::read(const std::string &file_name) {
+   std::ifstream f(file_name.c_str());
+   std::string line;
+   // std::cout << "INFO:: reading file " << file_name << std::endl;
+
+   if (f) {
+      while(std::getline(f, line)) {
+	 std::vector<std::string> bits = coot::util::split_string_no_blanks(line);
+	 if (bits.size() == 7) {
+	    std::cout << "line: " << line << std::endl;
+	    int idx_1 = coot::util::string_to_int(bits[0]);
+	    int idx_2 = coot::util::string_to_int(bits[1]);
+	    double A_cc = coot::util::string_to_double(bits[3]);
+	    double A_cs = coot::util::string_to_double(bits[4]);
+	    double A_sc = coot::util::string_to_double(bits[5]);
+	    double A_ss = coot::util::string_to_double(bits[6]);
+	    zo::rama_coeffs v(idx_1, idx_2, A_cc, A_cs, A_sc, A_ss);
+	    rama_vec.push_back(v);
+	 }
+      }
+   } else {
+      std::cout << "Warning:: file not found: " << file_name << std::endl;
+      throw std::runtime_error("Can't init zo-rama");
+   }
+}
+
 
 void
 zo::rama_table::test_analytical_derivs() const {
@@ -90,3 +119,136 @@ zo::rama_table::make_a_png(int width, const std::string &file_name) {
 
 }
 
+
+// fill the table_map with tables
+//
+void
+zo::rama_table_set::init() {
+
+   // Old style - only one table in a file
+//    try {
+//       table_map[ALL_NON_PRE_PRO] = rama_table("all-non-pre-pro.tab");
+//    }
+//    catch (const std::runtime_error &rte) {
+//       std::cout << "ERROR:: " << rte.what() << std::endl;
+//    }
+
+   // read interleaved coeffsolution.dat
+
+   std::string dir1 = coot::package_data_dir();
+   std::string dir2 = coot::util::append_dir_dir(dir1, "data");
+   std::string dir3 = coot::util::append_dir_dir(dir2, "rama");
+   std::string dir4 = coot::util::append_dir_dir(dir3, "zo-tables");
+
+   std::string full = coot::util::append_dir_file(dir4, "coeffsolution.dat");
+
+   std::ifstream f(full.c_str());
+   std::string line;
+
+   // std::cout << "INFO:: reading file " << full << std::endl;
+
+   std::vector<std::string> table_type(16);
+   table_type[0] = "ALL!nP";  // all not next Pro
+   table_type[1] = "ALLnP";   // all with next is Pro
+   table_type[2] = "GLY!nP";
+   table_type[3] = "GLYnP";
+   table_type[4] = "PRO!nP";
+   table_type[5] = "PROnP";
+   table_type[6] = "VI!nP";
+   table_type[7] = "VInP";
+   table_type[8] = "DN!nP";
+   table_type[9] = "DNnP";
+   table_type[10] = "ST!nP";
+   table_type[11] = "STnP";
+   table_type[12] = "EQ!nP";
+   table_type[13] = "EQnP";
+   table_type[14] = "LA!nP";
+   table_type[15] = "LAnP";
+
+   if (f) {
+      while(std::getline(f, line)) {
+	 std::vector<std::string> bits = coot::util::split_string_no_blanks(line);
+	 if (bits.size() == 7) {
+
+	    if (bits[0] != "HEADER") {
+
+	       // std::cout << "line: " << line << std::endl;
+	       int idx_1 = coot::util::string_to_int(bits[0]);
+	       int idx_2 = coot::util::string_to_int(bits[1]);
+	       int idx_res_type = coot::util::string_to_int(bits[2]);
+	       double A_cc = coot::util::string_to_double(bits[3]);
+	       double A_cs = coot::util::string_to_double(bits[4]);
+	       double A_sc = coot::util::string_to_double(bits[5]);
+	       double A_ss = coot::util::string_to_double(bits[6]);
+	       zo::rama_coeffs v(idx_1, idx_2, A_cc, A_cs, A_sc, A_ss);
+	       if (idx_res_type >=0 && idx_res_type <= 15) {
+		  std::string tt = table_type[idx_res_type];
+		  table_map[tt].rama_vec.push_back(v);
+	       }
+	    }
+	 }
+      }
+   }
+}
+
+std::pair<zo::realtype, zo::realtype>
+zo::rama_table_set::df(const std::string &residue_type,
+		       const zo::realtype &phi, const zo::realtype &psi) const {
+   // residue type is e.g. "ALL!nP"
+   std::map<std::string, rama_table>::const_iterator it = table_map.find(residue_type);
+   return it->second.df(phi,psi);
+}
+
+
+zo::realtype
+zo::rama_table_set::value(const std::string &residue_type,
+			  const zo::realtype &phi, const zo::realtype &psi) const {
+
+   // residue type is e.g. "ALL!nP"
+
+   // std::cout << "debug:: in rama_table_set::value residue_type was " << residue_type << std::endl;
+   std::map<std::string, rama_table>::const_iterator it = table_map.find(residue_type);
+   if (it != table_map.end()) {
+      return it->second.value(phi,psi);
+   } else {
+      std::cout << "ERROR:: unknown residue/table type " << residue_type << std::endl;
+      return 0.0;
+   }
+}
+
+std::string
+zo::rama_table_set::get_residue_type(const std::string &this_residue_type,
+				     const std::string &next_residue_type) const {
+
+   std::string r;
+   if (next_residue_type == "PRO") {
+      r = "ALLnP";
+      if (this_residue_type == "GLY") r = "GLYnP";
+      if (this_residue_type == "PRO") r = "PROnP";
+      if (this_residue_type == "VAL") r = "VInP";
+      if (this_residue_type == "ILE") r = "VInP";
+      if (this_residue_type == "ASP") r = "DNnP";
+      if (this_residue_type == "ASN") r = "DNnP";
+      if (this_residue_type == "SER") r = "STnP";
+      if (this_residue_type == "THR") r = "STnP";
+      if (this_residue_type == "GLU") r = "EQnP";
+      if (this_residue_type == "GLN") r = "EQnP";
+      if (this_residue_type == "LEU") r = "LAnP";
+      if (this_residue_type == "ALA") r = "LAnP";
+   } else {
+      r = "ALL!nP";
+      if (this_residue_type == "GLY") r = "GLY!nP";
+      if (this_residue_type == "PRO") r = "PRO!nP";
+      if (this_residue_type == "VAL") r = "VI!nP";
+      if (this_residue_type == "ILE") r = "VI!nP";
+      if (this_residue_type == "ASP") r = "DN!nP";
+      if (this_residue_type == "ASN") r = "DN!nP";
+      if (this_residue_type == "SER") r = "ST!nP";
+      if (this_residue_type == "THR") r = "ST!nP";
+      if (this_residue_type == "GLU") r = "EQ!nP";
+      if (this_residue_type == "GLN") r = "EQ!nP";
+      if (this_residue_type == "LEU") r = "LA!nP";
+      if (this_residue_type == "ALA") r = "LA!nP";
+   }
+   return r;
+}
