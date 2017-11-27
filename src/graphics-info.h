@@ -47,7 +47,7 @@
 #include <gtk/gtkgl.h>
 
 #ifdef HAVE_CXX_THREAD
-#include <utils/ctpl_stl.h>
+#include <utils/ctpl.h>
 #endif // HAVE_CXX_THREAD
 
 #ifdef WII_INTERFACE_WIIUSE
@@ -2126,6 +2126,8 @@ public:
    static bool do_rama_restraints;
    static bool do_trans_peptide_restraints;
    static bool do_numerical_gradients; // for debugging
+   static int  restraints_rama_type;
+   static float rama_restraints_weight;
 
    coot::refinement_results_t regularize(int imol, short int auto_range_flag, int i_atom_start, int i_atom_end); 
    coot::refinement_results_t refine    (int imol, short int auto_range_flag, int i_atom_start, int i_atom_end);
@@ -2574,10 +2576,12 @@ public:
 
    // uses cif_dictionary_filename_vec.
    //imol_enc can be the model molecule number or
-   // -1 for all
-   // -2 for auto
-   // -3 for unset
-   int add_cif_dictionary(std::string cif_dictionary_filename,
+   // IMOL_ENC_ANY = -999999, IMOL_ENC_AUTO = -999998, IMOL_ENC_UNSET = -999997.
+   // 
+   // @return the index of the monomer in the geometry store.
+   //
+   coot::read_refmac_mon_lib_info_t
+   add_cif_dictionary(std::string cif_dictionary_filename,
 			  int imol_enc,
 			  short int show_no_bonds_dialog_maybe_flag);
    void import_all_refmac_cifs();
@@ -3337,6 +3341,7 @@ public:
    static float rama_level_prefered;
    static float rama_level_allowed;
    static float rama_plot_background_block_size; // divisible into 360 preferably.
+   static int rama_psi_axis_mode;
 
    /* 
      Return the index of the superposed molecule - which could either be a
@@ -4059,7 +4064,7 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_t &ref_results);
 // return a pointer to a "new" object
 GdkColor colour_by_distortion(float dist);
-GdkColor colour_by_rama_plot_distortion(float plot_value);
+GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_plot_type);
 void set_colour_accept_reject_event_box(GtkWidget *eventbox, GdkColor *col);
 GtkWidget *wrapped_create_accept_reject_refinement_dialog();
 void update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,

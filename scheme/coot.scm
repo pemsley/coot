@@ -96,6 +96,7 @@
 								      "gui-hole.scm"
 								      "gui-prosmart.scm"
 								      "gui-add-linked-cho.scm"
+								      "cho-restraints-from-models.scm"
 								      "jligand-gui.scm"
 								      "get-recent-pdbe.scm"
 								      "extensions.scm"

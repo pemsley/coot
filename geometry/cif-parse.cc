@@ -321,6 +321,9 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
    // debug_mods();
 
+   if (comp_ids.size() > 0)
+      rmit.comp_id = comp_ids[0];
+
    return rmit;
 }
 

@@ -735,6 +735,8 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 //
 double coot::distortion_score(const gsl_vector *v, void *params) {
 
+   // std::cout << "debug:: entered distortion_score(), size " << v->size << std::endl;
+
 #ifdef ANALYSE_REFINEMENT_TIMING
 #endif // ANALYSE_REFINEMENT_TIMING
 
@@ -762,6 +764,8 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 		<< restraints_p->thread_pool_p << std::endl;
 
    if (restraints_p->thread_pool_p) {
+
+      // if (false) { // de-thread the distortion score
 
       if (restraints_p->n_threads > 0) {
 
@@ -820,7 +824,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 		      << restraints_p->thread_pool_p->size() << " idle: "
 		      << restraints_p->thread_pool_p->n_idle() 
 		      << std::endl;
-	 
+
 	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++)
 	    distortion += distortions[i_thread];
 
@@ -874,7 +878,9 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 #ifdef ANALYSE_REFINEMENT_TIMING
 #endif // ANALYSE_REFINEMENT_TIMING
 
-   // std::cout << "distortion (in distortion_score): " << distortion << std::endl;
+   if (false)
+      std::cout << "debug:: exit distortion_score()  distortion: " << distortion <<  " size  "
+		<< v->size << std::endl;
    return distortion; 
 }
 
@@ -1411,7 +1417,7 @@ coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
 
    double lr = lograma.interp(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
    double R = 10.0 * lr;
-   std::cout << "rama (lograma) distortion for " << phi << " " << psi << " is " << R << std::endl;
+   // std::cout << "rama (lograma) distortion for " << phi << " " << psi << " is " << R << std::endl;
 
    if ( clipper::Util::isnan(phi) ) {
       std::cout << "WARNING: observed torsion phi is a NAN!" << std::endl;
@@ -1552,7 +1558,8 @@ coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
    // double lr_kdc = lograma.interp(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
    // double R = 10.0 * lr;
 
-   double lr = rama.value(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
+   std::string residue_type = rama_restraint.rama_plot_residue_type;
+   double lr = rama.value(residue_type, clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
    double R = -rama_plot_weight * lr;
 
    // std::cout << "zo-rama-distortion for " << phi << " " << psi << " is " << lr << " kdc: "
@@ -1637,9 +1644,8 @@ coot::distortion_score_non_bonded_contact(const coot::simple_restraint &nbc_rest
 
    if (false)
       std::cout << "in distortion_score_non_bonded_contact: " << idx_1 << " " << idx_2
-	 // << " " << atom_spec_t(atom[nbc_restraint.atom_index_1]) 
-	 // << " " << atom_spec_t(atom[nbc_restraint.atom_index_2]) 
-		<< " comparing model: " << sqrt(dist_sq) << " min_dist: " << nbc_restraint.target_value
+		<< " comparing model: " << sqrt(dist_sq) << " min_dist: "
+		<< nbc_restraint.target_value
 		<< " with sigma " << nbc_restraint.sigma << std::endl;
 
    if (dist_sq < nbc_restraint.target_value * nbc_restraint.target_value) {

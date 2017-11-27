@@ -1,0 +1,158 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+XYP     XYP     BETA-D-XYLOPYRANOSE     D-SACCHARIDE     20     10     .     
+#
+data_comp_XYP
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+XYP     C5B     C       CH2     0       -0.347      1.756       -0.026      
+XYP     C4B     C       CH1     0       -1.266      0.613       0.372       
+XYP     C3B     C       CH1     0       -0.764      -0.696      -0.233      
+XYP     C2B     C       CH1     0       0.712       -0.915      0.087       
+XYP     C1B     C       CH1     0       1.552       0.315       -0.256      
+XYP     O5B     O       O2      0       1.006       1.491       0.372       
+XYP     O4A     O       OH1     0       2.859       0.118       0.181       
+XYP     O2B     O       OH1     0       1.216       -2.056      -0.602      
+XYP     O3B     O       OH1     0       -1.527      -1.794      0.265       
+XYP     O4B     O       OH1     0       -2.592      0.895       -0.083      
+XYP     H5B1    H       H       0       -0.383      1.876       -0.994      
+XYP     H5B2    H       H       0       -0.654      2.579       0.399       
+XYP     H4B     H       H       0       -1.273      0.532       1.362       
+XYP     H3B     H       H       0       -0.873      -0.653      -1.214      
+XYP     H2B     H       H       0       0.801       -1.071      1.057       
+XYP     H1B     H       H       0       1.559       0.442       -1.238      
+XYP     HO4A    H       H       0       3.330       0.774       -0.073      
+XYP     HO2B    H       H       0       1.954       -2.278      -0.265      
+XYP     HO3B    H       H       0       -1.463      -2.436      -0.275      
+XYP     HO4B    H       H       0       -3.116      0.331       0.255       
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+XYP         C5B         C4B      SINGLE       n     1.517   0.010
+XYP         C4B         C3B      SINGLE       n     1.523   0.010
+XYP         C3B         C2B      SINGLE       n     1.523   0.010
+XYP         C2B         C1B      SINGLE       n     1.517   0.020
+XYP         C1B         O5B      SINGLE       n     1.428   0.019
+XYP         C1B         O4A      SINGLE       n     1.392   0.020
+XYP         C2B         O2B      SINGLE       n     1.425   0.011
+XYP         C3B         O3B      SINGLE       n     1.426   0.010
+XYP         C4B         O4B      SINGLE       n     1.430   0.010
+XYP         C5B         O5B      SINGLE       n     1.432   0.010
+XYP         C5B        H5B1      SINGLE       n     0.976   0.019
+XYP         C5B        H5B2      SINGLE       n     0.976   0.019
+XYP         C4B         H4B      SINGLE       n     0.993   0.011
+XYP         C3B         H3B      SINGLE       n     0.988   0.017
+XYP         C2B         H2B      SINGLE       n     0.987   0.014
+XYP         C1B         H1B      SINGLE       n     0.991   0.020
+XYP         O4A        HO4A      SINGLE       n     0.846   0.020
+XYP         O2B        HO2B      SINGLE       n     0.841   0.020
+XYP         O3B        HO3B      SINGLE       n     0.841   0.020
+XYP         O4B        HO4B      SINGLE       n     0.841   0.020
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+XYP         C4B         C5B         O5B     110.778    1.50
+XYP         C4B         C5B        H5B1     109.325    1.50
+XYP         C4B         C5B        H5B2     109.325    1.50
+XYP         O5B         C5B        H5B1     109.418    1.50
+XYP         O5B         C5B        H5B2     109.418    1.50
+XYP        H5B1         C5B        H5B2     108.602    1.50
+XYP         C5B         C4B         C3B     109.602    1.50
+XYP         C5B         C4B         O4B     109.124    1.50
+XYP         C5B         C4B         H4B     108.994    1.50
+XYP         C3B         C4B         O4B     110.286    1.81
+XYP         C3B         C4B         H4B     109.054    1.50
+XYP         O4B         C4B         H4B     109.069    1.50
+XYP         C4B         C3B         C2B     110.186    1.50
+XYP         C4B         C3B         O3B     110.343    1.72
+XYP         C4B         C3B         H3B     108.724    1.50
+XYP         C2B         C3B         O3B     109.587    2.09
+XYP         C2B         C3B         H3B     108.712    1.50
+XYP         O3B         C3B         H3B     108.767    1.50
+XYP         C3B         C2B         C1B     111.543    1.84
+XYP         C3B         C2B         O2B     111.053    2.62
+XYP         C3B         C2B         H2B     108.505    1.50
+XYP         C1B         C2B         O2B     109.956    1.70
+XYP         C1B         C2B         H2B     107.431    2.02
+XYP         O2B         C2B         H2B     108.551    1.50
+XYP         C2B         C1B         O5B     110.164    1.50
+XYP         C2B         C1B         O4A     109.304    2.75
+XYP         C2B         C1B         H1B     109.287    1.97
+XYP         O5B         C1B         O4A     109.600    2.81
+XYP         O5B         C1B         H1B     109.272    1.61
+XYP         O4A         C1B         H1B     108.897    1.73
+XYP         C1B         O5B         C5B     111.784    1.50
+XYP         C1B         O4A        HO4A     108.606    2.51
+XYP         C2B         O2B        HO2B     109.126    2.06
+XYP         C3B         O3B        HO3B     108.895    2.41
+XYP         C4B         O4B        HO4B     108.463    3.00
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+XYP             sp3_sp3_4         O4B         C4B         C5B         O5B     180.000   10.00     3
+XYP            sp3_sp3_52         C4B         C5B         O5B         C1B     -60.000   10.00     3
+XYP            sp3_sp3_14         O3B         C3B         C4B         O4B     180.000   10.00     3
+XYP            sp3_sp3_49         C5B         C4B         O4B        HO4B     180.000   10.00     3
+XYP            sp3_sp3_23         O2B         C2B         C3B         O3B     -60.000   10.00     3
+XYP            sp3_sp3_46         C4B         C3B         O3B        HO3B     180.000   10.00     3
+XYP            sp3_sp3_32         O4A         C1B         C2B         O2B     180.000   10.00     3
+XYP            sp3_sp3_43         C3B         C2B         O2B        HO2B     180.000   10.00     3
+XYP            sp3_sp3_38         O4A         C1B         O5B         C5B     -60.000   10.00     3
+XYP            sp3_sp3_40         C2B         C1B         O4A        HO4A     180.000   10.00     3
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+XYP    chir_1    C4B    O4B    C3B    C5B    negative
+XYP    chir_2    C3B    O3B    C2B    C4B    positive
+XYP    chir_3    C2B    O2B    C1B    C3B    negative
+XYP    chir_4    C1B    O5B    O4A    C2B    negative
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+XYP SMILES           ACDLabs              10.04 "OC1C(O)COC(O)C1O"
+XYP SMILES_CANONICAL CACTVS               3.341 "O[C@@H]1CO[C@@H](O)[C@H](O)[C@H]1O"
+XYP SMILES           CACTVS               3.341 "O[CH]1CO[CH](O)[CH](O)[CH]1O"
+XYP SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 "C1[C@H]([C@@H]([C@H]([C@@H](O1)O)O)O)O"
+XYP SMILES           "OpenEye OEToolkits" 1.5.0 "C1C(C(C(C(O1)O)O)O)O"
+XYP InChI            InChI                1.03  "InChI=1S/C5H10O5/c6-2-1-10-5(9)4(8)3(2)7/h2-9H,1H2/t2-,3+,4-,5-/m1/s1"
+XYP InChIKey         InChI                1.03  SRBFZHDQGSBBOR-KKQCNMDGSA-N

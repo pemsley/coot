@@ -187,7 +187,20 @@ GdkColor colour_by_distortion(float dist) {
    return col;
 }
 
-GdkColor colour_by_rama_plot_distortion(float plot_value) {
+GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
+
+   if (false)
+      std::cout << "in colour_by_rama_plot_distortion plot_value "
+		<< plot_value << " rama_type " << rama_type
+		<< " c.f. coot::RAMA_TYPE_LOGRAMA " << coot::RAMA_TYPE_LOGRAMA
+		<< " coot::RAMA_TYPE_ZO " << coot::RAMA_TYPE_ZO
+		<< std::endl;
+
+   // ZO type data need to scaled to match
+   // 20*zo_type_data-80 = log_rama_type_data
+   //
+   if (rama_type == coot::RAMA_TYPE_ZO)
+      plot_value = 20*plot_value -80;
 
    GdkColor col;
    float scale = 10.0; 
@@ -195,23 +208,32 @@ GdkColor colour_by_rama_plot_distortion(float plot_value) {
    col.pixel = 1;
    col.blue  = 0;
 
-   if (plot_value < -15.0*scale) { 
-      col.red   = 0;
-      col.green = 55535;
-   } else {
-      if (plot_value < -13.0*scale) {
-	 col.red   = 55000;
-	 col.green = 55000;
-	 // col.blue  = 22000;
+   // if (rama_type == coot::RAMA_TYPE_LOGRAMA) {
+   if (true) { // now that RAMA_TYPE_ZO are on the same scale this colour
+               // scheme will do for both
+      if (plot_value < -15.0*scale) {
+	 col.red   = 0;
+	 col.green = 55535;
       } else {
-	 if (plot_value < -10.0*scale) {
-	    col.red   = 64000;
-	    col.green = 32000;
+	 if (plot_value < -13.0*scale) {
+	    col.red   = 55000;
+	    col.green = 55000;
+	    // col.blue  = 22000;
 	 } else {
-	    col.red   = 65535;
-	    col.green = 0;
+	    if (plot_value < -10.0*scale) {
+	       col.red   = 64000;
+	       col.green = 32000;
+	    } else {
+	       col.red   = 65535;
+	       col.green = 0;
+	    }
 	 }
       }
+   } else {
+      // RAMA_TYPE_ZO
+      col.red   = 33000;
+      col.green = 33000;
+      col.blue = 33000;
    }
    return col;
 } 
@@ -320,14 +342,26 @@ graphics_info_t::draw_anti_aliasing() {
 // imol_enc can be a specific model molecule number or
 // IMOL_ENC_AUTO, IMOL_ENC_ANY are the interesting values
 // otherwise mol number.
-// 
-int
+//
+// if imol_enc_in is IMOL_ENC_AUTO, then try to find to which
+// molecule this dictionary refers.
+// If the residue type is on the non-auto load list, simply go through
+// the molecule list backwards, starting from the hightest molecule number looking for
+// a molecule that is a valid model molecule - that's the one.
+// If the residue type is not in the non-auto list, then
+// it is a dictionary for all molecules, i.e. IMOL_ENC_ANY.
+//
+// return the index of the monomer in the geometry store. Return -1 on failure
+//
+coot::read_refmac_mon_lib_info_t
 graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 				    int imol_enc_in,
 				    short int show_no_bonds_dialog_maybe_flag) {
 
-   std::cout << "::: add_cif_dictionary() called with "
-	     << cif_dictionary_filename << " " << imol_enc_in << " " << show_no_bonds_dialog_maybe_flag << std::endl;
+   if (false)
+      std::cout << "::: add_cif_dictionary() called with "
+		<< cif_dictionary_filename << " " << imol_enc_in << " "
+		<< show_no_bonds_dialog_maybe_flag << std::endl;
 
    int imol_enc = imol_enc_in;
 
@@ -358,8 +392,8 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 			       cif_dictionary_read_number,
 			       imol_enc);
 
-   cif_dictionary_read_number++; 
-   if (rmit.success > 0) { 
+   cif_dictionary_read_number++;
+   if (rmit.success > 0) {
       cif_dictionary_filename_vec->push_back(cif_dictionary_filename);
       if (show_no_bonds_dialog_maybe_flag) {
 	 display_density_level_this_image = 1;
@@ -376,7 +410,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
    } else {
       std::cout << "init_refmac_mon_lib "  << cif_dictionary_filename
 		<< " had no bond restraints\n";
-      if (use_graphics_interface_flag) { 
+      if (use_graphics_interface_flag) {
 	 if (show_no_bonds_dialog_maybe_flag) {
 	    GtkWidget *widget = create_no_cif_dictionary_bonds_dialog();
 	    gtk_widget_show(widget);
@@ -384,20 +418,21 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
       }
 
       std::string s;
-      for (unsigned int i=0; i<rmit.error_messages.size(); i++) { 
+      for (unsigned int i=0; i<rmit.error_messages.size(); i++) {
 	 s += rmit.error_messages[i];
 	 s += "\n";
       }
       info_dialog(s);
    }
 
+   // Redraw all molecules! Yikes!
    for (unsigned int i=0; i<molecules.size(); i++) {
       if (is_valid_model_molecule(i)) {
 	 molecules[i].make_bonds_type_checked();
       }
    }
    // return rmit.n_atoms;
-   return rmit.monomer_idx;
+   return rmit;
 }
 
 
@@ -1574,9 +1609,10 @@ graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
       // Clear out the old one if it was there.
       GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
       if (w) {
-	 coot::rama_plot *plot =
-	    (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(w));
-	 delete plot;
+         coot::rama_plot *plot =
+               (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(w));
+         // g_print("BL DEBUG:: deleting rama plot!!!\n");
+         delete plot;
       }
       coot::set_validation_graph(imol, coot::RAMACHANDRAN_PLOT, dyna_toplev);
    }
@@ -1700,7 +1736,7 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 	 // now we want to draw out our bonds in white, 
 	 glColor3f (0.9, 0.9, 0.9);
       } else {
-	 glColor3f (0.6, 0.6, 0.6);
+	 glColor3f (0.4, 0.4, 0.4);
       }
       
       float bw = graphics_info_t::bond_thickness_intermediate_atoms;
@@ -1757,6 +1793,12 @@ graphics_info_t::draw_ramachandran_goodness_spots() {
    if (graphics_info_t::regularize_object_bonds_box.num_colours > 0) {
       if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
 
+	 glEnable(GL_LIGHTING);
+	 glEnable(GL_LIGHT1);
+	 glEnable(GL_LIGHT0);
+	 glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
+	 glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	 // ------------------------------------------
 
 	 coot::Cartesian top       = unproject_xyz(100, 100, 0.5);
@@ -1792,18 +1834,32 @@ graphics_info_t::draw_ramachandran_goodness_spots() {
 	    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
 	    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
 	    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-	    glEnable(GL_LIGHTING);
-	    glEnable(GL_LIGHT1);
-	    glEnable(GL_LIGHT0);
-	    glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
-	    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	       
 	    glPushMatrix();
 	    glTranslatef(pos.x(), pos.y(), pos.z());
 	    // gluDisk(quad, 0, base, slices, 2);
 	    gluSphere(quad, radius, 10, 10);
 	    glPopMatrix();
-	    glDisable(GL_LIGHTING);
+	 }
+
+	 glDisable(GL_LIGHTING); // maybe not needed.
+      }
+
+      // we don't want disks any more
+      if (false) { 
+	 if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
+	    for (int i=0; i<graphics_info_t::regularize_object_bonds_box.n_ramachandran_goodness_spots; i++) {
+	       const coot::Cartesian &pos = regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].first;
+	       const float &size          = regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].second;
+
+	       double base = size * 0.3;
+	       int slices = 10;
+	       GLUquadric* quad = gluNewQuadric();
+	       glPushMatrix();
+	       glTranslatef(pos.x(), pos.y(), pos.z());
+	       gluDisk(quad, 0, base, slices, 2);
+	       glPopMatrix();
+	    }
 	 }
       } 
    }
@@ -3893,6 +3949,21 @@ graphics_info_t::apply_redo() {
 	    // need to update the atom and residue list in Go To Atom widget
 	    // (maybe)
 	    update_go_to_atom_window_on_changed_mol(umol);
+       // BL says:: from undo, maybe more should be updated!?!
+       // update the ramachandran, if there was one
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+       GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
+       if (w) {
+          coot::rama_plot *plot = (coot::rama_plot *)
+        gtk_object_get_user_data(GTK_OBJECT(w));
+          handle_rama_plot_update(plot);
+       }
+       // now update the geometry graphs, so get the asc
+       atom_selection_container_t u_asc = molecules[umol].atom_sel;
+
+       update_geometry_graphs(u_asc, umol);
+#endif // HAVE_GTK_CANVAS
+
 	 } else {
 	    // std::cout << "DEBUG:: not applying redo" << std::endl;
 	 }
