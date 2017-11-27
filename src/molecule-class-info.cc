@@ -624,7 +624,8 @@ molecule_class_info_t::anisotropic_atoms() {
 	       if (atom_sel.atom_selection[i]->u11 > 0) {
 
 		  std::string ele = atom_sel.atom_selection[i]->element;
-		  if (draw_hydrogens_flag || ! mmdb_utils::is_hydrogen(ele)) {
+		  // if (draw_hydrogens_flag || ! mmdb_utils::is_hydrogen(ele)) {
+		  if (draw_hydrogens_flag || ele != " H" ) {
 	 
 		     glLineWidth(1.0);
 		     glPushMatrix();

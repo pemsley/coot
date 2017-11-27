@@ -748,8 +748,6 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	 // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
 	 flags = coot::ALL_RESTRAINTS;
       
-      }
-      
       std::vector<coot::atom_spec_t> fixed_atom_specs = molecules[imol].get_fixed_atoms();
 
       // OK, so the passed residues are the residues in the graphics_info_t::molecules[imol]

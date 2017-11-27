@@ -373,7 +373,7 @@ namespace coot {
 	 is_user_defined_restraint = true;
 
 	 // This finds a coding error
-	 if (rest_type != GEMAN_MCCLURE_DISTANCE_MASK) { 
+	 if (rest_type != GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
 	    std::cout << "ERROR:: GEMAN_MCCLURE_DISTANCE ERROR" << std::endl;
 	 }
       };
