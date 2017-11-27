@@ -63,8 +63,8 @@
 //				residues_mol for disphide restraints.
 // 
 coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend_res_in,
-						     short int have_flanking_residue_at_start,
-						     short int have_flanking_residue_at_end,
+						     bool have_flanking_residue_at_start,
+						     bool have_flanking_residue_at_end,
 						     short int have_disulfide_residues,
 						     const std::string &altloc,
 						     const std::string &chain_id,
@@ -242,8 +242,8 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
 // 
 void
 coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
-					    short int have_flanking_residue_at_start,
-					    short int have_flanking_residue_at_end,
+					    bool have_flanking_residue_at_start,
+					    bool have_flanking_residue_at_end,
 					    short int have_disulfide_residues,
 					    const std::string &altloc,
 					    const std::string &chain_id,
@@ -264,9 +264,9 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
    int iselection_end_res   = iend_res;
    // std::cout << "start res range: " << istart_res << " " << iend_res << " " << chain_id << "\n";
 
-   // Are the flanking atoms available in mol_in?  (mol_in was
-   // constrcted outside so the mol_in constructing routine know if
-   // they were there or not.
+   // Are the flanking atoms available in mol_in?
+   // mol_in was constructed outside of this class, so the mol_in constructing
+   // routine knows if they were there or not.
    // 
    if (have_flanking_residue_at_start) iselection_start_res--;
    if (have_flanking_residue_at_end)   iselection_end_res++;
@@ -287,12 +287,19 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
    // 
    mol->GetSelIndex(SelHnd_atom, atom, n_atoms);
 
-   if (0) // debugging
+   if (false) { // debugging;
+      std::cout << "debug:: in init_from_mol() here are the " << fixed_atom_indices.size()
+		<< " fixed_atom indices: \n";
+      for (std::size_t ii=0; ii<fixed_atom_indices.size(); ii++)
+	 std::cout << " " << fixed_atom_indices[ii];
+      std::cout << "\n";
+
       for (int iat=0; iat<n_atoms; iat++)
 	 std::cout << "   " << iat << "  "  << coot::atom_spec_t(atom[iat]) << "  with altloc :"
 		   << altloc << ":" << std::endl;
+   }
 
-   bool debug = 0;
+   bool debug = false;
    if (debug) { 
       std::cout << "DEBUG:: Selecting residues in chain \"" << chain_id << "\" gives "
 		<< n_atoms << " atoms " << std::endl;
@@ -323,7 +330,12 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 		<< " " << have_flanking_residue_at_end << std::endl;
    }
 
-   init_shared_post(fixed_atom_specs);
+   init_shared_post(fixed_atom_specs); // clears fixed_atom_indices
+
+   add_fixed_atoms_from_flanking_residues(have_flanking_residue_at_start,
+					  have_flanking_residue_at_end,
+					  iselection_start_res, iselection_end_res);
+
 }
 
 void
@@ -1054,9 +1066,17 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       }
 
       if (restraints_usage_flag & coot::RAMA_PLOT_MASK) {
-  	 if ( restraints_vec[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) { 
+  	 if ( restraints_vec[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
   	    n_rama_restraints++;
-  	    rama_distortion += coot::distortion_score_rama(restraints_vec[i], v, lograma);
+	    if (rama_type == restraints_container_t::RAMA_TYPE_ZO) {
+	       rama_distortion = coot::distortion_score_rama( restraints_vec[i], v, ZO_Rama(), get_rama_plot_weight());
+	    } else {
+	       rama_distortion = coot::distortion_score_rama(restraints_vec[i], v, lograma);
+	    }
+	    std::cout << "about to call distortion_score_rama() for LogRama..." << std::endl;
+	    double d1 = distortion_score_rama( restraints_vec[i], v, LogRama());
+	    double d2 = coot::distortion_score_rama(restraints_vec[i], v, ZO_Rama(), get_rama_plot_weight());
+	    std::cout << "distortion-comparision lograms " << d1 << " zo " << d2 << std::endl;
   	 }
       }
 
@@ -1182,9 +1202,12 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       if (print_summary)
 	 std::cout << "rama plot:  N/A " << std::endl;
    } else {
-      double rd = rama_distortion/double(n_rama_restraints);
+      double rd_raw = rama_distortion/double(n_rama_restraints);
+      double rd = rd_raw;
+      if (rama_type == restraints_container_t::RAMA_TYPE_ZO)
+	 rd = rd_raw*20.0 -80.0; // puts ZO distortions on the same scale as LogRama
       if (print_summary)
-	 std::cout << "rama plot:  " << rd << std::endl;
+	 std::cout << "rama plot:  " << rd << " " << n_rama_restraints << std::endl;
       r += "   rama plot: ";
       r += coot::util::float_to_string_using_dec_pl(rd, 3);
       std::string s = "Rama Plot: ";
@@ -1242,7 +1265,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       std::string s = "GemanMcCl: ";
       s += coot::util::float_to_string_using_dec_pl(sspd, 3);
       lights_vec.push_back(coot::refinement_lights_info_t("GemanMcCl", s, sspd));
-   } 
+   }
    return lights_vec;
 } 
 
@@ -1683,12 +1706,15 @@ coot::restraints_container_t::make_restraints(int imol,
 					      bool do_link_restraints,
 					      bool do_flank_restraints) {
 
-   // if a peptider is trans, add a restraint to penalize non-trans configuration
+   // if a peptide is trans, add a restraint to penalize non-trans configuration
    // (currently a torsion restraint on peptide w of 180)
    // 
 
    // debugging SRS inclusion.
    if (false) {
+
+      std::cout << "------- debug:: here in make_restraints() do_trans_peptide_restraints is "
+		<< do_trans_peptide_restraints << std::endl;
       std::cout << "----- make restraints() called with geom of size : " << geom.size() << std::endl;
       std::cout << "    geom ref pointer " << &geom << std::endl;
    }
@@ -1717,6 +1743,8 @@ coot::restraints_container_t::make_restraints(int imol,
 	 do_link_restraints_internal = false;
       if (! do_flank_restraints)
 	 do_flank_restraints_internal = false;
+
+      rama_plot_weight = rama_plot_target_weight;
 
       // sets bonded_pairs_container
       if (do_link_restraints_internal)

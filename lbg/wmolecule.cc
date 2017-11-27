@@ -428,11 +428,18 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
    case AROMATIC_BOND:        // this should not happen 
    case DELOC_ONE_AND_A_HALF: // this should not happen either
    case BOND_ANY:
-
-      ci = wrap_goo_canvas_polyline_new_line(root,
-					     pos_1.x, pos_1.y,
-					     pos_2.x, pos_2.y,
-					     "stroke-color", dark);
+      {
+	 bool at_1_is_singleton = false;
+	 bool at_2_is_singleton = false;
+	 if (other_connections_to_first_atom.size()  == 0) at_1_is_singleton = true;
+	 if (other_connections_to_second_atom.size() == 0) at_2_is_singleton = true;
+	 std::pair<lig_build::pos_t, lig_build::pos_t> bp =
+	    coords_for_single_bond(at_1, at_2, at_1_is_singleton, at_2_is_singleton);
+	 ci = wrap_goo_canvas_polyline_new_line(root,
+						pos_1.x, pos_1.y,
+						pos_2.x, pos_2.y,
+						"stroke-color", dark);
+      }
       break;
    case DOUBLE_BOND:
    case DOUBLE_OR_AROMATIC:
@@ -504,7 +511,7 @@ widgeted_bond_t::canvas_item_double_bond(const lig_build::pos_t &pos_1,
 					 const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 					 GooCanvasItem *root) const {
 
-   if ((other_connections_to_second_atom.size() == 0)||
+   if ((other_connections_to_second_atom.size() == 0) ||
        (other_connections_to_first_atom.size()  == 0)) {
       return canvas_item_double_bond_simple(pos_1, pos_2, root);
 
@@ -870,66 +877,66 @@ widgeted_bond_t::make_wedge_in_bond_item(const lig_build::pos_t &pos_1,
 }
 
 
-// to draw wedge bonds correctly
-std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
-widgeted_molecule_t::make_other_connections_to_second_atom_info(unsigned int bond_index) const {
+// // to draw wedge bonds correctly
+// std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
+// widgeted_molecule_t::make_other_connections_to_second_atom_info(unsigned int bond_index) const {
 
-   std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > v;
-   int atom_chiral_idx = bonds[bond_index].get_atom_1_index();
-   int atom_other_idx  = bonds[bond_index].get_atom_2_index();
+//    std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > v;
+//    int atom_chiral_idx = bonds[bond_index].get_atom_1_index();
+//    int atom_other_idx  = bonds[bond_index].get_atom_2_index();
 
-   for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
-      if (ibond != bond_index) {
-	 int at_1_idx = bonds[ibond].get_atom_1_index();
-	 int at_2_idx = bonds[ibond].get_atom_2_index();
-	 if (at_1_idx == atom_other_idx) {
-	    if (at_2_idx != atom_chiral_idx) { // should always be
-	       std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_2_idx], bonds[ibond]);
-	       v.push_back(p);
-	    }
-	 }
-	 if (at_2_idx == atom_other_idx) {
-	    if (at_1_idx != atom_chiral_idx) {
-	       std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_1_idx], bonds[ibond]);
-	       v.push_back(p);
-	    }
-	 }
-      }
-   }
+//    for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
+//       if (ibond != bond_index) {
+// 	 int at_1_idx = bonds[ibond].get_atom_1_index();
+// 	 int at_2_idx = bonds[ibond].get_atom_2_index();
+// 	 if (at_1_idx == atom_other_idx) {
+// 	    if (at_2_idx != atom_chiral_idx) { // should always be
+// 	       std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_2_idx], bonds[ibond]);
+// 	       v.push_back(p);
+// 	    }
+// 	 }
+// 	 if (at_2_idx == atom_other_idx) {
+// 	    if (at_1_idx != atom_chiral_idx) {
+// 	       std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_1_idx], bonds[ibond]);
+// 	       v.push_back(p);
+// 	    }
+// 	 }
+//       }
+//    }
 
-   // std::cout << "from make_other_connections_to_second_atom_info() returning v of size "
-   // << v.size() << std::endl;
+//    // std::cout << "from make_other_connections_to_second_atom_info() returning v of size "
+//    // << v.size() << std::endl;
 
-   return v;
-}
+//    return v;
+// }
 
-std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
-widgeted_molecule_t::make_other_connections_to_first_atom_info(unsigned int bond_index) const {
+// std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
+// widgeted_molecule_t::make_other_connections_to_first_atom_info(unsigned int bond_index) const {
 
-   std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > v;
-   int atom_1_ref_idx = bonds[bond_index].get_atom_1_index();
-   int atom_2_ref_idx = bonds[bond_index].get_atom_2_index();
+//    std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > v;
+//    int atom_1_ref_idx = bonds[bond_index].get_atom_1_index();
+//    int atom_2_ref_idx = bonds[bond_index].get_atom_2_index();
 
-   for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
-      if (ibond != bond_index) {
-	 int at_1_idx = bonds[ibond].get_atom_1_index();
-	 int at_2_idx = bonds[ibond].get_atom_2_index();
-	 if (at_1_idx == atom_1_ref_idx) {
-	    if (at_2_idx != atom_2_ref_idx) {
-	       std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_2_idx], bonds[ibond]);
-	       v.push_back(p);
-	    }
-	 }
-	 if (at_2_idx == atom_1_ref_idx) {
-	    if (at_1_idx != atom_2_ref_idx) {
-	       std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_1_idx], bonds[ibond]);
-	       v.push_back(p);
-	    }
-	 }
-      }
-   }
-   return v;
-}
+//    for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
+//       if (ibond != bond_index) {
+// 	 int at_1_idx = bonds[ibond].get_atom_1_index();
+// 	 int at_2_idx = bonds[ibond].get_atom_2_index();
+// 	 if (at_1_idx == atom_1_ref_idx) {
+// 	    if (at_2_idx != atom_2_ref_idx) {
+// 	       std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_2_idx], bonds[ibond]);
+// 	       v.push_back(p);
+// 	    }
+// 	 }
+// 	 if (at_2_idx == atom_1_ref_idx) {
+// 	    if (at_1_idx != atom_2_ref_idx) {
+// 	       std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_1_idx], bonds[ibond]);
+// 	       v.push_back(p);
+// 	    }
+// 	 }
+//       }
+//    }
+//    return v;
+// }
 
 
 std::pair<bool, widgeted_bond_t>

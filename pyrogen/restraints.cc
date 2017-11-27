@@ -391,6 +391,11 @@ coot::mmcif_dict_from_mol(const std::string &comp_id,
       mmcif_dict_from_mol_using_energy_lib(comp_id, compound_name, rdkit_mol_py,
 					   quartet_planes, quartet_hydrogen_planes);
 
+
+   if (false)
+      std::cout << "in mmcif_dict_from_mol, mmcif_dict_from_mol_using_energy_lib "
+		<< "returns with status " << restraints.first << std::endl;
+
    if (restraints.first) { 
       if (replace_with_mmff_b_a_restraints) {
 	 RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
@@ -399,18 +404,26 @@ coot::mmcif_dict_from_mol(const std::string &comp_id,
 	 dictionary_residue_restraints_t mmff_restraints = make_mmff_restraints(mol_for_mmff);
 	 restraints.second.conservatively_replace_with(mmff_restraints);
       }
+   } else {
+      std::cout << "WARNING:: failure in calling mmcif_dict_from_mol_using_energy_lib() " << std::endl;
    }
 
    bool success = restraints.first;
    if (success)
-      if (! restraints.second.is_filled())
+      if (! restraints.second.is_filled()) {
+	 std::cout << "WARNING:: restraints are not filled: "
+		   << restraints.second.atom_info.size() << " atoms "
+		   << restraints.second.bond_restraint.size() << " bonds "
+		   << std::endl;
 	 success = false;
+      }
 
    if (success) { 
       restraints.second.write_cif(mmcif_out_file_name);  // this gets overwritten if dictionary
                                                          // matching is enabled.
       return monomer_restraints_to_python(restraints.second);
    } else {
+      std::cout << "no success in mmcif_dict_from_mol() " << std::endl;
       PyObject *o = new PyObject;
       o = Py_None;
       Py_INCREF(o);
@@ -484,10 +497,15 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
 
       bool status_p = coot::add_chem_comp_planes(mol, &restraints, quartet_planes, quartet_hydrogen_planes);
 
+      // std::cout << "here in mmcif_dict_from_mol_using_energy_lib statuses are "
+      //           << status_a << " " << status_b << " " << status_p << std::endl;
+
       if (! status_b) status = false;
       if (! status_a) status = false;
    }
 
+   // std::cout << "mmcif_dict_from_mol_using_energy_lib returns with status "
+   // << status << std::endl;
    std::pair<bool, coot::dictionary_residue_restraints_t> p(status, restraints);
    return p;
 }
@@ -499,7 +517,7 @@ bool
 coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 				 const coot::energy_lib_t &energy_lib,
 				 coot::dictionary_residue_restraints_t *restraints) {
-   
+
    unsigned int n_bonds = mol.getNumBonds();
    for (unsigned int ib=0; ib<n_bonds; ib++) {
       const RDKit::Bond *bond_p = mol.getBondWithIdx(ib);
@@ -545,6 +563,7 @@ coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 	 }
       }
    }
+   // std::cout << "returnging form fill_with_energy_lib_bonds() " << n_bonds << std::endl;
    return (n_bonds == restraints->bond_restraint.size());
 }
 
@@ -1690,9 +1709,9 @@ int
 coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 				coot::dictionary_residue_restraints_t *restraints) {
 
-   std::cout << "DEBUG:: in assign_chirals_rdkit_tags(): " << std::endl;
+   // std::cout << "DEBUG:: in assign_chirals_rdkit_tags(): " << std::endl;
 
-   debug_cip_ranks(mol);
+   // debug_cip_ranks(mol);
    
    int n_chirals = 0;
 
@@ -1701,8 +1720,9 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
       int vol_sign = coot::dict_chiral_restraint_t::CHIRAL_VOLUME_RESTRAINT_VOLUME_SIGN_UNASSIGNED;
       RDKit::ATOM_SPTR at_p = mol[iat];
       RDKit::Atom::ChiralType chiral_tag = at_p->getChiralTag();
-      std::cout << "DEBUG:: in assign_chirals_rdkit_tags() atom " << iat
-		<< " chiral tag: " << chiral_tag << std::endl;
+      if (false)
+	 std::cout << "DEBUG:: in assign_chirals_rdkit_tags() atom " << iat
+		   << " chiral tag: " << chiral_tag << std::endl;
 
       // I think that these are round the wrong way.
       if (chiral_tag == RDKit::Atom::CHI_TETRAHEDRAL_CW)
@@ -1713,12 +1733,14 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
       if (chiral_tag != RDKit::Atom::CHI_UNSPECIFIED) {
 	 try {
 
-	    std::cout << "DEBUG:: in assign_chirals_rdkit_tags(): considering chiral for atom idx "
-		      << iat << std::endl;
+	    if (false)
+	       std::cout << "DEBUG:: in assign_chirals_rdkit_tags(): considering chiral "
+			 << "for atom idx " << iat << std::endl;
 	    
 	    std::string chiral_centre;
 	    at_p->getProp("name", chiral_centre);
-	    std::string n1, n2, n3; // these need setting, c.f. get_chiral_tag() in rdkit-interface.cc?
+	    std::string n1, n2, n3; // these need setting, c.f.
+	                            // get_chiral_tag() in rdkit-interface.cc?
 
 	    // What are the neighbours of at_p and what are their ranks?
 	    //

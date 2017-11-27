@@ -40,6 +40,8 @@
 void
 coot::restraints_container_t::add_fixed_atoms_from_flanking_residues(const coot::bonded_pair_container_t &bpc) {
 
+   std::cout << "debug:: add_fixed_atoms_from_flanking_residues() called " << bpc.size() << std::endl;
+
    std::vector<mmdb::Residue *> residues_for_fixed_atoms;
    
    for (unsigned int i=0; i<bpc.size(); i++) { 
@@ -62,6 +64,44 @@ coot::restraints_container_t::add_fixed_atoms_from_flanking_residues(const coot:
 	    if (std::find(fixed_atom_indices.begin(),
 			  fixed_atom_indices.end(), idx) == fixed_atom_indices.end())
 	       fixed_atom_indices.push_back(idx);
+	 }
+      }
+   }
+}
+
+
+void
+coot::restraints_container_t::add_fixed_atoms_from_flanking_residues(bool have_flanking_residue_at_start,
+								     bool have_flanking_residue_at_end,
+								     int iselection_start_res,
+								     int iselection_end_res) {
+
+   if (true)
+      std::cout << "debug:: in add_fixed_atoms_from_flanking_residues() "
+		<< have_flanking_residue_at_start << " "
+		<< have_flanking_residue_at_end << " "
+		<< std::endl;
+
+   if (have_flanking_residue_at_start || have_flanking_residue_at_end) {
+      for (int iat=0; iat<n_atoms; iat++) {
+	 mmdb::Atom *at = atom[iat];
+	 if (have_flanking_residue_at_start) {
+	    if (at->residue->GetSeqNum() == iselection_start_res) {
+	       // perhaps this should be a set
+	       if (std::find(fixed_atom_indices.begin(),
+			     fixed_atom_indices.end(), iat) == fixed_atom_indices.end()) {
+		  fixed_atom_indices.push_back(iat);
+	       }
+	    }
+	 }
+	 if (have_flanking_residue_at_end) {
+	    if (at->residue->GetSeqNum() == iselection_end_res) {
+	       // perhaps this should be a set
+	       if (std::find(fixed_atom_indices.begin(),
+			     fixed_atom_indices.end(), iat) == fixed_atom_indices.end()) {
+		  fixed_atom_indices.push_back(iat);
+	       }
+	    }
 	 }
       }
    }
@@ -267,19 +307,19 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const c
    for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
 
       std::vector<mmdb::Residue *> neighbours = coot::residues_near_residue(residues_vec[ir].second,
-								       mol, dist_crit);
+									    mol, dist_crit);
 //       std::cout << " DEBUG:: bonded_flanking_residues_by_residue_vector using reference res "
 //  		<< ir << " of " << residues_vec.size() << " " 
 //  		<< residues_vec[ir].second << " with " << neighbours.size() << " neighbours"
 // 		<< std::endl;
-      
+
       for (unsigned int ineighb=0; ineighb<neighbours.size(); ineighb++) {
 
-	 bool found = 0;
+	 bool found = false;
 	 for (unsigned int ires=0; ires<residues_vec.size(); ires++) {
 	    // pointer comparison
 	    if (neighbours[ineighb] == residues_vec[ires].second) {
-	       found = 1;
+	       found = true;
 	       break;
 	    } 
 	 }

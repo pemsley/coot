@@ -24,7 +24,7 @@
 
 #include <algorithm>
 
-#include "clipper/core/coords.h"
+#include <clipper/core/coords.h>
 
 #include <mmdb2/mmdb_manager.h> // 20110408 for the constructor using restraints and mmdb::Residue
 #include "geometry/protein-geometry.hh"

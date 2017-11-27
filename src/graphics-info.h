@@ -2149,6 +2149,8 @@ public:
 			std::string chain_id_1); 
    static void flash_position(const clipper::Coord_orth &pos);
 
+   void repeat_refine_zone(); // no interesting return value because it uses refine() 
+                              // as in check_if_in_refine_define().
    std::pair<int, int> auto_range_residues(int atom_index, int imol) const; 
 
 

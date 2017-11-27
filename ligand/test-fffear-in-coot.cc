@@ -40,8 +40,10 @@
 
 #include <iostream>
 
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+// no dependency on coords files
+//
+// #include "coords/mmdb-extras.h"
+// #include "coords/mmdb.h"
 #include "ligand.hh"
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-map-utils.hh"

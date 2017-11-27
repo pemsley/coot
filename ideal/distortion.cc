@@ -572,7 +572,11 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
 
       if (restraints->restraints_usage_flag & coot::RAMA_PLOT_MASK) {
    	 if ( (*restraints)[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
-   	    d = coot::distortion_score_rama( (*restraints)[i], v, restraints->LogRama());
+	    if (restraints->rama_type == restraints_container_t::RAMA_TYPE_ZO) {
+	       d = coot::distortion_score_rama( (*restraints)[i], v, restraints->ZO_Rama(), restraints->get_rama_plot_weight());
+	    } else {
+	       d = coot::distortion_score_rama( (*restraints)[i], v, restraints->LogRama());
+	    }
 	    // std::cout << "dsm: rama single-thread " << d << std::endl;
    	    *distortion += d; // positive is bad...  negative is good.
 	    continue;
@@ -689,9 +693,13 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 
       if (restraints->restraints_usage_flag & coot::RAMA_PLOT_MASK) {
    	 if ( (*restraints)[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
-   	    d = coot::distortion_score_rama( (*restraints)[i], v, restraints->LogRama());
-   	    *distortion += d; // positive is bad...  negative is good.
 	    // std::cout << "dsm: rama " << thread_id << " idx " << i << " " << d << std::endl;
+	    if (restraints->rama_type == restraints_container_t::RAMA_TYPE_ZO) {
+	       d = coot::distortion_score_rama( (*restraints)[i], v, restraints->ZO_Rama(), restraints->get_rama_plot_weight());
+	    } else {
+	       d = coot::distortion_score_rama( (*restraints)[i], v, restraints->LogRama());
+	    }
+   	    *distortion += d; // positive is bad...  negative is good.
 	    continue;
    	 }
       }
@@ -963,7 +971,11 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 
       if (restraints_usage_flag & coot::RAMA_PLOT_MASK) 
     	 if (restraints_vec[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) { 
-	    distortion = coot::distortion_score_rama(restraints_vec[i], v, lograma);
+	    if (rama_type == restraints_container_t::RAMA_TYPE_ZO) {
+	       distortion = coot::distortion_score_rama(restraints_vec[i], v, ZO_Rama(), get_rama_plot_weight());
+	    } else {
+	       distortion = coot::distortion_score_rama(restraints_vec[i], v, lograma);
+	    }
 	    atom_index = restraints_vec[i].atom_index_1;
 	    atom_indices.push_back(rest.atom_index_1);
 	    atom_indices.push_back(rest.atom_index_2);
@@ -1120,33 +1132,33 @@ coot::distortion_score_torsion(const coot::simple_restraint &torsion_restraint,
 			       const gsl_vector *v) {
 
    // First calculate the torsion:
-   // theta = arctan(E/G); 
+   // theta = arctan(E/G);
    // where E = a.(bxc) and G = -a.c + (a.b)(b.c)
 
    int idx; 
 
    idx = 3*(torsion_restraint.atom_index_1);
-   clipper::Coord_orth P1(gsl_vector_get(v,idx), 
-			  gsl_vector_get(v,idx+1), 
+   clipper::Coord_orth P1(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
 			  gsl_vector_get(v,idx+2));
-   idx = 3*(torsion_restraint.atom_index_2); 
-   clipper::Coord_orth P2(gsl_vector_get(v,idx), 
-			  gsl_vector_get(v,idx+1), 
+   idx = 3*(torsion_restraint.atom_index_2);
+   clipper::Coord_orth P2(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
 			  gsl_vector_get(v,idx+2));
-   idx = 3*(torsion_restraint.atom_index_3); 
-   clipper::Coord_orth P3(gsl_vector_get(v,idx), 
-			  gsl_vector_get(v,idx+1), 
+   idx = 3*(torsion_restraint.atom_index_3);
+   clipper::Coord_orth P3(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
 			  gsl_vector_get(v,idx+2));
-   idx = 3*(torsion_restraint.atom_index_4); 
-   clipper::Coord_orth P4(gsl_vector_get(v,idx), 
-			  gsl_vector_get(v,idx+1), 
+   idx = 3*(torsion_restraint.atom_index_4);
+   clipper::Coord_orth P4(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
 			  gsl_vector_get(v,idx+2));
 
-//    P1 = clipper::Coord_orth(1.0, 0.0, 1.0); 
-//    P2 = clipper::Coord_orth(0.0, -1.0, 1.0); 
-//    P3 = clipper::Coord_orth(0.0, 0.0, 0.0); 
-//    P4 = clipper::Coord_orth(-1.0, -1.0, 1.0); 
-//    P4 = clipper::Coord_orth(1.0, 1.0, 1.0); 
+//    P1 = clipper::Coord_orth( 1.0,  0.0, 1.0);
+//    P2 = clipper::Coord_orth( 0.0, -1.0, 1.0);
+//    P3 = clipper::Coord_orth( 0.0,  0.0, 0.0);
+//    P4 = clipper::Coord_orth(-1.0, -1.0, 1.0);
+//    P4 = clipper::Coord_orth( 1.0,  1.0, 1.0);
 
    clipper::Coord_orth a = P2 - P1; 
    clipper::Coord_orth b = P3 - P2; 
@@ -1310,7 +1322,7 @@ coot::distortion_score_chiral_volume(const coot::simple_restraint &chiral_restra
    return distortion;
 }
 
-double 
+double
 coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
 			    const gsl_vector *v,
 			    const LogRamachandran &lograma) {
@@ -1343,14 +1355,154 @@ coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
 			  gsl_vector_get(v,idx+1), 
 			  gsl_vector_get(v,idx+2));
 
+//    P1 = clipper::Coord_orth(1.0, 0.0, 1.0);
+//    P2 = clipper::Coord_orth(0.0, -1.0, 1.0);
+//    P3 = clipper::Coord_orth(0.0, 0.0, 0.0);
+//    P4 = clipper::Coord_orth(-1.0, -1.0, 1.0);
+//    P4 = clipper::Coord_orth(1.0, 1.0, 1.0);
+
+   clipper::Coord_orth a = P2 - P1; 
+   clipper::Coord_orth b = P3 - P2; 
+   clipper::Coord_orth c = P4 - P3;
+   clipper::Coord_orth d = P5 - P4;
+
+   // Old (6 atom) wrong:
+   // TRANS    psi      1 N (P1)    1 CA (P2)     1 C  (P3)    2 N (P4)
+   // TRANS    phi      1 C (P3)    2  N (P4)     2 CA (P5)    2 C (P6)
+   //
+   // New assignements:
+   // TRANS    phi    (1st C) (2nd N ) (2nd CA) (2nd C)
+   // TRANS    psi    (2nd N) (2nd CA) (2nd C ) (3nd N)
+   //
+   // So Rama_atoms in this order:
+   //   0       1        2      3         4
+   //  P1      P2       P3     P4        P5
+   // (1st C) (2nd N) (2nd CA) (2nd C) (3rd N)
+
+   // ---------- phi ------------------
+   // b*b * [ a.(bxc)/b ]
+   double E = clipper::Coord_orth::dot(a,clipper::Coord_orth::cross(b,c)) *
+      sqrt( b.lengthsq() );
+
+   // b*b * [ -a.c+(a.b)(b.c)/(b*b) ] = -a.c*b*b + (a.b)(b.c)
+   double G = - clipper::Coord_orth::dot(a,c)*b.lengthsq()
+      + clipper::Coord_orth::dot(a,b)*clipper::Coord_orth::dot(b,c);
+
+   double phi = clipper::Util::rad2d(atan2(E,G));
+   if (phi < 180.0)
+      phi += 360.0;
+   if (phi > 180.0)
+      phi -= 360.0;
+
+   // ---------- psi ------------------
+   // b*b * [ a.(bxc)/b ]
+   double H = clipper::Coord_orth::dot(b, clipper::Coord_orth::cross(c,d)) *
+      sqrt( c.lengthsq() );
+
+   // b*b * [ -a.c+(a.b)(b.c)/(b*b) ] = -a.c*b*b + (a.b)(b.c)
+   double I = - clipper::Coord_orth::dot(b,d)*c.lengthsq()
+      + clipper::Coord_orth::dot(b,c)*clipper::Coord_orth::dot(c,d);
+
+   double psi = clipper::Util::rad2d(atan2(H,I));
+   if (psi < 180.0)
+      psi += 360.0;
+   if (psi > 180.0)
+      psi -= 360.0;
+
+   double lr = lograma.interp(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
+   double R = 10.0 * lr;
+   std::cout << "rama (lograma) distortion for " << phi << " " << psi << " is " << R << std::endl;
+
+   if ( clipper::Util::isnan(phi) ) {
+      std::cout << "WARNING: observed torsion phi is a NAN!" << std::endl;
+      std::cout << "         debug-info: " << E << "/" << G << std::endl;
+      std::cout << "         debug-info: atom indices: " << rama_restraint.atom_index_1 << std::endl;
+      std::cout << "         debug-info: atom indices: " << rama_restraint.atom_index_2 << std::endl;
+      std::cout << "         debug-info: atom indices: " << rama_restraint.atom_index_3 << std::endl;
+      std::cout << "         debug-info: atom indices: " << rama_restraint.atom_index_4 << std::endl;
+      std::cout << "         debug-info: atom indices: " << rama_restraint.atom_index_5 << std::endl;
+      std::cout << "         debug-info: P1: " << P1.format() << std::endl;
+      std::cout << "         debug-info: P2: " << P2.format() << std::endl;
+      std::cout << "         debug-info: P3: " << P3.format() << std::endl;
+      std::cout << "         debug-info: P4: " << P4.format() << std::endl;
+      std::cout << "         debug-info: P5: " << P5.format() << std::endl;
+      std::cout << "         debug-info: a: " << a.format() << std::endl;
+      std::cout << "         debug-info: b: " << b.format() << std::endl;
+      std::cout << "         debug-info: c: " << c.format() << std::endl;
+      std::cout << "         debug-info: d: " << d.format() << std::endl;
+
+      for (unsigned int i=0; i<15; i++) {
+	 std::cout << "           in distortion_score_rama() " << i << " "
+		   << gsl_vector_get(v, 3*i  ) << " "
+		   << gsl_vector_get(v, 3*i+1) << " "
+		   << gsl_vector_get(v, 3*i+2) << " " << std::endl;
+      }
+   }
+   if ( clipper::Util::isnan(psi) ) {
+      std::cout << "WARNING: observed torsion psi is a NAN!" << std::endl;
+      std::cout << "         debug-info: " << H << "/" << I << std::endl;
+      std::cout << "         debug-info: atom indices: " << rama_restraint.atom_index_1 << std::endl;
+      std::cout << "         debug-info: atom indices: " << rama_restraint.atom_index_2 << std::endl;
+      std::cout << "         debug-info: atom indices: " << rama_restraint.atom_index_3 << std::endl;
+      std::cout << "         debug-info: atom indices: " << rama_restraint.atom_index_4 << std::endl;
+      std::cout << "         debug-info: atom indices: " << rama_restraint.atom_index_5 << std::endl;
+      std::cout << "         debug-info: P1: " << P1.format() << std::endl;
+      std::cout << "         debug-info: P2: " << P2.format() << std::endl;
+      std::cout << "         debug-info: P3: " << P3.format() << std::endl;
+      std::cout << "         debug-info: P4: " << P4.format() << std::endl;
+      std::cout << "         debug-info: P5: " << P5.format() << std::endl;
+      std::cout << "         debug-info: a: " << a.format() << std::endl;
+      std::cout << "         debug-info: b: " << b.format() << std::endl;
+      std::cout << "         debug-info: c: " << c.format() << std::endl;
+      std::cout << "         debug-info: d: " << d.format() << std::endl;
+   }
+
+   return R;
+}
+
+double 
+coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
+			    const gsl_vector *v,
+			    const zo::rama_table_set &rama,
+			    float rama_plot_weight) {
+			    // const LogRamachandran &lograma) { // debugging
+
+   double distortion = 0;
+   // First calculate the torsions:
+   // theta = arctan(E/G);
+   // where E = a.(bxc) and G = -a.c + (a.b)(b.c)
+
+   int idx;
+
+   idx = 3*(rama_restraint.atom_index_1);
+   clipper::Coord_orth P1(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
+			  gsl_vector_get(v,idx+2));
+   idx = 3*(rama_restraint.atom_index_2);
+   clipper::Coord_orth P2(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
+			  gsl_vector_get(v,idx+2));
+   idx = 3*(rama_restraint.atom_index_3);
+   clipper::Coord_orth P3(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
+			  gsl_vector_get(v,idx+2));
+   idx = 3*(rama_restraint.atom_index_4);
+   clipper::Coord_orth P4(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
+			  gsl_vector_get(v,idx+2));
+   idx = 3*(rama_restraint.atom_index_5);
+   clipper::Coord_orth P5(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
+			  gsl_vector_get(v,idx+2));
+
 //    P1 = clipper::Coord_orth(1.0, 0.0, 1.0); 
 //    P2 = clipper::Coord_orth(0.0, -1.0, 1.0); 
 //    P3 = clipper::Coord_orth(0.0, 0.0, 0.0); 
 //    P4 = clipper::Coord_orth(-1.0, -1.0, 1.0); 
 //    P4 = clipper::Coord_orth(1.0, 1.0, 1.0); 
 
-   clipper::Coord_orth a = P2 - P1; 
-   clipper::Coord_orth b = P3 - P2; 
+   clipper::Coord_orth a = P2 - P1;
+   clipper::Coord_orth b = P3 - P2;
    clipper::Coord_orth c = P4 - P3;
    clipper::Coord_orth d = P5 - P4;
 
@@ -1397,9 +1549,14 @@ coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
    if (psi > 180.0)
       psi -= 360.0;
 
-   double lr = lograma.interp(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
-   double R = 10.0 * lr;
-   // std::cout << "rama distortion for " << phi << " " << psi << " is " << R << std::endl;
+   // double lr_kdc = lograma.interp(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
+   // double R = 10.0 * lr;
+
+   double lr = rama.value(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
+   double R = -rama_plot_weight * lr;
+
+   // std::cout << "zo-rama-distortion for " << phi << " " << psi << " is " << lr << " kdc: "
+   // << lr_kdc << "\n";
 
    if ( clipper::Util::isnan(phi) ) {
       std::cout << "WARNING: observed torsion phi is a NAN!" << std::endl;
@@ -1448,7 +1605,6 @@ coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
    return R;
 }
 
-
 double
 coot::distortion_score_non_bonded_contact(const coot::simple_restraint &nbc_restraint,
 					  const gsl_vector *v) {
@@ -1485,7 +1641,7 @@ coot::distortion_score_non_bonded_contact(const coot::simple_restraint &nbc_rest
 	 // << " " << atom_spec_t(atom[nbc_restraint.atom_index_2]) 
 		<< " comparing model: " << sqrt(dist_sq) << " min_dist: " << nbc_restraint.target_value
 		<< " with sigma " << nbc_restraint.sigma << std::endl;
-   
+
    if (dist_sq < nbc_restraint.target_value * nbc_restraint.target_value) {
       double weight = 1.0/(nbc_restraint.sigma * nbc_restraint.sigma);
       double dist = sqrt(dist_sq);
@@ -1563,7 +1719,7 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
       mat(2,0) = mat(0,2);
       mat(2,1) = mat(1,2);
 
-      if (0) { // debug
+      if (false) { // debug
 	 std::cout << "mat pre  eigens:\n";
 	 for (unsigned int ii=0; ii<3; ii++) { 
 	    for (unsigned int jj=0; jj<3; jj++) { 
@@ -1572,13 +1728,8 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 	    std::cout << "\n";
 	 }
       }
-      
+
       std::vector<double> eigens = mat.eigen(true);
-      
-//       std::cout << "we get eigen values: "
-//  		<< eigens[0] << "  "
-//  		<< eigens[1] << "  "
-//  		<< eigens[2] << std::endl;
 
       // Let's now extract the values of a,b,c normalize them
       std::vector<double> abcd(4);
@@ -1595,7 +1746,6 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 	    std::cout << "\n";
 	 }
       }
-      
       
       double sqsum = 1e-20;
 
@@ -1614,13 +1764,17 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 	 idx = 3*(plane_restraint.plane_atom_index[i].first);
 	 if (idx < 0) {
 	 } else { 
-	    val = 
-	       abcd[0]*gsl_vector_get(v,idx  ) +
-	       abcd[1]*gsl_vector_get(v,idx+1) +
-	       abcd[2]*gsl_vector_get(v,idx+2) -
-	       abcd[3];
-	    double r = val/plane_restraint.plane_atom_index[i].second; // .second is the weight
-	    sum_devi += r*r;
+	    // if (! plane_restraint.fixed_atom_flags[i] ) {
+	    if (true) { // should fixed atoms contribute to the distortion of the plane?
+	                // yes.
+	       val = 
+		  abcd[0]*gsl_vector_get(v,idx  ) +
+		  abcd[1]*gsl_vector_get(v,idx+1) +
+		  abcd[2]*gsl_vector_get(v,idx+2) -
+		  abcd[3];
+	       double r = val/plane_restraint.plane_atom_index[i].second; // .second is the weight
+	       sum_devi += r*r;
+	    }
 	 }
       }
 
@@ -1629,7 +1783,7 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
       }
    }
 
-   if (false) 
+   if (false)
       std::cout << "DEBUG:: distortion_score_plane_internal() returning "
 		<< sum_devi << " for " << plane_restraint.plane_atom_index.size() << " atoms"
 		<< std::endl;

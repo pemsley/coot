@@ -7901,7 +7901,14 @@ what's this?
    PHASE: a new engine for pharmacophore perception, 3D QSAR model development,
    and 3D database screening: 1. Methodology and preliminary results.
    J. Comput. Aided Mol. Des. 20, 647-671,
-   doi: 10.1007/s10822-006-9087-6   (2006).
+  doi: 10.1007/s10822-006-9087-6   (2006).
+
+---
+Sat 19 Aug 2017 00:09:10 BST
+
+   jupyter notebook intereting rdkit and pymol usage from years ago
+
+   http://nbviewer.jupyter.org/gist/greglandrum/4316435
 
 ---
 Thu Jul 27 19:48:52 BST 2017
@@ -7918,6 +7925,13 @@ Thu Jul 27 20:07:08 BST 2017
 
    $ pip install ipython --upgrade
 
+   to force PIL (say)
+
+   $ pip install --upgrade --force-reinstall PIL
+
+   (this didn't work for version-related issues)
+  
+   $ pip install --upgrade --force-reinstall pillow
 
 ---
 Sat 29 Jul 2017 15:37:06 BST

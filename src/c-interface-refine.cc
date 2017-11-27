@@ -121,6 +121,15 @@ void refine_zone(int imol, const char *chain_id,
    }
 }
 
+/* use stored atom indices to re-run the refinement using the same atoms as previous */
+void repeat_refine_zone() {
+
+   graphics_info_t g;
+   g.repeat_refine_zone();
+
+}
+
+
 
 void refine_auto_range(int imol, const char *chain_id, int resno1, const char *altconf) {
 

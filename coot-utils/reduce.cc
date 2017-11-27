@@ -536,9 +536,36 @@ coot::reduce::add_hydrogen_atom(std::string atom_name, clipper::Coord_orth &pos,
    new_H->SetCoordinates(pos.x(), pos.y(), pos.z(), 1.0, bf);
    if (! altconf.empty())
       strncpy(new_H->altLoc, altconf.c_str(), 18); // 19 is mmdb limit, I think
+
+   // now test if the atom is there already.
+   //
+   // It it was, then modify the coords and if not, then add it as before
+
    int n_atoms = residue_p->GetNumberOfAtoms();
-   int idx = residue_p->AddAtom(new_H);
-   return new_H;
+   mmdb::Atom **residue_atoms = 0;
+   mmdb::Atom *at = 0;
+   bool already_exits = 0;
+   residue_p->GetAtomTable(residue_atoms, n_atoms);
+   for (int i=0; i<n_atoms; i++) {
+      std::string residue_atom_name = residue_atoms[i]->name;
+      std::string residue_atom_alt_conf  = residue_atoms[i]->altLoc;
+      if (residue_atom_name == atom_name) {
+	 if (residue_atom_alt_conf == altconf) {
+	    already_exits = true;
+	    at = residue_atoms[i];
+	    break;
+	 }
+      }
+   }
+
+   if (! already_exits) {
+      residue_p->AddAtom(new_H);
+      return new_H;
+   } else {
+      delete new_H;
+      at->SetCoordinates(pos.x(), pos.y(), pos.z(), 1.0, bf);
+      return at;
+   }
 }
 
 

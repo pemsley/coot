@@ -176,8 +176,10 @@ namespace coot {
 // for protein dictionary container:
 #include "geometry/protein-geometry.hh"
 
-// For Kevin's (Log) Ramachandran Plot and derivatives
+// For Kevin's (Log) Ramachandran Plot and derivativesn
 #include "lograma.h"
+// For ZO's Ramachandran Plot and derivatives
+#include "zo-rama.hh"
 
 #ifndef DEGTORAD 
 #define DEGTORAD 0.017453293
@@ -216,15 +218,16 @@ namespace coot {
 				TORSIONS = 4,
 				NON_BONDED = 16,
 				CHIRAL_VOLUMES = 32,
-				// PLANES_ANC = 8, // planes on their own are not used.
-				//                    PLANES is defined by wretched windows
-				//                    ANC: avoid name conflict
+				PLANES_ANC = 8, // planes on their own are not used.
+				//                 PLANES is defined by wretched windows
+				//                 ANC: avoid name conflict
 				RAMA = 64,
 				TRANS_PEPTIDE_RESTRAINTS=1024,
 				BONDS_ANGLES_AND_TORSIONS = 7,
 				BONDS_ANGLES_TORSIONS_AND_PLANES = 15,
 				BONDS_AND_PLANES = 9,
 				BONDS_ANGLES_AND_PLANES = 11, // no torsions
+				BONDS_ANGLES_AND_CHIRALS = 35, // no torsions
 				BONDS_AND_NON_BONDED = 17,
 				BONDS_ANGLES_AND_NON_BONDED = 19,
 				BONDS_ANGLES_TORSIONS_AND_NON_BONDED = 23,
@@ -234,6 +237,9 @@ namespace coot {
 				BONDS_ANGLES_TORSIONS_PLANES_AND_CHIRALS = 47,
 				BONDS_ANGLES_PLANES_AND_CHIRALS = 43,
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS = 63,
+				JUST_RAMAS = 64,
+				BONDS_ANGLES_TORSIONS_NON_BONDED_AND_CHIRALS = 55,
+				BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS = 55+1024,
 				
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA = 127,
 				
@@ -782,6 +788,10 @@ namespace coot {
    double distortion_score_rama(const simple_restraint &chiral_restraint,
 				const gsl_vector *v,
 				const LogRamachandran &lograma);
+   double distortion_score_rama(const simple_restraint &chiral_restraint,
+				const gsl_vector *v,
+				const zo::rama_table_set &rama,
+				float rama_plot_weight);
    double distortion_score_start_pos(const simple_restraint &start_pos_restraint,
 			    void *params,
 			    const gsl_vector *v);
@@ -951,7 +961,17 @@ namespace coot {
 	 have_oxt_flag = 0;
 	 do_numerical_gradients_flag = 0;
 	 lograma.init(LogRamachandran::All, 2.0, true);
+	 try {
+	    zo_rama.init();
+	 }
+	 catch (const std::runtime_error &rte) {
+	    std::cout << "ERROR:: ZO Rama tables failed. " << rte.what() << std::endl;
+	 }
 	 from_residue_vector = 0;
+	 rama_type = RAMA_TYPE_ZO;
+	 // rama_type = RAMA_TYPE_LOGRAMA;
+	 rama_plot_weight = 40.0;
+	 
 #ifdef HAVE_CXX_THREAD
 	 thread_pool_p = 0; // null pointer
 	 if (unset_deriv_locks)
@@ -1046,11 +1066,14 @@ namespace coot {
       short int include_map_terms_flag;
 
       LogRamachandran lograma;
-
+      zo::rama_table_set zo_rama;
+      double rama_plot_weight; // get_rama_plot_weight() is public
+      // rama_type is public
+      
       // internal function, most of the job of the constructor:
       void init_from_mol(int istart_res_in, int iend_res_in,
-			 short int have_flanking_residue_at_start,
-			 short int have_flanking_residue_at_end,
+			 bool have_flanking_residue_at_start,
+			 bool have_flanking_residue_at_end,
 			 short int have_disulfide_residues,
 			 const std::string &altloc,
 			 const std::string &chain_id,
@@ -1068,6 +1091,12 @@ namespace coot {
       // neighbour residues already are fixed.
       void add_fixed_atoms_from_flanking_residues(const bonded_pair_container_t &bpc);
 
+      // 20171012 - to help with debugging gradients, we want to know what the fixed
+      // atoms are in the atom list when we have a linear residue selection. So
+      // set them with the function - called from init_from_mol().
+      void add_fixed_atoms_from_flanking_residues(bool have_flanking_residue_at_start,
+						  bool have_flanking_residue_at_end,
+						  int iselection_start_res, int iselection_end_res);
    
       // 
       clipper::Xmap<float> map; 
@@ -1672,8 +1701,8 @@ namespace coot {
       // Interface used by Regularize button callback:
       // 
       restraints_container_t(int istart_res, int iend_res,
-			     short int have_flanking_residue_at_start,
-			     short int have_flanking_residue_at_end,
+			     bool have_flanking_residue_at_start,
+			     bool have_flanking_residue_at_end,
 			     short int have_disulfide_residues,
 			     const std::string &altloc,
 			     const std::string &chain_id,
@@ -1932,6 +1961,11 @@ namespace coot {
 					       const extra_restraints_t &extra_restraints,
 					       const protein_geometry &geom);
 
+      // rama_type is public, maybe instead use get_rama_type()
+      enum { RAMA_TYPE_ZO, RAMA_TYPE_LOGRAMA };
+      int rama_type;
+      float get_rama_plot_weight() const { return rama_plot_weight; }
+
       void update_atoms(gsl_vector *s);
       // return the WritePDBASCII() status, or -1 if mol was 0.
       int write_new_atoms(std::string pdb_file_name);
@@ -1953,7 +1987,9 @@ namespace coot {
       mmdb::Manager *results() const;
       void adjust_variables(const atom_selection_container_t &asc);
 
-      LogRamachandran LogRama() const { return lograma; };
+      const LogRamachandran &LogRama() const { return lograma; };
+
+      const zo::rama_table_set &ZO_Rama() const { return zo_rama; };
 
       // here phi and psi are in clipper units (radians).
       double rama_prob(const double &phi_rads, const double &psi_rads) const {
@@ -1961,7 +1997,19 @@ namespace coot {
       }
       LogRamachandran::Lgrad rama_grad(const double &phir, const double &psir) const {
 	 return lograma.interp_grad(phir, psir);
-      } 
+      }
+
+      // calling function should also provide the plot type
+      //
+      float zo_rama_prob(const double &phir, const double &psir) {
+	 return zo_rama.value(phir, psir);
+      }
+
+      // calling function should also provide the plot type.  For now, kludge!
+      //
+      std::pair<float, float> zo_rama_grad(const double &phir, const double &psir) const {
+	 return zo_rama.df(phir, psir);
+      }
 
 
       // Allow public access to this - the general method for knowing if 2 residues have a (dictionary) link.
