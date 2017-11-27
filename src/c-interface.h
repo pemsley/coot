@@ -3308,6 +3308,9 @@ void set_refinement_drag_elasticity(float e);
 /*! name consistent with set_refine_with_torsion_restraints() !?  */
 void set_refine_ramachandran_angles(int state);
 
+void set_refine_ramachandran_restraints_type(int type);
+void set_refine_ramachandran_restraints_weight(float w);
+
 int refine_ramachandran_angles_state();
 
 void set_numerical_gradients(int istate);
@@ -3727,11 +3730,10 @@ int read_cif_dictionary(const char *filename);
  Apply to the given molecule.
 
  imol_enc can be the model molecule number or
- -1 for all
- -2 for auto
- -3 for unset
+ IMOL_ENC_ANY = -999999, IMOL_ENC_AUTO = -999998, IMOL_ENC_UNSET = -999997
+
  */
-int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc);
+int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc, short int new_molecule_from_dictionary_cif_checkbutton_state);
 
 int write_connectivity(const char* monomer_name, const char *filename);
 /*! \brief open the cif dictionary file selector dialog */
@@ -3925,7 +3927,7 @@ void set_kleywegt_plot_n_diffs(int n_diffs);
 /*  the the menu */
 void add_on_rama_choices();
 
-/*! \brief set the contour levels for theremachandran plot, default
+/*! \brief set the contour levels for the ramachandran plot, default
   values are 0.02 (prefered) 0.002 (allowed) */
 void set_ramachandran_plot_contour_levels(float level_prefered, float level_allowed);
 /*! \brief set the ramachandran plot background block size. 
@@ -3933,6 +3935,11 @@ void set_ramachandran_plot_contour_levels(float level_prefered, float level_allo
   Smaller is smoother but slower.  Should be divisible exactly into
   360.  Default value is 10. */
 void set_ramachandran_plot_background_block_size(float blocksize) ;
+
+/*! \brief set the psi axis for the ramachandran plot. Default (0) from -180
+ to 180. Alternative (1) from -120 to 240.  */
+void set_ramachandran_psi_axis_mode(int mode);
+int ramachandran_psi_axis_mode();
 
 void set_moving_atoms(double phi, double psi);
 

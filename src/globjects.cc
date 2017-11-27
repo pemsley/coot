@@ -771,6 +771,9 @@ short int graphics_info_t::do_torsion_restraints = 0;
 short int graphics_info_t::do_peptide_omega_torsion_restraints = 0;
 bool      graphics_info_t::do_rama_restraints = 0; // No.
 bool      graphics_info_t::do_numerical_gradients = 0; // No.
+int       graphics_info_t::restraints_rama_type = coot::RAMA_TYPE_LOGRAMA;
+float     graphics_info_t::rama_restraints_weight = 40;
+
 // for Kevin Keating 
 bool      graphics_info_t::use_only_extra_torsion_restraints_for_torsions_flag = 0; 
 
@@ -868,8 +871,6 @@ short int graphics_info_t::display_density_level_this_image = 1;
 std::string graphics_info_t::display_density_level_screen_string =
    "Welcome to Coot";
 
-// dynarama
-//
 // This kills the compiler:  Move the allocation to init.
 // GtkWidget **graphics_info_t::dynarama_is_displayed = new GtkWidget *[graphics_info_t::n_molecules_max];
 float       graphics_info_t::residue_density_fit_scale_factor = 1.0;
@@ -1041,6 +1042,8 @@ float graphics_info_t::add_alt_conf_new_atoms_occupancy = 0.5;
 short int graphics_info_t::show_alt_conf_intermediate_atoms_flag = 0;
 float graphics_info_t::ncs_homology_level = 0.7;
 
+// dynarama
+//
 // edit phi/psi
 short int graphics_info_t::in_edit_phi_psi_define = 0;
 int graphics_info_t::edit_phi_psi_atom_index = -1;
@@ -1051,7 +1054,8 @@ coot::rama_plot  *graphics_info_t::edit_phi_psi_plot = NULL;
 #endif // HAVE_GTK_CANVAS
 float graphics_info_t::rama_level_prefered = 0.02;
 float graphics_info_t::rama_level_allowed = 0.002;
-float graphics_info_t::rama_plot_background_block_size = 6; // divisible into 360 preferably.
+float graphics_info_t::rama_plot_background_block_size = 2; // divisible into 360 preferably.
+int graphics_info_t::rama_psi_axis_mode = coot::rama_plot::PSI_CLASSIC;
 coot::ramachandran_points_container_t graphics_info_t::rama_points = coot::ramachandran_points_container_t();
 
 ramachandrans_container_t graphics_info_t::ramachandrans_container = ramachandrans_container_t();

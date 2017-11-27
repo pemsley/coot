@@ -63,8 +63,8 @@
 	    (list "NAG" "BMA" "MAN" "GAL" "GLC" "FUC" "XYP")))
 
 ;; fill this later
-(define (add-cho-restraints-for-residue imol new-res-spec)
-  #f)
+;; (define (add-cho-restraints-for-residue imol new-res-spec)
+;; #f)
 
 (define (multi-add-linked-residue imol res-spec residues-to-add)
 
@@ -844,7 +844,8 @@
       ;; (format #t "active-button-label-list: ~s~%" active-button-label-list)
       (if (eq? active-button-label-list 'expert-mode)
 	  (gtk-widget-set-sensitive button #t)
-	  (if (not (string=? l "Update for Current Residue"))
+	  (if (and (not (string=? l "Update for Current Residue"))
+                   (not (string=? l "Refine Tree")))
 	      (gtk-widget-set-sensitive button (string-member? l active-button-label-list)))))))
 
 

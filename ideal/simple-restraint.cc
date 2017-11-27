@@ -56,6 +56,8 @@
 
 #include "compat/coot-sysdep.h"
 
+zo::rama_table_set coot::restraints_container_t::zo_rama;
+
 
 
 // iend_res is inclusive, so that 17,17 selects just residue 17.
@@ -1069,15 +1071,17 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
   	 if ( restraints_vec[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
   	    n_rama_restraints++;
 	    if (rama_type == restraints_container_t::RAMA_TYPE_ZO) {
-	       rama_distortion = coot::distortion_score_rama( restraints_vec[i], v, ZO_Rama(), get_rama_plot_weight());
+	       rama_distortion += coot::distortion_score_rama( restraints_vec[i], v, ZO_Rama(), get_rama_plot_weight());
 	    } else {
-	       rama_distortion = coot::distortion_score_rama(restraints_vec[i], v, lograma);
+	       double dd = distortion_score_rama(restraints_vec[i], v, lograma);
+	       rama_distortion += dd;
 	    }
-	    std::cout << "about to call distortion_score_rama() for LogRama..." << std::endl;
-	    double d1 = distortion_score_rama( restraints_vec[i], v, LogRama());
-	    double d2 = coot::distortion_score_rama(restraints_vec[i], v, ZO_Rama(), get_rama_plot_weight());
-	    std::cout << "distortion-comparision lograms " << d1 << " zo " << d2 << std::endl;
-  	 }
+	    if (false) {
+	       double d1 = distortion_score_rama( restraints_vec[i], v, LogRama());
+	       double d2 = coot::distortion_score_rama(restraints_vec[i], v, ZO_Rama(), get_rama_plot_weight());
+	       std::cout << "distortion-comparision logramas " << d1 << " zo " << d2 << std::endl;
+	    }
+	 }
       }
 
       if ( (*this)[i].restraint_type == coot::TARGET_POS_RESTRANT) {
@@ -1202,17 +1206,19 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       if (print_summary)
 	 std::cout << "rama plot:  N/A " << std::endl;
    } else {
-      double rd_raw = rama_distortion/double(n_rama_restraints);
-      double rd = rd_raw;
-      if (rama_type == restraints_container_t::RAMA_TYPE_ZO)
-	 rd = rd_raw*20.0 -80.0; // puts ZO distortions on the same scale as LogRama
+      double rd = rama_distortion/double(n_rama_restraints);
+
       if (print_summary)
 	 std::cout << "rama plot:  " << rd << " " << n_rama_restraints << std::endl;
+
       r += "   rama plot: ";
-      r += coot::util::float_to_string_using_dec_pl(rd, 3);
+      r += util::float_to_string_using_dec_pl(rd, 3);
       std::string s = "Rama Plot: ";
-      s += coot::util::float_to_string_using_dec_pl(rd, 3);
-      lights_vec.push_back(coot::refinement_lights_info_t("Rama", s, rd));
+      s += util::float_to_string_using_dec_pl(rd, 3);
+      refinement_lights_info_t rli("Rama", s, rd);
+      if (rama_type == RAMA_TYPE_ZO)
+	 rli.rama_type = RAMA_TYPE_ZO;
+      lights_vec.push_back(rli);
    }
    if (n_start_pos_restraints == 0) {
       if (print_summary)
@@ -1769,12 +1775,15 @@ coot::restraints_container_t::make_restraints(int imol,
       if (sec_struct_pseudo_bonds == coot::STRAND_PSEUDO_BONDS) {
 	 make_strand_pseudo_bond_restraints();
       }
+
+
       if (restraints_usage_flag & coot::NON_BONDED_MASK) {
 	 if ((iret_prev > 0) || are_all_one_atom_residues) {
 	    reduced_angle_info_container_t ai(restraints_vec);
 	    int n_nbcr = make_non_bonded_contact_restraints(imol, bpc, ai, geom);
 	    if (verbose_geometry_reporting != QUIET)
-	       std::cout << "INFO:: make_restraints(): made " << n_nbcr << " non-bonded restraints\n";
+	       std::cout << "INFO:: make_restraints(): made " << n_nbcr
+			 << " non-bonded restraints\n";
 	 }
       }
       make_restraint_types_index_limits();
@@ -2037,6 +2046,15 @@ coot::restraints_container_t::make_fixed_flags(const std::vector<int> &indices) 
 void
 coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
 
+   std::cout << "here in make_helix_pseudo_bond_restraints()" << std::endl;
+
+   // somewhat hacky
+   if (from_residue_vector) {
+      make_helix_pseudo_bond_restraints_from_res_vec();
+      return;
+   }
+
+
    // This method of making pseudo bonds relies on the residue range
    // being continuous in sequence number (seqNum) and no insertion
    // codes messing up the number scheme.  If these are not the case
@@ -2075,7 +2093,7 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
 	 SelResidue[i]->GetAtomTable(res_1_atoms, n_res_1_atoms);
 	 for (int iat1=0; iat1<n_res_1_atoms; iat1++) {
 	    std::string at_1_name(res_1_atoms[iat1]->name);
-	    
+
 	    if (at_1_name == " N  ") {
 	       mmdb::Residue *contact_res = SelResidue[i-4];
 	       if (SelResidue[i]->GetSeqNum() == (contact_res->GetSeqNum() + 4)) {
@@ -2083,9 +2101,9 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
 		  for (int iat2=0; iat2<n_res_2_atoms; iat2++) {
 		     std::string at_2_name(res_2_atoms[iat2]->name);
 		     if (at_2_name == " O  ") {
-			std::vector<bool> fixed_flags = make_fixed_flags(index1, index2);
 			res_1_atoms[iat1]->GetUDData(udd_atom_index_handle, index1);
 			res_2_atoms[iat2]->GetUDData(udd_atom_index_handle, index2);
+			std::vector<bool> fixed_flags = make_fixed_flags(index1, index2);
 			add(BOND_RESTRAINT, index1, index2, fixed_flags,
 			    2.91, pseudo_bond_esd, 1.2);
 			std::cout << "Helix Bond restraint (" << res_1_atoms[iat1]->name << " "
@@ -2120,6 +2138,82 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
       }
    }
    mol->DeleteSelection(selHnd);
+}
+
+void
+coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec() {
+
+   // this doesn't do the right thing if there are insertion codes. Maybe I could check for that
+   // here and jump out at the start if so.
+
+   float pseudo_bond_esd = 0.035; // seems reasonable.
+
+   // this double loop might be hideous for many hundreds of residues
+   //
+   for (std::size_t ir=0; ir<residues_vec.size(); ir++) {
+      for (std::size_t jr=0; jr<residues_vec.size(); jr++) {
+	 if (residues_vec[ir].second->GetChain() == residues_vec[jr].second->GetChain()) {
+	    // check that at least one of them is not fixed
+	    if (residues_vec[ir].first == false || residues_vec[jr].first == false) {
+	       bool jr_is_upstream = false;
+	       bool jr_is_downstream = false; // further along the chain (higher chain id)
+	       int res_no_delta = residues_vec[jr].second->GetSeqNum() - residues_vec[ir].second->GetSeqNum();
+	       if (res_no_delta == 3)
+		  jr_is_downstream = true;
+	       if (res_no_delta == 4)
+		  jr_is_downstream = true;
+	       if (res_no_delta == -3)
+		  jr_is_upstream = true;
+	       if (res_no_delta == -4)
+		  jr_is_upstream = true;
+
+	       // actually, we only need to check downstream because
+	       // the double loop with catch the reverse direction
+
+	       if (jr_is_downstream) {
+
+		  mmdb::Atom **residue_atoms_1 = 0;
+		  int n_residue_atoms_1;
+		  residues_vec[ir].second->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
+		  for (int iat=0; iat<n_residue_atoms_1; iat++) {
+		     mmdb::Atom *at_1 = residue_atoms_1[iat];
+		     std::string atom_name_1 = at_1->GetAtomName();
+		     if (atom_name_1 == " O  ") {
+			mmdb::Atom **residue_atoms_2 = 0;
+			int n_residue_atoms_2;
+			residues_vec[jr].second->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
+			for (int jat=0; jat<n_residue_atoms_2; jat++) {
+			   mmdb::Atom *at_2 = residue_atoms_2[jat];
+			   std::string atom_name_2 = at_2->GetAtomName();
+			   if (atom_name_2 == " N  ") {
+			      std::string alt_conf_1 = at_1->altLoc;
+			      std::string alt_conf_2 = at_2->altLoc;
+			      if (alt_conf_1 == alt_conf_2) {
+
+				 int index_1 = -1;
+				 int index_2= -1;
+				 at_1->GetUDData(udd_atom_index_handle, index_1);
+				 at_2->GetUDData(udd_atom_index_handle, index_2);
+				 std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
+				 double ideal_dist = 2.91;
+				 if (res_no_delta == 3)
+				    ideal_dist = 3.18;
+				 add(BOND_RESTRAINT, index_1, index_2, fixed_flags, 2.91, pseudo_bond_esd, 1.2);
+				 std::cout << "Helix Bond restraint ("
+					   << at_1->name << " " << at_1->GetSeqNum() << ") to ("
+					   << at_2->name << " " << at_2->GetSeqNum() << ") 2.91" << std::endl;
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+
 }
 
 
@@ -4787,8 +4881,12 @@ coot::restraints_container_t::add_rama(std::string link_type,
 // 		   << fixed_flag[2] << " " << fixed_flag[3] << " " 
 // 		   << fixed_flag[4]
 // 		   << std::endl;
-	 
+
+
+	 std::string zort = zo_rama.get_residue_type(this_res->GetResName(),
+						     post_res->GetResName());
 	 add(RAMACHANDRAN_RESTRAINT,
+	     zort,
 	     atom_indices[0], atom_indices[1], atom_indices[2],
 	     atom_indices[3], atom_indices[4], fixed_flag);
 	 n_rama++;

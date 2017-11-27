@@ -2541,14 +2541,22 @@ coot::protein_geometry::have_dictionary_for_residue_types(const std::vector<std:
 //
 // maybe imol should be passed.
 bool
-coot::protein_geometry::have_at_least_minimal_dictionary_for_residue_type(const std::string &monomer_type) const {
+coot::protein_geometry::have_at_least_minimal_dictionary_for_residue_type(const std::string &monomer_type,
+									  int imol) const {
+
+   //std::cout << "debug:: in have_at_least_minimal_dictionary_for_residue_type() " << monomer_type
+   // << " " << imol << std::endl;
 
    bool ifound = false;
-   int ndict = dict_res_restraints.size();
+   std::size_t ndict = dict_res_restraints.size();
 
-   for (int i=0; i<ndict; i++) {
+   for (std::size_t i=0; i<ndict; i++) {
       if (dict_res_restraints[i].second.residue_info.comp_id == monomer_type) {
 	 if (matches_imol(dict_res_restraints[i].first, IMOL_ENC_ANY)) {
+	    ifound = true;
+	    break;
+	 }
+	 if (matches_imol(dict_res_restraints[i].first, imol)) {
 	    ifound = true;
 	    break;
 	 }

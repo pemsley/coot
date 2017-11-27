@@ -767,6 +767,9 @@ namespace coot {
       // convenience interface to above
       mmdb::Residue *get_residue(const residue_spec_t &rs, mmdb::Manager *mol);
 
+      // get this and next residue - either can be null - both need testing
+      std::pair<mmdb::Residue *, mmdb::Residue *> get_this_and_next_residues(const residue_spec_t &rs, mmdb::Manager *mol);
+
       // Return NULL on atom not found in this molecule
       //
       mmdb::Atom *get_atom(const atom_spec_t &spec, mmdb::Manager *mol);
@@ -783,6 +786,12 @@ namespace coot {
       mmdb::Residue *get_following_residue(const residue_spec_t &rs, 
 				      mmdb::Manager *mol);
 
+      // Return NULL on residue not found in this molecule.
+      // 
+      mmdb::Residue *get_previous_residue(const residue_spec_t &rs, 
+					  mmdb::Manager *mol);
+
+      
       std::pair<bool, clipper::Coord_orth> get_residue_centre(mmdb::Residue *res);
       
 

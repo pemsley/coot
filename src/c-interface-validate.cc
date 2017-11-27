@@ -1609,8 +1609,13 @@ void do_ramachandran_plot(int imol) {
 		       graphics_info_t::rama_level_prefered,
 		       graphics_info_t::rama_level_allowed,
 		       graphics_info_t::rama_plot_background_block_size,
-		       is_kleywegt_plot_flag);
-	    rama->draw_it(graphics_info_t::molecules[imol].atom_sel.mol); 
+             is_kleywegt_plot_flag,
+             graphics_info_t::rama_psi_axis_mode);
+       if (rama->dynawin) {
+          rama->draw_it(graphics_info_t::molecules[imol].atom_sel.mol);
+       } else {
+          std::cout<<"WARNING:: could not initialise ramachandran\n"<<std::endl;
+       }
 	 }
       }
    }
@@ -1631,9 +1636,19 @@ ramachandran_plot_differences(int imol1, int imol2) {
                                                                 // set by the init_internal() function
                                                                 // of rama_plot.
    if (rama_widget) {
-      std::string s = "Sorry. Can't have Kleywegt Plot reference molecule the same\n";
-      s += "an existing displayed Ramachandran Plot";
-      info_dialog(s.c_str());
+      GtkWidget *w = coot::get_validation_graph(imol1, coot::RAMACHANDRAN_PLOT);
+      if (w && (imol1 == imol2)) {
+         coot::rama_plot *plot =
+               (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(w));
+         gtk_widget_show(w);
+         plot->make_kleywegt_plot(1);
+      } else {
+         // dont have the widget, make a new one?! info for now
+         // FIXME
+         std::string s = "Sorry. Cant find an existing plot\n";
+         s += "not making a new one, yet.";
+         info_dialog(s.c_str());
+      }
    } else { 
       if (imol1 >= 0) {
 	 if (imol1 < graphics_info_t::n_molecules()) {  
@@ -1649,10 +1664,15 @@ ramachandran_plot_differences(int imol1, int imol2) {
 				   graphics_info_t::rama_level_prefered,
 				   graphics_info_t::rama_level_allowed,
 				   graphics_info_t::rama_plot_background_block_size,
-				   is_kleywegt_plot_flag);
-			rama->draw_it(imol1, imol2,
-				      graphics_info_t::molecules[imol1].atom_sel.mol,
-				      graphics_info_t::molecules[imol2].atom_sel.mol);
+               is_kleywegt_plot_flag,
+               graphics_info_t::rama_psi_axis_mode);
+         if (rama->dynawin) {
+            rama->draw_it(imol1, imol2,
+                     graphics_info_t::molecules[imol1].atom_sel.mol,
+                     graphics_info_t::molecules[imol2].atom_sel.mol);
+           } else {
+              std::cout<<"WARNING:: could not initialise ramachandran\n"<<std::endl;
+         }
 		     }
 		  }
 	       }
@@ -1672,13 +1692,23 @@ void ramachandran_plot_differences_by_chain(int imol1, int imol2,
                                                                 // set by the init_internal() function
                                                                 // of rama_plot.
    if (rama_widget) {
-      std::string s = "Sorry. Can't have Kleywegt Plot reference molecule the same\n";
-      s += "an existing displayed Ramachandran Plot";
-      info_dialog(s.c_str());
+      GtkWidget *w = coot::get_validation_graph(imol1, coot::RAMACHANDRAN_PLOT);
+      if (w) {
+         coot::rama_plot *plot =
+               (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(w));
+         gtk_widget_show(w);
+         plot->make_kleywegt_plot(1);
+      } else {
+         // dont have the widget, make a new one?! info for now
+         // FIXME
+         std::string s = "Sorry. Cant find an existing plot\n";
+         s += "not making a new one, yet.";
+         info_dialog(s.c_str());
+      }
    } else { 
       if (is_valid_model_molecule(imol1)) {
 	 if (is_valid_model_molecule(imol2)) {
-	    short int is_kleywegt_plot_flag = 0;
+       short int is_kleywegt_plot_flag = 1;
 	    coot::rama_plot *rama = new coot::rama_plot; 
 	    rama->set_n_diffs(graphics_info_t::rama_n_diffs);
 	    rama->init(imol1,
@@ -1686,17 +1716,22 @@ void ramachandran_plot_differences_by_chain(int imol1, int imol2,
 		       graphics_info_t::rama_level_prefered,
 		       graphics_info_t::rama_level_allowed,
 		       graphics_info_t::rama_plot_background_block_size,
-		       is_kleywegt_plot_flag);
+             is_kleywegt_plot_flag,
+             graphics_info_t::rama_psi_axis_mode);
 	    if (graphics_info_t::molecules[imol1].is_from_shelx_ins() ||
 		graphics_info_t::molecules[imol2].is_from_shelx_ins())
 	       rama->allow_seqnum_offset();
 // 	    std::cout << "rama differences on mols: " << imol1 << " " << a_chain
 // 		      << " to " << imol2 << " " << b_chain << std::endl;
+       if (rama->dynawin) {
 	    rama->draw_it(imol1, imol2,
 			  graphics_info_t::molecules[imol1].atom_sel.mol,
 			  graphics_info_t::molecules[imol2].atom_sel.mol,
 			  std::string(a_chain), std::string(b_chain));
 	    rama->set_kleywegt_plot_uses_chain_ids();
+       } else {
+          std::cout<<"WARNING:: could not initialise ramachandran\n"<<std::endl;
+       }
 	 } else {
 	    std::cout << "WARNING no molecule number " << imol2 << " in molecule (or closed)\n";
 	 }
@@ -1862,6 +1897,22 @@ void toggle_dynarama_outliers(GtkWidget *window, int state) {
       }
    }
 #endif // HAVE_GTK_CANVAS   
+}
+
+void set_ramachandran_psi_axis_mode(int mode) {
+
+   graphics_info_t g;
+   if (mode == 1)
+      g.rama_psi_axis_mode = coot::rama_plot::PSI_MINUS_120;
+   else
+      g.rama_psi_axis_mode = coot::rama_plot::PSI_CLASSIC;
+}
+
+int
+ramachandran_psi_axis_mode() {
+
+   graphics_info_t g;
+   return g.rama_psi_axis_mode;
 }
 
 // ----------------------------------------------------------------------------------
@@ -2455,11 +2506,29 @@ PyObject *all_molecule_ramachandran_score_py(int imol) {
       coot::rama_score_t rs = graphics_info_t::molecules[imol].get_all_molecule_rama_score();
       PyObject *a_py = PyFloat_FromDouble(rs.score);
       PyObject *b_py = PyInt_FromLong(rs.n_residues());
-      PyObject *c_py = PyInt_FromLong(rs.n_zeros);
-      r = PyList_New(3);
+      PyObject *c_py = PyFloat_FromDouble(rs.score_non_sec_str);
+      PyObject *d_py = PyInt_FromLong(rs.n_residues_non_sec_str());
+      PyObject *e_py = PyInt_FromLong(rs.n_zeros);
+      PyObject *info_by_residue_py = PyList_New(rs.scores.size());
+      for (std::size_t ii=0; ii<rs.scores.size(); ii++) {
+	 PyObject *info_for_residue_py = PyList_New(4);
+	 PyObject *residue_spec_py = residue_spec_to_py(rs.scores[ii].res_spec);
+	 if (rs.scores[ii].residue_prev &&
+	     rs.scores[ii].residue_this &&
+	     rs.scores[ii].residue_next) {
+	    
+	    PyList_SetItem(info_by_residue_py, ii, info_for_residue_py);
+	 } else {
+	    PyList_SetItem(info_by_residue_py, ii, PyInt_FromLong(-1)); // shouldn't happen
+	 }
+      }
+      r = PyList_New(6);
       PyList_SetItem(r, 0, a_py);
       PyList_SetItem(r, 1, b_py);
       PyList_SetItem(r, 2, c_py);
+      PyList_SetItem(r, 3, d_py);
+      PyList_SetItem(r, 4, e_py);
+      PyList_SetItem(r, 5, info_by_residue_py);
    }
 
    if (PyBool_Check(r)) {
