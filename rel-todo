@@ -3,6 +3,11 @@
 
    o (NAG) Links from mmCIF coordinates? e.g. 5uk0. ::: 2
 
+   o fix the chiral atom distortion in Ligand -> Display Ligand Distortions
+     e.g. A 304 SAH in 5p9v.
+
+   o --splash-screen arb-image.png - does that work?
+
    o on quick-save-as, if there are 2 molecules called "Helix" (or whatever) they should be
      saved to different file names. ::: 1
 
@@ -20,7 +25,6 @@
 
    o make a mode "don't recontour the map on recentre". Add a "recontour" 
      toolbar button ::: 2
-
 
    o fix this crash cfc_crashes_coot.py ::: 2
 * thread #1: tid = 0x0000, 0x000000011279fbfd libglib-2.0.0.dylib`g_slice_alloc + 909, stop reason = signal SIGSTOP
