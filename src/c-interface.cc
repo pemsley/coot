@@ -5532,7 +5532,7 @@ void clear_up_moving_atoms() {
    g.clear_up_moving_atoms();
    g.clear_moving_atoms_object();
 
-} 
+}
 
 
 
