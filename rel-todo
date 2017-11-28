@@ -3,6 +3,8 @@
 
    o (NAG) Links from mmCIF coordinates? e.g. 5uk0. ::: 2
 
+   o undo and redo should update the Ramachandran plot ::: 1
+
    o fix the chiral atom distortion in Ligand -> Display Ligand Distortions
      e.g. A 304 SAH in 5p9v. ::: 0.5
 
@@ -12,6 +14,8 @@
 
    o on quick-save-as, if there are 2 molecules called "Helix" (or whatever) they should be
      saved to different file names. ::: 1
+
+* Semi-fixed by changing the generated molecule names.
 
    o on merging molecules, remove the TER card if we are adding to an already existing chain
      Consider adding helices made of ALA.  Coot should make a new chain for these. Does it?
@@ -23,7 +27,9 @@
 * Done.
 
    o in Find Ligands - make Conformer Options frame/entry dependent on flexible having been
-     clicked on. ::: 0.5
+     clicked on. 
+     Add a signal connect for toggle of the button in fill_ligands_dialog_ligands_bits.
+     ::: 0.5
 
    o multi-key-press (key-repeat) on fill-partial -> crash ::: 0.5
 
@@ -173,9 +179,9 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
 
    ::: 4
 
-   o undo and redo should update the Ramachandran plot ::: 1
-
    o --splash-screen arb-image.png - does that work? ::: 1
+
+* Done.
 
    o GM distance summary. How many too long, how many too short. And (if possible) by 
      what amounts. ::: 1
