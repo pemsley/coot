@@ -11,6 +11,11 @@
 
    o add in get-restraints-from-models.scm and files. ::: 0.5
 
+   o Add hydrogen atoms on an MSE in reduce
+
+   o if there are a "small" number of values contributing to the rama plot, change from
+     single colour to thin bars for each residue (sorted by badness)
+
 * Done.
 
    o blur the tutorial map, go to residue 2 
