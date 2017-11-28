@@ -1774,12 +1774,13 @@ if (have_coot_python):
        submenu_settings, "Key Bindings...",
        lambda func: key_bindings_gui())
 
-
+     def install_and_show_key_bindings():
+          file_to_preferences("template_key_bindings.py") # copy and evaluate
+          key_bindings_gui()
+       
      add_simple_coot_menu_menuitem(
-       submenu_settings, "Install Template Keybindings",
-       lambda func:
-          file_to_preferences("template_key_bindings.py")) # copy and evaluate
-
+       submenu_settings, "Python: Install Template Keybindings",
+       lambda func: install_and_show_key_bindings())
 
      def quick_save_func(txt):
        try:

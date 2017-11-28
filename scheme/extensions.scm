@@ -1598,8 +1598,8 @@
 	(add-simple-coot-menu-menuitem
 	 submenu-settings "Install Template Keybindings"
 	 (lambda ()
-	   (template-keybindings-to-preferences))) ;; copy and evaluate
-	
+	   (template-keybindings-to-preferences) ;; copy and evaluate
+	   (key-bindings-gui))) ;; the user the new key-bindings ("something happend)
 	
 	(add-simple-coot-menu-menuitem
 	 submenu-settings "Enable Quick-Save checkpointing..." 
