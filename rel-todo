@@ -1,8 +1,10 @@
 
    For Release 0.8.9
 
-   o look at A-chain-with-ligand and try to rotamer fit 41A. It doesn't go in. Now delete hydrogens
+   o look at A-with-ligand.pdb and try to rotamer fit 41A. It doesn't go in. Now delete hydrogens
      from the ligand - now it fits. So hydrogen bumping in (old) rotamer fitting is wrong.
+
+* Done.
 
    o in Find Ligands - make Conformer Options frame/entry dependent on flexible having been
      clicked on.
@@ -10,6 +12,8 @@
    o multi-key-press (key-repeat) on fill-partial -> crash
 
    o add in get-restraints-from-models.scm and files. ::: 0.5
+
+* Done.
 
    o Add hydrogen atoms on an MSE in reduce
 
