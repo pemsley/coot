@@ -4,9 +4,11 @@
    o (NAG) Links from mmCIF coordinates? e.g. 5uk0. ::: 2
 
    o fix the chiral atom distortion in Ligand -> Display Ligand Distortions
-     e.g. A 304 SAH in 5p9v.
+     e.g. A 304 SAH in 5p9v. ::: 0.5
 
-   o --splash-screen arb-image.png - does that work?
+* Done
+
+   o --splash-screen arb-image.png - does that work? ::: 0.5
 
    o on quick-save-as, if there are 2 molecules called "Helix" (or whatever) they should be
      saved to different file names. ::: 1
@@ -16,27 +18,23 @@
      ::: 1
 
    o look at A-with-ligand.pdb and try to rotamer fit 41A. It doesn't go in. Now delete hydrogens
-     from the ligand - now it fits. So hydrogen bumping in (old) rotamer fitting is wrong.
+     from the ligand - now it fits. So hydrogen bumping in (old) rotamer fitting is wrong. ::: 0.5
 
 * Done.
 
    o in Find Ligands - make Conformer Options frame/entry dependent on flexible having been
-     clicked on.
+     clicked on. ::: 0.5
 
-   o multi-key-press (key-repeat) on fill-partial -> crash
+   o multi-key-press (key-repeat) on fill-partial -> crash ::: 0.5
 
    o add in get-restraints-from-models.scm and files. ::: 0.5
 
 * Done.
 
-   o Add hydrogen atoms on an MSE in reduce
+   o Add hydrogen atoms on an MSE in reduce ::: 1
 
    o if there are a "small" number of values contributing to the rama plot, change from
-     single colour to thin bars for each residue (sorted by badness)
-
-* Done.
-
-   o blur the tutorial map, go to residue 2 
+     single colour to thin bars for each residue (sorted by badness) ::: 2
 
    o fix this mtz file reading problem:
 
