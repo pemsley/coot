@@ -1,16 +1,16 @@
 
    For Release 0.8.9
 
-   o (NAG) Links from mmCIF coordinates? e.g. 5uk0. ::: 2
-
    o undo and redo should update the Ramachandran plot ::: 1
+
+* Done
+
+   o (NAG) Links from mmCIF coordinates? e.g. 5uk0. ::: 2
 
    o fix the chiral atom distortion in Ligand -> Display Ligand Distortions
      e.g. A 304 SAH in 5p9v. ::: 0.5
 
 * Done
-
-   o --splash-screen arb-image.png - does that work? ::: 0.5
 
    o on quick-save-as, if there are 2 molecules called "Helix" (or whatever) they should be
      saved to different file names. ::: 1
@@ -213,6 +213,7 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
      input CCD/mmcif file ::: 1
 
    o when mutating to MSE atoms become HETATMs. ::: 1
+   o when you mutate from an MSE the mainchain should revert to ATOMs ::: 1
 
    o Ligand Builder -> Open [cif dictionary] Failures
      110 (butyl carboxylic acid - Oxygen formal charge) ::: 2
@@ -259,8 +260,6 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
 
    3) When I try to fix coordinates temporarily by adding 10 - WinCOOT treats 
       it as actual coordinate and not fixed one so atom is shifted.  ::: 1
-
-   o when you mutate from an MSE the mainchain should revert to ATOMs ::: 1
 
    o import imidaloze from lidia in coot. c.f. stand-alone ::: 1
 

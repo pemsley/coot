@@ -2254,6 +2254,7 @@ public:
 
    // geometry graphs
    void update_geometry_graphs(const atom_selection_container_t &asc, int imol_moving_atoms);
+   void update_validation_graphs(int imol);  // and ramachandran
 
 
    // Display the graphical object of the regularization
