@@ -3215,30 +3215,37 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
    if (do_multi_thread) {
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
-      unsigned int n_threads = coot::get_max_number_of_threads();
 
-      for (int itrial=0; itrial<n_trials; itrial++) {
+      try {
+	 unsigned int n_threads = coot::get_max_number_of_threads();
 
-	 auto tp_1 = std::chrono::high_resolution_clock::now();
-	 graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_1, itrial, n_trials, atom_selection, n_atoms,
-						  initial_atoms, centre_pt, jiggle_scale_factor, atom_numbers,
-						  &xmap_masked,
-						  density_scoring_function, &trial_results[itrial]);
-	 auto tp_2 = std::chrono::high_resolution_clock::now();
-	 auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
-	 // not to self: it takes 40ms to copy a const xmap reference to the function.
-	 //
-	 std::cout << "pushing trial " << itrial << " " << d21 << " microseconds" << std::endl;
+	 for (int itrial=0; itrial<n_trials; itrial++) {
+
+	    auto tp_1 = std::chrono::high_resolution_clock::now();
+	    graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_1, itrial, n_trials, atom_selection, n_atoms,
+						     initial_atoms, centre_pt, jiggle_scale_factor, atom_numbers,
+						     std::ref(&xmap_masked),
+						     density_scoring_function, &trial_results[itrial]);
+	    auto tp_2 = std::chrono::high_resolution_clock::now();
+	    auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
+	    // not to self: it takes 40ms to copy a const xmap reference to the function.
+	    //
+	    std::cout << "pushing trial " << itrial << " " << d21 << " microseconds" << std::endl;
+	 }
+
+	 // wait for thread pool to finish jobs.
+	 bool wait_continue = true;
+	 while (wait_continue) {
+	    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	    if (graphics_info_t::static_thread_pool.n_idle() == graphics_info_t::static_thread_pool.size())
+	       wait_continue = false;
+	 }
       }
 
-      // wait for thread pool to finish jobs.
-      bool wait_continue = true;
-      while (wait_continue) {
-	 std::this_thread::sleep_for(std::chrono::milliseconds(200));
-	 if (graphics_info_t::static_thread_pool.n_idle() == graphics_info_t::static_thread_pool.size())
-	    wait_continue = false;
+      catch (const std::bad_alloc &ba) {
+	 std::cout << "ERROR:: ------------------------ out of memory! ----------------- " << std::endl;
+	 std::cout << "ERROR:: " << ba.what() << std::endl;
       }
-
 #endif
    } else {
 
@@ -3292,22 +3299,28 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
    // fit and score best random jiggled results
 
-   for (int i_trial=0; i_trial<n_for_rigid; i_trial++) {
-      // does the fitting
-      graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_2, direct_mol, xmap_masked, map_sigma,
-					       centre_pt, atom_numbers,
-					       trial_results[i_trial].second,
-					       density_scoring_function,
-					       &post_fit_trial_results[i_trial]);
-   }
+   try {
+      for (int i_trial=0; i_trial<n_for_rigid; i_trial++) {
+	 // does the fitting
+	 graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_2, direct_mol, std::ref(xmap_masked), map_sigma,
+						  centre_pt, atom_numbers,
+						  trial_results[i_trial].second,
+						  density_scoring_function,
+						  &post_fit_trial_results[i_trial]);
+      }
 
-   // wait
-   std::cout << "waiting for rigid-body fits..." << std::endl;
-   bool wait_continue = true;
-   while (wait_continue) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(200));
-      if (graphics_info_t::static_thread_pool.n_idle() == graphics_info_t::static_thread_pool.size())
-	 wait_continue = false;
+      // wait
+      std::cout << "waiting for rigid-body fits..." << std::endl;
+      bool wait_continue = true;
+      while (wait_continue) {
+	 std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	 if (graphics_info_t::static_thread_pool.n_idle() == graphics_info_t::static_thread_pool.size())
+	    wait_continue = false;
+      }
+   }
+   catch (const std::bad_alloc &ba) {
+      std::cout << "ERROR:: ------------------------ out of memory! ----------------- " << std::endl;
+      std::cout << "ERROR:: " << ba.what() << std::endl;
    }
 
 #else
