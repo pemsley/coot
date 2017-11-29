@@ -3119,6 +3119,7 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 		     // at_c that is not at_1, at_2 or at_3.
 		     mmdb::Atom *at_4th = coot::chiral_4th_atom(residue_p, at_c, at_1, at_2, at_3);
 		     if (at_4th) {
+			std::cout << "    " << coot::atom_spec_t(at_4th) << std::endl;
 			clipper::Coord_orth p4(at_4th->x, at_4th->y, at_4th->z);
 			clipper::Coord_orth bl_4 = 0.6 * pc + 0.4 * p4;
 			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
@@ -3130,8 +3131,23 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
 						   bl_3.x(), bl_3.y(), bl_3.z(),
 						   bl_4.x(), bl_4.y(), bl_4.z());
-			   
-		     } 
+		     } else {
+			// make 4th tetrahedron point from the others
+			clipper::Coord_orth neighb_sum = p1 + p2 + p3;
+			clipper::Coord_orth neighb_average = 0.33333333 * neighb_sum;
+			clipper::Coord_orth dir_unit(clipper::Coord_orth(pc - neighb_average).unit());
+			clipper::Coord_orth p4(pc + 1.2 * dir_unit);
+			clipper::Coord_orth bl_4 = 0.6 * pc + 0.4 * p4;
+			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+						   bl_1.x(), bl_1.y(), bl_1.z(),
+						   bl_4.x(), bl_4.y(), bl_4.z());
+			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+						   bl_2.x(), bl_2.y(), bl_2.z(),
+						   bl_4.x(), bl_4.y(), bl_4.z());
+			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+						   bl_3.x(), bl_3.y(), bl_3.z(),
+						   bl_4.x(), bl_4.y(), bl_4.z());
+		     }
 		  }
 	       }
 	    }

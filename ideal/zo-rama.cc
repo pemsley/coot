@@ -211,7 +211,7 @@ zo::rama_table_set::value(const std::string &residue_type,
    if (it != table_map.end()) {
       return it->second.value(phi,psi);
    } else {
-      std::cout << "ERROR:: unknown residue/table type " << residue_type << std::endl;
+      std::cout << "ERROR:: unknown residue/table type \"" << residue_type << "\"" << std::endl;
       return 0.0;
    }
 }

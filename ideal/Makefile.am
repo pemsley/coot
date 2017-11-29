@@ -77,7 +77,7 @@ libcoot_ideal_la_SOURCES = simple-restraint.cc \
         extra-restraints-kk.cc simple-restraint-kk.cc torsion-bonds.cc \
 	coot-compare-residues.hh coot-compare-residues.cc link-restraints.cc \
 	parallel-planes.cc pull-restraint.cc trans-peptide.cc model-bond-deltas.cc \
-	write-png.cc zo-rama.cc zo-rama.hh crankshaft.hh crankshaft.cc
+	write-png.cc zo-rama.cc zo-rama.hh crankshaft.hh crankshaft.cc phi-psi.hh phi-psi.cc
 
 libcoot_ideal_la_LDFLAGS = $(SHARED_LDFLAGS)
 

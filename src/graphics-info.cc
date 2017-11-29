@@ -1597,6 +1597,20 @@ graphics_info_t::clear_up_moving_atoms() {
 }
 
 
+// if the imol for moving atoms is imol, delete the moving atoms (called from close_molecule)
+void
+graphics_info_t::clear_up_moving_atoms_maybe(int imol) {
+
+   // clear up moving atoms for this molecule if they exist for this given molecule
+
+   if (imol_moving_atoms == imol) {
+      if (moving_atoms_asc->n_selected_atoms > 0){
+	 clear_up_moving_atoms();
+	 clear_moving_atoms_object();
+      }
+   }
+}
+
 void
 graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 

@@ -331,8 +331,8 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner_multithread(i
       clipper::Coord_orth next_c  = pos[1];
       clipper::Coord_orth next_ca = pos[2];
 
-      phi_psi_pair p1 = rphipsi.get_phi_psi_by_random();
-      phi_psi_pair p2 = rphipsi.get_phi_psi_by_random();
+      phi_psi_t p1 = rphipsi.get_phi_psi_by_random();
+      phi_psi_t p2 = rphipsi.get_phi_psi_by_random();
       frag = rphipsi.make_2_res_joining_frag(chain_id, p1, p2,
 					     res_p->GetSeqNum(),
 					     offset,  // + or - 1
@@ -359,8 +359,8 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner_multithread(i
 void
 coot::residue_by_phi_psi::add_characteristic_low_points(coot::ligand_score_card *s,
 							int itrial,
-							const coot::phi_psi_pair &p1,
-							const coot::phi_psi_pair &p2,
+							const coot::phi_psi_t &p1,
+							const coot::phi_psi_t &p2,
 							mmdb::Residue *res_p,
 							const clipper::Coord_orth &next_n,
 							const coot::minimol::fragment &frag,
@@ -417,8 +417,8 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner(int itrial,
    clipper::Coord_orth next_c  = pos[1];
    clipper::Coord_orth next_ca = pos[2];
 
-   phi_psi_pair p1 = get_phi_psi_by_random();
-   phi_psi_pair p2 = get_phi_psi_by_random();
+   phi_psi_t p1 = get_phi_psi_by_random();
+   phi_psi_t p2 = get_phi_psi_by_random();
 
    if (two_residues_flag) { // the majority of times
 
@@ -551,8 +551,8 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner(int itrial,
 // 
 coot::minimol::fragment
 coot::residue_by_phi_psi::make_2_res_joining_frag(const std::string &chain_id_in,
-						  const phi_psi_pair &pp1,
-						  const phi_psi_pair &pp2,
+						  const phi_psi_t &pp1,
+						  const phi_psi_t &pp2,
 						  int seqnum,
 						  int offset, // + or - 1
 						  const clipper::Coord_orth &next_n_in,
@@ -850,7 +850,7 @@ coot::residue_by_phi_psi::construct_prev_res_from_rama_angles(float phi, float p
 }
 
 coot::minimol::residue
-coot::residue_by_phi_psi::construct_joining_res(const phi_psi_pair &pp,
+coot::residue_by_phi_psi::construct_joining_res(const phi_psi_t &pp,
 						int seqno,
 						const clipper::Coord_orth &next_n,
 						const clipper::Coord_orth &next_ca,
@@ -889,7 +889,7 @@ coot::residue_by_phi_psi::init_phi_psi_plot() {
    }
 }
 
-coot::phi_psi_pair
+coot::phi_psi_t
 coot::residue_by_phi_psi::get_phi_psi_by_random() const { 
    
    float phi, psi, prob, r;
@@ -907,7 +907,7 @@ coot::residue_by_phi_psi::get_phi_psi_by_random() const {
    float u1 = static_cast<float>(coot::util::random())/static_cast<float>(RAND_MAX);
    float u2 = 2.0 * u1 - 1.0; // -1 -> 1.
    float tau = 111.2 + u2 * 2.0; // 2.0 needs investigation
-   return phi_psi_pair(phi, psi, tau);
+   return phi_psi_t(phi, psi, tau);
 } 
 
 
