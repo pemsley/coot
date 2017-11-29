@@ -7760,7 +7760,7 @@ coot::update_position(mmdb::Atom *at, const clipper::Coord_orth &pos) {
    at->x = pos.x();
    at->y = pos.y();
    at->z = pos.z();
-} 
+}
 
 
 
@@ -7770,14 +7770,9 @@ coot::chiral_4th_atom(mmdb::Residue *residue_p, mmdb::Atom *at_centre,
 		      mmdb::Atom *at_1, mmdb::Atom *at_2, mmdb::Atom *at_3) {
 
    mmdb::Atom *rat = NULL;
-   double d_crit = sqrt(10.7);
+   double d_crit = sqrt(1.7);
+   double d_sqrd = d_crit * d_crit; // tracks "best/closest"
 
-   // this is a bit heavyweight in retrospect, - I could have just
-   // used a "best-dist".  But it works.
-   // 
-   std::map<double, mmdb::Atom *> atoms;
-   
-   double d_sqrd = d_crit * d_crit;
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    clipper::Coord_orth p_c = co(at_centre);
@@ -7787,14 +7782,13 @@ coot::chiral_4th_atom(mmdb::Residue *residue_p, mmdb::Atom *at_centre,
       mmdb::Atom *at = residue_atoms[iat];
       if (at != at_centre && at != at_1 && at != at_2 && at != at_3) { 
 	 clipper::Coord_orth pt = co(at);
-	 double d = (p_c - pt).clipper::Coord_orth::lengthsq();
-	 if (d < d_sqrd)
-	    atoms[d] = at;
+	 double d2 = (p_c - pt).clipper::Coord_orth::lengthsq();
+	 if (d2 < d_sqrd) {
+	    rat = at;
+	    d_sqrd = d2;
+	 }
       }
    }
-   
-   if (atoms.size())
-      rat = atoms.begin()->second;
 
    return rat;
 } 

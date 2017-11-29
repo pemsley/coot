@@ -32,31 +32,35 @@
    o FAK chiral FC wedge is round the wrong way,
      FAI chiral P  wedge is round the wrong way,
 
-   o 8RV, the bond runs into the Br.  We need to bring the atom_t to the bond coords generator.
-
-   o 8RP, the bond runs into the +
-
    o ING has twisted sheared bond - why?
 
    o FLEV fail on A2005 in 5pb8 failure to construct rdkit molecule (in alt conf D)
 
-   o unhide (unsubmarine) Edit Restraints window
-
-   o click-click refinement with fixed atoms gives NOPROGRESS. Must fix. ::: 5
-
    o look at A-chain-with-ligand and try to rotamer fit 41A. It doesn't go in. Now delete hydrogens
      from the ligand - now it fits. So hydrogen bumping in (old) rotamer fitting is wrong.
 
+   o delete item, change to delete side chain click (closes)
+     delete item, delete side chain radio button is active, but delete residue happens on click
+     ::: 1
+
+   o (NAG) Links from mmCIF coordinates? e.g. 5uk0. ::: 2
+
+   o build NAG, NAG, BMA.  In coot-reduce, HO4 should not be added at the links.
+     And check that coot-probe looks good.  ::: 1
+
+   o on merging molecules, remove the TER card if we are adding to an already existing chain.
+     Consider adding helices made of ALA.  Coot should make a new chain for these. Does it?
+     ::: 1
+
    o in Find Ligands - make Conformer Options frame/entry dependent on flexible having been
-     clicked on.
+     clicked on. 
+     Add a signal connect for toggle of the button in fill_ligands_dialog_ligands_bits.
+     ::: 0.5
 
-   o multi-key-press (key-repeat) on fill-partial -> crash
+   o multi-key-press (key-repeat) on fill-partial -> crash ::: 0.5
 
-   o add in get-restraints-from-models.scm and files. ::: 0.5
-
-* Done.
-
-   o blur the tutorial map, go to residue 2 
+   o if there are a "small" number of values contributing to the rama plot, change from
+     single colour to thin bars for each residue (sorted by badness) ::: 2
 
    o fix this mtz file reading problem:
 
@@ -70,10 +74,6 @@ Program terminated with signal 11, Segmentation fault.
 #1  0x00000000005b1ca2 in handle_column_label_make_fourier(GtkWidget*) (__str=..., this=0x7ffd41a4a150) at /usr/include/c++/4.8.2/bits/basic_string.h:547
 #2  0x00000000005b1ca2 in handle_column_label_make_fourier(GtkWidget*) (column_label_window=0x3621b00) at c-interface-gui.cc:601
 
-   o delete item, change to delete side chain click (closes)
-     delete item, delete side chain radio button is active, but delete residue happens on click
-     ::: 1
-
    o Nice to have: Update density fit graph on delete residue and delete residue range.
 
    o Andrea: ncs_control_change_ncs_master_to_chain(1,0) crashes Coot instantly.
@@ -84,22 +84,9 @@ Program terminated with signal 11, Segmentation fault.
 
 * Done - not tested.
 
-   o ZO: make a default so that hydrogens are not displayed by default - rather than turning them off 
-         after I have read it in. ::: 1
-
-   o on quick-save-as, if there are 2 molecules called "Helix" (or whatever) they should be
-     saved to different file names. ::: 1
-
    o Ryan Hibbs: 2 strands, low res map, user-defined distance restraint and
      refine - fails to preserve the distance ::: 2
 
-   o on merging molecules, remove the TER card if we are adding to an already existing chain
-     Consider adding helices made of ALA.  Coot should make a new chain for these. Does it?
-
-     ::: 1
-
-   o ZO: refine a helix, delete it's molecule - the intermediate atoms should be removed too. ::: 0.5
- 
    o update the ramachandran plot on pepflip-complicado ::: 1
 
    o read the comp_id cifs with CSD coords ::: 4
@@ -110,12 +97,6 @@ Program terminated with signal 11, Segmentation fault.
 
    o make a mode "don't recontour the map on recentre". Add a "recontour" 
      toolbar button ::: 2
-
-   o ZO: I have lots of fragments - overlapping by a residue or so - do the merge for me.  Punt.
-
-   o perhaps this will do: "merge these molecules/chains" - click, click.
-
-   o ZO: "refine this chain" button
 
    o fix this crash cfc_crashes_coot.py ::: 2
 * thread #1: tid = 0x0000, 0x000000011279fbfd libglib-2.0.0.dylib`g_slice_alloc + 909, stop reason = signal SIGSTOP
@@ -150,47 +131,9 @@ Program terminated with signal 11, Segmentation fault.
      linking in add_terminal_residue_complicado.
      allow_non_trival_linking
 
-   o build NAG, NAG, BMA.  In coot-reduce, HO4 should not be added at the links.
-     And check that coot-probe looks good.  ::: 1
-
-   o read in dictionary for PF-56. The bond lines of the O-S are too close.
-
-   o I want to be able to see the formal charge of atoms (e.g. from sdf - does that
-     come via RDKit?) and (probably more importantly) dictionaries.
-
-   o pyrogen.depict pf-3.sdf - the aromatic bond is drawn on the wrong side.
-
-   o master branch: in rdkit_mol() // wedge bonds should have the chiral centre as the first atom
-     do an additional chiral check based on pdbx_stereo_config (currently the check is
-     based only on chiral restraints). Look at FAX - why even is the P-OH bond wedged?
-     what is marking either of these atoms as chiral?
-
-   o why are the hydrogens red (if I don't delete them)
-
-   o the hydrogen is not drawn correctly on AC6 in Colour by Atoms
-
-   o CLD, CL6: bond to central ("chiral") atom is facing the wrong way
-
-   o IN5: OH on the P, chiral is round the wrong way.
-
-   o GGD has no atoms in pyrogen.MolFromPDBXr(). Why?
-
-   o pf-43.sdf aromatic bonds drawn wrongly.
-
-   o HNI causes a crash
-
-   o in FAP is CH3 is chopped
-
-   o FAK chiral FC wedge is round the wrong way,
-     FAI chiral P  wedge is round the wrong way,
-
    o 8RV, the bond runs into the Br.  We need to bring the atom_t to the bond coords generator.
 
    o 8RP, the bond runs into the +
-
-   o ING has twisted sheared bond - why?
-
-   o FLEV fail on A2005 in 5pb8 failure to construct rdkit molecule (in alt conf D)
 
    o unhide (unsubmarine) Edit Restraints window
 
@@ -211,10 +154,6 @@ Program terminated with signal 11, Segmentation fault.
      pyrogen? ::: 2
 
    o pyrogen -nM -w -r Y03 fails ::: 1
-
-   o chemical diagram for Acedrg dictionary for this molecule:
-     COC(=O)C(=COC)c1ccccc1COC(N1C)=CC(=N1)C(=C2O)C=C(Cl)C=C2"
-     Disable the conversion to NH+ if any bond to the nitrogen is aromatic.
 
    o Copy-molecule loses the NCS ghost info/tranformations (i.e. O doesn't work) ::: 1
 
@@ -266,9 +205,9 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
 
    ::: 4
 
-   o undo and redo should update the Ramachandran plot ::: 1
-
    o --splash-screen arb-image.png - does that work? ::: 1
+
+* Done.
 
    o GM distance summary. How many too long, how many too short. And (if possible) by 
      what amounts. ::: 1
@@ -327,11 +266,10 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
      input CCD/mmcif file ::: 1
 
    o when mutating to MSE atoms become HETATMs. ::: 1
+   o when you mutate from an MSE the mainchain should revert to ATOMs ::: 1
 
    o Ligand Builder -> Open [cif dictionary] Failures
      110 (butyl carboxylic acid - Oxygen formal charge) ::: 2
-
-   o Fix make check on test chemical features ::: 1
 
    o comp_id C23, look at the thumbnail, or residue->2D, see that the Oxygen atom
      seems chiral - is the bond the wrong way round? ::: 2
@@ -410,8 +348,6 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
 
    3) When I try to fix coordinates temporarily by adding 10 - WinCOOT treats 
       it as actual coordinate and not fixed one so atom is shifted.  ::: 1
-
-   o when you mutate from an MSE the mainchain should revert to ATOMs ::: 1
 
    o import imidaloze from lidia in coot. c.f. stand-alone ::: 1
 
@@ -568,3 +504,34 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
 
 * Done
 
+   o Add hydrogen atoms on an MSE in reduce ::: 0.5
+
+* Done
+
+   o undo and redo should update the Ramachandran plot ::: 1
+
+* Done
+
+   o fix the chiral atom distortion in Ligand -> Display Ligand Distortions
+     e.g. A 304 SAH in 5p9v. ::: 0.5
+
+* Done
+
+   o on quick-save-as, if there are 2 molecules called "Helix" (or whatever) they should be
+     saved to different file names. ::: 1
+
+* Semi-fixed by changing the generated molecule names.
+
+   o look at A-with-ligand.pdb and try to rotamer fit 41A. It doesn't go in. Now delete hydrogens
+     from the ligand - now it fits. So hydrogen bumping in (old) rotamer fitting is wrong. ::: 0.5
+
+* Done.
+
+   o add in get-restraints-from-models.scm and files. ::: 0.5
+
+* Done.
+
+
+   o ZO: refine a helix, delete it's molecule - the intermediate atoms should be removed too. ::: 0.5
+
+* Done

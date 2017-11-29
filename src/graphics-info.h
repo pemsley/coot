@@ -1772,6 +1772,9 @@ public:
    // clear_moving_atoms_object which removed the bonds).
    void clear_up_moving_atoms();
 
+   // if the imol for moving atoms is imol, delete the moving atoms (called from close_molecule)
+   void clear_up_moving_atoms_maybe(int imol);
+
    // 0: never run it
    // 1: ask to run it
    // 2: alwasy run it
@@ -2255,6 +2258,7 @@ public:
 
    // geometry graphs
    void update_geometry_graphs(const atom_selection_container_t &asc, int imol_moving_atoms);
+   void update_validation_graphs(int imol);  // and ramachandran
 
 
    // Display the graphical object of the regularization

@@ -350,7 +350,10 @@ coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *resi
    }
    if (res_name == "MSE") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
-      add_2_sp3_hydrogens(" HB1", " HB2", " CA ", " CB ", " CG ", bl, 107, residue_p);
+      add_2_sp3_hydrogens(" HB2", " HB3", " CA ", " CB ", " CG ", bl, 107, residue_p);
+      add_2_sp3_hydrogens(" HG2", " HG3", " CB ", " CG ", " SE ", bl, 107, residue_p);
+      torsion_info_t t1(" CG ", " SE ", " CE", bl, 109, 180);
+      add_methyl_Hs(" HE1", " HE2", " HE3", t1, residue_p);
       done = true;
    }
    if (res_name == "ASN") {
