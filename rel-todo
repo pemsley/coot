@@ -21,6 +21,14 @@
      delete item, delete side chain radio button is active, but delete residue happens on click
      ::: 1
 
+   o Add bis tris BTB and Hepes EPE
+
+   o open a phs file - it asks me for model already read - make this a transient.
+
+   o difference map peaks needs to be antisubmarined. Also unmodelled blobs? Go to Atom?
+
+   o how do I delete-all-hydrogens?
+
    o (NAG) Links from mmCIF coordinates? e.g. 5uk0. ::: 2
 
    o on merging molecules, remove the TER card if we are adding to an already existing chain.
@@ -65,6 +73,8 @@ Program terminated with signal 11, Segmentation fault.
    o read the comp_id cifs with CSD coords ::: 4
 
 * Needs a test
+
+   o (NAG) Links from mmCIF coordinates? e.g. 5uk0.
 
    o make cryo-EM mode in refinement work ::: 4
 
