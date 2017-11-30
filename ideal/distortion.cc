@@ -787,6 +787,10 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	 //
 
 	 double distortions[restraints_p->n_threads];
+         // set initial values of distortions to 0 - the distortion_score_multithread only
+         // adds to this value - it doesn't set it to 0 at the beginning, so do that here.
+         for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) distortions[i_thread] = 0;
+
 	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
 	    auto time_point_1 = std::chrono::high_resolution_clock::now();
 	    int idx_start = i_thread * n_per_thread;
