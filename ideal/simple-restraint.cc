@@ -1799,8 +1799,9 @@ coot::restraints_container_t::make_restraints(int imol,
       }
       make_restraint_types_index_limits();
    }
-   std::cout << "returning from make_restraints() and restraints_usage_flag is "
-	     << restraints_usage_flag << std::endl;
+   if (false)
+      std::cout << "returning from make_restraints() and restraints_usage_flag is "
+	        << restraints_usage_flag << std::endl;
    return restraints_vec.size();
 }
 

@@ -445,86 +445,12 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 			void *params, 
 			gsl_vector *df) {
    
-#ifdef ANALYSE_REFINEMENT_TIMING
-   timeval start_time;
-   timeval current_time;
-   gettimeofday(&start_time, NULL);
-#endif // ANALYSE_REFINEMENT_TIMING
-   
    // first extract the object from params 
    //
    restraints_container_t *restraints_p = static_cast<restraints_container_t *>(params);
 
-   // the length of gsl_vector should be equal to n_var:
-   //
-   // int n_var = restraints->n_variables();
-   // float derivative_value;
-   int idx;
-   int n_non_bonded_restr = 0; // debugging counter
-
    if (restraints_p->restraints_usage_flag & coot::NON_BONDED_MASK) {
 
-      if (false)
-	 std::cout << "in my_df_non_bonded using non-bonded restraints "
-		   << restraints_p->restraints_usage_flag << " "
-		   << coot::NON_BONDED_MASK << std::endl;
-
-      unsigned int restraints_size = restraints_p->size();
-
-#ifdef HAVE_CXX_THREAD
-
-//       std::cout << "in my_df_non_bonded restraints_p: " << restraints_p << std::endl;
-//       std::cout << "in my_df_non_bonded restraints_p->n_threads " << restraints_p->n_threads << std::endl;
-
-      if ((restraints_p->thread_pool_p) && (restraints_p->n_threads > 0)) {
-
-	 unsigned int n_per_thread = restraints_size/restraints_p->n_threads;
-
-	 if (restraints_p->n_threads > 0) {
-
-	    std::atomic<unsigned int> done_count_for_threads(0); // updated by my_df_non_bonded_thread_dispatcher
-
-	    // this may not be the best value of n_per_thread
-	    unsigned int n_per_thread = restraints_size/restraints_p->n_threads;
-
-	    for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
-	       int idx_start = i_thread * n_per_thread;
-	       int idx_end   = idx_start + n_per_thread;
-	       // for the last thread, set the end atom index
-	       if (i_thread == (restraints_p->n_threads - 1))
-		  idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
-
-	       restraints_p->thread_pool_p->push(my_df_non_bonded_thread_dispatcher,
-						 v, df, restraints_p, idx_start, idx_end,
-						 std::ref(done_count_for_threads));
-
-	    }
-	    // restraints->thread_pool_p->stop(true); // wait
-	    while (done_count_for_threads != restraints_p->n_threads) {
-	       std::this_thread::sleep_for(std::chrono::microseconds(1));
-	    }
-	 
-	 } else {
-	    for (unsigned int i=restraints_p->restraints_limits_non_bonded_contacts.first;
-		 i<restraints_p->restraints_limits_non_bonded_contacts.second; i++) {
-	       const simple_restraint &this_restraint = (*restraints_p)[i];
-	       if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
-		  my_df_non_bonded_single(v, df, this_restraint);
-	       }
-	    }
-	 }
-      } else {
-	 for (unsigned int i=restraints_p->restraints_limits_non_bonded_contacts.first;
-	      i<restraints_p->restraints_limits_non_bonded_contacts.second; i++) {
-	    const simple_restraint &this_restraint = (*restraints_p)[i];
-	    if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
-	       if (this_restraint.fixed_atom_flags[0]==false || this_restraint.fixed_atom_flags[1]==false)
-		  my_df_non_bonded_single(v, df, this_restraint);
-	    }
-	 }
-      }
-
-#else
       for (unsigned int i=restraints_p->restraints_limits_non_bonded_contacts.first;
 	   i<restraints_p->restraints_limits_non_bonded_contacts.second; i++) {
 	 const simple_restraint &this_restraint = (*restraints_p)[i];
@@ -535,17 +461,7 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 	       my_df_non_bonded_single(v, df, this_restraint);
 	 }
       }
-#endif
-
    }
-
-#ifdef ANALYSE_REFINEMENT_TIMING
-   gettimeofday(&current_time, NULL);
-   double td = current_time.tv_sec - start_time.tv_sec;
-   td *= 1000.0;
-   td += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
-   std::cout << "------------- mark my_df_non_bonded: " << td << std::endl;
-#endif // ANALYSE_REFINEMENT_TIMING
 }
 
 void
@@ -652,65 +568,18 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
 				    void *params, 
 				    gsl_vector *df) {
 
-#ifdef ANALYSE_REFINEMENT_TIMING
-   timeval start_time;
-   timeval current_time;
-   gettimeofday(&start_time, NULL);
-#endif // ANALYSE_REFINEMENT_TIMING
-
    restraints_container_t *restraints_p = static_cast<restraints_container_t *> (params);
    if (restraints_p->restraints_usage_flag & GEMAN_MCCLURE_DISTANCE_MASK) {
       unsigned int restraints_size = restraints_p->size();
 
-#ifdef HAVE_CXX_THREAD
-
-      if (restraints_p->thread_pool_p) {
-	 if (restraints_p->n_threads > 0) {
-	    unsigned int n_per_thread = restraints_size/restraints_p->n_threads;
-	    std::atomic<unsigned int> done_count_for_threads(0);
-
-	    for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
-	       int idx_start = i_thread * n_per_thread;
-	       int idx_end   = idx_start + n_per_thread;
-	       // for the last thread, set the end atom index
-	       if (i_thread == (restraints_p->n_threads - 1))
-		  idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
-
-	       restraints_p->thread_pool_p->push(my_df_geman_mcclure_distances_thread_dispatcher,
-						 v, df, restraints_p, idx_start, idx_end, std::ref(done_count_for_threads));
-	    }
-	 } else {
-	    for (unsigned int i=0; i<restraints_size; i++) {
-	       const simple_restraint &this_restraint = (*restraints_p)[i];
-	       if (this_restraint.restraint_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
-		  my_df_geman_mcclure_distances_single(v, df, this_restraint, restraints_p->geman_mcclure_alpha);
-	       }
-	    }
-	 }
-      } else {
-	 for (unsigned int i=0; i<restraints_size; i++) {
-	    const simple_restraint &this_restraint = (*restraints_p)[i];
-	    if (this_restraint.restraint_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
-	       my_df_geman_mcclure_distances_single(v, df, this_restraint, restraints_p->geman_mcclure_alpha);
-	    }
-	 }
-      }
-
-#else
       for (unsigned int i=0; i<restraints_size; i++) {
 	 const simple_restraint &this_restraint = (*restraints_p)[i];
 	 if (this_restraint.restraint_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
 	    my_df_geman_mcclure_distances_single(v, df, this_restraint, restraints_p->geman_mcclure_alpha);
 	 }
       }
-#endif
    }
-
-#ifdef ANALYSE_REFINEMENT_TIMING
-#endif // ANALYSE_REFINEMENT_TIMING
-
 }
-
 
 
 // only single-threaded - all in place
