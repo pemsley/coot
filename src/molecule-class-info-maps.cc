@@ -3241,8 +3241,10 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 	    auto tp_2 = std::chrono::high_resolution_clock::now();
 	    auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
 	    // not to self: it takes 40ms to copy a const xmap reference to the function.
+	    // question for self: was it actually a reference though? I suspect not, because
+	    // std::ref() was not in the code until I (just) added it.
 	    //
-	    std::cout << "pushing trial " << itrial << " " << d21 << " microseconds" << std::endl;
+	    std::cout << "pushing trial thread into pool: " << itrial << " " << d21 << " microseconds" << std::endl;
 	 }
 
 	 // wait for thread pool to finish jobs.

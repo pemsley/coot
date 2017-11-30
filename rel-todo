@@ -257,6 +257,24 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
      terminal (as coot tries to find the atoms for the extra
      restraints).  Tricky to fix, I think. ::: 4
 
+   o get rid of this: 
+     INFO:: setup minimol from mol: no spacegroup
+     ::: 1
+
+* Done.
+
+   o get rid of this:
+.... step_count: 880 step_count_lim 5000
+     ::: 1
+
+* Done, was fixed in refinement
+
+   o fetch Bernie branch. consider new rama ::: 6
+
+* Rama still too slow
+
+   o lidia molfile.mol should Do The Right Thing
+
    o doing a merge and doing a chain chain ids should move over the Link records also.
      Add a test ::: 1
 
@@ -327,7 +345,8 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
    o if the chain has a TER and we add NCS residues, then the
      old/current TER should be deleted.  Write a test first. ::: 1
 
-   o enable mol2 reading to pyrogen ::: 1
+   o enable mol2 reading to pyrogen
+     ::: 1
 
    o Get some RNA - check that base pair restraints generation works
      (user-defined restraints).  Donna M. ::: 2

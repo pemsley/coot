@@ -420,6 +420,7 @@ class graphical_bonds_container {
 					coot::util::phi_psi_t> > &spots,
 					const ramachandrans_container_t &rc);
    void add_rotamer_goodness_markup(const std::vector<rotamer_markup_container_t> &ric);
+
    void add_atom_centres(const std::vector<graphical_bonds_atom_info_t> &centres,
 			 const std::vector<int> &colours);
    bool have_rings() const { return rings.size(); }
@@ -845,6 +846,8 @@ public:
 				float symm_distance,
 				const std::pair<coot::coot_mat44, symm_trans_t> &strict_ncs_mat);
 
+
+   // these bools merely flag the extraction of the already generated markups
    graphical_bonds_container make_graphical_bonds(bool add_residue_indices=false) const;
    graphical_bonds_container make_graphical_bonds_no_thinning(bool add_residue_indices) const;
 

@@ -70,7 +70,7 @@ int CXXSphereElement::calculate(){
 	theVertices.clear();
 	theTriangles.clear();
 	flatTriangles.clear();
-	
+
 	CXXCoord xAxis(1.,0.,0.,0.);
 	CXXCoord yAxis(0.,1.,0.,0.);
 	CXXCoord zAxis(0.,0.,1.,0.);

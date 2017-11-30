@@ -5586,7 +5586,6 @@ graphical_bonds_container::add_ramachandran_goodness_spots(const std::vector<std
 }
 
 void
-
 graphical_bonds_container::add_rotamer_goodness_markup(const std::vector<rotamer_markup_container_t> &ric) {
 
    if (ric.size() > 0) {
