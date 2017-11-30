@@ -12538,3 +12538,65 @@ on_find_ligand_real_space_refine_solutions_checkbutton_toggled
     set_find_ligand_do_real_space_refinement(0);
 
 }
+
+void
+on_edit_copy_molecule1_activate        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+  do_edit_copy_molecule();
+}
+
+
+void
+on_edit_copy_fragment1_activate        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  do_edit_copy_fragment();
+}
+
+
+void
+on_edit_replace_residue1_activate      (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  do_edit_replace_residue();
+}
+
+
+void
+on_edit_replace_fragment1_activate     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  do_edit_replace_fragment();
+}
+
+
+void
+on_edit_renumber_residues1_activate    (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *w = wrapped_create_renumber_residue_range_dialog();
+  gtk_widget_show(w);
+}
+
+
+void
+on_edit_change_chain_ids1_activate     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+   GtkWidget *w = wrapped_create_change_chain_id_dialog();
+   gtk_widget_show(w);
+}
+
+
+void
+on_edit_merge_molecules1_activate      (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+   GtkWidget *w = wrapped_create_merge_molecules_dialog();
+   gtk_widget_show(w);
+}
+

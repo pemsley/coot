@@ -1635,3 +1635,143 @@ wrapped_create_fast_ss_search_dialog() {
 
   return dialog;
 }
+
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+// Edit Functions that have been promoted from Extensions -> Modelling
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+void  do_edit_copy_molecule() {
+
+#ifdef USE_PYTHON
+#ifdef USE_GUILE
+   short int state_lang = coot::STATE_SCM;
+#else    
+   short int state_lang = coot::STATE_PYTHON;
+#endif
+#else // python not used
+#ifdef USE_GUILE
+   short int state_lang = coot::STATE_SCM;
+#else    
+   short int state_lang = 0;
+#endif
+#endif   
+
+#ifdef USE_GUILE
+   std::string cmd = "(molecule-chooser-gui \"Molecule to Copy...\" (lambda (imol) (copy-molecule imol)))";
+   
+   if (state_lang == coot::STATE_SCM) {
+      safe_scheme_command(cmd);
+   }
+#else
+#ifdef USE_PYTHON
+   if (state_lang == coot::STATE_PYTHON) {
+
+      std::string cmd; // how do you do a gui for copy_molecule in python?
+      safe_python_command(cmd);
+   }
+#endif // PYTHON
+#endif // GUILE
+
+}
+
+void  do_edit_copy_fragment() {
+
+#ifdef USE_PYTHON
+#ifdef USE_GUILE
+   short int state_lang = coot::STATE_SCM;
+#else    
+   short int state_lang = coot::STATE_PYTHON;
+#endif
+#else // python not used
+#ifdef USE_GUILE
+   short int state_lang = coot::STATE_SCM;
+#else    
+   short int state_lang = 0;
+#endif
+#endif   
+
+#ifdef USE_GUILE
+   std::string cmd = "(generic-chooser-and-entry \"Create a new Molecule\nFrom which molecule shall we seed?\" \"Atom selection for fragment\" \"//A/1-10\" (lambda (imol text) (let ((imol (new-molecule-by-atom-selection imol text))) (valid-model-molecule? imol))) #f)";
+   if (state_lang == coot::STATE_SCM) {
+      safe_scheme_command(cmd);
+   }
+#else
+#ifdef USE_PYTHON
+   if (state_lang == coot::STATE_PYTHON) {
+
+      std::string cmd; // how do you do a gui for copy_fragment in python?
+      safe_python_command(cmd);
+   }
+#endif // PYTHON
+#endif // GUILE
+
+}
+
+void  do_edit_replace_residue() {
+
+#ifdef USE_PYTHON
+#ifdef USE_GUILE
+   short int state_lang = coot::STATE_SCM;
+#else    
+   short int state_lang = coot::STATE_PYTHON;
+#endif
+#else // python not used
+#ifdef USE_GUILE
+   short int state_lang = coot::STATE_SCM;
+#else    
+   short int state_lang = 0;
+#endif
+#endif   
+
+#ifdef USE_GUILE
+   std::string cmd = "(generic-single-entry \"Replace this residue with residue of type:\" \"ALA\" \"Mutate\" (lambda (text) (using-active-atom (mutate-by-overlap aa-imol aa-chain-id aa-res-no text))))";
+   if (state_lang == coot::STATE_SCM) {
+      safe_scheme_command(cmd);
+   }
+#else
+#ifdef USE_PYTHON
+   if (state_lang == coot::STATE_PYTHON) {
+
+      std::string cmd; // how do you do a gui for replace_residue in python?
+      safe_python_command(cmd);
+   }
+#endif // PYTHON
+#endif // GUILE
+
+}
+
+void  do_edit_replace_fragment() {
+
+
+#ifdef USE_PYTHON
+#ifdef USE_GUILE
+   short int state_lang = coot::STATE_SCM;
+#else    
+   short int state_lang = coot::STATE_PYTHON;
+#endif
+#else // python not used
+#ifdef USE_GUILE
+   short int state_lang = coot::STATE_SCM;
+#else    
+   short int state_lang = 0;
+#endif
+#endif   
+
+#ifdef USE_GUILE
+   std::string cmd =
+      "(molecule-chooser-gui \"Define the molecule that needs updating\" (lambda (imol-base) (generic-chooser-and-entry \"Molecule that contains the new fragment:\" \"Atom Selection\" \"//\" (lambda (imol-fragment atom-selection-str) (replace-fragment imol-base imol-fragment atom-selection-str)))))";
+   if (state_lang == coot::STATE_SCM) {
+      safe_scheme_command(cmd);
+   }
+#else
+#ifdef USE_PYTHON
+   if (state_lang == coot::STATE_PYTHON) {
+
+      std::string cmd; // how do you do a gui for replace_residue in python?
+      safe_python_command(cmd);
+   }
+#endif // PYTHON
+#endif // GUILE
+}
