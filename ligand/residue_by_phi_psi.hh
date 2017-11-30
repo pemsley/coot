@@ -30,21 +30,9 @@
 #include "ligand.hh"
 #include "clipper/core/ramachandran.h"
 
+#include "ideal/phi-psi.hh"
 
 namespace coot { 
-
-   class phi_psi_pair {
-      // and now with tau!
-   public:
-      phi_psi_pair(float a, float b, float c) {
-	 phi = a;
-	 psi = b;
-	 tau = c;
-      }
-      float phi;
-      float psi;
-      float tau;
-   };
 
   class residue_by_phi_psi : public ligand {
 
@@ -63,7 +51,7 @@ namespace coot {
      mmdb::Residue *residue_p; // the residue of the last atom (we
                           // clicked on an atom of it).
 
-     phi_psi_pair get_phi_psi_by_random() const;
+     phi_psi_t get_phi_psi_by_random() const;
      void init_phi_psi_plot(); 
 
      minimol::residue 
@@ -79,7 +67,7 @@ namespace coot {
 					 const clipper::Coord_orth &next_ca,
 					 const clipper::Coord_orth &next_c) const; 
 
-     minimol::residue construct_joining_res(const phi_psi_pair &pp,
+     minimol::residue construct_joining_res(const phi_psi_t &pp,
 						  int seqno,
 						  const clipper::Coord_orth &next_n,
 						  const clipper::Coord_orth &next_ca,
@@ -117,8 +105,8 @@ namespace coot {
 
      minimol::fragment
      make_2_res_joining_frag(const std::string &chain_id,
-			     const phi_psi_pair &pp1,
-			     const phi_psi_pair &pp2,
+			     const phi_psi_t &pp1,
+			     const phi_psi_t &pp2,
 			     int seqnum,
 			     int offset, // + or - 1
 			     const clipper::Coord_orth &next_n,
@@ -128,8 +116,8 @@ namespace coot {
      void
      add_characteristic_low_points(coot::ligand_score_card *s,
 				   int itrial,
-				   const coot::phi_psi_pair &p1,
-				   const coot::phi_psi_pair &p2,
+				   const coot::phi_psi_t &p1,
+				   const coot::phi_psi_t &p2,
 				   mmdb::Residue *residue_p,
 				   const clipper::Coord_orth &next_n,
 				   const coot::minimol::fragment &frag,

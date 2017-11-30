@@ -84,3 +84,6 @@ namespace std {
 %include "cfc.hh"
 %include "cc-interface-user-defined-atom-colours.hh"
 %include "../coords/phenix-geo.hh"
+
+/* ignore some functions with c++ objects */
+%ignore rigid_body_fit_with_residue_range();

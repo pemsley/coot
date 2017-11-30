@@ -3770,12 +3770,16 @@ int place_helix_here() {
 	  atom_selection_container_t asc = make_asc(n.mol[0].pcmmdbmanager());
 
 	  imol = g.create_molecule();
-	  graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), "Helix", 1);
+	  std::string mol_name = "Helix-";
+	  mol_name+= coot::util::int_to_string(imol);
+	  graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), mol_name, 1);
 	  
 	  if (n.mol.size() > 1) { 
 	     atom_selection_container_t asc2 = make_asc(n.mol[1].pcmmdbmanager());
 	     imol = g.create_molecule();
-	     graphics_info_t::molecules[imol].install_model(imol, asc2, g.Geom_p(), "Reverse Helix", 1);
+	     mol_name = "Reverse-Helix-";
+	     mol_name+= coot::util::int_to_string(imol);
+	     graphics_info_t::molecules[imol].install_model(imol, asc2, g.Geom_p(), mol_name, 1);
 	  }
 	  
 	  if (g.go_to_atom_window) {
@@ -3837,7 +3841,9 @@ int place_strand_here(int n_residues, int n_sample_strands) {
 	 // molecule has been accepted.
 	 atom_selection_container_t asc = make_asc(si.mol[0].pcmmdbmanager());
 	 imol = g.create_molecule();
-	 graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), "Strand", 1);
+	 std::string mol_name = "Strand-";
+	 mol_name+= coot::util::int_to_string(imol);
+	 graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), mol_name, 1);
 	 g.add_status_bar_text("Strand added");
 
 	 // Now refine.

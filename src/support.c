@@ -108,37 +108,40 @@ create_pixmap                          (GtkWidget       *widget,
   if (!filename || !filename[0])
       return create_dummy_pixmap (widget);
 
-  /* We first try any pixmaps directories set by the application. */
-  elem = pixmaps_directories;
-  while (elem)
-    {
-      found_filename = check_file_exists ((gchar*)elem->data, filename);
-      if (found_filename)
-        break;
-      elem = elem->next;
-    }
+  /* First first try a relative path name to the file */
+  found_filename = check_file_exists("./", filename);
+
+  /* Next first try any pixmaps directories set by the application. */
+
+  if (!found_filename) {
+     elem = pixmaps_directories;
+     while (elem)
+	{
+	   found_filename = check_file_exists ((gchar*)elem->data, filename);
+	   if (found_filename)
+	      break;
+	   elem = elem->next;
+	}
+  }
 
   /* If we haven't found the pixmap, try the source directory. */
-  if (!found_filename)
-    {
-      found_filename = check_file_exists ("../pixmaps", filename);
-    }
+  if (!found_filename) {
+      found_filename = check_file_exists("../pixmaps", filename);
+  }
 
-  if (!found_filename)
-    {
+  if (!found_filename) {
       g_warning (_("Couldn't find pixmap file: %s"), filename);
       return create_dummy_pixmap (widget);
-    }
+  }
 
   colormap = gtk_widget_get_colormap (widget);
   gdkpixmap = gdk_pixmap_colormap_create_from_xpm (NULL, colormap, &mask,
                                                    NULL, found_filename);
-  if (gdkpixmap == NULL)
-    {
+  if (gdkpixmap == NULL) {
       g_warning (_("Error loading pixmap file: %s"), found_filename);
       g_free (found_filename);
       return create_dummy_pixmap (widget);
-    }
+  }
   g_free (found_filename);
   pixmap = gtk_pixmap_new (gdkpixmap, mask);
   gdk_pixmap_unref (gdkpixmap);

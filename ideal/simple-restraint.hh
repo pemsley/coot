@@ -46,6 +46,8 @@
 
 #include "model-bond-deltas.hh"
 
+#include "compat/coot-sysdep.h"
+
 // refinement_results_t is outside of the GSL test because it is
 // needed to make the accept_reject_dialog, and that can be compiled
 // without the GSL.
@@ -225,9 +227,7 @@ namespace coot {
 				TORSIONS = 4,
 				NON_BONDED = 16,
 				CHIRAL_VOLUMES = 32,
-				PLANES_ANC = 8, // planes on their own are not used.
-				//                 PLANES is defined by wretched windows
-				//                 ANC: avoid name conflict
+                                //PLANES = 8,
 				RAMA = 64,
 				GEMAN_MCCLURE_DISTANCE_RESTRAINTS=1024,
 				TRANS_PEPTIDE_RESTRAINTS=2048,
@@ -326,7 +326,7 @@ namespace coot {
       std::vector<bool> fixed_atom_flags;
       std::vector<bool> fixed_atom_flags_other_plane;
       bool is_user_defined_restraint;
-
+      //
       // for mouse pull on an atom: this is where the user wants the atom to be
       //
       clipper::Coord_orth atom_pull_target_pos;
@@ -372,7 +372,6 @@ namespace coot {
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = true;
 
-	 // This finds a coding error
 	 if (rest_type != restraint_type_t(GEMAN_MCCLURE_DISTANCE_MASK)) { 
 	    std::cout << "BOND ERROR (Geman McClure) in simple_restraint()"
 		      << std::endl; 
@@ -402,8 +401,7 @@ namespace coot {
       };
 
       // Torsion
-      simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2, 
-		       int atom_3, int atom_4, 
+      simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2, int atom_3, int atom_4, 
 		       const std::vector<bool> &fixed_atom_flags_in,
 		       float tar, 
 		       float sig, float obs, int periodicity_in){
@@ -425,7 +423,7 @@ namespace coot {
       }
 
       // Rama
-      simple_restraint(restraint_type_t rest_type, 
+      simple_restraint(restraint_type_t rest_type,
 		       const std::string &rama_plot_zo_residue_type,
 		       int atom_1, int atom_2, int atom_3, int atom_4, int atom_5, 
 		       const std::vector<bool> &fixed_atom_flags_in) { 
@@ -619,7 +617,7 @@ namespace coot {
 	 atom_index_1 = atom_idx;
 	 atom_pull_target_pos = pos;
 	 if (rest_type != TARGET_POS_RESTRANT) {
-	    std::cout << "ERROR:: TARGET POS ERROR" << std::endl; 
+	    std::cout << "ERROR:: TARGET POS ERROR" << std::endl;
 	 }
       }
 

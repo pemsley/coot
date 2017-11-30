@@ -1994,8 +1994,9 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 
 			float clash_score = 0.0;
 			// std::cout << "debug INFO:: density score: " << score_card.score << "\n";
-			if (clash_flag) { 
-			   clash_score = get_clash_score(moved_mol); // clash on atom_sel.mol
+			if (clash_flag) {
+			   bool score_H_atoms = false;
+			   clash_score = get_clash_score(moved_mol, score_H_atoms); // clash on atom_sel.mol
 			   // std::cout << "INFO:: clash score: " << clash_score << "\n";
 			}
 			if (clash_score < clash_score_limit) { // This value may
@@ -2045,7 +2046,8 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 		     } 
 		     coot::minimol::molecule moved_mol = residue_mol;
 		     // std::cout << "Getting clash score... " << std::endl;
-		     clash_score = -get_clash_score(moved_mol); // clash on atom_sel.mol
+		     bool score_H_atoms = false;
+		     clash_score = -get_clash_score(moved_mol, score_H_atoms); // clash on atom_sel.mol
 		     // std::cout << "INFO:: clash score: " << clash_score << "\n";
 		     if (clash_score > best_score) {
 			best_score = clash_score;
@@ -2153,7 +2155,8 @@ molecule_class_info_t::score_rotamers(const std::string &chain_id,
 		     coot::minimol::fragment frag(chain_id);
 		     frag.addresidue(residue_res, 0);
 		     coot::minimol::molecule mm(frag);
-		     float cs = get_clash_score(mm);
+		     bool score_H_atoms = false;
+		     float cs = get_clash_score(mm, score_H_atoms);
 		     clash_score = cs;
 		  }
 		  
@@ -3355,7 +3358,7 @@ molecule_class_info_t::N_chis(int atom_index) {
 // 66.7.
 // 
 float
-molecule_class_info_t::get_clash_score(const coot::minimol::molecule &a_rotamer) const {
+molecule_class_info_t::get_clash_score(const coot::minimol::molecule &a_rotamer, bool score_hydrogen_atoms_flag) const {
 
    float score = 0;
    float dist_crit = 2.7;
@@ -3398,26 +3401,28 @@ molecule_class_info_t::get_clash_score(const coot::minimol::molecule &a_rotamer)
 		     if (coot::util::is_standard_residue_name(residue_name))
 			is_standard_aa = true;
 		     for (unsigned int iat=0; iat<a_rotamer[ifrag][ires].n_atoms(); iat++) {
-			d_atom = clipper::Coord_orth::length(a_rotamer[ifrag][ires][iat].pos, atom_sel_atom);
-			if (d_atom < dist_crit) {
-			   int atom_sel_atom_resno = atom_sel.atom_selection[i]->GetSeqNum();
-			   std::string atom_sel_atom_chain(atom_sel.atom_selection[i]->GetChainID());
+			if (score_hydrogen_atoms_flag || a_rotamer[ifrag][ires][iat].element != " H") {
+			   d_atom = clipper::Coord_orth::length(a_rotamer[ifrag][ires][iat].pos, atom_sel_atom);
+			   if (d_atom < dist_crit) {
+			      int atom_sel_atom_resno = atom_sel.atom_selection[i]->GetSeqNum();
+			      std::string atom_sel_atom_chain(atom_sel.atom_selection[i]->GetChainID());
 
-			   // we should test residue specs here
-			   if (! ((ires == atom_sel_atom_resno) &&
-				  (a_rotamer[ifrag].fragment_id == atom_sel_atom_chain)) ) {
+			      // we should test residue specs here
+			      if (! ((ires == atom_sel_atom_resno) &&
+				     (a_rotamer[ifrag].fragment_id == atom_sel_atom_chain)) ) {
 			      
-			      if ( (!is_standard_aa) ||
-				   (is_standard_aa && ! coot::is_main_chain_p(a_rotamer[ifrag][ires][iat].name))) { 
-				 badness = 100.0 * (1.0/d_atom - 1.0/dist_crit);
-				 if (badness > 100.0)
-				    badness = 100.0;
-				 //  			      std::cout << "DEBUG:: adding clash badness " << badness
-				 // 					<< " for atom "
-				 //  					<< a_rotamer[ifrag][ires][iat].name << " with d_atom = "
-				 //  					<< d_atom << " to sel atom "
-				 // 					<< atom_sel.atom_selection[i] << std::endl;
-				 score += badness;
+				 if ( (!is_standard_aa) ||
+				      (is_standard_aa && ! coot::is_main_chain_p(a_rotamer[ifrag][ires][iat].name))) {
+				    badness = 100.0 * (1.0/d_atom - 1.0/dist_crit);
+				    if (badness > 100.0)
+				       badness = 100.0;
+				    //  	     std::cout << "DEBUG:: adding clash badness " << badness
+				    // 			<< " for atom "
+				    //  		<< a_rotamer[ifrag][ires][iat].name << " with d_atom = "
+				    //  		<< d_atom << " to sel atom "
+				    // 			<< atom_sel.atom_selection[i] << std::endl;
+				    score += badness;
+				 }
 			      }
 			   }
 			}

@@ -77,11 +77,11 @@ libcoot_ideal_la_SOURCES = simple-restraint.cc \
         extra-restraints-kk.cc simple-restraint-kk.cc torsion-bonds.cc \
 	coot-compare-residues.hh coot-compare-residues.cc link-restraints.cc \
 	parallel-planes.cc pull-restraint.cc trans-peptide.cc model-bond-deltas.cc \
- 	write-png.cc zo-rama.cc zo-rama.hh
+	write-png.cc zo-rama.cc zo-rama.hh crankshaft.hh crankshaft.cc phi-psi.hh phi-psi.cc
 
 libcoot_ideal_la_LDFLAGS = $(SHARED_LDFLAGS)
 
-check_PROGRAMS =  with-geometry logramatest
+check_PROGRAMS =  with-geometry logramatest crankshaft-test
 if OS_WIN32
 bin_PROGRAMS = mini-rsr-bin
 else
@@ -89,6 +89,10 @@ libexec_PROGRAMS = mini-rsr-bin
 endif
 
 logramatest_SOURCES = logramatest.cpp
+
+crankshaft_test_SOURCES = crankshaft-test.cc
+
+crankshaft_test_LDADD = ./libcoot-ideal.la
 
 with_geometry_SOURCES = with-geometry.cc
 

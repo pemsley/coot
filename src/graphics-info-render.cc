@@ -121,6 +121,9 @@ graphics_info_t::povray(std::string filename) {
    GL_matrix m;
    m.from_quaternion(quat);
    rt.set_view_matrix(m);
+
+   rt.add_display_objects(*generic_objects_p);
+
    // So where is the "eye"? We have to do an unproject:
    int x0 = glarea->allocation.width/2;
    int y0 = glarea->allocation.height/2;

@@ -1916,20 +1916,18 @@ GtkWidget*
 create_splash_screen_window_for_file(const char *file_name)
 {
   GtkWidget *splash_screen_window;
-  GtkWidget *image6807;
 
   splash_screen_window = gtk_window_new (GTK_WINDOW_POPUP);
   gtk_widget_set_name (splash_screen_window, "splash_screen_window");
   gtk_window_set_title (GTK_WINDOW (splash_screen_window), _("Coot"));
   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
 
-#if (GTK_MAJOR_VERSION > 1) 
   gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window),
 			    GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
-#endif  
 
-  image6807 = create_pixmap (splash_screen_window, file_name);
+  GtkWidget *image6807 = create_pixmap(splash_screen_window, file_name);
   gtk_widget_show (image6807);
+
   gtk_container_add (GTK_CONTAINER (splash_screen_window), image6807);
 
   return splash_screen_window;

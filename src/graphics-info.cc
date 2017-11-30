@@ -1597,6 +1597,20 @@ graphics_info_t::clear_up_moving_atoms() {
 }
 
 
+// if the imol for moving atoms is imol, delete the moving atoms (called from close_molecule)
+void
+graphics_info_t::clear_up_moving_atoms_maybe(int imol) {
+
+   // clear up moving atoms for this molecule if they exist for this given molecule
+
+   if (imol_moving_atoms == imol) {
+      if (moving_atoms_asc->n_selected_atoms > 0){
+	 clear_up_moving_atoms();
+	 clear_moving_atoms_object();
+      }
+   }
+}
+
 void
 graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 
@@ -1609,9 +1623,10 @@ graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
       // Clear out the old one if it was there.
       GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
       if (w) {
-	 coot::rama_plot *plot =
-	    (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(w));
-	 delete plot;
+         coot::rama_plot *plot =
+               (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(w));
+         // g_print("BL DEBUG:: deleting rama plot!!!\n");
+         delete plot;
       }
       coot::set_validation_graph(imol, coot::RAMACHANDRAN_PLOT, dyna_toplev);
    }
@@ -1735,7 +1750,7 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 	 // now we want to draw out our bonds in white, 
 	 glColor3f (0.9, 0.9, 0.9);
       } else {
-	 glColor3f (0.6, 0.6, 0.6);
+	 glColor3f (0.4, 0.4, 0.4);
       }
       
       float bw = graphics_info_t::bond_thickness_intermediate_atoms;
@@ -1792,6 +1807,12 @@ graphics_info_t::draw_ramachandran_goodness_spots() {
    if (graphics_info_t::regularize_object_bonds_box.num_colours > 0) {
       if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
 
+	 glEnable(GL_LIGHTING);
+	 glEnable(GL_LIGHT1);
+	 glEnable(GL_LIGHT0);
+	 glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
+	 glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	 // ------------------------------------------
 
 	 coot::Cartesian top       = unproject_xyz(100, 100, 0.5);
@@ -1827,18 +1848,32 @@ graphics_info_t::draw_ramachandran_goodness_spots() {
 	    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
 	    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
 	    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-	    glEnable(GL_LIGHTING);
-	    glEnable(GL_LIGHT1);
-	    glEnable(GL_LIGHT0);
-	    glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
-	    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	       
 	    glPushMatrix();
 	    glTranslatef(pos.x(), pos.y(), pos.z());
 	    // gluDisk(quad, 0, base, slices, 2);
 	    gluSphere(quad, radius, 10, 10);
 	    glPopMatrix();
-	    glDisable(GL_LIGHTING);
+	 }
+
+	 glDisable(GL_LIGHTING); // maybe not needed.
+      }
+
+      // we don't want disks any more
+      if (false) { 
+	 if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
+	    for (int i=0; i<graphics_info_t::regularize_object_bonds_box.n_ramachandran_goodness_spots; i++) {
+	       const coot::Cartesian &pos = regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].first;
+	       const float &size          = regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].second;
+
+	       double base = size * 0.3;
+	       int slices = 10;
+	       GLUquadric* quad = gluNewQuadric();
+	       glPushMatrix();
+	       glTranslatef(pos.x(), pos.y(), pos.z());
+	       gluDisk(quad, 0, base, slices, 2);
+	       glPopMatrix();
+	    }
 	 }
       } 
    }
@@ -3928,6 +3963,21 @@ graphics_info_t::apply_redo() {
 	    // need to update the atom and residue list in Go To Atom widget
 	    // (maybe)
 	    update_go_to_atom_window_on_changed_mol(umol);
+       // BL says:: from undo, maybe more should be updated!?!
+       // update the ramachandran, if there was one
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+       GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
+       if (w) {
+          coot::rama_plot *plot = (coot::rama_plot *)
+        gtk_object_get_user_data(GTK_OBJECT(w));
+          handle_rama_plot_update(plot);
+       }
+       // now update the geometry graphs, so get the asc
+       atom_selection_container_t u_asc = molecules[umol].atom_sel;
+
+       update_geometry_graphs(u_asc, umol);
+#endif // HAVE_GTK_CANVAS
+
 	 } else {
 	    // std::cout << "DEBUG:: not applying redo" << std::endl;
 	 }

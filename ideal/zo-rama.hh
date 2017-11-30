@@ -16,6 +16,7 @@
 #include <png.h>
 
 #include "utils/coot-utils.hh"
+#include "phi-psi.hh"
 
 namespace zo {
 
@@ -171,7 +172,6 @@ namespace zo {
 
       rama_table_set() { init(); }
 
-      // actually write this at some stage
       std::string get_residue_type(const std::string &this_residue_type,
 				   const std::string &next_residue_type) const;
 
@@ -184,11 +184,19 @@ namespace zo {
       // residue type eg "ALL!nP" "ALLnP" "GLY!nP"  "GLYnP" "PRO!nP"
       //
       std::pair<realtype,realtype> df(const std::string &residue_type,
-				      const realtype &phi, const realtype &psi) const; 
+				      const realtype &phi, const realtype &psi) const;
+
+      std::pair<realtype,realtype> df(const coot::phi_psi_t &pp,
+				      const std::string &residue_type) const {
+	 return df(residue_type, pp.phi, pp.psi);
+      }
 
       // residue type eg "ALL!nP" "ALLnP" "GLY!nP"  "GLYnP" "PRO!nP"
       //
       realtype value(const std::string &residue_type, const realtype &phi, const realtype &psi) const;
+      realtype value(const coot::phi_psi_t &pp, const std::string &residue_type) const {
+	 return value(residue_type, pp.phi, pp.psi);
+      }
 
    };
 }

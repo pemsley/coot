@@ -26,6 +26,10 @@
 #include <string>
 #include "coot-utils/coot-coord-utils.hh"
 
+#ifdef HAVE_GOOCANVAS
+#include <goocanvas.h>
+#endif
+
 // ------------------------ Canvas stuff -----------------------------------
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 #ifdef HAVE_GTK_CANVAS
@@ -184,11 +188,39 @@ class rama_plot {
    int imol;  // which molecule in mapview did this come from?
    clipper::Ramachandran rama;
    clipper::Ramachandran r_gly, r_pro, r_non_gly_pro;
-   GtkCanvas *canvas;
+
+   //GtkCanvas *canvas;
+   GtkWidget *canvas;
+   GtkWidget *dynarama_ok_button;
+   GtkWidget *dynarama_cancel_button;
+   GtkWidget *dynarama_label;
+   GtkWidget *scrolled_window;
+   GtkWidget *outliers_only_tooglebutton;
+   GtkWidget *zoom_resize_togglebutton;
+   GtkWidget *selection_apply_button;
+   GtkWidget *rama_stats_frame;
+   GtkWidget *rama_stats_label1;
+   GtkWidget *rama_stats_label2;
+   GtkWidget *rama_stats_label3;
+   GtkWidget *kleywegt_chain_box;
+   GtkWidget *rama_open_menuitem;
+   GtkWidget *rama_radiomenuitem;
+   GtkWidget *kleywegt_radiomenuitem;
+   GtkWidget *outliers_only_menuitem;
+   GtkWidget *psi_axis_classic_radioitem;
+   GtkWidget *psi_axis_paule_radioitem;
+   GtkWidget *zoom_resize_menuitem;
+   GtkWidget *kleywegt_chain_combobox1;
+   GtkWidget *kleywegt_chain_combobox2;
    GtkWidget *dialog; // the container for the canvas
-   std::vector<GtkCanvasItem *> canvas_item_vec; // we save them so that
+   //std::vector<GtkCanvasItem *> canvas_item_vec; // we save them so that
+#ifdef HAVE_GOOCANVAS
+   std::vector<GooCanvasItem *> canvas_item_vec; // we save them so that
 					         // we can destroy them.
-   GtkCanvasItem *big_box_item; 
+   //GtkCanvasItem *big_box_item; 
+   GooCanvasItem *green_box_item;
+   GooCanvasItem *root;
+#endif // HAVE_GOOCANVAS
    float step; // the "angular" size of the background blocks
    std::vector<int> ifirst_res; // offset between actual residue number and
 		                // position in the phi_psi vector
@@ -222,20 +254,25 @@ class rama_plot {
 		      float block_size,
 		      short int hide_butttons = 0,
 		      short int is_kleywegt_plot = 0); // called by init(int imol)
-   void draw_green_box(double phi, double psi);
+   void reinitialise();
+   void draw_green_box(double phi, double psi, std::string label);
    short int phipsi_edit_flag;   // for active canvas (can move phi/psi point)
    short int backbone_edit_flag; // for passive canvas
-   void clear_canvas_items();
+   void clear_canvas_items(int all=0);
    void clear_last_canvas_item();
    void clear_last_canvas_items(int n);
    std::pair<int, int> molecule_numbers_; // needed for undating kleywegt plots
    std::pair<std::string, std::string> chain_ids_; // ditto.
-   int dialog_position_x; 
+   std::pair<mmdb::Manager *, mmdb::Manager *> mols_; // ditto.
+   int dialog_position_x;
    int dialog_position_y;
+   float current_level_prefered;
+   float current_level_allowed;
    bool kleywegt_plot_uses_chain_ids;
    void hide_stats_frame();
    void counts_to_stats_frame(const rama_stats_container_t &sc);
-
+   void counts_to_canvas(cairo_t *cr);
+   bool resize_it;
    
    bool allow_seqnum_offset_flag; // was from a shelx molecule with A 1->100 and B 201->300
    int seqnum_offset; // for shelx molecule as above, what do we need to add to seqnum_1 to get the
@@ -251,6 +288,9 @@ class rama_plot {
    bool green_box_is_sensible(util::phi_psi_t gb) const; // have the phi and psi been set to
                                                          // something sensible?
    void recentre_graphics_maybe(mouse_util_t t);
+#ifdef HAVE_GOOCANVAS
+   void recentre_graphics_maybe(GooCanvasItem *item);
+#endif
    mouse_util_t mouse_point_check_differences(double worldx, double worldy) const;
 
    void find_phi_psi_differences();
@@ -265,35 +305,109 @@ class rama_plot {
 					   double worldx, double worldy,
 					   bool is_secondary) const;
 
+   double drag_x, drag_y;
+   gboolean dragging;
+
    bool is_outlier(const coot::util::phi_psi_t &phi_psi) const;
    bool draw_outliers_only;
-   
+   int psi_axis_mode;
+ 
 public:
 
+   void draw_rect();
    enum rama_position_t {RAMA_OUTLIER, RAMA_ALLOWED, RAMA_PREFERRED, RAMA_UNKNOWN};
+   enum rama_type {RAMA_ALL, RAMA_GLY, RAMA_PRO, RAMA_NON_GLY_PRO};
+   enum psi_axis_type {PSI_CLASSIC, PSI_MINUS_120};
+   // Maybe not the best names!?
+   enum rama_plot_type {RAMA, KLEYWEGT, PHI_EDIT, BACKBONE_EDIT}; // KLEYWEGT not used yet
+   void resize_rama_canvas_internal(GtkWidget *widget, GdkEventConfigure *event, gpointer data);
    void resize_rama_canvas_internal(GtkWidget *widget, GdkEventConfigure *event);
-   rama_plot() {
-      big_box_item = 0; dialog = 0;
-      dialog_position_x = -100; dialog_position_y = -100; };
+   void resize_rama_canvas(GtkWidget *widget, GdkEventConfigure *event);
+   void resize_rama_canvas(GtkWidget *widget, GdkEventConfigure *event, gpointer data);
+   void resize_rama_canvas();
+   void resize_mode_changed(int state);
+   void open_pdb_file(const std::string &file_name);
+   void make_kleywegt_plot(int on_off);
+   void plot_type_changed();
+   void update_kleywegt_plot();
 
+   GtkWidget *dynawin;
+   GtkWidget *about_dialog;
+   GtkWidget *rama_export_as_pdf_filechooserdialog;
+   GtkWidget *rama_export_as_png_filechooserdialog;
+   GtkWidget *rama_open_filechooserdialog;
+   GtkWidget *rama_view_menu;
+   // FIXME:: maybe better a function rather than making public for dynarama main
+   GtkWidget *selection_hbox;
+   GtkWidget *selection_entry;
+   GtkWidget *selection_checkbutton;
+
+   rama_plot() {
+      green_box_item = NULL;
+      dynawin = NULL;
+      canvas = NULL;
+      stand_alone_flag = 0;
+      resize_it = FALSE;
+      current_bg = NULL;
+      current_residue = NULL;
+      residues_grp = NULL;
+      arrow_grp = NULL;
+      saved_counts = rama_stats_container_t();
+      rama_mol_name = "";
+      plot_type = -1;
+      oldw = 0;
+      oldh = 0;
+      oldcanvash = 400;
+      oldcanvasw = 400;
+      pad_w = 0.;
+      pad_h = 0.;
+      resize_canvas_with_window = 0;
+      dialog_position_x = -100; dialog_position_y = -100;
+      psi_axis_mode = PSI_CLASSIC;
+   }
+
+   rama_stats_container_t saved_counts;
+   std::string rama_mol_name;
+   int plot_type;
+   int oldw;
+   int oldh;
+   int oldcanvash;
+   int oldcanvasw;
+   float pad_w;
+   float pad_h;
+   // default dont resize canvas with window (easy path)
+   int resize_canvas_with_window;
+   bool create_dynarama_window();
    // consider destructor where we should
    // gtk_object_destroy(big_box_item) if it is non-zero.
-   void init(const std::string &type);
+   void init(const std::string &type, short int psi_axis=PSI_CLASSIC);
    // typically level_prefered = 0.02, level_allowed is 0.002, block_size is 10.0;
    void init(int imol_no, const std::string &mol_name, float level_prefered, float level_allowed,
-	     float block_size_for_background, short int is_kleywegt_plot_flag);
+             float block_size_for_background, short int is_kleywegt_plot_flag,
+             short int psi_axis=PSI_CLASSIC);
+   void init();
 
    void allow_seqnum_offset();
    void set_n_diffs(int nd);
 
+   bool stand_alone_flag;
+
+   void set_stand_alone() {
+      stand_alone_flag = 1;
+   }
+   bool is_stand_alone() { return stand_alone_flag; }
 
    // The graphics interface, given that you have a mmdb::Manager. 
    // 
    void draw_it(mmdb::Manager *mol);
+   void draw_it(mmdb::Manager *mol, int SelHnd, int primary=0);
    void draw_it(int imol1, int imol2, mmdb::Manager *mol1, mmdb::Manager *mol2); // no chain ids.
    void draw_it(int imol1, int imol2,
-		mmdb::Manager *mol1, mmdb::Manager *mol2,
-		const std::string &chain_id_1, const std::string &chain_id_2);
+                mmdb::Manager *mol1, mmdb::Manager *mol2,
+                int SelHnd1, int SelHnd2);
+   void draw_it(int imol1, int imol2,
+                mmdb::Manager *mol1, mmdb::Manager *mol2,
+                const std::string &chain_id_1, const std::string &chain_id_2);
    
    void draw_it(const util::phi_psi_t &phipsi);
    void draw_it(const std::vector<util::phi_psi_t> &phipsi);
@@ -302,6 +416,26 @@ public:
 
    void basic_white_underlay(); // Not const because we modify canvas_item_vec. 
    void display_background();   // Likewise.
+#ifdef HAVE_GOOCANVAS
+   void make_background(const clipper::Ramachandran rama_type, GooCanvasItem *bg_group);
+   int make_background_from_image(const clipper::Ramachandran rama_type,
+                                  GooCanvasItem *bg_group, std::string file_name);
+   GooCanvasItem *bg_all;
+   GooCanvasItem *bg_gly;
+   GooCanvasItem *bg_pro;
+   GooCanvasItem *bg_non_gly_pro;
+   GooCanvasItem *current_bg;
+   GooCanvasItem *residues_grp;
+   GooCanvasItem *current_residue;
+   GooCanvasItem *arrow_grp;
+   void make_isolines(const clipper::Ramachandran rama_type, GooCanvasItem *bg_group);
+   void show_background(GooCanvasItem *new_bg);
+#endif
+   guint *current_colour;
+   void hide_all_background();
+   void setup_background(bool blocks=1, bool isolines=1);
+   std::pair<int, std::vector<float> > make_isolines_internal(const clipper::Ramachandran rama_type,
+                                                              double threshold, float x_in, float y_in);
    void setup_canvas(); 
    void black_border();
    void cell_border(int i, int j, int step);
@@ -323,9 +457,11 @@ public:
    void draw_zero_lines();
 
    int draw_phi_psi_point(const util::phi_psi_t &phi_psi, bool as_white_flag);
+#ifdef HAVE_GOOCANVAS
    void draw_kleywegt_arrow(const util::phi_psi_t &phi_psi_primary,
 			    const util::phi_psi_t &phi_psi_secondary,
-			    GtkCanvasPoints *points);
+                            GooCanvasPoints *points);
+#endif
    rama_kleywegt_wrap_info test_kleywegt_wrap(const util::phi_psi_t &phi_psi_primary,
 					      const util::phi_psi_t &phi_psi_secondary)
       const;
@@ -333,7 +469,16 @@ public:
    int draw_phi_psi_point_internal(const util::phi_psi_t &phi_psi,
 				   bool as_white_flag, int box_size);
 
-   
+   // which calls
+#ifdef HAVE_GOOCANVAS
+   void set_data_for_phi_psi_point_item(const std::string &label,
+                                        const coot::util::phi_psi_t &phi_psi,
+                                        GooCanvasItem *item);
+   void set_data_for_phi_psi_point_item_other(const std::string &label,
+					      const coot::util::phi_psi_t &phi_psi,
+					      GooCanvasItem *item);
+#endif
+
    rama_stats_container_t draw_phi_psi_points();
    rama_stats_container_t draw_phi_psi_points_for_model(const coot::phi_psis_for_model_t &pp_set); 
 
@@ -368,9 +513,16 @@ public:
    void mouse_motion_notify(GdkEventMotion *event, double x, double y);
    void mouse_motion_notify_editphipsi(GdkEventMotion *event, double x, double y);
    gint button_press (GtkWidget *widget, GdkEventButton *event); 
-   gint button_press_conventional (GtkWidget *widget, GdkEventButton *event); 
-   gint button_press_editphipsi (GtkWidget *widget, GdkEventButton *event); 
-   gint button_press_backbone_edit (GtkWidget *widget, GdkEventButton *event); 
+   gint button_press_conventional (GtkWidget *widget, GdkEventButton *event);
+#ifdef HAVE_GOOCANVAS
+   gint item_enter_event(GooCanvasItem *item, GdkEventCrossing *event);
+   gint item_motion_event(GooCanvasItem *item, GdkEventMotion *event);
+   gint button_item_press (GooCanvasItem *item, GdkEventButton *event);
+   gint button_item_press_conventional (GooCanvasItem *item, GdkEventButton *event);
+   gint button_press_editphipsi (GooCanvasItem *item, GdkEventButton *event);
+   gint button_press_backbone_edit (GooCanvasItem *item, GdkEventButton *event);
+   gint button_item_release (GooCanvasItem *item, GdkEventButton *event);
+#endif
 
    void draw_phi_psis_on_canvas(char *filename);
    // void update_canvas(mmdb::Manager *mol);  // mol was updated(?)
@@ -378,7 +530,10 @@ public:
    void draw_2_phi_psi_sets_on_canvas(char *file1, char *file2);
    void draw_2_phi_psi_sets_on_canvas(mmdb::Manager *mol1, 
 				      mmdb::Manager *mol2);
-   void draw_2_phi_psi_sets_on_canvas(mmdb::Manager *mol1, 
+   void draw_2_phi_psi_sets_on_canvas(mmdb::Manager *mol1,
+                                      mmdb::Manager *mol2,
+                                      int SelHnd1, int SelHnd2);
+   void draw_2_phi_psi_sets_on_canvas(mmdb::Manager *mol1,
 				      mmdb::Manager *mol2,
 				      std::string chain_id1, std::string chain_id2);
 
@@ -404,6 +559,9 @@ public:
    short int is_kleywegt_plot() const {
       return drawing_differences;
    }
+   void set_kleywegt_plot_state(int state) {
+      drawing_differences = state;
+   }
 
    // where we also say where to put the ramachandran dialog:
    // Call this function before init() :-)
@@ -417,6 +575,9 @@ public:
    }
    std::pair<std::string, std::string> chain_ids() const { 
       return chain_ids_;
+   }
+   std::pair<mmdb::Manager *, mmdb::Manager *> mols() const {
+      return mols_;
    }
 
    void zoom_in(); 
@@ -435,8 +596,24 @@ public:
    }
    
    void show_outliers_only(mmdb::Manager *mol, int state);
+   void show_outliers_only(int state);
    
-   void debug() const; 
+   void write_pdf(std::string &file_name);
+   void write_png(std::string &file_name);
+   void write_png_simple(std::string &file_name, GooCanvasItem *item = NULL);
+   void write_svg(std::string &file_name, GooCanvasItem *item = NULL);
+   void make_bg_images();
+
+   void fill_kleywegt_comboboxes(int imol);
+   void fill_kleywegt_comboboxes(mmdb::Manager *mol1);
+   void fill_kleywegt_comboboxes(mmdb::Manager *mol1,
+                                 mmdb::Manager *mol2);
+
+   void psi_axis_changed();
+   void set_rama_psi_axis(int state);
+   void show_selection_widget(int state);
+   void apply_selection_from_widget();
+   void debug() const;
 
    void destroy_yourself();
 

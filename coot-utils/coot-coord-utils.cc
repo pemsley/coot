@@ -2437,6 +2437,21 @@ mmdb::Residue *
 coot::util::get_residue(const residue_spec_t &rs, mmdb::Manager *mol) {
    return get_residue(rs.chain_id, rs.res_no, rs.ins_code, mol);
 }
+
+// get this and next residue - either can be null - both need testing
+std::pair<mmdb::Residue *, mmdb::Residue *>
+coot::util::get_this_and_next_residues(const residue_spec_t &rs, mmdb::Manager *mol) {
+
+   // this function can be optimized if needed
+
+   mmdb::Residue *r2 = 0;
+   mmdb::Residue *r1 = get_residue(rs, mol);
+   if (r1) {
+      r2 = get_following_residue(r1, mol);
+   }
+   return std::pair<mmdb::Residue *, mmdb::Residue *> (r1, r2);
+}
+
   
 
 // Return NULL on residue not found in this molecule.
@@ -2450,7 +2465,7 @@ coot::util::get_following_residue(const residue_spec_t &rs,
       mmdb::Model *model_p = mol->GetModel(1);
       mmdb::Chain *chain_p;
       mmdb::Chain *chain_this_res = NULL;
-      bool found_this_res = 0;
+      bool found_this_res = false;
       
       int n_chains = model_p->GetNumberOfChains();
       for (int i_chain=0; i_chain<n_chains; i_chain++) {
@@ -2461,11 +2476,11 @@ coot::util::get_following_residue(const residue_spec_t &rs,
 	    mmdb::Residue *residue_p;
 	    for (int ires=0; ires<nres; ires++) {
 	       residue_p = chain_p->GetResidue(ires);
-	       if (found_this_res == 0) { 
+	       if (found_this_res == 0) {
 		  if (rs.res_no == residue_p->GetSeqNum()) {
 		     std::string ins_code = residue_p->GetInsCode();
 		     if (ins_code == rs.ins_code) {
-			found_this_res = 1;
+			found_this_res = true;
 			chain_this_res = chain_p;
 		     }
 		  }
@@ -2484,6 +2499,43 @@ coot::util::get_following_residue(const residue_spec_t &rs,
    }
    return res;
 }
+
+// Return NULL on residue not found in this molecule.
+// 
+mmdb::Residue *
+coot::util::get_previous_residue(const residue_spec_t &rs, 
+				 mmdb::Manager *mol) {
+   mmdb::Residue *res = NULL;
+   if (mol) {
+      mmdb::Model *model_p = mol->GetModel(1);
+      mmdb::Chain *chain_p;
+      mmdb::Chain *chain_this_res = NULL;
+      bool found_this_res = 0;
+
+      int n_chains = model_p->GetNumberOfChains();
+      for (int i_chain=0; i_chain<n_chains; i_chain++) {
+	 chain_p = model_p->GetChain(i_chain);
+	 std::string mol_chain_id(chain_p->GetChainID());
+	 if (mol_chain_id == rs.chain_id) {
+	    int nres = chain_p->GetNumberOfResidues();
+	    mmdb::Residue *prev_residue = 0;
+	    for (int ires=0; ires<nres; ires++) {
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	       if (residue_spec_t(residue_p) == rs) {
+		  res = prev_residue;
+		  break;
+	       }
+	       // next round
+	       prev_residue = residue_p;
+	    }
+	 }
+	 if (res) break;
+      }
+   }
+   return res;
+
+}
+
 
 mmdb::Residue *
 coot::util::get_first_residue(mmdb::Manager *mol) {
@@ -7708,7 +7760,7 @@ coot::update_position(mmdb::Atom *at, const clipper::Coord_orth &pos) {
    at->x = pos.x();
    at->y = pos.y();
    at->z = pos.z();
-} 
+}
 
 
 
@@ -7718,14 +7770,9 @@ coot::chiral_4th_atom(mmdb::Residue *residue_p, mmdb::Atom *at_centre,
 		      mmdb::Atom *at_1, mmdb::Atom *at_2, mmdb::Atom *at_3) {
 
    mmdb::Atom *rat = NULL;
-   double d_crit = sqrt(10.7);
+   double d_crit = sqrt(1.7);
+   double d_sqrd = d_crit * d_crit; // tracks "best/closest"
 
-   // this is a bit heavyweight in retrospect, - I could have just
-   // used a "best-dist".  But it works.
-   // 
-   std::map<double, mmdb::Atom *> atoms;
-   
-   double d_sqrd = d_crit * d_crit;
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    clipper::Coord_orth p_c = co(at_centre);
@@ -7735,14 +7782,13 @@ coot::chiral_4th_atom(mmdb::Residue *residue_p, mmdb::Atom *at_centre,
       mmdb::Atom *at = residue_atoms[iat];
       if (at != at_centre && at != at_1 && at != at_2 && at != at_3) { 
 	 clipper::Coord_orth pt = co(at);
-	 double d = (p_c - pt).clipper::Coord_orth::lengthsq();
-	 if (d < d_sqrd)
-	    atoms[d] = at;
+	 double d2 = (p_c - pt).clipper::Coord_orth::lengthsq();
+	 if (d2 < d_sqrd) {
+	    rat = at;
+	    d_sqrd = d2;
+	 }
       }
    }
-   
-   if (atoms.size())
-      rat = atoms.begin()->second;
 
    return rat;
 } 

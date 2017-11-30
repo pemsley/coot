@@ -742,8 +742,8 @@ graphics_info_t::generate_molecule_and_refine(int imol,
       if (do_torsion_restraints) { 
 	 do_residue_internal_torsions = 1;
 	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
-      }
-      
+      } 
+
       if (do_rama_restraints)
 	 // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
 	 flags = coot::ALL_RESTRAINTS;

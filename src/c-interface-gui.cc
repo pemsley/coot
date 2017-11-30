@@ -3778,6 +3778,9 @@ void close_molecule(int imol) {
 	 g.update_go_to_atom_window_on_changed_mol(go_to_atom_imol_new);
       } 
    }
+
+   g.clear_up_moving_atoms_maybe(imol);
+   
    graphics_draw();
    std::string cmd = "close-molecule";
    std::vector<coot::command_arg_t> args;
