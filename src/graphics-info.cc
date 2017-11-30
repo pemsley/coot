@@ -1600,6 +1600,23 @@ graphics_info_t::clear_up_moving_atoms() {
 }
 
 
+// if the imol for moving atoms is imol, delete the moving atoms (called from close_molecule)
+void
+graphics_info_t::clear_up_moving_atoms_maybe(int imol) {
+
+   // clear up moving atoms for this molecule if they exist for this given molecule
+
+   if (imol_moving_atoms == imol) {
+      if (moving_atoms_asc->n_selected_atoms > 0){
+	 clear_up_moving_atoms();
+	 clear_moving_atoms_object();
+      }
+   }
+}
+
+
+
+
 // static 
 gint
 graphics_info_t::drag_refine_refine_intermediate_atoms() {
@@ -2698,10 +2715,13 @@ graphics_info_t::set_density_level_string(int imol, float dlevel) {
    display_density_level_screen_string = "map " + int_to_string(imol);
    display_density_level_screen_string += " level = ";
    display_density_level_screen_string += float_to_string_using_dec_pl(dlevel, 3);
-   display_density_level_screen_string += "e/A^3 (";
+   // std::string units = "e/A^3";
+   std::string units = molecules[imol].map_units();
+   display_density_level_screen_string += units;
+   display_density_level_screen_string += " (";
    display_density_level_screen_string += float_to_string(dlevel/map_sigma);
    display_density_level_screen_string += "rmsd)";
-   
+
 }
 
 // ------------------------------------------------------------------

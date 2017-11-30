@@ -192,11 +192,13 @@ coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
 } 
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
+
+
 // imol map is passed in case that the density fit graph was displayed.
 // If there is no imol_map then the geometry graph could not have been displayed.  You can
 // pass -1 for the map in that case.
 void
-graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelResidues, int imol, int imol_map) {
+graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelResidues, int imol, int imol_map) { // searching for update_validation_graphs?
 
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
@@ -220,7 +222,7 @@ graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelRes
 
 // The molecule-based version of the above.
 void
-graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving_atoms_asc_local,
+graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving_atoms_asc_local,  // searching for update_validation_graphs?
 					int imol_moving_atoms) {
 
 #ifdef HAVE_GSL
@@ -341,10 +343,30 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
       }
    }
 
+   // and now ramachandran also
+
 
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 #endif // HAVE_GSL
 }
+
+void
+graphics_info_t::update_validation_graphs(int imol) {
+
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+   GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
+   if (w) {
+      coot::rama_plot *plot = reinterpret_cast<coot::rama_plot *>(gtk_object_get_user_data(GTK_OBJECT(w)));
+      std::cout << "doing handle_rama_plot_update() " << std::endl;
+      handle_rama_plot_update(plot);
+   }
+   // now update the geometry graphs, so get the asc
+   atom_selection_container_t u_asc = molecules[imol].atom_sel;
+   update_geometry_graphs(u_asc, imol);
+#endif // HAVE_GTK_CANVAS
+}
+
+
 
 void
 graphics_info_t::delete_residue_from_geometry_graphs(int imol,

@@ -1042,7 +1042,7 @@
 		      <child>
 			<widget class="GtkMenuItem" id="map_sharpening1">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Map Sharpening...</property>
+			  <property name="label" translatable="yes">Map Sharpening/Blurring...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_map_sharpening1_activate" last_modification_time="Mon, 25 May 2009 15:29:00 GMT"/>
 			</widget>
@@ -57250,7 +57250,7 @@ low resolution</property>
 <widget class="GtkDialog" id="map_sharpening_dialog">
   <property name="width_request">385</property>
   <property name="visible">True</property>
-  <property name="title" translatable="yes">Map Sharpening...</property>
+  <property name="title" translatable="yes">Map Sharpening/Blurring...</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
   <property name="modal">False</property>
@@ -57446,7 +57446,7 @@ low resolution</property>
 	    <widget class="GtkLabel" id="label728">
 	      <property name="visible">True</property>
 	      <property name="label" translatable="yes">
-Map to Sharpen:
+Map to Sharpen/Blur:
 </property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
