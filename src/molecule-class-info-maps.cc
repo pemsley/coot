@@ -3226,18 +3226,12 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
 	    auto tp_1 = std::chrono::high_resolution_clock::now();
 
-#ifdef __clang_major__
 
 	    graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_1, itrial, n_trials, atom_selection, n_atoms,
 						     initial_atoms, centre_pt, jiggle_scale_factor, atom_numbers,
-						     &xmap_masked, // not used as a ref, I think
+						     &xmap_masked, // pointer arg, no std::ref()
 						     density_scoring_function, &trial_results[itrial]);
-#else // GCC
-	    graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_1, itrial, n_trials, atom_selection, n_atoms,
-						     initial_atoms, centre_pt, jiggle_scale_factor, atom_numbers,
-						     std::ref(xmap_masked),
-						     density_scoring_function, &trial_results[itrial]);
-#endif
+
 	    auto tp_2 = std::chrono::high_resolution_clock::now();
 	    auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
 	    // not to self: it takes 40ms to copy a const xmap reference to the function.
