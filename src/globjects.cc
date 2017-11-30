@@ -2030,7 +2030,6 @@ void gdkglext_finish_frame(GtkWidget *widget) {
 gint
 draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
-
    // std::cout << "draw_mono() with widget " << widget << std::endl;
 
    if ((event-1) != 0) { 
@@ -3726,6 +3725,7 @@ void keypad_translate_xyz(short int axis, short int direction) {
   }
 } 
 
+#include "idles.hh"
 
 gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 {
@@ -3812,14 +3812,14 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       // using graphics_info_t static members
       if (s >= 0) {
 
+	 // std::cout << "here in key_release_event for -" << std::endl;
 	 istate = graphics_info_t::molecules[s].change_contour(-1);
-	 
-	 if (istate)
-	    graphics_info_t::molecules[s].update_map();
+	 graphics_info_t::molecules[s].pending_contour_level_change_count--;
+	 int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, g.glarea);
 	 g.set_density_level_string(s, g.molecules[s].contour_level);
 	 g.display_density_level_this_image = 1;
-	 
-	 g.graphics_draw();
+
+	 // g.graphics_draw();
       } else {
 	 std::cout << "WARNING: No map - Can't change contour level.\n";
       }
@@ -3827,18 +3827,29 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_plus:
    case GDK_equal:  // unshifted plus, usually.
       //
-      
 
       // let the object decide which level change it needs:
       //
-      if (s >= 0) { 
-	 graphics_info_t::molecules[s].change_contour(1); // positive change
-      
-	 graphics_info_t::molecules[s].update_map();
+      if (s >= 0) {
+
+	 // std::cout << "here in key_release_event for +/=" << std::endl;
+
+         if (false) {
+	    GdkWindow *wind = gtk_widget_get_window(graphics_info_t::glarea);
+	    GdkDisplay *disp = gdk_window_get_display(wind);
+	    GdkEvent *peek_event = gdk_display_peek_event(disp);
+         }
+
+	 graphics_info_t::molecules[s].pending_contour_level_change_count++;
+	 int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, g.glarea);
+
+	 // graphics_info_t::molecules[s].change_contour(1); // positive change
+	 // graphics_info_t::molecules[s].update_map();
+
 	 g.set_density_level_string(s, g.molecules[s].contour_level);
 	 g.display_density_level_this_image = 1;
 
-	 g.graphics_draw();
+	 // g.graphics_draw();
       } else {
 	 std::cout << "WARNING: No map - Can't change contour level.\n";
       }
@@ -3959,6 +3970,55 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 
   return TRUE;
 }
+
+// widget is the glarea.
+// 
+gint
+idle_contour_function(GtkWidget *widget) {
+
+   gint continue_status = 0;
+   bool something_changed = false;
+
+   // when there's nothing else to do, update the contour levels
+   //
+   // then update maps
+
+   // std::cout << "--- debug:: idle_contour_function() running" << std::endl;
+   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
+      if (graphics_info_t::molecules[imol].has_xmap()) { // FIXME or nxmap : needs test for being a map molecule
+         int &cc = graphics_info_t::molecules[imol].pending_contour_level_change_count;
+         // std::cout << "---    imol: " << imol << " cc: " << cc << std::endl;
+         if (cc != 0) {
+
+	    if (cc < 0) {
+	       while (cc != 0) {
+	          cc++;
+	          graphics_info_t::molecules[imol].change_contour(-1);
+	       }
+	    }
+
+	    if (cc > 0) {
+	       while (cc != 0) {
+	          cc--;
+	          graphics_info_t::molecules[imol].change_contour(1);
+	       }
+	    }
+
+            graphics_info_t g;
+	    g.molecules[imol].update_map();
+	    continue_status = 0;
+            g.set_density_level_string(imol, g.molecules[imol].contour_level);
+            g.display_density_level_this_image = 1;
+            something_changed = true;
+         }
+      }
+   }
+   if (something_changed)
+      graphics_draw();
+   // std::cout << "--- debug:: idle_contour_function() done " << continue_status << std::endl;
+   return continue_status;
+}
+
 
 // widget is the glarea.
 // 
@@ -4449,7 +4509,14 @@ gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event) {
 void handle_scroll_density_level_event(int scroll_up_down_flag) {
 
    graphics_info_t info;
-   
+
+   std::cout << "here in handle_scroll_density_level_event " << std::endl;
+
+   GdkEvent *peek_event = gdk_event_peek();
+   if (peek_event) {
+      std::cout << "peaking found an event!" << std::endl;
+   }
+    
    if (scroll_up_down_flag == 1) {
       //
       // consider using

@@ -701,6 +701,7 @@ public:        //                      public
       map_min_ = -100.0;
       sharpen_b_factor_ = 0.0;
       sharpen_b_factor_kurtosis_optimised_ = -999999.0;
+      pending_contour_level_change_count = 0;
 
       // fourier (for phase recombination (potentially) in refmac:
       fourier_weight_label = ""; // unset initially.
@@ -3118,6 +3119,9 @@ public:        //                      public
 
    std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> >
    get_contours(float contour_level, float radius, const coot::Cartesian &centre) const;
+   std::string map_units() const { std::string u = "e/A^3"; 
+                                   if (is_EM_map()) u = "V";
+                                   return u; }
 
    // carbohydrate validation tools
    void glyco_tree_internal_distances_fn(const coot::residue_spec_t &base_residue_spec,
@@ -3132,6 +3136,8 @@ public:        //                      public
 
    // angle in degrees.
    void spin_N(const coot::residue_spec_t &residue_spec, float angle);
+
+   int pending_contour_level_change_count;
    
 };
 

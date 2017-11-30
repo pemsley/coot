@@ -400,6 +400,7 @@ coot_bin_SOURCES = \
 	gtk-manual.hh		 \
 	guile-fixups.h		 \
 	history_list.hh		 \
+        idles.hh                 \
 	interface.c	 	 \
 	interface.h              \
         manipulation-modes.hh    \
