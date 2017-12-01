@@ -3585,6 +3585,20 @@ void clear_last_simple_distance();
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
+/*               GUI edit functions                                   */
+/*  ----------------------------------------------------------------------- */
+/* section Edit Fuctions */
+/*! \name Edit Fuctions */
+/* \{ */
+
+void  do_edit_copy_molecule();
+void  do_edit_copy_fragment();
+void  do_edit_replace_residue();
+void  do_edit_replace_fragment();
+
+/* \} */
+
+/*  ----------------------------------------------------------------------- */
 /*                  residue environment                                     */
 /*  ----------------------------------------------------------------------- */
 /* section Residue Environment Functions */
