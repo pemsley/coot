@@ -17,13 +17,12 @@ int main(int argc, char **argv) {
 	 // cs.test();
 	 zo::rama_table_set zorts;
 	 // coot::residue_spec_t rs("A", 51); // goodie
-	 // coot::residue_spec_t rs("A", 40); // baddie
-	 coot::residue_spec_t rs("A", 20); // baddie
-	 std::vector<std::pair<float, float> > r = cs.spin_search(rs, zorts);
+	 coot::residue_spec_t rs("A", 40); // baddie in no-cis-peptide.pdb
+	 // coot::residue_spec_t rs("A", 20); // baddie
 	 unsigned int n_samples = 30;
 	 if (argc > 2) {
 	    try {
-	       // what's the std:: version of this?
+	       // what's the std:: version of this? C++11
 	       n_samples = coot::util::string_to_int(argv[2]);
 	    }
 	    catch (const std::runtime_error &rte) {
@@ -32,6 +31,8 @@ int main(int argc, char **argv) {
 	 }
 
 	 if (false) {
+	    std::vector<std::pair<float, float> > r = cs.spin_search(rs, zorts);
+
 	    if (r.size()) {
 	       std::cout << "Residue " << rs << std::endl;
 	       for (std::size_t i=0; i<r.size(); i++) {
@@ -39,12 +40,23 @@ int main(int argc, char **argv) {
 	       }
 	    }
 	 }
+
 	 if (true) {
-	    // the moves the atoms
+
+	    // this moves the atoms:
 	    // cs.triple_spin_search(rs, zorts, true, n_samples);
-	    cs.find_maxima(rs, zorts, n_samples);
 	    // where did they move to?
-	    asc.mol->WritePDBASCII("moved.pdb");
+	    // asc.mol->WritePDBASCII("moved.pdb");
+
+	    std::vector<coot::crankshaft::scored_angle_set_t> sas = cs.find_maxima(rs, zorts, n_samples);
+	    // where did they move to?
+	    std::cout << "sas size: " << sas.size() << std::endl;
+	    for (std::size_t i=0; i<sas.size(); i++) {
+
+	       std::string pdb_file_name = "moved-" + coot::util::int_to_string(i) + ".pdb";
+	       cs.move_the_atoms_and_write(sas[i], pdb_file_name); // restores the atom positions after write
+
+	    }
 	 }
       } else {
 	 std::cout << "read failure " << pdb_file_name << std::endl;
