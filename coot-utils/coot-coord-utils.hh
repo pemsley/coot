@@ -747,8 +747,8 @@ namespace coot {
       // Return NULL on residue not found in this molecule.
       // 
       mmdb::Residue *get_residue(const std::string &chain_id, int res_no,
-			    const std::string &insertion_code,
-			    mmdb::Manager *mol);
+				 const std::string &insertion_code,
+				 mmdb::Manager *mol);
 
       mmdb::Residue *get_first_residue(mmdb::Manager *mol);
 

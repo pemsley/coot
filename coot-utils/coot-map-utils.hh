@@ -97,10 +97,19 @@ namespace coot {
 		      int n_selected_atoms,
 		      const clipper::Xmap<float> &xmap,
 		      short int with_atomic_weighting);
-      
+
+      // The sum of the density at the atom centres, weighted by occupancy
+      //
+      float map_score(std::vector<mmdb::Atom *> atoms,
+		      const clipper::Xmap<float> &xmap);
 
       float map_score_atom(mmdb::Atom *atom,
 			   const clipper::Xmap<float> &xmap);
+
+      float map_score_by_residue_specs(mmdb::Manager *mol,
+				       const std::vector<residue_spec_t> &res_specs,
+				       const clipper::Xmap<float> &xmap,
+				       bool main_chain_only_flag = false);
 
       clipper::Xmap<float> sharpen_map(const clipper::Xmap<float> &xmap_in,
 				       float sharpen_factor);
