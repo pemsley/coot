@@ -128,12 +128,12 @@ namespace coot {
       //
       class scored_angle_set_t : public triple_crankshaft_set {
       public:
-	 scored_angle_set_t() { log_prob = -1; }
+	 scored_angle_set_t() { minus_log_prob = 0; }
 	 scored_angle_set_t(const triple_crankshaft_set &tcs_in,
-			    const std::vector<float> &angles_in, float lp) : tcs(tcs_in), angles(angles_in), log_prob(lp) {};
+			    const std::vector<float> &angles_in, float lp) : tcs(tcs_in), angles(angles_in), minus_log_prob(lp) {};
 	 triple_crankshaft_set tcs;
 	 std::vector<float> angles;
-	 float log_prob;
+	 float minus_log_prob;
 	 bool is_close(const scored_angle_set_t &sas_in) const {
 	    float big_delta = clipper::Util::d2rad(5.0);
 	    bool same = true;
@@ -146,7 +146,7 @@ namespace coot {
 	    return same;
 	 }
 	 bool operator<(const scored_angle_set_t &sas_in) const {
-	    return (log_prob < sas_in.log_prob);
+	    return (minus_log_prob < sas_in.minus_log_prob);
 	 }
 	 bool filled() { return (angles.size() > 0); }
 	 friend std::ostream &operator<<(std::ostream &s, const scored_angle_set_t &r);
@@ -196,7 +196,10 @@ namespace coot {
 
       // restores the atom positions in mol after write
       // sas is not const because we move the atoms (non-const of a crankshaft_set).
-      void move_the_atoms_and_write(scored_angle_set_t sas, const std::string &pdb_file_name);
+      void move_the_atoms_write_and_restore(scored_angle_set_t sas, const std::string &pdb_file_name);
+
+      // move the atoms, create a copy of mol, restore the atom positions
+      mmdb::Manager *new_mol_with_moved_atoms(scored_angle_set_t sas);
 
       // spin-search test the individual residues of input mol
       void test() const;

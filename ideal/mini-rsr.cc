@@ -63,6 +63,7 @@
 #include <vector>
 
 #include <mmdb2/mmdb_manager.h>
+#include "utils/coot-utils.hh"
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
 
@@ -637,19 +638,19 @@ get_input_details(int argc, char **argv) {
 	       d.chain_id = optarg;
 	    }
 	    if (arg_str == "resno-start") {
-	       d.resno_start = atoi(optarg);
+	       d.resno_start = coot::util::string_to_int(optarg);
 	    }
 	    if (arg_str == "resno-end") {
-	       d.resno_end = atoi(optarg);
+	       d.resno_end = coot::util::string_to_int(optarg);
 	    }
 	    if (arg_str == "residues-around") {
-	       d.residues_around = atoi(optarg);
+	       d.residues_around = coot::util::string_to_int(optarg);
 	    }
 	    if (arg_str == "weight") {
-	       d.map_weight = atof(optarg);
+	       d.map_weight = coot::util::string_to_float(optarg);
 	    }
 	    if (arg_str == "radius") {
-	       d.radius = atof(optarg);
+	       d.radius = coot::util::string_to_float(optarg);
 	    }
 	 } else {
 	    // long argument without parameter:

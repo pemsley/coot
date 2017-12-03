@@ -307,7 +307,92 @@ coot::geometry_distortion_info_container_t::print() const {
 	     << std::endl;
 
    return total_distortion;
-} 
+}
+
+
+double
+coot::geometry_distortion_info_container_t::distortion() const {
+
+   // why do some of these have their distortion set already, and others calculated now?
+
+   double total_distortion = 0.0;
+   for (unsigned int i=0; i< geometry_distortion.size(); i++) {
+      const coot::simple_restraint &rest = geometry_distortion[i].restraint;
+      if (rest.restraint_type == coot::BOND_RESTRAINT) {
+	 mmdb::Atom *at_1 = atom[rest.atom_index_1];
+	 mmdb::Atom *at_2 = atom[rest.atom_index_2];
+	 if (at_1 && at_2) {
+	    clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+	    clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+	    double d = sqrt((p2-p1).lengthsq());
+	    double distortion = d - rest.target_value;
+	    double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
+	    total_distortion += pen_score;
+	 }
+      }
+
+      if (rest.restraint_type == coot::ANGLE_RESTRAINT) {
+	 mmdb::Atom *at_1 = atom[rest.atom_index_1];
+	 mmdb::Atom *at_2 = atom[rest.atom_index_2];
+	 mmdb::Atom *at_3 = atom[rest.atom_index_3];
+	 if (at_1 && at_2 && at_3) {
+	    clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+	    clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+	    clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
+	    double angle_rad = clipper::Coord_orth::angle(p1, p2, p3);
+	    double angle = clipper::Util::rad2d(angle_rad);
+	    double distortion = angle - rest.target_value;
+	    double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
+	    total_distortion += pen_score;
+	 }
+      }
+
+      if (rest.restraint_type == TORSION_RESTRAINT) {
+	 mmdb::Atom *at_1 = atom[rest.atom_index_1];
+	 mmdb::Atom *at_2 = atom[rest.atom_index_2];
+	 mmdb::Atom *at_3 = atom[rest.atom_index_3];
+	 mmdb::Atom *at_4 = atom[rest.atom_index_4];
+	 if (at_1 && at_2 && at_3 && at_4) {
+	    clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+	    clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+	    clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
+	    clipper::Coord_orth p4(at_4->x, at_4->y, at_4->z);
+	    double torsion_rad = clipper::Coord_orth::torsion(p1, p2, p3, p4);
+	    double torsion = clipper::Util::rad2d(torsion_rad);
+	    double distortion = rest.torsion_distortion(torsion);
+	    double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
+	    total_distortion += pen_score;
+	 }
+      }
+
+      if (rest.restraint_type == TRANS_PEPTIDE_RESTRAINT) {
+	 mmdb::Atom *at_1 = atom[rest.atom_index_1];
+	 mmdb::Atom *at_2 = atom[rest.atom_index_2];
+	 mmdb::Atom *at_3 = atom[rest.atom_index_3];
+	 mmdb::Atom *at_4 = atom[rest.atom_index_4];
+	 if (at_1 && at_2 && at_3 && at_4) {
+	    clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+	    clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+	    clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
+	    clipper::Coord_orth p4(at_4->x, at_4->y, at_4->z);
+	    double torsion_rad = clipper::Coord_orth::torsion(p1, p2, p3, p4);
+	    double torsion = clipper::Util::rad2d(torsion_rad);
+	    double pen_score = rest.torsion_distortion(torsion);
+	    total_distortion += pen_score;
+	 }
+      }
+
+      if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
+	 total_distortion += geometry_distortion[i].distortion_score;
+      }
+
+      if (rest.restraint_type == coot::PLANE_RESTRAINT) {
+	 total_distortion += geometry_distortion[i].distortion_score;
+      }
+   }
+   return total_distortion;
+}
+
 
 
 coot::geometry_distortion_info_container_t

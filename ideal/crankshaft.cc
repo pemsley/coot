@@ -9,7 +9,7 @@
 std::ostream &
 coot::operator<<(std::ostream &s, const coot::crankshaft::scored_angle_set_t &as) {
 
-   std::cout << as.log_prob << " from angles ";
+   std::cout << as.minus_log_prob << " from angles ";
    for (std::size_t i=0; i<as.angles.size(); i++)
       s << std::setw(9) << clipper::Util::rad2d(as.angles[i]) << " ";
    return s;
@@ -469,7 +469,7 @@ coot::crankshaft::find_maxima(const residue_spec_t &spec_first_residue,
 
 	 if (as.filled()) {
 	    if (false)
-	       std::cout << "sample " << i_sample << " " << as.log_prob << " from angles "
+	       std::cout << "sample " << i_sample << " " << as.minus_log_prob << " from angles "
 			 << std::setw(9) << clipper::Util::rad2d(as.angles[0]) << " "
 			 << std::setw(9) << clipper::Util::rad2d(as.angles[1]) << " "
 			 << std::setw(9) << clipper::Util::rad2d(as.angles[2]) << std::endl;
@@ -527,7 +527,7 @@ coot::crankshaft::find_maxima(const residue_spec_t &spec_first_residue,
       std::ofstream f("solutions");
       for (std::size_t i=0; i<results.size(); i++) {
 	 f << "   value "
-	   << results[i].log_prob << " at (degrees) "
+	   << results[i].minus_log_prob << " at (degrees) "
 	   << clipper::Util::rad2d(results[i].angles[0]) << " "
 	   << clipper::Util::rad2d(results[i].angles[1]) << " "
 	   << clipper::Util::rad2d(results[i].angles[2]) << "\n";
@@ -758,14 +758,17 @@ coot::phi_psi_t
 coot::crankshaft_set::phi_psi(const clipper::Coord_orth &C_pos,
 			      const clipper::Coord_orth &N_pos) const {
 
+   if (v.size() == 0) {
+      throw(std::runtime_error("unset crankshaft_set in phi_psi()"));
+   }
    clipper::Coord_orth p0 = co(v[0]);
    clipper::Coord_orth p1 = co(v[1]);
    clipper::Coord_orth p_ca_1 = co(ca_1);
    clipper::Coord_orth p_ca_2 = co(ca_2);
-   double torsion_phi_1 = clipper::Coord_orth::torsion(p0, p1, p_ca_1, C_pos);
-   double torsion_psi_1 = clipper::Coord_orth::torsion(p1, p_ca_1, C_pos, N_pos);
+   double torsion_phi = clipper::Coord_orth::torsion(p0, p1, p_ca_1, C_pos);
+   double torsion_psi = clipper::Coord_orth::torsion(p1, p_ca_1, C_pos, N_pos);
 
-   return phi_psi_t(torsion_phi_1, torsion_psi_1);
+   return phi_psi_t(torsion_phi, torsion_psi);
 }
 
 coot::phi_psi_t
@@ -777,10 +780,14 @@ coot::crankshaft_set::phi_psi(float ang) const {
       std::cout << "here in phi_psi with ca_2 " << ca_2 << " " << atom_spec_t(ca_2) << std::endl;
    }
 
-   if (! ca_1)
-      std::cout << "ERROR:: ca_1 is unset in crankshaft_set::phi_psi()" << std::endl;
-   if (! ca_2)
-      std::cout << "ERROR:: ca_2 is unset in crankshaft_set::phi_psi()" << std::endl;
+   if (! ca_1) {
+      std::string m = "ERROR:: ca_1 is unset in crankshaft_set::phi_psi()";
+      throw(std::runtime_error(m));
+   }
+   if (! ca_2) {
+      std::string m = "ERROR:: ca_2 is unset in crankshaft_set::phi_psi()";
+      throw(std::runtime_error(m));
+   }
 
    clipper::Coord_orth p_ca_1 = co(ca_1);
    clipper::Coord_orth p_ca_2 = co(ca_2);
@@ -973,8 +980,8 @@ coot::triple_crankshaft_set::triple_crankshaft_set(mmdb::Residue *res_0,
 
 // restores the atom positions in mol after write
 void
-coot::crankshaft::move_the_atoms_and_write(scored_angle_set_t sas,
-					   const std::string &pdb_file_name) {
+coot::crankshaft::move_the_atoms_write_and_restore(scored_angle_set_t sas,
+						   const std::string &pdb_file_name) {
 
    std::map<mmdb::Atom *, clipper::Coord_orth> original_positions;
    std::map<mmdb::Atom *, clipper::Coord_orth>::const_iterator it;
@@ -1000,4 +1007,45 @@ coot::crankshaft::move_the_atoms_and_write(scored_angle_set_t sas,
    for (it=original_positions.begin(); it!=original_positions.end(); it++)
       update_position(it->first, it->second);
 
+}
+
+// move the atoms, create a copy of mol, restore the atom positions
+mmdb::Manager *
+coot::crankshaft::new_mol_with_moved_atoms(scored_angle_set_t sas) {
+
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   std::map<mmdb::Atom *, clipper::Coord_orth> original_positions;
+   std::map<mmdb::Atom *, clipper::Coord_orth>::const_iterator it;
+
+   // 
+   int indices[] = { 2, 3, 4, 5};
+   for (std::size_t i=0; i<3; i++) {
+      // maybe this should be done in a crankshaft_set
+      for (std::size_t iat=0; iat<4; iat++) {
+	 mmdb::Atom *at = sas.tcs[i].v[indices[iat]];
+	 if (at) {
+	    clipper::Coord_orth pos = co(at);
+	    original_positions[at] = pos;
+	 }
+      }
+      sas.tcs[i].move_the_atoms(sas.angles[i]);
+   }
+
+   auto tp_2 = std::chrono::high_resolution_clock::now();
+   // ~ 1ms.
+   mmdb::Manager *mol_new = new mmdb::Manager;
+   mol_new->Copy(mol, mmdb::MMDBFCM_All);
+   auto tp_3 = std::chrono::high_resolution_clock::now();
+
+   // move the atoms back
+   // std::cout << "repositioning " << original_positions.size() << " atoms " << std::endl;
+   for (it=original_positions.begin(); it!=original_positions.end(); it++)
+      update_position(it->first, it->second);
+
+   auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
+   auto d32 = std::chrono::duration_cast<std::chrono::microseconds>(tp_3 - tp_2).count();
+
+   // std::cout << "d21  " << d21 << " d32 " << d32 << " microseconds\n";
+
+   return mol_new;
 }
