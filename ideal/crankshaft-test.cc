@@ -422,16 +422,21 @@ crank_refine_and_score(const coot::residue_spec_t &rs, // mid-residue
 	    auto tp_0 = std::chrono::high_resolution_clock::now();
 	    const std::vector<unsigned int> &i_mols = mols_thread_vec[i_thread];
 
-	    threads.push_back(std::thread(refine_and_score_mols, mols, mols_thread_vec[i_thread],
-	    std::cref(rs), std::cref(local_residue_specs),
-	    std::cref(geom), std::cref(xmap), map_weight,
-	    &mol_scores));
-	    // threads.push_back(std::thread(dummy_func, mols));
-	    auto tp_1 = std::chrono::high_resolution_clock::now();
-	    auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
-	    if (true)
-	       std::cout << "time to push thread: " << d10 << " microseconds\n";
-
+	    // Don't bother to push a thread if there are no molecules to refine
+	    // (this happens when there are more threads than there
+	    // are crankshaft probability maxima/solutions).
+	    //
+	    if (mols_thread_vec[i_thread].size() > 0) {
+	       threads.push_back(std::thread(refine_and_score_mols, mols, mols_thread_vec[i_thread],
+					     std::cref(rs), std::cref(local_residue_specs),
+					     std::cref(geom), std::cref(xmap), map_weight,
+					     &mol_scores));
+	       // threads.push_back(std::thread(dummy_func, mols)); // testing
+	       auto tp_1 = std::chrono::high_resolution_clock::now();
+	       auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+	       if (true)
+		  std::cout << "time to push thread: " << d10 << " microseconds\n";
+	    }
 	 }
 
 
