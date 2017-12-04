@@ -392,6 +392,7 @@ crank_refine_and_score(const coot::residue_spec_t &rs, // mid-residue
 
 #ifdef HAVE_CXX_THREAD
       unsigned int n_threads = coot::get_max_number_of_threads();
+      auto tp_start = std::chrono::high_resolution_clock::now();
 
       if (n_threads > 0) {
 
@@ -417,6 +418,7 @@ crank_refine_and_score(const coot::residue_spec_t &rs, // mid-residue
 	    std::cout << std::endl;
 	 }
 
+         unsigned int n_pushed_threads = 0;
 	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
 
 	    auto tp_0 = std::chrono::high_resolution_clock::now();
@@ -431,6 +433,7 @@ crank_refine_and_score(const coot::residue_spec_t &rs, // mid-residue
 					     std::cref(rs), std::cref(local_residue_specs),
 					     std::cref(geom), std::cref(xmap), map_weight,
 					     &mol_scores));
+               ++n_pushed_threads;
 	       // threads.push_back(std::thread(dummy_func, mols)); // testing
 	       auto tp_1 = std::chrono::high_resolution_clock::now();
 	       auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
@@ -441,12 +444,15 @@ crank_refine_and_score(const coot::residue_spec_t &rs, // mid-residue
 
 
 	 auto tp_2 = std::chrono::high_resolution_clock::now();
-	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
+	 for (unsigned int i_thread=0; i_thread<n_pushed_threads; i_thread++)
 	    threads.at(i_thread).join();
 	 auto tp_3 = std::chrono::high_resolution_clock::now();
 	 auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+	 auto d3start = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_start).count();
 	 if (true)
 	    std::cout << "time to join threads: " << d32 << " milliseconds\n";
+	 if (true)
+	    std::cout << "time to do all refinements: " << d3start << " milliseconds\n";
 
       } else {
 	 std::cout << "ERROR:: No threads" << std::endl;
