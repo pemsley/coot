@@ -36,6 +36,7 @@
 
 #include "utils/coot-utils.hh"
 #include "coot-map-utils.hh"
+#include "geometry/main-chain.hh"
 
 
 bool
@@ -337,8 +338,6 @@ float coot::util::map_score_atom(mmdb::Atom *atom,
    return f;
 }
 
-#include "geometry/main-chain.hh"
-
 float
 coot::util::map_score_by_residue_specs(mmdb::Manager *mol,
 				       const std::vector<residue_spec_t> &res_specs,
@@ -355,7 +354,7 @@ coot::util::map_score_by_residue_specs(mmdb::Manager *mol,
 	 for (int iat=0; iat<n_residue_atoms; iat++) {
 	    mmdb::Atom *at = residue_atoms[iat];
 	    if (! main_chain_only_flag || is_main_chain_or_cb_p(at)) {
-	       if (true) // debug
+	       if (false) // debug
 		  std::cout << "map_score_by_residue_specs "
 			    << atom_spec_t(at) << " " << map_score_atom(at, xmap) << std::endl;
 	       f += map_score_atom(at, xmap);
