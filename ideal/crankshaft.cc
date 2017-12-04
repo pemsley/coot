@@ -1013,7 +1013,8 @@ coot::crankshaft::move_the_atoms_write_and_restore(scored_angle_set_t sas,
 mmdb::Manager *
 coot::crankshaft::new_mol_with_moved_atoms(scored_angle_set_t sas) {
 
-   auto tp_1 = std::chrono::high_resolution_clock::now();
+   // needs thread protection
+   // auto tp_1 = std::chrono::high_resolution_clock::now();
    std::map<mmdb::Atom *, clipper::Coord_orth> original_positions;
    std::map<mmdb::Atom *, clipper::Coord_orth>::const_iterator it;
 
@@ -1031,20 +1032,19 @@ coot::crankshaft::new_mol_with_moved_atoms(scored_angle_set_t sas) {
       sas.tcs[i].move_the_atoms(sas.angles[i]);
    }
 
-   auto tp_2 = std::chrono::high_resolution_clock::now();
+   // auto tp_2 = std::chrono::high_resolution_clock::now();
    // ~ 1ms.
    mmdb::Manager *mol_new = new mmdb::Manager;
    mol_new->Copy(mol, mmdb::MMDBFCM_All);
-   auto tp_3 = std::chrono::high_resolution_clock::now();
+   // auto tp_3 = std::chrono::high_resolution_clock::now();
 
    // move the atoms back
    // std::cout << "repositioning " << original_positions.size() << " atoms " << std::endl;
    for (it=original_positions.begin(); it!=original_positions.end(); it++)
       update_position(it->first, it->second);
 
-   auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
-   auto d32 = std::chrono::duration_cast<std::chrono::microseconds>(tp_3 - tp_2).count();
-
+   // auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
+   // auto d32 = std::chrono::duration_cast<std::chrono::microseconds>(tp_3 - tp_2).count();
    // std::cout << "d21  " << d21 << " d32 " << d32 << " microseconds\n";
 
    return mol_new;
