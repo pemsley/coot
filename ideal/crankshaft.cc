@@ -1,8 +1,20 @@
 
+#include <algorithm> // for sort
+#include <iomanip>
+
 #include "crankshaft.hh"
 
 #include "geometry/main-chain.hh"
 #include "coot-utils/coot-coord-utils.hh"
+
+std::ostream &
+coot::operator<<(std::ostream &s, const coot::crankshaft::scored_angle_set_t &as) {
+
+   std::cout << as.minus_log_prob << " from angles ";
+   for (std::size_t i=0; i<as.angles.size(); i++)
+      s << std::setw(9) << clipper::Util::rad2d(as.angles[i]) << " ";
+   return s;
+}
 
 coot::crankshaft_set::crankshaft_set(mmdb::Residue *res_0,
 				     mmdb::Residue *res_1,
@@ -95,9 +107,89 @@ coot::crankshaft_set::crankshaft_set(mmdb::Residue *res_0,
    }
    if (n_atoms == 8) {
       // happy path
+      make_trans_from_non_pro_cis_if_needed();
    } else {
       throw(std::runtime_error("missing a mainchain atom"));
    }
+}
+
+// move the atoms of of res_1 and res_2 in mol
+// Find if this is cis and move the N, (H), C and O to make it more like a trans
+// N (and H) will move most of course.
+// C and O will move a bit in the direction of new N position
+//
+void
+coot::crankshaft_set::make_trans_from_non_pro_cis_if_needed() {
+
+   if (ca_1) {
+      if (ca_2) {
+	 const std::string res_name_2 = ca_2->GetResName();
+	 if (res_name_2 != "PRO") {
+	    if (is_cis()) {
+	       mmdb::Atom *N_at = v[4];
+	       if (N_at) {
+		  clipper::Coord_orth N_pos = co(N_at);
+		  clipper::Coord_orth C_pos = co(v[2]);
+		  clipper::Coord_orth O_pos = co(v[3]);
+		  clipper::Coord_orth p_ca_1 = co(ca_1);
+		  clipper::Coord_orth p_ca_2 = co(ca_2);
+		  clipper::Coord_orth dir = p_ca_2 - p_ca_1;
+
+		  clipper::Coord_orth N_pos_new = util::rotate_around_vector(dir, N_pos, p_ca_1, M_PI);
+		  update_position(N_at, N_pos_new);
+
+		  // Move the N and C closer together (as needed) along the N-C vector.
+		  // Ideal distance 1.33A
+
+		  clipper::Coord_orth n_c_vec = C_pos - N_pos_new;
+		  clipper::Coord_orth n_c_unit(n_c_vec.unit());
+		  double bl = sqrt(n_c_vec.lengthsq());
+		  double bl_delta = bl - 1.33;
+		  std::cout << "   cis N-C correction bl_delta " << bl_delta << std::endl;
+
+		  clipper::Coord_orth pos_corr = bl_delta * 0.5 * n_c_unit;
+
+		  N_pos_new += pos_corr;
+		  C_pos     -= pos_corr;
+		  O_pos     -= pos_corr;
+
+		  update_position(N_at, N_pos_new);
+		  update_position(v[2], C_pos);
+		  update_position(v[3], O_pos);
+
+		  if (v[5]) { // H, null probably
+		     clipper::Coord_orth H_pos = co(v[5]);
+		     clipper::Coord_orth at_pos_new = util::rotate_around_vector(dir, H_pos, p_ca_1, M_PI);
+		     update_position(v[5], at_pos_new);
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+}
+
+bool
+coot::crankshaft_set::is_cis() const {
+
+   bool cis = false;
+   if (ca_1) {
+      if (ca_2) {
+	 clipper::Coord_orth N_pos = co(v[4]);
+	 clipper::Coord_orth C_pos = co(v[2]);
+	 clipper::Coord_orth p_ca_1 = co(ca_1);
+	 clipper::Coord_orth p_ca_2 = co(ca_2);
+	 clipper::Coord_orth dir = p_ca_2 - p_ca_1;
+	 double tors = clipper::Coord_orth::torsion(p_ca_2, N_pos, C_pos, p_ca_1);
+	 std::cout << "  torsion for ca_1 " << atom_spec_t(ca_1) << " "
+		   << clipper::Util::rad2d(tors) << " degrees" << std::endl;
+	 if (std::abs(tors) < M_PI_2)
+	    cis = true;
+      }
+   }
+   std::cout << "debug:: is cis for ca_1 " << atom_spec_t(ca_1) << " " << cis << std::endl;
+   return cis;
+
 }
 
 // n_samples = 60 default arg
@@ -243,9 +335,15 @@ coot::triple_crankshaft_set::triple_crankshaft_set(const residue_spec_t &spec_fi
 				  << residue_spec_t(res_4) << " "
 				  << residue_spec_t(res_5) << " "
 				  << std::endl;
+		     std::cout << "------ making cranshaft-set 0 " << std::endl;
 		     cs[0] = crankshaft_set(res_0, res_1, res_2, res_3);
+		     std::cout << "------ making cranshaft-set 1 " << std::endl;
 		     cs[1] = crankshaft_set(res_1, res_2, res_3, res_4);
+		     std::cout << "------ making cranshaft-set 2 " << std::endl;
 		     cs[2] = crankshaft_set(res_2, res_3, res_4, res_5);
+
+		     // debug
+		     mol->WritePDBASCII("uncis.pdb");
 		  }
 	       }
 	    }
@@ -330,15 +428,16 @@ coot::crankshaft::triple_spin_search(const residue_spec_t &spec_first_residue,
 
 // not const because we can change the atoms of mol if apply_best_angles_flag is set
 //
-// change the return type
-void
+std::vector<coot::crankshaft::scored_angle_set_t>
 coot::crankshaft::find_maxima(const residue_spec_t &spec_first_residue,
 			      const zo::rama_table_set &zorts,
 			      unsigned int n_samples) {
 
-   n_samples = 1; // hack for testing
+   // n_samples = 1; // hack for testing
 
    // 0.1-2-3-4.5  (. for ref, - is spin)
+
+   std::vector<scored_angle_set_t> results;
 
    try {
       triple_crankshaft_set tcs(spec_first_residue, zorts, mol);
@@ -347,14 +446,95 @@ coot::crankshaft::find_maxima(const residue_spec_t &spec_first_residue,
       for (std::size_t i_sample=0; i_sample<n_samples; i_sample++) {
 
 	 // make these random numbers 0 -> 2pi
-	 float start_angles[] = { 10.0, 20.0, 30.0 }; // in radians
-	 run_optimizer(start_angles, tcs, zorts);
+	 float start_angles[] = { 1.0, 2.0, 3.0 }; // in radians
+
+	 for (std::size_t i=0; i<3; i++)
+	    start_angles[i] = 2 * M_PI * float(coot::util::random())/float(RAND_MAX);
+
+	 start_angles[2] = 0; // make it a 2-D problem
+
+	 // testing wild solutions
+	 // start_angles[0] = clipper::Util::d2rad(264.849);
+	 // start_angles[1] = clipper::Util::d2rad(122.957);
+	 // start_angles[2] = clipper::Util::d2rad(300.472);
+	 //
+	 // start_angles[0] = clipper::Util::d2rad();
+	 // start_angles[1] = clipper::Util::d2rad();
+	 // start_angles[2] = clipper::Util::d2rad();
+	 //
+	 // start_angles[0] = clipper::Util::d2rad(351.391);
+	 // start_angles[1] = clipper::Util::d2rad(287.775);
+	 // start_angles[2] = clipper::Util::d2rad(49.7706);
+
+	 scored_angle_set_t as = run_optimizer(start_angles, tcs, zorts);
+
+	 if (as.filled()) {
+	    if (false)
+	       std::cout << "sample " << i_sample << " " << as.minus_log_prob << " from angles "
+			 << std::setw(9) << clipper::Util::rad2d(as.angles[0]) << " "
+			 << std::setw(9) << clipper::Util::rad2d(as.angles[1]) << " "
+			 << std::setw(9) << clipper::Util::rad2d(as.angles[2]) << std::endl;
+
+	    // add it if not already something similar
+	    //
+	    bool add_it = true;
+
+	    if (false) { // what's close?
+	       float closest_delta = 999.9;
+	       for (std::size_t i=0; i<results.size(); i++) {
+		  float diff = results[i].angles[0] - as.angles[0];
+		  float this_delta_2 = diff * diff;
+		  diff = results[i].angles[1] - as.angles[1];
+		  this_delta_2 += diff * diff;
+		  diff = results[i].angles[2] - as.angles[2];
+		  this_delta_2 += diff * diff;
+		  float this_delta = sqrt(this_delta_2);
+		  if (this_delta < closest_delta) {
+		     closest_delta = this_delta;
+		  }
+	       }
+	       std::cout << "closest-delta: " << closest_delta << std::endl;
+	    }
+
+	    for (std::size_t i=0; i<results.size(); i++) {
+	       if (results[i].is_close(as)) {
+		  add_it = false;
+		  break;
+	       }
+	    }
+	    if (add_it) {
+	       if (false)
+		  std::cout << "as: " << as << " from starting angles "
+			    << clipper::Util::rad2d(start_angles[0]) << " "
+			    << clipper::Util::rad2d(start_angles[1]) << " "
+			    << clipper::Util::rad2d(start_angles[2]) << " "
+			    << std::endl;
+	       results.push_back(as);
+	    } else {
+	       // std::cout << "we already have that " << std::endl;
+	    }
+	 }
       }
+      std::cout << "From " << n_samples << " samples, found  " << results.size()
+		<< " unique solutions" << std::endl;
    }
    catch (const std::runtime_error &rte) {
       std::cout << "WARNING:: " << rte.what() << std::endl;
    }
 
+   std::sort(results.begin(), results.end());
+
+   if (true) {
+      std::ofstream f("solutions");
+      for (std::size_t i=0; i<results.size(); i++) {
+	 f << "   value "
+	   << results[i].minus_log_prob << " at (degrees) "
+	   << clipper::Util::rad2d(results[i].angles[0]) << " "
+	   << clipper::Util::rad2d(results[i].angles[1]) << " "
+	   << clipper::Util::rad2d(results[i].angles[2]) << "\n";
+      }
+   }
+   return results;
 }
 
 // The function and the derivatives need to be turned upside down at some
@@ -382,10 +562,11 @@ coot::crankshaft::optimize_a_triple::f(const gsl_vector *v, void *params) {
       log_prob_sum += pr;
    }
 
-   std::cout << "f() with angles "
-	     << gsl_vector_get(v, 0) << " " <<  gsl_vector_get(v, 1) << " " << gsl_vector_get(v, 2) << " "
-	     << " returns " << log_prob_sum << std::endl;
-   return log_prob_sum;
+   if (false)
+      std::cout << "f() with angles "
+		<< gsl_vector_get(v, 0) << " " <<  gsl_vector_get(v, 1) << " " << gsl_vector_get(v, 2) << " "
+		<< " returns " << log_prob_sum << std::endl;
+   return -log_prob_sum; // we want maxima
 }
 
 
@@ -424,26 +605,32 @@ coot::crankshaft::optimize_a_triple::df(const gsl_vector *v,
    // extract the table refs
    const param_holder_t *param_holder = reinterpret_cast<param_holder_t *> (params);
    const zo::rama_table_set &zorts = param_holder->zorts;
+
+   gsl_vector_set(df_vec, 2, 0);
    for (unsigned int i=0; i<3; i++) {
       phi_psi_t pp = param_holder->tcs[i].phi_psi(gsl_vector_get(v, i));
       const std::string &rt = param_holder->tcs.residue_type(i+1);
-      std::cout << "debug:: in df() for peptide index " << i << " rt " << rt << std::endl;
+      // std::cout << "debug:: in df() for peptide index " << i << " rt " << rt << std::endl;
       std::pair<mmdb::realtype,mmdb::realtype> grads = zorts.df(pp, rt);
-      std::cout << "debug:: in df() for peptide index " << i << " pp " << pp.phi << " " << pp.psi
-		<< " gradients " << grads.first << " " << grads.second << std::endl;
-      gsl_vector_set(df_vec, i, grads.first);
+      if (false)
+	 std::cout << "debug:: in df() analyticals for peptide index " << i
+		   << " pp " << pp.phi << " " << pp.psi
+		   << " gradients " << grads.first << " " << grads.second << std::endl;
 
       if (do_numerical) {
-	 float delta = 0.01;
+	 float delta = 0.002;
 	 phi_psi_t pp_1 = param_holder->tcs[i].phi_psi(gsl_vector_get(v, i) + delta);
 	 phi_psi_t pp_2 = param_holder->tcs[i].phi_psi(gsl_vector_get(v, i) - delta);
 	 float pr_1 = param_holder->tcs.log_prob(pp_1, i+1, zorts);
 	 float pr_2 = param_holder->tcs.log_prob(pp_2, i+1, zorts);
-	 float numerical_grad = (pr_1 - pr_2) / (2 * delta);
-	 std::cout << "debug:: in df() for peptide index " << i << " pp "
-		   << pp.phi << " " << pp.psi
-		   << " gradients " << grads.first << " " << grads.second
-		   << " numerical " << numerical_grad << std::endl;
+	 float numerical_grad = - (pr_1 - pr_2) / (2 * delta);
+	 if (false)
+	    std::cout << "debug:: in df() for peptide index " << i
+		      << " angles "
+		      << clipper::Util::rad2d(gsl_vector_get(v, i)) << " "
+		      << " pp " << pp.phi << " " << pp.psi
+		      << " numerical gradient from " << pr_1 << " - " << pr_2 << " / 2 * " << delta
+		      << " = " << numerical_grad << std::endl;
 	 gsl_vector_set(df_vec, i, numerical_grad);
       }
    }
@@ -457,16 +644,13 @@ coot::crankshaft::optimize_a_triple::fdf(const gsl_vector *x, void *params,
   df(x, params, df_in);
 }
 
-void
+coot::crankshaft::scored_angle_set_t
 coot::crankshaft::run_optimizer(float start_angles[],
 				const coot::triple_crankshaft_set &tcs,
 				const zo::rama_table_set &zorts) {
 
   size_t iter = 0;
   int status;
-
-  /* Position of the minimum (1,2), scale factors 10,20, height 30. */
-  // double par[5] = { 1.0, 2.0, 10.0, 20.0, 30.0 };
 
   std::vector<std::string> residue_types; // where does this come from?
   param_holder_t param_holder(zorts, tcs);
@@ -480,8 +664,6 @@ coot::crankshaft::run_optimizer(float start_angles[],
   my_func.fdf = &optimize_a_triple::fdf;
   my_func.params = reinterpret_cast<void *> (&param_holder);
 
-  /* Starting point, x = (5,7) */
-
   x = gsl_vector_alloc(3);
   gsl_vector_set(x, 0, start_angles[0]); // refactor
   gsl_vector_set(x, 1, start_angles[1]);
@@ -490,7 +672,8 @@ coot::crankshaft::run_optimizer(float start_angles[],
   const gsl_multimin_fdfminimizer_type *T = gsl_multimin_fdfminimizer_conjugate_pr;
   gsl_multimin_fdfminimizer *s = gsl_multimin_fdfminimizer_alloc (T, 3);
 
-  gsl_multimin_fdfminimizer_set(s, &my_func, x, 2.0, 1.0); // within 1 degree is good enough
+  // small moves Ellie, small moves...
+  gsl_multimin_fdfminimizer_set(s, &my_func, x, 0.01, 1.0); // within 1 degree is good enough
 
   do {
       iter++;
@@ -499,27 +682,58 @@ coot::crankshaft::run_optimizer(float start_angles[],
       if (status)
         break;
 
-      status = gsl_multimin_test_gradient(s->gradient, 1e-3);
+      status = gsl_multimin_test_gradient(s->gradient, 5e-2);
 
       if (status == GSL_SUCCESS)
-        printf ("Minimum found at:\n");
+	 if (false)
+	    std::cout << "Minimum found at: "
+		      << iter << " "
+		      << gsl_vector_get(s->x, 0) << " "
+		      << gsl_vector_get(s->x, 1) << " "
+		      << gsl_vector_get(s->x, 2) << " value "
+		      << s->f << "\n";
 
-      std::cout << iter << " "
-		<< gsl_vector_get(s->x, 0) << " "
-		<< gsl_vector_get(s->x, 1) << " "
-		<< gsl_vector_get(s->x, 2) << " "
-		<< s->f << "\n";
+  } while (status == GSL_CONTINUE && iter < 1000);
 
-  } while (status == GSL_CONTINUE && iter < 100);
+  scored_angle_set_t sas; // empty
 
   if (status == GSL_ENOPROG) {
-     std::cout << "No progress" << std::endl;
-  }
+     // std::cout << "No progress" << std::endl;
+  } else {
 
-  std::cout << "iter: " << iter << std::endl;
+     // sometimes we get wild solutions - not clear why (they seem to have sensibly log probs)
+     // so trash those here.
+     bool sane = true;
+     for (std::size_t i=0; i<3; i++) {
+	if (gsl_vector_get(s->x, i) < -M_PI_2) {
+	   sane = false;
+	   break;
+	}
+	if (gsl_vector_get(s->x, i) > (2.5 * M_PI)) {
+	   sane = false;
+	   break;
+	}
+     }
+
+     if (sane) {
+	std::vector<float> sv(3);
+	for (std::size_t i=0; i<3; i++) {
+	   sv[i] = gsl_vector_get(s->x, i);
+	   if (sv[i] < 0) {
+	      sv[i] += 2*M_PI;
+	   }
+	   if (sv[i] > 6.283) {
+	      sv[i] -= 2*M_PI;
+	   }
+	}
+	float score = s->f;
+	sas = scored_angle_set_t(tcs, sv, score);
+     }
+  }  
 
   gsl_multimin_fdfminimizer_free (s);
   gsl_vector_free (x);
+  return sas;
 
 }
 
@@ -545,14 +759,17 @@ coot::phi_psi_t
 coot::crankshaft_set::phi_psi(const clipper::Coord_orth &C_pos,
 			      const clipper::Coord_orth &N_pos) const {
 
+   if (v.size() == 0) {
+      throw(std::runtime_error("unset crankshaft_set in phi_psi()"));
+   }
    clipper::Coord_orth p0 = co(v[0]);
    clipper::Coord_orth p1 = co(v[1]);
    clipper::Coord_orth p_ca_1 = co(ca_1);
    clipper::Coord_orth p_ca_2 = co(ca_2);
-   double torsion_phi_1 = clipper::Coord_orth::torsion(p0, p1, p_ca_1, C_pos);
-   double torsion_psi_1 = clipper::Coord_orth::torsion(p1, p_ca_1, C_pos, N_pos);
+   double torsion_phi = clipper::Coord_orth::torsion(p0, p1, p_ca_1, C_pos);
+   double torsion_psi = clipper::Coord_orth::torsion(p1, p_ca_1, C_pos, N_pos);
 
-   return phi_psi_t(torsion_phi_1, torsion_psi_1);
+   return phi_psi_t(torsion_phi, torsion_psi);
 }
 
 coot::phi_psi_t
@@ -564,10 +781,14 @@ coot::crankshaft_set::phi_psi(float ang) const {
       std::cout << "here in phi_psi with ca_2 " << ca_2 << " " << atom_spec_t(ca_2) << std::endl;
    }
 
-   if (! ca_1)
-      std::cout << "ERROR:: ca_1 is unset in crankshaft_set::phi_psi()" << std::endl;
-   if (! ca_2)
-      std::cout << "ERROR:: ca_2 is unset in crankshaft_set::phi_psi()" << std::endl;
+   if (! ca_1) {
+      std::string m = "ERROR:: ca_1 is unset in crankshaft_set::phi_psi()";
+      throw(std::runtime_error(m));
+   }
+   if (! ca_2) {
+      std::string m = "ERROR:: ca_2 is unset in crankshaft_set::phi_psi()";
+      throw(std::runtime_error(m));
+   }
 
    clipper::Coord_orth p_ca_1 = co(ca_1);
    clipper::Coord_orth p_ca_2 = co(ca_2);
@@ -747,13 +968,85 @@ coot::triple_crankshaft_set::triple_crankshaft_set(mmdb::Residue *res_0,
 						   mmdb::Residue *res_5,
 						   const std::vector<std::string> &residue_types_in) {
 
-   std::cout << "constructing a crankshaft_set for 0" << std::endl;
+   std::cout << "debug:: constructing a crankshaft_set for 0" << std::endl;
    cs[0] = crankshaft_set(res_0, res_1, res_2, res_3);
-   std::cout << "constructing a crankshaft_set for 1" << std::endl;
+   std::cout << "debug:: constructing a crankshaft_set for 1" << std::endl;
    cs[1] = crankshaft_set(res_1, res_2, res_3, res_4);
-   std::cout << "constructing a crankshaft_set for 2" << std::endl;
+   std::cout << "debug:: constructing a crankshaft_set for 2" << std::endl;
    cs[2] = crankshaft_set(res_2, res_3, res_4, res_5);
    residue_types = residue_types_in;
    
 }
 
+
+// restores the atom positions in mol after write
+void
+coot::crankshaft::move_the_atoms_write_and_restore(scored_angle_set_t sas,
+						   const std::string &pdb_file_name) {
+
+   std::map<mmdb::Atom *, clipper::Coord_orth> original_positions;
+   std::map<mmdb::Atom *, clipper::Coord_orth>::const_iterator it;
+
+   // 
+   int indices[] = { 2, 3, 4, 5};
+   for (std::size_t i=0; i<3; i++) {
+      // maybe this should be done in a crankshaft_set
+      for (std::size_t iat=0; iat<4; iat++) {
+	 mmdb::Atom *at = sas.tcs[i].v[indices[iat]];
+	 if (at) {
+	    clipper::Coord_orth pos = co(at);
+	    original_positions[at] = pos;
+	 }
+      }
+      sas.tcs[i].move_the_atoms(sas.angles[i]);
+      // std::cout << "writing " << pdb_file_name << std::endl;
+      mol->WritePDBASCII(pdb_file_name.c_str());
+   }
+
+   // move the atoms back
+   // std::cout << "repositioning " << original_positions.size() << " atoms " << std::endl;
+   for (it=original_positions.begin(); it!=original_positions.end(); it++)
+      update_position(it->first, it->second);
+
+}
+
+// move the atoms, create a copy of mol, restore the atom positions
+mmdb::Manager *
+coot::crankshaft::new_mol_with_moved_atoms(scored_angle_set_t sas) {
+
+   // needs thread protection
+   // auto tp_1 = std::chrono::high_resolution_clock::now();
+   std::map<mmdb::Atom *, clipper::Coord_orth> original_positions;
+   std::map<mmdb::Atom *, clipper::Coord_orth>::const_iterator it;
+
+   // 
+   int indices[] = { 2, 3, 4, 5};
+   for (std::size_t i=0; i<3; i++) {
+      // maybe this should be done in a crankshaft_set
+      for (std::size_t iat=0; iat<4; iat++) {
+	 mmdb::Atom *at = sas.tcs[i].v[indices[iat]];
+	 if (at) {
+	    clipper::Coord_orth pos = co(at);
+	    original_positions[at] = pos;
+	 }
+      }
+      sas.tcs[i].move_the_atoms(sas.angles[i]);
+   }
+
+   // auto tp_2 = std::chrono::high_resolution_clock::now();
+   // ~ 1ms.
+   mmdb::Manager *mol_new = new mmdb::Manager;
+   mol_new->Copy(mol, mmdb::MMDBFCM_All);
+   // auto tp_3 = std::chrono::high_resolution_clock::now();
+
+   // move the atoms back
+   // std::cout << "repositioning " << original_positions.size() << " atoms " << std::endl;
+   for (it=original_positions.begin(); it!=original_positions.end(); it++)
+      update_position(it->first, it->second);
+
+   // auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
+   // auto d32 = std::chrono::duration_cast<std::chrono::microseconds>(tp_3 - tp_2).count();
+   // std::cout << "d21  " << d21 << " d32 " << d32 << " microseconds\n";
+
+   return mol_new;
+}

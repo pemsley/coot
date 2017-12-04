@@ -214,7 +214,8 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 
 	    // do_rigid_body_refinement is ignored
 	    //
-	    std::cout << "dispatching trial set " << trial_idx_start << " to " << trial_idx_end << "\n";
+	    std::cout << "DEBUG:: fit_terminal_residue_generic() dispatching trial set "
+		      << trial_idx_start << " to " << trial_idx_end << "\n";
 	    thread_pool_p->push(fit_terminal_residue_generic_trial_inner_multithread,
 				trial_idx_start, trial_idx_end, offset, residue_p, next_residue_seq_num,
 				terminus_type, residue_type, b_factor,

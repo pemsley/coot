@@ -3832,8 +3832,6 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       //
       if (s >= 0) {
 
-	 // std::cout << "here in key_release_event for +/=" << std::endl;
-
 	 graphics_info_t::molecules[s].pending_contour_level_change_count++;
 	 int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, g.glarea);
 

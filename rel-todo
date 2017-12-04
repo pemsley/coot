@@ -58,6 +58,9 @@
    o ZO: make a default so that hydrogens are not displayed by default - rather than turning them off 
          after I have read it in. ::: 1
 
+   o using set_refine_ramachandran_restraints_weight(float w) 
+     needs to affect the refinement.
+
    o add an arg to init_from_residue_vec() and so the restraints_container_t
      constructor from which it is called that says "don't make links to residues
      that have a residue number difference greater than 1" - which will stop annoying

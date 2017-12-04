@@ -76,7 +76,7 @@ coot::restraints_container_t::add_fixed_atoms_from_flanking_residues(bool have_f
 								     int iselection_start_res,
 								     int iselection_end_res) {
 
-   if (true)
+   if (false)
       std::cout << "debug:: in add_fixed_atoms_from_flanking_residues() "
 		<< have_flanking_residue_at_start << " "
 		<< have_flanking_residue_at_end << " "

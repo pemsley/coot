@@ -726,6 +726,7 @@ coot::rama_plot::make_background(const clipper::Ramachandran rama_type,
             colour = "Red";
             colour = "Coral";
             colour = "LightSalmon";
+            colour = "MistyRose";
 
             item = goo_canvas_rect_new(bg_group,
                                        i+0.0,
