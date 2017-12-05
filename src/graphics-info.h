@@ -1628,7 +1628,8 @@ public:
    void update_ramachandran_plot_point_maybe(int imol, mmdb::Atom *atom);
    void update_ramachandran_plot_point_maybe(int imol, const coot::residue_spec_t &res_spec);
    void update_ramachandran_plot_point_maybe(int imol, atom_selection_container_t moving_atoms);
-   
+   void update_ramachandran_plot_background_from_res_spec(coot::rama_plot *plot, int imol,
+                                                          const coot::residue_spec_t &res_spec);
 
 
    float X(void) { return rotation_centre_x; };
