@@ -352,7 +352,7 @@ crank_refine_and_score(const coot::residue_spec_t &rs, // mid-residue
       // consider changing the API to find_maxima to be the middle of the 3 residues
       //
       //
-      std::vector<coot::crankshaft::scored_angle_set_t> sas =
+      std::vector<coot::crankshaft::scored_triple_angle_set_t> sas =
 	 cs.find_maxima(prev_residue_spec, zorts, n_samples);
       // where did they move to?
       std::cout << "sas size: " << sas.size() << std::endl;
@@ -407,7 +407,7 @@ crank_refine_and_score(const coot::residue_spec_t &rs, // mid-residue
 	    thread_idx++;
 	    if (thread_idx == n_threads) thread_idx = 0;
 	 }
-      
+
 	 std::cout << "debug:: the mols_thread_vecs are: " << std::endl;
 	 for (std::size_t j=0; j<mols_thread_vec.size(); j++) {
 	    std::cout << "thread " << j << " of " << mols_thread_vec.size() << " threads " << std::endl;
@@ -438,7 +438,6 @@ crank_refine_and_score(const coot::residue_spec_t &rs, // mid-residue
 		  std::cout << "time to push thread: " << d10 << " microseconds\n";
 	    }
 	 }
-
 
 	 auto tp_2 = std::chrono::high_resolution_clock::now();
 	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)

@@ -93,6 +93,36 @@ namespace coot {
    };
 
 
+   // now extended to an arbitrary number of residues
+   //
+   class nmer_crankshaft_set {
+
+      std::vector<crankshaft_set> cs; // changed from array[3]
+      std::vector<std::string> residue_types;
+
+   public:
+      nmer_crankshaft_set(const std::vector<mmdb::Residue *> residues_in,
+			  const std::vector<std::string> &rts);
+      // maybe we can save zorts in this class with a const ref?
+      // above constructor will need changing however.
+      nmer_crankshaft_set(const residue_spec_t &spec_first_residue,
+			  const zo::rama_table_set &zorts,
+			  mmdb::Manager *mol);
+      nmer_crankshaft_set() {}
+      const crankshaft_set &operator[](unsigned int i) const { return cs[i]; }
+      crankshaft_set &operator[](unsigned int i) { return cs[i]; } // for move_the_atoms()
+      phi_psi_t phi_psi(unsigned int peptide_idx, float angle) const;
+      std::pair<phi_psi_t, phi_psi_t> phi_psis_last(float ang_third) const;
+      void move_the_atoms(const std::vector<float> &angles_in);
+      const std::string &residue_type(unsigned int idx) const { return residue_types[idx]; }
+      // the peptide_index is used index the residue types (i.e. starts at 1).
+      float log_prob(const phi_psi_t &pp, unsigned int peptide_index, const zo::rama_table_set &zorts) const {
+	 return zorts.value(pp, residue_types[peptide_index]);
+      }
+      unsigned int size() const { return cs.size(); }
+      unsigned int n_peptides() const { return size(); }
+   };
+
    // this class does not do the right thing when used for residues with alt confs
    //
    class crankshaft {
@@ -104,13 +134,29 @@ namespace coot {
 	 static void fdf(const gsl_vector *x, void *params, double *f, gsl_vector *df);
       };
 
-      class param_holder_t {
+      class optimize_an_nmer {
       public:
-	 param_holder_t(const zo::rama_table_set &rts_in,
-			const triple_crankshaft_set &tcs_in)
+	 static double f(const gsl_vector *v, void *params);
+	 static void  df(const gsl_vector *v, void *params, gsl_vector *df);
+	 static void fdf(const gsl_vector *x, void *params, double *f, gsl_vector *df);
+      };
+
+      class triple_set_param_holder_t {
+      public:
+	 triple_set_param_holder_t(const zo::rama_table_set &rts_in,
+				  const triple_crankshaft_set &tcs_in)
 	    : zorts(rts_in), tcs(tcs_in) { }
 	 const zo::rama_table_set &zorts;
 	 const triple_crankshaft_set &tcs; // aha! const ref in constructed object
+      };
+
+      class nmer_set_param_holder_t {
+      public:
+	 nmer_set_param_holder_t(const zo::rama_table_set &rts_in,
+				 const nmer_crankshaft_set &cs_in)
+	    : zorts(rts_in), cs(cs_in) { }
+	 const zo::rama_table_set &zorts;
+	 const nmer_crankshaft_set &cs; // aha! const ref in constructed object
       };
 
       mmdb::Manager *mol;
@@ -126,15 +172,14 @@ namespace coot {
       // a scored_angle_set_t needs to contain the info about the atoms
       // so that a scored_angle_set_t can be used to move the atoms
       //
-      class scored_angle_set_t : public triple_crankshaft_set {
+      class scored_triple_angle_set_t : public triple_crankshaft_set {
       public:
-	 scored_angle_set_t() { minus_log_prob = 0; }
-	 scored_angle_set_t(const triple_crankshaft_set &tcs_in,
-			    const std::vector<float> &angles_in, float lp) : tcs(tcs_in), angles(angles_in), minus_log_prob(lp) {};
-	 triple_crankshaft_set tcs;
+	 scored_triple_angle_set_t() { minus_log_prob = 0; }
+	 scored_triple_angle_set_t(const triple_crankshaft_set &tcs_in,
+				   const std::vector<float> &angles_in, float lp) : triple_crankshaft_set(tcs_in), angles(angles_in), minus_log_prob(lp) {};
 	 std::vector<float> angles;
 	 float minus_log_prob;
-	 bool is_close(const scored_angle_set_t &sas_in) const {
+	 bool is_close(const scored_triple_angle_set_t &sas_in) const {
 	    float big_delta = clipper::Util::d2rad(5.0);
 	    bool same = true;
 	    for (std::size_t i=0; i<angles.size(); i++) {
@@ -145,11 +190,39 @@ namespace coot {
 	    }
 	    return same;
 	 }
-	 bool operator<(const scored_angle_set_t &sas_in) const {
+	 bool operator<(const scored_triple_angle_set_t &sas_in) const {
 	    return (minus_log_prob < sas_in.minus_log_prob);
 	 }
 	 bool filled() { return (angles.size() > 0); }
-	 friend std::ostream &operator<<(std::ostream &s, const scored_angle_set_t &r);
+	 friend std::ostream &operator<<(std::ostream &s, const scored_triple_angle_set_t &r);
+      };
+
+      // a scored_angle_set_t needs to contain the info about the atoms
+      // so that a scored_angle_set_t can be used to move the atoms
+      //
+      class scored_nmer_angle_set_t : public nmer_crankshaft_set {
+      public:
+	 scored_nmer_angle_set_t() { minus_log_prob = 0; }
+	 scored_nmer_angle_set_t(const nmer_crankshaft_set &nmer_in,
+				 const std::vector<float> &angles_in, float lp) : nmer_crankshaft_set(nmer_in), angles(angles_in), minus_log_prob(lp) {};
+	 std::vector<float> angles;
+	 float minus_log_prob;
+	 bool is_close(const scored_triple_angle_set_t &sas_in) const {
+	    float big_delta = clipper::Util::d2rad(5.0);
+	    bool same = true;
+	    for (std::size_t i=0; i<angles.size(); i++) {
+	       if (std::abs(sas_in.angles[i] - angles[i]) > big_delta) {
+		  same = false;
+		  break;
+	       }
+	    }
+	    return same;
+	 }
+	 bool operator<(const scored_triple_angle_set_t &sas_in) const {
+	    return (minus_log_prob < sas_in.minus_log_prob);
+	 }
+	 bool filled() { return (angles.size() > 0); }
+	 friend std::ostream &operator<<(std::ostream &s, const scored_triple_angle_set_t &r);
       };
 
       std::pair<float, float> probability_of_spin_orientation(const std::pair<phi_psi_t, phi_psi_t> &ppp,
@@ -185,28 +258,28 @@ namespace coot {
       // std::vector<scored_angle_set_t>
       // scored_angle_set_t is a score and a set of peptide rotation angles.
       //
-      std::vector<scored_angle_set_t>
+      std::vector<scored_triple_angle_set_t>
       find_maxima(const residue_spec_t &spec_first_residue,
 		  const zo::rama_table_set &zorts,
 		  unsigned int n_samples=60); // there are perhaps 50 maxima
 
-      scored_angle_set_t run_optimizer(float start_angles[],
-				       const coot::triple_crankshaft_set &tcs,
-				       const zo::rama_table_set &zorts);
+      scored_triple_angle_set_t run_optimizer(float start_angles[],
+					      const coot::triple_crankshaft_set &tcs,
+					      const zo::rama_table_set &zorts);
 
       // restores the atom positions in mol after write
       // sas is not const because we move the atoms (non-const of a crankshaft_set).
-      void move_the_atoms_write_and_restore(scored_angle_set_t sas, const std::string &pdb_file_name);
+      void move_the_atoms_write_and_restore(scored_triple_angle_set_t sas, const std::string &pdb_file_name);
 
       // move the atoms, create a copy of mol, restore the atom positions
-      mmdb::Manager *new_mol_with_moved_atoms(scored_angle_set_t sas);
+      mmdb::Manager *new_mol_with_moved_atoms(scored_triple_angle_set_t sas);
 
       // spin-search test the individual residues of input mol
       void test() const;
 
    };
 
-      std::ostream &operator<<(std::ostream &s, const crankshaft::scored_angle_set_t &r);
+   std::ostream &operator<<(std::ostream &s, const crankshaft::scored_triple_angle_set_t &r);
    
 }
 
