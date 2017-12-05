@@ -632,5 +632,5 @@ dynarama_bin_LDADD = \
         $(MMDB_LIBS)            \
         $(GLOB_LIBS)            \
         $(GOOCANVAS_LIBS)       \
-        $(LIBGLADE_LIBS)
-
+        $(LIBGLADE_LIBS) 	\
+        @GTK_LIBS@
