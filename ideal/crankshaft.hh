@@ -12,6 +12,10 @@
 #include "phi-psi.hh"
 #include "zo-rama.hh"
 
+// for refinement:
+#include "clipper/core/xmap.h"
+#include <geometry/protein-geometry.hh>
+
 namespace coot {
 
    class crankshaft_set {
@@ -159,10 +163,38 @@ namespace coot {
 	 const nmer_crankshaft_set &cs; // aha! const ref in constructed object
       };
 
+      // to hold refinement scores
+      class molecule_score_t {
+      public:
+	 molecule_score_t() { density_score = -1; model_score = -1;}
+	 float density_score; // ~50, big is good - needs thought with cryo-EM maps
+	 float model_score;   // ~50, big is bad
+      };
+
       mmdb::Manager *mol;
       // caller ensures that res_1 and res_2 are valid
       std::vector<mmdb::Atom *> get_mainchain_atoms(mmdb::Residue *res_1, mmdb::Residue *res_2) const;
       mmdb::Atom *get_atom(mmdb::Residue *res_1, const std::string &atom_name) const;
+
+      // threaded refinement
+      static void
+      refine_and_score_mols(std::vector<mmdb::Manager *> mols,
+			    const std::vector<unsigned int> &mols_thread_vec,
+			    const coot::residue_spec_t &res_spec_mid,
+			    const std::vector<coot::residue_spec_t> &residue_specs_for_scoring,
+			    const coot::protein_geometry &geom,
+			    const clipper::Xmap<float> &xmap,
+			    float map_weight,
+			    std::vector<molecule_score_t> *mol_scores);
+      static molecule_score_t
+      refine_and_score_mol(mmdb::Manager *mol,
+			   const coot::residue_spec_t &res_spec_mid,
+			   const std::vector<coot::residue_spec_t> &residue_specs_for_scoring,
+			   const coot::protein_geometry &geom,
+			   const clipper::Xmap<float> &xmap,
+			   float map_weight,
+			   const std::string &output_pdb_file_name);
+
    public:
       crankshaft(mmdb::Manager *mol_in) {
 	 mol = new mmdb::Manager;
@@ -267,6 +299,10 @@ namespace coot {
 					      const coot::triple_crankshaft_set &tcs,
 					      const zo::rama_table_set &zorts);
 
+      scored_nmer_angle_set_t run_optimizer(const std::vector<float> &start_angles,
+					    const coot::nmer_crankshaft_set &cs,
+					    const zo::rama_table_set &zorts);
+
       // restores the atom positions in mol after write
       // sas is not const because we move the atoms (non-const of a crankshaft_set).
       void move_the_atoms_write_and_restore(scored_triple_angle_set_t sas, const std::string &pdb_file_name);
@@ -274,12 +310,24 @@ namespace coot {
       // move the atoms, create a copy of mol, restore the atom positions
       mmdb::Manager *new_mol_with_moved_atoms(scored_triple_angle_set_t sas);
 
+      // move the atoms, create a copy of mol, restore the atom positions
+      mmdb::Manager *new_mol_with_moved_atoms(scored_nmer_angle_set_t sas);
+
       // spin-search test the individual residues of input mol
       void test() const;
+
+      static void
+      crank_refine_and_score(const coot::residue_spec_t &rs, // mid-residue
+			     const clipper::Xmap<float> &xmap,
+			     mmdb::Manager *mol, // or do I want an atom_selection_container_t for
+			                         // use with atom index transfer?
+			     float map_weight,
+			     int n_samples);
 
    };
 
    std::ostream &operator<<(std::ostream &s, const crankshaft::scored_triple_angle_set_t &r);
+
    
 }
 
