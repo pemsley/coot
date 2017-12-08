@@ -101,29 +101,36 @@ namespace coot {
    //
    class nmer_crankshaft_set {
 
-      std::vector<crankshaft_set> cs; // changed from array[3]
+      std::vector<crankshaft_set> cs_vec; // changed from array[3]
       std::vector<std::string> residue_types;
 
    public:
-      nmer_crankshaft_set(const std::vector<mmdb::Residue *> residues_in,
-			  const std::vector<std::string> &rts);
       // maybe we can save zorts in this class with a const ref?
       // above constructor will need changing however.
+      // this can throw a std::runtime_error
       nmer_crankshaft_set(const residue_spec_t &spec_first_residue,
+			  unsigned int n_peptides,
 			  const zo::rama_table_set &zorts,
 			  mmdb::Manager *mol);
+      // I don't think that this is used. Delete.
+      // nmer_crankshaft_set(const std::vector<mmdb::Residue *> residues_in,
+      // const std::vector<std::string> &rts);
       nmer_crankshaft_set() {}
-      const crankshaft_set &operator[](unsigned int i) const { return cs[i]; }
-      crankshaft_set &operator[](unsigned int i) { return cs[i]; } // for move_the_atoms()
+      const crankshaft_set &operator[](unsigned int i) const { return cs_vec[i]; }
+      crankshaft_set &operator[](unsigned int i) { return cs_vec[i]; } // for move_the_atoms()
       phi_psi_t phi_psi(unsigned int peptide_idx, float angle) const;
       std::pair<phi_psi_t, phi_psi_t> phi_psis_last(float ang_third) const;
       void move_the_atoms(const std::vector<float> &angles_in);
       const std::string &residue_type(unsigned int idx) const { return residue_types[idx]; }
       // the peptide_index is used index the residue types (i.e. starts at 1).
       float log_prob(const phi_psi_t &pp, unsigned int peptide_index, const zo::rama_table_set &zorts) const {
+	 // something went wrong with the nmer_crankshaft_set constructor so that the
+	 // residue_types were mis-indexed?
+	 // std::cout << "in log_prob() peptide index is " << peptide_index
+	 // << " residue_types size is " << residue_types.size() << std::endl;
 	 return zorts.value(pp, residue_types[peptide_index]);
       }
-      unsigned int size() const { return cs.size(); }
+      unsigned int size() const { return cs_vec.size(); }
       unsigned int n_peptides() const { return size(); }
    };
 
@@ -239,7 +246,7 @@ namespace coot {
 				 const std::vector<float> &angles_in, float lp) : nmer_crankshaft_set(nmer_in), angles(angles_in), minus_log_prob(lp) {};
 	 std::vector<float> angles;
 	 float minus_log_prob;
-	 bool is_close(const scored_triple_angle_set_t &sas_in) const {
+	 bool is_close(const scored_nmer_angle_set_t &sas_in) const {
 	    float big_delta = clipper::Util::d2rad(5.0);
 	    bool same = true;
 	    for (std::size_t i=0; i<angles.size(); i++) {
@@ -250,11 +257,11 @@ namespace coot {
 	    }
 	    return same;
 	 }
-	 bool operator<(const scored_triple_angle_set_t &sas_in) const {
+	 bool operator<(const scored_nmer_angle_set_t &sas_in) const {
 	    return (minus_log_prob < sas_in.minus_log_prob);
 	 }
 	 bool filled() { return (angles.size() > 0); }
-	 friend std::ostream &operator<<(std::ostream &s, const scored_triple_angle_set_t &r);
+	 friend std::ostream &operator<<(std::ostream &s, const scored_nmer_angle_set_t &r);
       };
 
       std::pair<float, float> probability_of_spin_orientation(const std::pair<phi_psi_t, phi_psi_t> &ppp,
@@ -291,7 +298,13 @@ namespace coot {
       // scored_angle_set_t is a score and a set of peptide rotation angles.
       //
       std::vector<scored_triple_angle_set_t>
+      find_maxima_from_triples(const residue_spec_t &spec_first_residue,
+			       const zo::rama_table_set &zorts,
+			       unsigned int n_samples=60); // there are perhaps 50 maxima
+
+      std::vector<scored_nmer_angle_set_t>
       find_maxima(const residue_spec_t &spec_first_residue,
+		  unsigned int n_peptides, // the length of the nmer
 		  const zo::rama_table_set &zorts,
 		  unsigned int n_samples=60); // there are perhaps 50 maxima
 
@@ -316,8 +329,11 @@ namespace coot {
       // spin-search test the individual residues of input mol
       void test() const;
 
+      // rs should be the mid-residue, n_peptides should be odd (for sanity)
+      //
       static void
       crank_refine_and_score(const coot::residue_spec_t &rs, // mid-residue
+			     unsigned int n_peptides,
 			     const clipper::Xmap<float> &xmap,
 			     mmdb::Manager *mol, // or do I want an atom_selection_container_t for
 			                         // use with atom index transfer?

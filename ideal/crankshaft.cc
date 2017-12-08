@@ -100,6 +100,13 @@ coot::crankshaft_set::crankshaft_set(mmdb::Residue *res_0,
    if (! ca_1) throw(std::runtime_error("missing ca_1"));
    if (! ca_2) throw(std::runtime_error("missing ca_2"));
 
+   if (false) {
+      std::cout << "in crankshaft_set constructor for res_1 " << residue_spec_t(res_1)
+		<< " ca_1 was set to " << ca_1 << std::endl;
+      std::cout << "in crankshaft_set constructor for res_1 " << residue_spec_t(res_1)
+		<< " ca_2 was set to " << ca_2 << std::endl;
+   }
+
    // check that we have all the atoms - except the HN
    int n_atoms = 0;
    for (std::size_t i=0; i<v.size(); i++) {
@@ -149,7 +156,7 @@ coot::crankshaft_set::make_trans_from_non_pro_cis_if_needed() {
 		  clipper::Coord_orth n_c_unit(n_c_vec.unit());
 		  double bl = sqrt(n_c_vec.lengthsq());
 		  double bl_delta = bl - 1.33;
-		  std::cout << "   cis N-C correction bl_delta " << bl_delta << std::endl;
+		  // std::cout << "   cis N-C correction bl_delta " << bl_delta << std::endl;
 
 		  clipper::Coord_orth pos_corr = bl_delta * 0.5 * n_c_unit;
 
@@ -185,13 +192,14 @@ coot::crankshaft_set::is_cis() const {
 	 clipper::Coord_orth p_ca_2 = co(ca_2);
 	 clipper::Coord_orth dir = p_ca_2 - p_ca_1;
 	 double tors = clipper::Coord_orth::torsion(p_ca_2, N_pos, C_pos, p_ca_1);
-	 std::cout << "  torsion for ca_1 " << atom_spec_t(ca_1) << " "
-		   << clipper::Util::rad2d(tors) << " degrees" << std::endl;
+	 if (false)
+	    std::cout << "   debug:: torsion for ca_1 " << atom_spec_t(ca_1) << " "
+		      << clipper::Util::rad2d(tors) << " degrees" << std::endl;
 	 if (std::abs(tors) < M_PI_2)
 	    cis = true;
       }
    }
-   std::cout << "debug:: is cis for ca_1 " << atom_spec_t(ca_1) << " " << cis << std::endl;
+   // std::cout << "   debug:: is cis for ca_1 " << atom_spec_t(ca_1) << " " << cis << std::endl;
    return cis;
 
 }
@@ -339,21 +347,89 @@ coot::triple_crankshaft_set::triple_crankshaft_set(const residue_spec_t &spec_fi
 				  << residue_spec_t(res_4) << " "
 				  << residue_spec_t(res_5) << " "
 				  << std::endl;
-		     std::cout << "------ making cranshaft-set 0 " << std::endl;
 		     cs[0] = crankshaft_set(res_0, res_1, res_2, res_3);
-		     std::cout << "------ making cranshaft-set 1 " << std::endl;
 		     cs[1] = crankshaft_set(res_1, res_2, res_3, res_4);
-		     std::cout << "------ making cranshaft-set 2 " << std::endl;
 		     cs[2] = crankshaft_set(res_2, res_3, res_4, res_5);
 
 		     // debug
-		     mol->WritePDBASCII("uncis.pdb");
+		     // mol->WritePDBASCII("uncis.pdb");
 		  }
 	       }
 	    }
 	 }
       }
    }
+}
+
+coot::nmer_crankshaft_set::nmer_crankshaft_set(const residue_spec_t &spec_first_residue,
+					       unsigned int n_peptides,
+					       const zo::rama_table_set &zorts,
+					       mmdb::Manager *mol) {
+
+   // if n_peptides is 1: then we will need to fill cs[0] with:
+   // res_0: residue before the first spec
+   // res_1: this residue (which has ca_1) of which we move the C,O
+   // res_2: next residue (which has ca_2) or which we move the N
+   // res_3: needed for phi,psi of res_2
+
+   // set mess if we fail to find residues of a peptide cranshaft set
+   //
+   std::string mess; // if this get set, throw an exception.
+
+   mmdb::Residue *residue_p = util::get_residue(spec_first_residue, mol);
+   if (residue_p) {
+      // when we crankshaft the C, O and N of res_1(n) and res_2(n+1),
+      // we need to know the C of residue n-1 and the N of residue n+2
+      // because the phi,psi of n and n+1 depend on them.
+      mmdb::Residue *res_0 = util::get_previous_residue(spec_first_residue, mol);
+      if (res_0) {
+
+	 // a base_residue_spec is res_1 of a crankshaft set (not res_0)
+	 //
+	 residue_spec_t current_base_residue_spec = spec_first_residue;
+	 mmdb::Residue *current_base_residue = residue_p;
+
+	 // maybe it's silly to have "off-by-one" residue type index?
+	 residue_types.resize(n_peptides+1);
+
+	 for (std::size_t i_pep=0; i_pep<n_peptides; i_pep++) {
+	    mmdb::Residue *pep_res_0 = util::get_previous_residue (current_base_residue_spec, mol);
+	    mmdb::Residue *pep_res_2 = util::get_following_residue(current_base_residue_spec, mol);
+	    if (pep_res_2) {
+	       residue_spec_t current_res_2_spec(pep_res_2);
+	       mmdb::Residue *pep_res_3 = util::get_following_residue(current_res_2_spec, mol);
+	       if (pep_res_3) {
+
+		  // this can throw a runtime_error
+		  crankshaft_set cs(pep_res_0, current_base_residue, pep_res_2, pep_res_3);
+		  cs_vec.push_back(cs);
+
+		  // maybe it's silly to have "off-by-one" residue type index?
+		  std::string rn_1 = current_base_residue->GetResName();
+		  std::string rn_2 = pep_res_2->GetResName();
+		  std::string rt = zorts.get_residue_type(rn_1, rn_2);
+		  residue_types[i_pep+1] = rt;
+
+		  // setup for next
+		  current_base_residue = pep_res_2;
+		  current_base_residue_spec = residue_spec_t(pep_res_2);
+	       } else {
+		  mess = "Fail to get residue 3 for peptide index ";
+		  mess += util::int_to_string(i_pep);
+		  break;
+	       }
+	    } else {
+	       mess = "Fail to get residue 2 for peptide index ";
+	       mess += util::int_to_string(i_pep);
+	       break;
+	    }
+	 }
+      } else {
+	 mess = "Fail to get residue 0 for starting residue ";
+      }
+   }
+
+   if (! mess.empty()) throw std::runtime_error(mess);
 }
 
 
@@ -433,9 +509,9 @@ coot::crankshaft::triple_spin_search(const residue_spec_t &spec_first_residue,
 // not const because we can change the atoms of mol if apply_best_angles_flag is set
 //
 std::vector<coot::crankshaft::scored_triple_angle_set_t>
-coot::crankshaft::find_maxima(const residue_spec_t &spec_first_residue,
-			      const zo::rama_table_set &zorts,
-			      unsigned int n_samples) {
+coot::crankshaft::find_maxima_from_triples(const residue_spec_t &spec_first_residue,
+					   const zo::rama_table_set &zorts,
+					   unsigned int n_samples) {
 
    // n_samples = 1; // hack for testing
 
@@ -454,8 +530,6 @@ coot::crankshaft::find_maxima(const residue_spec_t &spec_first_residue,
 
 	 for (std::size_t i=0; i<3; i++)
 	    start_angles[i] = 2 * M_PI * float(coot::util::random())/float(RAND_MAX);
-
-	 start_angles[2] = 0; // make it a 2-D problem
 
 	 // testing wild solutions
 	 // start_angles[0] = clipper::Util::d2rad(264.849);
@@ -528,7 +602,7 @@ coot::crankshaft::find_maxima(const residue_spec_t &spec_first_residue,
 
    std::sort(results.begin(), results.end());
 
-   if (true) {
+   if (false) {
       std::ofstream f("solutions");
       for (std::size_t i=0; i<results.size(); i++) {
 	 f << "   value "
@@ -536,6 +610,121 @@ coot::crankshaft::find_maxima(const residue_spec_t &spec_first_residue,
 	   << clipper::Util::rad2d(results[i].angles[0]) << " "
 	   << clipper::Util::rad2d(results[i].angles[1]) << " "
 	   << clipper::Util::rad2d(results[i].angles[2]) << "\n";
+      }
+   }
+   return results;
+}
+
+// not const because we can change the atoms of mol if apply_best_angles_flag is set
+//
+std::vector<coot::crankshaft::scored_nmer_angle_set_t>
+coot::crankshaft::find_maxima(const residue_spec_t &spec_first_residue,
+			      unsigned int n_peptides, // the length of the nmer
+			      const zo::rama_table_set &zorts,
+			      unsigned int n_samples) {
+
+   // n_samples = 1; // hack for testing
+
+   // 0.1-2-3-4.5  (. for ref, - is spin)
+
+   std::vector<scored_nmer_angle_set_t> results;
+
+   try {
+      // if the atoms are not there, this can throw a std::runtime_error.
+      nmer_crankshaft_set cs(spec_first_residue, n_peptides, zorts, mol);
+
+      float div = 1.0/float(n_samples);
+      for (std::size_t i_sample=0; i_sample<n_samples; i_sample++) {
+
+	 // make these random numbers 0 -> 2pi
+	 // float start_angles[] = { 1.0, 2.0, 3.0 }; // in radians
+
+	 std::vector<float> start_angles(n_peptides, 0);
+
+	 for (std::size_t i=0; i<n_peptides; i++)
+	    start_angles[i] = 2 * M_PI * float(coot::util::random())/float(RAND_MAX);
+
+	 start_angles[2] = 0; // make it a 2-D problem
+
+	 // testing wild solutions
+	 // start_angles[0] = clipper::Util::d2rad(264.849);
+	 // start_angles[1] = clipper::Util::d2rad(122.957);
+	 // start_angles[2] = clipper::Util::d2rad(300.472);
+	 //
+	 // start_angles[0] = clipper::Util::d2rad();
+	 // start_angles[1] = clipper::Util::d2rad();
+	 // start_angles[2] = clipper::Util::d2rad();
+	 //
+	 // start_angles[0] = clipper::Util::d2rad(351.391);
+	 // start_angles[1] = clipper::Util::d2rad(287.775);
+	 // start_angles[2] = clipper::Util::d2rad(49.7706);
+
+	 scored_nmer_angle_set_t as = run_optimizer(start_angles, cs, zorts);
+
+	 if (as.filled()) {
+	    if (false)
+	       std::cout << "sample " << i_sample << " " << as.minus_log_prob << " from angles "
+			 << std::setw(9) << clipper::Util::rad2d(as.angles[0]) << " "
+			 << std::setw(9) << clipper::Util::rad2d(as.angles[1]) << " "
+			 << std::setw(9) << clipper::Util::rad2d(as.angles[2]) << std::endl;
+
+	    // add it if not already something similar
+	    //
+	    bool add_it = true;
+
+	    if (false) { // what's close?
+	       float closest_delta = 999.9;
+	       for (std::size_t i=0; i<results.size(); i++) {
+		  float diff = results[i].angles[0] - as.angles[0];
+		  float this_delta_2 = diff * diff;
+		  diff = results[i].angles[1] - as.angles[1];
+		  this_delta_2 += diff * diff;
+		  diff = results[i].angles[2] - as.angles[2];
+		  this_delta_2 += diff * diff;
+		  float this_delta = sqrt(this_delta_2);
+		  if (this_delta < closest_delta) {
+		     closest_delta = this_delta;
+		  }
+	       }
+	       std::cout << "closest-delta: " << closest_delta << std::endl;
+	    }
+
+	    for (std::size_t i=0; i<results.size(); i++) {
+	       if (results[i].is_close(as)) {
+		  add_it = false;
+		  break;
+	       }
+	    }
+	    if (add_it) {
+	       if (false)
+		  std::cout << "as: " << as << " from starting angles "
+			    << clipper::Util::rad2d(start_angles[0]) << " "
+			    << clipper::Util::rad2d(start_angles[1]) << " "
+			    << clipper::Util::rad2d(start_angles[2]) << " "
+			    << std::endl;
+	       results.push_back(as);
+	    } else {
+	       // std::cout << "we already have that " << std::endl;
+	    }
+	 }
+      }
+      std::cout << "From " << n_samples << " samples, found  " << results.size()
+		<< " unique solutions" << std::endl;
+   }
+   catch (const std::runtime_error &rte) {
+      std::cout << "WARNING:: " << rte.what() << std::endl;
+   }
+
+   std::sort(results.begin(), results.end());
+
+   if (true) {
+      std::ofstream f("solutions");
+      for (std::size_t i=0; i<results.size(); i++) {
+	 f << "   value "
+	   << results[i].minus_log_prob << " at (degrees) ";
+	 for (std::size_t iang=0; iang<results[i].angles.size(); iang++)
+	    f << clipper::Util::rad2d(results[i].angles[iang]) << " ";
+	 f << "\n";
       }
    }
    return results;
@@ -655,13 +844,17 @@ coot::crankshaft::optimize_an_nmer::f(const gsl_vector *v, void *params) {
    // convert from spin angles (in v) to phi,psi and then log probability
 
    // extract the table refs
-   const triple_set_param_holder_t *param_holder = reinterpret_cast<triple_set_param_holder_t *> (params);
+   const nmer_set_param_holder_t *param_holder = reinterpret_cast<nmer_set_param_holder_t *> (params);
    const zo::rama_table_set &zorts = param_holder->zorts;
 
+   // debug zorts
+
+   // debug nmer_crankshaft_set &cs
+
    float log_prob_sum = 0;
-   for (unsigned int i=0; i<3; i++) { // i is cs index, not residue_type index
-      phi_psi_t pp = param_holder->tcs[i].phi_psi(gsl_vector_get(v, i));
-      float pr = param_holder->tcs.log_prob(pp, i+1, zorts); // index i+1 is for residue type
+   for (unsigned int i=0; i<param_holder->cs.size(); i++) { // i is cs index, not residue_type index
+      phi_psi_t pp = param_holder->cs[i].phi_psi(gsl_vector_get(v, i));
+      float pr = param_holder->cs.log_prob(pp, i+1, zorts); // index i+1 is for residue type
       log_prob_sum += pr;
    }
    return -log_prob_sum; // we want maxima
@@ -712,7 +905,6 @@ coot::crankshaft::run_optimizer(float start_angles[],
   size_t iter = 0;
   int status;
 
-  std::vector<std::string> residue_types; // where does this come from?
   triple_set_param_holder_t param_holder(zorts, tcs);
 
   gsl_vector *x;
@@ -797,6 +989,97 @@ coot::crankshaft::run_optimizer(float start_angles[],
 
 }
 
+coot::crankshaft::scored_nmer_angle_set_t
+coot::crankshaft::run_optimizer(const std::vector<float> &start_angles,
+				const coot::nmer_crankshaft_set &cs,
+				const zo::rama_table_set &zorts) {
+
+  size_t iter = 0;
+  int status;
+
+  nmer_set_param_holder_t param_holder(zorts, cs);
+
+  gsl_vector *x;
+  gsl_multimin_function_fdf my_func;
+
+  my_func.n = cs.size();
+  my_func.f = &optimize_an_nmer::f;
+  my_func.df = &optimize_an_nmer::df;
+  my_func.fdf = &optimize_an_nmer::fdf;
+  my_func.params = reinterpret_cast<void *> (&param_holder);
+
+  x = gsl_vector_alloc(cs.size());
+  for (std::size_t i=0; i<start_angles.size(); i++)
+     gsl_vector_set(x, i, start_angles[i]);
+
+  const gsl_multimin_fdfminimizer_type *T = gsl_multimin_fdfminimizer_conjugate_pr;
+  gsl_multimin_fdfminimizer *s = gsl_multimin_fdfminimizer_alloc(T, start_angles.size());
+
+  // small moves Ellie, small moves...
+  gsl_multimin_fdfminimizer_set(s, &my_func, x, 0.01, 1.0); // within 1 degree is good enough
+
+  do {
+      iter++;
+      status = gsl_multimin_fdfminimizer_iterate(s);
+
+      if (status)
+        break;
+
+      status = gsl_multimin_test_gradient(s->gradient, 5e-2);
+
+      if (status == GSL_SUCCESS)
+	 if (false)
+	    std::cout << "Minimum found at: "
+		      << iter << " "
+		      << gsl_vector_get(s->x, 0) << " "
+		      << gsl_vector_get(s->x, 1) << " "
+		      << gsl_vector_get(s->x, 2) << " value "
+		      << s->f << "\n";
+
+  } while (status == GSL_CONTINUE && iter < 1000);
+
+  scored_nmer_angle_set_t sas; // empty
+
+  if (status == GSL_ENOPROG) {
+     // std::cout << "No progress" << std::endl;
+  } else {
+
+     // sometimes we get wild solutions - not clear why (they seem to have sensibly log probs)
+     // so trash those here.
+     bool sane = true;
+     for (std::size_t i=0; i<cs.size(); i++) {
+	if (gsl_vector_get(s->x, i) < -M_PI_2) {
+	   sane = false;
+	   break;
+	}
+	if (gsl_vector_get(s->x, i) > (2.5 * M_PI)) {
+	   sane = false;
+	   break;
+	}
+     }
+
+     if (sane) {
+	std::vector<float> sv(cs.size());
+	for (std::size_t i=0; i<cs.size(); i++) {
+	   sv[i] = gsl_vector_get(s->x, i);
+	   if (sv[i] < 0) {
+	      sv[i] += 2*M_PI;
+	   }
+	   if (sv[i] > 6.283) {
+	      sv[i] -= 2*M_PI;
+	   }
+	}
+	float score = s->f;
+	sas = scored_nmer_angle_set_t(cs, sv, score);
+     }
+  }
+
+  gsl_multimin_fdfminimizer_free(s);
+  gsl_vector_free(x);
+  return sas;
+
+}
+
 mmdb::Atom *
 coot::crankshaft::get_atom(mmdb::Residue *res_1, const std::string &atom_name_in) const {
 
@@ -843,10 +1126,22 @@ coot::crankshaft_set::phi_psi(float ang) const {
 
    if (! ca_1) {
       std::string m = "ERROR:: ca_1 is unset in crankshaft_set::phi_psi()";
+      if (true) {
+	 std::cout << m << std::endl;
+	 std::cout << "Here are the " << v.size() << " v atoms of the crankshaft_set " << std::endl;
+	 for (std::size_t i=0; i<v.size(); i++)
+	    std::cout << "   " << atom_spec_t(v[i]) << std::endl;
+      }
       throw(std::runtime_error(m));
    }
    if (! ca_2) {
       std::string m = "ERROR:: ca_2 is unset in crankshaft_set::phi_psi()";
+      if (true) {
+	 std::cout << m << std::endl;
+	 std::cout << "Here are the " << v.size() << " v atoms of the crankshaft_set " << std::endl;
+	 for (std::size_t i=0; i<v.size(); i++)
+	    std::cout << "   " << atom_spec_t(v[i]) << std::endl;
+      }
       throw(std::runtime_error(m));
    }
 
@@ -1034,23 +1329,6 @@ coot::triple_crankshaft_set::triple_crankshaft_set(mmdb::Residue *res_0,
    residue_types = residue_types_in;
 }
 
-// we don't need to know the residue type of residues_in[0] (which has non-moving atoms)
-//
-coot::nmer_crankshaft_set::nmer_crankshaft_set(const std::vector<mmdb::Residue *> residues_in,
-					       const std::vector<std::string> &rts) {
-
-   int n_residues = residues_in.size();
-   if (n_residues > 3) {
-      int n_cs = n_residues - 3; // number of crankshaft sets (of 4 residues)
-      for (int i=0; i<n_cs; i++) {
-	 crankshaft_set crank_set(residues_in[i], residues_in[i+1], residues_in[i+2], residues_in[i+3]);
-	 cs.push_back(crank_set);
-      }
-   }
-   residue_types = rts;
-}
-
-
 // restores the atom positions in mol after write
 void
 coot::crankshaft::move_the_atoms_write_and_restore(scored_triple_angle_set_t sas,
@@ -1094,7 +1372,9 @@ coot::crankshaft::new_mol_with_moved_atoms(scored_triple_angle_set_t sas) {
    // 
    int indices[] = { 2, 3, 4, 5};
    for (std::size_t i=0; i<3; i++) {
-      // maybe this should be done in a crankshaft_set
+      // Maybe this should be done in a crankshaft_set.
+      // But no. Repositioning the atoms after the molecule copy
+      // (which is ugly now) would be super-hideous.
       for (std::size_t iat=0; iat<4; iat++) {
 	 mmdb::Atom *at = sas[i].v[indices[iat]];
 	 if (at) {
@@ -1123,6 +1403,33 @@ coot::crankshaft::new_mol_with_moved_atoms(scored_triple_angle_set_t sas) {
    return mol_new;
 }
 
+// move the atoms, create a copy of mol, restore the atom positions
+mmdb::Manager *
+coot::crankshaft::new_mol_with_moved_atoms(scored_nmer_angle_set_t sas) {
+
+   std::map<mmdb::Atom *, clipper::Coord_orth> original_positions;
+   std::map<mmdb::Atom *, clipper::Coord_orth>::const_iterator it;
+   int indices[] = { 2, 3, 4, 5}; // v atom indices of the moving atoms in a crankshaft_set
+   for (std::size_t i=0; i<sas.size(); i++) {
+      for (std::size_t iat=0; iat<4; iat++) {
+	 mmdb::Atom *at = sas[i].v[indices[iat]];
+	 if (at) {
+	    clipper::Coord_orth pos = co(at);
+	    original_positions[at] = pos;
+	 }
+      }
+      sas[i].move_the_atoms(sas.angles[i]);
+   }
+
+   mmdb::Manager *mol_new = new mmdb::Manager;
+   mol_new->Copy(mol, mmdb::MMDBFCM_All);
+
+   for (it=original_positions.begin(); it!=original_positions.end(); it++)
+      update_position(it->first, it->second);
+
+   return mol_new;
+}
+
 
 // -----------------------------------------------------------------------------
 //   refine (in threads)
@@ -1145,19 +1452,19 @@ coot::crankshaft::refine_and_score_mol(mmdb::Manager *mol,
       std::vector<std::pair<bool, mmdb::Residue *> > residues;
       std::vector<mmdb::Link> links;
       std::vector<coot::atom_spec_t> fixed_atom_specs;
-      coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-      flags = coot::TYPICAL_RESTRAINTS;
+      coot::restraint_usage_Flags flags = BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+      flags = TYPICAL_RESTRAINTS;
       int imol = 0; // dummy
       int nsteps_max = 4000;
       bool make_trans_peptide_restraints = true;
       short int print_chi_sq_flag = 1;
       bool do_rama_plot_restraints = true;
       coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
-      int restraints_rama_type = coot::restraints_container_t::RAMA_TYPE_ZO;
+      int restraints_rama_type = restraints_container_t::RAMA_TYPE_ZO;
 
-      mmdb::Residue *res_ref = coot::util::get_residue(res_spec_mid, mol);
+      mmdb::Residue *res_ref = util::get_residue(res_spec_mid, mol);
       if (res_ref) {
-	 std::vector<mmdb::Residue *> residues_near = coot::residues_near_residue(res_ref, mol, radius);
+	 std::vector<mmdb::Residue *> residues_near = residues_near_residue(res_ref, mol, radius);
 	 residues.push_back(std::pair<bool,mmdb::Residue *>(true, res_ref));
 	 for (unsigned int i=0; i<residues_near.size(); i++) {
 	    std::pair<bool, mmdb::Residue *> p(true, residues_near[i]);
@@ -1236,6 +1543,7 @@ coot::crankshaft::refine_and_score_mols(std::vector<mmdb::Manager *> mols,
 // static
 void
 coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-residue
+					 unsigned int n_peptides,
 					 const clipper::Xmap<float> &xmap,
 					 // atom_selection_container_t asc,
 					 mmdb::Manager *mol_in,
@@ -1257,8 +1565,13 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
       // consider changing the API to find_maxima to be the middle of the 3 residues
       //
       //
-      std::vector<coot::crankshaft::scored_triple_angle_set_t> sas =
-	 cs.find_maxima(prev_residue_spec, zorts, n_samples);
+
+      // std::vector<coot::crankshaft::scored_triple_angle_set_t> sas =
+      // cs.find_maxima(prev_residue_spec, n_peptides, zorts, n_samples);
+      
+      std::vector<coot::crankshaft::scored_nmer_angle_set_t> sas =
+	 cs.find_maxima(prev_residue_spec, n_peptides, zorts, n_samples);
+
       // where did they move to?
       std::cout << "sas size: " << sas.size() << std::endl;
 
@@ -1277,7 +1590,7 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
       }
 
       std::vector<coot::residue_spec_t> local_residue_specs;
-      mmdb::Residue *res_ref = coot::util::get_residue(rs, mol_in);
+      mmdb::Residue *res_ref = util::get_residue(rs, mol_in);
       if (res_ref) {
 	 float radius = 5;
 	 std::vector<mmdb::Residue *> residues_near =
@@ -1302,24 +1615,26 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
 
 	 std::vector<std::thread> threads;
 	 unsigned int thread_idx = 0;
-	 std::cout << "debug:: making mols_thread_vec " << n_threads << std::endl;
+	 // std::cout << "debug:: making mols_thread_vec " << n_threads << std::endl;
 	 std::vector<std::vector<unsigned int> > mols_thread_vec(n_threads);
-	 std::cout << "debug:: done making mols_thread_vec " << std::endl;
+	 // std::cout << "debug:: done making mols_thread_vec " << std::endl;
 	 // put the mols in mols_thread_vec
 	 for (unsigned int ii=0; ii<mols.size(); ii++) {
-	    std::cout << "adding mol " << ii << " to thread " << thread_idx << std::endl;
+	    // std::cout << "adding mol " << ii << " to thread " << thread_idx << std::endl;
 	    mols_thread_vec[thread_idx].push_back(ii);
 	    thread_idx++;
 	    if (thread_idx == n_threads) thread_idx = 0;
 	 }
 
-	 std::cout << "debug:: the mols_thread_vecs are: " << std::endl;
-	 for (std::size_t j=0; j<mols_thread_vec.size(); j++) {
-	    std::cout << "thread " << j << " of " << mols_thread_vec.size() << " threads " << std::endl;
-	    for (std::size_t k=0; k<mols_thread_vec[j].size(); k++) {
-	       std::cout << " " << mols_thread_vec[j][k];
+	 if (false) {
+	    std::cout << "debug:: the mols_thread_vecs are: " << std::endl;
+	    for (std::size_t j=0; j<mols_thread_vec.size(); j++) {
+	       std::cout << "thread " << j << " of " << mols_thread_vec.size() << " threads " << std::endl;
+	       for (std::size_t k=0; k<mols_thread_vec[j].size(); k++) {
+		  std::cout << " " << mols_thread_vec[j][k];
+	       }
+	       std::cout << std::endl;
 	    }
-	    std::cout << std::endl;
 	 }
 
 	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
@@ -1339,13 +1654,13 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
 	       // threads.push_back(std::thread(dummy_func, mols)); // testing
 	       auto tp_1 = std::chrono::high_resolution_clock::now();
 	       auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
-	       if (true)
+	       if (false)
 		  std::cout << "time to push thread: " << d10 << " microseconds\n";
 	    }
 	 }
 
 	 auto tp_2 = std::chrono::high_resolution_clock::now();
-	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
+	 for (unsigned int i_thread=0; i_thread<threads.size(); i_thread++)
 	    threads.at(i_thread).join();
 	 auto tp_3 = std::chrono::high_resolution_clock::now();
 	 auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
