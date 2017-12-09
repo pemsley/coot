@@ -2432,9 +2432,93 @@ coot::util::get_residue(const std::string &chain_id,
    return res;
 }
 
+// Return NULL on residue not found in this molecule. Only look in
+// MODEL 1.
+//
+mmdb::Residue *
+coot::util::get_residue_by_binary_search(const std::string &chain_id,
+					 int res_no, const std::string &insertion_code,
+					 mmdb::Manager *mol) {
+
+   mmdb::Residue *res = NULL;
+   bool found_res = 0;
+
+   if (mol) {
+      mmdb::Model *model_p = mol->GetModel(1);
+      if (model_p) {
+	 mmdb::Chain *chain_p;
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int i_chain=0; i_chain<n_chains; i_chain++) {
+	    chain_p = model_p->GetChain(i_chain);
+	    std::string mol_chain(chain_p->GetChainID());
+	    if (mol_chain == chain_id) {
+	       int nres = chain_p->GetNumberOfResidues();
+	       int top_idx = nres-1;
+	       int bottom_idx = 0;
+
+	       while (! found_res) {
+		  int idx_delta = top_idx - bottom_idx;
+		  int idx_trial = std::lround(bottom_idx + idx_delta * 0.5);
+		  mmdb::Residue *residue_this = chain_p->GetResidue(idx_trial);
+
+		  if (!residue_this) break;
+
+		  if (residue_this->GetSeqNum() == res_no) {
+		     std::string ins_code(residue_this->GetInsCode());
+		     if (insertion_code == ins_code) {
+			res = residue_this;
+			found_res = true;
+			break;
+		     }
+		  }
+
+		  if (! found_res) {
+		     if (top_idx == bottom_idx)
+			break; // give up
+		     if (residue_this->GetSeqNum() > res_no) {
+			top_idx = idx_trial;
+		     }
+		     if (residue_this->GetSeqNum() < res_no) {
+			bottom_idx = idx_trial;
+		     }
+		  }
+	       } // while
+
+	       if (! found_res) {
+		  // try all
+		  for (int ires=0; ires<nres; ires++) { // ires is a serial number
+		     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+		     if (residue_p->GetSeqNum() == res_no) {
+			std::string ins_code(residue_p->GetInsCode());
+			if (insertion_code == ins_code) {
+			   res = residue_p;
+			   found_res = 1;
+			   break;
+			}
+		     }
+		     if (found_res) break;
+		  }
+	       }
+	    }
+	    if (found_res) break;
+	 }
+      }
+   }
+//    std::cout << "binary-search returns res " << res << " "
+// 	     << get_residue(chain_id, res_no, insertion_code, mol) << " "
+// 	     << residue_spec_t(res) << std::endl;
+   return res;
+}
+
+
+
 mmdb::Residue *
 coot::util::get_residue(const residue_spec_t &rs, mmdb::Manager *mol) {
-   return get_residue(rs.chain_id, rs.res_no, rs.ins_code, mol);
+
+   // return get_residue(rs.chain_id, rs.res_no, rs.ins_code, mol);
+
+   return get_residue_by_binary_search(rs.chain_id, rs.res_no, rs.ins_code, mol);
+
 }
 
 // get this and next residue - either can be null - both need testing

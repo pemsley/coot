@@ -750,6 +750,10 @@ namespace coot {
 				 const std::string &insertion_code,
 				 mmdb::Manager *mol);
 
+      mmdb::Residue *get_residue_by_binary_search(const std::string &chain_id, int res_no,
+						  const std::string &insertion_code,
+						  mmdb::Manager *mol);
+
       mmdb::Residue *get_first_residue(mmdb::Manager *mol);
 
       std::vector<mmdb::Residue *> get_hetgroups(mmdb::Manager *mol, bool include_waters=false);
