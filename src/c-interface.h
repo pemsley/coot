@@ -6530,7 +6530,11 @@ float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, con
 				  int n_trials,
 				  float jiggle_scale_factor);
 
+/*!  \brief jiggle fit the molecule to the current refinment map.  return < -100 if
+  not possible, else return the new best fit for this molecule.  */
 float fit_molecule_to_map_by_random_jiggle(int imol, int n_trials, float jiggle_scale_factor);
+/*!  \brief jiggle fit the chain to the current refinment map.  return < -100 if
+  not possible, else return the new best fit for this chain.  */
 float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor); 
 /* \} */
 
