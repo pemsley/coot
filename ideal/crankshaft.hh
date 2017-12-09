@@ -132,6 +132,7 @@ namespace coot {
       }
       unsigned int size() const { return cs_vec.size(); }
       unsigned int n_peptides() const { return size(); }
+      std::vector<mmdb::Residue *> residues() const;
    };
 
    // this class does not do the right thing when used for residues with alt confs
@@ -187,7 +188,7 @@ namespace coot {
       static void
       refine_and_score_mols(std::vector<mmdb::Manager *> mols,
 			    const std::vector<unsigned int> &mols_thread_vec,
-			    const coot::residue_spec_t &res_spec_mid,
+			    const std::vector<coot::residue_spec_t> &refine_residue_specs,
 			    const std::vector<coot::residue_spec_t> &residue_specs_for_scoring,
 			    const coot::protein_geometry &geom,
 			    const clipper::Xmap<float> &xmap,
@@ -195,7 +196,7 @@ namespace coot {
 			    std::vector<molecule_score_t> *mol_scores);
       static molecule_score_t
       refine_and_score_mol(mmdb::Manager *mol,
-			   const coot::residue_spec_t &res_spec_mid,
+			   const std::vector<coot::residue_spec_t> &refine_residue_specs,
 			   const std::vector<coot::residue_spec_t> &residue_specs_for_scoring,
 			   const coot::protein_geometry &geom,
 			   const clipper::Xmap<float> &xmap,
@@ -250,6 +251,7 @@ namespace coot {
 	    float big_delta = clipper::Util::d2rad(5.0);
 	    bool same = true;
 	    for (std::size_t i=0; i<angles.size(); i++) {
+	       if (sas_in.angles.size() != angles.size()) return false;
 	       if (std::abs(sas_in.angles[i] - angles[i]) > big_delta) {
 		  same = false;
 		  break;
@@ -308,13 +310,27 @@ namespace coot {
 		  const zo::rama_table_set &zorts,
 		  unsigned int n_samples=60); // there are perhaps 50 maxima
 
+      static
       scored_triple_angle_set_t run_optimizer(float start_angles[],
 					      const coot::triple_crankshaft_set &tcs,
 					      const zo::rama_table_set &zorts);
 
+      static
       scored_nmer_angle_set_t run_optimizer(const std::vector<float> &start_angles,
 					    const coot::nmer_crankshaft_set &cs,
 					    const zo::rama_table_set &zorts);
+
+      static
+      // scored_nmer_angle_set_t
+      void
+      run_optimizer_in_thread(const std::vector<std::size_t> &samples_for_thread,
+			      const coot::nmer_crankshaft_set &cs,
+			      const zo::rama_table_set &zorts,
+			      std::vector<scored_nmer_angle_set_t> *results);
+
+      static
+      void
+      dummy_func();
 
       // restores the atom positions in mol after write
       // sas is not const because we move the atoms (non-const of a crankshaft_set).
@@ -340,9 +356,35 @@ namespace coot {
 			     float map_weight,
 			     int n_samples);
 
+      static
+      bool null_eraser(const scored_nmer_angle_set_t &snas) { return (snas.angles.empty()); }
+
+      static
+      bool scored_solution_comparer(const scored_nmer_angle_set_t &snas_1,
+				    const scored_nmer_angle_set_t &snas_2) {
+	 return (snas_2.is_close(snas_1));
+      }
+
+      class eraser {
+	 float at_least;
+	 float mean;
+      public:
+	 eraser(float at_least_in, float mean_in) : at_least(at_least_in), mean(mean_in) { }
+	 bool operator()(const scored_nmer_angle_set_t &snas) const {
+
+	    // recall that the score are minus log probability, so
+	    // -30 is a good score and -15 is a bad score
+	    float m = mean;
+	    if (at_least < m) m = at_least;
+	    if (snas.minus_log_prob < m) return false; // is good
+	    return true; // remove this one, then.
+	 }
+      };
+
    };
 
    std::ostream &operator<<(std::ostream &s, const crankshaft::scored_triple_angle_set_t &r);
+   std::ostream &operator<<(std::ostream &s, const crankshaft::scored_nmer_angle_set_t &r);
 
    
 }

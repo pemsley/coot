@@ -43,7 +43,7 @@ public:
       use_trans_peptide_restraints = true;
       use_torsion_targets = false;
       tabulate_distortions_flag = false;
-      n_samples = 30;
+      n_samples = -1;
       map_weight = -1;
    }
    bool is_good;
@@ -92,7 +92,7 @@ get_input_details(int argc, char **argv) {
       {"residues-around",   1, 0, 0},
       {"chain-id",    1, 0, 0},
       {"weight",    1, 0, 0},
-      {"n_samples", 1, 0, 0},
+      {"n-samples", 1, 0, 0},
       {"radius",    1, 0, 0},
       {"rama",      0, 0, 0},
       {"help", 0, 0, 0},
@@ -134,7 +134,7 @@ get_input_details(int argc, char **argv) {
 	    }
 	    if (arg_str == "n-samples") {
 	       try {
-		  inputs.map_weight = coot::util::string_to_int(optarg);
+		  inputs.n_samples = coot::util::string_to_int(optarg);
 	       }
 	       catch (const std::runtime_error &rte) {
 		  std::cout << "WARNING:: parsing n-samples " << rte.what() << std::endl;

@@ -14,7 +14,16 @@
 std::ostream &
 coot::operator<<(std::ostream &s, const coot::crankshaft::scored_triple_angle_set_t &as) {
 
-   std::cout << as.minus_log_prob << " from angles ";
+   s << "minus-log-prob: " << as.minus_log_prob << " from angles";
+   for (std::size_t i=0; i<as.angles.size(); i++)
+      s << std::setw(9) << clipper::Util::rad2d(as.angles[i]) << " ";
+   return s;
+}
+
+std::ostream &
+coot::operator<<(std::ostream &s, const coot::crankshaft::scored_nmer_angle_set_t &as) {
+
+   s << "minus_log_prob: " << std::setw(8) << as.minus_log_prob << " from angles";
    for (std::size_t i=0; i<as.angles.size(); i++)
       s << std::setw(9) << clipper::Util::rad2d(as.angles[i]) << " ";
    return s;
@@ -203,6 +212,23 @@ coot::crankshaft_set::is_cis() const {
    return cis;
 
 }
+
+
+std::vector<mmdb::Residue *>
+coot::nmer_crankshaft_set::residues() const {
+
+   std::vector<mmdb::Residue *> v;
+   for (std::size_t i=0; i<size(); i++) {
+      mmdb::Atom *at_1 = cs_vec[i].ca_1;
+      mmdb::Atom *at_2 = cs_vec[i].ca_2;
+      mmdb::Residue *r_1 = at_1->residue;
+      mmdb::Residue *r_2 = at_2->residue;
+      if (std::find(v.begin(), v.end(), r_1) == v.end()) v.push_back(r_1);
+      if (std::find(v.begin(), v.end(), r_2) == v.end()) v.push_back(r_2);
+   }
+   return v;
+}
+
 
 // n_samples = 60 default arg
 std::vector<std::pair<float, float> >
@@ -617,6 +643,8 @@ coot::crankshaft::find_maxima_from_triples(const residue_spec_t &spec_first_resi
 
 // not const because we can change the atoms of mol if apply_best_angles_flag is set
 //
+// "scored" because the probability has been calculated (not used in refinement)
+//
 std::vector<coot::crankshaft::scored_nmer_angle_set_t>
 coot::crankshaft::find_maxima(const residue_spec_t &spec_first_residue,
 			      unsigned int n_peptides, // the length of the nmer
@@ -629,106 +657,97 @@ coot::crankshaft::find_maxima(const residue_spec_t &spec_first_residue,
 
    std::vector<scored_nmer_angle_set_t> results;
 
+#ifdef HAVE_CXX_THREAD
+
    try {
       // if the atoms are not there, this can throw a std::runtime_error.
       nmer_crankshaft_set cs(spec_first_residue, n_peptides, zorts, mol);
 
       float div = 1.0/float(n_samples);
-      for (std::size_t i_sample=0; i_sample<n_samples; i_sample++) {
 
-	 // make these random numbers 0 -> 2pi
-	 // float start_angles[] = { 1.0, 2.0, 3.0 }; // in radians
+      unsigned int n_threads = coot::get_max_number_of_threads();
 
-	 std::vector<float> start_angles(n_peptides, 0);
+      if (n_threads > 0) {
 
-	 for (std::size_t i=0; i<n_peptides; i++)
-	    start_angles[i] = 2 * M_PI * float(coot::util::random())/float(RAND_MAX);
-
-	 start_angles[2] = 0; // make it a 2-D problem
-
-	 // testing wild solutions
-	 // start_angles[0] = clipper::Util::d2rad(264.849);
-	 // start_angles[1] = clipper::Util::d2rad(122.957);
-	 // start_angles[2] = clipper::Util::d2rad(300.472);
-	 //
-	 // start_angles[0] = clipper::Util::d2rad();
-	 // start_angles[1] = clipper::Util::d2rad();
-	 // start_angles[2] = clipper::Util::d2rad();
-	 //
-	 // start_angles[0] = clipper::Util::d2rad(351.391);
-	 // start_angles[1] = clipper::Util::d2rad(287.775);
-	 // start_angles[2] = clipper::Util::d2rad(49.7706);
-
-	 scored_nmer_angle_set_t as = run_optimizer(start_angles, cs, zorts);
-
-	 if (as.filled()) {
-	    if (false)
-	       std::cout << "sample " << i_sample << " " << as.minus_log_prob << " from angles "
-			 << std::setw(9) << clipper::Util::rad2d(as.angles[0]) << " "
-			 << std::setw(9) << clipper::Util::rad2d(as.angles[1]) << " "
-			 << std::setw(9) << clipper::Util::rad2d(as.angles[2]) << std::endl;
-
-	    // add it if not already something similar
-	    //
-	    bool add_it = true;
-
-	    if (false) { // what's close?
-	       float closest_delta = 999.9;
-	       for (std::size_t i=0; i<results.size(); i++) {
-		  float diff = results[i].angles[0] - as.angles[0];
-		  float this_delta_2 = diff * diff;
-		  diff = results[i].angles[1] - as.angles[1];
-		  this_delta_2 += diff * diff;
-		  diff = results[i].angles[2] - as.angles[2];
-		  this_delta_2 += diff * diff;
-		  float this_delta = sqrt(this_delta_2);
-		  if (this_delta < closest_delta) {
-		     closest_delta = this_delta;
-		  }
-	       }
-	       std::cout << "closest-delta: " << closest_delta << std::endl;
-	    }
-
-	    for (std::size_t i=0; i<results.size(); i++) {
-	       if (results[i].is_close(as)) {
-		  add_it = false;
-		  break;
-	       }
-	    }
-	    if (add_it) {
-	       if (false)
-		  std::cout << "as: " << as << " from starting angles "
-			    << clipper::Util::rad2d(start_angles[0]) << " "
-			    << clipper::Util::rad2d(start_angles[1]) << " "
-			    << clipper::Util::rad2d(start_angles[2]) << " "
-			    << std::endl;
-	       results.push_back(as);
-	    } else {
-	       // std::cout << "we already have that " << std::endl;
+	 // first split the samples into batches for each thread
+	 std::size_t current_thread = 0;
+	 std::vector<std::vector<std::size_t> > samples_for_thread(n_threads);
+	 for (std::size_t i_sample=0; i_sample<n_samples; i_sample++) {
+	    samples_for_thread[current_thread].push_back(i_sample);
+	    ++current_thread;
+	    if (current_thread == n_threads)
+	       current_thread = 0;
+	 }
+	 results.resize(n_samples);
+	 std::vector<std::thread> threads;
+	 std::vector<scored_nmer_angle_set_t> sas_vec(n_threads);
+	 for (std::size_t i_thread=0; i_thread<n_threads; i_thread++) {
+	    if (samples_for_thread[i_thread].size() > 0) {
+	       threads.push_back(std::thread(run_optimizer_in_thread,
+					     std::cref(samples_for_thread[i_thread]),
+					     std::cref(cs), std::cref(zorts), &results));
 	    }
 	 }
+	 for (unsigned int i_thread=0; i_thread<threads.size(); i_thread++)
+	    threads.at(i_thread).join();
+
       }
-      std::cout << "From " << n_samples << " samples, found  " << results.size()
-		<< " unique solutions" << std::endl;
    }
    catch (const std::runtime_error &rte) {
       std::cout << "WARNING:: " << rte.what() << std::endl;
    }
 
-   std::sort(results.begin(), results.end());
 
-   if (true) {
-      std::ofstream f("solutions");
-      for (std::size_t i=0; i<results.size(); i++) {
-	 f << "   value "
-	   << results[i].minus_log_prob << " at (degrees) ";
-	 for (std::size_t iang=0; iang<results[i].angles.size(); iang++)
-	    f << clipper::Util::rad2d(results[i].angles[iang]) << " ";
-	 f << "\n";
+   if (results.size() > 0) {
+
+      // first remove failed solutions (no angles)
+      // std::cout << "before null-eraser: " << results.size() << std::endl;
+      results.erase(std::remove_if(results.begin(), results.end(), null_eraser), results.end());
+      // std::cout << "after null-eraser: " << results.size() << std::endl;
+
+      // next remove solutions that are similar to each other
+      // pre-sort so that std::unique does the adjacent values comparison correctly
+      std::sort(results.begin(), results.end());
+      // std::cout << "before similar-eraser: " << results.size() << std::endl;
+      results.erase(std::unique(results.begin(), results.end(), scored_solution_comparer), results.end());
+      // std::cout << "after  similar-eraser: " << results.size() << std::endl;
+      std::sort(results.begin(), results.end()); // resort after std::unique
+
+      // now filter out those with "low" log_prob values
+      //
+      std::vector<float> v(results.size());
+      for (std::size_t i=0; i<results.size(); i++)
+	 v[i] = results[i].minus_log_prob;
+
+      float top_score = results[0].minus_log_prob; // highest (most negative)
+
+      // delete those results that are "a long way" below the top_score
+      // or are below the mean.
+      util::stats_data sd(v);
+      float at_least = top_score + 2*sd.sd;
+      float mean = sd.mean;
+
+      // std::cout << "before log_prob filter we have " << results.size() << " solutions" << std::endl;
+      results.erase(std::remove_if(results.begin(), results.end(), eraser(at_least, mean)), results.end());
+      // std::cout << "after  log_prob filter we have " << results.size() << " solutions" << std::endl;
+
+      if (false) {
+	 std::ofstream f("solutions");
+	 for (std::size_t i=0; i<results.size(); i++) {
+	    f << "   value "
+	      << results[i].minus_log_prob << " at (degrees) ";
+	    for (std::size_t iang=0; iang<results[i].angles.size(); iang++)
+	       f << clipper::Util::rad2d(results[i].angles[iang]) << " ";
+	    f << "\n";
+	 }
       }
    }
+
+#endif // HAVE_CXX_THREAD
+
    return results;
 }
+
 
 // The function and the derivatives need to be turned upside down at some
 // stage, because actually, we want to maximize, not minimize.
@@ -989,41 +1008,62 @@ coot::crankshaft::run_optimizer(float start_angles[],
 
 }
 
+void
+coot::crankshaft::run_optimizer_in_thread(const std::vector<std::size_t> &samples_for_thread,
+					  const coot::nmer_crankshaft_set &cs,
+					  const zo::rama_table_set &zorts,
+					  std::vector<coot::crankshaft::scored_nmer_angle_set_t> *results) {
+   // test coot::crankshaft::scored_nmer_angle_set_t *sas_in) {
+
+   for (std::size_t j=0; j<samples_for_thread.size(); j++) {
+      std::vector<float> start_angles(cs.n_peptides(), 0);
+      for (std::size_t i=0; i<cs.n_peptides(); i++)
+	 start_angles[i] = 2 * M_PI * float(coot::util::random())/float(RAND_MAX);
+
+      coot::crankshaft::scored_nmer_angle_set_t sas = run_optimizer(start_angles, cs, zorts);
+      run_optimizer(start_angles, cs, zorts);
+      results->at(samples_for_thread[j]) = sas;
+
+      // coot::crankshaft::scored_nmer_angle_set_t sas;
+   }
+}
+
+
 coot::crankshaft::scored_nmer_angle_set_t
 coot::crankshaft::run_optimizer(const std::vector<float> &start_angles,
 				const coot::nmer_crankshaft_set &cs,
 				const zo::rama_table_set &zorts) {
 
-  size_t iter = 0;
-  int status;
+   size_t iter = 0;
+   int status;
 
-  nmer_set_param_holder_t param_holder(zorts, cs);
+   nmer_set_param_holder_t param_holder(zorts, cs);
 
-  gsl_vector *x;
-  gsl_multimin_function_fdf my_func;
+   gsl_vector *x;
+   gsl_multimin_function_fdf my_func;
 
-  my_func.n = cs.size();
-  my_func.f = &optimize_an_nmer::f;
-  my_func.df = &optimize_an_nmer::df;
-  my_func.fdf = &optimize_an_nmer::fdf;
-  my_func.params = reinterpret_cast<void *> (&param_holder);
+   my_func.n = cs.size();
+   my_func.f = &optimize_an_nmer::f;
+   my_func.df = &optimize_an_nmer::df;
+   my_func.fdf = &optimize_an_nmer::fdf;
+   my_func.params = reinterpret_cast<void *> (&param_holder);
 
-  x = gsl_vector_alloc(cs.size());
-  for (std::size_t i=0; i<start_angles.size(); i++)
-     gsl_vector_set(x, i, start_angles[i]);
+   x = gsl_vector_alloc(cs.size());
+   for (std::size_t i=0; i<start_angles.size(); i++)
+      gsl_vector_set(x, i, start_angles[i]);
 
-  const gsl_multimin_fdfminimizer_type *T = gsl_multimin_fdfminimizer_conjugate_pr;
-  gsl_multimin_fdfminimizer *s = gsl_multimin_fdfminimizer_alloc(T, start_angles.size());
+   const gsl_multimin_fdfminimizer_type *T = gsl_multimin_fdfminimizer_conjugate_pr;
+   gsl_multimin_fdfminimizer *s = gsl_multimin_fdfminimizer_alloc(T, start_angles.size());
 
-  // small moves Ellie, small moves...
-  gsl_multimin_fdfminimizer_set(s, &my_func, x, 0.01, 1.0); // within 1 degree is good enough
+   // small moves Ellie, small moves...
+   gsl_multimin_fdfminimizer_set(s, &my_func, x, 0.01, 1.0); // within 1 degree is good enough
 
-  do {
+   do {
       iter++;
       status = gsl_multimin_fdfminimizer_iterate(s);
 
       if (status)
-        break;
+	 break;
 
       status = gsl_multimin_test_gradient(s->gradient, 5e-2);
 
@@ -1036,47 +1076,47 @@ coot::crankshaft::run_optimizer(const std::vector<float> &start_angles,
 		      << gsl_vector_get(s->x, 2) << " value "
 		      << s->f << "\n";
 
-  } while (status == GSL_CONTINUE && iter < 1000);
+   } while (status == GSL_CONTINUE && iter < 1000);
 
-  scored_nmer_angle_set_t sas; // empty
+   scored_nmer_angle_set_t sas; // empty
 
-  if (status == GSL_ENOPROG) {
-     // std::cout << "No progress" << std::endl;
-  } else {
+   if (status == GSL_ENOPROG) {
+      // std::cout << "No progress" << std::endl;
+   } else {
 
-     // sometimes we get wild solutions - not clear why (they seem to have sensibly log probs)
-     // so trash those here.
-     bool sane = true;
-     for (std::size_t i=0; i<cs.size(); i++) {
-	if (gsl_vector_get(s->x, i) < -M_PI_2) {
-	   sane = false;
-	   break;
-	}
-	if (gsl_vector_get(s->x, i) > (2.5 * M_PI)) {
-	   sane = false;
-	   break;
-	}
-     }
+      // sometimes we get wild solutions - not clear why (they seem to have sensibly log probs)
+      // so trash those here.
+      bool sane = true;
+      for (std::size_t i=0; i<cs.size(); i++) {
+	 if (gsl_vector_get(s->x, i) < -M_PI_2) {
+	    sane = false;
+	    break;
+	 }
+	 if (gsl_vector_get(s->x, i) > (2.5 * M_PI)) {
+	    sane = false;
+	    break;
+	 }
+      }
 
-     if (sane) {
-	std::vector<float> sv(cs.size());
-	for (std::size_t i=0; i<cs.size(); i++) {
-	   sv[i] = gsl_vector_get(s->x, i);
-	   if (sv[i] < 0) {
-	      sv[i] += 2*M_PI;
-	   }
-	   if (sv[i] > 6.283) {
-	      sv[i] -= 2*M_PI;
-	   }
-	}
-	float score = s->f;
-	sas = scored_nmer_angle_set_t(cs, sv, score);
-     }
-  }
+      if (sane) {
+	 std::vector<float> sv(cs.size());
+	 for (std::size_t i=0; i<cs.size(); i++) {
+	    sv[i] = gsl_vector_get(s->x, i);
+	    if (sv[i] < 0) {
+	       sv[i] += 2*M_PI;
+	    }
+	    if (sv[i] > 6.283) {
+	       sv[i] -= 2*M_PI;
+	    }
+	 }
+	 float score = s->f;
+	 sas = scored_nmer_angle_set_t(cs, sv, score);
+      }
+   }
 
-  gsl_multimin_fdfminimizer_free(s);
-  gsl_vector_free(x);
-  return sas;
+   gsl_multimin_fdfminimizer_free(s);
+   gsl_vector_free(x);
+   return sas;
 
 }
 
@@ -1431,6 +1471,7 @@ coot::crankshaft::new_mol_with_moved_atoms(scored_nmer_angle_set_t sas) {
 }
 
 
+
 // -----------------------------------------------------------------------------
 //   refine (in threads)
 // -----------------------------------------------------------------------------
@@ -1438,12 +1479,12 @@ coot::crankshaft::new_mol_with_moved_atoms(scored_nmer_angle_set_t sas) {
 // static
 coot::crankshaft::molecule_score_t
 coot::crankshaft::refine_and_score_mol(mmdb::Manager *mol,
-		     const coot::residue_spec_t &res_spec_mid,
-		     const std::vector<coot::residue_spec_t> &residue_specs_for_scoring,
-		     const coot::protein_geometry &geom,
-		     const clipper::Xmap<float> &xmap,
-		     float map_weight,
-		     const std::string &output_pdb_file_name) {
+				       const std::vector<coot::residue_spec_t > &refine_residue_specs,
+				       const std::vector<coot::residue_spec_t> &residue_specs_for_scoring,
+				       const coot::protein_geometry &geom,
+				       const clipper::Xmap<float> &xmap,
+				       float map_weight,
+				       const std::string &output_pdb_file_name) {
 
    molecule_score_t score;
 
@@ -1452,8 +1493,9 @@ coot::crankshaft::refine_and_score_mol(mmdb::Manager *mol,
       std::vector<std::pair<bool, mmdb::Residue *> > residues;
       std::vector<mmdb::Link> links;
       std::vector<coot::atom_spec_t> fixed_atom_specs;
-      coot::restraint_usage_Flags flags = BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-      flags = TYPICAL_RESTRAINTS;
+      coot::restraint_usage_Flags flags = BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
+
+      // flags = TYPICAL_RESTRAINTS;
       int imol = 0; // dummy
       int nsteps_max = 4000;
       bool make_trans_peptide_restraints = true;
@@ -1462,24 +1504,19 @@ coot::crankshaft::refine_and_score_mol(mmdb::Manager *mol,
       coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
       int restraints_rama_type = restraints_container_t::RAMA_TYPE_ZO;
 
-      mmdb::Residue *res_ref = util::get_residue(res_spec_mid, mol);
-      if (res_ref) {
-	 std::vector<mmdb::Residue *> residues_near = residues_near_residue(res_ref, mol, radius);
-	 residues.push_back(std::pair<bool,mmdb::Residue *>(true, res_ref));
-	 for (unsigned int i=0; i<residues_near.size(); i++) {
-	    std::pair<bool, mmdb::Residue *> p(true, residues_near[i]);
-	    residues.push_back(p);
+      std::vector<std::pair<bool, mmdb::Residue *> > refine_residues;
+      for (std::size_t ires=0; ires<refine_residue_specs.size(); ires++) {
+	 mmdb::Residue *residue_p = util::get_residue(refine_residue_specs[ires], mol);
+	 if (residue_p) {
+	    std::pair<bool, mmdb::Residue *> p(false, residue_p);
+	    refine_residues.push_back(p);
 	 }
       }
-
-      std::vector<coot::residue_spec_t> residue_specs_vec(residues.size());
-      for (std::size_t ir=0; ir<residues.size(); ir++)
-	 residue_specs_vec[ir] = coot::residue_spec_t(residues[ir].second);
 
 #ifdef HAVE_CXX_THREAD
       auto tp_0 = std::chrono::high_resolution_clock::now();
 #endif
-      coot::restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs);
+      coot::restraints_container_t restraints(refine_residues, links, geom, mol, fixed_atom_specs);
       restraints.add_map(xmap, map_weight);
       restraints.set_rama_type(restraints_rama_type);
       restraints.set_rama_plot_weight(1);
@@ -1524,17 +1561,18 @@ coot::crankshaft::refine_and_score_mol(mmdb::Manager *mol,
 // static
 void
 coot::crankshaft::refine_and_score_mols(std::vector<mmdb::Manager *> mols,
-		      const std::vector<unsigned int> &mols_thread_vec,
-		      const coot::residue_spec_t &res_spec_mid,
-		      const std::vector<coot::residue_spec_t> &residue_specs_for_scoring,
-		      const coot::protein_geometry &geom,
-		      const clipper::Xmap<float> &xmap,
-		      float map_weight,
-		      std::vector<molecule_score_t> *mol_scores) {
+					const std::vector<unsigned int> &mols_thread_vec,
+					const std::vector<coot::residue_spec_t> &residue_specs_for_refining,
+					const std::vector<coot::residue_spec_t> &residue_specs_for_scoring,
+					const coot::protein_geometry &geom,
+					const clipper::Xmap<float> &xmap,
+					float map_weight,
+					std::vector<molecule_score_t> *mol_scores) {
 
    for (std::size_t i=0; i<mols_thread_vec.size(); i++) {
       molecule_score_t ms = refine_and_score_mol(mols[mols_thread_vec[i]],
-						 res_spec_mid, residue_specs_for_scoring,
+						 residue_specs_for_refining,
+						 residue_specs_for_scoring,
 						 geom, xmap, map_weight, "");
       (*mol_scores)[mols_thread_vec[i]] = ms;
    }
@@ -1550,8 +1588,10 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
 					 float map_weight,
 					 int n_samples) {
 
-   // cranshaft takes the first of 3 residues, so we want to call cranshaft with
+   // This needs fixing? // FIXME
+   // cranshaft takes the first of 3 residues, so we want to call crankshaft with
    // the residue before rs:
+   //
    mmdb::Residue *prev_res = coot::util::get_previous_residue(rs, mol_in);
    if (! prev_res) {
       std::cout << "WARNING:: No residue previous to " << rs << std::endl;
@@ -1562,18 +1602,34 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
       coot::residue_spec_t prev_residue_spec(prev_res);
       std::cout << "INFO:: using residue specifier: " << rs << std::endl;
 
+      if (n_samples == -1) {
+	 // choose for me (based on the number of threads and the number of peptides
+#ifdef HAVE_CXX_THREAD
+	 unsigned int n_threads = coot::get_max_number_of_threads();
+
+	 // the more peptides, the less samples
+	 if (n_threads > 0)
+	    n_samples = std::round(1000 * n_threads/pow(n_peptides, 0.7));
+	 else
+	    n_samples = 5;
+	 std::cout << "debug:: chose n_samples " << n_samples << " for " << n_peptides << " peptides "
+		   << " and using " << n_threads << " threads" << std::endl;
+#else
+	 n_samples = 5; // hmm.
+#endif // HAVE_CXX_THREAD
+      }
+
       // consider changing the API to find_maxima to be the middle of the 3 residues
       //
       //
 
-      // std::vector<coot::crankshaft::scored_triple_angle_set_t> sas =
-      // cs.find_maxima(prev_residue_spec, n_peptides, zorts, n_samples);
-      
       std::vector<coot::crankshaft::scored_nmer_angle_set_t> sas =
 	 cs.find_maxima(prev_residue_spec, n_peptides, zorts, n_samples);
 
-      // where did they move to?
-      std::cout << "sas size: " << sas.size() << std::endl;
+      std::cout << "debug:: in refine_and_score_mol() sas size: " << sas.size() << std::endl;
+      for (std::size_t i=0; i<sas.size(); i++) {
+	 std::cout << "   " << sas[i] << std::endl;
+      }
 
       coot::protein_geometry geom;
       geom.set_verbose(0);
@@ -1589,16 +1645,18 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
 	 }
       }
 
+      // which residues shall we refine?
       std::vector<coot::residue_spec_t> local_residue_specs;
-      mmdb::Residue *res_ref = util::get_residue(rs, mol_in);
-      if (res_ref) {
-	 float radius = 5;
-	 std::vector<mmdb::Residue *> residues_near =
-	    coot::residues_near_residue(res_ref, mol_in, radius);
-	 local_residue_specs.push_back(rs);
-	 for (unsigned int i=0; i<residues_near.size(); i++)
-	    local_residue_specs.push_back(coot::residue_spec_t(residues_near[i]));
+      if (sas.size() > 0) {
+	 std::vector<mmdb::Residue *> cs_residues = sas[0].residues();
+	 for (std::size_t ires=0; ires<cs_residues.size(); ires++)
+	    local_residue_specs.push_back(coot::residue_spec_t(cs_residues[ires]));
+	 // maybe add some near neighbours?
       }
+
+      std::cout << "local residue specs: " << std::endl;
+      for (std::size_t ilr=0; ilr<local_residue_specs.size(); ilr++)
+	 std::cout << "   " << local_residue_specs[ilr] << std::endl;
 
       std::vector<mmdb::Manager *> mols(sas.size(), 0);
       std::vector<crankshaft::molecule_score_t> mol_scores(sas.size());
@@ -1648,7 +1706,7 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
 	    //
 	    if (mols_thread_vec[i_thread].size() > 0) {
 	       threads.push_back(std::thread(refine_and_score_mols, mols, mols_thread_vec[i_thread],
-					     std::cref(rs), std::cref(local_residue_specs),
+					     std::cref(local_residue_specs), std::cref(local_residue_specs),
 					     std::cref(geom), std::cref(xmap), map_weight,
 					     &mol_scores));
 	       // threads.push_back(std::thread(dummy_func, mols)); // testing
@@ -1684,6 +1742,15 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
 		   << std::setw(9) << std::right << std::setprecision(3) << std::fixed << combi_score
 		   << std::endl;
 	 std::cout.setf(std::ios::fixed, std::ios::floatfield); // reset from std::fixed
+      }
+
+      // write all solutions (for now)
+      //
+      for (std::size_t i=0; i<sas.size(); i++) {
+	 std::string file_name = "crankshaft-post-refinement-";
+	 file_name += coot::util::int_to_string(i);
+	 file_name += ".pdb";
+	 mols[i]->WritePDBASCII(file_name.c_str());
       }
 
       for (std::size_t i=0; i<sas.size(); i++)
