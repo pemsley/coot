@@ -242,11 +242,21 @@ namespace coot {
       //
       class scored_nmer_angle_set_t : public nmer_crankshaft_set {
       public:
-	 scored_nmer_angle_set_t() { minus_log_prob = 0; }
+	 scored_nmer_angle_set_t() { minus_log_prob = 0; combi_score = 0; }
 	 scored_nmer_angle_set_t(const nmer_crankshaft_set &nmer_in,
 				 const std::vector<float> &angles_in, float lp) : nmer_crankshaft_set(nmer_in), angles(angles_in), minus_log_prob(lp) {};
 	 std::vector<float> angles;
 	 float minus_log_prob;
+	 float combi_score; // used after refinement and distortion score analysis
+	 void set_combi_score(float map_density_score, float map_weight, float model_distortion_score) {
+	    // the more positive the combi_score, the better
+	    combi_score = 0.01 * map_weight * map_density_score - model_distortion_score - minus_log_prob;
+	 }
+	 static bool sorter_by_combi_score(const std::pair<scored_nmer_angle_set_t, mmdb::Manager *>  &sas_in_1,
+					   const std::pair<scored_nmer_angle_set_t, mmdb::Manager *>  &sas_in_2) {
+	    // good (big/positive) score go to the top
+	    return (sas_in_1.first.combi_score > sas_in_2.first.combi_score);
+	 }
 	 bool is_close(const scored_nmer_angle_set_t &sas_in) const {
 	    float big_delta = clipper::Util::d2rad(5.0);
 	    bool same = true;
@@ -304,8 +314,10 @@ namespace coot {
 			       const zo::rama_table_set &zorts,
 			       unsigned int n_samples=60); // there are perhaps 50 maxima
 
+      // the API of nmer is different to triple - here we now pass the middle residue
+      // spec
       std::vector<scored_nmer_angle_set_t>
-      find_maxima(const residue_spec_t &spec_first_residue,
+      find_maxima(const residue_spec_t &mid_first_residue,
 		  unsigned int n_peptides, // the length of the nmer
 		  const zo::rama_table_set &zorts,
 		  unsigned int n_samples=60); // there are perhaps 50 maxima
@@ -347,14 +359,16 @@ namespace coot {
 
       // rs should be the mid-residue, n_peptides should be odd (for sanity)
       //
-      static void
+      static
+      std::vector<mmdb::Manager *>
       crank_refine_and_score(const coot::residue_spec_t &rs, // mid-residue
 			     unsigned int n_peptides,
 			     const clipper::Xmap<float> &xmap,
 			     mmdb::Manager *mol, // or do I want an atom_selection_container_t for
 			                         // use with atom index transfer?
 			     float map_weight,
-			     int n_samples);
+			     int n_samples,
+			     int n_solutions);
 
       static
       bool null_eraser(const scored_nmer_angle_set_t &snas) { return (snas.angles.empty()); }

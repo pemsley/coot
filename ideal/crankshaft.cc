@@ -23,7 +23,9 @@ coot::operator<<(std::ostream &s, const coot::crankshaft::scored_triple_angle_se
 std::ostream &
 coot::operator<<(std::ostream &s, const coot::crankshaft::scored_nmer_angle_set_t &as) {
 
-   s << "minus_log_prob: " << std::setw(8) << as.minus_log_prob << " from angles";
+   s << "minus_log_prob: " << std::setw(8) << as.minus_log_prob
+     << " combi-score: " << std::right << std::setprecision(3) << std::fixed << as.combi_score
+     << " from angles";
    for (std::size_t i=0; i<as.angles.size(); i++)
       s << std::setw(9) << clipper::Util::rad2d(as.angles[i]) << " ";
    return s;
@@ -387,10 +389,20 @@ coot::triple_crankshaft_set::triple_crankshaft_set(const residue_spec_t &spec_fi
    }
 }
 
-coot::nmer_crankshaft_set::nmer_crankshaft_set(const residue_spec_t &spec_first_residue,
+coot::nmer_crankshaft_set::nmer_crankshaft_set(const residue_spec_t &spec_mid_residue,
 					       unsigned int n_peptides,
 					       const zo::rama_table_set &zorts,
 					       mmdb::Manager *mol) {
+
+
+   // we first need to find what is the first residue (the N-terminal residue of the
+   // first rotating peptide). res_0 is the residue before the first residue.
+
+   // This will not do the right thing if there are insertion codes. In that case
+   // more cleverness is required.
+   int first_from_mid_delta = std::round((n_peptides-1)/2);
+   residue_spec_t spec_first_residue(spec_mid_residue.chain_id,
+				     spec_mid_residue.res_no - first_from_mid_delta);
 
    // if n_peptides is 1: then we will need to fill cs[0] with:
    // res_0: residue before the first spec
@@ -646,7 +658,7 @@ coot::crankshaft::find_maxima_from_triples(const residue_spec_t &spec_first_resi
 // "scored" because the probability has been calculated (not used in refinement)
 //
 std::vector<coot::crankshaft::scored_nmer_angle_set_t>
-coot::crankshaft::find_maxima(const residue_spec_t &spec_first_residue,
+coot::crankshaft::find_maxima(const residue_spec_t &spec_mid_residue,
 			      unsigned int n_peptides, // the length of the nmer
 			      const zo::rama_table_set &zorts,
 			      unsigned int n_samples) {
@@ -661,7 +673,7 @@ coot::crankshaft::find_maxima(const residue_spec_t &spec_first_residue,
 
    try {
       // if the atoms are not there, this can throw a std::runtime_error.
-      nmer_crankshaft_set cs(spec_first_residue, n_peptides, zorts, mol);
+      nmer_crankshaft_set cs(spec_mid_residue, n_peptides, zorts, mol);
 
       float div = 1.0/float(n_samples);
 
@@ -1578,20 +1590,20 @@ coot::crankshaft::refine_and_score_mols(std::vector<mmdb::Manager *> mols,
    }
 }
 
+// return at max n_solutions
+//
 // static
-void
+std::vector<mmdb::Manager *>
 coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-residue
 					 unsigned int n_peptides,
 					 const clipper::Xmap<float> &xmap,
 					 // atom_selection_container_t asc,
 					 mmdb::Manager *mol_in,
 					 float map_weight,
-					 int n_samples) {
+					 int n_samples, int n_solutions) {
 
-   // This needs fixing? // FIXME
-   // cranshaft takes the first of 3 residues, so we want to call crankshaft with
-   // the residue before rs:
-   //
+   std::vector<mmdb::Manager *> solution_molecules;
+
    mmdb::Residue *prev_res = coot::util::get_previous_residue(rs, mol_in);
    if (! prev_res) {
       std::cout << "WARNING:: No residue previous to " << rs << std::endl;
@@ -1609,24 +1621,24 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
 
 	 // the more peptides, the less samples
 	 if (n_threads > 0)
-	    n_samples = std::round(1000 * n_threads/pow(n_peptides, 0.7));
+	    n_samples = std::lround(100 * n_threads/pow(n_peptides, 0.7));
 	 else
 	    n_samples = 5;
-	 std::cout << "debug:: chose n_samples " << n_samples << " for " << n_peptides << " peptides "
-		   << " and using " << n_threads << " threads" << std::endl;
+	 std::cout << "INFO:: chose n_samples " << n_samples << " for " << n_peptides
+		   << " peptides " << " and using " << n_threads << " threads" << std::endl;
 #else
 	 n_samples = 5; // hmm.
 #endif // HAVE_CXX_THREAD
       }
 
-      // consider changing the API to find_maxima to be the middle of the 3 residues
-      //
+      // changed the API to find_maxima to be the middle of the n_peptides (3)
+      // residues
       //
 
       std::vector<coot::crankshaft::scored_nmer_angle_set_t> sas =
-	 cs.find_maxima(prev_residue_spec, n_peptides, zorts, n_samples);
+	 cs.find_maxima(rs, n_peptides, zorts, n_samples);
 
-      std::cout << "debug:: in refine_and_score_mol() sas size: " << sas.size() << std::endl;
+      std::cout << "INFO:: Will refine " << sas.size() << " crankshaft solutions" << std::endl;
       for (std::size_t i=0; i<sas.size(); i++) {
 	 std::cout << "   " << sas[i] << std::endl;
       }
@@ -1735,27 +1747,57 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
 	 // the higher the combi_score the better
 	 const molecule_score_t &ms = mol_scores[i];
 	 float combi_score = 0.01 * map_weight * ms.density_score - ms.model_score - sas[i].minus_log_prob;
-	 std::cout << "scores: " << i << " "
-		   << std::setw(9) << sas[i].minus_log_prob << " "
+	 sas[i].set_combi_score(ms.density_score, map_weight, ms.model_score);
+	 std::cout << "scores: " << i << " minus-log-prob "
+		   << std::setw(9) << sas[i].minus_log_prob << " combi-score "
+		   << std::setw(9) << sas[i].combi_score << " "
 		   << std::setw(9) << ms.density_score << " "
 		   << std::setw(9) << ms.model_score << " combi-score "
-		   << std::setw(9) << std::right << std::setprecision(3) << std::fixed << combi_score
-		   << std::endl;
+		   << std::setw(9) << std::right << std::setprecision(3) << std::fixed
+		   << sas[i].combi_score << std::endl;
 	 std::cout.setf(std::ios::fixed, std::ios::floatfield); // reset from std::fixed
       }
 
-      // write all solutions (for now)
-      //
+      // Now sort the molecules using the sas combi-scores. To do that we
+      // need the sas and the molecule to be attached
+      std::vector<std::pair<scored_nmer_angle_set_t, mmdb::Manager *> > sas_mol_pairs(sas.size());
       for (std::size_t i=0; i<sas.size(); i++) {
-	 std::string file_name = "crankshaft-post-refinement-";
-	 file_name += coot::util::int_to_string(i);
-	 file_name += ".pdb";
-	 mols[i]->WritePDBASCII(file_name.c_str());
+	 sas_mol_pairs[i] = std::pair<scored_nmer_angle_set_t, mmdb::Manager *> (sas[i], mols[i]);
       }
 
+      std::sort(sas_mol_pairs.begin(), sas_mol_pairs.end(),
+		scored_nmer_angle_set_t::sorter_by_combi_score);
+
+      std::cout << "post sort by combi-score " << std::endl;
+      for (std::size_t i=0; i<sas_mol_pairs.size(); i++) {
+	 std::cout << "scores: " << i << " minus-log-prob "
+		   << std::setw(9) << sas_mol_pairs[i].first.minus_log_prob << " combi-score "
+		   << std::setw(9) << std::right << std::setprecision(3) << std::fixed
+		   << sas_mol_pairs[i].first.combi_score << std::endl;
+	 std::cout.setf(std::ios::fixed, std::ios::floatfield); // reset from std::fixed
+      }
+
+      for (std::size_t isol=0; isol<sas_mol_pairs.size(); isol++)
+	 if (static_cast<int>(isol) < n_solutions)
+	    solution_molecules.push_back(sas_mol_pairs[isol].second);
+      
+      // write all solutions - for debugging
+      //
+      if (false) {
+	 for (std::size_t i=0; i<sas.size(); i++) {
+	    std::string file_name = "crankshaft-post-refinement-";
+	    file_name += coot::util::int_to_string(i);
+	    file_name += ".pdb";
+	    mols[i]->WritePDBASCII(file_name.c_str());
+	 }
+      }
+
+      // delete the molecules that we are not returning
       for (std::size_t i=0; i<sas.size(); i++)
-	 delete mols[i];
-
+	 if (std::find(solution_molecules.begin(),
+		       solution_molecules.end(), mols[i]) == solution_molecules.end())
+	    delete mols[i];
    }
-}
 
+   return solution_molecules;
+}

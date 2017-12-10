@@ -3,6 +3,8 @@
 
    o what is the EMDB code for Vinothkumar Zhu Hurst 2014?
 
+   o write a binary-search/binary-chop version of get-residue
+
    o Fix this crash, Terence.
 
 [Thread debugging using libthread_db enabled]

@@ -261,7 +261,8 @@ int main(int argc, char **argv) {
 	       file.open_read(inputs.map_file_name);
 	       file.import_xmap(xmap);
 	       file.close_read();
-	       coot::crankshaft::crank_refine_and_score(rs, n_peptides, xmap, asc.mol, map_weight, inputs.n_samples);
+	       int n_solutions = 6;
+	       coot::crankshaft::crank_refine_and_score(rs, n_peptides, xmap, asc.mol, map_weight, inputs.n_samples, n_solutions);
 	    } else {
 	       std::cout << "ERROR: map " << inputs.map_file_name << " does not exist" << std::endl;
 	    }
@@ -275,7 +276,9 @@ int main(int argc, char **argv) {
 	 bool map_is_good = xmap_pair.first;
 
 	 if (map_is_good) {
-	    coot::crankshaft::crank_refine_and_score(rs, n_peptides, xmap, asc.mol, map_weight, inputs.n_samples);
+	    int n_solutions = 6;
+	    coot::crankshaft::crank_refine_and_score(rs, n_peptides, xmap, asc.mol,
+						     map_weight, inputs.n_samples, n_solutions);
 	 } else {
 	    std::cout << "ERROR:: bad map " << std::endl;
 	 }
