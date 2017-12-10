@@ -262,7 +262,16 @@ int main(int argc, char **argv) {
 	       file.import_xmap(xmap);
 	       file.close_read();
 	       int n_solutions = 6;
-	       coot::crankshaft::crank_refine_and_score(rs, n_peptides, xmap, asc.mol, map_weight, inputs.n_samples, n_solutions);
+	       std::vector<mmdb::Manager *> mols =
+		  coot::crankshaft::crank_refine_and_score(rs, n_peptides, xmap, asc.mol, map_weight, inputs.n_samples, n_solutions);
+	       for (std::size_t i=0; i<mols.size(); i++) {
+		  std::string file_name = "crankshafted-";
+		  file_name += coot::util::int_to_string(i);
+		  file_name += ".pdb";
+		  mols[i]->WritePDBASCII(file_name.c_str());
+	       }
+	       for (std::size_t i=0; i<mols.size(); i++)
+		  delete mols[i];
 	    } else {
 	       std::cout << "ERROR: map " << inputs.map_file_name << " does not exist" << std::endl;
 	    }
@@ -277,8 +286,17 @@ int main(int argc, char **argv) {
 
 	 if (map_is_good) {
 	    int n_solutions = 6;
-	    coot::crankshaft::crank_refine_and_score(rs, n_peptides, xmap, asc.mol,
-						     map_weight, inputs.n_samples, n_solutions);
+	    std::vector<mmdb::Manager *> mols =
+	       coot::crankshaft::crank_refine_and_score(rs, n_peptides, xmap, asc.mol,
+							map_weight, inputs.n_samples, n_solutions);
+	    for (std::size_t i=0; i<mols.size(); i++) {
+	       std::string file_name = "crankshafted-";
+		  file_name += coot::util::int_to_string(i);
+		  file_name += ".pdb";
+		  mols[i]->WritePDBASCII(file_name.c_str());
+	    }
+	    for (std::size_t i=0; i<mols.size(); i++)
+	       delete mols[i];
 	 } else {
 	    std::cout << "ERROR:: bad map " << std::endl;
 	 }
