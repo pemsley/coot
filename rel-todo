@@ -5,6 +5,10 @@
 
    o write a binary-search/binary-chop version of get-residue
 
+* Done.
+
+   o put c-interface-refine.hh into the documenation generation
+
    o Fix this crash, Terence.
 
 [Thread debugging using libthread_db enabled]

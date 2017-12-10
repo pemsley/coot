@@ -12,7 +12,7 @@ AM_CPPFLAGS = \
 	$(MMDB_CXXFLAGS)
 
 libcoot_analysis_la_SOURCES = bfkurt.cc mogul.cc kolmogorov.hh kolmogorov.cc stats.cc \
-	cablam.hh cablam.cc
+	cablam.hh cablam.cc typed-distances.cc typed-distances.hh
 
 libcoot_analysis_la_LIBADD = \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la    \
