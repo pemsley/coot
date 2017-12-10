@@ -90,8 +90,8 @@ coot::high_res::get_middle_pos(const coot::minimol::molecule &minimol_mol) const
    
    int err = mol->GetTMatrix(my_matt, 0, 0, 0, 0);
    if (err != mmdb::SYMOP_Ok) {
-      cout << "!! Warning:: No symmetry available for this molecule"
-	   << endl;
+      std::cout << "!! Warning:: No symmetry available for this molecule"
+		<< std::endl;
    } else { 
 
       mol->SeekContacts(asc.atom_selection, asc.n_selected_atoms, 

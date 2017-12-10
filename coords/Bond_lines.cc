@@ -828,7 +828,7 @@ Bond_lines_container::get_neighb_normal(int imol, int iat_1, int iat_2, mmdb::PP
       std::string m = "No dictionary for ";
       m += atoms[iat_1]->residue->GetResName();
       m += " - dictionary bonding fails";
-      throw(runtime_error(m));
+      throw(std::runtime_error(m));
    }
    return pt;
 
@@ -2667,8 +2667,8 @@ Bond_lines_container::addSymmetry_calphas(const atom_selection_container_t &SelA
 			      -symm_trans[ii].second.ws);
       
       if (err != 0) {
-	 cout << "!!!!!!!!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix"
-	      << endl;
+	 std::cout << "!!!!!!!!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix"
+		   << std::endl;
       }
       
       int nmodels = SelAtom.mol->GetNumberOfModels();
@@ -2944,8 +2944,8 @@ Bond_lines_container::ContactSel(mmdb::PPAtom trans_sel,
    
    TransSel.n_selected_atoms = n_contact_atoms;
    if (n_contact_atoms > ncontacts){ 
-      cout << "disaster n_contact_atoms (" << n_contact_atoms
-	   << ") > ncontacts (" << ncontacts << ")" << endl;
+      std::cout << "disaster n_contact_atoms (" << n_contact_atoms
+		<< ") > ncontacts (" << ncontacts << ")" << std::endl;
    }
    return TransSel;
 
@@ -2966,8 +2966,8 @@ Bond_lines_container::trans_sel(atom_selection_container_t AtomSel,
 				     symm_trans.first.y(), symm_trans.first.z());
 
    if (err != 0) {
-      cout << "!!!!!!!!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix"
-	   << endl;
+      std::cout << "!!!!!!!!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix"
+		<< std::endl;
    }
    
    // cout << "using symm_trans: " << symm_trans << endl;
@@ -3306,14 +3306,14 @@ Bond_lines_container::make_graphical_symmetry_bonds() const {
 void
 Bond_lines_container::check() const {
    //
-   cout << "Bond_lines_container::check() bonds.size() " << bonds.size() << endl;
+   std::cout << "Bond_lines_container::check() bonds.size() " << bonds.size() << std::endl;
    if (bonds.size() > 0) {
-      cout <<  "Bond_lines_container::check() bonds[0].size(): "
-	   << bonds[0].size() << endl; 
+      std::cout <<  "Bond_lines_container::check() bonds[0].size(): "
+		<< bonds[0].size() << std::endl; 
    }
    if (bonds.size() > 1) {
-      cout <<  "Bond_lines_container::check() bonds[1].size(): "
-	   << bonds[1].size() << endl; 
+      std::cout <<  "Bond_lines_container::check() bonds[1].size(): "
+		<< bonds[1].size() << std::endl; 
    }
 }
 
@@ -3326,17 +3326,17 @@ void
 Bond_lines_container::write(std::string filename) const {
 
 
-   cout << "Write bonds to file: " << filename.c_str() << endl;
+   std::cout << "Write bonds to file: " << filename.c_str() << std::endl;
    
    std::ofstream bondsout(filename.c_str()); 
    if (! bondsout) {
       // error
-      cout << "Could not open " << filename.c_str() << " for some reason\n";
+      std::cout << "Could not open " << filename.c_str() << " for some reason\n";
    } else { 
    
       for (unsigned int i = 0; i < bonds.size(); i++) {
 	 
-	 bondsout<< bonds[i].size() << " bonds of colour " << i << endl;
+	 bondsout<< bonds[i].size() << " bonds of colour " << i << std::endl;
 
 	 int bis=bonds[i].size();
 	 for (int j = 0; j<bis ; j++) {
@@ -3344,7 +3344,7 @@ Bond_lines_container::write(std::string filename) const {
 	    // This gets it pass CC, strangely
             bondsout << bonds[i].GetStart(j); 
             bondsout << " to ";
-            bondsout << bonds[i].GetFinish(j) << endl;
+            bondsout << bonds[i].GetFinish(j) << std::endl;
 	 }
       }
    }
@@ -4518,8 +4518,8 @@ Bond_lines_container::do_symmetry_Ca_bonds(atom_selection_container_t SelAtom,
 				     symm_trans.y(), symm_trans.z());
 
    if (err != 0) {
-      cout << "!!!!!!!!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix"
-	   << endl;
+      std::cout << "!!!!!!!!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix"
+		<< std::endl;
    }
    
    int selHnd_ca = SelAtom.mol->NewSelection();
@@ -4536,7 +4536,7 @@ Bond_lines_container::do_symmetry_Ca_bonds(atom_selection_container_t SelAtom,
 			     contact, ncontacts, 
 			     0, &my_matt, i_contact_group);
 
-   cout << "Found " << ncontacts/2 << " Ca-Ca links" << endl;
+   std::cout << "INFO:: Found " << ncontacts/2 << " Ca-Ca links" << std::endl;
 
    if (ncontacts > 0) {
       for (int i=0; i< ncontacts; i++) {

@@ -450,6 +450,10 @@ coot_bin_SOURCES = \
 	sdf-interface.hh         \
 	sdf-internal.hh          \
 	sdf-interface.cc         \
+	sequence-view.hh         \
+	sequence-view.cc         \
+	seq-view-interface.c     \
+	seq-view-interface.h     \
 	startup-scripts.hh       \
 	support.c support.h 	 \
 	support-gtk2-extras.c    \
@@ -459,10 +463,6 @@ coot_bin_SOURCES = \
 	trackball.c trackball.h  \
 	triangle-extras.h 	 \
 	select-atom-info.hh      \
-	sequence-view.hh         \
-	sequence-view.cc         \
-	seq-view-interface.c     \
-	seq-view-interface.h     \
 	user-mods.hh user-mods.cc\
 	validation-graphs.hh	 \
 	xmap-utils.cc 		 \

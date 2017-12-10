@@ -39,8 +39,6 @@
 
 #include <iostream>
 
-using namespace std;  // ugh.  This should not be here.  FIXME
-
 #include "math.h"
 
 #ifndef MMDB_MANAGER_H

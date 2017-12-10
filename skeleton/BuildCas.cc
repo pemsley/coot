@@ -34,15 +34,13 @@
 // 
 // Not really the place for this I suspect.  
 // 
-// Pretty clear from the name what this function does.
-//
 coot::Cartesian
-average_Cartesians(vector<coot::Cartesian> c) {
+average_Cartesians(std::vector<coot::Cartesian> c) {
 
    if (c.size() == 0) {
 
-      cout << "WARNING: averaging zero Cartesian, returning default"
-	   << endl;
+      std::cout << "WARNING: averaging zero Cartesian, returning default"
+	   << std::endl;
       return coot::Cartesian();
 
    } else {
@@ -104,7 +102,7 @@ BuildCas::setup_internal() {
 atom_selection_container_t
 BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 				    clipper::Cell cell, 
-				    const vector<coot::Cartesian> &c,
+				    const std::vector<coot::Cartesian> &c,
 				    short int diff_residue_flag,
 				    std::string molecule_name) const
 {
@@ -222,7 +220,7 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
       iadd = res_p->AddAtom(atom);
       
       if ( iadd < 0 ) {
-	 cout << "Atom  Addition error: " << iadd << endl;
+	 std::cout << "Atom  Addition error: " << iadd << std::endl;
       }
 
       i_atom_loop_count++; 
@@ -278,7 +276,7 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 
 
    MMDBManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
-   cout << nSelAtoms << " atoms selected." << endl;
+   std::cout << nSelAtoms << " atoms selected." << std::endl;
 
    // give it a mol (mmdbmanager), the number of atom and the selection.
 
@@ -332,7 +330,7 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 //
 atom_selection_container_t
 BuildCas::convert_to_atoms(const clipper::Xmap<float> &l1,
-			   const vector<coot::Cartesian> &c,
+			   const std::vector<coot::Cartesian> &c,
 			   std::string molecule_name) const
 {
 
@@ -342,7 +340,7 @@ BuildCas::convert_to_atoms(const clipper::Xmap<float> &l1,
 
 atom_selection_container_t
 BuildCas::convert_to_atoms(const clipper::Xmap<int> &l1,
-			   const vector<coot::Cartesian> &c, 
+			   const std::vector<coot::Cartesian> &c, 
 			   std::string molecule_name) const
 {
 
@@ -351,7 +349,7 @@ BuildCas::convert_to_atoms(const clipper::Xmap<int> &l1,
 }
 
 atom_selection_container_t
-BuildCas::convert_to_atoms(const vector<coot::Cartesian> &c, std::string molecule_name) const { 
+BuildCas::convert_to_atoms(const std::vector<coot::Cartesian> &c, std::string molecule_name) const { 
 
    return convert_to_atoms_internal(d_map_p->spacegroup(), d_map_p->cell(), c, 1, molecule_name);
 
@@ -365,16 +363,16 @@ BuildCas::convert_to_atoms(const vector<coot::Cartesian> &c, std::string molecul
 // 
 // This is really slow.  We should use the extents architecture to speed it up.
 //
-vector <coot::Cartesian>
+std::vector <coot::Cartesian>
 BuildCas::point_list_by_symmetry(atom_selection_container_t AtomSel,
-				 const vector<clipper::Coord_grid> &grids,
+				 const std::vector<clipper::Coord_grid> &grids,
 				 coot::Cartesian current_point, float radius,
 				 short int use_grids) { // default arg
 
 // note that we are no longer const because we construct big_ball_grid
 
-   // vector <Cartesian_and_Grid> big_ball_l; // of points, _l local, no shadowing
-   vector <coot::Cartesian> big_ball_l; // of points, _l local, no shadowing
+   // std::vector <Cartesian_and_Grid> big_ball_l; // of points, _l local, no shadowing
+   std::vector <coot::Cartesian> big_ball_l; // of points, _l local, no shadowing
    mmdb::mat44 my_matt;
    mmdb::Contact *contact;
    int ncontacts;
@@ -388,8 +386,8 @@ BuildCas::point_list_by_symmetry(atom_selection_container_t AtomSel,
       
       // mmdb::CMMDBCryst *cryst_p =  (mmdb::CMMDBCryst *) &AtomSel.mol->get_cell();
 
-      cout << "DEBUG: There are " << AtomSel.mol->GetNumberOfSymOps() << " sym ops" << endl; 
-      cout << "symmetry expanding about " << current_point << endl; 
+      std::cout << "DEBUG: There are " << AtomSel.mol->GetNumberOfSymOps() << " sym ops" << std::endl; 
+      std::cout << "symmetry expanding about " << current_point << std::endl; 
 
       for (int ix = -1; ix < 2; ix++) { 
 	 for (int iy = -1; iy < 2; iy++) { 
@@ -400,8 +398,8 @@ BuildCas::point_list_by_symmetry(atom_selection_container_t AtomSel,
 		  int err = AtomSel.mol->GetTMatrix(my_matt, isym, ix, iy, iz); 
 
 		  if (err != 0)
-		     cout << "!! something BAD with mmdb::CMMDBCryst.GetTMatrix"
-			  << endl;
+		     std::cout << "!! something BAD with mmdb::CMMDBCryst.GetTMatrix"
+			  << std::endl;
 		  
 		  // cout << "Here: " << ix << " " << iy << " " << iz << " " << isym << endl; 
 
@@ -431,7 +429,7 @@ BuildCas::point_list_by_symmetry(atom_selection_container_t AtomSel,
 		     for (int ii=0; ii<ncontacts; ii++) {
 			
 			// consider pushing back contact[ii].id2, with 
-			// vector <mmdb::PAtom> big_ball;
+			// std::vector <mmdb::PAtom> big_ball;
 			// 
 			coot::Cartesian a(trans_selection [ contact[ii].id2 ]->x,
 				    trans_selection [ contact[ii].id2 ]->y,
@@ -469,21 +467,21 @@ BuildCas::point_list_by_symmetry(atom_selection_container_t AtomSel,
 #include <map>
 // see http://www.parashift.com/c++-faq-lite/containers-and-templates.html
 
-// We passed a vector of bones points that are within a certain
-// distance of centre_point. We want a set of vectors of clusters.
+// We passed a std::vector of bones points that are within a certain
+// distance of centre_point. We want a set of std::vectors of clusters.
 // How do we determine that a new position is (or is not) a member of
-// an already-defined cluster?  We take the dot product of this vector
+// an already-defined cluster?  We take the dot product of this std::vector
 // (the difference of the bones point in question and centre_point)
 // and members of other clusters (one at a time (obviously)) and find
 // the cosine of the angle between them.  If the cosine of the angle
 // (corresponding to some arbitary splitting angle (here we choose 20
 // degrees)) is less than the cuttoff, then we have a new cluster.
 // 
-vector<vector<coot::Cartesian_and_Grid> > 
-BuildCas::cluster_bones_points(vector<coot::Cartesian_and_Grid> bones_points, 
+std::vector<std::vector<coot::Cartesian_and_Grid> > 
+BuildCas::cluster_bones_points(std::vector<coot::Cartesian_and_Grid> bones_points, 
 			       coot::Cartesian centre_point) const { 
   
-   vector<cv_list_t> distinct_cv_list; // [cv: current_vector]. A
+   std::vector<cv_list_t> distinct_cv_list; // [cv: current_vector]. A
 				       // cv_list_t is (geometrical)
 				       // vector and atom index. 
    float cos_30 = 0.866; // as every schoolboy knows.
@@ -508,10 +506,10 @@ BuildCas::cluster_bones_points(vector<coot::Cartesian_and_Grid> bones_points,
    // 
    std::map<int, int> pot;
 
-   cout << "cluster_bones_points will cluster " 
-	<< bones_points.size() << " bones points" << endl; 
+   std::cout << "cluster_bones_points will cluster " 
+	<< bones_points.size() << " bones points" << std::endl; 
 
-   vector<vector<coot::Cartesian_and_Grid> > cluster_vec;
+   std::vector<std::vector<coot::Cartesian_and_Grid> > cluster_vec;
 
    for (unsigned int ii=0; ii< bones_points.size(); ii++) { 
     
@@ -544,7 +542,7 @@ BuildCas::cluster_bones_points(vector<coot::Cartesian_and_Grid> bones_points,
 	       break; 
 	    }
 	 } else { 
-	    cout << "Error: bogus lengths in cluster_bones_points" << endl; 
+	    std::cout << "Error: bogus lengths in cluster_bones_points" << std::endl; 
 	 } 
       }
 
@@ -588,8 +586,8 @@ BuildCas::cluster_bones_points(vector<coot::Cartesian_and_Grid> bones_points,
    
    // cluster_vec diagnostics
    for (unsigned int ii=0; ii < cluster_vec.size(); ii++) { 
-      cout << "cluster " << ii << " has size " 
-	   << cluster_vec[ii].size() << endl;
+      std::cout << "cluster " << ii << " has size " 
+	   << cluster_vec[ii].size() << std::endl;
    }
    
    return cluster_vec; 
@@ -599,17 +597,17 @@ BuildCas::cluster_bones_points(vector<coot::Cartesian_and_Grid> bones_points,
 // cluster_centres.  Given a list of list of points that are close,
 // return a list of central points, along with a corresponding grid. 
 // 
-vector<coot::Cartesian_and_Grid>
-BuildCas::cluster_centres(vector<vector<coot::Cartesian_and_Grid> > cluster_vec) const { 
+std::vector<coot::Cartesian_and_Grid>
+BuildCas::cluster_centres(std::vector<std::vector<coot::Cartesian_and_Grid> > cluster_vec) const { 
 
-   vector<coot::Cartesian_and_Grid> cluster_centres; 
+   std::vector<coot::Cartesian_and_Grid> cluster_centres; 
 
    // argh!  I want 'map'! (the scheme function). C++ hoops. Grrr.
 
    for (unsigned int ii=0; ii < cluster_vec.size(); ii++) { 
 
       // create a temporary vector<Cartesian> 
-      vector<coot::Cartesian> v; 
+      std::vector<coot::Cartesian> v; 
       for (unsigned int j=0; j<cluster_vec[ii].size(); j++) {
 	 v.push_back(cluster_vec[ii][j].pos);
       }
@@ -629,9 +627,9 @@ score_and_cart
 BuildCas::fit_first_in_segment(const clipper::Xmap<float> &map) {
 
    // 
-   cout << "-----> starting initial fitting...." << endl; 
-   cout << "searching " << branch_points_symm_expanded.size() 
-	<< " coordinates (for branch points (symm expanded) " << endl; 
+   std::cout << "-----> starting initial fitting...." << std::endl; 
+   std::cout << "searching " << branch_points_symm_expanded.size() 
+	<< " coordinates (for branch points (symm expanded) " << std::endl; 
 
    score_and_cart sc = peak_search_simple(); 
 
@@ -642,12 +640,12 @@ BuildCas::fit_first_in_segment(const clipper::Xmap<float> &map) {
 
    if ( ! (sc.score > 0.0)) { 
       // something bad.
-      cout << "BADNESS in fit_first_in_segment" << endl; 
+      std::cout << "BADNESS in fit_first_in_segment" << std::endl; 
    } 
 
-   cout << "Putting first atom at: " << sc.pos << endl; 
+   std::cout << "Putting first atom at: " << sc.pos << std::endl; 
    
-   cout << "------> done initial fitting...." << endl; 
+   std::cout << "------> done initial fitting...." << std::endl; 
 
    return sc; 
 }
@@ -827,21 +825,21 @@ BuildCas::peak_search_distance(coot::Cartesian previous_atom,
    }
 
    // debugging
-   cout << "      deviation_from_ideal_length_score(d)      " 
-	<< save_deviation_from_ideal_length_score << endl; 
-   cout << "      branch_point_proximity_score(trial_point) " 
-	<< save_branch_point_proximity_score<< endl; 
-   cout << "      prebuilt_exclusion_score_val              " 
-	<< save_prebuilt_exclusion_score << endl; 
-   cout << "      segment_score_val                         " 
-	<< save_segment_score << endl; 
-   cout << "      midpoint density score                    " 
-	<< mpds << endl; 
-   cout << "      TOTAL SCORE    ----->                     " 
-	<< score_and_cartesian.score << endl; 
+   std::cout << "      deviation_from_ideal_length_score(d)      " 
+	<< save_deviation_from_ideal_length_score << std::endl; 
+   std::cout << "      branch_point_proximity_score(trial_point) " 
+	<< save_branch_point_proximity_score<< std::endl; 
+   std::cout << "      prebuilt_exclusion_score_val              " 
+	<< save_prebuilt_exclusion_score << std::endl; 
+   std::cout << "      segment_score_val                         " 
+	<< save_segment_score << std::endl; 
+   std::cout << "      midpoint density score                    " 
+	<< mpds << std::endl; 
+   std::cout << "      TOTAL SCORE    ----->                     " 
+	<< score_and_cartesian.score << std::endl; 
 
-   cout << "peak_search_distance filled near_grid_point: " 
-	<< score_and_cartesian.near_grid_point.format() << endl; 
+   std::cout << "peak_search_distance filled near_grid_point: " 
+	<< score_and_cartesian.near_grid_point.format() << std::endl; 
 
    return score_and_cartesian; 
 }
@@ -990,24 +988,24 @@ BuildCas::peak_search_distance_theta_2(const TreeNode *node) //trial_centre_poin
 
 
       // debugging
-      cout << "      micro_point_scores.score                  " 
-	   << save_m_p_score_score << endl; 
-      cout << "      density_score                             " 
-	   << save_density_score << endl; 
-      cout << "      deviation_from_ideal_length_score(d)      " 
-	   << save_deviation_from_ideal_length_score << endl; 
-      cout << "      branch_point_proximity_score(trial_point) " 
-	   << save_branch_point_proximity_score<< endl; 
-      cout << "      prebuilt_exclusion_score_val              " 
-	   << save_prebuilt_exclusion_score << endl; 
-      cout << "      segment_score_val                         " 
-	   << save_segment_score << endl; 
-      cout << "      theta_2_score_val                         " 
-	   << save_theta_2_score << endl; 
-      cout << "      midpoint density score                    " 
-	   << mpds << endl; 
-      cout << "      TOTAL SCORE    ----->                     " 
-	   << best_score << endl; 
+      std::cout << "      micro_point_scores.score                  " 
+	   << save_m_p_score_score << std::endl; 
+      std::cout << "      density_score                             " 
+	   << save_density_score << std::endl; 
+      std::cout << "      deviation_from_ideal_length_score(d)      " 
+	   << save_deviation_from_ideal_length_score << std::endl; 
+      std::cout << "      branch_point_proximity_score(trial_point) " 
+	   << save_branch_point_proximity_score<< std::endl; 
+      std::cout << "      prebuilt_exclusion_score_val              " 
+	   << save_prebuilt_exclusion_score << std::endl; 
+      std::cout << "      segment_score_val                         " 
+	   << save_segment_score << std::endl; 
+      std::cout << "      theta_2_score_val                         " 
+	   << save_theta_2_score << std::endl; 
+      std::cout << "      midpoint density score                    " 
+	   << mpds << std::endl; 
+      std::cout << "      TOTAL SCORE    ----->                     " 
+	   << best_score << std::endl; 
 
    }
       
@@ -1151,29 +1149,29 @@ BuildCas::peak_search_distance_angle_torsion(const TreeNode *node) //trial_centr
 
 
       // debugging
-      cout << "      m_p_scores.score                          " 
-	   << save_m_p_score_score << endl; 
-      cout << "      density_score                             " 
-	   << save_density_score << endl; 
-      cout << "      deviation_from_ideal_length_score(d)      " 
-	   << save_deviation_from_ideal_length_score << endl; 
-      cout << "      branch_point_proximity_score(trial_point) " 
-	   << save_branch_point_proximity_score<< endl; 
-      cout << "      prebuilt_exclusion_score_val              " 
-	   << save_prebuilt_exclusion_score << endl; 
-      cout << "      segment_score_val                         " 
-	   << save_segment_score << endl; 
-      cout << "      angle_torsion_score_val                   " 
-	   << save_angle_torsion_score << endl; 
-      cout << "      midpoint density score                    " 
-	   << mpds << endl; 
-      cout << "      TOTAL SCORE    ----->                     " 
-	   << best_score << endl; 
+      std::cout << "      m_p_scores.score                          " 
+	   << save_m_p_score_score << std::endl; 
+      std::cout << "      density_score                             " 
+	   << save_density_score << std::endl; 
+      std::cout << "      deviation_from_ideal_length_score(d)      " 
+	   << save_deviation_from_ideal_length_score << std::endl; 
+      std::cout << "      branch_point_proximity_score(trial_point) " 
+	   << save_branch_point_proximity_score<< std::endl; 
+      std::cout << "      prebuilt_exclusion_score_val              " 
+	   << save_prebuilt_exclusion_score << std::endl; 
+      std::cout << "      segment_score_val                         " 
+	   << save_segment_score << std::endl; 
+      std::cout << "      angle_torsion_score_val                   " 
+	   << save_angle_torsion_score << std::endl; 
+      std::cout << "      midpoint density score                    " 
+	   << mpds << std::endl; 
+      std::cout << "      TOTAL SCORE    ----->                     " 
+	   << best_score << std::endl; 
 
    }
 
    if (score_and_cartesian.score == 0.0) { 
-      cout << "returning ZERO score and garbage near_grid_point" << endl; 
+      std::cout << "returning ZERO score and garbage near_grid_point" << std::endl; 
    } 
    return score_and_cartesian; 
 	    
@@ -1234,7 +1232,7 @@ BuildCas::check_angle_torsion(atom_selection_container_t asc) const {
 			     asc.atom_selection[i]->y,
 			     asc.atom_selection[i]->z); 
 
-	 std::cout << "Got a CA at " << pos << endl; 
+	 std::cout << "Got a CA at " << pos << std::endl; 
 
 	 TreeNode *new_node = new TreeNode; 
 	 new_node->setup(node, pos);
@@ -1257,7 +1255,7 @@ BuildCas::check_angle_torsion(atom_selection_container_t asc) const {
 		  
 		  ats = angle_torsion_score(node); 
 
-		  cout << "angle_torsion_score: " << ats << endl; 
+		  std::cout << "angle_torsion_score: " << ats << std::endl; 
 
 		  node = (TreeNode *) node->parent;  // cast away constness.
 
@@ -1378,17 +1376,17 @@ BuildCas::segment_score(const clipper::Coord_grid &c_g_point,
       } else { 
 	 if (i_previous_atom_segment == i_trial_segment) { 
 	    
-	    cout << "depth search testing " << c_g_point.format() 
-		 << " and " << c_g_previous_atom.format() << endl; 
+	    std::cout << "depth search testing " << c_g_point.format() 
+		 << " and " << c_g_previous_atom.format() << std::endl; 
 
 	    if (treenodemap.get_data(c_g_previous_atom).neighbs.size() == 0) {
-	       cout << "woops! no neighbours for depth search start " << c_g_previous_atom.format() << endl; 
+	       std::cout << "woops! no neighbours for depth search start " << c_g_previous_atom.format() << std::endl; 
 	       if (treenodemap.get_data(treenodemap.get_data(c_g_previous_atom).near_grid_point).neighbs.size() == 0) {
-		  cout << "woops! but constistantly bad in depth search start " 
-		       << treenodemap.get_data(c_g_previous_atom).near_grid_point.format() << endl; 
+		  std::cout << "woops! but constistantly bad in depth search start " 
+		       << treenodemap.get_data(c_g_previous_atom).near_grid_point.format() << std::endl; 
 	       } else { 
-		  cout << "whoooo! inconsistantly bad!  in depth search start" 
-		       << treenodemap.get_data(c_g_previous_atom).near_grid_point.format() << endl; 
+		  std::cout << "whoooo! inconsistantly bad!  in depth search start" 
+		       << treenodemap.get_data(c_g_previous_atom).near_grid_point.format() << std::endl; 
 	       } 
 	    }
 	    
@@ -1403,8 +1401,8 @@ BuildCas::segment_score(const clipper::Coord_grid &c_g_point,
 	    
 	    // we were for sure in defined different segments
 
-	    cout << "certain different segment: " << i_previous_atom_segment
-		 << " and " << i_trial_segment << endl;
+	    std::cout << "certain different segment: " << i_previous_atom_segment
+		 << " and " << i_trial_segment << std::endl;
 	    
 	    score = 10; 
 	 } 
@@ -1431,7 +1429,7 @@ BuildCas::transfer_segment_map(clipper::Xmap<int> *skel_p) const {
 void
 BuildCas::show_segment_map() { 
 
-   vector<coot::Cartesian> a; 
+   std::vector<coot::Cartesian> a; 
 
 } 
 
@@ -1463,11 +1461,11 @@ BuildCas::fit_next_in_segment(const clipper::Xmap<float> &map) {
 //
 // We naively check all points in the big_ball.
 // 
-vector<coot::Cartesian_and_Grid>
+std::vector<coot::Cartesian_and_Grid>
 BuildCas::select_by_distance(coot::Cartesian start_point,
 			     float near_point, float far_point) const { // 3.7A +/- a bit
 
-   vector<coot::Cartesian_and_Grid> result;
+   std::vector<coot::Cartesian_and_Grid> result;
    coot::Cartesian dist_vec; 
 
    for(unsigned int ii=0; ii<big_ball.size(); ii++) {
@@ -1500,7 +1498,7 @@ BuildCas::select_by_distance(coot::Cartesian start_point,
 atom_selection_container_t 
 BuildCas::build_big_ball(const clipper::Xmap<float> &map, 
 			 atom_selection_container_t asc, 
-			 const vector<clipper::Coord_grid> &grids) {
+			 const std::vector<clipper::Coord_grid> &grids) {
 
    // FIXME: use instead the molecule centre finding routine used in ncs-search.
    //        (uses Bond_lines_ext)
@@ -1524,12 +1522,12 @@ BuildCas::build_big_ball(const clipper::Xmap<float> &map,
 
    if (big_ball.size() == 0 ) { 
       // strange
-      cout << "There are no (symmetry expanded) skeleton (not just branch) points" << endl;
+      std::cout << "There are no (symmetry expanded) skeleton (not just branch) points" << std::endl;
    } 
    // 
-   cout << "DEBUG: build_big_ball call convert_to_atoms..." << endl; 
+   std::cout << "DEBUG: build_big_ball call convert_to_atoms..." << std::endl; 
    atom_selection_container_t asc_out = convert_to_atoms(map, big_ball, "BIG BALL"); 
-   cout << "DEBUG: build_big_ball call convert_to_atoms done!" << endl; 
+   std::cout << "DEBUG: build_big_ball call convert_to_atoms done!" << std::endl; 
    
    return asc_out; 
 }
@@ -1554,8 +1552,8 @@ BuildCas::move_by_symmetry(coot::Cartesian middle_mol,
    atom->SetCoordinates(middle_mol.x(), middle_mol.y(), middle_mol.z(), 1.0, 99);
 
    // 
-   cout << "atom from middle_mol: " << atom->x << " " 
-	<< atom->y << " " << atom->z << endl;
+   std::cout << "atom from middle_mol: " << atom->x << " " 
+	<< atom->y << " " << atom->z << std::endl;
 
    short int moved_it_flag = TRUE; 
 
@@ -1578,7 +1576,7 @@ BuildCas::move_by_symmetry(coot::Cartesian middle_mol,
 				      trans_atom->y, 
 				      trans_atom->z); 
 
-		  cout << "testing atom at: " << cart_atom << endl; 
+		  std::cout << "testing atom at: " << cart_atom << std::endl; 
 
 		  test_dist = (cart_atom - target_point).amplitude(); 
 
@@ -1614,8 +1612,8 @@ BuildCas::all_skel_pts_in_asu(const clipper::Xmap<float> &map,
 			      float cut_off) const
 {
    //
-   vector<coot::Cartesian> vc;
-   vector<clipper::Coord_grid> vec_grids; 
+   std::vector<coot::Cartesian> vc;
+   std::vector<clipper::Coord_grid> vec_grids; 
    coot::Cartesian t; 
 
    // cout << "in all_skel_pts_in_asu map_density_distribution of l1:" << endl; 
@@ -1639,7 +1637,7 @@ BuildCas::all_skel_pts_in_asu(const clipper::Xmap<float> &map,
       }
    }
 
-   cout << "all_skel_pts_in_asu calls convert_to_atoms...." << endl; 
+   std::cout << "all_skel_pts_in_asu calls convert_to_atoms...." << std::endl; 
 
    asc_and_grids asg(convert_to_atoms(map, vc, "ASU SKEL PTS"), vec_grids);
    return asg; 
@@ -1702,8 +1700,8 @@ BuildCas::count_and_mark_segments(const clipper::Xmap<int>   &skel,
       if (skel[iy] == toplevel) 
 	 n_toplevel++; 
    }
-   cout << "DEBUG: There were " << n_toplevel << " toplevel (" 
-	<< toplevel << ") skeleton points"  << endl; 
+   std::cout << "DEBUG: There were " << n_toplevel << " toplevel (" 
+	<< toplevel << ") skeleton points"  << std::endl; 
 
    // First mark everything that is non-zero as -1 we will re-invert
    // later on in this routine.  (recall that we may have marked the
@@ -1734,8 +1732,8 @@ BuildCas::count_and_mark_segments(const clipper::Xmap<int>   &skel,
 	 
 	 // debugging 
 	 if ( ! (segment_map[ix] == i_segment_number) ) { 
-	    cout << "ERROR ERROR ERROR ERROR" << endl; 
-	    cout << "ERROR ERROR ERROR ERROR: in segment_map segment number" << endl; 
+	    std::cout << "ERROR ERROR ERROR ERROR" << std::endl; 
+	    std::cout << "ERROR ERROR ERROR ERROR: in segment_map segment number" << std::endl; 
 	 } 
       }
    }
@@ -1833,18 +1831,18 @@ BuildCas::position_by_torsion(coot::Cartesian Atom_1, coot::Cartesian Atom_2, co
 // 
 // And symmetry expand them! (but don't pass pass back the symmetry expanded ones)
 // 
-vector<coot::Cartesian>
+std::vector<coot::Cartesian>
 BuildCas::find_branch_points(const clipper::Xmap<float> &map,
 			     const clipper::Xmap<int>   &l1,
 			     float cut_off)
 {
    //
-   vector<coot::Cartesian> vc;
-   vector<coot::Cartesian> vc_small_tri; // we keep small triangles separate
+   std::vector<coot::Cartesian> vc;
+   std::vector<coot::Cartesian> vc_small_tri; // we keep small triangles separate
                                    // and combine these vectors at the
                                    // end. 
 
-   vector<coot::Cartesian> vc_not_new_tr; 
+   std::vector<coot::Cartesian> vc_not_new_tr; 
    int n_skel_neighbs;
 
    // a couple of counters, just for debugging really.
@@ -1890,7 +1888,7 @@ BuildCas::find_branch_points(const clipper::Xmap<float> &map,
 
    small_triangle_thing sm_tr_res; 
 
-   vector<clipper::Coord_grid> vec_coord_grid_running; 
+   std::vector<clipper::Coord_grid> vec_coord_grid_running; 
    
    for (ix = l1.first(); !ix.last(); ix.next() ) {
       
@@ -1963,11 +1961,11 @@ BuildCas::find_branch_points(const clipper::Xmap<float> &map,
       }
    }
 
-   cout << "DEBUG: there were " << endl << "     " 
-	<< n_triangle_branch << " (new) triangle branches" << endl << "     "
+   std::cout << "DEBUG: there were " << std::endl << "     " 
+	<< n_triangle_branch << " (new) triangle branches" << std::endl << "     "
 	<< n_not_new_small_tri << " triangle branches that were previously "
-	<< "considered " << endl << "     " << n_simple_branch   
-	<< " simple branches " << endl;
+	<< "considered " << std::endl << "     " << n_simple_branch   
+	<< " simple branches " << std::endl;
 
    // copy vc to the data member branch_points
    // 
@@ -2019,7 +2017,7 @@ BuildCas::isSmallTriangle(const clipper::Xmap<int> &l1,
    }
 
    if (n_stn > 3) {
-      cout << "n_stn: " << n_stn << " at " << pos.format() << endl;
+      std::cout << "n_stn: " << n_stn << " at " << pos.format() << std::endl;
    }
 
    if (n_stn > 3) {
@@ -2044,7 +2042,7 @@ BuildCas::isSmallTriangle_new(const clipper::Xmap<int> &l1,
 			      const clipper::Skeleton_basic::Neighbours &fd_neighb,
 			      const clipper::Skeleton_basic::Neighbours &edge_neighb,
 			      const clipper::Coord_grid &pos, 
-			      const vector<coot::Cartesian> &small_tri_running_list) const {
+			      const std::vector<coot::Cartesian> &small_tri_running_list) const {
 
    // We already know (from find_branch_points) that pos is a branch
    // point before this function is called (indeed, this function is
@@ -2064,7 +2062,7 @@ BuildCas::isSmallTriangle_new(const clipper::Xmap<int> &l1,
    small_triangle_thing smt;
    smt.is_small_triangle = 0; 
 
-   vector<clipper::Coord_grid> vcg; 
+   std::vector<clipper::Coord_grid> vcg; 
    clipper::Coord_grid c_g, c_g_n;
    int i_n_neighbours;
 
@@ -2114,7 +2112,7 @@ BuildCas::isSmallTriangle_new(const clipper::Xmap<int> &l1,
    clipper::Coord_orth c_o_2; 
    clipper::Coord_orth c_o_3; 
 
-   vector<coot::Cartesian> triangle_points; 
+   std::vector<coot::Cartesian> triangle_points; 
    coot::Cartesian tri_centre; 
 
    if (isize > 1) { 
@@ -2228,32 +2226,32 @@ BuildCas::depth_search_skeleton_testing_2() {
    clipper::Coord_grid ca_g_1 = ca_f_1.coord_grid(d_map_p->grid_sampling());
    clipper::Coord_grid ca_g_2 = ca_f_2.coord_grid(d_map_p->grid_sampling());
 
-   cout << "depth_search_skeleton for        " << ca_g_1.format() 
-	<< " to " << ca_g_2.format() << endl; 
+   std::cout << "depth_search_skeleton for        " << ca_g_1.format() 
+	<< " to " << ca_g_2.format() << std::endl; 
 
-   cout << "depth_search_skeleton (unit) for " 
+   std::cout << "depth_search_skeleton (unit) for " 
 	<< ca_g_1.unit(d_map_p->grid_sampling()).format() << " to " 
-	<< ca_g_2.unit(d_map_p->grid_sampling()).format() << endl; 
+	<< ca_g_2.unit(d_map_p->grid_sampling()).format() << std::endl; 
 
-   cout << "initially: we get grid values: " << segment_map.get_data(ca_g_1)
-	<< " and " << segment_map.get_data(ca_g_2) << endl;
+   std::cout << "initially: we get grid values: " << segment_map.get_data(ca_g_1)
+	<< " and " << segment_map.get_data(ca_g_2) << std::endl;
 
-   cout << "initially here are the neighbours of " << ca_g_1.format()
-	<< endl; 
+   std::cout << "initially here are the neighbours of " << ca_g_1.format()
+	<< std::endl; 
 
    for (unsigned int i=0; i<treenodemap.get_data(ca_g_1).neighbs.size(); i++) {
-      cout << "      " << treenodemap.get_data(ca_g_1).neighbs[i].format() << endl; 
+      std::cout << "      " << treenodemap.get_data(ca_g_1).neighbs[i].format() << std::endl; 
    }
-   cout << "initially here are the neighbours of " << ca_g_2.format()
-	<< endl; 
+   std::cout << "initially here are the neighbours of " << ca_g_2.format()
+	<< std::endl; 
 
    for (unsigned int i=0; i<treenodemap.get_data(ca_g_2).neighbs.size(); i++) {
-      cout << "      " << treenodemap.get_data(ca_g_2).neighbs[i].format() << endl; 
+      std::cout << "      " << treenodemap.get_data(ca_g_2).neighbs[i].format() << std::endl; 
    }
 
    short int i = depth_search_skeleton(ca_g_1, ca_g_2); 
    
-   cout << " result: " << i << endl; 
+   std::cout << " result: " << i << std::endl; 
    
 }
 
@@ -2296,9 +2294,9 @@ BuildCas::depth_search_skeleton_testing() {
 
       isearch = depth_search_skeleton(start, target); 
 
-      cout << "result of that: testing " << start.format() 
+      std::cout << "result of that: testing " << start.format() 
 	   << " to  " << target.format() << " is "; 
-      cout << isearch << endl << endl; 
+      std::cout << isearch << std::endl << std::endl; 
    } 
 } 
 
@@ -2312,7 +2310,7 @@ BuildCas::depth_search_skeleton(const clipper::Coord_grid &start,
 
    if (treenodemap.get_data(start).neighbs.size() == 0) {
 
-      cout << "woops! no neighbours for depth search start " << start.format() << endl; 
+      std::cout << "woops! no neighbours for depth search start " << start.format() << std::endl; 
    }
 
 
@@ -2349,7 +2347,7 @@ BuildCas::depth_search_skeleton_internal(const clipper::Coord_grid &current,
 
       if ( is_same_gridpoint(current,target)) { 
 	 
-	 cout << "!!! A depth_search_skeleton_internal hit at " << current.format() << endl;
+	 std::cout << "!!! A depth_search_skeleton_internal hit at " << current.format() << std::endl;
 	 return 1; 
 	  
       } else { 
@@ -2359,7 +2357,7 @@ BuildCas::depth_search_skeleton_internal(const clipper::Coord_grid &current,
 	 //
 	 if (treenodemap.get_data(current).neighbs.size() == 0) {
 
-	    cout << "woops! no neighbours for " << current.format() << endl; 
+	    std::cout << "woops! no neighbours for " << current.format() << std::endl; 
 	 }
 
 	 // 
@@ -2440,7 +2438,7 @@ BuildCas::SmallTriangle_to_branch_point(const clipper::Xmap<int> &l1,
 					const clipper::Skeleton_basic::Neighbours &fd_neighb,
 					const clipper::Coord_grid &pos) const {
    coot::Cartesian a; 
-   vector<coot::Cartesian> vc;
+   std::vector<coot::Cartesian> vc;
 
    clipper::Coord_orth pos_o =
       pos.coord_frac(l1.grid_sampling()).coord_orth(l1.cell());
@@ -2478,16 +2476,16 @@ BuildCas::SmallTriangle_to_branch_point(const clipper::Xmap<int> &l1,
 atom_selection_container_t 
 BuildCas::grown_Cas() const { 
 
-   cout << "sample grown vectors: " << endl; 
+   std::cout << "sample grown vectors: " << std::endl; 
    for (int ii=1; ii<10; ii++)
-      cout << "grown_ca vector " << ii << " " 
+      std::cout << "grown_ca vector " << ii << " " 
 	   << build[i_current_build][ii].pos <<  " " 
-	   << build[i_current_build][ii].near_grid_point.format() << endl;
+	   << build[i_current_build][ii].near_grid_point.format() << std::endl;
 
    if (! segment_map_filled) 
-      cout << " !!!!! WARNING !!!!!" << " garbage grown atoms " << endl; 
+      std::cout << " !!!!! WARNING !!!!!" << " garbage grown atoms " << std::endl; 
 
-   vector<coot::Cartesian> built_atom_vector;
+   std::vector<coot::Cartesian> built_atom_vector;
 
    // We start building at residue one these days.
    // 
@@ -2514,16 +2512,16 @@ BuildCas::ca_grow_recursive() {
    // The first point is special.  We need to build up from several
    // different starting points and choose the best (of course).
    // 
-   cout << "--------------------------------------------------" << endl; 
-   cout << "         Creating Skeleton Tree Node Map          " << endl;
-   cout << "--------------------------------------------------" << endl; 
+   std::cout << "--------------------------------------------------" << std::endl; 
+   std::cout << "         Creating Skeleton Tree Node Map          " << std::endl;
+   std::cout << "--------------------------------------------------" << std::endl; 
 
    make_tree_node_map(); 
-   cout << "done" << endl; 
+   std::cout << "done" << std::endl; 
 
-   cout << "--------------------------------------------------" << endl; 
-   cout << "               Finding first point" << endl;
-   cout << "--------------------------------------------------" << endl; 
+   std::cout << "--------------------------------------------------" << std::endl; 
+   std::cout << "               Finding first point" << std::endl;
+   std::cout << "--------------------------------------------------" << std::endl; 
 
    // score_and_cartesian = build_first_recursive(); 
    score_and_cartesian = build_first_cheat(); 
@@ -2537,9 +2535,9 @@ BuildCas::ca_grow_recursive() {
    
    TreeNode first_node(score_and_cartesian); // top of the tree node
 
-   cout << "--------------------------------------------------" << endl; 
-   cout << "               Done first point" << endl;
-   cout << "--------------------------------------------------" << endl; 
+   std::cout << "--------------------------------------------------" << std::endl; 
+   std::cout << "               Done first point" << std::endl;
+   std::cout << "--------------------------------------------------" << std::endl; 
 
 
 
@@ -2549,28 +2547,28 @@ BuildCas::ca_grow_recursive() {
 
    for (int ires=2; ires<=40; ires++) {
 
-      cout << "=-=-=-=-=-=-=-=-=- fitting residue " << ires 
-	   << " =-=-=-=-=-=-=-=-=-" << endl;
+      std::cout << "=-=-=-=-=-=-=-=-=- fitting residue " << ires 
+	   << " =-=-=-=-=-=-=-=-=-" << std::endl;
       
       score_and_cartesian = recursive_build(previous_node, ires,1);
 
       if (score_and_cartesian.score <= 0) { 
-	 cout << "bad score: " << score_and_cartesian.score << endl
-	      << "Building terminated" << endl; 
+	 std::cout << "bad score: " << score_and_cartesian.score << std::endl
+	      << "Building terminated" << std::endl; 
 	 break; 
 
       } else { 
 
-	 cout << "=-=-=-=-=-=-=-=-=- fitted a point =-=-=-=-=-=-=-=-=-" 
-	      << endl
+	 std::cout << "=-=-=-=-=-=-=-=-=- fitted a point =-=-=-=-=-=-=-=-=-" 
+	      << std::endl
 	      << score_and_cartesian.pos 
-	      << " with score " << score_and_cartesian.score << endl; 
-	 cout << "saving with near_grid_point " 
+	      << " with score " << score_and_cartesian.score << std::endl; 
+	 std::cout << "saving with near_grid_point " 
 	      << score_and_cartesian.near_grid_point.format()
-	      << endl; 
+	      << std::endl; 
 
 	 if (treenodemap.get_data(score_and_cartesian.near_grid_point).neighbs.size() == 0) { 
-	    cout << "woops! in ca_grow_recursive: fitted point near_grid_point no neighbs" << endl; 
+	    std::cout << "woops! in ca_grow_recursive: fitted point near_grid_point no neighbs" << std::endl; 
 	 }
 
 	 build[i_current_build][ires] = score_and_cartesian;
@@ -2606,14 +2604,14 @@ BuildCas::build_first_cheat() {
 
    // note we must make sure that sc.near_grid_point is not zero.
    // 
-   cout << "build_first_cheat: gives grid " << sc.near_grid_point.format() 
-	<< " and segment map value: " << segment_map.get_data(sc.near_grid_point) << endl; 
+   std::cout << "build_first_cheat: gives grid " << sc.near_grid_point.format() 
+	<< " and segment map value: " << segment_map.get_data(sc.near_grid_point) << std::endl; 
 
 
    if (segment_map.get_data(sc.near_grid_point) <= 0 ) { 
 
-      cout << "ERROR ERROR ERROR ERROR ERROR : unexpected zero grid" << endl;
-      cout << "ERROR ERROR ERROR ERROR ERROR " << endl;
+      std::cout << "ERROR ERROR ERROR ERROR ERROR : unexpected zero grid" << std::endl;
+      std::cout << "ERROR ERROR ERROR ERROR ERROR " << std::endl;
 
    } 
 
@@ -2647,16 +2645,16 @@ BuildCas::build_first_recursive() {
    // build[][] is used in prebuilt_exclusion_score:
    build.resize(n_trials); 
    for (int i=0; i<n_trials; i++)
-      cout << "DEBUG: build[" << i << "] size is: " << build[i].size() << endl; 
+      std::cout << "DEBUG: build[" << i << "] size is: " << build[i].size() << std::endl; 
 
-   vector<score_and_cart> sc_vec(n_trials); 
-   vector<score_and_cart> peak_search_raw(n_trials); 
+   std::vector<score_and_cart> sc_vec(n_trials); 
+   std::vector<score_and_cart> peak_search_raw(n_trials); 
 
    for (int i=0; i<n_trials; i++) {
 
       i_current_build = i; 
       i_max_build = i+1; 
-      cout << "DEBUG: i_max_build is " << i_max_build << endl; 
+      std::cout << "DEBUG: i_max_build is " << i_max_build << std::endl; 
 
       peak_search_raw[i] = peak_search_simple(); 
       
@@ -2667,12 +2665,12 @@ BuildCas::build_first_recursive() {
       sc_vec[i] = recursive_build(&first_node, 2,1); 
    }
 
-   cout << "-------------- --------------- " << endl; 
-   cout << "Here are the intial builds: " << endl; 
-   cout << "-------------- --------------- " << endl; 
+   std::cout << "-------------- --------------- " << std::endl; 
+   std::cout << "Here are the intial builds: " << std::endl; 
+   std::cout << "-------------- --------------- " << std::endl; 
    for (int i=0; i<n_trials; i++)
-      cout << sc_vec[i].pos << " with raw pos: " << peak_search_raw[i].pos
-	   << " with score " << sc_vec[i].score << endl;
+      std::cout << sc_vec[i].pos << " with raw pos: " << peak_search_raw[i].pos
+	   << " with score " << sc_vec[i].score << std::endl;
 
 
 
@@ -2685,10 +2683,10 @@ BuildCas::build_first_recursive() {
       }
    }
    
-   cout << "-------------- --------------- " << endl; 
-   cout << "build_first_recursive selecting:" << endl; 
-   cout << "    " << best.pos << " with score: " << best.score << endl; 
-   cout << "-------------- --------------- " << endl; 
+   std::cout << "-------------- --------------- " << std::endl; 
+   std::cout << "build_first_recursive selecting:" << std::endl; 
+   std::cout << "    " << best.pos << " with score: " << best.score << std::endl; 
+   std::cout << "-------------- --------------- " << std::endl; 
    
    return best; 
 
@@ -2709,10 +2707,10 @@ BuildCas::symmetry_expand_branch_points() {
 				   "symmetry branch points"); 
 
       if (! expansion_centre_is_set) { 
-	 cout << "ERROR ERROR! Need to set expansion centre first!" << endl; 
+	 std::cout << "ERROR ERROR! Need to set expansion centre first!" << std::endl; 
       } 
 
-      vector<clipper::Coord_grid> dummy_vec; // hmm... 
+      std::vector<clipper::Coord_grid> dummy_vec; // hmm... 
       
       branch_points_symm_expanded = 
 	 // point_list_by_symmetry(asc, expansion_centre,  50.0);
@@ -2724,9 +2722,9 @@ BuildCas::symmetry_expand_branch_points() {
       
    } else { 
       
-      cout << "Error - need to fill segment map first "
+      std::cout << "Error - need to fill segment map first "
 	   << "(symmetry_expand_branch_points)" 
-	   << endl; 
+	   << std::endl; 
    }
 }
 
@@ -2743,12 +2741,12 @@ BuildCas::branch_point_proximity_score(coot::Cartesian trial_point) const {
    // there should be 1000 or 1000s.
    // 
    if (branch_point_have_been_expanded_flag == 0) { 
-      cout << "Error - branch_points need symmetry expanding first" << endl; 
+      std::cout << "Error - branch_points need symmetry expanding first" << std::endl; 
    }
 
    if ( ! (branch_points_symm_expanded.size() > 1)) { 
-      cout << "!!! WARNING !!! branch_points_symm_expanded.size() is " 
-	   << branch_points_symm_expanded.size() << endl; 
+      std::cout << "!!! WARNING !!! branch_points_symm_expanded.size() is " 
+	   << branch_points_symm_expanded.size() << std::endl; 
    } 
 
    for (unsigned int i=0; i< branch_points_symm_expanded.size(); i++) {
@@ -2798,7 +2796,7 @@ BuildCas::prebuilt_exclusion_score(coot::Cartesian trial_point) const {
 
    for (int i=0; i<i_max_build; i++) { 
 
-      // cout << "DEBUG: prebuilt_exclusion_score: i=" << i << endl; 
+      // std::cout << "DEBUG: prebuilt_exclusion_score: i=" << i << std::endl; 
       
       for (unsigned int n=0; n< build[i].size(); n++) { 
 	 
@@ -2819,8 +2817,8 @@ BuildCas::prebuilt_exclusion_score(coot::Cartesian trial_point) const {
    }
 
    if (min_dist == 9999999.9) { 
-      cout << "!!!! WARNING !!!! prebuilt atoms not found "
-	   << "in prebuilt_exclusion_score. " << endl; 
+      std::cout << "!!!! WARNING !!!! prebuilt atoms not found "
+	   << "in prebuilt_exclusion_score. " << std::endl; 
       min_dist = 9.9; 
    } 
 
@@ -2852,8 +2850,8 @@ BuildCas::non_angle_micro_point_score(coot::Cartesian previous_atom,
    // segment_map must be filled by now:
    // 
    if (segment_map_filled == 0)
-      cout << "Error: must fill segment map before "
-	   << "non_angle_micro_point_score" << endl; 
+      std::cout << "Error: must fill segment map before "
+	   << "non_angle_micro_point_score" << std::endl; 
    
    dv = density_at_point(trial_point); 
    
@@ -2898,19 +2896,19 @@ BuildCas::interconnectedness(int ntips) const {
 
    if (branch_points.size() == 0) { 
 
-      cout << "interconnectedness: must have branch_points first" << endl; 
+      std::cout << "interconnectedness: must have branch_points first" << std::endl; 
 
    } else { 
 
       if (ntips == 0) { 
 
-	 cout << "interconnectedness: must have some non-zero number of tips" << endl; 
+	 std::cout << "interconnectedness: must have some non-zero number of tips" << std::endl; 
 
       } else { 
 
 	 if (! segment_map_filled) { 
 
-	    cout << "interconnectedness: must fill the segment_map first" << endl; 
+	    std::cout << "interconnectedness: must fill the segment_map first" << std::endl; 
 
 	 } else { 
 
@@ -2922,10 +2920,10 @@ BuildCas::interconnectedness(int ntips) const {
 	       if (segment_map[ix] > 0)
 		  n_skel_pts++; 
 
-	    cout << "interconnectedness: " << endl
-		 << "    number of branch points: " << branch_points.size() << endl
-		 << "    number of tips (passed): " << ntips << endl
-		 << "    number of (segment) skeletoned points:  " << n_skel_pts << endl; 
+	    std::cout << "interconnectedness: " << std::endl
+		 << "    number of branch points: " << branch_points.size() << std::endl
+		 << "    number of tips (passed): " << ntips << std::endl
+		 << "    number of (segment) skeletoned points:  " << n_skel_pts << std::endl; 
 		  
 	    v = (float (branch_points.size() - ntips)/float(n_skel_pts)); 
 	 }
@@ -2958,7 +2956,7 @@ BuildCas::mid_points_density_score(coot::Cartesian prev,
 				   coot::Cartesian trial) const { 
 
    // 
-   vector<coot::Cartesian> mid_points = prev.third_points(trial); 
+   std::vector<coot::Cartesian> mid_points = prev.third_points(trial); 
 
 //    cout << "debug: midpoints of " 
 // 	<< "      " << prev << " and " << endl
@@ -2966,11 +2964,11 @@ BuildCas::mid_points_density_score(coot::Cartesian prev,
 // 	<< "      " << mid_points[0] << " and " << endl
 // 	<< "      " << mid_points[1] << endl; 
 
-   cout << "debug: density values: " << endl
-	<< "               " << density_at_point(prev)  << endl 
-	<< "               " << density_at_point(trial) << endl 
-	<< "               " << density_at_point(mid_points[0]) << endl 
-	<< "               " << density_at_point(mid_points[1]) << endl ; 
+   std::cout << "debug: density values: " << std::endl
+	<< "               " << density_at_point(prev)  << std::endl 
+	<< "               " << density_at_point(trial) << std::endl 
+	<< "               " << density_at_point(mid_points[0]) << std::endl 
+	<< "               " << density_at_point(mid_points[1]) << std::endl ; 
       
 
    float score = 
@@ -2997,12 +2995,12 @@ BuildCas::density_at_point(coot::Cartesian trial_point) const {
 
 
 // 
-vector<coot::Cartesian_and_Grid>
+std::vector<coot::Cartesian_and_Grid>
 BuildCas::fitting_targets(const TreeNode *node, float max_gridding) const { 
 
    // we return this:
    //
-   vector<coot::Cartesian_and_Grid> cluster_centres_vec; 
+   std::vector<coot::Cartesian_and_Grid> cluster_centres_vec; 
 
    // we should use 3.7 +/- bit; where bit is maximum gridding (an
    // xmap-utils feature really) (say 1.3 for a 3A map) multiplied by
@@ -3014,39 +3012,39 @@ BuildCas::fitting_targets(const TreeNode *node, float max_gridding) const {
    coot::Cartesian ires_pos = node->pos; 
 
    // 
-   vector<coot::Cartesian_and_Grid> points_within_distance = 
+   std::vector<coot::Cartesian_and_Grid> points_within_distance = 
       select_by_distance(ires_pos, 
 			 3.7-wiggle_factor*max_gridding, 
 			 3.7+wiggle_factor*max_gridding); // 3.7A +/- a bit
    // create a vector of vectors of points that are clustered together
    // on a skeleton.
    //
-   vector<vector<coot::Cartesian_and_Grid> > cluster_vec = 
+   std::vector<std::vector<coot::Cartesian_and_Grid> > cluster_vec = 
       cluster_bones_points(points_within_distance, ires_pos); 
 
    if (cluster_vec.size() == 0) { 
       // cannot happen
       // 
-      cout << "INFO:: There are no clusters.  This cannot happen" << endl; 
+      std::cout << "INFO:: There are no clusters.  This cannot happen" << std::endl; 
       
    } else { 
 
       cluster_centres_vec = cluster_centres(cluster_vec); 
 
-      cout << "INFO:: There were " << cluster_centres_vec.size() 
-	   << " cluster center vectors in fitting_targets" << endl; 
+      std::cout << "INFO:: There were " << cluster_centres_vec.size() 
+	   << " cluster center vectors in fitting_targets" << std::endl; 
 
       if (cluster_centres_vec.size() > 10) { 
 	 //
-	 cout << "WARNING: (fitting targets) " 
-	      << "strange (clustered) vectors:" << endl; 
+	 std::cout << "WARNING: (fitting targets) " 
+	      << "strange (clustered) vectors:" << std::endl; 
 	 // 
 	 // 
 	 for(unsigned int i=0; i < cluster_centres_vec.size(); i++) { 
-	    cout << "cluster center " << i << " at " 
-		 << cluster_centres_vec[i].pos << endl;
+	    std::cout << "cluster center " << i << " at " 
+		 << cluster_centres_vec[i].pos << std::endl;
 	    for(unsigned int j=0; j<cluster_vec[i].size(); j++) { 
-	       cout << "     " << cluster_vec[i][j].pos << endl; 
+	       std::cout << "     " << cluster_vec[i][j].pos << std::endl; 
 	    }
 	 } 
       }
@@ -3054,8 +3052,8 @@ BuildCas::fitting_targets(const TreeNode *node, float max_gridding) const {
 
    for(unsigned int i=0; i < cluster_centres_vec.size(); i++) { 
       if (treenodemap.get_data(cluster_centres_vec[i].near_grid_point).neighbs.size() == 0) { 
-	 cout << "woops! in fitting targets element " <<  i << " near_grid_point no neighbs: "
-	      << cluster_centres_vec[i].near_grid_point.format() << endl; 
+	 std::cout << "woops! in fitting targets element " <<  i << " near_grid_point no neighbs: "
+	      << cluster_centres_vec[i].near_grid_point.format() << std::endl; 
       }
    }
 
@@ -3070,8 +3068,8 @@ BuildCas::fitting_targets(const TreeNode *node, float max_gridding) const {
 score_and_cart
 BuildCas::peak_search_wrapper(const TreeNode *node, int ith_res, int depth) { 
 
-   cout << "DEBUG: ith_res: " << ith_res 
-	<< " node pos " << node->pos << " depth " << depth << endl; 
+   std::cout << "DEBUG: ith_res: " << ith_res 
+	<< " node pos " << node->pos << " depth " << depth << std::endl; 
 
    score_and_cart score_and_cartesian; 
 
@@ -3079,11 +3077,11 @@ BuildCas::peak_search_wrapper(const TreeNode *node, int ith_res, int depth) {
    switch (ith_res) {
 
    case 0:
-      cout << "SHOULD NEVER HAPPEN! BADNESS! ith_res is 0 " << endl; 
+      std::cout << "SHOULD NEVER HAPPEN! BADNESS! ith_res is 0 " << std::endl; 
       break; 
 
    case 1:
-      cout << "SHOULD NEVER HAPPEN! BADNESS!  ith_res is 1 " << endl; 
+      std::cout << "SHOULD NEVER HAPPEN! BADNESS!  ith_res is 1 " << std::endl; 
       break; 
 
    case 2:
@@ -3094,8 +3092,8 @@ BuildCas::peak_search_wrapper(const TreeNode *node, int ith_res, int depth) {
    case 3:
       
       if (node->parent->parent == NULL) { 
-	 cout << "ERROR null node->parent->parent.  " 
-	      << "This should not happen" << endl; 
+	 std::cout << "ERROR null node->parent->parent.  " 
+	      << "This should not happen" << std::endl; 
       } 
       score_and_cartesian = 
 	 peak_search_distance_theta_2(node); 
@@ -3109,8 +3107,8 @@ BuildCas::peak_search_wrapper(const TreeNode *node, int ith_res, int depth) {
    } 
    if (score_and_cartesian.score > 0) { 
       if (treenodemap.get_data(score_and_cartesian.near_grid_point).neighbs.size() == 0) { 
-	 cout << "woops! in peak_search_wrapper: fitted point near_grid_point no neighbs: "
-	      << score_and_cartesian.near_grid_point.format() << endl; 
+	 std::cout << "woops! in peak_search_wrapper: fitted point near_grid_point no neighbs: "
+	      << score_and_cartesian.near_grid_point.format() << std::endl; 
       }
    }
 
@@ -3150,22 +3148,22 @@ BuildCas::recursive_build(const TreeNode *node, int ith_res, int depth) {
    score_and_cartesian.score = 0; 
 
 
-   vector<coot::Cartesian> fourth_set;       // debugging (temporary).
-   vector<coot::Cartesian> fourth_set_grids; //  ditto. 
+   std::vector<coot::Cartesian> fourth_set;       // debugging (temporary).
+   std::vector<coot::Cartesian> fourth_set_grids; //  ditto. 
 
    if (depth == 0) {
       score_and_cartesian.score = 1;
       return score_and_cartesian;
    } else {
 
-      vector<coot::Cartesian_and_Grid> new_targets = 
+      std::vector<coot::Cartesian_and_Grid> new_targets = 
 	 fitting_targets(node, max_gridding);
       
       // now make those fitting targets nodes:
       // 
 
       // TreeNode new_node(new_targets.size()); 
-      vector<TreeNode> new_node(new_targets.size()); 
+      std::vector<TreeNode> new_node(new_targets.size()); 
 
       for (unsigned int i=0; i< new_targets.size(); i++) { 
 
@@ -3195,14 +3193,14 @@ BuildCas::recursive_build(const TreeNode *node, int ith_res, int depth) {
 	    fourth_set.push_back(new_targets[i].pos); 
 	    fourth_set_grids.push_back(coot::Cartesian(cfo.x(), cfo.y(), cfo.z()));
 	    
-	    cout << "DEBUG: fourth " << new_targets[i].near_grid_point.format()
+	    std::cout << "DEBUG: fourth " << new_targets[i].near_grid_point.format()
 		 << " to " << coot::Cartesian(cfo.x(), cfo.y(), cfo.z()) 
-		 << " with pos " << new_targets[i].pos << endl;
-	    cout << "grid closeness: " 
+		 << " with pos " << new_targets[i].pos << std::endl;
+	    std::cout << "grid closeness: " 
 		 << treenodemap.get_data(new_targets[i].near_grid_point).near_grid_point.format()
 		 << " "
 		 << treenodemap.get_data(node->near_grid_point).near_grid_point.format()
-		 << endl; 
+		 << std::endl; 
 	 }
 
 	 // These are fine
@@ -3211,10 +3209,10 @@ BuildCas::recursive_build(const TreeNode *node, int ith_res, int depth) {
 
 	 if (! (segment_map.get_data(c_g) > 0) ) { 
 
-	    cout << endl
+	    std::cout << std::endl
 		 << "ERROR! ERROR! ERROR! recursive_build c_g "
 		 << c_g.format() << " is not a skeleton point. " 
-		 << "value: " << segment_map.get_data(c_g) << endl << endl; 
+		 << "value: " << segment_map.get_data(c_g) << std::endl << std::endl; 
 	 } 
 
 	 new_node[i].setup(node, new_targets[i].pos, new_targets[i].near_grid_point); 
@@ -3224,14 +3222,14 @@ BuildCas::recursive_build(const TreeNode *node, int ith_res, int depth) {
 
       for (unsigned int i=0; i< new_node.size(); i++) { 
 	 if (treenodemap.get_data(new_node[i].near_grid_point).neighbs.size() == 0) { 
-	    cout << "woops! in recursive_build: new node messed up: " 
-		 << " for " << new_node[i].near_grid_point.format() << endl; 
+	    std::cout << "woops! in recursive_build: new node messed up: " 
+		 << " for " << new_node[i].near_grid_point.format() << std::endl; 
 	    if (treenodemap.get_data(new_targets[i].near_grid_point).neighbs.size() == 0) { 
-	       cout << "woops! in recursive_build: new targets messed up too: " 
-		    << " for " << new_targets[i].near_grid_point.format() << endl; 
+	       std::cout << "woops! in recursive_build: new targets messed up too: " 
+		    << " for " << new_targets[i].near_grid_point.format() << std::endl; 
 	    } else { 
-	       cout << "woops! in recursive_build: new targets *NOT* messed up!!!: " 
-		    << " for " << new_targets[i].near_grid_point.format() << endl; 
+	       std::cout << "woops! in recursive_build: new targets *NOT* messed up!!!: " 
+		    << " for " << new_targets[i].near_grid_point.format() << std::endl; 
 	    }
 	 }
       }
@@ -3241,7 +3239,7 @@ BuildCas::recursive_build(const TreeNode *node, int ith_res, int depth) {
       // refined vector<Cartesian>
       // 
       
-      vector<score_and_cart> score_and_cart_vec(new_targets.size()); 
+      std::vector<score_and_cart> score_and_cart_vec(new_targets.size()); 
       score_and_cart tmp_sc; 
       
       for (unsigned int i=0; i< new_targets.size(); i++) { 
@@ -3253,7 +3251,7 @@ BuildCas::recursive_build(const TreeNode *node, int ith_res, int depth) {
 
 	 tmp_sc = peak_search_wrapper(&new_node[i], ith_res, depth); 
 	 
-	 cout << "post peak_search_wrapper: " << tmp_sc.near_grid_point.format() << endl; 
+	 std::cout << "post peak_search_wrapper: " << tmp_sc.near_grid_point.format() << std::endl; 
 	 
 	 score_and_cart_vec[i].score = 
 	    tmp_sc.score *
@@ -3278,8 +3276,8 @@ BuildCas::recursive_build(const TreeNode *node, int ith_res, int depth) {
    }
 
    if (treenodemap.get_data(score_and_cartesian.near_grid_point).neighbs.size() == 0) { 
-      cout << "woops! in recursive_build: returning near_grid_point no neighbs" 
-	   << " for " << score_and_cartesian.near_grid_point.format() << endl; 
+      std::cout << "woops! in recursive_build: returning near_grid_point no neighbs" 
+	   << " for " << score_and_cartesian.near_grid_point.format() << std::endl; 
    }
 
 
@@ -3294,7 +3292,7 @@ BuildCas::export_coordinates(atom_selection_container_t asc,
    int err = asc.mol->WritePDBASCII(filename.c_str()); 
    
    if (err) { 
-      std::cout << "There was an error in writing " << filename << endl; 
+      std::cout << "There was an error in writing " << filename << std::endl; 
    } 
 
 } 
@@ -3330,7 +3328,7 @@ BuildCas::make_tree_node_map() {
 
 	       c_g = ix.coord() + skel_neighbs[i]; 
 
-// 	       cout << "adding " << skel_neighbs[i].format() << " to "
+// 	       std::cout << "adding " << skel_neighbs[i].format() << " to "
 // 		    << ix.coord().format() << " gives " << c_g.format() << endl;
 	       
 	       if (segment_map.get_data(c_g) > 0 ) { 

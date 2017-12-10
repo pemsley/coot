@@ -68,9 +68,9 @@ namespace coot {
 
 // needs <iostream>
 // 
-ostream& operator<<(ostream& s, mmdb::Atom &atom);
+std::ostream& operator<<(std::ostream& s, mmdb::Atom &atom);
 
-ostream& operator<<(ostream& s, mmdb::PAtom atom); 
+std::ostream& operator<<(std::ostream& s, mmdb::PAtom atom); 
 
 namespace coot { 
   // mdl mol file support

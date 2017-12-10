@@ -867,7 +867,7 @@ coot::wligand::probability_of_torsions(const std::vector <coot::dict_torsion_res
 	       trial_target =  m_torsions[i].angle()+ double(iper)*360.0/double(per);
 	       if (trial_target > 360.0) trial_target -= 360.0; 
 	       tdiff = r[i] - trial_target; 
-	       if (abs(tdiff) < abs(diff)) { 
+	       if (fabs(tdiff) < fabs(diff)) { 
 	          diff = tdiff;
 	       }
 	    }

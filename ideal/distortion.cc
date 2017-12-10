@@ -895,7 +895,6 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 #ifdef ANALYSE_REFINEMENT_TIMING
 #endif // ANALYSE_REFINEMENT_TIMING
 
-   // cout << "distortion (in distortion_score): " << distortion << endl; 
    return distortion; 
 }
 
@@ -1224,7 +1223,7 @@ coot::distortion_score_torsion(const coot::simple_restraint &torsion_restraint,
       tdiff = theta - trial_target;
       if (tdiff < -180) tdiff += 360;
       if (tdiff >  180) tdiff -= 360;
-      if (abs(tdiff) < abs(diff)) {
+      if (fabs(tdiff) < fabs(diff)) {
 	 diff = tdiff;
       }
    }
@@ -1254,7 +1253,7 @@ coot::distortion_score_torsion(const coot::simple_restraint &torsion_restraint,
 	 std::cout << "distortion_torsion theta (calc): " << theta 
 		   << " periodicity " << torsion_restraint.periodicity
 		   << " target "      << torsion_restraint.target_value
-		   << " diff: " << diff << endl ;
+		   << " diff: " << diff << std::endl ;
       std::cout << "in distortion_torsion: sigma = " << torsion_restraint.sigma
 		<< ", weight=" << pow(torsion_restraint.sigma,-2.0)
 		<< " and diff is " << diff << std::endl;

@@ -1079,7 +1079,7 @@ void coot::my_df_torsions_internal(const gsl_vector *v,
 		     if (tdiff < -180) tdiff += 360;
 		     if (tdiff >  180) tdiff -= 360;
 		     // std::cout << "   iper: " << iper << "   " << dtg.theta << "   " << trial_target << "   " << tdiff << "   " << diff << std::endl;
-		     if (abs(tdiff) < abs(diff)) { 
+		     if (fabs(tdiff) < fabs(diff)) { 
 			diff = tdiff;
 		     }
 		  }
@@ -1094,8 +1094,8 @@ void coot::my_df_torsions_internal(const gsl_vector *v,
 		  if (0) 
 		     std::cout << "in df_torsion: dtg.theta is " << dtg.theta 
 			       <<  " and target is " << (*restraints)[i].target_value 
-			       << " and diff is " << diff 
-			       << " and periodicity: " << (*restraints)[i].periodicity <<  endl;
+			       << " and diff is " << diff
+			       << " and periodicity: " << (*restraints)[i].periodicity << std::endl;
 
 		  double tt = tan(clipper::Util::d2rad(dtg.theta));
 		  double torsion_scale = (1.0/(1+tt*tt)) *

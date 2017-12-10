@@ -270,7 +270,7 @@ main(int argc, char **argv) {
 
       if (inputs.is_good) { 
 
-	 string pdb_file_name(inputs.input_pdb_file_name);
+	 std::string pdb_file_name(inputs.input_pdb_file_name);
 	 bool map_is_good = false; // currently
 
 	 // if pdb_file_name does not exist -> crash?
@@ -508,7 +508,7 @@ map_from_mtz(std::string mtz_file_name,
    clipper::Xmap<float> xmap;
 
    try { 
-      cout << "reading mtz file..." << endl; 
+      std::cout << "reading mtz file..." << std::endl;
       clipper::CCP4MTZfile mtzin; 
       mtzin.open_read( mtz_file_name );       // open new file 
       mtzin.import_hkl_info( myhkl );         // read sg, cell, reso, hkls
@@ -534,7 +534,7 @@ map_from_mtz(std::string mtz_file_name,
 	 std::cout << dataname << "\n";
 	 mtzin.import_hkl_data( phi_fom_data, myset, myxtl, dataname );
 	 mtzin.close_read(); 
-	 cout << "We should use the weights: " << weight_col << endl;
+	 std::cout << "We should use the weights: " << weight_col << std::endl;
 	 // it seems to me that we should make 2 data types, an F_sigF and a phi fom
 	 // and then combine them using a Convert_fsigf_phifom_to_fphi();
 
@@ -551,8 +551,8 @@ map_from_mtz(std::string mtz_file_name,
 		 clipper::Grid_sampling( myhkl.spacegroup(),
 					 myhkl.cell(),
 					 myhkl.resolution()) );
-      cout << "Grid..." << xmap.grid_sampling().format() << "\n";
-      cout << "doing fft..." << endl;
+      std::cout << "Grid..." << xmap.grid_sampling().format() << "\n";
+      std::cout << "doing fft..." << std::endl;
 
       if (is_debug_mode) { 
 	 int count = 0; 
@@ -571,7 +571,7 @@ map_from_mtz(std::string mtz_file_name,
   
   
       xmap.fft_from( fphidata );                  // generate map
-      cout << "done fft..." << endl;
+      std::cout << "done fft..." << std::endl;
       status = 1;
    }
    catch (const clipper::Message_base &exc) {  // "exception" is a protected word, it seems.
