@@ -474,3 +474,26 @@ molecule_class_info_t::switch_HIS_protonation(coot::residue_spec_t res_spec) {
       }
    }
 }
+
+#include "ideal/crankshaft.hh"
+
+void
+molecule_class_info_t::crankshaft_peptide_rotation_optimization(const coot::residue_spec_t &rs,
+								unsigned int n_peptides,
+								const clipper::Xmap<float> &xmap,
+								float map_weight,
+								int n_samples) {
+   int n_solutions = 1;
+   std::vector<mmdb::Manager *> mols =
+      coot::crankshaft::crank_refine_and_score(rs, n_peptides, xmap, atom_sel.mol, map_weight,
+					       n_samples, n_solutions);
+
+   if (mols.size() == 1) {
+      make_backup();
+      std::cout << "DEBUG:: crankshaft updated " << std::endl;
+      atom_sel = make_asc(mols[0]);
+      have_unsaved_changes_flag = 1;
+      update_molecule_after_additions();
+      update_symmetry();
+   }
+}

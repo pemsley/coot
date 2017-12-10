@@ -320,7 +320,8 @@ namespace coot {
       find_maxima(const residue_spec_t &mid_first_residue,
 		  unsigned int n_peptides, // the length of the nmer
 		  const zo::rama_table_set &zorts,
-		  unsigned int n_samples=60); // there are perhaps 50 maxima
+		  float log_prob_filter_n_sigma,
+		  unsigned int n_samples=60);
 
       static
       scored_triple_angle_set_t run_optimizer(float start_angles[],

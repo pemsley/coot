@@ -657,10 +657,14 @@ coot::crankshaft::find_maxima_from_triples(const residue_spec_t &spec_first_resi
 //
 // "scored" because the probability has been calculated (not used in refinement)
 //
+// only allow solutions that are within log_prob_filter_n_sigma sds of the top solution
+// i.e. 2.0 will allow more solutions than 1.0.
+//
 std::vector<coot::crankshaft::scored_nmer_angle_set_t>
 coot::crankshaft::find_maxima(const residue_spec_t &spec_mid_residue,
 			      unsigned int n_peptides, // the length of the nmer
 			      const zo::rama_table_set &zorts,
+			      float log_prob_filter_n_sigma,
 			      unsigned int n_samples) {
 
    // n_samples = 1; // hack for testing
@@ -736,7 +740,7 @@ coot::crankshaft::find_maxima(const residue_spec_t &spec_mid_residue,
       // delete those results that are "a long way" below the top_score
       // or are below the mean.
       util::stats_data sd(v);
-      float at_least = top_score + 2*sd.sd;
+      float at_least = top_score + log_prob_filter_n_sigma*sd.sd;
       float mean = sd.mean;
 
       // std::cout << "before log_prob filter we have " << results.size() << " solutions" << std::endl;
@@ -1507,7 +1511,7 @@ coot::crankshaft::refine_and_score_mol(mmdb::Manager *mol,
       std::vector<coot::atom_spec_t> fixed_atom_specs;
       coot::restraint_usage_Flags flags = BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
 
-      // flags = TYPICAL_RESTRAINTS;
+      flags = TYPICAL_RESTRAINTS;
       int imol = 0; // dummy
       int nsteps_max = 4000;
       bool make_trans_peptide_restraints = true;
@@ -1529,6 +1533,7 @@ coot::crankshaft::refine_and_score_mol(mmdb::Manager *mol,
       auto tp_0 = std::chrono::high_resolution_clock::now();
 #endif
       coot::restraints_container_t restraints(refine_residues, links, geom, mol, fixed_atom_specs);
+      restraints.set_quiet_reporting();
       restraints.add_map(xmap, map_weight);
       restraints.set_rama_type(restraints_rama_type);
       restraints.set_rama_plot_weight(1);
@@ -1554,7 +1559,7 @@ coot::crankshaft::refine_and_score_mol(mmdb::Manager *mol,
       auto tp_2 = std::chrono::high_resolution_clock::now();
       auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
       auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
-      if (true) {
+      if (false) {
 	 std::cout << "refine mol : d10  " << d10 << " microseconds\n";
 	 std::cout << "map_score_by_residue_specs: d21  " << d21 << " microseconds\n";
 	 std::cout << "scores map: " << score_map << " distortion " << gdic.distortion()
@@ -1604,6 +1609,9 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
 
    std::vector<mmdb::Manager *> solution_molecules;
 
+   // promote this to an argument for this function
+   float log_prob_filter_n_sigma = 1.0; // only the top few.
+
    mmdb::Residue *prev_res = coot::util::get_previous_residue(rs, mol_in);
    if (! prev_res) {
       std::cout << "WARNING:: No residue previous to " << rs << std::endl;
@@ -1624,7 +1632,7 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
 	    n_samples = std::lround(100 * n_threads/pow(n_peptides, 0.7));
 	 else
 	    n_samples = 5;
-	 std::cout << "INFO:: chose n_samples " << n_samples << " for " << n_peptides
+	 std::cout << "INFO:: Chose n_samples " << n_samples << " for " << n_peptides
 		   << " peptides " << " and using " << n_threads << " threads" << std::endl;
 #else
 	 n_samples = 5; // hmm.
@@ -1636,12 +1644,12 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
       //
 
       std::vector<coot::crankshaft::scored_nmer_angle_set_t> sas =
-	 cs.find_maxima(rs, n_peptides, zorts, n_samples);
+	 cs.find_maxima(rs, n_peptides, zorts, log_prob_filter_n_sigma, n_samples);
 
       std::cout << "INFO:: Will refine " << sas.size() << " crankshaft solutions" << std::endl;
-      for (std::size_t i=0; i<sas.size(); i++) {
+      if (false)
+	 for (std::size_t i=0; i<sas.size(); i++)
 	 std::cout << "   " << sas[i] << std::endl;
-      }
 
       coot::protein_geometry geom;
       geom.set_verbose(0);
@@ -1666,9 +1674,10 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
 	 // maybe add some near neighbours?
       }
 
-      std::cout << "local residue specs: " << std::endl;
+      std::cout << "INFO:: refine these residue specs: " << std::endl;
       for (std::size_t ilr=0; ilr<local_residue_specs.size(); ilr++)
-	 std::cout << "   " << local_residue_specs[ilr] << std::endl;
+	 std::cout << "   " << local_residue_specs[ilr];
+      std::cout << std::endl;
 
       std::vector<mmdb::Manager *> mols(sas.size(), 0);
       std::vector<crankshaft::molecule_score_t> mol_scores(sas.size());
@@ -1734,8 +1743,8 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
 	    threads.at(i_thread).join();
 	 auto tp_3 = std::chrono::high_resolution_clock::now();
 	 auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
-	 if (true)
-	    std::cout << "time to join threads: " << d32 << " milliseconds\n";
+	 if (false)
+	    std::cout << "debug:: time to join threads: " << d32 << " milliseconds\n";
 
       } else {
 	 std::cout << "ERROR:: No threads" << std::endl;
@@ -1748,14 +1757,16 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
 	 const molecule_score_t &ms = mol_scores[i];
 	 float combi_score = 0.01 * map_weight * ms.density_score - ms.model_score - sas[i].minus_log_prob;
 	 sas[i].set_combi_score(ms.density_score, map_weight, ms.model_score);
-	 std::cout << "scores: " << i << " minus-log-prob "
-		   << std::setw(9) << sas[i].minus_log_prob << " combi-score "
-		   << std::setw(9) << sas[i].combi_score << " "
-		   << std::setw(9) << ms.density_score << " "
-		   << std::setw(9) << ms.model_score << " combi-score "
-		   << std::setw(9) << std::right << std::setprecision(3) << std::fixed
-		   << sas[i].combi_score << std::endl;
-	 std::cout.setf(std::ios::fixed, std::ios::floatfield); // reset from std::fixed
+	 if (false) {
+	    std::cout << "scores: " << i << " minus-log-prob "
+		      << std::setw(9) << sas[i].minus_log_prob << " combi-score "
+		      << std::setw(9) << sas[i].combi_score << " "
+		      << std::setw(9) << ms.density_score << " "
+		      << std::setw(9) << ms.model_score << " combi-score "
+		      << std::setw(9) << std::right << std::setprecision(3) << std::fixed
+		      << sas[i].combi_score << std::endl;
+	    std::cout.setf(std::ios::fixed, std::ios::floatfield); // reset from std::fixed
+	 }
       }
 
       // Now sort the molecules using the sas combi-scores. To do that we
@@ -1768,7 +1779,6 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
       std::sort(sas_mol_pairs.begin(), sas_mol_pairs.end(),
 		scored_nmer_angle_set_t::sorter_by_combi_score);
 
-      std::cout << "post sort by combi-score " << std::endl;
       for (std::size_t i=0; i<sas_mol_pairs.size(); i++) {
 	 std::cout << "scores: " << i << " minus-log-prob "
 		   << std::setw(9) << sas_mol_pairs[i].first.minus_log_prob << " combi-score "

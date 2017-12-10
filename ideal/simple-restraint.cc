@@ -4032,13 +4032,15 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
    }
    
 #ifdef HAVE_CXX_THREAD
-   end = std::chrono::system_clock::now();
 
-   std::chrono::duration<double> elapsed_seconds = end-start;
-   std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+   // end = std::chrono::system_clock::now();
 
-   std::cout << "INFO:: nbc computation " // std::ctime(&end_time)
-	     << "elapsed time: " << elapsed_seconds.count() << "s\n";
+   // std::chrono::duration<double> elapsed_seconds = end-start;
+   // std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+
+   // std::cout << "INFO:: nbc computation " // std::ctime(&end_time)
+   //           << "elapsed time: " << elapsed_seconds.count() << "s\n";
+
 #endif // HAVE_CXX_THREAD
 
 }
