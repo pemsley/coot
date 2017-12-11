@@ -153,6 +153,62 @@ void coot::my_df(const gsl_vector *v,
    // std::cout << "debug:: in my_df() usage_flags " << restraints->restraints_usage_flag
    // << std::endl;
 
+#ifdef SPLIT_THE_GRADIENTS_WITH_THREADS
+#ifdef HAVE_CXX_THREAD
+
+   // how long does it take to split the restraints into n-thead vectors?
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   unsigned int n_t = restraints->n_threads;
+   unsigned int restraints_size = restraints->size();
+   std::vector<std::vector<std::size_t> > restraints_indices(n_t);
+   std::vector<std::vector<double> > results(n_t);
+   for (std::size_t n=0; n<restraints_indices.size(); n++)
+      restraints_indices[n].reserve(100);
+   auto tp_2 = std::chrono::high_resolution_clock::now();
+   for (std::size_t n=0; n<restraints_indices.size(); n++)
+      results[n].resize(restraints_size);
+   auto tp_3 = std::chrono::high_resolution_clock::now();
+   for (std::size_t n=0; n<results.size(); n++)
+      restraints_indices[n].reserve(100);
+   auto tp_4 = std::chrono::high_resolution_clock::now();
+   for (std::size_t n=0; n<restraints_indices.size(); n++)
+      results[n] = std::vector<double>(restraints_size, 0);
+   auto tp_5 = std::chrono::high_resolution_clock::now();
+   unsigned int i = 0; // insert to vector for this thread
+   for (unsigned int ir=0; ir<restraints_size; ir++) {
+      restraints_indices[i].push_back(ir);
+      ++i;
+      if (i==n_t) i=0;
+   }
+   auto tp_6 = std::chrono::high_resolution_clock::now();
+
+   // consolidate results
+   std::vector<double> totals(restraints_size, 0.0);
+   auto tp_7 = std::chrono::high_resolution_clock::now();
+   // save 80us when these are round the right way (this way)
+   // ~170us for consolidation
+   for (std::size_t i_thread=0; i_thread<n_t; i_thread++)
+      for (std::size_t n=0; n<restraints_size; n++)
+	 totals[n] += results[i_thread][n];
+
+   auto tp_8 = std::chrono::high_resolution_clock::now();
+   auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
+   auto d32 = chrono::duration_cast<chrono::microseconds>(tp_3 - tp_2).count();
+   auto d43 = chrono::duration_cast<chrono::microseconds>(tp_4 - tp_3).count();
+   auto d54 = chrono::duration_cast<chrono::microseconds>(tp_5 - tp_4).count();
+   auto d65 = chrono::duration_cast<chrono::microseconds>(tp_6 - tp_5).count();
+   auto d76 = chrono::duration_cast<chrono::microseconds>(tp_7 - tp_6).count();
+   auto d87 = chrono::duration_cast<chrono::microseconds>(tp_8 - tp_7).count();
+   std::cout << "d21  " << d21 << " d32 " << d32 << " d43 " << d43 << " d54 " << d54
+	     << " d65 " << d65 << " d76 " << d76 << " d87 " << d87
+	     << " microseconds for " << n_t << " threads " << std::endl;
+
+   // It's fast enough.
+
+#endif
+#endif
+
+   auto tp_9 = std::chrono::high_resolution_clock::now();
    my_df_trans_peptides(v, params, df);
    my_df_bonds     (v, params, df); 
    my_df_angles    (v, params, df);
@@ -166,25 +222,26 @@ void coot::my_df(const gsl_vector *v,
    my_df_parallel_planes(v, params, df);
    my_df_geman_mcclure_distances(v, params, df);
 
-   // std::cout << "debug:: in my_df() done my_df_* block " << std::endl;
+
+#ifdef SPLIT_THE_GRADIENTS_WITH_THREADS
+   // timings
+   auto tp_10 = std::chrono::high_resolution_clock::now();
+   auto d10_9 = chrono::duration_cast<chrono::microseconds>(tp_10 - tp_9).count();
+
+   // so d10_9 is 20 times longer than d87 - which is OK -> good
+   //
+   std::cout << "d21  " << d21 << " d32 " << d32 << " d43 " << d43 << " d54 " << d54
+	     << " d65 " << d65 << " d76 " << d76 << " d87 " << d87 << " d10-9 " << d10_9
+	     << " microseconds for " << n_t << " threads " << std::endl;
+#endif // SPLIT_THE_GRADIENTS_WITH_THREADS
 
    if (restraints->include_map_terms()) {
-      // std::cout << "Using map terms " << std::endl;
       my_df_electron_density(v, params, df);
    } 
 
    if (restraints->do_numerical_gradients_status())
       coot::numerical_gradients((gsl_vector *)v, params, df); 
 
-#ifdef ANALYSE_REFINEMENT_TIMING
-#endif // ANALYSE_REFINEMENT_TIMING
-
-//    if (v->size == 375)
-//       std::cout << "debug:: my_df() v size OK" << std::endl;
-//    else
-//       std::cout << "debug:: my_df() v size OK" << std::endl;
-
-   // std::cout << "debug:: exit my_df() v->size " << v->size << std::endl;
 }
    
 /* The gradients of f, df = (df/dx(k), df/dy(k) .. df/dx(l) .. ). */
