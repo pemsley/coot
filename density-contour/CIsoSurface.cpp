@@ -1136,35 +1136,48 @@ template <class T> void CIsoSurface<T>::RenameVerticesAndTriangles() {
 
    auto tp_1a = std::chrono::high_resolution_clock::now();
    unsigned int n_threads = coot::get_max_number_of_threads();
-   // if there are 8888 items in m_trivecTriangles, then
-   // if we have 4 threads, then
-   // index_ranges will be:
-   // 0 [0,2222]
-   // 0 [2222,4444]
-   // 0 [4444,6666]
-   // 0 [6666,8888]
-   // note that the second value is used with a < test.
-   //
-   std::pair<unsigned int, unsigned int> blank(0,0);
-   std::vector<std::pair<unsigned int, unsigned int> > index_ranges(n_threads, blank);
-   unsigned int n_per_thread = ss/n_threads + 1;
-   for (std::size_t i=0; i<n_threads; i++) {
-      unsigned int start = i*n_per_thread;
-      unsigned int stop  = start + n_per_thread;
-      if (stop > ss) stop = ss;
-      if (start < ss)
-	 index_ranges[i] = std::pair<unsigned int, unsigned int>(start, stop);
+
+   if (n_threads > 0) {
+      // if there are 8888 items in m_trivecTriangles, then
+      // if we have 4 threads, then
+      // index_ranges will be:
+      // 0 [0,2222]
+      // 0 [2222,4444]
+      // 0 [4444,6666]
+      // 0 [6666,8888]
+      // note that the second value is used with a < test.
+      //
+      std::pair<unsigned int, unsigned int> blank(0,0);
+      std::vector<std::pair<unsigned int, unsigned int> > index_ranges(n_threads, blank);
+      unsigned int n_per_thread = ss/n_threads + 1;
+      for (std::size_t i=0; i<n_threads; i++) {
+	 unsigned int start = i*n_per_thread;
+	 unsigned int stop  = start + n_per_thread;
+	 if (stop > ss) stop = ss;
+	 if (start < ss)
+	    index_ranges[i] = std::pair<unsigned int, unsigned int>(start, stop);
+      }
+      auto tp_1b = std::chrono::high_resolution_clock::now();
+      std::vector<std::thread> threads;
+      for (std::size_t i=0; i<n_threads; i++) {
+	 threads.push_back(std::thread(rename_tris_in_thread, std::cref(index_ranges[i]),
+				       std::ref(m_trivecTriangles), std::ref(m_i2pt3idVertices)));
+      }
+      auto tp_1c = std::chrono::high_resolution_clock::now();
+      for (unsigned int i_thread=0; i_thread<threads.size(); i_thread++)
+	 threads.at(i_thread).join();
+      auto tp_1d = std::chrono::high_resolution_clock::now();
+   } else {
+
+      // Now rename triangles.
+      while (vecIterator != m_trivecTriangles.end()) {
+	 for (unsigned int i=0; i<3; i++) {
+	    unsigned int newID = m_i2pt3idVertices.at(vecIterator->pointID[i]).newID;
+	    vecIterator->pointID[i] = newID;
+	 }
+	 vecIterator++;
+      }
    }
-   auto tp_1b = std::chrono::high_resolution_clock::now();
-   std::vector<std::thread> threads;
-   for (std::size_t i=0; i<n_threads; i++) {
-      threads.push_back(std::thread(rename_tris_in_thread, std::cref(index_ranges[i]),
-				    std::ref(m_trivecTriangles), std::ref(m_i2pt3idVertices)));
-   }
-   auto tp_1c = std::chrono::high_resolution_clock::now();
-   for (unsigned int i_thread=0; i_thread<threads.size(); i_thread++)
-      threads.at(i_thread).join();
-   auto tp_1d = std::chrono::high_resolution_clock::now();
 
 #else
    // Now rename triangles.
