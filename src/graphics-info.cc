@@ -633,8 +633,32 @@ graphics_info_t::update_ramachandran_plot_point_maybe(int imol, const coot::resi
 	 (gtk_object_get_user_data(GTK_OBJECT(w)));
 
       plot->big_square(res_spec.chain_id, res_spec.res_no, res_spec.ins_code);
+      // need to put show appropriate background here. Make a function to show
+      // background by passing residue spec.
+      update_ramachandran_plot_background_from_res_spec(plot, imol, res_spec);
    } 
 #endif // HAVE_GTK_CANVAS      
+
+}
+
+void
+graphics_info_t::update_ramachandran_plot_background_from_res_spec(coot::rama_plot *plot, int imol,
+                                                                   const coot::residue_spec_t &res_spec) {
+
+   #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+   std::string res_name = residue_name(imol, res_spec.chain_id, res_spec.res_no,
+                                       res_spec.ins_code);
+   if (res_name == "GLY") {
+      plot->show_background(plot->bg_gly);
+   } else {
+      if (res_name == "PRO") {
+         plot->show_background(plot->bg_pro);
+      } else {
+         plot->show_background(plot->bg_non_gly_pro);
+      }
+   }
+
+#endif // HAVE_GTK_CANVAS
 
 }
 

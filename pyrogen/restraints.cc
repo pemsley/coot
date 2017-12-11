@@ -1744,6 +1744,7 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 
 	    // What are the neighbours of at_p and what are their ranks?
 	    //
+
 	    std::vector<std::pair<unsigned int, std::string> > neighb_names_and_ranks;
 	    RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
 	    boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_p);

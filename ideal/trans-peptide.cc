@@ -223,10 +223,10 @@ coot::distortion_score_trans_peptide(const coot::simple_restraint &restraint,
 
    if (false) { // debug 
       double pen = diff*diff/(restraint.sigma * restraint.sigma);
-	 std::cout << "distortion_trans_peptide theta (calc): " << theta 
-		   << " periodicity " << restraint.periodicity
-		   << " target "      << restraint.target_value
-		   << " diff: " << diff << endl ;
+      std::cout << "distortion_trans_peptide theta (calc): " << theta 
+		<< " periodicity " << restraint.periodicity
+		<< " target "      << restraint.target_value
+		<< " diff: " << diff << std::endl ;
       std::cout << "in distortion_trans_peptide: sigma = " << restraint.sigma
 		<< ", weight=" << pow(restraint.sigma,-2.0)
 		<< " and diff is " << diff << std::endl;
@@ -296,7 +296,7 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
 		     std::cout << "in df_trans_peptide: dtg.theta is " << dtg.theta 
 			       <<  " and target is " << restraint.target_value 
 			       << " and diff is " << diff 
-			       << " and periodicity: " << restraint.periodicity <<  endl;
+			       << " and periodicity: " << restraint.periodicity << std::endl;
 
 		  double tt = tan(clipper::Util::d2rad(dtg.theta));
 		  double trans_peptide_scale = (1.0/(1+tt*tt)) *

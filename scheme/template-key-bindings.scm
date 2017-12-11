@@ -93,7 +93,7 @@
      (using-active-atom
       (edit-chi-angles aa-imol aa-chain-id aa-res-no aa-ins-code aa-alt-conf))))
 
-(add-key-binding "Jiggle Fit" "J" (lambda () 
+(add-key-binding "Jiggle Fit Residue" "J" (lambda ()
 				    (using-active-atom 
 				     (fit-to-map-by-random-jiggle 
 				      aa-imol aa-chain-id aa-res-no aa-ins-code 100 1.0))))

@@ -4502,7 +4502,7 @@ void handle_scroll_density_level_event(int scroll_up_down_flag) {
 
    graphics_info_t info;
 
-   std::cout << "here in handle_scroll_density_level_event " << std::endl;
+   // std::cout << "here in handle_scroll_density_level_event " << std::endl;
 
    GdkEvent *peek_event = gdk_event_peek();
    if (peek_event) {

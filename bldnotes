@@ -704,6 +704,16 @@ low importance
 
    o give phi-psi info in tooltip (maybe optional)
 
+   o contour lines thinner (?) and black
+
+   o play with colours?!
+
+   o shades between the favoured-allowed-disallowed
+
+   o make phi range option 0->360 (default?!)
+
+   o add setting for chains when using a selection in kleywegt
+
    o close menu could be "quit" in stand alone
 
    o (better) exception handling when e.g. no glade file
@@ -715,6 +725,8 @@ low importance
    o add setting for chains when using a selection in kleywegt
 
    o shades between the favoured-allowed-disallowed
+
+   o fix green box position (done?)
 
    o selector for multiple models
 

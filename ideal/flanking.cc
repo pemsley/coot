@@ -40,7 +40,7 @@
 void
 coot::restraints_container_t::add_fixed_atoms_from_flanking_residues(const coot::bonded_pair_container_t &bpc) {
 
-   std::cout << "debug:: add_fixed_atoms_from_flanking_residues() called " << bpc.size() << std::endl;
+   // std::cout << "debug:: add_fixed_atoms_from_flanking_residues() called " << bpc.size() << std::endl;
 
    std::vector<mmdb::Residue *> residues_for_fixed_atoms;
    

@@ -3138,7 +3138,12 @@ public:        //                      public
    void spin_N(const coot::residue_spec_t &residue_spec, float angle);
 
    int pending_contour_level_change_count;
-   
+
+   void crankshaft_peptide_rotation_optimization(const coot::residue_spec_t &rs,
+						 unsigned int n_peptides,
+						 const clipper::Xmap<float> &xmap,
+						 float map_weight,
+						 int n_samples);
 };
 
 #endif // MOLECULE_CLASS_INFO_T

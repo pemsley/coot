@@ -796,10 +796,9 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 // 		   << " status from gsl_multimin_fdfminimizer_iterate() " << status << std::endl;
 
 	 if (status) {
-	    std::cout << "unexpected error from gsl_multimin_fdfminimizer_iterate" << endl;
+	    std::cout << "unexpected error from gsl_multimin_fdfminimizer_iterate" << std::endl;
 	    if (status == GSL_ENOPROG) {
-	       cout << "Error in gsl_multimin_fdfminimizer_iterate was GSL_ENOPROG"
-		    << endl; 
+	       std::cout << "Error in gsl_multimin_fdfminimizer_iterate was GSL_ENOPROG" << std::endl; 
 	       lights_vec = chi_squareds("Final Estimated RMS Z Scores", s->x);
 	    }
 	    break;
@@ -839,7 +838,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 	 }
 
 	 if (verbose_geometry_reporting == VERBOSE)
-	    cout << "iteration number " << iter << " " << s->f << endl;
+	    std::cout << "iteration number " << iter << " " << s->f << std::endl;
 
       }
    while ((status == GSL_CONTINUE) && (int(iter) < nsteps_max));
@@ -931,7 +930,7 @@ starting_structure_diff_score(const gsl_vector *v, void *params) {
       d = restraints->initial_position(i) - gsl_vector_get(v, i);
       dist += 0.01*d*d;
    }
-   cout << "starting_structure_diff_score: " << dist << endl; 
+   std::cout << "starting_structure_diff_score: " << dist << std::endl; 
    return dist; 
 }
 
@@ -1651,7 +1650,7 @@ void coot::my_df_electron_density_old (gsl_vector *v,
 
       double new_S_minu, new_S_plus, tmp, val; 
 
-      cout << "density_gradients" << endl; 
+      std::cout << "density_gradients" << std::endl; 
       for (unsigned int i=0; i<v->size; i++) { 
       
 	 tmp = gsl_vector_get(v, i); 
@@ -1665,7 +1664,7 @@ void coot::my_df_electron_density_old (gsl_vector *v,
 	 gsl_vector_set(v, i, tmp);
 
 	 val = (new_S_plus - new_S_minu)/(2*0.01); 
-	 cout << "density gradient: " << i << " " << val << endl;
+	 std::cout << "density gradient: " << i << " " << val << std::endl;
 
 	 // add this density term to the gradient
 	 gsl_vector_set(df, i, gsl_vector_get(df, i) + val);
@@ -3735,7 +3734,7 @@ coot::simple_restraint::torsion_distortion(double model_theta) const {
       tdiff = model_theta - trial_target;
       if (tdiff < -180) tdiff += 360;
       if (tdiff >  180) tdiff -= 360;
-      if (abs(tdiff) < abs(diff)) { 
+      if (fabs(tdiff) < fabs(diff)) { 
 	 diff = tdiff;
       }
    }
@@ -4104,13 +4103,15 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
    }
    
 #ifdef HAVE_CXX_THREAD
-   end = std::chrono::system_clock::now();
 
-   std::chrono::duration<double> elapsed_seconds = end-start;
-   std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+   // end = std::chrono::system_clock::now();
 
-   std::cout << "INFO:: nbc computation " // std::ctime(&end_time)
-	     << "elapsed time: " << elapsed_seconds.count() << "s\n";
+   // std::chrono::duration<double> elapsed_seconds = end-start;
+   // std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+
+   // std::cout << "INFO:: nbc computation " // std::ctime(&end_time)
+   //           << "elapsed time: " << elapsed_seconds.count() << "s\n";
+
 #endif // HAVE_CXX_THREAD
 
 }
@@ -5154,7 +5155,7 @@ coot::restraints_container_t::write_new_atoms(std::string pdb_file_name) {
 	 std::cout << "WARNING:: output file: " << pdb_file_name
 		   << " not written." << std::endl;
    } else { 
-      cout << "not constructed from asc, not writing coords" << endl; 
+      std::cout << "not constructed from asc, not writing coords" << std::endl;
    }
    return status;
 }
