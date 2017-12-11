@@ -543,13 +543,28 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
    }
 
    if (!xmap.is_null()) {
+
+#ifdef ANALYSE_CONTOURING_TIMING
+      auto tp_0 = std::chrono::high_resolution_clock::now();
+#endif
       v = my_isosurface.GenerateSurface_from_Xmap(xmap,
 						  contour_level,
 						  dy_radius, centre,
 						  isample_step);
+#ifdef ANALYSE_CONTOURING_TIMING
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+#endif
       if (is_dynamically_transformed_map_flag)
 	 dynamically_transform(v);
       set_draw_vecs(v.data, v.size);
+
+#ifdef ANALYSE_CONTOURING_TIMING
+      auto tp_2 = std::chrono::high_resolution_clock::now();
+      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+      std::cout << "update_map_triangles() d10 " << d10 << "  d21 " << d21 << " microseconds\n";
+#endif      
+
    }
    if (xmap_is_diff_map) {
       v = my_isosurface.GenerateSurface_from_Xmap(xmap,

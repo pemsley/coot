@@ -178,6 +178,12 @@ protected:
 	// efficiently.
 	void RenameVerticesAndTriangles();
 
+	// used by above
+	static void
+	  rename_tris_in_thread(const std::pair<unsigned int, unsigned int> &idx_range,
+				TRIANGLEVECTOR &tv, const ID2POINT3DID &point_map);
+
+
 	// Calculates the normals.
 	void CalculateNormals();
 
