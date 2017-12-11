@@ -209,9 +209,6 @@ coot::distortion_score_trans_peptide(const coot::simple_restraint &restraint,
       + clipper::Coord_orth::dot(a,b)*clipper::Coord_orth::dot(b,c);
 
    double theta = clipper::Util::rad2d(atan2(E,G));
-   if (theta < 0)
-      theta += 360;
-
    if (false) { 
       if (clipper::Util::isnan(theta)) {
 	 std::string mess = "WARNING: distortion_score_torsion() observed torsion theta is a NAN!";
@@ -221,20 +218,33 @@ coot::distortion_score_trans_peptide(const coot::simple_restraint &restraint,
 
    double diff = theta - restraint.target_value;
 
-   if (false) { // debug 
+   // the target is 180, so if theta is -179, then we want
+   // to add 360
+   // if theta is -110, we want to add 360, -> 250 - diff is 70
+
+   if (diff > 180)
+      diff -= 360;
+   if (diff < -180)
+      diff += 360;
+
+   if (false) { // debug
       double pen = diff*diff/(restraint.sigma * restraint.sigma);
-      std::cout << "distortion_trans_peptide theta (calc): " << theta 
+      std::cout << "in distortion_trans_peptide theta (calc): " << theta 
 		<< " periodicity " << restraint.periodicity
 		<< " target "      << restraint.target_value
-		<< " diff: " << diff << std::endl ;
-      std::cout << "in distortion_trans_peptide: sigma = " << restraint.sigma
-		<< ", weight=" << pow(restraint.sigma,-2.0)
-		<< " and diff is " << diff << std::endl;
-      std::cout << "distortion score trans-peptide "
-		<< diff*diff/(restraint.sigma * restraint.sigma) << " "
-		<< std::endl;
+		<< " diff: " << diff << " ";
+      std::cout << "sigma= " << restraint.sigma
+		<< " weight= " << pow(restraint.sigma,-2.0) << " ";
+      std::cout << "score " << pen;
+      if (true) {
+	 std::cout << " " << P1.format();
+	 std::cout << " " << P2.format();
+	 std::cout << " " << P3.format();
+	 std::cout << " " << P4.format();
+      }
+      std::cout << "\n";
    }
-      
+
    return diff*diff/(restraint.sigma * restraint.sigma);
 }
 
@@ -288,9 +298,12 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
 
 	       if (true) {
 
-		  if (dtg.theta < 0)
-		     dtg.theta += 360;
 		  double diff = dtg.theta - restraint.target_value;
+		  // because trans restraints - 180, (see distortion score notes)
+		  if (diff > 180)
+		     diff -= 360;
+		  if (diff < -180)
+		     diff += 360;
 		  
 		  if (false) 
 		     std::cout << "in df_trans_peptide: dtg.theta is " << dtg.theta 
