@@ -584,7 +584,7 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
       if (atom_pull.status) {
 	 std::cout << "update_refinement_atoms() adding atom_pull_restraint "
 		   << atom_pull.spec << std::endl;
-	 last_restraints.add_atom_pull_restraint(atom_pull.spec, atom_pull.pos); // mouse target position
+	 last_restraints->add_atom_pull_restraint(atom_pull.spec, atom_pull.pos); // mouse target position
       }
 
       regularize_object_bonds_box.clear_up();
@@ -837,7 +837,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
             	                                                   // link and flank args default true
 
 	       if (atom_pull.status)
-		  last_restraints.add_atom_pull_restraint(atom_pull.spec, atom_pull.pos); // mouse target position
+		  last_restraints->add_atom_pull_restraint(atom_pull.spec, atom_pull.pos); // mouse target position
 	       last_restraints->set_geman_mcclure_alpha(geman_mcclure_alpha);
                last_restraints->set_rama_type(restraints_rama_type);
 

@@ -620,7 +620,7 @@ graphics_info_t::move_atom_pull_target_position(int screen_x, int screen_y) {
 		<< " atom pull:: idx " << moving_atoms_dragged_atom_index << " "
 		<< coot::co(at).format() << " to " << current_mouse_real_world
 		<< std::endl;
-   last_restraints.add_atom_pull_restraint(atom_pull.spec, c_pos);
+   last_restraints->add_atom_pull_restraint(atom_pull.spec, c_pos);
    graphics_draw();
 }
 
@@ -677,7 +677,7 @@ graphics_info_t::move_moving_atoms_by_shear_internal(const coot::Cartesian &diff
       }
    }
    delete [] d_to_moving_at;
-} 
+}
 
 void
 graphics_info_t::do_post_drag_refinement_maybe() {

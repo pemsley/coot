@@ -54,7 +54,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    }
 
    if (g.auto_clear_atom_pull_restraint_flag) {
-      bool status = g.last_restraints.turn_off_when_close_target_position_restraint();
+      bool status = g.last_restraints->turn_off_when_close_target_position_restraint();
       if (status) {
 	 atom_pull.off();
 	 g.clear_atom_pull_restraint(true);
@@ -63,7 +63,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 
    // print_initial_chi_squareds_flag is 1 the first time then we turn it off.
    int steps_per_frame = dragged_refinement_steps_per_frame;
-   if (! g.last_restraints.include_map_terms())
+   if (! g.last_restraints->include_map_terms())
       steps_per_frame *= 6;
 
    // flags = coot::BONDS_AND_NON_BONDED;
@@ -84,7 +84,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 		<< flags << std::endl;
 
    graphics_info_t::saved_dragged_refinement_results =
-      g.last_restraints.minimize(flags, steps_per_frame, print_initial_chi_squareds_flag);
+      g.last_restraints->minimize(flags, steps_per_frame, print_initial_chi_squareds_flag);
 
    retprog = graphics_info_t::saved_dragged_refinement_results.progress;
    print_initial_chi_squareds_flag = 0;
@@ -129,7 +129,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 
    char *env = getenv("COOT_DEBUG_REFINEMENT");
    if (env)
-      g.tabulate_geometric_distortions(last_restraints);
+      g.tabulate_geometric_distortions(*last_restraints);
 
    // Update the Accept/Reject Dialog if it exists (and it should do,
    // if we are doing dragged refinement).

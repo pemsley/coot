@@ -4687,10 +4687,12 @@ graphics_info_t::draw_atom_pull_restraint() {
 
 void
 graphics_info_t::clear_atom_pull_restraint(bool refine_again_flag) {
-   last_restraints.clear_atom_pull_restraint();
-   atom_pull.off();
-   if (refine_again_flag)
-      drag_refine_refine_intermediate_atoms();
+   if (last_restraints) {
+      last_restraints->clear_atom_pull_restraint();
+      atom_pull.off();
+      if (refine_again_flag)
+	 drag_refine_refine_intermediate_atoms();
+   }
 }
 
 // setup and draw
