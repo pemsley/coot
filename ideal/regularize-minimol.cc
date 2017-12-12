@@ -59,6 +59,7 @@ coot::regularize_minimol_molecule(const coot::minimol::molecule &molin,
    
       const char *chn = chain_id.c_str(); 
       std::vector<coot::atom_spec_t> fixed_atom_specs;
+      clipper::Xmap<float> dummy_xmap;
    
       coot::restraints_container_t restraints(resno_1,
 					      resno_2,
@@ -68,7 +69,8 @@ coot::regularize_minimol_molecule(const coot::minimol::molecule &molin,
 					      altconf,
 					      chn,
 					      mol,
-					      fixed_atom_specs);
+					      fixed_atom_specs,
+					      dummy_xmap);
       coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
       bool do_residue_internal_torsions = false;
       bool do_trans_peptide_restraints = true;

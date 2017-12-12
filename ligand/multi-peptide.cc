@@ -241,13 +241,13 @@ coot::refine_end(coot::minimol::fragment *many_residues,
    std::vector<atom_spec_t> fixed_atom_specs;
    restraint_usage_Flags flags = TYPICAL_RESTRAINTS;
 
-   restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs);
+   restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs, xmap);
    pseudo_restraint_bond_type pseudos = NO_PSEUDO_BONDS;
    bool do_internal_torsions = false;
    float weight = 60;
 
    restraints.set_quiet_reporting();
-   restraints.add_map(xmap, weight);
+   restraints.add_map(weight);
    bool do_trans_peptide_restraints = true;
    int imol = 0;
    restraints.make_restraints(imol, geom, flags, do_internal_torsions, do_internal_torsions, 0, 0, pseudos);

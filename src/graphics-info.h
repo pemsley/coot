@@ -687,7 +687,7 @@ class graphics_info_t {
 
    static int moving_atoms_dragged_atom_index;
 #ifdef  HAVE_GSL
-   static coot::restraints_container_t last_restraints;
+   static coot::restraints_container_t *last_restraints;
 #endif // HAVE_GSL   
    // the mode flag is public:
 
@@ -815,7 +815,7 @@ class graphics_info_t {
    // rename me
    coot::refinement_results_t
      update_refinement_atoms(int n_restraints,
-			     coot::restraints_container_t &restraints,
+			     coot::restraints_container_t *restraints, // actually last_restraints
 			     coot::refinement_results_t rr,
 			     atom_selection_container_t local_mov_ats, 
 			     bool need_residue_order_check, 
@@ -3244,7 +3244,18 @@ public:
    void set_fixed_points_for_sheared_drag();
    void do_post_drag_refinement_maybe();
 #ifdef  HAVE_GSL
-   int last_restraints_size() const { return last_restraints.size(); };
+   int last_restraints_size() const {
+     if (! last_restraints) {
+		  std::cout << "----------------------------------------------" << std::endl;
+		  std::cout << "----------------------------------------------" << std::endl;
+		  std::cout << "     ERROR:: C: last_restraints no cleared up " << std::endl;
+		  std::cout << "----------------------------------------------" << std::endl;
+		  std::cout << "----------------------------------------------" << std::endl;
+		  return 0;
+     } else {
+       return last_restraints->size();
+     }
+   }
 #endif // HAVE_GSL   
    static int dragged_refinement_steps_per_frame;
    static short int dragged_refinement_refine_per_frame_flag;

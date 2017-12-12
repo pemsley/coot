@@ -70,7 +70,8 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 						     const std::string &altloc,
 						     const std::string &chain_id,
 						     mmdb::Manager *mol_in, 
-						     const std::vector<coot::atom_spec_t> &fixed_atom_specs) {
+						     const std::vector<coot::atom_spec_t> &fixed_atom_specs,
+						     const clipper::Xmap<float> &map_in) : xmap(map_in) {
 
    init(true);
    are_all_one_atom_residues = false;
@@ -85,8 +86,8 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 // Used in omega distortion graph
 // 
 coot::restraints_container_t::restraints_container_t(atom_selection_container_t asc_in,
-						     const std::string &chain_id) {
-
+						     const std::string &chain_id,
+						     const clipper::Xmap<float> &map_in) : xmap(map_in) {
    init(true);
    mol = asc_in.mol;
    are_all_one_atom_residues = false;
@@ -155,7 +156,8 @@ coot::restraints_container_t::restraints_container_t(atom_selection_container_t 
 
 coot::restraints_container_t::restraints_container_t(mmdb::PResidue *SelResidues, int nSelResidues,
 						     const std::string &chain_id,
-						     mmdb::Manager *mol_in) { 
+						     mmdb::Manager *mol_in,
+						     const clipper::Xmap<float> &map_in) : xmap(map_in) { 
    
    init(true);
    are_all_one_atom_residues = false;
@@ -198,7 +200,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 						     mmdb::Manager *mol_in,
 						     const std::vector<coot::atom_spec_t> &fixed_atom_specs,
 						     const clipper::Xmap<float> &map_in,
-						     float map_weight_in) {
+						     float map_weight_in) : xmap(map_in) {
 
    init(true);
    init_from_mol(istart_res_in, iend_res_in, 		 
@@ -208,7 +210,6 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 		 altloc,
 		 chain_id, mol_in, fixed_atom_specs);
    are_all_one_atom_residues = false;
-   map = map_in;
    map_weight = map_weight_in;
    include_map_terms_flag = 1;
 
@@ -222,7 +223,8 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
 						     const std::vector<mmdb::Link> &links,
 						     const coot::protein_geometry &geom,
 						     mmdb::Manager *mol_in,
-						     const std::vector<atom_spec_t> &fixed_atom_specs) {
+						     const std::vector<atom_spec_t> &fixed_atom_specs,
+						     const clipper::Xmap<float> &map_in) : xmap(map_in) {
 
    init(true);
    from_residue_vector = 1;
@@ -713,9 +715,9 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
    // check that we have restraints before we start to minimize:
    if (restraints_vec.size() == 0) {
       if (restraints_usage_flag != NO_GEOMETRY_RESTRAINTS) {
-      std::cout << "SPECIFICATION ERROR:  There are no restraints. ";
-      std::cout << "No minimization will happen" << std::endl;
-      return coot::refinement_results_t(0, 0, "No Restraints!");
+	 std::cout << "SPECIFICATION ERROR:  There are no restraints. ";
+	 std::cout << "No minimization will happen" << std::endl;
+	 return coot::refinement_results_t(0, 0, "No Restraints!");
       }
    } 
    
@@ -2852,7 +2854,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
    coot::restraints_container_t::reduced_angle_info_container_t ai(restraints_vec);
    ai.write_angles_map("angles_map.tab");
    return make_non_bonded_contact_restraints(imol, bpc, ai, geom);
-   
+
 } 
 
 // Atoms that are not involved in bonds or angles, but are in the
@@ -5136,6 +5138,7 @@ coot::simple_refine(mmdb::Residue *residue_p,
 	 char *chain_id = residue_p->GetChainID();
 	 int istart_res = residue_p->GetSeqNum();
 	 int iend_res   = istart_res;
+	 clipper::Xmap<float> dummy_xmap;
 
 	 coot::restraints_container_t restraints(istart_res,
 						 iend_res,
@@ -5145,7 +5148,8 @@ coot::simple_refine(mmdb::Residue *residue_p,
 						 altloc,
 						 chain_id,
 						 mol,
-						 fixed_atom_specs);
+						 fixed_atom_specs,
+						 dummy_xmap);
    
 	 // restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
 	 restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
@@ -5158,6 +5162,96 @@ coot::simple_refine(mmdb::Residue *residue_p,
       }
    }
 }
+
+void
+coot::restraints_container_t::copy_from(int i) {
+
+}
+
+void
+coot::restraints_container_t::copy_from(const coot::restraints_container_t &rest_in) {
+
+   restraints_vec = rest_in.restraints_vec;
+
+   std::cout << "in copy_from we now have " << restraints_vec.size() << " restraints "<< std::endl;
+   atom = rest_in.atom;
+   from_residue_vector = rest_in.from_residue_vector;
+   SelHnd_atom = rest_in.SelHnd_atom;
+		      
+   par = rest_in.par;
+   n_atoms = rest_in.n_atoms;
+   x = rest_in.x;
+   are_all_one_atom_residues = rest_in.are_all_one_atom_residues;
+   mol = rest_in.mol;
+      
+   residues_vec = rest_in.residues_vec;
+
+
+
+   udd_bond_angle = rest_in.udd_bond_angle;
+   udd_atom_index_handle = rest_in.udd_atom_index_handle;
+
+   SelResidue_active = rest_in.SelResidue_active;
+   nSelResidues_active= rest_in.nSelResidues_active;
+
+   filtered_non_bonded_atom_indices = rest_in.filtered_non_bonded_atom_indices;
+
+   istart_res = rest_in.istart_res;
+   iend_res = rest_in.iend_res;
+      
+   istart_minus_flag = rest_in.istart_minus_flag;
+   iend_plus_flag = rest_in.iend_plus_flag;
+   chain_id_save = rest_in.chain_id_save;
+
+   previous_residue = rest_in.previous_residue;
+   next_residue = rest_in.next_residue;
+      
+   verbose_geometry_reporting = rest_in.verbose_geometry_reporting;
+   
+   initial_position_params_vec = rest_in.initial_position_params_vec;
+
+   multimin_func = rest_in.multimin_func;
+
+   include_map_terms_flag = rest_in.include_map_terms_flag;
+
+   lograma = rest_in.lograma;
+   zo_rama = rest_in.zo_rama;
+   rama_plot_weight = rest_in.rama_plot_weight;
+   rama_type = rest_in.rama_type;
+
+   map_weight = rest_in.map_weight;
+
+   non_bonded_neighbour_residues = rest_in.non_bonded_neighbour_residues;
+
+   have_oxt_flag = rest_in.have_oxt_flag;
+   oxt_index = rest_in.oxt_index;
+   residues_with_OXTs = rest_in.residues_with_OXTs;
+
+   oxt_reference_atom_pos = rest_in.oxt_reference_atom_pos;
+   do_numerical_gradients_flag = rest_in.do_numerical_gradients_flag;
+
+   bonded_atom_indices = rest_in.bonded_atom_indices;
+
+   // public:
+   fixed_atom_indices = rest_in.fixed_atom_indices;
+   restraints_usage_flag = rest_in.restraints_usage_flag;
+
+   use_map_gradient_for_atom = rest_in.use_map_gradient_for_atom;
+   atom_z_weight = rest_in.atom_z_weight;
+   geman_mcclure_alpha = rest_in.geman_mcclure_alpha;
+
+   cryo_em_mode = rest_in.cryo_em_mode;
+
+#ifdef HAVE_CXX_THREAD
+      // thread pool!
+      //
+   thread_pool_p = rest_in.thread_pool_p;
+   n_threads = rest_in.n_threads;
+
+#endif // HAVE_CXX_THREAD
+   
+}
+
 
 
 

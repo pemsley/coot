@@ -1619,7 +1619,11 @@ graphics_info_t::clear_up_moving_atoms() {
 
 #ifdef HAVE_GSL
    // last_restraints = coot::restraints_container_t(); // last_restraints.size() = 0;
-   last_restraints.clear();
+   if (last_restraints) {
+      last_restraints->clear();
+      delete last_restraints;
+      last_restraints = 0;
+   }
 #endif // HAVE_GSL
 }
 
@@ -1697,11 +1701,11 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 
    // print_initial_chi_squareds_flag is 1 the first time then we turn it off.
    int steps_per_frame = dragged_refinement_steps_per_frame;
-   if (! g.last_restraints.include_map_terms())
+   if (! g.last_restraints->include_map_terms())
       steps_per_frame *= 6;
 
    graphics_info_t::saved_dragged_refinement_results =
-      g.last_restraints.minimize(flags, steps_per_frame, print_initial_chi_squareds_flag);
+      g.last_restraints->minimize(flags, steps_per_frame, print_initial_chi_squareds_flag);
 
 
    retprog = graphics_info_t::saved_dragged_refinement_results.progress;
@@ -1723,7 +1727,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    if (moving_atoms_asc)
       if (moving_atoms_asc->mol)
          if (env)
-            g.tabulate_geometric_distortions(last_restraints);
+            g.tabulate_geometric_distortions(*last_restraints);
 
    // Update the Accept/Reject Dialog if it exists (and it should do,
    // if we are doing dragged refinement).

@@ -680,6 +680,7 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
 							chain_id,
 							in_alt_conf_split_flag);
    
+   clipper::Xmap<float> dummy_xmap;
    coot::restraints_container_t restraints(resno_mid-side_step,
 					   resno_mid+side_step,
 					   have_flanking_residue_at_start,
@@ -688,7 +689,7 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
 					   altconf,
 					   chn,
 					   residues_mol_pair.first,
-					   fixed_atom_specs);
+					   fixed_atom_specs, dummy_xmap);
 
    short int do_rama_restraints = 0;
    short int do_residue_internal_torsions = 1;
@@ -708,6 +709,7 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
       //flags = coot::BONDS_AND_NON_BONDED;
       //flags = coot::RAMA;
    } 
+
 
    coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
    bool do_trans_peptide_restraints = false;
@@ -1053,12 +1055,13 @@ int test_peptide_link() {
       std::string group_1 = "D-pyranose"; // CCD and acedrg dictionaries now use D-SACCHARIDE
       std::string group_2 = "D-pyranose";
 
-      clipper::Xmap<float> xmap;
       float weight = 1.0;
       std::vector<coot::atom_spec_t> fixed_atom_specs;
       std::vector<mmdb::Link> links;
-      coot::restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs);
-      restraints.add_map(xmap, weight);
+      clipper::Xmap<float> dummy_xmap;
+
+      coot::restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs, dummy_xmap);
+      restraints.add_map(weight);
       std::string link_type = "";
       // restraints.find_link_type(residues[0].second,
       // 		residues[1].second,
@@ -1135,8 +1138,8 @@ restr_res_vector() {
       geom.init_standard();
       std::vector<mmdb::Link> links;
       coot::restraints_container_t
-	 restraints(residues, links, geom, mol, fixed_atom_specs);
-      restraints.add_map(xmap, weight);
+	 restraints(residues, links, geom, mol, fixed_atom_specs, xmap);
+      restraints.add_map(weight);
       bool do_trans_peptide_restraints = true;
       int imol = 0;
       restraints.make_restraints(imol, geom, flags, 0, do_trans_peptide_restraints, 0.0, 0, coot::NO_PSEUDO_BONDS);

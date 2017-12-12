@@ -5920,6 +5920,7 @@ molecule_class_info_t::find_deviant_geometry(float strictness) {
 						     (char *) mol_chain.c_str(), 
 						     0 // 0 because we are not in alt conf split
 						     );
+	       clipper::Xmap<float> dummy_xmap;
 	       coot::restraints_container_t 
 		  restraints(resno_1.second,
 			     resno_2.second,
@@ -5929,7 +5930,8 @@ molecule_class_info_t::find_deviant_geometry(float strictness) {
 			     altconf,
 			     (char *) mol_chain.c_str(),
 			     residues_mol,
-			     fixed_atom_specs);
+			     fixed_atom_specs,
+			     dummy_xmap);
 	    }
 	 }
       }

@@ -392,9 +392,9 @@ main(int argc, char **argv) {
 						       links,
 						       geom,
 						       asc.mol,
-						       fixed_atom_specs);
+						       fixed_atom_specs, xmap);
       
-	       restraints.add_map(xmap, map_weight);
+	       restraints.add_map(map_weight);
 
 	       // coot::restraint_usage_Flags flags = coot::NO_GEOMETRY_RESTRAINTS;
 	       // coot::restraint_usage_Flags flags = coot::BONDS;
