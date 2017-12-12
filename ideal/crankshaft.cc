@@ -1532,9 +1532,9 @@ coot::crankshaft::refine_and_score_mol(mmdb::Manager *mol,
 #ifdef HAVE_CXX_THREAD
       auto tp_0 = std::chrono::high_resolution_clock::now();
 #endif
-      coot::restraints_container_t restraints(refine_residues, links, geom, mol, fixed_atom_specs);
+      coot::restraints_container_t restraints(refine_residues, links, geom, mol, fixed_atom_specs, xmap);
       restraints.set_quiet_reporting();
-      restraints.add_map(xmap, map_weight);
+      restraints.add_map(map_weight);
       restraints.set_rama_type(restraints_rama_type);
       restraints.set_rama_plot_weight(1);
       restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,

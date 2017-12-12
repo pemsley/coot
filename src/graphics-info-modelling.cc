@@ -400,20 +400,39 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 						  in_alt_conf_split_flag, 
 						  imol_for_atoms);
 
-	 coot::restraints_container_t restraints(resno_1,
-						 resno_2,
-						 have_flanking_residue_at_start,
-						 have_flanking_residue_at_end,
-						 have_disulfide_residues,
-						 altconf,
-						 chn,
-						 residues_mol,
-						 fixed_atom_specs);
+// 	 coot::restraints_container_t restraints(resno_1,
+// 						 resno_2,
+// 						 have_flanking_residue_at_start,
+// 						 have_flanking_residue_at_end,
+// 						 have_disulfide_residues,
+// 						 altconf,
+// 						 chn,
+// 						 residues_mol,
+// 						 fixed_atom_specs,
+// 						 molecules[imol_for_map].xmap);
+
+	 if (last_restraints) {
+	    std::cout << "----------------------------------------------" << std::endl;
+	    std::cout << "----------------------------------------------" << std::endl;
+	    std::cout << "     ERROR:: B: last_restraints no cleared up " << std::endl;
+	    std::cout << "----------------------------------------------" << std::endl;
+	    std::cout << "----------------------------------------------" << std::endl;
+	 }
+
+	 last_restraints = new coot::restraints_container_t(resno_1,
+							resno_2,
+							have_flanking_residue_at_start,
+							have_flanking_residue_at_end,
+							have_disulfide_residues,
+							altconf,
+							chn,
+							residues_mol,
+							fixed_atom_specs,
+							molecules[imol_for_map].xmap);
 
 	 // this is where regularize and refine differ:
 	 if (imol_for_map != -1)
-	    restraints.add_map(molecules[imol_for_map].xmap,
-			       geometry_vs_map_weight);
+	    last_restraints->add_map(geometry_vs_map_weight);
 
 	 atom_selection_container_t local_moving_atoms_asc =
 	    make_moving_atoms_asc(residues_mol, resno_1, resno_2);
@@ -454,55 +473,25 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	 
 	 const coot::protein_geometry &geom = *geom_p;
 
-	 // 20132008: debugging CCP4 SRS inclusion.  Currently it
-	 // seems that problem is calling a member function of
-	 // restraints.  An inline version of the same test function
-	 // doesn't cause the corruption of geom.
-	 // 
-	 if (0) { 
-	    std::cout << Geom_p()->size() << std::endl;
-	    std::cout << "    geom     pointer " << Geom_p() << std::endl;
-	    std::cout << geom.size() << std::endl;
-	    std::cout << "    geom ref pointer " << &geom << std::endl;
-
-	    unsigned int n_test = restraints.inline_const_test_function(geom);
-	    std::cout << "------------------- copy_mol_and_refine_inner() inline_const_test_function n_test: "
-		      << n_test << std::endl;
-	 
-	    n_test = restraints.const_test_function(geom);
-	    std::cout << "------------------- copy_mol_and_refine_inner() const_test_function n_test: "
-		      << n_test << std::endl;
-	 
-	    n_test = restraints.test_function(geom);
-	    std::cout << "------------------- copy_mol_and_refine_inner() test_function n_test: "
-		      << n_test << std::endl;
-	 
-	    n_test = restraints.const_test_function(geom);
-	    std::cout << "------------------- copy_mol_and_refine_inner() const test_function n_test: "
-		      << n_test << std::endl;
-	 }
-
-	 // this residue range function: copy_mol_and_refine_inner()
-	 // 
 	 int nrestraints = 
-	    restraints.make_restraints(imol_for_atoms, geom, flags,
+	    last_restraints->make_restraints(imol_for_atoms, geom, flags,
 				       do_residue_internal_torsions,
 				       do_trans_peptide_restraints,
 				       rama_plot_restraint_weight,
 				       do_rama_restraints,
 				       pseudo_bonds_type);
 
-	 restraints.set_geman_mcclure_alpha(geman_mcclure_alpha);
-         restraints.set_rama_type(restraints_rama_type);
+	 last_restraints->set_geman_mcclure_alpha(geman_mcclure_alpha);
+         last_restraints->set_rama_type(restraints_rama_type);
 
 	 if (molecules[imol_for_atoms].extra_restraints.has_restraints())
-	    restraints.add_extra_restraints(imol_for_atoms, molecules[imol_for_atoms].extra_restraints,
-					    geom);
+	    last_restraints->add_extra_restraints(imol_for_atoms, molecules[imol_for_atoms].extra_restraints,
+						  geom);
 
 	 if (do_numerical_gradients)
-	    restraints.set_do_numerical_gradients();
+	    last_restraints->set_do_numerical_gradients();
 
-	 rr = update_refinement_atoms(nrestraints, restraints, rr, local_moving_atoms_asc,
+	 rr = update_refinement_atoms(nrestraints, last_restraints, rr, local_moving_atoms_asc,
 				      1, imol_for_atoms, chain_id_1);
 
 	 // local_moving_atoms_asc.clear_up(); // crash.
@@ -574,7 +563,7 @@ graphics_info_t::copy_model_molecule(int imol) {
 
 coot::refinement_results_t
 graphics_info_t::update_refinement_atoms(int n_restraints,
-					 coot::restraints_container_t &restraints,
+					 coot::restraints_container_t *restraints,
 					 coot::refinement_results_t rr_in,
 					 atom_selection_container_t local_moving_atoms_asc,
 					 bool need_residue_order_check,
@@ -587,7 +576,10 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
    if (n_restraints > 0) {
 
       moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
-      last_restraints = restraints;
+
+      // coot::restraints_container_t last_restraints(molecules[imol_refinement_map].xmap);
+      // last_restraints = coot::restraints_container_t(molecules[imol_refinement_map].xmap);
+      // last_restraints.copy_from(restraints);
 
       if (atom_pull.status) {
 	 std::cout << "update_refinement_atoms() adding atom_pull_restraint "
@@ -613,9 +605,9 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
       // GM restraints.  That will give us a step lim of 50 - bad.
       // We need to exclude non-relevant GM restraints in make_restraints().
       if (false)  {
-         if (restraints.size() > 10000) {
-	    unsigned int new_lim = 3000000/restraints.size();
-            std::cout << "debug:: here with restraints.size() " << restraints.size()
+         if (restraints->size() > 10000) {
+	    unsigned int new_lim = 3000000/restraints->size();
+            std::cout << "debug:: here with restraints.size() " << restraints->size()
 	              << " and step_count_lim " << step_count_lim << std::endl;
          }
       }
@@ -799,32 +791,33 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	       for (unsigned int i=0; i<residues_mol_and_res_vec.second.size(); i++)
 		  local_residues.push_back(std::pair<bool, mmdb::Residue *>(0, residues_mol_and_res_vec.second[i]));
 
-	       coot::restraints_container_t restraints(local_residues,
-						       local_moving_atoms_asc.links,
-						       *Geom_p(),
-						       residues_mol_and_res_vec.first,
-						       fixed_atom_specs);
+	       const clipper::Xmap<float> &xmap = molecules[Imol_Refinement_Map()].xmap;
 
-	       if (use_map_flag) {
-		  clipper::Xmap<float> &xmap = molecules[Imol_Refinement_Map()].xmap;
-		  restraints.add_map(xmap, weight);
+	       if (last_restraints) {
+		  std::cout << "----------------------------------------------" << std::endl;
+		  std::cout << "----------------------------------------------" << std::endl;
+		  std::cout << "     ERROR:: A: last_restraints no cleared up " << std::endl;
+		  std::cout << "----------------------------------------------" << std::endl;
+		  std::cout << "----------------------------------------------" << std::endl;
 	       }
+	       last_restraints = new 
+		  coot::restraints_container_t(local_residues,
+					       local_moving_atoms_asc.links,
+					       *Geom_p(),
+					       residues_mol_and_res_vec.first,
+					       fixed_atom_specs, xmap);
+
+	       if (use_map_flag)
+		  last_restraints->add_map(weight);
 
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
-	       // This is a hack which stops the refinement crashing (note that
-	       // sphere regularization works with a valid thread pool)
-	       // but when using the electron, something goes wrong.
-	       //
-	       // int n_threads = coot::get_max_number_of_threads();
- 	       // if (n_threads > 0)
-	       // restraints.thread_pool(&static_thread_pool, n_threads);
-	       //
 	       unsigned int n_threads = coot::get_max_number_of_threads();
-	       if (n_threads > 1)
-		  restraints.thread_pool(&static_thread_pool, n_threads);
+	       if (n_threads > 1) // or 0?
+		  last_restraints->thread_pool(&static_thread_pool, n_threads);
 
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+
 
 	       if (false)
 		  std::cout << "---------- debug:: in generate_molecule_and_refine() "
@@ -834,30 +827,29 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 			    <<  " " << molecules[imol].extra_restraints.bond_restraints.size()
 			    << std::endl;
 
-	       int n_restraints = restraints.make_restraints(imol,
-							     *Geom_p(), flags,
-							     do_residue_internal_torsions,
-							     do_trans_peptide_restraints,
-							     rama_plot_restraint_weight,
-							     do_rama_restraints,
-							     pseudo_bonds_type);
-            	                                             // link and flank args default true
+	       int n_restraints = last_restraints->make_restraints(imol,
+								   *Geom_p(), flags,
+								   do_residue_internal_torsions,
+								   do_trans_peptide_restraints,
+								   rama_plot_restraint_weight,
+								   do_rama_restraints,
+								   pseudo_bonds_type);
+            	                                                   // link and flank args default true
 
 	       if (atom_pull.status)
-		  restraints.add_atom_pull_restraint(atom_pull.spec, atom_pull.pos); // mouse target position
-
-	       restraints.set_geman_mcclure_alpha(geman_mcclure_alpha);
-               restraints.set_rama_type(restraints_rama_type);
+		  last_restraints.add_atom_pull_restraint(atom_pull.spec, atom_pull.pos); // mouse target position
+	       last_restraints->set_geman_mcclure_alpha(geman_mcclure_alpha);
+               last_restraints->set_rama_type(restraints_rama_type);
 
 	       if (molecules[imol].extra_restraints.has_restraints())
-		  restraints.add_extra_restraints(imol, molecules[imol].extra_restraints, *Geom_p());
+		  last_restraints->add_extra_restraints(imol, molecules[imol].extra_restraints, *Geom_p());
 
 	       if (do_numerical_gradients)
-		  restraints.set_do_numerical_gradients();
+		  last_restraints->set_do_numerical_gradients();
 
 	       std::string dummy_chain = ""; // not used
 		   
-	       rr = update_refinement_atoms(n_restraints, restraints, rr, local_moving_atoms_asc,
+	       rr = update_refinement_atoms(n_restraints, last_restraints, rr, local_moving_atoms_asc,
 					    0, imol, dummy_chain);
 	    }
 	 }
@@ -873,7 +865,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
    return rr;
 
 #else
-   
+
    std::cout << "Cannot refine without compilation with GSL" << std::endl;
    return coot::refinement_results_t(0, 0, "");
 

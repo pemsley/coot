@@ -1616,7 +1616,11 @@ graphics_info_t::clear_up_moving_atoms() {
 
 #ifdef HAVE_GSL
    // last_restraints = coot::restraints_container_t(); // last_restraints.size() = 0;
-   last_restraints.clear();
+   if (last_restraints) {
+      last_restraints->clear();
+      delete last_restraints;
+      last_restraints = 0;
+   }
 #endif // HAVE_GSL
 }
 

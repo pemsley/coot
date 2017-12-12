@@ -254,10 +254,12 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		  std::vector<std::pair<bool,mmdb::Residue *> > residues;
 		  std::pair<bool, mmdb::Residue *> pp(0, residue_cp_p);
 		  residues.push_back(pp);
+		  clipper::Xmap<float> dummy_xmap;
 
 		  coot::restraints_container_t restraints(residues,
 							  atom_sel.links,
-							  geom, residue_mol, fixed_atoms);
+							  geom, residue_mol, fixed_atoms,
+							  dummy_xmap);
 		  bool do_torsions = 0;
 
 		  coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
@@ -274,7 +276,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		  if (needs_more) {
 		     coot::restraints_container_t restraints_2(residues,
 							       atom_sel.links,
-							       geom, residue_mol, fixed_atoms);
+							       geom, residue_mol, fixed_atoms, dummy_xmap);
 		     flags = coot::CHIRAL_VOLUMES;
 		     flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
 		     n_restraints = restraints_2.make_restraints(imol_no, geom,

@@ -1124,7 +1124,9 @@ double    graphics_info_t::refinement_drag_elasticity = 0.25;
 // save the restraints:
 //
 #ifdef HAVE_GSL
-coot::restraints_container_t graphics_info_t::last_restraints;
+coot::restraints_container_t *graphics_info_t::last_restraints = 0;
+// clipper::Xmap<float> blank_dummy_xmap;
+// ref version: coot::restraints_container_t(blank_dummy_xmap);
 #endif // HAVE_GSL
 // 
 // 

@@ -642,12 +642,14 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
 		     residue_vec.push_back(std::pair<bool, mmdb::Residue *> (0, SelResidues[ires]));
 
 		  std::vector<mmdb::Link> links;
-	  
+		  clipper::Xmap<float> dummy_xmap;
+
 		  coot::restraints_container_t restraints(residue_vec,
 							  links,
 							  *Geom_p(),
 							  asc.mol,
-							  fixed_atom_specs);
+							  fixed_atom_specs,
+							  dummy_xmap);
 	       
 		  // coot::restraint_usage_Flags flags = coot::BONDS;
 		  // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES;
@@ -980,10 +982,12 @@ graphics_info_t::omega_graphs(int imol) {
 				    mmdb::SKEY_NEW // selection key
 				    );
 			mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+			clipper::Xmap<float> dummy_xmap;
 
 			if (nSelResidues > 0) { 
 			   coot::restraints_container_t restraints(molecules[imol].atom_sel,
-								   std::string(chain_id));
+								   std::string(chain_id),
+								   dummy_xmap);
 
 			   coot::omega_distortion_info_container_t om_dist = 
 			      restraints.omega_trans_distortions(*geom_p,
@@ -1011,7 +1015,8 @@ coot::omega_distortion_info_container_t
 graphics_info_t::omega_distortions_from_mol(const atom_selection_container_t &asc,
 					    const std::string &chain_id) {
 
-   coot::restraints_container_t restraints(asc, chain_id);
+   clipper::Xmap<float> dummy_xmap;
+   coot::restraints_container_t restraints(asc, chain_id, dummy_xmap);
    coot::omega_distortion_info_container_t om_dist =
       restraints.omega_trans_distortions(*geom_p, mark_cis_peptides_as_bad_flag);
    return om_dist;

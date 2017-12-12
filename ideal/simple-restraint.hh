@@ -1117,8 +1117,14 @@ namespace coot {
 						  bool have_flanking_residue_at_end,
 						  int iselection_start_res, int iselection_end_res);
    
-      // 
-      clipper::Xmap<float> map; 
+      // man this is tricky
+
+#ifdef HAVE_CXX11
+      const clipper::Xmap<float> &xmap; // now needs to be passed in all constructors
+      // std::reference_wrapper<clipper::Xmap<float> > xmap;
+#else      
+      clipper::Xmap<float> xmap; // a copy is made
+#endif      
       double map_weight; 
 
       void add(restraint_type_t rest_type, int atom_1, int atom_2, 
@@ -1693,7 +1699,11 @@ namespace coot {
 // 	 }
 //       }
 
-      restraints_container_t(atom_selection_container_t asc_in) {
+      restraints_container_t(atom_selection_container_t asc_in, const clipper::Xmap<float> &xmap_in)
+	 : xmap(xmap_in) {
+
+	 // xmap = xmap_in;
+
 	 init(true); // initially locks pointer should be null
 	 n_atoms = asc_in.n_selected_atoms; 
 	 mol = asc_in.mol;
@@ -1710,7 +1720,8 @@ namespace coot {
 
       // for omega distortion info:
       restraints_container_t(atom_selection_container_t asc_in,
-			     const std::string &chain_id);
+			     const std::string &chain_id,
+			     const clipper::Xmap<float> &xmap_in);
 
       // iend_res is inclusive, so that 17,17 selects just residue 17.
       // 
@@ -1722,8 +1733,9 @@ namespace coot {
 			     short int have_disulfide_residues,
 			     const std::string &altloc,
 			     const std::string &chain_id,
-			     mmdb::Manager *mol, // const in an ideal world
-			     const std::vector<atom_spec_t> &fixed_atom_specs);
+			     mmdb::Manager *mol_in, // const in an ideal world
+			     const std::vector<atom_spec_t> &fixed_atom_specs,
+			     const clipper::Xmap<float> &xmap_in);
 
       // Interface used by Refine button callback:
       // 
@@ -1745,7 +1757,8 @@ namespace coot {
       // 
       restraints_container_t(mmdb::PResidue *SelResidues, int nSelResidues,
 			     const std::string &chain_id,
-			     mmdb::Manager *mol);
+			     mmdb::Manager *mol,
+			     const clipper::Xmap<float> &xmap_in);
 
       // 20081106 construct from a vector of residues, each of which
       // has a flag attached that denotes whether or not it is a fixed
@@ -1766,7 +1779,8 @@ namespace coot {
 			     const std::vector<mmdb::Link> &links,
 			     const protein_geometry &geom,			     
 			     mmdb::Manager *mol,
-			     const std::vector<atom_spec_t> &fixed_atom_specs);
+			     const std::vector<atom_spec_t> &fixed_atom_specs,
+			     const clipper::Xmap<float> &xmap_in);
 
       // 
       // geometric_distortions not const because we set restraints_usage_flag:
@@ -1795,11 +1809,13 @@ namespace coot {
 			     int n_moving_residue_atoms, // e.g. 21
 			     mmdb::PResidue previous_residue, // e.g. residue 15
 			     mmdb::PResidue next_atom,
-			     const std::vector<int> &fixed_atom_indices);
+			     const std::vector<int> &fixed_atom_indices,
+			     clipper::Xmap<float> &map_in);
 
-      restraints_container_t(){
+      restraints_container_t(const clipper::Xmap<float> &map_in) : xmap(map_in) {
 	 from_residue_vector = 0;
 	 include_map_terms_flag = 0;
+	 
 #ifdef HAVE_CXX_THREAD
 	 gsl_vector_atom_pos_deriv_locks = 0;
 #endif
@@ -1921,10 +1937,9 @@ namespace coot {
       }
 
       // no longer done in the constructor:
-      void add_map(const clipper::Xmap<float> &map_in, float map_weight_in) {
-	 map = map_in;
+      void add_map(float map_weight_in) {
 	 map_weight = map_weight_in;
-	 include_map_terms_flag = 1;
+	 include_map_terms_flag = true;
       }
 
       int size() const { return restraints_vec.size(); }
@@ -2131,6 +2146,11 @@ namespace coot {
 	 restraints_vec.clear();
 	 init(false);
       }
+
+      void copy_from(int i);
+
+      // friend?
+      void copy_from(const restraints_container_t &other);
 
    }; 
 
