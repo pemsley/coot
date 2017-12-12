@@ -3675,7 +3675,7 @@ coot::simple_restraint::torsion_distortion(double model_theta) const {
 	 diff -= 360.0; 
       }
    }
-   if (true)
+   if (false)
       std::cout << "in torsion_distortion() per: " << per << " diff: " << diff << " sigma: " << sigma
 		<< "   penalty: " << diff*diff/(sigma * sigma) << std::endl;
    return diff*diff/(sigma * sigma);
