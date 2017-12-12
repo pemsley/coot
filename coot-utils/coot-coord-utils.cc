@@ -2440,25 +2440,34 @@ coot::util::get_residue_by_binary_search(const std::string &chain_id,
 					 int res_no, const std::string &insertion_code,
 					 mmdb::Manager *mol) {
 
+   // std::cout << "start search for " << chain_id << " " << res_no << " :" << insertion_code
+   // << ":" << std::endl;
    mmdb::Residue *res = NULL;
    bool found_res = 0;
 
    if (mol) {
       mmdb::Model *model_p = mol->GetModel(1);
       if (model_p) {
-	 mmdb::Chain *chain_p;
 	 int n_chains = model_p->GetNumberOfChains();
 	 for (int i_chain=0; i_chain<n_chains; i_chain++) {
-	    chain_p = model_p->GetChain(i_chain);
-	    std::string mol_chain(chain_p->GetChainID());
-	    if (mol_chain == chain_id) {
+	    mmdb::Chain *chain_p = model_p->GetChain(i_chain);
+	    std::string mol_chain_id(chain_p->GetChainID());
+	    if (mol_chain_id == chain_id) {
+	       // std::cout << "----- found chain id " << mol_chain_id << std::endl;
 	       int nres = chain_p->GetNumberOfResidues();
 	       int top_idx = nres-1;
 	       int bottom_idx = 0;
+	       // std::cout << "starting with top_idx " << top_idx << std::endl;
 
 	       while (! found_res) {
 		  int idx_delta = top_idx - bottom_idx;
-		  int idx_trial = std::lround(bottom_idx + idx_delta * 0.5);
+		  // int idx_trial = std::lround(std::floor(bottom_idx + idx_delta * 0.5));
+		  int idx_trial = bottom_idx + idx_delta/2;
+		  if (false)
+		     std::cout << "   idx_bottom " << bottom_idx
+			       << " idx_top " << top_idx
+			       << " idx_delta " << idx_delta << " "
+			       << " idx_trial " << idx_trial << std::endl;
 		  mmdb::Residue *residue_this = chain_p->GetResidue(idx_trial);
 
 		  if (!residue_this) break;
@@ -2468,13 +2477,20 @@ coot::util::get_residue_by_binary_search(const std::string &chain_id,
 		     if (insertion_code == ins_code) {
 			res = residue_this;
 			found_res = true;
+			// std::cout << "found!" << std::endl;
 			break;
 		     }
 		  }
 
 		  if (! found_res) {
-		     if (top_idx == bottom_idx)
+		     if (top_idx == bottom_idx) {
+			// std::cout << "give up " << res_no << " " << insertion_code << std::endl;
 			break; // give up
+		     }
+		     if (idx_trial == bottom_idx) {
+			// std::cout << "give up " << res_no << " " << insertion_code << std::endl;
+			break; // give up
+		     }
 		     if (residue_this->GetSeqNum() > res_no) {
 			top_idx = idx_trial;
 		     }
@@ -2486,15 +2502,19 @@ coot::util::get_residue_by_binary_search(const std::string &chain_id,
 
 	       if (! found_res) {
 		  // try all
+
 		  for (int ires=0; ires<nres; ires++) { // ires is a serial number
 		     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
 		     if (residue_p->GetSeqNum() == res_no) {
 			std::string ins_code(residue_p->GetInsCode());
 			if (insertion_code == ins_code) {
 			   res = residue_p;
-			   found_res = 1;
+			   found_res = true;
+			   // std::cout << "found res " << residue_spec_t(res) << std::endl;
 			   break;
 			}
+		     } else {
+			// std::cout << "    was not " << residue_spec_t(residue_p) << std::endl;
 		     }
 		     if (found_res) break;
 		  }
@@ -2504,9 +2524,11 @@ coot::util::get_residue_by_binary_search(const std::string &chain_id,
 	 }
       }
    }
-//    std::cout << "binary-search returns res " << res << " "
-// 	     << get_residue(chain_id, res_no, insertion_code, mol) << " "
-// 	     << residue_spec_t(res) << std::endl;
+
+   if (false)
+      std::cout << "binary-search returns res " << res << " get_residue() returns "
+		<< get_residue(chain_id, res_no, insertion_code, mol) << " "
+		<< residue_spec_t(res) << std::endl;
    return res;
 }
 
