@@ -1200,7 +1200,7 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
    return r;
 }
 #endif // USE_GUILE
-// BL says:: this is my attepmt to code it in python
+
 #ifdef USE_PYTHON
 PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char *ins_code) {
 
@@ -1208,6 +1208,7 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
    PyObject *all_atoms;
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      int udd_handle     = graphics_info_t::molecules[imol].atom_sel.UDDAtomIndexHandle;
       int imod = 1;
       
       mmdb::Model *model_p = mol->GetModel(imod);
@@ -1238,11 +1239,20 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
 		     PyObject *compound_name;
 		     PyObject *compound_attrib;
 		     all_atoms = PyList_New(0);
+
                      for (int iat=0; iat<n_atoms; iat++) {
 
                         at = residue_p->GetAtom(iat);
                         if (at->Ter) continue; //ignore TER records
-                        
+
+			int idx = -1;
+			int ierr = at->GetUDData(udd_handle, idx);
+			if (ierr != mmdb::UDDATA_Ok) {
+			   std::cout << "WARNING:: error getting uddata for atom " << at << std::endl;
+			   idx = -1; // maybe not needed
+			}
+			PyObject *atom_idx_py = PyInt_FromLong(idx);
+
                         at_x  = PyFloat_FromDouble(at->x);
                         at_y  = PyFloat_FromDouble(at->y);
                         at_z  = PyFloat_FromDouble(at->z);
@@ -1280,10 +1290,11 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
                         PyList_SetItem(compound_attrib, 2, at_ele);
                         PyList_SetItem(compound_attrib, 3, at_segid);
 
-                        at_info = PyList_New(3);
+                        at_info = PyList_New(4);
                         PyList_SetItem(at_info, 0, compound_name);
                         PyList_SetItem(at_info, 1, compound_attrib);
                         PyList_SetItem(at_info, 2, at_pos);
+                        PyList_SetItem(at_info, 3, atom_idx_py);
 
                         PyList_Append(all_atoms, at_info);
                      }
