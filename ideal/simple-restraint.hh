@@ -102,6 +102,7 @@ namespace coot {
 
    class distortion_torsion_gradients_t {
    public:
+      bool zero_gradients;
       double theta; // the torsion angle
       // x
       double dD_dxP1;

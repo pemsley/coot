@@ -509,7 +509,7 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
       
       r = read_shelx_ins_file(filename, recentre_on_read_pdb_flag);
 
-   } else { 
+   } else {
       // recentre and not a backup-restore
       // -1 is for failure strangely.
       int imol = g.create_molecule();

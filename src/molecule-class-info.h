@@ -1593,6 +1593,8 @@ public:        //                      public
 							coot::protein_geometry *protein_geom_p) const;
    graphical_bonds_container make_symmetry_environment_bonds_box(int atom_index,
 								 coot::protein_geometry *protein_geom_p) const;
+   graphical_bonds_container make_environment_bonds_box(const coot::residue_spec_t &residue_spec,
+							coot::protein_geometry *protein_geom_p) const;
 
    bool has_xmap() const { return ! xmap.is_null(); }
 

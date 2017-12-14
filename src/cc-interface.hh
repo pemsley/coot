@@ -723,6 +723,11 @@ PyObject *residues_near_position_py(int imol, PyObject *pos_in, float radius);
 //
 PyObject *get_bonds_representation(int imol);
 
+//! \brief return a Python object for the representation of bump and hydrogen bonds of
+//          the specified residue
+PyObject *get_environment_distances_representation_py(int imol, PyObject *residue_spec_py);
+
+
 #endif // USE_PYTHON
 
 //! \}

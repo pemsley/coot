@@ -731,7 +731,45 @@ molecule_class_info_t::pepflip_residue(const std::string &chain_id,
 
 } 
 
+graphical_bonds_container
+molecule_class_info_t::make_environment_bonds_box(const coot::residue_spec_t &residue_spec,
+						  coot::protein_geometry *protein_geom_p) const {
 
+   graphics_info_t g;
+   graphical_bonds_container bonds_box_env;
+   mmdb::Residue *residue_p = coot::util::get_residue(residue_spec, atom_sel.mol);
+
+   if (residue_p) {
+
+      mmdb::PPAtom residue_atoms;
+      int nResidueAtoms;
+      residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
+      if (nResidueAtoms == 0) {
+	 std::cout << " something broken in atom residue selection in ";
+	 std::cout << "make_environment_bonds_box: got " << nResidueAtoms
+		   << " atoms " << std::endl;
+      } else {
+
+	 bool residue_is_water_flag = false;
+	 bool draw_bonds_to_hydrogens_flag = draw_hydrogens_flag; // class var
+	 std::string residue_name = residue_p->GetResName();
+	 if (residue_name == "HOH" || residue_name == "WAT")
+	    residue_is_water_flag = 1;
+	 Bond_lines_container bonds(atom_sel,residue_atoms, nResidueAtoms,
+				    protein_geom_p,
+				    residue_is_water_flag,
+				    draw_bonds_to_hydrogens_flag,
+				    g.environment_min_distance,
+				    g.environment_max_distance);
+	 bonds_box_env = bonds.make_graphical_bonds();
+      }
+   } else {
+      std::cout << "ERROR:: NULL residue_p in make_environment_bonds_box() " << std::endl;
+   }
+   return bonds_box_env;
+}
+
+// pass min and max dist - don't use graphics_info_t!
 graphical_bonds_container
 molecule_class_info_t::make_environment_bonds_box(int atom_index,
 						  coot::protein_geometry *protein_geom_p) const {
@@ -755,32 +793,9 @@ molecule_class_info_t::make_environment_bonds_box(int atom_index,
       const char *chain_id = point_atom_p->GetChainID();
       mmdb::Residue *residue_p = point_atom_p->residue;
 
-      if (residue_p) { 
-
-	 mmdb::PPAtom residue_atoms;
-	 int nResidueAtoms;
-	 residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
-	 if (nResidueAtoms == 0) {
-	    std::cout << " something broken in atom residue selection in ";
-	    std::cout << "make_environment_bonds_box: got " << nResidueAtoms
-		      << " atoms " << std::endl;
-	 } else {
-
-	    bool residue_is_water_flag = false;
-	    bool draw_bonds_to_hydrogens_flag = draw_hydrogens_flag; // class var
-	    std::string residue_name = point_atom_p->GetResName();
-	    if (residue_name == "HOH" || residue_name == "WAT")
-	       residue_is_water_flag = 1;
-	    Bond_lines_container bonds(atom_sel,residue_atoms, nResidueAtoms,
-				       protein_geom_p,
-				       residue_is_water_flag,
-				       draw_bonds_to_hydrogens_flag,
-				       g.environment_min_distance,
-				       g.environment_max_distance);
-	    bonds_box_env = bonds.make_graphical_bonds();
-	 }
-      } else {
-	 std::cout << "ERROR:: NULL residue_p in make_environment_bonds_box() " << std::endl;
+      if (residue_p) {
+	 coot::residue_spec_t residue_spec(residue_p);
+	 return make_environment_bonds_box(residue_spec, protein_geom_p);
       }
    }
    return bonds_box_env;
