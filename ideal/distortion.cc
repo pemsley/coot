@@ -1277,6 +1277,18 @@ coot::distortion_score_torsion(const coot::simple_restraint &torsion_restraint,
       throw std::runtime_error(mess);
    }
 
+   // instabilty when the P2-P3-P4 or P1-P2-p3 line is linear. Give up with the derivatives
+   // similar escape in the derivatives
+   double al = sqrt(clipper::Coord_orth::dot(a,a));
+   double bl = sqrt(clipper::Coord_orth::dot(b,b));
+   double cl = sqrt(clipper::Coord_orth::dot(c,c));
+   double cos_a1 = clipper::Coord_orth::dot(a,b)/(al*bl);
+   double cos_a2 = clipper::Coord_orth::dot(b,c)/(bl*cl);
+   //
+   if (cos_a1 > 0.9 || cos_a2> 0.9) {
+      return 0;
+   }
+
    if (theta < 0.0) theta += 360.0; 
 
    //if (torsion_restraint.periodicity == 1) {

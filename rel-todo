@@ -60,6 +60,9 @@
 
    o what is the EMDB code for Vinothkumar Zhu Hurst 2014?
 
+   o suppress smoe contacts in Environment Distances: to make the representation cleaner/clearer.
+     e.g. if an O has a H-bond to an H, then no need to show the O to N contact.
+
    o write a binary-search/binary-chop version of get-residue
 
 * Done.
