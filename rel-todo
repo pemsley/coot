@@ -7,6 +7,10 @@
 
 * Done.
 
+   o colour by chain should have orange P in phosphates.  ::: 1
+
+   o environment distances should colour/display bonds to hydrogens differently ::: 1
+
    o put c-interface-refine.hh into the documenation generation
 
    o Fix this crash, Terence.

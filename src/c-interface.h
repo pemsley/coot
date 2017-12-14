@@ -2313,6 +2313,13 @@ float rotation_centre_position(int axis); /* only return one value: x=0, y=1, z=
 /*! \brief centre on the ligand of the "active molecule", if we are
   already there, centre on the next hetgroup (etc) */
 void go_to_ligand();
+
+#ifdef USE_PYTHON
+#ifdef __cplusplus
+PyObject *go_to_ligand_py();
+#endif
+#endif
+
 /*! \brief go to the ligand that has more than n_atom_min atoms */
 void set_go_to_ligand_n_atoms_limit(int n_atom_min);
 /* \} */

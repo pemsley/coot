@@ -77,10 +77,23 @@
 #include "lbg/wmolecule.hh"
 #endif // HAVE_GOOCANVAS
 
+#include "c-interface-bonds.hh"
 
-/*! \brief centre on the ligand of the "active molecule", if we are
-  already there, centre on the next hetgroup (etc) */
-void go_to_ligand() {
+#ifdef USE_PYTHON
+PyObject *go_to_ligand_py() {
+
+   clipper::Coord_orth new_pos = go_to_ligand_inner();
+   PyObject *r = PyList_New(3);
+   for (std::size_t i=0; i<3; i++)
+      PyList_SetItem(r, i, PyFloat_FromDouble(new_pos[i]));
+   return r;
+}
+#endif
+
+clipper::Coord_orth
+go_to_ligand_inner() {
+
+   clipper::Coord_orth new_rotation_centre;
 
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
    if (pp.first) {
@@ -91,6 +104,7 @@ void go_to_ligand() {
 				graphics_info_t::RotationCentre_z());
 	 coot::new_centre_info_t new_centre =
 	    graphics_info_t::molecules[pp.second.first].new_ligand_centre(rc, graphics_info_t::go_to_ligand_n_atoms_limit);
+	 new_rotation_centre = new_centre.position;
 	 if (new_centre.type == coot::NORMAL_CASE) {
 	    // g.setRotationCentre(new_centre.position);
 	    g.perpendicular_ligand_view(pp.second.first, new_centre.residue_spec);
@@ -128,6 +142,15 @@ void go_to_ligand() {
 	 }
       }
    }
+   return new_rotation_centre;
+}
+
+
+/*! \brief centre on the ligand of the "active molecule", if we are
+  already there, centre on the next hetgroup (etc) */
+void go_to_ligand() {
+
+   go_to_ligand_inner();
 }
 
 void set_go_to_ligand_n_atoms_limit(int n_atoms_min) {
