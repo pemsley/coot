@@ -108,16 +108,55 @@ Var STARTDIR
 !include "WordFunc.nsh"
 !insertmacro WordReplace
 
-; for error handling
+; actually a macro wrapping the error handler function
+!macro MyErrorHandlerMacro un
+
+Function ${un}ErrorHandlerFunction
+
+  Pop $0  ; Abort Flag
+  Pop $1  ; Message txt
+  Pop $2  ; error code
+
+; convert strings to ints
+  IntOp $0 $0 + 0
+  IntOp $2 $2 + 0
+
+; the message box could be rather a question to abort!?
+  IfSilent +2 0
+  MessageBox MB_OK 'Error in Installation. Aborting!$\n$\r$\n$\r$1'
+
+  DetailPrint $1
+  SetErrorLevel $2
+  ${If} $0 == 1
+    Abort $1
+  ${EndIf}
+
+FunctionEnd
+!macroend
+
+; for error handling, need the second one for uninstall section
 !define ErrorHandler "!insertmacro ErrorHandler"
+!define UnErrorHandler "!insertmacro UnErrorHandler"
+
+!insertmacro MyErrorHandlerMacro ""
+!insertmacro MyErrorHandlerMacro "un."
+
 
 ; ErrorCode is returned by the installer, ErrorText is written in log
 ; AbortFlag is 1/"True" or 0/"False", (un)installer terminates upon error
 !macro ErrorHandler ErrorCode ErrorText AbortFlag
-  Push ${ErrorCode}
-  Push ${ErrorText}
-  push ${AbortFlag}
-  Call ErrorHandler
+  Push "${ErrorCode}"
+  Push "${ErrorText}"
+  Push "${AbortFlag}"
+  Call ErrorHandlerFunction
+!macroend
+
+; same for uninstall (needs "un." in front of function)
+!macro UnErrorHandler ErrorCode ErrorText AbortFlag
+  Push "${ErrorCode}"
+  Push "${ErrorText}"
+  Push "${AbortFlag}"
+  Call un.ErrorHandlerFunction
 !macroend
 
 ; MUI end ------
@@ -743,7 +782,7 @@ Section Uninstall
   SetAutoClose true
 
   IfErrors 0 +2
-    ${ErrorHandler} 5 "Error in uninstallation. Could not completely uninstall." 1
+    ${UnErrorHandler} 5 "Error in uninstallation. Could not completely uninstall." 1
 
 SectionEnd
 
@@ -1095,24 +1134,4 @@ ${If} $update = 0
  ${Endif}
 FunctionEnd
 
-Function ErrorHandler
 
-  Pop $0  ; Abort Flag
-  Pop $1  ; Message txt
-  Pop $2  ; error code
-
-; convert strings to ints
-  IntOp $0 $0 + 0
-  IntOp $2 $2 + 0
-
-; the message box could be rather a question to abort!?
-  IfSilent +2 0
-  MessageBox MB_OK 'Error in Installation. Aborting!$\n$\r$\n$\r$1'
-
-  DetailPrint $1
-  SetErrorLevel $2
-  ${If} $0 == 1
-    Abort $1
-  ${EndIf}
-
-FunctionEnd
