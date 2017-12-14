@@ -120,10 +120,12 @@ map_density_distribution(const clipper::Xmap<T> &map,
 	    ibin_max_counts = i;
       }
 
+      int n_remainder = n - bin[ibin_max_counts];
+
       std::cout << "INFO:: n grid points:             " << n << std::endl;
       std::cout << "INFO:: mean before filtering:     "     << mv.mean     << std::endl;
       std::cout << "INFO:: variance before filtering: " << mv.variance << std::endl;
-      
+
       std::cout << "INFO:: filter by ignoring " << bin[ibin_max_counts]
 		<< " of " << n << " counts ( = " << std::setprecision(4)
 		<< 100*float(bin[ibin_max_counts])/float(n) << "%)"
@@ -140,8 +142,8 @@ map_density_distribution(const clipper::Xmap<T> &map,
 	 }
       }
 
-      mv.mean = sum/double(n);
-      mv.variance = sum_sq/double(n) - mv.mean * mv.mean;
+      mv.mean = sum/double(n_remainder);
+      mv.variance = sum_sq/double(n_remainder) - mv.mean * mv.mean;
       if (mv.variance < 0)
 	 mv.variance = 0;
 
