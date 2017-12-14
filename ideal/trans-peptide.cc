@@ -208,7 +208,7 @@ coot::distortion_score_trans_peptide(const coot::simple_restraint &restraint,
 
    // instabilty when the P2-P3-P4 or P1-P2-p3 line is linear. Give up with the derivatives
    // similar escape in the derivatives
-   
+   //
    if (cos_a1 > 0.9 || cos_a2> 0.9) {
       return 0;
    } else {
@@ -222,7 +222,7 @@ coot::distortion_score_trans_peptide(const coot::simple_restraint &restraint,
 	 + clipper::Coord_orth::dot(a,b)*clipper::Coord_orth::dot(b,c);
 
       double theta = clipper::Util::rad2d(atan2(E,G));
-      if (false) { 
+      if (false) {
 	 if (clipper::Util::isnan(theta)) {
 	    std::string mess = "WARNING: distortion_score_torsion() observed torsion theta is a NAN!";
 	    throw std::runtime_error(mess);
@@ -242,14 +242,14 @@ coot::distortion_score_trans_peptide(const coot::simple_restraint &restraint,
 
       if (false) { // debug
 	 double pen = diff*diff/(restraint.sigma * restraint.sigma);
-	 std::cout << "in distortion_trans_peptide theta (calc): " << theta 
+	 std::cout << "in distortion_trans_peptide theta (calc): " << theta
 		   << " periodicity " << restraint.periodicity
 		   << " target "      << restraint.target_value
 		   << " diff: " << diff << " ";
 	 std::cout << "sigma= " << restraint.sigma
 		   << " weight= " << pow(restraint.sigma,-2.0) << " ";
 	 std::cout << "score " << pen;
-	 if (true) {
+	 if (false) {
 	    std::cout << " " << P1.format();
 	    std::cout << " " << P2.format();
 	    std::cout << " " << P3.format();
@@ -319,7 +319,7 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
 		  if (diff < -180)
 		     diff += 360;
 
-		  if (true) 
+		  if (false)
 		     std::cout << "in df_trans_peptide: dtg.theta is " << dtg.theta 
 			       <<  " and target is " << restraint.target_value 
 			       << " and diff is " << diff 
@@ -350,7 +350,7 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
 		  double zP3_contrib = 2.0*diff*dtg.dD_dzP3*trans_peptide_scale * weight;
 		  double zP4_contrib = 2.0*diff*dtg.dD_dzP4*trans_peptide_scale * weight;
 
-		  if (true) {
+		  if (false) {
 		     std::cout << "trans-peptide " << dtg.theta << " derivs: "
 			       << dtg.dD_dxP1 << " " << dtg.dD_dyP1 << " " << dtg.dD_dzP1 << " "
 			       << dtg.dD_dxP2 << " " << dtg.dD_dyP2 << " " << dtg.dD_dzP2 << " "
