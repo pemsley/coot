@@ -11,6 +11,11 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 
    graphics_info_t g;
 
+   if (! g.last_restraints) {
+      std::cout << "Null last restraints " << std::endl;
+      return retprog;
+   }
+
    // While the results of the refinement are a conventional result
    // (unrefined), let's continue.  However, there are return values
    // that we will stop refining and remove the idle function is on a

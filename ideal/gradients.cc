@@ -156,7 +156,7 @@ void coot::my_df(const gsl_vector *v,
 #ifdef SPLIT_THE_GRADIENTS_WITH_THREADS
 #ifdef HAVE_CXX_THREAD
 
-   // how long does it take to split the restraints into n-thead vectors?
+   // how long does it take to split the restraints into n-thread vectors?
    auto tp_1 = std::chrono::high_resolution_clock::now();
    unsigned int n_t = restraints->n_threads;
    unsigned int restraints_size = restraints->size();
