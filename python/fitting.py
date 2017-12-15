@@ -795,7 +795,7 @@ def sphere_regularize_plus(radius=4.5):
 # Pepflip the active residue - needs a key binding
 #
 def pepflip_active_residue():
-    active_atom = active_residue()
+    active_atom = closest_atom_simple_py() # active_atom returns the CA if it can
     if not active_atom:
        print "No active atom"
     else:
