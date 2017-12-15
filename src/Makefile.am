@@ -551,7 +551,8 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 		$(CURL_LIBS)		\
 		$(LIBGLADE_LIBS)	\
 	  	$(RDKIT_LIBS)	        \
-	        $(L_BOOST_PYTHON)	\
+		$(BOOST_LDFLAGS)        \
+		$(L_BOOST_PYTHON)	\
 		$(GOOCANVAS_LIBS)       \
 		$(SQLITE3_LIBS)         \
 		@GTK_LIBS@
