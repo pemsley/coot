@@ -1654,6 +1654,11 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 
    graphics_info_t g;
 
+   if (! g.last_restraints) {
+      std::cout << "Null last restraints " << std::endl;
+      return retprog;
+   }
+   
    // While the results of the refinement are a conventional result
    // (unrefined), let's continue.  However, there are return values
    // that we will stop refining and remove the idle function is on a
@@ -1697,7 +1702,6 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 
       flags = coot::ALL_RESTRAINTS;
    }
-	    
 
    // print_initial_chi_squareds_flag is 1 the first time then we turn it off.
    int steps_per_frame = dragged_refinement_steps_per_frame;
