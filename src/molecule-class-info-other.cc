@@ -1442,8 +1442,8 @@ molecule_class_info_t::delete_residue_sidechain(const std::string &chain_id,
 				      // we need to regenerate the
 				      // atom selection.
 		     // delete the specific atoms of the residue:
-		     mmdb::PPAtom atoms;
-		     int n_atoms;
+		     mmdb::PPAtom atoms = 0;
+		     int n_atoms = 0;
 		     res->GetAtomTable(atoms, n_atoms);
 		     for (int i=0; i<n_atoms; i++) {
 			if (! (coot::is_main_chain_or_cb_p(atoms[i]))) {

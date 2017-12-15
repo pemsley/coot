@@ -938,6 +938,24 @@ void delete_chain(int imol, const char *chain_id_in) {
 
 }
 
+/*! \brief delete the chain  */
+void delete_sidechains_for_chain(int imol, const char *chain_id_in) {
+
+   std::string chain_id(chain_id_in);
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+
+      g.molecules[imol].delete_sidechains_for_chain(std::string(chain_id));
+      std::string cmd = "delete-sidechains-for-chain";
+      std::vector<coot::command_arg_t> args;
+      args.push_back(imol);
+      args.push_back(coot::util::single_quote(chain_id));
+      add_to_history_typed(cmd, args);
+      graphics_draw();
+   }
+}
+
+
 
 
 
