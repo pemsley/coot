@@ -394,6 +394,7 @@ coot::nmer_crankshaft_set::nmer_crankshaft_set(const residue_spec_t &spec_mid_re
 					       const zo::rama_table_set &zorts,
 					       mmdb::Manager *mol) {
 
+#ifdef HAVE_CXX11
 
    // we first need to find what is the first residue (the N-terminal residue of the
    // first rotating peptide). res_0 is the residue before the first residue.
@@ -468,6 +469,9 @@ coot::nmer_crankshaft_set::nmer_crankshaft_set(const residue_spec_t &spec_mid_re
    }
 
    if (! mess.empty()) throw std::runtime_error(mess);
+
+#endif // HAVE_CXX11
+
 }
 
 

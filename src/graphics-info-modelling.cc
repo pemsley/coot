@@ -1574,9 +1574,23 @@ graphics_info_t::refine(int imol, short int auto_range_flag, int i_atom_no_1, in
    }
    // now i_atom_no_2 is greater than i_atom_no_1.
 
-//    cout << "refine (fit to map): molecule " << imol
-// 	<< " atom index " << i_atom_no_1
-// 	<< " to " << i_atom_no_2 << endl; 
+   if (! is_valid_model_molecule(imol)) {
+      std::cout << "ERROR:: bad molecule number " << imol << std::endl;
+      return rr;
+   }
+   if (i_atom_no_1 < 0) {
+      std::cout << "ERROR:: bad atom index 1 " << i_atom_no_1 << std::endl;
+      return rr;
+   }
+   if (i_atom_no_2 < 0) {
+      std::cout << "ERROR:: bad atom index 2 " << i_atom_no_2 << std::endl;
+      return rr;
+   }
+   if (i_atom_no_2 >= molecules[imol].atom_sel.n_selected_atoms) {
+      std::cout << "out of range atom 2 " << i_atom_no_2 << " vs "
+		<< molecules[imol].atom_sel.n_selected_atoms<< std::endl;
+      return rr;
+   }
 
    int resno_1, resno_2;
 
