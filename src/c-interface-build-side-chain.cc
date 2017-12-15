@@ -893,7 +893,7 @@ void do_base_mutation(const char *type) {
       // save a residue spec in graphics-info-defines.cc not generate it here.
       // 
       int idx = g.mutate_residue_atom_index;
-      if (idx > 0 && idx < molecules[imol].atom_sel.n_selected_atoms) {
+      if (idx > 0 && idx < g.molecules[imol].atom_sel.n_selected_atoms) {
 	 mmdb::Atom *at = graphics_info_t::molecules[imol].atom_sel.atom_selection[idx];
 	 mmdb::Residue *r = at->residue;
 	 if (r) {
