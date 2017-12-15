@@ -6,6 +6,7 @@
 
 #include <map>
 #include <vector>
+#include <stdlib.h> // for non-C++-11, remove when this is necessary
 #include <mmdb2/mmdb_manager.h>
 
 namespace coot {
@@ -49,8 +50,13 @@ namespace coot {
 	    if (c1 == c2) {
 	       int res_no_1 = r1->GetSeqNum();
 	       int res_no_2 = r2->GetSeqNum();
+#ifdef HAVE_CXX11
 	       if (std::abs(res_no_2 - res_no_1) < 2)
 		  bonded = true;
+#else
+	       if (abs(res_no_2 - res_no_1) < 2)
+		  bonded = true;
+#endif
 	    }
 	 }
 	 

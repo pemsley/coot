@@ -206,7 +206,7 @@ void show_usage() {
 }
 
 void
-crankshaft(const coot::residue_spec_t &rs, int n_peptides, const clipper::Xmap<float> &xmap,
+execute_crankshaft(const coot::residue_spec_t &rs, int n_peptides, const clipper::Xmap<float> &xmap,
 	   mmdb::Manager *mol, float map_weight, int n_samples, const std::string &pdb_out_file_name) {
 
    int n_solutions = 1; // just the best
@@ -383,7 +383,7 @@ main(int argc, char **argv) {
 
 	    if (inputs.do_crankshaft) {
 	       coot::residue_spec_t res_spec(inputs.chain_id, inputs.resno_start);
-	       crankshaft(res_spec, inputs.crankshaft_n_peptides, xmap, asc.mol,
+	       execute_crankshaft(res_spec, inputs.crankshaft_n_peptides, xmap, asc.mol,
 			  inputs.map_weight, -1, inputs.output_pdb_file_name);
 	    } else {
 
