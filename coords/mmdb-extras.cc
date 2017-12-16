@@ -178,7 +178,7 @@ atom_selection_container_t::fill_links(mmdb::Manager *mol_other) {
 	 if (model_p) {
 	    unsigned int n_links = model_p->GetNumberOfLinks();
 	    links.resize(n_links);
-	    for (unsigned int i=0; i<n_links; i++) { 
+	    for (unsigned int i=1; i<=n_links; i++) {
 	       mmdb::Link l;
 	       mmdb::Link *ref_link = model_p->GetLink(i);
 	       if (! ref_link) {
