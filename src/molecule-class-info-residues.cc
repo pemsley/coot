@@ -1029,6 +1029,13 @@ molecule_class_info_t::new_ligand_centre(const clipper::Coord_orth &current_cent
    coot::new_ligand_position_type status = coot::NO_LIGANDS;
    coot::residue_spec_t residue_spec;
 
+   std::vector<std::string> ignored_go_to_ligand_residue_types;
+   ignored_go_to_ligand_residue_types.push_back("HOH");
+   ignored_go_to_ligand_residue_types.push_back("WAT");
+   ignored_go_to_ligand_residue_types.push_back("MSE");
+   ignored_go_to_ligand_residue_types.push_back("ACE");
+   ignored_go_to_ligand_residue_types.push_back("PCA");
+
    std::vector<std::pair<clipper::Coord_orth, coot::residue_spec_t> > ligand_centres;
    
    if (atom_sel.n_selected_atoms > 0) { 
@@ -1052,12 +1059,14 @@ molecule_class_info_t::new_ligand_centre(const clipper::Coord_orth &current_cent
 		     at = residue_p->GetAtom(iat);
 		     if (at->Het) {
 			std::string res_name = residue_p->GetResName();
-			if (res_name != "HOH")
-			   if (res_name != "WAT")
-			      if (res_name != "MSE")
-				 is_het = true;
-			break;
-		     } 
+
+			if (std::find(ignored_go_to_ligand_residue_types.begin(),
+				      ignored_go_to_ligand_residue_types.end(),
+				      res_name) == ignored_go_to_ligand_residue_types.end()) {
+			   is_het = true;
+			   break;
+			}
+		     }
 		  }
 		  if (is_het) {
 		     std::pair<bool, clipper::Coord_orth> res_centre = residue_centre(residue_p);
