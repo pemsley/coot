@@ -19,7 +19,7 @@
 
 ;; if there is a prodrg-xyzin set the current-time to its mtime, else #f
 ;; 
-(define prodrg-xyzin       "prodrg-in.mdl")
+(define prodrg-xyzin       "coot-lidia.mdl")
 (define sbase-to-coot-tlc  ".sbase-to-coot-comp-id")
 
 

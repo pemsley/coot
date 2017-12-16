@@ -1521,7 +1521,7 @@
       (format #t "arguments to transform-map incomprehensible: args: ~s~%" args)
       #f))))
 
-;; return then NCS master of the first molecule that has ncs.
+;; return the NCS master of the first molecule that has NCS.
 ;; 
 ;; return "" on fail to find an ncs chain
 ;; 
@@ -1531,10 +1531,12 @@
     (let loop ((mols (model-molecule-list)))
       (cond
        ((null? mols) "")
-       (else 
+       (else
 	(let ((ncs-masters (ncs-master-chains (car mols))))
 	  (if (not (null? ncs-masters))
-	      (car ncs-masters)
+	      (if (list? ncs-masters)
+		  (car ncs-masters)
+		  (loop (cdr mols)))
 	      (loop (cdr mols)))))))))
 		
 

@@ -38,9 +38,6 @@
 
    o qq-plot-map-and-model - is it in the documentation (and redefines)? ::: 0.5
 
-   o make benzoic acid in lidia - does it generate correctly in acedrg and
-     pyrogen? ::: 2
-
    o pyrogen -nM -w -r Y03 fails ::: 1
 
    o Copy-molecule loses the NCS ghost info/tranformations (i.e. O doesn't work) ::: 1
@@ -394,3 +391,9 @@ Program terminated with signal 11, Segmentation fault.
    o difference map peaks needs to be antisubmarined. ::: 0.5
 
 * It is now.
+
+   o make benzoic acid in lidia - does it generate correctly in acedrg and
+     pyrogen? ::: 2
+
+* Yes.
+
