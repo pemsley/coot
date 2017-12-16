@@ -1,10 +1,6 @@
 
    For Release 0.8.9
 
-
-   o build NAG, NAG, BMA.  In coot-reduce, HO4 should not be added at the links.
-     And check that coot-probe looks good.  ::: 1
-
    o multi-key-press (key-repeat) on fill-partial -> crash ::: 0.5
 
    o lidia molfile.mol should Do The Right Thing :::: 2
@@ -454,4 +450,9 @@ Program terminated with signal 11, Segmentation fault.
    o don't display the aniso atoms for hydrogens if hydrogens are not displayed ::: 0.5
 
 * Done - not tested.
+
+   o build NAG, NAG, BMA.  In coot-reduce, HO4 should not be added at the links.
+     And check that coot-probe looks good.  ::: 1
+
+* Done.
 
