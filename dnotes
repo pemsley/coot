@@ -8018,4 +8018,29 @@ Thu 16 Nov 2017 01:48:51 ART
 
   https://worldwidescience.org/topicpages/q/qm-polarized+ligand+docking.html
 
+----
+Thu 14 Dec 2017 14:45:13 GMT
+
+  o  configuring python with ssl - for pip:  --with-ensurepip=install
+     and LDFLAGS="-Wl,--rpath=${AUTOBUILD_INSTALLED}${build_type}/lib" of course
+
+  o apply the patch
+
+  Then copy Modules/Setup.dist Modules/Setup
+  Because - it gets overwritten...? Or something?
+
+--- Modules/Setup.dist.orig	2017-12-14 14:24:16.314852316 +0000
++++ Modules/Setup.dist	2017-12-14 14:30:02.601760197 +0000
+@@ -215,10 +215,10 @@
+ 
+ # Socket module helper for SSL support; you must comment out the other
+ # socket line above, and possibly edit the SSL variable:
+-#SSL=/usr/local/ssl
+-#_ssl _ssl.c \
+-#	-DUSE_SSL -I$(SSL)/include -I$(SSL)/include/openssl \
+-#	-L$(SSL)/lib -lssl -lcrypto
++SSL=/usr
++_ssl _ssl.c \
++	-DUSE_SSL -I$(SSL)/include -I$(SSL)/include/openssl \
++	-L$(SSL)/lib64 -lssl -lcrypto
 

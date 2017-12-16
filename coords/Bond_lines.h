@@ -55,7 +55,7 @@ namespace coot {
    
    enum bond_colour_t { COLOUR_BY_CHAIN=0,
 			COLOUR_BY_CHAIN_C_ONLY=20,
-			COLOUR_BY_ATOM_TYPE=1, 
+			COLOUR_BY_ATOM_TYPE=1,
 			COLOUR_BY_SEC_STRUCT=2,
 			DISULFIDE_COLOUR=3,
 			COLOUR_BY_MOLECULE=4,
@@ -76,6 +76,11 @@ namespace coot {
 	  }
        }
        atom_colour_map.push_back(chain);
+       if (isize == HYDROGEN_GREY_BOND) {
+	  atom_colour_map[isize] = "skip-hydrogen-grey-colour-for-chain";
+	  atom_colour_map.push_back(chain);
+	  isize++;
+       }
        return isize;
     }
     // These colours ranges need to be echoed in the GL bond drawing
@@ -608,9 +613,9 @@ class Bond_lines_container {
 
    // return the UDD handle
    int set_rainbow_colours(mmdb::Manager *mol);
-   void do_colour_by_chain_bonds_change_only(const atom_selection_container_t &asc,
-					     int imol,
-					     int draw_hydrogens_flag);
+   void do_colour_by_chain_bonds_carbons_only(const atom_selection_container_t &asc,
+					      int imol,
+					      int draw_hydrogens_flag);
 
    void try_set_b_factor_scale(mmdb::Manager *mol);
    graphical_bonds_container make_graphical_bonds_with_thinning_flag(bool thinning_flag, bool add_residue_indices) const;

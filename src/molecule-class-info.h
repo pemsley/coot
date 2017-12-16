@@ -1684,6 +1684,8 @@ public:        //                      public
 
    int delete_chain(const std::string &chain_id);
 
+   int delete_sidechains_for_chain(const std::string &chain_id);
+
    // closing molecules, delete maps and atom sels as appropriate
    // and unset "filled" variables.  Set name_ to "".
    void close_yourself();

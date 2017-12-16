@@ -3670,6 +3670,29 @@ open, ready for deletion of next item.
 
 @c document delete-atom, delete-residue, delete-residue-with-altconf here.
 
+An atom can be delete using the scripting
+
+@code{(delete-atom @emph{imol chain-id residue-no ins-code atom-name alt-conf})}
+
+Residues can be deleted using the scripting
+
+@code{(delete-residue @emph{imol chain-id residue-no ins-code})}
+
+Residue ranges can be deleted using the scripting
+
+@code{(delete-residue-range @emph{imol chain-id residue-no-start residue-no-end})}
+
+Chains can be deleted using the scripting
+
+@code{(delete-chain @emph{imol chain-id})}
+
+Sidechains can be deleted from a region:
+
+@code{(delete-side-chain-range @emph{imol chain-id residue-no-start residue-no-end})}
+
+or for a chain
+
+@code{(delete-sidechains-for-chain @emph{imol chain-id})}
 
 @node    Sequence Assignment 
 @section Sequence Assignment 
