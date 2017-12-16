@@ -1249,6 +1249,62 @@ coot::reduce::is_ss_bonded(mmdb::Residue *residue_p) const {
    return status;
 }
 
+bool
+coot::reduce::is_linked(const std::string &atom_name, mmdb::Residue *residue_p) const {
+
+   bool status = false;
+
+   std::string chain_id = residue_p->GetChainID();
+   std::string ins_code = residue_p->GetInsCode();
+   int res_no = residue_p->GetSeqNum();
+
+   if (mol) {
+      mmdb::Model *model_p = mol->GetModel(1);
+      if (model_p) {
+	 unsigned int n_links = model_p->GetNumberOfLinks();
+	 for (unsigned int i=1; i<=n_links; i++) {
+	    mmdb::Link *link = model_p->GetLink(i);
+	    if (! link) {
+	       std::cout << "ERROR:: null link " << i << " in ref" << std::endl;
+	    } else {
+	       int link_res_no_1 = link->seqNum1;
+	       int link_res_no_2 = link->seqNum2;
+	       std::string link_ins_code_1 = link->insCode1;
+	       std::string link_ins_code_2 = link->insCode2;
+	       std::string link_chain_id_1 = link->chainID1;
+	       std::string link_chain_id_2 = link->chainID2;
+	       std::string link_atom_name_1 = link->atName1;
+	       std::string link_atom_name_2 = link->atName2;
+	       if (chain_id == link_chain_id_1) {
+		  if (res_no == link_res_no_1) {
+		     if (ins_code == link_ins_code_1) {
+			if (atom_name == link_atom_name_1) {
+			   status = true;
+			   break;
+			}
+		     }
+		  }
+	       }
+	       if (chain_id == link_chain_id_2) {
+		  if (res_no == link_res_no_2) {
+		     if (ins_code == link_ins_code_2) {
+			if (atom_name == link_atom_name_2) {
+			   status = true;
+			   break;
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   std::cout << "debug:: is_linked " << coot::residue_spec_t(residue_p) << " "
+	     << atom_name << " " << status << std::endl;
+   return status;
+}
+
 
 
 void
@@ -1343,12 +1399,15 @@ coot::reduce::hydrogen_placement_by_dictionary(const dictionary_residue_restrain
 		  // what else would it be?
 		  const unsigned int &iat_neighb = neighbs[0];
 		  const std::string &energy_type = rest.atom_info[iat_neighb].type_energy;
-		  if (! energy_type.empty()) {
-		     std::vector<std::string> v =
-			place_hydrogen_by_connected_atom_energy_type(iat, iat_neighb, rest, residue_p);
-		     done_atom_name_list.insert(done_atom_name_list.end(), v.begin(), v.end());
-		  } else {
-		     place_hydrogen_by_connected_2nd_neighbours(iat, iat_neighb, rest, residue_p);
+		  const std::string &first_neigh = rest.atom_info[iat_neighb].atom_id_4c;
+		  if (! is_linked(first_neigh, residue_p)) {
+		     if (! energy_type.empty()) {
+			std::vector<std::string> v =
+			   place_hydrogen_by_connected_atom_energy_type(iat, iat_neighb, rest, residue_p);
+			done_atom_name_list.insert(done_atom_name_list.end(), v.begin(), v.end());
+		     } else {
+			place_hydrogen_by_connected_2nd_neighbours(iat, iat_neighb, rest, residue_p);
+		     }
 		  }
 	       }
 	    }
