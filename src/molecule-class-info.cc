@@ -509,6 +509,8 @@ molecule_class_info_t::install_model(int imol_no_in,
    } else {
       pickable_atom_selection = 1;
    }
+   bool do_rtops = true;
+   fill_ghost_info(do_rtops, graphics_info_t::ncs_homology_level);
    initialize_coordinate_things_on_read_molecule_internal(name, is_undo_or_redo);
 }
 
