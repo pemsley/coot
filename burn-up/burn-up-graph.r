@@ -58,7 +58,7 @@ predict = function() {
 
 a = read.table('burn-up.tab')
 
-# png('burn-up.png')
+png('burn-up.png')
 
 plot(ylim=c(0,220), xlim=c(0,280), a$V1, a$V2, t='l', lwd=2,
             main="Coot-0.8.9 Development Progress",
@@ -75,5 +75,5 @@ betterArrow(160, 180, 118, 200, col='grey', code=2)
 
 predict()
 
-# dev.off()
+dev.off()
 
