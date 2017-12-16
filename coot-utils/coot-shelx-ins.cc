@@ -1696,7 +1696,7 @@ coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol,
 				 std::string at_name(at->name);
 				 float b_factor = at->tempFactor;
 				 f.setf(std::ios::fixed);
-				 f.precision(9);
+				 f.precision(7);
 
 				 mmdb::realtype negative_u;
 				 int status_2 = at->GetUDData(udd_riding_atom_negative_u_value_handle_local,
