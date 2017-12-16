@@ -1,10 +1,6 @@
 
    For Release 0.8.9
 
-   o when first molecule is not a protein.  Copy NCS residue range. coot-utils.scm 1533 ::: 1
-
-   o multi-key-press (key-repeat) on fill-partial -> crash ::: 0.5
-
    o lidia molfile.mol should Do The Right Thing :::: 2
 
    o Ryan Hibbs: 2 strands, low res map, user-defined distance restraint and
@@ -16,10 +12,10 @@
      linking in add_terminal_residue_complicado.
      allow_non_trival_linking ::: 2
 
-   o put c-interface-refine.hh into the documenation generation ::: 1
-
    o using set_refine_ramachandran_restraints_weight(float w) 
      needs to affect the refinement. ::: 1
+
+   o put c-interface-refine.hh into the documenation generation ::: 1
 
    o delete item, change to delete side chain click (closes)
      delete item, delete side chain radio button is active, but delete residue happens on click
@@ -40,8 +36,6 @@
 
    o pyrogen -nM -w -r Y03 fails ::: 1
 
-   o Copy-molecule loses the NCS ghost info/tranformations (i.e. O doesn't work) ::: 1
-
    o Fix the documentation generation (coot-dox.cfg needs to be generated from coot-dox.cfg.in)
      because the source header files are not in the build directory. Useful?
 
@@ -56,23 +50,6 @@
 
      ::: 1
 
-   o in 2qc1, build a NAG, NAG, BMA. Centre on the first NAG, sphere refine or H-refine.  
-     NAG-ASN bond is not properly accounted for ::: 1
-
-   o pyrogen -Mn -c PDBe-ADP.cif -> minimation problem
-
-bond  3231.21 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " ND2" ""]
-nbc   1162.68 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" "HD22" ""] target:  2.90  0.02
-nbc    804.52 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" "HD21" ""] target:  2.90  0.02
-nbc    556.46 [spec: model 1 "B" 468 "" " C1 " ""] [spec: model 1 "B" 467 "" " HO3" ""] target:  2.90  0.02
-bond   529.05 [spec: model 1 "B" 467 "" " O3 " ""] [spec: model 1 "B" 468 "" " C1 " ""]
-angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " ND2" ""] [spec: model 1 "B" 141 "" " CG " ""] target: 121.00  3.00
-
-   ::: 4
-
-   o GM distance summary. How many too long, how many too short. And (if possible) by 
-     what amounts. ::: 1
-
    o add a glyco, with extra GM distance restraints - delete residue
      (undo).  Now get lots of warning about missing atoms on the
      terminal (as coot tries to find the atoms for the extra
@@ -80,10 +57,6 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
 
    o doing a merge and doing a chain chain ids should move over the Link records also.
      Add a test ::: 1
-
-   o read in a monomer cif, get monomer.  Bond orders good?  ::: 2
-
-* Done?
 
    o Re: go to ligand: JED: Can I make a list of "non-interesting comp-ids?" ::: 1
 
@@ -112,16 +85,12 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
      Clear generic display objects -> not all graphics objects are removed - they 
      should be. ::: 1
 
-   o remove debugging:
-
-   o resolve the GSL problem. If no GSL fail in configure?  Or perhaps correctly 
-     conditionally compile without it (not usage of $prefix/bin/gsl-config)
-     ::: 1
-
    Lukasz Wojtas:
 
    1) From res file When I try to show ANISO atoms WinCOOT stops working and shuts down. 
       ::: 1
+
+* Can't reproduce
 
    2) exported coordinates and U's round off like in shelxl
 
@@ -130,10 +99,10 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
 
        ::: 1
 
+* Done. Well 7
+
    3) When I try to fix coordinates temporarily by adding 10 - WinCOOT treats 
       it as actual coordinate and not fixed one so atom is shifted.  ::: 1
-
-   o import imidaloze from lidia in coot. c.f. stand-alone ::: 1
 
 
 --------------
@@ -396,4 +365,40 @@ Program terminated with signal 11, Segmentation fault.
      pyrogen? ::: 2
 
 * Yes.
+
+
+   o multi-key-press (key-repeat) on fill-partial -> crash ::: 0.5
+
+* cleaned up now that last_restraints is a pointer?
+
+   o when first molecule is not a protein.  Copy NCS residue range. coot-utils.scm 1533 ::: 1
+
+* Done.
+
+   o Copy-molecule loses the NCS ghost info/tranformations (i.e. O doesn't work) ::: 1
+
+
+* Done.
+
+   o import imidaloze from lidia in coot. c.f. stand-alone
+
+* I don't know what I was trying to get at.
+
+
+   o pyrogen -Mn -c PDBe-ADP.cif -> minimation problem
+
+bond  3231.21 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " ND2" ""]
+nbc   1162.68 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" "HD22" ""] target:  2.90  0.02
+nbc    804.52 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" "HD21" ""] target:  2.90  0.02
+nbc    556.46 [spec: model 1 "B" 468 "" " C1 " ""] [spec: model 1 "B" 467 "" " HO3" ""] target:  2.90  0.02
+bond   529.05 [spec: model 1 "B" 467 "" " O3 " ""] [spec: model 1 "B" 468 "" " C1 " ""]
+angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " ND2" ""] [spec: model 1 "B" 141 "" " CG " ""] target: 121.00  3.00
+
+   ::: 4
+
+* Seems OK now
+
+   o read in a monomer cif, get monomer.  Bond orders good?  ::: 2
+
+* Done? Seems OK
 

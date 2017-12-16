@@ -3108,7 +3108,7 @@ coot::charge_phosphates(RDKit::RWMol *rdkm) {
 // return the number of atoms added (e.g. -2)
 int
 coot::remove_phosphate_hydrogens(RDKit::RWMol *m, bool deloc_bonds) { 
- 
+
    return remove_PO4_SO4_hydrogens(m, 15, deloc_bonds);
 
 }
@@ -3177,7 +3177,8 @@ coot::remove_PO4_SO4_hydrogens(RDKit::RWMol *m,
                   }
 	          if (bond->getBondType() == RDKit::Bond::DOUBLE) {
 		     double_PO_bonds.push_back(bond);
-                     O_atoms_for_charging.push_back(at.get());
+		     // 20171217 surely we can't mean to charge an O with a double bond?
+                     // O_atoms_for_charging.push_back(at.get());
                   }
                }
 	    } 
@@ -3629,7 +3630,7 @@ coot::split_molecule(const RDKit::ROMol &mol, int bond_index, int atom_index) {
 	       // 
 	       std::vector<RDKit::Atom *> atoms_to_be_deleted;
 	       for (unsigned int iat=0; iat<R_group_atoms.size(); iat++) {
-		  std::cout << "... deleting atom " << R_group_atoms[iat] << std::endl;
+		  // std::cout << "... deleting atom " << R_group_atoms[iat] << std::endl;
 		  RDKit::ATOM_SPTR at_p = (*working_mol)[R_group_atoms[iat]];
 		  atoms_to_be_deleted.push_back(at_p.get());
 	       }
