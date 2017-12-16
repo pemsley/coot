@@ -3183,7 +3183,7 @@ Bond_lines_container::make_graphical_bonds_with_thinning_flag(bool do_thinning_f
 
    if (false)
       std::cout << "----- debug residue_index_map has size " << residue_index_map.size() << std::endl;
-	 
+
    for (int idx_col=0; idx_col<n_bond_colours; idx_col++) {
 
       box.bonds_[idx_col].num_lines = bonds[idx_col].size();
@@ -3999,7 +3999,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
    if (bond_colour_type == coot::COLOUR_BY_CHAIN) {
       if (atom_colour_map_p) { 
 	 col = atom_colour_map_p->index_for_chain(std::string(at->GetChainID()));
-	 if (1)
+	 if (false)
 	    std::cout << " atom_colour_map->index_for_chain(\"" << at->GetChainID()
 		      << "\") returns " << col << std::endl;
       }
@@ -4016,16 +4016,16 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 	 case mmdb::SSE_Bulge:  
 	    col = 1;
 	    break;
-	 case mmdb::SSE_3Turn:  
+	 case mmdb::SSE_3Turn:
 	    col = 2;
 	    break;
-	 case mmdb::SSE_4Turn:  
+	 case mmdb::SSE_4Turn:
 	    col = 2;
 	    break;
-	 case mmdb::SSE_5Turn:  
+	 case mmdb::SSE_5Turn:
 	    col = 2;
 	    break;
-	 case mmdb::SSE_Helix:  
+	 case mmdb::SSE_Helix:
 	    col = 2;
 	    break;
 	 default:
@@ -4072,7 +4072,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 		     // std::cout << "ERROR:: Null atom_colour_map_p with COLOUR_BY_CHAIN_C_ONLY mode"
 		     // << std::endl;
 		     return col;
-		  } 
+		  }
 	       } else {
 		  if (element == " N") {
 		     return BLUE_BOND;
@@ -4577,7 +4577,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 
    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
    if (change_c_only_flag) {
-      do_colour_by_chain_bonds_change_only(asc, imol, draw_hydrogens_flag);
+      do_colour_by_chain_bonds_carbons_only(asc, imol, draw_hydrogens_flag);
       return;
    }
 
@@ -4804,9 +4804,9 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 }
 
 void
-Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_container_t &asc,
+Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection_container_t &asc,
 							   int imol,
-							   int draw_hydrogens_flag) {
+							    int draw_hydrogens_flag) {
 
    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 
@@ -4856,7 +4856,6 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 			    );
       
       asc.mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
-      
 
       asc.mol->SeekContacts(atom_selection, n_selected_atoms,
 			    atom_selection, n_selected_atoms,
@@ -4880,18 +4879,18 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 	 std::string element1;
 	 std::string element2;
 	 int res1, res2;
-	 int atom_colour_type = coot::COLOUR_BY_ATOM_TYPE;
-      
+	 int atom_colour_type = coot::COLOUR_BY_CHAIN_C_ONLY;
+
 	 for (int i=0; i< ncontacts; i++) {
 	    if (contact[i].id2 > contact[i].id1) {
 
 	       at1 = atom_selection[ contact[i].id1 ];
 	       at2 = atom_selection[ contact[i].id2 ];
-	    
+
 	       res1 = at1->GetSeqNum();
 	       res2 = at2->GetSeqNum();
 
-	       if (abs(res1 - res2) < 2) { 
+	       if (abs(res1 - res2) < 2) {
 
 		  std::string segid1(at1->GetChainID());
 		  std::string segid2(at2->GetChainID());
@@ -4902,7 +4901,7 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 		     element1 = at1->element;
 		     element2 = at2->element;
 		     if ( (draw_hydrogens_flag == 1) ||
-			  
+
 			  // (element1 != " H" && element1 != " D" &&
 			  //  element2 != " H" && element2 != " D") ) {
 
@@ -4938,20 +4937,30 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 				       draw_it = false;
 
 				 if (draw_it) {
-			      
+
 				    coot::Cartesian bond_mid_point = atom_1.mid_point(atom_2);
-			      
+
 				    if (element1 != " C") {  // PDBv3 FIXME
 
 				       if (element2 != " C") {
 
-					  // half bonds, e.g. N-O, (not frequent)
-					  int non_c_col = atom_colour(at1, atom_colour_type);
-					  bonds_size_colour_check(non_c_col);
-					  addBond(non_c_col, atom_1, bond_mid_point, cc, at1->residue);
-					  non_c_col = atom_colour(at2, atom_colour_type);
-					  bonds_size_colour_check(non_c_col);
-					  addBond(non_c_col, atom_2, bond_mid_point, cc, at2->residue);
+					  // half bonds, e.g. N-O, N-H, O-H
+
+					  // add here a test for either being H. In that caes
+					  // we don't want half bonds.
+
+					  if (is_H) {
+					     graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+					     addBond(HYDROGEN_GREY_BOND, atom_1, atom_2, cc, at2->residue);
+					  } else {
+					     int non_c_col = atom_colour(at1, atom_colour_type);
+					     bonds_size_colour_check(non_c_col);
+					     addBond(non_c_col, atom_1, bond_mid_point, cc, at1->residue);
+					     non_c_col = atom_colour(at2, atom_colour_type);
+					     bonds_size_colour_check(non_c_col);
+					     addBond(non_c_col, atom_2, bond_mid_point, cc, at2->residue);
+					  }
+
 				       } else {
 					  // frequent
 					  int non_c_col = atom_colour(at1, atom_colour_type);
@@ -4963,15 +4972,23 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 				 
 				    } else {
 
+				       // element 1 *is* a C
+
 				       if (element2 != " C") {
 
 					  // frequent
-					  bonds_size_colour_check(col);
-					  addBond(col, atom_1, bond_mid_point, cc, at1->residue);
-					  int non_c_col = atom_colour(at2, atom_colour_type);
-					  bonds_size_colour_check(non_c_col);
-					  addBond(non_c_col, atom_2, bond_mid_point, cc, at2->residue);
-				    
+
+					  if (is_H) {
+					     graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+					     addBond(HYDROGEN_GREY_BOND, atom_1, atom_2, cc, at2->residue);
+					  } else {
+					     bonds_size_colour_check(col);
+					     addBond(col, atom_1, bond_mid_point, cc, at1->residue);
+					     int non_c_col = atom_colour(at2, atom_colour_type);
+					     bonds_size_colour_check(non_c_col);
+					     addBond(non_c_col, atom_2, bond_mid_point, cc, at2->residue);
+					  }
+
 				       } else {
 					  std::cout << "impossible " << std::endl;
 					  bonds_size_colour_check(col);
@@ -4998,7 +5015,7 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 				       bonds_size_colour_check(col);
 				       addBond(col, atom_1, atom_2, cc, at1->residue);
 				    }
-				 } 
+				 }
 			      }
 			   }
 
@@ -5035,7 +5052,6 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 
 
       if (uddHnd>=0) {
-
 
 	 float star_size = 0.22;
 	 // for atoms with no neighbour (contacts):
@@ -5093,7 +5109,6 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 	    }
 	 }
 
-	 
 	 // Make the stars...
 	 // 
 	 for (int i=0; i<n_selected_atoms; i++) {
@@ -5139,7 +5154,7 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
    add_zero_occ_spots(asc);
    add_deuterium_spots(asc);
    atom_colour_type = coot::COLOUR_BY_CHAIN;
-   add_atom_centres(asc, coot::COLOUR_BY_ATOM_TYPE);
+   add_atom_centres(asc, coot::COLOUR_BY_CHAIN_C_ONLY);
    add_cis_peptide_markup(asc);
 }
 

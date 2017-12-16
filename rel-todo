@@ -1,21 +1,16 @@
 
    For Release 0.8.9
 
-   o what is the EMDB code for Vinothkumar Zhu Hurst 2014? ::: 0.5
 
-   o colour by chain should have orange P in phosphates.  ::: 1
+   o build NAG, NAG, BMA.  In coot-reduce, HO4 should not be added at the links.
+     And check that coot-probe looks good.  ::: 1
 
-   o environment distances should colour/display bonds to hydrogens differently ::: 1
+   o multi-key-press (key-repeat) on fill-partial -> crash ::: 0.5
 
-   o suppress some contacts in Environment Distances: to make the representation cleaner/clearer.
-     e.g. if an O has a H-bond to an H, then no need to show the O to N contact. ::: 1
+   o lidia molfile.mol should Do The Right Thing :::: 2
 
-   o put c-interface-refine.hh into the documenation generation
-
-   o add delete_sidechains_for_chain(imol, chain_id)
-
-   o using set_refine_ramachandran_restraints_weight(float w) 
-     needs to affect the refinement.
+   o Ryan Hibbs: 2 strands, low res map, user-defined distance restraint and
+     refine - fails to preserve the distance ::: 2
 
    o add an arg to init_from_residue_vec() and so the restraints_container_t
      constructor from which it is called that says "don't make links to residues
@@ -23,27 +18,19 @@
      linking in add_terminal_residue_complicado.
      allow_non_trival_linking ::: 2
 
-   o lidia molfile.mol should Do The Right Thing :::: 2
+   o suppress some contacts in Environment Distances: to make the representation cleaner/clearer.
+     e.g. if an O has a H-bond to an H, then no need to show the O to N contact. ::: 1
 
-   o Nice to have: Update density fit graph on delete residue and delete residue range.
+   o put c-interface-refine.hh into the documenation generation
 
-   o build NAG, NAG, BMA.  In coot-reduce, HO4 should not be added at the links.
-     And check that coot-probe looks good.  ::: 1
-
-   o Ryan Hibbs: 2 strands, low res map, user-defined distance restraint and
-     refine - fails to preserve the distance ::: 2
+   o using set_refine_ramachandran_restraints_weight(float w) 
+     needs to affect the refinement.
 
    o delete item, change to delete side chain click (closes)
      delete item, delete side chain radio button is active, but delete residue happens on click
      ::: 1
 
-   o Add bis tris BTB and Hepes EPE
-
-   o open a phs file - it asks me for model already read - make this a transient.
-
    o difference map peaks needs to be antisubmarined. Also unmodelled blobs? Go to Atom?
-
-   o how do I delete-all-hydrogens?
 
    o (NAG) Links from mmCIF coordinates? e.g. 5uk0. ::: 2
 
@@ -56,15 +43,8 @@
      Add a signal connect for toggle of the button in fill_ligands_dialog_ligands_bits.
      ::: 0.5
 
-   o multi-key-press (key-repeat) on fill-partial -> crash ::: 0.5
-
    o put the bond, angle, plane, nbc most distorted bonds in the refinement
      lights dialog ::: 2
-
-   o if there are a "small" number of values contributing to the rama plot, change from
-     single colour to thin bars for each residue (sorted by badness) ::: 2
-
-   o add a "still working" label (or something) in the refinement dialog
 
    o fix this mtz file reading problem:
 
@@ -82,15 +62,9 @@ Program terminated with signal 11, Segmentation fault.
      *Note: can't reproduce in trivial test on tutorial data.
      ::: 0.5
 
-   o don't display the aniso atoms for hydrogens if hydrogens are not displayed ::: 0.5
-
-* Done - not tested.
-
    o read the comp_id cifs with CSD coords ::: 4
 
 * Needs a test
-
-   o (NAG) Links from mmCIF coordinates? e.g. 5uk0.
 
    o make cryo-EM mode in refinement work ::: 4
 
@@ -122,6 +96,8 @@ Program terminated with signal 11, Segmentation fault.
     frame #20: 0x0000000111c6be06 libpython2.7.dylib`PyEval_EvalCode + 54
     frame #21: 0x0000000111c9ad14 libpython2.7.dylib`PyRun_FileExFlags + 164
     frame #22: 0x0000000111c6837b libpython2.7.dylib`builtin_execfile + 507
+
+* Hmmm, nothing weird about gtk_button_new_with_label()
 
    o In refinement, pull the structure arround to create a cis peptide, then fix it.
      Is the dialog message removed? ::: 1
@@ -465,4 +441,17 @@ Program terminated with signal 11, Segmentation fault.
    o write a binary-search/binary-chop version of get-residue ::: 1
 
 * Done.
+
+
+   o add delete_sidechains_for_chain(imol, chain_id) ::: 0.5
+
+* Done.
+
+   o Add bis tris BTB and Hepes EPE ::: 0.5
+
+* Done
+
+   o don't display the aniso atoms for hydrogens if hydrogens are not displayed ::: 0.5
+
+* Done - not tested.
 

@@ -3195,8 +3195,12 @@ molecule_class_info_t::make_colour_by_chain_bonds(short int change_c_only_flag) 
    Bond_lines_container bonds(graphics_info_t::Geom_p());
    bonds.do_colour_by_chain_bonds(atom_sel, imol_no, draw_hydrogens_flag, change_c_only_flag);
    bool add_residue_indices = true;
-   bonds_box = bonds.make_graphical_bonds_no_thinning(add_residue_indices); // make_graphical_bonds() is pretty stupid
-                                                                            // when it comes to thining.
+   bonds_box = bonds.make_graphical_bonds_no_thinning(add_residue_indices); // make_graphical_bonds() is pretty
+                                                                            // stupid when it comes to thining.
+
+   bonds_box = bonds.make_graphical_bonds(add_residue_indices); // make_graphical_bonds() is pretty
+                                                                // stupid when it comes to thining.
+
    bonds_box_type = coot::COLOUR_BY_CHAIN_BONDS;
 
    if (graphics_info_t::glarea) 
