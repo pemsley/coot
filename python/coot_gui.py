@@ -4423,7 +4423,7 @@ def solvent_ligand_list():
    global additional_solvent_ligands
    return (additional_solvent_ligands +
            ["EDO", "GOL", "DMS", "ACT", "MPD", "CIT", "SO4", "PO4", "TRS",
-            "TAM", "PG4"])
+            "TAM", "PG4", "EBE", "BTB"])
 
 # add solvent molecules
 #
