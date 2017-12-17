@@ -855,7 +855,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 		  run_post_manipulation_hook(naii.imol, DELETED);
 	       }
 	    }
-	 } else { 
+	 } else {
 
 	    if (show_symmetry) {
 	       coot::Symm_Atom_Pick_Info_t symm_nearest_atom_index_info = symmetry_atom_pick(); 

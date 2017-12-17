@@ -17,6 +17,12 @@
 (use-modules (ice-9 regex))
 
 (define (add-module-carbohydrate)
+
+  ;; (define *add-linked-residue-tree-correlation-cut-off* 0.45)
+
+  (set-refinement-geman-mcclure-alpha 4.2)
+  (read-acedrg-pyranose-dictionaries)
+
   (if (defined? 'coot-main-menubar)
       (add-module-carbohydrate-gui)))
 

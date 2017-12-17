@@ -7951,3 +7951,14 @@ Thu 14 Dec 2017 14:45:13 GMT
 +	-DUSE_SSL -I$(SSL)/include -I$(SSL)/include/openssl \
 +	-L$(SSL)/lib64 -lssl -lcrypto
 
+
+----
+Sun 17 Dec 2017 16:17:48 GMT
+
+   o Fix the documentation generation (coot-dox.cfg needs to be generated from coot-dox.cfg.in)
+     because the source header files are not in the build directory. Useful?
+
+     http://chris-miceli.blogspot.co.uk/2011/01/integrating-doxygen-with-autotools.html
+
+     ::: 2
+

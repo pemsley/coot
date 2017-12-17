@@ -152,9 +152,3 @@
        (info-dialog (format #f "residues ~s~%cc ~5,3f" residues cc))))))
 
 
-;; (define *add-linked-residue-tree-correlation-cut-off* 0.45)
-
-(set-refinement-geman-mcclure-alpha 4.2)
-
-(read-acedrg-pyranose-dictionaries)
-
