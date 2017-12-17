@@ -10,13 +10,13 @@ predict = function() {
    done_end   = a$V2[length(a$V2)]
 
    s = paste(scope_start, scope_end)
-   print(s)
+   # print(s)
    s = paste(done_start, done_end)
-   print(s)
+   # print(s)
 
    now_day = a$V1[length(a$V1)]
 
-   print(now_day)
+   # print(now_day)
 
    c1 = done_start
    c2 = scope_start
@@ -30,9 +30,8 @@ predict = function() {
       Y_pred_2 = m2 * X_pred + c2
       r = paste(X_pred+1, Y_pred_1)
       r = paste(r, now_day)
-      print(r)
+      # print(r)
       days_delta = X_pred - now_day
-      print(days_delta)
       today_t = Sys.Date()
       predict_t = today_t + days_delta
       date_s = format(predict_t, format="%d %B %Y")
@@ -40,8 +39,6 @@ predict = function() {
       text(50, 190, t, pos=3, cex=0.8)
       s = 3
       rect(X_pred-s, Y_pred_1-s, X_pred+s, Y_pred_1+s, col = 'darkgreen')
-      print(paste('X_pred', X_pred))
-      print(paste('Y_pred_1', Y_pred_1))
       # need list of X values, list of Y values
       # not x,y pairs
       # lines(c(X_pred,X_pred), c(0, Y_pred_1), col='darkgreen', lty=2)
