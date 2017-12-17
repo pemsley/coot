@@ -12,9 +12,6 @@
      linking in add_terminal_residue_complicado.
      allow_non_trival_linking ::: 2
 
-   o using set_refine_ramachandran_restraints_weight(float w) 
-     needs to affect the refinement. ::: 1
-
    o put c-interface-refine.hh into the documenation generation ::: 1
 
    o delete item, change to delete side chain click (closes)
@@ -34,7 +31,7 @@
 
    o qq-plot-map-and-model - is it in the documentation (and redefines)? ::: 0.5
 
-   o pyrogen -nM -w -r Y03 fails ::: 1
+   o pyrogen -nM -w -r Y03 - regularize it - it fails ::: 1
 
    o Fix the documentation generation (coot-dox.cfg needs to be generated from coot-dox.cfg.in)
      because the source header files are not in the build directory. Useful?
@@ -57,10 +54,6 @@
 
    o doing a merge and doing a chain chain ids should move over the Link records also.
      Add a test ::: 1
-
-   o Re: go to ligand: JED: Can I make a list of "non-interesting comp-ids?" ::: 1
-
-   o Fetch molecule: acyclovir, (edit?) click Apply ::: 2
 
    o It appears that merging coordinates (read from cif with
      multi-character label_asym_id and auth_asym_id) in to another set
@@ -402,3 +395,13 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
 
 * Done? Seems OK
 
+
+   o Fetch molecule: acyclovir, (edit?) click Apply ::: 2
+
+* Seems OK.
+
+   o using set_refine_ramachandran_restraints_weight(float w) 
+     needs to affect the refinement. ::: 1
+
+
+* It does now.

@@ -483,6 +483,7 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 
 	 last_restraints->set_geman_mcclure_alpha(geman_mcclure_alpha);
          last_restraints->set_rama_type(restraints_rama_type);
+	 last_restraints->set_rama_plot_weight(rama_restraints_weight);
 
 	 if (molecules[imol_for_atoms].extra_restraints.has_restraints())
 	    last_restraints->add_extra_restraints(imol_for_atoms, molecules[imol_for_atoms].extra_restraints,
@@ -828,6 +829,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 
 	       last_restraints->set_geman_mcclure_alpha(geman_mcclure_alpha);
                last_restraints->set_rama_type(restraints_rama_type);
+               last_restraints->set_rama_plot_weight(rama_restraints_weight);
 
 	       if (molecules[imol].extra_restraints.has_restraints())
 		  last_restraints->add_extra_restraints(imol, molecules[imol].extra_restraints, *Geom_p());
