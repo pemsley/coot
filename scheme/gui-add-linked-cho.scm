@@ -905,7 +905,7 @@
    (let* ((tree-residues (glyco-tree-residues aa-imol aa-res-spec)))
      (new-molecule-by-residue-specs aa-imol tree-residues))))
 
-(define (add-module-carbohydrate) 
+(define (add-module-carbohydrate-gui)
 
   (if (defined? 'coot-main-menubar)
       (let ((menu (coot-menubar-menu "Glyco")))

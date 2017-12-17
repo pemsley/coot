@@ -16,6 +16,10 @@
 
 (use-modules (ice-9 regex))
 
+(define (add-module-carbohydrate)
+  (if (defined? 'coot-main-menubar)
+      (add-module-carbohydrate-gui)))
+
 
 ;; For each residue in the protein (molecule number @var{imol}), do a
 ;; rotamer fit and real-space refinement.  Update the graphics and
