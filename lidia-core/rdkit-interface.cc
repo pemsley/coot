@@ -1896,13 +1896,13 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 			       << at_p << " " << kee.what() << std::endl;
 	       }
 	    }
-	 } 
+	 }
 	 clipper::Coord_orth pos(r_pos.x, r_pos.y, r_pos.z);
 	 int n = at_p->getAtomicNum();
 	 std::string element = tbl->getElementSymbol(n);
 	 int charge = at_p->getFormalCharge();
 	 lig_build::molfile_atom_t mol_atom(pos, element, name);
-	 
+
 	 mol_atom.formal_charge = charge;
 	 RDKit::Atom::ChiralType ct = at_p->getChiralTag();
 	 if (ct == RDKit::Atom::CHI_TETRAHEDRAL_CW)
@@ -1910,7 +1910,8 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 	 if (ct == RDKit::Atom::CHI_TETRAHEDRAL_CCW)
 	    mol_atom.chiral = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
 	 mol_atom.aromatic = at_p->getIsAromatic();
-	 // std::cout << "added atom " << mol_atom << std::endl;
+	 if (false)
+	    std::cout << "added atom " << mol_atom << std::endl;
 	 mol.add_atom(mol_atom);
       }
 
@@ -1920,12 +1921,9 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 	 int idx_1 = bond_p->getBeginAtomIdx();
 	 int idx_2 = bond_p->getEndAtomIdx();
 	 lig_build::bond_t::bond_type_t bt = convert_bond_type(bond_p->getBondType());
-	 if (0) 
-	    std::cout << "   make_molfile_molecule() " << idx_1 << " "
-		      << idx_2 << "      "
-		      << bond_p->getBondType() << " to "
-		      << bt 
-		      << std::endl;
+	 if (false)
+	    std::cout << "   make_molfile_molecule() " << idx_1 << " " << idx_2 << " from type  "
+		      << bond_p->getBondType() << " to " << bt << std::endl;
 	 lig_build::molfile_bond_t mol_bond(idx_1, idx_2, bt);
 	 RDKit::Bond::BondDir bond_dir = bond_p->getBondDir();
 	 if (bond_dir != RDKit::Bond::NONE) {

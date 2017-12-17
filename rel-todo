@@ -1,8 +1,6 @@
 
    For Release 0.8.9
 
-   o lidia molfile.mol should Do The Right Thing :::: 2
-
    o Ryan Hibbs: 2 strands, low res map, user-defined distance restraint and
      refine - fails to preserve the distance ::: 2
 
@@ -403,5 +401,9 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
    o using set_refine_ramachandran_restraints_weight(float w) 
      needs to affect the refinement. ::: 1
 
-
 * It does now.
+
+   o lidia molfile.mol should Do The Right Thing ::: 1
+
+* Done.
+
