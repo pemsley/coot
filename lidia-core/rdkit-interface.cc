@@ -2729,7 +2729,7 @@ coot::undelocalise_methyl_carboxylates(RDKit::RWMol *rdkm) {
 	       // rename for clarity
 	       RDKit::Atom *central_C = atom_1;
 	       RDKit::Atom *O1 = atom_2;
-	       
+
 	       for(bondIt_inner=rdkm->beginBonds(); bondIt_inner!=rdkm->endBonds(); ++bondIt_inner) {
 		  if ((*bondIt_inner)->getBondType() == RDKit::Bond::ONEANDAHALF) {
 		     RDKit::Atom *atom_1_in = (*bondIt_inner)->getBeginAtom();
@@ -2744,7 +2744,7 @@ coot::undelocalise_methyl_carboxylates(RDKit::RWMol *rdkm) {
 			      // rename for clarity
 			      //
 			      RDKit::Atom *O2 = atom_2_in;
-			      
+
 			      // bondIt and bondIt_inner are the bonds that we will ultimately modify
 			      // 
 			      deloc_O_check_inner(rdkm, central_C, O1, O2, *bondIt, *bondIt_inner);
@@ -2819,6 +2819,8 @@ coot::deloc_O_check_inner(RDKit::RWMol *rdkm, RDKit::Atom *central_C,
 			  RDKit::Atom *O1, RDKit::Atom *O2,
 			  RDKit::Bond *b1, RDKit::Bond *b2) {
 
+   // std::cout << "debug:: deloc_O_check_inner: " << rdkm << " " << central_C << std::endl;
+
    RDKit::ROMol::BondIterator bondIt_in_in;
    // OK, so was there something attached to either of the Oxygens?
    // 
@@ -2826,7 +2828,7 @@ coot::deloc_O_check_inner(RDKit::RWMol *rdkm, RDKit::Atom *central_C,
       if ((*bondIt_in_in)->getBondType() == RDKit::Bond::SINGLE) {
 	 RDKit::Atom *atom_1_in_in = (*bondIt_in_in)->getBeginAtom();
 	 RDKit::Atom *atom_2_in_in = (*bondIt_in_in)->getEndAtom();
-				    
+
 	 // check atom_1_in_in vs the first oxygen
 	 if (atom_1_in_in == O1) {
 	    if (atom_2_in_in != central_C) {
@@ -2837,7 +2839,7 @@ coot::deloc_O_check_inner(RDKit::RWMol *rdkm, RDKit::Atom *central_C,
 	       b2->setBondType(RDKit::Bond::DOUBLE);
 	    }
 	 }
-				    
+
 	 // check vs the second oxygen
 	 if (atom_1_in_in == O2) {
 	    if (atom_2_in_in != central_C) {
@@ -2847,7 +2849,6 @@ coot::deloc_O_check_inner(RDKit::RWMol *rdkm, RDKit::Atom *central_C,
 	    }
 	 }
 
-	 
 
 	 // check atom_2_in_in vs the first oxygen
 	 if (atom_2_in_in == O1) {

@@ -106,6 +106,9 @@ main(int argc, char *argv[]) {
       catch (const RDKit::BadFileException &e) {
 	 std::cout << "WARNING:: Bad file " << file_name << " "  << e.what() << std::endl;
       }
+      catch (const RDKit::FileParseException &e) {
+	 std::cout << "WARNING:: File Parse error " << file_name << " "  << e.what() << std::endl;
+      }
    }
 #else
     if (argc > 1) {

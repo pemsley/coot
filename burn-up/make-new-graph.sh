@@ -12,7 +12,7 @@ PATH=$pyextra:$PATH
 export PATH
 
 bash new-burn-point.sh
-if R --no-save < burn-up-graph.r ; then
+if Rscript burn-up-graph.r ; then
 
    # cp new-graph.png ~/public_html/coot/devel/burn-up.png
    # convert -antialias -scale 218x146 ~/public_html/coot/devel/burn-up.png ~/public_html/coot/devel/burn-up-icon.png

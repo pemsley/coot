@@ -89,6 +89,7 @@ Paul Emsley
 * Other Programs::
 * Scripting Functions::
 * More Scripting Functions::
+* More Refinement Scripting Functions::
 * Scheme Scripting Functions::
 * Concept Index::   Concept index.
 * Function Index::   Function index.
@@ -5027,14 +5028,17 @@ are given at the end of the command line.
 @c doxygen coot-dox.cfg
 @c from the build doc directory:
 
-@c xsltproc ../../coot/doc/xml2texi.xsl ../../coot/src/doxygen/xml/c-interface_8h.xml > ../../coot/doc/c-interface.h.texi
+@c xsltproc ../../coot/git/coot/doc/xml2texi.xsl ../../coot/git/coot/src/doxygen/xml/c-interface_8h.xml > ../../coot/git/coot/doc/c-interface.h.texi
 @c note that texi2html (and makeinfo) requires that this c-interface texi file be in the 
-@c same directory as this file (user-manual.texi) NOT the directory that 
+@c same directory as this file (coot-user-manual.texi) NOT the directory that 
 @c texi2html is run in.
 @include c-interface_8h.texi
 @node    More Scripting Functions
 @chapter More Scripting Functions
 @include cc-interface_8hh.texi
+@node    More Refinement Scripting Functions
+@chapter More Refinement Scripting Functions
+@include c-interface-refine_8hh.texi
 
 
 
