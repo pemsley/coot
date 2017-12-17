@@ -29,8 +29,6 @@
 
    o qq-plot-map-and-model - is it in the documentation (and redefines)? ::: 0.5
 
-   o pyrogen -nM -w -r Y03 - regularize it - it fails ::: 1
-
    o Fix the documentation generation (coot-dox.cfg needs to be generated from coot-dox.cfg.in)
      because the source header files are not in the build directory. Useful?
 
@@ -38,17 +36,7 @@
 
      ::: 2
 
-   o if user has (add-module-carbohydrate) in ~/.coot, then coot should not
-     stop saying unbound variable... i.e. either much of gui-add-linked-cho.scm should
-     be in add-linked-cho.scm or all of it which is unconditionally
-     loaded at runtime (but (of course)) is conditionally evaluated).
-
-     ::: 1
-
-   o add a glyco, with extra GM distance restraints - delete residue
-     (undo).  Now get lots of warning about missing atoms on the
-     terminal (as coot tries to find the atoms for the extra
-     restraints).  Tricky to fix, I think. ::: 4
+   o pyrogen -nM -w -r Y03 - regularize it - it fails ::: 1
 
    o doing a merge and doing a chain chain ids should move over the Link records also.
      Add a test ::: 1
@@ -75,25 +63,6 @@
    o display ligand distortions, move and regularize, display ligand distortions. 
      Clear generic display objects -> not all graphics objects are removed - they 
      should be. ::: 1
-
-   Lukasz Wojtas:
-
-   1) From res file When I try to show ANISO atoms WinCOOT stops working and shuts down. 
-      ::: 1
-
-* Can't reproduce
-
-   2) exported coordinates and U's round off like in shelxl
-
-      EXPORTED: C1    1  0.501129985  0.671778977   0.518324018
-      SHELXL:   C1    1  0.501130     0.671779      0.518324    11.00000    0.24195
-
-       ::: 1
-
-* Done. Well 7
-
-   3) When I try to fix coordinates temporarily by adding 10 - WinCOOT treats 
-      it as actual coordinate and not fixed one so atom is shifted.  ::: 1
 
 
 --------------
@@ -406,4 +375,28 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
    o lidia molfile.mol should Do The Right Thing ::: 1
 
 * Done.
+
+
+   Lukasz Wojtas:
+
+   1) From res file When I try to show ANISO atoms WinCOOT stops working and shuts down. 
+      ::: 1
+
+* Can't reproduce
+
+   2) exported coordinates and U's round off like in shelxl
+
+      EXPORTED: C1    1  0.501129985  0.671778977   0.518324018
+      SHELXL:   C1    1  0.501130     0.671779      0.518324    11.00000    0.24195
+
+       ::: 1
+
+* Done. Well 7
+
+   o if user has (add-module-carbohydrate) in ~/.coot, then coot should not
+     stop saying unbound variable... i.e. either much of gui-add-linked-cho.scm should
+     be in add-linked-cho.scm or all of it which is unconditionally
+     loaded at runtime (but (of course)) is conditionally evaluated).
+
+     ::: 1
 

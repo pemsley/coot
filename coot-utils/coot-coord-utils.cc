@@ -5403,6 +5403,9 @@ coot::util::mutate_internal(mmdb::Residue *residue,
 	 if (coot::is_main_chain_p(residue_atoms[i])) {
 	    if (to_residue_type == "MSE") {
 	       residue_atoms[i]->Het = 1;
+	    } else {
+	       if (residue_atoms[i]->Het)
+		  residue_atoms[i]->Het = 0; // from MSE to MET, say
 	    }
 	    if (to_residue_type == "PRO") {
 	       std::string atom_name(residue_atoms[i]->name);
@@ -5420,7 +5423,7 @@ coot::util::mutate_internal(mmdb::Residue *residue,
       if (! coot::is_main_chain_p(std_residue_atoms[i])) {
 	 if (is_from_shelx_ins_flag)
 	    std_residue_atoms[i]->occupancy = 11.0;
-     std_residue_atoms[i]->tempFactor = b_factor;
+	 std_residue_atoms[i]->tempFactor = b_factor;
 	 mmdb::Atom *copy_at = new mmdb::Atom;
 	 copy_at->Copy(std_residue_atoms[i]);
 	 residue->AddAtom(copy_at);
