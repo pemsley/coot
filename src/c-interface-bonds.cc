@@ -59,7 +59,7 @@ PyObject *get_bonds_representation(int imol) {
       // write a class that also returns atom specs for the atom. Possibly use inheritance
       // or encapsulation.
       graphical_bonds_container bonds_box = graphics_info_t::molecules[imol].get_bonds_representation();
-      r = pyobject_from_graphical_bonds_container(bonds_box);
+      r = pyobject_from_graphical_bonds_container(imol, bonds_box);
    }
    if (PyBool_Check(r)) {
       Py_INCREF(r);
@@ -78,7 +78,7 @@ PyObject *get_environment_distances_representation_py(int imol, PyObject *residu
       coot::residue_spec_t residue_spec = residue_spec_from_py(residue_spec_py);
       graphics_info_t g;
       graphical_bonds_container gbc = g.molecules[imol].make_environment_bonds_box(residue_spec, g.Geom_p());
-      r = pyobject_from_graphical_bonds_container(gbc);
+      r = pyobject_from_graphical_bonds_container(imol, gbc);
    }
 
    if (PyBool_Check(r)) { 
@@ -88,7 +88,8 @@ PyObject *get_environment_distances_representation_py(int imol, PyObject *residu
 
 }
 
-PyObject *pyobject_from_graphical_bonds_container(const graphical_bonds_container &bonds_box) {
+PyObject *pyobject_from_graphical_bonds_container(int imol,
+						  const graphical_bonds_container &bonds_box) {
 
    PyObject *r = PyTuple_New(2);
 
@@ -102,7 +103,7 @@ PyObject *pyobject_from_graphical_bonds_container(const graphical_bonds_containe
 	    long residue_index = bonds_box.consolidated_atom_centres[icol].points[i].residue_index;
 	    PyObject *atom_info_quad_py = PyTuple_New(4);
 	    PyObject *coords_py = PyTuple_New(3);
-	    PyObject *atom_spec_py = Py_False;
+	    PyObject *atom_spec_py = Py_False; // worry about Py_INCREF for atom_spec_py when it's not set
 	    std::string s = "attrib-filled-later";
 	    // Hmm.
 	    // Perhaps we actually want the atom spec (as a python object).
@@ -110,7 +111,9 @@ PyObject *pyobject_from_graphical_bonds_container(const graphical_bonds_containe
 	    //
 	    mmdb::Atom *at = bonds_box.consolidated_atom_centres[icol].points[i].atom_p;
 	    if (at) {
-	       atom_spec_py = atom_spec_to_py(at);
+	       coot::atom_spec_t at_spec(at);
+	       at_spec.int_user_data = imol;
+	       atom_spec_py = atom_spec_to_py(at_spec);
 
 	       // needed?
 	       coot::residue_spec_t spec(bonds_box.consolidated_atom_centres[icol].points[i].atom_p);

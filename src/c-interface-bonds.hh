@@ -11,7 +11,7 @@
 // not to be exported to the API
 #ifdef USE_PYTHON
 
-PyObject *pyobject_from_graphical_bonds_container(const graphical_bonds_container &gbc);
+PyObject *pyobject_from_graphical_bonds_container(int imol, const graphical_bonds_container &gbc);
 PyObject *go_to_ligand_py();
 clipper::Coord_orth go_to_ligand_inner();
 
