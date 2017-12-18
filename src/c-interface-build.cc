@@ -1633,19 +1633,20 @@ void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code
 		   << ": " << resno << " incode :" << ins_code
 		   << ": atom-name :" <<  at_name << ": altloc :" <<  altLoc << ":" << "\n";
       }
+
+      std::string cmd = "delete-atom";
+      std::vector<coot::command_arg_t> args;
+      args.push_back(imol);
+      args.push_back(coot::util::single_quote(chain_id_string));
+      args.push_back(resno);
+      args.push_back(coot::util::single_quote(ins_code_string));
+      args.push_back(coot::util::single_quote(atom_name_string));
+      args.push_back(coot::util::single_quote(altloc_string));
+      add_to_history_typed(cmd, args);
+
    } else {
       std::cout << "ERROR:: Model number " << imol << " is not a valid molecule" << std::endl;
    }
-
-   std::string cmd = "delete-atom";
-   std::vector<coot::command_arg_t> args;
-   args.push_back(imol);
-   args.push_back(coot::util::single_quote(chain_id_string));
-   args.push_back(resno);
-   args.push_back(coot::util::single_quote(ins_code_string));
-   args.push_back(coot::util::single_quote(atom_name_string));
-   args.push_back(coot::util::single_quote(altloc_string));
-   add_to_history_typed(cmd, args);
 
 } 
 
