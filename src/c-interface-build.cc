@@ -1575,63 +1575,66 @@ void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code
 		 const char *at_name, const char *altLoc) {
 
 
-   // after the atom is deleted from the molecule then the calling
-   // char * pointers are out of date!  We can't use them.  So, save
-   // them as strings before writing the history.
-   graphics_info_t g;
+   if (is_valid_model_molecule(imol)) {
+      // after the atom is deleted from the molecule then the calling
+      // char * pointers are out of date!  We can't use them.  So, save
+      // them as strings before writing the history.
+      graphics_info_t g;
 
-   if (! chain_id) {
-      std::cout << "ERROR:: in delete_atom() trapped null chain_id\n";
-      return; 
-   } 
-   if (! ins_code) {
-      std::cout << "ERROR:: in delete_atom() trapped null ins_code\n";
-      return; 
-   } 
-   if (! at_name) {
-      std::cout << "ERROR:: in delete_atom() trapped null at_name\n";
-      return; 
-   } 
-   if (! altLoc) {
-      std::cout << "ERROR:: in delete_atom() trapped null altLoc\n";
-      return; 
-   }
+      if (! chain_id) {
+	 std::cout << "ERROR:: in delete_atom() trapped null chain_id\n";
+	 return; 
+      }
+      if (! ins_code) {
+	 std::cout << "ERROR:: in delete_atom() trapped null ins_code\n";
+	 return; 
+      }
+      if (! at_name) {
+	 std::cout << "ERROR:: in delete_atom() trapped null at_name\n";
+	 return; 
+      }
+      if (! altLoc) {
+	 std::cout << "ERROR:: in delete_atom() trapped null altLoc\n";
+	 return; 
+      }
 
-   //
-   std::string chain_id_string = chain_id;
-   std::string ins_code_string = ins_code;
-   std::string atom_name_string = at_name;
-   std::string altloc_string = altLoc;
-   
-
-   mmdb::Residue *residue_p =
-      graphics_info_t::molecules[imol].get_residue(chain_id, resno, ins_code);
-   if (residue_p) {
-     if (residue_p->GetNumberOfAtoms() > 1) {
-       coot::residue_spec_t spec(residue_p);
-       g.delete_residue_from_geometry_graphs(imol, spec);
-     } else {
-       // only one atom left, so better delete whole residue.
-       delete_residue(imol, chain_id, resno, ins_code);
-       return;
-     }
-   }
-
-   short int istat = g.molecules[imol].delete_atom(chain_id, resno, ins_code, at_name, altLoc);
-   if (istat) { 
-      // now if the go to atom widget was being displayed, we need to
-      // redraw the residue list and atom list (if the molecule of the
-      // residue and atom list is the molecule that has just been
-      // deleted)
       //
+      std::string chain_id_string = chain_id;
+      std::string ins_code_string = ins_code;
+      std::string atom_name_string = at_name;
+      std::string altloc_string = altLoc;
 
-      g.update_go_to_atom_window_on_changed_mol(imol);
-      update_go_to_atom_residue_list(imol);
-      graphics_draw();
-   } else { 
-      std::cout << "failed to delete atom  chain_id: :" << chain_id 
-		<< ": " << resno << " incode :" << ins_code
-		<< ": atom-name :" <<  at_name << ": altloc :" <<  altLoc << ":" << "\n";
+      mmdb::Residue *residue_p =
+	 graphics_info_t::molecules[imol].get_residue(chain_id, resno, ins_code);
+      if (residue_p) {
+	 if (residue_p->GetNumberOfAtoms() > 1) {
+	    coot::residue_spec_t spec(residue_p);
+	    g.delete_residue_from_geometry_graphs(imol, spec);
+	 } else {
+	    // only one atom left, so better delete whole residue.
+	    delete_residue(imol, chain_id, resno, ins_code);
+	    return;
+	 }
+      }
+
+      short int istat = g.molecules[imol].delete_atom(chain_id, resno, ins_code, at_name, altLoc);
+      if (istat) { 
+	 // now if the go to atom widget was being displayed, we need to
+	 // redraw the residue list and atom list (if the molecule of the
+	 // residue and atom list is the molecule that has just been
+	 // deleted)
+	 //
+
+	 g.update_go_to_atom_window_on_changed_mol(imol);
+	 update_go_to_atom_residue_list(imol);
+	 graphics_draw();
+      } else { 
+	 std::cout << "failed to delete atom  chain_id: :" << chain_id 
+		   << ": " << resno << " incode :" << ins_code
+		   << ": atom-name :" <<  at_name << ": altloc :" <<  altLoc << ":" << "\n";
+      }
+   } else {
+      std::cout << "ERROR:: Model number " << imol << " is not a valid molecule" << std::endl;
    }
 
    std::string cmd = "delete-atom";
