@@ -60,7 +60,7 @@ a = read.table('burn-up.tab')
 # png('burn-up.png', res=480, pointsize=8)
 png('burn-up.png')
 
-plot(ylim=c(0,220), xlim=c(0,280), a$V1, a$V2, t='l', lwd=2,
+plot(ylim=c(0,220), xlim=c(0,220), a$V1, a$V2, t='l', lwd=2,
             main="Coot-0.8.9 Development Progress",
             xlab="Days (since development start)",
             ylab="Dev Points (aka 'Half-Days')")

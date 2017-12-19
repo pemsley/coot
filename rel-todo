@@ -1,9 +1,11 @@
 
    For Release 0.8.9
 
+   o Sphere refine on a disulphide - e.g. in tutorial
+
    o pyrogen -nM -w -r Y03 - regularize it - it fails ::: 1
 
-   o doing a merge and doing a chain chain ids should move over the Link records also.
+   o doing a merge and doing a change chain ids should move over the Link records also.
      Add a test ::: 1
 
    o on merging molecules, remove the TER card if we are adding to an already existing chain.
@@ -26,10 +28,7 @@
      linking in add_terminal_residue_complicado.
      allow_non_trival_linking ::: 2
 
-   o in Find Ligands - make Conformer Options frame/entry dependent on flexible having been
-     clicked on. 
-     Add a signal connect for toggle of the button in fill_ligands_dialog_ligands_bits.
-     ::: 0.5
+* Have I fixed this problem already?
 
    o make cryo-EM mode in refinement work ::: 4
 
