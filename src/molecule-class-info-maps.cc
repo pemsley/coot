@@ -1713,7 +1713,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
       float mean = mv.mean; 
       float var = mv.variance;
-      contour_level    = nearest_step(mean + 1.5*sqrt(var), 0.05);
+
       xmap_is_diff_map = is_diff_map_flag; // but it may be...
       // fill class variables
       map_mean_ = mv.mean;
@@ -1722,7 +1722,19 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       map_min_   = mv.min_density;
 
       update_map_in_display_control_widget();
-      set_initial_contour_level();
+      contour_level    = nearest_step(mean + 1.5*sqrt(var), 0.05);
+
+      bool em = is_EM_map();
+
+      if (em) {
+	 // make better defaults
+	 contour_level = mean + nearest_step(mean + 5.0*sqrt(var), 0.2);
+	 contour_sigma_step = 0.4;
+      } else {
+	 // "how it used to be" logic.  contour_level is set above and reset here
+	 // Hmm.
+	 set_initial_contour_level();
+      }
 
       std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
       std::cout << "      Map rmsd: ........ " << map_sigma_ << std::endl;
@@ -1733,7 +1745,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       save_state_command_strings_.push_back("handle-read-ccp4-map");
       save_state_command_strings_.push_back(single_quote(coot::util::intelligent_debackslash(filename)));
       save_state_command_strings_.push_back(graphics_info_t::int_to_string(is_diff_map_flag));
-   
+
       update_map();
    }
 
