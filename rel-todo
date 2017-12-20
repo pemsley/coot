@@ -1,69 +1,11 @@
 
    For Release 0.8.9
 
-   o we need restraints_limits_trans_peptide - set and used, make_restraint_types_index_limits()
+   o Sphere refine on a disulphide - e.g. in tutorial
 
-   o read in dictionary for PF-56. The bond lines of the O-S are too close.
-
-   o I want to be able to see the formal charge of atoms (e.g. from sdf - does that
-     come via RDKit?) and (probably more importantly) dictionaries.
-
-   o pyrogen.depict pf-3.sdf - the aromatic bond is drawn on the wrong side.
-
-   o master branch: in rdkit_mol() // wedge bonds should have the chiral centre as the first atom
-     do an additional chiral check based on pdbx_stereo_config (currently the check is
-     based only on chiral restraints). Look at FAX - why even is the P-OH bond wedged?
-     what is marking either of these atoms as chiral?
-
-   o why are the hydrogens red (if I don't delete them)
-
-   o the hydrogen is not drawn correctly on AC6 in Colour by Atoms
-
-   o CLD, CL6: bond to central ("chiral") atom is facing the wrong way
-
-   o IN5: OH on the P, chiral is round the wrong way.
-
-   o GGD has no atoms in pyrogen.MolFromPDBXr(). Why?
-
-   o pf-43.sdf aromatic bonds drawn wrongly.
-
-   o HNI causes a crash
-
-   o in FAP is CH3 is chopped
-
-   o FAK chiral FC wedge is round the wrong way,
-     FAI chiral P  wedge is round the wrong way,
-
-   o ING has twisted sheared bond - why?
-
-   o FLEV fail on A2005 in 5pb8 failure to construct rdkit molecule (in alt conf D)
-
-   o look at A-chain-with-ligand and try to rotamer fit 41A. It doesn't go in. Now delete hydrogens
-     from the ligand - now it fits. So hydrogen bumping in (old) rotamer fitting is wrong.
-
-   o click-click refinement with fixed atoms gives NOPROGRESS. Must fix. ::: 5
-
-   o delete item, change to delete side chain click (closes)
-     delete item, delete side chain radio button is active, but delete residue happens on click
-     ::: 1
-
-   o Andrea: ncs_control_change_ncs_master_to_chain(1,0) crashes Coot instantly.
-     *Note: can't reproduce in trivial test on tutorial data.
-     ::: 0.5
-
-   o don't display the aniso atoms for hydrogens if hydrogens are not displayed ::: 0.5
-
-* Done - not tested.
-
-   o ZO: make a default so that hydrogens are not displayed by default - rather than turning them off 
-         after I have read it in. ::: 1
-
-   o what is the EMDB code for Vinothkumar Zhu Hurst 2014?
-=======
    o pyrogen -nM -w -r Y03 - regularize it - it fails ::: 1
->>>>>>> master
 
-   o doing a merge and doing a chain chain ids should move over the Link records also.
+   o doing a merge and doing a change chain ids should move over the Link records also.
      Add a test ::: 1
 
    o on merging molecules, remove the TER card if we are adding to an already existing chain.
@@ -86,288 +28,12 @@
      linking in add_terminal_residue_complicado.
      allow_non_trival_linking ::: 2
 
-   o suppress some contacts in Environment Distances: to make the representation cleaner/clearer.
-     e.g. if an O has a H-bond to an H, then no need to show the O to N contact. ::: 1
-
-   o put c-interface-refine.hh into the documenation generation
-
-   o using set_refine_ramachandran_restraints_weight(float w) 
-     needs to affect the refinement.
-
-   o Add bis tris BTB and Hepes EPE
-
-   o open a phs file - it asks me for model already read - make this a transient.
-
-   o delete item, change to delete side chain click (closes)
-     delete item, delete side chain radio button is active, but delete residue happens on click
-     ::: 1
-
-   o difference map peaks needs to be antisubmarined. Also unmodelled blobs? Go to Atom?
-
-   o (NAG) Links from mmCIF coordinates? e.g. 5uk0. ::: 2
-
-   o on merging molecules, remove the TER card if we are adding to an already existing chain.
-     Consider adding helices made of ALA.  Coot should make a new chain for these. Does it?
-     ::: 1
-
-   o in Find Ligands - make Conformer Options frame/entry dependent on flexible having been
-     clicked on. 
-     Add a signal connect for toggle of the button in fill_ligands_dialog_ligands_bits.
-     ::: 0.5
+* Have I fixed this problem already?
 
    o make cryo-EM mode in refinement work ::: 4
 
-   o make a mode "don't recontour the map on recentre". Add a "recontour" 
-     toolbar button ::: 2
+   o add  set_atom_attributes(SCM attribute_expression_list) to the documenation - preprocessing issues.
 
-   o fix this crash cfc_crashes_coot.py ::: 2
-* thread #1: tid = 0x0000, 0x000000011279fbfd libglib-2.0.0.dylib`g_slice_alloc + 909, stop reason = signal SIGSTOP
-  * frame #0: 0x000000011279fbfd libglib-2.0.0.dylib`g_slice_alloc + 909
-    frame #1: 0x00000001127a030f libglib-2.0.0.dylib`g_slice_alloc0 + 15
-    frame #2: 0x0000000112719905 libgobject-2.0.0.dylib`g_type_create_instance + 229
-    frame #3: 0x0000000112705e46 libgobject-2.0.0.dylib`g_object_constructor + 22
-    frame #4: 0x0000000111ec7e80 libgtk-x11-2.0.0.dylib`gtk_button_constructor + 16
-    frame #5: 0x0000000112705856 libgobject-2.0.0.dylib`g_object_newv + 790
-    frame #6: 0x0000000112705d94 libgobject-2.0.0.dylib`g_object_new_valist + 884
-    frame #7: 0x00000001127054f3 libgobject-2.0.0.dylib`g_object_new + 179
-    frame #8: 0x000000010d5c1b78 coot-bin`cfc::cfc_dialog_add_waters(site_number=0, extracted_cluster_info=extracted_cluster_info_from_python at 0x00007fff529ed7f8, cfc_dialog=0x00007fb8a11311e0) + 14376 at cfc.cc:510
-    frame #9: 0x000000010d5bc19a coot-bin`cfc::chemical_feature_clusters_add_site_info(site_number=0, eci=0x00007fff529ed8e0, cfc_dialog=0x00007fb8a11311e0) + 90 at cfc.cc:1532
-    frame #10: 0x000000010d5bc00f coot-bin`chemical_feature_clusters_accept_info_py(site_number=0, env_residue=0x000000011d4b2680, mol_ligand_specs=0x000000011bce22d8, cluster_info=0x000000011d4bb440) + 239 at cfc.cc:220
-    frame #11: 0x000000010dda8153 coot-bin`_wrap_chemical_feature_clusters_accept_info_py((null)=0x0000000000000000, args=0x000000011bccefc8) + 291 at coot_wrap_python.cc:67808
-    frame #12: 0x0000000111c74053 libpython2.7.dylib`PyEval_EvalFrameEx + 30563
-    frame #13: 0x0000000111c6c492 libpython2.7.dylib`PyEval_EvalCodeEx + 1666
-    frame #14: 0x0000000111c78a76 libpython2.7.dylib`fast_function + 118
-    frame #15: 0x0000000111c73a7a libpython2.7.dylib`PyEval_EvalFrameEx + 29066
-    frame #16: 0x0000000111c6c492 libpython2.7.dylib`PyEval_EvalCodeEx + 1666
-    frame #17: 0x0000000111c78a76 libpython2.7.dylib`fast_function + 118
-    frame #18: 0x0000000111c73a7a libpython2.7.dylib`PyEval_EvalFrameEx + 29066
-    frame #19: 0x0000000111c6c492 libpython2.7.dylib`PyEval_EvalCodeEx + 1666
-    frame #20: 0x0000000111c6be06 libpython2.7.dylib`PyEval_EvalCode + 54
-    frame #21: 0x0000000111c9ad14 libpython2.7.dylib`PyRun_FileExFlags + 164
-    frame #22: 0x0000000111c6837b libpython2.7.dylib`builtin_execfile + 507
-
-   o 8RV, the bond runs into the Br.  We need to bring the atom_t to the bond coords generator.
-
-   o 8RP, the bond runs into the +
-
-   o unhide (unsubmarine) Edit Restraints window
-
-   o In refinement, pull the structure arround to create a cis peptide, then fix it.
-     Is the dialog message removed? ::: 1
-
-   o qq-plot-map-and-model - is it in the documentation (and redefines)? ::: 0.5
-
-   o ACE, PCA and MSE should not be considered as ligands in go-to-ligand ::: 0.5
-
-   o make benzoic acid in lidia - does it generate correctly in acedrg and
-     pyrogen? ::: 2
-
-   o pyrogen -nM -w -r Y03 fails ::: 1
-
-   o Copy-molecule loses the NCS ghost info/tranformations (i.e. O doesn't work) ::: 1
-
-   o Fix the documentation generation (coot-dox.cfg needs to be generated from coot-dox.cfg.in)
-     because the source header files are not in the build directory. Useful?
-
-     http://chris-miceli.blogspot.co.uk/2011/01/integrating-doxygen-with-autotools.html
-
-     ::: 2
-
-   o how about a button that does the "Nice ligand pic" settings for me?
-
-   o I don't like atom colours not matching bond colours in Colour by Chain mode
-     (refinement branch, I guess).
-     ::: 2
-
-   o do a better job of scaling the density fit analysis (say low resolution data).
-
-     ::: 2
-
-   o For glyco tree validation (matching vs oligomannose-tree etc) allow modes 
-     liberal (current) and correct which needs correct residue types
-     and link records. Also, tree validation needs to check the anomericity.
-
-     ::: 4
-
-   o if user has (add-module-carbohydrate) in ~/.coot, then coot should not
-     stop saying unbound variable... i.e. either much of gui-add-linked-cho.scm should
-     be in add-linked-cho.scm or all of it which is unconditionally
-     loaded at runtime (but (of course)) is conditionally evaluated).
-
-     ::: 1
-
-   o I don't like fat hydrogen (bonds) in Colour by Chain mode. ::: 2
-
-   o when first molecule is not a protein.  Copy NCS residue range. coot-utils.scm 1533 ::: 1
-
-   o in 2qc1, build a NAG, NAG, BMA. Centre on the first NAG, sphere refine or H-refine.  
-     NAG-ASN bond is not properly accounted for ::: 1
-
-   o pyrogen -Mn -c PDBe-ADP.cif -> minimation problem
-
-bond  3231.21 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " ND2" ""]
-nbc   1162.68 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" "HD22" ""] target:  2.90  0.02
-nbc    804.52 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" "HD21" ""] target:  2.90  0.02
-nbc    556.46 [spec: model 1 "B" 468 "" " C1 " ""] [spec: model 1 "B" 467 "" " HO3" ""] target:  2.90  0.02
-bond   529.05 [spec: model 1 "B" 467 "" " O3 " ""] [spec: model 1 "B" 468 "" " C1 " ""]
-angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " ND2" ""] [spec: model 1 "B" 141 "" " CG " ""] target: 121.00  3.00
-
-   ::: 4
-
-   o GM distance summary. How many too long, how many too short. And (if possible) by 
-     what amounts. ::: 1
-
-   o add a glyco, with extra GM distance restraints - delete residue
-     (undo).  Now get lots of warning about missing atoms on the
-     terminal (as coot tries to find the atoms for the extra
-     restraints).  Tricky to fix, I think. ::: 4
-
-   o get rid of this:
-.... step_count: 880 step_count_lim 5000
-     ::: 1
-
-* Done, was fixed in refinement
-
-   o fetch Bernie branch. consider new rama ::: 6
-
-* Rama still too slow
-
-   o lidia molfile.mol should Do The Right Thing
-
-   o doing a merge and doing a chain chain ids should move over the Link records also.
-     Add a test ::: 1
-
-   o read in a monomer cif, get monomer.  Bond orders good?  ::: 2
-
-* Done?
-
-   o Re: go to ligand: JED: Can I make a list of "non-interesting comp-ids?" ::: 1
-
-   o Fetch molecule: acyclovir, (edit?) click Apply ::: 2
-
-   o It appears that merging coordinates (read from cif with
-     multi-character label_asym_id and auth_asym_id) in to another set
-     of coordinates will assign single-character chain IDs to the source
-     coordinates. Might it be better to just add a prefix to those ids?
-        - Wolfram Tempel
-     ::: 1
-
-   o 1TE:  read CCD dictionary and get-monomer
-
-   o 1TE:  pyrogen this and regularize in coot c.f. CCD
-
-   o bad 2D layout IXY in 3wzy ::: 4
-
-   o quick save view on a key. ::: 1
-
-   o coot-probe: does it work with symmetry? ::: 6
-
-   o coot-reduce: does it work with symmetry? (this is more tricky and less useful) ::: 10
-
-   o get penacillin G from chemspider 
-     CC1([C@@H](N2[C@H](S1)[C@@H](C2=O)/N=C(\Cc3ccccc3)/O)C(=O)O)C
-     Acedrg it.
-     Read in dict to coot, make a molecule, look at the thumbnail - backwards wedge bond
-     ::: 4
- 
-   o lidia: import 
-   CC(C)C[C@@H](C[C@H](O)[C@H](Cc1ccccc1)NC(=O)COc2c(C)cccc2C)NC(=O)c3cccc(N)c3
-     change amine from meta to para - SMILES updates but drawing doesn't.
-    ... Huh? ::: 6 
- 
-   o Pyrogen chirality: Using CCD files as input, make a dictionary and 
-     either validate the coordinates (dictionary vs actual) chiral volume 
-     or minimize and validate coordinates ::: 6
-
-   o Pyrogen: add command line arguement to keep the coordinates from the 
-     input CCD/mmcif file ::: 1
-
-   o when mutating to MSE atoms become HETATMs. ::: 1
-   o when you mutate from an MSE the mainchain should revert to ATOMs ::: 1
-
-   o Ligand Builder -> Open [cif dictionary] Failures
-     110 (butyl carboxylic acid - Oxygen formal charge) ::: 2
-
-   o comp_id C23, look at the thumbnail, or residue->2D, see that the Oxygen atom
-     seems chiral - is the bond the wrong way round? ::: 2
-
-   o like sphere refine, but only select residues that are linearly related to
-     the active residue (Hmm... how to do the GUI for this...?) ::: 2
-     -- Chris Oubridge
-
-     maybe autozone 2 will do?
-
-   o 3ggi sfs don't convert with mmcif-to-mtz. ::: 4
-
-   o make test should do something useful [Tim Fenn]. ::: 2
-
-   o if the chain has a TER and we add NCS residues, then the
-     old/current TER should be deleted.  Write a test first. ::: 1
-
-   o enable mol2 reading to pyrogen
-     ::: 1
-
-   o Get some RNA - check that base pair restraints generation works
-     (user-defined restraints).  Donna M. ::: 2
-
-   o display ligand distortions, move and regularize, display ligand distortions. 
-
-     Clear generic display objects -> not all graphics objects are removed - they 
-     should be. ::: 1
-
-   o make a small buccaneer test
-
-   o make a cootaneer test ::: 2
-
-   o write a test that runs findwaters ::: 1
-
-   o write a test that runs findligand ::: 1
-
-   o is git-revision-count correctly generated by make-dist-with-rev-and-ww2-put.sh?
-     ::: 1
-
-   o remove debugging:
-
-   debug:: switch for sequence_view for imol 0 is 0x0
-   ::: 1
-
- o I like the interactive probe dots display a lot, but I really wish it was more interactive - would 
-   it be possible to add a "live" probe dots display, that would refresh every second or two during 
-   real space refinement and rotamer selection? This would be very helpful, particularly as a visual 
-   guide during "rubber-band" manipulation of a structure when real-space refining a zone. Preferably 
-   such a function would allow one to only display bad (pink) overlaps and h-bonds, as the full probe 
-   dots display can be a little distracting.  -- Oliver Clarke
-
-   o For goocanvas configuration, goo-canvas.m4, goocanvas uses pkg-config,
-     use PKG_CHECK_MODULES, 
-
-     https://searchcode.com/codesearch/view/38448402/
-
-   o resolve the GSL problem. If no GSL fail in configure?  Or perhaps correctly 
-     conditionally compile without it (not usage of $prefix/bin/gsl-config)
-     ::: 1
-
-   o Build with guile-gnome
-
-   o graphics-info-modelling.cc: for (int iflash=0; iflash<2; iflash++) { 
-	allow flash of 1.
-
-   Lukasz Wojtas:
-
-   1) From res file When I try to show ANISO atoms WinCOOT stops working and shuts down. 
-   ::: 1
-
-   2) exported coordinates and U's round off like in shelxl
-
-      EXPORTED: C1    1  0.501129985  0.671778977   0.518324018
-      SHELXL:   C1    1  0.501130     0.671779      0.518324    11.00000    0.24195
-
-    ::: 1
-
-   3) When I try to fix coordinates temporarily by adding 10 - WinCOOT treats 
-      it as actual coordinate and not fixed one so atom is shifted.  ::: 1
-
-   o import imidaloze from lidia in coot. c.f. stand-alone ::: 1
 
 
 --------------
@@ -499,6 +165,13 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
      ::: 0.5
 
 * Done.
+
+   o get rid of this:
+.... step_count: 880 step_count_lim 5000
+     ::: 0.5
+
+* Done, was fixed in refinement
+
 
    o click-click refinement with fixed atoms gives NOPROGRESS. Must fix. ::: 6
 
