@@ -34,7 +34,7 @@
 #include "geometry/srs-interface.hh"
 #ifdef RDKIT_HAS_CAIRO_SUPPORT
 #include <cairo.h>
-#include <MolDraw2DCairo.h>
+#include <GraphMol/MolDraw2D/MolDraw2DCairo.h>
 #include "lidia-core/rdkit-interface.hh"
 #else
 #include "lidia-core/rdkit-interface.hh"

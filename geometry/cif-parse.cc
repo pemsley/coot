@@ -2854,11 +2854,6 @@ coot::protein_geometry::link_add_plane(const std::string &link_id,
       // add the plae to the newly created dictionary_residue_link_restraints_t
       dict_link_res_restraints.push_back(dictionary_residue_link_restraints_t(link_id));
       coot::dict_link_plane_restraint_t res(atom_id, plane_id, atom_comp_id, dist_esd);
-      // std::cout << "adding link plane restraint by D " << res.dist_esd() << std::endl;
-      // for (unsigned int ii=0; ii<res.n_atoms(); ii++) { 
-      //     std::cout << "           " << res.atom_id(ii) << std::endl;
-      // }
-      
       dict_link_res_restraints[dict_link_res_restraints.size()-1].link_plane_restraint.push_back(res);
    }
 }
