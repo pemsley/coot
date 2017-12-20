@@ -32,6 +32,9 @@
 
    o make cryo-EM mode in refinement work ::: 4
 
+   o add  set_atom_attributes(SCM attribute_expression_list) to the documenation - preprocessing issues.
+
+   o add a button for refinement weight "Estimate": 0.6 -> 60 so 20 -> 60*0.6/20
 
 --------------
 
