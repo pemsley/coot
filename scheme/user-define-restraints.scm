@@ -348,7 +348,7 @@
    (else (list))))
 
 
-;; exte stac plan 1  firs resi 99 chai A atoms { CB CG CD1 CD2 CE1 CE2 CZ OH }  plan 2  firs resi 61 chai B atoms { CB CG CD1 CD2 CE1 CE2 CZ }  dist 3.4 sddi 0.2  sdan 6.0 type 1 
+;; Example of a stack restraint: "exte stac plan 1  firs resi 99 chai A atoms substitute-open-brace CB CG CD1 CD2 CE1 CE2 CZ OH substitute-close-brace  plan 2  firs resi 61 chai B atoms substitute-open-brace CB CG CD1 CD2 CE1 CE2 CZ substitute-close-brace  dist 3.4 sddi 0.2  sdan 6.0 type 1"
 ;; 
 (define (write-refmac-parallel-plane-restraint file-name res-spec-0 res-spec-1 atom-list-0 atom-list-1)
 

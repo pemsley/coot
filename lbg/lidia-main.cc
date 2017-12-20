@@ -84,11 +84,38 @@ main(int argc, char *argv[]) {
 
    // don't use my mol reader here, use the RDKit one after we have started lbg.
    // Currently command line file reading is disabled then.
-   
-//    if (argc > 1) {
-//       std::string file_name(argv[1]);
-//       mm.read(file_name);
-//    }
+
+#if MAKE_ENHANCED_LIGAND_TOOLS
+   if (argc > 1) {
+      std::string file_name(argv[1]);
+      try {
+	 RDKit::RWMol *rdkm = RDKit::MolFileToMol(file_name);
+	 if (rdkm) {
+
+	    RDKit::MolOps::Kekulize(*rdkm);
+	    double weight_for_3d_distances = 0.1;
+	    int iconf = coot::add_2d_conformer(rdkm, weight_for_3d_distances);
+	    mm = coot::make_molfile_molecule(*rdkm, iconf);
+	 } else {
+	    std::cout << "WARNING:: file " << file_name << " null molecule" << std::endl;
+	 }
+      }
+      catch (const RDKit::MolSanitizeException &e) {
+	 std::cout << "WARNING:: file " << file_name << " "  << e.what() << std::endl;
+      }
+      catch (const RDKit::BadFileException &e) {
+	 std::cout << "WARNING:: Bad file " << file_name << " "  << e.what() << std::endl;
+      }
+      catch (const RDKit::FileParseException &e) {
+	 std::cout << "WARNING:: File Parse error " << file_name << " "  << e.what() << std::endl;
+      }
+   }
+#else
+    if (argc > 1) {
+       std::string file_name(argv[1]);
+       mm.read(file_name);
+    }
+#endif
 
    bool stand_alone_flag = 1;
    bool use_graphics = 1;

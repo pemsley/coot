@@ -4326,7 +4326,7 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 				     << atom[index2]->GetSeqNum() << " "
 				     << atom[index2]->name
 				     << " restraint index " << n_bond_restr << "\n";
-			try { 
+			try {
 			   add(BOND_RESTRAINT, index1, index2,
 			       fixed_flags,
 			       geom[idr].second.bond_restraint[ib].value_dist(),
@@ -4340,7 +4340,8 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 			   // do nothing, it's not really an error if the dictionary
 			   // doesn't have target geometry (the bonding description came
 			   // from a Chemical Component Dictionary entry for example).
-			   std::cout << "trapped a runtime_error on adding bond restraint " << std::endl;
+			   std::cout << "trapped a runtime_error on adding bond restraint "
+				     << " no target. " << rte.what() << std::endl;
 			} 
 		     } else {
 			std::cout << "ERROR:: Caught Enrico Stura bug.  How did it happen?" << std::endl;

@@ -483,6 +483,7 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 
 	 last_restraints->set_geman_mcclure_alpha(geman_mcclure_alpha);
          last_restraints->set_rama_type(restraints_rama_type);
+	 last_restraints->set_rama_plot_weight(rama_restraints_weight);
 
 	 if (molecules[imol_for_atoms].extra_restraints.has_restraints())
 	    last_restraints->add_extra_restraints(imol_for_atoms, molecules[imol_for_atoms].extra_restraints,
@@ -543,6 +544,7 @@ int
 graphics_info_t::copy_model_molecule(int imol) {
    int iret = -1;
    if (is_valid_model_molecule(imol)) { 
+      graphics_info_t g;
       int new_mol_number = graphics_info_t::create_molecule();
       mmdb::Manager *m = graphics_info_t::molecules[imol].atom_sel.mol;
       mmdb::Manager *n = new mmdb::Manager;
@@ -550,7 +552,6 @@ graphics_info_t::copy_model_molecule(int imol) {
       atom_selection_container_t asc = make_asc(n);
       std::string label = "Copy_of_";
       label += graphics_info_t::molecules[imol].name_;
-      graphics_info_t g;
       g.molecules[new_mol_number].install_model(new_mol_number, asc, g.Geom_p(), label, 1);
       update_go_to_atom_window_on_new_mol();
       iret = new_mol_number;
@@ -840,6 +841,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 		  last_restraints->add_atom_pull_restraint(atom_pull.spec, atom_pull.pos); // mouse target position
 	       last_restraints->set_geman_mcclure_alpha(geman_mcclure_alpha);
                last_restraints->set_rama_type(restraints_rama_type);
+               last_restraints->set_rama_plot_weight(rama_restraints_weight);
 
 	       if (molecules[imol].extra_restraints.has_restraints())
 		  last_restraints->add_extra_restraints(imol, molecules[imol].extra_restraints, *Geom_p());

@@ -991,8 +991,9 @@ coot::fill_distortion_torsion_gradients(const clipper::Coord_orth &P1,
    }
 
    if (true) {
-      if (b_length < 1.0)
-	 std::cout << "problem with b_length " << b_length << std::endl;
+      if (b_length < 0.5)
+	 std::cout << "ERROR:: fill_distortion_torsion_gradients() problem with b_length "
+		   << b_length << std::endl;
    }
 
    double H = -clipper::Coord_orth::dot(a,c);

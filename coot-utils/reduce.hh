@@ -274,6 +274,10 @@ namespace coot {
 
       bool is_ss_bonded(mmdb::Residue *residue_p) const;
 
+      // as a rule, we don't want to add hydrogen to atoms that are linked
+      //
+      bool is_linked(const std::string &atom_name, mmdb::Residue *residue_p) const;
+
       bool verbose_output;
 
    public:

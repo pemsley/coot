@@ -16,6 +16,16 @@
 
 (use-modules (ice-9 regex))
 
+(define (add-module-carbohydrate)
+
+  ;; (define *add-linked-residue-tree-correlation-cut-off* 0.45)
+
+  (set-refinement-geman-mcclure-alpha 4.2)
+  (read-acedrg-pyranose-dictionaries)
+
+  (if (defined? 'coot-main-menubar)
+      (add-module-carbohydrate-gui)))
+
 
 ;; For each residue in the protein (molecule number @var{imol}), do a
 ;; rotamer fit and real-space refinement.  Update the graphics and

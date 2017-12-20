@@ -205,7 +205,8 @@ GtkWidget *wrapped_create_delete_item_dialog() {
 	 GtkWidget *sidechain_toggle_button = lookup_widget(widget,
 							"delete_item_sidechain_radiobutton");
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sidechain_toggle_button), TRUE);
-	 set_delete_residue_mode(); // The widget default radio button
+
+	 set_delete_sidechain_mode();
 	 std::cout << "Click on an atom in the residue that you wish to delete\n";
 	 } else {
 	    if (delete_item_mode_is_chain_p()) {
@@ -213,7 +214,7 @@ GtkWidget *wrapped_create_delete_item_dialog() {
 								  "delete_item_chain_radiobutton");
 	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chain_toggle_button), TRUE);
 	    } else {
-	       set_delete_residue_mode(); // The widget default radio button
+	       set_delete_chain_mode();
 	       std::cout << "Click on an atom in the residue that you wish to delete\n";
 	    }
 	 }
