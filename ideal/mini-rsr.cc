@@ -99,6 +99,7 @@ public:
       use_trans_peptide_restraints = true;
       use_torsion_targets = false;
       tabulate_distortions_flag = false;
+      no_refine = false; // if we want distortions only, say
       correlations = false;
       do_crankshaft = false;
       crankshaft_n_peptides = 7;
@@ -111,6 +112,7 @@ public:
    bool use_planar_peptide_restraints;
    bool use_trans_peptide_restraints;
    bool tabulate_distortions_flag;
+   bool no_refine;
    bool correlations;
    bool do_crankshaft;
    int resno_start;
@@ -197,6 +199,7 @@ void show_usage() {
 	     << "       --tabulate-distortions\n"
 	     << "       --correlations\n"
 	     << "       --crankshaft\n"
+	     << "       --no-refine\n"
 	     << "       --version\n"
 	     << "       --debug\n"
 	     << "\n"
@@ -429,10 +432,12 @@ main(int argc, char **argv) {
 	       restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
 					  1.0, do_rama_plot_restraints, pseudos);
 
-	       int nsteps_max = 4000;
-	       short int print_chi_sq_flag = 1;
-	       restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
-	       restraints.write_new_atoms(inputs.output_pdb_file_name);
+	       if (! inputs.no_refine) {
+		  int nsteps_max = 4000;
+		  short int print_chi_sq_flag = 1;
+		  restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
+		  restraints.write_new_atoms(inputs.output_pdb_file_name);
+	       }
 
 	       if (inputs.tabulate_distortions_flag) {
 		  coot::geometry_distortion_info_container_t gd =
@@ -629,6 +634,7 @@ get_input_details(int argc, char **argv) {
       {"no-planar-peptide-restraints", 0, 0, 0},
       {"no-trans-peptide-restraints",  0, 0, 0},
       {"tabulate-distortions", 0, 0, 0},
+      {"no-refine", 0, 0, 0},
       {"correlations", 0, 0, 0},
       {"crankshaft", 0, 0, 0},
       {"n-peptides", 1, 0, 0},
@@ -741,14 +747,17 @@ get_input_details(int argc, char **argv) {
 	    if (arg_str == "torsion") {
 	       d.use_torsion_targets = 1;
 	    }
-	    if (arg_str == "no-planar-peptide-restraints") { 
+	    if (arg_str == "no-planar-peptide-restraints") {
 	       d.use_planar_peptide_restraints = false;
 	    }
-	    if (arg_str == "no-trans-peptide-restraints") { 
+	    if (arg_str == "no-trans-peptide-restraints") {
 	       d.use_trans_peptide_restraints = false;
 	    }
-	    if (arg_str == "tabulate-distortions") { 
+	    if (arg_str == "tabulate-distortions") {
 	       d.tabulate_distortions_flag = true;
+	    }
+	    if (arg_str == "no-refine") {
+	       d.no_refine = true;
 	    }
 	    if (arg_str == "correlations") {
 	       d.correlations = true;
