@@ -158,7 +158,7 @@ graphics_info_t::do_interactive_coot_probe() {
 	    if (type == "vdw-surface") point_size = 1;
 	    for (unsigned int i=0; i<v.size(); i++) {
 	       const std::string &col_inner = v[i].col;
-	       (*g.generic_objects_p)[obj].add_point(colour_map[col], col_inner, point_size, v[i].pos);
+	       (*g.generic_objects_p)[obj].add_point(colour_map[col_inner], col_inner, point_size, v[i].pos);
 	    }
 	    if (type != "vdw-surface")
 	       (*g.generic_objects_p)[obj].is_displayed_flag = true;

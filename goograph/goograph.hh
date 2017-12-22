@@ -116,6 +116,10 @@ namespace coot {
       double canvas_offset_y; 
       std::string x_axis_label;
       std::string y_axis_label;
+      bool draw_x_axis_flag;
+      bool draw_y_axis_flag;
+      bool draw_x_ticks_flag;
+      bool draw_y_ticks_flag;
       std::string plot_title;
       std::vector<graph_trace_info_t> traces;
       std::string dark; // axis colour
@@ -153,8 +157,12 @@ namespace coot {
 			      double tick_step,
 			      double tick_length_multiplier);
       lig_build::pos_t world_to_canvas(const lig_build::pos_t &p) const {
-	 return lig_build::pos_t((canvas_offset_x + (p.x-extents_min_x)*data_scale_x) * dialog_width / dialog_width_orig,
-				 (canvas_offset_y - (p.y-extents_min_y)*data_scale_y) * dialog_height/ dialog_height_orig);
+
+	 lig_build::pos_t pos((canvas_offset_x + (p.x-extents_min_x)*data_scale_x) * dialog_width / dialog_width_orig,
+			      (canvas_offset_y - (p.y-extents_min_y)*data_scale_y) * dialog_height/ dialog_height_orig);
+	 if (false)
+	    std::cout << "world_to_canvas() input: " << p << " returning " << pos << std::endl;
+	 return pos;
       }
       void draw_title();
       double y_range() const { return extents_max_y - extents_min_y; }
@@ -174,26 +182,23 @@ namespace coot {
       goograph() {
 	 init();
 	 init_widgets();
-	 extents_min_x =  9999999990.0;
-	 extents_min_y =  9999999990.0;
-	 extents_max_x = -9999999990.0;
-	 extents_max_y = -9999999990.0;
-	 tick_major_x = 0.1;
-	 tick_minor_x = 0.05;
-	 tick_major_y = 0.1;
-	 tick_minor_y = 0.05;
-	 dark = "#111111";
-	 canvas_offset_x = 70.0; // how much is the Y axis displaced
-				 // from the left-hand edge of the
-				 // canvas?
-	 canvas_offset_y = 370.0; // how much is the size of the //
-	                          // canvas - and include an offset of
-	                          // // the axis from the bottom edge.
-	                          // (the smaller the number the
-	                          // greater the displacement (without
-	                          // resizing).
-	 data_scale_x = 1.0;
-	 data_scale_y = 1.0;
+      }
+      goograph(int width, int height) {
+	 init();
+	 init_widgets();
+	 dialog_width = width;
+	 dialog_height = height;
+	 dialog_width_orig = width;
+	 dialog_height_orig = height;
+
+	 canvas_offset_x = 10.0; // how much is the Y axis displaced
+                                 // from the left-hand edge of the canvas?
+
+	 // if drawing of the x axis has been turned off, then we want
+	 // less space at the bottom, but for now, we will
+	 // make it 8% offset up.
+	 int x_off = 0.08 * height;
+	 canvas_offset_y = height - x_off;; // how much is the size of the canvas
       }
       void clear();
       void draw_graph();
@@ -205,6 +210,8 @@ namespace coot {
       void set_extents(int axis, double min, double max); 
       void set_ticks(int axis, double tick_major, double tick_minor);
       void set_axis_label(int axis, const std::string &label);
+      void set_draw_axis(int axis, bool draw_state);
+      void set_draw_ticks(int axis, bool draw_state);
       void set_plot_title(const std::string &title);
       void set_data(int trace_id, const std::vector<std::pair<double, double> > &data);
       int trace_new();

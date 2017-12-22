@@ -4554,3 +4554,8 @@ on_edit_change_chain_ids1_activate     (GtkMenuItem     *menuitem,
 void
 on_edit_merge_molecules1_activate      (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
+
+void
+on_weight_maxtrix_estimate_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);

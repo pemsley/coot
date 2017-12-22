@@ -72,6 +72,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "select-atom-info.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-coord-extras.hh"
+#include "coot-utils/xmap-stats.hh"
 #include "crunch-model.hh"
 
 #include "geometry/protein-geometry.hh"
@@ -3108,6 +3109,9 @@ public:        //                      public
 						 const clipper::Xmap<float> &xmap,
 						 float map_weight,
 						 int n_samples);
+
+   mean_and_variance<float> map_histogram_values;
+   mean_and_variance<float> set_and_get_histogram_values(unsigned int n_bins); // fill above
 };
 
 #endif // MOLECULE_CLASS_INFO_T

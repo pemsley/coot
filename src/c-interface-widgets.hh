@@ -99,6 +99,6 @@ generic_objects_dialog_table_add_object_internal(const coot::generic_display_obj
 						 int io);
 
 /* return a new object number (so that we can set it to be displayed). */
-int add_generic_display_object(const coot::generic_display_object_t &gdo); 
+int add_generic_display_object(const coot::generic_display_object_t &gdo);
 
 #endif // C_INTERFACE_WIDGETS_HH
