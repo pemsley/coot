@@ -2641,8 +2641,123 @@ void fill_single_map_properties_dialog(GtkWidget *window, int imol) {
    GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(scale));
    float op = g.molecules[imol].density_surface_opacity;
    gtk_adjustment_set_value(adjustment, 100.0*op);
-   
+
+   GtkWidget *map_contour_frame =
+      GTK_WIDGET(lookup_widget(GTK_WIDGET(window), "single_map_properties_map_histogram_frame"));
+
+   GtkWidget *alignment =
+      GTK_WIDGET(lookup_widget(GTK_WIDGET(window), "alignment169")); // change the name
+
+   if (map_contour_frame) {
+      fill_map_histogram_widget(imol, alignment);
+   }
 } 
+
+#include "goograph/goograph.hh"
+#include "coot-utils/xmap-stats.hh"
+
+void
+fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
+
+#ifdef HAVE_GOOCANVAS
+
+   if (is_valid_map_molecule(imol)) {
+      unsigned int n = graphics_info_t::molecules[imol].map_histogram_values.size();
+      if (n == 1) {
+	 // pass, previous fail
+      } else {
+
+	 if (true) {
+
+	    const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol].xmap;
+	    unsigned int n_bins = 1000;
+	    bool ignore_pseudo_zeros = false;
+	    mean_and_variance <float> mv = map_density_distribution(xmap, n_bins, false, ignore_pseudo_zeros);
+
+	    if (false) {
+	       std::cout << "mv: mean: " << mv.mean << std::endl;
+	       std::cout << "mv: var: " << mv.variance << std::endl;
+	       std::cout << "mv: sd: " << sqrt(mv.variance) << std::endl;
+	    }
+
+	    if (mv.bins.size() > 0) {
+	       std::vector<std::pair<double, double> > data(mv.bins.size());
+	       for (unsigned int ibin=0; ibin<mv.bins.size(); ibin++) {
+		  double x = (ibin+0.5)*mv.bin_width + mv.min_density;
+		  double y = mv.bins[ibin];
+		  data[ibin] = std::pair<double, double> (x, y);
+	       }
+
+	       int graph_x_n_pixels = 300;
+	       int graph_y_n_pixels =  64;
+	       coot::goograph* g = new coot::goograph(graph_x_n_pixels, graph_y_n_pixels);
+	       int trace = g->trace_new();
+
+	       g->set_plot_title("");
+	       g->set_data(trace, data);
+	       // g->set_axis_label(coot::goograph::X_AXIS, "Density Value");
+	       // g->set_axis_label(coot::goograph::Y_AXIS, "Counts");
+	       g->set_trace_type(trace, coot::graph_trace_info_t::PLOT_TYPE_BAR);
+	       g->set_trace_colour(trace, "#111111");
+	       if (true) {
+		  if (data.size() == 0) {
+		  } else {
+		     // find y_max ignoring the peak
+		     double y_max           = -1e100;
+		     double y_max_secondary = -1e100;
+		     unsigned int idata_peak = 0;
+		     for (unsigned int idata=0; idata<data.size(); idata++) {
+			if (data[idata].second > y_max) {
+			   y_max = data[idata].second;
+			   idata_peak = idata;
+			}
+		     }
+		     for (unsigned int idata=0; idata<data.size(); idata++) {
+			if (idata != idata_peak)
+			   if (data[idata].second > y_max_secondary)
+			      y_max_secondary = data[idata].second;
+		     }
+
+		     // std::cout << ":::::::::: y_max_secondary " << y_max_secondary << std::endl;
+
+		     g->set_extents(coot::goograph::X_AXIS,
+				    mv.mean-2*sqrt(mv.variance),
+				    mv.mean+2*sqrt(mv.variance)
+				    );
+		     if (false)
+			std::cout << "::::: set_extents() X: "
+				  << mv.mean-2*sqrt(mv.variance) << " " 
+				  << mv.mean+2*sqrt(mv.variance) << "\n";
+		     if (y_max_secondary > 0) {
+			double y_max_graph = y_max_secondary * 1.3;
+			g->set_extents(coot::goograph::Y_AXIS,
+				       0,
+				       0.7 * y_max_graph); // calls set_data_scales() internall
+			if (false)
+			   std::cout << "::::: set_extents() Y: "
+				     << 0 << " " << y_max_graph << std::endl;
+			// draw x-axis ticks only
+			g->set_draw_axis(coot::goograph::Y_AXIS, false);
+			g->set_draw_axis(coot::goograph::X_AXIS, false);
+			g->set_draw_ticks(coot::goograph::Y_AXIS, false);
+			GtkWidget *canvas = g->get_canvas();
+			// ticks fall off the graph, sigh - add an offset
+			gtk_widget_set_size_request(canvas, graph_x_n_pixels, graph_y_n_pixels+10);
+			g->draw_graph();
+
+			gtk_widget_show(canvas);
+			gtk_container_add(GTK_CONTAINER(map_contour_frame), canvas);
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+#else
+   gtk_widget_hide(map_contour_frame);
+#endif
+}
 
 /*  ----------------------------------------------------------------------- */
 /*                  miguels orientation axes matrix                         */

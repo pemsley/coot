@@ -576,6 +576,8 @@
   (define (glyco-id->residue-spec glyco-id)
     (list-ref glyco-id 5))
 
+  ;; can return a list (of label strings) or 'expert-user-mode (because there is no test)
+  ;; in that case
   (define (get-sensitive-button-list glyco-id tree-type)
 
     (if (not (list? glyco-id))
@@ -842,10 +844,11 @@
   (let ((l (gtk-button-get-label button)))
     (let ((active-button-label-list (get-sensitive-button-list glyco-id tree-type)))
       ;; (format #t "active-button-label-list: ~s~%" active-button-label-list)
-      (if (eq? active-button-label-list 'expert-mode)
+      (if (eq? active-button-label-list 'expert-user-mode)
 	  (gtk-widget-set-sensitive button #t)
 	  (if (and (not (string=? l "Update for Current Residue"))
                    (not (string=? l "Refine Tree")))
+	      ;; don't do this for active-button-label-list is 'expert-user-mode
 	      (gtk-widget-set-sensitive button (string-member? l active-button-label-list)))))))
 
 

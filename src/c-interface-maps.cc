@@ -1358,7 +1358,6 @@ void map_histogram(int imol_map) {
 	 }
 	 mean_and_variance<float> mv = map_density_distribution(xmap, n_bins, false, ignore_pseudo_zeros);
 
-
 	 if (mv.bins.size() > 0) { 
 	    std::vector<std::pair<double, double> > data(mv.bins.size());
 	    for (unsigned int ibin=0; ibin<mv.bins.size(); ibin++) {
@@ -1400,12 +1399,12 @@ void map_histogram(int imol_map) {
 		  std::cout << ":::::::::: y_max_secondary " << y_max_secondary << std::endl;
 	    
 		  g->set_extents(coot::goograph::X_AXIS,
-				 mv.mean-8*sqrt(mv.variance),
-				 mv.mean+8*sqrt(mv.variance)
+				 mv.mean-3*sqrt(mv.variance),
+				 mv.mean+3*sqrt(mv.variance)
 				 );
 		  std::cout << "::::: set_extents() X: "
-			    << mv.mean-4*sqrt(mv.variance) << " " 
-			    << mv.mean+4*sqrt(mv.variance) << "\n";
+			    << mv.mean-3*sqrt(mv.variance) << " " 
+			    << mv.mean+3*sqrt(mv.variance) << "\n";
 	    
 		  if (y_max_secondary > 0) {
 		     double y_max_graph = y_max_secondary * 1.4;

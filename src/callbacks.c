@@ -2323,7 +2323,7 @@ on_refine_params_dialog_ok_button_clicked
   GtkWidget *entry = lookup_widget(GTK_WIDGET(button), 
 				   "refine_params_weight_matrix_entry");
   if (entry) { 
-    set_refinemenent_weight_from_entry(entry);
+    set_refinement_weight_from_entry(entry);
   }
 
   gtk_widget_destroy(widget);
@@ -12598,5 +12598,17 @@ on_edit_merge_molecules1_activate      (GtkMenuItem     *menuitem,
 {
    GtkWidget *w = wrapped_create_merge_molecules_dialog();
    gtk_widget_show(w);
+}
+
+
+void
+on_weight_maxtrix_estimate_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *entry = lookup_widget(GTK_WIDGET(button), "refine_params_weight_matrix_entry");
+  estimate_map_weight(entry);
+
 }
 

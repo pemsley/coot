@@ -268,6 +268,9 @@ void save_directory_from_fileselection(const GtkWidget *fileselection);
 void save_directory_for_saving_from_fileselection(const GtkWidget *fileselection);
 void set_file_for_save_fileselection(GtkWidget *fileselection);
 
+void fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame);
+
+
 /*  ------------------------------------------------------------------- */
 /*                    file selection                                    */
 /*  ------------------------------------------------------------------- */
@@ -467,7 +470,10 @@ void do_torsions_toggle(GtkWidget *button);
 void set_refine_params_toggle_buttons(GtkWidget *button);
 
 /* Now the refinement weight can be set from an entry in the refine_params_dialog. */
-void set_refinemenent_weight_from_entry(GtkWidget *entry);
+void set_refinement_weight_from_entry(GtkWidget *entry);
+
+void estimate_map_weight(GtkWidget *entry);
+
 
 void check_chiral_volumes_from_widget(GtkWidget *window); 
 void fill_chiral_volume_molecule_option_menu(GtkWidget *w);

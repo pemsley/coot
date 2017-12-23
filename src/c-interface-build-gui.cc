@@ -212,10 +212,9 @@ GtkWidget *wrapped_create_delete_item_dialog() {
 	    if (delete_item_mode_is_chain_p()) {
 	       GtkWidget *chain_toggle_button = lookup_widget(widget,
 								  "delete_item_chain_radiobutton");
-	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chain_toggle_button), TRUE);
-	    } else {
 	       set_delete_chain_mode();
-	       std::cout << "Click on an atom in the residue that you wish to delete\n";
+	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chain_toggle_button), TRUE);
+	       std::cout << "Click on an atom in the chain that you wish to delete\n";
 	    }
 	 }
       }
@@ -358,17 +357,35 @@ void fill_place_atom_molecule_option_menu(GtkWidget *optionmenu) {
 }
 
 /* Now the refinement weight can be set from an entry in the refine_params_dialog. */
-void set_refinemenent_weight_from_entry(GtkWidget *entry) {
+void set_refinement_weight_from_entry(GtkWidget *entry) {
 
    const char *text = gtk_entry_get_text(GTK_ENTRY(entry));
    try {
       float f = coot::util::string_to_float(text);
       graphics_info_t::geometry_vs_map_weight = f;
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "in set_refinemenent_weight_from_entry " << rte.what() << std::endl;
    } 
-} 
+}
+
+void estimate_map_weight(GtkWidget *entry) {
+
+   int imol_map = imol_refinement_map();
+   if (is_valid_map_molecule(imol_map)) {
+      float mean = graphics_info_t::molecules[imol_map].map_mean();
+      float sd   = graphics_info_t::molecules[imol_map].map_sigma();
+
+      float v = 50*0.6/sd;
+      if (graphics_info_t::molecules[imol_map].is_EM_map())
+	 v *= 0.35;
+      graphics_info_t::geometry_vs_map_weight = v;
+      std::string t = coot::util::float_to_string(v);
+      gtk_entry_set_text(GTK_ENTRY(entry), t.c_str());
+   }
+
+}
+
 
 void place_atom_at_pointer_by_window() { 
 

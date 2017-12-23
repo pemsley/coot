@@ -7381,6 +7381,14 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
 
    $ lldb .libs/coot-bin -c /cores/core.18439
 
+    How to set a break point in a function:
+
+   break set --name malloc_error_break
+
+    and a member function:
+
+   break set --name coot::restraints_container_t::bonded_flanking_residues_by_residue_vector
+
 ----
   
    torsion fit this residue should do a rigid body refinement after each modification, 

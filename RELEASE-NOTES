@@ -1,4 +1,40 @@
   
+  Pre-Release 0.8.9
+
+  o FEATURE: Improved Ramachandran Plot, now with residue selection
+
+  o FEATURE: Use of threads and accumulation in contouring
+
+  o FEATURE: secondary structure added to the the API
+
+  o FEATURE: delete-chain and delete-sidechains-for-chain added to the API
+
+  o FEATURE: Added a user-defined modelling toolbar button to refine tandem residues
+
+  o FEATURE: peptide orientation optimisation function added
+
+  o CHANGE:  Refinement speed-up
+
+  o CHANGE:  Glyo module improved with distance restraints and better GUI
+
+  o CHANGE:  Better density fit graph scaling
+
+  o CHANGE:  Use ETKDG for embedding in pyrogen
+
+  o CHANGE:  Add-terminal-residue speed increase
+
+  o CHANGE:  Use less precision on writing the aniso ADPs for shelx ins
+
+  o CHANGE:  Optional Fourier Transform-based Ramachandran Plot target function introduced
+
+  o CHANGE:  Bond-thicknesses improved in colour-by-chain.
+
+  o CHANGE:  Robust MOL-file parsing added to lidia
+
+  o BUG-FIX: Gemen-McClure distance restraints activation bug fix
+
+  o BUG-FIX: delete-atom no longer crashed with given an invalid model molecule number
+
 ------
 
   Release 0.8.8
