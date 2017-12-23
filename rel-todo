@@ -1,60 +1,11 @@
 
    For Release 0.8.9
 
-   o expert mode in N-linked glyco addition
+   o fix the empty nomenclature errors dialog ::: 1
 
-In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/guile/gtk-2.0/gtk.scm:
- 147:  0* [apply #<procedure #f ()> ()]
-In unknown file:
-   ?:  1  [#<procedure #f ()>]
-In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/gui-add-linked-cho.scm:
-    ...
- 893:  2  (let* ((tree-type #)) (let* (#) (for-each # children) #t) #f)
- 894:  3* (let* ((children #)) (for-each (lambda # #) children) #t)
- 895:  4* [for-each #<procedure #f (child)> (# # # # ...)]
-In unknown file:
-   ?:  5* [#<procedure #f (child)> #<GtkButton 104b400e0>]
-In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/gui-add-linked-cho.scm:
- 896:  6* (if # #)
- 897:  7  [glyco-tree-dialog-set-button-active-state # # expert-user-mode]
-    ...
- 849:  8  [gtk-widget-set-sensitive #<GtkButton 104b400e0> ...
- 849:  9*  [string-member? "Add a NAG-ASN NAG" expert-user-mode]
-In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/coot-utils.scm:
- 560: 10   (cond ((null? ls) #f) ((string=? atom (car ls)) #t) ...)
- 562: 11*  [string=? "Add a NAG-ASN NAG" ...
- 562: 12*   [car expert-user-mode]
-/Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/coot-utils.scm:562:20: In procedure car in expression (car ls):
-/Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/coot-utils.scm:562:20: Wrong type (expecting pair): expert-user-mode
-In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/guile/gtk-2.0/gtk.scm:
- 147:  0* [apply #<procedure #f ()> ()]
-In unknown file:
-   ?:  1  [#<procedure #f ()>]
-In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/gui-add-linked-cho.scm:
-    ...
- 893:  2  (let* ((tree-type #)) (let* (#) (for-each # children) #t) #f)
- 894:  3* (let* ((children #)) (for-each (lambda # #) children) #t)
- 895:  4* [for-each #<procedure #f (child)> (# # # # ...)]
-In unknown file:
-   ?:  5* [#<procedure #f (child)> #<GtkButton 104b400e0>]
-In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/gui-add-linked-cho.scm:
- 896:  6* (if # #)
- 897:  7  [glyco-tree-dialog-set-button-active-state # # expert-user-mode]
-    ...
- 849:  8  [gtk-widget-set-sensitive #<GtkButton 104b400e0> ...
- 849:  9*  [string-member? "Add a NAG-ASN NAG" expert-user-mode]
-In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/coot-utils.scm:
- 560: 10   (cond ((null? ls) #f) ((string=? atom (car ls)) #t) ...)
- 562: 11*  [string=? "Add a NAG-ASN NAG" ...
- 562: 12*   [car expert-user-mode]
-/Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/coot-utils.scm:562:20: In procedure car in expression (car ls):
-/Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/coot-utils.scm:562:20: Wrong type (expecting pair): expert-user-mode
+   o holiday project: NMR ring current cones. ::: 4
 
-
-
-   o holiday project: NMR ring current cones.
-
-   o Sphere refine on a disulphide - e.g. in tutorial
+   o Sphere refine on a disulphide - e.g. in tutorial ::: 2
 
    o pyrogen -nM -w -r Y03 - regularize it - it fails ::: 1
 
@@ -454,3 +405,56 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
      ::: 1
 
 * Done
+
+   o expert mode in N-linked glyco addition
+
+In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/guile/gtk-2.0/gtk.scm:
+ 147:  0* [apply #<procedure #f ()> ()]
+In unknown file:
+   ?:  1  [#<procedure #f ()>]
+In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/gui-add-linked-cho.scm:
+    ...
+ 893:  2  (let* ((tree-type #)) (let* (#) (for-each # children) #t) #f)
+ 894:  3* (let* ((children #)) (for-each (lambda # #) children) #t)
+ 895:  4* [for-each #<procedure #f (child)> (# # # # ...)]
+In unknown file:
+   ?:  5* [#<procedure #f (child)> #<GtkButton 104b400e0>]
+In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/gui-add-linked-cho.scm:
+ 896:  6* (if # #)
+ 897:  7  [glyco-tree-dialog-set-button-active-state # # expert-user-mode]
+    ...
+ 849:  8  [gtk-widget-set-sensitive #<GtkButton 104b400e0> ...
+ 849:  9*  [string-member? "Add a NAG-ASN NAG" expert-user-mode]
+In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/coot-utils.scm:
+ 560: 10   (cond ((null? ls) #f) ((string=? atom (car ls)) #t) ...)
+ 562: 11*  [string=? "Add a NAG-ASN NAG" ...
+ 562: 12*   [car expert-user-mode]
+/Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/coot-utils.scm:562:20: In procedure car in expression (car ls):
+/Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/coot-utils.scm:562:20: Wrong type (expecting pair): expert-user-mode
+In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/guile/gtk-2.0/gtk.scm:
+ 147:  0* [apply #<procedure #f ()> ()]
+In unknown file:
+   ?:  1  [#<procedure #f ()>]
+In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/gui-add-linked-cho.scm:
+    ...
+ 893:  2  (let* ((tree-type #)) (let* (#) (for-each # children) #t) #f)
+ 894:  3* (let* ((children #)) (for-each (lambda # #) children) #t)
+ 895:  4* [for-each #<procedure #f (child)> (# # # # ...)]
+In unknown file:
+   ?:  5* [#<procedure #f (child)> #<GtkButton 104b400e0>]
+In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/gui-add-linked-cho.scm:
+ 896:  6* (if # #)
+ 897:  7  [glyco-tree-dialog-set-button-active-state # # expert-user-mode]
+    ...
+ 849:  8  [gtk-widget-set-sensitive #<GtkButton 104b400e0> ...
+ 849:  9*  [string-member? "Add a NAG-ASN NAG" expert-user-mode]
+In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/coot-utils.scm:
+ 560: 10   (cond ((null? ls) #f) ((string=? atom (car ls)) #t) ...)
+ 562: 11*  [string=? "Add a NAG-ASN NAG" ...
+ 562: 12*   [car expert-user-mode]
+/Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/coot-utils.scm:562:20: In procedure car in expression (car ls):
+/Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/coot-utils.scm:562:20: Wrong type (expecting pair): expert-user-mode
+
+::: 1
+
+* Done.
