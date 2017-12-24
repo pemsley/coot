@@ -654,19 +654,18 @@ make_asc(mmdb::Manager *mol, bool transfer_atom_index_flag) {
 void
 atom_selection_container_t::fill_links(mmdb::Manager *mol_other) {
 
-   if (1) {  // debugging
-      if (mol_other) { 
-	 mmdb::Model *model_p = mol_other->GetModel(1);
-	 if (model_p) {
-	    unsigned int n_links = model_p->GetNumberOfLinks();
-	    links.resize(n_links);
-	    for (unsigned int i=0; i<n_links; i++) { 
-	       mmdb::Link l;
-	       l.Copy(model_p->GetLink(i));
-	       links[i] = l;
+   if (mol_other) {
+      mmdb::Model *model_p = mol_other->GetModel(1);
+      if (model_p) {
+	 unsigned int n_links = model_p->GetNumberOfLinks();
+	 for (unsigned int i=1; i<=n_links; i++) {
+	    mmdb::Link *ref_link = model_p->GetLink(i);
+	    if (ref_link) {
+	       mmdb::Link l(*ref_link);
+	       links.push_back(l);
 	    }
-	 } 
-      }
+	 }
+      } 
    }
 }
 
