@@ -92,6 +92,9 @@ Bond_lines_ext::find_skel_atom_bonds(atom_selection_container_t SelAtom) {
 
 	 if ( contact[i].id2 >  contact[i].id1 ) {
 
+	    int iat_1 = contact[i].id1;
+	    int iat_2 = contact[i].id2;
+
 	    coot::Cartesian atom_1(atom_sel[ contact[i].id1 ]->x,
 			     atom_sel[ contact[i].id1 ]->y,
 			     atom_sel[ contact[i].id1 ]->z);
@@ -100,7 +103,7 @@ Bond_lines_ext::find_skel_atom_bonds(atom_selection_container_t SelAtom) {
 			     atom_sel[ contact[i].id2 ]->y,
 			     atom_sel[ contact[i].id2 ]->z);
 
-	    addBond(col, atom_1, atom_2, cc);
+	    addBond(col, atom_1, atom_2, cc, iat_1, iat_2);
 
 	 } // contact atom is higher up the list check.
       } // i over ncontacts
