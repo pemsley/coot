@@ -1431,9 +1431,10 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 	    if (i_thread == (n_threads - 1))
 	       iat_end = n_selected_atoms; // for loop uses iat_start and tests for < iat_end
 
-	    if (false)
-	       std::cout << "thread: " << i_thread << " from atom " << iat_start
-			 << " to " << iat_end << std::endl;
+	    if (false) // useful for debugging
+	       std::cout << "thread: " << i_thread << " from atom " << iat_start << " to "
+			 << iat_end << std::endl;
+
 	    results_container_vec[i_thread] = atom_overlaps_dots_container_t(n_per_thread);
  	    threads.push_back(std::thread(contacts_for_atoms, iat_start, iat_end,
 					  atom_selection, contact_map, bonded_map,
@@ -1456,6 +1457,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 			    << it->first << " " << it->second.size() << std::endl;
 	       }
 	    }
+	    std::cout << "consolidating..." << std::endl;
 	 }
 
 	 if (false)
@@ -1463,6 +1465,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 
 	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
 	    ao.add(results_container_vec[i_thread]);
+
 	 if (false) { // debugging
 	    std::cout << "consolidated" << std::endl;
 	    std::map<std::string, std::vector<atom_overlaps_dots_container_t::dot_t> >::const_iterator it;

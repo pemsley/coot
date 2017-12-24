@@ -100,7 +100,7 @@ PyObject *pyobject_from_graphical_bonds_container(int imol,
 	 for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
 	    const coot::Cartesian &pt = bonds_box.consolidated_atom_centres[icol].points[i].position;
 	    bool is_H_flag     = bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom;
-	    long residue_index = bonds_box.consolidated_atom_centres[icol].points[i].residue_index;
+	    long atom_index = bonds_box.consolidated_atom_centres[icol].points[i].atom_index;
 	    PyObject *atom_info_quad_py = PyTuple_New(4);
 	    PyObject *coords_py = PyTuple_New(3);
 	    PyObject *atom_spec_py = Py_False; // worry about Py_INCREF for atom_spec_py when it's not set
@@ -120,7 +120,7 @@ PyObject *pyobject_from_graphical_bonds_container(int imol,
 	       s = spec.format();
 	    }
 
-	    PyObject *residue_index_py = PyInt_FromLong(residue_index);
+	    PyObject *atom_index_py = PyInt_FromLong(atom_index);
 	    PyTuple_SetItem(coords_py, 0, PyFloat_FromDouble(pt.x()));
 	    PyTuple_SetItem(coords_py, 1, PyFloat_FromDouble(pt.y()));
 	    PyTuple_SetItem(coords_py, 2, PyFloat_FromDouble(pt.z()));
@@ -128,7 +128,7 @@ PyObject *pyobject_from_graphical_bonds_container(int imol,
 	    PyTuple_SetItem(atom_info_quad_py, 1, PyBool_FromLong(is_H_flag));
 	    // PyTuple_SetItem(atom_info_quad_py, 2, PyString_FromString(s.c_str())); old
 	    PyTuple_SetItem(atom_info_quad_py, 2, atom_spec_py);
-	    PyTuple_SetItem(atom_info_quad_py, 3, residue_index_py);
+	    PyTuple_SetItem(atom_info_quad_py, 3, atom_index_py);
 	    PyTuple_SetItem(atom_set_py, i, atom_info_quad_py);
 	 }
 	 PyTuple_SetItem(all_atom_positions_py, icol, atom_set_py);
@@ -144,13 +144,16 @@ PyObject *pyobject_from_graphical_bonds_container(int imol,
       PyObject *line_set_py = PyTuple_New(bonds_box.bonds_[i].num_lines);
       for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
 	 const graphics_line_t::cylinder_class_t &cc = ll.pair_list[j].cylinder_class;
-	 int ri = ll.pair_list[j].residue_index; // set to -1 by constructor, overwite if possible
+	 // int ri = ll.pair_list[j].residue_index; // set to -1 by constructor, overwite if possible
+	 int iat_1 = ll.pair_list[j].atom_index_1;
+	 int iat_2 = ll.pair_list[j].atom_index_2;
 
 	 PyObject *p0_py   = PyTuple_New(3);
 	 PyObject *p1_py   = PyTuple_New(3);
-	 PyObject *positions_and_order_py = PyTuple_New(4);
+	 PyObject *positions_and_order_py = PyTuple_New(5);
 	 PyObject *order_py = PyInt_FromLong(cc);
-	 PyObject *residue_index_py = PyInt_FromLong(ri);
+	 PyObject *atom_index_1_py = PyInt_FromLong(iat_1);
+	 PyObject *atom_index_2_py = PyInt_FromLong(iat_2);
 	 PyTuple_SetItem(p0_py, 0, PyFloat_FromDouble(ll.pair_list[j].positions.getStart().get_x()));
 	 PyTuple_SetItem(p0_py, 1, PyFloat_FromDouble(ll.pair_list[j].positions.getStart().get_y()));
 	 PyTuple_SetItem(p0_py, 2, PyFloat_FromDouble(ll.pair_list[j].positions.getStart().get_z()));
@@ -160,7 +163,8 @@ PyObject *pyobject_from_graphical_bonds_container(int imol,
 	 PyTuple_SetItem(positions_and_order_py, 0, p0_py);
 	 PyTuple_SetItem(positions_and_order_py, 1, p1_py);
 	 PyTuple_SetItem(positions_and_order_py, 2, order_py);
-	 PyTuple_SetItem(positions_and_order_py, 3, residue_index_py);
+	 PyTuple_SetItem(positions_and_order_py, 3, atom_index_1_py);
+	 PyTuple_SetItem(positions_and_order_py, 4, atom_index_2_py);
 	 PyTuple_SetItem(line_set_py, j, positions_and_order_py);
       }
       PyTuple_SetItem(bonds_tuple, i, line_set_py);

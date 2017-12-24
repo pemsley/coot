@@ -3144,6 +3144,11 @@ molecule_class_info_t::set_have_unit_cell_flag_maybe(bool warn_about_missing_sym
    }
 }
 
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// add_residue_indices argument is no longer used - the atom indices are added
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 
 void
 molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p,
@@ -3155,7 +3160,7 @@ molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::pro
 
    Bond_lines_container bonds(atom_sel, min_dist, max_dist);
    bonds_box.clear_up();
-   bonds_box = bonds.make_graphical_bonds(add_residue_indices);
+   bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::NORMAL_BONDS;
    if (! draw_hydrogens_flag)
       bonds_box_type = coot::BONDS_NO_HYDROGENS;
@@ -3190,7 +3195,7 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
    Bond_lines_container bonds(atom_sel, imol_no, geom_p, do_disulphide_flag, draw_hydrogens_flag,
 			      model_number);
    bonds_box.clear_up();
-   bonds_box = bonds.make_graphical_bonds(add_residue_indices);
+   bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::NORMAL_BONDS;
    if (! draw_hydrogens_flag)
       bonds_box_type = coot::BONDS_NO_HYDROGENS;
@@ -3202,8 +3207,7 @@ molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist) {
 
    Bond_lines_container bonds(graphics_info_t::Geom_p());
    bonds.do_Ca_bonds(atom_sel, min_dist, max_dist);
-   bool add_residue_indices = true;
-   bonds_box = bonds.make_graphical_bonds_no_thinning(add_residue_indices);
+   bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS;
    // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
 
@@ -3219,8 +3223,7 @@ molecule_class_info_t::make_ca_plus_ligands_bonds(coot::protein_geometry *geom_p
 
    Bond_lines_container bonds(geom_p);
    bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7, draw_hydrogens_flag);
-   bool add_residue_indices = true;
-   bonds_box = bonds.make_graphical_bonds_no_thinning(add_residue_indices);
+   bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
    
    // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
@@ -3232,8 +3235,7 @@ molecule_class_info_t::make_ca_plus_ligands_and_sidechains_bonds(coot::protein_g
    Bond_lines_container bonds(geom_p);
    bonds.do_Ca_plus_ligands_and_sidechains_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7,
                                                  0.01, 1.9, draw_hydrogens_flag);
-   bool add_residue_indices = true;
-   bonds_box = bonds.make_graphical_bonds_no_thinning(add_residue_indices);
+   bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS;
    
    // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
@@ -3244,12 +3246,11 @@ molecule_class_info_t::make_colour_by_chain_bonds(short int change_c_only_flag) 
    // 
    Bond_lines_container bonds(graphics_info_t::Geom_p());
    bonds.do_colour_by_chain_bonds(atom_sel, imol_no, draw_hydrogens_flag, change_c_only_flag);
-   bool add_residue_indices = true;
-   bonds_box = bonds.make_graphical_bonds_no_thinning(add_residue_indices); // make_graphical_bonds() is pretty
-                                                                            // stupid when it comes to thining.
+   bonds_box = bonds.make_graphical_bonds_no_thinning(); // make_graphical_bonds() is pretty
+                                                         // stupid when it comes to thining.
 
-   bonds_box = bonds.make_graphical_bonds(add_residue_indices); // make_graphical_bonds() is pretty
-                                                                // stupid when it comes to thining.
+   bonds_box = bonds.make_graphical_bonds(); // make_graphical_bonds() is pretty
+                                             // stupid when it comes to thining.
 
    bonds_box_type = coot::COLOUR_BY_CHAIN_BONDS;
 
