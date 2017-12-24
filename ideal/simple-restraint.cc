@@ -430,11 +430,13 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
 
    // z weights:
    //
-   atom_z_weight.resize(n_atoms);
+   atom_z_occ_weight.resize(n_atoms);
    std::vector<std::pair<std::string, int> > atom_list = coot::util::atomic_number_atom_list();
    for (int i=0; i<n_atoms; i++) {
       double z = coot::util::atomic_number(atom[i]->element, atom_list);
       double weight = 1.0;
+      double occupancy = atom[i]->occupancy;
+      if (occupancy > 1.0) occupancy = 1.0;
       if (cryo_em_mode) {
 	 // is-side-chain? would be a better test
 	 if (! is_main_chain_or_cb_p(atom[i]))
@@ -449,9 +451,9 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
 
       if (z < 0.0) {
 	 std::cout << "Unknown element :" << atom[i]->element << ": " << std::endl;
-	 z = weight * 6.0; // as for carbon
+	 z = 6.0; // as for carbon
       } 
-      atom_z_weight[i] = weight * z;
+      atom_z_occ_weight[i] = weight * z * occupancy;
    }
    
    // the fixed atoms:   
@@ -1310,9 +1312,9 @@ coot::electron_density_score(const gsl_vector *v, void *params) {
       (coot::restraints_container_t *)params; 
 
    if (restraints->include_map_terms() == 1) { 
-      
+
       // convert from variables to coord_orths of where the atoms are
-      
+
       for (unsigned int i=0; i< v->size; i += 3) { 
 	 int iat = i/3;
 	 if (restraints->use_map_gradient_for_atom[iat]) {
@@ -1328,9 +1330,9 @@ coot::electron_density_score(const gsl_vector *v, void *params) {
 	       clipper::Coord_orth ao(gsl_vector_get(v,i), 
 				      gsl_vector_get(v,i+1), 
 				      gsl_vector_get(v,i+2));
-	       
+
 	       score += restraints->Map_weight() *
-		  restraints->atom_z_weight[iat] *
+		  restraints->atom_z_occ_weight[iat] *
 		  restraints->electron_density_score_at_point(ao);
 	    }
 	 }
@@ -1458,7 +1460,7 @@ void coot::my_df_electron_density_old_2017(const gsl_vector *v,
 	    //
 	    // 
 	    grad_orth = restraints->electron_density_gradient_at_point(ao);
-	    zs = scale * restraints->atom_z_weight[iat];
+	    zs = scale * restraints->atom_z_occ_weight[iat];
 
 	    if (0) {
 	       std::cout << "electron density df: adding "
@@ -1516,7 +1518,7 @@ void coot::my_df_electron_density_threaded_single(int thread_idx, const gsl_vect
 				gsl_vector_get(v,idx+2));
 	    
 	 clipper::Grad_orth<double> grad_orth = restraints->electron_density_gradient_at_point(ao);
-	 float zs = restraints->Map_weight() * restraints->atom_z_weight[iat];
+	 float zs = restraints->Map_weight() * restraints->atom_z_occ_weight[iat];
 
 	 if (0) { 
 	    std::cout << "electron density df: adding "
@@ -1557,7 +1559,7 @@ void coot::my_df_electron_density_single(const gsl_vector *v,
 				gsl_vector_get(v,idx+2));
 	    
 	 clipper::Grad_orth<double> grad_orth = restraints->electron_density_gradient_at_point(ao);
-	 float zs = restraints->Map_weight() * restraints->atom_z_weight[iat];
+	 float zs = restraints->Map_weight() * restraints->atom_z_occ_weight[iat];
 
 	 if (0) { 
 	    std::cout << "electron density df: adding "
@@ -5169,6 +5171,8 @@ coot::restraints_container_t::copy_from(int i) {
 
 }
 
+// this was an experiment when trying to work with const ref data xmap.
+// It didn't work this way.
 void
 coot::restraints_container_t::copy_from(const coot::restraints_container_t &rest_in) {
 
@@ -5238,7 +5242,7 @@ coot::restraints_container_t::copy_from(const coot::restraints_container_t &rest
    restraints_usage_flag = rest_in.restraints_usage_flag;
 
    use_map_gradient_for_atom = rest_in.use_map_gradient_for_atom;
-   atom_z_weight = rest_in.atom_z_weight;
+   atom_z_occ_weight = rest_in.atom_z_occ_weight;
    geman_mcclure_alpha = rest_in.geman_mcclure_alpha;
 
    cryo_em_mode = rest_in.cryo_em_mode;

@@ -1967,7 +1967,7 @@ namespace coot {
       // flanking residues will have zeroes here).
       //
       std::vector<bool> use_map_gradient_for_atom;
-      std::vector<double> atom_z_weight;  // weight e.d. fit by atomic number
+      std::vector<double> atom_z_occ_weight;  // weight e.d. fit by atomic number and occ
 
       // Make a MMDBManager from the selection and return this new
       // mmdb::PManager.  It is the users responsibility to delete it.
