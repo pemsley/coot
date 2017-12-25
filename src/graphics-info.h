@@ -4027,6 +4027,12 @@ string   static std::string sessionid;
 
    static bool update_maps_on_recentre_flag;
 
+#ifdef USE_PYTHON
+   PyObject *pyobject_from_graphical_bonds_container(int imol,
+						     const graphical_bonds_container &bonds_box) const;
+   PyObject *get_intermediate_atoms_bonds_representation();
+#endif
+
 #ifdef HAVE_CXX_THREAD
    static ctpl::thread_pool static_thread_pool;
 #endif

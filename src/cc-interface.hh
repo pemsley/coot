@@ -707,6 +707,10 @@ PyObject *get_bonds_representation(int imol);
 //          the specified residue
 PyObject *get_environment_distances_representation_py(int imol, PyObject *residue_spec_py);
 
+//! \brief return a Python object for the intermediate atoms bonds
+//
+PyObject *get_intermediate_atoms_bonds_representation();
+
 
 #endif // USE_PYTHON
 
