@@ -1457,11 +1457,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 			    << it->first << " " << it->second.size() << std::endl;
 	       }
 	    }
-	    std::cout << "consolidating..." << std::endl;
 	 }
-
-	 if (false)
-	    std::cout << "consolidating..." << std::endl;
 
 	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
 	    ao.add(results_container_vec[i_thread]);
