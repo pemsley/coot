@@ -4510,39 +4510,16 @@ void handle_scroll_density_level_event(int scroll_up_down_flag) {
    if (peek_event) {
       std::cout << "peaking found an event!" << std::endl;
    }
-    
+
+   int s = info.scroll_wheel_map;
    if (scroll_up_down_flag == 1) {
-      //
-      // consider using
-      // change_contour_level(1); // is_increment
-
       if (graphics_info_t::do_scroll_by_wheel_mouse_flag) { 
-
-	 int s = info.scroll_wheel_map;
-
-	 std::vector<int> num_displayed_maps = info.displayed_map_imols();
-	 if (num_displayed_maps.size() == 1) 
-	    s = num_displayed_maps[0];
-
-	 if (s >= 0) { // i.e. not as yet unassigned 
+	 if (s>=0) {
 	    short int istate = info.molecules[s].change_contour(1);
-
-	    if (istate) { 
-	       info.set_density_level_string(s, info.molecules[s].contour_level);
-	       info.display_density_level_this_image = 1;
-
-	       // if (gtk_events_pending() == 0 ) { // there is always this event
-	       info.molecules[s].update_map();
-	       info.graphics_draw();
-	       // 	 while (gtk_events_pending())
-	       // 	    gtk_main_iteration();
-
-	       // 	 } else {
-	       // 	    std::cout << "events pending " << gtk_events_pending() << std::endl; 
-	       // 	 } 
-// 	       std::cout << "contour level of molecule [" << s << "]:  "
-// 			 << info.molecules[s].contour_level[0] << std::endl;
-	    }
+	    info.molecules[s].pending_contour_level_change_count++;
+	    int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, info.glarea);
+	    info.set_density_level_string(s, info.molecules[s].contour_level);
+	    info.display_density_level_this_image = 1;
 	 } else {
 	    std::cout << "WARNING: No map - Can't change contour level.\n";
 	 }
@@ -4550,26 +4527,14 @@ void handle_scroll_density_level_event(int scroll_up_down_flag) {
    }
    
    if (scroll_up_down_flag == 0) {
-
       if (graphics_info_t::do_scroll_by_wheel_mouse_flag) { 
 	 int s = info.scroll_wheel_map;
-	 short int happened = 0;
-
-	 std::vector<int> num_displayed_maps = info.displayed_map_imols();
-	 if (num_displayed_maps.size() == 1) 
-	    s = num_displayed_maps[0];
-	 if (s >= 0) { 
-
-	    happened = info.molecules[s].change_contour(-1);
-
+	 if (s>=0) {
+	    short int istate = info.molecules[s].change_contour(-1);
+	    info.molecules[s].pending_contour_level_change_count--;
+	    int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, info.glarea);
 	    info.set_density_level_string(s, info.molecules[s].contour_level);
 	    info.display_density_level_this_image = 1;
-	    if (happened) { 
-	       info.molecules[s].update_map();
-	    }
-	    info.graphics_draw();
-// 	    std::cout << "contour level of molecule [" << s << "]:  "
-// 		      << info.molecules[s].contour_level[0] << std::endl;
 	 } else {
 	    std::cout << "WARNING: No map - Can't change contour level.\n";
 	 }
