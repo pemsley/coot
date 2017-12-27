@@ -1099,7 +1099,8 @@ coot::residue_spec_t residue_spec_from_py(PyObject *residue_in) {
    int offset = 0;
 
    if (PyList_Check(residue_in)) {
-      if (PyList_Size(residue_in) == 4)
+      long len = PyList_Size(residue_in);
+      if (len == 4)
          offset = 1;
       PyObject *chain_id_py = PyList_GetItem(residue_in, 0+offset);
       PyObject *resno_py    = PyList_GetItem(residue_in, 1+offset);
@@ -1111,6 +1112,13 @@ coot::residue_spec_t residue_spec_from_py(PyObject *residue_in) {
                std::string ins_code  = PyString_AsString(ins_code_py);
                long resno            = PyInt_AsLong(resno_py);
                rspec = coot::residue_spec_t(chain_id, resno, ins_code);
+	       if (len == 4) {
+		  PyObject *o = PyList_GetItem(residue_in, 0);
+		  if (PyInt_Check(o)) {
+		     long imol = PyInt_AsLong(o);
+		     rspec.int_user_data = imol;
+		  }
+	       }
                return rspec;
             }
          }

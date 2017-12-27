@@ -309,7 +309,9 @@ coot_bin_SOURCES = \
 	cc-interface-ncs.hh      \
 	cc-interface-network.hh  \
 	cc-interface-mogul.hh    \
-	cc-interface-scripting.hh \
+	cc-interface-scripting.hh\
+	cc-interface-image.hh    \
+	cc-interface-png.cc      \
 	cc-interface-user-defined-atom-colours.hh \
 	cc-interface-user-defined-atom-colours.cc \
 	callbacks.c callbacks.h	 \
