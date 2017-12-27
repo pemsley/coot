@@ -12,7 +12,10 @@
 
    o pyrogen -nM -w -r Y03 - regularize it - it fails ::: 1
 
+   o add mouse-scroll consolidation of contour level deltas
+
    o doing a merge and doing a change chain ids should move over the Link records also.
+
      Add a test ::: 1
 
    o on merging molecules, remove the TER card if we are adding to an already existing chain.
