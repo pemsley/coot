@@ -129,6 +129,7 @@ int get_monomer(const std::string &comp_id_in) {
 	 if (r.has_restraints_for(comp_id))
 	    cif_lib_filename = dict_name;
       }
+      args.push_back(coot::util::single_quote(cif_lib_filename));
       coot::command_arg_t retval = coot::scripting_function(function_name, args);
       if (retval.type == coot::command_arg_t::INT) {
 	 imol = retval.i;
