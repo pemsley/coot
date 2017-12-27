@@ -99,4 +99,16 @@ PyObject *get_environment_distances_representation_py(int imol, PyObject *residu
 }
 
 
+// deliberately inside the Python test
+
+//! \brief return the continue-updating-refinement-atoms state
+//
+// 0 means off, 1 means on.
+int get_continue_updating_refinement_atoms_state() {
+
+   // bool to int
+   return graphics_info_t::continue_update_refinement_atoms_flag;
+
+}
+
 #endif // Python
