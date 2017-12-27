@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include "utils/coot-utils.hh"
 #include "residue-and-atom-specs.hh"
 
 std::ostream& coot::operator<< (std::ostream& s, const coot::atom_spec_t &spec) {
@@ -53,6 +54,88 @@ std::ostream& coot::operator<< (std::ostream& s, const coot::residue_spec_t &spe
    } 
    return s;
 
+}
+
+// formatted as if you'd clicked on it in the graphics window
+// But the residue type is missing - see below
+std::string
+coot::atom_spec_t::label() const {
+   std::string s;
+   s += atom_name;
+   if (! alt_conf.empty()) {
+      s += ",";
+      s += alt_conf;
+   }
+   s += "/";
+   s += util::int_to_string(res_no);
+   if (! ins_code.empty()) {
+      s += ",";
+      s += ins_code;
+   }
+   s += "/";
+   s += chain_id;
+   return s;
+}
+
+
+// formatted as if you'd clicked on it in the graphics window
+// Use the passed residue type.
+std::string
+coot::atom_spec_t::label(const std::string &residue_name) const {
+   std::string s;
+   s += atom_name;
+   if (! alt_conf.empty()) {
+      s += ",";
+      s += alt_conf;
+   }
+   s += "/";
+   s += util::int_to_string(res_no);
+   if (! ins_code.empty()) {
+      s += ",";
+      s += ins_code;
+   }
+   if (! residue_name.empty()) {
+      s += " ";
+      s += residue_name;
+   }
+   s += "/";
+   s += chain_id;
+   return s;
+}
+
+// formatted as if you'd clicked on it in the graphics window
+// But the residue type is missing - see below
+std::string
+coot::residue_spec_t::label() const {
+   std::string s;
+   s += util::int_to_string(res_no);
+   if (! ins_code.empty()) {
+      s += ",";
+      s += ins_code;
+   }
+   s += "/";
+   s += chain_id;
+   return s;
+}
+
+
+// formatted as if you'd clicked on it in the graphics window
+// Use the passed residue type.
+std::string
+coot::residue_spec_t::label(const std::string &residue_name) const {
+   std::string s;
+   s += util::int_to_string(res_no);
+   if (! ins_code.empty()) {
+      s += ",";
+      s += ins_code;
+   }
+   if (! residue_name.empty()) {
+      s += " ";
+      s += residue_name;
+   }
+   s += "/";
+   s += chain_id;
+   return s;
 }
 
 
