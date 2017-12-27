@@ -91,7 +91,9 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
 
    // imol is added into the atom specs so that the atoms knw the molecule they were part of
 
-   PyObject *r = PyTuple_New(2);
+   int n_data_item_types = 2; // bonds and angles
+   if (bonds_box.n_ramachandran_goodness_spots > 0) n_data_item_types++;
+   PyObject *r = PyTuple_New(n_data_item_types);
 
    if (bonds_box.atom_centres_) {
       PyObject *all_atom_positions_py = PyTuple_New(bonds_box.n_consolidated_atom_centres);
@@ -170,6 +172,26 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
       PyTuple_SetItem(bonds_tuple, i, line_set_py);
    }
    PyTuple_SetItem(r, 1, bonds_tuple);
+
+   if (bonds_box.n_ramachandran_goodness_spots > 0) {
+      PyObject *rama_info_py = PyList_New(bonds_box.n_ramachandran_goodness_spots);
+      for (int i=0; i<bonds_box.n_ramachandran_goodness_spots; i++) {
+	 const std::pair<coot::Cartesian, float> &p = bonds_box.ramachandran_goodness_spots_ptr[i];
+	 PyObject *p_py = PyTuple_New(2);
+	 PyObject *pos_py = PyList_New(3);
+	 PyObject *goodness_py = PyFloat_FromDouble(p.second);
+	 PyObject *o0_py = PyFloat_FromDouble(p.first.x());
+	 PyObject *o1_py = PyFloat_FromDouble(p.first.y());
+	 PyObject *o2_py = PyFloat_FromDouble(p.first.z());
+	 PyList_SetItem(pos_py, 0, o0_py);
+	 PyList_SetItem(pos_py, 1, o1_py);
+	 PyList_SetItem(pos_py, 2, o2_py);
+	 PyTuple_SetItem(p_py, 0, pos_py);
+	 PyTuple_SetItem(p_py, 1, goodness_py);
+	 PyList_SetItem(rama_info_py, i, p_py);
+      }
+      PyTuple_SetItem(r, 2, rama_info_py);
+   }
 
    return r;
 }
