@@ -7366,9 +7366,22 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
 
    https://www.guiguan.net/fix-python-graph-tool-couldnt-recognise-svg-problem/
 
- 
+later:
+Thu 28 Dec 2017 01:32:59 GMT
+
+On Debian 14.04
+$ coot
+Error loading icon: Couldn't recognize the image file format for file '/home/paule/autobuild/Linux-emsley-vm-ubuntu1404-enhanced-ligand-pre-release-gtk2-python/share/coot/pixmaps/05_Hotel_Icon_Hair_Salon.svg'
+Error loading icon: Couldn't recognize the image file format for file '/home/paule/autobuild/Linux-emsley-vm-ubuntu1404-enhanced-ligand-pre-release-gtk2-python/share/coot/pixmaps/3-c-new.svg'
+Error loading icon: Couldn't recognize the image file format for file '/home/paule/autobuild/Linux-emsley-vm-ubuntu1404-enhanced-ligand-pre-release-gtk2-python/share/coot/pixmaps/3-c-other.svg'
+Error loading icon: Couldn't recognize the image file format for file '/home/paule/autobuild/Linux-emsley-vm-ubuntu1404-enhanced-ligand-pre-release-gtk2-python/share/coot/pixmaps/3-c.svg'
+etc
+$ apt-get install librsvg2-dev
+
+(maybe it was not the dev package but the libs/common that solved it, librsvg2-common)
+
 ----
-   
+
    using lldb:
 
    lldb .libs/coot-bin 
