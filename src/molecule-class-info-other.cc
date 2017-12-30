@@ -2688,7 +2688,7 @@ molecule_class_info_t::add_OXT_to_residue(int reso, const std::string &insertion
 					  const std::string &chain_id) {
 
    mmdb::Residue *residue = get_residue(chain_id, reso, insertion_code);
-   return add_OXT_to_residue(residue);  // check for null residue
+   return add_OXT_to_residue(residue);  // checks for null residue
 
 } 
 
@@ -2781,13 +2781,20 @@ molecule_class_info_t::add_OXT_to_residue(mmdb::Residue *residue) {
 	    atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
 
 	    // Now handle the TER atom.
-	    // 
+	    //
+	    residue->GetAtomTable(residue_atoms, nResidueAtoms); // reset the pointers after FinishStructEdit()
+
 	    mmdb::Atom *ter_atom = NULL;
 	    int ter_index = -1;
-	    for (int iat=0; iat<nResidueAtoms; iat++) { 
-	       if (residue_atoms[iat]->isTer()) { 
-		  ter_atom = residue_atoms[iat];
-		  ter_index = iat;
+	    for (int iat=0; iat<nResidueAtoms; iat++) {
+	       mmdb::Atom *at = residue_atoms[iat];
+	       if (at) {
+		  if (at->isTer()) {
+		     ter_atom = at;
+		     ter_index = iat;
+		  }
+	       } else {
+		  std::cout << "ERROR:: trapped null atom in add_OXT_to_residue() " << std::endl;
 	       }
 	    } 
 	    if (ter_atom) {
