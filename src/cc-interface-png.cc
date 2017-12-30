@@ -1,3 +1,10 @@
+
+#ifdef HAVE_CXX11
+#include <cmath>
+#else
+#include <math.h>
+#endif
+
 #include <iostream>
 
 #ifdef USE_PYTHON
@@ -164,9 +171,13 @@ std::string text_png_as_string(PyObject *text_info_dict_py) {
    if (npx.first == false) {
       npx.second = text.length() * font_size * 0.7; // fudge factor
    }
+#ifdef HAVE_CXX11
    if (npy.first == false)
-      // npy.second = std::lround(std::floor(float(font_size)*1.3)) + 1; // fudge factors
-      npy.second = static_cast<long> (std::floor(float(font_size)*1.3)) + 1;
+      npy.second = std::lround(std::floor(float(font_size)*1.3)) + 1; // fudge factors
+#else
+   if (npy.first == false)
+      npy.second = lround(std::floor(float(font_size)*1.3)) + 1;
+#endif
    
    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, npx.second, npy.second);
    cairo_t *cr = cairo_create(surface);
@@ -198,11 +209,11 @@ std::string text_png_as_string(PyObject *text_info_dict_py) {
       cairo_paint(cr);
    }
 
-   // cairo_move_to (cr, 10.0, 50.0);
-   cairo_move_to (cr, 0.0, font_size); // seems reaonable, puts text in top left of box
+   cairo_move_to(cr, 0.0, font_size); // seems reaonable, puts text in top left of box
    cairo_set_source_rgb(cr, fg_col.red, fg_col.green, fg_col.blue);
-   // cairo_set_source_rgb(cr, 0.188, 0.251, 0.314);
-   cairo_show_text (cr, text.c_str());
+
+   // in future, use pango-cairo:
+   cairo_show_text(cr, text.c_str());
 
    cairo_surface_write_to_png_stream(surface, text_png_as_string_png_stream_writer,
 				     reinterpret_cast<void *> (&r));
