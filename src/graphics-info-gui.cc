@@ -109,10 +109,10 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
       label = lookup_widget(GTK_WIDGET(window), "accept_dialog_accept_label_string");
    }
 
-   if (debug)
-      std::cout << "here in do_accept_reject_dialog calling "
+   if (false)
+      std::cout << "debug:: here in do_accept_reject_dialog() calling "
 		<< "update_accept_reject_dialog_with_results() with rr.info \""
-		<< rr.info << "\"" << std::endl;
+		<< rr.info_text << "\"" << std::endl;
    update_accept_reject_dialog_with_results(window, coot::CHI_SQUAREDS, rr);
    if (rr.lights.size() > 0){
       if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
@@ -286,45 +286,58 @@ void set_colour_accept_reject_event_box(GtkWidget *eventbox, GdkColor *col) {
    gtk_widget_modify_bg(eventbox, GTK_STATE_NORMAL, col);
 }
 
+// text_type can be coot::CHIRAL_CENTRES or coot::CHI_SQUAREDS
+//
 void
 update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 					 coot::accept_reject_text_type text_type,
 					 const coot::refinement_results_t &rr) {
 
-   if (false)
-      std::cout << "Here in update_accept_reject_dialog_with_results() with info \""
-		<< rr.info << "\"" << std::endl;
+   if (false) {
+      std::cout << "--- Here in update_accept_reject_dialog_with_results() with info \""
+		<< rr.info_text << "\"" << std::endl;
+      std::cout << "here with rr.progress " << rr.progress << " c.f. no-progress " << GSL_ENOPROG
+		<< " and success " << GSL_SUCCESS << " and continue " << GSL_CONTINUE << std::endl;
+   }
+   GtkWidget *no_progress_label = lookup_widget(GTK_WIDGET(accept_reject_dialog),
+						"accept_reject_dialog_no_progress_label");
 
-   std::string extra_text = rr.info;
-	 // now look up the label in window and change it.
-	 GtkWidget *extra_label = lookup_widget(GTK_WIDGET(accept_reject_dialog),
-						"extra_text_label");
-      
-   if (extra_text != "") {
+   // now look up the label in window and change it.
+   GtkWidget *extra_label = lookup_widget(GTK_WIDGET(accept_reject_dialog),
+					  "extra_text_label");
+
+   GtkWidget *chiral_centre_label = lookup_widget(GTK_WIDGET(accept_reject_dialog),
+						  "chiral_centre_text_label");
+
+   if (text_type == coot::CHI_SQUAREDS) {
+      if (rr.progress != GSL_ENOPROG)
+	 gtk_label_set_text(GTK_LABEL(no_progress_label), "Success");
+      else
+	 gtk_label_set_text(GTK_LABEL(no_progress_label), "Failed - no progress");
+   }
+
+   if (rr.info_text.empty()) {
+      gtk_widget_hide(extra_label);
+      gtk_widget_hide(chiral_centre_label);
+   } else {
       if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG){
 
-	 std::cout << "code path A " << std::endl;
-      
 	 if (text_type == coot::CHIRAL_CENTRES) { 
-	    extra_label = lookup_widget(GTK_WIDGET(accept_reject_dialog), "chiral_centre_text_label");
+	    // std::cout << "------- here with rr.info_text \"" << rr.info_text << "\"" << std::endl;
+	    gtk_label_set_text(GTK_LABEL(chiral_centre_label), rr.info_text.c_str());
+	    gtk_widget_show(chiral_centre_label);
 	 }
-
-	 std::cout << "here with extra_text \"" << extra_text << "\"" << std::endl;
-	 gtk_widget_show(extra_label);
-	 gtk_label_set_text(GTK_LABEL(extra_label), extra_text.c_str());
 	
       } else {
 
-	 std::cout << "code path B " << std::endl;
-	 
 	 // we have a docked accept/reject dialog
 	 GtkWidget *window = lookup_widget(accept_reject_dialog, "window1");
 	 GtkTooltips *tooltips;
 	 GtkTooltipsData *td;
 	 tooltips = GTK_TOOLTIPS(lookup_widget(GTK_WIDGET(window), "tooltips"));
 
-	 int cis_pep_warn = extra_text.find("CIS");
-	 int chirals_warn = extra_text.find("chiral");
+	 int cis_pep_warn = rr.info_text.find("CIS");
+	 int chirals_warn = rr.info_text.find("chiral");
 
 	 GtkWidget *cis_eventbox = lookup_widget(GTK_WIDGET(accept_reject_dialog),
 						 "cis_peptides_eventbox_docked");
@@ -342,11 +355,11 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 
 	    if (chirals_warn > -1) {
 	       // remove the chirals warn text
-	       string::size_type start_warn = extra_text.find("WARN");
-	       string::size_type end_warn = extra_text.size();
-	       tips_info_cis = extra_text.substr(start_warn, end_warn); // list the extra cis peptides here?
+	       string::size_type start_warn = rr.info_text.find("WARN");
+	       string::size_type end_warn   = rr.info_text.size();
+	       tips_info_cis = rr.info_text.substr(start_warn, end_warn); // list the extra cis peptides here?
 	    } else {
-	       tips_info_cis = extra_text; // list the extra cis peptides?
+	       tips_info_cis = rr.info_text; // list the extra cis peptides?
 	    }
 
 	    gtk_tooltips_set_tip(tooltips, cis_eventbox, tips_info_cis.c_str(), NULL);
@@ -360,26 +373,24 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 
 	    if (cis_pep_warn > -1) {
 	       // remove the cis warn text
-	       string::size_type start_warn = extra_text.find("WARN");
-	       tips_info_chirals = extra_text.substr(0,start_warn) + old_tip;
+	       string::size_type start_warn = rr.info_text.find("WARN");
+	       tips_info_chirals = rr.info_text.substr(0,start_warn) + old_tip;
 	    } else {
-	       tips_info_chirals = extra_text + old_tip;
+	       tips_info_chirals = rr.info_text + old_tip;
 	    }
 
 	    gtk_tooltips_set_tip(tooltips, chirals_eventbox, tips_info_chirals.c_str(), NULL);
 
 	 }
-	 if (extra_text == " "){
+	 if (rr.info_text == " "){
 	    // reset the tips
 	    gtk_widget_hide(p);
 	    gtk_tooltips_set_tip(tooltips, chirals_eventbox, old_tip.c_str(), NULL);
 	 }
 
 	 std::cout << "update_accept_reject_dialog_with_results() extra text is "
-		   << extra_text << std::endl;
+		   << rr.info_text << std::endl;
       }
-   } else {
-      gtk_widget_hide(extra_label);
    } 
    if (rr.lights.size() > 0)
       add_accept_reject_lights(accept_reject_dialog, rr);

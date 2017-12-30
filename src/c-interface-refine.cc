@@ -161,7 +161,7 @@ int regularize_zone(int imol, const char *chain_id, int resno1, int resno2, cons
 	 if (index2 >= 0) { 
 	    coot::refinement_results_t rr = g.regularize(imol, auto_range, index1, index2);
 	    std::cout << "debug:: restraints results " << rr.found_restraints_flag << " "
-		      << rr.lights.size() << " " << rr.info << std::endl;
+		      << rr.lights.size() << " " << rr.info_text << std::endl;
 	    if (rr.lights.size() > 0)
 	       status = 1;
 	    if (rr.found_restraints_flag)

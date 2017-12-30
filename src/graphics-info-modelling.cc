@@ -644,7 +644,7 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
       //
       if (graphics_info_t::continue_update_refinement_atoms_flag) {
 	 rr = graphics_info_t::saved_dragged_refinement_results;
-	 rr.info = "Time's up...";
+	 rr.info_text = "Time's up...";
       }
       
    } else { 
@@ -1427,7 +1427,7 @@ graphics_info_t::refinement_results_to_scm(coot::refinement_results_t &rr) {
    if (rr.found_restraints_flag) {
       SCM lights_scm = SCM_EOL;
       SCM progress_scm = SCM_MAKINUM(rr.progress);
-      SCM info_scm = scm_from_locale_string(rr.info.c_str());
+      SCM info_scm = scm_from_locale_string(rr.info_text.c_str());
       for (int il=rr.lights.size()-1; il>=0; il--) {
 	 SCM light_scm = SCM_EOL;
 	 SCM value_scm = scm_double2num(rr.lights[il].value);
@@ -1457,7 +1457,7 @@ graphics_info_t::refinement_results_to_py(coot::refinement_results_t &rr) {
    if (rr.found_restraints_flag) {
       PyObject *lights_py = Py_False;
       PyObject *progress_py = PyInt_FromLong(rr.progress);
-      PyObject *info_py = PyString_FromString(rr.info.c_str());
+      PyObject *info_py = PyString_FromString(rr.info_text.c_str());
       if (rr.lights.size())
 	lights_py = PyList_New(rr.lights.size());
       for (unsigned int il=0; il<rr.lights.size(); il++) {
@@ -4280,11 +4280,20 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 	    if (show_chiral_volume_errors_dialog_flag) {
 	       if (accept_reject_dialog) {
 		  if (message_string != "Unset") {
+
+		     if (false)
+			std::cout << "debug:: here in check_and_warn_inverted_chirals_and_cis_peptides() A calling "
+				  << "update_accept_reject_dialog_with_results() with message string \""
+				  << message_string << "\"" << std::endl;
 		     update_accept_reject_dialog_with_results(accept_reject_dialog,
 							      coot::CHIRAL_CENTRES,
-							      message_string);
+							      coot::refinement_results_t(message_string));
 		  } else {
 		     coot::refinement_results_t rr("");
+		     if (false)
+			std::cout << "debug:: here in check_and_warn_inverted_chirals_and_cis_peptides() B calling "
+				  << "update_accept_reject_dialog_with_results() with rr.info \""
+				  << rr.info_text << "\"" << std::endl;
 		     update_accept_reject_dialog_with_results(accept_reject_dialog,
 							      coot::CHIRAL_CENTRES,
 							      rr);

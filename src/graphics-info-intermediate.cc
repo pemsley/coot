@@ -141,6 +141,10 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    if (accept_reject_dialog) {
       if (saved_dragged_refinement_results.lights.size() > 0) {
 
+	 if (false)
+	    std::cout << "debug:: here in drag_refine_refine_intermediate_atoms() calling "
+		      << "update_accept_reject_dialog_with_results() with rr.info \""
+		      << saved_dragged_refinement_results.info_text << "\"" << std::endl;
 	 update_accept_reject_dialog_with_results(accept_reject_dialog,
 						  coot::CHI_SQUAREDS,
 						  saved_dragged_refinement_results);

@@ -1052,7 +1052,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
    if (false)
       std::cout << "DEBUG:: returning from minimize() with progress/status " << rr.progress
-		<< ": and info \"" << rr.info << "\"" << std::endl;
+		<< ": and info \"" << rr.info_text << "\"" << std::endl;
 
    if (false) {
       std::cout << "-------------------------------------------\n";

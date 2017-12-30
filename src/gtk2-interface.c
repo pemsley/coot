@@ -8724,17 +8724,13 @@ create_accept_reject_refinement_dialog (void)
   GtkWidget *frame129;
   GtkWidget *vbox195;
   GtkWidget *chiral_centre_text_label;
-  GtkWidget *accept_reject_reverse_button;
-  GtkWidget *alignment105;
-  GtkWidget *hbox272;
-  GtkWidget *image6023;
-  GtkWidget *label442;
   GtkWidget *extra_text_label;
+  GtkWidget *accept_dialog_accept_label_string;
+  GtkWidget *accept_reject_dialog_no_progress_label;
   GtkWidget *accept_reject_lights_frame;
   GtkWidget *alignment107;
   GtkWidget *hbox273;
   GtkWidget *label445;
-  GtkWidget *accept_dialog_accept_label_string;
   GtkWidget *refinement_lights_table;
   GtkWidget *bonds_label;
   GtkWidget *angles_label;
@@ -8802,38 +8798,28 @@ create_accept_reject_refinement_dialog (void)
   gtk_widget_show (vbox195);
   gtk_container_add (GTK_CONTAINER (frame129), vbox195);
 
-  chiral_centre_text_label = gtk_label_new ("");
+  chiral_centre_text_label = gtk_label_new ("-------- Chiral Info Here ------");
   gtk_widget_show (chiral_centre_text_label);
   gtk_box_pack_start (GTK_BOX (vbox195), chiral_centre_text_label, FALSE, FALSE, 0);
   gtk_misc_set_alignment (GTK_MISC (chiral_centre_text_label), 0.04, 0.5);
 
-  accept_reject_reverse_button = gtk_button_new ();
-  gtk_box_pack_start (GTK_BOX (vbox195), accept_reject_reverse_button, FALSE, FALSE, 1);
-  gtk_container_set_border_width (GTK_CONTAINER (accept_reject_reverse_button), 2);
-  GTK_WIDGET_UNSET_FLAGS (accept_reject_reverse_button, GTK_CAN_FOCUS);
-
-  alignment105 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment105);
-  gtk_container_add (GTK_CONTAINER (accept_reject_reverse_button), alignment105);
-
-  hbox272 = gtk_hbox_new (FALSE, 2);
-  gtk_widget_show (hbox272);
-  gtk_container_add (GTK_CONTAINER (alignment105), hbox272);
-
-  image6023 = gtk_image_new_from_stock ("gtk-refresh", GTK_ICON_SIZE_BUTTON);
-  gtk_widget_show (image6023);
-  gtk_box_pack_start (GTK_BOX (hbox272), image6023, FALSE, FALSE, 0);
-
-  label442 = gtk_label_new_with_mnemonic ("  Reverse");
-  gtk_widget_show (label442);
-  gtk_box_pack_start (GTK_BOX (hbox272), label442, FALSE, FALSE, 0);
-
-  extra_text_label = gtk_label_new ("");
+  extra_text_label = gtk_label_new ("---- Extra Text Here ----");
   gtk_widget_show (extra_text_label);
   gtk_box_pack_start (GTK_BOX (vbox195), extra_text_label, FALSE, FALSE, 0);
   gtk_label_set_use_markup (GTK_LABEL (extra_text_label), TRUE);
   gtk_misc_set_alignment (GTK_MISC (extra_text_label), 0.04, 0.5);
-  gtk_misc_set_padding (GTK_MISC (extra_text_label), 10, 0);
+  gtk_misc_set_padding (GTK_MISC (extra_text_label), 2, 0);
+
+  accept_dialog_accept_label_string = gtk_label_new ("<b>Accept Refinement?</b>");
+  gtk_widget_show (accept_dialog_accept_label_string);
+  gtk_box_pack_start (GTK_BOX (vbox195), accept_dialog_accept_label_string, FALSE, FALSE, 0);
+  gtk_label_set_use_markup (GTK_LABEL (accept_dialog_accept_label_string), TRUE);
+  gtk_misc_set_padding (GTK_MISC (accept_dialog_accept_label_string), 22, 4);
+
+  accept_reject_dialog_no_progress_label = gtk_label_new ("<b>No Progress</b>");
+  gtk_widget_show (accept_reject_dialog_no_progress_label);
+  gtk_box_pack_start (GTK_BOX (vbox195), accept_reject_dialog_no_progress_label, FALSE, FALSE, 0);
+  gtk_label_set_use_markup (GTK_LABEL (accept_reject_dialog_no_progress_label), TRUE);
 
   accept_reject_lights_frame = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (vbox195), accept_reject_lights_frame, TRUE, TRUE, 0);
@@ -8852,14 +8838,6 @@ create_accept_reject_refinement_dialog (void)
   gtk_widget_show (label445);
   gtk_frame_set_label_widget (GTK_FRAME (accept_reject_lights_frame), label445);
   gtk_label_set_use_markup (GTK_LABEL (label445), TRUE);
-
-  accept_dialog_accept_label_string = gtk_label_new (_("<b>Accept Refinement?</b>"));
-  gtk_widget_set_name (accept_dialog_accept_label_string, "accept_dialog_accept_label_string");
-  gtk_widget_show (accept_dialog_accept_label_string);
-  gtk_box_pack_start (GTK_BOX (vbox195), accept_dialog_accept_label_string, FALSE, FALSE, 0);
-  gtk_label_set_use_markup (GTK_LABEL (accept_dialog_accept_label_string), TRUE);
-  gtk_label_set_justify (GTK_LABEL (accept_dialog_accept_label_string), GTK_JUSTIFY_CENTER);
-  gtk_misc_set_padding (GTK_MISC (accept_dialog_accept_label_string), 22, 10);
 
   refinement_lights_table = gtk_table_new (7, 2, FALSE);
   gtk_widget_show (refinement_lights_table);
@@ -9035,36 +9013,31 @@ create_accept_reject_refinement_dialog (void)
   gtk_label_set_use_markup (GTK_LABEL (label452), TRUE);
 
   frame302 = gtk_frame_new (NULL);
-  gtk_widget_set_name (frame302, "frame302");
   gtk_widget_show (frame302);
   gtk_box_pack_start (GTK_BOX (vbox195), frame302, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame302), 4);
 
   alignment163 = gtk_alignment_new (0.5, 0.5, 1, 1);
-  gtk_widget_set_name (alignment163, "alignment163");
   gtk_widget_show (alignment163);
   gtk_container_add (GTK_CONTAINER (frame302), alignment163);
   gtk_alignment_set_padding (GTK_ALIGNMENT (alignment163), 0, 0, 12, 0);
 
   vbox325 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_set_name (vbox325, "vbox325");
   gtk_widget_show (vbox325);
   gtk_container_add (GTK_CONTAINER (alignment163), vbox325);
 
-  accept_reject_refinement_atom_pull_autoclear_checkbutton = gtk_check_button_new_with_mnemonic (_("Auto-clear"));
-  gtk_widget_set_name (accept_reject_refinement_atom_pull_autoclear_checkbutton, "accept_reject_refinement_atom_pull_autoclear_checkbutton");
+  accept_reject_refinement_atom_pull_autoclear_checkbutton = gtk_check_button_new_with_mnemonic ("Auto-clear");
   gtk_widget_show (accept_reject_refinement_atom_pull_autoclear_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox325), accept_reject_refinement_atom_pull_autoclear_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (accept_reject_refinement_atom_pull_autoclear_checkbutton), 4);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (accept_reject_refinement_atom_pull_autoclear_checkbutton), TRUE);
 
-  accept_reject_atom_pull_clear_button = gtk_button_new_with_mnemonic (_("Clear Atom Pull Restraint"));
-  gtk_widget_set_name (accept_reject_atom_pull_clear_button, "accept_reject_atom_pull_clear_button");
+  accept_reject_atom_pull_clear_button = gtk_button_new_with_mnemonic ("Clear Atom Pull Restraint");
   gtk_widget_show (accept_reject_atom_pull_clear_button);
   gtk_box_pack_start (GTK_BOX (vbox325), accept_reject_atom_pull_clear_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (accept_reject_atom_pull_clear_button), 4);
 
-  label790 = gtk_label_new (_("<b>Atom Pull Restraint</b>"));
-  gtk_widget_set_name (label790, "label790");
+  label790 = gtk_label_new ("<b>Atom Pull Restraint</b>");
   gtk_widget_show (label790);
   gtk_frame_set_label_widget (GTK_FRAME (frame302), label790);
   gtk_label_set_use_markup (GTK_LABEL (label790), TRUE);
@@ -9125,9 +9098,6 @@ create_accept_reject_refinement_dialog (void)
   g_signal_connect ((gpointer) accept_reject_refinement_dialog, "destroy",
                     G_CALLBACK (on_accept_reject_refinement_dialog_destroy),
                     NULL);
-  g_signal_connect ((gpointer) accept_reject_reverse_button, "clicked",
-                    G_CALLBACK (on_accept_reject_reverse_button_clicked),
-                    NULL);
   g_signal_connect ((gpointer) accept_reject_refinement_atom_pull_autoclear_checkbutton, "toggled",
                     G_CALLBACK (on_accept_reject_refinement_atom_pull_autoclear_checkbutton_toggled),
                     NULL);
@@ -9147,17 +9117,13 @@ create_accept_reject_refinement_dialog (void)
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame129, "frame129");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, vbox195, "vbox195");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, chiral_centre_text_label, "chiral_centre_text_label");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_reverse_button, "accept_reject_reverse_button");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, alignment105, "alignment105");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, hbox272, "hbox272");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, image6023, "image6023");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label442, "label442");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, extra_text_label, "extra_text_label");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_dialog_accept_label_string, "accept_dialog_accept_label_string");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_dialog_no_progress_label, "accept_reject_dialog_no_progress_label");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_lights_frame, "accept_reject_lights_frame");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, alignment107, "alignment107");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, hbox273, "hbox273");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label445, "label445");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_dialog_accept_label_string, "accept_dialog_accept_label_string");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, refinement_lights_table, "refinement_lights_table");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, bonds_label, "bonds_label");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, angles_label, "angles_label");
