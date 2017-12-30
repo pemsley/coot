@@ -162,10 +162,11 @@ std::string text_png_as_string(PyObject *text_info_dict_py) {
    }
 
    if (npx.first == false) {
-      npx.second = text.length() * font_size * 0.7; // fude factor
+      npx.second = text.length() * font_size * 0.7; // fudge factor
    }
    if (npy.first == false)
-      npy.second = std::lround(std::floor(float(font_size)*1.3)) + 1; // fudge factors
+      // npy.second = std::lround(std::floor(float(font_size)*1.3)) + 1; // fudge factors
+      npy.second = static_cast<long> (std::floor(float(font_size)*1.3)) + 1;
    
    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, npx.second, npy.second);
    cairo_t *cr = cairo_create(surface);
@@ -175,8 +176,8 @@ std::string text_png_as_string(PyObject *text_info_dict_py) {
    // 120,120 puts the image, half-size in top left quadrant
    // cairo_scale(cr, npx, npx);
 
-   cairo_select_font_face (cr, face.c_str(), slant, weight);
-   cairo_set_font_size (cr, font_size);
+   cairo_select_font_face(cr, face.c_str(), slant, weight);
+   cairo_set_font_size(cr, font_size);
 
    cairo_text_extents_t te;
    cairo_text_extents(cr, text.c_str(), &te);

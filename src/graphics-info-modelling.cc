@@ -354,6 +354,11 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
    coot::refinement_results_t rr(0, GSL_CONTINUE, "");
    short int have_disulfide_residues = 0; // of course not in linear mode.
 
+    if (! is_valid_map_molecule(imol_for_map)) {
+       std::cout << "WARNING:: invalid map " << imol_for_map << std::endl;
+       return rr;
+    }
+
    if (nSelResidues > 0) {
 
       std::vector<coot::atom_spec_t> fixed_atom_specs = molecules[imol_for_atoms].get_fixed_atoms();
@@ -389,7 +394,8 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	 short int in_alt_conf_split_flag = 0;
 	 if (altconf != "")
 	    in_alt_conf_split_flag = 1;
-	    
+
+
 	 mmdb::Manager *residues_mol = 
 	    create_mmdbmanager_from_res_selection(SelResidues, nSelResidues, 
 						  have_flanking_residue_at_start,
