@@ -1368,13 +1368,18 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int atom_colour_
       // perhaps the handle should be passed, not extracted here?
       mmdb::Manager *mol = model_p->GetCoordHierarchy();
       int udd_atom_index_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index"); // set in make_asc
+
+      if (false) // on failure (for refinemnent atoms?) udd_atom_index_handle is 0
+	 std::cout << "debug:: in add_link_bond_templ() got udd_atom_index_handle "
+		   << udd_atom_index_handle << std::endl;
+
       int udd_status_1 = atom_1->GetUDData(udd_atom_index_handle, atom_index_1);
       int udd_status_2 = atom_1->GetUDData(udd_atom_index_handle, atom_index_2);
 
       if (udd_status_1 != mmdb::UDDATA_Ok)
-	 std::cout << "ERROR:: in add_link_bond_templ() bad atom indexing 1" << std::endl;
+	 std::cout << "ERROR:: in add_link_bond_templ() bad atom indexing atom_1" << std::endl;
       if (udd_status_2 != mmdb::UDDATA_Ok)
-	 std::cout << "ERROR:: in add_link_bond_templ() bad atom indexing 2" << std::endl;
+	 std::cout << "ERROR:: in add_link_bond_templ() bad atom indexing atom_2" << std::endl;
 
       coot::Cartesian pos_1(atom_1->x, atom_1->y, atom_1->z);
       coot::Cartesian pos_2(atom_2->x, atom_2->y, atom_2->z);
@@ -1386,6 +1391,9 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int atom_colour_
       } else {
 	 coot::Cartesian bond_mid_point = pos_1.mid_point(pos_2);
 	 int col = atom_colour(atom_1, atom_colour_type);
+	 // if the atom indices are -1, then the bond doesn't get drawn
+	 // std::cout << "debug:: calling add_dashed_bond() with atom_index_1 " << atom_index_1
+	 // << " and atom_index_2 " << atom_index_2 << std::endl;
 	 add_dashed_bond(col, pos_1, bond_mid_point, HALF_BOND_FIRST_ATOM, graphics_line_t::SINGLE, atom_index_1, atom_index_2);
 	 col = atom_colour(atom_2, atom_colour_type);
 	 add_dashed_bond(col, bond_mid_point, pos_2, HALF_BOND_SECOND_ATOM, graphics_line_t::SINGLE, atom_index_1, atom_index_2);
