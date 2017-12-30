@@ -376,7 +376,7 @@ void estimate_map_weight(GtkWidget *entry) {
       float mean = graphics_info_t::molecules[imol_map].map_mean();
       float sd   = graphics_info_t::molecules[imol_map].map_sigma();
 
-      float v = 50*0.6/sd;
+      float v = 50*0.3/sd;
       if (graphics_info_t::molecules[imol_map].is_EM_map())
 	 v *= 0.35;
       graphics_info_t::geometry_vs_map_weight = v;
