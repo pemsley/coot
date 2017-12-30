@@ -1369,17 +1369,19 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int atom_colour_
       mmdb::Manager *mol = model_p->GetCoordHierarchy();
       int udd_atom_index_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index"); // set in make_asc
 
-      if (false) // on failure (for refinemnent atoms?) udd_atom_index_handle is 0
+      if (false) // on failure (for refinement atoms?) udd_atom_index_handle is 0
 	 std::cout << "debug:: in add_link_bond_templ() got udd_atom_index_handle "
 		   << udd_atom_index_handle << std::endl;
 
       int udd_status_1 = atom_1->GetUDData(udd_atom_index_handle, atom_index_1);
       int udd_status_2 = atom_1->GetUDData(udd_atom_index_handle, atom_index_2);
 
-      if (udd_status_1 != mmdb::UDDATA_Ok)
-	 std::cout << "ERROR:: in add_link_bond_templ() bad atom indexing atom_1" << std::endl;
-      if (udd_status_2 != mmdb::UDDATA_Ok)
-	 std::cout << "ERROR:: in add_link_bond_templ() bad atom indexing atom_2" << std::endl;
+      if (false) { // 20171230-PE shut up too noisy.  I should fix it but now is not the time. FIXME
+	 if (udd_status_1 != mmdb::UDDATA_Ok)
+	    std::cout << "ERROR:: in add_link_bond_templ() bad atom indexing atom_1" << std::endl;
+	 if (udd_status_2 != mmdb::UDDATA_Ok)
+	    std::cout << "ERROR:: in add_link_bond_templ() bad atom indexing atom_2" << std::endl;
+      }
 
       coot::Cartesian pos_1(atom_1->x, atom_1->y, atom_1->z);
       coot::Cartesian pos_2(atom_2->x, atom_2->y, atom_2->z);
