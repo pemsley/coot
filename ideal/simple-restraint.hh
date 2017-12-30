@@ -60,10 +60,48 @@ namespace coot {
 
    class refinement_lights_info_t {
    public:
+      class the_worst_t {
+      public:
+	 the_worst_t(const unsigned int idx_in, const float &val) : restraints_index(idx_in), value(val) {
+	    is_set = true;
+	    restraints_index = -1;
+	 }
+	 the_worst_t() { is_set = false; }
+	 unsigned int restraints_index;
+	 float value;
+	 bool is_set;
+	 void update_if_worse(const float &value_in, const int &idx_in) {
+	    if (! is_set) {
+	       restraints_index = idx_in;
+	       value = value_in;
+	       is_set = true;
+	    } else {
+	       if (value_in > value) {
+		  restraints_index = idx_in;
+		  value = value_in;
+	       }
+	    }
+	 }
+	 void update_if_worse(const the_worst_t &baddie_in) {
+	    if (baddie_in.is_set) {
+	       if (! is_set) {
+		  restraints_index = baddie_in.restraints_index;
+		  value = baddie_in.value;
+		  is_set = true;
+	       } else {
+		  if (baddie_in.value > value) {
+		     restraints_index = baddie_in.restraints_index;
+		     value = baddie_in.value;
+		  }
+	       }
+	    }
+	 }
+      };
       std::string name;   // e.g. "Bonds" or "Angles"
       std::string label;  // e.g. "Bonds:  6.543" 
       float value;        // e.g. 6.543
       int rama_type;
+      the_worst_t worst_baddie;
       refinement_lights_info_t(const std::string &name_in, const std::string label_in, float value_in) {
 	 name = name_in;
 	 label = label_in;
@@ -239,9 +277,12 @@ namespace coot {
 				BONDS_ANGLES_AND_CHIRALS = 35, // no torsions
 				BONDS_AND_NON_BONDED = 17,
 				BONDS_ANGLES_AND_NON_BONDED = 19,
+				BONDS_ANGLES_CHIRALS_AND_NON_BONDED = 19 + 32, // pre-sanitize
 				BONDS_ANGLES_TORSIONS_AND_NON_BONDED = 23,
 				BONDS_ANGLES_PLANES_AND_NON_BONDED = 27,
+				BONDS_ANGLES_PLANES_NON_BONDED_AND_TRANS_PEPTIDE_RESTRAINTS = 27 + 2048,
 				BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS = 59,
+				BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS = 59+2048,
 				BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED = 31,
 				BONDS_ANGLES_TORSIONS_PLANES_AND_CHIRALS = 47,
 				BONDS_ANGLES_PLANES_AND_CHIRALS = 43,
@@ -629,6 +670,7 @@ namespace coot {
       double torsion_distortion(double model_torsion) const; 
       
       friend std::ostream &operator<<(std::ostream &s, const simple_restraint &r);
+      std::string format(mmdb::PAtom *atoms_vec, double distortion) const;
    };
    std::ostream &operator<<(std::ostream &s, const simple_restraint &r);
    bool target_position_eraser(const simple_restraint &r);
@@ -778,7 +820,8 @@ namespace coot {
       }
    };
 
-
+   // params can't be const because distortion_score function is an argument to
+   // GSL multimin and that takes a function that doesn't have const void *params.
    double distortion_score(const gsl_vector *v, void *params);
 #ifdef HAVE_CXX_THREAD
    // return value in distortion
@@ -798,8 +841,9 @@ namespace coot {
 				 const gsl_vector *v);
    // torsion score can throw a std::runtime_error if there is a problem calculating the torsion.
    double distortion_score_torsion(const simple_restraint &torsion_restraint,
-				    const gsl_vector *v); 
-   double distortion_score_trans_peptide(const simple_restraint &torsion_restraint,
+				   const gsl_vector *v); 
+   double distortion_score_trans_peptide(const int &restraint_index,
+					 const simple_restraint &torsion_restraint,
 					 const gsl_vector *v); 
    double distortion_score_plane(const simple_restraint &plane_restraint,
 				  const gsl_vector *v); 
@@ -1046,8 +1090,11 @@ namespace coot {
 
       // print chi_squared values (after refinement)
       // return a string that can be added into a dialog.
+      //
+      // sometimes we want the return value without printing the table
+      // (hence print_table_flag) - perhaps that should be its own function.
       std::vector<refinement_lights_info_t>
-      chi_squareds(std::string title, const gsl_vector *v) const;
+      chi_squareds(std::string title, const gsl_vector *v, bool print_table_flag=true) const;
 
       // all the alt confs should either be the same as each other or ""
       // 
@@ -1658,11 +1705,20 @@ namespace coot {
 
       bonded_pair_container_t bonded_pairs_container;
 
+      void pre_sanitize_as_needed(std::vector<refinement_lights_info_t> lights,
+				  gsl_multimin_fdfminimizer *s,
+				  double step_size, double tolerance);
+
       model_bond_deltas resolve_bonds(const gsl_vector *v) const;
 
       void make_restraint_types_index_limits();
 
-   public: 
+      // return false if any of the atoms are fixed
+      bool none_are_fixed_p(const std::vector<bool> &fixed_atom_indices) const;
+
+      unsigned int n_times_called; // so that we can do certain things only the first time
+
+   public:
 
       enum link_torsion_restraints_type { NO_LINK_TORSION = 0, 
 					  LINK_TORSION_RAMACHANDRAN_GOODNESS = 1,
@@ -1671,7 +1727,7 @@ namespace coot {
 
       // my_df_electron_density and electron_density_score need access
       // to fixed_atom_indices.
-      std::vector<int> fixed_atom_indices; 
+      std::vector<int> fixed_atom_indices;
 
       // In all of these constructors the mmdb::PPAtom that is passed, either
       // explicitly or as part of an atom_selection_container_t has the
@@ -1894,7 +1950,7 @@ namespace coot {
       // Using this, we can mask out the restraints we don't want to
       // use using e.g. BONDS_MASK, BONDS_ANGLES_AND_PLANES etc...
       // 
-      short int restraints_usage_flag;
+      int restraints_usage_flag;
 
       double starting_structure_diff_score(const gsl_vector *v, void *params); 
 
@@ -1946,19 +2002,30 @@ namespace coot {
       int size() const { return restraints_vec.size(); }
 
       // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
-      // 
+      //
+      // We now have access to n_times_called: we want to do pre-sanitization
+      // only when n_times_called is 1.
+      //
       refinement_results_t minimize(restraint_usage_Flags);
       refinement_results_t minimize(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
+      refinement_results_t minimize_inner(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
       void fix_chiral_atoms_maybe(gsl_vector *s);
 
+      refinement_lights_info_t::the_worst_t
+      find_the_worst(const std::vector<refinement_lights_info_t> &lights) const;
+
       simple_restraint& operator[] (unsigned int i) {
-	 return restraints_vec[i]; 
-      } 
+	 return restraints_vec[i];
+      }
 
       // because chi_squareds is const:
       const simple_restraint& operator[] (const unsigned int &i) const { 
 	 return restraints_vec[i]; 
-      } 
+      }
+
+      const simple_restraint& at(unsigned int i) const {
+	 return restraints_vec[i];
+      }
   
       void setup_gsl_vector_variables();
 

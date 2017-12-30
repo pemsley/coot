@@ -607,7 +607,7 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
 
       if (restraints->restraints_usage_flag & TRANS_PEPTIDE_MASK) {
 	 if ( (*restraints)[i].restraint_type == TRANS_PEPTIDE_RESTRAINT) {
-	    double d =  coot::distortion_score_trans_peptide((*restraints)[i], v);
+	    double d =  coot::distortion_score_trans_peptide(i, restraints->at(i), v);
 	    // std::cout << "dsm: trans_peptide single-thread " << d << std::endl;
 	    *distortion += d;
 	    continue;
@@ -734,7 +734,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 
       if (restraints->restraints_usage_flag & TRANS_PEPTIDE_MASK) {
 	 if ( (*restraints)[i].restraint_type == TRANS_PEPTIDE_RESTRAINT) {
-	    double d =  coot::distortion_score_trans_peptide((*restraints)[i], v);
+	    double d =  coot::distortion_score_trans_peptide(i, restraints->at(i), v);
 	    *distortion += d;
 	    // std::cout << "dsm: trans-peptide " << thread_id << " idx " << i << " " << d << std::endl;
 	    continue;
@@ -821,7 +821,10 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 //
 double coot::distortion_score(const gsl_vector *v, void *params) {
 
-   // std::cout << "debug:: entered distortion_score(), size " << v->size << std::endl;
+   // this is informative
+   //
+   if (false)
+      std::cout << "debug:: entered distortion_score(), size " << v->size << std::endl;
 
 #ifdef ANALYSE_REFINEMENT_TIMING
 #endif // ANALYSE_REFINEMENT_TIMING
@@ -1409,7 +1412,11 @@ coot::distortion_score_chiral_volume(const coot::simple_restraint &chiral_restra
    // double volume_sign = chiral_restraint.chiral_volume_sign;
    double distortion = cv - chiral_restraint.target_chiral_volume;
 
-   if (0) {
+
+   distortion *= distortion;
+   distortion /= chiral_restraint.sigma * chiral_restraint.sigma;
+
+   if (false) {
       std::cout << "atom indices: "
 		<< chiral_restraint.atom_index_centre << " "
 		<< chiral_restraint.atom_index_1 << " " 
@@ -1418,14 +1425,9 @@ coot::distortion_score_chiral_volume(const coot::simple_restraint &chiral_restra
       std::cout << "DEBUG:: (distortion) chiral volume target "
 		<< chiral_restraint.target_chiral_volume
 		<< " chiral actual " << cv << " diff: " << distortion;
+      std::cout << " distortion score chiral: " << distortion << "\n";
    }
  	     
-
-   distortion *= distortion;
-   distortion /= chiral_restraint.sigma * chiral_restraint.sigma;
-
-   if (0)
-      std::cout << " score: " << distortion << "\n";
 
    return distortion;
 }

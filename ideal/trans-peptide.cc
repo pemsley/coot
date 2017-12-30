@@ -19,6 +19,8 @@
  * 02110-1301, USA
  */
 
+#include <iomanip>
+
 #include "simple-restraint.hh"
 int
 coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
@@ -26,7 +28,7 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
 						     short int is_fixed_first,
 						     short int is_fixed_second,
 						     const coot::protein_geometry &geom) {
-   int n_torsion = 0;
+   int n_trans_peptide_torsion = 0;
 
    mmdb::PPAtom first_sel;
    mmdb::PPAtom second_sel;
@@ -142,15 +144,26 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
 				 for (unsigned int ii=0; ii<other_fixed_flags.size(); ii++)
 				    if (other_fixed_flags[ii])
 				       fixed_flags[ii] = true;
-				 double target_omega = 180.0;
-				 double esd = 2.0; // 5.0 lets slip 72A in 2bmd to trans
-				 add(TRANS_PEPTIDE_RESTRAINT, index1, index2, index3, index4,
-				     fixed_flags,
-				     target_omega,
-				     esd,
-				     1.2, // dummy value
-				     1);
-				 n_torsion++;
+
+				 if (none_are_fixed_p(fixed_flags)) {
+
+				    if (false) {
+				       std::cout << "debug:: making trans-peptide restraint with fixed flags: ";
+				       for (std::size_t jj=0; jj<fixed_flags.size(); jj++)
+					  std::cout << " " << fixed_flags[jj];
+				       std::cout << std::endl;
+				    }
+				    double target_omega = 180.0;
+				    double esd = 2.0; // 5.0 lets slip 72A in 2bmd to trans
+				    // esd = 0.2; // 20171228 trial - does this beat the plane restraints?
+				    add(TRANS_PEPTIDE_RESTRAINT, index1, index2, index3, index4,
+					fixed_flags,
+					target_omega,
+					esd,
+					1.2, // dummy value
+					1);
+				    n_trans_peptide_torsion++;
+				 }
 			      }
 			   }
 			}
@@ -161,7 +174,7 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
 	 }
       }
    }
-   return n_torsion; 
+   return n_trans_peptide_torsion;
 }
 
 //
@@ -170,7 +183,8 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
 // can throw a std::runtime_error if there is a problem calculating the torsion.
 // 
 double
-coot::distortion_score_trans_peptide(const coot::simple_restraint &restraint,
+coot::distortion_score_trans_peptide(const int &restraint_index,
+				     const coot::simple_restraint &restraint,
 				     const gsl_vector *v) {
 
    // First calculate the torsion:
@@ -206,7 +220,7 @@ coot::distortion_score_trans_peptide(const coot::simple_restraint &restraint,
    double cos_a1 = clipper::Coord_orth::dot(a,b)/(al*bl);
    double cos_a2 = clipper::Coord_orth::dot(b,c)/(bl*cl);
 
-   // instabilty when the P2-P3-P4 or P1-P2-p3 line is linear. Give up with the derivatives
+   // instabilty when the P2-P3-P4 or P1-P2-P3 line is linear. Give up with the derivatives
    // similar escape in the derivatives
    //
    if (cos_a1 > 0.9 || cos_a2> 0.9) {
@@ -242,11 +256,13 @@ coot::distortion_score_trans_peptide(const coot::simple_restraint &restraint,
 
       if (false) { // debug
 	 double pen = diff*diff/(restraint.sigma * restraint.sigma);
-	 std::cout << "in distortion_trans_peptide theta (calc): " << theta
+	 std::cout << "in distortion_trans_peptide: index " << restraint_index
+		   << " theta (calc): " << std::setw(8) << theta;
+	 std::cout << " cos(a1) " << std::setw(9) << cos_a1 << " co(a2) " << std::setw(9) << cos_a2
 		   << " periodicity " << restraint.periodicity
 		   << " target "      << restraint.target_value
-		   << " diff: " << diff << " ";
-	 std::cout << "sigma= " << restraint.sigma
+		   << " diff: " << std::setw(9) << diff << " ";
+	 std::cout << " sigma= " << restraint.sigma
 		   << " weight= " << pow(restraint.sigma,-2.0) << " ";
 	 std::cout << "score " << pen;
 	 if (false) {
@@ -381,17 +397,21 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
 			       << gsl_vector_get(df, 3*restraint.atom_index_4) << " "
 			       << gsl_vector_get(df, 3*restraint.atom_index_4+1) << " "
 			       << gsl_vector_get(df, 3*restraint.atom_index_4+2) << " "
-			       << std::endl;
+			       << "fixed-flags "
+			       << restraint.fixed_atom_flags[0] << " "
+			       << restraint.fixed_atom_flags[1] << " "
+			       << restraint.fixed_atom_flags[2] << " "
+			       << restraint.fixed_atom_flags[3] << "\n";
 		  }
 
-		  if (! restraint.fixed_atom_flags[0]) { 
+		  if (! restraint.fixed_atom_flags[0]) {
 		     idx = 3*(restraint.atom_index_1);
 		     *gsl_vector_ptr(df, idx  ) += xP1_contrib;
 		     *gsl_vector_ptr(df, idx+1) += yP1_contrib;
 		     *gsl_vector_ptr(df, idx+2) += zP1_contrib;
 		  }
 
-		  if (! restraint.fixed_atom_flags[1]) { 
+		  if (! restraint.fixed_atom_flags[1]) {
 		     idx = 3*(restraint.atom_index_2);
 		     *gsl_vector_ptr(df, idx  ) += xP2_contrib;
 		     *gsl_vector_ptr(df, idx+1) += yP2_contrib;
@@ -415,9 +435,8 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
 	    }
 	    catch (const std::runtime_error &rte) {
 	       std::cout << "Caught runtime_error" << rte.what() << std::endl;
-	    } 
-	 } 
+	    }
+	 }
       }
    }
-   // std::cout << "done my_df_trans_peptides() " << std::endl;
 }

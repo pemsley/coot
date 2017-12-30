@@ -141,11 +141,11 @@ void coot::my_df(const gsl_vector *v,
 
    // first extract the object from params
    //
-   coot::restraints_container_t *restraints =
-      (coot::restraints_container_t *)params;
+   restraints_container_t *restraints = (restraints_container_t *)params;
    int n_var = restraints->n_variables();
 
    // first initialize the derivative vector:
+   // 2011230 Note: I doubt this is needed, it happens in gsl_multimin_fdfminimizer_set().
    for (int i=0; i<n_var; i++) {
       gsl_vector_set(df,i,0);
    }
@@ -209,13 +209,13 @@ void coot::my_df(const gsl_vector *v,
 #endif
 
    auto tp_9 = std::chrono::high_resolution_clock::now();
-   my_df_trans_peptides(v, params, df);
    my_df_bonds     (v, params, df); 
    my_df_angles    (v, params, df);
    my_df_torsions  (v, params, df);
    my_df_rama      (v, params, df);
    my_df_planes    (v, params, df);
    my_df_non_bonded(v, params, df);
+   my_df_trans_peptides(v, params, df);
    my_df_chiral_vol(v, params, df);
    my_df_start_pos (v, params, df);
    my_df_target_pos(v, params, df);
@@ -1603,7 +1603,7 @@ coot::my_df_chiral_vol(const gsl_vector *v, void *params, gsl_vector *df) {
 
 	    cv = clipper::Coord_orth::dot(a, clipper::Coord_orth::cross(b,c));
 
-	    distortion = cv - (*restraints)[i].target_chiral_volume;
+	    distortion = cv - restraints->at(i).target_chiral_volume;
 	    
 // 	    std::cout << "---- xxx ---- DEBUG:: chiral volume deriv: " 
 // 		      << cv << " chiral distortion " 
