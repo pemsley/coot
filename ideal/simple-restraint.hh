@@ -377,6 +377,9 @@ namespace coot {
       std::string rama_plot_residue_type; // so that we look up the correct residue type
                                           // for this (middle-of-three) residue
 
+      enum nbc_function_t { LENNARD_JONES, HARMONIC};
+      nbc_function_t nbc_function;
+
       // allocator for geometry_distortion_info_t
       simple_restraint() { is_user_defined_restraint = 0; }
       
@@ -385,7 +388,7 @@ namespace coot {
 		       const std::vector<bool> &fixed_atom_flags_in,
 		       float tar, 
 		       float sig, float obs){
-	 
+
 	 restraint_type = rest_type; 
 	 atom_index_1 = atom_1; 
 	 atom_index_2 = atom_2;
@@ -394,6 +397,7 @@ namespace coot {
 	 target_value = tar; 
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = false;
+	 nbc_function = HARMONIC; // not used
 	 
 	 // This finds a coding error
 	 if (rest_type != BOND_RESTRAINT) { 
@@ -577,7 +581,7 @@ namespace coot {
 	    } else {
 	       // short/standard value
 	       target_value = 2.5;
-	    } 
+	    }
 	    sigma = 0.02;
 	    fixed_atom_flags = fixed_atom_flags_in;
 	    is_user_defined_restraint = 0;
@@ -601,6 +605,8 @@ namespace coot {
 	    atom_index_1 = index_1;
 	    atom_index_2 = index_2;
 	    target_value = dist_min;
+	    nbc_function = LENNARD_JONES; // 20171231 new!
+	    // nbc_function = HARMONIC;
 	    sigma = 0.02;
 	    fixed_atom_flags = fixed_atom_flags_in;
 	    is_user_defined_restraint = 0;
@@ -865,6 +871,8 @@ namespace coot {
 				      const gsl_vector *v);
    double distortion_score_non_bonded_contact(const simple_restraint &plane_restraint,
 					      const gsl_vector *v);
+   double distortion_score_non_bonded_contact_lennard_jones(const simple_restraint &plane_restraint,
+							    const gsl_vector *v);
    double distortion_score_parallel_planes(const simple_restraint &plane_restraint,
 					   const gsl_vector *v); 
    void fix_chiral_atom_maybe (const simple_restraint &chiral_restraint,
@@ -2257,6 +2265,10 @@ namespace coot {
 				const simple_restraint &this_restraint
 				// const restraints_container_t &restraints // for debugging
 				);
+
+   void my_df_non_bonded_lennard_jones(const gsl_vector *v,
+				       gsl_vector *df,
+				       const simple_restraint &this_restraint);
 
    void my_df_geman_mcclure_distances_single(const gsl_vector *v,
 					     gsl_vector *df,

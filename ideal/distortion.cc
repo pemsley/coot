@@ -573,14 +573,19 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
    //
    coot::restraints_container_t *restraints = static_cast<coot::restraints_container_t *>(params);
 
+   if (false)
+      std::cout << ".... in distortion_score_single_thread() usage flags "
+		<< restraints->restraints_usage_flag << " idx_start: " << idx_start
+		<< " idx_end: " << idx_end << std::endl;
+
    double d = 0;
    for (int i=idx_start; i<idx_end; i++) {
 
-      const simple_restraint &this_restraint = (*restraints)[i];
+      const simple_restraint &this_restraint = restraints->at(i);
 
       if (restraints->restraints_usage_flag & coot::NON_BONDED_MASK) { // 16:
 	 if ( (*restraints)[i].restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
-	    d = coot::distortion_score_non_bonded_contact( (*restraints)[i], v);
+	    d = coot::distortion_score_non_bonded_contact(restraints->at(i), v);
 	    // std::cout << "dsm: nbc  single-thread " << d << std::endl;
 	    *distortion += d;
 	    continue;
@@ -685,7 +690,9 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
       }
 
       if ( (*restraints)[i].restraint_type == coot::TARGET_POS_RESTRANT) { // atom pull restraint
-         *distortion += coot::distortion_score_target_pos((*restraints)[i], params, v);
+	 double d = coot::distortion_score_target_pos((*restraints)[i], params, v);
+         *distortion += d;
+	 // std::cout << "dsm: target_pos single-thread idx " << i << " " << d << std::endl;
       }
    }
 }
@@ -953,15 +960,25 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
       }
    } else {
       // "return" value is passed distortion pointer
+      // double save_distortion_1 = distortion;
       distortion_score_single_thread(v, params, 0, restraints_size, &distortion);
+
+      // double save_distortion_2 = distortion;
+
       if (restraints_p->include_map_terms())
 	 distortion += coot::electron_density_score(v, params); // good map fit: low score
+
+      // std::cout << " in distortion_score() distortion was " << save_distortion_1
+      // << " " << save_distortion_2 << " distortion now: " << distortion
+      // << "\n";
    }
 
 #else
 
    // "return" value is passed pointer
+
    distortion_score_single_thread(v, params, 0, restraints_size, &distortion);
+   
    if (restraints_p->include_map_terms())
       distortion += coot::electron_density_score(v, params); // good map fit: low score
 
@@ -973,7 +990,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 
    if (false)
       std::cout << "debug:: exit distortion_score()  distortion: " << distortion <<  " size  "
-		<< v->size << std::endl;
+		<< v->size << "\n";
    return distortion; 
 }
 
@@ -1720,20 +1737,66 @@ double
 coot::distortion_score_non_bonded_contact(const coot::simple_restraint &nbc_restraint,
 					  const gsl_vector *v) {
 
-   const int &idx_1 = 3*(nbc_restraint.atom_index_1); 
-   const int &idx_2 = 3*(nbc_restraint.atom_index_2);
-   
-//    clipper::Coord_orth a1(gsl_vector_get(v, idx_1  ), 
-// 			     gsl_vector_get(v, idx_1+1), 
-// 			     gsl_vector_get(v, idx_1+2));
-//    clipper::Coord_orth a2(gsl_vector_get(v, idx_2 ),
-// 			     gsl_vector_get(v, idx_2+1), 
-// 			     gsl_vector_get(v, idx_2+2));
+   if (nbc_restraint.nbc_function == simple_restraint::LENNARD_JONES) {
+      return distortion_score_non_bonded_contact_lennard_jones(nbc_restraint, v);
+   } else {
 
-//    double dist_sq = (a1-a2).lengthsq();
+      // this should not be needed
+      if (nbc_restraint.fixed_atom_flags[0] && nbc_restraint.fixed_atom_flags[1])
+	 return 0.0;
+
+      int idx_1 = 3*(nbc_restraint.atom_index_1);
+      int idx_2 = 3*(nbc_restraint.atom_index_2);
+
+      double dist_sq = 0.0;
+
+      double delta = gsl_vector_get(v, idx_1) - gsl_vector_get(v, idx_2);
+      dist_sq += delta * delta;
+      delta = gsl_vector_get(v, idx_1+1) - gsl_vector_get(v, idx_2+1);
+      dist_sq += delta * delta;
+      delta = gsl_vector_get(v, idx_1+2) - gsl_vector_get(v, idx_2+2);
+      dist_sq += delta * delta;
+
+      double r = 0.0;
+
+      if (false)
+	 std::cout << "in distortion_score_non_bonded_contact: " << idx_1 << " " << idx_2
+		   << " comparing model: " << sqrt(dist_sq) << " min_dist: "
+		   << nbc_restraint.target_value
+		   << " with sigma " << nbc_restraint.sigma << std::endl;
+
+      if (dist_sq < nbc_restraint.target_value * nbc_restraint.target_value) {
+	 double weight = 1.0/(nbc_restraint.sigma * nbc_restraint.sigma);
+	 double dist = sqrt(dist_sq);
+	 double bit = dist - nbc_restraint.target_value;
+	 r = weight * bit * bit;
+      }
+      return r;
+   }
+}
+
+double
+coot::distortion_score_non_bonded_contact_lennard_jones(const coot::simple_restraint &nbc_restraint,
+							const gsl_vector *v) {
+
+   double V_lj = 0;
+
+   // the value lj_sigma is r when is the potential is 0.
+   // for lj_sigma + delta the potential is negative
+   // for lj_sigma - delta the potential is positive
+   // the potential is at a minimum at lj_r_min
+   //
+   // so if target_value is say 3.4A, lj_sigma is 3.4 sigma
+   // and lj_r_min ~ 3.4 * 1.122 = 3.82
+   double lj_sigma = nbc_restraint.target_value;
+   // double lj_r_min = std::pow(2.0, 1.0/6.0) * lj_sigma;
+   double lj_r_min = 1.122462048309373 * lj_sigma;
+   double lj_epsilon = 0.05; // needs adjustment
+
+   int idx_1 = 3*(nbc_restraint.atom_index_1);
+   int idx_2 = 3*(nbc_restraint.atom_index_2);
 
    double dist_sq = 0.0;
-
    double delta = gsl_vector_get(v, idx_1) - gsl_vector_get(v, idx_2);
    dist_sq += delta * delta;
    delta = gsl_vector_get(v, idx_1+1) - gsl_vector_get(v, idx_2+1);
@@ -1741,24 +1804,36 @@ coot::distortion_score_non_bonded_contact(const coot::simple_restraint &nbc_rest
    delta = gsl_vector_get(v, idx_1+2) - gsl_vector_get(v, idx_2+2);
    dist_sq += delta * delta;
 
-   double r = 0.0;
+   double max_dist = 666.0;
 
-   if (nbc_restraint.fixed_atom_flags[0] && nbc_restraint.fixed_atom_flags[1])
-      return 0.0;
+   if (dist_sq < max_dist * max_dist) { // this needs to be checked // FIXME before commit
 
-   if (false)
-      std::cout << "in distortion_score_non_bonded_contact: " << idx_1 << " " << idx_2
-		<< " comparing model: " << sqrt(dist_sq) << " min_dist: "
-		<< nbc_restraint.target_value
-		<< " with sigma " << nbc_restraint.sigma << std::endl;
+      // a square root :-). Probably not needed, in fact
+      // with a rearangement of V_lj to use dist_sq
+      //
+      // double lj_r = std::sqrt(dist_sq);
 
-   if (dist_sq < nbc_restraint.target_value * nbc_restraint.target_value) {
-      double weight = 1.0/(nbc_restraint.sigma * nbc_restraint.sigma);
-      double dist = sqrt(dist_sq);
-      double bit = dist - nbc_restraint.target_value;
-      r = weight * bit * bit;
+      // We routinely get such values during the refinement. Slightly worrying, but noisy.
+      if (false)
+	 if (dist_sq < 1.0)
+	    std::cout << "WARNING:: distortion_score_non_bonded_contact_lennard_jones() "
+		      << "close distance " << sqrt(dist_sq) << std::endl;
+
+      // if (lj_r < 0.9) lj_r = 0.9;
+      // double alpha = lj_r_min/lj_r; // comment this out
+      // slow slow slow, interrupting (with numberical gradients on admittedly)
+      // the process was always on this line
+      // double V_lj_old = lj_epsilon * (std::pow(alpha, 12) - 2.0 * std::pow(alpha, 6));
+
+      if (dist_sq < 0.81) dist_sq = 0.81; // 0.9^2
+      double alpha_sqrd = lj_r_min*lj_r_min/dist_sq;
+      double alpha_up_6  = alpha_sqrd * alpha_sqrd * alpha_sqrd;
+      double alpha_up_12 = alpha_up_6 * alpha_up_6;
+      V_lj = lj_epsilon * (alpha_up_12 - 2.0 * alpha_up_6);
+
    }
-   return r;
+
+   return V_lj;
 }
 
 coot::plane_distortion_info_t

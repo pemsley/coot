@@ -804,6 +804,8 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    // restraints_usage_flag = BONDS_AND_ANGLES;
    // restraints_usage_flag = GEMAN_MCCLURE_DISTANCE_RESTRAINTS;
    // restraints_usage_flag = NO_GEOMETRY_RESTRAINTS;
+   // restraints_usage_flag = NON_BONDED;
+   // restraints_usage_flag = BONDS_AND_NON_BONDED;
    
    const gsl_multimin_fdfminimizer_type *T;
 
@@ -815,7 +817,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 return coot::refinement_results_t(0, 0, "No Restraints!");
       }
    } 
-   
+
    setup_gsl_vector_variables();  //initial positions
 
    setup_multimin_func(); // provide functions for f, df, fdf
@@ -861,7 +863,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
 
-   // this does a lot of work - can it be faster? Needs investigation
+   // this does a lot of work - can it be faster? No.
    gsl_multimin_fdfminimizer_set(s, &multimin_func, x, step_size, tolerance);
 
    auto tp_1 = std::chrono::high_resolution_clock::now();
@@ -908,7 +910,9 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       // pre-sanitization reduces/stops the conflict between trans peptide restraints
       // and chiral volumes restraints (and possibly plane restraints) when we have
       // a hideous model.
-      pre_sanitize_as_needed(lights, s, step_size, tolerance);
+
+      // comment this out for testing nbcs FIXME
+      // pre_sanitize_as_needed(lights, s, step_size, tolerance);
    }
 
 //      std::cout << "pre minimization atom positions\n";
@@ -925,6 +929,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    int status;
    std::vector<coot::refinement_lights_info_t> lights_vec;
    bool done_final_chi_squares = false;
+
    do
       {
 	 iter++;
