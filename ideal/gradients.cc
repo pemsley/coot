@@ -495,13 +495,13 @@ coot::my_df_non_bonded_lennard_jones(const gsl_vector *v,
 			  gsl_vector_get(v,idx_2+1),
 			  gsl_vector_get(v,idx_2+2));
 
+   double lj_sigma = this_restraint.target_value;
+   double max_dist = lj_sigma * 2.5; // 2.5 is conventional limit, i.e. ~3.5 * 2.5
    double b_i_sqrd = (a1-a2).lengthsq();
    if (b_i_sqrd < 0.81) b_i_sqrd = 0.81; // stabilize (as per distortion score lj)
-   double max_dist = 666.0;
 
    if (b_i_sqrd < (max_dist * max_dist)) {
 
-      double lj_sigma = this_restraint.target_value;
       // double lj_r_min = pow(2.0, 1.0/6.0) * lj_sigma; // precalculate this pow value - done
       double lj_r_min = 1.122462048309373 * lj_sigma;
       double lj_epsilon = 0.05; // needs adjustment, must match distortion score

@@ -1804,7 +1804,7 @@ coot::distortion_score_non_bonded_contact_lennard_jones(const coot::simple_restr
    delta = gsl_vector_get(v, idx_1+2) - gsl_vector_get(v, idx_2+2);
    dist_sq += delta * delta;
 
-   double max_dist = 666.0;
+   double max_dist = 2.5 * lj_sigma; // r_max
 
    if (dist_sq < max_dist * max_dist) { // this needs to be checked // FIXME before commit
 
@@ -1830,6 +1830,14 @@ coot::distortion_score_non_bonded_contact_lennard_jones(const coot::simple_restr
       double alpha_up_6  = alpha_sqrd * alpha_sqrd * alpha_sqrd;
       double alpha_up_12 = alpha_up_6 * alpha_up_6;
       V_lj = lj_epsilon * (alpha_up_12 - 2.0 * alpha_up_6);
+
+      // offset the Vlj so that it is zero at r_max (beyond which we no longer
+      // consider contributions to the distortion)
+
+      double Vlj_at_rmax = -0.016316891136 * lj_epsilon; // see Lennard-Jones truncated and shifted for
+
+      V_lj += Vlj_at_rmax;
+
 
    }
 
