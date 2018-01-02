@@ -11,7 +11,7 @@
 #include <stdexcept>
 
 #include "simple-restraint.hh"
-#include "thread-test.hh" // put this in simple-restraint.hh FIXME
+#include "process-dfs-in-range.hh" // put this in simple-restraint.hh FIXME
 
 // parallel version of my_df()
 void
