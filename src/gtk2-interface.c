@@ -17974,6 +17974,8 @@ create_nothing_bad_dialog (void)
   GtkWidget *nothing_bad_dialog;
   GtkWidget *dialog_vbox72;
   GtkWidget *frame128;
+  GtkWidget *hbox443;
+  GtkWidget *image12116;
   GtkWidget *nothing_bad_label;
   GtkWidget *dialog_action_area71;
   GtkWidget *nothing_bad_ok_button;
@@ -17990,11 +17992,20 @@ create_nothing_bad_dialog (void)
   gtk_box_pack_start (GTK_BOX (dialog_vbox72), frame128, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame128), 6);
 
-  nothing_bad_label = gtk_label_new ("Nothing Bad");
+  hbox443 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox443);
+  gtk_container_add (GTK_CONTAINER (frame128), hbox443);
+
+  image12116 = gtk_image_new_from_stock ("gtk-dialog-info", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image12116);
+  gtk_box_pack_start (GTK_BOX (hbox443), image12116, FALSE, FALSE, 18);
+
+  nothing_bad_label = gtk_label_new ("<tt>Nothing Bad</tt>");
   gtk_widget_show (nothing_bad_label);
-  gtk_container_add (GTK_CONTAINER (frame128), nothing_bad_label);
+  gtk_box_pack_start (GTK_BOX (hbox443), nothing_bad_label, FALSE, FALSE, 0);
+  gtk_label_set_use_markup (GTK_LABEL (nothing_bad_label), TRUE);
   gtk_label_set_justify (GTK_LABEL (nothing_bad_label), GTK_JUSTIFY_CENTER);
-  gtk_misc_set_padding (GTK_MISC (nothing_bad_label), 80, 40);
+  gtk_misc_set_padding (GTK_MISC (nothing_bad_label), 50, 24);
 
   dialog_action_area71 = GTK_DIALOG (nothing_bad_dialog)->action_area;
   gtk_widget_show (dialog_action_area71);
@@ -18013,6 +18024,8 @@ create_nothing_bad_dialog (void)
   GLADE_HOOKUP_OBJECT_NO_REF (nothing_bad_dialog, nothing_bad_dialog, "nothing_bad_dialog");
   GLADE_HOOKUP_OBJECT_NO_REF (nothing_bad_dialog, dialog_vbox72, "dialog_vbox72");
   GLADE_HOOKUP_OBJECT (nothing_bad_dialog, frame128, "frame128");
+  GLADE_HOOKUP_OBJECT (nothing_bad_dialog, hbox443, "hbox443");
+  GLADE_HOOKUP_OBJECT (nothing_bad_dialog, image12116, "image12116");
   GLADE_HOOKUP_OBJECT (nothing_bad_dialog, nothing_bad_label, "nothing_bad_label");
   GLADE_HOOKUP_OBJECT_NO_REF (nothing_bad_dialog, dialog_action_area71, "dialog_action_area71");
   GLADE_HOOKUP_OBJECT (nothing_bad_dialog, nothing_bad_ok_button, "nothing_bad_ok_button");

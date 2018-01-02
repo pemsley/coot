@@ -2172,10 +2172,7 @@
 
      (define (residue-in-molecule? imol chain-id resno ins-code)
        (let ((r (residue-info imol chain-id resno ins-code)))
-;;	 (format #t "::: res-info: ~s ~s ~s ~s -> ~s~%" imol chain-id resno ins-code r)
-	 (if r
-	     #t
-	     #f)))
+	 (if r #t #f)))
 
      ;; in this PDB file 60 and 61 have been deleted. Relative to the
      ;; where we want to be (tutorial-modern.pdb, say) 62 to 93 have
@@ -2189,31 +2186,34 @@
 	     (throw 'fail))
 	   (let ((renumber? 1))
 
+	     (set-alignment-gap-and-space-penalty -3.0 -0.5)
 	     (align-and-mutate imol "A" rnase-seq-string renumber?)
 	     (write-pdb-file imol "mutated.pdb")
 
-	     (all-true? 
-	      (map 
-	       (lambda (residue-info)
-		 (let ((residue-spec (cdr residue-info))
-		       (expected-status (car residue-info)))
-		   (format #t "    ::::: ~s ~s ~s~%" residue-spec 
-			   (apply residue-in-molecule? residue-spec)
-			   expected-status)
-		   (eq? 
-		    (apply residue-in-molecule? residue-spec)
-		    expected-status)))
-	       (list 
-		(list #f imol "A"  1 "")
-		(list #t imol "A"  4 "")
-		(list #t imol "A" 59 "")
-		(list #f imol "A" 60 "")
-		(list #f imol "A" 61 "")
-		(list #t imol "A" 92 "")
-		(list #f imol "A" 94 "")
-		))))))))
+	     (let ((results
+		    (map
+		     (lambda (residue-info)
+		       (let ((residue-spec (cdr residue-info))
+			     (expected-status (car residue-info)))
+			 (format #t "    ::::: ~s ~s ~s~%" residue-spec
+				 (apply residue-in-molecule? residue-spec)
+				 expected-status)
+			 (eq?
+			  (apply residue-in-molecule? residue-spec)
+			  expected-status)))
+		     (list
+		      (list #f imol "A"  1 "")
+		      (list #t imol "A"  4 "")
+		      (list #t imol "A" 57 "")
+		      (list #f imol "A" 60 "")
+		      (list #f imol "A" 61 "")
+		      (list #t imol "A" 92 "")
+		      (list #f imol "A" 94 "")
+		      ))))
 
+	       (format #t "results: ~s~%" results)
 
+	       (all-true? results)))))))
 
 
 (greg-testcase "renumbered residues should be in seqnum order" #t

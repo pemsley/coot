@@ -397,25 +397,7 @@ graphics_info_t::info_dialog_and_text(const std::string &s) {
 void
 graphics_info_t::info_dialog_alignment(coot::chain_mutation_info_container_t mutation_info) const {
 
-   std::string s;
-
-   s = "<tt>";
-   s += ": ";
-   s += mutation_info.alignedS_label;
-   if (mutation_info.chain_id != "") { 
-      s += " Chain ";
-      s += mutation_info.chain_id;
-   }
-   s += "\n";
-   s += mutation_info.alignedS;
-   s += "\n";
-   s += ": ";
-   s += mutation_info.alignedT_label;
-   s += "\n";
-   s += mutation_info.alignedT;
-   s += "\n";
-   // s += "something_here";
-   s += "</tt>";
+   std::string s = mutation_info.alignment_string;
 
    GtkWidget *dialog = info_dialog(s); // get trashed by markup text
    if (dialog) { 

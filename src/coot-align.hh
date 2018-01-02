@@ -27,6 +27,7 @@ namespace coot {
       std::string alignedT;
       std::string alignedS_label;
       std::string alignedT_label;
+      std::string alignment_string; // show this in an info dialog (it has carriage returns in it)
       std::pair<bool, float> alignment_score;
       std::vector<mutate_insertion_range_info_t> insertions;
       std::vector<std::pair<residue_spec_t, std::string> > single_insertions;
