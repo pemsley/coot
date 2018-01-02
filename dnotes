@@ -7983,3 +7983,48 @@ Sun 17 Dec 2017 16:17:48 GMT
 
      ::: 2
 
+----
+Sat 30 Dec 2017 20:31:56 GMT
+
+   o Nice to have function: --emdb code which uses files if they are available or gets the
+     bundle first if not.
+
+----
+Sun 31 Dec 2017 04:54:00 GMT
+
+   o Non-bonded contacts are slow to generate on a big chain (say 400 residues or more) e.g. EMD-6698.
+
+     Make them faster.
+
+---
+Sun 31 Dec 2017 05:00:22 GMT
+
+   o put the refinement in a thread.
+
+
+----
+Sun 31 Dec 2017 14:35:22 GMT
+
+File to string;
+
+https://www.fluentcpp.com/2017/12/19/build-strings-from-plain-string-up-to-boost-karma/
+
+  std::ostringstream fileContentsStream;
+  fileContentsStream << std::ifstream("MyFile.txt").rdbuf();
+  std::string fileContents = fileContentsStream.str();
+
+---
+Sun 31 Dec 2017 14:39:12 GMT
+
+  interesting minimization:
+
+http://www.csm.ro/home/mmelsp_series/mmelsp_08_papers/nandrei_08.pdf
+
+
+---
+Sun 31 Dec 2017 20:15:08 GMT
+
+  pango-cairo:
+
+https://developer.gnome.org/pango/stable/pango-Cairo-Rendering.html
+

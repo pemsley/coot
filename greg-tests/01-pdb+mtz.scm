@@ -1711,7 +1711,8 @@
 
 
 
-(greg-testcase "Test for mangling of hydrogen names from a PDB v 3.0" #t
+
+(greg-testcase "Test for regularization and mangling of hydrogen names from a PDB v 3.0" #t
    (lambda ()
 
      ;; Note that it seems to me that the bonds are not within
@@ -1730,7 +1731,7 @@
 
        (with-auto-accept (regularize-zone imol "B" 6 6 ""))
        (let ((atom-pairs 
-	      (list 
+	      (list
 	       (cons "HD11" " CD1")
 	       (cons "HD12" " CD1")
 	       (cons "HD13" " CD1")
@@ -1744,11 +1745,13 @@
 	     (let ((atom-1 (get-atom imol "B" 6 "" (car pair)))
 		   (atom-2 (get-atom imol "B" 6 "" (cdr pair))))
 	       (if (bond-length-within-tolerance? atom-1 atom-2 0.96 0.02)
-		   #t 
+		   #t
 		   (begin
-		     (format #t "Hydrogen names mangled from PDB ~s ~s~%"
-			     atom-1 atom-2)
-		     #f))))
+		     (let ((bl (bond-length-from-atoms atom-1 atom-2)))
+		       (format #t "  Oops! bond length not within tolerance: ~s~%" bl)
+		       (format #t "  Hydrogen names mangled from PDB~%   ~s~%   ~s~%"
+			       atom-1 atom-2)
+		       #f)))))
 	   atom-pairs))))))
 
 

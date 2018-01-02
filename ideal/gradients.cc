@@ -435,13 +435,7 @@ void
 coot::my_df_non_bonded(const  gsl_vector *v, 
 			void *params, 
 			gsl_vector *df) {
-   
-#ifdef ANALYSE_REFINEMENT_TIMING
-   timeval start_time;
-   timeval current_time;
-   gettimeofday(&start_time, NULL);
-#endif // ANALYSE_REFINEMENT_TIMING
-   
+
    // first extract the object from params 
    //
    restraints_container_t *restraints_p = static_cast<restraints_container_t *>(params);
@@ -456,7 +450,6 @@ coot::my_df_non_bonded(const  gsl_vector *v,
    if (restraints_p->restraints_usage_flag & coot::NON_BONDED_MASK) { 
 
       unsigned int restraints_size = restraints_p->size();
-
 
 #ifdef HAVE_CXX_THREAD
 
@@ -506,14 +499,6 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 #endif
 
    }
-
-#ifdef ANALYSE_REFINEMENT_TIMING
-   gettimeofday(&current_time, NULL);
-   double td = current_time.tv_sec - start_time.tv_sec;
-   td *= 1000.0;
-   td += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
-   std::cout << "------------- mark my_df_non_bonded: " << td << std::endl;
-#endif // ANALYSE_REFINEMENT_TIMING
 }
 
 void
@@ -719,7 +704,7 @@ void coot::my_df_angles(const gsl_vector *v,
       double w_ds_dth;
 
       for (unsigned int i=restraints->restraints_limits_angles.first; i<=restraints->restraints_limits_angles.second; i++) {
-      
+
 	 if ( (*restraints)[i].restraint_type == coot::ANGLE_RESTRAINT) {
 
 	    n_angle_restr++;
