@@ -585,7 +585,7 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
 
       if (restraints->restraints_usage_flag & coot::NON_BONDED_MASK) { // 16:
 	 if ( (*restraints)[i].restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
-	    d = coot::distortion_score_non_bonded_contact(restraints->at(i), v);
+	    d = coot::distortion_score_non_bonded_contact(restraints->at(i), restraints->lennard_jones_epsilon, v);
 	    // std::cout << "dsm: nbc  single-thread " << d << std::endl;
 	    *distortion += d;
 	    continue;
@@ -714,7 +714,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 
       if (restraints->restraints_usage_flag & coot::NON_BONDED_MASK) { // 16:
 	 if ( (*restraints)[i].restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
-	    d = coot::distortion_score_non_bonded_contact( (*restraints)[i], v);
+	    d = coot::distortion_score_non_bonded_contact( restraints->at(i), restraints->lennard_jones_epsilon, v);
 	    // std::cout << "dsm: nbc  thread_idx " << thread_id << " idx " << i << " " << d << std::endl;
 	    *distortion += d;
 	    continue;
@@ -833,9 +833,6 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
    if (false)
       std::cout << "debug:: entered distortion_score(), size " << v->size << std::endl;
 
-#ifdef ANALYSE_REFINEMENT_TIMING
-#endif // ANALYSE_REFINEMENT_TIMING
-
    // so we are comparing the geometry of the value in the gsl_vector
    // v and the ideal values.
    //
@@ -865,11 +862,11 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 
       if (restraints_p->n_threads > 0) {
 
-	 auto tp_1 = std::chrono::high_resolution_clock::now();
+	 // auto tp_1 = std::chrono::high_resolution_clock::now();
 
 	 std::future<double> eds(std::async(electron_density_score_from_restraints, v, restraints_p));
 
-	 auto tp_2 = std::chrono::high_resolution_clock::now();
+	 // auto tp_2 = std::chrono::high_resolution_clock::now();
 
 	 int n_per_thread = restraints_size/restraints_p->n_threads;
 	 std::atomic<unsigned int> done_count_for_threads(0);
@@ -913,11 +910,11 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 			 << restraints_p->thread_pool_p->n_idle() << "\n";
 	 }
 
-	 auto tp_3 = std::chrono::high_resolution_clock::now();
+	 // auto tp_3 = std::chrono::high_resolution_clock::now();
 	 while (done_count_for_threads != restraints_p->n_threads) {
 	    std::this_thread::sleep_for(std::chrono::microseconds(1));
 	 }
-	 auto tp_4 = std::chrono::high_resolution_clock::now();
+	 // auto tp_4 = std::chrono::high_resolution_clock::now();
 
 	 if (false)
 	    std::cout << "post-wait thread pool info: size: "
@@ -928,13 +925,11 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++)
 	    distortion += distortions[i_thread];
 
-	 auto tp_5 = std::chrono::high_resolution_clock::now();
-
-	 // for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++)
-	 // std::cout << "thread " << i_thread << " d32: " << d32_vec[i_thread] << "\n";
+	 // auto tp_5 = std::chrono::high_resolution_clock::now();
 
 	 distortion += eds.get();
 
+	 /*
 	 auto tp_6 = std::chrono::high_resolution_clock::now();
 
 	 auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
@@ -944,6 +939,9 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	 auto d65 = chrono::duration_cast<chrono::microseconds>(tp_6 - tp_5).count();
 	 auto d61 = chrono::duration_cast<chrono::microseconds>(tp_6 - tp_1).count();
 
+	 auto d52 = chrono::duration_cast<chrono::microseconds>(tp_5 - tp_2).count();
+	 std::cout << "timings:: distortion (threaded) " << std::setw(5) << d52 << " microseconds\n";
+
 	 if (false)
 	    std::cout << "timings:: distortion d21 " << std::setw(5) << d21 << " "
 		      << "d32 " << std::setw(5) << d32 << " "
@@ -952,6 +950,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 		      << "d65 " << std::setw(5) << d65 << " "
 		      << "d61 " << std::setw(5) << d61 << " "
 		      << "\n";
+	 */
       } else {
 	 // this cannot happen (n_threads == 0)
 	 distortion_score_single_thread(v, params, 0, restraints_size, &distortion);
@@ -1060,7 +1059,7 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 	 } 
       if (restraints_usage_flag & coot::NON_BONDED_MASK)
 	 if (restraints_vec[i].restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
-	    distortion = coot::distortion_score_non_bonded_contact(restraints_vec[i], v);
+	    distortion = coot::distortion_score_non_bonded_contact(restraints_vec[i], lennard_jones_epsilon, v);
 	    atom_index = restraints_vec[i].atom_index_1;
 	    atom_indices.push_back(rest.atom_index_1);
 	    atom_indices.push_back(rest.atom_index_2);
@@ -1735,10 +1734,11 @@ coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
 
 double
 coot::distortion_score_non_bonded_contact(const coot::simple_restraint &nbc_restraint,
+					  const double &lennard_jones_epsilon,
 					  const gsl_vector *v) {
 
    if (nbc_restraint.nbc_function == simple_restraint::LENNARD_JONES) {
-      return distortion_score_non_bonded_contact_lennard_jones(nbc_restraint, v);
+      return distortion_score_non_bonded_contact_lennard_jones(nbc_restraint, lennard_jones_epsilon, v);
    } else {
 
       // this should not be needed
@@ -1777,6 +1777,7 @@ coot::distortion_score_non_bonded_contact(const coot::simple_restraint &nbc_rest
 
 double
 coot::distortion_score_non_bonded_contact_lennard_jones(const coot::simple_restraint &nbc_restraint,
+							const double &lj_epsilon,
 							const gsl_vector *v) {
 
    double V_lj = 0;
@@ -1791,7 +1792,6 @@ coot::distortion_score_non_bonded_contact_lennard_jones(const coot::simple_restr
    double lj_sigma = nbc_restraint.target_value;
    // double lj_r_min = std::pow(2.0, 1.0/6.0) * lj_sigma;
    double lj_r_min = 1.122462048309373 * lj_sigma;
-   double lj_epsilon = 0.05; // needs adjustment
 
    int idx_1 = 3*(nbc_restraint.atom_index_1);
    int idx_2 = 3*(nbc_restraint.atom_index_2);
@@ -1805,6 +1805,8 @@ coot::distortion_score_non_bonded_contact_lennard_jones(const coot::simple_restr
    dist_sq += delta * delta;
 
    double max_dist = 2.5 * lj_sigma; // r_max
+
+   max_dist = 999.9; // does this match the 2 in the derivatives
 
    if (dist_sq < max_dist * max_dist) { // this needs to be checked // FIXME before commit
 

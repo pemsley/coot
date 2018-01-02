@@ -28,11 +28,6 @@
 
 #include <string.h> // for strcmp
 
-#ifdef ANALYSE_REFINEMENT_TIMING
-#include <sys/time.h> // for gettimeofday()
-#endif // ANALYSE_REFINEMENT_TIMING
-
-
 #ifdef HAVE_CXX_THREAD
 #include <thread>
 #include <chrono>
@@ -46,8 +41,10 @@
 
 #include "simple-restraint.hh"
 
-void 
-coot::numerical_gradients(gsl_vector *v, 
+
+// v needs to be non-const
+void
+coot::numerical_gradients(gsl_vector *v,
 			  void *params, 
 			  gsl_vector *df) {
 
@@ -130,8 +127,10 @@ coot::numerical_gradients(gsl_vector *v,
    }
 
    for (unsigned int i=0; i<v->size; i++) {
-      std::cout << i << " analytical: " << analytical_derivs[i]
-		<< " numerical: " << numerical_derivs[i] << "\n";
+      std::cout << std::setw(3) << i << " analytical: "
+		<< std::setw(9) << std::right << std::setprecision(5) << std::fixed << analytical_derivs[i]
+		<< " numerical: "
+		<< std::setw(9) << std::setprecision(5) << std::fixed << numerical_derivs[i] << "\n";
    }
    
 } // Note to self: try 5 atoms and doctor the .rst file if necessary.
@@ -147,113 +146,58 @@ void coot::my_df(const gsl_vector *v,
 
    // std::cout << "debug:: entered my_df(): v size " << v->size << std::endl;
 
-#ifdef ANALYSE_REFINEMENT_TIMING
-#endif // ANALYSE_REFINEMENT_TIMING
 
    // first extract the object from params
    //
-   restraints_container_t *restraints = (restraints_container_t *)params;
-   int n_var = restraints->n_variables();
+   restraints_container_t *restraints_p = static_cast<restraints_container_t *>(params);
+   int n_var = restraints_p->n_variables();
 
    // first initialize the derivative vector:
    // 2011230 Note: I doubt this is needed, it happens in gsl_multimin_fdfminimizer_set().
-   for (int i=0; i<n_var; i++) {
+   for (int i=0; i<n_var; i++)
       gsl_vector_set(df,i,0);
-   }
 
-   // std::cout << "debug:: in my_df() usage_flags " << restraints->restraints_usage_flag
-   // << std::endl;
+   bool split_the_gradients_with_threads_flag = false;
 
-#ifdef SPLIT_THE_GRADIENTS_WITH_THREADS
 #ifdef HAVE_CXX_THREAD
 
-   // how long does it take to split the restraints into n-thread vectors?
-   auto tp_1 = std::chrono::high_resolution_clock::now();
-   unsigned int n_t = restraints->n_threads;
-   unsigned int restraints_size = restraints->size();
-   std::vector<std::vector<std::size_t> > restraints_indices(n_t);
-   std::vector<std::vector<double> > results(n_t);
-   for (std::size_t n=0; n<restraints_indices.size(); n++)
-      restraints_indices[n].reserve(100);
-   auto tp_2 = std::chrono::high_resolution_clock::now();
-   for (std::size_t n=0; n<restraints_indices.size(); n++)
-      results[n].resize(restraints_size);
-   auto tp_3 = std::chrono::high_resolution_clock::now();
-   for (std::size_t n=0; n<results.size(); n++)
-      restraints_indices[n].reserve(100);
-   auto tp_4 = std::chrono::high_resolution_clock::now();
-   for (std::size_t n=0; n<restraints_indices.size(); n++)
-      results[n] = std::vector<double>(restraints_size, 0);
-   auto tp_5 = std::chrono::high_resolution_clock::now();
-   unsigned int i = 0; // insert to vector for this thread
-   for (unsigned int ir=0; ir<restraints_size; ir++) {
-      restraints_indices[i].push_back(ir);
-      ++i;
-      if (i==n_t) i=0;
+   // we don't need the thread pool to do this
+
+   if (restraints_p->n_threads > 0) // 0 for testing, 1 for real life
+      split_the_gradients_with_threads_flag = true;
+
+#endif // HAVE_CXX_THREAD
+
+   if (split_the_gradients_with_threads_flag) {
+
+      split_the_gradients_with_threads(v, restraints_p, df);
+
+   } else {
+
+      my_df_bonds     (v, params, df);
+      my_df_angles    (v, params, df);
+      my_df_torsions  (v, params, df);
+      my_df_rama      (v, params, df);
+      my_df_planes    (v, params, df);
+      my_df_non_bonded(v, params, df);
+      my_df_trans_peptides(v, params, df);
+      my_df_chiral_vol(v, params, df);
+      my_df_start_pos (v, params, df);
+      my_df_target_pos(v, params, df);
+      my_df_parallel_planes(v, params, df);
+      my_df_geman_mcclure_distances(v, params, df);
+
+      if (restraints_p->include_map_terms()) {
+	 my_df_electron_density(v, params, df);
+      }
    }
-   auto tp_6 = std::chrono::high_resolution_clock::now();
 
-   // consolidate results
-   std::vector<double> totals(restraints_size, 0.0);
-   auto tp_7 = std::chrono::high_resolution_clock::now();
-   // save 80us when these are round the right way (this way)
-   // ~170us for consolidation
-   for (std::size_t i_thread=0; i_thread<n_t; i_thread++)
-      for (std::size_t n=0; n<restraints_size; n++)
-	 totals[n] += results[i_thread][n];
-
-   auto tp_8 = std::chrono::high_resolution_clock::now();
-   auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
-   auto d32 = chrono::duration_cast<chrono::microseconds>(tp_3 - tp_2).count();
-   auto d43 = chrono::duration_cast<chrono::microseconds>(tp_4 - tp_3).count();
-   auto d54 = chrono::duration_cast<chrono::microseconds>(tp_5 - tp_4).count();
-   auto d65 = chrono::duration_cast<chrono::microseconds>(tp_6 - tp_5).count();
-   auto d76 = chrono::duration_cast<chrono::microseconds>(tp_7 - tp_6).count();
-   auto d87 = chrono::duration_cast<chrono::microseconds>(tp_8 - tp_7).count();
-   std::cout << "d21  " << d21 << " d32 " << d32 << " d43 " << d43 << " d54 " << d54
-	     << " d65 " << d65 << " d76 " << d76 << " d87 " << d87
-	     << " microseconds for " << n_t << " threads " << std::endl;
-
-   // It's fast enough.
-
-#endif
-#endif
-
-   auto tp_9 = std::chrono::high_resolution_clock::now();
-   my_df_bonds     (v, params, df); 
-   my_df_angles    (v, params, df);
-   my_df_torsions  (v, params, df);
-   my_df_rama      (v, params, df);
-   my_df_planes    (v, params, df);
-   my_df_non_bonded(v, params, df);
-   my_df_trans_peptides(v, params, df);
-   my_df_chiral_vol(v, params, df);
-   my_df_start_pos (v, params, df);
-   my_df_target_pos(v, params, df);
-   my_df_parallel_planes(v, params, df);
-   my_df_geman_mcclure_distances(v, params, df);
-
-
-#ifdef SPLIT_THE_GRADIENTS_WITH_THREADS
-   // timings
-   auto tp_10 = std::chrono::high_resolution_clock::now();
-   auto d10_9 = chrono::duration_cast<chrono::microseconds>(tp_10 - tp_9).count();
-
-   // so d10_9 is 20 times longer than d87 - which is OK -> good
-   //
-   std::cout << "d21  " << d21 << " d32 " << d32 << " d43 " << d43 << " d54 " << d54
-	     << " d65 " << d65 << " d76 " << d76 << " d87 " << d87 << " d10-9 " << d10_9
-	     << " microseconds for " << n_t << " threads " << std::endl;
-#endif // SPLIT_THE_GRADIENTS_WITH_THREADS
-
-   if (restraints->include_map_terms()) {
-      my_df_electron_density(v, params, df);
-   } 
-
-   if (restraints->do_numerical_gradients_status())
-      coot::numerical_gradients((gsl_vector *)v, params, df); 
-
+   if (restraints_p->do_numerical_gradients_status()) {
+      gsl_vector *non_const_v = const_cast<gsl_vector *> (v); // because there we use gls_vector_set()
+      coot::numerical_gradients(non_const_v, params, df);
+   }
 }
+
    
 /* The gradients of f, df = (df/dx(k), df/dy(k) .. df/dx(l) .. ). */
 void coot::my_df_bonds(const gsl_vector *v,
@@ -262,8 +206,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 
    // first extract the object from params 
    //
-   coot::restraints_container_t *restraints =
-      (coot::restraints_container_t *)params; 
+   restraints_container_t *restraints = reinterpret_cast<restraints_container_t *> (params);
 
    // the length of gsl_vector should be equal to n_var: 
    // 
@@ -276,10 +219,10 @@ void coot::my_df_bonds(const gsl_vector *v,
    //       gsl_vector_set(df, i, derivative_value); 
    //     } 
 
-    // Now run over the bonds
-    // and add the contribution from this bond/restraint to 
-    // dS/dx_k dS/dy_k dS/dz_k dS/dx_l dS/dy_l dS/dz_l for each bond
-    // 
+   // Now run over the bonds
+   // and add the contribution from this bond/restraint to
+   // dS/dx_k dS/dy_k dS/dz_k dS/dx_l dS/dy_l dS/dz_l for each bond
+   //
 
    if (restraints->restraints_usage_flag & coot::BONDS_MASK) {
 
@@ -298,22 +241,22 @@ void coot::my_df_bonds(const gsl_vector *v,
 
 	 if ( (*restraints)[i].restraint_type == coot::BOND_RESTRAINT) { 
 
-// 	    std::cout << "DEBUG bond restraint fixed flags: "
-// 		      << (*restraints)[i].fixed_atom_flags[0] << " "
-// 		      << (*restraints)[i].fixed_atom_flags[1] << " "
-// 		      << restraints->get_atom((*restraints)[i].atom_index_1)->GetSeqNum() << " "
-// 		      << restraints->get_atom((*restraints)[i].atom_index_1)->name
-// 		      << " to " 
-// 		      << restraints->get_atom((*restraints)[i].atom_index_2)->GetSeqNum() << " "
-// 		      << restraints->get_atom((*restraints)[i].atom_index_2)->name
-// 		      << std::endl;
+	    // 	    std::cout << "DEBUG bond restraint fixed flags: "
+	    // 		      << (*restraints)[i].fixed_atom_flags[0] << " "
+	    // 		      << (*restraints)[i].fixed_atom_flags[1] << " "
+	    // 		      << restraints->get_atom((*restraints)[i].atom_index_1)->GetSeqNum() << " "
+	    // 		      << restraints->get_atom((*restraints)[i].atom_index_1)->name
+	    // 		      << " to "
+	    // 		      << restraints->get_atom((*restraints)[i].atom_index_2)->GetSeqNum() << " "
+	    // 		      << restraints->get_atom((*restraints)[i].atom_index_2)->name
+	    // 		      << std::endl;
 	    
-// 	    int n_fixed=0;
-// 	    if  ((*restraints)[i].fixed_atom_flags[0])
-// 	       n_fixed++;
-// 	    if  ((*restraints)[i].fixed_atom_flags[1])
-// 	       n_fixed++;
-	    
+	    // 	    int n_fixed=0;
+	    // 	    if  ((*restraints)[i].fixed_atom_flags[0])
+	    // 	       n_fixed++;
+	    // 	    if  ((*restraints)[i].fixed_atom_flags[1])
+	    // 	       n_fixed++;
+
 	    n_bond_restr++; 
 
 	    target_val = (*restraints)[i].target_value;
@@ -394,7 +337,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 			    << gsl_vector_get(df, idx+1) << " "
 			    << gsl_vector_get(df, idx+2) << std::endl;
 	       }
-	    } 
+	    }
 	 }
       }
    }
@@ -477,7 +420,8 @@ coot::my_df_non_bonded_single(const gsl_vector *v,
 void
 coot::my_df_non_bonded_lennard_jones(const gsl_vector *v,
 				     gsl_vector *df,
-				     const simple_restraint &this_restraint) {
+				     const simple_restraint &this_restraint,
+				     const double &lj_epsilon) {
 
    // no need to calculate anything if both these atoms are non-moving
    //
@@ -504,7 +448,6 @@ coot::my_df_non_bonded_lennard_jones(const gsl_vector *v,
 
       // double lj_r_min = pow(2.0, 1.0/6.0) * lj_sigma; // precalculate this pow value - done
       double lj_r_min = 1.122462048309373 * lj_sigma;
-      double lj_epsilon = 0.05; // needs adjustment, must match distortion score
       double lj_r = std::sqrt(b_i_sqrd);
       double alpha = lj_r_min/lj_r;
       double dalpha_dr = -lj_r_min/b_i_sqrd;
@@ -594,7 +537,7 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 	       // no need to calculate anything if both these atoms are non-moving
 	       //
 	       if (this_restraint.fixed_atom_flags[0]==false || this_restraint.fixed_atom_flags[1]==false)
-		  my_df_non_bonded_lennard_jones(v, df, this_restraint);
+		  my_df_non_bonded_lennard_jones(v, df, this_restraint, restraints_p->lennard_jones_epsilon);
 
 	    } else {
 

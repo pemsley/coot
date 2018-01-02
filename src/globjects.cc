@@ -203,6 +203,7 @@ int graphics_info_t::save_imol = -1;
 
 bool graphics_info_t::cryo_EM_refinement_flag = false;
 double graphics_info_t::geman_mcclure_alpha = 2; // soft
+double graphics_info_t::lennard_jones_epsilon = 0.5;
 
 // accept/reject
 GtkWidget *graphics_info_t::accept_reject_dialog = 0;

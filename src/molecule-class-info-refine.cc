@@ -452,7 +452,7 @@ molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_di
 		  clipper::Coord_orth p1 = coot::co(at_1);
 		  clipper::Coord_orth p2 = coot::co(at_2);
 		  double dist = sqrt((p1-p2).lengthsq());
-		  double esd  = 0.5;
+		  double esd  = 0.05;
 		  coot::extra_restraints_t::extra_bond_restraint_t br(coot::atom_spec_t(at_1),
 								      coot::atom_spec_t(at_2),
 								      dist, esd);

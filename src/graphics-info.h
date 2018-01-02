@@ -4058,6 +4058,8 @@ string   static std::string sessionid;
 
    static bool update_maps_on_recentre_flag;
 
+   static double lennard_jones_epsilon;
+
 #ifdef USE_PYTHON
    PyObject *pyobject_from_graphical_bonds_container(int imol,
 						     const graphical_bonds_container &bonds_box) const;

@@ -88,6 +88,8 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
       std::cout << "debug:: in drag_refine_refine_intermediate_atoms() calling minimize() with "
 		<< flags << std::endl;
 
+   g.last_restraints->set_lennard_jones_epsilon(graphics_info_t::lennard_jones_epsilon);
+
    graphics_info_t::saved_dragged_refinement_results =
       g.last_restraints->minimize(flags, steps_per_frame, print_initial_chi_squareds_flag);
 

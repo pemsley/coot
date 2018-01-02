@@ -561,7 +561,7 @@ namespace coot {
 	 is_user_defined_restraint = 1;
       } 
 
-      // Non-bonded
+      // Non-bonded - are you sure that this is the constructor that you want?
       simple_restraint(restraint_type_t restraint_type_in, 
 		       int index_1, 
 		       int index_2,
@@ -592,7 +592,8 @@ namespace coot {
       }
 
       // Non-bonded v2 
-      simple_restraint(restraint_type_t restraint_type_in, 
+      simple_restraint(restraint_type_t restraint_type_in,
+		       const nbc_function_t &nbc_func_type,
 		       int index_1, 
 		       int index_2,
 		       const std::string &atom_1_type,
@@ -605,8 +606,8 @@ namespace coot {
 	    atom_index_1 = index_1;
 	    atom_index_2 = index_2;
 	    target_value = dist_min;
-	    nbc_function = LENNARD_JONES; // 20171231 new!
 	    // nbc_function = HARMONIC;
+	    nbc_function = nbc_func_type;
 	    sigma = 0.02;
 	    fixed_atom_flags = fixed_atom_flags_in;
 	    is_user_defined_restraint = 0;
@@ -870,8 +871,10 @@ namespace coot {
 				      void *params,
 				      const gsl_vector *v);
    double distortion_score_non_bonded_contact(const simple_restraint &plane_restraint,
+					      const double &lennard_jones_epsilon,
 					      const gsl_vector *v);
    double distortion_score_non_bonded_contact_lennard_jones(const simple_restraint &plane_restraint,
+							    const double &lennard_jones_epsilon,
 							    const gsl_vector *v);
    double distortion_score_parallel_planes(const simple_restraint &plane_restraint,
 					   const gsl_vector *v); 
@@ -896,8 +899,9 @@ namespace coot {
 				     const clipper::Coord_orth &P3,
 				     const clipper::Coord_orth &P4);
    /* The gradients of f, df = (df/dx(k), df/dy(k) .. df/dx(l) .. ). */
-   void my_df (const gsl_vector *v, void *params, gsl_vector *df); 
-   // just the bond terms: 
+   void my_df (const gsl_vector *v, void *params, gsl_vector *df);
+
+   // just the bond terms:
    void my_df_bonds(const gsl_vector *v, void *params, gsl_vector *df); 
    // GM terms
    void my_df_geman_mcclure_distances_old(const gsl_vector *v, void *params, gsl_vector *df);
@@ -934,7 +938,8 @@ namespace coot {
       return 1.0/sqrt(v);
    } 
    
-   // debugging function
+   // debugging function.
+   // v needs to be non-const, because gsl_vector_set().
    void 
    numerical_gradients(gsl_vector *v, void *params, gsl_vector *df);
    
@@ -1166,6 +1171,7 @@ namespace coot {
       void init_shared_post(const std::vector<atom_spec_t> &fixed_atom_specs);
       // neighbour residues already are fixed.
       void add_fixed_atoms_from_flanking_residues(const bonded_pair_container_t &bpc);
+      void add_fixed_atoms_from_non_bonded_neighbours(); // use non_bonded_neighbour_residues
 
       // 20171012 - to help with debugging gradients, we want to know what the fixed
       // atoms are in the atom list when we have a linear residue selection. So
@@ -1277,12 +1283,15 @@ namespace coot {
 						   fixed_atom_flag, geom));
       } 
 
+      // What calls this?
       void add_non_bonded(int index1, int index2,
+			  const simple_restraint::nbc_function_t &nbcf,
 			  const std::string &atom_type_1, 
 			  const std::string &atom_type_2, 
 			  const std::vector<bool> &fixed_atom_flag,
-			  double dist_min) { 
-	 restraints_vec.push_back(simple_restraint(NON_BONDED_CONTACT_RESTRAINT,
+			  double dist_min) {
+
+	 restraints_vec.push_back(simple_restraint(NON_BONDED_CONTACT_RESTRAINT, nbcf,
 						   index1, index2,
 						   atom_type_1, atom_type_2,
 						   fixed_atom_flag, dist_min));
@@ -1997,7 +2006,8 @@ namespace coot {
       std::shared_ptr<std::atomic<unsigned int> > gsl_vector_atom_pos_deriv_locks;
 #endif
       void setup_gsl_vector_atom_pos_deriv_locks();
-      int n_variables() { 
+      unsigned int get_n_atoms() const { return n_atoms; } // access from split_the_gradients_with_threads()
+      unsigned int n_variables() const { 
 	 // return 3 * the number of atoms
 	 return 3*n_atoms; 
       }
@@ -2199,6 +2209,10 @@ namespace coot {
 
       void set_geman_mcclure_alpha(double alpha_in) { geman_mcclure_alpha = alpha_in; }
 
+      double lennard_jones_epsilon; // 0.1 default values
+
+      void set_lennard_jones_epsilon(const double &e) { lennard_jones_epsilon = e; }
+
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
       // thread pool!
       //
@@ -2246,6 +2260,15 @@ namespace coot {
 							int idx_start,
 							int idx_end,
 							std::atomic<unsigned int> &done_count);
+   // parallel version of my_df()
+   void split_the_gradients_with_threads(const gsl_vector *v,
+					 restraints_container_t *restraints_p,
+					 gsl_vector *df);
+
+   void process_dfs_in_range(const std::vector<std::size_t> &range,
+			     restraints_container_t *restraints_p,
+			     const gsl_vector *v,
+			     std::vector<double> &results);
 #endif // HAVE_CXX_THREAD
 
    double electron_density_score(const gsl_vector *v, void *params);
@@ -2268,7 +2291,8 @@ namespace coot {
 
    void my_df_non_bonded_lennard_jones(const gsl_vector *v,
 				       gsl_vector *df,
-				       const simple_restraint &this_restraint);
+				       const simple_restraint &this_restraint,
+				       const double &lj_epsilon);
 
    void my_df_geman_mcclure_distances_single(const gsl_vector *v,
 					     gsl_vector *df,

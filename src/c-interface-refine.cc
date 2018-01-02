@@ -1093,6 +1093,13 @@ void set_refinement_geman_mcclure_alpha(float alpha) {
 
 }
 
+//! \brief set the Lennard Jones epsilon parameter
+void set_refinement_lennard_jones_epsiolon(float epsilon) {
+
+   graphics_info_t::lennard_jones_epsilon = epsilon;
+}
+
+
 #ifdef USE_GUILE
 void crankshaft_peptide_rotation_optimization_scm(int imol, SCM residue_spec_scm) {
 

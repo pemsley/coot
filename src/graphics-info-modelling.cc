@@ -603,7 +603,7 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
       bool continue_flag = true;
       unsigned int step_count = 0; 
       print_initial_chi_squareds_flag = 1; // unset by drag_refine_idle_function
-      unsigned int step_count_lim = 5000;
+      unsigned int step_count_lim = 7000; // was 5000, let's have a few more
       // Less steps for many atoms/restraints (e.g. a domain).
       // Not sure what I want to do here.  If we have NBC restraints for a chain
       // or prosmart restraints for a chain, then we have many 10,000 (say 60,000)
@@ -789,8 +789,8 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 
 	       // Oops. Just give us a dialog and don't start the refinement
 	       info_dialog_refinement_non_matching_atoms(icheck_atoms.second);
-	       
-	    } else { 
+
+	    } else {
 	    
 	       atom_selection_container_t local_moving_atoms_asc =
 		  make_moving_atoms_asc(residues_mol_and_res_vec.first, residues);
@@ -807,6 +807,15 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 		  std::cout << "----------------------------------------------" << std::endl;
 		  std::cout << "----------------------------------------------" << std::endl;
 	       }
+
+	       if (false) { // these are the passed residues, nothing more.
+		  std::cout << "debug:: on construction of restraints_container_t local_residues: " << std::endl;
+		  for (std::size_t jj=0; jj<local_residues.size(); jj++) {
+		     std::cout << "   " << coot::residue_spec_t(local_residues[jj].second)
+			       << " is fixed: " << local_residues[jj].first << std::endl;
+		  }
+	       }
+
 	       last_restraints = new 
 		  coot::restraints_container_t(local_residues,
 					       local_moving_atoms_asc.links,
@@ -820,7 +829,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
 	       unsigned int n_threads = coot::get_max_number_of_threads();
-	       if (n_threads > 1) // or 0?
+	       if (n_threads > 0)
 		  last_restraints->thread_pool(&static_thread_pool, n_threads);
 
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
@@ -856,7 +865,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 		  last_restraints->set_do_numerical_gradients();
 
 	       std::string dummy_chain = ""; // not used
-		   
+
 	       rr = update_refinement_atoms(n_restraints, last_restraints, rr, local_moving_atoms_asc,
 					    0, imol, dummy_chain);
 	    }

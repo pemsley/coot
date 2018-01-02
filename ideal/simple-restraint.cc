@@ -351,7 +351,9 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
    // the smaller the alpha, the more like least squares
    geman_mcclure_alpha = 0.2; // Is this a good value? Talk to Rob.
    mol = mol_in;
+   lennard_jones_epsilon = 0.1;
    cryo_em_mode = true;
+   n_threads = 0;
    n_times_called = 0;
 }
 
@@ -530,6 +532,16 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    // function:
    set_non_bonded_neighbour_residues_by_residue_vector(bpc, geom);
 
+   if (debug) { // debug
+      std::cout << "debug:: in init_from_residue_vec() here with these "
+		<< non_bonded_neighbour_residues.size() << " non-bonded neighbours"
+		<< std::endl;
+      for (std::size_t jj=0; jj<non_bonded_neighbour_residues.size(); jj++) {
+	 std::cout << "    " << residue_spec_t(non_bonded_neighbour_residues[jj]) << std::endl;
+      }
+   }
+   
+
    // std::cout << "   DEBUG:: made " << bpc.size() << " bonded flanking pairs " << std::endl;
 
    // passed and flanking
@@ -629,17 +641,19 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 
    init_shared_post(fixed_atom_specs); // use n_atoms, fills fixed_atom_indices
 
-   if (0) { 
+   if (false) {
       std::cout << "---- after init_shared_post(): here are the "<< fixed_atom_indices.size()
 		<< " fixed atoms " << std::endl;
       for (unsigned int i=0; i<fixed_atom_indices.size(); i++)
 	 std::cout << "    " << i << " " << atom_spec_t(atom[fixed_atom_indices[i]]) << std::endl;
    }
-   
-   add_fixed_atoms_from_flanking_residues(bpc);
 
-   if (false) {
-      std::cout << "DEBUG:: Selecting residues gives " << n_atoms << " atoms " << std::endl;
+   add_fixed_atoms_from_flanking_residues(bpc);
+   add_fixed_atoms_from_non_bonded_neighbours();
+
+   if (debug) {
+      std::cout << "DEBUG:: init_from_residue_vec() Selecting residues gives "
+		<< n_atoms << " atoms " << std::endl;
       for (int iat=0; iat<n_atoms; iat++) {
 	 bool fixed_flag = false;
 	 if (std::find(fixed_atom_indices.begin(),
@@ -704,9 +718,10 @@ coot::restraints_container_t::debug_atoms() const {
 	 }
       }
       std::cout << iat << " " << atom_spec_t(atom[iat]) << "  "
-		<< atom[iat]->x << " "
-		<< atom[iat]->y << " "
-		<< atom[iat]->z << " fixed " << is_fixed << std::endl;
+		<< std::right << std::setw(10) << atom[iat]->x << " "
+		<< std::right << std::setw(10) << atom[iat]->y << " "
+		<< std::right << std::setw(10) << atom[iat]->z
+		<< " fixed: " << is_fixed << std::endl;
    }
 }
 
@@ -724,7 +739,7 @@ coot::restraints_container_t::pre_sanitize_as_needed(std::vector<refinement_ligh
    }
    int iter = 0;
    if (do_pre_sanitize) {
-      // std::cout << ":::::: pre-sanitizing" << std::endl;
+      std::cout << "debug:: :::: pre-sanitizing" << std::endl;
       int nsteps_max = 100; // wow! in the basic-no-progress test only 1 round is needed!
       int status;
       int restraints_usage_flag_save = restraints_usage_flag;
@@ -793,8 +808,8 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 //
 coot::refinement_results_t
 coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags, 
-				       int nsteps_max,
-				       short int print_initial_chi_sq_flag) {
+					     int nsteps_max,
+					     short int print_initial_chi_sq_flag) {
 
    // std::cout << "debug:: minimize called with usage_flags " << usage_flags << std::endl;
 
@@ -806,7 +821,12 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    // restraints_usage_flag = NO_GEOMETRY_RESTRAINTS;
    // restraints_usage_flag = NON_BONDED;
    // restraints_usage_flag = BONDS_AND_NON_BONDED;
+   // restraints_usage_flag = BONDS_ANGLES_AND_NON_BONDED;
+   // restraints_usage_flag = BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
+   // restraints_usage_flag = JUST_RAMAS;
    
+   // std::cout << "debug:: minimize usage_flags " << restraints_usage_flag << std::endl;
+
    const gsl_multimin_fdfminimizer_type *T;
 
    // check that we have restraints before we start to minimize:
@@ -839,20 +859,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
    gsl_multimin_fdfminimizer *s = gsl_multimin_fdfminimizer_alloc(T, n_variables());
 
-   // restraints_usage_flag = BONDS; 
-   // restraints_usage_flag = BONDS_AND_ANGLES; 
-   // restraints_usage_flag = BONDS_ANGLES_AND_TORSIONS;
-   // restraints_usage_flag = BONDS_ANGLES_TORSIONS_AND_PLANES;
-   // restraints_usage_flag = BONDS_ANGLES_AND_PLANES;
-
-   // restraints_usage_flag = BONDS_MASK;
-   // restraints_usage_flag = ANGLES_MASK;
-   // restraints_usage_flag = TORSIONS_MASK;
-   // restraints_usage_flag = PLANES_MASK;
-
    // We get ~1ms/residue with bond and angle terms and no density terms.
-   // 
-   // for (int i=0; i<100; i++) { // time testing
 
    double tolerance = 0.1; // was 0.06 // was 0.035
    if (! include_map_terms())
@@ -911,8 +918,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       // and chiral volumes restraints (and possibly plane restraints) when we have
       // a hideous model.
 
-      // comment this out for testing nbcs FIXME
-      // pre_sanitize_as_needed(lights, s, step_size, tolerance);
+      pre_sanitize_as_needed(lights, s, step_size, tolerance);
    }
 
 //      std::cout << "pre minimization atom positions\n";
@@ -925,7 +931,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
    auto tp_3 = std::chrono::high_resolution_clock::now();
 
-   size_t iter = 0; 
+   int iter = 0; 
    int status;
    std::vector<coot::refinement_lights_info_t> lights_vec;
    bool done_final_chi_squares = false;
@@ -996,7 +1002,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	    std::cout << "iteration number " << iter << " " << s->f << std::endl;
 
       }
-   while ((status == GSL_CONTINUE) && (int(iter) < nsteps_max));
+   while ((status == GSL_CONTINUE) && (iter < nsteps_max));
 
    if (false)
       std::cout << " in minimize() done_final_chi_squares: " << done_final_chi_squares
@@ -1377,7 +1383,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       if (restraints_usage_flag & coot::NON_BONDED_MASK) { 
 	 if ( restraints_vec[i].restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) { 
 	    n_non_bonded_restraints++;
-	    double dist = coot::distortion_score_non_bonded_contact(restraints_vec[i], v);
+	    double dist = coot::distortion_score_non_bonded_contact(restraints_vec[i], lennard_jones_epsilon, v);
 	    non_bonded_distortion += dist;
 	    if (dist > dist_max_nbc.second) {
 	       dist_max_nbc.first = i;
@@ -1433,6 +1439,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 
    r += title;
    r += "\n";
+   std::setprecision(3);
    if (print_summary)
       std::cout << "    " << title << std::endl;
    if (n_bond_restraints == 0) {
@@ -1704,43 +1711,34 @@ double
 coot::electron_density_score_from_restraints(const gsl_vector *v,
 					     coot::restraints_container_t *restraints_p) {
 
-   // We weight and sum to get the score and negate.  That will do?
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+
+   // We weight and sum to get the score and negate.
    // 
-   double score = 0; 
-   // double e = 2.718281828; 
-   
-   // first extract the object from params 
-   //
+   double score = 0;
 
    if (restraints_p->include_map_terms() == 1) { 
-      
-      // convert from variables to coord_orths of where the atoms are
 
-      for (unsigned int i=0; i< v->size; i += 3) { 
-	 int iat = i/3;
+      unsigned int n_atoms = restraints_p->get_n_atoms();
+      for (unsigned int iat=0; iat<n_atoms; iat++) {
+	 bool use_it = false;
 	 if (restraints_p->use_map_gradient_for_atom[iat]) {
-	    bool use_it = true;
-// 	    for (unsigned int ifixed=0; ifixed<restraints->fixed_atom_indices.size(); ifixed++) {
-// 	       if (restraints->fixed_atom_indices[ifixed] == iat) { 
-// 		  std::cout << "ignoring density term for atom " << iat << std::endl;
-// 		  use_it = 0;
-// 		  break;
-// 	       }
-// 	    }
-	    if (use_it) { 
-	       clipper::Coord_orth ao(gsl_vector_get(v,i), 
-				      gsl_vector_get(v,i+1), 
-				      gsl_vector_get(v,i+2));
 
-	       score += restraints_p->Map_weight() *
-		  restraints_p->atom_z_occ_weight[iat] *
-		  restraints_p->electron_density_score_at_point(ao);
-	    }
+	    int idx = 3 * iat;
+	    clipper::Coord_orth ao(gsl_vector_get(v,idx),
+				   gsl_vector_get(v,idx+1),
+				   gsl_vector_get(v,idx+2));
+
+	    score += restraints_p->Map_weight() *
+	       restraints_p->atom_z_occ_weight[iat] *
+	       restraints_p->electron_density_score_at_point(ao);
 	 }
       }
    }
-   
-   // return pow(e,-score*0.01);
+   auto tp_2 = std::chrono::high_resolution_clock::now();
+   auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
+   // std::cout << "info:: f electron_density: " << d21 << " microseconds\n";
+
    return -score;
 
 }
@@ -1752,7 +1750,7 @@ coot::electron_density_score_from_restraints(const gsl_vector *v,
 // positive).
 //
 // So we want to change that positive gradient for a low score when
-// the atoms cooinside with the density - hence the contributions that
+// the atoms coinside with the density - hence the contributions that
 // we add are negated.
 // 
 void coot::my_df_electron_density(const gsl_vector *v, 
@@ -1775,6 +1773,8 @@ void coot::my_df_electron_density(const gsl_vector *v,
       // Why? Not sure - it seems that the thread pool is not running all the jobs that it has been given.
       // (because the thread pool is being used elsewhere?? - maybe we can't have do thread_pool->push()
       // in different threads without some of the work-packages getting dropped?
+      // 20180101-PE Hmm... I wonder which thread pool I was talking about.
+      //             I supsect that if I didn't mention it, then it was the stl-based thread pool.
 
       std::atomic<unsigned int> done_count_for_threads(0);
 
@@ -1792,6 +1792,7 @@ void coot::my_df_electron_density(const gsl_vector *v,
 	    if (idx_start >= idx_max) break;
 
 	    // should be called threaded_inner (single is misleading)
+	    // restraints_p is passed so that we have access to use_map_gradient_for_atom flags
 	    restraints_p->thread_pool_p->push(my_df_electron_density_threaded_single,
 					      v, restraints_p, df, idx_start, idx_end,
 					      std::ref(done_count_for_threads));
@@ -2765,8 +2766,8 @@ coot::restraints_container_t::make_monomer_restraints(int imol,
 						      const coot::protein_geometry &geom,
 						      short int do_residue_internal_torsions) {
 
-   // std::cout << "------------------------ in make_monomer_restraints() "
-   // << from_residue_vector << std::endl;
+   std::cout << "------------------------ in make_monomer_restraints() "
+	     << do_residue_internal_torsions << std::endl;
    
    if (from_residue_vector)
       return make_monomer_restraints_from_res_vec(imol, geom, do_residue_internal_torsions);
@@ -2874,11 +2875,12 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
    std::string pdb_resname(residue_p->name);
    if (pdb_resname == "UNK") pdb_resname = "ALA";
 
-   if (false)
+   if (true)
       std::cout << "--------------- make_monomer_restraints_by_residue() called "
 		<< residue_spec_t(residue_p)
 		<<  " and using type :" << pdb_resname << ": and imol "
-		<< imol << std::endl;
+		<< imol << " do_residue_internal_torsions: "
+		<< do_residue_internal_torsions << std::endl;
 
    // idr: index dictionary residue
    int idr = geom.get_monomer_restraints_index(pdb_resname, imol, false);
@@ -3688,7 +3690,10 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 		  if (is_acceptor(type_1, geom))
 		      dist_min -= 0.7;
 
+	       simple_restraint::nbc_function_t nbcf = simple_restraint::LENNARD_JONES;
+	       // simple_restraint::nbc_function_t nbcf = simple_restraint::HARMONIC;
 	       simple_restraint r(NON_BONDED_CONTACT_RESTRAINT,
+				  nbcf,
 				  i, filtered_non_bonded_atom_indices[i][j],
 				  type_1, type_2, 
 				  fixed_atom_flags, dist_min);
