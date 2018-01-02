@@ -109,6 +109,9 @@ Var STARTDIR
 !insertmacro WordReplace
 
 ; actually a macro wrapping the error handler function
+; well, doesnt seem to work and always throws errors
+; itself somewhere, so revert to old school if and repeating
+; code. Keep in case it can be resolved at some point...
 !macro MyErrorHandlerMacro un
 
 Function ${un}ErrorHandlerFunction
@@ -281,7 +284,7 @@ Section "!WinCoot" SEC01
   ; FIXME:: seems to be only needed in newer versions of msys
   ; ....... and maybe if we have shared compilation - not yet
   File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\libstdc++-6.dll"
-  ;File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\libgcc_s_dw2-1.dll"
+  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\libgcc_s_dw2-1.dll"
 ; PYTHON stuff new
   SetOutPath "$INSTDIR\python27"
   File /r "${src_dir}\python27\*.*"
@@ -452,8 +455,13 @@ Section "!WinCoot" SEC01
   ; set outpath to $INSTDIR so that shortcuts are started in $INSTDIR
   SetOutPath "$INSTDIR"
 
-  IfErrors 0 +2
-    ${ErrorHandler} 1 "Error in installation. Could not write files." 1
+  IfErrors 0 +6
+;    ${ErrorHandler} 1 "Error in installation. Could not write files." 1
+     DetailPrint "Error in installation. Could not write files."
+     SetErrorLevel 1
+     IfSilent +2 0
+       MessageBox MB_OK 'Error in Installation. Aborting!$\n$\r$\n$\rCould not write files.'
+     Abort "Abort. Could not write files."
 
 SectionEnd
 
@@ -466,8 +474,12 @@ Section /o "Windows feel" SEC02
   SetOverwrite ifnewer
 ;  maybe here the other guile things?!
 
-  IfErrors 0 +2
-    ${ErrorHandler} 2 "Error in installation. Could not install windows feel." 1
+  IfErrors 0 +5
+  ;  ${ErrorHandler} 2 "Error in installation. Could not install Windows feel." 1
+     DetailPrint "Error in installation. Could not install Windows feel. Continuing."
+     SetErrorLevel 2
+     IfSilent +2 0
+        MessageBox MB_OK 'Error in Installation. Continuing!$\n$\r$\n$\rCould not install Windows feel'
 
 SectionEnd
 
@@ -485,7 +497,7 @@ SectionEnd
 ; WITH_GUILE
 
 Section -AddIcons
-  ClearErrors
+
   ;; First install for all users, if anything fails, install
   ;; for current user only.
   ClearErrors
@@ -507,8 +519,12 @@ Section -AddIcons
   IfSilent 0 +2
     Call FinishPagePreFunction
 
-  IfErrors 0 +2
-    ${ErrorHandler} 3 "Error in installation. Could install icons." 0
+  IfErrors 0 +5
+    ; ${ErrorHandler} 3 "Error in installation. Could not install icons." 0
+    DetailPrint "Error in installation. Could not install icons. Continuing."
+    SetErrorLevel 3
+    IfSilent +2 0
+        MessageBox MB_OK 'Error in Installation. Continuing!$\n$\r$\n$\rCould not install icons.'
 
 SectionEnd
 
@@ -524,9 +540,13 @@ Section -Post
 ;  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
 ;  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
 
-  IfErrors 0 +2
-    ${ErrorHandler} 4 "Error in installation. Could not write uninstaller." 0
-
+  IfErrors 0 +5
+    ; ${ErrorHandler} 4 "Error in installation. Could not write uninstaller." 0
+    DetailPrint "Error in installation. Could not write uninstaller."
+    SetErrorLevel 4
+    IfSilent +2 0
+        MessageBox MB_OK 'Error in Installation. Continuing!$\n$\r$\n$\rCould not write uninstaller.'
+  
 SectionEnd
 
 
@@ -630,10 +650,17 @@ Section Uninstall
   Delete "$INSTDIR\bin\dynarama"
   Delete "$INSTDIR\bin\dynarama-bin.exe"
   Delete "$INSTDIR\bin\findligand"
+  Delete "$INSTDIR\bin\findligand-bin.exe"
   Delete "$INSTDIR\bin\findligand-real.exe"
   Delete "$INSTDIR\bin\findwaters"
+  Delete "$INSTDIR\bin\findwaters-bin.exe"
   Delete "$INSTDIR\bin\findwaters-real.exe"
+  Delete "$INSTDIR\bin\coot-available-comp-id.exe"
+  Delete "$INSTDIR\bin\coot-compare-dictionaries.exe"
+  Delete "$INSTDIR\bin\coot-density-score-by-residue-bin.exe"
   Delete "$INSTDIR\bin\coot-fix-nomenclature-errors.exe"
+  Delete "$INSTDIR\bin\coot-make-shelx-restraints.exe"
+  Delete "$INSTDIR\bin\coot-mini-rsr"
   Delete "$INSTDIR\bin\fix-nomenclature-errors.exe"
   Delete "$INSTDIR\bin\gdk-pixbuf-csource.exe"
   Delete "$INSTDIR\bin\gdk-pixbuf-query-loaders.exe"
@@ -651,6 +678,7 @@ Section Uninstall
   Delete "$INSTDIR\bin\gzip.exe"
   Delete "$INSTDIR\bin\iconv.exe"
   Delete "$INSTDIR\bin\lidia.exe"
+  Delete "$INSTDIR\bin\mini-rsr-bin.exe"
   Delete "$INSTDIR\bin\Microsoft.VC90.CRT.manifest"
   Delete "$INSTDIR\bin\pango-querymodules.exe"
   Delete "$INSTDIR\bin\pango-view.exe"
@@ -781,8 +809,12 @@ Section Uninstall
 ;  DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
   SetAutoClose true
 
-  IfErrors 0 +2
-    ${UnErrorHandler} 5 "Error in uninstallation. Could not completely uninstall." 1
+  IfErrors 0 +5
+    ;${UnErrorHandler} 5 "Error in uninstallation. Could not completely uninstall." 1
+    DetailPrint "Error in uninstallation. Could not completely uninstall."
+    SetErrorLevel 5
+    IfSilent +2 0
+        MessageBox MB_OK 'Error in Uninstallation. Aborting!$\n$\r$\n$\rCould not completely uninstall.'
 
 SectionEnd
 
@@ -806,7 +838,7 @@ Function .onInit
   ; logging
   ; if old log exists save simply (could be by date)
   ; StrCpy $INSTDIR .
-  IfFileExists $INSTDIR\install.log 0 +5
+  IfFileExists $INSTDIR\install.log 0 +4
     IfFileExists $INSTDIR\install.log.1 0 +2
       Delete $INSTDIR\install.log.1
     Rename $INSTDIR\install.log $INSTDIR\install.log.1
@@ -869,8 +901,13 @@ Function .onInit
     StrCpy $STARTDIR "$INSTDIR"
   ${EndIf}
 
-  IfErrors 0 +2
-    ${ErrorHandler} 6 "Error in installation. Could not initiate installation." 1
+  IfErrors 0 +6
+    ;${ErrorHandler} 6 "Error in installation. Could not initiate installation." 1
+    DetailPrint "Error in installation. Could not initiate installation."
+    SetErrorLevel 6
+    IfSilent +2 0
+        MessageBox MB_OK 'Error in Installation. Aborting!$\n$\r$\n$\rCould not initiate installation.'
+    Abort "Error in installation. Could not initiate installation. Aborting."
 
 FunctionEnd
 
@@ -900,8 +937,13 @@ Function .onGUIEnd
     Exec $INSTDIR\runwincoot.bat
   ${EndIf}
 
-  IfErrors 0 +2
-    ${ErrorHandler} 7 "Error in installation. Could not write/edit runwincoot.bat." 1
+  IfErrors 0 +6
+    ; ${ErrorHandler} 7 "Error in installation. Could not write/edit runwincoot.bat." 1
+    DetailPrint "Error in installation. Could not write/edit runwincoot.bat."
+    SetErrorLevel 7
+    IfSilent +2 0
+        MessageBox MB_OK 'Error in Installation. Aborting!$\n$\r$\n$\rCould not write/edit runwincoot.bat.'
+    Abort "Error in installation. Could not write/edit runwincoot.bat. Aborting!"
 
 FunctionEnd
 

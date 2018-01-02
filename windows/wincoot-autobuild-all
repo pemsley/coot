@@ -357,7 +357,8 @@ if [ "$build_installer" = "0" ] ; then
    wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~lohkamp/software/extras/runwincoot_ccp4.bat
    wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~lohkamp/software/extras/runwincoot_ccp4_vista.bat
    # some more extras (actually only required for newer msys!?
-   #wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~lohkamp/software/extras/libstdc++-6.dll
+   wget --no-check-certificate -N -P ${HOME}/autobuild/extras https://github.com/bernhardcl/coot/raw/gh-binaries/auxil_binaries/libgcc_s_dw2-1.dll
+   wget --no-check-certificate -N -P ${HOME}/autobuild/extras https://github.com/bernhardcl/coot/raw/gh-binaries/auxil_binaries/libstdc++-6.dll
    # now make the installer
    echo installer-progress > $PUBLIC_HTML_LOGS/gtk2-build-status
    echo
