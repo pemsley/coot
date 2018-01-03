@@ -376,8 +376,22 @@ GtkWidget *
 graphics_info_t::info_dialog(const std::string &s) {
    
    GtkWidget *w = NULL;
-   if (graphics_info_t::use_graphics_interface_flag) { 
+   if (graphics_info_t::use_graphics_interface_flag) {
       w = wrapped_nothing_bad_dialog(s);
+      bool warning = false;
+      if (s.find(std::string("WARNING")) != std::string::npos) warning = true;
+      if (s.find(std::string("warning")) != std::string::npos) warning = true;
+      if (s.find(std::string("Warning")) != std::string::npos) warning = true;
+      if (warning) {
+	 GtkWidget *info_image = lookup_widget(GTK_WIDGET(w), "info_dialog_info_image");
+	 GtkWidget *warn_image = lookup_widget(GTK_WIDGET(w), "info_dialog_warning_image");
+	 if (info_image) {
+	    if (warn_image) {
+	       gtk_widget_hide(GTK_WIDGET(info_image));
+	       gtk_widget_show(GTK_WIDGET(warn_image));
+	    }
+	 }
+      }
       gtk_widget_show(w);
    }
    return w;

@@ -17975,7 +17975,8 @@ create_nothing_bad_dialog (void)
   GtkWidget *dialog_vbox72;
   GtkWidget *frame128;
   GtkWidget *hbox443;
-  GtkWidget *image12116;
+  GtkWidget *info_dialog_info_image;
+  GtkWidget *info_dialog_warning_image;
   GtkWidget *nothing_bad_label;
   GtkWidget *dialog_action_area71;
   GtkWidget *nothing_bad_ok_button;
@@ -17996,9 +17997,13 @@ create_nothing_bad_dialog (void)
   gtk_widget_show (hbox443);
   gtk_container_add (GTK_CONTAINER (frame128), hbox443);
 
-  image12116 = gtk_image_new_from_stock ("gtk-dialog-info", GTK_ICON_SIZE_BUTTON);
-  gtk_widget_show (image12116);
-  gtk_box_pack_start (GTK_BOX (hbox443), image12116, FALSE, FALSE, 18);
+  info_dialog_info_image = gtk_image_new_from_stock ("gtk-dialog-info", GTK_ICON_SIZE_LARGE_TOOLBAR);
+  gtk_widget_show (info_dialog_info_image);
+  gtk_box_pack_start (GTK_BOX (hbox443), info_dialog_info_image, FALSE, FALSE, 18);
+
+  info_dialog_warning_image = gtk_image_new_from_stock ("gtk-dialog-warning", GTK_ICON_SIZE_LARGE_TOOLBAR);
+  gtk_widget_show (info_dialog_warning_image);
+  gtk_box_pack_start (GTK_BOX (hbox443), info_dialog_warning_image, TRUE, TRUE, 18);
 
   nothing_bad_label = gtk_label_new ("<tt>Nothing Bad</tt>");
   gtk_widget_show (nothing_bad_label);
@@ -18025,7 +18030,8 @@ create_nothing_bad_dialog (void)
   GLADE_HOOKUP_OBJECT_NO_REF (nothing_bad_dialog, dialog_vbox72, "dialog_vbox72");
   GLADE_HOOKUP_OBJECT (nothing_bad_dialog, frame128, "frame128");
   GLADE_HOOKUP_OBJECT (nothing_bad_dialog, hbox443, "hbox443");
-  GLADE_HOOKUP_OBJECT (nothing_bad_dialog, image12116, "image12116");
+  GLADE_HOOKUP_OBJECT (nothing_bad_dialog, info_dialog_info_image, "info_dialog_info_image");
+  GLADE_HOOKUP_OBJECT (nothing_bad_dialog, info_dialog_warning_image, "info_dialog_warning_image");
   GLADE_HOOKUP_OBJECT (nothing_bad_dialog, nothing_bad_label, "nothing_bad_label");
   GLADE_HOOKUP_OBJECT_NO_REF (nothing_bad_dialog, dialog_action_area71, "dialog_action_area71");
   GLADE_HOOKUP_OBJECT (nothing_bad_dialog, nothing_bad_ok_button, "nothing_bad_ok_button");

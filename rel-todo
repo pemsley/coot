@@ -1,18 +1,14 @@
 
    For Release 0.8.9
 
-   o If I set N-acetyl group to zero occ, does the refinement for the rest of the atoms
-     behave the same way as if I had deleted those atoms?  It should.  If not, why not?
-
    o fix the empty nomenclature errors dialog ::: 1
 
-   o holiday project: NMR ring current cones. ::: 4
+   o Ryan Hibbs: 2 strands, low res map, user-defined distance restraint and
+     refine - fails to preserve the distance ::: 2
 
    o Sphere refine on a disulphide - e.g. in tutorial ::: 2
 
    o pyrogen -nM -w -r Y03 - regularize it - it fails ::: 1
-
-   o add mouse-scroll consolidation of contour level deltas
 
    o doing a merge and doing a change chain ids should move over the Link records also.
 
@@ -29,9 +25,6 @@
         - Wolfram Tempel
      ::: 1
 
-   o Ryan Hibbs: 2 strands, low res map, user-defined distance restraint and
-     refine - fails to preserve the distance ::: 2
-
    o add an arg to init_from_residue_vec() and so the restraints_container_t
      constructor from which it is called that says "don't make links to residues
      that have a residue number difference greater than 1" - which will stop annoying
@@ -42,15 +35,12 @@
 
    o make cryo-EM mode in refinement work ::: 4
 
-   o add  set_atom_attributes(SCM attribute_expression_list) to the documenation - preprocessing issues.
-
-   o add a button for refinement weight "Estimate": 0.6 -> 60 so 20 -> 60*0.6/20
-
-* Done.
+   o add  set_atom_attributes(SCM attribute_expression_list) to the documenation - 
+     preprocessing issues. ::: 2
 
    o During Sphere Refine, where moving meets non-moving, interactive all-atom-contact dots
      shows dots on links e.g cho-building, refine-tree, vs sphere-refine on 2nd NAG.
-     Also disulphides
+     Also disulphides. Puntable! ::: 2
 
 
 --------------
@@ -471,3 +461,17 @@ In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/
 ::: 1
 
 * Done.
+   o add mouse-scroll consolidation of contour level deltas ::: 1 
+
+* Done.
+
+   o If I set N-acetyl group to zero occ, does the refinement for the rest of the atoms
+     behave the same way as if I had deleted those atoms?  It should.  If not, why not?
+     ::: 1
+
+* Fixed (maybe in refinement version though)
+
+   o add a button for refinement weight "Estimate": 0.6 -> 60 so 20 -> 60*0.3/20 ::: 1
+
+* Done.
+
