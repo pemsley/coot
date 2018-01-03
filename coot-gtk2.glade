@@ -36445,7 +36445,7 @@ WARNING:: No Models with Waters Available!
 		<widget class="GtkImage" id="info_dialog_info_image">
 		  <property name="visible">True</property>
 		  <property name="stock">gtk-dialog-info</property>
-		  <property name="icon_size">3</property>
+		  <property name="icon_size">6</property>
 		  <property name="xalign">0.5</property>
 		  <property name="yalign">0.5</property>
 		  <property name="xpad">0</property>
@@ -36462,7 +36462,7 @@ WARNING:: No Models with Waters Available!
 		<widget class="GtkImage" id="info_dialog_warning_image">
 		  <property name="visible">True</property>
 		  <property name="stock">gtk-dialog-warning</property>
-		  <property name="icon_size">3</property>
+		  <property name="icon_size">6</property>
 		  <property name="xalign">0.5</property>
 		  <property name="yalign">0.5</property>
 		  <property name="xpad">0</property>

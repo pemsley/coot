@@ -17997,11 +17997,11 @@ create_nothing_bad_dialog (void)
   gtk_widget_show (hbox443);
   gtk_container_add (GTK_CONTAINER (frame128), hbox443);
 
-  info_dialog_info_image = gtk_image_new_from_stock ("gtk-dialog-info", GTK_ICON_SIZE_LARGE_TOOLBAR);
+  info_dialog_info_image = gtk_image_new_from_stock ("gtk-dialog-info", GTK_ICON_SIZE_DIALOG);
   gtk_widget_show (info_dialog_info_image);
   gtk_box_pack_start (GTK_BOX (hbox443), info_dialog_info_image, FALSE, FALSE, 18);
 
-  info_dialog_warning_image = gtk_image_new_from_stock ("gtk-dialog-warning", GTK_ICON_SIZE_LARGE_TOOLBAR);
+  info_dialog_warning_image = gtk_image_new_from_stock ("gtk-dialog-warning", GTK_ICON_SIZE_DIALOG);
   gtk_widget_show (info_dialog_warning_image);
   gtk_box_pack_start (GTK_BOX (hbox443), info_dialog_warning_image, TRUE, TRUE, 18);
 
