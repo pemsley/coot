@@ -33,7 +33,7 @@ pkgincludedir = $(includedir)/coot/utils
 
 # for simple things:
 libcoot_utils_la_SOURCES = coot-utils.cc coot-fasta.cc atomic-numbers.cc \
-	gdk-keysyms.cc hsv-rgb.cc dodec.cc win-compat.cc threads.cc
+	gdk-keysyms.cc hsv-rgb.cc dodec.cc win-compat.cc threads.cc align-utils.cc align-utils.hh
 
 libcoot_utils_la_LIBADD = \
 	$(GLOB_LIBS)

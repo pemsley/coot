@@ -207,6 +207,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 //       int status =
 // 	 geom_p->have_dictionary_for_residue_type(residue_type_first,
 // 						  cif_dictionary_read_number);
+
       std::pair<short int, coot::dictionary_residue_restraints_t> p =
 	 geom_p->get_monomer_restraints(residue_type_first, imol_for_atoms);
       if (p.first) {
@@ -269,8 +270,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
    std::pair<int, std::vector<std::string> > icheck = 
       check_dictionary_for_residue_restraints(imol_for_atoms, SelResidues, nSelResidues);
 
-
-   if (0) {  // debugging.
+   if (false) {  // debugging.
       std::cout << "Selecting from chain id " << chain_id_1 << std::endl;
       std::cout << "selecting from residue " << iselection_resno_start
 		<< " to " << iselection_resno_end << " selects "
@@ -278,7 +278,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
       std::cout << "=============== icheck: " << icheck.first << std::endl;
    }
 
-   if (icheck.first == 0) { 
+   if (icheck.first == 0) { // problem
 
       std::cout << "INFO:: check_dictionary_for_residues - problem..." << std::endl;
       std::string problem_residues = "Refinement setup failure.\nFailed to find restraints for:\n";
@@ -292,8 +292,8 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
       return rr; // fail
    } else {
 
-      // 20100201
-      
+      // 20100201 - Happy Path
+
       bool check_hydrogens_too_flag = false;
       // convert to mmdb::Residues vector
       std::vector<mmdb::Residue *> residues;
@@ -354,10 +354,12 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
    coot::refinement_results_t rr(0, GSL_CONTINUE, "");
    short int have_disulfide_residues = 0; // of course not in linear mode.
 
-    if (! is_valid_map_molecule(imol_for_map)) {
-       std::cout << "WARNING:: invalid map " << imol_for_map << std::endl;
-       return rr;
-    }
+   // It's OK to come here with imol_for_map = -1 - that means "regularize"
+   //
+   // if (! is_valid_map_molecule(imol_for_map)) {
+   // std::cout << "WARNING:: invalid map " << imol_for_map << std::endl;
+   // return rr;
+   // }
 
    if (nSelResidues > 0) {
 
@@ -425,16 +427,23 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	    std::cout << "----------------------------------------------" << std::endl;
 	 }
 
+	 // xmap in the restraints_container_t is a const ref, so the constructor for a
+	 // restraints_container_t needs to contain a reference to a real map (which can
+	 // be a dummy ;-)).
+	 clipper::Xmap<float> xmap_dummy;
+	 clipper::Xmap<float> &xmap_ref = xmap_dummy;
+	 if (is_valid_map_molecule(imol_for_map))
+	    xmap_ref = molecules[imol_for_map].xmap;
 	 last_restraints = new coot::restraints_container_t(resno_1,
-							resno_2,
-							have_flanking_residue_at_start,
-							have_flanking_residue_at_end,
-							have_disulfide_residues,
-							altconf,
-							chn,
-							residues_mol,
-							fixed_atom_specs,
-							molecules[imol_for_map].xmap);
+							    resno_2,
+							    have_flanking_residue_at_start,
+							    have_flanking_residue_at_end,
+							    have_disulfide_residues,
+							    altconf,
+							    chn,
+							    residues_mol,
+							    fixed_atom_specs,
+							    xmap_ref);
 
 	 // this is where regularize and refine differ:
 	 if (imol_for_map != -1)
@@ -481,11 +490,15 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 
 	 int nrestraints = 
 	    last_restraints->make_restraints(imol_for_atoms, geom, flags,
-				       do_residue_internal_torsions,
-				       do_trans_peptide_restraints,
-				       rama_plot_restraint_weight,
-				       do_rama_restraints,
-				       pseudo_bonds_type);
+					     do_residue_internal_torsions,
+					     do_trans_peptide_restraints,
+					     rama_plot_restraint_weight,
+					     do_rama_restraints,
+					     pseudo_bonds_type);
+
+	 if (false)
+	    std::cout << "debug:: in copy_mol_and_refine_inner() nrestraints from make_restraints() was "
+		      << nrestraints << std::endl;
 
 	 last_restraints->set_geman_mcclure_alpha(geman_mcclure_alpha);
          last_restraints->set_rama_type(restraints_rama_type);
@@ -4037,7 +4050,6 @@ graphics_info_t::split_residue(int imol, const std::string &chain_id,
 			       const std::string &altconf) {
 
    std::pair<bool, std::string> p(0, "");
-   std::cout << "here in split_residue() " << std::endl;
    
    mmdb::Residue *r = molecules[imol].get_residue(chain_id, resno, ins_code);
    if (!r) {

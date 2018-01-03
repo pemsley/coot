@@ -259,6 +259,7 @@ GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label)
    if (use_graphics_interface_flag) { 
       w = create_nothing_bad_dialog();
       GtkWidget *label_widget = lookup_widget(w, "nothing_bad_label");
+      gtk_label_set_use_markup(GTK_LABEL(label_widget), TRUE); // needed?
       gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
    }
       return w;

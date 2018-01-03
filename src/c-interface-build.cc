@@ -2705,7 +2705,7 @@ short int
 add_OXT_to_residue(int imol, int resno, const char *insertion_code, const char *chain_id) {
 
    short int istat = -1; 
-   if (imol < is_valid_model_molecule(imol)) {
+   if (is_valid_model_molecule(imol)) {
       if (insertion_code) {
 	 if (chain_id) {
 	    istat = graphics_info_t::molecules[imol].add_OXT_to_residue(resno, std::string(insertion_code),
@@ -2714,6 +2714,8 @@ add_OXT_to_residue(int imol, int resno, const char *insertion_code, const char *
 	    graphics_draw();
 	 }
       }
+   } else {
+      std::cout << "WARNING:: in add_OXT_to_residue() imol " << imol << " is not valid" << std::endl;
    }
    std::string cmd = "add-OXT-to-residue";
    std::vector<coot::command_arg_t> args;
@@ -2722,6 +2724,7 @@ add_OXT_to_residue(int imol, int resno, const char *insertion_code, const char *
    args.push_back(coot::util::single_quote(insertion_code));
    args.push_back(coot::util::single_quote(chain_id));
    add_to_history_typed(cmd, args);
+   std::cout << "debug:: add_OXT_to_residue() returns istat " << istat << std::endl;
    return istat;
 }
 

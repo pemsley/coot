@@ -1711,7 +1711,8 @@
 
 
 
-(greg-testcase "Test for mangling of hydrogen names from a PDB v 3.0" #t
+
+(greg-testcase "Test for regularization and mangling of hydrogen names from a PDB v 3.0" #t
    (lambda ()
 
      ;; Note that it seems to me that the bonds are not within
@@ -1730,7 +1731,7 @@
 
        (with-auto-accept (regularize-zone imol "B" 6 6 ""))
        (let ((atom-pairs 
-	      (list 
+	      (list
 	       (cons "HD11" " CD1")
 	       (cons "HD12" " CD1")
 	       (cons "HD13" " CD1")
@@ -1744,11 +1745,13 @@
 	     (let ((atom-1 (get-atom imol "B" 6 "" (car pair)))
 		   (atom-2 (get-atom imol "B" 6 "" (cdr pair))))
 	       (if (bond-length-within-tolerance? atom-1 atom-2 0.96 0.02)
-		   #t 
+		   #t
 		   (begin
-		     (format #t "Hydrogen names mangled from PDB ~s ~s~%"
-			     atom-1 atom-2)
-		     #f))))
+		     (let ((bl (bond-length-from-atoms atom-1 atom-2)))
+		       (format #t "  Oops! bond length not within tolerance: ~s~%" bl)
+		       (format #t "  Hydrogen names mangled from PDB~%   ~s~%   ~s~%"
+			       atom-1 atom-2)
+		       #f)))))
 	   atom-pairs))))))
 
 
@@ -2169,10 +2172,7 @@
 
      (define (residue-in-molecule? imol chain-id resno ins-code)
        (let ((r (residue-info imol chain-id resno ins-code)))
-;;	 (format #t "::: res-info: ~s ~s ~s ~s -> ~s~%" imol chain-id resno ins-code r)
-	 (if r
-	     #t
-	     #f)))
+	 (if r #t #f)))
 
      ;; in this PDB file 60 and 61 have been deleted. Relative to the
      ;; where we want to be (tutorial-modern.pdb, say) 62 to 93 have
@@ -2186,31 +2186,34 @@
 	     (throw 'fail))
 	   (let ((renumber? 1))
 
+	     (set-alignment-gap-and-space-penalty -3.0 -0.5)
 	     (align-and-mutate imol "A" rnase-seq-string renumber?)
 	     (write-pdb-file imol "mutated.pdb")
 
-	     (all-true? 
-	      (map 
-	       (lambda (residue-info)
-		 (let ((residue-spec (cdr residue-info))
-		       (expected-status (car residue-info)))
-		   (format #t "    ::::: ~s ~s ~s~%" residue-spec 
-			   (apply residue-in-molecule? residue-spec)
-			   expected-status)
-		   (eq? 
-		    (apply residue-in-molecule? residue-spec)
-		    expected-status)))
-	       (list 
-		(list #f imol "A"  1 "")
-		(list #t imol "A"  4 "")
-		(list #t imol "A" 59 "")
-		(list #f imol "A" 60 "")
-		(list #f imol "A" 61 "")
-		(list #t imol "A" 92 "")
-		(list #f imol "A" 94 "")
-		))))))))
+	     (let ((results
+		    (map
+		     (lambda (residue-info)
+		       (let ((residue-spec (cdr residue-info))
+			     (expected-status (car residue-info)))
+			 (format #t "    ::::: ~s ~s ~s~%" residue-spec
+				 (apply residue-in-molecule? residue-spec)
+				 expected-status)
+			 (eq?
+			  (apply residue-in-molecule? residue-spec)
+			  expected-status)))
+		     (list
+		      (list #f imol "A"  1 "")
+		      (list #t imol "A"  4 "")
+		      (list #t imol "A" 57 "")
+		      (list #f imol "A" 60 "")
+		      (list #f imol "A" 61 "")
+		      (list #t imol "A" 92 "")
+		      (list #f imol "A" 94 "")
+		      ))))
 
+	       (format #t "results: ~s~%" results)
 
+	       (all-true? results)))))))
 
 
 (greg-testcase "renumbered residues should be in seqnum order" #t

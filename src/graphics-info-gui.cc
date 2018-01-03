@@ -418,8 +418,22 @@ GtkWidget *
 graphics_info_t::info_dialog(const std::string &s) {
    
    GtkWidget *w = NULL;
-   if (graphics_info_t::use_graphics_interface_flag) { 
+   if (graphics_info_t::use_graphics_interface_flag) {
       w = wrapped_nothing_bad_dialog(s);
+      bool warning = false;
+      if (s.find(std::string("WARNING")) != std::string::npos) warning = true;
+      if (s.find(std::string("warning")) != std::string::npos) warning = true;
+      if (s.find(std::string("Warning")) != std::string::npos) warning = true;
+      if (warning) {
+	 GtkWidget *info_image = lookup_widget(GTK_WIDGET(w), "info_dialog_info_image");
+	 GtkWidget *warn_image = lookup_widget(GTK_WIDGET(w), "info_dialog_warning_image");
+	 if (info_image) {
+	    if (warn_image) {
+	       gtk_widget_hide(GTK_WIDGET(info_image));
+	       gtk_widget_show(GTK_WIDGET(warn_image));
+	    }
+	 }
+      }
       gtk_widget_show(w);
    }
    return w;
@@ -439,25 +453,7 @@ graphics_info_t::info_dialog_and_text(const std::string &s) {
 void
 graphics_info_t::info_dialog_alignment(coot::chain_mutation_info_container_t mutation_info) const {
 
-   std::string s;
-
-   s = "<tt>";
-   s += ": ";
-   s += mutation_info.alignedS_label;
-   if (mutation_info.chain_id != "") { 
-      s += " Chain ";
-      s += mutation_info.chain_id;
-   }
-   s += "\n";
-   s += mutation_info.alignedS;
-   s += "\n";
-   s += ": ";
-   s += mutation_info.alignedT_label;
-   s += "\n";
-   s += mutation_info.alignedT;
-   s += "\n";
-   // s += "something_here";
-   s += "</tt>";
+   std::string s = mutation_info.alignment_string;
 
    GtkWidget *dialog = info_dialog(s); // get trashed by markup text
    if (dialog) { 
