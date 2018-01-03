@@ -21877,7 +21877,7 @@ create_align_and_mutate_dialog (void)
 
   hbox121 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox121);
-  gtk_box_pack_start (GTK_BOX (vbox151), hbox121, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox151), hbox121, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox121), 2);
 
   label240 = gtk_label_new ("   Chain ID: ");

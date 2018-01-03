@@ -572,17 +572,20 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 
    std::string stripped_target = coot::util::remove_whitespace(target);
 
-   if (debug)
+   if (debug) {
       std::cout << "debug:::: Align() with gap penalty: " << wgap
 		<< " and extension penalty: " << wspace << std::endl;
-   
+      std::cout << "calling Align with 1 " << model << std::endl;
+      std::cout << "calling Align with 2 " << stripped_target << std::endl;
+   }
+
    align.SetAffineModel(wgap, wspace);
    align.Align(model.c_str(), stripped_target.c_str());
 
    ch_info.alignedS = align.GetAlignedS();
    ch_info.alignedT = align.GetAlignedT();
 
-   if (debug) { 
+   if (debug) {
       std::cout << "debug:::: Align() on model  " << model << std::endl;
       std::cout << "debug:::: Align() on target " << stripped_target << std::endl;
       std::cout << "debug:::: Align() GetAlignedS:  " << ch_info.alignedS << std::endl;
@@ -628,7 +631,7 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 	 std::cout << "INFO:: alignment score " << align.GetScore() << std::endl;
       }
    }
-   
+
    // Before the use of SetAffineModel()
    // we got something like:
    // DVSGTVCLSALPPEATDTLNLIASDGPFPYSQD----F--------Q-------NRESVLPTQSYGYYHEYTVITP
