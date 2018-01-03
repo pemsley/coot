@@ -1278,7 +1278,7 @@ int handle_drag_and_drop_string(const std::string &uri);
 /* ------------------------------------------------------------------------- */
 
 #ifdef USE_PYTHON
-/*! \name Map Contouring */
+/*! \name Map Contouring Functions */
 // \{
 //! \brief return two lists: a list of vertices and a list of indices for connection
 PyObject *map_contours(int imol, float contour_level);
