@@ -353,9 +353,13 @@ if [ "$build_installer" = "0" ] ; then
    wget -N -P ${HOME}/autobuild/extras http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/tutorial/tutorial.pdf
    wget -N -P ${HOME}/autobuild/extras http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/tutorial/tutorial-2.pdf
    # and download the bat run files
-   wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~lohkamp/software/extras/runwincoot.bat
-   wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~lohkamp/software/extras/runwincoot_ccp4.bat
-   wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~lohkamp/software/extras/runwincoot_ccp4_vista.bat
+   # actually these come from the git repository now
+#   wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~lohkamp/software/extras/runwincoot.bat
+#   wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~lohkamp/software/extras/runwincoot_ccp4.bat
+#   wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~lohkamp/software/extras/runwincoot_ccp4_vista.bat
+   # But should get the icons e.g.
+   wget -N -P ${HOME}/autobuild/extras http://bernhardcl.github.io/coot/software/extras/coot-icon.ico
+   wget -N -P ${HOME}/autobuild/extras http://bernhardcl.github.io/coot/software/extras/rama_all.ico
    # some more extras (actually only required for newer msys!?
    wget --no-check-certificate -N -P ${HOME}/autobuild/extras https://github.com/bernhardcl/coot/raw/gh-binaries/auxil_binaries/libgcc_s_dw2-1.dll
    wget --no-check-certificate -N -P ${HOME}/autobuild/extras https://github.com/bernhardcl/coot/raw/gh-binaries/auxil_binaries/libstdc++-6.dll

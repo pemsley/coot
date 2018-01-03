@@ -32,7 +32,7 @@
 !define PRODUCT_NAME "WinCoot"
 !define PRODUCT_VERSION "${WinCootVersion}"
 !define PRODUCT_PUBLISHER "Bernhard Lohkamp & Paul Emsley"
-!define PRODUCT_WEB_SITE "http://www.ysbl.york.ac.uk/~lohkamp/coot/wincoot.html"
+!define PRODUCT_WEB_SITE "http://bernhardcl.github.io/coot"
 !define PRODUCT_WEB_SITE_2 "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\uninst.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -92,8 +92,8 @@ Var STARTDIR
 ; Finish page
 ; run the bat file changes and gdk-pixbuf before we finish the installation
 !define MUI_PAGE_CUSTOMFUNCTION_PRE FinishPagePreFunction
-!define MUI_FINISHPAGE_RUN "$INSTDIR\runwincoot.bat"
-;!define MUI_FINISHPAGE_RUN_PARAMETERS '/c "$INSTDIR\runwincoot.bat"'
+!define MUI_FINISHPAGE_RUN "$INSTDIR\wincoot.bat"
+;!define MUI_FINISHPAGE_RUN_PARAMETERS '/c "$INSTDIR\wincoot.bat"'
 !define MUI_FINISHPAGE_TITLE_3LINES
 !insertmacro MUI_PAGE_FINISH
 
@@ -217,21 +217,24 @@ Section "!WinCoot" SEC01
   SetOverwrite ifnewer
   SetOutPath "$INSTDIR"
   
-; check if runwincoot.bat exists, if so ask if overwrite (or not)
+; check if wincoot.bat exists, if so ask if overwrite (or not)
 ; New logic:
-; check if runwincoot.bat exists, if so make a backup copy
+; check if wincoot.bat exists, if so make a backup copy
 ; (this is a tmp file, doesnt seem to be deleted, maybe virus thing? not sure what's happening)
-; install new runwincoot.bat
+; install new wincoot.bat
 ; deal with rest in FinishPagePreFunction
   Var /GLOBAL have_bat
   StrCpy $have_bat "False"
+  IfFileExists "$INSTDIR\runwincoot.bat" "" endifoldbat
+    Rename $INSTDIR\runwincoot.bat $INSTDIR\wincoot.bat
+  endifoldbat:
 
-  IfFileExists "$INSTDIR\runwincoot.bat" "" endifbat
+  IfFileExists "$INSTDIR\wincoot.bat" "" endifbat
     StrCpy $have_bat "True"
   endifbat:
 
   SetOverwrite on
-  File /oname=$INSTDIR\runwincoot.bat.tmp "C:\MinGW\msys\1.0\home\bernhard\Projects\coot\windows\runwincoot.bat"
+  File /oname=$INSTDIR\wincoot.bat.tmp "C:\MinGW\msys\1.0\home\bernhard\Projects\coot\windows\wincoot.bat"
 
   SetOverwrite ifnewer
 ; bin DIR
@@ -243,8 +246,10 @@ Section "!WinCoot" SEC01
   File "${src_dir}\bin\findwaters-bin.exe"
   File "${src_dir}\bin\mini-rsr-bin.exe"
   File "${src_dir}\bin\dynarama-bin.exe"
+  File "C:\MinGW\msys\1.0\home\bernhard\Projects\coot\windows\dynarama.bat"
   SetOverwrite ifnewer
   File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\coot-icon.ico"
+  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\rama_all.ico"
   File "${src_dir}\bin\*.dll"
   File "${src_dir}\bin\coot-bfactan.exe"
   File "${src_dir}\bin\coot"
@@ -700,7 +705,7 @@ Section Uninstall
   Delete "$INSTDIR\examples\*"
   Delete "$INSTDIR\doc\*"
   ; we shall only remove installed files here (to e.g. keep .coot.py untouched)
-  Delete "$INSTDIR\runwincoot.bat"
+  Delete "$INSTDIR\*wincoot.bat"
   Delete "$INSTDIR\Coot.url"
 
   !insertmacro MUI_STARTMENU_GETFOLDER "Application" $ICONS_GROUP
@@ -916,9 +921,9 @@ Function .onGUIEnd
   ClearErrors
   ; remove tmp bat file if exists (Delete wont do, need to do it via DOS shell command)
   ; possibly an anti virus thing?!?
-  IfFileExists "$INSTDIR\runwincoot.bat.tmp" "" cont
-     ;Delete "$INSTDIR\runwincoot.bat.tmp"
-     Exec 'cmd /c del "$INSTDIR\runwincoot.bat.tmp"'
+  IfFileExists "$INSTDIR\wincoot.bat.tmp" "" cont
+     ;Delete "$INSTDIR\wincoot.bat.tmp"
+     Exec 'cmd /c del "$INSTDIR\wincoot.bat.tmp"'
   cont:
 
   ; delete the installer
@@ -934,16 +939,11 @@ Function .onGUIEnd
   ; Finally if run then start WinCoot in StartDir
   ${If} $start_coot = 1
     SetOutPath $STARTDIR
-    Exec $INSTDIR\runwincoot.bat
+    Exec $INSTDIR\wincoot.bat
   ${EndIf}
 
-  IfErrors 0 +6
-    ; ${ErrorHandler} 7 "Error in installation. Could not write/edit runwincoot.bat." 1
-    DetailPrint "Error in installation. Could not write/edit runwincoot.bat."
-    SetErrorLevel 7
-    IfSilent +2 0
-        MessageBox MB_OK 'Error in Installation. Aborting!$\n$\r$\n$\rCould not write/edit runwincoot.bat.'
-    Abort "Error in installation. Could not write/edit runwincoot.bat. Aborting!"
+  IfErrors 0 +2
+    ${ErrorHandler} 7 "Error in installation. Could not write/edit (run)wincoot.bat." 1
 
 FunctionEnd
 
@@ -1094,23 +1094,23 @@ FunctionEnd
 
 ; for changing wincoot [and gdk-pixbuf-loader] Not sure if here is a good place? Get's a bit messy
 Function FinishPagePreFunction
-   ; first apply changes to runwincoot.bat
+   ; first apply changes to wincoot.bat
    Var /GLOBAL GUILE_INST_DIR
    ${WordReplace} "$INSTDIR" "\" "/" "+" $GUILE_INST_DIR
-   !insertmacro ReplaceOnLine "yourWinCootdirectory" "$INSTDIR" "5" "$INSTDIR\runwincoot.bat.tmp"
-   !insertmacro ReplaceOnLine "yourWinCootdirectoryGuile" "$GUILE_INST_DIR" "6" "$INSTDIR\runwincoot.bat.tmp"
+   !insertmacro ReplaceOnLine "yourWinCootdirectory" "$INSTDIR" "5" "$INSTDIR\wincoot.bat.tmp"
+   !insertmacro ReplaceOnLine "yourWinCootdirectoryGuile" "$GUILE_INST_DIR" "6" "$INSTDIR\wincoot.bat.tmp"
    ;we want to change more for Vista (and possibly for Windows 7 too FIXME!)
    ; Maybe not too much any more... (since graphics card issue)
    ${If} ${AtLeastWinVista}
        ; change to run on 1 core only (to enable compositing!)
-       !insertmacro AdvReplaceInFile "coot-bin.exe" "start /affinity 1 coot-bin.exe" "0" "1" "$INSTDIR\runwincoot.bat.tmp"
+       !insertmacro AdvReplaceInFile "coot-bin.exe" "start /affinity 1 coot-bin.exe" "0" "1" "$INSTDIR\wincoot.bat.tmp"
    ${EndIf}
    ; if we have an old bat file
    ${If} $have_bat == "True"
      ; check if wincootbats are different
      Var /Global bat_differ
      StrCpy $bat_differ "False"
-     ${TextCompare} "$INSTDIR\runwincoot.bat" "$INSTDIR\runwincoot.bat.tmp" "FastDiff" "TxtCompResult"
+     ${TextCompare} "$INSTDIR\wincoot.bat" "$INSTDIR\wincoot.bat.tmp" "FastDiff" "TxtCompResult"
 
      ${If} $bat_differ == "True"
         ; ask or if silent/update keep old
@@ -1118,7 +1118,7 @@ Function FinishPagePreFunction
         StrCpy $keep_old_bat "True"
         ${If} $update = 0
            IfSilent endifbat
-            MessageBox MB_ICONQUESTION|MB_YESNO "You already have a (modified) WinCoot batch file (runwincoot.bat).$\r$\n\
+            MessageBox MB_ICONQUESTION|MB_YESNO "You already have a (modified) WinCoot batch file (wincoot.bat).$\r$\n\
             Do you want to keep it (dont if you upgrade from <0.8)?" IDYES endifbat
             StrCpy $keep_old_bat "False"
            endifbat:
@@ -1126,18 +1126,22 @@ Function FinishPagePreFunction
 
         ; replace old with new if requested
         ${If} $keep_old_bat == "False"
-             CopyFiles "$INSTDIR\runwincoot.bat.tmp" "$INSTDIR\runwincoot.bat"
+             CopyFiles "$INSTDIR\wincoot.bat.tmp" "$INSTDIR\wincoot.bat"
         ${EndIf}
 
      ${EndIf}  ; bat_differ
 
   ${Else}
-     ; dont have any runwincoot.bat
-     Rename "$INSTDIR\runwincoot.bat.tmp" "$INSTDIR\runwincoot.bat"
+     ; dont have any wincoot.bat
+     Rename "$INSTDIR\wincoot.bat.tmp" "$INSTDIR\wincoot.bat"
   ${EndIf}  ; have_bat nothing further to be one
+  ; deal with dynarama
+   !insertmacro ReplaceOnLine "yourWinCootdirectory" "$INSTDIR" "5" "$INSTDIR\dynarama.bat"
   ; executable access to everyone
-  AccessControl::GrantOnFile /NOINHERIT "$INSTDIR\runwincoot.bat" "(BA)" "FullAccess"
-  AccessControl::GrantOnFile /NOINHERIT "$INSTDIR\runwincoot.bat" "(BU)" "GenericExecute"
+  AccessControl::GrantOnFile /NOINHERIT "$INSTDIR\wincoot.bat" "(BA)" "FullAccess"
+  AccessControl::GrantOnFile /NOINHERIT "$INSTDIR\wincoot.bat" "(BU)" "GenericExecute"
+  AccessControl::GrantOnFile /NOINHERIT "$INSTDIR\dynarama.bat" "(BA)" "FullAccess"
+  AccessControl::GrantOnFile /NOINHERIT "$INSTDIR\dynarama.bat" "(BU)" "GenericExecute"
 
 ;  for now dont mess with pixbuf query loader
 ;  ExecWait 'cmd /c ""$INSTDIR\bin\gdk-pixbuf-query-loaders.exe" > "$INSTDIR\etc\gtk-2.0\gdk-pixbuf.loaders""'
@@ -1159,10 +1163,11 @@ ${If} $update = 0
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
   CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
   SetOutPath "$STARTDIR"
-  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\runwincoot.bat"' "$INSTDIR\bin\coot-icon.ico"
-  CreateShortCut "$QUICKLAUNCH\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\runwincoot.bat"' "$INSTDIR\bin\coot-icon.ico"
-  CreateShortCut "$DESKTOP\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\runwincoot.bat"' "$INSTDIR\bin\coot-icon.ico"
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\wincoot.bat"' "$INSTDIR\bin\coot-icon.ico"
+  CreateShortCut "$QUICKLAUNCH\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\wincoot.bat"' "$INSTDIR\bin\coot-icon.ico"
+  CreateShortCut "$DESKTOP\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\wincoot.bat"' "$INSTDIR\bin\coot-icon.ico"
   SetOutPath "$INSTDIR"
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\DynaRama.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\bin\dynarama.bat"' "$INSTDIR\bin\rama_all.ico"
   WriteIniStr "$INSTDIR\WinCoot.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
   WriteIniStr "$INSTDIR\Coot.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE_2}"
   CreateShortCut "$SMPROGRAMS\WinCoot\WinCoot Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
