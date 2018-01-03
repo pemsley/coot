@@ -1,14 +1,13 @@
 
    For Release 0.8.9
 
-   o fix the empty nomenclature errors dialog ::: 1
+   o add  set_atom_attributes(SCM attribute_expression_list) to the documentation - 
+     preprocessing issues. ::: 2
 
    o Ryan Hibbs: 2 strands, low res map, user-defined distance restraint and
      refine - fails to preserve the distance ::: 2
 
    o Sphere refine on a disulphide - e.g. in tutorial ::: 2
-
-   o pyrogen -nM -w -r Y03 - regularize it - it fails ::: 1
 
    o doing a merge and doing a change chain ids should move over the Link records also.
 
@@ -25,22 +24,7 @@
         - Wolfram Tempel
      ::: 1
 
-   o add an arg to init_from_residue_vec() and so the restraints_container_t
-     constructor from which it is called that says "don't make links to residues
-     that have a residue number difference greater than 1" - which will stop annoying
-     linking in add_terminal_residue_complicado.
-     allow_non_trival_linking ::: 2
-
-* Have I fixed this problem already?
-
    o make cryo-EM mode in refinement work ::: 4
-
-   o add  set_atom_attributes(SCM attribute_expression_list) to the documenation - 
-     preprocessing issues. ::: 2
-
-   o During Sphere Refine, where moving meets non-moving, interactive all-atom-contact dots
-     shows dots on links e.g cho-building, refine-tree, vs sphere-refine on 2nd NAG.
-     Also disulphides. Puntable! ::: 2
 
 
 --------------
@@ -474,4 +458,6 @@ In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/
    o add a button for refinement weight "Estimate": 0.6 -> 60 so 20 -> 60*0.3/20 ::: 1
 
 * Done.
+
+   o fix the empty nomenclature errors dialog ::: 1
 
