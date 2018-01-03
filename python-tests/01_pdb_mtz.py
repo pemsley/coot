@@ -1414,7 +1414,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 
     def test32_0(self):
-        """Test for mangling of hydrogen names from a PDB v 3.0"""
+        """Test for regularization and mangling of hydrogen names from a PDB v 3.0"""
 
         # Note that it seems to me that the bonds are not within
         # tolerance before the regularization.
@@ -1438,8 +1438,15 @@ class PdbMtzTestFunctions(unittest.TestCase):
         atoms_1 = map(lambda pair: get_atom(imol, "B", 6, "", pair[0]), atom_pairs)
         atoms_2 = map(lambda pair: get_atom(imol, "B", 6, "", pair[1]), atom_pairs)
         #all_true = map(lambda atom_1, atom_2: bond_length_within_tolerance_qm(atom_1, atom_2, 0.96, 0.02), atoms_1, atoms_2)
-        self.failUnless(all(map(lambda atom_1, atom_2: bond_length_within_tolerance_qm(atom_1, atom_2, 0.96, 0.02), atoms_1, atoms_2)),
-                        "Hydrogen names mangled from PDB")
+        all_false = filter(lambda (atom_1, atom_2): not bond_length_within_tolerance_qm(atom_1, atom_2, 0.96, 0.02), zip(atoms_1, atoms_2))
+        #all_true = filter(lambda (atom_1, atom_2): bond_length_within_tolerance_qm(atom_1, atom_2, 0.96, 0.02), zip(atoms_1, atoms_2))
+        #print "BL DEBUG:: all true", all_true
+        # A bit of a windy one...
+        msg = ""
+        if all_false:
+            msg = "  Oops! bond length not within tolerance: %s\n  Hydrogen names mangled from PDB %s %s" %(all_false[0][0],
+                                                                                                            all_false[0][1], all_false[0][2])
+        self.failUnless(len(all_false) == 0, msg)
 
 
     def test32_1(self):
@@ -1756,6 +1763,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
                         "   Missing file rnase-A-needs-an-insertion.pdb")
         renumber = 1
 
+        set_alignment_gap_and_space_penalty(-3.0, -0.5)
         align_and_mutate(imol, "A", rnase_seq_string, renumber)
         write_pdb_file(imol, "mutated.pdb")
 
@@ -1770,13 +1778,16 @@ class PdbMtzTestFunctions(unittest.TestCase):
         def compare_res_spec(res_info):
             residue_spec = res_info[1:len(res_info)]
             expected_status = res_info[0]
-            print "    :::::", residue_spec, residue_in_molecule_qm(*residue_spec), expected_status
+            print "    :::::", residue_spec,
+            residue_in_molecule_qm(*residue_spec), expected_status
             if (residue_in_molecule_qm(*residue_spec) == expected_status):
                 return True
             else:
                 return False
 
-        self.failUnless(all(map(lambda res: compare_res_spec(res), ls)))
+        results = map(lambda res: compare_res_spec(res), ls)
+        print "results", results
+        self.failUnless(all(results))
 
 
     def test42_1(self):
