@@ -978,7 +978,7 @@
 	       (ls (residues-near-residue imol rc-spec 2.2))
 	       (residues-list (cons rc-spec ls)))
 
-	  (format #t "debug::::: neighbour-refine test: residues-list: ~s~%" residues-list)
+	  ;; (format #t "debug::::: neighbour-refine test: residues-list: ~s~%" residues-list)
 
 	  (with-auto-accept (refine-residues imol residues-list))
 	  (let ((at-spec-1 (list "B"  7 "" " SG " ""))
@@ -987,11 +987,11 @@
 		  (at-2 (get-atom-from-spec imol at-spec-2)))
 	      (let ((bl (bond-length-from-atoms at-1 at-2)))
 
-		(format #t "bl-1: ~s~%" bl)
+		;; (format #t "bl-1: ~s~%" bl)
 
 		(let ((state (bond-length-within-tolerance? at-1 at-2 2.0 0.05)))
 
-		  (format #t "bond-length within tolerance?: ~s~%" state)
+		  ;; (format #t "bond-length within tolerance?: ~s~%" state)
 
 		  (if (not state)
 		      #f
@@ -1005,7 +1005,7 @@
 				(at-2 (get-atom-from-spec imol at-spec-2)))
 			    (let ((bl (bond-length-from-atoms at-1 at-2)))
 
-			      (format #t "bl-2: ~s~%" bl)
+			      ;; (format #t "bl-2: ~s~%" bl)
 
 			      (let ((state (bond-length-within-tolerance? at-1 at-2 2.0 0.05)))
 
