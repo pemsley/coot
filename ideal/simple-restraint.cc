@@ -1701,7 +1701,9 @@ coot::restraints_container_t::make_restraints(int imol,
 
       rama_plot_weight = rama_plot_target_weight;
 
-      // sets bonded_pairs_container
+      // sets bonded_pairs_container (note that this doesn't make bonded pairs for
+      // residues that are not in the given set of residues) i.e. no bonds
+      // between a CYS and a CYS that is in the residue set.
       if (do_link_restraints_internal)
 	 make_link_restraints(geom, do_rama_plot_restraints, do_trans_peptide_restraints);
 
@@ -2649,9 +2651,11 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
       debug = true;
    
    if (debug) {
-      std::cout << "  debug:: bonded_residues_from_res_vec() residues_vec.size() " << residues_vec.size() << std::endl;
+      std::cout << "debug:: bonded_residues_from_res_vec() residues_vec.size() "
+		<< residues_vec.size() << std::endl;
       for (unsigned int i=0; i<residues_vec.size(); i++) {
-	 std::cout << "   " << residues_vec[i].first << " " << residue_spec_t(residues_vec[i].second) << std::endl;
+	 std::cout << "   " << residues_vec[i].first << " "
+		   << residue_spec_t(residues_vec[i].second) << std::endl;
       }
    }
 
@@ -2703,7 +2707,7 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	 }
       }
    }
-   bpc.filter();
+   bpc.filter(); // removes 1-3 bond items and if 1-2 and 1-3 bonds exist
    return bpc;
 }
 

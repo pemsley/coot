@@ -959,13 +959,22 @@
 ;; residue-atoms must be a list
 (define (get-atom-from-residue atom-name residue-atoms alt-conf)
   (let loop ((residue-atoms residue-atoms))
-    (cond 
+    (cond
      ((null? residue-atoms) #f)
      ((and (string=? atom-name (car (car (car residue-atoms))))
 	   (string=? alt-conf (car (cdr (car (car residue-atoms))))))
       (car residue-atoms))
      (else 
       (loop (cdr residue-atoms))))))
+
+;;
+(define (get-atom-from-spec imol atom-spec)
+  (get-atom imol
+	    (atom-spec->chain-id  atom-spec)
+	    (atom-spec->res-no    atom-spec)
+	    (atom-spec->ins-code  atom-spec)
+	    (atom-spec->atom-name atom-spec)
+	    (atom-spec->alt-loc   atom-spec)))
 
 ;; Return an atom info or #f (if atom not found).
 ;; 
@@ -2060,14 +2069,64 @@
       ((null? atom-ls) alt-confs)
       ((not (list? atom-ls)) alt-confs) ;; might be #f
       (else
-       (let* ((atom (car atom-ls)) 
+       (let* ((atom (car atom-ls))
 	      (compound-name (car atom))
 	      (alt-conf-str (car (cdr compound-name))))
 	 (if (string-member? alt-conf-str alt-confs)
 	     (f (cdr atom-ls) alt-confs)
 	     (f (cdr atom-ls) (cons alt-conf-str alt-confs)))))))))
 
-;; simple extraction function 
+;; extraction function
+(define (atom-spec->chain-id atom-spec)
+  ;; atom-spec example (list "A" 7 "" " SG " "")
+  (cond
+   ((null? atom-spec) #f)
+   ((= (length atom-spec) 5)
+    (list-ref atom-spec 0))
+   (else
+    #f)))
+
+;; extraction function
+(define (atom-spec->res-no atom-spec)
+  ;; atom-spec example (list "A" 7 "" " SG " "")
+  (cond
+   ((null? atom-spec) #f)
+   ((= (length atom-spec) 5)
+    (list-ref atom-spec 1))
+   (else
+    #f)))
+
+;; extraction function
+(define (atom-spec->ins-code atom-spec)
+  ;; atom-spec example (list "A" 7 "" " SG " "")
+  (cond
+   ((null? atom-spec) #f)
+   ((= (length atom-spec) 5)
+    (list-ref atom-spec 2))
+   (else
+    #f)))
+
+;; extraction function
+(define (atom-spec->atom-name atom-spec)
+  ;; atom-spec example (list "A" 7 "" " SG " "")
+  (cond
+   ((null? atom-spec) #f)
+   ((= (length atom-spec) 5)
+    (list-ref atom-spec 3))
+   (else
+    #f)))
+
+;; extraction function
+(define (atom-spec->alt-loc atom-spec)
+  ;; atom-spec example (list "A" 7 "" " SG " "")
+  (cond
+   ((null? atom-spec) #f)
+   ((= (length atom-spec) 5)
+    (list-ref atom-spec 4))
+   (else
+    #f)))
+
+;; simple extraction function
 (define (res-spec->chain-id res-spec)
   (cond 
    ((null? res-spec) #f)

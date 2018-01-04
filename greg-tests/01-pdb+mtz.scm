@@ -965,6 +965,53 @@
 
 
 
+(greg-testcase "Neighbour-Refine doesn't destroy disulfide bonds" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "tutorial-modern.pdb")))
+
+       (set-imol-refinement-map imol-rnase-map)
+       (set-go-to-atom-molecule imol)
+       (set-go-to-atom-chain-residue-atom-name "B" 7 " CA ")
+
+	(let* ((rc-spec (list "B" 7 ""))
+	       (ls (residues-near-residue imol rc-spec 2.2))
+	       (residues-list (cons rc-spec ls)))
+
+	  (format #t "debug::::: neighbour-refine test: residues-list: ~s~%" residues-list)
+
+	  (with-auto-accept (refine-residues imol residues-list))
+	  (let ((at-spec-1 (list "B"  7 "" " SG " ""))
+		(at-spec-2 (list "B" 96 "" " SG " "")))
+	    (let ((at-1 (get-atom-from-spec imol at-spec-1))
+		  (at-2 (get-atom-from-spec imol at-spec-2)))
+	      (let ((bl (bond-length-from-atoms at-1 at-2)))
+
+		(format #t "bl-1: ~s~%" bl)
+
+		(let ((state (bond-length-within-tolerance? at-1 at-2 2.0 0.05)))
+
+		  (format #t "bond-length within tolerance?: ~s~%" state)
+
+		  (if (not state)
+		      #f
+
+		      ;; do it again
+		      (begin
+			(with-auto-accept (refine-residues imol residues-list))
+			(let ((at-spec-1 (list "B"  7 "" " SG " ""))
+			      (at-spec-2 (list "B" 96 "" " SG " "")))
+			  (let ((at-1 (get-atom-from-spec imol at-spec-1))
+				(at-2 (get-atom-from-spec imol at-spec-2)))
+			    (let ((bl (bond-length-from-atoms at-1 at-2)))
+
+			      (format #t "bl-2: ~s~%" bl)
+
+			      (let ((state (bond-length-within-tolerance? at-1 at-2 2.0 0.05)))
+
+				state))))))))))))))
+
+
 
 
 

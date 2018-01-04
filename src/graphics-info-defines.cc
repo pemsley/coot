@@ -469,11 +469,13 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
 	    geometry_atom_index_2_mol_no =
 	       nearest_atom_index_info.imol;
 
-	    mmdb::Atom *atom1 = molecules[im].atom_sel.atom_selection[geometry_atom_index_2];
-	    coot::Cartesian pos2 = coot::Cartesian(atom1->x, atom1->y, atom1->z);
+	    mmdb::Atom *atom2 = molecules[im].atom_sel.atom_selection[geometry_atom_index_2];
+	    coot::Cartesian pos2 = coot::Cartesian(atom2->x, atom2->y, atom2->z);
 
-	    display_geometry_distance_symm(geometry_atom_index_1_mol_no, distance_pos_1,
-					   geometry_atom_index_2_mol_no, pos2);
+	    // 20190104-PE Why were we using the symmetry function?
+// 	    display_geometry_distance_symm(geometry_atom_index_1_mol_no, distance_pos_1,
+// 					   geometry_atom_index_2_mol_no, pos2);
+	    display_geometry_distance();
 
 	    unset_geometry_dialog_distance_togglebutton();
 	    in_distance_define = 0;  // clear flag
