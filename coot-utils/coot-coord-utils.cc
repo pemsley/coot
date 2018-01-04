@@ -6589,8 +6589,35 @@ coot::util::remove_long_links(mmdb::Manager *mol, mmdb::realtype dist_min) {
    if (mol) {
 
    }
+}
 
-} 
+// return the number of changed links
+unsigned int
+coot::util::change_chain_in_links(mmdb::Model *model_p, 
+				  const std::string &from_chain_id,
+				  const std::string &to_chain_id) {
+   unsigned int n_changed = 0;
+   if (model_p) {
+      int n_links = model_p->GetNumberOfLinks();
+      for (int ilink=1; ilink<=n_links; ilink++) {
+	 mmdb::Link *link = model_p->GetLink(ilink);
+	 std::string cid1 = link->chainID1;
+	 std::string cid2 = link->chainID2;
+	 if (from_chain_id == cid1) {
+	    // std::cout << "changing to " << to_chain_id << std::endl;
+	    strncpy(link->chainID1, to_chain_id.c_str(), 9);
+	    n_changed++;
+	 }
+	 if (from_chain_id == cid2) {
+	    // std::cout << "changing to " << to_chain_id << std::endl;
+	    strncpy(link->chainID2, to_chain_id.c_str(), 9);
+	    n_changed++;
+	 }
+      }
+   }
+   return n_changed;
+}
+
 
 
 mmdb::Manager *

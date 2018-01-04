@@ -1,22 +1,6 @@
 
    For Release 0.8.9
 
-   o add  set_atom_attributes(SCM attribute_expression_list) to the documentation - 
-     preprocessing issues. ::: 2
-
-   o Ryan Hibbs: 2 strands, low res map, user-defined distance restraint and
-     refine - fails to preserve the distance ::: 2
-
-   o Sphere refine on a disulphide - e.g. in tutorial ::: 2
-
-   o doing a merge and doing a change chain ids should move over the Link records also.
-
-     Add a test ::: 1
-
-   o on merging molecules, remove the TER card if we are adding to an already existing chain.
-     Consider adding helices made of ALA.  Coot should make a new chain for these. Does it?
-     ::: 1
-
    o It appears that merging coordinates (read from cif with
      multi-character label_asym_id and auth_asym_id) in to another set
      of coordinates will assign single-character chain IDs to the source
@@ -24,8 +8,11 @@
         - Wolfram Tempel
      ::: 1
 
-   o make cryo-EM mode in refinement work ::: 4
+   o Sphere refine on a disulphide - e.g. in tutorial ::: 2
 
+   o Ryan Hibbs: 2 strands, low res map, user-defined distance restraint and
+     refine - fails to preserve the distance
+     Because it's an ineffective Geman McClure restraints  ::: 2
 
 --------------
 
@@ -461,3 +448,20 @@ In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/
 
    o fix the empty nomenclature errors dialog ::: 1
 
+   o add  set_atom_attributes(SCM attribute_expression_list) to the documentation - 
+     preprocessing issues. ::: 1
+
+* Done.
+
+
+   o back-out cryo-EM mode refinement changes ::: 1
+
+* Done
+
+   o doing a change chain ids should move over the Link records also.
+
+     Add a test ::: 1
+
+   o on merging molecules, remove the TER card if we are adding to an already existing chain.
+     Consider adding helices made of ALA.  Coot should make a new chain for these. Does it?
+     ::: 1

@@ -5309,6 +5309,8 @@ molecule_class_info_t::try_add_by_consolidation(mmdb::Manager *adding_mol) {
    bool status = false;
    std::vector<std::string> chain_ids;
 
+   // 20180104 Don't merge molecules made of ALA.
+
    // for this molecule molecule, make a map of chains that have one
    // residue type.  Could well be empty (or perhaps consist of just a
    // water chain)
@@ -5341,35 +5343,37 @@ molecule_class_info_t::try_add_by_consolidation(mmdb::Manager *adding_mol) {
       mmdb::Chain *chain_p;
       int n_chains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<n_chains; ichain++) {
-	 bool done_this_chain = false; 
+	 bool done_this_chain = false;
 	 chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
 	 std::vector<std::string> residue_types;
 	 mmdb::Residue *residue_p;
-	 for (int ires=0; ires<nres; ires++) { 
+	 for (int ires=0; ires<nres; ires++) {
 	    residue_p = chain_p->GetResidue(ires);
 	    std::string res_name(residue_p->GetResName());
 	    if (std::find(residue_types.begin(), residue_types.end(), res_name) == residue_types.end())
 	       residue_types.push_back(res_name);
 	 }
 
-    if (residue_types.size() == 1) {
-	    std::map<std::string, std::pair<int, mmdb::Chain *> >::const_iterator it =
-	       single_res_type_map.find(residue_types[0]);
-	    if (it != single_res_type_map.end()) {
-	       if (it->second.first == imod) {
+	 if (residue_types.size() == 1) {
+	    if (residue_types[0] != "ALA") {
+	       std::map<std::string, std::pair<int, mmdb::Chain *> >::const_iterator it =
+		  single_res_type_map.find(residue_types[0]);
+	       if (it != single_res_type_map.end()) {
+		  if (it->second.first == imod) {
 
-		  // We got a match, now add all of adding_mol chain_p
-		  // to this molecule's chain
+		     // We got a match, now add all of adding_mol chain_p
+		     // to this molecule's chain
 
-		  // BL says:: we check in copy_and_add_chain_residues_to_chain if there
-		  // are overlapping waters. Alternativley we could do it here already.
+		     // BL says:: we check in copy_and_add_chain_residues_to_chain if there
+		     // are overlapping waters. Alternativley we could do it here already.
 
-		  copy_and_add_chain_residues_to_chain(chain_p, it->second.second);
-		  done_this_chain = true;
-		  std::string cid = it->second.second->GetChainID();
-		  if (std::find(chain_ids.begin(), chain_ids.end(), cid) == chain_ids.end())
-		     chain_ids.push_back(cid);
+		     copy_and_add_chain_residues_to_chain(chain_p, it->second.second);
+		     done_this_chain = true;
+		     std::string cid = it->second.second->GetChainID();
+		     if (std::find(chain_ids.begin(), chain_ids.end(), cid) == chain_ids.end())
+			chain_ids.push_back(cid);
+		  }
 	       }
 	    }
 	 }
@@ -5397,6 +5401,9 @@ molecule_class_info_t::try_add_by_consolidation(mmdb::Manager *adding_mol) {
 // Copy residues of new_chain into this_model_chain
 void
 molecule_class_info_t::copy_and_add_chain_residues_to_chain(mmdb::Chain *new_chain, mmdb::Chain *this_molecule_chain) {
+
+   // remove TER record of current last residue (if it has a TER).
+   remove_TER_on_last_residue(this_molecule_chain);
 
    int nres = new_chain->GetNumberOfResidues();
    for (int ires=0; ires<nres; ires++) {
@@ -7104,6 +7111,9 @@ molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
 			if (from_chain_id == chain_id) {
 			   make_backup();
 			   chain_p->SetChainID(to_chain_id.c_str());
+			   // change the links here
+
+			   int n_changed = coot::util::change_chain_in_links(model_p, from_chain_id, to_chain_id);
 			   istat = 1;
 			   have_unsaved_changes_flag = 1;
 			   atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
@@ -7116,11 +7126,10 @@ molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
 	       }
 	    }
 
-	    std::cout << "istat: ; " << istat << std::endl;
-
 	 } else {
 
 	    // OK, can we do a merge? (do we have non-overlapping residue ranges?)
+	    // If so, so a change_chain_id_with_residue_range()
 	    //
 	    mmdb::Chain *chain_p_from = get_chain(from_chain_id);
 	    mmdb::Chain *chain_p_to   = get_chain(to_chain_id);

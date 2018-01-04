@@ -1591,7 +1591,8 @@ molecule_class_info_t::remove_TER_on_last_residue(mmdb::Chain *chain_p) {
    int n_residues = chain_p->GetNumberOfResidues();
    if (n_residues > 0) {
       mmdb::Residue *r = chain_p->GetResidue(n_residues-1); // last residue
-      remove_TER_internal(r);
+      if (r)
+	 remove_TER_internal(r);
    }
 } 
 

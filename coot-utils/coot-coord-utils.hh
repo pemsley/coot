@@ -1317,6 +1317,11 @@ namespace coot {
       // 
       void correct_link_distances(mmdb::Manager *mol);
 
+      // return the number of changed links
+      unsigned int change_chain_in_links(mmdb::Model *model_p, 
+					 const std::string &from_chain_id,
+					 const std::string &to_chain_id);
+
       // move hetgroups round protein.  Find the centres of each
       // hetgroup and move it to the protein.  Waters are handled individually.
       // Fiddle with mol.

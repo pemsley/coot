@@ -1994,6 +1994,45 @@
 	 (chains-in-order? c)))))
 
 
+(greg-testcase "Chain-ids in links change also on change chain id" #t 
+   (lambda ()
+
+     (let ((imol (greg-pdb "tutorial-modern.pdb")))
+
+       (let ((spec-1 (list "B" 42 "" " N  " ""))
+	     (spec-2 (list "B" 62 "" " O  " "")))
+
+	 (make-link imol spec-1 spec-2 "test-link" 2.2)
+
+	 (let ((li-1 (link-info imol)))
+
+	   (change-chain-id imol "B" "C" 0 0 0)
+
+	   (let ((li-2 (link-info imol)))
+
+	     ;; li-1 should not contain C and should contain B
+	     ;; li-2 should not contain B and should contain C
+
+	     ;; (format #t "li-1: ~s~%" li-1)
+	     ;; (format #t "li-2: ~s~%" li-2)
+
+	     (let ((ch-B-1 (list-ref (list-ref (list-ref li-1 0) 1) 1)) ;; before
+		   (ch-B-2 (list-ref (list-ref (list-ref li-1 0) 2) 1))
+		   (ch-A-1 (list-ref (list-ref (list-ref li-2 0) 1) 1)) ;; after
+		   (ch-A-2 (list-ref (list-ref (list-ref li-2 0) 2) 1)))
+
+	       ;(format #t "ch-B-1: ~s~%" ch-B-1)
+	       ;(format #t "ch-B-2: ~s~%" ch-B-2)
+	       ;(format #t "ch-A-1: ~s~%" ch-A-1)
+	       ;(format #t "ch-A-2: ~s~%" ch-A-2)
+
+	       (all-true? (list
+			   (string=? ch-B-1 "B")
+			   (string=? ch-B-2 "B")
+			   (string=? ch-A-1 "C")
+			   (string=? ch-A-2 "C"))))))))))
+
+
 
 (greg-testcase "Replace Fragment" #t
    (lambda ()
