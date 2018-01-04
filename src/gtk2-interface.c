@@ -18002,7 +18002,6 @@ create_nothing_bad_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox443), info_dialog_info_image, FALSE, FALSE, 18);
 
   info_dialog_warning_image = gtk_image_new_from_stock ("gtk-dialog-warning", GTK_ICON_SIZE_DIALOG);
-  gtk_widget_show (info_dialog_warning_image);
   gtk_box_pack_start (GTK_BOX (hbox443), info_dialog_warning_image, TRUE, TRUE, 18);
 
   nothing_bad_label = gtk_label_new ("<tt>Nothing Bad</tt>");
