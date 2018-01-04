@@ -2796,6 +2796,51 @@
 				    )))))))
 
 
+(greg-testcase "Test for good chain ids after a merge" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "tutorial-modern.pdb")))
+
+       (change-chain-id imol "A" "AAA" 0 0 0)
+
+       (let ((imol-new (new-molecule-by-atom-selection imol "//B/1-90")))
+
+	 (change-chain-id imol-new "B" "B-chain" 0 0 0)
+
+	 (merge-molecules (list imol-new) imol)
+
+	 (let ((chids (chain-ids imol)))
+
+	   (format #t "chain-ids: ~s~%" chids)
+
+	   ;; should be '("AAA" "B" "B-chain")
+
+	   (if (not (= (length chids) 3))
+	       (throw 'fail))
+
+	   (if (not (string=? (list-ref chids 2) "B-chain"))
+	       (throw 'fail))
+
+	   ;; now Wolfram Tempel test: multi-char chain matcher needs
+	   ;; prefix, not new single letter
+
+	   (change-chain-id imol-new "B-chain" "AAA" 0 0 0)
+
+	   (merge-molecules (list imol-new) imol)
+
+	   (let ((chids-2 (chain-ids imol)))
+
+	     (format #t "--- chain-ids: ~s~%" chids-2)
+
+	     (if (not (= (length chids-2) 4))
+		 (throw 'fail))
+
+	     (if (not (string=? (list-ref chids-2 3) "AAA_2"))
+		 (throw 'fail))
+
+	     #t))))))
+
+
 	
 (greg-testcase "LSQ by atom" #t
    (lambda ()

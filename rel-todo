@@ -1,13 +1,6 @@
 
    For Release 0.8.9
 
-   o It appears that merging coordinates (read from cif with
-     multi-character label_asym_id and auth_asym_id) in to another set
-     of coordinates will assign single-character chain IDs to the source
-     coordinates. Might it be better to just add a prefix to those ids?
-        - Wolfram Tempel
-     ::: 1
-
    o Sphere refine on a disulphide - e.g. in tutorial ::: 2
 
    o Ryan Hibbs: 2 strands, low res map, user-defined distance restraint and
@@ -465,3 +458,13 @@ In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/
    o on merging molecules, remove the TER card if we are adding to an already existing chain.
      Consider adding helices made of ALA.  Coot should make a new chain for these. Does it?
      ::: 1
+
+   o It appears that merging coordinates (read from cif with
+     multi-character label_asym_id and auth_asym_id) in to another set
+     of coordinates will assign single-character chain IDs to the source
+     coordinates. Might it be better to just add a prefix to those ids?
+        - Wolfram Tempel
+     ::: 1
+
+
+* Used a post-fix. Added a test. Hooray.

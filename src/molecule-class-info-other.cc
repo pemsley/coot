@@ -5230,7 +5230,7 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 	    // return state 
 	    std::pair<bool, std::vector<std::string> > add_state = try_add_by_consolidation(adding_mol);
 
-            // BL says:: some  mild hacking, but we need to return a proper state and the added chains
+            // some mild hacking, but we need to return a proper state and the added chains
             istat = 0;
             for (unsigned int i=0; i<add_state.second.size(); i++) {
                resulting_chain_ids.push_back(add_state.second[i]);
@@ -5318,10 +5318,9 @@ molecule_class_info_t::try_add_by_consolidation(mmdb::Manager *adding_mol) {
    std::map<std::string, std::pair<int, mmdb::Chain *> > single_res_type_map;
    for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
       mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-      mmdb::Chain *chain_p;
       int n_chains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<n_chains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
+	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
 	 std::vector<std::string> residue_types;
 	 mmdb::Residue *residue_p;
@@ -5340,11 +5339,10 @@ molecule_class_info_t::try_add_by_consolidation(mmdb::Manager *adding_mol) {
 
    for(int imod = 1; imod<=adding_mol->GetNumberOfModels(); imod++) {
       mmdb::Model *model_p = adding_mol->GetModel(imod);
-      mmdb::Chain *chain_p;
       int n_chains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<n_chains; ichain++) {
 	 bool done_this_chain = false;
-	 chain_p = model_p->GetChain(ichain);
+	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
 	 std::vector<std::string> residue_types;
 	 mmdb::Residue *residue_p;
@@ -5382,7 +5380,8 @@ molecule_class_info_t::try_add_by_consolidation(mmdb::Manager *adding_mol) {
 	    // copy whole chain to a new chain
 	    mmdb::Model *this_model_p = atom_sel.mol->GetModel(imod);
 	    if (this_model_p) {
-	       std::string new_chain_id = suggest_new_chain_id();
+	       std::string current_chain_id = chain_p->GetChainID();
+	       std::string new_chain_id = suggest_new_chain_id(current_chain_id);
 	       mmdb::Chain *copy_chain_p = new mmdb::Chain;
 	       copy_chain_p->Copy(chain_p);
 	       copy_chain_p->SetChainID(new_chain_id.c_str());
@@ -5464,7 +5463,9 @@ molecule_class_info_t::map_chains_to_new_chains(const std::vector<std::string> &
 
 // return "" on failure
 std::string
-molecule_class_info_t::suggest_new_chain_id() const {
+molecule_class_info_t::suggest_new_chain_id(const std::string &current_chain_id) const {
+
+   // current_chain_id is the chain_id in the molecule that we are adding to this one.
 
    std::string new_chain_id;
    
@@ -5474,20 +5475,60 @@ molecule_class_info_t::suggest_new_chain_id() const {
    mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
    mmdb::Chain *chain_p;
    int n_chains = model_p->GetNumberOfChains();
+   // do we have current_chain_id in our list of chains already?  If not, then simply
+   // choose current_chain_id.
+   bool found_it = false;
    for (int ichain=0; ichain<n_chains; ichain++) {
-      chain_p = model_p->GetChain(ichain);
-      existing.push_back(chain_p->GetChainID());
+      mmdb::Chain *chain_p = model_p->GetChain(ichain);
+      std::string chid = chain_p->GetChainID();
+      if (chid == current_chain_id) {
+	 found_it = true;
+	 break;
+      }
    }
-   unsigned int l = r.length();
-   std::vector<std::string> candidates(l);
-   for (unsigned int i=0; i<l; i++)
-      candidates[i] = r[i];
+   if (! found_it)
+      new_chain_id = current_chain_id; // all done!
 
-   for (unsigned int i=0; i<existing.size(); i++)
-      candidates.erase(std::remove(candidates.begin(), candidates.end(), existing[i]), candidates.end());
+   // how about a multichar post-fix? We only want to do that if current_chain_id
+   // what multichar to begin with (from a pdbx file):
+   // (Wolfram Tempel)
+   //
+   if (new_chain_id.empty()) {
+      if (current_chain_id.length() > 1) {
+	 std::string trial_chain_id = current_chain_id + "_2";
+	 if (trial_chain_id.length() < (10-1)) { // magic mmdb chain id max length (mmdb_defs.h)
+	                                       // (we need a space for the terminal NULL too).
+	    bool found_it = false;
+	    for (int ichain=0; ichain<n_chains; ichain++) {
+	       mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	       std::string chid = chain_p->GetChainID();
+	       if (chid == trial_chain_id) {
+		  found_it = true;
+		  break;
+	       }
+	    }
+	    if (! found_it)
+	       new_chain_id = trial_chain_id; // all done!
+	 }
+      }
+   }
 
-   if (candidates.size())
-      new_chain_id = candidates[0];
+   if (new_chain_id.empty()) { // not set yet
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 existing.push_back(chain_p->GetChainID());
+      }
+      unsigned int l = r.length();
+      std::vector<std::string> candidates(l);
+      for (unsigned int i=0; i<l; i++)
+	 candidates[i] = r[i];
+
+      for (unsigned int i=0; i<existing.size(); i++)
+	 candidates.erase(std::remove(candidates.begin(), candidates.end(), existing[i]), candidates.end());
+
+      if (candidates.size())
+	 new_chain_id = candidates[0];
+   }
    return new_chain_id;
 } 
 
