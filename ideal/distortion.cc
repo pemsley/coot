@@ -1087,10 +1087,20 @@ coot::distortion_score_geman_mcclure_distance(const coot::simple_restraint &rest
    
    // Let z = (boi - bi)/sigma
    // so S_i = z^2/(1 + alpha * z^2)
-   // 
-   double bit = clipper::Coord_orth::length(a1,a2) - restraint.target_value;
+   //
+   double bl = clipper::Coord_orth::length(a1,a2);
+   double bit = bl - restraint.target_value;
    double z = bit/restraint.sigma;
    double distortion = z*z/(1+alpha*z*z);
+
+   if (false)
+      std::cout << "distortion_score_geman_mcclure_distance: " << bl
+		<< " sigma " << restraint.sigma
+		<< " target " << restraint.target_value
+		<< " alpha " << alpha
+		<< " z " << z
+		<< " distortion " << distortion << std::endl;
+
    // return z * z; // least squares
    return distortion;
 }

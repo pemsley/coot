@@ -2076,6 +2076,9 @@
 	     (f (cdr atom-ls) alt-confs)
 	     (f (cdr atom-ls) (cons alt-conf-str alt-confs)))))))))
 
+;; not to be confused with residue-atom->atom-name (which uses the output of residue-info
+;; (which is not atom specs)
+;;
 ;; extraction function
 (define (atom-spec->chain-id atom-spec)
   ;; atom-spec example (list "A" 7 "" " SG " "")
