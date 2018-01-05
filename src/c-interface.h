@@ -1585,20 +1585,28 @@ short int mtz_use_weight_for_map(int imol_map);
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
-/*! \brief return the parameter that made the map, #f or something
-  like ("xxx.mtz" "FPH" "PHWT" "" #f) */
+/*! \brief return the parameter that made the map, 
+
+@return false or a string
+  like ("xxx.mtz" "FPH" "PHWT" "" False) */
 SCM map_parameters_scm(int imol);
-/*! \brief return the parameter that made the map, #f or something
+/*! \brief return the parameter that made the map, 
+
+@return false or a list
   like (45 46 47 90 90 120), angles in degress */
 SCM cell_scm(int imol);
 /*! \brief return the parameter of the molecule, something 
   like (45 46 47 90 90 120), angles in degress */
 #endif /* USE_GUILE */
 #ifdef USE_PYTHON
-/*! \brief return the parameter that made the map, False or something
+/*! \brief return the parameter that made the map, 
+
+@return False or something
   like ["xxx.mtz", "FPH", "PHWT", "", False] */
 PyObject *map_parameters_py(int imol);
-/*! \brief return the parameter that made the map, False or something
+/*! \brief return the parameter that made the map, 
+
+@return False or something
   like [45, 46, 47, 90, 90, 120], angles in degress */
 PyObject *cell_py(int imol);
 #endif /* USE_PYTHON */
@@ -2942,7 +2950,9 @@ void set_alignment_gap_and_space_penalty(float wgap, float wspace);
 #ifdef USE_GUILE
 SCM alignment_results_scm(int imol, const char* chain_id, const char *seq); 
 /*! \brief return the residue spec of the nearest residue by sequence
-  numbering.  Return scheme #f if not possible */
+  numbering.  
+
+@return  scheme false if not possible */
 SCM nearest_residue_by_sequence_scm(int imol, const char* chain_id, int resno, const char *ins_code);
 #endif /* USE_GUILE */
 #ifdef USE_PYTHON
@@ -3798,8 +3808,9 @@ int write_shelx_ins_file(int imol, const char *filename);
 int handle_shelx_fcf_file_internal(const char *filename);
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
-/*! \brief @return the chain id for the given residue.  Return #f if
-  can't do it/fail. */
+/*! \brief @return the chain id for the given residue.  
+
+@return false if can't do it/fail. */
 SCM chain_id_for_shelxl_residue_number(int imol, int resno);
 #endif /* USE_GUILE */
 /* return 1 for yes, 0 for invalid imol or no. */
@@ -5481,7 +5492,9 @@ void add_lsq_atom_pair_py(PyObject *atom_spec_ref, PyObject *atom_spec_moving);
 
 #ifdef __cplusplus	/* need this wrapper, else gmp.h problems in callback.c */
 #ifdef USE_GUILE
-/* Return an rtop pair (proper list) on good match, else #f */
+/*! \brief apply the LSQ matches
+
+@return an rtop pair (proper list) on good match, else false */
 SCM apply_lsq_matches(int imol_reference, int imol_moving);
 SCM get_lsq_matrix_scm(int imol_reference, int imol_moving);
 #endif
@@ -5752,13 +5765,17 @@ PyObject *ncs_chain_ids_py(int imol);
 #endif  /* USE_PYTHON */
 
 #ifdef USE_GUILE
-/* return #f on bad imol or a list of ghosts on good imol.  Can
-   include NCS rtops if they are available, else the rtops are #f */
+/*! \brief get the NCS ghost description
+
+@return false on bad imol or a list of ghosts on good imol.  Can
+   include NCS rtops if they are available, else the rtops are False */
 SCM ncs_ghosts_scm(int imol);
 #endif	/* USE_GUILE */
 
 #ifdef USE_PYTHON
-/* return False on bad imol or a list of ghosts on good imol.  Can
+/*! \brief Get the NCS ghosts description
+
+@return False on bad imol or a list of ghosts on good imol.  Can
    include NCS rtops if they are available, else the rtops are False */
 PyObject *ncs_ghosts_py(int imol);
 #endif	/* USE_PYTHON */
@@ -5956,7 +5973,9 @@ int ideal_nucleic_acid(const char *RNA_or_DNA, const char *form,
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
 
-/*! \brief return #f if residue not found,  otherwise
+/*! \brief get the pucker info for the specified residue
+
+ @return scheme false if residue not found,  otherwise
  (list (list phosphate-distance puckered-atom out-of-plane-distance plane-distortion) chain-id resno ins-code)
 
  (where plane-distortion is for the other 4 atoms in the plane (I think)).

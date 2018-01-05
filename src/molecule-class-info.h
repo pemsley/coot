@@ -418,7 +418,7 @@ class molecule_class_info_t {
    std::vector<std::string> map_chains_to_new_chains(const std::vector<std::string> &adding_model_chains,
 						     const std::vector<std::string> &this_model_chains) const;
    // that's too complicated for try_add_by_consolidation(), we just want this:
-   std::string suggest_new_chain_id() const;
+   std::string suggest_new_chain_id(const std::string &current_chain_id) const;
 
    // returned the copied residue (possibly can return NULL on failure).
    mmdb::Residue* copy_and_add_residue_to_chain(mmdb::Chain *this_model_chain, mmdb::Residue *add_model_residue);

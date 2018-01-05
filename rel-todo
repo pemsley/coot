@@ -1,47 +1,9 @@
 
    For Release 0.8.9
 
-   o fix the empty nomenclature errors dialog ::: 1
-
    o Ryan Hibbs: 2 strands, low res map, user-defined distance restraint and
-     refine - fails to preserve the distance ::: 2
-
-   o Sphere refine on a disulphide - e.g. in tutorial ::: 2
-
-   o pyrogen -nM -w -r Y03 - regularize it - it fails ::: 1
-
-   o doing a merge and doing a change chain ids should move over the Link records also.
-
-     Add a test ::: 1
-
-   o on merging molecules, remove the TER card if we are adding to an already existing chain.
-     Consider adding helices made of ALA.  Coot should make a new chain for these. Does it?
-     ::: 1
-
-   o It appears that merging coordinates (read from cif with
-     multi-character label_asym_id and auth_asym_id) in to another set
-     of coordinates will assign single-character chain IDs to the source
-     coordinates. Might it be better to just add a prefix to those ids?
-        - Wolfram Tempel
-     ::: 1
-
-   o add an arg to init_from_residue_vec() and so the restraints_container_t
-     constructor from which it is called that says "don't make links to residues
-     that have a residue number difference greater than 1" - which will stop annoying
-     linking in add_terminal_residue_complicado.
-     allow_non_trival_linking ::: 2
-
-* Have I fixed this problem already?
-
-   o make cryo-EM mode in refinement work ::: 4
-
-   o add  set_atom_attributes(SCM attribute_expression_list) to the documenation - 
-     preprocessing issues. ::: 2
-
-   o During Sphere Refine, where moving meets non-moving, interactive all-atom-contact dots
-     shows dots on links e.g cho-building, refine-tree, vs sphere-refine on 2nd NAG.
-     Also disulphides. Puntable! ::: 2
-
+     refine - fails to preserve the distance
+     Because it's an ineffective Geman McClure restraints  ::: 2
 
 --------------
 
@@ -475,3 +437,36 @@ In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/
 
 * Done.
 
+   o fix the empty nomenclature errors dialog ::: 1
+
+   o add  set_atom_attributes(SCM attribute_expression_list) to the documentation - 
+     preprocessing issues. ::: 1
+
+* Done.
+
+
+   o back-out cryo-EM mode refinement changes ::: 1
+
+* Done
+
+   o doing a change chain ids should move over the Link records also.
+
+     Add a test ::: 1
+
+   o on merging molecules, remove the TER card if we are adding to an already existing chain.
+     Consider adding helices made of ALA.  Coot should make a new chain for these. Does it?
+     ::: 1
+
+   o It appears that merging coordinates (read from cif with
+     multi-character label_asym_id and auth_asym_id) in to another set
+     of coordinates will assign single-character chain IDs to the source
+     coordinates. Might it be better to just add a prefix to those ids?
+        - Wolfram Tempel
+     ::: 1
+
+
+* Used a post-fix. Added a test. Hooray.
+
+   o neighbour refine on a disulphide - e.g. in tutorial, B7 ::: 2
+
+* Done.

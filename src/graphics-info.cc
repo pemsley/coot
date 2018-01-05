@@ -2826,7 +2826,7 @@ graphics_info_t::display_geometry_distance() {
    distance_object_vec->push_back(p);
    graphics_draw();
 
-   std::cout << "        distance: " << dist << " Angstroems" << std::endl;
+   std::cout << "INFO:: distance: " << dist << " Angstroems" << std::endl;
    std::string s = "Distance: ";
    s += float_to_string(dist);
    s += " A";

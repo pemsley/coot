@@ -424,6 +424,7 @@ graphics_info_t::info_dialog(const std::string &s) {
       if (s.find(std::string("WARNING")) != std::string::npos) warning = true;
       if (s.find(std::string("warning")) != std::string::npos) warning = true;
       if (s.find(std::string("Warning")) != std::string::npos) warning = true;
+      if (s.find(std::string("Oops!"))   != std::string::npos) warning = true;
       if (warning) {
 	 GtkWidget *info_image = lookup_widget(GTK_WIDGET(w), "info_dialog_info_image");
 	 GtkWidget *warn_image = lookup_widget(GTK_WIDGET(w), "info_dialog_warning_image");

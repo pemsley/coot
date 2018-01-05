@@ -965,6 +965,53 @@
 
 
 
+(greg-testcase "Neighbour-Refine doesn't destroy disulfide bonds" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "tutorial-modern.pdb")))
+
+       (set-imol-refinement-map imol-rnase-map)
+       (set-go-to-atom-molecule imol)
+       (set-go-to-atom-chain-residue-atom-name "B" 7 " CA ")
+
+	(let* ((rc-spec (list "B" 7 ""))
+	       (ls (residues-near-residue imol rc-spec 2.2))
+	       (residues-list (cons rc-spec ls)))
+
+	  ;; (format #t "debug::::: neighbour-refine test: residues-list: ~s~%" residues-list)
+
+	  (with-auto-accept (refine-residues imol residues-list))
+	  (let ((at-spec-1 (list "B"  7 "" " SG " ""))
+		(at-spec-2 (list "B" 96 "" " SG " "")))
+	    (let ((at-1 (get-atom-from-spec imol at-spec-1))
+		  (at-2 (get-atom-from-spec imol at-spec-2)))
+	      (let ((bl (bond-length-from-atoms at-1 at-2)))
+
+		;; (format #t "bl-1: ~s~%" bl)
+
+		(let ((state (bond-length-within-tolerance? at-1 at-2 2.0 0.05)))
+
+		  ;; (format #t "bond-length within tolerance?: ~s~%" state)
+
+		  (if (not state)
+		      #f
+
+		      ;; do it again
+		      (begin
+			(with-auto-accept (refine-residues imol residues-list))
+			(let ((at-spec-1 (list "B"  7 "" " SG " ""))
+			      (at-spec-2 (list "B" 96 "" " SG " "")))
+			  (let ((at-1 (get-atom-from-spec imol at-spec-1))
+				(at-2 (get-atom-from-spec imol at-spec-2)))
+			    (let ((bl (bond-length-from-atoms at-1 at-2)))
+
+			      ;; (format #t "bl-2: ~s~%" bl)
+
+			      (let ((state (bond-length-within-tolerance? at-1 at-2 2.0 0.05)))
+
+				state))))))))))))))
+
+
 
 
 
@@ -1994,6 +2041,45 @@
 	 (chains-in-order? c)))))
 
 
+(greg-testcase "Chain-ids in links change also on change chain id" #t 
+   (lambda ()
+
+     (let ((imol (greg-pdb "tutorial-modern.pdb")))
+
+       (let ((spec-1 (list "B" 42 "" " N  " ""))
+	     (spec-2 (list "B" 62 "" " O  " "")))
+
+	 (make-link imol spec-1 spec-2 "test-link" 2.2)
+
+	 (let ((li-1 (link-info imol)))
+
+	   (change-chain-id imol "B" "C" 0 0 0)
+
+	   (let ((li-2 (link-info imol)))
+
+	     ;; li-1 should not contain C and should contain B
+	     ;; li-2 should not contain B and should contain C
+
+	     ;; (format #t "li-1: ~s~%" li-1)
+	     ;; (format #t "li-2: ~s~%" li-2)
+
+	     (let ((ch-B-1 (list-ref (list-ref (list-ref li-1 0) 1) 1)) ;; before
+		   (ch-B-2 (list-ref (list-ref (list-ref li-1 0) 2) 1))
+		   (ch-A-1 (list-ref (list-ref (list-ref li-2 0) 1) 1)) ;; after
+		   (ch-A-2 (list-ref (list-ref (list-ref li-2 0) 2) 1)))
+
+	       ;(format #t "ch-B-1: ~s~%" ch-B-1)
+	       ;(format #t "ch-B-2: ~s~%" ch-B-2)
+	       ;(format #t "ch-A-1: ~s~%" ch-A-1)
+	       ;(format #t "ch-A-2: ~s~%" ch-A-2)
+
+	       (all-true? (list
+			   (string=? ch-B-1 "B")
+			   (string=? ch-B-2 "B")
+			   (string=? ch-A-1 "C")
+			   (string=? ch-A-2 "C"))))))))))
+
+
 
 (greg-testcase "Replace Fragment" #t
    (lambda ()
@@ -2755,6 +2841,51 @@
 				    "E" "F"  ;; merged ligs
 				    "G" "H" "I" "J" "K" ;; protein chain copies
 				    )))))))
+
+
+(greg-testcase "Test for good chain ids after a merge" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "tutorial-modern.pdb")))
+
+       (change-chain-id imol "A" "AAA" 0 0 0)
+
+       (let ((imol-new (new-molecule-by-atom-selection imol "//B/1-90")))
+
+	 (change-chain-id imol-new "B" "B-chain" 0 0 0)
+
+	 (merge-molecules (list imol-new) imol)
+
+	 (let ((chids (chain-ids imol)))
+
+	   (format #t "chain-ids: ~s~%" chids)
+
+	   ;; should be '("AAA" "B" "B-chain")
+
+	   (if (not (= (length chids) 3))
+	       (throw 'fail))
+
+	   (if (not (string=? (list-ref chids 2) "B-chain"))
+	       (throw 'fail))
+
+	   ;; now Wolfram Tempel test: multi-char chain matcher needs
+	   ;; prefix, not new single letter
+
+	   (change-chain-id imol-new "B-chain" "AAA" 0 0 0)
+
+	   (merge-molecules (list imol-new) imol)
+
+	   (let ((chids-2 (chain-ids imol)))
+
+	     (format #t "--- chain-ids: ~s~%" chids-2)
+
+	     (if (not (= (length chids-2) 4))
+		 (throw 'fail))
+
+	     (if (not (string=? (list-ref chids-2 3) "AAA_2"))
+		 (throw 'fail))
+
+	     #t))))))
 
 
 	
