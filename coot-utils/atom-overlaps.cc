@@ -2097,22 +2097,23 @@ coot::atom_overlaps_container_t::is_linked(mmdb::Atom *at_1,
 bool
 coot::atom_overlaps_container_t::is_ss_bonded_or_CYS_CYS_SGs(mmdb::Atom *at_1,
 							     mmdb::Atom *at_2) const {
+
+   // There is no mmdb class for SSBOND! - must fix.
+
    bool status = false;
    std::string res_name_1 = at_1->residue->GetResName();
-   std::string res_name_2 = at_2->residue->GetResName();
    if (res_name_1 == "CYS") {
+      std::string res_name_2 = at_2->residue->GetResName();
       if (res_name_2 == "CYS") {
 	 std::string atom_name_1 = at_1->GetAtomName();
-	 std::string atom_name_2 = at_2->GetAtomName();
 	 if (atom_name_1 == " SG ") {
+	    std::string atom_name_2 = at_2->GetAtomName();
 	    if (atom_name_2 == " SG ") {
 	       status = true;
 	    }
 	 }
       }
    }
-
-   // There is no mmdb class for SSBOND! - must fix.
 
    return status;
 }

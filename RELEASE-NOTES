@@ -3,17 +3,19 @@
 
   o FEATURE: Improved Ramachandran Plot, now with residue selection
 
-  o FEATURE: Use of threads and accumulation in contouring
+  o FEATURE: Use of threads and accumulation in map contouring
 
-  o FEATURE: secondary structure added to the the API
+  o FEATURE: secondary structure interface added to the the API
 
   o FEATURE: delete-chain and delete-sidechains-for-chain added to the API
 
   o FEATURE: Added a user-defined modelling toolbar button to refine tandem residues
 
-  o FEATURE: peptide orientation optimisation function added
+  o FEATURE: experimental peptide orientation optimisation function added (also in mini-rsr)
 
   o CHANGE:  Refinement speed-up
+
+  o CHANGE:  Add-terminal-residue speed-up
 
   o CHANGE:  Glyo module improved with distance restraints and better GUI
 
@@ -21,19 +23,33 @@
 
   o CHANGE:  Use ETKDG for embedding in pyrogen
 
-  o CHANGE:  Add-terminal-residue speed increase
+  o CHANGE:  Use less precision on writing the aniso ADPs for SHELX ins
 
-  o CHANGE:  Use less precision on writing the aniso ADPs for shelx ins
-
-  o CHANGE:  Optional Fourier Transform-based Ramachandran Plot target function introduced
+  o CHANGE:  Optional Fourier Transform-based Ramachandran Plot target function added
 
   o CHANGE:  Bond-thicknesses improved in colour-by-chain.
 
   o CHANGE:  Robust MOL-file parsing added to lidia
 
-  o BUG-FIX: Gemen-McClure distance restraints activation bug fix
+  o CHANGE:  A density value histogram has been added to the map properties dialog
 
-  o BUG-FIX: delete-atom no longer crashed with given an invalid model molecule number
+  o CHANGE:  Pepflip residue indexing improved
+
+  o CHANGE:  Updated Ligand fitting in the tutorial
+
+  o BUG-FIX: Hydrogen atoms are no longer used in rotamer clash score
+
+  o BUG-FIX: Geman-McClure distance restraints activation bug fix
+
+  o BUG-FIX: delete-atom no longer crashes when given an invalid model molecule number
+
+  o BUG-FIX: Adding a terminal OXT no longer causes a crash
+
+  o BUG-FIX: Ramachandran plot is updated on "Undo"
+
+  o BUG-FIX: Chiral centre distortion representation fixed
+
+
 
 ------
 
