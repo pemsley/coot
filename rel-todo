@@ -1,10 +1,6 @@
 
    For Release 0.8.9
 
-   o Ryan Hibbs: 2 strands, low res map, user-defined distance restraint and
-     refine - fails to preserve the distance
-     Because it's an ineffective Geman McClure restraints  ::: 2
-
 --------------
 
    o chemical diagram for Acedrg dictionary for this molecule:
@@ -470,3 +466,10 @@ In /Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/
    o neighbour refine on a disulphide - e.g. in tutorial, B7 ::: 2
 
 * Done.
+
+
+   o Ryan Hibbs: 2 strands, low res map, user-defined distance restraint and
+     refine - fails to preserve the distance   ::: 2
+
+* it's an ineffective Geman McClure restraints. To make it more effective for just one
+  bond, reduce sigma (maybe 0.01?) and reduce alpha (0.001). Hmm.

@@ -1977,7 +1977,7 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
 		  ait = CLASHABLE;
 	       }
 	    } else {
-	       ait = CLASHABLE;
+	       ait = BONDED;
 	    }
 	 }
       } else {
@@ -2053,7 +2053,7 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
 
    if (ait == CLASHABLE) {
       // maybe it was a link
-      if (is_linked(at_1, at_2))
+      if (is_linked(at_1, at_2) || is_ss_bonded_or_CYS_CYS_SGs(at_1, at_2))
 	 ait = BONDED;
    }
 
@@ -2092,7 +2092,32 @@ coot::atom_overlaps_container_t::is_linked(mmdb::Atom *at_1,
 }
 
 bool
+coot::atom_overlaps_container_t::is_ss_bonded_or_CYS_CYS_SGs(mmdb::Atom *at_1,
+							     mmdb::Atom *at_2) const {
+   bool status = false;
+   std::string res_name_1 = at_1->residue->GetResName();
+   std::string res_name_2 = at_2->residue->GetResName();
+   if (res_name_1 == "CYS") {
+      if (res_name_2 == "CYS") {
+	 std::string atom_name_1 = at_1->GetAtomName();
+	 std::string atom_name_2 = at_2->GetAtomName();
+	 if (atom_name_1 == " SG ") {
+	    if (atom_name_2 == " SG ") {
+	       status = true;
+	    }
+	 }
+      }
+   }
+
+   // There is no mmdb class for SSBOND! - must fix.
+
+   return status;
+}
+
+bool
 coot::atom_overlaps_container_t::is_ss_bonded(mmdb::Residue *residue_p) const {
+
+   // There is no mmdb class for SSBOND! - must fix.
 
    bool status = false;
    if (residue_p) {

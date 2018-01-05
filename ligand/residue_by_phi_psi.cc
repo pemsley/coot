@@ -397,7 +397,8 @@ coot::residue_by_phi_psi::add_characteristic_low_points(coot::ligand_score_card 
       s->scored_characteristic_low_density_points.push_back(sp);
       s->atom_point_score -= db;
    } else {
-      std::cout << "DEBUG:: in add_characteristic_low_points() oops residue subject_res_num "
+      std::cout << "DEBUG:: oops in add_characteristic_low_points() "
+		<< " residue subject_res_num "
 		<< subject_res_num << " - No atoms" << std::endl;
    }
 }
@@ -525,7 +526,12 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner(int itrial,
 	 s.scored_characteristic_low_density_points.push_back(sp);
 	 s.atom_point_score -= db;
       } else {
+<<<<<<< HEAD
 	 std::cout << "DEBUG:: oops in fit_terminal_residue_generic_trial_inner() residue subject_res_num "
+=======
+	 std::cout << "DEBUG:: oops in fit_terminal_residue_generic_trial_inner() "
+		   << offset << " residue subject_res_num "
+>>>>>>> master
 		   << subject_res_num << " - No atoms" << std::endl;
       }
    }
