@@ -393,8 +393,9 @@ coot::residue_by_phi_psi::add_characteristic_low_points(coot::ligand_score_card 
       s->scored_characteristic_low_density_points.push_back(sp);
       s->atom_point_score -= db;
    } else {
-      std::cout << "DEBUG:: oops residue subject_res_num " << subject_res_num << " - No atoms"
-		<< std::endl;
+      std::cout << "DEBUG:: oops in add_characteristic_low_points() "
+		<< " residue subject_res_num "
+		<< subject_res_num << " - No atoms" << std::endl;
    }
 }
 
@@ -502,7 +503,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner(int itrial,
       double t = clipper::Util::d2rad(p1.psi-125);
       // this is for N-terminal addition
       int neighb_seqnum = residue_p->GetSeqNum();
-      int subject_res_num = neighb_seqnum-1;
+      int subject_res_num = neighb_seqnum + offset;
       if (frag[subject_res_num].atoms.size() > 0) {
 	 clipper::Coord_orth c_pos  = frag[subject_res_num][" C  "].pos;
 	 clipper::Coord_orth ca_pos = frag[subject_res_num][" CA "].pos;
@@ -521,8 +522,9 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner(int itrial,
 	 s.scored_characteristic_low_density_points.push_back(sp);
 	 s.atom_point_score -= db;
       } else {
-	 std::cout << "DEBUG:: oops residue subject_res_num " << subject_res_num << " - No atoms"
-		   << std::endl;
+	 std::cout << "DEBUG:: oops in fit_terminal_residue_generic_trial_inner() "
+		   << offset << " residue subject_res_num "
+		   << subject_res_num << " - No atoms" << std::endl;
       }
    }
 
