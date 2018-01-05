@@ -967,7 +967,7 @@ def every_nth(ls, n):
 #
 def get_atom_from_residue(atom_name, residue_atoms, alt_conf):
 
-    """Get atom_info fomr a residue.
+    """Get atom_info from a residue.
     residue_atoms must be a list
     """
     
@@ -980,6 +980,14 @@ def get_atom_from_residue(atom_name, residue_atoms, alt_conf):
     # print "BL WARNING:: no atom name %s found in residue" %atom_name
     return False # no residue name found fail save
     
+#
+def get_atom_from_spec(imol, atom_spec):
+    return get_atom(imol,
+                    atom_spec_to_chain_id(atom_spec),
+                    atom_spec_to_res_no(atom_spec),
+                    atom_spec_to_ins_code(atom_spec),
+                    atom_spec_to_atom_name(atom_spec),
+                    atom_spec_to_alt_loc(atom_spec))
 
 # return atom info or False (if atom not found).
 #
@@ -993,6 +1001,65 @@ def get_atom(imol, chain_id, resno, ins_code, atom_name, alt_conf_internal=""):
         ret = get_atom_from_residue(atom_name, res_info, alt_conf_internal)
         return ret
 
+# not to be confused with residue_atom_to_atom_name
+# (which uses the output of residue_info)
+#
+# extraction function
+def atom_spec_to_chain_id(atom_spec):
+    # atom_spec example ["A", 7, "", " SG ", ""]
+    ret = False
+    if not atom_spec:
+        return False
+    if (len(atom_spec) == 5):
+        return atom_spec[0]
+    else:
+        return False
+
+# extraction function
+def atom_spec_to_res_no(atom_spec):
+    # atom_spec example ["A", 7, "", " SG ", ""]
+    ret = False
+    if not atom_spec:
+        return False
+    if (len(atom_spec) == 5):
+        return atom_spec[1]
+    else:
+        return False
+
+# extraction function
+def atom_spec_to_ins_code(atom_spec):
+    # atom_spec example ["A", 7, "", " SG ", ""]
+    ret = False
+    if not atom_spec:
+        return False
+    if (len(atom_spec) == 5):
+        return atom_spec[2]
+    else:
+        return False
+    
+# extraction function
+def atom_spec_to_atom_name(atom_spec):
+    # atom_spec example ["A", 7, "", " SG ", ""]
+    ret = False
+    if not atom_spec:
+        return False
+    if (len(atom_spec) == 5):
+        return atom_spec[3]
+    else:
+        return False
+    
+# extraction function
+def atom_spec_to_alt_loc(atom_spec):
+    # atom_spec example ["A", 7, "", " SG ", ""]
+    ret = False
+    if not atom_spec:
+        return False
+    if (len(atom_spec) == 5):
+        return atom_spec[4]
+    else:
+        return False
+    
+    
 #
 def residue_info_dialog_displayed_qm():
     if (residue_info_dialog_is_displayed == 1):

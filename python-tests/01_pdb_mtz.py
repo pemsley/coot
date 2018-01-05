@@ -838,6 +838,47 @@ class PdbMtzTestFunctions(unittest.TestCase):
                     "Refinement didnt 'converge' in 5 rounds")
 
 
+    def test20_2(self):
+        """Neighbour-Refine doesn't destroy disulfide bonds"""
+
+        global imol_rnase_map
+        
+        imol = unittest_pdb("tutorial-modern.pdb")
+
+        set_imol_refinement_map(imol_rnase_map)
+        set_go_to_atom_molecule(imol)
+        set_go_to_atom_chain_residue_atom_name("B", 7, " CA ")
+
+        rc_spec = ["B", 7, ""]
+        ls = residues_near_residue(imol, rc_spec, 2.2)
+        residue_list = rc_spec + ls
+
+        with AutoAccept():
+            refine_residues(imol, residue_list)
+        at_spec_1 = ["B",  7, "", " SG ", ""]
+        at_spec_2 = ["B",  96, "", " SG ", ""]
+        at_1 = get_atom_from_spec(imol, at_spec_1)
+        at_2 = get_atom_from_spec(imol, at_spec_2)
+        bl = bond_length_from_atoms(at_1, at_2)
+
+        state = bond_length_within_tolerance_qm(at_1, at_2, 2.0, 0.05)
+
+        self.failUnless(state)
+
+        # do it again
+        with AutoAccept():
+            refine_residues(imol, residue_list)
+        at_spec_1 = ["B",  7, "", " SG ", ""]
+        at_spec_2 = ["B",  96, "", " SG ", ""]
+        at_1 = get_atom_from_spec(imol, at_spec_1)
+        at_2 = get_atom_from_spec(imol, at_spec_2)
+        bl = bond_length_from_atoms(at_1, at_2)
+
+        state = bond_length_within_tolerance_qm(at_1, at_2, 2.0, 0.05)
+
+        self.failUnless(state)        
+
+        
     def test21_0(self):
         """Rigid Body Refine Alt Conf Waters"""
 
@@ -1620,6 +1661,36 @@ class PdbMtzTestFunctions(unittest.TestCase):
         self.failUnless(chains_in_order_qm(c))
 
 
+    def test35_1(self):
+        """Chain-ids in links change also on change chain id"""
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+
+        spec_1 = ["B", 42, "", " N  ", ""]
+        spec_2 = ["B", 62, "", " O  ", ""]
+
+        make_link(imol, spec_1, spec_2, "test-link", 2.2)
+
+        li_1 = link_info(imol)
+
+        change_chain_id(imol, "B", "C", 0, 0, 0)
+
+        li_2 = link_info(imol)
+
+        # li-1 should not contain C and should contain B
+        # li-2 should not contain B and should contain C
+
+        ch_B_1 = li_1[0][1][1] # before
+        ch_B_2 = li_1[0][2][1] # 
+        ch_A_1 = li_2[0][1][1] # after
+        ch_A_2 = li_2[0][2][1] # 
+
+        self.failUnless(all([ch_B_1 == "B",
+                             ch_B_2 == "B",
+                             ch_A_1 == "C",
+                             ch_A_2 == "C"]))
+
+        
     def test36_0(self):
         """Replace Fragment"""
 
@@ -2194,6 +2265,45 @@ class PdbMtzTestFunctions(unittest.TestCase):
                               "E", "F",                # merged ligs
                               "G", "H", "I", "J", "K"],  # protein chain copies
                              "List did not match")
+        
+
+    def test52_2(self):
+        """Test for good chain ids after a merge"""
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+
+        change_chain_id(imol, "A", "AAA", 0, 0, 0)
+
+        imol_new = new_molecule_by_atom_selection(imol, "//B/1-90")
+
+        change_chain_id(imol_new, "B", "B-chain", 0, 0, 0)
+
+        merge_molecules([imol_new], imol)
+
+        chids = chain_ids(imol)
+
+        print "chain_ids", chids
+
+        # should be ["AAA", "B", "B-chain"]
+
+        self.failUnless(len(chids) == 3)
+
+        self.failUnless(chids[2] == "B-chain")
+
+        # now Wolfram Tempel test: multi-char chain matcher needs
+        # prefix, not new single letter
+
+        change_chain_id(imol_new, "B-chain", "AAA", 0, 0, 0)
+
+        merge_molecules([imol_new], imol)
+
+        chids_2 = chain_ids(imol)
+
+        print "--- chain-ids:", chids_2
+
+        self.failUnless(len(chids_2) == 4)
+
+        self.failUnless(chids_2[3] == "AAA_2")
         
 
     def test53_0(self):
