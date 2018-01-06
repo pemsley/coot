@@ -93,6 +93,28 @@ namespace coot {
 	 std::string colour;
 	 std::string font;
       };
+      class annotation_box_t {
+      public:
+	 annotation_box_t() {} // needed because we derive a class from this
+	                       // and initial that class has nothing. Maybe
+	                       // is_set could go here.
+	 annotation_box_t(const lig_build::pos_t &top_left_in,
+			  const lig_build::pos_t &bottom_right_in,
+			  const std::string &outline_colour_in,
+			  double line_width_in,
+			  const std::string &fill_colour_in) {
+	    top_left = top_left_in;
+	    bottom_right = bottom_right_in;
+	    line_width = line_width_in;
+	    fill_colour = fill_colour_in;
+	    outline_colour = outline_colour_in;
+	 }
+	 lig_build::pos_t top_left;
+	 lig_build::pos_t bottom_right;
+	 std::string outline_colour;
+	 double line_width;
+	 std::string fill_colour;
+      };
 
       GooCanvas *canvas;
       GtkWidget *dialog;
@@ -103,6 +125,7 @@ namespace coot {
       std::vector<GooCanvasItem *> items;
       std::vector<annotation_line_t> annotation_lines;
       std::vector<annotation_text_t> annotation_texts;
+      std::vector<annotation_box_t>  annotation_boxes;
       std::string title_string;
       double extents_min_x;
       double extents_max_x;
@@ -175,10 +198,54 @@ namespace coot {
       void draw_axis_label(int axis);
       void draw_annotation_lines();
       void draw_annotation_texts();
+      void draw_annotation_boxes();
+      void draw_contour_level_bar();
       void set_data_scales(int axis);
    public:
       enum {X_AXIS, Y_AXIS};
       enum {MAJOR_TICK, MINOR_TICK};
+      class annotation_box_info_t {
+      public:
+	 annotation_box_info_t() { is_set = false; }
+	 annotation_box_info_t(float x, float y) : x_mouse(x), y_mouse(y) {
+	    current_contour_level = -1;
+	    func = 0;
+	    is_set = false;
+	 }
+	 annotation_box_info_t(int imol_in, float rmsd_in, float cc_in, void (*func_in)(int, float)) {
+	    imol = imol_in;
+	    rmsd = rmsd_in;
+	    current_contour_level = cc_in;
+	    func = func_in;
+	    is_set = true;
+	 }
+	 bool is_set;
+	 float x_mouse;
+	 float y_mouse;
+	 int imol;
+	 float current_contour_level;
+	 float rmsd;
+	 void (*func)(int, float); // to set the contour level
+      };
+      class annotated_box_info_t : public annotation_box_t {
+      public:
+	 annotated_box_info_t() : abi() {}
+	 annotated_box_info_t(const lig_build::pos_t &pos_top_left,
+			      const lig_build::pos_t &pos_bottom_right,
+			      const std::string &outline_colour,
+			      double line_width,
+			      const std::string &fill_colour,
+			      int imol,
+			      float rmsd,
+			      float current_contour_level,
+			      void (*func)(int, float)) : annotation_box_t(pos_top_left,
+									   pos_bottom_right,
+									   outline_colour,
+									   line_width,
+									   fill_colour),
+							  abi(imol, rmsd, current_contour_level, func) {}
+	 annotation_box_info_t abi;
+      };
       goograph() {
 	 init();
 	 init_widgets();
@@ -235,7 +302,34 @@ namespace coot {
 			       const lig_build::pos_t &pos_1,
 			       const std::string &colour,
 			       const std::string &font);
+      void add_annotation_box(const lig_build::pos_t &pos_top_left,
+			      const lig_build::pos_t &pos_bottom_right,
+			      const std::string &outline_colour,
+			      double line_width,
+			      const std::string &fill_colour);
+      void add_contour_level_box(float contour_level,
+				 const std::string &outline_colour,
+				 double line_width,
+				 const std::string &fill_colour,
+				 int imol, float rmsd,
+				 void (*func)(int, float));
+
       void clear_traces_and_annotations();
+
+      annotated_box_info_t contour_level_bar; // a special item that has a callback
+
+      static
+      bool on_goograph_active_button_box_press_event(GooCanvasItem  *item,
+						     GooCanvasItem  *target_item,
+						     GdkEventButton *event,
+						     gpointer        user_data);
+
+      static
+      bool on_goograph_active_button_box_release_event(GooCanvasItem  *item,
+						       GooCanvasItem  *target_item,
+						       GdkEventButton *event,
+						       gpointer        user_data);
+
    };
 }
 

@@ -2664,12 +2664,14 @@ void fill_single_map_properties_dialog(GtkWidget *window, int imol) {
 #include "goograph/goograph.hh"
 #include "coot-utils/xmap-stats.hh"
 
+
 void
 fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
 
 #ifdef HAVE_GOOCANVAS
 
    if (is_valid_map_molecule(imol)) {
+      // set_and_get_histogram_values(); surely?
       unsigned int n = graphics_info_t::molecules[imol].map_histogram_values.size();
       if (n == 1) {
 	 // pass, previous fail
@@ -2681,6 +2683,7 @@ fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
 	    unsigned int n_bins = 1000;
 	    bool ignore_pseudo_zeros = false;
 	    mean_and_variance <float> mv = map_density_distribution(xmap, n_bins, false, ignore_pseudo_zeros);
+	    float rmsd = sqrt(mv.variance);
 
 	    if (false) {
 	       std::cout << "mv: mean: " << mv.mean << std::endl;
@@ -2732,6 +2735,8 @@ fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
 				    mv.mean-2*sqrt(mv.variance),
 				    mv.mean+2*sqrt(mv.variance)
 				    );
+		     // the bar width depends on the X extents (for aesthetics)
+		     double contour_level_bar_width = sqrt(mv.variance) * 0.1;
 		     if (false)
 			std::cout << "::::: set_extents() X: "
 				  << mv.mean-2*sqrt(mv.variance) << " " 
@@ -2748,13 +2753,23 @@ fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
 			g->set_draw_axis(coot::goograph::Y_AXIS, false);
 			g->set_draw_axis(coot::goograph::X_AXIS, false);
 			g->set_draw_ticks(coot::goograph::Y_AXIS, false);
-			GtkWidget *canvas = g->get_canvas();
-			// ticks fall off the graph, sigh - add an offset
-			gtk_widget_set_size_request(canvas, graph_x_n_pixels, graph_y_n_pixels+10);
-			g->draw_graph();
 
-			gtk_widget_show(canvas);
-			gtk_container_add(GTK_CONTAINER(map_contour_frame), canvas);
+			// draw the contour level bar
+			float cl = graphics_info_t::molecules[imol].get_contour_level();
+			std::vector<float> map_colours = graphics_info_t::molecules[imol].map_colours();
+			if (map_colours.size() > 2) {
+			   coot::colour_holder ch(map_colours);
+			   void (*func)(int, float) = set_contour_level_absolute;
+			   GtkWidget *canvas = g->get_canvas();
+			   // moving the contour level bar redraws the graph and calls func
+			   g->add_contour_level_box(cl, "#111111", 1.4, ch.hex(), imol, rmsd, func);
+			   // ticks fall off the graph, sigh - add an offset
+			   gtk_widget_set_size_request(canvas, graph_x_n_pixels, graph_y_n_pixels+10);
+			   g->draw_graph();
+
+			   gtk_widget_show(canvas);
+			   gtk_container_add(GTK_CONTAINER(map_contour_frame), canvas);
+			}
 		     }
 		  }
 	       }

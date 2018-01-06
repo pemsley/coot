@@ -167,6 +167,8 @@ coot::goograph::draw_graph() {
    }
    draw_annotation_lines();
    draw_annotation_texts();
+   draw_annotation_boxes();
+   draw_contour_level_bar(); // for map histograms, handles callback
 }
 
 void
@@ -296,7 +298,6 @@ coot::goograph::draw_ticks() {
       draw_y_ticks(MAJOR_TICK, tick_major_y, tick_major_y, 1.0);
    }
 
-   std::cout << "here with draw_x_ticks_flag " << draw_x_ticks_flag << std::endl;
    if (draw_x_ticks_flag) {
       draw_x_ticks(MINOR_TICK, tick_major_x, tick_minor_x, 0.5);
       draw_x_ticks(MAJOR_TICK, tick_major_x, tick_major_x, 1.0);
@@ -499,9 +500,6 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
       }
    }
 }
-
-
-
 
 void
 coot::goograph::set_extents(int axis, double min, double max) {
@@ -1040,6 +1038,37 @@ coot::goograph::add_annotation_text(const std::string &text,
 }
 
 void
+coot::goograph::add_annotation_box(const lig_build::pos_t &pos_top_left,
+				   const lig_build::pos_t &pos_bottom_right,
+				   const std::string &outline_colour,
+				   double line_width,
+				   const std::string &fill_colour) {
+
+   annotation_box_t b(pos_top_left, pos_bottom_right, outline_colour, line_width, fill_colour);
+   annotation_boxes.push_back(b);
+
+}
+
+void
+coot::goograph::add_contour_level_box(float current_contour_level,
+				      const std::string &outline_colour,
+				      double line_width,
+				      const std::string &fill_colour,
+				      int imol,
+				      float rmsd,
+				      void (*func)(int, float)) {
+
+   lig_build::pos_t dum;
+
+   annotated_box_info_t b(dum, dum, outline_colour, line_width, fill_colour,
+			  imol, rmsd, current_contour_level, func);
+   contour_level_bar = b;
+
+}
+
+
+
+void
 coot::goograph::draw_annotation_texts() { 
 
    for (unsigned int i=0; i<annotation_texts.size(); i++) { 
@@ -1063,6 +1092,129 @@ coot::goograph::draw_annotation_texts() {
 			     "fill_color", colour.c_str(),
 			     NULL);
       items.push_back(text_item);
+   }
+}
+
+bool
+coot::goograph::on_goograph_active_button_box_press_event(GooCanvasItem  *item,
+					  GooCanvasItem  *target_item,
+					  GdkEventButton *event,
+					  gpointer        user_data) {
+
+   annotation_box_info_t *bi =
+      static_cast<annotation_box_info_t *> (g_object_get_data(G_OBJECT (item), "box-info"));
+   if (bi) {
+      bi->x_mouse = event->x;
+      bi->y_mouse = event->y;
+   } else {
+      std::cout << "error:: null bi in on_goograph_active_button_box_press_event" << std::endl;
+   }
+   return TRUE;
+}
+
+// static
+bool
+coot::goograph::on_goograph_active_button_box_release_event(GooCanvasItem  *item,
+							    GooCanvasItem  *target_item,
+							    GdkEventButton *event,
+							    gpointer        user_data) {
+
+   // Let's extract where we started:
+   annotation_box_info_t *bi =
+      static_cast<annotation_box_info_t *> (g_object_get_data(G_OBJECT (item), "box-info"));
+   if (bi) {
+      double current_x = event->x;
+      double delta_x = current_x - bi->x_mouse;
+
+      double delta_contour = delta_x * 7.0*bi->rmsd/300.0;
+      double new_contour_level = bi->current_contour_level + delta_contour;
+
+      if (bi->func) {
+	 goograph *self = static_cast<goograph *> (user_data);
+	 bi->func(bi->imol, new_contour_level);
+	 self->contour_level_bar.abi.current_contour_level += delta_contour;
+	 delete bi; // draw_graph() makes a new bi
+	 // redraw self
+	 self->draw_graph();
+      } else {
+	 std::cout << "null func" << std::endl;
+      }
+   }
+
+   return TRUE;
+}
+
+void
+coot::goograph::draw_annotation_boxes() {
+
+   for (unsigned int i=0; i<annotation_boxes.size(); i++) {
+
+      std::string fill_col = annotation_boxes[i].fill_colour;
+      std::string stroke_col = annotation_boxes[i].outline_colour;
+
+      lig_build::pos_t wA = world_to_canvas(annotation_boxes[i].top_left);
+      lig_build::pos_t wB = world_to_canvas(annotation_boxes[i].bottom_right);
+      double width  = wB.x - wA.x;
+      double height = wB.y - wA.y;
+      double lw = annotation_boxes[i].line_width;
+
+      GooCanvasItem *root = goo_canvas_get_root_item(canvas);
+      GooCanvasItem *rect =
+	 goo_canvas_rect_new(root,
+			     wA.x, wA.y,
+			     width, height,
+			     "line-width", lw,
+			     "fill_color", fill_col.c_str(),
+			     "stroke-color", stroke_col.c_str(),
+			     NULL);
+      items.push_back(rect);
+   }
+}
+
+// special function for the map density histogram
+
+void
+coot::goograph::draw_contour_level_bar() {
+
+   if (contour_level_bar.abi.is_set) {
+      std::string fill_col = contour_level_bar.fill_colour;
+      std::string stroke_col = contour_level_bar.outline_colour;
+
+      double y_max_graph = extents_max_y * 1.25; // the graph/canvas has size above extents_max_y
+
+      double contour_level_bar_width = contour_level_bar.abi.rmsd * 0.14;
+
+      double ccl = contour_level_bar.abi.current_contour_level;
+
+      lig_build::pos_t tl(ccl-0.5*contour_level_bar_width, y_max_graph);
+      lig_build::pos_t br(ccl+0.5*contour_level_bar_width, -y_max_graph*0.05);
+
+      lig_build::pos_t wA = world_to_canvas(tl);
+      lig_build::pos_t wB = world_to_canvas(br);
+      double width  = wB.x - wA.x;
+      double height = wB.y - wA.y;
+      double lw = contour_level_bar.line_width;
+
+      GooCanvasItem *root = goo_canvas_get_root_item(canvas);
+      GooCanvasItem *rect =
+	 goo_canvas_rect_new(root,
+			     wA.x, wA.y,
+			     width, height,
+			     "line-width", lw,
+			     "fill_color", fill_col.c_str(),
+			     "stroke-color", stroke_col.c_str(),
+			     NULL);
+      items.push_back(rect);
+
+      annotation_box_info_t *bi = new annotation_box_info_t(contour_level_bar.abi);
+
+      g_object_set_data(G_OBJECT(rect), "box-info", bi);
+
+      g_signal_connect(rect, "button_press_event",
+		       G_CALLBACK(on_goograph_active_button_box_press_event), NULL);
+      g_signal_connect(rect, "button_release_event",
+		       G_CALLBACK(on_goograph_active_button_box_release_event), this);
+
    }
 }
 
