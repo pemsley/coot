@@ -84,7 +84,7 @@
 					  (list-ref (list-ref atom-specs 1) 4)
 					  (list-ref (list-ref atom-specs 1) 5)
 					  (list-ref (list-ref atom-specs 1) 6)
-					  bl 0.035))))))))))
+					  bl 0.01))))))))))
 
 ;; spec-1 and spec-2 are 7-element atom-specs
 ;; 
