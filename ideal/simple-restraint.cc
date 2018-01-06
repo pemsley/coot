@@ -1079,17 +1079,20 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    return rr;
 }
 
+// this should be a static member function of refinement_lights_info_t
+//
 coot::refinement_lights_info_t::the_worst_t
 coot::restraints_container_t::find_the_worst(const std::vector<refinement_lights_info_t> &lights) const {
 
    bool debug = false; // well, it's "give me extra baddie info" rather than "debug"
    refinement_lights_info_t::the_worst_t worst_of_all;
    for (std::size_t ii=0; ii<lights.size(); ii++) {
-
       if (lights[ii].worst_baddie.is_set)
 	 worst_of_all.update_if_worse(lights[ii].worst_baddie);
+   }
 
-      if (debug) {
+   if (debug) {
+      for (std::size_t ii=0; ii<lights.size(); ii++) {
 	 std::cout << "Refinements Lights "
 		   << lights[ii].name  << " "
 		   << lights[ii].label << " "

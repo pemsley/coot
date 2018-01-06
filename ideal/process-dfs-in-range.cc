@@ -1277,8 +1277,6 @@ coot::process_dfs_rama(const coot::simple_restraint &rama_restraint,
 	 // gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + yP1_contrib);
 	 // gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + zP1_contrib);
 
-	 std::cout << "here with xP1 " << xP1_contrib << std::endl;
-
 	 results[idx  ] += xP1_contrib;
 	 results[idx+1] += yP1_contrib;
 	 results[idx+2] += zP1_contrib;
