@@ -108,58 +108,16 @@ Var STARTDIR
 !include "WordFunc.nsh"
 !insertmacro WordReplace
 
-; actually a macro wrapping the error handler function
-; well, doesnt seem to work and always throws errors
-; itself somewhere, so revert to old school if and repeating
-; code. Keep in case it can be resolved at some point...
-!macro MyErrorHandlerMacro un
-
-Function ${un}ErrorHandlerFunction
-
-  Pop $0  ; Abort Flag
-  Pop $1  ; Message txt
-  Pop $2  ; error code
-
-; convert strings to ints
-  IntOp $0 $0 + 0
-  IntOp $2 $2 + 0
-
-; the message box could be rather a question to abort!?
-  IfSilent +2 0
-  MessageBox MB_OK 'Error in Installation. Aborting!$\n$\r$\n$\r$1'
-
-  DetailPrint $1
-  SetErrorLevel $2
-  ${If} $0 == 1
-    Abort $1
-  ${EndIf}
-
-FunctionEnd
-!macroend
-
-; for error handling, need the second one for uninstall section
+; for error handling
 !define ErrorHandler "!insertmacro ErrorHandler"
-!define UnErrorHandler "!insertmacro UnErrorHandler"
-
-!insertmacro MyErrorHandlerMacro ""
-!insertmacro MyErrorHandlerMacro "un."
-
 
 ; ErrorCode is returned by the installer, ErrorText is written in log
 ; AbortFlag is 1/"True" or 0/"False", (un)installer terminates upon error
 !macro ErrorHandler ErrorCode ErrorText AbortFlag
-  Push "${ErrorCode}"
-  Push "${ErrorText}"
-  Push "${AbortFlag}"
-  Call ErrorHandlerFunction
-!macroend
-
-; same for uninstall (needs "un." in front of function)
-!macro UnErrorHandler ErrorCode ErrorText AbortFlag
-  Push "${ErrorCode}"
-  Push "${ErrorText}"
-  Push "${AbortFlag}"
-  Call un.ErrorHandlerFunction
+  Push ${ErrorCode}
+  Push ${ErrorText}
+  push ${AbortFlag}
+  Call ErrorHandler
 !macroend
 
 ; MUI end ------
@@ -167,8 +125,8 @@ FunctionEnd
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 
 !ifndef binary_dir
-; default to pre-release output dir
-!define binary_dir "C:\MinGW\msys\1.0\home\bernhard\public_html\software\binaries\pre-release"
+; default to nightlies output dir
+!define binary_dir "C:\MinGW\msys\1.0\home\bernhard\public_html\software\binaries\nightlies\pre-release"
 !endif
 ; just in case something goes wrong, we define src to be pre-release (default)
 !ifndef src_dir
@@ -241,27 +199,26 @@ Section "!WinCoot" SEC01
   SetOutPath "$INSTDIR\libexec"
   SetOverwrite on
   File "${src_dir}\libexec\coot-bin.exe"
-  File "${src_dir}\libexec\coot-density-score-by-residue-bin.exe"
-  File "${src_dir}\libexec\findligand-bin.exe"
-  File "${src_dir}\libexec\findwaters-bin.exe"
   File "${src_dir}\libexec\mini-rsr-bin.exe"
   SetOverwrite ifnewer
 ; bin DIR
   SetOutPath "$INSTDIR\bin"
-  SetOverwrite ifnewer
   File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\coot-icon.ico"
   File "${src_dir}\bin\*.dll"
   File "${src_dir}\bin\coot-bfactan.exe"
   File "${src_dir}\bin\coot"
   File "${src_dir}\bin\coot-mini-rsr"
+  SetOverwrite ifnewer
   File "${src_dir}\bin\coot-available-comp-id.exe"
   File "${src_dir}\bin\coot-compare-dictionaries.exe"
-;  File "${src_dir}\bin\coot-dictionary-bond-distributions.exe"
+  File "${src_dir}\bin\coot-dictionary-bond-distributions.exe"
   File "${src_dir}\bin\coot-make-shelx-restraints.exe"
-  File "${src_dir}\bin\coot-density-score-by-residue"
+  File "${src_dir}\bin\density-score-by-residue"
   File "${src_dir}\bin\findligand"
+  File "${src_dir}\bin\findligand-bin.exe"
   File "${src_dir}\bin\findwaters"
-  File "${src_dir}\bin\coot-fix-nomenclature-errors.exe"
+  File "${src_dir}\bin\findwaters-bin.exe"
+  File "${src_dir}\bin\fix-nomenclature-errors.exe"
   File "${src_dir}\bin\gdk-pixbuf-csource.exe"
   File "${src_dir}\bin\gdk-pixbuf-query-loaders.exe"
   File "${src_dir}\bin\glib-genmarshal.exe"
@@ -459,13 +416,8 @@ Section "!WinCoot" SEC01
   ; set outpath to $INSTDIR so that shortcuts are started in $INSTDIR
   SetOutPath "$INSTDIR"
 
-  IfErrors 0 +6
-;    ${ErrorHandler} 1 "Error in installation. Could not write files." 1
-     DetailPrint "Error in installation. Could not write files."
-     SetErrorLevel 1
-     IfSilent +2 0
-       MessageBox MB_OK 'Error in Installation. Aborting!$\n$\r$\n$\rCould not write files.'
-     Abort "Abort. Could not write files."
+  IfErrors 0 +2
+    ${ErrorHandler} 1 "Error in installation. Could not write files." 1
 
 SectionEnd
 
@@ -478,18 +430,14 @@ Section /o "Windows feel" SEC02
   SetOverwrite ifnewer
 ;  maybe here the other guile things?!
 
-  IfErrors 0 +5
-  ;  ${ErrorHandler} 2 "Error in installation. Could not install Windows feel." 1
-     DetailPrint "Error in installation. Could not install Windows feel. Continuing."
-     SetErrorLevel 2
-     IfSilent +2 0
-        MessageBox MB_OK 'Error in Installation. Continuing!$\n$\r$\n$\rCould not install Windows feel'
+  IfErrors 0 +2
+    ${ErrorHandler} 2 "Error in installation. Could not install windows feel." 1
 
 SectionEnd
 
 ; we dont want guile for now
 ; 2nd section for guile
-!ifdef WITH_GUILE
+!ifdef WITH_GUIL
 Section /o "Guile/Scheme Add-On" SEC03
   SetOverwrite on
   SetOutPath "$INSTDIR\bin"
@@ -501,7 +449,7 @@ SectionEnd
 ; WITH_GUILE
 
 Section -AddIcons
-
+  ClearErrors
   ;; First install for all users, if anything fails, install
   ;; for current user only.
   ClearErrors
@@ -509,6 +457,7 @@ Section -AddIcons
   SetShellVarContext all
   ; let's see what happens when we try for all
   Call MakeIcons
+  ClearErrors
 
   ; if error delete what may be there (but there shouldnt be anything?)
   IfErrors 0 exit
@@ -523,12 +472,8 @@ Section -AddIcons
   IfSilent 0 +2
     Call FinishPagePreFunction
 
-  IfErrors 0 +5
-    ; ${ErrorHandler} 3 "Error in installation. Could not install icons." 0
-    DetailPrint "Error in installation. Could not install icons. Continuing."
-    SetErrorLevel 3
-    IfSilent +2 0
-        MessageBox MB_OK 'Error in Installation. Continuing!$\n$\r$\n$\rCould not install icons.'
+  IfErrors 0 +2
+    ${ErrorHandler} 3 "Error in installation. Could install icons." 0
 
 SectionEnd
 
@@ -544,13 +489,9 @@ Section -Post
 ;  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
 ;  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
 
-  IfErrors 0 +5
-    ; ${ErrorHandler} 4 "Error in installation. Could not write uninstaller." 0
-    DetailPrint "Error in installation. Could not write uninstaller."
-    SetErrorLevel 4
-    IfSilent +2 0
-        MessageBox MB_OK 'Error in Installation. Continuing!$\n$\r$\n$\rCould not write uninstaller.'
-  
+  IfErrors 0 +2
+    ${ErrorHandler} 4 "Error in installation. Could not write uninstaller." 0
+
 SectionEnd
 
 
@@ -559,6 +500,7 @@ SectionEnd
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC01} "This is 'default' WinCoot (${WinCootVersion}) $\n$\nPython scripting only"
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Tick if you want a $\nWindowsy feeling to WinCoot"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC03} "Select if you want $\nprobe and reduce installed.$\nNote: Not required if you have CCP4."
 ; disable guile for now
 !ifdef WITH_GUILE
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Tick if you want additionally $\nGuile/Scheme scripting"
@@ -648,11 +590,9 @@ Section Uninstall
   Delete "$INSTDIR\bin\coot-real.exe"
   Delete "$INSTDIR\libexec\coot-bin.exe"
   Delete "$INSTDIR\libexec\density-score-by-residue-bin.exe"
-  Delete "$INSTDIR\libexec\coot-density-score-by-residue-bin.exe"
   Delete "$INSTDIR\libexec\findligand-bin.exe"
   Delete "$INSTDIR\libexec\findwaters-bin.exe"
   Delete "$INSTDIR\libexec\mini-rsr-bin.exe"
-  Delete "$INSTDIR\bin\coot-density-score-by-residue"
   Delete "$INSTDIR\bin\density-score-by-residue"
   Delete "$INSTDIR\bin\findligand"
   Delete "$INSTDIR\bin\findligand-bin.exe"
@@ -684,6 +624,9 @@ Section Uninstall
   Delete "$INSTDIR\bin\pango-view.exe"
   Delete "$INSTDIR\bin\pkg-config.exe"
   Delete "$INSTDIR\bin\ppm2bmp.exe"
+  ; probe & reduce (optional?)
+  Delete "$INSTDIR\bin\probe.exe"
+  Delete "$INSTDIR\bin\reduce.exe"
   ; guile things
   Delete "$INSTDIR\bin\*guile*"
   Delete "$INSTDIR\bin\libgmp-3.dll"
@@ -809,12 +752,8 @@ Section Uninstall
 ;  DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
   SetAutoClose true
 
-  IfErrors 0 +5
-    ;${UnErrorHandler} 5 "Error in uninstallation. Could not completely uninstall." 1
-    DetailPrint "Error in uninstallation. Could not completely uninstall."
-    SetErrorLevel 5
-    IfSilent +2 0
-        MessageBox MB_OK 'Error in Uninstallation. Aborting!$\n$\r$\n$\rCould not completely uninstall.'
+  IfErrors 0 +2
+    ${ErrorHandler} 5 "Error in uninstallation. Could not completely uninstall." 1
 
 SectionEnd
 
@@ -838,7 +777,7 @@ Function .onInit
   ; logging
   ; if old log exists save simply (could be by date)
   ; StrCpy $INSTDIR .
-  IfFileExists $INSTDIR\install.log 0 +4
+  IfFileExists $INSTDIR\install.log 0 +5
     IfFileExists $INSTDIR\install.log.1 0 +2
       Delete $INSTDIR\install.log.1
     Rename $INSTDIR\install.log $INSTDIR\install.log.1
@@ -901,13 +840,8 @@ Function .onInit
     StrCpy $STARTDIR "$INSTDIR"
   ${EndIf}
 
-  IfErrors 0 +6
-    ;${ErrorHandler} 6 "Error in installation. Could not initiate installation." 1
-    DetailPrint "Error in installation. Could not initiate installation."
-    SetErrorLevel 6
-    IfSilent +2 0
-        MessageBox MB_OK 'Error in Installation. Aborting!$\n$\r$\n$\rCould not initiate installation.'
-    Abort "Error in installation. Could not initiate installation. Aborting."
+  IfErrors 0 +2
+    ${ErrorHandler} 6 "Error in installation. Could not initiate installation." 1
 
 FunctionEnd
 
@@ -938,7 +872,7 @@ Function .onGUIEnd
   ${EndIf}
 
   IfErrors 0 +2
-    ${ErrorHandler} 7 "Error in installation. Could not write/edit (run)wincoot.bat." 1
+    ${ErrorHandler} 7 "Error in installation. Could not write/edit runwincoot.bat." 1
 
 FunctionEnd
 
@@ -1166,7 +1100,9 @@ ${If} $update = 0
   WriteIniStr "$INSTDIR\WinCoot.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
   WriteIniStr "$INSTDIR\Coot.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE_2}"
   CreateShortCut "$SMPROGRAMS\WinCoot\WinCoot Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
+  Sleep 10
   CreateShortCut "$SMPROGRAMS\WinCoot\Coot Website.lnk" "$INSTDIR\Coot.url"
+  Sleep 10
   CreateShortCut "$SMPROGRAMS\WinCoot\Uninstall.lnk" "$INSTDIR\uninst.exe"
   CreateShortCut "$SMPROGRAMS\WinCoot\Coot Manual.lnk" "$INSTDIR\doc\coot-user-manual.pdf"
   CreateShortCut "$SMPROGRAMS\WinCoot\Coot Keys and Buttons.lnk" "$INSTDIR\doc\crib-sheet.pdf"
@@ -1176,4 +1112,24 @@ ${If} $update = 0
  ${Endif}
 FunctionEnd
 
+Function ErrorHandler
 
+  Pop $0  ; Abort Flag
+  Pop $1  ; Message txt
+  Pop $2  ; error code
+
+; convert strings to ints
+  IntOp $0 $0 + 0
+  IntOp $2 $2 + 0
+
+; the message box could be rather a question to abort!?
+  IfSilent +2 0
+  MessageBox MB_OK 'Error in Installation. Aborting!$\n$\r$\n$\r$1'
+
+  DetailPrint $1
+  SetErrorLevel $2
+  ${If} $0 == 1
+    Abort $1
+  ${EndIf}
+
+FunctionEnd
