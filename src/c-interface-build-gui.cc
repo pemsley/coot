@@ -215,6 +215,15 @@ GtkWidget *wrapped_create_delete_item_dialog() {
 	       set_delete_chain_mode();
 	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chain_toggle_button), TRUE);
 	       std::cout << "Click on an atom in the chain that you wish to delete\n";
+	    } else {
+	       // if (delete_item_mode_is_residue_p()) {
+	       // if nothing else, let's choose delete residue mode
+	       if (true) {
+		  GtkWidget *chain_toggle_button = lookup_widget(widget,
+								 "delete_item_residue_radiobutton");
+		  set_delete_residue_mode();
+		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chain_toggle_button), TRUE);
+	       }
 	    }
 	 }
       }
