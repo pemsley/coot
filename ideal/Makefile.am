@@ -81,7 +81,7 @@ libcoot_ideal_la_SOURCES = simple-restraint.cc \
 
 libcoot_ideal_la_LDFLAGS = $(SHARED_LDFLAGS)
 
-check_PROGRAMS =  with-geometry logramatest
+check_PROGRAMS =  with-geometry logramatest crankshaft-test
 if OS_WIN32
 bin_PROGRAMS = mini-rsr-bin
 else
