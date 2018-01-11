@@ -566,7 +566,7 @@ def set_reduce_het_dict():
 
     # first check if from ccp4 then it is in $CCP4/share/reduce/
     ccp4_dir = os.getenv('CCP4')  
-    if os.path.normpath(ccp4_dir) in os.path.normpath(reduce_command):
+    if (ccp4_dir and (os.path.normpath(ccp4_dir) in os.path.normpath(reduce_command))):
       # have ccp4 reduce
       red_het_dict = os.path.join(ccp4_dir, "share", "reduce",
                                  red_het_file)
@@ -581,8 +581,9 @@ def set_reduce_het_dict():
       # not from ccp4
       
       # we assume the dic is in same dir as reduce command
+      full_reduce_command = find_exe(reduce_command, "PATH")
       dir, tmp = os.path.split(full_reduce_command)
-      red_het_file = os.path.join(dir, red_het_file)
+      red_het_dict = os.path.join(dir, red_het_file)
       if (os.path.isfile(red_het_dict)):
         os.environ['REDUCE_HET_DICT'] = red_het_dict
         return True
