@@ -1663,19 +1663,18 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
      std::pair<bool, coot::Cartesian> new_centre(false, coot::Cartesian(0,0,0)); // used only for first EM map
 
-     if (! bad_read) {
-	if (em) {
-	   // If this was the first map, recentre to the middle of the cell
-	   //
-	   if (imol_no == 0) {
-	      clipper::Cell c = file.cell();
-	      coot::Cartesian m(0.5*c.descr().a(),
-				0.5*c.descr().b(),
-				0.5*c.descr().c());
-	      new_centre.first = true;
-	      new_centre.second = m;
-	      std::cout << "INFO:: map appears to be EM map."<< std::endl;
-	   }
+     if (em) {
+
+	// If this was the first map, recentre to the middle of the cell
+	//
+	if (imol_no == 0) {
+	   clipper::Cell c = file.cell();
+	   coot::Cartesian m(0.5*c.descr().a(),
+			     0.5*c.descr().b(),
+			     0.5*c.descr().c());
+	   new_centre.first = true;
+	   new_centre.second = m;
+           std::cout << "INOF:: map appears to be EM map."<< std::endl;
 	}
 	std::cout << "closing CCP4 map: " << filename << std::endl;
 	file.close_read();

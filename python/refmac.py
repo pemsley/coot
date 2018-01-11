@@ -1128,7 +1128,6 @@ def read_refmac_log(imol, refmac_log_file):
             if debug():
                 print "BL DEBUG:: have item list", item_ls
                 
-            # did I resolve the conflict correctly?
             dev       = float(item_ls[12])
             sig       = float(item_ls[14])
 

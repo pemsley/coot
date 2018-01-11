@@ -551,10 +551,6 @@ low importance
 
 **** Windows ****
 
-   o pass args from msi to exe
-
-   o make real msi at some point
-
    o distribute probe and reduce (from Richardsons? if not ccp4)
 
    o make batch msi (using msiwrapperbatch and config file)
@@ -595,8 +591,6 @@ low importance
    o use CCP4s lib dir rather than REF_DIR!?
 
    o ccp4 project dir not showing up (with new gtk2 chooser)
-
-   o new gtk/gtkglext disappears with Dexpot
 
    o pop up dialog if disk space is limited!!
 

@@ -174,23 +174,11 @@ def reduce_on_pdb_file(imol, pdb_in, pdb_out):
     ext = "-".join(nshl)
     reduce_het_dict_file_name = "coot-molprobity/reduce-het-dict-" + ext + ".txt"
     write_reduce_het_dict(imol, reduce_het_dict_file_name)
-
-    # BL says: I think we should set REDUCE_HET_DICT
-    # so let's set REDUCE_HET_DICT if not set already!
-    # not sure if needed any more since we write a connectivity
-    # file - let's see FIXME!!
-
+    
     dict_args = []
-    if (not os.getenv('REDUCE_HET_DICT')):
-      # we assume the dic is in same dir as reduce command
-      dir, tmp = os.path.split(full_reduce_command)
-      connection_file = os.path.join(dir, 'reduce_wwPDB_het_dict.txt')
-      if (os.path.isfile(connection_file)):
-        os.environ['REDUCE_HET_DICT'] = connection_file
-      else:
-        print "BL WARNING:: could neither find nor set REDUCE_HET_DICT !"
-        # now should use the and build the het dic!?
-        dict_args = ["-DB", reduce_het_dict_file_name]
+    if not set_reduce_het_dict():
+      # now should use the and build the het dic!?
+      dict_args = ["-DB", reduce_het_dict_file_name]
 
     print "======= reduce_on_pdb_file: command %s args %s with pdb_out: %s" \
           %(reduce_command,
@@ -226,10 +214,10 @@ def probe(imol):
   if is_valid_model_molecule(imol):
 
     if not (os.path.isfile(reduce_command)):
-      reduce_command = find_exe("reduce", "PATH")
+      reduce_command = find_exe("reduce", "PATH", "CBIN", "CCP4_BIN")
     # we need to check if probe_command is defined too
     if not(os.path.isfile(probe_command)):
-      probe_command = find_exe("probe", "PATH")
+      probe_command = find_exe("probe", "PATH", "CBIN", "CCP4_BIN")
     make_directory_maybe("coot-molprobity")
     mol_pdb_file = "coot-molprobity/for-reduce.pdb"
     reduce_out_pdb_file = "coot-molprobity/reduced.pdb"
@@ -241,20 +229,9 @@ def probe(imol):
       print "BL WARNING:: Could not locate the program reduce!! Please check if installed!"
     else:
 
-      # BL says: I think we should set REDUCE_HET_DICT
-      # so let's set REDUCE_HET_DICT if not set already!
-      # not sure if needed any more since we write a connectivity
-      # file - let's see FIXME!!
       dict_args = []
-      if (not os.getenv('REDUCE_HET_DICT')):
-        # we assume the dic is in same dir as reduce command
-        dir, tmp = os.path.split(reduce_command)
-        connection_file = os.path.join(dir, 'reduce_wwPDB_het_dict.txt')
-        if (os.path.isfile(connection_file)):
-          os.environ['REDUCE_HET_DICT'] = connection_file
-        else:
-          print "BL WARNING:: could neither find nor set REDUCE_HET_DICT !"
-          dict_args = ["-DB", reduce_het_dict_file_name]
+      if not set_reduce_het_dict():
+        dict_args = ["-DB", reduce_het_dict_file_name]
 
       if old_pdb_style:
         # old
@@ -557,3 +534,72 @@ def toggle_interactive_probe_dots(widget=None):
     # no alternative for now (could just go by state and change back and forth)
     print "BL WARNING:: no widget"
 
+
+def set_reduce_het_dict():
+  """helper function to set env variable REDUCE_HET_DICT
+  returns True if could be set (or already set), False if it couldnt be set.
+  
+  """
+
+  global reduce_command
+
+  # BL says: I think we should set REDUCE_HET_DICT
+  # so let's set REDUCE_HET_DICT if not set already!
+  # not sure if needed any more since we write a connectivity
+  # file - let's see FIXME!!
+  # if we have probe/reduce from ccp4 we should pick it up there!?
+  # should be in $CCP4/share/reduce/
+
+  red_het_dict = os.getenv('REDUCE_HET_DICT')
+  red_het_file = "reduce_wwPDB_het_dict.txt"
+  
+  #negative path
+#  if (not red_het_dict or
+#      (red_het_dict and not os.path.isfile(red_het_dict))):
+
+  # positive path (maybe should check that red_het_dict is a string?!)
+  if (red_het_dict and
+      (os.path.isfile(red_het_dict))):
+    return True
+  else:
+    # not set and/or not found
+
+    # first check if from ccp4 then it is in $CCP4/share/reduce/
+    ccp4_dir = os.getenv('CCP4')  
+    if os.path.normpath(ccp4_dir) in os.path.normpath(reduce_command):
+      # have ccp4 reduce
+      red_het_dict = os.path.join(ccp4_dir, "share", "reduce",
+                                 red_het_file)
+      if os.path.isfile(red_het_dict):
+        os.environ['REDUCE_HET_DICT'] = red_het_dict
+        return True
+      else:
+        print "BL WARNING:: could neither find nor set REDUCE_HET_DICT !"
+        return False
+      
+    else:
+      # not from ccp4
+      
+      # we assume the dic is in same dir as reduce command
+      dir, tmp = os.path.split(full_reduce_command)
+      red_het_file = os.path.join(dir, red_het_file)
+      if (os.path.isfile(red_het_dict)):
+        os.environ['REDUCE_HET_DICT'] = red_het_dict
+        return True
+      else:
+        # before we give up check in share/coot
+        # this is where the windows installer shall put it
+        prefix_dir = os.getenv("COOT_PREFIX")
+        if not prefix_dir:
+          pkg_data_dir = pkgdatadir()
+        else:
+          pkg_data_dir = os.path.join(prefix_dir, "share", "coot")
+        red_het_file = os.path.join(pkg_data_dir, red_het_file)
+        if (os.path.isfile(red_het_dict)):
+          os.environ['REDUCE_HET_DICT'] = red_het_dict
+          return True
+        else:
+          # finally give up
+          print "BL WARNING:: could neither find nor set REDUCE_HET_DICT !"
+          return False
+      

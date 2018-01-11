@@ -4227,13 +4227,6 @@ def rename_alt_confs_active_residue():
 
         rename_alt_confs(imol, chain_id, resno, inscode)
 
-# Moved from gui_add_linked_cho.py to make a global function.
-def delete_residue_by_spec(imol, spec):
-    delete_residue(imol,
-                   residue_spec_to_chain_id(spec),
-                   residue_spec_to_res_no(spec),
-                   residue_spec_to_ins_code(spec))
-
 
 ####### Back to Paul's scripting.
 ####### This needs to follow find_exe
