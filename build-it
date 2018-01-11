@@ -384,7 +384,8 @@
 # 5.27 20170925 bump libccp4 version to 6.5.1 - this has libccp4.pc for pkg-config
 # 5.28 20170925 Fixes for clipper and guile and gmp version update (gcc-7.2)
 # 5.29 20171006 Test for libgnomecanvas devel (now not available in system for Redhat 7.3)
-script_version=5.29
+# 5.30 20180109 Update python version.
+script_version=5.30
 
 
 
@@ -2089,7 +2090,7 @@ fi #  ENABLE_GUILE_COOT
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python2.7
-pver=2.7.12
+pver=2.7.14
 #
 # but more modern pythons do not compile (at least on my mac)
 if [ $OS = Darwin ] ; then
