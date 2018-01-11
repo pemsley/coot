@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include "align-utils.hh"
+#include <algorithm>
 
 // strings with - in them
 std::string
