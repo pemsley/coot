@@ -494,9 +494,30 @@ int test_reduce() {
    return 1;
 }
 
+int test_glyco_link_by_geometry() {
+
+   std::vector<std::string> file_names;
+   file_names.push_back("beta1-6-example.pdb");
+
+   for (std::size_t i=0; i<file_names.size(); i++) {
+      if (file_exists(file_name)) {
+	 const std::string file_name = file_names[i];
+	 mmdb::Manager *mol = new mmdb::Manager;
+	 mol->ReadCoorFile(file_name.c_str());
+
+	 // find linked carbohydrates and test axial vsl equatorial
+      }
+   }
+
+   return 1;
+
+}
+
 
 int main(int argv, char **argc) {
 
+   if (1)
+      test_glyco_link_by_geometry();
 
    if (0)
       test_string_manipulation();
