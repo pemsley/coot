@@ -194,7 +194,8 @@ namespace coot {
 				      const atom_spec_t &a2);
    bool compare_atom_specs_user_float_in_pair(const std::pair<atom_spec_t, std::string> &a,
 					      const std::pair<atom_spec_t, std::string> &b);
-   std::pair<atom_spec_t, atom_spec_t> link_atoms(mmdb::Link *link, mmdb::Model *model_p=0);
+   std::pair<atom_spec_t, atom_spec_t> link_atoms(mmdb::Link  *link, mmdb::Model *model_p=0);
+   std::pair<atom_spec_t, atom_spec_t> link_atoms(mmdb::LinkR *link, mmdb::Model *model_p=0);
 
    class residue_spec_t {
    public:
