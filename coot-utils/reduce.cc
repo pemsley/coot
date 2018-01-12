@@ -228,6 +228,26 @@ coot::reduce::add_riding_hydrogens() {
 
    mol->FinishStructEdit();
 
+   // spin methyls and hydroxyls - work on cliques
+
+   spinables.cliquize();
+   // std::vector<std::vector<atom_with_attached_Hs> > cliques = spinables.get_cliques();
+
+   // debug
+   if (true) {
+      std::cout << "--------------------------- " << spinables.cliques.size() << " cliques ----------------"
+		<< std::endl;
+      for (std::size_t icl=0; icl<spinables.cliques.size(); icl++) {
+	 if (spinables.cliques[icl].size() > 1) {
+	    std::cout << "    " << icl << " --- " << std::endl;
+	    for (std::size_t j=0; j<spinables.cliques[icl].size(); j++) {
+	       const atom_with_attached_Hs &typed_atom = spinables.cliques[icl][j];
+	       std::cout << "      " << atom_spec_t(typed_atom.at) << std::endl;
+	    }
+	 }
+      }
+   }
+
    // Now, which N has the H on the HISs?
    
    model_p = mol->GetModel(imod);
@@ -637,9 +657,14 @@ coot::reduce::add_methyl_Hs(const std::string &at_name_1,  // HB1 (for example)
 	 clipper::Coord_orth pav_2 = p12;
 	 clipper::Coord_orth pav_3 = p13;
 	 mmdb::realtype bf = at_3->tempFactor;
-	 add_hydrogen_atom(at_name_1, pav_1, bf, alt_confs[i], residue_p);
-	 add_hydrogen_atom(at_name_2, pav_2, bf, alt_confs[i], residue_p);
-	 add_hydrogen_atom(at_name_3, pav_3, bf, alt_confs[i], residue_p);
+	 mmdb::Atom *at_0 = add_hydrogen_atom(at_name_1, pav_1, bf, alt_confs[i], residue_p);
+	 mmdb::Atom *at_1 = add_hydrogen_atom(at_name_2, pav_2, bf, alt_confs[i], residue_p);
+	 mmdb::Atom *at_2 = add_hydrogen_atom(at_name_3, pav_3, bf, alt_confs[i], residue_p);
+	 std::vector<mmdb::Atom *> h_atoms(3,0);
+	 h_atoms[0] = at_0;
+	 h_atoms[1] = at_1;
+	 h_atoms[2] = at_2;
+	 spinables.add(at_3, atom_with_attached_Hs::METHYL, h_atoms);
       }
    }
 }
@@ -675,14 +700,19 @@ coot::reduce::add_methyl_Hs(const std::string &at_name_1,  // HB1 (for example)
 						     clipper::Util::d2rad(torsion_1.torsion_deg - 120));
       }
       if (have_1) {
-	 
+
 	 clipper::Coord_orth pav_1 = p11;
 	 clipper::Coord_orth pav_2 = p12;
 	 clipper::Coord_orth pav_3 = p13;
 	 mmdb::realtype bf = at_3->tempFactor;
-	 add_hydrogen_atom(at_name_1, pav_1, bf, alt_confs[i], residue_p);
-	 add_hydrogen_atom(at_name_2, pav_2, bf, alt_confs[i], residue_p);
-	 add_hydrogen_atom(at_name_3, pav_3, bf, alt_confs[i], residue_p);
+	 mmdb::Atom *at_0 = add_hydrogen_atom(at_name_1, pav_1, bf, alt_confs[i], residue_p);
+	 mmdb::Atom *at_1 = add_hydrogen_atom(at_name_2, pav_2, bf, alt_confs[i], residue_p);
+	 mmdb::Atom *at_2 = add_hydrogen_atom(at_name_3, pav_3, bf, alt_confs[i], residue_p);
+	 std::vector<mmdb::Atom *> h_atoms(3,0);
+	 h_atoms[0] = at_0;
+	 h_atoms[1] = at_1;
+	 h_atoms[2] = at_2;
+	 spinables.add(at_3, atom_with_attached_Hs::METHYL, h_atoms);
       }
    }
 }
@@ -779,7 +809,8 @@ coot::reduce::add_tetrahedral_hydrogen(const std::string &H_at_name,
 				       double bond_length,
 				       mmdb::Residue *residue_p) {
 
-   
+   // Like on a CB of VAL
+   //
    std::vector<std::string> alt_confs = util::get_residue_alt_confs(residue_p);
    for (unsigned int i=0; i<alt_confs.size(); i++) {
       mmdb::Atom *at_central = residue_p->GetAtom(at_central_name.c_str(), 0, alt_confs[i].c_str());
@@ -1081,6 +1112,7 @@ coot::reduce::add_xH_H(const std::string &H_name,
 	 double bf = at_2->tempFactor;
 	 mmdb::Atom *at = add_hydrogen_atom(H_name, H_pos, bf, alt_confs[i], residue_p);
 	 r.push_back(at);
+	 spinables.add(at_1, atom_with_attached_Hs::HYDROXYL, at); // maybe need SULFHYDRYL separate?
       }
    }
    return r;
@@ -1644,4 +1676,90 @@ coot::reduce::get_other_H_names(const std::string &H_at_name,
 				const dictionary_residue_restraints_t &dict) const {
 
    return dict.get_other_H_names(H_at_name);
+}
+
+void
+coot::reduce::atoms_with_spinnable_Hs::add(mmdb::Atom *at,
+					   atom_with_attached_Hs::hydrogen_t type,
+					   const std::vector<mmdb::Atom *> &attached_hydrogen_atoms) {
+
+   std::string alt_loc(at->altLoc);
+   atom_with_attached_Hs awaH(at, type, attached_hydrogen_atoms);
+   typed_atoms[alt_loc].push_back(awaH);
+}
+
+void
+coot::reduce::atoms_with_spinnable_Hs::add(mmdb::Atom *at,
+					   atom_with_attached_Hs::hydrogen_t type,
+					   mmdb::Atom *attahed_hydrogen_atom) {
+
+   std::string alt_loc(at->altLoc);
+   std::vector<mmdb::Atom *> v;
+   v.push_back(attahed_hydrogen_atom);
+   atom_with_attached_Hs awaH(at, type, v);
+   typed_atoms[alt_loc].push_back(awaH);
+}
+
+void
+coot::reduce::atoms_with_spinnable_Hs::cliquize() {
+
+   // maybe the cliques need to be split on alt conf
+   // std::map<std::string, std::vector<std::pair<hydrogen_t, mmdb::Atom *> > >::const_iterator it;
+   std::map<std::string, std::vector<atom_with_attached_Hs> >::const_iterator it;
+
+   if (true) {
+      for(it=typed_atoms.begin(); it!=typed_atoms.end(); it++) {
+	 const std::string &key = it->first;
+	 std::cout << "cliquize " << typed_atoms[key].size() << " spinables for altconf "
+		   << key << std::endl;
+      }
+   }
+
+   const double d_crit = 4.0;
+
+   // make this a member data item
+   //
+   // maybe this loop is slow for big proteins
+   // rethink using the results of SeekContacts()?
+   //
+   // atoms in the same side-chain are not in the same clique
+   //
+   for(it=typed_atoms.begin(); it!=typed_atoms.end(); it++) {
+      const std::string &key = it->first;
+      const std::vector<atom_with_attached_Hs> &atoms = it->second;
+      for (std::size_t iat=0; iat<atoms.size(); iat++) {
+	 bool done = false;
+	 clipper::Coord_orth at_pos = co(atoms[iat].at);
+	 for (unsigned int icl=0; icl<cliques.size(); icl++) {
+	    for (unsigned int j=0; j<cliques[icl].size(); j++) {
+	       if (atoms[iat].at->residue != cliques[icl][j].at->residue) {
+		  clipper::Coord_orth pos = co(cliques[icl][j].at);
+		  clipper::Coord_orth diff(at_pos - pos);
+		  double dv_sqrd = diff.lengthsq();
+		  if (dv_sqrd < d_crit * d_crit) {
+		     cliques[icl].push_back(atoms[iat]);
+		     done = true;
+		     break;
+		  }
+	       }
+	    }
+	    if (done)
+	       break;
+	 }
+	 if (! done) {
+	    // start a new clique;
+	    std::vector<atom_with_attached_Hs> new_clique;
+	    new_clique.push_back(atoms[iat]);
+	    cliques.push_back(new_clique);
+	 }
+      }
+   }
+}
+
+
+void
+coot::reduce::atoms_with_spinnable_Hs::resolve_clashing_clique(const std::vector<atom_with_attached_Hs> &clique) {
+
+
+
 }
