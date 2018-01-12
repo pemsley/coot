@@ -281,7 +281,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
    if (icheck.first == 0) { // problem
 
       std::cout << "INFO:: check_dictionary_for_residues - problem..." << std::endl;
-      std::string problem_residues = "Refinement setup failure.\nFailed to find restraints for:\n";
+      std::string problem_residues = "Warning: Refinement setup failure.\nFailed to find restraints for:\n";
       for (unsigned int icheck_res=0; icheck_res<icheck.second.size(); icheck_res++) { 
 	 std::cout << "WARNING:: Failed to find restraints for :" 
 		   << icheck.second[icheck_res] << ":" << std::endl;
@@ -323,7 +323,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 void
 graphics_info_t::info_dialog_missing_refinement_residues(const std::vector<std::string> &res_names) {
 
-   std::string problem_residues = "Refinement setup failure.\nFailed to find restraints for:\n";
+   std::string problem_residues = "Warning: Refinement setup failure.\nFailed to find restraints for:\n";
    for (unsigned int icheck_res=0; icheck_res<res_names.size(); icheck_res++) { 
       problem_residues+= " ";
       problem_residues+= res_names[icheck_res];

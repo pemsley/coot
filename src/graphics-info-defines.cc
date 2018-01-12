@@ -751,7 +751,7 @@ void
 graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 						const GdkModifierType &state) {
 
-   if (true)
+   if (false)
       std::cout << "DEBUG:: delete_item atom " << delete_item_atom
 		<< " residue " << delete_item_residue
 		<< " water " << delete_item_water
