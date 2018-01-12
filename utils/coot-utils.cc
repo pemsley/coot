@@ -25,6 +25,7 @@
 // 
 
 #include <iostream>
+#include <algorithm>
 
 #include <stdexcept> // for string_to_int.
 #include <sstream>   // ditto.
