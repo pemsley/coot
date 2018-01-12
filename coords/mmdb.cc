@@ -600,8 +600,9 @@ write_atom_selection_file(atom_selection_container_t asc,
    bool mol_needs_deleting = false; // unless mol is reassigned...
    
    if (coot::is_mmcif_filename(filename)) {
+
       ierr = mol->WriteCIFASCII(filename.c_str());
-      
+
    } else {
 
       if (! write_hydrogens) {
@@ -628,6 +629,8 @@ write_atom_selection_file(atom_selection_container_t asc,
 	 mol = n;
 	 mol_needs_deleting = true;
       }
+
+      coot::util::remove_long_links(mol, 2.1);
       
       // we need to put the hydrogen names back to how they used to be
       // when we read in the pdb file and then put them put them back
