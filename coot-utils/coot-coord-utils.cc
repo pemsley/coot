@@ -42,6 +42,8 @@
 
 #include "clipper/mmdb/clipper_mmdb.h"
 #include "geometry/main-chain.hh"
+#include "geometry/residue-and-atom-specs.hh"
+
 
 std::vector<std::string>
 coot::util::residue_types_in_molecule(mmdb::Manager *mol) { 
@@ -6582,12 +6584,55 @@ coot::util::correct_link_distances(mmdb::Manager *mol) {
 }
 
 void
-coot::util::remove_long_links(mmdb::Manager *mol, mmdb::realtype dist_min) {
+coot::util::remove_long_links(mmdb::Manager *mol, mmdb::realtype dist_max) {
 
    // Bob Nolte want to remove links to atoms that have moved far away
    // 
    if (mol) {
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+	 mmdb::Model *model_p = mol->GetModel(imod);
+	 if (model_p) {
+	    int n_links = model_p->GetNumberOfLinks();
+	    for (int ilink=1; ilink<=n_links; ilink++) {
+	       mmdb::Link *link = model_p->GetLink(ilink);
+	       std::pair<atom_spec_t, atom_spec_t> la = link_atoms(link, model_p);
+	       mmdb::Atom *at_1 = get_atom(la.first,  mol);
+	       mmdb::Atom *at_2 = get_atom(la.second, mol);
+	       if (at_1) {
+		  if (at_2) {
+		     clipper::Coord_orth pos_1 = co(at_1);
+		     clipper::Coord_orth pos_2 = co(at_2);
+		     double dsq = clipper::Coord_orth::length(pos_1, pos_2);
+		     double d = sqrt(dsq);
+		     if (d > dist_max) {
+			delete link;
+			link[ilink] = 0;
+		     }
+		  }
+	       }
+	    }
 
+	    n_links = model_p->GetNumberOfLinkRs();
+	    for (int ilink=1; ilink<=n_links; ilink++) {
+	       mmdb::LinkR *link = model_p->GetLinkR(ilink);
+	       std::pair<atom_spec_t, atom_spec_t> la = link_atoms(link, model_p);
+	       mmdb::Atom *at_1 = get_atom(la.first,  mol);
+	       mmdb::Atom *at_2 = get_atom(la.second, mol);
+	       if (at_1) {
+		  if (at_2) {
+		     clipper::Coord_orth pos_1 = co(at_1);
+		     clipper::Coord_orth pos_2 = co(at_2);
+		     double dsq = clipper::Coord_orth::length(pos_1, pos_2);
+		     double d = sqrt(dsq);
+		     if (d > dist_max) {
+			delete link;
+			link[ilink] = 0;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
    }
 }
 
