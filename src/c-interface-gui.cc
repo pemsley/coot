@@ -131,7 +131,7 @@ void open_coords_dialog() {
 
 void
 open_cif_dictionary_file_selector_dialog() {
-   
+
    if (graphics_info_t::use_graphics_interface_flag) {
 
       GtkWidget *fileselection = coot_cif_dictionary_chooser(); // a chooser or a fileselection
@@ -154,8 +154,10 @@ open_cif_dictionary_file_selector_dialog() {
 	 // classic (I'm in the club, Moet Chandon in my cup...)
 
 	 GtkWidget *aa_hbox = GTK_FILE_SELECTION(fileselection)->action_area;
-	 if (aa_hbox)
+	 if (aa_hbox) {
 	    add_cif_dictionary_selector_molecule_selector(fileselection, aa_hbox);
+	    add_cif_dictionary_selector_create_molecule_checkbutton(fileselection, aa_hbox);
+	 }
       }
       gtk_widget_show(fileselection);
    }

@@ -2748,8 +2748,10 @@ on_cif_dictionary_fileselection_ok_button_clicked (GtkButton       *button,
   GtkWidget *checkbutton = lookup_widget(GTK_WIDGET(button), 
 					 "cif_dictionary_file_selector_create_molecule_checkbutton");
   short int new_molecule_checkbutton_state = 0;
-  if (GTK_TOGGLE_BUTTON(checkbutton)->active)
-     new_molecule_checkbutton_state = 1;
+
+   if (checkbutton)
+    if (GTK_TOGGLE_BUTTON(checkbutton)->active)
+      new_molecule_checkbutton_state = 1;
 
   fileselection = lookup_widget(GTK_WIDGET(button), "cif_dictionary_fileselection");
 
