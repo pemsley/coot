@@ -6044,8 +6044,8 @@ molecule_class_info_t::add_pointer_multiatom(mmdb::Residue *res_p,
 int
 molecule_class_info_t::save_coordinates(const std::string filename,
 					bool save_hydrogens,
-                    bool save_aniso_records,
-                    bool save_conect_records) {
+					bool save_aniso_records,
+					bool save_conect_records) {
 
    int ierr = 0;
    std::string ext = coot::util::file_name_extension(filename);

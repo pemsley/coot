@@ -1531,10 +1531,10 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 std::ostream& coot::operator<<(std::ostream &s, coot::chem_link lnk) {
 
    s << "[chem_link: id: " << lnk.id
-     << " [comp_id1: \"" << lnk.chem_link_comp_id_1 << "\" group_1: " << lnk.chem_link_group_comp_1
-     << " mod_1: " << lnk.chem_link_mod_id_1 << "] to "
-     << " [comp_id2: \"" << lnk.chem_link_comp_id_2 << "\" group_2: " << lnk.chem_link_group_comp_2
-     << " mod_2: " << lnk.chem_link_mod_id_2 << "] " << lnk.chem_link_name << "]";
+     << " [comp_id1: \"" << lnk.chem_link_comp_id_1 << "\" group_1: \"" << lnk.chem_link_group_comp_1
+     << "\" mod_1: \"" << lnk.chem_link_mod_id_1 << "\"] to "
+     << " [comp_id2: \"" << lnk.chem_link_comp_id_2 << "\" group_2: \"" << lnk.chem_link_group_comp_2
+     << "\" mod_2: \"" << lnk.chem_link_mod_id_2 << "\"] " << lnk.chem_link_name << "]";
    return s; 
 }
 
@@ -1655,7 +1655,7 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 		     link_type = "BETA1-2";
 		  }
 	       }
-      
+
 	 if (name_1 == " O3 " )
 	    if (name_2 == " C1 ")
 	       if (close[i].distance < smallest_link_dist) {
@@ -1667,26 +1667,43 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 	       }
       
 
-	 // This should never happen :-)
+	 // The BETA2-3 link should never happen :-)
 	 // There are no biosynthetic pathways to make an BETA2-3 link for a SIA.
 	 // (SIA BETA2-3 would be axial if it existed)
-	 // 
+	 //
 	 if (name_1 == " C2 " )
 	    if (name_2 == " O3 ")
-	       if (std::string(close[i].at1->GetResName()) == "SIA") { 
+	       if (std::string(close[i].at1->GetResName()) == "SIA") {
 		  if (close[i].distance < smallest_link_dist) {
-		     coot::atom_quad glyco_chiral_quad(first, second, "BETA2-3");
-		     std::cout << "   glyco_chiral BETA2-3 "
+		     coot::atom_quad glyco_chiral_quad(first, second, "ALPHA2-3");
+		     std::cout << "   glyco_chiral ALPHA2-3 "
 			       << close[i].at1->GetResName() << " "
 			       << close[i].at2->GetResName() << " "
 			       << glyco_chiral_quad.chiral_volume() << std::endl;
-		     if (glyco_chiral_quad.chiral_volume() > 0.0) { 
+		     if (glyco_chiral_quad.chiral_volume() > 0.0) {
 			smallest_link_dist = close[i].distance;
-			link_type = "BETA2-3";
+			link_type = "ALPHA2-3";
 		     }
 		  }
 	       }
-	       
+
+	 // 20180111 Add ALPHA2-6 links for SIA
+	 if (name_1 == " C2 " )
+	    if (name_2 == " O6 ")
+	       if (std::string(close[i].at1->GetResName()) == "SIA") {
+		  if (close[i].distance < smallest_link_dist) {
+		     coot::atom_quad glyco_chiral_quad(first, second, "ALPHA2-6");
+		     std::cout << "   glyco_chiral ALPHA2-6 "
+			       << close[i].at1->GetResName() << " "
+			       << close[i].at2->GetResName() << " "
+			       << glyco_chiral_quad.chiral_volume() << std::endl;
+		     if (glyco_chiral_quad.chiral_volume() > 0.0) {
+			smallest_link_dist = close[i].distance;
+			link_type = "ALPHA2-6";
+		     }
+		  }
+	       }
+
 	 if (name_1 == " O6 " )
 	    if (name_2 == " C1 ")
 	       if (close[i].distance < smallest_link_dist) {

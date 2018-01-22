@@ -254,6 +254,14 @@ namespace coot {
       clipper::Coord_orth centre() const {
 	 return centre_;
       }
+      double angle(const clipper::Coord_orth &vect) const {
+	 clipper::Coord_orth uv(vect.unit());
+	 clipper::Coord_orth abc(abcd[0], abcd[1], abcd[2]);
+	 clipper::Coord_orth abc_uv(abc.unit());
+	 double cos_theta = clipper::Coord_orth::dot(uv, abc_uv);
+	 double theta = acos(cos_theta) * 2 * M_PI;
+	 return theta;
+      }
       double a() const { return abcd[0]; }
       double b() const { return abcd[1]; }
       double c() const { return abcd[2]; }

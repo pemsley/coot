@@ -3816,7 +3816,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       if (s >= 0) {
 
 	 // std::cout << "here in key_release_event for -" << std::endl;
-	 istate = graphics_info_t::molecules[s].change_contour(-1);
+	 // istate = graphics_info_t::molecules[s].change_contour(-1); // no longer needed
 	 graphics_info_t::molecules[s].pending_contour_level_change_count--;
 	 int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, g.glarea);
 	 g.set_density_level_string(s, g.molecules[s].contour_level);
@@ -4516,7 +4516,7 @@ void handle_scroll_density_level_event(int scroll_up_down_flag) {
    if (scroll_up_down_flag == 1) {
       if (graphics_info_t::do_scroll_by_wheel_mouse_flag) { 
 	 if (s>=0) {
-	    short int istate = info.molecules[s].change_contour(1);
+	    // short int istate = info.molecules[s].change_contour(1);
 	    info.molecules[s].pending_contour_level_change_count++;
 	    int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, info.glarea);
 	    info.set_density_level_string(s, info.molecules[s].contour_level);
@@ -4531,7 +4531,7 @@ void handle_scroll_density_level_event(int scroll_up_down_flag) {
       if (graphics_info_t::do_scroll_by_wheel_mouse_flag) { 
 	 int s = info.scroll_wheel_map;
 	 if (s>=0) {
-	    short int istate = info.molecules[s].change_contour(-1);
+	    // short int istate = info.molecules[s].change_contour(-1);
 	    info.molecules[s].pending_contour_level_change_count--;
 	    int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, info.glarea);
 	    info.set_density_level_string(s, info.molecules[s].contour_level);

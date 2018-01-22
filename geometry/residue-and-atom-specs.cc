@@ -230,3 +230,21 @@ coot::link_atoms(mmdb::Link *link, mmdb::Model *model_p) {
 
    return std::pair<coot::atom_spec_t, coot::atom_spec_t> (a1, a2);
 }
+// the header for this is (in) residue-and-atom-specs.hh.  Hmm... should be fixed.
+//
+// model_p is a default argument, default 0/NULL (model_number is not set in the atom specs)
+//
+std::pair<coot::atom_spec_t, coot::atom_spec_t>
+coot::link_atoms(mmdb::LinkR *link, mmdb::Model *model_p) {
+
+   atom_spec_t a1(link->chainID1, link->seqNum1, link->insCode1, link->atName1, link->aloc1);
+   atom_spec_t a2(link->chainID2, link->seqNum2, link->insCode2, link->atName2, link->aloc2);
+
+   if (model_p) {
+      int mn = model_p->GetSerNum();
+      a1.model_number = mn;
+      a2.model_number = mn;
+   }
+
+   return std::pair<coot::atom_spec_t, coot::atom_spec_t> (a1, a2);
+}

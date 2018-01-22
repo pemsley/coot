@@ -60,6 +60,44 @@ namespace coot {
 	 double torsion_deg;
       };
 
+      class atom_with_attached_Hs {
+      public:
+	 enum hydrogen_t { METHYL, HYDROXYL, SULFHYDRYL };
+
+	 atom_with_attached_Hs(mmdb::Atom *at_in, hydrogen_t type_in,
+			       const std::vector<mmdb::Atom *> &hydrogens_in) :
+	    at(at_in), type(type_in), hydrogens(hydrogens_in) {}
+	 mmdb::Atom* at;
+	 hydrogen_t type;
+	 std::vector<mmdb::Atom *> hydrogens;
+      };
+
+      class atoms_with_spinnable_Hs {
+      public:
+
+	 std::map<std::string, std::vector<atom_with_attached_Hs> > typed_atoms;
+	 std::vector<std::vector<atom_with_attached_Hs> > cliques;
+
+      public:
+	 atoms_with_spinnable_Hs() { typed_atoms[""].reserve(200); }
+
+	 void add(mmdb::Atom* at, atom_with_attached_Hs::hydrogen_t type,
+		  const std::vector<mmdb::Atom *> &attahed_hydrogen_atoms);
+	 void add(mmdb::Atom* at, atom_with_attached_Hs::hydrogen_t type,
+		  mmdb::Atom *attahed_hydrogen_atom);
+	 void cliquize();
+	 std::vector<std::vector<atom_with_attached_Hs> > get_cliques() const {
+	    return cliques;
+	 }
+	 void resolve_clashing_cliques() {
+	    for (std::size_t i=0; i<cliques.size(); i++)
+	       resolve_clashing_clique(cliques[i]);
+	 }
+	 // Move the H atoms of the clique if there are classes.
+	 // (clashes may still remain after having done so, of course).
+	 void resolve_clashing_clique(const std::vector<atom_with_attached_Hs> &clique);
+      };
+
       clipper::Coord_orth position_by_bond_length_angle_torsion(mmdb::Atom *at_1,  // CA
 								mmdb::Atom *at_2,  // CB
 								mmdb::Atom *at_3,  // CG
@@ -149,6 +187,9 @@ namespace coot {
 				   const std::string &at_name_3,
 				   double bl,
 				   mmdb::Residue *residue_p);
+
+      atoms_with_spinnable_Hs spinables;
+
       // this will need a spin-search
       void add_OH_H(const std::string &H_name,
 		    const std::string &at_name_1,
