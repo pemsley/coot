@@ -1651,6 +1651,7 @@ void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code
 } 
 
 void set_delete_atom_mode() {
+
    graphics_info_t g;
    g.delete_item_atom = 1;
    g.delete_item_residue_zone = 0;
@@ -1662,8 +1663,6 @@ void set_delete_atom_mode() {
 }
 
 void set_delete_residue_mode() {
-
-   std::cout << "in set_delete_residue_mode()! " << std::endl;
 
    graphics_info_t g;
    g.delete_item_atom = 0;
@@ -1720,6 +1719,7 @@ void set_delete_water_mode() {
 void set_delete_sidechain_mode() {
 
    graphics_info_t g;
+   std::cout << "set_delete_sidechain_mode " << std::endl;
    g.delete_item_residue = 0;
    g.delete_item_residue_zone = 0;
    g.delete_item_water = 0;
@@ -1925,7 +1925,7 @@ void delete_residue_range(int imol, const char *chain_id, int resno_start, int r
 
 
 
-void clear_pending_delete_item() { 
+void clear_pending_delete_item() {
 
    graphics_info_t g;
    g.delete_item_atom = 0;
