@@ -660,7 +660,7 @@ coot::reduce::add_methyl_Hs(const std::string &at_name_1,  // HB1 (for example)
 	 mmdb::Atom *at_0 = add_hydrogen_atom(at_name_1, pav_1, bf, alt_confs[i], residue_p);
 	 mmdb::Atom *at_1 = add_hydrogen_atom(at_name_2, pav_2, bf, alt_confs[i], residue_p);
 	 mmdb::Atom *at_2 = add_hydrogen_atom(at_name_3, pav_3, bf, alt_confs[i], residue_p);
-	 std::vector<mmdb::Atom *> h_atoms(3,0);
+	 std::vector<mmdb::Atom *> h_atoms(3);
 	 h_atoms[0] = at_0;
 	 h_atoms[1] = at_1;
 	 h_atoms[2] = at_2;
@@ -708,7 +708,7 @@ coot::reduce::add_methyl_Hs(const std::string &at_name_1,  // HB1 (for example)
 	 mmdb::Atom *at_0 = add_hydrogen_atom(at_name_1, pav_1, bf, alt_confs[i], residue_p);
 	 mmdb::Atom *at_1 = add_hydrogen_atom(at_name_2, pav_2, bf, alt_confs[i], residue_p);
 	 mmdb::Atom *at_2 = add_hydrogen_atom(at_name_3, pav_3, bf, alt_confs[i], residue_p);
-	 std::vector<mmdb::Atom *> h_atoms(3,0);
+	 std::vector<mmdb::Atom *> h_atoms(3);
 	 h_atoms[0] = at_0;
 	 h_atoms[1] = at_1;
 	 h_atoms[2] = at_2;

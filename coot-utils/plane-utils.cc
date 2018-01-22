@@ -1,5 +1,7 @@
 
 
+#include <algorithm> // for std::find
+
 #include "plane-utils.hh"
 #include "coot-coord-utils.hh"
 
@@ -19,11 +21,11 @@ coot::angle_betwen_plane_and_vector(mmdb::Residue *residue_p,
       std::vector<clipper::Coord_orth> ring_atom_positions;
       for (int iat=0; iat<n_residue_atoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
-	 std::string atom_name = at->GetAtomName();
-	 std::string alt_conf  = at->altLoc;
-	 if (std::find(ring_atom_names.begin(),
-		       ring_atom_names.end(),
-		       atom_name) != ring_atom_names.end()) {
+	 std::string atom_name(at->GetAtomName());
+	 std::string alt_conf(at->altLoc);
+	 std::vector<std::string>::const_iterator it =
+	    std::find(ring_atom_names.begin(), ring_atom_names.end(), atom_name);
+	 if (it != ring_atom_names.end()) {
 	    if (alt_conf == altconf_in) {
 	       clipper::Coord_orth pos = co(at);
 	       ring_atom_positions.push_back(pos);
