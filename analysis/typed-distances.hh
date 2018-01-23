@@ -12,10 +12,20 @@
 namespace coot {
 
    class typed_distances {
+   public:
+      enum bin_type_t { UNSET= -1, CC, CO, CN, OO, ON, NN};
+   private:
       enum atom_type_t { NONE, C, O, N};
-      enum bin_type_t { CC, CO, CN, OO, ON, NN};
       mmdb::Manager *mol;
-      std::map<mmdb::Residue *, std::vector<std::vector<unsigned int> > > bin_distances;
+      // old
+      // std::map<mmdb::Residue *, std::vector<std::vector<unsigned int> > > bin_distances;
+
+      // we can't iterate through the bin types bin_type_t.begin(), bin_type_t.end()
+      // std::map<mmdb::Residue *, std::map<int, std::vector<float> > > residue_distances_map;
+      // so let's index on an int
+      //
+      std::map<mmdb::Residue *, std::map<int, std::vector<float> > > residue_distances_map;
+
       // this vector should include self
       std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > residues_within_window;
       void init();
@@ -24,6 +34,8 @@ namespace coot {
       // return -1 on no-bin
       int get_atom_pair_bin_id(const atom_type_t &t1, const atom_type_t &t2) const;
       unsigned int n_distance_bins;
+
+      // this is nonsense
       unsigned int get_dist_bin_id(float &dist) const {
 	 unsigned int id = 0;
 	 if (dist > 4.75) { id = 8; } else {

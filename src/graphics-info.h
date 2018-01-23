@@ -2736,6 +2736,7 @@ public:
    static void   skeletonize_map(int imol, short int prune_flag);
    static void unskeletonize_map(int imol);
    static void set_initial_map_for_skeletonize(); 
+   static bool add_ccp4i_projects_to_optionmenu_flag;
    static std::string refmac_ccp4i_project_dir;
    static std::string libcheck_ccp4i_project_dir;
 
