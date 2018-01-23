@@ -8035,3 +8035,12 @@ Thu  4 Jan 2018 16:54:56 GMT
    Have a look at 6aqf
 
    Allosteric Coupling of Drug Binding and Intracellular Signaling in the A2A Adenosine Receptor
+
+---
+Wed 17 Jan 2018 05:07:31 FKST
+
+  jupyter interesting
+
+  import jupyter_client
+  k = jupyter_client.KernelManager()
+  k.start_kernel()
