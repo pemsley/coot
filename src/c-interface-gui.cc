@@ -3849,29 +3849,32 @@ close_molecule_item_select(GtkWidget *item, GtkPositionType pos) {
 
 void add_ccp4i_project_shortcut(GtkWidget *fileselection) {
 
-   // Paul likes to have a current dir shortcut, here we go then:
-   gchar *current_dir = g_get_current_dir();
-   gtk_file_chooser_add_shortcut_folder(GTK_FILE_CHOOSER(fileselection),
-					current_dir,
-					NULL);
-   g_free(current_dir);
-//    std::cout << "DEBUG:: adding a short cut..." << std::endl;
-//    std::cout << "DEBUG:: widget is filechooser: " << GTK_IS_FILE_CHOOSER(fileselection) << std::endl;
-   // BL says: we simply add a short cut to ccp4 project folder
-   // based on ccp4_defs_file_name()
-   // add all projects to shortcut (the easiest option for now)
-   std::string ccp4_defs_file_name = graphics_info_t::ccp4_defs_file_name();
+   if (graphics_info_t::add_ccp4i_projects_to_optionmenu_flag) {
+
+      // Paul likes to have a current dir shortcut, here we go then:
+      gchar *current_dir = g_get_current_dir();
+      gtk_file_chooser_add_shortcut_folder(GTK_FILE_CHOOSER(fileselection),
+					   current_dir,
+					   NULL);
+      g_free(current_dir);
+      //    std::cout << "DEBUG:: adding a short cut..." << std::endl;
+      //    std::cout << "DEBUG:: widget is filechooser: " << GTK_IS_FILE_CHOOSER(fileselection) << std::endl;
+      // BL says: we simply add a short cut to ccp4 project folder
+      // based on ccp4_defs_file_name()
+      // add all projects to shortcut (the easiest option for now)
+      std::string ccp4_defs_file_name = graphics_info_t::ccp4_defs_file_name();
    
-   std::vector<std::pair<std::string, std::string> > project_pairs =
-      parse_ccp4i_defs(ccp4_defs_file_name);
+      std::vector<std::pair<std::string, std::string> > project_pairs =
+	 parse_ccp4i_defs(ccp4_defs_file_name);
    
-   for (unsigned int i=0; i<project_pairs.size(); i++) {
-      const char *folder = project_pairs[i].second.c_str();
-      int len = strlen(folder);
-      if (len > 0) {
-	 gtk_file_chooser_add_shortcut_folder(GTK_FILE_CHOOSER(fileselection),
-					      project_pairs[i].second.c_str(),
-					      NULL);
+      for (unsigned int i=0; i<project_pairs.size(); i++) {
+	 const char *folder = project_pairs[i].second.c_str();
+	 int len = strlen(folder);
+	 if (len > 0) {
+	    gtk_file_chooser_add_shortcut_folder(GTK_FILE_CHOOSER(fileselection),
+						 project_pairs[i].second.c_str(),
+						 NULL);
+	 }
       }
    }
 }

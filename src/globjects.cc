@@ -1147,6 +1147,8 @@ float graphics_info_t::default_sigma_level_for_fofc_map = 3.0;
 // geometry widget:
 GtkWidget *graphics_info_t::geometry_dialog = NULL;
 
+bool graphics_info_t::add_ccp4i_projects_to_optionmenu_flag = true;
+
 // run refmac widget:
 std::string graphics_info_t::refmac_ccp4i_project_dir = std::string("");
 std::string graphics_info_t::libcheck_ccp4i_project_dir = std::string("");

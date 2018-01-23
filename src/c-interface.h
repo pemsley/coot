@@ -6359,6 +6359,11 @@ PyObject *ccp4i_projects_py();
 #endif /* USE_PYTHON */
 #endif /* c++ */
 
+/*! \brief allow the user to not add ccp4i directories to the file choosers
+
+use state=0 to turn it off */
+void set_add_ccp4i_projects_to_file_dialogs(short int state);
+
 /*! \brief write a ccp4mg picture description file */
 void write_ccp4mg_picture_description(const char *filename);
 /*! \brief get element colour for imol as Python formatted list char*/
