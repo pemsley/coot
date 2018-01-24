@@ -5,16 +5,5 @@
 
    o GM sigma and alpha for carbohydrate fitting ::: 2
 
-   o have another look at parsing the xml from sameer ::: 2
-
-   o build a bent helix with 2 helices and merge them ::: 4
-
-   o consider: deuterate_dictionary(comp_id):
-     changes the atom names and elements of hydrogens to deuteriums.
-     Does this mean that I can refinement against neutron data?
-
-     Maybe even a phenix dictionary - that has Hxx and Dxx.  Need to
-     sort out generate bonds to protein and NBCs between these atoms.
-
 --------------
 
