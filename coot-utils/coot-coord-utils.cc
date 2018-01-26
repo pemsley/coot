@@ -6605,8 +6605,7 @@ coot::util::remove_long_links(mmdb::Manager *mol, mmdb::realtype dist_max) {
 		     double dsq = clipper::Coord_orth::length(pos_1, pos_2);
 		     double d = sqrt(dsq);
 		     if (d > dist_max) {
-			delete link;
-			link[ilink] = 0;
+		//	delete link; mmdb crash
 		     }
 		  }
 	       }
@@ -6625,8 +6624,7 @@ coot::util::remove_long_links(mmdb::Manager *mol, mmdb::realtype dist_max) {
 		     double dsq = clipper::Coord_orth::length(pos_1, pos_2);
 		     double d = sqrt(dsq);
 		     if (d > dist_max) {
-			delete link;
-			link[ilink] = 0;
+		//	delete link;
 		     }
 		  }
 	       }
