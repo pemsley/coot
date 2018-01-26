@@ -509,7 +509,7 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
       
       r = read_shelx_ins_file(filename, recentre_on_read_pdb_flag);
 
-   } else { 
+   } else {
       // recentre and not a backup-restore
       // -1 is for failure strangely.
       int imol = g.create_molecule();
@@ -5532,7 +5532,7 @@ void clear_up_moving_atoms() {
    g.clear_up_moving_atoms();
    g.clear_moving_atoms_object();
 
-} 
+}
 
 
 
@@ -5542,6 +5542,17 @@ void clear_up_moving_atoms() {
 void set_refine_ramachandran_angles(int state) {
    graphics_info_t::do_rama_restraints = state;
 } 
+
+
+void set_refine_ramachandran_restraints_type(int type) {
+   graphics_info_t::restraints_rama_type = type;
+}
+
+
+void set_refine_ramachandran_restraints_weight(float w) {
+   graphics_info_t::rama_restraints_weight = w;
+}
+
 
 int refine_ramachandran_angles_state() {
    return graphics_info_t::do_rama_restraints;

@@ -16,6 +16,8 @@ public:
    T min_density;
    T bin_width;
    std::vector<int> bins;
+
+   std::size_t size() { return bins.size(); }
    
    // Fix this in a spare moment: 
    //

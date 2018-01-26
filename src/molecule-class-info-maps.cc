@@ -543,13 +543,28 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
    }
 
    if (!xmap.is_null()) {
+
+#ifdef ANALYSE_CONTOURING_TIMING
+      auto tp_0 = std::chrono::high_resolution_clock::now();
+#endif
       v = my_isosurface.GenerateSurface_from_Xmap(xmap,
 						  contour_level,
 						  dy_radius, centre,
 						  isample_step);
+#ifdef ANALYSE_CONTOURING_TIMING
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+#endif
       if (is_dynamically_transformed_map_flag)
 	 dynamically_transform(v);
       set_draw_vecs(v.data, v.size);
+
+#ifdef ANALYSE_CONTOURING_TIMING
+      auto tp_2 = std::chrono::high_resolution_clock::now();
+      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+      std::cout << "update_map_triangles() d10 " << d10 << "  d21 " << d21 << " microseconds\n";
+#endif      
+
    }
    if (xmap_is_diff_map) {
       v = my_isosurface.GenerateSurface_from_Xmap(xmap,
@@ -1648,19 +1663,18 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
      std::pair<bool, coot::Cartesian> new_centre(false, coot::Cartesian(0,0,0)); // used only for first EM map
 
-     if (! bad_read) {
-	if (em) {
-	   // If this was the first map, recentre to the middle of the cell
-	   //
-	   if (imol_no == 0) {
-	      clipper::Cell c = file.cell();
-	      coot::Cartesian m(0.5*c.descr().a(),
-				0.5*c.descr().b(),
-				0.5*c.descr().c());
-	      new_centre.first = true;
-	      new_centre.second = m;
-	      std::cout << "INFO:: map appears to be EM map."<< std::endl;
-	   }
+     if (em) {
+
+	// If this was the first map, recentre to the middle of the cell
+	//
+	if (imol_no == 0) {
+	   clipper::Cell c = file.cell();
+	   coot::Cartesian m(0.5*c.descr().a(),
+			     0.5*c.descr().b(),
+			     0.5*c.descr().c());
+	   new_centre.first = true;
+	   new_centre.second = m;
+           std::cout << "INOF:: map appears to be EM map."<< std::endl;
 	}
 	std::cout << "closing CCP4 map: " << filename << std::endl;
 	file.close_read();
@@ -1694,7 +1708,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
       float mean = mv.mean; 
       float var = mv.variance;
-      contour_level    = nearest_step(mean + 1.5*sqrt(var), 0.05);
+
       xmap_is_diff_map = is_diff_map_flag; // but it may be...
       // fill class variables
       map_mean_ = mv.mean;
@@ -1703,7 +1717,19 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       map_min_   = mv.min_density;
 
       update_map_in_display_control_widget();
-      set_initial_contour_level();
+      contour_level    = nearest_step(mean + 1.5*sqrt(var), 0.05);
+
+      bool em = is_EM_map();
+
+      if (em) {
+	 // make better defaults
+	 contour_level = mean + nearest_step(mean + 5.0*sqrt(var), 0.2);
+	 contour_sigma_step = 0.4;
+      } else {
+	 // "how it used to be" logic.  contour_level is set above and reset here
+	 // Hmm.
+	 set_initial_contour_level();
+      }
 
       std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
       std::cout << "      Map rmsd: ........ " << map_sigma_ << std::endl;
@@ -1714,7 +1740,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       save_state_command_strings_.push_back("handle-read-ccp4-map");
       save_state_command_strings_.push_back(single_quote(coot::util::intelligent_debackslash(filename)));
       save_state_command_strings_.push_back(graphics_info_t::int_to_string(is_diff_map_flag));
-   
+
       update_map();
    }
 

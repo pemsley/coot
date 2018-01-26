@@ -19,7 +19,7 @@ GraphicalSkel::make_graphical_bonds(const clipper::Xmap<float> &map,
 				    float box_radius,
 				    float cut_off) const {
       
-   std::vector<vector<graphics_line_t> > cp_vec; // build them up in
+   std::vector<std::vector<graphics_line_t> > cp_vec; // build them up in
 					         // vector, convert on
 					         // return
 
@@ -90,7 +90,7 @@ GraphicalSkel::make_graphical_bonds(const clipper::Xmap<float> &map,
 			  
 		       level = clipper::Util::max( l1[iyc], l1[iw] ); // -1
 		       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-		       cp_vec[level].push_back(graphics_line_t(line, cc, false, false, 0));
+		       cp_vec[level].push_back(graphics_line_t(line, cc, false, false, -1, -1));
 		       //cp_vec[0].push_back(line);
 		     }
 		   }
@@ -119,7 +119,7 @@ GraphicalSkel::make_graphical_bonds( const clipper::Xmap<float> &map,
 				     const clipper::Xmap<int>   &l1 ) const {
 
    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-   vector<graphics_line_t> cp_vec; 
+   std::vector<graphics_line_t> cp_vec; 
 
    int n_lines = 0;
    float cut_off = 0.15;
@@ -157,7 +157,7 @@ GraphicalSkel::make_graphical_bonds( const clipper::Xmap<float> &map,
 		  
 		     coot::CartesianPair line(f, s); 
 
-		     cp_vec.push_back(graphics_line_t(line, cc, false, false, 0));
+		     cp_vec.push_back(graphics_line_t(line, cc, false, false, -1, -1));
 		  }
 	       }
 	    }

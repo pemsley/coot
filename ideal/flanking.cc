@@ -40,7 +40,7 @@
 void
 coot::restraints_container_t::add_fixed_atoms_from_flanking_residues(const coot::bonded_pair_container_t &bpc) {
 
-   std::cout << "debug:: add_fixed_atoms_from_flanking_residues() called " << bpc.size() << std::endl;
+   // std::cout << "debug:: add_fixed_atoms_from_flanking_residues() called " << bpc.size() << std::endl;
 
    std::vector<mmdb::Residue *> residues_for_fixed_atoms;
    
@@ -76,7 +76,7 @@ coot::restraints_container_t::add_fixed_atoms_from_flanking_residues(bool have_f
 								     int iselection_start_res,
 								     int iselection_end_res) {
 
-   if (true)
+   if (false)
       std::cout << "debug:: in add_fixed_atoms_from_flanking_residues() "
 		<< have_flanking_residue_at_start << " "
 		<< have_flanking_residue_at_end << " "
@@ -286,7 +286,10 @@ coot::bonded_pair_container_t
 coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const coot::protein_geometry &geom) const {
 
    coot::bonded_pair_container_t bpc;
-   float dist_crit = 2.0; // 20170924-PE was 3.0 but this made a horrible link in a tight turn
+
+   // 20180104 2.0 is a terrible distance.  Sometimes it will find a disulfide bond
+   //              and the next it will not.  Use 2.3
+   float dist_crit = 2.3; // 20170924-PE was 3.0 but this made a horrible link in a tight turn
                           // (which I suspect is not uncommon) crazy-neighbour-refine-519.pdb
                           // for EMDB 6224.
                           // 520 was bonded to 522 in a neighb (3-residue) refine on 519.

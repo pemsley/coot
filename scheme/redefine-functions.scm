@@ -115,6 +115,7 @@
 (define add-extra-bond-restraints add-extra-bond-restraints-scm)
 (define new-molecule-by-residue-specs new-molecule-by-residue-specs-scm)
 (define delete-residues delete-residues-scm)
+(define qq-plot-map-and-model qq-plot-map-and-model-scm)
 
 ;; I changed the function name - save those (just a few) with scripts that I've handed out
 (define toggle-idle-ligand-interactions toggle-flev-idle-ligand-interactions)

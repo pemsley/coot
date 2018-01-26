@@ -687,7 +687,7 @@ class graphics_info_t {
 
    static int moving_atoms_dragged_atom_index;
 #ifdef  HAVE_GSL
-   static coot::restraints_container_t last_restraints;
+   static coot::restraints_container_t *last_restraints;
 #endif // HAVE_GSL   
    // the mode flag is public:
 
@@ -815,7 +815,7 @@ class graphics_info_t {
    // rename me
    coot::refinement_results_t
      update_refinement_atoms(int n_restraints,
-			     coot::restraints_container_t &restraints,
+			     coot::restraints_container_t *restraints, // actually last_restraints
 			     coot::refinement_results_t rr,
 			     atom_selection_container_t local_mov_ats, 
 			     bool need_residue_order_check, 
@@ -1628,7 +1628,8 @@ public:
    void update_ramachandran_plot_point_maybe(int imol, mmdb::Atom *atom);
    void update_ramachandran_plot_point_maybe(int imol, const coot::residue_spec_t &res_spec);
    void update_ramachandran_plot_point_maybe(int imol, atom_selection_container_t moving_atoms);
-   
+   void update_ramachandran_plot_background_from_res_spec(coot::rama_plot *plot, int imol,
+                                                          const coot::residue_spec_t &res_spec);
 
 
    float X(void) { return rotation_centre_x; };
@@ -1770,6 +1771,9 @@ public:
    // get rid of the actual molecule (as opposed to
    // clear_moving_atoms_object which removed the bonds).
    void clear_up_moving_atoms();
+
+   // if the imol for moving atoms is imol, delete the moving atoms (called from close_molecule)
+   void clear_up_moving_atoms_maybe(int imol);
 
    // 0: never run it
    // 1: ask to run it
@@ -2125,6 +2129,8 @@ public:
    static bool do_rama_restraints;
    static bool do_trans_peptide_restraints;
    static bool do_numerical_gradients; // for debugging
+   static int  restraints_rama_type;
+   static float rama_restraints_weight;
 
    coot::refinement_results_t regularize(int imol, short int auto_range_flag, int i_atom_start, int i_atom_end); 
    coot::refinement_results_t refine    (int imol, short int auto_range_flag, int i_atom_start, int i_atom_end);
@@ -2252,6 +2258,7 @@ public:
 
    // geometry graphs
    void update_geometry_graphs(const atom_selection_container_t &asc, int imol_moving_atoms);
+   void update_validation_graphs(int imol);  // and ramachandran
 
 
    // Display the graphical object of the regularization
@@ -2564,10 +2571,12 @@ public:
 
    // uses cif_dictionary_filename_vec.
    //imol_enc can be the model molecule number or
-   // -1 for all
-   // -2 for auto
-   // -3 for unset
-   int add_cif_dictionary(std::string cif_dictionary_filename,
+   // IMOL_ENC_ANY = -999999, IMOL_ENC_AUTO = -999998, IMOL_ENC_UNSET = -999997.
+   // 
+   // @return the index of the monomer in the geometry store.
+   //
+   coot::read_refmac_mon_lib_info_t
+   add_cif_dictionary(std::string cif_dictionary_filename,
 			  int imol_enc,
 			  short int show_no_bonds_dialog_maybe_flag);
    void import_all_refmac_cifs();
@@ -2717,6 +2726,7 @@ public:
    static void   skeletonize_map(int imol, short int prune_flag);
    static void unskeletonize_map(int imol);
    static void set_initial_map_for_skeletonize(); 
+   static bool add_ccp4i_projects_to_optionmenu_flag;
    static std::string refmac_ccp4i_project_dir;
    static std::string libcheck_ccp4i_project_dir;
 
@@ -3235,7 +3245,18 @@ public:
    void set_fixed_points_for_sheared_drag();
    void do_post_drag_refinement_maybe();
 #ifdef  HAVE_GSL
-   int last_restraints_size() const { return last_restraints.size(); };
+   int last_restraints_size() const {
+     if (! last_restraints) {
+		  std::cout << "----------------------------------------------" << std::endl;
+		  std::cout << "----------------------------------------------" << std::endl;
+		  std::cout << "     ERROR:: C: last_restraints no cleared up " << std::endl;
+		  std::cout << "----------------------------------------------" << std::endl;
+		  std::cout << "----------------------------------------------" << std::endl;
+		  return 0;
+     } else {
+       return last_restraints->size();
+     }
+   }
 #endif // HAVE_GSL   
    static int dragged_refinement_steps_per_frame;
    static short int dragged_refinement_refine_per_frame_flag;
@@ -3326,6 +3347,7 @@ public:
    static float rama_level_prefered;
    static float rama_level_allowed;
    static float rama_plot_background_block_size; // divisible into 360 preferably.
+   static int rama_psi_axis_mode;
 
    /* 
      Return the index of the superposed molecule - which could either be a
@@ -4006,6 +4028,12 @@ string   static std::string sessionid;
 
    static bool update_maps_on_recentre_flag;
 
+#ifdef USE_PYTHON
+   PyObject *pyobject_from_graphical_bonds_container(int imol,
+						     const graphical_bonds_container &bonds_box) const;
+   PyObject *get_intermediate_atoms_bonds_representation();
+#endif
+
 #ifdef HAVE_CXX_THREAD
    static ctpl::thread_pool static_thread_pool;
 #endif
@@ -4027,7 +4055,7 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_t &ref_results);
 // return a pointer to a "new" object
 GdkColor colour_by_distortion(float dist);
-GdkColor colour_by_rama_plot_distortion(float plot_value);
+GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_plot_type);
 void set_colour_accept_reject_event_box(GtkWidget *eventbox, GdkColor *col);
 GtkWidget *wrapped_create_accept_reject_refinement_dialog();
 void update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,

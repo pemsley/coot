@@ -44,6 +44,10 @@
 // #include "stdafx.h" commented by PE
 #include <math.h>
 
+#ifdef HAVE_CXX_THREAD
+#include <thread>
+#endif
+
 // #include "clipper/mtz/mtz_io.h" // no need for this
 //#include "map_io.h"
 
@@ -371,136 +375,151 @@ template <class T> CIsoSurface<T>::~CIsoSurface()
 
 template <class T> void CIsoSurface<T>::GenerateSurface(const T* ptScalarField, T tIsoLevel, unsigned int nCellsX, unsigned int nCellsY, unsigned int nCellsZ, float fCellLengthX, float fCellLengthY, float fCellLengthZ)
 {
-	if (m_bValidSurface)
-		DeleteSurface();
 
-	m_tIsoLevel = tIsoLevel;
-	m_nCellsX = nCellsX;
-	m_nCellsY = nCellsY;
-	m_nCellsZ = nCellsZ;
-	m_fCellLengthX = fCellLengthX;
-	m_fCellLengthY = fCellLengthY;
-	m_fCellLengthZ = fCellLengthZ;
-	m_ptScalarField = ptScalarField;
+#ifdef ANALYSE_CONTOURING_TIMING
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+#endif
 
-	unsigned int nPointsInXDirection = (m_nCellsX + 1);
-	unsigned int nPointsInSlice = nPointsInXDirection*(m_nCellsY + 1);
+   if (m_bValidSurface)
+      DeleteSurface();
 
-	// Generate isosurface.
-	for (unsigned int z = 0; z < m_nCellsZ; z++)
-		for (unsigned int y = 0; y < m_nCellsY; y++)
-			for (unsigned int x = 0; x < m_nCellsX; x++) {
-				// Calculate table lookup index from those
-				// vertices which are below the isolevel.
-				unsigned int tableIndex = 0;
-				if (m_ptScalarField[z*nPointsInSlice + y*nPointsInXDirection + x] < m_tIsoLevel)
-					tableIndex |= 1;
-				if (m_ptScalarField[z*nPointsInSlice + (y+1)*nPointsInXDirection + x] < m_tIsoLevel)
-					tableIndex |= 2;
-				if (m_ptScalarField[z*nPointsInSlice + (y+1)*nPointsInXDirection + (x+1)] < m_tIsoLevel)
-					tableIndex |= 4;
-				if (m_ptScalarField[z*nPointsInSlice + y*nPointsInXDirection + (x+1)] < m_tIsoLevel)
-					tableIndex |= 8;
-				if (m_ptScalarField[(z+1)*nPointsInSlice + y*nPointsInXDirection + x] < m_tIsoLevel)
-					tableIndex |= 16;
-				if (m_ptScalarField[(z+1)*nPointsInSlice + (y+1)*nPointsInXDirection + x] < m_tIsoLevel)
-					tableIndex |= 32;
-				if (m_ptScalarField[(z+1)*nPointsInSlice + (y+1)*nPointsInXDirection + (x+1)] < m_tIsoLevel)
-					tableIndex |= 64;
-				if (m_ptScalarField[(z+1)*nPointsInSlice + y*nPointsInXDirection + (x+1)] < m_tIsoLevel)
-					tableIndex |= 128;
+   m_tIsoLevel = tIsoLevel;
+   m_nCellsX = nCellsX;
+   m_nCellsY = nCellsY;
+   m_nCellsZ = nCellsZ;
+   m_fCellLengthX = fCellLengthX;
+   m_fCellLengthY = fCellLengthY;
+   m_fCellLengthZ = fCellLengthZ;
+   m_ptScalarField = ptScalarField;
 
-				// Now create a triangulation of the isosurface in this
-				// cell.
-				if (m_edgeTable[tableIndex] != 0) {
-					if (m_edgeTable[tableIndex] & 8) {
-						POINT3DID pt = CalculateIntersection(x, y, z, 3);
-						unsigned int id = GetEdgeID(x, y, z, 3);
-						m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
-					}
-					if (m_edgeTable[tableIndex] & 1) {
-						POINT3DID pt = CalculateIntersection(x, y, z, 0);
-						unsigned int id = GetEdgeID(x, y, z, 0);
-						m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
-					}
-					if (m_edgeTable[tableIndex] & 256) {
-						POINT3DID pt = CalculateIntersection(x, y, z, 8);
-						unsigned int id = GetEdgeID(x, y, z, 8);
-						m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
-					}
+   unsigned int nPointsInXDirection = (m_nCellsX + 1);
+   unsigned int nPointsInSlice = nPointsInXDirection*(m_nCellsY + 1);
+
+   // Generate isosurface.
+   for (unsigned int z = 0; z < m_nCellsZ; z++)
+      for (unsigned int y = 0; y < m_nCellsY; y++)
+	 for (unsigned int x = 0; x < m_nCellsX; x++) {
+	    // Calculate table lookup index from those
+	    // vertices which are below the isolevel.
+	    unsigned int tableIndex = 0;
+	    if (m_ptScalarField[z*nPointsInSlice + y*nPointsInXDirection + x] < m_tIsoLevel)
+	       tableIndex |= 1;
+	    if (m_ptScalarField[z*nPointsInSlice + (y+1)*nPointsInXDirection + x] < m_tIsoLevel)
+	       tableIndex |= 2;
+	    if (m_ptScalarField[z*nPointsInSlice + (y+1)*nPointsInXDirection + (x+1)] < m_tIsoLevel)
+	       tableIndex |= 4;
+	    if (m_ptScalarField[z*nPointsInSlice + y*nPointsInXDirection + (x+1)] < m_tIsoLevel)
+	       tableIndex |= 8;
+	    if (m_ptScalarField[(z+1)*nPointsInSlice + y*nPointsInXDirection + x] < m_tIsoLevel)
+	       tableIndex |= 16;
+	    if (m_ptScalarField[(z+1)*nPointsInSlice + (y+1)*nPointsInXDirection + x] < m_tIsoLevel)
+	       tableIndex |= 32;
+	    if (m_ptScalarField[(z+1)*nPointsInSlice + (y+1)*nPointsInXDirection + (x+1)] < m_tIsoLevel)
+	       tableIndex |= 64;
+	    if (m_ptScalarField[(z+1)*nPointsInSlice + y*nPointsInXDirection + (x+1)] < m_tIsoLevel)
+	       tableIndex |= 128;
+
+	    // Now create a triangulation of the isosurface in this
+	    // cell.
+	    if (m_edgeTable[tableIndex] != 0) {
+	       if (m_edgeTable[tableIndex] & 8) {
+		  POINT3DID pt = CalculateIntersection(x, y, z, 3);
+		  unsigned int id = GetEdgeID(x, y, z, 3);
+		  m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+	       }
+	       if (m_edgeTable[tableIndex] & 1) {
+		  POINT3DID pt = CalculateIntersection(x, y, z, 0);
+		  unsigned int id = GetEdgeID(x, y, z, 0);
+		  m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+	       }
+	       if (m_edgeTable[tableIndex] & 256) {
+		  POINT3DID pt = CalculateIntersection(x, y, z, 8);
+		  unsigned int id = GetEdgeID(x, y, z, 8);
+		  m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+	       }
 					
-					if (x == m_nCellsX - 1) {
-						if (m_edgeTable[tableIndex] & 4) {
-							POINT3DID pt = CalculateIntersection(x, y, z, 2);
-							unsigned int id = GetEdgeID(x, y, z, 2);
-							m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
-						}
-						if (m_edgeTable[tableIndex] & 2048) {
-							POINT3DID pt = CalculateIntersection(x, y, z, 11);
-							unsigned int id = GetEdgeID(x, y, z, 11);
-							m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
-						}
-					}
-					if (y == m_nCellsY - 1) {
-						if (m_edgeTable[tableIndex] & 2) {
-							POINT3DID pt = CalculateIntersection(x, y, z, 1);
-							unsigned int id = GetEdgeID(x, y, z, 1);
-							m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
-						}
-						if (m_edgeTable[tableIndex] & 512) {
-							POINT3DID pt = CalculateIntersection(x, y, z, 9);
-							unsigned int id = GetEdgeID(x, y, z, 9);
-							m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
-						}
-					}
-					if (z == m_nCellsZ - 1) {
-						if (m_edgeTable[tableIndex] & 16) {
-							POINT3DID pt = CalculateIntersection(x, y, z, 4);
-							unsigned int id = GetEdgeID(x, y, z, 4);
-							m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
-						}
-						if (m_edgeTable[tableIndex] & 128) {
-							POINT3DID pt = CalculateIntersection(x, y, z, 7);
-							unsigned int id = GetEdgeID(x, y, z, 7);
-							m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
-						}
-					}
-					if ((x==m_nCellsX - 1) && (y==m_nCellsY - 1))
-						if (m_edgeTable[tableIndex] & 1024) {
-							POINT3DID pt = CalculateIntersection(x, y, z, 10);
-							unsigned int id = GetEdgeID(x, y, z, 10);
-							m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
-						}
-					if ((x==m_nCellsX - 1) && (z==m_nCellsZ - 1))
-						if (m_edgeTable[tableIndex] & 64) {
-							POINT3DID pt = CalculateIntersection(x, y, z, 6);
-							unsigned int id = GetEdgeID(x, y, z, 6);
-							m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
-						}
-					if ((y==m_nCellsY - 1) && (z==m_nCellsZ - 1))
-						if (m_edgeTable[tableIndex] & 32) {
-							POINT3DID pt = CalculateIntersection(x, y, z, 5);
-							unsigned int id = GetEdgeID(x, y, z, 5);
-							m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
-						}
+	       if (x == m_nCellsX - 1) {
+		  if (m_edgeTable[tableIndex] & 4) {
+		     POINT3DID pt = CalculateIntersection(x, y, z, 2);
+		     unsigned int id = GetEdgeID(x, y, z, 2);
+		     m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		  }
+		  if (m_edgeTable[tableIndex] & 2048) {
+		     POINT3DID pt = CalculateIntersection(x, y, z, 11);
+		     unsigned int id = GetEdgeID(x, y, z, 11);
+		     m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		  }
+	       }
+	       if (y == m_nCellsY - 1) {
+		  if (m_edgeTable[tableIndex] & 2) {
+		     POINT3DID pt = CalculateIntersection(x, y, z, 1);
+		     unsigned int id = GetEdgeID(x, y, z, 1);
+		     m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		  }
+		  if (m_edgeTable[tableIndex] & 512) {
+		     POINT3DID pt = CalculateIntersection(x, y, z, 9);
+		     unsigned int id = GetEdgeID(x, y, z, 9);
+		     m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		  }
+	       }
+	       if (z == m_nCellsZ - 1) {
+		  if (m_edgeTable[tableIndex] & 16) {
+		     POINT3DID pt = CalculateIntersection(x, y, z, 4);
+		     unsigned int id = GetEdgeID(x, y, z, 4);
+		     m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		  }
+		  if (m_edgeTable[tableIndex] & 128) {
+		     POINT3DID pt = CalculateIntersection(x, y, z, 7);
+		     unsigned int id = GetEdgeID(x, y, z, 7);
+		     m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		  }
+	       }
+	       if ((x==m_nCellsX - 1) && (y==m_nCellsY - 1))
+		  if (m_edgeTable[tableIndex] & 1024) {
+		     POINT3DID pt = CalculateIntersection(x, y, z, 10);
+		     unsigned int id = GetEdgeID(x, y, z, 10);
+		     m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		  }
+	       if ((x==m_nCellsX - 1) && (z==m_nCellsZ - 1))
+		  if (m_edgeTable[tableIndex] & 64) {
+		     POINT3DID pt = CalculateIntersection(x, y, z, 6);
+		     unsigned int id = GetEdgeID(x, y, z, 6);
+		     m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		  }
+	       if ((y==m_nCellsY - 1) && (z==m_nCellsZ - 1))
+		  if (m_edgeTable[tableIndex] & 32) {
+		     POINT3DID pt = CalculateIntersection(x, y, z, 5);
+		     unsigned int id = GetEdgeID(x, y, z, 5);
+		     m_i2pt3idVertices.insert(ID2POINT3DID::value_type(id, pt));
+		  }
 					
-					for (unsigned int i = 0; m_triTable[tableIndex][i] != -1; i += 3) {
-						TRIANGLE triangle;
-						unsigned int pointID0, pointID1, pointID2;
-						pointID0 = GetEdgeID(x, y, z, m_triTable[tableIndex][i]);
-						pointID1 = GetEdgeID(x, y, z, m_triTable[tableIndex][i+1]);
-						pointID2 = GetEdgeID(x, y, z, m_triTable[tableIndex][i+2]);
-						triangle.pointID[0] = pointID0;
-						triangle.pointID[1] = pointID1;
-						triangle.pointID[2] = pointID2;
-						m_trivecTriangles.push_back(triangle);
-					}
-				}
-			}
+	       for (unsigned int i = 0; m_triTable[tableIndex][i] != -1; i += 3) {
+		  TRIANGLE triangle;
+		  unsigned int pointID0, pointID1, pointID2;
+		  pointID0 = GetEdgeID(x, y, z, m_triTable[tableIndex][i]);
+		  pointID1 = GetEdgeID(x, y, z, m_triTable[tableIndex][i+1]);
+		  pointID2 = GetEdgeID(x, y, z, m_triTable[tableIndex][i+2]);
+		  triangle.pointID[0] = pointID0;
+		  triangle.pointID[1] = pointID1;
+		  triangle.pointID[2] = pointID2;
+		  m_trivecTriangles.push_back(triangle);
+	       }
+	    }
+	 }
 	
-	RenameVerticesAndTriangles();
-	//CalculateNormals();
-	m_bValidSurface = true;
+#ifdef ANALYSE_CONTOURING_TIMING
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+#endif
+   RenameVerticesAndTriangles();
+#ifdef ANALYSE_CONTOURING_TIMING
+   auto tp_2 = std::chrono::high_resolution_clock::now();
+   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+   std::cout << "   GenerateSurface() d10 " << d10 << "  d21 " << d21 << " microseconds\n";
+#endif
+
+   //CalculateNormals();
+   m_bValidSurface = true;
 }
 
 
@@ -536,6 +555,11 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
 					  int isample_step)
 {
 
+#ifdef ANALYSE_CONTOURING_TIMING
+   std::cout << "------ start GenerateSurface_from_Xmap() " << std::endl;
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+#endif
+
    // We need to convert the Cartesian centre_point to a grid_coord
    // using coord_orth we can use the xmap cell to give coord_frac 
    // and then use xmap::grid_sampling() to get a coord_grid.
@@ -549,29 +573,35 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
    // the offset of the bottom left hand corner.
    //
 
-  clipper::Coord_orth centre( centre_point.get_x(), centre_point.get_y(),
-			      centre_point.get_z() );
+   clipper::Coord_orth centre(centre_point.get_x(),
+			      centre_point.get_y(),
+			      centre_point.get_z());
 
-  // clipper::Coord_frac centref = crystal_map.cell().to_frac( centre );
-  
-  clipper::Coord_frac centref = centre.coord_frac(crystal_map.cell() ); 
+   clipper::Coord_frac centref = centre.coord_frac(crystal_map.cell());
 
-  clipper::Coord_frac box0(
-    centref.u() - box_radius/crystal_map.cell().descr().a(),
-    centref.v() - box_radius/crystal_map.cell().descr().b(),
-    centref.w() - box_radius/crystal_map.cell().descr().c() );
-  clipper::Coord_frac box1(
-    centref.u() + box_radius/crystal_map.cell().descr().a(),
-    centref.v() + box_radius/crystal_map.cell().descr().b(),
-    centref.w() + box_radius/crystal_map.cell().descr().c() );
+   clipper::Coord_frac box0(
+			    centref.u() - box_radius/crystal_map.cell().descr().a(),
+			    centref.v() - box_radius/crystal_map.cell().descr().b(),
+			    centref.w() - box_radius/crystal_map.cell().descr().c() );
+   clipper::Coord_frac box1(
+			    centref.u() + box_radius/crystal_map.cell().descr().a(),
+			    centref.v() + box_radius/crystal_map.cell().descr().b(),
+			    centref.w() + box_radius/crystal_map.cell().descr().c() );
 
-  //Note that this introduces a rounding step - is this what you want?
-  clipper::Grid_map grid( box0.coord_grid(crystal_map.grid_sampling()),
+   //Note that this introduces a rounding step - is this what you want?
+   clipper::Grid_map grid(box0.coord_grid(crystal_map.grid_sampling()),
 			  box1.coord_grid(crystal_map.grid_sampling()));
-			  
-  T* ptScalarField = new T[grid.size()];
 
-  if (0) { // debug
+#ifdef ANALYSE_CONTOURING_TIMING
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+#endif
+   T* ptScalarField = new T[grid.size()];
+
+#ifdef ANALYSE_CONTOURING_TIMING
+   auto tp_2 = std::chrono::high_resolution_clock::now();
+#endif
+
+   if (0) { // debug
      std::cout << "    tIsoLevel: " << tIsoLevel << std::endl;
      std::cout << "    box_radius " << box_radius << std::endl;
      std::cout << "    centre_point: " << centre_point << std::endl;
@@ -593,22 +623,50 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
 	   for(ii=0; ii<isample_step; ii++) 
 	      ix.next_u(); 
         } 
-     } 
-  } 
-   
+     }
+  }
+
+#ifdef ANALYSE_CONTOURING_TIMING
+  auto tp_3 = std::chrono::high_resolution_clock::now();
+#endif
+
   GenerateSurface(ptScalarField, tIsoLevel,
 		  (grid.nu()-1)/isample_step,
 		  (grid.nv()-1)/isample_step,
 		  (grid.nw()-1)/isample_step,
 		  isample_step * 1.0, isample_step * 1.0, isample_step * 1.0);
 
-
-  delete [] ptScalarField;
+#ifdef ANALYSE_CONTOURING_TIMING
+  auto tp_4 = std::chrono::high_resolution_clock::now();
+#endif
+  delete [] ptScalarField; // 7 ms
   
-  return returnTriangles( crystal_map,
-			  grid.min().coord_frac(crystal_map.grid_sampling()),
-			  box_radius,
-			  centre_point);
+#ifdef ANALYSE_CONTOURING_TIMING
+  auto tp_5 = std::chrono::high_resolution_clock::now();
+#endif
+
+  coot::CartesianPairInfo cpi =
+     returnTriangles(crystal_map,
+		     grid.min().coord_frac(crystal_map.grid_sampling()),
+		     box_radius, centre_point);
+#ifdef ANALYSE_CONTOURING_TIMING
+   auto tp_6 = std::chrono::high_resolution_clock::now();
+
+   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+   auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
+   auto d54 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_5 - tp_4).count();
+   auto d65 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_6 - tp_5).count();
+
+   std::cout << " GenerateSurface_from_Xmap"
+	     << "  d10 " << d10 << "  d21 " << d21
+	     << "  d32 " << d32 << "  d43 " << d43
+	     << "  d54 " << d54 << "  d65 " << d65 
+	     << " milliseconds\n";
+#endif
+
+   return cpi;
 }
 
 template <class T> // vector<CartesianPair>
@@ -1049,82 +1107,164 @@ template <class T> POINT3DID CIsoSurface<T>::Interpolate(float fX1, float fY1, f
 	return interpolation;
 }
 
-template <class T> void CIsoSurface<T>::RenameVerticesAndTriangles()
-{
-	unsigned int nextID = 0;
-	ID2POINT3DID::iterator mapIterator = m_i2pt3idVertices.begin();
-	TRIANGLEVECTOR::iterator vecIterator = m_trivecTriangles.begin();
+#include "utils/coot-utils.hh" // for get_max_number_of_threads()
 
-	// Rename vertices.
-	while (mapIterator != m_i2pt3idVertices.end()) {
-		(*mapIterator).second.newID = nextID;
-		nextID++;
-		mapIterator++;
-	}
+template <class T> void CIsoSurface<T>::RenameVerticesAndTriangles() {
 
-	// Now rename triangles.
-	while (vecIterator != m_trivecTriangles.end()) {
-		for (unsigned int i = 0; i < 3; i++) {
-			unsigned int newID = m_i2pt3idVertices[(*vecIterator).pointID[i]].newID;
-			(*vecIterator).pointID[i] = newID;
-		}
-		vecIterator++;
-	}
+#ifdef ANALYSE_CONTOURING_TIMING
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+#endif
 
-	// Copy all the vertices and triangles into two arrays so that they
-	// can be efficiently accessed.
-	// Copy vertices.
-	mapIterator = m_i2pt3idVertices.begin();
-	m_nVertices = m_i2pt3idVertices.size();
-	m_ppt3dVertices = new POINT3D[m_nVertices];
+   unsigned int nextID = 0;
+   ID2POINT3DID::iterator mapIterator = m_i2pt3idVertices.begin();
+   TRIANGLEVECTOR::iterator vecIterator = m_trivecTriangles.begin();
 
-	// Debugging stuff.
-//  	T max_x = -999, max_y = -999, max_z = -999; 
-//  	T min_x =  999, min_y =  999, min_z =  999;
-	
- 	for (unsigned int i = 0; i < m_nVertices; i++, mapIterator++) {
- 		m_ppt3dVertices[i][0] = (*mapIterator).second.x;
- 		m_ppt3dVertices[i][1] = (*mapIterator).second.y;
- 		m_ppt3dVertices[i][2] = (*mapIterator).second.z;
+   // Rename vertices.
+   while (mapIterator != m_i2pt3idVertices.end()) {
+      mapIterator->second.newID = nextID;
+      nextID++;
+      mapIterator++;
+   }
 
-// 		if ( (*mapIterator).second.x > max_x)
-// 		   max_x = (*mapIterator).second.x;
-// 		if ( (*mapIterator).second.y > max_y)
-// 		   max_y = (*mapIterator).second.y;
-// 		if ( (*mapIterator).second.z > max_z)
-// 		   max_z = (*mapIterator).second.z;
+#ifdef ANALYSE_CONTOURING_TIMING
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+#endif
 
-// 		if ( (*mapIterator).second.x < min_x)
-// 		   min_x = (*mapIterator).second.x;
-// 		if ( (*mapIterator).second.y < min_y)
-// 		   min_y = (*mapIterator).second.y;
-// 		if ( (*mapIterator).second.z < min_z)
-// 		   min_z = (*mapIterator).second.z;
- 	}
+#ifdef HAVE_CXX_THREAD
+   std::size_t ss = m_trivecTriangles.size();
+   // std::cout << "   RenameVerticesAndTriangles() start try threaded  ss: " << ss << std::endl;
 
-// 	cout << "Debug: iterator max and mins: \n"
-// 	     << min_x << " " << max_x << "\n"
-// 	     << min_y << " " << max_y << "\n"
-// 	     << min_z << " " << max_z << "\n";
-	
-	// Copy vertex indices which make triangles.
-	vecIterator = m_trivecTriangles.begin();
-	m_nTriangles = m_trivecTriangles.size();
-	m_piTriangleIndices = new unsigned int[m_nTriangles*3];
-	for (unsigned int i = 0; i < m_nTriangles; i++, vecIterator++) {
-		m_piTriangleIndices[i*3  ] = (*vecIterator).pointID[0];
-		m_piTriangleIndices[i*3+1] = (*vecIterator).pointID[1];
-		m_piTriangleIndices[i*3+2] = (*vecIterator).pointID[2];
-	}
+   auto tp_1a = std::chrono::high_resolution_clock::now();
+   unsigned int n_threads = coot::get_max_number_of_threads();
 
-	// cout << "At the end of RenameVerticesAndTriangles,\n     m_nTriangles is "
-	//   << m_nTriangles << " and m_nVertices is " << m_nVertices << endl;
-	
+   if (n_threads > 0) {
+      // if there are 8888 items in m_trivecTriangles, then
+      // if we have 4 threads, then
+      // index_ranges will be:
+      // 0 [0,2222]
+      // 0 [2222,4444]
+      // 0 [4444,6666]
+      // 0 [6666,8888]
+      // note that the second value is used with a < test.
+      //
+      std::pair<unsigned int, unsigned int> blank(0,0);
+      std::vector<std::pair<unsigned int, unsigned int> > index_ranges(n_threads, blank);
+      unsigned int n_per_thread = ss/n_threads + 1;
+      for (std::size_t i=0; i<n_threads; i++) {
+	 unsigned int start = i*n_per_thread;
+	 unsigned int stop  = start + n_per_thread;
+	 if (stop > ss) stop = ss;
+	 if (start < ss)
+	    index_ranges[i] = std::pair<unsigned int, unsigned int>(start, stop);
+      }
+      auto tp_1b = std::chrono::high_resolution_clock::now();
+      std::vector<std::thread> threads;
+      for (std::size_t i=0; i<n_threads; i++) {
+	 threads.push_back(std::thread(rename_tris_in_thread, std::cref(index_ranges[i]),
+				       std::ref(m_trivecTriangles), std::ref(m_i2pt3idVertices)));
+      }
+      auto tp_1c = std::chrono::high_resolution_clock::now();
+      for (unsigned int i_thread=0; i_thread<threads.size(); i_thread++)
+	 threads.at(i_thread).join();
+      auto tp_1d = std::chrono::high_resolution_clock::now();
+   } else {
 
-	//check_max_min_vertices();
-	//check_max_min_vertex_index_from_triangles();
-	m_i2pt3idVertices.clear();
-	m_trivecTriangles.clear();
+      // Now rename triangles.
+      while (vecIterator != m_trivecTriangles.end()) {
+	 for (unsigned int i=0; i<3; i++) {
+	    unsigned int newID = m_i2pt3idVertices.at(vecIterator->pointID[i]).newID;
+	    vecIterator->pointID[i] = newID;
+	 }
+	 vecIterator++;
+      }
+   }
+
+#else
+   // Now rename triangles.
+   while (vecIterator != m_trivecTriangles.end()) {
+      for (unsigned int i=0; i<3; i++) {
+	 // unsigned int newID = m_i2pt3idVertices[(*vecIterator).pointID[i]].newID;
+	 // (*vecIterator).pointID[i] = newID;
+	 // vecIterator->pointID[i] = m_i2pt3idVertices[vecIterator->pointID[i]].newID;
+
+	 unsigned int newID = m_i2pt3idVertices.at(vecIterator->pointID[i]).newID;
+	 vecIterator->pointID[i] = newID;
+
+      }
+      vecIterator++;
+   }
+#endif // HAVE_CXX_THREAD
+
+#ifdef ANALYSE_CONTOURING_TIMING
+   auto tp_2 = std::chrono::high_resolution_clock::now();
+#endif
+
+   // Copy all the vertices and triangles into two arrays so that they
+   // can be efficiently accessed.
+   // Copy vertices.
+   mapIterator = m_i2pt3idVertices.begin();
+   m_nVertices = m_i2pt3idVertices.size();
+   m_ppt3dVertices = new POINT3D[m_nVertices];
+
+#ifdef ANALYSE_CONTOURING_TIMING
+   auto tp_3 = std::chrono::high_resolution_clock::now();
+#endif
+
+   for (unsigned int i = 0; i < m_nVertices; i++, mapIterator++) {
+      m_ppt3dVertices[i][0] = (*mapIterator).second.x;
+      m_ppt3dVertices[i][1] = (*mapIterator).second.y;
+      m_ppt3dVertices[i][2] = (*mapIterator).second.z;
+   }
+
+#ifdef ANALYSE_CONTOURING_TIMING
+   auto tp_4 = std::chrono::high_resolution_clock::now();
+#endif
+
+   // Copy vertex indices which make triangles.
+   vecIterator = m_trivecTriangles.begin();
+   m_nTriangles = m_trivecTriangles.size();
+   m_piTriangleIndices = new unsigned int[m_nTriangles*3];
+   for (unsigned int i = 0; i < m_nTriangles; i++, vecIterator++) {
+      m_piTriangleIndices[i*3  ] = (*vecIterator).pointID[0];
+      m_piTriangleIndices[i*3+1] = (*vecIterator).pointID[1];
+      m_piTriangleIndices[i*3+2] = (*vecIterator).pointID[2];
+   }
+
+#ifdef ANALYSE_CONTOURING_TIMING
+   auto tp_5 = std::chrono::high_resolution_clock::now();
+#endif
+
+   m_i2pt3idVertices.clear();
+   m_trivecTriangles.clear();
+
+#ifdef ANALYSE_CONTOURING_TIMING
+   auto tp_6 = std::chrono::high_resolution_clock::now();
+
+   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+   auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
+   auto d54 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_5 - tp_4).count();
+   auto d65 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_6 - tp_5).count();
+
+   std::cout << "   RenameVerticesAndTriangles d10 " << d10 << "  d21 " << d21
+	     << "  d32 " << d32 << "  d43 " << d43
+	     << "  d54 " << d54 << "  d65 " << d65
+	     << " milliseconds\n";
+#endif
+}
+
+// static
+template <class T> void CIsoSurface<T>::rename_tris_in_thread(const std::pair<unsigned int, unsigned int> &idx_range, TRIANGLEVECTOR &tv, const ID2POINT3DID &point_map) {
+
+   for (std::size_t idx=idx_range.first; idx<idx_range.second; idx++) {
+      for (unsigned int i=0; i<3; i++) {
+
+	 unsigned int new_id = point_map.at(tv[idx].pointID[i]).newID;
+	 tv[idx].pointID[i] = new_id;
+      }
+   }
+
 }
 
 // debugging function
@@ -1557,18 +1697,32 @@ do_line(done_line_list_t &done_line_list, int j, int jp) {
 
 template <class T>
 coot::CartesianPairInfo
-CIsoSurface<T>::returnTriangles( const clipper::Xmap<T>& xmap,
-				 const clipper::Coord_frac& base,
-				 float radius,
-				 coot::Cartesian centre) const {
+CIsoSurface<T>::returnTriangles(const clipper::Xmap<T>& xmap,
+				const clipper::Coord_frac& base,
+				float radius,
+				coot::Cartesian centre) const {
+
+#ifdef ANALYSE_CONTOURING_TIMING
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+#endif
+   coot::CartesianPairInfo result_wrapper;
+
+   // result_wrapper.data = result;
+   // result_wrapper.size = line_index; 
 
    T nu = xmap.grid_sampling().nu();
    T nv = xmap.grid_sampling().nv();
    T nw = xmap.grid_sampling().nw();
 
-   coot::CartesianPair *result = new coot::CartesianPair[m_nTriangles*3]; // at most it can be this
-   int line_index = 0; // indexer of the result array.
-   
+#ifdef ANALYSE_CONTOURING_TIMING
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+#endif
+   result_wrapper.data = new coot::CartesianPair[m_nTriangles*3]; // at most it can be this
+   result_wrapper.size = 0; // indexer of the result array.
+#ifdef ANALYSE_CONTOURING_TIMING
+   auto tp_2 = std::chrono::high_resolution_clock::now();
+#endif
+
    clipper::Coord_frac cf;
    clipper::Coord_orth co1, co2, co3;
    float radius_sqd = radius * radius;
@@ -1580,7 +1734,7 @@ CIsoSurface<T>::returnTriangles( const clipper::Xmap<T>& xmap,
    int not_passed_back_count = 0;
    short int face;
 
-   unsigned int j, jp, jp2, done_count = 0, d1_2, d2_3, d1_3;
+   unsigned int done_count = 0, d1_2, d2_3, d1_3;
 
    coot::Cartesian co1_c;
    coot::Cartesian co2_c;
@@ -1589,38 +1743,48 @@ CIsoSurface<T>::returnTriangles( const clipper::Xmap<T>& xmap,
    bool valid_co_1 = true;
    bool valid_co_2 = true;
    bool valid_co_3 = true;
-   
-   for (unsigned int i=0; i < m_nTriangles*3; i+=3) {
 
-      j   = m_piTriangleIndices[i]; 
-      jp  = m_piTriangleIndices[i+1]; 
-      jp2 = m_piTriangleIndices[i+2];
+#ifdef ANALYSE_CONTOURING_TIMING
+   auto tp_3 = std::chrono::high_resolution_clock::now();
+#endif
 
-       d1_2 = do_line(done_line_list, j,  jp);
-       d1_3 = do_line(done_line_list, j,  jp2);
-       d2_3 = do_line(done_line_list, jp, jp2);
+   unsigned int m_nTriangles_x_3 = m_nTriangles*3; // do the multiply once
 
-      if (d1_2 || d1_3) { 
-	 cf = clipper::Coord_frac( m_ppt3dVertices[j][0]/nu,
-				   m_ppt3dVertices[j][1]/nv,
-				   m_ppt3dVertices[j][2]/nw ) + base;
+   for (unsigned int i=0; i < m_nTriangles_x_3; i+=3) {
+
+      unsigned int j   = m_piTriangleIndices[i]; 
+      unsigned int jp  = m_piTriangleIndices[i+1]; 
+      unsigned int jp2 = m_piTriangleIndices[i+2];
+
+      // d1_2 = do_line(done_line_list, j,  jp);
+      // d1_3 = do_line(done_line_list, j,  jp2);
+      // d2_3 = do_line(done_line_list, jp, jp2);
+
+      d1_2 = true;
+      d1_3 = true;
+      d2_3 = true;
+
+      if (d1_2 || d1_3) {
+	 cf = clipper::Coord_frac(m_ppt3dVertices[j][0]/nu,
+				  m_ppt3dVertices[j][1]/nv,
+				  m_ppt3dVertices[j][2]/nw) + base;
 	 co1 = cf.coord_orth(xmap.cell()); 
-	 co1_c = coot::Cartesian( co1.x(), co1.y(), co1.z() );
+	 co1_c = coot::Cartesian(co1.x(), co1.y(), co1.z());
       }
 
       if (d1_2 || d2_3) { 
-	 cf = clipper::Coord_frac( m_ppt3dVertices[jp][0]/nu,
-				   m_ppt3dVertices[jp][1]/nv,
-				   m_ppt3dVertices[jp][2]/nw ) + base;
+	 cf = clipper::Coord_frac(m_ppt3dVertices[jp][0]/nu,
+				  m_ppt3dVertices[jp][1]/nv,
+				  m_ppt3dVertices[jp][2]/nw) + base;
 	 co2 = cf.coord_orth(xmap.cell()); 
-	 co2_c = coot::Cartesian( co2.x(), co2.y(), co2.z() );
+	 co2_c = coot::Cartesian(co2.x(), co2.y(), co2.z());
       }
 
       if (d1_3 || d2_3) { 
-	 cf = clipper::Coord_frac( m_ppt3dVertices[jp2][0]/nu,
-				   m_ppt3dVertices[jp2][1]/nv,
-				   m_ppt3dVertices[jp2][2]/nw ) + base;
-	 co3 = cf.coord_orth(xmap.cell()); 
+	 cf = clipper::Coord_frac(m_ppt3dVertices[jp2][0]/nu,
+				  m_ppt3dVertices[jp2][1]/nv,
+				  m_ppt3dVertices[jp2][2]/nw) + base;
+	 co3 = cf.coord_orth(xmap.cell());
 	 co3_c =  coot::Cartesian( co3.x(), co3.y(), co3.z());
       }
 
@@ -1647,23 +1811,30 @@ CIsoSurface<T>::returnTriangles( const clipper::Xmap<T>& xmap,
 
       if (valid_co_1 && valid_co_2)
 	 if (d1_2 == 1) 
-	    result[line_index++] = coot::CartesianPair(co1_c, co2_c);
+	    result_wrapper.data[result_wrapper.size++] = coot::CartesianPair(co1_c, co2_c);
       if (valid_co_1 && valid_co_3)
-	 if (d1_3 == 1) 
-	    result[line_index++] = coot::CartesianPair(co1_c, co3_c); 
+	 if (d1_3 == 1)
+	    result_wrapper.data[result_wrapper.size++] = coot::CartesianPair(co1_c, co3_c); 
       if (valid_co_2 && valid_co_3)
-	 if (d2_3 == 1) 
-	    result[line_index++] = coot::CartesianPair(co3_c, co2_c);
+	 if (d2_3 == 1)
+	    result_wrapper.data[result_wrapper.size++] = coot::CartesianPair(co3_c, co2_c);
 
-      done_count += d1_2 + d1_3 + d2_3;
-	 
+      // done_count += d1_2 + d1_3 + d2_3;
    }
+#ifdef ANALYSE_CONTOURING_TIMING
+   auto tp_4 = std::chrono::high_resolution_clock::now();
 
-   coot::CartesianPairInfo result_wrapper;
+   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+   auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
    
-   result_wrapper.data = result;
-   result_wrapper.size = line_index; 
-      
+   std::cout << "   returnTriangles "
+	     << "  d10 " << d10 << "  d21 " << d21
+	     << "  d32 " << d32 << "  d43 " << d43
+	     << " milliseconds\n";
+#endif
+
    return result_wrapper;
 }
 

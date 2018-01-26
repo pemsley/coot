@@ -1099,7 +1099,8 @@ coot::residue_spec_t residue_spec_from_py(PyObject *residue_in) {
    int offset = 0;
 
    if (PyList_Check(residue_in)) {
-      if (PyList_Size(residue_in) == 4)
+      long len = PyList_Size(residue_in);
+      if (len == 4)
          offset = 1;
       PyObject *chain_id_py = PyList_GetItem(residue_in, 0+offset);
       PyObject *resno_py    = PyList_GetItem(residue_in, 1+offset);
@@ -1111,6 +1112,13 @@ coot::residue_spec_t residue_spec_from_py(PyObject *residue_in) {
                std::string ins_code  = PyString_AsString(ins_code_py);
                long resno            = PyInt_AsLong(resno_py);
                rspec = coot::residue_spec_t(chain_id, resno, ins_code);
+	       if (len == 4) {
+		  PyObject *o = PyList_GetItem(residue_in, 0);
+		  if (PyInt_Check(o)) {
+		     long imol = PyInt_AsLong(o);
+		     rspec.int_user_data = imol;
+		  }
+	       }
                return rspec;
             }
          }
@@ -1200,7 +1208,7 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
    return r;
 }
 #endif // USE_GUILE
-// BL says:: this is my attepmt to code it in python
+
 #ifdef USE_PYTHON
 PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char *ins_code) {
 
@@ -1208,6 +1216,7 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
    PyObject *all_atoms;
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      int udd_handle     = graphics_info_t::molecules[imol].atom_sel.UDDAtomIndexHandle;
       int imod = 1;
       
       mmdb::Model *model_p = mol->GetModel(imod);
@@ -1238,11 +1247,20 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
 		     PyObject *compound_name;
 		     PyObject *compound_attrib;
 		     all_atoms = PyList_New(0);
+
                      for (int iat=0; iat<n_atoms; iat++) {
 
                         at = residue_p->GetAtom(iat);
                         if (at->Ter) continue; //ignore TER records
-                        
+
+			int idx = -1;
+			int ierr = at->GetUDData(udd_handle, idx);
+			if (ierr != mmdb::UDDATA_Ok) {
+			   std::cout << "WARNING:: error getting uddata for atom " << at << std::endl;
+			   idx = -1; // maybe not needed
+			}
+			PyObject *atom_idx_py = PyInt_FromLong(idx);
+
                         at_x  = PyFloat_FromDouble(at->x);
                         at_y  = PyFloat_FromDouble(at->y);
                         at_z  = PyFloat_FromDouble(at->z);
@@ -1280,10 +1298,11 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
                         PyList_SetItem(compound_attrib, 2, at_ele);
                         PyList_SetItem(compound_attrib, 3, at_segid);
 
-                        at_info = PyList_New(3);
+                        at_info = PyList_New(4);
                         PyList_SetItem(at_info, 0, compound_name);
                         PyList_SetItem(at_info, 1, compound_attrib);
                         PyList_SetItem(at_info, 2, at_pos);
+                        PyList_SetItem(at_info, 3, atom_idx_py);
 
                         PyList_Append(all_atoms, at_info);
                      }
@@ -2568,8 +2587,138 @@ void fill_single_map_properties_dialog(GtkWidget *window, int imol) {
    GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(scale));
    float op = g.molecules[imol].density_surface_opacity;
    gtk_adjustment_set_value(adjustment, 100.0*op);
-   
+
+   GtkWidget *map_contour_frame =
+      GTK_WIDGET(lookup_widget(GTK_WIDGET(window), "single_map_properties_map_histogram_frame"));
+
+   GtkWidget *alignment =
+      GTK_WIDGET(lookup_widget(GTK_WIDGET(window), "alignment169")); // change the name
+
+   if (map_contour_frame) {
+      fill_map_histogram_widget(imol, alignment);
+   }
 } 
+
+#include "goograph/goograph.hh"
+#include "coot-utils/xmap-stats.hh"
+
+
+void
+fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
+
+#ifdef HAVE_GOOCANVAS
+
+   if (is_valid_map_molecule(imol)) {
+      // set_and_get_histogram_values(); surely?
+      unsigned int n = graphics_info_t::molecules[imol].map_histogram_values.size();
+      if (n == 1) {
+	 // pass, previous fail
+      } else {
+
+	 if (true) {
+
+	    const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol].xmap;
+	    unsigned int n_bins = 1000;
+	    bool ignore_pseudo_zeros = false;
+	    mean_and_variance <float> mv = map_density_distribution(xmap, n_bins, false, ignore_pseudo_zeros);
+	    float rmsd = sqrt(mv.variance);
+
+	    if (false) {
+	       std::cout << "mv: mean: " << mv.mean << std::endl;
+	       std::cout << "mv: var: " << mv.variance << std::endl;
+	       std::cout << "mv: sd: " << sqrt(mv.variance) << std::endl;
+	    }
+
+	    if (mv.bins.size() > 0) {
+	       std::vector<std::pair<double, double> > data(mv.bins.size());
+	       for (unsigned int ibin=0; ibin<mv.bins.size(); ibin++) {
+		  double x = (ibin+0.5)*mv.bin_width + mv.min_density;
+		  double y = mv.bins[ibin];
+		  data[ibin] = std::pair<double, double> (x, y);
+	       }
+
+	       int graph_x_n_pixels = 300;
+	       int graph_y_n_pixels =  64;
+	       coot::goograph* g = new coot::goograph(graph_x_n_pixels, graph_y_n_pixels);
+	       int trace = g->trace_new();
+
+	       g->set_plot_title("");
+	       g->set_data(trace, data);
+	       // g->set_axis_label(coot::goograph::X_AXIS, "Density Value");
+	       // g->set_axis_label(coot::goograph::Y_AXIS, "Counts");
+	       g->set_trace_type(trace, coot::graph_trace_info_t::PLOT_TYPE_BAR);
+	       g->set_trace_colour(trace, "#111111");
+	       if (true) {
+		  if (data.size() == 0) {
+		  } else {
+		     // find y_max ignoring the peak
+		     double y_max           = -1e100;
+		     double y_max_secondary = -1e100;
+		     unsigned int idata_peak = 0;
+		     for (unsigned int idata=0; idata<data.size(); idata++) {
+			if (data[idata].second > y_max) {
+			   y_max = data[idata].second;
+			   idata_peak = idata;
+			}
+		     }
+		     for (unsigned int idata=0; idata<data.size(); idata++) {
+			if (idata != idata_peak)
+			   if (data[idata].second > y_max_secondary)
+			      y_max_secondary = data[idata].second;
+		     }
+
+		     // std::cout << ":::::::::: y_max_secondary " << y_max_secondary << std::endl;
+
+		     g->set_extents(coot::goograph::X_AXIS,
+				    mv.mean-2*sqrt(mv.variance),
+				    mv.mean+2*sqrt(mv.variance)
+				    );
+		     // the bar width depends on the X extents (for aesthetics)
+		     double contour_level_bar_width = sqrt(mv.variance) * 0.1;
+		     if (false)
+			std::cout << "::::: set_extents() X: "
+				  << mv.mean-2*sqrt(mv.variance) << " " 
+				  << mv.mean+2*sqrt(mv.variance) << "\n";
+		     if (y_max_secondary > 0) {
+			double y_max_graph = y_max_secondary * 1.3;
+			g->set_extents(coot::goograph::Y_AXIS,
+				       0,
+				       0.7 * y_max_graph); // calls set_data_scales() internall
+			if (false)
+			   std::cout << "::::: set_extents() Y: "
+				     << 0 << " " << y_max_graph << std::endl;
+			// draw x-axis ticks only
+			g->set_draw_axis(coot::goograph::Y_AXIS, false);
+			g->set_draw_axis(coot::goograph::X_AXIS, false);
+			g->set_draw_ticks(coot::goograph::Y_AXIS, false);
+
+			// draw the contour level bar
+			float cl = graphics_info_t::molecules[imol].get_contour_level();
+			std::vector<float> map_colours = graphics_info_t::molecules[imol].map_colours();
+			if (map_colours.size() > 2) {
+			   coot::colour_holder ch(map_colours);
+			   void (*func)(int, float) = set_contour_level_absolute;
+			   GtkWidget *canvas = g->get_canvas();
+			   // moving the contour level bar redraws the graph and calls func
+			   g->add_contour_level_box(cl, "#111111", 1.4, ch.hex(), imol, rmsd, func);
+			   // ticks fall off the graph, sigh - add an offset
+			   gtk_widget_set_size_request(canvas, graph_x_n_pixels, graph_y_n_pixels+10);
+			   g->draw_graph();
+
+			   gtk_widget_show(canvas);
+			   gtk_container_add(GTK_CONTAINER(map_contour_frame), canvas);
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+#else
+   gtk_widget_hide(map_contour_frame);
+#endif
+}
 
 /*  ----------------------------------------------------------------------- */
 /*                  miguels orientation axes matrix                         */
@@ -4854,11 +5003,21 @@ int refmac_runs_with_nolabels() {
   Py_XDECREF(refmac_version);
 #endif
 #endif
-
   
 
   return ret;
 }
+
+
+/*! \brief allow the user to not add ccp4i directories to the file choosers
+
+use state=0 to turn it off */
+void set_add_ccp4i_projects_to_file_dialogs(short int state) {
+
+   graphics_info_t::add_ccp4i_projects_to_optionmenu_flag = state;
+
+}
+
 
 #ifdef USE_GUILE
 SCM ccp4i_projects_scm() {

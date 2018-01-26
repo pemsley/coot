@@ -131,7 +131,7 @@ void open_coords_dialog() {
 
 void
 open_cif_dictionary_file_selector_dialog() {
-   
+
    if (graphics_info_t::use_graphics_interface_flag) {
 
       GtkWidget *fileselection = coot_cif_dictionary_chooser(); // a chooser or a fileselection
@@ -154,8 +154,10 @@ open_cif_dictionary_file_selector_dialog() {
 	 // classic (I'm in the club, Moet Chandon in my cup...)
 
 	 GtkWidget *aa_hbox = GTK_FILE_SELECTION(fileselection)->action_area;
-	 if (aa_hbox)
+	 if (aa_hbox) {
 	    add_cif_dictionary_selector_molecule_selector(fileselection, aa_hbox);
+	    add_cif_dictionary_selector_create_molecule_checkbutton(fileselection, aa_hbox);
+	 }
       }
       gtk_widget_show(fileselection);
    }
@@ -1782,7 +1784,7 @@ void add_is_difference_map_checkbutton(GtkWidget *fileselection) {
 void add_recentre_on_read_pdb_checkbutton(GtkWidget *fileselection) { 
 
    bool doit = 1;
-#if (GTK_MAJOR_VERSION > 1)
+
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
       doit = 0;
       GtkWidget *combobox =
@@ -1796,7 +1798,7 @@ void add_recentre_on_read_pdb_checkbutton(GtkWidget *fileselection) {
       if (!graphics_info_t::recentre_on_read_pdb)
      	  gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 1);
    }
-#endif
+
    
    if (doit) {
 
@@ -3778,6 +3780,9 @@ void close_molecule(int imol) {
 	 g.update_go_to_atom_window_on_changed_mol(go_to_atom_imol_new);
       } 
    }
+
+   g.clear_up_moving_atoms_maybe(imol);
+   
    graphics_draw();
    std::string cmd = "close-molecule";
    std::vector<coot::command_arg_t> args;
@@ -3844,29 +3849,32 @@ close_molecule_item_select(GtkWidget *item, GtkPositionType pos) {
 
 void add_ccp4i_project_shortcut(GtkWidget *fileselection) {
 
-   // Paul likes to have a current dir shortcut, here we go then:
-   gchar *current_dir = g_get_current_dir();
-   gtk_file_chooser_add_shortcut_folder(GTK_FILE_CHOOSER(fileselection),
-					current_dir,
-					NULL);
-   g_free(current_dir);
-//    std::cout << "DEBUG:: adding a short cut..." << std::endl;
-//    std::cout << "DEBUG:: widget is filechooser: " << GTK_IS_FILE_CHOOSER(fileselection) << std::endl;
-   // BL says: we simply add a short cut to ccp4 project folder
-   // based on ccp4_defs_file_name()
-   // add all projects to shortcut (the easiest option for now)
-   std::string ccp4_defs_file_name = graphics_info_t::ccp4_defs_file_name();
+   if (graphics_info_t::add_ccp4i_projects_to_optionmenu_flag) {
+
+      // Paul likes to have a current dir shortcut, here we go then:
+      gchar *current_dir = g_get_current_dir();
+      gtk_file_chooser_add_shortcut_folder(GTK_FILE_CHOOSER(fileselection),
+					   current_dir,
+					   NULL);
+      g_free(current_dir);
+      //    std::cout << "DEBUG:: adding a short cut..." << std::endl;
+      //    std::cout << "DEBUG:: widget is filechooser: " << GTK_IS_FILE_CHOOSER(fileselection) << std::endl;
+      // BL says: we simply add a short cut to ccp4 project folder
+      // based on ccp4_defs_file_name()
+      // add all projects to shortcut (the easiest option for now)
+      std::string ccp4_defs_file_name = graphics_info_t::ccp4_defs_file_name();
    
-   std::vector<std::pair<std::string, std::string> > project_pairs =
-      parse_ccp4i_defs(ccp4_defs_file_name);
+      std::vector<std::pair<std::string, std::string> > project_pairs =
+	 parse_ccp4i_defs(ccp4_defs_file_name);
    
-   for (unsigned int i=0; i<project_pairs.size(); i++) {
-      const char *folder = project_pairs[i].second.c_str();
-      int len = strlen(folder);
-      if (len > 0) {
-	 gtk_file_chooser_add_shortcut_folder(GTK_FILE_CHOOSER(fileselection),
-					      project_pairs[i].second.c_str(),
-					      NULL);
+      for (unsigned int i=0; i<project_pairs.size(); i++) {
+	 const char *folder = project_pairs[i].second.c_str();
+	 int len = strlen(folder);
+	 if (len > 0) {
+	    gtk_file_chooser_add_shortcut_folder(GTK_FILE_CHOOSER(fileselection),
+						 project_pairs[i].second.c_str(),
+						 NULL);
+	 }
       }
    }
 }

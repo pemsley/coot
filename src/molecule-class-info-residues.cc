@@ -253,10 +253,12 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		  std::vector<std::pair<bool,mmdb::Residue *> > residues;
 		  std::pair<bool, mmdb::Residue *> pp(0, residue_cp_p);
 		  residues.push_back(pp);
+		  clipper::Xmap<float> dummy_xmap;
 
 		  coot::restraints_container_t restraints(residues,
 							  atom_sel.links,
-							  geom, residue_mol, fixed_atoms);
+							  geom, residue_mol, fixed_atoms,
+							  dummy_xmap);
 		  bool do_torsions = 0;
 
 		  coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
@@ -273,7 +275,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		  if (needs_more) {
 		     coot::restraints_container_t restraints_2(residues,
 							       atom_sel.links,
-							       geom, residue_mol, fixed_atoms);
+							       geom, residue_mol, fixed_atoms, dummy_xmap);
 		     flags = coot::CHIRAL_VOLUMES;
 		     flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
 		     n_restraints = restraints_2.make_restraints(imol_no, geom,
@@ -423,7 +425,7 @@ molecule_class_info_t::no_dictionary_for_residue_type_as_yet(const coot::protein
 	       for (int ires=0; ires<nres; ires++) { 
 		  residue_p = chain_p->GetResidue(ires);
 		  std::string residue_name = residue_p->GetResName();
-		  if (! geom.have_at_least_minimal_dictionary_for_residue_type(residue_name)) {
+		  if (! geom.have_at_least_minimal_dictionary_for_residue_type(residue_name, imol_no)) {
 
 // 		  // now check the HETSYNs
 // 		  for (unsigned int ihet=0; ihet<model_p->HetCompounds.nHets; ihet++) { 
@@ -1027,6 +1029,13 @@ molecule_class_info_t::new_ligand_centre(const clipper::Coord_orth &current_cent
    coot::new_ligand_position_type status = coot::NO_LIGANDS;
    coot::residue_spec_t residue_spec;
 
+   std::vector<std::string> ignored_go_to_ligand_residue_types;
+   ignored_go_to_ligand_residue_types.push_back("HOH");
+   ignored_go_to_ligand_residue_types.push_back("WAT");
+   ignored_go_to_ligand_residue_types.push_back("MSE");
+   ignored_go_to_ligand_residue_types.push_back("ACE");
+   ignored_go_to_ligand_residue_types.push_back("PCA");
+
    std::vector<std::pair<clipper::Coord_orth, coot::residue_spec_t> > ligand_centres;
    
    if (atom_sel.n_selected_atoms > 0) { 
@@ -1050,12 +1059,14 @@ molecule_class_info_t::new_ligand_centre(const clipper::Coord_orth &current_cent
 		     at = residue_p->GetAtom(iat);
 		     if (at->Het) {
 			std::string res_name = residue_p->GetResName();
-			if (res_name != "HOH")
-			   if (res_name != "WAT")
-			      if (res_name != "MSE")
-				 is_het = true;
-			break;
-		     } 
+
+			if (std::find(ignored_go_to_ligand_residue_types.begin(),
+				      ignored_go_to_ligand_residue_types.end(),
+				      res_name) == ignored_go_to_ligand_residue_types.end()) {
+			   is_het = true;
+			   break;
+			}
+		     }
 		  }
 		  if (is_het) {
 		     std::pair<bool, clipper::Coord_orth> res_centre = residue_centre(residue_p);
@@ -2059,6 +2070,57 @@ molecule_class_info_t::delete_chain(const std::string &chain_id) {
    return done;
 
 }
+
+int
+molecule_class_info_t::delete_sidechains_for_chain(const std::string &chain_id) {
+
+   int done = false;
+
+   for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      if (model_p) {
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	    if (chain_p) {
+	       std::string this_chain_id = chain_p->GetChainID();
+	       if (this_chain_id == chain_id) {
+
+		  make_backup();
+
+		  int nres = chain_p->GetNumberOfResidues();
+		  // delete the specific atoms of eacho of the residues:
+		  for (int ires=0; ires<nres; ires++) { 
+		     mmdb::PResidue residue_p = chain_p->GetResidue(ires);
+		     if (residue_p) {
+			mmdb::PPAtom atoms = 0;
+			int n_atoms = 0;
+			bool was_deleted = false;
+			residue_p->GetAtomTable(atoms, n_atoms);
+			for (int i=0; i<n_atoms; i++) {
+			   if (! (coot::is_main_chain_or_cb_p(atoms[i]))) {
+			      residue_p->DeleteAtom(i);
+			      was_deleted = true;
+			   }
+			}
+			if (was_deleted)
+			   residue_p->TrimAtomTable();
+		     }
+		  }
+		  done = true;
+	       }
+	    }
+	 }
+      }
+   }
+
+   if (done) {
+      atom_sel.mol->FinishStructEdit();
+      update_molecule_after_additions();
+   }
+   return done;
+}
+
 
 
 // carbohydrate validation tools

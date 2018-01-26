@@ -595,7 +595,7 @@ and wait a short while.
 You will get a new window that tell you that it has found unexplaned
 blobs.  Time to find out what they are.
 
-\subsubsection{Blob 3}
+\subsection{Blob 3}
 Let's start from Blob 3 (the blobs are ordered biggest to smallest -
 Blobs 3 and 4 (if you have it) are the smallest).
 
@@ -629,7 +629,7 @@ Blobs 3 and 4 (if you have it) are the smallest).
 
 Blob 4 is like Blob 3 (isn't it?)
 
-\subsubsection{Blob 2}
+\subsection{Blob 2}
 Click on the button \textsf{``Blob 2''} and examine the density.
 Something is missing from the model.  What?
 
@@ -659,24 +659,24 @@ them for now
 
 The 3GP is displaced from where we want it to be.
 
+\item \textsf{Calculate $\rightarrow$ Other Modelling Tools $\rightarrow$ Find Ligands\ldots}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% arrrow keys
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item In the ``Select Ligands'' fram, click on the checkbutton for the '3GP' ligand
 
-\item \textsf{``Rotate/Translate Zone''} from the Modelling Toolbar
-\footnote{Exists in the Model/Fit/Refine window too}
-\item click on an atom in 3GP twice
+\item Double-check the protein model and the map are the ones that you want them to be (the
+   defaults should be fine).
 
-\textsl{ [Intermediate (white) atoms appear]}
+\item Click \textsf{Find Ligands}
 
-\item Drag it or use the sliders to move the intermediate fragment to
-  the approximately the right place.
-\item Click \textsf{``OK''} in the slider window
-\item Now optimize the fit using ``Real Space Refine Zone'' like we did
-  before.
+You can adjust the position of the atoms of the ligand using Real Space Refinement
 
-Now merge this ligand into the protein:
+\item Click on an atom in the ligand
+  
+  \textsl{ [Coot adds intermediate white atoms and Refinement dialog ]}
+
+\item Now pull on the atoms until you are satisfied then press \textsf{OK}
+
+If you like the solution, you can merge this ligand into the protein:
 \item \textsf{Calculate $\rightarrow$ Merge Molecules\ldots}
 \item Click (activate) ``monomer-3GP.pdb''
 \item into Molecule:
@@ -687,7 +687,7 @@ Now merge this ligand into the protein:
 
 \end{itemize}
 
-\subsubsection{Blob 1}
+\subsection{Blob 1}
 
 \begin{itemize}
 \item Click on ``\textsf{Blob 1}''
@@ -733,6 +733,27 @@ This is a far as I expect you to get.
 ------------------------------------------------------
 \end{center}
 
+\section{Customise the Interface}
+
+You can add extra buttons to the interface:
+
+\begin{itemize}
+
+\item Move the curor to the right of the vertical separator in the horizontal tool bar (to the 
+      right of the icon for the ligand)
+
+\item Right Mouse click
+
+\item Click on the check-buttons for the extra tools you want to add
+
+  \textsl{ [Coot adds new Buttons for the selected functions in the horizontal
+         toolbar]}
+
+\item Click \textsf{Apply}
+
+\item  Click on \textsf{Manage Buttons (add, delete buttons)}
+
+\end{itemize}
 
 \section{Extra Fun (if you have time)}
 

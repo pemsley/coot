@@ -72,6 +72,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "select-atom-info.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-coord-extras.hh"
+#include "coot-utils/xmap-stats.hh"
 #include "crunch-model.hh"
 
 #include "geometry/protein-geometry.hh"
@@ -366,7 +367,7 @@ class molecule_class_info_t {
    // difference map negative level colour relative to positive level:
    float rotate_colour_map_for_difference_map; // 240.0 default colour_map_rotation
 
-   float get_clash_score(const coot::minimol::molecule &a_rotamer) const;
+   float get_clash_score(const coot::minimol::molecule &a_rotamer, bool score_hydrogen_atoms_flag) const;
    std::pair<double, clipper::Coord_orth> get_minimol_pos(const coot::minimol::molecule &a_rotamer) const; 
 
    // backup is done in the wrappers.  (This factorization needed for
@@ -417,7 +418,7 @@ class molecule_class_info_t {
    std::vector<std::string> map_chains_to_new_chains(const std::vector<std::string> &adding_model_chains,
 						     const std::vector<std::string> &this_model_chains) const;
    // that's too complicated for try_add_by_consolidation(), we just want this:
-   std::string suggest_new_chain_id() const;
+   std::string suggest_new_chain_id(const std::string &current_chain_id) const;
 
    // returned the copied residue (possibly can return NULL on failure).
    mmdb::Residue* copy_and_add_residue_to_chain(mmdb::Chain *this_model_chain, mmdb::Residue *add_model_residue);
@@ -701,6 +702,7 @@ public:        //                      public
       map_min_ = -100.0;
       sharpen_b_factor_ = 0.0;
       sharpen_b_factor_kurtosis_optimised_ = -999999.0;
+      pending_contour_level_change_count = 0;
 
       // fourier (for phase recombination (potentially) in refmac:
       fourier_weight_label = ""; // unset initially.
@@ -1590,6 +1592,8 @@ public:        //                      public
 							coot::protein_geometry *protein_geom_p) const;
    graphical_bonds_container make_symmetry_environment_bonds_box(int atom_index,
 								 coot::protein_geometry *protein_geom_p) const;
+   graphical_bonds_container make_environment_bonds_box(const coot::residue_spec_t &residue_spec,
+							coot::protein_geometry *protein_geom_p) const;
 
    bool has_xmap() const { return ! xmap.is_null(); }
 
@@ -1678,6 +1682,8 @@ public:        //                      public
    int delete_hydrogens(); // return status of atoms deleted (0 -> none deleted).
 
    int delete_chain(const std::string &chain_id);
+
+   int delete_sidechains_for_chain(const std::string &chain_id);
 
    // closing molecules, delete maps and atom sels as appropriate
    // and unset "filled" variables.  Set name_ to "".
@@ -3078,6 +3084,9 @@ public:        //                      public
 
    std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> >
    get_contours(float contour_level, float radius, const coot::Cartesian &centre) const;
+   std::string map_units() const { std::string u = "e/A^3"; 
+                                   if (is_EM_map()) u = "V";
+                                   return u; }
 
    // carbohydrate validation tools
    void glyco_tree_internal_distances_fn(const coot::residue_spec_t &base_residue_spec,
@@ -3092,7 +3101,17 @@ public:        //                      public
 
    // angle in degrees.
    void spin_N(const coot::residue_spec_t &residue_spec, float angle);
-   
+
+   int pending_contour_level_change_count;
+
+   void crankshaft_peptide_rotation_optimization(const coot::residue_spec_t &rs,
+						 unsigned int n_peptides,
+						 const clipper::Xmap<float> &xmap,
+						 float map_weight,
+						 int n_samples);
+
+   mean_and_variance<float> map_histogram_values;
+   mean_and_variance<float> set_and_get_histogram_values(unsigned int n_bins); // fill above
 };
 
 #endif // MOLECULE_CLASS_INFO_T

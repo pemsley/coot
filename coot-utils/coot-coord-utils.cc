@@ -42,6 +42,8 @@
 
 #include "clipper/mmdb/clipper_mmdb.h"
 #include "geometry/main-chain.hh"
+#include "geometry/residue-and-atom-specs.hh"
+
 
 std::vector<std::string>
 coot::util::residue_types_in_molecule(mmdb::Manager *mol) { 
@@ -2432,10 +2434,131 @@ coot::util::get_residue(const std::string &chain_id,
    return res;
 }
 
+// Return NULL on residue not found in this molecule. Only look in
+// MODEL 1.
+//
+mmdb::Residue *
+coot::util::get_residue_by_binary_search(const std::string &chain_id,
+					 int res_no, const std::string &insertion_code,
+					 mmdb::Manager *mol) {
+
+   // std::cout << "start search for " << chain_id << " " << res_no << " :" << insertion_code
+   // << ":" << std::endl;
+   mmdb::Residue *res = NULL;
+   bool found_res = 0;
+
+   if (mol) {
+      mmdb::Model *model_p = mol->GetModel(1);
+      if (model_p) {
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int i_chain=0; i_chain<n_chains; i_chain++) {
+	    mmdb::Chain *chain_p = model_p->GetChain(i_chain);
+	    std::string mol_chain_id(chain_p->GetChainID());
+	    if (mol_chain_id == chain_id) {
+	       // std::cout << "----- found chain id " << mol_chain_id << std::endl;
+	       int nres = chain_p->GetNumberOfResidues();
+	       int top_idx = nres-1;
+	       int bottom_idx = 0;
+	       // std::cout << "starting with top_idx " << top_idx << std::endl;
+
+	       while (! found_res) {
+		  int idx_delta = top_idx - bottom_idx;
+		  // int idx_trial = std::lround(std::floor(bottom_idx + idx_delta * 0.5));
+		  int idx_trial = bottom_idx + idx_delta/2;
+		  if (false)
+		     std::cout << "   idx_bottom " << bottom_idx
+			       << " idx_top " << top_idx
+			       << " idx_delta " << idx_delta << " "
+			       << " idx_trial " << idx_trial << std::endl;
+		  mmdb::Residue *residue_this = chain_p->GetResidue(idx_trial);
+
+		  if (!residue_this) break;
+
+		  if (residue_this->GetSeqNum() == res_no) {
+		     std::string ins_code(residue_this->GetInsCode());
+		     if (insertion_code == ins_code) {
+			res = residue_this;
+			found_res = true;
+			// std::cout << "found!" << std::endl;
+			break;
+		     }
+		  }
+
+		  if (! found_res) {
+		     if (top_idx == bottom_idx) {
+			// std::cout << "give up " << res_no << " " << insertion_code << std::endl;
+			break; // give up
+		     }
+		     if (idx_trial == bottom_idx) {
+			// std::cout << "give up " << res_no << " " << insertion_code << std::endl;
+			break; // give up
+		     }
+		     if (residue_this->GetSeqNum() > res_no) {
+			top_idx = idx_trial;
+		     }
+		     if (residue_this->GetSeqNum() < res_no) {
+			bottom_idx = idx_trial;
+		     }
+		  }
+	       } // while
+
+	       if (! found_res) {
+		  // try all
+
+		  for (int ires=0; ires<nres; ires++) { // ires is a serial number
+		     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+		     if (residue_p->GetSeqNum() == res_no) {
+			std::string ins_code(residue_p->GetInsCode());
+			if (insertion_code == ins_code) {
+			   res = residue_p;
+			   found_res = true;
+			   // std::cout << "found res " << residue_spec_t(res) << std::endl;
+			   break;
+			}
+		     } else {
+			// std::cout << "    was not " << residue_spec_t(residue_p) << std::endl;
+		     }
+		     if (found_res) break;
+		  }
+	       }
+	    }
+	    if (found_res) break;
+	 }
+      }
+   }
+
+   if (false)
+      std::cout << "binary-search returns res " << res << " get_residue() returns "
+		<< get_residue(chain_id, res_no, insertion_code, mol) << " "
+		<< residue_spec_t(res) << std::endl;
+   return res;
+}
+
+
+
 mmdb::Residue *
 coot::util::get_residue(const residue_spec_t &rs, mmdb::Manager *mol) {
-   return get_residue(rs.chain_id, rs.res_no, rs.ins_code, mol);
+
+   // return get_residue(rs.chain_id, rs.res_no, rs.ins_code, mol);
+
+   return get_residue_by_binary_search(rs.chain_id, rs.res_no, rs.ins_code, mol);
+
 }
+
+// get this and next residue - either can be null - both need testing
+std::pair<mmdb::Residue *, mmdb::Residue *>
+coot::util::get_this_and_next_residues(const residue_spec_t &rs, mmdb::Manager *mol) {
+
+   // this function can be optimized if needed
+
+   mmdb::Residue *r2 = 0;
+   mmdb::Residue *r1 = get_residue(rs, mol);
+   if (r1) {
+      r2 = get_following_residue(r1, mol);
+   }
+   return std::pair<mmdb::Residue *, mmdb::Residue *> (r1, r2);
+}
+
   
 
 // Return NULL on residue not found in this molecule.
@@ -2449,7 +2572,7 @@ coot::util::get_following_residue(const residue_spec_t &rs,
       mmdb::Model *model_p = mol->GetModel(1);
       mmdb::Chain *chain_p;
       mmdb::Chain *chain_this_res = NULL;
-      bool found_this_res = 0;
+      bool found_this_res = false;
       
       int n_chains = model_p->GetNumberOfChains();
       for (int i_chain=0; i_chain<n_chains; i_chain++) {
@@ -2460,11 +2583,11 @@ coot::util::get_following_residue(const residue_spec_t &rs,
 	    mmdb::Residue *residue_p;
 	    for (int ires=0; ires<nres; ires++) {
 	       residue_p = chain_p->GetResidue(ires);
-	       if (found_this_res == 0) { 
+	       if (found_this_res == 0) {
 		  if (rs.res_no == residue_p->GetSeqNum()) {
 		     std::string ins_code = residue_p->GetInsCode();
 		     if (ins_code == rs.ins_code) {
-			found_this_res = 1;
+			found_this_res = true;
 			chain_this_res = chain_p;
 		     }
 		  }
@@ -2483,6 +2606,43 @@ coot::util::get_following_residue(const residue_spec_t &rs,
    }
    return res;
 }
+
+// Return NULL on residue not found in this molecule.
+// 
+mmdb::Residue *
+coot::util::get_previous_residue(const residue_spec_t &rs, 
+				 mmdb::Manager *mol) {
+   mmdb::Residue *res = NULL;
+   if (mol) {
+      mmdb::Model *model_p = mol->GetModel(1);
+      mmdb::Chain *chain_p;
+      mmdb::Chain *chain_this_res = NULL;
+      bool found_this_res = 0;
+
+      int n_chains = model_p->GetNumberOfChains();
+      for (int i_chain=0; i_chain<n_chains; i_chain++) {
+	 chain_p = model_p->GetChain(i_chain);
+	 std::string mol_chain_id(chain_p->GetChainID());
+	 if (mol_chain_id == rs.chain_id) {
+	    int nres = chain_p->GetNumberOfResidues();
+	    mmdb::Residue *prev_residue = 0;
+	    for (int ires=0; ires<nres; ires++) {
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	       if (residue_spec_t(residue_p) == rs) {
+		  res = prev_residue;
+		  break;
+	       }
+	       // next round
+	       prev_residue = residue_p;
+	    }
+	 }
+	 if (res) break;
+      }
+   }
+   return res;
+
+}
+
 
 mmdb::Residue *
 coot::util::get_first_residue(mmdb::Manager *mol) {
@@ -5245,6 +5405,9 @@ coot::util::mutate_internal(mmdb::Residue *residue,
 	 if (coot::is_main_chain_p(residue_atoms[i])) {
 	    if (to_residue_type == "MSE") {
 	       residue_atoms[i]->Het = 1;
+	    } else {
+	       if (residue_atoms[i]->Het)
+		  residue_atoms[i]->Het = 0; // from MSE to MET, say
 	    }
 	    if (to_residue_type == "PRO") {
 	       std::string atom_name(residue_atoms[i]->name);
@@ -5262,7 +5425,7 @@ coot::util::mutate_internal(mmdb::Residue *residue,
       if (! coot::is_main_chain_p(std_residue_atoms[i])) {
 	 if (is_from_shelx_ins_flag)
 	    std_residue_atoms[i]->occupancy = 11.0;
-     std_residue_atoms[i]->tempFactor = b_factor;
+	 std_residue_atoms[i]->tempFactor = b_factor;
 	 mmdb::Atom *copy_at = new mmdb::Atom;
 	 copy_at->Copy(std_residue_atoms[i]);
 	 residue->AddAtom(copy_at);
@@ -6421,15 +6584,85 @@ coot::util::correct_link_distances(mmdb::Manager *mol) {
 }
 
 void
-coot::util::remove_long_links(mmdb::Manager *mol, mmdb::realtype dist_min) {
+coot::util::remove_long_links(mmdb::Manager *mol, mmdb::realtype dist_max) {
 
    // Bob Nolte want to remove links to atoms that have moved far away
    // 
    if (mol) {
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+	 mmdb::Model *model_p = mol->GetModel(imod);
+	 if (model_p) {
+	    int n_links = model_p->GetNumberOfLinks();
+	    for (int ilink=1; ilink<=n_links; ilink++) {
+	       mmdb::Link *link = model_p->GetLink(ilink);
+	       std::pair<atom_spec_t, atom_spec_t> la = link_atoms(link, model_p);
+	       mmdb::Atom *at_1 = get_atom(la.first,  mol);
+	       mmdb::Atom *at_2 = get_atom(la.second, mol);
+	       if (at_1) {
+		  if (at_2) {
+		     clipper::Coord_orth pos_1 = co(at_1);
+		     clipper::Coord_orth pos_2 = co(at_2);
+		     double dsq = clipper::Coord_orth::length(pos_1, pos_2);
+		     double d = sqrt(dsq);
+		     if (d > dist_max) {
+			delete link;
+			link[ilink] = 0;
+		     }
+		  }
+	       }
+	    }
 
+	    n_links = model_p->GetNumberOfLinkRs();
+	    for (int ilink=1; ilink<=n_links; ilink++) {
+	       mmdb::LinkR *link = model_p->GetLinkR(ilink);
+	       std::pair<atom_spec_t, atom_spec_t> la = link_atoms(link, model_p);
+	       mmdb::Atom *at_1 = get_atom(la.first,  mol);
+	       mmdb::Atom *at_2 = get_atom(la.second, mol);
+	       if (at_1) {
+		  if (at_2) {
+		     clipper::Coord_orth pos_1 = co(at_1);
+		     clipper::Coord_orth pos_2 = co(at_2);
+		     double dsq = clipper::Coord_orth::length(pos_1, pos_2);
+		     double d = sqrt(dsq);
+		     if (d > dist_max) {
+			delete link;
+			link[ilink] = 0;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
    }
+}
 
-} 
+// return the number of changed links
+unsigned int
+coot::util::change_chain_in_links(mmdb::Model *model_p, 
+				  const std::string &from_chain_id,
+				  const std::string &to_chain_id) {
+   unsigned int n_changed = 0;
+   if (model_p) {
+      int n_links = model_p->GetNumberOfLinks();
+      for (int ilink=1; ilink<=n_links; ilink++) {
+	 mmdb::Link *link = model_p->GetLink(ilink);
+	 std::string cid1 = link->chainID1;
+	 std::string cid2 = link->chainID2;
+	 if (from_chain_id == cid1) {
+	    // std::cout << "changing to " << to_chain_id << std::endl;
+	    strncpy(link->chainID1, to_chain_id.c_str(), 9);
+	    n_changed++;
+	 }
+	 if (from_chain_id == cid2) {
+	    // std::cout << "changing to " << to_chain_id << std::endl;
+	    strncpy(link->chainID2, to_chain_id.c_str(), 9);
+	    n_changed++;
+	 }
+      }
+   }
+   return n_changed;
+}
+
 
 
 mmdb::Manager *
@@ -7688,7 +7921,7 @@ coot::update_position(mmdb::Atom *at, const clipper::Coord_orth &pos) {
    at->x = pos.x();
    at->y = pos.y();
    at->z = pos.z();
-} 
+}
 
 
 
@@ -7698,14 +7931,9 @@ coot::chiral_4th_atom(mmdb::Residue *residue_p, mmdb::Atom *at_centre,
 		      mmdb::Atom *at_1, mmdb::Atom *at_2, mmdb::Atom *at_3) {
 
    mmdb::Atom *rat = NULL;
-   double d_crit = sqrt(10.7);
+   double d_crit = sqrt(1.7);
+   double d_sqrd = d_crit * d_crit; // tracks "best/closest"
 
-   // this is a bit heavyweight in retrospect, - I could have just
-   // used a "best-dist".  But it works.
-   // 
-   std::map<double, mmdb::Atom *> atoms;
-   
-   double d_sqrd = d_crit * d_crit;
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    clipper::Coord_orth p_c = co(at_centre);
@@ -7715,14 +7943,13 @@ coot::chiral_4th_atom(mmdb::Residue *residue_p, mmdb::Atom *at_centre,
       mmdb::Atom *at = residue_atoms[iat];
       if (at != at_centre && at != at_1 && at != at_2 && at != at_3) { 
 	 clipper::Coord_orth pt = co(at);
-	 double d = (p_c - pt).clipper::Coord_orth::lengthsq();
-	 if (d < d_sqrd)
-	    atoms[d] = at;
+	 double d2 = (p_c - pt).clipper::Coord_orth::lengthsq();
+	 if (d2 < d_sqrd) {
+	    rat = at;
+	    d_sqrd = d2;
+	 }
       }
    }
-   
-   if (atoms.size())
-      rat = atoms.begin()->second;
 
    return rat;
 } 

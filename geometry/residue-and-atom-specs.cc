@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include "utils/coot-utils.hh"
 #include "residue-and-atom-specs.hh"
 
 std::ostream& coot::operator<< (std::ostream& s, const coot::atom_spec_t &spec) {
@@ -53,6 +54,88 @@ std::ostream& coot::operator<< (std::ostream& s, const coot::residue_spec_t &spe
    } 
    return s;
 
+}
+
+// formatted as if you'd clicked on it in the graphics window
+// But the residue type is missing - see below
+std::string
+coot::atom_spec_t::label() const {
+   std::string s;
+   s += atom_name;
+   if (! alt_conf.empty()) {
+      s += ",";
+      s += alt_conf;
+   }
+   s += "/";
+   s += util::int_to_string(res_no);
+   if (! ins_code.empty()) {
+      s += ",";
+      s += ins_code;
+   }
+   s += "/";
+   s += chain_id;
+   return s;
+}
+
+
+// formatted as if you'd clicked on it in the graphics window
+// Use the passed residue type.
+std::string
+coot::atom_spec_t::label(const std::string &residue_name) const {
+   std::string s;
+   s += atom_name;
+   if (! alt_conf.empty()) {
+      s += ",";
+      s += alt_conf;
+   }
+   s += "/";
+   s += util::int_to_string(res_no);
+   if (! ins_code.empty()) {
+      s += ",";
+      s += ins_code;
+   }
+   if (! residue_name.empty()) {
+      s += " ";
+      s += residue_name;
+   }
+   s += "/";
+   s += chain_id;
+   return s;
+}
+
+// formatted as if you'd clicked on it in the graphics window
+// But the residue type is missing - see below
+std::string
+coot::residue_spec_t::label() const {
+   std::string s;
+   s += util::int_to_string(res_no);
+   if (! ins_code.empty()) {
+      s += ",";
+      s += ins_code;
+   }
+   s += "/";
+   s += chain_id;
+   return s;
+}
+
+
+// formatted as if you'd clicked on it in the graphics window
+// Use the passed residue type.
+std::string
+coot::residue_spec_t::label(const std::string &residue_name) const {
+   std::string s;
+   s += util::int_to_string(res_no);
+   if (! ins_code.empty()) {
+      s += ",";
+      s += ins_code;
+   }
+   if (! residue_name.empty()) {
+      s += " ";
+      s += residue_name;
+   }
+   s += "/";
+   s += chain_id;
+   return s;
 }
 
 
@@ -135,6 +218,24 @@ coot::residue_spec_t::select_atoms(mmdb::Manager *mol, int selhnd,
 //
 std::pair<coot::atom_spec_t, coot::atom_spec_t>
 coot::link_atoms(mmdb::Link *link, mmdb::Model *model_p) {
+
+   atom_spec_t a1(link->chainID1, link->seqNum1, link->insCode1, link->atName1, link->aloc1);
+   atom_spec_t a2(link->chainID2, link->seqNum2, link->insCode2, link->atName2, link->aloc2);
+
+   if (model_p) {
+      int mn = model_p->GetSerNum();
+      a1.model_number = mn;
+      a2.model_number = mn;
+   }
+
+   return std::pair<coot::atom_spec_t, coot::atom_spec_t> (a1, a2);
+}
+// the header for this is (in) residue-and-atom-specs.hh.  Hmm... should be fixed.
+//
+// model_p is a default argument, default 0/NULL (model_number is not set in the atom specs)
+//
+std::pair<coot::atom_spec_t, coot::atom_spec_t>
+coot::link_atoms(mmdb::LinkR *link, mmdb::Model *model_p) {
 
    atom_spec_t a1(link->chainID1, link->seqNum1, link->insCode1, link->atName1, link->aloc1);
    atom_spec_t a2(link->chainID2, link->seqNum2, link->insCode2, link->atName2, link->aloc2);

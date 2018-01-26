@@ -1052,3 +1052,46 @@ void set_refinement_geman_mcclure_alpha(float alpha) {
    graphics_info_t::geman_mcclure_alpha = alpha;
 
 }
+
+#ifdef USE_GUILE
+void crankshaft_peptide_rotation_optimization_scm(int imol, SCM residue_spec_scm) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      coot::residue_spec_t rs = residue_spec_from_scm(residue_spec_scm);
+      unsigned int n_peptides = 5;
+      int n_samples = -1; // auto
+
+      int imol_map = g.Imol_Refinement_Map();
+      if (is_valid_map_molecule(imol_map)) {
+	 const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+	 float w = g.geometry_vs_map_weight;
+	 g.molecules[imol].crankshaft_peptide_rotation_optimization(rs, n_peptides, xmap, w, n_samples);
+	 g.update_validation_graphs(imol);
+	 graphics_draw();
+      }
+   }
+
+}
+#endif
+
+#ifdef USE_PYTHON
+void crankshaft_peptide_rotation_optimization_py(int imol, PyObject *residue_spec_py) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      coot::residue_spec_t rs = residue_spec_from_py(residue_spec_py);
+      unsigned int n_peptides = 5;
+      int n_samples = -1; // auto
+
+      int imol_map = g.Imol_Refinement_Map();
+      if (is_valid_map_molecule(imol_map)) {
+	 const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+	 float w = g.geometry_vs_map_weight;
+	 g.molecules[imol].crankshaft_peptide_rotation_optimization(rs, n_peptides, xmap, w, n_samples);
+	 g.update_validation_graphs(imol);
+	 graphics_draw();
+      }
+   }
+}
+#endif

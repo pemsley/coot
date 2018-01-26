@@ -703,6 +703,14 @@ PyObject *residues_near_position_py(int imol, PyObject *pos_in, float radius);
 //
 PyObject *get_bonds_representation(int imol);
 
+//! \brief return a Python object for the representation of bump and hydrogen bonds of
+//          the specified residue
+PyObject *get_environment_distances_representation_py(int imol, PyObject *residue_spec_py);
+
+//! \brief return a Python object for the intermediate atoms bonds
+//
+PyObject *get_intermediate_atoms_bonds_representation();
+
 #endif // USE_PYTHON
 
 //! \}
@@ -1270,7 +1278,7 @@ int handle_drag_and_drop_string(const std::string &uri);
 /* ------------------------------------------------------------------------- */
 
 #ifdef USE_PYTHON
-/*! \name Map Contouring */
+/*! \name Map Contouring Functions */
 // \{
 //! \brief return two lists: a list of vertices and a list of indices for connection
 PyObject *map_contours(int imol, float contour_level);

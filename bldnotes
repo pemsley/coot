@@ -14,8 +14,6 @@ enhanced_ligand.py      test it
 * THINGS TO DO BEFORE 0.8.1 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
 
-New Rama: drag residues->switch to selection and rather refine (e.g. add
-	extra torsion to ref target)?!
 
 
 check up to dateness of supplied manuals
@@ -553,10 +551,6 @@ low importance
 
 **** Windows ****
 
-   o pass args from msi to exe
-
-   o make real msi at some point
-
    o distribute probe and reduce (from Richardsons? if not ccp4)
 
    o make batch msi (using msiwrapperbatch and config file)
@@ -597,8 +591,6 @@ low importance
    o use CCP4s lib dir rather than REF_DIR!?
 
    o ccp4 project dir not showing up (with new gtk2 chooser)
-
-   o new gtk/gtkglext disappears with Dexpot
 
    o pop up dialog if disk space is limited!!
 
@@ -700,6 +692,80 @@ low importance
    o solvent region noise estimation (sigma/abs)
 
    o 2nd derivative maps! (usefull?)
+
+
+**** dynarama ****
+
+   o give phi-psi info in tooltip (maybe optional)
+
+   o contour lines thinner (?) and black
+
+   o play with colours?!
+
+   o shades between the favoured-allowed-disallowed
+
+   o make phi range option 0->360 (default?!)
+
+   o add setting for chains when using a selection in kleywegt
+
+   o close menu could be "quit" in stand alone
+
+   o (better) exception handling when e.g. no glade file
+
+   o add function for user to show selection of res only
+
+   o 2nd residue in kleywegt should get green box too (or not)
+
+   o add setting for chains when using a selection in kleywegt
+
+   o shades between the favoured-allowed-disallowed
+
+   o fix green box position (done?)
+
+   o selector for multiple models
+
+   o add torsion angles for interactive movement
+
+   o drag residues->switch to selection and rather refine (e.g. add
+	extra torsion to ref target)?!
+   o compare rama by mol choose A and A and show appropirately in selector
+	(see first topic)?! 
+
+   o wrap kleywegt arrows different in reverse order (e.g. tutorial-modern.pdb
+	B->A gets long arrows)
+
+
+   o make psi range option -120->240 (optional)
+
+* Done
+
+   o contour lines thinner (?) and black
+
+* Done
+
+   o play with colours?!
+
+* Done(ish)
+
+   o kleywegt is not applied when open a new molecule
+
+* Done
+
+   o fix green box position 
+
+* Done
+
+   o stand alone: change pos of green box too.
+
+* Done (?)
+
+   o stand alone works without arg and we can load a molecule with open?!
+
+* Done
+
+   o when use open, set title and stats
+
+* Done
 
 ---------------
 * DONE THINGS *

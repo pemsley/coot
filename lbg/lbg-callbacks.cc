@@ -41,11 +41,11 @@ on_lbg_apply_button_clicked(GtkButton *button, gpointer user_data) {
    } else {
 
       // l->mol.debug();
-      l->mol.write_mdl_molfile("prodrg-in.mdl");
+      l->mol.write_mdl_molfile("coot-lidia.mdl");
 
       // input to Coot, this means.
-      l->import_prodrg_output("prodrg-in.mdl", "DRG");
-   } 
+      l->import_prodrg_output("coot-lidia.mdl", "DRG");
+   }
 }
 
 extern "C" G_MODULE_EXPORT void

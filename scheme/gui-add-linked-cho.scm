@@ -63,8 +63,8 @@
 	    (list "NAG" "BMA" "MAN" "GAL" "GLC" "FUC" "XYP")))
 
 ;; fill this later
-(define (add-cho-restraints-for-residue imol new-res-spec)
-  #f)
+;; (define (add-cho-restraints-for-residue imol new-res-spec)
+;; #f)
 
 (define (multi-add-linked-residue imol res-spec residues-to-add)
 
@@ -576,6 +576,8 @@
   (define (glyco-id->residue-spec glyco-id)
     (list-ref glyco-id 5))
 
+  ;; can return a list (of label strings) or 'expert-user-mode (because there is no test)
+  ;; in that case
   (define (get-sensitive-button-list glyco-id tree-type)
 
     (if (not (list? glyco-id))
@@ -842,9 +844,11 @@
   (let ((l (gtk-button-get-label button)))
     (let ((active-button-label-list (get-sensitive-button-list glyco-id tree-type)))
       ;; (format #t "active-button-label-list: ~s~%" active-button-label-list)
-      (if (eq? active-button-label-list 'expert-mode)
+      (if (eq? active-button-label-list 'expert-user-mode)
 	  (gtk-widget-set-sensitive button #t)
-	  (if (not (string=? l "Update for Current Residue"))
+	  (if (and (not (string=? l "Update for Current Residue"))
+                   (not (string=? l "Refine Tree")))
+	      ;; don't do this for active-button-label-list is 'expert-user-mode
 	      (gtk-widget-set-sensitive button (string-member? l active-button-label-list)))))))
 
 
@@ -904,7 +908,7 @@
    (let* ((tree-residues (glyco-tree-residues aa-imol aa-res-spec)))
      (new-molecule-by-residue-specs aa-imol tree-residues))))
 
-(define (add-module-carbohydrate) 
+(define (add-module-carbohydrate-gui)
 
   (if (defined? 'coot-main-menubar)
       (let ((menu (coot-menubar-menu "Glyco")))

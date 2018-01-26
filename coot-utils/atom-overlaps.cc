@@ -1396,9 +1396,9 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 	    }
 	 }
 
-	 std::cout << "done contact_map and bonded_map " << std::endl;
 
 	 if (false) { // show contact map:
+	    std::cout << "done contact_map and bonded_map " << std::endl;
 	    std::cout << "     contact map: " << contact_map.size() << std::endl;
 	    std::map<int, std::vector<int> >::const_iterator it;
 	    for (it=contact_map.begin(); it!=contact_map.end(); it++) {
@@ -1428,9 +1428,10 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 	    // for the last thread, set the end atom index
 	    if (i_thread == (n_threads - 1))
 	       iat_end = n_selected_atoms; // for loop uses iat_start and tests for < iat_end
-	    
-	    std::cout << "thread: " << i_thread << " from atom " << iat_start << " to "
-		      << iat_end << std::endl;
+
+	    if (false) // useful for debugging
+	       std::cout << "thread: " << i_thread << " from atom " << iat_start << " to "
+			 << iat_end << std::endl;
 
 	    results_container_vec[i_thread] = atom_overlaps_dots_container_t(n_per_thread);
  	    threads.push_back(std::thread(contacts_for_atoms, iat_start, iat_end,
@@ -1453,11 +1454,12 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 			    << it->first << " " << it->second.size() << std::endl;
 	       }
 	    }
+	    std::cout << "consolidating..." << std::endl;
 	 }
 
-	 std::cout << "consolidating..." << std::endl;
 	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
 	    ao.add(results_container_vec[i_thread]);
+
 	 if (false) { // debugging
 	    std::cout << "consolidated" << std::endl;
 	    std::map<std::string, std::vector<atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
@@ -1978,7 +1980,7 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
 		  ait = CLASHABLE;
 	       }
 	    } else {
-	       ait = CLASHABLE;
+	       ait = BONDED;
 	    }
 	 }
       } else {
@@ -2054,7 +2056,7 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
 
    if (ait == CLASHABLE) {
       // maybe it was a link
-      if (is_linked(at_1, at_2))
+      if (is_linked(at_1, at_2) || is_ss_bonded_or_CYS_CYS_SGs(at_1, at_2))
 	 ait = BONDED;
    }
 
@@ -2093,7 +2095,33 @@ coot::atom_overlaps_container_t::is_linked(mmdb::Atom *at_1,
 }
 
 bool
+coot::atom_overlaps_container_t::is_ss_bonded_or_CYS_CYS_SGs(mmdb::Atom *at_1,
+							     mmdb::Atom *at_2) const {
+
+   // There is no mmdb class for SSBOND! - must fix.
+
+   bool status = false;
+   std::string res_name_1 = at_1->residue->GetResName();
+   if (res_name_1 == "CYS") {
+      std::string res_name_2 = at_2->residue->GetResName();
+      if (res_name_2 == "CYS") {
+	 std::string atom_name_1 = at_1->GetAtomName();
+	 if (atom_name_1 == " SG ") {
+	    std::string atom_name_2 = at_2->GetAtomName();
+	    if (atom_name_2 == " SG ") {
+	       status = true;
+	    }
+	 }
+      }
+   }
+
+   return status;
+}
+
+bool
 coot::atom_overlaps_container_t::is_ss_bonded(mmdb::Residue *residue_p) const {
+
+   // There is no mmdb class for SSBOND! - must fix.
 
    bool status = false;
    if (residue_p) {

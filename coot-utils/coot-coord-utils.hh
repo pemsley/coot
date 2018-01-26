@@ -254,6 +254,14 @@ namespace coot {
       clipper::Coord_orth centre() const {
 	 return centre_;
       }
+      double angle(const clipper::Coord_orth &vect) const {
+	 clipper::Coord_orth uv(vect.unit());
+	 clipper::Coord_orth abc(abcd[0], abcd[1], abcd[2]);
+	 clipper::Coord_orth abc_uv(abc.unit());
+	 double cos_theta = clipper::Coord_orth::dot(uv, abc_uv);
+	 double theta = acos(cos_theta) * 2 * M_PI;
+	 return theta;
+      }
       double a() const { return abcd[0]; }
       double b() const { return abcd[1]; }
       double c() const { return abcd[2]; }
@@ -747,8 +755,12 @@ namespace coot {
       // Return NULL on residue not found in this molecule.
       // 
       mmdb::Residue *get_residue(const std::string &chain_id, int res_no,
-			    const std::string &insertion_code,
-			    mmdb::Manager *mol);
+				 const std::string &insertion_code,
+				 mmdb::Manager *mol);
+
+      mmdb::Residue *get_residue_by_binary_search(const std::string &chain_id, int res_no,
+						  const std::string &insertion_code,
+						  mmdb::Manager *mol);
 
       mmdb::Residue *get_first_residue(mmdb::Manager *mol);
 
@@ -767,6 +779,9 @@ namespace coot {
       // convenience interface to above
       mmdb::Residue *get_residue(const residue_spec_t &rs, mmdb::Manager *mol);
 
+      // get this and next residue - either can be null - both need testing
+      std::pair<mmdb::Residue *, mmdb::Residue *> get_this_and_next_residues(const residue_spec_t &rs, mmdb::Manager *mol);
+
       // Return NULL on atom not found in this molecule
       //
       mmdb::Atom *get_atom(const atom_spec_t &spec, mmdb::Manager *mol);
@@ -783,6 +798,12 @@ namespace coot {
       mmdb::Residue *get_following_residue(const residue_spec_t &rs, 
 				      mmdb::Manager *mol);
 
+      // Return NULL on residue not found in this molecule.
+      // 
+      mmdb::Residue *get_previous_residue(const residue_spec_t &rs, 
+					  mmdb::Manager *mol);
+
+      
       std::pair<bool, clipper::Coord_orth> get_residue_centre(mmdb::Residue *res);
       
       std::vector<std::string> get_residue_alt_confs(mmdb::Residue *res);
@@ -1303,6 +1324,11 @@ namespace coot {
       // LINKs now have distances - let's make sure that they are correct
       // 
       void correct_link_distances(mmdb::Manager *mol);
+
+      // return the number of changed links
+      unsigned int change_chain_in_links(mmdb::Model *model_p, 
+					 const std::string &from_chain_id,
+					 const std::string &to_chain_id);
 
       // move hetgroups round protein.  Find the centres of each
       // hetgroup and move it to the protein.  Waters are handled individually.

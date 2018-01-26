@@ -183,6 +183,7 @@ density_score_residue  = density_score_residue_py
 align_to_closest_chain = align_to_closest_chain_py
 active_atom_spec       = active_atom_spec_py
 map_statistics         = map_statistics_py
+qq_plot_map_and_model  = qq_plot_map_and_model_py
 
 # probe-clash-score.hh
 probe_clash_score      = probe_clash_score_py

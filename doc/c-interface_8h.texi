@@ -17,6 +17,7 @@
 * Density Functions::
 * Parameters from map::
 * PDB Functions::
+* Info Dialog::
 * Refmac Functions::
 * Symmetry Functions::
 * History Functions::
@@ -72,7 +73,7 @@
 * Add Terminal Residue Functions::
 * Delete Residues::
 * Mainchain Building Functions::
-* Rotatmer Functions::
+* Rotamer Functions::
 * 180 Flip Side chain::
 * Mutate Functions::
 * Pointer Atom Functions::
@@ -95,7 +96,6 @@
 * Remote Control::
 * Display Lists for Maps::
 * Browser Interface::
-* Generic Objects::
 * Molprobity Interface::
 * Map Sharpening Interface::
 * Marking Fixed Atom Interface::
@@ -410,6 +410,7 @@ We try as .phs and .cif files first
 * sort-residues::
 * remarks-dialog::
 * print-header-secondary-structure-info::
+* add-header-secondary-structure-info::
 * copy-molecule::
 * add-ligand-delete-residue-copy-molecule::
 * exchange-chain-ids-for-seg-ids::
@@ -610,7 +611,17 @@ a gui dialog showing remarks header info (for a model molecule).
 
 Where @emph{imol} is an integer number
 
-simply print secondardy structure info to the terminal/console. In future, this could/should return the info. 
+simply print secondary structure info to the terminal/console. In future, this could/should return the info. 
+
+@end deffn
+
+@node add-header-secondary-structure-info
+@subsection add-header-secondary-structure-info
+@deffn function add-header-secondary-structure-info imol
+
+Where @emph{imol} is an integer number
+
+add secondary structure info to the internal representation of the model 
 
 @end deffn
 
@@ -851,7 +862,6 @@ Return 1 on success. Return 0 on a file without Rfree, return -1 on complete fai
 * check-for-dark-blue-density::
 * set-draw-solid-density-surface::
 * set-draw-map-standard-lines::
-* solid-surface::
 * set-solid-density-surface-opacity::
 * set-flat-shading-for-solid-density-surface::
 @end menu
@@ -1026,9 +1036,9 @@ enable reading PDB/pdbx files with duplicate sequence numbers
 
 Where @emph{state} is an integer number
 
-shall we convert nucleotides to match the dictionary names? 
+shall we convert nucleotides to match the old dictionary names? 
 
-Usually we do not want to do this (give current Coot architecture). Most often not, though. Coot should handle the residue synonyms transparently.
+Usually (after 2006 or so) we do not want to do this (given current Coot architecture). Coot should handle the residue synonyms transparently.
 
 default off (0). 
 
@@ -1173,6 +1183,8 @@ Where:
 @item @emph{file_name} is a string
 @end itemize
 
+replace the given residues from the reference molecule to the target molecule 
+
 replace pdb. Fail if molecule_number is not a valid model molecule. Return -1 on failure. Else return molecule_number 
 
 @end deffn
@@ -1228,20 +1240,6 @@ This turns off/on standard lines representation of map. transparent surface is a
 If you want to just turn off a map, don't use this, use 
 
 . 
-
-@end deffn
-
-@node solid-surface
-@subsection solid-surface
-@deffn function solid-surface imap on_off_flag
-
-Where: 
-@itemize @bullet
-@item @emph{imap} is an integer number
-@item @emph{on_off_flag} is an integer number
-@end itemize
-
-set the state of the solid surface representation for molecule imap 
 
 @end deffn
 
@@ -1968,6 +1966,7 @@ After a crash, we provide this convenient interface to restore the session. It r
 * export-map::
 * export-map-fragment::
 * export-map-fragment-with-origin-shift::
+* export-map-fragment-to-plain-file::
 * difference-map::
 * reinterp-map::
 * smooth-map::
@@ -2218,6 +2217,24 @@ Where:
 @end itemize
 
 export a fragment of the map about (x,y,z) 
+
+@end deffn
+
+@node export-map-fragment-to-plain-file
+@subsection export-map-fragment-to-plain-file
+@deffn function export-map-fragment-to-plain-file imol x y z radius filename
+
+Where: 
+@itemize @bullet
+@item @emph{imol} is an integer number
+@item @emph{x} is a number
+@item @emph{y} is a number
+@item @emph{z} is a number
+@item @emph{radius} is a number
+@item @emph{filename} is a string
+@end itemize
+
+tmp interface for Hamish 
 
 @end deffn
 
@@ -2483,7 +2500,6 @@ set the scale factor for the Residue Density fit analysis
 * another-level-from-map-molecule-number::
 * residue-density-fit-scale-factor::
 * density-at-point::
-* density-score-residue::
 @end menu
 
 @node set-map-line-width
@@ -2802,23 +2818,6 @@ return the density at the given point for the given map. Return 0 for bad imol
 
 @end deffn
 
-@node density-score-residue
-@subsection density-score-residue
-@deffn function density-score-residue imol chain_id res_no ins_code imol_map
-
-Where: 
-@itemize @bullet
-@item @emph{imol} is an integer number
-@item @emph{chain_id} is a string
-@item @emph{res_no} is an integer number
-@item @emph{ins_code} is a string
-@item @emph{imol_map} is an integer number
-@end itemize
-
-simple density score for given residue (over-ridden by scripting function) 
-
-@end deffn
-
 @node Parameters from map
 @section Parameters from map
 
@@ -2897,6 +2896,7 @@ return 0 when no weights were used or there is no mtz file associated with that 
 
 @menu
 * write-pdb-file::
+* write-cif-file::
 * write-residue-range-to-pdb-file::
 * quick-save::
 @end menu
@@ -2912,6 +2912,20 @@ Where:
 @end itemize
 
 write molecule number imol as a PDB to file file_name 
+
+@end deffn
+
+@node write-cif-file
+@subsection write-cif-file
+@deffn function write-cif-file imol file_name
+
+Where: 
+@itemize @bullet
+@item @emph{imol} is an integer number
+@item @emph{file_name} is a string
+@end itemize
+
+write molecule number imol as a mmCIF to file file_name 
 
 @end deffn
 
@@ -2940,12 +2954,43 @@ save all modified coordinates molecules to the default names and save the state 
 
 @end deffn
 
+@node Info Dialog
+@section Info Dialog
+
+@menu
+* info-dialog::
+* info-dialog-and-text::
+@end menu
+
+@node info-dialog
+@subsection info-dialog
+@deffn function info-dialog txt
+
+Where @emph{txt} is a string
+
+create a dialog with information 
+
+create a dialog with information string txt. User has to click to dismiss it, but it is not modal (nothing in coot is modal). 
+
+@end deffn
+
+@node info-dialog-and-text
+@subsection info-dialog-and-text
+@deffn function info-dialog-and-text txt
+
+Where @emph{txt} is a string
+
+create a dialog with information and print to console 
+
+as info_dialog but print to console as well. 
+
+@end deffn
+
 @node Refmac Functions
 @section Refmac Functions
 
 @menu
 * set-refmac-counter::
-* refmac-name::
 * swap-map-colours::
 * set-keep-map-colour-after-refmac::
 * keep-map-colour-after-refmac-state::
@@ -2962,18 +3007,6 @@ Where:
 @end itemize
 
 set counter for runs of refmac so that this can be used to construct a unique filename for new output 
-
-@end deffn
-
-@node refmac-name
-@subsection refmac-name
-@deffn function refmac-name imol
-
-Where @emph{imol} is an integer number
-
-the name for refmac 
-
-Returns: a stub name used in the construction of filename for refmac output 
 
 @end deffn
 
@@ -4415,17 +4448,19 @@ set the residue name of the specified residue
 
 @node skeletonize-map
 @subsection skeletonize-map
-@deffn function skeletonize-map prune_flag imol
+@deffn function skeletonize-map imol prune_flag
 
 Where: 
 @itemize @bullet
-@item @emph{prune_flag} is an integer number
 @item @emph{imol} is an integer number
+@item @emph{prune_flag} is an integer number
 @end itemize
 
 skeletonize molecule number imol 
 
-the prune_flag should almost always be 0. 
+the prune_flag should almost always be 0.
+
+NOTE:: The arguments to have been reversed for coot 0.8.3 and later (now the molecule number comes first). 
 
 @end deffn
 
@@ -4935,6 +4970,7 @@ Also used in scripting, where go-to-atom-chain-residue-atom-name does not mentio
 * post-display-control-window::
 * set-map-displayed::
 * set-mol-displayed::
+* set-display-only-model-mol::
 * set-mol-active::
 * mol-is-displayed::
 * mol-is-active::
@@ -4977,6 +5013,18 @@ Where:
 @end itemize
 
 make the coordinates molecule displayed/undisplayed, 0 for off, 1 for on 
+
+@end deffn
+
+@node set-display-only-model-mol
+@subsection set-display-only-model-mol
+@deffn function set-display-only-model-mol imol
+
+Where @emph{imol} is an integer number
+
+from all the model molecules, display only imol 
+
+This stops flashing/delayed animations with many molecules 
 
 @end deffn
 
@@ -5082,7 +5130,7 @@ Where:
 @item @emph{renumber_residues_flag} is an integer number
 @end itemize
 
-aligand and mutate the given chain to the given sequence 
+align and mutate the given chain to the given sequence 
 
 @end deffn
 
@@ -5260,6 +5308,7 @@ import python module
 @menu
 * add-planar-peptide-restraints::
 * remove-planar-peptide-restraints::
+* set-use-trans-peptide-restraints::
 * add-omega-torsion-restriants::
 * remove-omega-torsion-restriants::
 * set-refinement-immediate-replacement::
@@ -5274,6 +5323,7 @@ import python module
 * set-refine-max-residues::
 * refine-zone-atom-index-define::
 * refine-zone::
+* repeat-refine-zone::
 * refine-auto-range::
 * regularize-zone::
 * set-dragged-refinement-steps-per-frame::
@@ -5294,6 +5344,8 @@ import python module
 * delete-all-extra-restraints::
 * delete-extra-restraints-for-residue::
 * set-extra-restraints-prosmart-sigma-limits::
+* write-interpolated-extra-restraints::
+* write-interpolated-models-and-extra-restraints::
 * set-use-only-extra-torsion-restraints-for-torsions::
 * use-only-extra-torsion-restraints-for-torsions-state::
 * show-restraints-editor::
@@ -5316,6 +5368,18 @@ This adds a 5 atom restraint that includes both CA atoms of the peptide. Use thi
 @deffn function remove-planar-peptide-restraints
 
 remove restraints on peptides to make them planar. 
+
+@end deffn
+
+@node set-use-trans-peptide-restraints
+@subsection set-use-trans-peptide-restraints
+@deffn function set-use-trans-peptide-restraints on_off_state
+
+Where @emph{on_off_state} is an integer number
+
+add a restraint on peptides to keep trans peptides trans 
+
+i.e. omega in trans-peptides is restraints to 180 degrees. 
 
 @end deffn
 
@@ -5474,6 +5538,14 @@ Where:
 refine a zone 
 
 presumes that imol_Refinement_Map has been set 
+
+@end deffn
+
+@node repeat-refine-zone
+@subsection repeat-refine-zone
+@deffn function repeat-refine-zone
+
+repeat the previous (user-selected) refine zone 
 
 @end deffn
 
@@ -5751,6 +5823,41 @@ Where:
 @end itemize
 
 often we don't want to see all prosmart restraints, just the (big) violations 
+
+@end deffn
+
+@node write-interpolated-extra-restraints
+@subsection write-interpolated-extra-restraints
+@deffn function write-interpolated-extra-restraints imol_1 imol_2 n_steps file_name_stub
+
+Where: 
+@itemize @bullet
+@item @emph{imol_1} is an integer number
+@item @emph{imol_2} is an integer number
+@item @emph{n_steps} is an integer number
+@item @emph{file_name_stub} is a string
+@end itemize
+
+proSMART interpolated restraints for model morphing 
+
+@end deffn
+
+@node write-interpolated-models-and-extra-restraints
+@subsection write-interpolated-models-and-extra-restraints
+@deffn function write-interpolated-models-and-extra-restraints imol_1 imol_2 n_steps file_name_stub interpolation_mode
+
+Where: 
+@itemize @bullet
+@item @emph{imol_1} is an integer number
+@item @emph{imol_2} is an integer number
+@item @emph{n_steps} is an integer number
+@item @emph{file_name_stub} is a string
+@item @emph{interpolation_mode} is an integer number
+@end itemize
+
+proSMART interpolated restraints for model morphing and write interpolated model 
+
+interpolation_mode is currently dummy - in due course I will addd torion angle interpolation. 
 
 @end deffn
 
@@ -6209,6 +6316,7 @@ Make a gui for GLN adn ASN B-factor outiers, compairing the O and N temperatur f
 * set-kleywegt-plot-n-diffs::
 * set-ramachandran-plot-contour-levels::
 * set-ramachandran-plot-background-block-size::
+* set-ramachandran-psi-axis-mode::
 * ramachandran-plot-differences::
 * ramachandran-plot-differences-by-chain::
 @end menu
@@ -6243,7 +6351,7 @@ Where:
 @item @emph{level_allowed} is a number
 @end itemize
 
-set the contour levels for theremachandran plot, default values are 0.02 (prefered) 0.002 (allowed) 
+set the contour levels for the ramachandran plot, default values are 0.02 (prefered) 0.002 (allowed) 
 
 @end deffn
 
@@ -6256,6 +6364,16 @@ Where @emph{blocksize} is a number
 set the ramachandran plot background block size. 
 
 Smaller is smoother but slower. Should be divisible exactly into
+
+@end deffn
+
+@node set-ramachandran-psi-axis-mode
+@subsection set-ramachandran-psi-axis-mode
+@deffn function set-ramachandran-psi-axis-mode mode
+
+Where @emph{mode} is an integer number
+
+set the psi axis for the ramachandran plot. Default (0) from -180 to 180. Alternative (1) from -120 to 240. 
 
 @end deffn
 
@@ -6641,6 +6759,7 @@ Returns: 1 if the background is black (or nearly black), else return 0.
 * ligand-expert::
 * do-find-ligands-dialog::
 * match-ligand-atom-names::
+* match-ligand-atom-names-to-comp-id::
 * flip-ligand::
 @end menu
 
@@ -6819,6 +6938,27 @@ Returns: success status, False = failed to find residue in either imol_ligand or
 
 @end deffn
 
+@node match-ligand-atom-names-to-comp-id
+@subsection match-ligand-atom-names-to-comp-id
+@deffn function match-ligand-atom-names-to-comp-id imol_ligand chain_id_ligand resno_ligand ins_code_ligand comp_id_ref
+
+Where: 
+@itemize @bullet
+@item @emph{imol_ligand} is an integer number
+@item @emph{chain_id_ligand} is a string
+@item @emph{resno_ligand} is an integer number
+@item @emph{ins_code_ligand} is a string
+@item @emph{comp_id_ref} is a string
+@end itemize
+
+Match ligand atom names to a reference ligand type (comp_id) 
+
+By using graph matching, make the names of the atoms of the given ligand/residue match those of the reference ligand from the geometry store as closely as possible. Where there would be an atom name clash, invent a new atom name.
+
+This doesn't create a new dictionary for the selected ligand - and that's a big problem (see match_residue_and_dictionary). 
+
+@end deffn
+
 @node flip-ligand
 @subsection flip-ligand
 @deffn function flip-ligand imol chain_id resno
@@ -6838,6 +6978,8 @@ flip the ligand (usually active residue) around its eigen vectors to the next fl
 @section Water Fitting Functions
 
 @menu
+* wrapped-create-find-waters-dialog::
+* renumber-waters::
 * execute-find-waters-real::
 * move-waters-to-around-protein::
 * move-hetgroups-to-around-protein::
@@ -6848,6 +6990,24 @@ flip the ligand (usually active residue) around its eigen vectors to the next fl
 * execute-find-blobs::
 * split-water::
 @end menu
+
+@node wrapped-create-find-waters-dialog
+@subsection wrapped-create-find-waters-dialog
+@deffn function wrapped-create-find-waters-dialog
+
+create a dialog for water fitting 
+
+@end deffn
+
+@node renumber-waters
+@subsection renumber-waters
+@deffn function renumber-waters imol
+
+Where @emph{imol} is an integer number
+
+Renumber the waters of molecule number imol with consecutive numbering. 
+
+@end deffn
 
 @node execute-find-waters-real
 @subsection execute-find-waters-real
@@ -6980,11 +7140,15 @@ If the given atom does not have an alt conf of "", don't do anything.
 * set-default-bond-thickness::
 * set-bond-thickness::
 * set-bond-thickness-intermediate-atoms::
+* set-bond-colour-rotation-for-molecule::
+* get-bond-colour-rotation-for-molecule::
 * set-default-representation-type::
 * get-default-bond-thickness::
 * set-draw-zero-occ-markers::
+* set-draw-cis-peptide-markups::
 * set-draw-hydrogens::
 * draw-hydrogens-state::
+* set-draw-stick-mode-atoms::
 * graphics-to-ca-representation::
 * graphics-to-ca-plus-ligands-representation::
 * graphics-to-ca-plus-ligands-and-sidechains-representation::
@@ -6996,9 +7160,13 @@ If the given atom does not have an alt conf of "", don't do anything.
 * graphics-to-b-factor-representation::
 * graphics-to-b-factor-cas-representation::
 * graphics-to-occupancy-representation::
+* graphics-to-user-defined-atom-colours-representation::
+* graphics-to-user-defined-atom-colours-all-atoms-representation::
 * graphics-molecule-bond-type::
 * set-b-factor-bonds-scale-factor::
 * change-model-molecule-representation-mode::
+* set-use-grey-carbons-for-molecule::
+* set-grey-carbon-colour::
 * make-ball-and-stick::
 * clear-ball-and-stick::
 * additional-representation-by-string::
@@ -7039,13 +7207,39 @@ set the thickness of the bonds of the intermediate atoms to t pixels
 
 @end deffn
 
+@node set-bond-colour-rotation-for-molecule
+@subsection set-bond-colour-rotation-for-molecule
+@deffn function set-bond-colour-rotation-for-molecule imol f
+
+Where: 
+@itemize @bullet
+@item @emph{imol} is an integer number
+@item @emph{f} is a number
+@end itemize
+
+set bond colour for molecule 
+
+@end deffn
+
+@node get-bond-colour-rotation-for-molecule
+@subsection get-bond-colour-rotation-for-molecule
+@deffn function get-bond-colour-rotation-for-molecule imol
+
+Where @emph{imol} is an integer number
+
+get the bond colour for molecule. 
+
+Return -1 on err (bad molecule number) 
+
+@end deffn
+
 @node set-default-representation-type
 @subsection set-default-representation-type
 @deffn function set-default-representation-type type
 
 Where @emph{type} is an integer number
 
-set the default represenation type (default 1). 
+set the default representation type (default 1). 
 
 @end deffn
 
@@ -7064,6 +7258,18 @@ get the default thickness for bonds
 Where @emph{status} is an integer number
 
 set status of drawing zero occupancy markers. 
+
+default status is 1. 
+
+@end deffn
+
+@node set-draw-cis-peptide-markups
+@subsection set-draw-cis-peptide-markups
+@deffn function set-draw-cis-peptide-markups status
+
+Where @emph{status} is an integer number
+
+set status of drawing cis-peptide markups 
 
 default status is 1. 
 
@@ -7092,6 +7298,24 @@ Where @emph{imol} is an integer number
 the state of draw hydrogens for molecule number imol. 
 
 return -1 on bad imol. 
+
+@end deffn
+
+@node set-draw-stick-mode-atoms
+@subsection set-draw-stick-mode-atoms
+@deffn function set-draw-stick-mode-atoms imol state
+
+Where: 
+@itemize @bullet
+@item @emph{imol} is an integer number
+@item @emph{state} is an integer number
+@end itemize
+
+draw little coloured balls on atoms 
+
+turn off with state = 0
+
+turn on with state = 1 
 
 @end deffn
 
@@ -7205,6 +7429,26 @@ draw molecule number imol coloured by occupancy
 
 @end deffn
 
+@node graphics-to-user-defined-atom-colours-representation
+@subsection graphics-to-user-defined-atom-colours-representation
+@deffn function graphics-to-user-defined-atom-colours-representation imol
+
+Where @emph{imol} is an integer number
+
+draw molecule number imol in CA+Ligands mode coloured by user-defined atom colours 
+
+@end deffn
+
+@node graphics-to-user-defined-atom-colours-all-atoms-representation
+@subsection graphics-to-user-defined-atom-colours-all-atoms-representation
+@deffn function graphics-to-user-defined-atom-colours-all-atoms-representation imol
+
+Where @emph{imol} is an integer number
+
+draw molecule number imol all atoms coloured by user-defined atom colours 
+
+@end deffn
+
 @node graphics-molecule-bond-type
 @subsection graphics-molecule-bond-type
 @deffn function graphics-molecule-bond-type imol
@@ -7236,6 +7480,38 @@ scale the colours for colour by b factor representation
 Where @emph{up_or_down} is an integer number
 
 change the representation of the model molecule closest to the centre of the screen 
+
+@end deffn
+
+@node set-use-grey-carbons-for-molecule
+@subsection set-use-grey-carbons-for-molecule
+@deffn function set-use-grey-carbons-for-molecule imol state
+
+Where: 
+@itemize @bullet
+@item @emph{imol} is an integer number
+@item @emph{state} is an integer number
+@end itemize
+
+make the carbon atoms for molecule imol be grey 
+
+@end deffn
+
+@node set-grey-carbon-colour
+@subsection set-grey-carbon-colour
+@deffn function set-grey-carbon-colour imol r g b
+
+Where: 
+@itemize @bullet
+@item @emph{imol} is an integer number
+@item @emph{r} is a number
+@item @emph{g} is a number
+@item @emph{b} is a number
+@end itemize
+
+set the colour for the carbon atoms 
+
+can be not grey if you desire, r, g, b in the range 0 to 1. 
 
 @end deffn
 
@@ -7570,6 +7846,8 @@ what is the value of the previous flag?
 * delete-atom::
 * delete-residue-sidechain::
 * delete-hydrogens::
+* delete-chain::
+* delete-sidechains-for-chain::
 @end menu
 
 @node delete-residue-range
@@ -7686,6 +7964,34 @@ Returns: number of hydrogens deleted.
 
 @end deffn
 
+@node delete-chain
+@subsection delete-chain
+@deffn function delete-chain imol chain_id
+
+Where: 
+@itemize @bullet
+@item @emph{imol} is an integer number
+@item @emph{chain_id} is a string
+@end itemize
+
+delete the chain 
+
+@end deffn
+
+@node delete-sidechains-for-chain
+@subsection delete-sidechains-for-chain
+@deffn function delete-sidechains-for-chain imol chain_id
+
+Where: 
+@itemize @bullet
+@item @emph{imol} is an integer number
+@item @emph{chain_id} is a string
+@end itemize
+
+delete the side chains in the chain 
+
+@end deffn
+
 @node Mainchain Building Functions
 @section Mainchain Building Functions
 
@@ -7695,7 +8001,7 @@ Returns: number of hydrogens deleted.
 
 @node db-mainchain
 @subsection db-mainchain
-@deffn function db-mainchain imol chain_id iresno_start iresno_end direction_string
+@deffn function db-mainchain imol chain_id iresno_start iresno_end direction
 
 Where: 
 @itemize @bullet
@@ -7703,15 +8009,19 @@ Where:
 @item @emph{chain_id} is a string
 @item @emph{iresno_start} is an integer number
 @item @emph{iresno_end} is an integer number
-@item @emph{direction_string} is a string
+@item @emph{direction} is a string
 @end itemize
 
 CA -> mainchain conversion. 
 
+direction is either "forwards" or "backwards"
+
+return the new molecule number 
+
 @end deffn
 
-@node Rotatmer Functions
-@section Rotatmer Functions
+@node Rotamer Functions
+@section Rotamer Functions
 
 @menu
 * set-rotamer-search-mode::
@@ -8429,7 +8739,7 @@ Where:
 
 simple interface to superposition. 
 
-Superpose all residues of imol2 onto imol1. imol1 is reference, we can either move imol2 or copy it to generate a new molecule depending on the vaule of move_imol2_flag (1 for move 0 for copy). 
+Superpose all residues of imol2 onto imol1. imol1 is reference, we can either move imol2 or copy it to generate a new molecule depending on the vaule of move_imol2_flag (1 for copy 0 for move). 
 
 @end deffn
 
@@ -9318,264 +9628,6 @@ find words, construct a url and open it.
 
 @end deffn
 
-@node Generic Objects
-@section Generic Objects
-
-@menu
-* new-generic-object-number::
-* to-generic-object-add-line::
-* to-generic-object-add-dashed-line::
-* to-generic-object-add-point::
-* to-generic-object-add-arc::
-* to-generic-object-add-display-list-handle::
-* set-display-generic-object::
-* set-display-all-generic-objects::
-* generic-object-is-displayed-p::
-* generic-object-index::
-* number-of-generic-objects::
-* generic-object-info::
-* generic-object-has-objects-p::
-* close-generic-object::
-* is-closed-generic-object-p::
-* generic-object-clear::
-* generic-objects-gui-wrapper::
-@end menu
-
-@node new-generic-object-number
-@subsection new-generic-object-number
-@deffn function new-generic-object-number objname
-
-Where @emph{objname} is a string
-
-create a new generic object with name objname and return the index of the object 
-
-@end deffn
-
-@node to-generic-object-add-line
-@subsection to-generic-object-add-line
-@deffn function to-generic-object-add-line object_number colour line_width from_x1 from_y1 from_z1 to_x2 to_y2 to_z2
-
-Where: 
-@itemize @bullet
-@item @emph{object_number} is an integer number
-@item @emph{colour} is a string
-@item @emph{line_width} is an integer number
-@item @emph{from_x1} is a number
-@item @emph{from_y1} is a number
-@item @emph{from_z1} is a number
-@item @emph{to_x2} is a number
-@item @emph{to_y2} is a number
-@item @emph{to_z2} is a number
-@end itemize
-
-add line to generic object object_number 
-
-@end deffn
-
-@node to-generic-object-add-dashed-line
-@subsection to-generic-object-add-dashed-line
-@deffn function to-generic-object-add-dashed-line object_number colour line_width dash_density from_x1 from_y1 from_z1 to_x2 to_y2 to_z2
-
-Where: 
-@itemize @bullet
-@item @emph{object_number} is an integer number
-@item @emph{colour} is a string
-@item @emph{line_width} is an integer number
-@item @emph{dash_density} is a number
-@item @emph{from_x1} is a number
-@item @emph{from_y1} is a number
-@item @emph{from_z1} is a number
-@item @emph{to_x2} is a number
-@item @emph{to_y2} is a number
-@item @emph{to_z2} is a number
-@end itemize
-
-add a dashed line to generic object object_number 
-
-dash_density is number of dashes per Angstrom. 
-
-@end deffn
-
-@node to-generic-object-add-point
-@subsection to-generic-object-add-point
-@deffn function to-generic-object-add-point object_number colour point_width from_x1 from_y1 from_z1
-
-Where: 
-@itemize @bullet
-@item @emph{object_number} is an integer number
-@item @emph{colour} is a string
-@item @emph{point_width} is an integer number
-@item @emph{from_x1} is a number
-@item @emph{from_y1} is a number
-@item @emph{from_z1} is a number
-@end itemize
-
-add point to generic object object_number 
-
-@end deffn
-
-@node to-generic-object-add-arc
-@subsection to-generic-object-add-arc
-@deffn function to-generic-object-add-arc object_number colour radius radius_inner from_angle to_angle start_point_x start_point_y start_point_z start_dir_x start_dir_y start_dir_z normal_x1 normal_y1 normal_z1
-
-Where: 
-@itemize @bullet
-@item @emph{object_number} is an integer number
-@item @emph{colour} is a string
-@item @emph{radius} is a number
-@item @emph{radius_inner} is a number
-@item @emph{from_angle} is a number
-@item @emph{to_angle} is a number
-@item @emph{start_point_x} is a number
-@item @emph{start_point_y} is a number
-@item @emph{start_point_z} is a number
-@item @emph{start_dir_x} is a number
-@item @emph{start_dir_y} is a number
-@item @emph{start_dir_z} is a number
-@item @emph{normal_x1} is a number
-@item @emph{normal_y1} is a number
-@item @emph{normal_z1} is a number
-@end itemize
-
-add point to generic object object_number 
-
-@end deffn
-
-@node to-generic-object-add-display-list-handle
-@subsection to-generic-object-add-display-list-handle
-@deffn function to-generic-object-add-display-list-handle object_number display_list_id
-
-Where: 
-@itemize @bullet
-@item @emph{object_number} is an integer number
-@item @emph{display_list_id} is an integer number
-@end itemize
-
-add a display list handle generic object 
-
-@end deffn
-
-@node set-display-generic-object
-@subsection set-display-generic-object
-@deffn function set-display-generic-object object_number istate
-
-Where: 
-@itemize @bullet
-@item @emph{object_number} is an integer number
-@item @emph{istate} is an integer number
-@end itemize
-
-set the display status of object number object_number, 
-
-when they are created, by default objects are not displayed, so we generally need this function. 
-
-@end deffn
-
-@node set-display-all-generic-objects
-@subsection set-display-all-generic-objects
-@deffn function set-display-all-generic-objects state
-
-Where @emph{state} is an integer number
-
-display (1) or undisplay (0) all generic display objects 
-
-@end deffn
-
-@node generic-object-is-displayed-p
-@subsection generic-object-is-displayed-p
-@deffn function generic-object-is-displayed-p object_number
-
-Where @emph{object_number} is an integer number
-
-is generic display object displayed? 
-
-Returns: 1 for yes, otherwise 0 
-
-@end deffn
-
-@node generic-object-index
-@subsection generic-object-index
-@deffn function generic-object-index name
-
-Where @emph{name} is a string
-
-return the index of the object with name name, if not, return -1; 
-
-@end deffn
-
-@node number-of-generic-objects
-@subsection number-of-generic-objects
-@deffn function number-of-generic-objects
-
-what is the name of generic object number obj_number? 
-
-
-return the number of generic display objects 
-
-Returns: 0 (NULL) (scheme False) on obj_number not available
-
-@end deffn
-
-@node generic-object-info
-@subsection generic-object-info
-@deffn function generic-object-info
-
-print to the console the name and display status of the generic display objects 
-
-@end deffn
-
-@node generic-object-has-objects-p
-@subsection generic-object-has-objects-p
-@deffn function generic-object-has-objects-p obj_no
-
-Where @emph{obj_no} is an integer number
-
-does generic display object number obj_no have things to display? (predicate name) 
-
-Returns: 0 for no things, 1 for things. 
-
-@end deffn
-
-@node close-generic-object
-@subsection close-generic-object
-@deffn function close-generic-object object_number
-
-Where @emph{object_number} is an integer number
-
-close generic object, clear the lines/points etc, not available for buttons/displaying etc 
-
-@end deffn
-
-@node is-closed-generic-object-p
-@subsection is-closed-generic-object-p
-@deffn function is-closed-generic-object-p object_number
-
-Where @emph{object_number} is an integer number
-
-has the generic object been closed? 
-
-Returns: 1 for yes, 0 othersize 
-
-@end deffn
-
-@node generic-object-clear
-@subsection generic-object-clear
-@deffn function generic-object-clear object_number
-
-Where @emph{object_number} is an integer number
-
-clear out the lines and points from object_number, but keep it displayable (not closed). 
-
-@end deffn
-
-@node generic-objects-gui-wrapper
-@subsection generic-objects-gui-wrapper
-@deffn function generic-objects-gui-wrapper
-
-a kludgey thing, so that the generic objects gui can be called from a callback. 
-
-@end deffn
-
 @node Molprobity Interface
 @section Molprobity Interface
 
@@ -9941,6 +9993,8 @@ return the molecule number of the interacting residues. Return -1 if no new mode
 
 @menu
 * fit-to-map-by-random-jiggle::
+* fit-molecule-to-map-by-random-jiggle::
+* fit-chain-to-map-by-random-jiggle::
 @end menu
 
 @node fit-to-map-by-random-jiggle
@@ -9958,6 +10012,37 @@ Where:
 @end itemize
 
 jiggle fit to the current refinment map. return < -100 if not possible, else return the new best fit for this residue. 
+
+@end deffn
+
+@node fit-molecule-to-map-by-random-jiggle
+@subsection fit-molecule-to-map-by-random-jiggle
+@deffn function fit-molecule-to-map-by-random-jiggle imol n_trials jiggle_scale_factor
+
+Where: 
+@itemize @bullet
+@item @emph{imol} is an integer number
+@item @emph{n_trials} is an integer number
+@item @emph{jiggle_scale_factor} is a number
+@end itemize
+
+jiggle fit the molecule to the current refinment map. return < -100 if not possible, else return the new best fit for this molecule. 
+
+@end deffn
+
+@node fit-chain-to-map-by-random-jiggle
+@subsection fit-chain-to-map-by-random-jiggle
+@deffn function fit-chain-to-map-by-random-jiggle imol chain_id n_trials jiggle_scale_factor
+
+Where: 
+@itemize @bullet
+@item @emph{imol} is an integer number
+@item @emph{chain_id} is a string
+@item @emph{n_trials} is an integer number
+@item @emph{jiggle_scale_factor} is a number
+@end itemize
+
+jiggle fit the chain to the current refinment map. return < -100 if not possible, else return the new best fit for this chain. 
 
 @end deffn
 

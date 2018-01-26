@@ -1668,7 +1668,7 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 	    // an index below A, (similar reason for the others).
 	    //
 	    // pairs of: RDKit-atom-idx,RDKit-atom-name
-	    std::vector<std::pair<int, string> > neighbours;
+	    std::vector<std::pair<int, std::string> > neighbours;
 
 	    unsigned int n_bonds = mol.getNumBonds();
 	    for (unsigned int ib=0; ib<n_bonds; ib++) {
@@ -1677,9 +1677,9 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 	       unsigned int idx_2 = bond_p->getEndAtomIdx();
 
 	       if (idx_1 == iat)
-		  neighbours.push_back(std::pair<int, string> (idx_2, ""));
+		  neighbours.push_back(std::pair<int, std::string> (idx_2, ""));
 	       if (idx_2 == iat)
-		  neighbours.push_back(std::pair<int, string> (idx_1, ""));
+		  neighbours.push_back(std::pair<int, std::string> (idx_1, ""));
 	    }
 
 	    // std::cout << "centre idx " << iat << " neighbours size: " << neighbours.size() << std::endl;

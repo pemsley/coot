@@ -15,7 +15,8 @@
 #define PNG_DEBUG 3
 #include <png.h>
 
-#include "coot/utils/coot-utils.hh"
+#include "utils/coot-utils.hh"
+#include "phi-psi.hh"
 
 namespace zo {
 
@@ -37,6 +38,16 @@ namespace zo {
 	 order_phi(order_phi_in), order_psi(order_psi_in) { }
 
       realtype value(const realtype &rama_phi, const realtype &rama_psi) const {
+
+	 // things here can be sped up because
+	 //
+	 // cos(2a) = cos^2(a) - sin^2(a)
+	 // sin(2a) = 2cos(a)sin(a)
+	 //
+	 // or more generally
+	 //
+	 // cos(a+b) = cos(a)cos(b) - sin(a)sin(b)
+	 // sin(a+b) = cos(a)sin(b) + sin(a)cos(b)
 
 	 double v;
 	 v  = A_cc * cosf(order_phi * rama_phi) * cosf(order_psi * rama_psi);
@@ -62,7 +73,8 @@ namespace zo {
 
 	 return std::pair<realtype, realtype> (d1, d2);
       }
-      std::pair<realtype,realtype> df_numerical(const realtype &rama_phi, const realtype &rama_psi) const {
+      std::pair<realtype,realtype> df_numerical(const realtype &rama_phi,
+						const realtype &rama_psi) const {
 	 realtype bit = 0.01;
 	 realtype rc_1 = value(rama_phi-bit, rama_psi);
 	 realtype rc_2 = value(rama_phi+bit, rama_psi);
@@ -85,13 +97,9 @@ namespace zo {
 
       // this can throw a runtime_error
       rama_table() {
-	 std::string fn = "all-non-pre-pro.tab";
-	 init(fn);
-      }
-
-      // this can throw a runtime_error
-      rama_table(const std::string &fn) {
-	 init(fn);
+	 // old style single table in file
+	 // std::string fn = "all-non-pre-pro.tab";
+	 // init(fn);
       }
 
       void make_a_png(int n_pixels, const std::string &file_name);
@@ -131,32 +139,7 @@ namespace zo {
 
       // this can throw a runtime_error.
       //
-      void read(const std::string &file_name) {
-	 std::ifstream f(file_name.c_str());
-	 std::string line;
-
-	 std::cout << "INFO:: reading file " << file_name << std::endl;
-
-	 if (f) {
-	    while(std::getline(f, line)) {
-	       std::vector<std::string> bits = coot::util::split_string_no_blanks(line);
-	       if (bits.size() == 7) {
-		  std::cout << "line: " << line << std::endl;
-		  int idx_1 = coot::util::string_to_int(bits[0]);
-		  int idx_2 = coot::util::string_to_int(bits[1]);
-		  double A_cc = coot::util::string_to_double(bits[3]);
-		  double A_cs = coot::util::string_to_double(bits[4]);
-		  double A_sc = coot::util::string_to_double(bits[5]);
-		  double A_ss = coot::util::string_to_double(bits[6]);
-		  zo::rama_coeffs v(idx_1, idx_2, A_cc, A_cs, A_sc, A_ss);
-		  rama_vec.push_back(v);
-	       }
-	    }
-	 } else {
-	    std::cout << "Warning:: file not found: " << file_name << std::endl;
-	    throw std::runtime_error("Can't init zo-rama");
-	 }
-      }
+      void read(const std::string &file_name);
 
       // this can throw a runtime_error
       void init(const std::string &local_file_name) {
@@ -184,37 +167,38 @@ namespace zo {
    // 
    class rama_table_set {
    public:
-      enum type_t { ALL_NON_PRE_PRO, PRE_PRO, LIV };
-      std::map<type_t, rama_table> table_map;
+      // enum type_t { ALL_NON_PRE_PRO, PRE_PRO, LIV };
+      std::map<std::string, rama_table> table_map;
 
-      // actually write this at some stage
-      type_t get_residue_type(const std::string &this_residue_type,
-			      const std::string &next_residue_type) const;
+      rama_table_set() { init(); }
+
+      std::string get_residue_type(const std::string &this_residue_type,
+				   const std::string &next_residue_type) const;
 
       // fill the table_map with tables
       //
-      void init() {
-	 try {
-	    table_map[ALL_NON_PRE_PRO] = rama_table("all-non-pre-pro.tab");
-	 }
-	 catch (const std::runtime_error &rte) {
-	    std::cout << "ERROR:: " << rte.what() << std::endl;
-	 }
-      }
-      std::pair<realtype,realtype> df(const realtype &phi, const realtype &psi) const {
-	 std::map<type_t, rama_table>::const_iterator it = table_map.find(ALL_NON_PRE_PRO);
-	 return it->second.df(phi,psi);
+      // should this be public?
+      //
+      void init();
+
+      // residue type eg "ALL!nP" "ALLnP" "GLY!nP"  "GLYnP" "PRO!nP"
+      //
+      std::pair<realtype,realtype> df(const std::string &residue_type,
+				      const realtype &phi, const realtype &psi) const;
+
+      std::pair<realtype,realtype> df(const coot::phi_psi_t &pp,
+				      const std::string &residue_type) const {
+	 return df(residue_type, pp.phi, pp.psi);
       }
 
-      realtype value(const realtype &phi, const realtype &psi) const {
-	 std::map<type_t, rama_table>::const_iterator it = table_map.find(ALL_NON_PRE_PRO);
-	 if (it != table_map.end())
-	    return it->second.value(phi,psi);
-	 else
-	    return 0.0;
+      // residue type eg "ALL!nP" "ALLnP" "GLY!nP"  "GLYnP" "PRO!nP"
+      //
+      realtype value(const std::string &residue_type, const realtype &phi, const realtype &psi) const;
+      realtype value(const coot::phi_psi_t &pp, const std::string &residue_type) const {
+	 return value(residue_type, pp.phi, pp.psi);
       }
+
    };
-
 }
 
 #endif /// ZO_RAMA_HH

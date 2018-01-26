@@ -151,7 +151,7 @@ public:
    // please be fast enough...
    // 
    // Do not include yourself.
-   vector<clipper::Coord_grid> neighbs; 
+   std::vector<clipper::Coord_grid> neighbs; 
 
    clipper::Coord_grid near_grid_point; 
 
@@ -176,9 +176,9 @@ class asc_and_grids {
 
 public:
    atom_selection_container_t asc; 
-   vector<clipper::Coord_grid> grid_points; 
+   std::vector<clipper::Coord_grid> grid_points; 
    
-   asc_and_grids(atom_selection_container_t a, vector<clipper::Coord_grid> gp) {
+   asc_and_grids(atom_selection_container_t a, std::vector<clipper::Coord_grid> gp) {
       
       asc = a; 
       grid_points = gp; 
@@ -192,7 +192,7 @@ class BuildCas {
 
    // a vector of vectors of Ca builds:
    // 
-   vector<vector <score_and_cart> > build; 
+   std::vector<std::vector <score_and_cart> > build; 
    // an index into the build array for the "string" we are building now.
    // 
    int i_current_build, i_max_build;  // i_max_build is not the maximum
@@ -212,8 +212,8 @@ class BuildCas {
   float grid_dependent_distance_param; 
   short int branch_point_have_been_expanded_flag; 
 
-  vector<coot::Cartesian> branch_points;
-  vector<coot::Cartesian> branch_points_symm_expanded; 
+   std::vector<coot::Cartesian> branch_points;
+   std::vector<coot::Cartesian> branch_points_symm_expanded; 
 
    // introduce AngleInfo
    AngleInfo angle_info;
@@ -239,8 +239,8 @@ class BuildCas {
 
  public:
 
-   vector <coot::Cartesian> big_ball;
-   vector <clipper::Coord_grid> big_ball_grid; 
+   std::vector <coot::Cartesian> big_ball;
+   std::vector <clipper::Coord_grid> big_ball_grid; 
 
    BuildCas() {
       setup_internal();
@@ -257,9 +257,9 @@ class BuildCas {
    short int 
    old_is_same_gridpoint(const clipper::Coord_grid &g1, const clipper::Coord_grid &g2) const { 
 
-      cout << "is_same_gridpoint: " 
-	   << g1.unit(d_map_p->grid_sampling()).format() << " and "
-	   << g2.unit(d_map_p->grid_sampling()).format() << endl; 
+      std::cout << "is_same_gridpoint: " 
+		<< g1.unit(d_map_p->grid_sampling()).format() << " and "
+		<< g2.unit(d_map_p->grid_sampling()).format() << std::endl;
       return (g1.unit(d_map_p->grid_sampling()) == g2.unit(d_map_p->grid_sampling())); 
 
    } 
@@ -316,41 +316,41 @@ class BuildCas {
    // debugging 
    int n_fitted_in_current_seg() { return n_fitted_in_current_segment; }; 
    
-   vector<coot::Cartesian_and_Grid>
-   cluster_centres(vector<vector<coot::Cartesian_and_Grid> > cluster_vec) const;
+   std::vector<coot::Cartesian_and_Grid>
+   cluster_centres(std::vector<std::vector<coot::Cartesian_and_Grid> > cluster_vec) const;
    
-   vector<vector<coot::Cartesian_and_Grid> > 
-   cluster_bones_points(vector<coot::Cartesian_and_Grid> big_ball, coot::Cartesian centre_point) const; 
+   std::vector<std::vector<coot::Cartesian_and_Grid> > 
+   cluster_bones_points(std::vector<coot::Cartesian_and_Grid> big_ball, coot::Cartesian centre_point) const; 
    
-   vector <coot::Cartesian>
+   std::vector <coot::Cartesian>
    point_list_by_symmetry(atom_selection_container_t AtomSel,
-			  const vector<clipper::Coord_grid> &grids,
+			  const std::vector<clipper::Coord_grid> &grids,
 			  coot::Cartesian current_point, 
 			  float radius, short int use_grids = 1); 
    
    atom_selection_container_t
    convert_to_atoms(const clipper::Xmap<int> &l1,
-		    const vector<coot::Cartesian> &c, 
+		    const std::vector<coot::Cartesian> &c, 
 		    std::string molecule_name) const; 
    
    atom_selection_container_t
    convert_to_atoms(const clipper::Xmap<float> &l1,
-		    const vector<coot::Cartesian> &c, 
+		    const std::vector<coot::Cartesian> &c, 
 		    std::string molecule_name) const;
    
    atom_selection_container_t
-   convert_to_atoms(const vector<coot::Cartesian> &c,
+   convert_to_atoms(const std::vector<coot::Cartesian> &c,
 		    std::string molecule_name) const; 
    
    
    atom_selection_container_t
    convert_to_atoms_internal(clipper::Spacegroup spg, clipper::Cell cell, 
-			     const vector<coot::Cartesian> &c,
+			     const std::vector<coot::Cartesian> &c,
 			     short int diff_residue_flag,
 			     std::string molecule_name) const; 
 
 
-  vector<coot::Cartesian_and_Grid>
+   std::vector<coot::Cartesian_and_Grid>
      select_by_distance(coot::Cartesian start_point, float near, float far) const; // 3.7A +/- a bit
 
    // atom_selection_container_t 
@@ -369,7 +369,7 @@ class BuildCas {
   atom_selection_container_t 
    build_big_ball(const clipper::Xmap<float> &map, 
 		  atom_selection_container_t asc,
-		  const vector<clipper::Coord_grid> &grids);
+		  const std::vector<clipper::Coord_grid> &grids);
  
   int 
     count_and_mark_segments(const clipper::Xmap<int>   &skel,
@@ -415,9 +415,9 @@ class BuildCas {
 
   float deviation_from_ideal_length_score(float length) const; 
 
-  vector<coot::Cartesian> branch_pts() const { return branch_points; } 
+   std::vector<coot::Cartesian> branch_pts() const { return branch_points; } 
 
-  vector<coot::Cartesian> find_branch_points(const clipper::Xmap<float> &map, 
+   std::vector<coot::Cartesian> find_branch_points(const clipper::Xmap<float> &map, 
 				       const clipper::Xmap<int> &l1,
 				       float cut_off); 
   
@@ -445,7 +445,7 @@ class BuildCas {
 		      const clipper::Skeleton_basic::Neighbours &fd_neighb,
 		      const clipper::Skeleton_basic::Neighbours &edge_neighb,
 		      const clipper::Coord_grid &pos,
-		      const vector<coot::Cartesian> &previous) const; 
+		      const std::vector<coot::Cartesian> &previous) const; 
    
    
    coot::Cartesian SmallTriangle_to_branch_point(const clipper::Xmap<int> &l1,
@@ -508,8 +508,8 @@ class BuildCas {
 
    // vector<coot::Cartesian_and_Grid> fitting_targets(int ires, float gridding) const; 
 
-   vector<coot::Cartesian_and_Grid> fitting_targets(const TreeNode *node, 
-					      float max_gridding) const; 
+   std::vector<coot::Cartesian_and_Grid> fitting_targets(const TreeNode *node, 
+							 float max_gridding) const; 
 
 
    score_and_cart

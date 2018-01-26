@@ -792,10 +792,30 @@ def sphere_regularize_plus(radius=4.5):
     sphere_regularize(radius, True)
 
 
+def refine_tandem_residues():
+    active_atom = closest_atom_simple_py() # active_atom returns the CA if it can
+    if not active_atom:
+       print "No active atom"
+    else:
+       imol       = active_atom[0]
+       chain_id   = active_atom[1]
+       res_no     = active_atom[2]
+       ins_code   = active_atom[3]
+       atom_name  = active_atom[4]
+       alt_conf   = active_atom[5]
+       specs = []
+       for ires in range(res_no-3, res_no+4):
+           # test if the residue exists by looking for a residue name
+           rn = residue_name(imol, chain_id, ires, ins_code)
+           if len(rn) > 0:
+               specs.append([chain_id, ires, ins_code])
+       refine_residues(imol, specs)
+
+
 # Pepflip the active residue - needs a key binding
 #
 def pepflip_active_residue():
-    active_atom = active_residue()
+    active_atom = closest_atom_simple_py() # active_atom returns the CA if it can
     if not active_atom:
        print "No active atom"
     else:
@@ -809,6 +829,7 @@ def pepflip_active_residue():
        if (atom_name == " N  "): # PDBv3 fixme
 	   res_no -= 1;
        pepflip(imol, chain_id, res_no, ins_code, alt_conf)
+
     
 
 # Another cool function that needs a key binding

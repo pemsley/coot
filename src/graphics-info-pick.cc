@@ -644,7 +644,7 @@ void
 graphics_info_t::do_post_drag_refinement_maybe() {
 
 #ifdef HAVE_GSL
-   if (last_restraints.size() > 0) { 
+   if (last_restraints_size() > 0) { 
       // std::cout << "do refinement now!\n";
       graphics_info_t::add_drag_refine_idle_function();
    } else { 

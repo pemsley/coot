@@ -622,10 +622,10 @@ if test "$run_tests" = true ; then
    echo removing old backup-files in coot-backup
    rm coot-backup/*
    # for python build we need to set COOT_PYTHON_DIR and COOT_HOME
-   COOT_PYTHON_DIR=$install_top_dir/share/coot/python
+   COOT_PYTHON_DIR=$install_top_dir/python27/lib/site-packages/coot
    COOT_HOME=$HOME
    PYTHONPATH=$COOT_PYTHON_DIR
-   PYTHONHOME=$install_top_dir/bin
+   PYTHONHOME=$install_top_dir/python27
    export PYTHONPATH
    export PYTHONHOME
    export COOT_PYTHON_DIR
@@ -687,11 +687,11 @@ fi
 #else 
 #   PATH=$AUTOBUILD_INSTALLED-gtk2$build_type/bin:$AUTOBUILD_INSTALLED-gtk2$build_type/python2.5:$PATH
 #fi 
-PATH=$PATH:/usr/local/bin:/usr/sbin:/usr/bsd:/sbin:/usr/bin:/bin:
-PATH=$PATH:/etc:/usr/etc
+#PATH=$PATH:/usr/local/bin:/usr/sbin:/usr/bsd:/sbin:/usr/bin:/bin:
+#PATH=$PATH:/etc:/usr/etc
 #
-export PATH
-echo PATH is now: $PATH
+#export PATH
+#echo PATH is now: $PATH
 echo AUTOBUILD_BUILD is $AUTOBUILD_BUILD
 
 # This is where the sources downloaded from network go:
@@ -708,6 +708,8 @@ mkdir -p $LOGS
 
 shared_static_flag="--disable-shared"
 shared_flag="--enable-shared --disable-static"
+# not shared yet
+shared_flag=
 shared_lib_ext=dll
 systype=unknown 
 
@@ -1027,6 +1029,7 @@ echo which wget
 which wget
 WGET="wget -N -P ${AUTOBUILD_SOURCES}"
 WGETO="wget   -P ${AUTOBUILD_SOURCES}"
+WGETS="wget --no-check-certificate -N -P ${AUTOBUILD_SOURCES}"
 
 # latest version (without .tar.gz extension)
 coot_version=$fallback_coot_version
@@ -1044,7 +1047,7 @@ release_server_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/re
 release_server_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/releases/
 #
 extras_place=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies
-win_extras_place=http://www.ysbl.york.ac.uk/~lohkamp/software/extras
+win_extras_place=http://bernhardcl.github.io/coot/software/extras
 
 
 ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir
@@ -2135,7 +2138,8 @@ if test -n "$build_clipper" ; then
     #${WGET} $extras_place/clipper-$clipper_hack_version.tar.gz
 
     # fix mean and lean on windows, i.e. disable
-    ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/clipper_win32.patch
+    # ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/clipper_win32.patch
+    ${WGET} $win_extras_place/clipper_win32.patch
 
     # now clipper has all the bits.
     # ${WGET} $extras_place/clipper-$clipper_version.tar.gz
@@ -2215,7 +2219,9 @@ if test -n "$build_freeglut" ; then
 #nate's version is not good as it requires 'manual' adjustments to compilation
 #${WGET} http://www.xmission.com/~nate/glut/glut-3.7.6-bin.zip
 # we get another version instead
-${WGET} http://files.transmissionzero.co.uk/software/development/GLUT/freeglut-MinGW-2.8.1-1.mp.zip
+#${WGET} http://files.transmissionzero.co.uk/software/development/GLUT/freeglut-MinGW-2.8.1-1.mp.zip
+# seems dead, use own
+${WGET} $win_extras_place/freeglut-MinGW-2.8.1-1.mp.zip
 
 (
 date
@@ -2452,7 +2458,7 @@ if test -n "$build_gtk" ; then
       echo  BUILDING libiconv
       echo  ======================================================
       libiconv_version=1.9.1
-      ${WGET} http://http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/libiconv-${libiconv_version}.bin.woe32.zip
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/libiconv-${libiconv_version}.bin.woe32.zip
       cd $install_top_dir
       7z x -y ${AUTOBUILD_SOURCES}/libiconv-${libiconv_version}.bin.woe32.zip
       cd -
@@ -2523,8 +2529,9 @@ if test -n "$build_gtk" ; then
       7z x -y ${AUTOBUILD_SOURCES}/gtk+-dev_${gtk2_version}_win32.zip
       cd - 
       # install hicolor theme
+      # FIXME - update to 0.15 but uses xz then (check install for it)
       hicolor_version=0.13
-      ${WGET} http://icon-theme.freedesktop.org/releases/hicolor-icon-theme-${hicolor_version}.tar.gz
+      ${WGET} --no-check-certificate http://icon-theme.freedesktop.org/releases/hicolor-icon-theme-${hicolor_version}.tar.gz
       gzip -cd ${AUTOBUILD_SOURCES}/hicolor-icon-theme-${hicolor_version}.tar.gz | tar xf -
       cd hicolor-icon-theme-${hicolor_version}
       ./configure --prefix=$install_top_dir
@@ -2588,7 +2595,8 @@ if test -n "$build_gtkglext" ; then
     gtkglext_version=1.2.0
     #${WGET} http://surfnet.dl.sourceforge.net/sourceforge/gtkglext/gtkglext-$gtkglext_version.tar.gz
     ${WGET} http://downloads.sourceforge.net/gtkglext/gtkglext-1.2.0.tar.gz
-    ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/gtkglext_configure.patch
+    # ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/gtkglext_configure.patch
+    ${WGET} $win_extras_place/gtkglext_configure.patch
     (date
      pwd
      gzip -dc ${AUTOBUILD_SOURCES}/gtkglext-$gtkglext_version.tar.gz | tar xf -
@@ -2620,6 +2628,7 @@ if test -n "$build_gtkglext" ; then
      fi
 
      patch -p0 < ${AUTOBUILD_SOURCES}/gtkglext_configure.patch
+     echo BL DEBUG PATH before config gtkglext is $PATH
      ./configure --build=i386-pc-mingw32 $generic_prefix
      $MAKE
     status=$?
@@ -2718,6 +2727,7 @@ mkdir $global_py_inst_dir
 cd $global_py_inst_dir
 global_py_inst_dir=`pwd -W`
 # convert / to \ for windows file names
+# maybe even two
 global_py_inst_dir=${global_py_inst_dir//\//\\}
 cd -
 
@@ -2756,8 +2766,9 @@ if [ "$python_version_installed" == "$python_target_version" ] ; then
    copy_python=1
 else
    # new python needs to be installed, please go ahead!!! put ddl in same dir
-   echo msiexec /i python-$pver.msi TARGETDIR=$global_py_inst_dir DLLDIR=$global_py_inst_dir ALLUSERS=1 /qn
-   msiexec //i python-$pver.msi TARGETDIR=$global_py_inst_dir DLLDIR=$global_py_inst_dir ALLUSERS=1 //qn
+   echo msiexec /a python-$pver.msi TARGETDIR=$global_py_inst_dir DLLDIR=$global_py_inst_dir ALLUSERS=1 /qn
+   # msiexec //i python-$pver.msi TARGETDIR=$global_py_inst_dir DLLDIR=$global_py_inst_dir ALLUSERS=1 //qn
+   msiexec //a python-$pver.msi TARGETDIR=$global_py_inst_dir DLLDIR=$global_py_inst_dir ALLUSERS=1 //qn 
    status=$?
    if [ "$status" != 0 ] ; then
       echo problem installing python
@@ -2798,13 +2809,15 @@ fi
 echo $copy_python > $HOME/python_copied.tmp
 ) >  $HOSTLOGDIR/07-python.txt 2>&1
 
-if [ $(cat $HOME/python_copied.tmp) == 2 ] ; then
+if [ -e $HOME/python_copied.tmp ] ; then
+ if [ $(cat $HOME/python_copied.tmp) == 2 ] ; then
    echo copied python, so dont install pygobject etc.
    build_pygobject=0
    build_pycairo=0
    build_pygtk=0
+ fi
+ rm $HOME/python_copied.tmp
 fi
-rm $HOME/python_copied.tmp
 
 # to uninstall use:
 # msiexec //uninstall python-$pver.msi //qb
@@ -3038,7 +3051,8 @@ guile_version=1.8.3
 # not yet...
 # lets try...
 ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
-${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/guile-${guile_version}.patch
+# ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/guile-${guile_version}.patch
+${WGET} $win_extras_place/guile-${guile_version}.patch
 
 cd $build_dir
 ( 
@@ -3117,7 +3131,8 @@ if test -n "$build_guile_gtk" ; then
 #
 guile_gtk_version=2.1
 ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile-gtk/guile-gtk-$guile_gtk_version.tar.gz
-${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/guile-gtk-win32.patch
+#${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/guile-gtk-win32.patch
+${WGET} $win_extras_place/guile-gtk-win32.patch
 ( 
 date
 pwd
@@ -3204,7 +3219,7 @@ if test -n "$build_curl" ; then
    #libcurl_version=7.19.7
    # libcurl_version=7.27.0
    libcurl_version=7.32.0
-   ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
+   ${WGET} --no-check-certificate http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
 
    gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz | tar xf -
    cd curl-$libcurl_version
@@ -3231,20 +3246,24 @@ if test -n "$build_gsl" ; then
 gsl_version=1.8
 # not yet
 # gsl_version=1.12
-if [ -n "$shared_flag" ] ; then
-  gsl_version=1.16
-  ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
-else
-  ${WGET} http://downloads.sourceforge.net/gnuwin32/gsl-$gsl_version-bin.zip
-  ${WGET} http://downloads.sourceforge.net/gnuwin32/gsl-$gsl_version-lib.zip
-  ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/gsl-config
-  ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/gsl.m4
-fi
+# lets try 2.2.1 binaries shared for both!
+gsl_version=2.2.1
+#if [ -n "$shared_flag" ] ; then
+#  gsl_version=1.16
+#  ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
+#else
+#  ${WGET} http://downloads.sourceforge.net/gnuwin32/gsl-$gsl_version-bin.zip
+#  ${WGET} http://downloads.sourceforge.net/gnuwin32/gsl-$gsl_version-lib.zip
+#  ${WGET} $win_extras_place/gsl-config
+#  ${WGET} $win_extras_place/gsl.m4
+  ${WGETS} http://sourceforge.net/projects/gnu-scientific-library-windows/files/gsl-2.2.1_mingw-6.2.0.zip
+#fi
 
 ( 
 date
 pwd
-if [ -n "$shared_flag" ] ; then
+#if [ -n "$shared_flag" ] ; then
+if [ 0 == 1 ] ; then
 gzip -dc ${AUTOBUILD_SOURCES}/gsl-$gsl_version.tar.gz | tar xf -
 cd gsl-$gsl_version
 ./configure $generic_prefix $shared_flag
@@ -3261,19 +3280,32 @@ else
 fi  
 else
 cd $install_top_dir
-7z x -y ${AUTOBUILD_SOURCES}/gsl-$gsl_version-bin.zip
-7z x -y ${AUTOBUILD_SOURCES}/gsl-$gsl_version-lib.zip
+#7z x -y ${AUTOBUILD_SOURCES}/gsl-$gsl_version-bin.zip
+#7z x -y ${AUTOBUILD_SOURCES}/gsl-$gsl_version-lib.zip
 # gsl binaries dont have gsl-config, so we have to make our own
-cp ${AUTOBUILD_SOURCES}/gsl-config bin/
-sed "s?^prefix=.*?prefix=$install_top_dir?" bin/gsl-config >gsl-config.tmp
-mv gsl-config.tmp bin/gsl-config
+#cp ${AUTOBUILD_SOURCES}/gsl-config bin/
+#sed "s?^prefix=.*?prefix=$install_top_dir?" bin/gsl-config >gsl-config.tmp
+#mv gsl-config.tmp bin/gsl-config
 # somehow need to 'remove' the dll libs as these cause access violations
 # i.e. use static linking
-mv lib/libgsl.dll.a lib/libgsl.dll.a.orig
-mv lib/libgslcblas.dll.a lib/libgslcblas.dll.a.orig
-status=$?
+#mv lib/libgsl.dll.a lib/libgsl.dll.a.orig
+#mv lib/libgslcblas.dll.a lib/libgslcblas.dll.a.orig
+#status=$?
 # and there is no gsl.m4, so copy that
-cp ${AUTOBUILD_SOURCES}/gsl.m4 $install_top_dir/share/aclocal/
+#cp ${AUTOBUILD_SOURCES}/gsl.m4 $install_top_dir/share/aclocal/
+# END OLD
+7z x -y ${AUTOBUILD_SOURCES}/gsl-2.2.1_mingw-6.2.0.zip -o${AUTOBUILD_SOURCES} gsl-2.2.1_mingw-6.2.0\\gsl-2.2.1-shared\\*
+# now copy to install_top_dir
+cp -r ${AUTOBUILD_SOURCES}/gsl-2.2.1_mingw-6.2.0/gsl-2.2.1-shared/* $install_top_dir/
+# now adjust the path for gsl-config and *la files
+sed "s?/home/Mesh/gsl_mingw/package/gsl-2.2.1-shared?$install_top_dir?" bin/gsl-config >gsl-config.tmp
+mv gsl-config.tmp bin/gsl-config
+
+sed "s?/home/Mesh/gsl_mingw/package/gsl-2.2.1-shared?$install_top_dir?" lib/libgsl.la >libgsl.la.tmp
+mv libgsl.la.tmp lib/libgsl.la
+
+sed "s?/home/Mesh/gsl_mingw/package/gsl-2.2.1-shared?$install_top_dir?" lib/libgslcblas.la >libgslcblas.la.tmp
+mv libgslcblas.la.tmp lib/libgslcblas.la
 if [ "$status" != 0 ] ; then 
     echo ERROR:: GSL make failed.
     exit 2
@@ -3354,7 +3386,8 @@ echo replacing syminfo.lib with windows version
 mv syminfo.lib syminfo.lib.orig
 cp windows/syminfo.lib syminfo.lib
 # get windows cootrc
-wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~lohkamp/software/extras/cootrc
+#wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~lohkamp/software/extras/cootrc
+wget -N -P ${HOME}/autobuild/extras $win_extras_place/cootrc
 
 if test -n "$glib_installed" ; then
     coot_extra_args="$coot_extra_args --with-glib-prefix=$install_top_dir"
@@ -3566,9 +3599,12 @@ echo done coot build.
 # 8/5/11 change to Garib's new dicionary.
 #refmac_mon_lib=refmac-monomer-library-20090929.tar.gz
 # mon_lib_dir=http://www.ysbl.york.ac.uk/~garib/refmac/data/refmac_experimental
-mon_lib_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/content/refmac/Dictionary
+# mon_lib_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/content/refmac/Dictionary
+#refmac_mon_lib=refmac_dictionary_v5.41.tar.gz
 
-refmac_mon_lib=refmac_dictionary_v5.41.tar.gz
+# new style
+mon_lib_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies
+refmac_mon_lib=refmac-monomer-library.tar.gz
 
 if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
     echo INFO:: installation has refmac monomer library

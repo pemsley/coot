@@ -93,6 +93,28 @@ namespace coot {
 	 std::string colour;
 	 std::string font;
       };
+      class annotation_box_t {
+      public:
+	 annotation_box_t() {} // needed because we derive a class from this
+	                       // and initial that class has nothing. Maybe
+	                       // is_set could go here.
+	 annotation_box_t(const lig_build::pos_t &top_left_in,
+			  const lig_build::pos_t &bottom_right_in,
+			  const std::string &outline_colour_in,
+			  double line_width_in,
+			  const std::string &fill_colour_in) {
+	    top_left = top_left_in;
+	    bottom_right = bottom_right_in;
+	    line_width = line_width_in;
+	    fill_colour = fill_colour_in;
+	    outline_colour = outline_colour_in;
+	 }
+	 lig_build::pos_t top_left;
+	 lig_build::pos_t bottom_right;
+	 std::string outline_colour;
+	 double line_width;
+	 std::string fill_colour;
+      };
 
       GooCanvas *canvas;
       GtkWidget *dialog;
@@ -103,6 +125,7 @@ namespace coot {
       std::vector<GooCanvasItem *> items;
       std::vector<annotation_line_t> annotation_lines;
       std::vector<annotation_text_t> annotation_texts;
+      std::vector<annotation_box_t>  annotation_boxes;
       std::string title_string;
       double extents_min_x;
       double extents_max_x;
@@ -116,6 +139,10 @@ namespace coot {
       double canvas_offset_y; 
       std::string x_axis_label;
       std::string y_axis_label;
+      bool draw_x_axis_flag;
+      bool draw_y_axis_flag;
+      bool draw_x_ticks_flag;
+      bool draw_y_ticks_flag;
       std::string plot_title;
       std::vector<graph_trace_info_t> traces;
       std::string dark; // axis colour
@@ -153,8 +180,12 @@ namespace coot {
 			      double tick_step,
 			      double tick_length_multiplier);
       lig_build::pos_t world_to_canvas(const lig_build::pos_t &p) const {
-	 return lig_build::pos_t((canvas_offset_x + (p.x-extents_min_x)*data_scale_x) * dialog_width / dialog_width_orig,
-				 (canvas_offset_y - (p.y-extents_min_y)*data_scale_y) * dialog_height/ dialog_height_orig);
+
+	 lig_build::pos_t pos((canvas_offset_x + (p.x-extents_min_x)*data_scale_x) * dialog_width / dialog_width_orig,
+			      (canvas_offset_y - (p.y-extents_min_y)*data_scale_y) * dialog_height/ dialog_height_orig);
+	 if (false)
+	    std::cout << "world_to_canvas() input: " << p << " returning " << pos << std::endl;
+	 return pos;
       }
       void draw_title();
       double y_range() const { return extents_max_y - extents_min_y; }
@@ -167,33 +198,74 @@ namespace coot {
       void draw_axis_label(int axis);
       void draw_annotation_lines();
       void draw_annotation_texts();
+      void draw_annotation_boxes();
+      void draw_contour_level_bar();
       void set_data_scales(int axis);
    public:
       enum {X_AXIS, Y_AXIS};
       enum {MAJOR_TICK, MINOR_TICK};
+      class annotation_box_info_t {
+      public:
+	 annotation_box_info_t() { is_set = false; }
+	 annotation_box_info_t(float x, float y) : x_mouse(x), y_mouse(y) {
+	    current_contour_level = -1;
+	    func = 0;
+	    is_set = false;
+	 }
+	 annotation_box_info_t(int imol_in, float rmsd_in, float cc_in, void (*func_in)(int, float)) {
+	    imol = imol_in;
+	    rmsd = rmsd_in;
+	    current_contour_level = cc_in;
+	    func = func_in;
+	    is_set = true;
+	 }
+	 bool is_set;
+	 float x_mouse;
+	 float y_mouse;
+	 int imol;
+	 float current_contour_level;
+	 float rmsd;
+	 void (*func)(int, float); // to set the contour level
+      };
+      class annotated_box_info_t : public annotation_box_t {
+      public:
+	 annotated_box_info_t() : abi() {}
+	 annotated_box_info_t(const lig_build::pos_t &pos_top_left,
+			      const lig_build::pos_t &pos_bottom_right,
+			      const std::string &outline_colour,
+			      double line_width,
+			      const std::string &fill_colour,
+			      int imol,
+			      float rmsd,
+			      float current_contour_level,
+			      void (*func)(int, float)) : annotation_box_t(pos_top_left,
+									   pos_bottom_right,
+									   outline_colour,
+									   line_width,
+									   fill_colour),
+							  abi(imol, rmsd, current_contour_level, func) {}
+	 annotation_box_info_t abi;
+      };
       goograph() {
 	 init();
 	 init_widgets();
-	 extents_min_x =  9999999990.0;
-	 extents_min_y =  9999999990.0;
-	 extents_max_x = -9999999990.0;
-	 extents_max_y = -9999999990.0;
-	 tick_major_x = 0.1;
-	 tick_minor_x = 0.05;
-	 tick_major_y = 0.1;
-	 tick_minor_y = 0.05;
-	 dark = "#111111";
-	 canvas_offset_x = 70.0; // how much is the Y axis displaced
-				 // from the left-hand edge of the
-				 // canvas?
-	 canvas_offset_y = 370.0; // how much is the size of the //
-	                          // canvas - and include an offset of
-	                          // // the axis from the bottom edge.
-	                          // (the smaller the number the
-	                          // greater the displacement (without
-	                          // resizing).
-	 data_scale_x = 1.0;
-	 data_scale_y = 1.0;
+      }
+      goograph(int width, int height) {
+	 init();
+	 init_widgets();
+	 dialog_width = width;
+	 dialog_height = height;
+	 dialog_width_orig = width;
+	 dialog_height_orig = height;
+
+	 canvas_offset_x = 10.0; // how much is the Y axis displaced
+                                 // from the left-hand edge of the canvas?
+
+	 // if drawing of the x axis has been turned off, then we want
+	 // less space at the bottom, but for now, we will
+	 // make it 8% offset up.
+	 int x_off = 0.08 * height;
+	 canvas_offset_y = height - x_off;; // how much is the size of the canvas
       }
       void clear();
       void draw_graph();
@@ -205,6 +277,8 @@ namespace coot {
       void set_extents(int axis, double min, double max); 
       void set_ticks(int axis, double tick_major, double tick_minor);
       void set_axis_label(int axis, const std::string &label);
+      void set_draw_axis(int axis, bool draw_state);
+      void set_draw_ticks(int axis, bool draw_state);
       void set_plot_title(const std::string &title);
       void set_data(int trace_id, const std::vector<std::pair<double, double> > &data);
       int trace_new();
@@ -228,7 +302,34 @@ namespace coot {
 			       const lig_build::pos_t &pos_1,
 			       const std::string &colour,
 			       const std::string &font);
+      void add_annotation_box(const lig_build::pos_t &pos_top_left,
+			      const lig_build::pos_t &pos_bottom_right,
+			      const std::string &outline_colour,
+			      double line_width,
+			      const std::string &fill_colour);
+      void add_contour_level_box(float contour_level,
+				 const std::string &outline_colour,
+				 double line_width,
+				 const std::string &fill_colour,
+				 int imol, float rmsd,
+				 void (*func)(int, float));
+
       void clear_traces_and_annotations();
+
+      annotated_box_info_t contour_level_bar; // a special item that has a callback
+
+      static
+      bool on_goograph_active_button_box_press_event(GooCanvasItem  *item,
+						     GooCanvasItem  *target_item,
+						     GdkEventButton *event,
+						     gpointer        user_data);
+
+      static
+      bool on_goograph_active_button_box_release_event(GooCanvasItem  *item,
+						       GooCanvasItem  *target_item,
+						       GdkEventButton *event,
+						       gpointer        user_data);
+
    };
 }
 

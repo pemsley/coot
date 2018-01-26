@@ -25,7 +25,7 @@ dnl implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 dnl
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(coot, 0.8.9-pre)
+AC_INIT(coot, 0.8.9.1-pre)
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -392,6 +392,8 @@ src/coot
 python/coot_load_modules.py
 data/Makefile
 data/rama-coeffs/Makefile
+data/cho-models/Makefile
+data/cho-acedrg/Makefile
 pixmaps/Makefile
 pixmaps/icons/Makefile
 rama-data/Makefile
