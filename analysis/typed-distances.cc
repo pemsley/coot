@@ -25,11 +25,12 @@ coot::typed_distances::init() {
 void
 coot::typed_distances::generate(int SelHnd) {
 
+   float max_dist = 5.7; // should be passed
+
    mmdb::PPAtom atom_selection = 0;
    int n_atoms;
    mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
    if (n_atoms) {
-      float max_dist = 5;
       mmdb::Contact *pscontact = NULL;
       int n_contacts;
       float min_dist = 0.01;
@@ -49,9 +50,8 @@ coot::typed_distances::generate(int SelHnd) {
 			0, &my_matt, i_contact_group); // makes reverses also
       if (n_contacts > 0) {
 	 // std::cout << "found " << n_contacts << " contacts " << std::endl;
-	 setup_bin_distances(); // uses mol
 	 unsigned int half_ww = 4; // residues either side (and self)
-	 find_residues_within_window(half_ww);
+	 find_residues_within_window(half_ww); // puts residues in residues_within_window
 	 if (pscontact) {
 	    for (int i=0; i<n_contacts; i++) {
 
@@ -71,8 +71,20 @@ coot::typed_distances::generate(int SelHnd) {
 		  } else {
 		     // happy path
 
-		     unsigned int dist_bin_id = get_dist_bin_id(dist);
-		     bin_distances[residue_p][atom_pair_bin_id][dist_bin_id]++;
+		     std::map<mmdb::Residue *, std::map<int, std::vector<float> > >::iterator it =
+			residue_distances_map.find(residue_p);
+
+		     if (it != residue_distances_map.end()) {
+			std::map<int, std::vector<float> >::iterator it_inner =
+			   it->second.find(atom_pair_bin_id);
+			if (it_inner != it->second.end()) {
+			   it_inner->second.push_back(dist);
+			} else {
+			   residue_distances_map[residue_p][atom_pair_bin_id].push_back(dist);
+			}
+		     } else {
+			residue_distances_map[residue_p][atom_pair_bin_id].push_back(dist);
+		     }
 		  }
 	       }
 	    }
@@ -84,42 +96,68 @@ coot::typed_distances::generate(int SelHnd) {
 void
 coot::typed_distances::output() const {
 
-   std::map<mmdb::Residue *, std::vector<std::vector<unsigned int> > >::const_iterator it;
+   // using a map in a function that is const leads to unclear error messages from the
+   // compiler
+   //
 
-   bool do_per_single_residue_table = false;
    bool do_windowed_residue_table = true;
-
-   if (do_per_single_residue_table) {
-      for(it=bin_distances.begin(); it!=bin_distances.end(); it++) {
-
-	 std::cout << " " << residue_spec_t(it->first);
-	 for (std::size_t j=0; j<6; j++) {
-	    std::cout << " type-idx " << j;
-	    for (unsigned int idx_dist=0; idx_dist<n_distance_bins; idx_dist++)
-	       std::cout << " " << it->second[j][idx_dist];
-	 }
-	 std::cout << "\n";
-      }
-   }
+   std::map<mmdb::Residue *, std::map<int, std::vector<float> > >::const_iterator it;
+   std::map<mmdb::Residue *, std::map<int, std::vector<float> > >::const_iterator it_r;
 
    if (do_windowed_residue_table) {
-      std::cout << "--------------- windowed reidue table -----------" << std::endl;
-      for(it=bin_distances.begin(); it!=bin_distances.end(); it++) {
-	 std::cout << " " << residue_spec_t(it->first);
-	 const std::vector<mmdb::Residue *> &riw = residues_within_window.at(it->first);
-	 for (std::size_t idx_at_pair=0; idx_at_pair<6; idx_at_pair++) {
-	    std::cout << " type-idx " << idx_at_pair;
-	    for (unsigned int idx_dist=0; idx_dist<n_distance_bins; idx_dist++) {
-	       unsigned int sum = 0;
-	       for (std::size_t i=0; i<riw.size(); i++)
-		  sum += bin_distances.at(riw[i])[idx_at_pair][idx_dist];
-	       std::cout << " " << sum;
+      std::cout << "--------------- windowed residue table -----------" << std::endl;
+
+      std::cout << "residue_distances_map size " << residue_distances_map.size() << std::endl;
+
+      for(it=residue_distances_map.begin(); it!=residue_distances_map.end(); it++) {
+	 std::string res_name = it->first->GetResName();
+	 if (res_name != "HOH") {
+	    const std::vector<mmdb::Residue *> &riw = residues_within_window.at(it->first);
+	    std::vector<float> sums(6, 0.0);
+	    std::vector<unsigned int> n_distances(6, 0);
+	    for (int j=0; j<6; j++) {
+	       for (std::size_t ir=0; ir<riw.size(); ir++) {
+		  mmdb::Residue *res_inner = riw[ir];
+		  it_r = residue_distances_map.find(res_inner);
+		  if (it_r == residue_distances_map.end()) {
+		     std::cout << "Oopps - bad residue for map " << std::endl;
+		  } else {
+		     // happy path
+		     const std::map<int, std::vector<float> > &m = it_r->second;
+		     std::map<int, std::vector<float> >::const_iterator it_inner = m.find(j);
+		     if (it_inner == m.end()) {
+			if (false)
+			   std::cout << "Oopps failed to find bin-index " << j << " "
+				     << residue_spec_t(riw[ir]) << std::endl;
+		     } else {
+			const std::vector<float> &v = it_inner->second;
+			n_distances[j] += v.size();
+			for (std::size_t i=0; i<v.size(); i++) {
+			   // std::cout << "print j " << j << std::endl;
+			   sums[j] += v[i];
+			}
+		     }
+		  }
+	       }
 	    }
+
+	    int total_n_distances = 0;
+	    std::vector<float> fractions(6, 0.0);
+	    std::vector<float> means(6, 0.0);
+	    for (int j=0; j<6; j++)
+	       total_n_distances += n_distances[j];
+
+	    for (int j=0; j<6; j++) {
+	       fractions[j] = static_cast<float>(n_distances[j])/static_cast<float>(total_n_distances);
+	    }
+
+	    std::cout << "Sums: " << residue_spec_t(it->first);
+	    for (int j=0; j<6; j++)
+	       std::cout << " type " << j << ":  " << n_distances[j] << " " << fractions[j] << " ";
+	    std::cout << "\n";
 	 }
-	 std::cout << "\n";
       }
    }
-
 }
 
 coot::typed_distances::atom_type_t
@@ -135,34 +173,12 @@ coot::typed_distances::get_type(mmdb::Atom *at) const {
    return t1;
 }
 
-void
-coot::typed_distances::setup_bin_distances() {
 
-   int imod = 1;
-   mmdb::Model *model_p = mol->GetModel(imod);
-   if (model_p) {
-      int n_chains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<n_chains; ichain++) {
-	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
-	 int nres = chain_p->GetNumberOfResidues();
-	 for (int ires=0; ires<nres; ires++) {
-	    mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-	    bin_distances[residue_p].resize(6);
-	    for (std::size_t idx_atom_pair_type=0; idx_atom_pair_type<6; idx_atom_pair_type++) {
-	       bin_distances[residue_p][idx_atom_pair_type].resize(n_distance_bins);
-	       for (std::size_t idx_dist=0; idx_dist<n_distance_bins; idx_dist++) {
-		  bin_distances[residue_p][idx_atom_pair_type][idx_dist] = 0;
-	       }
-	    }
-	 }
-      }
-   }
-}
-
+// coot::typed_distances::bin_type_t
 int
 coot::typed_distances::get_atom_pair_bin_id(const atom_type_t &t1, const atom_type_t &t2) const {
 
-   int bin_id = -1;
+   int bin_id = -1; // use int, because I can't iterate through enum vars
 
    if (t1 == atom_type_t(C)) {
       if (t2 == atom_type_t(C)) bin_id = 0;
