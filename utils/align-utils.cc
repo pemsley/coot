@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include "align-utils.hh"
 
 // strings with - in them
