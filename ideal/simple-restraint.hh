@@ -66,19 +66,22 @@ namespace coot {
 	    is_set = true;
 	    restraints_index = -1;
 	 }
-	 the_worst_t() { is_set = false; }
+	 the_worst_t() { is_set = false; value = -99999;}
 	 unsigned int restraints_index;
 	 float value;
 	 bool is_set;
+	 // update if value_in is more than this value
 	 void update_if_worse(const float &value_in, const int &idx_in) {
 	    if (! is_set) {
 	       restraints_index = idx_in;
 	       value = value_in;
 	       is_set = true;
+	       // std::cout << "update_if_worse() setting worst to " << value << std::endl;
 	    } else {
 	       if (value_in > value) {
 		  restraints_index = idx_in;
 		  value = value_in;
+		  // std::cout << "update_if_worse() updating worst to " << value << std::endl;
 	       }
 	    }
 	 }
@@ -89,10 +92,8 @@ namespace coot {
 		  value = baddie_in.value;
 		  is_set = true;
 	       } else {
-		  if (baddie_in.value > value) {
-		     restraints_index = baddie_in.restraints_index;
-		     value = baddie_in.value;
-		  }
+		  restraints_index = baddie_in.restraints_index;
+		  value = baddie_in.value;
 	       }
 	    }
 	 }
@@ -1182,7 +1183,11 @@ namespace coot {
    
       // man this is tricky
 
-#ifdef HAVE_CXX11
+      // 20180131:
+      // this xmap seems to go out of scope if it's a const reference
+      // (AFAICS it *can't* go out of scope), but there is a crash.
+      // when we try to use pull restraints
+#ifdef HAVE_CXX11_NONONO
       const clipper::Xmap<float> &xmap; // now needs to be passed in all constructors
       // std::reference_wrapper<clipper::Xmap<float> > xmap;
 #else      
