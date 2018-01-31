@@ -353,8 +353,10 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
    mol = mol_in;
    lennard_jones_epsilon = 0.1;
    cryo_em_mode = true;
-   n_threads = 0;
    n_times_called = 0;
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+   n_threads = 0;
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 }
 
 void
@@ -621,10 +623,9 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
       if (residues[ires].second->GetNumberOfAtoms() > 1) {
 	 are_all_one_atom_residues = false;
 	 break;
-      } 
+      }
    }
-   
-   
+
    for (unsigned int i=0; i<all_residues.size(); i++)
       n_atoms += all_residues[i]->GetNumberOfAtoms();
    atom = new mmdb::PAtom[n_atoms];
@@ -914,7 +915,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    // if hideous geometry, presanitize with bonds, angles, chirals and non-bonded
    // if they are passed as set. Uses restraints_usage_flag
    if (n_times_called == 1) {
-      // this is the first round, so try to pre-sanitize if we have hideous geometry
+      // this is the first round, so try to pre-sanitize if we have hideous geometry.
       // pre-sanitization reduces/stops the conflict between trans peptide restraints
       // and chiral volumes restraints (and possibly plane restraints) when we have
       // a hideous model.
@@ -959,6 +960,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	    }
 	    break;
 	 }
+
 
 	 // back of envelope calculation suggests g_crit = 0.1 for
 	 // coordinate shift of 0.001:  So let's choose 0.05
@@ -1229,6 +1231,26 @@ coot::simple_restraint::format(mmdb::PAtom *atoms_vec, double distortion) const 
 	 s += util::remove_whitespace(util::float_to_string_using_dec_pl(sqrt(distortion), 2));
       }
    }
+   if (restraint_type == RAMACHANDRAN_RESTRAINT) {
+      s = "Rama ";
+      atom_spec_t spec_1(atoms_vec[atom_index_1]);
+      atom_spec_t spec_2(atoms_vec[atom_index_2]);
+      atom_spec_t spec_3(atoms_vec[atom_index_3]);
+      atom_spec_t spec_4(atoms_vec[atom_index_4]);
+      atom_spec_t spec_5(atoms_vec[atom_index_5]);
+      s += spec_1.label();
+      s += " ";
+      s += spec_2.label();
+      s += " ";
+      s += spec_3.label();
+      s += " ";
+      s += spec_4.label();
+      s += " ";
+      s += spec_5.label();
+      s += " ";
+      s += util::remove_whitespace(util::float_to_string_using_dec_pl(distortion, 2));
+   }
+
    return s;
 }
 
@@ -1411,8 +1433,20 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
   	    n_rama_restraints++;
 	    if (rama_type == restraints_container_t::RAMA_TYPE_ZO) {
 	       double dd = distortion_score_rama( restraints_vec[i], v, ZO_Rama(), get_rama_plot_weight());
+	       std::cout << "Here with index " << i << " rama distortion score " << dd << std::endl;
 	       rama_distortion += dd;
 	       baddies["Rama"].update_if_worse(dd, i);
+
+	       baddies_iterator = baddies.find("Rama");
+	       if (baddies_iterator != baddies.end()) {
+		  const refinement_lights_info_t::the_worst_t &w = baddies_iterator->second;
+		  const simple_restraint &baddie_restraint = restraints_vec[w.restraints_index];
+		  std::cout << "Running rama worst baddie: w.restraints_index " << w.restraints_index
+			    << " w.value " << w.value
+			    << " distortion " << baddie_restraint.format(atom, w.value)
+			    << std::endl;
+	       }
+
 	    } else {
 	       double dd = distortion_score_rama(restraints_vec[i], v, lograma);
 	       rama_distortion += dd;
@@ -1586,10 +1620,16 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       s += util::float_to_string_using_dec_pl(rd, 3);
       refinement_lights_info_t rli("Rama", s, rd);
       baddies_iterator = baddies.find("Rama");
-      if (baddies_iterator != baddies.end())
+      if (baddies_iterator != baddies.end()) {
 	 rli.worst_baddie = baddies_iterator->second;
+	 const simple_restraint &baddie_restraint = restraints_vec[rli.worst_baddie.restraints_index];
+	 std::cout << "rama worst baddie: index " << rli.worst_baddie.restraints_index
+		   << " distortion " << baddie_restraint.format(atom, rli.worst_baddie.value)
+		   << std::endl;
+      }
       if (rama_type == RAMA_TYPE_ZO)
 	 rli.rama_type = RAMA_TYPE_ZO;
+      
       lights_vec.push_back(rli);
    }
    if (n_start_pos_restraints == 0) {
