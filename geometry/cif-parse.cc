@@ -1192,7 +1192,7 @@ coot::protein_geometry::chem_comp(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
 
       // If desc_level is in the file, extract it, otherwise set it to "None"
       //
-      int ierr_description;
+      int ierr_description = 0;
       s = mmCIFLoop->GetString("desc_level", j, ierr_description);
       if (! ierr_description) {
 	 if (s) {
