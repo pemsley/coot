@@ -1864,7 +1864,7 @@ coot::restraints_container_t::electron_density_score_at_point(const clipper::Coo
       
       clipper::Coord_frac af = ao.coord_frac(xmap.cell()); 
       clipper::Coord_map  am = af.coord_map(xmap.grid_sampling()); 
-      // clipper::Interp_linear::interp(map, am, dv); 
+      // clipper::Interp_linear::interp(map, am, dv);
       clipper::Interp_cubic::interp(xmap, am, dv); 
       
       return dv;  

@@ -1075,6 +1075,16 @@ void set_show_intermediate_atoms_rama_markup(short int state) {
 
 }
 
+#ifdef USE_PYTHON
+void register_post_intermediate_atoms_moved_hook(PyObject *function) {
+
+   graphics_info_t g;
+   g.register_post_intermediate_atoms_moved_hook(function);
+
+}
+#endif
+
+
 // trash the multimodal (sp3) ring torsions and use
 // only unimodal restraints
 void use_unimodal_ring_torsion_restraints(const std::string &res_name) {

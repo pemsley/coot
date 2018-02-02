@@ -794,6 +794,10 @@ void set_show_intermediate_atoms_rama_markup(short int state);
 void set_cryo_em_refinement(bool mode);
 bool get_cryo_em_refinement();
 
+#ifdef USE_PYTHON
+void register_post_intermediate_atoms_moved_hook(PyObject *function_name);
+#endif
+
 //! \}
 
 

@@ -550,6 +550,12 @@ coot::refinement_results_t graphics_info_t::saved_dragged_refinement_results(0, 
 float graphics_info_t::idle_function_rotate_angle = 1.0; // degrees
 bool  graphics_info_t::refinement_move_atoms_with_zero_occupancy_flag = 1; // yes
 
+bool graphics_info_t::post_intermediate_atoms_moved_ready;
+#ifdef USE_PYTHON
+PyObject *graphics_info_t::post_intermediate_atoms_moved_hook = 0;
+#endif
+
+
 float graphics_info_t::map_sampling_rate = 1.8;
 
 // Initialise the static atom_sel.

@@ -1740,6 +1740,14 @@ public:
    static gint drag_refine_refine_intermediate_atoms();
    static double refinement_drag_elasticity;
    static coot::refinement_results_t saved_dragged_refinement_results;
+   static bool post_intermediate_atoms_moved_ready;
+#ifdef USE_PYTHON
+   static PyObject *post_intermediate_atoms_moved_hook;
+   void register_post_intermediate_atoms_moved_hook(PyObject *function_name);
+#endif
+   void run_post_intermediate_atoms_moved_hook_maybe(); // set a python variable when the intermediate
+                                                      // atoms move
+
 #ifdef USE_GUILE
    SCM refinement_results_to_scm(coot::refinement_results_t &rr);
 #endif    
