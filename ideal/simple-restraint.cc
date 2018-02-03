@@ -448,11 +448,11 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
 	 if (! is_main_chain_or_cb_p(atom[i]))
 	    {
 	       // std::cout << "downweighting atom " << coot::atom_spec_t(atom[i]) << std::endl;
-	       // weight = 0.1;
+	       weight = 0.1;
 	    }
 	 std::string at_name = atom[i]->name;
 	 if (at_name == " O  ") {
-	    // weight = 0.2;
+	    weight = 0.2;
 	 }
       }
 
