@@ -274,6 +274,13 @@ create_window1 (void)
   GtkWidget *go_to_atom_toolbutton;
   GtkWidget *go_to_ligand_toolbutton;
   GtkWidget *separatortoolitem1;
+  GtkWidget *toolitem31;
+  GtkWidget *main_toolbar_restraints_alpha_label;
+  GtkWidget *toolitem32;
+  GtkWidget *main_toolbar_restraints_beta_label;
+  GtkWidget *toolitem33;
+  GtkWidget *main_toolbar_restraints_rama_label;
+  GtkWidget *toolitem34;
   GtkWidget *toolitem30;
   GtkWidget *hbox398;
   GtkWidget *toolbar_multi_refine_stop_button;
@@ -1403,6 +1410,34 @@ create_window1 (void)
   separatortoolitem1 = (GtkWidget*) gtk_separator_tool_item_new ();
   gtk_widget_show (separatortoolitem1);
   gtk_container_add (GTK_CONTAINER (main_toolbar), separatortoolitem1);
+
+  toolitem31 = (GtkWidget*) gtk_tool_item_new ();
+  gtk_widget_show (toolitem31);
+  gtk_container_add (GTK_CONTAINER (main_toolbar), toolitem31);
+
+  main_toolbar_restraints_alpha_label = gtk_label_new ("<span background=\"white\"> \316\261 </span>");
+  gtk_container_add (GTK_CONTAINER (toolitem31), main_toolbar_restraints_alpha_label);
+  gtk_label_set_use_markup (GTK_LABEL (main_toolbar_restraints_alpha_label), TRUE);
+
+  toolitem32 = (GtkWidget*) gtk_tool_item_new ();
+  gtk_widget_show (toolitem32);
+  gtk_container_add (GTK_CONTAINER (main_toolbar), toolitem32);
+
+  main_toolbar_restraints_beta_label = gtk_label_new ("<span background=\"white\"> \316\262 </span>");
+  gtk_container_add (GTK_CONTAINER (toolitem32), main_toolbar_restraints_beta_label);
+  gtk_label_set_use_markup (GTK_LABEL (main_toolbar_restraints_beta_label), TRUE);
+
+  toolitem33 = (GtkWidget*) gtk_tool_item_new ();
+  gtk_widget_show (toolitem33);
+  gtk_container_add (GTK_CONTAINER (main_toolbar), toolitem33);
+
+  main_toolbar_restraints_rama_label = gtk_label_new ("<span background=\"white\">Rama</span>");
+  gtk_container_add (GTK_CONTAINER (toolitem33), main_toolbar_restraints_rama_label);
+  gtk_label_set_use_markup (GTK_LABEL (main_toolbar_restraints_rama_label), TRUE);
+
+  toolitem34 = (GtkWidget*) gtk_tool_item_new ();
+  gtk_widget_show (toolitem34);
+  gtk_container_add (GTK_CONTAINER (main_toolbar), toolitem34);
 
   toolitem30 = (GtkWidget*) gtk_tool_item_new ();
   gtk_widget_show (toolitem30);
@@ -2781,6 +2816,13 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, go_to_atom_toolbutton, "go_to_atom_toolbutton");
   GLADE_HOOKUP_OBJECT (window1, go_to_ligand_toolbutton, "go_to_ligand_toolbutton");
   GLADE_HOOKUP_OBJECT (window1, separatortoolitem1, "separatortoolitem1");
+  GLADE_HOOKUP_OBJECT (window1, toolitem31, "toolitem31");
+  GLADE_HOOKUP_OBJECT (window1, main_toolbar_restraints_alpha_label, "main_toolbar_restraints_alpha_label");
+  GLADE_HOOKUP_OBJECT (window1, toolitem32, "toolitem32");
+  GLADE_HOOKUP_OBJECT (window1, main_toolbar_restraints_beta_label, "main_toolbar_restraints_beta_label");
+  GLADE_HOOKUP_OBJECT (window1, toolitem33, "toolitem33");
+  GLADE_HOOKUP_OBJECT (window1, main_toolbar_restraints_rama_label, "main_toolbar_restraints_rama_label");
+  GLADE_HOOKUP_OBJECT (window1, toolitem34, "toolitem34");
   GLADE_HOOKUP_OBJECT (window1, toolitem30, "toolitem30");
   GLADE_HOOKUP_OBJECT (window1, hbox398, "hbox398");
   GLADE_HOOKUP_OBJECT (window1, toolbar_multi_refine_stop_button, "toolbar_multi_refine_stop_button");

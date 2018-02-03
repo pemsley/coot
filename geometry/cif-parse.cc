@@ -394,7 +394,7 @@ coot::protein_geometry::chem_comp_component(mmdb::mmcif::PStruct structure, int 
 	 name = std::pair<bool, std::string> (1,field);
       if (tag == "type")
 	 type = std::pair<bool, std::string> (1,field);
-      if (tag == "descr_level")
+      if (tag == "desc_level") // not descr_level
 	 description_level = std::pair<bool, std::string> (1,field);
       if (tag == "description_level")
 	 description_level = std::pair<bool, std::string> (1,field);
@@ -620,7 +620,7 @@ coot::protein_geometry::mon_lib_add_chem_comp(const std::string &comp_id,
 		<< name << ": :" << group << ": :"
 		<< description_level << ": :" << number_atoms_all << ": :"
 		<< number_atoms_nh << std::endl;
-   
+
    coot::dict_chem_comp_t ri(comp_id, three_letter_code, name, group,
 			     number_atoms_all, number_atoms_nh,
 			     description_level);
@@ -656,7 +656,6 @@ coot::protein_geometry::mon_lib_add_chem_comp(const std::string &comp_id,
       std::pair<int, dictionary_residue_restraints_t> p(imol_enc, rest);
       dict_res_restraints.push_back(p);
       dict_res_restraints[dict_res_restraints.size()-1].second.residue_info = ri;
-
    }
 }
 
@@ -672,7 +671,7 @@ coot::protein_geometry::simple_mon_lib_add_chem_comp(const std::string &comp_id,
 						     const std::string &description_level) {
 
 
-   if (0)
+   if (false)
       std::cout << "------- DEBUG:: in simple_mon_lib_add_chem_comp comp_id :"
 		<< comp_id << ": three-letter-code :" << three_letter_code << ": name :"
 		<< name << ": :" << group << ": descr-lev :"
@@ -743,7 +742,7 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
    at_info.aromaticity = arom_in;
    at_info.formal_charge = formal_charge;
    
-   if (debug) { 
+   if (debug) {
       std::cout << "   mon_lib_add_atom model_pos       " << model_pos.first << " "
 		<< model_pos.second.format() << std::endl;
       std::cout << "   mon_lib_add_atom model_pos_ideal " << model_pos_ideal.first << " "
@@ -1171,8 +1170,11 @@ coot::protein_geometry::chem_comp(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
 
       s = mmCIFLoop->GetString("group", j, ierr);
       ierr_tot += ierr;
-      if (s)
+      if (s) {
 	 group = s; // e.g. "L-peptide"
+	 if (group == "L=PEPTIDE") // fix acedrg output
+	    group = "L-peptide";
+      }
 
       ierr = mmCIFLoop->GetInteger(number_atoms_all, "number_atoms_all", j);
       ierr_tot += ierr;
@@ -1184,21 +1186,23 @@ coot::protein_geometry::chem_comp(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
       std::string release_status;
       if (release_status_cs)
 	 release_status = release_status_cs; // can be "OBS" or "REL"
-      
+
       // If desc_level is in the file, extract it, otherwise set it to "None"
-      // 
-      s = mmCIFLoop->GetString("desc_level", j, ierr);
-      if (! ierr) {
-	 if (s) { 
+      //
+      int ierr_description = 0;
+      s = mmCIFLoop->GetString("desc_level", j, ierr_description);
+      if (! ierr_description) {
+	 if (s) {
 	    description_level = s;  // e.g. "." for full, I think
 	 } else {
 	    // if the description_level is "." in the cif file, then
 	    // GetString() does not fail, but s is set to NULL
 	    // (slightly surprising).
 	    description_level = ".";
-	 } 
+	 }
       } else {
 	 std::cout << "WARNING:: desc_level was not set " << j << std::endl;
+	 description_level = "."; // full
       }
 
       if (ierr_tot != 0) {
