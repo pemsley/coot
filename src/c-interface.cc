@@ -6457,7 +6457,7 @@ import_python_module(const char *module_name, int use_namespace) {
    int err = 1;
 
 #ifdef USE_PYTHON
-  
+
    std::string simple;
    if (use_namespace) {
       simple = "import ";
@@ -6472,8 +6472,7 @@ import_python_module(const char *module_name, int use_namespace) {
       std::cout << "Importing python module " << module_name
 		<< " using command " << simple << std::endl;
 
-   // not a const argument?  Dear oh dear....
-   err = PyRun_SimpleString((char *)simple.c_str());
+   err = PyRun_SimpleString(simple.c_str());
 #endif // USE_PYTHON
    return err;
 }

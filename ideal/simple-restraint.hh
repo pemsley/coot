@@ -1182,6 +1182,12 @@ namespace coot {
 						  int iselection_start_res, int iselection_end_res);
    
       // man this is tricky
+      //
+      // So. We get a crash when trying to use the const ref xmap for electron density 
+      // score - it seems as though it is going out of scope (but actually, can't be
+      // of course).
+      // Maybe it's because the clipper libraries with which I am linking this are
+      // compiler with an older compiler?
 
       // 20180131:
       // this xmap seems to go out of scope if it's a const reference
@@ -1189,10 +1195,9 @@ namespace coot {
       // when we try to use pull restraints
 #ifdef HAVE_CXX11_NONONO
       const clipper::Xmap<float> &xmap; // now needs to be passed in all constructors
-      // std::reference_wrapper<clipper::Xmap<float> > xmap;
-#else      
+#else
       clipper::Xmap<float> xmap; // a copy is made
-#endif      
+#endif
       double map_weight; 
 
       void add(restraint_type_t rest_type, int atom_1, int atom_2, 
