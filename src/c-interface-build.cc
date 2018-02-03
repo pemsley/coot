@@ -4406,7 +4406,9 @@ int rigid_body_fit_with_residue_ranges(int imol,
 
 void set_secondary_structure_restraints_type(int itype) {
 
-#ifdef HAVE_GSL   
+#ifdef HAVE_GSL
+
+   // Remember that Rama restraints are not secondary structure restraints.
 
    if (itype == 0)
       graphics_info_t::pseudo_bonds_type = coot::NO_PSEUDO_BONDS;
@@ -4414,7 +4416,28 @@ void set_secondary_structure_restraints_type(int itype) {
       graphics_info_t::pseudo_bonds_type = coot::HELIX_PSEUDO_BONDS;
    if (itype == 2)
       graphics_info_t::pseudo_bonds_type = coot::STRAND_PSEUDO_BONDS;
-#endif // HAVE_GSL   
+
+   // adjust the GUI (non-elegant logic :-))
+   //
+   if (graphics_info_t::use_graphics_interface_flag) {
+      std::string wa_name = "main_toolbar_restraints_alpha_label";
+      std::string wb_name = "main_toolbar_restraints_beta_label";
+      GtkWidget *w_a = lookup_widget(graphics_info_t::glarea, wa_name.c_str());
+      GtkWidget *w_b = lookup_widget(graphics_info_t::glarea, wb_name.c_str());
+      if (itype == 0) {
+	 gtk_widget_hide(w_a);
+	 gtk_widget_hide(w_b);
+      }
+      if (itype == 1) {
+	 gtk_widget_show(w_a);
+	 gtk_widget_hide(w_b);
+      }
+      if (itype == 2) {
+	 gtk_widget_hide(w_a);
+	 gtk_widget_show(w_b);
+      }
+   }
+#endif // HAVE_GSL
 } 
 
 /*! \brief return the secondary structure restraints type */
