@@ -5,5 +5,11 @@
 
    o GM sigma and alpha for carbohydrate fitting ::: 2
 
+   o enter an invalid SMILES into lidia ::: 1
+
+   o adjust the lights in draw_display_list_objects() ::: 0.5
+
+   o the half-bonds of a C-S bond (e.g. CYS) doesn't add the correct atom indicies ::: 2
+
 --------------
 

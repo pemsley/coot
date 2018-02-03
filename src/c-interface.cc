@@ -5541,6 +5541,26 @@ void clear_up_moving_atoms() {
 // (see ideal/simple_restraint.hh link torsions)
 void set_refine_ramachandran_angles(int state) {
    graphics_info_t::do_rama_restraints = state;
+
+   // Adjust the GUI
+   if (graphics_info_t::use_graphics_interface_flag) {
+      std::string w_name = "main_toolbar_restraints_rama_label";
+      GtkWidget *w = lookup_widget(graphics_info_t::glarea, w_name.c_str());
+      if (w) {
+	 if (state) {
+	    if (graphics_info_t::restraints_rama_type == coot::RAMA_TYPE_ZO) {
+	       // this is not antialiased on my mac - yuck.
+	       // std::string l = "<span background=\"white\" foreground=\"brown\" face=\"PilGi\"
+	       // size=\"larger\">Rama</span>";
+	       std::string l = "<span background=\"white\" foreground=\"brown\">Rama</span>";
+	       gtk_label_set_markup(GTK_LABEL(w), l.c_str());
+	    }
+	    gtk_widget_show(w);
+	 } else {
+	    gtk_widget_hide(w);
+	 }
+      }
+   }
 } 
 
 
