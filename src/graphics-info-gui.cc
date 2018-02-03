@@ -1266,7 +1266,7 @@ graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
 	 
 	 gtk_idle_remove(graphics_info_t::drag_refine_idle_function_token);
 	 graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
-      } 
+      }
 
 
       // 

@@ -1374,17 +1374,20 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int atom_colour_
 		   << udd_atom_index_handle << std::endl;
 
       int udd_status_1 = atom_1->GetUDData(udd_atom_index_handle, atom_index_1);
-      int udd_status_2 = atom_1->GetUDData(udd_atom_index_handle, atom_index_2);
+      int udd_status_2 = atom_2->GetUDData(udd_atom_index_handle, atom_index_2);
 
-      if (false) { // 20171230-PE shut up too noisy.  I should fix it but now is not the time. FIXME
+      if (false) {
 	 if (udd_status_1 != mmdb::UDDATA_Ok)
 	    std::cout << "ERROR:: in add_link_bond_templ() bad atom indexing atom_1" << std::endl;
 	 if (udd_status_2 != mmdb::UDDATA_Ok)
 	    std::cout << "ERROR:: in add_link_bond_templ() bad atom indexing atom_2" << std::endl;
       }
 
+      // Even if the atom_index_1 or atom_index_2 were not correctly set, we can still draw
+      // the bond - this needs to be fixed however.
       coot::Cartesian pos_1(atom_1->x, atom_1->y, atom_1->z);
       coot::Cartesian pos_2(atom_2->x, atom_2->y, atom_2->z);
+
       std::string ele_1 = atom_1->element;
       std::string ele_2 = atom_2->element;
       if (ele_1 == ele_2) {
@@ -1399,9 +1402,9 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int atom_colour_
 	 add_dashed_bond(col, pos_1, bond_mid_point, HALF_BOND_FIRST_ATOM, graphics_line_t::SINGLE, atom_index_1, atom_index_2);
 	 col = atom_colour(atom_2, atom_colour_type);
 	 add_dashed_bond(col, bond_mid_point, pos_2, HALF_BOND_SECOND_ATOM, graphics_line_t::SINGLE, atom_index_1, atom_index_2);
-      } 
+      }
    }
-} 
+}
 
 
 

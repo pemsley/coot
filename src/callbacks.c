@@ -11409,7 +11409,6 @@ on_restraints1_activate                (GtkMenuItem     *menuitem,
 #endif	/* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_restraint_editor_add_restraint_button_clicked
                                         (GtkButton       *button,
@@ -11418,10 +11417,8 @@ on_restraint_editor_add_restraint_button_clicked
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "restraints_editor_dialog");
   restraints_editor_add_restraint_by_widget(w);
 }
-#endif	/* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_restraints_editor_close_button_clicked
                                         (GtkButton       *button,
@@ -11434,9 +11431,7 @@ on_restraints_editor_close_button_clicked
   }
 
 }
-#endif	/* GTK_MAJOR_VERSION */
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_restraints_editor_save_button_clicked
                                         (GtkButton       *button,
@@ -11445,10 +11440,7 @@ on_restraints_editor_save_button_clicked
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "restraints_editor_dialog");
   restraints_editor_save_restraint_by_widget(w);
 }
-#endif	/* GTK_MAJOR_VERSION */
 
-
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_restraints_editor_apply_button_clicked
                                         (GtkButton       *button,
@@ -11458,10 +11450,7 @@ on_restraints_editor_apply_button_clicked
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "restraints_editor_dialog");
   apply_restraint_by_widget(w);
 }
-#endif	/* GTK_MAJOR_VERSION */
 
-
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_restraint_editor_delete_restraint_button_clicked
                                         (GtkButton       *button,
@@ -11470,7 +11459,6 @@ on_restraint_editor_delete_restraint_button_clicked
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "restraints_editor_dialog");
   restraints_editor_delete_restraint_by_widget(w);
 }
-#endif	/* GTK_MAJOR_VERSION */
 
 
 
@@ -11494,7 +11482,6 @@ on_save_restraint_chooserdialog_response(GtkDialog       *dialog,
 					 gpointer         user_data) { 
 /* Maybe there are responses other than OK and cancel, so don't factor
    out the destroy() */
-#if (GTK_MAJOR_VERSION > 1)
   GtkWidget *w = lookup_widget(GTK_WIDGET(dialog), "save_restraint_chooserdialog");
   if (response_id == GTK_RESPONSE_OK) {
     save_monomer_restraints_by_widget(dialog);
@@ -11503,7 +11490,6 @@ on_save_restraint_chooserdialog_response(GtkDialog       *dialog,
   if (response_id == GTK_RESPONSE_CANCEL) {
     gtk_widget_destroy(w);
   }
-#endif /* GTK_MAJOR_VERSION  */
 }
 
 /* This is not the way. */
@@ -11598,7 +11584,6 @@ on_build_na_dialog_radius_entry_activate
 }
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_coot_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11607,10 +11592,7 @@ on_coot_references_coot_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_COOT);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
-
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_wincoot_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11619,10 +11601,8 @@ on_coot_references_wincoot_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_WINCOOT);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_refmac_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11631,10 +11611,8 @@ on_coot_references_refmac_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_REFMAC);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_ssm_toolbutton_clicked  
                                         (GtkToolButton   *toolbutton,
@@ -11643,10 +11621,8 @@ on_coot_references_ssm_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_SSM);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_mmdb_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11655,10 +11631,7 @@ on_coot_references_mmdb_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_MMDB);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
-
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_clipper_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11667,10 +11640,8 @@ on_coot_references_clipper_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_CLIPPER);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_buccaneer_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11679,10 +11650,8 @@ on_coot_references_buccaneer_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_BUCCANEER);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_molprobity_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11691,7 +11660,6 @@ on_coot_references_molprobity_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_MOLPROBITY);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
 #if (GTK_MAJOR_VERSION >1)
