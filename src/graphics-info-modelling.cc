@@ -781,7 +781,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
       cif_dictionary_read_number += residue_types.size();
 
       if (have_restraints) {
-      
+
 	 std::string residues_alt_conf = alt_conf;
 	 imol_moving_atoms = imol;
 	 std::pair<mmdb::Manager *, std::vector<mmdb::Residue *> > residues_mol_and_res_vec =
