@@ -3139,6 +3139,12 @@ void add_planar_peptide_restraints();
 /*! \brief remove restraints on peptides to make them planar. */
 void remove_planar_peptide_restraints();
 
+/*! \brief make the planar peptide restraints tight
+
+Useful when refining models with cryo-EM maps */
+void make_tight_planar_peptide_restraints();
+
+
 /* return 1 if planar peptide restraints are on, 0 if off */
 int planar_peptide_restraints_state();
 

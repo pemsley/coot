@@ -477,16 +477,24 @@ int pepflip_intermediate_atoms() {
 /*  ----------------------------------------------------------------------- */
 
 void add_planar_peptide_restraints() {
-
    graphics_info_t g;
    g.Geom_p()->add_planar_peptide_restraint();
 } 
 
 void remove_planar_peptide_restraints() {
-
    graphics_info_t g;
    g.Geom_p()->remove_planar_peptide_restraint();
 }
+
+
+/*! \brief make the planar peptide restraints tight
+
+Useful when refining models with cryo-EM maps */
+void make_tight_planar_peptide_restraints() {
+   graphics_info_t g;
+   g.Geom_p()->make_tight_planar_peptide_restraint();
+}
+
 
 /* return 1 if planar peptide restraints are on, 0 if off */
 int planar_peptide_restraints_state() {
