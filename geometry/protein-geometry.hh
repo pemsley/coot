@@ -1041,6 +1041,7 @@ namespace coot {
       std::vector<int> atom_comp_ids;
       unsigned int n_atoms() const { return atom_ids.size(); }
       double dist_esd() const { return dist_esd_; }
+      void set_dist_esd(double d) { dist_esd_ = d; }
       std::string atom_id(int i) const { return atom_id_mmdb_expand(atom_ids[i]); }
    };
 
@@ -1789,6 +1790,7 @@ namespace coot {
 
       // add "synthetic" 5 atom planar peptide restraint
       void add_planar_peptide_restraint();
+      bool make_tight_planar_peptide_restraint();
       void remove_planar_peptide_restraint();
       bool planar_peptide_restraint_state() const;
       
