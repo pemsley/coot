@@ -92,8 +92,10 @@ namespace coot {
 		  value = baddie_in.value;
 		  is_set = true;
 	       } else {
-		  restraints_index = baddie_in.restraints_index;
-		  value = baddie_in.value;
+		  if (baddie_in.value > value) {
+		     restraints_index = baddie_in.restraints_index;
+		     value = baddie_in.value;
+		  }
 	       }
 	    }
 	 }
@@ -851,6 +853,8 @@ namespace coot {
    // torsion score can throw a std::runtime_error if there is a problem calculating the torsion.
    double distortion_score_torsion(const simple_restraint &torsion_restraint,
 				   const gsl_vector *v); 
+   double distortion_score_torsion_fourier_series(const simple_restraint &torsion_restraint,
+						  const gsl_vector *v); 
    double distortion_score_trans_peptide(const int &restraint_index,
 					 const simple_restraint &torsion_restraint,
 					 const gsl_vector *v); 
