@@ -3381,33 +3381,37 @@ graphics_info_t::drag_intermediate_atom(const coot::atom_spec_t &atom_spec, cons
    if (! moving_atoms_asc) {
       std::cout << "WARNING:: No intermediate atoms - fail" << std::endl;
    } else {
-      int imod = 1;
-      mmdb::Model *model_p = moving_atoms_asc->mol->GetModel(imod);
-      mmdb::Chain *chain_p;
-      // run over chains of the existing mol
-      int nchains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<nchains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 int nres = chain_p->GetNumberOfResidues();
-	 mmdb::PResidue residue_p;
-	 mmdb::Atom *at;
-	 for (int ires=0; ires<nres; ires++) { 
-	    residue_p = chain_p->GetResidue(ires);
-	    int n_atoms = residue_p->GetNumberOfAtoms();
-	    for (int iat=0; iat<n_atoms; iat++) {
-	       at = residue_p->GetAtom(iat);
-	       if (atom_spec.matches_spec(at)) {
-		  at->x = pt.x();
-		  at->y = pt.y();
-		  at->z = pt.z();
+      if (! moving_atoms_asc->mol) {
+	 std::cout << "WARNING:: No intermediate atoms mol - fail" << std::endl;
+      } else {
+	 int imod = 1;
+	 mmdb::Model *model_p = moving_atoms_asc->mol->GetModel(imod);
+	 mmdb::Chain *chain_p;
+	 // run over chains of the existing mol
+	 int nchains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<nchains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    mmdb::PResidue residue_p;
+	    mmdb::Atom *at;
+	    for (int ires=0; ires<nres; ires++) { 
+	       residue_p = chain_p->GetResidue(ires);
+	       int n_atoms = residue_p->GetNumberOfAtoms();
+	       for (int iat=0; iat<n_atoms; iat++) {
+		  at = residue_p->GetAtom(iat);
+		  if (atom_spec.matches_spec(at)) {
+		     at->x = pt.x();
+		     at->y = pt.y();
+		     at->z = pt.z();
+		  }
 	       }
 	    }
 	 }
+	 Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, geom_p, 0, 1, 0);
+	 regularize_object_bonds_box.clear_up();
+	 regularize_object_bonds_box = bonds.make_graphical_bonds();
+	 graphics_draw();
       }
-      Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, geom_p, 0, 1, 0);
-      regularize_object_bonds_box.clear_up();
-      regularize_object_bonds_box = bonds.make_graphical_bonds();
-      graphics_draw();
    }
 }
 
