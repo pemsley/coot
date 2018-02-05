@@ -3203,6 +3203,8 @@ SCM drag_intermediate_atom_scm(SCM atom_spec, SCM position) {
 	 clipper::Coord_orth pt(x,y,z);
 	 graphics_info_t::drag_intermediate_atom(p.second, pt);
       }
+   } else {
+      std::cout << "WARNING:: bad atom spec in drag_intermediate_atom_scm() " << std::endl;
    }
    return retval;
 }
