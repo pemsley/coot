@@ -1695,7 +1695,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
    add_deuterium_spots(SelAtom);
    add_ramachandran_goodness_spots(SelAtom);
    add_atom_centres(SelAtom, atom_colour_type);
-   add_cis_peptide_markup(SelAtom);
+   add_cis_peptide_markup(SelAtom, model_number);
 }
 
 void
@@ -4664,7 +4664,8 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
    add_deuterium_spots(asc);
    int atom_colour_type = coot::COLOUR_BY_CHAIN;
    add_atom_centres(asc, atom_colour_type);
-   add_cis_peptide_markup(asc);
+   int model_number = 0; // for all cis peptide markup (hmm, this function should be pass a model number?)
+   add_cis_peptide_markup(asc, model_number);
 }
 
 void
@@ -5005,6 +5006,7 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
       }
       asc.mol->DeleteSelection(SelectionHandle);
       do_disulphide_bonds(asc, imodel);
+      add_cis_peptide_markup(asc, imodel);
    }
 
 
@@ -5024,7 +5026,6 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
    add_deuterium_spots(asc);
    atom_colour_type = coot::COLOUR_BY_CHAIN;
    add_atom_centres(asc, coot::COLOUR_BY_CHAIN_C_ONLY);
-   add_cis_peptide_markup(asc);
 }
 
 void
@@ -5196,13 +5197,13 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 	 
 	 }
 	 asc.mol->DeleteSelection(SelectionHandle);
+	 add_cis_peptide_markup(asc, imodel);
       }
    }
    add_zero_occ_spots(asc);
    add_deuterium_spots(asc);
    int atom_colour_type = coot::COLOUR_BY_CHAIN;
    add_atom_centres(asc, atom_colour_type);
-   add_cis_peptide_markup(asc);
 }
 
 
@@ -5342,10 +5343,11 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
 }
 
 
+// if model_number is 0, do all models
 void
-Bond_lines_container::add_cis_peptide_markup(const atom_selection_container_t &SelAtom) {
+Bond_lines_container::add_cis_peptide_markup(const atom_selection_container_t &SelAtom, int model_number) {
 
-   cis_peptide_quads = coot::util::cis_peptide_quads_from_coords(SelAtom.mol);
+   cis_peptide_quads = coot::util::cis_peptide_quads_from_coords(SelAtom.mol, model_number);
 }
 
 

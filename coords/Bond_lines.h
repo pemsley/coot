@@ -540,7 +540,7 @@ class Bond_lines_container {
    void add_deuterium_spots(const atom_selection_container_t &SelAtom);
    void add_ramachandran_goodness_spots(const atom_selection_container_t &SelAtom);
    void add_atom_centres(const atom_selection_container_t &SelAtom, int atom_colour_type);
-   void add_cis_peptide_markup(const atom_selection_container_t &SelAtom);
+   void add_cis_peptide_markup(const atom_selection_container_t &SelAtom, int model_number);
    int add_ligand_bonds(const atom_selection_container_t &SelAtom,
 			int imol,
 			mmdb::PPAtom ligand_atoms_selection,

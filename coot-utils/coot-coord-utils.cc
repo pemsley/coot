@@ -272,7 +272,7 @@ coot::sort_residues(mmdb::Manager *mol) {
    if (mol) { 
       for (int imod=1; imod<=mol->GetNumberOfModels(); imod++) {
 	 mmdb::Model *model_p = mol->GetModel(imod);
-	 if (model_p) { 
+	 if (model_p) {
 	    mmdb::Chain *chain_p;
 	    // run over chains of the existing mol
 	    int nchains = model_p->GetNumberOfChains();
@@ -6349,6 +6349,7 @@ coot::util::cis_peptides_info_from_coords(mmdb::Manager *mol) {
 // 
 std::vector<coot::util::cis_peptide_quad_info_t>
 coot::util::cis_peptide_quads_from_coords(mmdb::Manager *mol,
+					  int model_number,
 					  bool strictly_cis_flag) {
 
    //    std::vector<atom_quad> v;
@@ -6358,105 +6359,107 @@ coot::util::cis_peptide_quads_from_coords(mmdb::Manager *mol,
    if (n_models == 0)
       return v;
 
-   for (int imod=1; imod<=n_models; imod++) { 
-      mmdb::Model *model_p = mol->GetModel(imod);
-      if (model_p) { 
-	 mmdb::Chain *chain_p;
-	 int nchains = model_p->GetNumberOfChains();
-	 for (int ichain=0; ichain<nchains; ichain++) {
-	    chain_p = model_p->GetChain(ichain);
-	    if (chain_p) { 
-	       int nres = chain_p->GetNumberOfResidues();
-	       mmdb::Residue *residue_p_1 = 0;
-	       mmdb::Residue *residue_p_2 = 0;
-	       mmdb::Atom *at_1 = 0;
-	       mmdb::Atom *at_2 = 0;
-	       for (int ires=0; ires<(nres-1); ires++) {
-   
-		  mmdb::Atom *ca_first = NULL, *c_first = NULL, *n_next = NULL, *ca_next = NULL;
-		  residue_p_1 = chain_p->GetResidue(ires);
-		  int n_atoms_1 = residue_p_1->GetNumberOfAtoms();
-		  residue_p_2 = chain_p->GetResidue(ires+1);
-		  int n_atoms_2 = residue_p_2->GetNumberOfAtoms();
+   for (int imod=1; imod<=n_models; imod++) {
+      if (model_number == 0 || model_number == imod) {
+	 mmdb::Model *model_p = mol->GetModel(imod);
+	 if (model_p) {
+	    mmdb::Chain *chain_p;
+	    int nchains = model_p->GetNumberOfChains();
+	    for (int ichain=0; ichain<nchains; ichain++) {
+	       chain_p = model_p->GetChain(ichain);
+	       if (chain_p) {
+		  int nres = chain_p->GetNumberOfResidues();
+		  mmdb::Residue *residue_p_1 = 0;
+		  mmdb::Residue *residue_p_2 = 0;
+		  mmdb::Atom *at_1 = 0;
+		  mmdb::Atom *at_2 = 0;
+		  for (int ires=0; ires<(nres-1); ires++) {
 
-		  bool is_pre_pro = false;
+		     mmdb::Atom *ca_first = NULL, *c_first = NULL, *n_next = NULL, *ca_next = NULL;
+		     residue_p_1 = chain_p->GetResidue(ires);
+		     int n_atoms_1 = residue_p_1->GetNumberOfAtoms();
+		     residue_p_2 = chain_p->GetResidue(ires+1);
+		     int n_atoms_2 = residue_p_2->GetNumberOfAtoms();
 
-		  // if (residue_p_2->GetSeqNum() == (residue_p_1->GetSeqNum() + 1)) { 
-		  if (residue_p_1 && residue_p_2) {
+		     bool is_pre_pro = false;
 
-		     std::string rn=residue_p_2->GetResName();
-		     if (rn == "PRO")
-			is_pre_pro = true;
+		     // if (residue_p_2->GetSeqNum() == (residue_p_1->GetSeqNum() + 1)) {
+		     if (residue_p_1 && residue_p_2) {
 
-		     for (int iat=0; iat<n_atoms_1; iat++) {
-			at_1 = residue_p_1->GetAtom(iat);
-			if (std::string(at_1->GetAtomName()) == " CA ")
-			   ca_first = at_1;
-			if (std::string(at_1->GetAtomName()) == " C  ")
-			   c_first = at_1;
-		     }
+			std::string rn=residue_p_2->GetResName();
+			if (rn == "PRO")
+			   is_pre_pro = true;
 
-		     for (int iat=0; iat<n_atoms_2; iat++) {
-			at_2 = residue_p_2->GetAtom(iat);
-			if (std::string(at_2->GetAtomName()) == " CA ")
-			   ca_next = at_2;
-			if (std::string(at_2->GetAtomName()) == " N  ")
-			   n_next = at_2;
-		     }
-		  }
-	 
-		  if (ca_first && c_first && n_next && ca_next) {
+			for (int iat=0; iat<n_atoms_1; iat++) {
+			   at_1 = residue_p_1->GetAtom(iat);
+			   if (std::string(at_1->GetAtomName()) == " CA ")
+			      ca_first = at_1;
+			   if (std::string(at_1->GetAtomName()) == " C  ")
+			      c_first = at_1;
+			}
 
-		     // we don't want to include CISPEPs for residues that
-		     // have a TER card between them.
-		     // 
-		     bool is_ter = false;
-		     for (int iat=0; iat<n_atoms_1; iat++) { 
-			mmdb::Atom *at = residue_p_1->GetAtom(iat);
-			if (at->isTer()) {
-			   is_ter = true;
-			   break;
+			for (int iat=0; iat<n_atoms_2; iat++) {
+			   at_2 = residue_p_2->GetAtom(iat);
+			   if (std::string(at_2->GetAtomName()) == " CA ")
+			      ca_next = at_2;
+			   if (std::string(at_2->GetAtomName()) == " N  ")
+			      n_next = at_2;
 			}
 		     }
-		     if (! is_ter) {
-			clipper::Coord_orth caf(ca_first->x, ca_first->y, ca_first->z);
-			clipper::Coord_orth  cf( c_first->x,  c_first->y,  c_first->z);
-			clipper::Coord_orth can( ca_next->x,  ca_next->y,  ca_next->z);
-			clipper::Coord_orth  nn(  n_next->x,   n_next->y,   n_next->z);
-			double tors = clipper::Coord_orth::torsion(caf, cf, nn, can);
-			double torsion = clipper::Util::rad2d(tors);
 
-			// put torsion in the range -180 -> + 180
-			// 
-			if (torsion > 180.0) torsion -= 360.0;
-			double d = sqrt((cf - nn).lengthsq());
-			if (d<3.0) { // the residues were close in space, not just close in sequence
+		     if (ca_first && c_first && n_next && ca_next) {
 
-			   cis_peptide_quad_info_t::type_t type = cis_peptide_quad_info_t::UNSET_TYPE;
-
-			   double tors_crit = 90.0;
-			   // cis baddies: -90 to +90
-			   if ( (torsion > -tors_crit) && (torsion < tors_crit)) {
-			      if (is_pre_pro)
-				 type = cis_peptide_quad_info_t::PRE_PRO_CIS;
-			      else 
-				 type = cis_peptide_quad_info_t::CIS;
-			   } else {
-
-			      if (! strictly_cis_flag) { 
-
-				 double tors_twist_delta_max = 30.0; // degrees
-				 // baddies: -150 to +150
-				 if ((torsion > (-180+tors_twist_delta_max)) && (torsion < (180-tors_twist_delta_max)))
-				    type = cis_peptide_quad_info_t::TWISTED_TRANS;
-
-			      }
+			// we don't want to include CISPEPs for residues that
+			// have a TER card between them.
+			//
+			bool is_ter = false;
+			for (int iat=0; iat<n_atoms_1; iat++) { 
+			   mmdb::Atom *at = residue_p_1->GetAtom(iat);
+			   if (at->isTer()) {
+			      is_ter = true;
+			      break;
 			   }
+			}
+			if (! is_ter) {
+			   clipper::Coord_orth caf(ca_first->x, ca_first->y, ca_first->z);
+			   clipper::Coord_orth  cf( c_first->x,  c_first->y,  c_first->z);
+			   clipper::Coord_orth can( ca_next->x,  ca_next->y,  ca_next->z);
+			   clipper::Coord_orth  nn(  n_next->x,   n_next->y,   n_next->z);
+			   double tors = clipper::Coord_orth::torsion(caf, cf, nn, can);
+			   double torsion = clipper::Util::rad2d(tors);
 
-			   if (type != cis_peptide_quad_info_t::UNSET_TYPE) {
-			      atom_quad q(ca_first, c_first, n_next, ca_next);
-			      cis_peptide_quad_info_t qi(q, type);
-			      v.push_back(qi);
+			   // put torsion in the range -180 -> + 180
+			   // 
+			   if (torsion > 180.0) torsion -= 360.0;
+			   double d = sqrt((cf - nn).lengthsq());
+			   if (d<3.0) { // the residues were close in space, not just close in sequence
+
+			      cis_peptide_quad_info_t::type_t type = cis_peptide_quad_info_t::UNSET_TYPE;
+
+			      double tors_crit = 90.0;
+			      // cis baddies: -90 to +90
+			      if ( (torsion > -tors_crit) && (torsion < tors_crit)) {
+				 if (is_pre_pro)
+				    type = cis_peptide_quad_info_t::PRE_PRO_CIS;
+				 else 
+				    type = cis_peptide_quad_info_t::CIS;
+			      } else {
+
+				 if (! strictly_cis_flag) {
+
+				    double tors_twist_delta_max = 30.0; // degrees
+				    // baddies: -150 to +150
+				    if ((torsion > (-180+tors_twist_delta_max)) && (torsion < (180-tors_twist_delta_max)))
+				       type = cis_peptide_quad_info_t::TWISTED_TRANS;
+
+				 }
+			      }
+
+			      if (type != cis_peptide_quad_info_t::UNSET_TYPE) {
+				 atom_quad q(ca_first, c_first, n_next, ca_next);
+				 cis_peptide_quad_info_t qi(q, type);
+				 v.push_back(qi);
+			      }
 			   }
 			}
 		     }
