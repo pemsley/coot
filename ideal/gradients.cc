@@ -257,7 +257,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 	    // 	    if  ((*restraints)[i].fixed_atom_flags[1])
 	    // 	       n_fixed++;
 
-	    n_bond_restr++; 
+	    n_bond_restr++;
 
 	    target_val = (*restraints)[i].target_value;
 
@@ -275,7 +275,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 	    b_i_sqrd = (a1-a2).lengthsq();
 	    b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
 
-	    weight = 1/((*restraints)[i].sigma * (*restraints)[i].sigma);
+	    weight = 1.0/((*restraints)[i].sigma * (*restraints)[i].sigma);
 	    
 	    // weight = 1.0;
 	    // weight = pow(0.021, -2.0);
@@ -302,7 +302,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 	    } else {
 	       // debug
 	       if (0) {
-		  idx = 3*((*restraints)[i].atom_index_1 - 0);  
+		  idx = 3*restraints)[i].atom_index_1;
 		  std::cout << "BOND Fixed atom[0] "
 			    << restraints->get_atom((*restraints)[i].atom_index_1)->GetSeqNum() << " " 
 			    << restraints->get_atom((*restraints)[i].atom_index_1)->name << " " 
@@ -315,10 +315,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 	    }
 
 	    if (!(*restraints)[i].fixed_atom_flags[1]) { 
-	       idx = 3*((*restraints)[i].atom_index_2 - 0); 
-	       // std::cout << "bond second non-fixed  idx is " << idx << std::endl; 
-	       // cout << "second idx is " << idx << endl;
-
+	       idx = 3*restraints[i].atom_index_2;
 	       *gsl_vector_ptr(df, idx  ) += x_l_contrib;
 	       *gsl_vector_ptr(df, idx+1) += y_l_contrib;
 	       *gsl_vector_ptr(df, idx+2) += z_l_contrib;

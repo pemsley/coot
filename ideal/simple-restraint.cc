@@ -739,6 +739,8 @@ coot::restraints_container_t::pre_sanitize_as_needed(std::vector<refinement_ligh
 	 break;
       }
    }
+
+   // do_pre_sanitize = false; // hack for debugging.
    int iter = 0;
    if (do_pre_sanitize) {
       std::cout << "debug:: :::: pre-sanitizing" << std::endl;
@@ -813,8 +815,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 					     int nsteps_max,
 					     short int print_initial_chi_sq_flag) {
 
-   // std::cout << "debug:: minimize called with usage_flags " << usage_flags << std::endl;
-
+   // std::cout << "debug:: minimize_inner called with usage_flags " << usage_flags << std::endl;
    // debug_atoms();
 
    restraints_usage_flag = usage_flags;
@@ -954,8 +955,15 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	       refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights_vec);
 	       if (worst_of_all.is_set) {
 		  const simple_restraint &baddie_restraint = restraints_vec[worst_of_all.restraints_index];
-		  std::cout << "Most dissatisfied restraint (refine no-progress): "
+		  std::cout << "INFO:: Most dissatisfied restraint (refine no-progress): "
 			    << baddie_restraint.format(atom, worst_of_all.value) << std::endl;
+	       } else {
+		  std::cout << "INFO:: somehow the worst restraint was not set (no-progress)"
+			    << std::endl;
+	       }
+	       if (false) { // debugging restraints
+		  for (std::size_t i=0; i<lights_vec.size(); i++) {
+		  }
 	       }
 	    }
 	    break;
@@ -1188,6 +1196,26 @@ coot::simple_restraint::format(mmdb::PAtom *atoms_vec, double distortion) const 
 	 s += util::remove_whitespace(util::float_to_string_using_dec_pl(sqrt(distortion), 2));
       }
    }
+   if (restraint_type == TRANS_PEPTIDE_RESTRAINT) {
+      s = "Trans_peptide ";
+      atom_spec_t spec_1(atoms_vec[atom_index_1]);
+      atom_spec_t spec_2(atoms_vec[atom_index_2]);
+      atom_spec_t spec_3(atoms_vec[atom_index_3]);
+      atom_spec_t spec_4(atoms_vec[atom_index_4]);
+      s += spec_1.label();
+      s += " ";
+      s += spec_2.label();
+      s += " ";
+      s += spec_3.label();
+      s += " ";
+      s += spec_4.label();
+      s += " ";
+      if (distortion >= 0) {
+	 s += "  score: ";
+	 s += util::remove_whitespace(util::float_to_string_using_dec_pl(distortion, 2));
+	 s += " (non-sqrt)";
+      }
+   }
    if (restraint_type == PLANE_RESTRAINT) {
       s = "Plane ";
       for (std::size_t j=0; j<plane_atom_index.size(); j++) {
@@ -1251,6 +1279,14 @@ coot::simple_restraint::format(mmdb::PAtom *atoms_vec, double distortion) const 
       s += util::remove_whitespace(util::float_to_string_using_dec_pl(distortion, 2));
    }
 
+   if (restraint_type == TARGET_POS_RESTRANT) {
+      s = "Target_pos ";
+      atom_spec_t spec_1(atoms_vec[atom_index_1]);
+      s += spec_1.label();
+      s += " ";
+      s += util::remove_whitespace(util::float_to_string_using_dec_pl(distortion, 2));
+   }
+
    return s;
 }
 
@@ -1279,7 +1315,7 @@ starting_structure_diff_score(const gsl_vector *v, void *params) {
       dist += 0.01*d*d;
    }
    std::cout << "starting_structure_diff_score: " << dist << std::endl; 
-   return dist; 
+   return dist;
 }
 
 
@@ -1300,6 +1336,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    int n_start_pos_restraints = 0;
    int n_target_pos_restraints = 0;
    int n_geman_mcclure_distance = 0;
+   int n_trans_peptide_restraints = 0;
 
    double bond_distortion = 0; 
    double gm_distortion = 0; 
@@ -1311,6 +1348,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    double rama_distortion = 0;
    double start_pos_distortion = 0;
    double target_pos_distortion = 0;
+   double trans_peptide_distortion = 0;
 
    // const be gone :-) (I only do this because we are interfacing with a
    // GSL function. Ideally params should be const void * for most of it's usages.
@@ -1338,7 +1376,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	    baddies["Bonds"].update_if_worse(dist, i);
 	 }
       }
-      
+
       if (restraints_usage_flag & GEMAN_MCCLURE_DISTANCE_MASK) {
 	 if (restraints_vec[i].restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
 	    n_geman_mcclure_distance++;
@@ -1362,22 +1400,37 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       }
 
       if (restraints_usage_flag & TORSIONS_MASK) { // 4: torsions
-	 if ( restraints_vec[i].restraint_type == coot::TORSION_RESTRAINT) {
-	    try { 
-	       torsion_distortion += coot::distortion_score_torsion(restraints_vec[i], v); 
+	 if (restraints_vec[i].restraint_type == coot::TORSION_RESTRAINT) {
+	    try {
+	       double dist = coot::distortion_score_torsion(restraints_vec[i], v); 
+	       torsion_distortion += dist;
 	       n_torsion_restraints++;
-	       baddies["Torsions"].update_if_worse(torsion_distortion, i);
+	       baddies["Torsions"].update_if_worse(dist, i);
 	    }
 	    catch (const std::runtime_error &rte) {
-	       std::cout << "WARNING:: caught runtime_error " << rte.what() << std::endl;
+	       std::cout << "WARNING:: caught runtime_error torsion " << rte.what() << std::endl;
 	    } 
+	 }
+      }
+
+      if (restraints_usage_flag & TRANS_PEPTIDE_MASK) {
+	 if (restraints_vec[i].restraint_type == TRANS_PEPTIDE_RESTRAINT) {
+	    try {
+	       double dist = distortion_score_trans_peptide(i, restraints_vec[i], v);
+	       trans_peptide_distortion += dist;
+	       n_trans_peptide_restraints++;
+	       baddies["Trans_peptide"].update_if_worse(dist, i);
+	    }
+	    catch (const std::runtime_error &rte) {
+	       std::cout << "WARNING:: caught runtime_error trans-pep " << rte.what() << std::endl;
+	    }
 	 }
       }
 
       if (restraints_usage_flag & PLANES_MASK) { // 8: planes
 	 if (restraints_vec[i].restraint_type == coot::PLANE_RESTRAINT) {
 	    n_plane_restraints++;
-	    double dist = coot::distortion_score_plane(restraints_vec[i], v); 
+	    double dist = coot::distortion_score_plane(restraints_vec[i], v);
 	    plane_distortion += dist;
 	    if (dist > dist_max_planes.second) {
 	       dist_max_planes.first = i;
@@ -1429,22 +1482,24 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       }
 
       if (restraints_usage_flag & coot::RAMA_PLOT_MASK) {
-  	 if ( restraints_vec[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
+  	 if (restraints_vec[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
   	    n_rama_restraints++;
 	    if (rama_type == restraints_container_t::RAMA_TYPE_ZO) {
 	       double dd = distortion_score_rama( restraints_vec[i], v, ZO_Rama(), get_rama_plot_weight());
-	       std::cout << "Here with index " << i << " rama distortion score " << dd << std::endl;
+	       // std::cout << "Here with index " << i << " rama distortion score " << dd << std::endl;
 	       rama_distortion += dd;
 	       baddies["Rama"].update_if_worse(dd, i);
 
-	       baddies_iterator = baddies.find("Rama");
-	       if (baddies_iterator != baddies.end()) {
-		  const refinement_lights_info_t::the_worst_t &w = baddies_iterator->second;
-		  const simple_restraint &baddie_restraint = restraints_vec[w.restraints_index];
-		  std::cout << "Running rama worst baddie: w.restraints_index " << w.restraints_index
-			    << " w.value " << w.value
-			    << " distortion " << baddie_restraint.format(atom, w.value)
-			    << std::endl;
+	       if (true) { // debugging rama baddie update
+		  baddies_iterator = baddies.find("Rama");
+		  if (baddies_iterator != baddies.end()) {
+		     const refinement_lights_info_t::the_worst_t &w = baddies_iterator->second;
+		     const simple_restraint &baddie_restraint = restraints_vec[w.restraints_index];
+		     std::cout << "Running rama worst baddie: w.restraints_index " << w.restraints_index
+			       << " w.value " << w.value
+			       << " distortion " << baddie_restraint.format(atom, w.value)
+			       << std::endl;
+		  }
 	       }
 
 	    } else {
@@ -1462,10 +1517,12 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 
       if (restraints_vec[i].restraint_type == coot::TARGET_POS_RESTRANT) {
 	 n_target_pos_restraints++;
-         target_pos_distortion += coot::distortion_score_target_pos(restraints_vec[i], params, v);
+	 double dist = coot::distortion_score_target_pos(restraints_vec[i], params, v);
+         target_pos_distortion += dist;
+	 baddies["Target_pos"].update_if_worse(dist, i);
       }
 
-      if ( restraints_vec[i].restraint_type == coot::START_POS_RESTRAINT) {
+      if (restraints_vec[i].restraint_type == coot::START_POS_RESTRAINT) {
          n_start_pos_restraints++;
 	 double dist = distortion_score_start_pos(restraints_vec[i], params, v);
          start_pos_distortion += dist;
@@ -1542,7 +1599,26 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       if (baddies_iterator != baddies.end())
 	 rl.worst_baddie = baddies_iterator->second;
       lights_vec.push_back(rl);
-   } 
+   }
+   if (n_trans_peptide_restraints == 0) {
+      if (print_summary)
+	 std::cout << "trans-peptide: N/A" << std::endl;
+   } else {
+      double td = trans_peptide_distortion/double(n_trans_peptide_restraints);
+      if (print_summary)
+	 std::cout << "trans-peptide: " << td << " (non-sqrt)" << std::endl;
+      r += "   trans-peptide: ";
+      r += coot::util::float_to_string_using_dec_pl(td, 3);
+      r += "\n";
+      std::string s = "Trans_peptide: ";
+      s += coot::util::float_to_string_using_dec_pl(td, 3);
+      coot::refinement_lights_info_t rl("Trans_peptide", s, td);
+      baddies_iterator = baddies.find("Trans_peptide");
+      if (baddies_iterator != baddies.end())
+	 rl.worst_baddie = baddies_iterator->second;
+      lights_vec.push_back(rl);
+	 
+   }
    if (n_plane_restraints == 0) {
       if (print_summary)
 	 std::cout << "planes:     N/A " << std::endl;
@@ -1643,10 +1719,10 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       if (print_summary)
 	 std::cout << "start_pos:  " << sspd << std::endl;
       r += "startpos:  ";
-      r += coot::util::float_to_string_using_dec_pl(sspd, 3);
+      r += util::float_to_string_using_dec_pl(sspd, 3);
       r += "\n";
       std::string s = "Start pos: ";
-      s += coot::util::float_to_string_using_dec_pl(sspd, 3);
+      s += util::float_to_string_using_dec_pl(sspd, 3);
       lights_vec.push_back(coot::refinement_lights_info_t("Start_pos", s, sspd));
    }
 
@@ -1655,17 +1731,18 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	 std::cout << "TargetPos:  N/A " << std::endl;
    } else {
       double tpd = target_pos_distortion/double(n_target_pos_restraints);
-      double stpd = 0;
-      if (tpd > 0)
-	 stpd = sqrt(tpd);
       if (print_summary) 
-	 std::cout << "target_pos: " << stpd << std::endl;
+	 std::cout << "target_pos: " << tpd  << " (non-sqrt)" << std::endl;
       r += "targetpos: ";
-      r += coot::util::float_to_string_using_dec_pl(stpd, 3);
+      r += util::float_to_string_using_dec_pl(tpd, 3);
       r += "\n";
       std::string s = "Target pos:";
-      s += coot::util::float_to_string_using_dec_pl(stpd, 3);
-      lights_vec.push_back(coot::refinement_lights_info_t("Target_pos", s, stpd));
+      s += util::float_to_string_using_dec_pl(tpd, 3);
+      baddies_iterator = baddies.find("Target_pos");
+      coot::refinement_lights_info_t rl("Target_pos", s, tpd);
+      if (baddies_iterator != baddies.end())
+	 rl.worst_baddie = baddies_iterator->second;
+      lights_vec.push_back(rl);
    }
    if (n_geman_mcclure_distance == 0) {
       if (print_summary)
@@ -1676,17 +1753,36 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       if (spd > 0.0)
 	 sspd = sqrt(spd);
       if (print_summary)
-	 std::cout << "GemanMcCl:  " << sspd << " from " << n_geman_mcclure_distance << " distances" << std::endl;
+	 std::cout << "GemanMcCl:  " << sspd << " from " << n_geman_mcclure_distance << " distances"
+		   << std::endl;
       r += "GemanMcCl:  ";
-      r += coot::util::float_to_string_using_dec_pl(sspd, 3);
+      r += util::float_to_string_using_dec_pl(sspd, 3);
       r += "\n";
       std::string s = "GemanMcCl: ";
-      s += coot::util::float_to_string_using_dec_pl(sspd, 3);
+      s += util::float_to_string_using_dec_pl(sspd, 3);
       coot::refinement_lights_info_t rl("GemanMcCl", s, sspd);
       baddies_iterator = baddies.find("GemanMcClure");
       if (baddies_iterator != baddies.end())
 	 rl.worst_baddie = baddies_iterator->second;
       lights_vec.push_back(rl);
+   }
+
+   // more about baddies:
+   if (false) {
+      std::cout << std::endl;
+      for (std::size_t i=0; i<lights_vec.size(); i++) {
+	 const refinement_lights_info_t &rl = lights_vec[i];
+	 if (rl.worst_baddie.is_set) {
+	    const simple_restraint &baddie_restraint = restraints_vec[rl.worst_baddie.restraints_index];
+	    std::cout << " worst baddie of type " << std::setw(13) << rl.name << " "
+		      << rl.worst_baddie.value << " "
+		      << std::setw(4) << rl.worst_baddie.restraints_index << " "
+		      << std::setprecision(8)
+		      << baddie_restraint.format(atom, rl.worst_baddie.value) << std::endl;
+	 } else {
+	    std::cout << "worst baddie not set " << rl.name << std::endl;
+	 }
+      }
    }
    return lights_vec;
 } 

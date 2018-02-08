@@ -427,11 +427,16 @@ coot::process_dfs_torsion(const coot::simple_restraint &this_restraint,
 			  gsl_vector_get(v,idx+1), 
 			  gsl_vector_get(v,idx+2));
 
-   try { 
+   try {
       coot::distortion_torsion_gradients_t dtg =
 	 fill_distortion_torsion_gradients(P1, P2, P3, P4);
 
-      if (true) {    // was if (! do_rama_torsions) { ... This is old, old old, right?
+      if (dtg.zero_gradients) {
+
+	 std::cout << "debug:: in process_dfs_torsion zero_gradients " << std::endl;
+
+      } else {
+
 	 //
 	 // use period
 
@@ -461,7 +466,7 @@ coot::process_dfs_torsion(const coot::simple_restraint &this_restraint,
 	    }
 	 }
 		  
-	 if (false)
+	 if (true)
 	    std::cout << "in df_torsion: dtg.theta is " << dtg.theta 
 		      <<  " and target is " << this_restraint.target_value 
 		      << " and diff is " << diff
@@ -539,7 +544,7 @@ coot::process_dfs_torsion(const coot::simple_restraint &this_restraint,
    }
    catch (const std::runtime_error &rte) {
       std::cout << "Caught runtime_error" << rte.what() << std::endl;
-   } 
+   }
 } 
 
 void
@@ -931,17 +936,19 @@ coot::process_dfs_trans_peptide(const coot::simple_restraint &restraint,
       distortion_torsion_gradients_t dtg =
 	 fill_distortion_torsion_gradients(P1, P2, P3, P4);
 
-      if (! dtg.zero_gradients) {
+      if (dtg.zero_gradients) {
+
+	 std::cout << "debug:: in process_dfs_trans_peptide zero_gradients " << std::endl;
+
+      } else {
 
 	 double diff = dtg.theta - restraint.target_value;
 	 // because trans restraints - 180, (see distortion score notes)
-	 if (diff > 180)
-	    diff -= 360;
-	 if (diff < -180)
-	    diff += 360;
+	 if (diff >  180) diff -= 360;
+	 if (diff < -180) diff += 360;
 
 	 if (false)
-	    std::cout << "in df_trans_peptide: dtg.theta is " << dtg.theta 
+	    std::cout << "in process_dfs_trans_peptide: dtg.theta is " << dtg.theta 
 		      <<  " and target is " << restraint.target_value 
 		      << " and diff is " << diff 
 		      << " and periodicity: " << restraint.periodicity << std::endl;

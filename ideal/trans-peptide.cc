@@ -224,6 +224,7 @@ coot::distortion_score_trans_peptide(const int &restraint_index,
    // similar escape in the derivatives
    //
    if (cos_a1 > 0.9 || cos_a2> 0.9) {
+      std::cout << "debug:: distortion_score_trans_peptide " << restraint_index << " " << 0 << std::endl;
       return 0;
    } else {
 
@@ -273,7 +274,10 @@ coot::distortion_score_trans_peptide(const int &restraint_index,
 	 }
 	 std::cout << "\n";
       }
-      return diff*diff/(restraint.sigma * restraint.sigma);
+
+      double d = diff*diff/(restraint.sigma * restraint.sigma);
+      // std::cout << "debug:: distortion_score_trans_peptide " << restraint_index << " " << d << std::endl;
+      return d;
    }
 }
 
