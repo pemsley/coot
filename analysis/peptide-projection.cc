@@ -25,6 +25,7 @@
 #include "coords/mmdb.h"
 #include "coot-utils/coot-coord-utils.hh"
 
+#include "stats.hh"
 
 mmdb::Manager *get_manager(const std::string &file_name) {
 
@@ -126,7 +127,7 @@ get_trans_CAs(mmdb::Manager *mol) {
 void analyse_distances(const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &v) {
 
    std::cout << "# analyse_distances() " << v.size() << std::endl;
-   for (unsigned int i=0; i<v.size(); i++) { 
+   for (unsigned int i=0; i<v.size(); i++) {
       clipper::Coord_orth ca_1_pos = coot::co(v[i].first);
       clipper::Coord_orth ca_2_pos = coot::co(v[i].second);
       mmdb::Atom *c_1 = v[i].first->residue->GetAtom(" C  ");
@@ -161,6 +162,85 @@ void analyse_distances(const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> >
    }
 }
 
+clipper::Coord_orth
+mid_point(const clipper::Coord_orth &pt_1,
+	  const clipper::Coord_orth &pt_2) {
+
+   return clipper::Coord_orth(0.5*(pt_1.x() + pt_2.x()),
+			      0.5*(pt_1.y() + pt_2.y()),
+			      0.5*(pt_1.z() + pt_2.z()));
+}
+
+
+clipper::Coord_orth
+fraction_point(const clipper::Coord_orth &pt_1,
+	       const clipper::Coord_orth &pt_2,
+	       double fr) {
+
+   double m = 1.0 - fr;
+   return clipper::Coord_orth(fr*pt_1.x() + m*pt_2.x(),
+			      fr*pt_1.y() + m*pt_2.y(),
+			      fr*pt_1.z() + m*pt_2.z());
+}
+
+double analyse_mid_points_fp(const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &v,
+			     double fraction_point_1,
+			     double fraction_point_2) {
+
+   double mean;
+   std::vector<double> ds;
+   ds.reserve(100);
+   // std::cout << "# analyse_distances() " << v.size() << std::endl;
+   for (unsigned int i=0; i<v.size(); i++) { 
+      clipper::Coord_orth ca_1_pos = coot::co(v[i].first);
+      clipper::Coord_orth ca_2_pos = coot::co(v[i].second);
+      mmdb::Atom *c_1 = v[i].first->residue->GetAtom(" C  ");
+      mmdb::Atom *o_1 = v[i].first->residue->GetAtom(" O  ");
+      mmdb::Atom *n_2 = v[i].second->residue->GetAtom(" N  ");
+
+      if (c_1) {
+	 if (o_1) {
+	    if (n_2) {
+	       clipper::Coord_orth c_1_pos = coot::co(c_1);
+	       clipper::Coord_orth o_1_pos = coot::co(o_1);
+	       clipper::Coord_orth n_2_pos = coot::co(n_2);
+	       double ca_ca_dist = clipper::Coord_orth::length(ca_1_pos, ca_2_pos);
+
+	       clipper::Coord_orth mp_ca = fraction_point(ca_1_pos, ca_2_pos, fraction_point_1);
+	       clipper::Coord_orth mp_nc = fraction_point(c_1_pos,   n_2_pos, fraction_point_2);
+
+	       double d = sqrt((mp_ca-mp_nc).lengthsq());
+
+	       // std::cout << " " << d << std::endl;
+
+	       ds.push_back(d);
+	    }
+	 }
+      }
+   }
+
+   coot::stats::single s(ds);
+   return s.mean();
+}
+
+void analyse_mid_points(const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &v) {
+
+   double m = analyse_mid_points_fp(v, 0.5, 0.485);
+   // std::cout << "m " << m << std::endl;
+
+   int n_samples = 30;
+   for (int i= -n_samples; i<n_samples; i++) {
+      double fraction_point_i = 0.5 + double(i) / double(n_samples) * 0.2;
+      for (int j= -n_samples; j<n_samples; j++) {
+	 double fraction_point_j = 0.5 + double(j) / double(n_samples) * 0.2;
+	 double m = analyse_mid_points_fp(v, fraction_point_i, fraction_point_j);
+	 std::cout << " " << fraction_point_i << " " << fraction_point_j << " " << m << "\n";
+      }
+   }
+}
+
+
+
 int main(int argc, char **argv) {
 
    int status = 0;
@@ -170,7 +250,8 @@ int main(int argc, char **argv) {
       mmdb::Manager *mol = get_manager(file_name);
       if(mol) {
 	 std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > v = get_trans_CAs(mol);
-	 analyse_distances(v);
+	 // analyse_distances(v);
+	 analyse_mid_points(v);
       }
    }
    return status;
