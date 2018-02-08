@@ -191,7 +191,7 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
 
 	 coot::CartesianPair p(Cartesian(at.x(), at.y(), at.z()),
 			       Cartesian(bt.x(), bt.y(), bt.z()));
-	 bonds_box.bonds_[i].pair_list[j] = graphics_line_t(p, cc, false, false, -1, -1);
+	 bonds_box.bonds_[i].pair_list[j] = graphics_line_t(p, cc, false, false, -1, -1, -1);
       }
    }
 }

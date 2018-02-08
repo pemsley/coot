@@ -5530,7 +5530,8 @@ graphical_bonds_container::add_cis_peptide_markup(const std::vector<coot::util::
 	    pre_pro_flag = true;
 	 if (cis_peptide_quads[i].type == coot::util::cis_peptide_quad_info_t::TWISTED_TRANS)
 	    twisted_trans_flag = true;
-	 graphical_bonds_cis_peptide_markup m(c_1, c_2, c_3, c_4, pre_pro_flag, twisted_trans_flag);
+	 int model_number = q.atom_1->GetModelNum();
+	 graphical_bonds_cis_peptide_markup m(c_1, c_2, c_3, c_4, pre_pro_flag, twisted_trans_flag, model_number);
 	 cis_peptide_markups[i] = m;
       }
    }

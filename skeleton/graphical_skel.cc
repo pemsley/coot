@@ -90,7 +90,7 @@ GraphicalSkel::make_graphical_bonds(const clipper::Xmap<float> &map,
 			  
 		       level = clipper::Util::max( l1[iyc], l1[iw] ); // -1
 		       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-		       cp_vec[level].push_back(graphics_line_t(line, cc, false, false, -1, -1));
+		       cp_vec[level].push_back(graphics_line_t(line, cc, false, false, -1, -1, -1));
 		       //cp_vec[0].push_back(line);
 		     }
 		   }
@@ -157,7 +157,7 @@ GraphicalSkel::make_graphical_bonds( const clipper::Xmap<float> &map,
 		  
 		     coot::CartesianPair line(f, s); 
 
-		     cp_vec.push_back(graphics_line_t(line, cc, false, false, -1, -1));
+		     cp_vec.push_back(graphics_line_t(line, cc, false, false, -1, -1, -1));
 		  }
 	       }
 	    }
