@@ -229,7 +229,7 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
       a1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
       a2->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-      bonds[0].add_bond(p, cc, true, true, -1, -1);
+      bonds[0].add_bond(p, cc, true, true, -1, -1, -1);
    }
 
    stars_for_unbonded_atoms(mol, uddHnd);
@@ -315,9 +315,9 @@ Bond_lines_container::stars_for_unbonded_atoms(mmdb::Manager *mol, int uddHnd) {
 			   if (at->GetUDData(uddHnd, ic) == mmdb::UDDATA_Ok) {
 			      if (ic == NO_BOND) {
 				 coot::Cartesian atom_pos(at->x, at->y, at->z);
-				 addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x, cc, -1, -1);
-				 addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y, cc, -1, -1);
-				 addBond(col, atom_pos+small_vec_z, atom_pos-small_vec_z, cc, -1, -1);
+				 addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x, cc, -1, -1, -1);
+				 addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y, cc, -1, -1, -1);
+				 addBond(col, atom_pos+small_vec_z, atom_pos-small_vec_z, cc, -1, -1, -1);
 			      } 
 			   }
 			}

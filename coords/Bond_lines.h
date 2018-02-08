@@ -172,6 +172,7 @@ public:
    // graphics_line_t(const coot::CartesianPair &p, cylinder_class_t cc, bool b, bool e, mmdb::Residue *residue_p_in);
 
    graphics_line_t(const coot::CartesianPair &p, cylinder_class_t cc, bool b, bool e,
+		   int model_no_in,
 		   int atom_index_1_in, int atom_index_2_in) {
       positions = p;
       has_begin_cap = b;
@@ -179,7 +180,7 @@ public:
       cylinder_class = cc;
       atom_index_1 = atom_index_1_in;
       atom_index_2 = atom_index_2_in;
-      model_number = -1;
+      model_number = model_no_in;
    }
    graphics_line_t() { }
 };
@@ -460,6 +461,7 @@ class Bond_lines {
 		 graphics_line_t::cylinder_class_t cc,
 		 bool begin_end_cap,
 		 bool end_end_cap,
+		 int model_number_in,
 		 int atom_index_1, int atom_index_2);
    int size() const; 
 
@@ -574,19 +576,20 @@ class Bond_lines_container {
 		       const coot::Cartesian &atom_2,
 		       mmdb::Atom *at_1,
 		       mmdb::Atom *at_2,
+		       int model_number,
 		       int atom_index_1,
 		       int atom_index_2,
 		       int atom_colour_type);
 
    // double and delocalized bonds (default (no optional arg) is double).
    // 
-   void add_double_bond(int imol, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
+   void add_double_bond(int imol, int imodel, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
 			const std::vector<coot::dict_bond_restraint_t> &bond_restraints,
 			bool is_deloc=0);
    // used by above, can throw an exception
    clipper::Coord_orth get_neighb_normal(int imol, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, 
 	 				 bool also_2nd_order_neighbs=0) const;
-   void add_triple_bond(int imol, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
+   void add_triple_bond(int imol, int imodel, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
 			const std::vector<coot::dict_bond_restraint_t> &bond_restraints);
 
 
@@ -602,7 +605,8 @@ class Bond_lines_container {
    std::vector<graphical_bonds_atom_info_t>  atom_centres;
    std::vector<int>        atom_centres_colour;
    void addBond(int colour, const coot::Cartesian &first, const coot::Cartesian &second,
-		graphics_line_t::cylinder_class_t cc,		
+		graphics_line_t::cylinder_class_t cc,
+		int model_number,
 		int atom_index_1,
 		int atom_index_2,
 		bool add_begin_end_cap = false,
@@ -615,6 +619,7 @@ class Bond_lines_container {
 			const coot::Cartesian &end,
 			int half_bond_type_flag,
 			graphics_line_t::cylinder_class_t cc,
+			int model_number,
 			int atom_index_1, int atom_index_2);
    void addAtom(int colour, const coot::Cartesian &pos);
    int atom_colour(mmdb::Atom *at, int bond_colour_type, coot::my_atom_colour_map_t *atom_colour_map = 0);
