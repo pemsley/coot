@@ -896,7 +896,7 @@ namespace coot {
 	    std::cout << "created " << n_chiral_restr << " chiral vol restraints " << std::endl;
 	    if (do_residue_internal_torsions)
 	       std::cout << "created " << n_torsion_restr << " torsion restraints " << std::endl;
-	 } 
+	 }
       };
 
    private:
@@ -1259,7 +1259,12 @@ namespace coot {
       int add_bonds(int idr, mmdb::PPAtom res_selection,
 		    int i_no_res_atoms,
 		    mmdb::PResidue SelRes,
-		    const protein_geometry &geom); 
+		    const protein_geometry &geom);
+
+      restraint_counts_t add_N_terminal_residue_bonds_and_angles_to_hydrogens(mmdb::Residue *residue_p);
+      int get_N_index(mmdb::Residue *residue_p) const;
+      int get_CA_index(mmdb::Residue *residue_p) const;
+      int get_atom_index(const std::string &atom_name_in, mmdb::Residue *residue_p) const;
 
       int add_angles(int idr, mmdb::PPAtom res_selection,
 		     int i_no_res_atoms,

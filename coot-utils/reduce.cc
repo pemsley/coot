@@ -221,6 +221,14 @@ coot::reduce::add_riding_hydrogens() {
 	    bool done = add_riding_hydrogens(residue_p, residue_prev_p);
 	    if (! done) {
 	       hydrogen_placement_by_dictionary(residue_p);
+	    } else {
+	       // if this was a conventional residue, then if this was the N-terminus, we
+	       // want to ad NH3+ hydrogens too.
+	       if (ires==0) {
+		  double bl_amino = 0.86; // add 0.03 (0.89) to match richardson reduce length. Curious
+		  torsion_info_t ti(" C  ", " CA ", " N  ", bl_amino, 109, 180);
+		  add_methyl_Hs(" H1 ", " H2 ", " H3 ", ti, residue_p); // not methyl
+	       }
 	    }
 	 }
       }
@@ -590,7 +598,8 @@ coot::reduce::add_hydrogen_atom(std::string atom_name, clipper::Coord_orth &pos,
    }
 }
 
-
+// this is also called for the hydrogens on a LYS NZ.
+//
 void 
 coot::reduce::add_methyl_Hs(const std::string &at_name_1,  // HB1 (for example)
 			    const std::string &at_name_2,  // HB2 + 120 degress

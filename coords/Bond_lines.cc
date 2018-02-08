@@ -64,6 +64,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   )
 {
 
+   bool do_rama_markup = false; // 20180208
    do_disulfide_bonds_flag = do_disulphide_bonds_in;
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
    b_factor_scale = 1.0;
@@ -75,7 +76,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    // However, for VNP thingy, S1 has bonds to carbons of 1.67 1.77.  Baah.
    float max_dist = 1.71;
    int model_number = 0; // all models
-   construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number);
+   construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number, do_rama_markup);
    verbose_reporting = 0;
    udd_has_ca_handle = -1;
 
@@ -97,6 +98,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   int model_number)
 {
 
+   bool do_rama_markup = false;
    do_disulfide_bonds_flag = do_disulphide_bonds_in;
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
    for_GL_solid_model_rendering = 0;
@@ -111,7 +113,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    // They should have special case, handle_MET_or_MSE_case
    // However, for VNP thingy, S1 has bonds to carbons of 1.67 1.77.  Baah.
    float max_dist = 1.71;
-   construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number);
+   construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number, do_rama_markup);
    verbose_reporting = 0;
    udd_has_ca_handle = -1;
 }
@@ -128,7 +130,8 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t SelAtom,
    have_dictionary = 0;
    for_GL_solid_model_rendering = 0;
    int model_number = 0; // all models
-   construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number); 
+   bool do_rama_markup = false;
+   construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number, do_rama_markup);
 }
 
 
@@ -145,7 +148,8 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t SelAtom,
    for_GL_solid_model_rendering = 0;
    // 0 is is_from_symmetry_flag
    int model_number = 0; // all models
-   construct_from_asc(SelAtom, imol, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number); 
+   bool do_rama_markup = false;
+   construct_from_asc(SelAtom, imol, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number, do_rama_markup);
 }
 
 // geom_in can be null.
@@ -171,7 +175,8 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t asc,
    } 
    // 0 is is_from_symmetry_flag
    int model_number = 0; // all models
-   construct_from_asc(asc, imol, 0.01, 1.9, coot::COLOUR_BY_ATOM_TYPE, 0, model_number);
+   bool do_rama_markup = false;
+   construct_from_asc(asc, imol, 0.01, 1.9, coot::COLOUR_BY_ATOM_TYPE, 0, model_number, do_rama_markup);
 } 
 
 
@@ -191,16 +196,17 @@ Bond_lines_container::Bond_lines_container (const atom_selection_container_t &Se
    for_GL_solid_model_rendering = 0;
    float max_dist = 1.71;
    int model_number = 0; // all models
+   bool do_rama_markup = false;
    if (by_occ == Bond_lines_container::COLOUR_BY_OCCUPANCY) {
-      construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_OCCUPANCY, 0, model_number); 
+      construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_OCCUPANCY, 0, model_number, do_rama_markup);
    } else {
       if (by_occ == Bond_lines_container::COLOUR_BY_B_FACTOR) {
 	 try_set_b_factor_scale(SelAtom.mol);
-	 construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_B_FACTOR, 0, model_number);
+	 construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_B_FACTOR, 0, model_number, do_rama_markup);
       } else {
 	 // how confusing... :-)
 	 if (by_occ == Bond_lines_container::COLOUR_BY_USER_DEFINED_COLOURS)
-	    construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_USER_DEFINED_COLOURS, 0, model_number);
+	    construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_USER_DEFINED_COLOURS, 0, model_number, do_rama_markup);
       }
    }
 }
@@ -1417,7 +1423,8 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 					 float min_dist, float max_dist,
 					 int atom_colour_type,
 					 short int is_from_symmetry_flag,
-					 int model_number) {
+					 int model_number,
+					 bool do_rama_markup) {
 
    // initialize each colour in the Bond_lines_container
    //
@@ -1693,7 +1700,8 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 
    add_zero_occ_spots(SelAtom);
    add_deuterium_spots(SelAtom);
-   add_ramachandran_goodness_spots(SelAtom);
+   if (do_rama_markup)
+      add_ramachandran_goodness_spots(SelAtom);
    add_atom_centres(SelAtom, atom_colour_type);
    add_cis_peptide_markup(SelAtom, model_number);
 }
@@ -2345,7 +2353,8 @@ Bond_lines_container::addSymmetry(const atom_selection_container_t &SelAtom,
 				  short int symmetry_as_ca_flag,
 				  short int symmetry_whole_chain_flag) {
 
-   graphical_bonds_container gbc; 
+   graphical_bonds_container gbc;
+   bool do_rama_markup = false;
 
    if (symmetry_as_ca_flag == 1) {
       gbc = addSymmetry_calphas(SelAtom, point, symm_distance, symm_trans);
@@ -2398,7 +2407,7 @@ Bond_lines_container::addSymmetry(const atom_selection_container_t &SelAtom,
 
 		  int model_number = 0; // all models
 		  construct_from_asc(Contact_Sel, imol, 0.01, 1.95,
-				     coot::COLOUR_BY_ATOM_TYPE, 1, model_number);
+				     coot::COLOUR_BY_ATOM_TYPE, 1, model_number, do_rama_markup);
 		  gbc = make_graphical_symmetry_bonds();
 
 		  // Now give back the atom_selection, (but not the atoms
@@ -2524,7 +2533,8 @@ Bond_lines_container::addSymmetry_with_mmdb(const atom_selection_container_t &Se
 					    const std::vector<std::pair<symm_trans_t, Cell_Translation> > &symm_trans,
 					    short int symmetry_as_ca_flag) {
 
-   graphical_bonds_container gbc; 
+   graphical_bonds_container gbc;
+   bool do_rama_markup = false;
 
    if (symmetry_as_ca_flag == 1) {
       gbc = addSymmetry_calphas(SelAtom, point, symm_distance, symm_trans);
@@ -2577,7 +2587,7 @@ Bond_lines_container::addSymmetry_with_mmdb(const atom_selection_container_t &Se
 
 	       int model_number = 0; // all models
 	       construct_from_asc(Contact_Sel, imol, 0.01, 1.95,
-				  coot::COLOUR_BY_ATOM_TYPE, 1, model_number);
+				  coot::COLOUR_BY_ATOM_TYPE, 1, model_number, do_rama_markup);
 	       gbc = make_graphical_symmetry_bonds();
 
 	       // Now give back the atom_selection, (but not the atoms
@@ -4210,14 +4220,16 @@ Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_con
 							      int atom_colour_type,
 							      bool do_bonds_to_hydrogens_in) {
 
-  if (! SelAtom.mol) {
-    std::cout << "ERROR:: Caught null mol in do_Ca_plus_ligands_and_sidechains_bonds()"
-	      << std::endl;
-    return;
-  }
+   bool do_rama_markup = false;
+
+   if (! SelAtom.mol) {
+      std::cout << "ERROR:: Caught null mol in do_Ca_plus_ligands_and_sidechains_bonds()"
+		<< std::endl;
+      return;
+   }
 
    // first do Ca plus ligand
-  do_Ca_plus_ligands_bonds(SelAtom, imol, pg, min_dist_ca, max_dist_ca, atom_colour_type, do_bonds_to_hydrogens_in);
+   do_Ca_plus_ligands_bonds(SelAtom, imol, pg, min_dist_ca, max_dist_ca, atom_colour_type, do_bonds_to_hydrogens_in);
 
    // now do normal bonds for CA+sidechain
    // mmmh are the distances correct!?
@@ -4253,7 +4265,7 @@ Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_con
    // BL says:: may need to min max, but just go for fixed one now. FIXME
    //   do_normal_bonds_no_water(asc, min_dist, max_dist);
    int model_number = 0; // all models
-   construct_from_asc(asc, imol, min_dist, max_dist, atom_colour_type, 0, model_number);
+   construct_from_asc(asc, imol, min_dist, max_dist, atom_colour_type, 0, model_number, do_rama_markup);
    asc.mol->DeleteSelection(asc.SelectionHandle);
 
 }
@@ -4264,6 +4276,7 @@ Bond_lines_container::do_normal_bonds_no_water(const atom_selection_container_t 
 					       float max_dist) {
 
    atom_selection_container_t asc = asc_in;
+   bool do_rama_markup = false;
 
    // Now make a new atom selection that excludes WAT and HOH by using mmdb::SKEY_XOR
    int newSelectionHandle = asc.mol->NewSelection();
@@ -4285,7 +4298,7 @@ Bond_lines_container::do_normal_bonds_no_water(const atom_selection_container_t 
    asc.mol->GetSelIndex(asc.SelectionHandle, asc.atom_selection, asc.n_selected_atoms);
    // std::cout << "after water selection: n_selected_atoms: " << asc.n_selected_atoms << std::endl;
    int model_number = 0; // all models
-   construct_from_asc(asc, imol, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number);
+   construct_from_asc(asc, imol, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number, do_rama_markup);
    asc.mol->DeleteSelection(asc.SelectionHandle);
 }
 
@@ -4303,7 +4316,8 @@ Bond_lines_container::add_ligand_bonds(const atom_selection_container_t &SelAtom
    // std::cout << "debug:: here in add_ligand_bonds() with " << asc.n_selected_atoms
    // << " ligand atoms" << std::endl;
    int model_number = 0; // all models
-   construct_from_asc(asc, imol, 0.01, 1.9, coot::COLOUR_BY_ATOM_TYPE, 0, model_number);
+   bool do_rama_markup = false;
+   construct_from_asc(asc, imol, 0.01, 1.9, coot::COLOUR_BY_ATOM_TYPE, 0, model_number, do_rama_markup);
 
    return ibond;
 
@@ -4322,7 +4336,8 @@ Bond_lines_container::do_colour_sec_struct_bonds(const atom_selection_container_
 	    model_p->CalcSecStructure(imodel);
       }
       int model_number = 0; // all models
-      construct_from_asc(asc, imol, 0.01, 1.9, coot::COLOUR_BY_SEC_STRUCT, 0, model_number);
+      bool do_rama_markup = false;
+      construct_from_asc(asc, imol, 0.01, 1.9, coot::COLOUR_BY_SEC_STRUCT, 0, model_number, do_rama_markup);
    }
 }
   

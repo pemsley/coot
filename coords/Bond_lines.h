@@ -151,6 +151,7 @@ public:
    // mmdb::Residue *residue_p; // the residue for the bond (maybe there should be 2 residues_ps? because
                              // sometimes there will be 2 residues for the same graphics_line_t.
                              // Hmm.
+   int model_number; // -1 is unset
    int atom_index_1;
    int atom_index_2;
 #if 0
@@ -164,6 +165,7 @@ public:
       //residue_p = 0;
       atom_index_1 = -1;
       atom_index_2 = -1;
+      model_number = -1;
    }
 #endif
    // we want atom indices now, not just the residue
@@ -177,6 +179,7 @@ public:
       cylinder_class = cc;
       atom_index_1 = atom_index_1_in;
       atom_index_2 = atom_index_2_in;
+      model_number = -1;
    }
    graphics_line_t() { }
 };
@@ -204,14 +207,17 @@ public:
    mmdb::Atom *atom_p; // this should be a shared pointer I think.
                        // we don't want to be looking at this pointer
                        // if some other part of the code has deleted the atom.
+   int model_number; // -1 is unset
    int atom_index;
    graphical_bonds_atom_info_t(const coot::Cartesian &pos, int atom_index_in, bool is_hydrogen_atom_in) {
+      model_number = -1;
       position = pos;
       is_hydrogen_atom = is_hydrogen_atom_in;
       atom_index = atom_index_in;
       atom_p = 0;
    }
    graphical_bonds_atom_info_t() {
+      model_number = -1;
       is_hydrogen_atom = false;
       atom_index = -1; // unset
       atom_p = 0;
@@ -251,6 +257,7 @@ public:
 
    bool is_pre_pro_cis_peptide;
    bool is_twisted; // twisted trans
+   int model_number; // -1 is unset
    coot::Cartesian pt_ca_1; 
    coot::Cartesian pt_c_1;
    coot::Cartesian pt_n_2;
@@ -489,7 +496,8 @@ class Bond_lines_container {
 			   float min_dist, float max_dist, 
 			   int atom_colour_type, 
 			   short int is_from_symmetry_flag,
-			   int model_number);
+			   int model_number,
+			   bool do_ramachandran_markup);
 
    // PDBv3 FIXME
    bool is_hydrogen(const std::string &ele) const {
