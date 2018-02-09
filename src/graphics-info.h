@@ -4069,6 +4069,9 @@ string   static std::string sessionid;
 
    static double lennard_jones_epsilon;
 
+   static pair<bool,float> coords_centre_radius;  // should the display radius limit be applied? And
+                                                  // if so, what is it? (say 20A)
+                                                  // used in draw_bonds().
 #ifdef USE_PYTHON
    PyObject *pyobject_from_graphical_bonds_container(int imol,
 						     const graphical_bonds_container &bonds_box) const;

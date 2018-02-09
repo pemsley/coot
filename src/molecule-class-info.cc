@@ -2077,40 +2077,44 @@ void
 molecule_class_info_t::cis_peptide_markups() const {
 
    if (bonds_box.n_cis_peptide_markups > 0) {
-      for (int i=0; i<bonds_box.n_cis_peptide_markups; i++) { 
+      for (int i=0; i<bonds_box.n_cis_peptide_markups; i++) {
 	 const graphical_bonds_cis_peptide_markup &m = bonds_box.cis_peptide_markups[i];
 
-	 if (! m.is_pre_pro_cis_peptide) {
-	    if (m.is_twisted) {
-	       glColor3f(0.7, 0.6, 0.1);
+	 if ((single_model_view_current_model_number == 0) ||
+	     (single_model_view_current_model_number == m.model_number)) {
+
+	    if (! m.is_pre_pro_cis_peptide) {
+	       if (m.is_twisted) {
+		  glColor3f(0.7, 0.6, 0.1);
+	       } else {
+		  glColor3f(0.7, 0.2, 0.2);
+	       }
 	    } else {
-	       glColor3f(0.7, 0.2, 0.2);
+	       glColor3f(0.2, 0.7, 0.2);
 	    }
-	 } else {
-	    glColor3f(0.2, 0.7, 0.2);
-	 }
 	    
-	 coot::Cartesian fan_centre = m.pt_ca_1.mid_point(m.pt_ca_2);
+	    coot::Cartesian fan_centre = m.pt_ca_1.mid_point(m.pt_ca_2);
 
-	 coot::Cartesian v1 = fan_centre - m.pt_ca_1;
-	 coot::Cartesian v2 = fan_centre - m.pt_c_1;
-	 coot::Cartesian v3 = fan_centre - m.pt_n_2;
-	 coot::Cartesian v4 = fan_centre - m.pt_ca_2;
+	    coot::Cartesian v1 = fan_centre - m.pt_ca_1;
+	    coot::Cartesian v2 = fan_centre - m.pt_c_1;
+	    coot::Cartesian v3 = fan_centre - m.pt_n_2;
+	    coot::Cartesian v4 = fan_centre - m.pt_ca_2;
 
-	 coot::Cartesian pt_ca_1 = m.pt_ca_1 + v1 * 0.15;
-	 coot::Cartesian pt_c_1  = m.pt_c_1  + v2 * 0.15;
-	 coot::Cartesian pt_n_2  = m.pt_n_2  + v3 * 0.15;
-	 coot::Cartesian pt_ca_2 = m.pt_ca_2 + v4 * 0.15;
+	    coot::Cartesian pt_ca_1 = m.pt_ca_1 + v1 * 0.15;
+	    coot::Cartesian pt_c_1  = m.pt_c_1  + v2 * 0.15;
+	    coot::Cartesian pt_n_2  = m.pt_n_2  + v3 * 0.15;
+	    coot::Cartesian pt_ca_2 = m.pt_ca_2 + v4 * 0.15;
 
-	 glBegin(GL_TRIANGLE_FAN);
+	    glBegin(GL_TRIANGLE_FAN);
 	 
-	 glVertex3f(fan_centre.x(), fan_centre.y(), fan_centre.z());
-	 glVertex3f(pt_ca_1.x(), pt_ca_1.y(), pt_ca_1.z());
-	 glVertex3f(pt_c_1.x(),  pt_c_1.y(),  pt_c_1.z());
-	 glVertex3f(pt_n_2.x(),  pt_n_2.y(),  pt_n_2.z());
-	 glVertex3f(pt_ca_2.x(), pt_ca_2.y(), pt_ca_2.z());
+	    glVertex3f(fan_centre.x(), fan_centre.y(), fan_centre.z());
+	    glVertex3f(pt_ca_1.x(), pt_ca_1.y(), pt_ca_1.z());
+	    glVertex3f(pt_c_1.x(),  pt_c_1.y(),  pt_c_1.z());
+	    glVertex3f(pt_n_2.x(),  pt_n_2.y(),  pt_n_2.z());
+	    glVertex3f(pt_ca_2.x(), pt_ca_2.y(), pt_ca_2.z());
 
-	 glEnd();
+	    glEnd();
+	 }
       }
    }
 }
@@ -2247,27 +2251,31 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
  
 	 glBegin(GL_QUADS); 
 	 for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
-	    
-	    coot::Cartesian vec_perp_to_screen_z =
-	       get_vector_pependicular_to_screen_z(front, back,
-						   ll.pair_list[j].positions.getFinish() -
-						   ll.pair_list[j].positions.getStart(),
-						   zsc, p_bond_width);
 
-	    glVertex3f(ll.pair_list[j].positions.getStart().get_x()+vec_perp_to_screen_z.get_x(),
-		       ll.pair_list[j].positions.getStart().get_y()+vec_perp_to_screen_z.get_y(),
-		       ll.pair_list[j].positions.getStart().get_z()+vec_perp_to_screen_z.get_z());
-	    glVertex3f(ll.pair_list[j].positions.getStart().get_x()-vec_perp_to_screen_z.get_x(),
-		       ll.pair_list[j].positions.getStart().get_y()-vec_perp_to_screen_z.get_y(),
-		       ll.pair_list[j].positions.getStart().get_z()-vec_perp_to_screen_z.get_z());
+	    if ((single_model_view_current_model_number == 0) ||
+		(single_model_view_current_model_number == ll.pair_list[j].model_number)) {
 
-	    glVertex3f(ll.pair_list[j].positions.getFinish().get_x()-vec_perp_to_screen_z.get_x(),
-		       ll.pair_list[j].positions.getFinish().get_y()-vec_perp_to_screen_z.get_y(),
-		       ll.pair_list[j].positions.getFinish().get_z()-vec_perp_to_screen_z.get_z());
-	    glVertex3f(ll.pair_list[j].positions.getFinish().get_x()+vec_perp_to_screen_z.get_x(),
-		       ll.pair_list[j].positions.getFinish().get_y()+vec_perp_to_screen_z.get_y(),
-		       ll.pair_list[j].positions.getFinish().get_z()+vec_perp_to_screen_z.get_z());
-	    
+	       // is this slow?
+	       coot::Cartesian vec_perp_to_screen_z =
+		  get_vector_pependicular_to_screen_z(front, back,
+						      ll.pair_list[j].positions.getFinish() -
+						      ll.pair_list[j].positions.getStart(),
+						      zsc, p_bond_width);
+
+	       glVertex3f(ll.pair_list[j].positions.getStart().get_x()+vec_perp_to_screen_z.get_x(),
+			  ll.pair_list[j].positions.getStart().get_y()+vec_perp_to_screen_z.get_y(),
+			  ll.pair_list[j].positions.getStart().get_z()+vec_perp_to_screen_z.get_z());
+	       glVertex3f(ll.pair_list[j].positions.getStart().get_x()-vec_perp_to_screen_z.get_x(),
+			  ll.pair_list[j].positions.getStart().get_y()-vec_perp_to_screen_z.get_y(),
+			  ll.pair_list[j].positions.getStart().get_z()-vec_perp_to_screen_z.get_z());
+
+	       glVertex3f(ll.pair_list[j].positions.getFinish().get_x()-vec_perp_to_screen_z.get_x(),
+			  ll.pair_list[j].positions.getFinish().get_y()-vec_perp_to_screen_z.get_y(),
+			  ll.pair_list[j].positions.getFinish().get_z()-vec_perp_to_screen_z.get_z());
+	       glVertex3f(ll.pair_list[j].positions.getFinish().get_x()+vec_perp_to_screen_z.get_x(),
+			  ll.pair_list[j].positions.getFinish().get_y()+vec_perp_to_screen_z.get_y(),
+			  ll.pair_list[j].positions.getFinish().get_z()+vec_perp_to_screen_z.get_z());
+	    }
 	 }
 	 glEnd();
       }
@@ -3373,7 +3381,7 @@ void
 molecule_class_info_t::single_model_view_model_number(int imodel) {
    if (has_model()) {
       single_model_view_current_model_number = imodel;
-      make_bonds_type_checked();
+      // make_bonds_type_checked();
    }
 }
 

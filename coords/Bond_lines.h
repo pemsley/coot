@@ -153,6 +153,7 @@ public:
    // mmdb::Residue *residue_p; // the residue for the bond (maybe there should be 2 residues_ps? because
                              // sometimes there will be 2 residues for the same graphics_line_t.
                              // Hmm.
+   int model_number; // -1 is unset
    int atom_index_1;
    int atom_index_2;
 #if 0
@@ -166,12 +167,14 @@ public:
       //residue_p = 0;
       atom_index_1 = -1;
       atom_index_2 = -1;
+      model_number = -1;
    }
 #endif
    // we want atom indices now, not just the residue
    // graphics_line_t(const coot::CartesianPair &p, cylinder_class_t cc, bool b, bool e, mmdb::Residue *residue_p_in);
 
    graphics_line_t(const coot::CartesianPair &p, cylinder_class_t cc, bool b, bool e,
+		   int model_no_in,
 		   int atom_index_1_in, int atom_index_2_in) {
       positions = p;
       has_begin_cap = b;
@@ -179,6 +182,7 @@ public:
       cylinder_class = cc;
       atom_index_1 = atom_index_1_in;
       atom_index_2 = atom_index_2_in;
+      model_number = model_no_in;
    }
    graphics_line_t() { }
 };
@@ -206,14 +210,17 @@ public:
    mmdb::Atom *atom_p; // this should be a shared pointer I think.
                        // we don't want to be looking at this pointer
                        // if some other part of the code has deleted the atom.
+   int model_number; // -1 is unset
    int atom_index;
    graphical_bonds_atom_info_t(const coot::Cartesian &pos, int atom_index_in, bool is_hydrogen_atom_in) {
+      model_number = -1;
       position = pos;
       is_hydrogen_atom = is_hydrogen_atom_in;
       atom_index = atom_index_in;
       atom_p = 0;
    }
    graphical_bonds_atom_info_t() {
+      model_number = -1;
       is_hydrogen_atom = false;
       atom_index = -1; // unset
       atom_p = 0;
@@ -253,6 +260,7 @@ public:
 
    bool is_pre_pro_cis_peptide;
    bool is_twisted; // twisted trans
+   int model_number; // -1 is unset
    coot::Cartesian pt_ca_1; 
    coot::Cartesian pt_c_1;
    coot::Cartesian pt_n_2;
@@ -262,13 +270,15 @@ public:
 				      const coot::Cartesian &pt_n_2_in,
 				      const coot::Cartesian &pt_ca_2_in,
 				      bool is_pre_pro_cis_peptide_in,
-				      bool is_twisted_in) {
+				      bool is_twisted_in,
+				      int model_number_in) {
       pt_ca_1 = pt_ca_1_in;
       pt_c_1  = pt_c_1_in;
       pt_n_2  = pt_n_2_in;
       pt_ca_2 = pt_ca_2_in;
       is_pre_pro_cis_peptide = is_pre_pro_cis_peptide_in;
       is_twisted = is_twisted_in;
+      model_number = model_number_in;
    }
 
    graphical_bonds_cis_peptide_markup() {
@@ -460,6 +470,7 @@ class Bond_lines {
 		 graphics_line_t::cylinder_class_t cc,
 		 bool begin_end_cap,
 		 bool end_end_cap,
+		 int model_number_in,
 		 int atom_index_1, int atom_index_2);
    int size() const; 
 
@@ -550,13 +561,14 @@ class Bond_lines_container {
    void add_ramachandran_goodness_spots(const atom_selection_container_t &SelAtom);
    void add_rotamer_goodness_markup(const atom_selection_container_t &SelAtom);
    void add_atom_centres(const atom_selection_container_t &SelAtom, int atom_colour_type);
-   void add_cis_peptide_markup(const atom_selection_container_t &SelAtom);
    int add_ligand_bonds(const atom_selection_container_t &SelAtom, int imol,
 			mmdb::PPAtom ligand_atoms_selection, int n_ligand_atoms);
    std::vector<rotamer_markup_container_t> dodecs;
    // filled by return value of
    std::vector<rotamer_markup_container_t> get_rotamer_dodecs(const atom_selection_container_t &SelAtom) const;
    
+   void add_cis_peptide_markup(const atom_selection_container_t &SelAtom, int model_number);
+
    // no longer use this - it's too crude
    bool draw_these_residue_contacts(mmdb::Residue *this_residue, mmdb::Residue *env_residue,
 				    coot::protein_geometry *protein_geom);
@@ -577,19 +589,20 @@ class Bond_lines_container {
 		       const coot::Cartesian &atom_2,
 		       mmdb::Atom *at_1,
 		       mmdb::Atom *at_2,
+		       int model_number,
 		       int atom_index_1,
 		       int atom_index_2,
 		       int atom_colour_type);
 
    // double and delocalized bonds (default (no optional arg) is double).
    // 
-   void add_double_bond(int imol, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
+   void add_double_bond(int imol, int imodel, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
 			const std::vector<coot::dict_bond_restraint_t> &bond_restraints,
 			bool is_deloc=0);
    // used by above, can throw an exception
    clipper::Coord_orth get_neighb_normal(int imol, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, 
 	 				 bool also_2nd_order_neighbs=0) const;
-   void add_triple_bond(int imol, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
+   void add_triple_bond(int imol, int imodel, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
 			const std::vector<coot::dict_bond_restraint_t> &bond_restraints);
 
 
@@ -605,7 +618,8 @@ class Bond_lines_container {
    std::vector<graphical_bonds_atom_info_t>  atom_centres;
    std::vector<int>        atom_centres_colour;
    void addBond(int colour, const coot::Cartesian &first, const coot::Cartesian &second,
-		graphics_line_t::cylinder_class_t cc,		
+		graphics_line_t::cylinder_class_t cc,
+		int model_number,
 		int atom_index_1,
 		int atom_index_2,
 		bool add_begin_end_cap = false,
@@ -618,6 +632,7 @@ class Bond_lines_container {
 			const coot::Cartesian &end,
 			int half_bond_type_flag,
 			graphics_line_t::cylinder_class_t cc,
+			int model_number,
 			int atom_index_1, int atom_index_2);
    void addAtom(int colour, const coot::Cartesian &pos);
    int atom_colour(mmdb::Atom *at, int bond_colour_type, coot::my_atom_colour_map_t *atom_colour_map = 0);

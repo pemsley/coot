@@ -11,5 +11,14 @@
 
    o the half-bonds of a C-S bond (e.g. CYS) doesn't add the correct atom indicies ::: 2
 
+   o when you reject intemediate atoms of a very bumpy solution, then it should delete, or undisplay
+     the contact dots of generic display objects
+
+   o reopen LSQ fit - the display says 24 but it chooses 0 for the reference molecule
+
+   o coot-reduce: Add N-terminus amide Hydrogen atoms
+
+   o refine: make sure we can correctly refine N-terminus amide hydrogen atoms
+
 --------------
 

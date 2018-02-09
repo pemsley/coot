@@ -3048,6 +3048,9 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 		  
       if (i_no_res_atoms > 0) {
 
+	 if (util::is_standard_amino_acid_name(pdb_resname))
+	    local += add_N_terminal_residue_bonds_and_angles_to_hydrogens(residue_p);
+
 	 if (restraints_usage_flag & BONDS_MASK)
 	    local.n_bond_restraints += add_bonds(idr, res_selection, i_no_res_atoms,
 						 residue_p, geom);
@@ -4767,6 +4770,90 @@ coot::restraints_container_t::is_a_moving_residue_p(mmdb::Residue *r) const {
       } 
    }
    return ret;
+}
+
+int
+coot::restraints_container_t::get_CA_index(mmdb::Residue *residue_p) const {
+
+   return get_atom_index(std::string(" CA "), residue_p);
+}
+
+
+int
+coot::restraints_container_t::get_N_index(mmdb::Residue *residue_p) const {
+
+   return get_atom_index(std::string(" N  "), residue_p);
+}
+
+int
+coot::restraints_container_t::get_atom_index(const std::string &atom_name_in,
+					      mmdb::Residue *residue_p) const {
+
+   int idx = -2; // not here initally 
+   mmdb::Atom **residue_atoms = 0;
+   int n_residue_atoms = 0;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int i=0; i<n_residue_atoms; i++) {
+      mmdb::Atom *at = residue_atoms[i];
+      std::string atom_name(at->GetAtomName());
+      if (atom_name == atom_name_in) { // PDBv3 FIXME
+	 idx = i;
+	 break;
+      }
+   }
+
+   return idx;
+}
+
+
+// this function should only be called for residues that are standard amino acids.
+coot::restraints_container_t::restraint_counts_t
+coot::restraints_container_t::add_N_terminal_residue_bonds_and_angles_to_hydrogens(mmdb::Residue *residue_p) {
+
+   restraint_counts_t rc;
+   int n_bond_restraints = 0;
+   mmdb::Atom **residue_atoms = 0;
+   int n_residue_atoms = 0;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   int N_index = -1; // residue-based. -2 is "checked and not here", -1 is "not check"
+   int CA_index = -1;  // ditto
+
+   for (int i=0; i<n_residue_atoms; i++) {
+      mmdb::Atom *at = residue_atoms[i];
+      std::string atom_name(at->GetAtomName());
+      if (atom_name == " H1 " || atom_name == " H2 " || atom_name == " H3 ") {
+	 if (N_index == -1) // unset
+	    N_index  = get_N_index(residue_p);
+	 if (CA_index == -1)
+	    CA_index = get_CA_index(residue_p);
+
+	 // std::cout << "i " << i << " N_index " << N_index << " CA_index " << CA_index << std::endl;
+
+	 if (N_index >= 0) {
+	    if (CA_index >= 0) {
+	       int atom_index_1 = -1;
+	       int atom_index_2 = -1;
+	       int atom_index_3 = -1;
+	       int udd_get_data_status_1 = residue_atoms[i       ]->GetUDData(udd_atom_index_handle, atom_index_1);
+	       int udd_get_data_status_2 = residue_atoms[N_index ]->GetUDData(udd_atom_index_handle, atom_index_2);
+	       int udd_get_data_status_3 = residue_atoms[CA_index]->GetUDData(udd_atom_index_handle, atom_index_3);
+	       std::vector<bool> fixed_flags_b = make_fixed_flags(atom_index_1, atom_index_2);
+	       std::vector<bool> fixed_flags_a = make_fixed_flags(atom_index_1, atom_index_2, atom_index_3);
+	       add(BOND_RESTRAINT,  atom_index_1, atom_index_2, fixed_flags_b, 0.86, 0.02, 1.2);
+	       // std::cout << "debug:: add_bond " << atom_index_1 << " " << atom_index_2 << " "
+	       // << fixed_flags_b[0] << " " << fixed_flags_b[1] << std::endl;
+	       add(ANGLE_RESTRAINT, atom_index_1, atom_index_2, atom_index_3, fixed_flags_a, 109.5, 2.0, 0.0);
+	       n_bond_restraints++;
+	       rc.n_bond_restraints++;
+	       rc.n_angle_restraints++;
+
+	       // are nbcs still being applied between these atoms?
+	    }
+	 }
+      }
+   }
+
+   return rc;
 }
 
 
