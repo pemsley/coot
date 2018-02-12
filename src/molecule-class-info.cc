@@ -2203,9 +2203,13 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
       else 
  	 glLineWidth(p_bond_width);
 
-      if ( bonds_box.bonds_[i].num_lines > 512000) {
-	 std::cout << "Fencepost heuristic failure bonds_box.bonds_[i].num_lines "
-	      << bonds_box.bonds_[i].num_lines << std::endl;
+      // 20180210 molecules from simulation trajectories can have lots of bonds
+      // Let's by-pass this test.
+      if (false) {
+	 if (bonds_box.bonds_[i].num_lines > 1024000) {
+	    std::cout << "Fencepost heuristic failure bonds_box.bonds_[i].num_lines "
+		      << bonds_box.bonds_[i].num_lines << std::endl;
+	 }
       }
 
       if (bonds_box_type != coot::COLOUR_BY_RAINBOW_BONDS) {
@@ -2316,19 +2320,23 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 	 coot::Cartesian z_delta = (front - back) * 0.003;
 	 for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
 	    set_bond_colour_by_mol_no(icol, against_a_dark_background);
-	    for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) { 
+	    for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
 	       // no points for hydrogens
 	       if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
-		  coot::Cartesian fake_pt = bonds_box.consolidated_atom_centres[icol].points[i].position;
-		  fake_pt += z_delta;
-		  glVertex3f(fake_pt.x(), fake_pt.y(), fake_pt.z());
+
+		  if ((single_model_view_current_model_number == 0) ||
+		      (single_model_view_current_model_number == bonds_box.consolidated_atom_centres[icol].points[i].model_number)) {
+		     coot::Cartesian fake_pt = bonds_box.consolidated_atom_centres[icol].points[i].position;
+		     fake_pt += z_delta;
+		     glVertex3f(fake_pt.x(), fake_pt.y(), fake_pt.z());
+		  }
 	       }
 	    }
 	 }
 	 glEnd();
 
 
-	 // highlights? (they currently don't scale/translate correctly)
+	 // highlights?
 	 // 
 	 if (true) {
 
