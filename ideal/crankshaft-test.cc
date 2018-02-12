@@ -195,8 +195,8 @@ refine_and_score_mol(mmdb::Manager *mol,
 	 residue_specs_vec[ir] = coot::residue_spec_t(residues[ir].second);
 
       auto tp_0 = std::chrono::high_resolution_clock::now();
-      coot::restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs);
-      restraints.add_map(xmap, map_weight);
+      coot::restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs, xmap);
+      restraints.add_map(map_weight);
       restraints.set_rama_type(restraints_rama_type);
       restraints.set_rama_plot_weight(1);
       restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
@@ -352,8 +352,8 @@ crank_refine_and_score(const coot::residue_spec_t &rs, // mid-residue
       // consider changing the API to find_maxima to be the middle of the 3 residues
       //
       //
-      std::vector<coot::crankshaft::scored_angle_set_t> sas =
-	 cs.find_maxima(prev_residue_spec, zorts, n_samples);
+      std::vector<coot::crankshaft::scored_triple_angle_set_t> sas =
+	 cs.find_maxima_from_triples(prev_residue_spec, zorts, n_samples);
       // where did they move to?
       std::cout << "sas size: " << sas.size() << std::endl;
 
