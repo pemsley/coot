@@ -1771,10 +1771,10 @@ setup_lighting(short int do_lighting_flag) {
       glClearColor(0.0, 0.0, 0.0, 0.0);
       glShadeModel(GL_SMOOTH);
 
-      GLfloat light_ambient[]  = { 0.7, 0.7, 0.7, 0.6 };
-      GLfloat light_diffuse[]  = { 0.6, 0.6, 0.6, 0.6 };
-      GLfloat light_specular[] = { 0.6, 0.6, 0.6, 0.6 };
-      GLfloat light_position[] = { 0.6, 0.6, 0.6, 0.0 };
+      GLfloat light_ambient[]  = { 0.4, 0.4, 0.4, 0.0 };
+      GLfloat light_diffuse[]  = { 0.4, 0.4, 0.4, 0.4 };
+      GLfloat light_specular[] = { 0.4, 0.4, 0.4, 0.4 };
+      GLfloat light_position[] = { 0.4, 0.4, 0.4, 0.0 };
 
       GLfloat  light_0_position[] = { 1.0,  1.0, 1.0, 0.0};
       GLfloat  light_1_position[] = {-1.0,  0.0, 1.0, 0.0};
