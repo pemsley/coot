@@ -24,7 +24,17 @@
 # 
 #probe_command = "/y/people/lohkamp/coot/Linux/bin/probe.2.12.070727.linuxi386"
 #reduce_command = "/y/people/lohkamp/coot/Linux/bin/reduce.3.10.070814.linuxi386"
-probe_command = "probe"
-reduce_command = "reduce"
+# try to get the abspath of probe and reduce automatically
+# alternatively, specify yourself here.
+global probe_command
+global reduce_command
+
+probe_command = find_exe("probe", "PATH", "CBIN", "CCP4_BIN")
+if not probe_command:
+    probe_command = "probe" # useless (?) fallback
+
+reduce_command = find_exe("reduce", "PATH", "CBIN", "CCP4_BIN")
+if not reduce_command:
+    reduce_command = "reduce" # useless (?) fallback
 
     
