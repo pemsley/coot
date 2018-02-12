@@ -3607,7 +3607,7 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 	 }
       }
 
-      // std::cout << "debug ifound_1 and ifound_2 " << ifound_1 << " " << ifound_2 << std::endl;
+      // std::cout << "post: debug ifound_1 and ifound_2 " << ifound_1 << " " << ifound_2 << std::endl;
 
       if (! ifound_1) {
 	 std::cout << "no spec for " << extra_restraints.bond_restraints[i].atom_1 << std::endl;

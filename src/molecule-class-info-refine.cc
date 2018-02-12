@@ -452,9 +452,17 @@ molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_di
 		  clipper::Coord_orth p1 = coot::co(at_1);
 		  clipper::Coord_orth p2 = coot::co(at_2);
 		  double dist = sqrt((p1-p2).lengthsq());
+
 		  double esd  = 0.05;
-		  coot::extra_restraints_t::extra_bond_restraint_t br(coot::atom_spec_t(at_1),
-								      coot::atom_spec_t(at_2),
+		  coot::atom_spec_t atom_spec_1(at_1);
+		  coot::atom_spec_t atom_spec_2(at_2);
+		  int idx_1 = -1;
+		  int idx_2 = -1;
+		  at_1->GetUDData(atom_sel.UDDAtomIndexHandle, idx_1);
+		  at_2->GetUDData(atom_sel.UDDAtomIndexHandle, idx_2);
+		  atom_spec_1.int_user_data = idx_1;
+		  atom_spec_2.int_user_data = idx_2;
+		  coot::extra_restraints_t::extra_bond_restraint_t br(atom_spec_1, atom_spec_2,
 								      dist, esd);
 		  extra_restraints.bond_restraints.push_back(br);
 	       } 
