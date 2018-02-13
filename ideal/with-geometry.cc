@@ -121,6 +121,7 @@ main(int argc, char **argv) {
 	 short int have_flanking_residue_at_start = 0;
 	 short int have_flanking_residue_at_end   = 0;
 	 short int have_disulfide_residues = 0;
+	 clipper::Xmap<float> dummy_map;
       
 	 coot::restraints_container_t restraints(istart_res,
 						 iend_res,
@@ -130,7 +131,7 @@ main(int argc, char **argv) {
 						 altloc,
 						 chain_id,
 						 asc.mol,
-						 fixed_atom_specs); 
+						 fixed_atom_specs, dummy_map);
 
       
 
