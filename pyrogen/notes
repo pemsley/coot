@@ -81,6 +81,13 @@ Sun Sep  7 03:04:50 BST 2014
 
     What is coot::regularize() doing?  Creating a molecule but not returning it?
 
+
+---
+Sat 10 Feb 2018 16:59:54 GMT
+
+   PF_20 from the parm@Frosst validation data sdf, the C7 hand tetrahedral (angle?)
+   restraints, it should be sp2. It's not a chiral centre.  Hmm.
+
 -------------------------------------------------
 
 -----
