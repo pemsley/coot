@@ -32,6 +32,12 @@ PyObject *new_molecule_sans_biggest_ligand_py(int imol);
 void gui_ligand_metrics_py(PyObject *ligand_spec, PyObject *ligand_metrics, double percentile_limit);
 #endif
 
+#ifdef USE_PYTHON
+// this is not a ligands function (although it can be used for ligands)
+// it doesn't belong here
+PyObject *residues_distortions_py(int imol, PyObject *residue_spec_list);
+PyObject *get_intermediate_atoms_distortions_py();
+#endif
 
 // This don't call graphics_draw(), so the caller needs to do so.
 //

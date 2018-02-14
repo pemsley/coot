@@ -679,7 +679,7 @@ namespace coot {
 					   const protein_geometry &geom);
 
       double torsion_distortion(double model_torsion) const; 
-      
+      std::string type() const; // a string representation of the restraint type
       friend std::ostream &operator<<(std::ostream &s, const simple_restraint &r);
       std::string format(mmdb::PAtom *atoms_vec, double distortion) const;
    };
@@ -1037,6 +1037,7 @@ namespace coot {
       void init(bool unset_deriv_locks) {
       	 verbose_geometry_reporting = NORMAL;
 	 n_atoms = 0;
+	 x = 0;
 	 mol = 0;
 	 n_atoms = 0;
 	 atom = 0;
@@ -1884,8 +1885,8 @@ namespace coot {
       geometric_distortions(restraint_usage_Flags flags);
 
       // Here we use the internal flags.  Causes crash currently (no inital atom positions?)
-      geometry_distortion_info_container_t
-      geometric_distortions() const;
+      // remove const
+      geometry_distortion_info_container_t geometric_distortions();
 
       omega_distortion_info_container_t
       omega_trans_distortions(const protein_geometry &geom,
