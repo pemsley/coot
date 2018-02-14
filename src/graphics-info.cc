@@ -1820,6 +1820,36 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 	 glEnd();
       }
 
+      if (regularize_object_bonds_box.n_cis_peptide_markups > 0) {
+	 for (int i=0; i<regularize_object_bonds_box.n_cis_peptide_markups; i++) {
+	    const graphical_bonds_cis_peptide_markup &m = regularize_object_bonds_box.cis_peptide_markups[i];
+
+	    glColor3f(0.7, 0.7, 0.8);
+	    coot::Cartesian fan_centre = m.pt_ca_1.mid_point(m.pt_ca_2);
+
+	    coot::Cartesian v1 = fan_centre - m.pt_ca_1;
+	    coot::Cartesian v2 = fan_centre - m.pt_c_1;
+	    coot::Cartesian v3 = fan_centre - m.pt_n_2;
+	    coot::Cartesian v4 = fan_centre - m.pt_ca_2;
+
+	    coot::Cartesian pt_ca_1 = m.pt_ca_1 + v1 * 0.15;
+	    coot::Cartesian pt_c_1  = m.pt_c_1  + v2 * 0.15;
+	    coot::Cartesian pt_n_2  = m.pt_n_2  + v3 * 0.15;
+	    coot::Cartesian pt_ca_2 = m.pt_ca_2 + v4 * 0.15;
+
+	    glBegin(GL_TRIANGLE_FAN);
+
+	    glVertex3f(fan_centre.x(), fan_centre.y(), fan_centre.z());
+	    glVertex3f(pt_ca_1.x(), pt_ca_1.y(), pt_ca_1.z());
+	    glVertex3f(pt_c_1.x(),  pt_c_1.y(),  pt_c_1.z());
+	    glVertex3f(pt_n_2.x(),  pt_n_2.y(),  pt_n_2.z());
+	    glVertex3f(pt_ca_2.x(), pt_ca_2.y(), pt_ca_2.z());
+
+	    glEnd();
+	 }
+      }
+
+
       draw_ramachandran_goodness_spots();
       draw_rotamer_probability_object();
 

@@ -3315,6 +3315,8 @@ Bond_lines_container::make_graphical_bonds(const ramachandrans_container_t &rc,
 					   bool do_rotamer_markup) const {
 
 
+   // this one for intermediate atoms
+
    graphical_bonds_container box;
    bool thinning_flag = true;
 
@@ -3342,6 +3344,7 @@ Bond_lines_container::make_graphical_bonds(const ramachandrans_container_t &rc,
    if (do_rotamer_markup)
       box.add_rotamer_goodness_markup(dodecs);
    box.add_atom_centres(atom_centres, atom_centres_colour);
+   box.add_cis_peptide_markup(cis_peptide_quads);
    box.rings = rings;
    return box;
 }
