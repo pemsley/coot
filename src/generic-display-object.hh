@@ -155,7 +155,7 @@ namespace coot {
 	 colour_holder col;
       };
 
-      enum {UNDEFINED = -1};
+      enum {UNDEFINED = -1, INTERMEDIATE_ATOMS=-9};
       int  imol;
       bool is_displayed_flag;
       bool is_closed_flag; // don't make buttons for closed display objects
@@ -216,8 +216,10 @@ namespace coot {
       } 
       static colour_holder colour_values_from_colour_name(const std::string &colour_name);
       int get_imol() const { return imol; }
-      bool is_valid_imol() { return (imol != UNDEFINED); }
+      bool is_valid_imol() { return (imol != UNDEFINED && imol != INTERMEDIATE_ATOMS); }
+      bool is_intermediate_atoms_object() const { return (imol == INTERMEDIATE_ATOMS); }
       void attach_to_molecule(int imol_in) { imol = imol_in; }
+      void attach_to_intermediate_atoms() { imol = INTERMEDIATE_ATOMS; }
    };
 
    class generic_text_object_t { 

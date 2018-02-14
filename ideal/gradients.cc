@@ -262,11 +262,11 @@ void coot::my_df_bonds(const gsl_vector *v,
 	    target_val = (*restraints)[i].target_value;
 
 	    // what is the index of x_k?
-	    idx = 3*((*restraints)[i].atom_index_1); 
+	    idx = 3*restraints->at(i).atom_index_1;
 	    clipper::Coord_orth a1(gsl_vector_get(v,idx), 
 				   gsl_vector_get(v,idx+1), 
 				   gsl_vector_get(v,idx+2));
-	    idx = 3*((*restraints)[i].atom_index_2); 
+	    idx = 3*restraints->at(i).atom_index_2;
 	    clipper::Coord_orth a2(gsl_vector_get(v,idx), 
 				   gsl_vector_get(v,idx+1), 
 				   gsl_vector_get(v,idx+2));
@@ -292,7 +292,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 	    y_l_contrib = constant_part*(a2.y()-a1.y());
 	    z_l_contrib = constant_part*(a2.z()-a1.z());
 
-	    if (!(*restraints)[i].fixed_atom_flags[0]) { 
+	    if (!(*restraints)[i].fixed_atom_flags[0]) {
 	       idx = 3*(*restraints)[i].atom_index_1;
 
 	       *gsl_vector_ptr(df, idx  ) += x_k_contrib;
@@ -314,7 +314,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 	       }
 	    }
 
-	    if (!(*restraints)[i].fixed_atom_flags[1]) { 
+	    if (! restraints->at(i).fixed_atom_flags[1]) {
 	       idx = 3*restraints->at(i).atom_index_2;
 	       *gsl_vector_ptr(df, idx  ) += x_l_contrib;
 	       *gsl_vector_ptr(df, idx+1) += y_l_contrib;
@@ -323,7 +323,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 	    } else {
 	       // debug
 	       if (false) {
-		  idx = 3*(*restraints)[i].atom_index_2;
+		  idx = 3*restraints->at(i).atom_index_2;
 		  std::cout << "BOND Fixed atom[1] "
 			    << restraints->get_atom((*restraints)[i].atom_index_2)->GetSeqNum() << " " 
 			    << restraints->get_atom((*restraints)[i].atom_index_2)->name << " " 
