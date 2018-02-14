@@ -909,6 +909,28 @@ coot::operator<<(std::ostream &s, const simple_restraint &r) {
    return s;
 }
 
+std::string
+coot::simple_restraint::type() const {
+
+   std::string s;
+   if (restraint_type == coot::BOND_RESTRAINT)
+      s = "Bond";
+   if (restraint_type == coot::ANGLE_RESTRAINT)
+      s = "Angle";
+   if (restraint_type == coot::TORSION_RESTRAINT)
+      s = "Torsion";
+   if (restraint_type == coot::PLANE_RESTRAINT)
+      s = "Plane";
+   if (restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT)
+      s = "NBC";
+   if (restraint_type == coot::CHIRAL_VOLUME_RESTRAINT)
+      s = "Chiral";
+   if (restraint_type == coot::RAMACHANDRAN_RESTRAINT)
+      s = "Rama";
+   return s;
+   
+}
+
 
 void
 coot::restraints_container_t::adjust_variables(const atom_selection_container_t &asc) { 

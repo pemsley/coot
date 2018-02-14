@@ -3208,6 +3208,9 @@ SCM regularize_residues_scm(int imol, SCM r); /* presumes the alt_conf is "". */
 SCM regularize_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf); 
 #endif
 #ifdef USE_PYTHON
+/*! \brief refine the residues in the given residue spec list
+
+@return the refinement summary statistics  */
 PyObject *refine_residues_py(int imol, PyObject *r);  /* presumes the alt_conf is "". */
 PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf,
 						      PyObject *mode_1,
