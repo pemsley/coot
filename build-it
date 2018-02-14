@@ -1579,6 +1579,12 @@ echo coot_version $coot_version
 #
 # we need install_top_dir because we use it to copy over coot.py 
 # to the install python directory.
+
+# Notes for SSL with python:
+# after configure, run this sed:
+# real_ssl_prefix=/usr  # for mac, for PC, libs go in /usr/lib64 and
+# sed -i -e "s?#SSL=.*?SSL=$real_ssl_prefix?" -e 's/^#_ssl/_ssl/' -e's/^#.*-DUSE_SSL/    -DUSE_SSL/' -e 's?^#.*-L$(SSL)/lib?    -L$(SSL)/lib?' Modules/Setup
+# also add --with-ensurepip=install
 #
 if [ "$build_coot_prerelease" = 1 ] ; then 
     if [ "$coot_prerelease_exists" = 1 ] ; then 
