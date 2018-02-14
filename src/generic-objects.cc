@@ -493,9 +493,7 @@ void close_all_generic_objects() {
 void generic_objects_gui_wrapper() {
 
    graphics_info_t g;
-   if (! g.generic_objects_dialog) { 
-      g.generic_objects_dialog = wrapped_create_generic_objects_dialog();
-   }
+   g.generic_objects_dialog = wrapped_create_generic_objects_dialog();
    gtk_widget_show(g.generic_objects_dialog);
 } 
 
