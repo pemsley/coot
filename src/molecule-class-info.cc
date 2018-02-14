@@ -2370,7 +2370,7 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 	       GLdouble point_size_data[2];
 	       glGetDoublev(GL_POINT_SIZE_RANGE, point_size_data);
 	       float off = 0.03;
-	       
+
 	       if (ball_point_size > point_size_data[1]) { 
 		  off *= (point_size_data[1]/ball_point_size);
 		  ball_point_size = point_size_data[1];
@@ -2401,10 +2401,12 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 		  for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) { 
 		     // no points for hydrogens
 		     if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
-			const coot::Cartesian &pos = bonds_box.consolidated_atom_centres[icol].points[i].position;
-			coot::Cartesian pt = pos + offset;
-		  
-			glVertex3f(pt.x(), pt.y(), pt.z());
+			if ((single_model_view_current_model_number == 0) ||
+			    (single_model_view_current_model_number == bonds_box.consolidated_atom_centres[icol].points[i].model_number)) {
+			   const coot::Cartesian &pos = bonds_box.consolidated_atom_centres[icol].points[i].position;
+			   coot::Cartesian pt = pos + offset;
+			   glVertex3f(pt.x(), pt.y(), pt.z());
+			}
 		     }
 		  }
 	       }
@@ -2418,10 +2420,14 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 		  for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) { 
 		     // no points for hydrogens
 		     if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
-			const coot::Cartesian &pos = bonds_box.consolidated_atom_centres[icol].points[i].position;
-			coot::Cartesian pt = pos + offset + z_delta;
-		  
-			glVertex3f(pt.x(), pt.y(), pt.z());
+			if ((single_model_view_current_model_number == 0) ||
+			    (single_model_view_current_model_number == bonds_box.consolidated_atom_centres[icol].points[i].model_number)) {
+
+			   const coot::Cartesian &pos = bonds_box.consolidated_atom_centres[icol].points[i].position;
+			   coot::Cartesian pt = pos + offset + z_delta;
+
+			   glVertex3f(pt.x(), pt.y(), pt.z());
+			}
 		     }
 		  }
 	       }

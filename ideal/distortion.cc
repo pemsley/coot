@@ -405,7 +405,14 @@ coot::restraints_container_t::geometric_distortions(coot::restraint_usage_Flags 
 }
 
 coot::geometry_distortion_info_container_t
-coot::restraints_container_t::geometric_distortions() const {
+coot::restraints_container_t::geometric_distortions() {
+
+   // we don't want to do this if it has already been done. Hmmm.
+   //
+   // that's because this can be called when we are part-way through a refinement
+   //
+   if (!x)
+      setup_gsl_vector_variables();  //initial positions in x array
 
    coot::geometry_distortion_info_container_t dv = distortion_vector(x);
    return dv;

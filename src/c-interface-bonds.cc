@@ -79,6 +79,7 @@ PyObject *get_intermediate_atoms_bonds_representation() {
 
 
 
+
 PyObject *get_environment_distances_representation_py(int imol, PyObject *residue_spec_py) {
 
    PyObject *r = Py_False;

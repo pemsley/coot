@@ -377,6 +377,98 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
 }
 #endif // USE_PYTHON
 
+
+
+#ifdef USE_PYTHON
+PyObject *residues_distortions_py(int imol, PyObject *residue_specs_list_py) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(residue_specs_list_py);
+      if (residue_specs.size() > 0) {
+	 std::vector<mmdb::Residue *> residues;
+	 for (unsigned int i=0; i<residue_specs.size(); i++) {
+	    coot::residue_spec_t rs = residue_specs[i];
+	    mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(rs);
+	    if (r) {
+	       residues.push_back(r);
+	    }
+	 }
+
+	 if (residues.size() > 0) {
+	    graphics_info_t g;
+	    int imol_map = g.Imol_Refinement_Map();
+	    if (! is_valid_map_molecule(imol_map)) { 
+	       add_status_bar_text("Refinement map not set");
+	    } else {
+	       // normal
+	       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+	       graphics_info_t g;
+	       std::vector<std::pair<bool,mmdb::Residue *> > local_residues;  // not fixed.
+	       for (unsigned int i=0; i<residues.size(); i++)
+		  local_residues.push_back(std::pair<bool, mmdb::Residue *>(false, residues[i]));
+	       const coot::protein_geometry &geom = *g.Geom_p();
+	       bool do_residue_internal_torsions = false;
+	       bool do_trans_peptide_restraints = false;
+	       bool do_rama_restraints = false;
+	       float rama_plot_restraint_weight = 1.0;
+	       coot::pseudo_restraint_bond_type pseudo_bonds_type = coot::NO_PSEUDO_BONDS;
+	       const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+	       std::vector<coot::atom_spec_t> fixed_atom_specs;
+	       std::vector<mmdb::Link> links;
+	       coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
+
+	       coot::restraints_container_t restraints(local_residues, links, geom, mol, fixed_atom_specs, xmap);
+	       int nrestraints =
+		  restraints.make_restraints(imol, geom, flags,
+					     do_residue_internal_torsions,
+					     do_trans_peptide_restraints,
+					     rama_plot_restraint_weight,
+					     do_rama_restraints,
+					     pseudo_bonds_type);
+	       coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions();
+	       // std::cout << "Found " << gd.size() << " geometry distortions" << std::endl;
+	       if (gd.size() > 0) {
+
+		  r = PyList_New(gd.size());
+		  for (std::size_t i=0; i<gd.geometry_distortion.size(); i++) {
+
+		     PyList_SetItem(r, i, g.geometry_distortion_to_py(gd.geometry_distortion[i]));
+
+		     if (false) { // debug to terminal
+			std::cout << "   " << i << " ";
+			for (std::size_t j=0; j<gd.geometry_distortion[i].atom_indices.size(); j++)
+			   std::cout << " " << gd.geometry_distortion[i].atom_indices[j];
+			std::cout << ": ";
+			std::cout << " " << gd.geometry_distortion[i] << " ";
+			std::cout << gd.geometry_distortion[i].distortion_score << std::endl;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   
+   if (PyBool_Check(r))
+      Py_INCREF(r);
+   
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *get_intermediate_atoms_distortions_py() {
+
+   graphics_info_t g;
+   PyObject *r = g.get_intermediate_atoms_distortions_py();
+   if (PyBool_Check(r))
+      Py_INCREF(r);
+   return r;
+}
+#endif
+
+
 /*! read in prosmart (typically) extra restraints */
 void add_refmac_extra_restraints(int imol, const char *file_name) {
    if (is_valid_model_molecule(imol)) {

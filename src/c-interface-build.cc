@@ -1424,33 +1424,33 @@ PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *res_sp
 
    PyObject *rv = Py_False;
    if (is_valid_model_molecule(imol)) {
-     std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(res_specs_py);
+      std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(res_specs_py);
 
       if (residue_specs.size() > 0) {
-        std::vector<mmdb::Residue *> residues;
-        for (unsigned int i=0; i<residue_specs.size(); i++) {
-          coot::residue_spec_t rs = residue_specs[i];
-          mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(rs);
-          if (r) {
-            residues.push_back(r);
-          }
-        }
+	 std::vector<mmdb::Residue *> residues;
+	 for (unsigned int i=0; i<residue_specs.size(); i++) {
+	    coot::residue_spec_t rs = residue_specs[i];
+	    mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(rs);
+	    if (r) {
+	       residues.push_back(r);
+	    }
+	 }
 
-        if (residues.size() > 0) {
-          graphics_info_t g;
-          int imol_map = g.Imol_Refinement_Map();
-          if (! is_valid_map_molecule(imol_map)) { 
-            add_status_bar_text("Refinement map not set");
-          } else {
-            // normal
-	     mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+	 if (residues.size() > 0) {
+	    graphics_info_t g;
+	    int imol_map = g.Imol_Refinement_Map();
+	    if (! is_valid_map_molecule(imol_map)) { 
+	       add_status_bar_text("Refinement map not set");
+	    } else {
+	       // normal
+	       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
 
-	     bool soft_mode_hard_mode = false;
-	     if (PyString_Check(mode_1)) {
-		std::string s = PyString_AsString(mode_1);
-		if (s == "soft-mode/hard-mode")
-		   soft_mode_hard_mode = true;
-	     }
+	       bool soft_mode_hard_mode = false;
+	       if (PyString_Check(mode_1)) {
+		  std::string s = PyString_AsString(mode_1);
+		  if (s == "soft-mode/hard-mode")
+		     soft_mode_hard_mode = true;
+	       }
 
 	     if (soft_mode_hard_mode) {
 // 		double w_orig = g.geometry_vs_map_weight;

@@ -4076,6 +4076,9 @@ string   static std::string sessionid;
    PyObject *pyobject_from_graphical_bonds_container(int imol,
 						     const graphical_bonds_container &bonds_box) const;
    PyObject *get_intermediate_atoms_bonds_representation();
+   PyObject *get_intermediate_atoms_distortions_py();
+   PyObject *restraint_to_py(const coot::simple_restraint &restraint); // make const?
+   PyObject *geometry_distortion_to_py(const coot::geometry_distortion_info_t &gd);
 #endif
 
 #ifdef HAVE_CXX_THREAD
