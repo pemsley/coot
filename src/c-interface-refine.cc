@@ -377,52 +377,6 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
 }
 #endif // USE_PYTHON
 
-#include "c-interface-geometry-distortion.hh"
-
-#ifdef USE_PYTHON
-PyObject *restraint_to_py(const coot::simple_restraint &restraint) {
-
-   PyObject *r = PyDict_New();
-   // restraint_type
-   // target_value
-   // sigma
-   // fixed_atom_flags
-
-   PyObject *fixed_atom_flags_py = PyList_New(restraint.fixed_atom_flags.size());
-   for (std::size_t i=0; i<restraint.fixed_atom_flags.size(); i++)
-      PyList_SetItem(fixed_atom_flags_py, i,   PyInt_FromLong(restraint.fixed_atom_flags[i]));
-   PyDict_SetItemString(r, "restraint_type",   PyString_FromString(restraint.type().c_str()));
-   PyDict_SetItemString(r, "target_value",     PyFloat_FromDouble(restraint.target_value));
-   PyDict_SetItemString(r, "sigma",            PyFloat_FromDouble(restraint.sigma));
-   PyDict_SetItemString(r, "fixed_atom_flags", fixed_atom_flags_py);
-
-   return r;
-}
-#endif // USE_PYTHON   
-
-#ifdef USE_PYTHON
-PyObject *geometry_distortion_to_py(const coot::geometry_distortion_info_t &gd) {
-
-   PyObject *r = Py_False;
-
-   if (gd.initialised_p()) {
-      r = PyDict_New();
-      PyObject *atom_indices_py = PyList_New(gd.atom_indices.size());
-      for (std::size_t i=0; i<gd.atom_indices.size(); i++)
-	 PyList_SetItem(atom_indices_py, i, PyInt_FromLong(gd.atom_indices[i]));
-      PyDict_SetItemString(r, "distortion_score", PyFloat_FromDouble(gd.distortion_score));
-      PyDict_SetItemString(r, "restraint", restraint_to_py(gd.restraint));
-      PyDict_SetItemString(r, "residue_spec", residue_spec_to_py(gd.residue_spec));
-      PyDict_SetItemString(r, "atom_indices", atom_indices_py);
-   }
-
-   if (PyBool_Check(r))
-     Py_INCREF(r);
-
-   return r;
-}
-#endif // USE_PYTHON   
-
 
 
 #ifdef USE_PYTHON
@@ -473,13 +427,13 @@ PyObject *residues_distortions_py(int imol, PyObject *residue_specs_list_py) {
 					     do_rama_restraints,
 					     pseudo_bonds_type);
 	       coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions();
-	       std::cout << "Found " << gd.size() << " geometry distortions" << std::endl;
+	       // std::cout << "Found " << gd.size() << " geometry distortions" << std::endl;
 	       if (gd.size() > 0) {
 
 		  r = PyList_New(gd.size());
 		  for (std::size_t i=0; i<gd.geometry_distortion.size(); i++) {
 
-		     PyList_SetItem(r, i, geometry_distortion_to_py(gd.geometry_distortion[i]));
+		     PyList_SetItem(r, i, g.geometry_distortion_to_py(gd.geometry_distortion[i]));
 
 		     if (false) { // debug to terminal
 			std::cout << "   " << i << " ";
@@ -504,13 +458,12 @@ PyObject *residues_distortions_py(int imol, PyObject *residue_specs_list_py) {
 #endif
 
 #ifdef USE_PYTHON
-PyObject *intermediate_atoms_distortions_py() {
+PyObject *get_intermediate_atoms_distortions_py() {
 
-   PyObject *r = Py_False;
-
-   if (PyBool_Check(r)) {
-     Py_INCREF(r);
-   }
+   graphics_info_t g;
+   PyObject *r = g.get_intermediate_atoms_distortions_py();
+   if (PyBool_Check(r))
+      Py_INCREF(r);
    return r;
 }
 #endif

@@ -36,7 +36,7 @@ void gui_ligand_metrics_py(PyObject *ligand_spec, PyObject *ligand_metrics, doub
 // this is not a ligands function (although it can be used for ligands)
 // it doesn't belong here
 PyObject *residues_distortions_py(int imol, PyObject *residue_spec_list);
-PyObject *intermediate_atoms_distortions_py();
+PyObject *get_intermediate_atoms_distortions_py();
 #endif
 
 // This don't call graphics_draw(), so the caller needs to do so.

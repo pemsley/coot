@@ -928,6 +928,7 @@ namespace coot {
       void init(bool unset_deriv_locks) {
       	 verbose_geometry_reporting = NORMAL;
 	 n_atoms = 0;
+	 x = 0;
 	 mol = 0;
 	 n_atoms = 0;
 	 atom = 0;
