@@ -995,7 +995,7 @@ void set_dti_stereo_mode(short int state) {
       }
    }
    // add_to_history_simple("dti-side-by-side-stereo-mode");
-} 
+}
 
 
 int stereo_mode_state() {
@@ -1015,6 +1015,12 @@ void set_hardware_stereo_angle_factor(float f) {
 float hardware_stereo_angle_factor_state() {
    add_to_history_simple("hardware-stereo-angle-factor-state");
    return graphics_info_t::hardware_stereo_angle_factor;
+}
+
+void set_model_display_radius(int state, float radius) {
+
+   graphics_info_t::model_display_radius.first  = state;
+   graphics_info_t::model_display_radius.second = radius;
 }
 
 

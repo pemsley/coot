@@ -1288,7 +1288,7 @@
 
 	
 	(add-simple-coot-menu-menuitem
-	 submenu-representation "Hilight Interesting Site (here)..."
+	 submenu-representation "Highlight Interesting Site (here)..."
 	 (lambda ()
 	   
 	   (let ((active-atom (active-residue)))
@@ -1325,6 +1325,22 @@
 					(let ((n (string->number text)))
 					  (if (number? n)
 					      (clear-dots imol n)))))))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-representation "Limit Model Display Radius"
+	 (lambda ()
+	   (generic-single-entry "Display Radius Limit (0 for 'no limit') "
+				 ;; "15.0" ;; maybe this should be the map radius
+				 (number->string (get-map-radius))
+				 "Set: "
+				 (lambda (text)
+				   (let ((f (string->number text)))
+				     (if (number? f)
+					 (if (= f 0)
+					     (set-model-display-radius 0 10)
+					     (set-model-display-radius 1 f))
+					 (set-model-display-radius 0 10)))))))
+	 
 
 	(add-simple-coot-menu-menuitem
 	 submenu-representation "HOLE..." 
