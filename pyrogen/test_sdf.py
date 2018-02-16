@@ -165,7 +165,7 @@ def get_parmfrosst_types(m, mol_idx, ref_types=None, check_2_chars_only=True, ma
             if check_2_chars_only:
                 check_coot_amber_type = coot_amber_type[:2]
 		# C -> Ca or Cb or Cc etc is a special case
-                if coot_amber_type in ["Ca", "Cax", "Cb", "Cc", "Cd", "Ce", "Cf", "Cg", "Ch", "Ci", "Cj"]:
+                if coot_amber_type in ["Ca", "Cax", "Cb", "Cc", "Cd", "Ce", "Cf", "Cg", "Ch", "Ci", "Cj", "C-"]:
 		    check_coot_amber_type = "C"
                 if coot_amber_type in ["Sa", "Sax", "Sb", "Sc", "Sd", "Se", "Sf", "Sg", "Sh", "Si", "Sj"]:
 		    check_coot_amber_type = "S"

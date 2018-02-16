@@ -377,6 +377,11 @@ def set_parmfrosst_atom_types(mol):
 	#
 	# maybe we should allow CWy to match CC and CCy to match CW - 2 way rounds an imidazole
 
+        # * * * CR * ; { 5-ring unsat }
+        ('CR-5ring-A', g+'1'+g+'N=C'+g+'1', 0), # what does this catch?
+        ('CR-5ring-B', '[C;H0;X3]1=NC=CC1', 0), # H0 may not be needed.
+        ('NB-5ring-B', '[C;H0;X3]1=NC=CC1', 1), # H0 may not be needed.
+
         # 5-ring unsat C&ar5=N&ar5-g&ar5~g&ar5~g&ar5-@1	-> CR NB * * * (above the comment)
         #
         # the C=N double bond above is tested for here by X2 on the N (atom index 1)
@@ -487,9 +492,11 @@ def set_parmfrosst_atom_types(mol):
 
 	# SMARTS put an atom in a 5 ring before a 6 ring. but CA is 6-ring
         ('C*', '[cr5;^2;X3]', 0),
+        ('C*', '[C;X3;^2]1C(=O)[NH]~cc1', 0), # C8 in PF_12 is not aromatic (by rdkit) but is a PF C*. Grr!
+                                              # So provide the specified ring.
 
         ('CMa', 'n1cnccc1', (3,4,5)), # positions 5 or 6 in pyrimidine # or 4 presumably!
-        # ('CMb', '[C^2]=[C^2]', (0,1)),  # by validation
+        ('CMb', '[C^2]=[C^2]', (0,1)),  # by validation # catches C7 in PF_0 {non-aromatic C=x}
         ('CMb', '[C;^2;R0]=[C^2]', 0),  # by validation
         ('CMc', '[C;^2;R0]=A', 0),   # by validation
         ('CMd', '[C]=a', 0),   # by validation
@@ -507,7 +514,7 @@ def set_parmfrosst_atom_types(mol):
 
         ('CT', '[CX4]', 0), # bonded to 4 things
         # Carbon fallback
-        ('C',  '[C,c]', 0), # sp hybrizided. Hmmm.
+        ('C-fallback',  '[C,c]', 0), # sp hybrizided. Hmmm.
 
         # [1] needed because above [CX2]#A doesn't find the bond both ways.  I suppose
         #     that's the way SMARTS work.
