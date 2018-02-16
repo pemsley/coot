@@ -1364,6 +1364,8 @@ bool graphics_info_t::auto_clear_atom_pull_restraint_flag = true;
 
 bool graphics_info_t::continue_update_refinement_atoms_flag = false;
 
+std::pair<bool, float> graphics_info_t::model_display_radius = std::pair<bool, float> (false, 15);
+
 
 // need to configure for this!
 // #define GDKGLEXT_HAVE_MODE_SAMPLES_SHIFT true

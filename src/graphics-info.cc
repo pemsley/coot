@@ -5966,3 +5966,43 @@ graphics_info_t::remove_last_lsq_plane_atom() {
    return 0;
 }
 
+
+
+// molecule_info_class_t draw_bonds() function use this to see if the point is within the 
+// distance from the screen centre.
+// Maybe this is not the best place for this function?
+// static
+bool
+graphics_info_t::is_within_display_radius(const coot::CartesianPair &p) {
+
+   coot::Cartesian c(graphics_info_t::RotationCentre_x(),
+		     graphics_info_t::RotationCentre_y(),
+		     graphics_info_t::RotationCentre_z());
+   float d_sqrd = graphics_info_t::model_display_radius.second * graphics_info_t::model_display_radius.second;
+
+   coot::Cartesian delta_1 = p.getStart() - c;
+   if (delta_1.amplitude_squared() > d_sqrd) {
+      return false;
+   } else {
+      coot::Cartesian delta_2 = p.getFinish() - c;
+      return (delta_2.amplitude_squared() <= d_sqrd);
+   }
+
+}
+
+// molecule_info_class_t draw_bonds() function use this to see if the point is within the 
+// distance from the screen centre.
+// Maybe this is not the best place for this function?
+// static
+bool
+graphics_info_t::is_within_display_radius(const coot::Cartesian &p) {
+
+   coot::Cartesian c(graphics_info_t::RotationCentre_x(),
+		     graphics_info_t::RotationCentre_y(),
+		     graphics_info_t::RotationCentre_z());
+   float d_sqrd = graphics_info_t::model_display_radius.second * graphics_info_t::model_display_radius.second;
+
+   coot::Cartesian delta = p - c;
+   return (delta.amplitude_squared() <= d_sqrd);
+
+}

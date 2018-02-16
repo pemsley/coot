@@ -2209,6 +2209,8 @@ void set_hardware_stereo_angle_factor(float f);
 /*! \brief return the hardware stereo angle factor */
 float hardware_stereo_angle_factor_state();
 
+void set_model_display_radius(int state, float radius);
+
 /*! \brief set position of Model/Fit/Refine dialog */
 void set_model_fit_refine_dialog_position(int x_pos, int y_pos);
 /*! \brief set position of Display Control dialog */

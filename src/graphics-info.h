@@ -1221,6 +1221,7 @@ public:
       preset_number_refmac_cycles->push_back(15);
       preset_number_refmac_cycles->push_back(20);
       preset_number_refmac_cycles->push_back(50);
+
    }
 
    static bool prefer_python;
@@ -4061,6 +4062,16 @@ string   static std::string sessionid;
      }
    }
 
+   static std::pair<bool, float> model_display_radius;
+   void set_model_display_radius(bool on_off, float radius_in) {
+      model_display_radius.first  = on_off;
+      model_display_radius.second = radius_in;
+   }
+   // molecules use this to see if the point is within the distance from the screen centre
+   // - maybe this is not the best place for this function?
+   static bool is_within_display_radius(const coot::CartesianPair &p);
+   static bool is_within_display_radius(const coot::Cartesian &p);
+
    static bool cif_dictionary_file_selector_create_molecule_flag;
 
    static double geman_mcclure_alpha;
@@ -4094,7 +4105,7 @@ class molecule_rot_t {
  public:   
    static float x_axis_angle;
    static float y_axis_angle;
-}; 
+};
    
 void initialize_graphics_molecules();
 
