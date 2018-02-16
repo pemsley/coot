@@ -319,7 +319,7 @@ def make_picture_to_file(mol, conf_id, output_file_name):
       # The import of Image may change depending on how it was provided.
       # What about pillow? Hmm. Not sure of the details.
       # import Image
-      from PIL import Image
+      from PIL import Image as Image
       state = Draw.MolToFile(mol, size=(300,300), fileName=output_file_name, confId=conf_id)
       # print 'INFO:: wrote PNG   "' + output_file_name + '"'
 
@@ -755,7 +755,13 @@ def coot_png_from_mmcif_file(mmcif_file_name_in, comp_id, png_file_name, n_pixel
 
 def depict(mol, iconf = -1, npx=300, highlightAtoms=[], highlightBonds=None, highlightAtomColours=None, highlightBondColours=None):
     import IPython
+
     # import Image
+    # import ImageFont
+    from PIL import Image
+    from PIL import ImageFont
+    import PIL
+    import PIL.ImageDraw
     import io
     try:
        n_confs = mol.GetNumConformers()

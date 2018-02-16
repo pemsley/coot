@@ -1511,7 +1511,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	       rama_distortion += dd;
 	       baddies["Rama"].update_if_worse(dd, i);
 
-	       if (true) { // debugging rama baddie update
+	       if (false) { // debugging rama baddie update
 		  baddies_iterator = baddies.find("Rama");
 		  if (baddies_iterator != baddies.end()) {
 		     const refinement_lights_info_t::the_worst_t &w = baddies_iterator->second;
@@ -1529,7 +1529,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	       baddies["Rama"].update_if_worse(dd, i);
 	    }
 	    if (false) {
-	       double d1 = distortion_score_rama( restraints_vec[i], v, LogRama());
+	       double d1 = distortion_score_rama(restraints_vec[i], v, LogRama());
 	       double d2 = coot::distortion_score_rama(restraints_vec[i], v, ZO_Rama(), get_rama_plot_weight());
 	       std::cout << "distortion-comparision logramas " << d1 << " zo " << d2 << std::endl;
 	    }

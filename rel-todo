@@ -7,12 +7,9 @@
 
    o enter an invalid SMILES into lidia ::: 1
 
-   o adjust the lights in draw_display_list_objects() ::: 0.5
-
    o the half-bonds of a C-S bond (e.g. CYS) doesn't add the correct atom indicies ::: 2
 
-   o when you reject intemediate atoms of a very bumpy solution, then it should delete, or undisplay
-     the contact dots of generic display objects
+   o long bonds in get_bonds_representation() ::: 1
 
    o reopen LSQ fit - the display says 24 but it chooses 0 for the reference molecule
 
@@ -20,5 +17,12 @@
 
    o refine: make sure we can correctly refine N-terminus amide hydrogen atoms
 
+   o refmac-mult-sharp.sh should be a window in coot
+
 --------------
+
+   o adjust the lights in draw_display_list_objects() ::: 0.5
+
+   o when you reject intemediate atoms of a very bumpy solution, then it should delete, or undisplay
+     the contact dots of generic display objects ::: 2
 

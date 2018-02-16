@@ -485,7 +485,7 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
       restraints.residue_info.number_atoms_nh = n_atoms_non_hydrogen;
       restraints.residue_info.group = "non-polymer";
       restraints.residue_info.description_level = "."; // default is full <smiley>
-      
+
       coot::add_chem_comp_atoms(mol, &restraints); // alter restraints
       bool status_b = coot::fill_with_energy_lib_bonds(mol, energy_lib, &restraints); // alter restraints
       bool status_a = coot::fill_with_energy_lib_angles(mol, energy_lib, &restraints); // alter restraints
@@ -558,7 +558,7 @@ coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 	 
 	 }
 	 catch (const KeyErrorException &kee) {
-	    std::cout << "ERROR:: caugh KeyErrorException in fill_with_energy_lib_bonds() - "
+	    std::cout << "ERROR:: caught KeyErrorException in fill_with_energy_lib_bonds() - "
 		      << "atom types and names for bond number " << ib << std::endl;
 	 }
       }
@@ -631,7 +631,7 @@ coot::fill_with_energy_lib_angles(const RDKit::ROMol &mol,
 		  } 
 	       }
 	       catch (const KeyErrorException &kee) {
-		  std::cout << "WARNING:: caugh KeyErrorException in fill_with_energy_lib_angles() "
+		  std::cout << "WARNING:: caught KeyErrorException in fill_with_energy_lib_angles() "
 			    << std::endl;
 	       }
 	       
@@ -751,7 +751,7 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 		     }
 		  }
 		  catch (const KeyErrorException &kee) {
-		     std::cout << "WARNING:: caugh KeyErrorException in fill_with_energy_lib_torsions() "
+		     std::cout << "WARNING:: caught KeyErrorException in fill_with_energy_lib_torsions() "
 			       << std::endl;
 		  }
 	       }
@@ -933,7 +933,7 @@ coot::add_torsion_to_restraints(coot::dictionary_residue_restraints_t *restraint
       }
    }
    catch (const KeyErrorException &kee) {
-      std::cout << "WARNING:: caugh KeyErrorException in fill_with_energy_lib_torsions() "
+      std::cout << "WARNING:: caught KeyErrorException in fill_with_energy_lib_torsions() "
 		<< std::endl;
    }
    return added_state;
@@ -993,8 +993,11 @@ coot::add_chem_comp_atoms(const RDKit::ROMol &mol, coot::dictionary_residue_rest
 	 double charge;
 	 bool have_charge = true; // can be clever with GetProp() KeyErrorException
 	                          // if you like
+	 // std::cout << "add_chem_comp_atoms() getting names... " << std::endl;
 	 at_p->getProp("name", name);
+	 // std::cout << "add_chem_comp_atoms() getting type_energy... " << std::endl;
 	 at_p->getProp("type_energy", atom_type);
+	 // std::cout << "add_chem_comp_atoms() getting charges... " << std::endl;
 	 at_p->getProp("_GasteigerCharge", charge);
 	 std::pair<bool, float> charge_pair(have_charge, charge);
 	 dict_atom atom(name, name, at_p->getSymbol(), atom_type, charge_pair);
@@ -1057,23 +1060,25 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol,
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) { 
 	 if (matches[imatch].size() > 0) {
 
-	    std::cout << "INFO:: matched aromatic plane: " << std::setw(14) << std::right
-		      << patterns[ipat];
-	    std::cout << " ("; 
-	    for (unsigned int iat=0; iat<matches[imatch].size(); iat++) { 
-	       unsigned int atom_idx = matches[imatch][iat].second;
-	       try {
-		  RDKit::ATOM_SPTR at_p = mol[atom_idx];
-		  std::string atom_name;
-		  at_p->getProp("name", atom_name);
-		  std::cout << " " << atom_name;
+	    if (false) { // too noisy when debugging other things
+	       std::cout << "INFO:: matched aromatic plane: " << std::setw(14) << std::right
+			 << patterns[ipat];
+	       std::cout << " (";
+	       for (unsigned int iat=0; iat<matches[imatch].size(); iat++) {
+		  unsigned int atom_idx = matches[imatch][iat].second;
+		  try {
+		     RDKit::ATOM_SPTR at_p = mol[atom_idx];
+		     std::string atom_name;
+		     at_p->getProp("name", atom_name);
+		     std::cout << " " << atom_name;
+		  }
+		  catch (const KeyErrorException &kee) {
+		     std::cout << " " << atom_idx;
+		  }
 	       }
-	       catch (const KeyErrorException &kee) {
-		  std::cout << " " << atom_idx;
-	       } 
+	       std::cout << " )";
+	       std::cout << std::endl;
 	    }
-	    std::cout << " )";
-	    std::cout << std::endl; 
 
 	    if (! quartet_planes) { 
 	       dict_plane_restraint_t plr =
