@@ -406,6 +406,7 @@ def set_parmfrosst_atom_types(mol):
         # note to self - there may be more CR NBs
         ('CR-5ring-g',  '[c;R1]1~[n;R1]~[n;R2]~[c;R2]~[c;R1]1', 0),
         ('CR-5ring-h',  '[c;R1]1~[n;R1]~[n;R1]~[c;R1]~[c;R1]1', 0), # PF11
+        ('NB-5ring-i',  '[c;R1]1~[n;R1;H0]~[n;R2;X3]([c;r6])~[c;R2]~[n;R1;H0]1', 1), # N3 inPF14,  but not N2 in PF_4
 
 	# 5-ring unsat C&ar5=C&ar5-C&ar5=C&ar5-g&ar5-@1 -> CW CC CC CW
         ('CW-5ring-b',  '[cr5]1[cr5][cr5][cr5][ar5]1', (0,3)),
