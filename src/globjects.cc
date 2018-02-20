@@ -1371,6 +1371,11 @@ std::pair<bool, float> graphics_info_t::model_display_radius = std::pair<bool, f
 // #define GDKGLEXT_HAVE_MODE_SAMPLES_SHIFT true
 
 
+std::pair<bool, float> graphics_info_t::model_display_radius = std::pair<bool, float> (false, 15);
+
+// need to configure for this!
+// #define GDKGLEXT_HAVE_MODE_SAMPLES_SHIFT true
+
 // Chemical Feature Clusters, cfc
 GtkWidget *graphics_info_t::cfc_dialog = NULL;
 

@@ -2378,6 +2378,7 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 			fake_pt += z_delta;
 			glVertex3f(fake_pt.x(), fake_pt.y(), fake_pt.z());
 		     }
+
 		  }
 	       }
 	    }
@@ -2450,6 +2451,7 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 		  for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) { 
 		     // no points for hydrogens
 		     if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
+
 			if ((single_model_view_current_model_number == 0) ||
 			    (single_model_view_current_model_number == bonds_box.consolidated_atom_centres[icol].points[i].model_number)) {
 
