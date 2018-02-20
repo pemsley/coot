@@ -246,7 +246,7 @@ PyObject *graphics_info_t::restraint_to_py(const coot::simple_restraint &restrai
 
    return r;
 }
-#endif // USE_PYTHON   
+#endif // USE_PYTHON
 
 #ifdef USE_PYTHON
 PyObject *graphics_info_t::geometry_distortion_to_py(const coot::geometry_distortion_info_t &gd) {
@@ -269,7 +269,7 @@ PyObject *graphics_info_t::geometry_distortion_to_py(const coot::geometry_distor
 
    return r;
 }
-#endif // USE_PYTHON   
+#endif // USE_PYTHON
 
 
 
