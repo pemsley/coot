@@ -398,7 +398,15 @@ def set_parmfrosst_atom_types(mol):
         # for PF4 N5
         ('NB-5ring-d',  '[#6;R2]1~[#7;R1]~[#7;R1]~[#6;R1]~[#7;R2]1', 1),
         # for PF8 N3
-        ('NB-5ring-e',  '[c;R1]1~[n;R1]~[a;R1]~[a;R1]~[a;R1]1', 1),
+
+        # Note to reader: compare N2 in PF11 and N2 in PF_15.  Extremely similar.  But different types
+        #                         NB             NA
+        # maybe because of the non-H substituents on atoms idx-3 and idx-4?
+        # so add H1 to make it "his-like" - testing.
+
+        # ('NB-5ring-e',  '[c;R1]1~[n;R1]~[a;R1]~[a;R1]~[a;R1]1', 1), # idx-2 atom not a (too general)
+        ('NB-5ring-e2', '[c;R1]1~[n;R1]~[n;R1]~[c;R1;H1]~[c;R1;H1]1', 1), # idx-2 atom not a
+        ('NB-5ring-e3', '[c;R1]1~[n;R1]~[c;R1]~[n;R1]~[s;R1]1', 1), #
         # for PF8 N4
         ('NB-5ring-f',  '[c;R1]1[n;R1][s;R1][a;R1][a;R1]1', 1), # atom idx-2 needs to be "s" not "a"
         # for PF9 N4
@@ -406,7 +414,8 @@ def set_parmfrosst_atom_types(mol):
         # note to self - there may be more CR NBs
         ('CR-5ring-g',  '[c;R1]1~[n;R1]~[n;R2]~[c;R2]~[c;R1]1', 0),
         ('CR-5ring-h',  '[c;R1]1~[n;R1]~[n;R1]~[c;R1]~[c;R1]1', 0), # PF11
-        ('NB-5ring-i',  '[c;R1]1~[n;R1;H0]~[n;R2;X3]([c;r6])~[c;R2]~[n;R1;H0]1', 1), # N3 inPF14,  but not N2 in PF_4
+        ('NB-5ring-i',  '[c;R1]1~[n;R1;H0]~[n;R2;X3]([c;r6])~[c;R2]~[n;R1;H0]1', 1), # N3 in PF14,  but not N2 in PF_4
+        ('NB-5ring-j',  '[c;R1]1~[n;R1]~[n;R1]~[c;R1]~[c;R1]1', 2), # N1 in PF15?
 
 	# 5-ring unsat C&ar5=C&ar5-C&ar5=C&ar5-g&ar5-@1 -> CW CC CC CW
         ('CW-5ring-b',  '[cr5]1[cr5][cr5][cr5][ar5]1', (0,3)),
@@ -429,6 +438,9 @@ def set_parmfrosst_atom_types(mol):
         ('NBz',  '[nr5;R1]1[cr5;R1][cr5R1][nr5;R1;X2][ar5R1]1', 3),
         ('NAz',  '[nr5;R1]1[cr5;R1][cr5R1][nr5;R1;X2][ar5R1]1', 0), # does this find anything?
         ('CRz',  '[nr5;R1]1[cr5;R1][cr5R1][nr5;R1;X2][ar5R1]1', (1,2)),
+
+        # ('CR-5-ring-j', '[c]1[n;H][n][c][c]1', 0), # catches C2 in PF_15 # too late
+        # ('CW-5-ring-j', '[c]1[n;H][n][c][c]1', 3), # catches C4 in PF_15
 
         # n1cnnc1
         # ('NBzz',  '[nr5;R1]1[cr5;R1][nr5R1][nr5R1][ar5R1]1', (2,3)),
@@ -607,8 +619,11 @@ def set_parmfrosst_atom_types(mol):
         # Nitro > N2 ; {nitro group - guess jan 1999 CIBayly}
         ('N2f', 'C[N^2](~[O;X1])~[OX1]', 1),
 
-        #g&ar-N&ar(-H)-g > * NA * * ; {e.g. HIS C-NH-C}
-        ('NAe', 'A[nH]a', 1),
+        # g&ar-N&ar(-H)-g > * NA * * ; {e.g. HIS C-NH-C}
+        # I don't understandy why this above pattern doesn't match N3 in PF_15.  Instead that
+        # falls down to N (an amino N). Grump.
+        # ('NAe', 'A[nH]a', 1), # too liberal, catches N3 in PF_15
+        ('NAf', '[a][n;H;r5][a]', 1), # don't match nH in 6 rings - baah.
 
         # Nsulfon > N3 ; {sulfonamide-type N is pyramidal. Ordered after aromatic amine}
         # N&x3-S,P(~O&x1)~O&x1
@@ -619,14 +634,15 @@ def set_parmfrosst_atom_types(mol):
         ('N3d', '[nX2;+]-[S,P](=[OX1])~[OX1]', 0),
 
         # g&ar-Acy1-N(-H,g)-g&ar > * N2 * * ; {more delocalized aniline-type N oct2004 CIBayly}
-        ('N2d', '[a][n;H]a', 1), # was ('N2d', '[a][N;H]a', 1),
-        ('N2e', '[a][n](-[a,A])a', 1),
+        # ('N2d', '[a][n;H]a', 1), # was ('N2d', '[a][N;H]a', 1), # not this - catches N3 in PF_15 (should be N)
+        # ('N2e', '[a][n](-[a,A])a', 1), # not this - catches N3 in PF_15 (should be N)
 
         # g&ar-Acy1-N(-!H)-!H	> * N3 * *      ; {disubst aniline-type N apr2005 CIBayly}
         ('N3d', 'a[N;H0]([!H])[!H]', 1),
 
         # g&sp2-N!ar-H	> * N  * ; {sp2 amino N}
         ('N', '[A;^2][N][H]', 1),
+        ('N', '[c][nH][c](=O)', 1), # N3 in PF_15
 
         # g&ar-N!ar > * N2 ; {sp2 amino N}
         ('N2g', g_and_ar + '-[N]', 1),
