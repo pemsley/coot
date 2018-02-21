@@ -686,7 +686,14 @@ class graphics_info_t {
    static std::vector<coot::simple_distance_object_t> *distance_object_vec;
    static std::vector<coot::coord_orth_triple> *angle_object_vec;
 
-   static int moving_atoms_dragged_atom_index;
+   // 20180217 moving_atoms_dragged_atom_index -> moving_atoms_dragged_atom_indices
+   //          Now we can have many dragged atoms
+   //
+   static int moving_atoms_currently_dragged_atom_index;
+   static std::set<int> moving_atoms_dragged_atom_indices;
+   static void remove_moving_atoms_dragged_atom_index(int idx);
+   static void    add_moving_atoms_dragged_atom_index(int idx);
+
 #ifdef  HAVE_GSL
    static coot::restraints_container_t *last_restraints;
 #endif // HAVE_GSL   
@@ -4037,11 +4044,39 @@ string   static std::string sessionid;
    void register_user_defined_interesting_positions(const std::vector<std::pair<clipper::Coord_orth, std::string> > &udip);
 
    // atom pull restraint
-   static atom_pull_info_t atom_pull;
+   // static atom_pull_info_t atom_pull; 20180218 just one
+   static std::vector<atom_pull_info_t> atom_pulls;
+   static void all_atom_pulls_off() {
+     for (std::size_t i=0; i<atom_pulls.size(); i++)
+       atom_pulls[i].off();
+   }
+   static void atom_pull_off(const coot::atom_spec_t &spec) {
+      for (std::size_t i=0; i<atom_pulls.size(); i++) {
+         if (atom_pulls[i].spec == spec)
+	    atom_pulls[i].off();
+      }
+   }
+   static void atom_pulls_off(const std::vector<coot::atom_spec_t> &specs) {
+      for (std::size_t j=0; j<specs.size(); j++)
+	 for (std::size_t i=0; i<atom_pulls.size(); i++)
+	    if (atom_pulls[i].spec == specs[j])
+	       atom_pulls[i].off();
+   }
+   void add_or_replace_current(const atom_pull_info_t &atom_pull_in);
    static void draw_atom_pull_restraint();
    // we don't want to refine_again if the accept/reject dialog "Accept" button was clicked
    // (not least because now the refined atoms have gone out of scope)
-   void clear_atom_pull_restraint(bool refine_again_flag);
+   void clear_atom_pull_restraint(const coot::atom_spec_t &spec, bool refine_again_flag);
+   void clear_atom_pull_restraints(const std::vector<coot::atom_spec_t> &specs,
+				   bool refine_again_flag) {
+      for (std::size_t i=0; i<specs.size(); i++)
+	 clear_atom_pull_restraint(specs[i], false);
+      if (refine_again_flag)
+	 if (last_restraints)
+	    drag_refine_refine_intermediate_atoms();
+	 
+   }
+   void clear_all_atom_pull_restraints(bool refine_again_flag);
    static bool auto_clear_atom_pull_restraint_flag;
 
    static bool continue_update_refinement_atoms_flag;

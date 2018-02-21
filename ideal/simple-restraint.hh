@@ -367,8 +367,9 @@ namespace coot {
       int chiral_volume_sign;
       double target_chiral_volume;
       int chiral_hydrogen_index; // if exactly one H attached to this chiral
-                                 // centre, then the atom index, otherwise -1.
-      // otherwise this is -1.
+                                 // centre, then the atom index,
+                                 // otherwise this is -1.
+      atom_spec_t atom_spec; // for pull atoms (so that we can on the fly delete this restraints)
       std::vector<bool> fixed_atom_flags;
       std::vector<bool> fixed_atom_flags_other_plane;
       bool is_user_defined_restraint;
@@ -385,7 +386,7 @@ namespace coot {
 
       // allocator for geometry_distortion_info_t
       simple_restraint() { is_user_defined_restraint = 0; }
-      
+
       // Bond
       simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2, 
 		       const std::vector<bool> &fixed_atom_flags_in,
@@ -664,8 +665,11 @@ namespace coot {
 	 }
       }
 
-      // target_pos
-      simple_restraint(restraint_type_t rest_type, int atom_idx, const clipper::Coord_orth &pos) {
+      // target_pos, pull_atom
+      simple_restraint(restraint_type_t rest_type, int atom_idx,
+		       const atom_spec_t &spec_in,
+		       const clipper::Coord_orth &pos) :
+	 atom_spec(spec_in) {
 	 restraint_type = rest_type;
 	 atom_index_1 = atom_idx;
 	 atom_pull_target_pos = pos;
@@ -684,17 +688,34 @@ namespace coot {
       std::string format(mmdb::PAtom *atoms_vec, double distortion) const;
    };
    std::ostream &operator<<(std::ostream &s, const simple_restraint &r);
-   bool target_position_eraser(const simple_restraint &r);
+   bool target_position_eraser(const simple_restraint &r); // this is static, I guess
+
+   // a good example for erase... remove_if (another is the crankshaft eraser)
+   class target_position_for_atom_eraser {
+   public:
+      target_position_for_atom_eraser(const atom_spec_t &spec_in) {
+	 spec = spec_in;
+      }
+      atom_spec_t spec;
+      bool operator() (const simple_restraint &r) const {
+	 if (r.restraint_type == restraint_type_t(TARGET_POS_RESTRANT)) {
+	    if (r.atom_spec == spec) {
+	       return true;
+	    }
+	 }
+	 return false;
+      }
+   };
 
    class turn_off_when_close_target_position_restraint_eraser {
       int n_atoms;
       mmdb::PAtom *atoms;
       double close_dist;
    public:
-      turn_off_when_close_target_position_restraint_eraser(mmdb::PAtom *atoms_in, int n_atoms_in) {
+      turn_off_when_close_target_position_restraint_eraser(double close_dist_in, mmdb::PAtom *atoms_in, int n_atoms_in) {
 	 atoms = atoms_in;
 	 n_atoms = n_atoms_in;
-	 close_dist = 0.6; // was 0.5; // was 0.4
+	 close_dist = close_dist_in; // 0.6; // was 0.5; // was 0.4
       }
       bool operator() (const simple_restraint &r) const {
 	 bool v = false;
@@ -1312,8 +1333,8 @@ namespace coot {
 						   fixed_atom_flag, dist_min));
       }
 
-      void add_target_position_restraint(int idx, clipper::Coord_orth &target_pos) {
-	 simple_restraint r(TARGET_POS_RESTRANT, idx, target_pos);
+      void add_target_position_restraint(int idx, const atom_spec_t &spec, clipper::Coord_orth &target_pos) {
+	 simple_restraint r(TARGET_POS_RESTRANT, idx, spec, target_pos);
 	 restraints_vec.push_back(r);
       }
 
@@ -2094,8 +2115,9 @@ namespace coot {
       } 
       unsigned int const_test_function(const protein_geometry &geom) const;
 
-      mmdb::Atom *add_atom_pull_restraint(atom_spec_t spec, clipper::Coord_orth pos);
-      void clear_atom_pull_restraint();
+      mmdb::Atom *add_atom_pull_restraint(const atom_spec_t &spec, clipper::Coord_orth pos);
+      void clear_atom_pull_restraint(const atom_spec_t &spec); // clear any previous restraint for this atom.
+      void clear_all_atom_pull_restraints();
       
       void add_extra_restraints(int imol,
 				const extra_restraints_t &extra_restraints,
@@ -2197,7 +2219,11 @@ namespace coot {
 
       // return true when turned off
       bool turn_off_when_close_target_position_restraint();
-      
+
+      // return a vector of the specs of the restraints  if the restraint was turned off
+      //
+      std::vector<atom_spec_t> turn_off_atom_pull_restraints_when_close_to_target_position();
+
       bool cryo_em_mode; // for weighting fit to density of atoms (side-chains and others are down-weighted)
 
       // more debugging interface:

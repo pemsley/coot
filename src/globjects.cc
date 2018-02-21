@@ -430,8 +430,10 @@ float graphics_info_t::map_sharpening_scale_limit = 200.0;
 int graphics_info_t::imol_remarks_browswer = -1;
 
 // dragged moving atom:
-int       graphics_info_t::moving_atoms_dragged_atom_index = -1;
+int       graphics_info_t::moving_atoms_currently_dragged_atom_index = -1;
 short int graphics_info_t::in_moving_atoms_drag_atom_mode_flag = 0;
+std::set<int> empty_int_set;
+std::set<int> graphics_info_t::moving_atoms_dragged_atom_indices = empty_int_set;
 
 // validate moving atoms
 int       graphics_info_t::moving_atoms_n_cis_peptides = -1;  // unset
@@ -1359,7 +1361,8 @@ std::vector<std::pair<clipper::Coord_orth, std::string> > graphics_info_t::user_
 unsigned int graphics_info_t::user_defined_interesting_positions_idx = 0;
 
 // atom pull
-atom_pull_info_t graphics_info_t:: atom_pull = atom_pull_info_t();
+// atom_pull_info_t graphics_info_t:: atom_pull = atom_pull_info_t();
+std::vector<atom_pull_info_t> graphics_info_t:: atom_pulls;
 bool graphics_info_t::auto_clear_atom_pull_restraint_flag = true;
 
 bool graphics_info_t::continue_update_refinement_atoms_flag = false;
@@ -2765,7 +2768,7 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 		     } else {
 
 			// info.move_moving_atoms_by_shear(x_as_int, y_as_int, 0); // pre 0.8.3
-			info.move_atom_pull_target_position(x_as_int ,y_as_int);
+			info.move_atom_pull_target_position(x_as_int, y_as_int);
 			
 			if (graphics_info_t::dragged_refinement_refine_per_frame_flag) {
 			   info.drag_refine_refine_intermediate_atoms();

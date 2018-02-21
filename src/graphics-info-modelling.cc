@@ -601,10 +601,13 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
       // last_restraints = coot::restraints_container_t(molecules[imol_refinement_map].xmap);
       // last_restraints.copy_from(restraints);
 
-      if (atom_pull.status) {
-	 std::cout << "update_refinement_atoms() adding atom_pull_restraint "
-		   << atom_pull.spec << std::endl;
-	 last_restraints->add_atom_pull_restraint(atom_pull.spec, atom_pull.pos); // mouse target position
+      for (std::size_t j=0; j<atom_pulls.size(); j++) {
+	 const atom_pull_info_t &atom_pull = atom_pulls[j];
+	 if (atom_pull.get_status()) {
+	    std::cout << "update_refinement_atoms() adding atom_pull_restraint "
+		      << atom_pull.spec << std::endl;
+	    last_restraints->add_atom_pull_restraint(atom_pull.spec, atom_pull.pos); // mouse target position
+	 }
       }
 
       regularize_object_bonds_box.clear_up();
@@ -868,8 +871,14 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 								   pseudo_bonds_type);
             	                                                   // link and flank args default true
 
-	       if (atom_pull.status)
-		  last_restraints->add_atom_pull_restraint(atom_pull.spec, atom_pull.pos); // mouse target position
+	       // should this be here?  Do we want to be adding pull restraints
+	       // here?
+	       //
+	       for (std::size_t j=0; j<atom_pulls.size(); j++) {
+		  const atom_pull_info_t &atom_pull = atom_pulls[j];
+		  if (atom_pull.get_status())
+		     last_restraints->add_atom_pull_restraint(atom_pull.spec, atom_pull.pos); // mouse target position
+	       }
 	       last_restraints->set_geman_mcclure_alpha(geman_mcclure_alpha);
                last_restraints->set_rama_type(restraints_rama_type);
                last_restraints->set_rama_plot_weight(rama_restraints_weight);

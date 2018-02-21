@@ -1,8 +1,8 @@
 
 class atom_pull_info_t {
 
-public:
    bool status;
+public:
    clipper::Coord_orth pos;
    coot::atom_spec_t spec;
 
@@ -14,6 +14,10 @@ public:
    }
 
    void off() { status = false; }
+
+   void on() { status = true; }
+
+   bool get_status() const { return status; }
 
    // return first false if number on not found
    std::pair<bool, int> find_spec(mmdb::PAtom *atoms, int n_atoms) const {

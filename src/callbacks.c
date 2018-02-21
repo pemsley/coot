@@ -11236,9 +11236,9 @@ on_accept_reject_refinement_atom_pull_autoclear_checkbutton_toggled
 
    int state = get_auto_clear_atom_pull_restraint_state();
    if (state) {
-     set_auto_clear_atom_pull_restraint_state(0);
+     set_auto_clear_atom_pull_restraint(0);
    } else { 
-     set_auto_clear_atom_pull_restraint_state(1);
+     set_auto_clear_atom_pull_restraint(1);
    }
 
 }
@@ -11247,7 +11247,7 @@ void
 on_accept_reject_atom_pull_clear_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data) { 
-   clear_atom_pull_restraint();
+   clear_all_atom_pull_restraints();
 }
 
 

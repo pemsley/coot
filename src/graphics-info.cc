@@ -4590,137 +4590,152 @@ graphics_info_t::draw_atom_pull_restraint() {
 
    // don't draw this if there are not intermediate atoms shown.
 
-   if (atom_pull.status) {
-      if (! regularize_object_bonds_box.empty()) {
-	 if (moving_atoms_asc->n_selected_atoms) { 
-	    std::pair<bool, int> spec = atom_pull.find_spec(moving_atoms_asc->atom_selection,
-							    moving_atoms_asc->n_selected_atoms);
-	    if (spec.first) {
-	       clipper::Coord_orth pt_start = coot::co(graphics_info_t::moving_atoms_asc->atom_selection[spec.second]);
-	       clipper::Coord_orth pt_end = atom_pull.pos;
-	 
-	       bool do_gl_lines = false;
-	       bool do_arrow    = true;
+   if (! regularize_object_bonds_box.empty()) {
+      if (moving_atoms_asc->n_selected_atoms) {
+	 for (std::size_t i=0; i<atom_pulls.size(); i++) {
+	    // std::cout << "Here with pull number  " << i << " of " << atom_pulls.size() << std::endl;
+	    const atom_pull_info_t &atom_pull = atom_pulls[i];
+	    if (atom_pull.get_status()) {
+	       std::pair<bool, int> spec = atom_pull.find_spec(moving_atoms_asc->atom_selection,
+							       moving_atoms_asc->n_selected_atoms);
+	       if (spec.first) {
+		  clipper::Coord_orth pt_start = coot::co(graphics_info_t::moving_atoms_asc->atom_selection[spec.second]);
+		  clipper::Coord_orth pt_end = atom_pull.pos;
 
-	       if (do_gl_lines) { 
-		  float ll = clipper::Coord_orth::length(pt_start, pt_end);
-		  float dash_density = 8;
-		  int n_dashes = int(dash_density * ll);
-		  n_dashes = 16;
+		  bool do_gl_lines = false;
+		  bool do_arrow    = true;
 
-		  bool visible = true;
-		  glBegin(GL_LINES);
-		  glColor3f(0.3, 1.0, 0.6);
-		  for (int idash=0; idash<(n_dashes-1); idash++) {
-		     if (visible) {
-			float fracs = float(idash)/float(n_dashes);
-			float fracn = float(idash+1)/float(n_dashes);
-			clipper::Coord_orth p1 = pt_start + fracs * (pt_end - pt_start);
-			clipper::Coord_orth p2 = pt_start + fracn * (pt_end - pt_start);
+		  if (do_gl_lines) { 
+		     float ll = clipper::Coord_orth::length(pt_start, pt_end);
+		     float dash_density = 8;
+		     int n_dashes = int(dash_density * ll);
+		     n_dashes = 16;
 
-			glVertex3f(p1.x(), p1.y(), p1.z());
-			glVertex3f(p2.x(), p2.y(), p2.z());
+		     bool visible = true;
+		     glBegin(GL_LINES);
+		     glColor3f(0.3, 1.0, 0.6);
+		     for (int idash=0; idash<(n_dashes-1); idash++) {
+			if (visible) {
+			   float fracs = float(idash)/float(n_dashes);
+			   float fracn = float(idash+1)/float(n_dashes);
+			   clipper::Coord_orth p1 = pt_start + fracs * (pt_end - pt_start);
+			   clipper::Coord_orth p2 = pt_start + fracn * (pt_end - pt_start);
+
+			   glVertex3f(p1.x(), p1.y(), p1.z());
+			   glVertex3f(p2.x(), p2.y(), p2.z());
 	       
+			}
+			visible = !visible;
 		     }
-		     visible = !visible;
+		     glEnd();
 		  }
-		  glEnd();
-	       }
 
-	       if (do_arrow) {
+		  if (do_arrow) {
 
-		  double radius = 0.1;
-		  double fraction_head_size = 0.1;
+		     double radius = 0.1;
+		     double fraction_head_size = 0.1;
 		  
-		  double top =  radius;
-		  double base = radius;
-		  int slices  = 12;
-		  int stacks  = 2;
+		     double top =  radius;
+		     double base = radius;
+		     int slices  = 12;
+		     int stacks  = 2;
 
-		  GLfloat  mat_specular[]  = {0.7, 0.2, 0.7, 0.6};
-		  GLfloat  mat_shininess[] = {15};
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
-		  glEnable(GL_LIGHTING);
-		  glEnable(GL_LIGHT1);
-		  glEnable(GL_LIGHT0); // enabled here
-		  glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
-		  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		     GLfloat  mat_specular[]  = {0.7, 0.2, 0.7, 0.6};
+		     GLfloat  mat_shininess[] = {15};
+		     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+		     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+		     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
+		     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
+		     glEnable(GL_LIGHTING);
+		     glEnable(GL_LIGHT1);
+		     glEnable(GL_LIGHT0); // enabled here
+		     glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
+		     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
    
-		  glPushMatrix();
+		     glPushMatrix();
 	       
-		  clipper::Coord_orth bond_frag = pt_end - pt_start;
-		  double height = sqrt(bond_frag.lengthsq());
+		     clipper::Coord_orth bond_frag = pt_end - pt_start;
+		     double height = sqrt(bond_frag.lengthsq());
 
-		  glTranslatef(pt_start.x(), pt_start.y(), pt_start.z());
+		     glTranslatef(pt_start.x(), pt_start.y(), pt_start.z());
 
-		  double ax;
-		  double rx = 0; 
-		  double ry = 0;
-		  double length = height;
-		  double vz = bond_frag.z();
+		     double ax;
+		     double rx = 0; 
+		     double ry = 0;
+		     double length = height;
+		     double vz = bond_frag.z();
 	 
-		  bool rot_x = false;
-		  if (fabs(vz)>1e-7) {
-		     ax = 180.0/M_PI*acos(vz/length);
-		     if(vz<0.0) ax = -ax;
-		     rx = -bond_frag.y()*vz;
-		     ry = bond_frag.x()*vz;
-		  } else {
-		     double vx = bond_frag.x();
-		     double vy = bond_frag.y();
-		     ax = 180.0/M_PI*acos(vx/length);
-		     if(vy<0) ax = -ax;
-		     rot_x = true;
-		  }
+		     bool rot_x = false;
+		     if (fabs(vz)>1e-7) {
+			ax = 180.0/M_PI*acos(vz/length);
+			if(vz<0.0) ax = -ax;
+			rx = -bond_frag.y()*vz;
+			ry = bond_frag.x()*vz;
+		     } else {
+			double vx = bond_frag.x();
+			double vy = bond_frag.y();
+			ax = 180.0/M_PI*acos(vx/length);
+			if(vy<0) ax = -ax;
+			rot_x = true;
+		     }
 	 
-		  if (rot_x) { 
-		     glRotated(90.0, 0.0, 1.0, 0.0);
-		     glRotated(ax,  -1.0, 0.0, 0.0);
-		  } else {
-		     glRotated(ax, rx, ry, 0.0);
-		  }
-		  // 	    --------
+		     if (rot_x) { 
+			glRotated(90.0, 0.0, 1.0, 0.0);
+			glRotated(ax,  -1.0, 0.0, 0.0);
+		     } else {
+			glRotated(ax, rx, ry, 0.0);
+		     }
+		     // 	    --------
 
-		  GLUquadric* quad_1 = gluNewQuadric();
-		  GLUquadric* quad_2 = gluNewQuadric();
-		  GLUquadric* quad_3 = gluNewQuadric();
+		     GLUquadric* quad_1 = gluNewQuadric();
+		     GLUquadric* quad_2 = gluNewQuadric();
+		     GLUquadric* quad_3 = gluNewQuadric();
    
-		  gluCylinder(quad_1, base, top, height, slices, stacks);
-		  glTranslated(0, 0, height);
-		  gluCylinder(quad_2, 2*base, 0, fraction_head_size * height, slices, stacks);
+		     gluCylinder(quad_1, base, top, height, slices, stacks);
+		     glTranslated(0, 0, height);
+		     gluCylinder(quad_2, 2*base, 0, fraction_head_size * height, slices, stacks);
    
-		  glScalef(1.0, 1.0, -1.0);
-		  gluDisk(quad_3, 0, base, slices, 2);
+		     glScalef(1.0, 1.0, -1.0);
+		     gluDisk(quad_3, 0, base, slices, 2);
 
-		  gluDeleteQuadric(quad_1);
-		  gluDeleteQuadric(quad_2);
-		  gluDeleteQuadric(quad_3);
-		  glPopMatrix();
-		  glDisable(GL_LIGHTING);
+		     gluDeleteQuadric(quad_1);
+		     gluDeleteQuadric(quad_2);
+		     gluDeleteQuadric(quad_3);
+		     glPopMatrix();
+		     glDisable(GL_LIGHTING);
 
-	       } 
-	    } else {
+		  } 
+	       } else {
 
-	       // we don't want to see this (e.g. when we change the sphere
-	       // position and the saved pull atom is not in this region)
+		  // we don't want to see this (e.g. when we change the sphere
+		  // position and the saved pull atom is not in this region)
 	       
-	       // std::cout << "draw_atom_pull_restraint(): failed to find the atom "
-	       // << atom_pull.spec << std::endl;
+		  // std::cout << "draw_atom_pull_restraint(): failed to find the atom "
+		  // << atom_pull.spec << std::endl;
 	       
-	    }
-	 } 
+	       }
+	    } 
+	 }
       }
    }
 }
 
 void
-graphics_info_t::clear_atom_pull_restraint(bool refine_again_flag) {
+graphics_info_t::clear_all_atom_pull_restraints(bool refine_again_flag) {
    if (last_restraints) {
-      last_restraints->clear_atom_pull_restraint();
-      atom_pull.off();
+      last_restraints->clear_all_atom_pull_restraints();
+      all_atom_pulls_off();
+      if (refine_again_flag)
+	 drag_refine_refine_intermediate_atoms();
+   }
+}
+
+// this is not static
+void
+graphics_info_t::clear_atom_pull_restraint(const coot::atom_spec_t &spec, bool refine_again_flag) {
+   if (last_restraints) {
+      last_restraints->clear_atom_pull_restraint(spec);
+      atom_pull_off(spec);
       if (refine_again_flag)
 	 drag_refine_refine_intermediate_atoms();
    }
