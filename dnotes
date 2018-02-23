@@ -7672,7 +7672,6 @@ Thu Aug 18 12:03:32 BST 2016
    RNA building test: coot-download/5fw1.ent
 
 
-
 ---
 Wed 24 Aug 2016 00:54:22 BST
 
@@ -7754,7 +7753,7 @@ Sun 28 May 2017 17:09:21 CDT
 
    2016 paper
 
-   What would you get (clash score deltas) you tried coot for hydrogen
+   What would you get (clash score deltas) if you tried coot for hydrogen
    addition and refinement?
 
 ----
@@ -8048,3 +8047,26 @@ Wed 17 Jan 2018 05:07:31 FKST
   import jupyter_client
   k = jupyter_client.KernelManager()
   k.start_kernel()
+
+---
+Sun 18 Feb 2018 15:24:11 EET
+
+   HTC Vive on Linux:
+
+   https://www.gamingonlinux.com/articles/first-steps-with-openvr-and-the-vive-on-linux.7229
+
+----
+Sun 18 Feb 2018 18:06:29 EET
+
+   For moving single atoms of the moving atoms (for vrcoot), look at
+   graphics_info_t::move_single_atom_of_moving_atoms(int screenx, int screeny)
+
+----
+Tue 20 Feb 2018 23:47:55 EET
+
+   MDFF example:
+ 
+   http://pubs.rsc.org/en/content/articlehtml/2014/fd/c4fd00005f
+
+   Actually, maybe not - needs close reading.
+

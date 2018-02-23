@@ -20,5 +20,10 @@
 
    o refine: make sure we can correctly refine N-terminus amide hydrogen atoms
 
+   o Replace residue -> ADE -> A -> crash
+
+
+   o 4m1m map and 7325 for the map
+
 --------------
 

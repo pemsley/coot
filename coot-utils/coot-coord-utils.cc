@@ -343,13 +343,12 @@ coot::residues_near_residue(mmdb::Residue *res_ref,
 			"*", // elements
 			"*"  // alt loc.
 			);
-      
+
       mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
 
       if (! res_ref)
 	 return close_residues;
-   
-	 
+
       mmdb::PPAtom res_atom_selection = 0;
       int n_res_atoms = 0;
       res_ref->GetAtomTable(res_atom_selection, n_res_atoms);
@@ -385,7 +384,7 @@ coot::residues_near_residue(mmdb::Residue *res_ref,
 			      0, &my_matt, i_contact_group);
 	 
 	    //       std::cout << " Found " << n_contacts  << " contacts " << std::endl;
-	 
+
 	    if (n_contacts > 0) {
 	       if (pscontact) { 
 		  int n_cont_diff = 0; 
@@ -417,8 +416,81 @@ coot::residues_near_residue(mmdb::Residue *res_ref,
 	 mol->DeleteSelection(SelectionHandle);
       }
    }
+
    return close_residues;
 }
+
+std::map<mmdb::Residue *, std::set<mmdb::Residue *> >
+coot::residues_near_residues(const std::vector<std::pair<bool,mmdb::Residue *> > &residues_vec,
+			     mmdb::Manager *mol,
+			     float dist_crit) {
+
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > m;
+
+   if (mol) {
+
+      int SelectionHandle = mol->NewSelection(); // d
+      mol->SelectAtoms(SelectionHandle, 0, "*",
+		       mmdb::ANY_RES, // starting resno, an int
+		       "*", // any insertion code
+		       mmdb::ANY_RES, // ending resno
+		       "*", // ending insertion code
+		       "*", // any residue name
+		       "*", // atom name
+		       "*", // elements
+		       "*"  // alt loc.
+		       );
+
+      mmdb::PPAtom atom_selection = 0;
+      int n_selected_atoms = 0;
+      mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
+
+      mmdb::Contact *pscontact = NULL;
+      int n_contacts;
+      float min_dist = 0.01;
+      long i_contact_group = 1;
+      mmdb::mat44 my_matt;
+      mmdb::SymOps symm;
+      for (int i=0; i<4; i++)
+	 for (int j=0; j<4; j++)
+	    my_matt[i][j] = 0.0;
+      for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
+
+      float radius = dist_crit;
+      // by-pass bug noted below (?)
+      if (min_dist < radius)
+	 min_dist = 0.0;
+      // bypass a bug when the n_contacts is 11m or so, but
+      // pscontact[0] is NULL.  hence crash when we try to get the
+      // residue from that atom index.
+      //
+      if (radius > 0.0) {
+
+	 mol->SeekContacts(atom_selection, n_selected_atoms,
+			   atom_selection, n_selected_atoms,
+			   min_dist, radius, // min, max distances
+			   0,        // seqDist 0 -> in same res also
+			   pscontact, n_contacts,
+			   0, &my_matt, i_contact_group);
+
+	 if (n_contacts > 0) {
+	    if (pscontact) {
+	       for (int i=0; i<n_contacts; i++) {
+		  mmdb::Atom *atom_1 = atom_selection[pscontact[i].id1];
+		  mmdb::Atom *atom_2 = atom_selection[pscontact[i].id2];
+		  mmdb::Residue *key  = atom_1->residue;
+		  mmdb::Residue *data = atom_2->residue;
+		  if (data != key)
+		     m[key].insert(data);
+	       }
+	    }
+	 }
+      }
+      mol->DeleteSelection(SelectionHandle);
+   }
+   return m;
+}
+
 
 std::vector<mmdb::Residue *>
 coot::residues_near_position(const clipper::Coord_orth &pt,
