@@ -19,6 +19,10 @@
 
    o refmac-mult-sharp.sh should be a window in coot
 
+   o Replace residue -> ADE -> A -> crash
+
+   o 4m1m map and 7325 for the map
+
 --------------
 
    o adjust the lights in draw_display_list_objects() ::: 0.5

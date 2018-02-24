@@ -343,13 +343,12 @@ coot::residues_near_residue(mmdb::Residue *res_ref,
 			"*", // elements
 			"*"  // alt loc.
 			);
-      
+
       mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
 
       if (! res_ref)
 	 return close_residues;
-   
-	 
+
       mmdb::PPAtom res_atom_selection = 0;
       int n_res_atoms = 0;
       res_ref->GetAtomTable(res_atom_selection, n_res_atoms);
@@ -385,7 +384,7 @@ coot::residues_near_residue(mmdb::Residue *res_ref,
 			      0, &my_matt, i_contact_group);
 	 
 	    //       std::cout << " Found " << n_contacts  << " contacts " << std::endl;
-	 
+
 	    if (n_contacts > 0) {
 	       if (pscontact) { 
 		  int n_cont_diff = 0; 
@@ -417,8 +416,201 @@ coot::residues_near_residue(mmdb::Residue *res_ref,
 	 mol->DeleteSelection(SelectionHandle);
       }
    }
+
    return close_residues;
 }
+
+// return a map of neighbouring residues, the keys should be in residues_vec
+//
+// Note, it takes some effort to check that the key is or is not in residues_vec, so
+// a faster way still is not to pass residues_vec and get the results for the
+// whole molecule: residues_near_residues(mmdb::Manager *mol, float dist_crit)
+//
+// and then if we want a particular to limit that to a particular set of residues:
+//
+// std::map<mmdb::Residue *, std::set<mmdb::Residue *> >
+// residues_near_residues(std::map<mmdb::Residue *, std::set<mmdb::Residue *> > all_molecule_residue_map,
+//                        std::vector<mmdb::Residue *> limit_residues); // or a vector of pairs with a bool
+// that should be fast.
+//
+std::map<mmdb::Residue *, std::set<mmdb::Residue *> >
+coot::residues_near_residues(const std::vector<std::pair<bool,mmdb::Residue *> > &residues_vec,
+			     mmdb::Manager *mol,
+			     float dist_crit) {
+
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > m;
+
+   if (mol) {
+
+      int SelectionHandle = mol->NewSelection(); // d
+      mol->SelectAtoms(SelectionHandle, 0, "*",
+		       mmdb::ANY_RES, // starting resno, an int
+		       "*", // any insertion code
+		       mmdb::ANY_RES, // ending resno
+		       "*", // ending insertion code
+		       "*", // any residue name
+		       "*", // atom name
+		       "*", // elements
+		       "*"  // alt loc.
+		       );
+
+      mmdb::PPAtom atom_selection = 0;
+      int n_selected_atoms = 0;
+      mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
+
+      mmdb::Contact *pscontact = NULL;
+      int n_contacts;
+      float min_dist = 0.01;
+      long i_contact_group = 1;
+      mmdb::mat44 my_matt;
+      mmdb::SymOps symm;
+      for (int i=0; i<4; i++)
+	 for (int j=0; j<4; j++)
+	    my_matt[i][j] = 0.0;
+      for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
+
+      float radius = dist_crit;
+      // by-pass bug noted below (?)
+      if (min_dist < radius)
+	 min_dist = 0.0;
+      // bypass a bug when the n_contacts is 11m or so, but
+      // pscontact[0] is NULL.  hence crash when we try to get the
+      // residue from that atom index.
+      //
+      if (radius > 0.0) {
+
+	 mol->SeekContacts(atom_selection, n_selected_atoms,
+			   atom_selection, n_selected_atoms,
+			   min_dist, radius, // min, max distances
+			   0,        // seqDist 0 -> in same res also
+			   pscontact, n_contacts,
+			   0, &my_matt, i_contact_group);
+
+	 if (n_contacts > 0) {
+	    if (pscontact) {
+	       for (int i=0; i<n_contacts; i++) {
+		  mmdb::Atom *atom_1 = atom_selection[pscontact[i].id1];
+		  mmdb::Atom *atom_2 = atom_selection[pscontact[i].id2];
+		  mmdb::Residue *key  = atom_1->residue;
+		  mmdb::Residue *data = atom_2->residue;
+		  if (data != key) {
+		     if (m.find(key) != m.end()) {
+			m[key].insert(data);
+		     } else {
+			// make a new key (for residues that are in input vector)
+			bool key_is_in_input_vector = false;
+			for (std::size_t ir=0; ir<residues_vec.size(); ir++) {
+			   if (key == residues_vec[ir].second) {
+			      key_is_in_input_vector;
+			      break;
+			   }
+			}
+			if (key_is_in_input_vector)
+			   m[key].insert(data);
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+      mol->DeleteSelection(SelectionHandle);
+   }
+   return m;
+}
+
+std::map<mmdb::Residue *, std::set<mmdb::Residue *> >
+coot::residues_near_residues(mmdb::Manager *mol, float dist_crit) {
+
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > m;
+
+   if (mol) {
+
+      int SelectionHandle = mol->NewSelection(); // d
+      mol->SelectAtoms(SelectionHandle, 0, "*",
+		       mmdb::ANY_RES, // starting resno, an int
+		       "*", // any insertion code
+		       mmdb::ANY_RES, // ending resno
+		       "*", // ending insertion code
+		       "*", // any residue name
+		       "*", // atom name
+		       "*", // elements
+		       "*"  // alt loc.
+		       );
+
+      mmdb::PPAtom atom_selection = 0;
+      int n_selected_atoms = 0;
+      mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
+
+      mmdb::Contact *pscontact = NULL;
+      int n_contacts;
+      float min_dist = 0.01;
+      long i_contact_group = 1;
+      mmdb::mat44 my_matt;
+      mmdb::SymOps symm;
+      for (int i=0; i<4; i++)
+	 for (int j=0; j<4; j++)
+	    my_matt[i][j] = 0.0;
+      for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
+
+      float radius = dist_crit;
+      // by-pass bug noted below (?)
+      if (min_dist < radius)
+	 min_dist = 0.0;
+      // bypass a bug when the n_contacts is 11m or so, but
+      // pscontact[0] is NULL.  hence crash when we try to get the
+      // residue from that atom index.
+      //
+      if (radius > 0.0) {
+
+	 mol->SeekContacts(atom_selection, n_selected_atoms,
+			   atom_selection, n_selected_atoms,
+			   min_dist, radius, // min, max distances
+			   0,        // seqDist 0 -> in same res also
+			   pscontact, n_contacts,
+			   0, &my_matt, i_contact_group);
+
+	 if (n_contacts > 0) {
+	    if (pscontact) {
+	       for (int i=0; i<n_contacts; i++) {
+		  mmdb::Atom *atom_1 = atom_selection[pscontact[i].id1];
+		  mmdb::Atom *atom_2 = atom_selection[pscontact[i].id2];
+		  mmdb::Residue *key  = atom_1->residue;
+		  mmdb::Residue *data = atom_2->residue;
+		  if (data != key) {
+		     m[key].insert(data);
+		  }
+	       }
+	    }
+	 }
+      }
+      mol->DeleteSelection(SelectionHandle);
+   }
+   return m;
+}
+
+std::map<mmdb::Residue *, std::set<mmdb::Residue *> >
+coot::residues_near_residues_for_residues(const std::map<mmdb::Residue *, std::set<mmdb::Residue *> > &all_molecule_map,
+					  const std::vector<std::pair<bool,mmdb::Residue *> > &limit_to_these_residues_vec) {
+
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > m;
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it_map;
+
+   for(it_map=all_molecule_map.begin(); it_map!=all_molecule_map.end(); it_map++) {
+      mmdb::Residue *r = it_map->first;
+      // boo (not std::find)
+      bool found = false;
+      for (std::size_t i=0; i<limit_to_these_residues_vec.size(); i++) {
+	 if (limit_to_these_residues_vec[i].second == r) {
+	    found = true;
+	    break;
+	 }
+      }
+      if (found)
+	 m[r] = it_map->second;
+   }
+   return m;
+}
+
 
 std::vector<mmdb::Residue *>
 coot::residues_near_position(const clipper::Coord_orth &pt,
@@ -514,12 +706,12 @@ coot::closest_approach(mmdb::Manager *mol,
     int n_res_1_atoms; 
     int n_res_2_atoms;
     mmdb::PPAtom residue_atoms_1 = 0, residue_atoms_2 = 0;
-    double dist_best = 9999999.9;
+    double dist_sqrd_best = 9999999.9;
     bool good_d = 0;
        
     r1->GetAtomTable( residue_atoms_1, n_res_1_atoms);
     r2->GetAtomTable( residue_atoms_2, n_res_2_atoms);
-    for (int i=0; i<n_res_1_atoms; i++) { 
+    for (int i=0; i<n_res_1_atoms; i++) {
        clipper::Coord_orth pt1(residue_atoms_1[i]->x,
 			       residue_atoms_1[i]->y,
 			       residue_atoms_1[i]->z);
@@ -527,16 +719,16 @@ coot::closest_approach(mmdb::Manager *mol,
 	  clipper::Coord_orth pt2(residue_atoms_2[j]->x,
 				  residue_atoms_2[j]->y,
 				  residue_atoms_2[j]->z);
-	  double d = clipper::Coord_orth::length(pt1, pt2);
+	  double d_sqrd = (pt2 - pt1).lengthsq();
 
-	  if (d < dist_best) {
-	     dist_best = d;
-	     good_d = 1;
+	  if (d_sqrd < dist_sqrd_best) {
+	     dist_sqrd_best = d_sqrd;
+	     good_d = true;
 	  }
        }
     }
 
-    return std::pair<bool, float> (good_d, dist_best);
+    return std::pair<bool, float> (good_d, sqrt(dist_sqrd_best));
     
 	  
    // Older, faster method.

@@ -1,4 +1,10 @@
 
+  Release 0.8.9.1
+
+  o FEATURE: Added a function to limit the display radius for models
+
+  o FEATURE: The refinement map is now set before refinement of solutions
+             in ligand fitting
 
 -----
   
