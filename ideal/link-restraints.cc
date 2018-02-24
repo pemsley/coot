@@ -1036,8 +1036,9 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 	       // selects a particular link info. Hmmmm.
 	       // The test should be link_info.is_glycosidic(link_infos[ilink])
 	       //
-	       std::cout << "DEBUG::   find_link_type_complicado() link_infos are glycosidic: "
-			 << link_infos_are_glycosidic_p(link_infos) << std::endl;
+	       if (debug)
+		  std::cout << "DEBUG::   find_link_type_complicado() link_infos are glycosidic: "
+			    << link_infos_are_glycosidic_p(link_infos) << std::endl;
 	    
 	       if (link_infos_are_glycosidic_p(link_infos)) {
 
@@ -1398,11 +1399,19 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 				  << atom_sel[iat]->name << ": :"
 				  << atom_sel[iat]->altLoc << ":" << std::endl;
 
-		     atom_indices_map[atom_sel[iat]->altLoc].push_back(get_asc_index(atom_sel[iat]->name,
-										     atom_sel[iat]->altLoc,
-										     res->seqNum,
-										     res->GetInsCode(),
-										     res->GetChainID()));
+
+		     // Too slow for ribosomes
+		     // atom_indices_map[atom_sel[iat]->altLoc].push_back(get_asc_index(atom_sel[iat]->name,
+		     // atom_sel[iat]->altLoc,
+		     // res->seqNum,
+		     // res->GetInsCode(),
+		     // res->GetChainID()));
+
+		     std::string key(atom_sel[iat]->altLoc);
+		     int idx_t_2 = -1;
+		     atom_sel[iat]->GetUDData(udd_atom_index_handle, idx_t_2);
+		     atom_indices_map[key].push_back(idx_t_2);
+
 		  }
 	       }
 	    }

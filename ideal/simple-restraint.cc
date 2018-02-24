@@ -523,11 +523,21 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
       std::cout << "debug::info in init_from_residue_vec() calling bonded_flanking_residues_by_residue_vector() "
 		<< std::endl;
 
-   bonded_pair_container_t bpc = bonded_flanking_residues_by_residue_vector(geom);
+   float dist_crit = 2.3; // 20170924-PE was 3.0 but this made a horrible link in a tight turn
+                          // (which I suspect is not uncommon) crazy-neighbour-refine-519.pdb
+                          // for EMDB 6224.
+                          // 520 was bonded to 522 in a neighb (3-residue) refine on 519.
+                          // This function is called by init (and (I think) make_restraints)
+                          // init doesn't set bonded_pairs_container (make_restraints does that).
+
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > neighbour_set = residues_near_residues(residues_vec, mol, dist_crit);
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it_map;
+
+   bonded_pair_container_t bpc = bonded_flanking_residues_by_residue_vector(neighbour_set, geom);
 
    // internal variable non_bonded_neighbour_residues is set by this
    // function:
-   set_non_bonded_neighbour_residues_by_residue_vector(bpc, geom);
+   set_non_bonded_neighbour_residues_by_residue_vector(neighbour_set, bpc, geom);
 
    // std::cout << "   DEBUG:: made " << bpc.size() << " bonded flanking pairs " << std::endl;
 
@@ -535,9 +545,8 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    // 
    std::vector<mmdb::Residue *> all_residues;
    std::vector<mmdb::Residue *>::const_iterator it;
-   for (unsigned int i=0; i<residues.size(); i++) {
+   for (unsigned int i=0; i<residues.size(); i++)
       all_residues.push_back(residues[i].second);
-   }
 
    // Include only the fixed residues, because they are the flankers,
    // the other residues are the ones in the passed residues vector.
@@ -2817,7 +2826,81 @@ coot::restraints_container_t::closest_approach(mmdb::Residue *r1, mmdb::Residue 
 } 
 
 
+// 20180224 New-style: Post Weizmann 
+//
+// find residues in the neighbourhood that are not in the refining set
+// and are not already marked as bonded flankers.
+//
+// set the class variable non_bonded_neighbour_residues
+void
+coot::restraints_container_t::set_non_bonded_neighbour_residues_by_residue_vector(const std::map<mmdb::Residue *, std::set<mmdb::Residue *> > &neighbour_set,
+										  const coot::bonded_pair_container_t &bonded_flanking_pairs, const coot::protein_geometry &geom) {
 
+   // non_bonded_neighbour_residues becomes this:
+   //
+   std::vector<mmdb::Residue *> nbr; // non-bonded residues 
+   float dist_crit = 3.0;
+
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it_map;
+
+   // don't iterate like this:
+   // for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
+   // std::vector<mmdb::Residue *> neighbours =
+   // coot::residues_near_residue(residues_vec[ir].second, mol, dist_crit);
+
+   for(it_map=neighbour_set.begin(); it_map!=neighbour_set.end(); it_map++) {
+
+      const std::set<mmdb::Residue *> &neighbours = it_map->second;
+      std::set<mmdb::Residue *>::const_iterator it_set;
+
+      for (it_set=neighbours.begin(); it_set!=neighbours.end(); it_set++) {
+	 mmdb::Residue *test_res = *it_set;
+	 if (std::find(nbr.begin(), nbr.end(), test_res) == nbr.end()) {
+	    // not already there...
+	    bool found = false;
+
+	    if (false) // debug
+	       std::cout << ".... about to compare " << residue_spec_t(test_res) << " to "
+			 << residues_vec.size() << " refining residues " << std::endl;
+	    for (unsigned int ires=0; ires<residues_vec.size(); ires++) {
+	       if (test_res == residues_vec[ires].second) {
+		  found = true;
+		  break;
+	       }
+	    }
+
+	    if (! found) {
+	       // OK, so this neighbour was not in the passed set of
+	       // moving residues (and not already in nbr)... it can
+	       // be a flanking residue then...
+
+	       // check that it is not a bonded flanking residue...
+	       for (unsigned int iflank=0; iflank<bonded_flanking_pairs.size(); iflank++) { 
+		  if (bonded_flanking_pairs[iflank].res_1 == test_res) {
+		     found = 1;
+		     // std::cout << "      oops bonded flanking residue res1 " << std::endl;
+		     break;
+		  } 
+		  if (bonded_flanking_pairs[iflank].res_2 == test_res) {
+		     found = 1;
+		     // std::cout << "   oops bonded flanking residue res2 " << std::endl;
+		     break;
+		  }
+	       }
+
+	       if (! found) {
+		  // std::cout << ".... adding non-bonded neighbour " << residue_spec_t(test_res) << std::endl;
+		  nbr.push_back(test_res);
+	       }
+	    }
+	 }
+      }
+   }
+   non_bonded_neighbour_residues = nbr;
+}
+
+// 20180224 pre-Weizmann
+//
 // find residues in the neighbourhood that are not in the refining set
 // and are not already marked as bonded flankers.
 // 

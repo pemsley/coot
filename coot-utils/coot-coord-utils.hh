@@ -328,6 +328,10 @@ namespace coot {
 										mmdb::Manager *mol,
 										float dist_crit);
 
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > residues_near_residues(mmdb::Manager *mol, float dist_crit);
+
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > residues_near_residues_for_residues(const std::map<mmdb::Residue *, std::set<mmdb::Residue *> > &all_molecule_map, const std::vector<std::pair<bool,mmdb::Residue *> > &limit_to_these_residues_vec);
+   
    std::vector<mmdb::Residue *> residues_near_position(const clipper::Coord_orth &pt,
 						  mmdb::Manager *mol,
 						  double radius);

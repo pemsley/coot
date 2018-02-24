@@ -1390,8 +1390,10 @@ namespace coot {
       bonded_pair_container_t
       bonded_flanking_residues(const protein_geometry &geom) const;
    
-      // new flanking residue search
       bonded_pair_container_t bonded_flanking_residues_by_residue_vector(const protein_geometry &geom) const;
+      // new flanking residue search
+      bonded_pair_container_t bonded_flanking_residues_by_residue_vector(const std::map<mmdb::Residue *, std::set<mmdb::Residue *> > &resm,
+									 const protein_geometry &geom) const;
       // old style linear search (n +/- 1) selection for flanking residues
       bonded_pair_container_t bonded_flanking_residues_by_linear(const protein_geometry &geom) const;
       // find residues in the neighbourhood that are not in the refining set
@@ -1399,9 +1401,14 @@ namespace coot {
       // 
       std::vector<mmdb::Residue *> non_bonded_neighbour_residues;
       // set by this function:
-      void set_non_bonded_neighbour_residues_by_residue_vector(const bonded_pair_container_t &bonded_flanking_pairs, const protein_geometry &geom);
+      // old version 20180224
+      void set_non_bonded_neighbour_residues_by_residue_vector(const bonded_pair_container_t &bonded_flanking_pairs,
+							       const protein_geometry &geom);
+      // new version
+      void set_non_bonded_neighbour_residues_by_residue_vector(const std::map<mmdb::Residue *, std::set<mmdb::Residue *> > &resm,
+							       const bonded_pair_container_t &bonded_flanking_pairs,
+							       const protein_geometry &geom);
 
-      
       int make_flanking_atoms_rama_restraints(const protein_geometry &geom);
 
       // return a container of all the bonded residues (as pairs) from
