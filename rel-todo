@@ -7,9 +7,9 @@
 
    o enter an invalid SMILES into lidia ::: 1
 
-   o adjust the lights in draw_display_list_objects() ::: 0.5
-
    o the half-bonds of a C-S bond (e.g. CYS) doesn't add the correct atom indicies ::: 2
+
+   o long bonds in bonds representation
 
    o when you reject intemediate atoms of a very bumpy solution, then it should delete, or undisplay
      the contact dots of generic display objects
@@ -22,8 +22,14 @@
 
    o Replace residue -> ADE -> A -> crash
 
+   o Make RCrane work again
 
-   o 4m1m map and 7325 for the map
+   o Make Link needs a redraw after link has been made
+
+   o Crash on read thing.map.gz as a map
 
 --------------
 
+   o adjust the lights in draw_display_list_objects() ::: 0.5
+
+* Done
