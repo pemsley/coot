@@ -37,7 +37,8 @@ predict = function() {
       date_s = format(predict_t, format="%d %B %Y")
       t = paste('Projected Release Day:\n', date_s)
       text(50, 190, t, pos=3, cex=0.8)
-      s = 3
+      s = 3 # should depend on xlim 3 is good when xlim is 200
+      s = 1
       rect(X_pred-s, Y_pred_1-s, X_pred+s, Y_pred_1+s, col = 'darkgreen')
       # need list of X values, list of Y values
       # not x,y pairs
@@ -60,18 +61,21 @@ a = read.table('burn-up.tab')
 # png('burn-up.png', res=480, pointsize=8)
 png('burn-up.png')
 
-plot(ylim=c(0,220), xlim=c(0,220), a$V1, a$V2, t='l', lwd=2,
-            main="Coot-0.8.9 Development Progress",
+ylim=50
+xlim=70
+
+plot(ylim=c(0,ylim), xlim=c(0,xlim), a$V1, a$V2, t='l', lwd=2,
+            main="Coot-0.8.9.1 Development Progress",
             xlab="Days (since development start)",
             ylab="Dev Points (aka 'Half-Days')")
 points(a$V1, a$V3, t='l', lwd=2, lty=2)
 
 leg.txt <- c("Done", "Scope")
-legend(180, 30, legend=leg.txt, lty=1:2, lwd=2, cex=0.7)
+legend(50, 8, legend=leg.txt, lty=1:2, lwd=2, cex=0.7)
 
-text(175, 175, labels="CSHL Purge", col='grey', cex=0.7)
+# text(175, 175, labels="CSHL Purge", col='grey', cex=0.7)
 # arrows(160, 180, 118, 200, code=2, cex=0.5)
-betterArrow(160, 180, 118, 200, col='grey', code=2)
+# betterArrow(160, 180, 118, 200, col='grey', code=2)
 
 predict()
 
