@@ -17,13 +17,16 @@
 
    o refine: make sure we can correctly refine N-terminus amide hydrogen atoms ::: 2
 
-   o Replace residue -> ADE -> A -> crash ::: 2
-
    o Make RCrane work again ::: 4
 
    o Make Link needs a redraw after link has been made ::: 0.5
 
-   o Crash on read thing.map.gz as a map ::: 1
+   o Crash on read thing.map.gz as a map.
+
+     Can't reproduce.  Perhaps depends on the map.  I guess that the
+     clipper::CNSMAPfile::open_read() is failing.
+
+     ::: 1
 
    o Also add a counter or a marker that the residue range and the number of
      residues match ::: 2
@@ -68,4 +71,10 @@
 
    o Donna Matzov: can the mutate residue range gui be used for nucleic acids (instead of
      us having to use the scripting window) ::: 0.5
+
+* Done.
+
+   o Replace residue -> ADE -> A -> crash ::: 2
+
+* Done.
 

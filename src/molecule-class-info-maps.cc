@@ -1674,7 +1674,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 			     0.5*c.descr().c());
 	   new_centre.first = true;
 	   new_centre.second = m;
-           std::cout << "INOF:: map appears to be EM map."<< std::endl;
+           std::cout << "INFO:: map appears to be EM map."<< std::endl;
 	}
 	std::cout << "closing CCP4 map: " << filename << std::endl;
 	file.close_read();
@@ -1686,7 +1686,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
      }
      
    } else {
-     std::cout << "attempting to read CNS map: " << filename << std::endl;
+     std::cout << "INFO:: attempting to read CNS map: " << filename << std::endl;
      clipper::CNSMAPfile file;
      file.open_read(filename);
      try {

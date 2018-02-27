@@ -36,7 +36,7 @@ predict = function() {
       predict_t = today_t + days_delta
       date_s = format(predict_t, format="%d %B %Y")
       t = paste('Projected Release Day:\n', date_s)
-      text(50, 190, t, pos=3, cex=0.8)
+      text(50, 20, t, pos=3, cex=0.8)
       s = 3 # should depend on xlim 3 is good when xlim is 200
       s = 1
       rect(X_pred-s, Y_pred_1-s, X_pred+s, Y_pred_1+s, col = 'darkgreen')
