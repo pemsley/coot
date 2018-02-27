@@ -39,7 +39,7 @@
 	    (turn-off-backup imol) 
 
 	    (let f ((ires 0) (seq sequence-list) (baddies 0))
-	      
+
 	      (if (null? seq)
 		  
 		  (format #t "multi-mutate of ~s residues had ~s ~a.\n"
@@ -94,29 +94,34 @@
 ;; 
 (define (mutate-residue-range imol chain-id start-res-no stop-res-no sequence)
 
-  (make-backup imol)
-  
-  (let ((sequence-list (string->list sequence))
-	(n-residues (+ (- stop-res-no start-res-no) 1)))
-    
-    (if (not (= (length sequence-list) n-residues))
-	(format #t "sequence length mismatch: ~s ~s~%"
-		(length sequence-list) n-residues)
-	
-	(begin
-	  (let ((backup-mode (backup-state imol)))
-	    (turn-off-backup imol)
-	    (multi-mutate mutate-single-residue-by-seqno
-			  imol
-			  start-res-no
-			  chain-id
-			  sequence-list)
-	    
-	    (set-have-unsaved-changes imol)
-	    (if (= backup-mode 1)
-		(turn-on-backup imol))
-	    (update-go-to-atom-window-on-changed-mol imol)
-	    (graphics-draw))))))
+  (if (is-nucleotide-chain? imol chain-id)
+      (mutate-nucleotide-range imol chain-id start-res-no stop-res-no sequence)
+
+      ;; protein
+      (begin
+	(make-backup imol)
+
+	(let ((sequence-list (string->list sequence))
+	      (n-residues (+ (- stop-res-no start-res-no) 1)))
+
+	  (if (not (= (length sequence-list) n-residues))
+	      (format #t "sequence length mismatch: ~s ~s~%"
+		      (length sequence-list) n-residues)
+
+	      (begin
+		(let ((backup-mode (backup-state imol)))
+		  (turn-off-backup imol)
+		  (multi-mutate mutate-single-residue-by-seqno
+				imol
+				start-res-no
+				chain-id
+				sequence-list)
+
+		  (set-have-unsaved-changes imol)
+		  (if (= backup-mode 1)
+		      (turn-on-backup imol))
+		  (update-go-to-atom-window-on-changed-mol imol)
+		  (graphics-draw))))))))
 
 
 ;; mutate and auto fit a residue range.
@@ -127,7 +132,7 @@
 ;; 
 (define (mutate-and-autofit-residue-range imol chain-id start-res-no stop-res-no sequence)
 
-  (mutate-residue-range imol chain-id start-res-no stop-res-no sequence)
+  (mutate-residue-range imol chain-id start-res-no stop-res-no sequence) ;; does nucleic acids now too
   (let ((mol-for-map (imol-refinement-map))) 
     
     (if (number? mol-for-map)
@@ -292,9 +297,9 @@
 	(make-backup imol)
 	(let ((backup-mode (backup-state imol))
 	      (imol-map (imol-refinement-map)))
-	  
+
 	  (turn-off-backup imol)
-	  
+
 	  (let ((single-letter-code 
 		 (cond
 		  ((null? type) #\A)
@@ -304,7 +309,7 @@
 		  ((eq? (car type) 'Gly) #\G)
 		  (else 
 		   #\A))))
-	    
+
 	    (map (lambda (chain-id)
 		   (let ((n-residues (chain-n-residues chain-id imol)))
 		     
@@ -334,9 +339,9 @@
 	(make-backup imol)
 	(let ((backup-mode (backup-state imol))
 	      (imol-map (imol-refinement-map)))
-	  
+
 	  (turn-off-backup imol)
-	  
+
 	  (map (lambda (resno)
 		 (delete-residue-sidechain imol chain-id resno "" 0))
 	       (number-list resno-start resno-end))

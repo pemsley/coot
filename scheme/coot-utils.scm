@@ -469,6 +469,14 @@
 (define (shelx-molecule? imol)
   (= (is-shelx-molecule imol) 1))
 
+;; return an int. 0 means no, 1 means yes, -1 on error
+;;
+(define is-protein-chain? is-protein-chain-p)
+
+;; return an int. 0 means no, 1 means yes, -1 on error
+;;
+(define is-nucleotide-chain? is-nucleotide-chain-p)
+
 
 ;;; No! don't define this.  It is misleading.  It can return 0, which
 ;;; is true!  use instead valid-model-molecule?
