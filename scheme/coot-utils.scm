@@ -2320,7 +2320,6 @@
 	    (begin
 	      (format #t "we have dict and model for tlc already~%")
 	      have-tlc-molecule)))))
-      
 
   ;; 
   (define (mutate-it)
@@ -2362,7 +2361,7 @@
 			      ))
 			(accept-regularizement)
 			(set-refinement-immediate-replacement replacement-state))
-		      
+
 		      (set-mol-displayed imol-ligand 0)
 		      (set-mol-active imol-ligand 0)))))))))
 
