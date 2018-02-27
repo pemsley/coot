@@ -501,7 +501,7 @@ coot::residues_near_residues(const std::vector<std::pair<bool,mmdb::Residue *> >
 			bool key_is_in_input_vector = false;
 			for (std::size_t ir=0; ir<residues_vec.size(); ir++) {
 			   if (key == residues_vec[ir].second) {
-			      key_is_in_input_vector;
+			      key_is_in_input_vector = true;
 			      break;
 			   }
 			}
