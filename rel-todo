@@ -9,53 +9,63 @@
 
    o the half-bonds of a C-S bond (e.g. CYS) doesn't add the correct atom indicies ::: 2
 
-   o long bonds in bonds representation
+   o long bonds in bonds representation ::: 2
 
-   o when you reject intemediate atoms of a very bumpy solution, then it should delete, or undisplay
-     the contact dots of generic display objects
+   o reopen LSQ fit - the display says 24 but it chooses 0 for the reference molecule ::: 1
 
-   o reopen LSQ fit - the display says 24 but it chooses 0 for the reference molecule
+   o coot-reduce: Add N-terminus amide Hydrogen atoms ::: 2
 
-   o coot-reduce: Add N-terminus amide Hydrogen atoms
+   o refine: make sure we can correctly refine N-terminus amide hydrogen atoms ::: 2
 
-   o refine: make sure we can correctly refine N-terminus amide hydrogen atoms
+   o Replace residue -> ADE -> A -> crash ::: 2
 
-   o Replace residue -> ADE -> A -> crash
+   o Make RCrane work again ::: 4
 
-   o Make RCrane work again
+   o Make Link needs a redraw after link has been made ::: 0.5
 
-   o Make Link needs a redraw after link has been made
-
-   o Crash on read thing.map.gz as a map
-
-   o Donna Matzov: can the mutate residue range gui be used for nucleic acids (instead of
-     us having to use the scripting window)
+   o Crash on read thing.map.gz as a map ::: 1
 
    o Also add a counter or a marker that the residue range and the number of
-     residues match
+     residues match ::: 2
 
-   o mark_multiple_atoms_as_fixed_py needs a scm version
+   o mark_multiple_atoms_as_fixed_py needs a scm version ::: 0.5
 
-   o read in a PHE, write out an ins = it fails - no cell - but this is not
-     apparent in the gui.
+   o read in a PHE, write out an ins - it fails due to no cell - but this is not
+     apparent in the gui. ::: 1
 
-   o update the symmetry (draw it) after a merge molecule
+     Give me a function so that I can set the cell. ::: 1
 
-   o document how to remove contact dots.
+     Give me a function so that I can set the cell and symmetry from that of another molecule. ::: 1
 
-   o document how to remove additional representations
+   o update the symmetry (draw it) after a merge molecule  ::: 1
+
+   o document how to remove contact dots. ::: 0.5
+
+   o document how to remove additional representations ::: 0.5
 
    o try to flev a residue that doesn't have a dictionary.  Give me a better
      means of seeing that things went wrong or what went wrong
 
      e.g. valence error (if you can manage the setup such a problem).
 
+     ::: 2
+
    o Jiggle Fit: Cut out the A chain from tutorial-modern.  Rotate/translate it for a test
      orientation.  Jiggle-fit this molecule or chain. It gets close. It seems to need a
-     rigid body fit. Does this mean that the top 10 solution optimization is not working?
+     rigid body fit. Does this mean that the top 10 solution optimization is not working? ::: 4
+
 
 --------------
 
    o adjust the lights in draw_display_list_objects() ::: 0.5
 
 * Done
+
+   o when you reject intemediate atoms of a very bumpy solution, then it should delete, or undisplay
+     the contact dots of generic display objects ::: 0.5
+
+* Done.
+
+   o Donna Matzov: can the mutate residue range gui be used for nucleic acids (instead of
+     us having to use the scripting window) ::: 0.5
+
