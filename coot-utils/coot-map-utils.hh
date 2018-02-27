@@ -38,9 +38,13 @@ namespace coot {
    namespace util { 
 
       clipper::RTop_orth make_rtop_orth_from(mmdb::mat44 mat);
-      
+
+      // cubic interpolation
       float density_at_point(const clipper::Xmap<float> &map_in,
 			     const clipper::Coord_orth &co);
+      // linear interpolation (faster) use for jiggle-fit of chains and the like
+      float density_at_point_by_linear_interpolation(const clipper::Xmap<float> &map_in,
+						     const clipper::Coord_orth &co);
 
       float density_at_map_point(const clipper::Xmap<float> &map_in,
 				 const clipper::Coord_map &cg);

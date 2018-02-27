@@ -50,6 +50,10 @@
 
      e.g. valence error (if you can manage the setup such a problem).
 
+   o Jiggle Fit: Cut out the A chain from tutorial-modern.  Rotate/translate it for a test
+     orientation.  Jiggle-fit this molecule or chain. It gets close. It seems to need a
+     rigid body fit. Does this mean that the top 10 solution optimization is not working?
+
 --------------
 
    o adjust the lights in draw_display_list_objects() ::: 0.5

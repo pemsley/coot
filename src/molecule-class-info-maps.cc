@@ -2887,7 +2887,7 @@ float
 molecule_class_info_t::density_at_point(const clipper::Coord_orth &co) const {
 
    if (xmap.is_null()) {
-      std::cout << " returning bogus value from density_at_point: " << std::endl;
+      std::cout << "WARNING:: null map. Returning bogus value from density_at_point()" << std::endl;
       return -1000.0;
    } else {
 
@@ -3082,7 +3082,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
    float (*density_scoring_function)(const coot::minimol::molecule &mol,
 				     const std::vector<std::pair<std::string, int> > &atom_number_list,
-				     const clipper::Xmap<float> &map) = coot::util::z_weighted_density_score;
+				     const clipper::Xmap<float> &map) = coot::util::z_weighted_density_score_linear_interp;
 
    if (use_biased_density_scoring)
       density_scoring_function = coot::util::biased_z_weighted_density_score;
