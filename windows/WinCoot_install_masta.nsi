@@ -407,7 +407,6 @@ Section "!WinCoot" SEC01
   SetOutPath "$INSTDIR\share\coot\data\cho-models"
   File "${src_dir}\share\coot\data\cho-models\*"
   SetOutPath "$INSTDIR\share\coot\data\rama"
-  File "${src_dir}\share\coot\data\rama\*"
   SetOutPath "$INSTDIR\share\coot\data\rama\zo-tables"
   File "${src_dir}\share\coot\data\rama\zo-tables\*"
   ;docs
