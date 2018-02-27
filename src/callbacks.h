@@ -4559,3 +4559,31 @@ void
 on_weight_maxtrix_estimate_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
+
+void
+on_mutate_molecule_resno_1_entry_changed
+                                        (GtkEditable     *editable,
+                                        gpointer         user_data);
+
+void
+on_mutate_molecule_resno_2_entry_changed
+                                        (GtkEditable     *editable,
+                                        gpointer         user_data);
+
+void
+on_mutate_molecule_sequence_text_insert_at_cursor
+                                        (GtkTextView     *textview,
+                                        gchar           *string,
+                                        gpointer         user_data);
+
+gboolean
+on_mutate_molecule_sequence_text_key_release_event
+                                        (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data);
+
+gboolean
+on_mutate_molecule_sequence_text_button_release_event
+                                        (GtkWidget       *widget,
+                                        GdkEventButton  *event,
+                                        gpointer         user_data);

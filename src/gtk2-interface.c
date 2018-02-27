@@ -16255,6 +16255,11 @@ create_mutate_sequence_dialog (void)
   GtkWidget *label186;
   GtkWidget *scrolledwindow12;
   GtkWidget *mutate_molecule_sequence_text;
+  GtkWidget *hbox444;
+  GtkWidget *label808;
+  GtkWidget *mutate_sequence_green_light_image;
+  GtkWidget *mutate_sequence_red_light_image;
+  GtkWidget *mutate_residue_range_counts_label;
   GtkWidget *label187;
   GtkWidget *mutate_sequence_do_autofit_checkbutton;
   GtkWidget *mutate_sequence_use_ramachandran_restraints_checkbutton;
@@ -16277,7 +16282,7 @@ create_mutate_sequence_dialog (void)
   GtkWidget *label417;
 
   mutate_sequence_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (mutate_sequence_dialog), "Mutate sequence");
+  gtk_window_set_title (GTK_WINDOW (mutate_sequence_dialog), "Mutate Residue Range");
   gtk_window_set_type_hint (GTK_WINDOW (mutate_sequence_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox58 = GTK_DIALOG (mutate_sequence_dialog)->vbox;
@@ -16383,6 +16388,28 @@ create_mutate_sequence_dialog (void)
   gtk_widget_set_size_request (mutate_molecule_sequence_text, -1, 70);
   gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (mutate_molecule_sequence_text), GTK_WRAP_WORD);
 
+  hbox444 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox444);
+  gtk_box_pack_start (GTK_BOX (vbox116), hbox444, FALSE, FALSE, 0);
+
+  label808 = gtk_label_new ("Match: ");
+  gtk_widget_show (label808);
+  gtk_box_pack_start (GTK_BOX (hbox444), label808, FALSE, FALSE, 0);
+
+  mutate_sequence_green_light_image = gtk_image_new_from_stock ("gtk-yes", GTK_ICON_SIZE_BUTTON);
+  gtk_box_pack_start (GTK_BOX (hbox444), mutate_sequence_green_light_image, TRUE, TRUE, 0);
+  gtk_misc_set_alignment (GTK_MISC (mutate_sequence_green_light_image), 0, 0.5);
+
+  mutate_sequence_red_light_image = gtk_image_new_from_stock ("gtk-no", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (mutate_sequence_red_light_image);
+  gtk_box_pack_start (GTK_BOX (hbox444), mutate_sequence_red_light_image, TRUE, TRUE, 0);
+  gtk_misc_set_alignment (GTK_MISC (mutate_sequence_red_light_image), 0, 0.5);
+
+  mutate_residue_range_counts_label = gtk_label_new ("Counts: Residue numbers: -: Sequence: -");
+  gtk_widget_show (mutate_residue_range_counts_label);
+  gtk_box_pack_start (GTK_BOX (hbox444), mutate_residue_range_counts_label, FALSE, FALSE, 0);
+  gtk_misc_set_alignment (GTK_MISC (mutate_residue_range_counts_label), 0.02, 0.5);
+
   label187 = gtk_label_new ("");
   gtk_widget_show (label187);
   gtk_box_pack_start (GTK_BOX (vbox116), label187, FALSE, FALSE, 0);
@@ -16468,6 +16495,21 @@ create_mutate_sequence_dialog (void)
   gtk_widget_show (label417);
   gtk_box_pack_start (GTK_BOX (hbox248), label417, FALSE, FALSE, 0);
 
+  g_signal_connect ((gpointer) mutate_molecule_resno_1_entry, "changed",
+                    G_CALLBACK (on_mutate_molecule_resno_1_entry_changed),
+                    NULL);
+  g_signal_connect ((gpointer) mutate_molecule_resno_2_entry, "changed",
+                    G_CALLBACK (on_mutate_molecule_resno_2_entry_changed),
+                    NULL);
+  g_signal_connect ((gpointer) mutate_molecule_sequence_text, "insert_at_cursor",
+                    G_CALLBACK (on_mutate_molecule_sequence_text_insert_at_cursor),
+                    NULL);
+  g_signal_connect ((gpointer) mutate_molecule_sequence_text, "key_release_event",
+                    G_CALLBACK (on_mutate_molecule_sequence_text_key_release_event),
+                    NULL);
+  g_signal_connect ((gpointer) mutate_molecule_sequence_text, "button_release_event",
+                    G_CALLBACK (on_mutate_molecule_sequence_text_button_release_event),
+                    NULL);
   g_signal_connect ((gpointer) mutate_sequence_do_autofit_checkbutton, "toggled",
                     G_CALLBACK (on_mutate_sequence_do_autofit_checkbutton_toggled),
                     NULL);
@@ -16507,6 +16549,11 @@ create_mutate_sequence_dialog (void)
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, label186, "label186");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, scrolledwindow12, "scrolledwindow12");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_molecule_sequence_text, "mutate_molecule_sequence_text");
+  GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, hbox444, "hbox444");
+  GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, label808, "label808");
+  GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_sequence_green_light_image, "mutate_sequence_green_light_image");
+  GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_sequence_red_light_image, "mutate_sequence_red_light_image");
+  GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_residue_range_counts_label, "mutate_residue_range_counts_label");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, label187, "label187");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_sequence_do_autofit_checkbutton, "mutate_sequence_do_autofit_checkbutton");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_sequence_use_ramachandran_restraints_checkbutton, "mutate_sequence_use_ramachandran_restraints_checkbutton");

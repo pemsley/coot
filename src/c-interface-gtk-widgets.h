@@ -792,5 +792,9 @@ void save_refmac_phase_params_to_map(int imol_map,
                                     const char *hlc,
                                     const char *hld);
 
+/* Donna's request to do the counts in the Mutate Residue range dialog */
+void mutate_molecule_dialog_check_counts(GtkWidget *res_no_1_widget, GtkWidget *res_no_2_widget,
+					 GtkWidget *text_widget, GtkWidget *label_widget);
+
 #endif /* C_INTERFACE_GTK_WIDGETS_H */
 END_C_DECLS
