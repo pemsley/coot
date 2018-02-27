@@ -1351,8 +1351,10 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 		     0, // 0: in same residue also?
 		     pscontact, n_contacts,
 		     0, &my_matt, i_contact_group);
-   std::cout << "found " << n_selected_atoms << " selected atoms" << std::endl;
-   std::cout << "found " << n_contacts << " all-atom contacts" << std::endl;
+   if (false) {
+      std::cout << "found " << n_selected_atoms << " selected atoms" << std::endl;
+      std::cout << "found " << n_contacts << " all-atom contacts" << std::endl;
+   }
    if (n_contacts > 0) {
       if (pscontact) {
 	 // which atoms are close to which other atoms?
