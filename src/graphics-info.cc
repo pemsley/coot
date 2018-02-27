@@ -279,9 +279,9 @@ bool
 graphics_info_t::background_is_black_p() const {
 
    bool v = 0;
-   if (background_colour[0] < 0.1)
-      if (background_colour[1] < 0.1)
-	 if (background_colour[2] < 0.1)
+   if (background_colour[0] < 0.3)
+      if (background_colour[1] < 0.3)
+	 if (background_colour[2] < 0.3)
 	    v = 1;
 
    return v;
