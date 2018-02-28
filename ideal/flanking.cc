@@ -359,9 +359,11 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const s
       std::set<mmdb::Residue *>::const_iterator it_set;
       for (it_set=neighbours.begin(); it_set!=neighbours.end(); it_set++) {
 
-	 // std::cout << "base residue " << it->first << " " << residue_spec_t(it->first) << std::endl;
-	 // std::cout << "checking for set member " << *it_set << " " << residue_spec_t(*it_set) << " in "
-	 // << residues_vec.size() << " residue_vec residues " << std::endl;
+	 if (false) {
+	    std::cout << "base residue " << it->first << " " << residue_spec_t(it->first) << std::endl;
+	    std::cout << "checking for set member " << *it_set << " " << residue_spec_t(*it_set) << " in "
+		      << residues_vec.size() << " residue_vec residues " << std::endl;
+	 }
 
 	 bool found = false;
 	 for (unsigned int ires=0; ires<residues_vec.size(); ires++) {

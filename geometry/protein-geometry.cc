@@ -1319,10 +1319,10 @@ coot::operator<<(std::ostream &s, const dict_angle_restraint_t &rest) {
 std::ostream&
 coot::operator<<(std::ostream &s, const coot::dict_torsion_restraint_t &rest) {
    s << "[torsion-restraint: " << rest.id() << " "
-     << rest.atom_id_1_4c() << " "
-     << rest.atom_id_2_4c() <<  " "
-     << rest.atom_id_3_4c() <<  " "
-     << rest.atom_id_4_4c() <<  " "
+     << "\"" << rest.atom_id_1_4c() << "\"" << " "
+     << "\"" << rest.atom_id_2_4c() << "\"" << " "
+     << "\"" << rest.atom_id_3_4c() << "\"" << " "
+     << "\"" << rest.atom_id_4_4c() << "\"" << " "
      << rest.angle() << " " 
      << rest.esd() << " " 
      << rest.periodicity();
@@ -2299,42 +2299,73 @@ coot::protein_geometry::filter_torsion_restraints(const std::vector <coot::dict_
 	    if (r[j].atom_id_3_4c() == a2)
 	       match = true;
       }
-      if (! match)
-	 r.push_back(restraints_in[i]);
+      if (! match) {
+	 const dict_torsion_restraint_t &tr = restraints_in[i];
+	 r.push_back(tr);
+      }
    }
 
 
    // why do we crash (on the mac) in the following sort?
    //
    // for (unsigned int i=0; i<restraints_in.size(); i++)
-   // std::cout << " filter_torsion_restraints(): " << restraints_in[i] << std::endl;
-   //
-   std::sort(r.begin(), r.end(), torsion_restraints_comparer);
+   //    std::cout << " filter_torsion_restraints(): " << restraints_in[i] << std::endl;
+   // 20180227 still crashing.
+   // Because it is running the sort even if r is of length 0? No, not that.
+   // std::cout << " r.size() " << r.size() << std::endl;
+   try {
+      std::sort(r.begin(), r.end(), torsion_restraints_comparer);
+   }
+   catch (const std::bad_alloc &e) {
+      std::cout << "ERROR caught bad alloc when sorting in filter_torsion_restraints()" << std::endl;
+   }
    return r;
 }
 
 // static
 bool
 coot::protein_geometry::torsion_restraints_comparer(const coot::dict_torsion_restraint_t &a, const coot::dict_torsion_restraint_t &b) {
-   
+
 //    const std::string &a2 = a.atom_id_2_4c();
 //    const std::string &a3 = a.atom_id_3_4c();
 //    const std::string &b2 = b.atom_id_2_4c();
 //    const std::string &b3 = b.atom_id_3_4c();
 
-   const std::string &a2 = a.atom_id_2();
-   const std::string &a3 = a.atom_id_3();
-   const std::string &b2 = b.atom_id_2();
-   const std::string &b3 = b.atom_id_3();
+//    const std::string &a2 = a.atom_id_2();
+//    const std::string &a3 = a.atom_id_3();
+//    const std::string &b2 = b.atom_id_2();
+//    const std::string &b3 = b.atom_id_3();
 
-   if (a2 < b2)
+   // we leave these (debugging/test) copies in for now (was testing if reference was the problem
+   // (it wasn't).
+   //
+   std::string a2 = a.atom_id_2();
+   std::string a3 = a.atom_id_3();
+   std::string b2 = b.atom_id_2();
+   std::string b3 = b.atom_id_3();
+
+   if (a2 < b2) {
       return false;
-   else
-      if (a2 > b2)
-	 return true;
-      else
-	 if (a3 < b3)
+   } else {
+      if (a2 > b2) {
+ 	 return true;
+      } else {
+	 // a2 and b2 are equal
+
+	 if (a3 <= b3) { // 20180227-PE changed to <=, stops crash
+
+	    // std::cout << "a3 " << a3 << std::endl;
+	    // std::cout << "b3 " << b3 << std::endl;
+
 	    return false;
+
+	 }
+      }
+   }
+
+   //       else
+   // 	 if (a3 < b3)
+   // 	    return false;
 
    return true;
 }

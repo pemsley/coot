@@ -4326,7 +4326,7 @@ coot::restraints_container_t::symmetry_non_bonded_contacts(bool print_table) {
 	 std::cout << "\n";
       }
    }
-} 
+}
 
 
 // fill the member data filtered_non_bonded_atom_indices
@@ -4603,7 +4603,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 			 << " matched_oxt: " << matched_oxt << std::endl;
 
 	    if (! matched_oxt) {
-	    
+
 	       // In this section, we don't want NCBs within or to fixed
 	       // residues (including the flanking residues), so if both
 	       // atoms are in residues that are not in residue_vec, then
@@ -4922,10 +4922,15 @@ coot::restraints_container_t::add_N_terminal_residue_bonds_and_angles_to_hydroge
    int N_index = -1; // residue-based. -2 is "checked and not here", -1 is "not check"
    int CA_index = -1;  // ditto
 
+   // we need the map to deal with the alt-confs
+   std::map<std::string, int> h1s;
+   std::map<std::string, int> h2s;
+   std::map<std::string, int> h3s;
+
    for (int i=0; i<n_residue_atoms; i++) {
       mmdb::Atom *at = residue_atoms[i];
       std::string atom_name(at->GetAtomName());
-      if (atom_name == " H1 " || atom_name == " H2 " || atom_name == " H3 ") {
+      if (atom_name == " H1 " || atom_name == " H2 " || atom_name == " H3 ") {  // PDBv3 FIXME
 	 if (N_index == -1) // unset
 	    N_index  = get_N_index(residue_p);
 	 if (CA_index == -1)
@@ -4950,9 +4955,56 @@ coot::restraints_container_t::add_N_terminal_residue_bonds_and_angles_to_hydroge
 	       n_bond_restraints++;
 	       rc.n_bond_restraints++;
 	       rc.n_angle_restraints++;
+	       bonded_atom_indices[atom_index_1].push_back(atom_index_2);
+	       bonded_atom_indices[atom_index_2].push_back(atom_index_1);
+	       bonded_atom_indices[atom_index_1].push_back(atom_index_3);
+	       bonded_atom_indices[atom_index_3].push_back(atom_index_1);
 
-	       // are nbcs still being applied between these atoms?
 	    }
+	 }
+
+	 // PDBv3 FIXME
+
+	 // store atoms for inter-hydrogen angle restraints
+	 if (atom_name == " H1 ") {
+	    int ai;
+	    at->GetUDData(udd_atom_index_handle, ai);
+	    h1s[at->altLoc] = ai;
+	 }
+	 if (atom_name == " H2 ") {
+	    int ai;
+	    at->GetUDData(udd_atom_index_handle, ai);
+	    h2s[at->altLoc] = ai;
+	 }
+	 if (atom_name == " H3 ") {
+	    int ai;
+	    at->GetUDData(udd_atom_index_handle, ai);
+	    h3s[at->altLoc] = ai;
+	 }
+      }
+   }
+
+   // Now do the inter-hydrogen angle restraints
+
+   if (N_index >= 0) {
+      std::map<std::string, int>::const_iterator it_1, it_2, it_3;
+      for(it_1=h1s.begin(); it_1!=h1s.end(); it_1++) {
+	 const std::string &key_alt_conf = it_1->first;
+	 it_2 = h2s.find(key_alt_conf);
+	 it_3 = h3s.find(key_alt_conf);
+	 if (it_2 != h2s.end()) {
+	    std::vector<bool> fixed_flags_a12 = make_fixed_flags(it_1->second, N_index, it_2->second);
+	    add(ANGLE_RESTRAINT, it_1->second, N_index, it_2->second, fixed_flags_a12, 109.5, 2.0, 0.0);
+	 }
+
+	 if (it_3 != h3s.end()) {
+	    std::vector<bool> fixed_flags_a13 = make_fixed_flags(it_1->second, N_index, it_3->second);
+	    add(ANGLE_RESTRAINT, it_1->second, N_index, it_3->second, fixed_flags_a13, 109.5, 2.0, 0.0);
+	 }
+
+	 if (it_2 != h2s.end() && it_3 != h3s.end()) {
+	    std::vector<bool> fixed_flags_a23 = make_fixed_flags(it_2->second, N_index, it_3->second);
+	    add(ANGLE_RESTRAINT, it_2->second, N_index, it_3->second, fixed_flags_a23, 109.5, 2.0, 0.0);
 	 }
       }
    }

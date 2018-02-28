@@ -217,6 +217,18 @@ coot::util::density_at_point(const clipper::Xmap<float> &xmap,
    return dv;
 }
 
+//
+float
+coot::util::density_at_point_by_linear_interpolation(const clipper::Xmap<float> &xmap,
+						     const clipper::Coord_orth &pos) {
+
+   float dv;
+   clipper::Coord_frac a_cf = pos.coord_frac(xmap.cell());
+   clipper::Coord_map  a_cm = a_cf.coord_map(xmap.grid_sampling());
+   clipper::Interp_linear::interp(xmap, a_cm, dv);
+   return dv;
+}
+
 void
 coot::util::filter_by_resolution(clipper::HKL_data< clipper::datatypes::F_phi<float> > *fphidata,
 				 const float &reso_low,

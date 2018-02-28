@@ -2186,7 +2186,14 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 glFogf(GL_FOG_END,    fog_end);
 	 // std::cout << "GL_FOG_START " << fog_start << " with far  " << far  << std::endl;
 	 // std::cout << "GL_FOG_END "   << fog_end   << " with near " << near << std::endl;
+      }
 
+      if (false) { // try/test clipping
+	 // I don't understand what I need to do
+	 GLdouble plane[] = { 0.0, 0.0, -1.0, -2.0};
+	 glEnable(GL_CLIP_PLANE0);
+	 glClipPlane(GL_CLIP_PLANE0, plane);
+	 glPopMatrix();
       }
 
       glMatrixMode(GL_MODELVIEW);
@@ -2203,6 +2210,15 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       glTranslatef(-graphics_info_t::RotationCentre_x(),
 		   -graphics_info_t::RotationCentre_y(),
 		   -graphics_info_t::RotationCentre_z());
+
+      if (false) { // try/test clipping
+	 // This does indeed clip the model, but it's in world coordinates,
+	 // not eye coordinates
+	 GLdouble plane[] = { 0.0, 0.0, -1.0, -2.0};
+	 glEnable(GL_CLIP_PLANE0);
+	 glClipPlane(GL_CLIP_PLANE0, plane);
+	 glPopMatrix();
+      }
 
       if (! graphics_info_t::esoteric_depth_cue_flag) { 
       	 coot::Cartesian front = unproject(0.0);
@@ -2404,11 +2420,12 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
          graphics_info_t::Increment_Frames();
       }
 
+
       if (graphics_info_t::display_mode == coot::ZALMAN_STEREO)
 	 glDisable(GL_STENCIL_TEST);
 
       // show_lighting();
-  
+
    } // gtkgl make area current test
 
    gdkglext_finish_frame(widget);

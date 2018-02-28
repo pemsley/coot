@@ -944,8 +944,8 @@ void do_mutate_sequence(GtkWidget *dialog) {
    if ((t > -999) && (t < 9999))
       res2 = t;
 
-// BL says: we should set a flag tha we swapped the direction and swap back
-// before we call fit-gap to actually build backwards!!
+// BL says: we should set a flag that we swapped the direction and swap back
+// before we call fit-gap to actually build backwards
    int swap_flag = 0;
    if (res2 < res1) {
       t = res1;
@@ -966,7 +966,6 @@ void do_mutate_sequence(GtkWidget *dialog) {
 
    if (GTK_TOGGLE_BUTTON(checkbutton)->active)
       autofit_flag = 1;
-      
 
    if (imol>= 0) { // redundant
       if (is_valid_model_molecule(imol)) { 
@@ -975,9 +974,6 @@ void do_mutate_sequence(GtkWidget *dialog) {
 	 GtkWidget *text = lookup_widget(dialog, "mutate_molecule_sequence_text");
 	 char *txt = NULL;
 
-
-	 // std::cout << "Gtk2 text view code... " << std::endl;
-	 // text is a GtkTextView in GTK2
 	 GtkTextView *tv = GTK_TEXT_VIEW(text);
 	 GtkTextBuffer* tb = gtk_text_view_get_buffer(tv);
 	 GtkTextIter startiter;
@@ -985,6 +981,10 @@ void do_mutate_sequence(GtkWidget *dialog) {
 	 gtk_text_buffer_get_iter_at_offset(tb, &startiter, 0);
 	 gtk_text_buffer_get_iter_at_offset(tb, &enditer, -1);
 	 txt = gtk_text_buffer_get_text(tb, &startiter, &enditer, 0);
+
+	 std::string mutate_scripting_function = "mutate-and-autofit-residue-range";
+	 if (! autofit_flag)
+	    mutate_scripting_function = "mutate-residue-range";
 
 	 if (txt) {
 	    std::string sequence(txt);
@@ -1004,7 +1004,8 @@ void do_mutate_sequence(GtkWidget *dialog) {
 	       cmd_strings.push_back(single_quote(sequence));
 	       std::string cmd = g.state_command(cmd_strings, state_lang);
 	       
-// BL says: I believe we should distinguish between python and guile here!?
+// BL says: I believe we should distinguish between python and guile here
+
 #ifdef USE_GUILE
 	       if (state_lang == coot::STATE_SCM) {
 		  safe_scheme_command(cmd);
@@ -1016,6 +1017,7 @@ void do_mutate_sequence(GtkWidget *dialog) {
               }
 #endif // PYTHON
 #endif // GUILE
+
 	      update_go_to_atom_window_on_changed_mol(imol);
 	      g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
 

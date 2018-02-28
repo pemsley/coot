@@ -1670,6 +1670,7 @@ namespace coot {
 			 short int is_fixed_second_res,
 			 const protein_geometry &geom);
       void symmetry_non_bonded_contacts(bool p);
+      // bonded_atom_indices also contain 1-3 atoms of angles
       std::vector<std::vector<int> > bonded_atom_indices;
 
       class reduced_angle_info_container_t {

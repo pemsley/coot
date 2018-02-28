@@ -497,7 +497,7 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 
 	       // assign atom names
 	       if (int(rdkm.getNumAtoms()) < res_ref->GetNumberOfAtoms()) {
-		  std::cout << "oops failure to construct rdkit molecule " << std::endl;
+		  std::cout << "WARNING:: failure to construct rdkit molecule " << std::endl;
 	       } else {
 		  mmdb::PPAtom residue_atoms = 0;
 		  int n_residue_atoms;

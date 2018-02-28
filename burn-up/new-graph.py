@@ -228,7 +228,7 @@ if debug_mode == False:
     ybot = 0
     theme.default_font_size=4
 
-    annotation_box(ar, "The Great CSHL Purge",       80, 90,   2, 12, "lt")
+    # annotation_box(ar, "The Great CSHL Purge",       80, 90,   2, 12, "lt")
 
 
 # take-home:

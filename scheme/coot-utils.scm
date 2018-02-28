@@ -386,6 +386,10 @@
       #f
       (car (cadr ra))))
 
+;; residue-info atom needs other parameters to make a spec for an atom
+(define (residue-atom->atom-spec ra chain-id res-no ins-code)
+  (list chain-id res-no ins-code (residue-atom->atom-name ra) (residue-atom->alt-conf ra)))
+
 ;; residue spec (e.g. from residue-near-residue)
 (define (residue-spec->chain-id rs)
   (if (not (list? rs))
@@ -404,7 +408,6 @@
 	  (if (= (length rs) 4)
 	      (list-ref rs 2)
 	      #f))))
-	  
 
 (define (residue-spec->ins-code rs)
   (if (not (list? rs))
@@ -465,6 +468,14 @@
 ;; 
 (define (shelx-molecule? imol)
   (= (is-shelx-molecule imol) 1))
+
+;; return an int. 0 means no, 1 means yes, -1 on error
+;;
+(define is-protein-chain? is-protein-chain-p)
+
+;; return an int. 0 means no, 1 means yes, -1 on error
+;;
+(define is-nucleotide-chain? is-nucleotide-chain-p)
 
 
 ;;; No! don't define this.  It is misleading.  It can return 0, which
@@ -1690,9 +1701,9 @@
 
 
 ;; Return a list of 3 float for the centre of mas of molecule number imol.
-;; 
+;;
 ;; on faiure return #f.
-;;  
+;;
 (define (centre-of-mass imol)
 
   (let ((centre (centre-of-mass-string imol)))
@@ -2309,7 +2320,6 @@
 	    (begin
 	      (format #t "we have dict and model for tlc already~%")
 	      have-tlc-molecule)))))
-      
 
   ;; 
   (define (mutate-it)
@@ -2351,7 +2361,7 @@
 			      ))
 			(accept-regularizement)
 			(set-refinement-immediate-replacement replacement-state))
-		      
+
 		      (set-mol-displayed imol-ligand 0)
 		      (set-mol-active imol-ligand 0)))))))))
 

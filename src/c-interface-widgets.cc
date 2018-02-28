@@ -282,3 +282,90 @@ void clear_generic_objects_dialog_pointer() {
    graphics_info_t g;
    g.generic_objects_dialog = NULL;
 } 
+
+/* Donna's request to do the counts in the Mutate Residue range dialog */
+void mutate_molecule_dialog_check_counts(GtkWidget *res_no_1_widget, GtkWidget *res_no_2_widget,
+					 GtkWidget *text_widget, GtkWidget *label_widget) {
+
+   if (false) {
+      std::cout << "res_no_1_widget " << res_no_1_widget << std::endl;
+      std::cout << "res_no_2_widget " << res_no_2_widget << std::endl;
+      std::cout << "text_widget " << text_widget << std::endl;
+      std::cout << "label_widget " << label_widget << std::endl;
+   }
+   if (res_no_1_widget && res_no_2_widget) {
+      if (text_widget && label_widget) {
+	 std::string rn_1_str = gtk_entry_get_text(GTK_ENTRY(res_no_1_widget));
+	 std::string rn_2_str = gtk_entry_get_text(GTK_ENTRY(res_no_2_widget));
+	 GtkTextBuffer* tb = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_widget));
+	 GtkTextIter startiter;
+	 GtkTextIter enditer;
+	 char *txt = NULL;
+	 gtk_text_buffer_get_iter_at_offset(tb, &startiter, 0);
+	 gtk_text_buffer_get_iter_at_offset(tb, &enditer, -1);
+	 txt = gtk_text_buffer_get_text(tb, &startiter, &enditer, 0);
+
+	 // if (txt) {
+	 if (true) {
+	    std::string sequence_str(txt);
+
+	    try {
+
+	       int t1_int = coot::util::string_to_int(rn_1_str);
+	       int t2_int = coot::util::string_to_int(rn_2_str);
+	       int counts = t2_int - t1_int;
+	       int res_no_counts = counts + 1;
+
+	       std::string res_no_diff_count_str("-");
+	       std::string sequence_count_str("-");
+
+	       if (counts >= 0)
+		  res_no_diff_count_str = coot::util::int_to_string(res_no_counts);
+
+	       int sequence_count = 0;
+	       for (std::size_t i=0; i<sequence_str.size(); i++) {
+		  char c = sequence_str[i];
+		  if (c >= 'a' && c <= 'z') sequence_count++;
+		  if (c >= 'A' && c <= 'Z') sequence_count++;
+	       }
+	       // std::cout << "debug:: sequence_str " << sequence_str << " gives sequence_count " << sequence_count << std::endl;
+	       if (sequence_count > 0)
+		  sequence_count_str = coot::util::int_to_string(sequence_count);
+
+	       std::string label = "Counts: Residues ";
+	       label += res_no_diff_count_str;
+	       label += " Sequence: ";
+	       label += sequence_count_str;
+
+	       GtkWidget *red_light_widget   = lookup_widget(res_no_1_widget, "mutate_sequence_red_light_image");
+	       GtkWidget *green_light_widget = lookup_widget(res_no_1_widget, "mutate_sequence_green_light_image");
+	       bool show_green_light = false;
+	       if (res_no_counts >= 1) {
+		  if (sequence_count >= 1) {
+		     if (res_no_counts == sequence_count) {
+			label += " counts match";
+			show_green_light = true;
+		     }
+		  }
+	       }
+
+	       if (show_green_light) {
+		  gtk_widget_hide(red_light_widget);
+		  gtk_widget_show(green_light_widget);
+	       } else {
+		  gtk_widget_show(red_light_widget);
+		  gtk_widget_hide(green_light_widget);
+	       }
+
+	       gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
+
+	    }
+	    catch (const std::runtime_error &rte) {
+
+	    }
+	 } else {
+	    std::cout << "Null text" << std::endl;
+	 }
+      }
+   }
+}

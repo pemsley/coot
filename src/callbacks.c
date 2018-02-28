@@ -12582,3 +12582,79 @@ on_weight_maxtrix_estimate_button_clicked
 
 }
 
+
+void
+on_mutate_molecule_resno_1_entry_changed
+                                        (GtkEditable     *editable,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *res_no_1_widget = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_resno_1_entry");
+  GtkWidget *res_no_2_widget = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_resno_2_entry");
+  GtkWidget *text_widget     = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_sequence_text");
+  GtkWidget *label_widget    = lookup_widget(GTK_WIDGET(editable), "mutate_residue_range_counts_label");
+  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+
+}
+
+
+void
+on_mutate_molecule_resno_2_entry_changed
+                                        (GtkEditable     *editable,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *res_no_1_widget = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_resno_1_entry");
+  GtkWidget *res_no_2_widget = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_resno_2_entry");
+  GtkWidget *text_widget     = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_sequence_text");
+  GtkWidget *label_widget    = lookup_widget(GTK_WIDGET(editable), "mutate_residue_range_counts_label");
+  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+}
+
+
+void
+on_mutate_molecule_sequence_text_insert_at_cursor
+                                        (GtkTextView     *textview,
+                                        gchar           *string,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *res_no_1_widget = lookup_widget(GTK_WIDGET(textview), "mutate_molecule_resno_1_entry");
+  GtkWidget *res_no_2_widget = lookup_widget(GTK_WIDGET(textview), "mutate_molecule_resno_2_entry");
+  GtkWidget *text_widget     = lookup_widget(GTK_WIDGET(textview), "mutate_molecule_sequence_text");
+  GtkWidget *label_widget    = lookup_widget(GTK_WIDGET(textview), "mutate_residue_range_counts_label");
+  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+}
+
+
+gboolean
+on_mutate_molecule_sequence_text_key_release_event
+                                        (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *res_no_1_widget = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_resno_1_entry");
+  GtkWidget *res_no_2_widget = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_resno_2_entry");
+  GtkWidget *text_widget     = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_sequence_text");
+  GtkWidget *label_widget    = lookup_widget(GTK_WIDGET(widget), "mutate_residue_range_counts_label");
+  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+  return FALSE;
+}
+
+
+gboolean
+on_mutate_molecule_sequence_text_button_release_event
+                                        (GtkWidget       *widget,
+                                        GdkEventButton  *event,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *res_no_1_widget = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_resno_1_entry");
+  GtkWidget *res_no_2_widget = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_resno_2_entry");
+  GtkWidget *text_widget     = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_sequence_text");
+  GtkWidget *label_widget    = lookup_widget(GTK_WIDGET(widget), "mutate_residue_range_counts_label");
+  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+  return FALSE;
+}
+

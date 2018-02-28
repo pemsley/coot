@@ -32521,7 +32521,7 @@ into Molecule:
 
 <widget class="GtkDialog" id="mutate_sequence_dialog">
   <property name="visible">True</property>
-  <property name="title" translatable="yes">Mutate sequence</property>
+  <property name="title" translatable="yes">Mutate Residue Range</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
   <property name="modal">False</property>
@@ -32952,6 +32952,7 @@ into Molecule:
 		      <property name="has_frame">True</property>
 		      <property name="invisible_char">*</property>
 		      <property name="activates_default">False</property>
+		      <signal name="changed" handler="on_mutate_molecule_resno_1_entry_changed" last_modification_time="Tue, 27 Feb 2018 15:40:53 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -32996,6 +32997,7 @@ into Molecule:
 		      <property name="has_frame">True</property>
 		      <property name="invisible_char">*</property>
 		      <property name="activates_default">False</property>
+		      <signal name="changed" handler="on_mutate_molecule_resno_2_entry_changed" last_modification_time="Tue, 27 Feb 2018 15:41:06 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -33170,6 +33172,9 @@ search (this may not work well)</property>
 		      <property name="right_margin">0</property>
 		      <property name="indent">0</property>
 		      <property name="text" translatable="yes"></property>
+		      <signal name="insert_at_cursor" handler="on_mutate_molecule_sequence_text_insert_at_cursor" last_modification_time="Tue, 27 Feb 2018 15:43:12 GMT"/>
+		      <signal name="key_release_event" handler="on_mutate_molecule_sequence_text_key_release_event" last_modification_time="Tue, 27 Feb 2018 16:25:46 GMT"/>
+		      <signal name="button_release_event" handler="on_mutate_molecule_sequence_text_button_release_event" last_modification_time="Tue, 27 Feb 2018 16:26:13 GMT"/>
 		    </widget>
 		  </child>
 		</widget>
@@ -33177,6 +33182,102 @@ search (this may not work well)</property>
 		  <property name="padding">0</property>
 		  <property name="expand">True</property>
 		  <property name="fill">True</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkHBox" id="hbox444">
+		  <property name="visible">True</property>
+		  <property name="homogeneous">False</property>
+		  <property name="spacing">0</property>
+
+		  <child>
+		    <widget class="GtkLabel" id="label808">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Match: </property>
+		      <property name="use_underline">False</property>
+		      <property name="use_markup">False</property>
+		      <property name="justify">GTK_JUSTIFY_LEFT</property>
+		      <property name="wrap">False</property>
+		      <property name="selectable">False</property>
+		      <property name="xalign">0.5</property>
+		      <property name="yalign">0.5</property>
+		      <property name="xpad">0</property>
+		      <property name="ypad">0</property>
+		      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		      <property name="width_chars">-1</property>
+		      <property name="single_line_mode">False</property>
+		      <property name="angle">0</property>
+		    </widget>
+		    <packing>
+		      <property name="padding">0</property>
+		      <property name="expand">False</property>
+		      <property name="fill">False</property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkImage" id="mutate_sequence_green_light_image">
+		      <property name="stock">gtk-yes</property>
+		      <property name="icon_size">4</property>
+		      <property name="xalign">0</property>
+		      <property name="yalign">0.5</property>
+		      <property name="xpad">0</property>
+		      <property name="ypad">0</property>
+		    </widget>
+		    <packing>
+		      <property name="padding">0</property>
+		      <property name="expand">True</property>
+		      <property name="fill">True</property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkImage" id="mutate_sequence_red_light_image">
+		      <property name="visible">True</property>
+		      <property name="stock">gtk-no</property>
+		      <property name="icon_size">4</property>
+		      <property name="xalign">0</property>
+		      <property name="yalign">0.5</property>
+		      <property name="xpad">0</property>
+		      <property name="ypad">0</property>
+		    </widget>
+		    <packing>
+		      <property name="padding">0</property>
+		      <property name="expand">True</property>
+		      <property name="fill">True</property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkLabel" id="mutate_residue_range_counts_label">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Counts: Residue numbers: -: Sequence: -</property>
+		      <property name="use_underline">False</property>
+		      <property name="use_markup">False</property>
+		      <property name="justify">GTK_JUSTIFY_LEFT</property>
+		      <property name="wrap">False</property>
+		      <property name="selectable">False</property>
+		      <property name="xalign">0.019999999553</property>
+		      <property name="yalign">0.5</property>
+		      <property name="xpad">0</property>
+		      <property name="ypad">0</property>
+		      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		      <property name="width_chars">-1</property>
+		      <property name="single_line_mode">False</property>
+		      <property name="angle">0</property>
+		    </widget>
+		    <packing>
+		      <property name="padding">0</property>
+		      <property name="expand">False</property>
+		      <property name="fill">False</property>
+		    </packing>
+		  </child>
+		</widget>
+		<packing>
+		  <property name="padding">0</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
 		</packing>
 	      </child>
 
