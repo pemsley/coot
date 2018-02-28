@@ -65,7 +65,7 @@ ylim=50
 xlim=70
 
 plot(ylim=c(0,ylim), xlim=c(0,xlim), a$V1, a$V2, t='l', lwd=2,
-            main="Coot-0.8.9.1 Development Progress",
+            main="Coot-0.8.9.1 Bug-Fix Development Progress",
             xlab="Days (since development start)",
             ylab="Dev Points (aka 'Half-Days')")
 points(a$V1, a$V3, t='l', lwd=2, lty=2)

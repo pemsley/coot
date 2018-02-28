@@ -1758,7 +1758,6 @@ coot::restraints_container_t::make_restraints(int imol,
 	 make_strand_pseudo_bond_restraints();
       }
 
-
       if (restraints_usage_flag & coot::NON_BONDED_MASK) {
 	 if ((iret_prev > 0) || are_all_one_atom_residues) {
 	    reduced_angle_info_container_t ai(restraints_vec);
@@ -4051,6 +4050,14 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
       }
    }
 
+   if (false) { // debug - how many bonded atoms are we talking about here?
+      int n = 0;
+      for (int iat=0; iat<n_atoms; iat++) {
+	 n += bonded_atom_indices[iat].size();
+      }
+      std::cout << "DEBUG:: " << n << " bonded atom pairs to check " << std::endl;
+   }
+
    // now add NBC restraints between atoms that are moving and atoms
    // of the neighbour residues.
    // 
@@ -4088,9 +4095,9 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 			   bpc.match_info(bonded_atom_residue, other_atom_residue);
 
 			if (! mi.state) {
-		      
+
 			   // Simple part, the residues were not bonded to each other.
-		     
+
 			   if (! is_member_p(bonded_atom_indices[iat], jat)) {
 			
 			      // atom j is not bonded to atom i, is it close? (i.e. within dist_crit?)

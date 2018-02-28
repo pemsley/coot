@@ -24,6 +24,8 @@
 
    o mark_multiple_atoms_as_fixed_py needs a scm version ::: 0.5
 
+   o refmac-multi-sharp.sh should be a window in coot
+
    o read in a PHE, write out an ins - it fails due to no cell - but this is not
      apparent in the gui. ::: 1
 
@@ -47,6 +49,8 @@
    o Jiggle Fit: Cut out the A chain from tutorial-modern.  Rotate/translate it for a test
      orientation.  Jiggle-fit this molecule or chain. It gets close. It seems to need a
      rigid body fit. Does this mean that the top 10 solution optimization is not working? ::: 4
+
+   o Fun: make an auto-ncs-jump function: Use 3whe (for example)
 
 
 --------------
