@@ -2269,26 +2269,29 @@ coot::restraints_container_t::make_restraints(int imol,
 
    restraints_usage_flag = flags_in; // also set in minimize() and geometric_distortions()
 
-   restraints_usage_flag = BONDS_ANGLES_AND_CHIRALS; // looks good
+   if (false) { // debugging, by forcing the restraints type
 
-   restraints_usage_flag = BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS; // looks good!
+      restraints_usage_flag = BONDS_ANGLES_AND_CHIRALS; // looks good
 
-   restraints_usage_flag = BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS;
+      restraints_usage_flag = BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS; // looks good!
 
-   // trans peptide dfs look fine, perhaps the presence of trans peptide restraints
-   // make other restraints go bad?
+      restraints_usage_flag = BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS;
 
-   // perhaps it's the chirals?
-   // Hmm! seems plausible
-   // restraints_usage_flag = BONDS_ANGLES_PLANES_NON_BONDED_AND_TRANS_PEPTIDE_RESTRAINTS;
-   //
-   restraints_usage_flag = BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS;
+      // trans peptide dfs look fine, perhaps the presence of trans peptide restraints
+      // make other restraints go bad?
 
-   // restraints_usage_flag = GEMAN_MCCLURE_DISTANCE_RESTRAINTS;
-   // restraints_usage_flag = NO_GEOMETRY_RESTRAINTS;
+      // perhaps it's the chirals?
+      // Hmm! seems plausible
+      // restraints_usage_flag = BONDS_ANGLES_PLANES_NON_BONDED_AND_TRANS_PEPTIDE_RESTRAINTS;
+      //
+      restraints_usage_flag = BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS;
 
-   // restraints_usage_flag = BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-   // restraints_usage_flag = BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS;
+      // restraints_usage_flag = GEMAN_MCCLURE_DISTANCE_RESTRAINTS;
+      // restraints_usage_flag = NO_GEOMETRY_RESTRAINTS;
+
+      // restraints_usage_flag = BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+      // restraints_usage_flag = BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS;
+   }
 
    if (n_atoms) {
 
@@ -4681,9 +4684,9 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 			   bpc.match_info(bonded_atom_residue, other_atom_residue);
 
 			if (! mi.state) {
-		      
+
 			   // Simple part, the residues were not bonded to each other.
-		     
+
 			   if (! is_member_p(bonded_atom_indices[iat], jat)) {
 			
 			      // atom j is not bonded to atom i, is it close? (i.e. within dist_crit?)
@@ -4871,7 +4874,7 @@ coot::restraints_container_t::is_a_moving_residue_p(mmdb::Residue *r) const {
       if (residues_vec[i].second == r) {
 	 ret = 1;
 	 break;
-      } 
+      }
    }
    return ret;
 }

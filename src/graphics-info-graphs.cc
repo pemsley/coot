@@ -672,7 +672,8 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
 	       
 		  // 	       if (do_peptide_torsion_restraints)
 		  // 		  do_link_torsions = 1;
-	       
+
+		  std::cout << "---------------------- geometric_distortions_from_mol() flags: " << flags << std::endl;
 		  coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 		  bool do_trans_peptide_restraints = false;
 		  int nrestraints = 
