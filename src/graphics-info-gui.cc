@@ -1209,6 +1209,7 @@ graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
       graphics_info_t g;
       g.check_and_warn_inverted_chirals_and_cis_peptides();
 
+      std::cout << "Removing idle function " << graphics_info_t::drag_refine_idle_function_token << std::endl;
       gtk_idle_remove(graphics_info_t::drag_refine_idle_function_token);
       graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
    } 
@@ -1229,6 +1230,8 @@ graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
 void
 graphics_info_t::add_drag_refine_idle_function() {
 
+   std::cout << "called add_drag_refine_idle_function() " << std::endl;
+
    // add a idle function if there isn't one in operation already.
    graphics_info_t g;
    if (g.drag_refine_idle_function_token == -1) {
@@ -1237,7 +1240,16 @@ graphics_info_t::add_drag_refine_idle_function() {
       T0 = glutGet(GLUT_ELAPSED_TIME);
       print_initial_chi_squareds_flag = 1;
    }
-} 
+}
+
+// static
+void
+graphics_info_t::remove_drag_refine_idle_function() {
+
+   gtk_idle_remove(graphics_info_t::drag_refine_idle_function_token);
+   graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
+}
+
 
 
 // --------------------------------------------------------------------------------

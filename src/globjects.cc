@@ -3172,6 +3172,9 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       // std::cout << "GDK_Escape pressed" << std::endl;
 
       clear_up_moving_atoms();
+
+      // stop the refinement
+      graphics_info_t::remove_drag_refine_idle_function();
       
       if (graphics_info_t::accept_reject_dialog) {
 	 if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {

@@ -624,6 +624,10 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
          }
       }
 
+      // ---------------------------------------------------------------------
+      //  refinement loop
+      // ---------------------------------------------------------------------
+
       while ((step_count < step_count_lim) && continue_flag) {
 
 	 if (false)
@@ -640,6 +644,10 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
 	    continue_flag = false;
 	    rr = graphics_info_t::saved_dragged_refinement_results;
 	 }
+	 if (retval == -1) { // no restrainst, because the user pressed Esc
+	    continue_flag = false;
+	    rr = graphics_info_t::saved_dragged_refinement_results;
+	 }
       }
 
       // if we reach here with continue_flag == 1, then we
@@ -651,7 +659,7 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
 	 rr = graphics_info_t::saved_dragged_refinement_results;
 	 rr.info = "Time's up...";
       }
-      
+
    } else { 
       if (use_graphics_interface_flag) {
 
@@ -857,6 +865,8 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 		  last_restraints->set_do_numerical_gradients();
 
 	       std::string dummy_chain = ""; // not used
+
+	       std::cout << "calling update_refinement_atoms() "  << std::endl;
 		   
 	       rr = update_refinement_atoms(n_restraints, last_restraints, rr, local_moving_atoms_asc,
 					    0, imol, dummy_chain);
