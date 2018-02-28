@@ -13,13 +13,7 @@
 
    o reopen LSQ fit - the display says 24 but it chooses 0 for the reference molecule ::: 1
 
-   o coot-reduce: Add N-terminus amide Hydrogen atoms ::: 2
-
-   o refine: make sure we can correctly refine N-terminus amide hydrogen atoms ::: 2
-
    o Make RCrane work again ::: 4
-
-   o Make Link needs a redraw after link has been made ::: 0.5
 
    o Crash on read thing.map.gz as a map.
 
@@ -27,9 +21,6 @@
      clipper::CNSMAPfile::open_read() is failing.
 
      ::: 1
-
-   o Also add a counter or a marker that the residue range and the number of
-     residues match ::: 2
 
    o mark_multiple_atoms_as_fixed_py needs a scm version ::: 0.5
 
@@ -70,7 +61,13 @@
 * Done.
 
    o Donna Matzov: can the mutate residue range gui be used for nucleic acids (instead of
-     us having to use the scripting window) ::: 0.5
+     us having to use the scripting window)?
+
+* Yes. Donna, Christmas came early this year ;-) I also changed the dialog to show when there
+   was a sequence number match. ::: 1.5
+
+   o Also add a counter or a marker that the residue range and the number of
+     residues match ::: 2
 
 * Done.
 
@@ -78,3 +75,14 @@
 
 * Done.
 
+   o Make Link needs a redraw after link has been made ::: 0.5
+
+* Seems OK (now?)
+
+   o coot-reduce: Add N-terminus amide Hydrogen atoms ::: 2
+
+* Done.
+
+   o refine: make sure we can correctly refine N-terminus amide hydrogen atoms ::: 2
+
+* Done.
