@@ -1315,7 +1315,6 @@ graphics_info_t::remove_drag_refine_idle_function() {
    graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
 }
 
->>>>>>> master
 
 
 // --------------------------------------------------------------------------------
