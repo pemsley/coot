@@ -32,14 +32,20 @@ class compare_types:
         if check_coot_amber_type == ref_type:
             return match_type.MATCH
         if not check_coot_amber_type in Cs:
-            return match.UNKNOWN
+            return match_type.UNKNOWN
         rank_c_forward  = self.get_rank(check_coot_amber_type, Cs)
         rank_r_forward  = self.get_rank(ref_type, Cs)
         rank_c_backward = self.get_rank(check_coot_amber_type, Cs, reverse_search=True)
         rank_r_backward = self.get_rank(ref_type, Cs, reverse_search=True)
-        s = "{} and {} in {} "
+        name = "####"
+        try:
+            name = self.atom.GetProp('name')
+        except 'green' as e:
+            print('no name for {}'.format(self.atom))
+        s = "{}: {} should be {} in {} "
         s += "rank_c_forward {} rank_r_forward {} rank_c_backward {} rank_r_backward {}"
-        print(s.format(check_coot_amber_type, ref_type, Cs, rank_c_forward, rank_r_forward, rank_c_backward, rank_r_backward))
+        if self.debug_output:
+           print(s.format(name, check_coot_amber_type, ref_type, Cs, rank_c_forward, rank_r_forward, rank_c_backward, rank_r_backward))
         if rank_c_forward < rank_r_forward:
             if rank_c_backward < rank_r_backward:
                 return match_type.ABOVE
@@ -99,45 +105,51 @@ class compare_types:
            return match_type.MATCH
        ele = ref_type[0];
        if ele == 'C':
-           r = self.check(self.Cs)
+           r = self.check(check_coot_amber_type, ref_type, self.Cs)
            return r
        else:
            if ele == 'N':
-               r = self.check(self.Ns)
+               r = self.check(check_coot_amber_type, ref_type, self.Ns)
                return r
            else:
 	       if ele == 'O':
-		   r = self.check(self.Ns)
+		   r = self.check(check_coot_amber_type, ref_type, self.Os)
 		   return r
 	       else:
 		   if ele == 'S':
-		       r = self.check(self.Ns)
+		       r = self.check(check_coot_amber_type, ref_type, self.Ss)
 		       return r
 		   else:
 		       return match_type.WRONG_ELEMENT # unknown element
 
 
-    def __init__(self):
+    def __init__(self, atom_in, debug_output=False):
 
+       self.debug_output = False
+       if debug_output:
+           self.debug_output = True
+       self.atom = atom_in
        self.Cs = ['CB', 'CR', 'CB', 'CW', 'CC', 'CR', 'CW', 'CC', 'CR', 'C', 'CP', 'C',
-           'CR', 'CB', 'C*', 'CA', 'CM', 'C2', 'CJ', 'CT']
+                  'CR', 'CB', 'C*', 'CA', 'CM', 'C2', 'CJ', 'CT']
        self.Ns = ['NB', 'NJ', 'NL', 'N3',  'N3', 'NC', 'N2', 'NB', 'N', 'N2', 'N',
-          'NA', 'N3', 'ND', "N2", "N", "N*", "N3", "Nu"]
+                  'NA', 'N3', 'ND', "N2", "N", "N*", "N3", "Nu"]
        self.Os = ['OW', 'OH', 'OS', 'O2', 'OS', 'O2', 'O', 'Ou']
        self.Ss = ['SH', 'S', 'SO', 'SD', 'Su']
 
        # self.test_compare_2()
 
-def get_amber_types(m, mol_idx, ref_types=None, check_2_chars_only=True, make_dictionaries=False):
+def get_parmfrosst_types(m, mol_idx, ref_types=None, check_2_chars_only=True, make_dictionaries=False):
     Chem.AllChem.ComputeGasteigerCharges(m)
     names = pyrogen.add_atom_names(m)
     atom_types.set_atom_types(m)
     atom_types.set_parmfrosst_atom_types(m)
     aa_types=[]
-    cif_file_name = "test-pyrogen-"+str(mol_idx)+'.cif'
+
     if make_dictionaries:
+       cif_file_name = "test-pyrogen-"+str(mol_idx)+'.cif'
        comp_id = "PF_" + str(mol_idx)
        pysw.mmcif_dict_from_mol(comp_id, m.GetProp('_Name'), m, cif_file_name, False, False, True)
+
     for idx,atom in enumerate(m.GetAtoms()):
         try:
             # in pathological cases, pf_atom_type is not set
@@ -153,12 +165,12 @@ def get_amber_types(m, mol_idx, ref_types=None, check_2_chars_only=True, make_di
             if check_2_chars_only:
                 check_coot_amber_type = coot_amber_type[:2]
 		# C -> Ca or Cb or Cc etc is a special case
-                if coot_amber_type in ["Ca", "Cax", "Cb", "Cc", "Cd", "Ce", "Cf", "Cg", "Ch", "Ci", "Cj"]:
+                if coot_amber_type in ["Ca", "Cax", "Cb", "Cc", "Cd", "Ce", "Cf", "Cg", "Ch", "Ci", "Cj", "C-"]:
 		    check_coot_amber_type = "C"
                 if coot_amber_type in ["Sa", "Sax", "Sb", "Sc", "Sd", "Se", "Sf", "Sg", "Sh", "Si", "Sj"]:
 		    check_coot_amber_type = "S"
             if check_coot_amber_type != ref_type:
-                ct = compare_types()
+                ct = compare_types(atom)
                 match_result = ct.compare(check_coot_amber_type, ref_type)
                 conf = m.GetConformer()
                 coords = conf.GetAtomPosition(idx)
@@ -179,10 +191,12 @@ def get_amber_types(m, mol_idx, ref_types=None, check_2_chars_only=True, make_di
 
             p=(atom.GetProp('name'), coot_amber_type)
             aa_types.append(p)
-        except TypeError:
+        except TypeError as e:
+            print('TypeError {}'.format(e))
             pass
-	except KeyError:
+	except KeyError as e:
 	    # pf_atom_type was not set on an atom
+            print('KeyError {}'.format(e))
 	    pass
     return aa_types
 

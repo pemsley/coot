@@ -999,6 +999,7 @@ execute_ligand_search_internal(coot::wligand *wlig_p) {
 	    g.molecules[g_mol].assign_hetatms();
 #ifdef HAVE_GSL
 	    if (g.find_ligand_do_real_space_refine_state()) {
+	       set_imol_refinement_map(g.find_ligand_map_mol());
  	       int previous_state = refinement_immediate_replacement_state();
  	       g.refinement_immediate_replacement_flag = 1;
  	       g.refine_residue_range(g_mol, "A", "A", 1, "", 1, "", "", 0);

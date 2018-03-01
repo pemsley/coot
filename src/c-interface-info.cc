@@ -340,7 +340,7 @@ void output_residue_info_dialog(int imol, int atom_index) {
 		  if (chis.size() > 0) {
 		     unsigned int i_chi_set = 0;
 		     for (unsigned int ich=0; ich<chis[i_chi_set].chi_angles.size(); ich++) {
-		     
+
 			int ic = chis[i_chi_set].chi_angles[ich].first;
 			std::string label_name = "residue_info_chi_";
 			label_name += coot::util::int_to_string(ic);
@@ -362,10 +362,10 @@ void output_residue_info_dialog(int imol, int atom_index) {
 			} else {
 			   std::cout << "WARNING:: chi label not found " << label_name << std::endl;
 			}
-		     } 
+		     }
 		  }
 	       }
-	       catch (std::runtime_error mess) {
+	       catch (const std::runtime_error &mess) {
 		  std::cout << mess.what() << std::endl;
 	       }
 	    }

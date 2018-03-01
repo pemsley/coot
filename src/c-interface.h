@@ -2209,6 +2209,8 @@ void set_hardware_stereo_angle_factor(float f);
 /*! \brief return the hardware stereo angle factor */
 float hardware_stereo_angle_factor_state();
 
+void set_model_display_radius(int state, float radius);
+
 /*! \brief set position of Model/Fit/Refine dialog */
 void set_model_fit_refine_dialog_position(int x_pos, int y_pos);
 /*! \brief set position of Display Control dialog */
@@ -3514,8 +3516,8 @@ void set_use_only_extra_torsion_restraints_for_torsions(short int state);
 /*! \brief return only-use-extra-torsion-restraints-for-torsions state */
 int use_only_extra_torsion_restraints_for_torsions_state();
 
-void clear_atom_pull_restraint();
-void set_auto_clear_atom_pull_restraint_state(int state);
+void clear_all_atom_pull_restraints();
+void set_auto_clear_atom_pull_restraint(int state);
 int  get_auto_clear_atom_pull_restraint_state();
 
 
@@ -6305,6 +6307,7 @@ PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position);
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM mark_atom_as_fixed_scm(int imol, SCM atom_spec, int state);
+int mark_multiple_atoms_as_fixed_scm(int imol, SCM atom_spec_list, int state);
 #endif 
 #ifdef USE_PYTHON
 PyObject *mark_atom_as_fixed_py(int imol, PyObject *atom_spec, int state);

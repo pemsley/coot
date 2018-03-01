@@ -540,22 +540,22 @@ void write_interpolated_models_and_extra_restraints(int imol_1, int imol_2, int 
 void clear_atom_pull_restraint_on_accept_reject_destroy() {
 
    graphics_info_t g;
-   g.clear_atom_pull_restraint(false);
+   g.clear_all_atom_pull_restraints(false);
    graphics_draw();
 }
 
-void clear_atom_pull_restraint() {
+void clear_all_atom_pull_restraints() {
 
    graphics_info_t g;
-   g.clear_atom_pull_restraint(true);
+   g.clear_all_atom_pull_restraints(true);
    graphics_draw();
 }
 
-void set_auto_clear_atom_pull_restraint_state(int state) {
+void set_auto_clear_atom_pull_restraint(int state) {
    graphics_info_t g;
    g.auto_clear_atom_pull_restraint_flag = state;
-   std::cout << "set_auto_clear_atom_pull_restraint_state ";
-   std::cout << "update the accept_reject_refinement_dialog here. " << std::endl;
+   std::cout << "------------------ set_auto_clear_atom_pull_restraint_state ";
+   std::cout << "------------------ update the accept_reject_refinement_dialog here. " << std::endl;
 } 
 
 int  get_auto_clear_atom_pull_restraint_state() {

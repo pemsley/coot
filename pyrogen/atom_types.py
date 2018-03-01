@@ -41,7 +41,8 @@ def set_atom_type(match, match_atom_index, mol, atom_type, types_type='Refmac'):
                     print('   actually have set atom number %s having name %s with type %s ' %
                           (str(this_atom_idx).rjust(2), repr(name), repr(atom_type)))
             except KeyError as e:
-                print('No name for atom idx', match_atom_index)
+                if types_type != "Parm@Frosst":
+                   print('No name for atom idx', match_atom_index)
 
     except TypeError:
         for match_atom in match_atom_index:
@@ -266,6 +267,11 @@ def set_parmfrosst_atom_types(mol):
     electroneg      = '[N,n,O,o,F,S,s,Cl,Br]'
     ring_electroneg = '[N,n,O,o,s,S]' # are the non-arom needed?
     branched_electroneg = '(~' + electroneg + ')'
+    g = '[!H&!He&!Ne&!Ar&!Xe&!Kr&!Rn]'
+    g_and_ar = '[c,n,s]' # I believe
+    # ar = in aromatic-5-ring or aromatic-6-ring
+    # r3 = in a 3 membered ring: g~g~g~@1
+
 
     # print('debug H3a: {}'.format('[H][C^3;H1]'+branched_electroneg+branched_electroneg+electroneg))
     smarts_list = [
@@ -316,7 +322,7 @@ def set_parmfrosst_atom_types(mol):
         # fallback
         ('H', '[H]',    0),
 
-        # -------------------------------pathological specialities ------------------------------
+        # ------------------------------- pathological specialities ------------------------------
 	#
 	# fused 5,6 unsat systems
 	# the v and ws go together (the same SMART) for normal 5,6 ring and "his-like" sets:
@@ -325,21 +331,56 @@ def set_parmfrosst_atom_types(mol):
         ('CCv', 'c12aaaac1ccn2',  6),     # indole, hits a non-fused carbon
         ('CWv', 'c12aaaac1ccn2',  7),     # indole, hits a non-fused carbon
 
+        # 5,6 { normal 5,6-ring } CB CB CC CW *, add in the branch so that it
+        # doesn't hit sat carbon in 6-ring (this may not be the right thing to catch)
+        ('CW-row-2', '[c;r5;R2]([C;X3;r6])[c;r5;R2]([C;X3])[c;r5][c;r5]'+electroneg, 3),
+        ('CC-row-2', '[c;r5;R2]([C;X3;r6])[c;r5;R2]([C;X3])[c;r5][c;r5]'+electroneg, 2),
+        ('CB-row-2', '[c;r5;R2]([C;X3;r6])[c;r5;R2]([C;X3])[c;r5][c;r5]'+electroneg, (0,1)),
+        # catch C1 pf4 (hack?)
+        ('CW-row-2b', '[c;r5;R2]1[c;r5;R2][c;r5][c;r5]'+electroneg+'1', 3),
+        # PF_12
+        ('CB-row-2c', '[c;r5]1:[c;r5]~[#6;r5]~[#6;r5][NH]1', (0,1)),
+        # ('CC-row-2c', '[c;r5;r6;R2]1:[c;r5;r6;R2][#6;r5][#6;r5]'+electroneg+'1', 2),
+        # ('CW-row-2c', '[c;r5;r6;R2]1:[c;r5;r6;R2][#6;r5][#6;r5]'+electroneg+'1', 3),
+
         # As it stands c12aaaac1aaa2 has ~50% wrong hits
         # ('CBw', 'c12aaaac1aaa2',  (0,5)), # hit the C[5,6] carbons # which way round do we go?
         # ('CCw', 'c12aaaac1caa2',  6),     # hits a non-fused carbon
         # ('CWw', 'c12aaaac1aca2',  7),     # hits a non-fused carbon
 
-        # 5,6 ring with "HIS-like" 5-ring
+        # 5,6 ring with "HIS-like" 5-ring (does this hit anything? second ring is 5 (or 4???))
 	('CBx', '[cr5]12aaaa[c5]2-'+electroneg+'=[cr5]-'+ring_electroneg+'1', (0,5)),
 	('CRx', '[cr5]12aaaa[c5]2-'+electroneg+'=[cr5]-'+ring_electroneg+'1', 7),
 
+        # 5-ring of indole:  { 5-ring unsat }
+        ('CR-indole', '[c;r5;H1]1n[c;R2][c;R2]c1',  0),
+        # ('NB-indole', 'c1nccc1',  1),
+
+        # PF_5
+	('CCj', '[cr5]1(N)[cr5][ar5][cr5][cr5]1', 0),
+	('CWj', '[cr5]1(N)[cr5][ar5][cr5][cr5]1', 2), # account for branch atom
+
+        # PF_3
+	('CWi', '[cr5]1[cr5][cr5][sr5][sr5]1', 0),
+	('CCi', '[cr5]1[cr5][cr5][sr5][sr5]1', 1),
+
 	# real histidine-like
+        # note: [nH] is not the matched by [n], this HIS Nitrogen atoms are different
+        # and will match differently with different routes round the ring.
+        #
+        ('CCy',       '[cr5]1[cr5;H]'+ring_electroneg+'[cr5]'+ring_electroneg+'1', 1), # HIS
+        ('CC-testc',  '[cr5]1[cr5;H][nr5][c][nH]1', 1), # HIS
+        ('CC-testcc', '[cr5]1[cr5H][nr5;H][c][nr5]1', 1), # HIS, other way
         ('CWy', '[cr5]1[cr5]'+ring_electroneg+'[cr5]'+ring_electroneg+'1', 0), # HIS
-        ('CCy', '[cr5]1[cr5]'+ring_electroneg+'[cr5]'+ring_electroneg+'1', 1), # HIS
+        ('CWy', '[cr5]1[cr5]'+ring_electroneg+'[cr5]'+'[nH]1', 0), # HIS
         ('CRy', '[cr5]1[cr5]'+ring_electroneg+'[cr5]'+ring_electroneg+'1', 3), # HIS # success - all hits!
 	#
 	# maybe we should allow CWy to match CC and CCy to match CW - 2 way rounds an imidazole
+
+        # * * * CR * ; { 5-ring unsat }
+        ('CR-5ring-A', g+'1'+g+'N=C'+g+'1', 0), # what does this catch?
+        ('CR-5ring-B', '[C;H0;X3]1=NC=CC1', 0), # H0 may not be needed.
+        ('NB-5ring-B', '[C;H0;X3]1=NC=CC1', 1), # H0 may not be needed.
 
         # 5-ring unsat C&ar5=N&ar5-g&ar5~g&ar5~g&ar5-@1	-> CR NB * * * (above the comment)
         #
@@ -349,6 +390,32 @@ def set_parmfrosst_atom_types(mol):
         # with a sp3 - bridging C atoms can be aromatic
         ('CR-5ring-b',  '[C,c;^2]1~[N]~[r5;^3]~[r5]~[C,c]1', 0),
         ('NB-5ring-b',  '[C,c;^2]1~[N]~[r5;^3]~[r5]~[C,c]1', 1),
+        # for PF4 N4
+        ('CR-5ring-c',  '[C,c;^2;R1]1~[n;R1;X2]~[a;r5;^2;R1]~[ar5;R2]~[a;^2;R2]1', 0),
+        ('NB-5ring-c',  '[C,c;^2;R1]1~[n;R1;X2]~[a;r5;^2;R1]~[ar5;R2]~[a;^2;R2]1', 1),
+        # for PF4 N6
+        ('NB-5ring-d',  '[#6;R1]1~[#7;R1]~[#6;R2]~[#7;R2]~[#7;R1]1', 1),
+        # for PF4 N5
+        ('NB-5ring-d',  '[#6;R2]1~[#7;R1]~[#7;R1]~[#6;R1]~[#7;R2]1', 1),
+        # for PF8 N3
+
+        # Note to reader: compare N2 in PF11 and N2 in PF_15.  Extremely similar.  But different types
+        #                         NB             NA
+        # maybe because of the non-H substituents on atoms idx-3 and idx-4?
+        # so add H1 to make it "his-like" - testing.
+
+        # ('NB-5ring-e',  '[c;R1]1~[n;R1]~[a;R1]~[a;R1]~[a;R1]1', 1), # idx-2 atom not a (too general)
+        ('NB-5ring-e2', '[c;R1]1~[n;R1]~[n;R1]~[c;R1;H1]~[c;R1;H1]1', 1), # idx-2 atom not a
+        ('NB-5ring-e3', '[c;R1]1~[n;R1]~[c;R1]~[n;R1]~[s;R1]1', 1), #
+        # for PF8 N4
+        ('NB-5ring-f',  '[c;R1]1[n;R1][s;R1][a;R1][a;R1]1', 1), # atom idx-2 needs to be "s" not "a"
+        # for PF9 N4
+        ('NB-5ring-g',  '[c;R1]1~[n;R1]~[n;R2]~[a;R2]~[c;R1]1', 1),
+        # note to self - there may be more CR NBs
+        ('CR-5ring-g',  '[c;R1]1~[n;R1]~[n;R2]~[c;R2]~[c;R1]1', 0),
+        ('CR-5ring-h',  '[c;R1]1~[n;R1]~[n;R1]~[c;R1]~[c;R1]1', 0), # PF11
+        ('NB-5ring-i',  '[c;R1]1~[n;R1;H0]~[n;R2;X3]([c;r6])~[c;R2]~[n;R1;H0]1', 1), # N3 in PF14,  but not N2 in PF_4
+        ('NB-5ring-j',  '[c;R1]1~[n;R1]~[n;R1]~[c;R1]~[c;R1]1', 2), # N1 in PF15?
 
 	# 5-ring unsat C&ar5=C&ar5-C&ar5=C&ar5-g&ar5-@1 -> CW CC CC CW
         ('CW-5ring-b',  '[cr5]1[cr5][cr5][cr5][ar5]1', (0,3)),
@@ -357,13 +424,37 @@ def set_parmfrosst_atom_types(mol):
         # 5-ring unsat C&ar5=C&ar5-C&ar5=C&ar5-g&ar5-@1	> CW CC CC CW
         ('CWc',  '[cr5;R1]1[cr5][cr5][cr5][nr5]1', (0,3)),
         ('CCc',  '[cr5;R1]1[cr5][cr5][cr5][nr5]1', (1,2)),
-        ('CWd',  '[cr5;R1]1[cr5][cr5][cr5][ar5]1', (0,3)),
-        ('CCd',  '[cr5;R1]1[cr5][cr5][cr5][ar5]1', (1,2)),
+        ('CWg',  '[cr5;R1]1[cr5][cr5][cr5][ar5]1', (0,3)),
+        ('CCg',  '[cr5;R1]1[cr5][cr5][cr5][ar5]1', (1,2)),
 
-	# 5-ring unsat
-        ('NBz',  '[nr5;R1]1[cr5;R1][cr5R1][nr5R1][ar5R1]1', (0,3)),
-        ('CRz',  '[nr5;R1]1[cr5;R1][cr5R1][nr5R1][ar5R1]1', (1,2)),
+        # 5-ring unsat CW CC * * *, Note CR NB is higher than this
+        ('CW-5ring-c',  '[cr5]1[cr5][cr5][cr5][nr5]1', 0),
+        ('CC-5ring-c',  '[cr5]1[cr5][cr5][cr5][nr5]1', 1),
+        ('CW-5ring-d',  '[c;r5]1[c;r5][c;r5][n;r5][n;r5]1', 0),
+        ('CW-5ring-d',  '[c;r5]1[c;r5][c;r5][n;r5][n;r5]1', 2), # symmetry of above
+        ('CC-5ring-d',  '[c;r5]1[c;r5][c;r5][n;r5][n;r5]1', 1),
 
+	# 5-ring unsat, NB has no H, NA has H, i.e. HIS C=N-C vs C-N(H)-C
+        ('NBz',  '[nr5;R1]1[cr5;R1][cr5R1][nr5;R1;X2][ar5R1]1', 3),
+        ('NAz',  '[nr5;R1]1[cr5;R1][cr5R1][nr5;R1;X2][ar5R1]1', 0), # does this find anything?
+        ('CRz',  '[nr5;R1]1[cr5;R1][cr5R1][nr5;R1;X2][ar5R1]1', (1,2)),
+
+        # ('CR-5-ring-j', '[c]1[n;H][n][c][c]1', 0), # catches C2 in PF_15 # too late
+        # ('CW-5-ring-j', '[c]1[n;H][n][c][c]1', 3), # catches C4 in PF_15
+
+        # n1cnnc1
+        # ('NBzz',  '[nr5;R1]1[cr5;R1][nr5R1][nr5R1][ar5R1]1', (2,3)),
+        # ('CRzz',  '[nr5;R1]1[cr5;R1][nr5R1][nr5R1][ar5R1]1', 1),
+        # we can be more specific and catch the other carbon:
+        # we may need to generalize again (just comment above?)
+        ('NBzz',  '[nr5;R1]1[cr5;R1][nr5R1][nr5R1][cr5R1]1', (2,3)),
+        ('CRzz',  '[nr5;R1]1[cr5;R1][nr5R1][nr5R1][cr5R1]1', (1,4)),
+
+        # non-aromatic (a ring carbon atom has 2 hydrogens)
+
+	# 5-ring unsat, NB has no H, NA has H, i.e. HIS C=N-C vs C-N(H)-C
+        ('NBna',  '[N;r5;R1]1=[C;r5;R1][C;r5;R1][N;r5;R1;X2]=[A;r5;R1]1', (0,3)),
+        ('CRna',  '[N;r5;R1]1=[C;r5;R1][C;r5;R1][N;r5;R1;X2]=[C;r5;R1]1', 4), # PF20, non-arom though
 
 	# ------------------------------ back to sanity ---------------------------
 
@@ -414,10 +505,13 @@ def set_parmfrosst_atom_types(mol):
 
 	# SMARTS put an atom in a 5 ring before a 6 ring. but CA is 6-ring
         ('C*', '[cr5;^2;X3]', 0),
+        ('C*', '[C;X3;^2]1C(=O)[NH]~cc1', 0), # C8 in PF_12 is not aromatic (by rdkit) but is a PF C*. Grr!
+                                              # So provide the specified ring.
 
         ('CMa', 'n1cnccc1', (3,4,5)), # positions 5 or 6 in pyrimidine # or 4 presumably!
-        ('CMb', '[C^2]=[C^2]', (0,1)),  # by validation
-        ('CMc', '[C]=A', 0),   # by validation
+        ('CMb', '[C^2]=[C^2]', (0,1)),  # by validation # catches C7 in PF_0 {non-aromatic C=x}
+        ('CMb', '[C;^2;R0]=[C^2]', 0),  # by validation
+        ('CMc', '[C;^2;R0]=A', 0),   # by validation
         ('CMd', '[C]=a', 0),   # by validation
 
         ('C2', '[CX2]#[CX2]', (0,1)),   # by validation
@@ -433,7 +527,7 @@ def set_parmfrosst_atom_types(mol):
 
         ('CT', '[CX4]', 0), # bonded to 4 things
         # Carbon fallback
-        ('C',  '[C,c]', 0), # sp hybrizided. Hmmm.
+        ('C-fallback',  '[C,c]', 0), # sp hybrizided. Hmmm.
 
         # [1] needed because above [CX2]#A doesn't find the bond both ways.  I suppose
         #     that's the way SMARTS work.
@@ -525,8 +619,11 @@ def set_parmfrosst_atom_types(mol):
         # Nitro > N2 ; {nitro group - guess jan 1999 CIBayly}
         ('N2f', 'C[N^2](~[O;X1])~[OX1]', 1),
 
-        #g&ar-N&ar(-H)-g > * NA * * ; {e.g. HIS C-NH-C}
-        ('NAe', 'A[nH]a', 1),
+        # g&ar-N&ar(-H)-g > * NA * * ; {e.g. HIS C-NH-C}
+        # I don't understandy why this above pattern doesn't match N3 in PF_15.  Instead that
+        # falls down to N (an amino N). Grump.
+        # ('NAe', 'A[nH]a', 1), # too liberal, catches N3 in PF_15
+        ('NAf', '[a][n;H;r5][a]', 1), # don't match nH in 6 rings - baah.
 
         # Nsulfon > N3 ; {sulfonamide-type N is pyramidal. Ordered after aromatic amine}
         # N&x3-S,P(~O&x1)~O&x1
@@ -537,16 +634,18 @@ def set_parmfrosst_atom_types(mol):
         ('N3d', '[nX2;+]-[S,P](=[OX1])~[OX1]', 0),
 
         # g&ar-Acy1-N(-H,g)-g&ar > * N2 * * ; {more delocalized aniline-type N oct2004 CIBayly}
-        ('N2d', '[a][N;H]a', 1),
+        # ('N2d', '[a][n;H]a', 1), # was ('N2d', '[a][N;H]a', 1), # not this - catches N3 in PF_15 (should be N)
+        # ('N2e', '[a][n](-[a,A])a', 1), # not this - catches N3 in PF_15 (should be N)
 
         # g&ar-Acy1-N(-!H)-!H	> * N3 * *      ; {disubst aniline-type N apr2005 CIBayly}
         ('N3d', 'a[N;H0]([!H])[!H]', 1),
 
-        # g&ar-N!ar > * N2 ; {sp2 amino N}
-        ('N2e', 'a-[N]', 1),
-
         # g&sp2-N!ar-H	> * N  * ; {sp2 amino N}
-        ('N2f', '[A;^2][N][H]', 1),
+        ('N', '[A;^2][N][H]', 1),
+        ('N', '[c][nH][c](=O)', 1), # N3 in PF_15
+
+        # g&ar-N!ar > * N2 ; {sp2 amino N}
+        ('N2g', g_and_ar + '-[N]', 1),
 
         # N&ar > Nstar		; {sp2 N}
         ('N*', 'n', 0),

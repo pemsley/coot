@@ -1,32 +1,66 @@
+#include <algorithm>
 
 #include "simple-restraint.hh"
 
 
 mmdb::Atom *
-coot::restraints_container_t::add_atom_pull_restraint(atom_spec_t spec, clipper::Coord_orth pos) {
+coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, clipper::Coord_orth pos) {
 
    mmdb::Atom *at = 0;
 
-   clear_atom_pull_restraint();  // clear old ones
-   for (int iat=0; iat<n_atoms; iat++) { 
-      atom_spec_t atom_spec(atom[iat]);
-      if (atom_spec == spec) {
-	 if (! fixed_check(iat)) { 
-	    add_target_position_restraint(iat, pos);
-	    at = atom[iat];
+   // 20180217 now we replace the target position if we can, rather than delete and add.
+
+   // clear_atom_pull_restraint(spec);  // clear old ones 20180217, no longer
+   std::vector<simple_restraint>::iterator it;
+   for (it=restraints_vec.begin(); it!=restraints_vec.end(); it++) {
+      if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRANT)) {
+	 if (it->atom_spec == spec) {
+	    at = atom[it->atom_index_1];
+	    it->atom_pull_target_pos = pos;
+	    break;
 	 }
-	 break;
+      }
+   }
+
+   if (! at) {
+      for (int iat=0; iat<n_atoms; iat++) { 
+	 atom_spec_t atom_spec(atom[iat]);
+	 if (atom_spec == spec) {
+	    if (! fixed_check(iat)) { 
+	       add_target_position_restraint(iat, spec, pos);
+	       at = atom[iat];
+	    }
+	    break;
+	 }
       }
    }
    return at;
 }
 
-#include <algorithm>
+void
+coot::restraints_container_t::clear_atom_pull_restraint(const coot::atom_spec_t &spec) {
+
+   std::cout << "restraints_container_t clear_atom_pull_restraint for " << spec
+	     << "called " << std::endl;
+
+   unsigned int pre_size = restraints_vec.size();
+   if (pre_size > 0) {
+      restraints_vec.erase(std::remove_if(restraints_vec.begin(),
+					  restraints_vec.end(),
+					  target_position_for_atom_eraser(spec)),
+			   restraints_vec.end());
+      unsigned int post_size = restraints_vec.size();
+      std::cout << "debug:: clear_atom_pull_restraint() pre size: " << pre_size << " post size: "
+		<< post_size << std::endl;
+   }
+}
 
 
 // clear them all - but at the moment the user can only set one of them.
 void
-coot::restraints_container_t::clear_atom_pull_restraint() {
+coot::restraints_container_t::clear_all_atom_pull_restraints() {
+
+   std::cout << "restraints_container_t clear_all_atom_pull_restraints called " << std::endl;
 
    unsigned int pre_size = restraints_vec.size();
    if (pre_size > 0) {
@@ -159,10 +193,13 @@ bool
 coot::restraints_container_t::turn_off_when_close_target_position_restraint() {
 
    bool status = false;
+   double close_dist = 0.6;  // was 0.5; // was 0.4 [when there was just 1 pull atom restraint]
+                             // sync with below function, or make a data member
+
    unsigned int pre_size = restraints_vec.size();
    restraints_vec.erase(std::remove_if(restraints_vec.begin(),
 				       restraints_vec.end(),
-				       turn_off_when_close_target_position_restraint_eraser(atom, n_atoms)),
+				       turn_off_when_close_target_position_restraint_eraser(close_dist, atom, n_atoms)),
 			restraints_vec.end());
    unsigned int post_size = restraints_vec.size();
    if (post_size < pre_size) status = true;
@@ -170,3 +207,29 @@ coot::restraints_container_t::turn_off_when_close_target_position_restraint() {
 }
 
 
+std::vector<coot::atom_spec_t>
+coot::restraints_container_t::turn_off_atom_pull_restraints_when_close_to_target_position() {
+
+   std::vector<atom_spec_t> v;
+   double close_dist = 0.6;  // was 0.5; // was 0.4 [when there was just 1 pull atom restraint]
+                             // sync with above function, or make a data member
+
+   std::vector<simple_restraint>::const_iterator it;
+   for(it=restraints_vec.begin(); it!=restraints_vec.end(); it++) {
+      if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRANT)) { 
+	 mmdb::Atom *at = atom[it->atom_index_1];
+	 clipper::Coord_orth pos(at->x, at->y, at->z);
+	 double d = sqrt((pos-it->atom_pull_target_pos).lengthsq());
+	 if (d < close_dist)
+	    v.push_back(it->atom_spec);
+      }
+   }
+
+   // now do the remove
+   restraints_vec.erase(std::remove_if(restraints_vec.begin(),
+				       restraints_vec.end(),
+				       turn_off_when_close_target_position_restraint_eraser(close_dist, atom, n_atoms)),
+			restraints_vec.end());
+
+   return v;
+}

@@ -224,8 +224,9 @@ coot::distortion_score_trans_peptide(const int &restraint_index,
    // similar escape in the derivatives
    //
    if (cos_a1 > 0.9 || cos_a2> 0.9) {
-      std::cout << "debug:: alert:: high distortion - reset distortion_score_trans_peptide "
-		<< restraint_index << " " << 0 << std::endl;
+      if (false)
+         std::cout << "debug:: alert:: high distortion - reset distortion_score_trans_peptide "
+		   << restraint_index << " " << 0 << std::endl;
       return 0;
    } else {
 
@@ -301,9 +302,9 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
       int restraints_size = restraints->size();
       for (int i=0; i< restraints_size; i++) {
 
-	 const simple_restraint &restraint = (*restraints)[i];
+	 const simple_restraint &restraint = restraints->at(i);
       
-	 if ( restraint.restraint_type == TRANS_PEPTIDE_RESTRAINT) {
+	 if (restraint.restraint_type == TRANS_PEPTIDE_RESTRAINT) {
 
 	    // std::cout << "my_df_trans_peptides() 3 " << " " << i << std::endl;
 

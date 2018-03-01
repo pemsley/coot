@@ -430,8 +430,10 @@ float graphics_info_t::map_sharpening_scale_limit = 200.0;
 int graphics_info_t::imol_remarks_browswer = -1;
 
 // dragged moving atom:
-int       graphics_info_t::moving_atoms_dragged_atom_index = -1;
+int       graphics_info_t::moving_atoms_currently_dragged_atom_index = -1;
 short int graphics_info_t::in_moving_atoms_drag_atom_mode_flag = 0;
+std::set<int> empty_int_set;
+std::set<int> graphics_info_t::moving_atoms_dragged_atom_indices = empty_int_set;
 
 // validate moving atoms
 int       graphics_info_t::moving_atoms_n_cis_peptides = -1;  // unset
@@ -1359,15 +1361,16 @@ std::vector<std::pair<clipper::Coord_orth, std::string> > graphics_info_t::user_
 unsigned int graphics_info_t::user_defined_interesting_positions_idx = 0;
 
 // atom pull
-atom_pull_info_t graphics_info_t:: atom_pull = atom_pull_info_t();
+// atom_pull_info_t graphics_info_t:: atom_pull = atom_pull_info_t();
+std::vector<atom_pull_info_t> graphics_info_t:: atom_pulls;
 bool graphics_info_t::auto_clear_atom_pull_restraint_flag = true;
 
 bool graphics_info_t::continue_update_refinement_atoms_flag = false;
 
+std::pair<bool, float> graphics_info_t::model_display_radius = std::pair<bool, float> (false, 15);
 
 // need to configure for this!
 // #define GDKGLEXT_HAVE_MODE_SAMPLES_SHIFT true
-
 
 // Chemical Feature Clusters, cfc
 GtkWidget *graphics_info_t::cfc_dialog = NULL;
@@ -2183,7 +2186,14 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 glFogf(GL_FOG_END,    fog_end);
 	 // std::cout << "GL_FOG_START " << fog_start << " with far  " << far  << std::endl;
 	 // std::cout << "GL_FOG_END "   << fog_end   << " with near " << near << std::endl;
+      }
 
+      if (false) { // try/test clipping
+	 // I don't understand what I need to do
+	 GLdouble plane[] = { 0.0, 0.0, -1.0, -2.0};
+	 glEnable(GL_CLIP_PLANE0);
+	 glClipPlane(GL_CLIP_PLANE0, plane);
+	 glPopMatrix();
       }
 
       glMatrixMode(GL_MODELVIEW);
@@ -2200,6 +2210,15 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       glTranslatef(-graphics_info_t::RotationCentre_x(),
 		   -graphics_info_t::RotationCentre_y(),
 		   -graphics_info_t::RotationCentre_z());
+
+      if (false) { // try/test clipping
+	 // This does indeed clip the model, but it's in world coordinates,
+	 // not eye coordinates
+	 GLdouble plane[] = { 0.0, 0.0, -1.0, -2.0};
+	 glEnable(GL_CLIP_PLANE0);
+	 glClipPlane(GL_CLIP_PLANE0, plane);
+	 glPopMatrix();
+      }
 
       if (! graphics_info_t::esoteric_depth_cue_flag) { 
       	 coot::Cartesian front = unproject(0.0);
@@ -2401,11 +2420,12 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
          graphics_info_t::Increment_Frames();
       }
 
+
       if (graphics_info_t::display_mode == coot::ZALMAN_STEREO)
 	 glDisable(GL_STENCIL_TEST);
 
       // show_lighting();
-  
+
    } // gtkgl make area current test
 
    gdkglext_finish_frame(widget);
@@ -2765,7 +2785,7 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 		     } else {
 
 			// info.move_moving_atoms_by_shear(x_as_int, y_as_int, 0); // pre 0.8.3
-			info.move_atom_pull_target_position(x_as_int ,y_as_int);
+			info.move_atom_pull_target_position(x_as_int, y_as_int);
 			
 			if (graphics_info_t::dragged_refinement_refine_per_frame_flag) {
 			   info.drag_refine_refine_intermediate_atoms();
@@ -3208,6 +3228,9 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_Escape:
 
       clear_up_moving_atoms();
+
+      // stop the refinement
+      graphics_info_t::remove_drag_refine_idle_function();
       
       if (graphics_info_t::accept_reject_dialog) {
 	 if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {

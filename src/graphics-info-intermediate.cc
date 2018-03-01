@@ -59,10 +59,12 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    }
 
    if (g.auto_clear_atom_pull_restraint_flag) {
-      bool status = g.last_restraints->turn_off_when_close_target_position_restraint();
-      if (status) {
-	 atom_pull.off();
-	 g.clear_atom_pull_restraint(true);
+      // returns true when the restraint was turned off.
+      std::vector<coot::atom_spec_t> specs_for_removed_restraints =
+	 g.last_restraints->turn_off_atom_pull_restraints_when_close_to_target_position();
+      if (specs_for_removed_restraints.size()) {
+	 atom_pulls_off(specs_for_removed_restraints);
+	 g.clear_atom_pull_restraints(specs_for_removed_restraints, true);
       }
    }
 

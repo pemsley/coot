@@ -1291,7 +1291,6 @@ graphics_info_t::add_drag_refine_idle_function() {
    // refinemnt again (set continue_update_refinement_atoms_flag to true.
    //
    
-
    // add a idle function if there isn't one in operation already.
    graphics_info_t g;
    if (g.drag_refine_idle_function_token == -1) {
@@ -1301,11 +1300,22 @@ graphics_info_t::add_drag_refine_idle_function() {
 	 gtk_idle_add((GtkFunction)graphics_info_t::drag_refine_idle_function, g.glarea);
       T0 = glutGet(GLUT_ELAPSED_TIME);
       print_initial_chi_squareds_flag = 1;
+
    } else {
       std::cout << "DEBUG:: not adding drag idle function because there was one already in operation"
 		<< g.drag_refine_idle_function_token << std::endl;
    } 
 } 
+
+// static
+void
+graphics_info_t::remove_drag_refine_idle_function() {
+
+   gtk_idle_remove(graphics_info_t::drag_refine_idle_function_token);
+   graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
+}
+
+>>>>>>> master
 
 
 // --------------------------------------------------------------------------------

@@ -1678,7 +1678,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 			     0.5*c.descr().c());
 	   new_centre.first = true;
 	   new_centre.second = m;
-           std::cout << "INOF:: map appears to be EM map."<< std::endl;
+           std::cout << "INFO:: map appears to be EM map."<< std::endl;
 	}
 	std::cout << "closing CCP4 map: " << filename << std::endl;
 	file.close_read();
@@ -1690,7 +1690,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
      }
      
    } else {
-     std::cout << "attempting to read CNS map: " << filename << std::endl;
+     std::cout << "INFO:: attempting to read CNS map: " << filename << std::endl;
      clipper::CNSMAPfile file;
      file.open_read(filename);
      try {
@@ -2891,7 +2891,7 @@ float
 molecule_class_info_t::density_at_point(const clipper::Coord_orth &co) const {
 
    if (xmap.is_null()) {
-      std::cout << " returning bogus value from density_at_point: " << std::endl;
+      std::cout << "WARNING:: null map. Returning bogus value from density_at_point()" << std::endl;
       return -1000.0;
    } else {
 
@@ -3164,7 +3164,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
    float (*density_scoring_function)(const coot::minimol::molecule &mol,
 				     const std::vector<std::pair<std::string, int> > &atom_number_list,
-				     const clipper::Xmap<float> &map) = coot::util::z_weighted_density_score;
+				     const clipper::Xmap<float> &map) = coot::util::z_weighted_density_score_linear_interp;
 
    if (use_biased_density_scoring)
       density_scoring_function = coot::util::biased_z_weighted_density_score;
