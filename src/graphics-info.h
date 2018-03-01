@@ -1745,6 +1745,7 @@ public:
    static double idle_function_rock_angle_previous; 
    static gint drag_refine_idle_function(GtkWidget *widget);
    static void add_drag_refine_idle_function();
+   static void remove_drag_refine_idle_function();
    static gint drag_refine_refine_intermediate_atoms();
    static double refinement_drag_elasticity;
    static coot::refinement_results_t saved_dragged_refinement_results;

@@ -635,6 +635,10 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
          }
       }
 
+      // ---------------------------------------------------------------------
+      //  refinement loop
+      // ---------------------------------------------------------------------
+
       while ((step_count < step_count_lim) && continue_flag) {
 
 	 if (false)
@@ -651,6 +655,10 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
 	    graphics_info_t::continue_update_refinement_atoms_flag = false;
 	    rr = graphics_info_t::saved_dragged_refinement_results;
 	 }
+	 if (retval == -1) { // no restrainst, because the user pressed Esc
+	    continue_flag = false;
+	    rr = graphics_info_t::saved_dragged_refinement_results;
+	 }
       }
 
       // if we reach here with continue_flag == 1, then we
@@ -662,7 +670,7 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
 	 rr = graphics_info_t::saved_dragged_refinement_results;
 	 rr.info_text = "Time's up...";
       }
-      
+
    } else { 
       if (use_graphics_interface_flag) {
 

@@ -1,7 +1,17 @@
 
+ylim=50
+xlim=20
+
+prediction_text_x_placement = 18
+prediction_text_y_placement = 10
+
+legend_x = 10
+legend_y =  5
+
+
 source('arrow.r')
 
-predict = function() {
+predict = function(x_pos, y_pos) {
 
    scope_start = a$V3[1]
    scope_end   = a$V3[length(a$V3)]
@@ -36,10 +46,11 @@ predict = function() {
       predict_t = today_t + days_delta
       date_s = format(predict_t, format="%d %B %Y")
       t = paste('Projected Release Day:\n', date_s)
-      text(50, 20, t, pos=3, cex=0.8)
+      text(x_pos, y_pos, t, pos=3, cex=0.8)
       s = 3 # should depend on xlim 3 is good when xlim is 200
-      s = 1
-      rect(X_pred-s, Y_pred_1-s, X_pred+s, Y_pred_1+s, col = 'darkgreen')
+      s_x = 0.02*xlim
+      s_y = 0.02*ylim
+      rect(X_pred-s_x, Y_pred_1-s_y, X_pred+s_x, Y_pred_1+s_y, col = 'darkgreen')
       # need list of X values, list of Y values
       # not x,y pairs
       # lines(c(X_pred,X_pred), c(0, Y_pred_1), col='darkgreen', lty=2)
@@ -61,23 +72,24 @@ a = read.table('burn-up.tab')
 # png('burn-up.png', res=480, pointsize=8)
 png('burn-up.png')
 
-ylim=50
-xlim=70
+do_plot = function() {
+   plot(ylim=c(0,ylim), xlim=c(0,xlim), a$V1, a$V2, t='l', lwd=2,
+               main="Coot-0.8.9.1 Bug-Fix Development Progress",
+               xlab="Days (since development start)",
+               ylab="Dev Points (aka 'Half-Days')")
+   points(a$V1, a$V3, t='l', lwd=2, lty=2)
 
-plot(ylim=c(0,ylim), xlim=c(0,xlim), a$V1, a$V2, t='l', lwd=2,
-            main="Coot-0.8.9.1 Development Progress",
-            xlab="Days (since development start)",
-            ylab="Dev Points (aka 'Half-Days')")
-points(a$V1, a$V3, t='l', lwd=2, lty=2)
-
-leg.txt <- c("Done", "Scope")
-legend(50, 8, legend=leg.txt, lty=1:2, lwd=2, cex=0.7)
+   leg.txt <- c("Done", "Scope")
+   legend(legend_x, legend_y, legend=leg.txt, lty=1:2, lwd=2, cex=0.7)
+}
 
 # text(175, 175, labels="CSHL Purge", col='grey', cex=0.7)
 # arrows(160, 180, 118, 200, code=2, cex=0.5)
 # betterArrow(160, 180, 118, 200, col='grey', code=2)
 
-predict()
+do_plot()
+
+predict(prediction_text_x_placement, prediction_text_y_placement)
 
 dev.off()
 

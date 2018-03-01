@@ -4647,6 +4647,14 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
       }
    }
 
+   if (false) { // debug - how many bonded atoms are we talking about here?
+      int n = 0;
+      for (int iat=0; iat<n_atoms; iat++) {
+	 n += bonded_atom_indices[iat].size();
+      }
+      std::cout << "DEBUG:: " << n << " bonded atom pairs to check " << std::endl;
+   }
+
    // now add NBC restraints between atoms that are moving and atoms
    // of the neighbour residues.
    // 

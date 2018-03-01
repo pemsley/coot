@@ -512,7 +512,7 @@ graphics_info_t::geometric_distortions(int imol, mmdb::Residue *residue_p, bool 
    coot::geometry_distortion_info_container_t gdc(NULL, 0, "");
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
-   if (residue_p) { 
+   if (residue_p) {
       mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
       if (mol) {
 	 atom_selection_container_t asc = make_asc(mol);
@@ -673,7 +673,6 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
 		  // 	       if (do_peptide_torsion_restraints)
 		  // 		  do_link_torsions = 1;
 
-		  std::cout << "---------------------- geometric_distortions_from_mol() flags: " << flags << std::endl;
 		  coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 		  bool do_trans_peptide_restraints = false;
 		  int nrestraints = 
@@ -683,7 +682,7 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
 						do_trans_peptide_restraints,
 						0.0, 0,
 						pseudos);
-	       
+
 		  if (nrestraints > 0) {
 
 // 		     std::cout << "DEBUG:: model " << imod << " pushing back " << nrestraints

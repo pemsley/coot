@@ -5923,6 +5923,29 @@ PyObject *residue_spec_to_py(const coot::residue_spec_t &res) {
 }
 #endif // USE_PYTHON
 
+#ifdef USE_GUILE
+int mark_multiple_atoms_as_fixed_scm(int imol, SCM atom_spec_list, int state) {
+
+   // not tested
+   int r = 0;
+   SCM list_length_scm = scm_length(atom_spec_list);
+   int n = scm_to_int(list_length_scm);
+   
+   for (int ispec = 0; ispec<n; ispec++) {
+      SCM atom_spec_scm = scm_list_ref(atom_spec_list, SCM_MAKINUM(ispec));
+      coot::atom_spec_t spec = atom_spec_from_scm_expression(atom_spec_scm);
+      graphics_info_t::mark_atom_as_fixed(imol, spec, state);
+   }
+   
+   if (n > 0) {
+      graphics_draw();
+   }
+   
+   return n; //return a count of how many atoms we successfully marked
+}
+#endif // USE_GUILE
+
+
 #ifdef USE_PYTHON
 // Garanteed to return a triple list (will return unset-spec if needed).
 // 

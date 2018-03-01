@@ -6307,6 +6307,7 @@ PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position);
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM mark_atom_as_fixed_scm(int imol, SCM atom_spec, int state);
+int mark_multiple_atoms_as_fixed_scm(int imol, SCM atom_spec_list, int state);
 #endif 
 #ifdef USE_PYTHON
 PyObject *mark_atom_as_fixed_py(int imol, PyObject *atom_spec, int state);

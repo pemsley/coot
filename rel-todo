@@ -50,6 +50,11 @@
      orientation.  Jiggle-fit this molecule or chain. It gets close. It seems to need a
      rigid body fit. Does this mean that the top 10 solution optimization is not working? ::: 4
 
+   o Fun: make an auto-ncs-jump function: Use 3whe (for example)
+
+   o get a low resolution map and sphere refine. Look at the borders between moving and non-moving
+     Are the non-bonded contact restraints working correctly? Perhaps the Hydrogen atom non-bonded
+     contacts?
 
 --------------
 
