@@ -2941,8 +2941,8 @@ coot::restraints_container_t::make_monomer_restraints(int imol,
 						      const coot::protein_geometry &geom,
 						      short int do_residue_internal_torsions) {
 
-   std::cout << "------------------------ in make_monomer_restraints() "
-	     << do_residue_internal_torsions << std::endl;
+   // std::cout << "------------------------ in make_monomer_restraints() "
+   // << do_residue_internal_torsions << std::endl;
    
    if (from_residue_vector)
       return make_monomer_restraints_from_res_vec(imol, geom, do_residue_internal_torsions);
@@ -3050,7 +3050,7 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
    std::string pdb_resname(residue_p->name);
    if (pdb_resname == "UNK") pdb_resname = "ALA";
 
-   if (true)
+   if (false)
       std::cout << "--------------- make_monomer_restraints_by_residue() called "
 		<< residue_spec_t(residue_p)
 		<<  " and using type :" << pdb_resname << ": and imol "
