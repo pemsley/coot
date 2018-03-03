@@ -1921,7 +1921,11 @@ namespace coot {
       // because chi_squareds is const:
       const simple_restraint& operator[] (const unsigned int &i) const { 
 	 return restraints_vec[i]; 
-      } 
+      }
+
+      const simple_restraint& at(const unsigned int &i) const{
+	 return restraints_vec[i];
+      }
   
       void setup_gsl_vector_variables();
 

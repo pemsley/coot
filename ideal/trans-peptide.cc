@@ -275,7 +275,7 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
    restraints_container_t *restraints = (restraints_container_t *)params;
 
    if (restraints->restraints_usage_flag & TRANS_PEPTIDE_MASK) { 
-     
+
       int restraints_size = restraints->size();
       for (int i=0; i< restraints_size; i++) {
 
