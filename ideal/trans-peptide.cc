@@ -197,15 +197,15 @@ coot::distortion_score_trans_peptide(const int &restraint_index,
    clipper::Coord_orth P1(gsl_vector_get(v,idx), 
 			  gsl_vector_get(v,idx+1), 
 			  gsl_vector_get(v,idx+2));
-   idx = 3*(restraint.atom_index_2); 
+   idx = 3*(restraint.atom_index_2);
    clipper::Coord_orth P2(gsl_vector_get(v,idx), 
 			  gsl_vector_get(v,idx+1), 
 			  gsl_vector_get(v,idx+2));
-   idx = 3*(restraint.atom_index_3); 
+   idx = 3*(restraint.atom_index_3);
    clipper::Coord_orth P3(gsl_vector_get(v,idx), 
 			  gsl_vector_get(v,idx+1), 
 			  gsl_vector_get(v,idx+2));
-   idx = 3*(restraint.atom_index_4); 
+   idx = 3*(restraint.atom_index_4);
    clipper::Coord_orth P4(gsl_vector_get(v,idx), 
 			  gsl_vector_get(v,idx+1), 
 			  gsl_vector_get(v,idx+2));
@@ -298,7 +298,7 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
    restraints_container_t *restraints = (restraints_container_t *)params;
 
    if (restraints->restraints_usage_flag & TRANS_PEPTIDE_MASK) {
-     
+
       int restraints_size = restraints->size();
       for (int i=0; i< restraints_size; i++) {
 

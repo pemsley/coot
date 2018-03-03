@@ -32,6 +32,7 @@
 #include "globularize.hh"
 #include "cfc.hh"
 #include "cc-interface-user-defined-atom-colours.hh"
+#include "cc-interface-alignment.hh"
 %}
 
 
@@ -86,6 +87,7 @@ namespace std {
 %include "cfc.hh"
 %include "cc-interface-user-defined-atom-colours.hh"
 %include "../coords/phenix-geo.hh"
+%include "cc-interface-alignment.hh"
 
 // # ignore some functions with c++ objects
 %ignore rigid_body_fit_with_residue_range();

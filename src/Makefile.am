@@ -308,6 +308,8 @@ coot_bin_SOURCES = \
 	c-interface.cc		 \
 	c-interface-test.cc      \
 	cc-interface.hh		 \
+	cc-interface-alignment.cc \
+	cc-interface-alignment.hh \
 	cc-interface-ncs.hh      \
 	cc-interface-network.hh  \
 	cc-interface-mogul.hh    \
@@ -416,6 +418,7 @@ coot_bin_SOURCES = \
 	ligand-check.hh          \
         map-statistics.hh        \
 	molecule-class-info.cc 	 \
+	molecule-class-info-alignment.cc \
 	molecule-class-info-bonds.cc    \
 	molecule-class-info-maps.cc 	\
 	molecule-class-info-maps-2.cc 	\

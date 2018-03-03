@@ -1595,7 +1595,7 @@ molecule_class_info_t::remove_TER_on_last_residue(mmdb::Chain *chain_p) {
       if (r)
 	 remove_TER_internal(r);
    }
-} 
+}
 
 
 // remove TER record from residue

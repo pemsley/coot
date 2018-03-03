@@ -2091,7 +2091,7 @@ namespace coot {
 	 return restraints_vec[i]; 
       }
 
-      const simple_restraint& at(unsigned int i) const {
+      const simple_restraint& at(const unsigned int &i) const{
 	 return restraints_vec[i];
       }
   
