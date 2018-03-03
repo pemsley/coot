@@ -66,6 +66,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "utils/coot-fasta.hh"
 #include "coot-utils/coot-shelx.hh"
 #include "utils/coot-utils.hh"
+#include "utils/pir-alignment.hh"
 
 #include "protein_db/protein_db_utils.h"
 
@@ -477,7 +478,6 @@ class molecule_class_info_t {
 		  mmdb::realtype wspace,
 		  bool is_nucleic_acid_flag = false,
 		  bool console_output = true) const;
-
 
    std::string
    make_model_string_for_alignment(mmdb::PResidue *SelResidues,
@@ -1729,6 +1729,13 @@ public:        //                      public
    // return a status flag (alignments done)
    std::pair<bool, std::vector<coot::chain_mutation_info_container_t> > 
    residue_mismatches(mmdb::realtype alignment_wgap, mmdb::realtype aligment_wspace) const;
+
+   // 20180302 add PIR alignment parsing
+   void associate_pir_alignment(const std::string &chain_id, const std::string &alignment);
+   // apply the alignment
+   void apply_pir_alignment(const std::string &chain_id);
+   // this is where the PIR alignments are stored, the key is the chain-id
+   std::map<std::string, coot::pir_alignment_t> pir_alignments;
 
    // Try to align on all chains - pick the best one and return it in
    // the second.  If there is no chain that matches within match_frag
