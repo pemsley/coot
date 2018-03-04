@@ -1,20 +1,22 @@
 
    For Release 0.8.9.1
 
-   o make a function to left-hand align the text of the molecule names in the display manager
-     use gtk_misc_set_alignment() when filling the display manager
-     perhaps API function display_manager_entries_set_x_alignment(0.5)
-     ::: 0.5
+   o cache and use the histogram data for the map properties dialog ::: 0.5
 
-   o parse an alignment
+   o read in a PHE, write out an ins - it fails due to no cell - but this is not
+     apparent in the gui. ::: 1
 
-   o map weights for cryo-EM carbohydrate fitting ::: 2
+   o Give me a function so that I can set the cell. ::: 1
 
-   o GM sigma and alpha for carbohydrate fitting ::: 2
+   o Give me a function so that I can set the cell and symmetry from that of another molecule. ::: 1
 
    o the half-bonds of a C-S bond (e.g. CYS) doesn't add the correct atom indicies ::: 2
 
    o long bonds in bonds representation ::: 2
+
+   o map weights for cryo-EM carbohydrate fitting ::: 2
+
+   o GM sigma and alpha for carbohydrate fitting ::: 2
 
    o try to flev a residue that doesn't have a dictionary.  Give me a better
      means of seeing that things went wrong or what went wrong
@@ -27,29 +29,9 @@
 
    o Make RCrane work again ::: 4
 
-   o Crash on read thing.map.gz as a map.
-
-     Can't reproduce.  Perhaps depends on the map.  I guess that the
-     clipper::CNSMAPfile::open_read() is failing.
-
-     ::: 1
-
-   o refmac-multi-sharp.sh should be a window in coot ::: 1
-
-   o read in a PHE, write out an ins - it fails due to no cell - but this is not
-     apparent in the gui. ::: 1
-
-   o Give me a function so that I can set the cell. ::: 1
-
-   o Give me a function so that I can set the cell and symmetry from that of another molecule. ::: 1
-
-   o update the symmetry (draw it) after a merge molecule  ::: 1
-
    o document how to remove contact dots. ::: 0.5
 
    o document how to remove additional representations ::: 0.5
-
-   o Fun: make an auto-ncs-jump function: Use 3whe (for example) ::: 1
 
 
 --------------
@@ -112,5 +94,39 @@
 * Done.
 
    o make the scripting windows wider ::: 0.5
+
+* Done.
+
+   o parse an alignment ::: 2
+
+* Done. I think
+
+   o Do a pull from Bernie ::: 1
+
+* Done. I think
+
+   o make a function to left-hand align the text of the molecule names in the display manager
+     use gtk_misc_set_alignment() when filling the display manager
+     perhaps API function display_manager_entries_set_x_alignment(0.5)
+     ::: 0
+
+* Punt. Way too tricky. Not a gtk+ thing.
+
+   o Crash on read thing.map.gz as a map.
+
+     Can't reproduce.  Perhaps depends on the map.  I guess that the
+     clipper::CNSMAPfile::open_read() is failing.
+
+     ::: 1
+
+   o Fun: make an auto-ncs-jump function: Use 3whe (for example) ::: 1
+
+* Done.
+
+   o refmac-multi-sharp.sh should be a window in coot ::: 1
+
+* Done. It's in a module.
+
+   o update the symmetry after a merge molecule  ::: 1
 
 * Done.

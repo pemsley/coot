@@ -2868,6 +2868,10 @@ void set_all_maps_displayed(int on_or_off);
   for other values of on_or_off turn on all models. */
 void set_all_models_displayed_and_active(int on_or_off);
 
+/*! \brief only display the last model molecule
+*/
+void set_only_last_model_molecule_displayed();
+
 /*\brief display only the active mol and the refinement map */
 void display_only_active();
 

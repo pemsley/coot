@@ -5215,6 +5215,8 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 		  multi_residue_add_flag = false;
 		  atom_sel.mol->FinishStructEdit();
 		  update_molecule_after_additions();
+		  if (graphics_info_t::show_symmetry == 1)
+		     update_symmetry();
 	       }
 	    } else {
 	       multi_residue_add_flag = 1;
@@ -5237,6 +5239,8 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
             }
 	    if (add_state.first) { 
 	       update_molecule_after_additions();
+	       if (graphics_info_t::show_symmetry == 1)
+		  update_symmetry();
 	       multi_residue_add_flag = false; // we've added everything for this mol.
                istat = add_state.first;
 	    }            
@@ -5275,7 +5279,7 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 
 	       model_p = add_molecules[imol].mol->GetModel(i_add_model);
 	       this_model_p = atom_sel.mol->GetModel(i_this_model);
-	       
+
 	       int n_add_chains = model_p->GetNumberOfChains();
 
 	       for (int iaddchain=0; iaddchain<n_add_chains; iaddchain++) {
@@ -5291,7 +5295,9 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 	       if (n_add_chains > 0) {
 		  atom_sel.mol->FinishStructEdit();
 		  update_molecule_after_additions();
-	       } 
+		  if (graphics_info_t::show_symmetry == 1)
+		     update_symmetry();
+	       }
 	       istat = 1;
 	    }
 	 }
@@ -5662,8 +5668,6 @@ molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
          atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
          atom_sel.mol->FinishStructEdit();
          update_molecule_after_additions();
-         // need to redraw the bonds:
-         make_bonds_type_checked();
       }
    } else {
       std::cout << "WARNING:: the new residue range overlaps with original one. "
@@ -5781,8 +5785,6 @@ molecule_class_info_t::renumber_residue_range_old(const std::string &chain_id,
       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL);
       atom_sel.mol->FinishStructEdit();
       update_molecule_after_additions();
-      // need to redraw the bonds:
-      make_bonds_type_checked();
    } 
    return status;
 }

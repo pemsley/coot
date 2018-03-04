@@ -5221,6 +5221,8 @@ create_display_control_window_glade (void)
   GtkWidget *hbox236;
   GtkWidget *label258;
   GtkWidget *display_control_all_models_togglebutton;
+  GtkWidget *display_control_last_model_only_button;
+  GtkWidget *display_control_align_labels_checkbutton;
   GtkWidget *scrolledwindow22;
   GtkWidget *viewport14;
   GtkWidget *display_molecule_vbox;
@@ -5285,15 +5287,22 @@ create_display_control_window_glade (void)
   gtk_box_pack_start (GTK_BOX (paned_molecules_vbox), hbox236, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox236), 2);
 
-  label258 = gtk_label_new ("   Molecules     ");
+  label258 = gtk_label_new ("   Molecules    ");
   gtk_widget_show (label258);
   gtk_box_pack_start (GTK_BOX (hbox236), label258, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label258), GTK_JUSTIFY_CENTER);
 
   display_control_all_models_togglebutton = gtk_toggle_button_new_with_mnemonic ("   All   ");
   gtk_widget_show (display_control_all_models_togglebutton);
-  gtk_box_pack_start (GTK_BOX (hbox236), display_control_all_models_togglebutton, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox236), display_control_all_models_togglebutton, FALSE, FALSE, 4);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (display_control_all_models_togglebutton), TRUE);
+
+  display_control_last_model_only_button = gtk_button_new_with_mnemonic ("Last Only");
+  gtk_widget_show (display_control_last_model_only_button);
+  gtk_box_pack_start (GTK_BOX (hbox236), display_control_last_model_only_button, FALSE, FALSE, 3);
+
+  display_control_align_labels_checkbutton = gtk_check_button_new_with_mnemonic ("Align Labels");
+  gtk_box_pack_start (GTK_BOX (hbox236), display_control_align_labels_checkbutton, FALSE, FALSE, 3);
 
   scrolledwindow22 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow22);
@@ -5347,6 +5356,12 @@ create_display_control_window_glade (void)
   g_signal_connect ((gpointer) display_control_all_models_togglebutton, "toggled",
                     G_CALLBACK (on_display_control_all_models_togglebutton_toggled),
                     NULL);
+  g_signal_connect ((gpointer) display_control_last_model_only_button, "clicked",
+                    G_CALLBACK (on_display_control_last_model_only_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) display_control_align_labels_checkbutton, "toggled",
+                    G_CALLBACK (on_display_control_align_labels_checkbutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) display_control_ok_button, "clicked",
                     G_CALLBACK (on_display_control_ok_button_clicked),
                     NULL);
@@ -5366,6 +5381,8 @@ create_display_control_window_glade (void)
   GLADE_HOOKUP_OBJECT (display_control_window_glade, hbox236, "hbox236");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, label258, "label258");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, display_control_all_models_togglebutton, "display_control_all_models_togglebutton");
+  GLADE_HOOKUP_OBJECT (display_control_window_glade, display_control_last_model_only_button, "display_control_last_model_only_button");
+  GLADE_HOOKUP_OBJECT (display_control_window_glade, display_control_align_labels_checkbutton, "display_control_align_labels_checkbutton");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, scrolledwindow22, "scrolledwindow22");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, viewport14, "viewport14");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, display_molecule_vbox, "display_molecule_vbox");
