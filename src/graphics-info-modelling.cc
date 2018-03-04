@@ -824,10 +824,10 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	       for (unsigned int i=0; i<residues_mol_and_res_vec.second.size(); i++)
 		  local_residues.push_back(std::pair<bool, mmdb::Residue *>(0, residues_mol_and_res_vec.second[i]));
 
-	       clipper::Xmap<float> dummy;
-	       clipper::Xmap<float> &xmap = dummy;
-	       if (is_valid_map_molecule(Imol_Refinement_Map()))
-		  xmap = molecules[Imol_Refinement_Map()].xmap;
+	       int imol_for_map = Imol_Refinement_Map();
+	       clipper::Xmap<float> &xmap = *dummy_xmap;
+	       if (is_valid_map_molecule(imol_for_map))
+		  xmap = molecules[imol_for_map].xmap;
 
 	       if (last_restraints) {
 		  std::cout << "----------------------------------------------" << std::endl;
