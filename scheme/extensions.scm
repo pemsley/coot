@@ -867,6 +867,10 @@
 	 (lambda ()
 	   (update-ncs-ghosts-by-local-sphere)))
 
+	(add-simple-coot-menu-menuitem
+	 submenu-ncs "NCS Jumping..."
+	 (lambda ()
+	   (ncs-jumping-gui)))
 	
 	(add-simple-coot-menu-menuitem
 	 submenu-ncs "NCS ligands..."
@@ -1496,24 +1500,29 @@
 
 
 	(add-simple-coot-menu-menuitem
-	 submenu-modules "SHELX" 
+	 submenu-modules "SHELX"
 	 (lambda ()
 	   (add-module-shelx)))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-modules "User-defined Restraints" 
+	 submenu-modules "User-defined Restraints"
 	 (lambda ()
 	   (add-module-user-defined-restraints)))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-modules "ProSMART" 
+	 submenu-modules "ProSMART"
 	 (lambda ()
 	   (add-module-prosmart)))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-modules "Carbohydrate" 
+	 submenu-modules "Carbohydrate"
 	 (lambda ()
 	   (add-module-carbohydrate)))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-modules "Cryo-EM"
+	 (lambda ()
+	   (add-module-cryo-em)))
 
 
 	;; ---------------------------------------------------------------------
