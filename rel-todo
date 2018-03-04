@@ -1,8 +1,6 @@
 
    For Release 0.8.9.1
 
-   o cache and use the histogram data for the map properties dialog ::: 0.5
-
    o read in a PHE, write out an ins - it fails due to no cell - but this is not
      apparent in the gui. ::: 1
 
@@ -28,8 +26,6 @@
    o reopen LSQ fit - the display says 24 but it chooses 0 for the reference molecule ::: 1
 
    o Make RCrane work again ::: 4
-
-   o document how to remove contact dots. ::: 0.5
 
    o document how to remove additional representations ::: 0.5
 
@@ -128,5 +124,13 @@
 * Done. It's in a module.
 
    o update the symmetry after a merge molecule  ::: 1
+
+* Done.
+
+   o document how to remove contact dots. ::: 0.5
+
+* Done. In the API :-)
+
+   o cache and use the histogram data for the map properties dialog ::: 0.5
 
 * Done.
