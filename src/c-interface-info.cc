@@ -2610,17 +2610,18 @@ fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
 
    if (is_valid_map_molecule(imol)) {
       // set_and_get_histogram_values(); surely?
-      unsigned int n = graphics_info_t::molecules[imol].map_histogram_values.size();
+
+      unsigned int n_bins = 1000;
+      mean_and_variance<float> mv = graphics_info_t::molecules[imol].set_and_get_histogram_values(n_bins);
+
+      unsigned int n = mv.size();
+
       if (n == 1) {
 	 // pass, previous fail
       } else {
 
 	 if (true) {
 
-	    const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol].xmap;
-	    unsigned int n_bins = 1000;
-	    bool ignore_pseudo_zeros = false;
-	    mean_and_variance <float> mv = map_density_distribution(xmap, n_bins, false, ignore_pseudo_zeros);
 	    float rmsd = sqrt(mv.variance);
 
 	    if (false) {
