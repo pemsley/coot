@@ -830,6 +830,17 @@ class graphics_info_t {
 			     int imol,
 			     std::string chain_id);
 
+   // 201803004:
+   // refinement now uses references to Xmaps.
+   // A dummy_map is created and a reference to that is created. Then
+   // the reference is reset to a real xmap in a molecule (imol_for_map).
+   // But, for a reason I don't understand, the refinement crashes when I do that.
+   // When the initial dummy_xmap doesn't go out of scope, then the refinement is OK.
+   // So this static dummy map is the map that doesn't go out of scope.
+   // We only need one of it, so it goes here, rather than get created every
+   // time we do a refinement. It may need to be public in future.
+   static clipper::Xmap<float> *dummy_xmap;
+
    std::string adjust_refinement_residue_name(const std::string &resname) const;
    static void info_dialog_missing_refinement_residues(const std::vector<std::string> &res_names);
    void info_dialog_alignment(coot::chain_mutation_info_container_t mutation_info) const;
