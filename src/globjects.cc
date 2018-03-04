@@ -163,6 +163,8 @@ bool graphics_info_t::do_expose_swap_buffers_flag = 1;
 ctpl::thread_pool graphics_info_t::static_thread_pool(coot::get_max_number_of_threads());
 #endif // HAVE_CC_THREAD
 
+clipper::Xmap<float> *graphics_info_t::dummy_xmap = new clipper::Xmap<float>;
+
 
 //WII
 #ifdef WII_INTERFACE_WIIUSE
