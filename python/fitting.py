@@ -805,10 +805,13 @@ def refine_tandem_residues():
        alt_conf   = active_atom[5]
        specs = []
        for ires in range(res_no-3, res_no+4):
-           # test if the residue exists by looking for a residue name
-           rn = residue_name(imol, chain_id, ires, ins_code)
-           if len(rn) > 0:
-               specs.append([chain_id, ires, ins_code])
+           try:
+              # test if the residue exists by looking for a residue name
+              rn = residue_name(imol, chain_id, ires, ins_code)
+              if len(rn) > 0:
+                  specs.append([chain_id, ires, ins_code])
+           except TypeError as e:
+               pass # no need to tell us
        refine_residues(imol, specs)
 
 
