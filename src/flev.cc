@@ -463,7 +463,7 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 	 
 	 if (! p.first) {
 	    std::string s1 = "WARNING:: fle_view_with_rdkit(): ";
-	    std::string s1 = "WARNING:: ";
+	    std::string s2 = "WARNING:: ";
 	    s1 += "Failed to get \nmonomer_restraints for ligand of type ";
 	    s2 += "Failed to get \nmonomer_restraints for ligand of type ";
 	    s1 += ligand_res_name;
