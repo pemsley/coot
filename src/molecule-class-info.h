@@ -1042,6 +1042,11 @@ public:        //                      public
 
    mmdb::Atom *get_atom(int idx) const;
 
+   // return the maximum residue number in the chain. first of false means failure to do so.
+   //
+   std::pair<bool,int> max_res_no_in_chain(mmdb::Chain *chain_p) const;
+
+
    void set_draw_hydrogens_state(int i) {
       if (draw_hydrogens_flag != i) { 
 	 draw_hydrogens_flag = i;
