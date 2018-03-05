@@ -1886,8 +1886,25 @@ void setup_save_symmetry_coords();
 
  for shelx FA pdb files, there is no space group.  So allow the user
    to set it.  This can be initted with a HM symbol or a symm list for
-   clipper.  Return the succes status of the setting. */
+   clipper.
+
+This will only work on model molecules.
+
+@return the success status of the setting  (1 good, 0 fail). */
 short int set_space_group(int imol, const char *spg);
+
+//! \brief set the unit cell for a given model molecule
+//!
+//! Angles in degress, cell lengths in Angstroms.
+//!
+//! @return  the success status of the setting (1 good, 0 fail).
+int set_unit_cell_and_space_group(int imol, float a, float b, float c, float alpha, float beta, float gamma, const char *space_group);
+
+//! \brief set the unit cell for a given model molecule using the cell of moecule imol_from
+//!
+//! This will only work on model molecules.
+//! @return  the success status of the setting (1 good, 0 fail).
+int set_unit_cell_and_space_group_using_molecule(int imol, int imol_from);
 
 /*! \brief set the cell shift search size for symmetry searching.
 

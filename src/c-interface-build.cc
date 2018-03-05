@@ -3428,7 +3428,7 @@ int clear_and_update_molecule(int molecule_number, SCM molecule_expression) {
    } else {
       std::cout << "WARNING:: " << molecule_number << " is not a valid model molecule"
 		<< std::endl;
-   } 
+   }
    return state;
 }
 #endif // USE_GUILE
@@ -4863,6 +4863,9 @@ int write_shelx_ins_file(int imol, const char *filename) {
 	 graphics_info_t g;
 	 g.add_status_bar_text(stat.second);
 	 std::cout << stat.second << std::endl;
+	 if (istat != 1) {
+	    wrapped_nothing_bad_dialog(stat.second);
+	 }
       } else {
 	 std::cout << "WARNING:: invalid molecule (" << imol
 		   << ") for write_shelx_ins_file" << std::endl;

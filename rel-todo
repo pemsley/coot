@@ -1,13 +1,6 @@
 
    For Release 0.8.9.1
 
-   o read in a PHE, write out an ins - it fails due to no cell - but this is not
-     apparent in the gui. ::: 1
-
-   o Give me a function so that I can set the cell. ::: 1
-
-   o Give me a function so that I can set the cell and symmetry from that of another molecule. ::: 1
-
    o the half-bonds of a C-S bond (e.g. CYS) doesn't add the correct atom indicies ::: 2
 
    o long bonds in bonds representation ::: 2
@@ -15,13 +8,6 @@
    o map weights for cryo-EM carbohydrate fitting ::: 2
 
    o GM sigma and alpha for carbohydrate fitting ::: 2
-
-   o try to flev a residue that doesn't have a dictionary.  Give me a better
-     means of seeing that things went wrong or what went wrong
-
-     e.g. valence error (if you can manage the setup such a problem).
-
-     ::: 2
 
    o reopen LSQ fit - the display says 24 but it chooses 0 for the reference molecule ::: 1
 
@@ -134,3 +120,25 @@
    o cache and use the histogram data for the map properties dialog ::: 0.5
 
 * Done.
+
+   o read in a PHE, write out an ins - it fails due to no cell - but this is not
+     apparent in the gui. ::: 1
+
+* Done.
+
+   o Give me a function so that I can set the cell. ::: 1
+
+* Done.
+
+   o Give me a function so that I can set the cell and symmetry from that of another molecule. ::: 1
+
+* Done.
+
+   o try to flev a residue that doesn't have a dictionary.  Give me a better
+     means of seeing that things went wrong or what went wrong
+
+     e.g. valence error (if you can manage the setup such a problem).
+
+     ::: 1
+
+* Forget the valence thing for now. Error message improved.
