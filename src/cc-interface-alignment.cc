@@ -34,7 +34,7 @@ void associate_pir_alignment_from_file(int imol, std::string chain_id, std::stri
    if (is_valid_model_molecule(imol)) {
       if (coot::file_exists(pir_alignment_file_name)) {
 	 std::string s;
-	 std::ifstream f(pir_alignment_file_name);
+	 std::ifstream f(pir_alignment_file_name.c_str());
 	 std::string line;
 	 while (std::getline(f, line)) {
 	    s += line;
