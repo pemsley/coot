@@ -5326,6 +5326,36 @@ void display_only_active() {
    graphics_draw();
 }
 
+void set_only_last_model_molecule_displayed() {
+
+   int n_mols = graphics_info_t::n_molecules();
+   int imol_last = -1;
+   std::vector<int> turn_these_off; // can contain last
+   for (int i=0; i<n_mols; i++) {
+      if (is_valid_model_molecule(i)) {
+	 if (mol_is_displayed(i)) {
+	    turn_these_off.push_back(i);
+	    imol_last = i;
+	 }
+      }
+   }
+   if (turn_these_off.size() > 1) {
+      turn_these_off.pop_back();
+      for (unsigned int j=0; j<turn_these_off.size(); j++) {
+	 set_mol_displayed(turn_these_off[j], 0);
+	 set_mol_active(turn_these_off[j], 0);
+      }
+   }
+   if (is_valid_model_molecule(imol_last)) {
+      if (! mol_is_displayed(imol_last)) {
+	 set_mol_displayed(imol_last, 0);
+	 set_mol_active(imol_last, 0);
+      }
+   }
+
+}
+
+
 
 // Bleugh.
 char *
@@ -5967,7 +5997,6 @@ PyObject *residue_spec_make_triple_py(PyObject *res_spec_py) {
       PyList_SetItem(r, 1, res_no_py);
       PyList_SetItem(r, 2, ins_code_py);
    } else {
-      r = PyList_New(3);
       PyList_SetItem(r, 0, PyString_FromString(res_spec_default.chain_id.c_str()));
       PyList_SetItem(r, 1, PyInt_FromLong(res_spec_default.res_no));
       PyList_SetItem(r, 2, PyString_FromString(res_spec_default.ins_code.c_str()));
@@ -6097,7 +6126,7 @@ void post_scheme_scripting_window() {
 		  << std::endl;
         // load the fallback window if we have COOT_SCHEME_DIR (only Windows?!)
         // only for gtk2!
-#if (GTK_MAJOR_VERSION > 1)
+
         GtkWidget *window; 
         GtkWidget *scheme_entry; 
         window = create_scheme_window();
@@ -6105,7 +6134,7 @@ void post_scheme_scripting_window() {
         scheme_entry = lookup_widget(window, "scheme_window_entry");
         setup_guile_window_entry(scheme_entry); // USE_PYTHON and USE_GUILE used here
         gtk_widget_show(window);        
-#endif /* GTK_MAJOR_VERSION */
+
      } else { 
 	std::cout << COOT_SCHEME_DIR << " was not defined - cannot open ";
 	std::cout << "scripting window" << std::endl; 

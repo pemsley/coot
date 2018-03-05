@@ -3319,24 +3319,12 @@ SCM merge_molecules(SCM add_molecules, int imol) {
    std::vector<int> vam;
    SCM l_length_scm = scm_length(add_molecules);
 
-#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
-
    int l_length = scm_to_int(l_length_scm);
    for (int i=0; i<l_length; i++) {
       SCM le = scm_list_ref(add_molecules, SCM_MAKINUM(i));
       int ii = scm_to_int(le);
       vam.push_back(ii);
    } 
-   
-#else
-   
-   int l_length = gh_scm2int(l_length_scm);
-   for (int i=0; i<l_length; i++) {
-      SCM le = scm_list_ref(add_molecules, SCM_MAKINUM(i));
-      int ii =  gh_scm2int(le);
-      vam.push_back(ii);
-   }
-#endif // SCM_VERSION   
    
    std::pair<int, std::vector<std::string> > v = merge_molecules_by_vector(vam, imol);
 
@@ -3442,7 +3430,7 @@ int clear_and_update_molecule(int molecule_number, SCM molecule_expression) {
    } else {
       std::cout << "WARNING:: " << molecule_number << " is not a valid model molecule"
 		<< std::endl;
-   } 
+   }
    return state;
 }
 #endif // USE_GUILE
@@ -4877,6 +4865,9 @@ int write_shelx_ins_file(int imol, const char *filename) {
 	 graphics_info_t g;
 	 g.add_status_bar_text(stat.second);
 	 std::cout << stat.second << std::endl;
+	 if (istat != 1) {
+	    wrapped_nothing_bad_dialog(stat.second);
+	 }
       } else {
 	 std::cout << "WARNING:: invalid molecule (" << imol
 		   << ") for write_shelx_ins_file" << std::endl;

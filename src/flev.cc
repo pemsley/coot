@@ -462,9 +462,14 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 	    geom_p->get_monomer_restraints_at_least_minimal(ligand_res_name, imol);
 	 
 	 if (! p.first) {
-	    std::cout << "WARNING:: fle_view_with_rdkit(): "
-		      << "Failed to get monomer_restraints for ligand of type "
-		      << ligand_res_name << std::endl;
+	    std::string s1 = "WARNING:: fle_view_with_rdkit(): ";
+	    std::string s2 = "WARNING:: ";
+	    s1 += "Failed to get \nmonomer_restraints for ligand of type ";
+	    s2 += "Failed to get \nmonomer_restraints for ligand of type ";
+	    s1 += ligand_res_name;
+	    s2 += ligand_res_name;
+	    std::cout << s1 << std::endl;
+	    info_dialog(s2.c_str());
 	 } else {
 	    std::vector<mmdb::Residue *> residues =
 	       coot::residues_near_residue(res_ref, mol_for_res_ref, residues_near_radius);

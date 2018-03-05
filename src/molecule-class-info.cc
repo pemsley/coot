@@ -6131,7 +6131,10 @@ molecule_class_info_t::save_coordinates(const std::string filename,
    int ierr = 0;
    std::string ext = coot::util::file_name_extension(filename);
    if (coot::util::extension_is_for_shelx_coords(ext)) {
-      write_shelx_ins_file(filename);
+      std::pair<int, std::string> status_pair = write_shelx_ins_file(filename);
+      // we need to reverse the logic of the status, 1 is good for write_shelx_ins_file()
+      if (status_pair.first != 1)
+	 ierr = 1;
    } else {
       mmdb::byte bz = mmdb::io::GZM_NONE;
 
@@ -6141,7 +6144,7 @@ molecule_class_info_t::save_coordinates(const std::string filename,
    }
 
    if (ierr) {
-      std::cout << "WARNING!! Coordinates write to " << filename
+      std::cout << "WARNING:: Coordinates write to " << filename
 		<< " failed!" << std::endl;
       std::string ws = "WARNING:: export coords: There was an error ";
       ws += "in writing ";
@@ -6149,7 +6152,7 @@ molecule_class_info_t::save_coordinates(const std::string filename,
       GtkWidget *w = graphics_info_t::wrapped_nothing_bad_dialog(ws);
       gtk_widget_show(w);
    } else {
-      std::cout << "INFO: saved coordinates " << filename << std::endl;
+      std::cout << "INFO:: saved coordinates " << filename << std::endl;
       have_unsaved_changes_flag = 0;
 
       // Now we have updated the molecule name, how shall we restore
@@ -7818,10 +7821,10 @@ molecule_class_info_t::get_cell_and_symm() const {
    return cell_spgr;
 } 
 
-void 
+void
 molecule_class_info_t::set_mmdb_cell_and_symm(std::pair<std::vector<float>, std::string> cell_spgr) {
 
-   if (cell_spgr.first.size() == 6) { 
+   if (cell_spgr.first.size() == 6) {
       std::vector<float> a = cell_spgr.first; // short name
       atom_sel.mol->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
       atom_sel.mol->SetSpaceGroup(cell_spgr.second.c_str());

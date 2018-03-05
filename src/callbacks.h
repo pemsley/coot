@@ -4597,3 +4597,13 @@ on_mutate_molecule_sequence_text_button_release_event
                                         (GtkWidget       *widget,
                                         GdkEventButton  *event,
                                         gpointer         user_data);
+
+void
+on_display_control_last_model_only_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_display_control_align_labels_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);

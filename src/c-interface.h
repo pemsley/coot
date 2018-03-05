@@ -1878,7 +1878,7 @@ SCM origin_pre_shift_scm(int imol);
   ints or Python false on failure  */
 PyObject *origin_pre_shift_py(int imol);
 #endif  /* USE_PYTHON */
-#endif 
+#endif
 
 void setup_save_symmetry_coords();
 
@@ -1886,8 +1886,25 @@ void setup_save_symmetry_coords();
 
  for shelx FA pdb files, there is no space group.  So allow the user
    to set it.  This can be initted with a HM symbol or a symm list for
-   clipper.  Return the succes status of the setting. */
+   clipper.
+
+This will only work on model molecules.
+
+@return the success status of the setting  (1 good, 0 fail). */
 short int set_space_group(int imol, const char *spg);
+
+//! \brief set the unit cell for a given model molecule
+//!
+//! Angles in degress, cell lengths in Angstroms.
+//!
+//! @return  the success status of the setting (1 good, 0 fail).
+int set_unit_cell_and_space_group(int imol, float a, float b, float c, float alpha, float beta, float gamma, const char *space_group);
+
+//! \brief set the unit cell for a given model molecule using the cell of moecule imol_from
+//!
+//! This will only work on model molecules.
+//! @return  the success status of the setting (1 good, 0 fail).
+int set_unit_cell_and_space_group_using_molecule(int imol, int imol_from);
 
 /*! \brief set the cell shift search size for symmetry searching.
 
@@ -2867,6 +2884,10 @@ void set_all_maps_displayed(int on_or_off);
 /*! \brief if on_or_off is 0 turn off all models displayed and active,
   for other values of on_or_off turn on all models. */
 void set_all_models_displayed_and_active(int on_or_off);
+
+/*! \brief only display the last model molecule
+*/
+void set_only_last_model_molecule_displayed();
 
 /*\brief display only the active mol and the refinement map */
 void display_only_active();

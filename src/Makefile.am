@@ -221,13 +221,14 @@ pkginclude_HEADERS = crunch-model.hh
 if OS_WIN32
 # no more libexec for windows
 bin_PROGRAMS =  coot-bin coot-density-score-by-residue-bin \
-	coot-fix-nomenclature-errors
+	coot-fix-nomenclature-errors dynarama-bin
 else
-libexec_PROGRAMS = coot-bin coot-density-score-by-residue-bin
+libexec_PROGRAMS = coot-bin coot-density-score-by-residue-bin \
+	dynarama-bin
 bin_PROGRAMS =  coot-fix-nomenclature-errors
 endif
-dist_bin_SCRIPTS = coot coot-density-score-by-residue
-check_PROGRAMS = test-coot-align test-cholesky dynarama-bin
+dist_bin_SCRIPTS = coot coot-density-score-by-residue dynarama
+check_PROGRAMS = test-coot-align test-cholesky 
 
 coot_fix_nomenclature_errors_SOURCES = \
 	fix-nomenclature.cc    \

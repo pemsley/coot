@@ -731,7 +731,6 @@
 	 (cancel-button (gtk-button-new-with-label " Cancel "))
 	 (h-sep (gtk-hseparator-new))
 	 (model-mol-list (option-menu-fill-function menu)))
-
     (gtk-window-set-default-size window 370 100)
     (gtk-container-add window vbox)
     (gtk-box-pack-start vbox label #f #f 5)
@@ -805,7 +804,7 @@
 (define (generic-chooser-and-entry chooser-label entry-hint-text defaut-entry-text callback-function . always-dismiss-on-ok-clicked?)
 
   ;; (format #t "always-dismiss-on-ok-clicked? is ~s~% " always-dismiss-on-ok-clicked?)
-  ;; if this function is called without the always-dismiss-on-ok-clicked? then
+  ;; if this function is called withouth the always-dismiss-on-ok-clicked? then
   ;; always-dismiss-on-ok-clicked? here is ().
   ;; otherwise it is a list containing the passed always-dismiss-on-ok-clicked? value.
 
@@ -2136,6 +2135,51 @@
 			    (gtk-widget-destroy window)))
 
       (gtk-widget-show-all window))))
+
+
+(define *ncs-jumping-time-step* 500)
+
+(define (ncs-jumping-gui)
+
+  ;; main body
+  (let* ((window (gtk-window-new 'toplevel))
+	 (outside-vbox (gtk-vbox-new #f 2))
+	 (inside-hbox (gtk-hbox-new #f 2))
+	 (cancel-hbox (gtk-vbox-new #f 2))
+	 (h-sep (gtk-hseparator-new))
+	 (jump-start-button (gtk-button-new-with-label "NCS Jump Start"))
+	 (jump-stop-button  (gtk-button-new-with-label "Stop"))
+	 (cancel-button     (gtk-button-new-with-label "Cancel"))
+	 (ms-step *ncs-jumping-time-step*)
+	 (timeout-function-token #f))
+
+    (gtk-window-set-title window "Auto NCS Jumping")
+    (gtk-container-add window outside-vbox)
+    (gtk-box-pack-start outside-vbox inside-hbox #f #f 2)
+    (gtk-box-pack-start outside-vbox h-sep #f #f 2)
+    (gtk-box-pack-start outside-vbox cancel-hbox #f #f 2)
+    (gtk-box-pack-start inside-hbox jump-start-button  #f #f 2)
+    (gtk-box-pack-start inside-hbox jump-stop-button   #f #f 2)
+    (gtk-box-pack-start cancel-hbox cancel-button #f #f 2)
+
+    (gtk-signal-connect jump-start-button "clicked"
+			(lambda ()
+			  (if (not (number? timeout-function-token))
+			      (set! timeout-function-token (gtk-timeout-add ms-step (lambda() (skip-to-next-ncs-chain 'forward)))))))
+
+    (gtk-signal-connect jump-stop-button "clicked"
+			(lambda ()
+			  (if (number? timeout-function-token)
+			      (gtk-timeout-remove timeout-function-token))
+			  (set! timeout-function-token #f)))
+
+    (gtk-signal-connect cancel-button "clicked"
+			(lambda ()
+			  (if (number? timeout-function-token)
+			      (gtk-timeout-remove timeout-function-token))
+			  (gtk-widget-destroy window)))
+
+    (gtk-widget-show-all window)))
 
 
 ;; GUI for ligand superpositioning by graph matching
@@ -3849,7 +3893,7 @@
 				   (active-item-imol (get-option-menu-active-item option-menu-map lmols))
 				   ;; There is no function to get a map file name from a molecule
 				   ;; It is not stored.
-				   (map-file-name "EMD-3908/map/emd_3908.map")
+				   (map-file-name (molecule-name active-item-imol))
 				   (map-file-name-stub (strip-path (file-name-sans-extension map-file-name)))
 				   (log-file-name (string-append
 						   "refmac-sharp"
@@ -3897,13 +3941,18 @@
     (gtk-container-add window vbox)
     (gtk-widget-show-all window))))
 
-;; I am not sure how to setup the interface
-(if (defined? 'coot-main-menubar)
-    (let ((menu (coot-menubar-menu "Refmac")))
+;;
+(define (add-module-cryo-em)
+  (if (defined? 'coot-main-menubar)
+      (add-module-cryo-em-gui)))
 
-      (add-simple-coot-menu-menuitem
-       menu "Multi-sharpen"
-       refmac-multi-sharpen-gui)))
+(define (add-module-cryo-em-gui)
+  (if (defined? 'coot-main-menubar)
+      (let ((menu (coot-menubar-menu "Cryo-EM")))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Multi-sharpen"
+	 refmac-multi-sharpen-gui))))
 
 
 

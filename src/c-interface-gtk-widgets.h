@@ -378,6 +378,8 @@ void save_display_control_widget_in_graphics(GtkWidget *widget);
 
 GtkWidget *wrapped_create_display_control_window();
 
+void align_labels_checkbutton_toggled(GtkToggleButton *togglebutton);
+
 GtkWidget *wrapped_create_merge_molecules_dialog();
 void do_merge_molecules_gui();
 void do_merge_molecules(GtkWidget *dialog);

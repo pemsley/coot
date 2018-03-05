@@ -134,6 +134,10 @@ match_this_residue_and_dictionary(int imol, std::string chain_id, int res_no, st
 bool comprised_of_organic_set_p(const std::string &rn);
 
 // all-atom contact dots.  This is not the place for this declaration (not a ligand function)
+//
+//! \brief calculate all-atom contact dots
+//!
+//! remove contact dots objects using the Generic Display Objects dialog
 void coot_all_atom_contact_dots(int imol);
 
 #ifdef USE_PYTHON
