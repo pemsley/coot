@@ -26187,6 +26187,8 @@ create_add_reps_dialog (void)
   GtkWidget *add_rep_rep_ball_and_stick_radiobutton;
   GtkWidget *label621;
   GtkWidget *label619;
+  GtkWidget *label809;
+  GtkWidget *hseparator19;
   GtkWidget *dialog_action_area110;
   GtkWidget *add_rep_add_rep_button;
   GtkWidget *alignment118;
@@ -26483,6 +26485,15 @@ create_add_reps_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (frame268), label619);
   gtk_label_set_use_markup (GTK_LABEL (label619), TRUE);
 
+  label809 = gtk_label_new ("Display of Addtional Representations is controlled in the Display Control dialog");
+  gtk_widget_show (label809);
+  gtk_box_pack_start (GTK_BOX (vbox267), label809, FALSE, FALSE, 0);
+  gtk_misc_set_alignment (GTK_MISC (label809), 0.03, 0.5);
+
+  hseparator19 = gtk_hseparator_new ();
+  gtk_widget_show (hseparator19);
+  gtk_box_pack_start (GTK_BOX (vbox267), hseparator19, TRUE, TRUE, 2);
+
   dialog_action_area110 = GTK_DIALOG (add_reps_dialog)->action_area;
   gtk_widget_show (dialog_action_area110);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area110), GTK_BUTTONBOX_END);
@@ -26592,6 +26603,8 @@ create_add_reps_dialog (void)
   GLADE_HOOKUP_OBJECT (add_reps_dialog, add_rep_rep_ball_and_stick_radiobutton, "add_rep_rep_ball_and_stick_radiobutton");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, label621, "label621");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, label619, "label619");
+  GLADE_HOOKUP_OBJECT (add_reps_dialog, label809, "label809");
+  GLADE_HOOKUP_OBJECT (add_reps_dialog, hseparator19, "hseparator19");
   GLADE_HOOKUP_OBJECT_NO_REF (add_reps_dialog, dialog_action_area110, "dialog_action_area110");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, add_rep_add_rep_button, "add_rep_add_rep_button");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, alignment118, "alignment118");

@@ -1878,7 +1878,7 @@ SCM origin_pre_shift_scm(int imol);
   ints or Python false on failure  */
 PyObject *origin_pre_shift_py(int imol);
 #endif  /* USE_PYTHON */
-#endif 
+#endif
 
 void setup_save_symmetry_coords();
 
