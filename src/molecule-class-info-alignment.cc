@@ -99,13 +99,13 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 				     << " from " << mr.aligned << " " << to << " " << mr.target << std::endl;
 			   if (mr.aligned != mr.target) {
 			      std::string new_residue_type = coot::util::single_letter_to_3_letter_code(mr.target);
-			      mutate(res_no, "", chain_id, new_residue_type);
+			      mutate(res_no_for_checking, "", chain_id, new_residue_type);
 			   }
 			} else {
 			   res_no_offset++;
 			}
 		     } else {
-			std::cout << "No residue for residue number " << res_no << std::endl;
+			std::cout << "No residue for residue number " << res_no_for_checking << std::endl;
 			// res_no_offset++;
 			break;
 		     }
