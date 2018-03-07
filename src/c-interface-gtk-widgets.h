@@ -607,6 +607,10 @@ int fill_ligands_dialog(GtkWidget *dialog);
 int fill_ligands_dialog_map_bits(GtkWidget *dialog, short int diff_maps_only_flag);	
 int fill_ligands_dialog_protein_bits(GtkWidget *dialog);	
 int fill_ligands_dialog_ligands_bits(GtkWidget *dialog);	
+
+void on_find_ligand_map_radiobutton_imol_toggled(GtkToggleButton *togglebutton,
+						 gpointer         user_data);
+
 /*  we need to delete the find_ligand_dialog when we are done, so  */
 /*  add this pointer as user data. */
 void do_find_ligand_many_atoms_in_ligands(GtkWidget *find_ligand_dialog); 
