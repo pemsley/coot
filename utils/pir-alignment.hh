@@ -24,7 +24,7 @@ namespace coot {
       void store(const std::vector<std::pair<int, std::string> > &seqs);
       int description_to_resno_start(const std::string &descr) const;
    public:
-      int resno_start;
+      int resno_start; // the starting residue number in the model (aligned)
       pir_alignment_t(const std::string &s);
       void read_file(const std::string &file_name);
       pir_alignment_t();

@@ -14,6 +14,7 @@ coot::operator<< (std::ostream &s, const coot::pir_alignment_t::matched_residue_
 
 coot::pir_alignment_t::pir_alignment_t() {
 
+   resno_start = -1; // unset really
 }
 
 coot::pir_alignment_t::pir_alignment_t(const std::string &s) {
@@ -149,6 +150,7 @@ coot::pir_alignment_t::store(const std::vector<std::pair<int, std::string> > &se
       const std::string &ref_seq = seqs[0].second;
       for (std::size_t i=1; i<seqs.size(); i++) { // others to first (ref_seq)
 	 const std::string &seq = seqs[i].second;
+	 resno_start = seqs[i].first; // perhaps every match needs a resno start?
 	 if (seq.size() == ref_seq.size()) {
 	    std::vector<matched_residue_t> res_vec(seq.size());
 	    for (std::size_t j=0; j<seq.size(); j++) {
@@ -156,6 +158,9 @@ coot::pir_alignment_t::store(const std::vector<std::pair<int, std::string> > &se
 	       res_vec[j] = m;
 	    }
 	    matches.push_back(res_vec);
+	 } else {
+	    std::cout << "size mismatch " << seq.size() << " " << ref_seq.size()
+		      << std::endl;
 	 }
       }
    }

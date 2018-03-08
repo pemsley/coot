@@ -37,9 +37,14 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
    std::map<std::string, coot::pir_alignment_t>::const_iterator it;
 
    it = pir_alignments.find(chain_id);
-   if (it != pir_alignments.end()) {
-      const coot::pir_alignment_t &a = it->second;
+   if (it == pir_alignments.end()) {
+      std::cout << "No chain " << chain_id << " found in " << pir_alignments.size() << " alignments"
+                << std::endl;
+   } else {
 
+      // Happy path
+      const coot::pir_alignment_t &a = it->second;
+ 
       if (a.matches.size() > 0) {
 
 	 mmdb::Chain *chain_p = 0;
@@ -61,6 +66,7 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 
 	    // so now we have the alignment and the chain to which it should be applied
 
+
 	    int bs = backups_state();
 	    turn_off_backup();
 
@@ -68,19 +74,16 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 	    int n_residues;
 	    chain_p->GetResidueTable(residues, n_residues);
 	    int i_res = 0; // to start with
-	    int i_res_offset_counter = 0;
+	    std::vector<mmdb::Residue *> deletables;
 
 	    if (a.size() > 0) {
 	       if (a.size(0) > 0) {
 		  std::vector<coot::pir_alignment_t::matched_residue_t> matches = a.get_matches(0);
+                  std::cout << "INFO:: need to apply " << matches.size() << " alignment matches" << std::endl;
 
-		  // here set i_res_offset_counter to be the serial number
-		  // of the residue of the first residue number in the model
-		  
 		  for (std::size_t i_align_pair=0; i_align_pair<matches.size(); i_align_pair++) {
 
 		     const coot::pir_alignment_t::matched_residue_t &mr = matches[i_align_pair];
-		     // std::cout << "Here 2 " << i_align_pair << " " << mr << std::endl;
 
 		     if (mr.aligned == '-') {
 
@@ -92,38 +95,60 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 
 			std::string pir_res_type = coot::util::single_letter_to_3_letter_code(mr.aligned);
 
-			int i_res_index = i_res + i_res_offset_counter;
-			if (i_res_index < n_residues) {
-			   mmdb::Residue *residue_p = residues[i_res_index];
+			if (i_res < n_residues) {
+			   mmdb::Residue *residue_p = residues[i_res];
 
 			   bool found_matching_residue = false;
 			   while (!found_matching_residue) {
 			      if (residue_p) {
 				 std::string mol_res_type = residue_p->GetResName();
-				 if (false)
+				 if (true)
 				    std::cout << "looking for \"" << mr.aligned << "\" \""
 					      << pir_res_type << "\" found "
 					      << mol_res_type << std::endl;
-				 if (pir_res_type == mol_res_type) {
-				    found_matching_residue = true;
+                                 if (residue_p->GetSeqNum() < a.resno_start) {
+				    // we haven't found the sarting residue yet
+				    if (false)
+				       std::cout << "We hanven't found the starting residue yet "
+						 << residue_p->GetSeqNum() << " " << a.resno_start
+						 << std::endl;
+                                 } else {
+                                     // happy Path
+				    if (pir_res_type == mol_res_type) {
+				       found_matching_residue = true;
 
-				    // now actually mutate (if needed)
-				    std::string to = "to";
-				    if (mr.aligned == mr.target) to = "..";
-				    std::cout << "INFO:: mutate " << coot::residue_spec_t(residue_p) << " " << residue_p->GetResName()
-					      << " from " << mr.aligned << " " << to << " " << mr.target << std::endl;
-				    if (mr.aligned != mr.target) {
-				       std::string new_residue_type = coot::util::single_letter_to_3_letter_code(mr.target);
-				       mutate(residue_p, new_residue_type);
+                                       if (mr.target == '-') {
+                                          // there was a residue in the model that we don't wan in the final sequence
+                                          // delete it!
+					  std::string aligned_res_type = coot::util::single_letter_to_3_letter_code(mr.aligned);
+					  std::string current_res_type = residue_p->GetResName();
+					  if (aligned_res_type == current_res_type) {
+					     std::cout << "Delete " << coot::residue_spec_t(residue_p) << std::endl;
+					     deletables.push_back(residue_p);
+					  } else {
+					     std::cout << "Something strange on Delete "
+						       << coot::residue_spec_t(residue_p) << std::endl;
+					  }
+                                       } else {
+				          // now actually mutate (if needed)
+				          std::string to = "to";
+				          if (mr.aligned == mr.target) to = "..";
+				          std::cout << "INFO:: mutate " << coot::residue_spec_t(residue_p)
+						    << " " << residue_p->GetResName() << " from "
+						    << mr.aligned << " " << to << " " << mr.target << std::endl;
+				          if (mr.aligned != mr.target) {
+				             std::string new_residue_type = coot::util::single_letter_to_3_letter_code(mr.target);
+				             mutate(residue_p, new_residue_type);
+                                         }
+                                       }
 				    }
 				 }
 			      }
 
 			      // try something new
 			      i_res++;
-			      i_res_index = i_res + i_res_offset_counter;
-			      if (i_res_index<n_residues) {
-				 residue_p = residues[i_res_index];
+			      if (i_res < n_residues) {
+				 residue_p = residues[i_res];
 			      } else {
 				 break; // the while loop
 			      }
@@ -137,6 +162,13 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 	       }
 	    }
 	    
+	    if (deletables.size()) {
+	       std::vector<coot::residue_spec_t> specs;
+	       for (unsigned int jj=0; jj<deletables.size(); jj++)
+		  specs.push_back(coot::residue_spec_t(deletables[jj]));
+	       delete_residues(specs);
+	    }
+
 	    have_unsaved_changes_flag = 1;
 	    make_bonds_type_checked();
 	    if (bs)
