@@ -1315,8 +1315,6 @@ graphics_info_t::remove_drag_refine_idle_function() {
    graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
 }
 
-
-
 // --------------------------------------------------------------------------------
 //                 residue info widget
 // --------------------------------------------------------------------------------
@@ -1574,9 +1572,9 @@ graphics_info_t::residue_info_edit_b_factor_apply_to_other_entries_maybe(GtkWidg
 	       gtk_entry_set_text(GTK_ENTRY(entry), entry_text.c_str());
 	    } else { 
 	       std::cout << "ERROR: no entry\n";
-	    } 
+	    }
 	 }
-      } 
+      }
    }
 }
 
