@@ -8,7 +8,7 @@
 
 std::ostream &
 coot::operator<< (std::ostream &s, const coot::pir_alignment_t::matched_residue_t &m) {
-   s << m.target << " " << m.aligned << " " << m.res_no;
+   s << m.target << " " << m.aligned;
    return s;
 }
 
@@ -147,20 +147,17 @@ coot::pir_alignment_t::store(const std::vector<std::pair<int, std::string> > &se
 
    if (seqs.size() > 1) {
       const std::string &ref_seq = seqs[0].second;
-      std::map<int, matched_residue_t> res_map;
-      for (std::size_t i=1; i<seqs.size(); i++) {
+      for (std::size_t i=1; i<seqs.size(); i++) { // others to first (ref_seq)
 	 const std::string &seq = seqs[i].second;
 	 if (seq.size() == ref_seq.size()) {
+	    std::vector<matched_residue_t> res_vec(seq.size());
 	    for (std::size_t j=0; j<seq.size(); j++) {
-	       int resno_start = seqs[i].first;
-	       int res_no = j + resno_start;
-	       matched_residue_t m(seq[j], ref_seq[j], res_no);
-	       res_map[res_no] = m;
-	       // std::cout << " " << m << std::endl;
+	       matched_residue_t m(seq[j], ref_seq[j]);
+	       res_vec[j] = m;
 	    }
+	    matches.push_back(res_vec);
 	 }
       }
-      matches.push_back(res_map);
    }
 }
 
