@@ -78,6 +78,8 @@ exptl::nsv::nsv(mmdb::Manager *mol,
    GtkWidget *vbox = GTK_DIALOG(top_lev)->vbox;
 #ifdef HAVE_GOOCANVAS
    canvas = goo_canvas_new();
+   g_object_set(G_OBJECT(canvas), "has-tooltip", TRUE, NULL); // needed for tooltips
+
    canvas_group = goo_canvas_get_root_item(GOO_CANVAS(canvas));
 #else
    canvas = GNOME_CANVAS(gnome_canvas_new()); // gnome_canvas_new_aa() is very slow
@@ -404,6 +406,17 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
       coot::atom_spec_t at_spec(at);
       std::string res_code =
 	 coot::util::three_letter_to_one_letter_with_specials(residue_p->GetResName());
+      std::string label(residue_p->GetChainID());
+      label += " ";
+      label += coot::util::int_to_string(residue_p->GetSeqNum());
+      label += " ";
+      std::string ins_code(residue_p->GetInsCode());
+      if (! ins_code.empty()) {
+	 // should not happen
+	 label += ins_code;
+	 label += " ";
+      }
+      label += residue_p->GetResName();
       std::string colour = "black";
       double x = (residue_p->GetSeqNum() - lowest_resno + 1) * pixels_per_letter - x_offset;
       double y = - pixels_per_chain * chain_position_number - 6;
@@ -431,7 +444,7 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
       double y2 = y1 - 11; // pixels_per_letter;
       std::string rect_colour = "grey85";
 
-      // double x1_max = 22500; // magic number
+      // double x1_max = 22500; // magic number, replaced by points_max (user-settable)
       
       if (x1 < points_max) { 
 #ifdef HAVE_GOOCANVAS
@@ -451,8 +464,12 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
                                          "fill-color", rect_colour.c_str(),
                                          "can-focus", TRUE,
                                          NULL);
+
          // Save the rectangle to be able to change the bg of the letter later.
          g_object_set_data(G_OBJECT(txt_letter_group), "rect", rect_item);
+
+	 g_object_set(G_OBJECT(txt_letter_group), "tooltip", label.c_str(), NULL);
+
 #else
     GtkCanvasItem *rect_item;
 

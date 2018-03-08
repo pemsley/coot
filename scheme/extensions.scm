@@ -1514,6 +1514,11 @@
 	 (lambda ()
 	   (add-module-prosmart)))
 
+;	(add-simple-coot-menu-menuitem
+;	 submenu-modules "CCP4"
+;	 (lambda ()
+;	   (add-module-ccp4)))
+
 	(add-simple-coot-menu-menuitem
 	 submenu-modules "Carbohydrate"
 	 (lambda ()
