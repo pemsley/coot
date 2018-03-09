@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
 #include "coot-utils.hh"
 #include "pir-alignment.hh"
 
@@ -170,7 +171,7 @@ coot::pir_alignment_t::read_file(const std::string &file_name) {
 
    std::string s;
    if (file_exists(file_name)) {
-      std::ifstream f(file_name);
+      std::ifstream f(file_name.c_str());
       std::string line;
       while (std::getline(f, line)) {
 	 s += line;
