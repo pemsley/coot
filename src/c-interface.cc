@@ -5335,21 +5335,21 @@ void set_only_last_model_molecule_displayed() {
       if (is_valid_model_molecule(i)) {
 	 if (mol_is_displayed(i)) {
 	    turn_these_off.push_back(i);
-	    imol_last = i;
 	 }
+	 imol_last = i; // updates
       }
    }
-   if (turn_these_off.size() > 1) {
-      turn_these_off.pop_back();
-      for (unsigned int j=0; j<turn_these_off.size(); j++) {
+
+   for (unsigned int j=0; j<turn_these_off.size(); j++) {
+      if (turn_these_off[j] != imol_last) {
 	 set_mol_displayed(turn_these_off[j], 0);
 	 set_mol_active(turn_these_off[j], 0);
       }
    }
    if (is_valid_model_molecule(imol_last)) {
       if (! mol_is_displayed(imol_last)) {
-	 set_mol_displayed(imol_last, 0);
-	 set_mol_active(imol_last, 0);
+	 set_mol_displayed(imol_last, 1);
+	 set_mol_active(imol_last, 1);
       }
    }
 

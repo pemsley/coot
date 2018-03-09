@@ -3,9 +3,8 @@
 
    o reopen LSQ fit - the display says 24 but it chooses 0 for the reference molecule ::: 1
 
-   o the half-bonds of a C-S bond (e.g. CYS) doesn't add the correct atom indicies ::: 2
-
-   o long bonds in bonds representation ::: 2
+   o when a difference map is selected (from a 2fofc map) in find ligands, change the rmd level
+     to 3.0 if it is default.
 
    o map weights for cryo-EM carbohydrate fitting ::: 2
 
@@ -15,6 +14,11 @@
 
    o document how to remove additional representations ::: 0.5
 
+   o density fit analysis graph should be labelled with the map to which it was scored. ::: 0.5
+
+   o fix up the "Only Last" molecule button ::: 0.5
+
+   o sequence view tool tip for resdiue number
 
 --------------
 
@@ -142,3 +146,11 @@
      ::: 1
 
 * Forget the valence thing for now. Error message improved.
+
+   o the half-bonds of a C-S bond (e.g. CYS) doesn't add the correct atom indices ::: 1
+
+* Done.
+
+   o long bonds in bonds representation ::: 1
+
+* Done.

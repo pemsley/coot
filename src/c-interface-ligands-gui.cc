@@ -287,6 +287,11 @@ int fill_ligands_dialog_map_bits_by_dialog_name(GtkWidget *find_ligand_dialog,
 					 map_str.c_str(),
 					 find_ligand_map_radiobutton_imol,
 					 (GtkDestroyNotify) gtk_widget_unref);
+
+	       gtk_signal_connect (GTK_OBJECT (find_ligand_map_radiobutton_imol), "toggled",
+				   GTK_SIGNAL_FUNC (on_find_ligand_map_radiobutton_imol_toggled),
+				   GINT_TO_POINTER(imol));
+
 	       gtk_widget_show (find_ligand_map_radiobutton_imol);
 	       gtk_box_pack_start (GTK_BOX (find_ligand_map_vbox),
 				   find_ligand_map_radiobutton_imol, FALSE, FALSE, 0);
@@ -296,6 +301,25 @@ int fill_ligands_dialog_map_bits_by_dialog_name(GtkWidget *find_ligand_dialog,
    }
    return ifound; 
 }
+
+void
+on_find_ligand_map_radiobutton_imol_toggled(GtkToggleButton *togglebutton,
+					    gpointer         user_data) {
+
+   int imol = GPOINTER_TO_INT(user_data);
+   if (togglebutton->active) {
+      std::cout << "imol " << imol << " active "<< std::endl;
+      GtkWidget *w = lookup_widget(GTK_WIDGET(togglebutton), "find_ligand_sigma_level_entry");
+      if (w) {
+	 if (map_is_difference_map(imol)) {
+	    gtk_entry_set_text(GTK_ENTRY(w), "3.0");
+	 } else {
+	    gtk_entry_set_text(GTK_ENTRY(w), "1.0");
+	 }
+      }
+   }
+}
+
 
 int fill_ligands_dialog_protein_bits(GtkWidget *find_ligand_dialog) {
    

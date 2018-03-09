@@ -149,12 +149,15 @@ coot::pir_alignment_t::store(const std::vector<std::pair<int, std::string> > &se
    if (seqs.size() > 1) {
       const std::string &ref_seq = seqs[0].second;
       std::map<int, matched_residue_t> res_map;
-      for (std::size_t i=1; i<seqs.size(); i++) {
+      for (std::size_t i=1; i<seqs.size(); i++) { // others to first (ref_seq)
 	 const std::string &seq = seqs[i].second;
 	 if (seq.size() == ref_seq.size()) {
+	    int res_count = 0;
 	    for (std::size_t j=0; j<seq.size(); j++) {
 	       int resno_start = seqs[i].first;
-	       int res_no = j + resno_start;
+	       int res_no = res_count + resno_start;
+	       if (seq[j] != '-')
+		  res_count++;
 	       matched_residue_t m(seq[j], ref_seq[j], res_no);
 	       res_map[res_no] = m;
 	       // std::cout << " " << m << std::endl;

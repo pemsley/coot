@@ -1798,6 +1798,9 @@ Bond_lines_container::handle_MET_or_MSE_case(mmdb::PAtom mse_atom,
 		     coot::Cartesian bond_mid_point = cart_at1.mid_point(cart_at2);
 		     int colc = atom_colour(residue_atoms[i], atom_colour_type, atom_colour_map_p);
 		     graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+
+		     mse_atom->GetUDData(udd_handle_atom_index, iat_1);
+		     residue_atoms[i]->GetUDData(udd_handle_atom_index, iat_2);
 		     addBond(col,  cart_at1, bond_mid_point, cc, model_number, iat_1, iat_2);
 		     addBond(colc, bond_mid_point, cart_at2, cc, model_number, iat_1, iat_2);
 		     // mark atom as bonded.
@@ -1877,6 +1880,7 @@ Bond_lines_container::handle_long_bonded_atom(mmdb::PAtom atom,
 		  // 20171224-PE FIXME lookup iat_1, iat_1
 		  int iat_1 = -1;
 		  int iat_2 = -1;
+
 		  addBond(col,  atom_pos, bond_mid_point, cc, model_number, iat_1, iat_2);
 		  addBond(colc, bond_mid_point, res_atom_pos, cc, model_number, iat_2, iat_2);
 		  bond_added_flag = 1;
@@ -3139,6 +3143,8 @@ Bond_lines_container::do_disulphide_bonds(atom_selection_container_t SelAtom,
       
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
 
+   // I could pass this I suppose - that may be quicker, if this is a problem.
+   int udd_atom_index_handle = SelAtom.mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index"); // set in make_asc
    
    int selHnd2 = SelAtom.mol->NewSelection();
 
@@ -3166,8 +3172,10 @@ Bond_lines_container::do_disulphide_bonds(atom_selection_container_t SelAtom,
 	 
 	 if ( contact[i].id2 > contact[i].id1 ) {
 
-	    int iat_1 = contact[i].id1;
-	    int iat_2 = contact[i].id2;
+	    int iat_1 = -1;
+	    int iat_2 = -1;
+	    Sulfur_selection[contact[i].id1]->GetUDData(udd_atom_index_handle, iat_1);
+	    Sulfur_selection[contact[i].id2]->GetUDData(udd_atom_index_handle, iat_2);
 
 	    std::string aloc_1(Sulfur_selection[ contact[i].id1 ]->altLoc);
 	    std::string aloc_2(Sulfur_selection[ contact[i].id2 ]->altLoc);
@@ -5058,6 +5066,7 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
    int atom_colour_type = coot::COLOUR_BY_CHAIN_C_ONLY;
    short int have_udd_atoms = false;
    int udd_handle = -1;
+
    add_bonds_het_residues(het_residues, imol,
 			  atom_colour_type,
 			  have_udd_atoms, udd_handle);
