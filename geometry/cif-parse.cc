@@ -1175,7 +1175,7 @@ coot::protein_geometry::chem_comp(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
       ierr_tot += ierr;
       if (s) {
 	 group = s; // e.g. "L-peptide"
-	 if (group == "L=PEPTIDE") // fix acedrg output
+	 if (group == "L-PEPTIDE") // fix acedrg output
 	    group = "L-peptide";
       }
 
