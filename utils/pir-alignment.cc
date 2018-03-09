@@ -15,6 +15,7 @@ coot::operator<< (std::ostream &s, const coot::pir_alignment_t::matched_residue_
 coot::pir_alignment_t::pir_alignment_t() {
 
    resno_start = -1; // unset really
+   resno_start_structure; // unset
 }
 
 coot::pir_alignment_t::pir_alignment_t(const std::string &s) {
@@ -80,7 +81,8 @@ coot::pir_alignment_t::init(const std::string &s) {
    std::string seq;
    std::vector<std::pair<int, std::string> > seqs;
    std::string running; // so that we can capture the > line and the description
-   int resno_start = 1;
+   resno_start = 1;
+   resno_start_structure = 1;
 
    for (int i=0; i<n; i++) {
 
@@ -148,6 +150,7 @@ coot::pir_alignment_t::store(const std::vector<std::pair<int, std::string> > &se
 
    if (seqs.size() > 1) {
       const std::string &ref_seq = seqs[0].second;
+      resno_start_structure = seqs[0].first;
       for (std::size_t i=1; i<seqs.size(); i++) { // others to first (ref_seq)
 	 const std::string &seq = seqs[i].second;
 	 resno_start = seqs[i].first; // perhaps every match needs a resno start?
