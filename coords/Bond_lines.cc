@@ -1379,10 +1379,12 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int atom_colour_
       int udd_status_2 = atom_2->GetUDData(udd_atom_index_handle, atom_index_2);
 
       if (udd_status_1 != mmdb::UDDATA_Ok) {
-	 std::cout << "ERROR:: in add_link_bond_templ() bad atom indexing 1" << std::endl;
+	 std::cout << "ERROR:: in add_link_bond_templ() bad atom indexing 1 using udd_atom_index_handle "
+		   << udd_atom_index_handle << std::endl;
       }
       if (udd_status_2 != mmdb::UDDATA_Ok) {
-	 std::cout << "ERROR:: in add_link_bond_templ() bad atom indexing 2" << std::endl;
+	 std::cout << "ERROR:: in add_link_bond_templ() bad atom indexing 2 using udd_atom_index_handle "
+		   << udd_atom_index_handle << std::endl;
       }
 
       // Even if the atom_index_1 or atom_index_2 were not correctly set, we can still draw
@@ -3145,7 +3147,7 @@ Bond_lines_container::do_disulphide_bonds(atom_selection_container_t SelAtom,
 
    // I could pass this I suppose - that may be quicker, if this is a problem.
    int udd_atom_index_handle = SelAtom.mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index"); // set in make_asc
-   
+
    int selHnd2 = SelAtom.mol->NewSelection();
 
    // model 1
