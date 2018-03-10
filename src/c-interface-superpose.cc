@@ -804,6 +804,9 @@ fill_lsq_option_menu_with_chain_options(GtkWidget *chain_optionmenu,
 	 GTK_SIGNAL_FUNC(lsq_moving_chain_option_menu_item_activate);
    }
 
+   std::cout << "debug:: fill chain option menu for mol " << imol
+	     << " and  active_chain_id " << active_chain_id << std::endl;
+
    if (is_valid_model_molecule(imol)) {
       std::string ss = "Unset";
       if (active_chain_id)

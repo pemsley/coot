@@ -2848,7 +2848,7 @@ molecule_class_info_t::residue_serial_number(const std::string &chain_id,
    int iserial = -1;
    mmdb::Residue *res = get_residue(chain_id, resno, insertion_code);
    if (res) {
-      std::cout << "DEBUG:: residue_serial_number residue " << resno << " found " << std::endl;
+      // std::cout << "DEBUG:: residue_serial_number residue " << resno << " found " << std::endl;
       iserial = res->index;
    } else {
       std::cout << "WARNING:: residue" << resno << " " << insertion_code
@@ -7198,7 +7198,7 @@ molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
 	    if (! done_merge) {
 	       std::cout << "WARNING:: CONFLICT: target chain id already exists "
 			 << "in this molecule" << std::endl;
-	       message = "CONFLICT: target chain id (";
+	       message = "WARNING:: CONFLICT: target chain id (";
 	       message += to_chain_id;
 	       message += ") already \nexists in this molecule!";
 	    }
