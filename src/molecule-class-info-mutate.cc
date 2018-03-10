@@ -126,15 +126,18 @@ molecule_class_info_t::mutate(int atom_index, const std::string &residue_type,
 }
 
 // return 0 on fail.
+//
+// verbose_mode is an optional argument - default true
 int
-molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_type) {
+molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_type, bool verbose_mode) {
 
    graphics_info_t g;
    int istate = 0;
 
-   std::cout << "INFO:: mutate " << res->GetSeqNum() << " "
-	     << res->GetChainID() << " to a " << residue_type
-	     << std::endl;
+   if (verbose_mode)
+      std::cout << "INFO:: mutate " << res->GetSeqNum() << " "
+		<< res->GetChainID() << " to a " << residue_type
+		<< std::endl;
 
    // get the standard orientation residue for this residue type
    mmdb::PPResidue     SelResidue;
@@ -169,7 +172,7 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
    g.standard_residues_asc.mol->GetSelIndex ( selHnd, SelResidue,nSelResidues );
 
    if (nSelResidues != 1) {
-      std::cout << "This should never happen - ";
+      std::cout << "ERROR:: This should never happen - ";
       std::cout << "badness in mutate standard residue selection\n";
    } else {
 
@@ -178,7 +181,7 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
 	 
       if (rtops.size() == 0) {
 	 
-	 std::cout << "failure to get orientation matrix" << std::endl;
+	 std::cout << "ERROR::: failure to get orientation matrix" << std::endl;
 
       } else { 
 
@@ -192,7 +195,7 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
 								 atom_sel.UDDAtomIndexHandle);
 	    if (! std_residue) {
 
-	       std::cout << "failure to get std_residue in mutate()" << std::endl;
+	       std::cout << "ERROR:: failure to get std_residue in mutate()" << std::endl;
 
 	    } else { 
       
@@ -202,7 +205,7 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
 	       int nResidueAtoms;
 	       std_residue->GetAtomTable(residue_atoms, nResidueAtoms);
 	       if (nResidueAtoms == 0) {
-		  std::cout << " something broken in atom residue selection in ";
+		  std::cout << "ERROR:: something broken in atom residue selection in ";
 		  std::cout << "mutate, got 0 atoms" << std::endl;
 	       } else {
 		  for(int iat=0; iat<nResidueAtoms; iat++) {

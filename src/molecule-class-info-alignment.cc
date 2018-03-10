@@ -102,14 +102,14 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 			   while (!found_matching_residue) {
 			      if (residue_p) {
 				 std::string mol_res_type = residue_p->GetResName();
-				 if (true)
+				 if (false)
 				    std::cout << "looking for \"" << mr.aligned << "\" \""
 					      << pir_res_type << "\" found "
 					      << mol_res_type << std::endl;
                                  if (residue_p->GetSeqNum() < a.resno_start) {
 				    // we haven't found the sarting residue yet
 				    if (false)
-				       std::cout << "We hanven't found the starting residue yet "
+				       std::cout << "We haven't found the starting residue yet "
 						 << residue_p->GetSeqNum() << " " << a.resno_start
 						 << std::endl;
                                  } else {
@@ -118,12 +118,11 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 				       found_matching_residue = true;
 
                                        if (mr.target == '-') {
-                                          // there was a residue in the model that we don't wan in the final sequence
+                                          // there was a residue in the model that we don't want in the final sequence
                                           // delete it!
 					  std::string aligned_res_type = coot::util::single_letter_to_3_letter_code(mr.aligned);
 					  std::string current_res_type = residue_p->GetResName();
 					  if (aligned_res_type == current_res_type) {
-					     std::cout << "Delete " << coot::residue_spec_t(residue_p) << std::endl;
 					     deletables.push_back(residue_p);
 					  } else {
 					     std::cout << "Something strange on Delete "
@@ -133,12 +132,15 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 				          // now actually mutate (if needed)
 				          std::string to = "to";
 				          if (mr.aligned == mr.target) to = "..";
-				          std::cout << "INFO:: mutate " << coot::residue_spec_t(residue_p)
-						    << " " << residue_p->GetResName() << " from "
-						    << mr.aligned << " " << to << " " << mr.target << std::endl;
+					  if (false)
+					     std::cout << "INFO:: mutate " << coot::residue_spec_t(residue_p)
+						       << " " << residue_p->GetResName() << " from "
+						       << mr.aligned << " " << to << " " << mr.target << std::endl;
 				          if (mr.aligned != mr.target) {
-				             std::string new_residue_type = coot::util::single_letter_to_3_letter_code(mr.target);
-				             mutate(residue_p, new_residue_type);
+				             std::string new_residue_type =
+						coot::util::single_letter_to_3_letter_code(mr.target);
+					     bool verbose_mutate = false;
+				             mutate(residue_p, new_residue_type, verbose_mutate);
                                          }
                                        }
 				    }
@@ -161,7 +163,7 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 		  }
 	       }
 	    }
-	    
+
 	    if (deletables.size()) {
 	       std::vector<coot::residue_spec_t> specs;
 	       for (unsigned int jj=0; jj<deletables.size(); jj++)
@@ -169,11 +171,43 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 	       delete_residues(specs);
 	    }
 
+	    apply_pir_renumber(a, chain_p);
+
 	    have_unsaved_changes_flag = 1;
 	    make_bonds_type_checked();
 	    if (bs)
 	       turn_on_backup();
 	 }
+      }
+   }
+}
+
+void
+molecule_class_info_t::apply_pir_renumber(const coot::pir_alignment_t &a_in, mmdb::Chain *chain_p) {
+
+   coot::pir_alignment_t a = a_in;
+
+   std::cout << "----------------- now apply resno_start_structure from " << a.resno_start << " "
+	     << a.resno_end << " to (new-start) " << a.resno_start_structure << std::endl;
+
+   if (a.resno_start != -1) {
+      if (a.resno_start_structure != -1) {
+
+	 int resno_end = a.resno_end;
+
+	 if (a.resno_end == -1) {
+	    // set to be the C-terminus
+	    std::pair<bool,int> mr = max_res_no_in_chain(chain_p);
+	    if (mr.first) {
+	       resno_end = mr.second;
+	    }
+	 }
+
+	 int change_by_delta = a.resno_start_structure - a.resno_start;
+	 std::string chain_id(chain_p->GetChainID());
+	 std::cout << "apply_pir_renumber " << a.resno_start_structure << " "
+		   << resno_end << " " << change_by_delta<< std::endl;
+	 renumber_residue_range(chain_id, a.resno_start, resno_end, change_by_delta);
       }
    }
 }

@@ -1702,7 +1702,7 @@ public:        //                      public
    int mutate(int resno, const std::string &insertion_code,
 	       const std::string &chain_id, const std::string &residue_type);
    // and another:
-   int mutate(mmdb::Residue *res, const std::string &residue_type);
+   int mutate(mmdb::Residue *res, const std::string &residue_type, bool verbose=true);
 
    // Here is something that does DNA/RNA
    int mutate_base(const coot::residue_spec_t &res_spec, std::string type,
@@ -1741,6 +1741,7 @@ public:        //                      public
    void associate_pir_alignment(const std::string &chain_id, const std::string &alignment);
    // apply the alignment
    void apply_pir_alignment(const std::string &chain_id);
+   void apply_pir_renumber(const coot::pir_alignment_t &a, mmdb::Chain *chain_p);
    // this is where the PIR alignments are stored, the key is the chain-id
    std::map<std::string, coot::pir_alignment_t> pir_alignments;
 
