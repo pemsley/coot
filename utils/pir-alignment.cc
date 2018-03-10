@@ -52,7 +52,7 @@ coot::pir_alignment_t::is_pir_aa(char a, bool allow_gaps) const {
 
 int
 coot::pir_alignment_t::description_to_resno_start(const std::string &descr) const {
-   int rn = 1;
+   int rn = -1;
    std::pair<bool, int> r = description_split(descr, 2);
    if (r.first)
       rn = r.second;
@@ -97,7 +97,7 @@ coot::pir_alignment_t::init(const std::string &s) {
    // std::vector<std::pair<int, std::string> > seqs;
    std::vector<pir_t> seqs;
    std::string running; // so that we can capture the > line and the description
-   int resno_start =  1;
+   int resno_start = -1;
    int resno_end   = -1;
 
    for (int i=0; i<n; i++) {
