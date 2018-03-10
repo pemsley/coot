@@ -2675,7 +2675,7 @@ coot::restraints_container_t::bonded_residues_by_linear(int SelResHnd,
 coot::bonded_pair_container_t
 coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_geometry &geom) const {
 
-   bool debug = false;
+   bool debug = false; // Are your residues in the same chain?  If not filter() will not bond them.
 
    coot::bonded_pair_container_t bpc;
    float dist_crit = 3.0;
@@ -2708,13 +2708,14 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	    if (d.second < dist_crit) {
 	       std::pair<std::string, bool> l  = find_link_type_complicado(res_f, res_s, geom);
 	       std::string link_type = l.first;
-	       if (link_type != "") {
+	       if (!link_type.empty()) {
 
 		  // too verbose?
 		  if (debug)
 		     std::cout << "   INFO:: find_link_type_complicado(): "
 			       << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
 			       << " link_type -> :" << link_type << ":" << std::endl;
+
 		  bool whole_first_residue_is_fixed = 0;
 		  bool whole_second_residue_is_fixed = 0;
 		  bool order_switch_flag = l.second;
@@ -2723,13 +2724,13 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 		     coot::bonded_pair_t p(res_f, res_s,
 					   whole_first_residue_is_fixed,
 					   whole_second_residue_is_fixed, link_type);
-		     bool added_flag = bpc.try_add(p);
+		     bool previously_added_flag = bpc.try_add(p);
 		  } else {
 		     coot::bonded_pair_t p(res_s, res_f,
 					   whole_first_residue_is_fixed,
 					   whole_second_residue_is_fixed,
 					   link_type);
-		     bool added_flag = bpc.try_add(p);
+		     bool previously_added_flag = bpc.try_add(p);
 		  }
 	       } else {
 		  if (debug)
@@ -2740,7 +2741,9 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	 }
       }
    }
+
    bpc.filter(); // removes 1-3 bond items and if 1-2 and 1-3 bonds exist
+
    return bpc;
 }
 
