@@ -601,10 +601,15 @@ coot::restraints_container_t::make_link_restraints_from_res_vec(const coot::prot
 								bool do_rama_plot_restraints,
 								bool do_trans_peptide_restraints) {
 
+   bool debug = false;
    // this determines the link type
-   coot::bonded_pair_container_t bonded_residue_pairs = bonded_residues_from_res_vec(geom);
-   // std::cout << "   DEBUG:: in make_link_restraints_from_res_vec() found "
-   //           << bonded_residue_pairs.size() << " bonded residues " << std::endl;
+
+   bonded_pair_container_t bonded_residue_pairs = bonded_residues_from_res_vec(geom);
+
+   if (debug)
+      std::cout << "   DEBUG:: in make_link_restraints_from_res_vec() found "
+		<< bonded_residue_pairs.size() << " bonded residues " << std::endl;
+
    int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, do_trans_peptide_restraints, "Link");
 
    if (do_rama_plot_restraints)

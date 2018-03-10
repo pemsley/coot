@@ -696,6 +696,8 @@ int nudge_residue_sequence(int imol, char *chain_id, int res_no_range_start,
 								       res_no_range_end,
 								       nudge_by,
 								       nudge_residue_numbers_also);
+      if (status)
+	 graphics_draw();
    }
    return status;
 } 

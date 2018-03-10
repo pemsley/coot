@@ -3,22 +3,13 @@
 
    o reopen LSQ fit - the display says 24 but it chooses 0 for the reference molecule ::: 1
 
-   o when a difference map is selected (from a 2fofc map) in find ligands, change the rmd level
-     to 3.0 if it is default.
+   o copy molecule should also copy the representation style ::: 0.5
 
    o map weights for cryo-EM carbohydrate fitting ::: 2
 
    o GM sigma and alpha for carbohydrate fitting ::: 2
 
    o Make RCrane work again ::: 4
-
-   o document how to remove additional representations ::: 0.5
-
-   o density fit analysis graph should be labelled with the map to which it was scored. ::: 0.5
-
-   o fix up the "Only Last" molecule button ::: 0.5
-
-   o sequence view tool tip for resdiue number
 
 --------------
 
@@ -152,5 +143,22 @@
 * Done.
 
    o long bonds in bonds representation ::: 1
+
+* Done.
+
+   o when a difference map is selected (from a 2fofc map) in find ligands, change the rmd level
+     to 3.0 if it is default.
+
+* Done.
+
+   o document how to remove additional representations ::: 0.5
+
+* Done.
+
+   o sequence view tool tip for residue number ::: 0.5
+
+* Done.
+
+   o fix up the "Only Last" molecule button ::: 0.5
 
 * Done.

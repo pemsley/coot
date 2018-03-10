@@ -6582,6 +6582,8 @@ void destroy_edit_backbone_rama_plot() {
 void print_sequence_chain(int imol, const char *chain_id) {
 
    std::string seq;
+   bool with_spaces = false; // block spaced output is easier to read
+
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int imod = 1;
@@ -6609,7 +6611,8 @@ void print_sequence_chain(int imol, const char *chain_id) {
 	       residue_p = chain_p->GetResidue(ires);
 	       seq += coot::util::three_letter_to_one_letter(residue_p->GetResName());
 	       if (residue_count_block == 10) {
-		  seq += " ";
+		  if (with_spaces)
+		     seq += " ";
 		  residue_count_block = 0;
 	       }
 	       if (residue_count_line == 50) {
@@ -6621,7 +6624,7 @@ void print_sequence_chain(int imol, const char *chain_id) {
 	    }
 	 }
       }
-      std::cout << "> " << graphics_info_t::molecules[imol].name_sans_extension(0)
+      std::cout << ">" << graphics_info_t::molecules[imol].name_sans_extension(0)
 		<< " chain " << chain_id << std::endl;
       std::cout << seq << std::endl;
    }

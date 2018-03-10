@@ -8185,3 +8185,27 @@ Mon 26 Feb 2018 10:43:18 EET
    o 3wbm is a good example for RNA building - when RCrane works again :-/
      It has some difference map features that need fixing (in the protein).
 
+---
+Fri  9 Mar 2018 14:57:25 GMT
+
+   o Note to self: covalently bonded ligands must be in the same chain as the
+     protein chain to which they are attached.
+
+
+---
+Fri  9 Mar 2018 15:03:18 GMT
+
+   o when merging a ligand, try to change the chain-id to that of the protein
+     to which it's close. Add checked button to gui: auto-chain-for-ligands
+
+
+---
+Fri  9 Mar 2018 15:12:44 GMT
+
+   o yesterday I installed 3 virtual machines:
+     centos 6.9, Fedora live latest, Ubunutu 17.10 (latest)
+     All compiled coot out of the box with build-it.
+     (I had to install a few system libraries with apt, yum, dnf)
+
+
+

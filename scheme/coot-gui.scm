@@ -3952,9 +3952,12 @@
 
 	(add-simple-coot-menu-menuitem
 	 menu "Multi-sharpen"
-	 refmac-multi-sharpen-gui))))
+	 refmac-multi-sharpen-gui)
 
-
+	(add-simple-coot-menu-menuitem
+	 menu "Interactive Nudge Residues"
+	 (lambda ()
+	   (using-active-atom (nudge-residues-gui aa-imol aa-res-spec)))))))
 
 
 
