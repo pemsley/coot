@@ -1130,6 +1130,16 @@ public:        //                      public
 		      bool is_from_shelx_ins=false,
 		      bool warn_about_missing_symmetry_flag=true);
 
+   void install_model_with_ghosts(int imol_no_in, 
+				  atom_selection_container_t asc,
+				  const coot::protein_geometry *geom_p,
+				  const std::string &mol_name,
+				  short int display_in_display_control_widget_status,
+				  const std::vector<coot::ghost_molecule_display_t> &ncs_ghosts_in,
+				  bool is_from_shelx_ins=false,
+				  bool warn_about_missing_symmetry_flag=true,
+				  bool generate_ghost_info=true);
+
    int copy_residue_range(mmdb::Chain *from_chain, mmdb::Chain *to_chain,
 			  int residue_range_1,
 			  int residue_range_2,

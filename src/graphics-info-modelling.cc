@@ -573,7 +573,10 @@ graphics_info_t::copy_model_molecule(int imol) {
       atom_selection_container_t asc = make_asc(n);
       std::string label = "Copy_of_";
       label += graphics_info_t::molecules[imol].name_;
-      g.molecules[new_mol_number].install_model(new_mol_number, asc, g.Geom_p(), label, 1);
+      const std::vector<coot::ghost_molecule_display_t> &ghosts = g.molecules[imol].NCS_ghosts();
+      bool shelx_flag = g.molecules[imol].is_from_shelx_ins();
+      g.molecules[new_mol_number].install_model_with_ghosts(new_mol_number, asc, g.Geom_p(), label, 1, ghosts,
+							    shelx_flag, false, false);
       update_go_to_atom_window_on_new_mol();
       iret = new_mol_number;
    }

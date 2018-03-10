@@ -3,8 +3,6 @@
 
    o reopen LSQ fit - the display says 24 but it chooses 0 for the reference molecule ::: 1
 
-   o copy molecule should also copy the representation style ::: 0.5
-
    o map weights for cryo-EM carbohydrate fitting ::: 2
 
    o GM sigma and alpha for carbohydrate fitting ::: 2
