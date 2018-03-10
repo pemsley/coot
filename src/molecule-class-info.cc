@@ -478,6 +478,30 @@ molecule_class_info_t::install_model(int imol_no_in,
 				     bool warn_about_missing_symmetry_flag // default false
 				     ) {
 
+   bool generate_ghost_info = true;
+   std::vector<coot::ghost_molecule_display_t> dummy_ghosts;
+   install_model_with_ghosts(imol_no_in, asc, geom_p, name,
+			     display_in_display_control_widget_status,
+			     dummy_ghosts,
+			     is_from_shelx_ins,
+			     warn_about_missing_symmetry_flag,
+			     generate_ghost_info);
+}
+
+// if generate_ghost_info is false, copy the ghost info, don't regnerate it.
+// otherwise, behave as you used to.
+void
+molecule_class_info_t::install_model_with_ghosts(int imol_no_in,
+						 atom_selection_container_t asc,
+						 const coot::protein_geometry *geom_p,
+						 const std::string &name, 
+						 short int display_in_display_control_widget_status,
+						 const std::vector<coot::ghost_molecule_display_t> &ncs_ghosts_in,
+						 bool is_from_shelx_ins, // default false
+						 bool warn_about_missing_symmetry_flag, // default false
+						 bool generate_ghost_info
+						 ) {
+
    imol_no = imol_no_in;
    graphics_info_t g;  // pass g.Geom_p()
    bond_width = g.default_bond_width; // bleugh, perhaps this should
@@ -509,8 +533,13 @@ molecule_class_info_t::install_model(int imol_no_in,
    } else {
       pickable_atom_selection = 1;
    }
-   bool do_rtops = true;
-   fill_ghost_info(do_rtops, graphics_info_t::ncs_homology_level);
+
+   if (generate_ghost_info) {
+      bool do_rtops = true;
+      fill_ghost_info(do_rtops, graphics_info_t::ncs_homology_level);
+   } else {
+      ncs_ghosts = ncs_ghosts_in;
+   }
    initialize_coordinate_things_on_read_molecule_internal(name, is_undo_or_redo);
 }
 

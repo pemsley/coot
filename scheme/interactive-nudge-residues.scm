@@ -84,10 +84,12 @@
 				 (rd (string->number rdt)))
 			    (if (number? rd)
 				(set! residue-delta rd))
-			    (format #t "v: ~s~%" v)
-			    (format #t "rdt: ~s~%" rdt)
-			    (format #t "rd: ~s~%" rd)
-			    (format #t "residue-delta: ~s~%" residue-delta)
+
+			    ;; (format #t "v: ~s~%" v)
+			    ;; (format #t "rdt: ~s~%" rdt)
+			    ;; (format #t "rd: ~s~%" rd)
+			    ;; (format #t "residue-delta: ~s~%" residue-delta)
+
 			    (let ((imol-new (new-molecule-with-nudged-residues imol residue-spec residue-delta v-int)))
 			      imol-new)))) ;; not very interesting
 
