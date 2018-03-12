@@ -118,6 +118,8 @@ namespace exptl {
       std::string colour_by_secstr(mmdb::Residue *residue_p) const;
       int points_max;
       void clear_canvas();
+      void helix(mmdb::Chain *chain_p, int resno_low, int resno_high, double x_offet);
+      void helix_single_inner(int i_turn_number, double x_start, double y_start, double hexix_scale); // needs more params
       
    public:
       nsv(mmdb::Manager *mol,
