@@ -56,7 +56,7 @@ coot::bonded_pair_container_t::try_add(const coot::bonded_pair_t &bp) {
 	 break;
       }
    }
-   
+
    if (! found) {
       bonded_residues.push_back(bp);
    }

@@ -304,16 +304,22 @@ exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 
 #ifdef HAVE_GOOCANVAS
 
-    goo_canvas_set_bounds(GOO_CANVAS(canvas),
-                          -70,  -1. * pixels_per_chain * (rcv.size() + 3),
-                          canvas_x_size, 2. * pixels_per_chain);
+	 goo_canvas_set_bounds(GOO_CANVAS(canvas),
+			       -70,  -1. * pixels_per_chain * (rcv.size() + 3),
+			       canvas_x_size, 2. * pixels_per_chain);
+
+	 // Consider instead automatic-bounds on the canvas
+	 // https://developer.gnome.org/goocanvas2/stable/GooCanvas.html#GooCanvas--automatic-bounds
+	 // g_object_set?
+
 #else
  	 gnome_canvas_set_scroll_region(canvas, left_limit, upper_limit,
- 				      scroll_width, scroll_height);
+					scroll_width, scroll_height);
 #endif
-    origin_marker();
-    draw_axes(rcv, lowest_resno, biggest_res_number, x_offset);
-    mol_to_canvas(mol, lowest_resno, x_offset);
+	 origin_marker();
+	 draw_axes(rcv, lowest_resno, biggest_res_number, x_offset);
+
+	 mol_to_canvas(mol, lowest_resno, x_offset);
 
       } else {
 	 std::cout << "Some residues have insertion codes, this is not coded for"
@@ -336,6 +342,15 @@ exptl::nsv::mol_to_canvas(mmdb::Manager *mol, int lowest_resno, double x_offset)
       int position_number = nchains - ichain - 1;
       chain_to_canvas(chain_p, position_number, lowest_resno, x_offset);
    }
+
+   // testing
+   if (false) {
+      chain_p = model_p->GetChain(0);
+      int resno_low = 10;
+      int resno_high = 30;
+      helix(chain_p, resno_low, resno_high, x_offset);
+   }
+
 }
 
 void
@@ -675,6 +690,261 @@ exptl::nsv::rect_event (GtkObject *obj,
    return 1;
 }
 #endif
+
+void
+exptl::nsv::helix(mmdb::Chain *chain_p, int resno_low, int resno_high, double x_offset) {
+
+#ifdef HAVE_GOOCANVAS
+
+   int chain_position_number = 4; // a higher number means higher in the widget
+
+   double x = 60;
+   x -= 10 + x_offset;
+   double y =  -40  -pixels_per_chain * chain_position_number - 6;
+
+   double x2 = x + 520.9;
+   double y2 = y + 210.9;
+   std::string rect_colour = "#f4f4f4";
+   GooCanvasItem *item = goo_canvas_rect_new(canvas_group,
+					     x, y,
+					     x2, y2,
+					     "line-width", 0.0,
+					     "fill-color", rect_colour.c_str(),
+					     "can-focus", FALSE,
+					     NULL);
+
+   int n_points = 5;
+   GooCanvasPoints *points = goo_canvas_points_new(n_points);
+   points->coords[0] =  5;
+   points->coords[1] =  5;
+   points->coords[2] =  5;
+   points->coords[3] = -5;
+   points->coords[4] = -5;
+   points->coords[5] = -5;
+   points->coords[6] = -5;
+   points->coords[7] =  5;
+   points->coords[8] =  5;
+   points->coords[9] =  5;
+
+   for (int ipoints=0; ipoints<n_points; ipoints++) {
+      points->coords[ipoints] += 0.0;
+   }
+
+   GooCanvasItem *item_box = goo_canvas_polyline_new(canvas_group, TRUE, 0,
+						   "points", points,
+						   "line-width", 1.0,
+						   "stroke-color", "black",
+						   NULL);
+
+
+   double x_start = 100.0;
+   double y_start = -40.0;
+   double helix_scale = 6.0; // overall scale, pass this?
+   for (int i_turn_number=0; i_turn_number<4; i_turn_number++) {
+      helix_single_inner(i_turn_number, x_start, y_start, helix_scale);
+   }
+
+#else
+   std::cout << "--------------------- no goocanvas! " << std::endl;
+#endif
+}
+
+
+// maybe put the items in a group and return the group?
+//
+void
+exptl::nsv::helix_single_inner(int i_turn_number, double x_start, double y_start, double helix_scale) {
+
+   // double x_start = 100.0;
+   // double y_start = -40.0;
+   // double helix_scale = 6.0; // overall scale, pass this?
+
+   double smidge = helix_scale/40.0;
+
+   double scale_x_to_y = helix_scale; // how much do helix y point move with a change in x?
+   double scale_x_to_residue_x = helix_scale * 6.0/40.0;
+   double back_to_front_offset = 1.5; // home much is the back item "ahead" of the front?
+
+   int n_helix_points = 20; // 2 * 10
+   double helix_width = helix_scale;
+   GooCanvasPoints *helix_points_front = goo_canvas_points_new(n_helix_points);
+   GooCanvasPoints *helix_points_back  = goo_canvas_points_new(n_helix_points);
+   GooCanvasPoints *helix_points_highlights_1  = goo_canvas_points_new(4);
+   GooCanvasPoints *helix_points_highlights_2  = goo_canvas_points_new(4);
+   GooCanvasPoints *helix_points_highlights_b  = goo_canvas_points_new(4);
+   GooCanvasPoints *helix_points_shadow_1      = goo_canvas_points_new(8);
+   GooCanvasPoints *helix_points_shadow_2      = goo_canvas_points_new(8);
+   GooCanvasPoints *helix_points_shadow_f     = goo_canvas_points_new(10); // different size
+   double helix_helix_interval = 3.14;
+
+   for (int i=0; i<10; i++) {
+      double theta_front = 0.11111*i * 3.14 + M_PI_2;
+      double theta_back  = 0.11111*i * 3.14 - M_PI_2;
+      double y_front = y_start + scale_x_to_y * sin(theta_front); // :-)
+      double y_back  = y_start + scale_x_to_y * sin(theta_back);
+      double x1 = x_start + i_turn_number*helix_helix_interval*helix_scale + double(i*scale_x_to_residue_x);
+      double x2 = x_start + i_turn_number*helix_helix_interval*helix_scale + double(i*scale_x_to_residue_x) + helix_width;
+      // std::cout << "i " << i << " x: " << x1 << " y: " << y << std::endl;
+
+      // front
+      helix_points_front->coords[2*i  ] = x1;
+      helix_points_front->coords[2*i+1] = y_front;
+
+      helix_points_front->coords[38-2*i  ] = x2;
+      helix_points_front->coords[38-2*i+1] = y_front;
+
+      // back
+      helix_points_back->coords[2*i  ] = x1 + helix_width*back_to_front_offset;
+      helix_points_back->coords[2*i+1] = y_back;
+
+      helix_points_back->coords[38-2*i  ] = x2 + helix_width*back_to_front_offset;
+      helix_points_back->coords[38-2*i+1] = y_back;
+
+   }
+
+   for (int i=0; i<4; i++) {
+      double theta_front = 0.11111*i * 3.14 + M_PI_2;
+      double theta_back  = 0.11111*i * 3.14 - M_PI_2;
+      double y_front = y_start + scale_x_to_y * sin(theta_front);
+      double y_back  = y_start + scale_x_to_y * sin(theta_back);
+      double x1 = x_start + i_turn_number*helix_helix_interval*helix_scale + double(i*scale_x_to_residue_x);
+      double x2 = x_start + i_turn_number*helix_helix_interval*helix_scale + double(i*scale_x_to_residue_x) + helix_width;
+
+      helix_points_shadow_1->coords[2*i  ] = x1 + helix_width*back_to_front_offset;
+      helix_points_shadow_1->coords[2*i+1] = y_back;
+
+      helix_points_shadow_1->coords[14-2*i  ] = x2 + helix_width*back_to_front_offset;
+      helix_points_shadow_1->coords[14-2*i+1] = y_back;
+   }
+
+   for (int i=6; i<10; i++) {
+      double theta_front = 0.11111*i * 3.14 + M_PI_2;
+      double theta_back  = 0.11111*i * 3.14 - M_PI_2;
+      double y_front = y_start + scale_x_to_y * sin(theta_front);
+      double y_back  = y_start + scale_x_to_y * sin(theta_back);
+      double x1 = x_start + i_turn_number*helix_helix_interval*helix_scale + double(i*scale_x_to_residue_x);
+      double x2 = x_start + i_turn_number*helix_helix_interval*helix_scale + double(i*scale_x_to_residue_x) + helix_width;
+
+      helix_points_shadow_2->coords[2*(i-6)  ] = x1 + helix_width*back_to_front_offset;
+      helix_points_shadow_2->coords[2*(i-6)+1] = y_back;
+
+      helix_points_shadow_2->coords[14-2*(i-6)  ] = x2 + helix_width*back_to_front_offset;
+      helix_points_shadow_2->coords[14-2*(i-6)+1] = y_back;
+   }
+
+   for (int i=0; i<5; i++) {
+      double theta_front = 0.11111*i * 3.14 + M_PI_2;
+      double theta_back  = 0.11111*i * 3.14 - M_PI_2;
+      double y_front = y_start + scale_x_to_y * sin(theta_front); // :-)
+      double y_back  = y_start + scale_x_to_y * sin(theta_back);
+      double x1 = x_start + i_turn_number*helix_helix_interval*helix_scale + double(i*scale_x_to_residue_x);
+      double x2 = x_start + i_turn_number*helix_helix_interval*helix_scale + double(i*scale_x_to_residue_x) + helix_width;
+
+      helix_points_shadow_f->coords[2*i  ] = x1;
+      helix_points_shadow_f->coords[2*i+1] = y_front;
+
+      helix_points_shadow_f->coords[18-2*i  ] = x2;
+      helix_points_shadow_f->coords[18-2*i+1] = y_front;
+
+   }
+
+   if (true) {
+
+      // back back-shadow-1 back-shadow-2 front front-shaddow highlight-front
+
+      GooCanvasItem *item_helix_b = goo_canvas_polyline_new(canvas_group, TRUE, 0,
+							    "points", helix_points_back,
+							    "line-width", 1.0,
+							    "stroke-color", "black",
+							    "fill-color", "#505068",
+							    NULL);
+
+      GooCanvasItem *item_helix_s1 = goo_canvas_polyline_new(canvas_group, TRUE, 0,
+							     "points", helix_points_shadow_1,
+							     "line-width", 0.0,
+							     "fill-color", "#383855",
+							     NULL);
+
+      GooCanvasItem *item_helix_s2 = goo_canvas_polyline_new(canvas_group, TRUE, 0,
+							     "points", helix_points_shadow_2,
+							     "line-width", 0.0,
+							     "fill-color", "#383855",
+							     NULL);
+
+      GooCanvasItem *item_helix_f = goo_canvas_polyline_new(canvas_group, TRUE, 0,
+							    "points", helix_points_front,
+							    "line-width", 1.0,
+							    "stroke-color", "black",
+							    "fill-color", "#8080dd",
+							    NULL);
+
+      GooCanvasItem *item_helix_sf = goo_canvas_polyline_new(canvas_group, TRUE, 0,
+							     "points", helix_points_shadow_f,
+							     "line-width", 0.0,
+							     "fill-color", "#6666bb",
+							     NULL);
+
+      // front highlight at phi = 3/4 Pi
+
+      double i = 6.0;
+      double theta_front = 0.11111*i * 3.14 + M_PI_2;
+      double y_front = y_start + scale_x_to_y * sin(theta_front); // :-)
+      double x1 = x_start + i_turn_number*helix_helix_interval*helix_scale + double(i*scale_x_to_residue_x);
+      double x2 = x_start + i_turn_number*helix_helix_interval*helix_scale + double(i*scale_x_to_residue_x) + helix_width;
+      helix_points_highlights_1->coords[0] = x1+4*smidge; // top left
+      helix_points_highlights_1->coords[1] = y_front-4*smidge;
+      helix_points_highlights_1->coords[2] = x2-1*smidge; // top right
+      helix_points_highlights_1->coords[3] = y_front-4*smidge;
+      helix_points_highlights_1->coords[4] = x2-4*smidge;  // bottom right
+      helix_points_highlights_1->coords[5] = y_front+4*smidge;
+      helix_points_highlights_1->coords[6] = x1;           // bottom left
+      helix_points_highlights_1->coords[7] = y_front+4*smidge;
+
+      helix_points_highlights_2->coords[0] = x1+3*smidge;
+      helix_points_highlights_2->coords[1] = y_front-1*smidge;
+      helix_points_highlights_2->coords[2] = x2-3*smidge;
+      helix_points_highlights_2->coords[3] = y_front-1*smidge;
+      helix_points_highlights_2->coords[4] = x2-5*smidge;
+      helix_points_highlights_2->coords[5] = y_front+1*smidge;
+      helix_points_highlights_2->coords[6] = x1+1*smidge;
+      helix_points_highlights_2->coords[7] = y_front+1*smidge;
+
+      // back highlight at phi = 1/2 Pi
+      {
+	 double i = 4.5;
+	 double theta_front = 0.11111*i * 3.14 + M_PI_2;
+	 double y_front = y_start + scale_x_to_y * sin(theta_front);
+	 double x1 = x_start + i_turn_number*helix_helix_interval*helix_scale + double(i*scale_x_to_residue_x);
+	 double x2 = x_start + i_turn_number*helix_helix_interval*helix_scale + double(i*scale_x_to_residue_x) + helix_width;
+	 helix_points_highlights_b->coords[0] = x1 + helix_width*back_to_front_offset - 0*smidge; // left
+	 helix_points_highlights_b->coords[1] = y_front-4*smidge;
+	 helix_points_highlights_b->coords[2] = x2 + helix_width*back_to_front_offset - 5*smidge; // right
+	 helix_points_highlights_b->coords[3] = y_front-4*smidge;
+	 helix_points_highlights_b->coords[4] = x2 + helix_width*back_to_front_offset + 1*smidge; // right
+	 helix_points_highlights_b->coords[5] = y_front+4*smidge;
+	 helix_points_highlights_b->coords[6] = x1 + helix_width*back_to_front_offset + 2*smidge; // left
+	 helix_points_highlights_b->coords[7] = y_front+4*smidge;
+      }
+
+      GooCanvasItem *item_helix_hb = goo_canvas_polyline_new(canvas_group, TRUE, 0,
+							     "points", helix_points_highlights_b,
+							     "line-width", 0.0,
+							     "fill-color", "#666677",
+							     NULL);
+      GooCanvasItem *item_helix_h1 = goo_canvas_polyline_new(canvas_group, TRUE, 0,
+							     "points", helix_points_highlights_1,
+							     "line-width", 0.0,
+							     "fill-color", "#9999ee",
+							     NULL);
+      GooCanvasItem *item_helix_h2 = goo_canvas_polyline_new(canvas_group, TRUE, 0,
+							     "points", helix_points_highlights_2,
+							     "line-width", 0.0,
+							     "fill-color", "#ddddee",
+							     NULL);
+
+   }
+}
+
 
 std::vector<exptl::nsv::chain_length_residue_units_t> 
 exptl::nsv::get_residue_counts(mmdb::Manager *mol) const {

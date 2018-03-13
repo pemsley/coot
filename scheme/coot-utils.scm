@@ -3457,15 +3457,15 @@
 	    (loop (cdr ls))))))))
 
   (define (drugbox->drugbank s)
-    (drugbox->drugitem "DrugBank * =" s))
+    (drugbox->drugitem "DrugBank *=" s))
 
   (define (drugbox->pubchem s)
-    (let ((i (drugbox->drugitem "PubChem  *=" s)))
+    (let ((i (drugbox->drugitem "PubChem *=" s)))
       (format #t "in drugbox->pubchem i: ~s~%" i)
       i))
 
   (define (drugbox->chemspider s)
-    (let ((i (drugbox->drugitem "ChemSpiderID  *=" s)))
+    (let ((i (drugbox->drugitem "ChemSpiderID *=" s)))
       (format #t "in drugbox->chemspider i: ~s~%" i)
       i))
 
@@ -3557,6 +3557,7 @@
 	#f))))
 
   (define (handle-rev-string-2016 rev-string)
+
     (let ((lines (string-split rev-string #\newline)))
 
       (cond 
@@ -3585,7 +3586,7 @@
 		    lines)
 
 	  (format #t "DEBUG:: handle-rev-string-2016: db-id: ~s~%" db-id)
-	  
+
 	  ;; check an association-list for the "DrugBank" entry
 	  ;; 
 	  (if (string? db-id)
@@ -3605,6 +3606,7 @@
 
 
   (define (handle-sxml-rev-value sxml)
+    ;; (format #t "handle-sxml-rev-value sxml: ~s~%" sxml)
     (let loop ((ls sxml))
       (cond 
        ((null? ls) #f)
@@ -3616,6 +3618,7 @@
 	      (loop (cdr ls))))))))
 
   (define (handle-sxml-revisions-value sxml)
+    ;; (format #t "handle-sxml-revisions-value sxml: ~s~%" sxml)
     (let loop ((ls sxml))
       (cond
        ((null? ls) #f)
@@ -3632,6 +3635,7 @@
 			    (handle-sxml-rev-value rev))))))))))))
 
   (define (handle-sxml-page-value sxml)
+    ;; (format #t "handle-sxml-page-value sxml: ~s~%" sxml)
     (let loop ((ls sxml))
       (cond
        ((null? ls) #f)
@@ -3648,6 +3652,7 @@
 			    (handle-sxml-revisions-value revisions))))))))))))
 	      
   (define (handle-sxml-pages-value sxml)
+    ;; (format #t "handle-sxml-pages-value sxml: ~s~%" sxml)
     (let loop ((ls sxml))
       (cond
        ((null? ls) #f)
@@ -3665,6 +3670,7 @@
 
 
   (define (handle-sxml-query-value sxml)
+    ;; (format #t "handle-sxml-query-value sxml: ~s~%" sxml)
     (let loop ((ls sxml))
       (cond
        ((null? ls) #f)
@@ -3682,6 +3688,7 @@
 			      
 
   (define (handle-sxml-api-value sxml)
+    ;; (format #t "handle-sxml-api-value sxml: ~s~%" sxml)
     (let loop ((ls sxml))
       (cond
        ((null? ls) #f)
@@ -3698,6 +3705,7 @@
 			    (handle-sxml-query-value query-value))))))))))))
 
   (define (handle-sxml sxml)
+    ;; (format #t "handle-sxml sxml: ~s~%" sxml)
     (let loop ((ls sxml))
       (cond
        ((null? ls) #f)
@@ -3743,8 +3751,10 @@
 			(display xml port)))
 
 		    ;;
+		    ;; (format #t "about to get captured ~%")
 		    (let ((captured (call-with-input-string
 				     xml (lambda (string-port)
+					   ;; (format #t "about to get sxml ~%") paracetamol.xml fails here
 					   (let ((sxml (xml->sxml string-port)))
 					     (handle-sxml sxml))))))
 		      captured))))))))

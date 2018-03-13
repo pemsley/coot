@@ -4916,7 +4916,10 @@ lbg_info_t::get_drug(const std::string &drug_name) {
       catch (const std::runtime_error &rte) {
 	 std::cout << "WARNING:: " << rte.what() << std::endl;
       }
-   } else {
+
+   }
+
+   if (status == false) {
 
       PyObject *pName = PyString_FromString("lidia.fetch");
       PyObject *pModule = PyImport_Import(pName);
