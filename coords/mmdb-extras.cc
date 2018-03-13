@@ -89,6 +89,7 @@ int check_ccp4_symm() {
 } 
 
 
+
 // Note, we also create a chain and add this residue to that chain.
 // We do this so that we have a holder for the segid.
 // 

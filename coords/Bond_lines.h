@@ -531,12 +531,12 @@ class Bond_lines_container {
 				      bool have_udd_atoms,
 				      int udd_handle);
 
-   void construct_from_model_links(mmdb::Model *model, int atom_colour_type);
+   void construct_from_model_links(mmdb::Model *model, int udd_atom_index_handle, int atom_colour_type);
    // which wraps...
-   void add_link_bond(mmdb::Model *model_p, int atom_colour_type, mmdb::Link *link);
-   void add_link_bond(mmdb::Model *model_p, int atom_colour_type, mmdb::LinkR *linkr);
+   void add_link_bond(mmdb::Model *model_p, int udd_atom_index_handle, int atom_colour_type, mmdb::Link *link);
+   void add_link_bond(mmdb::Model *model_p, int udd_atom_index_handle, int atom_colour_type, mmdb::LinkR *linkr);
 
-   template<class T> void add_link_bond_templ(mmdb::Model *model_p, int atom_colour_type, T *link);
+   template<class T> void add_link_bond_templ(mmdb::Model *model_p, int udd_atom_index_handle, int atom_colour_type, T *link);
 
    // now wit optional arg.  If atom_colour_type is set, then use/fill
    // it to get colour indices from chainids.

@@ -1231,6 +1231,7 @@ Bond_lines_container::add_aromatic_ring_bond_lines(const std::vector<std::string
 
 void
 Bond_lines_container::construct_from_model_links(mmdb::Model *model_p,
+						 int udd_atom_index_handle,
 						 int atom_colour_type) {
 
    // Interestingly, when we add a LINK to a PDB file, if there are
@@ -1252,7 +1253,7 @@ Bond_lines_container::construct_from_model_links(mmdb::Model *model_p,
 	    // 
 	    if ((link->s1 == link->s2) && (link->i1 == link->i2) &&
 		(link->j1 == link->j2) && (link->k1 == link->k2)) { 
-	       add_link_bond(model_p, atom_colour_type, link);
+	       add_link_bond(model_p, udd_atom_index_handle, atom_colour_type, link);
 	    }
 	 }
       }
@@ -1261,21 +1262,25 @@ Bond_lines_container::construct_from_model_links(mmdb::Model *model_p,
       if (n_linkrs > 0) { 
 	 for (int i_link=1; i_link<=n_linkrs; i_link++) {
 	    mmdb::LinkR *link = model_p->GetLinkR(i_link);
-	    add_link_bond(model_p, atom_colour_type, link);
+	    add_link_bond(model_p, udd_atom_index_handle, atom_colour_type, link);
 	 }
       }
    }
 }
 
 void
-Bond_lines_container::add_link_bond(mmdb::Model *model_p, int atom_colour_type,
+Bond_lines_container::add_link_bond(mmdb::Model *model_p,
+				    int udd_atom_index_handle,
+				    int atom_colour_type,
 				    mmdb::Link *link) {
 
-   add_link_bond_templ(model_p, atom_colour_type, link);
+   add_link_bond_templ(model_p, udd_atom_index_handle, atom_colour_type, link);
 }
 
 void
-Bond_lines_container::add_link_bond(mmdb::Model *model_p, int atom_colour_type,
+Bond_lines_container::add_link_bond(mmdb::Model *model_p,
+				    int udd_atom_index_handle,
+				    int atom_colour_type,
 				    mmdb::LinkR *linkr) {
 
    // Missing LINKR bond is due to incorrect placement of atom names in the LINKR card
@@ -1290,13 +1295,13 @@ Bond_lines_container::add_link_bond(mmdb::Model *model_p, int atom_colour_type,
 		<< " "  << linkr->seqNum2  << " "
 		<< "\"" << linkr->atName2  << "\""
 		<< std::endl;
-   add_link_bond_templ(model_p, atom_colour_type, linkr);
+   add_link_bond_templ(model_p, udd_atom_index_handle, atom_colour_type, linkr);
 
 }
 
 template<class T>
 void
-Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int atom_colour_type, T *link) {
+Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int udd_atom_index_handle, int atom_colour_type, T *link) {
 
    mmdb::PAtom atom_1 = NULL;
    mmdb::PAtom atom_2 = NULL;
@@ -1385,11 +1390,11 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int atom_colour_
 
       // perhaps the handle should be passed, not extracted here?
       mmdb::Manager *mol = model_p->GetCoordHierarchy();
-      int udd_atom_index_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index"); // set in make_asc
 
-      if (false) // on failure (for refinement atoms?) udd_atom_index_handle is 0
-	 std::cout << "debug:: in add_link_bond_templ() got udd_atom_index_handle "
-		   << udd_atom_index_handle << std::endl;
+      // int udd_atom_index_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index"); // set in make_asc
+
+      // std::cout << "DEBUG:: udd_atom_index_handle for atom index is "
+      // << udd_atom_index_handle << std::endl;
 
       int udd_status_1 = atom_1->GetUDData(udd_atom_index_handle, atom_index_1);
       int udd_status_2 = atom_2->GetUDData(udd_atom_index_handle, atom_index_2);
@@ -1612,7 +1617,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 
       mmdb::Model *model_p = SelAtom.mol->GetModel(imodel);
       if (model_p)
-	 construct_from_model_links(model_p, atom_colour_type);
+	 construct_from_model_links(model_p, uddHnd, atom_colour_type);
       
       // std::cout << "DEBUG:: (post) SelAtom: mol, n_selected_atoms "
       // << SelAtom.mol << " " << SelAtom.n_selected_atoms << std::endl;
@@ -4762,7 +4767,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 	       }
 	    }
 	 }
-	 construct_from_model_links(asc.mol->GetModel(imodel), atom_colour_type);
+	 construct_from_model_links(asc.mol->GetModel(imodel), uddHnd, atom_colour_type);
 	 
       }
       asc.mol->DeleteSelection(SelectionHandle);
@@ -5109,7 +5114,7 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
 	       }
 	    }
 	 }
-	 construct_from_model_links(asc.mol->GetModel(imodel), atom_colour_type);
+	 construct_from_model_links(asc.mol->GetModel(imodel), uddHnd, atom_colour_type);
 
       }
       asc.mol->DeleteSelection(SelectionHandle);
@@ -5302,7 +5307,7 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 		  }
 	       }
 	    }
-	    construct_from_model_links(asc.mol->GetModel(imodel), coot::COLOUR_BY_CHAIN);
+	    construct_from_model_links(asc.mol->GetModel(imodel), uddHnd, coot::COLOUR_BY_CHAIN);
 	 }
 	 asc.mol->DeleteSelection(SelectionHandle);
 	 add_cis_peptide_markup(asc, imodel);

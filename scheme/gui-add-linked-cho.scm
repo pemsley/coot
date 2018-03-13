@@ -70,51 +70,52 @@
 
   (format #t "---------------- multi-add-linked-residue ~s ~s ~%~!" imol res-spec)
   (set-go-to-atom-molecule imol)
-  (set-matrix 8)
+  (let ((wm (matrix-state)))
+    (set-matrix (/ wm 4))
 
-  (let ((current-refinement-rate (dragged-refinement-steps-per-frame)))
-  
-    (let loop ((residues-to-add residues-to-add)
-	       (current-res-spec res-spec))
-	       
+    (let ((current-refinement-rate (dragged-refinement-steps-per-frame)))
 
-      (set-go-to-atom-from-res-spec current-res-spec)
-      (set-dragged-refinement-steps-per-frame 300)
+      (let loop ((residues-to-add residues-to-add)
+		 (current-res-spec res-spec))
 
-      (if (not (list? current-res-spec))
-	  (begin
-	    (format #t "OOps not a proper res-spec ~s with residues-to-add: ~s~%"
-		    current-res-spec residues-to-add)
-	    #f)
-	  (cond
-	   ((null? residues-to-add) 'done)
-	   (else 
-	    (let* ((new-res-pair (car residues-to-add)))
-	      (if (not (pair? new-res-pair))
-		  (begin
-		    (format #t "Oops - not a residue-link string pair when adding new-res-pair~%"))
-		  
-		  (let ((new-res  (car new-res-pair))
-			(new-link (cdr new-res-pair)))
+	(set-go-to-atom-from-res-spec current-res-spec)
+	(set-dragged-refinement-steps-per-frame 300)
 
-		    (let ((new-res-spec (add-linked-residue imol 
-							    (res-spec->chain-id current-res-spec)
-							    (res-spec->res-no   current-res-spec)
-							    (res-spec->ins-code current-res-spec)
-							    new-res new-link 2))) ;; add and fit mode
+	(if (not (list? current-res-spec))
+	    (begin
+	      (format #t "OOps not a proper res-spec ~s with residues-to-add: ~s~%"
+		      current-res-spec residues-to-add)
+	      #f)
+	    (cond
+	     ((null? residues-to-add) 'done)
+	     (else
+	      (let* ((new-res-pair (car residues-to-add)))
+		(if (not (pair? new-res-pair))
+		    (begin
+		      (format #t "Oops - not a residue-link string pair when adding new-res-pair~%"))
 
-		      ;; residues-near-residue takes a 3-part spec and makes 3-part specs.
-		      (let* ((ls (residues-near-residue imol current-res-spec 1.9)))
+		    (let ((new-res  (car new-res-pair))
+			  (new-link (cdr new-res-pair)))
 
-			(add-cho-restraints-for-residue imol new-res-spec)
+		      (let ((new-res-spec (add-linked-residue imol 
+							      (res-spec->chain-id current-res-spec)
+							      (res-spec->res-no   current-res-spec)
+							      (res-spec->ins-code current-res-spec)
+							      new-res new-link 2))) ;; add and fit mode
 
-			(with-auto-accept
-			 (refine-residues imol (cons current-res-spec ls))))
-		      
-		      (loop (cdr residues-to-add) (cdr new-res-spec)))))))))
+			;; residues-near-residue takes a 3-part spec and makes 3-part specs.
+			(let* ((ls (residues-near-residue imol current-res-spec 1.9)))
 
-    ;; restore refinement mode
-    (set-dragged-refinement-steps-per-frame current-refinement-rate))))
+			  (add-cho-restraints-for-residue imol new-res-spec)
+
+			  (with-auto-accept
+			   (refine-residues imol (cons current-res-spec ls))))
+
+			(loop (cdr residues-to-add) (cdr new-res-spec)))))))))
+
+	;; restore refinement mode
+	(set-dragged-refinement-steps-per-frame current-refinement-rate)
+	(set-matrix wm)))))
 
 ;; also "precursor"
 ;; high mannose was used for human
@@ -356,59 +357,63 @@
   (add-synthetic-pyranose-planes)
   (use-unimodal-pyranose-ring-torsions)
   (set-refine-with-torsion-restraints 1)
-  (set-matrix 8)
-  (set-residue-selection-flash-frames-number 1)
-  (set-go-to-atom-molecule imol)
-  (let* ((previous-m (default-new-atoms-b-factor))
-	 (m (median-temperature-factor imol))
-	 (new-m (* m 1.55)))
+  (let ((wm (matrix-state)))
+    (set-matrix (/ wm 4))
+    (set-residue-selection-flash-frames-number 1)
+    (set-go-to-atom-molecule imol)
+    (let* ((previous-m (default-new-atoms-b-factor))
+	   (m (median-temperature-factor imol))
+	   (new-m (* m 1.55)))
 
-    (set-default-temperature-factor-for-new-atoms previous-m)
+      (set-default-temperature-factor-for-new-atoms previous-m)
 
-    (if (number? m)
-	(set-default-temperature-factor-for-new-atoms new-m))
+      (if (number? m)
+	  (set-default-temperature-factor-for-new-atoms new-m))
 
-    ;; prevent tree building if there is already a partial tree here
-    ;; (only proceed with the one ASN)
-    ;;
-    (using-active-atom
-     (let ((start-tree (glyco-tree-residues aa-imol aa-res-spec)))
-       
-       ;; why do I need both test here? 
-       ;; 5n11 needs the is-just-an-ASN? test
-       ;; 5n09/5wzy needs the null test. 
-       ;; Hmmm.
-       (if (not (or (null? start-tree)
-		    (is-just-an-ASN? aa-imol start-tree)))
+      ;; prevent tree building if there is already a partial tree here
+      ;; (only proceed with the one ASN)
+      ;;
+      (using-active-atom
+       (let ((start-tree (glyco-tree-residues aa-imol aa-res-spec)))
+	 
+	 ;; why do I need both test here? 
+	 ;; 5n11 needs the is-just-an-ASN? test
+	 ;; 5n09/5wzy needs the null test. 
+	 ;; Hmmm.
+	 (if (not (or (null? start-tree)
+		      (is-just-an-ASN? aa-imol start-tree)))
 
-	   (begin
-	     (info-dialog "Must start on Single ASN")
-	     (format #t "start-tree: ~s~%" start-tree))
+	     (begin
+	       (info-dialog "Must start on Single ASN")
+	       (format #t "start-tree: ~s~%" start-tree))
 
-	   ;; OK, continue
-	   (let ((start-pos-view (add-view-here "Glyo Tree Start Pos")))
-	     (process-tree parent tree func)
-	     (go-to-view-number start-pos-view 0)
-	     (with-auto-accept (refine-residues aa-imol (glyco-tree-residues aa-imol aa-res-spec)))
-	     ;; add a test here that the tree here (centre of screen) matches a known tree.
-	     ;;
-	     ;; and that each is 4C1 (or 1C4 for FUC?) (XYP?)
-	     ))))))
+	     ;; OK, continue
+	     (let ((start-pos-view (add-view-here "Glyo Tree Start Pos")))
+	       (process-tree parent tree func)
+	       (go-to-view-number start-pos-view 0)
+	       (with-auto-accept (refine-residues aa-imol (glyco-tree-residues aa-imol aa-res-spec)))
+	       ;; add a test here that the tree here (centre of screen) matches a known tree.
+	       ;;
+	       ;; and that each is 4C1 (or 1C4 for FUC?) (XYP?)
+	       )))))
+    (set-matrix wm)))
 
 
 (define (add-linked-residue-with-extra-restraints-to-active-residue new-res-type link-type)
-  (set-matrix 8)
-  (set-refine-with-torsion-restraints 1)
-  (set-add-linked-residue-do-fit-and-refine 0)
-  (using-active-atom
-   (let ((new-res-spec (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code new-res-type link-type 2)))
-     (if (list? new-res-spec)
-	 (begin
-	   (add-cho-restraints-for-residue aa-imol new-res-spec)
-	   ;; refine that
-	   (with-auto-accept
-	    (let ((residues (cons aa-res-spec (residues-near-residue aa-imol aa-res-spec 1.9))))
-	      (refine-residues aa-imol residues))))))))
+  (let ((wm (matrix-state)))
+    (set-matrix (/ wm 8))
+    (set-refine-with-torsion-restraints 1)
+    (set-add-linked-residue-do-fit-and-refine 0)
+    (using-active-atom
+     (let ((new-res-spec (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code new-res-type link-type 2)))
+       (if (list? new-res-spec)
+	   (begin
+	     (add-cho-restraints-for-residue aa-imol new-res-spec)
+	     ;; refine that
+	     (with-auto-accept
+	      (let ((residues (cons aa-res-spec (residues-near-residue aa-imol aa-res-spec 1.9))))
+		(refine-residues aa-imol residues)))))))
+    (set-matrix wm)))
 
 (define (delete-all-cho)
   (let ((delete-cho-list '()))
