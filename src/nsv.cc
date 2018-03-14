@@ -691,6 +691,132 @@ exptl::nsv::rect_event (GtkObject *obj,
 }
 #endif
 
+// caller should ensure that resno_low is not greater than resno_high.
+//
+void
+exptl::nsv::strand(mmdb::Chain *chain_p, int resno_low, int resno_high,
+		   double x_start, double y_start, double scale) {
+
+   double x_offset = 200;
+   double resno_delta = resno_high - resno_low;
+
+   int n_points = 7; // in an arrow
+   GooCanvasPoints *points = goo_canvas_points_new(n_points);
+
+   double strand_height = scale * 0.15 * 5;
+   double flange_ratio = 0.5; // the width of the flange relative to the tube
+   double x_length = 10 * resno_delta;
+   double strand_length = x_length;
+   double size_per_residue = scale; // not sure
+   double smidge = 0.1 * scale;
+
+   points->coords[0]  = x_offset + 0; // top-left
+   points->coords[1]  = y_start + -strand_height;
+   points->coords[2]  = x_offset + x_length;
+   points->coords[3]  = y_start + -strand_height;
+   points->coords[4]   = x_offset + x_length;
+   points->coords[5]  = y_start + - strand_height*(1+flange_ratio);
+   points->coords[6]  = x_offset + (x_length + size_per_residue);
+   points->coords[7]  = y_start +  0;
+   points->coords[8]  = x_offset + x_length;
+   points->coords[9]  =  y_start + strand_height*(1+flange_ratio);
+   points->coords[10] = x_offset + x_length;
+   points->coords[11] = y_start + strand_height;
+   points->coords[12] = x_offset + 0; // bottom left
+   points->coords[13] = y_start + strand_height;
+
+   GooCanvasItem *item = goo_canvas_polyline_new(canvas_group, TRUE, 0,
+						 "points", points,
+						 "line-width", 1.0,
+						 "stroke-color", "black",
+						 "fill-color", "#ccaa55",
+						 NULL);
+   goo_canvas_points_unref(points);
+
+   { // top bar highlights
+      double x1 = x_offset + 1 * smidge;
+      double x2 = x_offset + strand_length - 2 * smidge;
+      double y1 = y_start - strand_height  + 0.2 * smidge;
+      double y2 = y_start - strand_height  + 2 * smidge;
+      // bottom bar shadow
+      double y3 = y_start + strand_height - 0.2 * smidge;
+      double y4 = y3 - 2 * smidge;
+
+      GooCanvasPoints *points_bar_highlight = goo_canvas_points_new(4);
+      points_bar_highlight->coords[0] = x1;
+      points_bar_highlight->coords[1] = y1;
+      points_bar_highlight->coords[2] = x2;
+      points_bar_highlight->coords[3] = y1;
+      points_bar_highlight->coords[4] = x2;
+      points_bar_highlight->coords[5] = y2;
+      points_bar_highlight->coords[6] = x1;
+      points_bar_highlight->coords[7] = y2;
+
+      GooCanvasItem *item_bar_highlight = goo_canvas_polyline_new(canvas_group, TRUE, 0,
+								  "points", points_bar_highlight,
+								  "line-width", 0.0,
+								  "stroke-color", "black",
+								  "fill-color", "#eecc77",
+								  NULL);
+      goo_canvas_points_unref(points_bar_highlight);
+
+      // top bar shadow
+
+      GooCanvasPoints *points_bar_shadow = goo_canvas_points_new(4);
+      points_bar_shadow->coords[0] = x1;
+      points_bar_shadow->coords[1] = y3;
+      points_bar_shadow->coords[2] = x2;
+      points_bar_shadow->coords[3] = y3;
+      points_bar_shadow->coords[4] = x2;
+      points_bar_shadow->coords[5] = y4;
+      points_bar_shadow->coords[6] = x1;
+      points_bar_shadow->coords[7] = y4;
+
+      GooCanvasItem *item_bar_shadow = goo_canvas_polyline_new(canvas_group, TRUE, 0,
+								  "points", points_bar_shadow,
+								  "line-width", 0.0,
+								  "stroke-color", "green",
+								  "fill-color", "#aa8833",
+								  NULL);
+      // bottom right dark diagonal (re-using points_bar_shadow)
+
+      points_bar_shadow->coords[0] = x_offset + x_length + 0.5 * smidge;
+      points_bar_shadow->coords[1] = y_start  + strand_height + 1.0 * smidge;
+      points_bar_shadow->coords[2] = x_offset + x_length;
+      points_bar_shadow->coords[3] = y_start  + strand_height*(1+flange_ratio);
+
+      points_bar_shadow->coords[4] = x_offset + (x_length + size_per_residue);
+      points_bar_shadow->coords[5] = y_start;
+      points_bar_shadow->coords[6] = x_offset + (x_length + size_per_residue) - size_per_residue * 0.2;
+      points_bar_shadow->coords[7] = y_start;
+
+      GooCanvasItem *item_diag_shadow_ne = goo_canvas_polyline_new(canvas_group, TRUE, 0,
+								"points", points_bar_shadow,
+								"line-width", 0.0,
+								"stroke-color", "green",
+								"fill-color", "#aa8833",
+								NULL);
+
+      points_bar_shadow->coords[0] = x_offset + x_length + 0.5 * smidge;
+      points_bar_shadow->coords[1] = y_start  - strand_height - 0.99 * smidge;
+      points_bar_shadow->coords[2] = x_offset + x_length;
+      points_bar_shadow->coords[3] = y_start  - strand_height*(1+flange_ratio);
+
+      points_bar_shadow->coords[4] = x_offset + (x_length + size_per_residue);
+      points_bar_shadow->coords[5] = y_start;
+      points_bar_shadow->coords[6] = x_offset + (x_length + size_per_residue) - size_per_residue * 0.2;
+      points_bar_shadow->coords[7] = y_start;
+
+      GooCanvasItem *item_diag_shadow_se = goo_canvas_polyline_new(canvas_group, TRUE, 0,
+								"points", points_bar_shadow,
+								"line-width", 0.0,
+								"stroke-color", "green",
+								"fill-color", "#aa8833",
+								NULL);
+      goo_canvas_points_unref(points_bar_shadow);
+   }
+}
+
 void
 exptl::nsv::helix(mmdb::Chain *chain_p, int resno_low, int resno_high, double x_offset) {
 
@@ -699,7 +825,7 @@ exptl::nsv::helix(mmdb::Chain *chain_p, int resno_low, int resno_high, double x_
    int chain_position_number = 4; // a higher number means higher in the widget
 
    double x = 60;
-   x -= 10 + x_offset;
+   x -= 110 + x_offset;
    double y =  -40  -pixels_per_chain * chain_position_number - 6;
 
    double x2 = x + 520.9;
@@ -714,7 +840,7 @@ exptl::nsv::helix(mmdb::Chain *chain_p, int resno_low, int resno_high, double x_
 					     NULL);
 
    int n_points = 5;
-   GooCanvasPoints *points = goo_canvas_points_new(n_points);
+   GooCanvasPoints *points = goo_canvas_points_new(n_points); // u
    points->coords[0] =  5;
    points->coords[1] =  5;
    points->coords[2] =  5;
@@ -735,14 +861,15 @@ exptl::nsv::helix(mmdb::Chain *chain_p, int resno_low, int resno_high, double x_
 						   "line-width", 1.0,
 						   "stroke-color", "black",
 						   NULL);
+   goo_canvas_points_unref(points);
 
-
-   double x_start = 100.0;
    double y_start = -40.0;
-   double helix_scale = 6.0; // overall scale, pass this?
+   double helix_scale = 8.0; // overall scale, pass this?
    for (int i_turn_number=0; i_turn_number<4; i_turn_number++) {
-      helix_single_inner(i_turn_number, x_start, y_start, helix_scale);
+      helix_single_inner(i_turn_number, x_offset, y_start, helix_scale);
    }
+
+   strand(chain_p, resno_low, resno_high, x_offset, y_start+10, helix_scale);
 
 #else
    std::cout << "--------------------- no goocanvas! " << std::endl;
@@ -767,14 +894,14 @@ exptl::nsv::helix_single_inner(int i_turn_number, double x_start, double y_start
 
    int n_helix_points = 20; // 2 * 10
    double helix_width = helix_scale;
-   GooCanvasPoints *helix_points_front = goo_canvas_points_new(n_helix_points);
-   GooCanvasPoints *helix_points_back  = goo_canvas_points_new(n_helix_points);
-   GooCanvasPoints *helix_points_highlights_1  = goo_canvas_points_new(4);
-   GooCanvasPoints *helix_points_highlights_2  = goo_canvas_points_new(4);
-   GooCanvasPoints *helix_points_highlights_b  = goo_canvas_points_new(4);
-   GooCanvasPoints *helix_points_shadow_1      = goo_canvas_points_new(8);
-   GooCanvasPoints *helix_points_shadow_2      = goo_canvas_points_new(8);
-   GooCanvasPoints *helix_points_shadow_f     = goo_canvas_points_new(10); // different size
+   GooCanvasPoints *helix_points_front = goo_canvas_points_new(n_helix_points); // u
+   GooCanvasPoints *helix_points_back  = goo_canvas_points_new(n_helix_points); // u
+   GooCanvasPoints *helix_points_highlights_1  = goo_canvas_points_new(4); // u
+   GooCanvasPoints *helix_points_highlights_2  = goo_canvas_points_new(4); // u
+   GooCanvasPoints *helix_points_highlights_b  = goo_canvas_points_new(4); // u
+   GooCanvasPoints *helix_points_shadow_1      = goo_canvas_points_new(8); // u
+   GooCanvasPoints *helix_points_shadow_2      = goo_canvas_points_new(8); // u
+   GooCanvasPoints *helix_points_shadow_f     = goo_canvas_points_new(10); // u different size
    double helix_helix_interval = 3.14;
 
    for (int i=0; i<10; i++) {
@@ -858,18 +985,21 @@ exptl::nsv::helix_single_inner(int i_turn_number, double x_start, double y_start
 							    "stroke-color", "black",
 							    "fill-color", "#505068",
 							    NULL);
+      goo_canvas_points_unref(helix_points_back);
 
       GooCanvasItem *item_helix_s1 = goo_canvas_polyline_new(canvas_group, TRUE, 0,
 							     "points", helix_points_shadow_1,
 							     "line-width", 0.0,
 							     "fill-color", "#383855",
 							     NULL);
+      goo_canvas_points_unref(helix_points_shadow_1);
 
       GooCanvasItem *item_helix_s2 = goo_canvas_polyline_new(canvas_group, TRUE, 0,
 							     "points", helix_points_shadow_2,
 							     "line-width", 0.0,
 							     "fill-color", "#383855",
 							     NULL);
+      goo_canvas_points_unref(helix_points_shadow_2);
 
       GooCanvasItem *item_helix_f = goo_canvas_polyline_new(canvas_group, TRUE, 0,
 							    "points", helix_points_front,
@@ -877,12 +1007,14 @@ exptl::nsv::helix_single_inner(int i_turn_number, double x_start, double y_start
 							    "stroke-color", "black",
 							    "fill-color", "#8080dd",
 							    NULL);
+      goo_canvas_points_unref(helix_points_front);
 
       GooCanvasItem *item_helix_sf = goo_canvas_polyline_new(canvas_group, TRUE, 0,
 							     "points", helix_points_shadow_f,
 							     "line-width", 0.0,
 							     "fill-color", "#6666bb",
 							     NULL);
+      goo_canvas_points_unref(helix_points_shadow_f);
 
       // front highlight at phi = 3/4 Pi
 
@@ -931,16 +1063,21 @@ exptl::nsv::helix_single_inner(int i_turn_number, double x_start, double y_start
 							     "line-width", 0.0,
 							     "fill-color", "#666677",
 							     NULL);
+      goo_canvas_points_unref(helix_points_highlights_b);
+
       GooCanvasItem *item_helix_h1 = goo_canvas_polyline_new(canvas_group, TRUE, 0,
 							     "points", helix_points_highlights_1,
 							     "line-width", 0.0,
 							     "fill-color", "#9999ee",
 							     NULL);
+      goo_canvas_points_unref(helix_points_highlights_1);
+
       GooCanvasItem *item_helix_h2 = goo_canvas_polyline_new(canvas_group, TRUE, 0,
 							     "points", helix_points_highlights_2,
 							     "line-width", 0.0,
 							     "fill-color", "#ddddee",
 							     NULL);
+      goo_canvas_points_unref(helix_points_highlights_2);
 
    }
 }

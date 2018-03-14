@@ -119,7 +119,8 @@ namespace exptl {
       int points_max;
       void clear_canvas();
       void helix(mmdb::Chain *chain_p, int resno_low, int resno_high, double x_offet);
-      void helix_single_inner(int i_turn_number, double x_start, double y_start, double hexix_scale); // needs more params
+      void helix_single_inner(int i_turn_number, double x_start, double y_start, double hexix_scale);
+      void strand(mmdb::Chain *, int resno_low, int resno_high, double x_offset, double y_offset, double scale);
       
    public:
       nsv(mmdb::Manager *mol,
