@@ -473,9 +473,14 @@
 ;;
 (define is-protein-chain? is-protein-chain-p)
 
-;; return an int. 0 means no, 1 means yes, -1 on error
+;; Is a nucleotide chain?
 ;;
-(define is-nucleotide-chain? is-nucleotide-chain-p)
+;; Now return a boolean.
+;;
+(define (is-nucleotide-chain? imol chain-id)
+
+  (let ((result (is-nucleotide-chain-p imol chain-id)))
+    (= result 1)))
 
 
 ;;; No! don't define this.  It is misleading.  It can return 0, which

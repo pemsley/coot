@@ -2325,6 +2325,7 @@ int is_nucleotide_chain_p(int imol, const char *chain_id) {
       for (int ichain=0; ichain<nchains; ichain++) {
 	 mmdb::Chain *chain_p = mol->GetChain(1,ichain);
 	 std::string mol_chain_id(chain_p->GetChainID());
+	 r = 0;
 	 if (mol_chain_id == std::string(chain_id)) {
 	    r = chain_p->isNucleotideChain();
 	 }
