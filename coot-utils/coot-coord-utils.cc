@@ -7757,7 +7757,7 @@ coot::util::translate_close_to_origin(const clipper::Coord_orth pos,
 
 void
 coot::util::print_secondary_structure_info(mmdb::Model *model_p) {
-   
+
    // secondary structure information
    //
    int nhelix = model_p->GetNumberOfHelices();
@@ -7772,11 +7772,11 @@ coot::util::print_secondary_structure_info(mmdb::Model *model_p) {
    std::cout << "------------------------------------------------\n";
    for (int ih=1; ih<=nhelix; ih++) {
       helix_p = model_p->GetHelix(ih);
-      if (helix_p) { 
-      std::cout << helix_p->serNum << " " << helix_p->helixID << " "
-		<< helix_p->initChainID << " " << helix_p->initSeqNum
-		<< " " << helix_p->endChainID << " " << helix_p->endSeqNum
-		<< helix_p->length << " " << helix_p->comment << std::endl;
+      if (helix_p) {
+	 std::cout << helix_p->serNum << " " << helix_p->helixID << " "
+		   << helix_p->initChainID << " " << helix_p->initSeqNum
+		   << " " << helix_p->endChainID << " " << helix_p->endSeqNum << " "
+		   << helix_p->length << " " << helix_p->comment << std::endl;
       } else {
 	 std::cout << "ERROR: no helix!?" << std::endl;
       }
@@ -7789,7 +7789,7 @@ coot::util::print_secondary_structure_info(mmdb::Model *model_p) {
       int nstrand = sheet_p->nStrands;
       for (int istrand=0; istrand<nstrand; istrand++) {
 	 strand_p = sheet_p->strand[istrand];
-	 if (strand_p) { 
+	 if (strand_p) {
 	    std::cout << strand_p->sheetID << " " << strand_p->strandNo << " "
 		      << strand_p->initChainID << " " << strand_p->initSeqNum
 		      << " " << strand_p->endChainID << " " << strand_p->endSeqNum
