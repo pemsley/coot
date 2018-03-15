@@ -1,8 +1,6 @@
 
    For Release 0.8.9.1
 
-   o reopen LSQ fit - the display says 24 but it chooses 0 for the reference molecule ::: 1
-
    o Make RCrane work again ::: 4
 
 --------------
@@ -164,4 +162,8 @@
    o GM sigma and alpha for carbohydrate fitting ::: 1
 
 * Done.
+
+   o reopen LSQ fit - the display says 24 but it chooses 0 for the reference molecule ::: 1
+
+* Done? I sorted out the setting of the mov and ref molecules at least.
 
