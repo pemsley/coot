@@ -113,8 +113,9 @@ exptl::nsv::nsv(mmdb::Manager *mol,
 
    g_object_set_data(G_OBJECT(canvas), "nsv", (gpointer) this); // used to regenerate.
 
+   store_secondary_structure(mol);
    setup_canvas(mol);  
-		      
+
    if (use_graphics_interface_flag) { 
       gtk_widget_show(aa);
       gtk_widget_show(close_button);
@@ -226,10 +227,10 @@ exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 	 int canvas_x_size =  5 + total_res_range * pixels_per_letter + 140;
 	 // 50 is good for 2 chains.
 	 // int canvas_y_size =  5 + n_limited_chains * 50; 
-	 int canvas_y_size = 65 + n_limited_chains * 20; 
+	 int canvas_y_size = 65 + n_limited_chains * 20 * 2;
 
 	 // the size of the widget on the screens
-	 gtk_widget_set_usize(GTK_WIDGET(scrolled_window), 700, 20*(3+n_limited_chains));
+	 gtk_widget_set_usize(GTK_WIDGET(scrolled_window), 700, 20*(3+ 2 * n_limited_chains));
 	 // the size of the canvas (e.g. long chain, we see only part
 	 // of it at one time).
 
@@ -265,12 +266,12 @@ exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 
 	 // the casting of canvas_y_size is needed!  Without it
 	 // scroll_height is 4.3e9.  Why!? canvas_y_size is an int.
-	 // 
-	 scroll_height = double(canvas_y_size) - 50 - 25 * rcv.size();
-	 scroll_width  = double(canvas_x_size) - 130 - left_limit ; // -130 for fat font on jackal
+	 //
+	 scroll_height = static_cast<double>(canvas_y_size) - 50 - 25 * rcv.size(); // fixme
+	 scroll_width  = static_cast<double>(canvas_x_size) - 130 - left_limit ; // -130 for fat font on jackal
 
 
-	 if (debug) { 
+	 if (debug) {
 	    std::cout << "DEBUG:: rcv.size(): " << rcv.size() << std::endl;
 	    std::cout << "DEBUG:: canvas_y_size: " << canvas_y_size << std::endl;
 	    std::cout << "DEBUG:: scroll_height: " << scroll_height << std::endl;
@@ -304,13 +305,19 @@ exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 
 #ifdef HAVE_GOOCANVAS
 
+	 // left top right bottom  (this function call is needed)
 	 goo_canvas_set_bounds(GOO_CANVAS(canvas),
-			       -70,  -1. * pixels_per_chain * (rcv.size() + 3),
-			       canvas_x_size, 2. * pixels_per_chain);
+			       -70,                                             // left
+			       -1.3 * pixels_per_chain * 2 * (rcv.size() + 3),  // top
+			       canvas_x_size,                                   // right
+			       2. * pixels_per_chain);                          // bottom
 
 	 // Consider instead automatic-bounds on the canvas
 	 // https://developer.gnome.org/goocanvas2/stable/GooCanvas.html#GooCanvas--automatic-bounds
 	 // g_object_set?
+
+	 // this doesn't seem to work
+	 // g_object_set(G_OBJECT(canvas), "automatic-bounds", TRUE, NULL); // needed for tooltips
 
 #else
  	 gnome_canvas_set_scroll_region(canvas, left_limit, upper_limit,
@@ -348,7 +355,7 @@ exptl::nsv::mol_to_canvas(mmdb::Manager *mol, int lowest_resno, double x_offset)
       chain_p = model_p->GetChain(0);
       int resno_low = 10;
       int resno_high = 30;
-      helix(chain_p, resno_low, resno_high, x_offset);
+      // draw_helix(chain_p, resno_low, resno_high, x_offset);
    }
 
 }
@@ -356,10 +363,79 @@ exptl::nsv::mol_to_canvas(mmdb::Manager *mol, int lowest_resno, double x_offset)
 void
 exptl::nsv::regenerate(mmdb::Manager *mol) {
 
+   store_secondary_structure(mol);
    clear_canvas();
    setup_canvas(mol);
-} 
+}
 
+void
+exptl::nsv::store_secondary_structure(mmdb::Manager *mol) {
+
+   mmdb::Model *model_p = 0;
+   if (! mol) {
+      return;
+   } else {
+      model_p = mol->GetModel(1);
+      if (! model_p) {
+	 return;
+      }
+   }
+
+   bool needs_calc = true; // maybe slow
+
+   int nhelix = model_p->GetNumberOfHelices();
+   int nsheet = model_p->GetNumberOfSheets();
+   std::cout << "Here in store_secondary_structure with model_p " << model_p << std::endl;
+   std::cout << "               Helix info: " << std::endl;
+   std::cout << "------------------------------------------------\n";
+   for (int ih=1; ih<=nhelix; ih++) {
+      mmdb::Helix *helix_p = model_p->GetHelix(ih);
+      // std::cout << "Here in store_secondary_structure with helix_p " << helix_p << std::endl;
+      if (helix_p) {
+	 std::cout << helix_p->serNum      << " " << helix_p->helixID << " "
+		   << helix_p->initChainID << " " << helix_p->initSeqNum << " "
+		   << helix_p->endChainID  << " " << helix_p->endSeqNum << " "
+		   << helix_p->length      << " " << helix_p->comment << std::endl;
+	 mmdb_helices.push_back(helix_p);
+      } else {
+	 std::cout << "ERROR: no helix!?" << std::endl;
+      }
+   }
+   std::cout << "               Sheet info: " << std::endl;
+   std::cout << "------------------------------------------------\n";
+   for (int is=1; is<=nsheet; is++) {
+      mmdb::Sheet *sheet_p = model_p->GetSheet(is);
+
+      int nstrand = sheet_p->nStrands;
+      for (int istrand=0; istrand<nstrand; istrand++) {
+	 mmdb::Strand *strand_p = sheet_p->strand[istrand];
+	 if (strand_p) {
+	    std::cout << strand_p->sheetID     << " " << strand_p->strandNo   << " "
+		      << strand_p->initChainID << " " << strand_p->initSeqNum << " "
+		      << strand_p->endChainID  << " " << strand_p->endSeqNum
+		      << std::endl;
+	    mmdb_strands.push_back(strand_p);
+	 }
+      }
+   }
+   std::cout << "------------------------------------------------\n";
+
+}
+
+// annotation flag default false, is true for ticks/axes and secondary structure
+double
+exptl::nsv::chain_position_number_to_y_offset(int cpn, bool annotation) const {
+
+   double n = 3 * cpn;
+   if (annotation)
+      n += 1; // down the page
+
+   // n = cpn; // restore
+   double o = -pixels_per_chain * n;
+   return o;
+}
+
+// chain_position_numbers go 3,2,1,0 for chains A,B,C,D
 void
 exptl::nsv::chain_to_canvas(mmdb::Chain *chain_p, int chain_position_number, int lowest_resno, double x_offset) {
 
@@ -383,7 +459,7 @@ exptl::nsv::chain_to_canvas(mmdb::Chain *chain_p, int chain_position_number, int
    // On jackal it needs to be more left? Why? The font is wider?
    // How do I check the font width?
    x -= 10 + x_offset;
-   double y = -pixels_per_chain * chain_position_number - 6;
+   double y = chain_position_number_to_y_offset(chain_position_number) - 6; // not "annotation"
 
 #ifdef HAVE_GOOCANVAS
    item = goo_canvas_text_new(canvas_group,
@@ -406,6 +482,61 @@ exptl::nsv::chain_to_canvas(mmdb::Chain *chain_p, int chain_position_number, int
 				NULL);
    canvas_item_vec.push_back(item);
 #endif
+
+
+   chain_secondary_structure(chain_p, chain_position_number, lowest_resno, x_offset);
+}
+
+void
+exptl::nsv::chain_secondary_structure(mmdb::Chain *chain_p,
+				      int chain_position_number,
+				      int lowest_resno,
+				      double x_offset) {
+
+#ifdef HAVE_GOOCANVAS
+
+   std::string this_chain_id(chain_p->GetChainID());
+
+   // what are the secondary structure residue ranges for this chain?
+   // coot::secondary_structure_header_records sec_struct_records(mol, false);
+   for (std::size_t istrand=0; istrand<mmdb_strands.size(); istrand++) {
+      mmdb::Strand *strand = mmdb_strands[istrand];
+      std::string chain_id(strand->initChainID);
+      if (chain_id == this_chain_id) {
+	 int resno_start = strand->initSeqNum;
+	 int resno_end   = strand->endSeqNum;
+	 double scale = 5.0; // arbitrons
+	 bool annotation_flag = true;
+	 // the "origin" of strands is along the middle of the strand, so we
+	 // need to pull the strand up the page a bit (-8).
+	 double y_offset = chain_position_number_to_y_offset(chain_position_number, annotation_flag) - 8;
+	 std::cout << "debug:: chain " << chain_p->GetChainID() << " " << chain_position_number
+		   << " y_offset: " << y_offset << std::endl;
+	 double x_offset = 10;
+	 draw_strand(chain_p, resno_start, resno_end, x_offset, y_offset, scale);
+      }
+   }
+
+   for (std::size_t ihelix=0; ihelix<mmdb_helices.size(); ihelix++) {
+      mmdb::Helix *helix = mmdb_helices[ihelix];
+      std::string chain_id(helix->initChainID);
+      if (chain_id == this_chain_id) {
+	 int resno_start = helix->initSeqNum;
+	 int resno_end   = helix->endSeqNum;
+	 double scale = 5.0; // arbitrons
+	 bool annotation_flag = true;
+	 // the "origin" of helixs is along the middle of the helix, so we
+	 // need to pull the helix up the page a bit (-8).
+	 double y_offset = chain_position_number_to_y_offset(chain_position_number, annotation_flag) - 8;
+	 std::cout << "debug:: chain " << chain_p->GetChainID() << " " << chain_position_number
+		   << " y_offset: " << y_offset << std::endl;
+	 double x_offset = 10;
+	 draw_helix(chain_position_number, resno_start, resno_end, x_offset, y_offset, scale);
+      }
+   }
+
+#endif
+
 }
 
 
@@ -434,8 +565,8 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
       label += residue_p->GetResName();
       std::string colour = "black";
       double x = (residue_p->GetSeqNum() - lowest_resno + 1) * pixels_per_letter - x_offset;
-      double y = - pixels_per_chain * chain_position_number - 6;
-      
+      double y = chain_position_number_to_y_offset(chain_position_number) - 6;
+
       exptl::nsv::spec_and_object *so = 
 	 new exptl::nsv::spec_and_object(molecule_number, at_spec, chain_position_number);
       
@@ -457,7 +588,7 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
       double x2 = x + pixels_per_letter - 2 - 3; // how about that then?
       
       double y2 = y1 - 11; // pixels_per_letter;
-      std::string rect_colour = "grey85";
+      std::string rect_colour = "grey92";
 
       // double x1_max = 22500; // magic number, replaced by points_max (user-settable)
       
@@ -694,11 +825,11 @@ exptl::nsv::rect_event (GtkObject *obj,
 // caller should ensure that resno_low is not greater than resno_high.
 //
 void
-exptl::nsv::strand(mmdb::Chain *chain_p, int resno_low, int resno_high,
-		   double x_start, double y_start, double scale) {
+exptl::nsv::draw_strand(mmdb::Chain *chain_p, int resno_low, int resno_high,
+			double x_offset, double y_start, double scale) {
 
-   double x_offset = 200;
    double resno_delta = resno_high - resno_low;
+   x_offset += resno_low * pixels_per_letter; // where does *this* arrow start?
 
    int n_points = 7; // in an arrow
    GooCanvasPoints *points = goo_canvas_points_new(n_points);
@@ -714,7 +845,7 @@ exptl::nsv::strand(mmdb::Chain *chain_p, int resno_low, int resno_high,
    points->coords[1]  = y_start + -strand_height;
    points->coords[2]  = x_offset + x_length;
    points->coords[3]  = y_start + -strand_height;
-   points->coords[4]   = x_offset + x_length;
+   points->coords[4]  = x_offset + x_length;
    points->coords[5]  = y_start + - strand_height*(1+flange_ratio);
    points->coords[6]  = x_offset + (x_length + size_per_residue);
    points->coords[7]  = y_start +  0;
@@ -818,61 +949,20 @@ exptl::nsv::strand(mmdb::Chain *chain_p, int resno_low, int resno_high,
 }
 
 void
-exptl::nsv::helix(mmdb::Chain *chain_p, int resno_low, int resno_high, double x_offset) {
+exptl::nsv::draw_helix(int chain_position_number,
+		       int resno_low, int resno_high,
+		       double x_offset_global, double y_offset, double helix_scale) {
 
 #ifdef HAVE_GOOCANVAS
 
-   int chain_position_number = 4; // a higher number means higher in the widget
-
-   double x = 60;
-   x -= 110 + x_offset;
-   double y =  -40  -pixels_per_chain * chain_position_number - 6;
-
-   double x2 = x + 520.9;
-   double y2 = y + 210.9;
-   std::string rect_colour = "#f4f4f4";
-   GooCanvasItem *item = goo_canvas_rect_new(canvas_group,
-					     x, y,
-					     x2, y2,
-					     "line-width", 0.0,
-					     "fill-color", rect_colour.c_str(),
-					     "can-focus", FALSE,
-					     NULL);
-
-   int n_points = 5;
-   GooCanvasPoints *points = goo_canvas_points_new(n_points); // u
-   points->coords[0] =  5;
-   points->coords[1] =  5;
-   points->coords[2] =  5;
-   points->coords[3] = -5;
-   points->coords[4] = -5;
-   points->coords[5] = -5;
-   points->coords[6] = -5;
-   points->coords[7] =  5;
-   points->coords[8] =  5;
-   points->coords[9] =  5;
-
-   for (int ipoints=0; ipoints<n_points; ipoints++) {
-      points->coords[ipoints] += 0.0;
+   int resno_delta = resno_high - resno_low;
+   int n_turns = int(floor(0.5*resno_delta)); // is this the cast I want?
+   double x_offset = x_offset_global + resno_low * pixels_per_letter;
+   
+   for (int i_turn_number=0; i_turn_number<n_turns; i_turn_number++) {
+      draw_helix_single_inner(i_turn_number, x_offset, y_offset, helix_scale);
    }
 
-   GooCanvasItem *item_box = goo_canvas_polyline_new(canvas_group, TRUE, 0,
-						   "points", points,
-						   "line-width", 1.0,
-						   "stroke-color", "black",
-						   NULL);
-   goo_canvas_points_unref(points);
-
-   double y_start = -40.0;
-   double helix_scale = 8.0; // overall scale, pass this?
-   for (int i_turn_number=0; i_turn_number<4; i_turn_number++) {
-      helix_single_inner(i_turn_number, x_offset, y_start, helix_scale);
-   }
-
-   strand(chain_p, resno_low, resno_high, x_offset, y_start+10, helix_scale);
-
-#else
-   std::cout << "--------------------- no goocanvas! " << std::endl;
 #endif
 }
 
@@ -880,7 +970,7 @@ exptl::nsv::helix(mmdb::Chain *chain_p, int resno_low, int resno_high, double x_
 // maybe put the items in a group and return the group?
 //
 void
-exptl::nsv::helix_single_inner(int i_turn_number, double x_start, double y_start, double helix_scale) {
+exptl::nsv::draw_helix_single_inner(int i_turn_number, double x_start, double y_start, double helix_scale) {
 
    // double x_start = 100.0;
    // double y_start = -40.0;
@@ -1158,8 +1248,11 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
       // x axis
 
       double y_value = 0;
-      if (i_ax_pos == 1)
-	 y_value = -1.0 * double(clru.size() * pixels_per_chain) - 2.0;
+      if (i_ax_pos == 1) {
+	 // y_value = -1.0 * double(clru.size() * pixels_per_chain) - 2.0;
+	 bool annotation_flag = true;
+	 y_value = chain_position_number_to_y_offset(clru.size(), annotation_flag) - 2.0;
+      }
 
       // old values, bad with offset resnos.
       points->coords[0] = lrn*font_scaler;
@@ -1208,8 +1301,8 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
 	 points->coords[3] = double(y_value + tick_length);
 
 	 // Don't draw things that are too wide (i.e. to much x) for X to handle.
-	 if (points->coords[2] < points_max) { 
-	       
+	 if (points->coords[2] < points_max) {
+
 	    double x = (irn-lrn+1)*font_scaler - x_offset; // x for resno label
 	    std::string lab = coot::util::int_to_string(irn);
 #ifdef HAVE_GOOCANVAS

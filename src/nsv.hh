@@ -37,6 +37,8 @@
 #endif
 
 #include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/secondary-structure-headers.hh"
+
 
 namespace exptl {
 
@@ -118,9 +120,17 @@ namespace exptl {
       std::string colour_by_secstr(mmdb::Residue *residue_p) const;
       int points_max;
       void clear_canvas();
-      void helix(mmdb::Chain *chain_p, int resno_low, int resno_high, double x_offet);
-      void helix_single_inner(int i_turn_number, double x_start, double y_start, double hexix_scale);
-      void strand(mmdb::Chain *, int resno_low, int resno_high, double x_offset, double y_offset, double scale);
+      void draw_helix(int chain_position_number,
+		      int resno_low, int resno_high, double x_offet, double y_offset, double helix_scale);
+      void draw_helix_single_inner(int i_turn_no, double x_offset, double y_offset, double helix_scale);
+      void draw_strand(mmdb::Chain *, int resno_low, int resno_high, double x_offset, double y_offset, double scale);
+      double chain_position_number_to_y_offset(int cpn, bool annotation_flag=false) const;
+      void store_secondary_structure(mmdb::Manager *mol);
+      // fills
+      // coot::secondary_structure_header_records sec_struct_records; no
+      std::vector<mmdb::Helix *> mmdb_helices;
+      std::vector<mmdb::Strand *> mmdb_strands;
+      void chain_secondary_structure(mmdb::Chain *chain_p, int chain_position_number, int lowest_resno, double x_offset);
       
    public:
       nsv(mmdb::Manager *mol,
