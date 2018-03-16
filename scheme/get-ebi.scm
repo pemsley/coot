@@ -287,9 +287,8 @@
 	  "Give an acession code"
 	  
 	  (let* ((stub (string-append 
-			"http://www.cmbi.ru.nl/pdb_redo/"
-			(mid-string text)
-			"/" text "/" text "_final"))
+			"https://pdb-redo.eu/db/"
+			text "/" text "_final"))
 		 (pdb-file-name (string-append text "_final.pdb"))
 		 (mtz-file-name (string-append text "_final.mtz"))
 		 (scm-file-name (string-append text "_final.scm"))

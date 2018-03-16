@@ -1500,6 +1500,11 @@
 
 
 	(add-simple-coot-menu-menuitem
+	 submenu-modules "CCP4"
+	 (lambda ()
+	   (add-module-ccp4)))
+
+	(add-simple-coot-menu-menuitem
 	 submenu-modules "SHELX"
 	 (lambda ()
 	   (add-module-shelx)))
@@ -1513,11 +1518,6 @@
 	 submenu-modules "ProSMART"
 	 (lambda ()
 	   (add-module-prosmart)))
-
-;	(add-simple-coot-menu-menuitem
-;	 submenu-modules "CCP4"
-;	 (lambda ()
-;	   (add-module-ccp4)))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-modules "Carbohydrate"
