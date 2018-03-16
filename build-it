@@ -3656,7 +3656,7 @@ else
           echo /usr/include/gd.h exists - skip libgd build
        fi
 
-      ) > $HOSTLOGDIR/15-libgd.log
+      ) > $HOSTLOGDIR/15-libgd.txt
     
       ( 
        date
@@ -3704,7 +3704,7 @@ else
        else 
           echo $install_top_dir/bin/render already exists, no build
        fi
-       ) > $HOSTLOGDIR/15-raster3d.log
+       ) > $HOSTLOGDIR/15-raster3d.txt
    fi
 fi
 
