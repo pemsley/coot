@@ -272,9 +272,11 @@ else
       unset LD_LIBRARY_PATH
       # only run the crash catcher if coot was compiled with guile
       if [ "@COOT_USE_GUILE@" = "-DUSE_GUILE" ] ; then
-         if guile --version ; then
-            echo catching the crash log:
-            $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_bin $*
+         if [ -e $COOT_PREFIX/bin/guile ] ; then
+            if guile --version ; then
+               echo catching the crash log:
+               $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_bin $*
+            fi
          fi
       fi
    fi

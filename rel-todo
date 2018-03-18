@@ -1,6 +1,8 @@
 
    For Release 0.8.9.1
 
+   o don't display QED and its breakout if you don't have biscu-it.
+
    o get-ebi.scm for updated pdb_redo usage
 
 --------------
