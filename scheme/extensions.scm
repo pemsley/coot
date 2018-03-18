@@ -1152,8 +1152,10 @@
 	;;     RCrane
 	;; ---------------------------------------------------------------------
 	;; 
-	(if (coot-has-pygtk?)
-	    (run-python-command "import_rcrane_wrapper()"))
+	;; rcrane is currently broken
+	;;
+	;; (if (coot-has-pygtk?)
+	;; (run-python-command "import_rcrane_wrapper()"))
 	     
 	 
 	;; ---------------------------------------------------------------------
