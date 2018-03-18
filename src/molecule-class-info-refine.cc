@@ -150,6 +150,54 @@ molecule_class_info_t::add_refmac_extra_restraints(const std::string &file_name)
    update_extra_restraints_representation();
 }
 
+// extra target position restraints refine like pull atom restraints
+// but are stored differently (like other extra restraints)
+int
+molecule_class_info_t::add_extra_target_position_restraint(coot::atom_spec_t &spec,
+							   const clipper::Coord_orth &pos,
+							   float weight) {
+   int r = -1;
+   mmdb::Atom *at = get_atom(spec);
+   if (at) {
+      int atom_index = -1;
+      at->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
+      spec.int_user_data = atom_index;
+      coot::extra_restraints_t::extra_target_position_restraint_t tpr(spec, pos, weight);
+      // std::cout << "debug:: adding target position restraint for " << spec << std::endl;
+      extra_restraints.target_position_restraints.push_back(tpr);
+      r = 1;
+   }
+   if (r == -1)
+      std::cout << "WARNING:: Failure to add_extra_target_position_restraint for " << spec << std::endl;
+   return r;
+}
+
+#ifdef HAVE_CXX11
+// extra target position restraints refine like pull atom restraints
+// but are stored differently (like other extra restraints)
+int
+molecule_class_info_t::add_extra_target_position_restraints(const std::vector<std::tuple<coot::atom_spec_t, const clipper::Coord_orth , float > > &etprs) {
+
+   int r = -1;
+   for (std::size_t i=0; i<etprs.size(); i++) {
+
+      coot::atom_spec_t spec         = std::get<0>(etprs[i]); // copy
+      const clipper::Coord_orth &pos = std::get<1>(etprs[i]);
+      float  weight                  = std::get<2>(etprs[i]);
+      mmdb::Atom *at = get_atom(spec);
+      if (at) {
+	 int atom_index = -1;
+	 at->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
+	 spec.int_user_data = atom_index;
+	 coot::extra_restraints_t::extra_target_position_restraint_t tpr(spec, pos, weight);
+	 extra_restraints.target_position_restraints.push_back(tpr);
+	 r = 1;
+      }
+   }
+   return r;
+}
+#endif
+
 void
 molecule_class_info_t::add_parallel_plane_restraint(coot::residue_spec_t spec_1,
 						    coot::residue_spec_t spec_2) {

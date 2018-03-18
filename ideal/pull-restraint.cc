@@ -116,6 +116,7 @@ coot::distortion_score_target_pos(const coot::simple_restraint &rest,
       double e_z = exp(z);
       double cosh_z = 0.5 * (e_z + 1.0/e_z);
       double ln_cosh_z = log(cosh_z);
+      // std::cout << " " << scale * ln_cosh_z << std::endl;
       return scale * ln_cosh_z;
    }
 }

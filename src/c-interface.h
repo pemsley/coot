@@ -3450,14 +3450,12 @@ int add_extra_torsion_restraint(int imol,
 				double torsion_angle, double esd, int period);
 int add_extra_start_pos_restraint(int imol, const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, double esd);
 
-/* Code this up in due course - needs extra support in simple-restrtaint */
-/* int add_extra_target_position_restraint(int imol,  */
-/* 					const char *chain_id,  */
-/* 					int res_no,  */
-/* 					const char *ins_code,  */
-/* 					const char *atom_name,  */
-/* 					const char *alt_conf); */
-					
+int add_extra_target_position_restraint(int imol,
+					const char *chain_id,
+					int res_no,
+					const char *ins_code,
+					const char *atom_name,
+ 					const char *alt_conf, float x, float y, float z, float weight);
 
 /*! \brief clear out all the extra/user-defined restraints for molecule number imol  */
 void delete_all_extra_restraints(int imol); 

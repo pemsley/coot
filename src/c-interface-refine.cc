@@ -673,7 +673,7 @@ int delete_restraints(const char *comp_id) {
    graphics_info_t g;
    return g.Geom_p()->delete_mon_lib(comp_id, imol);
    
-} 
+}
 
 
 /*! \brief add a user-define bond restraint
@@ -771,6 +771,25 @@ int add_extra_torsion_restraint(int imol,
    }
    return r;
 }
+
+int add_extra_target_position_restraint(int imol,
+					const char *chain_id,
+					int res_no,
+					const char *ins_code,
+					const char *atom_name,
+ 					const char *alt_conf, float x, float y, float z,
+					float weight) {
+
+   int r = -1;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_spec_t as(chain_id, res_no, ins_code, atom_name, alt_conf);
+      clipper::Coord_orth pos(x,y,z);
+      graphics_info_t g;
+      g.molecules[imol].add_extra_target_position_restraint(as, pos, weight);
+   }
+   return r;
+}
+
 
 
 #ifdef USE_GUILE

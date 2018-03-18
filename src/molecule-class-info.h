@@ -2827,7 +2827,16 @@ public:        //                      public
 				   coot::atom_spec_t atom_4,
 				   double torsion_angle, double esd, int period);
    int add_extra_start_pos_restraint(coot::atom_spec_t atom_1,
-						double esd);
+				     double esd);
+
+   // extra target position restraints are like pull atom restraints
+   int add_extra_target_position_restraint(coot::atom_spec_t &spec,
+					   const clipper::Coord_orth &pos,
+					   float weight);
+#ifdef HAVE_CXX11
+   int add_extra_target_position_restraints(const std::vector<std::tuple<coot::atom_spec_t, const clipper::Coord_orth , float > > &etprs);
+#endif //  HAVE_CXX11
+
    // the atom specs do not need to be in order for bond restraints only
    void remove_extra_bond_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2);
    void remove_extra_start_pos_restraint(coot::atom_spec_t atom_1);
@@ -2839,6 +2848,8 @@ public:        //                      public
    void update_extra_restraints_representation_bonds();
    void update_extra_restraints_representation_parallel_planes();
    void add_refmac_extra_restraints(const std::string &file_name);
+   void remove_extra_target_position_restraints(coot::atom_spec_t &spec);
+
    // make them yourself - easy as pie.
    void generate_local_self_restraints(float local_dist_max,
 				       const std::string &chain_id,

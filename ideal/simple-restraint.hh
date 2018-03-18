@@ -647,8 +647,8 @@ namespace coot {
 	    is_user_defined_restraint = 0;
 	 } 
       }
-      
-      //start pos
+
+      // start pos
       simple_restraint(restraint_type_t rest_type, int atom_1,
 		       bool fixed_atom_flag_in,
 		       float sig, float obs){
@@ -665,7 +665,7 @@ namespace coot {
 	 }
       }
 
-      // target_pos, pull_atom
+      // target_position, including pull_atoms
       simple_restraint(restraint_type_t rest_type, int atom_idx,
 		       const atom_spec_t &spec_in,
 		       const clipper::Coord_orth &pos) :
@@ -1348,7 +1348,7 @@ namespace coot {
 						   atom_index_sigma_in, 
 						   fixed_atom_flags));
       }
-      
+
       //used for start pos restraints
       bool add(restraint_type_t rest_type, int atom_1,
 	       bool fixed_atom_flag,
@@ -1371,7 +1371,16 @@ namespace coot {
 	    restraints_vec.back().is_user_defined_restraint = 1;
 	 }
       }
-      
+
+      void add_user_defined_target_position_restraint(restraint_type_t rest_type, int atom_idx,
+						      const atom_spec_t &spec,
+						      const clipper::Coord_orth &pos, float weight) {
+	 // weight not used yet
+	 simple_restraint r(rest_type, atom_idx, spec, pos);
+	 r.is_user_defined_restraint = 1;
+	 restraints_vec.push_back(r);
+      }
+
       void add_geman_mcclure_distance(restraint_type_t rest_type,
 				      int atom_1, int atom_2, 
 				      const std::vector<bool> &fixed_atom_flags,
@@ -2135,6 +2144,7 @@ namespace coot {
       void add_extra_angle_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_torsion_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_start_pos_restraints(const extra_restraints_t &extra_restraints);
+      void add_extra_target_position_restraints(const extra_restraints_t &extra_restraints); // not pull-atoms
       void add_extra_parallel_plane_restraints(int imol,
 					       const extra_restraints_t &extra_restraints,
 					       const protein_geometry &geom);

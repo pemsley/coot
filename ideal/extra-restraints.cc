@@ -173,7 +173,7 @@ coot::restraints_container_t::add_extra_restraints(int imol,
 						   const protein_geometry &geom) {
 
 
-   if (false) {
+   if (true) {
       std::cout << "--------------------- in add_extra_restraints() restraints_vec size() "
 		<< restraints_vec.size() << " extra bond restraints "
 		<< std::endl;
@@ -183,14 +183,72 @@ coot::restraints_container_t::add_extra_restraints(int imol,
       std::cout << "--------------------- in add_extra_restraints() par-plan "
 		<< extra_restraints.parallel_plane_restraints.size() << " pp restraints "
 		<< std::endl;
+      std::cout << "--------------------- in add_extra_restraints() target-position "
+		<< extra_restraints.target_position_restraints.size() << " position restraints "
+		<< std::endl;
    }
-   
+
    add_extra_bond_restraints(extra_restraints);
    add_extra_angle_restraints(extra_restraints);
    add_extra_torsion_restraints(extra_restraints);
    add_extra_start_pos_restraints(extra_restraints);
+   add_extra_target_position_restraints(extra_restraints);
    add_extra_parallel_plane_restraints(imol, extra_restraints, geom);
    make_restraint_types_index_limits();
+}
+
+void
+coot::restraints_container_t::add_extra_target_position_restraints(const extra_restraints_t &extra_restraints) {
+
+   // it doesn't make sense to add a target position restraint for a fixed atom
+
+   for (unsigned int i=0; i<extra_restraints.target_position_restraints.size(); i++) {
+      const extra_restraints_t::extra_target_position_restraint_t &pr =
+	 extra_restraints.target_position_restraints[i];
+
+      mmdb::Residue *residue_p = NULL;
+      mmdb::Atom *at = 0;
+      bool fixed = false;
+      if (from_residue_vector) {
+	 residue_spec_t res_spec(pr.atom_spec);
+	 for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
+	    if (residue_spec_t(residues_vec[ir].second) == res_spec) {
+	       residue_p = residues_vec[ir].second;
+	       fixed = residues_vec[ir].first;
+	       break;
+	    }
+	 }
+      } else {
+	 // Fill me
+      }
+
+      if (! fixed) {
+
+	 if (residue_p) {
+	    // set "at" from atoms in residue_p
+	    mmdb::Atom **residue_atoms = 0;
+	    int n_residue_atoms;
+	    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	    for (int iat=0; iat<n_residue_atoms; iat++) {
+	       std::string atom_name(residue_atoms[iat]->name);
+	       if (atom_name == extra_restraints.target_position_restraints[i].atom_spec.atom_name) {
+		  std::string alt_loc(residue_atoms[iat]->altLoc);
+		  if (alt_loc == extra_restraints.target_position_restraints[i].atom_spec.alt_conf) {
+		     at = residue_atoms[iat];
+		     break;
+		  }
+	       }
+	    }
+	 }
+
+	 if (at) {
+	    int atom_index = -1;
+	    at->GetUDData(udd_atom_index_handle, atom_index);
+	    // std::cout << "add target position for atom index " << atom_index << std::endl;
+	    add_user_defined_target_position_restraint(TARGET_POS_RESTRANT, atom_index, pr.atom_spec, pr.pos, pr.weight);
+	 }
+      }
+   }
 }
 
 void
@@ -301,8 +359,8 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
 			 extra_restraints.bond_restraints[i].esd,
 			 1.2 /* dummy value */);
                   
-		  //mark these atoms as bonded so that we don't add a non-bonded restraint between them
-		  // 20170423 - but we *do* want NBC between these atoms...
+		  //mark these atoms as bonded so that we don't add a non-bonded restraint between them.
+		  // 20170423 - But we *do* want NBC between these atoms...
 		  //          otherwise we get horrid crunching.
 		  // bonded_atom_indices[index_1].push_back(index_2);
 		  // bonded_atom_indices[index_2].push_back(index_1);
@@ -447,7 +505,7 @@ coot::restraints_container_t::add_extra_torsion_restraints(const extra_restraint
 		            << "[" << index_3 << " " << coot::atom_spec_t(atom[index_3]) << " " << fixed_flags[2] << "]  " 
 		            << "[" << index_4 << " " << coot::atom_spec_t(atom[index_4]) << " " << fixed_flags[3] << "]  " 
 		            << std::endl;
-	       
+
 	       add_user_defined_torsion_restraint(TORSION_RESTRAINT,
 						  index_1, index_2, index_3, index_4,
 						  fixed_flags,
