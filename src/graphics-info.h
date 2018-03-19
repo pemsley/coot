@@ -3667,8 +3667,10 @@ public:
    static int lsq_mov_imol;
    static lsq_dialog_values_t lsq_dialog_values;
 
-   // -------- some people dont want restype and slashes in atom label:
+   // -------- some people don't want restype and slashes in atom label:
    static short int brief_atom_labels_flag;
+   //          and some people want seg-ids in their atom labels (Francesca)
+   static short int seg_ids_in_atom_labels_flag;
 
    void delete_molecule_from_from_display_manager(int imol, bool was_map_flag);
 

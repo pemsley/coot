@@ -519,6 +519,7 @@ coot::colour_holder graphics_info_t::font_colour = coot::colour_holder(1.0, 0.8,
 bool      graphics_info_t::stroke_characters = false;
 
 short int graphics_info_t::brief_atom_labels_flag = 0;
+short int graphics_info_t::seg_ids_in_atom_labels_flag = 0;
 
 // scroll wheel
 int       graphics_info_t::scroll_wheel_map = -1; // (initial magic value) 
@@ -2254,7 +2255,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 	 // Label the atoms in the atoms label list.
 	 //
-	 graphics_info_t::molecules[ii].label_atoms(graphics_info_t::brief_atom_labels_flag);
+	 graphics_info_t::molecules[ii].label_atoms(graphics_info_t::brief_atom_labels_flag,
+						    graphics_info_t::seg_ids_in_atom_labels_flag);
 
 	 // Draw the dotted atoms:
 	 graphics_info_t::molecules[ii].draw_dots();

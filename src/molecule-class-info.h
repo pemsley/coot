@@ -292,7 +292,8 @@ class molecule_class_info_t {
    
    std::string make_symm_atom_label_string(mmdb::PAtom atom,
 					   const std::pair <symm_trans_t, Cell_Translation> &symm_trans) const;
-   std::string make_atom_label_string(mmdb::PAtom atom, int brief_atom_labels_flag) const;
+   std::string make_atom_label_string(mmdb::PAtom atom, int brief_atom_labels_flag,
+				      short int seg_ids_in_atom_labels_flag) const;
 
    // rebuild/save state command
    std::vector<std::string> save_state_command_strings_;
@@ -804,7 +805,7 @@ public:        //                      public
 
    void label_symmetry_atom(int i);
    
-   void label_atom(int i, int brief_atom_labels_flag);
+   void label_atom(int i, int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag);
 
    void debug_selection() const; 
    void debug() const;
@@ -1076,7 +1077,7 @@ public:        //                      public
    void make_bonds_type_checked(bool add_residue_indices=false);
 
 
-   void label_atoms(int brief_atom_labels_flag);
+   void label_atoms(int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag);
    
    //
    void update_molecule_after_additions(); // cleanup, new

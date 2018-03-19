@@ -7086,6 +7086,12 @@ void set_brief_atom_labels(int istat) {
    graphics_draw();
 }
 
+void set_seg_ids_in_atom_labels(int istat) {
+
+   graphics_info_t::seg_ids_in_atom_labels_flag = istat;
+   graphics_draw();
+}
+
 int brief_atom_labels_state() {
    return graphics_info_t::brief_atom_labels_flag;
 }

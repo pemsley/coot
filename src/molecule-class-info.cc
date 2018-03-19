@@ -560,7 +560,8 @@ molecule_class_info_t::install_model(int imol_no_in,
 
 
 void
-molecule_class_info_t::label_atoms(int brief_atom_labels_flag) {
+molecule_class_info_t::label_atoms(int brief_atom_labels_flag,
+				   short int seg_ids_in_atom_labels_flag) {
 
    if (draw_it) {
       
@@ -577,7 +578,7 @@ molecule_class_info_t::label_atoms(int brief_atom_labels_flag) {
 
 	 // also remove labels from atom indexes list of over the end.
 	 for (int ii=0; ii<n_atoms_to_label ; ii++)
-	    label_atom(labelled_atom_index_list[ii], brief_atom_labels_flag);
+	    label_atom(labelled_atom_index_list[ii], brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
       
 	 n_atoms_to_label = labelled_symm_atom_index_list.size();
 
@@ -3137,7 +3138,7 @@ molecule_class_info_t::label_symmetry_atom(int i) {
 // Put a label at the ith atom of mol_class_info::atom_selection. 
 //
 void
-molecule_class_info_t::label_atom(int i, int brief_atom_labels_flag) {
+molecule_class_info_t::label_atom(int i, int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag) {
 
    if (has_model()) { 
 
@@ -3147,7 +3148,7 @@ molecule_class_info_t::label_atom(int i, int brief_atom_labels_flag) {
 
 	 if (atom) { 
 
-	    std::string label = make_atom_label_string(atom, brief_atom_labels_flag);
+	    std::string label = make_atom_label_string(atom, brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
       
 	    // GLfloat white[3] = { 1.0, 1.0, 1.0 };
 	    GLfloat pink[3] =  { graphics_info_t::font_colour.red,
@@ -3870,7 +3871,7 @@ std::string
 molecule_class_info_t::make_symm_atom_label_string(mmdb::PAtom atom,
 						   const std::pair <symm_trans_t, Cell_Translation> &symm_trans) const {
 
-   std::string s = make_atom_label_string(atom, 0);
+   std::string s = make_atom_label_string(atom, 0, 0);
    s += ": ";
    s += to_string(symm_trans);
    return s;
@@ -3881,7 +3882,9 @@ molecule_class_info_t::make_symm_atom_label_string(mmdb::PAtom atom,
 // And then another 2 to add the alt location code (and test it).
 // 
 std::string
-molecule_class_info_t::make_atom_label_string(mmdb::PAtom atom, int brief_atom_labels_flag) const {
+molecule_class_info_t::make_atom_label_string(mmdb::PAtom atom,
+					      int brief_atom_labels_flag,
+					      short int seg_ids_in_atom_labels_flag) const {
 
    char *chain_id  = atom->GetChainID();
    char *res_name  = atom->GetResName();
@@ -3924,6 +3927,14 @@ molecule_class_info_t::make_atom_label_string(mmdb::PAtom atom, int brief_atom_l
       s += res_name;
       s += "/";
       s += chain_id;
+      if (seg_ids_in_atom_labels_flag) {
+	 std::string seg_id(atom->segID);
+	 // std::cout << "Here with seg_id :" << seg_id << ":" << std::endl;
+	 if (! seg_id.empty()) {
+	    s += " ";
+	    s += seg_id;
+	 }
+      }
    }
 
    return s;

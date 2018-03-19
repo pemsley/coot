@@ -618,7 +618,9 @@ molecule_class_info_t::set_atom_attributes(const std::vector<coot::atom_attribut
 		     at->SetElementName(v[iv].attribute_value.s.c_str());
 		  }
 		  if (v[iv].attribute_name == "segid") {
-		     strncpy(at->segID, v[iv].attribute_value.s.c_str(), 5);
+		     for (int ii=0; ii<20; ii++) // 20 is magic number - for char[20] SegID
+			at->segID[ii] = '\n';
+		     strncpy(at->segID, v[iv].attribute_value.s.c_str(), 19);
 		  }
 	       }
 	       if (v[iv].attribute_value.type == coot::atom_attribute_setting_help_t::IS_FLOAT) {
