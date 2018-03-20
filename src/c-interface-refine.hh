@@ -15,6 +15,9 @@ void set_refinement_geman_mcclure_alpha(float alpha);
 //! \brief set the Lennard Jones epsilon parameter
 void set_refinement_lennard_jones_epsiolon(float epsilon);
 
+//! \brief set the log cosh scale factor for target position restraints
+void set_log_cosh_target_distance_scale_factor(float sf);
+
 #ifdef USE_GUILE
 //! \brief Apply crankshaft peptide rotation optimization to the specified residue
 void crankshaft_peptide_rotation_optimization_scm(int imol, SCM residue_spec_smc);

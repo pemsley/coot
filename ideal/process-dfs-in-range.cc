@@ -187,7 +187,7 @@ coot::process_dfs_in_range(const std::vector<std::size_t> &restraints_indices,
 	    process_dfs_rama(rest, restraints_p, v, results);
 
       if (rest.restraint_type == coot::TARGET_POS_RESTRANT)
-	 process_dfs_target_position(rest, v, results);
+	 process_dfs_target_position(rest, restraints_p->log_cosh_target_distance_scale_factor, v, results);
 
 
    }
@@ -853,13 +853,14 @@ coot::process_dfs_non_bonded_lennard_jones(const coot::simple_restraint &this_re
 
 void
 coot::process_dfs_target_position(const coot::simple_restraint &restraint,
+				  const double &log_cosh_target_distance_scale_factor,
 				  const gsl_vector *v,
 				  std::vector<double> &results) {
 
    double sigma = 0.04;
    int idx = 3*(restraint.atom_index_1);
 
-   double scale = 30000.0;
+   double scale = log_cosh_target_distance_scale_factor;
    double top_out_dist = 4.0;  // Angstroms, needs tweaking?
    double k = 1.0 / top_out_dist;
 

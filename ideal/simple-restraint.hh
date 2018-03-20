@@ -894,8 +894,7 @@ namespace coot {
 			    void *params,
 			    const gsl_vector *v);
    double distortion_score_target_pos(const simple_restraint &start_pos_restraint,
-				      void *params,
-				      const gsl_vector *v);
+				      void *params, const gsl_vector *v);
    double distortion_score_non_bonded_contact(const simple_restraint &plane_restraint,
 					      const double &lennard_jones_epsilon,
 					      const gsl_vector *v);
@@ -2300,6 +2299,11 @@ namespace coot {
       void clear() {
 	 restraints_vec.clear();
 	 init(false);
+      }
+
+      double log_cosh_target_distance_scale_factor;
+      void set_log_cosh_target_distance_scale_factor(double sf) {
+	 log_cosh_target_distance_scale_factor = sf;
       }
 
       void copy_from(int i);

@@ -902,6 +902,8 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	       if (do_numerical_gradients)
 		  last_restraints->set_do_numerical_gradients();
 
+	       last_restraints->set_log_cosh_target_distance_scale_factor(log_cosh_target_distance_scale_factor);
+
 	       std::string dummy_chain = ""; // not used
 
 	       rr = update_refinement_atoms(n_restraints, last_restraints, rr, local_moving_atoms_asc,

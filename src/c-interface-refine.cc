@@ -1220,6 +1220,12 @@ void set_refinement_lennard_jones_epsiolon(float epsilon) {
    graphics_info_t::lennard_jones_epsilon = epsilon;
 }
 
+//! \brief set the log cosh scale factor for target position restraints
+void set_log_cosh_target_distance_scale_factor(float sf) {
+   graphics_info_t::log_cosh_target_distance_scale_factor = sf;
+}
+
+
 
 #ifdef USE_GUILE
 void crankshaft_peptide_rotation_optimization_scm(int imol, SCM residue_spec_scm) {

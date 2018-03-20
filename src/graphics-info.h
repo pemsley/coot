@@ -4127,6 +4127,8 @@ string   static std::string sessionid;
 
    static double lennard_jones_epsilon;
 
+   static double log_cosh_target_distance_scale_factor;
+
    static pair<bool,float> coords_centre_radius;  // should the display radius limit be applied? And
                                                   // if so, what is it? (say 20A)
                                                   // used in draw_bonds().

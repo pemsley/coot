@@ -95,6 +95,7 @@ coot::distortion_score_target_pos(const coot::simple_restraint &rest,
                                    gsl_vector_get(v,idx+2));
 
 
+   restraints_container_t *restraints_p = static_cast<restraints_container_t *>(params);
    double dist = clipper::Coord_orth::length(current_pos, rest.atom_pull_target_pos);
 
    if (harmonic_restraint) {
@@ -110,7 +111,8 @@ coot::distortion_score_target_pos(const coot::simple_restraint &rest,
       // duplicate these settings in the my_df_target_pos().
       //
       double top_out_dist = 4.0; // Angstroms, needs tweaking?
-      double scale = 30000.0;       // needs tweaking
+
+      double scale = restraints_p->log_cosh_target_distance_scale_factor;       // needs tweaking
 
       double z = dist/top_out_dist;
       double e_z = exp(z);
@@ -161,7 +163,7 @@ void coot::my_df_target_pos(const gsl_vector *v,
 
 	 } else {
 
-	    double scale = 30000.0;       // needs tweaking
+	    double scale = restraints_p->log_cosh_target_distance_scale_factor;
 	    double top_out_dist = 4.0;   // Angstroms, needs tweaking?
 	    double k = 1.0 / top_out_dist;
 

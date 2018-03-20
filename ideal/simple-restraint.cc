@@ -357,6 +357,7 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
    n_threads = 0;
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+   log_cosh_target_distance_scale_factor = 3000.0;
 }
 
 void

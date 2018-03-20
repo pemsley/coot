@@ -53,6 +53,7 @@ namespace coot {
 				  std::vector<double> &results);
 
    void process_dfs_target_position(const simple_restraint &restraint,
+				    const double &sf,
 				    const gsl_vector *v,
 				    std::vector<double> &results);
 
