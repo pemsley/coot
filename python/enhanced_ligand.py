@@ -15,7 +15,12 @@ def ligand_check_refmac_columns(f_list, sigf_list, rfree_list):
     # get the F label (Fx) from x/y/SIGFPx
     #
     pass
-    
+
+def jiggle_fit_active_residue():
+    with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                               aa_ins_code, aa_atom_name, aa_alt_conf]:
+        fit_to_map_by_random_jiggle(aa_imol, aa_chain_id, aa_res_no,
+                                    aa_ins_code, 100, 1.0)
 
 if (use_gui_qm != 2):
     menu = coot_menubar_menu("Ligand")
@@ -27,7 +32,11 @@ if (use_gui_qm != 2):
           "Find Ligands...",
           lambda func: do_find_ligands_dialog())
 
-        
+        add_simple_coot_menu_menuitem(
+          menu,
+          "Jiggle-Fit Ligand",
+          lambda func: jiggle_fit_active_residue())
+
         add_simple_coot_menu_menuitem(
           menu,
           "SMILES -> 2D",
