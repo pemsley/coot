@@ -1896,13 +1896,13 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 			       << at_p << " " << kee.what() << std::endl;
 	       }
 	    }
-	 } 
+	 }
 	 clipper::Coord_orth pos(r_pos.x, r_pos.y, r_pos.z);
 	 int n = at_p->getAtomicNum();
 	 std::string element = tbl->getElementSymbol(n);
 	 int charge = at_p->getFormalCharge();
 	 lig_build::molfile_atom_t mol_atom(pos, element, name);
-	 
+
 	 mol_atom.formal_charge = charge;
 	 RDKit::Atom::ChiralType ct = at_p->getChiralTag();
 	 if (ct == RDKit::Atom::CHI_TETRAHEDRAL_CW)
@@ -1910,7 +1910,8 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 	 if (ct == RDKit::Atom::CHI_TETRAHEDRAL_CCW)
 	    mol_atom.chiral = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
 	 mol_atom.aromatic = at_p->getIsAromatic();
-	 // std::cout << "added atom " << mol_atom << std::endl;
+	 if (false)
+	    std::cout << "added atom " << mol_atom << std::endl;
 	 mol.add_atom(mol_atom);
       }
 
@@ -1920,12 +1921,9 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 	 int idx_1 = bond_p->getBeginAtomIdx();
 	 int idx_2 = bond_p->getEndAtomIdx();
 	 lig_build::bond_t::bond_type_t bt = convert_bond_type(bond_p->getBondType());
-	 if (0) 
-	    std::cout << "   make_molfile_molecule() " << idx_1 << " "
-		      << idx_2 << "      "
-		      << bond_p->getBondType() << " to "
-		      << bt 
-		      << std::endl;
+	 if (false)
+	    std::cout << "   make_molfile_molecule() " << idx_1 << " " << idx_2 << " from type  "
+		      << bond_p->getBondType() << " to " << bt << std::endl;
 	 lig_build::molfile_bond_t mol_bond(idx_1, idx_2, bt);
 	 RDKit::Bond::BondDir bond_dir = bond_p->getBondDir();
 	 if (bond_dir != RDKit::Bond::NONE) {
@@ -2731,7 +2729,7 @@ coot::undelocalise_methyl_carboxylates(RDKit::RWMol *rdkm) {
 	       // rename for clarity
 	       RDKit::Atom *central_C = atom_1;
 	       RDKit::Atom *O1 = atom_2;
-	       
+
 	       for(bondIt_inner=rdkm->beginBonds(); bondIt_inner!=rdkm->endBonds(); ++bondIt_inner) {
 		  if ((*bondIt_inner)->getBondType() == RDKit::Bond::ONEANDAHALF) {
 		     RDKit::Atom *atom_1_in = (*bondIt_inner)->getBeginAtom();
@@ -2746,7 +2744,7 @@ coot::undelocalise_methyl_carboxylates(RDKit::RWMol *rdkm) {
 			      // rename for clarity
 			      //
 			      RDKit::Atom *O2 = atom_2_in;
-			      
+
 			      // bondIt and bondIt_inner are the bonds that we will ultimately modify
 			      // 
 			      deloc_O_check_inner(rdkm, central_C, O1, O2, *bondIt, *bondIt_inner);
@@ -2821,6 +2819,8 @@ coot::deloc_O_check_inner(RDKit::RWMol *rdkm, RDKit::Atom *central_C,
 			  RDKit::Atom *O1, RDKit::Atom *O2,
 			  RDKit::Bond *b1, RDKit::Bond *b2) {
 
+   // std::cout << "debug:: deloc_O_check_inner: " << rdkm << " " << central_C << std::endl;
+
    RDKit::ROMol::BondIterator bondIt_in_in;
    // OK, so was there something attached to either of the Oxygens?
    // 
@@ -2828,7 +2828,7 @@ coot::deloc_O_check_inner(RDKit::RWMol *rdkm, RDKit::Atom *central_C,
       if ((*bondIt_in_in)->getBondType() == RDKit::Bond::SINGLE) {
 	 RDKit::Atom *atom_1_in_in = (*bondIt_in_in)->getBeginAtom();
 	 RDKit::Atom *atom_2_in_in = (*bondIt_in_in)->getEndAtom();
-				    
+
 	 // check atom_1_in_in vs the first oxygen
 	 if (atom_1_in_in == O1) {
 	    if (atom_2_in_in != central_C) {
@@ -2839,7 +2839,7 @@ coot::deloc_O_check_inner(RDKit::RWMol *rdkm, RDKit::Atom *central_C,
 	       b2->setBondType(RDKit::Bond::DOUBLE);
 	    }
 	 }
-				    
+
 	 // check vs the second oxygen
 	 if (atom_1_in_in == O2) {
 	    if (atom_2_in_in != central_C) {
@@ -2849,7 +2849,6 @@ coot::deloc_O_check_inner(RDKit::RWMol *rdkm, RDKit::Atom *central_C,
 	    }
 	 }
 
-	 
 
 	 // check atom_2_in_in vs the first oxygen
 	 if (atom_2_in_in == O1) {
@@ -3108,7 +3107,7 @@ coot::charge_phosphates(RDKit::RWMol *rdkm) {
 // return the number of atoms added (e.g. -2)
 int
 coot::remove_phosphate_hydrogens(RDKit::RWMol *m, bool deloc_bonds) { 
- 
+
    return remove_PO4_SO4_hydrogens(m, 15, deloc_bonds);
 
 }
@@ -3177,7 +3176,8 @@ coot::remove_PO4_SO4_hydrogens(RDKit::RWMol *m,
                   }
 	          if (bond->getBondType() == RDKit::Bond::DOUBLE) {
 		     double_PO_bonds.push_back(bond);
-                     O_atoms_for_charging.push_back(at.get());
+		     // 20171217 surely we can't mean to charge an O with a double bond?
+                     // O_atoms_for_charging.push_back(at.get());
                   }
                }
 	    } 
@@ -3629,7 +3629,7 @@ coot::split_molecule(const RDKit::ROMol &mol, int bond_index, int atom_index) {
 	       // 
 	       std::vector<RDKit::Atom *> atoms_to_be_deleted;
 	       for (unsigned int iat=0; iat<R_group_atoms.size(); iat++) {
-		  std::cout << "... deleting atom " << R_group_atoms[iat] << std::endl;
+		  // std::cout << "... deleting atom " << R_group_atoms[iat] << std::endl;
 		  RDKit::ATOM_SPTR at_p = (*working_mol)[R_group_atoms[iat]];
 		  atoms_to_be_deleted.push_back(at_p.get());
 	       }

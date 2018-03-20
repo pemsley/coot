@@ -163,6 +163,8 @@ bool graphics_info_t::do_expose_swap_buffers_flag = 1;
 ctpl::thread_pool graphics_info_t::static_thread_pool(coot::get_max_number_of_threads());
 #endif // HAVE_CC_THREAD
 
+clipper::Xmap<float> *graphics_info_t::dummy_xmap = new clipper::Xmap<float>;
+
 
 //WII
 #ifdef WII_INTERFACE_WIIUSE
@@ -517,6 +519,7 @@ coot::colour_holder graphics_info_t::font_colour = coot::colour_holder(1.0, 0.8,
 bool      graphics_info_t::stroke_characters = false;
 
 short int graphics_info_t::brief_atom_labels_flag = 0;
+short int graphics_info_t::seg_ids_in_atom_labels_flag = 0;
 
 // scroll wheel
 int       graphics_info_t::scroll_wheel_map = -1; // (initial magic value) 
@@ -772,6 +775,9 @@ short int graphics_info_t::do_torsion_restraints = 0;
 short int graphics_info_t::do_peptide_omega_torsion_restraints = 0;
 bool      graphics_info_t::do_rama_restraints = 0; // No.
 bool      graphics_info_t::do_numerical_gradients = 0; // No.
+int       graphics_info_t::restraints_rama_type = coot::RAMA_TYPE_LOGRAMA;
+float     graphics_info_t::rama_restraints_weight = 40;
+
 // for Kevin Keating 
 bool      graphics_info_t::use_only_extra_torsion_restraints_for_torsions_flag = 0; 
 
@@ -865,8 +871,6 @@ short int graphics_info_t::display_density_level_this_image = 1;
 std::string graphics_info_t::display_density_level_screen_string =
    "Welcome to Coot";
 
-// dynarama
-//
 // This kills the compiler:  Move the allocation to init.
 // GtkWidget **graphics_info_t::dynarama_is_displayed = new GtkWidget *[graphics_info_t::n_molecules_max];
 float       graphics_info_t::residue_density_fit_scale_factor = 1.0;
@@ -1038,6 +1042,8 @@ float graphics_info_t::add_alt_conf_new_atoms_occupancy = 0.5;
 short int graphics_info_t::show_alt_conf_intermediate_atoms_flag = 0;
 float graphics_info_t::ncs_homology_level = 0.7;
 
+// dynarama
+//
 // edit phi/psi
 short int graphics_info_t::in_edit_phi_psi_define = 0;
 int graphics_info_t::edit_phi_psi_atom_index = -1;
@@ -1048,7 +1054,8 @@ coot::rama_plot  *graphics_info_t::edit_phi_psi_plot = NULL;
 #endif // HAVE_GTK_CANVAS
 float graphics_info_t::rama_level_prefered = 0.02;
 float graphics_info_t::rama_level_allowed = 0.002;
-float graphics_info_t::rama_plot_background_block_size = 6; // divisible into 360 preferably.
+float graphics_info_t::rama_plot_background_block_size = 2; // divisible into 360 preferably.
+int graphics_info_t::rama_psi_axis_mode = coot::rama_plot::PSI_CLASSIC;
 coot::ramachandran_points_container_t graphics_info_t::rama_points = coot::ramachandran_points_container_t();
 
 ramachandrans_container_t graphics_info_t::ramachandrans_container = ramachandrans_container_t();
@@ -1117,7 +1124,9 @@ double    graphics_info_t::refinement_drag_elasticity = 0.25;
 // save the restraints:
 //
 #ifdef HAVE_GSL
-coot::restraints_container_t graphics_info_t::last_restraints;
+coot::restraints_container_t *graphics_info_t::last_restraints = 0;
+// clipper::Xmap<float> blank_dummy_xmap;
+// ref version: coot::restraints_container_t(blank_dummy_xmap);
 #endif // HAVE_GSL
 // 
 // 
@@ -1140,6 +1149,8 @@ float graphics_info_t::default_sigma_level_for_fofc_map = 3.0;
 
 // geometry widget:
 GtkWidget *graphics_info_t::geometry_dialog = NULL;
+
+bool graphics_info_t::add_ccp4i_projects_to_optionmenu_flag = true;
 
 // run refmac widget:
 std::string graphics_info_t::refmac_ccp4i_project_dir = std::string("");
@@ -1339,6 +1350,12 @@ std::map<std::string, std::pair<std::string, std::string> > graphics_info_t::use
 
 std::vector<std::pair<clipper::Coord_orth, std::string> > graphics_info_t::user_defined_interesting_positions;
 unsigned int graphics_info_t::user_defined_interesting_positions_idx = 0;
+
+
+std::pair<bool, float> graphics_info_t::model_display_radius = std::pair<bool, float> (false, 15);
+
+// need to configure for this!
+// #define GDKGLEXT_HAVE_MODE_SAMPLES_SHIFT true
 
 // Chemical Feature Clusters, cfc
 GtkWidget *graphics_info_t::cfc_dialog = NULL;
@@ -2022,7 +2039,6 @@ void gdkglext_finish_frame(GtkWidget *widget) {
 gint
 draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
-
    // std::cout << "draw_mono() with widget " << widget << std::endl;
 
    if ((event-1) != 0) { 
@@ -2165,7 +2181,14 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 glFogf(GL_FOG_END,    fog_end);
 	 // std::cout << "GL_FOG_START " << fog_start << " with far  " << far  << std::endl;
 	 // std::cout << "GL_FOG_END "   << fog_end   << " with near " << near << std::endl;
+      }
 
+      if (false) { // try/test clipping
+	 // I don't understand what I need to do
+	 GLdouble plane[] = { 0.0, 0.0, -1.0, -2.0};
+	 glEnable(GL_CLIP_PLANE0);
+	 glClipPlane(GL_CLIP_PLANE0, plane);
+	 glPopMatrix();
       }
 
       glMatrixMode(GL_MODELVIEW);
@@ -2182,6 +2205,15 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       glTranslatef(-graphics_info_t::RotationCentre_x(),
 		   -graphics_info_t::RotationCentre_y(),
 		   -graphics_info_t::RotationCentre_z());
+
+      if (false) { // try/test clipping
+	 // This does indeed clip the model, but it's in world coordinates,
+	 // not eye coordinates
+	 GLdouble plane[] = { 0.0, 0.0, -1.0, -2.0};
+	 glEnable(GL_CLIP_PLANE0);
+	 glClipPlane(GL_CLIP_PLANE0, plane);
+	 glPopMatrix();
+      }
 
       if (! graphics_info_t::esoteric_depth_cue_flag) { 
       	 coot::Cartesian front = unproject(0.0);
@@ -2304,7 +2336,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 	 // Label the atoms in the atoms label list.
 	 //
-	 graphics_info_t::molecules[ii].label_atoms(graphics_info_t::brief_atom_labels_flag);
+	 graphics_info_t::molecules[ii].label_atoms(graphics_info_t::brief_atom_labels_flag,
+						    graphics_info_t::seg_ids_in_atom_labels_flag);
 
 	 // Draw the dotted atoms:
 	 graphics_info_t::molecules[ii].draw_dots();
@@ -2459,9 +2492,11 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
          graphics_info_t::Increment_Frames();
       }
 
+
       if (graphics_info_t::display_mode == coot::ZALMAN_STEREO)
 	glDisable(GL_STENCIL_TEST);
-  
+
+
    } // gtkgl make area current test
 
    gdkglext_finish_frame(widget);
@@ -3263,6 +3298,9 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       // std::cout << "GDK_Escape pressed" << std::endl;
 
       clear_up_moving_atoms();
+
+      // stop the refinement
+      graphics_info_t::remove_drag_refine_idle_function();
       
       if (graphics_info_t::accept_reject_dialog) {
 	 if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
@@ -3790,6 +3828,7 @@ void keypad_translate_xyz(short int axis, short int direction) {
   }
 } 
 
+#include "idles.hh"
 
 gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 {
@@ -3876,14 +3915,14 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       // using graphics_info_t static members
       if (s >= 0) {
 
-	 istate = graphics_info_t::molecules[s].change_contour(-1);
-	 
-	 if (istate)
-	    graphics_info_t::molecules[s].update_map();
+	 // std::cout << "here in key_release_event for -" << std::endl;
+	 // istate = graphics_info_t::molecules[s].change_contour(-1); // no longer needed
+	 graphics_info_t::molecules[s].pending_contour_level_change_count--;
+	 int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, g.glarea);
 	 g.set_density_level_string(s, g.molecules[s].contour_level);
 	 g.display_density_level_this_image = 1;
-	 
-	 g.graphics_draw();
+
+	 // g.graphics_draw();
       } else {
 	 std::cout << "WARNING: No map - Can't change contour level.\n";
       }
@@ -3891,18 +3930,21 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_plus:
    case GDK_equal:  // unshifted plus, usually.
       //
-      
 
       // let the object decide which level change it needs:
       //
-      if (s >= 0) { 
-	 graphics_info_t::molecules[s].change_contour(1); // positive change
-      
-	 graphics_info_t::molecules[s].update_map();
+      if (s >= 0) {
+
+	 graphics_info_t::molecules[s].pending_contour_level_change_count++;
+	 int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, g.glarea);
+
+	 // graphics_info_t::molecules[s].change_contour(1); // positive change
+	 // graphics_info_t::molecules[s].update_map();
+
 	 g.set_density_level_string(s, g.molecules[s].contour_level);
 	 g.display_density_level_this_image = 1;
 
-	 g.graphics_draw();
+	 // g.graphics_draw();
       } else {
 	 std::cout << "WARNING: No map - Can't change contour level.\n";
       }
@@ -4023,6 +4065,55 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 
   return TRUE;
 }
+
+// widget is the glarea.
+// 
+gint
+idle_contour_function(GtkWidget *widget) {
+
+   gint continue_status = 0;
+   bool something_changed = false;
+
+   // when there's nothing else to do, update the contour levels
+   //
+   // then update maps
+
+   // std::cout << "--- debug:: idle_contour_function() running" << std::endl;
+   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
+      if (graphics_info_t::molecules[imol].has_xmap()) { // FIXME or nxmap : needs test for being a map molecule
+         int &cc = graphics_info_t::molecules[imol].pending_contour_level_change_count;
+         // std::cout << "---    imol: " << imol << " cc: " << cc << std::endl;
+         if (cc != 0) {
+
+	    if (cc < 0) {
+	       while (cc != 0) {
+	          cc++;
+	          graphics_info_t::molecules[imol].change_contour(-1);
+	       }
+	    }
+
+	    if (cc > 0) {
+	       while (cc != 0) {
+	          cc--;
+	          graphics_info_t::molecules[imol].change_contour(1);
+	       }
+	    }
+
+            graphics_info_t g;
+	    g.molecules[imol].update_map();
+	    continue_status = 0;
+            g.set_density_level_string(imol, g.molecules[imol].contour_level);
+            g.display_density_level_this_image = 1;
+            something_changed = true;
+         }
+      }
+   }
+   if (something_changed)
+      graphics_draw();
+   // std::cout << "--- debug:: idle_contour_function() done " << continue_status << std::endl;
+   return continue_status;
+}
+
 
 // widget is the glarea.
 // 
@@ -4512,39 +4603,23 @@ gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event) {
 void handle_scroll_density_level_event(int scroll_up_down_flag) {
 
    graphics_info_t info;
-   
+
+   // std::cout << "here in handle_scroll_density_level_event " << std::endl;
+
+   GdkEvent *peek_event = gdk_event_peek();
+   if (peek_event) {
+      std::cout << "peaking found an event!" << std::endl;
+   }
+
+   int s = info.scroll_wheel_map;
    if (scroll_up_down_flag == 1) {
-      //
-      // consider using
-      // change_contour_level(1); // is_increment
-
       if (graphics_info_t::do_scroll_by_wheel_mouse_flag) { 
-
-	 int s = info.scroll_wheel_map;
-
-	 std::vector<int> num_displayed_maps = info.displayed_map_imols();
-	 if (num_displayed_maps.size() == 1) 
-	    s = num_displayed_maps[0];
-
-	 if (s >= 0) { // i.e. not as yet unassigned 
-	    short int istate = info.molecules[s].change_contour(1);
-
-	    if (istate) { 
-	       info.set_density_level_string(s, info.molecules[s].contour_level);
-	       info.display_density_level_this_image = 1;
-
-	       // if (gtk_events_pending() == 0 ) { // there is always this event
-	       info.molecules[s].update_map();
-	       info.graphics_draw();
-	       // 	 while (gtk_events_pending())
-	       // 	    gtk_main_iteration();
-
-	       // 	 } else {
-	       // 	    std::cout << "events pending " << gtk_events_pending() << std::endl; 
-	       // 	 } 
-// 	       std::cout << "contour level of molecule [" << s << "]:  "
-// 			 << info.molecules[s].contour_level[0] << std::endl;
-	    }
+	 if (s>=0) {
+	    // short int istate = info.molecules[s].change_contour(1);
+	    info.molecules[s].pending_contour_level_change_count++;
+	    int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, info.glarea);
+	    info.set_density_level_string(s, info.molecules[s].contour_level);
+	    info.display_density_level_this_image = 1;
 	 } else {
 	    std::cout << "WARNING: No map - Can't change contour level.\n";
 	 }
@@ -4552,26 +4627,14 @@ void handle_scroll_density_level_event(int scroll_up_down_flag) {
    }
    
    if (scroll_up_down_flag == 0) {
-
       if (graphics_info_t::do_scroll_by_wheel_mouse_flag) { 
 	 int s = info.scroll_wheel_map;
-	 short int happened = 0;
-
-	 std::vector<int> num_displayed_maps = info.displayed_map_imols();
-	 if (num_displayed_maps.size() == 1) 
-	    s = num_displayed_maps[0];
-	 if (s >= 0) { 
-
-	    happened = info.molecules[s].change_contour(-1);
-
+	 if (s>=0) {
+	    // short int istate = info.molecules[s].change_contour(-1);
+	    info.molecules[s].pending_contour_level_change_count--;
+	    int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, info.glarea);
 	    info.set_density_level_string(s, info.molecules[s].contour_level);
 	    info.display_density_level_this_image = 1;
-	    if (happened) { 
-	       info.molecules[s].update_map();
-	    }
-	    info.graphics_draw();
-// 	    std::cout << "contour level of molecule [" << s << "]:  "
-// 		      << info.molecules[s].contour_level[0] << std::endl;
 	 } else {
 	    std::cout << "WARNING: No map - Can't change contour level.\n";
 	 }

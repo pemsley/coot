@@ -1585,20 +1585,28 @@ short int mtz_use_weight_for_map(int imol_map);
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
-/*! \brief return the parameter that made the map, #f or something
-  like ("xxx.mtz" "FPH" "PHWT" "" #f) */
+/*! \brief return the parameter that made the map, 
+
+@return false or a string
+  like ("xxx.mtz" "FPH" "PHWT" "" False) */
 SCM map_parameters_scm(int imol);
-/*! \brief return the parameter that made the map, #f or something
+/*! \brief return the parameter that made the map, 
+
+@return false or a list
   like (45 46 47 90 90 120), angles in degress */
 SCM cell_scm(int imol);
 /*! \brief return the parameter of the molecule, something 
   like (45 46 47 90 90 120), angles in degress */
 #endif /* USE_GUILE */
 #ifdef USE_PYTHON
-/*! \brief return the parameter that made the map, False or something
+/*! \brief return the parameter that made the map, 
+
+@return False or something
   like ["xxx.mtz", "FPH", "PHWT", "", False] */
 PyObject *map_parameters_py(int imol);
-/*! \brief return the parameter that made the map, False or something
+/*! \brief return the parameter that made the map, 
+
+@return False or something
   like [45, 46, 47, 90, 90, 120], angles in degress */
 PyObject *cell_py(int imol);
 #endif /* USE_PYTHON */
@@ -1870,7 +1878,7 @@ SCM origin_pre_shift_scm(int imol);
   ints or Python false on failure  */
 PyObject *origin_pre_shift_py(int imol);
 #endif  /* USE_PYTHON */
-#endif 
+#endif
 
 void setup_save_symmetry_coords();
 
@@ -1878,8 +1886,25 @@ void setup_save_symmetry_coords();
 
  for shelx FA pdb files, there is no space group.  So allow the user
    to set it.  This can be initted with a HM symbol or a symm list for
-   clipper.  Return the succes status of the setting. */
+   clipper.
+
+This will only work on model molecules.
+
+@return the success status of the setting  (1 good, 0 fail). */
 short int set_space_group(int imol, const char *spg);
+
+//! \brief set the unit cell for a given model molecule
+//!
+//! Angles in degress, cell lengths in Angstroms.
+//!
+//! @return  the success status of the setting (1 good, 0 fail).
+int set_unit_cell_and_space_group(int imol, float a, float b, float c, float alpha, float beta, float gamma, const char *space_group);
+
+//! \brief set the unit cell for a given model molecule using the cell of moecule imol_from
+//!
+//! This will only work on model molecules.
+//! @return  the success status of the setting (1 good, 0 fail).
+int set_unit_cell_and_space_group_using_molecule(int imol, int imol_from);
 
 /*! \brief set the cell shift search size for symmetry searching.
 
@@ -2201,6 +2226,8 @@ void set_hardware_stereo_angle_factor(float f);
 /*! \brief return the hardware stereo angle factor */
 float hardware_stereo_angle_factor_state();
 
+void set_model_display_radius(int state, float radius);
+
 /*! \brief set position of Model/Fit/Refine dialog */
 void set_model_fit_refine_dialog_position(int x_pos, int y_pos);
 /*! \brief set position of Display Control dialog */
@@ -2313,6 +2340,13 @@ float rotation_centre_position(int axis); /* only return one value: x=0, y=1, z=
 /*! \brief centre on the ligand of the "active molecule", if we are
   already there, centre on the next hetgroup (etc) */
 void go_to_ligand();
+
+#ifdef USE_PYTHON
+#ifdef __cplusplus
+PyObject *go_to_ligand_py();
+#endif
+#endif
+
 /*! \brief go to the ligand that has more than n_atom_min atoms */
 void set_go_to_ligand_n_atoms_limit(int n_atom_min);
 /* \} */
@@ -2851,6 +2885,10 @@ void set_all_maps_displayed(int on_or_off);
   for other values of on_or_off turn on all models. */
 void set_all_models_displayed_and_active(int on_or_off);
 
+/*! \brief only display the last model molecule
+*/
+void set_only_last_model_molecule_displayed();
+
 /*\brief display only the active mol and the refinement map */
 void display_only_active();
 
@@ -2935,7 +2973,9 @@ void set_alignment_gap_and_space_penalty(float wgap, float wspace);
 #ifdef USE_GUILE
 SCM alignment_results_scm(int imol, const char* chain_id, const char *seq); 
 /*! \brief return the residue spec of the nearest residue by sequence
-  numbering.  Return scheme #f if not possible */
+  numbering.  
+
+@return  scheme false if not possible */
 SCM nearest_residue_by_sequence_scm(int imol, const char* chain_id, int resno, const char *ins_code);
 #endif /* USE_GUILE */
 #ifdef USE_PYTHON
@@ -3191,6 +3231,9 @@ SCM regularize_residues_scm(int imol, SCM r); /* presumes the alt_conf is "". */
 SCM regularize_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf); 
 #endif
 #ifdef USE_PYTHON
+/*! \brief refine the residues in the given residue spec list
+
+@return the refinement summary statistics  */
 PyObject *refine_residues_py(int imol, PyObject *r);  /* presumes the alt_conf is "". */
 PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf,
 						      PyObject *mode_1,
@@ -3307,6 +3350,9 @@ void set_refinement_drag_elasticity(float e);
 /*! \brief turn on Ramachandran angles refinement in refinement and regularization */
 /*! name consistent with set_refine_with_torsion_restraints() !?  */
 void set_refine_ramachandran_angles(int state);
+
+void set_refine_ramachandran_restraints_type(int type);
+void set_refine_ramachandran_restraints_weight(float w);
 
 int refine_ramachandran_angles_state();
 
@@ -3582,6 +3628,20 @@ void clear_last_simple_distance();
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
+/*               GUI edit functions                                   */
+/*  ----------------------------------------------------------------------- */
+/* section Edit Fuctions */
+/*! \name Edit Fuctions */
+/* \{ */
+
+void  do_edit_copy_molecule();
+void  do_edit_copy_fragment();
+void  do_edit_replace_residue();
+void  do_edit_replace_fragment();
+
+/* \} */
+
+/*  ----------------------------------------------------------------------- */
 /*                  residue environment                                     */
 /*  ----------------------------------------------------------------------- */
 /* section Residue Environment Functions */
@@ -3723,11 +3783,10 @@ int read_cif_dictionary(const char *filename);
  Apply to the given molecule.
 
  imol_enc can be the model molecule number or
- -1 for all
- -2 for auto
- -3 for unset
+ IMOL_ENC_ANY = -999999, IMOL_ENC_AUTO = -999998, IMOL_ENC_UNSET = -999997
+
  */
-int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc);
+int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc, short int new_molecule_from_dictionary_cif_checkbutton_state);
 
 int write_connectivity(const char* monomer_name, const char *filename);
 /*! \brief open the cif dictionary file selector dialog */
@@ -3771,8 +3830,9 @@ int write_shelx_ins_file(int imol, const char *filename);
 int handle_shelx_fcf_file_internal(const char *filename);
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
-/*! \brief @return the chain id for the given residue.  Return #f if
-  can't do it/fail. */
+/*! \brief @return the chain id for the given residue.  
+
+@return false if can't do it/fail. */
 SCM chain_id_for_shelxl_residue_number(int imol, int resno);
 #endif /* USE_GUILE */
 /* return 1 for yes, 0 for invalid imol or no. */
@@ -3921,7 +3981,7 @@ void set_kleywegt_plot_n_diffs(int n_diffs);
 /*  the the menu */
 void add_on_rama_choices();
 
-/*! \brief set the contour levels for theremachandran plot, default
+/*! \brief set the contour levels for the ramachandran plot, default
   values are 0.02 (prefered) 0.002 (allowed) */
 void set_ramachandran_plot_contour_levels(float level_prefered, float level_allowed);
 /*! \brief set the ramachandran plot background block size. 
@@ -3929,6 +3989,11 @@ void set_ramachandran_plot_contour_levels(float level_prefered, float level_allo
   Smaller is smoother but slower.  Should be divisible exactly into
   360.  Default value is 10. */
 void set_ramachandran_plot_background_block_size(float blocksize) ;
+
+/*! \brief set the psi axis for the ramachandran plot. Default (0) from -180
+ to 180. Alternative (1) from -120 to 240.  */
+void set_ramachandran_psi_axis_mode(int mode);
+int ramachandran_psi_axis_mode();
 
 void set_moving_atoms(double phi, double psi);
 
@@ -3996,6 +4061,9 @@ void set_brief_atom_labels(int istat);
 
 /*! \brief the brief atom label state */
 int brief_atom_labels_state();
+
+/*! \brief set if brief atom labels should have seg-ids also */
+void set_seg_ids_in_atom_labels(int istat);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -4825,7 +4893,11 @@ int delete_hydrogens(int imol);
 /*! \brief delete the chain  */
 void delete_chain(int imol, const char *chain_id);
 
+/*! \brief delete the side chains in the chain  */
+void delete_sidechains_for_chain(int imol, const char *chain_id);
+
 void post_delete_item_dialog();
+
 
 
 /* toggle callbacks */
@@ -5082,7 +5154,11 @@ int mutate_base(int imol, const char *chain_id, int res_no, const char *ins_code
 /* push the residues along a bit
 
 e.g. if nudge_by is 1, then the sidechain of residue 20 is moved up
-onto what is currently residue 21.  The mainchain numbering and atoms is not changed. */
+onto what is currently residue 21.  The mainchain numbering and atoms is not changed.
+
+@return 0 for failure to nudge (becauese not all the residues were in the range)
+        and 1 for success.
+*/
 int nudge_residue_sequence(int imol, char *chain_id, int res_no_range_start, int res_no_range_end, int nudge_by, short int nudge_residue_numbers_also);
 
 
@@ -5444,7 +5520,9 @@ void add_lsq_atom_pair_py(PyObject *atom_spec_ref, PyObject *atom_spec_moving);
 
 #ifdef __cplusplus	/* need this wrapper, else gmp.h problems in callback.c */
 #ifdef USE_GUILE
-/* Return an rtop pair (proper list) on good match, else #f */
+/*! \brief apply the LSQ matches
+
+@return an rtop pair (proper list) on good match, else false */
 SCM apply_lsq_matches(int imol_reference, int imol_moving);
 SCM get_lsq_matrix_scm(int imol_reference, int imol_moving);
 #endif
@@ -5715,13 +5793,17 @@ PyObject *ncs_chain_ids_py(int imol);
 #endif  /* USE_PYTHON */
 
 #ifdef USE_GUILE
-/* return #f on bad imol or a list of ghosts on good imol.  Can
-   include NCS rtops if they are available, else the rtops are #f */
+/*! \brief get the NCS ghost description
+
+@return false on bad imol or a list of ghosts on good imol.  Can
+   include NCS rtops if they are available, else the rtops are False */
 SCM ncs_ghosts_scm(int imol);
 #endif	/* USE_GUILE */
 
 #ifdef USE_PYTHON
-/* return False on bad imol or a list of ghosts on good imol.  Can
+/*! \brief Get the NCS ghosts description
+
+@return False on bad imol or a list of ghosts on good imol.  Can
    include NCS rtops if they are available, else the rtops are False */
 PyObject *ncs_ghosts_py(int imol);
 #endif	/* USE_PYTHON */
@@ -5919,7 +6001,9 @@ int ideal_nucleic_acid(const char *RNA_or_DNA, const char *form,
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
 
-/*! \brief return #f if residue not found,  otherwise
+/*! \brief get the pucker info for the specified residue
+
+ @return scheme false if residue not found,  otherwise
  (list (list phosphate-distance puckered-atom out-of-plane-distance plane-distortion) chain-id resno ins-code)
 
  (where plane-distortion is for the other 4 atoms in the plane (I think)).
@@ -6240,6 +6324,7 @@ PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position);
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM mark_atom_as_fixed_scm(int imol, SCM atom_spec, int state);
+int mark_multiple_atoms_as_fixed_scm(int imol, SCM atom_spec_list, int state);
 #endif 
 #ifdef USE_PYTHON
 PyObject *mark_atom_as_fixed_py(int imol, PyObject *atom_spec, int state);
@@ -6307,6 +6392,11 @@ SCM ccp4i_projects_scm();
 PyObject *ccp4i_projects_py();
 #endif /* USE_PYTHON */
 #endif /* c++ */
+
+/*! \brief allow the user to not add ccp4i directories to the file choosers
+
+use state=0 to turn it off */
+void set_add_ccp4i_projects_to_file_dialogs(short int state);
 
 /*! \brief write a ccp4mg picture description file */
 void write_ccp4mg_picture_description(const char *filename);
@@ -6509,7 +6599,11 @@ float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, con
 				  int n_trials,
 				  float jiggle_scale_factor);
 
+/*!  \brief jiggle fit the molecule to the current refinment map.  return < -100 if
+  not possible, else return the new best fit for this molecule.  */
 float fit_molecule_to_map_by_random_jiggle(int imol, int n_trials, float jiggle_scale_factor);
+/*!  \brief jiggle fit the chain to the current refinment map.  return < -100 if
+  not possible, else return the new best fit for this chain.  */
 float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor); 
 /* \} */
 

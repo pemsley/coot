@@ -293,7 +293,7 @@ def coot_gui(own_gtk_main=False):
    hbox = gtk.HBox(False, 0)
    label = gtk.Label("Command: ")
    ifont = gtk.gdk.Font("fixed")
-   window.set_default_size(400,250)
+   window.set_default_size(550,250)
    window.add(vbox)
    vbox.set_border_width(5)
 
@@ -4423,7 +4423,7 @@ def solvent_ligand_list():
    global additional_solvent_ligands
    return (additional_solvent_ligands +
            ["EDO", "GOL", "DMS", "ACT", "MPD", "CIT", "SO4", "PO4", "TRS",
-            "TAM", "PG4"])
+            "TAM", "PG4", "EBE", "BTB"])
 
 # add solvent molecules
 #

@@ -131,7 +131,11 @@ void smiles_to_ligand_builder(const char *smiles_string) {
       // if SmilesToMol() fails on parsing the string, then that
       // (can?) results in rdk_mol returning NULL (rather than an
       // exception being thrown).
-      if (rdk_mol) { 
+      if (!rdk_mol) {
+	 std::string s("WARNING:: Bad SMILES: ");
+	 s += smiles_string;
+	 info_dialog(s.c_str());
+      } else {
 	 // clear out any cached properties
 	 rdk_mol->clearComputedProps();
 	 // clean up things like nitro groups

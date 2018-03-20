@@ -78,7 +78,8 @@ int test_parallel_plane_restraints() {
    std::string alt_conf = "";
    std::string chain_id("I");
    std::vector<coot::atom_spec_t> fixed_atom_specs;
-   
+   clipper::Xmap<float> dummy_xmap;
+
    coot::restraints_container_t restraints(37,
 					   38,
 					   have_flanking_residue_at_start,
@@ -87,7 +88,8 @@ int test_parallel_plane_restraints() {
 					   alt_conf,
 					   chain_id.c_str(),
 					   mol,
-					   fixed_atom_specs);
+					   fixed_atom_specs,
+					   dummy_xmap);
 
    short int do_rama_restraints = 0;
    short int do_residue_internal_torsions = 1;

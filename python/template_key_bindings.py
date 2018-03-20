@@ -113,7 +113,7 @@ def jiggle_fit_residue_key():
                                aa_ins_code, aa_atom_name, aa_alt_conf]:
         fit_to_map_by_random_jiggle(aa_imol, aa_chain_id, aa_res_no,
                                     aa_ins_code, 100, 1.0)
-add_key_binding("Jiggle Fit", "J", lambda: jiggle_fit_residue_key())
+add_key_binding("Jiggle Fit Residue", "J", lambda: jiggle_fit_residue_key())
 
 def step_scrollable_map_number():
     maps = map_molecule_list()

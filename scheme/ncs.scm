@@ -163,7 +163,6 @@
 			 imol this-chain-id try-next-chain forward-flag)
 			#t)))))))))
 
-	 
    
 ;; A function inspired by a question from Bill Scott.  He wanted to
 ;; RNA ghosts.  Because RNA does not work with SSM, we need to define

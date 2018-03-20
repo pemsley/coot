@@ -867,6 +867,10 @@
 	 (lambda ()
 	   (update-ncs-ghosts-by-local-sphere)))
 
+	(add-simple-coot-menu-menuitem
+	 submenu-ncs "NCS Jumping..."
+	 (lambda ()
+	   (ncs-jumping-gui)))
 	
 	(add-simple-coot-menu-menuitem
 	 submenu-ncs "NCS ligands..."
@@ -1148,8 +1152,10 @@
 	;;     RCrane
 	;; ---------------------------------------------------------------------
 	;; 
-	(if (coot-has-pygtk?)
-	    (run-python-command "import_rcrane_wrapper()"))
+	;; rcrane is currently broken
+	;;
+	;; (if (coot-has-pygtk?)
+	;; (run-python-command "import_rcrane_wrapper()"))
 	     
 	 
 	;; ---------------------------------------------------------------------
@@ -1288,7 +1294,7 @@
 
 	
 	(add-simple-coot-menu-menuitem
-	 submenu-representation "Hilight Interesting Site (here)..."
+	 submenu-representation "Highlight Interesting Site (here)..."
 	 (lambda ()
 	   
 	   (let ((active-atom (active-residue)))
@@ -1325,6 +1331,22 @@
 					(let ((n (string->number text)))
 					  (if (number? n)
 					      (clear-dots imol n)))))))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-representation "Limit Model Display Radius"
+	 (lambda ()
+	   (generic-single-entry "Display Radius Limit (0 for 'no limit') "
+				 ;; "15.0" ;; maybe this should be the map radius
+				 (number->string (get-map-radius))
+				 "Set: "
+				 (lambda (text)
+				   (let ((f (string->number text)))
+				     (if (number? f)
+					 (if (= f 0)
+					     (set-model-display-radius 0 10)
+					     (set-model-display-radius 1 f))
+					 (set-model-display-radius 0 10)))))))
+	 
 
 	(add-simple-coot-menu-menuitem
 	 submenu-representation "HOLE..." 
@@ -1480,24 +1502,34 @@
 
 
 	(add-simple-coot-menu-menuitem
-	 submenu-modules "SHELX" 
+	 submenu-modules "CCP4"
+	 (lambda ()
+	   (add-module-ccp4)))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-modules "SHELX"
 	 (lambda ()
 	   (add-module-shelx)))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-modules "User-defined Restraints" 
+	 submenu-modules "User-defined Restraints"
 	 (lambda ()
 	   (add-module-user-defined-restraints)))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-modules "ProSMART" 
+	 submenu-modules "ProSMART"
 	 (lambda ()
 	   (add-module-prosmart)))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-modules "Carbohydrate" 
+	 submenu-modules "Carbohydrate"
 	 (lambda ()
 	   (add-module-carbohydrate)))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-modules "Cryo-EM"
+	 (lambda ()
+	   (add-module-cryo-em)))
 
 
 	;; ---------------------------------------------------------------------
@@ -1598,8 +1630,8 @@
 	(add-simple-coot-menu-menuitem
 	 submenu-settings "Install Template Keybindings"
 	 (lambda ()
-	   (template-keybindings-to-preferences))) ;; copy and evaluate
-	
+	   (template-keybindings-to-preferences) ;; copy and evaluate
+	   (key-bindings-gui))) ;; the user the new key-bindings ("something happend)
 	
 	(add-simple-coot-menu-menuitem
 	 submenu-settings "Enable Quick-Save checkpointing..." 

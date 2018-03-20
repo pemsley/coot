@@ -17,14 +17,14 @@ class GraphicalSkel {
    GraphicalSkel(const clipper::Xmap<float> &in, clipper::Xmap<int> &out) 
       {
 	 
-	 cout << "GraphicalSkel input map: " 
+	 std::cout << "GraphicalSkel input map: " 
 	      << in.cell().descr().a() << " " 
 	      << in.cell().descr().b() << " " 
 	      << in.cell().descr().c() << " " 
 	      << in.cell().descr().alpha() << " " 
 	      << in.cell().descr().beta() << " " 
 	      << in.cell().descr().gamma() << " " 
-	      << endl;
+	      << std::endl;
 	 
 	 clipper::Xmap<int>::Map_reference_index ix;
 	 double s, sr, sr2, mean, sigm;
@@ -45,9 +45,9 @@ class GraphicalSkel {
 	 clipper::Skeleton_basic skel(1);
 	 skel(out,in);
       };
-   
+
    GraphicalSkel() {}; 
-   
+
    graphical_bonds_container 
       make_graphical_bonds( const clipper::Xmap<float> &in, 
 			    const clipper::Xmap<int> &l1 ) const; 
@@ -98,7 +98,7 @@ class GraphicalSkel {
 	      float cut_off) const; // the number of tips in the map
 
    atom_selection_container_t convert_to_atom(const clipper::Xmap<int> &l1, 
-					      vector<coot::Cartesian> c); 
+					      std::vector<coot::Cartesian> c); 
       
 };
 
@@ -106,4 +106,4 @@ class GraphicalSkel {
 // This should ideally have a proper home (on the range)
 // 
 coot::Cartesian
-average_Cartesians(vector<coot::Cartesian> c); 
+average_Cartesians(std::vector<coot::Cartesian> c); 

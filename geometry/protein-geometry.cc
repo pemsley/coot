@@ -1317,10 +1317,10 @@ coot::operator<<(std::ostream &s, const dict_angle_restraint_t &rest) {
 std::ostream&
 coot::operator<<(std::ostream &s, const coot::dict_torsion_restraint_t &rest) {
    s << "[torsion-restraint: " << rest.id() << " "
-     << rest.atom_id_1_4c() << " "
-     << rest.atom_id_2_4c() <<  " "
-     << rest.atom_id_3_4c() <<  " "
-     << rest.atom_id_4_4c() <<  " "
+     << "\"" << rest.atom_id_1_4c() << "\"" << " "
+     << "\"" << rest.atom_id_2_4c() << "\"" << " "
+     << "\"" << rest.atom_id_3_4c() << "\"" << " "
+     << "\"" << rest.atom_id_4_4c() << "\"" << " "
      << rest.angle() << " " 
      << rest.esd() << " " 
      << rest.periodicity();
@@ -1529,10 +1529,10 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 std::ostream& coot::operator<<(std::ostream &s, coot::chem_link lnk) {
 
    s << "[chem_link: id: " << lnk.id
-     << " [comp_id1: \"" << lnk.chem_link_comp_id_1 << "\" group_1: " << lnk.chem_link_group_comp_1
-     << " mod_1: " << lnk.chem_link_mod_id_1 << "] to "
-     << " [comp_id2: \"" << lnk.chem_link_comp_id_2 << "\" group_2: " << lnk.chem_link_group_comp_2
-     << " mod_2: " << lnk.chem_link_mod_id_2 << "] " << lnk.chem_link_name << "]";
+     << " [comp_id1: \"" << lnk.chem_link_comp_id_1 << "\" group_1: \"" << lnk.chem_link_group_comp_1
+     << "\" mod_1: \"" << lnk.chem_link_mod_id_1 << "\"] to "
+     << " [comp_id2: \"" << lnk.chem_link_comp_id_2 << "\" group_2: \"" << lnk.chem_link_group_comp_2
+     << "\" mod_2: \"" << lnk.chem_link_mod_id_2 << "\"] " << lnk.chem_link_name << "]";
    return s; 
 }
 
@@ -1653,7 +1653,7 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 		     link_type = "BETA1-2";
 		  }
 	       }
-      
+
 	 if (name_1 == " O3 " )
 	    if (name_2 == " C1 ")
 	       if (close[i].distance < smallest_link_dist) {
@@ -1665,26 +1665,43 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 	       }
       
 
-	 // This should never happen :-)
+	 // The BETA2-3 link should never happen :-)
 	 // There are no biosynthetic pathways to make an BETA2-3 link for a SIA.
 	 // (SIA BETA2-3 would be axial if it existed)
-	 // 
+	 //
 	 if (name_1 == " C2 " )
 	    if (name_2 == " O3 ")
-	       if (std::string(close[i].at1->GetResName()) == "SIA") { 
+	       if (std::string(close[i].at1->GetResName()) == "SIA") {
 		  if (close[i].distance < smallest_link_dist) {
-		     coot::atom_quad glyco_chiral_quad(first, second, "BETA2-3");
-		     std::cout << "   glyco_chiral BETA2-3 "
+		     coot::atom_quad glyco_chiral_quad(first, second, "ALPHA2-3");
+		     std::cout << "   glyco_chiral ALPHA2-3 "
 			       << close[i].at1->GetResName() << " "
 			       << close[i].at2->GetResName() << " "
 			       << glyco_chiral_quad.chiral_volume() << std::endl;
-		     if (glyco_chiral_quad.chiral_volume() > 0.0) { 
+		     if (glyco_chiral_quad.chiral_volume() > 0.0) {
 			smallest_link_dist = close[i].distance;
-			link_type = "BETA2-3";
+			link_type = "ALPHA2-3";
 		     }
 		  }
 	       }
-	       
+
+	 // 20180111 Add ALPHA2-6 links for SIA
+	 if (name_1 == " C2 " )
+	    if (name_2 == " O6 ")
+	       if (std::string(close[i].at1->GetResName()) == "SIA") {
+		  if (close[i].distance < smallest_link_dist) {
+		     coot::atom_quad glyco_chiral_quad(first, second, "ALPHA2-6");
+		     std::cout << "   glyco_chiral ALPHA2-6 "
+			       << close[i].at1->GetResName() << " "
+			       << close[i].at2->GetResName() << " "
+			       << glyco_chiral_quad.chiral_volume() << std::endl;
+		     if (glyco_chiral_quad.chiral_volume() > 0.0) {
+			smallest_link_dist = close[i].distance;
+			link_type = "ALPHA2-6";
+		     }
+		  }
+	       }
+
 	 if (name_1 == " O6 " )
 	    if (name_2 == " C1 ")
 	       if (close[i].distance < smallest_link_dist) {
@@ -2280,42 +2297,73 @@ coot::protein_geometry::filter_torsion_restraints(const std::vector <coot::dict_
 	    if (r[j].atom_id_3_4c() == a2)
 	       match = true;
       }
-      if (! match)
-	 r.push_back(restraints_in[i]);
+      if (! match) {
+	 const dict_torsion_restraint_t &tr = restraints_in[i];
+	 r.push_back(tr);
+      }
    }
 
 
    // why do we crash (on the mac) in the following sort?
    //
    // for (unsigned int i=0; i<restraints_in.size(); i++)
-   // std::cout << " filter_torsion_restraints(): " << restraints_in[i] << std::endl;
-   //
-   std::sort(r.begin(), r.end(), torsion_restraints_comparer);
+   //    std::cout << " filter_torsion_restraints(): " << restraints_in[i] << std::endl;
+   // 20180227 still crashing.
+   // Because it is running the sort even if r is of length 0? No, not that.
+   // std::cout << " r.size() " << r.size() << std::endl;
+   try {
+      std::sort(r.begin(), r.end(), torsion_restraints_comparer);
+   }
+   catch (const std::bad_alloc &e) {
+      std::cout << "ERROR caught bad alloc when sorting in filter_torsion_restraints()" << std::endl;
+   }
    return r;
 }
 
 // static
 bool
 coot::protein_geometry::torsion_restraints_comparer(const coot::dict_torsion_restraint_t &a, const coot::dict_torsion_restraint_t &b) {
-   
+
 //    const std::string &a2 = a.atom_id_2_4c();
 //    const std::string &a3 = a.atom_id_3_4c();
 //    const std::string &b2 = b.atom_id_2_4c();
 //    const std::string &b3 = b.atom_id_3_4c();
 
-   const std::string &a2 = a.atom_id_2();
-   const std::string &a3 = a.atom_id_3();
-   const std::string &b2 = b.atom_id_2();
-   const std::string &b3 = b.atom_id_3();
+//    const std::string &a2 = a.atom_id_2();
+//    const std::string &a3 = a.atom_id_3();
+//    const std::string &b2 = b.atom_id_2();
+//    const std::string &b3 = b.atom_id_3();
 
-   if (a2 < b2)
+   // we leave these (debugging/test) copies in for now (was testing if reference was the problem
+   // (it wasn't).
+   //
+   std::string a2 = a.atom_id_2();
+   std::string a3 = a.atom_id_3();
+   std::string b2 = b.atom_id_2();
+   std::string b3 = b.atom_id_3();
+
+   if (a2 < b2) {
       return false;
-   else
-      if (a2 > b2)
-	 return true;
-      else
-	 if (a3 < b3)
+   } else {
+      if (a2 > b2) {
+ 	 return true;
+      } else {
+	 // a2 and b2 are equal
+
+	 if (a3 <= b3) { // 20180227-PE changed to <=, stops crash
+
+	    // std::cout << "a3 " << a3 << std::endl;
+	    // std::cout << "b3 " << b3 << std::endl;
+
 	    return false;
+
+	 }
+      }
+   }
+
+   //       else
+   // 	 if (a3 < b3)
+   // 	    return false;
 
    return true;
 }
@@ -2539,14 +2587,22 @@ coot::protein_geometry::have_dictionary_for_residue_types(const std::vector<std:
 //
 // maybe imol should be passed.
 bool
-coot::protein_geometry::have_at_least_minimal_dictionary_for_residue_type(const std::string &monomer_type) const {
+coot::protein_geometry::have_at_least_minimal_dictionary_for_residue_type(const std::string &monomer_type,
+									  int imol) const {
+
+   //std::cout << "debug:: in have_at_least_minimal_dictionary_for_residue_type() " << monomer_type
+   // << " " << imol << std::endl;
 
    bool ifound = false;
-   int ndict = dict_res_restraints.size();
+   std::size_t ndict = dict_res_restraints.size();
 
-   for (int i=0; i<ndict; i++) {
+   for (std::size_t i=0; i<ndict; i++) {
       if (dict_res_restraints[i].second.residue_info.comp_id == monomer_type) {
 	 if (matches_imol(dict_res_restraints[i].first, IMOL_ENC_ANY)) {
+	    ifound = true;
+	    break;
+	 }
+	 if (matches_imol(dict_res_restraints[i].first, imol)) {
 	    ifound = true;
 	    break;
 	 }

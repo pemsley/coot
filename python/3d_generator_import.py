@@ -41,7 +41,7 @@ if not os.getenv("CLIBD"):
 #
 global prodrg_xyzin
 global sbase_to_coot_tlc
-prodrg_xyzin      = "prodrg-in.mdl"
+prodrg_xyzin      = "coot-lidia.mdl"
 sbase_to_coot_tlc = ".sbase-to-coot-comp-id"
 
 # this is for BL win machine

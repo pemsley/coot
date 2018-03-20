@@ -2323,7 +2323,7 @@ on_refine_params_dialog_ok_button_clicked
   GtkWidget *entry = lookup_widget(GTK_WIDGET(button), 
 				   "refine_params_weight_matrix_entry");
   if (entry) { 
-    set_refinemenent_weight_from_entry(entry);
+    set_refinement_weight_from_entry(entry);
   }
 
   gtk_widget_destroy(widget);
@@ -2742,10 +2742,16 @@ on_cif_dictionary_fileselection_ok_button_clicked (GtkButton       *button,
   GtkWidget *fileselection;
   GtkWidget *dictionary_molecule_selector_option_menu = NULL;
   GtkWidget *active_menu_item;
-  GtkWidget *checkbutton;
   GtkWidget *menu;
   int new_compid_idx;
   int imol_enc = -999997;	/* unset value */
+  GtkWidget *checkbutton = lookup_widget(GTK_WIDGET(button), 
+					 "cif_dictionary_file_selector_create_molecule_checkbutton");
+  short int new_molecule_checkbutton_state = 0;
+
+   if (checkbutton)
+    if (GTK_TOGGLE_BUTTON(checkbutton)->active)
+      new_molecule_checkbutton_state = 1;
 
   fileselection = lookup_widget(GTK_WIDGET(button), "cif_dictionary_fileselection");
 
@@ -2767,19 +2773,9 @@ on_cif_dictionary_fileselection_ok_button_clicked (GtkButton       *button,
 	}
       }
     }
-    new_compid_idx = handle_cif_dictionary_for_molecule(filename, imol_enc);
-
-    checkbutton = lookup_widget(GTK_WIDGET(button), 
-				"cif_dictionary_file_selector_create_molecule_checkbutton");
-    printf("checkbutton: 0%p\n", checkbutton);
-    if (checkbutton) {
-      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
-	get_monomer_for_molecule_by_index(new_compid_idx, imol_enc);
-    } else {
-      printf("checkbutton: 0%p\n", checkbutton);
-    }
+    new_compid_idx = handle_cif_dictionary_for_molecule(filename, imol_enc, new_molecule_checkbutton_state);
+    gtk_widget_destroy(fileselection);
   }
-  gtk_widget_destroy(fileselection);
 }
 
 
@@ -10031,7 +10027,7 @@ on_display_control_all_maps_togglebutton_toggled
 
   if (togglebutton->active)
     set_all_maps_displayed(1);
-  else 
+  else
     set_all_maps_displayed(0);
 
 }
@@ -10923,57 +10919,50 @@ on_cif_dictionary_filechooserdialog1_response(GtkDialog * dialog,
 					      gpointer user_data) {
 
   int new_compid_idx;
-  GtkWidget *checkbutton;
   int imol_enc = -999997;	/* unset */
   const char *filename;
   GtkWidget *fileselection;
   GtkWidget *dictionary_molecule_selector_option_menu;
   GtkWidget *menu;
   GtkWidget *active_menu_item;
+  GtkWidget *checkbutton = lookup_widget(GTK_WIDGET(dialog),
+					 "cif_dictionary_file_selector_create_molecule_checkbutton");
+  short int new_molecule_checkbutton_state = 0;
+  if (GTK_TOGGLE_BUTTON(checkbutton)->active)
+     new_molecule_checkbutton_state = 1;
 
   if (response_id == GTK_RESPONSE_OK) {
 
-    fileselection = lookup_widget(GTK_WIDGET(dialog), "cif_dictionary_filechooserdialog1");
-    save_directory_from_filechooser(fileselection);
-    filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
+     fileselection = lookup_widget(GTK_WIDGET(dialog), "cif_dictionary_filechooserdialog1");
+     save_directory_from_filechooser(fileselection);
+     filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
 
-    // set imol_enc here
-    //
-    dictionary_molecule_selector_option_menu = 
-      lookup_widget(GTK_WIDGET(dialog),
-		    "cif_dictionary_file_selector_molecule_select_option_menu");
-    if (dictionary_molecule_selector_option_menu) {
-      menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(dictionary_molecule_selector_option_menu));
-      if (menu) {
-	active_menu_item = gtk_menu_get_active(GTK_MENU(menu));
-	if (active_menu_item) {
-	  imol_enc = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(active_menu_item), 
-						       "select_molecule_number"));
+     dictionary_molecule_selector_option_menu =
+	lookup_widget(GTK_WIDGET(dialog),
+		      "cif_dictionary_file_selector_molecule_select_option_menu");
+     if (dictionary_molecule_selector_option_menu) {
+	menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(dictionary_molecule_selector_option_menu));
+	if (menu) {
+	   active_menu_item = gtk_menu_get_active(GTK_MENU(menu));
+	   if (active_menu_item) {
+	      imol_enc = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(active_menu_item), 
+							   "select_molecule_number"));
+	   }
 	}
-      }
-    } else {
-      printf("-------- missing dictionary_molecule_selector_option_menu ---\n");
-    }
+     } else {
+	printf("-------- missing dictionary_molecule_selector_option_menu ---\n");
+     }
 
-    new_compid_idx = handle_cif_dictionary_for_molecule(filename, imol_enc);
+     new_compid_idx = handle_cif_dictionary_for_molecule(filename, imol_enc, 
+							 new_molecule_checkbutton_state);
 
-    checkbutton = lookup_widget(GTK_WIDGET(dialog),
-				"cif_dictionary_file_selector_create_molecule_checkbutton");
-    if (checkbutton) {
-      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
-	get_monomer_for_molecule_by_index(new_compid_idx, imol_enc);
-    } else {
-      printf("checkbutton: 0%p\n", checkbutton);
-    }
+     gtk_widget_destroy(fileselection);
+} else {
+   fileselection = lookup_widget(GTK_WIDGET(dialog),
+				 "cif_dictionary_filechooserdialog1");
 
-
-    gtk_widget_destroy(fileselection);
-  } else {
-    GtkWidget *fileselection = lookup_widget(GTK_WIDGET(dialog),
-                                                "cif_dictionary_filechooserdialog1");
-
-    gtk_widget_destroy(fileselection);
-  }
+   gtk_widget_destroy(fileselection);
+ }
 
 }
 
@@ -11289,7 +11278,7 @@ on_fixed_atom_close_button_clicked     (GtkButton       *button,
                                         gpointer         user_data)
 {
 
-  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), 
+  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button),
 				    "fixed_atom_dialog");
   gtk_widget_destroy(dialog);
 }
@@ -11396,7 +11385,6 @@ on_restraints1_activate                (GtkMenuItem     *menuitem,
 #endif	/* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_restraint_editor_add_restraint_button_clicked
                                         (GtkButton       *button,
@@ -11405,10 +11393,8 @@ on_restraint_editor_add_restraint_button_clicked
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "restraints_editor_dialog");
   restraints_editor_add_restraint_by_widget(w);
 }
-#endif	/* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_restraints_editor_close_button_clicked
                                         (GtkButton       *button,
@@ -11421,9 +11407,7 @@ on_restraints_editor_close_button_clicked
   }
 
 }
-#endif	/* GTK_MAJOR_VERSION */
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_restraints_editor_save_button_clicked
                                         (GtkButton       *button,
@@ -11432,10 +11416,7 @@ on_restraints_editor_save_button_clicked
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "restraints_editor_dialog");
   restraints_editor_save_restraint_by_widget(w);
 }
-#endif	/* GTK_MAJOR_VERSION */
 
-
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_restraints_editor_apply_button_clicked
                                         (GtkButton       *button,
@@ -11445,10 +11426,7 @@ on_restraints_editor_apply_button_clicked
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "restraints_editor_dialog");
   apply_restraint_by_widget(w);
 }
-#endif	/* GTK_MAJOR_VERSION */
 
-
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_restraint_editor_delete_restraint_button_clicked
                                         (GtkButton       *button,
@@ -11457,7 +11435,6 @@ on_restraint_editor_delete_restraint_button_clicked
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "restraints_editor_dialog");
   restraints_editor_delete_restraint_by_widget(w);
 }
-#endif	/* GTK_MAJOR_VERSION */
 
 
 
@@ -11481,7 +11458,6 @@ on_save_restraint_chooserdialog_response(GtkDialog       *dialog,
 					 gpointer         user_data) { 
 /* Maybe there are responses other than OK and cancel, so don't factor
    out the destroy() */
-#if (GTK_MAJOR_VERSION > 1)
   GtkWidget *w = lookup_widget(GTK_WIDGET(dialog), "save_restraint_chooserdialog");
   if (response_id == GTK_RESPONSE_OK) {
     save_monomer_restraints_by_widget(dialog);
@@ -11490,7 +11466,6 @@ on_save_restraint_chooserdialog_response(GtkDialog       *dialog,
   if (response_id == GTK_RESPONSE_CANCEL) {
     gtk_widget_destroy(w);
   }
-#endif /* GTK_MAJOR_VERSION  */
 }
 
 /* This is not the way. */
@@ -11585,7 +11560,6 @@ on_build_na_dialog_radius_entry_activate
 }
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_coot_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11594,10 +11568,7 @@ on_coot_references_coot_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_COOT);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
-
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_wincoot_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11606,10 +11577,8 @@ on_coot_references_wincoot_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_WINCOOT);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_refmac_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11618,10 +11587,8 @@ on_coot_references_refmac_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_REFMAC);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_ssm_toolbutton_clicked  
                                         (GtkToolButton   *toolbutton,
@@ -11630,10 +11597,8 @@ on_coot_references_ssm_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_SSM);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_mmdb_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11642,10 +11607,7 @@ on_coot_references_mmdb_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_MMDB);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
-
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_clipper_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11654,10 +11616,8 @@ on_coot_references_clipper_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_CLIPPER);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_buccaneer_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11666,10 +11626,8 @@ on_coot_references_buccaneer_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_BUCCANEER);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_molprobity_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11678,7 +11636,6 @@ on_coot_references_molprobity_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_MOLPROBITY);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
 #if (GTK_MAJOR_VERSION >1)
@@ -12527,3 +12484,174 @@ on_find_ligand_real_space_refine_solutions_checkbutton_toggled
     set_find_ligand_do_real_space_refinement(0);
 
 }
+
+void
+on_edit_copy_molecule1_activate        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+  do_edit_copy_molecule();
+}
+
+
+void
+on_edit_copy_fragment1_activate        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  do_edit_copy_fragment();
+}
+
+
+void
+on_edit_replace_residue1_activate      (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  do_edit_replace_residue();
+}
+
+
+void
+on_edit_replace_fragment1_activate     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  do_edit_replace_fragment();
+}
+
+
+void
+on_edit_renumber_residues1_activate    (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *w = wrapped_create_renumber_residue_range_dialog();
+  gtk_widget_show(w);
+}
+
+
+void
+on_edit_change_chain_ids1_activate     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+   GtkWidget *w = wrapped_create_change_chain_id_dialog();
+   gtk_widget_show(w);
+}
+
+
+void
+on_edit_merge_molecules1_activate      (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+   GtkWidget *w = wrapped_create_merge_molecules_dialog();
+   gtk_widget_show(w);
+}
+
+
+void
+on_weight_maxtrix_estimate_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *entry = lookup_widget(GTK_WIDGET(button), "refine_params_weight_matrix_entry");
+  estimate_map_weight(entry);
+
+}
+
+
+void
+on_mutate_molecule_resno_1_entry_changed
+                                        (GtkEditable     *editable,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *res_no_1_widget = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_resno_1_entry");
+  GtkWidget *res_no_2_widget = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_resno_2_entry");
+  GtkWidget *text_widget     = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_sequence_text");
+  GtkWidget *label_widget    = lookup_widget(GTK_WIDGET(editable), "mutate_residue_range_counts_label");
+  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+
+}
+
+
+void
+on_mutate_molecule_resno_2_entry_changed
+                                        (GtkEditable     *editable,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *res_no_1_widget = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_resno_1_entry");
+  GtkWidget *res_no_2_widget = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_resno_2_entry");
+  GtkWidget *text_widget     = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_sequence_text");
+  GtkWidget *label_widget    = lookup_widget(GTK_WIDGET(editable), "mutate_residue_range_counts_label");
+  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+}
+
+
+void
+on_mutate_molecule_sequence_text_insert_at_cursor
+                                        (GtkTextView     *textview,
+                                        gchar           *string,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *res_no_1_widget = lookup_widget(GTK_WIDGET(textview), "mutate_molecule_resno_1_entry");
+  GtkWidget *res_no_2_widget = lookup_widget(GTK_WIDGET(textview), "mutate_molecule_resno_2_entry");
+  GtkWidget *text_widget     = lookup_widget(GTK_WIDGET(textview), "mutate_molecule_sequence_text");
+  GtkWidget *label_widget    = lookup_widget(GTK_WIDGET(textview), "mutate_residue_range_counts_label");
+  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+}
+
+
+gboolean
+on_mutate_molecule_sequence_text_key_release_event
+                                        (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *res_no_1_widget = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_resno_1_entry");
+  GtkWidget *res_no_2_widget = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_resno_2_entry");
+  GtkWidget *text_widget     = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_sequence_text");
+  GtkWidget *label_widget    = lookup_widget(GTK_WIDGET(widget), "mutate_residue_range_counts_label");
+  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+  return FALSE;
+}
+
+
+gboolean
+on_mutate_molecule_sequence_text_button_release_event
+                                        (GtkWidget       *widget,
+                                        GdkEventButton  *event,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *res_no_1_widget = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_resno_1_entry");
+  GtkWidget *res_no_2_widget = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_resno_2_entry");
+  GtkWidget *text_widget     = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_sequence_text");
+  GtkWidget *label_widget    = lookup_widget(GTK_WIDGET(widget), "mutate_residue_range_counts_label");
+  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+  return FALSE;
+}
+
+
+void
+on_display_control_last_model_only_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  set_only_last_model_molecule_displayed();
+
+}
+
+
+void
+on_display_control_align_labels_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  align_labels_checkbutton_toggled(togglebutton);
+
+}
+

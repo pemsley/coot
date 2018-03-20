@@ -938,6 +938,24 @@ void delete_chain(int imol, const char *chain_id_in) {
 
 }
 
+/*! \brief delete the chain  */
+void delete_sidechains_for_chain(int imol, const char *chain_id_in) {
+
+   std::string chain_id(chain_id_in);
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+
+      g.molecules[imol].delete_sidechains_for_chain(std::string(chain_id));
+      std::string cmd = "delete-sidechains-for-chain";
+      std::vector<coot::command_arg_t> args;
+      args.push_back(imol);
+      args.push_back(coot::util::single_quote(chain_id));
+      add_to_history_typed(cmd, args);
+      graphics_draw();
+   }
+}
+
+
 
 
 
@@ -1406,33 +1424,33 @@ PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *res_sp
 
    PyObject *rv = Py_False;
    if (is_valid_model_molecule(imol)) {
-     std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(res_specs_py);
+      std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(res_specs_py);
 
       if (residue_specs.size() > 0) {
-        std::vector<mmdb::Residue *> residues;
-        for (unsigned int i=0; i<residue_specs.size(); i++) {
-          coot::residue_spec_t rs = residue_specs[i];
-          mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(rs);
-          if (r) {
-            residues.push_back(r);
-          }
-        }
+	 std::vector<mmdb::Residue *> residues;
+	 for (unsigned int i=0; i<residue_specs.size(); i++) {
+	    coot::residue_spec_t rs = residue_specs[i];
+	    mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(rs);
+	    if (r) {
+	       residues.push_back(r);
+	    }
+	 }
 
-        if (residues.size() > 0) {
-          graphics_info_t g;
-          int imol_map = g.Imol_Refinement_Map();
-          if (! is_valid_map_molecule(imol_map)) { 
-            add_status_bar_text("Refinement map not set");
-          } else {
-            // normal
-	     mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+	 if (residues.size() > 0) {
+	    graphics_info_t g;
+	    int imol_map = g.Imol_Refinement_Map();
+	    if (! is_valid_map_molecule(imol_map)) { 
+	       add_status_bar_text("Refinement map not set");
+	    } else {
+	       // normal
+	       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
 
-	     bool soft_mode_hard_mode = false;
-	     if (PyString_Check(mode_1)) {
-		std::string s = PyString_AsString(mode_1);
-		if (s == "soft-mode/hard-mode")
-		   soft_mode_hard_mode = true;
-	     }
+	       bool soft_mode_hard_mode = false;
+	       if (PyString_Check(mode_1)) {
+		  std::string s = PyString_AsString(mode_1);
+		  if (s == "soft-mode/hard-mode")
+		     soft_mode_hard_mode = true;
+	       }
 
 	     if (soft_mode_hard_mode) {
 // 		double w_orig = g.geometry_vs_map_weight;
@@ -1557,78 +1575,83 @@ void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code
 		 const char *at_name, const char *altLoc) {
 
 
-   // after the atom is deleted from the molecule then the calling
-   // char * pointers are out of date!  We can't use them.  So, save
-   // them as strings before writing the history.
-   graphics_info_t g;
+   if (is_valid_model_molecule(imol)) {
+      // after the atom is deleted from the molecule then the calling
+      // char * pointers are out of date!  We can't use them.  So, save
+      // them as strings before writing the history.
+      graphics_info_t g;
 
-   if (! chain_id) {
-      std::cout << "ERROR:: in delete_atom() trapped null chain_id\n";
-      return; 
-   } 
-   if (! ins_code) {
-      std::cout << "ERROR:: in delete_atom() trapped null ins_code\n";
-      return; 
-   } 
-   if (! at_name) {
-      std::cout << "ERROR:: in delete_atom() trapped null at_name\n";
-      return; 
-   } 
-   if (! altLoc) {
-      std::cout << "ERROR:: in delete_atom() trapped null altLoc\n";
-      return; 
-   }
+      if (! chain_id) {
+	 std::cout << "ERROR:: in delete_atom() trapped null chain_id\n";
+	 return; 
+      }
+      if (! ins_code) {
+	 std::cout << "ERROR:: in delete_atom() trapped null ins_code\n";
+	 return; 
+      }
+      if (! at_name) {
+	 std::cout << "ERROR:: in delete_atom() trapped null at_name\n";
+	 return; 
+      }
+      if (! altLoc) {
+	 std::cout << "ERROR:: in delete_atom() trapped null altLoc\n";
+	 return; 
+      }
 
-   //
-   std::string chain_id_string = chain_id;
-   std::string ins_code_string = ins_code;
-   std::string atom_name_string = at_name;
-   std::string altloc_string = altLoc;
-   
-
-   mmdb::Residue *residue_p =
-      graphics_info_t::molecules[imol].get_residue(chain_id, resno, ins_code);
-   if (residue_p) {
-     if (residue_p->GetNumberOfAtoms() > 1) {
-       coot::residue_spec_t spec(residue_p);
-       g.delete_residue_from_geometry_graphs(imol, spec);
-     } else {
-       // only one atom left, so better delete whole residue.
-       delete_residue(imol, chain_id, resno, ins_code);
-       return;
-     }
-   }
-
-   short int istat = g.molecules[imol].delete_atom(chain_id, resno, ins_code, at_name, altLoc);
-   if (istat) { 
-      // now if the go to atom widget was being displayed, we need to
-      // redraw the residue list and atom list (if the molecule of the
-      // residue and atom list is the molecule that has just been
-      // deleted)
       //
+      std::string chain_id_string = chain_id;
+      std::string ins_code_string = ins_code;
+      std::string atom_name_string = at_name;
+      std::string altloc_string = altLoc;
 
-      g.update_go_to_atom_window_on_changed_mol(imol);
-      update_go_to_atom_residue_list(imol);
-      graphics_draw();
-   } else { 
-      std::cout << "failed to delete atom  chain_id: :" << chain_id 
-		<< ": " << resno << " incode :" << ins_code
-		<< ": atom-name :" <<  at_name << ": altloc :" <<  altLoc << ":" << "\n";
+      mmdb::Residue *residue_p =
+	 graphics_info_t::molecules[imol].get_residue(chain_id, resno, ins_code);
+      if (residue_p) {
+	 if (residue_p->GetNumberOfAtoms() > 1) {
+	    coot::residue_spec_t spec(residue_p);
+	    g.delete_residue_from_geometry_graphs(imol, spec);
+	 } else {
+	    // only one atom left, so better delete whole residue.
+	    delete_residue(imol, chain_id, resno, ins_code);
+	    return;
+	 }
+      }
+
+      short int istat = g.molecules[imol].delete_atom(chain_id, resno, ins_code, at_name, altLoc);
+      if (istat) { 
+	 // now if the go to atom widget was being displayed, we need to
+	 // redraw the residue list and atom list (if the molecule of the
+	 // residue and atom list is the molecule that has just been
+	 // deleted)
+	 //
+
+	 g.update_go_to_atom_window_on_changed_mol(imol);
+	 update_go_to_atom_residue_list(imol);
+	 graphics_draw();
+      } else { 
+	 std::cout << "failed to delete atom  chain_id: :" << chain_id 
+		   << ": " << resno << " incode :" << ins_code
+		   << ": atom-name :" <<  at_name << ": altloc :" <<  altLoc << ":" << "\n";
+      }
+
+      std::string cmd = "delete-atom";
+      std::vector<coot::command_arg_t> args;
+      args.push_back(imol);
+      args.push_back(coot::util::single_quote(chain_id_string));
+      args.push_back(resno);
+      args.push_back(coot::util::single_quote(ins_code_string));
+      args.push_back(coot::util::single_quote(atom_name_string));
+      args.push_back(coot::util::single_quote(altloc_string));
+      add_to_history_typed(cmd, args);
+
+   } else {
+      std::cout << "ERROR:: Model number " << imol << " is not a valid molecule" << std::endl;
    }
-
-   std::string cmd = "delete-atom";
-   std::vector<coot::command_arg_t> args;
-   args.push_back(imol);
-   args.push_back(coot::util::single_quote(chain_id_string));
-   args.push_back(resno);
-   args.push_back(coot::util::single_quote(ins_code_string));
-   args.push_back(coot::util::single_quote(atom_name_string));
-   args.push_back(coot::util::single_quote(altloc_string));
-   add_to_history_typed(cmd, args);
 
 } 
 
 void set_delete_atom_mode() {
+
    graphics_info_t g;
    g.delete_item_atom = 1;
    g.delete_item_residue_zone = 0;
@@ -1640,8 +1663,6 @@ void set_delete_atom_mode() {
 }
 
 void set_delete_residue_mode() {
-
-   std::cout << "in set_delete_residue_mode()! " << std::endl;
 
    graphics_info_t g;
    g.delete_item_atom = 0;
@@ -1698,6 +1719,7 @@ void set_delete_water_mode() {
 void set_delete_sidechain_mode() {
 
    graphics_info_t g;
+   std::cout << "set_delete_sidechain_mode " << std::endl;
    g.delete_item_residue = 0;
    g.delete_item_residue_zone = 0;
    g.delete_item_water = 0;
@@ -1903,7 +1925,7 @@ void delete_residue_range(int imol, const char *chain_id, int resno_start, int r
 
 
 
-void clear_pending_delete_item() { 
+void clear_pending_delete_item() {
 
    graphics_info_t g;
    g.delete_item_atom = 0;
@@ -2303,6 +2325,7 @@ int is_nucleotide_chain_p(int imol, const char *chain_id) {
       for (int ichain=0; ichain<nchains; ichain++) {
 	 mmdb::Chain *chain_p = mol->GetChain(1,ichain);
 	 std::string mol_chain_id(chain_p->GetChainID());
+	 r = 0;
 	 if (mol_chain_id == std::string(chain_id)) {
 	    r = chain_p->isNucleotideChain();
 	 }
@@ -2683,11 +2706,17 @@ short int
 add_OXT_to_residue(int imol, int resno, const char *insertion_code, const char *chain_id) {
 
    short int istat = -1; 
-   if (imol < graphics_n_molecules()) { 
-      istat = graphics_info_t::molecules[imol].add_OXT_to_residue(resno, std::string(insertion_code),
-								  std::string(chain_id));
-      graphics_info_t::molecules[imol].update_symmetry();
-      graphics_draw();
+   if (is_valid_model_molecule(imol)) {
+      if (insertion_code) {
+	 if (chain_id) {
+	    istat = graphics_info_t::molecules[imol].add_OXT_to_residue(resno, std::string(insertion_code),
+									std::string(chain_id));
+	    graphics_info_t::molecules[imol].update_symmetry();
+	    graphics_draw();
+	 }
+      }
+   } else {
+      std::cout << "WARNING:: in add_OXT_to_residue() imol " << imol << " is not valid" << std::endl;
    }
    std::string cmd = "add-OXT-to-residue";
    std::vector<coot::command_arg_t> args;
@@ -2696,6 +2725,7 @@ add_OXT_to_residue(int imol, int resno, const char *insertion_code, const char *
    args.push_back(coot::util::single_quote(insertion_code));
    args.push_back(coot::util::single_quote(chain_id));
    add_to_history_typed(cmd, args);
+   std::cout << "debug:: add_OXT_to_residue() returns istat " << istat << std::endl;
    return istat;
 }
 
@@ -3288,24 +3318,12 @@ SCM merge_molecules(SCM add_molecules, int imol) {
    std::vector<int> vam;
    SCM l_length_scm = scm_length(add_molecules);
 
-#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
-
    int l_length = scm_to_int(l_length_scm);
    for (int i=0; i<l_length; i++) {
       SCM le = scm_list_ref(add_molecules, SCM_MAKINUM(i));
       int ii = scm_to_int(le);
       vam.push_back(ii);
    } 
-   
-#else
-   
-   int l_length = gh_scm2int(l_length_scm);
-   for (int i=0; i<l_length; i++) {
-      SCM le = scm_list_ref(add_molecules, SCM_MAKINUM(i));
-      int ii =  gh_scm2int(le);
-      vam.push_back(ii);
-   }
-#endif // SCM_VERSION   
    
    std::pair<int, std::vector<std::string> > v = merge_molecules_by_vector(vam, imol);
 
@@ -3411,7 +3429,7 @@ int clear_and_update_molecule(int molecule_number, SCM molecule_expression) {
    } else {
       std::cout << "WARNING:: " << molecule_number << " is not a valid model molecule"
 		<< std::endl;
-   } 
+   }
    return state;
 }
 #endif // USE_GUILE
@@ -3748,6 +3766,7 @@ int place_helix_here() {
       float iqr_2 = 0.5*f_iqr;
 	 
       float min_density_limit = iqr_2;
+      min_density_limit = iqr_2 * g.place_helix_here_fudge_factor; // 20171117
       float high_density_turning_point = f_iqr * 4 * g.place_helix_here_fudge_factor;
       std::cout << "DEBUG:: choosing map min_density limit: " << min_density_limit << std::endl;
       std::cout << "DEBUG:: choosing map high_density_turning_point limit: " << high_density_turning_point
@@ -3755,6 +3774,10 @@ int place_helix_here() {
 
       float map_rmsd = g.molecules[imol_map].map_sigma();
       float bf = g.default_new_atoms_b_factor;
+
+      // 20171117
+      // min-density_limit min_density_limit_for_trim should be higher for cryo-EM maps
+      //
       coot::helix_placement_info_t n =
 	 p.place_alpha_helix_near_kc_version(pt, 20, min_density_limit, high_density_turning_point, bf, map_rmsd);
        if (! n.success) {
@@ -3765,12 +3788,16 @@ int place_helix_here() {
 	  atom_selection_container_t asc = make_asc(n.mol[0].pcmmdbmanager());
 
 	  imol = g.create_molecule();
-	  graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), "Helix", 1);
+	  std::string mol_name = "Helix-";
+	  mol_name+= coot::util::int_to_string(imol);
+	  graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), mol_name, 1);
 	  
 	  if (n.mol.size() > 1) { 
 	     atom_selection_container_t asc2 = make_asc(n.mol[1].pcmmdbmanager());
 	     imol = g.create_molecule();
-	     graphics_info_t::molecules[imol].install_model(imol, asc2, g.Geom_p(), "Reverse Helix", 1);
+	     mol_name = "Reverse-Helix-";
+	     mol_name+= coot::util::int_to_string(imol);
+	     graphics_info_t::molecules[imol].install_model(imol, asc2, g.Geom_p(), mol_name, 1);
 	  }
 	  
 	  if (g.go_to_atom_window) {
@@ -3832,7 +3859,9 @@ int place_strand_here(int n_residues, int n_sample_strands) {
 	 // molecule has been accepted.
 	 atom_selection_container_t asc = make_asc(si.mol[0].pcmmdbmanager());
 	 imol = g.create_molecule();
-	 graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), "Strand", 1);
+	 std::string mol_name = "Strand-";
+	 mol_name+= coot::util::int_to_string(imol);
+	 graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), mol_name, 1);
 	 g.add_status_bar_text("Strand added");
 
 	 // Now refine.
@@ -4366,7 +4395,9 @@ int rigid_body_fit_with_residue_ranges(int imol,
 
 void set_secondary_structure_restraints_type(int itype) {
 
-#ifdef HAVE_GSL   
+#ifdef HAVE_GSL
+
+   // Remember that Rama restraints are not secondary structure restraints.
 
    if (itype == 0)
       graphics_info_t::pseudo_bonds_type = coot::NO_PSEUDO_BONDS;
@@ -4374,7 +4405,28 @@ void set_secondary_structure_restraints_type(int itype) {
       graphics_info_t::pseudo_bonds_type = coot::HELIX_PSEUDO_BONDS;
    if (itype == 2)
       graphics_info_t::pseudo_bonds_type = coot::STRAND_PSEUDO_BONDS;
-#endif // HAVE_GSL   
+
+   // adjust the GUI (non-elegant logic :-))
+   //
+   if (graphics_info_t::use_graphics_interface_flag) {
+      std::string wa_name = "main_toolbar_restraints_alpha_label";
+      std::string wb_name = "main_toolbar_restraints_beta_label";
+      GtkWidget *w_a = lookup_widget(graphics_info_t::glarea, wa_name.c_str());
+      GtkWidget *w_b = lookup_widget(graphics_info_t::glarea, wb_name.c_str());
+      if (itype == 0) {
+	 gtk_widget_hide(w_a);
+	 gtk_widget_hide(w_b);
+      }
+      if (itype == 1) {
+	 gtk_widget_show(w_a);
+	 gtk_widget_hide(w_b);
+      }
+      if (itype == 2) {
+	 gtk_widget_hide(w_a);
+	 gtk_widget_show(w_b);
+      }
+   }
+#endif // HAVE_GSL
 } 
 
 /*! \brief return the secondary structure restraints type */
@@ -4513,7 +4565,7 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	    std::cout << "in new_molecule_by_atom_selection "
 		      << "Something bad happened - No atoms selected"
 		      << std::endl;
-	    std::string s = "Oops, failed to create fragment.  ";
+	    std::string s = "Oops! failed to create fragment.  ";
 	    s += "No atoms selected\n";
 	    s += "Incorrect atom specifier? ";
 	    s += "\"";
@@ -4529,7 +4581,7 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	 // good mmdb::Manager pointer.
 	 std::cout << "in new_molecule_by_atom_selection "
 		   << "Something bad happened - null molecule" << std::endl;
-	 std::string s = "Oops, failed to create fragment.  ";
+	 std::string s = "Oops! failed to create fragment.  ";
 	 s += "Incorrect atom specifier?\n";
 	 s += "\"";
 	 s += atom_selection_str;
@@ -4599,7 +4651,7 @@ int new_molecule_by_sphere_selection(int imol_orig, float x, float y, float z, f
 	    std::cout << "in new_molecule_by_atom_selection "
 		      << "Something bad happened - No atoms selected"
 		      << std::endl;
-	    std::string s = "Oops, failed to create fragment.  ";
+	    std::string s = "Oops! failed to create fragment.  ";
 	    s += "No atoms selected\n";
 	    s += "Incorrect position or radius? ";
 	    s += "Radius ";
@@ -4621,7 +4673,7 @@ int new_molecule_by_sphere_selection(int imol_orig, float x, float y, float z, f
 	 graphics_info_t::erase_last_molecule();
 	 std::cout << "in new_molecule_by_atom_selection "
 		   << "Something bad happened - null molecule" << std::endl;
-	 std::string s = "Oops, failed to create fragment.  ";
+	 std::string s = "Oops! failed to create fragment.  ";
 	 s += "No atoms selected\n";
 	 s += "Incorrect position or radius? ";
 	 s += "Radius ";
@@ -4812,6 +4864,9 @@ int write_shelx_ins_file(int imol, const char *filename) {
 	 graphics_info_t g;
 	 g.add_status_bar_text(stat.second);
 	 std::cout << stat.second << std::endl;
+	 if (istat != 1) {
+	    wrapped_nothing_bad_dialog(stat.second);
+	 }
       } else {
 	 std::cout << "WARNING:: invalid molecule (" << imol
 		   << ") for write_shelx_ins_file" << std::endl;
@@ -4902,7 +4957,9 @@ float residue_density_fit_scale_factor() {
 // dictionary
 int handle_cif_dictionary(const char *filename) {
 
-   return handle_cif_dictionary_for_molecule(filename, coot::protein_geometry::IMOL_ENC_ANY);
+   short int new_molecule_flag = 0; // no
+   return handle_cif_dictionary_for_molecule(filename, coot::protein_geometry::IMOL_ENC_ANY,
+					     new_molecule_flag);
 }
 
 // imol_enc can be the model molecule number or
@@ -4910,18 +4967,57 @@ int handle_cif_dictionary(const char *filename) {
 // IMOL_ENC_AUTO for auto
 // IMOL_ENC_UNSET for unset - not useful.
 //
-int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc) {
+// This function now handles the optional generation of a new molecule
+// based on the value of new_molecule_from_dictionary_cif_checkbutton_state
+//
+int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc,
+				       short int new_molecule_from_dictionary_cif_checkbutton_state) {
 
    graphics_info_t g;
    short int show_dialog_flag = 0;
    if (graphics_info_t::use_graphics_interface_flag)
       show_dialog_flag = 1;
    // add_cif_dictionary() returns the comp_id index
-   int r = g.add_cif_dictionary(coot::util::intelligent_debackslash(filename),
-				imol_enc,
-                                show_dialog_flag);
+   coot::read_refmac_mon_lib_info_t rmit =
+      g.add_cif_dictionary(coot::util::intelligent_debackslash(filename),
+			   imol_enc, show_dialog_flag);
+
+
+   /* if we choose a specific molecule for this dictionary, then it doesn't make
+       sense to create a new molecule to which this dictionary does not refer!
+   */
+   bool do_new_molecule = true;
+
+   const char *s1 = "Molecule Select type Auto disables Generate a Molecule for non-auto-load residue type";
+   const char *s2 = "Molecule Select type for a specific molecule disables Generate a Molecule";
+
+   if (rmit.success) {
+      if (imol_enc >= 0 || imol_enc == coot::protein_geometry::IMOL_ENC_AUTO) {
+	 if (imol_enc == coot::protein_geometry::IMOL_ENC_AUTO) {
+	    if (g.Geom_p()->is_non_auto_load_ligand(rmit.comp_id)) {
+	       std::cout << "INFO:: " << s1 << std::endl;
+	       add_status_bar_text(s1);
+	       do_new_molecule = false;
+	    }
+	 } else {
+	    std::cout << "INFO:: " << s2 << std::endl;
+	    add_status_bar_text(s2);
+	    do_new_molecule = false;
+	 }
+
+	 if (false)
+	    std::cout << "handle_cif_dictionary_for_molecule here with rmit "
+		      << rmit.success << " " << rmit.comp_id << " "
+		      << do_new_molecule << std::endl;
+      }
+
+      if (do_new_molecule)
+	 if (new_molecule_from_dictionary_cif_checkbutton_state)
+	    get_monomer_for_molecule_by_index(rmit.monomer_idx, imol_enc);
+   }
+
    graphics_draw();
-   return r;
+   return rmit.monomer_idx;
 }
 
 int read_cif_dictionary(const char *filename) {

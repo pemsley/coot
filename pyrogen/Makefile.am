@@ -77,7 +77,7 @@ _pyrogen_swig_la_LIBADD = libcoot_py_restraints.la \
                           $(top_builddir)/ideal/libcoot-ideal.la             \
 			  $(top_builddir)/analysis/libcoot-analysis.la       \
 			  $(top_builddir)/geometry/libcoot-geometry.la       \
-                          $(RDKIT_LIBS) $(L_BOOST_PYTHON) $(CLIPPER_LIBS) $(MMDB_LIBS) \
+                          $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(CLIPPER_LIBS) $(MMDB_LIBS) \
 			  $(PYTHON_LIBS)
 
 # What does this do? If we add it, we don't get this message:

@@ -509,7 +509,7 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
       
       r = read_shelx_ins_file(filename, recentre_on_read_pdb_flag);
 
-   } else { 
+   } else {
       // recentre and not a backup-restore
       // -1 is for failure strangely.
       int imol = g.create_molecule();
@@ -995,7 +995,7 @@ void set_dti_stereo_mode(short int state) {
       }
    }
    // add_to_history_simple("dti-side-by-side-stereo-mode");
-} 
+}
 
 
 int stereo_mode_state() {
@@ -1015,6 +1015,12 @@ void set_hardware_stereo_angle_factor(float f) {
 float hardware_stereo_angle_factor_state() {
    add_to_history_simple("hardware-stereo-angle-factor-state");
    return graphics_info_t::hardware_stereo_angle_factor;
+}
+
+void set_model_display_radius(int state, float radius) {
+
+   graphics_info_t::model_display_radius.first  = state;
+   graphics_info_t::model_display_radius.second = radius;
 }
 
 
@@ -5322,6 +5328,36 @@ void display_only_active() {
    graphics_draw();
 }
 
+void set_only_last_model_molecule_displayed() {
+
+   int n_mols = graphics_info_t::n_molecules();
+   int imol_last = -1;
+   std::vector<int> turn_these_off; // can contain last
+   for (int i=0; i<n_mols; i++) {
+      if (is_valid_model_molecule(i)) {
+	 if (mol_is_displayed(i)) {
+	    turn_these_off.push_back(i);
+	 }
+	 imol_last = i; // updates
+      }
+   }
+
+   for (unsigned int j=0; j<turn_these_off.size(); j++) {
+      if (turn_these_off[j] != imol_last) {
+	 set_mol_displayed(turn_these_off[j], 0);
+	 set_mol_active(turn_these_off[j], 0);
+      }
+   }
+   if (is_valid_model_molecule(imol_last)) {
+      if (! mol_is_displayed(imol_last)) {
+	 set_mol_displayed(imol_last, 1);
+	 set_mol_active(imol_last, 1);
+      }
+   }
+
+}
+
+
 
 // Bleugh.
 char *
@@ -5534,7 +5570,7 @@ void clear_up_moving_atoms() {
    g.clear_up_moving_atoms();
    g.clear_moving_atoms_object();
 
-} 
+}
 
 
 
@@ -5543,7 +5579,38 @@ void clear_up_moving_atoms() {
 // (see ideal/simple_restraint.hh link torsions)
 void set_refine_ramachandran_angles(int state) {
    graphics_info_t::do_rama_restraints = state;
+
+   // Adjust the GUI
+   if (graphics_info_t::use_graphics_interface_flag) {
+      std::string w_name = "main_toolbar_restraints_rama_label";
+      GtkWidget *w = lookup_widget(graphics_info_t::glarea, w_name.c_str());
+      if (w) {
+	 if (state) {
+	    if (graphics_info_t::restraints_rama_type == coot::RAMA_TYPE_ZO) {
+	       // this is not antialiased on my mac - yuck.
+	       // std::string l = "<span background=\"white\" foreground=\"brown\" face=\"PilGi\"
+	       // size=\"larger\">Rama</span>";
+	       std::string l = "<span background=\"white\" foreground=\"brown\">Rama</span>";
+	       gtk_label_set_markup(GTK_LABEL(w), l.c_str());
+	    }
+	    gtk_widget_show(w);
+	 } else {
+	    gtk_widget_hide(w);
+	 }
+      }
+   }
 } 
+
+
+void set_refine_ramachandran_restraints_type(int type) {
+   graphics_info_t::restraints_rama_type = type;
+}
+
+
+void set_refine_ramachandran_restraints_weight(float w) {
+   graphics_info_t::rama_restraints_weight = w;
+}
+
 
 int refine_ramachandran_angles_state() {
    return graphics_info_t::do_rama_restraints;
@@ -5888,6 +5955,29 @@ PyObject *residue_spec_to_py(const coot::residue_spec_t &res) {
 }
 #endif // USE_PYTHON
 
+#ifdef USE_GUILE
+int mark_multiple_atoms_as_fixed_scm(int imol, SCM atom_spec_list, int state) {
+
+   // not tested
+   int r = 0;
+   SCM list_length_scm = scm_length(atom_spec_list);
+   int n = scm_to_int(list_length_scm);
+   
+   for (int ispec = 0; ispec<n; ispec++) {
+      SCM atom_spec_scm = scm_list_ref(atom_spec_list, SCM_MAKINUM(ispec));
+      coot::atom_spec_t spec = atom_spec_from_scm_expression(atom_spec_scm);
+      graphics_info_t::mark_atom_as_fixed(imol, spec, state);
+   }
+   
+   if (n > 0) {
+      graphics_draw();
+   }
+   
+   return n; //return a count of how many atoms we successfully marked
+}
+#endif // USE_GUILE
+
+
 #ifdef USE_PYTHON
 // Garanteed to return a triple list (will return unset-spec if needed).
 // 
@@ -5909,7 +5999,6 @@ PyObject *residue_spec_make_triple_py(PyObject *res_spec_py) {
       PyList_SetItem(r, 1, res_no_py);
       PyList_SetItem(r, 2, ins_code_py);
    } else {
-      r = PyList_New(3);
       PyList_SetItem(r, 0, PyString_FromString(res_spec_default.chain_id.c_str()));
       PyList_SetItem(r, 1, PyInt_FromLong(res_spec_default.res_no));
       PyList_SetItem(r, 2, PyString_FromString(res_spec_default.ins_code.c_str()));
@@ -6039,7 +6128,7 @@ void post_scheme_scripting_window() {
 		  << std::endl;
         // load the fallback window if we have COOT_SCHEME_DIR (only Windows?!)
         // only for gtk2!
-#if (GTK_MAJOR_VERSION > 1)
+
         GtkWidget *window; 
         GtkWidget *scheme_entry; 
         window = create_scheme_window();
@@ -6047,7 +6136,7 @@ void post_scheme_scripting_window() {
         scheme_entry = lookup_widget(window, "scheme_window_entry");
         setup_guile_window_entry(scheme_entry); // USE_PYTHON and USE_GUILE used here
         gtk_widget_show(window);        
-#endif /* GTK_MAJOR_VERSION */
+
      } else { 
 	std::cout << COOT_SCHEME_DIR << " was not defined - cannot open ";
 	std::cout << "scripting window" << std::endl; 
@@ -6480,6 +6569,8 @@ void destroy_edit_backbone_rama_plot() {
 void print_sequence_chain(int imol, const char *chain_id) {
 
    std::string seq;
+   bool with_spaces = false; // block spaced output is easier to read
+
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int imod = 1;
@@ -6507,7 +6598,8 @@ void print_sequence_chain(int imol, const char *chain_id) {
 	       residue_p = chain_p->GetResidue(ires);
 	       seq += coot::util::three_letter_to_one_letter(residue_p->GetResName());
 	       if (residue_count_block == 10) {
-		  seq += " ";
+		  if (with_spaces)
+		     seq += " ";
 		  residue_count_block = 0;
 	       }
 	       if (residue_count_line == 50) {
@@ -6519,7 +6611,7 @@ void print_sequence_chain(int imol, const char *chain_id) {
 	    }
 	 }
       }
-      std::cout << "> " << graphics_info_t::molecules[imol].name_sans_extension(0)
+      std::cout << ">" << graphics_info_t::molecules[imol].name_sans_extension(0)
 		<< " chain " << chain_id << std::endl;
       std::cout << seq << std::endl;
    }
@@ -6646,39 +6738,43 @@ void change_peptide_carbonyl_by_current_button_pos(int ix, int iy) {
 // 
 int read_cif_data(const char *filename, int imol_coordinates) {
 
+   int r = -1;
       // This function is the .cif equivalent of
       // c.f. read_phs_and_coords_and_make_map or make_and_draw_map,
       // map_fill_from_mtz.
 
    // first, does the file exist?
-   struct stat s; 
-   int status = stat(filename, &s);
-   // stat check the link targets not the link itself, lstat stats the
-   // link itself.
-   // 
-   if (status != 0 || !S_ISREG (s.st_mode)) {
-      std::cout << "Error reading " << filename << std::endl;
-      if (S_ISDIR(s.st_mode)) {
-	 std::cout << filename << " is a directory." << endl;
-      }
-      return -1; // which is status in an error
-   } else {
-      cout << "Reading cif file: " << filename << endl; 
-      graphics_info_t g; 
-      int imol = g.create_molecule();
-      int istat = g.molecules[imol].make_map_from_cif(imol,
-						      std::string(filename), imol_coordinates);
 
-      std::cout << "DEBUG in read_cif_data() istat is " << istat << std::endl;
-
-      // std::cout << "DEBUG:: in read_cif_data, istat is " << istat << std::endl;
-      if (istat != -1) { 
-	 graphics_draw();
+   if (is_valid_model_molecule(imol_coordinates)) {
+      struct stat s;
+      int status = stat(filename, &s);
+      // stat check the link targets not the link itself, lstat stats the
+      // link itself.
+      //
+      if (status != 0 || !S_ISREG (s.st_mode)) {
+	 std::cout << "INFO:: Error reading " << filename << std::endl;
+	 if (S_ISDIR(s.st_mode)) {
+	    std::cout << filename << " is a directory." << std::endl;
+	 }
+	 return -1; // which is status in an error
       } else {
-	 g.erase_last_molecule();
-	 imol = -1;
-      } 
-      return imol;
+	 std::cout << "INFO:: Reading cif file: " << filename << std::endl;
+	 graphics_info_t g;
+	 int imol = g.create_molecule();
+	 int istat =
+	    g.molecules[imol].make_map_from_cif(imol, std::string(filename), imol_coordinates);
+
+	 if (istat != -1) {
+	    graphics_draw();
+	 } else {
+	    g.erase_last_molecule();
+	    imol = -1;
+	 }
+	 return imol;
+
+      }
+   } else {
+      std::cout << "WARNING:: " << imol_coordinates << " is not a valid model molecule" << std::endl;
    }
    return -1; // which is status in an error
 }
@@ -6696,7 +6792,7 @@ int read_cif_data_2fofc_map(const char *filename, int imol_coordinates) {
       // map_fill_from_mtz.
 
    // first, does the file exist?
-   struct stat s; 
+   struct stat s;
    int status = stat(filename, &s);
    // stat check the link targets not the link itself, lstat stats the
    // link itself.
@@ -6708,22 +6804,28 @@ int read_cif_data_2fofc_map(const char *filename, int imol_coordinates) {
       }
       return -1; // which is status in an error
    } else {
-      
-      cout << "Reading cif file: " << filename << endl; 
 
-      graphics_info_t g; 
 
-      imol = g.create_molecule();
-      int istat = g.molecules[imol].make_map_from_cif_2fofc(imol,
-							    std::string(filename),
-							    imol_coordinates);
+      if (is_valid_model_molecule(imol_coordinates)) {
 
-      if (istat != -1) { 
-	 graphics_draw();
+	 std::cout << "INFO:: Reading cif file: " << filename << std::endl;
+
+	 graphics_info_t g; 
+
+	 imol = g.create_molecule();
+	 int istat = g.molecules[imol].make_map_from_cif_2fofc(imol,
+							       std::string(filename),
+							       imol_coordinates);
+	 if (istat != -1) {
+	    graphics_draw();
+	 } else {
+	    g.erase_last_molecule();
+	    imol = -1; 
+	 }
       } else {
-	 g.erase_last_molecule();
-	 imol = -1; 
-      } 
+	 std::cout << "WARNING:: molecule " << imol_coordinates
+		   << " is not a valid model molecule " << std::endl;
+      }
    }
    return imol;
 }
@@ -6741,7 +6843,7 @@ int read_cif_data_fofc_map(const char *filename, int imol_coordinates) {
       // map_fill_from_mtz.
 
    // first, does the file exist?
-   struct stat s; 
+   struct stat s;
    int status = stat(filename, &s);
    // stat check the link targets not the link itself, lstat stats the
    // link itself.
@@ -6789,7 +6891,7 @@ int read_cif_data_with_phases_sigmaa(const char *filename) {
    int imol = -1;
    
    // first, does the file exist?
-   struct stat s; 
+   struct stat s;
    int status = stat(filename, &s);
    // stat check the link targets not the link itself, lstat stats the
    // link itself.
@@ -6826,7 +6928,7 @@ int read_cif_data_with_phases_diff_sigmaa(const char *filename) {
    int imol = -1;
    
    // first, does the file exist?
-   struct stat s; 
+   struct stat s;
    int status = stat(filename, &s);
    // stat check the link targets not the link itself, lstat stats the
    // link itself.
@@ -6877,7 +6979,7 @@ int read_cif_data_with_phases_fo_alpha_calc(const char *filename) {
 int read_cif_data_with_phases_nfo_fc(const char *filename,
 				     int map_type) {
    // first, does the file exist?
-   struct stat s; 
+   struct stat s;
    int status = stat(filename, &s);
    // stat check the link targets not the link itself, lstat stats the
    // link itself.
@@ -6983,6 +7085,12 @@ int centre_atom_label_status() {
 
 void set_brief_atom_labels(int istat) {
    graphics_info_t::brief_atom_labels_flag = istat;
+   graphics_draw();
+}
+
+void set_seg_ids_in_atom_labels(int istat) {
+
+   graphics_info_t::seg_ids_in_atom_labels_flag = istat;
    graphics_draw();
 }
 

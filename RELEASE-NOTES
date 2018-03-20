@@ -1,4 +1,66 @@
 
+
+  Release 0.8.9.1
+
+  o FEATURE: Added a function to limit the display radius for models
+
+  o FEATURE: The refinement map is now set before refinement of solutions
+             in ligand fitting
+
+----
+
+  Release 0.8.9
+
+  o FEATURE: Improved Ramachandran Plot, now with residue selection
+
+  o FEATURE: Use of threads and accumulation in map contouring
+
+  o FEATURE: secondary structure interface added to the the API
+
+  o FEATURE: delete-chain and delete-sidechains-for-chain added to the API
+
+  o FEATURE: Added a user-defined modelling toolbar button to refine tandem residues
+
+  o FEATURE: experimental peptide orientation optimisation function added (also in mini-rsr)
+
+  o CHANGE:  Refinement speed-up
+
+  o CHANGE:  Add-terminal-residue speed-up
+
+  o CHANGE:  Glyo module improved with distance restraints and better GUI
+
+  o CHANGE:  Better density fit graph scaling
+
+  o CHANGE:  Use ETKDG for embedding in pyrogen
+
+  o CHANGE:  Use less precision on writing the aniso ADPs for SHELX ins
+
+  o CHANGE:  Optional Fourier Transform-based Ramachandran Plot target function added
+
+  o CHANGE:  Bond-thicknesses improved in colour-by-chain.
+
+  o CHANGE:  Robust MOL-file parsing added to lidia
+
+  o CHANGE:  A density value histogram has been added to the map properties dialog
+
+  o CHANGE:  Pepflip residue indexing improved
+
+  o CHANGE:  Updated Ligand fitting in the tutorial
+
+  o BUG-FIX: Hydrogen atoms are no longer used in rotamer clash score
+
+  o BUG-FIX: Geman-McClure distance restraints activation bug fix
+
+  o BUG-FIX: delete-atom no longer crashes when given an invalid model molecule number
+
+  o BUG-FIX: Adding a terminal OXT no longer causes a crash
+
+  o BUG-FIX: Ramachandran plot is updated on "Undo"
+
+  o BUG-FIX: Chiral centre distortion representation fixed
+
+
+
 ------
 
   Release 0.8.8

@@ -513,6 +513,8 @@ molecule_class_info_t::align_and_mutate(const std::string chain_id,
    return mutation_info;
 }
 
+#include "utils/align-utils.hh"
+
 coot::chain_mutation_info_container_t
 molecule_class_info_t::align_on_chain(const std::string &chain_id,
 				      mmdb::PResidue *SelResidues,
@@ -570,35 +572,66 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 
    std::string stripped_target = coot::util::remove_whitespace(target);
 
-   if (debug)
+   if (debug) {
       std::cout << "debug:::: Align() with gap penalty: " << wgap
 		<< " and extension penalty: " << wspace << std::endl;
-   
+      std::cout << "calling Align with 1 " << model << std::endl;
+      std::cout << "calling Align with 2 " << stripped_target << std::endl;
+   }
+
    align.SetAffineModel(wgap, wspace);
    align.Align(model.c_str(), stripped_target.c_str());
 
    ch_info.alignedS = align.GetAlignedS();
    ch_info.alignedT = align.GetAlignedT();
 
-   if (debug) { 
+   if (debug) {
       std::cout << "debug:::: Align() on model  " << model << std::endl;
       std::cout << "debug:::: Align() on target " << stripped_target << std::endl;
       std::cout << "debug:::: Align() GetAlignedS:  " << ch_info.alignedS << std::endl;
       std::cout << "debug:::: Align() GetAlignedT:  " << ch_info.alignedT << std::endl;
    }
-   
+
    ch_info.alignedS_label = name_;
    ch_info.alignedT_label = "target sequence:";
    ch_info.alignment_score = std::pair<bool, float> (true, align.GetScore());
 
-   if (console_output) { 
-      std::cout << ">  ";
-      std::cout << name_ << std::endl;
-      std::cout << align.GetAlignedS() << std::endl;
-      std::cout << "> target seq: \n" << align.GetAlignedT() << std::endl;
-      std::cout << "INFO:: alignment score " << align.GetScore() << std::endl;
+   { // make a string for the GUI - displayed as the result
+      std::string as = "<tt>";
+      as += ">  " + name_ + "\n";
+      as += "> target sequence:\n";
+      std::string aligned = align.GetAlignedS();
+      std::string target  = align.GetAlignedT();
+      std::string matches = coot::alignment_matches(aligned, target);
+      as += "   " + aligned + "\n";
+      as += "   " + matches + "\n";
+      as += "   " + target + "\n";
+      as += "</tt>"; // is this pango at work?
+      ch_info.alignment_string = as;
    }
-   
+
+   if (console_output) {
+      bool new_style_output = true;
+      if (! new_style_output) {
+	 // old - alignment no so clear
+	 std::cout << ">  ";
+	 std::cout << name_ << std::endl;
+	 std::cout << align.GetAlignedS() << std::endl;
+	 std::cout << "> target seq: \n" << align.GetAlignedT() << std::endl;
+	 std::cout << "INFO:: alignment score " << align.GetScore() << std::endl;
+      } else {
+	 std::cout << ">  " << name_ << "\n";
+	 std::cout << "> target sequence:\n";
+	 std::string aligned = align.GetAlignedS();
+	 std::string target  = align.GetAlignedT();
+	 std::string matches = coot::alignment_matches(aligned, target);
+	 std::cout << "   " << aligned << "\n";
+	 std::cout << "   " << matches << "\n";
+	 std::cout << "   " << target  << "\n";
+	 std::cout << "INFO:: alignment score " << align.GetScore() << std::endl;
+      }
+   }
+
    // Before the use of SetAffineModel()
    // we got something like:
    // DVSGTVCLSALPPEATDTLNLIASDGPFPYSQD----F--------Q-------NRESVLPTQSYGYYHEYTVITP
@@ -655,7 +688,7 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 
    if (s.length() == t.length()) {
 
-      if (debug) { 
+      if (debug) {
 	 for (unsigned int iseq_indx=0; iseq_indx<s.length(); iseq_indx++) 
 	    std::cout << "   s array: " << iseq_indx << " " << s[iseq_indx] << std::endl;
 
@@ -1558,9 +1591,10 @@ molecule_class_info_t::remove_TER_on_last_residue(mmdb::Chain *chain_p) {
    int n_residues = chain_p->GetNumberOfResidues();
    if (n_residues > 0) {
       mmdb::Residue *r = chain_p->GetResidue(n_residues-1); // last residue
-      remove_TER_internal(r);
+      if (r)
+	 remove_TER_internal(r);
    }
-} 
+}
 
 
 // remove TER record from residue
@@ -1687,7 +1721,7 @@ molecule_class_info_t::nudge_residue_sequence(const std::string &chain_id,
 
       
       // first get the sequence of the residues as they currently are.
-      bool status = true;
+      bool seq_status = true;
       std::vector<std::string> current_types;
       for (int i=0; i<=range; i++) {
 	 mmdb::Residue *r = get_residue(chain_id, res_no_range_start+i, "");
@@ -1699,9 +1733,11 @@ molecule_class_info_t::nudge_residue_sequence(const std::string &chain_id,
 	 }
       }
 
-      if (status && int(current_types.size()) == (range+1)) {
+      if (seq_status && int(current_types.size()) == (range+1)) {
 
 	 make_backup();
+
+	 status = 1; // we did something
 
 	 for (int i_offset=0; i_offset<=range; i_offset++) {
 	    int i_serial_no = residue_serial_number(chain_id, res_no_range_start+i_offset, "");

@@ -387,7 +387,7 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
       if (degree == 3) { 
          at_n->setProp("type_energy", "NT3"); // also set to NT3 by SMARTS match in pyrogen.py
          // add a hydrogen atom and a bond to the nitrogen.
-         // 
+         //
          RDKit::Atom *new_h_at = new RDKit::Atom(1);
          // we want to find the idx of this added H, so we do that by
          // keeping hold of the pointer (otherwise the atom gets copied
@@ -408,8 +408,11 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
    for(unsigned int idel=0; idel<atoms_to_be_deleted.size(); idel++)
       r->removeAtom(atoms_to_be_deleted[idel]);
 
-   remove_phosphate_hydrogens(r, true);
-   remove_sulphate_hydrogens (r, true);
+   // Here do_deloc_bonds should be false when we deal with PDBe input
+   //
+   bool do_deloc_bonds = false;
+   remove_phosphate_hydrogens(r, do_deloc_bonds);
+   remove_sulphate_hydrogens (r, do_deloc_bonds);
 
    // debug
    if (false)

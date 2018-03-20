@@ -77,10 +77,23 @@
 #include "lbg/wmolecule.hh"
 #endif // HAVE_GOOCANVAS
 
+#include "c-interface-bonds.hh"
 
-/*! \brief centre on the ligand of the "active molecule", if we are
-  already there, centre on the next hetgroup (etc) */
-void go_to_ligand() {
+#ifdef USE_PYTHON
+PyObject *go_to_ligand_py() {
+
+   clipper::Coord_orth new_pos = go_to_ligand_inner();
+   PyObject *r = PyList_New(3);
+   for (std::size_t i=0; i<3; i++)
+      PyList_SetItem(r, i, PyFloat_FromDouble(new_pos[i]));
+   return r;
+}
+#endif
+
+clipper::Coord_orth
+go_to_ligand_inner() {
+
+   clipper::Coord_orth new_rotation_centre;
 
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
    if (pp.first) {
@@ -91,6 +104,7 @@ void go_to_ligand() {
 				graphics_info_t::RotationCentre_z());
 	 coot::new_centre_info_t new_centre =
 	    graphics_info_t::molecules[pp.second.first].new_ligand_centre(rc, graphics_info_t::go_to_ligand_n_atoms_limit);
+	 new_rotation_centre = new_centre.position;
 	 if (new_centre.type == coot::NORMAL_CASE) {
 	    // g.setRotationCentre(new_centre.position);
 	    g.perpendicular_ligand_view(pp.second.first, new_centre.residue_spec);
@@ -128,6 +142,15 @@ void go_to_ligand() {
 	 }
       }
    }
+   return new_rotation_centre;
+}
+
+
+/*! \brief centre on the ligand of the "active molecule", if we are
+  already there, centre on the next hetgroup (etc) */
+void go_to_ligand() {
+
+   go_to_ligand_inner();
 }
 
 void set_go_to_ligand_n_atoms_limit(int n_atoms_min) {
@@ -973,6 +996,7 @@ execute_ligand_search_internal(coot::wligand *wlig_p) {
 	    g.molecules[g_mol].assign_hetatms();
 #ifdef HAVE_GSL
 	    if (g.find_ligand_do_real_space_refine_state()) {
+	       set_imol_refinement_map(g.find_ligand_map_mol());
  	       int previous_state = refinement_immediate_replacement_state();
  	       g.refinement_immediate_replacement_flag = 1;
  	       g.refine_residue_range(g_mol, "A", "A", 1, "", 1, "", "", 0);
@@ -3093,6 +3117,7 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 		     // at_c that is not at_1, at_2 or at_3.
 		     mmdb::Atom *at_4th = coot::chiral_4th_atom(residue_p, at_c, at_1, at_2, at_3);
 		     if (at_4th) {
+			std::cout << "    " << coot::atom_spec_t(at_4th) << std::endl;
 			clipper::Coord_orth p4(at_4th->x, at_4th->y, at_4th->z);
 			clipper::Coord_orth bl_4 = 0.6 * pc + 0.4 * p4;
 			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
@@ -3104,8 +3129,23 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
 						   bl_3.x(), bl_3.y(), bl_3.z(),
 						   bl_4.x(), bl_4.y(), bl_4.z());
-			   
-		     } 
+		     } else {
+			// make 4th tetrahedron point from the others
+			clipper::Coord_orth neighb_sum = p1 + p2 + p3;
+			clipper::Coord_orth neighb_average = 0.33333333 * neighb_sum;
+			clipper::Coord_orth dir_unit(clipper::Coord_orth(pc - neighb_average).unit());
+			clipper::Coord_orth p4(pc + 1.2 * dir_unit);
+			clipper::Coord_orth bl_4 = 0.6 * pc + 0.4 * p4;
+			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+						   bl_1.x(), bl_1.y(), bl_1.z(),
+						   bl_4.x(), bl_4.y(), bl_4.z());
+			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+						   bl_2.x(), bl_2.y(), bl_2.z(),
+						   bl_4.x(), bl_4.y(), bl_4.z());
+			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+						   bl_3.x(), bl_3.y(), bl_3.z(),
+						   bl_4.x(), bl_4.y(), bl_4.z());
+		     }
 		  }
 	       }
 	    }

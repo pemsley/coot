@@ -68,7 +68,7 @@ libcoot_ideal_la_LIBADD =                 \
    $(top_builddir)/utils/libcoot-utils.la              \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la        \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la    \
-   $(MMDB_LIBS) $(CLIPPER_LIBS) $(GSL_LIBS)
+   $(MMDB_LIBS) $(CLIPPER_LIBS) $(GSL_LIBS) $(LIBPNG_LIBS)
 
 
 libcoot_ideal_la_SOURCES = simple-restraint.cc \
@@ -76,11 +76,12 @@ libcoot_ideal_la_SOURCES = simple-restraint.cc \
 	pepflip.cc regularize-minimol.cc lograma.cpp \
         extra-restraints-kk.cc simple-restraint-kk.cc torsion-bonds.cc \
 	coot-compare-residues.hh coot-compare-residues.cc link-restraints.cc \
-	parallel-planes.cc trans-peptide.cc model-bond-deltas.cc
+	parallel-planes.cc trans-peptide.cc model-bond-deltas.cc \
+	write-png.cc zo-rama.cc zo-rama.hh crankshaft.hh crankshaft.cc phi-psi.hh phi-psi.cc
 
 libcoot_ideal_la_LDFLAGS = $(SHARED_LDFLAGS)
 
-check_PROGRAMS =  with-geometry logramatest
+check_PROGRAMS =  with-geometry logramatest crankshaft-test
 if OS_WIN32
 bin_PROGRAMS = mini-rsr-bin
 else
@@ -88,6 +89,10 @@ libexec_PROGRAMS = mini-rsr-bin
 endif
 
 logramatest_SOURCES = logramatest.cpp
+
+crankshaft_test_SOURCES = crankshaft-test.cc
+
+crankshaft_test_LDADD = ./libcoot-ideal.la
 
 with_geometry_SOURCES = with-geometry.cc
 

@@ -109,29 +109,50 @@ atom_spec_from_python_expression(PyObject *expr) {
    coot::atom_spec_t atom_spec;
    atom_spec.string_user_data = "Bad Spec";
 
-   int len_view = PyList_Size(expr);
-   if (len_view == 5) {
-      
-      PyObject *chain_id_python = PyList_GetItem(expr, 0);
-      std::string chain_id = PyString_AsString(chain_id_python);
+   if (PyList_Check(expr)) {
+      int len = PyList_Size(expr);
 
-      PyObject *resno_python = PyList_GetItem(expr, 1);
-      int resno = PyInt_AsLong(resno_python);
+      // atom expressions of size 6 are prefixed by (i.e. is the 0th element) the
+      // model molecule number
 
-      PyObject *ins_code_python = PyList_GetItem(expr, 2);
-      std::string ins_code = PyString_AsString(ins_code_python);
-      
-      PyObject *atom_name_python = PyList_GetItem(expr, 3);
-      std::string atom_name = PyString_AsString(atom_name_python);
-      
-      PyObject *alt_conf_python = PyList_GetItem(expr, 4);
-      std::string alt_conf = PyString_AsString(alt_conf_python);
+      if (len == 5 || len == 6) {
 
-//       std::cout << "decoding spec :" << chain_id << ": " << resno << " :" << ins_code
-// 		<< ": :" << atom_name << ": :" << alt_conf << ":" << std::endl;
-      atom_spec = coot::atom_spec_t(chain_id, resno, ins_code, atom_name, alt_conf);
-      // if all OK:
-      atom_spec.string_user_data = "OK";
+	 int offset = 0;
+	 if (len == 6) offset = 1;
+      
+	 PyObject *chain_id_python = PyList_GetItem(expr, 0+offset);
+	 std::string chain_id = PyString_AsString(chain_id_python);
+
+	 PyObject *resno_python = PyList_GetItem(expr, 1+offset);
+	 int resno = PyInt_AsLong(resno_python);
+
+	 PyObject *ins_code_python = PyList_GetItem(expr, 2+offset);
+	 std::string ins_code = PyString_AsString(ins_code_python);
+      
+	 PyObject *atom_name_python = PyList_GetItem(expr, 3+offset);
+	 std::string atom_name = PyString_AsString(atom_name_python);
+      
+	 PyObject *alt_conf_python = PyList_GetItem(expr, 4+offset);
+	 std::string alt_conf = PyString_AsString(alt_conf_python);
+
+	 //       std::cout << "decoding spec :" << chain_id << ": " << resno << " :" << ins_code
+	 // 		<< ": :" << atom_name << ": :" << alt_conf << ":" << std::endl;
+	 atom_spec = coot::atom_spec_t(chain_id, resno, ins_code, atom_name, alt_conf);
+
+	 // currently atom_spec.int_user_data is -1 - use it to store the molecule
+	 // number if we can.
+	 //
+	 if (len == 6) {
+	    PyObject *o = PyList_GetItem(expr, 0);
+	    if (PyInt_Check(o)) {
+	       long imol = PyInt_AsLong(o);
+	       atom_spec.int_user_data = imol;
+	    }
+	 }
+
+	    // if all OK:
+	 atom_spec.string_user_data = "OK";
+      }
    }
    
    return atom_spec;

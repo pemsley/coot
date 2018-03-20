@@ -25,10 +25,12 @@ def parse_wiki_drug_xml(tree, was_redirected=False):
         return s
 
     drug_bank_id = False
-    drugbank_str = "DrugBank  *= "
-    chemspid_str = "ChemSpiderID  *= "
+    drugbank_str = "DrugBank *="
+    chemspid_str = "ChemSpiderID *="
+    pubchem_str  = "PubChem *="
     drugbank_re = re.compile(drugbank_str)
     chemspid_re = re.compile(chemspid_str)
+    pubchem_re  = re.compile(chemspid_str)
     redirect_re = re.compile("#REDIRECT")
     query_ele = tree.find("query")
     db_dict = {}
@@ -42,11 +44,14 @@ def parse_wiki_drug_xml(tree, was_redirected=False):
             for line in lines:
                 # print line
                 if drugbank_re.search(line):
-                    drugbank_id = line.split(' ')[-1]
+                    drugbank_id = line.split('=')[-1].strip()
                     db_dict["DrugBank"] = drugbank_id
                 if chemspid_re.search(line):
-                    chemspider_id = line.split(' ')[-1]
+                    chemspider_id = line.split('=')[-1].strip()
                     db_dict["ChemSpiderID"] = chemspider_id
+                if pubchem_re.search(line):
+                    pubchem_id = line.split('=')[-1].strip()
+                    db_dict["PubChem"] = pubchem_id
                 if redirect_re.search(line):
                     if was_redirected:
                         print "oops - found #REDIRECT but was redirected already!"
@@ -55,6 +60,7 @@ def parse_wiki_drug_xml(tree, was_redirected=False):
                         inn = unbracket(line)
                         db_dict['REDIRECT'] = inn
                         return db_dict
+            print("returning db_dict: {}".format(db_dict))
             return db_dict # happy case
     except:
         print "wikipedia didn't understand the query, bad format?"

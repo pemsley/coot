@@ -1,6 +1,7 @@
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
+#ifdef HAVE_BOOST
 #include <boost/python.hpp>
 
 #include "coot-utils/coot-coord-utils.hh"
@@ -48,4 +49,5 @@ int coot::import_rdkit_molecule(const RDKit::ROMol &m, int conf_id, const std::s
 }
 
 
+#endif // HAVE_BOOST
 #endif // MAKE_ENHANCED_LIGAND_TOOLS

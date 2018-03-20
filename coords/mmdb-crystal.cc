@@ -254,14 +254,14 @@ molecule_extents_t::get_bottom() const {
 
 
 
-ostream& operator<<(ostream &s, molecule_extents_t e) {
+std::ostream& operator<<(std::ostream &s, molecule_extents_t e) {
 
-   s << "front:  " << e.front << endl;
-   s << "back :  " << e.back  << endl;
-   s << "left :  " << e.left  << endl;
-   s << "right:  " << e.right << endl;
-   s << "top  :  " << e.top   << endl;
-   s << "bottom: " << e.bottom  << endl;
+   s << "front:  " << e.front << std::endl;
+   s << "back :  " << e.back  << std::endl;
+   s << "left :  " << e.left  << std::endl;
+   s << "right:  " << e.right << std::endl;
+   s << "top  :  " << e.top   << std::endl;
+   s << "bottom: " << e.bottom  << std::endl;
 
    return s;
 } 
@@ -872,7 +872,7 @@ coot::trans_selection_t::point_is_in_box(const coot::Cartesian &point) const {
 }
 
 
-ostream & operator<<(ostream &s, const symm_trans_t &t) {
+std::ostream & operator<<(std::ostream &s, const symm_trans_t &t) {
    s << "symm: " << t.symm_as_string << " (op-idx: "  << t.isym() << ") trans: "
      << t.x_shift_ << " " << t.y_shift_ << " " << t.z_shift_;
    return s;
@@ -886,7 +886,7 @@ Cell_Translation::Cell_Translation(int a, int b, int c) {
    ws = c;
 }
 
-ostream& operator<<(ostream &s, Cell_Translation ct) {
+std::ostream& operator<<(std::ostream &s, Cell_Translation ct) {
 
    s << "Cell Trans: (" << ct.us << " " << ct.vs << " " << ct.ws << ")";
    return s;
@@ -917,16 +917,16 @@ SymmMatrix::add_unit_shift(int x, int y, int z) {
    mat[2][3] += z; 
 } 
 
-ostream& operator<<(ostream& s, SymmMatrix m) {
+std::ostream& operator<<(std::ostream& s, SymmMatrix m) {
 
    s << m.mat[0][0] << " "  << m.mat[0][1] << " "
-     << m.mat[0][2] << " "  << m.mat[0][3] << " "  << endl
+     << m.mat[0][2] << " "  << m.mat[0][3] << " "  << std::endl
      << m.mat[1][0] << " "  << m.mat[1][1] << " "
-     << m.mat[1][2] << " "  << m.mat[1][3] << " "  << endl
+     << m.mat[1][2] << " "  << m.mat[1][3] << " "  << std::endl
      << m.mat[2][0] << " "  << m.mat[2][1] << " "
-     << m.mat[2][2] << " "  << m.mat[2][3] << " "  << endl
+     << m.mat[2][2] << " "  << m.mat[2][3] << " "  << std::endl
      << m.mat[3][0] << " "  << m.mat[3][1] << " "
-     << m.mat[3][2] << " "  << m.mat[3][3] << " "  << endl;
+     << m.mat[3][2] << " "  << m.mat[3][3] << " "  << std::endl;
    return s;
 }
    
@@ -999,8 +999,8 @@ translated_atoms(atom_selection_container_t AtomSel,
 				      symm_trans.y(), symm_trans.z());
    
    if (err != 0) {
-      cout << "!!!!!!!!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix"
-	   << endl;
+      std::cout << "!!!!!!!!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix"
+	   << std::endl;
    }
       
    mmdb::PPAtom trans_selection = new mmdb::PAtom[AtomSel.n_selected_atoms];
@@ -1011,7 +1011,7 @@ translated_atoms(atom_selection_container_t AtomSel,
       trans_selection[ii]->Transform(my_matt);
       trans_selection[ii]->SetResidue(    AtomSel.atom_selection[ii]->GetResidue());
       //if (ii == 10) {
-      //	 cout << (trans_selection[ii]) << " vs. " << (AtomSel.atom_selection[ii]) << endl;
+      //	 cout << (trans_selection[ii]) << " vs. " << (AtomSel.atom_selection[ii]) << std::endl;
       //}
 
    }
@@ -1030,9 +1030,9 @@ coot::Cartesian translate_atom(atom_selection_container_t AtomSel, int ii,
 				     symm_trans.z());
    
    if (err != 0) {
-      cout << "!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix in "
+      std::cout << "!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix in "
 	   << "coot::Cartesian translate_atom(..)" 
-	   << endl;
+	   << std::endl;
    }
 
    mmdb::PAtom trans_atom = new mmdb::Atom;
@@ -1065,9 +1065,9 @@ translate_atom_with_pre_shift(atom_selection_container_t AtomSel, int ii,
 				      -symm_trans.second.ws);
    
    if (err != 0) {
-      cout << "!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix in "
-	   << "coot::Cartesian translate_atom(..)" 
-	   << endl;
+      std::cout << "!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix in "
+		<< "coot::Cartesian translate_atom(..)" 
+		<< std::endl;
    }
 
    mmdb::Atom trans_atom;

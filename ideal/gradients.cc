@@ -65,6 +65,7 @@ coot::numerical_gradients(gsl_vector *v,
    double micro_step = 0.0001;  // the difference between the gradients
 			        // seems not to depend on the
 			        // micro_step size (0.0001 vs 0.001)
+                                // ... Hmm... is does for rama restraints?
 
    if (false) {
       std::cout << "in numerical_gradients: df->size is " << df->size << std::endl;
@@ -434,13 +435,7 @@ void
 coot::my_df_non_bonded(const  gsl_vector *v, 
 			void *params, 
 			gsl_vector *df) {
-   
-#ifdef ANALYSE_REFINEMENT_TIMING
-   timeval start_time;
-   timeval current_time;
-   gettimeofday(&start_time, NULL);
-#endif // ANALYSE_REFINEMENT_TIMING
-   
+
    // first extract the object from params 
    //
    restraints_container_t *restraints_p = static_cast<restraints_container_t *>(params);
@@ -455,7 +450,6 @@ coot::my_df_non_bonded(const  gsl_vector *v,
    if (restraints_p->restraints_usage_flag & coot::NON_BONDED_MASK) { 
 
       unsigned int restraints_size = restraints_p->size();
-
 
 #ifdef HAVE_CXX_THREAD
 
@@ -505,14 +499,6 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 #endif
 
    }
-
-#ifdef ANALYSE_REFINEMENT_TIMING
-   gettimeofday(&current_time, NULL);
-   double td = current_time.tv_sec - start_time.tv_sec;
-   td *= 1000.0;
-   td += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
-   std::cout << "------------- mark my_df_non_bonded: " << td << std::endl;
-#endif // ANALYSE_REFINEMENT_TIMING
 }
 
 void
@@ -718,7 +704,7 @@ void coot::my_df_angles(const gsl_vector *v,
       double w_ds_dth;
 
       for (unsigned int i=restraints->restraints_limits_angles.first; i<=restraints->restraints_limits_angles.second; i++) {
-      
+
 	 if ( (*restraints)[i].restraint_type == coot::ANGLE_RESTRAINT) {
 
 	    n_angle_restr++;
@@ -869,6 +855,12 @@ coot::fill_distortion_torsion_gradients(const clipper::Coord_orth &P1,
       b_lengthsq = b_length * b_length; 
    }
 
+   if (true) {
+      if (b_length < 0.5)
+	 std::cout << "ERROR:: fill_distortion_torsion_gradients() problem with b_length "
+		   << b_length << std::endl;
+   }
+
    double H = -clipper::Coord_orth::dot(a,c);
    double J =  clipper::Coord_orth::dot(a,b); 
    double K =  clipper::Coord_orth::dot(b,c); 
@@ -889,9 +881,49 @@ coot::fill_distortion_torsion_gradients(const clipper::Coord_orth &P1,
       throw std::runtime_error(mess);
    }
 
+   double al = sqrt(clipper::Coord_orth::dot(a,a));
+   double cl = sqrt(clipper::Coord_orth::dot(c,c));
+   double cos_a1 = clipper::Coord_orth::dot(a,b)/(al*b_length);
+   double cos_a2 = clipper::Coord_orth::dot(b,c)/(b_length*cl);
+
+   if (false)
+      std::cout << "F " << F << " G " << G << " E " << E << " theta " << dtg.theta
+		<< " cos(a1) " << cos_a1 << " cos(a2) " << cos_a2
+		<< std::endl;
+
+   // instabilty when the P2-P3-P4 or P1-P2-p3 angle is linear. Give up with the derivatives
+   // similar escape in the distortion score
    
+   if (cos_a1 > 0.9 || cos_a2> 0.9) {
+
+      dtg.zero_gradients = true;
+
+      // x
+      dtg.dD_dxP1 = 0;
+      dtg.dD_dxP2 = 0;
+      dtg.dD_dxP3 = 0;
+      dtg.dD_dxP4 = 0;
+
+      // y
+      dtg.dD_dyP1 = 0;
+      dtg.dD_dyP2 = 0;
+      dtg.dD_dyP3 = 0;
+      dtg.dD_dyP4 = 0;
+
+      // z
+      dtg.dD_dzP1 = 0;
+      dtg.dD_dzP2 = 0;
+      dtg.dD_dzP3 = 0;
+      dtg.dD_dzP4 = 0;
+
+      return dtg;
+   }
+
+
    // 	    double clipper_theta = 
    // 	       clipper::Util::rad2d(clipper::Coord_orth::torsion(P1, P2, P3, P4));
+
+   dtg.zero_gradients = false;
 
    // x
    double dH_dxP1 =  c.x(); 
@@ -1012,7 +1044,7 @@ coot::fill_distortion_torsion_gradients(const clipper::Coord_orth &P1,
    dtg.dD_dzP2 = F*dE_dzP2 - EFF*(dH_dzP2 + JL*dK_dzP2 + KL*dJ_dzP2 + JK*dL_dzP2);
    dtg.dD_dzP3 = F*dE_dzP3 - EFF*(dH_dzP3 + JL*dK_dzP3 + KL*dJ_dzP3 + JK*dL_dzP3);
    dtg.dD_dzP4 = F*dE_dzP4 - EFF*(dH_dzP4 + JL*dK_dzP4 + KL*dJ_dzP4 + JK*dL_dzP4);
-  
+
    return dtg;
 } 
 
@@ -1032,7 +1064,7 @@ void coot::my_df_torsions_internal(const gsl_vector *v,
       (coot::restraints_container_t *)params;
 
    if (restraints->restraints_usage_flag & coot::TORSIONS_MASK) { 
-     
+
       for (unsigned int i=restraints->restraints_limits_torsions.first; i<=restraints->restraints_limits_torsions.second; i++) {
       
 	 if ( (*restraints)[i].restraint_type == coot::TORSION_RESTRAINT) {
@@ -1078,7 +1110,7 @@ void coot::my_df_torsions_internal(const gsl_vector *v,
 		     if (tdiff < -180) tdiff += 360;
 		     if (tdiff >  180) tdiff -= 360;
 		     // std::cout << "   iper: " << iper << "   " << dtg.theta << "   " << trial_target << "   " << tdiff << "   " << diff << std::endl;
-		     if (abs(tdiff) < abs(diff)) { 
+		     if (fabs(tdiff) < fabs(diff)) { 
 			diff = tdiff;
 		     }
 		  }
@@ -1090,11 +1122,11 @@ void coot::my_df_torsions_internal(const gsl_vector *v,
 		     }
 		  }
 		  
-		  if (0) 
+		  if (false)
 		     std::cout << "in df_torsion: dtg.theta is " << dtg.theta 
 			       <<  " and target is " << (*restraints)[i].target_value 
-			       << " and diff is " << diff 
-			       << " and periodicity: " << (*restraints)[i].periodicity <<  endl;
+			       << " and diff is " << diff
+			       << " and periodicity: " << (*restraints)[i].periodicity << std::endl;
 
 		  double tt = tan(clipper::Util::d2rad(dtg.theta));
 		  double torsion_scale = (1.0/(1+tt*tt)) *
@@ -1273,17 +1305,30 @@ void coot::my_df_rama(const gsl_vector *v,
 		  fill_distortion_torsion_gradients(P2, P3, P4, P5);
 
 	       // Faster to use these, not calculate them above?
-	       // 
-	       // phir = clipper::Util::d2rad(dtg_phi.theta);
-	       // psir = clipper::Util::d2rad(dtg_psi.theta);
-	       LogRamachandran::Lgrad lgrd = restraints->rama_grad(phir, psir);
+	       //
 
 	       double tan_phir = tan(phir);
 	       double tan_psir = tan(psir);
 
-	       double multiplier_phi = 10.0/(1.0 + tan_phir*tan_phir) * lgrd.DlogpDphi;
-	       double multiplier_psi = 10.0/(1.0 + tan_psir*tan_psir) * lgrd.DlogpDpsi;
-	    
+	       double multiplier_phi = 1.0;
+	       double multiplier_psi = 1.0;
+
+	       if (restraints->rama_type == restraints_container_t::RAMA_TYPE_ZO) {
+		  std::pair<float,float> zo_rama_pair = restraints->zo_rama_grad(rama_restraint.rama_plot_residue_type, phir, psir);
+		  if (false)
+		     std::cout << "debug:: in my_df_rama() rama_plot_residue_type is "
+			       << rama_restraint.rama_plot_residue_type << " gradients "
+			       << zo_rama_pair.first << " " << zo_rama_pair.second
+			       << std::endl;
+
+		  multiplier_phi = -restraints->get_rama_plot_weight()/(1.0 + tan_phir*tan_phir) * zo_rama_pair.first;
+		  multiplier_psi = -restraints->get_rama_plot_weight()/(1.0 + tan_psir*tan_psir) * zo_rama_pair.second;
+	       } else {
+		  LogRamachandran::Lgrad lgrd = restraints->rama_grad(phir, psir);
+		  multiplier_phi = 10.0/(1.0 + tan_phir*tan_phir) * lgrd.DlogpDphi;
+		  multiplier_psi = 10.0/(1.0 + tan_psir*tan_psir) * lgrd.DlogpDpsi;
+	       }
+
 	       double xP1_contrib = multiplier_phi*dtg_phi.dD_dxP1;
 	       double yP1_contrib = multiplier_phi*dtg_phi.dD_dyP1;
 	       double zP1_contrib = multiplier_phi*dtg_phi.dD_dzP1;
@@ -1330,7 +1375,7 @@ void coot::my_df_rama(const gsl_vector *v,
 		  yP4_contrib = 0.0;
 		  zP4_contrib = 0.0;
 	       }
-	    
+
 	       double xP5_contrib = multiplier_psi*dtg_psi.dD_dxP4;
 	       double yP5_contrib = multiplier_psi*dtg_psi.dD_dyP4;
 	       double zP5_contrib = multiplier_psi*dtg_psi.dD_dzP4;
@@ -1373,7 +1418,7 @@ void coot::my_df_rama(const gsl_vector *v,
 	 }
       }
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "ERROR:: my_df_rama() caught " << rte.what() << std::endl;
    } 
 }
@@ -1650,10 +1695,10 @@ double
 coot::restraints_container_t::electron_density_score_at_point(const clipper::Coord_orth &ao) const {
       double dv; 
       
-      clipper::Coord_frac af = ao.coord_frac(map.cell()); 
-      clipper::Coord_map  am = af.coord_map(map.grid_sampling()); 
+      clipper::Coord_frac af = ao.coord_frac(xmap.cell()); 
+      clipper::Coord_map  am = af.coord_map(xmap.grid_sampling()); 
       // clipper::Interp_linear::interp(map, am, dv); 
-      clipper::Interp_cubic::interp(map, am, dv); 
+      clipper::Interp_cubic::interp(xmap, am, dv); 
       
       return dv;  
 }
@@ -1664,11 +1709,11 @@ coot::restraints_container_t::electron_density_gradient_at_point(const clipper::
    clipper::Grad_map<double> grad;
    double dv;
    
-   clipper::Coord_frac af = ao.coord_frac(map.cell()); 
-   clipper::Coord_map  am = af.coord_map(map.grid_sampling()); 
-   clipper::Interp_cubic::interp_grad(map, am, dv, grad);
-   clipper::Grad_frac<double> grad_frac = grad.grad_frac(map.grid_sampling());
-   return grad_frac.grad_orth(map.cell());
+   clipper::Coord_frac af = ao.coord_frac(xmap.cell()); 
+   clipper::Coord_map  am = af.coord_map(xmap.grid_sampling()); 
+   clipper::Interp_cubic::interp_grad(xmap, am, dv, grad);
+   clipper::Grad_frac<double> grad_frac = grad.grad_frac(xmap.grid_sampling());
+   return grad_frac.grad_orth(xmap.cell());
 } 
 
 #endif // HAVE_GSL

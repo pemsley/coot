@@ -20,7 +20,7 @@ set COOT_RESOURCES_FILE=%COOT_SHARE%\coot\cootrc
 set COOT_DATA_DIR=%COOT_SHARE%\coot
 set COOT_REF_STRUCTS=%COOT_SHARE%\coot\reference-structures
 set COOT_PYTHON_DIR=%COOT_PREFIX%\python27\lib\site-packages\coot
-set COOT_REF_SEC_STRUCTS=%COOT_SHARE%\coot\ss-reference-structures
+REM set COOT_REF_SEC_STRUCTS=%COOT_SHARE%\coot\ss-reference-structures
 
 set PYTHONHOME=%COOT_PREFIX%\python27
 

@@ -96,12 +96,15 @@
 								      "gui-hole.scm"
 								      "gui-prosmart.scm"
 								      "gui-add-linked-cho.scm"
+								      "cho-restraints-from-models.scm"
 								      "jligand-gui.scm"
 								      "get-recent-pdbe.scm"
 								      "extensions.scm"
 								      "shelx-extensions.scm"
 								      "enhanced-ligand.scm"
 								      "ligand-check.scm"
+								      "acedrg-link.scm"
+								      "interactive-nudge-residues.scm"
 								      "gui-ligand-sliders.scm"
 								      )))
 	      (else 

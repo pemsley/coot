@@ -487,6 +487,7 @@ void close_all_generic_objects() {
       if (! is_closed_generic_object_p(i))
 	 close_generic_object(i);
    }
+   graphics_draw();
 }
 
 void generic_objects_gui_wrapper() {

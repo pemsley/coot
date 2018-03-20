@@ -36,6 +36,7 @@
 
 #include "utils/coot-utils.hh"
 #include "coot-map-utils.hh"
+#include "geometry/main-chain.hh"
 
 
 bool
@@ -216,6 +217,18 @@ coot::util::density_at_point(const clipper::Xmap<float> &xmap,
    return dv;
 }
 
+//
+float
+coot::util::density_at_point_by_linear_interpolation(const clipper::Xmap<float> &xmap,
+						     const clipper::Coord_orth &pos) {
+
+   float dv;
+   clipper::Coord_frac a_cf = pos.coord_frac(xmap.cell());
+   clipper::Coord_map  a_cm = a_cf.coord_map(xmap.grid_sampling());
+   clipper::Interp_linear::interp(xmap, a_cm, dv);
+   return dv;
+}
+
 void
 coot::util::filter_by_resolution(clipper::HKL_data< clipper::datatypes::F_phi<float> > *fphidata,
 				 const float &reso_low,
@@ -311,6 +324,22 @@ coot::util::map_score(mmdb::PPAtom atom_selection,
    return f;
 }
 
+float
+coot::util::map_score(std::vector<mmdb::Atom *> atoms,
+		      const clipper::Xmap<float> &xmap) {
+
+   float f = 0.0;
+   for (unsigned int i=0; i<atoms.size(); i++) {
+      if (atoms[i]) {
+	 float f1 = density_at_point(xmap, co(atoms[i]));
+	 f1 *= atoms[i]->occupancy;
+	 f += f1;
+      }
+   }
+   return f;
+}
+
+
 float coot::util::map_score_atom(mmdb::Atom *atom,
 				 const clipper::Xmap<float> &xmap) {
 
@@ -320,6 +349,34 @@ float coot::util::map_score_atom(mmdb::Atom *atom,
    }
    return f;
 }
+
+float
+coot::util::map_score_by_residue_specs(mmdb::Manager *mol,
+				       const std::vector<residue_spec_t> &res_specs,
+				       const clipper::Xmap<float> &xmap,
+				       bool main_chain_only_flag) {
+
+   float f = 0;
+   for (std::size_t i=0; i<res_specs.size(); i++) {
+      mmdb::Residue *residue_p = get_residue(res_specs[i], mol);
+      if (residue_p) {
+	 mmdb::Atom **residue_atoms = 0;
+	 int n_residue_atoms;
+	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (int iat=0; iat<n_residue_atoms; iat++) {
+	    mmdb::Atom *at = residue_atoms[iat];
+	    if (! main_chain_only_flag || is_main_chain_or_cb_p(at)) {
+	       if (false) // debug
+		  std::cout << "map_score_by_residue_specs "
+			    << atom_spec_t(at) << " " << map_score_atom(at, xmap) << std::endl;
+	       f += map_score_atom(at, xmap);
+	    }
+	 }
+      }
+   }
+   return f;
+}
+
 
 
 

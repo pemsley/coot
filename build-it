@@ -384,7 +384,8 @@
 # 5.27 20170925 bump libccp4 version to 6.5.1 - this has libccp4.pc for pkg-config
 # 5.28 20170925 Fixes for clipper and guile and gmp version update (gcc-7.2)
 # 5.29 20171006 Test for libgnomecanvas devel (now not available in system for Redhat 7.3)
-script_version=5.29
+# 5.30 20180109 Update python version.
+script_version=5.30
 
 
 
@@ -1578,6 +1579,12 @@ echo coot_version $coot_version
 #
 # we need install_top_dir because we use it to copy over coot.py 
 # to the install python directory.
+
+# Notes for SSL with python:
+# after configure, run this sed:
+# real_ssl_prefix=/usr  # for mac, for PC, libs go in /usr/lib64 and
+# sed -i -e "s?#SSL=.*?SSL=$real_ssl_prefix?" -e 's/^#_ssl/_ssl/' -e's/^#.*-DUSE_SSL/    -DUSE_SSL/' -e 's?^#.*-L$(SSL)/lib?    -L$(SSL)/lib?' Modules/Setup
+# also add --with-ensurepip=install
 #
 if [ "$build_coot_prerelease" = 1 ] ; then 
     if [ "$coot_prerelease_exists" = 1 ] ; then 
@@ -2089,7 +2096,7 @@ fi #  ENABLE_GUILE_COOT
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python2.7
-pver=2.7.12
+pver=2.7.14
 #
 # but more modern pythons do not compile (at least on my mac)
 if [ $OS = Darwin ] ; then
@@ -3649,7 +3656,7 @@ else
           echo /usr/include/gd.h exists - skip libgd build
        fi
 
-      ) > $HOSTLOGDIR/15-libgd.log
+      ) > $HOSTLOGDIR/15-libgd.txt
     
       ( 
        date
@@ -3697,7 +3704,7 @@ else
        else 
           echo $install_top_dir/bin/render already exists, no build
        fi
-       ) > $HOSTLOGDIR/15-raster3d.log
+       ) > $HOSTLOGDIR/15-raster3d.txt
    fi
 fi
 

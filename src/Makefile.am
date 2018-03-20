@@ -18,6 +18,20 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
+if COOT_USE_PYTHON
+
+# if coot.py is called __init.py and goes in site-packages/coot/
+#dist_pkgpython_SCRIPTS = __init__.py
+#dist_python_SCRIPTS = coot.pth
+
+#__init__.py: coot.py
+#	cp coot.py __init__.py
+
+
+dist_python_SCRIPTS = coot.py coot.pth
+
+
+endif
 
 
 ######## 20091001 ########################################################
@@ -92,9 +106,11 @@ EXTRA_DIST = \
 	junk.cc coot-gtk2.defs coot-dox.cfg post-gtk2-glade.sh \
         post-process-coot-wrap-guile.sh \
         post-process-coot-wrap-python.sh \
-	coot_wrap_guile_pre.cc 
+	coot_wrap_guile_pre.cc dynarama.glade
 
 
+subpkgdatadir = $(pkgdatadir)
+subpkgdata_DATA = dynarama.glade
 
 
 # use -DHAVE_MMDBSSM or use (expanded from) $(MMDBSSM) works.
@@ -203,33 +219,17 @@ AM_CPPFLAGS = \
 
 pkginclude_HEADERS = crunch-model.hh
 
-if COOT_USE_PYTHON
-if MAKE_ENHANCED_LIGAND_TOOLS
-coot_embedded_la_SOURCES = coot-embedded.cc
-coot_extended_la_SOURCES = coot-extended.cc
-# use -Wl,--no-undefined or  -Wl,-undefined,error (clang) ?
-coot_embedded_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
-coot_embedded_la_LIBADD = \
-                       $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
-                       $(RDKIT_LIBS) $(L_BOOST_PYTHON)
-coot_extended_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
-coot_extended_la_LIBADD = \
-                       $(top_builddir)/pli/libcoot-pli.la   \
-                       $(RDKIT_LIBS) $(L_BOOST_PYTHON)
-pyexec_LTLIBRARIES = coot_embedded.la coot_extended.la
-endif
-endif
-
 if OS_WIN32
 # no more libexec for windows
 bin_PROGRAMS =  coot-bin coot-density-score-by-residue-bin \
-	coot-fix-nomenclature-errors
+	coot-fix-nomenclature-errors dynarama-bin
 else
-libexec_PROGRAMS = coot-bin coot-density-score-by-residue-bin
+libexec_PROGRAMS = coot-bin coot-density-score-by-residue-bin \
+	dynarama-bin
 bin_PROGRAMS =  coot-fix-nomenclature-errors
 endif
-dist_bin_SCRIPTS = coot coot-density-score-by-residue
-check_PROGRAMS = test-coot-align test-cholesky
+dist_bin_SCRIPTS = coot coot-density-score-by-residue dynarama
+check_PROGRAMS = test-coot-align test-cholesky 
 
 coot_fix_nomenclature_errors_SOURCES = \
 	fix-nomenclature.cc    \
@@ -247,6 +247,7 @@ coot_bin_SOURCES = \
 	scm-boot-guile.cc 	 \
 	c-interface.h            \
 	c-interface-analysis.cc	 \
+	c-interface-bonds.hh	 \
 	c-interface-bonds.cc	 \
 	c-interface-build.cc	 \
 	c-interface-build-morph.cc	 \
@@ -257,6 +258,7 @@ coot_bin_SOURCES = \
 	c-interface-database.hh  \
 	c-interface-database.cc  \
 	c-interface-generic-objects.h	 \
+	c-interface-geometry-distortion.hh \
 	c-interface-gui.cc	 \
 	c-interface-gtk2.cc	 \
 	c-interface-gtk-widgets.h \
@@ -305,11 +307,15 @@ coot_bin_SOURCES = \
 	c-interface.cc		 \
 	c-interface-test.cc      \
 	cc-interface.hh		 \
+	cc-interface-alignment.cc \
+	cc-interface-alignment.hh \
 	cc-interface-ncs.hh      \
 	cc-interface-molecular-representation.cc \
 	cc-interface-network.hh  \
 	cc-interface-mogul.hh    \
-	cc-interface-scripting.hh \
+	cc-interface-scripting.hh\
+	cc-interface-image.hh    \
+	cc-interface-png.cc      \
 	cc-interface-user-defined-atom-colours.hh \
 	cc-interface-user-defined-atom-colours.cc \
 	callbacks.c callbacks.h	 \
@@ -399,6 +405,7 @@ coot_bin_SOURCES = \
 	gtk-manual.hh		 \
 	guile-fixups.h		 \
 	history_list.hh		 \
+        idles.hh                 \
 	interface.c	 	 \
 	interface.h              \
         manipulation-modes.hh    \
@@ -409,6 +416,7 @@ coot_bin_SOURCES = \
 	ligand-check.hh          \
         map-statistics.hh        \
 	molecule-class-info.cc 	 \
+	molecule-class-info-alignment.cc \
 	molecule-class-info-bonds.cc    \
 	molecule-class-info-maps.cc 	\
 	molecule-class-info-maps-2.cc 	\
@@ -453,6 +461,10 @@ coot_bin_SOURCES = \
 	sdf-interface.hh         \
 	sdf-internal.hh          \
 	sdf-interface.cc         \
+	sequence-view.hh         \
+	sequence-view.cc         \
+	seq-view-interface.c     \
+	seq-view-interface.h     \
 	startup-scripts.hh       \
 	support.c support.h 	 \
 	support-gtk2-extras.c    \
@@ -462,10 +474,6 @@ coot_bin_SOURCES = \
 	trackball.c trackball.h  \
 	triangle-extras.h 	 \
 	select-atom-info.hh      \
-	sequence-view.hh         \
-	sequence-view.cc         \
-	seq-view-interface.c     \
-	seq-view-interface.h     \
 	user-mods.hh user-mods.cc\
 	validation-graphs.hh	 \
 	xmap-utils.cc 		 \
@@ -554,7 +562,8 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 		$(CURL_LIBS)		\
 		$(LIBGLADE_LIBS)	\
 	  	$(RDKIT_LIBS)	        \
-	        $(L_BOOST_PYTHON)	\
+		$(BOOST_LDFLAGS)        \
+		$(L_BOOST_PYTHON)	\
 		$(GOOCANVAS_LIBS)       \
 		$(SQLITE3_LIBS)         \
 		-L/usr/local/lib -lglfw \
@@ -627,5 +636,15 @@ coot_density_score_by_residue_bin_LDADD  =	\
 	$(MMDB_LIBS)		\
 	$(GSL_LIBS)
 
-# subpkgdatadir = $(pkgdatadir)
-# subpkgdata_DATA = cfc.glade
+dynarama_bin_SOURCES = dynarama-main.cc rama_plot.cc rama_mousey.cc
+dynarama_bin_LDADD = \
+        $(top_builddir)/coords/libcoot-coords.la                \
+        $(top_builddir)/utils/libcoot-utils.la  \
+        $(top_builddir)/coot-utils/libcoot-coord-utils.la       \
+        $(top_builddir)/coot-surface/libcoot-surface.la         \
+        $(CLIPPER_LIBS)         \
+        $(MMDB_LIBS)            \
+        $(GLOB_LIBS)            \
+        $(GOOCANVAS_LIBS)       \
+        $(LIBGLADE_LIBS) 	\
+        @GTK_LIBS@

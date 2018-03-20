@@ -89,6 +89,7 @@ Paul Emsley
 * Other Programs::
 * Scripting Functions::
 * More Scripting Functions::
+* More Refinement Scripting Functions::
 * Scheme Scripting Functions::
 * Concept Index::   Concept index.
 * Function Index::   Function index.
@@ -2371,7 +2372,19 @@ the geometry dictionary entries for only the standard
 residues are read in at the start  @footnote{And a few extras, such as
   phosphate}.  It may be that your particular ligand is not amongst
 these.  To interactively add a dictionary entry use @command{File
-  -> Import CIF Dictionary}.  Alternatively, you can use
+  -> Import CIF Dictionary}.
+
+There is a selector in the cif dictionary file chooser that allow you to
+select the molecule to which molecule refers. Each of the indididual
+molecules can be specifically selected. ``All`` means that the dictionary
+refers to all loaded molecules and ``Auto`` means that the dictionary will
+be applied to all model molecules if the comp_id/residue name is not on the
+non-auto-load list and will choose the latest model molecule if the comp_id/residue
+name is on the non-auto-load list. By default the non-auto-load list
+consists of INH, LIG, DRG, XXX, and the series LG0-9.
+
+
+Alternatively, you can use
 the function:
 
 @code{(read-cif-dictionary @emph{filename})}
@@ -3658,6 +3671,29 @@ open, ready for deletion of next item.
 
 @c document delete-atom, delete-residue, delete-residue-with-altconf here.
 
+An atom can be delete using the scripting
+
+@code{(delete-atom @emph{imol chain-id residue-no ins-code atom-name alt-conf})}
+
+Residues can be deleted using the scripting
+
+@code{(delete-residue @emph{imol chain-id residue-no ins-code})}
+
+Residue ranges can be deleted using the scripting
+
+@code{(delete-residue-range @emph{imol chain-id residue-no-start residue-no-end})}
+
+Chains can be deleted using the scripting
+
+@code{(delete-chain @emph{imol chain-id})}
+
+Sidechains can be deleted from a region:
+
+@code{(delete-side-chain-range @emph{imol chain-id residue-no-start residue-no-end})}
+
+or for a chain
+
+@code{(delete-sidechains-for-chain @emph{imol chain-id})}
 
 @node    Sequence Assignment 
 @section Sequence Assignment 
@@ -3673,12 +3709,10 @@ assignment (at some stage in the future).
 @node    Building Links and Loops
 @section Building Links and Loops
 
-Coot can make an attempt to build missing linking regions or loops
+Coot can build missing linking regions or loops
 @footnote{the current single function doesn't always perform very well
-in tests}.  This is an area of Coot that needs to be improved, currently
-O does it much better.  We will have several different loop tools here
-@footnote{I suspect that there is not one tool that fits for all.}.  For
-now there is @command{Calculate -> Fit Gap} or the scripting function:
+in tests}. The function can be found under  @command{Calculate -> Fit Loop -> Fit Loop by Rama Search} 
+or the scripting function:
 
 @code{(fit-gap @emph{imol} @emph{chain-id} @emph{start-resno} @emph{stop-resno})}
 
@@ -4992,14 +5026,17 @@ are given at the end of the command line.
 @c doxygen coot-dox.cfg
 @c from the build doc directory:
 
-@c xsltproc ../../coot/doc/xml2texi.xsl ../../coot/src/doxygen/xml/c-interface_8h.xml > ../../coot/doc/c-interface.h.texi
+@c xsltproc ../../coot/git/coot/doc/xml2texi.xsl ../../coot/git/coot/src/doxygen/xml/c-interface_8h.xml > ../../coot/git/coot/doc/c-interface.h.texi
 @c note that texi2html (and makeinfo) requires that this c-interface texi file be in the 
-@c same directory as this file (user-manual.texi) NOT the directory that 
+@c same directory as this file (coot-user-manual.texi) NOT the directory that 
 @c texi2html is run in.
 @include c-interface_8h.texi
 @node    More Scripting Functions
 @chapter More Scripting Functions
 @include cc-interface_8hh.texi
+@node    More Refinement Scripting Functions
+@chapter More Refinement Scripting Functions
+@include c-interface-refine_8hh.texi
 
 
 

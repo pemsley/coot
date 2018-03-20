@@ -156,11 +156,11 @@ get_atom_selection(std::string pdb_name,
 		//
 		MMDBManager->GetInputBuffer(error_buf, error_count);
 		if (error_count >= 0) { 
-		   cout << "         LINE #" << error_count << "\n     "
-			<< error_buf << endl << endl;
+		   std::cout << "         LINE #" << error_count << "\n     "
+			<< error_buf << std::endl << std::endl;
 		} else {
 		   if (error_count == -1) { 
-		      cout << "       CIF ITEM: " << error_buf << endl << endl;
+		      std::cout << "       CIF ITEM: " << error_buf << std::endl << std::endl;
 		   }
 		}
 		asc.read_success = 0; // FAIL
@@ -173,11 +173,11 @@ get_atom_selection(std::string pdb_name,
 	     // we read the coordinate file OK.
 	     //
 	     switch (MMDBManager->GetFileType())  {
-	     case mmdb::MMDB_FILE_PDB    :  cout << " PDB"         ;
+	     case mmdb::MMDB_FILE_PDB    :  std::cout << " PDB"         ;
 		break;
-	     case mmdb::MMDB_FILE_CIF    :  cout << " mmCIF"       ; 
+	     case mmdb::MMDB_FILE_CIF    :  std::cout << " mmCIF"       ; 
 		break;
-	     case mmdb::MMDB_FILE_Binary :  cout << " MMDB binary" ;
+	     case mmdb::MMDB_FILE_Binary :  std::cout << " MMDB binary" ;
 		break;
 	     default:
 		std::cout << " Unknown\n";
@@ -185,7 +185,7 @@ get_atom_selection(std::string pdb_name,
 
 	     MMDBManager->PDBCleanup(mmdb::PDBCLEAN_ELEMENT);
 	  
-	     cout << " file " << pdb_name.c_str() << " has been read.\n";
+	     std::cout << " file " << pdb_name.c_str() << " has been read.\n";
 	     asc.read_success = 1; // TRUE
 
 	     // atom_selection_container.read_error_message = NULL; // its a string
@@ -549,9 +549,8 @@ centre_of_molecule(atom_selection_container_t SelAtom) {
 }
 
 
-// should be a const reference in an ideal world.
 //
-ostream& operator<<(ostream& s, mmdb::Atom &atom) {
+std::ostream& operator<<(std::ostream& s, mmdb::Atom &atom) {
 
    //
    s << atom.GetModelNum() << "/" << atom.GetChainID() << "/"
@@ -566,7 +565,7 @@ ostream& operator<<(ostream& s, mmdb::Atom &atom) {
   
 // needs <iostream.h>
 // 
-ostream& operator<<(ostream& s, mmdb::PAtom atom) {
+std::ostream& operator<<(std::ostream& s, mmdb::PAtom atom) {
 
    //
    if (atom) { 
@@ -601,8 +600,9 @@ write_atom_selection_file(atom_selection_container_t asc,
    bool mol_needs_deleting = false; // unless mol is reassigned...
    
    if (coot::is_mmcif_filename(filename)) {
+
       ierr = mol->WriteCIFASCII(filename.c_str());
-      
+
    } else {
 
       if (! write_hydrogens) {
@@ -629,6 +629,8 @@ write_atom_selection_file(atom_selection_container_t asc,
 	 mol = n;
 	 mol_needs_deleting = true;
       }
+
+      coot::util::remove_long_links(mol, 2.1);
       
       // we need to put the hydrogen names back to how they used to be
       // when we read in the pdb file and then put them put them back

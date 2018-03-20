@@ -268,6 +268,9 @@ void save_directory_from_fileselection(const GtkWidget *fileselection);
 void save_directory_for_saving_from_fileselection(const GtkWidget *fileselection);
 void set_file_for_save_fileselection(GtkWidget *fileselection);
 
+void fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame);
+
+
 /*  ------------------------------------------------------------------- */
 /*                    file selection                                    */
 /*  ------------------------------------------------------------------- */
@@ -375,6 +378,8 @@ void save_display_control_widget_in_graphics(GtkWidget *widget);
 
 GtkWidget *wrapped_create_display_control_window();
 
+void align_labels_checkbutton_toggled(GtkToggleButton *togglebutton);
+
 GtkWidget *wrapped_create_merge_molecules_dialog();
 void do_merge_molecules_gui();
 void do_merge_molecules(GtkWidget *dialog);
@@ -468,7 +473,10 @@ void do_torsions_toggle(GtkWidget *button);
 void set_refine_params_toggle_buttons(GtkWidget *button);
 
 /* Now the refinement weight can be set from an entry in the refine_params_dialog. */
-void set_refinemenent_weight_from_entry(GtkWidget *entry);
+void set_refinement_weight_from_entry(GtkWidget *entry);
+
+void estimate_map_weight(GtkWidget *entry);
+
 
 void check_chiral_volumes_from_widget(GtkWidget *window); 
 void fill_chiral_volume_molecule_option_menu(GtkWidget *w);
@@ -600,6 +608,10 @@ int fill_ligands_dialog(GtkWidget *dialog);
 int fill_ligands_dialog_map_bits(GtkWidget *dialog, short int diff_maps_only_flag);	
 int fill_ligands_dialog_protein_bits(GtkWidget *dialog);	
 int fill_ligands_dialog_ligands_bits(GtkWidget *dialog);	
+
+void on_find_ligand_map_radiobutton_imol_toggled(GtkToggleButton *togglebutton,
+						 gpointer         user_data);
+
 /*  we need to delete the find_ligand_dialog when we are done, so  */
 /*  add this pointer as user data. */
 void do_find_ligand_many_atoms_in_ligands(GtkWidget *find_ligand_dialog); 
@@ -785,6 +797,10 @@ void save_refmac_phase_params_to_map(int imol_map,
                                     const char *hlb,
                                     const char *hlc,
                                     const char *hld);
+
+/* Donna's request to do the counts in the Mutate Residue range dialog */
+void mutate_molecule_dialog_check_counts(GtkWidget *res_no_1_widget, GtkWidget *res_no_2_widget,
+					 GtkWidget *text_widget, GtkWidget *label_widget);
 
 #endif /* C_INTERFACE_GTK_WIDGETS_H */
 END_C_DECLS

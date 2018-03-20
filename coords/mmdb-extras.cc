@@ -76,11 +76,11 @@ debug_atom_selection_container(atom_selection_container_t asc) {
    //
    mmdb::PAtom ap;
    
-   cout << "DEBUG: asc " << "mol=" << asc.mol << endl;
-   cout << "DEBUG: asc " << "n_selected_atoms=" << asc.n_selected_atoms << endl;
-   cout << "DEBUG: asc " << "atom_selection=" << asc.atom_selection << endl;
-   cout << "DEBUG: asc " << "read_error_message=" << asc.read_error_message << endl;
-   cout << "DEBUG: asc " << "read_success=" << asc.read_success << endl;
+   std::cout << "DEBUG: asc " << "mol=" << asc.mol << std::endl;
+   std::cout << "DEBUG: asc " << "n_selected_atoms=" << asc.n_selected_atoms << std::endl;
+   std::cout << "DEBUG: asc " << "atom_selection=" << asc.atom_selection << std::endl;
+   std::cout << "DEBUG: asc " << "read_error_message=" << asc.read_error_message << std::endl;
+   std::cout << "DEBUG: asc " << "read_success=" << asc.read_success << std::endl;
 
 //    cout << "DEBUG: asc " << "cell="
 // 	<< asc.mol->get_cell_p()->a << " "
@@ -94,17 +94,17 @@ debug_atom_selection_container(atom_selection_container_t asc) {
 // 	<< endl;
 
    if (asc.n_selected_atoms > 10) {
-      cout << "DEBUG start 10 atoms: " << endl;
+      std::cout << "DEBUG start 10 atoms: " << std::endl;
       for (int ii = 0; ii< 10; ii++) { 
-	 cout << ii << " " << asc.atom_selection[ii] << " " ; 
+	 std::cout << ii << " " << asc.atom_selection[ii] << " " ; 
 	 ap = asc.atom_selection[ii];
-	 cout << *ap << endl;
+	 std::cout << *ap << std::endl;
       }
-      cout << "DEBUG end 10 atoms: " << endl;
+      std::cout << "DEBUG end 10 atoms: " << std::endl;
       for (int ii = asc.n_selected_atoms - 10; ii< asc.n_selected_atoms; ii++) { 
-	 cout << ii << " " << asc.atom_selection[ii] << " " ;
+	 std::cout << ii << " " << asc.atom_selection[ii] << " " ;
 	 ap = asc.atom_selection[ii];
-	 cout << *ap << endl;
+	 std::cout << *ap << std::endl;
       }
    }
 }
@@ -147,6 +147,10 @@ make_asc(mmdb::Manager *mol, bool transfer_atom_index_flag) {
    asc.mol->GetSelIndex(asc.SelectionHandle, asc.atom_selection, asc.n_selected_atoms);
 
    int uddHnd = mol->RegisterUDInteger(mmdb::UDR_ATOM , "atom index");
+
+   if (false)
+      std::cout << "DEBUG:: in make_asc() atom index udd handle: " << uddHnd << std::endl;
+
    if (uddHnd < 0) {
       std::cout << " atom index registration failed.\n";
    } else {
@@ -177,15 +181,14 @@ atom_selection_container_t::fill_links(mmdb::Manager *mol_other) {
 	 mmdb::Model *model_p = mol_other->GetModel(1);
 	 if (model_p) {
 	    unsigned int n_links = model_p->GetNumberOfLinks();
-	    links.resize(n_links);
-	    for (unsigned int i=0; i<n_links; i++) { 
-	       mmdb::Link l;
+	    links.clear();
+	    for (unsigned int i=1; i<=n_links; i++) {
 	       mmdb::Link *ref_link = model_p->GetLink(i);
 	       if (! ref_link) {
 		  std::cout << "ERROR:: null link " << i << " in ref" << std::endl;
 	       } else {
-		  l.Copy(ref_link);
-		  links[i] = l;
+		  mmdb::Link l(*ref_link);
+		  links.push_back(l);
 	       }
 	    }
 	 } 

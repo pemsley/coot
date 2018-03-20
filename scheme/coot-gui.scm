@@ -53,7 +53,7 @@
          (ifont (gdk-font-load "fixed"))
          (icolour (gdk-color-parse "red")))
     (gtk-window-set-policy window #t #t #f)
-    (gtk-window-set-default-size window 400 250)
+    (gtk-window-set-default-size window 550 250)
     ; (gtk-box-pack-start vbox text #t #t 5)
     (gtk-container-add window vbox)
     (gtk-window-set-title window "Coot Scheme Scripting")
@@ -697,7 +697,7 @@
       (let* ((menu (gtk-option-menu-get-menu option-menu))
 	     (active-item (gtk-menu-get-active menu))
 	     (children (gtk-container-children menu)))
-	
+
 	(if (= (length children) (length item-list))
 	    (begin 
 	      (let loop ((children children)
@@ -731,7 +731,6 @@
 	 (cancel-button (gtk-button-new-with-label " Cancel "))
 	 (h-sep (gtk-hseparator-new))
 	 (model-mol-list (option-menu-fill-function menu)))
-
     (gtk-window-set-default-size window 370 100)
     (gtk-container-add window vbox)
     (gtk-box-pack-start vbox label #f #f 5)
@@ -805,7 +804,7 @@
 (define (generic-chooser-and-entry chooser-label entry-hint-text defaut-entry-text callback-function . always-dismiss-on-ok-clicked?)
 
   ;; (format #t "always-dismiss-on-ok-clicked? is ~s~% " always-dismiss-on-ok-clicked?)
-  ;; if this function is called without the always-dismiss-on-ok-clicked? then
+  ;; if this function is called withouth the always-dismiss-on-ok-clicked? then
   ;; always-dismiss-on-ok-clicked? here is ().
   ;; otherwise it is a list containing the passed always-dismiss-on-ok-clicked? value.
 
@@ -2138,6 +2137,51 @@
       (gtk-widget-show-all window))))
 
 
+(define *ncs-jumping-time-step* 500)
+
+(define (ncs-jumping-gui)
+
+  ;; main body
+  (let* ((window (gtk-window-new 'toplevel))
+	 (outside-vbox (gtk-vbox-new #f 2))
+	 (inside-hbox (gtk-hbox-new #f 2))
+	 (cancel-hbox (gtk-vbox-new #f 2))
+	 (h-sep (gtk-hseparator-new))
+	 (jump-start-button (gtk-button-new-with-label "NCS Jump Start"))
+	 (jump-stop-button  (gtk-button-new-with-label "Stop"))
+	 (cancel-button     (gtk-button-new-with-label "Cancel"))
+	 (ms-step *ncs-jumping-time-step*)
+	 (timeout-function-token #f))
+
+    (gtk-window-set-title window "Auto NCS Jumping")
+    (gtk-container-add window outside-vbox)
+    (gtk-box-pack-start outside-vbox inside-hbox #f #f 2)
+    (gtk-box-pack-start outside-vbox h-sep #f #f 2)
+    (gtk-box-pack-start outside-vbox cancel-hbox #f #f 2)
+    (gtk-box-pack-start inside-hbox jump-start-button  #f #f 2)
+    (gtk-box-pack-start inside-hbox jump-stop-button   #f #f 2)
+    (gtk-box-pack-start cancel-hbox cancel-button #f #f 2)
+
+    (gtk-signal-connect jump-start-button "clicked"
+			(lambda ()
+			  (if (not (number? timeout-function-token))
+			      (set! timeout-function-token (gtk-timeout-add ms-step (lambda() (skip-to-next-ncs-chain 'forward)))))))
+
+    (gtk-signal-connect jump-stop-button "clicked"
+			(lambda ()
+			  (if (number? timeout-function-token)
+			      (gtk-timeout-remove timeout-function-token))
+			  (set! timeout-function-token #f)))
+
+    (gtk-signal-connect cancel-button "clicked"
+			(lambda ()
+			  (if (number? timeout-function-token)
+			      (gtk-timeout-remove timeout-function-token))
+			  (gtk-widget-destroy window)))
+
+    (gtk-widget-show-all window)))
+
+
 ;; GUI for ligand superpositioning by graph matching
 ;;
 (define (superpose-ligand-gui) 
@@ -3001,7 +3045,7 @@
 (define *solvent-ligand-list* 
   (append
    *additional-solvent-ligands*
-   (list "EDO" "GOL" "DMS" "ACT" "MPD" "CIT" "SO4" "PO4" "TRS" "TAM" "PG4")))
+   (list "EDO" "GOL" "DMS" "ACT" "MPD" "CIT" "SO4" "PO4" "TRS" "TAM" "PG4" "EBE" "BTB")))
 
 (define *random-jiggle-n-trials* 50)
 
@@ -3770,6 +3814,165 @@
 						     buttons)
 						    " Close ")))))))))))))
 
+(define (refmac-multi-sharpen-gui)
+  (let ((window (gtk-window-new 'toplevel))
+	;; boxes
+	(vbox (gtk-vbox-new #f 0))
+	(hbox-1 (gtk-hbox-new #f 0))
+	(hbox-2 (gtk-hbox-new #f 0))
+	(hbox-3 (gtk-hbox-new #f 0))
+	;; menus
+	(option-menu-map (gtk-option-menu-new))
+	(option-menu-b-factor (gtk-option-menu-new))
+	(option-menu-n-levels (gtk-option-menu-new))
+	(menu-map (gtk-menu-new))
+	(menu-b-factor (gtk-menu-new))
+	(menu-n-levels (gtk-menu-new))
+	;; labels
+	(map-label (gtk-label-new "Map "))
+	(sb-label  (gtk-label-new "Sharpen & Blur in "))
+	(levels-label  (gtk-label-new " levels up to "))
+	(A-label  (gtk-label-new " A*A"))
+	;; separate
+	(h-sep (gtk-hseparator-new))
+	;; buttons
+	(ok-button (gtk-button-new-with-label "   OK   "))
+	(cancel-button (gtk-button-new-with-label " Cancel "))
+	(n-levels-list (list 1 2 3 4 5 6))
+	(b-factor-list (list 50 100 200 400 800 2000)))
+
+    (let ((map-molecule-list (fill-option-menu-with-map-mol-options
+				  menu-map)))
+
+      ;; fill option menus
+      (for-each (lambda (item)
+		  (let* ((mlabel-str (number->string item))
+			 (menuitem (gtk-menu-item-new-with-label mlabel-str)))
+		    (gtk-menu-append menu-n-levels menuitem)))
+		n-levels-list)
+      (for-each (lambda (item)
+		  (let* ((mlabel-str (number->string item))
+			 (menuitem (gtk-menu-item-new-with-label mlabel-str)))
+		    (gtk-menu-append menu-b-factor menuitem)))
+		b-factor-list)
+      (gtk-menu-set-active menu-n-levels 3)
+      (gtk-menu-set-active menu-b-factor 2)
+    
+      (gtk-window-set-title window "Refmac for Sharpening & Blurring")
+      (gtk-option-menu-set-menu option-menu-map menu-map)
+      (gtk-option-menu-set-menu option-menu-b-factor menu-b-factor)
+      (gtk-option-menu-set-menu option-menu-n-levels menu-n-levels)
+      (gtk-box-pack-start hbox-1 map-label #f #f 2)
+      (gtk-box-pack-start hbox-1 option-menu-map #f #f 2)
+      (gtk-box-pack-start hbox-2 sb-label #f #f 2)
+      (gtk-box-pack-start hbox-2 option-menu-n-levels #f #f 2)
+      (gtk-box-pack-start hbox-2 levels-label #f #f 2)
+      (gtk-box-pack-start hbox-2 option-menu-b-factor #f #f 2)
+      (gtk-box-pack-end hbox-3 cancel-button #f #f 12)
+      (gtk-box-pack-end hbox-3     ok-button #f #f 12)
+
+      (gtk-box-pack-start vbox hbox-1)
+      (gtk-box-pack-start vbox hbox-2)
+      (gtk-box-pack-start vbox h-sep)
+      (gtk-box-pack-start vbox hbox-3)
+
+      (gtk-signal-connect cancel-button "clicked"
+			  (lambda() (gtk-widget-destroy window)))
+
+      (gtk-signal-connect ok-button "clicked"
+			  (lambda()
+
+			    ;; if starting-map.mtz exists, move it.
+
+			    ;; get max-b and n-levels and map file name
+			    (let* ((lb b-factor-list)
+				   (ln n-levels-list)
+				   (lmols map-molecule-list)
+				   (max-b            (get-option-menu-active-item option-menu-b-factor lb))
+				   (n-levels         (get-option-menu-active-item option-menu-n-levels ln))
+				   (active-item-imol (get-option-menu-active-item option-menu-map lmols))
+				   ;; There is no function to get a map file name from a molecule
+				   ;; It is not stored.
+				   (map-file-name (molecule-name active-item-imol))
+				   (map-file-name-stub (strip-path (file-name-sans-extension map-file-name)))
+				   (log-file-name (string-append
+						   "refmac-sharp"
+						   map-file-name-stub
+						   ".log")))
+
+			      (if (not (file-exists? map-file-name))
+				  (begin
+				    (info-dialog (string-append "WARNING:: file not found " map-file-name)))
+
+				  (begin
+
+				    (format #t "active-item-imol: ~s~%" active-item-imol)
+
+				    (let* ((step-size (/ max-b n-levels))
+					   (numbers-string (apply string-append (map (lambda(i) 
+										       (let ((lev (* step-size (+ i 1))))
+											 (string-append
+											  (number->string lev) " ")))
+										     (range n-levels))))
+					   (blur-string  (string-append "SFCALC BLUR  " numbers-string))
+					   (sharp-string (string-append "SFCALC SHARP " numbers-string)))
+
+				      (let ((cmd-line-args (list "MAPIN" map-file-name))
+					    (data-lines (list "MODE SFCALC"
+							      blur-string
+							      sharp-string
+							      "END")))
+					(let ((s (goosh-command "refmac5"
+								cmd-line-args
+								data-lines
+								log-file-name
+								#f)))
+					  (if (ok-goosh-status? s)
+					      (begin
+						(format #t "s: ~s~%" s)
+						(if (file-exists? "starting-map.mtz")
+						    (begin
+						      (rename-file  "starting-map.mtz" refmac-output-mtz-file-name)
+						      ;; maybe offer a read-mtz dialog now
+						      )))))))))
+
+			      (gtk-widget-destroy window))))
+
+    (gtk-container-add window vbox)
+    (gtk-widget-show-all window))))
+
+;;
+(define (add-module-cryo-em)
+  (if (defined? 'coot-main-menubar)
+      (add-module-cryo-em-gui)))
+
+;;
+(define (add-module-ccp4)
+  (if (defined? 'coot-main-menubar)
+      (add-module-ccp4-gui)))
+
+;;
+(define (add-module-cryo-em-gui)
+  (if (defined? 'coot-main-menubar)
+      (let ((menu (coot-menubar-menu "Cryo-EM")))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Multi-sharpen"
+	 refmac-multi-sharpen-gui)
+
+	(add-simple-coot-menu-menuitem
+	 menu "Interactive Nudge Residues"
+	 (lambda ()
+	   (using-active-atom (nudge-residues-gui aa-imol aa-res-spec)))))))
+;;
+(define (add-module-ccp4-gui)
+  (if (defined? 'coot-main-menubar)
+      (let ((menu (coot-menubar-menu "CCP4")))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Make Link via Acedrg"
+	 (lambda ()
+	   (acedrg-link-generation-control-window))))))
 
 
 ;; let the c++ part of coot know that this file was loaded:
@@ -3778,7 +3981,3 @@
 ;;; Local Variables:
 ;;; mode: scheme
 ;;; End:
-
-
-
-

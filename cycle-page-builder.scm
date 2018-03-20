@@ -917,10 +917,11 @@
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
 
-	 (list "binary-Linux-x86_64-ubuntu-12.04.3-python-gtk2"
-	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-ubuntu-server/" 
-	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
-	       #t #t)
+; this VM can no longer build coot - make a new Ubuntu image
+;	 (list "binary-Linux-x86_64-ubuntu-12.04.3-python-gtk2"
+;	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-ubuntu-server/"
+;	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
+;	       #t #t)
 
 	 (list "binary-Linux-x86_64-ubuntu-14.04-python-gtk2"
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-emsley-vm-ubuntu1404/"
@@ -928,7 +929,12 @@
 	       #t #t)
 
 	 (list "binary-Linux-x86_64-openSUSE-12.3-python-gtk2"
-	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-emsley-vm-suse/" 
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-emsley-vm-suse/"
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
+	       #t #t)
+
+	 (list "binary-Linux-x86_64-debian-gnu-linux-8-python-gtk2"
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/build-logs/Linux-emsley-vm-debian-7-7/"
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
 
@@ -939,9 +945,10 @@
 ;                #t #t)
 
           (list "binary-Linux-x86_64-debian-gnu-linux-jessie-python-gtk2"
-                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/jessie/build-logs/Linux-hilbert/"
-                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/jessie/binaries/nightlies/pre-release"
+                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/stretch/build-logs/Linux-hilbert/"
+                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/stretch/binaries/nightlies/pre-release"
                 #t #t)
+
 
 ; gone - perhaps temporarily?
 ;           (list "binary-Linux-x86_64-debian-gnu-linux-7-python-gtk2"
@@ -950,7 +957,7 @@
 ;                 #t #t)
 
 	 (list "WinCoot" 
-	       "http://www.ysbl.york.ac.uk/~lohkamp/build-logs/MINGW32_NT-6.-bernie-pc/gtk2" 
+	       "http://www.ysbl.york.ac.uk/~lohkamp/build-logs/MINGW32_NT-6.1-bernie-pc/gtk2" 
 	       "http://www.ysbl.york.ac.uk/~lohkamp/software/binaries/nightlies/pre-release"
 	       #t #t)
 

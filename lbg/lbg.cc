@@ -3399,7 +3399,16 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 void
 lbg_info_t::update_qed_properties(const std::vector<std::pair<double, double> > &properties) {
 
-   if (properties.size() == 8) { 
+   if (properties.size() == 8) {
+      std::vector<std::string> ideal_values(8);
+      ideal_values[0] = "300";
+      ideal_values[1] = "3";
+      ideal_values[2] = "3"; // acceptors
+      ideal_values[3] = "1"; // donors
+      ideal_values[4] = "55"; // PSA
+      ideal_values[5] = "4"; // rotatable bonds
+      ideal_values[6] = "2"; // arom
+      ideal_values[7] = "0"; // alerts
       for (unsigned int i=0; i<8; i++) {
 	 if (false)
 	    std::cout << "desirability " << i << " "
@@ -3418,7 +3427,11 @@ lbg_info_t::update_qed_properties(const std::vector<std::pair<double, double> > 
 					     properties[i].second);
 	       gtk_progress_bar_set_text(GTK_PROGRESS_BAR(lbg_qed_properties_progressbars[i]),
 					 s.c_str());
-					 
+
+	       // tooltips here?
+	       GtkTooltips *tooltips = gtk_tooltips_new();
+	       std::string m = "Ideal: " + ideal_values[i];
+	       gtk_tooltips_set_tip(tooltips, GTK_WIDGET(lbg_qed_properties_progressbars[i]), m.c_str(), NULL);
 	    }
 	 }
       }
@@ -4903,7 +4916,10 @@ lbg_info_t::get_drug(const std::string &drug_name) {
       catch (const std::runtime_error &rte) {
 	 std::cout << "WARNING:: " << rte.what() << std::endl;
       }
-   } else {
+
+   }
+
+   if (status == false) {
 
       PyObject *pName = PyString_FromString("lidia.fetch");
       PyObject *pModule = PyImport_Import(pName);

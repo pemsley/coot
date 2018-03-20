@@ -192,11 +192,13 @@ coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
 } 
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
+
+
 // imol map is passed in case that the density fit graph was displayed.
 // If there is no imol_map then the geometry graph could not have been displayed.  You can
 // pass -1 for the map in that case.
 void
-graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelResidues, int imol, int imol_map) {
+graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelResidues, int imol, int imol_map) { // searching for update_validation_graphs?
 
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
@@ -220,7 +222,7 @@ graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelRes
 
 // The molecule-based version of the above.
 void
-graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving_atoms_asc_local,
+graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving_atoms_asc_local,  // searching for update_validation_graphs?
 					int imol_moving_atoms) {
 
 #ifdef HAVE_GSL
@@ -341,10 +343,30 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
       }
    }
 
+   // and now ramachandran also
+
 
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 #endif // HAVE_GSL
 }
+
+void
+graphics_info_t::update_validation_graphs(int imol) {
+
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+   GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
+   if (w) {
+      coot::rama_plot *plot = reinterpret_cast<coot::rama_plot *>(gtk_object_get_user_data(GTK_OBJECT(w)));
+      std::cout << "doing handle_rama_plot_update() " << std::endl;
+      handle_rama_plot_update(plot);
+   }
+   // now update the geometry graphs, so get the asc
+   atom_selection_container_t u_asc = molecules[imol].atom_sel;
+   update_geometry_graphs(u_asc, imol);
+#endif // HAVE_GTK_CANVAS
+}
+
+
 
 void
 graphics_info_t::delete_residue_from_geometry_graphs(int imol,
@@ -490,7 +512,7 @@ graphics_info_t::geometric_distortions(int imol, mmdb::Residue *residue_p, bool 
    coot::geometry_distortion_info_container_t gdc(NULL, 0, "");
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
-   if (residue_p) { 
+   if (residue_p) {
       mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
       if (mol) {
 	 atom_selection_container_t asc = make_asc(mol);
@@ -620,12 +642,14 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
 		     residue_vec.push_back(std::pair<bool, mmdb::Residue *> (0, SelResidues[ires]));
 
 		  std::vector<mmdb::Link> links;
-	  
+		  clipper::Xmap<float> dummy_xmap;
+
 		  coot::restraints_container_t restraints(residue_vec,
 							  links,
 							  *Geom_p(),
 							  asc.mol,
-							  fixed_atom_specs);
+							  fixed_atom_specs,
+							  dummy_xmap);
 	       
 		  // coot::restraint_usage_Flags flags = coot::BONDS;
 		  // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES;
@@ -648,7 +672,7 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
 	       
 		  // 	       if (do_peptide_torsion_restraints)
 		  // 		  do_link_torsions = 1;
-	       
+
 		  coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 		  bool do_trans_peptide_restraints = false;
 		  int nrestraints = 
@@ -658,7 +682,7 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
 						do_trans_peptide_restraints,
 						0.0, 0,
 						pseudos);
-	       
+
 		  if (nrestraints > 0) {
 
 // 		     std::cout << "DEBUG:: model " << imod << " pushing back " << nrestraints
@@ -958,10 +982,12 @@ graphics_info_t::omega_graphs(int imol) {
 				    mmdb::SKEY_NEW // selection key
 				    );
 			mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+			clipper::Xmap<float> dummy_xmap;
 
 			if (nSelResidues > 0) { 
 			   coot::restraints_container_t restraints(molecules[imol].atom_sel,
-								   std::string(chain_id));
+								   std::string(chain_id),
+								   dummy_xmap);
 
 			   coot::omega_distortion_info_container_t om_dist = 
 			      restraints.omega_trans_distortions(*geom_p,
@@ -989,7 +1015,8 @@ coot::omega_distortion_info_container_t
 graphics_info_t::omega_distortions_from_mol(const atom_selection_container_t &asc,
 					    const std::string &chain_id) {
 
-   coot::restraints_container_t restraints(asc, chain_id);
+   clipper::Xmap<float> dummy_xmap;
+   coot::restraints_container_t restraints(asc, chain_id, dummy_xmap);
    coot::omega_distortion_info_container_t om_dist =
       restraints.omega_trans_distortions(*geom_p, mark_cis_peptides_as_bad_flag);
    return om_dist;
@@ -1548,10 +1575,11 @@ graphics_info_t::density_fit_from_residues(mmdb::PResidue *SelResidues, int nSel
 
 	    // std::cout << "DEBUG::          max_grid_factor " << max_grid_factor
 	    // << " score " << residue_density_score << std::endl;
-	    double sf = residue_density_fit_scale_factor * 1.0;
+	    double sf = residue_density_fit_scale_factor * 1.25;
 	    // high resolution maps have high grid factors (say 0.5) and high
 	    // residue_density_ scores (say 2.0)
 	    double distortion =  sf/(pow(max_grid_factor,3) * residue_density_score); 
+	    distortion =  sf/(pow(max_grid_factor,4) * residue_density_score); // seems reaonable!
 
 	    // distortion *= distortion; // non-linear, provides distinction.
 

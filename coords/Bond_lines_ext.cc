@@ -52,7 +52,7 @@ Bond_lines_ext::find_skel_atom_bonds(atom_selection_container_t SelAtom) {
    bonds.push_back(a);
 
    if (SelAtom.n_selected_atoms <= 0) {
-      cout << "No skeleton atoms found" << endl;
+      std::cout << "No skeleton atoms found" << std::endl;
       return;
    }
 
@@ -73,6 +73,7 @@ Bond_lines_ext::find_skel_atom_bonds(atom_selection_container_t SelAtom) {
 	 my_matt[i][j] = 0.0;
       
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
+   int model_number = 1;
 
    SelAtom.mol->SeekContacts(SelAtom.atom_selection, SelAtom.n_selected_atoms,
  			     SelAtom.atom_selection, SelAtom.n_selected_atoms,
@@ -81,8 +82,8 @@ Bond_lines_ext::find_skel_atom_bonds(atom_selection_container_t SelAtom) {
  			     contact, ncontacts,
  			     0, &my_matt, i_contact_group);
    
-   cout << "found " << ncontacts << " bone contacts from "
-	 << SelAtom.n_selected_atoms << " selected bone atoms. " <<  endl;
+   std::cout << "found " << ncontacts << " bone contacts from "
+	 << SelAtom.n_selected_atoms << " selected bone atoms. " <<  std::endl;
 
    mmdb::PPAtom atom_sel = SelAtom.atom_selection; // shorter form
  
@@ -92,6 +93,9 @@ Bond_lines_ext::find_skel_atom_bonds(atom_selection_container_t SelAtom) {
 
 	 if ( contact[i].id2 >  contact[i].id1 ) {
 
+	    int iat_1 = contact[i].id1;
+	    int iat_2 = contact[i].id2;
+
 	    coot::Cartesian atom_1(atom_sel[ contact[i].id1 ]->x,
 			     atom_sel[ contact[i].id1 ]->y,
 			     atom_sel[ contact[i].id1 ]->z);
@@ -100,7 +104,7 @@ Bond_lines_ext::find_skel_atom_bonds(atom_selection_container_t SelAtom) {
 			     atom_sel[ contact[i].id2 ]->y,
 			     atom_sel[ contact[i].id2 ]->z);
 
-	    addBond(col, atom_1, atom_2, cc);
+	    addBond(col, atom_1, atom_2, cc, model_number, iat_1, iat_2);
 
 	 } // contact atom is higher up the list check.
       } // i over ncontacts
@@ -109,7 +113,7 @@ Bond_lines_ext::find_skel_atom_bonds(atom_selection_container_t SelAtom) {
 
    } else {
 
-      cout << "There were no skeleton bonds!?" << endl;
+      std::cout << "There were no skeleton bonds!?" << std::endl;
    }
 
 }
@@ -123,7 +127,7 @@ Bond_lines_ext::find_molecule_middle(atom_selection_container_t SelAtom,
    coot::Cartesian centre; 
    
    if (SelAtom.n_selected_atoms <= 0) {
-      cout << "No skeleton atoms found" << endl;
+      std::cout << "No skeleton atoms found" << std::endl;
       return centre;
    }
 
@@ -152,8 +156,8 @@ Bond_lines_ext::find_molecule_middle(atom_selection_container_t SelAtom,
  			     contact, ncontacts,
  			     0, &my_matt, i_contact_group);
    
-   cout << "found " << ncontacts << " bone contacts from "
-	 << SelAtom.n_selected_atoms << " selected bone atoms. " <<  endl;
+   std::cout << "found " << ncontacts << " bone contacts from "
+	 << SelAtom.n_selected_atoms << " selected bone atoms. " <<  std::endl;
 
    mmdb::PPAtom atom_sel = SelAtom.atom_selection; // shorter form
  
@@ -190,13 +194,13 @@ Bond_lines_ext::find_molecule_middle(atom_selection_container_t SelAtom,
       } else {
 
 	 //
-	 cout << "Pathalogical case in find_molecule_middle.\n"
-	      << "WARNING! BAD CENTRE" << endl;
+	 std::cout << "Pathalogical case in find_molecule_middle.\n"
+	      << "WARNING! BAD CENTRE" << std::endl;
       }
 
    } else {
 
-      cout << "There were no skeleton bonds!?" << endl;
+      std::cout << "There were no skeleton bonds!?" << std::endl;
    }
 
    return centre;

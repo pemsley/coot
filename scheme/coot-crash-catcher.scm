@@ -394,16 +394,27 @@
 (define bug-report
   (lambda (coot-exe)
 
+    (define (is-GLX-problem? string-list)
+      (let ((status #f)) ;; no problem as default
+	(for-each (lambda (s)
+		    (if (string-match "_gdk_x11_gl_context_new" s)
+			(set! status #t)))
+		string-list)
+      status))
+
+
     (format #t "coot-exe: ~s~%" coot-exe)
     (format #t "coot-version: ~%" )
     (run-command/strings coot-exe (list "--version-full") '())
     (format #t "platform: ~%" )
     (run-command/strings "uname" (list "-a") '())
     
-    (let ((s (get-gdb-strings coot-exe)))
-      (if (list? s)
-	  (let ((gui-string (add-newlines s "")))
-	    (make-gui gui-string))))))
+    (let ((sl (get-gdb-strings coot-exe)))
+      (if (list? sl)
+	  ;; only run the gui if it's not a failure to start GL remotely (GLX problem)
+	  (if (not (is-GLX-problem? sl))
+	      (let ((gui-string (add-newlines sl "")))
+		(make-gui gui-string)))))))
 
 
 ;; command line invocation:

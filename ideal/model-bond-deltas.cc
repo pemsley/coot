@@ -35,6 +35,7 @@ coot::model_bond_deltas::resolve() {
 	 const std::string &chain_id = it->first;
 	 std::string altloc;
 	 std::vector<coot::atom_spec_t> fixed_atom_specs;
+	 clipper::Xmap<float> dummy_xmap;
 	 restraints_container_t restraints(istart_res,
 					   iend_res,
 					   have_flanking_residue_at_start,
@@ -43,7 +44,7 @@ coot::model_bond_deltas::resolve() {
 					   altloc,
 					   chain_id,
 					   mol,
-					   fixed_atom_specs);
+					   fixed_atom_specs, dummy_xmap);
  
 
 	 restraint_usage_Flags flags = coot::BONDS;

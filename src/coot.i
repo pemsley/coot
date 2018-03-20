@@ -16,6 +16,7 @@
 #include "c-interface-sequence.hh"
 #include "c-interface-refmac.h"
 #include "cc-interface.hh"
+#include "cc-interface-image.hh"
 #include "cc-interface-scripting.hh"
 #include "c-interface-refmac.h"
 #include "cc-interface-ncs.hh"
@@ -33,6 +34,7 @@
 #include "globularize.hh"
 #include "cfc.hh"
 #include "cc-interface-user-defined-atom-colours.hh"
+#include "cc-interface-alignment.hh"
 %}
 
 
@@ -65,6 +67,7 @@ namespace std {
 %include "cc-interface-ncs.hh"
 %include "cc-interface-molecular-representation.hh"
 %include "cc-interface.hh"
+%include "cc-interface-image.hh"
 %include "cc-interface-scripting.hh"
 %include "c-interface-database.hh"
 %include "c-interface-python.hh"
@@ -87,3 +90,7 @@ namespace std {
 %include "cfc.hh"
 %include "cc-interface-user-defined-atom-colours.hh"
 %include "../coords/phenix-geo.hh"
+%include "cc-interface-alignment.hh"
+
+// # ignore some functions with c++ objects
+%ignore rigid_body_fit_with_residue_range();

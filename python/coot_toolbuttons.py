@@ -217,7 +217,7 @@ if (have_coot_python):
 
       window = gtk.Window(gtk.WINDOW_TOPLEVEL)
       window.set_title("Toolbar Selection")
-      window.set_default_size(600, 450)
+      window.set_default_size(700, 450)
       scrolled_win = gtk.ScrolledWindow()
       scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
       vbox = gtk.VBox(False, 2)
@@ -621,6 +621,7 @@ def list_of_toolbar_functions():
          ["Sphere Refine", "sphere_refine()", "RSR around active residue", "reset-view.svg"],
          ["Sphere Refine +", "sphere_refine_plus()", "RSR around active residue +/- 1 residue", "reset-view.svg"],
          ["Repeat Refine Zone", "repeat_refine_zone()", "Repeat (so that I don't need to click the atoms again)", "rrz.svg"],
+         ["Tandem Refine", "refine_tandem_residues()", "Refine a tandem 7-residue range", "something.svg"],
          ["Sphere Regularization", "sphere_regularize()", "Regularize around active residue", "reset-view.svg"],
          ["Sphere Regularization +", "sphere_regularize_plus()", "Regularize around active residue +/- 1 residue", "reset-view.svg"],
          ["Refine residue", "refine_active_residue()", "RSR active residue"],

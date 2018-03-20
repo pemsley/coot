@@ -10,9 +10,13 @@ run_mogul.py
 ligand_check_refmac_columns in enhanced_ligand.py
 enhanced_ligand.py      test it
 
+Dictionaries:
+KCX, TPP
 -------------------------------------------------------
 * THINGS TO DO BEFORE 0.8.1 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
+Aniso not working on windows machines 0.8.8 (incl build machine) was ok 0.8.2 
+	rev 5761 (ok on my machine too) => check libraries
 
 New Rama: drag residues->switch to selection and rather refine (e.g. add
 	extra torsion to ref target)?!
@@ -113,6 +117,11 @@ scripting exercise
 ----------------
 
 **** General ****
+
+   o allow export of goograph points (and/or draw these separately after
+	passing of parameters)
+
+   o revisit (re)move TER when adding a C-terminal residue
 
    o revisit anti-aliasing. Seems we need to antialias before drawing map 
 	and lines and not in general, I think.
@@ -553,6 +562,8 @@ low importance
 
 **** Windows ****
 
+   o write a log to file (and maybe error too).
+
    o pass args from msi to exe
 
    o make real msi at some point
@@ -597,8 +608,6 @@ low importance
    o use CCP4s lib dir rather than REF_DIR!?
 
    o ccp4 project dir not showing up (with new gtk2 chooser)
-
-   o new gtk/gtkglext disappears with Dexpot
 
    o pop up dialog if disk space is limited!!
 
@@ -700,6 +709,68 @@ low importance
    o solvent region noise estimation (sigma/abs)
 
    o 2nd derivative maps! (usefull?)
+
+
+**** dynarama ****
+
+   o give phi-psi info in tooltip (maybe optional)
+
+   o close menu could be "quit" in stand alone
+
+   o (better) exception handling when e.g. no glade file
+
+   o add function for user to show selection of res only
+
+   o 2nd residue in kleywegt should get green box too (or not)
+
+   o add setting for chains when using a selection in kleywegt
+
+   o shades between the favoured-allowed-disallowed
+
+   o selector for multiple models
+
+   o add torsion angles for interactive movement
+
+   o drag residues->switch to selection and rather refine (e.g. add
+	extra torsion to ref target)?!
+   o compare rama by mol choose A and A and show appropirately in selector
+	(see first topic)?! 
+
+   o wrap kleywegt arrows different in reverse order (e.g. tutorial-modern.pdb
+	B->A gets long arrows)
+
+
+   o make psi range option -120->240 (optional)
+
+* Done
+
+   o contour lines thinner (?) and black
+
+* Done
+
+   o play with colours?!
+
+* Done(ish)
+
+   o kleywegt is not applied when open a new molecule
+
+* Done
+
+   o fix green box position 
+
+* Done
+
+   o stand alone: change pos of green box too.
+
+* Done (?)
+
+   o stand alone works without arg and we can load a molecule with open?!
+
+* Done
+
+   o when use open, set title and stats
+
+* Done
 
 ---------------
 * DONE THINGS *
@@ -1073,3 +1144,7 @@ Osaka 2010
    o fix probe/reduce from ccp4 
 
 * Done 
+
+   o new gtk/gtkglext disappears with Dexpot
+
+* not done but fixed by showing on all desktops. Nothing else can be done AFAIK.

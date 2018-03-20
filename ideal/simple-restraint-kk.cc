@@ -35,8 +35,8 @@ coot::distortion_score_start_pos(const coot::simple_restraint &start_pos_restrai
       (coot::restraints_container_t *)params; 
 
    if (int(v->size) != int(restraints->init_positions_size()) ) {
-      cout << "very worry. A bug. " << v->size << " "
-	   << restraints->init_positions_size() << endl;
+      std::cout << "very worry. A bug. " << v->size << " "
+		<< restraints->init_positions_size() << std::endl;
       return 0.0;
    }
 
@@ -67,8 +67,8 @@ void coot::my_df_start_pos (const gsl_vector *v,
       (coot::restraints_container_t *)params;
    
    if (int(v->size) != int(restraints->init_positions_size()) ) {
-      cout << "very worry. A bug. " << v->size << " "
-	   << restraints->init_positions_size() << endl;
+      std::cout << "very worry. A bug. " << v->size << " "
+		<< restraints->init_positions_size() << std::endl;
       return;
    }
    

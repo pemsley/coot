@@ -693,7 +693,7 @@ class graphics_info_t {
 
    static int moving_atoms_dragged_atom_index;
 #ifdef  HAVE_GSL
-   static coot::restraints_container_t last_restraints;
+   static coot::restraints_container_t *last_restraints;
 #endif // HAVE_GSL   
    // the mode flag is public:
 
@@ -821,12 +821,23 @@ class graphics_info_t {
    // rename me
    coot::refinement_results_t
      update_refinement_atoms(int n_restraints,
-			     coot::restraints_container_t &restraints,
+			     coot::restraints_container_t *restraints, // actually last_restraints
 			     coot::refinement_results_t rr,
 			     atom_selection_container_t local_mov_ats, 
 			     bool need_residue_order_check, 
 			     int imol,
 			     std::string chain_id);
+
+   // 201803004:
+   // refinement now uses references to Xmaps.
+   // A dummy_map is created and a reference to that is created. Then
+   // the reference is reset to a real xmap in a molecule (imol_for_map).
+   // But, for a reason I don't understand, the refinement crashes when I do that.
+   // When the initial dummy_xmap doesn't go out of scope, then the refinement is OK.
+   // So this static dummy map is the map that doesn't go out of scope.
+   // We only need one of it, so it goes here, rather than get created every
+   // time we do a refinement. It may need to be public in future.
+   static clipper::Xmap<float> *dummy_xmap;
 
    std::string adjust_refinement_residue_name(const std::string &resname) const;
    static void info_dialog_missing_refinement_residues(const std::vector<std::string> &res_names);
@@ -1634,7 +1645,8 @@ public:
    void update_ramachandran_plot_point_maybe(int imol, mmdb::Atom *atom);
    void update_ramachandran_plot_point_maybe(int imol, const coot::residue_spec_t &res_spec);
    void update_ramachandran_plot_point_maybe(int imol, atom_selection_container_t moving_atoms);
-   
+   void update_ramachandran_plot_background_from_res_spec(coot::rama_plot *plot, int imol,
+                                                          const coot::residue_spec_t &res_spec);
 
 
    float X() { return rotation_centre_x; };
@@ -1741,6 +1753,7 @@ public:
    static double idle_function_rock_angle_previous; 
    static gint drag_refine_idle_function(GtkWidget *widget);
    static void add_drag_refine_idle_function();
+   static void remove_drag_refine_idle_function();
    static gint drag_refine_refine_intermediate_atoms();
    static double refinement_drag_elasticity;
    static coot::refinement_results_t saved_dragged_refinement_results;
@@ -1776,6 +1789,9 @@ public:
    // get rid of the actual molecule (as opposed to
    // clear_moving_atoms_object which removed the bonds).
    void clear_up_moving_atoms();
+
+   // if the imol for moving atoms is imol, delete the moving atoms (called from close_molecule)
+   void clear_up_moving_atoms_maybe(int imol);
 
    // 0: never run it
    // 1: ask to run it
@@ -2131,6 +2147,8 @@ public:
    static bool do_rama_restraints;
    static bool do_trans_peptide_restraints;
    static bool do_numerical_gradients; // for debugging
+   static int  restraints_rama_type;
+   static float rama_restraints_weight;
 
    coot::refinement_results_t regularize(int imol, short int auto_range_flag, int i_atom_start, int i_atom_end); 
    coot::refinement_results_t refine    (int imol, short int auto_range_flag, int i_atom_start, int i_atom_end);
@@ -2258,6 +2276,7 @@ public:
 
    // geometry graphs
    void update_geometry_graphs(const atom_selection_container_t &asc, int imol_moving_atoms);
+   void update_validation_graphs(int imol);  // and ramachandran
 
 
    // Display the graphical object of the regularization
@@ -2570,10 +2589,12 @@ public:
 
    // uses cif_dictionary_filename_vec.
    //imol_enc can be the model molecule number or
-   // -1 for all
-   // -2 for auto
-   // -3 for unset
-   int add_cif_dictionary(std::string cif_dictionary_filename,
+   // IMOL_ENC_ANY = -999999, IMOL_ENC_AUTO = -999998, IMOL_ENC_UNSET = -999997.
+   // 
+   // @return the index of the monomer in the geometry store.
+   //
+   coot::read_refmac_mon_lib_info_t
+   add_cif_dictionary(std::string cif_dictionary_filename,
 			  int imol_enc,
 			  short int show_no_bonds_dialog_maybe_flag);
    void import_all_refmac_cifs();
@@ -2723,6 +2744,7 @@ public:
    static void   skeletonize_map(int imol, short int prune_flag);
    static void unskeletonize_map(int imol);
    static void set_initial_map_for_skeletonize(); 
+   static bool add_ccp4i_projects_to_optionmenu_flag;
    static std::string refmac_ccp4i_project_dir;
    static std::string libcheck_ccp4i_project_dir;
 
@@ -3241,7 +3263,18 @@ public:
    void set_fixed_points_for_sheared_drag();
    void do_post_drag_refinement_maybe();
 #ifdef  HAVE_GSL
-   int last_restraints_size() const { return last_restraints.size(); };
+   int last_restraints_size() const {
+     if (! last_restraints) {
+		  std::cout << "----------------------------------------------" << std::endl;
+		  std::cout << "----------------------------------------------" << std::endl;
+		  std::cout << "     ERROR:: C: last_restraints no cleared up " << std::endl;
+		  std::cout << "----------------------------------------------" << std::endl;
+		  std::cout << "----------------------------------------------" << std::endl;
+		  return 0;
+     } else {
+       return last_restraints->size();
+     }
+   }
 #endif // HAVE_GSL   
    static int dragged_refinement_steps_per_frame;
    static short int dragged_refinement_refine_per_frame_flag;
@@ -3332,6 +3365,7 @@ public:
    static float rama_level_prefered;
    static float rama_level_allowed;
    static float rama_plot_background_block_size; // divisible into 360 preferably.
+   static int rama_psi_axis_mode;
 
    /* 
      Return the index of the superposed molecule - which could either be a
@@ -3638,8 +3672,10 @@ public:
    static int lsq_mov_imol;
    static lsq_dialog_values_t lsq_dialog_values;
 
-   // -------- some people dont want restype and slashes in atom label:
+   // -------- some people don't want restype and slashes in atom label:
    static short int brief_atom_labels_flag;
+   //          and some people want seg-ids in their atom labels (Francesca)
+   static short int seg_ids_in_atom_labels_flag;
 
    void delete_molecule_from_from_display_manager(int imol, bool was_map_flag);
 
@@ -4006,11 +4042,35 @@ string   static std::string sessionid;
    void undisplay_all_model_molecules_except(const std::vector<int> &keep_these);
    static GtkWidget *cfc_dialog;
 
+
+   static std::pair<bool, float> model_display_radius;
+   void set_model_display_radius(bool on_off, float radius_in) {
+      model_display_radius.first  = on_off;
+      model_display_radius.second = radius_in;
+   }
+   // molecules use this to see if the point is within the distance from the screen centre
+   // - maybe this is not the best place for this function?
+   static bool is_within_display_radius(const coot::CartesianPair &p);
+   static bool is_within_display_radius(const coot::Cartesian &p);
+
    static bool cif_dictionary_file_selector_create_molecule_flag;
 
    static double geman_mcclure_alpha;
 
    static bool update_maps_on_recentre_flag;
+
+   static pair<bool,float> coords_centre_radius;  // should the display radius limit be applied? And
+                                                  // if so, what is it? (say 20A)
+                                                  // used in draw_bonds().
+
+#ifdef USE_PYTHON
+   PyObject *pyobject_from_graphical_bonds_container(int imol,
+						     const graphical_bonds_container &bonds_box) const;
+   PyObject *get_intermediate_atoms_bonds_representation();
+   PyObject *get_intermediate_atoms_distortions_py();
+   PyObject *restraint_to_py(const coot::simple_restraint &restraint); // make const?
+   PyObject *geometry_distortion_to_py(const coot::geometry_distortion_info_t &gd);
+#endif
 
 #ifdef HAVE_CXX_THREAD
    static ctpl::thread_pool static_thread_pool;
@@ -4031,7 +4091,7 @@ class molecule_rot_t {
  public:   
    static float x_axis_angle;
    static float y_axis_angle;
-}; 
+};
    
 void initialize_graphics_molecules();
 
@@ -4040,7 +4100,7 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_t &ref_results);
 // return a pointer to a "new" object
 GdkColor colour_by_distortion(float dist);
-GdkColor colour_by_rama_plot_distortion(float plot_value);
+GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_plot_type);
 void set_colour_accept_reject_event_box(GtkWidget *eventbox, GdkColor *col);
 GtkWidget *wrapped_create_accept_reject_refinement_dialog();
 void update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,

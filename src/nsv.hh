@@ -32,6 +32,9 @@
 #include <gtk/gtk.h>
 #include <libgnomecanvas/libgnomecanvas.h>
 #endif
+#ifdef HAVE_GOOCANVAS
+#include <goocanvas.h>
+#endif
 
 #include "coot-utils/coot-coord-utils.hh"
 
@@ -75,9 +78,14 @@ namespace exptl {
 
 
       int molecule_number;
-      GnomeCanvas *canvas;
       GtkWidget *scrolled_window; // we use this for regenerate().
       std::vector<GnomeCanvasItem *> canvas_item_vec;
+#ifdef HAVE_GOOCANVAS
+      GooCanvasItem *canvas_group;
+      GtkWidget *canvas;
+#else
+      GnomeCanvas *canvas;
+#endif
       void setup_canvas(mmdb::Manager *mol);
       std::vector<chain_length_residue_units_t> get_residue_counts(mmdb::Manager *mol) const;
       bool use_graphics_interface_flag;
@@ -86,7 +94,18 @@ namespace exptl {
       static void on_nsv_dialog_destroy (GtkObject *obj,
 					 gpointer user_data);
       static gint letter_event (GtkObject *obj, GdkEvent *event, gpointer data);
+#ifdef HAVE_GOOCANVAS
+      static gboolean rect_notify_event (GooCanvasItem *item,
+                                         GooCanvasItem *target,
+                                         GdkEventCrossing *event,
+                                         gpointer data);
+      static gboolean rect_button_event (GooCanvasItem *item,
+                                        GooCanvasItem *target,
+                                        GdkEventButton *event,
+                                        gpointer data);
+#else
       static gint rect_event   (GtkObject *obj, GdkEvent *event, gpointer data);
+#endif
       void draw_axes(std::vector<chain_length_residue_units_t>, int l, int b, double x_offset);
       std::string fixed_font_str;
       int pixels_per_letter;
@@ -99,6 +118,9 @@ namespace exptl {
       std::string colour_by_secstr(mmdb::Residue *residue_p) const;
       int points_max;
       void clear_canvas();
+      void helix(mmdb::Chain *chain_p, int resno_low, int resno_high, double x_offet);
+      void helix_single_inner(int i_turn_number, double x_start, double y_start, double hexix_scale);
+      void strand(mmdb::Chain *, int resno_low, int resno_high, double x_offset, double y_offset, double scale);
       
    public:
       nsv(mmdb::Manager *mol,

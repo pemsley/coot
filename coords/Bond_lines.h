@@ -53,7 +53,7 @@ namespace coot {
    
    enum bond_colour_t { COLOUR_BY_CHAIN=0,
 			COLOUR_BY_CHAIN_C_ONLY=20,
-			COLOUR_BY_ATOM_TYPE=1, 
+			COLOUR_BY_ATOM_TYPE=1,
 			COLOUR_BY_SEC_STRUCT=2,
 			DISULFIDE_COLOUR=3,
 			COLOUR_BY_MOLECULE=4,
@@ -74,6 +74,11 @@ namespace coot {
 	  }
        }
        atom_colour_map.push_back(chain);
+       if (isize == HYDROGEN_GREY_BOND) {
+	  atom_colour_map[isize] = "skip-hydrogen-grey-colour-for-chain";
+	  atom_colour_map.push_back(chain);
+	  isize++;
+       }
        return isize;
     }
     // These colours ranges need to be echoed in the GL bond drawing
@@ -141,11 +146,14 @@ public:
    coot::CartesianPair positions;
    bool has_begin_cap;
    bool has_end_cap;
-   int residue_index;
+   // int residue_index;
    // restore this when finished
-   mmdb::Residue *residue_p; // the residue for the bond (maybe there should be 2 residues_ps? because
+   // mmdb::Residue *residue_p; // the residue for the bond (maybe there should be 2 residues_ps? because
                              // sometimes there will be 2 residues for the same graphics_line_t.
                              // Hmm.
+   int model_number; // -1 is unset
+   int atom_index_1;
+   int atom_index_2;
 #if 0
    // default single bond constructor
    graphics_line_t(const coot::CartesianPair &p, bool b, bool e) {
@@ -153,17 +161,26 @@ public:
       has_begin_cap = b;
       has_end_cap = e;
       cylinder_class = SINGLE;
-      residue_index = -1; // unset
-      residue_p = 0;
+      // residue_index = -1; // unset
+      //residue_p = 0;
+      atom_index_1 = -1;
+      atom_index_2 = -1;
+      model_number = -1;
    }
 #endif
-   graphics_line_t(const coot::CartesianPair &p, cylinder_class_t cc, bool b, bool e, mmdb::Residue *residue_p_in) {
+   // we want atom indices now, not just the residue
+   // graphics_line_t(const coot::CartesianPair &p, cylinder_class_t cc, bool b, bool e, mmdb::Residue *residue_p_in);
+
+   graphics_line_t(const coot::CartesianPair &p, cylinder_class_t cc, bool b, bool e,
+		   int model_no_in,
+		   int atom_index_1_in, int atom_index_2_in) {
       positions = p;
       has_begin_cap = b;
       has_end_cap = e;
       cylinder_class = cc;
-      residue_index = -1; // unset
-      residue_p = residue_p_in;
+      atom_index_1 = atom_index_1_in;
+      atom_index_2 = atom_index_2_in;
+      model_number = model_no_in;
    }
    graphics_line_t() { }
 };
@@ -191,16 +208,19 @@ public:
    mmdb::Atom *atom_p; // this should be a shared pointer I think.
                        // we don't want to be looking at this pointer
                        // if some other part of the code has deleted the atom.
-   int residue_index;
-   graphical_bonds_atom_info_t(const coot::Cartesian &pos, bool is_hydrogen_atom_in) {
+   int model_number; // -1 is unset
+   int atom_index;
+   graphical_bonds_atom_info_t(const coot::Cartesian &pos, int atom_index_in, bool is_hydrogen_atom_in) {
+      model_number = -1;
       position = pos;
       is_hydrogen_atom = is_hydrogen_atom_in;
-      residue_index = -1; // unset
+      atom_index = atom_index_in;
       atom_p = 0;
    }
    graphical_bonds_atom_info_t() {
+      model_number = -1;
       is_hydrogen_atom = false;
-      residue_index = -1; // unset
+      atom_index = -1; // unset
       atom_p = 0;
    }
 };
@@ -238,6 +258,7 @@ public:
 
    bool is_pre_pro_cis_peptide;
    bool is_twisted; // twisted trans
+   int model_number; // -1 is unset
    coot::Cartesian pt_ca_1; 
    coot::Cartesian pt_c_1;
    coot::Cartesian pt_n_2;
@@ -247,13 +268,15 @@ public:
 				      const coot::Cartesian &pt_n_2_in,
 				      const coot::Cartesian &pt_ca_2_in,
 				      bool is_pre_pro_cis_peptide_in,
-				      bool is_twisted_in) {
+				      bool is_twisted_in,
+				      int model_number_in) {
       pt_ca_1 = pt_ca_1_in;
       pt_c_1  = pt_c_1_in;
       pt_n_2  = pt_n_2_in;
       pt_ca_2 = pt_ca_2_in;
       is_pre_pro_cis_peptide = is_pre_pro_cis_peptide_in;
       is_twisted = is_twisted_in;
+      model_number = model_number_in;
    }
 
    graphical_bonds_cis_peptide_markup() {
@@ -440,7 +463,8 @@ class Bond_lines {
 		 graphics_line_t::cylinder_class_t cc,
 		 bool begin_end_cap,
 		 bool end_end_cap,
-		 mmdb::Residue *residue_p);
+		 int model_number_in,
+		 int atom_index_1, int atom_index_2);
    int size() const; 
 
    // return the coordinates of the start and finish points of the i'th bond.
@@ -476,7 +500,8 @@ class Bond_lines_container {
 			   float min_dist, float max_dist, 
 			   int atom_colour_type, 
 			   short int is_from_symmetry_flag,
-			   int model_number);
+			   int model_number,
+			   bool do_ramachandran_markup);
 
    // PDBv3 FIXME
    bool is_hydrogen(const std::string &ele) const {
@@ -497,23 +522,27 @@ class Bond_lines_container {
 				      bool are_different_atom_selections,
 				      bool have_udd_atoms,
 				      int udd_handle);
-   
-   void construct_from_model_links(mmdb::Model *model, int atom_colour_type);
-   // which wraps...
-   void add_link_bond(mmdb::Model *model_p, int atom_colour_type, mmdb::Link *link);
-   void add_link_bond(mmdb::Model *model_p, int atom_colour_type, mmdb::LinkR *linkr);
 
-   template<class T> void add_link_bond_templ(mmdb::Model *model_p, int atom_colour_type, T *link);
+   void construct_from_model_links(mmdb::Model *model, int udd_atom_index_handle, int atom_colour_type);
+   // which wraps...
+   void add_link_bond(mmdb::Model *model_p, int udd_atom_index_handle, int atom_colour_type, mmdb::Link *link);
+   void add_link_bond(mmdb::Model *model_p, int udd_atom_index_handle, int atom_colour_type, mmdb::LinkR *linkr);
+
+   template<class T> void add_link_bond_templ(mmdb::Model *model_p, int udd_atom_index_handle, int atom_colour_type, T *link);
 
    // now wit optional arg.  If atom_colour_type is set, then use/fill
    // it to get colour indices from chainids.
-   void handle_MET_or_MSE_case (mmdb::PAtom mse_atom, int udd_handle, int atom_colour_type,
+   void handle_MET_or_MSE_case (mmdb::PAtom mse_atom, int udd_handle,
+				int udd_handle_for_atom_index, int atom_colour_type,
 				coot::my_atom_colour_map_t *atom_colour_map = 0);
-   void handle_long_bonded_atom(mmdb::PAtom     atom, int udd_handle, int atom_colour_type,
+   void handle_long_bonded_atom(mmdb::PAtom atom,
+				int udd_handle_bond,
+				int udd_atom_index_handle,
+				int atom_colour_type,
 				coot::my_atom_colour_map_t *atom_colour_map = 0);
 
    // void check_atom_limits(atom_selection_container_t SelAtoms) const;
-   
+
    void write(std::string) const;
 
    mmdb::PPAtom trans_sel(atom_selection_container_t AtomSel, 
@@ -523,7 +552,7 @@ class Bond_lines_container {
    void add_deuterium_spots(const atom_selection_container_t &SelAtom);
    void add_ramachandran_goodness_spots(const atom_selection_container_t &SelAtom);
    void add_atom_centres(const atom_selection_container_t &SelAtom, int atom_colour_type);
-   void add_cis_peptide_markup(const atom_selection_container_t &SelAtom);
+   void add_cis_peptide_markup(const atom_selection_container_t &SelAtom, int model_number);
    int add_ligand_bonds(const atom_selection_container_t &SelAtom,
 			int imol,
 			mmdb::PPAtom ligand_atoms_selection,
@@ -549,17 +578,20 @@ class Bond_lines_container {
 		       const coot::Cartesian &atom_2,
 		       mmdb::Atom *at_1,
 		       mmdb::Atom *at_2,
+		       int model_number,
+		       int atom_index_1,
+		       int atom_index_2,
 		       int atom_colour_type);
 
    // double and delocalized bonds (default (no optional arg) is double).
    // 
-   void add_double_bond(int imol, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
+   void add_double_bond(int imol, int imodel, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
 			const std::vector<coot::dict_bond_restraint_t> &bond_restraints,
 			bool is_deloc=0);
    // used by above, can throw an exception
    clipper::Coord_orth get_neighb_normal(int imol, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, 
 	 				 bool also_2nd_order_neighbs=0) const;
-   void add_triple_bond(int imol, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
+   void add_triple_bond(int imol, int imodel, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
 			const std::vector<coot::dict_bond_restraint_t> &bond_restraints);
 
 
@@ -575,8 +607,10 @@ class Bond_lines_container {
    std::vector<graphical_bonds_atom_info_t>  atom_centres;
    std::vector<int>        atom_centres_colour;
    void addBond(int colour, const coot::Cartesian &first, const coot::Cartesian &second,
-		graphics_line_t::cylinder_class_t cc,		
-		mmdb::Residue *residue_p=0,
+		graphics_line_t::cylinder_class_t cc,
+		int model_number,
+		int atom_index_1,
+		int atom_index_2,
 		bool add_begin_end_cap = false,
 		bool add_end_end_cap = false);
    void addBondtoHydrogen(const coot::Cartesian &first, const coot::Cartesian &second);
@@ -586,7 +620,9 @@ class Bond_lines_container {
 			const coot::Cartesian &start,
 			const coot::Cartesian &end,
 			int half_bond_type_flag,
-			graphics_line_t::cylinder_class_t cc);
+			graphics_line_t::cylinder_class_t cc,
+			int model_number,
+			int atom_index_1, int atom_index_2);
    void addAtom(int colour, const coot::Cartesian &pos);
    int atom_colour(mmdb::Atom *at, int bond_colour_type, coot::my_atom_colour_map_t *atom_colour_map = 0);
    void bonds_size_colour_check(int icol) {
@@ -597,12 +633,12 @@ class Bond_lines_container {
 
    // return the UDD handle
    int set_rainbow_colours(mmdb::Manager *mol);
-   void do_colour_by_chain_bonds_change_only(const atom_selection_container_t &asc,
-					     int imol,
-					     int draw_hydrogens_flag);
+   void do_colour_by_chain_bonds_carbons_only(const atom_selection_container_t &asc,
+					      int imol,
+					      int draw_hydrogens_flag);
 
    void try_set_b_factor_scale(mmdb::Manager *mol);
-   graphical_bonds_container make_graphical_bonds_with_thinning_flag(bool thinning_flag, bool add_residue_indices) const;
+   graphical_bonds_container make_graphical_bonds_with_thinning_flag(bool thinning_flag) const;
    void add_bonds_het_residues(const std::vector<std::pair<bool, mmdb::Residue *> > &het_residues, int imol, int atom_colour_t, short int have_udd_atoms, int udd_handle);
    void het_residue_aromatic_rings(mmdb::Residue *res, const coot::dictionary_residue_restraints_t &restraints, int col);
    // pass a list of atom name that are part of the aromatic ring system.
@@ -820,8 +856,8 @@ public:
 				float symm_distance,
 				const std::pair<coot::coot_mat44, symm_trans_t> &strict_ncs_mat);
 
-   graphical_bonds_container make_graphical_bonds(bool add_residue_indices=false) const;
-   graphical_bonds_container make_graphical_bonds_no_thinning(bool add_residue_indices) const;
+   graphical_bonds_container make_graphical_bonds() const;
+   graphical_bonds_container make_graphical_bonds_no_thinning() const;
    graphical_bonds_container make_graphical_bonds(const ramachandrans_container_t &rc,
 						  bool do_ramachandran_markup) const;
 

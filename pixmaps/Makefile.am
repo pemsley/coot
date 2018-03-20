@@ -28,7 +28,7 @@ cootpixmapdir = $(pkgdatadir)/pixmaps
 # no longer use xpms.
 
 dist_cootpixmap_DATA = \
-coot-0.8.9-pre.png     \
+coot-0.8.9.png     \
 add-alt-conf.png      dna.svg			   probe-clash.svg                \
 add-alt-conf.svg      edit-backbone.svg		   radacina_handcuffs-small.svg   \
 add-peptide-1.png     edit-chi.png		   ramachandran.png               \
@@ -74,7 +74,8 @@ display-manager.svg   pointer-distances.svg \
 koppi-green-tick-64.png rygle-red-cross-64.png forest51690-dwcheckno-incomplete-64.png \
   go-to-ligand.png go-to-atom.png azerbaijan.png add-water.png mutate.png \
   mutate-auto-fit.png edit-backbone.png torsion-general.png anchor.png regularize-1.png \
-  refine-1.png
+  refine-1.png stock-zoom-follow-window-12.svg stock-zoom-follow-window-12.png \
+  rama_all.png rama_gly.png rama_pro.png rama_non_gly_pro.png
 
 
 
