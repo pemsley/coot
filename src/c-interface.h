@@ -4069,6 +4069,9 @@ void set_brief_atom_labels(int istat);
 
 /*! \brief the brief atom label state */
 int brief_atom_labels_state();
+
+/*! \brief set if brief atom labels should have seg-ids also */
+void set_seg_ids_in_atom_labels(int istat);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

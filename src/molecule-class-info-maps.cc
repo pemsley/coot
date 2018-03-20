@@ -1974,8 +1974,14 @@ molecule_class_info_t::make_map_from_cif(int imol_no_in,
 					 std::string cif_file_name,
 					 int imol_coords) {
 
-   return make_map_from_cif(imol_no_in, cif_file_name,
-			    graphics_info_t::molecules[imol_coords].atom_sel); 
+   graphics_info_t g;
+   int r = -1;
+   if (g.is_valid_model_molecule(imol_coords))
+      r =  make_map_from_cif(imol_no_in, cif_file_name,
+			     g.molecules[imol_coords].atom_sel);
+   else
+      std::cout << "WARNING:: " << imol_coords << " is not a valid model molecule" << std::endl;
+   return r;
 }
 
 // and the molecule number imol_coords where the coordinates are.
@@ -1984,9 +1990,14 @@ molecule_class_info_t::make_map_from_cif_2fofc(int imol_no_in,
 					       std::string cif_file_name,
 					       int imol_coords) {
 
-   return make_map_from_cif_2fofc(imol_no_in,
-				  cif_file_name,
-				  graphics_info_t::molecules[imol_coords].atom_sel); 
+   graphics_info_t g;
+   int r = -1;
+   if (g.is_valid_model_molecule(imol_coords))
+      r =  make_map_from_cif(imol_no_in, cif_file_name,
+			     g.molecules[imol_coords].atom_sel);
+   else
+      std::cout << "WARNING:: " << imol_coords << " is not a valid model molecule" << std::endl;
+   return r;
 }
 
 // and the molecule number imol_coords where the coordinates are.
@@ -1995,10 +2006,16 @@ molecule_class_info_t::make_map_from_cif_fofc(int imol_no_in,
 					      std::string cif_file_name,
 					      int imol_coords) {
 
-   return make_map_from_cif_generic(imol_no_in,
+   graphics_info_t g;
+   int r = -1;
+   if (g.is_valid_model_molecule(imol_coords))
+      r = make_map_from_cif_generic(imol_no_in,
 				    cif_file_name,
-				    graphics_info_t::molecules[imol_coords].atom_sel,
+				    g.molecules[imol_coords].atom_sel,
 				    2);  // 2 -> is Fo-Fc map
+   else
+      std::cout << "WARNING:: " << imol_coords << " is not a valid model molecule" << std::endl;
+   return r;
 }
 
 

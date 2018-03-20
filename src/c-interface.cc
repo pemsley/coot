@@ -6751,39 +6751,43 @@ void change_peptide_carbonyl_by_current_button_pos(int ix, int iy) {
 // 
 int read_cif_data(const char *filename, int imol_coordinates) {
 
+   int r = -1;
       // This function is the .cif equivalent of
       // c.f. read_phs_and_coords_and_make_map or make_and_draw_map,
       // map_fill_from_mtz.
 
    // first, does the file exist?
-   struct stat s; 
-   int status = stat(filename, &s);
-   // stat check the link targets not the link itself, lstat stats the
-   // link itself.
-   // 
-   if (status != 0 || !S_ISREG (s.st_mode)) {
-      std::cout << "Error reading " << filename << std::endl;
-      if (S_ISDIR(s.st_mode)) {
-	 std::cout << filename << " is a directory." << endl;
-      }
-      return -1; // which is status in an error
-   } else {
-      cout << "Reading cif file: " << filename << endl; 
-      graphics_info_t g; 
-      int imol = g.create_molecule();
-      int istat = g.molecules[imol].make_map_from_cif(imol,
-						      std::string(filename), imol_coordinates);
 
-      std::cout << "DEBUG in read_cif_data() istat is " << istat << std::endl;
-
-      // std::cout << "DEBUG:: in read_cif_data, istat is " << istat << std::endl;
-      if (istat != -1) { 
-	 graphics_draw();
+   if (is_valid_model_molecule(imol_coordinates)) {
+      struct stat s;
+      int status = stat(filename, &s);
+      // stat check the link targets not the link itself, lstat stats the
+      // link itself.
+      //
+      if (status != 0 || !S_ISREG (s.st_mode)) {
+	 std::cout << "INFO:: Error reading " << filename << std::endl;
+	 if (S_ISDIR(s.st_mode)) {
+	    std::cout << filename << " is a directory." << std::endl;
+	 }
+	 return -1; // which is status in an error
       } else {
-	 g.erase_last_molecule();
-	 imol = -1;
-      } 
-      return imol;
+	 std::cout << "INFO:: Reading cif file: " << filename << std::endl;
+	 graphics_info_t g;
+	 int imol = g.create_molecule();
+	 int istat =
+	    g.molecules[imol].make_map_from_cif(imol, std::string(filename), imol_coordinates);
+
+	 if (istat != -1) {
+	    graphics_draw();
+	 } else {
+	    g.erase_last_molecule();
+	    imol = -1;
+	 }
+	 return imol;
+
+      }
+   } else {
+      std::cout << "WARNING:: " << imol_coordinates << " is not a valid model molecule" << std::endl;
    }
    return -1; // which is status in an error
 }
@@ -6801,7 +6805,7 @@ int read_cif_data_2fofc_map(const char *filename, int imol_coordinates) {
       // map_fill_from_mtz.
 
    // first, does the file exist?
-   struct stat s; 
+   struct stat s;
    int status = stat(filename, &s);
    // stat check the link targets not the link itself, lstat stats the
    // link itself.
@@ -6813,22 +6817,28 @@ int read_cif_data_2fofc_map(const char *filename, int imol_coordinates) {
       }
       return -1; // which is status in an error
    } else {
-      
-      cout << "Reading cif file: " << filename << endl; 
 
-      graphics_info_t g; 
 
-      imol = g.create_molecule();
-      int istat = g.molecules[imol].make_map_from_cif_2fofc(imol,
-							    std::string(filename),
-							    imol_coordinates);
+      if (is_valid_model_molecule(imol_coordinates)) {
 
-      if (istat != -1) { 
-	 graphics_draw();
+	 std::cout << "INFO:: Reading cif file: " << filename << std::endl;
+
+	 graphics_info_t g; 
+
+	 imol = g.create_molecule();
+	 int istat = g.molecules[imol].make_map_from_cif_2fofc(imol,
+							       std::string(filename),
+							       imol_coordinates);
+	 if (istat != -1) {
+	    graphics_draw();
+	 } else {
+	    g.erase_last_molecule();
+	    imol = -1; 
+	 }
       } else {
-	 g.erase_last_molecule();
-	 imol = -1; 
-      } 
+	 std::cout << "WARNING:: molecule " << imol_coordinates
+		   << " is not a valid model molecule " << std::endl;
+      }
    }
    return imol;
 }
@@ -6846,7 +6856,7 @@ int read_cif_data_fofc_map(const char *filename, int imol_coordinates) {
       // map_fill_from_mtz.
 
    // first, does the file exist?
-   struct stat s; 
+   struct stat s;
    int status = stat(filename, &s);
    // stat check the link targets not the link itself, lstat stats the
    // link itself.
@@ -6894,7 +6904,7 @@ int read_cif_data_with_phases_sigmaa(const char *filename) {
    int imol = -1;
    
    // first, does the file exist?
-   struct stat s; 
+   struct stat s;
    int status = stat(filename, &s);
    // stat check the link targets not the link itself, lstat stats the
    // link itself.
@@ -6931,7 +6941,7 @@ int read_cif_data_with_phases_diff_sigmaa(const char *filename) {
    int imol = -1;
    
    // first, does the file exist?
-   struct stat s; 
+   struct stat s;
    int status = stat(filename, &s);
    // stat check the link targets not the link itself, lstat stats the
    // link itself.
@@ -6982,7 +6992,7 @@ int read_cif_data_with_phases_fo_alpha_calc(const char *filename) {
 int read_cif_data_with_phases_nfo_fc(const char *filename,
 				     int map_type) {
    // first, does the file exist?
-   struct stat s; 
+   struct stat s;
    int status = stat(filename, &s);
    // stat check the link targets not the link itself, lstat stats the
    // link itself.
@@ -7088,6 +7098,12 @@ int centre_atom_label_status() {
 
 void set_brief_atom_labels(int istat) {
    graphics_info_t::brief_atom_labels_flag = istat;
+   graphics_draw();
+}
+
+void set_seg_ids_in_atom_labels(int istat) {
+
+   graphics_info_t::seg_ids_in_atom_labels_flag = istat;
    graphics_draw();
 }
 

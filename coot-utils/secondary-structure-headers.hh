@@ -1,4 +1,7 @@
 
+#ifndef SECONDARY_STRUCTURE_HEADERS_HH
+#define SECONDARY_STRUCTURE_HEADERS_HH
+
 #include <cstdio>
 #include <string.h>
 
@@ -90,6 +93,8 @@ namespace coot {
       }
 
    public:
+      secondary_structure_header_records() {};
       secondary_structure_header_records(mmdb::Manager *mol, bool needsCalcSecStructure);
    };
 }
+#endif // SECONDARY_STRUCTURE_HEADERS_HH

@@ -646,8 +646,10 @@ GtkWidget *wrapped_create_least_squares_dialog() {
    
    int imol_1 = first_coords_imol();
    int imol_2 = first_coords_imol();
-   graphics_info_t::lsq_ref_imol = imol_1;
-   graphics_info_t::lsq_mov_imol = imol_2;
+   if (! is_valid_model_molecule(graphics_info_t::lsq_ref_imol))
+      graphics_info_t::lsq_ref_imol = imol_1;
+   if (! is_valid_model_molecule(graphics_info_t::lsq_mov_imol))
+      graphics_info_t::lsq_mov_imol = imol_2;
 
    if (is_valid_model_molecule(g.lsq_dialog_values.reference_molecule_number))
       imol_1 = g.lsq_dialog_values.reference_molecule_number;
@@ -804,8 +806,12 @@ fill_lsq_option_menu_with_chain_options(GtkWidget *chain_optionmenu,
 	 GTK_SIGNAL_FUNC(lsq_moving_chain_option_menu_item_activate);
    }
 
-   std::cout << "debug:: fill chain option menu for mol " << imol
-	     << " and  active_chain_id " << active_chain_id << std::endl;
+   if (false) { // debug
+      std::cout << "debug:: fill chain option menu for mol " << imol
+		<< " and  active_chain_id " << active_chain_id << std::endl;
+      std::cout << "debug:: lsq_ref_imol " << graphics_info_t::lsq_ref_imol << std::endl;
+      std::cout << "debug:: lsq_mov_imol " << graphics_info_t::lsq_mov_imol << std::endl;
+   }
 
    if (is_valid_model_molecule(imol)) {
       std::string ss = "Unset";
