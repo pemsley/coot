@@ -1,10 +1,6 @@
 
    For Release 0.8.9.1
 
-   o don't display QED and its breakout if you don't have biscu-it.
-
-   o get-ebi.scm for updated pdb_redo usage
-
 --------------
 
    o adjust the lights in draw_display_list_objects() ::: 0.5
@@ -168,4 +164,8 @@
    o reopen LSQ fit - the display says 24 but it chooses 0 for the reference molecule ::: 1
 
 * Done? I sorted out the setting of the mov and ref molecules at least.
+
+   o don't display QED and its breakout if you don't have biscu-it. ::: 1
+
+* Done
 
