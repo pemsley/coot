@@ -17,9 +17,12 @@ namespace coot {
 	 sheets.sheet   = sheets_in->sheet;
       }
       void add_helix(mmdb::Helix *helix) {
-	 // helices is of type SSContainer
-	 helices.AddData(helix);
+	 // helices protected and is of type SSContainer
+	 if (helix) {
+	    helices.AddData(helix);
+	 }
       }
+      ~access_model() {}
    };
 
    class secondary_structure_header_records {
