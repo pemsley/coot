@@ -3526,6 +3526,10 @@ void
 on_delete_item_sidechain_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
+void
+on_delete_item_sidechain_range_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
 
 void
 on_delete_item_chain_radiobutton_toggled
@@ -4595,5 +4599,10 @@ on_display_control_last_model_only_button_clicked
 
 void
 on_display_control_align_labels_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_delete_item_sidechain_range_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);

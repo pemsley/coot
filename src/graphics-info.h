@@ -2665,6 +2665,7 @@ public:
    static short int delete_item_residue_hydrogens;
    static short int delete_item_water;
    static short int delete_item_sidechain;
+   static short int delete_item_sidechain_range;
    static short int delete_item_chain;
    // must save the widget so that it can be deleted when the item is selected.
    static GtkWidget *delete_item_widget;
@@ -2672,10 +2673,14 @@ public:
    // really, we should save pick data with atom or residue specs, so
    // let's start with delete zones' first click:
    static int delete_item_residue_zone_1_imol;
+   static int delete_item_sidechain_range_1_imol;
    static coot::residue_spec_t delete_item_residue_zone_1;
+   static coot::residue_spec_t delete_item_sidechain_range_1;
    void delete_residue_range(int imol, const coot::residue_spec_t &res1,
 			     const coot::residue_spec_t &res2);
-
+   void delete_sidechain_range(int imol,
+			       const coot::residue_spec_t &res_1,
+			       const coot::residue_spec_t &res_2);
    // c-info functions really, but we cant have mmdb_manager there, so the are moved here.
    // 
    static void fill_output_residue_info_widget(GtkWidget *widget, int imol,

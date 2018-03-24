@@ -4128,6 +4128,41 @@ graphics_info_t::delete_residue_range(int imol,
    graphics_draw();
 }
 
+void
+graphics_info_t::delete_sidechain_range(int imol,
+					const coot::residue_spec_t &res_1,
+					const coot::residue_spec_t &res_2) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].delete_sidechain_range(res_1, res_2);
+      if (delete_item_widget) {
+	 GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget,
+						"delete_item_keep_active_checkbutton");
+	 if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
+	    // don't destroy it.
+	 } else {
+	    gtk_widget_destroy(delete_item_widget);
+	    delete_item_widget = 0;
+	    normal_cursor();
+	 }
+      }
+
+      if (graphics_info_t::go_to_atom_window)
+	 update_go_to_atom_window_on_changed_mol(imol);
+
+      // faster is passing a blank asc, but to do that needs to check that
+      // updating other geometry graphs will work (not crash) with residues/mol
+      // unset.
+      //
+      // atom_selection_container_t asc = molecules[imol].atom_sel;
+      atom_selection_container_t asc;
+      update_geometry_graphs(asc, imol);
+   }
+   graphics_draw();
+
+}
+
+
 
 // static
 void
