@@ -108,5 +108,11 @@
 
 	      (generate-local-self-restraints-by-residues-scm aa-imol residue-specs local-dist-max)))))
 
+	(add-simple-coot-menu-menuitem
+	 menu "Delete All Extra Restraints"
+	 (lambda ()
+	   (using-active-atom
+	    (delete-all-extra-restraints aa-imol))))
+
 	)))
 
