@@ -1310,6 +1310,9 @@ namespace coot {
       std::vector<std::pair<atom_spec_t, std::string> >
       gln_asn_b_factor_outliers(mmdb::Manager *mol);
 
+      std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > peptide_C_N_pairs(mmdb::Chain *chain_p);
+      void standardize_peptide_C_N_distances(const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &C_N_pairs);
+
       // return the number of cis peptides in mol:
       int count_cis_peptides(mmdb::Manager *mol);
 
