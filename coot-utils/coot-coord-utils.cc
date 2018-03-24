@@ -6445,6 +6445,98 @@ coot::util::cis_peptide_info_t::string() const {
    return s;
 }
 
+void
+coot::util::standardize_peptide_C_N_distances(const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &C_N_pairs) {
+
+   for (std::size_t i=0; i<C_N_pairs.size(); i++) {
+      mmdb::Atom *c_at = C_N_pairs[i].first;
+      mmdb::Atom *n_at = C_N_pairs[i].second;
+      if (c_at) {
+	 if (n_at) {
+	    clipper::Coord_orth pt_1 = co(c_at);
+	    clipper::Coord_orth pt_2 = co(n_at);
+	    double d = clipper::Coord_orth::length(pt_1, pt_2);
+	    if (d > 1.32) {
+	       clipper::Coord_orth delta = pt_2 - pt_1;
+	       clipper::Coord_orth uv(delta.unit());
+	       double shift = 0.5 * (d - 1.32);
+	       c_at->x += shift * uv.x();
+	       c_at->y += shift * uv.y();
+	       c_at->z += shift * uv.z();
+	       n_at->x -= shift * uv.x();
+	       n_at->y -= shift * uv.y();
+	       n_at->z -= shift * uv.z();
+	    }
+	 }
+      }
+   }
+}
+
+std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> >
+coot::util::peptide_C_N_pairs(mmdb::Chain *chain_p) {
+
+   double dist_crit = 2.5;
+
+   std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > v;
+   if (chain_p) {
+      int nres = chain_p->GetNumberOfResidues();
+      for (int ires=0; ires<(nres-1); ires++) {
+	 mmdb::Atom *c_first = NULL, *n_next = NULL;
+	 mmdb::Residue *residue_p_1 = chain_p->GetResidue(ires);
+	 int n_atoms_1 = residue_p_1->GetNumberOfAtoms();
+	 mmdb::Residue *residue_p_2 = chain_p->GetResidue(ires+1);
+	 int n_atoms_2 = residue_p_2->GetNumberOfAtoms();
+	 int seq_num_1 = residue_p_1->GetSeqNum();
+	 int seq_num_2 = residue_p_2->GetSeqNum();
+	 // just test for tandem residues, insertion codes will cause a mess
+	 if (seq_num_2 == (seq_num_1+1)) {
+	    for (int iat=0; iat<n_atoms_1; iat++) {
+	       mmdb::Atom *at_1 = residue_p_1->GetAtom(iat);
+	       if (std::string(at_1->GetAtomName()) == " C  ") {
+		  c_first = at_1;
+		  break;
+	       }
+	    }
+	    // this could go inside the c_first test if speed is needed
+	    for (int iat=0; iat<n_atoms_2; iat++) {
+	       mmdb::Atom *at_2 = residue_p_2->GetAtom(iat);
+	       if (std::string(at_2->GetAtomName()) == " N  ") {
+		  n_next = at_2;
+		  break;
+	       }
+	    }
+	    if (c_first) {
+	       if (n_next) {
+		  if (! c_first->isTer() && ! n_next->isTer()) {
+		     std::string alt_conf_1(c_first->altLoc);
+		     std::string alt_conf_2(n_next->altLoc);
+		     if (alt_conf_1.empty() || alt_conf_2.empty() || alt_conf_1 == alt_conf_2) {
+			clipper::Coord_orth pt_1 = co(c_first);
+			clipper::Coord_orth pt_2 = co(n_next);
+			double d = clipper::Coord_orth::length(pt_1, pt_2);
+			if (d < dist_crit) {
+			   std::string rn_1(residue_p_1->GetResName());
+			   std::string rn_2(residue_p_2->GetResName());
+			   if (is_standard_amino_acid_name(rn_1)) {
+			      if (is_standard_amino_acid_name(rn_2)) {
+				 std::pair<mmdb::Atom *, mmdb::Atom *> p(c_first, n_next);
+				 v.push_back(p);
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return v;
+}
+
+
+
+
 
 
 // We ignore the issue of alt confs because from refinement/reg we

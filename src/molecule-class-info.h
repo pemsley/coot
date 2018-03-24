@@ -3185,6 +3185,8 @@ public:        //                      public
 						 float map_weight,
 						 int n_samples);
 
+   std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > peptide_C_N_pairs(const std::vector<mmdb::Residue *> &residues) const;
+
    mean_and_variance<float> map_histogram_values;
    mean_and_variance<float> set_and_get_histogram_values(unsigned int n_bins); // fill above
 

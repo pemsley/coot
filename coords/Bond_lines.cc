@@ -3969,7 +3969,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 	 default:
 	    col = 3;
 	 }
-      } else { 
+      } else {
 	 if (bond_colour_type == coot::COLOUR_BY_ATOM_TYPE) {
 	    std::string element = at->element;
 
@@ -4045,9 +4045,12 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 			if (element == " S") {
 			   return YELLOW_BOND;
 			} else {
-			   // if (element == " H") {
-			   if (is_hydrogen(element)) {
-			      return HYDROGEN_GREY_BOND;
+			   if (element == " P") {
+			      return ORANGE_BOND;
+			   } else {
+			      if (is_hydrogen(element)) {
+				 return HYDROGEN_GREY_BOND;
+			      }
 			   }
 			}
 		     }
