@@ -3336,9 +3336,18 @@ on_delete_item_sidechain_radiobutton_toggled
   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(togglebutton),
 				      "delete_item_sidechain_radiobutton"))->active)
     set_delete_sidechain_mode();
-
-
 }
+
+void
+on_delete_item_sidechain_range_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+					 gpointer         user_data) {
+
+  if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(togglebutton),
+				      "delete_item_sidechain_range_radiobutton"))->active)
+    set_delete_sidechain_range_mode();
+}
+
 
 
 void

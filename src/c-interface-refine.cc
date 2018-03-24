@@ -1091,7 +1091,7 @@ delete_all_extra_restraints(int imol) {
 
    // c.f. clear_extra_restraints()
    if (is_valid_model_molecule(imol)) {
-      graphics_info_t::molecules[imol].clear_extra_restraints(); 
+      graphics_info_t::molecules[imol].clear_extra_restraints();
    }
    graphics_draw();
 }

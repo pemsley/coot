@@ -853,11 +853,14 @@ short int graphics_info_t::delete_item_residue_zone = 0;
 short int graphics_info_t::delete_item_residue_hydrogens = 0;
 short int graphics_info_t::delete_item_water = 0;
 short int graphics_info_t::delete_item_sidechain = 0;
+short int graphics_info_t::delete_item_sidechain_range = 0;
 short int graphics_info_t::delete_item_chain = 0;
 GtkWidget *graphics_info_t::delete_item_widget = NULL;
 int       graphics_info_t::keep_delete_item_active_flag = 0;
 coot::residue_spec_t graphics_info_t::delete_item_residue_zone_1;
+coot::residue_spec_t graphics_info_t::delete_item_sidechain_range_1;
 int graphics_info_t::delete_item_residue_zone_1_imol = -1;
+int graphics_info_t::delete_item_sidechain_range_1_imol = -1;
 
 
 GtkWidget *graphics_info_t::symmetry_controller_dialog = 0;

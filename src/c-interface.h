@@ -4916,11 +4916,13 @@ void set_delete_residue_zone_mode();
 void set_delete_residue_hydrogens_mode();
 void set_delete_water_mode();
 void set_delete_sidechain_mode();
+void set_delete_sidechain_range_mode();
 void set_delete_chain_mode();
 short int delete_item_mode_is_atom_p(); /* (predicate) a boolean */
 short int delete_item_mode_is_residue_p(); /* predicate again */
 short int delete_item_mode_is_water_p();
 short int delete_item_mode_is_sidechain_p();
+short int delete_item_mode_is_sidechain_range_p();
 short int delete_item_mode_is_chain_p();
 void clear_pending_delete_item(); /* for when we cancel with picking an atom */
 void clear_delete_item_widget();

@@ -1703,6 +1703,9 @@ public:        //                      public
 
    int delete_sidechains_for_chain(const std::string &chain_id);
 
+   int delete_sidechain_range(const coot::residue_spec_t &res_1,
+			      const coot::residue_spec_t &res_2);
+
    // closing molecules, delete maps and atom sels as appropriate
    // and unset "filled" variables.  Set name_ to "".
    void close_yourself();
