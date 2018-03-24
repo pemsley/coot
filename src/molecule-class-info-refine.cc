@@ -495,6 +495,7 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
 void
 molecule_class_info_t::clear_extra_restraints() {
    extra_restraints.clear();
+   update_extra_restraints_representation();
 } 
 
 // return an index of the new restraint
