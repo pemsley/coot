@@ -823,3 +823,43 @@ coot::mdl_mol_to_asc(const lig_build::molfile_molecule_t &m, float b_factor) {
    }
    return asc;
 }
+
+std::vector<std::string>
+coot::get_compound_lines(mmdb::Manager *mol) {
+
+   std::vector<std::string> compound_lines;
+
+   access_mol *am = static_cast<access_mol *>(mol); // causes indent problem
+
+   const mmdb::Title *tt = am->GetTitle();
+   mmdb::Title *ttmp = const_cast<mmdb::Title *>(tt);
+   access_title *at = static_cast<access_title *> (ttmp);
+   mmdb::TitleContainer *compound = at->GetCompound();
+   int cl = compound->Length();
+
+   if (cl > 0) {
+      for(int i=0; i<cl; i++)  {
+	 mmdb::Compound *CLine = mmdb::PCompound(compound->GetContainerClass(i));
+	 if (CLine) {
+	    std::string line(CLine->Line);
+	    compound_lines.push_back(line);
+	 }
+      }
+   }
+   return compound_lines;
+}
+
+
+std::string coot::get_title(mmdb::Manager *mol) {
+
+   std::string tt;
+
+   char *title = new char[10240];
+
+   char *t = mol->GetStructureTitle(title);
+
+   if (t) {
+      tt = std::string(t);
+   }
+   return tt;
+}

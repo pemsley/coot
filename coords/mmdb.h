@@ -59,10 +59,28 @@ int write_atom_selection_file(atom_selection_container_t asc,
 			      bool write_aniso_records = 1,  // optional arg
 			      bool write_conect_records = 0);  // optional arg
 
-// used by above
+class access_mol : public mmdb::Manager {
+ public:
+   // we use a pointer so that the destuctor doesn't
+   // get run
+   const mmdb::Title *GetTitle() const {return &title; }
+};
+
+class access_title : public mmdb::Title {
+ public:
+   // we use a pointer so that the destuctor doesn't
+   // get run
+   mmdb::TitleContainer *GetCompound() { return &compound; }
+};
+
 namespace coot {
+
+   // used by above
   void delete_hydrogens_from_mol(mmdb::Manager *mol);
   void delete_aniso_records_from_atoms(mmdb::Manager *mol);
+  
+  std::vector<std::string> get_compound_lines(mmdb::Manager *mol);
+  std::string get_title(mmdb::Manager *mol);
 }
 
 
