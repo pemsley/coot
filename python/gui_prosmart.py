@@ -76,6 +76,11 @@ def add_module_prosmart():
                                                                   residue_specs,
                                                                   local_dist_max)
 
+            def delete_all_extra_restraints_func():
+                with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                           aa_ins_code, aa_atom_name, aa_alt_conf]:
+                    delete_all_extra_restraints(aa_imol)
+
             add_simple_coot_menu_menuitem(
                 menu, "Generate Chain Self Restraints 4.3 for Chain",
                 lambda func: generate_self_restraint_func(4.3))
@@ -88,6 +93,7 @@ def add_module_prosmart():
                 menu, "Generate Local Self Restraints 6",
                 lambda func: generate_self_restraint_in_sphere_func())
 
-                
-            
+            add_simple_coot_menu_menuitem(
+                menu, "Delete All Extra Restraints",
+                lambda func: delete_all_extra_restraints_func())
 
