@@ -8208,4 +8208,21 @@ Fri  9 Mar 2018 15:12:44 GMT
      (I had to install a few system libraries with apt, yum, dnf)
 
 
+---
+Sat 24 Mar 2018 03:00:25 GMT
 
+   o Can you find some "negatively" scoring parts of a domain for jiggle fitting?
+     Make n test points inside the domain box and iterate moving them away from the
+     closest atom of the protein.  Make a chain of test points so that you can use
+     SeekContacts - use a distance that is more than the maximum distance a
+     test point will move (n_iter * step size). Atoms that move away from more than
+     one atom are interesting (probably). Test points will drift away on the outside.
+     So only keep those points that are within xA of any atom.
+
+     Use generic display objects.
+
+---
+Sat 24 Mar 2018 10:27:45 GMT
+
+   Stuart: Make a "extensions looker-upper" as a dropdown option in the Coot interface,
+           so that people don't have to find/download/run scripts.

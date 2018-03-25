@@ -3895,6 +3895,9 @@
 				   ;; It is not stored.
 				   (map-file-name (molecule-name active-item-imol))
 				   (map-file-name-stub (strip-path (file-name-sans-extension map-file-name)))
+				   (refmac-output-mtz-file-name (string-append "starting-map-"
+									       map-file-name-stub
+									       ".mtz"))
 				   (log-file-name (string-append
 						   "refmac-sharp"
 						   map-file-name-stub
@@ -3957,11 +3960,11 @@
       (let ((menu (coot-menubar-menu "Cryo-EM")))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Multi-sharpen"
+	 menu "Multi-sharpen..."
 	 refmac-multi-sharpen-gui)
 
 	(add-simple-coot-menu-menuitem
-	 menu "Interactive Nudge Residues"
+	 menu "Interactive Nudge Residues..."
 	 (lambda ()
 	   (using-active-atom (nudge-residues-gui aa-imol aa-res-spec)))))))
 ;;
