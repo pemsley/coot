@@ -181,13 +181,3 @@ def click_select_residues_for_acedrg(window, option_menu, entry):
                     
     user_defined_click(2, make_acedrg_bond)
 
-# beam in a new menu to the menu bar:
-# if (have_coot_python):
-#   if coot_python.main_menubar():
-#       new_menu = coot_menubar_menu("Acedrg")
-
-#       add_simple_coot_menu_menuitem(new_menu,
-#                                     "Make Link with Link Dictionary from Acedrg",
-#                                     lambda func: acedrg_link_generation_control_window())
-      
-                                    
