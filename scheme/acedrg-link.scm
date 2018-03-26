@@ -193,12 +193,12 @@
 
 
 
-;; beam in a new menu to the menu bar:
-(if (defined? 'coot-main-menubar)
-    (let* ((new-menu (coot-menubar-menu "Acedrg")))
+;;; beam in a new menu to the menu bar:
+;(if (defined? 'coot-main-menubar)
+;    (let* ((new-menu (coot-menubar-menu "Acedrg")))
       
-      (add-simple-coot-menu-menuitem 
-       new-menu "Make Link with Link Dictionary from Acedrg"
-       (lambda ()
-	 (acedrg-link-generation-control-window)))))
+;      (add-simple-coot-menu-menuitem 
+;       new-menu "Make Link with Link Dictionary from Acedrg"
+;       (lambda ()
+;	 (acedrg-link-generation-control-window)))))
 

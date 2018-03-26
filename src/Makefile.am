@@ -482,6 +482,7 @@ coot_bin_SOURCES = \
 	validation-graphs.hh	 \
 	xmap-utils.cc 		 \
 	xmap-utils.h             \
+	remarks-browser-gtk-widgets.hh \
 	rama-rota-score.hh 	 \
 	fragment-info.hh 	 \
 	atom-name-bits.hh 	 \

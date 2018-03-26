@@ -1332,7 +1332,7 @@ create_window1 (void)
   help1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (help1), help1_menu);
 
-  remarks_browser1 = gtk_menu_item_new_with_mnemonic ("Remarks Browser...");
+  remarks_browser1 = gtk_menu_item_new_with_mnemonic ("Header/Remarks Browser...");
   gtk_widget_show (remarks_browser1);
   gtk_container_add (GTK_CONTAINER (help1_menu), remarks_browser1);
   gtk_tooltips_set_tip (tooltips, remarks_browser1, "View the REMARK cards from the PDB file in a dialog", NULL);

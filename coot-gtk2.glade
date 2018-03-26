@@ -2159,7 +2159,7 @@
 			<widget class="GtkMenuItem" id="remarks_browser1">
 			  <property name="visible">True</property>
 			  <property name="tooltip" translatable="yes">View the REMARK cards from the PDB file in a dialog</property>
-			  <property name="label" translatable="yes">Remarks Browser...</property>
+			  <property name="label" translatable="yes">Header/Remarks Browser...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_remarks_browser1_activate" last_modification_time="Tue, 08 Mar 2011 15:00:14 GMT"/>
 			</widget>
