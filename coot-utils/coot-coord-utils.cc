@@ -8067,7 +8067,7 @@ coot::util::copy_cell_and_symm_headers(mmdb::Manager *m1, mmdb::Manager *m2) {
 
    bool r = 0;
 
-   if (m1 && m2) { 
+   if (m1 && m2) {
 
       //       mmdb::realtype a[6];
       //       mmdb::realtype vol;
@@ -8077,13 +8077,34 @@ coot::util::copy_cell_and_symm_headers(mmdb::Manager *m1, mmdb::Manager *m2) {
       //       char *sg = m1->GetSpaceGroup();
       //       m2->SetSpaceGroup(sg);
       //       m2->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
-      
+
       m2->Copy(m1, mmdb::MMDBFCM_Cryst);
       r = 1;
    }
    return r;
 }
 
+// copy all except, optionally, cell, symm, origin and scale cards from m1 to m2 (if possible)
+bool
+coot::util::copy_headers(mmdb::Manager *m1, mmdb::Manager *m2, bool include_cryst) {
+
+   bool r = 0;
+
+   if (m1 && m2) {
+
+      mmdb::COPY_MASK cm = mmdb::MMDBFCM_All;
+      if (! include_cryst) {
+
+	 // What about Footnotes? CONECT records?
+
+	 // Yuck, yuck. This works because mmdb enums are ints.
+	 cm = static_cast<mmdb::COPY_MASK> (mmdb::MMDBFCM_All & ~mmdb::MMDBFCM_Cryst & ~mmdb::MMDBFCM_Coord);
+      }
+      m2->Copy(m1, cm);
+      r = 1;
+   }
+   return r;
+}
 
 // The plan for positioning NAGs on ASN (N-link):
 //

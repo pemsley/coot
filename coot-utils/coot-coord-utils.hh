@@ -1016,6 +1016,9 @@ namespace coot {
       // return success status.
       bool copy_cell_and_symm_headers(mmdb::Manager *m1, mmdb::Manager *m2);
 
+      // All headers except (optionally) cell, symmetry, origin and scale.
+      bool copy_headers(mmdb::Manager *m_from, mmdb::Manager *m_to, bool include_cryst);
+
       // adjust the atoms of residue_p
       void delete_alt_confs_except(mmdb::Residue *residue_p, const std::string &alt_conf);
       
