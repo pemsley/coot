@@ -39,13 +39,13 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
 
     "---------------- multi-add-linked-residue", imol, res_spec
     set_go_to_atom_molecule(imol)
-    current_matrix = matrix_state() # BL says:: maybe should save
-                                    # and return to original weight?!
-    set_matrix(8)
+    wm = matrix_state() 
+    set_matrix(wm/4.)
 
     current_refinement_rate = dragged_refinement_steps_per_frame()
 
     current_residue_spec = res_spec
+
     for residue_to_add in residues_to_add:
 
         set_go_to_atom_from_res_spec(current_residue_spec)
@@ -70,7 +70,7 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
                                                       res_spec_to_chain_id(current_residue_spec),
                                                       res_spec_to_res_no(current_residue_spec),
                                                       res_spec_to_ins_code(current_residue_spec),
-                                                      new_res, new_link, 2)
+                                                      new_res, new_link, 2) # add and fit mode
 
 
                     # residues_near_residue takes a 3-part spec and makes 3-part specs
@@ -86,7 +86,7 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
 
     # restore refinement mode and matrix weight
     set_dragged_refinement_steps_per_frame(current_refinement_rate)
-    set_matrix(current_matrix)
+    set_matrix(wm)
 
 
 # also "precursor"
@@ -405,8 +405,8 @@ def add_linked_residue_tree(imol, parent, tree):
     add_synthetic_pyranose_planes()
     use_unimodal_pyranose_ring_torsions()
     set_refine_with_torsion_restraints(1)
-    current_weight = matrix_state()
-    set_matrix(8)
+    wm = matrix_state()
+    set_matrix(wm / 4.)
     set_residue_selection_flash_frames_number(1)
     set_go_to_atom_molecule(imol)
     previous_m = default_new_atoms_b_factor()
@@ -424,7 +424,7 @@ def add_linked_residue_tree(imol, parent, tree):
     with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
                                    aa_atom_name, aa_alt_conf, aa_res_spec]:
         start_tree = glyco_tree_residues(aa_imol, aa_res_spec)
-        print "::::::::::::::::: start-tree:", start_tree
+        # print "::::::::::::::::: start-tree:", start_tree
 
         # why do we need both test here? 
         # 5n11 needs the is-just-an-ASN? test
@@ -435,14 +435,26 @@ def add_linked_residue_tree(imol, parent, tree):
             print "start_tree:", start_tree
         else:
             # ok, continue
-            start_pos_view = add_view_here("Glyo Tree Start Pos")
+            start_pos_view = add_view_here("Glyco Tree Start Pos")
             process_tree(parent, tree, func)
             go_to_view_number(start_pos_view, 0)
             with AutoAccept():
                 refine_residues(aa_imol, glyco_tree_residues(aa_imol, aa_res_spec))
-            # validate build
-            g = glyco_validate()
-            g.auto_delete_residues()
+
+            # add a test here that the tree here (centre of screen) matches a known tree.
+            #
+            # and that each is 4C1 (or 1C4 for FUC?) (XYP?)
+            #
+            # validate build - no more
+            # g = glyco_validate()
+            # BL says:: lets not auto delete since we may remove sugars in
+            # the middle of the tree (OK? doesnt take RSCC into account)
+
+            # 20180330-PE OK.
+            #
+            # g.auto_delete_residues()
+            # g.validation_dialog()
+
     # reset
     set_default_temperature_factor_for_new_atoms(previous_m)
     set_matrix(current_weight)
@@ -450,19 +462,21 @@ def add_linked_residue_tree(imol, parent, tree):
 
 def add_linked_residue_with_extra_restraints_to_active_residue(new_res_type,
                                                                link_type):
-    current_weight = matrix_state()
-    set_matrix(8)
+    wm = matrix_state()
+    set_matrix(wm / 8.)
     set_refine_with_torsion_restraints(1)
     set_add_linked_residue_do_fit_and_refine(0)
     with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
                                    aa_atom_name, aa_alt_conf, aa_res_spec]:
         new_res_spec = add_linked_residue(aa_imol, aa_chain_id, aa_res_no,
                                           aa_ins_code, new_res_type, link_type, 2)
-        add_cho_restraints_for_residue(aa_imol, new_res_spec)
-        # refine that
-        with AutoAccept():
-            residues = [aa_res_spec] + residues_near_residue(aa_imol, aa_res_spec, 1.9)
-            refine_residues(aa_imol, residues)
+        if isinstance(new_res_spec, list):
+            add_cho_restraints_for_residue(aa_imol, new_res_spec)
+            # refine that
+            with AutoAccept():
+                residues = [aa_res_spec] + residues_near_residue(aa_imol, aa_res_spec, 1.9)
+                refine_residues(aa_imol, residues)
+    set_matrix(wm)
 
 def delete_all_cho():
     delete_cho_ls = []
