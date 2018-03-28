@@ -5226,6 +5226,7 @@ def refmac_multi_sharpen_gui():
          # we have map ceoffs - but then sharpen as here wont work anyway
          map_file_name = map_file_name[:map_file_name.find(" ")]
       map_file_name_stub = strip_path(file_name_sans_extension(map_file_name))
+      refmac_output_mtz_file_name = "starting-map-" + map_file_name_stub + ".mtz"
       log_file_name = "refmac-sharp" + map_file_name_stub + ".log"
       if not os.path.isfile(map_file_name):
          info_dialog("WARNING:: file not found %s" %map_file_name)
@@ -5322,7 +5323,7 @@ def add_module_cryo_em_gui():
    if coot_python.main_menubar():
       menu = coot_menubar_menu("Cryo-EM")
 
-      add_simple_coot_menu_menuitem(menu, "Multi-sharpen",
+      add_simple_coot_menu_menuitem(menu, "Multi-sharpen...",
                                     lambda func: refmac_multi_sharpen_gui())
 
       def interactive_nudge_func():
@@ -5330,7 +5331,7 @@ def add_module_cryo_em_gui():
                                         aa_ins_code, aa_atom_name,
                                         aa_alt_conf, aa_res_spec]:
             nudge_residues_gui(aa_imol, aa_res_spec)
-      add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues",
+      add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...",
                                     lambda func: interactive_nudge_func())
 
 
