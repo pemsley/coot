@@ -3854,7 +3854,10 @@
 						      pref-file
 						      " already exists.  Not overwritten.")))
 				(add-status-bar-text s)))
-			    (begin 
+			    (begin
+			      ;; check the directory first
+			      (if (not (file-exits? pref-dir))
+				  (make-directory-maybe pref-dir))
 			      (copy-file ref-scm pref-file)
 			      (if (file-exists? pref-file)
 				  (load pref-file))))))))))))))
