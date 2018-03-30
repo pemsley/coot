@@ -179,24 +179,22 @@ dnl    echo done Bmessage
       # let's try if --with-pygtk was given on the command line
 
       AC_ARG_WITH(pygtk, [  --with-pygtk=PFX Prefix where pygtk has been installed],
-       with_pygtk_prefix="$withval",
-       with_pygtk_prefix="no")
+          with_pygtk_prefix="$withval",
+          with_pygtk_prefix="no")
 
-     if test "$with_pygtk_prefix" != "no" ; then 
+      if test "$with_pygtk_prefix" != "no" ; then
 
-         PKG_CHECK_MODULES(PYGTK, pygtk-2.0, have_pygtk=true, have_pygtk=false)
-         AC_SUBST(PYGTK_CFLAGS)
-         AC_SUBST(PYGTK_LIBS)
+          PKG_CHECK_MODULES(PYGTK, pygtk-2.0, have_pygtk=true, have_pygtk=false)
+          AC_SUBST(PYGTK_CFLAGS)
+          AC_SUBST(PYGTK_LIBS)
 
           if $have_pygtk ; then
-dnl        Random yes line. Commenting it out.
-dnl    	   AC_MSG_RESULT(yes)
    	      echo Good we have pygtk
    	      PYTHON_CFLAGS="$PYTHON_CFLAGS -DUSE_PYGTK"
-         else
-	      AC_MSG_RESULT(no)
-   	      echo we dont have pygtk-2
-         fi
+          else
+	      AC_MSG_FAILURE([pygtk specified but not found])
+              echo we dont have pygtk-2.0
+          fi
       fi
 
    else 
