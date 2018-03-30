@@ -488,6 +488,18 @@ def residue_atom2position(ra):
     else:
         return ra[2]
 
+# start using new convention, maybe. could do some tests if atom name and
+# alt conf is not False
+# residue_info atom needs other parameters to make a spec for an atom
+def residue_atom_to_atom_spec(ra, chain_id, res_no, ins_code):
+    if not isinstance(ra, list):
+        return False
+    else:
+        return [chain_id, res_no, ins_code,
+                residue_atom2atom_name(ra),
+                residue_atom2alt_conf(ra)]
+
+
 def residue_spec_to_chain_id(rs):
     if not isinstance(rs, list):
         return False
@@ -568,6 +580,17 @@ def shelx_molecule_qm(imol):
     else:
         return False
 
+# return an int. 0 means no, 1 means yes, -1 on error
+#
+is_protein_chain_qm = is_protein_chain_p
+
+# Is a nucleotide chain?
+# Now return a boolean
+#
+def is_nucleotide_chain_qm(imol, chain_id):
+    return is_nucleotide_chain_p(imol, chain_id) == 1
+
+    
 # Set the virtual trackball behaviour.
 #
 # trackball @var{type} is a string: either 'flat' or 'spherical-surface'
@@ -1944,8 +1967,67 @@ def atoms_with_zero_occ(imol):
 
     return r
 
+# not to be confused with residue_atom_to_atom_name
+# (which uses the output of residue_info)
+#
+# extraction function
+#
+def atom_spec_to_chain_id(atom_spec):
+    # atom_spec example ["A", 7, "", " SG ", ""]
+    ret = False
+    if not atom_spec:
+        return False
+    if (len(atom_spec) == 5):
+        return atom_spec[0]
+    else:
+        return False
+
+# extraction function
+def atom_spec_to_res_no(atom_spec):
+    # atom_spec example ["A", 7, "", " SG ", ""]
+    ret = False
+    if not atom_spec:
+        return False
+    if (len(atom_spec) == 5):
+        return atom_spec[1]
+    else:
+        return False
+
+# extraction function
+def atom_spec_to_ins_code(atom_spec):
+    # atom_spec example ["A", 7, "", " SG ", ""]
+    ret = False
+    if not atom_spec:
+        return False
+    if (len(atom_spec) == 5):
+        return atom_spec[2]
+    else:
+        return False
+    
+# extraction function
+def atom_spec_to_atom_name(atom_spec):
+    # atom_spec example ["A", 7, "", " SG ", ""]
+    ret = False
+    if not atom_spec:
+        return False
+    if (len(atom_spec) == 5):
+        return atom_spec[3]
+    else:
+        return False
+    
+# extraction function
+def atom_spec_to_alt_loc(atom_spec):
+    # atom_spec example ["A", 7, "", " SG ", ""]
+    ret = False
+    if not atom_spec:
+        return False
+    if (len(atom_spec) == 5):
+        return atom_spec[4]
+    else:
+        return False    
 
 # simple extraction function
+#
 def res_spec_to_chain_id(res_spec):
 
     """simple extraction function"""
@@ -3847,7 +3929,11 @@ def isNumber(num):
     returns True if number, otherwise False
     """
     import numbers
-    return isinstance(num, numbers.Number)
+    if isinstance(num, bool):
+        # bool are numbers and give "False" results
+        return False
+    else:
+        return isinstance(num, numbers.Number)
 
 
 # function to merge multiple solvent chains

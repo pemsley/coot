@@ -136,6 +136,7 @@ namespace exptl {
       GtkWidget *Canvas() const { return GTK_WIDGET(canvas); }
       // default is 22500 
       void set_points_max(int v) { points_max = v; }
+      std::string sequence_letter_background_colour;
    };
 }
 

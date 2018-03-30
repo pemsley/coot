@@ -34323,7 +34323,7 @@ search (this may not work well)</property>
 
 			      <child>
 				<widget class="GtkEntry" id="renumber_residue_range_resno_1_entry">
-				  <property name="width_request">40</property>
+				  <property name="width_request">50</property>
 				  <property name="visible">True</property>
 				  <property name="can_focus">True</property>
 				  <property name="editable">True</property>
@@ -34447,7 +34447,7 @@ search (this may not work well)</property>
 
 			      <child>
 				<widget class="GtkEntry" id="renumber_residue_range_resno_2_entry">
-				  <property name="width_request">40</property>
+				  <property name="width_request">50</property>
 				  <property name="visible">True</property>
 				  <property name="can_focus">True</property>
 				  <property name="editable">True</property>
@@ -34609,7 +34609,7 @@ search (this may not work well)</property>
 
 		  <child>
 		    <widget class="GtkEntry" id="renumber_residue_range_offset_entry">
-		      <property name="width_request">40</property>
+		      <property name="width_request">50</property>
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">e.g. an offset of -10 will renumber residues 33 to 36 as 23 to 36</property>
 		      <property name="can_focus">True</property>
