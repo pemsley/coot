@@ -1029,6 +1029,12 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(
        submenu_ncs,
+       "NCS Jumping...",
+       lambda func: ncs_jumping_gui())
+
+
+     add_simple_coot_menu_menuitem(
+       submenu_ncs,
        "NCS ligands...",
        lambda func: ncs_ligand_gui())
 
@@ -1497,6 +1503,27 @@ if (have_coot_python):
 		lambda imol, text: clear_dot_surf_func(imol, text)))
 
 
+     def limit_model_disp_func(text):
+       try:
+         f = float(text)
+         if f < 0.1:
+           set_model_display_radius(0, 10)
+         else:
+           set_model_display_radius(1, f)
+       except:
+           set_model_display_radius(0, 10)
+         
+     add_simple_coot_menu_menuitem(
+       submenu_representation,
+       "Limit Model Display Radius",
+       lambda func: generic_single_entry("Display Radius Limit (0 for \'no limit\') ",
+                                         #  "15.0" ;; maybe this should be the map radius
+                                         # BL says:: I think it should be the current one
+                                         str(get_map_radius()),
+                                         "Set: ",
+                                         lambda text: limit_model_disp_func(text)))
+
+     
      add_simple_coot_menu_menuitem(
          submenu_representation,
          "HOLE...",
@@ -1664,6 +1691,10 @@ if (have_coot_python):
      # ---------------------------------------------------------------------
 
      add_simple_coot_menu_menuitem(
+       submenu_modules, "CCP4...",
+       lambda func: add_module_ccp4())
+
+     add_simple_coot_menu_menuitem(
        submenu_modules, "SHELX...",
        lambda func: add_module_shelx())
 
@@ -1678,6 +1709,10 @@ if (have_coot_python):
      add_simple_coot_menu_menuitem(
          submenu_modules, "Carbohydrate",
          lambda func: add_module_carbohydrate())
+     
+     add_simple_coot_menu_menuitem(
+         submenu_modules, "Cryo-EM",
+         lambda func: add_module_cryo_em())
 
      
      # ---------------------------------------------------------------------

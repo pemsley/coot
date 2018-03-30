@@ -113,6 +113,7 @@ exptl::nsv::nsv(mmdb::Manager *mol,
 
    g_object_set_data(G_OBJECT(canvas), "nsv", (gpointer) this); // used to regenerate.
 
+   sequence_letter_background_colour = "white";
    setup_canvas(mol);  
 		      
    if (use_graphics_interface_flag) { 
@@ -458,9 +459,10 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
       
       double y2 = y1 - 11; // pixels_per_letter;
       std::string rect_colour = "grey85";
+      rect_colour = sequence_letter_background_colour;
 
       // double x1_max = 22500; // magic number, replaced by points_max (user-settable)
-      
+
       if (x1 < points_max) { 
 #ifdef HAVE_GOOCANVAS
          // BL says:: not sure if I should work with groups or models here (dont see
@@ -529,9 +531,9 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
                                     "can-focus", FALSE,
                                     NULL);
     g_signal_connect(G_OBJECT(txt_letter_group), "enter_notify_event",
-                     G_CALLBACK(rect_notify_event), NULL);
+                     G_CALLBACK(rect_notify_event), this);
     g_signal_connect(G_OBJECT(txt_letter_group), "leave_notify_event",
-                     G_CALLBACK(rect_notify_event), NULL);
+                     G_CALLBACK(rect_notify_event), this);
     g_signal_connect(G_OBJECT(txt_letter_group), "button-press-event",
                      G_CALLBACK(rect_button_event), so);
 
@@ -550,8 +552,8 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
                 "fill_color", colour.c_str(),
                 "font", fixed_font_str.c_str(),
                 NULL);
-	 gtk_signal_connect(GTK_OBJECT(text_item), "event",
-			    GTK_SIGNAL_FUNC(letter_event), so);
+    gtk_signal_connect(GTK_OBJECT(text_item), "event",
+		       GTK_SIGNAL_FUNC(letter_event), so);
     canvas_item_vec.push_back(text_item);
 #endif
       } else {
@@ -568,8 +570,14 @@ exptl::nsv::clear_canvas() {
 
 #ifdef HAVE_GOOCANVAS
    if (canvas) {
-      if (canvas_group)
-         goo_canvas_item_remove(canvas_group);
+      if (canvas_group) {
+         // goo_canvas_item_remove(canvas_group); // Doesn't clear like I expect
+	 GooCanvasItem *xx = goo_canvas_get_root_item(GOO_CANVAS(canvas));
+	 gint no_children = goo_canvas_item_get_n_children(xx);
+	 for (int i=no_children-1; i>0; i--) {
+	    goo_canvas_item_remove_child(xx, i);
+	 }
+      }
    }
 #else
    if (canvas) { 
@@ -594,6 +602,9 @@ exptl::nsv::letter_event (GtkObject *obj,
 			  GdkEvent *event,
 			  gpointer data) {
 
+   // path for mouse motion callback when we are compiled with gtkcanvas, not goocanvas.
+
+   // use static cast here (if this code is ever run again :-))
    exptl::nsv::spec_and_object spec_obj = *((exptl::nsv::spec_and_object *) data);
 
    // I had been checking on mouse motion (it seems).  But lots of
@@ -641,7 +652,10 @@ exptl::nsv::rect_notify_event (GooCanvasItem *item,
 
    if (event->type == GDK_LEAVE_NOTIFY) {
       //std::cout << " Leaving a box " << rect << std::endl;
-      g_object_set(rect, "fill_color", "grey85", NULL);
+      nsv *nn = static_cast<nsv *>(data);
+      std::string col = "white";
+      col = nn->sequence_letter_background_colour;
+      g_object_set(rect, "fill_color", col.c_str(), NULL);
    }
    return FALSE;
 }

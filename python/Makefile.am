@@ -38,6 +38,8 @@ dist_pkgpython_PYTHON = \
    dictionary_generators.py coot_toolbuttons.py  rcrane_loader.py \
    pdbe_validation_data.py  pathology_plots.py ligand_validation_sliders.py \
    enhanced_ligand.py	gui_ligand_sliders.py		      \
+   cho_restraints_from_models.py interactive_nudge_residues.py \
+   acedrg_link.py  \
    chemical_feature_clusters.py res_spec_utils.py \
    $(TEXI_FILE)
 

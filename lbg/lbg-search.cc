@@ -34,6 +34,7 @@
 #include "geometry/srs-interface.hh"
 #ifdef RDKIT_HAS_CAIRO_SUPPORT
 #include <cairo.h>
+// used to be installed in the wrong directory
 #include <GraphMol/MolDraw2D/MolDraw2DCairo.h>
 #include "lidia-core/rdkit-interface.hh"
 #else
