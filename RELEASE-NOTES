@@ -1,11 +1,52 @@
 
+-----
 
   Release 0.8.9.1
 
+  o FEATURE: Auto-NCS Jumping menu item added to the NCS submenu
+
+  o FEATURE: Tool-tips for residues in Sequence View
+
   o FEATURE: Added a function to limit the display radius for models
 
-  o FEATURE: The refinement map is now set before refinement of solutions
-             in ligand fitting
+  o FEATURE: New button to display only the the last model molecule
+
+  o FEATURE: Acedrg Link generation GUI (in the CCP4 Module)
+
+  o FEATURE: "Jiggle-fit Ligand" menu item added to the Ligand menu
+
+  o FEATURE: GUI to use Refmac to generate structure factors from an EM map
+             (in the Cryo-EM module)
+
+  o FEATURE: Interactive "Nudge Residue" dialog added to Cryo-EM module
+
+  o CHANGE:  The refinement map is now set before refinement of solutions
+             in ligand fitting [Keith Wilson]
+
+  o CHANGE:  The Mutate Residue Range can now mutate RNA and has a
+             check for numbering consistency [Donna Matzov]
+
+  o CHANGE:  Map density histogram is cached for speedier display
+             of Map Properties dialog for Cryo-EM maps
+
+  o CHANGE:  RCrane removed from the interface (for now)
+
+  o CHANGE:  Carbohydrate fitting weighting scheme improved (should work
+             better for cryo-EM maps)
+
+  o BUG-FIX: cif-reading in Classic dialogs no longer causes a crash
+
+  o BUG-FIX: Phosphorus atoms are now orange in Colour by Chain mode
+
+  o BUG-FIX: Molecule information extraction from wikipedia made more robust
+
+  o BUG-FIX: N-terminal Hydrogen atoms now refined correctly
+
+  o BUG-FIX: Fix crash on Replace Residue with a nucleotide [Elinor Breiner]
+
+  o BUG-FIX: Fix crash on invalid SMILES input for LIDIA
+
+  o BUG-FIX: Fix crash on wrong molecule index for some cif data function [JED]
 
 ----
 
