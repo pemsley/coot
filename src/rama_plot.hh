@@ -343,15 +343,17 @@ public:
    GtkWidget *selection_checkbutton;
 
    rama_plot() {
+#ifdef HAVE_GOOCANVAS
       green_box_item = NULL;
-      dynawin = NULL;
-      canvas = NULL;
-      stand_alone_flag = 0;
-      resize_it = FALSE;
       current_bg = NULL;
       current_residue = NULL;
       residues_grp = NULL;
       arrow_grp = NULL;
+#endif
+      dynawin = NULL;
+      canvas = NULL;
+      stand_alone_flag = 0;
+      resize_it = FALSE;
       saved_counts = rama_stats_container_t();
       rama_mol_name = "";
       plot_type = -1;
@@ -600,8 +602,10 @@ public:
    
    void write_pdf(std::string &file_name);
    void write_png(std::string &file_name);
+#ifdef HAVE_GOOCANVAS
    void write_png_simple(std::string &file_name, GooCanvasItem *item = NULL);
    void write_svg(std::string &file_name, GooCanvasItem *item = NULL);
+#endif
    void make_bg_images();
 
    void fill_kleywegt_comboboxes(int imol);
