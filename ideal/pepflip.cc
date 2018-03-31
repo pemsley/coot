@@ -112,6 +112,9 @@ coot::pepflip_standard(mmdb::Manager *mol,
 	       if (atom_name == " CA " ) {
 		  ca1 = first_residue_atoms[iat];
 	       }
+	       if (atom_name == " C  " ) {
+		  c = first_residue_atoms[iat];
+	       }
 	       for (unsigned int i=0; i<first_atoms.size(); i++) {
 		  if (atom_name == first_atoms[i]) {
 		     flipping_atoms.push_back(first_residue_atoms[iat]);
@@ -125,6 +128,9 @@ coot::pepflip_standard(mmdb::Manager *mol,
 	    if (alt_conf_atom == altconf || alt_conf_atom == "") {
 	       if (atom_name == " CA " ) {
 		  ca2 = second_residue_atoms[iat];
+	       }
+	       if (atom_name == " N  " ) {
+		  n = second_residue_atoms[iat];
 	       }
 	       for (unsigned int i=0; i<second_atoms.size(); i++) {
 		  if (atom_name == second_atoms[i]) {

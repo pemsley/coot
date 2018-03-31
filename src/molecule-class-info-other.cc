@@ -718,7 +718,7 @@ molecule_class_info_t::pepflip_residue(const std::string &chain_id,
    int iresult = coot::pepflip(atom_sel.mol, chain_id, resno, ins_code, alt_conf);
 
    if (iresult) {
-      std::cout << "flipped " << resno << " " << chain_id << std::endl;
+      // std::cout << "INFO:: flipped " << resno << " " << chain_id << std::endl;
       make_bonds_type_checked();
       have_unsaved_changes_flag = 1; 
 
