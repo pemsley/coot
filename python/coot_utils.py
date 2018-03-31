@@ -3513,6 +3513,9 @@ def file_to_preferences(filename):
                             " already exists. Not overwritten."
                         add_status_bar_text(s)
                     else:
+                        # check the directory first
+                        if not os.path.isdir(pref_dir):
+                            make_directory_maybe(pref_dir)
                         shutil.copyfile(ref_py, pref_file)
                         if os.path.isfile(pref_file):
                             execfile(pref_file, globals())
