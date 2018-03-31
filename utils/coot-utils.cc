@@ -1368,3 +1368,16 @@ coot::util::extract_number_string(const std::string &s) {
    } 
    return r;
 } 
+
+int
+coot::util::round_up_by_hundreds(int num) {
+
+   // 123 should return 200
+   // 100 should return 100
+
+   float a = static_cast<float>(num+99) * 0.01;
+   float f = floorf(a);
+   int ii = static_cast<int>(f) * 100;
+
+   return ii;
+}
