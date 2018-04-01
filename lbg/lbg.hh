@@ -746,7 +746,7 @@ private:
       use_graphics_interface_flag = 1; // default: show gui windows and widgets.
       mdl_file_name = "coot.mol";
       atom_X = "H";
-      comp_id = "XYZ";
+      comp_id = "LIG";
       lbg_atom_x_dialog = NULL;
       lbg_atom_x_entry = NULL;
       get_url_func_ptr_flag = false;

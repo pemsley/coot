@@ -1,7 +1,9 @@
 
    For Release 0.8.9.1
 
+
 --------------
+
 
    o adjust the lights in draw_display_list_objects() ::: 0.5
 
@@ -169,3 +171,23 @@
 
 * Done
 
+   o Fix the addition of secondary structure header info ::: 1
+
+* Done.
+
+   o Phosphorus in Colour by chain mode should be orange! ::: 0.5
+
+* Done.
+
+   o scheme: try to install template key bindings without ~/.coot-preferences being created yet
+
+* Done.
+
+   o Renumber residues of the whole chain by 17.  Check that the numberering works properly.
+     Also adding a gap in the middle say +20 for 30 residue. ::: 1
+
+* Done. Was a result of converting nsv to goocanvas.
+
+   o --with-pygtk and fails to find pygtk should stop configure.
+
+* Done. Not tested (pretty tricky to do so).

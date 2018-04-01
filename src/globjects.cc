@@ -204,7 +204,7 @@ short int graphics_info_t::display_lists_for_maps_flag = 1;
 int graphics_info_t::save_imol = -1;
 
 bool graphics_info_t::cryo_EM_refinement_flag = false;
-double graphics_info_t::geman_mcclure_alpha = 2; // soft
+double graphics_info_t::geman_mcclure_alpha = 1; // soft, (20180230-PE was 2, too soft, I think)
 double graphics_info_t::lennard_jones_epsilon = 0.5;
 double graphics_info_t::log_cosh_target_distance_scale_factor = 2000.0;
 
