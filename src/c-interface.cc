@@ -5330,6 +5330,7 @@ void set_only_last_model_molecule_displayed() {
 
    int n_mols = graphics_info_t::n_molecules();
    int imol_last = -1;
+   graphics_info_t g;
    std::vector<int> turn_these_off; // can contain last
    for (int i=0; i<n_mols; i++) {
       if (is_valid_model_molecule(i)) {
@@ -5342,16 +5343,32 @@ void set_only_last_model_molecule_displayed() {
 
    for (unsigned int j=0; j<turn_these_off.size(); j++) {
       if (turn_these_off[j] != imol_last) {
-	 set_mol_displayed(turn_these_off[j], 0);
-	 set_mol_active(turn_these_off[j], 0);
+
+	 // These do a redraw
+	 // set_mol_displayed(turn_these_off[j], 0);
+	 // set_mol_active(turn_these_off[j], 0);
+
+	 g.molecules[turn_these_off[j]].set_mol_is_displayed(0);
+	 g.molecules[turn_these_off[j]].set_mol_is_active(0);
+	 if (g.display_control_window())
+	    set_display_control_button_state(turn_these_off[j], "Displayed", 0);
+
       }
    }
    if (is_valid_model_molecule(imol_last)) {
       if (! mol_is_displayed(imol_last)) {
-	 set_mol_displayed(imol_last, 1);
-	 set_mol_active(imol_last, 1);
+
+	 // set_mol_displayed(imol_last, 1);
+	 // set_mol_active(imol_last, 1);
+
+	 g.molecules[imol_last].set_mol_is_displayed(1);
+	 g.molecules[imol_last].set_mol_is_active(1);
+	 if (g.display_control_window())
+	    set_display_control_button_state(imol_last, "Displayed", 1);
+
       }
    }
+   graphics_draw();
 
 }
 
