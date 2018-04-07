@@ -3404,7 +3404,9 @@ void graphics_info_t::new_alt_conf_occ_adjustment_changed(GtkAdjustment *adj,
 void
 graphics_info_t::drag_intermediate_atom(const coot::atom_spec_t &atom_spec, const clipper::Coord_orth &pt) {
 
+
    // std::cout << "DEBUG:: " << atom_spec << " to " << pt.format() << std::endl;
+
    if (! moving_atoms_asc) {
       std::cout << "WARNING:: No intermediate atoms - fail" << std::endl;
    } else {
@@ -3438,6 +3440,10 @@ graphics_info_t::drag_intermediate_atom(const coot::atom_spec_t &atom_spec, cons
 	 regularize_object_bonds_box.clear_up();
 	 regularize_object_bonds_box = bonds.make_graphical_bonds();
 	 graphics_draw();
+
+	 // now refine (again) with the new atom position
+	 graphics_info_t g;
+	 g.add_drag_refine_idle_function();
       }
    }
 }

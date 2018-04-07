@@ -1288,7 +1288,7 @@ graphics_info_t::add_drag_refine_idle_function() {
 
    // the calling function was activated because we dropped the tip of
    // the pink refinment arrow, so we want to start up idle function
-   // refinemnt again (set continue_update_refinement_atoms_flag to true.
+   // refinement again (set continue_update_refinement_atoms_flag to true).
    //
    
    // add a idle function if there isn't one in operation already.
