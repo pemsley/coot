@@ -6322,6 +6322,14 @@ SCM drag_intermediate_atom_scm(SCM atom_spec, SCM position);
 #endif 
 #ifdef USE_PYTHON
 PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position);
+
+//! \brief add a target position for an intermediate atom and refine
+//
+// A function requested by Hamish.
+// This aplies to intermediate atoms (add_extra_target_position_restraint)
+// does not. This activates refinement after the restraint is added (add_extra_target_position_restraint
+// does not).
+PyObject *add_target_position_restraint_for_intermediate_atom_py(PyObject *atom_spec, PyObject *position);
 #endif 
 #endif /* c++ */
 /* \} */

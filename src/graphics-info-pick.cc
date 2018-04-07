@@ -654,8 +654,22 @@ void graphics_info_t::add_or_replace_current(const atom_pull_info_t &atom_pull_i
       }
    }
 
-   if (! done)
+   if (! done) {
+      // std::cout << "Adding to atom_pulls: " << atom_pull_in.spec << " " << atom_pull_in.pos.format() << std::endl;
       atom_pulls.push_back(atom_pull_in);
+   }
+}
+
+void
+graphics_info_t::add_target_position_restraint_for_intermediate_atom(const coot::atom_spec_t &spec,
+								     const clipper::Coord_orth &target_pos) {
+
+   atom_pull_info_t atom_pull_local = atom_pull_info_t(spec, target_pos);
+   add_or_replace_current(atom_pull_local);
+   if (last_restraints) {
+      last_restraints->add_atom_pull_restraint(spec, target_pos);
+      add_drag_refine_idle_function();
+   }
 }
 
 

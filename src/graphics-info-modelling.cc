@@ -3404,7 +3404,6 @@ void graphics_info_t::new_alt_conf_occ_adjustment_changed(GtkAdjustment *adj,
 void
 graphics_info_t::drag_intermediate_atom(const coot::atom_spec_t &atom_spec, const clipper::Coord_orth &pt) {
 
-
    // std::cout << "DEBUG:: " << atom_spec << " to " << pt.format() << std::endl;
 
    if (! moving_atoms_asc) {

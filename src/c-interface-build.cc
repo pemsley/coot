@@ -3288,6 +3288,43 @@ PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position) {
 }
 #endif // USE_PYTHON
 
+#ifdef USE_PYTHON
+//! \brief add a target position for an intermediate atom and refine
+//
+// A function requested by Hamish.
+// This aplies to intermediate atoms (add_extra_target_position_restraint)
+// does not. This activates refinement after the restraint is added (add_extra_target_position_restraint
+// does not).
+PyObject *add_target_position_restraint_for_intermediate_atom_py(PyObject *atom_spec, PyObject *position) {
+
+// e.g. atom_spec: ["A", 81, "", " CA ", ""]
+//      position   [2.3, 3.4, 5.6]
+   PyObject *retval = Py_False;
+   std::pair<bool, coot::atom_spec_t> p = make_atom_spec_py(atom_spec);
+   if (p.first) {
+      int pos_length = PyObject_Length(position);
+      if (pos_length == 3) {
+	 PyObject *x_py = PyList_GetItem(position, 0);
+	 PyObject *y_py = PyList_GetItem(position, 1);
+	 PyObject *z_py = PyList_GetItem(position, 2);
+	 double x = PyFloat_AsDouble(x_py);
+	 double y = PyFloat_AsDouble(y_py);
+	 double z = PyFloat_AsDouble(z_py);
+	 clipper::Coord_orth pt(x,y,z);
+
+	 graphics_info_t g;
+	 g.add_target_position_restraint_for_intermediate_atom(p.second, pt); // refines after added
+
+	 retval = Py_True;
+      }
+   }
+
+   Py_INCREF(retval);
+   return retval;
+}
+#endif
+
+
 
 #ifdef USE_PYTHON
 PyObject *mark_atom_as_fixed_py(int imol, PyObject *atom_spec, int state) {
