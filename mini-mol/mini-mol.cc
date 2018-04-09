@@ -642,7 +642,25 @@ coot::minimol::residue::operator[](const std::string &atname) const {
 	 return atoms[i];
       } 
    }
-   std::cout << "ERROR!  DISASTER! Atom name lookup failed atom \"" 
+   std::cout << "ERROR!  DISASTER! in const operator[] Atom name lookup failed atom \"" 
+	     << atname << "\" amongst " << atoms.size() << " atoms: not found in residue "
+	     << seqnum << std::endl;
+   return atoms[0]; 
+}
+
+// reference - when we want to move the atoms of this residue
+coot::minimol::atom&
+coot::minimol::residue::at(const std::string &atname) {
+
+   for (unsigned int i=0; i<atoms.size(); i++) {
+      if (atoms[i].name == atname) {
+	 return atoms[i];
+      }
+   }
+
+   // maybe throw a runtime error here?                         
+   
+   std::cout << "ERROR::  DISASTER! in operator[] Atom name lookup failed atom \""
 	     << atname << "\" amongst " << atoms.size() << " atoms: not found in residue "
 	     << seqnum << std::endl;
    return atoms[0]; 

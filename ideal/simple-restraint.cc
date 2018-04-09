@@ -753,7 +753,8 @@ coot::restraints_container_t::pre_sanitize_as_needed(std::vector<refinement_ligh
    // do_pre_sanitize = false; // hack for debugging.
    int iter = 0;
    if (do_pre_sanitize) {
-      std::cout << "debug:: :::: pre-sanitizing" << std::endl;
+      if (verbose_geometry_reporting != QUIET)
+	 std::cout << "debug:: :::: pre-sanitizing" << std::endl;
       int nsteps_max = 100; // wow! in the basic-no-progress test only 1 round is needed!
       int status;
       int restraints_usage_flag_save = restraints_usage_flag;
@@ -1013,8 +1014,9 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	    refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights_vec);
 	    if (worst_of_all.is_set) {
 	       const simple_restraint &baddie_restraint = restraints_vec[worst_of_all.restraints_index];
-	       std::cout << "Most dissatisfied restraint (post-refine): "
-			 << baddie_restraint.format(atom, worst_of_all.value) << std::endl;
+	       if (verbose_geometry_reporting != QUIET)
+		  std::cout << "Most dissatisfied restraint (post-refine): "
+			    << baddie_restraint.format(atom, worst_of_all.value) << std::endl;
 	    }
 	    done_final_chi_squares = true;
 	 }

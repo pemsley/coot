@@ -163,7 +163,7 @@ molecule_class_info_t::add_extra_target_position_restraint(coot::atom_spec_t &sp
       at->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
       spec.int_user_data = atom_index;
       coot::extra_restraints_t::extra_target_position_restraint_t tpr(spec, pos, weight);
-      // std::cout << "debug:: adding target position restraint for " << spec << std::endl;
+      std::cout << "debug:: adding target position restraint for " << spec << std::endl;
       extra_restraints.target_position_restraints.push_back(tpr);
       r = 1;
    }

@@ -2641,8 +2641,12 @@ public:
    static short int add_terminal_residue_do_post_refine; 
    static float terminal_residue_addition_direct_phi; 
    static float terminal_residue_addition_direct_psi; 
+   static bool add_terminal_residue_debug_trials;
+   // we allow terminal fitting without rigid body refinement
+   static short int add_terminal_residue_do_rigid_body_refine; 
 
-   void execute_add_terminal_residue(int imol, 
+   // return success status: 1 for success
+   int execute_add_terminal_residue(int imol, 
 				     const std::string &terminus,
 				     mmdb::Residue *res_p,
 				     const std::string &chain_id, 
@@ -2657,8 +2661,6 @@ public:
    atom_selection_container_t add_side_chain_to_terminal_res(atom_selection_container_t asc, 
 							     const std::string res_type); 
 
-   // we allow terminal fitting without rigid body refinement
-   static short int terminal_residue_do_rigid_body_refine; 
 
    // public (from globjects);
    // 

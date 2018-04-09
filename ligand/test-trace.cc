@@ -48,6 +48,9 @@ int main(int argc, char **argv) {
 	 coot::trace t(xmap);
 
 	 if (argc > 3) {
+
+	    // test-trace map-name pdb-name x x x
+
 	    std::string pdb_name = argv[2];
 	    mmdb::Manager *mol = new mmdb::Manager;
 	    std::cout << "Reading coordinate file: " << pdb_name.c_str() << "\n";
@@ -58,19 +61,63 @@ int main(int argc, char **argv) {
 			 << mmdb::GetErrorDescription(err) << std::endl;
 	    } else {
 
-	       coot::residue_spec_t spec("A", 425, "");
+	       // coot::residue_spec_t spec("A", 425, "");
+
+	       // going forward from here in the tutorial model fails
+	       // at a glycine - needs investigation (it's not the number of trials)
+	       coot::residue_spec_t spec("A", 28, "");
+
+	       if (argc > 4) {
+		  std::string chain_id(argv[3]);
+		  std::string res_no_str(argv[4]);
+		  try {
+		     int res_no = coot::util::string_to_int(res_no_str);
+		     spec = coot::residue_spec_t(chain_id, res_no, "");
+		  }
+		  catch (const std::runtime_error &rte) {
+		     std::cout << "ERROR::" << rte.what() << std::endl;
+		  }
+	       }
 	       mmdb::Residue *r = coot::util::get_residue(spec, mol);
 
 	       if (r) {
 
+		  bool debugging = false;
+		  if (argc == 6) {
+		     std::string a5 = argv[5];
+		     if (a5 == "debug")
+			debugging = true;
+		  }
 		  coot::protein_geometry geom;
+		  geom.set_verbose(0);
 		  geom.init_standard();
 		  geom.remove_planar_peptide_restraint();
 		  std::pair<float, float> mv = coot::util::mean_and_variance(xmap);
-		  coot::minimol::fragment fN =
-		     coot::multi_build_N_terminal_ALA(r, "A", 20, 5000, geom, xmap, mv);
-		  coot::minimol::fragment fC =
-		     coot::multi_build_C_terminal_ALA(r, "A", 20, 5000, geom, xmap, mv);
+		  mmdb::Residue *r_next = coot::util::next_residue(r);
+		  mmdb::Residue *r_prev = coot::util::previous_residue(r);
+
+		  bool try_2018 = true;
+		  if (try_2018) {
+
+		     float b_fact = 30.0;
+		     int n_trials = 10000;
+
+		     coot::minimol::fragment fC =
+			coot::multi_build_terminal_residue_addition_forwards_2018(r, r_prev, "A", b_fact, n_trials,
+										  geom, xmap, mv, debugging);
+
+		     std::string file_name = "trace-frag-C-build.pdb";
+		     coot::minimol::molecule mmm(fC);
+		     mmm.write_file(file_name, 10);
+
+		  } else {
+		     if (false)
+			coot::minimol::fragment fN =
+			   coot::multi_build_N_terminal_ALA(r, r_next, "A", 20, 500, geom, xmap, mv, debugging);
+
+		     coot::minimol::fragment fC =
+			coot::multi_build_C_terminal_ALA(r, r_prev, "A", 20, 500, geom, xmap, mv, debugging);
+		  }
 	       }
 	    }
 	 } else {

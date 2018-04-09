@@ -113,7 +113,8 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 		  for (int ires=0; ires<nres; ires++) { 
 		     mmdb::PResidue residue_p = chain->GetResidue(ires);
 		     //
-		     std::cout << "INFO:: mutating residue in add_cb_to_terminal_res\n";
+		     if (false)
+			std::cout << "INFO:: mutating residue in add_cb_to_terminal_res\n";
 		     istat = molci.move_std_residue(std_res_copy, residue_p);
 
 		     if (istat) { 
@@ -198,6 +199,12 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 
 void
 graphics_info_t::do_mutation(const std::string &residue_type, short int do_stub_flag) {
+
+   if (! is_valid_model_molecule(mutate_auto_fit_residue_imol)) {
+      std::cout << "ERROR:: invalid model molecule number in do_mutation() "
+		<< mutate_auto_fit_residue_imol << std::endl;
+      return;
+   }
 
    if (residue_type_chooser_auto_fit_flag) {
       molecules[mutate_auto_fit_residue_imol].mutate(mutate_auto_fit_residue_atom_index, 

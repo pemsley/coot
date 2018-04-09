@@ -4817,7 +4817,8 @@ void set_add_terminal_residue_n_phi_psi_trials(int n);
    see both residues - default is 0 (off). */
 void set_add_terminal_residue_add_other_residue_flag(int i);
 void set_add_terminal_residue_do_rigid_body_refine(short int v); 
-void set_terminal_residue_do_rigid_body_refine(short int v); 
+void set_terminal_residue_do_rigid_body_refine(short int v); /* remove this for 0.9, wraps above */
+void set_add_terminal_residue_debug_trials(short int debug_state);
 int add_terminal_residue_immediate_addition_state(); 
 
 /*! \brief set immediate addition of terminal residue

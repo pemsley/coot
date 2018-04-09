@@ -2653,7 +2653,8 @@ coot::ligand::apply_angles_to_ligand(const clipper::Vec3<double> &angles ,
 // return the score
 coot::ligand_score_card
 coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms, 
-				const clipper::Xmap<float> &xmap_fitting) const {
+				const clipper::Xmap<float> &xmap_fitting,
+				bool use_linear_interpolation) const {
 
    coot::ligand_score_card score_card;
    int n_positive_atoms = 0; 
@@ -2664,8 +2665,13 @@ coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
       const clipper::Coord_orth &atom_pos = atoms[ii]->pos;
       clipper::Coord_frac atom_pos_frc = atom_pos.coord_frac(xmap_fitting.cell());
       if (!atoms[ii]->is_hydrogen_p()) {
-	 float dv = xmap_fitting.interp<clipper::Interp_cubic>(atom_pos_frc);
-	 score_card.atom_point_score += dv;
+	 // float dv = xmap_fitting.interp<clipper::Interp_cubic>(atom_pos_frc);
+	 float dv = 0;
+	 if (use_linear_interpolation)
+	    dv = xmap_fitting.interp<clipper::Interp_linear>(atom_pos_frc);
+	 else
+	    dv = xmap_fitting.interp<clipper::Interp_cubic>(atom_pos_frc); // faster and accurate enough
+	 score_card.atom_point_score += dv * atoms[ii]->occupancy;
 	 n_non_hydrogens++; 
 	 if (dv > 0)
 	    n_positive_atoms++; 
@@ -2682,18 +2688,20 @@ coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
 		      << n_non_hydrogens << " (" 
 		      << float(n_positive_atoms)/float(n_non_hydrogens)
 		      << ") < " << fit_fraction << std::endl;
-	 if ( float(n_positive_atoms)/float(n_non_hydrogens) >= fit_fraction ) { // arbitary
+	 if (float(n_positive_atoms)/float(n_non_hydrogens) >= fit_fraction ) { // arbitary
 	    score_card.many_atoms_fit = 1; // consider using a member function
 	    score_card.score_per_atom = score_card.atom_point_score/float(n_non_hydrogens);
 	 } else {
-	    // std::cout << "badly fitting atoms, failing fit_fraction test " << std::endl;
+	    std::cout << "WARNING:: badly fitting atoms, failing fit_fraction test "
+		      << n_positive_atoms << " / " << n_non_hydrogens << " vs " << fit_fraction
+		      << std::endl;
 	 }
       } else {
 	 // Pathalogical case.  No non-hydrogens in ligand.  This code
 	 // should never realistically be run...
 	 score_card.many_atoms_fit = 0;
 	 score_card.score_per_atom = -1.0;
-      } 
+      }
       
 //       std::cout << "for score card score: "  << score_card.score << std::endl;
 //       for (int i=0; i< atoms.size(); i++) {

@@ -3184,6 +3184,9 @@ public:        //                      public
    // angle in degrees.
    void spin_N(const coot::residue_spec_t &residue_spec, float angle);
 
+   // place the O (because we have added a new residue)
+   bool move_atom(const std::string &atom_name, mmdb::Residue *res_p, const clipper::Coord_orth &new_O_pos);
+
    int pending_contour_level_change_count;
 
    void crankshaft_peptide_rotation_optimization(const coot::residue_spec_t &rs,

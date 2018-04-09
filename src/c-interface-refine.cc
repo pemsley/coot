@@ -785,7 +785,7 @@ int add_extra_target_position_restraint(int imol,
       coot::atom_spec_t as(chain_id, res_no, ins_code, atom_name, alt_conf);
       clipper::Coord_orth pos(x,y,z);
       graphics_info_t g;
-      g.molecules[imol].add_extra_target_position_restraint(as, pos, weight);
+      r = g.molecules[imol].add_extra_target_position_restraint(as, pos, weight);
    }
    return r;
 }

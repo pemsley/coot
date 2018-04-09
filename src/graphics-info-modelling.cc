@@ -775,7 +775,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
       if (do_rama_restraints)
 	 // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
 	 flags = coot::ALL_RESTRAINTS;
-      
+
       std::vector<coot::atom_spec_t> fixed_atom_specs = molecules[imol].get_fixed_atoms();
 
       // OK, so the passed residues are the residues in the graphics_info_t::molecules[imol]
@@ -2221,13 +2221,15 @@ graphics_info_t::set_residue_range_refine_atoms(const std::string &chain_id,
 
 // The passed residue type is either N, C or (now [20031222]) M.
 // 
-void 
+int
 graphics_info_t::execute_add_terminal_residue(int imol, 
 					      const std::string &terminus_type,
 					      mmdb::Residue *res_p,
 					      const std::string &chain_id, 
 					      const std::string &res_type_in,
 					      short int immediate_addition_flag) {
+
+   int state = 0;
 
    // Calling function also does a check for a map, I think.
    
@@ -2248,7 +2250,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	    graphics_info_t::molecules[imol].add_coords(extra_residue_asc);
 	 }
       }
-   } else { 
+   } else {
 
 
       if (terminus_type == "not-terminal-residue") {
@@ -2259,6 +2261,8 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 
 	 imol_moving_atoms = imol;
 
+	 mmdb::Residue *upstream_neighbour_residue_p = 0;
+	 mmdb::Residue *downstream_neighbour_residue_p = 0;
 	 std::string residue_type_string = res_type;
 	 int residue_number = res_p->GetSeqNum();  // bleugh.
 	 if (residue_type_string == "auto") {
@@ -2275,23 +2279,45 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	       res_type = p.second;
 	    } else {
 	       res_type = "ALA";
-	    } 
-	 } 
+	    }
+	 }
+
+	 if (terminus_type == "C") {
+	    // we have upstream residue
+	    upstream_neighbour_residue_p = coot::util::previous_residue(res_p);
+	 }
+	 if (terminus_type == "N") {
+	    // we have downstream residue
+	    downstream_neighbour_residue_p = coot::util::next_residue(res_p);
+	 }
+
 
 	 float bf = default_new_atoms_b_factor;
 	 coot::residue_by_phi_psi addres(terminus_type, res_p, chain_id, res_type, bf);
 
+	 if (upstream_neighbour_residue_p)
+	    addres.set_upstream_neighbour(upstream_neighbour_residue_p);
+	 if (downstream_neighbour_residue_p)
+	    addres.set_downstream_neighbour(downstream_neighbour_residue_p);
+
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 	 unsigned int n_threads = coot::get_max_number_of_threads();
-	 if (n_threads > 1)
+	 if (n_threads >= 1)
 	    addres.thread_pool(&static_thread_pool, n_threads);
 #endif
 
 	 // std::cout << "DEBUG:: term_type: " << terminus_type << std::endl;
 
 	 // This was for debugging, so that we get *some* solutions at least.
-	 // 	
+	 //
 	 addres.set_acceptable_fit_fraction(0.0); //  the default is 0.5, I think
+
+	 // do we want to output the trial solutions as pdbs?
+
+	 std::cout << "--------------------- here with add_terminal_residue_debug_trials "
+		   << add_terminal_residue_debug_trials << std::endl;
+	 if (add_terminal_residue_debug_trials)
+	    addres.write_trial_pdbs();
 
 	 // map value over protein, stops rigid body refinement down
 	 // into previous residue?  Yes, but only after I altered the
@@ -2352,46 +2378,39 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 							  radius, mmdb::SKEY_NEW);
 	       molecules[imol].atom_sel.mol->GetSelIndex(SelHndSphere, atom_sel, n_selected_atoms);
 	       int invert_flag = 0;
+
+	       // Why is this commented out?
+	       // Because the map is added to addres after this point. Hmm. Masking is a good idea.
+	       // Maybe copy the molecules[imol_map].xmap and mask it making xmap_masked
+	       // and pass xmap_masked to the best_fit_phi_psi()?
+	       //
 	       // addres.mask_map(molecules[imol].atom_sel.mol, SelHndSphere, invert_flag);
+
 	       molecules[imol].atom_sel.mol->DeleteSelection(SelHndSphere);
 	    }
 	 } else {
 	    std::cout << "WARNING:: terminal atom not assigned - no masking!" << std::endl;
 	 }
 
- 	 // addres.output_map("terminal-residue.map");
-	 // This bit can be deleted later:
-	 // 
-	 if (terminal_residue_do_rigid_body_refine) 
-	    std::cout << "fitting terminal residue with rigid body refinement using " 
-		      << add_terminal_residue_n_phi_psi_trials << " trials " 
-		      << std::endl;
-	 else
-	    std::cout << "fitting terminal residue with " 
-		      << add_terminal_residue_n_phi_psi_trials << " random trials" 
-		      << std::endl;
-
-	 // old
-  	 // coot::minimol::molecule mmol = 
-	 // addres.best_fit_phi_psi(add_terminal_residue_n_phi_psi_trials, 
-	 // terminal_residue_do_rigid_body_refine,
-	 // add_terminal_residue_add_other_residue_flag);
+	 std::cout << "INFO:: fitting terminal residue with " 
+		   << add_terminal_residue_n_phi_psi_trials << " random trials" 
+		   << std::endl;
 
   	 coot::minimol::molecule mmol = 
-	    addres.best_fit_phi_psi(add_terminal_residue_n_phi_psi_trials, 
+	    addres.best_fit_phi_psi(add_terminal_residue_n_phi_psi_trials, false,
+				    add_terminal_residue_add_other_residue_flag,
 				    molecules[imol_map].xmap);
 
 	 std::vector<coot::minimol::atom *> mmatoms = mmol.select_atoms_serial();
-	 // mmol.check();
 
 	 if (mmol.is_empty()) {
 	    
 	    // this should not happen:
-	    std::cout <<  "WARNING: empty molecule: "
+	    std::cout <<  "WARNING: ------------- empty molecule: "
 		      << "failed to find a fit for terminal residue"
 		      << std::endl;
 
-	 } else { 
+	 } else {
 
 	    // check that we are adding some atoms:
 	    // 
@@ -2404,6 +2423,8 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	       }
 
 	    } else {
+
+	       state = 1;
 
 	       atom_selection_container_t terminal_res_asc;
 
@@ -2483,12 +2504,27 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 		  } 
 
 		  molecules[imol_moving_atoms].insert_coords(tmp_asc);
+
+		  // when we place a new residue at the C-terminus, the oxygen
+		  // position of this resiude (which is ignored in the selection
+		  // of the position of the next residue) can well be in the
+		  // wrong place!
+		  // add_res knows the position of the residue being added here
+		  // so we can use that to tell us where to place the O oxygen
+		  // of the current residue.
+		  //
+		  if (terminus_type == "C") {
+		     clipper::Coord_orth new_o_pos =
+			addres.best_fit_phi_psi_attaching_oxygen_position_update(mmol, res_p);
+		     molecules[imol_moving_atoms].move_atom(" O  ", res_p, new_o_pos);
+		  }
 		  graphics_draw();
 	       }
 	    }
 	 }
       }
    }
+   return state;
 }
 
 

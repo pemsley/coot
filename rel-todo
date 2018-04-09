@@ -1,5 +1,7 @@
 
-   For Release 0.8.9.1
+   For Release 0.8.9.2
+
+   o Last Only button shouldn't animate (say with 100s of molecules)
 
 
 --------------

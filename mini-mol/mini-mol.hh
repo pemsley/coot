@@ -89,6 +89,8 @@ namespace coot {
 	 const atom& operator[](const std::string &atname) const; // look it up, return atom 
                                             	 // with name "FAIL" if the atom is not there.
 	 atom&       operator[](int i) {return atoms[i];}
+	 atom& at(const std::string &atname) ; // look it up, return atom 
+                                               // with name "FAIL" if the atom is not there.
 	 void addatom(std::string atom_name, std::string element,
 		      float x, float y, float z, const std::string &altloc, float bf, float occupancy);
 	 void addatom(std::string atom_name, std::string element,

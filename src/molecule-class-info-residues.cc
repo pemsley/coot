@@ -2299,3 +2299,34 @@ void molecule_class_info_t::spin_N(const coot::residue_spec_t &residue_spec, flo
       }
    }
 }
+
+
+// place the O (because we have added a new residue)
+bool
+molecule_class_info_t::move_atom(const std::string &atom_name_in, mmdb::Residue *res_p, const clipper::Coord_orth &new_O_pos) {
+
+   // Hmm! we are passed res_p - that's unusual.
+
+   // just change the position of the first atom that matches atom_name_in
+   bool done = false;
+
+   mmdb::Atom **residue_atoms = 0;
+   int n_residue_atoms;
+   res_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int i=0; i<n_residue_atoms; i++) {
+      mmdb::Atom *at = residue_atoms[i];
+      std::string atom_name(at->name);
+      if (atom_name == atom_name_in) {
+	 at->x = new_O_pos.x();
+	 at->y = new_O_pos.y();
+	 at->z = new_O_pos.z();
+	 have_unsaved_changes_flag = 1;
+	 atom_sel.mol->FinishStructEdit();
+	 atom_sel = make_asc(atom_sel.mol);
+	 make_bonds_type_checked();
+	 done = true;
+	 break;
+      }
+   }
+   return done;
+}
