@@ -2650,6 +2650,7 @@ coot::util::get_residue_by_binary_search(const std::string &chain_id,
 	       // std::cout << "----- found chain id " << mol_chain_id << std::endl;
 	       int nres = chain_p->GetNumberOfResidues();
 	       int top_idx = nres-1;
+	       int idx_trial_prev = -999;
 	       int bottom_idx = 0;
 	       // std::cout << "starting with top_idx " << top_idx << std::endl;
 
@@ -2691,7 +2692,15 @@ coot::util::get_residue_by_binary_search(const std::string &chain_id,
 		     if (residue_this->GetSeqNum() < res_no) {
 			bottom_idx = idx_trial;
 		     }
+		     if (idx_trial == idx_trial_prev) {
+			// give up, - insertion code nightmare
+			break;
+		     }
 		  }
+
+		  // setup for next round
+		  idx_trial_prev = idx_trial;
+
 	       } // while
 
 	       if (! found_res) {
