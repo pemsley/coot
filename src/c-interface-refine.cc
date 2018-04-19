@@ -1233,7 +1233,7 @@ void crankshaft_peptide_rotation_optimization_scm(int imol, SCM residue_spec_scm
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       coot::residue_spec_t rs = residue_spec_from_scm(residue_spec_scm);
-      unsigned int n_peptides = 5;
+      unsigned int n_peptides = 3;
       int n_samples = -1; // auto
 
       int imol_map = g.Imol_Refinement_Map();
@@ -1255,7 +1255,7 @@ void crankshaft_peptide_rotation_optimization_py(int imol, PyObject *residue_spe
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       coot::residue_spec_t rs = residue_spec_from_py(residue_spec_py);
-      unsigned int n_peptides = 5;
+      unsigned int n_peptides = 3;
       int n_samples = -1; // auto
 
       int imol_map = g.Imol_Refinement_Map();
