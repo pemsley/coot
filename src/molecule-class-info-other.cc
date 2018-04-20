@@ -8246,9 +8246,9 @@ molecule_class_info_t::do_180_degree_side_chain_flip(const std::string &chain_id
       mmdb::PResidue *SelResidues = NULL;
       int selnd = atom_sel.mol->NewSelection();
       atom_sel.mol->Select(selnd, mmdb::STYPE_RESIDUE, 0,
-			   (char *) chain_id.c_str(),
-			   resno, (char *) inscode.c_str(),
-			   resno, (char *) inscode.c_str(),
+			   chain_id.c_str(),
+			   resno, inscode.c_str(),
+			   resno, inscode.c_str(),
 			   "*", "*", "*", "*", mmdb::SKEY_NEW);
       atom_sel.mol->GetSelIndex(selnd, SelResidues, nSelResidues);
       if (nSelResidues > 0 ) { 
@@ -8286,11 +8286,9 @@ molecule_class_info_t::do_180_degree_side_chain_flip(const std::string &chain_id
 // 	    for (int iat=0; iat<n_atom_residue_copy; iat++)
 // 	       std::cout << residue_atoms_copy[iat] << std::endl;
 
-	    
-	    
 	    coot::chi_angles chi_ang(residue_copy, 0);
 	    std::vector<std::vector<int> > contact_indices(n_atom_residue_copy);
-	    bool add_reverse_contacts = 0;
+	    bool add_reverse_contacts = false;
 	    contact_indices = coot::util::get_contact_indices_from_restraints(residue_copy, geom_p, 1,
 									      add_reverse_contacts);
 	    std::pair<short int, float> istat = chi_ang.change_by(nth_chi, diff, contact_indices);

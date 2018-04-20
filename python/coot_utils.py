@@ -3713,7 +3713,10 @@ def find_exe(program_name, *args, **kwargs):
         no_search = False
     search_disk = False
     if (use_gui_qm and not no_search):
-        search_disk = search_disk_dialog(program_name, path_ls)
+        try:
+            search_disk = search_disk_dialog(program_name, path_ls)
+        except NameError as e:
+            pass
     if search_disk:
         # search everywhere
         for drive in drives_ls:
