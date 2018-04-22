@@ -1,23 +1,30 @@
 
    For Release 0.8.9.2
 
+   o copy fragment should have a "move it here" button. ::: 0.5
 
-   o If residues are not consecutive and C-N is further apart than 2A don't add peptide flags.
-     Currently seems to be 3.0A.
+   o Draw -> Cell and Symmetry -> symmetry colour should follow the
+     real symmetry colour.  ::: 1
 
-   o Add anom to PDB-redo output
+   o "Last Only" button shouldn't animate (say with 100s of molecules)
+     ::: 1
 
-   o maybe add external angle restraints
+   o Kill off Lidia -> View in Lidia, prodrg path ::: 0.5
 
-   o Where's my head and where am I looking? No need for orientation information.
+   o Add anom to PDB-redo output ::: 1
 
-   o copy fragment should have a "move it here" button.
+   o Jiggle fit uses linear interp? Jiggle fit should select backbone
+     if fitting protein, ring atoms for RNA/DNA ::: 1
 
-   o Coot found no unexplained blobs" dialog should have a better title than "dialog1"
+   o maybe add external angle restraints ::: 2
 
-   o Jiggle fit uses linear interp? Jiggle fit should select backbone if fitting protein,
-     ring atoms for RNA/DNA
+   o Where's my head and where am I looking? No need for orientation
+     information. Puntable ::: 1
 
+   o Coot found no unexplained blobs" dialog should have a better title
+     than "dialog1" ::: 0.5
+
+   o Make RCrane work again ::: 6
 
    o this is running coot-refinement and pressing Apply in Lidia
 
@@ -28,10 +35,13 @@ There are 2 data in /Users/pemsley/autobuild/build-refinement-pre-release-gtk2-p
 sys:1: GtkWarning: Unable to find default local directory monitor type
 command "cprodrg" not found
 
-   o Is cis-peptide markup getting passed to VR?  No, but it looks straightforward.
+    ::: 2
 
-   o reposition the O on the current residue when adding a new one - Add Terminal Residue
-     execute_add_terminal_residue()
+   o Is cis-peptide markup getting passed to VR?  No, but it looks
+     straightforward. Puntable ::: 2
 
+   o reposition the O on the current residue when adding a new one -
+     Add Terminal Residue execute_add_terminal_residue() ::: 1
 
---------------
+------
+
