@@ -154,6 +154,7 @@ namespace coot {
 	    return residues[i-residues_offset];
 	 }
 	 residue&       operator[](int i);
+	 residue& at(int i) { return (*this)[i]; }
 	 // can throw a std::runtime_error exception if this is called
 	 // with an uninialised (and empty) res and we try to add it.
 	 void addresidue(const residue &res, bool add_if_empty_flag);

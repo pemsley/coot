@@ -57,7 +57,19 @@ namespace coot {
 		   const protein_geometry &geom,
 		   const clipper::Xmap<float> &xmap_in);
 
+   void update_O_position_in_prev_residue(mmdb::Residue *res_p,
+					  minimol::fragment *many_residues,
+					  const minimol::residue &res);
+
    bool does_residue_fit(const coot::minimol::residue &res, const clipper::Xmap<float> &xmap,
 			 std::pair<float, float> mv);
 
+   std::pair<bool, minimol::residue>
+   try_to_recover_from_bad_fit_forwards(mmdb::Residue *res_p, mmdb::Residue *res_prev_p,
+					const std::string &chain_id, int n_trials,
+					const coot::protein_geometry &geom,
+					const clipper::Xmap<float> &xmap,
+					std::pair<float, float> mv);
+
+   bool crashing_into_self(const minimol::fragment &many_residues, int seqnum, int offset);
 }

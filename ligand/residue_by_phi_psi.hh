@@ -90,8 +90,9 @@ namespace coot {
       std::string chain_id;
       std::string residue_type;
       std::string terminus_type;
-      float rama_max;
+      float rama_max, rama_max_pro;
       clipper::Ramachandran rama;
+      clipper::Ramachandran rama_pro;
       float b_factor;
 
 
@@ -104,7 +105,9 @@ namespace coot {
       mmdb::Residue *downstream_neighbour_residue_p;
 
       bool debug_trials_flag;
-      phi_psi_t get_phi_psi_by_random() const;
+      phi_psi_t get_phi_psi_by_random(const clipper::Ramachandran &rama_local,
+				      const float &rama_max_local,
+				      bool is_pro_rama) const;
 
       // When we are building backwards, we have psi for the selected residue, but not phi.
       // To be clear, we only have psi, when we have also have the downstream (higher residue number) residue
@@ -158,7 +161,8 @@ namespace coot {
 							       const connecting_atoms_t &pos,
 							       const clipper::Xmap<float> &xmap_in,
 							       float map_rms_in,
-							       const clipper::Ramachandran &rama,
+							       const clipper::Ramachandran &rama, float rama_max,
+							       const clipper::Ramachandran &rama_pro, float rama_max_pro,
 							       bool debug_solutions,
 							       std::vector<std::pair<ligand_score_card, minimol::fragment> > *results);
 

@@ -126,13 +126,6 @@ coot::multi_build_terminal_residue_addition_forwards_2018(mmdb::Residue *res_p,
 	 if (f[ires].atoms.size() > 0) {
 	    if (! found_res) {
 	       res = f[ires];
-	       // add a CB (residue_by_phi_psi doesn't add CBs)
-	       //
-	       std::pair<bool, clipper::Coord_orth> cbeta_info = cbeta_position(res);
-	       if (cbeta_info.first) {
-		  res.addatom(" CB ", " C", cbeta_info.second, "", 1.0, 20.0);
-		  res.name = "ALA";
-	       }
 	       found_res = true;
 	    }
 	    many_residues.addresidue(f[ires], false);
@@ -171,6 +164,12 @@ coot::multi_build_terminal_residue_addition_forwards_2018(mmdb::Residue *res_p,
 		      << " cf " << new_o_pos_for_current_res_new.format() << std::endl;
       }
 
+      std::pair<bool, clipper::Coord_orth> cbeta_info = cbeta_position(res);
+      if (cbeta_info.first) {
+	 res.addatom(" CB ", " C", cbeta_info.second, "", 1.0, 20.0);
+	 many_residues[res.seqnum].addatom(" CB ", " C", cbeta_info.second, "", 1.0, 30.0);
+      }
+
       // res is a copy of the residue in many_residues
 
       // refine res and its neighbour and one more, update the atoms of many_residues
@@ -191,29 +190,57 @@ coot::multi_build_terminal_residue_addition_forwards_2018(mmdb::Residue *res_p,
 	 // and refining again
       }
 
-
       if (! this_happy_fit) {
-	 // exit on just one failure for the moment (testing)
+	 // exit on just one failure for the moment (testing).
+	 // Seems reasonable.
 	 happy_fit = false;
       }
 
       if (false) { // debug
 	 std::string file_name = "post-refined-";
-	 file_name += coot::util::int_to_string(res.seqnum) + std::string(".pdb");
+	 file_name += util::int_to_string(res.seqnum) + std::string(".pdb");
 	 minimol::molecule mmm(many_residues);
 	 mmm.write_file(file_name, 10);
       }
 
       many_residues.residues.pop_back();
 
+      if (crashing_into_self(many_residues, res.seqnum, offset)) {
+	 happy_fit = false;
+      }
+
       if (false) { // debug
 	 std::string file_name = "post-chop-last-residue-";
-	 file_name += coot::util::int_to_string(res.seqnum) + std::string(".pdb");
+	 file_name += util::int_to_string(res.seqnum) + std::string(".pdb");
 	 minimol::molecule mmm(many_residues);
 	 mmm.write_file(file_name, 10);
       }
 
       // res is the first new residue
+
+      if (! this_happy_fit) {
+	 std::pair<bool, minimol::residue> recover =
+	    try_to_recover_from_bad_fit_forwards(res_p, res_prev_p, chain_id, n_trials, geom, xmap, mv);
+	 if (recover.first) {
+	    this_happy_fit = true;
+	    happy_fit = true;
+	    res = recover.second;
+	    many_residues[res.seqnum] = res;
+
+	    // this is necessary if I refine before adding res to many_residues
+	    // many_residues.residues.pop_back();
+
+	    // update the O pos of the previous residue
+	    //
+	    // make this a function update_O_position_in_prev_residue(res_p, res);
+	    update_O_position_in_prev_residue(res_p, &many_residues, res);
+
+	    // what does this do? Optimize the O pos?
+	    // refine_end(&many_residues, res.seqnum, offset, geom, xmap);
+
+	    std::cout << "post recovery" << std::endl;
+	 }
+      }
 
       if (! this_happy_fit && ! prev_happy_fit) {
 	 happy_fit = false;
@@ -238,6 +265,137 @@ coot::multi_build_terminal_residue_addition_forwards_2018(mmdb::Residue *res_p,
    return many_residues;
 }
 
+void
+coot::update_O_position_in_prev_residue(mmdb::Residue *res_p,
+					coot::minimol::fragment *many_residues,
+					const coot::minimol::residue &res) {
+
+   minimol::atom C_res_prev  = many_residues->at(res_p->GetSeqNum())[" C  "];
+   minimol::atom CA_res_prev = many_residues->at(res_p->GetSeqNum())[" CA "];
+   double angle   = clipper::Util::d2rad(123.0); // N-C-O
+   double tors_deg = 0.0; // O is trans to the CA of the next residue
+   // unless peptide is cis.
+   double tors_peptide = clipper::Coord_orth::torsion(CA_res_prev.pos, C_res_prev.pos,
+						      res[" N  "].pos, res[" CA "].pos);
+   // cis or trans
+   if (std::abs(tors_peptide) < M_PI_2) tors_deg = 180.0;
+   double torsion = clipper::Util::d2rad(tors_deg);
+   clipper::Coord_orth new_o_pos_for_current_res_new(res[" CA "].pos,
+						     res[" N  "].pos,
+						     C_res_prev.pos, 1.231, angle, torsion);
+   minimol::atom &o_at = many_residues->at(res_p->GetSeqNum()).at(" O  ");
+   o_at.pos = new_o_pos_for_current_res_new;
+}
+
+
+// try again with more trials
+// try again with PRO
+// try again with GLY
+std::pair<bool, coot::minimol::residue>
+coot::try_to_recover_from_bad_fit_forwards(mmdb::Residue *res_p, mmdb::Residue *res_prev_p,
+					   const std::string &chain_id, int n_trials,
+					   const coot::protein_geometry &geom,
+					   const clipper::Xmap<float> &xmap,
+					   std::pair<float, float> mv) {
+
+   std::cout << "try to recover.. " << std::endl;
+
+   std::pair<bool, coot::minimol::residue> r;
+   r.first = false;
+
+   std::string residue_type = "ALA";
+   std::string dir = "C";
+   residue_by_phi_psi rpp(dir, res_p, chain_id, residue_type, 20);
+   rpp.set_upstream_neighbour(res_prev_p);
+   rpp.import_map_from(xmap);
+
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+   // Without adding the thread pool, we go through a different code path in fit_terminal_residue_generic()
+   // and that can be useful for debugging.
+   //
+   unsigned int n_threads_max = coot::get_max_number_of_threads();
+   ctpl::thread_pool thread_pool(n_threads_max); // pass the tread pool
+   if (n_threads_max >= 1)
+      rpp.thread_pool(&thread_pool, n_threads_max);
+#endif
+
+   minimol::fragment f = rpp.best_fit_phi_psi(n_trials * 8, 1);
+
+   // we don't refine here - is that a good idea?
+   //
+   // No, it's not. Add refinement.
+
+   int new_res_seqnum = res_p->GetSeqNum()+1;
+   refine_end(&f, new_res_seqnum, 1, geom, xmap);
+
+   const minimol::residue &res = f[new_res_seqnum];
+   bool liberal_fit = true;
+   bool this_happy_fit = does_residue_fit(res, xmap, mv);
+   if (this_happy_fit) {
+
+      std::cout << "... recovered with more trials " << std::endl;
+      r.first = true;
+      r.second = res;
+   } else {
+
+      std::cout << "try to recover as a PRO..." << std::endl;
+      // try as a PRO
+      // note to self: only the first residue of the pair should be a PRO
+      residue_by_phi_psi rpp(dir, res_p, chain_id, "PRO", 30.0);
+      rpp.set_upstream_neighbour(res_prev_p);
+      rpp.import_map_from(xmap);
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+      if (n_threads_max >= 1)
+	 rpp.thread_pool(&thread_pool, n_threads_max);
+#endif
+
+      minimol::fragment f = rpp.best_fit_phi_psi(800, 1);
+
+      // we don't refine here - is that a good idea?
+
+      minimol::residue &res = f[res_p->GetSeqNum()+1];
+      bool this_happy_fit = does_residue_fit(res, xmap, mv);
+      if (this_happy_fit) {
+	 std::cout << "... recovered as a PRO " << std::endl;
+	 // add CG and CD to res
+	 double bl_cg   = 1.515;
+	 double bl_cd   = 1.508;
+	 double ang_cg  = 103.5;
+	 double ang_cd  = 104.5;
+	 double tors_cg =  21.5;
+	 double tors_cd = -30.5;
+	 double b_factor = 37.7; // Hmm
+	 std::pair<bool, clipper::Coord_orth> cbeta_info = cbeta_position(res);
+	 if (cbeta_info.first) {
+	    res.addatom(" CB ", " C", cbeta_info.second, "", 1.0, b_factor);
+	    clipper::Coord_orth cg_pos = clipper::Coord_orth(res[" N  "].pos,
+							     res[" CA "].pos,
+							     res[" CB "].pos, bl_cg,
+							     clipper::Util::d2rad(ang_cg),
+							     clipper::Util::d2rad(tors_cg));
+	    clipper::Coord_orth cd_pos = clipper::Coord_orth(res[" CA "].pos,
+							     res[" CB "].pos,
+							     cg_pos, bl_cd,
+							     clipper::Util::d2rad(ang_cd),
+							     clipper::Util::d2rad(tors_cd));
+	    res.addatom(coot::minimol::atom(" CG ", " C", cg_pos, "", b_factor));
+	    res.addatom(coot::minimol::atom(" CD ", " C", cd_pos, "", b_factor));
+	    res.name = "PRO";
+	 }
+
+	 r.first = true;
+	 r.second = res;
+      } else {
+
+	 // Try as a GLY?
+
+      }
+   }
+
+   std::cout << "debug:: recover status: " << r.first << std::endl;
+
+   return r;
+}
 
 
 // up_or_down_stream_neighbour_p is allowed to be null
@@ -431,6 +589,9 @@ coot::refine_end(coot::minimol::fragment *many_residues,
 	 }
 	 if (res_seq_num == (ires_new - 2)) {
 	    std::pair<bool, mmdb::Residue *> fixed_p(false, residue_p);
+	    // 20180414-PE I think I want the residue that the new residue
+	    // attaches to to be moving too!
+	    moving_residues.push_back(residue_p);
 	    residues.push_back(fixed_p);
 	 }
       }
@@ -517,3 +678,45 @@ coot::does_residue_fit(const coot::minimol::residue &res, const clipper::Xmap<fl
 
    return r;
 } 
+
+bool
+coot::crashing_into_self(const minimol::fragment &many_residues, int seqnum, int offset) {
+
+   bool status = false;
+
+   std::vector<clipper::Coord_orth> positions_on_trial;
+   if (offset == 1) {
+      // const minimol::residue &last_res = many_residues.residues.back(); // interesting but not useful here
+      const minimol::residue &last_res = many_residues[seqnum];
+      for (std::size_t i=0; i<last_res.atoms.size(); i++) {
+	 positions_on_trial.push_back(last_res.atoms[i].pos);
+      }
+   }
+   std::set<int> dont_check_these;
+   if (offset == 1) {
+      dont_check_these.insert(seqnum);
+      dont_check_these.insert(seqnum+1);
+   } else {
+      dont_check_these.insert(seqnum);
+      dont_check_these.insert(seqnum-1);
+   }
+
+   unsigned int n_close = 0;
+   for (int i=many_residues.min_res_no(); i<=many_residues.max_residue_number(); i++) {
+      if (dont_check_these.find(i) == dont_check_these.end()) {
+	 for (std::size_t iat=0; iat<many_residues[i].atoms.size(); iat++) {
+	    for (std::size_t j=0; j<positions_on_trial.size(); j++) {
+	       double l = clipper::Coord_orth::length(positions_on_trial[j], many_residues[i].atoms[iat].pos);
+	       if (l < 1.8) { // good value?
+		  n_close++;
+	       }
+	    }
+	 }
+      }
+   }
+
+   if (n_close > 1)
+      status = true; // is clashing with self.
+
+   return status;
+}

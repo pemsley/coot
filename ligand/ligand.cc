@@ -1755,7 +1755,7 @@ coot::ligand::install_ligand(const coot::minimol::molecule &ligand) {
 std::ostream&
 coot::operator<<(std::ostream &s, const coot::ligand_score_card &lsc) {
 
-   s << "[ligand-score: #" << lsc.ligand_no << " at-score: " <<  lsc.atom_point_score
+   s << "[ligand-score: #" << lsc.ligand_no << " at-score: " <<  lsc.get_score()
      << " r-state: [" << lsc.correlation.first;
 
    if (lsc.correlation.first)
@@ -1910,7 +1910,7 @@ coot::ligand::sort_final_ligand(unsigned int iclust) {
 bool
 coot::ligand::compare_scored_ligands(const std::pair<coot::minimol::molecule, ligand_score_card> &sl_1,
 				     const std::pair<coot::minimol::molecule, ligand_score_card> &sl_2) {
-   return (sl_1.second.atom_point_score < sl_2.second.atom_point_score);
+   return (sl_1.second.get_score() < sl_2.second.get_score());
 }
 // static
 bool
@@ -1920,7 +1920,7 @@ coot::ligand::compare_scored_ligands_using_correlation(const std::pair<coot::min
 
    if (sl_1.second.correlation.first && sl_2.second.correlation.first)
       return (sl_1.second.correlation < sl_2.second.correlation);
-   return (sl_1.second.atom_point_score < sl_2.second.atom_point_score);
+   return (sl_1.second.get_score() < sl_2.second.get_score());
 }
 
 unsigned int
@@ -1931,9 +1931,9 @@ coot::ligand::n_ligands_for_cluster(unsigned int iclust,
    float top_score = -1;
    
    if (final_ligand[iclust].size() > 0) {
-      top_score = final_ligand[iclust][0].second.atom_point_score;
+      top_score = final_ligand[iclust][0].second.get_score();
       for (unsigned int i=0; i<final_ligand[iclust].size(); i++) {
-	 if (final_ligand[iclust][i].second.atom_point_score > frac_limit_of_peak_score * top_score)
+	 if (final_ligand[iclust][i].second.get_score() > frac_limit_of_peak_score * top_score)
 	    n++;
       }
    }
@@ -2671,7 +2671,7 @@ coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
 	    dv = xmap_fitting.interp<clipper::Interp_linear>(atom_pos_frc);
 	 else
 	    dv = xmap_fitting.interp<clipper::Interp_cubic>(atom_pos_frc); // faster and accurate enough
-	 score_card.atom_point_score += dv * atoms[ii]->occupancy;
+	 score_card.add(dv * atoms[ii]->occupancy);
 	 n_non_hydrogens++; 
 	 if (dv > 0)
 	    n_positive_atoms++; 
@@ -2690,7 +2690,7 @@ coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
 		      << ") < " << fit_fraction << std::endl;
 	 if (float(n_positive_atoms)/float(n_non_hydrogens) >= fit_fraction ) { // arbitary
 	    score_card.many_atoms_fit = 1; // consider using a member function
-	    score_card.score_per_atom = score_card.atom_point_score/float(n_non_hydrogens);
+	    score_card.score_per_atom = score_card.get_score()/float(n_non_hydrogens);
 	 } else {
 	    std::cout << "WARNING:: badly fitting atoms, failing fit_fraction test "
 		      << n_positive_atoms << " / " << n_non_hydrogens << " vs " << fit_fraction

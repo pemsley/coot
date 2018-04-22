@@ -45,7 +45,7 @@ coot::residue_by_phi_psi::make_2_res_joining_frag_new_building_forwards(const st
    clipper::Coord_orth &current_ca = current_res_pos.CA_pos;
 
    // add a bit of jitter
-   double rand_lim = 0.00025; // 0.1 -> 6.2, 0.3 -> 6.4 ; 0.5 -> 5.9; 0.25 -> 6.4
+   double rand_lim = 0.25; // 0.1 -> 6.2, 0.3 -> 6.4 ; 0.5 -> 5.9; 0.25 -> 6.4 // I wonder what these numbers are.
    current_n  += clipper::Coord_orth(rand_lim * (util::random()/float (RAND_MAX) - 0.5),
 				     rand_lim * (util::random()/float (RAND_MAX) - 0.5),
 				     rand_lim * (util::random()/float (RAND_MAX) - 0.5));
@@ -100,7 +100,7 @@ coot::residue_by_phi_psi::make_2_res_joining_frag_new_building_forwards(const st
 
       // singleton
 
-      phi_psi_t pp0 = get_phi_psi_by_random(); // make one up for the starting residue
+      phi_psi_t pp0 = get_phi_psi_by_random(rama, rama_max, false); // make one up for the starting residue
       minimol::residue res1 = construct_next_res_from_rama_angles(pp1.phi, pp0.psi, pp1.tau,
 								  seqnum + 1, current_res_pos);
       connecting_atoms_t just_built_res(res1[" N  "].pos, res1[" CA "].pos, res1[" C  "].pos);
@@ -170,7 +170,7 @@ coot::residue_by_phi_psi::make_2_res_joining_frag_new_building_backwards(const s
    } else {
 
       // singleton
-      phi_psi_t pp0 = get_phi_psi_by_random(); // make one up for the starting residue
+      phi_psi_t pp0 = get_phi_psi_by_random(rama, rama_max, false); // make one up for the starting residue
       minimol::residue res1 = construct_prev_res_from_rama_angles(pp0.phi, pp1.psi, pp1.tau,
 								  seqnum + 1, current_res_pos);
       connecting_atoms_t just_built_res(res1[" N  "].pos, res1[" CA "].pos, res1[" C  "].pos);

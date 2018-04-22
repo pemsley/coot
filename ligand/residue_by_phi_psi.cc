@@ -228,7 +228,9 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 				trial_idx_start, trial_idx_end, offset, residue_p, next_residue_seq_num,
 				terminus_type, residue_type, b_factor,
 				std::ref(current_res_pos), std::ref(xmap_in), map_rms,
-				std::ref(rama), debug_trials_flag, &results);
+				std::ref(rama), rama_max,
+				std::ref(rama_pro), rama_max_pro,
+				debug_trials_flag, &results);
 	 }
 
 	 auto tp_2 = std::chrono::high_resolution_clock::now();
@@ -244,8 +246,8 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 	 // std::cout << "multithread results: " << std::endl;
 	 for (int itrial=0; itrial<n_trials; itrial++) {
 	    // std::cout << "mt   " << itrial << " " << results[itrial].first.atom_point_score << std::endl;
-	    if (results[itrial].first.atom_point_score > best_score) {
-	       best_score = results[itrial].first.atom_point_score;
+	    if (results[itrial].first.get_score() > best_score) {
+	       best_score = results[itrial].first.get_score();
 	       best_fragment = results[itrial].second;
 	    }
 	 }
@@ -266,15 +268,18 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 							      next_residue_seq_num,
 							      terminus_type, residue_type,
 							      b_factor, current_res_pos, xmap_in,
-							      map_rms, rama, debug_trials_flag,
+							      map_rms,
+							      rama, rama_max,
+							      rama_pro, rama_max_pro,
+							      debug_trials_flag,
 							      &results);
 
 	 // find the best
 	 for (int itrial=0; itrial<n_trials; itrial++) {
 	    const ligand_score_card &s    = results[itrial].first;
 	    const minimol::fragment &frag = results[itrial].second;
-	    if (s.atom_point_score > best_score) {
-	       best_score = s.atom_point_score;
+	    if (s.get_score() > best_score) {
+	       best_score = s.get_score();
 	       best_fragment = frag;
 	    }
 	 }
@@ -299,8 +304,8 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 	 for (int itrial=0; itrial<n_trials; itrial++) {
 	    const ligand_score_card &s    = results[itrial].first;
 	    const minimol::fragment &frag = results[itrial].second;
-	    if (s.atom_point_score > best_score) {
-	       best_score = s.atom_point_score;
+	    if (s.get_score() > best_score) {
+	       best_score = s.get_score();
 	       best_fragment = frag;
 	    }
 	 }
@@ -340,7 +345,8 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner_multithread(i
 									       const connecting_atoms_t &current_res_pos,
 									       const clipper::Xmap<float> &xmap_in,
 									       float map_rms_in,
-									       const clipper::Ramachandran &rama,
+									       const clipper::Ramachandran &rama, float rama_max,
+									       const clipper::Ramachandran &rama_pro, float rama_max_pro,
 									       bool debug_solutions,
 									       std::vector<std::pair<ligand_score_card, minimol::fragment> > *results) {
 
@@ -392,8 +398,8 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner_multithread(i
       }
 
       // how can this work? get_phi_psi_by_random() is private.
-      phi_psi_t pp1 = rphipsi.get_phi_psi_by_random();
-      phi_psi_t pp2 = rphipsi.get_phi_psi_by_random();
+      phi_psi_t pp1 = rphipsi.get_phi_psi_by_random(rama, rama_max, false);
+      phi_psi_t pp2 = rphipsi.get_phi_psi_by_random(rama, rama_max, false);
 
       frag = rphipsi.make_2_res_joining_frag_new(chain_id, current_res_pos,
 						 clipper::Util::rad2d(phi_conditional),
@@ -477,7 +483,7 @@ coot::residue_by_phi_psi::debug_trials(const coot::minimol::fragment &frag, int 
 
 	 f << "itrial " << itrial
 	   << " seqnum " << current_seqnum
-	   << " score " << score_card.atom_point_score
+	   << " score " << score_card.get_score()
 	   << " input-psi " << psi_conditional << " output-psi " << psi_current
 	   << " new phi input " << pp1.phi << " output " << phi_r_1
 	   << " new psi input " << pp1.psi << " output " << psi_r_1
@@ -596,11 +602,11 @@ coot::residue_by_phi_psi::add_characteristic_low_points(coot::ligand_score_card 
       }
 
       std::pair<clipper::Coord_orth, float> sp(ld_pos_1, dv_ld_pos_1);
-      s->scored_characteristic_low_density_points.push_back(sp);
-      s->atom_point_score -= 2.0 * dv_ld_pos_1; // scale needs optimizing
-      s->atom_point_score -= 2.0 * dv_ld_pos_2; //  likewise
-      s->atom_point_score -= 1.0 * dv_ld_pos_3; //  likewise
-      s->atom_point_score -= 1.0 * dv_ld_pos_4; //  likewise
+      //       s->scored_characteristic_low_density_points.push_back(sp);
+      //       s->atom_point_score -= 2.0 * dv_ld_pos_1; // scale needs optimizing
+      //       s->atom_point_score -= 2.0 * dv_ld_pos_2; //  likewise
+      //       s->atom_point_score -= 1.0 * dv_ld_pos_3; //  likewise
+      //       s->atom_point_score -= 1.0 * dv_ld_pos_4; //  likewise
    } else {
       std::cout << "DEBUG:: oops in add_characteristic_low_points() "
 		<< " residue subject_res_num "
@@ -827,18 +833,12 @@ coot::residue_by_phi_psi::construct_prev_res_from_rama_angles(float phi, float p
 void
 coot::residue_by_phi_psi::init_phi_psi_plot() {
 
-   if (residue_type == "GLY") {
-      rama.init(clipper::Ramachandran::Gly5);
-   } else { 
-      if (residue_type == "PRO") {
-	 rama.init(clipper::Ramachandran::Pro5);
-      } else {
-	 // rama.init(clipper::Ramachandran::NonGlyPro5);
-	 rama.init(clipper::Ramachandran::Gly5); // testing
-      }
-   }
+   rama.init(clipper::Ramachandran::Gly5);
+
+   rama_pro.init(clipper::Ramachandran::Pro5);
 
    rama_max = 0.0;
+   rama_max_pro = 0.0;
    
    for (float phi=0.0; phi<360.0; phi+=3.0) {
       for (float psi=0.0; psi<360.0; psi+=3.0) {
@@ -848,27 +848,43 @@ coot::residue_by_phi_psi::init_phi_psi_plot() {
 	    rama_max = v;
       }
    }
+   for (float phi=0.0; phi<360.0; phi+=3.0) {
+      for (float psi=0.0; psi<360.0; psi+=3.0) {
+	 float v = rama_pro.probability(clipper::Util::d2rad(phi),
+					clipper::Util::d2rad(psi));
+	 if (v > rama_max_pro)
+	    rama_max_pro = v;
+      }
+   }
 }
 
+// if is_pro_rama is not set correctly, this can fail to terminate
+//
 coot::phi_psi_t
-coot::residue_by_phi_psi::get_phi_psi_by_random() const { 
+coot::residue_by_phi_psi::get_phi_psi_by_random(const clipper::Ramachandran &rama_local,
+						const float &rama_max_local,
+						bool is_pro_rama) const {
    
-   float phi, psi, prob, r;
+   float phi, psi, r;
 
    // some fraction of the time we want (to force) phi values between 0 and 180
    // (most of the time we don't)
    bool force_positive_phi = false;
-   float phi_test_random = float (coot::util::random())/float (RAND_MAX);
-   if (phi_test_random < 0.2) // say
-      force_positive_phi = true;
+   if (! is_pro_rama) {
+      float phi_test_random = float (coot::util::random())/float (RAND_MAX);
+      if (phi_test_random < 0.2) // say
+	 force_positive_phi = true;
+   }
 
    for (;;) {
       phi = 360.0 * float (coot::util::random())/float (RAND_MAX);
       psi = 360.0 * float (coot::util::random())/float (RAND_MAX);
 
-      r = rama_max * coot::util::random()/ float (RAND_MAX);
-      prob = rama.probability(clipper::Util::d2rad(phi),
-			      clipper::Util::d2rad(psi));
+      r = rama_max_local * coot::util::random()/ float (RAND_MAX);
+      float prob = rama_local.probability(clipper::Util::d2rad(phi),
+					  clipper::Util::d2rad(psi));
+
+      // std::cout << "            compare " << prob << " " << r << std::endl;
 
       if (prob > r) {
 	 if (force_positive_phi) {
@@ -882,7 +898,7 @@ coot::residue_by_phi_psi::get_phi_psi_by_random() const {
    }
    float u1 = static_cast<float>(coot::util::random())/static_cast<float>(RAND_MAX);
    float u2 = 2.0 * u1 - 1.0; // -1 -> 1.
-   float tau = 111.2 + u2 * 2.0; // 2.0 needs investigation
+   float tau = 111.2 + u2 * 6.2; // 4.0 needs investigation
    return phi_psi_t(phi, psi, tau);
 }
 

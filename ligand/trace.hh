@@ -179,9 +179,16 @@ namespace coot {
 
       // 2 residues, one of which has two atom (CA, N)
       // (can't be const because it uses the map connection_map)
-      minimol::fragment make_fragment(std::pair<unsigned int, scored_node_t> scored_node,
+      minimol::fragment make_fragment(const std::pair<unsigned int, scored_node_t> &scored_node,
 				      int res_no_base,
 				      std::string chain_id);
+
+      // minimol::residue
+      minimol::fragment
+      make_residue(const std::pair<unsigned int, scored_node_t> &scored_node_a,
+		   const std::pair<unsigned int, scored_node_t> &scored_node_b,
+		   int res_no_base,
+		   std::string chain_id) const;
 
       void output_spin_score(const std::pair<unsigned int, scored_node_t> &score,
 			     unsigned int atom_idx_1,
@@ -272,12 +279,12 @@ namespace coot {
 	 scale_N_accpt  = s[7];
       }
 
-	 
-
       double ks_test(const std::vector<std::pair<unsigned int, scored_node_t> > &scores); 
 
       // Rama terminal addition/refine trace.
       void multi_peptide(const std::vector<std::pair<std::vector<coot::scored_node_t>, coot::minimol::fragment> > &frag_store, const protein_geometry &geom, std::pair<float, float> &mv);
+
+      void move_seeds_close_to_origin(std::vector<coot::minimol::fragment> *seeds) const;
 
    public:
       trace(const clipper::Xmap<float> &xmap_in);
@@ -295,6 +302,7 @@ namespace coot {
 
       double ks_test(); 
       void optimize_weights(mmdb::Manager *mol);
+      std::vector<minimol::fragment> make_seeds();
       
    };
 

@@ -1,12 +1,18 @@
 
+#include <utility>
+#include <vector>
+#include <clipper/core/coords.h>
+
+#include "mini-mol/mini-mol.hh"
+
 namespace coot {
    class ligand_score_card {
       int n_ligand_atoms; // non-H.
       int ligand_no;
+      double atom_point_score; // the old ranking metric, now use get_score()
    public:
       // consider using a member function here:
       bool many_atoms_fit;
-      double atom_point_score; // the ranking metric
       double score_per_atom;
       std::pair<bool, double> correlation;
       std::vector<std::pair<clipper::Coord_orth, float> > scored_characteristic_low_density_points;
@@ -29,6 +35,10 @@ namespace coot {
       bool operator<(const ligand_score_card &other) const {
 	 return (other.atom_point_score < atom_point_score);
       }
+      void add(const double &d) {
+	 atom_point_score += d;
+      }
+      double get_score() const;
       friend std::ostream& operator<<(std::ostream &s, const ligand_score_card &lsc);
    };
    std::ostream& operator<<(std::ostream &s, const ligand_score_card &lsc);

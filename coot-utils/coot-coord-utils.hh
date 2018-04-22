@@ -1401,6 +1401,7 @@ namespace coot {
       clipper::Coord_frac shift_to_origin(const std::vector<clipper::Coord_orth> &protein_coords,
 					  clipper::Cell cell,
 					  clipper::Spacegroup spacegroup);
+      bool is_000_shift(const clipper::Coord_frac &cf_shift);
 
       //
       clipper::Mat33<double> residue_orientation(mmdb::Residue *residue_p,

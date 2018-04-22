@@ -66,8 +66,185 @@ coot::operator<<(std::ostream &s, scored_node_t sn) {
    s << "[" << sn.atom_idx << " " << sn.spin_score << " "
      << sn.alpha << " " << sn.reversed_flag << "]";
    return s;
-} 
+}
 
+std::vector<coot::minimol::fragment>
+coot::trace::make_seeds() {
+
+   // seeds are a 2-residue fragment with the "interesting" residue as 2 and
+   // with a few atoms (CA,C,O) of the paired (upstream) residue.
+
+   // if not cryo-EM, then move seeds to around origin before returning.
+
+   // note to future self: this function does not need a backwards version.
+
+   std::vector<coot::minimol::fragment> seeds;
+   bool debug = true;
+   minimol::molecule flood_mol = get_flood_molecule();
+
+   mmdb::Manager *action_mol = flood_mol.pcmmdbmanager();
+
+   if (action_mol) {
+
+      double variation = 0.25; // make bigger at lower resolutions (maybe up to 0.5?)
+      std::vector<std::pair<unsigned int, unsigned int> > apwd =
+	 atom_pairs_within_distance(action_mol, 3.81, variation);
+      std::vector<std::pair<unsigned int, scored_node_t> > scores = spin_score_pairs(apwd);
+
+      unsigned int n_top_spin_pairs = 100;
+
+      std::sort(scores.begin(), scores.end(), scored_node_t::sort_pair_scores);
+      if (scores.size() < n_top_spin_pairs)
+	 n_top_spin_pairs = scores.size();
+      else
+	 scores.resize(n_top_spin_pairs); // this is the right way
+
+      if (false) { // debugging
+
+	 for (std::size_t i=0; i<scores.size(); i++)
+	    std::cout << "   scores: " << i << " " << scores[i].first << " "
+		      << scores[i].second.spin_score << std::endl;
+
+	 for (std::size_t i=0; i<scores.size(); i++) {
+	    const std::pair<unsigned int, scored_node_t> &node = scores[i];
+	    minimol::fragment frag = make_fragment(node, 1, "A");
+	    if (true) { // debug
+	       std::string file_name = "frag-seeds-";
+	       file_name += coot::util::int_to_string(i) + std::string(".pdb");
+	       minimol::molecule mmm(frag);
+	       mmm.write_file(file_name, 10);
+	    }
+	 }
+      }
+
+      double good_enough_score = 0.5; // overwritten
+
+      if (scores.size() > 0)
+	 good_enough_score = scores.back().second.spin_score;
+
+      make_connection_map(scores); // fills fwd_connection_map
+
+      dir_t dir = FORWARDS;
+      std::string chain_id("A");
+      for (std::size_t i=0; i<scores.size(); i++) {
+	 const std::pair<unsigned int, scored_node_t> &node = scores[i];
+	 if (node.second.spin_score > good_enough_score) {
+
+	    std::map<unsigned int, std::vector<scored_node_t> >::const_iterator it;
+	    it = fwd_connection_map.find(node.second.atom_idx);
+	    if (it != fwd_connection_map.end()) {
+
+	       const std::vector<scored_node_t> &v = it->second;
+	       if (v.size() > 0 ) {
+		  // maybe check _all_ connections?
+		  unsigned int idx_next = v[0].atom_idx;
+		  std::pair<unsigned int, scored_node_t> next_node(node.second.atom_idx, v[0]);
+		  if (next_node.second.spin_score > good_enough_score) {
+		     minimol::fragment frag = make_residue(node, next_node, 1, "A");
+		     seeds.push_back(frag);
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   if (seeds.size() > 0) {
+      if (! util::is_EM_map(xmap)) {
+	 move_seeds_close_to_origin(&seeds); // by translation
+	 if (true) {
+	    for (std::size_t i=0; i<seeds.size(); i++) {
+	       std::string fn = "seed-residue-" + util::int_to_string(i) + ".pdb";
+	       frag_to_pdb(seeds[i], fn); // adds cell and symmetry for output
+	    }
+	 }
+      }
+   }
+   return seeds;
+}
+
+void
+coot::trace::move_seeds_close_to_origin(std::vector<coot::minimol::fragment> *seeds_in) const {
+
+   for (std::size_t i=0; i<seeds_in->size(); i++) {
+      minimol::fragment &seed = seeds_in->at(i);
+
+      std::vector<clipper::Coord_orth> coords;
+      unsigned int n = 0;
+      for (int ires=seed.min_res_no(); ires<=seed.max_residue_number(); ires++) {
+	 for (unsigned int iatom=0; iatom<seed[ires].atoms.size(); iatom++) {
+	    const clipper::Coord_orth &p = seed[ires][iatom].pos;
+	    coords.push_back(p);
+	    n++;
+	 }
+      }
+      if (n > 0) {
+	 const clipper::Spacegroup &spg = xmap.spacegroup();
+	 const clipper::Cell &cell = xmap.cell();
+	 clipper::Coord_frac cf = util::shift_to_origin(coords, xmap.cell(), xmap.spacegroup());
+	 if (! util::is_000_shift(cf)) {
+	    // shift 'em
+	    clipper::Coord_orth co = cf.coord_orth(xmap.cell());
+	    for (int ires=seed.min_res_no(); ires<=seed.max_residue_number(); ires++) {
+	       for (unsigned int iatom=0; iatom<seed[ires].atoms.size(); iatom++) {
+		  seed[ires][iatom].pos += co;
+		  // std::cout << "moved " << ires << " " << iatom << " by " << co.format() << std::endl;
+	       }
+	    }
+	 }
+
+	 clipper::Coord_orth sum(0,0,0);
+	 for (int ires=seed.min_res_no(); ires<=seed.max_residue_number(); ires++) {
+	    for (unsigned int iatom=0; iatom<seed[ires].atoms.size(); iatom++) {
+	       const clipper::Coord_orth &p = seed[ires][iatom].pos;
+	       coords.push_back(p);
+	       sum += p;
+	    }
+	 }
+	 double oon = 1.0/static_cast<double>(n);
+	 clipper::Coord_orth frag_av_pos(sum.x() * oon, sum.y() * oon, sum.z() * oon);
+	 // OK, can I rotate them with symmetry so that they are closer?
+	 double d2min = frag_av_pos.lengthsq() -0.01; // small delta is useful
+	 int ibest = -1;
+	 clipper::Coord_frac cell_shift_best;
+	 unsigned int ns = spg.num_symops();
+	 for (int x_shift = -1; x_shift<2; x_shift++) {
+	    for (int y_shift = -1; y_shift<2; y_shift++) {
+	       for (int z_shift = -1; z_shift<2; z_shift++) {
+		  clipper::Coord_frac cell_shift = clipper::Coord_frac(x_shift, y_shift, z_shift);
+		  for (unsigned int is = 0; is < ns; is++) {
+		     const clipper::Symop &symop = spg.symop(is);
+		     clipper::RTop_frac rtf(symop.rot(), symop.trn() + cell_shift);
+		     clipper::RTop_orth rtop = symop.rtop_orth(cell);
+		     clipper::Coord_orth np = rtop * frag_av_pos;
+		     double d2 = np.lengthsq();
+		     if (d2 < d2min) {
+			d2min = d2;
+			ibest = is;
+			cell_shift_best = cell_shift;
+		     }
+		  }
+	       }
+	    }
+	 }
+	 // rotate 'em
+	 if (ibest >= 0) {
+	    // number 0 would be surprising
+	    if (false) // debug
+	       std::cout << "DEBUG:: rotating fragment seed  " << i << " using symop idx "
+			 << ibest << std::endl;
+	    const clipper::Symop &symop = spg.symop(ibest);
+	    clipper::RTop_frac rtf(symop.rot(), symop.trn() + cell_shift_best);
+	    clipper::RTop_orth rtop = rtf.rtop_orth(cell);
+	    for (int ires=seed.min_res_no(); ires<=seed.max_residue_number(); ires++) {
+	       for (unsigned int iatom=0; iatom<seed[ires].atoms.size(); iatom++) {
+		  seed[ires][iatom].pos = rtop * seed[ires][iatom].pos;
+	       }
+	    }
+	 }
+      }
+   }
+}
 
 void
 coot::trace::action() {
@@ -93,7 +270,7 @@ coot::trace::action() {
 	 n_top_spin_pairs = scores.size();
       else
 	 scores.resize(n_top_spin_pairs);
-      
+
       make_connection_map(scores);
       set_frag_score_crit(scores);
       if (using_test_model)
@@ -167,7 +344,7 @@ coot::trace::action() {
 
 void
 coot::trace::frag_to_pdb(const minimol::fragment &frag, const std::string &fn) const {
-   
+
    minimol::molecule m(frag);
    if (! m.is_empty()) {
       m.set_cell(xmap.cell());
@@ -224,7 +401,9 @@ coot::trace::ks_test() {
 coot::minimol::molecule
 coot::trace::get_flood_molecule() const {
 
+   bool debug = true;
    coot::ligand lig;
+
    lig.set_cluster_size_check_off();
    lig.set_chemically_sensible_check_off();
    lig.set_sphericity_test_off();
@@ -236,10 +415,12 @@ coot::trace::get_flood_molecule() const {
    
    lig.flood2(rmsd_cut_off);
    coot::minimol::molecule water_mol = lig.water_mol();
-   // debug
-   std::string output_pdb = "flood-mol.pdb";
-   water_mol.write_file(output_pdb, 30.0);
-   lig.output_map("find-waters-masked-flooded.map");
+
+   if (debug) {
+      std::string output_pdb = "flood-mol.pdb";
+      water_mol.write_file(output_pdb, 30.0);
+      lig.output_map("find-waters-masked-flooded.map");
+   }
    
    return water_mol;
    
@@ -267,7 +448,7 @@ coot::trace::atom_pairs_within_distance(mmdb::Manager *mol_in,
 		       "*", // elements
 		       "");
 
-      atom_selection = 0; // member data - cleared on descruction
+      atom_selection = 0; // member data - cleared on destruction
       n_selected_atoms = 0;
       mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
 
@@ -589,7 +770,7 @@ coot::trace::set_frag_score_crit(const std::vector<std::pair<unsigned int, score
 
 
 coot::minimol::fragment
-coot::trace::make_fragment(std::pair<unsigned int, coot::scored_node_t> scored_node,
+coot::trace::make_fragment(const std::pair<unsigned int, coot::scored_node_t> &scored_node,
 			   int res_no_base,
 			   std::string chain_id) {
 
@@ -628,8 +809,8 @@ coot::trace::make_fragment(std::pair<unsigned int, coot::scored_node_t> scored_n
    double ideal_peptide_length = 3.81;
 
    // we don't want the peptide to be scrunched up on one side of a
-   // "long" peptide... let the atom positions expand along a long peptide. 
-   
+   // "long" peptide... let the atom positions expand along a long peptide.
+
    double f_ca_ca_o = along_CA_CA_pt_O * diff_p_len/ideal_peptide_length;
    double f_ca_ca_c = along_CA_CA_pt_C * diff_p_len/ideal_peptide_length;
    double f_ca_ca_n = along_CA_CA_pt_N * diff_p_len/ideal_peptide_length;
@@ -666,7 +847,7 @@ coot::trace::make_fragment(std::pair<unsigned int, coot::scored_node_t> scored_n
    r2.addatom(at_CA_2);
 
    // minimol::fragment f(chain_id, false); // use non-expanding constructor
-   minimol::fragment f(chain_id); 
+   minimol::fragment f(chain_id);
    
    try { 
       f.addresidue(r1, false);
@@ -685,6 +866,140 @@ coot::trace::make_fragment(std::pair<unsigned int, coot::scored_node_t> scored_n
 		<< rte.what() << std::endl;
    }
    return f;
+}
+
+coot::minimol::fragment
+// coot::minimol::residue
+coot::trace::make_residue(const std::pair<unsigned int, coot::scored_node_t> &scored_node_a,
+			  const std::pair<unsigned int, coot::scored_node_t> &scored_node_b,
+			  int res_no_base,
+			  std::string chain_id) const {
+
+   // The returned residue will be residue b not residue a.
+   // Residue a makes the N of the returned residue. Residue b make
+   //
+
+   if (false)
+      std::cout << " make_residue() called with scored_node_a.first: " << scored_node_a.first
+		<< " scored_node_a.atom_idx: " << scored_node_a.second.atom_idx << " b: "
+		<< scored_node_b.first << " " << scored_node_b.second.atom_idx
+		<< std::endl;
+
+   clipper::Coord_orth pos_1 = index_to_pos(scored_node_a.first);
+   clipper::Coord_orth pos_2 = index_to_pos(scored_node_a.second.atom_idx);
+   clipper::Coord_orth pos_3 = index_to_pos(scored_node_b.second.atom_idx);
+
+   if (scored_node_a.second.reversed_flag) {
+      std::swap(pos_1, pos_2);
+      std::cout << "WARNING:: FIXME - can't deal with reversed peptides ATM " << std::endl;
+      minimol::fragment dummy_frag;
+      return dummy_frag;
+   }
+
+   // as in spin_score():
+   //
+   clipper::Coord_orth arb(0,0,1);
+   clipper::Coord_orth diff_p_1(pos_2 - pos_1);
+   clipper::Coord_orth diff_p_1_unit(diff_p_1.unit());
+   clipper::Coord_orth diff_p_2(pos_3 - pos_2);
+   clipper::Coord_orth diff_p_2_unit(diff_p_2.unit());
+
+   clipper::Coord_orth perp_1(clipper::Coord_orth::cross(arb, diff_p_1));
+   clipper::Coord_orth perp_1_unit(perp_1.unit());
+   clipper::Coord_orth perp_2(clipper::Coord_orth::cross(arb, diff_p_2));
+   clipper::Coord_orth perp_2_unit(perp_2.unit());
+
+   clipper::Coord_orth double_perp_1(clipper::Coord_orth::cross(diff_p_1, perp_1));
+   clipper::Coord_orth double_perp_1_unit(double_perp_1.unit());
+   clipper::Coord_orth double_perp_2(clipper::Coord_orth::cross(diff_p_2, perp_2));
+   clipper::Coord_orth double_perp_2_unit(double_perp_2.unit());
+
+   double diff_p_1_len = sqrt(diff_p_1.lengthsq());
+   double diff_p_2_len = sqrt(diff_p_2.lengthsq());
+
+   double alpha_1 = scored_node_a.second.alpha;
+   double alpha_2 = scored_node_b.second.alpha;
+
+   // << " using alpha " << alpha << std::endl;
+
+   double along_CA_CA_pt_O = 1.73; // the C is lower down than the O.
+   double along_CA_CA_pt_C = 1.46;
+   double along_CA_CA_pt_N = 2.44;
+
+   double ideal_peptide_length = 3.81;
+
+   // we don't want the peptide to be scrunched up on one side of a
+   // "long" peptide... let the atom positions expand along a long peptide.
+
+   double f_ca_ca_o_1 = along_CA_CA_pt_O * diff_p_1_len/ideal_peptide_length;
+   double f_ca_ca_c_1 = along_CA_CA_pt_C * diff_p_1_len/ideal_peptide_length;
+   double f_ca_ca_n_1 = along_CA_CA_pt_N * diff_p_1_len/ideal_peptide_length;
+   double f_ca_ca_o_2 = along_CA_CA_pt_O * diff_p_2_len/ideal_peptide_length;
+   double f_ca_ca_c_2 = along_CA_CA_pt_C * diff_p_2_len/ideal_peptide_length;
+   double f_ca_ca_n_2 = along_CA_CA_pt_N * diff_p_2_len/ideal_peptide_length;
+
+   clipper::Coord_orth rel_line_pt_O(diff_p_1_unit * f_ca_ca_o_1 + perp_1_unit * 1.66);
+   clipper::Coord_orth rel_line_pt_C(diff_p_1_unit * f_ca_ca_c_1 + perp_1_unit * 0.48);
+   clipper::Coord_orth rel_line_pt_N(diff_p_1_unit * f_ca_ca_n_1 - perp_1_unit * 0.47);
+
+   clipper::Coord_orth rel_line_pt_C_2(diff_p_2_unit * f_ca_ca_c_2 + perp_2_unit * 0.48);
+   clipper::Coord_orth rel_line_pt_O_2(diff_p_2_unit * f_ca_ca_o_2 + perp_2_unit * 1.66);
+
+   clipper::Coord_orth p_N_2 = util::rotate_around_vector(diff_p_1_unit,
+							  pos_1 + rel_line_pt_N,
+							  pos_1, alpha_1);
+
+   clipper::Coord_orth p_O_1 = util::rotate_around_vector(diff_p_1_unit,
+							  pos_1 + rel_line_pt_O,
+							  pos_1, alpha_1);
+
+   clipper::Coord_orth p_O_2 = util::rotate_around_vector(diff_p_2_unit,
+							  pos_2 + rel_line_pt_O_2,
+							  pos_2, alpha_2);
+
+   clipper::Coord_orth p_C_1 = util::rotate_around_vector(diff_p_1_unit,
+							  pos_1 + rel_line_pt_C,
+							  pos_1, alpha_1);
+
+   clipper::Coord_orth p_C_2 = util::rotate_around_vector(diff_p_2_unit,
+							  pos_2 + rel_line_pt_C_2,
+							  pos_2, alpha_2);
+
+   minimol::residue r1(res_no_base,   "ALA");
+   minimol::residue r2(res_no_base+1, "ALA");
+   minimol::atom at_O_1 (" O  ", "O", p_O_1,   "", 10);
+   minimol::atom at_C_1 (" C  ", "C", p_C_1,   "", 10);
+   minimol::atom at_N   (" N  ", "N", p_N_2,   "", 10);
+   minimol::atom at_CA_1(" CA ", "C", pos_1, "", 10);
+   minimol::atom at_CA_2(" CA ", "C", pos_2, "", 10);
+   minimol::atom at_O_2 (" O  ", "O", p_O_2, "", 10);
+   minimol::atom at_C_2 (" C  ", "C", p_C_2, "", 10);
+
+   r1.addatom(at_CA_1);
+   r1.addatom(at_C_1);
+   r1.addatom(at_O_1);
+
+   r2.addatom(at_N);
+   r2.addatom(at_CA_2);
+   r2.addatom(at_C_2);
+   r2.addatom(at_O_2);
+
+   if (false) { // debugging
+      minimol::atom at_Cnext(" Cnext", "C", pos_3, "", 30);
+      r2.addatom(at_Cnext);
+   }
+
+   std::pair<bool, clipper::Coord_orth> cbeta_info = cbeta_position(r2);
+   if (cbeta_info.first) {
+      r2.addatom(" CB ", " C", cbeta_info.second, "", 1.0, 30);
+   }
+
+   minimol::fragment f("A");
+   f.addresidue(r1, false);
+   f.addresidue(r2, false);
+   return f;
+
+   // return r2;
 }
 
 bool
@@ -1451,7 +1766,7 @@ coot::trace::build_2_choose_1(unsigned int atom_idx,
    //
    std::vector<scored_node_t> neighbs_1 = get_neighbours_of_vertex_excluding_path(atom_idx, start_path, dir);
 
-   if (false) { 
+   if (true) { 
       std::cout << "   INFO:: node-lev-1 " << atom_idx << " has "
 		<< neighbs_1.size() << " neighbours:" << std::endl;
       for (unsigned int j=0; j<neighbs_1.size(); j++)

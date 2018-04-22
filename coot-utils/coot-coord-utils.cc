@@ -7794,6 +7794,26 @@ coot::util::shift_to_origin(const std::vector<clipper::Coord_orth> &protein_coor
    return rf;
 }
 
+bool
+coot::util::is_000_shift(const clipper::Coord_frac &cf_shift) {
+
+   // This is for testing the results of the above function
+
+   if (std::abs(cf_shift.u()) > 0.1) {
+      return false;
+   } else {
+      if (std::abs(cf_shift.v()) > 0.1) {
+	 return false;
+      } else {
+	 if (std::abs(cf_shift.w()) > 0.1) {
+	    return false;
+	 }
+      }
+   }
+   return true;
+}
+
+
 
 // Can throw a std::runtime_error
 // 

@@ -2017,8 +2017,8 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 			   // need to be
 			   // exported to the
 			   // user interface
-			   if (score_card.atom_point_score > best_score) {
-			      best_score = score_card.atom_point_score;
+			   if (score_card.get_score() > best_score) {
+			      best_score = score_card.get_score();
 			      // 20081120 best_rotamer_mol loses the insertion
 			      // code for the residue.  Must fix.
 			      best_rotamer_mol = moved_mol;
