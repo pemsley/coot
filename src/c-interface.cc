@@ -1421,6 +1421,14 @@ GtkWidget *main_toolbar() {
    return w; 
 }
 
+GtkWidget *main_hbox() {
+
+   GtkWidget *w = lookup_widget(graphics_info_t::statusbar, "main_window_hbox");
+   return w;
+
+}
+
+
 
 
 
