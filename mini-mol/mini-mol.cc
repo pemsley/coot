@@ -1130,6 +1130,17 @@ coot::minimol::fragment::first_residue() const {
    return i;
 }
 
+void
+coot::minimol::fragment::delete_first_residue() {
+
+   if (residues.size() > 0)
+      residues.erase(residues.begin());
+
+   residues_offset++; // this is correct if seqnum of (now) residues[0] is seqnum of old residues[0]+1
+
+}
+
+
 
 void
 coot::minimol::fragment::transform(const clipper::RTop_orth &rtop) {

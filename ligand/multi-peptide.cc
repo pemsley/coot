@@ -28,6 +28,78 @@
 #include "coot-utils/coot-map-utils.hh"
 #include "analysis/stats.hh"
 
+#include "trace.hh"
+
+void
+coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_geometry &geom) {
+
+   bool debugging = false;
+   trace t(xmap);
+   std::vector<coot::minimol::fragment> seeds = t.make_seeds();
+   std::cout << "INFO:: Made " << seeds.size() << " seeds " << std::endl;
+
+   //kludge for testing backwards building
+   // if (seeds.size() > 0)
+   // seeds.resize(1);
+
+   // This (and the use of set_cell() and set_spacegroup() later) is inelegant.
+   float acell[6];
+   acell[0] = xmap.cell().descr().a();
+   acell[1] = xmap.cell().descr().b();
+   acell[2] = xmap.cell().descr().c();
+   acell[3] = clipper::Util::rad2d(xmap.cell().descr().alpha());
+   acell[4] = clipper::Util::rad2d(xmap.cell().descr().beta());
+   acell[5] = clipper::Util::rad2d(xmap.cell().descr().gamma());
+   std::string spacegroup_str_hm = xmap.spacegroup().symbol_hm();
+
+   for (std::size_t iseed=0; iseed<seeds.size(); iseed++) {
+      coot::minimol::molecule mmm(seeds[iseed]);
+      mmdb::Manager *mol = mmm.pcmmdbmanager();
+      mmdb::Residue *r = coot::util::get_residue(coot::residue_spec_t("A", 99, ""), mol);
+      mmdb::Residue *r_prev = coot::util::get_previous_residue(r, mol);
+      float b_fact = 30.0;
+      int n_trials = 20000; // 20000 is a reasonable minimal number
+
+      if (false) {
+	 coot::minimol::fragment fC =
+	    forwards_2018(r, r_prev, "A", b_fact, n_trials, geom, xmap, mv, debugging);
+	 std::string file_name = "trace-frag-forward-build-from-seed-";
+	 file_name += coot::util::int_to_string(iseed);
+	 file_name += ".pdb";
+	 coot::minimol::molecule mmm_out(fC);
+	 // add cell from map
+	 mmm_out.set_cell(acell);
+	 mmm_out.set_spacegroup(spacegroup_str_hm);
+	 mmm_out.write_file(file_name, 10);
+      }
+
+      if (true) {
+	 // The variable names are confusing here, when building backwards
+	 // the "next" residue from current (r, with res-no N) has res-no N+1.
+	 // That is a residue that has been built (if we can find it).
+	 //
+	 // I need the full/partial residues in the seeds to be the other way round
+	 // if I want to set "r_next" - which get's called r_prev
+	 // (previous value of r) in backwards_2018().
+	 //
+
+	 // does this crash when r is null?
+	 mmdb::Residue *r_next = 0;
+	 coot::minimol::fragment fN =
+	    backwards_2018(r, r_next, "A", b_fact, 10000, geom, xmap, mv, debugging);
+
+	 std::string file_name = "trace-frag-backwards-build-from-seed-";
+	 file_name += coot::util::int_to_string(iseed);
+	 file_name += ".pdb";
+	 coot::minimol::molecule mmm_out(fN);
+	 // add cell from map
+	 mmm_out.set_cell(acell);
+	 mmm_out.set_spacegroup(spacegroup_str_hm);
+	 mmm_out.write_file(file_name, 10);
+      }
+   }
+}
+
 
 coot::minimol::fragment
 coot::multi_build_N_terminal_ALA(mmdb::Residue *res_p,
@@ -64,7 +136,7 @@ coot::multi_build_C_terminal_ALA(mmdb::Residue *res_p,
 // I'll just start from scratch (there are common elements).
 //
 coot::minimol::fragment
-coot::multi_build_terminal_residue_addition_forwards_2018(mmdb::Residue *res_p,
+coot::multi_build_terminal_residue_addition::forwards_2018(mmdb::Residue *res_p,
 							  mmdb::Residue *upstream_neighbour_p,
 							  const std::string &chain_id,
 							  float b_factor_in,
@@ -74,7 +146,11 @@ coot::multi_build_terminal_residue_addition_forwards_2018(mmdb::Residue *res_p,
 							  std::pair<float, float> mv,
 							  bool debug_trials) {
 
-   ctpl::thread_pool thread_pool(coot::get_max_number_of_threads());
+
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+   unsigned int n_threads = coot::get_max_number_of_threads();
+   ctpl::thread_pool thread_pool(n_threads);
+#endif
 
    minimol::fragment many_residues; // add residue to this, and return it
    many_residues.addresidue(res_p, false);
@@ -111,7 +187,6 @@ coot::multi_build_terminal_residue_addition_forwards_2018(mmdb::Residue *res_p,
 
       residue_by_phi_psi addres("C", res_p, chain_id, residue_type, 20);
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
-      unsigned int n_threads = coot::get_max_number_of_threads();
       if (n_threads >= 1)
 	    addres.thread_pool(&thread_pool, n_threads);
 #endif
@@ -136,33 +211,7 @@ coot::multi_build_terminal_residue_addition_forwards_2018(mmdb::Residue *res_p,
 
       // now we have 2 residues in fragment f. We need to move the O of our current res_p
       // to be consistent with those 2 new residues
-      {
-	 minimol::atom C_res_prev = many_residues[res_p->GetSeqNum()][" C  "];
-	 // std::cout << "DEBUG:: here with C_res_prev " << C_res_prev << std::endl;
-	 double angle   = clipper::Util::d2rad(123.0); // N-C-O
-	 double torsion = clipper::Util::d2rad(0.0);
-	 clipper::Coord_orth new_o_pos_for_current_res_new(res[" CA "].pos,
-							   res[" N  "].pos,
-							   C_res_prev.pos, 1.231, angle, torsion);
-	 minimol::residue &res_current = many_residues[res_p->GetSeqNum()];
-	 if (false) { // debug res_current
-	    std::cout << "debug:: res_current " << res_current << " has "
-		      << res_current.atoms.size() << " atoms " << std::endl;
-	    for (std::size_t iat=0; iat<res_current.atoms.size(); iat++) {
-	       std::cout << "    " << iat << " " << res_current.atoms[iat] << std::endl;
-	    }
-	 }
-	 minimol::atom &o_at = many_residues[res_p->GetSeqNum()].at(" O  ");
-	 o_at.pos = new_o_pos_for_current_res_new;
-	 if (false)
-	    std::cout << "    O of residue " << res_p->GetSeqNum() << "\n    "
-		      << " using CA " << res[" CA "].pos.format()  << "\n    "
-		      << " using N "  << res[" N  "].pos.format()  << "\n    "
-		      << " using C "  << C_res_prev.pos.format()   << "\n    "
-		      << " updated to "
-		      << many_residues[res_p->GetSeqNum()].at(" O  ").pos.format()
-		      << " cf " << new_o_pos_for_current_res_new.format() << std::endl;
-      }
+      update_O_position_in_prev_residue(res_p, &many_residues, res);
 
       std::pair<bool, clipper::Coord_orth> cbeta_info = cbeta_position(res);
       if (cbeta_info.first) {
@@ -265,10 +314,121 @@ coot::multi_build_terminal_residue_addition_forwards_2018(mmdb::Residue *res_p,
    return many_residues;
 }
 
+coot::minimol::fragment
+coot::multi_build_terminal_residue_addition::backwards_2018(mmdb::Residue *res_p,
+							    mmdb::Residue *upstream_neighbour_p,
+							    const std::string &chain_id,
+							    float b_factor_in,
+							    int n_trials,
+							    const coot::protein_geometry &geom,
+							    const clipper::Xmap<float> &xmap,
+							    std::pair<float, float> mv,
+							    bool debug_trials) {
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+   unsigned int n_threads = get_max_number_of_threads();
+   ctpl::thread_pool thread_pool(n_threads);
+#endif
+   minimol::fragment many_residues;
+   many_residues.addresidue(res_p, false);
+
+   // setup initial conditions for the while loop
+   bool happy_fit = true;
+   int icount = 0;
+   mmdb::Residue *res_prev_p = 0; // this will become whatever res_p was the previous round
+   minimol::residue res_prev; // whatever res was on the previous round
+
+   while (happy_fit) {
+
+      if (false) { // debugging
+	 mmdb::Atom **residue_atoms = 0;
+	 int n_residue_atoms;
+	 res_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (int iat=0; iat<n_residue_atoms; iat++) {
+	    std::cout << "Atom " << iat << " " << coot::atom_spec_t(residue_atoms[iat]) << std::endl;
+	 }
+      }
+
+      // fill res, the first of the 2 residues fitted by residue_by_phi_psi
+      minimol::residue res;
+      std::string residue_type = "ALA"; // for the first try. If it's ALA we will add CB.
+      residue_by_phi_psi addres("MN", res_p, chain_id, residue_type, 20);
+
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+      if (n_threads >= 1)
+	    addres.thread_pool(&thread_pool, n_threads);
+#endif
+      addres.set_downstream_neighbour(res_prev_p);
+      addres.import_map_from(xmap);
+      minimol::fragment f = addres.best_fit_phi_psi(n_trials, -1); // offset = -1
+
+      int ires = res_p->GetSeqNum() - 1;
+
+      if (false) { // debug
+	 std::string file_name = "N-terminal-best-fit-phi-psi-";
+	 file_name += util::int_to_string(ires) + std::string(".pdb");
+	 minimol::molecule mmm(f);
+	 mmm.write_file(file_name, 10);
+      }
+
+      // add frag to many_residues, and set res
+      bool found_res = false;
+      res = f[ires];
+
+      many_residues.addresidue(f[ires],   false);
+      many_residues.addresidue(f[ires-1], false); // the "next" residue, Needed so that we
+                                                  // can well refine res.
+      std::cout << "=== res.seqnum " << res.seqnum << " ===== ires " << ires << std::endl;
+      std::pair<bool, clipper::Coord_orth> cbeta_info = cbeta_position(res);
+      if (cbeta_info.first) {
+	 res.addatom(" CB ", " C", cbeta_info.second, "", 1.0, 20.0);
+	 many_residues[res.seqnum].addatom(" CB ", " C", cbeta_info.second, "", 1.0, 30.0);
+      }
+      int offset = -1;
+      refine_end(&many_residues, res.seqnum, offset, geom, xmap);
+      // now extract res from many residues now that it has been updated.
+      res = many_residues[res.seqnum];
+      happy_fit = does_residue_fit(res, xmap, mv);
+
+      if (false) { // debug
+	 std::string file_name = "N-terminal-build-post-refined-";
+	 file_name += util::int_to_string(res.seqnum) + std::string(".pdb");
+	 minimol::molecule mmm(many_residues);
+	 mmm.write_file(file_name, 10);
+      }
+
+      many_residues.delete_first_residue(); // remove the "other" residue
+
+      if (res.is_empty())
+	 happy_fit = false;
+
+      if (happy_fit) {
+	 icount++;
+
+	 // setup for next round
+
+	 // set res_p to be the newly constructed residue
+	 res_prev = res;
+	 res_prev_p = res_p; // save to set downstream_N
+	 res_p = res.make_residue();
+	 if (false) { // debug
+	    mmdb::Atom **residue_atoms = 0;
+	    int n_residue_atoms;
+	    res_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	    for (int iat=0; iat<n_residue_atoms; iat++) {
+	       std::cout << "Atom of res_p from make_residue() " << iat << " "
+			 << atom_spec_t(residue_atoms[iat]) << std::endl;
+	    }
+	 }
+      }
+   }
+   return many_residues;
+}
+
+
 void
-coot::update_O_position_in_prev_residue(mmdb::Residue *res_p,
-					coot::minimol::fragment *many_residues,
-					const coot::minimol::residue &res) {
+coot::multi_build_terminal_residue_addition::update_O_position_in_prev_residue(mmdb::Residue *res_p,
+									       coot::minimol::fragment *many_residues,
+									       const coot::minimol::residue &res) {
 
    minimol::atom C_res_prev  = many_residues->at(res_p->GetSeqNum())[" C  "];
    minimol::atom CA_res_prev = many_residues->at(res_p->GetSeqNum())[" CA "];
@@ -292,7 +452,7 @@ coot::update_O_position_in_prev_residue(mmdb::Residue *res_p,
 // try again with PRO
 // try again with GLY
 std::pair<bool, coot::minimol::residue>
-coot::try_to_recover_from_bad_fit_forwards(mmdb::Residue *res_p, mmdb::Residue *res_prev_p,
+coot::multi_build_terminal_residue_addition::try_to_recover_from_bad_fit_forwards(mmdb::Residue *res_p, mmdb::Residue *res_prev_p,
 					   const std::string &chain_id, int n_trials,
 					   const coot::protein_geometry &geom,
 					   const clipper::Xmap<float> &xmap,
@@ -412,7 +572,10 @@ coot::multi_build_terminal_ALA(int offset, // direction
 			       std::pair<float, float> mv,
 			       bool debug_trials) {
 
-   
+   // kludge, for backwards compatibility. Maybe I should just delete this function
+   //
+   multi_build_terminal_residue_addition mbtra(geom, xmap, mv);
+
    // res_p might not be a member of hierarchy, so pass the chain id too.
 
    minimol::fragment many_residues;
@@ -479,7 +642,7 @@ coot::multi_build_terminal_ALA(int offset, // direction
 	 if (offset ==  1)
 	    res.seqnum = res_p->GetSeqNum() + 1;
 	    
-	 bool this_happy_fit = does_residue_fit(res, xmap, mv);
+	 bool this_happy_fit = mbtra.does_residue_fit(res, xmap, mv);
 
 	 // std::cout << "Here with this_happy_fit " << this_happy_fit << " for residue " << res << std::endl;
 
@@ -505,7 +668,7 @@ coot::multi_build_terminal_ALA(int offset, // direction
 
 	    // refine res and its neighbour, update the atoms of many_residues
 	    //
-	    refine_end(&many_residues, res.seqnum, offset, geom, xmap);
+	    mbtra.refine_end(&many_residues, res.seqnum, offset, geom, xmap);
 
 	    // ------------- For next round ----------------
 	    //
@@ -527,10 +690,10 @@ coot::multi_build_terminal_ALA(int offset, // direction
 // seqnum here is the residue number of the first addd residue
 //
 void
-coot::refine_end(coot::minimol::fragment *many_residues,
-		 int seqnum, int offset,
-		 const coot::protein_geometry &geom,
-		 const clipper::Xmap<float> &xmap) {
+coot::multi_build_terminal_residue_addition::refine_end(coot::minimol::fragment *many_residues,
+							int seqnum, int offset,
+							const coot::protein_geometry &geom,
+							const clipper::Xmap<float> &xmap) {
 
    mmdb::Manager *mol = new mmdb::Manager; // d
    mmdb::Model *model_p = new mmdb::Model;
@@ -645,8 +808,9 @@ coot::refine_end(coot::minimol::fragment *many_residues,
 } 
 
 bool
-coot::does_residue_fit(const coot::minimol::residue &res, const clipper::Xmap<float> &xmap,
-		       std::pair<float, float> mv) {
+coot::multi_build_terminal_residue_addition::does_residue_fit(const coot::minimol::residue &res,
+							      const clipper::Xmap<float> &xmap,
+							      std::pair<float, float> mv) {
 
    bool r = true;
    double z_crit = 1.3;
@@ -680,7 +844,7 @@ coot::does_residue_fit(const coot::minimol::residue &res, const clipper::Xmap<fl
 } 
 
 bool
-coot::crashing_into_self(const minimol::fragment &many_residues, int seqnum, int offset) {
+coot::multi_build_terminal_residue_addition::crashing_into_self(const minimol::fragment &many_residues, int seqnum, int offset) {
 
    bool status = false;
 

@@ -138,6 +138,7 @@ coot::residue_by_phi_psi::make_2_res_joining_frag_new_building_backwards(const s
 									 const phi_psi_t &pp1,
 									 const phi_psi_t &pp2,
 									 int seqnum) const {
+
    bool debug = false;
    minimol::fragment frag(chain_id);
 
@@ -145,7 +146,7 @@ coot::residue_by_phi_psi::make_2_res_joining_frag_new_building_backwards(const s
    clipper::Coord_orth current_ca = current_res_pos.CA_pos;
 
    // in radians
-   std::pair<bool, double> psi_current = current_res_pos.get_phi();
+   std::pair<bool, double> psi_current = current_res_pos.get_psi();
 
    if (psi_current.first) {
 
@@ -161,27 +162,39 @@ coot::residue_by_phi_psi::make_2_res_joining_frag_new_building_backwards(const s
       double phi_conditional_deg = clipper::Util::rad2d(get_phi_by_random_given_psi(psi_current.second, rama));
 
       minimol::residue res1 = construct_prev_res_from_rama_angles(phi_conditional_deg, pp1.psi, pp1.tau,
-								  seqnum + 1, current_res_pos);
+								  seqnum - 1, current_res_pos);
 
-      connecting_atoms_t just_built_res(res1[" N  "].pos, res1[" CA "].pos, res1[" C  "].pos);
-      just_built_res.set_upstream_C(current_res_pos.C_pos);
-      minimol::residue res2 = construct_prev_res_from_rama_angles(pp1.phi, pp2.psi, pp2.tau,
-								  seqnum + 2, just_built_res);
-   } else {
-
-      // singleton
-      phi_psi_t pp0 = get_phi_psi_by_random(rama, rama_max, false); // make one up for the starting residue
-      minimol::residue res1 = construct_prev_res_from_rama_angles(pp0.phi, pp1.psi, pp1.tau,
-								  seqnum + 1, current_res_pos);
       connecting_atoms_t just_built_res(res1[" N  "].pos, res1[" CA "].pos, res1[" C  "].pos);
       just_built_res.set_downstream_N(current_res_pos.N_pos);
       minimol::residue res2 = construct_prev_res_from_rama_angles(pp1.phi, pp2.psi, pp2.tau,
-								  seqnum + 2, just_built_res);
+								  seqnum - 2, just_built_res);
       for (unsigned int iat=0; iat<res2.atoms.size(); iat++)
 	 res2.atoms[iat].occupancy = 0.5;
       try {
-	 frag.addresidue(res1, 0);
 	 frag.addresidue(res2, 0);
+	 frag.addresidue(res1, 0);
+      }
+      catch (const std::runtime_error &rte) {
+	 std::cout << "ERROR:: make_2_res_joining_frag_new_building_forwards() "
+		   << rte.what() << std::endl;
+      }
+
+   } else {
+
+      // std::cout << "------------------ singleton " << std::endl;
+      // singleton
+      phi_psi_t pp0 = get_phi_psi_by_random(rama, rama_max, false); // make one up for the starting residue
+      minimol::residue res1 = construct_prev_res_from_rama_angles(pp0.phi, pp1.psi, pp1.tau,
+								  seqnum - 1, current_res_pos);
+      connecting_atoms_t just_built_res(res1[" N  "].pos, res1[" CA "].pos, res1[" C  "].pos);
+      just_built_res.set_downstream_N(current_res_pos.N_pos);
+      minimol::residue res2 = construct_prev_res_from_rama_angles(pp1.phi, pp2.psi, pp2.tau,
+								  seqnum - 2, just_built_res);
+      for (unsigned int iat=0; iat<res2.atoms.size(); iat++)
+	 res2.atoms[iat].occupancy = 0.5;
+      try {
+	 frag.addresidue(res2, 0);
+	 frag.addresidue(res1, 0);
       }
       catch (const std::runtime_error &rte) {
 	 std::cout << "ERROR:: make_2_res_joining_frag_new_building_forwards() "

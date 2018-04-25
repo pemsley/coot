@@ -135,12 +135,12 @@ coot::trace::make_seeds() {
 	    if (it != fwd_connection_map.end()) {
 
 	       const std::vector<scored_node_t> &v = it->second;
-	       if (v.size() > 0 ) {
+	       if (v.size() > 0) {
 		  // maybe check _all_ connections?
 		  unsigned int idx_next = v[0].atom_idx;
 		  std::pair<unsigned int, scored_node_t> next_node(node.second.atom_idx, v[0]);
 		  if (next_node.second.spin_score > good_enough_score) {
-		     minimol::fragment frag = make_residue(node, next_node, 1, "A");
+		     minimol::fragment frag = make_residue(node, next_node, 98, "A");
 		     seeds.push_back(frag);
 		  }
 	       }

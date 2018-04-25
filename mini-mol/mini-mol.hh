@@ -169,6 +169,7 @@ namespace coot {
 	 clipper::Coord_orth midpoint() const;
 	 // transform all coordinates in the fragment by rtop:
 	 void transform(const clipper::RTop_orth &rtop);
+	 void delete_first_residue();
 	 bool operator<(const fragment &f1) const {
 	    return (fragment_id < f1.fragment_id);
 	 }

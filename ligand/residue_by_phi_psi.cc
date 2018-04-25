@@ -156,12 +156,14 @@ coot::residue_by_phi_psi::best_fit_phi_psi(int n_trials,
    return m;
 }
 
+
+// ---------------------------- Modern (2018) interface ----------------
+//                              used by multi_peptide
+// ---------------------------------------------------------------------
+//
 coot::minimol::fragment
 coot::residue_by_phi_psi::best_fit_phi_psi(int n_trials, int offset) {
 
-   // std::cout << "                      called (fragment) best_fit_phi_psi() with offset "
-   // << offset << " -- is this even used? " << std::endl;
-   // Yes it is, from multi-peptide, at least.
 
    minimol::fragment f = fit_terminal_residue_generic(n_trials, offset, false, Xmap());
    return f;
@@ -243,20 +245,27 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 	 }
 	 auto tp_3 = std::chrono::high_resolution_clock::now();
 
-	 // std::cout << "multithread results: " << std::endl;
+	 // std::cout << "fit_terminal_residue_generic(): multithread results: " << std::endl;
 	 for (int itrial=0; itrial<n_trials; itrial++) {
-	    // std::cout << "mt   " << itrial << " " << results[itrial].first.atom_point_score << std::endl;
+	    // std::cout << "   comparing scores: " << results[itrial].first.get_score() << " "
+	    // << best_score << std::endl;
 	    if (results[itrial].first.get_score() > best_score) {
 	       best_score = results[itrial].first.get_score();
 	       best_fragment = results[itrial].second;
+	       if (false)
+		  std::cout << "debug ... best fragment has first residue and n residues: "
+			    << best_fragment.first_residue()
+			    << " " << best_fragment.n_filled_residues() << std::endl;
 	    }
 	 }
-	 // std::cout << "DEBUG:: multi-thread: best_score " << best_score << std::endl;
+
+	 std::cout << "DEBUG:: multi-thread: best_score " << best_score << std::endl;
 	 auto tp_4 = std::chrono::high_resolution_clock::now();
 	 auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
 	 auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
 	 auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
 	 // std::cout << "Timings: " << d21 << " " << d32 << " " << d43 << " ms" << std::endl;
+
       } else {
 
 	 // standard non-threaded
@@ -390,7 +399,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner_multithread(i
 	 if (psi_current.first) {
 	    phi_conditional = get_phi_by_random_given_psi(psi_current.second, rama); // in radians
 	 } else {
-	    if (! done_unexpected_missing_phi_message) {
+	    if (! done_unexpected_missing_psi_message) {
 	       std::cout << "unexpected missing psi_current" << residue_spec_t(res_p) << std::endl;
 	       done_unexpected_missing_psi_message = true;
 	    }
@@ -683,7 +692,6 @@ coot::residue_by_phi_psi::get_connecting_residue_atoms() const {
 	 if (atom_name == " N  ") {  // PDBv3 FIXME
 	    clipper::Coord_orth pos = co(at);
 	    atoms_in_residue.set_downstream_N(pos);
-	    std::cout << ".................. setup downstream_N " << std::endl;
 	    break;
 	 }
       }
@@ -750,7 +758,7 @@ coot::residue_by_phi_psi::construct_next_res_from_rama_angles(float phi_this, fl
    mres.addatom(coot::minimol::atom(" O  ", " O", o_pos,  "", b_factor));
 
    return mres;
-}   
+}
 
 // phi is phi of the residue to which we are joining.
 coot::minimol::residue
@@ -808,7 +816,11 @@ coot::residue_by_phi_psi::construct_prev_res_from_rama_angles(float phi, float p
    mres.addatom(coot::minimol::atom(" C  ", " C", c_pos,  "", b_factor));
    mres.addatom(coot::minimol::atom(" CA ", " C", ca_pos, "", b_factor));
    mres.addatom(coot::minimol::atom(" O  ", " O", o_pos,  "", b_factor));
-   mres.addatom(coot::minimol::atom(" CB ", " C", cb_pos, "", b_factor));
+
+   // I guess that we should be consistent with construct_next_res_from_rama_angles().
+   // i.e. here is not the place to add the CB.
+   //
+   // mres.addatom(coot::minimol::atom(" CB ", " C", cb_pos, "", b_factor));
 
    return mres;
 }
