@@ -6742,7 +6742,7 @@ coot::util::cis_peptide_quads_from_coords(mmdb::Manager *mol,
 
 			   // no flags for C-N distances that are more than 2A apart:
 
-			   double dist = clipper::Coord_orth::length(can, cf);
+			   double dist = clipper::Coord_orth::length(nn, cf);
 
 			   if (dist <= 2.0) {
 
