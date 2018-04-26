@@ -3513,6 +3513,9 @@ def file_to_preferences(filename):
                             " already exists. Not overwritten."
                         add_status_bar_text(s)
                     else:
+                        # check the directory first
+                        if not os.path.isdir(pref_dir):
+                            make_directory_maybe(pref_dir)
                         shutil.copyfile(ref_py, pref_file)
                         if os.path.isfile(pref_file):
                             execfile(pref_file, globals())
@@ -3712,7 +3715,10 @@ def find_exe(program_name, *args, **kwargs):
         no_search = False
     search_disk = False
     if (use_gui_qm and not no_search):
-        search_disk = search_disk_dialog(program_name, path_ls)
+        try:
+            search_disk = search_disk_dialog(program_name, path_ls)
+        except NameError as e:
+            pass
     if search_disk:
         # search everywhere
         for drive in drives_ls:

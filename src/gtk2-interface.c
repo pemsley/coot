@@ -12876,7 +12876,7 @@ create_splash_screen_window (void)
   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
   gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
 
-  image10854 = create_pixmap (splash_screen_window, "coot-0.8.9.png");
+  image10854 = create_pixmap (splash_screen_window, "coot-0.8.9.1.png");
   gtk_widget_show (image10854);
   gtk_container_add (GTK_CONTAINER (splash_screen_window), image10854);
 
@@ -17028,7 +17028,7 @@ create_renumber_residue_range_dialog (void)
   renumber_residue_range_resno_1_entry = gtk_entry_new ();
   gtk_widget_show (renumber_residue_range_resno_1_entry);
   gtk_box_pack_start (GTK_BOX (hbox440), renumber_residue_range_resno_1_entry, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (renumber_residue_range_resno_1_entry, 40, -1);
+  gtk_widget_set_size_request (renumber_residue_range_resno_1_entry, 50, -1);
 
   label802 = gtk_label_new ("<b>Start Residue</b>");
   gtk_widget_show (label802);
@@ -17061,7 +17061,7 @@ create_renumber_residue_range_dialog (void)
   renumber_residue_range_resno_2_entry = gtk_entry_new ();
   gtk_widget_show (renumber_residue_range_resno_2_entry);
   gtk_box_pack_start (GTK_BOX (hbox441), renumber_residue_range_resno_2_entry, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (renumber_residue_range_resno_2_entry, 40, -1);
+  gtk_widget_set_size_request (renumber_residue_range_resno_2_entry, 50, -1);
 
   label805 = gtk_label_new ("      ");
   gtk_widget_show (label805);
@@ -17095,7 +17095,7 @@ create_renumber_residue_range_dialog (void)
   renumber_residue_range_offset_entry = gtk_entry_new ();
   gtk_widget_show (renumber_residue_range_offset_entry);
   gtk_box_pack_start (GTK_BOX (hbox97), renumber_residue_range_offset_entry, FALSE, TRUE, 0);
-  gtk_widget_set_size_request (renumber_residue_range_offset_entry, 40, -1);
+  gtk_widget_set_size_request (renumber_residue_range_offset_entry, 50, -1);
   gtk_tooltips_set_tip (tooltips, renumber_residue_range_offset_entry, "e.g. an offset of -10 will renumber residues 33 to 36 as 23 to 36", NULL);
 
   dialog_action_area60 = GTK_DIALOG (renumber_residue_range_dialog)->action_area;

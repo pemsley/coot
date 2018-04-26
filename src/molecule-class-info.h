@@ -423,7 +423,9 @@ class molecule_class_info_t {
    std::string suggest_new_chain_id(const std::string &current_chain_id) const;
 
    // returned the copied residue (possibly can return NULL on failure).
-   mmdb::Residue* copy_and_add_residue_to_chain(mmdb::Chain *this_model_chain, mmdb::Residue *add_model_residue);
+   mmdb::Residue* copy_and_add_residue_to_chain(mmdb::Chain *this_model_chain,
+						mmdb::Residue *add_model_residue,
+						bool new_res_no_by_hundreds=false);
    void copy_and_add_chain_residues_to_chain(mmdb::Chain *new_chain, mmdb::Chain *this_molecule_chain);
 
 
@@ -2117,8 +2119,8 @@ public:        //                      public
 
    // return state, max_resno + 1, or 0, 1 of no residues in chain.
    // 
-   std::pair<short int, int> next_residue_in_chain(mmdb::Chain *w) const;
-
+   std::pair<short int, int> next_residue_number_in_chain(mmdb::Chain *w,
+							  bool new_res_no_by_hundreds=false) const;
 
    // For environment distance application, we need to find the atom
    // nearest the centre of rotation
@@ -2330,6 +2332,8 @@ public:        //                      public
    
    std::pair<int, std::vector<std::string> > merge_molecules(const std::vector<atom_selection_container_t> &add_molecules);
    std::pair<bool, std::vector<std::string> > try_add_by_consolidation(mmdb::Manager *adding_mol);
+   bool merge_molecules_just_one_residue_homogeneous(atom_selection_container_t molecule_to_add);
+   bool merge_ligand_to_near_chain(mmdb::Manager *mol); // return success status
 
    int renumber_residue_range(const std::string &chain_id,
 			      int start_resno, int last_resno, int offset);

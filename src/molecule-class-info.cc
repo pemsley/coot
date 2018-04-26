@@ -5851,7 +5851,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 	    remove_TER_on_last_residue(w);
 	    
 	    // Now add atom to chain w.
-	    std::pair<short int, int> wresno_pair = next_residue_in_chain(w);
+	    std::pair<short int, int> wresno_pair = next_residue_number_in_chain(w);
 	    if (wresno_pair.first) { 
 	       wresno = wresno_pair.second;
 	    } else { 
@@ -8546,9 +8546,11 @@ molecule_class_info_t::water_chain_from_shelx_ins() const {
 
 
 // return state, max_resno + 1, or 0, 1 of no residues in chain.
-// 
+//
+// new_res_no_by_hundreds is default false
 std::pair<short int, int> 
-molecule_class_info_t::next_residue_in_chain(mmdb::Chain *w) const { 
+molecule_class_info_t::next_residue_number_in_chain(mmdb::Chain *w,
+						    bool new_res_no_by_hundreds) const {
 
    std::pair<short int, int> p(0,1);
    int max_res_no = -9999;
@@ -8556,12 +8558,17 @@ molecule_class_info_t::next_residue_in_chain(mmdb::Chain *w) const {
    if (w) { 
       int nres = w->GetNumberOfResidues();
       mmdb::Residue *residue_p;
-      if (nres > 0) { 
+      if (nres > 0) {
 	 for (int ires=nres-1; ires>=0; ires--) { 
 	    residue_p = w->GetResidue(ires);
 	    if (residue_p->seqNum > max_res_no) {
 	       max_res_no = residue_p->seqNum;
-	       p = std::pair<short int, int>(1, max_res_no+1);
+	       if (new_res_no_by_hundreds) {
+		  int res_no = coot::util::round_up_by_hundreds(max_res_no+1);
+		  p = std::pair<short int, int>(1, res_no+1);
+	       } else {
+		  p = std::pair<short int, int>(1, max_res_no+1);
+	       }
 	    }
 	 }
       }

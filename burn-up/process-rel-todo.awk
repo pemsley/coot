@@ -24,8 +24,9 @@ END {
     # n_s = $1-1312898037; 0.7
     # n_s = $1 - 1502356115
     # n_s = $1 - 1498000000
+    # n_s = $1 - 1519647801 # end of Feb
     # yesterday in guile:  (- (current-time) (* 24 60 60))
-    n_s = $1 - 1519647801 # end of Feb
+    n_s = $1 - 1524348970
     n_days = n_s/(60*60*24)
     print n_days, post_sum, pre_sum + post_sum
 }

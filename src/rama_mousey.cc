@@ -451,6 +451,8 @@ on_rama_open_filechooserdialog_response(GtkDialog *dialog, gint response_id, gpo
    gtk_widget_hide(GTK_WIDGET(dialog));
 }
 
+#ifdef HAVE_GOOCANVAS
+
 // Canvas and item callbacks
 gboolean rama_item_button_press (GooCanvasItem *item,
                       GooCanvasItem *target,
@@ -465,12 +467,11 @@ gboolean rama_item_button_press (GooCanvasItem *item,
    //g_print ("BL DEBUG:: %s received button-press event\n", id ? id : "unknown");
 
    plot->button_item_press(item, event);
-
-
-
    return TRUE;
-
 }
+#endif
+
+#ifdef HAVE_GOOCANVAS
 
 gboolean rama_item_button_release (GooCanvasItem *item,
                       GooCanvasItem *target,
@@ -485,18 +486,15 @@ gboolean rama_item_button_release (GooCanvasItem *item,
    //g_print ("BL DEBUG:: %s received button-release event\n", id ? id : "unknown");
 
    plot->button_item_release(item, event);
-
-
-
    return TRUE;
-
 }
+#endif
 
+#ifdef HAVE_GOOCANVAS
 gboolean rama_item_enter_event (GooCanvasItem *item,
                                 GooCanvasItem *target,
                                 GdkEventCrossing *event,
                                 gpointer data) {
-
 
    coot::rama_plot *plot =
       static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(item), "rama_plot"));
@@ -506,9 +504,10 @@ gboolean rama_item_enter_event (GooCanvasItem *item,
    // do something, maybe pass some data for usefullness.
 
    return TRUE;
-
 }
+#endif
 
+#ifdef HAVE_GOOCANVAS
 gboolean rama_item_motion_event (GooCanvasItem *item,
                                 GooCanvasItem *target,
                                 GdkEventMotion *event,
@@ -525,6 +524,7 @@ gboolean rama_item_motion_event (GooCanvasItem *item,
    return TRUE;
 
 }
+#endif
 
 // The motion callback was attached at the canvas, so widget is a
 // canvas here.

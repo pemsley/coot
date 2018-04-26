@@ -711,6 +711,8 @@ void
 exptl::nsv::strand(mmdb::Chain *chain_p, int resno_low, int resno_high,
 		   double x_start, double y_start, double scale) {
 
+#ifdef HAVE_GOOCANVAS
+
    double x_offset = 200;
    double resno_delta = resno_high - resno_low;
 
@@ -829,6 +831,7 @@ exptl::nsv::strand(mmdb::Chain *chain_p, int resno_low, int resno_high,
 								NULL);
       goo_canvas_points_unref(points_bar_shadow);
    }
+#endif // goocanvas
 }
 
 void
@@ -895,6 +898,9 @@ exptl::nsv::helix(mmdb::Chain *chain_p, int resno_low, int resno_high, double x_
 //
 void
 exptl::nsv::helix_single_inner(int i_turn_number, double x_start, double y_start, double helix_scale) {
+
+
+#ifdef HAVE_GOOCANVAS
 
    // double x_start = 100.0;
    // double y_start = -40.0;
@@ -1094,6 +1100,8 @@ exptl::nsv::helix_single_inner(int i_turn_number, double x_start, double y_start
       goo_canvas_points_unref(helix_points_highlights_2);
 
    }
+
+#endif // goocanvas
 }
 
 

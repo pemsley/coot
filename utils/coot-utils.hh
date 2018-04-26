@@ -63,8 +63,9 @@ namespace coot {
 
    std::pair<std::string, std::string> get_userid_name_pair();
 
-   namespace util { 
+   namespace util {
 
+      int round_up_by_hundreds(int num);
       std::string current_working_dir(); 
       std::string append_dir_dir (const std::string &s1, const std::string &dir);
       std::string append_dir_file(const std::string &s1, const std::string &file);
