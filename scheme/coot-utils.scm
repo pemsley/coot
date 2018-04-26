@@ -3856,7 +3856,7 @@
 				(add-status-bar-text s)))
 			    (begin
 			      ;; check the directory first
-			      (if (not (file-exits? pref-dir))
+			      (if (not (file-exists? pref-dir))
 				  (make-directory-maybe pref-dir))
 			      (copy-file ref-scm pref-file)
 			      (if (file-exists? pref-file)
