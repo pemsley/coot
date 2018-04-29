@@ -2314,8 +2314,9 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 
 	 // do we want to output the trial solutions as pdbs?
 
-	 std::cout << "--------------------- here with add_terminal_residue_debug_trials "
-		   << add_terminal_residue_debug_trials << std::endl;
+	 // std::cout << "--------------------- here with add_terminal_residue_debug_trials "
+	 // << add_terminal_residue_debug_trials << std::endl;
+
 	 if (add_terminal_residue_debug_trials)
 	    addres.write_trial_pdbs();
 

@@ -1609,13 +1609,12 @@ graphics_info_t::clear_up_moving_atoms() {
       if (moving_atoms_asc->n_selected_atoms > 0) { 
 	 moving_atoms_asc->mol = NULL; 
       } else {
-	 std::cout << "attempting to delete non-NULL moving_atoms_asc.mol" << std::endl;
+	 std::cout << "WARNING:: attempting to delete non-NULL moving_atoms_asc.mol" << std::endl;
 	 std::cout << "but moving_atoms_asc.n_selected_atoms == 0" << std::endl;
 	 std::cout << "ignoring " << std::endl;
       } 
    } else {
-      std::cout << "attempting to delete NULL moving_atoms_asc.mol" << std::endl;
-      std::cout << "ignoring " << std::endl;
+      // std::cout << "WARNING:: attempting to delete NULL moving_atoms_asc.mol - ignoring" << std::endl;
    }
 
    dynamic_distances.clear();
