@@ -151,6 +151,12 @@ coot::trace::make_seeds() {
 
    if (seeds.size() > 0) {
       if (! util::is_EM_map(xmap)) {
+	 if (true) {
+	    for (std::size_t i=0; i<seeds.size(); i++) {
+	       std::string fn = "seed-residue-pre-moved-" + util::int_to_string(i) + ".pdb";
+	       frag_to_pdb(seeds[i], fn); // adds cell and symmetry for output
+	    }
+	 }
 	 move_seeds_close_to_origin(&seeds); // by translation
 	 if (true) {
 	    for (std::size_t i=0; i<seeds.size(); i++) {
@@ -187,8 +193,16 @@ coot::trace::move_seeds_close_to_origin(std::vector<coot::minimol::fragment> *se
 	    clipper::Coord_orth co = cf.coord_orth(xmap.cell());
 	    for (int ires=seed.min_res_no(); ires<=seed.max_residue_number(); ires++) {
 	       for (unsigned int iatom=0; iatom<seed[ires].atoms.size(); iatom++) {
+		  if (debug) {
+		     double d1 = sqrt(seed[ires][iatom].pos.lengthsq());
+		     double d2 = sqrt((seed[ires][iatom].pos+co).lengthsq());
+		     std::cout << "seed origin-moved " << ires << " " << iatom
+			       << " from " << seed[ires][iatom].pos.format() << " to "
+			       << (seed[ires][iatom].pos + co).format()
+			       << " by " << co.format() << " d1 " << d1 << " d2 " << d2
+			       << std::endl;
+		  }
 		  seed[ires][iatom].pos += co;
-		  // std::cout << "moved " << ires << " " << iatom << " by " << co.format() << std::endl;
 	       }
 	    }
 	 }
@@ -197,7 +211,6 @@ coot::trace::move_seeds_close_to_origin(std::vector<coot::minimol::fragment> *se
 	 for (int ires=seed.min_res_no(); ires<=seed.max_residue_number(); ires++) {
 	    for (unsigned int iatom=0; iatom<seed[ires].atoms.size(); iatom++) {
 	       const clipper::Coord_orth &p = seed[ires][iatom].pos;
-	       coords.push_back(p);
 	       sum += p;
 	    }
 	 }
@@ -206,7 +219,7 @@ coot::trace::move_seeds_close_to_origin(std::vector<coot::minimol::fragment> *se
 	 // OK, can I rotate them with symmetry so that they are closer?
 	 double d2min = frag_av_pos.lengthsq() -0.01; // small delta is useful
 	 int ibest = -1;
-	 clipper::Coord_frac cell_shift_best;
+	 clipper::RTop_orth rtop_best;
 	 unsigned int ns = spg.num_symops();
 	 for (int x_shift = -1; x_shift<2; x_shift++) {
 	    for (int y_shift = -1; y_shift<2; y_shift++) {
@@ -221,7 +234,7 @@ coot::trace::move_seeds_close_to_origin(std::vector<coot::minimol::fragment> *se
 		     if (d2 < d2min) {
 			d2min = d2;
 			ibest = is;
-			cell_shift_best = cell_shift;
+			rtop_best = rtop;
 		     }
 		  }
 	       }
@@ -233,12 +246,18 @@ coot::trace::move_seeds_close_to_origin(std::vector<coot::minimol::fragment> *se
 	    if (false) // debug
 	       std::cout << "DEBUG:: rotating fragment seed  " << i << " using symop idx "
 			 << ibest << std::endl;
-	    const clipper::Symop &symop = spg.symop(ibest);
-	    clipper::RTop_frac rtf(symop.rot(), symop.trn() + cell_shift_best);
-	    clipper::RTop_orth rtop = rtf.rtop_orth(cell);
 	    for (int ires=seed.min_res_no(); ires<=seed.max_residue_number(); ires++) {
 	       for (unsigned int iatom=0; iatom<seed[ires].atoms.size(); iatom++) {
-		  seed[ires][iatom].pos = rtop * seed[ires][iatom].pos;
+		  if (false) { // debug
+		     double d1 = sqrt(seed[ires][iatom].pos.lengthsq());
+		     double d2 = sqrt((rtop_best * seed[ires][iatom].pos).lengthsq());
+		     std::cout << "seed symm-application " << ires << " " << iatom
+			       << " from " << seed[ires][iatom].pos.format() << " to "
+			       << (rtop_best * seed[ires][iatom].pos).format()
+			       << " d1 " << d1 << " d2 " << d2
+			       << std::endl;
+		  }
+		  seed[ires][iatom].pos = rtop_best * seed[ires][iatom].pos;
 	       }
 	    }
 	 }
@@ -401,7 +420,7 @@ coot::trace::ks_test() {
 coot::minimol::molecule
 coot::trace::get_flood_molecule() const {
 
-   bool debug = true;
+   bool debug = false;
    coot::ligand lig;
 
    lig.set_cluster_size_check_off();

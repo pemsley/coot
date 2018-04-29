@@ -221,7 +221,7 @@ int main(int argc, char **argv) {
 			   int n_trials = 20000; // 20000 is a reasonable minimal number
 			   coot::multi_build_terminal_residue_addition mbtra(geom, xmap, mv);
 			   coot::minimol::fragment fC =
-			      mbtra.forwards_2018(r, r_prev, "A", b_fact, n_trials,
+			      mbtra.forwards_2018(0, r, r_prev, "A", b_fact, n_trials,
 						  geom, xmap, mv, debugging);
 			   std::string file_name = "trace-frag-forwards-build.pdb";
 			   coot::minimol::molecule mmm(fC);

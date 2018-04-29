@@ -259,7 +259,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 	    }
 	 }
 
-	 std::cout << "DEBUG:: multi-thread: best_score " << best_score << std::endl;
+	 // std::cout << "DEBUG:: multi-thread: best_score " << best_score << std::endl;
 	 auto tp_4 = std::chrono::high_resolution_clock::now();
 	 auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
 	 auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
@@ -390,7 +390,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner_multithread(i
 	    psi_conditional = get_psi_by_random_given_phi(phi_current.second, rama); // in radians
 	 } else {
 	    if (! done_unexpected_missing_phi_message) {
-	       std::cout << "unexpected missing phi_current" << residue_spec_t(res_p) << std::endl;
+	       // std::cout << "unexpected missing phi_current" << residue_spec_t(res_p) << std::endl;
 	       done_unexpected_missing_phi_message = true;
 	    }
 	 }
@@ -400,7 +400,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner_multithread(i
 	    phi_conditional = get_phi_by_random_given_psi(psi_current.second, rama); // in radians
 	 } else {
 	    if (! done_unexpected_missing_psi_message) {
-	       std::cout << "unexpected missing psi_current" << residue_spec_t(res_p) << std::endl;
+	       // std::cout << "unexpected missing psi_current" << residue_spec_t(res_p) << std::endl;
 	       done_unexpected_missing_psi_message = true;
 	    }
 	 }

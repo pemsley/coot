@@ -1393,7 +1393,7 @@ coot::ligand::trace_along(const clipper::Coord_grid &cg_start,
 	 trace_along(c_g, neighb, n_clusters);
       }
    }
-} 
+}
 
 
 void

@@ -54,6 +54,7 @@ libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
 libcoot_ligand_la_LIBADD = \
    $(top_builddir)/ideal/libcoot-ideal.la             \
    $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
+   $(top_builddir)/cootaneer/libcootaneer.la \
    $(top_builddir)/db-main/libcoot-db-main.la         \
    $(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
    $(top_builddir)/geometry/libcoot-geometry.la       \

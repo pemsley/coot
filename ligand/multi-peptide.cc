@@ -27,8 +27,61 @@
 #include "residue_by_phi_psi.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "analysis/stats.hh"
+#include "cootaneer/cootaneer-sequence.h"
 
 #include "trace.hh"
+
+void
+coot::multi_build_terminal_residue_addition::setup_standard_residues_mol() {
+
+   standard_residues_mol = 0;
+   std::string standard_env_dir = "COOT_STANDARD_RESIDUES";
+   const char *filename_str = getenv(standard_env_dir.c_str());
+   std::string filename;
+   if (! filename_str) {
+      std::string standard_residues_file_name = package_data_dir(); // check COOT_PREFIX
+      standard_residues_file_name += "/";
+      standard_residues_file_name += "standard-residues.pdb";
+      filename = standard_residues_file_name;
+   } else {
+      filename = std::string(filename_str);
+   }
+
+   if (file_exists(filename)) {
+
+      mmdb::Manager *mol = new mmdb::Manager;
+      mmdb::ERROR_CODE err = mol->ReadCoorFile(filename.c_str());
+      if (err) {
+	 std::cout << "There was an error reading " << filename.c_str() << ". \n";
+	 std::cout << "ERROR " << err << " READ: "
+		   << mmdb::GetErrorDescription(err) << std::endl;
+	 delete mol;
+      } else {
+	 standard_residues_mol = mol;
+      }
+   }
+}
+
+void
+coot::multi_build_terminal_residue_addition::setup_symms() {
+
+   const clipper::Spacegroup &spg = xmap.spacegroup();
+   const clipper::Cell &cell = xmap.cell();
+   unsigned int ns = spg.num_symops();
+   for (int x_shift = -1; x_shift<2; x_shift++) {
+      for (int y_shift = -1; y_shift<2; y_shift++) {
+	 for (int z_shift = -1; z_shift<2; z_shift++) {
+	    clipper::Coord_frac cell_shift = clipper::Coord_frac(x_shift, y_shift, z_shift);
+	    for (unsigned int is = 0; is < ns; is++) {
+	       const clipper::Symop &symop = spg.symop(is);
+	       clipper::RTop_frac rtf(symop.rot(), symop.trn() + cell_shift);
+	       clipper::RTop_orth rtop = symop.rtop_orth(cell);
+	       symms.push_back(rtop);
+	    }
+	 }
+      }
+   }
+}
 
 void
 coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_geometry &geom) {
@@ -39,8 +92,9 @@ coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_
    std::cout << "INFO:: Made " << seeds.size() << " seeds " << std::endl;
 
    //kludge for testing backwards building
+
    // if (seeds.size() > 0)
-   // seeds.resize(1);
+   // seeds.resize(4);
 
    // This (and the use of set_cell() and set_spacegroup() later) is inelegant.
    float acell[6];
@@ -52,6 +106,22 @@ coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_
    acell[5] = clipper::Util::rad2d(xmap.cell().descr().gamma());
    std::string spacegroup_str_hm = xmap.spacegroup().symbol_hm();
 
+#ifdef HAVE_CXX_THREAD
+
+   // We need to worry about fragment store going out of scope.
+   // How about: wait for this async to terminate before finishing this function
+   //
+   std::vector<std::pair<std::string, std::string> > sequences;
+   std::string k = "SMNPPPPET SNPNKPKRQTNQLQYLLRVVLKTLWKHQFAWPFQQPVDAVKLNLPDYYKI IKTPMDMGTIKKRLENNYYWNAQECIQDFNTMFTNCYIYNKPGDDIVLMA EALEKLFLQKINELPTEE";
+   sequences.push_back(std::pair<std::string, std::string> ("A", k));
+
+   // this can be a thread (with later thread.join()), it doesn't need
+   // to be a future and async.
+   std::future<double> store_score(std::async(store_manager, std::ref(fragment_store),
+					      std::ref(store_lock), std::ref(xmap), std::cref(sequences)));
+
+#endif // HAVE_CXX_THREAD
+
    for (std::size_t iseed=0; iseed<seeds.size(); iseed++) {
       coot::minimol::molecule mmm(seeds[iseed]);
       mmdb::Manager *mol = mmm.pcmmdbmanager();
@@ -60,17 +130,24 @@ coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_
       float b_fact = 30.0;
       int n_trials = 20000; // 20000 is a reasonable minimal number
 
-      if (false) {
+      if (true) {
 	 coot::minimol::fragment fC =
-	    forwards_2018(r, r_prev, "A", b_fact, n_trials, geom, xmap, mv, debugging);
-	 std::string file_name = "trace-frag-forward-build-from-seed-";
-	 file_name += coot::util::int_to_string(iseed);
-	 file_name += ".pdb";
-	 coot::minimol::molecule mmm_out(fC);
-	 // add cell from map
-	 mmm_out.set_cell(acell);
-	 mmm_out.set_spacegroup(spacegroup_str_hm);
-	 mmm_out.write_file(file_name, 10);
+	    forwards_2018(iseed, r, r_prev, "A", b_fact, n_trials, geom, xmap, mv, debugging);
+	 if (fC.n_filled_residues() > 3) { // needs tweaking
+	    int build_dir = 1;
+	    add_to_fragment_store(fC, build_dir);
+	 }
+
+	 if (false) { // debug
+	    std::string file_name = "trace-frag-forward-build-from-seed-";
+	    file_name += coot::util::int_to_string(iseed);
+	    file_name += ".pdb";
+	    coot::minimol::molecule mmm_out(fC);
+	    // add cell from map
+	    mmm_out.set_cell(acell);
+	    mmm_out.set_spacegroup(spacegroup_str_hm);
+	    mmm_out.write_file(file_name, 10);
+	 }
       }
 
       if (true) {
@@ -86,17 +163,391 @@ coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_
 	 // does this crash when r is null?
 	 mmdb::Residue *r_next = 0;
 	 coot::minimol::fragment fN =
-	    backwards_2018(r, r_next, "A", b_fact, 10000, geom, xmap, mv, debugging);
+	    backwards_2018(iseed, r, r_next, "A", b_fact, 10000, geom, xmap, mv, debugging);
 
-	 std::string file_name = "trace-frag-backwards-build-from-seed-";
-	 file_name += coot::util::int_to_string(iseed);
-	 file_name += ".pdb";
-	 coot::minimol::molecule mmm_out(fN);
-	 // add cell from map
-	 mmm_out.set_cell(acell);
-	 mmm_out.set_spacegroup(spacegroup_str_hm);
-	 mmm_out.write_file(file_name, 10);
+	 if (false) { // debug
+	    std::string file_name = "trace-frag-backwards-build-from-seed-";
+	    file_name += coot::util::int_to_string(iseed);
+	    file_name += ".pdb";
+	    coot::minimol::molecule mmm_out(fN);
+	    // add cell from map
+	    mmm_out.set_cell(acell);
+	    mmm_out.set_spacegroup(spacegroup_str_hm);
+	    mmm_out.write_file(file_name, 10);
+	 }
+
+	 if (fN.n_filled_residues() > 3) { // needs tweaking
+	    int build_dir = -1;
+	    add_to_fragment_store(fN, build_dir);
+	 }
       }
+   }
+
+   fragment_store.all_fragments_stored = true;
+
+   double ss = store_score.get();
+
+   std::cout << "The fragment store has " << fragment_store.stored_fragments.size()
+	     << " fragments, of which " << fragment_store.n_sequenced() << " have sidechains"
+	     << std::endl;
+
+   minimol::molecule mmm;
+   mmm.set_cell(acell);
+   mmm.set_spacegroup(spacegroup_str_hm);
+   for (std::size_t i=0; i<fragment_store.stored_fragments.size(); i++) {
+      mmm.fragments.push_back(fragment_store.stored_fragments[i].frag);
+   }
+
+   mmm.write_file("built.pdb", 20.0);
+}
+
+
+// with_sidechains is an optional arg, default false
+void
+coot::multi_build_terminal_residue_addition::add_to_fragment_store(const coot::minimol::fragment &new_fragment,
+								   int build_dir,
+								   bool with_sidechains) {
+
+   stored_fragment_t f(new_fragment, build_dir, with_sidechains, standard_residues_mol);
+   fragment_store.add(f, store_lock);
+
+}
+
+void
+coot::stored_fragment_container_t::add(const stored_fragment_t &sf, std::atomic<unsigned int> &store_lock) {
+
+   unsigned int unlocked = 0;
+   while (! store_lock.compare_exchange_weak(unlocked, 1)) {
+      std::this_thread::sleep_for(std::chrono::microseconds(10));
+   }
+   stored_fragments.push_back(sf);
+   store_lock = 0;
+}
+
+// Do I need the lock? I guess that only this thread will try to alter frag, thre is no race.
+//
+// static
+bool
+coot::stored_fragment_t::try_assign_sidechains(coot::stored_fragment_t &stored_frag,
+					       std::atomic<unsigned int> &locked,
+					       const clipper::Xmap<float> &xmap,
+					       const std::vector<std::pair<std::string, std::string> > &sequences,
+					       mmdb::Manager *standard_residues_mol) {
+
+   if (stored_frag.sidechains_tried == false) {
+
+      // ugly!
+      //
+      std::string llkdfile = package_data_dir();
+      llkdfile += "/cootaneer-llk-2.40.dat";
+      // was that over-ridden?
+      const char *cp = getenv("COOT_PREFIX");
+      if (cp) {
+	 llkdfile = cp;
+	 llkdfile += "/share/coot/cootaneer-llk-2.40.dat";
+      }
+      if (!file_exists(llkdfile)) {
+	 std::cout << "Ooops! Can't find cootaneer likelihood data! - failure"
+		   << std::endl;
+      } else {
+	 Coot_sequence sequencer(llkdfile);
+	 std::string chain_id = "A";
+	 stored_frag.frag.fragment_id = "A"; // is this really what I want to do?
+	 minimol::molecule mmm(stored_frag.frag);
+	 mmdb::Manager *mol = mmm.pcmmdbmanager();
+	 sequencer.sequence_chain(xmap, sequences, *mol, chain_id);
+	 std::string best_seq = sequencer.best_sequence();
+	 std::string full_seq = sequencer.full_sequence();
+	 double conf = sequencer.confidence();
+	 int chnnum = sequencer.chain_number();
+	 int chnoff = sequencer.chain_offset();
+	 std::cout << "Sequence: " << best_seq << "\nConfidence: " << conf << "\n";
+	 if (chnnum >= 0) {
+	    std::cout << "\nFrom    : " << full_seq << "\nChain id: "
+		      << chnnum << "\tOffset: " << chnoff+1 << "\n";
+	    if (conf > 0.9) {
+	       std::cout << "----------------------------- sequenced --------------------" << std::endl;
+	       // modify stored_frag
+	       apply_sequence(stored_frag, mol, best_seq, chnoff, standard_residues_mol, locked);
+	    }
+	 }
+	 delete mol;
+      }
+      stored_frag.sidechains_tried = true;
+   }
+   return false;
+}
+
+// modify stored flag.  Use the store_lock for mutex access.
+//
+// static
+void
+coot::stored_fragment_t::apply_sequence(coot::stored_fragment_t &stored_frag,
+					mmdb::Manager *mol, // frag as a mmdb::Manager *
+					const std::string &best_seq,
+					int resno_offset,
+					mmdb::Manager *standard_residues_mol,
+					std::atomic<unsigned int> &store_lock) {
+
+   std::vector<mmdb::Residue *> residues;
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 for (int ires=0; ires<nres; ires++) {
+	    mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	    residues.push_back(residue_p);
+	 }
+      }
+   }
+
+   if (residues.size() != best_seq.length()) {
+      std::cout << "ERROR:: oops residue mismatch " << best_seq.length() << " " << residues.size()
+		<< std::endl;
+   } else {
+      // selected_chain_p->GetChain()->SetChainID(chain_id.c_str());
+      std::vector<mmdb::Residue *> res_deletion; // after mutation, delete these
+      for (unsigned int ichar=0; ichar<best_seq.length(); ichar++) {
+	 const char &seq_char = best_seq[ichar];
+	 if (seq_char == '?') {
+	    std::cout << "DEBUG:: bypassing ? at " << ichar << std::endl;
+	    // but we still need to set the sequence offset
+	    mmdb::Residue *poly_ala_res = residues[ichar];
+	    poly_ala_res->seqNum = resno_offset + ichar;
+	 } else {
+	    std::string res_type = coot::util:: single_letter_to_3_letter_code(best_seq[ichar]);
+	    if (res_type != "") {
+	       std::cout << "Mutating to " << res_type << " at " << ichar << std::endl;
+	       mmdb::Residue *std_res = get_standard_residue_instance(res_type, standard_residues_mol);
+	       if (std_res) {
+		  mmdb::Residue *poly_ala_res = residues[ichar];
+		  std::cout << "Mutating poly_ala residue number " << poly_ala_res->GetSeqNum() << std::endl;
+		  std::string alt_conf = "";
+		  util::mutate(poly_ala_res, std_res, alt_conf, 0); // not shelx
+		  poly_ala_res->seqNum = resno_offset + ichar;
+		  if (ichar < residues.size()) {
+		     res_deletion.push_back(poly_ala_res);
+		  }
+	       }
+	    }
+	 }
+      }
+
+      if (residues.size() > 0) {
+	 // now put the residues in residues into frag
+	 unsigned int unlocked = 0;
+	 while (! store_lock.compare_exchange_weak(unlocked, 1)) {
+	    std::this_thread::sleep_for(std::chrono::microseconds(10));
+	 }
+	 for (std::size_t ires=0; ires<residues.size(); ires++) {
+	    mmdb::Residue *r = residues[ires];
+	    // std::cout << "  res-to-frag: " << residue_spec_t(r) << " " << r->GetResName() << std::endl;
+	    minimol::residue mr(r);
+	    stored_frag.frag[ires] = mr;
+	 }
+	 stored_frag.with_sidechains = true;
+	 store_lock = 0;
+      }
+
+   }
+
+   if (false)
+      mol->WritePDBASCII("apply-sequence-results.pdb");
+}
+
+// static
+mmdb::Residue *
+coot::stored_fragment_t::get_standard_residue_instance(const std::string &residue_type_in,
+						       mmdb::Manager *standard_residues_mol) {
+
+   if (standard_residues_mol) {
+      int imod = 1;
+      mmdb::Model *model_p = standard_residues_mol->GetModel(imod);
+      if (model_p) {
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    for (int ires=0; ires<nres; ires++) {
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	       std::string res_name(residue_p->GetResName());
+	       if (res_name == residue_type_in) {
+		  mmdb::Residue *std_residue = util::deep_copy_this_residue(residue_p);
+		  // std::cout << "get_standard_residue_instance returning " << std_residue << std::endl;
+		  return std_residue;
+	       }
+	    }
+	 }
+      }
+   }
+   return 0;
+}
+
+
+
+
+// static
+double
+coot::multi_build_terminal_residue_addition::store_manager(stored_fragment_container_t &fragment_store,
+							   std::atomic<unsigned int> &locked,
+							   const clipper::Xmap<float> &xmap,
+							   const std::vector<std::pair<std::string, std::string> > &sequences) {
+
+   double score = 0; // nothing useful, but we wait for this value
+
+#ifdef HAVE_CXX_THREAD
+
+   bool all_done = false;
+
+   unsigned int unlocked = 0;
+   std::vector<std::thread> threads;
+
+   while (! all_done) {
+
+      while (! locked.compare_exchange_weak(unlocked, 1)) {
+	 std::this_thread::sleep_for(std::chrono::microseconds(10));
+      }
+
+      // do something
+
+      // first, the exit condition
+      std::size_t n_done = 0;
+      for (std::size_t i=0; i<fragment_store.stored_fragments.size(); i++) {
+	 if (fragment_store.stored_fragments[i].sidechains_tried == false) {
+	    if (fragment_store.stored_fragments[i].with_sidechains == true) {
+	       n_done++;
+	    }
+	 } else {
+	    n_done++;
+	 }
+      }
+      if (false)
+	 std::cout << "Here in store_manager: " << n_done << " vs "
+		   << fragment_store.stored_fragments.size() << " "
+		   << fragment_store.all_fragments_stored << std::endl;
+
+      if (fragment_store.all_fragments_stored)
+	 if (n_done == fragment_store.stored_fragments.size())
+	    all_done = true;
+
+      for (std::size_t i=0; i<fragment_store.stored_fragments.size(); i++) {
+	 if (fragment_store.stored_fragments[i].sidechains_tried == false) {
+	    if (fragment_store.stored_fragments[i].with_sidechains == false) {
+
+	       threads.push_back(std::thread(stored_fragment_t::try_assign_sidechains,
+					     std::ref(fragment_store.stored_fragments[i]),
+					     std::ref(locked),
+					     std::cref(xmap),
+					     std::cref(sequences),
+					     fragment_store.stored_fragments[i].standard_residues_mol));
+	    }
+	 }
+      }
+
+      locked = 0;
+      std::this_thread::sleep_for(std::chrono::milliseconds(800)); // wait before checking the store again
+   }
+   unsigned int n_threads = threads.size();
+   for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
+      threads.at(i_thread).join();
+
+#endif // HAVE_CXX_THREAD
+
+   return score;
+}
+
+// static
+bool
+coot::stored_fragment_t::matches_position(const position_triple_t &p1,
+					  const position_triple_t &p2,
+					  const std::vector<clipper::RTop_orth> &symms,
+					  double d_crit_sqrd) {
+
+   unsigned int n_match = 0;
+   for (std::size_t i=0; i<3; i++) {
+      for (std::size_t is=0; is<symms.size(); is++) {
+	 clipper::Coord_orth sp2(symms[is] * p2.positions[i]);
+	 double dd = (p1.positions[i]-sp2).lengthsq();
+	 if (dd < d_crit_sqrd) {
+	    n_match++;
+	    break;
+	 }
+      }
+   }
+
+   if (n_match == 3)
+      return true;
+
+   return false;
+}
+
+bool
+coot::stored_fragment_t::matches_position_in_fragment(const position_triple_t &res_triple_for_testing,
+						      const std::vector<clipper::RTop_orth> &symms) const {
+
+   bool match = false;
+   double d_crit = 0.2;
+   double dd = d_crit * d_crit;
+
+   for (std::size_t i=0; i<residue_atom_positions.size(); i++) {
+      bool r = matches_position(res_triple_for_testing, residue_atom_positions[i].second, symms, dd);
+      if (r) {
+	 match = true;
+	 break;
+      }
+   }
+
+   return match;
+}
+
+
+
+void
+coot::stored_fragment_t::fill_residue_atom_positions() {
+
+   for (int ires=frag.min_res_no(); ires<=frag.max_residue_number(); ires++) {
+      const minimol::residue &r = frag[ires];
+      try {
+	 position_triple_t pt(r);
+	 std::pair<int, position_triple_t> rap(ires, pt);
+	 residue_atom_positions.push_back(rap);
+      }
+      catch (const std::runtime_error &rte) {
+	 std::cout << "ERROR:: " << rte.what() << std::endl;
+      }
+   }
+}
+
+void
+coot::stored_fragment_t::position_triple_t::fill_residue_atom_positions(const minimol::residue &r) {
+
+   unsigned int n_found = 0;
+   if (r.atoms.size() > 0) {
+      std::vector<clipper::Coord_orth> p(3);
+      for (unsigned int iat=0; iat<r.atoms.size(); iat++) {
+	 const minimol::atom &at = r.atoms[iat];
+	 if (at.name == " N  ") {
+	    p[0] = at.pos;
+	    n_found++;
+	 }
+	 if (at.name == " CA ") {
+	    p[1] = at.pos;
+	    n_found++;
+	 }
+	 if (at.name == " C  ") {
+	    p[2] = at.pos;
+	    n_found++;
+	 }
+      }
+   }
+   
+   if (n_found != 3) {
+      std::string m("in fill_residue_atom_positions(): missing atoms: ");
+      m += util::int_to_string(n_found);
+      throw(std::runtime_error(m));
    }
 }
 
@@ -136,15 +587,16 @@ coot::multi_build_C_terminal_ALA(mmdb::Residue *res_p,
 // I'll just start from scratch (there are common elements).
 //
 coot::minimol::fragment
-coot::multi_build_terminal_residue_addition::forwards_2018(mmdb::Residue *res_p,
-							  mmdb::Residue *upstream_neighbour_p,
-							  const std::string &chain_id,
-							  float b_factor_in,
-							  int n_trials,
-							  const coot::protein_geometry &geom,
-							  const clipper::Xmap<float> &xmap,
-							  std::pair<float, float> mv,
-							  bool debug_trials) {
+coot::multi_build_terminal_residue_addition::forwards_2018(unsigned int iseed,
+							   mmdb::Residue *res_p,
+							   mmdb::Residue *upstream_neighbour_p,
+							   const std::string &chain_id,
+							   float b_factor_in,
+							   int n_trials,
+							   const coot::protein_geometry &geom,
+							   const clipper::Xmap<float> &xmap,
+							   std::pair<float, float> mv,
+							   bool debug_trials) {
 
 
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
@@ -154,12 +606,6 @@ coot::multi_build_terminal_residue_addition::forwards_2018(mmdb::Residue *res_p,
 
    minimol::fragment many_residues; // add residue to this, and return it
    many_residues.addresidue(res_p, false);
-
-   if (true) { // debug
-      std::string file_name = "frag-with-start-residue.pdb";
-      minimol::molecule mmm(many_residues);
-      mmm.write_file(file_name, 10);
-   }
 
    // setup up initial conditions for the while loop
    bool prev_happy_fit = true;
@@ -300,13 +746,24 @@ coot::multi_build_terminal_residue_addition::forwards_2018(mmdb::Residue *res_p,
 	 happy_fit = false;
       } else {
 	 if (happy_fit) {
-	    icount++;
 
-	    // set res_p to be the newly constructed residue
-	    res_prev   = res;
-	    res_prev_p = res_p; // save to set upstream_C
-	    res_p = res.make_residue();
-	    prev_happy_fit = this_happy_fit;
+	    int build_dir = 1; // forwards
+	    bool ab_flag = was_this_already_built_p(res, build_dir, store_lock);
+	    if (ab_flag) {
+	       happy_fit = false; // stop building
+	       std::cout << "Forward-building with ab_flag: " << ab_flag << " for seed " << iseed << std::endl;
+	    }
+
+	    if (happy_fit) {
+
+	       icount++;
+
+	       // set res_p to be the newly constructed residue
+	       res_prev   = res;
+	       res_prev_p = res_p; // save to set upstream_C
+	       res_p = res.make_residue();
+	       prev_happy_fit = this_happy_fit;
+	    }
 	 }
       }
    }
@@ -315,7 +772,8 @@ coot::multi_build_terminal_residue_addition::forwards_2018(mmdb::Residue *res_p,
 }
 
 coot::minimol::fragment
-coot::multi_build_terminal_residue_addition::backwards_2018(mmdb::Residue *res_p,
+coot::multi_build_terminal_residue_addition::backwards_2018(unsigned int iseed,
+							    mmdb::Residue *res_p,
 							    mmdb::Residue *upstream_neighbour_p,
 							    const std::string &chain_id,
 							    float b_factor_in,
@@ -402,6 +860,17 @@ coot::multi_build_terminal_residue_addition::backwards_2018(mmdb::Residue *res_p
 	 happy_fit = false;
 
       if (happy_fit) {
+
+	 bool ab_flag = was_this_already_built_p(res, -1, store_lock);
+	 // std::cout << "Here with ab_flag: " << ab_flag << std::endl;
+	 if (ab_flag) {
+	    happy_fit = false; // stop building this fragment
+	    std::cout << "Backwards building with ab_flag: " << ab_flag << " for seed " << iseed << std::endl;
+	 }
+      }
+
+      if (happy_fit) {
+
 	 icount++;
 
 	 // setup for next round
@@ -422,6 +891,34 @@ coot::multi_build_terminal_residue_addition::backwards_2018(mmdb::Residue *res_p
       }
    }
    return many_residues;
+}
+
+// for now make this in the main thread.  We should pass the thread pool
+// if we want to speed it up.
+//
+bool
+coot::multi_build_terminal_residue_addition::was_this_already_built_p(coot::minimol::residue &res,
+								      int build_dir,
+								      std::atomic<unsigned int> &store_lock) const {
+
+   bool matches_previous = false;
+   unsigned int unlocked = 0;
+   stored_fragment_t::position_triple_t res_triple_pos(res);
+
+   while (! store_lock.compare_exchange_weak(unlocked, 1)) {
+      std::this_thread::sleep_for(std::chrono::microseconds(10));
+   }
+
+   for (std::size_t i=0; i<fragment_store.stored_fragments.size(); i++) {
+      if (fragment_store.stored_fragments[i].build_dir == build_dir) {
+	 if (fragment_store.stored_fragments[i].matches_position_in_fragment(res_triple_pos, symms)) {
+	    matches_previous = true;
+	    break;
+	 }
+      }
+   }
+   store_lock = 0;
+   return matches_previous;
 }
 
 
@@ -651,7 +1148,7 @@ coot::multi_build_terminal_ALA(int offset, // direction
 	    std::cout << "   info:: 2 unhappy fits - stopping now " << std::endl;
 	 }
 
-	 if (happy_fit) { 
+	 if (happy_fit) {
 	    icount++;
 	    // add res to mol and refine
 	    many_residues.addresidue(res, 20);
