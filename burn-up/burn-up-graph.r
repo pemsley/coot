@@ -1,5 +1,5 @@
 
-ylim=20
+ylim=30
 xlim=50
 
 prediction_text_x_placement = 18

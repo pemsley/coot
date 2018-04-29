@@ -6,6 +6,10 @@
    o Draw -> Cell and Symmetry -> symmetry colour should follow the
      real symmetry colour.  ::: 1
 
+   o Eleanor's HIS. Add test ::: 1
+
+   o Add LINK info to header browser ::: 2
+
    o "Last Only" button shouldn't animate (say with 100s of molecules)
      ::: 1
 
@@ -42,6 +46,16 @@ command "cprodrg" not found
 
    o reposition the O on the current residue when adding a new one -
      Add Terminal Residue execute_add_terminal_residue() ::: 1
+
+   o graphics_info_t::read_standard_residues() uses
+     std::string standard_file_name = PKGDATADIR;
+     it should use
+     std::string l = package_data_dir();
+
+  o Can you colour by ProSMART output - ask Rob for example. ::: 4
+
+  o sideways histogram of map values when reading a map. ::: 1
+
 
 ------
 
