@@ -193,7 +193,7 @@ coot::trace::move_seeds_close_to_origin(std::vector<coot::minimol::fragment> *se
 	    clipper::Coord_orth co = cf.coord_orth(xmap.cell());
 	    for (int ires=seed.min_res_no(); ires<=seed.max_residue_number(); ires++) {
 	       for (unsigned int iatom=0; iatom<seed[ires].atoms.size(); iatom++) {
-		  if (debug) {
+		  if (false) { // debug
 		     double d1 = sqrt(seed[ires][iatom].pos.lengthsq());
 		     double d2 = sqrt((seed[ires][iatom].pos+co).lengthsq());
 		     std::cout << "seed origin-moved " << ires << " " << iatom
