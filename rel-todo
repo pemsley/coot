@@ -1,7 +1,8 @@
 
    For Release 0.8.9.2
 
-   o copy fragment should have a "move it here" button. ::: 0.5
+   o dictionary_radii() for Hamish. Return something JSON.
+     a dictionary? with a dictionary of atoms the the radius as the data
 
    o Draw -> Cell and Symmetry -> symmetry colour should follow the
      real symmetry colour.  ::: 1
@@ -58,4 +59,6 @@ command "cprodrg" not found
 
 
 ------
+
+   o copy fragment should have a "move it here" button. ::: 0.5
 
