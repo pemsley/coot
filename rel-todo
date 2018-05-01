@@ -1,11 +1,10 @@
 
    For Release 0.8.9.2
 
+   o read SHELX.phs as a map ::: 1
+
    o dictionary_radii() for Hamish. Return something JSON.
      a dictionary? with a dictionary of atoms the the radius as the data
-
-   o Draw -> Cell and Symmetry -> symmetry colour should follow the
-     real symmetry colour.  ::: 1
 
    o Eleanor's HIS. Add test ::: 1
 
@@ -28,6 +27,8 @@
 
    o Coot found no unexplained blobs" dialog should have a better title
      than "dialog1" ::: 0.5
+
+* Done, needs testing.
 
    o Make RCrane work again ::: 6
 
@@ -61,4 +62,10 @@ command "cprodrg" not found
 ------
 
    o copy fragment should have a "move it here" button. ::: 0.5
+
+   o Draw -> Cell and Symmetry -> symmetry colour should follow the
+     real symmetry colour. But now the symmetry colour is not dynamic.
+     Swings and roundabouts.
+
+     ::: 1
 

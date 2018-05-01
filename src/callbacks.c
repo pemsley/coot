@@ -806,7 +806,7 @@ on_show_symmetry_apply_button_clicked  (GtkButton       *button,
 
 
 
-void 
+void
 on_symmetry_colour_patch_button_clicked (GtkButton       *button,
 					 gpointer         user_data)
 {
@@ -6683,7 +6683,6 @@ on_preferences_bg_colour_own_radiobutton_toggled
 }
 
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_preferences_bg_colour_colorbutton_color_set
                                         (GtkColorButton  *colorbutton,
@@ -6706,7 +6705,6 @@ on_preferences_bg_colour_colorbutton_color_set
   }
 
 }
-#endif
 
 
 void
@@ -10026,6 +10024,16 @@ on_reset_view_toolbutton_clicked       (GtkToolButton   *toolbutton,
 void
 on_symmetry_colorbutton_color_set      (GtkColorButton  *colorbutton,
                                         gpointer         user_data) {
+
+  GdkColor colour;
+  gdouble color[4]; // use first 3
+  double r = 1.0 / 65535.0;
+  gtk_color_button_get_color(colorbutton, &colour);
+  color[0] = colour.red   * r;
+  color[1] = colour.green * r;
+  color[2] = colour.blue  * r;
+  handle_symmetry_colour_change(1,color);
+
 }
 
 void
@@ -12663,4 +12671,5 @@ on_display_control_align_labels_checkbutton_toggled
   align_labels_checkbutton_toggled(togglebutton);
 
 }
+
 

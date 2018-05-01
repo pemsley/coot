@@ -458,17 +458,13 @@ void update_preference_gui() {
 	bg_colour.blue = 65535;
       } else {
 	// other colour
-#if (GTK_MAJOR_VERSION > 1)
 	w = lookup_widget(dialog, "preferences_bg_colour_own_radiobutton");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
 	bg_colour.red = (guint)(fval1 * 65535);
 	bg_colour.green = (guint)(fval2 * 65535);
 	bg_colour.blue = (guint)(fval3 * 65535);
-#endif
       }
-#if (GTK_MAJOR_VERSION > 1)
       gtk_color_button_set_color(GTK_COLOR_BUTTON(colour_button), &bg_colour);
-#endif
       break;
 
     case PREFERENCES_ANTIALIAS:

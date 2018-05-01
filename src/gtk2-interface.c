@@ -4028,11 +4028,8 @@ create_show_symmetry_window (void)
   GtkWidget *vbox13;
   GtkWidget *hbox8;
   GtkWidget *label15;
-  GtkWidget *symmetry_colour_patch_button;
-  GtkWidget *hbox33;
-  GtkWidget *frame33;
   GtkWidget *symmetry_colorbutton;
-  GtkWidget *label68;
+  GtkWidget *label810;
   GtkWidget *hbox9;
   GtkWidget *frame10;
   GtkWidget *hbox10;
@@ -4083,26 +4080,26 @@ create_show_symmetry_window (void)
   frame7 = gtk_frame_new (NULL);
   gtk_widget_show (frame7);
   gtk_box_pack_start (GTK_BOX (vbox169), frame7, TRUE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame7), 4);
+  gtk_container_set_border_width (GTK_CONTAINER (frame7), 6);
 
   vbox11 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox11);
   gtk_container_add (GTK_CONTAINER (frame7), vbox11);
 
-  show_symmetry_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Yes");
+  show_symmetry_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Symmetry On");
   gtk_widget_show (show_symmetry_yes_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox11), show_symmetry_yes_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (show_symmetry_yes_radiobutton), show_symmetry_yes_radiobutton_group);
   show_symmetry_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (show_symmetry_yes_radiobutton));
 
-  show_symmetry_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "No");
+  show_symmetry_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Symmetry Off");
   gtk_widget_show (show_symmetry_no_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox11), show_symmetry_no_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (show_symmetry_no_radiobutton), show_symmetry_yes_radiobutton_group);
   show_symmetry_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (show_symmetry_no_radiobutton));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (show_symmetry_no_radiobutton), TRUE);
 
-  label277 = gtk_label_new ("Master Switch: Show Symmetry Atoms?");
+  label277 = gtk_label_new ("Master Switch");
   gtk_widget_show (label277);
   gtk_frame_set_label_widget (GTK_FRAME (frame7), label277);
 
@@ -4138,6 +4135,7 @@ create_show_symmetry_window (void)
   symmetry_radius_entry = gtk_entry_new ();
   gtk_widget_show (symmetry_radius_entry);
   gtk_box_pack_start (GTK_BOX (hbox7), symmetry_radius_entry, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (symmetry_radius_entry, 60, -1);
 
   label14 = gtk_label_new ("A");
   gtk_widget_show (label14);
@@ -4164,27 +4162,14 @@ create_show_symmetry_window (void)
   gtk_label_set_justify (GTK_LABEL (label15), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label15), 10, 0);
 
-  symmetry_colour_patch_button = gtk_button_new ();
-  gtk_widget_show (symmetry_colour_patch_button);
-  gtk_box_pack_start (GTK_BOX (hbox8), symmetry_colour_patch_button, FALSE, FALSE, 4);
-
-  hbox33 = gtk_hbox_new (FALSE, 0);
-  gtk_widget_show (hbox33);
-  gtk_container_add (GTK_CONTAINER (symmetry_colour_patch_button), hbox33);
-
-  frame33 = gtk_frame_new (NULL);
-  gtk_widget_show (frame33);
-  gtk_box_pack_start (GTK_BOX (hbox33), frame33, TRUE, TRUE, 0);
-
   symmetry_colorbutton = gtk_color_button_new ();
   gtk_widget_show (symmetry_colorbutton);
-  gtk_container_add (GTK_CONTAINER (frame33), symmetry_colorbutton);
+  gtk_box_pack_start (GTK_BOX (hbox8), symmetry_colorbutton, FALSE, FALSE, 4);
   gtk_color_button_set_title (GTK_COLOR_BUTTON (symmetry_colorbutton), "Pick a Colour");
 
-  label68 = gtk_label_new ("Sym Colour");
-  gtk_widget_show (label68);
-  gtk_box_pack_start (GTK_BOX (hbox33), label68, FALSE, FALSE, 2);
-  gtk_label_set_justify (GTK_LABEL (label68), GTK_JUSTIFY_CENTER);
+  label810 = gtk_label_new ("    ");
+  gtk_widget_show (label810);
+  gtk_box_pack_start (GTK_BOX (hbox8), label810, FALSE, FALSE, 0);
 
   hbox9 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox9);
@@ -4193,7 +4178,7 @@ create_show_symmetry_window (void)
   frame10 = gtk_frame_new (NULL);
   gtk_widget_show (frame10);
   gtk_box_pack_start (GTK_BOX (hbox9), frame10, TRUE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame10), 4);
+  gtk_frame_set_shadow_type (GTK_FRAME (frame10), GTK_SHADOW_NONE);
 
   hbox10 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox10);
@@ -4213,13 +4198,15 @@ create_show_symmetry_window (void)
   gtk_widget_show (show_symmetry_expanded_labels_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox169), show_symmetry_expanded_labels_checkbutton, FALSE, FALSE, 0);
 
-  label276 = gtk_label_new ("Symmetry");
+  label276 = gtk_label_new ("<b>Symmetry</b>");
   gtk_widget_show (label276);
   gtk_frame_set_label_widget (GTK_FRAME (frame163), label276);
+  gtk_label_set_use_markup (GTK_LABEL (label276), TRUE);
 
   frame11 = gtk_frame_new (NULL);
   gtk_widget_show (frame11);
   gtk_box_pack_start (GTK_BOX (vbox10), frame11, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame11), 6);
 
   vbox15 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox15);
@@ -4238,9 +4225,10 @@ create_show_symmetry_window (void)
   unit_cell_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (unit_cell_no_radiobutton));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (unit_cell_no_radiobutton), TRUE);
 
-  label278 = gtk_label_new ("Show Unit Cells?");
+  label278 = gtk_label_new ("<b>Show Unit Cells?</b>");
   gtk_widget_show (label278);
   gtk_frame_set_label_widget (GTK_FRAME (frame11), label278);
+  gtk_label_set_use_markup (GTK_LABEL (label278), TRUE);
 
   hbox133 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox133);
@@ -4291,9 +4279,6 @@ create_show_symmetry_window (void)
   g_signal_connect ((gpointer) show_symmetry_molecule_control_button, "clicked",
                     G_CALLBACK (on_show_symmetry_molecule_control_button_clicked),
                     NULL);
-  g_signal_connect ((gpointer) symmetry_colour_patch_button, "clicked",
-                    G_CALLBACK (on_symmetry_colour_patch_button_clicked),
-                    NULL);
   g_signal_connect ((gpointer) symmetry_colorbutton, "color_set",
                     G_CALLBACK (on_symmetry_colorbutton_color_set),
                     NULL);
@@ -4333,11 +4318,8 @@ create_show_symmetry_window (void)
   GLADE_HOOKUP_OBJECT (show_symmetry_window, vbox13, "vbox13");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, hbox8, "hbox8");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, label15, "label15");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, symmetry_colour_patch_button, "symmetry_colour_patch_button");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, hbox33, "hbox33");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, frame33, "frame33");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, symmetry_colorbutton, "symmetry_colorbutton");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, label68, "label68");
+  GLADE_HOOKUP_OBJECT (show_symmetry_window, label810, "label810");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, hbox9, "hbox9");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, frame10, "frame10");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, hbox10, "hbox10");
@@ -17397,7 +17379,7 @@ create_ligand_no_blobs_dialog (void)
   GtkWidget *label423;
 
   ligand_no_blobs_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (ligand_no_blobs_dialog), "dialog1");
+  gtk_window_set_title (GTK_WINDOW (ligand_no_blobs_dialog), "Coot: No Blobs");
   gtk_window_set_type_hint (GTK_WINDOW (ligand_no_blobs_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox62 = GTK_DIALOG (ligand_no_blobs_dialog)->vbox;

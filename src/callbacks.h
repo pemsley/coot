@@ -4606,3 +4606,11 @@ void
 on_delete_item_sidechain_range_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
+
+void
+on_symmetry_colorbutton_color_set      (GtkColorButton  *colorbutton,
+                                        gpointer         user_data);
+
+void
+on_symmetry_colorbutton_color_set      (GtkColorButton  *colorbutton,
+                                        gpointer         user_data);

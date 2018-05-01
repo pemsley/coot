@@ -4108,8 +4108,7 @@ GtkWidget *wrapped_create_show_symmetry_window() {
 
    GtkWidget *show_symm_window = create_show_symmetry_window();
    GtkWidget *checkbutton; 
-   GtkButton       *button; 
-   
+   GtkButton *button; 
 
    /* Colour Merge */
    GtkAdjustment *adjustment;
@@ -4131,7 +4130,6 @@ GtkWidget *wrapped_create_show_symmetry_window() {
       } 
    } 
 
-   
 /* The Show Symmetry RadioButtons */
 
    if (get_show_symmetry() == 1) { 
@@ -4186,7 +4184,7 @@ GtkWidget *wrapped_create_show_symmetry_window() {
 					    "unit_cell_no_radiobutton"));
        }
        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
-    } 
+    }
 
        
     //  The Expanded Atoms Label checkbutton
@@ -4196,7 +4194,18 @@ GtkWidget *wrapped_create_show_symmetry_window() {
 
     if (graphics_info_t::symmetry_atom_labels_expanded_flag) {
        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-    } 
+    }
+
+    GtkWidget *colour_button = lookup_widget(show_symm_window, "symmetry_colorbutton");
+    if (colour_button) {
+       GdkColor bg_colour;
+       bg_colour.red   = (guint)(graphics_info_t::symmetry_colour[0] * 65535);
+       bg_colour.green = (guint)(graphics_info_t::symmetry_colour[1] * 65535);
+       bg_colour.blue  = (guint)(graphics_info_t::symmetry_colour[2] * 65535);
+       gtk_color_button_set_color(GTK_COLOR_BUTTON(colour_button), &bg_colour);
+    } else {
+       std::cout << "failed to lookup colourbutton" << std::endl;
+    }
 
 //     // The symmetry colour molecule checkbutton
 //     checkbutton = lookup_widget(show_symm_window,
