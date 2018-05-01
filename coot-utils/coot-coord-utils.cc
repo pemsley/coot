@@ -5648,6 +5648,9 @@ int
 coot::util::mutate(mmdb::Residue *res, mmdb::Residue *std_res_unoriented, const std::string &alt_conf,
                    short int shelx_flag, float b_factor) {
 
+   // If you are looking here then you have mutated a residue with a pointer. You need
+   // to use deep_copy_this_residue(residue_p) not residue_p.
+
    int istate = 0; 
    std::map<std::string, clipper::RTop_orth> rtops = 
       coot::util::get_ori_to_this_res(res);
@@ -5660,12 +5663,9 @@ coot::util::mutate(mmdb::Residue *res, mmdb::Residue *std_res_unoriented, const 
       std::cout << "mutate, got 0 atoms" << std::endl;
    } else {
       for(int iat=0; iat<nResidueAtoms; iat++) {
-	 clipper::Coord_orth co(residue_atoms[iat]->x,
-				residue_atoms[iat]->y,
-				residue_atoms[iat]->z);
-
+	 mmdb::Atom *at = residue_atoms[iat];
+	 clipper::Coord_orth co(at->x, at->y, at->z);
 	 std::map<std::string, clipper::RTop_orth>::const_iterator it = rtops.find(alt_conf);
-
 	 if (it != rtops.end()) { 
 	    clipper::Coord_orth rotted = co.transform(it->second);
 	    

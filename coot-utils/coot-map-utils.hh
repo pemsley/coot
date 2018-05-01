@@ -412,6 +412,22 @@ namespace coot {
 						     int n_rounds);
       };
 
+      class soi_variance {
+	 const clipper::Xmap<float> &xmap;
+	 clipper::Xmap<float> make_variance_map() const;
+	 clipper::Xmap<float> solvent_treatment_map() const;
+	 clipper::Xmap<float> protein_treatment_map() const;
+	 static void apply_variance_values(clipper::Xmap<float> &variance_map,
+					   const clipper::Xmap<float> &xmap,
+					   const std::vector<clipper::Coord_grid> &soi_gps,
+					   const std::vector<clipper::Xmap_base::Map_reference_index> &grid_indices);
+      public:
+	 soi_variance(const clipper::Xmap<float> &xmap_in) : xmap(xmap_in) { }
+	 void proc(float solvent_content_frac);
+	 static bool mri_var_pair_sorter(const std::pair<clipper::Xmap_base::Map_reference_index, float> &p1,
+					 const std::pair<clipper::Xmap_base::Map_reference_index, float> &p2);
+      };
+
       bool is_EM_map(const clipper::Xmap<float> &xmap);
 
       

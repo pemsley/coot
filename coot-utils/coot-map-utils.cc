@@ -23,6 +23,8 @@
 #include <algorithm> // for sorting.
 #include <queue>
 #include <fstream>
+#include <thread>
+#include <iomanip>
 
 #include <gsl/gsl_sf_bessel.h>
 
@@ -2547,3 +2549,257 @@ coot::util::is_EM_map(const clipper::Xmap<float> &xmap) {
    }
    return is_em;
 } 
+
+#include "analysis/stats.hh"
+
+// static
+bool
+coot::util::soi_variance::mri_var_pair_sorter(const std::pair<clipper::Xmap_base::Map_reference_index, float> &p1,
+					      const std::pair<clipper::Xmap_base::Map_reference_index, float> &p2) {
+   return (p1.second < p2.second);
+}
+
+void
+coot::util::soi_variance::proc(float solvent_content_frac) {
+
+   // do I want a coord_grid?
+   typedef std::pair<clipper::Xmap_base::Map_reference_index, float>  dd;
+   std::vector<dd> data(200000);
+   clipper::Xmap<float> variance_xmap = make_variance_map();
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = variance_xmap.first(); !ix.last(); ix.next()) {
+      float fv = variance_xmap[ix];
+      std::pair<clipper::Xmap_base::Map_reference_index, float> p(ix, fv);
+      data.push_back(p);
+   }
+
+   std::cout << "INFO:: sorting variances " << std::endl;
+   // high variance has high rank index
+   std::sort(data.begin(), data.end(), mri_var_pair_sorter);
+   std::cout << "INFO:: done sorting " << std::endl;
+
+   clipper::Xmap<unsigned int> variance_rank_xmap;
+   variance_rank_xmap.init(xmap.spacegroup(), xmap.cell(), xmap.grid_sampling());
+   for (std::size_t i=0; i<data.size(); i++) {
+      variance_rank_xmap[data[i].first] = i;
+   }
+   std::cout << "INFO:: done variance map " << std::endl;
+
+   if (false) { // debug
+      for (ix = variance_rank_xmap.first(); !ix.last(); ix.next()) {
+	 unsigned int iv = variance_rank_xmap[ix];
+	 clipper::Coord_grid cg = ix.coord();
+	 std::cout << "   " << cg.format() << " " << iv << std::endl;
+      }
+      // output rank map -> high variance over the gaps between atoms in the protein region
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write("var-rank.map");
+      mapout.export_xmap(variance_rank_xmap);
+      mapout.close_write();
+
+      // data for table
+      std::ofstream f("var-ranks.tab");
+      for (std::size_t i=0; i<data.size(); i++)
+	 f << "   " << i << " " << data[i].second << "\n";
+      f.close();
+   }
+
+   std::size_t size = data.size();
+   float size_f(size);
+   const clipper::Xmap<float> &pt = protein_treatment_map();
+   const clipper::Xmap<float> &st = solvent_treatment_map();
+
+   if (solvent_content_frac > 0.75) solvent_content_frac = 0.75;
+   if (solvent_content_frac < 0.25) solvent_content_frac = 0.25;
+
+   // How about a cubic spline using point (solvent_content_frac, 0.5)
+
+   clipper::Xmap<float> soi_xmap; // treatments applied
+   // The top 25% is definitely protein, the bottom 25% is definitely solvent
+   //
+   soi_xmap.init(xmap.spacegroup(), xmap.cell(), xmap.grid_sampling());
+   for (ix = xmap.first(); !ix.last(); ix.next()) {
+      const unsigned int &idx = variance_rank_xmap[ix];
+      float variance_rank_frac = static_cast<float>(idx)/size_f; // raw
+      float fr = variance_rank_frac; // adjust this according to solvent content
+
+      if (variance_rank_frac < 0.25) {
+	 fr = 0.0;
+      } else {
+	 if (variance_rank_frac > 0.75) {
+	    fr = 1.0;
+	 } else {
+	    if (variance_rank_frac < solvent_content_frac) {
+	       float x_prime = fr - 0.25;
+	       float m = 0.5/(solvent_content_frac - 0.25);
+	       fr = m * x_prime;
+	    } else {
+	       float x_prime = fr - solvent_content_frac;
+	       float m = 2.0/(3.0 - 4.0 * solvent_content_frac);
+	       fr = m * x_prime + 0.5;
+	    }
+	 }
+      }
+      float other_frac = 1.0 - fr;
+      soi_xmap[ix] = variance_rank_frac * pt[ix] + other_frac * st[ix];
+   }
+
+   if (true) { // debug
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write("soi.map");
+      mapout.export_xmap(soi_xmap);
+      mapout.close_write();
+   }
+}
+
+clipper::Xmap<float>
+coot::util::soi_variance::make_variance_map() const {
+
+   std::cout << "INFO:: making variance map" << std::endl;
+
+   clipper::Xmap<float> var_map = xmap;
+
+   const clipper::Cell &cell = xmap.cell();
+   const clipper::Grid_sampling &gs = xmap.grid_sampling();
+
+   // I don't much like this method, the grid spacing may be too course
+   // to get a good sampling of points that are 2.42 A away
+
+   float soi_dist  = 2.42;
+   float soi_delta = 0.014; // for high-res test map this is a good starting value.
+                            // We can be more clever and set this initial value
+                            // dependent on grid_sampling/cell.
+   std::vector<clipper::Coord_grid> soi_gps;
+
+   bool n_in_sphere_is_ok = false; // to get started
+   //
+   while (! n_in_sphere_is_ok) {
+      double ddmin = (soi_dist - soi_delta) * (soi_dist - soi_delta);
+      double ddmax = (soi_dist + soi_delta) * (soi_dist + soi_delta);
+
+      float radius = 2.5; // a bit more than 2.42
+      clipper::Grid_range gr0(cell, gs, radius);
+      for(clipper::Coord_grid cg=gr0.min(); cg!=gr0.max(); cg=cg.next(gr0)) {
+	 // std::cout << "   test " << cg.format() << std::endl;
+	 clipper::Coord_frac cf = cg.coord_frac(gs);
+	 clipper::Coord_orth co = cf.coord_orth(cell);
+	 double ll = co.lengthsq();
+	 if ((ll < ddmax) && (ll > ddmin)) {
+	    soi_gps.push_back(cg);
+	 }
+      }
+
+      if (soi_gps.size() < 50) {
+	 if (soi_delta < 0.6) {  // we will never match an echidnahedron
+	    soi_delta *= 1.8;
+	 } else {
+	    n_in_sphere_is_ok = true; // hacky escape for hideous low res maps
+	 }
+      } else {
+	 n_in_sphere_is_ok = true;
+      }
+   }
+
+   std::cout << "INFO:: Found " << soi_gps.size() << " SOI grid points " << std::endl;
+
+   if (false) { // debuging SOI
+      std::ofstream f("soi.tab");
+      for (std::size_t i=0; i<soi_gps.size(); i++)
+	 f << i << " " << soi_gps[i].format() << "\n";
+      f.close();
+   }
+
+   if (true) {
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+
+      clipper::Xmap_base::Map_reference_index ix;
+      unsigned int n_grids = 0;
+      // is there a better way?
+      for (ix = xmap.first(); !ix.last(); ix.next())
+	 ++n_grids;
+
+      unsigned int n_threads = 4;
+      std::vector<std::vector<clipper::Xmap_base::Map_reference_index> > grid_indices(n_threads);
+      int r_reserve_size = std::lround(static_cast<float>(n_grids)/static_cast<float>(n_threads)) + 2;
+      for (std::size_t n=0; n<n_threads; n++)
+	 grid_indices[n].reserve(r_reserve_size);
+      unsigned int i_thread = 0; // insert to vector for this thread
+      for (ix=xmap.first(); !ix.last(); ix.next()) {
+	 grid_indices[i_thread].push_back(ix);
+	 ++i_thread;
+	 if (i_thread==n_threads) i_thread=0;
+      }
+
+      auto tp_2 = std::chrono::high_resolution_clock::now();
+      std::vector<std::thread> threads;
+      for (std::size_t n=0; n<n_threads; n++) {
+	 threads.push_back(std::thread(soi_variance::apply_variance_values,
+				       std::ref(var_map),
+				       std::cref(xmap),
+				       std::cref(soi_gps),
+				       std::cref(grid_indices[n])));
+      }
+
+      auto tp_3 = std::chrono::high_resolution_clock::now();
+
+      for (std::size_t ithread=0; ithread<threads.size(); ithread++)
+	 threads[ithread].join();
+
+      auto tp_4 = std::chrono::high_resolution_clock::now();
+      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+      auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+      auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
+      std::cout << "Timings:: grid spliting: grid-points  " << std::setw(4) << d21 << " milliseconds" << std::endl;
+      std::cout << "Timings:: grid spliting: make-threads " << std::setw(4) << d32 << " milliseconds" << std::endl;
+      std::cout << "Timings:: grid spliting: wait threads " << std::setw(4) << d43 << " milliseconds" << std::endl;
+   }
+
+   return var_map;
+}
+
+// static
+void
+coot::util::soi_variance::apply_variance_values(clipper::Xmap<float> &variance_map, // modify this
+						const clipper::Xmap<float> &xmap,
+						const std::vector<clipper::Coord_grid> &soi_gps,
+						const std::vector<clipper::Xmap_base::Map_reference_index> &grid_indices) {
+
+   for (std::size_t i=0; i<grid_indices.size(); i++) {
+      const clipper::Xmap_base::Map_reference_index &ix = grid_indices[i];
+      clipper::Coord_grid cg = ix.coord();
+      std::vector<double> data(soi_gps.size());
+      for (std::size_t j=0; j<soi_gps.size(); j++) {
+	 clipper::Coord_grid cg_soi_gp = cg + soi_gps[j];
+	 float fv = xmap.get_data(cg_soi_gp);
+	 data[j] = fv;
+      }
+      stats::single s(data);
+      variance_map[ix] = s.variance();
+   }
+}
+
+
+clipper::Xmap<float>
+coot::util::soi_variance::solvent_treatment_map() const {
+
+   clipper::Xmap<float> treated = xmap;
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = treated.first(); !ix.last(); ix.next()) {
+      treated[ix] = -treated[ix];
+   }
+   return treated;
+}
+
+clipper::Xmap<float>
+coot::util::soi_variance::protein_treatment_map() const {
+
+   clipper::Xmap<float> treated = xmap;
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = treated.first(); !ix.last(); ix.next()) {
+      float fv = treated[ix];
+      if (fv < 0) {
+	 treated[ix] = 0.0;
+      }
+   }
+   return treated;
+}

@@ -513,8 +513,33 @@ int test_glyco_link_by_geometry() {
 
 }
 
+#include <clipper/ccp4/ccp4_map_io.h>
+#include "coot-map-utils.hh"
 
-int main(int argv, char **argc) {
+int test_soi(int argc, char **argv) {
+
+   std::string file_name = "test.map";
+   if (argc == 2)
+      file_name = argv[1];
+
+   try {
+      clipper::CCP4MAPfile file;
+      clipper::Xmap<float> xmap;
+      file.open_read(file_name);
+      file.import_xmap(xmap);
+
+      coot::util::soi_variance sv(xmap);
+      sv.proc(0.66);
+   }
+   catch (const clipper::Message_base &exc) {
+      std::cout << "WARNING:: failed to open " << file_name << std::endl;
+   }
+
+   return 1;
+}
+
+
+int main(int argc, char **argv) {
 
    if (1)
       test_glyco_link_by_geometry();
@@ -556,6 +581,9 @@ int main(int argv, char **argc) {
 
 //    if (true)
 //       test_cp();
+
+   if (true)
+      test_soi(argc, argv);
    
    return 0;
 }

@@ -148,6 +148,7 @@ testshelxreader_LDADD =  ./libcoot-coord-utils.la
 
 testcootutils_SOURCES = test-utils.cc
 testcootutils_LDADD =            \
+	./libcoot-map-utils.la \
 	./libcoot-coord-extras.la\
 	./libcoot-coord-utils.la \
 	$(GSL_LIBS) \
