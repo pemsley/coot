@@ -189,7 +189,7 @@ x_label = "Number of Days (since starting release development)"
 # and numbers are printed as integers ("%d").
 #
 
-x_day_range = 300
+x_day_range = 100
 
 x_tick_interval = x_ticks(x_day_range)
 
@@ -211,7 +211,7 @@ if debug_mode == False:
     # column, which is the default.
     plot = line_plot.T(label="Done", data=data, ycol=1)
     # plot2 = line_plot.T(label="Total", data=data, ycol=2, tick_mark=tick_mark.square)
-    plot2 = line_plot.T(label="Total Scope for 0.8.9", data=data, ycol=2)
+    plot2 = line_plot.T(label="Total Scope for 0.8.9.2", data=data, ycol=2)
 
     ar.add_plot(plot, plot2)
     draw_prediction_on_canvas(pr, can)

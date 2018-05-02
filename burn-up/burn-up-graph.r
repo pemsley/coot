@@ -1,12 +1,13 @@
 
-ylim=50
-xlim=20
+ylim=30
+xlim=50
 
 prediction_text_x_placement = 18
 prediction_text_y_placement = 10
 
 legend_x = 10
-legend_y =  5
+legend_x = 20
+legend_y =  2.5
 
 
 source('arrow.r')
@@ -74,7 +75,7 @@ png('burn-up.png')
 
 do_plot = function() {
    plot(ylim=c(0,ylim), xlim=c(0,xlim), a$V1, a$V2, t='l', lwd=2,
-               main="Coot-0.8.9.1 Bug-Fix Development Progress",
+               main="Coot-0.8.9.2 Bug-Fix Development Progress",
                xlab="Days (since development start)",
                ylab="Dev Points (aka 'Half-Days')")
    points(a$V1, a$V3, t='l', lwd=2, lty=2)
