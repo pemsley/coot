@@ -194,7 +194,6 @@ namespace coot {
 			     unsigned int atom_idx_1,
 			     unsigned int atom_idx_2) const;
       
-      std::string frag_idx_to_chain_id(unsigned int idx) const;
 
 
       enum dir_t { FORWARDS, BACKWARDS };
@@ -303,6 +302,7 @@ namespace coot {
       double ks_test(); 
       void optimize_weights(mmdb::Manager *mol);
       std::vector<minimol::fragment> make_seeds();
+      std::string frag_idx_to_chain_id(unsigned int idx) const;
       
    };
 

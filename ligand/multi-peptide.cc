@@ -65,12 +65,14 @@ coot::multi_build_terminal_residue_addition::setup_standard_residues_mol() {
 void
 coot::multi_build_terminal_residue_addition::setup_symms() {
 
+   int symm_shift_range = 2; // 1
+
    const clipper::Spacegroup &spg = xmap.spacegroup();
    const clipper::Cell &cell = xmap.cell();
    unsigned int ns = spg.num_symops();
-   for (int x_shift = -1; x_shift<2; x_shift++) {
-      for (int y_shift = -1; y_shift<2; y_shift++) {
-	 for (int z_shift = -1; z_shift<2; z_shift++) {
+   for (int x_shift = -symm_shift_range; x_shift<(1+symm_shift_range); x_shift++) {
+      for (int y_shift = -symm_shift_range; y_shift<(1+symm_shift_range); y_shift++) {
+	 for (int z_shift = -symm_shift_range; z_shift<(1+symm_shift_range); z_shift++) {
 	    clipper::Coord_frac cell_shift = clipper::Coord_frac(x_shift, y_shift, z_shift);
 	    for (unsigned int is = 0; is < ns; is++) {
 	       const clipper::Symop &symop = spg.symop(is);
@@ -111,14 +113,19 @@ coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_
    // We need to worry about fragment store going out of scope.
    // How about: wait for this async to terminate before finishing this function
    //
-   std::vector<std::pair<std::string, std::string> > sequences;
-   std::string k = "SMNPPPPET SNPNKPKRQTNQLQYLLRVVLKTLWKHQFAWPFQQPVDAVKLNLPDYYKI IKTPMDMGTIKKRLENNYYWNAQECIQDFNTMFTNCYIYNKPGDDIVLMA EALEKLFLQKINELPTEE";
-   sequences.push_back(std::pair<std::string, std::string> ("A", k));
+   // std::vector<std::pair<std::string, std::string> > sequences;
+   // std::string k = "SMNPPPPET SNPNKPKRQTNQLQYLLRVVLKTLWKHQFAWPFQQPVDAVKLNLPDYYKI IKTPMDMGTIKKRLENNYYWNAQECIQDFNTMFTNCYIYNKPGDDIVLMA EALEKLFLQKINELPTEE";
+   // sequences.push_back(std::pair<std::string, std::string> ("A", k));
 
    // this can be a thread (with later thread.join()), it doesn't need
    // to be a future and async.
    std::future<double> store_score(std::async(store_manager, std::ref(fragment_store),
 					      std::ref(store_lock), std::ref(xmap), std::cref(sequences)));
+
+   std::cout << "INFO:: sequences: " << sequences.size() << " " << std::endl;
+   for (std::size_t ii=0; ii<sequences.size(); ii++) {
+      std::cout << sequences[ii].first << "  " << sequences[ii].second << std::endl;
+   }
 
 #endif // HAVE_CXX_THREAD
 
@@ -195,7 +202,10 @@ coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_
    mmm.set_cell(acell);
    mmm.set_spacegroup(spacegroup_str_hm);
    for (std::size_t i=0; i<fragment_store.stored_fragments.size(); i++) {
-      mmm.fragments.push_back(fragment_store.stored_fragments[i].frag);
+      minimol::fragment frag = fragment_store.stored_fragments[i].frag;
+      std::string chid = t.frag_idx_to_chain_id(i);
+      frag.fragment_id = chid;
+      mmm.fragments.push_back(frag);
    }
 
    mmm.write_file("built.pdb", 20.0);
@@ -466,6 +476,14 @@ coot::stored_fragment_t::matches_position(const position_triple_t &p1,
 					  const std::vector<clipper::RTop_orth> &symms,
 					  double d_crit_sqrd) {
 
+   if (false) {
+      std::cout << "Here are the symms: -------------- " << std::endl;
+      for (std::size_t is=0; is<symms.size(); is++) {
+	 std::cout << "     -------- " << is << std::endl;
+	 std::cout << symms[is].format() << std::endl;
+      }
+   }
+
    unsigned int n_match = 0;
    for (std::size_t i=0; i<3; i++) {
       for (std::size_t is=0; is<symms.size(); is++) {
@@ -473,6 +491,9 @@ coot::stored_fragment_t::matches_position(const position_triple_t &p1,
 	 double dd = (p1.positions[i]-sp2).lengthsq();
 	 if (dd < d_crit_sqrd) {
 	    n_match++;
+	    std::cout << "n_match " << n_match << " " << sqrt(dd) << " " << sqrt(d_crit_sqrd)
+		      << " for isymm " << is << std::endl;
+	    std::cout << symms[i].format() << std::endl;
 	    break;
 	 }
       }
@@ -489,10 +510,22 @@ coot::stored_fragment_t::matches_position_in_fragment(const position_triple_t &r
 						      const std::vector<clipper::RTop_orth> &symms) const {
 
    bool match = false;
-   double d_crit = 0.2;
+   double d_crit = 0.05;
    double dd = d_crit * d_crit;
 
+   // std::cout << "in matches_position_in_fragment() here is res_triple_for_testing: " << std::endl;
+   // for (std::size_t i=0; i<3; i++)
+   // std::cout << "    " << res_triple_for_testing.positions[i].format() << std::endl;
+
+   // std::cout << "in matches_position_in_fragment() there are " << residue_atom_positions.size()
+   // << " residue atom triples " << std::endl;
+
    for (std::size_t i=0; i<residue_atom_positions.size(); i++) {
+      if (false) {
+	 std::cout << " residue_atom_positions " << i << std::endl;
+	 std::cout << "c.f. " << res_triple_for_testing.positions[0].format() << " "
+		   << residue_atom_positions[i].second.positions[0].format() << std::endl;
+      }
       bool r = matches_position(res_triple_for_testing, residue_atom_positions[i].second, symms, dd);
       if (r) {
 	 match = true;
@@ -508,15 +541,26 @@ coot::stored_fragment_t::matches_position_in_fragment(const position_triple_t &r
 void
 coot::stored_fragment_t::fill_residue_atom_positions() {
 
+   // fragment starts at 1 - hmm
+   //    std::cout << "-------------------- this fragment range "
+   // 	     << frag.min_res_no() << " " << frag.max_residue_number()
+   // 	     << std::endl;
+
    for (int ires=frag.min_res_no(); ires<=frag.max_residue_number(); ires++) {
-      const minimol::residue &r = frag[ires];
-      try {
-	 position_triple_t pt(r);
-	 std::pair<int, position_triple_t> rap(ires, pt);
-	 residue_atom_positions.push_back(rap);
-      }
-      catch (const std::runtime_error &rte) {
-	 std::cout << "ERROR:: " << rte.what() << std::endl;
+      // const minimol::residue &r = frag[ires];
+      minimol::residue r = frag[ires];
+      if (false)
+	 std::cout << "constructing a position_triple_t " << r << " with "
+		   << " ires " << ires << " and "<< r.atoms.size() << " atoms " << std::endl;
+      if (r.n_atoms() > 0) {
+	 try {
+	    position_triple_t pt(r);
+	    std::pair<int, position_triple_t> rap(ires, pt);
+	    residue_atom_positions.push_back(rap);
+	 }
+	 catch (const std::runtime_error &rte) {
+	    std::cout << "ERROR:: " << rte.what() << std::endl;
+	 }
       }
    }
 }
@@ -525,10 +569,13 @@ void
 coot::stored_fragment_t::position_triple_t::fill_residue_atom_positions(const minimol::residue &r) {
 
    unsigned int n_found = 0;
+
+   // std::cout << "in fill_residue_atom_positions() " << r.n_atoms() << std::endl;
    if (r.atoms.size() > 0) {
       std::vector<clipper::Coord_orth> p(3);
       for (unsigned int iat=0; iat<r.atoms.size(); iat++) {
 	 const minimol::atom &at = r.atoms[iat];
+	 // std::cout << "setting position from atom " << at << std::endl;
 	 if (at.name == " N  ") {
 	    p[0] = at.pos;
 	    n_found++;
@@ -542,13 +589,23 @@ coot::stored_fragment_t::position_triple_t::fill_residue_atom_positions(const mi
 	    n_found++;
 	 }
       }
+      if (n_found == 3) {
+	 for (std::size_t i=0; i<3; i++)
+	    positions[i] = p[i];
+      }
    }
-   
+
+
    if (n_found != 3) {
+      std::cout << "ERROR in fill_residue_atom_positions() n_found " << n_found << " in residue with "
+		<< r.atoms.size() << " atoms " << std::endl;
       std::string m("in fill_residue_atom_positions(): missing atoms: ");
       m += util::int_to_string(n_found);
       throw(std::runtime_error(m));
    }
+
+   // std::cout << "done fill_residue_atom_positions() " << n_found << std::endl;
+
 }
 
 
@@ -748,7 +805,7 @@ coot::multi_build_terminal_residue_addition::forwards_2018(unsigned int iseed,
 	 if (happy_fit) {
 
 	    int build_dir = 1; // forwards
-	    bool ab_flag = was_this_already_built_p(res, build_dir, store_lock);
+	    bool ab_flag = was_this_already_built_p(res, iseed, build_dir, store_lock);
 	    if (ab_flag) {
 	       happy_fit = false; // stop building
 	       std::cout << "Forward-building with ab_flag: " << ab_flag << " for seed " << iseed << std::endl;
@@ -861,7 +918,7 @@ coot::multi_build_terminal_residue_addition::backwards_2018(unsigned int iseed,
 
       if (happy_fit) {
 
-	 bool ab_flag = was_this_already_built_p(res, -1, store_lock);
+	 bool ab_flag = was_this_already_built_p(res, iseed, -1, store_lock);
 	 // std::cout << "Here with ab_flag: " << ab_flag << std::endl;
 	 if (ab_flag) {
 	    happy_fit = false; // stop building this fragment
@@ -898,12 +955,19 @@ coot::multi_build_terminal_residue_addition::backwards_2018(unsigned int iseed,
 //
 bool
 coot::multi_build_terminal_residue_addition::was_this_already_built_p(coot::minimol::residue &res,
+								      unsigned int seed_number,
 								      int build_dir,
 								      std::atomic<unsigned int> &store_lock) const {
 
    bool matches_previous = false;
    unsigned int unlocked = 0;
    stored_fragment_t::position_triple_t res_triple_pos(res);
+
+   if (false) {
+      std::cout << "in was_this_already_built_p, this is: " << std::endl;
+      for (std::size_t i=0; i<3; i++)
+	 std::cout << "    " << res_triple_pos.positions[i].format() << std::endl;
+   }
 
    while (! store_lock.compare_exchange_weak(unlocked, 1)) {
       std::this_thread::sleep_for(std::chrono::microseconds(10));
@@ -913,6 +977,8 @@ coot::multi_build_terminal_residue_addition::was_this_already_built_p(coot::mini
       if (fragment_store.stored_fragments[i].build_dir == build_dir) {
 	 if (fragment_store.stored_fragments[i].matches_position_in_fragment(res_triple_pos, symms)) {
 	    matches_previous = true;
+	    std::cout << "|||||||||||||| seed number " << seed_number << " build-dir " << build_dir
+		      << " matched by stored fragment number " << i << std::endl;
 	    break;
 	 }
       }
@@ -1071,7 +1137,8 @@ coot::multi_build_terminal_ALA(int offset, // direction
 
    // kludge, for backwards compatibility. Maybe I should just delete this function
    //
-   multi_build_terminal_residue_addition mbtra(geom, xmap, mv);
+   std::vector<std::pair<std::string, std::string> > seqs;
+   multi_build_terminal_residue_addition mbtra(geom, xmap, mv, seqs);
 
    // res_p might not be a member of hierarchy, so pass the chain id too.
 

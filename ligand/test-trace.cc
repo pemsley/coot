@@ -39,10 +39,11 @@
 
 #include <clipper/ccp4/ccp4_map_io.h>
 
-#include "../utils/coot-utils.hh"
-#include "../geometry/residue-and-atom-specs.hh"
-#include "../coot-utils/coot-coord-utils.hh"
-#include "../coot-utils/coot-map-utils.hh"
+#include "utils/coot-utils.hh"
+#include "utils/coot-fasta.hh"
+#include "geometry/residue-and-atom-specs.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/coot-map-utils.hh"
 #include "multi-peptide.hh"
 #include "trace.hh"
 
@@ -126,7 +127,7 @@ int main(int argc, char **argv) {
 		  res_no_str = optarg;
 	       }
 	       if (arg_str == "sequence-file") {
-		  sequence_file_name = arg_str;
+		  sequence_file_name = optarg;
 	       }
 	       if (arg_str == "debug") {
 		  debugging = true;
@@ -180,9 +181,20 @@ int main(int argc, char **argv) {
 
 	 if (pdb_file_name.empty()) {
 
+	    std::vector<std::pair<std::string, std::string> > sequences;
+	    std::string ch_id("A");
+	    if (! sequence_file_name.empty()) {
+	       coot::fasta_multi fm(sequence_file_name);
+	       for (std::size_t i=0; i<fm.size(); i++) {
+		  const coot::fasta &seq  = fm[i];
+		  std::pair<std::string, std::string> p(seq.name, seq.sequence);
+		  sequences.push_back(p);
+	       }
+	    }
+
 	    // self seed
 	    //
-	    coot::multi_build_terminal_residue_addition mbtra(geom, xmap, mv);
+	    coot::multi_build_terminal_residue_addition mbtra(geom, xmap, mv, sequences);
 
 	 } else {
 
@@ -219,7 +231,8 @@ int main(int argc, char **argv) {
 			   mmdb::Residue *r_prev = coot::util::previous_residue(r);
 			   float b_fact = 30.0;
 			   int n_trials = 20000; // 20000 is a reasonable minimal number
-			   coot::multi_build_terminal_residue_addition mbtra(geom, xmap, mv);
+			   std::vector<std::pair<std::string, std::string> > sequences; // empty, atm
+			   coot::multi_build_terminal_residue_addition mbtra(geom, xmap, mv, sequences);
 			   coot::minimol::fragment fC =
 			      mbtra.forwards_2018(0, r, r_prev, "A", b_fact, n_trials,
 						  geom, xmap, mv, debugging);

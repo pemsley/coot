@@ -145,17 +145,23 @@ namespace coot {
       std::vector<clipper::RTop_orth> symms;
       void setup_symms(); // fill symms from xmap
       bool was_this_already_built_p(minimol::residue &res,
+				    unsigned int seed_number,
 				    int build_dir,
 				    std::atomic<unsigned int> &store_lock) const;
+      std::vector<std::pair<std::string, std::string> > sequences;
 
    public:
 
       multi_build_terminal_residue_addition(const protein_geometry &geom,
 					    const clipper::Xmap<float> &xmap_in,
-					    std::pair<float, float> mv_in) : xmap(xmap_in) {
+					    std::pair<float, float> mv_in,
+					    const std::vector<std::pair<std::string, std::string> > &sequences_in) :
+	 xmap(xmap_in) {
 	 mv = mv_in;
 	 setup_standard_residues_mol();
 	 setup_symms();
+	 sequences = sequences_in;
+
 	 start_from_map(geom);
       }
       minimol::fragment
