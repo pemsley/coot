@@ -1,6 +1,23 @@
 
    For Release 0.8.9.2
 
+   o morph fit by secondary following the cryo-tutorial, morph secondardy
+     fit makes a helix go wonky.
+
+   o 5lc5 complex-1 do geometry graphs [Hannah Bridges]
+
+   o make restraints for a big protein, then delete them using ...
+     delete deviants?
+
+   o Make Fe-S cluster SF4 (and FES?) drawn with bonds ::: 1
+
+   o Fe-S needs to be rendered nicely in Bonds mode ::: 2
+
+   o ball and stick to follow the colour of the atoms
+     How about changing the background colour?
+
+   o Add anom to PDB-redo output ::: 1
+
    o read SHELX.phs as a map ::: 1
 
    o dictionary_radii() for Hamish. Return something JSON.
@@ -8,17 +25,18 @@
 
    o Eleanor's HIS. Add test ::: 1
 
-   o Add LINK info to header browser ::: 2
+   o Add LINK info to header browser. Other things? SSBOND, BIOMT? ::: 2
 
-   o "Last Only" button shouldn't animate (say with 100s of molecules)
-     ::: 1
+   o expand chis for TRP rotamers (maybe for refinement branch) ::: 2
+
+   o "Last Only" button shouldn't animate (say with 100s of molecules). Tricky
+     because gui update needs to be unlinked from undisplay update.
+     ::: 2
 
    o Kill off Lidia -> View in Lidia, prodrg path ::: 0.5
 
-   o Add anom to PDB-redo output ::: 1
-
    o Jiggle fit uses linear interp? Jiggle fit should select backbone
-     if fitting protein, ring atoms for RNA/DNA ::: 1
+     if fitting protein, ring atoms for RNA/DNA ::: 2
 
    o maybe add external angle restraints ::: 2
 
