@@ -86,6 +86,18 @@ coot::multi_build_terminal_residue_addition::setup_symms() {
 }
 
 void
+coot::multi_build_terminal_residue_addition::init_no_go() {
+
+   // we can't use a bool as the type, don't try.
+   no_go.init(xmap.spacegroup(),
+	      xmap.cell(),
+	      xmap.grid_sampling());
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = no_go.first(); !ix.last(); ix.next() )
+      no_go[ix] = 0; // not already traced.
+}
+
+void
 coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_geometry &geom) {
 
    bool debugging = false;
@@ -135,12 +147,12 @@ coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_
       mmdb::Residue *r = coot::util::get_residue(coot::residue_spec_t("A", 99, ""), mol);
       mmdb::Residue *r_prev = coot::util::get_previous_residue(r, mol);
       float b_fact = 30.0;
-      int n_trials = 20000; // 20000 is a reasonable minimal number
+      int n_trials = 20010; // 20000 is a reasonable minimal number
 
       if (true) {
 	 coot::minimol::fragment fC =
 	    forwards_2018(iseed, r, r_prev, "A", b_fact, n_trials, geom, xmap, mv, debugging);
-	 if (fC.n_filled_residues() > 3) { // needs tweaking
+	 if (fC.n_filled_residues() > 2) { // needs tweaking
 	    int build_dir = 1;
 	    add_to_fragment_store(fC, build_dir);
 	 }
@@ -170,7 +182,7 @@ coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_
 	 // does this crash when r is null?
 	 mmdb::Residue *r_next = 0;
 	 coot::minimol::fragment fN =
-	    backwards_2018(iseed, r, r_next, "A", b_fact, 10000, geom, xmap, mv, debugging);
+	    backwards_2018(iseed, r, r_next, "A", b_fact, n_trials, geom, xmap, mv, debugging);
 
 	 if (false) { // debug
 	    std::string file_name = "trace-frag-backwards-build-from-seed-";
@@ -208,7 +220,15 @@ coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_
       mmm.fragments.push_back(frag);
    }
 
-   mmm.write_file("built.pdb", 20.0);
+   // mmm.write_file("built.pdb", 20.0);
+   mmdb::Manager *mol = mmm.pcmmdbmanager();
+   clipper::MMDBfile* mmdbfile = static_cast<clipper::MMDBfile*>(mol);
+   clipper::MiniMol mm;
+   mmdbfile->import_minimol(mm);
+   bool r = ProteinTools::globularise(mm);
+   mmdbfile->export_minimol(mm);
+   mol->WritePDBASCII("built.pdb");
+
 }
 
 
@@ -220,7 +240,60 @@ coot::multi_build_terminal_residue_addition::add_to_fragment_store(const coot::m
 
    stored_fragment_t f(new_fragment, build_dir, with_sidechains, standard_residues_mol);
    fragment_store.add(f, store_lock);
+   mask_no_go_map(new_fragment);
 
+}
+
+void
+coot::multi_build_terminal_residue_addition::mask_no_go_map(const coot::minimol::fragment &frag) {
+
+   float atom_radius = 2.0;
+   for (int ires=frag.min_res_no(); ires<=frag.max_residue_number(); ires++) {
+      const minimol::residue &r = frag[ires];
+      if (r.n_atoms() > 0) {
+	 for (unsigned int iat=0; iat<r.atoms.size(); iat++) {
+	    const minimol::atom &at = r.atoms[iat];
+	    clipper::Coord_frac cf = at.pos.coord_frac(no_go.cell());
+	    clipper::Coord_frac box0(
+				     cf.u() - atom_radius/no_go.cell().descr().a(),
+				     cf.v() - atom_radius/no_go.cell().descr().b(),
+				     cf.w() - atom_radius/no_go.cell().descr().c());
+
+	    clipper::Coord_frac box1(
+				     cf.u() + atom_radius/no_go.cell().descr().a(),
+				     cf.v() + atom_radius/no_go.cell().descr().b(),
+				     cf.w() + atom_radius/no_go.cell().descr().c());
+
+	    clipper::Grid_map grid(box0.coord_grid(no_go.grid_sampling()),
+				   box1.coord_grid(no_go.grid_sampling()));
+
+	    float atom_radius_sq = atom_radius * atom_radius;
+	    int nhit = 0;
+	    int nmiss = 0;
+
+	    clipper::Xmap_base::Map_reference_coord ix( no_go, grid.min() ), iu, iv, iw;
+	    for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+	       for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
+		  for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+		     if ( (iw.coord().coord_frac(no_go.grid_sampling()).coord_orth(no_go.cell()) - at.pos).lengthsq() < atom_radius_sq) {
+
+			if (false)
+			   std::cout << "masked point at "
+				     << iw.coord().coord_frac(no_go.grid_sampling()).coord_orth(no_go.cell()).format()
+				     << " centre point: " << at.pos.format() << " "
+				     << (iw.coord().coord_frac(no_go.grid_sampling()).coord_orth(no_go.cell()) - at.pos).lengthsq()
+				     << std::endl;
+			no_go[iw] = 1;
+			nhit++;
+		     } else {
+			nmiss++;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
 }
 
 void
@@ -547,8 +620,7 @@ coot::stored_fragment_t::fill_residue_atom_positions() {
    // 	     << std::endl;
 
    for (int ires=frag.min_res_no(); ires<=frag.max_residue_number(); ires++) {
-      // const minimol::residue &r = frag[ires];
-      minimol::residue r = frag[ires];
+      const minimol::residue &r = frag[ires];
       if (false)
 	 std::cout << "constructing a position_triple_t " << r << " with "
 		   << " ires " << ires << " and "<< r.atoms.size() << " atoms " << std::endl;
@@ -963,27 +1035,32 @@ coot::multi_build_terminal_residue_addition::was_this_already_built_p(coot::mini
    unsigned int unlocked = 0;
    stored_fragment_t::position_triple_t res_triple_pos(res);
 
-   if (false) {
-      std::cout << "in was_this_already_built_p, this is: " << std::endl;
-      for (std::size_t i=0; i<3; i++)
-	 std::cout << "    " << res_triple_pos.positions[i].format() << std::endl;
-   }
+   if (is_in_no_go_map(res)) {
+      matches_previous = true;
+   } else {
 
-   while (! store_lock.compare_exchange_weak(unlocked, 1)) {
-      std::this_thread::sleep_for(std::chrono::microseconds(10));
-   }
+      if (false) {
+	 std::cout << "in was_this_already_built_p, this is: " << std::endl;
+	 for (std::size_t i=0; i<3; i++)
+	    std::cout << "    " << res_triple_pos.positions[i].format() << std::endl;
+      }
 
-   for (std::size_t i=0; i<fragment_store.stored_fragments.size(); i++) {
-      if (fragment_store.stored_fragments[i].build_dir == build_dir) {
-	 if (fragment_store.stored_fragments[i].matches_position_in_fragment(res_triple_pos, symms)) {
-	    matches_previous = true;
-	    std::cout << "|||||||||||||| seed number " << seed_number << " build-dir " << build_dir
-		      << " matched by stored fragment number " << i << std::endl;
-	    break;
+      while (! store_lock.compare_exchange_weak(unlocked, 1)) {
+	 std::this_thread::sleep_for(std::chrono::microseconds(10));
+      }
+
+      for (std::size_t i=0; i<fragment_store.stored_fragments.size(); i++) {
+	 if (fragment_store.stored_fragments[i].build_dir == build_dir) {
+	    if (fragment_store.stored_fragments[i].matches_position_in_fragment(res_triple_pos, symms)) {
+	       matches_previous = true;
+	       std::cout << "|||||||||||||| seed number " << seed_number << " build-dir " << build_dir
+			 << " matched by stored fragment number " << i << std::endl;
+	       break;
+	    }
 	 }
       }
+      store_lock = 0;
    }
-   store_lock = 0;
    return matches_previous;
 }
 
@@ -1446,5 +1523,69 @@ coot::multi_build_terminal_residue_addition::crashing_into_self(const minimol::f
    if (n_close > 1)
       status = true; // is clashing with self.
 
+   return status;
+}
+
+
+// return true if the atoms of the residue are in the no-go map (i.e. it
+// had been masked because it has been built before).
+//
+bool
+coot::multi_build_terminal_residue_addition::is_in_no_go_map(minimol::residue &r) const {
+
+   bool status = false;
+   float atom_radius = 1.0;
+   bool big_enough_atom_radius = false; // initial value to start the while
+
+   int n_hit = 0;
+   int n_miss = 0;
+   while (! big_enough_atom_radius) {
+      if (r.n_atoms() > 0) {
+	 n_hit = 0;
+	 n_miss = 0;
+	 float atom_radius_sq = atom_radius * atom_radius;
+	 for (unsigned int iat=0; iat<r.atoms.size(); iat++) {
+	    const minimol::atom &at = r.atoms[iat];
+	    clipper::Coord_frac cf = at.pos.coord_frac(no_go.cell());
+	    clipper::Coord_frac box0(
+				     cf.u() - atom_radius/no_go.cell().descr().a(),
+				     cf.v() - atom_radius/no_go.cell().descr().b(),
+				     cf.w() - atom_radius/no_go.cell().descr().c());
+
+	    clipper::Coord_frac box1(
+				     cf.u() + atom_radius/no_go.cell().descr().a(),
+				     cf.v() + atom_radius/no_go.cell().descr().b(),
+				     cf.w() + atom_radius/no_go.cell().descr().c());
+
+	    clipper::Grid_map grid(box0.coord_grid(no_go.grid_sampling()),
+				   box1.coord_grid(no_go.grid_sampling()));
+
+	    clipper::Xmap_base::Map_reference_coord ix( no_go, grid.min() ), iu, iv, iw;
+	    for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+	       for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
+		  for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+		     if ( (iw.coord().coord_frac(no_go.grid_sampling()).coord_orth(no_go.cell()) - at.pos).lengthsq() < atom_radius_sq) {
+			if (no_go[iw])
+			   ++n_hit;
+			else
+			   ++n_miss;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+
+      std::cout << "debug:: nhit " << n_hit << " nmiss: " << n_miss << std::endl;
+
+      if ((n_hit + n_miss)  > 12) {
+	 big_enough_atom_radius = true;
+	 if (n_hit > 6) {
+	    status = true;
+	 }
+      } else {
+	 atom_radius *= 1.5;
+      }
+   }
    return status;
 }

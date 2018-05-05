@@ -230,7 +230,7 @@ int main(int argc, char **argv) {
 			if (r) {
 			   mmdb::Residue *r_prev = coot::util::previous_residue(r);
 			   float b_fact = 30.0;
-			   int n_trials = 20000; // 20000 is a reasonable minimal number
+			   int n_trials = 20010; // 20000 is a reasonable minimal number
 			   std::vector<std::pair<std::string, std::string> > sequences; // empty, atm
 			   coot::multi_build_terminal_residue_addition mbtra(geom, xmap, mv, sequences);
 			   coot::minimol::fragment fC =

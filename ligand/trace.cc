@@ -91,7 +91,7 @@ coot::trace::make_seeds() {
 	 atom_pairs_within_distance(action_mol, 3.81, variation);
       std::vector<std::pair<unsigned int, scored_node_t> > scores = spin_score_pairs(apwd);
 
-      unsigned int n_top_spin_pairs = 100;
+      unsigned int n_top_spin_pairs = 1000;
 
       std::sort(scores.begin(), scores.end(), scored_node_t::sort_pair_scores);
       if (scores.size() < n_top_spin_pairs)

@@ -1,4 +1,6 @@
 
+#include <atomic>
+
 #include <clipper/core/xmap.h>
 #include "mini-mol/mini-mol.hh"
 #include "geometry/protein-geometry.hh"
@@ -149,6 +151,14 @@ namespace coot {
 				    int build_dir,
 				    std::atomic<unsigned int> &store_lock) const;
       std::vector<std::pair<std::string, std::string> > sequences;
+      void init_no_go();
+      clipper::Xmap<unsigned int> no_go; // true means "already traced"
+      void mask_no_go_map(const minimol::fragment &frag);
+
+      // return true if the atoms of the residue are in the no-go map (i.e. it
+      // had been masked because it has been built before).
+      //
+      bool is_in_no_go_map(minimol::residue &res) const;
 
    public:
 
@@ -161,6 +171,7 @@ namespace coot {
 	 setup_standard_residues_mol();
 	 setup_symms();
 	 sequences = sequences_in;
+	 init_no_go();
 
 	 start_from_map(geom);
       }
