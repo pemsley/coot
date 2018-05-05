@@ -1734,8 +1734,13 @@ void  do_edit_copy_fragment() {
 #endif   
 
 #ifdef USE_GUILE
-   std::string cmd = "(generic-chooser-and-entry \"Create a new Molecule\nFrom which molecule shall we seed?\" \"Atom selection for fragment\" \"//A/1-10\" (lambda (imol text) (let ((imol (new-molecule-by-atom-selection imol text))) (valid-model-molecule? imol))) #f)";
+   std::string cmd = "(generic-chooser-and-entry-and-checkbutton \"From which molecule shall we copy the fragment?\" \"Atom selection for fragment\" \"//A/1-10\" \"Move new molecule here?\" (lambda (imol text button-state) (let ((imol (new-molecule-by-atom-selection imol text))) (if button-state (move-molecule-to-screen-centre imol)) (valid-model-molecule? imol))) #f)";
+
    if (state_lang == coot::STATE_SCM) {
+      std::ofstream f("debug.scm");
+      f.write(cmd.c_str(), cmd.size());
+      f.write("\n", 1);
+      f.close();
       safe_scheme_command(cmd);
    }
 #else

@@ -2045,7 +2045,6 @@ handle_symmetry_colour_change(int mol, gdouble* col) {
    graphics_info_t::symmetry_colour[2] = col[2];
 
    graphics_draw();
-
 }
 
 gdouble*
