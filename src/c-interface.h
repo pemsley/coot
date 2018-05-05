@@ -6848,6 +6848,7 @@ PyObject *all_molecule_ramachandran_region_py(int imol);
 #endif /* USE_PYTHON */
 #endif /* __cplusplus */
 
+void globularize(int imol);
 
 #ifdef __cplusplus
 /*! 
