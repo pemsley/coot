@@ -1383,7 +1383,6 @@ coot_save_state_and_exit(int retval, int save_state_flag) {
 void
 add_file_dialog_action_area_vbox(GtkWidget *fileselection) {
 
-#if (GTK_MAJOR_VERSION > 1)
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
    } else {
       GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
@@ -1394,10 +1393,9 @@ add_file_dialog_action_area_vbox(GtkWidget *fileselection) {
       gtk_widget_show(frame);
       gtk_container_add(GTK_CONTAINER(aa), frame);
       gtk_container_add(GTK_CONTAINER(frame), vbox);
-   } 
-#endif
-   
-} 
+   }  
+}
+
 
 // where data type:
 // 0 coords
@@ -1412,12 +1410,10 @@ GtkWidget *add_filename_filter_button(GtkWidget *fileselection,
    bool no_chooser_filter = 1;
    GtkWidget *button = 0;
 
-#if (GTK_MAJOR_VERSION > 1)
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
       	no_chooser_filter = 0;
 	add_filechooser_filter_button(fileselection, data_type);
    }
-#endif
 
    if (no_chooser_filter) {
       GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
@@ -1431,16 +1427,10 @@ GtkWidget *add_filename_filter_button(GtkWidget *fileselection,
       gtk_container_add(GTK_CONTAINER(aa),frame);
       
       gtk_container_add(GTK_CONTAINER(frame), button);
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-      gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			  GTK_SIGNAL_FUNC (on_filename_filter_toggle_button_toggled_gtk1),
-			  GINT_TO_POINTER(d));
-#else
       // callback in c-interface-gtk2.cc
       gtk_signal_connect (GTK_OBJECT (button), "toggled",
 			  GTK_SIGNAL_FUNC (on_filename_filter_toggle_button_toggled),
 			  GINT_TO_POINTER(d));
-#endif   
       gtk_widget_show(frame);
    }
    
@@ -1451,11 +1441,9 @@ void add_save_coordinates_include_hydrogens_and_aniso_checkbutton(GtkWidget *fil
 
    bool no_chooser_filter = 1;
    
-#if (GTK_MAJOR_VERSION > 1)
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
       	no_chooser_filter = 0;
    }
-#endif
 
    if (no_chooser_filter) {
       GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
@@ -2892,17 +2880,14 @@ toolbar_popup_menu (GtkToolbar *toolbar,
 void
 set_model_toolbar_docked_position_callback(GtkWidget *w, gpointer user_data) {
 
-#if (GTK_MAJOR_VERSION > 1)
-  int pos = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (w), "position"));
+  int pos = GPOINTER_TO_INT (g_object_get_data(G_OBJECT (w), "position"));
   set_model_toolbar_docked_position(pos);
-#endif //GTK_MAJOR_VERSION
 
 }
 
 void
 reattach_modelling_toolbar() {
 
-#if (GTK_MAJOR_VERSION > 1)
   GtkWidget *handlebox = lookup_widget(graphics_info_t::glarea,
 				       "model_fit_refine_toolbar_handlebox");
   GdkEvent *event = gdk_event_new (GDK_DELETE);
@@ -2911,9 +2896,8 @@ reattach_modelling_toolbar() {
   event->any.send_event = TRUE;
   gtk_main_do_event (event);
   gdk_event_free (event);
-  g_object_ref (GTK_HANDLE_BOX(handlebox)->float_window);
+
   g_object_ref (GTK_HANDLE_BOX(handlebox));
-#endif // GTK_MAJOR_VERSION
 }
 
 /*  ------------------------------------------------------------------------ */
@@ -6108,4 +6092,131 @@ int add_generic_display_object(const coot::generic_display_object_t &gdo) {
       }
    }
    return n_objs;
+}
+
+
+// -------------- You can't install extensions if you don't have boost ----------
+
+#ifdef HAVE_BOOST
+#include <boost/crc.hpp>
+#endif
+
+bool
+checksums_match(const std::string &file_name, const std::string &checksum) {
+
+   bool state = false;
+
+#ifdef HAVE_BOOST
+   std::ifstream f(file_name.c_str());
+   if (f) {
+      std::string dl_str((std::istreambuf_iterator<char>(f)),
+			 std::istreambuf_iterator<char>());
+
+      // boost::crc_basic<16> crc_ccitt1( 0x1021, 0xFFFF, 0, false, false );
+      boost::crc_basic<16> crc_ccitt1(0xffff, 0x0, 0, false, false );
+      crc_ccitt1.process_bytes(dl_str.c_str(), dl_str.size());
+      // std::cout << "checksum compare " << crc_ccitt1.checksum() << " " << checksum << std::endl;
+      std::string s = coot::util::int_to_string(crc_ccitt1.checksum());
+      if (s == checksum)
+	 state = true;
+   }
+#endif // HAVE_BOOST
+   return state;
+}
+
+// If I put this in c-interface-curlew.cc, then it doesn't resolve when linking.
+// I don't understand why.
+//
+/* curlew install button clicked callback action */
+void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions) {
+
+   // Look up the checkbuttow widgets, find the attached filenames and checksums
+   // download them, check the checksums and, if they match install them to preferences
+   // and run them.
+
+   if (curlew_dialog) {
+      for (int i=0; i<n_extensions; i++) {
+	 std::string cb_name = "curlew_selected_check_button_";
+	 cb_name += coot::util::int_to_string(i);
+	 std::string hbox_name = "curlew_extension_hbox_";
+	 hbox_name += coot::util::int_to_string(i);
+	 GtkWidget *w = lookup_widget(curlew_dialog, cb_name.c_str());
+	 GtkWidget *hbox = lookup_widget(curlew_dialog, hbox_name.c_str());
+
+	 // std::cout << "debug:: here with hbox " << hbox << " for idx " << i << std::endl;
+
+	 if (w) {
+	    int status = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(w));
+	    if (status) { // selected for download/install
+	       if (false)
+		  std::cout << "Got w " << w << " for i " << cb_name << " " << status
+			    <<std::endl;
+
+	       gchar *file_name_cstr = static_cast<gchar *> (g_object_get_data(G_OBJECT(w), "file-name"));
+	       gchar *checksum_cstr  = static_cast<gchar *> (g_object_get_data(G_OBJECT(w), "checksum"));
+
+	       if (file_name_cstr) {
+
+		  std::string file_name(file_name_cstr);
+
+		  if (!file_name.empty()) {
+
+		     std::string url_prefix = "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+		     url_prefix += "extensions";
+		     url_prefix += "/";
+		     url_prefix += file_name;
+
+		     std::string download_dir = "coot-download"; // FIXME
+		     std::string dl_fn = download_dir + "/";
+		     dl_fn += file_name;
+
+		     if (false) // debug
+			std::cout << "get this " << url_prefix << " as this " << dl_fn << std::endl;
+
+		     int r = coot_get_url(url_prefix.c_str(), dl_fn.c_str());
+
+		     if (r) {
+			std::cout << "WARNING:: bad URL retrieve " << file_name << std::endl;
+		     } else {
+			if (coot::file_exists(dl_fn)) {
+			   std::string checksum;
+			   if (checksum_cstr) checksum = checksum_cstr;
+			   if (checksums_match(dl_fn, checksum)) {
+			      // I want a function that returns preferences_dir
+			      char *home = getenv("HOME");
+			      if (home) {
+				 std::string home_directory(home);
+				 std::string preferences_dir =
+				    coot::util::append_dir_dir(home_directory, ".coot-preferences");
+				 std::string preferences_file_name =
+				    coot::util::append_dir_file(preferences_dir, file_name);
+				 int status = rename(dl_fn.c_str(), preferences_file_name.c_str());
+				 if (status != 0) {
+				    std::cout << "WARNING:: failed to install " << file_name << std::endl;
+				 } else {
+				    std::cout << "run_script on " << preferences_file_name << std::endl;
+				    run_script(preferences_file_name.c_str());
+				    // make the hbox insensitive
+				    if (hbox) {
+				       gtk_widget_set_sensitive(hbox, FALSE);
+				    }
+				 }
+			      }
+			   } else {
+			      std::cout << "WARNING:: Failure in checksum match " << dl_fn << std::endl;
+			   }
+			} else {
+			   std::cout << "WARNING:: file does not exist " << file_name << std::endl;
+			}
+		     }
+		  } else {
+		     std::cout << "WARNING:: file_name data was empty" << std::endl;
+		  }
+	       } else {
+		  std::cout << "WARNING:: No file name data" << std::endl;
+	       }
+	    }
+	 }
+      }
+   }
 }

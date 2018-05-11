@@ -6809,7 +6809,6 @@ void run_update_self_maybe(); /* called when --update-self given at command line
 void show_go_to_residue_keyboarding_mode_window();
 void    handle_go_to_residue_keyboarding_mode(const gchar *text);
 
-
 /*  ----------------------------------------------------------------------- */
 /*                    graphics ligand view                                  */
 /*  ----------------------------------------------------------------------- */
@@ -6819,8 +6818,6 @@ void    handle_go_to_residue_keyboarding_mode(const gchar *text);
 
  (default is 1 (on)). */
 void set_show_graphics_ligand_view(int state);
-/* \} */
-
 /* \} */
 
 
@@ -6883,6 +6880,3 @@ void full_screen(int mode);
 
 #endif /* C_INTERFACE_H */
 END_C_DECLS
-
-
-

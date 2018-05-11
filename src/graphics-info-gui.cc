@@ -471,7 +471,7 @@ graphics_info_t::info_dialog_alignment(coot::chain_mutation_info_container_t mut
 void
 graphics_info_t::info_dialog_refinement_non_matching_atoms(std::vector<std::pair<std::string, std::vector<std::string> > > nma) {
 
-   std::string s = "   Failed to match (to the dictionary) the following model atom names:\n";
+   std::string s = "WARNING:: Failed to match (to the dictionary) the following model atom names:\n";
    for (unsigned int i=0; i<nma.size(); i++) {
       s += "   ";
       s += nma[i].first;
