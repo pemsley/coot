@@ -75,7 +75,8 @@ koppi-green-tick-64.png rygle-red-cross-64.png forest51690-dwcheckno-incomplete-
   go-to-ligand.png go-to-atom.png azerbaijan.png add-water.png mutate.png \
   mutate-auto-fit.png edit-backbone.png torsion-general.png anchor.png regularize-1.png \
   refine-1.png stock-zoom-follow-window-12.svg stock-zoom-follow-window-12.png \
-  rama_all.png rama_gly.png rama_pro.png rama_non_gly_pro.png
+  rama_all.png rama_gly.png rama_pro.png rama_non_gly_pro.png \
+  curlew-128.png curlew-128.svg
 
 
 
