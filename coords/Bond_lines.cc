@@ -299,7 +299,11 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
    std::string element_1, element_2;
    int col; // atom colour
 
-   if (ncontacts > 0) {
+   if (ncontacts == 0) {
+
+      // SF4 etc
+
+   } else {
 
       if (contact) {
 
@@ -514,8 +518,9 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 	 //
 	 // het_residues is filled for by X-X for everything except HOHs.
 	 // 
-	 if (! are_different_atom_selections) 
+	 if (! are_different_atom_selections) {
 	    add_bonds_het_residues(het_residues, imol, atom_colour_type, have_udd_atoms, udd_handle);
+	 }
 	 if (hoh_residues.size())
 	    add_bonds_het_residues(hoh_residues, imol, atom_colour_type, have_udd_atoms, udd_handle);
       }
@@ -529,7 +534,8 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 // add_bonds_het_residues(het_residues, atom_colour_type, have_udd_atoms, udd_handle)
 // 
 bool
-Bond_lines_container::add_bond_by_dictionary_maybe(int imol, mmdb::Atom *atom_p_1,
+Bond_lines_container::add_bond_by_dictionary_maybe(int imol,
+						   mmdb::Atom *atom_p_1,
 						   mmdb::Atom *atom_p_2,
 						   std::vector<std::pair<bool, mmdb::Residue *> > *het_residues) {
 
@@ -582,6 +588,7 @@ Bond_lines_container::add_bond_by_dictionary_maybe(int imol, mmdb::Atom *atom_p_
 		  bond_het_residue_by_dictionary = false; // false anyway, I think.
 	       } 
 	    }
+
    return bond_het_residue_by_dictionary;
 }
 
@@ -1625,10 +1632,11 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 	       if ((ic == 0) ||
 		   ((!strcmp(non_Hydrogen_atoms[i]->element, " S")) && (ic != BONDED_WITH_HETATM_BOND)) ||
 		   ((!strcmp(non_Hydrogen_atoms[i]->element, "SE")) && (ic != BONDED_WITH_HETATM_BOND)) ||
+		   ((!strcmp(non_Hydrogen_atoms[i]->element, "FE")) && (ic != BONDED_WITH_HETATM_BOND)) ||
 		   ((!strcmp(non_Hydrogen_atoms[i]->element, " P")) && (ic != BONDED_WITH_HETATM_BOND))) {
 
-//  		  std::cout << "::::  No contact for " << non_Hydrogen_atoms[i]
-//  			    << " with ic " << ic << std::endl;
+		  // std::cout << "::::  No contact for " << non_Hydrogen_atoms[i]
+		  //           << " with ic " << ic << std::endl;
 	       
 		  // no contact found or was Sulphur, or Phosphor
 
@@ -1643,14 +1651,23 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 			handle_MET_or_MSE_case(non_Hydrogen_atoms[i], uddHnd, udd_atom_index_handle,
 					       atom_colour_type);
 		     } else {
-			std::string ele = non_Hydrogen_atoms[i]->element;
-			if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
-			    || ele == "Cl" || ele == "Br"  || ele == "MO"
-			    || ele == "PT" || ele == "RU" || ele == " W"
-			    || ele == "AS" || ele == " P" || ele == "AU" || ele == "HG"
-			    || ele == "PD" || ele == "PB" || ele == "AG") {
-			   handle_long_bonded_atom(non_Hydrogen_atoms[i], uddHnd, udd_atom_index_handle,
-						   atom_colour_type);
+
+			std::vector<std::pair<bool, mmdb::Residue *> > het_residues; // bond these separately.
+			mmdb::Atom *atom_p_1 = non_Hydrogen_atoms[i];
+			bool bond_het_residue_by_dictionary =
+			   add_bond_by_dictionary_maybe(imol, atom_p_1, atom_p_1, &het_residues);
+			if (bond_het_residue_by_dictionary) {
+			   add_bonds_het_residues(het_residues, imol, atom_colour_type, have_udd_atoms, uddHnd);
+			} else {
+			   std::string ele = non_Hydrogen_atoms[i]->element;
+			   if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
+			       || ele == "Cl" || ele == "Br"  || ele == "MO"
+			       || ele == "PT" || ele == "RU" || ele == " W"
+			       || ele == "AS" || ele == " P" || ele == "AU" || ele == "HG"
+			       || ele == "PD" || ele == "PB" || ele == "AG") {
+			      handle_long_bonded_atom(non_Hydrogen_atoms[i], uddHnd, udd_atom_index_handle,
+						      atom_colour_type);
+			   }
 			}
 		     }
 		  } else {
