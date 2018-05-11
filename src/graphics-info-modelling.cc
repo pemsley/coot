@@ -3848,12 +3848,12 @@ graphics_info_t::update_residue_by_chi_change(int imol, mmdb::Residue *residue,
 	       display_density_level_screen_string += float_to_string(new_torsion);
 	       add_status_bar_text(display_density_level_screen_string);
 	    }
-	    catch (std::runtime_error rte) {
+	    catch (const std::runtime_error &rte) {
 	       std::cout << "Update chi - contact fall-back fails - " << rte.what() << std::endl;
 	    }
 	 }
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 // atoms of the torsion not found.
 	 std::cout << rte.what() << std::endl;
       }

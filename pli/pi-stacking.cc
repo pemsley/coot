@@ -137,7 +137,7 @@ coot::pi_stacking_container_t::init(const coot::dictionary_residue_restraints_t 
 	    }
 	 }
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << "WARNING:: " << rte.what() << std::endl;
       }
    }

@@ -55,5 +55,6 @@ namespace coot {
       unsigned int size(unsigned int idx) const { return matches[idx].size(); }
       const std::vector<matched_residue_t> &get_matches(const int i) const { return matches[i]; }
    };
+   std::ostream &operator<< (std::ostream &s, const pir_alignment_t::matched_residue_t &m);
 
 }

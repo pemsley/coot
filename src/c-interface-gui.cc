@@ -5939,7 +5939,7 @@ void set_baton_build_params_from_widget(GtkWidget *params_dialog) {
       int rn = coot::util::string_to_int(resno_txt);
       set_baton_build_params(rn, chain_id, direction);
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << rte.what() << " aborting." << std::endl;
    }
 

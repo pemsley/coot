@@ -106,7 +106,7 @@ mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, c
 							angle_info.normal.y(),
 							angle_info.normal.z());
 			   }
-			   catch (std::runtime_error rte) {
+			   catch (const std::runtime_error &rte) {
 			      std::cout << "WARNING:: " << rte.what() << std::endl;
 			   }
 			}

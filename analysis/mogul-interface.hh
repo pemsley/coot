@@ -16,7 +16,12 @@ namespace coot {
    class mogul_distribution {
    public:
       mogul_distribution(const std::vector<std::string> &bits);
-      mogul_distribution() {}
+      mogul_distribution() {
+	 bin_start = 0;
+	 bin_end = 0;
+	 bin_width = 0;
+	 n_bins = 0;
+      }
       float bin_start;
       float bin_end;
       float bin_width;

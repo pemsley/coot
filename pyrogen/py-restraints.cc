@@ -464,7 +464,7 @@ PyObject *coot::monomer_restraints_to_python(const dictionary_residue_restraints
 	    py_value_dist = PyFloat_FromDouble(d);
 	    py_value_esd  = PyFloat_FromDouble(esd);
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 
 	    // Use default false values.
 	    // So I suppose that I need to do this then:

@@ -1,12 +1,6 @@
 
    For Release 0.8.9.2
 
-<<<<<<< HEAD
-   o Last Only button shouldn't animate (say with 100s of molecules)
-
-   o If residues are not consecutive and C-N is further apart than 2A don't add peptide flags.
-     Currently seems to be 3.0A.
-=======
    o morph fit by secondary following the cryo-tutorial, morph secondary
      fit makes a helix go wonky [JED].
 
@@ -42,22 +36,9 @@
 
    o dictionary_radii() for Hamish. Return something JSON.
      a dictionary? with a dictionary of atoms the the radius as the data
->>>>>>> master
 
-   o Add anom to PDB-redo output
+   o Eleanor's HIS. Add test ::: 1
 
-<<<<<<< HEAD
-   o maybe add external angle restraints
-
-   o Where's my head and where am I looking? No need for orientation information.
-
-   o copy fragment should have a "move it here" button.
-
-   o Coot found no unexplained blobs" dialog should have a better title than "dialog1"
-
-   o Jiggle fit uses linear interp? Jiggle fit should select backbone if fitting protein,
-     ring atoms for RNA/DNA
-=======
    o Add LINK info to header browser. Other things? SSBOND, BIOMT? ::: 2
 
    o expand chis for TRP rotamers (maybe for refinement branch) ::: 2
@@ -70,8 +51,18 @@
 
    o Jiggle fit uses linear interp? Jiggle fit should select backbone
      if fitting protein, ring atoms for RNA/DNA ::: 2
->>>>>>> master
 
+   o maybe add external angle restraints ::: 2
+
+   o Where's my head and where am I looking? No need for orientation
+     information. Puntable ::: 1
+
+   o Coot found no unexplained blobs" dialog should have a better title
+     than "dialog1" ::: 0.5
+
+* Done, needs testing.
+
+   o Make RCrane work again ::: 6
 
    o this is running coot-refinement and pressing Apply in Lidia
 
@@ -82,10 +73,33 @@ There are 2 data in /Users/pemsley/autobuild/build-refinement-pre-release-gtk2-p
 sys:1: GtkWarning: Unable to find default local directory monitor type
 command "cprodrg" not found
 
-   o Is cis-peptide markup getting passed to VR?  No, but it looks straightforward.
+    ::: 2
 
-   o reposition the O on the current residue when adding a new one - Add Terminal Residue
-     execute_add_terminal_residue()
+   o Is cis-peptide markup getting passed to VR?  No, but it looks
+     straightforward. Puntable ::: 2
+
+   o reposition the O on the current residue when adding a new one -
+     Add Terminal Residue execute_add_terminal_residue() ::: 1
+
+   o graphics_info_t::read_standard_residues() uses
+     std::string standard_file_name = PKGDATADIR;
+     it should use
+     std::string l = package_data_dir();
+
+  o Can you colour by ProSMART output - ask Rob for example. ::: 4
+
+  o sideways histogram of map values when reading a map. ::: 1
+
+  o make a patch for clipper hkl_data.h line 421
 
 
---------------
+------
+
+   o copy fragment should have a "move it here" button. ::: 0.5
+
+   o Draw -> Cell and Symmetry -> symmetry colour should follow the
+     real symmetry colour. But now the symmetry colour is not dynamic.
+     Swings and roundabouts.
+
+     ::: 1
+
