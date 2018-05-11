@@ -13,15 +13,32 @@
 #include "cc-interface.hh" // for coot_get_url()
 #include "coot-version.hh"
 
-#ifdef HAVE_CXX11   
-#include "json.hpp" // clever stuff from Niels Lohmann - FIXME add this                      
-#endif // HAVE_CXX11
+#ifdef HAVE_CXX11
+   #if defined(__clang__)
+      #define BUILD_CURLEW
+   #else
+      #if defined(__GNUC__)
+         #if (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__) < 40900
 
+         // no curlew
+
+         #else
+            #define BUILD_CURLEW
+         #endif
+      #endif
+   #endif
+#endif
+
+#ifdef BUILD_CURLEW
+#include "json.hpp" // clever stuff from Niels Lohmann
 using json = nlohmann::json;
+
+#endif
 
 #include "graphics-info.h" // for extensions register // after json.hpp
 
 #include "curlew.hh"
+
 
 // put this in a widget header (maybe its own?)
 GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
@@ -39,7 +56,8 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
 
 void curlew() {
 
-#ifdef HAVE_CXX11   
+#ifdef BUILLD_CURLEW
+   laksdjf;lakjsdf;lakjdsf;lasdkjfldks
 
    GtkWidget *w = create_curlew_dialog();
    graphics_info_t g;
@@ -170,7 +188,7 @@ void curlew() {
 
    gtk_widget_show(w);
 
-#endif // HAVE_CXX11
+#endif // BUILD_CURLEW
 }
 
 
