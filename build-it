@@ -2096,7 +2096,7 @@ fi #  ENABLE_GUILE_COOT
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python2.7
-pver=2.7.14
+pver=2.7.15
 #
 # but more modern pythons do not compile (at least on my mac)
 if [ $OS = Darwin ] ; then
@@ -2584,6 +2584,9 @@ if test -n "$build_clipper" ; then
     cd clipper-$clipper_dir_version
     pwd
     date
+
+    # patch the hkl_data.h header
+    sed -ibackup -e 's/int i = 0; i < list.size(); i++/unsigned int i = 0; i < list.size(); i++/' clipper/core/hkl_data.h
     
     # make clipper
     echo . ------------------------------------------------------------------------------

@@ -1,13 +1,12 @@
 
-ylim=40
+ylim=46
 xlim=50
 
 prediction_text_x_placement = 18
 prediction_text_y_placement = 10
 
-legend_x = 10
-legend_x = 20
-legend_y =  2.5
+legend_x = 40
+legend_y =  7.5
 
 
 source('arrow.r')
