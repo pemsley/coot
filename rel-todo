@@ -20,6 +20,18 @@
 
    o read SHELX.phs as a map ::: 1
 
+   o click on the simple mutate on starting a session in coot-experimental
+     (setup-mutate 0)
+     ERROR:: invalid model molecule number in do_mutation() -1
+     (do-mutatation "ALA" 0)
+
+   o I want cis-trans to work on intermediate atoms, maybe crankshafting too.
+
+   o Check that H on N moves on cis-trans
+
+   o seems to be a failure of peptide plan restraints when residue type is a PRO.
+     (converted to a ALA and things flattened out as expected).
+
    o dictionary_radii() for Hamish. Return something JSON.
      a dictionary? with a dictionary of atoms the the radius as the data
 
