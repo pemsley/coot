@@ -29453,3 +29453,181 @@ create_cfc_dialog (void)
   return cfc_dialog;
 }
 
+GtkWidget*
+create_curlew_dialog (void)
+{
+  GtkWidget *curlew_dialog;
+  GtkWidget *dialog_vbox135;
+  GtkWidget *label815;
+  GtkWidget *hbox445;
+  GtkWidget *vbox328;
+  GtkWidget *image12116;
+  GtkWidget *vbox329;
+  GtkWidget *hbox446;
+  GtkWidget *label814;
+  GtkWidget *label811;
+  GtkWidget *label812;
+  GtkWidget *label813;
+  GtkWidget *label817;
+  GtkWidget *scrolledwindow42;
+  GtkWidget *viewport29;
+  GtkWidget *curlew_vbox_for_extensions;
+  GtkWidget *curlew_already_installed_label;
+  GtkWidget *hbox448;
+  GtkWidget *curlew_install_button;
+  GtkWidget *alignment170;
+  GtkWidget *hbox449;
+  GtkWidget *image12117;
+  GtkWidget *label816;
+  GtkWidget *dialog_action_area134;
+  GtkWidget *curlew_dialog_closebutton;
+
+  curlew_dialog = gtk_dialog_new ();
+  gtk_window_set_title (GTK_WINDOW (curlew_dialog), "Coot Curlew");
+  gtk_window_set_default_size (GTK_WINDOW (curlew_dialog), 805, 400);
+  gtk_window_set_type_hint (GTK_WINDOW (curlew_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+  gtk_dialog_set_has_separator (GTK_DIALOG (curlew_dialog), FALSE);
+
+  dialog_vbox135 = GTK_DIALOG (curlew_dialog)->vbox;
+  gtk_widget_show (dialog_vbox135);
+
+  label815 = gtk_label_new ("<b>Coot Utilities and Refinement Library Extension Wrangler</b>");
+  gtk_widget_show (label815);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox135), label815, FALSE, FALSE, 12);
+  gtk_label_set_use_markup (GTK_LABEL (label815), TRUE);
+
+  hbox445 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox445);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox135), hbox445, TRUE, TRUE, 0);
+
+  vbox328 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox328);
+  gtk_box_pack_start (GTK_BOX (hbox445), vbox328, FALSE, FALSE, 0);
+
+  image12116 = create_pixmap (curlew_dialog, "curlew-128.png");
+  gtk_widget_show (image12116);
+  gtk_box_pack_start (GTK_BOX (vbox328), image12116, FALSE, FALSE, 4);
+  gtk_misc_set_padding (GTK_MISC (image12116), 4, 14);
+
+  vbox329 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox329);
+  gtk_box_pack_start (GTK_BOX (hbox445), vbox329, TRUE, TRUE, 0);
+
+  hbox446 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox446);
+  gtk_box_pack_start (GTK_BOX (vbox329), hbox446, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (hbox446), 2);
+
+  label814 = gtk_label_new ("                          ");
+  gtk_widget_show (label814);
+  gtk_box_pack_start (GTK_BOX (hbox446), label814, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label814), GTK_JUSTIFY_CENTER);
+
+  label811 = gtk_label_new ("Description                                                          ");
+  gtk_widget_show (label811);
+  gtk_box_pack_start (GTK_BOX (hbox446), label811, FALSE, FALSE, 0);
+
+  label812 = gtk_label_new ("  Version  ");
+  gtk_widget_show (label812);
+  gtk_box_pack_start (GTK_BOX (hbox446), label812, FALSE, FALSE, 0);
+
+  label813 = gtk_label_new ("       Date     ");
+  gtk_widget_show (label813);
+  gtk_box_pack_start (GTK_BOX (hbox446), label813, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label813), GTK_JUSTIFY_CENTER);
+
+  label817 = gtk_label_new ("  Select  ");
+  gtk_widget_show (label817);
+  gtk_box_pack_start (GTK_BOX (hbox446), label817, FALSE, FALSE, 0);
+
+  scrolledwindow42 = gtk_scrolled_window_new (NULL, NULL);
+  gtk_widget_show (scrolledwindow42);
+  gtk_box_pack_start (GTK_BOX (vbox329), scrolledwindow42, TRUE, TRUE, 0);
+
+  viewport29 = gtk_viewport_new (NULL, NULL);
+  gtk_widget_show (viewport29);
+  gtk_container_add (GTK_CONTAINER (scrolledwindow42), viewport29);
+
+  curlew_vbox_for_extensions = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (curlew_vbox_for_extensions);
+  gtk_container_add (GTK_CONTAINER (viewport29), curlew_vbox_for_extensions);
+
+  curlew_already_installed_label = gtk_label_new ("Already installed");
+  gtk_widget_show (curlew_already_installed_label);
+  gtk_box_pack_start (GTK_BOX (vbox329), curlew_already_installed_label, FALSE, FALSE, 4);
+  gtk_misc_set_alignment (GTK_MISC (curlew_already_installed_label), 0.01, 0.5);
+
+  hbox448 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox448);
+  gtk_box_pack_start (GTK_BOX (vbox329), hbox448, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (hbox448), 6);
+
+  curlew_install_button = gtk_button_new ();
+  gtk_widget_show (curlew_install_button);
+  gtk_box_pack_start (GTK_BOX (hbox448), curlew_install_button, FALSE, FALSE, 0);
+
+  alignment170 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment170);
+  gtk_container_add (GTK_CONTAINER (curlew_install_button), alignment170);
+
+  hbox449 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox449);
+  gtk_container_add (GTK_CONTAINER (alignment170), hbox449);
+
+  image12117 = gtk_image_new_from_stock ("gtk-add", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image12117);
+  gtk_box_pack_start (GTK_BOX (hbox449), image12117, FALSE, FALSE, 0);
+
+  label816 = gtk_label_new_with_mnemonic ("  Install Selected  ");
+  gtk_widget_show (label816);
+  gtk_box_pack_start (GTK_BOX (hbox449), label816, FALSE, FALSE, 0);
+
+  dialog_action_area134 = GTK_DIALOG (curlew_dialog)->action_area;
+  gtk_widget_show (dialog_action_area134);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area134), GTK_BUTTONBOX_END);
+
+  curlew_dialog_closebutton = gtk_button_new_from_stock ("gtk-close");
+  gtk_widget_show (curlew_dialog_closebutton);
+  gtk_dialog_add_action_widget (GTK_DIALOG (curlew_dialog), curlew_dialog_closebutton, GTK_RESPONSE_CLOSE);
+  GTK_WIDGET_SET_FLAGS (curlew_dialog_closebutton, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) curlew_dialog, "close",
+                    G_CALLBACK (on_curlew_dialog_close),
+                    NULL);
+  g_signal_connect ((gpointer) curlew_dialog, "response",
+                    G_CALLBACK (on_curlew_dialog_response),
+                    NULL);
+  g_signal_connect ((gpointer) curlew_install_button, "clicked",
+                    G_CALLBACK (on_curlew_install_button_clicked),
+                    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (curlew_dialog, curlew_dialog, "curlew_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (curlew_dialog, dialog_vbox135, "dialog_vbox135");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, label815, "label815");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, hbox445, "hbox445");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, vbox328, "vbox328");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, image12116, "image12116");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, vbox329, "vbox329");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, hbox446, "hbox446");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, label814, "label814");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, label811, "label811");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, label812, "label812");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, label813, "label813");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, label817, "label817");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, scrolledwindow42, "scrolledwindow42");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, viewport29, "viewport29");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, curlew_vbox_for_extensions, "curlew_vbox_for_extensions");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, curlew_already_installed_label, "curlew_already_installed_label");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, hbox448, "hbox448");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, curlew_install_button, "curlew_install_button");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, alignment170, "alignment170");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, hbox449, "hbox449");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, image12117, "image12117");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, label816, "label816");
+  GLADE_HOOKUP_OBJECT_NO_REF (curlew_dialog, dialog_action_area134, "dialog_action_area134");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, curlew_dialog_closebutton, "curlew_dialog_closebutton");
+
+  return curlew_dialog;
+}
+

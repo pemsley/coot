@@ -272,5 +272,25 @@ PyObject *graphics_info_t::geometry_distortion_to_py(const coot::geometry_distor
 #endif // USE_PYTHON
 
 
+#endif // USE_PYTHON (bleugh - it's a long way up, but not at the top)
 
-#endif // USE_PYTHON
+void
+graphics_info_t::register_extension(const std::string &extension,
+				    const std::string &version) {
+
+   extensions_registry[extension] = version;
+}
+
+std::string
+graphics_info_t::get_version_for_extension(const std::string &extension_name) const {
+
+   std::string r;
+
+   std::map<std::string, std::string>::const_iterator it;
+   it = extensions_registry.find(extension_name);
+   if (it != extensions_registry.end()) {
+      r = it->second;
+   }
+   return r;
+}
+

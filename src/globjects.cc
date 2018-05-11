@@ -1348,6 +1348,8 @@ bool graphics_info_t::linked_residue_fit_and_refine_state = true;
 //
 bool graphics_info_t::allow_duplseqnum = false;
 
+std::map<std::string, std::string> graphics_info_t::extensions_registry;
+
 // 
 std::map<std::string, std::pair<std::string, std::string> > graphics_info_t::user_name_passwd_map;
 

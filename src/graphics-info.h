@@ -4063,6 +4063,15 @@ string   static std::string sessionid;
                                                   // if so, what is it? (say 20A)
                                                   // used in draw_bonds().
 
+   // extensions registry
+   // a name (a script file name) and a version number/identifier as a string
+   //
+   static std::map<std::string, std::string> extensions_registry;
+   // return empty string on extension-not-found
+   void register_extension(const std::string &extension,
+			   const std::string &version);
+   std::string get_version_for_extension(const std::string &extension_name) const;
+
 #ifdef USE_PYTHON
    PyObject *pyobject_from_graphical_bonds_container(int imol,
 						     const graphical_bonds_container &bonds_box) const;
