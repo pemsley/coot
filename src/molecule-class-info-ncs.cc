@@ -424,7 +424,7 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
 	    }
 	 }
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << rte.what() << std::endl;
       } 
    }
@@ -483,7 +483,7 @@ molecule_class_info_t::add_ncs_ghosts_using_ncs_master(const std::string &master
 	       }
 	    }
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << rte.what() << std::endl;
 	 } 
       }
@@ -1258,7 +1258,7 @@ molecule_class_info_t::copy_residue_range(mmdb::Chain *from_chain, mmdb::Chain *
 	 old_seg_id_for_chain_atoms = coot::chain_atoms_segid(to_chain);
 	 use_old_seg_id = 1;
       }
-      catch (std::runtime_error mess) {
+      catch (const std::runtime_error &mess) {
       }
       
       // Don't do a selection here, we have the (from) chain already.

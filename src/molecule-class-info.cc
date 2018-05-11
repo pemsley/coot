@@ -282,7 +282,7 @@ molecule_class_info_t::space_group() const {
 	    p.second = cell_sg.second;
 	 }
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << "ERROR:: " << rte.what() << std::endl;
       }
    }
@@ -2614,7 +2614,7 @@ molecule_class_info_t::add_dipole(const std::vector<coot::residue_spec_t> &res_s
 			 << coot::residue_spec_t(residue_p) << " type: " << res_type << std::endl;
 	    } 
 	 }
-	 catch (std::runtime_error mess) {
+	 catch (const std::runtime_error &mess) {
 	    std::cout << mess.what() << std::endl;
 	 }
       } else {
@@ -2629,7 +2629,7 @@ molecule_class_info_t::add_dipole(const std::vector<coot::residue_spec_t> &res_s
 	 id = dipoles.size() -1;
 	 d = dl;
       }
-      catch (std::runtime_error mess) {
+      catch (const std::runtime_error &mess) {
 	    std::cout << mess.what() << std::endl;
       }
    }

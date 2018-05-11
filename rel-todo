@@ -90,6 +90,8 @@ command "cprodrg" not found
 
   o sideways histogram of map values when reading a map. ::: 1
 
+  o make a patch for clipper hkl_data.h line 421
+
 
 ------
 

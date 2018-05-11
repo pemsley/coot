@@ -1659,7 +1659,7 @@ coot::rama_plot::generate_phi_psis(mmdb::Manager *mol_in, bool is_primary) {
 			coot::util::phi_psi_with_residues_t pp(res_prev, residue_p, res_next);
 			model_phi_psis.add_phi_psi(spec, pp);
 		     }
-		     catch (const std::runtime_error rte) {
+		     catch (const std::runtime_error &rte) {
 			// nothing too bad, just don't add that residue
 			// to the plot
 		     }
@@ -1708,7 +1708,7 @@ coot::rama_plot::generate_phi_psis_by_selection(mmdb::Manager *mol,
                coot::residue_spec_t spec(res_this);
                model_phi_psis.add_phi_psi(spec, pp);
             }
-            catch (const std::runtime_error rte) {
+            catch (const std::runtime_error &rte) {
                // nothing bad.
             }
          }

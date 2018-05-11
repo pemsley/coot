@@ -89,7 +89,7 @@ SCM pucker_info_scm(int imol, SCM residue_spec_scm, int do_pukka_pucker_check) {
 		     // If C3', phosphate oop dist should be < dist_crit
 		     
 		  }
-		  catch (std::runtime_error phos_mess) {
+		  catch (const std::runtime_error &phos_mess) {
 		     std::cout << " Fail in Pucker analysis for "
 			       << coot::residue_spec_t(res_p) << " " 
 			       << phos_mess.what() << std::endl;
@@ -109,11 +109,11 @@ SCM pucker_info_scm(int imol, SCM residue_spec_scm, int do_pukka_pucker_check) {
 		     double phosphate_d = pi.phosphate_distance(following_res);
 		     r = scm_cons(scm_double2num(phosphate_d), r);
 		  }
-		  catch (std::runtime_error phos_mess) { }
+		  catch (const std::runtime_error &phos_mess) { }
 	       }
 	    }
 	 }
-	 catch (std::runtime_error mess) {
+	 catch (const std::runtime_error &mess) {
 	    std::cout << " failed to find pucker for " << residue_spec << " " 
 		      << mess.what() << std::endl;
 	 } 
@@ -153,7 +153,7 @@ PyObject *pucker_info_py(int imol, PyObject *residue_spec_py, int do_pukka_pucke
 		     // If C3', phosphate oop dist should be < dist_crit
 		     
 		  }
-		  catch (std::runtime_error phos_mess) {
+		  catch (const std::runtime_error &phos_mess) {
 		     std::cout << " Failed in pucker analysis for "
 			       << coot::residue_spec_t(following_res) << " " 
 			       << phos_mess.what() << std::endl;
@@ -173,11 +173,11 @@ PyObject *pucker_info_py(int imol, PyObject *residue_spec_py, int do_pukka_pucke
 		   double phosphate_d = pi.phosphate_distance(following_res);
 		   PyList_Insert(r, 0, PyFloat_FromDouble(phosphate_d));
 		 }
-		 catch (std::runtime_error phos_mess) { }
+		 catch (const std::runtime_error &phos_mess) { }
 	       }
 	    }
 	 }
-	 catch (std::runtime_error mess) {
+	 catch (const std::runtime_error &mess) {
 	    std::cout << " failed to find pucker for " << residue_spec << " " 
 		      << mess.what() << std::endl;
 	 } 

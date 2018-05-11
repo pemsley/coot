@@ -21,7 +21,7 @@ struct entry_info_t coot_entry_to_val(GtkEntry *entry) {
      try {
 	ei.val_as_float = coot::util::string_to_float(text);
      }
-     catch (std::runtime_error rte) {
+     catch (const std::runtime_error &rte) {
 	std::cout << rte.what() << std::endl;
      } 
   } 

@@ -3308,7 +3308,7 @@ coot::dict_chiral_restraint_t::assign_chiral_volume_target(const std::vector <di
 	    }
 	 }
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 // do nothing, it's not really an error if the dictionary
 	 // doesn't have target geometry (the bonding description came
 	 // from a Chemical Component Dictionary entry for example).

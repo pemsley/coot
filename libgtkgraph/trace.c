@@ -140,14 +140,16 @@ for (i = 0 ; i < n ; i++)
     t->Ydata[i] = yd[i];
 
     if (yd[i] > ymax_store)
-    	ymax_store = yd[i];
+      ymax_store = yd[i];
+
     if (yd[i] < ymin_store)
-    	ymin_store = yd[i];
+      ymin_store = yd[i];
 
     if (xd[i] > xmax_store)
-    	xmax_store = xd[i];
-	if (xd[i] < xmin_store )
-    	xmin_store = xd[i];
+      xmax_store = xd[i];
+
+    if (xd[i] < xmin_store )
+      xmin_store = xd[i];
 
     }
 t->ymax = ymax_store;
@@ -242,24 +244,27 @@ for (i = 0 ; i <=1  ; i++)
 		}
 
 	switch (current->marker_type)
+	  {
+	  case GTK_GRAPH_MARKER_NONE:
+	    break;
+	    
+	  case GTK_GRAPH_MARKER_SQUARE:
+	    if (is_filled)
+	      if (i == 0)
 		{
-		case GTK_GRAPH_MARKER_NONE:
-			break;
-		case GTK_GRAPH_MARKER_SQUARE:
-			if (is_filled)
-				if (i == 0)
-					{
-					gdk_gc_set_foreground(target_gc, bg);
-					gdk_draw_rectangle(target, target_gc, TRUE, 0, 0, size, size);
-					gdk_gc_set_foreground(target_gc, fg);
-					gdk_draw_rectangle(target, target_gc, FALSE, 0, 0, size-1 , size-1 );
-					}
-				else
-					gdk_draw_rectangle(target, target_gc, TRUE, 0, 0, size, size);
-           else
-               gdk_draw_rectangle(target, target_gc, FALSE, 0, 0, size - 1, size - 1); 
-	       break;
-    	case GTK_GRAPH_MARKER_CIRCLE:
+		  gdk_gc_set_foreground(target_gc, bg);
+		  gdk_draw_rectangle(target, target_gc, TRUE, 0, 0, size, size);
+		  gdk_gc_set_foreground(target_gc, fg);
+		  gdk_draw_rectangle(target, target_gc, FALSE, 0, 0, size-1 , size-1 );
+		}
+	      else {
+		gdk_draw_rectangle(target, target_gc, TRUE, 0, 0, size, size);
+	      }
+	    else
+	      gdk_draw_rectangle(target, target_gc, FALSE, 0, 0, size - 1, size - 1); 
+	    break;
+
+	  case GTK_GRAPH_MARKER_CIRCLE:
 			if (is_filled)
 				if (i == 0)
 					{
@@ -273,7 +278,8 @@ for (i = 0 ; i <=1  ; i++)
 			else
 			   gdk_draw_arc(target, target_gc, FALSE, 0, 0, size-1, size-1, 0, 23040);
 			break;
-    	case GTK_GRAPH_MARKER_DIAMOND:
+
+	  case GTK_GRAPH_MARKER_DIAMOND:
 			corner[0].x = marker_size; corner[0].y = 0;
 			corner[1].x = size - 1; corner[1].y = marker_size;
 			corner[2].x = marker_size; corner[2].y = size - 1;
