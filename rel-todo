@@ -1,13 +1,15 @@
 
    For Release 0.8.9.2
 
-   o morph fit by secondary following the cryo-tutorial, morph secondardy
-     fit makes a helix go wonky.
-
-   o 5lc5 complex-1 do geometry graphs [Hannah Bridges]
+   o morph fit by secondary following the cryo-tutorial, morph secondary
+     fit makes a helix go wonky [JED].
 
    o make restraints for a big protein, then delete them using ...
      delete deviants?
+
+   o 5lc5 complex-1 do geometry graphs [Hannah Bridges]
+
+   o crash on coot-reduce on luigi/3p4gA_dom1.pdb
 
    o Make Fe-S cluster SF4 (and FES?) drawn with bonds ::: 1
 
