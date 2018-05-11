@@ -2584,6 +2584,9 @@ if test -n "$build_clipper" ; then
     cd clipper-$clipper_dir_version
     pwd
     date
+
+    # patch the hkl_data.h header
+    sed -ibackup -e 's/int i = 0; i < list.size(); i++/unsigned int i = 0; i < list.size(); i++/' clipper/core/hkl_data.h
     
     # make clipper
     echo . ------------------------------------------------------------------------------
