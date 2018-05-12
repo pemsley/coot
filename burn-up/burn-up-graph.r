@@ -59,8 +59,10 @@ predict = function(x_pos, y_pos) {
 
       return(r)
    } else {
-      print('bad m_diff')
-      print(m_diff)
+
+      nct = paste('Non-converging:', round(m_diff, digits=3))
+      print(nct)
+      legend(34, 2, nct, cex=0.8, box.lwd=0)
    }
 }
 
