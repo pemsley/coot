@@ -19,5 +19,6 @@ if Rscript burn-up-graph.r ; then
 
    # fink convert
    # convert -antialias -scale 218x146 burn-up.png burn-up-icon.png
+   :
 
 fi
