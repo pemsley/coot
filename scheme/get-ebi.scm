@@ -307,4 +307,6 @@
 	    (format #t "make-and-draw-map with ~s~%" mtz-file-name)
 	    (make-and-draw-map mtz-file-name "FWT" "PHWT" "" 0 0)
 	    (make-and-draw-map mtz-file-name "DELFWT" "PHDELWT" "" 0 1)
+	    (let ((anom-map (make-and-draw-map mtz-file-name "FAN" "PHAN" "" 0 1)))
+	      (set-map-colour anom-map 0.5 0.5 0))
 	    (run-script scm-file-name)))))
