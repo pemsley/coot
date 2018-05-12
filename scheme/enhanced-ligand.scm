@@ -93,6 +93,11 @@
 		 aa-imol aa-chain-id aa-res-no aa-ins-code 200 1.5))))
 
 	    (add-simple-coot-menu-menuitem
+	     menu "Hydrogenate region"
+	     (lambda ()
+	       (hydrogenate-region 6)))
+
+	    (add-simple-coot-menu-menuitem
 	     menu "SMILES → 2D"
 	     (lambda ()
 	       (generic-single-entry "SMILES string" "" " Send to 2D Viewer "
