@@ -1329,35 +1329,35 @@ if (have_coot_python):
            )
 
          # Does it work?! Maybe not!?
-         add_simple_coot_menu_menuitem(
-           submenu_lidia,
-           "View in LIDIA",
-           lambda func:
-           using_active_atom(fle_view,
-                             "aa_imol", "aa_chain_id",
-                             "aa_res_no", "aa_ins_code")
-           )
-         
-         add_simple_coot_menu_menuitem(
-           submenu_lidia,
-           "Load SBase monomer...",
-           lambda func:
-           generic_single_entry("Load SBase Monomer from three-letter-code: ",
-                                "",
-                                " Load ",
-                                lambda tlc:
-                                get_sbase_monomer(tlc))
-           )
 
-         add_simple_coot_menu_menuitem(
-           submenu_lidia,
-           "Activate prodrg flat mode",
-           lambda func:
-           using_active_atom(prodrg_flat,
-                             "aa_imol", "aa_chain_id",
-                             "aa_res_no")
-           )
-            
+         #          add_simple_coot_menu_menuitem(
+         #            submenu_lidia,
+         #            "View in LIDIA",
+         #            lambda func:
+         #            using_active_atom(fle_view,
+         #                              "aa_imol", "aa_chain_id",
+         #                              "aa_res_no", "aa_ins_code")
+         #            )
+
+         #          add_simple_coot_menu_menuitem(
+         #            submenu_lidia,
+         #            "Load SBase monomer...",
+         #            lambda func:
+         #            generic_single_entry("Load SBase Monomer from three-letter-code: ",
+         #                                 "",
+         #                                 " Load ",
+         #                                 lambda tlc:
+         #                                 get_sbase_monomer(tlc))
+         #            )
+
+         #          add_simple_coot_menu_menuitem(
+         #            submenu_lidia,
+         #            "Activate prodrg flat mode",
+         #            lambda func:
+         #            using_active_atom(prodrg_flat,
+         #                              "aa_imol", "aa_chain_id",
+         #                              "aa_res_no")
+         #            )
      
      # ---------------------------------------------------------------------
      #     Views/Representations
