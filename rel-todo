@@ -14,12 +14,6 @@
 
    o crash on coot-reduce on luigi/3p4gA_dom1.pdb ::: 1
 
-   o Make Fe-S cluster SF4 (and FES?) drawn with bonds ::: 1
-
-   o Fe-S needs to be rendered nicely in Bonds mode ::: 2
-
-   o Add anom to PDB-redo output ::: 1
-
    o read SHELX.phs as a map ::: 1
 
    o click on the simple mutate on starting a session in coot-experimental
@@ -86,4 +80,10 @@ command "cprodrg" not found
      std::string l = package_data_dir();
 
      ::: 0.5
+
+   o Make Fe-S cluster SF4 (and FES?) drawn with bonds ::: 1
+
+   o Fe-S needs to be rendered nicely in Bonds mode ::: 2
+
+   o Add anom to PDB-redo output ::: 0.5
 
