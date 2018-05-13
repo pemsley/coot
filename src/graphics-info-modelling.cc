@@ -2453,6 +2453,11 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 		  } 
 
 		  molecules[imol_moving_atoms].insert_coords(tmp_asc);
+
+		  if (terminus_type == "C" || terminus_type == "MC") {
+		     molecules[imol_moving_atoms].move_O_atom_of_added_to_residue(res_p, chain_id);
+		  }
+
 		  graphics_draw();
 	       }
 	    }

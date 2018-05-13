@@ -393,6 +393,38 @@
 	     (throw 'fail)))
        #t)))
 
+(greg-testcase "Add Terminal Residue O Position" #t
+   (lambda ()
+
+     (let* ((imol (greg-pdb "tutorial-modern.pdb"))
+	    (mtz-file-name (append-dir-file
+			    greg-data-dir
+			    "rnasa-1.8-all_refmac1.mtz"))
+	    (imol-map (make-and-draw-map mtz-file-name "FWT" "PHWT" "" 0 0)))
+
+       ;; move the O close to where the N will end up - a bad place.
+       ;; (we check that it moves there)
+       ;;
+       (let ((attribs (list (list imol "A" 93 "" " O  " "" "x" 58.5)
+			    (list imol "A" 93 "" " O  " "" "y"  2.9)
+			    (list imol "A" 93 "" " O  " "" "z" -1.9))))
+	 (set-atom-attributes attribs)
+	 (let ((O-atom-o (get-atom imol "A" 93 "" " O  " "")))
+	   (with-no-backups imol
+			    (let ((dummy 'making-a-thunk))
+			      (add-terminal-residue imol "A" 93 "ALA" 1)
+			      (let ((N-atom-n (get-atom imol "A" 94 "" " N  " "")))
+			      (let ((O-atom-n (get-atom imol "A" 93 "" " O  " "")))
+				(let ((dd-1 (bond-length-from-atoms O-atom-o N-atom-n))
+				      (dd-2 (bond-length-from-atoms O-atom-n N-atom-n)))
+				  (format #t "Add terminal residue bond check dd-1: ~s~%" dd-1)
+				  (format #t "Add terminal residue bond check dd-2: ~s~%" dd-2)
+				  (if (not (< dd-1 0.2))
+				      #f
+				      (if (not (> dd-2 1.9))
+					  #f
+					  #t ; hooray
+					  ))))))))))))
 
 				       
 (greg-testcase "Select by Sphere" #t

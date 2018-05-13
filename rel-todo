@@ -1,25 +1,13 @@
 
    For Release 0.8.9.2
 
-   o click on the simple mutate on starting a session in coot-experimental
-     (setup-mutate 0)
-     ERROR:: invalid model molecule number in do_mutation() -1
-     (do-mutatation "ALA" 0) ::: 1
-
-   o read SHELX.phs as a map ::: 1
-
    o Add LINK info to header browser. Other things? SSBOND, BIOMT? ::: 2
-
-   o reposition the O on the current residue when adding a new one -
-     Add Terminal Residue execute_add_terminal_residue() ::: 1
-
-   o morph fit by secondary following the cryo-tutorial, morph secondary
-     fit makes a helix go wonky [JED]. ::: 2
 
    o Eleanor's HIS. Add test ::: 2
 
    o seems to be a failure of peptide plan restraints when residue type is a PRO.
-     (converted to a ALA and things flattened out as expected). ::: 4
+     (converted to a ALA and things flattened out as expected). But is this a problem
+     only in refinement branch? ::: 4
 
    o "Last Only" button shouldn't animate (say with 100s of molecules). Tricky
      because gui update needs to be unlinked from undisplay update.
@@ -80,8 +68,12 @@ command "cprodrg" not found
 
     ::: 1
 
+* Bleugh. Bye bye.
+
    o Jiggle fit uses linear interp? Jiggle fit should select backbone
      if fitting protein, ring atoms for RNA/DNA ::: 2
+
+* Done. More tricky than expected. Nice.
 
    o Check that H on N moves on cis-trans ::: 1
 
@@ -90,3 +82,14 @@ command "cprodrg" not found
    o make restraints for a big protein, then delete them using ...
      delete deviants(?) Fix the slowness ::: 2
 
+* Done. Nice.
+
+   o morph fit by secondary following the cryo-tutorial, morph secondary
+     fit makes a helix go wonky. Check with self chain restraints [JED]. ::: 0
+
+* Can't reproduce.
+
+   o reposition the O on the current residue when adding a new one -
+     Add Terminal Residue execute_add_terminal_residue() ::: 1
+
+* Done.

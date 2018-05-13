@@ -7,7 +7,7 @@
              bonded using the dictionary (and so appear "cubic") [Hannah Bridges]
 
   o BUG-FIX: The slow update on deleting deviant extra distance restraints has been
-             been replaced with a fasater version
+             been replaced with a fasater version [JED]
 
 -----
 

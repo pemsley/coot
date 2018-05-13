@@ -1528,6 +1528,12 @@ public:        //                      public
 					  const std::string &residue_type,
 					  float phi, float psi);
 
+   // When a new residue is added to the C-terminus of a chain/fragment, we will need to move
+   // the O of this one to make a proper peptide plane (the position of the next residue
+   // was not dependent on the position of the O of this one).
+   // (note: read as 'added-to' residue)
+   void move_O_atom_of_added_to_residue(mmdb::Residue *res_p, const std::string &chain_id);
+
    // extra modelling results, e.g. waters, terminal residues, etc
    void add_coords(const atom_selection_container_t &asc);
    //
