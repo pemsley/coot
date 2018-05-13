@@ -1,6 +1,13 @@
 
    For Release 0.8.9.2
 
+   o click on the simple mutate on starting a session in coot-experimental
+     (setup-mutate 0)
+     ERROR:: invalid model molecule number in do_mutation() -1
+     (do-mutatation "ALA" 0) ::: 1
+
+   o read SHELX.phs as a map ::: 1
+
    o Add LINK info to header browser. Other things? SSBOND, BIOMT? ::: 2
 
    o reposition the O on the current residue when adding a new one -
@@ -9,19 +16,7 @@
    o morph fit by secondary following the cryo-tutorial, morph secondary
      fit makes a helix go wonky [JED]. ::: 2
 
-   o make restraints for a big protein, then delete them using ...
-     delete deviants? ::: 2
-
-   o 5lc5 complex-1 do geometry graphs [Hannah Bridges] ::: 1
-
-   o read SHELX.phs as a map ::: 1
-
-   o click on the simple mutate on starting a session in coot-experimental
-     (setup-mutate 0)
-     ERROR:: invalid model molecule number in do_mutation() -1
-     (do-mutatation "ALA" 0) ::: 1
-
-   o Eleanor's HIS. Add test ::: 1
+   o Eleanor's HIS. Add test ::: 2
 
    o seems to be a failure of peptide plan restraints when residue type is a PRO.
      (converted to a ALA and things flattened out as expected). ::: 4
@@ -91,3 +86,7 @@ command "cprodrg" not found
    o Check that H on N moves on cis-trans ::: 1
 
 * It didn't. It does. Added a test.
+
+   o make restraints for a big protein, then delete them using ...
+     delete deviants(?) Fix the slowness ::: 2
+

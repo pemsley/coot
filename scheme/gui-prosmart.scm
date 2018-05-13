@@ -61,31 +61,31 @@
 	    (set-show-extra-restraints aa-imol 1))))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Cut Deviant distances beyond 6"
+	 menu "Show Only Deviant Distances Beyond 6"
 	 (lambda ()
 	   (using-active-atom
 	    (set-extra-restraints-prosmart-sigma-limits aa-imol -6 6))))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Cut Deviant distances beyond 4"
+	 menu "Show Only Deviant Distances Beyond 4"
 	 (lambda ()
 	   (using-active-atom
 	    (set-extra-restraints-prosmart-sigma-limits aa-imol -4 4))))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Cut Deviant distances beyond 2.0"
+	 menu "Show Only Deviant Distances Beyond 2.0"
 	 (lambda ()
 	   (using-active-atom
 	    (set-extra-restraints-prosmart-sigma-limits aa-imol -2.0 2.0))))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Cut Deviant distances beyond 1.0"
+	 menu "Show Only Deviant Distances Beyond 1.0"
 	 (lambda ()
 	   (using-active-atom
 	    (set-extra-restraints-prosmart-sigma-limits aa-imol -1.0 1.0))))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Cut all"
+	 menu "Undisplay All Extra Distance Restraints"
 	 (lambda ()
 	   (using-active-atom
 	    (set-extra-restraints-prosmart-sigma-limits aa-imol 0 0 ))))
