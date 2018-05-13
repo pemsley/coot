@@ -2723,13 +2723,18 @@ public:        //                      public
    // selection.
    // 
    // called by above
+   //
+   // if chain_for_moving is not null, apply the transformation
+   // the the atoms of chain_for_moving rather than to the atom of atom_selection
+   //
    float fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 				     int n_atoms,
 				     const clipper::Xmap<float> &xmap,
 				     float map_sigma,
 				     int n_trials,
 				     float jiggle_scale_factor,
-				     bool use_biased_density_scoring);
+				     bool use_biased_density_scoring,
+				     mmdb::Chain *chain_for_moving=0);
    
    // return a fitted molecule
    coot::minimol::molecule rigid_body_fit(const coot::minimol::molecule &mol_in,

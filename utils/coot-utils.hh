@@ -119,6 +119,8 @@ namespace coot {
       bool is_standard_residue_name(const std::string &residue_name);
       // as above but only protein atom names allowed (and MSE).
       bool is_standard_amino_acid_name(const std::string &residue_name);
+      // as above but only nucleotide names allowed.
+      bool is_standard_nucleotide_name(const std::string &residue_name);
 
       // return a set of string that match the glob, with the directory name pre-appended
       std::vector<std::string> glob_files(const std::string &dir, const std::string &glob_pattern);
