@@ -1,20 +1,11 @@
 
    For Release 0.8.9.2
 
-   o Add LINK info to header browser. Other things? SSBOND, BIOMT? ::: 2
-
    o Eleanor's HIS. Add test ::: 2
 
    o seems to be a failure of peptide plan restraints when residue type is a PRO.
      (converted to a ALA and things flattened out as expected). But is this a problem
      only in refinement branch? ::: 4
-
-   o "Last Only" button shouldn't animate (say with 100s of molecules). Tricky
-     because gui update needs to be unlinked from undisplay update.
-     ::: 2
-
-   o greg-tests: "Correction of CISPEP test"
-     Don't run grep ::: 0.5
 
    o maybe add external angle restraints ::: 2
 
@@ -93,3 +84,13 @@ command "cprodrg" not found
      Add Terminal Residue execute_add_terminal_residue() ::: 1
 
 * Done.
+
+   o greg-tests: "Correction of CISPEP test"
+     Don't run grep ::: 0.5
+
+* Done. call-with-input-file read-line port
+
+   o Add LINK info to header browser. Other things? ::: 2
+
+* SSBOND bonds are not part of mmdb, BIOMT is a REMARK 350 and is already there.
+
