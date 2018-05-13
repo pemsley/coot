@@ -7716,9 +7716,6 @@ molecule_class_info_t::cis_trans_conversion(const std::string &chain_id, int res
 int
 molecule_class_info_t::cis_trans_conversion(mmdb::Atom *at, short int is_N_flag) {
 
-   std::cout << "in molecule_class_info_t::cis_trans_conversion() atom_sel.mol is "
-	     << atom_sel.mol << std::endl;
-
    // These 3 are pointers, each of which are of size 2
    mmdb::PResidue *trans_residues = NULL;
    mmdb::PResidue *cis_residues = NULL;
@@ -7859,6 +7856,7 @@ molecule_class_info_t::cis_trans_convert(mmdb::PResidue *mol_residues,
       mmdb::Atom *mol_residue_O_1  = NULL;
       mmdb::Atom *mol_residue_CA_2 = NULL;
       mmdb::Atom *mol_residue_N_2  = NULL;
+      mmdb::Atom *mol_residue_H_2  = NULL;
       
       mmdb::PPAtom mol_residue_atoms = NULL;
       int n_residue_atoms;
@@ -7884,6 +7882,9 @@ molecule_class_info_t::cis_trans_convert(mmdb::PResidue *mol_residues,
 	 }
 	 if (atom_name == " N  ") {
 	    mol_residue_N_2 = mol_residue_atoms[i];
+	 }
+	 if (atom_name == " H  ") {
+	    mol_residue_H_2 = mol_residue_atoms[i];
 	 }
       }
 
@@ -8073,6 +8074,18 @@ molecule_class_info_t::cis_trans_convert(mmdb::PResidue *mol_residues,
 	       mol_residue_N_2->y = newpos.y();
 	       mol_residue_N_2->z = newpos.z();
 
+	       if (mol_residue_H_2) {
+		  // 20180510 place H on N as a riding atom, not using transformation
+		  clipper::Coord_orth at_c_pos  = coot::co(mol_residue_C_1);
+		  clipper::Coord_orth at_n_pos  = coot::co(mol_residue_N_2);
+		  clipper::Coord_orth at_ca_pos = coot::co(mol_residue_CA_1);
+		  double bl = 0.86;
+		  double angle = clipper::Util::d2rad(125.0);
+		  clipper::Coord_orth H_pos(at_ca_pos, at_c_pos, at_n_pos, bl, angle, M_PI);
+		  mol_residue_H_2->x = H_pos.x();
+		  mol_residue_H_2->y = H_pos.y();
+		  mol_residue_H_2->z = H_pos.z();
+	       }
 	       istatus = 1;
 	    }
 	 }

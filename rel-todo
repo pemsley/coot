@@ -1,11 +1,6 @@
 
    For Release 0.8.9.2
 
-   o Jiggle fit uses linear interp? Jiggle fit should select backbone
-     if fitting protein, ring atoms for RNA/DNA ::: 2
-
-   o Check that H on N moves on cis-trans ::: 1
-
    o Add LINK info to header browser. Other things? SSBOND, BIOMT? ::: 2
 
    o reposition the O on the current residue when adding a new one -
@@ -34,6 +29,9 @@
    o "Last Only" button shouldn't animate (say with 100s of molecules). Tricky
      because gui update needs to be unlinked from undisplay update.
      ::: 2
+
+   o greg-tests: "Correction of CISPEP test"
+     Don't run grep ::: 0.5
 
    o maybe add external angle restraints ::: 2
 
@@ -87,3 +85,9 @@ command "cprodrg" not found
 
     ::: 1
 
+   o Jiggle fit uses linear interp? Jiggle fit should select backbone
+     if fitting protein, ring atoms for RNA/DNA ::: 2
+
+   o Check that H on N moves on cis-trans ::: 1
+
+* It didn't. It does. Added a test.

@@ -772,7 +772,7 @@
 ;; is not built).
 ;; 
 (greg-testcase "Correction of CISPEP test" #t
-   (lambda ()	      
+   (lambda ()
 
 ;; In this test the cis-pep-12A has indeed a CIS pep and has been
 ;; refined with refmac and is correctly annotated.  There was 4 on
@@ -816,6 +816,8 @@
 		   (refine-zone cis-pep-mol chain-id resno (+ resno 1) ""))
 		  ;; should be repaired now.  Write it out.
 
+		  ;; bleugh - we shouldn't run grep
+		  ;;
 		  (let ((tmp-file "tmp-fixed-cis.pdb"))
 		    (write-pdb-file cis-pep-mol tmp-file)
 		    (let ((o (run-command/strings "grep" (list"-c" "CISPEP" tmp-file) '())))
@@ -829,6 +831,21 @@
 				    (throw 'fail)
 				    #t)))))))))))))
 
+
+(greg-testcase "H on a N moves on cis-trans convert" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "tutorial-modern.pdb")))
+       (let ((imol-2 (new-molecule-by-atom-selection imol "//A/1-10")))
+	 (coot-reduce imol-2)
+	 (let ((H-atom-o (get-atom imol-2 "A" 6 "" " N  " "")))
+	     (with-no-backups imol-2 (cis-trans-convert imol-2 "A" 5 "")) ;; 5-6 peptide
+	     (let ((H-atom-n   (get-atom imol-2 "A" 6 "" " N  " "")))
+	       (let ((dd (bond-length-from-atoms H-atom-o H-atom-n)))
+		 (close-mol imol)
+		 (close-mol imol-2)
+		 (format #t "dd: ~s~%" dd)
+		 (> dd 1.4))))))))
 
 
 (greg-testcase "Refine Zone with Alt conf" #t 
