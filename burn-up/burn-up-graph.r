@@ -32,7 +32,7 @@ predict = function(x_pos, y_pos) {
    c2 = scope_start
    m1 = (done_end - done_start)/now_day
    m2 = (scope_end - scope_start)/now_day
-   
+
    m_diff = m1 - m2
    if (m_diff > 0) {
       X_pred = (c2-c1)/(m1-m2)
@@ -54,7 +54,7 @@ predict = function(x_pos, y_pos) {
       # need list of X values, list of Y values
       # not x,y pairs
       # lines(c(X_pred,X_pred), c(0, Y_pred_1), col='darkgreen', lty=2)
-      lines(c(0,X_pred), c(0, Y_pred_1), col='darkgreen', lty=2)
+      lines(c(0,X_pred), c(0,  Y_pred_1), col='darkgreen', lty=2)
       lines(c(0,X_pred), c(c2, Y_pred_1), col='darkgreen', lty=2)
 
       return(r)
@@ -63,6 +63,11 @@ predict = function(x_pos, y_pos) {
       nct = paste('Non-converging:', round(m_diff, digits=3))
       print(nct)
       legend(34, 2, nct, cex=0.8, box.lwd=0)
+
+      # (x-values), (y-values)
+      lines(c(0, now_day), c(0, done_end),  col='#202020', lty=2)
+      lines(c(0, now_day), c(scope_start, scope_end), col='#202020', lty=2)
+
    }
 }
 
@@ -75,14 +80,14 @@ a = read.table('burn-up.tab')
 png('burn-up.png')
 
 do_plot = function() {
-   plot(ylim=c(0,ylim), xlim=c(0,xlim), a$V1, a$V2, t='l', lwd=2,
+   plot(ylim=c(0,ylim), xlim=c(0,xlim), a$V1, a$V2, t='l', lwd=3,
                main="Coot-0.8.9.2 Bug-Fix Development Progress",
                xlab="Days (since development start)",
                ylab="Dev Points (aka 'Half-Days')")
-   points(a$V1, a$V3, t='l', lwd=2, lty=2)
+   points(a$V1, a$V3, t='l', lwd=3, lty=1, col='brown')
 
    leg.txt <- c("Done", "Scope")
-   legend(legend_x, legend_y, legend=leg.txt, lty=1:2, lwd=2, cex=0.7)
+   legend(legend_x, legend_y, legend=leg.txt, col=c("black", "brown"), lty=1:1, lwd=3, cex=0.7)
 }
 
 # text(175, 175, labels="CSHL Purge", col='grey', cex=0.7)
