@@ -848,20 +848,23 @@
 		   (refine-zone cis-pep-mol chain-id resno (+ resno 1) ""))
 		  ;; should be repaired now.  Write it out.
 
-		  ;; bleugh - we shouldn't run grep
-		  ;;
 		  (let ((tmp-file "tmp-fixed-cis.pdb"))
 		    (write-pdb-file cis-pep-mol tmp-file)
-		    (let ((o (run-command/strings "grep" (list"-c" "CISPEP" tmp-file) '())))
-		      (if (not (list? o))
-			  (throw 'fail)
-			  (if (not (= (length o) 1))
-			      (throw 'fail)
-			      (let ((parts (split-after-char-last #\: (car o) list)))
-				(format #t "   CISPEPs: ~s~%" (car (cdr parts)))
-				(if (not (string=? "3" (car (cdr parts))))
-				    (throw 'fail)
-				    #t)))))))))))))
+
+		    (call-with-input-file tmp-file
+		      (lambda (port)
+
+			(let ((n-cispeps
+			       (let loop ((line (read-line port))
+					  (n-cispeps 0))
+				 (cond
+				  ((eof-object? line) n-cispeps)
+				  ((string=? (substring line 0 4) "CISP") (loop (read-line port) (+ n-cispeps 1)))
+				  ((string=? (substring line 0 4) "ATOM") n-cispeps)
+				  (else
+				   (loop (read-line port) n-cispeps))))))
+
+			  (= n-cispeps 3))))))))))))
 
 
 (greg-testcase "H on a N moves on cis-trans convert" #t
