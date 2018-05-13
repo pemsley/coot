@@ -45,7 +45,7 @@
 	  (begin
 	    (handle-read-draw-molecule-and-move-molecule-here pdb-out-file-name)
 	    (read-cif-dictionary cif-out-file-name))
-	  (info-dialog "Bad exit status for Acedrg\n - see pyrogen.log")))))
+	  (info-dialog "WARNING:: Bad exit status for Acedrg\n - see acedrg.log")))))
 
 
 (define (import-from-3d-generator-from-mdl-using-pyrogen mdl-file-name comp-id)
@@ -71,7 +71,7 @@
 		   (imol-ligand (handle-read-draw-molecule-and-move-molecule-here pdb-out-file-name)))
 	      (if (not (valid-model-molecule? imol-ligand))
 		  (begin
-		    (info-dialog "Something bad happened running pyrogen"))
+		    (info-dialog "WARNING:: Something bad happened running pyrogen.\nSee pyrogen.log"))
 		  (begin
 		    (read-cif-dictionary cif-out-file-name)
 		    imol-ligand)))
@@ -91,11 +91,16 @@
 
       (if (command-in-path? "pyrogen")
 	  (import-from-3d-generator-from-mdl-using-pyrogen mdl-file-name comp-id)
-      
-      ;; else, fall-back to prodrg for now.
-      ;; 
-      (import-from-prodrg "mini-no" comp-id))))
 
+	  ;; else, fall-back to prodrg for now.
+	  ;;
+	  (if (command-in-path? *cprodrg*)
+	      (import-from-prodrg "mini-no" comp-id)
+
+	      (begin
+		(format #t "WARNING:: No 3d generator available~%")
+		(info-dialog "WARNING:: No 3d generator available\n")
+		#f)))))
 
 
 (define (import-ligand-with-overlay prodrg-xyzout prodrg-cif)
@@ -254,7 +259,7 @@
   ;; main line of import-from-prodrg
   ;; 
   (let ((prodrg-dir "coot-ccp4"))
-    
+
     (make-directory-maybe prodrg-dir)
     (let ((prodrg-xyzout (append-dir-file prodrg-dir
 					  (string-append "prodrg-" res-name ".pdb")))

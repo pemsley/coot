@@ -1447,6 +1447,24 @@ coot::util::max_number_of_residues_in_chain(mmdb::Manager *mol) {
    return max_number_of_residues_in_chain;
 }
 
+// return 9999,-9999 on failure
+std::pair<int, int>
+coot::util::min_and_max_residues(mmdb::Chain *chain_p) {
+
+   // min and max
+   std::pair<int, int> p(9999,-9999);
+   if (chain_p) {
+      int nres = chain_p->GetNumberOfResidues();
+      for (int ires=0; ires<nres; ires++) {
+	 mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	 int rn = residue_p->GetSeqNum();
+	 if (rn < p.first)  p.first  = rn;
+	 if (rn > p.second) p.second = rn;
+      }
+   }
+   return p;
+}
+
 // Return -1 on badness.
 // 
 // So that we can calculate the lenght of the graph x axis - there may
@@ -3983,6 +4001,25 @@ coot::util::transform_chain(mmdb::Manager *mol,
       }
    }
 }
+
+void
+coot::util::transform_chain(mmdb::Chain *chain_p, const clipper::RTop_orth &rtop) {
+
+   int nres = chain_p->GetNumberOfResidues();
+   for (int ires=0; ires<nres; ires++) {
+      mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+      int n_atoms = residue_p->GetNumberOfAtoms();
+      for (int iat=0; iat<n_atoms; iat++) {
+	 mmdb::Atom *at = residue_p->GetAtom(iat);
+	 clipper::Coord_orth pt(co(at));
+	 clipper::Coord_orth new_pt(rtop * pt);
+	 at->x = new_pt.x();
+	 at->y = new_pt.y();
+	 at->z = new_pt.z();
+      }
+   }
+}
+
 
 // transform atoms in residue
 void
@@ -8396,3 +8433,23 @@ coot::util::refmac_atom_radius(mmdb::Atom *at) {
    return sqrt(v);
 }
 
+// get the number of residue in chain, protein first.
+std::pair<unsigned int, unsigned int>
+coot::util::get_number_of_protein_or_nucleotides(mmdb::Chain *chain_p) {
+
+   std::pair<unsigned int, unsigned int> n(0,0);
+   int imod = 1;
+   if (chain_p) {
+      int nres = chain_p->GetNumberOfResidues();
+      for (int ires=0; ires<nres; ires++) {
+	 mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	 std::string res_name(residue_p->GetResName());
+	 if (is_standard_amino_acid_name(res_name))
+	    n.first++;
+	 if (is_standard_nucleotide_name(res_name))
+	    n.first++;
+      }
+   }
+
+   return n;
+}

@@ -1,4 +1,4 @@
-/* lbg/lidia-main.cc
+/* src/dynaram-main.cc
  *
  * Author: Bernhard Lohkamp
  * Copyright 2015
