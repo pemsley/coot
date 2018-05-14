@@ -54,8 +54,7 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
 
 void curlew() {
 
-#ifdef BUILLD_CURLEW
-   laksdjf;lakjsdf;lakjdsf;lasdkjfldks
+#ifdef BUILD_CURLEW
 
    GtkWidget *w = create_curlew_dialog();
    graphics_info_t g;

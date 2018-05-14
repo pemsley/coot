@@ -60994,7 +60994,7 @@ Bumps</property>
 	      <child>
 		<widget class="GtkImage" id="image12116">
 		  <property name="visible">True</property>
-		  <property name="pixbuf">curlew-128.png</property>
+		  <property name="pixbuf">curlew-4.png</property>
 		  <property name="xalign">0.5</property>
 		  <property name="yalign">0.5</property>
 		  <property name="xpad">4</property>

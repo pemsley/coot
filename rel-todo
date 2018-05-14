@@ -1,13 +1,7 @@
 
    For Release 0.8.9.2
 
-   o Eleanor's HIS. Add test ::: 2
-
-   o seems to be a failure of peptide plan restraints when residue type is a PRO.
-     (converted to a ALA and things flattened out as expected). But is this a problem
-     only in refinement branch? ::: 4
-
-   o maybe add external angle restraints ::: 2
+   o Eleanor's HIS. Add test. This is tricky, it uses mgtree ::: 2
 
    o Make RCrane work again ::: 6
 
@@ -93,4 +87,15 @@ command "cprodrg" not found
    o Add LINK info to header browser. Other things? ::: 2
 
 * SSBOND bonds are not part of mmdb, BIOMT is a REMARK 350 and is already there.
+
+   o seems to be a failure of peptide plane restraints when residue type is a PRO.
+     (converted to a ALA and things flattened out as expected). But is this a problem
+     only in refinement branch? ::: 1
+
+* Add planar peptide restraints for PTRANS. Yay.
+
+   o maybe add external angle restraints. Make them work in mini-rsr too ::: 2
+
+* Done. Nice (tested).
+
 

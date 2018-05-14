@@ -61,8 +61,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
 #include <mmdb2/mmdb_manager.h>
+
 #include "utils/coot-utils.hh"
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
@@ -129,6 +129,7 @@ public:
    std::string  input_pdb_file_name;
    std::string output_pdb_file_name;
    std::vector<std::string> dictionary_file_names;
+   std::vector<std::string> extra_restraints_file_names;
    std::vector<coot::residue_spec_t> single_residue_specs; // not used as yet.
 };
 
@@ -197,6 +198,7 @@ void show_usage() {
 	     << "       --no-planar-peptide-restraints\n"
 	     << "       --no-trans-peptide-restraints\n"
 	     << "       --tabulate-distortions\n"
+	     << "       --extra-restraints extra-restraints-file-name\n"
 	     << "       --correlations\n"
 	     << "       --crankshaft\n"
 	     << "       --no-refine\n"
@@ -331,6 +333,15 @@ main(int argc, char **argv) {
 									       coot::protein_geometry::IMOL_ENC_ANY);
 	    }
 
+
+	    coot::extra_restraints_t extra_restraints;
+	    for (unsigned int jj=0; jj<inputs.extra_restraints_file_names.size(); jj++) {
+	       const std::string &file_name = inputs.extra_restraints_file_names[jj];
+	       coot::extra_restraints_t r;
+	       r.read_refmac_extra_restraints(file_name);
+	       extra_restraints.add_restraints(r);
+	    }
+
 	    // the bool is to annotate for "fixed" residue - here nothing is fixed.
 	    // 
 	    std::vector<std::pair<bool,mmdb::Residue *> > local_residues;
@@ -345,9 +356,9 @@ main(int argc, char **argv) {
 	       if (res_ref) { 
 		  std::vector<mmdb::Residue *> residues =
 		     coot::residues_near_residue(res_ref, asc.mol, inputs.radius);
-		  local_residues.push_back(std::pair<bool,mmdb::Residue *>(true, res_ref));
+		  local_residues.push_back(std::pair<bool,mmdb::Residue *>(false, res_ref));
 		  for (unsigned int i=0; i<residues.size(); i++) {
-		     std::pair<bool, mmdb::Residue *> p(true, residues[i]);
+		     std::pair<bool, mmdb::Residue *> p(false, residues[i]);
 		     local_residues.push_back(p);
 		  }
 	       }
@@ -431,6 +442,10 @@ main(int argc, char **argv) {
 	       int imol = 0; // dummy
 	       restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
 					  1.0, do_rama_plot_restraints, pseudos);
+
+	       if (inputs.extra_restraints_file_names.size() > 0) {
+		  restraints.add_extra_restraints(imol, extra_restraints, geom);
+	       }
 
 	       if (! inputs.no_refine) {
 		  int nsteps_max = 4000;
@@ -617,7 +632,8 @@ get_input_details(int argc, char **argv) {
       {"pdbout", 1, 0, 0},
       {"dictin", 1, 0, 0},
       {"dictionary", 1, 0, 0},
-      {"mapin",  1, 0, 0}, 
+      {"mapin",  1, 0, 0},
+      {"extra-restraints",  1, 0, 0},
       {"resno-start", 1, 0, 0},
       {"resno-end",   1, 0, 0},
       {"residue-number",    1, 0, 0}, // for a single residue refinement of crankshafting
@@ -676,6 +692,9 @@ get_input_details(int argc, char **argv) {
 	    }
 	    if (arg_str == "dictionary") {
 	       d.dictionary_file_names.push_back(optarg);
+	    }
+	    if (arg_str == "extra-restraints") {
+	       d.extra_restraints_file_names.push_back(optarg);
 	    }
 	    if (arg_str == "chain-id") {
 	       d.chain_id = optarg;
@@ -816,23 +835,27 @@ get_input_details(int argc, char **argv) {
       }
    }
 
-   if (!d.input_pdb_file_name.empty()  && !d.output_pdb_file_name.empty()) { 
-      if ((d.resno_start != UNSET && d.resno_end != UNSET) || (d.residues_around != mmdb::MinInt4)) { 
-	 if (d.chain_id != "") { 
-	    if ( (d.map_file_name != "") || (d.mtz_file_name != "" && d.f_col != "" && d.phi_col != "") ) { 
-	       d.is_good = 1;
+   if (!d.input_pdb_file_name.empty()){
+      if (!d.output_pdb_file_name.empty()) {
+	 if ((d.resno_start != UNSET && d.resno_end != UNSET) || (d.residues_around != mmdb::MinInt4)) {
+	    if (d.chain_id != "") {
+	       if ( (d.map_file_name != "") || (d.mtz_file_name != "" && d.f_col != "" && d.phi_col != "") ) {
+		  d.is_good = 1;
+	       } else {
+		  std::cout << "error in input map or [HKLIN, f, or phi]" << std::endl;
+	       }
 	    } else {
-	       std::cout << "error in input map or [HKLIN, f, or phi]" << std::endl;
+	       std::cout << "error in input chain-id" << std::endl;
 	    }
 	 } else {
-	    std::cout << "error in input chain-id" << std::endl;
+	    std::cout << "error in input resno start and end" << std::endl;
 	 }
       } else {
-	 std::cout << "error in input resno start and end" << std::endl;
+	 std::cout << "error in output pdb file name" << std::endl;
       }
    } else {
-      std::cout << "error in input pdb or out put pdb file names" << std::endl;
-   } 
+      std::cout << "error in input pdb file name" << std::endl;
+   }
 	    
    return d;
 }

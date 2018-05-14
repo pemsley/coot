@@ -29525,7 +29525,7 @@ create_curlew_dialog (void)
   gtk_widget_show (vbox328);
   gtk_box_pack_start (GTK_BOX (hbox445), vbox328, FALSE, FALSE, 0);
 
-  image12116 = create_pixmap (curlew_dialog, "curlew-128.png");
+  image12116 = create_pixmap (curlew_dialog, "curlew-4.png");
   gtk_widget_show (image12116);
   gtk_box_pack_start (GTK_BOX (vbox328), image12116, FALSE, FALSE, 4);
   gtk_misc_set_padding (GTK_MISC (image12116), 4, 14);
