@@ -200,13 +200,19 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 void
 graphics_info_t::do_mutation(const std::string &residue_type, short int do_stub_flag) {
 
-   if (! is_valid_model_molecule(mutate_auto_fit_residue_imol)) {
-      std::cout << "ERROR:: invalid model molecule number in do_mutation() "
-		<< mutate_auto_fit_residue_imol << std::endl;
-      return;
-   }
+   // this is called from both simple mutate (in_mutate_define)
+   // and auto_fit_mutate (in_mutate_auto_fit_define).
+   // mutate_auto_fit_residue_imol will not be set in the simple mutate case
+
 
    if (residue_type_chooser_auto_fit_flag) {
+
+      if (! is_valid_model_molecule(mutate_auto_fit_residue_imol)) {
+	 std::cout << "ERROR:: invalid model molecule number in do_mutation() "
+		   << mutate_auto_fit_residue_imol << std::endl;
+	 return;
+      }
+
       molecules[mutate_auto_fit_residue_imol].mutate(mutate_auto_fit_residue_atom_index, 
 						     residue_type, do_stub_flag);
 
@@ -247,14 +253,16 @@ graphics_info_t::do_mutation(const std::string &residue_type, short int do_stub_
 	 show_select_map_dialog();
       }
    } else {
-      // simple mutation
-      molecules[mutate_residue_imol].mutate(mutate_residue_atom_index, residue_type,
-					    do_stub_flag); 
-      update_go_to_atom_window_on_changed_mol(mutate_residue_imol);
-      update_geometry_graphs(molecules[mutate_auto_fit_residue_imol].atom_sel,
-			     mutate_auto_fit_residue_imol);
-      run_post_manipulation_hook(mutate_auto_fit_residue_imol, MUTATED);
 
+      if (is_valid_model_molecule(mutate_residue_imol)) {
+	 // simple mutation
+	 molecules[mutate_residue_imol].mutate(mutate_residue_atom_index, residue_type,
+					       do_stub_flag);
+	 update_go_to_atom_window_on_changed_mol(mutate_residue_imol);
+	 update_geometry_graphs(molecules[mutate_auto_fit_residue_imol].atom_sel,
+				mutate_auto_fit_residue_imol);
+	 run_post_manipulation_hook(mutate_auto_fit_residue_imol, MUTATED);
+      }
    }
    graphics_draw();
 }
@@ -264,7 +272,7 @@ graphics_info_t::do_mutation_auto_fit(const std::string &residue_type,
 				      short int do_stub_flag) {
 
    molecules[mutate_residue_imol].mutate(mutate_residue_atom_index, residue_type,
-					 do_stub_flag); 
+					 do_stub_flag);
    graphics_draw();
    run_post_manipulation_hook(mutate_residue_imol, MUTATED);
 }
