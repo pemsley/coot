@@ -3427,7 +3427,6 @@ coot::protein_geometry::three_letter_code(const unsigned int &i) const {
 void
 coot::protein_geometry::add_planar_peptide_restraint() {
 
-   std::string link_id = "TRANS";
    std::string plane_id = "plane-5-atoms";
    mmdb::realtype dist_esd = 0.11;
 
@@ -3439,8 +3438,10 @@ coot::protein_geometry::add_planar_peptide_restraint() {
    v.push_back(std::pair<int, std::string> (2, "N"));
    v.push_back(std::pair<int, std::string> (2, "CA"));
 
-   for (unsigned int i=0; i<v.size(); i++) 
-      link_add_plane(link_id, v[i].second, plane_id, v[i].first, dist_esd); 
+   for (unsigned int i=0; i<v.size(); i++) {
+      link_add_plane("TRANS",  v[i].second, plane_id, v[i].first, dist_esd);
+      link_add_plane("PTRANS", v[i].second, plane_id, v[i].first, dist_esd);
+   }
 }
 
 
@@ -3449,16 +3450,17 @@ coot::protein_geometry::remove_planar_peptide_restraint() {
 
    std::string link_id = "TRANS";
    std::string plane_id = "plane-5-atoms";
-   bool ifound = 0;
+   unsigned int ifound = 0;
 
    for (unsigned int i=0; i<dict_link_res_restraints.size(); i++) {
-      if (dict_link_res_restraints[i].link_id == link_id) { // e.g "TRANS"
+      if ((dict_link_res_restraints[i].link_id ==  "TRANS")  ||
+          (dict_link_res_restraints[i].link_id == "PTRANS")) {
 
 	 std::vector<coot::dict_link_plane_restraint_t>::iterator it;
 	 for (it = dict_link_res_restraints[i].link_plane_restraint.begin();
 	      it != dict_link_res_restraints[i].link_plane_restraint.end(); it++) {
 	    if (it->plane_id == plane_id) {
-	       ifound = 1;
+	       ifound++;
 	       if (0)
 		  std::cout << "INFO:: before removal of plane3 TRANS has " 
 			    << dict_link_res_restraints[i].link_plane_restraint.size()
@@ -3475,7 +3477,7 @@ coot::protein_geometry::remove_planar_peptide_restraint() {
 	    }
 	 }
       }
-      if (ifound)
+      if (ifound == 2)
 	 break;
    }
 }
