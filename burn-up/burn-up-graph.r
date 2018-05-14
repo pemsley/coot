@@ -2,8 +2,8 @@
 ylim=46
 xlim=50
 
-prediction_text_x_placement = 18
-prediction_text_y_placement = 10
+prediction_text_x_placement = 42
+prediction_text_y_placement = 8
 
 legend_x = 40
 legend_y =  7.5
