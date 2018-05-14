@@ -1645,10 +1645,12 @@ coot::util::mask_map(const clipper::Xmap<float> &xmap_in,
       }
    }
 
-   clipper::CCP4MAPfile mapout;
-   mapout.open_write("masked.map");
-   mapout.export_xmap(masked_map);
-   mapout.close_write();
+   if (false) {
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write("masked.map");
+      mapout.export_xmap(masked_map);
+      mapout.close_write();
+   }
    
    return masked_map;
 }
