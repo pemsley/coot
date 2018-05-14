@@ -1,7 +1,8 @@
 
   Pre-Release 0.8.9.2
 
-  o BUG-FIX: Fix typo in template key-binding installation script [Colin Palmer]
+  o BUG-FIX: Fix typo in template-keybindings-to-preferences that causes initial
+              installation of key-bindings to fail sometimes [Colin Palmer].
 
   o CHANGE:  The bonding algorithm was changed so that Iron-Sulfur clusters are now
              bonded using the dictionary (and so appear "cubic") [Hannah Bridges]
