@@ -312,6 +312,7 @@ molecule_class_info_t::delete_extra_restraints_worse_than(const double &n_sigma)
    unsigned int pre_n = extra_restraints.bond_restraints.size();
 
    std::vector<coot::extra_restraints_t::extra_bond_restraint_t> ebrv_l;
+   ebrv_l.reserve(extra_restraints.bond_restraints.size());
 
    std::map<coot::atom_spec_t, mmdb::Atom *> atom_map;
    std::map<coot::atom_spec_t, mmdb::Atom *>::const_iterator it_1;
@@ -321,21 +322,51 @@ molecule_class_info_t::delete_extra_restraints_worse_than(const double &n_sigma)
       coot::extra_restraints_t::extra_bond_restraint_t &br = extra_restraints.bond_restraints[i];
       mmdb::Atom *at_1 = NULL;
       mmdb::Atom *at_2 = NULL;
-      it_1 = atom_map.find(br.atom_1);
-      it_2 = atom_map.find(br.atom_2);
-      if (it_1 == atom_map.end()) {
-	 at_1 = get_atom(br.atom_1);
-	 atom_map[br.atom_1] = at_1;
-      } else {
-	 at_1 = it_1->second; // most of the hits, I hope
+      int ifast_index_1 = br.atom_1.int_user_data;
+      int ifast_index_2 = br.atom_2.int_user_data;
+      // std::cout << "fast indices: " << ifast_index_1 << " " << ifast_index_2 << std::endl;
+
+      if (ifast_index_1 != -1) {
+	 if (ifast_index_1 < atom_sel.n_selected_atoms) {
+	    mmdb::Atom *at = atom_sel.atom_selection[ifast_index_1];
+	    if (br.atom_1.matches_spec(at)) {
+	       at_1 = at;
+	    }
+	 }
       }
+      if (ifast_index_2 != -1) {
+	 if (ifast_index_2 < atom_sel.n_selected_atoms) {
+	    mmdb::Atom *at = atom_sel.atom_selection[ifast_index_2];
+	    if (br.atom_2.matches_spec(at)) {
+	       at_2 = at;
+	    }
+	 }
+      }
+
+      // If fast indexing doesn't do the job, let's try the map
+
+      if (! at_1) {
+	 it_1 = atom_map.find(br.atom_1);
+	 if (it_1 == atom_map.end()) {
+	    at_1 = get_atom(br.atom_1);
+	    atom_map[br.atom_1] = at_1;
+	 } else {
+	    at_1 = it_1->second;
+	 }
+      }
+
       // and the same for 2:
-      if (it_2 == atom_map.end()) {
-	 at_2 = get_atom(br.atom_2);
-	 atom_map[br.atom_2] = at_2;
-      } else {
-	 at_2 = it_2->second; 
+
+      if (! at_1) {
+	 it_2 = atom_map.find(br.atom_2);
+	 if (it_2 == atom_map.end()) {
+	    at_2 = get_atom(br.atom_2);
+	    atom_map[br.atom_2] = at_2;
+	 } else {
+	    at_2 = it_2->second;
+	 }
       }
+
       if (at_1 && at_2) {
 	 double dx = at_1->x - at_2->x;
 	 double dy = at_1->y - at_2->y;
@@ -517,8 +548,14 @@ molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_di
 	 }
       }
    }
-   if (extra_restraints.bond_restraints.size())
-       update_extra_restraints_representation();
+
+   // 20180510-PE surely I want to update the representation even if there are no
+   //             extra bond restraints?
+   //
+   // if (extra_restraints.bond_restraints.size())
+   // update_extra_restraints_representation();
+   //
+   update_extra_restraints_representation();
        
    atom_sel.mol->DeleteSelection(selHnd);
 }

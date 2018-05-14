@@ -2514,11 +2514,17 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 		  // so we can use that to tell us where to place the O oxygen
 		  // of the current residue.
 		  //
-		  if (terminus_type == "C") {
+                  // 201805014-PE merging - Oh, I've done it twice (forgetten first)
+                  // by different methods - heyho
+		  if (terminus_type == "C" || terminus_type == "MC") {
 		     clipper::Coord_orth new_o_pos =
 			addres.best_fit_phi_psi_attaching_oxygen_position_update(mmol, res_p);
 		     molecules[imol_moving_atoms].move_atom(" O  ", res_p, new_o_pos);
 		  }
+                  // method from master:
+		  // if (terminus_type == "C" || terminus_type == "MC") 
+		  //    molecules[imol_moving_atoms].move_O_atom_of_added_to_residue(res_p, chain_id);
+
 		  graphics_draw();
 	       }
 	    }

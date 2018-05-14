@@ -5095,6 +5095,81 @@ molecule_class_info_t::add_terminal_residue_using_phi_psi(const std::string &cha
 }
 
 
+// When a new residue is added to the C-terminus of a chain/fragment, we will need to move
+// the O of this one to make a proper peptide plane (the position of the next residue
+// was not dependent on the position of the O of this one).
+//
+// find the residue in the chain that is after this one (res_p).  That will provide the N, CA
+// positions that will allow us to position the O of res_p.
+void
+molecule_class_info_t::move_O_atom_of_added_to_residue(mmdb::Residue *res_p, const std::string &chain_id) {
+
+   bool moved = false;
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 std::string chain_id_this(chain_p->GetChainID());
+	 if (chain_id_this == chain_id) {
+	    for (int ires=0; ires<nres; ires++) {
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	       if (residue_p == res_p) {
+		  int ires_next = ires + 1;
+		  if (ires_next < nres) {
+		     mmdb::Residue *res_next_p = chain_p->GetResidue(ires_next);
+		     if (res_next_p) {
+			mmdb::Atom *ca_this = residue_p->GetAtom(" CA ");
+			mmdb::Atom *c_this  = residue_p->GetAtom(" C  ");
+			mmdb::Atom *o_this  = residue_p->GetAtom(" O  ");
+			mmdb::Atom *ca_next = res_next_p->GetAtom(" CA ");
+			mmdb::Atom *n_next  = res_next_p->GetAtom(" N  ");
+
+			if (ca_this && c_this && o_this && ca_next && n_next) {
+
+			   clipper::Coord_orth ca_this_pos = coot::co(ca_this);
+			   clipper::Coord_orth c_this_pos  = coot::co(c_this);
+			   clipper::Coord_orth ca_next_pos = coot::co(ca_next);
+			   clipper::Coord_orth  n_next_pos = coot::co(n_next);
+			   double angle   = clipper::Util::d2rad(123.0); // N-C-O
+			   double tors_deg = 0.0; // O is trans to the CA of the next residue
+			   // unless peptide is cis.
+			   double tors_peptide = clipper::Coord_orth::torsion(ca_this_pos, c_this_pos,
+									      n_next_pos, ca_next_pos);
+			   // cis or trans
+			   if (std::abs(tors_peptide) < M_PI_2) tors_deg = 180.0;
+			   double torsion = clipper::Util::d2rad(tors_deg);
+			   clipper::Coord_orth new_o_pos_for_current_res_new(ca_next_pos, n_next_pos,
+									     c_this_pos, 1.231, angle, torsion);
+
+			   o_this->x = new_o_pos_for_current_res_new.x();
+			   o_this->y = new_o_pos_for_current_res_new.y();
+			   o_this->z = new_o_pos_for_current_res_new.z();
+
+			   moved = true;
+			   make_backup();
+			} else {
+			   std::cout << "WARNING:: missing atoms in move_O_atom_of_added_to_residue " << std::endl;
+			}
+		     }
+		  }
+		  break;
+	       }
+	    }
+	 }
+      }
+   }
+   if (moved) {
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      atom_sel.mol->FinishStructEdit();
+      have_unsaved_changes_flag = 1;
+      make_bonds_type_checked();
+   }
+
+}
+
 
 // Put the regularization results back into the molecule:
 //

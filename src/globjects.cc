@@ -983,7 +983,7 @@ short int graphics_info_t::guile_history  = 1; // on
 coot::history_list_t graphics_info_t::history_list;
 
 // build one residue, n trials:
-int graphics_info_t::add_terminal_residue_n_phi_psi_trials = 1000;
+int graphics_info_t::add_terminal_residue_n_phi_psi_trials = 5000;
 int graphics_info_t::add_terminal_residue_add_other_residue_flag = 0; // no.
 std::string graphics_info_t::add_terminal_residue_type = "auto"; // was "ALA" before 20080601
 short int graphics_info_t::add_terminal_residue_do_rigid_body_refine = 0; // off by default
