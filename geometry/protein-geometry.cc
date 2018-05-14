@@ -103,10 +103,25 @@ coot::atom_id_mmdb_expand(const std::string &atomname) {
       r += atomname;
       r += "  ";
    } else {
-      if (ilen == 2) { 
-	 r = " ";
-	 r += atomname;
-	 r += " ";
+      if (ilen == 2) {
+
+	 // 20180512-PE we have to be more clever here for metals.
+	 // But what about CA! - argh! we shouldn't be using this function.
+	 // We need to know the residue name to pad correctly.
+	 //
+	 bool done = false;
+	 if (atomname == "MG" || atomname == "NA" || atomname == "LI" || atomname == "LI" || atomname == "AL" || atomname == "SI" ||
+	     atomname == "CL" || atomname == "SC" || atomname == "TI" || atomname == "CR" || atomname == "MN" || atomname == "FE" ||
+	     atomname == "CO" || atomname == "NI" || atomname == "CU" || atomname == "ZN" || atomname == "GA" || atomname == "AS" ||
+	     atomname == "SE" || atomname == "BR" || atomname == "RB" || atomname == "SR" || atomname == "RE" || atomname == "OS" ||
+	     atomname == "IR" || atomname == "PT" || atomname == "AU" || atomname == "HG" || atomname == "PB" || atomname == "BI") {
+	    r += atomname;
+	    r += "  ";
+	 } else {
+	    r = " ";
+	    r += atomname;
+	    r += " ";
+	 }
       } else {
 	 if (ilen == 3) {
 	    r = " ";
