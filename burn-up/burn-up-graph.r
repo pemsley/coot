@@ -1,5 +1,5 @@
 
-ylim=46
+ylim=23
 xlim=50
 
 prediction_text_x_placement = 42
@@ -54,8 +54,8 @@ predict = function(x_pos, y_pos) {
       # need list of X values, list of Y values
       # not x,y pairs
       # lines(c(X_pred,X_pred), c(0, Y_pred_1), col='darkgreen', lty=2)
-      lines(c(0,X_pred), c(0,  Y_pred_1), col='darkgreen', lty=2)
-      lines(c(0,X_pred), c(c2, Y_pred_1), col='darkgreen', lty=2)
+      lines(c(0,X_pred), c(0,  Y_pred_1*0.5), col='darkgreen', lty=2)
+      lines(c(0,X_pred), c(c2*0.5, Y_pred_1*0.5), col='darkgreen', lty=2)
 
       return(r)
    } else {
@@ -65,8 +65,8 @@ predict = function(x_pos, y_pos) {
       legend(34, 2, nct, cex=0.8, box.lwd=0)
 
       # (x-values), (y-values)
-      lines(c(0, now_day), c(0, done_end),  col='#202020', lty=2)
-      lines(c(0, now_day), c(scope_start, scope_end), col='#202020', lty=2)
+      lines(c(0, now_day), c(0, done_end*0.5),  col='#202020', lty=2)
+      lines(c(0, now_day), c(scope_start*0.5, scope_end*.5), col='#202020', lty=2)
 
    }
 }
@@ -80,11 +80,11 @@ a = read.table('burn-up.tab')
 png('burn-up.png')
 
 do_plot = function() {
-   plot(ylim=c(0,ylim), xlim=c(0,xlim), a$V1, a$V2, t='l', lwd=3,
+   plot(ylim=c(0,ylim), xlim=c(0,xlim), a$V1, a$V2*0.5, t='l', lwd=3,
                main="Coot-0.8.9.2 Bug-Fix Development Progress",
-               xlab="Days (since development start)",
-               ylab="Dev Points (aka 'Half-Days')")
-   points(a$V1, a$V3, t='l', lwd=3, lty=1, col='brown')
+               xlab="Real Days (since development start)",
+               ylab="'Dev' Days")
+   points(a$V1, a$V3*0.5, t='l', lwd=3, lty=1, col='brown')
 
    leg.txt <- c("Done", "Scope")
    legend(legend_x, legend_y, legend=leg.txt, col=c("black", "brown"), lty=1:1, lwd=3, cex=0.7)

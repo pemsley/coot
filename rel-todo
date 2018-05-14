@@ -3,8 +3,6 @@
 
    o Eleanor's HIS. Add test. This is tricky, it uses mgtree ::: 2
 
-   o maybe add external angle restraints. Make them work in mini-rsr too ::: 2
-
    o Make RCrane work again ::: 6
 
 ------
@@ -95,4 +93,9 @@ command "cprodrg" not found
      only in refinement branch? ::: 1
 
 * Add planar peptide restraints for PTRANS. Yay.
+
+   o maybe add external angle restraints. Make them work in mini-rsr too ::: 2
+
+* Done. Nice (tested).
+
 
