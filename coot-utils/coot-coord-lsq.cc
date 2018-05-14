@@ -159,11 +159,13 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
       mmdb::PResidue *SelResidue_2 = NULL;
       int nSelResidues_1, nSelResidues_2;
 
-//      std::cout << "Searching for residue number " << ires << " "
-//		<< match.reference_chain_id << " in reference molecule" << std::endl;
-//      std::cout << "Searching for residue number " << ires_matcher << " "
-//		<< match.matcher_chain_id << " in matcher molecule" << std::endl;
-      
+      if (false) {
+	 std::cout << "Searching for residue number " << ires << " "
+		   << match.reference_chain_id << " in reference molecule" << std::endl;
+	 std::cout << "Searching for residue number " << ires_matcher << " "
+		   << match.matcher_chain_id << " in matcher molecule" << std::endl;
+      }
+
       mol1->Select (SelHnd_res1, mmdb::STYPE_RESIDUE,
 		    match.model_number_reference,
 		    match.reference_chain_id.c_str(), // Chain(s)
@@ -193,12 +195,12 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
       if (nSelResidues_1 == 0 || nSelResidues_2 == 0) {
 	 
 	 if (nSelResidues_1 == 0) { 
-	    std::cout << "WARNING - no residue for reference residue number "
+	    std::cout << "WARNING:: - no residue for reference molecule residue number "
 		      << ires << " for reference chain-id: \""
 		      << match.reference_chain_id << "\"" << std::endl;
 	 }
 	 if (nSelResidues_2 == 0) { 
-	    std::cout << "WARNING - no residue for moving molecule residue number "
+	    std::cout << "WARNING:: - no residue for moving molecule    residue number "
 		      << ires_matcher << " for matcher chain-id: \""
 		      << match.matcher_chain_id << "\"" << std::endl;
 	 }
