@@ -147,6 +147,8 @@ molecule_class_info_t::add_refmac_extra_restraints(const std::string &file_name)
    extra_restraints.add_restraints(r);
    std::cout << "INFO:: add_refmac_extra_restraints(): have "
 	     << extra_restraints.bond_restraints.size() << " bond restraints " << std::endl;
+   std::cout << "INFO:: add_refmac_extra_restraints(): have "
+	     << extra_restraints.angle_restraints.size() << " angle restraints " << std::endl;
    update_extra_restraints_representation();
 }
 

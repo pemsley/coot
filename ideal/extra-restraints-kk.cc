@@ -203,7 +203,6 @@ coot::restraints_container_t::add_extra_angle_restraints(const extra_restraints_
 	       if (fixed_1) fixed_flags[0] = 1;
 	       if (fixed_2) fixed_flags[1] = 1;
 	       if (fixed_3) fixed_flags[2] = 1;
-
 	       if (false)
 		  std::cout << "DEBUG:: adding user-defined angle restraint with fixed flags: "
 		            << "[" << index_1 << " " << coot::atom_spec_t(atom[index_1]) << " " << fixed_flags[0] << "]  " 
