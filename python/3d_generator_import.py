@@ -94,7 +94,7 @@ def import_from_3d_generator_from_mdl_using_acedrg(mdl_file_name, comp_id):
                            ["-m", mdl_file_name, "-r", comp_id, "-o", stub],
                            [], "acedrg.log", False, local_env=acedrg_env())
     if status:
-        info_dialog("Bad exit status for Acedrg\n - see pyrogen.log")
+        info_dialog("WARNING:: Bad exit status for Acedrg\n - see acedrg.log")
     else:
         handle_read_draw_molecule_and_move_molecule_here(pdb_out_file_name)
         read_cif_dictionary(cif_out_file_name)
@@ -116,14 +116,14 @@ def import_from_3d_generator_from_mdl_using_pyrogen(mdl_file_name, comp_id):
         status = popen_command("pyrogen", args,
                  [], "pyrogen.log", True)
         if status:
-            info_dialog("Bad exit status for pyrogen\n - see pyrogen.log")
+            info_dialog("WARNING:: Bad exit status for pyrogen\n - see pyrogen.log")
         else:
             active_res = active_residue()  # what for?
             pdb_out_file_name = comp_id + "-pyrogen.pdb"
             cif_out_file_name = comp_id + "-pyrogen.cif"
             imol_ligand = handle_read_draw_molecule_and_move_molecule_here(pdb_out_file_name)
             if not valid_model_molecule_qm(imol_ligand):
-                info_dialog("Something bad happened running pyrogen")
+                info_dialog("WARNING:: Something bad happened running pyrogen")
             else:
                 read_cif_dictionary(cif_out_file_name)
                 return imol_ligand   # should return False otherwise? FIXME
@@ -148,11 +148,11 @@ def import_from_3d_generator_from_mdl(mdl_file_name, comp_id):
             import_from_3d_generator_from_mdl_using_pyrogen(mdl_file_name,
                                                             comp_id)
         else:
-            if (not my_favourite_3d_generator in "cprodrg"):
-                print "BL WARNING:: couldnt find a matching function for " + \
-                    "your favourite generator, so use prodrg as default!"
-            import_from_prodrg("mini-no", comp_id)
-                
+            if my_favourite_3d_generator == "cprodrg":
+                import_from_prodrg("mini-no", comp_id)
+            else:
+                print "WARNING:: No 3d generator available"
+                info_dialog("WARNING:: No 3d generator available")
 
 
 def import_ligand_with_overlay(prodrg_xyzout, prodrg_cif):

@@ -38,6 +38,11 @@ if (use_gui_qm != 2):
           lambda func: jiggle_fit_active_residue())
 
         add_simple_coot_menu_menuitem(
+            menu,
+            "Hydrogenate region",
+            lambda func: hydrogenate_region(6))
+
+        add_simple_coot_menu_menuitem(
           menu,
           "SMILES -> 2D",
           lambda func:

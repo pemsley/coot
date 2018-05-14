@@ -4,6 +4,12 @@
   o BUG-FIX: Fix typo in template-keybindings-to-preferences that causes initial
               installation of key-bindings to fail sometimes [Colin Palmer].
 
+  o CHANGE:  The bonding algorithm was changed so that Iron-Sulfur clusters are now
+             bonded using the dictionary (and so appear "cubic") [Hannah Bridges]
+
+  o BUG-FIX: The slow update on deleting deviant extra distance restraints has been
+             been replaced with a fasater version [JED]
+
 -----
 
   Release 0.8.9.1

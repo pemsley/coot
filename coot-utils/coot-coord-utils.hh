@@ -837,10 +837,18 @@ namespace coot {
       int number_of_residues_in_molecule(mmdb::Manager *mol);
       // Return -1 on badness
       int max_number_of_residues_in_chain(mmdb::Manager *mol);
+
+      // get the number of residue in chain, protein first.
+      std::pair<unsigned int, unsigned int> get_number_of_protein_or_nucleotides(mmdb::Chain *chain_p);
+
       // Return NULL on no such chain:
       mmdb::Chain *chain_only_of_type(mmdb::Manager *mol, const std::string &residue_type);
 
       clipper::RTop_orth matrix_convert(mmdb::mat44 mat);
+
+      // return 9999,-9999 on failure
+      // (test for failure: second being less than first)
+      std::pair<int, int> min_and_max_residues(mmdb::Chain *chain_p);
 
       // Return -1 on badness.
       // 
@@ -1140,6 +1148,8 @@ namespace coot {
       // 
       void transform_chain(mmdb::Manager *mol, mmdb::Chain *moving_chain,
 			   int n_atoms, mmdb::PAtom *atoms, mmdb::mat44 &my_matt);
+
+      void transform_chain(mmdb::Chain *moving_chain, const clipper::RTop_orth &rtop);
 
       // transform atoms in residue
       void transform_atoms(mmdb::Residue *res, const clipper::RTop_orth &rtop);

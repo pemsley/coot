@@ -706,8 +706,8 @@ void update_lsq_dialog_store_values(GtkWidget *lsq_dialog) {
 					     g.lsq_mov_imol,
 					     g.lsq_match_chain_id_ref,
 					     g.lsq_match_chain_id_mov);
-   
-} 
+
+}
 
 
 int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {

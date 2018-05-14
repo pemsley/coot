@@ -703,6 +703,10 @@ PyObject *residues_near_position_py(int imol, PyObject *pos_in, float radius);
 //
 PyObject *get_bonds_representation(int imol);
 
+//! \brief return a Python object for the radii of the atoms in the dictionary
+//
+PyObject *get_dictionary_radii();
+
 //! \brief return a Python object for the representation of bump and hydrogen bonds of
 //          the specified residue
 PyObject *get_environment_distances_representation_py(int imol, PyObject *residue_spec_py);
@@ -1519,10 +1523,6 @@ SCM align_to_closest_chain_scm(std::string target_seq, float match_fraction);
 //! \brief make a simple text dialog.
 void simple_text_dialog(const std::string &dialog_title, const std::string &text,
 			int geom_x, int geom_y);
-
-// gui nuts and bolts
-void on_simple_text_dialog_close_button_pressed( GtkWidget *button,
-						 GtkWidget *dialog);
 
 
 /*  ----------------------------------------------------------------------- */

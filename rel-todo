@@ -1,97 +1,15 @@
 
    For Release 0.8.9.2
 
-   o morph fit by secondary following the cryo-tutorial, morph secondary
-     fit makes a helix go wonky [JED].
-
-   o make restraints for a big protein, then delete them using ...
-     delete deviants?
-
-   o 5lc5 complex-1 do geometry graphs [Hannah Bridges]
-
-   o crash on coot-reduce on luigi/3p4gA_dom1.pdb
-
-   o Make Fe-S cluster SF4 (and FES?) drawn with bonds ::: 1
-
-   o Fe-S needs to be rendered nicely in Bonds mode ::: 2
-
-   o ball and stick to follow the colour of the atoms
-     How about changing the background colour?
-
-   o Add anom to PDB-redo output ::: 1
-
-   o read SHELX.phs as a map ::: 1
-
-   o click on the simple mutate on starting a session in coot-experimental
-     (setup-mutate 0)
-     ERROR:: invalid model molecule number in do_mutation() -1
-     (do-mutatation "ALA" 0)
-
-   o I want cis-trans to work on intermediate atoms, maybe crankshafting too.
-
-   o Check that H on N moves on cis-trans
+   o Eleanor's HIS. Add test ::: 2
 
    o seems to be a failure of peptide plan restraints when residue type is a PRO.
-     (converted to a ALA and things flattened out as expected).
-
-   o dictionary_radii() for Hamish. Return something JSON.
-     a dictionary? with a dictionary of atoms the the radius as the data
-
-   o Eleanor's HIS. Add test ::: 1
-
-   o Add LINK info to header browser. Other things? SSBOND, BIOMT? ::: 2
-
-   o expand chis for TRP rotamers (maybe for refinement branch) ::: 2
-
-   o "Last Only" button shouldn't animate (say with 100s of molecules). Tricky
-     because gui update needs to be unlinked from undisplay update.
-     ::: 2
-
-   o Kill off Lidia -> View in Lidia, prodrg path ::: 0.5
-
-   o Jiggle fit uses linear interp? Jiggle fit should select backbone
-     if fitting protein, ring atoms for RNA/DNA ::: 2
+     (converted to a ALA and things flattened out as expected). But is this a problem
+     only in refinement branch? ::: 4
 
    o maybe add external angle restraints ::: 2
 
-   o Where's my head and where am I looking? No need for orientation
-     information. Puntable ::: 1
-
-   o Coot found no unexplained blobs" dialog should have a better title
-     than "dialog1" ::: 0.5
-
-* Done, needs testing.
-
    o Make RCrane work again ::: 6
-
-   o this is running coot-refinement and pressing Apply in Lidia
-
-INFO:: backup file coot-backup/0A_from_dict_Thu_Apr_12_15:33:04_2018_modification_0.pdb.gz
-[15:33:04] Explicit valence for atom # 21 O, 3, is greater than permitted
-std::exception
-There are 2 data in /Users/pemsley/autobuild/build-refinement-pre-release-gtk2-python/share/coot/lib/data/monomers/a/A.cif
-sys:1: GtkWarning: Unable to find default local directory monitor type
-command "cprodrg" not found
-
-    ::: 2
-
-   o Is cis-peptide markup getting passed to VR?  No, but it looks
-     straightforward. Puntable ::: 2
-
-   o reposition the O on the current residue when adding a new one -
-     Add Terminal Residue execute_add_terminal_residue() ::: 1
-
-   o graphics_info_t::read_standard_residues() uses
-     std::string standard_file_name = PKGDATADIR;
-     it should use
-     std::string l = package_data_dir();
-
-  o Can you colour by ProSMART output - ask Rob for example. ::: 4
-
-  o sideways histogram of map values when reading a map. ::: 1
-
-  o make a patch for clipper hkl_data.h line 421
-
 
 ------
 
@@ -102,4 +20,77 @@ command "cprodrg" not found
      Swings and roundabouts.
 
      ::: 1
+
+   o make a patch for clipper hkl_data.h line 421 :: 0.5
+
+   o graphics_info_t::read_standard_residues() uses
+     std::string standard_file_name = PKGDATADIR;
+     it should use
+     std::string l = package_data_dir();
+
+     ::: 0.5
+
+   o Make Fe-S cluster SF4 (and FES?) drawn with bonds ::: 1
+
+   o Fe-S needs to be rendered nicely in Bonds mode ::: 2
+
+   o Add anom to PDB-redo output ::: 0.5
+
+   o dictionary_radii() for Hamish. Return something JSON.
+     a dictionary? with a dictionary of atoms the the radius as the data :: 1
+
+   o Coot found no unexplained blobs" dialog should have a better title
+     than "dialog1" ::: 0.5
+
+* Done, needs testing.
+
+   o crash on coot-reduce on luigi/3p4gA_dom1.pdb ::: 1
+
+   o Kill off Lidia -> View in Lidia, prodrg path ::: 0.5
+
+   o this is running coot-refinement and pressing Apply in Lidia
+
+INFO:: backup file coot-backup/0A_from_dict_Thu_Apr_12_15:33:04_2018_modification_0.pdb.gz
+[15:33:04] Explicit valence for atom # 21 O, 3, is greater than permitted
+std::exception
+There are 2 data in /Users/pemsley/autobuild/build-refinement-pre-release-gtk2-python/share/coot/lib/data/monomers/a/A.cif
+sys:1: GtkWarning: Unable to find default local directory monitor type
+command "cprodrg" not found
+
+    ::: 1
+
+* Bleugh. Bye bye.
+
+   o Jiggle fit uses linear interp? Jiggle fit should select backbone
+     if fitting protein, ring atoms for RNA/DNA ::: 2
+
+* Done. More tricky than expected. Nice.
+
+   o Check that H on N moves on cis-trans ::: 1
+
+* It didn't. It does. Added a test.
+
+   o make restraints for a big protein, then delete them using ...
+     delete deviants(?) Fix the slowness ::: 2
+
+* Done. Nice.
+
+   o morph fit by secondary following the cryo-tutorial, morph secondary
+     fit makes a helix go wonky. Check with self chain restraints [JED]. ::: 0
+
+* Can't reproduce.
+
+   o reposition the O on the current residue when adding a new one -
+     Add Terminal Residue execute_add_terminal_residue() ::: 1
+
+* Done.
+
+   o greg-tests: "Correction of CISPEP test"
+     Don't run grep ::: 0.5
+
+* Done. call-with-input-file read-line port
+
+   o Add LINK info to header browser. Other things? ::: 2
+
+* SSBOND bonds are not part of mmdb, BIOMT is a REMARK 350 and is already there.
 
