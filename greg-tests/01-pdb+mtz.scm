@@ -422,7 +422,9 @@
 				      (dd-2 (bond-length-from-atoms O-atom-n N-atom-n)))
 				  (format #t "Add terminal residue bond check dd-1: ~s~%" dd-1)
 				  (format #t "Add terminal residue bond check dd-2: ~s~%" dd-2)
-				  (if (not (< dd-1 0.2))
+				  ;; the new N will not always go into the same place
+				  ;; allow a bit more generosity in position difference
+				  (if (not (< dd-1 0.4)) ;; 0.4 should be generous enough
 				      #f
 				      (if (not (> dd-2 1.9))
 					  #f
