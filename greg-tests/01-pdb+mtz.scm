@@ -547,6 +547,42 @@
 
 
 
+(greg-testcase "HIS with unusual atom order rotates correct fragment for 180 sidechain flip" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "eleanor-HIS.pdb")))
+       (if (not (valid-model-molecule? imol))
+	   (begin
+	     (format #t "BAD imol for 180 sidechain flip test imol: ~s~%" imol)
+	     (throw 'fail))
+
+	   (let ((N-atom-o   (get-atom imol "A" 111 "" " N  " ""))
+		 (ND1-atom-o (get-atom imol "A" 111 "" " ND1" "")))
+	     (with-no-backups imol
+	      (do-180-degree-side-chain-flip imol "A" 111 "" ""))
+	     (let ((N-atom-n   (get-atom imol "A" 111 "" " N  " ""))
+		   (ND1-atom-n (get-atom imol "A" 111 "" " ND1" "")))
+
+	       ;; the N-atom stays still
+	       ;; the ND1 atom moves by > 1A.
+
+	       (let ((dd-1 (bond-length-from-atoms N-atom-o N-atom-n))
+		     (dd-2 (bond-length-from-atoms ND1-atom-o ND1-atom-n)))
+
+		 (format #t "dd-1: ~s dd-2: ~s~%" dd-1 dd-2)
+		 
+		 (if (> dd-1 0.01)
+		     (begin
+		       (format #t "N atom moved - fail\n")
+		       (throw 'fail))
+
+		     (if (< dd-2 1.01)
+			 (begin
+			   (format #t "ND1 atom did not move enough - fail\n")
+			   (throw 'fail))
+			 
+			 #t)))))))))
+
 ;; Don't reset the occupancies of the other parts of the residue
 ;; on regularization using alt confs
 ;; 
