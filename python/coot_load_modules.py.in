@@ -96,8 +96,8 @@ post_list = ["coot_gui.py",
             "coot_toolbuttons.py",
             "pdbe_validation_data.py",
             "contact_score_isolated_ligand.py",
-            "ligand_validation_sliders.py"
-	    # "rcrane_loader.py" # calls set_found_coot_gui()
+            "ligand_validation_sliders.py",
+            "rcrane_loader.py" # calls set_found_coot_gui()
 ]
 
 # list of modules not available on Windows
@@ -175,7 +175,7 @@ for coot_python_file in python_list:
     if filename and os.path.isfile(filename):
         # we need user configuration of this verbosity
 
-	if False:
+	if True:
 	   print "Loading:", coot_python_file
 
         try:
