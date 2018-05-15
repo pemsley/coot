@@ -7170,6 +7170,46 @@ coot::hetify_residues_as_needed(mmdb::Manager *mol) {
    return r;
 }
 
+void
+coot::put_amino_acid_residue_atom_in_standard_order(mmdb::Residue *residue_p) {
+
+   // This function doesn't do what it says. For the moment
+   // it just puts the N at the start if the residue has an N
+   // (or multiple Ns)
+   // Function should do what it says, but this is good enough
+   // for now.
+   //
+   mmdb::Atom **residue_atoms = 0;
+   int n_residue_atoms;
+   std::vector<mmdb::Atom *> N_ats;
+   std::vector<mmdb::Atom *> other_ats;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int i=0; i<n_residue_atoms; i++) {
+      mmdb::Atom *at = residue_atoms[i];
+      std::string atom_name(at->GetAtomName());
+      if (atom_name == " N  ") { // PDBv3 FIXME
+	 N_ats.push_back(at);
+      } else {
+	 other_ats.push_back(at);
+      }
+   }
+
+   // shove around the pointers
+
+   int idx = 0;
+   for (std::size_t i=0; i<N_ats.size(); i++) {
+      mmdb::Atom *at = N_ats[i];
+      residue_atoms[idx] = at;
+      idx++;
+   }
+   for (std::size_t i=0; i<other_ats.size(); i++) {
+      mmdb::Atom *at = other_ats[i];
+      residue_atoms[idx] = at;
+      idx++;
+   }
+
+}
+
 
 // Interacting Residues: Return all residues of mol1, mol2 that
 // have atoms that are closer that dist to atoms of mol2/mol1.
