@@ -49,6 +49,9 @@
 ;(greg-gui 'make-gui)
 
 
+(set-map-radius 4.5) ;; faster
+
+
 (let ((ccp4-master (getenv "CCP4_MASTER")))
   (if (string? ccp4-master)
       (begin
@@ -419,7 +422,9 @@
 				      (dd-2 (bond-length-from-atoms O-atom-n N-atom-n)))
 				  (format #t "Add terminal residue bond check dd-1: ~s~%" dd-1)
 				  (format #t "Add terminal residue bond check dd-2: ~s~%" dd-2)
-				  (if (not (< dd-1 0.2))
+				  ;; the new N will not always go into the same place
+				  ;; allow a bit more generosity in position difference
+				  (if (not (< dd-1 0.4)) ;; 0.4 should be generous enough
 				      #f
 				      (if (not (> dd-2 1.9))
 					  #f
@@ -877,8 +882,8 @@
 	     (with-no-backups imol-2 (cis-trans-convert imol-2 "A" 5 "")) ;; 5-6 peptide
 	     (let ((H-atom-n   (get-atom imol-2 "A" 6 "" " N  " "")))
 	       (let ((dd (bond-length-from-atoms H-atom-o H-atom-n)))
-		 (close-mol imol)
-		 (close-mol imol-2)
+		 (close-molecule imol)
+		 (close-molecule imol-2)
 		 (format #t "dd: ~s~%" dd)
 		 (> dd 1.4))))))))
 
