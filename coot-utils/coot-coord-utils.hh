@@ -305,6 +305,7 @@ namespace coot {
    // standard PDB type
    int hetify_residue_atoms_as_needed(mmdb::Residue *res);
    int hetify_residues_as_needed(mmdb::Manager *mol);
+   void put_amino_acid_residue_atom_in_standard_order(mmdb::Residue *residue_p);
 
    // convert atoms in residue to HETATMs.  Return the number of HET
    // atoms.

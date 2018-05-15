@@ -8289,6 +8289,45 @@ molecule_class_info_t::do_180_degree_side_chain_flip(const std::string &chain_id
 // 	    for (int iat=0; iat<n_atom_residue_copy; iat++)
 // 	       std::cout << residue_atoms_copy[iat] << std::endl;
 
+            // check that the N comes before the CA and the CA comes before
+            // the CB (if it has one).
+            if (coot::util::is_standard_amino_acid_name(resname)) {
+               bool needs_reordering = false;
+               int idx_N  = -1;
+               int idx_CA = -1;
+               int idx_CB = -1;
+	       for (int iat=0; iat<n_atom_residue_copy; iat++) {
+                  mmdb::Atom *at = residue_atoms_copy[iat];
+                  std::string at_name(at->GetAtomName());
+                  if (at_name == " N  ") {  // PDBv3 FIXME
+                     idx_N = iat;
+                  }
+                  if (at_name == " CA ") {  // PDBv3 FIXME
+                     idx_CA = iat;
+                  }
+                  if (at_name == " CB ") {  // PDBv3 FIXME
+                     idx_CB = iat;
+                  }
+               }
+               if (idx_N != -1) {
+                  if (idx_CA != -1) {
+                     if (idx_N > idx_CA) {
+                        needs_reordering = true;
+                     }
+                  }
+               }
+               if (idx_CB != -1) {
+                  if (idx_CA != -1) {
+                     if (idx_CA > idx_CB) {
+                        needs_reordering = true;
+                     }
+                  }
+               }
+               if (needs_reordering) {
+                  coot::put_amino_acid_residue_atom_in_standard_order(residue_copy);
+               }
+            }
+
 	    coot::chi_angles chi_ang(residue_copy, 0);
 	    std::vector<std::vector<int> > contact_indices(n_atom_residue_copy);
 	    bool add_reverse_contacts = false;
