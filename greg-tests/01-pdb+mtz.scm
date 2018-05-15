@@ -570,7 +570,7 @@
 		     (dd-2 (bond-length-from-atoms ND1-atom-o ND1-atom-n)))
 
 		 (format #t "dd-1: ~s dd-2: ~s~%" dd-1 dd-2)
-		 
+
 		 (if (> dd-1 0.01)
 		     (begin
 		       (format #t "N atom moved - fail\n")
@@ -580,7 +580,7 @@
 			 (begin
 			   (format #t "ND1 atom did not move enough - fail\n")
 			   (throw 'fail))
-			 
+
 			 #t)))))))))
 
 ;; Don't reset the occupancies of the other parts of the residue
