@@ -49,6 +49,9 @@
 ;(greg-gui 'make-gui)
 
 
+(set-map-radius 4.5) ;; faster
+
+
 (let ((ccp4-master (getenv "CCP4_MASTER")))
   (if (string? ccp4-master)
       (begin
@@ -877,8 +880,8 @@
 	     (with-no-backups imol-2 (cis-trans-convert imol-2 "A" 5 "")) ;; 5-6 peptide
 	     (let ((H-atom-n   (get-atom imol-2 "A" 6 "" " N  " "")))
 	       (let ((dd (bond-length-from-atoms H-atom-o H-atom-n)))
-		 (close-mol imol)
-		 (close-mol imol-2)
+		 (close-molecule imol)
+		 (close-molecule imol-2)
 		 (format #t "dd: ~s~%" dd)
 		 (> dd 1.4))))))))
 
