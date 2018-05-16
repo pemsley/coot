@@ -717,7 +717,7 @@ molecule_class_info_t::pepflip_residue(const std::string &chain_id,
    int iresult = coot::pepflip(atom_sel.mol, chain_id, resno, ins_code, alt_conf);
 
    if (iresult) {
-      std::cout << "flipped " << resno << " " << chain_id << std::endl;
+      // std::cout << "INFO:: flipped " << resno << " " << chain_id << std::endl;
       make_bonds_type_checked();
       have_unsaved_changes_flag = 1; 
 
@@ -2054,7 +2054,7 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 		     try { 
 			residue_mol[ifrag].addresidue(residue_res, 0);
 		     }
-		     catch (std::runtime_error rte) {
+		     catch (const std::runtime_error &rte) {
 			std::cout << "ERROR:: auto_fit_best_rotamer() 2 " << rte.what() << std::endl;
 		     } 
 		     coot::minimol::molecule moved_mol = residue_mol;
@@ -2238,7 +2238,7 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
 		     bool mzo = g.refinement_move_atoms_with_zero_occupancy_flag;
 		     replace_coords(fragment_asc, 0, mzo);
 		  }
-		  catch (std::runtime_error rte) {
+		  catch (const std::runtime_error &rte) {
 		     std::cout << "WARNING:: thrown " << rte.what() << std::endl;
 		  }
 	       } else {
@@ -5150,7 +5150,6 @@ molecule_class_info_t::create_mmdbmanager_from_res_selection(mmdb::PResidue *Sel
 //
 // Question to self: how do I deal with different models?
 //
-
 std::pair<int, std::vector<std::string> > 
 molecule_class_info_t::merge_molecules(const std::vector<atom_selection_container_t> &add_molecules) {
 
@@ -5160,6 +5159,7 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
    std::vector<std::string> this_model_chains = coot::util::chains_in_molecule(atom_sel.mol);
 
    for (unsigned int imol=0; imol<add_molecules.size(); imol++) {
+      mmdb::Manager *adding_mol = add_molecules[imol].mol;
       if (add_molecules[imol].n_selected_atoms > 0) {
 	 int nresidues = coot::util::number_of_residues_in_molecule(add_molecules[imol].mol);
 
@@ -5172,66 +5172,19 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 	    = coot::util::chains_in_molecule(add_molecules[imol].mol);
 
 	 if (nresidues == 1) {
+	    bool done_homogeneous_addition_flag = merge_molecules_just_one_residue_homogeneous(add_molecules[imol]);
+	    multi_residue_add_flag = ! done_homogeneous_addition_flag;
 
-	    // If there is a chain that has only residues of the same
-	    // type as is the (single) residue in the new adding
-	    // molecule then we add by residue addition to chain
-	    // rather than add by chain (to molecule).
-
-	    // Are there chains in this model that only consist of
-	    // residues of type adding_model_chains[0]?
-	    // 
-	    bool has_single_residue_type_chain_flag = false;
-
-	    int i_this_model = 1;
-
-	    mmdb::Model *this_model_p;
-	    mmdb::Chain *this_chain_p;
-	    mmdb::Chain *add_residue_to_this_chain = NULL;
-
-	    this_model_p = atom_sel.mol->GetModel(i_this_model);
-	    
-	    int n_this_mol_chains = this_model_p->GetNumberOfChains();
-
-	    for (int ithischain=0; ithischain<n_this_mol_chains; ithischain++) { 
-	       this_chain_p = this_model_p->GetChain(ithischain);
-	       std::vector<std::string> r = coot::util::residue_types_in_chain(this_chain_p);
-	       
-	       if (r.size() == 1) {
-		  std::string adding_model_resname(add_molecules[imol].atom_selection[0]->residue->GetResName());
-		  if (r[0] == adding_model_resname) {
-		     // poly-ala helices (say) should not go into concatonated residues in the same chain
-		     if (adding_model_resname != "ALA") {
-			add_residue_to_this_chain = this_chain_p;
-			has_single_residue_type_chain_flag = true;
-			break;
-		     }
-		  }
-	       } 
+	    if (! done_homogeneous_addition_flag) {
+	       bool done_merge_ligand_to_near_chain = merge_ligand_to_near_chain(adding_mol);
+	       multi_residue_add_flag = ! done_merge_ligand_to_near_chain;
 	    }
-
-	    if (has_single_residue_type_chain_flag) {
-	       if (add_molecules[imol].n_selected_atoms > 0) {
-		  mmdb::Residue *add_model_residue = add_molecules[imol].atom_selection[0]->residue;
-		  copy_and_add_residue_to_chain(add_residue_to_this_chain, add_model_residue);
-		  multi_residue_add_flag = false;
-		  atom_sel.mol->FinishStructEdit();
-		  update_molecule_after_additions();
-		  if (graphics_info_t::show_symmetry == 1)
-		     update_symmetry();
-	       }
-	    } else {
-	       multi_residue_add_flag = 1;
-	    } 
-	    
-	 } else {
-	    multi_residue_add_flag = 1;
 	 }
 
 	 // Now that multi_residue_add_flag has been set properly, we use it...
+
 	 if (multi_residue_add_flag) {
-	    mmdb::Manager *adding_mol = add_molecules[imol].mol;
-	    // return state 
+	    // return state
 	    std::pair<bool, std::vector<std::string> > add_state = try_add_by_consolidation(adding_mol);
 
             // some mild hacking, but we need to return a proper state and the added chains
@@ -5306,6 +5259,192 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
       } 
    }
    return std::pair<int, std::vector<std::string> > (istat, resulting_chain_ids);
+}
+
+// return the multi_residue_add_flag
+// done_homogeneous_addition_flag
+//
+bool
+molecule_class_info_t::merge_molecules_just_one_residue_homogeneous(atom_selection_container_t molecule_to_add) {
+
+   // If there is a chain that has only residues of the same
+   // type as is the (single) residue in the new adding
+   // molecule then we add by residue addition to chain
+   // rather than add by chain (to molecule).
+
+   // Are there chains in this model that only consist of
+   // residues of type adding_model_chains[0]?
+   //
+   bool done_homogeneous_addition_flag = false;
+
+   bool has_single_residue_type_chain_flag = false;
+
+   int i_this_model = 1;
+
+   mmdb::Chain *add_residue_to_this_chain = NULL;
+
+   mmdb::Model *this_model_p = atom_sel.mol->GetModel(i_this_model);
+
+   int n_this_mol_chains = this_model_p->GetNumberOfChains();
+
+   for (int ithischain=0; ithischain<n_this_mol_chains; ithischain++) {
+      mmdb::Chain *this_chain_p = this_model_p->GetChain(ithischain);
+      std::vector<std::string> r = coot::util::residue_types_in_chain(this_chain_p);
+
+      if (r.size() == 1) {
+	 std::string adding_model_resname(molecule_to_add.atom_selection[0]->residue->GetResName());
+	 if (r[0] == adding_model_resname) {
+	    // poly-ala helices (say) should not go into concatenated residues in the same chain
+	    if (adding_model_resname != "ALA") {
+	       add_residue_to_this_chain = this_chain_p;
+	       has_single_residue_type_chain_flag = true;
+	       break;
+	    }
+	 }
+      }
+   }
+
+   if (has_single_residue_type_chain_flag) {
+      if (molecule_to_add.n_selected_atoms > 0) {
+	 mmdb::Residue *add_model_residue = molecule_to_add.atom_selection[0]->residue;
+	 copy_and_add_residue_to_chain(add_residue_to_this_chain, add_model_residue);
+	 done_homogeneous_addition_flag = true;
+	 atom_sel.mol->FinishStructEdit();
+	 update_molecule_after_additions();
+	 if (graphics_info_t::show_symmetry == 1)
+	    update_symmetry();
+      }
+   }
+   return done_homogeneous_addition_flag;
+}
+
+// There is (or should be) only one residue in mol
+bool
+molecule_class_info_t::merge_ligand_to_near_chain(mmdb::Manager *mol) {
+
+   bool done_merge = false;
+   mmdb::Residue *adding_residue_p = 0;
+
+   { // set adding_residue
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+	 mmdb::Chain *chain_p;
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    if (chain_p) {
+	       int nres = chain_p->GetNumberOfResidues();
+	       if (nres > 0)
+		  adding_residue_p = chain_p->GetResidue(0);
+	    }
+	 }
+      }
+   }
+
+   if (adding_residue_p) {
+
+      // OK, what atoms in this molecule are close to adding_residue?
+      // First, we need a vector of atoms in adding_residue
+      // Then a set of atoms that are close to those positions
+      // Then find the chain that has most atoms in that set
+      // Then find a suitable residue number
+      // Then add the residue
+
+      std::vector<clipper::Coord_orth> ligand_atom_positions;
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      adding_residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int i=0; i<n_residue_atoms; i++) {
+	 mmdb::Atom *atom = residue_atoms[i];
+	 if (!atom->isTer()) {
+	    clipper::Coord_orth pt = coot::co(atom);
+	    ligand_atom_positions.push_back(pt);
+	 }
+      }
+      std::set<mmdb::Atom *> near_atoms; // atoms in the protein (this molecule)
+      double dist_crit = 4.2;
+      double dist_crit_sqrd = dist_crit * dist_crit;
+
+      // this is a slow position by position check. It can be speeded up, if needed,
+      // by fiddling with residue and molecules (i.e. copying and merging) and using
+      // SelectAtoms().
+      //
+      int imod = 1;
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      if (model_p) {
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	    if (chain_p) {
+	       int nres = chain_p->GetNumberOfResidues();
+	       for (int ires=0; ires<nres; ires++) {
+		  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+		  if (residue_p) {
+		     int n_atoms = residue_p->GetNumberOfAtoms();
+		     for (int iat=0; iat<n_atoms; iat++) {
+			mmdb::Atom *at = residue_p->GetAtom(iat);
+			if (at) {
+			   if (! at->isTer()) {
+			      clipper::Coord_orth this_at_co = coot::co(at);
+			      for (std::size_t j=0; j<ligand_atom_positions.size(); j++) {
+				 const clipper::Coord_orth &pos = ligand_atom_positions[j];
+				 double this_dist_sqrd = (this_at_co-pos).lengthsq();
+				 if (this_dist_sqrd < dist_crit_sqrd) {
+				    near_atoms.insert(at);
+				 }
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+	 if (near_atoms.size() > 1) {
+	    // make a map of the number of residue in each chain that are close to the ligand atoms
+	    std::map<mmdb::Chain *, int> chain_map;
+	    std::set<mmdb::Atom *>::const_iterator it;
+	    for (it=near_atoms.begin(); it!=near_atoms.end(); it++) {
+	       mmdb::Chain *this_chain = (*it)->GetChain();
+	       if (chain_map.find(this_chain) == chain_map.end()) {
+		  chain_map[this_chain] = 1;
+	       } else {
+		  chain_map[this_chain]++;
+	       }
+	    }
+
+	    // find the "best" chain for this added residue/ligand
+	    mmdb::Chain *max_atom_chain = 0;
+	    int n_atoms_max = 0;
+	    std::map<mmdb::Chain *, int>::const_iterator chain_it;
+	    for (chain_it=chain_map.begin(); chain_it!=chain_map.end(); chain_it++) {
+	       int n = chain_it->second;
+	       if (n > n_atoms_max) {
+		  n_atoms_max = n;
+		  max_atom_chain = chain_it->first;
+	       }
+	    }
+
+	    if (n_atoms_max > 0) {
+	       if (max_atom_chain) {
+		  // does not backup or finalize or update
+		  bool new_res_no_by_hundreds = true;
+		  copy_and_add_residue_to_chain(max_atom_chain, adding_residue_p, new_res_no_by_hundreds);
+		  done_merge = true;
+	       }
+	    }
+	 }
+      }
+   }
+
+   if (done_merge) {
+      atom_sel.mol->FinishStructEdit();
+      update_molecule_after_additions();
+      if (graphics_info_t::show_symmetry == 1)
+	 update_symmetry();
+   }
+   return done_merge;
 }
 
 
@@ -5543,7 +5682,8 @@ molecule_class_info_t::suggest_new_chain_id(const std::string &current_chain_id)
 // This doesn't do a backup or finalise model.
 mmdb::Residue *
 molecule_class_info_t::copy_and_add_residue_to_chain(mmdb::Chain *this_model_chain,
-						     mmdb::Residue *add_model_residue) {
+						     mmdb::Residue *add_model_residue,
+						     bool new_resno_by_hundreds_flag) {
 
    mmdb::Residue *res_copied = NULL;
    if (add_model_residue) {
@@ -5566,10 +5706,11 @@ molecule_class_info_t::copy_and_add_residue_to_chain(mmdb::Chain *this_model_cha
 							    whole_res_flag,
 							    udd_atom_index_handle);
       if (residue_copy) { 
-	 std::pair<short int, int> max_res_info = next_residue_in_chain(this_model_chain);
+	 std::pair<short int, int> res_info =
+	    next_residue_number_in_chain(this_model_chain, new_resno_by_hundreds_flag);
 	 int new_res_resno = 9999;
-	 if (max_res_info.first)
-	    new_res_resno = max_res_info.second;
+	 if (res_info.first)
+	    new_res_resno = res_info.second;
 	 residue_copy->seqNum = new_res_resno; // try changin the seqNum before AddResidue().
 	 this_model_chain->AddResidue(residue_copy);
 	 // residue_copy->seqNum = new_res_resno;
@@ -7578,9 +7719,6 @@ molecule_class_info_t::cis_trans_conversion(const std::string &chain_id, int res
 int
 molecule_class_info_t::cis_trans_conversion(mmdb::Atom *at, short int is_N_flag) {
 
-   std::cout << "in molecule_class_info_t::cis_trans_conversion() atom_sel.mol is "
-	     << atom_sel.mol << std::endl;
-
    // These 3 are pointers, each of which are of size 2
    mmdb::PResidue *trans_residues = NULL;
    mmdb::PResidue *cis_residues = NULL;
@@ -7721,6 +7859,7 @@ molecule_class_info_t::cis_trans_convert(mmdb::PResidue *mol_residues,
       mmdb::Atom *mol_residue_O_1  = NULL;
       mmdb::Atom *mol_residue_CA_2 = NULL;
       mmdb::Atom *mol_residue_N_2  = NULL;
+      mmdb::Atom *mol_residue_H_2  = NULL;
       
       mmdb::PPAtom mol_residue_atoms = NULL;
       int n_residue_atoms;
@@ -7746,6 +7885,9 @@ molecule_class_info_t::cis_trans_convert(mmdb::PResidue *mol_residues,
 	 }
 	 if (atom_name == " N  ") {
 	    mol_residue_N_2 = mol_residue_atoms[i];
+	 }
+	 if (atom_name == " H  ") {
+	    mol_residue_H_2 = mol_residue_atoms[i];
 	 }
       }
 
@@ -7935,6 +8077,18 @@ molecule_class_info_t::cis_trans_convert(mmdb::PResidue *mol_residues,
 	       mol_residue_N_2->y = newpos.y();
 	       mol_residue_N_2->z = newpos.z();
 
+	       if (mol_residue_H_2) {
+		  // 20180510 place H on N as a riding atom, not using transformation
+		  clipper::Coord_orth at_c_pos  = coot::co(mol_residue_C_1);
+		  clipper::Coord_orth at_n_pos  = coot::co(mol_residue_N_2);
+		  clipper::Coord_orth at_ca_pos = coot::co(mol_residue_CA_1);
+		  double bl = 0.86;
+		  double angle = clipper::Util::d2rad(125.0);
+		  clipper::Coord_orth H_pos(at_ca_pos, at_c_pos, at_n_pos, bl, angle, M_PI);
+		  mol_residue_H_2->x = H_pos.x();
+		  mol_residue_H_2->y = H_pos.y();
+		  mol_residue_H_2->z = H_pos.z();
+	       }
 	       istatus = 1;
 	    }
 	 }
@@ -8027,7 +8181,7 @@ molecule_class_info_t::reverse_direction_of_fragment(const std::string &chain_id
 			try { 
 			   f.addresidue(r, 0);
 			}
-			catch (std::runtime_error rte) { 
+			catch (const std::runtime_error &rte) {
 			   std::cout << "ERROR:: auto_fit_best_rotamer() " << rte.what() << std::endl;
 			}
 		     }
@@ -8098,9 +8252,9 @@ molecule_class_info_t::do_180_degree_side_chain_flip(const std::string &chain_id
       mmdb::PResidue *SelResidues = NULL;
       int selnd = atom_sel.mol->NewSelection();
       atom_sel.mol->Select(selnd, mmdb::STYPE_RESIDUE, 0,
-			   (char *) chain_id.c_str(),
-			   resno, (char *) inscode.c_str(),
-			   resno, (char *) inscode.c_str(),
+			   chain_id.c_str(),
+			   resno, inscode.c_str(),
+			   resno, inscode.c_str(),
 			   "*", "*", "*", "*", mmdb::SKEY_NEW);
       atom_sel.mol->GetSelIndex(selnd, SelResidues, nSelResidues);
       if (nSelResidues > 0 ) { 
@@ -8138,11 +8292,48 @@ molecule_class_info_t::do_180_degree_side_chain_flip(const std::string &chain_id
 // 	    for (int iat=0; iat<n_atom_residue_copy; iat++)
 // 	       std::cout << residue_atoms_copy[iat] << std::endl;
 
-	    
-	    
+            // check that the N comes before the CA and the CA comes before
+            // the CB (if it has one).
+            if (coot::util::is_standard_amino_acid_name(resname)) {
+               bool needs_reordering = false;
+               int idx_N  = -1;
+               int idx_CA = -1;
+               int idx_CB = -1;
+	       for (int iat=0; iat<n_atom_residue_copy; iat++) {
+                  mmdb::Atom *at = residue_atoms_copy[iat];
+                  std::string at_name(at->GetAtomName());
+                  if (at_name == " N  ") {  // PDBv3 FIXME
+                     idx_N = iat;
+                  }
+                  if (at_name == " CA ") {  // PDBv3 FIXME
+                     idx_CA = iat;
+                  }
+                  if (at_name == " CB ") {  // PDBv3 FIXME
+                     idx_CB = iat;
+                  }
+               }
+               if (idx_N != -1) {
+                  if (idx_CA != -1) {
+                     if (idx_N > idx_CA) {
+                        needs_reordering = true;
+                     }
+                  }
+               }
+               if (idx_CB != -1) {
+                  if (idx_CA != -1) {
+                     if (idx_CA > idx_CB) {
+                        needs_reordering = true;
+                     }
+                  }
+               }
+               if (needs_reordering) {
+                  coot::put_amino_acid_residue_atom_in_standard_order(residue_copy);
+               }
+            }
+
 	    coot::chi_angles chi_ang(residue_copy, 0);
 	    std::vector<std::vector<int> > contact_indices(n_atom_residue_copy);
-	    bool add_reverse_contacts = 0;
+	    bool add_reverse_contacts = false;
 	    contact_indices = coot::util::get_contact_indices_from_restraints(residue_copy, geom_p, 1,
 									      add_reverse_contacts);
 	    std::pair<short int, float> istat = chi_ang.change_by(nth_chi, diff, contact_indices);
@@ -8981,7 +9172,7 @@ molecule_class_info_t::lsq_improve(mmdb::Manager *mol_ref, const std::string &re
 	 have_unsaved_changes_flag = 1;
 	 make_bonds_type_checked(); // calls update_ghosts()
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << "lsq_improve ERROR::" << rte.what() << std::endl;
       } 
    } 

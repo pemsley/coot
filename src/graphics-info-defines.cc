@@ -756,6 +756,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 		<< " residue " << delete_item_residue
 		<< " water " << delete_item_water
 		<< " sidechain " << delete_item_sidechain
+		<< " sidechain-range " << delete_item_sidechain_range
 		<< " chain " << delete_item_chain
 		<< " range " << delete_item_residue_zone
 		<< " hydrogens " << delete_item_residue_hydrogens
@@ -898,6 +899,47 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       g.update_environment_distances_maybe(naii.atom_index, naii.imol);
 	       run_post_manipulation_hook(naii.imol, DELETED);
 	    }
+	 }
+      }
+
+      // side chain range
+      if (g.delete_item_sidechain_range) {
+	 pick_info naii = atom_pick(event);
+	 if (naii.success == GL_TRUE) {
+	    if (g.delete_item_sidechain_range == 1) {
+	       // This was the first click:
+	       molecules[naii.imol].add_to_labelled_atom_list(naii.atom_index);
+	       mmdb::Atom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
+	       g.delete_item_sidechain_range_1 = coot::residue_spec_t(at->residue);
+	       g.delete_item_sidechain_range_1_imol = naii.imol;
+	       // so set up to pick another atom
+	       g.delete_item_sidechain_range = 2;
+	    } else {
+	       if (g.delete_item_sidechain_range == 2) {
+		  // This was the second click:
+		  mmdb::Atom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
+		  coot::residue_spec_t res2(at->residue);
+		  if (naii.imol == g.delete_item_sidechain_range_1_imol) {
+		     if (res2.model_number == g.delete_item_sidechain_range_1.model_number) {
+			g.delete_sidechain_range(naii.imol, g.delete_item_sidechain_range_1, res2);
+			pick_pending_flag = 0;
+			g.delete_item_sidechain_range = 0; //reset for next time, or 1?
+			run_post_manipulation_hook(naii.imol, DELETED);
+		     } else {
+			pick_pending_flag = 0;
+			normal_cursor();
+			std::string s = "Picked atoms not in same model.";
+			add_status_bar_text(s);
+		     }
+		  } else {
+		     pick_pending_flag = 0;
+		     normal_cursor();
+		     std::string s = "Picked atoms not in same molecule.";
+		     add_status_bar_text(s);
+		  }
+	       }
+	    }
+	    graphics_draw();
 	 }
       }
 

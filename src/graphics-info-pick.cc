@@ -120,7 +120,7 @@ graphics_info_t::symmetry_atom_pick(const coot::Cartesian &front, const coot::Ca
 			cell = xtal.first;
 			spg  = xtal.second;
 			spacegroup_ok = 1;
-		     } catch ( std::runtime_error except ) {
+		     } catch (const std::runtime_error &except) {
 			cout << "!! get_cell_symm() fails in symmetry_atom_pick"
 			     << endl;
 		     }

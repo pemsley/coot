@@ -1152,46 +1152,51 @@ int set_atom_attributes_py(PyObject *attribute_expression_list) {
 	       attribute_value_py = PyList_GetItem(attribute_expression, 7);
 	       int imol = PyInt_AsLong(imol_py);
 	       if (is_valid_model_molecule(imol)) {
-		  std::string chain_id = PyString_AsString(chain_id_py);
-		  int resno = PyInt_AsLong(resno_py);
-		  
-		  std::string inscode        = "-*-unset-*-:";
-		  std::string atom_name      = "-*-unset-*-:";
-		  std::string alt_conf       = "-*-unset-*-:";
-		  std::string attribute_name = "-*-unset-*-:";
 
-		  if (PyString_Check(ins_code_py)) 
-		    inscode        = PyString_AsString(ins_code_py);
-		  if (PyString_Check(atom_name_py))
-		    atom_name      = PyString_AsString(atom_name_py);
-		  if (PyString_Check(alt_conf_py))
-		    alt_conf       = PyString_AsString(alt_conf_py); 
-		  if (PyString_Check(attribute_name_py)) 
-		    attribute_name = PyString_AsString(attribute_name_py);
+		  if (! PyString_Check(chain_id_py)) {
+		     std::cout << "WARNING:: bad chain " << chain_id_py << std::endl;
+		  } else {
+		     std::string chain_id = PyString_AsString(chain_id_py);
+		     int resno = PyInt_AsLong(resno_py);
 
-		  if ((inscode        == "-*-unset-*-:") ||
-		      (atom_name      == "-*-unset-*-:") ||
-		      (alt_conf       == "-*-unset-*-:") ||
-		      (attribute_name == "-*-unset-*-:")) {
+		     std::string inscode        = "-*-unset-*-:";
+		     std::string atom_name      = "-*-unset-*-:";
+		     std::string alt_conf       = "-*-unset-*-:";
+		     std::string attribute_name = "-*-unset-*-:";
 
-		     std::cout << "WARNING:: bad attribute expression: "
-			       << PyString_AsString(attribute_expression)
-			       << std::endl;
+		     if (PyString_Check(ins_code_py))
+			inscode        = PyString_AsString(ins_code_py);
+		     if (PyString_Check(atom_name_py))
+			atom_name      = PyString_AsString(atom_name_py);
+		     if (PyString_Check(alt_conf_py))
+			alt_conf       = PyString_AsString(alt_conf_py);
+		     if (PyString_Check(attribute_name_py))
+			attribute_name = PyString_AsString(attribute_name_py);
 
-		  } else { 
-		      
-		     coot::atom_attribute_setting_help_t att_val;
-		     if (PyString_Check(attribute_value_py)) {
-			// std::cout << "a string value :" << att_val.s << ":" << std::endl;
-			att_val = coot::atom_attribute_setting_help_t(PyString_AsString(attribute_value_py));
+		     if ((inscode        == "-*-unset-*-:") ||
+			 (atom_name      == "-*-unset-*-:") ||
+			 (alt_conf       == "-*-unset-*-:") ||
+			 (attribute_name == "-*-unset-*-:")) {
+
+			std::cout << "WARNING:: bad attribute expression: "
+				  << PyString_AsString(attribute_expression)
+				  << std::endl;
+
 		     } else {
-			att_val = coot::atom_attribute_setting_help_t(float(PyFloat_AsDouble(attribute_value_py)));
-			// std::cout << "a float value :" << att_val.val << ":" << std::endl;
-		     } 
-		     v[imol].push_back(coot::atom_attribute_setting_t(chain_id, resno, inscode, atom_name, alt_conf, attribute_name, att_val));
-		     //		     std::cout << "DEBUG:: Added attribute: "
-		     //                        << scm_to_locale_string(display_scm(attribute_expression))
-		     //        << std::endl;
+
+			coot::atom_attribute_setting_help_t att_val;
+			if (PyString_Check(attribute_value_py)) {
+			   // std::cout << "a string value :" << att_val.s << ":" << std::endl;
+			   att_val = coot::atom_attribute_setting_help_t(PyString_AsString(attribute_value_py));
+			} else {
+			   att_val = coot::atom_attribute_setting_help_t(float(PyFloat_AsDouble(attribute_value_py)));
+			   // std::cout << "a float value :" << att_val.val << ":" << std::endl;
+			}
+			v[imol].push_back(coot::atom_attribute_setting_t(chain_id, resno, inscode, atom_name, alt_conf, attribute_name, att_val));
+			//		     std::cout << "DEBUG:: Added attribute: "
+			//                        << scm_to_locale_string(display_scm(attribute_expression))
+			//        << std::endl;
+		     }
 		  }
 	       }
 	    }
@@ -1658,6 +1663,7 @@ void set_delete_atom_mode() {
    g.delete_item_residue_hydrogens = 0;
    g.delete_item_residue = 0;
    g.delete_item_sidechain = 0;
+   g.delete_item_sidechain_range = 0;
    g.delete_item_chain = 0;
    add_to_history_simple("set-delete-atom-mode");
 }
@@ -1671,6 +1677,7 @@ void set_delete_residue_mode() {
    g.delete_item_water = 0;
    g.delete_item_residue = 1;
    g.delete_item_sidechain = 0; 
+   g.delete_item_sidechain_range = 0;
    g.delete_item_chain = 0;
    add_to_history_simple("set-delete-residue-mode");
 }
@@ -1684,6 +1691,7 @@ void set_delete_residue_hydrogens_mode() {
    g.delete_item_water = 0;
    g.delete_item_residue_hydrogens = 1;
    g.delete_item_sidechain = 0; 
+   g.delete_item_sidechain_range = 0;
    g.delete_item_chain = 0;
    add_to_history_simple("set-delete-residue-hydrogens-mode");
 
@@ -1698,6 +1706,7 @@ void set_delete_residue_zone_mode() {
    g.delete_item_water = 0;
    g.delete_item_residue_hydrogens = 0;
    g.delete_item_sidechain = 0; 
+   g.delete_item_sidechain_range = 0;
    g.delete_item_chain = 0;
    add_to_history_simple("set-delete-residue-zone-mode");
 }
@@ -1711,6 +1720,7 @@ void set_delete_water_mode() {
    g.delete_item_atom = 0;
    g.delete_item_residue_hydrogens = 0;
    g.delete_item_sidechain = 0; 
+   g.delete_item_sidechain_range = 0;
    g.delete_item_chain = 0;
    add_to_history_simple("set-delete-residue-water-mode");
 
@@ -1727,9 +1737,26 @@ void set_delete_sidechain_mode() {
    g.delete_item_residue_hydrogens = 0;
    g.delete_item_chain = 0;
    g.delete_item_sidechain = 1; 
+   g.delete_item_sidechain_range = 0;
    add_to_history_simple("set-delete-sidechain-mode");
 
 }
+
+void set_delete_sidechain_range_mode() {
+
+   graphics_info_t g;
+   std::cout << "set_delete_sidechain_range_mode " << std::endl;
+   g.delete_item_residue = 0;
+   g.delete_item_residue_zone = 0;
+   g.delete_item_water = 0;
+   g.delete_item_atom = 0;
+   g.delete_item_residue_hydrogens = 0;
+   g.delete_item_chain = 0;
+   g.delete_item_sidechain = 0;
+   g.delete_item_sidechain_range = 1;
+   add_to_history_simple("set-delete-sidechain-range-mode");
+}
+
 
 void set_delete_chain_mode() {
 
@@ -1741,6 +1768,7 @@ void set_delete_chain_mode() {
    g.delete_item_atom = 0;
    g.delete_item_residue_hydrogens = 0;
    g.delete_item_sidechain = 0;
+   g.delete_item_sidechain_range = 0;
    g.delete_item_chain = 1;
    add_to_history_simple("set-delete-sidechain-mode");
 
@@ -1780,6 +1808,13 @@ short int delete_item_mode_is_water_p() {
 short int delete_item_mode_is_sidechain_p() {
    short int v=0;
    if (graphics_info_t::delete_item_sidechain == 1)
+      v = 1;
+   return v;
+}
+
+short int delete_item_mode_is_sidechain_range_p() {
+   short int v=0;
+   if (graphics_info_t::delete_item_sidechain_range == 1)
       v = 1;
    return v;
 }

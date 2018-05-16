@@ -4907,11 +4907,13 @@ void set_delete_residue_zone_mode();
 void set_delete_residue_hydrogens_mode();
 void set_delete_water_mode();
 void set_delete_sidechain_mode();
+void set_delete_sidechain_range_mode();
 void set_delete_chain_mode();
 short int delete_item_mode_is_atom_p(); /* (predicate) a boolean */
 short int delete_item_mode_is_residue_p(); /* predicate again */
 short int delete_item_mode_is_water_p();
 short int delete_item_mode_is_sidechain_p();
+short int delete_item_mode_is_sidechain_range_p();
 short int delete_item_mode_is_chain_p();
 void clear_pending_delete_item(); /* for when we cancel with picking an atom */
 void clear_delete_item_widget();
@@ -6789,7 +6791,6 @@ void run_update_self_maybe(); /* called when --update-self given at command line
 void show_go_to_residue_keyboarding_mode_window();
 void    handle_go_to_residue_keyboarding_mode(const gchar *text);
 
-
 /*  ----------------------------------------------------------------------- */
 /*                    graphics ligand view                                  */
 /*  ----------------------------------------------------------------------- */
@@ -6799,8 +6800,6 @@ void    handle_go_to_residue_keyboarding_mode(const gchar *text);
 
  (default is 1 (on)). */
 void set_show_graphics_ligand_view(int state);
-/* \} */
-
 /* \} */
 
 
@@ -6862,6 +6861,3 @@ void full_screen(int mode);
 
 #endif /* C_INTERFACE_H */
 END_C_DECLS
-
-
-

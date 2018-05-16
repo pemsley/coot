@@ -87,6 +87,9 @@ BEGIN_C_DECLS
 #define COOT_SCHEME_DIR "COOT_SCHEME_DIR"
 #define COOT_PYTHON_DIR "COOT_PYTHON_DIR"
 
+/* curlew callback action */
+void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions);
+
 void on_filename_filter_toggle_button_toggled (GtkButton       *button,
 					      gpointer         user_data);
 
@@ -161,9 +164,10 @@ void handle_filename_filter_gtk2(GtkWidget *widget);
 void set_transient_and_position(int window_type, GtkWidget *window);
 
 
-GtkWidget *main_menubar();
+GtkWidget *main_menubar();	/* maybe these should be called main_window_xxx() */
 GtkWidget *main_statusbar();
 GtkWidget *main_toolbar();
+GtkWidget *main_hbox();
 
 /* entry_info_t entry_to_number(GtkWidget *entry);  */
 
@@ -804,3 +808,4 @@ void mutate_molecule_dialog_check_counts(GtkWidget *res_no_1_widget, GtkWidget *
 
 #endif /* C_INTERFACE_GTK_WIDGETS_H */
 END_C_DECLS
+

@@ -3989,7 +3989,7 @@ INFO::
    o git push [maybe here? not sure]
    o git tag Release-0.x.y
    o git commit
-   o git push origin Release-0.x.y
+   o git push origin Release-0.x.y  # publish the tag
    o Passes build (build-latest) on pc?
         OK, disable the build-latest cron-job 
    o clear out pre-releases
@@ -8114,4 +8114,29 @@ Fri  9 Mar 2018 15:12:44 GMT
      (I had to install a few system libraries with apt, yum, dnf)
 
 
+---
+Sat 24 Mar 2018 03:00:25 GMT
+
+   o Can you find some "negatively" scoring parts of a domain for jiggle fitting?
+     Make n test points inside the domain box and iterate moving them away from the
+     closest atom of the protein.  Make a chain of test points so that you can use
+     SeekContacts - use a distance that is more than the maximum distance a
+     test point will move (n_iter * step size). Atoms that move away from more than
+     one atom are interesting (probably). Test points will drift away on the outside.
+     So only keep those points that are within xA of any atom.
+
+     Use generic display objects.
+
+---
+Sat 24 Mar 2018 10:27:45 GMT
+
+   Stuart: Make a "extensions looker-upper" as a dropdown option in the Coot interface,
+           so that people don't have to find/download/run scripts.
+
+---
+Fri 20 Apr 2018 14:53:26 BST
+
+   3j3q hiv capsid
+
+   4whj - interesting fitting Alvarez et al, domain needs to be shifted - 4.6A
 

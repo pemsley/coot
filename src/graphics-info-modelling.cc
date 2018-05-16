@@ -2453,6 +2453,11 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 		  } 
 
 		  molecules[imol_moving_atoms].insert_coords(tmp_asc);
+
+		  if (terminus_type == "C" || terminus_type == "MC") {
+		     molecules[imol_moving_atoms].move_O_atom_of_added_to_residue(res_p, chain_id);
+		  }
+
 		  graphics_draw();
 	       }
 	    }
@@ -3633,7 +3638,7 @@ graphics_info_t::get_rotamer_probability(mmdb::Residue *res,
 	    r = v[0];
 	 } 
       }
-      catch (std::runtime_error e) {
+      catch (const std::runtime_error &e) {
 	 std::cout << "get_rotamer_probability: caught: " << e.what() << std::endl;
       } 
    } else {
@@ -3770,12 +3775,12 @@ graphics_info_t::update_residue_by_chi_change(int imol, mmdb::Residue *residue,
 	       display_density_level_screen_string += float_to_string(new_torsion);
 	       add_status_bar_text(display_density_level_screen_string);
 	    }
-	    catch (std::runtime_error rte) {
+	    catch (const std::runtime_error &rte) {
 	       std::cout << "Update chi - contact fall-back fails - " << rte.what() << std::endl;
 	    }
 	 }
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 // atoms of the torsion not found.
 	 std::cout << rte.what() << std::endl;
       }
@@ -4127,6 +4132,41 @@ graphics_info_t::delete_residue_range(int imol,
    }
    graphics_draw();
 }
+
+void
+graphics_info_t::delete_sidechain_range(int imol,
+					const coot::residue_spec_t &res_1,
+					const coot::residue_spec_t &res_2) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].delete_sidechain_range(res_1, res_2);
+      if (delete_item_widget) {
+	 GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget,
+						"delete_item_keep_active_checkbutton");
+	 if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
+	    // don't destroy it.
+	 } else {
+	    gtk_widget_destroy(delete_item_widget);
+	    delete_item_widget = 0;
+	    normal_cursor();
+	 }
+      }
+
+      if (graphics_info_t::go_to_atom_window)
+	 update_go_to_atom_window_on_changed_mol(imol);
+
+      // faster is passing a blank asc, but to do that needs to check that
+      // updating other geometry graphs will work (not crash) with residues/mol
+      // unset.
+      //
+      // atom_selection_container_t asc = molecules[imol].atom_sel;
+      atom_selection_container_t asc;
+      update_geometry_graphs(asc, imol);
+   }
+   graphics_draw();
+
+}
+
 
 
 // static

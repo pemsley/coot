@@ -216,13 +216,24 @@ GtkWidget *wrapped_create_delete_item_dialog() {
 	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chain_toggle_button), TRUE);
 	       std::cout << "Click on an atom in the chain that you wish to delete\n";
 	    } else {
-	       // if (delete_item_mode_is_residue_p()) {
-	       // if nothing else, let's choose delete residue mode
-	       if (true) {
-		  GtkWidget *chain_toggle_button = lookup_widget(widget,
-								 "delete_item_residue_radiobutton");
-		  set_delete_residue_mode();
-		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chain_toggle_button), TRUE);
+
+	       if (delete_item_mode_is_sidechain_range_p()) {
+
+		  GtkWidget *sidechain_range_toggle_button = lookup_widget(widget,
+									   "delete_item_sidechain_range_radiobutton");
+		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sidechain_range_toggle_button), TRUE);
+
+		  set_delete_sidechain_range_mode();
+	       } else {
+
+		  // if (delete_item_mode_is_residue_p()) {
+		  // if nothing else, let's choose delete residue mode
+		  if (true) {
+		     GtkWidget *chain_toggle_button = lookup_widget(widget,
+								    "delete_item_residue_radiobutton");
+		     set_delete_residue_mode();
+		     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chain_toggle_button), TRUE);
+		  }
 	       }
 	    }
 	 }
@@ -1723,8 +1734,13 @@ void  do_edit_copy_fragment() {
 #endif   
 
 #ifdef USE_GUILE
-   std::string cmd = "(generic-chooser-and-entry \"Create a new Molecule\nFrom which molecule shall we seed?\" \"Atom selection for fragment\" \"//A/1-10\" (lambda (imol text) (let ((imol (new-molecule-by-atom-selection imol text))) (valid-model-molecule? imol))) #f)";
+   std::string cmd = "(generic-chooser-and-entry-and-checkbutton \"From which molecule shall we copy the fragment?\" \"Atom selection for fragment\" \"//A/1-10\" \"Move new molecule here?\" (lambda (imol text button-state) (let ((imol (new-molecule-by-atom-selection imol text))) (if button-state (move-molecule-to-screen-centre imol)) (valid-model-molecule? imol))) #f)";
+
    if (state_lang == coot::STATE_SCM) {
+      std::ofstream f("debug.scm");
+      f.write(cmd.c_str(), cmd.size());
+      f.write("\n", 1);
+      f.close();
       safe_scheme_command(cmd);
    }
 #else

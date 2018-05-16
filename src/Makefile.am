@@ -102,7 +102,7 @@ COOT_EXTRA_LIBS = \
 #
 EXTRA_DIST = \
 	coot.i post-glade add-c-extern.sh blank.cc fix-gettext.sh \
-	mol-hierachy.cc \
+	mol-hierarchy.cc \
 	junk.cc coot-gtk2.defs coot-dox.cfg post-gtk2-glade.sh \
         post-process-coot-wrap-guile.sh \
         post-process-coot-wrap-python.sh \
@@ -126,6 +126,7 @@ coot_wrap_guile_pre.cc:      $(top_srcdir)/src/c-interface.h    \
 			     $(top_srcdir)/src/c-interface-generic-objects.h \
                              $(top_srcdir)/src/sdf-interface.hh \
                              $(top_srcdir)/src/cfc.hh \
+                             $(top_srcdir)/src/curlew.hh \
                              $(top_srcdir)/src/cmtz-interface.hh \
                              $(top_srcdir)/src/c-interface-mogul.hh
 	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(WITH_GUILE_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -I$(top_srcdir) -guile -c++  $(top_srcdir)/src/coot.i
@@ -146,6 +147,7 @@ coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
                          $(top_srcdir)/src/c-interface-ligands-swig.hh \
 			 $(top_srcdir)/src/sdf-interface.hh   \
                          $(top_srcdir)/src/cfc.hh \
+                         $(top_srcdir)/src/curlew.hh \
                          $(top_srcdir)/src/c-interface-mogul.hh
 	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -c++ $(top_srcdir)/src/coot.i
 
@@ -255,6 +257,7 @@ coot_bin_SOURCES = \
 	c-interface-build-side-chain.cc	 \
 	c-interface-build-symmetry.cc	 \
 	c-interface-build-gui.cc \
+	c-interface-curlew.cc    \
 	c-interface-database.hh  \
 	c-interface-database.cc  \
 	c-interface-generic-objects.h	 \
@@ -478,6 +481,7 @@ coot_bin_SOURCES = \
 	validation-graphs.hh	 \
 	xmap-utils.cc 		 \
 	xmap-utils.h             \
+	remarks-browser-gtk-widgets.hh \
 	rama-rota-score.hh 	 \
 	fragment-info.hh 	 \
 	atom-name-bits.hh 	 \
@@ -490,7 +494,8 @@ coot_bin_SOURCES = \
 	model-view.hh 		 \
 	view.hh 		 \
 	view.cc 		 \
-	new-centre.hh
+	new-centre.hh            \
+        json.hpp
 
 if COOT_USE_PYTHON
    coot_bin_SOURCES += coot_wrap_python.cc

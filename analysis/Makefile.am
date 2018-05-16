@@ -9,6 +9,7 @@ pkgincludedir = $(includedir)/coot/analysis
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(CLIPPER_CXXFLAGS)		\
+	$(COOT_GSL_FLAGS) $(GSL_CFLAGS)	\
 	$(MMDB_CXXFLAGS)
 
 libcoot_analysis_la_SOURCES = bfkurt.cc mogul.cc kolmogorov.hh kolmogorov.cc stats.cc \

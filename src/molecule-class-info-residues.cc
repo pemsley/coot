@@ -2121,6 +2121,75 @@ molecule_class_info_t::delete_sidechains_for_chain(const std::string &chain_id) 
    return done;
 }
 
+int
+molecule_class_info_t::delete_sidechain_range(const coot::residue_spec_t &res_1,
+					      const coot::residue_spec_t &res_2) {
+
+   int done = false;
+
+   int resno_min = res_1.res_no;
+   int resno_max = res_2.res_no;
+
+   if (resno_max < resno_min) {
+      resno_max = res_1.res_no;
+      resno_min = res_2.res_no;
+   }
+
+   std::string chain_id = res_1.chain_id;
+   if (res_2.chain_id != res_1.chain_id)
+      return done; // nothing doing.
+
+   for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      if (model_p) {
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	    if (chain_p) {
+	       std::string this_chain_id = chain_p->GetChainID();
+	       if (this_chain_id == chain_id) {
+
+		  make_backup();
+
+		  int nres = chain_p->GetNumberOfResidues();
+		  // delete the specific atoms of eacho of the residues:
+		  for (int ires=0; ires<nres; ires++) {
+		     mmdb::PResidue residue_p = chain_p->GetResidue(ires);
+		     if (residue_p) {
+			mmdb::PPAtom atoms = 0;
+			int n_atoms = 0;
+			bool was_deleted = false;
+			int resno_this = residue_p->GetSeqNum();
+			if (resno_this >= resno_min) {
+			   if (resno_this <= resno_max) {
+			      residue_p->GetAtomTable(atoms, n_atoms);
+			      for (int i=0; i<n_atoms; i++) {
+				 if (! (coot::is_main_chain_or_cb_p(atoms[i]))) {
+				    residue_p->DeleteAtom(i);
+				    was_deleted = true;
+				 }
+			      }
+			      if (was_deleted)
+				 residue_p->TrimAtomTable();
+			   }
+			}
+		     }
+		  }
+		  done = true;
+	       }
+	    }
+	 }
+      }
+   }
+
+   if (done) {
+      atom_sel.mol->FinishStructEdit();
+      update_molecule_after_additions();
+   }
+   return done;
+}
+
+
 
 
 // carbohydrate validation tools

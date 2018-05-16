@@ -342,7 +342,7 @@ coot::minimol::molecule::fragmentize() const {
 		  try { 
 		     f.addresidue((*this)[ifrag][i], 0);
 		  }
-		  catch (std::runtime_error rte) {
+		  catch (const std::runtime_error &rte) {
 		     std::cout << "ERROR:: minimol fragmentize() " << rte.what() << std::endl;
 		  } 
 // 		  std::cout << " fragend: after addresidue f's residue " << i << " has "
@@ -376,7 +376,7 @@ coot::minimol::molecule::fragmentize() const {
 		  try { 
 		     f.addresidue((*this)[ifrag][i], 0);
 		  }
-		  catch (std::runtime_error rte) {
+		  catch (const std::runtime_error &rte) {
 		     std::cout << "ERROR:: minimol constructor " << rte.what() << std::endl;
 		  }
 		     

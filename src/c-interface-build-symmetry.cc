@@ -532,7 +532,7 @@ SCM origin_pre_shift_scm(int imol) {
 	 r = scm_cons(SCM_MAKINUM(int(round(cf.v()))), r);
 	 r = scm_cons(SCM_MAKINUM(int(round(cf.u()))), r);
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << rte.what() << std::endl;
       } 
    } 
@@ -555,7 +555,7 @@ PyObject *origin_pre_shift_py(int imol) {
 	 PyList_Append(r, PyInt_FromLong(int(round(cf.v()))));
 	 PyList_Append(r, PyInt_FromLong(int(round(cf.w()))));
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << rte.what() << std::endl;
       } 
    } 

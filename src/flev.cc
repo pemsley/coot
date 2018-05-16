@@ -1452,7 +1452,7 @@ coot::flev_attached_hydrogens_t::add_named_torsion(mmdb::Atom *h_at, mmdb::Atom 
 			      named_torsions.push_back(torsion);
 			      found_torsion_for_this_H = 1;
 			   }
-			   catch (std::runtime_error rte) {
+			   catch (const std::runtime_error &rte) {
 			      std::cout << "WARNING:: " << rte.what() << std::endl;
 			   } 
 			} 
@@ -1620,7 +1620,7 @@ coot::flev_attached_hydrogens_t::distances_to_protein(mmdb::Residue *residue_ref
 	    }
 	 }
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << rte.what() << std::endl;
       } 
    }
@@ -1720,7 +1720,7 @@ coot::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(mmdb::Res
 	       atom_bashes[atoms_with_rotating_hydrogens[irh].first].push_back(bash);
 	    }
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << rte.what() << std::endl;
 	 } 
       }

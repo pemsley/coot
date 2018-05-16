@@ -647,16 +647,24 @@ void
 graphics_info_t::update_ramachandran_plot_background_from_res_spec(coot::rama_plot *plot, int imol,
                                                                    const coot::residue_spec_t &res_spec) {
 
-   #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+# if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+
    std::string res_name = residue_name(imol, res_spec.chain_id, res_spec.res_no,
                                        res_spec.ins_code);
    if (res_name == "GLY") {
+
+#ifdef HAVE_GOOCANVAS
       plot->show_background(plot->bg_gly);
+#endif // HAVE_GOOCANVAS
    } else {
       if (res_name == "PRO") {
+#ifdef HAVE_GOOCANVAS
          plot->show_background(plot->bg_pro);
+#endif // HAVE_GOOCANVAS
       } else {
+#ifdef HAVE_GOOCANVAS
          plot->show_background(plot->bg_non_gly_pro);
+#endif // HAVE_GOOCANVAS
       }
    }
 

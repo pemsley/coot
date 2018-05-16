@@ -1421,6 +1421,14 @@ GtkWidget *main_toolbar() {
    return w; 
 }
 
+GtkWidget *main_hbox() {
+
+   GtkWidget *w = lookup_widget(graphics_info_t::statusbar, "main_window_hbox");
+   return w;
+
+}
+
+
 
 
 
@@ -2037,7 +2045,6 @@ handle_symmetry_colour_change(int mol, gdouble* col) {
    graphics_info_t::symmetry_colour[2] = col[2];
 
    graphics_draw();
-
 }
 
 gdouble*
@@ -4018,7 +4025,7 @@ read_phs_and_make_map_with_reso_limits(int imol_ref, const char* phs_filename,
 	    cell = xtal.first;
 	    spacegroup = xtal.second;
 	    got_cell_symm_flag = 1;
-	 } catch ( std::runtime_error except ) {
+	 } catch (const std::runtime_error &except ) {
 	    std::cout << "WARNING:: Cant get spacegroup from coordinates!\n";
 	    // get the cell/symm from a map:
 	    if (g.molecules[imol_ref].has_xmap()) {
@@ -4148,7 +4155,7 @@ read_phs_and_make_map_using_cell_symm_from_mol_using_implicit_phs_filename(int i
 	    cell = xtal.first;
 	    spacegroup = xtal.second;
 	    got_cell_symm_flag = 1;
-	 } catch ( std::runtime_error except ) {
+	 } catch (const std::runtime_error &except) {
 	    std::cout << "WARNING:: Cant get spacegroup from coordinates!\n";
 	    // get the cell/symm from a map:
 	    if (g.molecules[imol_ref].has_xmap()) {

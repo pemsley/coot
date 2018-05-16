@@ -406,6 +406,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    SCM r = SCM_BOOL_F;
 
    if (true) {
+
       int imol = scm_to_int(i_scm);
       if (is_valid_model_molecule(imol)) {
 	 graphics_info_t::molecules[imol].make_molecularrepresentationinstance();
@@ -414,7 +415,24 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       }
    }
 
+
    if (false) {
+      int imol_1 = scm_to_int(i_scm); // from
+      int imol_2 = scm_to_int(j_scm); // to
+
+      if (is_valid_model_molecule(imol_1)) {
+	 if (is_valid_model_molecule(imol_2)) {
+	    coot::util::copy_headers(g.molecules[imol_1].atom_sel.mol,
+				     g.molecules[imol_2].atom_sel.mol,
+				     false); // no crystal info
+	    write_pdb_file(imol_2, "copied-here.pdb");
+	 }
+      }
+   }
+
+
+   if (false) {
+
       mmdb::Manager *mol = new mmdb::Manager;
       mol->ReadPDBASCII("test.pdb");
       MyMolecule mymol(mol);

@@ -747,6 +747,7 @@ private:
       use_graphics_interface_flag = 1; // default: show gui windows and widgets.
       mdl_file_name = "coot.mol";
       atom_X = "H";
+      comp_id = "LIG";
       lbg_atom_x_dialog = NULL;
       lbg_atom_x_entry = NULL;
       get_url_func_ptr_flag = false;
@@ -1305,6 +1306,11 @@ public:
 	 
       }
    }
+
+   // instead of hardwiring "DRG" into on_lbg_apply_button_clicked(), allow the user to set the
+   // three-letter-code (we call that variable comp_id)
+   std::string comp_id; // make private?
+   std::string get_comp_id() const { return comp_id; }
 
    // handle the net transfer of drug (to mdl file)
    //

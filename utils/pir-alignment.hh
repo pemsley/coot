@@ -17,7 +17,7 @@ namespace coot {
 	 std::string ins_code; // using this is perverse
 	 char target;
 	 char aligned; // aligned is aligned to target
-	 friend std::ostream &operator<< (std::ostream &s, const matched_residue_t &m);
+	 // friend std::ostream &operator<< (std::ostream &s, const matched_residue_t &m);
       };
    private:
       std::ostream &operator<< (const matched_residue_t &m);
@@ -33,5 +33,6 @@ namespace coot {
       // just 1, I imagine
       std::vector<std::map<int, matched_residue_t> > matches;
    };
+   std::ostream &operator<< (std::ostream &s, const pir_alignment_t::matched_residue_t &m);
 
 }

@@ -153,7 +153,7 @@ coot::backrub::make_test_fragment(mmdb::Residue *r, double rotation_angle) const
       f.addresidue(r, 0);
       f.addresidue(next_residue, 0);
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "ERROR:: make_test_fragment() " << rte.what() << std::endl;
    } 
    

@@ -104,6 +104,7 @@ coot::restraints_container_t::add_extra_start_pos_restraints(const extra_restrai
 void
 coot::restraints_container_t::add_extra_angle_restraints(const extra_restraints_t &extra_restraints) {
 
+
    for (unsigned int i=0; i<extra_restraints.angle_restraints.size(); i++) {
       mmdb::Residue *r_1 = NULL;
       mmdb::Residue *r_2 = NULL;
@@ -133,7 +134,7 @@ coot::restraints_container_t::add_extra_angle_restraints(const extra_restraints_
 	    }
 	 }
       } else {
-	 
+
 	 // bleugh.
 	 int selHnd = mol->NewSelection();
 	 mol->Select (selHnd, mmdb::STYPE_RESIDUE, 1,       // .. TYPE, iModel
@@ -202,8 +203,7 @@ coot::restraints_container_t::add_extra_angle_restraints(const extra_restraints_
 	       if (fixed_1) fixed_flags[0] = 1;
 	       if (fixed_2) fixed_flags[1] = 1;
 	       if (fixed_3) fixed_flags[2] = 1;
-
-	       if (0)
+	       if (false)
 		  std::cout << "DEBUG:: adding user-defined angle restraint with fixed flags: "
 		            << "[" << index_1 << " " << coot::atom_spec_t(atom[index_1]) << " " << fixed_flags[0] << "]  " 
 		            << "[" << index_2 << " " << coot::atom_spec_t(atom[index_2]) << " " << fixed_flags[1] << "]  " 
@@ -221,7 +221,7 @@ coot::restraints_container_t::add_extra_angle_restraints(const extra_restraints_
 	       bonded_atom_indices[index_1].push_back(index_3);
 	       bonded_atom_indices[index_3].push_back(index_1);
 	    }
-	 } 
+	 }
       }
    }
 }

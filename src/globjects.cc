@@ -205,7 +205,7 @@ short int graphics_info_t::display_lists_for_maps_flag = 1;
 int graphics_info_t::save_imol = -1;
 
 bool graphics_info_t::cryo_EM_refinement_flag = false;
-double graphics_info_t::geman_mcclure_alpha = 2; // soft
+double graphics_info_t::geman_mcclure_alpha = 1; // soft, (20180230-PE was 2, too soft, I think)
 
 // accept/reject
 GtkWidget *graphics_info_t::accept_reject_dialog = 0;
@@ -840,11 +840,14 @@ short int graphics_info_t::delete_item_residue_zone = 0;
 short int graphics_info_t::delete_item_residue_hydrogens = 0;
 short int graphics_info_t::delete_item_water = 0;
 short int graphics_info_t::delete_item_sidechain = 0;
+short int graphics_info_t::delete_item_sidechain_range = 0;
 short int graphics_info_t::delete_item_chain = 0;
 GtkWidget *graphics_info_t::delete_item_widget = NULL;
 int       graphics_info_t::keep_delete_item_active_flag = 0;
 coot::residue_spec_t graphics_info_t::delete_item_residue_zone_1;
+coot::residue_spec_t graphics_info_t::delete_item_sidechain_range_1;
 int graphics_info_t::delete_item_residue_zone_1_imol = -1;
+int graphics_info_t::delete_item_sidechain_range_1_imol = -1;
 
 
 GtkWidget *graphics_info_t::symmetry_controller_dialog = 0;
@@ -967,7 +970,7 @@ short int graphics_info_t::guile_history  = 1; // on
 coot::history_list_t graphics_info_t::history_list;
 
 // build one residue, n trials:
-int graphics_info_t::add_terminal_residue_n_phi_psi_trials = 1000;
+int graphics_info_t::add_terminal_residue_n_phi_psi_trials = 5000;
 int graphics_info_t::add_terminal_residue_add_other_residue_flag = 0; // no.
 std::string graphics_info_t::add_terminal_residue_type = "auto"; // was "ALA" before 20080601
 short int graphics_info_t::terminal_residue_do_rigid_body_refine = 0; // off by default
@@ -1344,6 +1347,8 @@ bool graphics_info_t::linked_residue_fit_and_refine_state = true;
 
 //
 bool graphics_info_t::allow_duplseqnum = false;
+
+std::map<std::string, std::string> graphics_info_t::extensions_registry;
 
 // 
 std::map<std::string, std::pair<std::string, std::string> > graphics_info_t::user_name_passwd_map;

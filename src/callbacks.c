@@ -806,7 +806,7 @@ on_show_symmetry_apply_button_clicked  (GtkButton       *button,
 
 
 
-void 
+void
 on_symmetry_colour_patch_button_clicked (GtkButton       *button,
 					 gpointer         user_data)
 {
@@ -3334,9 +3334,18 @@ on_delete_item_sidechain_radiobutton_toggled
   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(togglebutton),
 				      "delete_item_sidechain_radiobutton"))->active)
     set_delete_sidechain_mode();
-
-
 }
+
+void
+on_delete_item_sidechain_range_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+					 gpointer         user_data) {
+
+  if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(togglebutton),
+				      "delete_item_sidechain_range_radiobutton"))->active)
+    set_delete_sidechain_range_mode();
+}
+
 
 
 void
@@ -6674,7 +6683,6 @@ on_preferences_bg_colour_own_radiobutton_toggled
 }
 
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_preferences_bg_colour_colorbutton_color_set
                                         (GtkColorButton  *colorbutton,
@@ -6697,7 +6705,6 @@ on_preferences_bg_colour_colorbutton_color_set
   }
 
 }
-#endif
 
 
 void
@@ -10017,6 +10024,16 @@ on_reset_view_toolbutton_clicked       (GtkToolButton   *toolbutton,
 void
 on_symmetry_colorbutton_color_set      (GtkColorButton  *colorbutton,
                                         gpointer         user_data) {
+
+  GdkColor colour;
+  gdouble color[4]; // use first 3
+  double r = 1.0 / 65535.0;
+  gtk_color_button_get_color(colorbutton, &colour);
+  color[0] = colour.red   * r;
+  color[1] = colour.green * r;
+  color[2] = colour.blue  * r;
+  handle_symmetry_colour_change(1,color);
+
 }
 
 void
@@ -11047,7 +11064,6 @@ on_save_symmetry_coords_filechooserdialog1_response
 					gint response_id, 
 					gpointer user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
   if (response_id == GTK_RESPONSE_OK) {
     GtkWidget *w = lookup_widget(GTK_WIDGET(dialog), "save_symmetry_coords_filechooserdialog1");
     save_symmetry_coords_from_fileselection(w);
@@ -11059,7 +11075,6 @@ on_save_symmetry_coords_filechooserdialog1_response
     gtk_widget_destroy(coords_fileselection1);
 
   }
-#endif /* GTK_MAJOR_VERSION  */
 }
 
 
@@ -11077,7 +11092,6 @@ on_save_symmetry_coords_filechooserdialog1_destroy
 }
 
 
-#if (GTK_MAJOR_VERSION > 1) && (GTK_MINOR_VERSION > 9)
 GtkFileChooserConfirmation
 on_save_state_filechooserdialog1_confirm_overwrite 
 					(GtkFileChooser * filechooser, 
@@ -11095,7 +11109,6 @@ on_save_state_filechooserdialog1_confirm_overwrite
   }
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
 void
@@ -11103,7 +11116,6 @@ on_save_state_filechooserdialog1_response (GtkDialog * dialog,
 					gint response_id, 
 					gpointer user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
   if (response_id == GTK_RESPONSE_OK) {
    GtkWidget *w = lookup_widget(GTK_WIDGET(dialog),
 				"save_state_filechooserdialog1");
@@ -11120,7 +11132,6 @@ on_save_state_filechooserdialog1_response (GtkDialog * dialog,
 
     gtk_widget_destroy(coords_fileselection1);
   }
-#endif /* GTK_MAJOR_VERSION  */
 }
 
 
@@ -12652,6 +12663,48 @@ on_display_control_align_labels_checkbutton_toggled
 {
 
   align_labels_checkbutton_toggled(togglebutton);
+
+}
+
+
+
+void
+on_curlew_install_button_clicked(GtkButton *button,
+				 gpointer   user_data) {
+
+  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "curlew_dialog");
+  int n_items = 0;
+  if (dialog) {
+    n_items = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "n_extensions"));
+    curlew_dialog_install_extensions(dialog, n_items); /* some of which were selected */
+  }
+}
+
+
+
+void
+on_curlew_dialog_close                 (GtkDialog       *dialog,
+                                        gpointer         user_data)
+{
+  gtk_widget_destroy(GTK_WIDGET(dialog)); /* or maybe hide */
+}
+
+
+void
+on_curlew_dialog_response              (GtkDialog       *dialog,
+                                        gint             response_id,
+                                        gpointer         user_data)
+{
+
+  /* 
+  printf("in on_curlew_dialog_response with response_id %d\n", response_id);
+  printf("   cf response_id %d\n", GTK_RESPONSE_CLOSE);
+  printf("   cf response_id %d\n", GTK_RESPONSE_OK);
+  printf("   cf response_id %d\n", GTK_RESPONSE_CANCEL);
+  */
+
+  if (response_id == GTK_RESPONSE_CLOSE)
+    gtk_widget_destroy(GTK_WIDGET(dialog));
 
 }
 

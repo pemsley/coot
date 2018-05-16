@@ -1,11 +1,87 @@
 
+  Pre-Release 0.8.9.2
+
+  o FEATURE: LINK info added to header browser
+
+  o FEATURE: External angle restraints are now available (corresponding to REFMAC type
+	     0 restraints) - mini-rsr included [Robbie Joosten]
+
+  o CHANGE:  Iron-Sulfur clusters are now bonded using the dictionary (and so appear "cubic")
+             [Hannah Bridges]
+
+  o CHANGE:  Edit -> Copy Fragment now has a "Move it Here" check-button
+
+  o CHANGE:  Old interface to PRODRG removed [Elinor Breiner]
+
+  o CHANGE:  Jiggle-fit speed up by using backbone mode if possible
+
+  o CHANGE:  Forwards-fitting a terminal residue now correctly positions the O atom
+             of the current residue that corresponds to the new residue
+
+  o CHANGE:  Planar peptide restraints now apply to PTRANS restraints as well as TRANS
+             restraints
+
+  o CHANGE:  RCrane restored
+
+  o BUG-FIX: the H atom in a peptide is now moved along with the other peptide atoms
+             on a cis->trans conversion (and vice versa)
+
+  O BUG-FIX: Using PDB-REDO now loads an anomalous map also (if possible) [Robbie Joosten]
+
+  o BUG-FIX: Fix typo in template-keybindings-to-preferences that causes initial
+             installation of key-bindings to fail sometimes [Colin Palmer].
+
+  o BUG-FIX: The slow update on deleting deviant extra distance restraints has been
+             been replaced with a fasater version [JED]
+
+-----
 
   Release 0.8.9.1
 
+  o FEATURE: Auto-NCS Jumping menu item added to the NCS submenu
+
+  o FEATURE: Tool-tips for residues in Sequence View
+
   o FEATURE: Added a function to limit the display radius for models
 
-  o FEATURE: The refinement map is now set before refinement of solutions
-             in ligand fitting
+  o FEATURE: New button to display only the the last model molecule
+
+  o FEATURE: Acedrg Link generation GUI (in the CCP4 Module)
+
+  o FEATURE: "Jiggle-fit Ligand" menu item added to the Ligand menu
+
+  o FEATURE: GUI to use Refmac to generate structure factors from an EM map
+             (in the Cryo-EM module)
+
+  o FEATURE: Interactive "Nudge Residue" dialog added to Cryo-EM module
+
+  o CHANGE:  The refinement map is now set before refinement of solutions
+             in ligand fitting [Keith Wilson]
+
+  o CHANGE:  The Mutate Residue Range can now mutate RNA and has a
+             check for numbering consistency [Donna Matzov]
+
+  o CHANGE:  Map density histogram is cached for speedier display
+             of Map Properties dialog for Cryo-EM maps
+
+  o CHANGE:  RCrane removed from the interface (for now)
+
+  o CHANGE:  Carbohydrate fitting weighting scheme improved (should work
+             better for cryo-EM maps)
+
+  o BUG-FIX: cif-reading in Classic dialogs no longer causes a crash
+
+  o BUG-FIX: Phosphorus atoms are now orange in Colour by Chain mode
+
+  o BUG-FIX: Molecule information extraction from wikipedia made more robust
+
+  o BUG-FIX: N-terminal Hydrogen atoms now refined correctly
+
+  o BUG-FIX: Fix crash on Replace Residue with a nucleotide [Elinor Breiner]
+
+  o BUG-FIX: Fix crash on invalid SMILES input for LIDIA
+
+  o BUG-FIX: Fix crash on wrong molecule index for some cif data function [JED]
 
 ----
 

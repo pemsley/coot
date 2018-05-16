@@ -2150,7 +2150,7 @@ coot::symm_card_composition_t::symm_card_composition_t(const std::string &symm_c
 	    z_element[iele] = 1;
 
       // debugging stuff:
-      if (0) 
+      if (0)
 	 std::cout << "  after setting: x/y/z eles: (["
 		   << x_element[0] << " "
 		   << x_element[1] << " "

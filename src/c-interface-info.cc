@@ -365,7 +365,7 @@ void output_residue_info_dialog(int imol, int atom_index) {
 		     } 
 		  }
 	       }
-	       catch (std::runtime_error mess) {
+	       catch (const std::runtime_error &mess) {
 		  std::cout << mess.what() << std::endl;
 	       }
 	    }
@@ -554,7 +554,7 @@ output_atom_info_as_text(int imol, const char *chain_id, int resno,
 	    std::cout << "No Chi Angles for this residue" << std::endl;
 	 }
       }
-      catch (std::runtime_error mess) {
+      catch (const std::runtime_error &mess) {
 	 std::cout << mess.what() << std::endl;
       }
    }
@@ -3666,7 +3666,7 @@ SCM SMILES_for_comp_id_scm(const std::string &comp_id) {
       std::string s = SMILES_for_comp_id(comp_id);
       r = scm_makfrom0str(s.c_str());
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "WARNING:: " << rte.what() << std::endl;
    } 
    return r;
@@ -3681,7 +3681,7 @@ PyObject *SMILES_for_comp_id_py(const std::string &comp_id) {
       std::string s = SMILES_for_comp_id(comp_id);
       r = PyString_FromString(s.c_str());
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "WARNING:: " << rte.what() << std::endl;
    } 
    if (PyBool_Check(r))
@@ -3767,7 +3767,7 @@ SCM monomer_restraints(const char *monomer_type) {
 	    esd_scm = scm_double2num(esd);
 	    d_scm   = scm_double2num(d);
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    // we use the default values of #f, if the esd or dist is not set.
 	 } 
 	 bond_restraint_scm = scm_cons(esd_scm, bond_restraint_scm);
@@ -3978,7 +3978,7 @@ PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol)
 	    py_value_dist = PyFloat_FromDouble(d);
 	    py_value_esd  = PyFloat_FromDouble(esd);
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 
 	    // Use default false values.
 	    // So I suppose that I need to do this then:

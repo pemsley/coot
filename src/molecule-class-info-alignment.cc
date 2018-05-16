@@ -15,7 +15,7 @@ void
 molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 
    std::map<std::string, coot::pir_alignment_t>::const_iterator it;
-   std::cout << "apply_pir_alignment " << chain_id << std::endl;
+   std::cout << "INFO:: apply_pir_alignment " << chain_id << std::endl;
 
    it = pir_alignments.find(chain_id);
    if (it != pir_alignments.end()) {

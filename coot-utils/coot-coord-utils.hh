@@ -305,6 +305,7 @@ namespace coot {
    // standard PDB type
    int hetify_residue_atoms_as_needed(mmdb::Residue *res);
    int hetify_residues_as_needed(mmdb::Manager *mol);
+   void put_amino_acid_residue_atom_in_standard_order(mmdb::Residue *residue_p);
 
    // convert atoms in residue to HETATMs.  Return the number of HET
    // atoms.
@@ -837,10 +838,18 @@ namespace coot {
       int number_of_residues_in_molecule(mmdb::Manager *mol);
       // Return -1 on badness
       int max_number_of_residues_in_chain(mmdb::Manager *mol);
+
+      // get the number of residue in chain, protein first.
+      std::pair<unsigned int, unsigned int> get_number_of_protein_or_nucleotides(mmdb::Chain *chain_p);
+
       // Return NULL on no such chain:
       mmdb::Chain *chain_only_of_type(mmdb::Manager *mol, const std::string &residue_type);
 
       clipper::RTop_orth matrix_convert(mmdb::mat44 mat);
+
+      // return 9999,-9999 on failure
+      // (test for failure: second being less than first)
+      std::pair<int, int> min_and_max_residues(mmdb::Chain *chain_p);
 
       // Return -1 on badness.
       // 
@@ -1016,6 +1025,9 @@ namespace coot {
       // return success status.
       bool copy_cell_and_symm_headers(mmdb::Manager *m1, mmdb::Manager *m2);
 
+      // All headers except (optionally) cell, symmetry, origin and scale.
+      bool copy_headers(mmdb::Manager *m_from, mmdb::Manager *m_to, bool include_cryst);
+
       // adjust the atoms of residue_p
       void delete_alt_confs_except(mmdb::Residue *residue_p, const std::string &alt_conf);
       
@@ -1139,6 +1151,8 @@ namespace coot {
       // 
       void transform_chain(mmdb::Manager *mol, mmdb::Chain *moving_chain,
 			   int n_atoms, mmdb::PAtom *atoms, mmdb::mat44 &my_matt);
+
+      void transform_chain(mmdb::Chain *moving_chain, const clipper::RTop_orth &rtop);
 
       // transform atoms in residue
       void transform_atoms(mmdb::Residue *res, const clipper::RTop_orth &rtop);
@@ -1311,6 +1325,9 @@ namespace coot {
       // outlierness.
       std::vector<std::pair<atom_spec_t, std::string> >
       gln_asn_b_factor_outliers(mmdb::Manager *mol);
+
+      std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > peptide_C_N_pairs(mmdb::Chain *chain_p);
+      void standardize_peptide_C_N_distances(const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &C_N_pairs);
 
       // return the number of cis peptides in mol:
       int count_cis_peptides(mmdb::Manager *mol);

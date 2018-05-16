@@ -266,27 +266,65 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
 	 mmdb::PPAtom atom_selection = 0;
 	 int n_atoms;
 
+	 // If we have more than 20 residues, lets do an atom selection and use that
+	 // for fitting rather all the atoms.  No Side chains for protein,
+	 //
+	 std::pair<unsigned int, unsigned int> n_residues(0,0);
+	 mmdb::Chain *chain_p = 0;
+	 int imod = 1;
+	 mmdb::Model *model_p = mol->GetModel(imod);
+	 if (model_p) {
+	    int n_chains = model_p->GetNumberOfChains();
+	    for (int ichain=0; ichain<n_chains; ichain++) {
+	       mmdb::Chain *chain_p_this = model_p->GetChain(ichain);
+	       std::string chain_id_this(chain_p_this->GetChainID());
+	       if (chain_id_this == std::string(chain_id)) {
+		  chain_p = chain_p_this;
+		  break;
+	       }
+	    }
+	 }
+	 if (chain_p)
+	    n_residues = coot::util::get_number_of_protein_or_nucleotides(chain_p);
+
 	 int SelHnd = mol->NewSelection(); // d
 
-	 mol->SelectAtoms(SelHnd, 0,
-			  chain_id,
-			  mmdb::ANY_RES, "*",
-			  mmdb::ANY_RES, "*",
-			  "*","*","*","*",mmdb::SKEY_NEW);
-	 
+	 if (n_residues.first > 20) {
+	    mol->SelectAtoms(SelHnd, 0, chain_id,
+			     mmdb::ANY_RES, "*",
+			     mmdb::ANY_RES, "*", "*",
+			     "CA,C,O,N","*","*",mmdb::SKEY_NEW);
+	 } else {
+	    if (n_residues.second > 20) {
+	       mol->SelectAtoms(SelHnd, 0, chain_id,
+				mmdb::ANY_RES, "*",
+				mmdb::ANY_RES, "*", "*",
+				"P,C1',N1,C2,N3,C4,N4,O2,C5,C6,O4,N9,C8,N7,N6","*","*",mmdb::SKEY_NEW);
+	    } else {
+	       mol->SelectAtoms(SelHnd, 0, chain_id,
+				mmdb::ANY_RES, "*",
+				mmdb::ANY_RES, "*",
+				"*","*","*","*",mmdb::SKEY_NEW);
+	    }
+	 }
+
 	 mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
-	 if (n_atoms) { 
+
+	 if (n_atoms) {
 	    bool use_biased_density_scoring = false; // not for all-molecule
 	    val = g.molecules[imol].fit_to_map_by_random_jiggle(atom_selection, n_atoms,
 								g.molecules[imol_map].xmap,
 								map_sigma,
 								n_trials, jiggle_scale_factor,
-								use_biased_density_scoring);
-	    mol->DeleteSelection(SelHnd);
-	    graphics_draw();
+								use_biased_density_scoring,
+								chain_p);
 	 } else {
 	    add_status_bar_text("Jiggle Fit: No atoms selected.");
-	 } 
+	 }
+
+	 mol->DeleteSelection(SelHnd);
+	 graphics_draw();
+
       }
    }
    return val;

@@ -803,6 +803,15 @@
 ;; 
 (define (generic-chooser-and-entry chooser-label entry-hint-text defaut-entry-text callback-function . always-dismiss-on-ok-clicked?)
 
+  (format #t "---- deal with this: always-dismiss-on-ok-clicked?: ~s~%" always-dismiss-on-ok-clicked?)
+  (let ((cf (lambda (text dummy)
+	      (callback-function text))))
+    (generic-chooser-and-entry-and-checkbutton chooser-label entry-hint-text defaut-entry-text #f cf always-dismiss-on-ok-clicked?)))
+
+;; as above, plus we also have a check-button and an additional argument in the callback
+;; If check-button-label is false, then don't create a check-button.
+(define (generic-chooser-and-entry-and-checkbutton chooser-label entry-hint-text defaut-entry-text check-button-label callback-function . always-dismiss-on-ok-clicked?)
+
   ;; (format #t "always-dismiss-on-ok-clicked? is ~s~% " always-dismiss-on-ok-clicked?)
   ;; if this function is called withouth the always-dismiss-on-ok-clicked? then
   ;; always-dismiss-on-ok-clicked? here is ().
@@ -827,44 +836,54 @@
     (gtk-box-pack-start vbox label #f #f 5)
     (gtk-box-pack-start vbox option-menu #t #t 0)
     (gtk-box-pack-start vbox hbox-for-entry #f #f 5)
-    (gtk-box-pack-start vbox h-sep #t #f 2)
-    (gtk-box-pack-start vbox hbox-buttons #f #f 5)
-    (gtk-box-pack-start hbox-buttons ok-button #t #f 5)
-    (gtk-box-pack-start hbox-buttons cancel-button #f #f 5)
-    (gtk-box-pack-start hbox-for-entry entry-label #f #f 4)
-    (gtk-box-pack-start hbox-for-entry entry #t #t 4)
-    (gtk-entry-set-text entry defaut-entry-text)
-    
-    (gtk-option-menu-set-menu option-menu menu)
-    
-    ;; button callbacks:
-    (gtk-signal-connect ok-button "clicked"
-			(lambda args
-			  ;; what is the molecule number of the option menu?
-			  (let ((active-mol-no (get-option-menu-active-molecule 
-						option-menu
-						model-mol-list)))
+    (let ((check-button 
+	   (if (string? check-button-label)
+	       (let ((c-button (gtk-check-button-new-with-label check-button-label)))
+		 (gtk-box-pack-start vbox c-button #f #f 2)
+		 c-button)
+	       #f))) ; the check-button when we don't want to see it
 
-			    (if (number? active-mol-no)
-				(begin
-				  (let* ((text (gtk-entry-get-text entry))
-					 (func-return-value (callback-function active-mol-no text)))
+      (gtk-box-pack-start vbox h-sep #t #f 2)
+      (gtk-box-pack-start vbox hbox-buttons #f #f 5)
+      (gtk-box-pack-start hbox-buttons ok-button #t #f 5)
+      (gtk-box-pack-start hbox-buttons cancel-button #f #f 5)
+      (gtk-box-pack-start hbox-for-entry entry-label #f #f 4)
+      (gtk-box-pack-start hbox-for-entry entry #t #t 4)
+      (gtk-entry-set-text entry defaut-entry-text)
+      
+      (gtk-option-menu-set-menu option-menu menu)
+      
+      ;; button callbacks:
+      (gtk-signal-connect ok-button "clicked"
+			  (lambda args
+			    ;; what is the molecule number of the option menu?
+			    (let ((active-mol-no (get-option-menu-active-molecule 
+						  option-menu
+						  model-mol-list)))
 
-				    (format #t "func-return-value: ~s~%" func-return-value)
+			      (if (number? active-mol-no)
+				  (begin
+				    (let* ((text (gtk-entry-get-text entry))
+					   (button-state (if check-button
+							     (gtk-toggle-button-get-active check-button)
+							     'no-check-button))
+					   (func-return-value (callback-function active-mol-no text button-state)))
 
-				    (if (null? always-dismiss-on-ok-clicked?) ;; default
-					(gtk-widget-destroy window)
-					(if func-return-value
-					    (gtk-widget-destroy window)
-					    (begin
-					      ;; (format #t "not going anywhere\n")
-					      #t)))))))))
+				      (format #t "func-return-value: ~s~%" func-return-value)
 
-    (gtk-signal-connect cancel-button "clicked"
-			(lambda args
-			  (gtk-widget-destroy window)))
-    
-    (gtk-widget-show-all window)))
+				      (if (null? always-dismiss-on-ok-clicked?) ;; default
+					  (gtk-widget-destroy window)
+					  (if func-return-value
+					      (gtk-widget-destroy window)
+					      (begin
+						;; (format #t "not going anywhere\n")
+						#t)))))))))
+
+      (gtk-signal-connect cancel-button "clicked"
+			  (lambda args
+			    (gtk-widget-destroy window)))
+
+      (gtk-widget-show-all window))))
 
 ;; Create a window
 ;; 
@@ -3895,6 +3914,9 @@
 				   ;; It is not stored.
 				   (map-file-name (molecule-name active-item-imol))
 				   (map-file-name-stub (strip-path (file-name-sans-extension map-file-name)))
+				   (refmac-output-mtz-file-name (string-append "starting-map-"
+									       map-file-name-stub
+									       ".mtz"))
 				   (log-file-name (string-append
 						   "refmac-sharp"
 						   map-file-name-stub
@@ -3957,11 +3979,11 @@
       (let ((menu (coot-menubar-menu "Cryo-EM")))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Multi-sharpen"
+	 menu "Multi-sharpen..."
 	 refmac-multi-sharpen-gui)
 
 	(add-simple-coot-menu-menuitem
-	 menu "Interactive Nudge Residues"
+	 menu "Interactive Nudge Residues..."
 	 (lambda ()
 	   (using-active-atom (nudge-residues-gui aa-imol aa-res-spec)))))))
 ;;

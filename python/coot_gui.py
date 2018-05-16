@@ -1354,7 +1354,7 @@ def coot_menubar_menu(menu_label):
 # 
 # activate_function is a thunk.
 #
-def add_simple_coot_menu_menuitem(menu,menu_item_label,activate_function):
+def add_simple_coot_menu_menuitem(menu, menu_item_label, activate_function):
 
     submenu = gtk.Menu()
     sub_menuitem = gtk.MenuItem(menu_item_label)
@@ -2927,6 +2927,80 @@ def ncs_ligand_gui():
    window.show_all()
 
 
+# NCS jumping GUI
+global ncs_jumping_time_step
+ncs_jumping_time_step = 500
+
+def ncs_jumping_gui():
+
+   global ncs_jumping_time_step
+   global timeout_function_token
+   timeout_function_token = False
+
+   def delete_event(*args):
+      # first stop the jumping (if necessary)
+      global timeout_function_token
+      timeout_function_token = False
+      
+      window.destroy()
+      return False
+
+   # FIXME chekc this. Not sure if we can get a number from timeout_add or
+   # if we better make a new function which returns True/False to continue/stop
+
+   # need to return True to be called again. I return False if stop (bug in
+   # gobject.source_remove prevents me from using this.
+   def skip_ncs_timeout_func():
+      global timeout_function_token
+      skip_to_next_ncs_chain("forward")
+      if timeout_function_token:
+         return True
+      else:
+         return False
+      
+   def start_function_event(*args):
+      global timeout_function_token
+      if not isNumber(timeout_function_token):
+         timeout_function_token = gobject.timeout_add(ms_step,
+                                                      skip_ncs_timeout_func)
+      else:
+         timeout_function_token = False
+
+         
+   def stop_function_event(*args):
+      global timeout_function_token
+      timeout_function_token = False      
+
+   # main body
+   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   outside_vbox = gtk.VBox(False, 2)
+   inside_hbox = gtk.HBox(False, 2)
+   cancel_hbox = gtk.HBox(False, 2) # paul says VBox?!?!
+   h_sep = gtk.HSeparator()
+   jump_start_button = gtk.Button("NCS Jump Start")
+   jump_stop_button = gtk.Button("Stop")
+   cancel_button = gtk.Button("Cancel")
+   ms_step = ncs_jumping_time_step
+   timeout_function_token = False
+
+   window.set_title("Auto NCS Jumping")
+   window.add(outside_vbox)
+   outside_vbox.pack_start(inside_hbox, False, False, 2)
+   outside_vbox.pack_start(h_sep, False, False, 2)
+   outside_vbox.pack_start(cancel_hbox, False, False, 2)
+   inside_hbox.pack_start(jump_start_button, False, False, 2)
+   inside_hbox.pack_start(jump_stop_button, False, False, 2)
+   cancel_hbox.pack_start(cancel_button, False, False, 2)
+
+   jump_start_button.connect("clicked", start_function_event)
+
+   jump_stop_button.connect("clicked", stop_function_event)
+   
+   cancel_button.connect("clicked", delete_event)
+
+   window.show_all()
+
+   
 # GUI for ligand superpositioning by graph matching
 #
 def superpose_ligand_gui():
@@ -5129,6 +5203,148 @@ def click_protein_db_loop_gui():
 
                           lambda n: pick_loop_func(n))
 
+
+def refmac_multi_sharpen_gui():
+
+   def delete_event(*args):
+      window.destroy()
+      return False
+
+   def sharpen_cb(widget, *args):
+
+      # get max_band n_levels and map file name
+      max_b = int(get_option_menu_active_item(option_menu_b_factor,
+                                              b_factor_list))
+      n_levels = int(get_option_menu_active_item(option_menu_n_levels,
+                                                 n_levels_list))
+      active_item_imol = get_option_menu_active_molecule(option_menu_map,
+                                                         map_molecule_list)
+      # There is no function to get a map file name from a molecule
+      # It is not stored. So we make/guess it...
+      map_file_name = molecule_name(active_item_imol)
+      if (map_file_name.find(" ") > 0):
+         # we have map ceoffs - but then sharpen as here wont work anyway
+         map_file_name = map_file_name[:map_file_name.find(" ")]
+      map_file_name_stub = strip_path(file_name_sans_extension(map_file_name))
+      refmac_output_mtz_file_name = "starting-map-" + map_file_name_stub + ".mtz"
+      log_file_name = "refmac-sharp" + map_file_name_stub + ".log"
+      if not os.path.isfile(map_file_name):
+         info_dialog("WARNING:: file not found %s" %map_file_name)
+      else:
+         print "active_item_imol", active_item_imol
+         step_size = max_b/n_levels
+         numbers_string = ' '.join(str(i+1) for i in range(n_levels))
+         blur_string = "SFCALC BLUR  " + numbers_string
+         sharp_string = "SFCALC SHARP " + numbers_string
+
+         cmd_line_args = ["MAPIN", map_file_name]
+         data_lines = ["MODE SFCALC",
+                       blur_string,
+                       sharp_string,
+                       "END"]
+         refmac_execfile = find_exe("refmac5", "CBIN", "CCP4_BIN", "PATH")
+         s = popen_command(refmac_execfile,
+                           cmd_line_args,
+                           data_lines,
+                           log_file_name)
+         
+         try:
+            if (s == 0):
+               # all good
+               print "BL DEBUG:: s", s
+               if os.path.isfile("starting-map.mtz"):
+                  os.rename("starting-map.mtz", refmac_output_mtz_file_name)
+                  # maybe offer a dialog?! Or read automatically?
+         except:
+            pass
+         delete_event(widget)
+
+   print "BL DEBUG:: now make a windwo"
+   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   # boxes
+   vbox = gtk.VBox(False, 0)
+   hbox_1 = gtk.HBox(False, 0)
+   hbox_2 = gtk.HBox(False, 0)
+   hbox_3 = gtk.HBox(False, 0)
+   # menus
+   option_menu_map = gtk.combo_box_new_text()
+   option_menu_b_factor = gtk.combo_box_new_text()
+   option_menu_n_levels = gtk.combo_box_new_text()
+   #labels
+   map_label = gtk.Label("Map ")
+   sb_label = gtk.Label("Sharpen & Blur in ")
+   levels_label = gtk.Label(" levels up to ")
+   A_label = gtk.Label(" A*A")
+   # separate
+   h_sep = gtk.HSeparator()
+   # buttons
+   ok_button = gtk.Button("   OK   ")
+   cancel_button = gtk.Button(" Cancel ")
+   n_levels_list = [1, 2, 3, 4, 5, 6]
+   b_factor_list = [50, 100, 200, 400, 800, 2000]
+
+   map_molecule_list = fill_option_menu_with_map_mol_options(option_menu_map)
+   fill_option_menu_with_number_options(option_menu_n_levels, n_levels_list, 4)
+   fill_option_menu_with_number_options(option_menu_b_factor, b_factor_list, 200)
+
+   window.set_title("Refmac for Sharpening & Blurring")
+   hbox_1.pack_start(map_label, False, False, 2)
+   hbox_1.pack_start(option_menu_map, False, False, 2)
+   hbox_2.pack_start(sb_label, False, False, 2)
+   hbox_2.pack_start(option_menu_n_levels, False, False, 2)
+   hbox_2.pack_start(levels_label, False, False, 2)
+   hbox_3.pack_end(cancel_button, False, False, 12)
+   hbox_3.pack_end(ok_button, False, False, 12)
+   
+   vbox.pack_start(hbox_1)
+   vbox.pack_start(hbox_2)
+   vbox.pack_start(h_sep)
+   vbox.pack_start(hbox_3)
+   
+   cancel_button.connect("clicked", delete_event)
+
+   ok_button.connect("clicked", sharpen_cb, option_menu_b_factor, b_factor_list,
+                     option_menu_n_levels, n_levels_list,
+                     option_menu_map, map_molecule_list)
+
+   window.add(vbox)
+   window.show_all()
+
+
+def add_module_cryo_em():
+   if coot_python.main_menubar():
+      add_module_cryo_em_gui()
+
+def add_module_ccp4():
+   if coot_python.main_menubar():
+      add_module_ccp4_gui()
+
+def add_module_cryo_em_gui():
+   if coot_python.main_menubar():
+      menu = coot_menubar_menu("Cryo-EM")
+
+      add_simple_coot_menu_menuitem(menu, "Multi-sharpen...",
+                                    lambda func: refmac_multi_sharpen_gui())
+
+      def interactive_nudge_func():
+         with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
+                                        aa_ins_code, aa_atom_name,
+                                        aa_alt_conf, aa_res_spec]:
+            nudge_residues_gui(aa_imol, aa_res_spec)
+      add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...",
+                                    lambda func: interactive_nudge_func())
+
+
+def add_module_ccp4_gui():
+   if coot_python.main_menubar():
+      menu = coot_menubar_menu("CCP4")
+
+      add_simple_coot_menu_menuitem(menu, "Make LINK via Acedrg",
+                                    lambda func: acedrg_link_generation_control_window())
+
+   
+#### BL stuff
+   
 def scale_alt_conf_occ_gui(imol, chain_id, res_no, ins_code):
 
     alt_confs = residue_alt_confs(imol, chain_id, res_no, ins_code)

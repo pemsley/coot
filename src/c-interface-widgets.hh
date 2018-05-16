@@ -101,4 +101,13 @@ generic_objects_dialog_table_add_object_internal(const coot::generic_display_obj
 /* return a new object number (so that we can set it to be displayed). */
 int add_generic_display_object(const coot::generic_display_object_t &gdo);
 
+
+/*  ----------------------------------------------------------------------- */
+/*                  GUIL Utility Functions                                  */
+/*  ----------------------------------------------------------------------- */
+
+// gui nuts and bolts
+void on_simple_text_dialog_close_button_pressed( GtkWidget *button,
+						 GtkWidget *dialog);
+
 #endif // C_INTERFACE_WIDGETS_HH

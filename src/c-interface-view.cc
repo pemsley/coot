@@ -81,7 +81,7 @@ void orient_view(int imol,
 
 				       
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << rte.what() << std::endl;
 	 }
       }

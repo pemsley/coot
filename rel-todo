@@ -1,334 +1,103 @@
 
-   For Release 0.8.9
+   For Release 0.8.9.2
 
-   o on quick-save-as, if there are 2 molecules called "Helix" (or whatever) they should be
-     saved to different file names.
+   o Make RCrane work again ::: 6
 
-   o on merging molecules, remove the TER card if we are adding to an already existing chain
-     Consider adding helices made of ALA.  Coot should make a new chain for these. Does it?
- 
-   o read the comp_id cifs with CSD coords ::: 4
+------
 
-   o update ramachanran plot after replace-fragment.
+   o copy fragment should have a "move it here" button. ::: 0.5
 
-   o Add fixed atom and sphere refine -> No progress
-
-* Fixed
-
-   o parallel plane restraints - are they active in refinement?
-
-   o with many maps middle mouse: scroll dialog bad
-
-   o A13O SUC in 3sp3 is a good example of needing to spin search the hydrogen
-     on a hydroxymethyl
-
-* Needs a test
-
-   o make cryo-EM mode in refinement work ::: 4
-
-   o make a mode "don't recontour the map on recentre". Add a "recontour" 
-     toolbar button ::: 2
-
-   o add an arg to init_from_residue_vec() and so the restraints_container_t 
-     constructor from which it is called that says "don't make links to residues 
-     that have a residue number difference greater than 1" - which will stop annoying 
-     linking in add_terminal_residue_complicado.
-     allow_non_trival_linking
-
-   o build NAG, NAG, BMA.  In coot-reduce, HO4 should not be added at the links.
-     And check that coot-probe looks good.  ::: 1
-
-   o In refinement, pull the structure arround to create a cis peptide, then fix it.
-     Is the dialog message removed? ::: 1
-
-   o lidia molfile.mol should Do The Right Thing :::: 2
-
-   o make cfc work again ::: 3
-
-   o qq-plot-map-and-model - is it in the documentation (and redefines)? ::: 0.5
-
-   o ACE, PCA and MSE should not be considered as ligands in go-to-ligand ::: 0.5
-
-   o make benzoic acid in lidia - does it generate correctly in acedrg and
-     pyrogen? ::: 2
-
-   o pyrogen -nM -w -r Y03 fails ::: 1
-
-   o chemical diagram for Acedrg dictionary for this molecule:
-     COC(=O)C(=COC)c1ccccc1COC(N1C)=CC(=N1)C(=C2O)C=C(Cl)C=C2"
-     Disable the conversion to NH+ if any bond to the nitrogen is aromatic.
-
-   o Copy-molecule loses the NCS ghost info/tranformations (i.e. O doesn't work) ::: 1
-
-   o Fix the documentation generation (coot-dox.cfg needs to be generated from coot-dox.cfg.in)
-     because the source header files are not in the build directory. Useful?
-
-     http://chris-miceli.blogspot.co.uk/2011/01/integrating-doxygen-with-autotools.html
-
-     ::: 2
-
-   o if user has (add-module-carbohydrate) in ~/.coot, then coot should not
-     stop saying unbound variable... i.e. either much of gui-add-linked-cho.scm should
-     be in add-linked-cho.scm or all of it which is unconditionally
-     loaded at runtime (but (of course)) is conditionally evaluated).
+   o Draw -> Cell and Symmetry -> symmetry colour should follow the
+     real symmetry colour. But now the symmetry colour is not dynamic.
+     Swings and roundabouts.
 
      ::: 1
 
-   o I don't like fat hydrogen (bonds) in Colour by Chain mode. ::: 2
+   o make a patch for clipper hkl_data.h line 421 :: 0.5
 
-   o when first molecule is not a protein.  Copy NCS residue range. coot-utils.scm 1533 ::: 1
+   o graphics_info_t::read_standard_residues() uses
+     std::string standard_file_name = PKGDATADIR;
+     it should use
+     std::string l = package_data_dir();
 
-   o in 2qc1, build a NAG, NAG, BMA. Centre on the first NAG, sphere refine or H-refine.  
-     NAG-ASN bond is not properly accounted for ::: 1
+     ::: 0.5
 
-   o pyrogen -Mn -c PDBe-ADP.cif -> minimation problem
+   o Make Fe-S cluster SF4 (and FES?) drawn with bonds ::: 1
 
-bond  3231.21 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " ND2" ""]
-nbc   1162.68 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" "HD22" ""] target:  2.90  0.02
-nbc    804.52 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" "HD21" ""] target:  2.90  0.02
-nbc    556.46 [spec: model 1 "B" 468 "" " C1 " ""] [spec: model 1 "B" 467 "" " HO3" ""] target:  2.90  0.02
-bond   529.05 [spec: model 1 "B" 467 "" " O3 " ""] [spec: model 1 "B" 468 "" " C1 " ""]
-angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " ND2" ""] [spec: model 1 "B" 141 "" " CG " ""] target: 121.00  3.00
+   o Fe-S needs to be rendered nicely in Bonds mode ::: 2
 
-   ::: 4
+   o Add anom to PDB-redo output ::: 0.5
 
-   o undo and redo should update the Ramachandran plot ::: 1
+   o dictionary_radii() for Hamish. Return something JSON.
+     a dictionary? with a dictionary of atoms the the radius as the data :: 1
 
-   o --splash-screen arb-image.png - does that work? ::: 1
+   o Coot found no unexplained blobs" dialog should have a better title
+     than "dialog1" ::: 0.5
 
-   o GM distance summary. How many too long, how many too short. And (if possible) by 
-     what amounts. ::: 1
+* Done, needs testing.
 
-   o add a glyco, with extra GM distance restraints - delete residue
-     (undo).  Now get lots of warning about missing atoms on the
-     terminal (as coot tries to find the atoms for the extra
-     restraints).  Tricky to fix, I think. ::: 4
+   o crash on coot-reduce on luigi/3p4gA_dom1.pdb ::: 1
 
-   o doing a merge and doing a chain chain ids should move over the Link records also.
-     Add a test ::: 1
+   o Kill off Lidia -> View in Lidia, prodrg path ::: 0.5
 
-   o read in a monomer cif, get monomer.  Bond orders good?  ::: 2
+   o this is running coot-refinement and pressing Apply in Lidia
 
-* Done?
-
-   o Re: go to ligand: JED: Can I make a list of "non-interesting comp-ids?" ::: 1
-
-   o Fetch molecule: acyclovir, (edit?) click Apply ::: 2
-
-   o It appears that merging coordinates (read from cif with
-     multi-character label_asym_id and auth_asym_id) in to another set
-     of coordinates will assign single-character chain IDs to the source
-     coordinates. Might it be better to just add a prefix to those ids?
-        - Wolfram Tempel
-     ::: 1
-
-   o Pyrogen: add command line arguement to keep the coordinates from the 
-     input CCD/mmcif file ::: 1
-
-   o when mutating to MSE atoms become HETATMs. ::: 1
-
-   o Ligand Builder -> Open [cif dictionary] Failures
-     110 (butyl carboxylic acid - Oxygen formal charge) ::: 2
-
-   o Fix make check on test chemical features ::: 1
-
-   o comp_id C23, look at the thumbnail, or residue->2D, see that the Oxygen atom
-     seems chiral - is the bond the wrong way round? ::: 2
-
-   o like sphere refine, but only select residues that are linearly related to
-     the active residue (Hmm... how to do the GUI for this...?) ::: 2
-     -- Chris Oubridge
-
-     maybe autozone 2 will do?
-
-   o display ligand distortions, move and regularize, display ligand distortions. 
-     Clear generic display objects -> not all graphics objects are removed - they 
-     should be. ::: 1
-
-   o is git-revision-count correctly generated by make-dist-with-rev-and-ww2-put.sh?
-     ::: 1
-
-   o remove debugging:
-
-   debug:: switch for sequence_view for imol 0 is 0x0
-   ::: 1
-
-   o resolve the GSL problem. If no GSL fail in configure?  Or perhaps correctly 
-     conditionally compile without it (not usage of $prefix/bin/gsl-config)
-     ::: 1
-
-   o graphics-info-modelling.cc: for (int iflash=0; iflash<2; iflash++) { 
-	allow flash of 1.
-
-   Lukasz Wojtas:
-
-   1) From res file When I try to show ANISO atoms WinCOOT stops working and shuts down. 
-   ::: 1
-
-   2) exported coordinates and U's round off like in shelxl
-
-      EXPORTED: C1    1  0.501129985  0.671778977   0.518324018
-      SHELXL:   C1    1  0.501130     0.671779      0.518324    11.00000    0.24195
+INFO:: backup file coot-backup/0A_from_dict_Thu_Apr_12_15:33:04_2018_modification_0.pdb.gz
+[15:33:04] Explicit valence for atom # 21 O, 3, is greater than permitted
+std::exception
+There are 2 data in /Users/pemsley/autobuild/build-refinement-pre-release-gtk2-python/share/coot/lib/data/monomers/a/A.cif
+sys:1: GtkWarning: Unable to find default local directory monitor type
+command "cprodrg" not found
 
     ::: 1
 
-   3) When I try to fix coordinates temporarily by adding 10 - WinCOOT treats 
-      it as actual coordinate and not fixed one so atom is shifted.  ::: 1
+* Bleugh. Bye bye.
 
-   o when you mutate from an MSE the mainchain should revert to ATOMs ::: 1
+   o Jiggle fit uses linear interp? Jiggle fit should select backbone
+     if fitting protein, ring atoms for RNA/DNA ::: 2
 
-   o import imidaloze from lidia in coot. c.f. stand-alone ::: 1
+* Done. More tricky than expected. Nice.
 
-   o put the bond, angle, plane, nbc most distorted bonds in the refinement 
-     lights dialog ::: 2
+   o Check that H on N moves on cis-trans ::: 1
 
+* It didn't. It does. Added a test.
 
---------------
+   o make restraints for a big protein, then delete them using ...
+     delete deviants(?) Fix the slowness ::: 2
 
-   o chemical diagram for Acedrg dictionary for this molecule:
-     COC(=O)C(=COC)c1ccccc1COC(N1C)=CC(=N1)C(=C2O)C=C(Cl)C=C2"
-     Disable the conversion to NH+ if any bond to the nitrogen is aromatic.  ::: 1
+* Done. Nice.
 
-* Done. Actually, disabled when 3 non-H bonds to N.
+   o morph fit by secondary following the cryo-tutorial, morph secondary
+     fit makes a helix go wonky. Check with self chain restraints [JED]. ::: 0
 
-   o Fix make check on test chemical features ::: 1
+* Can't reproduce.
 
-* Done.
-
-    libc++abi.dylib: terminating with uncaught exception of type std::runtime_error: WARNING:: 
-    Requested flexible molecule for ligand "RRQ" ::: 1
-
-* Done. 
-
-   o pyrogen -n -M -C ATP AMP.smi.  The atom names are ultra-quoted. ::: 1
-
-* Fixed.
-
-   o Renumber residue should have  ::: 4
-
-    [    ] or o N-terminus 
-           to 
-    [    ] or o C-terminus 
-
-* Done
-
-   o in Ana's map after sequence assignment (which was very fast): it went into a long 
-     stall - not sure what it was doing. Without fitting, the model had hideous mainchain
-
-* Done. "Fitting" means real space refinement - hideous mainchain came from non-backrub rotamer search
-  (now backrub rotamer search is enabled).  ::: 1
-
-   o speed up accept after rigid body fit. ::: 1
+   o reposition the O on the current residue when adding a new one -
+     Add Terminal Residue execute_add_terminal_residue() ::: 1
 
 * Done.
 
-   o  can you read this: all-comp-ids/T/PDBe-TFH.cif.  Its OBS though.
+   o greg-tests: "Correction of CISPEP test"
+     Don't run grep ::: 0.5
 
-* Too obscure
+* Done. call-with-input-file read-line port
 
-   o colour by occupancy and colour by B-factor don't work [Hans Raaijmakers] ::: 1
+   o Add LINK info to header browser. Other things? ::: 2
 
-* Done.
+* SSBOND bonds are not part of mmdb, BIOMT is a REMARK 350 and is already there.
 
-   o Residue info should not show TER atoms ::: 1
+   o seems to be a failure of peptide plane restraints when residue type is a PRO.
+     (converted to a ALA and things flattened out as expected). But is this a problem
+     only in refinement branch? ::: 1
 
-* It doesn't.
+* Add planar peptide restraints for PTRANS. Yay.
 
-   o version-full should say if we are compiled with modern-language and enhanced-ligand tools ::: 1
+   o maybe add external angle restraints. Make them work in mini-rsr too ::: 2
 
-* It does now.
+* Done. Nice (tested).
 
-   o "Delete All Carbohydrate" on 5fuu is very slow. Fix. Needs  ::: 1
-      delete_residues(imol, res_specs).
+   o Eleanor's HIS. Add test. This is tricky, it uses mgtree ::: 2
 
-* Done.
+* Done with a bit of a hack in atom ordering.
 
-   o copy a fragment that has a link.  The link is not copied into fragment molecule. ::: 1
-
-* Done.
-
-   o API access to write a cif file (if input file is cif... or pdb) ::: 1
-
-* Done.
-
-   o (cryo-EM) map molecules should save their sigma step to the state file ::: 1
-
-* They do.
-
-   o map_peaks*.py should make negative peaks [Oliver Smart] ::: 1
-
-* Done.
-
-   o delete_sidechain_range() needs to turn off backups - or consolidate the function
-     into C++. ::: 0.5
-
-* Done
-
-   o unhide (unsubmarine) Edit Restraints window ::: 1
-
-* Done.
-
-   o what about this interaction in refinement: N(n) - HA2(n+1) GLY (an H on the CA)?
-     simple-restraint.cc: make_non_bonded_contact_restraints().  Is the HA2-CA-C angle
-     in reduced_angle_info_container_t? 1iei, residue 19 A.
-     Also 1-4 NBC: A 22 C (SER) -- A 23 ND3 (PRO)
-
-    (define (linear-refine-residues imol chain-id r1 r2)
-        (refine-residues imol (map (lambda(r) (list chain-id r "")) (range r1 (+ r2 1)))))
-
-     ::: 6
-
-* Done.
-
-   o draw sequence view: which molecule number are we looking at? ::: 1
-
-* Done
-
-   o all atom contact dots labels should have a molecule number attached. ::: 1
-
-* Done.
-
-   o on mutating a THR (or anything) to a PRO, remember to delete H. ::: 0.5
-
-* Done.
-
-   o Make it easy for me to re-run the previous refinement ::: 1
-   o repeat previous refinement: wrap refine-zone using (stored) atom indices
-     residue_range_atom_index_1 and residue_range_atom_index_2
-
-* Done.
-
-   o Copy fragment dialog should not dismiss if a new molecule is not created because it
-     failed find atoms. ::: 1
-
-* Done.
-
-   o run lidia -> hydrogenate, then coot reduce - don't double protonate atoms  ::: 0.5
-
-* Done.
-
-   o get rid of this: 
-     INFO:: setup minimol from mol: no spacegroup
-     ::: 0.5
-
-* Done.
-
-   o get rid of this:
-.... step_count: 880 step_count_lim 5000
-     ::: 0.5
-
-* Done, was fixed in refinement
-
-
-   o click-click refinement with fixed atoms gives NOPROGRESS. Must fix. ::: 6
-
-* Done.
-
-   o does pyrogen -p work? (after cairo fiddling) ::: 0.5
-
-* Done. from PIL import Image
-
-   o save map dialog needs to be a transient  ::: 0.5
-
-* Done
 
