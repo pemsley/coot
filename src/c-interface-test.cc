@@ -386,6 +386,8 @@ int test_function(int i, int j) {
 #include "analysis/kolmogorov.hh"
 #include "analysis/stats.hh"
 
+#ifdef USE_MOLECULES_TO_TRIANGLES
+
 // Martin's MoleculeToTriangles
 //
 //
@@ -398,6 +400,7 @@ int test_function(int i, int j) {
 #include <CXXClasses/MyMolecule.h>
 #include <CXXClasses/RepresentationInstance.h>
 #include <CXXClasses/MolecularRepresentationInstance.h>
+#endif // USE_MOLECULES_TO_TRIANGLES
 
 #ifdef USE_GUILE
 SCM test_function_scm(SCM i_scm, SCM j_scm) {
@@ -405,6 +408,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    graphics_info_t g;
    SCM r = SCM_BOOL_F;
 
+#ifdef USE_MOLECULES_TO_TRIANGLES
    if (true) {
 
       int imol = scm_to_int(i_scm);
@@ -414,7 +418,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	 graphics_draw();
       }
    }
-
+#endif // USE_MOLECULES_TO_TRIANGLES
 
    if (false) {
       int imol_1 = scm_to_int(i_scm); // from
