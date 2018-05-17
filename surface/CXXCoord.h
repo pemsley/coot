@@ -6,14 +6,17 @@
  *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
-#ifndef CXXCoord_included
-#define CXXCoord_included
+#ifndef CXX_mot_CXXCoord_included
+#define CXX_mot_CXXCoord_included
 
 #include <math.h>
 
-typedef double CXXCoord_ftype;
 	
 #include <iostream>
+
+namespace CXX_mot {
+
+typedef double CXXCoord_ftype;
 
 class CXXCoord {
 public:
@@ -178,4 +181,6 @@ public:
         return true;
     };
 };
+
+}
 #endif

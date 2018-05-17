@@ -4,14 +4,14 @@
   o FEATURE: LINK info added to header browser
 
   o FEATURE: External angle restraints are now available (corresponding to REFMAC type
-	     0 restraints) - mini-rsr included
+	     0 restraints) - mini-rsr included [Robbie Joosten]
 
   o CHANGE:  Iron-Sulfur clusters are now bonded using the dictionary (and so appear "cubic")
              [Hannah Bridges]
 
   o CHANGE:  Edit -> Copy Fragment now has a "Move it Here" check-button
 
-  o CHANGE:  Old interface to PRODRG removed
+  o CHANGE:  Old interface to PRODRG removed [Elinor Breiner]
 
   o CHANGE:  Jiggle-fit speed up by using backbone mode if possible
 
@@ -21,10 +21,12 @@
   o CHANGE:  Planar peptide restraints now apply to PTRANS restraints as well as TRANS
              restraints
 
+  o CHANGE:  RCrane restored
+
   o BUG-FIX: the H atom in a peptide is now moved along with the other peptide atoms
              on a cis->trans conversion (and vice versa)
 
-  O BUG-FIX: Using PDB-REDO now loads an anomalous map also (if possible)
+  O BUG-FIX: Using PDB-REDO now loads an anomalous map also (if possible) [Robbie Joosten]
 
   o BUG-FIX: Fix typo in template-keybindings-to-preferences that causes initial
              installation of key-bindings to fail sometimes [Colin Palmer].

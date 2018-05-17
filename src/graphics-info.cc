@@ -2064,8 +2064,8 @@ graphics_info_t::environment_graphics_object_internal(const graphical_bonds_cont
       environment_graphics_object_internal_lines(env_bonds_box); // GL lines
    } else {
       glEnable(GL_LIGHTING);
-      glEnable(GL_LIGHT0);
-      glEnable(GL_LIGHT1);
+      // glEnable(GL_LIGHT0);
+      // glEnable(GL_LIGHT1);
       environment_graphics_object_internal_tubes(env_bonds_box); // GL cylinders and disks
       glDisable(GL_LIGHTING);
    } 

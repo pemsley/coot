@@ -118,6 +118,7 @@ subpkgdata_DATA = dynarama.glade
 coot_wrap_guile_pre.cc:      $(top_srcdir)/src/c-interface.h    \
                              $(top_srcdir)/src/cc-interface.hh  \
                              $(top_srcdir)/src/cc-interface-ncs.hh  \
+                             $(top_srcdir)/src/cc-interface-molecular-representation.hh  \
                              $(top_srcdir)/src/coot.i           \
                              $(top_srcdir)/src/lbg-interface.hh \
                              $(top_srcdir)/src/c-interface-refine.hh \
@@ -206,6 +207,7 @@ AM_CPPFLAGS = \
         $(GOOCANVAS_CFLAGS)             \
 	@GTK_CFLAGS@ 			\
 	$(GLUT_CFLAGS)			\
+	$(MOLTRIANGLES_CPPFLAGS)	\
 	$(LIBSSM_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
 	$(CCP4SRS_CXXFLAGS) 		\
@@ -315,6 +317,7 @@ coot_bin_SOURCES = \
 	cc-interface-alignment.cc \
 	cc-interface-alignment.hh \
 	cc-interface-ncs.hh      \
+	cc-interface-molecular-representation.cc \
 	cc-interface-network.hh  \
 	cc-interface-mogul.hh    \
 	cc-interface-scripting.hh\
@@ -439,6 +442,7 @@ coot_bin_SOURCES = \
 	molecule-class-info-surface.cc 	\
 	molecule-class-info-patterson.cc \
 	molecule-class-info-ncs.cc 	\
+	molecule-class-info-mol-tris.cc 	\
 	molecule-class-info-widget-work.cc \
 	mtz-column-auto-read.hh  \
 	named-rotamer-score.hh   \
@@ -557,6 +561,7 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 		$(LIBSSM_LIBS)		\
 		$(CCP4SRS_LIBS) 	\
 		$(MMDB_LIBS)		\
+		$(MOLTRIANGLES_LIBS)	\
 		$(PYTHON_LIBS)		\
 		$(GUILE_GTK_LIBS)       \
 		$(GUILE_LDFLAGS)	\
@@ -573,6 +578,7 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 		$(L_BOOST_PYTHON)	\
 		$(GOOCANVAS_LIBS)       \
 		$(SQLITE3_LIBS)         \
+		-L/usr/local/lib -lglfw \
 		@GTK_LIBS@
 
 #                -lglade-2.0

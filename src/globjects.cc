@@ -1385,6 +1385,14 @@ std::pair<bool, float> graphics_info_t::model_display_radius = std::pair<bool, f
 // Chemical Feature Clusters, cfc
 GtkWidget *graphics_info_t::cfc_dialog = NULL;
 
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
+std::shared_ptr<Renderer>   graphics_info_t::mol_tri_renderer    = 0;
+std::shared_ptr<SceneSetup> graphics_info_t::mol_tri_scene_setup = 0;
+#endif
+#endif // USE_MOLECULES_TO_TRIANGLES
+
+
 // GTK2 code
 // 
 // if try_stereo_flag is 1, then hardware stereo.
@@ -1752,7 +1760,6 @@ init_gl_widget(GtkWidget *widget) {
    setup_lighting(graphics_info_t::do_lighting_flag);
 
    
-   
    // set the skeleton to initially be yellow
    graphics_info_t::skeleton_colour[0] = 0.7;
    graphics_info_t::skeleton_colour[1] = 0.7;
@@ -1768,12 +1775,50 @@ init_gl_widget(GtkWidget *widget) {
 
    // gtk_idle_add((GtkFunction)animate, widget);
 
+   // should be in graphics_info_t?
+   setup_for_mol_triangles();
+
   return TRUE;
+}
+
+void
+setup_for_mol_triangles() {
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
+
+   graphics_info_t::mol_tri_renderer    = RendererGLSL::create();
+   graphics_info_t::mol_tri_renderer->init();
+
+   graphics_info_t::mol_tri_scene_setup = SceneSetup::defaultSceneSetup();
+
+   //Add a simple light..set some parameters and move it
+   auto simpleLight = Light::defaultLight();
+   simpleLight->setIntensity(0.8);
+   simpleLight->setAmbient(FCXXCoord(0.2, 0.2, 0.2, 0.0));
+   simpleLight->setDrawLight(false); // crash on true, why is that?
+   simpleLight->setLightType(Light::Directional);
+   graphics_info_t::mol_tri_scene_setup->addLight(simpleLight);
+
+   //Add another simple light
+   auto simpleLight2 = Light::defaultLight();
+   graphics_info_t::mol_tri_scene_setup->addLight(simpleLight2);
+   simpleLight2->setIntensity(0.7);
+   simpleLight2->setDrawLight(false);
+   simpleLight2->setTranslation(FCXXCoord(0.0, 0.9, -20.2));
+
+#endif
+#endif // USE_MOLECULES_TO_TRIANGLES
+
 }
 
 void
 setup_lighting(short int do_lighting_flag) {
 
+   // I'm not sure that this does anything other than enable the lights.
+   // The light positions are properly set in draw_mono().
+   // Needs rationalization.
+   // FIXME-lighting
 
    if (do_lighting_flag) { // set this to 1 to light a surface currently.
 
@@ -1809,6 +1854,17 @@ setup_lighting(short int do_lighting_flag) {
 
       glEnable(GL_LIGHT0);
       glEnable(GL_LIGHT1);
+      // GLfloat  light_0_position[] = { 1.0,  1.0,  1.0, 1.0};
+      // GLfloat  light_1_position[] = {-1.0,  0.0,  1.0, 1.0};
+      // GLfloat  light_2_position[] = { 0.0,  0.0, -1.0, 1.0};
+
+      // glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
+      // glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
+      // glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
+
+      // glEnable(GL_LIGHT0);
+      // glEnable(GL_LIGHT1);
+
       glEnable(GL_LIGHTING);
       glEnable(GL_DEPTH_TEST);
 
@@ -2238,17 +2294,50 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 // glTranslatef(fbs.x(), fbs.y(), fbs.z());
       }
 
-
       if (true) {
 	 glPushMatrix();
-	 glLoadIdentity();
-	 GLfloat  light_0_position[] = {  1.0,  1.0, 1.0, 0.0};
-	 GLfloat  light_1_position[] = {  0.6, -0.7, 1.0, 0.0};
-	 GLfloat  light_2_position[] = {  0.7, -0.7, 1.0, 0.0};
+	 glLoadIdentity(); // this doesn't seem to have an effect on mol-triangles lighting
+	 GLfloat  light_0_position[] = {  1.0,   0.0,   0.0, 0.0}; // 1 is positional, 0 is directional
+	 GLfloat  light_1_position[] = {  0.6, -20.7,   1.0, 0.0};
+	 GLfloat  light_2_position[] = {  0.7,  -0.7,  21.0, 0.0};
+	 GLfloat  light_3_position[] = {  0.7,  -0.7,  21.0, 0.0};
+	 GLfloat  light_4_position[] = {  0.7,   0.7, -21.0, 0.0};
+	 GLfloat  light_5_position[] = { -0.7,   0.7,  21.0, 0.0};
 
 	 glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
 	 glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
 	 glLightfv(GL_LIGHT2, GL_POSITION, light_2_position);
+
+	 glLightfv(GL_LIGHT3, GL_POSITION, light_3_position);
+	 glLightfv(GL_LIGHT4, GL_POSITION, light_4_position);
+	 glLightfv(GL_LIGHT5, GL_POSITION, light_5_position);
+
+	 glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION,    0.0);
+	 glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0);
+	 glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION,    0.0);
+	 glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.0);
+	 glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION,    0.0);
+	 glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0.0);
+
+	 glLightf(GL_LIGHT3, GL_LINEAR_ATTENUATION,    0.0);
+	 glLightf(GL_LIGHT3, GL_QUADRATIC_ATTENUATION, 0.0);
+	 glLightf(GL_LIGHT4, GL_LINEAR_ATTENUATION,    0.0);
+	 glLightf(GL_LIGHT4, GL_QUADRATIC_ATTENUATION, 0.0);
+	 glLightf(GL_LIGHT5, GL_LINEAR_ATTENUATION,    0.0);
+	 glLightf(GL_LIGHT5, GL_QUADRATIC_ATTENUATION, 0.0);
+
+// 	 GLfloat light_ambient[] =  { 0.1, 0.1, 0.1, 1.0 };
+// 	 GLfloat light_diffuse[] =  { 1.0, 1.0, 1.0, 1.0 };
+// 	 GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+	 
+// 	 glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+// 	 glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+// 	 glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+
+// 	 glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient);
+// 	 glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
+// 	 glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
+
 	 glPopMatrix();
       }
 
@@ -2272,6 +2361,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	    glEnable(GL_LIGHTING);
 	    glEnable(GL_LIGHT0);
 	    glEnable(GL_LIGHT1);
+	    glEnable(GL_LIGHT3);
+	    glEnable(GL_LIGHT4);
 	    glDisable(GL_LIGHT2);
  	    n_display_list_objects +=
  	       graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
@@ -2328,6 +2419,48 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 //
 	 graphics_info_t::molecules[ii].draw_skeleton(is_bb);
       }
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
+
+      // Martin's triangular molecules
+      //
+      // centre of the screen
+      FCXXCoord pos(graphics_info_t::RotationCentre_x(),
+		    graphics_info_t::RotationCentre_y(),
+		    graphics_info_t::RotationCentre_z());
+      // where is the eye?  That's what we want.
+      // front plane is at z=0;
+      coot::Cartesian tp_1_cart = unproject_xyz(widget->allocation.width/2, widget->allocation.height/2, 1);
+      FCXXCoord tp_1(tp_1_cart.x(), tp_1_cart.y(), tp_1_cart.z());
+      FCXXCoord diff = tp_1 - pos;
+      FCXXCoord eye_pos = pos + diff * 5.0;
+      // std::cout << "eye_pos: " << eye_pos << "\n";
+      // coot::Cartesian eye_cart = pos + 20 * diff;
+      // FCXXCoord eye_pos(eye_cart.x(), eye_cart.y(), eye_cart.z());
+      if (graphics_info_t::mol_tri_scene_setup) {
+	 if (graphics_info_t::mol_tri_renderer) {
+
+	    //Can retrieve reference to the light if so preferred
+	    FCXXCoord light_pos = pos + diff * 10;
+	    // graphics_info_t::mol_tri_scene_setup->getLight(0)->setTranslation(light_pos);
+	    
+	    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+	       if (is_valid_model_molecule(ii)) {
+		  if (graphics_info_t::molecules[ii].draw_it) {
+		     if (graphics_info_t::molecules[ii].molrepinsts.size()) {
+			// molrepinsts get added to mol_tri_scene_setup when then are made
+			// turns on glLighting.
+			graphics_info_t::mol_tri_scene_setup->renderWithRendererFromViewpoint(graphics_info_t::mol_tri_renderer, eye_pos);
+		     }
+		  }
+	       }
+	    }
+	    glDisable(GL_LIGHTING);
+	 }
+      }
+#endif // CXX11
+#endif // USE_MOLECULES_TO_TRIANGLES
 
 
       // atom pull restraint
@@ -2412,11 +2545,10 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 }
       }
 
-
       //
       draw_crosshairs_maybe();
 
-      // 
+      //
       display_density_level_maybe();
 
       // BL says:: not sure if we dont need to do this for 2nd Zalman view
@@ -3326,10 +3458,11 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_d:
       
-      if (graphics_info_t::clipping_back < 10.0) { 
+      if (graphics_info_t::clipping_back < 15.0) { 
 	 set_clipping_front(graphics_info_t::clipping_front + 0.4);
 	 set_clipping_back (graphics_info_t::clipping_front + 0.4);
-	 // std::cout << graphics_info_t::clipping_front << " " << graphics_info_t::clipping_back << std::endl;
+	 std::cout << "INFO:: clipping " << graphics_info_t::clipping_front << " "
+		   << graphics_info_t::clipping_back << std::endl;
       }
       handled = TRUE; 
       break;
@@ -3345,10 +3478,11 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       
    case GDK_f:
       
-      if (graphics_info_t::clipping_back > -10.2) { 
+      if (graphics_info_t::clipping_back > -15.2) { 
 	 set_clipping_front(graphics_info_t::clipping_front - 0.4);
 	 set_clipping_back (graphics_info_t::clipping_front - 0.4);
-	 // std::cout << graphics_info_t::clipping_front << " " << graphics_info_t::clipping_back << std::endl;
+	 std::cout << "INFO:: clipping " << graphics_info_t::clipping_front << " "
+		   << graphics_info_t::clipping_back << std::endl;
       }
       handled = TRUE; 
       break;

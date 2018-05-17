@@ -49,6 +49,19 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #   include <GL/gl.h>
 #endif
 
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
+#include <CXXClasses/RendererGL.h>
+#include <CXXClasses/Light.h>
+#include <CXXClasses/Camera.h>
+// #include <CXXClasses/CameraPort.h>
+#include <CXXClasses/SceneSetup.h>
+#include <CXXClasses/ColorScheme.h>
+#include <CXXClasses/MyMolecule.h>
+#include <CXXClasses/RepresentationInstance.h>
+#include <CXXClasses/MolecularRepresentationInstance.h>
+#endif
+#endif
 
 #include "clipper/ccp4/ccp4_map_io.h"
 
@@ -792,6 +805,7 @@ public:        //                      public
 
       // single model view
       single_model_view_current_model_number = 0; // all models
+
    }
 
    int handle_read_draw_molecule(int imol_no_in,
@@ -899,10 +913,13 @@ public:        //                      public
    
    std::string show_spacegroup() const;
 
+   void set_mol_triangles_is_displayed(int state);
+
    void set_mol_is_displayed(int state) {
       if (atom_sel.n_selected_atoms > 0) {
 	 draw_it = state;
       }
+      set_mol_triangles_is_displayed(state);
    }
 
    void set_mol_is_active(int state) {
@@ -3180,6 +3197,19 @@ public:        //                      public
    std::string map_units() const { std::string u = "e/A^3"; 
                                    if (is_EM_map()) u = "V";
                                    return u; }
+
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
+   std::vector<std::shared_ptr<MolecularRepresentationInstance> > molrepinsts;
+#endif
+#endif // USE_MOLECULES_TO_TRIANGLES
+
+   void make_molecularrepresentationinstance();
+   int add_molecular_representation(const std::string &atom_selection,
+				    const std::string &colour_scheme,
+				    const std::string &style);
+   
 
    // carbohydrate validation tools
    void glyco_tree_internal_distances_fn(const coot::residue_spec_t &base_residue_spec,

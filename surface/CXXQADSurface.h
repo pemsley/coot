@@ -10,9 +10,12 @@
 #include "CXXCoord.h"
 #include "CXXNewHood.h"
 
+namespace CXX_mot {
+
 typedef struct {
 	double x, y, z, t;
 }Point3D;
+
 class CXXQADSurface {
 	
 	typedef struct {
@@ -102,3 +105,5 @@ public:
 	std::vector<clipper::Coord_orth> &getNormals();
 	std::vector<int> &getTriangles();
 };
+
+}
