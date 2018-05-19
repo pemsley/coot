@@ -2664,7 +2664,8 @@ public:
    static short int refinement_immediate_replacement_flag;  // don't dialog me please
    // called by above (private)
    atom_selection_container_t add_side_chain_to_terminal_res(atom_selection_container_t asc, 
-							     const std::string res_type); 
+							     const std::string &res_type,
+							     const std::string &terminus_type);
 
 
    // public (from globjects);

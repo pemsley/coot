@@ -7192,12 +7192,15 @@ molecule_class_info_t::move_std_residue(mmdb::Residue *moving_residue,
 	    istat = 0;
 	 } else {
 	    istat = 1;
-// 	    std::cout << "DEBUG:: move_std_residue: " << nResidueAtoms
-// 		      << " atoms in residue " 
-// 		      << moving_residue << " " << moving_residue->seqNum << " " 
-// 		      << moving_residue->GetChainID() << std::endl;
-	    for(int iat=0; iat<nResidueAtoms; iat++) {
-	       if (residue_atoms[iat]) { 
+
+	    if (true)
+	       std::cout << "DEBUG:: move_std_residue: " << nResidueAtoms
+			 << " atoms in residue "
+			 << moving_residue << " " << moving_residue->seqNum << " "
+			 << moving_residue->GetChainID() << std::endl;
+
+	    for (int iat=0; iat<nResidueAtoms; iat++) {
+	       if (residue_atoms[iat]) {
 // 		  std::cout  << "residue atom " << iat << " coords: " 
 // 			     << residue_atoms[iat]->x << " "
 // 			     << residue_atoms[iat]->y << " "
@@ -7206,7 +7209,7 @@ molecule_class_info_t::move_std_residue(mmdb::Residue *moving_residue,
 					 residue_atoms[iat]->y,
 					 residue_atoms[iat]->z);
 		  std::string alt_conf = residue_atoms[iat]->altLoc;
-		  
+
 		  std::map<std::string, clipper::RTop_orth>::const_iterator it = rtops.find(alt_conf);
 
 		  if (it != rtops.end()) { 
@@ -7217,7 +7220,7 @@ molecule_class_info_t::move_std_residue(mmdb::Residue *moving_residue,
 		  }
 	       } else { 
 		  istat = 0;
-		  std::cout << "ERROR:: bad residue atom in move_std_residue: iat: "
+		  std::cout << "ERROR:: null residue atom in moving residue in move_std_residue: iat: "
 			    << iat << std::endl;
 	       }
 	    }
@@ -7232,7 +7235,7 @@ molecule_class_info_t::move_std_residue(mmdb::Residue *moving_residue,
 	    std::cout << "mainchain atoms missing from residue " 
 		      << tmp->GetSeqNum() 
 		      << tmp->GetChainID() << std::endl;
-	 } else { 
+	 } else {
 	    std::cout << "This should not happen!" << std::endl;
 	    std::cout << "null residue in move_std_residue" << std::endl;
 	 }

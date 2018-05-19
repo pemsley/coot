@@ -2930,6 +2930,42 @@ coot::util::get_first_residue(mmdb::Manager *mol) {
    return res;
 }
 
+mmdb::Residue *
+coot::util::get_first_residue_in_chain(mmdb::Chain *chain_p) {
+
+   mmdb::Residue *r = 0;
+   if (chain_p) {
+      int nres = chain_p->GetNumberOfResidues();
+      for (int ires=0; ires<nres; ires++) {
+	 mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	 if (residue_p) {
+	    r = residue_p;
+	    break;
+	 }
+      }
+   }
+   return r;
+}
+
+mmdb::Residue *
+coot::util::get_last_residue_in_chain(mmdb::Chain *chain_p) {
+
+   mmdb::Residue *r = 0;
+   if (chain_p) {
+      int nres = chain_p->GetNumberOfResidues();
+      for (int ires=(nres-1); ires>=0; ires--) {
+	 mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	 if (residue_p) {
+	    r = residue_p;
+	    break;
+	 }
+      }
+   }
+   return r;
+
+}
+
+
 std::vector<mmdb::Residue *>
 coot::util::get_hetgroups(mmdb::Manager *mol, bool include_waters) {
 
