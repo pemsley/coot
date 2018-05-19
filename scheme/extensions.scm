@@ -1079,24 +1079,6 @@
 							(add-status-bar-text 
 							 "Failed to read a number"))))))))
 	
-	(add-simple-coot-menu-menuitem
-	 submenu-refine "Set Density Fit Graph Weight..."
-	 (lambda ()
-	   (generic-single-entry "set scale factor (smaller number means smaller bars)" 
-				 (format #f "~2,2f" (residue-density-fit-scale-factor))
-				 "Set it" (lambda (text) 
-					    (let ((t (string->number text)))
-					      (if (number? t)
-						  (begin
-						    (let ((s (string-append 
-							      "Density Fit scale factor set to " 
-							      text)))
-						      (set-residue-density-fit-scale-factor t)
-						      (add-status-bar-text s)))
-						  (begin
-						    (add-status-bar-text 
-						     "Failed to read a number"))))))))
-
 
 	;; ---------------------------------------------------------------------
 	;;     Recent structures from the PDBe
@@ -1516,6 +1498,24 @@
 	   (lambda ()
 	     (set-rotate-translate-zone-rotates-about-zone-centre 0))))
 
+
+	(add-simple-coot-menu-menuitem
+	 submenu-settings "Set Density Fit Graph Weight..."
+	 (lambda ()
+	   (generic-single-entry "set scale factor (smaller number means smaller bars)"
+				 (format #f "~2,2f" (residue-density-fit-scale-factor))
+				 "Set it" (lambda (text)
+					    (let ((t (string->number text)))
+					      (if (number? t)
+						  (begin
+						    (let ((s (string-append
+							      "Density Fit scale factor set to "
+							      text)))
+						      (set-residue-density-fit-scale-factor t)
+						      (add-status-bar-text s)))
+						  (begin
+						    (add-status-bar-text
+						     "Failed to read a number"))))))))
 
 	(add-simple-coot-menu-menuitem 
 	 submenu-settings "Set Spin Speed..."

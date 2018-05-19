@@ -170,17 +170,20 @@ def coot_gui(own_gtk_main=False):
           except:
              return False
           if res is not None:
-             print "BL DEBUG:: result is", res
+             # silence is golden
+             # print "BL DEBUG:: result is", res
              insert_normal_text(str(res) + "\n")
              return True
        else:
-          print "This is not a guile command!"
+          # silence is golden
+          # print "This is not a guile command!"
           return False
 
    def do_function(widget, entry):
        global histpos
        entry_text = entry.get_text()
-       print "BL INFO:: command input is: ", entry_text
+       # enough of this debugging output
+       # print "BL INFO:: command input is: ", entry_text
        if (entry_text != None):
           insert_tag_text(textbuffer.create_tag(foreground="red"),
                           entry_text + "\n")

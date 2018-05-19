@@ -175,7 +175,7 @@ for coot_python_file in python_list:
     if filename and os.path.isfile(filename):
         # we need user configuration of this verbosity
 
-	if True:
+	if False:
 	   print "Loading:", coot_python_file
 
         try:
