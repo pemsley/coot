@@ -1176,7 +1176,7 @@ def generic_chooser_and_entry_and_check_button(chooser_label, entry_hint_text,
    vbox.pack_start(option_menu, True, True, 0)
    vbox.pack_start(hbox_for_entry, False, False, 5)
    if check_button_label:
-      check_button = gtk.Check_Button(check_button_label)
+      check_button = gtk.CheckButton(check_button_label)
       vbox.pack_start(check_button, False, False, 2)
    else:
       check_button = False

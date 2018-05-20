@@ -444,22 +444,30 @@ if (have_coot_python):
        lambda func: molecule_chooser_gui("Assign HETATMs as per PDB definition", 
 		lambda imol: assign_hetatms(imol)))
 
+     # in main menu now
+     # add_simple_coot_menu_menuitem(
+     #   submenu_models,
+     #   "Copy Coordinates Molecule...", 
+     #   lambda func: molecule_chooser_gui("Molecule to Copy...", 
+     #    	lambda imol: copy_molecule(imol)))
 
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Copy Coordinates Molecule...", 
-       lambda func: molecule_chooser_gui("Molecule to Copy...", 
-		lambda imol: copy_molecule(imol)))
 
-
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Copy Fragment...", 
-       lambda func: generic_chooser_and_entry("Create a new Molecule\n \
-                                  From which molecule shall we seed?", 
-                                 "Atom selection for fragment", "//A/1-10", 
-		lambda imol, text: new_molecule_by_atom_selection(imol,text)))
-
+     # moved to main menu now
+     # should stay open if helper function returns False
+     # def atom_selection_from_fragmemt_func(imol, text, button_state):
+     #   print "BL DEBUG:: imol, text, button_state", imol, text, button_state
+     #   jmol = new_molecule_by_atom_selection(imol, text)
+     #   if button_state:
+     #     move_molecule_to_screen_centre(jmol)
+     #   return valid_model_molecule_qm(jmol)
+     # add_simple_coot_menu_menuitem(
+     #   submenu_models,
+     #   "Copy Fragment...", 
+     #   lambda func: generic_chooser_and_entry_and_check_button("Create a new Molecule\n \
+     #                              From which molecule shall we copy the fragment?", 
+     #                                                           "Atom selection for fragment", "//A/1-10", "Move molecule here?", 
+     #    	                                               lambda imol, text, button_state: atom_selection_from_fragmemt_func(imol, text, button_state),
+     #                                          False))
 
      # --- D ---
 
@@ -771,25 +779,26 @@ if (have_coot_python):
      # --- Rep ---
 
      # BL says:: may work, not sure about function entirely
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Replace Fragment...",
-       lambda func: molecule_chooser_gui("Define the molecule that needs updating",
-		lambda imol_base: generic_chooser_and_entry(
-				"Molecule that contains the new fragment:",
-				"Atom Selection","//",
-				lambda imol_fragment, atom_selection_str:
-				replace_fragment(imol_base, imol_fragment, atom_selection_str))))
+     # this is in main menu now
+     # add_simple_coot_menu_menuitem(
+     #   submenu_models,
+     #   "Replace Fragment...",
+     #   lambda func: molecule_chooser_gui("Define the molecule that needs updating",
+     #    	lambda imol_base: generic_chooser_and_entry(
+     #    			"Molecule that contains the new fragment:",
+     #    			"Atom Selection","//",
+     #    			lambda imol_fragment, atom_selection_str:
+     #    			replace_fragment(imol_base, imol_fragment, atom_selection_str))))
 
-     
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Replace Residue...",
-       lambda func: generic_single_entry("Replace this residue with residue of type:",
-                                         "ALA", "Mutate",
-                                         lambda text: using_active_atom(mutate_by_overlap,
-                                                                        "aa_imol", "aa_chain_id", "aa_res_no",
-                                                                        text)))
+     # in main menu now
+     # add_simple_coot_menu_menuitem(
+     #   submenu_models,
+     #   "Replace Residue...",
+     #   lambda func: generic_single_entry("Replace this residue with residue of type:",
+     #                                     "ALA", "Mutate",
+     #                                     lambda text: using_active_atom(mutate_by_overlap,
+     #                                                                    "aa_imol", "aa_chain_id", "aa_res_no",
+     #                                                                    text)))
 
      # --- Res ---
      
