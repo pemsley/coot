@@ -1114,6 +1114,7 @@ def generic_chooser_and_entry(chooser_label, entry_hint_text,
                               always_dismiss_on_ok_clicked=True):
 
    print "BL DEBUG:: --- deal with always_dissmiss...", always_dismiss_on_ok_clicked
+   # cf = lambda text, dummy: callback_function(text)
    generic_chooser_and_entry_and_check_button(chooser_label, entry_hint_text,
                                               default_entry_text, False,
                                               callback_function,
@@ -1127,56 +1128,72 @@ def generic_chooser_and_entry_and_check_button(chooser_label, entry_hint_text,
                                               callback_function,
                                               always_dismiss_on_ok_clicked=True):
 
-    import operator
+   import operator
 
-    def delete_event(*args):
-       window.destroy()
-       return False
+   def delete_event(*args):
+      window.destroy()
+      return False
 
-    def on_ok_button_clicked(*args):
-        # what is the molecule number of the option menu?
-        active_mol_no = get_option_menu_active_molecule(option_menu,model_mol_list)
+   def on_ok_button_clicked(*args):
+      # what is the molecule number of the option menu?
+      active_mol_no = get_option_menu_active_molecule(option_menu,model_mol_list)
 
-        try:
-           active_mol_no = int(active_mol_no)
-           print "INFO: operating on molecule number ", active_mol_no
-           text = entry.get_text()
-           callback_function(active_mol_no,text)
-           delete_event()
-        except:
-           print "Failed to get a (molecule) number"
+      try:
+         active_mol_no = int(active_mol_no)
+         print "INFO: operating on molecule number ", active_mol_no
+         text = entry.get_text()
+         if check_button:
+            check_button_state = check_button.get_active()
+            cbf_ret = callback_function(active_mol_no, text, check_button_state)
+         else:
+            cbf_ret = callback_function(active_mol_no, text)
+         if always_dismiss_on_ok_clicked:
+            delete_event()
+         else:
+            if cbf_ret:
+               delete_event()
+            else:
+               return True
+      except:
+         print "Failed to get a (molecule) number"
 
-    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-    label = gtk.Label(chooser_label)
-    vbox = gtk.VBox(False, 2)
-    hbox_for_entry = gtk.HBox(False, 0)
-    entry = gtk.Entry()
-    entry_label = gtk.Label(entry_hint_text)
-    hbox_buttons = gtk.HBox(True, 2)
-    option_menu = gtk.combo_box_new_text()
-    ok_button = gtk.Button("  OK  ")
-    cancel_button = gtk.Button(" Cancel ")
-    h_sep = gtk.HSeparator()
-    model_mol_list = fill_option_menu_with_coordinates_mol_options(option_menu)
+   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   label = gtk.Label(chooser_label)
+   vbox = gtk.VBox(False, 2)
+   hbox_for_entry = gtk.HBox(False, 0)
+   entry = gtk.Entry()
+   entry_label = gtk.Label(entry_hint_text)
+   hbox_buttons = gtk.HBox(True, 2)
+   option_menu = gtk.combo_box_new_text()
+   ok_button = gtk.Button("  OK  ")
+   cancel_button = gtk.Button(" Cancel ")
+   h_sep = gtk.HSeparator()
+   model_mol_list = fill_option_menu_with_coordinates_mol_options(option_menu)
     
-    window.set_default_size(400,100)
-    window.add(vbox)
-    vbox.pack_start(label, False, False, 5)
-    vbox.pack_start(option_menu, True, True, 0)
-    vbox.pack_start(hbox_for_entry, False, False, 5)
-    vbox.pack_start(h_sep, True, False, 2)
-    vbox.pack_start(hbox_buttons, False, False, 5)
-    hbox_buttons.pack_start(ok_button, True, False, 5)
-    hbox_buttons.pack_start(cancel_button, False, False, 5)
-    hbox_for_entry.pack_start(entry_label, False, False, 4)
-    hbox_for_entry.pack_start(entry, True, True, 4)
-    entry.set_text(default_entry_text)
+   window.set_default_size(400,100)
+   window.add(vbox)
+   vbox.pack_start(label, False, False, 5)
+   vbox.pack_start(option_menu, True, True, 0)
+   vbox.pack_start(hbox_for_entry, False, False, 5)
+   if check_button_label:
+      check_button = gtk.Check_Button(check_button_label)
+      vbox.pack_start(check_button, False, False, 2)
+   else:
+      check_button = False
+   vbox.pack_start(h_sep, True, False, 2)
+   vbox.pack_start(hbox_buttons, False, False, 5)
+   hbox_buttons.pack_start(ok_button, True, False, 5)
+   hbox_buttons.pack_start(cancel_button, False, False, 5)
+   hbox_for_entry.pack_start(entry_label, False, False, 4)
+   hbox_for_entry.pack_start(entry, True, True, 4)
+   entry.set_text(default_entry_text)
 
-    # button callbacks
-    ok_button.connect("clicked",on_ok_button_clicked, entry, option_menu, callback_function)
-    cancel_button.connect("clicked", delete_event)
+   # button callbacks
+   ok_button.connect("clicked", on_ok_button_clicked, entry,
+                     option_menu, callback_function, check_button)
+   cancel_button.connect("clicked", delete_event)
 
-    window.show_all()
+   window.show_all()
 
 # Create a window
 #

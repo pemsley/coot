@@ -48,6 +48,8 @@ horne_pdb         = os.path.join(unittest_data_dir, "coords-B3A.pdb")
 global ins_code_frag_pdb
 ins_code_frag_pdb = os.path.join(unittest_data_dir, "ins-code-fragment-pre.pdb")
 
+set_map_radius(4.5) # faster
+
 # CCP4 is set up? If so, set have-ccp4? True
 try:
     #global have_ccp4_qm
@@ -353,6 +355,38 @@ class PdbMtzTestFunctions(unittest.TestCase):
         self.failUnlessEqual(v3, 0)
         
 
+    def test11_2(self):
+        """Add Terminal Residue O Position"""
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+        mtz_file_name = os.path.join(unittest_data_dir,
+                                     "rnasa-1.8-all_refmac1.mtz")
+        imol_map = make_and_draw_map(mtz_file_name, "FWT", "PHWT", "", 0, 0)
+
+        # move the O close to where the N will end up - a bad place.
+        # (we check that it moves there)
+        #
+        attribs = [[imol, "A", 93, "", " O  ", "", "x", 58.5],
+                   [imol, "A", 93, "", " O  ", "", "y",  2.9],
+                   [imol, "A", 93, "", " O  ", "", "z", -1.9]]
+        set_atom_attributes(attribs)
+        O_atom_o = get_atom(imol, "A", 93, "", " O  ", "")
+        with NoBackups(imol):
+            dummy = "dummy"
+            add_terminal_residue(imol, "A", 93, "ALA", 1)
+            N_atom_n = get_atom(imol, "A", 94, "", " N  ", "")
+            O_atom_n = get_atom(imol, "A", 93, "", " O  ", "")
+            dd_1 = bond_length_from_atoms(O_atom_o, N_atom_n)
+            dd_2 = bond_length_from_atoms(O_atom_n, N_atom_n)
+            print "Add terminal residue bond check dd_1", dd_1
+            print "Add terminal residue bond check dd_2", dd_2
+            
+            # the new N will not always go into the same place
+            # allow a bit more generosity in position difference
+            self.failUnless(dd_1 < 0.4) # 0.4 should be generous enough
+            self.failUnless(dd_2 > 1.9) # hooray
+
+        
     def test12_0(self):
         """Select by Sphere"""
 
@@ -452,6 +486,35 @@ class PdbMtzTestFunctions(unittest.TestCase):
                         "Failed rotamer outlier test for residue 1")
         self.failUnless((pr_2 < 0.3 and pr_2 > 0.0),
                         "Failed rotamer outlier test for residue 2")
+
+
+    def test15_1(self):
+        """HIS with unusual atom order rotates correct fragment for 180 sidechain flip"""
+
+        imol = unittest_pdb("eleanor-HIS.pdb")
+        self.failUnless(valid_model_molecule_qm(imol),
+                        "BAD imol for 180 sidechain flip test imol: %s" %imol)
+
+        N_atom_o = get_atom(imol, "A", 111, "", " N  ", "")
+        ND1_Atom_o = get_atom(imol, "A", 111, "", " ND1", "")
+        with NoBackups(imol):
+            do_180_degree_side_chain_flip(imol, "A", 111, "", "")
+            N_atom_n = get_atom(imol, "A", 111, "", " N  ", "")
+            ND1_Atom_n = get_atom(imol, "A", 111, "", " ND1", "")
+
+            # the N-atom stays still
+            # the ND1 atom moves by > 1A.
+
+            dd_1 = bond_length_from_atoms(N_atom_o, N_atom_n)
+            dd_2 = bond_length_from_atoms(ND1_Atom_o, ND1_Atom_n)
+
+            print "dd_1: %s dd_2: %s" %(dd_1, dd_2)
+
+            self.failIf(dd_1 > 0.01,
+                        "N atom moved - fail\n")
+
+            self.failIf(dd_2 < 1.01,
+                            "ND1 atom did not move enough - fail\n")
 
 
     # Don't reset the occupancies of the other parts of the residue
@@ -694,6 +757,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
                 #[accept_regularizement]
                 )
 
+        # replace at some point with call_with_input_file (once we have that)
+        # actually already there using "with file open"...
         tmp_file = "tmp-fixed-cis.pdb"
         write_pdb_file(cis_pep_mol, tmp_file)
         # assuming we do not always have grep we extract information with
@@ -722,6 +787,23 @@ class PdbMtzTestFunctions(unittest.TestCase):
         o = grep_to_list("CISPEP", tmp_file)
         self.failUnlessEqual(len(o), 3)
 
+
+    def test18_1(self):
+        """H on a N moves on cis-trans convert"""
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+        imol_2 = new_molecule_by_atom_selection(imol, "//A/1-10")
+        coot_reduce(imol_2)
+        H_atom_o = get_atom(imol_2, "A", 6, "", " H  ", "")
+        with NoBackups(imol_2):
+            cis_trans_convert(imol_2, "A", 5, "") # 5-6 peptide
+        H_atom_n = get_atom(imol_2, "A", 6, "", " H  ", "")
+        dd = bond_length_from_atoms(H_atom_o, H_atom_n)
+        close_molecule(imol)
+        close_molecule(imol_2)
+        print "dd:", dd
+        self.failUnless(dd> 1.4)
+        
 
     def test19_0(self):
         """Refine Zone with Alt conf"""

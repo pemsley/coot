@@ -57,23 +57,23 @@ def add_module_prosmart():
                     set_extra_restraints_prosmart_sigma_limits(aa_imol,
                                                                sig_low, sig_high)
             add_simple_coot_menu_menuitem(
-                menu, "Cut Deviant distances beyond 6",
+                menu, "Show Only Deviant Distances Beyond 6",
                 lambda func: prosmart_cut_to_func(-6, 6))
 
             add_simple_coot_menu_menuitem(
-                menu, "Cut Deviant distances beyond 4",
+                menu, "Show Only Deviant Distances Beyond 4",
                 lambda func: prosmart_cut_to_func(-4, 4))
 
             add_simple_coot_menu_menuitem(
-                menu, "Cut Deviant distances beyond 2.0",
+                menu, "Show Only Deviant Distances Beyond 2.0",
                 lambda func: prosmart_cut_to_func(-2, 2))
 
             add_simple_coot_menu_menuitem(
-                menu, "Cut Deviant distances beyond 1.0",
+                menu, "Show Only Deviant Distances Beyond 1.0",
                 lambda func: prosmart_cut_to_func(-1, 1))
             
             add_simple_coot_menu_menuitem(
-                menu, "Cut all",
+                menu, "Undisplay All Extra Distance Restraints",
                 lambda func: prosmart_cut_to_func(0, 0))
             
             def restraint_to_ca_func(state):
