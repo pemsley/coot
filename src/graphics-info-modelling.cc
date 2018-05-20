@@ -742,7 +742,7 @@ graphics_info_t::regularize_residues_vec(int imol,
 //
 coot::refinement_results_t
 graphics_info_t::generate_molecule_and_refine(int imol,
-					      const std::vector<mmdb::Residue *> &residues,
+					      const std::vector<mmdb::Residue *> &residues_in,
 					      const char *alt_conf,
 					      mmdb::Manager *mol,
 					      bool use_map_flag) { 
@@ -766,6 +766,18 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	 flags = coot::ALL_RESTRAINTS;
       
       std::vector<coot::atom_spec_t> fixed_atom_specs = molecules[imol].get_fixed_atoms();
+
+      // refinement goes a bit wonky if there are multiple occurrances of the same residue
+      // in input residue vector, so let's filter out duplicates here
+      //
+      std::vector<mmdb::Residue *> residues;
+      std::set<mmdb::Residue *> residues_set;
+      std::set<mmdb::Residue *>::const_iterator it;
+      for (std::size_t i=0; i<residues_in.size(); i++)
+	 residues_set.insert(residues_in[i]);
+      residues.reserve(residues_set.size());
+      for(it=residues_set.begin(); it!=residues_set.end(); it++)
+	 residues.push_back(*it);
 
       // OK, so the passed residues are the residues in the graphics_info_t::molecules[imol]
       // molecule.  We need to do 2 things:

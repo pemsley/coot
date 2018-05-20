@@ -47,14 +47,16 @@ predict = function(x_pos, y_pos) {
       date_s = format(predict_t, format="%d %B %Y")
       t = paste('Projected Release Day:\n', date_s)
       text(x_pos, y_pos, t, pos=3, cex=0.8)
-      s = 3 # should depend on xlim 3 is good when xlim is 200
-      s_x = 0.02*xlim
-      s_y = 0.02*ylim
-      rect(X_pred-s_x, Y_pred_1-s_y, X_pred+s_x, Y_pred_1+s_y, col = 'darkgreen')
+      s = 3 # should depend on xlim, 3 is good when xlim is 200
+      # the ratio between s_x and s_y is the ratio of
+      # xlim and y_lim
+      s_x = 0.008*xlim
+      s_y = 0.02 *ylim
+      rect(X_pred-s_x, 0.5*(Y_pred_1-s_y), X_pred+s_x, 0.5*(Y_pred_1+s_y), col = 'darkgreen')
       # need list of X values, list of Y values
       # not x,y pairs
       # lines(c(X_pred,X_pred), c(0, Y_pred_1), col='darkgreen', lty=2)
-      lines(c(0,X_pred), c(0,  Y_pred_1*0.5), col='darkgreen', lty=2)
+      lines(c(0,X_pred), c(0,      Y_pred_1*0.5), col='darkgreen', lty=2)
       lines(c(0,X_pred), c(c2*0.5, Y_pred_1*0.5), col='darkgreen', lty=2)
 
       return(r)

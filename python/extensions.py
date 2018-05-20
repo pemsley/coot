@@ -1244,12 +1244,6 @@ if (have_coot_python):
 	else:
 		add_status_bar_text("Failed to read a number")
 
-     add_simple_coot_menu_menuitem(
-       submenu_refine,
-       "Set Density Fit Graph Weight...",
-       lambda func: generic_single_entry("set weight (smaller means apparently better fit)", 
-		str("%.2f" %residue_density_fit_scale_factor()), "Set it", 
-		lambda text: set_den_gra_func(text)))
 
 
      # ---------------------------------------------------------------------
@@ -1679,6 +1673,13 @@ if (have_coot_python):
        submenu, "Rotate About Second Clicked Atom",
        lambda func: set_rotate_translate_zone_rotates_about_zone_centre(0))
 
+
+     add_simple_coot_menu_menuitem(
+       submenu_settings,
+       "Set Density Fit Graph Weight...",
+       lambda func: generic_single_entry("set weight (smaller means apparently better fit)",
+		str("%.2f" %residue_density_fit_scale_factor()), "Set it",
+		lambda text: set_den_gra_func(text)))
 
      # BL says:: maybe check if number at some point
      add_simple_coot_menu_menuitem(
