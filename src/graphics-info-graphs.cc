@@ -1579,7 +1579,7 @@ graphics_info_t::density_fit_from_residues(mmdb::PResidue *SelResidues, int nSel
 	    // high resolution maps have high grid factors (say 0.5) and high
 	    // residue_density_ scores (say 2.0)
 	    double distortion =  sf/(pow(max_grid_factor,3) * residue_density_score); 
-	    distortion =  sf/(pow(max_grid_factor,4) * residue_density_score); // seems reaonable!
+	    distortion =  sf/(pow(max_grid_factor,4) * residue_density_score); // seems reasonable!
 
 	    // distortion *= distortion; // non-linear, provides distinction.
 

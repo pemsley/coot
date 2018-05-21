@@ -10,7 +10,7 @@
       #define BUILD_CURLEW
    #else
       #if defined(__GNUC__)
-         #if (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__) < 40900
+         #if (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__) < 40805
             // no curlew
          #else
             #define BUILD_CURLEW
@@ -18,6 +18,7 @@
       #endif
    #endif
 #endif
+
 
 #ifdef BUILD_CURLEW
 #include "json.hpp" // clever stuff from Niels Lohmann
