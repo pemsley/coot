@@ -125,3 +125,7 @@ command "cprodrg" not found
    o Update the density fit graph on delete zone ::: 1
 
 * Done.
+
+   o fix crash in all_molecule_ramachandran_score_py() ::: 0.5
+
+* Done.
