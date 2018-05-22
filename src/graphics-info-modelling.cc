@@ -4110,11 +4110,29 @@ graphics_info_t::split_residue_range(int imol, int index_1, int index2) {
 // delete zone
 void
 graphics_info_t::delete_residue_range(int imol,
-				      const coot::residue_spec_t &res1,
-				      const coot::residue_spec_t &res2) {
+				      const coot::residue_spec_t &res1_in,
+				      const coot::residue_spec_t &res2_in) {
 
    if (is_valid_model_molecule(imol)) {
+
+      coot::residue_spec_t res1 = res1_in;
+      coot::residue_spec_t res2 = res2_in;
+
+      if (res1.res_no > res2.res_no)
+	 std::swap(res1, res2);
+
       molecules[imol].delete_zone(res1, res2);
+
+      // cheap! I should find the residues with insertion codes in this range too.
+      // How to do that? Hmm... Needs a class function. This will do for now
+      //
+      std::vector<coot::residue_spec_t> res_specs;
+      for (int i=res1.res_no; i<=res2.res_no; i++) {
+	 coot::residue_spec_t r(res1_in.chain_id, i, "");
+	 res_specs.push_back(r);
+      }
+      delete_residues_from_geometry_graphs(imol, res_specs);
+
       if (delete_item_widget) {
 	 GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget,
 						"delete_item_keep_active_checkbutton");
