@@ -578,7 +578,6 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 		$(L_BOOST_PYTHON)	\
 		$(GOOCANVAS_LIBS)       \
 		$(SQLITE3_LIBS)         \
-		-L/usr/local/lib -lglfw \
 		@GTK_LIBS@
 
 #                -lglade-2.0
