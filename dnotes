@@ -8171,3 +8171,13 @@ Sun 20 May 2018 12:59:28 BST
 Sun 20 May 2018 13:22:00 BST
 
     https://www.blendswap.com for heads
+
+----
+Tue 22 May 2018 15:12:04 BST
+
+   o re: a console: look at this:
+     http://www.cplusplus.com/reference/cstdio/freopen/
+     reopen std out as a static string stream?
+
+
+	
