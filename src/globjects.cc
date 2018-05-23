@@ -27,7 +27,6 @@
 // draw, reshape, init, mouse_move and mouse_button press
 // (and animate(for idle)).
 
-
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
@@ -254,8 +253,8 @@ int    graphics_info_t::a_is_pressed = 0;
 int    graphics_info_t::shift_is_pressed = 0 ;       // false
 int    graphics_info_t::y_is_pressed = 0 ;       // false
 int    graphics_info_t::z_is_pressed = 0 ;       // false
-double graphics_info_t::mouse_begin_x = 0.0;
-double graphics_info_t::mouse_begin_y = 0.0;
+std::pair<double, double> graphics_info_t::mouse_begin         = std::pair<double, double> (0,0);
+std::pair<double, double> graphics_info_t::mouse_clicked_begin = std::pair<double, double> (0,0);
 float  graphics_info_t::rotation_centre_x = 0.0;
 float  graphics_info_t::rotation_centre_y = 0.0;
 float  graphics_info_t::rotation_centre_z = 0.0;
@@ -1522,7 +1521,7 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 
      context_count++;
   
-     GtkWidget *drawing_area_tmp = gtk_drawing_area_new ();
+     GtkWidget *drawing_area_tmp = gtk_drawing_area_new();
      if (context_count == 1) {
 	drawing_area = drawing_area_tmp;
      } else {
@@ -2461,7 +2460,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       }
 #endif // CXX11
 #endif // USE_MOLECULES_TO_TRIANGLES
-
 
       // atom pull restraint
       graphics_info_t::draw_atom_pull_restraint();
@@ -4423,13 +4421,14 @@ float rad_50_and_prob_to_radius(float rad_50, float prob) {
 // 
 gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    
-   graphics_info_t info; // declared at the top of the file
+   graphics_info_t info;
    
    int x_as_int, y_as_int;
    GdkModifierType state;
    gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
 
    info.SetMouseBegin(event->x, event->y);
+   info.SetMouseClicked(event->x, event->y);
 
    GdkModifierType my_button1_mask = info.gdk_button1_mask();
    GdkModifierType my_button2_mask = info.gdk_button2_mask();
@@ -4524,7 +4523,7 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	    }
 	 }
 
-      } else { 
+      } else {
 
 	 // Left mouse, but not shift-left-mouse:
 
@@ -4536,7 +4535,7 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	 int iv = info.check_if_in_range_defines(event, state);
 	 if (! iv) 
 	    info.check_if_moving_atom_pull(); // and if so, set it up (it
-	 
+
 	 // executes on *motion* not a button press event).  Also,
 	 // remove any on-going drag-refine-idle-function.
 	 //
@@ -4549,8 +4548,14 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    
    if (state & my_button2_mask) {
 
+      // move this block into glarea_button_release
+
       // Atom picking (recentre)
-      
+
+      // check that the mouse hasn't moved much
+      // c.f. event->x vs mouse_clicked_begin.first
+      //      event->y vs mouse_clicked_begin.second
+
       pick_info nearest_atom_index_info; 
       nearest_atom_index_info = atom_pick(event);
       

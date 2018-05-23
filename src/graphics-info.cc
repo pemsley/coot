@@ -242,14 +242,18 @@ GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
 
 
 
-double graphics_info_t::GetMouseBeginX() const { return mouse_begin_x; };
+double graphics_info_t::GetMouseBeginX() const { return mouse_begin.first; };
 
-double graphics_info_t::GetMouseBeginY() const { return mouse_begin_y; };
+double graphics_info_t::GetMouseBeginY() const { return mouse_begin.second; };
 
 void graphics_info_t::SetMouseBegin(double x, double y) {
+   mouse_begin.first  = x;
+   mouse_begin.second = y;
+}
 
-   mouse_begin_x = x;
-   mouse_begin_y = y;
+void graphics_info_t::SetMouseClicked(double x, double y) {
+   mouse_clicked_begin.first  = x;
+   mouse_clicked_begin.second = y;
 }
 
 // static 

@@ -480,7 +480,8 @@ class graphics_info_t {
 
    static short int in_side_by_side_stereo_mode; 
 
-   static double mouse_begin_x, mouse_begin_y; 
+   static std::pair<double, double> mouse_begin;
+   static std::pair<double, double> mouse_clicked_begin;
 
    static float rotation_centre_x;
    static float rotation_centre_y;
@@ -1629,6 +1630,7 @@ public:
 
 
    void SetMouseBegin(double x, double y);
+   void SetMouseClicked(double x, double y);
 
    double  GetMouseBeginX() const ;
    double  GetMouseBeginY() const ;
