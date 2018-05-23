@@ -762,6 +762,8 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 		<< " hydrogens " << delete_item_residue_hydrogens
 		<< std::endl;
 
+   bool item_deleted = false;
+   int imol_delete = -1;
    graphics_info_t g;
    short int destroy_delete_dialog_flag_by_ctrl_press = 1;
    if (state & GDK_CONTROL_MASK)
@@ -784,6 +786,8 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 					 destroy_delete_dialog_flag_by_ctrl_press);
 	       run_post_manipulation_hook(naii.imol, DELETED);
 	       pick_pending_flag = 0;
+	       item_deleted = true;
+	       imol_delete = naii.imol;
 	    }
 	 } else { 
 
@@ -800,6 +804,8 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 		     normal_cursor();
 		     run_post_manipulation_hook(naii.imol, DELETED);
 		     pick_pending_flag = 0;
+		     item_deleted = true;
+		     imol_delete = im;
 		  }
 		  
 	       } else {
@@ -856,6 +862,8 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 		  delete_object_handle_delete_dialog(destroy_delete_dialog_flag_by_ctrl_press);
 		  pick_pending_flag = 0;
 		  run_post_manipulation_hook(naii.imol, DELETED);
+		  item_deleted = true;
+		  imol_delete = naii.imol;
 	       }
 	    }
 	 } else {
@@ -877,6 +885,8 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 		     normal_cursor();
 		     run_post_manipulation_hook(im, DELETED);
 		     pick_pending_flag = 0;
+		     item_deleted = true;
+		     imol_delete = im;
 		  }
 	       }
 	    }
@@ -898,6 +908,8 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 					destroy_delete_dialog_flag_by_ctrl_press);
 	       g.update_environment_distances_maybe(naii.atom_index, naii.imol);
 	       run_post_manipulation_hook(naii.imol, DELETED);
+	       item_deleted = true;
+	       imol_delete = naii.imol;
 	    }
 	 }
       }
@@ -925,6 +937,8 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 			pick_pending_flag = 0;
 			g.delete_item_sidechain_range = 0; //reset for next time, or 1?
 			run_post_manipulation_hook(naii.imol, DELETED);
+			item_deleted = true;
+			imol_delete = naii.imol;
 		     } else {
 			pick_pending_flag = 0;
 			normal_cursor();
@@ -953,6 +967,8 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	    delete_chain(naii.imol, chain_id.c_str()); // handles dialog
 	    graphics_draw();
 	    run_post_manipulation_hook(naii.imol, DELETED);
+	    item_deleted = true;
+	    imol_delete = naii.imol;
 	 }
       }
 
@@ -969,6 +985,8 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       g.update_environment_distances_maybe(naii.atom_index, naii.imol);
 	       run_post_manipulation_hook(naii.imol, DELETED);
 	       pick_pending_flag = 0;
+	       item_deleted = true;
+	       imol_delete = naii.imol;
 	    }
 	 } else { 
 
@@ -988,6 +1006,8 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 			delete_residue_by_atom_index(im, index,
 						     destroy_delete_dialog_flag_by_ctrl_press);
 			run_post_manipulation_hook(im, DELETED);
+			item_deleted = true;
+			imol_delete = im;
 		     }
 		  }
 	       } else { // not used
@@ -1027,6 +1047,8 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 		     run_post_manipulation_hook(im, DELETED);
 		     pick_pending_flag = 0;
 		     normal_cursor();
+		     item_deleted = true;
+		     imol_delete = im;
 		  }
 
 	       } else { // old unused code
@@ -1069,10 +1091,13 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       // c-interface.h
 	       if (naii.imol == g.delete_item_residue_zone_1_imol) {
 		  if (res2.model_number == g.delete_item_residue_zone_1.model_number) {
+
 		     delete_residue_range(naii.imol, g.delete_item_residue_zone_1, res2);
 		     pick_pending_flag = 0;
 		     g.delete_item_residue_zone = 1; //reset for next time
 		     run_post_manipulation_hook(naii.imol, DELETED);
+		     item_deleted = true;
+		     imol_delete = naii.imol;
 		  } else {
 		     pick_pending_flag = 0;
 		     normal_cursor();
@@ -1084,7 +1109,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 		  normal_cursor();
 		  std::string s = "Picked atoms not in same molecule.";
 		  add_status_bar_text(s);
-	       } 
+	       }
 	    }
 	    graphics_draw();
 	 }

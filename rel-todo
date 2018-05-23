@@ -1,7 +1,25 @@
 
    For Release 0.8.9.2
 
-   o Make RCrane work again ::: 6
+   o sync bernie ::: 1
+
+   o replace fragment using Edit gui menu item ::: 1
+
+   o Don't apply "middle-mouse click" on button down - do it on button up (if we have not been
+     panning, check for screen coords distance between button-down click and button up)
+     Use GetMouseBeginX(), GetMouseBeginY(), need to make sure that these values are not
+     changed by moving the mouse.  Maybe I want a variable that stores where the mouse
+     (is/was) when it was clicked not where it is/was (which GetMouseBeginX/Y() seems to return)
+
+   o morph-fit-by-secondary-structure-elements does a bad job for the loop at 202 with
+     do-a-better-job-at-moving-the-loop-on-SS-morph-fit.pdb, 6771 ::: 2
+
+   o put this in the status-bar:
+
+     Sorry atom with name " CA " alt-loc "empty", res-no: 20, ins-code "", chain: "A" not found in molecule 0
+
+    ::: 0.5
+
 
 ------
 
@@ -100,4 +118,14 @@ command "cprodrg" not found
 
 * Done with a bit of a hack in atom ordering.
 
+   o Make RCrane work again ::: 2
 
+* Done - residue_info() had changed.
+
+   o Update the density fit graph on delete zone ::: 1
+
+* Done.
+
+   o fix crash in all_molecule_ramachandran_score_py() ::: 0.5
+
+* Done.

@@ -1935,14 +1935,31 @@ void delete_residue_hydrogens_by_atom_index(int imol, int index, short int do_de
 // 
 void delete_residue_range(int imol, const char *chain_id, int resno_start, int resno_end) {
 
+   // Note to self: do you want this or the graphics_info_t version?
+
    // altconf is ignored currently.
-   // 
+   //
+
+   if (resno_start > resno_end) {
+      std::swap(resno_start, resno_end);
+   }
    coot::residue_spec_t res1(chain_id, resno_start);
    coot::residue_spec_t res2(chain_id, resno_end);
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       g.delete_residue_range(imol, res1, res2);
+
+      // cheap! I should find the residues with insertion codes in this range too.
+      // How to do that? Hmm... Needs a class function. This will do for now
+      //
+      std::vector<coot::residue_spec_t> res_specs;
+      for (int i=resno_start; i<=resno_end; i++) {
+	 coot::residue_spec_t r(chain_id, i, "");
+	 res_specs.push_back(r);
+      }
+
+      g.delete_residues_from_geometry_graphs(imol, res_specs);
       if (graphics_info_t::go_to_atom_window) {
 	 update_go_to_atom_window_on_changed_mol(imol);
       }

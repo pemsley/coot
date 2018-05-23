@@ -8234,3 +8234,44 @@ Fri 20 Apr 2018 14:53:26 BST
 
    4whj - interesting fitting Alvarez et al, domain needs to be shifted - 4.6A
 
+----
+Sun 20 May 2018 12:54:32 BST
+
+   cute graphics: https://github.com/prideout/aobaker
+                  https://github.com/prideout/blog-source/blob/master/p61/Cylinder.glsl
+
+                  http://github.prideout.net/
+                  http://prideout.net/blog/
+
+    built them into coot :-)
+
+
+
+----
+Sun 20 May 2018 12:54:28 BST
+
+    OpenGL and gtk on gtkglext mailing list (last entries?)
+
+    https://mail.gnome.org/archives/gtkglext-list/2014-February/msg00016.html
+
+
+---
+Sun 20 May 2018 12:59:28 BST
+
+   sharpconstruct for drawing heads?
+
+
+---
+Sun 20 May 2018 13:22:00 BST
+
+    https://www.blendswap.com for heads
+
+----
+Tue 22 May 2018 15:12:04 BST
+
+   o re: a console: look at this:
+     http://www.cplusplus.com/reference/cstdio/freopen/
+     reopen std out as a static string stream?
+
+
+	

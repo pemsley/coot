@@ -398,6 +398,40 @@ graphics_info_t::delete_residue_from_geometry_graphs(int imol,
 }
 
 void
+graphics_info_t::delete_residues_from_geometry_graphs(int imol,
+						      const std::vector<coot::residue_spec_t> &res_specs) {
+
+#ifdef HAVE_GSL
+#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+
+   std::vector<coot::geometry_graph_type> graph_types;
+   graph_types.push_back(coot::GEOMETRY_GRAPH_DENSITY_FIT);
+   graph_types.push_back(coot::GEOMETRY_GRAPH_GEOMETRY);
+   graph_types.push_back(coot::GEOMETRY_GRAPH_B_FACTOR);
+   graph_types.push_back(coot::GEOMETRY_GRAPH_DENSITY_FIT);
+   graph_types.push_back(coot::GEOMETRY_GRAPH_OMEGA_DISTORTION);
+   graph_types.push_back(coot::GEOMETRY_GRAPH_ROTAMER);
+   graph_types.push_back(coot::GEOMETRY_GRAPH_NCS_DIFFS);
+
+   for (unsigned int igt=0; igt<graph_types.size(); igt++) {
+      GtkWidget *graph =
+	 coot::get_validation_graph(imol_moving_atoms, graph_types[igt]);
+      if (graph) {
+	 coot::geometry_graphs *gr = geometry_graph_dialog_to_object(graph);
+	 if (gr) {
+
+	    for (std::size_t ires=0; ires<res_specs.size(); ires++) {
+	       const coot::residue_spec_t &res_spec = res_specs[ires];
+	       gr->delete_block(res_spec.chain_id, res_spec.res_no);
+	    }
+	 }
+      }
+   }
+#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+#endif // HAVE_GSL
+}
+
+void
 graphics_info_t::delete_chain_from_geometry_graphs(int imol, const std::string &chain_id) {
 
 #ifdef HAVE_GSL
