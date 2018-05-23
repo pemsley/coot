@@ -89,10 +89,10 @@ PyObject *
 graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
 							 const graphical_bonds_container &bonds_box) const {
 
-   // imol is added into the atom specs so that the atoms knw the molecule they were part of
+   // imol is added into the atom specs so that the atoms know the molecule they were part of
 
-   int n_data_item_types = 2; // bonds and angles
-   if (bonds_box.n_ramachandran_goodness_spots > 0) n_data_item_types++;
+   int n_data_item_types = 3; // bonds and angles
+
    PyObject *r = PyTuple_New(n_data_item_types);
 
    if (bonds_box.atom_centres_) {
@@ -173,6 +173,7 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
    }
    PyTuple_SetItem(r, 1, bonds_tuple);
 
+   PyObject *rama_info_py = PyList_New(bonds_box.n_ramachandran_goodness_spots);
    if (bonds_box.n_ramachandran_goodness_spots > 0) {
       PyObject *rama_info_py = PyList_New(bonds_box.n_ramachandran_goodness_spots);
       for (int i=0; i<bonds_box.n_ramachandran_goodness_spots; i++) {
@@ -190,8 +191,8 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
 	 PyTuple_SetItem(p_py, 1, goodness_py);
 	 PyList_SetItem(rama_info_py, i, p_py);
       }
-      PyTuple_SetItem(r, 2, rama_info_py);
    }
+   PyTuple_SetItem(r, 2, rama_info_py);
 
    return r;
 }
