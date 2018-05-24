@@ -399,8 +399,9 @@ SCM generic_object_name_scm(int obj_number) {
 #endif /* USE_GUILE */
 
 #ifdef USE_PYTHON
-PyObject *generic_object_name_py(int obj_number) {
+PyObject *generic_object_name_py(unsigned int obj_number_in) {
    graphics_info_t g;
+   int obj_number = obj_number_in;
    int n_objs = g.generic_objects_p->size();
    PyObject *r;
    r = Py_False;

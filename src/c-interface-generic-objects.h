@@ -139,7 +139,8 @@ int generic_object_index(const std::string &name);
 SCM generic_object_name_scm(int obj_number);
 #endif /* USE_GUILE */
 #ifdef USE_PYTHON
-PyObject *generic_object_name_py(int obj_number);
+PyObject *generic_object_name_py(unsigned int obj_number);
+PyObject *get_generic_object_py(unsigned int obj_number);
 #endif /* USE_PYTHON */
 #endif /*  __cplusplus */
 

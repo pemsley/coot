@@ -369,6 +369,7 @@ coot_bin_SOURCES = \
 	flev.hh			 \
 	flev.cc                  \
 	generic-display-object.hh\
+	generic-display-object.cc\
 	generic-objects.cc   	 \
         generic-display-objects-c.h \
 	geometry-graphs.cc	 \
