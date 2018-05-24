@@ -682,7 +682,7 @@
 				    "Molecule that contains the new fragment:"
 				    "Atom Selection" "//"
 				    (lambda (imol-fragment atom-selection-str)
-				      (replace-fragment 
+				      (replace-fragment
 				       imol-base imol-fragment atom-selection-str)))))))
 
 	(add-simple-coot-menu-menuitem
