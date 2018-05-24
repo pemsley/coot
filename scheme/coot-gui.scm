@@ -804,9 +804,7 @@
 (define (generic-chooser-and-entry chooser-label entry-hint-text defaut-entry-text callback-function . always-dismiss-on-ok-clicked?)
 
   (format #t "---- deal with this: always-dismiss-on-ok-clicked?: ~s~%" always-dismiss-on-ok-clicked?)
-  (let ((cf (lambda (text dummy)
-	      (callback-function text))))
-    (generic-chooser-and-entry-and-checkbutton chooser-label entry-hint-text defaut-entry-text #f cf always-dismiss-on-ok-clicked?)))
+  (generic-chooser-and-entry-and-checkbutton chooser-label entry-hint-text defaut-entry-text #f callback-function always-dismiss-on-ok-clicked?))
 
 ;; as above, plus we also have a check-button and an additional argument in the callback
 ;; If check-button-label is false, then don't create a check-button.
@@ -866,18 +864,22 @@
 				    (let* ((text (gtk-entry-get-text entry))
 					   (button-state (if check-button
 							     (gtk-toggle-button-get-active check-button)
-							     'no-check-button))
-					   (func-return-value (callback-function active-mol-no text button-state)))
+							     'no-check-button)))
 
-				      (format #t "func-return-value: ~s~%" func-return-value)
+				      (let ((func-return-value
+					     (if (eq? button-state 'no-check-button)
+						 (callback-function active-mol-no text)
+						 (callback-function active-mol-no text button-state))))
 
-				      (if (null? always-dismiss-on-ok-clicked?) ;; default
-					  (gtk-widget-destroy window)
-					  (if func-return-value
-					      (gtk-widget-destroy window)
-					      (begin
-						;; (format #t "not going anywhere\n")
-						#t)))))))))
+					(format #t "func-return-value: ~s~%" func-return-value)
+
+					(if (null? always-dismiss-on-ok-clicked?) ;; default
+					    (gtk-widget-destroy window)
+					    (if func-return-value
+						(gtk-widget-destroy window)
+						(begin
+						  ;; (format #t "not going anywhere\n")
+						  #t))))))))))
 
       (gtk-signal-connect cancel-button "clicked"
 			  (lambda args
