@@ -914,9 +914,9 @@
      (let ((imol (greg-pdb "tutorial-modern.pdb")))
        (let ((imol-2 (new-molecule-by-atom-selection imol "//A/1-10")))
 	 (coot-reduce imol-2)
-	 (let ((H-atom-o (get-atom imol-2 "A" 6 "" " N  " "")))
+	 (let ((H-atom-o (get-atom imol-2 "A" 6 "" " H  " "")))
 	     (with-no-backups imol-2 (cis-trans-convert imol-2 "A" 5 "")) ;; 5-6 peptide
-	     (let ((H-atom-n   (get-atom imol-2 "A" 6 "" " N  " "")))
+	     (let ((H-atom-n   (get-atom imol-2 "A" 6 "" " H  " "")))
 	       (let ((dd (bond-length-from-atoms H-atom-o H-atom-n)))
 		 (close-molecule imol)
 		 (close-molecule imol-2)
