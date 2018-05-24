@@ -466,7 +466,7 @@ coot::process_dfs_torsion(const coot::simple_restraint &this_restraint,
 	    }
 	 }
 		  
-	 if (true)
+	 if (false)
 	    std::cout << "in df_torsion: dtg.theta is " << dtg.theta 
 		      <<  " and target is " << this_restraint.target_value 
 		      << " and diff is " << diff
