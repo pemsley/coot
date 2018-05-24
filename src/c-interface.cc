@@ -6121,6 +6121,15 @@ PyObject *cis_peptides_py(int imol) {
 }
 #endif //  USE_PYTHON
 
+/*! \brief cis-trans convert the active residue of the active atom in the 
+    inermediate atoms, and continue with the refinement  */
+int cis_trans_convert_intermediate_atoms() {
+
+   graphics_info_t g;
+   return g.cis_trans_conversion_intermediate_atoms();
+}
+
+
 
 void post_scripting_window() {
 

@@ -2508,8 +2508,9 @@ public:        //                      public
    std::vector<std::pair<std::string, coot::residue_spec_t> > list_nomenclature_errors(coot::protein_geometry *geom_p);
 
    // ---- cis <-> trans conversion
-   int cis_trans_conversion(const std::string &chain_id, int resno, const std::string &inscode);
-   int cis_trans_conversion(mmdb::Atom *at, short int is_N_flag);
+   int cis_trans_conversion(const std::string &chain_id, int resno, const std::string &inscode,
+			    mmdb::Manager *standard_residues_mol);
+   int cis_trans_conversion(mmdb::Atom *at, short int is_N_flag, mmdb::Manager *standard_residues_mol);
    int cis_trans_convert(mmdb::PResidue *mol_residues,   // internal function, make private
 			 mmdb::PResidue *trans_residues, // or move into utils?
 			 mmdb::PResidue *cis_residues);

@@ -235,6 +235,80 @@ bool graphics_info_t::pepflip_intermediate_atoms() {
    return status;
 }
 
+// return true if the isomerisation was made
+//
+bool
+graphics_info_t::cis_trans_conversion_intermediate_atoms() {
+
+   bool state = false;
+   if (moving_atoms_asc->mol) {
+
+      mmdb::Atom *at_close = NULL;
+      float min_dist_sqrd = 4.0;
+
+      coot::Cartesian pt(graphics_info_t::RotationCentre());
+
+      for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+	 mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
+	 coot::Cartesian atom_pos(at->x, at->y, at->z);
+	 coot::Cartesian diff = atom_pos - pt;
+	 if (diff.amplitude_squared() < min_dist_sqrd) {
+	    min_dist_sqrd = diff.amplitude_squared();
+	    at_close = at;
+	 }
+      }
+
+      if (at_close) {
+
+	 mmdb::Residue *res_this = at_close->residue;
+	 std::string atom_name = at_close->name;
+
+	 // if N is at active atom then we want prev,this
+	 // otherwise we want this,next
+	 //
+	 mmdb::Residue *res_1 = NULL;
+	 mmdb::Residue *res_2 = NULL;
+	 if (atom_name == " N  ") {
+	    res_1 = moving_atoms_asc->get_previous(res_this);
+	    res_2 = res_this;
+	 } else {
+	    res_1 = res_this;
+	    res_2 = moving_atoms_asc->get_next(res_this);
+	 }
+
+	 if (res_1 && res_2) {
+	    mmdb::Atom *at_1_ca = res_1->GetAtom(" CA ");
+	    mmdb::Atom *at_1_c  = res_1->GetAtom(" C  ");
+	    mmdb::Atom *at_1_o  = res_1->GetAtom(" O  ");
+	    mmdb::Atom *at_2_ca = res_2->GetAtom(" CA ");
+	    mmdb::Atom *at_2_n  = res_2->GetAtom(" N  ");
+	    mmdb::Atom *at_2_h  = res_2->GetAtom(" H  ");
+
+	    bool is_N_flag = false;
+	    if (atom_name == " N  ")
+	       is_N_flag = true;
+
+	    if (at_1_ca && at_2_ca) {
+
+	       mmdb::Manager *standard_residues_mol = standard_residues_asc.mol;
+	       mmdb::Manager *mol = moving_atoms_asc->mol;
+	       int s = coot::util::cis_trans_conversion(at_close, is_N_flag, mol, standard_residues_mol);
+	       state = true; // we found intermedate atoms and tried to convert them
+
+	       // the atoms have moved, we need to continue the refinement.
+
+	       drag_refine_refine_intermediate_atoms();
+
+	       graphics_draw(); // needed
+
+	    }
+	 }
+      }
+   }
+   return state;
+}
+
+
 #ifdef USE_PYTHON
 void graphics_info_t::register_post_intermediate_atoms_moved_hook(PyObject *function) {
 

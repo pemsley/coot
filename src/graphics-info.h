@@ -3734,6 +3734,11 @@ public:
    // ---- cis trans conversion ---
    void cis_trans_conversion(mmdb::Atom *at, int imol, short int is_N_flag);
 
+   // return true if the isomerisation was made
+   // 
+   bool cis_trans_conversion_intermediate_atoms();
+
+
    // symmetry control dialog:
    GtkWidget *wrapped_create_symmetry_controller_dialog() const;
    static GtkWidget *symmetry_controller_dialog;  // returned by above

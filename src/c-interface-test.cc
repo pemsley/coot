@@ -402,14 +402,20 @@ int test_function(int i, int j) {
 #include <CXXClasses/MolecularRepresentationInstance.h>
 #endif // USE_MOLECULES_TO_TRIANGLES
 
+
 #ifdef USE_GUILE
 SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
    graphics_info_t g;
    SCM r = SCM_BOOL_F;
 
-#ifdef USE_MOLECULES_TO_TRIANGLES
+
    if (true) {
+
+   }
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+   if (false) {
 
       int imol = scm_to_int(i_scm);
       if (is_valid_model_molecule(imol)) {
