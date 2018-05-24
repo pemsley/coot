@@ -31,7 +31,7 @@ PyObject *get_generic_object_py(unsigned int idx) {
    if (idx < size) {
       r = PyDict_New();
       const coot::generic_display_object_t &gdo = g.generic_objects_p->at(idx);
-      if (! gdo.is_closed_flag()) {
+      if (! gdo.is_closed_flag) {
 	 // also, is_transparent_flag, is_solid_flag, opacity
 	 PyDict_SetItemString(r, "name", PyString_FromString(gdo.name.c_str()));
 	 PyDict_SetItemString(r, "imol", PyInt_FromLong(gdo.imol));
