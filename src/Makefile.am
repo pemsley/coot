@@ -362,6 +362,7 @@ coot_bin_SOURCES = \
 	coot-version.hh          \
 	data-pair-remover.hh     \
 	coot_wrap_guile.cc       \
+        curlew.hh                \
         dots-representation.hh   \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
