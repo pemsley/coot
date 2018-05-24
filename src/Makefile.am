@@ -353,7 +353,8 @@ coot_bin_SOURCES = \
 	coot-setup-python.cc     \
 	coot-setup-python.hh     \
 	coot-version.hh          \
-	coot_wrap_guile.cc  \
+	coot_wrap_guile.cc       \
+        curlew.hh                \
         dots-representation.hh   \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
