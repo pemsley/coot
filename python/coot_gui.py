@@ -218,8 +218,9 @@ def coot_gui(own_gtk_main=False):
              You should use python commands!!\n\
              But I'm a nice guy and translated it for you, this time...!\n")
           else:
-             insert_normal_text("BL WARNING:: Python syntax error!\n\
-             (Or you attempted to use an invalid guile command...)\n")
+             # I don't need to see this - and its often not right (not a syntax error)
+             # insert_normal_text("BL WARNING:: Python syntax error!\n\
+             # (Or you attempted to use an invalid guile command...)\n")
              type_error, error_value = sys.exc_info()[:2]
              error = str(error_value)
              insert_normal_text("Python error:\n") 
