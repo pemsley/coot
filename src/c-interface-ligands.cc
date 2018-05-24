@@ -3430,7 +3430,7 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
       std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
       coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, g.Geom_p(), 0.5, 0.25);
       coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand();
-      std::cout << "------------- score " << c.score() << std::endl;
+      std::cout << "------------- coot_contact_dots_for_ligand_internal(): score " << c.score() << std::endl;
 
       // for quick colour lookups.
       std::map<std::string, coot::colour_holder> colour_map;
@@ -3449,14 +3449,14 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
       colour_map["grey"      ] = coot::generic_display_object_t::colour_values_from_colour_name("grey");
       colour_map["magenta"   ] = coot::generic_display_object_t::colour_values_from_colour_name("magenta");
       colour_map["royalblue" ] = coot::generic_display_object_t::colour_values_from_colour_name("royalblue");
-      
+
       std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
       for (it=c.dots.begin(); it!=c.dots.end(); it++) {
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
 	 std::string obj_name = "Molecule ";
 	 obj_name += coot::util::int_to_string(imol) + ": " + type;
-	 int obj = new_generic_object_number(obj_name.c_str());
+	 int obj = new_generic_object_number_for_molecule(obj_name, imol);
 	 int point_size = 2;
 	 if (type == "vdw-surface") point_size = 1;
 	 for (unsigned int i=0; i<v.size(); i++) {
@@ -3468,7 +3468,7 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
       }
       std::string clashes_name = "Molecule " + coot::util::int_to_string(imol) + ":";
       clashes_name += " clashes";
-      int clashes_obj = new_generic_object_number(clashes_name.c_str()); // change this func to use std::string arg
+      int clashes_obj = new_generic_object_number_for_molecule(clashes_name, imol);
       for (unsigned int i=0; i<c.clashes.size(); i++) {
 	 to_generic_object_add_line(clashes_obj, "#ff59b4", 2,
 				    c.clashes[i].first.x(),  c.clashes[i].first.y(),  c.clashes[i].first.z(),
@@ -3573,7 +3573,7 @@ void coot_all_atom_contact_dots(int imol) {
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
 	 std::string obj_name = "Molecule ";
 	 obj_name += coot::util::int_to_string(imol) + ": " + type;
-	 int obj = new_generic_object_number(obj_name.c_str());
+	 int obj = new_generic_object_number_for_molecule(obj_name, imol);
 	 std::string col = "#445566";
 	 int point_size = 2;
 	 if (type == "vdw-surface") point_size = 1;
@@ -3586,7 +3586,7 @@ void coot_all_atom_contact_dots(int imol) {
       }
       std::string clashes_name = "Molecule " + coot::util::int_to_string(imol) + ":";
       clashes_name += " clashes";
-      int clashes_obj = new_generic_object_number(clashes_name.c_str());
+      int clashes_obj = new_generic_object_number_for_molecule(clashes_name, imol);
       for (unsigned int i=0; i<c.clashes.size(); i++) {
 	 to_generic_object_add_line(clashes_obj, "#ff59b4", 2,
 				    c.clashes[i].first.x(),  c.clashes[i].first.y(),  c.clashes[i].first.z(),
