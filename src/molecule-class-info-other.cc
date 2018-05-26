@@ -4187,8 +4187,8 @@ molecule_class_info_t::fill_raster_model_info(bool against_a_dark_background) {
 	    // rtmi.atom.push_back(std::pair<coot::Cartesian, coot::colour_t>
 	    // (bonds_box.atom_centres_[i].second, c));
 	    double r = g.raster3d_atom_radius;
-	    std::cout << "comparing colours " << bonds_box.atom_centres_colour_[i] << " vs "
-		      << HYDROGEN_GREY_BOND << std::endl;
+	    // std::cout << "comparing colours " << bonds_box.atom_centres_colour_[i] << " vs "
+	    //           << HYDROGEN_GREY_BOND << std::endl;
 	    if (bonds_box.atom_centres_colour_[i] == HYDROGEN_GREY_BOND)
 	       r *= 0.5;
 

@@ -5598,6 +5598,8 @@ void set_raster3d_shadows_enabled(int state);
 /*! \brief set the flag to show waters as spheres for the Raster3D 
 representation. 1 show as spheres, 0 the usual stars. */
 void set_raster3d_water_sphere(int istate);
+/*! \brief set the font size (as a string) for raster3d*/
+void set_raster3d_font_size(const char *size_in);
 /*! \brief run raster3d and display the resulting image.  */
 void raster_screen_shot(); /* run raster3d or povray and guile */
                            /* script to render and display image */

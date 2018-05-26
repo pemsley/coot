@@ -71,6 +71,9 @@ graphics_info_t::raster3d(std::string filename) {
    rt.add_display_objects(*generic_objects_p);
    rt.set_raster3d_enable_shadows(raster3d_enable_shadows);
    bool is_bb = background_is_black_p();
+   coot::colour_t atom_label_colour(font_colour.red, font_colour.green, font_colour.blue);
+   rt.set_atom_label_colour(atom_label_colour);
+   rt.set_font_size(raster3d_font_size);
 
    std::cout << "Generating raytrace molecule objects..." << std::endl;
    for (int imol=0; imol<n_molecules(); imol++) {
@@ -90,6 +93,17 @@ graphics_info_t::raster3d(std::string filename) {
 	       rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(-1));
 	    }
 	 }
+	 const std::vector<int> &l = molecules[imol].labelled_atom_index_list;
+	 unsigned int n_atoms_to_label = l.size();
+	 for (std::size_t i=0; i<l.size(); i++) {
+	    mmdb::Atom *at = molecules[imol].atom_sel.atom_selection[l[i]];
+	    // Look these up if anyone ever complains about "incorrect" labels
+	    bool al_flag = false; // brief atom labels
+	    bool sid_flag = false; // seg_ids flag
+	    std::pair<std::string, clipper::Coord_orth> s = molecules[imol].make_atom_label_string(i, al_flag, sid_flag);
+	    rt.add_label(s);
+	 }
+	 
       }
    }
    std::cout << "Rendering raytrace..." << std::endl;
@@ -358,6 +372,8 @@ coot::raytrace_info_t::render_ray_trace(std::string filename, int reso_multiplie
       render_molecules(render_stream);
 
       render_generic_objects(render_stream);
+
+      render_labels(render_stream);
 	 
       render_stream.close();
       istat = 0;
@@ -592,6 +608,27 @@ coot::raytrace_info_t::render_generic_objects(std::ofstream &render_stream) cons
    for (unsigned int i=0; i<display_objects.size(); i++) {
       std::cout << " generic object number : " << i << std::endl;
       display_objects[i].raster3d(render_stream);
+   }
+}
+
+void
+coot::raytrace_info_t::render_labels(std::ofstream &s) const {
+
+   if (labels.size() > 0) {
+      s << "10\n";
+      s << "\"Sans\" ";
+      s << font_size_string;
+      s << " \"Left-align\"\n";
+      for (std::size_t i=0; i<labels.size(); i++) {
+	 s << "11\n  ";
+	 s << labels[i].second.x() << " "
+	   << labels[i].second.y() << " "
+	   << labels[i].second.z() << " "
+	   << atom_label_colour.col[0] << " "
+	   << atom_label_colour.col[1] << " "
+	   << atom_label_colour.col[2] << "\n"
+	   << labels[i].first << "\n";
+      }
    }
 }
 
