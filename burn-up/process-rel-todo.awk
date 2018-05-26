@@ -6,10 +6,16 @@ BEGIN { pre_sum = 0; post_sum = 0; add_to_pre_sum = 1; }
 	if ($i == ":::") {
 	    if (add_to_pre_sum) {
                 # print "adding", $(i+1)+0, "to pre_sum"
-		pre_sum += $(i+1)+0
+                if ($(i+2) == "h")
+		   pre_sum += ($(i+1)+0) * 0.25
+                else
+		   pre_sum += $(i+1)+0
 	    } else { 
                 # print "adding", $(i+1)+0, "to post_sum"
-		post_sum += $(i+1)+0
+                if ($(i+2) == "h")
+		   post_sum += ($(i+1)+0) * 0.25
+                else
+		   post_sum += $(i+1)+0
 	    }
 	}
     }
