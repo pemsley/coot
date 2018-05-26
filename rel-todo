@@ -1,14 +1,21 @@
 
    For Release 0.8.9.2
 
-   o sync bernie ::: 1
-
    o morph-fit-by-secondary-structure-elements does a bad job for the loop at 202 with
-     do-a-better-job-at-moving-the-loop-on-SS-morph-fit.pdb, 6771 ::: 2
+     do-a-better-job-at-moving-the-loop-on-SS-morph-fit.pdb, 6771 ::: 4
 
-   o Check that H on N moves on cis-trans ::: 1
+   o add labels to raster3d output ::: 2 h
 
-* Needs a fixed test.
+   o test that add-lsq-atom-pair and apply-lsq-matches works ::: 1
+
+   o after a merge molecules, do a graphics draw ::: 0.5 h
+
+   o fix this in molecule-class-info.h:
+      // Ugh.  Horrible.  I don't want outside access to setting of
+      // imol_no - I want to do it in the constructor.  Must FIX. 
+      //
+      void set_mol_number(int i) ...
+      ::: 1
 
 ------
 
@@ -124,5 +131,9 @@ command "cprodrg" not found
 * Done.
 
    o replace fragment using Edit gui menu item ::: 0.2
+
+* Done.
+
+   o sync bernie ::: 1
 
 * Done.
