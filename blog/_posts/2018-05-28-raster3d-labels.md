@@ -6,7 +6,7 @@ date: Mon 28 May 2018 16:01:25 BST
 
 So now we have labels, thanks to a request from Vito Calderone.
 
-![Raster3D has labels]({{"blog/images/CQ6-label-bright.png" | absolute_url }})
+![Raster3D has labels]({{"../../../images/CQ6-label-bright.png" | absolute_url }})
 
 ![Raster3D has labels]({{"https://pemsley.github.io/coot/blog/images/CQ6-white-bg-2.png"}})
 
