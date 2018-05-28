@@ -7519,7 +7519,14 @@ void set_raster3d_water_sphere(int state) {
 
    graphics_info_t::raster3d_water_sphere_flag = state;
 
-} 
+}
+
+/*! \brief set the font size (as a string) for raster3d*/
+void set_raster3d_font_size(const char *size_in) {
+
+   graphics_info_t::raster3d_font_size = size_in;
+}
+
 
 void
 raster_screen_shot() {  // run raster3d or povray and guile

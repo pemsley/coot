@@ -3210,12 +3210,25 @@ molecule_class_info_t::label_symmetry_atom(int i) {
    }
 }
 
+std::pair<std::string, clipper::Coord_orth>
+molecule_class_info_t::make_atom_label_string(unsigned int ith_labelled_atom,
+					      int brief_atom_labels_flag,
+					      short int seg_ids_in_atom_labels_flag) const {
+
+   mmdb::Atom *at = atom_sel.atom_selection[labelled_atom_index_list[ith_labelled_atom]];
+   std::string label = make_atom_label_string(at, brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
+   clipper::Coord_orth p = coot::co(at);
+   p += clipper::Coord_orth(0.02, 0.02, 0.02);
+   
+   return std::pair<std::string, clipper::Coord_orth>(label, p);
+}
+
 // Put a label at the ith atom of mol_class_info::atom_selection. 
 //
 void
 molecule_class_info_t::label_atom(int i, int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag) {
 
-   if (has_model()) { 
+   if (has_model()) {
 
       if (i < atom_sel.n_selected_atoms) { 
 

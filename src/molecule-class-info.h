@@ -820,19 +820,18 @@ public:        //                      public
 				 bool warn_about_missing_symmetry_flag);
 
    void label_symmetry_atom(int i);
-   
+
+   // used for raster3d (where we need to know the position of the label)
+   std::pair<std::string, clipper::Coord_orth>
+   make_atom_label_string(unsigned int ith_labelled_atom,
+			  int brief_atom_labels_flag,
+			  short int seg_ids_in_atom_labels_flag) const;
+
    void label_atom(int i, int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag);
 
    void debug_selection() const; 
    void debug() const;
 
-   // Ugh.  Horrible.  I don't want outside access to setting of
-   // imol_no - I want to do it in the constructor.  Must FIX. 
-   // 
-   void set_mol_number(int i) {
-      imol_no = i;
-      *imol_no_ptr = i;
-   }; 
    void set_bond_colour_by_mol_no(int icolour,
 				  bool against_a_dark_background);  // not const because
 					   	                    // we also set
