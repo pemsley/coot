@@ -12,7 +12,10 @@ Blog
 ----
 
 [Coot Development Blog](blog "Coot Development Blog")
+
 [Test Coot Development Blog](blog-test "Test Coot Development Blog")
+
+[Test2 Coot Development Blog](blog/index.html "Test-2 Coot Development Blog")
 
 Redistribution
 --------------
