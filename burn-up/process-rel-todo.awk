@@ -22,7 +22,8 @@ BEGIN { pre_sum = 0; post_sum = 0; add_to_pre_sum = 1; }
 }
 
 END {
-    x = system("date +%s > proc-rel.tmp")
+    x  = system("date +%s > proc-rel.tmp")
+    x2 = system("date > proc-rel-2.tmp")
     getline < "proc-rel.tmp";
     # n_s = $1-1229420879; for 0.6
     # n_s = $1-1260164717; for 0.6.1
@@ -34,6 +35,8 @@ END {
     # yesterday in guile:  (- (current-time) (* 24 60 60))
     n_s = $1 - 1524348970
     n_days = n_s/(60*60*24)
-    print n_days, post_sum, pre_sum + post_sum
+    getline < "proc-rel-2.tmp";
+    date_line = $0
+    print n_days, post_sum, pre_sum + post_sum, "  #", date_line
 }
 

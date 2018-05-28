@@ -94,11 +94,19 @@ do_plot = function() {
 
 # text(175, 175, labels="CSHL Purge", col='grey', cex=0.7)
 # arrows(160, 180, 118, 200, code=2, cex=0.5)
-# betterArrow(160, 180, 118, 200, col='grey', code=2)
 
 do_plot()
 
 predict(prediction_text_x_placement, prediction_text_y_placement)
+
+betterArrow(0, 4, 0, 0, col='grey', code=2)
+text(1, 4.5, labels="Easter", col='grey', cex=1.0)
+
+betterArrow(29, 16, 35.5, 16, col='grey', code=2)
+text(26, 16, labels="Madrid", col='grey', cex=1.0)
+
+betterArrow(10, 18, 10, 14.5, col='grey', code=2)
+text(10, 18.5, labels="Keele (EM)", col='grey', cex=1.0)
 
 dev.off()
 

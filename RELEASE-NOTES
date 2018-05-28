@@ -23,6 +23,8 @@
 
   o CHANGE:  RCrane restored
 
+  o FEATURE: raster3d output now includes labels [Vito Calderone]
+
   o BUG-FIX: the H atom in a peptide is now moved along with the other peptide atoms
              on a cis->trans conversion (and vice versa)
 

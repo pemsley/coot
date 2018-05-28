@@ -1,14 +1,12 @@
 
    For Release 0.8.9.2
 
-   o morph-fit-by-secondary-structure-elements does a bad job for the loop at 202 with
-     do-a-better-job-at-moving-the-loop-on-SS-morph-fit.pdb, 6771 ::: 4
+   o does replace residue get the residue numbering right?
+     Change the ALA at the end of a chain ::: 2
 
-   o add labels to raster3d output ::: 2 h
+   o why no ligands in "CA + Ligands" on the Slt pdb? ::: 1
 
    o test that add-lsq-atom-pair and apply-lsq-matches works ::: 1
-
-   o after a merge molecules, do a graphics draw ::: 0.5 h
 
    o fix this in molecule-class-info.h:
       // Ugh.  Horrible.  I don't want outside access to setting of
@@ -16,6 +14,17 @@
       //
       void set_mol_number(int i) ...
       ::: 1
+
+   o links (of renumbered residues) disappear on renumber residues ::: 1
+
+   o Add OXT to residue -> on a DAL -> triple bond? ::: 1
+
+   o coot-reduce on a bit of carbohydrate (NAG-NAG?)
+
+   o coot-reduce on a bit of protein with DAL, rather than ALA
+
+   o morph-fit-by-secondary-structure-elements does a bad job for the loop at 202 with
+     do-a-better-job-at-moving-the-loop-on-SS-morph-fit.pdb, 6771 ::: 4
 
 ------
 
@@ -137,3 +146,11 @@ command "cprodrg" not found
    o sync bernie ::: 1
 
 * Done.
+
+   o add labels to raster3d output ::: 2 h
+
+* Done.
+
+   o after a merge molecules, do a graphics draw ::: 0
+
+* Don't see the problem
