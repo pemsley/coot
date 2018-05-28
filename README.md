@@ -1,5 +1,5 @@
 
-Coot
+*Coot*
 ----
 
 *Coot* is a toolkit for Macromolecular Crystallography and
@@ -8,6 +8,10 @@ mmdb, clipper, and OpenGL, together with a new approach to map
 contouring and importing/creation and other modelling and building
 operations.
 
+Blog
+----
+
+[Coot Development Blog](blog "Coot Development Blog")
 
 Redistribution
 --------------
