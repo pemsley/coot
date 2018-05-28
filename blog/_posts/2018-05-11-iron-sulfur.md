@@ -8,6 +8,6 @@ date: Mon 11 May 2018 15:31:08 BST
 
 Iron-Sulfur complexes now look connected.
 
-![Burn-up graph]({{"images/2018-05-FES.png" | absolute_url }})
+![Iron-Sulfur Complex]({{"blog/images/2018-05-FES.png" | absolute_url }})
 
 
