@@ -8,7 +8,7 @@ So now we have labels, thanks to a request from Vito Calderone.
 
 ![Raster3D has labels]({{"blog/images/CQ6-label-bright.png" | absolute_url }})
 
-![Raster3D has labels]({{"https://pemsley.github.io/coot/blog/images/CQ6-white-bg-2.png" | absolute_url }})
+![Raster3D has labels]({{"https://pemsley.github.io/coot/blog/images/CQ6-white-bg-2.png-xxx"}})
 
 You can change the font size using:
 
