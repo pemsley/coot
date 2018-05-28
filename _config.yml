@@ -18,7 +18,7 @@ title: Coot Development Blog
 description: >- # this means to ignore newlines until "baseurl:"
   Coot updates and screenshots
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://pemsley.github.io/coot" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://pemsley.github.io/coot/blog" # the base hostname & protocol for your site, e.g. http://example.com
 github_username:  pemsley
 
 show_excerpts: true
