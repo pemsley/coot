@@ -13,9 +13,6 @@ Blog
 
 [Coot Development Blog](blog "Coot Development Blog")
 
-[Test Coot Development Blog](blog-test "Test Coot Development Blog")
-
-[Test2 Coot Development Blog](blog/index.html "Test-2 Coot Development Blog")
 
 Redistribution
 --------------
@@ -51,12 +48,11 @@ Prerequisites:
  
  * gsl-1.3 or later (http://www.mirror.ac.uk/sites/ftp.gnu.org/gnu/gsl)
    [This is quite important, you can't regularize or refine without this] 
- * goocanvas
+ * goocanvas [graphs, molecule diagrams]
  * guile-1.8.x
    (http://www.mirror.ac.uk/sites/ftp.gnu.org/gnu/guile/) [scripting]
  * guile-gui-0.2.tar.gz (http://www.ossau.uklinux.net/guile/) [interactive scripting]
  * guile-www-1.1.5 or later
-   [OCA Server interface]
  * guile-gtk (ftp://ftp.gnu.org/gnu/guile-gtk) [interactive scripting]
  * goosh-1.3 or later (http://arglist.com/guile/) 
    [external program (e.g. refmac, lsqman) interface]
