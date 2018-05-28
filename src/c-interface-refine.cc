@@ -1140,6 +1140,60 @@ void use_unimodal_ring_torsion_restraints(const std::string &res_name) {
 
 }
 
+
+#ifdef USE_PYTHON
+//! \brief use unimodal ring torsion restraints (e.g. for carbohydrate pyranose)
+//
+//         allow user definition of torsions for given residue
+//  @var{torsions_info_list} is a list of item that are of the form
+//  @var{[atom_name_1, atom_name_2, atom_name_3, atom_name_4, double torsion_1234]}
+void use_unimodal_ring_torsion_restraints_for_residue(const std::string &res_name, PyObject *torsions_info_list) {
+
+   if (PyList_Check(torsions_info_list)) {
+      unsigned int n_torsions = PyObject_Length(torsions_info_list);
+      std::vector<coot::atom_name_torsion_quad> tors_info_vec;
+      for (unsigned int i=0; i<n_torsions; i++) {
+	 PyObject *tors_info = PyList_GetItem(torsions_info_list, i);
+	 if (PyList_Check(tors_info)) {
+	    unsigned int n_eles = PyObject_Length(tors_info);
+	    if (n_eles == 5) {
+	       PyObject *at_1_py = PyList_GetItem(tors_info, 0);
+	       PyObject *at_2_py = PyList_GetItem(tors_info, 1);
+	       PyObject *at_3_py = PyList_GetItem(tors_info, 2);
+	       PyObject *at_4_py = PyList_GetItem(tors_info, 3);
+	       PyObject *tors_py = PyList_GetItem(tors_info, 4);
+	       if (PyString_Check(at_1_py)) {
+		  if (PyString_Check(at_2_py)) {
+		     if (PyString_Check(at_3_py)) {
+			if (PyString_Check(at_4_py)) {
+			   if (PyFloat_Check(tors_py)) {
+			      std::string at_name_1 = PyString_AsString(at_1_py);
+			      std::string at_name_2 = PyString_AsString(at_2_py);
+			      std::string at_name_3 = PyString_AsString(at_3_py);
+			      std::string at_name_4 = PyString_AsString(at_4_py);
+			      double tors = PyFloat_AsDouble(tors_py);
+			      std::string id = "ring-torsion-";
+			      id += coot::util::int_to_string(tors_info_vec.size()+1);
+			      coot::atom_name_torsion_quad tors_info(id, at_name_1, at_name_2, at_name_3, at_name_4, tors);
+			      tors_info_vec.push_back(tors_info);
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+
+      if (tors_info_vec.size() > 0) {
+	 int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+	 graphics_info_t::Geom_p()->use_unimodal_ring_torsion_restraints(imol_enc, res_name, tors_info_vec, graphics_info_t::cif_dictionary_read_number);
+      }
+   }
+}
+#endif
+
+
 void set_refinement_geman_mcclure_alpha(float alpha) {
 
    graphics_info_t::geman_mcclure_alpha = alpha;

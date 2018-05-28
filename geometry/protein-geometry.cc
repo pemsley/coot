@@ -4618,7 +4618,7 @@ void
 coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std::string &res_name,
 							     int mmcif_read_number) {
 
- bool minimal = false;
+   bool minimal = false;
    int idx = get_monomer_restraints_index(res_name, imol, minimal);
    if (idx == -1) {
       try_dynamic_add(res_name, mmcif_read_number);
@@ -4656,7 +4656,7 @@ coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std
       if (false)
 	 std::cout << "............... post-delete size: " << torsion_restraints.size()
 		   << " for " << res_name << std::endl;
-      
+
       std::vector<atom_name_torsion_quad> quads = get_reference_monomodal_torsion_quads(res_name);
       for (unsigned int i=0; i<quads.size(); i++) {
 	 const atom_name_torsion_quad &quad = quads[i];
@@ -4667,6 +4667,64 @@ coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std
       }
    }
 }
+
+// pass the atom names and the desired torsion value - sigma is not specified
+// by the user.
+void
+coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std::string &res_name,
+							     const std::vector<coot::atom_name_torsion_quad> &tors_info_vec,
+							     int mmcif_read_number) {
+
+   bool minimal = false;
+   int idx = get_monomer_restraints_index(res_name, imol, minimal);
+   if (idx == -1) {
+      try_dynamic_add(res_name, mmcif_read_number);
+      idx = get_monomer_restraints_index(res_name, imol, minimal);
+   }
+
+   if (idx != -1) {
+      // continue
+
+      // (first is the imol)
+      std::vector <dict_torsion_restraint_t> &torsion_restraints =
+	 dict_res_restraints[idx].second.torsion_restraint;
+
+      // We don't want to clear all torsion restraints, just the ring torsions
+      //
+      std::set<std::string> ring_atom_names;
+      // we generate the ring atoms names from the atoms in the passed quads
+      for (std::size_t i=0; i<tors_info_vec.size(); i++) {
+	 const atom_name_torsion_quad &q = tors_info_vec[i];
+	 ring_atom_names.insert(q.atom_name(0));
+	 ring_atom_names.insert(q.atom_name(1));
+	 ring_atom_names.insert(q.atom_name(2));
+	 ring_atom_names.insert(q.atom_name(3));
+      }
+
+      if (false) {
+	 std::cout << "...............  pre-delete size: " << torsion_restraints.size()
+		   << " for " << res_name << std::endl;
+      }
+
+      torsion_restraints.erase(std::remove_if(torsion_restraints.begin(),
+					      torsion_restraints.end(),
+					      restraint_eraser(ring_atom_names)), torsion_restraints.end());
+
+      if (false)
+	 std::cout << "............... post-delete size: " << torsion_restraints.size()
+		   << " for " << res_name << std::endl;
+
+      for (unsigned int i=0; i<tors_info_vec.size(); i++) {
+	 const atom_name_torsion_quad &quad = tors_info_vec[i];
+	 // this could have a nicer interface - using the quad here.
+	 dict_torsion_restraint_t tors(quad.id,
+				       quad.atom_name(0), quad.atom_name(1), quad.atom_name(2), quad.atom_name(3),
+				       quad.torsion, 4.0, 1);
+	 torsion_restraints.push_back(tors);
+      }
+   }
+}
+
 
 std::vector<coot::atom_name_torsion_quad>
 coot::protein_geometry::get_reference_monomodal_torsion_quads(const std::string &res_name) const {
