@@ -818,13 +818,6 @@ public:        //                      public
    void debug_selection() const; 
    void debug() const;
 
-   // Ugh.  Horrible.  I don't want outside access to setting of
-   // imol_no - I want to do it in the constructor.  Must FIX. 
-   // 
-   void set_mol_number(int i) {
-      imol_no = i;
-      *imol_no_ptr = i;
-   }; 
    void set_bond_colour_by_mol_no(int icolour,
 				  bool against_a_dark_background);  // not const because
 					   	                    // we also set
