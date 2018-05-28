@@ -109,7 +109,7 @@ def click_select_residues_for_acedrg(window, option_menu, entry):
                     return False # just in case
                 else:
                     if not (imol_click_1 == imol_click_2):
-                        return False
+                        add_status_bar_text("These residues are not in the same molecule")
                     else:
                         imol = imol_click_1
                         delete_stripped_1 = delete_atom_text.replace(" ", "")
