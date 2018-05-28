@@ -6,6 +6,10 @@
   o FEATURE: External angle restraints are now available (corresponding to REFMAC type
 	     0 restraints) - mini-rsr included [Robbie Joosten]
 
+  o FEATURE: raster3d output now includes labels [Vito Calderone]
+
+  o FEATURE: API for user-defined unimodal torsion restraints (for pyranoses) [Juan Hermoso]
+
   o CHANGE:  Iron-Sulfur clusters are now bonded using the dictionary (and so appear "cubic")
              [Hannah Bridges]
 
@@ -22,8 +26,6 @@
              restraints
 
   o CHANGE:  RCrane restored
-
-  o FEATURE: raster3d output now includes labels [Vito Calderone]
 
   o BUG-FIX: the H atom in a peptide is now moved along with the other peptide atoms
              on a cis->trans conversion (and vice versa)

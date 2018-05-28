@@ -17,14 +17,20 @@
 
    o links (of renumbered residues) disappear on renumber residues ::: 1
 
+     Replace residue in the middle of a chain seemed to not give the correct residue number.
+
+   o coot in phal gives old (0.8.8) coot.
+
    o Add OXT to residue -> on a DAL -> triple bond? ::: 1
 
-   o coot-reduce on a bit of carbohydrate (NAG-NAG?)
+   o coot-reduce on a bit of carbohydrate (NAG-NAG?) ::: 1
 
    o coot-reduce on a bit of protein with DAL, rather than ALA
 
    o morph-fit-by-secondary-structure-elements does a bad job for the loop at 202 with
      do-a-better-job-at-moving-the-loop-on-SS-morph-fit.pdb, 6771 ::: 4
+
+   o email about dynamic bond width (April?) ::: 2
 
 ------
 
