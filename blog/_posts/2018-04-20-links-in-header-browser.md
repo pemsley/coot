@@ -6,6 +6,6 @@ date: Mon 20 April 2018 BST
 
 The LINK records are now represented in the header browser:
 
-![Link info]({{"https://pemsley.github.io/coot/blog/images/2018-05-links.png"}})
+![Link info]({{"../../../images/2018-05-links.png"}})
 
 

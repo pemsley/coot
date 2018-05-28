@@ -9,5 +9,5 @@ We were looking like a release was imminent. But now, post-Madrid, there is more
 
 <center>Before and After</center>
 
-![Burn-up graph]({{"https://pemsley.github.io/coot/blog/images/2018-05-burn-up-side-by-side.png"}})
+![Burn-up graph]({{"../../../images/2018-05-burn-up-side-by-side.png"}})
 

@@ -8,6 +8,6 @@ date: Mon 11 May 2018 15:31:08 BST
 
 Iron-Sulfur complexes now look connected.
 
-![Iron-Sulfur Complex]({{"https://pemsley.github.io/coot/blog/images/2018-05-FES.png"}})
+![Iron-Sulfur Complex]({{"../../../images/2018-05-FES.png"}})
 
 
