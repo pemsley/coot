@@ -1,36 +1,25 @@
 
    For Release 0.8.9.2
 
-   o does replace residue get the residue numbering right?
-     Change the ALA at the end of a chain ::: 2
-
-   o why no ligands in "CA + Ligands" on the Slt pdb? ::: 1
-
    o test that add-lsq-atom-pair and apply-lsq-matches works ::: 1
-
-   o fix this in molecule-class-info.h:
-      // Ugh.  Horrible.  I don't want outside access to setting of
-      // imol_no - I want to do it in the constructor.  Must FIX. 
-      //
-      void set_mol_number(int i) ...
-      ::: 1
 
    o links (of renumbered residues) disappear on renumber residues ::: 1
 
-     Replace residue in the middle of a chain seemed to not give the correct residue number.
-
-   o coot in phal gives old (0.8.8) coot.
-
-   o Add OXT to residue -> on a DAL -> triple bond? ::: 1
+   o coot in phal gives old (0.8.8) coot. ::: 1 h
 
    o coot-reduce on a bit of carbohydrate (NAG-NAG?) ::: 1
 
-   o coot-reduce on a bit of protein with DAL, rather than ALA
+   o coot-reduce on a bit of protein with DAL, rather than ALA ::: 1
+
+   o Add OXT to residue -> on a DAL -> triple bond? ::: 1
 
    o morph-fit-by-secondary-structure-elements does a bad job for the loop at 202 with
      do-a-better-job-at-moving-the-loop-on-SS-morph-fit.pdb, 6771 ::: 4
 
    o email about dynamic bond width (April?) ::: 2
+
+   o      ERROR:: C: last_restraints no cleared up
+     on every frame of a rotate/translate molecule ::: 1
 
 ------
 
@@ -160,3 +149,19 @@ command "cprodrg" not found
    o after a merge molecules, do a graphics draw ::: 0
 
 * Don't see the problem
+
+   o fix this in molecule-class-info.h:
+      // Ugh.  Horrible.  I don't want outside access to setting of
+      // imol_no - I want to do it in the constructor.  Must FIX.
+      //
+      void set_mol_number(int i) ...
+      ::: 1
+
+   o Why no ligands in "CA + Ligands" on the Slt pdb? ::: 0.1 h
+
+* Because the ligands don't match the dictionary. Is fine.
+
+   o Does replace residue get the residue numbering right?
+     Change the ALA at the end of a chain ::: 2
+
+* Done. A solid 2. Took all day. 4.46pm now.

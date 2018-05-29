@@ -38,6 +38,7 @@
 #endif
 
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <vector>
 #include <stdexcept>
@@ -8726,11 +8727,12 @@ molecule_class_info_t::chain_id_for_shelxl_residue_number(int shelxl_resno) cons
    }
 
    return std::pair<bool, std::string> (found_it, chain_id_unshelxed);
-} 
+}
 
 
+// default arg debug_atoms_also_flag=false
 void
-molecule_class_info_t::debug() const {
+molecule_class_info_t::debug(bool debug_atoms_also_flag) const {
 
    int imod = 1;
       
@@ -8738,7 +8740,7 @@ molecule_class_info_t::debug() const {
    mmdb::Chain *chain_p;
    // run over chains of the existing mol
    int nchains = model_p->GetNumberOfChains();
-   std::cout << "debug:: debug(): model 1 has " << nchains << " chaina" << std::endl;
+   std::cout << "debug:: debug(): model 1 has " << nchains << " chains" << std::endl;
    for (int ichain=0; ichain<nchains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
@@ -8746,8 +8748,22 @@ molecule_class_info_t::debug() const {
       for (int ires=0; ires<nres; ires++) { 
 	 residue_p = chain_p->GetResidue(ires);
 	 if (residue_p) {
-	    std::cout << "debug:: debug():    " << chain_p->GetChainID() << " " << residue_p->GetSeqNum()
-		      << " " << residue_p->index << std::endl;
+	    std::cout << "debug():  " << residue_p->GetResName() << " "
+		      << chain_p->GetChainID() << " " << residue_p->GetSeqNum()
+		      << " \"" << residue_p->GetInsCode() << "\" index: "
+		      << residue_p->index << std::endl;
+
+	    if (debug_atoms_also_flag) {
+	       mmdb::Atom **residue_atoms = 0;
+	       int n_residue_atoms;
+	       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	       for (int iat=0; iat<n_residue_atoms; iat++) {
+		  mmdb::Atom *at = residue_atoms[iat];
+		  std::cout << "     " << std::setw(2) << iat << " " << coot::atom_spec_t(at)
+			    << " " << at->x << " " << at->y << " " << at->z
+			    << std::endl;
+	       }
+	    }
 	 }
       }
    }

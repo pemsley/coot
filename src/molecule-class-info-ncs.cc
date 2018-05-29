@@ -1360,6 +1360,14 @@ molecule_class_info_t::copy_residue_range(mmdb::Chain *from_chain, mmdb::Chain *
 	       std::pair<int, mmdb::Residue *> serial_number =
 		  find_serial_number_for_insert(to_residue->GetSeqNum(),
 						to_chain->GetChainID());
+
+	       if (false)
+		  std::cout << "debug:: found serial_number " << serial_number.first << " "
+			    << coot::residue_spec_t(serial_number.second)
+			    << " for residue " << coot::residue_spec_t(to_residue)
+			    << " with index " << to_residue->index
+			    << std::endl;
+
 	       if (serial_number.first != -1) {
 		  to_chain->InsResidue(to_residue, serial_number.first);
 		  coot::copy_segid(serial_number.second, to_residue);
@@ -1387,7 +1395,7 @@ molecule_class_info_t::copy_residue_range(mmdb::Chain *from_chain, mmdb::Chain *
 	       }
 	    } else {
 	       std::cout << "ERROR:: Null to_residue!!!!" << std::endl;
-	    } 
+	    }
 	 }
       }
       

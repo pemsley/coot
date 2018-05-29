@@ -1183,7 +1183,7 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 
 
       short int whole_res_flag = 0;
-      int atom_index_udd = molecules[imol].atom_sel.UDDAtomIndexHandle;
+      int atom_index_udd_handle = molecules[imol].atom_sel.UDDAtomIndexHandle;
       
       // Now the flanking residues:
       //
@@ -1248,7 +1248,7 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 
 	 r = coot::deep_copy_this_residue(flankers_in_reference_mol[ires],
 					  alt_conf, whole_res_flag, 
-					  atom_index_udd);
+					  atom_index_udd_handle);
 	 if (r) {
 
 	    int sni = find_serial_number_for_insert(flankers_in_reference_mol[ires]->GetSeqNum(), chain_p);
