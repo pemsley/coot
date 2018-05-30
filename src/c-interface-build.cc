@@ -2761,9 +2761,11 @@ add_OXT_to_residue(int imol, int resno, const char *insertion_code, const char *
    if (is_valid_model_molecule(imol)) {
       if (insertion_code) {
 	 if (chain_id) {
+	    graphics_info_t g;
 	    istat = graphics_info_t::molecules[imol].add_OXT_to_residue(resno, std::string(insertion_code),
-									std::string(chain_id));
-	    graphics_info_t::molecules[imol].update_symmetry();
+									std::string(chain_id),
+									g.Geom_p());
+	    g.molecules[imol].update_symmetry();
 	    graphics_draw();
 	 }
       }

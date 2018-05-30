@@ -3268,13 +3268,10 @@ public:
    void do_post_drag_refinement_maybe();
 #ifdef  HAVE_GSL
    int last_restraints_size() const {
+      // It's OK to call this when there are no restraints - e.g. we move by rotate/translate
+      // rather than during a refinement.
      if (! last_restraints) {
-		  std::cout << "----------------------------------------------" << std::endl;
-		  std::cout << "----------------------------------------------" << std::endl;
-		  std::cout << "     ERROR:: C: last_restraints no cleared up " << std::endl;
-		  std::cout << "----------------------------------------------" << std::endl;
-		  std::cout << "----------------------------------------------" << std::endl;
-		  return 0;
+	return 0;
      } else {
        return last_restraints->size();
      }

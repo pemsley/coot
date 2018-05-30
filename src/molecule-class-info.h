@@ -2083,9 +2083,10 @@ public:        //                      public
    // Add OXT atom:  Return status, 0 = fail, 1 = worked.
    // (use get_residue() to get the residue for this);
    // 
-   short int add_OXT_to_residue(mmdb::Residue *residue);
+   short int add_OXT_to_residue(mmdb::Residue *residue, coot::protein_geometry *geom_p);
    short int add_OXT_to_residue(int reso, const std::string &insertion_code,
-				const std::string &chain_id); // external usage
+				const std::string &chain_id,
+				coot::protein_geometry *geom_p); // external usage
    bool residue_has_oxt_p(mmdb::Residue *residue) const; // used by above.  Dont add if returns true.
 
    std::pair<short int, int>  last_residue_in_chain(const std::string &chain_id) const;

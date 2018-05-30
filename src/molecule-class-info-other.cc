@@ -2687,19 +2687,17 @@ molecule_class_info_t::search_for_skeleton_near(const coot::Cartesian &pos) cons
 
 short int
 molecule_class_info_t::add_OXT_to_residue(int reso, const std::string &insertion_code,
-					  const std::string &chain_id) {
+					  const std::string &chain_id,
+					  coot::protein_geometry *geom_p) {
 
    mmdb::Residue *residue = get_residue(chain_id, reso, insertion_code);
-   return add_OXT_to_residue(residue);  // checks for null residue
+   return add_OXT_to_residue(residue, geom_p);  // checks for null residue
 
 } 
 
 short int
-molecule_class_info_t::add_OXT_to_residue(mmdb::Residue *residue) {
-
-   // 20150803-PE FIXME - pass Geom_p().
-   graphics_info_t g;
-   coot::protein_geometry *geom_p = g.Geom_p(); 
+molecule_class_info_t::add_OXT_to_residue(mmdb::Residue *residue,
+					  coot::protein_geometry *geom_p) {
 
    mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
@@ -2777,6 +2775,8 @@ molecule_class_info_t::add_OXT_to_residue(mmdb::Residue *residue) {
 					 graphics_info_t::default_new_atoms_b_factor);
 	    new_oxt_atom->SetAtomName(" OXT");
 	    new_oxt_atom->SetElementName(" O");
+	    if (coot::util::residue_has_hetatms(residue))
+	       new_oxt_atom->Het = true;
 	    residue->AddAtom(new_oxt_atom);
 
 	    atom_sel.mol->FinishStructEdit();
