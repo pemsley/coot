@@ -8275,3 +8275,19 @@ Tue 22 May 2018 15:12:04 BST
 
 
 	
+---
+Mon 28 May 2018 12:33:02 BST
+
+    Indirect GLX is no longer supported by default.  You can enable it with:
+
+    defaults write org.macosforge.xquartz.X11 enable_iglx -bool true
+
+   Jeremy Huddleston Sequoia
+   https://bugs.freedesktop.org/show_bug.cgi?id=99146
+
+
+---
+Tue 29 May 2018 16:29:39 BST
+
+   investigate __FILE__ __LINE__ and __FUNCTION__ for debugging
+

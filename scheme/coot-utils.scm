@@ -2342,8 +2342,14 @@
 		   (nov (format #t "new-chain-id-info: ~s~%" new-chain-id-info)))
 	      (let ((merge-status (car new-chain-id-info)))
 		(if (= merge-status 1)
-		    (let ((new-chain-id (car (car (cdr new-chain-id-info)))))
-		      (change-residue-number imol new-chain-id 1 "" resno "")
+		    (let* ((new-res-spec (car (car (cdr new-chain-id-info))))
+			   (new-chain-id (residue-spec->chain-id new-res-spec)))
+		      (format #t "debug:: new-res-spec: ~s~%" new-res-spec)
+		      (change-residue-number imol
+					     (residue-spec->chain-id new-res-spec)
+					     (residue-spec->res-no   new-res-spec)
+					     (residue-spec->ins-code new-res-spec)
+					     resno "")
 		      (change-chain-id imol new-chain-id chain-id-in 1 resno resno)
 
 		      (let ((replacement-state (refinement-immediate-replacement-state))

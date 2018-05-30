@@ -131,7 +131,7 @@ namespace molecule_map_type {
 #include "fragment-info.hh"
 #include "atom-name-bits.hh"
 #include "rama-rota-score.hh"
-
+#include "merge-molecule-results-info-t.hh"
 
 namespace coot {
 
@@ -830,7 +830,7 @@ public:        //                      public
    void label_atom(int i, int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag);
 
    void debug_selection() const; 
-   void debug() const;
+   void debug(bool debug_atoms_also_flag=false) const;
 
    void set_bond_colour_by_mol_no(int icolour,
 				  bool against_a_dark_background);  // not const because
@@ -1578,7 +1578,9 @@ public:        //                      public
    // is currently at res_index) too.  Return a index of -1 (and a
    // mmdb::Residue of NULL) when no residue found.
    
-   std::pair<int, mmdb::Residue *> find_serial_number_for_insert(int res_index, const std::string &chain_id) const;
+   std::pair<int, mmdb::Residue *> find_serial_number_for_insert(int seqnum_for_new,
+								 const std::string &ins_code_for_new,
+								 const std::string &chain_id) const;
 
    void update_molecule_to(std::vector<coot::scored_skel_coord> &pos_position); 
 
@@ -2106,9 +2108,10 @@ public:        //                      public
    // Add OXT atom:  Return status, 0 = fail, 1 = worked.
    // (use get_residue() to get the residue for this);
    // 
-   short int add_OXT_to_residue(mmdb::Residue *residue);
+   short int add_OXT_to_residue(mmdb::Residue *residue, coot::protein_geometry *geom_p);
    short int add_OXT_to_residue(int reso, const std::string &insertion_code,
-				const std::string &chain_id); // external usage
+				const std::string &chain_id,
+				coot::protein_geometry *geom_p); // external usage
    bool residue_has_oxt_p(mmdb::Residue *residue) const; // used by above.  Dont add if returns true.
 
    std::pair<short int, int>  last_residue_in_chain(const std::string &chain_id) const;
@@ -2360,10 +2363,10 @@ public:        //                      public
 
    // merge molecules
    
-   std::pair<int, std::vector<std::string> > merge_molecules(const std::vector<atom_selection_container_t> &add_molecules);
+   std::pair<int, std::vector<merge_molecule_results_info_t> > merge_molecules(const std::vector<atom_selection_container_t> &add_molecules);
    std::pair<bool, std::vector<std::string> > try_add_by_consolidation(mmdb::Manager *adding_mol);
    bool merge_molecules_just_one_residue_homogeneous(atom_selection_container_t molecule_to_add);
-   bool merge_ligand_to_near_chain(mmdb::Manager *mol); // return success status
+   std::pair<bool, coot::residue_spec_t> merge_ligand_to_near_chain(mmdb::Manager *mol); // return success status and spec if new residue if possible.
 
    int renumber_residue_range(const std::string &chain_id,
 			      int start_resno, int last_resno, int offset);
@@ -2978,6 +2981,9 @@ public:        //                      public
 		  const std::string &link_name, float length,
 		  const coot::protein_geometry &geom);
    void delete_any_link_containing_residue(const coot::residue_spec_t &res_spec);
+   // this will not do a update of bonds, caller should do that.
+   void update_any_link_containing_residue(const coot::residue_spec_t &old_spec,
+					   const coot::residue_spec_t &new_spec);
    void delete_link(mmdb::Link *link, mmdb::Model *model_p);
 
 

@@ -17,7 +17,7 @@
 #
 betterArrow = function(x0, y0, x1, y1,     # Set up arrow function ------------+
   L = .25,                             # Default arrowhead length              |
-  angle = 30,                          # Default angle of arrowhead            |
+  angle = 15,                          # Default angle of arrowhead            |
   code = 2,                            # Default arrowhead at x1,y1            |
   col = par("fg"),                     # Default color                         |
   ljoin = par("ljoin"),                # Default line joint style (0)          |

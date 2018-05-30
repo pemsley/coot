@@ -1342,8 +1342,9 @@ coot::reduce::is_linked(const std::string &atom_name, mmdb::Residue *residue_p) 
       }
    }
 
-   std::cout << "debug:: is_linked " << coot::residue_spec_t(residue_p) << " "
-	     << atom_name << " " << status << std::endl;
+   if (false)
+      std::cout << "debug:: is_linked " << coot::residue_spec_t(residue_p) << " "
+		<< atom_name << " " << status << std::endl;
    return status;
 }
 

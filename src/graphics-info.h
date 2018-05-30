@@ -1,4 +1,5 @@
-/* src/graphics-info.cc
+/* src/graphics-info.h
+ * -*-c++-*-
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Copyright 2007 by Paul Emsley
@@ -2266,7 +2267,9 @@ public:
 				      mmdb::Manager *mol,
 				      std::string alt_conf);
    // which uses
-   int find_serial_number_for_insert(int seqnum_new, mmdb::Chain *chain_p) const;
+   int find_serial_number_for_insert(int seqnum_new,
+				     const std::string &ins_code,
+				     mmdb::Chain *chain_p) const;
 
    // simple mmdb::Residue * interface to refinement.  20081216
    coot::refinement_results_t
@@ -3303,13 +3306,10 @@ public:
    void do_post_drag_refinement_maybe();
 #ifdef  HAVE_GSL
    int last_restraints_size() const {
+      // It's OK to call this when there are no restraints - e.g. we move by rotate/translate
+      // rather than during a refinement.
      if (! last_restraints) {
-		  std::cout << "----------------------------------------------" << std::endl;
-		  std::cout << "----------------------------------------------" << std::endl;
-		  std::cout << "     ERROR:: C: last_restraints no cleared up " << std::endl;
-		  std::cout << "----------------------------------------------" << std::endl;
-		  std::cout << "----------------------------------------------" << std::endl;
-		  return 0;
+	return 0;
      } else {
        return last_restraints->size();
      }

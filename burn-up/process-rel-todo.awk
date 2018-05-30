@@ -37,6 +37,7 @@ END {
     n_days = n_s/(60*60*24)
     getline < "proc-rel-2.tmp";
     date_line = $0
-    print n_days, post_sum, pre_sum + post_sum, "  #", date_line
+    total = pre_sum + post_sum
+    printf("%7.3f %6.2f %6.2f   # %s\n", n_days, post_sum, total, date_line)
 }
 

@@ -426,6 +426,7 @@ coot_bin_SOURCES = \
 	lbg-interface.cc 	 \
 	ligand-check.hh          \
         map-statistics.hh        \
+	merge-molecule-results-info-t.hh \
 	molecule-class-info.cc 	 \
 	molecule-class-info-alignment.cc \
 	molecule-class-info-bonds.cc    \
