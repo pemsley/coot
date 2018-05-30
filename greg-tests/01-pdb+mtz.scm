@@ -118,7 +118,7 @@
 
      (define (matches-attributes atts-obs atts-ref)
        (equal? atts-obs atts-ref))
-       
+
 
      ;; main line
      (if (not (file-exists? ins-code-frag-pdb))

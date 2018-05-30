@@ -1359,6 +1359,7 @@ molecule_class_info_t::copy_residue_range(mmdb::Chain *from_chain, mmdb::Chain *
 
 	       std::pair<int, mmdb::Residue *> serial_number =
 		  find_serial_number_for_insert(to_residue->GetSeqNum(),
+						to_residue->GetInsCode(),
 						to_chain->GetChainID());
 
 	       if (false)

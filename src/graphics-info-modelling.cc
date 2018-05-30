@@ -1251,15 +1251,15 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 					  atom_index_udd_handle);
 	 if (r) {
 
-	    int sni = find_serial_number_for_insert(flankers_in_reference_mol[ires]->GetSeqNum(), chain_p);
+	    int sni = find_serial_number_for_insert(r->GetSeqNum(),
+						    r->GetInsCode(),
+						    chain_p);
 	    if (sni == -1)
 	       chain_p->AddResidue(r); // at the end
 	    else
 	       chain_p->InsResidue(r, sni);
 	    r->seqNum = flankers_in_reference_mol[ires]->GetSeqNum();
 	    r->SetResName(flankers_in_reference_mol[ires]->GetResName());
-	    // 	 std::cout << " adding flanking residue " << " " << coot::residue_spec_t(r)
-	    // 		   << std::endl;
 	    n_flanker++;
 	 }
       }
@@ -1274,7 +1274,9 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 // return -1 on failure to find a residue for insertion index
 // 
 int 
-graphics_info_t::find_serial_number_for_insert(int seqnum_new, mmdb::Chain *chain_p) const {
+graphics_info_t::find_serial_number_for_insert(int seqnum_new,
+					       const std::string &ins_code_for_new,
+					       mmdb::Chain *chain_p) const {
 
    int iserial_no = -1;
    int current_diff = 999999;
@@ -1289,6 +1291,14 @@ graphics_info_t::find_serial_number_for_insert(int seqnum_new, mmdb::Chain *chai
 	 if ( (diff > 0) && (diff < current_diff) ) {
 	    iserial_no = ires;
 	    current_diff = diff;
+	 } else {
+	    if (diff == 0) {
+	       std::string ins_code_this = residue->GetInsCode();
+	       if (ins_code_this > ins_code_for_new) {
+		  iserial_no = ires;
+		  break;
+	       }
+	    }
 	 }
       }
    }

@@ -1,8 +1,6 @@
 
    For Release 0.8.9.2
 
-   o test that add-lsq-atom-pair and apply-lsq-matches works ::: 1
-
    o links (of renumbered residues) disappear on renumber residues ::: 1
 
    o coot in phal gives old (0.8.8) coot. ::: 1 h
@@ -165,3 +163,7 @@ command "cprodrg" not found
      Change the ALA at the end of a chain ::: 2
 
 * Done. A solid 2. Took all day. 4.46pm now.
+
+   o test that add-lsq-atom-pair and apply-lsq-matches works ::: 0.2
+
+* Yeah it does - "LSQ by atom" is the test.

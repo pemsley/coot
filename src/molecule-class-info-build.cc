@@ -287,6 +287,67 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 }
 
 void
+molecule_class_info_t::update_any_link_containing_residue(const coot::residue_spec_t &old_spec,
+							  const coot::residue_spec_t &new_spec) {
+
+   if (atom_sel.mol) {
+      int n_models = atom_sel.mol->GetNumberOfModels();
+      for (int imod=1; imod<=n_models; imod++) {
+	 mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+	 if ((old_spec.model_number == imod) || (old_spec.model_number == mmdb::MinInt4)) {
+	    mmdb::LinkContainer *links = model_p->GetLinks();
+	    int n_links = model_p->GetNumberOfLinks();
+	    for (int ilink=1; ilink<=n_links; ilink++) {
+	       mmdb::Link *link_p = model_p->GetLink(ilink);
+	       // mmdb::Link *link = static_cast<mmdb::Link *>(links->GetContainerClass(ilink));
+
+	       if (link_p) {
+
+		  // must pass a valid link_p
+		  std::pair<coot::atom_spec_t, coot::atom_spec_t> link_atoms = coot::link_atoms(link_p, model_p);
+		  coot::residue_spec_t res_1(link_atoms.first);
+		  coot::residue_spec_t res_2(link_atoms.second);
+
+		  // the atom names and the alt confs will stay the same
+		  // (this function is invoked after renumber residues).
+
+		  if (res_1 == old_spec) {
+		     if (res_1.chain_id != new_spec.chain_id)
+			strncpy(link_p->chainID1, new_spec.chain_id.c_str(), 9);
+		     if (res_1.res_no != new_spec.res_no)
+			link_p->seqNum1 = new_spec.res_no;
+		     mmdb::Residue *new_res = get_residue(new_spec);
+		     if (new_res) {
+			std::string res_name_new(new_res->GetResName());
+			std::string current_name_1(link_p->resName1);
+			if (res_name_new != current_name_1) {
+			   strncpy(link_p->resName1, res_name_new.c_str(), 19);
+			}
+		     }
+		  }
+		  if (res_2 == old_spec) {
+		     if (res_2.chain_id != new_spec.chain_id)
+			strncpy(link_p->chainID2, new_spec.chain_id.c_str(), 9);
+		     if (res_2.res_no != new_spec.res_no)
+			link_p->seqNum2 = new_spec.res_no;
+		     mmdb::Residue *new_res = get_residue(new_spec);
+		     if (new_res) {
+			std::string res_name_new(new_res->GetResName());
+			std::string current_name_2(link_p->resName2);
+			if (res_name_new != current_name_2) {
+			   strncpy(link_p->resName1, res_name_new.c_str(), 19);
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+}
+
+
+void
 molecule_class_info_t::delete_any_link_containing_residue(const coot::residue_spec_t &res_spec) {
 
    if (atom_sel.mol) {
@@ -296,11 +357,11 @@ molecule_class_info_t::delete_any_link_containing_residue(const coot::residue_sp
 	 if ((res_spec.model_number == imod) || (res_spec.model_number == mmdb::MinInt4)) {
 	    mmdb::LinkContainer *links = model_p->GetLinks();
 	    int n_links = model_p->GetNumberOfLinks();
-	    for (int ilink=1; ilink<=n_links; ilink++) { 
+	    for (int ilink=1; ilink<=n_links; ilink++) {
 	       mmdb::Link *link_p = model_p->GetLink(ilink);
 	       // mmdb::Link *link = static_cast<mmdb::Link *>(links->GetContainerClass(ilink));
 
-	       if (link_p) { 
+	       if (link_p) {
 
 		  // must pass a valid link_p
 		  std::pair<coot::atom_spec_t, coot::atom_spec_t> link_atoms = coot::link_atoms(link_p, model_p);

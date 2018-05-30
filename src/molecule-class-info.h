@@ -1554,7 +1554,9 @@ public:        //                      public
    // is currently at res_index) too.  Return a index of -1 (and a
    // mmdb::Residue of NULL) when no residue found.
    
-   std::pair<int, mmdb::Residue *> find_serial_number_for_insert(int res_index, const std::string &chain_id) const;
+   std::pair<int, mmdb::Residue *> find_serial_number_for_insert(int seqnum_for_new,
+								 const std::string &ins_code_for_new,
+								 const std::string &chain_id) const;
 
    void update_molecule_to(std::vector<coot::scored_skel_coord> &pos_position); 
 
@@ -2903,6 +2905,9 @@ public:        //                      public
 		  const std::string &link_name, float length,
 		  const coot::protein_geometry &geom);
    void delete_any_link_containing_residue(const coot::residue_spec_t &res_spec);
+   // this will not do a update of bonds, caller should do that.
+   void update_any_link_containing_residue(const coot::residue_spec_t &old_spec,
+					   const coot::residue_spec_t &new_spec);
    void delete_link(mmdb::Link *link, mmdb::Model *model_p);
 
 

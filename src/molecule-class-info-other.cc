@@ -5819,8 +5819,14 @@ molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
                   residue_p = chain_p->GetResidue(ires);
                   if (residue_p->seqNum >= start_resno) {
                      if (residue_p->seqNum <= last_resno) {		     
+			coot::residue_spec_t old_res_spec(residue_p);
+			coot::residue_spec_t new_res_spec(residue_p); // adjustment needed
+			new_res_spec.res_no += offset;
+
                         residue_p->seqNum += offset;
                         status = 1; // found one residue at least.
+
+			update_any_link_containing_residue(old_res_spec, new_res_spec);
                      }
                   }
                }
@@ -5962,8 +5968,12 @@ molecule_class_info_t::change_residue_number(const std::string &chain_id,
 					     int new_resno,
 					     const std::string &new_inscode_str) {
 
-   // This doesn't deal with pathological insertion codes addition - but who will
-   // ever notice?
+
+   if (true) // debug
+      std::cout << "debug:: change_residue_number() called with chain_id " << chain_id
+		<< " current_resno, ins " << current_resno << "\"" << current_inscode_str << "\""
+		<< " new_resno, ins " << new_resno << "\"" << new_inscode_str << "\""
+		<< std::endl;
 
    int done_it = 0;
    mmdb::Residue *current_residue_p = get_residue(chain_id, current_resno, current_inscode_str);
@@ -5987,12 +5997,11 @@ molecule_class_info_t::change_residue_number(const std::string &chain_id,
 								      whole_res_flag, atom_index_udd_handle,
 								      false);
 
-	       // res_copy->index = 999; // better than -1?
 	       res_copy->seqNum = new_resno;
-	       std::pair<int, mmdb::Residue *> sn = find_serial_number_for_insert(new_resno, chain_id);
-
-	       std::cout << "debug:: found sn " << sn.first << " " << coot::residue_spec_t(sn.second)
-			 << std::endl;
+	       strncpy(res_copy->insCode, new_inscode_str.c_str(), 9);
+	       std::pair<int, mmdb::Residue *> sn = find_serial_number_for_insert(current_resno,
+										  current_inscode_str,
+										  chain_id);
 
 	       // 20180529-PE If you are copying this, don't forget the make_asc at the end. It took
 	       // me 6 hours to find that that was the problem.
@@ -6000,23 +6009,14 @@ molecule_class_info_t::change_residue_number(const std::string &chain_id,
 	       if (sn.first != -1) { // normal insert
 
 		  int result = this_chain_p->InsResidue(res_copy, sn.first);
-		  this_chain_p->TrimResidueTable();
+		  this_chain_p->TrimResidueTable(); // probably not needed
 		  result = atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_INDEX);
 		  if (result != 0) {
 		     std::cout << "WARNING:: change_residue_number() PDBCleanup failed " << std::endl;
 		  }
 		  atom_sel.mol->FinishStructEdit();
 
-		  {
-		     // delete current_residue_p;
-		     mmdb::Atom **residue_atoms = 0;
-		     int n_residue_atoms;
-		     current_residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-		     for (int iat=0; iat<n_residue_atoms; iat++) {
-			mmdb::Atom *at = residue_atoms[iat];
-			at->z += 6;
-		     }
-		  }
+		  delete current_residue_p;
 
 		  atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL);
 		  atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_INDEX);
@@ -6037,6 +6037,9 @@ molecule_class_info_t::change_residue_number(const std::string &chain_id,
 	       done_it = true;
 	       have_unsaved_changes_flag = true;
 	       atom_sel = make_asc(atom_sel.mol);
+	       coot::residue_spec_t old_spec(chain_id, current_resno, current_inscode_str);
+	       coot::residue_spec_t new_spec(chain_id, new_resno, new_inscode_str);
+	       update_any_link_containing_residue(old_spec, new_spec);
 	       make_bonds_type_checked();
 	    }
 	 }

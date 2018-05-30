@@ -4567,6 +4567,7 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 
 	       std::pair<int, mmdb::Residue *> serial_number =
 		  find_serial_number_for_insert(asc_residue->GetSeqNum(),
+						asc_residue->GetInsCode(),
 						mol_chain_str);
 
 // 	       std::cout << "DEBUG:: returned serial_number: " << serial_number
@@ -4857,37 +4858,50 @@ molecule_class_info_t::insert_coords_atoms_into_residue_internal(const atom_sele
 //
 // return -1 on error.
 std::pair<int, mmdb::Residue *>
-molecule_class_info_t::find_serial_number_for_insert(int seqnum_new,
+molecule_class_info_t::find_serial_number_for_insert(int seqnum_for_new,
+						     const std::string &ins_code_for_new,
 						     const std::string &chain_id) const {
 
    int iserial_no = -1;
-   int current_diff = 999999;
-   mmdb::Chain *chain;
+   std::pair<int, std::string> current_diff(999999, "");
    int n_chains = atom_sel.mol->GetNumberOfChains(1);
    mmdb::Residue *res = NULL;
    
    for (int i_chain=0; i_chain<n_chains; i_chain++) {
       
-      chain = atom_sel.mol->GetChain(1,i_chain);
+      mmdb::Chain *chain_p = atom_sel.mol->GetChain(1,i_chain);
+
+      if (chain_p) {
       
-      // test chains
-      std::string mol_chain(    chain->GetChainID());
-      if (chain_id == mol_chain) {
+	 std::string mol_chain(chain_p->GetChainID());
 
-	 // find the 
-	 int nres = chain->GetNumberOfResidues();
-	 
-	 for (int ires=0; ires<nres; ires++) { // ires is a serial number
-	    mmdb::Residue *residue = chain->GetResidue(ires);
+	 if (chain_id == mol_chain) {
 
-	    // we are looking for the smallest negative diff:
-	    // 
-	    int diff = residue->GetSeqNum() - seqnum_new;
+	    // Find the first residue that has either the residue number or insertion code
+	    // greater than the passed parameters
 
-	    if ( (diff > 0) && (diff < current_diff) ) {
-	       iserial_no = ires;
-	       res = residue;
-	       current_diff = diff;
+	    int nres = chain_p->GetNumberOfResidues();
+	    for (int ires=0; ires<nres; ires++) { // ires is a serial number
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+
+	       // we need to consider insertion codes here
+
+	       int diff = residue_p->GetSeqNum() - seqnum_for_new;
+
+	       if (diff > 0) {
+		  res = residue_p;
+		  iserial_no = ires;
+		  break;
+	       } else {
+		  if (diff == 0) {
+		     std::string ins_code_this = residue_p->GetInsCode();
+		     if (ins_code_this > ins_code_for_new) {
+			res = residue_p;
+			iserial_no = ires;
+			break;
+		     }
+		  }
+	       }
 	    }
 	 }
       }
