@@ -6850,7 +6850,6 @@
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
 			      <property name="use_alpha">False</property>
-			      <property name="title" translatable="yes">Pick a Colour</property>
 			      <property name="focus_on_click">True</property>
 			      <signal name="color_set" handler="on_symmetry_colorbutton_color_set" last_modification_time="Tue, 01 May 2018 15:56:08 GMT"/>
 			    </widget>
@@ -60905,28 +60904,44 @@ Bumps</property>
       </child>
 
       <child>
-	<widget class="GtkLabel" id="label815">
+	<widget class="GtkHBox" id="hbox450">
 	  <property name="visible">True</property>
-	  <property name="label" translatable="yes">&lt;b&gt;Coot Utilities and Refinement Library Extension Wrangler&lt;/b&gt;</property>
-	  <property name="use_underline">False</property>
-	  <property name="use_markup">True</property>
-	  <property name="justify">GTK_JUSTIFY_LEFT</property>
-	  <property name="wrap">False</property>
-	  <property name="selectable">False</property>
-	  <property name="xalign">0.5</property>
-	  <property name="yalign">0.5</property>
-	  <property name="xpad">0</property>
-	  <property name="ypad">0</property>
-	  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	  <property name="width_chars">-1</property>
-	  <property name="single_line_mode">False</property>
-	  <property name="angle">0</property>
+	  <property name="homogeneous">False</property>
+	  <property name="spacing">0</property>
+
+	  <child>
+	    <placeholder/>
+	  </child>
+
+	  <child>
+	    <widget class="GtkImage" id="image12118">
+	      <property name="visible">True</property>
+	      <property name="pixbuf">curlew-long.png</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">True</property>
+	      <property name="fill">True</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <placeholder/>
+	  </child>
 	</widget>
 	<packing>
-	  <property name="padding">12</property>
+	  <property name="padding">2</property>
 	  <property name="expand">False</property>
 	  <property name="fill">False</property>
 	</packing>
+      </child>
+
+      <child>
+	<placeholder/>
       </child>
 
       <child>
@@ -60942,19 +60957,7 @@ Bumps</property>
 	      <property name="spacing">0</property>
 
 	      <child>
-		<widget class="GtkImage" id="image12116">
-		  <property name="visible">True</property>
-		  <property name="pixbuf">curlew-4.png</property>
-		  <property name="xalign">0.5</property>
-		  <property name="yalign">0.5</property>
-		  <property name="xpad">4</property>
-		  <property name="ypad">14</property>
-		</widget>
-		<packing>
-		  <property name="padding">4</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
+		<placeholder/>
 	      </child>
 
 	      <child>
