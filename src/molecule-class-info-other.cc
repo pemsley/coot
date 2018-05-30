@@ -5969,7 +5969,7 @@ molecule_class_info_t::change_residue_number(const std::string &chain_id,
 					     const std::string &new_inscode_str) {
 
 
-   if (true) // debug
+   if (false) // debug
       std::cout << "debug:: change_residue_number() called with chain_id " << chain_id
 		<< " current_resno, ins " << current_resno << "\"" << current_inscode_str << "\""
 		<< " new_resno, ins " << new_resno << "\"" << new_inscode_str << "\""
