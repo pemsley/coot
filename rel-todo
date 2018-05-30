@@ -1,23 +1,9 @@
 
    For Release 0.8.9.2
 
-   o links (of renumbered residues) disappear on renumber residues ::: 1
-
-   o coot in phal gives old (0.8.8) coot. ::: 1 h
-
-   o coot-reduce on a bit of carbohydrate (NAG-NAG?) ::: 1
-
-   o coot-reduce on a bit of protein with DAL, rather than ALA ::: 1
-
-   o Add OXT to residue -> on a DAL -> triple bond? ::: 1
-
-   o morph-fit-by-secondary-structure-elements does a bad job for the loop at 202 with
-     do-a-better-job-at-moving-the-loop-on-SS-morph-fit.pdb, 6771 ::: 4
+   o curlew on hal? ::: 1 h
 
    o email about dynamic bond width (April?) ::: 2
-
-   o      ERROR:: C: last_restraints no cleared up
-     on every frame of a rotate/translate molecule ::: 1
 
 ------
 
@@ -167,3 +153,21 @@ command "cprodrg" not found
    o test that add-lsq-atom-pair and apply-lsq-matches works ::: 0.2
 
 * Yeah it does - "LSQ by atom" is the test.
+
+   o links (of renumbered residues) disappear on renumber residues ::: 1
+
+* Done - update_any_link_containing_residue()
+
+   o      ERROR:: C: last_restraints no cleared up
+     on every frame of a rotate/translate molecule ::: 1 h
+
+* Done
+
+   o coot in phal gives old (0.8.8) coot. ::: 0.1 h
+
+* Already Done? Now gives release version, as it should.
+
+   o Add OXT to residue -> on a DAL -> triple bond? ::: 1 h
+
+* It was because I was adding an ATOM to a residue with HETATM. Now the
+  OXT is a HETATM too, if needed.
