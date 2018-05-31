@@ -13,4 +13,6 @@ Hamish Todd demonstrates CootVR:
 ![CootVR Demo]({{"../../../images/hamish-cootvr-keele.png"}})
 (I snapped this image from my twitter feed - Thanks Ana).
 
+![CootVR Demo]({{"../../../images/hamish-cootvr-keele-2.jpg"}})
+(This picture I took myself).
 
