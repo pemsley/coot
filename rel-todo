@@ -1,8 +1,6 @@
 
    For Release 0.8.9.2
 
-   o curlew on hal? ::: 1 h
-
    o email about dynamic bond width (April?) ::: 2
 
 ------
@@ -171,3 +169,7 @@ command "cprodrg" not found
 
 * It was because I was adding an ATOM to a residue with HETATM. Now the
   OXT is a HETATM too, if needed.
+
+   o curlew on hal? ::: 1 h
+
+* Seems OK.
