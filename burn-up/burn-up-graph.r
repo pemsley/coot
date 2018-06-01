@@ -77,9 +77,9 @@ predict = function(x_pos, y_pos) {
 a = read.table('burn-up.tab')
 
 
-# it's tricky to change the plot resolution (sigh)
-# png('burn-up.png', res=480, pointsize=8)
-png('burn-up.png', res=92, width=640, height=640)
+# change the plot resolution
+# png('burn-up.png', res=92, width=640, height=640)
+png('burn-up.png')
 
 do_plot = function() {
    plot(ylim=c(0,ylim), xlim=c(0,xlim), NULL, NULL, t='n',
