@@ -4503,6 +4503,9 @@ void set_bond_thickness(int imol, float t);
 /*! \brief set the thickness of the bonds of the intermediate atoms to t pixels  */
 void set_bond_thickness_intermediate_atoms(float t);
 
+/*! \brief allow lines that are further away to be thinner */
+void set_use_variable_bond_thickness(short int state);
+
 /*! \brief set bond colour for molecule */
 void set_bond_colour_rotation_for_molecule(int imol, float f);
 

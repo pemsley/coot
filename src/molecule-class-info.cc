@@ -2172,21 +2172,39 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 
    // pass this?
    const std::pair<bool, float> &use_radius_limit = graphics_info_t::model_display_radius;
+   const bool &use_variable_bond_width = graphics_info_t::use_variable_bond_width;
+   float zsc = graphics_info_t::zoom;
 
-   coot::Cartesian front = unproject(0.0);
-   coot::Cartesian back  = unproject(1.0);
-
-   bool with_gl_lines = 0;
+   bool with_gl_lines = false;
    glLineWidth(p_bond_width);
+
+   if (use_variable_bond_width) { // Erec Stebbins
+      with_gl_lines = true;
+   }
+
+   coot::Cartesian front;
+   coot::Cartesian back;
+
+   if (! with_gl_lines) {
+      front = unproject(0.0);
+      back  = unproject(1.0);
+   }
 
    for (int i=0; i<bonds_box.num_colours; i++) {
 
       graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
 
-      if (bonds_box.bonds_[i].thin_lines_flag)
- 	 glLineWidth(p_bond_width * 0.5);
-      else 
- 	 glLineWidth(p_bond_width);
+      if (bonds_box.bonds_[i].thin_lines_flag) {
+	 if (use_variable_bond_width)
+	    glLineWidth(30.0f * p_bond_width * 0.5 / zsc);
+	 else
+	    glLineWidth(p_bond_width * 0.5);
+      } else {
+	 if (use_variable_bond_width)
+	    glLineWidth(30.0f * p_bond_width / zsc);
+	 else
+	    glLineWidth(p_bond_width);
+      }
 
       if ( bonds_box.bonds_[i].num_lines > 512000) {
 	 std::cout << "Fencepost heuristic failure bonds_box.bonds_[i].num_lines "
@@ -2212,17 +2230,16 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 	 glBegin(GL_LINES); 
 	 for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
 
-	    // 	 if ( j > 200000) {
-	    // 	    cout << "Heuristics fencepost failure j " << j << endl;
-	    // 	    exit(1);
-	    // 	 }
+	    const coot::CartesianPair &pospair = ll.pair_list[j].positions;
+	    const coot::Cartesian &start  = ll.pair_list[j].positions.getStart();
+	    const coot::Cartesian &finish = ll.pair_list[j].positions.getFinish();
 	    
-	    glVertex3f(ll.pair_list[j].positions.getStart().get_x(),
-		       ll.pair_list[j].positions.getStart().get_y(),
-		       ll.pair_list[j].positions.getStart().get_z());
-	    glVertex3f(ll.pair_list[j].positions.getFinish().get_x(),
-		       ll.pair_list[j].positions.getFinish().get_y(),
-		       ll.pair_list[j].positions.getFinish().get_z());
+	    glVertex3f(start.get_x(),
+		       start.get_y(),
+		       start.get_z());
+	    glVertex3f(finish.get_x(),
+		       finish.get_y(),
+		       finish.get_z());
 	 }
 	 glEnd();
       }
