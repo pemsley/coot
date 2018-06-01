@@ -2662,6 +2662,13 @@ void set_bond_thickness(int imol, float t) {
    g.set_bond_thickness(imol, t);
 }
 
+/*! \brief allow lines that are further away to be thinner */
+void set_use_variable_bond_thickness(short int state) {
+   graphics_info_t g;
+   g.use_variable_bond_width = state;
+}
+
+
 void set_bond_thickness_intermediate_atoms(float t) { 
    graphics_info_t g;
    g.set_bond_thickness_intermediate_atoms(t);

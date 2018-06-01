@@ -3799,6 +3799,9 @@ public:
    // Hmm.. do we need a vector here?
    static std::string browser_open_command;
 
+   // -- variable bond width (lines get thinner as we zoom out)
+   static bool use_variable_bond_width;
+
    // -- default bond width
    static int default_bond_width;
    static int default_bonds_box_type; // Phil want to configure this.
