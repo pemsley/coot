@@ -1039,13 +1039,13 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 
       if (restraints_usage_flag & TORSIONS_MASK) { // 4: torsions
 	 if ( restraints_vec[i].restraint_type == coot::TORSION_RESTRAINT) {
-	    try { 
-	       torsion_distortion += coot::distortion_score_torsion(restraints_vec[i], v); 
+	    try {
+	       torsion_distortion += coot::distortion_score_torsion(i, restraints_vec[i], v); 
 	       n_torsion_restraints++;
 	    }
 	    catch (const std::runtime_error &rte) {
 	       std::cout << "WARNING:: caught runtime_error " << rte.what() << std::endl;
-	    } 
+	    }
 	 }
       }
 

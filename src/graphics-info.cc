@@ -1695,7 +1695,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
       // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
       // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
       flags = coot::ALL_RESTRAINTS;
-   
+
    
    if (do_torsion_restraints && do_rama_restraints) {
 
@@ -1718,7 +1718,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    if (! g.last_restraints->include_map_terms())
       steps_per_frame *= 6;
 
-   graphics_info_t::saved_dragged_refinement_results =
+   g.saved_dragged_refinement_results =
       g.last_restraints->minimize(flags, steps_per_frame, print_initial_chi_squareds_flag);
 
 
@@ -1741,7 +1741,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    if (moving_atoms_asc)
       if (moving_atoms_asc->mol)
          if (env)
-            g.tabulate_geometric_distortions(*last_restraints);
+            g.tabulate_geometric_distortions(*last_restraints, flags);
 
    // Update the Accept/Reject Dialog if it exists (and it should do,
    // if we are doing dragged refinement).

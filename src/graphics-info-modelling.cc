@@ -4397,10 +4397,11 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 
 
 void
-graphics_info_t::tabulate_geometric_distortions(const coot::restraints_container_t &restraints) const {
+graphics_info_t::tabulate_geometric_distortions(const coot::restraints_container_t &restraints,
+						coot::restraint_usage_Flags flags) const {
 
+   // coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS; // is passed now
    coot::restraints_container_t rr = restraints;;
-   coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
    coot::geometry_distortion_info_container_t gdic = rr.geometric_distortions(flags);
 
    std::ofstream f("coot-refinement-debug.tab");
@@ -4411,7 +4412,7 @@ graphics_info_t::tabulate_geometric_distortions(const coot::restraints_container
       for (unsigned int ii=0; ii<gdic.geometry_distortion.size(); ii++) { 
 	 const coot::geometry_distortion_info_t &gd = gdic.geometry_distortion[ii];
 	 const coot::simple_restraint &rest = gd.restraint;
-	 
+
 	 if (rest.restraint_type == coot::BOND_RESTRAINT) {
 	    std::string s = "bond  " + coot::util::float_to_string(gd.distortion_score);
 	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
@@ -4426,21 +4427,34 @@ graphics_info_t::tabulate_geometric_distortions(const coot::restraints_container
 	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
 	       s += " " + coot::util::int_to_string(gd.atom_indices[iat]);
 	    s += " target: ";
-	    s += coot::util::float_to_string(gd.restraint.target_value);
+	    s += coot::util::float_to_string(rest.target_value);
 	    s += " ";
-	    s += coot::util::float_to_string(gd.restraint.sigma);
+	    s += coot::util::float_to_string(rest.sigma);
 	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
 	 }
 	 if (rest.restraint_type == coot::TORSION_RESTRAINT) {
-	    std::string s = "torsion " + coot::util::float_to_string(gd.distortion_score);
-	    // s += " " + rr.get_atom_spec(gd.atom_index_2).format();
-	    // s += " " + rr.get_atom_spec(gd.atom_index_3).format();
+	    std::string s = "torsion ";
+	    s += coot::util::float_to_string_using_dec_pl(gd.distortion_score, 4);
+	    s += " ";
+	    s += " " + rr.get_atom_spec(rest.atom_index_1).format();
+	    s += " ";
+	    s += " " + rr.get_atom_spec(rest.atom_index_2).format();
+	    s += " ";
+	    s += " " + rr.get_atom_spec(rest.atom_index_3).format();
+	    s += " ";
+	    s += " " + rr.get_atom_spec(rest.atom_index_4).format();
+	    s += " idx: ";
+	    s += coot::util::int_to_string(ii);
+	    s += " target: ";
+	    s += coot::util::float_to_string(rest.target_value);
 	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
 	 }
 	 if (rest.restraint_type == coot::TRANS_PEPTIDE_RESTRAINT) {
 	    std::string s = "trans " + coot::util::float_to_string(gd.distortion_score);
 	    s += " " + rr.get_atom_spec(rest.atom_index_2).format();
 	    s += " " + rr.get_atom_spec(rest.atom_index_3).format();
+	    s += coot::util::float_to_string(rest.target_value);
+	    s += " ";
 	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
 	 }
 	 if (rest.restraint_type == coot::PLANE_RESTRAINT) {
@@ -4457,9 +4471,9 @@ graphics_info_t::tabulate_geometric_distortions(const coot::restraints_container
 	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
 	       s += " " + coot::util::int_to_string(gd.atom_indices[iat]);
 	    s += " target: ";
-	    s += coot::util::float_to_string(gd.restraint.target_value);
+	    s += coot::util::float_to_string(rest.target_value);
 	    s += " ";
-	    s += coot::util::float_to_string(gd.restraint.sigma);
+	    s += coot::util::float_to_string(rest.sigma);
 	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
 	 }
 	 if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
