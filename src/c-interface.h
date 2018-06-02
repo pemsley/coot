@@ -2942,6 +2942,11 @@ PyObject *symmetry_operators_to_xHM_py(PyObject *symmetry_operators);
 
 /*! \brief merge molecules
 
+@return a pair, the first item of which is a status (1 is good) the second is
+a list of merge-infos (one for each of the items in add_molecules). If the
+molecule of an add_molecule item is just one residue, return a spec for the
+new residue, if it is many residues return a chain id.
+
 the first argument is a list of molecule numbers and the second is the target 
    molecule into which the others should be merged  */
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
@@ -4497,6 +4502,9 @@ void set_default_bond_thickness(int t);
 void set_bond_thickness(int imol, float t);
 /*! \brief set the thickness of the bonds of the intermediate atoms to t pixels  */
 void set_bond_thickness_intermediate_atoms(float t);
+
+/*! \brief allow lines that are further away to be thinner */
+void set_use_variable_bond_thickness(short int state);
 
 /*! \brief set bond colour for molecule */
 void set_bond_colour_rotation_for_molecule(int imol, float f);

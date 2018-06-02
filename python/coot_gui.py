@@ -1110,7 +1110,22 @@ def map_molecule_chooser_gui(chooser_label, callback_function):
 # text string.
 #
 def generic_chooser_and_entry(chooser_label, entry_hint_text,
-                              default_entry_text, callback_function):
+                              default_entry_text, callback_function,
+                              always_dismiss_on_ok_clicked=True):
+
+   print "BL DEBUG:: --- deal with always_dissmiss...", always_dismiss_on_ok_clicked
+   generic_chooser_and_entry_and_check_button(chooser_label, entry_hint_text,
+                                              default_entry_text, False,
+                                              callback_function,
+                                              always_dismiss_on_ok_clicked)
+
+# as above , plus we also have a check-button
+# [and an additional argument in the callback - actually not I think ]
+# If check-button-label is false, then don't create a check-button.
+def generic_chooser_and_entry_and_check_button(chooser_label, entry_hint_text,
+                                              default_entry_text, check_button_label,
+                                              callback_function,
+                                              always_dismiss_on_ok_clicked=True):
 
     import operator
 

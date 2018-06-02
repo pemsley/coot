@@ -317,6 +317,7 @@ clipper::Coord_orth graphics_info_t::intermediate_flash_point;
 
 
 int graphics_info_t::default_bond_width = 5;
+bool graphics_info_t::use_variable_bond_width = false;
 
    
 int graphics_info_t::rotamer_selection_dialog_x_position = -100;

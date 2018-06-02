@@ -10,6 +10,10 @@
 
   o FEATURE: API for user-defined unimodal torsion restraints (for pyranoses) [Juan Hermoso]
 
+  o FEATURE: "Variable" bond widths i.e. as you zoom out, the bond lines get thinner
+             [Erec Stebbins]
+             (set-use-variable-bond-thickness 1)
+
   o CHANGE:  Iron-Sulfur clusters are now bonded using the dictionary (and so appear "cubic")
              [Hannah Bridges]
 

@@ -118,7 +118,7 @@
 
      (define (matches-attributes atts-obs atts-ref)
        (equal? atts-obs atts-ref))
-       
+
 
      ;; main line
      (if (not (file-exists? ins-code-frag-pdb))
@@ -176,6 +176,29 @@
 		 (format #t "   fail: real: ~s expected: ~s ~%" 
 			 (car real-results) (car expected-results))
 		 #f)))))))))
+
+(greg-testcase "Replace Residue gets correct residue number" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "tutorial-modern.pdb")))
+       (mutate-by-overlap imol "A" 86 "PTR")
+       (let ((rn (residue-name imol "A" 86 "")))
+	 (if (not (string? rn))
+	     #f
+	     (if (not (string=? rn "PTR"))
+		 #f
+		 ;; OK, did the the refinement run OK? Check the C-N distance
+		 (let ((N-atom (get-atom imol "A" 86 "" " N  " ""))
+		       (C-atom (get-atom imol "A" 85 "" " C  " "")))
+
+		   (let ((dd (bond-length-from-atoms N-atom C-atom)))
+		     (if (> dd 1.4)
+			 #f
+			 (if (< dd 1.25)
+			     #f
+			     (begin
+			       (format #t "C-N dist good enough: ~s~%" dd)
+			       #t)))))))))))
 
 
 (greg-testcase "Read a bogus map" #t

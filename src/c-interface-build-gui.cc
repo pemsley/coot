@@ -820,8 +820,9 @@ void do_merge_molecules(GtkWidget *dialog) {
 
    std::vector<int> add_molecules = *graphics_info_t::merge_molecules_merging_molecules;
    if (add_molecules.size() > 0) { 
-      std::pair<int, std::vector<std::string> > stat =
-	 merge_molecules_by_vector(add_molecules, graphics_info_t::merge_molecules_master_molecule);
+      std::pair<int, std::vector<merge_molecule_results_info_t> > stat =
+	 merge_molecules_by_vector(add_molecules,
+				   graphics_info_t::merge_molecules_master_molecule);
       if (stat.first)
 	 graphics_draw();
    }

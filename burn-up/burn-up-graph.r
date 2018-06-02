@@ -77,8 +77,8 @@ predict = function(x_pos, y_pos) {
 a = read.table('burn-up.tab')
 
 
-# it's tricky to change the plot resolution (sigh)
-# png('burn-up.png', res=480, pointsize=8)
+# change the plot resolution
+# png('burn-up.png', res=92, width=640, height=640)
 png('burn-up.png')
 
 do_plot = function() {
@@ -87,9 +87,9 @@ do_plot = function() {
                xlab="Real Days (since development start)",
                ylab="'Dev' Days")
 
+   grid()
    points(a$V1, a$V3*0.5, t='l', lwd=3, lty=1, col='brown')
    points(a$V1, a$V2*0.5, t='l', lwd=3, lty=1, col='black')
-   grid()
 
    leg.txt <- c("Scope", "Done")
    legend(legend_x, legend_y, legend=leg.txt, col=c("brown", "black"), lty=1:1, lwd=3, cex=0.7)
@@ -103,13 +103,19 @@ do_plot()
 predict(prediction_text_x_placement, prediction_text_y_placement)
 
 betterArrow(0, 4, 0, 0, col='grey', code=2)
-text(1, 4.5, labels="Easter", col='grey', cex=1.0)
+text(1, 4.5, labels="Keele", col='grey', cex=1.0)
+
+betterArrow(15, 5, 15, 1, col='grey', code=2)
+text(15, 5.5, labels="Curlew", col='grey', cex=1.0)
 
 betterArrow(29, 16, 35.5, 16, col='grey', code=2)
 text(26, 16, labels="Madrid", col='grey', cex=1.0)
 
 betterArrow(10, 18, 10, 14.5, col='grey', code=2)
-text(10, 18.5, labels="Keele (EM)", col='grey', cex=1.0)
+text(10, 18.5, labels="Icknield (EM)", col='grey', cex=1.0)
+
+# betterArrow(2, 14.5, 2, 11.0, col='grey', code=2)
+# text(3, 15.5, labels=" Keele (EM)", col='grey', cex=1.0)
 
 dev.off()
 

@@ -8192,3 +8192,16 @@ Mon 28 May 2018 12:33:02 BST
    https://bugs.freedesktop.org/show_bug.cgi?id=99146
 
 
+---
+Tue 29 May 2018 16:29:39 BST
+
+   investigate __FILE__ __LINE__ and __FUNCTION__ for debugging
+
+
+---
+Fri  1 Jun 2018 21:52:08 BST
+
+    graphics:
+
+    https://cesium.com/blog/2013/04/22/robust-polyline-rendering-with-webgl/
+
