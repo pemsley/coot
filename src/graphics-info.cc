@@ -4652,12 +4652,13 @@ graphics_info_t::draw_atom_pull_restraint() {
 		     int slices  = 12;
 		     int stacks  = 2;
 
-		     GLfloat  mat_specular[]  = {0.7, 0.2, 0.7, 0.6};
+		     GLfloat  mat_specular[] = {0.9, 0.7, 0.7, 0.8};
+		     GLfloat  mat_ambient[]  = {0.9, 0.5, 0.6, 1.0};
 		     GLfloat  mat_shininess[] = {15};
 		     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-		     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-		     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
+		     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
 		     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
+		     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
 		     glEnable(GL_LIGHTING);
 		     glEnable(GL_LIGHT1);
 		     glEnable(GL_LIGHT0); // enabled here
