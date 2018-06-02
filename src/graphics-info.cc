@@ -1652,6 +1652,9 @@ graphics_info_t::clear_up_moving_atoms_maybe(int imol) {
    }
 }
 
+
+
+
 void
 graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 

@@ -35,6 +35,7 @@
 #include <fstream>
 #include <algorithm> // for sort
 #include <stdexcept>
+#include <iomanip>
 #ifdef HAVE_CXX_THREAD
 #include <thread>
 #include <chrono>
@@ -629,7 +630,7 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
       if (restraints->restraints_usage_flag & coot::TORSIONS_MASK) { // 4: torsions
 	 if ( (*restraints)[i].restraint_type == coot::TORSION_RESTRAINT) {
 	    try {
-	       double d =  coot::distortion_score_torsion((*restraints)[i], v);
+	       double d =  coot::distortion_score_torsion(i, restraints->at(i), v);
 	       // std::cout << "dsm: torsion single-thread " << d << std::endl;
 	       *distortion += d;
 	    }
@@ -757,7 +758,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 
       if (restraints->restraints_usage_flag & coot::TORSIONS_MASK) { // 4: torsions
 	 if ( (*restraints)[i].restraint_type == coot::TORSION_RESTRAINT) {
-	    double d =  coot::distortion_score_torsion((*restraints)[i], v); 
+	    double d =  coot::distortion_score_torsion(i, restraints->at(i), v);
 	    // std::cout << "dsm: torsion " << thread_id << " idx " << i << " " << d << std::endl;
 	    *distortion += d;
 	    continue;
@@ -1011,14 +1012,14 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 
    coot::geometry_distortion_info_container_t distortion_vec_container(atom, n_atoms, chainid);
    double distortion = 0.0;
-   int atom_index = -1; // initial unset, the atom index used to spec the residue.
 
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
+      int atom_index = -1; // initial unset, the atom index used to spec the residue.
       const simple_restraint &rest = restraints_vec[i];
       std::vector<int> atom_indices;
       if (restraints_usage_flag & coot::BONDS_MASK) 
 	 if (restraints_vec[i].restraint_type == coot::BOND_RESTRAINT) { 
-	    distortion = coot::distortion_score_bond(restraints_vec[i], v);
+	    distortion = coot::distortion_score_bond(rest, v);
 	    atom_index = restraints_vec[i].atom_index_1;
 	    atom_indices.push_back(rest.atom_index_1);
 	    atom_indices.push_back(rest.atom_index_2);
@@ -1026,18 +1027,18 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 
       if (restraints_usage_flag & coot::ANGLES_MASK) 
 	 if (restraints_vec[i].restraint_type == coot::ANGLE_RESTRAINT) { 
-	    distortion = coot::distortion_score_angle(restraints_vec[i], v);
+	    distortion = coot::distortion_score_angle(rest, v);
 	    atom_index = restraints_vec[i].atom_index_1;
 	    atom_indices.push_back(rest.atom_index_1);
 	    atom_indices.push_back(rest.atom_index_2);
 	    atom_indices.push_back(rest.atom_index_3);
-	 } 
+	 }
 
-      if (restraints_usage_flag & coot::TORSIONS_MASK)
+      if (restraints_usage_flag & coot::TORSIONS_MASK) {
 	 if (restraints_vec[i].restraint_type == coot::TORSION_RESTRAINT) {
 	    // distortion_score_torsion can throw a std::runtime_error
 	    try {
-	       distortion = coot::distortion_score_torsion(restraints_vec[i], v);
+	       distortion = coot::distortion_score_torsion(i, rest, v);
 	       atom_index = restraints_vec[i].atom_index_1;
 	       atom_indices.push_back(rest.atom_index_1);
 	       atom_indices.push_back(rest.atom_index_2);
@@ -1047,7 +1048,8 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 	    catch (const std::runtime_error &rte) {
 	       std::cout << "ERROR::" << rte.what() << std::endl;
 	    }
-	 } 
+	 }
+      }
 
       if (restraints_usage_flag & coot::PLANES_MASK) 
 	 if (restraints_vec[i].restraint_type == coot::PLANE_RESTRAINT) { 
@@ -1108,7 +1110,7 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 
       if (atom_index != -1) {
 	 coot::residue_spec_t rs(atom[atom_index]->GetResidue());
-	 coot::geometry_distortion_info_t gdi(distortion, restraints_vec[i], rs);
+	 coot::geometry_distortion_info_t gdi(distortion, rest, rs);
 	 gdi.atom_indices = atom_indices;
 	 distortion_vec_container.geometry_distortion.push_back(gdi);
       }
@@ -1119,10 +1121,9 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
    // 
    // Notice that we only use BOND_RESTRAINT to do this (atom_index_1 is
    // not defined in plane restraint).
-   int max_resno = -9999999;
+   int max_resno =  -9999999;
    int min_resno = 999999999;
-   int idx1, idx2;
-   int this_resno1, this_resno2;
+
    for (unsigned int i=0; i<distortion_vec_container.geometry_distortion.size(); i++) {
       if (false)
 	 std::cout << "distortion_vector() restraint " << i << " of "
@@ -1130,19 +1131,22 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 		   << restraints_vec[i].restraint_type << std::endl;
       if (restraints_usage_flag & coot::BONDS_MASK)
 	 if (restraints_vec[i].restraint_type == coot::BOND_RESTRAINT) {
-	    idx1 = distortion_vec_container.geometry_distortion[i].restraint.atom_index_1;
-	    idx2 = distortion_vec_container.geometry_distortion[i].restraint.atom_index_2;
+	   const int &idx1 = distortion_vec_container.geometry_distortion[i].atom_indices[0];
+	   const int &idx2 = distortion_vec_container.geometry_distortion[i].atom_indices[1];
 
-	    this_resno1 = distortion_vec_container.atom[idx1]->GetSeqNum();
-	    this_resno2 = distortion_vec_container.atom[idx2]->GetSeqNum();
-	    if (this_resno1 < min_resno)
-	       min_resno = this_resno1;
-	    if (this_resno2 < min_resno)
-	       min_resno = this_resno2;
-	    if (this_resno1 > max_resno) 
-	       max_resno = this_resno1;
-	    if (this_resno2 > max_resno) 
-	       max_resno = this_resno2;
+	   // std::cout << "idx1 " << idx1 << std::endl;
+	   // std::cout << "idx2 " << idx2 << std::endl;
+
+	   int this_resno1 = distortion_vec_container.atom[idx1]->GetSeqNum();
+	   int this_resno2 = distortion_vec_container.atom[idx2]->GetSeqNum();
+	   if (this_resno1 < min_resno)
+	      min_resno = this_resno1;
+	   if (this_resno2 < min_resno)
+	      min_resno = this_resno2;
+	   if (this_resno1 > max_resno)
+	      max_resno = this_resno1;
+	   if (this_resno2 > max_resno)
+	      max_resno = this_resno2;
 	 }
    }
    distortion_vec_container.set_min_max(min_resno, max_resno);
@@ -1260,7 +1264,8 @@ coot::distortion_score_angle(const coot::simple_restraint &angle_restraint,
 // can throw a std::runtime_error if there is a problem calculating the torsion.
 // 
 double
-coot::distortion_score_torsion(const coot::simple_restraint &torsion_restraint,
+coot::distortion_score_torsion(unsigned int idx_restraint,
+			       const coot::simple_restraint &torsion_restraint,
 			       const gsl_vector *v) {
 
    // First calculate the torsion:
@@ -1308,7 +1313,7 @@ coot::distortion_score_torsion(const coot::simple_restraint &torsion_restraint,
 //    double clipper_theta = 
 //       clipper::Util::rad2d(clipper::Coord_orth::torsion(P1, P2, P3, P4));
 
-   if ( clipper::Util::isnan(theta) ) {
+   if (clipper::Util::isnan(theta)) {
       std::string mess = "WARNING: distortion_score_torsion() observed torsion theta is a NAN!";
       throw std::runtime_error(mess);
    }
@@ -1320,18 +1325,19 @@ coot::distortion_score_torsion(const coot::simple_restraint &torsion_restraint,
    double cl = sqrt(clipper::Coord_orth::dot(c,c));
    double cos_a1 = clipper::Coord_orth::dot(a,b)/(al*bl);
    double cos_a2 = clipper::Coord_orth::dot(b,c)/(bl*cl);
+
+   // I don't like this escape at all
    //
    if (cos_a1 > 0.9 || cos_a2> 0.9) {
       return 0;
    }
 
-   if (theta < 0.0) theta += 360.0; 
+   if (theta < 0.0) theta += 360.0;
 
    //if (torsion_restraint.periodicity == 1) {
-      // }
-   // use period here
+   // }
    // 
-//    double diff = theta - torsion_restraint.target_value;   
+   //    double diff = theta - torsion_restraint.target_value;
 
    double diff = 99999.9; 
    double tdiff; 
@@ -1348,9 +1354,11 @@ coot::distortion_score_torsion(const coot::simple_restraint &torsion_restraint,
 	 diff = tdiff;
       }
    }
-//    std::cout << "DEBUG:: atom index: " << torsion_restraint.atom_index_1
-// 	     << " target " << torsion_restraint.target_value
-// 	     << ", theta: " << theta << " \tdiff: " << diff << std::endl;
+
+   if (false)
+      std::cout << "DEBUG:: atom index: " << torsion_restraint.atom_index_1
+		<< " target " << torsion_restraint.target_value
+		<< ", theta: " << theta << " \tdiff: " << diff << std::endl;
 
    if (diff >= 99999.0) { 
       std::cout << "Error in periodicity (" << per << ") check" << std::endl;
@@ -1365,22 +1373,18 @@ coot::distortion_score_torsion(const coot::simple_restraint &torsion_restraint,
       }
    }
 
-//    std::cout << "distortion score torsion "
-// 	     << diff*diff/(torsion_restraint.sigma * torsion_restraint.sigma) << " ";
 
-
-   if (false) { // debug 
+   if (false) { // debug
       double pen = diff*diff/(torsion_restraint.sigma * torsion_restraint.sigma);
-	 std::cout << "distortion_torsion theta (calc): " << theta 
-		   << " periodicity " << torsion_restraint.periodicity
-		   << " target "      << torsion_restraint.target_value
-		   << " diff: " << diff << std::endl ;
-      std::cout << "in distortion_torsion: sigma = " << torsion_restraint.sigma
+      std::cout << "distortion_torsion " << idx_restraint << " theta (calc): " << theta
+		<< " periodicity " << torsion_restraint.periodicity
+		<< " target "      << torsion_restraint.target_value
+		<< " diff: " << diff << " distortion " << pen << std::endl ;
+      std::cout << "   in distortion_torsion: sigma = " << torsion_restraint.sigma
 		<< ", weight=" << pow(torsion_restraint.sigma,-2.0)
 		<< " and diff is " << diff << std::endl;
    }
    
-      
    return diff*diff/(torsion_restraint.sigma * torsion_restraint.sigma);
 
 }

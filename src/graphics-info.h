@@ -4066,7 +4066,8 @@ string   static std::string sessionid;
    coot::geometry_distortion_info_container_t geometric_distortions(int imol, mmdb::Residue *residue_p,
 								    bool with_nbcs);
 
-   void tabulate_geometric_distortions(const coot::restraints_container_t &restraints) const;
+   void tabulate_geometric_distortions(const coot::restraints_container_t &restraints,
+				       coot::restraint_usage_Flags flags) const;
 
    static bool linked_residue_fit_and_refine_state;
 
