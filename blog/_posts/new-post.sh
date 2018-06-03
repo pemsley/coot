@@ -20,3 +20,5 @@ echo --- >> $f
 
 vi $f
 
+echo git add $f
+
