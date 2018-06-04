@@ -14,6 +14,7 @@ from_jligand_secret_link_file_name = ".jligand-to-coot-link"
 # resides in a canonical distribution
 # Can be everywhere on windows? (maybe not in new ccp4!?) its in CCP4_BIN
 #
+setup_ccp4()
 jligand_home_env = os.getenv("JLIGAND_HOME")
 jligand_home = jligand_home_env if jligand_home_env else "."
 

@@ -1710,7 +1710,7 @@ void  do_edit_copy_molecule() {
 #ifdef USE_PYTHON
    if (state_lang == coot::STATE_PYTHON) {
 
-      std::string cmd; // how do you do a gui for copy_molecule in python?
+      std::string cmd = "molecule_chooser_gui(\"Molecule to Copy...\", lambda imol: copy_molecule(imol))";
       safe_python_command(cmd);
    }
 #endif // PYTHON
@@ -1748,7 +1748,11 @@ void  do_edit_copy_fragment() {
 #ifdef USE_PYTHON
    if (state_lang == coot::STATE_PYTHON) {
 
-      std::string cmd; // how do you do a gui for copy_fragment in python?
+      // This is a tricky, long winded one. We first make a function which is
+      // then executed and all has to reside within exec as we cannot have
+      // multiple line statements in python... lets try
+      std::string cmd = "exec(\'def atom_selection_from_fragment_func(imol, text, button_state): \\n \\t jmol = new_molecule_by_atom_selection(imol, text) \\n \\t if button_state: move_molecule_to_screen_centre(jmol) \\n \\t return valid_model_molecule_qm(jmol) \\ngeneric_chooser_and_entry_and_check_button(\"From which molecule shall we copy the fragment?\", \"Atom selection for fragment\", \"//A/1-10\", \"Move new molecule here?\", lambda imol, text, button_state: atom_selection_from_fragment_func(imol, text, button_state), False)\')";
+//                         exec('def atom_selection_from_fragment_func(imol, text, button_state): \n \t jmol = new_molecule_by_atom_selection(imol, text) \n \t if button_state: move_molecule_to_screen_centre(jmol) \n \t return valid_model_molecule_qm(jmol) \ngeneric_chooser_and_entry_and_check_button("From which molecule shall we copy the fragment?", "Atom selection for fragment", "//A/1-10", "Move new molecule here?", lambda imol, text, button_state: atom_selection_from_fragment_func(imol, text, button_state), False)')
       safe_python_command(cmd);
    }
 #endif // PYTHON
@@ -1781,7 +1785,7 @@ void  do_edit_replace_residue() {
 #ifdef USE_PYTHON
    if (state_lang == coot::STATE_PYTHON) {
 
-      std::string cmd; // how do you do a gui for replace_residue in python?
+      std::string cmd = "generic_single_entry(\"Replace this residue with residue of type:\", \"ALA\", \"Mutate\", lambda text: using_active_atom(mutate_by_overlap, \"aa_imol\", \"aa_chain_id\", \"aa_res_no\", text))";
       safe_python_command(cmd);
    }
 #endif // PYTHON
@@ -1816,7 +1820,8 @@ void  do_edit_replace_fragment() {
 #ifdef USE_PYTHON
    if (state_lang == coot::STATE_PYTHON) {
 
-      std::string cmd; // how do you do a gui for replace_residue in python?
+      std::string cmd =
+         "molecule_chooser_gui(\"Define the molecule that needs updating\", lambda imol_base: generic_chooser_and_entry(\"Molecule that contains the new fragment:\", \"Atom Selection\", \"//\", lambda imol_fragment, atom_selection_str: replace_fragment(imol_base, imol_fragment, atom_selection_str)))";
       safe_python_command(cmd);
    }
 #endif // PYTHON

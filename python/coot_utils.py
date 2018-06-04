@@ -968,7 +968,7 @@ def every_nth(ls, n):
 #
 def get_atom_from_residue(atom_name, residue_atoms, alt_conf):
 
-    """Get atom_info fomr a residue.
+    """Get atom_info from a residue.
     residue_atoms must be a list
     """
     
@@ -981,6 +981,14 @@ def get_atom_from_residue(atom_name, residue_atoms, alt_conf):
     # print "BL WARNING:: no atom name %s found in residue" %atom_name
     return False # no residue name found fail save
     
+#
+def get_atom_from_spec(imol, atom_spec):
+    return get_atom(imol,
+                    atom_spec_to_chain_id(atom_spec),
+                    atom_spec_to_res_no(atom_spec),
+                    atom_spec_to_ins_code(atom_spec),
+                    atom_spec_to_atom_name(atom_spec),
+                    atom_spec_to_alt_loc(atom_spec))
 
 # return atom info or False (if atom not found).
 #
@@ -994,6 +1002,65 @@ def get_atom(imol, chain_id, resno, ins_code, atom_name, alt_conf_internal=""):
         ret = get_atom_from_residue(atom_name, res_info, alt_conf_internal)
         return ret
 
+# not to be confused with residue_atom_to_atom_name
+# (which uses the output of residue_info)
+#
+# extraction function
+def atom_spec_to_chain_id(atom_spec):
+    # atom_spec example ["A", 7, "", " SG ", ""]
+    ret = False
+    if not atom_spec:
+        return False
+    if (len(atom_spec) == 5):
+        return atom_spec[0]
+    else:
+        return False
+
+# extraction function
+def atom_spec_to_res_no(atom_spec):
+    # atom_spec example ["A", 7, "", " SG ", ""]
+    ret = False
+    if not atom_spec:
+        return False
+    if (len(atom_spec) == 5):
+        return atom_spec[1]
+    else:
+        return False
+
+# extraction function
+def atom_spec_to_ins_code(atom_spec):
+    # atom_spec example ["A", 7, "", " SG ", ""]
+    ret = False
+    if not atom_spec:
+        return False
+    if (len(atom_spec) == 5):
+        return atom_spec[2]
+    else:
+        return False
+    
+# extraction function
+def atom_spec_to_atom_name(atom_spec):
+    # atom_spec example ["A", 7, "", " SG ", ""]
+    ret = False
+    if not atom_spec:
+        return False
+    if (len(atom_spec) == 5):
+        return atom_spec[3]
+    else:
+        return False
+    
+# extraction function
+def atom_spec_to_alt_loc(atom_spec):
+    # atom_spec example ["A", 7, "", " SG ", ""]
+    ret = False
+    if not atom_spec:
+        return False
+    if (len(atom_spec) == 5):
+        return atom_spec[4]
+    else:
+        return False
+    
+    
 #
 def residue_info_dialog_displayed_qm():
     if (residue_info_dialog_is_displayed == 1):
@@ -2195,15 +2262,21 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
             print "INFO:: new_chain_id_info: ", new_chain_id_info
             merge_status = new_chain_id_info[0]
             if merge_status == 1:
-                new_chain_id = new_chain_id_info[1]
-                change_residue_number(imol, new_chain_id, 1, "", resno, "")
-                change_chain_id(imol, new_chain_id, chain_id_in, 1, resno, resno)
+                new_res_spec = new_chain_id_info[1]
+                new_chain_id = residue_spec_to_chain_id(new_res_spec)
+                print "BL DEBUG:: new res spec", new_res_spec
+                change_residue_number(imol, new_chain_id,
+                                      residue_spec_to_res_no(new_res_spec),
+                                      residue_spec_to_ins_code(new_res_spec),
+                                      resno, "")
+                # not needed any more
+                #change_chain_id(imol, new_chain_id, chain_id_in, 1, resno, resno)
 
                 replacement_state = refinement_immediate_replacement_state()
                 imol_map = imol_refinement_map()
                 set_refinement_immediate_replacement(1)
                 if imol_map == -1:
-                    regularize_zone(imol, chain_id_in, resno, resno, "")	
+                    regularize_zone(imol, chain_id_in, resno, resno, "")
                 else:
                     spin_atoms = [" P  ", " O1P", " O2P", " O3P"]
                     phos_dir = {
@@ -2236,18 +2309,10 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
     imol_map = imol_refinement_map()
     if (imol_map == -1):
         map_mols = map_molecule_list()
-        if not map_mols:
-            print "BL WARNING:: no valid maps around! Cannot mutate."
+        if len(map_mols) > 1:
+            show_select_map_dialog()
+            mutate_it()
         else:
-            # BL says:: I dunno how to wait for the input from map selection since there is no return
-            # waiting for mouse/keyboard input may be an option but no curses on windows, maybe
-            # fix later, for now we use the first map
-            #			show_select_map_dialog()
-            if len(map_mols) > 1:
-                print "BL INFO:: we use the first map! If you wanna use another one, please select from Model/Fit/Refine"
-            else:
-                print "BL INFO:: no refinement map set, will set first one for you!"
-            set_imol_refinement_map(map_mols[0])
             mutate_it()
     else:
         mutate_it()
@@ -2264,7 +2329,7 @@ def phosphorylate_active_residue():
             return n
 
 	active_atom = active_residue()
-        try: 
+        try:
 	    imol       = active_atom[0]
 	    chain_id   = active_atom[1]
 	    resno      = active_atom[2]
@@ -4238,9 +4303,21 @@ def setup_ccp4():
             os.environ["PATH"] = os.pathsep.join(path_list)
             #print "BL DEBUG:: PATH set to", os.environ["PATH"]
 
+# Moved from gui_add_linked_cho.py to make a global function.
+#
+def delete_residue_by_spec(imol, spec):
+    delete_residue(imol,
+                   residue_spec_to_chain_id(spec),
+                   residue_spec_to_res_no(spec),
+                   residue_spec_to_ins_code(spec))
+
+
+
 # Required if there is no ccp4 in PATH otherwise, e.g. wont find libcheck
 # for jligand
-setup_ccp4()
+#
+# 20180603-PE No. This should not be here. Put it it JLigand setup.
+# setup_ccp4()
 
 # we work with globals here as to use the function later and not have to bother
 # with globals there any more
