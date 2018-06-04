@@ -5999,8 +5999,8 @@ molecule_class_info_t::change_residue_number(const std::string &chain_id,
 
 	       res_copy->seqNum = new_resno;
 	       strncpy(res_copy->insCode, new_inscode_str.c_str(), 9);
-	       std::pair<int, mmdb::Residue *> sn = find_serial_number_for_insert(current_resno,
-										  current_inscode_str,
+	       std::pair<int, mmdb::Residue *> sn = find_serial_number_for_insert(new_resno,
+										  new_inscode_str,
 										  chain_id);
 
 	       // 20180529-PE If you are copying this, don't forget the make_asc at the end. It took
