@@ -212,7 +212,7 @@ coot::reduce::add_riding_hydrogens() {
 	 mmdb::Residue *residue_prev_p;
 	 mmdb::Atom *at;
 	 for (int ires=0; ires<nres; ires++) {
-	    residue_p      = chain_p->GetResidue(ires);
+	    residue_p = chain_p->GetResidue(ires);
 	    if (ires > 0)
 	       residue_prev_p = chain_p->GetResidue(ires-1);
 	    else
@@ -981,7 +981,7 @@ coot::reduce::add_guanidinium_hydrogens(mmdb::Residue *residue_p) {
       at_n_2 = residue_p->GetAtom(" CZ ", 0, alt_confs[i].c_str());
       mmdb::Atom *at_nh1 = residue_p->GetAtom(" NH1", 0, alt_confs[i].c_str());
       mmdb::Atom *at_nh2 = residue_p->GetAtom(" NH2", 0, alt_confs[i].c_str());
-      if (at_n_1 && at_n_2 && at_n_3) {
+      if (at_n_1 && at_n_2 && at_nh1 && at_nh2) {
 	 double bf_nh1 = at_nh2->tempFactor;
 	 double bf_nh2 = at_nh2->tempFactor;
 	 double a = clipper::Util::d2rad(120);
@@ -1342,8 +1342,9 @@ coot::reduce::is_linked(const std::string &atom_name, mmdb::Residue *residue_p) 
       }
    }
 
-   std::cout << "debug:: is_linked " << coot::residue_spec_t(residue_p) << " "
-	     << atom_name << " " << status << std::endl;
+   if (false)
+      std::cout << "debug:: is_linked " << coot::residue_spec_t(residue_p) << " "
+		<< atom_name << " " << status << std::endl;
    return status;
 }
 

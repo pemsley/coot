@@ -1,5 +1,6 @@
 
 %module coot
+
 %{
 #include <cstdio>
 #include <cstddef>
@@ -19,6 +20,7 @@
 #include "cc-interface-scripting.hh"
 #include "c-interface-refmac.h"
 #include "cc-interface-ncs.hh"
+#include "cc-interface-molecular-representation.hh"
 #include "c-interface-generic-objects.h"
 #include "generic-display-objects-c.h"
 #include "manipulation-modes.hh"
@@ -64,6 +66,7 @@ namespace std {
 %include "c-interface-preferences.h"
 %include "c-interface-refine.hh"
 %include "cc-interface-ncs.hh"
+%include "cc-interface-molecular-representation.hh"
 %include "cc-interface.hh"
 %include "cc-interface-image.hh"
 %include "cc-interface-scripting.hh"

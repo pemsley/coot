@@ -73,7 +73,8 @@
 // 
 atom_selection_container_t
 graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
-						std::string res_type) {
+						const std::string &res_type,
+						const std::string &terminus_type) {
 
    atom_selection_container_t rasc = asc; 
    int istat;
@@ -83,7 +84,7 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 
    // every (usually 1, occasionally 2) residue in the molecule
    mmdb::Model *model_p = asc.mol->GetModel(1);
-   
+
    mmdb::Chain *chain;
    // run over chains of the existing mol
    int nchains = model_p->GetNumberOfChains();
@@ -100,7 +101,7 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 	 std::cout << "WARNING:: Can't find standard residue for " 
                    << target_res_type << "\n";
       } else { 
-      
+
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    chain = model_p->GetChain(ichain);
 	    if (chain == NULL) {  
@@ -108,13 +109,21 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 	       std::cout << "NULL chain in add_cb_to_terminal_res" << std::endl;
 	    } else { 
 	       mmdb::Residue *std_res_copy = coot::deep_copy_this_residue(std_res, "", 1, -1);
-	       if (std_res_copy) { 
+	       if (std_res_copy) {
 		  int nres = chain->GetNumberOfResidues();
-		  for (int ires=0; ires<nres; ires++) { 
-		     mmdb::PResidue residue_p = chain->GetResidue(ires);
+		  mmdb::Residue *residue_p = 0;
+
+		  if (terminus_type == "N" || "MN")
+		     residue_p = coot::util::get_first_residue_in_chain(chain);
+		  if (terminus_type == "C" || "MC")
+		     residue_p = coot::util::get_last_residue_in_chain(chain);
+
+		  if (residue_p) {
+
 		     //
-		     if (false)
-			std::cout << "INFO:: mutating residue in add_cb_to_terminal_res\n";
+		     if (true)
+			std::cout << "INFO:: mutating residue " << coot::residue_spec_t(residue_p)
+				  << " in add_cb_to_terminal_res\n";
 		     istat = molci.move_std_residue(std_res_copy, residue_p);
 
 		     if (istat) { 
@@ -131,8 +140,8 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 			for(int i=0; i<n_std_ResidueAtoms; i++) {
 			   std_residue_atoms[i]->tempFactor = default_new_atoms_b_factor;
 			};
-		     
-			bool verb = 0;
+
+			bool verb = true;
 			if (verb) { 
 			   std::cout << "Mutate Atom Tables" << std::endl;
 			   std::cout << "Before" << std::endl;
@@ -161,7 +170,11 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 			};
 			// strcpy(residue_p->name, std_res->name);
 			residue_p->TrimAtomTable();
+
 		     }
+		     if (true)
+			std::cout << "INFO:: done mutating residue " << coot::residue_spec_t(residue_p)
+				  << " in add_cb_to_terminal_res\n";
 		  }
 	       }
 
@@ -200,13 +213,19 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 void
 graphics_info_t::do_mutation(const std::string &residue_type, short int do_stub_flag) {
 
-   if (! is_valid_model_molecule(mutate_auto_fit_residue_imol)) {
-      std::cout << "ERROR:: invalid model molecule number in do_mutation() "
-		<< mutate_auto_fit_residue_imol << std::endl;
-      return;
-   }
+   // this is called from both simple mutate (in_mutate_define)
+   // and auto_fit_mutate (in_mutate_auto_fit_define).
+   // mutate_auto_fit_residue_imol will not be set in the simple mutate case
+
 
    if (residue_type_chooser_auto_fit_flag) {
+
+      if (! is_valid_model_molecule(mutate_auto_fit_residue_imol)) {
+	 std::cout << "ERROR:: invalid model molecule number in do_mutation() "
+		   << mutate_auto_fit_residue_imol << std::endl;
+	 return;
+      }
+
       molecules[mutate_auto_fit_residue_imol].mutate(mutate_auto_fit_residue_atom_index, 
 						     residue_type, do_stub_flag);
 
@@ -247,14 +266,16 @@ graphics_info_t::do_mutation(const std::string &residue_type, short int do_stub_
 	 show_select_map_dialog();
       }
    } else {
-      // simple mutation
-      molecules[mutate_residue_imol].mutate(mutate_residue_atom_index, residue_type,
-					    do_stub_flag); 
-      update_go_to_atom_window_on_changed_mol(mutate_residue_imol);
-      update_geometry_graphs(molecules[mutate_auto_fit_residue_imol].atom_sel,
-			     mutate_auto_fit_residue_imol);
-      run_post_manipulation_hook(mutate_auto_fit_residue_imol, MUTATED);
 
+      if (is_valid_model_molecule(mutate_residue_imol)) {
+	 // simple mutation
+	 molecules[mutate_residue_imol].mutate(mutate_residue_atom_index, residue_type,
+					       do_stub_flag);
+	 update_go_to_atom_window_on_changed_mol(mutate_residue_imol);
+	 update_geometry_graphs(molecules[mutate_auto_fit_residue_imol].atom_sel,
+				mutate_auto_fit_residue_imol);
+	 run_post_manipulation_hook(mutate_auto_fit_residue_imol, MUTATED);
+      }
    }
    graphics_draw();
 }
@@ -264,7 +285,7 @@ graphics_info_t::do_mutation_auto_fit(const std::string &residue_type,
 				      short int do_stub_flag) {
 
    molecules[mutate_residue_imol].mutate(mutate_residue_atom_index, residue_type,
-					 do_stub_flag); 
+					 do_stub_flag);
    graphics_draw();
    run_post_manipulation_hook(mutate_residue_imol, MUTATED);
 }
@@ -278,7 +299,7 @@ graphics_info_t::read_standard_residues() {
    const char *filename = getenv(standard_env_dir.c_str());
    if (! filename) {
 
-      std::string standard_file_name = PKGDATADIR;
+      std::string standard_file_name = coot::package_data_dir();
       standard_file_name += "/";
       standard_file_name += "standard-residues.pdb";
 
@@ -397,7 +418,7 @@ void
 graphics_info_t::cis_trans_conversion(mmdb::Atom *at, int imol, short int is_N_flag) {
 
    if (molecules[imol].has_model()) { 
-      int istatus = molecules[imol].cis_trans_conversion(at, is_N_flag);
+      int istatus = molecules[imol].cis_trans_conversion(at, is_N_flag, standard_residues_asc.mol);
       if (istatus > 0)
 	 graphics_draw();
    }

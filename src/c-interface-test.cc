@@ -386,13 +386,51 @@ int test_function(int i, int j) {
 #include "analysis/kolmogorov.hh"
 #include "analysis/stats.hh"
 
+#ifdef USE_MOLECULES_TO_TRIANGLES
+
+// Martin's MoleculeToTriangles
+//
+//
+#include <CXXClasses/RendererGL.h>
+#include <CXXClasses/Light.h>
+#include <CXXClasses/Camera.h>
+// #include <CXXClasses/CameraPort.h>
+#include <CXXClasses/SceneSetup.h>
+#include <CXXClasses/ColorScheme.h>
+#include <CXXClasses/MyMolecule.h>
+#include <CXXClasses/RepresentationInstance.h>
+#include <CXXClasses/MolecularRepresentationInstance.h>
+#endif // USE_MOLECULES_TO_TRIANGLES
+
+#include "coot-utils/c-beta-deviations.hh"
+
 #ifdef USE_GUILE
 SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
    graphics_info_t g;
    SCM r = SCM_BOOL_F;
 
+
    if (true) {
+      mmdb::Manager *mol = new mmdb::Manager;
+      mol->ReadPDBASCII("test.pdb");
+      std::cout << "calling get_c_beta_deviations() " << mol << std::endl;
+      coot::get_c_beta_deviations(mol);
+   }
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+   if (false) {
+
+      int imol = scm_to_int(i_scm);
+      if (is_valid_model_molecule(imol)) {
+	 graphics_info_t::molecules[imol].make_molecularrepresentationinstance();
+	 // graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(graphics_info_t::molecules[imol].molrepinst);
+	 graphics_draw();
+      }
+   }
+#endif // USE_MOLECULES_TO_TRIANGLES
+
+   if (false) {
       int imol_1 = scm_to_int(i_scm); // from
       int imol_2 = scm_to_int(j_scm); // to
 
@@ -404,6 +442,45 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	    write_pdb_file(imol_2, "copied-here.pdb");
 	 }
       }
+   }
+
+
+   if (false) {
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+      mmdb::Manager *mol = new mmdb::Manager;
+      mol->ReadPDBASCII("test.pdb");
+      MyMolecule mymol(mol);
+
+      auto myMolecule= MyMolecule::create("test.pdb");
+      myMolecule->setDoDraw(true);
+      auto colorScheme = ColorScheme::colorByElementScheme();
+      auto camera = std::shared_ptr<Camera>(Camera::defaultCamera());
+      auto light0 = Light::defaultLight();
+      light0->setDrawLight(false);
+      auto renderer = RendererGL::create();
+      // std::string sel = "/*/*/*","ThirtySixToFortyFive";
+      std::string sel = "//36-45";
+      CompoundSelection comp_sel(sel);
+      auto inst1 = MolecularRepresentationInstance::create(myMolecule,
+							   colorScheme,
+							   sel,
+							   "Ribbon");
+      auto sceneSetup = SceneSetup::defaultSceneSetup();
+      sceneSetup->addLight(light0);
+      sceneSetup->addCamera(camera);
+      camera->setSceneSetup(sceneSetup);
+      sceneSetup->addRepresentationInstance(inst1);
+      CXXCoord<float> c = myMolecule->getCentre();
+      CXXCoord<float> minusC = c * -1.;
+      std::cout << minusC;
+      sceneSetup->setTranslation(minusC);
+      // CameraPort *cameraPort = new CameraPort;
+      // cameraPort->setCamera(camera);
+      // cameraPort->setRenderer(renderer);
+      // cameraPort->runLoop("Message"); hangs (not surprising)
+
+#endif // USE_MOLECULES_TO_TRIANGLES
    }
 
    if (false) {

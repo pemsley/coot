@@ -1,7 +1,5 @@
 
-
-
-Coot
+*Coot*
 ----
 
 *Coot* is a toolkit for Macromolecular Crystallography and
@@ -10,6 +8,10 @@ mmdb, clipper, and OpenGL, together with a new approach to map
 contouring and importing/creation and other modelling and building
 operations.
 
+Blog
+----
+
+[Coot Development Blog](blog "Coot Development Blog")
 
 Redistribution
 --------------
@@ -49,13 +51,12 @@ Prerequisites:
  * guile-1.8.x
    (http://www.mirror.ac.uk/sites/ftp.gnu.org/gnu/guile/) [scripting]
  * guile-gui-0.2.tar.gz (http://www.ossau.uklinux.net/guile/) [interactive scripting]
- * guile-www-1.1.5 or later (http://www.ysbl.york.ac.uk/~emsley/software/extras/) 
+ * guile-www-1.1.5 or later
    [OCA Server interface]
  * guile-gtk (ftp://ftp.gnu.org/gnu/guile-gtk) [interactive scripting]
  * goosh-1.3 or later (http://arglist.com/guile/) 
-   [external program (e.g. refmac, lsqman) interface] 
- * SSMlib (http://www.ysbl.york.ac.uk/~emsley/software/extras/) 
-   [superposition]
+   [external program (e.g. refmac, lsqman) interface]
+ * SSMlib [superposition]
 
  (you can also get many of these from http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies)
 
@@ -129,7 +130,7 @@ Code Thanks...
 
 [1] Ethan Merritt, Gerard Kleywegt, George Sheldrick
 
-[2] Eleanor Dodson, Miguel Ortiz Lombardía, Charlie Bond,
+[2] Eleanor Dodson, Miguel Ortiz Lombardia, Charlie Bond,
     Jan Dohnalek, Garib Murshudov, Jean Wittingham, Florence Vincent,
     Tracy Gloucester, Constantina Fotinou, Roberto Steiner, Adrian
     Lapthorn, Claudia Schnick, Rosa Grenha, Ezra Peisach, Ben Luisi, 
@@ -140,11 +141,7 @@ Code Thanks...
 
 [4] Ezra Peisach, Charlie Bond, Mike Hartshorn
 
-
 ---
-Thanks for using Coot.
 
 Paul Emsley
 Now in Cambridge: pemsley at mrc dash lmb dot cam dot ac dot uk
-
-

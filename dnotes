@@ -8234,3 +8234,78 @@ Fri 20 Apr 2018 14:53:26 BST
 
    4whj - interesting fitting Alvarez et al, domain needs to be shifted - 4.6A
 
+----
+Sun 20 May 2018 12:54:32 BST
+
+   cute graphics: https://github.com/prideout/aobaker
+                  https://github.com/prideout/blog-source/blob/master/p61/Cylinder.glsl
+
+                  http://github.prideout.net/
+                  http://prideout.net/blog/
+
+    built them into coot :-)
+
+
+
+----
+Sun 20 May 2018 12:54:28 BST
+
+    OpenGL and gtk on gtkglext mailing list (last entries?)
+
+    https://mail.gnome.org/archives/gtkglext-list/2014-February/msg00016.html
+
+
+---
+Sun 20 May 2018 12:59:28 BST
+
+   sharpconstruct for drawing heads?
+
+
+---
+Sun 20 May 2018 13:22:00 BST
+
+    https://www.blendswap.com for heads
+
+----
+Tue 22 May 2018 15:12:04 BST
+
+   o re: a console: look at this:
+     http://www.cplusplus.com/reference/cstdio/freopen/
+     reopen std out as a static string stream?
+
+
+	
+---
+Mon 28 May 2018 12:33:02 BST
+
+    Indirect GLX is no longer supported by default.  You can enable it with:
+
+    defaults write org.macosforge.xquartz.X11 enable_iglx -bool true
+
+   Jeremy Huddleston Sequoia
+   https://bugs.freedesktop.org/show_bug.cgi?id=99146
+
+
+---
+Tue 29 May 2018 16:29:39 BST
+
+   investigate __FILE__ __LINE__ and __FUNCTION__ for debugging
+
+
+---
+Fri  1 Jun 2018 21:52:08 BST
+
+    graphics:
+
+    https://cesium.com/blog/2013/04/22/robust-polyline-rendering-with-webgl/
+
+---
+Sat  2 Jun 2018 17:26:41 BST
+
+
+  14.150 How can I make line or polygon antialiasing work?
+
+  https://www.opengl.org/archives/resources/faq/technical/rasterization.htm#rast0150
+
+
+

@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef CXXSphereNode_included
-#define CXXSphereNode_included
+#ifndef CXX_mot_CXXSphereNode_included
+#define CXX_mot_CXXSphereNode_included
 #include <vector>
 #include <iostream>
 #include <algorithm>
@@ -19,6 +19,8 @@
 // class mmdb::Atom;
 
 using namespace std;
+
+namespace CXX_mot {
 
 class CXXSphereNode {
 private:
@@ -46,6 +48,6 @@ public:
 		return theAtom;
 	};
 };
-
+}
 #endif
 

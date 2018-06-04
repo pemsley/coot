@@ -8,9 +8,9 @@
 using namespace clipper;
 using namespace std;
 
-CXXQADSurface::~CXXQADSurface() {}
+CXX_mot::CXXQADSurface::~CXXQADSurface() {}
 
-CXXQADSurface::CXXQADSurface(mmdb::PManager theMMDBManager_in, int selHndl_in, 
+CXX_mot::CXXQADSurface::CXXQADSurface(mmdb::PManager theMMDBManager_in, int selHndl_in, 
 							 double probeRadius_in, double sample_in){
 	
 	theMMDBManager = theMMDBManager_in;
@@ -110,7 +110,7 @@ CXXQADSurface::CXXQADSurface(mmdb::PManager theMMDBManager_in, int selHndl_in,
 	//cout << "...Done\n"; cout.flush();
 }
 
-int CXXQADSurface::prepareGrids (){
+int CXX_mot::CXXQADSurface::prepareGrids (){
 	//Pass through finding the limits of the coordinates
 	
 	double xyzMin[3], xyzMax[3];
@@ -177,7 +177,7 @@ int CXXQADSurface::prepareGrids (){
 	return 0;
 }
 
-int CXXQADSurface::makeDistanceSqMap(){
+int CXX_mot::CXXQADSurface::makeDistanceSqMap(){
 	Xmap<double>::Map_reference_coord i0, iu, iv, iw;
 	
 	for (int iAtom = 0; iAtom < nSelectedAtoms; iAtom++){
@@ -240,7 +240,7 @@ int CXXQADSurface::makeDistanceSqMap(){
 	return 0;
 }
 
-int CXXQADSurface::addProbesFromVdwSurface(){
+int CXX_mot::CXXQADSurface::addProbesFromVdwSurface(){
 	Xmap<double>::Map_reference_coord i0, iu, iv, iw;
 	
 	for (int iAtom = 0; iAtom < nSelectedAtoms; iAtom++){
@@ -376,36 +376,36 @@ int CXXQADSurface::addProbesFromVdwSurface(){
 	return 0;
 }
 
-clipper::Xmap<double> &CXXQADSurface::getDoubleMap(){
+clipper::Xmap<double> &CXX_mot::CXXQADSurface::getDoubleMap(){
 	return theDoubleMap;
 }
 
-clipper::Cell &CXXQADSurface::getCell(){
+clipper::Cell &CXX_mot::CXXQADSurface::getCell(){
 	return clipperCell;
 }
 
-void CXXQADSurface::dump(Grid_sampling theObject){
+void CXX_mot::CXXQADSurface::dump(Grid_sampling theObject){
 	cout << "Grid sampling :" << endl <<
 	theObject.nu() << " " <<
 	theObject.nv() << " " <<
 	theObject.nw() << endl;
 }
 
-void CXXQADSurface::dump(Coord_grid theObject){
+void CXX_mot::CXXQADSurface::dump(Coord_grid theObject){
 	cout << "Coord grid :" << endl <<
 	theObject.u() << " " <<
 	theObject.v() << " " <<
 	theObject.w() << endl;
 }
 
-void CXXQADSurface::dump(Grid_range theObject){
+void CXX_mot::CXXQADSurface::dump(Grid_range theObject){
 	cout << "Grid limits :"  << endl <<
 	theObject.min().u() << " " << theObject.max().u() << " " <<
 	theObject.min().v() << " " << theObject.max().v() << " " <<
 	theObject.min().w() << " " << theObject.max().w() << endl;
 }
 
-int CXXQADSurface::allowProbesToEat(){
+int CXX_mot::CXXQADSurface::allowProbesToEat(){
 	Xmap<double>::Map_reference_coord i0, iu, iv, iw;
 	
 	for (unsigned iProbe = 0; iProbe < probePositions.size(); iProbe++){
@@ -453,7 +453,7 @@ int CXXQADSurface::allowProbesToEat(){
 	return 0;
 }
 
-int CXXQADSurface::allowProbeToEatWithinGridRange(Coord_orth probeCoordOrth, Grid_range theRange){
+int CXX_mot::CXXQADSurface::allowProbeToEatWithinGridRange(Coord_orth probeCoordOrth, Grid_range theRange){
 	Xmap<double>::Map_reference_coord i0, iu, iv, iw;
 	
 	double eatingRadius = probeRadius+sample;
@@ -504,7 +504,7 @@ int CXXQADSurface::allowProbeToEatWithinGridRange(Coord_orth probeCoordOrth, Gri
 	return 0;
 }
 
-int CXXQADSurface::coordIsBuriedByNeighbours(Coord_orth &point,int iAtom1){
+int CXX_mot::CXXQADSurface::coordIsBuriedByNeighbours(Coord_orth &point,int iAtom1){
 	mmdb::PAtom Atom1 = selectedAtoms[iAtom1];
 	vector<int> &theNeighbourhood = neighbourhoods[iAtom1];
 	int buried = 0;
@@ -536,18 +536,18 @@ int CXXQADSurface::coordIsBuriedByNeighbours(Coord_orth &point,int iAtom1){
 	return buried;
 }
 
-void CXXQADSurface::addProbe(Coord_orth newProbePosition){
+void CXX_mot::CXXQADSurface::addProbe(Coord_orth newProbePosition){
 	probePositions.push_back(newProbePosition);
 }
 
-void CXXQADSurface::copyFlagToDouble(){
+void CXX_mot::CXXQADSurface::copyFlagToDouble(){
 	clipper::Xmap_base::Map_reference_index ix;
 	for ( ix = theFlagMap.first(); !ix.last(); ix.next() ) {
 		theDoubleMap[ix] = theFlagMap[ix];
 	}
 }
 
-int CXXQADSurface::contourMap(double isoLevel){
+int CXX_mot::CXXQADSurface::contourMap(double isoLevel){
 	int perPixelTriangles[24][3];
 	Coord_orth perPixelVertices[12];
 	vector<vector<int> > referencingTriangles;
@@ -596,7 +596,7 @@ int CXXQADSurface::contourMap(double isoLevel){
 	return 0;
 }
 
-int CXXQADSurface::contourPixel(Xmap_base::Map_reference_coord index, double isoLevel,
+int CXX_mot::CXXQADSurface::contourPixel(Xmap_base::Map_reference_coord index, double isoLevel,
 								Coord_orth vertlist[], vector<clipper::Coord_orth> &vertVector, 
 								int triangles[][3]){
 	//cubeindex is the index into thelookup table of what edges and what
@@ -729,7 +729,7 @@ int CXXQADSurface::contourPixel(Xmap_base::Map_reference_coord index, double iso
 	return ntriang;
 }	
 
-Coord_orth CXXQADSurface::coordOrthInterp(double isoLevel, Coord_orth p1, Coord_orth p2, double v1, double v2){
+Coord_orth CXX_mot::CXXQADSurface::coordOrthInterp(double isoLevel, Coord_orth p1, Coord_orth p2, double v1, double v2){
 	Coord_orth result;
 	if (fabs(v1-isoLevel) < 1e-08) return p1;
 	if (fabs(v2-isoLevel) < 1e-08) return p2;
@@ -742,21 +742,21 @@ Coord_orth CXXQADSurface::coordOrthInterp(double isoLevel, Coord_orth p1, Coord_
 	return result;
 }
 
-int CXXQADSurface::compareVertices(Coord_orth &v1, Coord_orth &v2){
+int CXX_mot::CXXQADSurface::compareVertices(Coord_orth &v1, Coord_orth &v2){
 	return (v1.x() == v2.x() && v1.y() == v2.y() && v1.z() == v2.z());
 }
 
-vector<clipper::Coord_orth> &CXXQADSurface::getVertices(){
+vector<clipper::Coord_orth> &CXX_mot::CXXQADSurface::getVertices(){
 	return vertices;
 }
-vector<clipper::Coord_orth> &CXXQADSurface::getNormals(){
+vector<clipper::Coord_orth> &CXX_mot::CXXQADSurface::getNormals(){
 	return vertexNormals;
 }
-vector<int> &CXXQADSurface::getTriangles(){
+vector<int> &CXX_mot::CXXQADSurface::getTriangles(){
 	return triangles;
 }
 
-int CXXQADSurface::calculateAveragedNormals(){
+int CXX_mot::CXXQADSurface::calculateAveragedNormals(){
 	//Now calculate normals
 	vertexNormals.resize(vertices.size());
 	for (unsigned i=0; i<vertices.size(); i++){
@@ -794,7 +794,7 @@ int CXXQADSurface::calculateAveragedNormals(){
 	
 }
 
-double CXXQADSurface::getAtomRadius(mmdb::PAtom theAtom){
+double CXX_mot::CXXQADSurface::getAtomRadius(mmdb::PAtom theAtom){
 	//Here get handle of a radius data type from MMDB if such has been stored
 	int iRadiusHandle = theMMDBManager->GetUDDHandle(mmdb::UDR_ATOM, "PerAtomRadius");
 	double theRadius;
@@ -806,7 +806,7 @@ double CXXQADSurface::getAtomRadius(mmdb::PAtom theAtom){
 	return theRadius;
 }
 
-int CXXQADSurface::transformTriTable(){
+int CXX_mot::CXXQADSurface::transformTriTable(){
 	cout << "{ ";
 	for (int iTriang = 0; iTriang< 256; iTriang++){
 		cout << "{ ";
@@ -835,7 +835,7 @@ int CXXQADSurface::transformTriTable(){
 	return 0;
 }
 
-int CXXQADSurface::setInaccessibleDistanceSq(){
+int CXX_mot::CXXQADSurface::setInaccessibleDistanceSq(){
 	//Here adopt Solvent accessible surface contour vertices into the probe list
 	clipper::Xmap_base::Map_reference_index ix;
 	for (ix = theDoubleMap.first(); !ix.last(); ix.next() ) {
@@ -847,7 +847,7 @@ int CXXQADSurface::setInaccessibleDistanceSq(){
 	return 0;
 }
 
-int CXXQADSurface::sqrtDistanceSq(){
+int CXX_mot::CXXQADSurface::sqrtDistanceSq(){
 	//Here convert from DistanceSqmap to Distance Map for contouring
 	clipper::Xmap_base::Map_reference_index ix;
 	for (ix = theDoubleMap.first(); !ix.last(); ix.next() ) {
@@ -858,7 +858,7 @@ int CXXQADSurface::sqrtDistanceSq(){
 	return 0;
 }
 
-int CXXQADSurface::toruses()
+int CXX_mot::CXXQADSurface::toruses()
 {
 	int nTorusSegments = 0;
 	Xmap<double>::Map_reference_coord i0, iu, iv, iw;
@@ -896,9 +896,9 @@ int CXXQADSurface::toruses()
 		theNewHood.findSegments();
 		
 		//Loop over the segments that are left, using them to "eat" into the molecular volume
-		std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> > &theCircles(theNewHood.getCircles());
-		std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator circlesEnd = theCircles.end();
-		for (std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator circleIter = theCircles.begin();
+		std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> > &theCircles(theNewHood.getCircles());
+		std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::iterator circlesEnd = theCircles.end();
+		for (std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::iterator circleIter = theCircles.begin();
 			 circleIter != circlesEnd;
 			 ++circleIter){
 			CXXCircle &theCircle(*circleIter);
@@ -1010,14 +1010,14 @@ int CXXQADSurface::toruses()
 		}
 		//Now collect a list of points where the probes are in contact with three atoms
 		circlesEnd = theCircles.end();
-		for (std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator circleIter = theCircles.begin();
+		for (std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::iterator circleIter = theCircles.begin();
 			 circleIter != circlesEnd;
 			 ++circleIter){
 			CXXCircle &theCircle(*circleIter);
 			if (!theCircle.getEaten()){
-                const list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> > &nodes = theCircle.getNodes();
-                list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::const_iterator endNode = nodes.end();
-                for (list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::const_iterator nodeIter = nodes.begin();
+                const list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> > &nodes = theCircle.getNodes();
+                list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::const_iterator endNode = nodes.end();
+                for (list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::const_iterator nodeIter = nodes.begin();
                      nodeIter != endNode;
                      ++nodeIter){
 					const CXXCircleNode &aNode(*nodeIter);
@@ -1037,7 +1037,7 @@ int CXXQADSurface::toruses()
 	return 0;	
 }
 
-Grid_range &CXXQADSurface::gdIntersection (Grid_range &g0, Grid_range &g1, Grid_range &theResult){
+Grid_range &CXX_mot::CXXQADSurface::gdIntersection (Grid_range &g0, Grid_range &g1, Grid_range &theResult){
 	Coord_grid newMin(max(g0.min()[0], g1.min()[0]),
 					  max(g0.min()[1], g1.min()[1]),
 					  max(g0.min()[2], g1.min()[2]));

@@ -3622,7 +3622,8 @@ def find_exe(program_name, *args, **kwargs):
 
     global search_disk
     search_disk = None
-    info = True
+    info = True  # Yeah... no.
+    info = False
 
     # we shall check for full path names first
     if (os.path.isfile(program_name)):

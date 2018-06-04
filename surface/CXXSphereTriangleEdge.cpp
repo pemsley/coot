@@ -12,13 +12,13 @@
 #include "CXXSphereNode.h"
 #include "CXXCoord.h"
 
-CXXSphereTriangleEdge::CXXSphereTriangleEdge(){
+CXX_mot::CXXSphereTriangleEdge::CXXSphereTriangleEdge(){
 }
 
-CXXSphereTriangleEdge::~CXXSphereTriangleEdge(){
+CXX_mot::CXXSphereTriangleEdge::~CXXSphereTriangleEdge(){
 }
 
-CXXSphereTriangleEdge::CXXSphereTriangleEdge(const CXXCoord &aNormal, int iV1, int iV2, 
+CXX_mot::CXXSphereTriangleEdge::CXXSphereTriangleEdge(const CXXCoord &aNormal, int iV1, int iV2, 
 											 const CXXCoord &anEdgeCentre, const CXXCoord &aSphereCentre,
 											 double anEdgeRadius, CXXSphereElement *aSphereElement) :
 edgeNormal ( aNormal),
@@ -32,20 +32,20 @@ theSphereElement ( aSphereElement )
 	calculateLength();
 }
 
-const CXXCoord &CXXSphereTriangleEdge::normal() const{
+const CXX_mot::CXXCoord &CXX_mot::CXXSphereTriangleEdge::normal() const{
 	return edgeNormal;
 }
-int CXXSphereTriangleEdge::vertex(int i) const{
+int CXX_mot::CXXSphereTriangleEdge::vertex(int i) const{
 	return edgeVertices[i];
 }
-const CXXCoord &CXXSphereTriangleEdge::edgeCentre() const {
+const CXX_mot::CXXCoord &CXX_mot::CXXSphereTriangleEdge::edgeCentre() const {
 	return theEdgeCentre;
 }
-const CXXCoord &CXXSphereTriangleEdge::sphereCentre() const {
+const CXX_mot::CXXCoord &CXX_mot::CXXSphereTriangleEdge::sphereCentre() const {
 	return theSphereCentre;
 }
 
-double CXXSphereTriangleEdge::calculateLength()  {
+double CXX_mot::CXXSphereTriangleEdge::calculateLength()  {
 	CXXCoord v1 = theSphereElement->vertex(edgeVertices[0]).vertex() - theEdgeCentre;
 	CXXCoord v2 = theSphereElement->vertex(edgeVertices[1]).vertex() - theEdgeCentre;
 	v1.normalise();
@@ -55,7 +55,7 @@ double CXXSphereTriangleEdge::calculateLength()  {
 	return edgeLength;
 }
 
-CXXCoord CXXSphereTriangleEdge::midpoint() const{
+CXX_mot::CXXCoord CXX_mot::CXXSphereTriangleEdge::midpoint() const{
 	CXXCoord result;
 	CXXCoord v1 = theSphereElement->vertex(edgeVertices[0]).vertex() - theEdgeCentre;
 	CXXCoord v2 = theSphereElement->vertex(edgeVertices[1]).vertex() - theEdgeCentre;
@@ -81,25 +81,25 @@ CXXCoord CXXSphereTriangleEdge::midpoint() const{
 	return CXXCoord(result);
 }
 
-double CXXSphereTriangleEdge::radius() const{
+double CXX_mot::CXXSphereTriangleEdge::radius() const{
 	return edgeRadius;
 }
 
-CXXSphereElement *CXXSphereTriangleEdge::sphereElement()const{
+CXX_mot::CXXSphereElement *CXX_mot::CXXSphereTriangleEdge::sphereElement()const{
 	return theSphereElement;
 }
 
-int CXXSphereTriangleEdge::setSphereElement(CXXSphereElement *se){
+int CXX_mot::CXXSphereTriangleEdge::setSphereElement(CXXSphereElement *se){
 	theSphereElement = se;
 	return 0;
 }
 
-int CXXSphereTriangleEdge::setSphereCentre (const CXXCoord &crd){
+int CXX_mot::CXXSphereTriangleEdge::setSphereCentre (const CXXCoord &crd){
 	theSphereCentre = crd;
 	return 0;
 }
 
-int CXXSphereTriangleEdge::setEdgeCentre (const CXXCoord &crd){
+int CXX_mot::CXXSphereTriangleEdge::setEdgeCentre (const CXXCoord &crd){
 	theEdgeCentre = crd;
 	return 0;
 }

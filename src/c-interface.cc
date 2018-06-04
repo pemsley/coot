@@ -2278,9 +2278,10 @@ short int get_show_symmetry() {
 void
 set_clipping_front(float v) {
 
+   float clipping_max = 15.0; // was 10
    graphics_info_t::clipping_front = v;
-   if (graphics_info_t::clipping_front > 10)
-      graphics_info_t::clipping_front = 10;
+   if (graphics_info_t::clipping_front > clipping_max)
+      graphics_info_t::clipping_front = clipping_max;
    graphics_draw();
    std::string cmd = "set-clipping-front";
    std::vector<coot::command_arg_t> args;
@@ -2293,9 +2294,10 @@ set_clipping_front(float v) {
 void
 set_clipping_back(float v) {
 
+   float clipping_max = 15.0;
    graphics_info_t::clipping_back = v;
-   if (graphics_info_t::clipping_back > 10)
-      graphics_info_t::clipping_back = 10;
+   if (graphics_info_t::clipping_back > clipping_max)
+      graphics_info_t::clipping_back = clipping_max;
    graphics_draw();
    std::string cmd = "set-clipping-back";
    std::vector<coot::command_arg_t> args;
@@ -2659,6 +2661,13 @@ void set_bond_thickness(int imol, float t) {
    graphics_info_t g;
    g.set_bond_thickness(imol, t);
 }
+
+/*! \brief allow lines that are further away to be thinner */
+void set_use_variable_bond_thickness(short int state) {
+   graphics_info_t g;
+   g.use_variable_bond_width = state;
+}
+
 
 void set_bond_thickness_intermediate_atoms(float t) { 
    graphics_info_t g;
@@ -6119,6 +6128,15 @@ PyObject *cis_peptides_py(int imol) {
 }
 #endif //  USE_PYTHON
 
+/*! \brief cis-trans convert the active residue of the active atom in the 
+    inermediate atoms, and continue with the refinement  */
+int cis_trans_convert_intermediate_atoms() {
+
+   graphics_info_t g;
+   return g.cis_trans_conversion_intermediate_atoms();
+}
+
+
 
 void post_scripting_window() {
 
@@ -7508,7 +7526,14 @@ void set_raster3d_water_sphere(int state) {
 
    graphics_info_t::raster3d_water_sphere_flag = state;
 
-} 
+}
+
+/*! \brief set the font size (as a string) for raster3d*/
+void set_raster3d_font_size(const char *size_in) {
+
+   graphics_info_t::raster3d_font_size = size_in;
+}
+
 
 void
 raster_screen_shot() {  // run raster3d or povray and guile

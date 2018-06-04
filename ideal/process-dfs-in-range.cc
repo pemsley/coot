@@ -466,7 +466,7 @@ coot::process_dfs_torsion(const coot::simple_restraint &this_restraint,
 	    }
 	 }
 		  
-	 if (true)
+	 if (false)
 	    std::cout << "in df_torsion: dtg.theta is " << dtg.theta 
 		      <<  " and target is " << this_restraint.target_value 
 		      << " and diff is " << diff
@@ -860,27 +860,47 @@ coot::process_dfs_target_position(const coot::simple_restraint &restraint,
    double sigma = 0.04;
    int idx = 3*(restraint.atom_index_1);
 
-   double scale = log_cosh_target_distance_scale_factor;
-   double top_out_dist = 4.0;  // Angstroms, needs tweaking?
-   double k = 1.0 / top_out_dist;
+   bool harmonic_restraint = true;
 
-   clipper::Coord_orth current_pos(gsl_vector_get(v,idx),
-				   gsl_vector_get(v,idx+1),
-				   gsl_vector_get(v,idx+2));
-   double dist_x = gsl_vector_get(v, idx)   - restraint.atom_pull_target_pos[0];
-   double dist_y = gsl_vector_get(v, idx+1) - restraint.atom_pull_target_pos[1];
-   double dist_z = gsl_vector_get(v, idx+2) - restraint.atom_pull_target_pos[2];
+   if (harmonic_restraint) {
+      
+      double constant_part = 2.0 / (sigma * sigma);
 
-   double dist = clipper::Coord_orth::length(current_pos, restraint.atom_pull_target_pos);
-   double z = dist/top_out_dist;
-   double e_2z = exp(2.0 * z);
-   double tanh_z = (e_2z - 1) / (e_2z + 1);
-   double constant_part = scale * k * tanh_z / dist;
+      double dist_x = gsl_vector_get(v, idx)   - restraint.atom_pull_target_pos[0];
+      double dist_y = gsl_vector_get(v, idx+1) - restraint.atom_pull_target_pos[1];
+      double dist_z = gsl_vector_get(v, idx+2) - restraint.atom_pull_target_pos[2];
 
-   results[idx  ] += constant_part * dist_x;
-   results[idx+1] += constant_part * dist_y;
-   results[idx+2] += constant_part * dist_z;
-   
+      // *gsl_vector_ptr(df, idx  ) += constant_part * dist_x;
+      // *gsl_vector_ptr(df, idx+1) += constant_part * dist_y;
+      // *gsl_vector_ptr(df, idx+2) += constant_part * dist_z;
+
+      results[idx  ] += constant_part * dist_x;
+      results[idx+1] += constant_part * dist_y;
+      results[idx+2] += constant_part * dist_z;
+
+   } else {
+
+      double scale = log_cosh_target_distance_scale_factor;
+      double top_out_dist = 4.0;  // Angstroms, needs tweaking?
+      double k = 1.0 / top_out_dist;
+
+      clipper::Coord_orth current_pos(gsl_vector_get(v,idx),
+				      gsl_vector_get(v,idx+1),
+				      gsl_vector_get(v,idx+2));
+      double dist_x = gsl_vector_get(v, idx)   - restraint.atom_pull_target_pos[0];
+      double dist_y = gsl_vector_get(v, idx+1) - restraint.atom_pull_target_pos[1];
+      double dist_z = gsl_vector_get(v, idx+2) - restraint.atom_pull_target_pos[2];
+
+      double dist = clipper::Coord_orth::length(current_pos, restraint.atom_pull_target_pos);
+      double z = dist/top_out_dist;
+      double e_2z = exp(2.0 * z);
+      double tanh_z = (e_2z - 1) / (e_2z + 1);
+      double constant_part = scale * k * tanh_z / dist;
+
+      results[idx  ] += constant_part * dist_x;
+      results[idx+1] += constant_part * dist_y;
+      results[idx+2] += constant_part * dist_z;
+   }
 }
 
 

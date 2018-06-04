@@ -1935,14 +1935,31 @@ void delete_residue_hydrogens_by_atom_index(int imol, int index, short int do_de
 // 
 void delete_residue_range(int imol, const char *chain_id, int resno_start, int resno_end) {
 
+   // Note to self: do you want this or the graphics_info_t version?
+
    // altconf is ignored currently.
-   // 
+   //
+
+   if (resno_start > resno_end) {
+      std::swap(resno_start, resno_end);
+   }
    coot::residue_spec_t res1(chain_id, resno_start);
    coot::residue_spec_t res2(chain_id, resno_end);
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       g.delete_residue_range(imol, res1, res2);
+
+      // cheap! I should find the residues with insertion codes in this range too.
+      // How to do that? Hmm... Needs a class function. This will do for now
+      //
+      std::vector<coot::residue_spec_t> res_specs;
+      for (int i=resno_start; i<=resno_end; i++) {
+	 coot::residue_spec_t r(chain_id, i, "");
+	 res_specs.push_back(r);
+      }
+
+      g.delete_residues_from_geometry_graphs(imol, res_specs);
       if (graphics_info_t::go_to_atom_window) {
 	 update_go_to_atom_window_on_changed_mol(imol);
       }
@@ -2744,9 +2761,11 @@ add_OXT_to_residue(int imol, int resno, const char *insertion_code, const char *
    if (is_valid_model_molecule(imol)) {
       if (insertion_code) {
 	 if (chain_id) {
+	    graphics_info_t g;
 	    istat = graphics_info_t::molecules[imol].add_OXT_to_residue(resno, std::string(insertion_code),
-									std::string(chain_id));
-	    graphics_info_t::molecules[imol].update_symmetry();
+									std::string(chain_id),
+									g.Geom_p());
+	    g.molecules[imol].update_symmetry();
 	    graphics_draw();
 	 }
       }
@@ -3399,11 +3418,23 @@ SCM merge_molecules(SCM add_molecules, int imol) {
       vam.push_back(ii);
    } 
    
-   std::pair<int, std::vector<std::string> > v = merge_molecules_by_vector(vam, imol);
+   std::pair<int, std::vector<merge_molecule_results_info_t> > v =
+      merge_molecules_by_vector(vam, imol);
 
-   SCM vos = generic_string_vector_to_list_internal(v.second);
+   SCM v_scm = SCM_EOL;
+   for (std::size_t i=0; i<v.second.size(); i++) {
+      if (v.second[i].is_chain) {
+	 SCM item_scm = scm_from_locale_string(v.second[i].chain_id.c_str());
+	 v_scm = scm_cons(item_scm, v_scm);
+      } else {
+	 SCM item_scm = residue_spec_to_scm(v.second[i].spec);
+	 v_scm = scm_cons(item_scm, v_scm);
+      }
+   }
+   v_scm = scm_reverse(v_scm);
+
    r = SCM_EOL;
-   r = scm_cons(vos, r);
+   r = scm_cons(v_scm, r);
    r = scm_cons(SCM_MAKINUM(v.first), r);
    
    return r;
@@ -3415,10 +3446,9 @@ SCM merge_molecules(SCM add_molecules, int imol) {
 // return e.g [1,"C","D"]
 // 
 PyObject *merge_molecules_py(PyObject *add_molecules, int imol) {
-   PyObject *r;
+
+   PyObject *r = Py_False;
    PyObject *le;
-   PyObject *vos;
-   r = Py_False;
 
    std::vector<int> vam;
 
@@ -3430,14 +3460,23 @@ PyObject *merge_molecules_py(PyObject *add_molecules, int imol) {
       vam.push_back(ii);
    } 
    
-   std::pair<int, std::vector<std::string> > v = merge_molecules_by_vector(vam, imol);
+   std::pair<int, std::vector<merge_molecule_results_info_t> > v =
+      merge_molecules_by_vector(vam, imol);
 
-   vos = generic_string_vector_to_list_internal_py(v.second);
-   int vos_length = PyObject_Length(vos);
-   r = PyList_New(vos_length + 1);
+   r = PyList_New(v.second.size() + 1);
    PyList_SetItem(r, 0, PyInt_FromLong(v.first));
-   for (int i=0; i<vos_length; i++) {
-      PyList_SetItem(r, i+1, PyList_GetItem(vos,i));
+
+   // 20180529-PE return a residue spec on merging if we can, else return a
+   // chain id as before.
+   //
+   for (unsigned int i=0; i<v.second.size(); i++) {
+      if (v.second[i].is_chain) {
+	 PyObject *o = PyString_FromString(v.second[i].chain_id.c_str());
+	 PyList_SetItem(r, i+1, o);
+      } else {
+	 PyObject *o = residue_spec_to_py(v.second[i].spec);
+	 PyList_SetItem(r, i+1, o);
+      }
    }
    
    if (PyBool_Check(r)) {
@@ -3447,10 +3486,10 @@ PyObject *merge_molecules_py(PyObject *add_molecules, int imol) {
 }
 #endif
 
-std::pair<int, std::vector<std::string> > 
+std::pair<int, std::vector<merge_molecule_results_info_t> >
 merge_molecules_by_vector(const std::vector<int> &add_molecules, int imol) {
 
-   std::pair<int, std::vector<std::string> >  merged_info;
+   std::pair<int, std::vector<merge_molecule_results_info_t> >  merged_info;
    
    std::vector<atom_selection_container_t> add_molecules_at_sels;
    if (is_valid_model_molecule(imol)) { 

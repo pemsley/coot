@@ -1,4 +1,5 @@
-/* src/graphics-info.cc
+/* src/graphics-info.h
+ * -*-c++-*-
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Copyright 2007 by Paul Emsley
@@ -49,6 +50,12 @@
 #ifdef HAVE_CXX_THREAD
 #include <utils/ctpl.h>
 #endif // HAVE_CXX_THREAD
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
+#include <CXXClasses/RendererGLSL.hpp>
+#endif // HAVE_CXX11
+#endif // USE_MOLECULES_TO_TRIANGLES
 
 #ifdef WII_INTERFACE_WIIUSE
 #include "wiiuse.h"
@@ -474,7 +481,8 @@ class graphics_info_t {
 
    static short int in_side_by_side_stereo_mode; 
 
-   static double mouse_begin_x, mouse_begin_y; 
+   static std::pair<double, double> mouse_begin;
+   static std::pair<double, double> mouse_clicked_begin;
 
    static float rotation_centre_x;
    static float rotation_centre_y;
@@ -962,9 +970,8 @@ public:
       lsq_plane_atom_positions = new std::vector<clipper::Coord_orth>;
 
       directory_for_fileselection = "";
-#if (GTK_MAJOR_VERSION > 1)
       directory_for_filechooser = "";
-#endif // GTK_MAJOR_VERSION
+
       baton_next_ca_options = new std::vector<coot::scored_skel_coord>;
       baton_previous_ca_positions = new std::vector<clipper::Coord_orth>;
 
@@ -1624,6 +1631,7 @@ public:
 
 
    void SetMouseBegin(double x, double y);
+   void SetMouseClicked(double x, double y);
 
    double  GetMouseBeginX() const ;
    double  GetMouseBeginY() const ;
@@ -1652,9 +1660,9 @@ public:
                                                           const coot::residue_spec_t &res_spec);
 
 
-   float X(void) { return rotation_centre_x; };
-   float Y(void) { return rotation_centre_y; };
-   float Z(void) { return rotation_centre_z; };
+   float X() { return rotation_centre_x; };
+   float Y() { return rotation_centre_y; };
+   float Z() { return rotation_centre_z; };
 
    coot::Cartesian RotationCentre() const 
       { return coot::Cartesian(rotation_centre_x,
@@ -2091,6 +2099,7 @@ public:
    // Was private, but need to be used by auto_fit_best_rotamer() scripting function.
    void update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelResidues, int imol_coords, int imol_map);
    void delete_residue_from_geometry_graphs(int imol, coot::residue_spec_t res_spec); 
+   void delete_residues_from_geometry_graphs(int imol, const std::vector<coot::residue_spec_t> &res_specs); 
    void delete_chain_from_geometry_graphs(int imol, const std::string &chain_id);
 
 
@@ -2258,7 +2267,9 @@ public:
 				      mmdb::Manager *mol,
 				      std::string alt_conf);
    // which uses
-   int find_serial_number_for_insert(int seqnum_new, mmdb::Chain *chain_p) const;
+   int find_serial_number_for_insert(int seqnum_new,
+				     const std::string &ins_code,
+				     mmdb::Chain *chain_p) const;
 
    // simple mmdb::Residue * interface to refinement.  20081216
    coot::refinement_results_t
@@ -2659,7 +2670,8 @@ public:
    static short int refinement_immediate_replacement_flag;  // don't dialog me please
    // called by above (private)
    atom_selection_container_t add_side_chain_to_terminal_res(atom_selection_container_t asc, 
-							     const std::string res_type); 
+							     const std::string &res_type,
+							     const std::string &terminus_type);
 
 
    // public (from globjects);
@@ -3294,13 +3306,10 @@ public:
    void do_post_drag_refinement_maybe();
 #ifdef  HAVE_GSL
    int last_restraints_size() const {
+      // It's OK to call this when there are no restraints - e.g. we move by rotate/translate
+      // rather than during a refinement.
      if (! last_restraints) {
-		  std::cout << "----------------------------------------------" << std::endl;
-		  std::cout << "----------------------------------------------" << std::endl;
-		  std::cout << "     ERROR:: C: last_restraints no cleared up " << std::endl;
-		  std::cout << "----------------------------------------------" << std::endl;
-		  std::cout << "----------------------------------------------" << std::endl;
-		  return 0;
+	return 0;
      } else {
        return last_restraints->size();
      }
@@ -3500,6 +3509,7 @@ public:
    static float raster3d_bone_thickness; 
    static bool  raster3d_enable_shadows;
    static int raster3d_water_sphere_flag;
+   static string raster3d_font_size;
 
    short int renderman(std::string filename);
 
@@ -3725,6 +3735,11 @@ public:
    // ---- cis trans conversion ---
    void cis_trans_conversion(mmdb::Atom *at, int imol, short int is_N_flag);
 
+   // return true if the isomerisation was made
+   // 
+   bool cis_trans_conversion_intermediate_atoms();
+
+
    // symmetry control dialog:
    GtkWidget *wrapped_create_symmetry_controller_dialog() const;
    static GtkWidget *symmetry_controller_dialog;  // returned by above
@@ -3783,6 +3798,9 @@ public:
    // ---- open url
    // Hmm.. do we need a vector here?
    static std::string browser_open_command;
+
+   // -- variable bond width (lines get thinner as we zoom out)
+   static bool use_variable_bond_width;
 
    // -- default bond width
    static int default_bond_width;
@@ -4048,7 +4066,8 @@ string   static std::string sessionid;
    coot::geometry_distortion_info_container_t geometric_distortions(int imol, mmdb::Residue *residue_p,
 								    bool with_nbcs);
 
-   void tabulate_geometric_distortions(const coot::restraints_container_t &restraints) const;
+   void tabulate_geometric_distortions(const coot::restraints_container_t &restraints,
+				       coot::restraint_usage_Flags flags) const;
 
    static bool linked_residue_fit_and_refine_state;
 
@@ -4167,6 +4186,12 @@ string   static std::string sessionid;
    static ctpl::thread_pool static_thread_pool;
 #endif
 
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
+   static std::shared_ptr<Renderer> mol_tri_renderer;
+   static std::shared_ptr<SceneSetup>   mol_tri_scene_setup;
+#endif
+#endif // USE_MOLECULES_TO_TRIANGLES
 
 };
 

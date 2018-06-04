@@ -682,7 +682,7 @@
 				    "Molecule that contains the new fragment:"
 				    "Atom Selection" "//"
 				    (lambda (imol-fragment atom-selection-str)
-				      (replace-fragment 
+				      (replace-fragment
 				       imol-base imol-fragment atom-selection-str)))))))
 
 	(add-simple-coot-menu-menuitem
@@ -1079,24 +1079,6 @@
 							(add-status-bar-text 
 							 "Failed to read a number"))))))))
 	
-	(add-simple-coot-menu-menuitem
-	 submenu-refine "Set Density Fit Graph Weight..."
-	 (lambda ()
-	   (generic-single-entry "set scale factor (smaller number means smaller bars)" 
-				 (format #f "~2,2f" (residue-density-fit-scale-factor))
-				 "Set it" (lambda (text) 
-					    (let ((t (string->number text)))
-					      (if (number? t)
-						  (begin
-						    (let ((s (string-append 
-							      "Density Fit scale factor set to " 
-							      text)))
-						      (set-residue-density-fit-scale-factor t)
-						      (add-status-bar-text s)))
-						  (begin
-						    (add-status-bar-text 
-						     "Failed to read a number"))))))))
-
 
 	;; ---------------------------------------------------------------------
 	;;     Recent structures from the PDBe
@@ -1158,44 +1140,6 @@
 	;; (run-python-command "import_rcrane_wrapper()"))
 	     
 	 
-	;; ---------------------------------------------------------------------
-	;;     LIDIA
-	;; ---------------------------------------------------------------------
-	;; 
-	(if (coot-can-do-lidia?)
-	    (let ((submenu-lidia (gtk-menu-new))
-		  (menuitem-lidia (gtk-menu-item-new-with-label "Lidia...")))
-
-	      (gtk-menu-item-set-submenu menuitem-lidia submenu-lidia)
-	      (gtk-menu-append menu menuitem-lidia)
-	      (gtk-widget-show menuitem-lidia)
-
-
-	      (add-simple-coot-menu-menuitem
-	       submenu-lidia "Hydrogenate region"
-	       (lambda () 
-		 (hydrogenate-region 6)))
-	      
-	      (add-simple-coot-menu-menuitem
-	       submenu-lidia "View in LIDIA"
-	       (lambda ()
-		 (using-active-atom (fle-view aa-imol aa-chain-id aa-res-no aa-ins-code))))
-
-	      (add-simple-coot-menu-menuitem
-	       submenu-lidia "Load SBase monomer..."
-	       (lambda ()
-		 (generic-single-entry "Load SBase Monomer from three-letter-code: " ""
-				       " Load "
-				       (lambda (tlc)
-					 (get-sbase-monomer tlc)))))
-
-	      (add-simple-coot-menu-menuitem
-	       submenu-lidia "Activate prodrg flat mode"
-	       (lambda ()
-		 (using-active-atom 
-		  (prodrg-flat aa-imol aa-chain-id aa-res-no))))))
-
-
 
 	;; ---------------------------------------------------------------------
 	;;     Views/Representations
@@ -1554,6 +1498,24 @@
 	   (lambda ()
 	     (set-rotate-translate-zone-rotates-about-zone-centre 0))))
 
+
+	(add-simple-coot-menu-menuitem
+	 submenu-settings "Set Density Fit Graph Weight..."
+	 (lambda ()
+	   (generic-single-entry "set scale factor (smaller number means smaller bars)"
+				 (format #f "~2,2f" (residue-density-fit-scale-factor))
+				 "Set it" (lambda (text)
+					    (let ((t (string->number text)))
+					      (if (number? t)
+						  (begin
+						    (let ((s (string-append
+							      "Density Fit scale factor set to "
+							      text)))
+						      (set-residue-density-fit-scale-factor t)
+						      (add-status-bar-text s)))
+						  (begin
+						    (add-status-bar-text
+						     "Failed to read a number"))))))))
 
 	(add-simple-coot-menu-menuitem 
 	 submenu-settings "Set Spin Speed..."

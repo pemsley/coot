@@ -103,10 +103,25 @@ coot::atom_id_mmdb_expand(const std::string &atomname) {
       r += atomname;
       r += "  ";
    } else {
-      if (ilen == 2) { 
-	 r = " ";
-	 r += atomname;
-	 r += " ";
+      if (ilen == 2) {
+
+	 // 20180512-PE we have to be more clever here for metals.
+	 // But what about CA! - argh! we shouldn't be using this function.
+	 // We need to know the residue name to pad correctly.
+	 //
+	 bool done = false;
+	 if (atomname == "MG" || atomname == "NA" || atomname == "LI" || atomname == "LI" || atomname == "AL" || atomname == "SI" ||
+	     atomname == "CL" || atomname == "SC" || atomname == "TI" || atomname == "CR" || atomname == "MN" || atomname == "FE" ||
+	     atomname == "CO" || atomname == "NI" || atomname == "CU" || atomname == "ZN" || atomname == "GA" || atomname == "AS" ||
+	     atomname == "SE" || atomname == "BR" || atomname == "RB" || atomname == "SR" || atomname == "RE" || atomname == "OS" ||
+	     atomname == "IR" || atomname == "PT" || atomname == "AU" || atomname == "HG" || atomname == "PB" || atomname == "BI") {
+	    r += atomname;
+	    r += "  ";
+	 } else {
+	    r = " ";
+	    r += atomname;
+	    r += " ";
+	 }
       } else {
 	 if (ilen == 3) {
 	    r = " ";
@@ -3429,7 +3444,6 @@ coot::protein_geometry::three_letter_code(const unsigned int &i) const {
 void
 coot::protein_geometry::add_planar_peptide_restraint() {
 
-   std::string link_id = "TRANS";
    std::string plane_id = "plane-5-atoms";
    mmdb::realtype dist_esd = 0.08; // was 0.11 (why?)
 
@@ -3441,8 +3455,10 @@ coot::protein_geometry::add_planar_peptide_restraint() {
    v.push_back(std::pair<int, std::string> (2, "N"));
    v.push_back(std::pair<int, std::string> (2, "CA"));
 
-   for (unsigned int i=0; i<v.size(); i++) 
-      link_add_plane(link_id, v[i].second, plane_id, v[i].first, dist_esd); 
+   for (unsigned int i=0; i<v.size(); i++) {
+      link_add_plane("TRANS",  v[i].second, plane_id, v[i].first, dist_esd);
+      link_add_plane("PTRANS", v[i].second, plane_id, v[i].first, dist_esd);
+   }
 }
 
 bool
@@ -3474,16 +3490,17 @@ coot::protein_geometry::remove_planar_peptide_restraint() {
 
    std::string link_id = "TRANS";
    std::string plane_id = "plane-5-atoms";
-   bool ifound = 0;
+   unsigned int ifound = 0;
 
    for (unsigned int i=0; i<dict_link_res_restraints.size(); i++) {
-      if (dict_link_res_restraints[i].link_id == link_id) { // e.g "TRANS"
+      if ((dict_link_res_restraints[i].link_id ==  "TRANS")  ||
+          (dict_link_res_restraints[i].link_id == "PTRANS")) {
 
 	 std::vector<coot::dict_link_plane_restraint_t>::iterator it;
 	 for (it = dict_link_res_restraints[i].link_plane_restraint.begin();
 	      it != dict_link_res_restraints[i].link_plane_restraint.end(); it++) {
 	    if (it->plane_id == plane_id) {
-	       ifound = 1;
+	       ifound++;
 	       if (0)
 		  std::cout << "INFO:: before removal of plane3 TRANS has " 
 			    << dict_link_res_restraints[i].link_plane_restraint.size()
@@ -3500,7 +3517,7 @@ coot::protein_geometry::remove_planar_peptide_restraint() {
 	    }
 	 }
       }
-      if (ifound)
+      if (ifound == 2)
 	 break;
    }
 }
@@ -4626,7 +4643,7 @@ void
 coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std::string &res_name,
 							     int mmcif_read_number) {
 
- bool minimal = false;
+   bool minimal = false;
    int idx = get_monomer_restraints_index(res_name, imol, minimal);
    if (idx == -1) {
       try_dynamic_add(res_name, mmcif_read_number);
@@ -4664,7 +4681,7 @@ coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std
       if (false)
 	 std::cout << "............... post-delete size: " << torsion_restraints.size()
 		   << " for " << res_name << std::endl;
-      
+
       std::vector<atom_name_torsion_quad> quads = get_reference_monomodal_torsion_quads(res_name);
       for (unsigned int i=0; i<quads.size(); i++) {
 	 const atom_name_torsion_quad &quad = quads[i];
@@ -4675,6 +4692,64 @@ coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std
       }
    }
 }
+
+// pass the atom names and the desired torsion value - sigma is not specified
+// by the user.
+void
+coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std::string &res_name,
+							     const std::vector<coot::atom_name_torsion_quad> &tors_info_vec,
+							     int mmcif_read_number) {
+
+   bool minimal = false;
+   int idx = get_monomer_restraints_index(res_name, imol, minimal);
+   if (idx == -1) {
+      try_dynamic_add(res_name, mmcif_read_number);
+      idx = get_monomer_restraints_index(res_name, imol, minimal);
+   }
+
+   if (idx != -1) {
+      // continue
+
+      // (first is the imol)
+      std::vector <dict_torsion_restraint_t> &torsion_restraints =
+	 dict_res_restraints[idx].second.torsion_restraint;
+
+      // We don't want to clear all torsion restraints, just the ring torsions
+      //
+      std::set<std::string> ring_atom_names;
+      // we generate the ring atoms names from the atoms in the passed quads
+      for (std::size_t i=0; i<tors_info_vec.size(); i++) {
+	 const atom_name_torsion_quad &q = tors_info_vec[i];
+	 ring_atom_names.insert(q.atom_name(0));
+	 ring_atom_names.insert(q.atom_name(1));
+	 ring_atom_names.insert(q.atom_name(2));
+	 ring_atom_names.insert(q.atom_name(3));
+      }
+
+      if (false) {
+	 std::cout << "...............  pre-delete size: " << torsion_restraints.size()
+		   << " for " << res_name << std::endl;
+      }
+
+      torsion_restraints.erase(std::remove_if(torsion_restraints.begin(),
+					      torsion_restraints.end(),
+					      restraint_eraser(ring_atom_names)), torsion_restraints.end());
+
+      if (false)
+	 std::cout << "............... post-delete size: " << torsion_restraints.size()
+		   << " for " << res_name << std::endl;
+
+      for (unsigned int i=0; i<tors_info_vec.size(); i++) {
+	 const atom_name_torsion_quad &quad = tors_info_vec[i];
+	 // this could have a nicer interface - using the quad here.
+	 dict_torsion_restraint_t tors(quad.id,
+				       quad.atom_name(0), quad.atom_name(1), quad.atom_name(2), quad.atom_name(3),
+				       quad.torsion, 4.0, 1);
+	 torsion_restraints.push_back(tors);
+      }
+   }
+}
+
 
 std::vector<coot::atom_name_torsion_quad>
 coot::protein_geometry::get_reference_monomodal_torsion_quads(const std::string &res_name) const {

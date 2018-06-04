@@ -11,14 +11,14 @@
 #include "CXXNewHood.h"
 #include "CXXSurface.h"
 
-CXX::CXXAlloc<CXXReentrantProbeBall> CXXReentrantProbeBall::allocator = CXX::CXXAlloc<CXXReentrantProbeBall>();
+CXX_old::CXXAlloc<CXX_mot::CXXReentrantProbeBall> CXX_mot::CXXReentrantProbeBall::allocator = CXX_old::CXXAlloc<CXX_mot::CXXReentrantProbeBall>();
 
-int CXXBall::triangulateBalls(vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &ballPntrs,
-                              vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &contextBallPntrs,
+int CXX_mot::CXXBall::triangulateBalls(vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> > &ballPntrs,
+                              vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> > &contextBallPntrs,
 							  double delta, CXXSurface *aSurface, int insideOrOutside)
 {
-    std::map<const CXXBall *, std::vector<const CXXBall *, CXX::CXXAlloc<const CXXBall *> > >contactMap;
-    CXXBall::ballContacts(ballPntrs, contextBallPntrs, contactMap);	
+    std::map<const CXXBall *, std::vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall *> > >contactMap;
+    ballContacts(ballPntrs, contextBallPntrs, contactMap);	
     std::cout << "Established contact map\n";
     
     //Now pass through our reentrant Probe list, triangulating them
@@ -28,7 +28,7 @@ int CXXBall::triangulateBalls(vector<const CXXBall*, CXX::CXXAlloc<const CXXBall
 	// Each sphere as it intersects with other spheres will generate loose ends...
 	// We will store those loose ends and attribute them
 	// in an stl::map to the spheres with which the intersection occurs
-	std::vector<std::map<const CXXBall *, std::vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > > > raggedEdges;
+	std::vector<std::map<const CXXBall *, std::vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > > > raggedEdges;
 	raggedEdges.resize(nBalls);
 #ifndef NEED_OPENMP_PRAGMA_HACK	
 #pragma omp parallel for default(none) shared(delta, nBalls, contactMap, aSurface, raggedEdges, insideOrOutside, ballPntrs) schedule(dynamic, 10) //num_threads(2)
@@ -39,11 +39,11 @@ int CXXBall::triangulateBalls(vector<const CXXBall*, CXX::CXXAlloc<const CXXBall
         const CXXBall &ball(*ballPntrs[i]);
         CXXNewHood ballHood;
         ballHood.initWith(&ball);
-        std::map<const CXXBall *, std::vector<const CXXBall *, CXX::CXXAlloc<const CXXBall *> > >::iterator contacts;
+        std::map<const CXXBall *, std::vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall *> > >::iterator contacts;
         contacts = contactMap.find(ballPntrs[i]);
         if (contacts!=contactMap.end()){
-            std::vector<const CXXBall *, CXX::CXXAlloc<const CXXBall *> >::iterator neighboursEnd(contacts->second.end());
-            for (std::vector<const CXXBall *, CXX::CXXAlloc<const CXXBall *> >::iterator neighbour = contacts->second.begin();
+            std::vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall *> >::iterator neighboursEnd(contacts->second.end());
+            for (std::vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall *> >::iterator neighbour = contacts->second.begin();
                  neighbour!=neighboursEnd;
                  ++neighbour){
                 ballHood.addBall(**neighbour);
@@ -54,14 +54,14 @@ int CXXBall::triangulateBalls(vector<const CXXBall*, CXX::CXXAlloc<const CXXBall
 	
 	//Reformat the ragged Edges, so that we have them separated such that all of the ragged edges
 	//that need to be added to a particular probe are in an appropriate map associated with that probe	
-	std::map<const CXXBall*, std::map<const CXXBall *, std::vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > > >reformattedEdges;
+	std::map<const CXXBall*, std::map<const CXXBall *, std::vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > > >reformattedEdges;
 	for (unsigned int i=0; i<raggedEdges.size(); i++){
-		std::map<const CXXBall *, std::vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > >::iterator raggedEdgesEnd = raggedEdges[i].end();
-		for (std::map<const CXXBall *, std::vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > >::iterator raggedEdgeSet = raggedEdges[i].begin();
+		std::map<const CXXBall *, std::vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > >::iterator raggedEdgesEnd = raggedEdges[i].end();
+		for (std::map<const CXXBall *, std::vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > >::iterator raggedEdgeSet = raggedEdges[i].begin();
 			 raggedEdgeSet != raggedEdgesEnd; 
 			 ++raggedEdgeSet){
 			if (contactMap.find(raggedEdgeSet->first)!=contactMap.end()){
-				std::map<const CXXBall *, std::vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > > &ballsEdges = reformattedEdges[raggedEdgeSet->first];
+				std::map<const CXXBall *, std::vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > > &ballsEdges = reformattedEdges[raggedEdgeSet->first];
 				ballsEdges[ballPntrs[i]] = raggedEdgeSet->second;
 			}
 		}
@@ -71,10 +71,10 @@ int CXXBall::triangulateBalls(vector<const CXXBall*, CXX::CXXAlloc<const CXXBall
 	int nToRedraw = reformattedEdges.size();
 	std::cout << "There are " << nToRedraw << " trimmed balls\n";
     
-	std::vector<const CXXBall *, CXX::CXXAlloc<const CXXBall*> >trimmedBalls;
+	std::vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall*> >trimmedBalls;
 	//Copy this list of balls into a vector to allow subsequent OpenMP parallelisation
-	std::map<const CXXBall*, std::map<const CXXBall*, std::vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > > >::iterator reformattedEdgeEnd = reformattedEdges.end();
-	for (std::map<const CXXBall*, std::map<const CXXBall *, std::vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > > >::iterator reformattedEdge = reformattedEdges.begin();
+	std::map<const CXXBall*, std::map<const CXXBall*, std::vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > > >::iterator reformattedEdgeEnd = reformattedEdges.end();
+	for (std::map<const CXXBall*, std::map<const CXXBall *, std::vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > > >::iterator reformattedEdge = reformattedEdges.begin();
 		 reformattedEdge != reformattedEdgeEnd; 
 		 reformattedEdge++){
 		trimmedBalls.push_back(reformattedEdge->first);
@@ -83,13 +83,13 @@ int CXXBall::triangulateBalls(vector<const CXXBall*, CXX::CXXAlloc<const CXXBall
 #pragma omp parallel for default(none) shared(trimmedBalls, contactMap, insideOrOutside, reformattedEdges, delta, aSurface) schedule(dynamic, 10) //num_threads(2)
 	for (unsigned int i=0; i<trimmedBalls.size(); i++){
 		const CXXBall &ball(*(trimmedBalls[i]));
-		std::map<const CXXBall *, std::vector<const CXXBall *, CXX::CXXAlloc<const CXXBall *> > >::iterator contacts;
+		std::map<const CXXBall *, std::vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall *> > >::iterator contacts;
 		contacts = contactMap.find(&ball);
 		CXXNewHood ballHood;
 		ballHood.initWith(&ball);
 		if (contacts!=contactMap.end()){
-			std::vector<const CXXBall *, CXX::CXXAlloc<const CXXBall *> >::iterator neighboursEnd(contacts->second.end());
-			for (std::vector<const CXXBall *, CXX::CXXAlloc<const CXXBall *> >::iterator neighbour = contacts->second.begin();
+			std::vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall *> >::iterator neighboursEnd(contacts->second.end());
+			for (std::vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall *> >::iterator neighbour = contacts->second.begin();
 				 neighbour!=neighboursEnd;
 				 ++neighbour){
 				ballHood.addBall(**neighbour);
@@ -101,22 +101,22 @@ int CXXBall::triangulateBalls(vector<const CXXBall*, CXX::CXXAlloc<const CXXBall
 	return 0;
 }
 
-int CXXBall::ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &balls, 
-                          std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &contextBalls, 
-						  std::map<const CXXBall*, std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > > &contactMap) 
+int CXX_mot::CXXBall::ballContacts(std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> > &balls, 
+                          std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> > &contextBalls, 
+						  std::map<const CXXBall*, std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> > > &contactMap) 
 {
 	int maxNBins = 20;
 	if (balls.size() == 0) return 1;
 	
 	double maxBallRadius = -1.e30;
-	std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> >::iterator ballsEnd = balls.end();
-	for (std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> >::iterator ball = balls.begin();
+	std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> >::iterator ballsEnd = balls.end();
+	for (std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> >::iterator ball = balls.begin();
 		 ball != ballsEnd;
 		 ++ball){
 		maxBallRadius = (maxBallRadius > (*ball)->getRadius() ? maxBallRadius : (*ball)->getRadius() );
 	}
-	std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> >::iterator contextBallsEnd = contextBalls.end();
-	for (std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> >::iterator ball = contextBalls.begin();
+	std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> >::iterator contextBallsEnd = contextBalls.end();
+	for (std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> >::iterator ball = contextBalls.begin();
 		 ball != contextBallsEnd;
 		 ++ball){
 		maxBallRadius = (maxBallRadius > (*ball)->getRadius() ? maxBallRadius : (*ball)->getRadius() );
@@ -131,7 +131,7 @@ int CXXBall::ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBal
 		limits[i][1] = -1e30;
 	}
     //Establish limits of volume contaiing context Balls
-	for (std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> >::iterator ballIter = contextBalls.begin(); 
+	for (std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> >::iterator ballIter = contextBalls.begin(); 
 		 ballIter!=contextBallsEnd; 
 		 ++ballIter){
 		for (int i=0; i<3; i++){
@@ -162,7 +162,7 @@ int CXXBall::ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBal
     std::cout << "Bins in x,y,z: "<<nBins[0]<<" "<<nBins[1]<<" "<<nBins[2]<<std::endl;
     std::cout << "Size in x,y,z: "<<binWidth[0]<<" "<<binWidth[1]<<" "<<binWidth[2]<<std::endl;
 	//Prepare the bin vectors
-	std::vector<std::vector<std::vector<std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall *> > > > >binnedballs;
+	std::vector<std::vector<std::vector<std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall *> > > > >binnedballs;
 	binnedballs.resize(nBins[0]);
 	for (int i=0; i<nBins[0]; i++){
 		binnedballs[i].resize(nBins[1]);
@@ -172,7 +172,7 @@ int CXXBall::ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBal
 	}
 	
 	//Distribute balls among bins
-	for (std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> >::iterator ballIter = contextBalls.begin(); 
+	for (std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> >::iterator ballIter = contextBalls.begin(); 
          ballIter!=contextBallsEnd; 
          ++ballIter){
 		int iBin[3];
@@ -185,7 +185,7 @@ int CXXBall::ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBal
 	}
     
     //To allow subsequent parallelization, create map entries in contactMap for each ball
-	for (std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> >::iterator ballIter = balls.begin(); 
+	for (std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> >::iterator ballIter = balls.begin(); 
          ballIter!=ballsEnd; 
          ++ballIter){
 		const CXXBall *binBall = *ballIter;
@@ -216,9 +216,9 @@ int CXXBall::ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBal
         for (int searchBinX = startBinX; searchBinX<endBinX; searchBinX++){
             for (int searchBinY = startBinY; searchBinY<endBinY; searchBinY++){
                 for (int searchBinZ = startBinZ; searchBinZ<endBinZ; searchBinZ++){
-                    std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &searchBin(binnedballs[searchBinX][searchBinY][searchBinZ]);
-                    std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> >::iterator binSearchEnd = searchBin.end();
-                    for (std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> >::iterator otherball = searchBin.begin(); 
+                    std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> > &searchBin(binnedballs[searchBinX][searchBinY][searchBinZ]);
+                    std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> >::iterator binSearchEnd = searchBin.end();
+                    for (std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> >::iterator otherball = searchBin.begin(); 
                          otherball!=binSearchEnd; 
                          ++otherball){
                         const CXXBall &otherballRef(**otherball);
@@ -240,5 +240,7 @@ int CXXBall::ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBal
 	return 0;
 }
 
-double CXXAtomBall::mostRecentDelta = 1.;
-CXXSphereElement CXXAtomBall::unitSphereAtOrigin = CXXSphereElement(CXXCoord(0.,0.,0.), 1., 1.);
+double CXX_mot::CXXAtomBall::mostRecentDelta = 1.;
+
+CXX_mot::CXXSphereElement CXX_mot::CXXAtomBall::unitSphereAtOrigin =
+   CXX_mot::CXXSphereElement(CXX_mot::CXXCoord(0.,0.,0.), 1., 1.);

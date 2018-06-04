@@ -1,7 +1,46 @@
 
   Pre-Release 0.8.9.2
 
-  o BUG-FIX: fix typo in template key-binding installation script [Colin Palmer]
+  o FEATURE: LINK info added to header browser
+
+  o FEATURE: External angle restraints are now available (corresponding to REFMAC type
+	     0 restraints) - mini-rsr included [Robbie Joosten]
+
+  o FEATURE: raster3d output now includes labels [Vito Calderone]
+
+  o FEATURE: API for user-defined unimodal torsion restraints (for pyranoses) [Juan Hermoso]
+
+  o FEATURE: "Variable" bond widths i.e. as you zoom out, the bond lines get thinner
+             [Erec Stebbins]
+             (set-use-variable-bond-thickness 1)
+
+  o CHANGE:  Iron-Sulfur clusters are now bonded using the dictionary (and so appear "cubic")
+             [Hannah Bridges]
+
+  o CHANGE:  Edit -> Copy Fragment now has a "Move it Here" check-button
+
+  o CHANGE:  Old interface to PRODRG removed [Elinor Breiner]
+
+  o CHANGE:  Jiggle-fit speed up by using backbone mode if possible
+
+  o CHANGE:  Forwards-fitting a terminal residue now correctly positions the O atom
+             of the current residue that corresponds to the new residue
+
+  o CHANGE:  Planar peptide restraints now apply to PTRANS restraints as well as TRANS
+             restraints
+
+  o CHANGE:  RCrane restored
+
+  o BUG-FIX: the H atom in a peptide is now moved along with the other peptide atoms
+             on a cis->trans conversion (and vice versa)
+
+  O BUG-FIX: Using PDB-REDO now loads an anomalous map also (if possible) [Robbie Joosten]
+
+  o BUG-FIX: Fix typo in template-keybindings-to-preferences that causes initial
+             installation of key-bindings to fail sometimes [Colin Palmer].
+
+  o BUG-FIX: The slow update on deleting deviant extra distance restraints has been
+             been replaced with a fasater version [JED]
 
 -----
 

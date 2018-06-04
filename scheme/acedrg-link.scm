@@ -119,7 +119,11 @@
 		       (begin
 			 (if (not (= imol-click-1 imol-click-2))
 
-			     #f
+			     (begin
+			       (let ((mess "These residues are not in the same molecule"))
+				 (format #t "~s~%" mess)
+				 (add-status-bar-text mess)
+				 #f))
 
 			     (let* ((imol imol-click-1)
 				    (delete-stripped-1 (strip-spaces delete-atom-text))

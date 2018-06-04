@@ -242,14 +242,18 @@ GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
 
 
 
-double graphics_info_t::GetMouseBeginX() const { return mouse_begin_x; };
+double graphics_info_t::GetMouseBeginX() const { return mouse_begin.first; };
 
-double graphics_info_t::GetMouseBeginY() const { return mouse_begin_y; };
+double graphics_info_t::GetMouseBeginY() const { return mouse_begin.second; };
 
 void graphics_info_t::SetMouseBegin(double x, double y) {
+   mouse_begin.first  = x;
+   mouse_begin.second = y;
+}
 
-   mouse_begin_x = x;
-   mouse_begin_y = y;
+void graphics_info_t::SetMouseClicked(double x, double y) {
+   mouse_clicked_begin.first  = x;
+   mouse_clicked_begin.second = y;
 }
 
 // static 
@@ -1648,6 +1652,9 @@ graphics_info_t::clear_up_moving_atoms_maybe(int imol) {
    }
 }
 
+
+
+
 void
 graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 
@@ -2064,8 +2071,8 @@ graphics_info_t::environment_graphics_object_internal(const graphical_bonds_cont
       environment_graphics_object_internal_lines(env_bonds_box); // GL lines
    } else {
       glEnable(GL_LIGHTING);
-      glEnable(GL_LIGHT0);
-      glEnable(GL_LIGHT1);
+      // glEnable(GL_LIGHT0);
+      // glEnable(GL_LIGHT1);
       environment_graphics_object_internal_tubes(env_bonds_box); // GL cylinders and disks
       glDisable(GL_LIGHTING);
    } 
@@ -4648,12 +4655,13 @@ graphics_info_t::draw_atom_pull_restraint() {
 		     int slices  = 12;
 		     int stacks  = 2;
 
-		     GLfloat  mat_specular[]  = {0.7, 0.2, 0.7, 0.6};
+		     GLfloat  mat_specular[] = {0.9, 0.7, 0.7, 0.8};
+		     GLfloat  mat_ambient[]  = {0.9, 0.5, 0.6, 1.0};
 		     GLfloat  mat_shininess[] = {15};
 		     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-		     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-		     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
+		     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
 		     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
+		     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
 		     glEnable(GL_LIGHTING);
 		     glEnable(GL_LIGHT1);
 		     glEnable(GL_LIGHT0); // enabled here

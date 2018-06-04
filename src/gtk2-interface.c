@@ -29479,10 +29479,10 @@ create_curlew_dialog (void)
 {
   GtkWidget *curlew_dialog;
   GtkWidget *dialog_vbox135;
-  GtkWidget *label815;
+  GtkWidget *hbox450;
+  GtkWidget *image12118;
   GtkWidget *hbox445;
   GtkWidget *vbox328;
-  GtkWidget *image12116;
   GtkWidget *vbox329;
   GtkWidget *hbox446;
   GtkWidget *label814;
@@ -29512,10 +29512,13 @@ create_curlew_dialog (void)
   dialog_vbox135 = GTK_DIALOG (curlew_dialog)->vbox;
   gtk_widget_show (dialog_vbox135);
 
-  label815 = gtk_label_new ("<b>Coot Utilities and Refinement Library Extension Wrangler</b>");
-  gtk_widget_show (label815);
-  gtk_box_pack_start (GTK_BOX (dialog_vbox135), label815, FALSE, FALSE, 12);
-  gtk_label_set_use_markup (GTK_LABEL (label815), TRUE);
+  hbox450 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox450);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox135), hbox450, FALSE, FALSE, 2);
+
+  image12118 = create_pixmap (curlew_dialog, "curlew-long.png");
+  gtk_widget_show (image12118);
+  gtk_box_pack_start (GTK_BOX (hbox450), image12118, TRUE, TRUE, 0);
 
   hbox445 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox445);
@@ -29524,11 +29527,6 @@ create_curlew_dialog (void)
   vbox328 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox328);
   gtk_box_pack_start (GTK_BOX (hbox445), vbox328, FALSE, FALSE, 0);
-
-  image12116 = create_pixmap (curlew_dialog, "curlew-128.png");
-  gtk_widget_show (image12116);
-  gtk_box_pack_start (GTK_BOX (vbox328), image12116, FALSE, FALSE, 4);
-  gtk_misc_set_padding (GTK_MISC (image12116), 4, 14);
 
   vbox329 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox329);
@@ -29625,10 +29623,10 @@ create_curlew_dialog (void)
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (curlew_dialog, curlew_dialog, "curlew_dialog");
   GLADE_HOOKUP_OBJECT_NO_REF (curlew_dialog, dialog_vbox135, "dialog_vbox135");
-  GLADE_HOOKUP_OBJECT (curlew_dialog, label815, "label815");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, hbox450, "hbox450");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, image12118, "image12118");
   GLADE_HOOKUP_OBJECT (curlew_dialog, hbox445, "hbox445");
   GLADE_HOOKUP_OBJECT (curlew_dialog, vbox328, "vbox328");
-  GLADE_HOOKUP_OBJECT (curlew_dialog, image12116, "image12116");
   GLADE_HOOKUP_OBJECT (curlew_dialog, vbox329, "vbox329");
   GLADE_HOOKUP_OBJECT (curlew_dialog, hbox446, "hbox446");
   GLADE_HOOKUP_OBJECT (curlew_dialog, label814, "label814");

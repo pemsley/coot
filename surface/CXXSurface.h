@@ -6,8 +6,8 @@
  *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
-#ifndef CXXSurface_included
-#define CXXSurface_included
+#ifndef CXX_mot_CXXSurface_included
+#define CXX_mot_CXXSurface_included
 #include <string>
 #include <vector>
 #include <map>
@@ -19,13 +19,15 @@
 
 using namespace std;
 
-class CXXSphereElement;
-//#include "CXXSphereElement.h"
-//#include "CXXSphereNode.h"
+
+// #include "CXXSphereElement.h"
+
 #include "CXXTriangle.h"
 #include "CXXCoord.h"
 
-//#include "CXXAlloc.h"
+namespace CXX_mot {
+
+  class CXXSphereElement; // this class depends on CXXSurface
 
 typedef map<string, int> StringIntMap;
 class CXXSurface{
@@ -34,8 +36,8 @@ private:
     StringIntMap vectors;
     StringIntMap scalars;
     StringIntMap pointers;
-    vector<CXXTriangle, CXX::CXXAlloc<CXXTriangle> > triangles;
-    vector<CXXSurfaceVertex, CXX::CXXAlloc<CXXSurfaceVertex> > vertices;
+    vector<CXXTriangle, CXX_old::CXXAlloc<CXXTriangle> > triangles;
+    vector<CXXSurfaceVertex, CXX_old::CXXAlloc<CXXSurfaceVertex> > vertices;
     mmdb::PManager allAtomsManager;
     int init();
     int nTriangles;
@@ -57,10 +59,10 @@ public:
     int writeAsGrasp(const std::string &path);
     int readGraspFile(std::string fileName);
     
-    const vector<CXXTriangle, CXX::CXXAlloc<CXXTriangle> >&getTriangles() const {
+    const vector<CXXTriangle, CXX_old::CXXAlloc<CXXTriangle> >&getTriangles() const {
         return triangles;
     };
-    const vector<CXXSurfaceVertex, CXX::CXXAlloc<CXXSurfaceVertex> >&getVertices() const {
+    const vector<CXXSurfaceVertex, CXX_old::CXXAlloc<CXXSurfaceVertex> >&getVertices() const {
         return vertices;
     };
 	const StringIntMap &vectorNames() const{
@@ -108,13 +110,14 @@ public:
     int calculateAccessibleFromAtoms(mmdb::PManager, const int, const int, const double, const double, const bool );
     int calculateFromAtoms(mmdb::PManager, const std::string , const double, const double, const bool);
     int calculateFromAtoms(mmdb::PManager, const int, const double, const double, const bool);
- 	
-    int upLoadSphere(CXXSphereElement &theSphere, double probeRadius, const int sense);
+    
+    // why do I need CXX_mot here?
+    int upLoadSphere(CXX_mot::CXXSphereElement &theSphere, double probeRadius, const int sense);
     int selectionStringToSelHnd(mmdb::PManager, const std::string selectionString);
     int getIntegerUDDataOfAtom(mmdb::PAtom theAtom, int handle);
     int operator == (const CXXSurface &comparator) const{
         return (this == &comparator);
-    } 
+    }
     int getVectorHandle(const string name);
     int getReadVectorHandle(const string name);
     int getScalarHandle(const string name);
@@ -132,6 +135,7 @@ public:
     void compress(double tolerance);
 };
 
+}
 #endif
 
 

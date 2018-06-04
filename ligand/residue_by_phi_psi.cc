@@ -802,6 +802,8 @@ coot::residue_by_phi_psi::construct_prev_res_from_rama_angles(float phi, float p
    // 20170925 there is no CBs. Why? The get added in execute_add_terminal_residue()
    // add_side_chain_to_terminal_res().
    // I've added it here now.
+   //
+   // 201880517-PE: Or have I?
 
    // CB
    angle = clipper::Util::d2rad(tau);

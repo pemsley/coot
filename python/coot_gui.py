@@ -170,17 +170,20 @@ def coot_gui(own_gtk_main=False):
           except:
              return False
           if res is not None:
-             print "BL DEBUG:: result is", res
+             # silence is golden
+             # print "BL DEBUG:: result is", res
              insert_normal_text(str(res) + "\n")
              return True
        else:
-          print "This is not a guile command!"
+          # silence is golden
+          # print "This is not a guile command!"
           return False
 
    def do_function(widget, entry):
        global histpos
        entry_text = entry.get_text()
-       print "BL INFO:: command input is: ", entry_text
+       # enough of this debugging output
+       # print "BL INFO:: command input is: ", entry_text
        if (entry_text != None):
           insert_tag_text(textbuffer.create_tag(foreground="red"),
                           entry_text + "\n")
@@ -215,8 +218,9 @@ def coot_gui(own_gtk_main=False):
              You should use python commands!!\n\
              But I'm a nice guy and translated it for you, this time...!\n")
           else:
-             insert_normal_text("BL WARNING:: Python syntax error!\n\
-             (Or you attempted to use an invalid guile command...)\n")
+             # I don't need to see this - and its often not right (not a syntax error)
+             # insert_normal_text("BL WARNING:: Python syntax error!\n\
+             # (Or you attempted to use an invalid guile command...)\n")
              type_error, error_value = sys.exc_info()[:2]
              error = str(error_value)
              insert_normal_text("Python error:\n") 
@@ -1107,7 +1111,22 @@ def map_molecule_chooser_gui(chooser_label, callback_function):
 # text string.
 #
 def generic_chooser_and_entry(chooser_label, entry_hint_text,
-                              default_entry_text, callback_function):
+                              default_entry_text, callback_function,
+                              always_dismiss_on_ok_clicked=True):
+
+   print "BL DEBUG:: --- deal with always_dissmiss...", always_dismiss_on_ok_clicked
+   generic_chooser_and_entry_and_check_button(chooser_label, entry_hint_text,
+                                              default_entry_text, False,
+                                              callback_function,
+                                              always_dismiss_on_ok_clicked)
+
+# as above , plus we also have a check-button
+# [and an additional argument in the callback - actually not I think ]
+# If check-button-label is false, then don't create a check-button.
+def generic_chooser_and_entry_and_check_button(chooser_label, entry_hint_text,
+                                              default_entry_text, check_button_label,
+                                              callback_function,
+                                              always_dismiss_on_ok_clicked=True):
 
     import operator
 

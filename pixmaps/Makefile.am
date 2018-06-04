@@ -76,8 +76,9 @@ koppi-green-tick-64.png rygle-red-cross-64.png forest51690-dwcheckno-incomplete-
   mutate-auto-fit.png edit-backbone.png torsion-general.png anchor.png regularize-1.png \
   refine-1.png stock-zoom-follow-window-12.svg stock-zoom-follow-window-12.png \
   rama_all.png rama_gly.png rama_pro.png rama_non_gly_pro.png \
-  curlew-128.png curlew-128.svg
+  curlew-long.png
 
+# removed the svg version of curlew for now because of non anti-aliasing
 
 
 # This is done by the Makefile in icons now.

@@ -5,23 +5,13 @@
 #include <string>
 #include <cstddef>
 
-#include <gtk/gtk.h>
-
-#include "support.h"
-#include "interface.h"
-#include "c-interface.h"
-#include "cc-interface.hh" // for coot_get_url()
-#include "coot-version.hh"
-
 #ifdef HAVE_CXX11
    #if defined(__clang__)
       #define BUILD_CURLEW
    #else
       #if defined(__GNUC__)
-         #if (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__) < 40900
-
+         #if (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__) < 40805
             // no curlew
-
          #else
             #define BUILD_CURLEW
          #endif
@@ -29,11 +19,20 @@
    #endif
 #endif
 
+
 #ifdef BUILD_CURLEW
 #include "json.hpp" // clever stuff from Niels Lohmann
 using json = nlohmann::json;
-
 #endif
+
+
+#include <gtk/gtk.h>
+
+#include "support.h"
+#include "interface.h"
+#include "c-interface.h"
+#include "cc-interface.hh" // for coot_get_url()
+#include "coot-version.hh"
 
 #include "graphics-info.h" // for extensions register // after json.hpp
 
@@ -56,8 +55,7 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
 
 void curlew() {
 
-#ifdef BUILLD_CURLEW
-   laksdjf;lakjsdf;lakjdsf;lasdkjfldks
+#ifdef BUILD_CURLEW
 
    GtkWidget *w = create_curlew_dialog();
    graphics_info_t g;

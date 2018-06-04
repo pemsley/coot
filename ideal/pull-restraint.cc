@@ -85,8 +85,12 @@ coot::distortion_score_target_pos(const coot::simple_restraint &rest,
 				  void *params,
 				  const gsl_vector *v) {
 
-   bool harmonic_restraint = false; // 20170628 let's try the (f) ln(cosh) and (df) hyperbolic tan
-                                    // style restraint
+   // 20170628 let's try the (f) ln(cosh) and (df) hyperbolic tan
+   // style restraint
+   //
+   // 20180602, let's try harmonic again
+   //
+   bool harmonic_restraint = true;
 
    // get the current coordinates
    int idx = 3*(rest.atom_index_1);
@@ -127,9 +131,12 @@ void coot::my_df_target_pos(const gsl_vector *v,
 			    void *params, 
 			    gsl_vector *df) {
 
-   bool harmonic_restraint = false; // 20170628 let's try the (f) ln(cosh) and (df) hyperbolic tan
-                                    // style restraint
+   // 20170628 let's try the (f) ln(cosh) and (df) hyperbolic tan
+   // style restraint
+   // 20180602-PE let's try harmonic again
 
+   bool harmonic_restraint = true;
+   
    restraints_container_t *restraints_p = static_cast<restraints_container_t *>(params);
 
    // patch madness

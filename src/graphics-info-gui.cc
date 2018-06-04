@@ -1189,33 +1189,38 @@ graphics_info_t::handle_rama_plot_update(coot::rama_plot *plot) {
    if (plot) {
       // if it's a normal plot: update it
       if (plot->is_kleywegt_plot()) {
-	 // are the molecule numbers from which the kleywegt plot
-	 // was generated still valid?
-	 std::pair<int, int> p = plot->molecule_numbers();
-	 if (graphics_info_t::molecules[p.first].has_model() && 
-	     graphics_info_t::molecules[p.second].has_model()) { 
-	    std::pair<std::string, std::string> chain_ids = plot->chain_ids();
-	    std::cout << "updating kleywegt plot with chain ids :" << chain_ids.first
-		      << ": :" << chain_ids.second << ":" << std::endl;
-	    if (plot->kleywegt_plot_uses_chain_ids_p())
-	       plot->draw_it(p.first, p.second,
-			     graphics_info_t::molecules[p.first].atom_sel.mol,
-			     graphics_info_t::molecules[p.second].atom_sel.mol,
-			     chain_ids.first, chain_ids.second);
-	    else 
-	       plot->draw_it(p.first, p.second,
-			     graphics_info_t::molecules[p.first].atom_sel.mol,
-			     graphics_info_t::molecules[p.second].atom_sel.mol);
-	 } else {
-	    // close down the plot
-	    plot->destroy_yourself();
-	 }
+         // are the molecule numbers from which the kleywegt plot
+         // was generated still valid?
+         std::pair<int, int> p = plot->molecule_numbers();
+         if (graphics_info_t::molecules[p.first].has_model() &&
+             graphics_info_t::molecules[p.second].has_model()) {
+            std::pair<std::string, std::string> chain_ids = plot->chain_ids();
+            std::cout << "updating kleywegt plot with chain ids :" << chain_ids.first
+                      << ": :" << chain_ids.second << ":" << std::endl;
+            if (plot->kleywegt_plot_uses_chain_ids_p())
+               plot->draw_it(p.first, p.second,
+                             graphics_info_t::molecules[p.first].atom_sel.mol,
+                     graphics_info_t::molecules[p.second].atom_sel.mol,
+                     chain_ids.first, chain_ids.second);
+            else
+               plot->draw_it(p.first, p.second,
+                             graphics_info_t::molecules[p.first].atom_sel.mol,
+                     graphics_info_t::molecules[p.second].atom_sel.mol);
+         } else {
+            // close down the plot
+            plot->destroy_yourself();
+         }
       } else {
-	 plot->draw_it(molecules[imol_moving_atoms].atom_sel.mol);
-      } 
+         // check if selection is there
+         if (GTK_TOGGLE_BUTTON(plot->selection_checkbutton)->active) {
+            plot->apply_selection_from_widget();
+         } else {
+            plot->draw_it(molecules[imol_moving_atoms].atom_sel.mol);
+         }
+      }
    } else {
       std::cout << "ERROR:: (trapped) in handle_rama_plot_update() attempt to draw to null plot\n";
-   } 
+   }
 }
 #endif // HAVE_GNOME_CANVAS or HAVE_GTK_CANVAS
 

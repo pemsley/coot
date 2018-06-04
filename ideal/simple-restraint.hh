@@ -872,17 +872,19 @@ namespace coot {
    double distortion_score_angle(const simple_restraint &angle_restraint,
 				 const gsl_vector *v);
    // torsion score can throw a std::runtime_error if there is a problem calculating the torsion.
-   double distortion_score_torsion(const simple_restraint &torsion_restraint,
-				   const gsl_vector *v); 
+
+   double distortion_score_torsion(unsigned int idx_restraint,
+				   const simple_restraint &torsion_restraint,
+				   const gsl_vector *v);
    double distortion_score_torsion_fourier_series(const simple_restraint &torsion_restraint,
 						  const gsl_vector *v); 
    double distortion_score_trans_peptide(const int &restraint_index,
-					 const simple_restraint &torsion_restraint,
-					 const gsl_vector *v); 
+					 const simple_restraint &trans_peptide_restraint,
+					 const gsl_vector *v);
    double distortion_score_plane(const simple_restraint &plane_restraint,
-				  const gsl_vector *v); 
+				  const gsl_vector *v);
    double distortion_score_chiral_volume(const simple_restraint &chiral_restraint,
-					 const gsl_vector *v); 
+					 const gsl_vector *v);
    double distortion_score_rama(const simple_restraint &chiral_restraint,
 				const gsl_vector *v,
 				const LogRamachandran &lograma);

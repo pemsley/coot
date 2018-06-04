@@ -753,7 +753,7 @@ graphics_info_t::regularize_residues_vec(int imol,
 //
 coot::refinement_results_t
 graphics_info_t::generate_molecule_and_refine(int imol,
-					      const std::vector<mmdb::Residue *> &residues,
+					      const std::vector<mmdb::Residue *> &residues_in,
 					      const char *alt_conf,
 					      mmdb::Manager *mol,
 					      bool use_map_flag) { 
@@ -777,6 +777,18 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	 flags = coot::ALL_RESTRAINTS;
 
       std::vector<coot::atom_spec_t> fixed_atom_specs = molecules[imol].get_fixed_atoms();
+
+      // refinement goes a bit wonky if there are multiple occurrances of the same residue
+      // in input residue vector, so let's filter out duplicates here
+      //
+      std::vector<mmdb::Residue *> residues;
+      std::set<mmdb::Residue *> residues_set;
+      std::set<mmdb::Residue *>::const_iterator it;
+      for (std::size_t i=0; i<residues_in.size(); i++)
+	 residues_set.insert(residues_in[i]);
+      residues.reserve(residues_set.size());
+      for(it=residues_set.begin(); it!=residues_set.end(); it++)
+	 residues.push_back(*it);
 
       // OK, so the passed residues are the residues in the graphics_info_t::molecules[imol]
       // molecule.  We need to do 2 things:
@@ -1201,7 +1213,7 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 
 
       short int whole_res_flag = 0;
-      int atom_index_udd = molecules[imol].atom_sel.UDDAtomIndexHandle;
+      int atom_index_udd_handle = molecules[imol].atom_sel.UDDAtomIndexHandle;
       
       // Now the flanking residues:
       //
@@ -1266,18 +1278,18 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 
 	 r = coot::deep_copy_this_residue(flankers_in_reference_mol[ires],
 					  alt_conf, whole_res_flag, 
-					  atom_index_udd);
+					  atom_index_udd_handle);
 	 if (r) {
 
-	    int sni = find_serial_number_for_insert(flankers_in_reference_mol[ires]->GetSeqNum(), chain_p);
+	    int sni = find_serial_number_for_insert(r->GetSeqNum(),
+						    r->GetInsCode(),
+						    chain_p);
 	    if (sni == -1)
 	       chain_p->AddResidue(r); // at the end
 	    else
 	       chain_p->InsResidue(r, sni);
 	    r->seqNum = flankers_in_reference_mol[ires]->GetSeqNum();
 	    r->SetResName(flankers_in_reference_mol[ires]->GetResName());
-	    // 	 std::cout << " adding flanking residue " << " " << coot::residue_spec_t(r)
-	    // 		   << std::endl;
 	    n_flanker++;
 	 }
       }
@@ -1292,7 +1304,9 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 // return -1 on failure to find a residue for insertion index
 // 
 int 
-graphics_info_t::find_serial_number_for_insert(int seqnum_new, mmdb::Chain *chain_p) const {
+graphics_info_t::find_serial_number_for_insert(int seqnum_new,
+					       const std::string &ins_code_for_new,
+					       mmdb::Chain *chain_p) const {
 
    int iserial_no = -1;
    int current_diff = 999999;
@@ -1307,6 +1321,14 @@ graphics_info_t::find_serial_number_for_insert(int seqnum_new, mmdb::Chain *chai
 	 if ( (diff > 0) && (diff < current_diff) ) {
 	    iserial_no = ires;
 	    current_diff = diff;
+	 } else {
+	    if (diff == 0) {
+	       std::string ins_code_this = residue->GetInsCode();
+	       if (ins_code_this > ins_code_for_new) {
+		  iserial_no = ires;
+		  break;
+	       }
+	    }
 	 }
       }
    }
@@ -2466,7 +2488,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	       // atom_selection_container_t tmp_asc = add_cb_to_terminal_res(terminal_res_asc);
 
  	       atom_selection_container_t tmp_asc =
- 		  add_side_chain_to_terminal_res(terminal_res_asc, res_type);
+ 		  add_side_chain_to_terminal_res(terminal_res_asc, res_type, terminus_type);
 
 
 // 	       std::cout << "-------------- tmp_asc --------" << std::endl;
@@ -2514,11 +2536,17 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 		  // so we can use that to tell us where to place the O oxygen
 		  // of the current residue.
 		  //
-		  if (terminus_type == "C") {
+                  // 201805014-PE merging - Oh, I've done it twice (forgetten first)
+                  // by different methods - heyho
+		  if (terminus_type == "C" || terminus_type == "MC") {
 		     clipper::Coord_orth new_o_pos =
 			addres.best_fit_phi_psi_attaching_oxygen_position_update(mmol, res_p);
 		     molecules[imol_moving_atoms].move_atom(" O  ", res_p, new_o_pos);
 		  }
+                  // method from master:
+		  // if (terminus_type == "C" || terminus_type == "MC") 
+		  //    molecules[imol_moving_atoms].move_O_atom_of_added_to_residue(res_p, chain_id);
+
 		  graphics_draw();
 	       }
 	    }
@@ -4171,11 +4199,29 @@ graphics_info_t::split_residue_range(int imol, int index_1, int index2) {
 // delete zone
 void
 graphics_info_t::delete_residue_range(int imol,
-				      const coot::residue_spec_t &res1,
-				      const coot::residue_spec_t &res2) {
+				      const coot::residue_spec_t &res1_in,
+				      const coot::residue_spec_t &res2_in) {
 
    if (is_valid_model_molecule(imol)) {
+
+      coot::residue_spec_t res1 = res1_in;
+      coot::residue_spec_t res2 = res2_in;
+
+      if (res1.res_no > res2.res_no)
+	 std::swap(res1, res2);
+
       molecules[imol].delete_zone(res1, res2);
+
+      // cheap! I should find the residues with insertion codes in this range too.
+      // How to do that? Hmm... Needs a class function. This will do for now
+      //
+      std::vector<coot::residue_spec_t> res_specs;
+      for (int i=res1.res_no; i<=res2.res_no; i++) {
+	 coot::residue_spec_t r(res1_in.chain_id, i, "");
+	 res_specs.push_back(r);
+      }
+      delete_residues_from_geometry_graphs(imol, res_specs);
+
       if (delete_item_widget) {
 	 GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget,
 						"delete_item_keep_active_checkbutton");
@@ -4441,10 +4487,12 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 
 
 void
-graphics_info_t::tabulate_geometric_distortions(const coot::restraints_container_t &restraints) const {
+graphics_info_t::tabulate_geometric_distortions(const coot::restraints_container_t &restraints,
+						coot::restraint_usage_Flags flags) const {
 
-   coot::restraints_container_t rr = restraints;
-   coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
+   // coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS; // is passed now
+   coot::restraints_container_t rr = restraints;;
+
    coot::geometry_distortion_info_container_t gdic = rr.geometric_distortions(flags);
 
    std::ofstream f("coot-refinement-debug.tab");
@@ -4455,7 +4503,7 @@ graphics_info_t::tabulate_geometric_distortions(const coot::restraints_container
       for (unsigned int ii=0; ii<gdic.geometry_distortion.size(); ii++) { 
 	 const coot::geometry_distortion_info_t &gd = gdic.geometry_distortion[ii];
 	 const coot::simple_restraint &rest = gd.restraint;
-	 
+
 	 if (rest.restraint_type == coot::BOND_RESTRAINT) {
 	    std::string s = "bond  " + coot::util::float_to_string(gd.distortion_score);
 	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
@@ -4470,21 +4518,34 @@ graphics_info_t::tabulate_geometric_distortions(const coot::restraints_container
 	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
 	       s += " " + coot::util::int_to_string(gd.atom_indices[iat]);
 	    s += " target: ";
-	    s += coot::util::float_to_string(gd.restraint.target_value);
+	    s += coot::util::float_to_string(rest.target_value);
 	    s += " ";
-	    s += coot::util::float_to_string(gd.restraint.sigma);
+	    s += coot::util::float_to_string(rest.sigma);
 	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
 	 }
 	 if (rest.restraint_type == coot::TORSION_RESTRAINT) {
-	    std::string s = "torsion " + coot::util::float_to_string(gd.distortion_score);
-	    // s += " " + rr.get_atom_spec(gd.atom_index_2).format();
-	    // s += " " + rr.get_atom_spec(gd.atom_index_3).format();
+	    std::string s = "torsion ";
+	    s += coot::util::float_to_string_using_dec_pl(gd.distortion_score, 4);
+	    s += " ";
+	    s += " " + rr.get_atom_spec(rest.atom_index_1).format();
+	    s += " ";
+	    s += " " + rr.get_atom_spec(rest.atom_index_2).format();
+	    s += " ";
+	    s += " " + rr.get_atom_spec(rest.atom_index_3).format();
+	    s += " ";
+	    s += " " + rr.get_atom_spec(rest.atom_index_4).format();
+	    s += " idx: ";
+	    s += coot::util::int_to_string(ii);
+	    s += " target: ";
+	    s += coot::util::float_to_string(rest.target_value);
 	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
 	 }
 	 if (rest.restraint_type == coot::TRANS_PEPTIDE_RESTRAINT) {
 	    std::string s = "trans " + coot::util::float_to_string(gd.distortion_score);
 	    s += " " + rr.get_atom_spec(rest.atom_index_2).format();
 	    s += " " + rr.get_atom_spec(rest.atom_index_3).format();
+	    s += coot::util::float_to_string(rest.target_value);
+	    s += " ";
 	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
 	 }
 	 if (rest.restraint_type == coot::PLANE_RESTRAINT) {
@@ -4501,9 +4562,9 @@ graphics_info_t::tabulate_geometric_distortions(const coot::restraints_container
 	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
 	       s += " " + coot::util::int_to_string(gd.atom_indices[iat]);
 	    s += " target: ";
-	    s += coot::util::float_to_string(gd.restraint.target_value);
+	    s += coot::util::float_to_string(rest.target_value);
 	    s += " ";
-	    s += coot::util::float_to_string(gd.restraint.sigma);
+	    s += coot::util::float_to_string(rest.sigma);
 	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
 	 }
 	 if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {

@@ -305,6 +305,7 @@ namespace coot {
    // standard PDB type
    int hetify_residue_atoms_as_needed(mmdb::Residue *res);
    int hetify_residues_as_needed(mmdb::Manager *mol);
+   void put_amino_acid_residue_atom_in_standard_order(mmdb::Residue *residue_p);
 
    // convert atoms in residue to HETATMs.  Return the number of HET
    // atoms.
@@ -776,6 +777,9 @@ namespace coot {
 
       mmdb::Residue *get_first_residue(mmdb::Manager *mol);
 
+      mmdb::Residue *get_first_residue_in_chain(mmdb::Chain *chain_p);
+      mmdb::Residue *get_last_residue_in_chain(mmdb::Chain *chain_p);
+
       std::vector<mmdb::Residue *> get_hetgroups(mmdb::Manager *mol, bool include_waters=false);
 
       mmdb::Residue *get_biggest_hetgroup(mmdb::Manager *mol);
@@ -839,10 +843,18 @@ namespace coot {
       int number_of_residues_in_molecule(mmdb::Manager *mol);
       // Return -1 on badness
       int max_number_of_residues_in_chain(mmdb::Manager *mol);
+
+      // get the number of residue in chain, protein first.
+      std::pair<unsigned int, unsigned int> get_number_of_protein_or_nucleotides(mmdb::Chain *chain_p);
+
       // Return NULL on no such chain:
       mmdb::Chain *chain_only_of_type(mmdb::Manager *mol, const std::string &residue_type);
 
       clipper::RTop_orth matrix_convert(mmdb::mat44 mat);
+
+      // return 9999,-9999 on failure
+      // (test for failure: second being less than first)
+      std::pair<int, int> min_and_max_residues(mmdb::Chain *chain_p);
 
       // Return -1 on badness.
       // 
@@ -855,7 +867,9 @@ namespace coot {
       std::pair<bool, int> min_resno_in_chain(mmdb::Chain *chain_p);
       std::pair<bool, int> max_resno_in_chain(mmdb::Chain *chain_p);
       std::pair<bool, int> max_resno_in_molecule(mmdb::Manager *mol);
-      
+      // like the above, but don't count ligands and waters that might have
+      // high residue numbers
+      std::pair<bool, std::pair<int, int> > min_max_residues_in_polymer_chain(mmdb::Chain *chain_p);
 
       // Return -1 on badness (actually, number of chains in the last model)
       int number_of_chains(mmdb::Manager *mol);
@@ -1143,6 +1157,8 @@ namespace coot {
       void transform_chain(mmdb::Manager *mol, mmdb::Chain *moving_chain,
 			   int n_atoms, mmdb::PAtom *atoms, mmdb::mat44 &my_matt);
 
+      void transform_chain(mmdb::Chain *moving_chain, const clipper::RTop_orth &rtop);
+
       // transform atoms in residue
       void transform_atoms(mmdb::Residue *res, const clipper::RTop_orth &rtop);
 
@@ -1323,6 +1339,15 @@ namespace coot {
 
       std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > peptide_C_N_pairs(mmdb::Chain *chain_p);
       void standardize_peptide_C_N_distances(const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &C_N_pairs);
+
+      // alter the model to fix the cis peptide of the given atom
+      int cis_trans_conversion(mmdb::Atom *at, bool is_N_flag, mmdb::Manager *mol, mmdb::Manager *standard_residues_mol);
+
+      // mol_residues, trans_residues, cis_residues must be at least of length 2.
+      int
+      cis_trans_convert(mmdb::PResidue *mol_residues,
+			mmdb::PResidue *trans_residues,
+			mmdb::PResidue *cis_residues);
 
       // return the number of cis peptides in mol:
       int count_cis_peptides(mmdb::Manager *mol);

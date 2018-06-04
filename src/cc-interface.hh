@@ -330,9 +330,10 @@ void add_to_database(const std::vector<std::string> &command_strings);
 /*  ----------------------------------------------------------------------- */
 /*                         Merge Molecules                                  */
 /*  ----------------------------------------------------------------------- */
+#include "merge-molecule-results-info-t.hh"
 // return the status and vector of chain-ids of the new chain ids.
 // 
-std::pair<int, std::vector<std::string> > merge_molecules_by_vector(const std::vector<int> &add_molecules, int imol);
+std::pair<int, std::vector<merge_molecule_results_info_t> > merge_molecules_by_vector(const std::vector<int> &add_molecules, int imol);
 
 /*  ----------------------------------------------------------------------- */
 /*                         Dictionaries                                     */
@@ -722,6 +723,10 @@ PyObject *residues_near_position_py(int imol, PyObject *pos_in, float radius);
 //! \brief return a Python object for the bonds
 //
 PyObject *get_bonds_representation(int imol);
+
+//! \brief return a Python object for the radii of the atoms in the dictionary
+//
+PyObject *get_dictionary_radii();
 
 //! \brief return a Python object for the representation of bump and hydrogen bonds of
 //          the specified residue
@@ -1553,10 +1558,6 @@ SCM align_to_closest_chain_scm(std::string target_seq, float match_fraction);
 //! \brief make a simple text dialog.
 void simple_text_dialog(const std::string &dialog_title, const std::string &text,
 			int geom_x, int geom_y);
-
-// gui nuts and bolts
-void on_simple_text_dialog_close_button_pressed( GtkWidget *button,
-						 GtkWidget *dialog);
 
 
 /*  ----------------------------------------------------------------------- */

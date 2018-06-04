@@ -12,7 +12,7 @@
 #include "CXXCircle.h"
 #include "CXXNewHood.h"
 
-CXXCircleNode::CXXCircleNode():
+CXX_mot::CXXCircleNode::CXXCircleNode():
 theParent(0),
 theOtherCircle(0),
 theCoord(CXXCoord(0.,0.,0.)),
@@ -26,7 +26,7 @@ atomK(0)
 {
 }
 
-CXXCircleNode::CXXCircleNode ( const CXXCircle *aParent, const CXXCircle *anOtherCircle, const CXXCoord &crd, int aFlag):
+CXX_mot::CXXCircleNode::CXXCircleNode ( const CXXCircle *aParent, const CXXCircle *anOtherCircle, const CXXCoord &crd, int aFlag):
 theParent(aParent),
 theOtherCircle(anOtherCircle),
 theCoord(crd),
@@ -48,11 +48,11 @@ atomK(0)
 	if (theOtherCircle) atomK=theOtherCircle->getAtomJ();
 }
 
-bool CXXCircleNode::shouldDelete(const CXXCircleNode &aNode){
+bool CXX_mot::CXXCircleNode::shouldDelete(const CXXCircleNode &aNode){
 	return (aNode.isDeleted()==1);
 }
 
-void CXXCircleNode::setParent(CXXCircle *parent){
+void CXX_mot::CXXCircleNode::setParent(CXXCircle *parent){
 	theParent = parent;
 	if (theParent) {
 		atomJ = theParent->getAtomJ();
@@ -62,25 +62,25 @@ void CXXCircleNode::setParent(CXXCircle *parent){
 	}
 };
 
-void CXXCircleNode::setOtherCircle(CXXCircle *parent){
+void CXX_mot::CXXCircleNode::setOtherCircle(CXXCircle *parent){
 	theOtherCircle = parent;
 	if (theOtherCircle) atomK = theOtherCircle->getAtomJ();
 };
 
-int CXXCircleNode::setReference(const CXXCoord &referenceVector){
+int CXX_mot::CXXCircleNode::setReference(const CXXCoord &referenceVector){
 	theAngle = theParent->getNormal().angleBetween(getUnitRadius(), referenceVector);
 	return 0; 
 };
 
-void CXXCircleNode::setCoord(const CXXCoord &coord) {
+void CXX_mot::CXXCircleNode::setCoord(const CXXCoord &coord) {
     theCoord = coord;
     unitRadius=theCoord-theParent->getCentreOfCircle();
     unitRadius /= theParent->getRadiusOfCircle();
 }
 
-int CXXCircleNode::probeContacts(std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> > &probes, 
+int CXX_mot::CXXCircleNode::probeContacts(std::vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> > &probes, 
 								 double probeRadius, 
-								 std::map<CXXCircleNode *, std::vector<CXXCircleNode *, CXX::CXXAlloc<CXXCircleNode *> > > &contactMap) 
+								 std::map<CXXCircleNode *, std::vector<CXXCircleNode *, CXX_old::CXXAlloc<CXXCircleNode *> > > &contactMap) 
 {
 	
 	if (probes.size() == 0) return 1;
@@ -92,8 +92,8 @@ int CXXCircleNode::probeContacts(std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCir
 		limits[i][0] = 1e30;
 		limits[i][1] = -1e30;
 	}
-	std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator end = probes.end();
-	for (std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator probeIter = probes.begin(); probeIter!=end; ++probeIter){
+	std::vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator end = probes.end();
+	for (std::vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator probeIter = probes.begin(); probeIter!=end; ++probeIter){
 		for (int i=0; i<3; i++){
 			limits[i][0] = (limits[i][0]<(*probeIter)[i]?limits[i][0]:(*probeIter)[i]);
 			limits[i][1] = (limits[i][1]>(*probeIter)[i]?limits[i][1]:(*probeIter)[i]);
@@ -121,7 +121,7 @@ int CXXCircleNode::probeContacts(std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCir
 	}
 	
 	//Prepare the bin vectors
-	std::vector<std::vector<std::vector<std::vector<std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator> > > >binnedProbes;
+	std::vector<std::vector<std::vector<std::vector<std::vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator> > > >binnedProbes;
 	binnedProbes.resize(nBins[0]);
 	for (int i=0; i<nBins[0]; i++){
 		binnedProbes[i].resize(nBins[1]);
@@ -131,7 +131,7 @@ int CXXCircleNode::probeContacts(std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCir
 	}
 	
 	//Distribute probes among bins
-	for (std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator probeIter = probes.begin(); probeIter!=end; ++probeIter){
+	for (std::vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator probeIter = probes.begin(); probeIter!=end; ++probeIter){
 		int iBin[3];
 		for (int i=0; i<3; i++){
 			iBin[i] = (int)(floor((*probeIter)[i]-limits[i][0]) / binWidth[i]);
@@ -155,7 +155,7 @@ int CXXCircleNode::probeContacts(std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCir
 				int startBinZ = max(0,iBinZ-1);
 				int endBinZ = min(nBins[2],iBinZ+2);
 				
-				std::vector<std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator> &centralBin(binnedProbes[iBinX][iBinY][iBinZ]);
+				std::vector<std::vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator> &centralBin(binnedProbes[iBinX][iBinY][iBinZ]);
 
 				//#pragma omp parallel for default(none) shared (startBinX, endBinX, startBinY, endBinY, startBinZ, endBinZ, binnedProbes, probeRadiusX2, probeRadiusX2Sq) schedule(dynamic, 50) //num_threads(2)
                 for (unsigned int iCentralProbe = 0; iCentralProbe < centralBin.size(); iCentralProbe++){
@@ -173,9 +173,9 @@ int CXXCircleNode::probeContacts(std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCir
 					for (int searchBinX = startBinX; searchBinX<endBinX; searchBinX++){
 						for (int searchBinY = startBinY; searchBinY<endBinY; searchBinY++){
 							for (int searchBinZ = startBinZ; searchBinZ<endBinZ; searchBinZ++){
-								std::vector<std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator> &searchBin(binnedProbes[searchBinX][searchBinY][searchBinZ]);
-								std::vector<std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator>::iterator binSearchEnd = searchBin.end();
-								for (std::vector<std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator>::iterator otherProbe = searchBin.begin(); 
+								std::vector<std::vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator> &searchBin(binnedProbes[searchBinX][searchBinY][searchBinZ]);
+								std::vector<std::vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator>::iterator binSearchEnd = searchBin.end();
+								for (std::vector<std::vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator>::iterator otherProbe = searchBin.begin(); 
 									 otherProbe!=binSearchEnd; 
 									 ++otherProbe){
 									CXXCircleNode &otherProbeRef(**otherProbe);
@@ -202,9 +202,9 @@ int CXXCircleNode::probeContacts(std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCir
 			}
 		}
 	}
-	std::map<CXXCircleNode *, std::vector<CXXCircleNode *, CXX::CXXAlloc<CXXCircleNode *> > >::iterator endIter = contactMap.end();
+	std::map<CXXCircleNode *, std::vector<CXXCircleNode *, CXX_old::CXXAlloc<CXXCircleNode *> > >::iterator endIter = contactMap.end();
 	int nContacts = 0;
-	for (std::map<CXXCircleNode *, std::vector<CXXCircleNode *, CXX::CXXAlloc<CXXCircleNode *> > >::iterator iter = contactMap.begin();
+	for (std::map<CXXCircleNode *, std::vector<CXXCircleNode *, CXX_old::CXXAlloc<CXXCircleNode *> > >::iterator iter = contactMap.begin();
 		 iter !=endIter;
 		 ++iter){
 		nContacts += iter->second.size();
@@ -213,11 +213,11 @@ int CXXCircleNode::probeContacts(std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCir
 	return 0;
 }
 
-bool CXXCircleNode::shouldDeletePointer(CXXCircleNode* &aNodePointer){
+bool CXX_mot::CXXCircleNode::shouldDeletePointer(CXXCircleNode* &aNodePointer){
 	return (aNodePointer->isDeleted()==1);
 }
 
-bool CXXCircleNode::equals(CXXCircleNode &node1, CXXCircleNode &node2){
+bool CXX_mot::CXXCircleNode::equals(CXXCircleNode &node1, CXXCircleNode &node2){
     std::vector<int>ijkCentral(3);
     std::vector<int>ijkOther(3);
     ijkCentral[0] = node1.getAtomI()->serNum;
@@ -235,7 +235,7 @@ bool CXXCircleNode::equals(CXXCircleNode &node1, CXXCircleNode &node2){
     return true;
 }
 
-bool CXXCircleNode::equalsPntr(CXXCircleNode* &node1, CXXCircleNode* &node2){
+bool CXX_mot::CXXCircleNode::equalsPntr(CXXCircleNode* &node1, CXXCircleNode* &node2){
     std::vector<mmdb::Atom *>ijkCentral(3);
     std::vector<mmdb::Atom *>ijkOther(3);
     ijkCentral[0] = node1->getAtomI();
@@ -253,20 +253,20 @@ bool CXXCircleNode::equalsPntr(CXXCircleNode* &node1, CXXCircleNode* &node2){
     return true;
 }
 
-void CXXCircleNode::filterContacts(std::map<CXXCircleNode *, std::vector<CXXCircleNode *, CXX::CXXAlloc<CXXCircleNode *> > > &contactMap){	
-	std::map< CXXCircleNode *, std::vector<CXXCircleNode *, CXX::CXXAlloc<CXXCircleNode *> > >::iterator contactMapEnd(contactMap.end());
-	for (std::map< CXXCircleNode *, std::vector<CXXCircleNode *, CXX::CXXAlloc<CXXCircleNode *> > >::iterator contactMapIter = contactMap.begin();
+void CXX_mot::CXXCircleNode::filterContacts(std::map<CXXCircleNode *, std::vector<CXXCircleNode *, CXX_old::CXXAlloc<CXXCircleNode *> > > &contactMap){	
+	std::map< CXXCircleNode *, std::vector<CXXCircleNode *, CXX_old::CXXAlloc<CXXCircleNode *> > >::iterator contactMapEnd(contactMap.end());
+	for (std::map< CXXCircleNode *, std::vector<CXXCircleNode *, CXX_old::CXXAlloc<CXXCircleNode *> > >::iterator contactMapIter = contactMap.begin();
 		 contactMapIter != contactMap.end();
 		 ++contactMapIter){
-        std::vector<CXXCircleNode *, CXX::CXXAlloc<CXXCircleNode *> > &neighbours(contactMapIter->second);
-        std::vector<CXXCircleNode *, CXX::CXXAlloc<CXXCircleNode *> >::iterator neighboursEnd(neighbours.end());
-        std::vector<CXXCircleNode *, CXX::CXXAlloc<CXXCircleNode *> >::iterator neighboursBegin(neighbours.begin());
+        std::vector<CXXCircleNode *, CXX_old::CXXAlloc<CXXCircleNode *> > &neighbours(contactMapIter->second);
+        std::vector<CXXCircleNode *, CXX_old::CXXAlloc<CXXCircleNode *> >::iterator neighboursEnd(neighbours.end());
+        std::vector<CXXCircleNode *, CXX_old::CXXAlloc<CXXCircleNode *> >::iterator neighboursBegin(neighbours.begin());
         neighbours.erase(unique(neighboursBegin, neighboursEnd, CXXCircleNode::equalsPntr), neighboursEnd);
     }
     return;
 }
 
-bool CXXCircleNode::angleLessThan(const CXXCircleNode &node1, const CXXCircleNode &node2){
+bool CXX_mot::CXXCircleNode::angleLessThan(const CXXCircleNode &node1, const CXXCircleNode &node2){
     return node1.getAngle() < node2.getAngle();
 }
 

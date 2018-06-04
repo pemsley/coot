@@ -49,6 +49,19 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #   include <GL/gl.h>
 #endif
 
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
+#include <CXXClasses/RendererGL.h>
+#include <CXXClasses/Light.h>
+#include <CXXClasses/Camera.h>
+// #include <CXXClasses/CameraPort.h>
+#include <CXXClasses/SceneSetup.h>
+#include <CXXClasses/ColorScheme.h>
+#include <CXXClasses/MyMolecule.h>
+#include <CXXClasses/RepresentationInstance.h>
+#include <CXXClasses/MolecularRepresentationInstance.h>
+#endif
+#endif
 
 #include "clipper/ccp4/ccp4_map_io.h"
 
@@ -118,7 +131,7 @@ namespace molecule_map_type {
 #include "fragment-info.hh"
 #include "atom-name-bits.hh"
 #include "rama-rota-score.hh"
-
+#include "merge-molecule-results-info-t.hh"
 
 namespace coot {
 
@@ -792,6 +805,7 @@ public:        //                      public
 
       // single model view
       single_model_view_current_model_number = 0; // all models
+
    }
 
    int handle_read_draw_molecule(int imol_no_in,
@@ -806,19 +820,18 @@ public:        //                      public
 				 bool warn_about_missing_symmetry_flag);
 
    void label_symmetry_atom(int i);
-   
+
+   // used for raster3d (where we need to know the position of the label)
+   std::pair<std::string, clipper::Coord_orth>
+   make_atom_label_string(unsigned int ith_labelled_atom,
+			  int brief_atom_labels_flag,
+			  short int seg_ids_in_atom_labels_flag) const;
+
    void label_atom(int i, int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag);
 
    void debug_selection() const; 
-   void debug() const;
+   void debug(bool debug_atoms_also_flag=false) const;
 
-   // Ugh.  Horrible.  I don't want outside access to setting of
-   // imol_no - I want to do it in the constructor.  Must FIX. 
-   // 
-   void set_mol_number(int i) {
-      imol_no = i;
-      *imol_no_ptr = i;
-   }; 
    void set_bond_colour_by_mol_no(int icolour,
 				  bool against_a_dark_background);  // not const because
 					   	                    // we also set
@@ -899,10 +912,13 @@ public:        //                      public
    
    std::string show_spacegroup() const;
 
+   void set_mol_triangles_is_displayed(int state);
+
    void set_mol_is_displayed(int state) {
       if (atom_sel.n_selected_atoms > 0) {
 	 draw_it = state;
       }
+      set_mol_triangles_is_displayed(state);
    }
 
    void set_mol_is_active(int state) {
@@ -1535,6 +1551,12 @@ public:        //                      public
 					  const std::string &residue_type,
 					  float phi, float psi);
 
+   // When a new residue is added to the C-terminus of a chain/fragment, we will need to move
+   // the O of this one to make a proper peptide plane (the position of the next residue
+   // was not dependent on the position of the O of this one).
+   // (note: read as 'added-to' residue)
+   void move_O_atom_of_added_to_residue(mmdb::Residue *res_p, const std::string &chain_id);
+
    // extra modelling results, e.g. waters, terminal residues, etc
    void add_coords(const atom_selection_container_t &asc);
    //
@@ -1556,7 +1578,9 @@ public:        //                      public
    // is currently at res_index) too.  Return a index of -1 (and a
    // mmdb::Residue of NULL) when no residue found.
    
-   std::pair<int, mmdb::Residue *> find_serial_number_for_insert(int res_index, const std::string &chain_id) const;
+   std::pair<int, mmdb::Residue *> find_serial_number_for_insert(int seqnum_for_new,
+								 const std::string &ins_code_for_new,
+								 const std::string &chain_id) const;
 
    void update_molecule_to(std::vector<coot::scored_skel_coord> &pos_position); 
 
@@ -2084,9 +2108,10 @@ public:        //                      public
    // Add OXT atom:  Return status, 0 = fail, 1 = worked.
    // (use get_residue() to get the residue for this);
    // 
-   short int add_OXT_to_residue(mmdb::Residue *residue);
+   short int add_OXT_to_residue(mmdb::Residue *residue, coot::protein_geometry *geom_p);
    short int add_OXT_to_residue(int reso, const std::string &insertion_code,
-				const std::string &chain_id); // external usage
+				const std::string &chain_id,
+				coot::protein_geometry *geom_p); // external usage
    bool residue_has_oxt_p(mmdb::Residue *residue) const; // used by above.  Dont add if returns true.
 
    std::pair<short int, int>  last_residue_in_chain(const std::string &chain_id) const;
@@ -2338,10 +2363,10 @@ public:        //                      public
 
    // merge molecules
    
-   std::pair<int, std::vector<std::string> > merge_molecules(const std::vector<atom_selection_container_t> &add_molecules);
+   std::pair<int, std::vector<merge_molecule_results_info_t> > merge_molecules(const std::vector<atom_selection_container_t> &add_molecules);
    std::pair<bool, std::vector<std::string> > try_add_by_consolidation(mmdb::Manager *adding_mol);
    bool merge_molecules_just_one_residue_homogeneous(atom_selection_container_t molecule_to_add);
-   bool merge_ligand_to_near_chain(mmdb::Manager *mol); // return success status
+   std::pair<bool, coot::residue_spec_t> merge_ligand_to_near_chain(mmdb::Manager *mol); // return success status and spec if new residue if possible.
 
    int renumber_residue_range(const std::string &chain_id,
 			      int start_resno, int last_resno, int offset);
@@ -2485,8 +2510,9 @@ public:        //                      public
    std::vector<std::pair<std::string, coot::residue_spec_t> > list_nomenclature_errors(coot::protein_geometry *geom_p);
 
    // ---- cis <-> trans conversion
-   int cis_trans_conversion(const std::string &chain_id, int resno, const std::string &inscode);
-   int cis_trans_conversion(mmdb::Atom *at, short int is_N_flag);
+   int cis_trans_conversion(const std::string &chain_id, int resno, const std::string &inscode,
+			    mmdb::Manager *standard_residues_mol);
+   int cis_trans_conversion(mmdb::Atom *at, short int is_N_flag, mmdb::Manager *standard_residues_mol);
    int cis_trans_convert(mmdb::PResidue *mol_residues,   // internal function, make private
 			 mmdb::PResidue *trans_residues, // or move into utils?
 			 mmdb::PResidue *cis_residues);
@@ -2731,13 +2757,18 @@ public:        //                      public
    // selection.
    // 
    // called by above
+   //
+   // if chain_for_moving is not null, apply the transformation
+   // the the atoms of chain_for_moving rather than to the atom of atom_selection
+   //
    float fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 				     int n_atoms,
 				     const clipper::Xmap<float> &xmap,
 				     float map_sigma,
 				     int n_trials,
 				     float jiggle_scale_factor,
-				     bool use_biased_density_scoring);
+				     bool use_biased_density_scoring,
+				     mmdb::Chain *chain_for_moving=0);
    
 #ifdef HAVE_CXX_THREAD
    static void test_jiggle_fit_func(unsigned int thread_index,
@@ -2950,6 +2981,9 @@ public:        //                      public
 		  const std::string &link_name, float length,
 		  const coot::protein_geometry &geom);
    void delete_any_link_containing_residue(const coot::residue_spec_t &res_spec);
+   // this will not do a update of bonds, caller should do that.
+   void update_any_link_containing_residue(const coot::residue_spec_t &old_spec,
+					   const coot::residue_spec_t &new_spec);
    void delete_link(mmdb::Link *link, mmdb::Model *model_p);
 
 
@@ -3169,6 +3203,19 @@ public:        //                      public
    std::string map_units() const { std::string u = "e/A^3"; 
                                    if (is_EM_map()) u = "V";
                                    return u; }
+
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
+   std::vector<std::shared_ptr<MolecularRepresentationInstance> > molrepinsts;
+#endif
+#endif // USE_MOLECULES_TO_TRIANGLES
+
+   void make_molecularrepresentationinstance();
+   int add_molecular_representation(const std::string &atom_selection,
+				    const std::string &colour_scheme,
+				    const std::string &style);
+   
 
    // carbohydrate validation tools
    void glyco_tree_internal_distances_fn(const coot::residue_spec_t &base_residue_spec,

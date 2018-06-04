@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef CXXTorusTriangle_included
-#define CXXTorusTriangle_included
+#ifndef CXX_mot_CXXTorusTriangle_included
+#define CXX_mot_CXXTorusTriangle_included
 #include <CXXTorusNode.h>
 #include <CXXCoord.h>
 #include <vector>

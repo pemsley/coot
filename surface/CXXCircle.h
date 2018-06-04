@@ -6,8 +6,8 @@
  *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
-#ifndef CXXCircle_included
-#define CXXCircle_included
+#ifndef CXX_mot_CXXCircle_included
+#define CXX_mot_CXXCircle_included
 
 #include <vector>
 #include <list>
@@ -22,7 +22,9 @@
 //#include "CXXAlloc.h"
 
 using namespace std;
- 
+
+namespace CXX_mot {
+
 class CXXNewHood;
 class CXXBall;
 
@@ -45,10 +47,10 @@ private:
 	double radiusOfCircle;
 	
 	
-	list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >theNodes;
+	list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >theNodes;
     int nIntersectingCircles;
-	vector<CXXCircleNode *, CXX::CXXAlloc<CXXCircleNode *> >theStarts;
-	vector<CXXCircleNode *, CXX::CXXAlloc<CXXCircleNode *> >theStops;
+	vector<CXXCircleNode *, CXX_old::CXXAlloc<CXXCircleNode *> >theStarts;
+	vector<CXXCircleNode *, CXX_old::CXXAlloc<CXXCircleNode *> >theStops;
 	
 	int completelyEaten;
 	
@@ -62,7 +64,7 @@ public:
 	
     void performPrecalculations();
     
-	int meetsCircle(const CXXCircle &otherCircle, vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > &nodeList) const;
+	int meetsCircle(const CXXCircle &otherCircle, vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > &nodeList) const;
 	int isSomewhereInsideSphere(const CXXCoord &centre, const double radius) const;
 	
 	int sortNodes();	
@@ -72,7 +74,7 @@ public:
 	const CXXCoord &getCentreOfSphere() const;
 	const CXXCoord &getCentreToCircle() const;
 	const mmdb::PAtom    getAtomJ() const;
-	const list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> > &getNodes() const { return theNodes;};
+	const list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> > &getNodes() const { return theNodes;};
 	const CXXBall *getBallJ() const {
 		return theBallJ;
 	};
@@ -139,5 +141,7 @@ public:
                      const CXXCircleNode &nodec) const;
     
 };
+
+}
 #endif
 
