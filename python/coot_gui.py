@@ -428,6 +428,7 @@ def generic_single_entry(function_label, entry_1_default_text, go_button_label, 
            delete_event()
 
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    window.set_title('Coot')
     vbox = gtk.VBox(False, 0)
     hbox1 = gtk.HBox(False, 0)
     hbox2 = gtk.HBox(False, 0)
@@ -499,6 +500,7 @@ def generic_double_entry(label_1, label_2,
            	delete_event()
 
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    window.set_title('Coot')
     vbox = gtk.VBox(False, 0)
     hbox1 = gtk.HBox(False, 0)
     hbox2 = gtk.HBox(False, 0)
@@ -589,6 +591,7 @@ def generic_multiple_entries_with_check_button(entry_info_list, check_button_inf
        delete_event()
 
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    window.set_title('Coot')
     vbox = gtk.VBox(False, 0)
     hbox3 = gtk.HBox(False, 0)
     h_sep = gtk.HSeparator()
@@ -1051,6 +1054,7 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, option_menu_f
            print "Failed to get a (molecule) number"
 
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    window.set_title('Coot')
     label = gtk.Label(chooser_label)
     vbox = gtk.VBox(False,6)
     hbox_buttons = gtk.HBox(False,5)
@@ -1158,6 +1162,7 @@ def generic_chooser_and_entry_and_check_button(chooser_label, entry_hint_text,
          print "Failed to get a (molecule) number"
 
    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   window.set_title('Coot')
    label = gtk.Label(chooser_label)
    vbox = gtk.VBox(False, 2)
    hbox_for_entry = gtk.HBox(False, 0)
