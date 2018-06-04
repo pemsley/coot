@@ -4240,9 +4240,21 @@ def setup_ccp4():
             os.environ["PATH"] = os.pathsep.join(path_list)
             #print "BL DEBUG:: PATH set to", os.environ["PATH"]
 
+# Moved from gui_add_linked_cho.py to make a global function.
+#
+def delete_residue_by_spec(imol, spec):
+    delete_residue(imol,
+                   residue_spec_to_chain_id(spec),
+                   residue_spec_to_res_no(spec),
+                   residue_spec_to_ins_code(spec))
+
+
+
 # Required if there is no ccp4 in PATH otherwise, e.g. wont find libcheck
 # for jligand
-setup_ccp4()
+#
+# 20180603-PE No. This should not be here. Put it it JLigand setup.
+# setup_ccp4()
 
 # we work with globals here as to use the function later and not have to bother
 # with globals there any more
