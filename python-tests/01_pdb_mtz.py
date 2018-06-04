@@ -181,6 +181,25 @@ class PdbMtzTestFunctions(unittest.TestCase):
             print "   pass: ", expected_result
 
 
+    def test05_1(self):
+        """Replace Residue gets correct residue number"""
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+
+        mutate_by_overlap(imol, "A", 86, "PTR")
+        rn = residue_name(imol, "A", 86, "")
+        self.failUnless(isinstance(rn, str))
+        self.failUnless(rn == "PTR")
+        # OK, did the the refinement run OK? Check the C-N distance
+        N_atom = get_atom(imol, "A", 86, "", " N  ", "")
+        C_atom = get_atom(imol, "A", 85, "", " C  ", "")
+
+        dd = bond_length_from_atoms(N_atom, C_atom)
+        self.failIf(dd > 1.4)
+        self.failIf(dd < 1.25)
+        print "C-N dist good enough:", dd
+
+
     def test06_0(self):
         """Read a bogus map"""
         pre_n_molecules = graphics_n_molecules()

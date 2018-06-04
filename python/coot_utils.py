@@ -2264,15 +2264,21 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
             print "INFO:: new_chain_id_info: ", new_chain_id_info
             merge_status = new_chain_id_info[0]
             if merge_status == 1:
-                new_chain_id = new_chain_id_info[1]
-                change_residue_number(imol, new_chain_id, 1, "", resno, "")
-                change_chain_id(imol, new_chain_id, chain_id_in, 1, resno, resno)
+                new_res_spec = new_chain_id_info[1]
+                new_chain_id = residue_spec_to_chain_id(new_res_spec)
+                print "BL DEBUG:: new res spec", new_res_spec
+                change_residue_number(imol, new_chain_id,
+                                      residue_spec_to_res_no(new_res_spec),
+                                      residue_spec_to_ins_code(new_res_spec),
+                                      resno, "")
+                # not needed any more
+                #change_chain_id(imol, new_chain_id, chain_id_in, 1, resno, resno)
 
                 replacement_state = refinement_immediate_replacement_state()
                 imol_map = imol_refinement_map()
                 set_refinement_immediate_replacement(1)
                 if imol_map == -1:
-                    regularize_zone(imol, chain_id_in, resno, resno, "")	
+                    regularize_zone(imol, chain_id_in, resno, resno, "")
                 else:
                     spin_atoms = [" P  ", " O1P", " O2P", " O3P"]
                     phos_dir = {
@@ -2305,18 +2311,10 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
     imol_map = imol_refinement_map()
     if (imol_map == -1):
         map_mols = map_molecule_list()
-        if not map_mols:
-            print "BL WARNING:: no valid maps around! Cannot mutate."
+        if len(map_mols) > 1:
+            show_select_map_dialog()
+            mutate_it()
         else:
-            # BL says:: I dunno how to wait for the input from map selection since there is no return
-            # waiting for mouse/keyboard input may be an option but no curses on windows, maybe
-            # fix later, for now we use the first map
-            #			show_select_map_dialog()
-            if len(map_mols) > 1:
-                print "BL INFO:: we use the first map! If you wanna use another one, please select from Model/Fit/Refine"
-            else:
-                print "BL INFO:: no refinement map set, will set first one for you!"
-            set_imol_refinement_map(map_mols[0])
             mutate_it()
     else:
         mutate_it()
@@ -2333,7 +2331,7 @@ def phosphorylate_active_residue():
             return n
 
 	active_atom = active_residue()
-        try: 
+        try:
 	    imol       = active_atom[0]
 	    chain_id   = active_atom[1]
 	    resno      = active_atom[2]
