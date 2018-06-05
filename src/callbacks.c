@@ -2745,7 +2745,6 @@ on_cif_dictionary_fileselection_ok_button_clicked (GtkButton       *button,
   GtkWidget *dictionary_molecule_selector_option_menu = NULL;
   GtkWidget *active_menu_item;
   GtkWidget *menu;
-  int new_compid_idx;
   int imol_enc = -999997;	/* unset value */
   GtkWidget *checkbutton = lookup_widget(GTK_WIDGET(button), 
 					 "cif_dictionary_file_selector_create_molecule_checkbutton");
@@ -2775,7 +2774,9 @@ on_cif_dictionary_fileselection_ok_button_clicked (GtkButton       *button,
 	}
       }
     }
-    new_compid_idx = handle_cif_dictionary_for_molecule(filename, imol_enc, new_molecule_checkbutton_state);
+    /* handle_cif_dictionary_for_molecule() returns new_compid_idx, but we don't do anything
+       with it, so remove it. */
+    handle_cif_dictionary_for_molecule(filename, imol_enc, new_molecule_checkbutton_state);
     gtk_widget_destroy(fileselection);
   }
 }

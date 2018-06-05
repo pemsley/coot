@@ -2345,12 +2345,14 @@
 		    (let* ((new-res-spec (car (car (cdr new-chain-id-info))))
 			   (new-chain-id (residue-spec->chain-id new-res-spec)))
 		      (format #t "debug:: new-res-spec: ~s~%" new-res-spec)
+		      (format #t "debug:: change-residue-number to ~s~%" resno)
 		      (change-residue-number imol
 					     (residue-spec->chain-id new-res-spec)
 					     (residue-spec->res-no   new-res-spec)
 					     (residue-spec->ins-code new-res-spec)
 					     resno "")
-		      (change-chain-id imol new-chain-id chain-id-in 1 resno resno)
+		      (if (not (string=? new-chain-id chain-id-in))
+			  (change-chain-id imol new-chain-id chain-id-in 1 resno resno))
 
 		      (let ((replacement-state (refinement-immediate-replacement-state))
 			    (imol-map (imol-refinement-map)))

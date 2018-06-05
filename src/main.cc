@@ -204,8 +204,8 @@ main (int argc, char *argv[]) {
    } else {
 
       // not needed from 2.36
-#if (GTK_MAJOR_VERSION == 2)
-#if (GTK_MINOR_VERSION < 36)
+#if (GLIB_MAJOR_VERSION == 2)
+#if (GLIB_MINOR_VERSION < 36)
       g_type_init(); // for lbg command-line mode, so that
                      // goo_canvas_new() works cleanly.
 #endif
