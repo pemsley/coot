@@ -853,7 +853,8 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	       }
 
 	       if (false) { // these are the passed residues, nothing more.
-		  std::cout << "debug:: on construction of restraints_container_t local_residues: " << std::endl;
+		  std::cout << "debug:: on construction of restraints_container_t local_residues: "
+			    << std::endl;
 		  for (std::size_t jj=0; jj<local_residues.size(); jj++) {
 		     std::cout << "   " << coot::residue_spec_t(local_residues[jj].second)
 			       << " is fixed: " << local_residues[jj].first << std::endl;
@@ -1182,6 +1183,13 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 						    int imol, 
 						    mmdb::Manager *mol_in,
 						    std::string alt_conf) {
+
+   if (false) { // debug
+      std::cout << "############ starting create_mmdbmanager_from_res_vector() with these "
+		<< " residues " << std::endl;
+      for (std::size_t ii=0; ii<residues.size(); ii++)
+	 std::cout << "   " << coot::residue_spec_t(residues[ii])  << std::endl;
+   }
    
    float dist_crit = 3.0;
    mmdb::Manager *new_mol = 0;
@@ -1208,8 +1216,6 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 	    rv.push_back(residue_p);
 	 }
       }
-      
-      
 
 
       short int whole_res_flag = 0;
@@ -1218,7 +1224,7 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
       // Now the flanking residues:
       //
       std::vector<mmdb::Residue *> flankers_in_reference_mol;
-      
+
       for (unsigned int ires=0; ires<residues.size(); ires++) {
 	 mmdb::Residue *res_ref = residues[ires];
 	 std::vector<mmdb::Residue *> neighbours =
@@ -1228,10 +1234,10 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 	 // course)
 	 // 
 	 for (unsigned int in=0; in<neighbours.size(); in++) { 
-	    bool found = 0;
+	    bool found = false;
 	    for (unsigned int iflank=0; iflank<flankers_in_reference_mol.size(); iflank++) {
 	       if (neighbours[in] == flankers_in_reference_mol[iflank]) {
-		  found = 1;
+		  found = true;
 		  break;
 	       }
 	    }
@@ -1249,12 +1255,23 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 	    if (! found) {
 	       flankers_in_reference_mol.push_back(neighbours[in]);
 	    }
-	 } 
+	 }
       }
 
       // So we have a vector of residues that were flankers in the
       // reference molecule, we need to add copies of those to
       // new_mol (making sure that they go into the correct chain).
+      //
+      if (false) { // debug
+	 std::cout << "debug:: ############ Found " << flankers_in_reference_mol.size()
+		   << " flanking residues" << std::endl;
+
+	 for (unsigned int ires=0; ires<flankers_in_reference_mol.size(); ires++)
+	    std::cout << "      " << ires << " "
+		      << coot::residue_spec_t(flankers_in_reference_mol[ires]) << std::endl;
+      }
+
+
       for (unsigned int ires=0; ires<flankers_in_reference_mol.size(); ires++) {
 	 mmdb::Residue *r;
 
@@ -1291,13 +1308,16 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 	    r->seqNum = flankers_in_reference_mol[ires]->GetSeqNum();
 	    r->SetResName(flankers_in_reference_mol[ires]->GetResName());
 	    n_flanker++;
+	    // std::cout << "debug:: inserted/added " << coot::residue_spec_t(r) << std::endl;
 	 }
       }
    }
 
-   if (false)
+   if (false) {
       std::cout << "DEBUG:: in create_mmdbmanager_from_res_vector: " << rv.size()
 		<< " free residues and " << n_flanker << " flankers" << std::endl;
+
+   }
    return std::pair <mmdb::Manager *, std::vector<mmdb::Residue *> > (new_mol, rv);
 }
 
@@ -4497,7 +4517,7 @@ graphics_info_t::tabulate_geometric_distortions(const coot::restraints_container
 
    std::ofstream f("coot-refinement-debug.tab");
 
-   if (f) { 
+   if (f) {
 
       std::vector<std::pair<double, std::string> > rest_info;
       for (unsigned int ii=0; ii<gdic.geometry_distortion.size(); ii++) { 
@@ -4544,6 +4564,7 @@ graphics_info_t::tabulate_geometric_distortions(const coot::restraints_container
 	    std::string s = "trans " + coot::util::float_to_string(gd.distortion_score);
 	    s += " " + rr.get_atom_spec(rest.atom_index_2).format();
 	    s += " " + rr.get_atom_spec(rest.atom_index_3).format();
+	    s += " ";
 	    s += coot::util::float_to_string(rest.target_value);
 	    s += " ";
 	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));

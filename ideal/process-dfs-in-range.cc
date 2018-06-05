@@ -80,7 +80,7 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
    // consolidate
    for (std::size_t i_thread=0; i_thread<n_t; i_thread++) {
       for (unsigned int i=0; i<n_variables; i++) {
-	 if (results[i_thread][i] != 1110.0) {
+	 if (results[i_thread][i] != 0.0) {
 	    // std::cout << "to df with idx " << i << " adding " << results[i_thread][i] << std::endl;
 	    *gsl_vector_ptr(df, i) += results[i_thread][i];
 	 }
@@ -188,7 +188,6 @@ coot::process_dfs_in_range(const std::vector<std::size_t> &restraints_indices,
 
       if (rest.restraint_type == coot::TARGET_POS_RESTRANT)
 	 process_dfs_target_position(rest, restraints_p->log_cosh_target_distance_scale_factor, v, results);
-
 
    }
 }
@@ -930,123 +929,111 @@ void
 coot::process_dfs_trans_peptide(const coot::simple_restraint &restraint,
 					 const gsl_vector *v,
 					 std::vector<double> &results) {
-
    int idx;
-   idx = 3*(restraint.atom_index_1); 
-   clipper::Coord_orth P1(gsl_vector_get(v,idx), 
-			  gsl_vector_get(v,idx+1), 
+
+   // checked:    P1 is CA_1
+   //             P2 is C_1
+   //             P3 is N_2
+   //             P4 is CA_2
+
+   idx = 3*(restraint.atom_index_1);
+   clipper::Coord_orth P1(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
 			  gsl_vector_get(v,idx+2));
-   idx = 3*(restraint.atom_index_2); 
-   clipper::Coord_orth P2(gsl_vector_get(v,idx), 
-			  gsl_vector_get(v,idx+1), 
+   idx = 3*(restraint.atom_index_2);
+   clipper::Coord_orth P2(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
 			  gsl_vector_get(v,idx+2));
-   idx = 3*(restraint.atom_index_3); 
-   clipper::Coord_orth P3(gsl_vector_get(v,idx), 
-			  gsl_vector_get(v,idx+1), 
+   idx = 3*(restraint.atom_index_3);
+   clipper::Coord_orth P3(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
 			  gsl_vector_get(v,idx+2));
-   idx = 3*(restraint.atom_index_4); 
-   clipper::Coord_orth P4(gsl_vector_get(v,idx), 
-			  gsl_vector_get(v,idx+1), 
+   idx = 3*(restraint.atom_index_4);
+   clipper::Coord_orth P4(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
 			  gsl_vector_get(v,idx+2));
 
-   try {
+   // mid-point is a misnomer here
+   // I mean "point at the "closest-approach" fraction -
+   // which is close to the real mid-point, but not quite.
 
-      // if the bond angles are (near) linear, then the distortion gradients
-      // are zero.
-      //
-      distortion_torsion_gradients_t dtg =
-	 fill_distortion_torsion_gradients(P1, P2, P3, P4);
+   // i.e. if closest_approach_fraction_CA_CA is 0.9, that means
+   // it is a lot closer to CA_2 than CA_1
+   //
+   double closest_approach_fraction_CA_CA = 0.5;
+   double closest_approach_fraction_C_N   = 0.5;
+   double best_closest_approach = 0.025; // or whatever it was
 
-      if (dtg.zero_gradients) {
+   const double &p_CA_CA = closest_approach_fraction_CA_CA; // shorthand aliases
+   const double &p_C_N   = closest_approach_fraction_C_N;
 
-	 std::cout << "debug:: in process_dfs_trans_peptide zero_gradients " << std::endl;
+   double q_CA_CA = 1.0 - closest_approach_fraction_CA_CA;
+   double q_C_N   = 1.0 - closest_approach_fraction_C_N;
 
-      } else {
+   clipper::Coord_orth mid_pt_1 = q_CA_CA * P1 + closest_approach_fraction_CA_CA * P4;
+   clipper::Coord_orth mid_pt_2 = q_C_N   * P2 + closest_approach_fraction_C_N * P3;
 
-	 double diff = dtg.theta - restraint.target_value;
-	 // because trans restraints - 180, (see distortion score notes)
-	 if (diff >  180) diff -= 360;
-	 if (diff < -180) diff += 360;
+   double dist_sqrd = (mid_pt_2-mid_pt_1).lengthsq();
 
-	 if (false)
-	    std::cout << "in process_dfs_trans_peptide: dtg.theta is " << dtg.theta 
-		      <<  " and target is " << restraint.target_value 
-		      << " and diff is " << diff 
-		      << " and periodicity: " << restraint.periodicity << std::endl;
+   double trans_pep_dist_scale_factor = 2000.0; // needs tweaking
+   double weight = trans_pep_dist_scale_factor;
 
-	 double tt = tan(clipper::Util::d2rad(dtg.theta));
-	 double trans_peptide_scale = (1.0/(1+tt*tt)) *
-	    clipper::Util::rad2d(1.0);
+   // d is the distance from the "mid-points" to the expected distance
+   // between "midpoints" for an ideal trans-peptide
+   double b = sqrt(dist_sqrd);
+   double delta = b - best_closest_approach;
 
-	 double weight = 1/(restraint.sigma * restraint.sigma);
+   double dS_ddelta = weight * 2.0 * delta;
+   double db_da = 0.5 / b;
 
-	 // std::cout << "trans_peptide weight: " << weight << std::endl;
-	 // std::cout << "trans_peptide_scale : " << trans_peptide_scale << std::endl; 
-	 // std::cout << "diff          : " << trans_peptide_scale << std::endl; 	       
+   // std::cout << "b: " << b << " delta: " << delta << std::endl;
 
-	 double xP1_contrib = 2.0*diff*dtg.dD_dxP1*trans_peptide_scale * weight;
-	 double xP2_contrib = 2.0*diff*dtg.dD_dxP2*trans_peptide_scale * weight;
-	 double xP3_contrib = 2.0*diff*dtg.dD_dxP3*trans_peptide_scale * weight;
-	 double xP4_contrib = 2.0*diff*dtg.dD_dxP4*trans_peptide_scale * weight;
+   double constant_part = dS_ddelta * db_da;
 
-	 double yP1_contrib = 2.0*diff*dtg.dD_dyP1*trans_peptide_scale * weight;
-	 double yP2_contrib = 2.0*diff*dtg.dD_dyP2*trans_peptide_scale * weight;
-	 double yP3_contrib = 2.0*diff*dtg.dD_dyP3*trans_peptide_scale * weight;
-	 double yP4_contrib = 2.0*diff*dtg.dD_dyP4*trans_peptide_scale * weight;
+   double xP1_contrib = constant_part * 2.0 * q_CA_CA * ( mid_pt_1.x() - mid_pt_2.x());
+   double yP1_contrib = constant_part * 2.0 * q_CA_CA * ( mid_pt_1.y() - mid_pt_2.y());
+   double zP1_contrib = constant_part * 2.0 * q_CA_CA * ( mid_pt_1.z() - mid_pt_2.z());
 
-	 double zP1_contrib = 2.0*diff*dtg.dD_dzP1*trans_peptide_scale * weight;
-	 double zP2_contrib = 2.0*diff*dtg.dD_dzP2*trans_peptide_scale * weight;
-	 double zP3_contrib = 2.0*diff*dtg.dD_dzP3*trans_peptide_scale * weight;
-	 double zP4_contrib = 2.0*diff*dtg.dD_dzP4*trans_peptide_scale * weight;
+   double xP2_contrib = constant_part * 2.0 * q_C_N * ( mid_pt_2.x() - mid_pt_1.x());
+   double yP2_contrib = constant_part * 2.0 * q_C_N * ( mid_pt_2.y() - mid_pt_1.y());
+   double zP2_contrib = constant_part * 2.0 * q_C_N * ( mid_pt_2.z() - mid_pt_1.z());
 
-	 if (! restraint.fixed_atom_flags[0]) {
-	    idx = 3*(restraint.atom_index_1);
-	    // *gsl_vector_ptr(df, idx  ) += xP1_contrib;
-	    // *gsl_vector_ptr(df, idx+1) += yP1_contrib;
-	    // *gsl_vector_ptr(df, idx+2) += zP1_contrib;
+   double xP3_contrib = constant_part * 2.0 * p_C_N * ( mid_pt_2.x() - mid_pt_1.x());
+   double yP3_contrib = constant_part * 2.0 * p_C_N * ( mid_pt_2.y() - mid_pt_1.y());
+   double zP3_contrib = constant_part * 2.0 * p_C_N * ( mid_pt_2.z() - mid_pt_1.z());
 
-	    results[idx  ] += xP1_contrib;
-	    results[idx+1] += yP1_contrib;
-	    results[idx+2] += zP1_contrib;
-	 }
+   double xP4_contrib = constant_part * 2.0 * p_CA_CA * ( mid_pt_1.x() - mid_pt_2.x());
+   double yP4_contrib = constant_part * 2.0 * p_CA_CA * ( mid_pt_1.y() - mid_pt_2.y());
+   double zP4_contrib = constant_part * 2.0 * p_CA_CA * ( mid_pt_1.z() - mid_pt_2.z());
 
-	 if (! restraint.fixed_atom_flags[1]) {
-	    idx = 3*(restraint.atom_index_2);
-	    // *gsl_vector_ptr(df, idx  ) += xP2_contrib;
-	    // *gsl_vector_ptr(df, idx+1) += yP2_contrib;
-	    // *gsl_vector_ptr(df, idx+2) += zP2_contrib;
-
-	    results[idx  ] += xP2_contrib;
-	    results[idx+1] += yP2_contrib;
-	    results[idx+2] += zP2_contrib;
-	 }
-
-	 if (! restraint.fixed_atom_flags[2]) { 
-	    idx = 3*(restraint.atom_index_3);
-	    // *gsl_vector_ptr(df, idx  ) += xP3_contrib;
-	    // *gsl_vector_ptr(df, idx+1) += yP3_contrib;
-	    // *gsl_vector_ptr(df, idx+2) += zP3_contrib;
-
-	    results[idx  ] += xP3_contrib;
-	    results[idx+1] += yP3_contrib;
-	    results[idx+2] += zP3_contrib;
-	 }
-
-	 if (! restraint.fixed_atom_flags[3]) { 
-	    idx = 3*(restraint.atom_index_4);
-	    // *gsl_vector_ptr(df, idx  ) += xP4_contrib;
-	    // *gsl_vector_ptr(df, idx+1) += yP4_contrib;
-	    // *gsl_vector_ptr(df, idx+2) += zP4_contrib;
-
-	    results[idx  ] += xP4_contrib;
-	    results[idx+1] += yP4_contrib;
-	    results[idx+2] += zP4_contrib;
-	 }
-      }
+   if (! restraint.fixed_atom_flags[0]) {
+      idx = 3*(restraint.atom_index_1);
+      results[idx  ] += xP1_contrib;
+      results[idx+1] += yP1_contrib;
+      results[idx+2] += zP1_contrib;
    }
-   catch (const std::runtime_error &rte) {
-      std::cout << "Caught runtime_error" << rte.what() << std::endl;
+
+   if (! restraint.fixed_atom_flags[1]) {
+      idx = 3*(restraint.atom_index_2);
+      results[idx  ] += xP2_contrib;
+      results[idx+1] += yP2_contrib;
+      results[idx+2] += zP2_contrib;
    }
+
+   if (! restraint.fixed_atom_flags[2]) {
+      idx = 3*(restraint.atom_index_3);
+      results[idx  ] += xP3_contrib;
+      results[idx+1] += yP3_contrib;
+      results[idx+2] += zP3_contrib;
+   }
+
+   if (! restraint.fixed_atom_flags[3]) {
+      idx = 3*(restraint.atom_index_4);
+      results[idx  ] += xP4_contrib;
+      results[idx+1] += yP4_contrib;
+      results[idx+2] += zP4_contrib;
+   }
+
 }
 
 void

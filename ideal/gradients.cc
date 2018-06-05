@@ -144,6 +144,7 @@ void coot::my_df(const gsl_vector *v,
 		 void *params, 
 		 gsl_vector *df) {
 
+
    // std::cout << "debug:: entered my_df(): v size " << v->size << std::endl;
 
 
@@ -1235,20 +1236,20 @@ void coot::my_df_torsions_internal(const gsl_vector *v,
 	    n_torsion_restr++;
 
 	    idx = 3*(this_restraint.atom_index_1); 
-	    clipper::Coord_orth P1(gsl_vector_get(v,idx), 
-				   gsl_vector_get(v,idx+1), 
+	    clipper::Coord_orth P1(gsl_vector_get(v,idx),
+				   gsl_vector_get(v,idx+1),
 				   gsl_vector_get(v,idx+2));
-	    idx = 3*(this_restraint.atom_index_2); 
-	    clipper::Coord_orth P2(gsl_vector_get(v,idx), 
-				   gsl_vector_get(v,idx+1), 
+	    idx = 3*(this_restraint.atom_index_2);
+	    clipper::Coord_orth P2(gsl_vector_get(v,idx),
+				   gsl_vector_get(v,idx+1),
 				   gsl_vector_get(v,idx+2));
-	    idx = 3*(this_restraint.atom_index_3); 
-	    clipper::Coord_orth P3(gsl_vector_get(v,idx), 
-				   gsl_vector_get(v,idx+1), 
+	    idx = 3*(this_restraint.atom_index_3);
+	    clipper::Coord_orth P3(gsl_vector_get(v,idx),
+				   gsl_vector_get(v,idx+1),
 				   gsl_vector_get(v,idx+2));
-	    idx = 3*((*restraints)[i].atom_index_4); 
-	    clipper::Coord_orth P4(gsl_vector_get(v,idx), 
-				   gsl_vector_get(v,idx+1), 
+	    idx = 3*((*restraints)[i].atom_index_4);
+	    clipper::Coord_orth P4(gsl_vector_get(v,idx),
+				   gsl_vector_get(v,idx+1),
 				   gsl_vector_get(v,idx+2));
 
 	    try { 
