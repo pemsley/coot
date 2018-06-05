@@ -138,7 +138,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 
    char *env = getenv("COOT_DEBUG_REFINEMENT");
    if (env)
-      g.tabulate_geometric_distortions(*last_restraints);
+      g.tabulate_geometric_distortions(*last_restraints, flags);
 
    // Update the Accept/Reject Dialog if it exists (and it should do,
    // if we are doing dragged refinement).
