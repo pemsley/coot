@@ -23,3 +23,7 @@ date: Wed 6 Jun 17:22:24 BST 2018
 8. Watch the status bar...
 
 [Note the FPS can top out at 60 fps - synching with the monitor refresh]
+
+For me I had to turn up the radius to 60.0 A to get a frame rate of less
+than 60 FPS (it was 50 FPS).  Perhaps that should be the new standard.
+
