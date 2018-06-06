@@ -546,7 +546,18 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    // function:
    set_non_bonded_neighbour_residues_by_residue_vector(neighbour_set, bpc, geom);
 
-   if (debug) { // debug
+   if (false) { // debug
+
+      std::cout << "############## neighbour set: " << std::endl;
+      for(it_map=neighbour_set.begin(); it_map!=neighbour_set.end(); it_map++) {
+	 const std::set<mmdb::Residue *> &s = it_map->second;
+	 std::cout << "::: " << residue_spec_t(it_map->first) << std::endl;
+	 std::set<mmdb::Residue *>::const_iterator it_set;
+	 for (it_set=s.begin(); it_set!=s.end(); it_set++) {
+	    std::cout << "      " << residue_spec_t(*it_set) << std::endl;
+	 }
+      }
+
       std::cout << "debug:: in init_from_residue_vec() here with these "
 		<< non_bonded_neighbour_residues.size() << " non-bonded neighbours"
 		<< std::endl;
@@ -1145,6 +1156,8 @@ coot::operator<<(std::ostream &s, const simple_restraint &r) {
       s << "Plane  ";
    if (r.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT)
       s << "NBC    ";
+   if (r.restraint_type == coot::TRANS_PEPTIDE_RESTRAINT)
+      s << "Trans-Pep ";
    if (r.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) { 
       s << "Chiral ";
       s << r.atom_index_centre;
@@ -2294,6 +2307,8 @@ coot::restraints_container_t::make_restraints(int imol,
 
       // restraints_usage_flag = BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
       // restraints_usage_flag = BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS;
+
+      // restraints_usage_flag = TRANS_PEPTIDE_RESTRAINT;
    }
 
    if (n_atoms) {

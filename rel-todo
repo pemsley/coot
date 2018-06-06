@@ -5,6 +5,8 @@
 
    o copy fragment should have a "move it here" button. ::: 0.5
 
+   o make copy_mol_and_refine_inner() be a simple wrapper for generate_molecule_and_refine.
+
    o Draw -> Cell and Symmetry -> symmetry colour should follow the
      real symmetry colour. But now the symmetry colour is not dynamic.
      Swings and roundabouts.

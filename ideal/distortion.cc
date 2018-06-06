@@ -1108,6 +1108,17 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 	    atom_indices.push_back(rest.atom_index_5);
 	 }
 
+      if (restraints_usage_flag & coot::TRANS_PEPTIDE_MASK) {
+	 if (rest.restraint_type == coot::TRANS_PEPTIDE_RESTRAINT) {
+	    distortion = distortion_score_trans_peptide(i, rest, v);
+	    atom_index = rest.atom_index_1;
+	    atom_indices.push_back(rest.atom_index_1);
+	    atom_indices.push_back(rest.atom_index_2);
+	    atom_indices.push_back(rest.atom_index_3);
+	    atom_indices.push_back(rest.atom_index_4);
+	 }
+      }
+
       if (atom_index != -1) {
 	 coot::residue_spec_t rs(atom[atom_index]->GetResidue());
 	 coot::geometry_distortion_info_t gdi(distortion, rest, rs);
