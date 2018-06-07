@@ -842,7 +842,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
         # atoms move less here
 	# 20160608 - they move still less  (not sure why this time)
 	#
-        self.failIf(d < 0.2,
+        self.failIf(d < 0.09,
                     "   refined atom failed to move: d=%s" %d)
 
 
