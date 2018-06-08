@@ -19,6 +19,11 @@
  * 02110-1301, USA
  */
 
+#if !defined _MSC_VER
+#include <unistd.h> // so that getopt declaration in /usr/include/x86_64-linux-gnu/bits/getopt_core.h
+                    // comes before Coot's one
+#endif
+
 #include <iostream>
 
 #ifdef HAVE_GOOCANVAS
