@@ -896,7 +896,8 @@ namespace coot {
 			    void *params,
 			    const gsl_vector *v);
    double distortion_score_target_pos(const simple_restraint &start_pos_restraint,
-				      void *params, const gsl_vector *v);
+				      double scale_factor,
+				      const gsl_vector *v);
    double distortion_score_non_bonded_contact(const simple_restraint &plane_restraint,
 					      const double &lennard_jones_epsilon,
 					      const gsl_vector *v);

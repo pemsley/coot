@@ -82,8 +82,10 @@ bool coot::target_position_eraser(const simple_restraint &r) {
 
 double
 coot::distortion_score_target_pos(const coot::simple_restraint &rest,
-				  void *params,
+				  double scale_factor,
 				  const gsl_vector *v) {
+
+   // void *params, no longer passed
 
    // 20170628 let's try the (f) ln(cosh) and (df) hyperbolic tan
    // style restraint
@@ -98,8 +100,8 @@ coot::distortion_score_target_pos(const coot::simple_restraint &rest,
                                    gsl_vector_get(v,idx+1), 
                                    gsl_vector_get(v,idx+2));
 
+   // restraints_container_t *restraints_p = static_cast<restraints_container_t *>(params);
 
-   restraints_container_t *restraints_p = static_cast<restraints_container_t *>(params);
    double dist = clipper::Coord_orth::length(current_pos, rest.atom_pull_target_pos);
 
    if (harmonic_restraint) {
@@ -116,7 +118,8 @@ coot::distortion_score_target_pos(const coot::simple_restraint &rest,
       //
       double top_out_dist = 4.0; // Angstroms, needs tweaking?
 
-      double scale = restraints_p->log_cosh_target_distance_scale_factor;       // needs tweaking
+      // double scale = log_cosh_target_distance_scale_factor;       // needs tweaking
+      double scale = scale_factor;
 
       double z = dist/top_out_dist;
       double e_z = exp(z);

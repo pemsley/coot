@@ -2313,7 +2313,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	       resno_added = residue_number + 1;
 	    if (terminus_type == "N" || terminus_type == "MN")
 	       resno_added = residue_number - 1;
-	    std::pair<bool, std::string> p = 
+	    std::pair<bool, std::string> p =
 	       molecules[imol].find_terminal_residue_type(chain_id, resno_added,
 							  alignment_wgap,
 							  alignment_wspace);
@@ -4616,6 +4616,11 @@ graphics_info_t::tabulate_geometric_distortions(const coot::restraints_container
 	    std::string s = "geman-mcclure " + coot::util::float_to_string(gd.distortion_score);
 	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
 	       s += " " + rr.get_atom_spec(gd.atom_indices[iat]).format();
+	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
+	 }
+	 if (rest.restraint_type == coot::TARGET_POS_RESTRANT) {
+	    std::string s = "pull-atom " + coot::util::float_to_string(gd.distortion_score);
+	    s += " " + rr.get_atom_spec(gd.atom_indices[0]).format();
 	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
 	 }
       }

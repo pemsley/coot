@@ -1565,7 +1565,8 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 
       if (restraints_vec[i].restraint_type == coot::TARGET_POS_RESTRANT) {
 	 n_target_pos_restraints++;
-	 double dist = coot::distortion_score_target_pos(restraints_vec[i], params, v);
+	 double dist = coot::distortion_score_target_pos(restraints_vec[i],
+							 log_cosh_target_distance_scale_factor, v);
          target_pos_distortion += dist;
 	 baddies["Target_pos"].update_if_worse(dist, i);
       }
@@ -1747,9 +1748,10 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       if (baddies_iterator != baddies.end()) {
 	 rli.worst_baddie = baddies_iterator->second;
 	 const simple_restraint &baddie_restraint = restraints_vec[rli.worst_baddie.restraints_index];
-	 std::cout << "rama worst baddie: index " << rli.worst_baddie.restraints_index
-		   << " distortion " << baddie_restraint.format(atom, rli.worst_baddie.value)
-		   << std::endl;
+	 if (print_summary)
+	    std::cout << "rama worst baddie: index " << rli.worst_baddie.restraints_index
+		      << " distortion " << baddie_restraint.format(atom, rli.worst_baddie.value)
+		      << std::endl;
       }
       if (rama_type == RAMA_TYPE_ZO)
 	 rli.rama_type = RAMA_TYPE_ZO;

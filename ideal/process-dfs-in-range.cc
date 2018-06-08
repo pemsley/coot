@@ -139,7 +139,7 @@ coot::process_dfs_in_range(const std::vector<std::size_t> &restraints_indices,
 
       const simple_restraint &rest = restraints_p->at(restraints_indices[i]);
 
-      if (true)
+      if (false)
 	 std::cout << "process_dfs_in_range() i " << i << " restraint index " << restraints_indices[i]
 		   << " " << rest << std::endl;
 

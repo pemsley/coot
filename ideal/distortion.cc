@@ -415,8 +415,7 @@ coot::restraints_container_t::geometric_distortions() {
    if (!x)
       setup_gsl_vector_variables();  //initial positions in x array
 
-   coot::geometry_distortion_info_container_t dv = distortion_vector(x);
-   return dv;
+   return distortion_vector(x);
 } 
 
 
@@ -688,16 +687,17 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
       }
 
       if (restraints->restraints_usage_flag & coot::GEMAN_MCCLURE_DISTANCE_MASK) {
-	 if ( (*restraints)[i].restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
-	    d = coot::distortion_score_geman_mcclure_distance((*restraints)[i], v,
-	                                                        restraints->geman_mcclure_alpha);
+	 if ( this_restraint.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+	    d = coot::distortion_score_geman_mcclure_distance(this_restraint, v,
+							      restraints->geman_mcclure_alpha);
 	    *distortion += d;
 	    // std::cout << "dsm: geman-mcclure single-thread idx " << i << " " << d << std::endl;
 	 }
       }
 
-      if ( (*restraints)[i].restraint_type == coot::TARGET_POS_RESTRANT) { // atom pull restraint
-	 double d = coot::distortion_score_target_pos((*restraints)[i], params, v);
+      if ( this_restraint.restraint_type == coot::TARGET_POS_RESTRANT) { // atom pull restraint
+	 double d = coot::distortion_score_target_pos(this_restraint,
+						      restraints->log_cosh_target_distance_scale_factor, v);
          *distortion += d;
 	 // std::cout << "dsm: target_pos single-thread idx " << i << " " << d << std::endl;
       }
@@ -718,6 +718,8 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 
    double d = 0;
    for (int i=idx_start; i<idx_end; i++) {
+
+      const simple_restraint &this_restraint = restraints->at(i);
 
       if (restraints->restraints_usage_flag & coot::NON_BONDED_MASK) { // 16:
 	 if ( (*restraints)[i].restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
@@ -822,7 +824,9 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
       }
 
       if ( (*restraints)[i].restraint_type == coot::TARGET_POS_RESTRANT) { // atom pull restraint
-         *distortion += coot::distortion_score_target_pos((*restraints)[i], params, v);
+         *distortion += coot::distortion_score_target_pos((*restraints)[i],
+							  restraints->log_cosh_target_distance_scale_factor,
+							  v);
       }
    }
    done_count_for_threads++; // atomic operation
@@ -1119,9 +1123,9 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
       }
 
       if (rest.restraint_type == coot::TARGET_POS_RESTRANT) {
-	 // would be nice to have this working                        
-	 // distortion = distortion_score_target_pos(rest, v);                    
-	 // atom_index = rest.atom_index_1;
+	 distortion = distortion_score_target_pos(rest, log_cosh_target_distance_scale_factor, v);
+	 atom_index = rest.atom_index_1;
+	 atom_indices.push_back(atom_index); // for display
       }
 
       if (atom_index != -1) {
