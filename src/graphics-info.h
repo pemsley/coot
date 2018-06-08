@@ -2275,19 +2275,19 @@ public:
    coot::refinement_results_t
      generate_molecule_and_refine(int imol,  // needed for UDD Atom handle transfer
 				  const std::vector<mmdb::Residue *> &residues,
-				  const char *alt_conf,
+				  const std::string &alt_conf,
 				  mmdb::Manager *mol, 
 				  bool use_map_flag);
 
    coot::refinement_results_t
      refine_residues_vec(int imol, 
 			 const std::vector<mmdb::Residue *> &residues,
-			 const char *alt_conf,
+			 const std::string &alt_conf,
 			 mmdb::Manager *mol);
    coot::refinement_results_t
      regularize_residues_vec(int imol, 
 			     const std::vector<mmdb::Residue *> &residues,
-			     const char *alt_conf,
+			     const std::string &alt_conf,
 			     mmdb::Manager *mol);
 			       
 

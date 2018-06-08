@@ -140,6 +140,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 				     std::string altconf,// use this (e.g. "A") or "".
 				     std::string chain_id_1) {
 
+   // This now wraps refine_residues_vec
 
 //    std::cout << "DEBUG:: In copy_mol_and_refine() refine range: "
 // 	     << "chain  :" << chain_id_1 << ": "
@@ -237,26 +238,13 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
       mol->DeleteSelection(SelHnd_ends);
    }
 
-
-   // Consider as the altconf the altconf of one of the residues (we
-   // must test that the altlocs of the selected atoms to be either
-   // the same as each other (A = A) or one of them is "".  We need to
-   // know the mmdb syntax for "either".
-   // 
-   // 
-   // 
-   int iselection_resno_start = resno_1;
-   int iselection_resno_end   = resno_2;
-   if (have_flanking_residue_at_start) iselection_resno_start--;
-   if (have_flanking_residue_at_end)   iselection_resno_end++;
-   //
-   int selHnd = mol->NewSelection();
+   int selHnd = mol->NewSelection();  // d
    int nSelResidues; 
    mmdb::PResidue *SelResidues = NULL;
    mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
 	       chain_id_1.c_str(),
-	       iselection_resno_start, "*",
-	       iselection_resno_end, "*",
+	       resno_1, inscode_1.c_str(),
+	       resno_2, inscode_2.c_str(),
 	       "*",  // residue name
 	       "*",  // Residue must contain this atom name?
 	       "*",  // Residue must contain this Element?
@@ -265,58 +253,41 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	       );
    molecules[imol].atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 
-   // Return 0 (first) if any of the residues don't have a dictionary
-   // entry and a list of the residue type that don't have restraints.
-   std::pair<int, std::vector<std::string> > icheck = 
-      check_dictionary_for_residue_restraints(imol_for_atoms, SelResidues, nSelResidues);
+   // 20100201 - Happy Path
 
-   if (false) {  // debugging.
-      std::cout << "Selecting from chain id " << chain_id_1 << std::endl;
-      std::cout << "selecting from residue " << iselection_resno_start
-		<< " to " << iselection_resno_end << " selects "
-		<< nSelResidues << " residues" << std::endl;
-      std::cout << "=============== icheck: " << icheck.first << std::endl;
+   bool check_hydrogens_too_flag = false;
+   // convert to mmdb::Residues vector
+   std::vector<mmdb::Residue *> residues;
+   for (int ires=0; ires<nSelResidues; ires++) {
+      residues.push_back(SelResidues[ires]);
    }
 
-   if (icheck.first == 0) { // problem
+   mol->DeleteSelection(selHnd);
 
-      std::cout << "INFO:: check_dictionary_for_residues - problem..." << std::endl;
-      std::string problem_residues = "Warning: Refinement setup failure.\nFailed to find restraints for:\n";
-      for (unsigned int icheck_res=0; icheck_res<icheck.second.size(); icheck_res++) { 
-	 std::cout << "WARNING:: Failed to find restraints for :" 
-		   << icheck.second[icheck_res] << ":" << std::endl;
-	 problem_residues+= " ";
-	 problem_residues+= icheck.second[icheck_res];
-      }
-      info_dialog(problem_residues);
+   std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
+      icheck_atoms = Geom_p()->atoms_match_dictionary(imol_for_atoms, residues, check_hydrogens_too_flag, false);
+
+   if (! icheck_atoms.first) {
+      std::cout << "WARNING:: Fail atom check" << std::endl;
+      info_dialog_refinement_non_matching_atoms(icheck_atoms.second);
       return rr; // fail
    } else {
 
-      // 20100201 - Happy Path
+      // 	 return copy_mol_and_refine_inner(imol_for_atoms,
+      // 					  resno_1, resno_2,
+      // 					  nSelResidues, SelResidues,
+      // 					  chain_id_1, altconf,
+      // 					  have_flanking_residue_at_start,
+      // 					  have_flanking_residue_at_end,
+      // 					  imol_for_map);
 
-      bool check_hydrogens_too_flag = false;
-      // convert to mmdb::Residues vector
-      std::vector<mmdb::Residue *> residues;
-      for (int ires=0; ires<nSelResidues; ires++)
-	 residues.push_back(SelResidues[ires]);
-      std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
-	 icheck_atoms = Geom_p()->atoms_match_dictionary(imol_for_atoms, residues, check_hydrogens_too_flag, false);
-
-      if (! icheck_atoms.first) {
-	 std::cout << "WARNING:: Fail atom check" << std::endl;
-	 info_dialog_refinement_non_matching_atoms(icheck_atoms.second);
-	 return rr; // fail
-      } else { 
-
-	 return copy_mol_and_refine_inner(imol_for_atoms,
-					  resno_1, resno_2,
-					  nSelResidues, SelResidues,
-					  chain_id_1, altconf,
-					  have_flanking_residue_at_start,
-					  have_flanking_residue_at_end,
-					  imol_for_map);
-      }
+      if (imol_for_map == -1)
+	 rr = regularize_residues_vec(imol_for_atoms, residues, altconf, mol);
+      else
+	 rr = refine_residues_vec(imol_for_atoms, residues, altconf, mol);
    }
+
+   return rr;
 }
 
 // static
@@ -710,7 +681,7 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
 coot::refinement_results_t 
 graphics_info_t::refine_residues_vec(int imol, 
 				     const std::vector<mmdb::Residue *> &residues,
-				     const char *alt_conf, 
+				     const std::string &alt_conf,
 				     mmdb::Manager *mol) {
 
    bool use_map_flag = 1;
@@ -731,7 +702,7 @@ graphics_info_t::refine_residues_vec(int imol,
 coot::refinement_results_t 
 graphics_info_t::regularize_residues_vec(int imol, 
 					 const std::vector<mmdb::Residue *> &residues,
-					 const char *alt_conf, 
+					 const std::string &alt_conf, 
 					 mmdb::Manager *mol) {
 
    bool use_map_flag = 0;
@@ -754,7 +725,7 @@ graphics_info_t::regularize_residues_vec(int imol,
 coot::refinement_results_t
 graphics_info_t::generate_molecule_and_refine(int imol,
 					      const std::vector<mmdb::Residue *> &residues_in,
-					      const char *alt_conf,
+					      const std::string &alt_conf,
 					      mmdb::Manager *mol,
 					      bool use_map_flag) { 
 
