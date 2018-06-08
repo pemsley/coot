@@ -2270,6 +2270,7 @@ namespace coot {
       std::pair<unsigned int, unsigned int> restraints_limits_non_bonded_contacts;
       std::pair<unsigned int, unsigned int> restraints_limits_geman_mclure;
       std::pair<unsigned int, unsigned int> restraints_limits_start_pos;
+      std::pair<unsigned int, unsigned int> restraints_limits_trans_peptide;
       // std::pair<unsigned int, unsigned int> restraints_limits_target_pos; // atom pull
 
       void set_geman_mcclure_alpha(double alpha_in) { geman_mcclure_alpha = alpha_in; }
@@ -2287,6 +2288,7 @@ namespace coot {
       void thread_pool(ctpl::thread_pool *tp_in, int n_threads_in) {
 	 thread_pool_p = tp_in;
 	 n_threads = n_threads_in;
+	 std::cout << "##### thread_pool callled with n_thread " << n_threads << std::endl;
       }
 
       // we can't have a non-pointer thread pool because restraints are copied in

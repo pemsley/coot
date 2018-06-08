@@ -202,7 +202,7 @@ coot::geometry_distortion_info_container_t::print() const {
 	    sum_penalties_angles += distortion;
 	 }
       }
-	    
+
       if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
 	 n_restraints_chirals++;
 	 double chiral_limit = 2.0;  // (based on histogram of CVs of A chain of tutorial.)
@@ -621,7 +621,6 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
       if (restraints->restraints_usage_flag & TRANS_PEPTIDE_MASK) {
 	 if ( (*restraints)[i].restraint_type == TRANS_PEPTIDE_RESTRAINT) {
 	    double d =  coot::distortion_score_trans_peptide(i, restraints->at(i), v);
-	    // std::cout << "dsm: trans_peptide single-thread " << d << std::endl;
 	    *distortion += d;
 	    continue;
 	 }
@@ -1117,6 +1116,12 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 	    atom_indices.push_back(rest.atom_index_3);
 	    atom_indices.push_back(rest.atom_index_4);
 	 }
+      }
+
+      if (rest.restraint_type == coot::TARGET_POS_RESTRANT) {
+	 // would be nice to have this working                        
+	 // distortion = distortion_score_target_pos(rest, v);                    
+	 // atom_index = rest.atom_index_1;
       }
 
       if (atom_index != -1) {

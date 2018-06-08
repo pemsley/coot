@@ -253,8 +253,8 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
 
    if (restraints->restraints_usage_flag & coot::TRANS_PEPTIDE_MASK) {
 
-      for (unsigned int i=restraints->restraints_limits_torsions.first;
-	   i<=restraints->restraints_limits_torsions.second; i++) {
+      for (unsigned int i=restraints->restraints_limits_trans_peptide.first;
+	   i<=restraints->restraints_limits_trans_peptide.second; i++) {
 
          const simple_restraint &restraint = restraints->at(i);
 	 if (restraint.restraint_type == coot::TRANS_PEPTIDE_RESTRAINT) {
@@ -345,23 +345,23 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
 
 	    if (! restraint.fixed_atom_flags[1]) {
 	       idx = 3*(restraint.atom_index_2);
-	       *gsl_vector_ptr(df, idx  ) += xP1_contrib;
-	       *gsl_vector_ptr(df, idx+1) += yP1_contrib;
-	       *gsl_vector_ptr(df, idx+2) += zP1_contrib;
+	       *gsl_vector_ptr(df, idx  ) += xP2_contrib;
+	       *gsl_vector_ptr(df, idx+1) += yP2_contrib;
+	       *gsl_vector_ptr(df, idx+2) += zP2_contrib;
 	    }
 
 	    if (! restraint.fixed_atom_flags[2]) {
 	       idx = 3*(restraint.atom_index_3);
-	       *gsl_vector_ptr(df, idx  ) += xP1_contrib;
-	       *gsl_vector_ptr(df, idx+1) += yP1_contrib;
-	       *gsl_vector_ptr(df, idx+2) += zP1_contrib;
+	       *gsl_vector_ptr(df, idx  ) += xP3_contrib;
+	       *gsl_vector_ptr(df, idx+1) += yP3_contrib;
+	       *gsl_vector_ptr(df, idx+2) += zP3_contrib;
 	    }
 
 	    if (! restraint.fixed_atom_flags[3]) {
 	       idx = 3*(restraint.atom_index_4);
-	       *gsl_vector_ptr(df, idx  ) += xP1_contrib;
-	       *gsl_vector_ptr(df, idx+1) += yP1_contrib;
-	       *gsl_vector_ptr(df, idx+2) += zP1_contrib;
+	       *gsl_vector_ptr(df, idx  ) += xP4_contrib;
+	       *gsl_vector_ptr(df, idx+1) += yP4_contrib;
+	       *gsl_vector_ptr(df, idx+2) += zP4_contrib;
 	    }
 	 }
       }

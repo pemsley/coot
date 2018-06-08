@@ -227,6 +227,7 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
 						     const std::vector<atom_spec_t> &fixed_atom_specs,
 						     const clipper::Xmap<float> &map_in) : xmap(map_in) {
 
+   std::cout << "-------------------- in restraints_container_t() constructor " << std::endl;
    init(true);
    from_residue_vector = 1;
    are_all_one_atom_residues = false;
@@ -487,6 +488,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 						    mmdb::Manager *mol_in,
 						    const std::vector<atom_spec_t> &fixed_atom_specs) {
 
+   std::cout << "----------------------------- in init_from_residue_vec() " << std::endl;
 
    // This function is called from the constructor.
    // make_restraints() is called after this function by the user of this class.
@@ -534,7 +536,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
                           // (which I suspect is not uncommon) crazy-neighbour-refine-519.pdb
                           // for EMDB 6224.
                           // 520 was bonded to 522 in a neighb (3-residue) refine on 519.
-                          // This function is called by init (and (I think) make_restraints)
+                          // This function is called by init but not make_restraints.
                           // init doesn't set bonded_pairs_container (make_restraints does that).
 
    std::map<mmdb::Residue *, std::set<mmdb::Residue *> > neighbour_set = residues_near_residues(residues_vec, mol, dist_crit);
@@ -2271,7 +2273,7 @@ coot::restraints_container_t::make_restraints(int imol,
    // (currently a torsion restraint on peptide w of 180)
    //
 
-   if (false)
+   if (true)
       std::cout << "debug:: make_restraints() called with flags " << flags_in << std::endl;
 
    // debugging SRS inclusion.
@@ -2308,7 +2310,7 @@ coot::restraints_container_t::make_restraints(int imol,
       // restraints_usage_flag = BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
       // restraints_usage_flag = BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS;
 
-      // restraints_usage_flag = TRANS_PEPTIDE_RESTRAINT;
+      restraints_usage_flag = TRANS_PEPTIDE_RESTRAINT;
    }
 
    if (n_atoms) {
@@ -2396,6 +2398,7 @@ coot::restraints_container_t::make_restraint_types_index_limits() {
    restraints_limits_non_bonded_contacts = std::pair<unsigned int, unsigned int> (unset,0);
    restraints_limits_geman_mclure = std::pair<unsigned int, unsigned int> (unset,0);
    restraints_limits_start_pos = std::pair<unsigned int, unsigned int> (unset,0);
+   restraints_limits_trans_peptide = std::pair<unsigned int, unsigned int> (unset,0);
 
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
       const simple_restraint &restraint = restraints_vec[i];
@@ -2446,6 +2449,13 @@ coot::restraints_container_t::make_restraint_types_index_limits() {
 	    restraints_limits_geman_mclure.first = i;
 	 if (i > restraints_limits_geman_mclure.second)
 	    restraints_limits_geman_mclure.second = i;
+      }
+      if (restraint.restraint_type == coot::TRANS_PEPTIDE_RESTRAINT) {
+	 if (restraints_limits_trans_peptide.first == unset) {
+	    restraints_limits_trans_peptide.first = i;
+	 }
+	 if (i > restraints_limits_trans_peptide.second)
+	    restraints_limits_trans_peptide.second = i;
       }
       if (restraint.restraint_type == coot::START_POS_RESTRAINT) {
 	 if (restraints_limits_start_pos.first == unset)
@@ -2980,7 +2990,7 @@ coot::restraints_container_t::make_monomer_restraints_by_linear(int imol,
    
    int selHnd = mol->NewSelection();
    int nSelResidues;
-   coot::restraints_container_t::restraint_counts_t sum;
+   restraint_counts_t sum;
 
    mol->Select (selHnd, mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
 		chain_id_save.c_str(), // Chain(s)
@@ -3005,7 +3015,7 @@ coot::restraints_container_t::make_monomer_restraints_by_linear(int imol,
       for (int i=0; i<nSelResidues; i++) {
 	 if (SelResidue_active[i]) {
 	    // std::cout << "------- calling make_monomer_restraints_by_residue() " << std::endl;
-	    coot::restraints_container_t::restraint_counts_t local = 
+	    restraint_counts_t local =
 	       make_monomer_restraints_by_residue(imol, SelResidue_active[i], geom,
 						  do_residue_internal_torsions);
 	    sum += local;
@@ -3037,10 +3047,10 @@ coot::restraints_container_t::make_monomer_restraints_from_res_vec(int imol,
    bool print_summary = true;
    int iret = 0;
 
-   coot::restraints_container_t::restraint_counts_t sum;
+   restraint_counts_t sum;
 
    for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
-      coot::restraints_container_t::restraint_counts_t local = 
+      restraint_counts_t local =
 	 make_monomer_restraints_by_residue(imol, residues_vec[ir].second, geom,
 					    do_residue_internal_torsions);
       sum += local;
@@ -3062,7 +3072,7 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 								 const protein_geometry &geom,
 								 bool do_residue_internal_torsions) {
 
-   coot::restraints_container_t::restraint_counts_t local;
+   restraint_counts_t local;
    int i_no_res_atoms;
    mmdb::PPAtom res_selection = NULL;
    std::string pdb_resname(residue_p->name);
@@ -3128,7 +3138,7 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 						residue_p, geom);
 	 }
 
-	 coot::restraints_container_t::restraint_counts_t mod_counts =
+	 restraint_counts_t mod_counts =
 	    apply_mods(idr, res_selection, i_no_res_atoms, residue_p, geom);
 	 // now combine mod_counts with local
       }
