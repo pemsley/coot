@@ -410,7 +410,6 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    graphics_info_t g;
    SCM r = SCM_BOOL_F;
 
-
    if (true) {
       mmdb::Manager *mol = new mmdb::Manager;
       mol->ReadPDBASCII("test.pdb");

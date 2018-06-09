@@ -227,7 +227,7 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
 						     const std::vector<atom_spec_t> &fixed_atom_specs,
 						     const clipper::Xmap<float> &map_in) : xmap(map_in) {
 
-   std::cout << "-------------------- in restraints_container_t() constructor " << std::endl;
+   // std::cout << "-------------------- in restraints_container_t() constructor " << std::endl;
    init(true);
    from_residue_vector = 1;
    are_all_one_atom_residues = false;
@@ -487,8 +487,6 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 						    const coot::protein_geometry &geom,
 						    mmdb::Manager *mol_in,
 						    const std::vector<atom_spec_t> &fixed_atom_specs) {
-
-   std::cout << "----------------------------- in init_from_residue_vec() " << std::endl;
 
    // This function is called from the constructor.
    // make_restraints() is called after this function by the user of this class.
@@ -2275,7 +2273,7 @@ coot::restraints_container_t::make_restraints(int imol,
    // (currently a torsion restraint on peptide w of 180)
    //
 
-   if (true)
+   if (false)
       std::cout << "debug:: make_restraints() called with flags " << flags_in << std::endl;
 
    // debugging SRS inclusion.
