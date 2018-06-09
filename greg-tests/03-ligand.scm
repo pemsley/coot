@@ -21,25 +21,6 @@
 (greg-testcase "Get monomer test" #t 
    (lambda ()
 
-     ;; Test preliminaries, if CCP4 is not available, let's get the
-     ;; monomer files from the greg data dir, that should short-cut
-     ;; the running of libcheck and refmac.
-     ;;
-     (if (not have-ccp4?)
-	 (begin
-	   (format #t "No CCP4 - Copying in test files~%")
-	   (map (lambda (file)
-		  (let ((f-full (append-dir-file greg-data-dir file))
-			(t-file (append-dir-file "coot-ccp4" file)))
-		    (if (file-exists? f-full)
-			(begin
-			  (make-directory-maybe "coot-ccp4")
-			  (format #t "   copy-file ~s ~s~%" f-full t-file)
-			  (copy-file f-full t-file))
-			(format #t "Ooops file not found ~s~%" f-full))))
-			
-		'("monomer-3GP.pdb" "libcheck_3GP.cif"))))
-
      (let ((imol (monomer-molecule-from-3-let-code "3GP" "")))
        (if (valid-model-molecule? imol)
 	   (begin
@@ -50,18 +31,6 @@
 	     (format #t "   No ligand molecule - monomer test~%")
 	     (throw 'untested)
 	     #f)))))
-
-
-(greg-testcase "Set Bond thickness" #t 
-   (lambda ()
-
-     (if (valid-model-molecule? imol-ligand)
-	 (begin
-	   (set-bond-thickness imol-ligand 5)
-	   #t)
-	 (begin
-	   (format #t "   No ligand molecule - Skipping bond thickness test~%")
-	   (throw 'untested)))))
 
 
 (greg-testcase "Delete all-molecule Hydrogens" #t
@@ -133,13 +102,13 @@
 
 
 
-
 (greg-testcase "Move and Refine Ligand test" #t 
    (lambda ()
-     (let ((new-rc (list 55.3 9.1 20.6)))
-       (if (not (valid-model-molecule? imol-ligand))
-	   (throw 'untested)
-	   (begin
+
+     (let ((imol (greg-pdb "monomer-3GP.pdb")))
+       (if (not (valid-model-molecule? imol))
+	   #f
+	   (let ((new-rc (list 55.3 9.1 20.6)))
 	     ;; set the view
 	     (let ((view-number (add-view (list    54.5698 8.7148 20.5308)
 					  (list 0.046229 -0.157139 -0.805581 0.569395)
@@ -149,20 +118,20 @@
 				
 	     ;; updates the map:
 	     (apply set-rotation-centre new-rc)
-	     (move-molecule-here imol-ligand)
-	     (let ((backup-mode (backup-state imol-ligand))
+	     (move-molecule-here imol)
+	     (let ((backup-mode (backup-state imol))
 		   (alt-conf "")
 		   (replacement-state (refinement-immediate-replacement-state)))
 	       
-	       (turn-off-backup imol-ligand)
+	       (turn-off-backup imol)
 	       (set-refinement-immediate-replacement 1)
-	       (refine-zone imol-ligand "A" 1 1 alt-conf)
+	       (refine-zone imol "A" 1 1 alt-conf)
 	       (accept-regularizement)
 	       (rotate-y-scene (rotate-n-frames 600) 0.1)
 	       (if (= replacement-state 0)
 		   (set-refinement-immediate-replacement 0))
 	       (if (= backup-mode 1)
-		   (turn-on-backup imol-ligand))
+		   (turn-on-backup imol))
 	       #t ; success
 	       ))))))
 
@@ -209,82 +178,69 @@
 (greg-testcase "flip residue (around eigen vectors)" #t 
    (lambda ()
 
-     (if (not (file-exists? "coot-ccp4/monomer-3GP.pdb"))
-	 (begin 
-	   ;; bad/strange/missing CCP4 install
-	   (format #t "  Oops! file not found! coot-ccp4/monomer-3GP.pdb~%")
-	   (throw 'untested)))
-
-     (let* ((imol-orig (read-pdb "coot-ccp4/monomer-3GP.pdb"))
+     (let* ((imol-orig (greg-pdb "monomer-3GP.pdb"))
 	    (imol-copy (copy-molecule imol-orig)))
-       
-       (if (not (valid-model-molecule? imol-orig))
-	   (begin
-	     (format #t "not valid molecule for monomer-3GP.pdb~%")
-	     (throw 'fail)))
-
        (if (not (valid-model-molecule? imol-copy))
+	   #f
+
 	   (begin
-	     (format #t "not valid molecule for copy of monomer-3GP.pdb~%")
-	     (throw 'fail)))
 
-       ;; we need this, otherwise active-atom is (accidentally) the wrong molecule
-       (set-go-to-atom-molecule imol-copy)
-       (set-go-to-atom-chain-residue-atom-name "A" 1 " C8 ")
+	     ;; we need this, otherwise active-atom is (accidentally) the wrong molecule
+	     (set-go-to-atom-molecule imol-copy)
+	     (set-go-to-atom-chain-residue-atom-name "A" 1 " C8 ")
 
-       (let ((active-atom (active-residue)))
-	 (if (not active-atom)
-	     (begin
-	       (format #t "No active atom~%")
-	       #f)
-	     (let ((imol      (list-ref active-atom 0))
-		   (chain-id  (list-ref active-atom 1))
-		   (res-no    (list-ref active-atom 2))
-		   (ins-code  (list-ref active-atom 3))
-		   (atom-name (list-ref active-atom 4))
-		   (alt-conf  (list-ref active-atom 5)))
-	       (if (= imol imol-orig)
+	     (let ((active-atom (active-residue)))
+	       (if (not active-atom)
 		   (begin
-		     (format #t "oops - didn't pick the copy for active res~%")
+		     (format #t "No active atom~%")
 		     #f)
-		   (begin
-		     (flip-ligand imol chain-id res-no)
-		     (let ((atom-orig-1 (get-atom imol-orig "A" 1 "" " C8 "))
-			   (atom-move-1 (get-atom imol      "A" 1 "" " C8 ")))
+		   (let ((imol      (list-ref active-atom 0))
+			 (chain-id  (list-ref active-atom 1))
+			 (res-no    (list-ref active-atom 2))
+			 (ins-code  (list-ref active-atom 3))
+			 (atom-name (list-ref active-atom 4))
+			 (alt-conf  (list-ref active-atom 5)))
+		     (if (= imol imol-orig)
+			 (begin
+			   (format #t "oops - didn't pick the copy for active res~%")
+			   #f)
+			 (begin
+			   (flip-ligand imol chain-id res-no)
+			   (let ((atom-orig-1 (get-atom imol-orig "A" 1 "" " C8 "))
+				 (atom-move-1 (get-atom imol      "A" 1 "" " C8 ")))
 
-		       (if (not (list? atom-orig-1))
-			   (begin
-			     (format #t "atom-orig-1 not found~%")
-			     (throw 'fail)))
+			     (if (not (list? atom-orig-1))
+				 (begin
+				   (format #t "atom-orig-1 not found~%")
+				   (throw 'fail)))
 			     
-		       (if (not (list? atom-move-1))
-			   (begin
-			     (format #t "atom-move-1 not found~%")
-			     (throw 'fail)))
-			     
-		       (let ((d (bond-length (list-ref atom-orig-1 2)
-					   (list-ref atom-move-1 2))))
-			 (format #t "distance: ~s~%" d)
-			 (if (not (> d 2.1))
-			     (begin
-			       (format #t "fail to move test atom d1~%"))
-			     (begin
-			       (flip-ligand imol chain-id res-no)
-			       (flip-ligand imol chain-id res-no)
-			       (flip-ligand imol chain-id res-no)
-			       ;; having flipped it round the axes 4
-			       ;; times, we should be back where we
-			       ;; started.
-			       (let ((atom-orig-1 (get-atom imol-orig "A" 1 "" " C8 "))
-				     (atom-move-1 (get-atom imol      "A" 1 "" " C8 ")))
-				 (let ((d2 (bond-length (list-ref atom-orig-1 2)
-							(list-ref atom-move-1 2))))
-				   (format #t "distance d2: ~s~%" d2)
-				   (if (not (< d2 0.001))
-				       (begin
-					 (format #t "fail to move atom back to start d2~%"))
-				       #t)))))))))))))))
-				       
+			     (if (not (list? atom-move-1))
+				 (begin
+				   (format #t "atom-move-1 not found~%")
+				   (throw 'fail)))
+
+			     (let ((d (bond-length (list-ref atom-orig-1 2)
+						   (list-ref atom-move-1 2))))
+			       (format #t "distance: ~s~%" d)
+			       (if (not (> d 2.1))
+				   (begin
+				     (format #t "fail to move test atom d1~%"))
+				   (begin
+				     (flip-ligand imol chain-id res-no)
+				     (flip-ligand imol chain-id res-no)
+				     (flip-ligand imol chain-id res-no)
+				     ;; having flipped it round the axes 4
+				     ;; times, we should be back where we
+				     ;; started.
+				     (let ((atom-orig-1 (get-atom imol-orig "A" 1 "" " C8 "))
+					   (atom-move-1 (get-atom imol      "A" 1 "" " C8 ")))
+				       (let ((d2 (bond-length (list-ref atom-orig-1 2)
+							      (list-ref atom-move-1 2))))
+					 (format #t "distance d2: ~s~%" d2)
+					 (if (not (< d2 0.001))
+					     (begin
+					       (format #t "fail to move atom back to start d2~%"))
+					     #t)))))))))))))))))
 
 (greg-testcase "Test dipole" #t
    (lambda ()
