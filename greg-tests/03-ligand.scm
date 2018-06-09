@@ -21,7 +21,7 @@
 (greg-testcase "Get monomer test" #t 
    (lambda ()
 
-     (let ((imol (monomer-molecule-from-3-let-code "3GP" "")))
+     (let ((imol (get-monomer "3GP")))
        (if (valid-model-molecule? imol)
 	   (begin
 	     (set! imol-ligand imol) ; for use in next test
