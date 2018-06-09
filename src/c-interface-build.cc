@@ -5460,11 +5460,16 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
 
+      g.Geom_p()->set_verbose(true);
+
       if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(new_residue_comp_id)) {
       } else {
 	 std::cout << "INFO:: dictionary does not already have " << new_residue_comp_id
 		   << " dynamic add it now" << std::endl;
-	 g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
+	 int status = g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
+	 if (status == 0) { // fail
+	    std::cout << "WARNING:: failed to add dictionary for " << new_residue_comp_id << std::endl;
+	 }
       }
       g.cif_dictionary_read_number++;
       coot::residue_spec_t res_spec(chain_id, resno, ins_code);

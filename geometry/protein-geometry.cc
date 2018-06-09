@@ -1983,26 +1983,50 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 
    char *s  = getenv("COOT_REFMAC_LIB_DIR");
    char *cmld = getenv("COOT_MONOMER_LIB_DIR");
-   if (! s) {
+
+   if (cmld)
+      std::cout << "debug:: cmld " << cmld << std::endl;
+   else
+      std::cout << "debug:: cmld is null" << std::endl;
+   
+   if (s) {
+      std::cout << "debug:: non-null s " << std::endl;
+   } else {
       s  = getenv("CLIB");
+      if (s)
+	 std::cout << "debug:: s clib " << s << std::endl;
+      else
+	 std::cout << "debug:: s clib is null" << std::endl;
+
       if (! s) {
+	 std::cout << "debug:: using PKGDATADIR" << PKGDATADIR << std::endl;
 	 std::string tmp_string(PKGDATADIR);
 	 tmp_string = util::append_dir_dir(tmp_string, "lib");
 	 s = new char[tmp_string.length() + 1];
 	 strcpy(s, tmp_string.c_str());
+	 std::cout << "debug:: s x1 " << s << std::endl;
       } else {
 	 if (verbose_mode)
 	    std::cout << "INFO:: using standard CCP4 Refmac dictionary"
 		      << " to search for \"" << resname << "\"" << std::endl; 
-      } 
+      }
    }
 
-   if (s) {
+   std::cout << "debug:: s x2 " << s << std::endl;
+
+   if (!s) {
+
+      std::cout << "debug:: x3 bad news - null s" << std::endl;
+
+   } else {
       std::string filename(s);
-      std::string beta_anomer_name; 
-      std::string alpha_anomer_name; 
-      std::string alt_beta_anomer_name; 
-      std::string alt_alpha_anomer_name; 
+      std::string beta_anomer_name;
+      std::string alpha_anomer_name;
+      std::string alt_beta_anomer_name;
+      std::string alt_alpha_anomer_name;
+
+      std::cout << "debug:: x4 this block with filename " << filename << std::endl;
+
       if (cmld) { 
 	 filename = cmld;
 	 filename += "/";
