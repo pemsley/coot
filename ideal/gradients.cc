@@ -1057,7 +1057,7 @@ coot::fill_distortion_torsion_gradients(const clipper::Coord_orth &P1,
    // instabilty when the P2-P3-P4 or P1-P2-p3 angle is linear. Give up with the derivatives
    // similar escape in the distortion score
    
-   if (cos_a1 > 0.9 || cos_a2> 0.9) {
+   if (cos_a1 > 0.999 || cos_a2> 0.999) {
 
       dtg.zero_gradients = true;
 
