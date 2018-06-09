@@ -5460,8 +5460,6 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
 
-      g.Geom_p()->set_verbose(true);
-
       if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(new_residue_comp_id)) {
       } else {
 	 std::cout << "INFO:: dictionary does not already have " << new_residue_comp_id
