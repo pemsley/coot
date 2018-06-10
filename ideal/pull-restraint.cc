@@ -40,8 +40,9 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
 void
 coot::restraints_container_t::clear_atom_pull_restraint(const coot::atom_spec_t &spec) {
 
-   std::cout << "restraints_container_t clear_atom_pull_restraint for " << spec
-	     << "called " << std::endl;
+   if (false)
+      std::cout << "restraints_container_t clear_atom_pull_restraint for " << spec
+		<< " called " << std::endl;
 
    unsigned int pre_size = restraints_vec.size();
    if (pre_size > 0) {
@@ -50,8 +51,9 @@ coot::restraints_container_t::clear_atom_pull_restraint(const coot::atom_spec_t 
 					  target_position_for_atom_eraser(spec)),
 			   restraints_vec.end());
       unsigned int post_size = restraints_vec.size();
-      std::cout << "debug:: clear_atom_pull_restraint() pre size: " << pre_size << " post size: "
-		<< post_size << std::endl;
+      if (false) // debug
+	 std::cout << "debug:: clear_atom_pull_restraint() pre size: " << pre_size << " post size: "
+		   << post_size << std::endl;
    }
 }
 
