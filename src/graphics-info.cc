@@ -1401,6 +1401,7 @@ graphics_info_t::accept_moving_atoms() {
    }
 #endif // HAVE_GTK_CANVAS || HAVE_GNOME_CANVAS
 
+   clear_all_atom_pull_restraints(false); // no re-refine
    clear_up_moving_atoms();
    update_environment_distances_by_rotation_centre_maybe(imol_moving_atoms);
 
@@ -4785,9 +4786,10 @@ graphics_info_t::draw_atom_pull_restraint() {
 
 void
 graphics_info_t::clear_all_atom_pull_restraints(bool refine_again_flag) {
+
+   all_atom_pulls_off();
    if (last_restraints) {
       last_restraints->clear_all_atom_pull_restraints();
-      all_atom_pulls_off();
       if (refine_again_flag)
 	 drag_refine_refine_intermediate_atoms();
    }

@@ -4106,6 +4106,7 @@ string   static std::string sessionid;
    static void all_atom_pulls_off() {
      for (std::size_t i=0; i<atom_pulls.size(); i++)
        atom_pulls[i].off();
+     atom_pulls.clear();
    }
    static void atom_pull_off(const coot::atom_spec_t &spec) {
       for (std::size_t i=0; i<atom_pulls.size(); i++) {
