@@ -1788,7 +1788,7 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
    
    // very much most of the time, this will be zero
    // 
-   if (graphics_info_t::regularize_object_bonds_box.num_colours > 0) {
+   if (regularize_object_bonds_box.num_colours > 0) {
 
       if (against_a_dark_background) {
 	 // now we want to draw out our bonds in white, 
@@ -1835,49 +1835,96 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 	 glEnd();
       }
 
-      if (regularize_object_bonds_box.n_cis_peptide_markups > 0) {
-	 for (int i=0; i<regularize_object_bonds_box.n_cis_peptide_markups; i++) {
-	    const graphical_bonds_cis_peptide_markup &m = regularize_object_bonds_box.cis_peptide_markups[i];
-
-	    glColor3f(0.7, 0.7, 0.8);
-	    coot::Cartesian fan_centre = m.pt_ca_1.mid_point(m.pt_ca_2);
-
-	    coot::Cartesian v1 = fan_centre - m.pt_ca_1;
-	    coot::Cartesian v2 = fan_centre - m.pt_c_1;
-	    coot::Cartesian v3 = fan_centre - m.pt_n_2;
-	    coot::Cartesian v4 = fan_centre - m.pt_ca_2;
-
-	    coot::Cartesian pt_ca_1 = m.pt_ca_1 + v1 * 0.15;
-	    coot::Cartesian pt_c_1  = m.pt_c_1  + v2 * 0.15;
-	    coot::Cartesian pt_n_2  = m.pt_n_2  + v3 * 0.15;
-	    coot::Cartesian pt_ca_2 = m.pt_ca_2 + v4 * 0.15;
-
-	    glBegin(GL_TRIANGLE_FAN);
-
-	    glVertex3f(fan_centre.x(), fan_centre.y(), fan_centre.z());
-	    glVertex3f(pt_ca_1.x(), pt_ca_1.y(), pt_ca_1.z());
-	    glVertex3f(pt_c_1.x(),  pt_c_1.y(),  pt_c_1.z());
-	    glVertex3f(pt_n_2.x(),  pt_n_2.y(),  pt_n_2.z());
-	    glVertex3f(pt_ca_2.x(), pt_ca_2.y(), pt_ca_2.z());
-
-	    glEnd();
-	 }
-      }
-
-
+      draw_moving_atoms_atoms(against_a_dark_background);
+      draw_moving_atoms_peptide_markup();
       draw_ramachandran_goodness_spots();
       draw_rotamer_probability_object();
 
    }
 }
 
+void
+graphics_info_t::draw_moving_atoms_atoms(bool against_a_dark_background) {
+
+   if (regularize_object_bonds_box.atom_centres_) {
+
+      coot::Cartesian front = unproject(0.0);
+      coot::Cartesian back  = unproject(1.0);
+      coot::Cartesian z_delta = (front - back) * 0.003;
+
+      glBegin(GL_POINTS);
+      glPointSize(500.0/zoom);
+
+      for (int icol=0; icol<regularize_object_bonds_box.n_consolidated_atom_centres; icol++) {
+
+	 switch(icol) {
+	 case BLUE_BOND:
+	    glColor3f (0.40, 0.4, 0.79);
+	    break;
+	 case RED_BOND:
+	    glColor3f (0.79, 0.40, 0.640);
+	    break;
+	 default:
+	    if (against_a_dark_background)
+	       glColor3f (0.8, 0.8, 0.8);
+	    else
+	       glColor3f (0.5, 0.5, 0.5);
+	 }
+
+	 for (unsigned int i=0; i<regularize_object_bonds_box.consolidated_atom_centres[icol].num_points; i++) {
+	    // no points for hydrogens
+	    if (! regularize_object_bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
+
+	       coot::Cartesian fake_pt = regularize_object_bonds_box.consolidated_atom_centres[icol].points[i].position;
+	       fake_pt += z_delta;
+	       glVertex3f(fake_pt.x(), fake_pt.y(), fake_pt.z());
+	    }
+	 }
+      }
+      glEnd();
+   }
+}
+
+
+void
+graphics_info_t::draw_moving_atoms_peptide_markup() {
+
+   if (regularize_object_bonds_box.n_cis_peptide_markups > 0) {
+      for (int i=0; i<regularize_object_bonds_box.n_cis_peptide_markups; i++) {
+	 const graphical_bonds_cis_peptide_markup &m = regularize_object_bonds_box.cis_peptide_markups[i];
+
+	 glColor3f(0.7, 0.7, 0.8);
+	 coot::Cartesian fan_centre = m.pt_ca_1.mid_point(m.pt_ca_2);
+
+	 coot::Cartesian v1 = fan_centre - m.pt_ca_1;
+	 coot::Cartesian v2 = fan_centre - m.pt_c_1;
+	 coot::Cartesian v3 = fan_centre - m.pt_n_2;
+	 coot::Cartesian v4 = fan_centre - m.pt_ca_2;
+
+	 coot::Cartesian pt_ca_1 = m.pt_ca_1 + v1 * 0.15;
+	 coot::Cartesian pt_c_1  = m.pt_c_1  + v2 * 0.15;
+	 coot::Cartesian pt_n_2  = m.pt_n_2  + v3 * 0.15;
+	 coot::Cartesian pt_ca_2 = m.pt_ca_2 + v4 * 0.15;
+
+	 glBegin(GL_TRIANGLE_FAN);
+
+	 glVertex3f(fan_centre.x(), fan_centre.y(), fan_centre.z());
+	 glVertex3f(pt_ca_1.x(), pt_ca_1.y(), pt_ca_1.z());
+	 glVertex3f(pt_c_1.x(),  pt_c_1.y(),  pt_c_1.z());
+	 glVertex3f(pt_n_2.x(),  pt_n_2.y(),  pt_n_2.z());
+	 glVertex3f(pt_ca_2.x(), pt_ca_2.y(), pt_ca_2.z());
+
+	 glEnd();
+      }
+   }
+}
 
 
 // Display the graphical object of the regularization.
 // static
 void 
 graphics_info_t::draw_ramachandran_goodness_spots() {
-   
+
    if (graphics_info_t::regularize_object_bonds_box.num_colours > 0) {
       if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
 

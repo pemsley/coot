@@ -2307,6 +2307,8 @@ public:
    static void draw_moving_atoms_graphics_object(bool against_a_dark_background);
    static void draw_ramachandran_goodness_spots();
    static void draw_rotamer_probability_object();
+   static void draw_moving_atoms_peptide_markup();
+   static void draw_moving_atoms_atoms(bool against_a_dark_background);
    std::vector<coot::generic_display_object_t::dodec_t> get_rotamer_dodecs();
 
    static int mol_no_for_environment_distances;
