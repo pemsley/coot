@@ -132,6 +132,7 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
 						    const std::string &style) {
 
    int status = 0;
+   make_molecularrepresentationinstance();
    return status;
 }
 #endif // USE_MOLECULES_TO_TRIANGLES
