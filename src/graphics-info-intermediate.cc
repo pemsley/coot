@@ -60,8 +60,18 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 
    if (g.auto_clear_atom_pull_restraint_flag) {
       // returns true when the restraint was turned off.
+      // turn_off_atom_pull_restraints_when_close_to_target_position() should not
+      // include the atom that the use is actively dragging
+      // (use moving_atoms_currently_dragged_atom_index).
+      //
+      // except this one:
+      mmdb::Atom *at_except = 0;
+      if (moving_atoms_currently_dragged_atom_index != -1)
+	 at_except = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
+      coot::atom_spec_t except_dragged_atom(at_except);
+
       std::vector<coot::atom_spec_t> specs_for_removed_restraints =
-	 g.last_restraints->turn_off_atom_pull_restraints_when_close_to_target_position();
+	 g.last_restraints->turn_off_atom_pull_restraints_when_close_to_target_position(except_dragged_atom);
       if (specs_for_removed_restraints.size()) {
 	 atom_pulls_off(specs_for_removed_restraints);
 	 g.clear_atom_pull_restraints(specs_for_removed_restraints, true);

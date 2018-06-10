@@ -207,14 +207,19 @@ void coot::my_df_target_pos(const gsl_vector *v,
 bool
 coot::restraints_container_t::turn_off_when_close_target_position_restraint() {
 
+   // Is this used? From where? Should it be used?
+
+   std::cout << "--------------- Don't use this " << std::endl;
+
    bool status = false;
    double close_dist = 0.6;  // was 0.5; // was 0.4 [when there was just 1 pull atom restraint]
                              // sync with below function, or make a data member
 
+   atom_spec_t dum;
    unsigned int pre_size = restraints_vec.size();
    restraints_vec.erase(std::remove_if(restraints_vec.begin(),
 				       restraints_vec.end(),
-				       turn_off_when_close_target_position_restraint_eraser(close_dist, atom, n_atoms)),
+				       turn_off_when_close_target_position_restraint_eraser(close_dist, atom, n_atoms, dum)),
 			restraints_vec.end());
    unsigned int post_size = restraints_vec.size();
    if (post_size < pre_size) status = true;
@@ -223,27 +228,34 @@ coot::restraints_container_t::turn_off_when_close_target_position_restraint() {
 
 
 std::vector<coot::atom_spec_t>
-coot::restraints_container_t::turn_off_atom_pull_restraints_when_close_to_target_position() {
+coot::restraints_container_t::turn_off_atom_pull_restraints_when_close_to_target_position(const atom_spec_t &dragged_atom_spec) {
 
    std::vector<atom_spec_t> v;
    double close_dist = 0.6;  // was 0.5; // was 0.4 [when there was just 1 pull atom restraint]
                              // sync with above function, or make a data member
 
+   std::vector<atom_spec_t> v_dragged;
+
+   // set the return value:
+   //
    std::vector<simple_restraint>::const_iterator it;
    for(it=restraints_vec.begin(); it!=restraints_vec.end(); it++) {
       if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRANT)) { 
 	 mmdb::Atom *at = atom[it->atom_index_1];
-	 clipper::Coord_orth pos(at->x, at->y, at->z);
-	 double d = sqrt((pos-it->atom_pull_target_pos).lengthsq());
-	 if (d < close_dist)
-	    v.push_back(it->atom_spec);
+	 v_dragged.push_back(atom_spec_t(at));
+	 if (atom_spec_t(at) != dragged_atom_spec) {
+	    clipper::Coord_orth pos(at->x, at->y, at->z);
+	    double d = sqrt((pos-it->atom_pull_target_pos).lengthsq());
+	    if (d < close_dist)
+	       v.push_back(it->atom_spec);
+	 }
       }
    }
 
    // now do the remove
    restraints_vec.erase(std::remove_if(restraints_vec.begin(),
 				       restraints_vec.end(),
-				       turn_off_when_close_target_position_restraint_eraser(close_dist, atom, n_atoms)),
+				       turn_off_when_close_target_position_restraint_eraser(close_dist, atom, n_atoms, dragged_atom_spec)),
 			restraints_vec.end());
 
    return v;

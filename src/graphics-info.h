@@ -701,6 +701,7 @@ class graphics_info_t {
    static std::set<int> moving_atoms_dragged_atom_indices;
    static void remove_moving_atoms_dragged_atom_index(int idx);
    static void    add_moving_atoms_dragged_atom_index(int idx);
+   // make unset_moving_atoms_currently_dragged_atom_index() public
 
 #ifdef  HAVE_GSL
    static coot::restraints_container_t *last_restraints;
@@ -3007,6 +3008,10 @@ public:
    int check_if_in_range_defines(GdkEventButton *event,
 				 const GdkModifierType &state);
    void check_if_moving_atom_pull(); // and setup moving atom-drag if we are.
+
+   void unset_moving_atoms_currently_dragged_atom_index() {
+     moving_atoms_currently_dragged_atom_index = -1;
+   }
 
    // baton stuff:
    // 

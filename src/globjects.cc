@@ -2871,7 +2871,7 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 		  if (graphics_info_t::do_probe_dots_on_rotamers_and_chis_flag) {
 		     graphics_info_t g;
 		     g.do_probe_dots_on_rotamers_and_chis();
-		  } 
+		  }
 		  info.rotate_chi(x, y);
 	       }
 	    }
@@ -2929,8 +2929,9 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 
 			// info.move_moving_atoms_by_shear(x_as_int, y_as_int, 0); // pre 0.8.3
 			info.move_atom_pull_target_position(x_as_int, y_as_int);
-			
-			if (graphics_info_t::dragged_refinement_refine_per_frame_flag) {
+
+			// shall we refine the atoms all the time after a target position move?
+			if (graphics_info_t::dragged_refinement_refine_per_frame_flag || true) {
 			   info.drag_refine_refine_intermediate_atoms();
 			}
 		     }
@@ -2944,7 +2945,7 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 								     y_as_int);
 		     }
 		  }
-#endif // HAVE_GSL		  
+#endif // HAVE_GSL
 	       }
 
 	    } else {
@@ -4636,6 +4637,7 @@ gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
    if (graphics_info_t::in_moving_atoms_drag_atom_mode_flag) {
 
       graphics_info_t g;
+      g.unset_moving_atoms_currently_dragged_atom_index();
       g.do_post_drag_refinement_maybe();
    }
    graphics_info_t::in_moving_atoms_drag_atom_mode_flag = 0;

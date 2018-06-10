@@ -711,18 +711,25 @@ namespace coot {
       int n_atoms;
       mmdb::PAtom *atoms;
       double close_dist;
+      atom_spec_t exclude_spec;
    public:
-      turn_off_when_close_target_position_restraint_eraser(double close_dist_in, mmdb::PAtom *atoms_in, int n_atoms_in) {
+      turn_off_when_close_target_position_restraint_eraser(double close_dist_in, mmdb::PAtom *atoms_in, int n_atoms_in,
+							   const atom_spec_t &exclude_spec_in) {
 	 atoms = atoms_in;
 	 n_atoms = n_atoms_in;
 	 close_dist = close_dist_in; // 0.6; // was 0.5; // was 0.4
+	 exclude_spec = exclude_spec_in;
       }
       bool operator() (const simple_restraint &r) const {
 	 bool v = false;
-	 if (r.restraint_type == restraint_type_t(TARGET_POS_RESTRANT)) { 
+	 if (r.restraint_type == restraint_type_t(TARGET_POS_RESTRANT)) {
 	    clipper::Coord_orth p_1 = co(atoms[r.atom_index_1]);
 	    double d = sqrt((p_1-r.atom_pull_target_pos).lengthsq());
-	    if (d < close_dist) v = true;
+	    if (d < close_dist) {
+	       atom_spec_t t(atoms[r.atom_index_1]);
+	       if (t != exclude_spec)
+		  v = true;
+	    }
 	 }
 	 return v;
       }
@@ -2240,9 +2247,10 @@ namespace coot {
       // return true when turned off
       bool turn_off_when_close_target_position_restraint();
 
-      // return a vector of the specs of the restraints  if the restraint was turned off
+      // return a vector of the specs of the restraints  if the restraint was turned off.
+      // Never include that atom that the user is dragging.
       //
-      std::vector<atom_spec_t> turn_off_atom_pull_restraints_when_close_to_target_position();
+      std::vector<atom_spec_t> turn_off_atom_pull_restraints_when_close_to_target_position(const atom_spec_t &dragged_atom);
 
       bool cryo_em_mode; // for weighting fit to density of atoms (side-chains and others are down-weighted)
 
