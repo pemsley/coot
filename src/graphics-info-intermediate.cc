@@ -167,6 +167,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    return retprog;
 }
 
+#include "ligand/backrub-rotamer.hh"
 
 // return true if flip moving_atoms_asc was found
 bool graphics_info_t::pepflip_intermediate_atoms() {
@@ -233,6 +234,74 @@ bool graphics_info_t::pepflip_intermediate_atoms() {
    }
    graphics_draw();
    return status;
+}
+
+bool
+graphics_info_t::backrub_rotamer_intermediate_atoms() {
+
+   bool state = false;
+   if (moving_atoms_asc->mol) {
+
+      mmdb::Atom *at_close = NULL;
+      float min_dist_sqrd = 4.0;
+
+      coot::Cartesian pt(graphics_info_t::RotationCentre());
+
+      for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+	 mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
+	 coot::Cartesian atom_pos(at->x, at->y, at->z);
+	 coot::Cartesian diff = atom_pos - pt;
+	 if (diff.amplitude_squared() < min_dist_sqrd) {
+	    min_dist_sqrd = diff.amplitude_squared();
+	    at_close = at;
+	 }
+      }
+
+      if (at_close) {
+
+	 std::string chain_id = at_close->GetChainID();
+	 int res_no = at_close->GetSeqNum();
+	 std::string ins_code = at_close->GetInsCode();
+	 std::string alt_conf = at_close->altLoc;
+	 mmdb::Manager *mol = moving_atoms_asc->mol;
+	 mmdb::Residue *this_res = at_close->residue;
+	 mmdb::Residue *next_res = coot::util::get_following_residue(this_res, mol);
+	 mmdb::Residue *prev_res = coot::util::get_previous_residue(this_res, mol);
+	 int imol_map = Imol_Refinement_Map();
+	 if (is_valid_map_molecule(imol_map)) {
+	    if (this_res && prev_res && next_res) {
+	       std::string monomer_type = this_res->GetResName();
+	       std::pair<short int, coot::dictionary_residue_restraints_t> p =
+		  Geom_p()->get_monomer_restraints(monomer_type, coot::protein_geometry::IMOL_ENC_ANY);
+	       const coot::dictionary_residue_restraints_t &rest = p.second;
+
+	       if (p.first) {
+		  try {
+
+		     // we can set the idx of the atoms in this_res, prev_res, next_res
+		     // here if we need to speed up the update_moving_atoms_from_molecule_atoms()
+		     // function.
+
+		     coot::backrub br(chain_id, this_res, prev_res, next_res, alt_conf, mol,
+				      molecules[imol_map].xmap);
+		     std::pair<coot::minimol::molecule,float> m = br.search(rest);
+		     update_moving_atoms_from_molecule_atoms(m.first);
+		     state = true;
+		     drag_refine_refine_intermediate_atoms();
+		     graphics_draw();
+		  }
+		  catch (const std::runtime_error &rte) {
+		     std::cout << "WARNING:: thrown " << rte.what() << std::endl;
+		  }
+	       } else {
+		  std::string m = "Can't get all the residues needed for rotamer fit";
+		  add_status_bar_text(m);
+	       }
+	    }
+	 }
+      }
+   }
+   return state;
 }
 
 // return true if the isomerisation was made
@@ -307,6 +376,70 @@ graphics_info_t::cis_trans_conversion_intermediate_atoms() {
    }
    return state;
 }
+
+
+void
+graphics_info_t::update_moving_atoms_from_molecule_atoms(const coot::minimol::molecule &mm) {
+
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->n_selected_atoms) {
+
+	 int imod = 1;
+	 mmdb::Model *model_p = moving_atoms_asc->mol->GetModel(imod);
+	 if (! model_p) {
+	    std::cout << "Null model in update_moving_atoms_from_molecule_atoms() " << std::endl;
+	 } else {
+
+	    for (unsigned int ifrag_mm=0; ifrag_mm<mm.fragments.size(); ifrag_mm++) {
+	       const coot::minimol::fragment &frag = mm.fragments[ifrag_mm];
+	       const std::string &frag_chain_id = frag.fragment_id;
+
+	       int n_chains = model_p->GetNumberOfChains();
+	       for (int ichain=0; ichain<n_chains; ichain++) {
+		  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+		  std::string moving_atom_chain_id = chain_p->GetChainID();
+		  if (frag_chain_id == moving_atom_chain_id) {
+		     for (int ires_mm=frag.min_res_no(); ires_mm<=frag.max_residue_number(); ires_mm++) {
+			const coot::minimol::residue &residue_mm = frag[ires_mm];
+			int nres = chain_p->GetNumberOfResidues();
+			for (int ires=0; ires<nres; ires++) {
+			   mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+			   if (residue_p->GetSeqNum() == residue_mm.seqnum) {
+			      std::string ins_code(residue_p->GetInsCode());
+			      if (ins_code == residue_mm.ins_code) {
+				 for (unsigned int iatom_mm=0; iatom_mm<residue_mm.atoms.size(); iatom_mm++) {
+				    const coot::minimol::atom &atom_mm = residue_mm.atoms[iatom_mm];
+				    const std::string &atom_name_mm = atom_mm.name;
+				    int n_atoms = residue_p->GetNumberOfAtoms();
+				    for (int iat=0; iat<n_atoms; iat++) {
+				       mmdb::Atom *at = residue_p->GetAtom(iat);
+				       std::string atom_name(at->GetAtomName());
+				       if (atom_name == atom_name_mm) {
+					  std::string altLoc_mm = atom_mm.altLoc;
+					  std::string at_altloc = at->altLoc;
+					  if (at_altloc == altLoc_mm) {
+					     at->x = atom_mm.pos.x();
+					     at->y = atom_mm.pos.y();
+					     at->z = atom_mm.pos.z();
+					     break; // we found the right atom
+					  }
+				       }
+				    }
+				 }
+				 break; // found the right residue
+			      }
+			   }
+			}
+		     }
+		     break; // found the right chain
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+}
+
 
 
 #ifdef USE_PYTHON

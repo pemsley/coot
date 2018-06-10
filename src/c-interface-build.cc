@@ -5435,6 +5435,13 @@ int backrub_rotamer(int imol, const char *chain_id, int res_no,
 /*! \} */
 
 
+int backrub_rotamer_intermediate_atoms() {
+
+   graphics_info_t g;
+   return g.backrub_rotamer_intermediate_atoms();
+}
+
+
 /* add a linked residue based purely on dictionary templete. 
    For addition of NAG to ASNs typically.
 

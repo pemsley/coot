@@ -2515,6 +2515,9 @@ public:
    // copy the contents of moving_atoms_asc into the molecule being refined.
    // 
    void accept_moving_atoms();
+
+   void update_moving_atoms_from_molecule_atoms(const coot::minimol::molecule &mm);
+
    void set_refinement_map(int imol);
 
    // public access to the clear the in range defines
@@ -2583,8 +2586,13 @@ public:
 
    // return true if moving_atoms_asc was not null (more or less if
    // the pepflip was made)
-   // 
+   //
    bool pepflip_intermediate_atoms();
+
+   // return true if moving_atoms_asc was not null (more or less if
+   // the rotamer fit was made)
+   //
+   bool backrub_rotamer_intermediate_atoms();
 
    // we need this in c-interface.cc for the rigid body refinement
    // which refines against a map
