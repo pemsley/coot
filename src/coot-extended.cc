@@ -395,22 +395,28 @@ coot::coot_probe_dots_from_coordinates_file(const std::string &file_name, bool a
 	    }
 
 	    for (std::size_t ii=0; ii<clashes.size(); ii++) {
-	       PyObject *o = PyList_New(2);
+	       PyObject *o_py = PyList_New(3);
 	       PyObject *p1_py = PyList_New(3);
 	       PyObject *p2_py = PyList_New(3);
+	       double dist = std::sqrt((clashes.positions[ii].first-clashes.positions[ii].second).lengthsq());
 	       PyList_SetItem(p1_py, 0, PyFloat_FromDouble(clashes.positions[ii].first.x()));
 	       PyList_SetItem(p1_py, 1, PyFloat_FromDouble(clashes.positions[ii].first.y()));
 	       PyList_SetItem(p1_py, 2, PyFloat_FromDouble(clashes.positions[ii].first.z()));
 	       PyList_SetItem(p2_py, 0, PyFloat_FromDouble(clashes.positions[ii].second.x()));
 	       PyList_SetItem(p2_py, 1, PyFloat_FromDouble(clashes.positions[ii].second.y()));
 	       PyList_SetItem(p2_py, 2, PyFloat_FromDouble(clashes.positions[ii].second.z()));
-	       PyList_SetItem(o, 0, p1_py);
-	       PyList_SetItem(o, 1, p2_py);
-	       PyList_SetItem(clashes_py, ii, o);
+	       PyList_SetItem(o_py, 0, p1_py);
+	       PyList_SetItem(o_py, 1, p2_py);
+	       PyList_SetItem(o_py, 2, PyFloat_FromDouble(dist));
+	       PyList_SetItem(clashes_py, ii, o_py);
 	    }
 
+	    PyObject *typed_clashes_py = PyList_New(2);
+	    // PyList_SetItem(typed_clashes_py, 0, PyString_FromString(clashes.type.c_str()));
+	    PyList_SetItem(typed_clashes_py, 0, PyString_FromString("clashes"));
+	    PyList_SetItem(typed_clashes_py, 1, clashes_py);
 	    PyList_SetItem(atom_overlaps_py, 0, dots_map_py);
-	    PyList_SetItem(atom_overlaps_py, 1, clashes_py);
+	    PyList_SetItem(atom_overlaps_py, 1, typed_clashes_py);
 	    o = boost::python::object(boost::python::handle<>(atom_overlaps_py));
 	 }
 	 catch (const std::out_of_range &oor) {
