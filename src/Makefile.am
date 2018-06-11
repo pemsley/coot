@@ -222,6 +222,24 @@ AM_CPPFLAGS = \
 
 pkginclude_HEADERS = crunch-model.hh
 
+if COOT_USE_PYTHON
+if MAKE_ENHANCED_LIGAND_TOOLS
+coot_embedded_la_SOURCES = coot-embedded.cc
+coot_extended_la_SOURCES = coot-extended.cc
+# use -Wl,--no-undefined or  -Wl,-undefined,error (clang) ?
+coot_embedded_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
+coot_embedded_la_LIBADD = \
+                       $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
+                       $(RDKIT_LIBS) $(L_BOOST_PYTHON)
+coot_extended_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
+coot_extended_la_LIBADD = \
+                       $(top_builddir)/pli/libcoot-pli.la   \
+                       $(RDKIT_LIBS) $(L_BOOST_PYTHON)
+pyexec_LTLIBRARIES = coot_embedded.la coot_extended.la
+endif
+endif
+
+
 if OS_WIN32
 # no more libexec for windows
 bin_PROGRAMS =  coot-bin coot-density-score-by-residue-bin \

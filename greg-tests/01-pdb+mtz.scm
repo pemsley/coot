@@ -2071,7 +2071,7 @@
      (let ((imol (greg-pdb "monomer-ACT.pdb")))
        (read-cif-dictionary (append-dir-file greg-data-dir "libcheck_ACT.cif"))
        (if (not (valid-model-molecule? imol))
-	   (begin 
+	   (begin
 	     (format #t "   bad molecule from ACT from greg data dir~%")
 	     (throw 'fail)))
        
