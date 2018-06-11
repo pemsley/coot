@@ -1,5 +1,6 @@
 
 
+#ifdef USE_MOLECULES_TO_TRIANGLES
 #ifdef USE_PYTHON
 
 // Martin's Triangles
@@ -13,3 +14,5 @@ void remove_molecular_represenation(int imol, int rep_no);
 int add_molecular_representation_scm(int imol, SCM atom_selection_scm, SCM ColorScheme_scm, SCM style_scm);
 #endif // USE_GUILE
 
+
+#endif // USE_MOLECULES_TO_TRIANGLES

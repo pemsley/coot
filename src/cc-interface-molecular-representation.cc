@@ -1,5 +1,7 @@
 
 
+#ifdef USE_MOLECULES_TO_TRIANGLES
+
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
@@ -56,3 +58,5 @@ void remove_molecular_represenation(int imol, int rep_no) {
 
 }
 #endif // USE_PYTHON
+
+#endif // USE_MOLECULES_TO_TRIANGLES
