@@ -375,7 +375,7 @@ coot::coot_probe_dots_from_coordinates_file(const std::string &file_name, bool a
 	    std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
 	    for (it = dots.begin(); it!=dots.end(); it++) {
 	       std::string col_key = it->first;
-	       std::cout << col_key << std::endl;
+	       // std::cout << col_key << std::endl;
 	       const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
 	       PyObject *dots_list_py = PyList_New(v.size());
 	       for (std::size_t ii=0; ii<v.size(); ii++) {
