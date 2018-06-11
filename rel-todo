@@ -3,12 +3,20 @@
 
    o does RCrane have a menu item again? ::: 1 h
 
-   o acedrg interface: delete the wrong Oxygen in making a link on an acid.
-
    o peptide flags needs to obey the radius limit too - if it was set. ::: 2 h
 
-   o fix the glib bug: 
+   o fix the glib bug:
      https://stackoverflow.com/questions/23199699/glib-critical-source-id-xxx-was-not-found-when-attempting-to-remove-it
+     ::: 1
+
+   o Merge Bernie again.  ::: 1
+
+   o acedrg interface: delete the wrong Oxygen in making a link on an acid. Maybe not for here.
+
+   o Multi-sharpen shoould run refmac in the background and check for existance of output mtz fiel
+     When it does, offfer a dialog "Open sharpening?" or some such.
+
+   o Add coot-extended.
 
 ------
 
