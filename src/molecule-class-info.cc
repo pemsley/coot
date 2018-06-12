@@ -2118,6 +2118,7 @@ molecule_class_info_t::deuterium_spots() const {
 void
 molecule_class_info_t::cis_peptide_markups() const {
 
+   const std::pair<bool, float> &use_radius_limit = graphics_info_t::model_display_radius;
    if (bonds_box.n_cis_peptide_markups > 0) {
       for (int i=0; i<bonds_box.n_cis_peptide_markups; i++) {
 	 const graphical_bonds_cis_peptide_markup &m = bonds_box.cis_peptide_markups[i];
@@ -2137,25 +2138,29 @@ molecule_class_info_t::cis_peptide_markups() const {
 	    
 	    coot::Cartesian fan_centre = m.pt_ca_1.mid_point(m.pt_ca_2);
 
-	    coot::Cartesian v1 = fan_centre - m.pt_ca_1;
-	    coot::Cartesian v2 = fan_centre - m.pt_c_1;
-	    coot::Cartesian v3 = fan_centre - m.pt_n_2;
-	    coot::Cartesian v4 = fan_centre - m.pt_ca_2;
+	    if ((! use_radius_limit.first)
+		 || graphics_info_t::is_within_display_radius(fan_centre)) {
 
-	    coot::Cartesian pt_ca_1 = m.pt_ca_1 + v1 * 0.15;
-	    coot::Cartesian pt_c_1  = m.pt_c_1  + v2 * 0.15;
-	    coot::Cartesian pt_n_2  = m.pt_n_2  + v3 * 0.15;
-	    coot::Cartesian pt_ca_2 = m.pt_ca_2 + v4 * 0.15;
+	       coot::Cartesian v1 = fan_centre - m.pt_ca_1;
+	       coot::Cartesian v2 = fan_centre - m.pt_c_1;
+	       coot::Cartesian v3 = fan_centre - m.pt_n_2;
+	       coot::Cartesian v4 = fan_centre - m.pt_ca_2;
 
-	    glBegin(GL_TRIANGLE_FAN);
+	       coot::Cartesian pt_ca_1 = m.pt_ca_1 + v1 * 0.15;
+	       coot::Cartesian pt_c_1  = m.pt_c_1  + v2 * 0.15;
+	       coot::Cartesian pt_n_2  = m.pt_n_2  + v3 * 0.15;
+	       coot::Cartesian pt_ca_2 = m.pt_ca_2 + v4 * 0.15;
+
+	       glBegin(GL_TRIANGLE_FAN);
 	 
-	    glVertex3f(fan_centre.x(), fan_centre.y(), fan_centre.z());
-	    glVertex3f(pt_ca_1.x(), pt_ca_1.y(), pt_ca_1.z());
-	    glVertex3f(pt_c_1.x(),  pt_c_1.y(),  pt_c_1.z());
-	    glVertex3f(pt_n_2.x(),  pt_n_2.y(),  pt_n_2.z());
-	    glVertex3f(pt_ca_2.x(), pt_ca_2.y(), pt_ca_2.z());
+	       glVertex3f(fan_centre.x(), fan_centre.y(), fan_centre.z());
+	       glVertex3f(pt_ca_1.x(), pt_ca_1.y(), pt_ca_1.z());
+	       glVertex3f(pt_c_1.x(),  pt_c_1.y(),  pt_c_1.z());
+	       glVertex3f(pt_n_2.x(),  pt_n_2.y(),  pt_n_2.z());
+	       glVertex3f(pt_ca_2.x(), pt_ca_2.y(), pt_ca_2.z());
 
-	    glEnd();
+	       glEnd();
+	    }
 	 }
       }
    }
@@ -2315,7 +2320,7 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 	 if (bonds_box.bonds_[i].thin_lines_flag)
 	    zsc *= 0.5;
  
-	 glBegin(GL_QUADS); 
+	 glBegin(GL_QUADS);
 
 	 if (! use_radius_limit.first) {
 
@@ -2433,11 +2438,9 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 		     if ((use_radius_limit.first == false) ||
 			 (graphics_info_t::is_within_display_radius(bonds_box.consolidated_atom_centres[icol].points[i].position))) {
 		     
-			coot::Cartesian fake_pt = bonds_box.consolidated_atom_centres[icol].points[i].position;
-			fake_pt += z_delta;
-			glVertex3f(fake_pt.x(), fake_pt.y(), fake_pt.z());
+			const coot::Cartesian &fake_pt = bonds_box.consolidated_atom_centres[icol].points[i].position;
+			glVertex3f(fake_pt.x()+z_delta.x(), fake_pt.y()+z_delta.y(), fake_pt.z()+z_delta.z());
 		     }
-
 		  }
 	       }
 	    }
