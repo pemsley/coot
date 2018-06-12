@@ -13,13 +13,22 @@
 #include "coot-utils/coot-coord-utils.hh"
 #include "lidia-core/rdkit-interface.hh"
 #include "pli/specs.hh"
+#include "pli/protein-ligand-interactions.hh"
+#include "pli/pi-stacking.hh"
+
+#include "coot-utils/reduce.hh"
+
 
 namespace coot {
    boost::python::list extract_ligands_from_coords_file(const std::string &file_name,
-							const std::string &ccd_dir_or_cif_file_name);
+							   const std::string &ccd_dir_or_cif_file_name);
    boost::python::object get_ligand_interactions(const std::string &file_name,
 						 PyObject *ligand_spec,
 						 const std::string &dirname_or_cif_file_name);
+
+   boost::python::object coot_probe_dots_from_coordinates_file(const std::string &file_name,
+						     bool add_hydrogens_flag);
+
    // helper function
    void get_ligand_interactions_read_cifs(const std::string &residue_name,
 					  const std::string &ccd_dir_or_cif_file_name,
@@ -38,6 +47,7 @@ BOOST_PYTHON_MODULE(coot_extended) {
 
    def("extract_ligands_from_coords_file", coot::extract_ligands_from_coords_file);
    def("get_ligand_interactions", coot::get_ligand_interactions);
+   def("coot_probe_dots_from_coordinates_file", coot::coot_probe_dots_from_coordinates_file);
 
 }
 
@@ -117,11 +127,6 @@ coot::extract_ligands_from_coords_file(const std::string &file_name,
    }
    return rdkit_mols_list;
 }
-
-#include "pli/protein-ligand-interactions.hh"
-#include "pli/pi-stacking.hh"
-#include "pli/specs.hh"
-#include "coot-utils/reduce.hh"
 
 // Pass also filename for the CCD for the ligand (or its neighbours)
 // or (probably better) a directory.
@@ -329,6 +334,98 @@ coot::extract_ligands_from_coords_file_try_read_cif(const std::string &ccd_dir_o
    }
 }
 
+#include "coot-utils/atom-overlaps.hh"
+
+// Input a pdb file that has Hydrogen atoms.
+//
+boost::python::object
+coot::coot_probe_dots_from_coordinates_file(const std::string &file_name, bool add_hydrogens_flag) {
+
+   double dot_density = 0.25; // pass this?
+   boost::python::object o(boost::python::handle<>(Py_False)); // return this
+
+   protein_geometry geom;
+   geom.set_verbose(false);
+   geom.init_standard();
+
+   if (coot::file_exists(file_name)) {
+      mmdb::Manager *mol = new mmdb::Manager;
+      mmdb::ERROR_CODE err = mol->ReadCoorFile(file_name.c_str());
+      if (err) {
+	 std::cout << "Error reading coordinates file " << file_name << std::endl;
+      } else {
+	 // Happy Path
+	 try {
+
+	    int read_number = 40;
+	    std::vector<std::string> rtv = coot::util::non_standard_residue_types_in_molecule(mol);
+	    for (unsigned int i=0; i<rtv.size(); i++)
+	       if (rtv[i] != "HOH")
+		  geom.try_dynamic_add(rtv[i], read_number++);
+
+	    // spike-length probe-radius
+	    coot::atom_overlaps_container_t overlaps(mol, &geom, 0.5, 0.25);
+	    coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(dot_density);
+	    const std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> > &dots = c.dots;
+	    const coot::atom_overlaps_dots_container_t::spikes_t &clashes = c.clashes;
+	    PyObject *atom_overlaps_py = PyList_New(2);
+	    PyObject *dots_map_py = PyDict_New();
+	    PyObject *clashes_py  = PyList_New(clashes.size());
+
+	    std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
+	    for (it = dots.begin(); it!=dots.end(); it++) {
+	       std::string col_key = it->first;
+	       // std::cout << col_key << std::endl;
+	       const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
+	       PyObject *dots_list_py = PyList_New(v.size());
+	       for (std::size_t ii=0; ii<v.size(); ii++) {
+		  const coot::atom_overlaps_dots_container_t::dot_t &dot = v[ii];
+		  // std::cout << "   " << dot.overlap << std::endl;
+		  PyObject *dot_py = PyList_New(3);
+		  PyObject *coords_py = PyList_New(3);
+		  PyList_SetItem(coords_py, 0, PyFloat_FromDouble(dot.pos.x()));
+		  PyList_SetItem(coords_py, 1, PyFloat_FromDouble(dot.pos.y()));
+		  PyList_SetItem(coords_py, 2, PyFloat_FromDouble(dot.pos.z()));
+		  PyList_SetItem(dot_py, 0, PyFloat_FromDouble(dot.overlap));
+		  PyList_SetItem(dot_py, 1, coords_py);
+		  PyList_SetItem(dot_py, 2, PyString_FromString(dot.col.c_str()));
+		  PyList_SetItem(dots_list_py, ii, dot_py);
+	       }
+	       PyDict_SetItemString(dots_map_py, col_key.c_str(), dots_list_py);
+	    }
+
+	    for (std::size_t ii=0; ii<clashes.size(); ii++) {
+	       PyObject *o_py = PyList_New(3);
+	       PyObject *p1_py = PyList_New(3);
+	       PyObject *p2_py = PyList_New(3);
+	       double dist = std::sqrt((clashes.positions[ii].first-clashes.positions[ii].second).lengthsq());
+	       PyList_SetItem(p1_py, 0, PyFloat_FromDouble(clashes.positions[ii].first.x()));
+	       PyList_SetItem(p1_py, 1, PyFloat_FromDouble(clashes.positions[ii].first.y()));
+	       PyList_SetItem(p1_py, 2, PyFloat_FromDouble(clashes.positions[ii].first.z()));
+	       PyList_SetItem(p2_py, 0, PyFloat_FromDouble(clashes.positions[ii].second.x()));
+	       PyList_SetItem(p2_py, 1, PyFloat_FromDouble(clashes.positions[ii].second.y()));
+	       PyList_SetItem(p2_py, 2, PyFloat_FromDouble(clashes.positions[ii].second.z()));
+	       PyList_SetItem(o_py, 0, p1_py);
+	       PyList_SetItem(o_py, 1, p2_py);
+	       PyList_SetItem(o_py, 2, PyFloat_FromDouble(dist));
+	       PyList_SetItem(clashes_py, ii, o_py);
+	    }
+
+	    PyObject *typed_clashes_py = PyList_New(2);
+	    // PyList_SetItem(typed_clashes_py, 0, PyString_FromString(clashes.type.c_str()));
+	    PyList_SetItem(typed_clashes_py, 0, PyString_FromString("clashes"));
+	    PyList_SetItem(typed_clashes_py, 1, clashes_py);
+	    PyList_SetItem(atom_overlaps_py, 0, dots_map_py);
+	    PyList_SetItem(atom_overlaps_py, 1, typed_clashes_py);
+	    o = boost::python::object(boost::python::handle<>(atom_overlaps_py));
+	 }
+	 catch (const std::out_of_range &oor) {
+	    std::cout << "ERROR:: " << oor.what() << std::endl;
+	 }
+      }
+   }
+   return o;
+}
 
 
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
