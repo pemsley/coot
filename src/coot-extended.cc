@@ -341,7 +341,7 @@ coot::extract_ligands_from_coords_file_try_read_cif(const std::string &ccd_dir_o
 boost::python::object
 coot::coot_probe_dots_from_coordinates_file(const std::string &file_name, bool add_hydrogens_flag) {
 
-   double dot_density = 0.25; // pass this?
+   double dot_density = 0.15; // pass this?
    boost::python::object o(boost::python::handle<>(Py_False)); // return this
 
    protein_geometry geom;
