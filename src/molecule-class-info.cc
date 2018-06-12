@@ -2043,6 +2043,8 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
 				     bool against_a_dark_background,
 				     bool show_cis_peptide_markups) {
 
+   // show_cis_peptide_markups gets turned off by caller when there are intermediate atoms
+   // displayed.
    if (has_model()) { 
       if (draw_it == 1) {
 	 if (! cootsurface) {
@@ -2399,8 +2401,11 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 							   const coot::Cartesian &front,
 							   const coot::Cartesian &back,
 							   bool against_a_dark_background) {
+   bool display_it = display_stick_mode_atoms_flag;
+   if (graphics_info_t::moving_atoms_displayed_p())
+      display_it = false;
 
-   if (display_stick_mode_atoms_flag) {
+   if (display_it) {
 
       if (bonds_box.atom_centres_) { 
 

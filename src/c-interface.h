@@ -3219,6 +3219,15 @@ void clear_moving_atoms_object(); /* just get rid of just the bonds (redraw done
 
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 
+
+/*! \brief If there is a refinement on-going already, we don't want to start a new one
+
+The is the means to ask if that is the case. This needs a scheme wrapper to provide refinement-already-ongoing?
+
+@return 1 for yes, 0 for no.
+*/
+short int refinement_already_ongoing_p();
+
 #ifdef USE_GUILE
 /*! \brief refine residues, r is a list of residue specs.
 
