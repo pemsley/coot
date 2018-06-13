@@ -947,6 +947,7 @@
 		 (> dd 1.4))))))))
 
 
+
 (greg-testcase "Refine Zone with Alt conf" #t 
    (lambda ()
 
@@ -965,7 +966,12 @@
 	     ;; the atom should move in refinement
 	     (format #t "   refined moved: d=~s~%" d)
 
-	     (if (< d 0.2) ;; 20120110 new-style NBCs means that the
+	     (if (< d 0.09) ;; 20180606-PE New style refinement (wrapping residue 
+                           ;; vec means that refinement has changed) atoms are still
+		           ;; still moving though. Hmm. Perhaps the A atoms should not
+		           ;; move and we should test for that.
+                           ;;
+                           ;; 20120110 new-style NBCs means that the
                            ;; atoms move less here
 		           ;; 20160608 - they move still less  (not sure
                            ;; why this time)
@@ -2065,7 +2071,7 @@
      (let ((imol (greg-pdb "monomer-ACT.pdb")))
        (read-cif-dictionary (append-dir-file greg-data-dir "libcheck_ACT.cif"))
        (if (not (valid-model-molecule? imol))
-	   (begin 
+	   (begin
 	     (format #t "   bad molecule from ACT from greg data dir~%")
 	     (throw 'fail)))
        

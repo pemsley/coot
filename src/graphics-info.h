@@ -701,6 +701,7 @@ class graphics_info_t {
    static std::set<int> moving_atoms_dragged_atom_indices;
    static void remove_moving_atoms_dragged_atom_index(int idx);
    static void    add_moving_atoms_dragged_atom_index(int idx);
+   // make unset_moving_atoms_currently_dragged_atom_index() public
 
 #ifdef  HAVE_GSL
    static coot::restraints_container_t *last_restraints;
@@ -2275,19 +2276,19 @@ public:
    coot::refinement_results_t
      generate_molecule_and_refine(int imol,  // needed for UDD Atom handle transfer
 				  const std::vector<mmdb::Residue *> &residues,
-				  const char *alt_conf,
+				  const std::string &alt_conf,
 				  mmdb::Manager *mol, 
 				  bool use_map_flag);
 
    coot::refinement_results_t
      refine_residues_vec(int imol, 
 			 const std::vector<mmdb::Residue *> &residues,
-			 const char *alt_conf,
+			 const std::string &alt_conf,
 			 mmdb::Manager *mol);
    coot::refinement_results_t
      regularize_residues_vec(int imol, 
 			     const std::vector<mmdb::Residue *> &residues,
-			     const char *alt_conf,
+			     const std::string &alt_conf,
 			     mmdb::Manager *mol);
 			       
 
@@ -2306,6 +2307,8 @@ public:
    static void draw_moving_atoms_graphics_object(bool against_a_dark_background);
    static void draw_ramachandran_goodness_spots();
    static void draw_rotamer_probability_object();
+   static void draw_moving_atoms_peptide_markup();
+   static void draw_moving_atoms_atoms(bool against_a_dark_background);
    std::vector<coot::generic_display_object_t::dodec_t> get_rotamer_dodecs();
 
    static int mol_no_for_environment_distances;
@@ -2515,6 +2518,9 @@ public:
    // copy the contents of moving_atoms_asc into the molecule being refined.
    // 
    void accept_moving_atoms();
+
+   void update_moving_atoms_from_molecule_atoms(const coot::minimol::molecule &mm);
+
    void set_refinement_map(int imol);
 
    // public access to the clear the in range defines
@@ -2583,8 +2589,13 @@ public:
 
    // return true if moving_atoms_asc was not null (more or less if
    // the pepflip was made)
-   // 
+   //
    bool pepflip_intermediate_atoms();
+
+   // return true if moving_atoms_asc was not null (more or less if
+   // the rotamer fit was made)
+   //
+   bool backrub_rotamer_intermediate_atoms();
 
    // we need this in c-interface.cc for the rigid body refinement
    // which refines against a map
@@ -2999,6 +3010,10 @@ public:
    int check_if_in_range_defines(GdkEventButton *event,
 				 const GdkModifierType &state);
    void check_if_moving_atom_pull(); // and setup moving atom-drag if we are.
+
+   void unset_moving_atoms_currently_dragged_atom_index() {
+     moving_atoms_currently_dragged_atom_index = -1;
+   }
 
    // baton stuff:
    // 
@@ -4091,6 +4106,7 @@ string   static std::string sessionid;
    static void all_atom_pulls_off() {
      for (std::size_t i=0; i<atom_pulls.size(); i++)
        atom_pulls[i].off();
+     atom_pulls.clear();
    }
    static void atom_pull_off(const coot::atom_spec_t &spec) {
       for (std::size_t i=0; i<atom_pulls.size(); i++) {

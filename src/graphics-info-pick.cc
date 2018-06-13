@@ -638,7 +638,7 @@ graphics_info_t::move_atom_pull_target_position(int screen_x, int screen_y) {
    add_or_replace_current(atom_pull_local);
    //
    last_restraints->add_atom_pull_restraint(atom_pull_local.spec, c_pos);
-   graphics_draw();
+   graphics_draw();  // needed
 }
 
 void graphics_info_t::add_or_replace_current(const atom_pull_info_t &atom_pull_in) {

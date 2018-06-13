@@ -1985,10 +1985,16 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 
    char *s  = getenv("COOT_REFMAC_LIB_DIR");
    char *cmld = getenv("COOT_MONOMER_LIB_DIR");
-   if (! s) {
+
+   if (s) {
+
+   } else {
       s  = getenv("CLIB");
+
       if (! s) {
-	 std::string tmp_string(PKGDATADIR);
+	 std::cout << "DEBUG:: try_dynamic_add() using PKGDATADIR" << package_data_dir()
+		   << std::endl;
+	 std::string tmp_string = package_data_dir();
 	 tmp_string = util::append_dir_dir(tmp_string, "lib");
 	 s = new char[tmp_string.length() + 1];
 	 strcpy(s, tmp_string.c_str());
@@ -1996,15 +2002,20 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	 if (verbose_mode)
 	    std::cout << "INFO:: using standard CCP4 Refmac dictionary"
 		      << " to search for \"" << resname << "\"" << std::endl; 
-      } 
+      }
    }
 
-   if (s) {
+   if (!s) {
+
+      std::cout << "debug:: try_dynamic_add() bad news - null s" << std::endl;
+
+   } else {
       std::string filename(s);
-      std::string beta_anomer_name; 
-      std::string alpha_anomer_name; 
-      std::string alt_beta_anomer_name; 
-      std::string alt_alpha_anomer_name; 
+      std::string beta_anomer_name;
+      std::string alpha_anomer_name;
+      std::string alt_beta_anomer_name;
+      std::string alt_alpha_anomer_name;
+
       if (cmld) { 
 	 filename = cmld;
 	 filename += "/";

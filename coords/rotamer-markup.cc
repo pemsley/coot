@@ -53,7 +53,8 @@ Bond_lines_container::get_rotamer_dodecs(const atom_selection_container_t &asc) 
 	       if (pr_v.size() > 0) {
 		  const coot::rotamer_probability_info_t &pr = pr_v[0]; // hack
 
-		  std::cout << "   " << coot::residue_spec_t(residue_p) << " " << pr << std::endl;
+		  if (false)
+		     std::cout << "   " << coot::residue_spec_t(residue_p) << " " << pr << std::endl;
 		  if (pr.state != coot::rotamer_probability_info_t::RESIDUE_IS_GLY_OR_ALA) {
 		     // OK or MISSING_ATOMS or ROTAMER_NOT_FOUND
 		     double size = 0.5;
@@ -61,7 +62,7 @@ Bond_lines_container::get_rotamer_dodecs(const atom_selection_container_t &asc) 
 		     double z = 0;
 		     coot::colour_holder col(z, 0.0, 1.0, std::string(""));
 		     if (pr.state == coot::rotamer_probability_info_t::OK) {
-			if (true)
+			if (false)
 			   std::cout << "   debug pr "
 				     << coot::residue_spec_t(residues[i].first) << " " << pr << "\n";
 			z = 1 - sqrt(sqrt(pr.probability*0.01));

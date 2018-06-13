@@ -5433,6 +5433,9 @@ void setup_residue_partial_alt_locs(short int state);
 @return the success status, 0 for fail, 1 for successful fit.  */
 int backrub_rotamer(int imol, const char *chain_id, int res_no, 
 		    const char *ins_code, const char *alt_conf);
+
+int backrub_rotamer_intermediate_atoms();
+
 /*! \} */
 
 

@@ -928,7 +928,8 @@ coot::process_electron_density_dfs_for_atoms(const std::vector<std::size_t> &ato
 void
 coot::process_dfs_trans_peptide(const coot::simple_restraint &restraint,
 					 const gsl_vector *v,
-					 std::vector<double> &results) {
+				std::vector<double> &results) {
+
    int idx;
 
    // checked:    P1 is CA_1
@@ -1005,6 +1006,14 @@ coot::process_dfs_trans_peptide(const coot::simple_restraint &restraint,
    double xP4_contrib = constant_part * 2.0 * p_CA_CA * ( mid_pt_1.x() - mid_pt_2.x());
    double yP4_contrib = constant_part * 2.0 * p_CA_CA * ( mid_pt_1.y() - mid_pt_2.y());
    double zP4_contrib = constant_part * 2.0 * p_CA_CA * ( mid_pt_1.z() - mid_pt_2.z());
+
+   if (false)
+      std::cout << "fixed_flags: "
+		<< restraint.fixed_atom_flags[0] << " "
+		<< restraint.fixed_atom_flags[1] << " "
+		<< restraint.fixed_atom_flags[2] << " "
+		<< restraint.fixed_atom_flags[3] << " "
+		<< std::endl;
 
    if (! restraint.fixed_atom_flags[0]) {
       idx = 3*(restraint.atom_index_1);
