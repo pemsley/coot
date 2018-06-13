@@ -20,6 +20,8 @@
  * 02110-1301, USA
  */
 
+#include <Python.h>
+
 #include <cstring> // Fix strchr problems on using RDKit includes.
 
 #include "compat/coot-sysdep.h"
