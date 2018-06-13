@@ -22,35 +22,10 @@ class LigandTestFunctions(unittest.TestCase):
     def test01_0(self):
         """Get monomer test"""
 
-        if (not have_ccp4_qm):
-            print "No CCP4 - Copying in test files"
-            for file_name in ["monomer-3GP.pdb", "libcheck_3GP.cif"]:
-                f_full = os.path.join(unittest_data_dir, file_name)
-                t_file = os.path.join("coot-ccp4", file_name)
-                if (os.path.isfile(f_full)):
-                    import shutil
-                    make_directory_maybe("coot-ccp4")
-                    print "   copy-file", f_full, t_file
-                    shutil.copyfile(f_full, t_file)
-                else:
-                    if self.skip_test(True, "Cannot find file %s, skipping test" %f_full):
-                        return
-                
 	imol = monomer_molecule_from_3_let_code("3GP", "")
 	if (valid_model_molecule_qm(imol)):
-            global imol_ligand
-            imol_ligand = imol 
             delete_residue_hydrogens(imol, "A", 1, "", "")
-
-
-    def test02_0(self):
-	"""Set Bond thickness test"""
-
-        if self.skip_test(not valid_model_molecule_qm(imol_ligand),
-                          "   No ligand molecule - Skipping bond thickness test"):
-            return
-            
-	set_bond_thickness(imol_ligand, 5)
+        self.failIf(not valid_model_molecule_qm(imol), "not valid molecule for 3GP")
 
 
     def test03_0(self):
@@ -107,39 +82,6 @@ class LigandTestFunctions(unittest.TestCase):
                              isinstance(r_3, dict)]))
 
 
-    def test05_0(self):
-	"""Move and Refine Ligand test"""
-        
-	new_rc = [55.3, 9.1, 20.6]
-        if self.skip_test(not valid_model_molecule_qm(imol_ligand),
-                          "no ligand - skipping test"):
-            return
-
-	# set the view
-	view_number = add_view([54.5698,8.7148,20.5308],
-				[0.046229,-0.157139,-0.805581,0.569395],
-				19.8858,
-				"ligand_view")
-	go_to_view_number(view_number, 1)
-
-	# update the map:
-	set_rotation_centre(*new_rc)
-	move_molecule_here(imol_ligand)
-	backup_mode = backup_state(imol_ligand)
-	alt_conf = ""
-	replacement_state = refinement_immediate_replacement_state()
-        
-	turn_off_backup(imol_ligand)
-	set_refinement_immediate_replacement(1)
-	refine_zone(imol_ligand, "A", 1, 1, alt_conf)
-	accept_regularizement()
-	rotate_y_scene(rotate_n_frames(600), 0.1)
-	if (replacement_state == 0):
-		set_refinement_immediate_replacement(0)
-	if (backup_mode == 1):
-		turn_on_backup(imol_ligand)
-
-        # testing what?
 
     def test06_0(self):
         """Many Molecules - Ligand Fitting"""
@@ -174,59 +116,6 @@ class LigandTestFunctions(unittest.TestCase):
         # checked for non crash
 
         
-    def test07_0(self):
-        """Flip residue (around eigen vectors)"""
-
-        mon_file = os.path.join("coot-ccp4", "monomer-3GP.pdb")
-	e = os.path.isfile(mon_file)
-	if self.skip_test(not e, "  Oops! file not found! coot-ccp4/monomer-3GP.pdb, skip."):
-            return
-
-        imol_orig = read_pdb(mon_file)
-        imol_copy = copy_molecule(imol_orig)
-
-        self.failIf(not valid_model_molecule_qm(imol_orig), "not valid molecule for monomer-3GP.pdb")
-
-        self.failIf(not valid_model_molecule_qm(imol_copy), "not valid molecule for copy of monomer-3GP.pdb")
-
-        set_go_to_atom_molecule(imol_orig)
-        set_go_to_atom_chain_residue_atom_name("A", 1, " C8 ")
-
-        active_atom = active_residue()
-        if self.skip_test(not active_atom, "No active atom found - skipping flip residue test"):
-            return
-        imol      = active_atom[0]
-        chain_id  = active_atom[1]
-        res_no    = active_atom[2]
-        ins_code  = active_atom[3]
-        atom_name = active_atom[4]
-        alt_conf  = active_atom[5]
-        self.failIf(imol == imol_orig, "oops - didn't pick the copy for active res")
-        flip_ligand(imol, chain_id, res_no)
-        atom_orig_1 = get_atom(imol_orig, "A", 1, "", " C8 ")
-        atom_move_1 = get_atom(imol     , "A", 1, "", " C8 ")
-
-        from types import ListType
-
-        self.failUnless(type(atom_orig_1) is ListType, "atom_orig_1 not found")
-
-        self.failUnless(type(atom_move_1) is ListType, "atom_move_1 not found")
-
-        d = bond_length(atom_orig_1[2], atom_move_1[2])
-        print "distance: ", d
-        self.failUnless(d > 2.1, "fail to move test atom d1")
-        flip_ligand(imol, chain_id, res_no)
-        flip_ligand(imol, chain_id, res_no)
-        flip_ligand(imol, chain_id, res_no)
-        #  having flipped it round the axes 4
-        # times, we should be back where we
-        # started.
-        atom_orig_1 = get_atom(imol_orig, "A", 1, "", " C8 ")
-        atom_move_1 = get_atom(imol     , "A", 1, "", " C8 ")
-        d2 = bond_length(atom_orig_1[2], atom_move_1[2])
-        print "distance d2: ", d2
-        self.failUnless(d2 < 0.001, "fail to move atom back to start d2")
-
 
     def test08_0(self):
         """Test dipole"""

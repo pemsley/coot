@@ -1214,9 +1214,11 @@ graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
       graphics_info_t g;
       g.check_and_warn_inverted_chirals_and_cis_peptides();
 
-      std::cout << "Removing idle function " << graphics_info_t::drag_refine_idle_function_token << std::endl;
-      gtk_idle_remove(graphics_info_t::drag_refine_idle_function_token);
-      graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
+      if (graphics_info_t::drag_refine_idle_function_token != -1) {
+	 std::cout << "Removing idle function " << graphics_info_t::drag_refine_idle_function_token << std::endl;
+	 gtk_idle_remove(graphics_info_t::drag_refine_idle_function_token);
+	 graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
+      }
    } 
 
 

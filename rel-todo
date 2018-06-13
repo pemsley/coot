@@ -1,7 +1,10 @@
 
    For Release 0.8.9.2
 
-   o does RCrane have a menu item again?
+   o Merge Bernie again.  ::: 1
+
+   o Multi-sharpen shoould run refmac in the background and check for existance of output mtz fiel
+     When it does, offfer a dialog "Open sharpening?" or some such. ::: 1
 
 
 ------
@@ -178,3 +181,21 @@ command "cprodrg" not found
    o email about dynamic bond width from Erec Stebbins. ::: 3 h
 
 * Done. Nice. I will use it.
+
+   o does RCrane have a menu item again? ::: 1 h
+
+* Done.
+
+   o peptide flags needs to obey the radius limit too - if it was set. ::: 1 h
+
+* Done.
+
+   o fix the glib bug:
+     https://stackoverflow.com/questions/23199699/glib-critical-source-id-xxx-was-not-found-when-attempting-to-remove-it
+     ::: 1
+
+* Done?
+
+   o Add coot-extended.
+
+* Done.
