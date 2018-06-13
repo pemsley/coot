@@ -6,6 +6,18 @@
    o Multi-sharpen shoould run refmac in the background and check for existance of output mtz fiel
      When it does, offfer a dialog "Open sharpening?" or some such. ::: 1
 
+   o when I have undipslyed hydrogends, I dont want to ever pick them during refinement.
+     Fix.
+
+     Wheke we are at it, I don't want to pick atoms at the back when I am refineing either.
+
+
+     bring JED flip to intermediate atoms.
+
+
+    move bond params to draw.
+
+
 
 ------
 

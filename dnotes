@@ -8235,3 +8235,10 @@ Fri  8 Jun 2018 17:31:20 BST
    4whj - interesting fitting Alvarez et al, domain needs to be shifted - 4.6A
 
 
+----
+Tue 12 Jun 2018 17:35:48 BST
+
+  record the desktop
+
+ ffmpeg -f x11grab -r 30 -i :0.0 /tmp/recording.mp4
+
