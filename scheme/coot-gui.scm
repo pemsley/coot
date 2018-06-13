@@ -1,5 +1,3 @@
-;;;; Copyright 2001 by Neil Jerram
-;;;; Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
 ;;;; Copyright 2007 by Paul Emsley
 ;;;; 
 ;;;; This program is free software; you can redistribute it and/or modify
@@ -51,7 +49,7 @@
          (port (make-entry-port entry #:paren-matching-style '(highlight-region)))
          (oport (make-text-output-port text))
          (ifont (gdk-font-load "fixed"))
-         (icolour (gdk-color-parse "red")))
+         (icolour (gdk-color-parse "darkblue")))
     (gtk-window-set-policy window #t #t #f)
     (gtk-window-set-default-size window 550 250)
     ; (gtk-box-pack-start vbox text #t #t 5)
