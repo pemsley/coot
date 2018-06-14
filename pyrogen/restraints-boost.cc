@@ -20,6 +20,8 @@
  * 02110-1301, USA
  */
 
+#include "Python.h"
+
 #include "compat/coot-sysdep.h"
 #include <GraphMol/GraphMol.h>
 

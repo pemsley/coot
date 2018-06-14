@@ -45,40 +45,45 @@ Bond_lines_container::get_rotamer_dodecs(const atom_selection_container_t &asc) 
 	    // coot::rotamer rot(residue_p);
 	    // coot::rotamer_probability_info_t pr = rot.probability_of_this_rotamer();
 
-	    try {
+	    std::string res_name(residue_p->GetResName());
 
-	       std::vector<coot::rotamer_probability_info_t> pr_v =
-		  rotamer_probability_tables_p->probability_this_rotamer(residue_p);
+	    if (is_standard_amino_acid_name(res_name)) {
 
-	       if (pr_v.size() > 0) {
-		  const coot::rotamer_probability_info_t &pr = pr_v[0]; // hack
+	       try {
 
-		  std::cout << "   " << coot::residue_spec_t(residue_p) << " " << pr << std::endl;
-		  if (pr.state != coot::rotamer_probability_info_t::RESIDUE_IS_GLY_OR_ALA) {
-		     // OK or MISSING_ATOMS or ROTAMER_NOT_FOUND
-		     double size = 0.5;
-		     clipper::Coord_orth pos = coot::co(residues[i].second);
-		     double z = 0;
-		     coot::colour_holder col(z, 0.0, 1.0, std::string(""));
-		     if (pr.state == coot::rotamer_probability_info_t::OK) {
-			if (false)
-			   std::cout << coot::residue_spec_t(residues[i].first) << " " << pr << "\n";
-			z = sqrt(sqrt(pr.probability*0.01));
-			col = coot::colour_holder(z, 0.0, 1.0, std::string(""));
+		  std::vector<coot::rotamer_probability_info_t> pr_v =
+		     rotamer_probability_tables_p->probability_this_rotamer(residue_p);
+
+		  if (pr_v.size() > 0) {
+		     const coot::rotamer_probability_info_t &pr = pr_v[0]; // hack
+
+		     std::cout << "   " << coot::residue_spec_t(residue_p) << " " << pr << std::endl;
+		     if (pr.state != coot::rotamer_probability_info_t::RESIDUE_IS_GLY_OR_ALA) {
+			// OK or MISSING_ATOMS or ROTAMER_NOT_FOUND
+			double size = 0.5;
+			clipper::Coord_orth pos = coot::co(residues[i].second);
+			double z = 0;
+			coot::colour_holder col(z, 0.0, 1.0, std::string(""));
+			if (pr.state == coot::rotamer_probability_info_t::OK) {
+			   if (false)
+			      std::cout << coot::residue_spec_t(residues[i].first) << " " << pr << "\n";
+			   z = sqrt(sqrt(pr.probability*0.01));
+			   col = coot::colour_holder(z, 0.0, 1.0, std::string(""));
+			}
+			if (pr.state == coot::rotamer_probability_info_t::MISSING_ATOMS)
+			   col = coot::colour_holder("#bb22bb"); // purple
+			if (pr.state == coot::rotamer_probability_info_t::ROTAMER_NOT_FOUND)
+			   col = coot::colour_holder("#22eeee"); // cyan
+
+			rotamer_markup_container_t rc(pos, col);
+			dodecs.push_back(rc);
 		     }
-		     if (pr.state == coot::rotamer_probability_info_t::MISSING_ATOMS)
-			col = coot::colour_holder("#bb22bb"); // purple
-		     if (pr.state == coot::rotamer_probability_info_t::ROTAMER_NOT_FOUND)
-			col = coot::colour_holder("#22eeee"); // cyan
-
-		     rotamer_markup_container_t rc(pos, col);
-		     dodecs.push_back(rc);
 		  }
 	       }
-	    }
-	    catch (const std::runtime_error &rte) {
-	       std::cout << "exception caught in get_rotamer_dodecs() " << std::endl;
-	       std::cout << "    " << rte.what() << std::endl;
+	       catch (const std::runtime_error &rte) {
+		  std::cout << "exception caught in get_rotamer_dodecs() " << std::endl;
+		  std::cout << "    " << rte.what() << std::endl;
+	       }
 	    }
 	 }
       }
