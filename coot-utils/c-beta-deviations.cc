@@ -34,6 +34,9 @@ std::map<std::string, coot::c_beta_deviation_t>
 coot::get_c_beta_deviations(mmdb::Residue *residue_p) {
 
    std::map<std::string, c_beta_deviation_t> m;
+   std::string res_name(residue_p->GetResName());
+   bool is_PRO = false;
+   if (res_name == "PRO") is_PRO = true;
 
    int n_atoms = residue_p->GetNumberOfAtoms();
    mmdb::Atom *at_0 = nullptr;
@@ -55,12 +58,12 @@ coot::get_c_beta_deviations(mmdb::Residue *residue_p) {
    // needs reworking... construct a quad for all CBs in residue, the
    // atoms of which fall back to '' if needed.
 
-   std::map<std::string, atom_quad> ::const_iterator it;
+   std::map<std::string, atom_quad>::const_iterator it;
    for(it=alt_conf_map.begin(); it!=alt_conf_map.end(); it++) {
       const atom_quad &q = it->second;
       if (q.filled_p()) {
 	 clipper::Coord_orth CB_real_pos(q.atom_4->x, q.atom_4->y, q.atom_4->z); // no coot-utils.h included
-	 clipper::Coord_orth CB_ideal_pos = make_CB_ideal_pos(q);
+	 clipper::Coord_orth CB_ideal_pos = make_CB_ideal_pos(q, is_PRO);
 	 double dsqrd = (CB_ideal_pos-CB_real_pos).lengthsq();
 	 double d = sqrt(dsqrd);
 	 c_beta_deviation_t cbd(q.atom_4, CB_ideal_pos, d);
@@ -73,7 +76,16 @@ coot::get_c_beta_deviations(mmdb::Residue *residue_p) {
 }
 
 clipper::Coord_orth
-coot::make_CB_ideal_pos(const coot::atom_quad &q) {
+coot::make_CB_ideal_pos(const coot::atom_quad &q, bool is_PRO) {
+
+// > median(a$V7[a$V5=='PRO'])
+// [1] 115.23
+// > median(a$V9[a$V5=='PRO'])
+// [1] -119.849
+// > median(a$V7[a$V5!='PRO'])
+// [1] 122.902
+// > median(a$V9[a$V5!='PRO'])
+// [1] -122.602
 
    clipper::Coord_orth pt_1(q.atom_1->x, q.atom_1->y, q.atom_1->z);
    clipper::Coord_orth pt_2(q.atom_2->x, q.atom_2->y, q.atom_2->z);
@@ -82,13 +94,20 @@ coot::make_CB_ideal_pos(const coot::atom_quad &q) {
    double l = 1.53;
    double a1 = clipper::Util::d2rad(111.0);
    double a2 = clipper::Util::d2rad(111.7);
-   double t1 = clipper::Util::d2rad(124.4);
-   double t2 = clipper::Util::d2rad(123.9);
+   double t1 = clipper::Util::d2rad(122.9);
+   double t2 = clipper::Util::d2rad(-122.6);
+   if (is_PRO) {
+     t1 = clipper::Util::d2rad(115.2);
+     t2 = clipper::Util::d2rad(-119.85);
+   }
    clipper::Coord_orth pt_trial1 = clipper::Coord_orth(pt_1, pt_3, pt_2, l, a1, t1);
-   clipper::Coord_orth pt_trial2 = clipper::Coord_orth(pt_1, pt_3, pt_2, l, a1, t2);
+   clipper::Coord_orth pt_trial2 = clipper::Coord_orth(pt_3, pt_1, pt_2, l, a2, t2);
+
+   double delta_trial_points = std::sqrt((pt_trial2-pt_trial1).lengthsq());
+
+   // std::cout << "delta-trial-pts " << delta_trial_points << std::endl;
 
    clipper::Coord_orth pt_trial = 0.5 * (pt_trial1 + pt_trial2);
 
    return pt_trial;
-
 }

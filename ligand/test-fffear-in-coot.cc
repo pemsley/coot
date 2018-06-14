@@ -50,6 +50,7 @@
 #include "clipper/core/map_utils.h"
 #include "clipper/ccp4/ccp4_map_io.h"
 #include "coot-utils/coot-map-heavy.hh"
+#include "coot-utils/atom-selection-container.hh"
 
 int
 main(int argc, char **argv) {
