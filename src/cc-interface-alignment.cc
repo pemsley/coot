@@ -3,11 +3,11 @@
 // This block is what is needed to include c-interface.h
 // How to include c-interface.h
 // --------------------------------------------
-#include <cstddef> // define std::ptrdiff_t 
-
 #ifdef USE_PYTHON
-#include <Python.h>
+#include <Python.h> // add first for _XOPEN_SOURCE order issues
 #endif
+
+#include <cstddef> // define std::ptrdiff_t
 
 #ifdef USE_GUILE
 #include <libguile.h>
@@ -16,7 +16,6 @@
 #include "graphics-info.h"
 #include "c-interface.h"
 // --------------------------------------------
-
 
 #include "cc-interface-alignment.hh"
 
