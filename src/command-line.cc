@@ -254,13 +254,14 @@ parse_command_line(int argc, char ** argv ) {
 		  } else {
 		     
 		     if (arg_str == "version") {
-			std::cout << VERSION << " " << coot_version_extra_info() << std::endl;
+			std::cout << VERSION << " " << coot_version_extra_info();
 			exit(0);
 		     } else {
 			
 			if (arg_str == "version-full") {
-			   std::cout  << VERSION << " " << coot_version_extra_info() << std::endl;
-			   std::cout << "Binary type: " << COOT_SYS_BUILD_TYPE << std::endl;
+			   std::cout  << VERSION << " " << coot_version_extra_info();
+			   // this is in coot_version_extra_info() now
+			   // std::cout << "Binary type: " << COOT_SYS_BUILD_TYPE << std::endl;
 			   std::vector<std::string> enableds;
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 			   enableds.push_back("Enhanced-ligand-tools");
