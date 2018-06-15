@@ -441,6 +441,9 @@ std::set<int> graphics_info_t::moving_atoms_dragged_atom_indices = empty_int_set
 // validate moving atoms
 int       graphics_info_t::moving_atoms_n_cis_peptides = -1;  // unset
 
+// for picking intermediate atoms
+bool      graphics_info_t::moving_atoms_have_hydrogens_displayed = false;
+
 
 std::string graphics_info_t::model_fit_refine_place_atom_at_pointer_string = "";
 std::string graphics_info_t::model_fit_refine_rotate_translate_zone_string = "";
