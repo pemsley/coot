@@ -4,21 +4,31 @@
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
 
-void print_tors(std::map<std::string, std::vector<coot::atom_quad> > atom_vector_map_N,
-		const std::string &first_atom) {
+struct atom_vector_map_t {
+   coot::atom_quad q1;
+   coot::atom_quad q2;
+   int res_no;
+   std::string chain_id;
+   std::string fn;
+};
 
-   std::map<std::string, std::vector<coot::atom_quad> >::const_iterator it;
-   for(it=atom_vector_map_N.begin(); it!=atom_vector_map_N.end(); it++) {
+void print_tors(std::map<std::string, std::vector<atom_vector_map_t> > &atom_vector_map) {
+
+   std::map<std::string, std::vector<atom_vector_map_t> >::const_iterator it;
+   for(it=atom_vector_map.begin(); it!=atom_vector_map.end(); it++) {
       const std::string &key = it->first;
-      const std::vector<coot::atom_quad> &vv = it->second;
-      // std::cout << "key: " << key << std::endl;
+      const std::vector<atom_vector_map_t> &vv = it->second;
       for (std::size_t i=0; i<vv.size(); i++) {
-	 const coot::atom_quad &q = vv[i];
-	 double tors = q.torsion();
-	 std::cout << first_atom << " " << key << "   " << tors << std::endl;
+	 const atom_vector_map_t &qp = vv[i];
+	 double tors_1 = qp.q1.torsion();
+	 double tors_2 = qp.q2.torsion();
+	 std::cout << "pseudo-torsion " << " " << qp.fn << " " << qp.chain_id << " " << qp.res_no << " "
+		   << key << "  N " << tors_1 << " C " << tors_2 << "\n";
       }
    }
 }
+
+#include "utils/coot-utils.hh"
 
 int main(int argc, char **argv) {
 
@@ -33,8 +43,7 @@ int main(int argc, char **argv) {
 	 if (model_p) {
 
 	    // the lists of 4 atoms for each residue type
-	    std::map<std::string, std::vector<coot::atom_quad> > atom_vector_map_N;
-	    std::map<std::string, std::vector<coot::atom_quad> > atom_vector_map_C;
+	    std::map<std::string, std::vector<atom_vector_map_t> > atom_vector_map;
 
 	    int n_chains = model_p->GetNumberOfChains();
 	    for (int ichain=0; ichain<n_chains; ichain++) {
@@ -62,14 +71,19 @@ int main(int argc, char **argv) {
 					reference_atoms[1], reference_atoms[3]);
 		     coot::atom_quad q2(reference_atoms[2], reference_atoms[0],
 					reference_atoms[1], reference_atoms[3]);
-		     atom_vector_map_N[res_name].push_back(q1);
-		     atom_vector_map_C[res_name].push_back(q2);
+		     atom_vector_map_t avm;
+		     avm.q1 = q1;
+		     avm.q2 = q2;
+		     avm.fn = coot::util::file_name_non_directory(file_name);
+		     avm.res_no = residue_p->GetSeqNum();
+		     avm.chain_id = residue_p->GetChainID();
+		     if (! avm.chain_id.empty())
+			atom_vector_map[res_name].push_back(avm);
 		  }
 	       }
 	    }
 
-	    print_tors(atom_vector_map_N, "N");
-	    print_tors(atom_vector_map_C, "C");
+	    print_tors(atom_vector_map);
 
 	 }
       }
