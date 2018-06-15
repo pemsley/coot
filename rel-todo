@@ -1,25 +1,24 @@
 
    For Release 0.8.9.2
 
-   o Merge Bernie again.  ::: 1
+   o Merge bernie  ::: 1 h
 
-   o Multi-sharpen shoould run refmac in the background and check for existance of output mtz fiel
-     When it does, offfer a dialog "Open sharpening?" or some such. ::: 1
+   o panning - don't centre on atom on scroll-button-down ::: 2 h
 
-   o when I have undipslyed hydrogends, I dont want to ever pick them during refinement.
-     Fix.
+   o coot --version and --version-full ::: 1
 
-     Wheke we are at it, I don't want to pick atoms at the back when I am refineing either.
-
-
-     bring JED flip to intermediate atoms.
-
-
-    move bond params to draw.
-
-
+   o Multi-sharpen should run refmac in the background and check for existance of output mtz file
+     When it does, offfer a dialog "Open sharpening?" or some such.  Try 6 steps to 400
+     Does it give the right values to refmac?
+     ::: 1
 
 ------
+
+   o when I have undisplayed hydrogens, I don't want to ever pick them during refinement.
+     Fix. ::: 1
+
+   o While we are at it, I don't want to pick atoms at the back when I am refining either.
+     ::: 1
 
    o copy fragment should have a "move it here" button. ::: 0.5
 
