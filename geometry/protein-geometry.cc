@@ -1992,7 +1992,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
       s  = getenv("CLIB");
 
       if (! s) {
-	 std::cout << "DEBUG:: try_dynamic_add() using PKGDATADIR" << package_data_dir()
+	 std::cout << "DEBUG:: try_dynamic_add() using package_data_dir(): " << package_data_dir()
 		   << std::endl;
 	 std::string tmp_string = package_data_dir();
 	 tmp_string = util::append_dir_dir(tmp_string, "lib");
