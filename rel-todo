@@ -1,9 +1,10 @@
 
    For Release 0.8.9.2
 
-   o coot --version and --version-full ::: 1
-
    o panning - don't centre on atom on scroll-button-down ::: 2 h
+     Fix when you have a mouse.
+
+   o SMILES -> Simple 3D
 
    o Multi-sharpen should run refmac in the background and check for existance of output mtz file
      When it does, offfer a dialog "Open sharpening?" or some such.  Try 6 steps to 400
@@ -212,3 +213,6 @@ command "cprodrg" not found
    o Merge bernie  ::: 1 h
 
 * Done - I hope
+
+   o coot --version and --version-full ::: 1
+
