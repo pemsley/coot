@@ -57,7 +57,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	coot-coord-utils-nucleotides.cc coot-rama.cc coot-h-bonds.cc hole.cc read-sm-cif.cc \
 	bonded-pairs.cc helix-analysis.cc elastic.cc glyco-torsions.cc coot-least-squares.cc \
 	atom-overlaps.cc reduce.cc atom-selection-container.cc contact-info.cc coot-shelx-ins.cc \
-	secondary-structure-headers.cc plane-utils.cc c-beta-deviations.cc jed-flip.cc
+	secondary-structure-headers.cc plane-utils.cc c-beta-deviations.cc
 
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la 
@@ -84,7 +84,7 @@ libcoot_coord_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # for non-simple coordinates things
 libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc \
-	coot-tree-extras.cc water-coordination.cc lsq-improve.cc coot-coord-utils-glyco.cc
+	coot-tree-extras.cc water-coordination.cc lsq-improve.cc coot-coord-utils-glyco.cc jed-flip.cc
 
 # needs more, mini-mol, geometry
 #     $(top_builddir)/mini-mol/libcoot-mini-mol.la
