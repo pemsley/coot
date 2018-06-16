@@ -36,7 +36,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	read-sm-cif.hh bonded-pairs.hh tree.hh helix-analysis.hh elastic.hh emma.hh \
 	glyco-torsions.hh coot-least-squares.hh coot-density-stats.hh \
         atom-overlaps.hh reduce.hh atom-selection-container.hh contact-info.hh plane-utils.hh \
-        secondary-structure-headers.hh c-beta-deviations.hh
+        secondary-structure-headers.hh c-beta-deviations.hh jed-flip.hh
 
 pkgincludedir = $(includedir)/coot/coot-utils
 
@@ -57,7 +57,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	coot-coord-utils-nucleotides.cc coot-rama.cc coot-h-bonds.cc hole.cc read-sm-cif.cc \
 	bonded-pairs.cc helix-analysis.cc elastic.cc glyco-torsions.cc coot-least-squares.cc \
 	atom-overlaps.cc reduce.cc atom-selection-container.cc contact-info.cc coot-shelx-ins.cc \
-	secondary-structure-headers.cc plane-utils.cc c-beta-deviations.cc
+	secondary-structure-headers.cc plane-utils.cc c-beta-deviations.cc jed-flip.cc
 
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la 

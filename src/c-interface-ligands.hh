@@ -76,5 +76,4 @@ namespace coot {
 
 void coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec);
 
-
 #endif // C_INTERFACE_LIGANDS_HH

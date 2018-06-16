@@ -8153,6 +8153,11 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 				bool invert_selection,
 				coot::protein_geometry *geom) {
 
+   // This function was copied to coot-utils - don't edit this, edit the coot-utils
+   // version and call it from here - possibly delete this.
+   //
+   // But this does have_unsaved_changes_flag and make_backup.
+
    std::string problem_string;
    
    mmdb::Residue *residue = get_residue(spec);
@@ -8175,12 +8180,12 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 	       clicked_atom_idx = iat;
 	       break;
 	    } 
-	 } 
+	 }
       }
 
       if (! clicked_atom) {
 	 std::cout << "WARNING:: atom \"" << atom_name << "\" not found in residue " << std::endl;
-      } else { 
+      } else {
       
 	 std::string monomer_type = residue->GetResName();
 
@@ -8211,7 +8216,7 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 
 	       if (interesting_torsions.size() == 0) {
 		  problem_string = "There are no non-CONST non-ring torsions for this atom";
-	       } else { 
+	       } else {
 
 		  // make a constructor?
 		  atom_selection_container_t residue_asc;
@@ -8222,6 +8227,8 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 		  coot::contact_info contact = coot::getcontacts(residue_asc, monomer_type, imol_no, geom);
 		  std::vector<std::vector<int> > contact_indices =
 		     contact.get_contact_indices_with_reverse_contacts();
+
+		  std::cout << "here ... " << std::endl;
 
 		  try {
 		     coot::atom_tree_t tree(contact_indices, clicked_atom_idx, residue, alt_conf);
@@ -8250,6 +8257,11 @@ molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
 					 const std::string &atom_name,
 					 int atom_idx,
 					 bool invert_selection) {
+
+   // This function was copied to coot-utils - don't edit this, edit the coot-utils
+   // version and call it from here - possibly delete this.
+   //
+   // But this does have_unsaved_changes_flag and make_backup.
 
    std::string problem_string;
    unsigned int selected_idx = 0;
@@ -8291,6 +8303,11 @@ molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
 					 const std::string &atom_name,
 					 int clicked_atom_idx,
 					 bool invert_selection) {
+
+   // This function was copied to coot-utils - don't edit this, edit the coot-utils
+   // version and call it from here - possibly delete this.
+   //
+   // But this does have_unsaved_changes_flag and make_backup.
 
    std::string problem_string;
 

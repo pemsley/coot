@@ -106,6 +106,12 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
       g.last_restraints->minimize(flags, steps_per_frame, print_initial_chi_squareds_flag);
 
    retprog = graphics_info_t::saved_dragged_refinement_results.progress;
+
+   if (false)
+      std::cout << "debug:: in drag_refine_refine_intermediate_atoms() with progress "
+		<< retprog << " drag_refine_idle_function_token "
+		<< graphics_info_t::drag_refine_idle_function_token << std::endl;
+
    print_initial_chi_squareds_flag = 0;
    int do_disulphide_flag = 0;
    int draw_hydrogens_flag = 0;
@@ -171,7 +177,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 
 
    g.run_post_intermediate_atoms_moved_hook_maybe();
-   
+
 #endif // HAVE_GSL
 
    return retprog;
@@ -191,7 +197,7 @@ bool graphics_info_t::pepflip_intermediate_atoms() {
 
       coot::Cartesian pt(graphics_info_t::RotationCentre());
 
-      for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) { 
+      for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
 	 mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
 	 coot::Cartesian atom_pos(at->x, at->y, at->z);
 	 coot::Cartesian diff = atom_pos - pt;
@@ -236,6 +242,7 @@ bool graphics_info_t::pepflip_intermediate_atoms() {
 	       coot::util::rotate_atom_about(dir, base, M_PI, at_2_n);
 	       coot::util::rotate_atom_about(dir, base, M_PI, at_2_h); // does null check
 
+	       add_drag_refine_idle_function();
 	       drag_refine_refine_intermediate_atoms();
 
 	    }
@@ -483,3 +490,49 @@ void graphics_info_t::run_post_intermediate_atoms_moved_hook_maybe() {
    }
 }
 #endif
+
+
+#include "coot-utils/jed-flip.hh"
+
+// static
+int
+graphics_info_t::jed_flip_intermediate_atoms() {
+
+   int status = 0;
+
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->n_selected_atoms > 0) {
+	 status = 1;
+
+	 // get active atom
+	 mmdb::Atom *active_atom = nullptr;
+	 float min_dist_sqrd = 4.0;
+
+	 coot::Cartesian pt(RotationCentre_x(),
+			    RotationCentre_y(),
+			    RotationCentre_z());
+
+	 for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+	    mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
+	    coot::Cartesian atom_pos(at->x, at->y, at->z);
+	    coot::Cartesian diff = atom_pos - pt;
+	    if (diff.amplitude_squared() < min_dist_sqrd) {
+	       min_dist_sqrd = diff.amplitude_squared();
+	       active_atom = at;
+	    }
+	 }
+
+	 if (active_atom) {
+	    mmdb::Residue *residue_p = active_atom->residue;
+	    int imol = imol_moving_atoms;
+	    bool invert_selection = false;
+	    coot::util::jed_flip(imol, residue_p, active_atom, invert_selection, Geom_p());
+	    add_drag_refine_idle_function();
+	    drag_refine_refine_intermediate_atoms();
+	 }
+      }
+   }
+   graphics_draw();
+   return status;
+
+}

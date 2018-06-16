@@ -46,7 +46,7 @@ Bond_lines_container::get_rotamer_dodecs(const atom_selection_container_t &asc) 
 	    // coot::rotamer_probability_info_t pr = rot.probability_of_this_rotamer();
 
 	    std::string res_name(residue_p->GetResName());
-	    if (is_standard_amino_acid_name(res_name)) {
+	    if (coot::util::is_standard_amino_acid_name(res_name)) {
 
 	       try {
 
@@ -102,10 +102,10 @@ Bond_lines_container::get_rotamer_dodecs(const atom_selection_container_t &asc) 
 			}
 		     }
 		  }
-		  catch (const std::runtime_error &rte) {
-		     std::cout << "exception caught in get_rotamer_dodecs() " << std::endl;
-		     std::cout << "    " << rte.what() << std::endl;
-		  }
+	       }
+	       catch (const std::runtime_error &rte) {
+		  std::cout << "exception caught in get_rotamer_dodecs() " << std::endl;
+		  std::cout << "    " << rte.what() << std::endl;
 	       }
 	    }
 	 }
