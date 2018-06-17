@@ -26,8 +26,11 @@ namespace coot {
 						 PyObject *ligand_spec,
 						 const std::string &dirname_or_cif_file_name);
 
-   boost::python::object coot_probe_dots_from_coordinates_file(const std::string &file_name,
-						     bool add_hydrogens_flag);
+   boost::python::object contact_dots_from_coordinates_file(const std::string &file_name,
+							    bool add_hydrogens_flag);
+
+   boost::python::object atom_overlaps_from_coordinates_file(const std::string &file_name,
+							     bool add_hydrogens_flag);
 
    // helper function
    void get_ligand_interactions_read_cifs(const std::string &residue_name,
@@ -47,7 +50,8 @@ BOOST_PYTHON_MODULE(coot_extended) {
 
    def("extract_ligands_from_coords_file", coot::extract_ligands_from_coords_file);
    def("get_ligand_interactions", coot::get_ligand_interactions);
-   def("coot_probe_dots_from_coordinates_file", coot::coot_probe_dots_from_coordinates_file);
+   def("contact_dots_from_coordinates_file", coot::contact_dots_from_coordinates_file);
+   def("atom_overlaps_from_coordinates_file", coot::atom_overlaps_from_coordinates_file);
 
 }
 
@@ -138,12 +142,9 @@ coot::get_ligand_interactions(const std::string &file_name,
 			      PyObject *ligand_spec_py,
 			      const std::string &dirname_or_cif_file_name) {
 
-   std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^ Here in get_ligand_interactions " << file_name << std::endl;
    // debug
    py_residue_spec_t debug = (ligand_spec_py);
-   std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^ Here in get_ligand_interactions " << file_name << " "
-	     << debug << std::endl;
-   
+
    // this is how to convert (any) PyObject * to a boost::python::object
    // (consider if ref-counting is an issue).
    boost::python::object o(boost::python::handle<>(Py_False));
@@ -339,7 +340,7 @@ coot::extract_ligands_from_coords_file_try_read_cif(const std::string &ccd_dir_o
 // Input a pdb file that has Hydrogen atoms.
 //
 boost::python::object
-coot::coot_probe_dots_from_coordinates_file(const std::string &file_name, bool add_hydrogens_flag) {
+coot::contact_dots_from_coordinates_file(const std::string &file_name, bool add_hydrogens_flag) {
 
    double dot_density = 0.15; // pass this?
    boost::python::object o(boost::python::handle<>(Py_False)); // return this
@@ -426,6 +427,73 @@ coot::coot_probe_dots_from_coordinates_file(const std::string &file_name, bool a
    }
    return o;
 }
+
+boost::python::object
+coot::atom_overlaps_from_coordinates_file(const std::string &file_name,
+					  bool add_hydrogens_flag) {
+
+   boost::python::object o(boost::python::handle<>(Py_False)); // return this
+
+   protein_geometry geom;
+   geom.set_verbose(false);
+   geom.init_standard();
+
+   if (coot::file_exists(file_name)) {
+      mmdb::Manager *mol = new mmdb::Manager;
+      mmdb::ERROR_CODE err = mol->ReadCoorFile(file_name.c_str());
+      if (err) {
+	 std::cout << "Error reading coordinates file " << file_name << std::endl;
+      } else {
+	 // Happy Path
+	 try {
+
+	    int read_number = 40;
+	    std::vector<std::string> rtv = coot::util::non_standard_residue_types_in_molecule(mol);
+	    for (unsigned int i=0; i<rtv.size(); i++)
+	       if (rtv[i] != "HOH")
+		  geom.try_dynamic_add(rtv[i], read_number++);
+
+	    // spike-length probe-radius (unused)
+	    coot::atom_overlaps_container_t overlaps(mol, &geom, 0.5, 0.25);
+	    overlaps.make_all_atom_overlaps();
+	    std::vector<coot::atom_overlap_t> olv = overlaps.overlaps;
+	    // std::cout << "Found " << olv.size() << " atom overlaps" << std::endl;
+	    PyObject *o_py = PyList_New(olv.size());
+	    for (std::size_t ii=0; ii<olv.size(); ii++) {
+	       const coot::atom_overlap_t &o = olv[ii];
+	       if (false) // debug
+		  std::cout << "Overlap " << ii << " "
+			    << coot::atom_spec_t(o.atom_1) << " "
+			    << coot::atom_spec_t(o.atom_2) << " overlap-vol "
+			    << o.overlap_volume << " r_1 "
+			    << o.r_1 << " r_2 " << o.r_2 << std::endl;
+	       PyObject *item_dict_py = PyDict_New();
+	       py_atom_spec_t spec_1(o.atom_1);
+	       py_atom_spec_t spec_2(o.atom_2);
+	       PyObject *r_1_py = PyFloat_FromDouble(o.r_1);
+	       PyObject *r_2_py = PyFloat_FromDouble(o.r_2);
+	       PyObject *ov_py  = PyFloat_FromDouble(o.overlap_volume);
+	       PyDict_SetItemString(item_dict_py, "atom-1-spec", spec_1.pyobject());
+	       PyDict_SetItemString(item_dict_py, "atom-2-spec", spec_2.pyobject());
+	       PyDict_SetItemString(item_dict_py, "overlap-volume", ov_py);
+	       PyDict_SetItemString(item_dict_py, "radius-1", r_1_py);
+	       PyDict_SetItemString(item_dict_py, "radius-2", r_2_py);
+	       PyList_SetItem(o_py, ii, item_dict_py);
+	    }
+	    o = boost::python::object(boost::python::handle<>(o_py));
+	 }
+
+	 catch (const std::runtime_error &rte) {
+	    std::cout << "WARNING:: " << rte.what() << std::endl;
+	 }
+	 catch (const std::exception &e) {
+	    std::cout << "WARNING:: " << e.what() << std::endl;
+	 }
+      }
+   }
+   return o;
+}
+
 
 
 #endif // MAKE_ENHANCED_LIGAND_TOOLS

@@ -264,6 +264,9 @@ namespace coot {
 						   mmdb::realtype min_dist,
 						   mmdb::realtype max_dist,
 						   bool make_vdw_surface);
+
+      static bool overlap_sorter(const atom_overlap_t &ao1, const atom_overlap_t &ao2);
+      void sort_overlaps();
       
    public:
       // we need mol to use UDDs to mark the HB donors and acceptors (using coot-h-bonds.hh)
@@ -289,6 +292,7 @@ namespace coot {
 
       std::vector<atom_overlap_t> overlaps;
       void make_overlaps();
+      void make_all_atom_overlaps();
       void contact_dots_for_overlaps() const; // old
       atom_overlaps_dots_container_t contact_dots_for_ligand();
       atom_overlaps_dots_container_t all_atom_contact_dots(double dot_density = 0.5,
