@@ -365,7 +365,8 @@ coot::contact_dots_from_coordinates_file(const std::string &file_name, bool add_
 		  geom.try_dynamic_add(rtv[i], read_number++);
 
 	    // spike-length probe-radius
-	    coot::atom_overlaps_container_t overlaps(mol, &geom, 0.5, 0.25);
+	    bool ignore_waters = false;
+	    coot::atom_overlaps_container_t overlaps(mol, &geom, ignore_waters, 0.5, 0.25);
 	    coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(dot_density);
 	    const std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> > &dots = c.dots;
 	    const coot::atom_overlaps_dots_container_t::spikes_t &clashes = c.clashes;
@@ -454,7 +455,8 @@ coot::atom_overlaps_from_coordinates_file(const std::string &file_name,
 		  geom.try_dynamic_add(rtv[i], read_number++);
 
 	    // spike-length probe-radius (unused)
-	    coot::atom_overlaps_container_t overlaps(mol, &geom, 0.5, 0.25);
+	    bool ignore_waters = false;
+	    coot::atom_overlaps_container_t overlaps(mol, &geom, ignore_waters, 0.5, 0.25);
 	    overlaps.make_all_atom_overlaps();
 	    std::vector<coot::atom_overlap_t> olv = overlaps.overlaps;
 	    // std::cout << "Found " << olv.size() << " atom overlaps" << std::endl;
