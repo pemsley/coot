@@ -22,7 +22,7 @@
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
-#include "coot-utils/coot-coord-utils.hh" // this is out of order.  Hmmm.
+// #include "coot-utils/coot-coord-utils.hh" // this is out of order.  Hmmm.
 #include "chemical-feature-clusters.hh"
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 

@@ -8,7 +8,7 @@
 
 #include "cod-atom-types.hh"
 #include "utils/coot-utils.hh"
-#include "coot-utils/coot-coord-utils.hh"
+// #include "coot-utils/coot-coord-utils.hh" out of order now
 #include "bond-table-record-t.hh"
 
 class hybridization_info_t {
@@ -972,6 +972,21 @@ int main(int argc, char **argv) {
    return status;
 }
 
+#else
+#include <iostream>
+int main(int argc, char **argv) {
+   std::cout << "Not compiled with SQLITE3" << std::endl;
+   return 1;
+}
 
 #endif // USE_SQLITE3
+
+#else
+
+#include <iostream>
+int main(int argc, char **argv) {
+   std::cout << "Not compiled for enhanced-ligands" << std::endl;
+   return 1;
+}
+
 #endif // MAKE_ENHANCED_LIGAND_TOOLS

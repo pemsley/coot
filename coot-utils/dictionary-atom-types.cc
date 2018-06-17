@@ -28,7 +28,7 @@ int main(int argc, char **argv) {return 0;}
 #include <algorithm>
 
 #include "geometry/protein-geometry.hh"
-#include "coot-utils/coot-coord-utils.hh"
+// #include "coot-utils/coot-coord-utils.hh" out of order now
 #include "rdkit-interface.hh"
 
 // ordered so that the table is written in decreasing order
@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
 	 std::cout << "Null mol from mol_from_dictionary() for " <<  comp_id << std::endl;
       } else {
 	 
-	 mmdb::Residue *residue_p = coot::util::get_first_residue(mol);
+	 mmdb::Residue *residue_p = coot::get_first_residue(mol);
 
 	 if (! residue_p) {
 	    // pretty strange

@@ -35,7 +35,7 @@
 #include "cod-atom-types.hh"
 #include "bond-record-container-t.hh"
 
-#include "coot-utils/coot-coord-utils.hh"
+// #include "coot-utils/coot-coord-utils.hh" out of order now
 
 // can throw std::runtime_error.
 // 
@@ -1039,8 +1039,8 @@ cod::bond_record_container_t::get_bond_distance_from_model(const std::string &at
 
       if (at_1 && at_2) {
 
-	 clipper::Coord_orth pt_1 = coot::co(at_1);
-	 clipper::Coord_orth pt_2 = coot::co(at_2);
+	 clipper::Coord_orth pt_1 = co(at_1);
+	 clipper::Coord_orth pt_2 = co(at_2);
 
 	 d = clipper::Coord_orth::length(pt_1, pt_2);
       }
