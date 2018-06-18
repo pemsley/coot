@@ -3,16 +3,21 @@
 
 #include "geometry/residue-and-atom-specs.hh"
 
-// return a map or a list at some stage
-void
+// return a map or a list at some stage.
+// I am not sure that we want a map. Maybe we want a vector.
+// We the value of the outside map is a map on the alt confs of the residue
+// - or maybe we should use the residue spec?
+//
+std::map<mmdb::Residue *, std::map<std::string, coot::c_beta_deviation_t> >
 coot::get_c_beta_deviations(mmdb::Manager *mol) {
 
+   std::map<mmdb::Residue *, std::map<std::string, c_beta_deviation_t> > m; // return this
    int imod = 1;
    mmdb::Model *model_p = mol->GetModel(imod);
    if (model_p) {
       int n_chains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<n_chains; ichain++) {
-	 std::cout << "ichain " << ichain << std::endl;
+	 // std::cout << "ichain " << ichain << std::endl;
 	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
 	 for (int ires=0; ires<nres; ires++) {
@@ -20,14 +25,17 @@ coot::get_c_beta_deviations(mmdb::Manager *mol) {
 	    int n_atoms = residue_p->GetNumberOfAtoms();
 	    std::map<std::string, c_beta_deviation_t> cbdm = get_c_beta_deviations(residue_p);
 	    if (cbdm.size()) {
-	       std::map<std::string, c_beta_deviation_t>::const_iterator it;
-	       it = cbdm.begin();
-	       std::cout << " " << residue_spec_t(residue_p) << " " << it->second.dist << std::endl;
+	       m[residue_p] = cbdm;
+	       if (false) { // debug
+		  std::map<std::string, c_beta_deviation_t>::const_iterator it;
+		  it = cbdm.begin();
+		  std::cout << " " << residue_spec_t(residue_p) << " " << it->second.dist << std::endl;
+	       }
 	    }
 	 }
       }
    }
-
+   return m;
 }
 
 std::map<std::string, coot::c_beta_deviation_t>

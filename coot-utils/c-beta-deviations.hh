@@ -20,7 +20,8 @@ namespace coot {
    };
 
 
-   void get_c_beta_deviations(mmdb::Manager *mol);
+   std::map<mmdb::Residue *, std::map<std::string, c_beta_deviation_t> >
+   get_c_beta_deviations(mmdb::Manager *mol);
    // maybe other, more fine-grained arguments needed?
 
    std::map<std::string, c_beta_deviation_t> get_c_beta_deviations(mmdb::Residue *residue_p);

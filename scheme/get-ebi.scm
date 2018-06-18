@@ -188,6 +188,9 @@
 	   (mtz-file-name (append-dir-file coot-tmp-dir
 					   (string-append down-code "_map.mtz"))))
 
+      (format #t "::::::::: pdb-file-name: ~s~%" pdb-file-name)
+      (format #t "::::::::: mtz-file-name: ~s~%" mtz-file-name)
+
       (if (not (file-exists? pdb-file-name))
 	  #f
 	  (if (not (file-exists? mtz-file-name))
