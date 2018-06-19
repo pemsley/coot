@@ -2962,8 +2962,35 @@ coot::util::get_last_residue_in_chain(mmdb::Chain *chain_p) {
       }
    }
    return r;
-
 }
+
+mmdb::Residue *
+coot::util::get_second_residue_in_chain(mmdb::Chain *chain_p) {
+
+   mmdb::Residue *r = nullptr;
+   if (chain_p) {
+      int nres = chain_p->GetNumberOfResidues();
+      if (nres > 1) {
+	 r = chain_p->GetResidue(1);
+      }
+   }
+   return r;
+}
+
+mmdb::Residue *
+coot::util::get_penultimate_residue_in_chain(mmdb::Chain *chain_p) {
+
+   mmdb::Residue *r = nullptr;
+   if (chain_p) {
+      int nres = chain_p->GetNumberOfResidues();
+      if (nres > 1) {
+	 int idx = nres-2;
+	 r = chain_p->GetResidue(idx);
+      }
+   }
+   return r;
+}
+
 
 
 std::vector<mmdb::Residue *>

@@ -779,6 +779,8 @@ namespace coot {
 
       mmdb::Residue *get_first_residue_in_chain(mmdb::Chain *chain_p);
       mmdb::Residue *get_last_residue_in_chain(mmdb::Chain *chain_p);
+      mmdb::Residue *get_second_residue_in_chain(mmdb::Chain *chain_p);
+      mmdb::Residue *get_penultimate_residue_in_chain(mmdb::Chain *chain_p);
 
       std::vector<mmdb::Residue *> get_hetgroups(mmdb::Manager *mol, bool include_waters=false);
 

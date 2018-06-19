@@ -2440,7 +2440,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 
 	    // check that we are adding some atoms:
 	    // 
-	    if (mmatoms.size() == 0) { 
+	    if (mmatoms.size() == 0) {
 	       std::cout << "WARNING: failed to find a fit for terminal residue"
 			 << std::endl;
 	       if (use_graphics_interface_flag) { 
@@ -2482,16 +2482,17 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	       // involved - the methods to manipulate the standard
 	       // residues are part of molecule_class_info_t - so we
 	       // need to make an instance of that class.
-	       // 
+	       //
 // 	       std::cout << "-------------- terminal_res_asc --------" << std::endl;
 // 	       debug_atom_selection_container(terminal_res_asc);
 
 	       // terminal_res_asc.mol->WritePDBASCII("terminal_res_asc.pdb");
-	       
+
 	       // atom_selection_container_t tmp_asc = add_cb_to_terminal_res(terminal_res_asc);
 
  	       atom_selection_container_t tmp_asc =
- 		  add_side_chain_to_terminal_res(terminal_res_asc, res_type, terminus_type);
+ 		  add_side_chain_to_terminal_res(terminal_res_asc, res_type, terminus_type,
+						 add_terminal_residue_add_other_residue_flag);
 
 
 // 	       std::cout << "-------------- tmp_asc --------" << std::endl;

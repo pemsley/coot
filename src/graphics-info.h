@@ -2683,7 +2683,8 @@ public:
    // called by above (private)
    atom_selection_container_t add_side_chain_to_terminal_res(atom_selection_container_t asc, 
 							     const std::string &res_type,
-							     const std::string &terminus_type);
+							     const std::string &terminus_type,
+							     bool add_other_residue_flag);
 
 
    // public (from globjects);

@@ -74,7 +74,15 @@
 atom_selection_container_t
 graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 						const std::string &res_type,
-						const std::string &terminus_type) {
+						const std::string &terminus_type,
+						bool add_other_residue_flag) {
+
+   // the add_other_residue_flag is now passed to this function so that, when building
+   // forwards, we can add to the penultimate residue rather than the last residue
+   // (get_last_residue_in_chain()).
+
+   // std::cout << "here we are in add_side_chain_to_terminal_res " << res_type
+   // << " " << terminus_type << std::endl;
 
    atom_selection_container_t rasc = asc; 
    int istat;
@@ -100,7 +108,7 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
       if (std_res == NULL) {
 	 std::cout << "WARNING:: Can't find standard residue for " 
                    << target_res_type << "\n";
-      } else { 
+      } else {
 
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    chain = model_p->GetChain(ichain);
@@ -113,20 +121,29 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 		  int nres = chain->GetNumberOfResidues();
 		  mmdb::Residue *residue_p = 0;
 
-		  if (terminus_type == "N" || "MN")
-		     residue_p = coot::util::get_first_residue_in_chain(chain);
-		  if (terminus_type == "C" || "MC")
-		     residue_p = coot::util::get_last_residue_in_chain(chain);
+		  if (terminus_type == "N" || "MN") {
+		     if (add_other_residue_flag)
+			residue_p = coot::util::get_second_residue_in_chain(chain);
+		     else
+			residue_p = coot::util::get_first_residue_in_chain(chain);
+		  }
+		  if (terminus_type == "C" || "MC") {
+		     if (add_other_residue_flag)
+			residue_p = coot::util::get_penultimate_residue_in_chain(chain);
+		     else
+			residue_p = coot::util::get_last_residue_in_chain(chain);
+		  }
 
 		  if (residue_p) {
 
 		     //
-		     if (true)
+		     if (false)
 			std::cout << "INFO:: mutating residue " << coot::residue_spec_t(residue_p)
-				  << " in add_cb_to_terminal_res\n";
+				  << " in add_cb_to_terminal_res()\n";
+
 		     istat = molci.move_std_residue(std_res_copy, residue_p);
 
-		     if (istat) { 
+		     if (istat) {
 
 			mmdb::PPAtom residue_atoms;
 			int nResidueAtoms;
