@@ -152,6 +152,7 @@ namespace coot {
       int udd_h_bond_type_handle;
       int udd_residue_index_handle;
       double probe_radius;
+      bool ignore_water_contacts_flag;
       
       // for energy types -> vdw radius and h-bond type
       std::map<std::string, double> type_to_vdw_radius_map;
@@ -285,8 +286,10 @@ namespace coot {
 				const protein_geometry *geom_p_in,
 				double clash_spike_length_in,
 				double probe_radius_in = 0.25);
+      // all atom contact dots and atom overlaps
       atom_overlaps_container_t(mmdb::Manager *mol_in,
 				const protein_geometry *geom_p_in,
+				bool ignore_water_contacts_flag,
 				double clash_spike_length_in = 0.5,
 				double probe_radius_in = 0.25);
 

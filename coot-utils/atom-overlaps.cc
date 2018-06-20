@@ -81,9 +81,10 @@ coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Residue *res_ce
 }
 
 // this can throw a std::out_of_range (missing residue from dictionary)
-//
+// /default args for clash_spike_length_in and probe_radius_in.
 coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Manager *mol_in,
 							   const protein_geometry *geom_p_in,
+							   bool ignore_water_contacts_flag_in,
 							   double clash_spike_length_in,
 							   double probe_radius_in) {
    geom_p = geom_p_in;
@@ -91,6 +92,7 @@ coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Manager *mol_in
    mol = mol_in;
    clash_spike_length = 0.5;
    probe_radius = probe_radius_in;
+   ignore_water_contacts_flag = ignore_water_contacts_flag_in;
    init_for_all_atom();
 }
 
@@ -531,7 +533,7 @@ coot::atom_overlaps_container_t::make_all_atom_overlaps() {
 			clipper::Coord_orth co_at_2 = co(at_2);
 			double ds = (co_at_1 - co_at_2).lengthsq();
 			double d = std::sqrt(ds);
-			if (d < r_1 + r_2) {
+			if (d < (r_1 + r_2)) {
 			   double ovl = get_overlap_volume(d, r_2, r_1);
 			   atom_overlap_t ao(pscontact[i].id2, at_1, at_2, r_1 ,r_2, ovl);
 			   overlaps.push_back(ao);
@@ -2098,8 +2100,13 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
 	 std::string res_name_1 = res_1->GetResName();
 	 std::string res_name_2 = res_2->GetResName();
 	 if (res_name_1 == res_name_2) {
-	    if (res_name_1 == "HOH")
-	       ait = IGNORED;
+	    if (res_name_1 == "HOH") {
+	       if (ignore_water_contacts_flag) {
+		  ait = IGNORED;
+	       } else {
+		  ait = CLASHABLE;
+	       }
+	    }
 	 } else {
 	    ait = CLASHABLE;
 	 }
