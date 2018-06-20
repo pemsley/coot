@@ -236,6 +236,7 @@ coot_embedded_la_LIBADD = \
 coot_extended_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
 coot_extended_la_LIBADD = \
                        $(top_builddir)/pli/libcoot-pli.la   \
+                       $(top_builddir)/geometry/libcoot-geometry.la   \
                        $(RDKIT_LIBS) $(L_BOOST_PYTHON)
 pyexec_LTLIBRARIES = coot_embedded.la coot_extended.la
 endif
