@@ -26,6 +26,6 @@ namespace coot {
 
    std::map<std::string, c_beta_deviation_t> get_c_beta_deviations(mmdb::Residue *residue_p);
 
-   clipper::Coord_orth make_CB_ideal_pos(const atom_quad &q, bool is_PRO);
+   clipper::Coord_orth make_CB_ideal_pos(const atom_quad &q, const std::string &res_name);
    
 }
