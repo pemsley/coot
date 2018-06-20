@@ -782,17 +782,34 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
    } else {
 
       // cut glass mode:
+      int shinyness = 128;
 
-      GLfloat  ambientLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-      GLfloat  diffuseLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-      GLfloat specularLight[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-   
-      // Assign created components to GL_LIGHT2
-      glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
-      glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
-      glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
+      bool less_shiny = false; // testing
 
-      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
+      if (! less_shiny) { // so, shiny.
+
+	 GLfloat  ambientLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	 GLfloat  diffuseLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	 GLfloat specularLight[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	 // Assign created components to GL_LIGHT2
+	 glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
+	 glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
+	 glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
+
+	 glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shinyness);
+      } else {
+	 // can't assign to arrays.
+	 GLfloat ambientLight[]  = { 0.03, 0.3f, 0.3f, 1.0f };
+	 GLfloat diffuseLight[]  = { 0.6f, 0.6f, 0.6f, 1.0f };
+	 GLfloat specularLight[] = { 0.4f, 0.4f, 0.4f, 1.0f };
+	 shinyness = 8;
+	 // Assign created components to GL_LIGHT2
+	 glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
+	 glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
+	 glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
+
+	 glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shinyness);
+      }
 
       // glDisable(GL_COLOR_MATERIAL);
 
@@ -801,6 +818,19 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
       GLfloat  mat_ambient[]   = {0.160, 0.160, 0.160, opacity};
       GLfloat  mat_diffuse[]   = {0.200, 0.2,   0.200, opacity}; // lit surface is this colour 
       GLfloat  mat_shininess[] = {120.0};                        // in the direction of the light.
+
+      // interesting and different
+      //
+      if (less_shiny) {
+	 mat_ambient[0] = 0.1*map_colour[0][0];
+	 mat_ambient[1] = 0.1*map_colour[0][1];
+	 mat_ambient[2] = 0.1*map_colour[0][2];
+	 mat_ambient[3] = opacity;
+	 mat_diffuse[0] = map_colour[0][0];
+	 mat_diffuse[1] = map_colour[0][1];
+	 mat_diffuse[2] = map_colour[0][2];
+	 mat_diffuse[3] = opacity;
+      }
 
       if (is_difference_map_p()) {
 
@@ -826,9 +856,9 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
       }
 
       glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-      glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
       glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
       glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shinyness);
 
    } 
    
