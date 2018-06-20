@@ -106,6 +106,27 @@ coot::make_CB_ideal_pos(const coot::atom_quad &q, const std::string &res_name) {
    double a2 = clipper::Util::d2rad(111.7);
    double t1 = clipper::Util::d2rad(122.9);
    double t2 = clipper::Util::d2rad(-122.6);
+
+   if (res_name == "ALA") l = 1.509;
+   if (res_name == "ASP") l = 1.531;
+   if (res_name == "ASN") l = 1.531;
+   if (res_name == "CYS") l = 1.524;
+   if (res_name == "GLU") l = 1.530;
+   if (res_name == "PHE") l = 1.531;
+   if (res_name == "HIS") l = 1.535;
+   if (res_name == "ILE") l = 1.542;
+   if (res_name == "LYS") l = 1.532;
+   if (res_name == "LEU") l = 1.532;
+   if (res_name == "MET") l = 1.532;
+   if (res_name == "PRO") l = 1.534;
+   if (res_name == "GLN") l = 1.530;
+   if (res_name == "ARG") l = 1.532;
+   if (res_name == "SER") l = 1.507;
+   if (res_name == "THR") l = 1.534;
+   if (res_name == "VAL") l = 1.541;
+   if (res_name == "TRP") l = 1.534;
+   if (res_name == "TYR") l = 1.531;
+
    if (res_name == "ALA") a1 = clipper::Util::d2rad(109.912);
    if (res_name == "ASP") a1 = clipper::Util::d2rad(111.338);
    if (res_name == "ASN") a1 = clipper::Util::d2rad(111.766);
