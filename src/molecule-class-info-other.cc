@@ -6226,7 +6226,7 @@ molecule_class_info_t::find_deviant_geometry(float strictness) {
 			     (char *) mol_chain.c_str(),
 			     residues_mol,
 			     fixed_atom_specs,
-			     dummy_xmap);
+			     &dummy_xmap);
 	    }
 	 }
       }

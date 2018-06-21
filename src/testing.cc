@@ -689,7 +689,7 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
 					   altconf,
 					   chn,
 					   residues_mol_pair.first,
-					   fixed_atom_specs, dummy_xmap);
+					   fixed_atom_specs, &dummy_xmap);
 
    short int do_rama_restraints = 0;
    short int do_residue_internal_torsions = 1;
@@ -1060,7 +1060,7 @@ int test_peptide_link() {
       std::vector<mmdb::Link> links;
       clipper::Xmap<float> dummy_xmap;
 
-      coot::restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs, dummy_xmap);
+      coot::restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs, &dummy_xmap);
       restraints.add_map(weight);
       std::string link_type = "";
       // restraints.find_link_type(residues[0].second,
@@ -1138,7 +1138,7 @@ restr_res_vector() {
       geom.init_standard();
       std::vector<mmdb::Link> links;
       coot::restraints_container_t
-	 restraints(residues, links, geom, mol, fixed_atom_specs, xmap);
+	 restraints(residues, links, geom, mol, fixed_atom_specs, &xmap);
       restraints.add_map(weight);
       bool do_trans_peptide_restraints = true;
       int imol = 0;

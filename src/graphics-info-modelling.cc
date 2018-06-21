@@ -402,10 +402,10 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	 // restraints_container_t needs to contain a reference to a real map (which can
 	 // be a dummy ;-)).
 
-	 clipper::Xmap<float> &xmap_ref = *dummy_xmap;
+	 clipper::Xmap<float> *xmap_p = dummy_xmap;
 
 	 if (is_valid_map_molecule(imol_for_map))
-	    xmap_ref = molecules[imol_for_map].xmap;
+	    xmap_p = &molecules[imol_for_map].xmap;
 
 	 last_restraints = new coot::restraints_container_t(resno_1,
 							    resno_2,
@@ -416,7 +416,7 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 							    chn,
 							    residues_mol,
 							    fixed_atom_specs,
-							    xmap_ref);
+							    xmap_p);
 
 	 // this is where regularize and refine differ:
 	 if (is_valid_map_molecule(imol_for_map))
@@ -823,9 +823,10 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 		  local_residues.push_back(std::pair<bool, mmdb::Residue *>(0, residues_mol_and_res_vec.second[i]));
 
 	       int imol_for_map = Imol_Refinement_Map();
-	       clipper::Xmap<float> &xmap = *dummy_xmap;
+	       clipper::Xmap<float> *xmap_p = dummy_xmap;
+
 	       if (is_valid_map_molecule(imol_for_map))
-		  xmap = molecules[imol_for_map].xmap;
+		  xmap_p = &molecules[imol_for_map].xmap;
 
 	       if (last_restraints) {
 		  std::cout << "----------------------------------------------" << std::endl;
@@ -849,7 +850,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 					       local_moving_atoms_asc.links,
 					       *Geom_p(),
 					       residues_mol_and_res_vec.first,
-					       fixed_atom_specs, xmap);
+					       fixed_atom_specs, xmap_p);
 
 	       if (use_map_flag)
 		  last_restraints->add_map(weight);

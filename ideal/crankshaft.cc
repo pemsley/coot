@@ -1528,7 +1528,7 @@ coot::crankshaft::refine_and_score_mol(mmdb::Manager *mol,
       bool make_trans_peptide_restraints = true;
       short int print_chi_sq_flag = 1;
       bool do_rama_plot_restraints = true;
-      coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+      pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
       int restraints_rama_type = restraints_container_t::RAMA_TYPE_ZO;
 
       std::vector<std::pair<bool, mmdb::Residue *> > refine_residues;
@@ -1543,7 +1543,7 @@ coot::crankshaft::refine_and_score_mol(mmdb::Manager *mol,
 #ifdef HAVE_CXX_THREAD
       auto tp_0 = std::chrono::high_resolution_clock::now();
 #endif
-      coot::restraints_container_t restraints(refine_residues, links, geom, mol, fixed_atom_specs, xmap);
+      restraints_container_t restraints(refine_residues, links, geom, mol, fixed_atom_specs, &xmap);
       restraints.set_quiet_reporting();
       restraints.add_map(map_weight);
       restraints.set_rama_type(restraints_rama_type);

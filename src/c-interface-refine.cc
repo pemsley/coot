@@ -418,7 +418,7 @@ PyObject *residues_distortions_py(int imol, PyObject *residue_specs_list_py) {
 	       std::vector<mmdb::Link> links;
 	       coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
 
-	       coot::restraints_container_t restraints(local_residues, links, geom, mol, fixed_atom_specs, xmap);
+	       coot::restraints_container_t restraints(local_residues, links, geom, mol, fixed_atom_specs, &xmap);
 	       int nrestraints =
 		  restraints.make_restraints(imol, geom, flags,
 					     do_residue_internal_torsions,

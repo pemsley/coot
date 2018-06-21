@@ -1860,12 +1860,10 @@ coot::my_df_parallel_planes(const gsl_vector *v,
 double
 coot::restraints_container_t::electron_density_score_at_point(const clipper::Coord_orth &ao) const {
       double dv; 
-      
-      clipper::Coord_frac af = ao.coord_frac(xmap.cell()); 
-      clipper::Coord_map  am = af.coord_map(xmap.grid_sampling()); 
+      clipper::Coord_frac af = ao.coord_frac(xmap_p->cell());
+      clipper::Coord_map  am = af.coord_map(xmap_p->grid_sampling());
       // clipper::Interp_linear::interp(map, am, dv);
-      clipper::Interp_cubic::interp(xmap, am, dv); 
-      
+      clipper::Interp_cubic::interp(*xmap_p, am, dv);
       return dv;  
 }
 
@@ -1875,11 +1873,11 @@ coot::restraints_container_t::electron_density_gradient_at_point(const clipper::
    clipper::Grad_map<double> grad;
    double dv;
    
-   clipper::Coord_frac af = ao.coord_frac(xmap.cell()); 
-   clipper::Coord_map  am = af.coord_map(xmap.grid_sampling()); 
-   clipper::Interp_cubic::interp_grad(xmap, am, dv, grad);
-   clipper::Grad_frac<double> grad_frac = grad.grad_frac(xmap.grid_sampling());
-   return grad_frac.grad_orth(xmap.cell());
+   clipper::Coord_frac af = ao.coord_frac(xmap_p->cell());
+   clipper::Coord_map  am = af.coord_map(xmap_p->grid_sampling());
+   clipper::Interp_cubic::interp_grad(*xmap_p, am, dv, grad);
+   clipper::Grad_frac<double> grad_frac = grad.grad_frac(xmap_p->grid_sampling());
+   return grad_frac.grad_orth(xmap_p->cell());
 } 
 
 #endif // HAVE_GSL

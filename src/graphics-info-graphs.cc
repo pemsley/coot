@@ -683,7 +683,7 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
 							  *Geom_p(),
 							  asc.mol,
 							  fixed_atom_specs,
-							  dummy_xmap);
+							  &dummy_xmap);
 	       
 		  // coot::restraint_usage_Flags flags = coot::BONDS;
 		  // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES;
@@ -1021,7 +1021,7 @@ graphics_info_t::omega_graphs(int imol) {
 			if (nSelResidues > 0) { 
 			   coot::restraints_container_t restraints(molecules[imol].atom_sel,
 								   std::string(chain_id),
-								   dummy_xmap);
+								   &dummy_xmap);
 
 			   coot::omega_distortion_info_container_t om_dist = 
 			      restraints.omega_trans_distortions(*geom_p,
@@ -1050,7 +1050,7 @@ graphics_info_t::omega_distortions_from_mol(const atom_selection_container_t &as
 					    const std::string &chain_id) {
 
    clipper::Xmap<float> dummy_xmap;
-   coot::restraints_container_t restraints(asc, chain_id, dummy_xmap);
+   coot::restraints_container_t restraints(asc, chain_id, &dummy_xmap);
    coot::omega_distortion_info_container_t om_dist =
       restraints.omega_trans_distortions(*geom_p, mark_cis_peptides_as_bad_flag);
    return om_dist;

@@ -275,7 +275,7 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 
 	    coot::restraints_container_t restraints(residues,
 						    links,
-						    geom, mol, dummy_fixed_atom_specs, dummy_xmap);
+						    geom, mol, dummy_fixed_atom_specs, &dummy_xmap);
 	    coot::bonded_pair_container_t bpc = restraints.bonded_residues_from_res_vec(geom);
 	    bpc.apply_chem_mods(geom);
 	    atom_sel.mol->FinishStructEdit();

@@ -406,7 +406,7 @@ main(int argc, char **argv) {
 						       links,
 						       geom,
 						       asc.mol,
-						       fixed_atom_specs, xmap);
+						       fixed_atom_specs, &xmap);
       
 	       restraints.add_map(map_weight);
 

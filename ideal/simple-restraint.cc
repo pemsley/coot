@@ -72,7 +72,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 						     const std::string &chain_id,
 						     mmdb::Manager *mol_in, 
 						     const std::vector<coot::atom_spec_t> &fixed_atom_specs,
-						     const clipper::Xmap<float> &map_in) : xmap(map_in) {
+						     const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
 
    init(true);
    are_all_one_atom_residues = false;
@@ -88,7 +88,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 // 
 coot::restraints_container_t::restraints_container_t(atom_selection_container_t asc_in,
 						     const std::string &chain_id,
-						     const clipper::Xmap<float> &map_in) : xmap(map_in) {
+						     const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
    init(true);
    mol = asc_in.mol;
    are_all_one_atom_residues = false;
@@ -158,8 +158,8 @@ coot::restraints_container_t::restraints_container_t(atom_selection_container_t 
 coot::restraints_container_t::restraints_container_t(mmdb::PResidue *SelResidues, int nSelResidues,
 						     const std::string &chain_id,
 						     mmdb::Manager *mol_in,
-						     const clipper::Xmap<float> &map_in) : xmap(map_in) { 
-   
+						     const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
+
    init(true);
    are_all_one_atom_residues = false;
 
@@ -200,8 +200,8 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 						     const std::string &chain_id,
 						     mmdb::Manager *mol_in,
 						     const std::vector<coot::atom_spec_t> &fixed_atom_specs,
-						     const clipper::Xmap<float> &map_in,
-						     float map_weight_in) : xmap(map_in) {
+						     const clipper::Xmap<float> *map_p_in,
+						     float map_weight_in) : xmap_p(map_p_in) {
 
    init(true);
    init_from_mol(istart_res_in, iend_res_in, 		 
@@ -225,7 +225,7 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
 						     const coot::protein_geometry &geom,
 						     mmdb::Manager *mol_in,
 						     const std::vector<atom_spec_t> &fixed_atom_specs,
-						     const clipper::Xmap<float> &map_in) : xmap(map_in) {
+						     const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
 
    // std::cout << "-------------------- in restraints_container_t() constructor " << std::endl;
    init(true);
@@ -252,7 +252,7 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 					    short int have_disulfide_residues,
 					    const std::string &altloc,
 					    const std::string &chain_id,
-					    mmdb::Manager *mol_in, 
+					    mmdb::Manager *mol_in,
 					    const std::vector<coot::atom_spec_t> &fixed_atom_specs) {
 
    init_shared_pre(mol_in);
@@ -6036,7 +6036,7 @@ coot::simple_refine(mmdb::Residue *residue_p,
 						 chain_id,
 						 mol,
 						 fixed_atom_specs,
-						 dummy_xmap);
+						 &dummy_xmap);
    
 	 // restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
 	 restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;

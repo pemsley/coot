@@ -146,6 +146,8 @@ int get_continue_updating_refinement_atoms_state() {
 #ifdef USE_GUILE
 SCM test_mol_triangles_scm(SCM i_scm, SCM j_scm) {
 
+   SCM r = SCM_BOOL_F;
+
 #ifdef USE_MOLECULES_TO_TRIANGLES
    if (true) {
 
@@ -158,5 +160,6 @@ SCM test_mol_triangles_scm(SCM i_scm, SCM j_scm) {
    }
 #endif // USE_MOLECULES_TO_TRIANGLES
 
+   return r;
 }
 #endif

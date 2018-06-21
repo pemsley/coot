@@ -70,7 +70,7 @@ coot::regularize_minimol_molecule(const coot::minimol::molecule &molin,
 					      chn,
 					      mol,
 					      fixed_atom_specs,
-					      dummy_xmap);
+					      &dummy_xmap);
       coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
       bool do_residue_internal_torsions = false;
       bool do_trans_peptide_restraints = true;

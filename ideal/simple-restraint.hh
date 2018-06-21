@@ -1240,7 +1240,7 @@ namespace coot {
 #ifdef HAVE_CXX11_NONONO
       const clipper::Xmap<float> &xmap; // now needs to be passed in all constructors
 #else
-      clipper::Xmap<float> xmap; // a copy is made
+      const clipper::Xmap<float> *xmap_p;
 #endif
       double map_weight; 
 
@@ -1850,8 +1850,8 @@ namespace coot {
 // 	 }
 //       }
 
-      restraints_container_t(atom_selection_container_t asc_in, const clipper::Xmap<float> &xmap_in)
-	 : xmap(xmap_in) {
+      restraints_container_t(atom_selection_container_t asc_in, const clipper::Xmap<float> *xmap_p_in)
+	 : xmap_p(xmap_p_in) {
 
 	 // xmap = xmap_in;
 
@@ -1872,7 +1872,7 @@ namespace coot {
       // for omega distortion info:
       restraints_container_t(atom_selection_container_t asc_in,
 			     const std::string &chain_id,
-			     const clipper::Xmap<float> &xmap_in);
+			     const clipper::Xmap<float> *xmap_in);
 
       // iend_res is inclusive, so that 17,17 selects just residue 17.
       // 
@@ -1886,7 +1886,7 @@ namespace coot {
 			     const std::string &chain_id,
 			     mmdb::Manager *mol_in, // const in an ideal world
 			     const std::vector<atom_spec_t> &fixed_atom_specs,
-			     const clipper::Xmap<float> &xmap_in);
+			     const clipper::Xmap<float> *xmap_in);
 
       // Interface used by Refine button callback:
       // 
@@ -1898,7 +1898,7 @@ namespace coot {
 			     const std::string &chain_id,
 			     mmdb::Manager *mol, // const in an ideal world
 			     const std::vector<atom_spec_t> &fixed_atom_specs,
-			     const clipper::Xmap<float> &map_in,
+			     const clipper::Xmap<float> *map_p_in,
 			     float map_weight);
 
       // For validation.
@@ -1909,7 +1909,7 @@ namespace coot {
       restraints_container_t(mmdb::PResidue *SelResidues, int nSelResidues,
 			     const std::string &chain_id,
 			     mmdb::Manager *mol,
-			     const clipper::Xmap<float> &xmap_in);
+			     const clipper::Xmap<float> *xmap_p_in);
 
       // 20081106 construct from a vector of residues, each of which
       // has a flag attached that denotes whether or not it is a fixed
@@ -1931,7 +1931,7 @@ namespace coot {
 			     const protein_geometry &geom,			     
 			     mmdb::Manager *mol,
 			     const std::vector<atom_spec_t> &fixed_atom_specs,
-			     const clipper::Xmap<float> &xmap_in);
+			     const clipper::Xmap<float> *xmap_p_in);
 
       // 
       // geometric_distortions not const because we set restraints_usage_flag:
@@ -1961,9 +1961,9 @@ namespace coot {
 			     mmdb::PResidue previous_residue, // e.g. residue 15
 			     mmdb::PResidue next_atom,
 			     const std::vector<int> &fixed_atom_indices,
-			     clipper::Xmap<float> &map_in);
+			     clipper::Xmap<float> *map_p_in);
 
-      restraints_container_t(const clipper::Xmap<float> &map_in) : xmap(map_in) {
+      restraints_container_t(const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
 	 from_residue_vector = 0;
 	 include_map_terms_flag = 0;
 	 

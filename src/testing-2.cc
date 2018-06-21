@@ -89,7 +89,7 @@ int test_parallel_plane_restraints() {
 					   chain_id.c_str(),
 					   mol,
 					   fixed_atom_specs,
-					   dummy_xmap);
+					   &dummy_xmap);
 
    short int do_rama_restraints = 0;
    short int do_residue_internal_torsions = 1;

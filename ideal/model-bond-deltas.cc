@@ -44,7 +44,7 @@ coot::model_bond_deltas::resolve() {
 					   altloc,
 					   chain_id,
 					   mol,
-					   fixed_atom_specs, dummy_xmap);
+					   fixed_atom_specs, &dummy_xmap);
  
 
 	 restraint_usage_Flags flags = coot::BONDS;

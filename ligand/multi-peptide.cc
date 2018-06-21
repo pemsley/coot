@@ -1423,7 +1423,7 @@ coot::multi_build_terminal_residue_addition::refine_end(coot::minimol::fragment 
 	 std::cout << "    " << coot::residue_spec_t(residues[ires].second) << std::endl;
       }
    }
-   restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs, xmap);
+   restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs, &xmap);
 
    // Does this make things slower? (seems so, try passing the thread pool
    // or test how long it takes to create and add).
