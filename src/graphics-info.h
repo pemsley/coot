@@ -48,7 +48,9 @@
 #include <gtk/gtkgl.h>
 
 #ifdef HAVE_CXX_THREAD
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #include <utils/ctpl.h>
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #endif // HAVE_CXX_THREAD
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
@@ -2284,7 +2286,7 @@ public:
 				  bool use_map_flag);
 
    coot::refinement_results_t
-     refine_residues_vec(int imol, 
+     refine_residues_vec(int imol,
 			 const std::vector<mmdb::Residue *> &residues,
 			 const std::string &alt_conf,
 			 mmdb::Manager *mol);
@@ -4207,8 +4209,10 @@ string   static std::string sessionid;
    PyObject *geometry_distortion_to_py(const coot::geometry_distortion_info_t &gd);
 #endif
 
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #ifdef HAVE_CXX_THREAD
    static ctpl::thread_pool static_thread_pool;
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #endif
 
 #ifdef USE_MOLECULES_TO_TRIANGLES

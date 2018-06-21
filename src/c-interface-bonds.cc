@@ -141,3 +141,22 @@ int get_continue_updating_refinement_atoms_state() {
 }
 
 #endif // Python
+
+
+#ifdef USE_GUILE
+SCM test_mol_triangles_scm(SCM i_scm, SCM j_scm) {
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+   if (true) {
+
+      int imol = scm_to_int(i_scm);
+      if (is_valid_model_molecule(imol)) {
+	 graphics_info_t::molecules[imol].make_molecularrepresentationinstance();
+	 // graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(graphics_info_t::molecules[imol].molrepinst);
+	 graphics_draw();
+      }
+   }
+#endif // USE_MOLECULES_TO_TRIANGLES
+
+}
+#endif

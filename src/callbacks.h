@@ -4641,3 +4641,53 @@ void
 on_curlew_dialog_response              (GtkDialog       *dialog,
                                         gint             response_id,
                                         gpointer         user_data);
+
+void
+on_modelling_activate                  (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+
+void
+on_edit_settings_activate              (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_align_and_mutate1_activate          (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_calculate_all_molecule_activate     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_calculate_dock_sequence_activate    (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_calculate_map_tools_activate        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_calculate_modules_activate          (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_calculate_ncs_tools_activate        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_calculate_pisa_activate             (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_draw_representation_tools_activate  (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_calculate_views_activate            (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_calculate_load_tutorial_model_and_data1_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);

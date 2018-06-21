@@ -1827,3 +1827,4 @@ void  do_edit_replace_fragment() {
 #endif // PYTHON
 #endif // GUILE
 }
+

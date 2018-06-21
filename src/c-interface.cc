@@ -8535,3 +8535,37 @@ float get_electrostatic_surface_opacity(int imol) {
    return r;
 } 
 
+
+/*! \brief load tutorial model and data  */
+void load_tutorial_model_and_data() {
+
+   // implement this                                    
+
+   /*                                           
+	   (let* ((prefix-dir (getenv "COOT_PREFIX")))
+
+	     (let* ((pkg-data-dir
+		     (if (string? prefix-dir)
+			 (append-dir-dir (append-dir-dir prefix-dir "share") "coot")
+			 (pkgdatadir)))
+		    (data-dir (append-dir-dir pkg-data-dir "data"))
+		    (pdb-file-name (append-dir-file data-dir "tutorial-modern.pdb"))
+		    (mtz-file-name (append-dir-file data-dir "rnasa-1.8-all_refmac1.mtz")))
+
+	       (read-pdb pdb-file-name)
+	       (make-and-draw-map mtz-file-name "FWT" "PHWT" "" 0 0)
+	       (make-and-draw-map mtz-file-name "DELFWT" "PHDELWT" "" 0 1)))))
+
+   */
+
+   std::string p = coot::package_data_dir();
+   std::string d = coot::util::append_dir_dir(p, "data");
+
+   std::string pdb_fn = coot::util::append_dir_file(d, "tutorial-modern.pdb");
+   std::string mtz_fn = coot::util::append_dir_file(d, "rnasa-1.8-all_refmac1.mtz");
+
+   int imol = handle_read_draw_molecule_with_recentre(pdb_fn.c_str(), true);
+   int imol_map = make_and_draw_map(mtz_fn.c_str(), "FWT", "PHWT", "", 0, 0);
+   int imol_diff_map = make_and_draw_map(mtz_fn.c_str(), "DELFWT", "PHDELWT", "", 0, 1);
+
+}

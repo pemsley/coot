@@ -1383,7 +1383,7 @@
 	       (inside-vbox (gtk-vbox-new #f 2))
 	       (h-sep (gtk-hseparator-new))
 	       (buttons-hbox (gtk-hbox-new #t 2))
-	       (go-button (gtk-button-new-with-label "  Dock Sequence!  "))
+	       (go-button (gtk-button-new-with-label "  Dock Sequence  "))
 	       (cancel-button (gtk-button-new-with-label "  Cancel  ")))
 
 	  (let ((seq-info-ls (sequence-info imol)))
@@ -3962,7 +3962,6 @@
 
     (gtk-container-add window vbox)
     (gtk-widget-show-all window))))
-
 ;;
 (define (add-module-cryo-em)
   (if (defined? 'coot-main-menubar)
@@ -3972,6 +3971,10 @@
 (define (add-module-ccp4)
   (if (defined? 'coot-main-menubar)
       (add-module-ccp4-gui)))
+
+(define (add-module-pdbe)
+  (if (defined? 'coot-main-menubar)
+      (add-module-pdbe-gui)))
 
 ;;
 (define (add-module-cryo-em-gui)
@@ -3995,6 +3998,36 @@
 	 menu "Make Link via Acedrg"
 	 (lambda ()
 	   (acedrg-link-generation-control-window))))))
+
+(define (add-module-pdbe-gui)
+  (if (defined? 'coot-main-menubar)
+      (let ((menu (coot-menubar-menu "PDBe")))
+
+	;; ---------------------------------------------------------------------
+	;;     Recent structures from the PDBe
+	;; ---------------------------------------------------------------------
+	;;
+	;; 20110921 too crashy at the moment (something to do with lots of threads?)
+	;; 
+	(add-simple-coot-menu-menuitem
+	 menu "PDBe recent structures..."
+	 pdbe-latest-releases-gui)
+
+	(add-simple-coot-menu-menuitem
+	 menu "Get from PDBe..."
+	 (lambda () 
+	   (let ((mess
+		  (if (command-in-path? "refmac5")
+		      "Get PDBe accession code"
+		      (string-append
+		       "\n  WARNING:: refmac5 not in the path - SF calculation will fail  \n\n"
+		       "Get PDBe accession code"))))
+	     (generic-single-entry mess
+				   "" " Get it "
+				   (lambda (text)
+				     ;; fire off something that is controlled by a time-out -
+				     ;; doesn't return a useful value.
+				     (pdbe-get-pdb-and-sfs-cif 'include-sfs (string-downcase text))))))))))
 
 
 ;; let the c++ part of coot know that this file was loaded:
