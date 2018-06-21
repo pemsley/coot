@@ -4440,6 +4440,9 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    info.SetMouseBegin(event->x, event->y);
    info.SetMouseClicked(event->x, event->y);
 
+   std::cout << "SetMouseBegin  " << event->x << " "  << event->y << std::endl;
+   std::cout << "SetMouseClicked" << event->x << " "  << event->y << std::endl;
+
    GdkModifierType my_button1_mask = info.gdk_button1_mask();
    GdkModifierType my_button2_mask = info.gdk_button2_mask();
    // GdkModifierType my_button3_mask = info.gdk_button3_mask();
@@ -4557,76 +4560,7 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 
    
    if (state & my_button2_mask) {
-
-      // move this block into glarea_button_release
-
-      // Atom picking (recentre)
-
-      // check that the mouse hasn't moved much
-      // c.f. event->x vs mouse_clicked_begin.first
-      //      event->y vs mouse_clicked_begin.second
-
-      pick_info nearest_atom_index_info; 
-      nearest_atom_index_info = atom_pick(event);
-      
-      if ( nearest_atom_index_info.success == GL_TRUE) {
-
-	 int im = nearest_atom_index_info.imol; 
-	 std::cout << "INFO:: recentre: clicked on imol: " << im << std::endl;
-	 
-	 info.setRotationCentre(nearest_atom_index_info.atom_index,
-				nearest_atom_index_info.imol);
-
-	 // Lets display the coordinate centre change
-	 // *then* update the map, so we can see how fast
-	 // the map updating is.
-	 // 
-	 info.graphics_draw();
-
-	 info.post_recentre_update_and_redraw();
-
-      } else {
-
-	 std::cout << "Model atom pick failed. " << std::endl; 
-
-	 // Only try to pick symmetry atoms if the symmetry atoms
-	 // are being displayed. 
-	 
-	 if ( info.show_symmetry == 1 ) {
-	    
-	    std::cout << "Trying symmetry pick" << std::endl;
-	    coot::Symm_Atom_Pick_Info_t symm_atom_info = info.symmetry_atom_pick();
-	    if (symm_atom_info.success == GL_TRUE) {
-	    
-	       std::cout << "Found Symmetry atom pick" << std::endl;
-
-	       // info.setRotationCentre(symm_atom_info.Hyb_atom());
-	       std::pair<symm_trans_t, Cell_Translation> symtransshiftinfo(symm_atom_info.symm_trans,
-									   symm_atom_info.pre_shift_to_origin);
-	       info.setRotationCentre(translate_atom_with_pre_shift(info.molecules[symm_atom_info.imol].atom_sel, 
-								    symm_atom_info.atom_index,
-								    symtransshiftinfo));
-
-	       
-	       // clear_symm_atom_info(symm_atom_info);
-
-	       for (int ii=0; ii<info.n_molecules(); ii++) {
-		  info.molecules[ii].update_symmetry();
-	       }
-	       info.graphics_draw();
-	       for (int ii=0; ii<info.n_molecules(); ii++) {
-		  info.molecules[ii].update_clipper_skeleton();
-		  info.molecules[ii].update_map();
-	       }
-	       info.graphics_draw();
-
-	    } else {
-
-	       std::cout << "Symmetry atom pick failed." << std::endl;
-
-	    }
-	 }
-      }
+      // std::cout << "Nothing doin' at the moment" << std::endl;
    }
    
    if (event->button == 4) {
@@ -4641,11 +4575,103 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 
 gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 
+   graphics_info_t g;
    if (graphics_info_t::in_moving_atoms_drag_atom_mode_flag) {
-
-      graphics_info_t g;
       g.unset_moving_atoms_currently_dragged_atom_index();
       g.do_post_drag_refinement_maybe();
+   } else {
+
+      int x_as_int, y_as_int;
+      GdkModifierType state;
+      gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
+      GdkModifierType my_button2_mask = g.gdk_button2_mask();
+
+      if (event->button == 2) {
+
+	 // move this block into glarea_button_release (now done of course)
+
+	 // Atom picking (recentre)
+
+	 // check that the mouse hasn't moved much
+	 // c.f. event->x vs mouse_clicked_begin.first
+	 //      event->y vs mouse_clicked_begin.second
+
+	 pick_info nearest_atom_index_info; 
+	 nearest_atom_index_info = atom_pick(event);
+
+	 double delta_x = g.GetMouseClickedX() - x_as_int;
+	 double delta_y = g.GetMouseClickedY() - y_as_int;
+
+	 if (false) {
+	    std::cout << "MouseBegin " << g.GetMouseBeginX() << " " << g.GetMouseBeginY()
+		      << " now " << x_as_int << " " << y_as_int << std::endl;
+	    std::cout << "mouse deltas " << delta_x << " " << delta_y << std::endl;
+	 }
+
+	 if (std::abs(delta_x) < 10.0) {
+	    if (std::abs(delta_y) < 10.0) {
+
+	       if (nearest_atom_index_info.success == GL_TRUE) {
+
+		  int im = nearest_atom_index_info.imol; 
+		  std::cout << "INFO:: recentre: clicked on imol: " << im << std::endl;
+
+	 
+		  g.setRotationCentre(nearest_atom_index_info.atom_index,
+				      nearest_atom_index_info.imol);
+
+		  // Lets display the coordinate centre change
+		  // *then* update the map, so we can see how fast
+		  // the map updating is.
+		  // 
+		  g.graphics_draw();
+
+		  g.post_recentre_update_and_redraw();
+
+	       } else {
+
+		  std::cout << "Model atom pick failed. " << std::endl; 
+
+		  // Only try to pick symmetry atoms if the symmetry atoms
+		  // are being displayed. 
+	 
+		  if (g.show_symmetry == 1) {
+	    
+		     std::cout << "Trying symmetry pick" << std::endl;
+		     coot::Symm_Atom_Pick_Info_t symm_atom_info = g.symmetry_atom_pick();
+		     if (symm_atom_info.success == GL_TRUE) {
+	    
+			std::cout << "Found Symmetry atom pick" << std::endl;
+
+			// info.setRotationCentre(symm_atom_info.Hyb_atom());
+			std::pair<symm_trans_t, Cell_Translation> symtransshiftinfo(symm_atom_info.symm_trans,
+										    symm_atom_info.pre_shift_to_origin);
+			g.setRotationCentre(translate_atom_with_pre_shift(g.molecules[symm_atom_info.imol].atom_sel, 
+									  symm_atom_info.atom_index,
+									  symtransshiftinfo));
+
+	       
+			// clear_symm_atom_info(symm_atom_info);
+
+			for (int ii=0; ii<g.n_molecules(); ii++) {
+			   g.molecules[ii].update_symmetry();
+			}
+			for (int ii=0; ii<g.n_molecules(); ii++) {
+			   g.molecules[ii].update_clipper_skeleton();
+			   g.molecules[ii].update_map();
+			}
+			g.graphics_draw();
+
+		     } else {
+
+			std::cout << "Symmetry atom pick failed." << std::endl;
+
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
    }
    graphics_info_t::in_moving_atoms_drag_atom_mode_flag = 0;
    return TRUE;
@@ -4689,7 +4715,7 @@ gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event) {
 	 handle_scroll_density_level_event(1);
       if (event->direction == GDK_SCROLL_DOWN)
 	 handle_scroll_density_level_event(0);
-   } 
+   }
    return TRUE;
 }
 

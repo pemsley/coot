@@ -1635,8 +1635,10 @@ public:
    void SetMouseBegin(double x, double y);
    void SetMouseClicked(double x, double y);
 
-   double  GetMouseBeginX() const ;
-   double  GetMouseBeginY() const ;
+   double GetMouseBeginX() const;
+   double GetMouseBeginY() const;
+   double GetMouseClickedX() const {return mouse_clicked_begin.first;}
+   double GetMouseClickedY() const {return mouse_clicked_begin.second;}
    
    // We are given atom atom index, we will use this to look up 
    // the atom using molecule_class_info and find its coordinates.
