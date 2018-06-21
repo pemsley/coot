@@ -1,4 +1,8 @@
 
+#ifdef USE_PYTHON
+#include <Python.h>
+#endif
+
 #ifdef HAVE_CXX11
 #include <cmath>
 #else
@@ -7,9 +11,6 @@
 
 #include <iostream>
 
-#ifdef USE_PYTHON
-#include <Python.h>
-#endif
 
 #ifdef USE_GUILE
 #include <libguile.h>
