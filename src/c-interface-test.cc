@@ -413,7 +413,6 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    if (true) {
       mmdb::Manager *mol = new mmdb::Manager;
       mol->ReadPDBASCII("test.pdb");
-      std::cout << "calling get_c_beta_deviations() " << mol << std::endl;
       coot::get_c_beta_deviations(mol);
    }
 

@@ -86,6 +86,16 @@ public:
      fill_links();
    }
 
+   atom_selection_container_t(mmdb::PPAtom residue_atoms, int n_residue_atoms) {
+      mol = nullptr;
+      atom_selection = residue_atoms;
+      n_selected_atoms = n_residue_atoms;
+      SelectionHandle = -1;
+      UDDAtomIndexHandle = -1;
+      UDDOldAtomIndexHandle = -1;
+      read_success = 1;
+   }
+
    atom_selection_container_t() {
       mol = NULL;
       atom_selection = NULL;

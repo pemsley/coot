@@ -5641,6 +5641,7 @@ graphical_bonds_container::add_cis_peptide_markup(const std::vector<coot::util::
 	    twisted_trans_flag = true;
 	 int model_number = q.atom_1->GetModelNum();
 	 graphical_bonds_cis_peptide_markup m(c_1, c_2, c_3, c_4, pre_pro_flag, twisted_trans_flag, model_number);
+	 m.add_atom_index_quad(cis_peptide_quads[i].index_quad);
 	 cis_peptide_markups[i] = m;
       }
    }

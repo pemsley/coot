@@ -127,6 +127,7 @@ coot_wrap_guile_pre.cc:      $(top_srcdir)/src/c-interface.h    \
                              $(top_srcdir)/src/sdf-interface.hh \
                              $(top_srcdir)/src/cfc.hh \
                              $(top_srcdir)/src/curlew.hh \
+                             $(top_srcdir)/src/validation.hh \
                              $(top_srcdir)/src/cmtz-interface.hh \
                              $(top_srcdir)/src/c-interface-mogul.hh
 	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(WITH_GUILE_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -I$(top_srcdir) -guile -c++  $(top_srcdir)/src/coot.i
@@ -149,6 +150,7 @@ coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
 			 $(top_srcdir)/src/sdf-interface.hh   \
                          $(top_srcdir)/src/cfc.hh \
                          $(top_srcdir)/src/curlew.hh \
+	                 $(top_srcdir)/src/validation.hh \
                          $(top_srcdir)/src/c-interface-mogul.hh
 	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -c++ $(top_srcdir)/src/coot.i
 
@@ -234,6 +236,7 @@ coot_embedded_la_LIBADD = \
 coot_extended_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
 coot_extended_la_LIBADD = \
                        $(top_builddir)/pli/libcoot-pli.la   \
+                       $(top_builddir)/geometry/libcoot-geometry.la   \
                        $(RDKIT_LIBS) $(L_BOOST_PYTHON)
 pyexec_LTLIBRARIES = coot_embedded.la coot_extended.la
 endif
@@ -521,6 +524,8 @@ coot_bin_SOURCES = \
 	atom-selection.hh 	 \
 	ncs.hh 		         \
 	model-view.hh 		 \
+	validation.hh            \
+	validation.cc            \
 	view.hh 		 \
 	view.cc 		 \
 	new-centre.hh            \

@@ -441,6 +441,9 @@ std::set<int> graphics_info_t::moving_atoms_dragged_atom_indices = empty_int_set
 // validate moving atoms
 int       graphics_info_t::moving_atoms_n_cis_peptides = -1;  // unset
 
+// for picking intermediate atoms
+bool      graphics_info_t::moving_atoms_have_hydrogens_displayed = false;
+
 
 std::string graphics_info_t::model_fit_refine_place_atom_at_pointer_string = "";
 std::string graphics_info_t::model_fit_refine_rotate_translate_zone_string = "";
@@ -2351,8 +2354,12 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 	 // Molecule stuff
 	 //
-	 graphics_info_t::molecules[ii].draw_molecule(graphics_info_t::draw_zero_occ_spots_flag,
-						      is_bb, graphics_info_t::draw_cis_peptide_markups);
+	 // turning off cis-peptides goes hand in hand with turning off atom disks in
+	 // display_bonds(). We don't want to see them - they confuse the view
+	 bool dcp =  graphics_info_t::draw_cis_peptide_markups;
+	 if (graphics_info_t::moving_atoms_displayed_p())
+	    dcp = false;
+	 graphics_info_t::molecules[ii].draw_molecule(graphics_info_t::draw_zero_occ_spots_flag, is_bb, dcp);
 
 	 //
 	 graphics_info_t::molecules[ii].draw_dipoles();

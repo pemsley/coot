@@ -36,12 +36,13 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	read-sm-cif.hh bonded-pairs.hh tree.hh helix-analysis.hh elastic.hh emma.hh \
 	glyco-torsions.hh coot-least-squares.hh coot-density-stats.hh \
         atom-overlaps.hh reduce.hh atom-selection-container.hh contact-info.hh plane-utils.hh \
-        secondary-structure-headers.hh c-beta-deviations.hh
+        secondary-structure-headers.hh c-beta-deviations.hh jed-flip.hh
 
 pkgincludedir = $(includedir)/coot/coot-utils
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)	\
+	$(ENHANCED_LIGAND_TOOLS_CFLAGS) \
 	$(CLIPPER_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
 	$(GSL_CFLAGS)			\
@@ -84,7 +85,7 @@ libcoot_coord_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # for non-simple coordinates things
 libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc \
-	coot-tree-extras.cc water-coordination.cc lsq-improve.cc coot-coord-utils-glyco.cc
+	coot-tree-extras.cc water-coordination.cc lsq-improve.cc coot-coord-utils-glyco.cc jed-flip.cc
 
 # needs more, mini-mol, geometry
 #     $(top_builddir)/mini-mol/libcoot-mini-mol.la
@@ -119,10 +120,11 @@ libcoot_map_heavy_la_LIBADD = \
 
 libcoot_map_heavy_la_LDFLAGS = $(SHARED_LDFLAGS)
 
-
-# test-agg-clust
+# lidia-core functions moved here because they use coot-utils functions
+#
 check_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elastic test-spherical glyco-torsions \
-	test-tt-morph test-coot-probe
+	test-tt-morph test-coot-probe test-chem-feat test-cod-atom-types dictionary-atom-types cod-db-access
+
 
 # test_zo_chi_table_SOURCES = test-zo-chi-table.cc
 
@@ -185,3 +187,28 @@ glyco_torsions_SOURCES = test-glyco-torsions.cc
 glyco_torsions_LDADD   = ./libcoot-coord-utils.la
 
 #    $(MMDB_LIBS)
+
+test_chem_feat_SOURCES = test-chem-feat.cc
+
+test_chem_feat_LDADD =
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/coot-lidia-core/libcoot-lidia-core.la \
+	$(RDKIT_LIBS)
+
+test_cod_atom_types_SOURCES = test-cod-atom-types.cc
+
+test_cod_atom_types_LDADD = \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	$(RDKIT_LIBS)
+
+cod_db_access_SOURCES = cod-db-access.cc
+
+cod_db_access_LDADD = $(top_builddir)/lidia-core/libcoot-lidia-core.la $(RDKIT_LIBS)
+
+dictionary_atom_types_SOURCES = dictionary-atom-types.cc
+
+dictionary_atom_types_LDADD = \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+        $(RDKIT_LIBS)

@@ -1269,8 +1269,10 @@ graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
 		      << " removing idle function "
 		      << graphics_info_t::drag_refine_idle_function_token << std::endl;
 	 
-	 gtk_idle_remove(graphics_info_t::drag_refine_idle_function_token);
-	 graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
+	 if (graphics_info_t::drag_refine_idle_function_token != -1) {
+	    gtk_idle_remove(graphics_info_t::drag_refine_idle_function_token);
+	    graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
+	 }
       }
 
 

@@ -38,4 +38,8 @@ void crankshaft_peptide_rotation_optimization_scm(int imol, SCM residue_spec_smc
 void crankshaft_peptide_rotation_optimization_py(int imol, PyObject *residue_spec_py);
 #endif
 
+
+int jed_flip_intermediate_atoms();
+
+
 //! \}

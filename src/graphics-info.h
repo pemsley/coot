@@ -559,7 +559,8 @@ class graphics_info_t {
    mmdb::Residue *get_first_res_of_moving_atoms();
    static int imol_moving_atoms;
    static int imol_refinement_map;
-   static int moving_atoms_n_cis_peptides; 
+   static int moving_atoms_n_cis_peptides;
+   static bool moving_atoms_have_hydrogens_displayed;
 
    //
    static int undo_molecule; // -1 initially
@@ -2682,7 +2683,8 @@ public:
    // called by above (private)
    atom_selection_container_t add_side_chain_to_terminal_res(atom_selection_container_t asc, 
 							     const std::string &res_type,
-							     const std::string &terminus_type);
+							     const std::string &terminus_type,
+							     bool add_other_residue_flag);
 
 
    // public (from globjects);
@@ -3280,7 +3282,9 @@ public:
    static bool find_hydrogen_torsions_flag;
 
    // pickable moving atoms molecule
-   pick_info moving_atoms_atom_pick() const;
+   // (we want to be able to avoid picking hydrogen atoms if the
+   // are not displayed)
+   pick_info moving_atoms_atom_pick(short int pick_mode) const;
    static short int in_moving_atoms_drag_atom_mode_flag;
    // when shift is pressed move (more or less) just the "local"
    // moving atoms atoms, we do this by making the shift proportional
@@ -3313,6 +3317,7 @@ public:
 						    int resno_2) const;
    atom_selection_container_t make_moving_atoms_asc(mmdb::Manager *mol,
 						    const std::vector<mmdb::Residue *> &residues) const;
+   static bool moving_atoms_displayed_p() { return moving_atoms_asc->mol; }
    // so that we know that fixed_points_sheared_drag_1 and
    // fixed_points_sheared_drag_2 are sensible:
    // 
@@ -4187,6 +4192,8 @@ string   static std::string sessionid;
    void register_extension(const std::string &extension,
 			   const std::string &version);
    std::string get_version_for_extension(const std::string &extension_name) const;
+
+   static int jed_flip_intermediate_atoms();
 
 
 #ifdef USE_PYTHON

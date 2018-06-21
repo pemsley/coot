@@ -152,6 +152,7 @@ namespace coot {
       int udd_h_bond_type_handle;
       int udd_residue_index_handle;
       double probe_radius;
+      bool ignore_water_contacts_flag;
       
       // for energy types -> vdw radius and h-bond type
       std::map<std::string, double> type_to_vdw_radius_map;
@@ -264,6 +265,9 @@ namespace coot {
 						   mmdb::realtype min_dist,
 						   mmdb::realtype max_dist,
 						   bool make_vdw_surface);
+
+      static bool overlap_sorter(const atom_overlap_t &ao1, const atom_overlap_t &ao2);
+      void sort_overlaps();
       
    public:
       // we need mol to use UDDs to mark the HB donors and acceptors (using coot-h-bonds.hh)
@@ -282,13 +286,16 @@ namespace coot {
 				const protein_geometry *geom_p_in,
 				double clash_spike_length_in,
 				double probe_radius_in = 0.25);
+      // all atom contact dots and atom overlaps
       atom_overlaps_container_t(mmdb::Manager *mol_in,
 				const protein_geometry *geom_p_in,
+				bool ignore_water_contacts_flag,
 				double clash_spike_length_in = 0.5,
 				double probe_radius_in = 0.25);
 
       std::vector<atom_overlap_t> overlaps;
       void make_overlaps();
+      void make_all_atom_overlaps();
       void contact_dots_for_overlaps() const; // old
       atom_overlaps_dots_container_t contact_dots_for_ligand();
       atom_overlaps_dots_container_t all_atom_contact_dots(double dot_density = 0.5,

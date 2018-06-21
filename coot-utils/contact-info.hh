@@ -27,8 +27,7 @@ namespace coot {
 
     void setup_from_monomer_restraints(const atom_selection_container_t &asc,
 				       int imol,
-				       coot::protein_geometry *geom_p);
-
+				       protein_geometry *geom_p);
 
   public:
     std::vector<contacts_pair> contacts;

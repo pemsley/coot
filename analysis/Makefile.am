@@ -27,7 +27,7 @@ libcoot_analysis_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 bin_PROGRAMS = coot-bfactan
 
-check_PROGRAMS = test-mogul test-cablam peptide-projection test-align
+check_PROGRAMS = test-mogul test-cablam peptide-projection test-align improper-dihedrals
 
 coot_bfactan_SOURCES = bfactan.cc
 
@@ -45,6 +45,11 @@ test_cablam_LDADD =    $(top_builddir)/coords/libcoot-coords.la    \
 peptide_projection_SOURCES  = peptide-projection.cc
 
 peptide_projection_LDADD = libcoot-analysis.la
+
+improper_dihedrals_SOURCES = improper-dihedrals.cc
+
+improper_dihedrals_LDADD = $(top_builddir)/coords/libcoot-coords.la    \
+			libcoot-analysis.la
 
 test_align_LDADD = libcoot-analysis.la
 

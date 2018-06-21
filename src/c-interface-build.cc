@@ -1264,6 +1264,18 @@ regularize_residues(int imol, const std::vector<coot::residue_spec_t> &residue_s
 }
 
 
+/*! \brief If there is a refinement on-going already, we don't want to start a new one
+
+The is the means to ask if that is the case. This needs a scheme wrapper to provide refinement-already-ongoing?
+  */
+short int refinement_already_ongoing_p() {
+
+   short int state = 0;
+   if (graphics_info_t::moving_atoms_displayed_p())
+      state = 1;
+   return state;
+}
+
 
 #ifdef USE_GUILE
 SCM refine_residues_scm(int imol, SCM r) {
@@ -1282,30 +1294,34 @@ refine_residues_with_alt_conf(int imol, const std::vector<coot::residue_spec_t> 
 			      const std::string &alt_conf) {
 
    coot::refinement_results_t rr;
-   if (is_valid_model_molecule(imol)) {
-      if (residue_specs.size() > 0) {
-	 std::vector<mmdb::Residue *> residues;
-	 for (unsigned int i=0; i<residue_specs.size(); i++) {
-	    coot::residue_spec_t rs = residue_specs[i];
-	    mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(rs);
-	    if (r) {
-	       residues.push_back(r);
+   if (graphics_info_t::moving_atoms_displayed_p()) {
+      add_status_bar_text("No refinement - a modelling/refinemnt operation is already underway");
+   } else {
+      if (is_valid_model_molecule(imol)) {
+	 if (residue_specs.size() > 0) {
+	    std::vector<mmdb::Residue *> residues;
+	    for (unsigned int i=0; i<residue_specs.size(); i++) {
+	       coot::residue_spec_t rs = residue_specs[i];
+	       mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(rs);
+	       if (r) {
+		  residues.push_back(r);
+	       }
 	    }
-	 }
 
-	 if (residues.size() > 0) {
-	    graphics_info_t g;
-	    int imol_map = g.Imol_Refinement_Map();
-	    if (! is_valid_map_molecule(imol_map)) {
-	       add_status_bar_text("Refinement map not set");
-	    } else {
-	       // normal
-	       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
-	       rr = g.refine_residues_vec(imol, residues, alt_conf.c_str(), mol);
+	    if (residues.size() > 0) {
+	       graphics_info_t g;
+	       int imol_map = g.Imol_Refinement_Map();
+	       if (! is_valid_map_molecule(imol_map)) {
+		  add_status_bar_text("Refinement map not set");
+	       } else {
+		  // normal
+		  mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+		  rr = g.refine_residues_vec(imol, residues, alt_conf.c_str(), mol);
+	       }
 	    }
-	 } 
-      } else {
-	 std::cout << "No residue specs found" << std::endl;
+	 } else {
+	    std::cout << "No residue specs found" << std::endl;
+	 }
       }
    }
    return rr;

@@ -29,10 +29,12 @@
 #include <cstring>
 
 #include "utils/coot-utils.hh"
-#include "coot-utils/coot-coord-utils.hh"
+// #include "coot-utils/coot-coord-utils.hh" out of order
 #include "rdkit-interface.hh"
 #include "chemical-feature-clusters.hh"
 #include <GraphMol/MolChemicalFeatures/MolChemicalFeature.h>
+
+#include "get-residue.hh"
 
 
 // do_alignment is an optional arg - default false
@@ -58,10 +60,12 @@ coot::chem_feat_clust::chem_feat_clust(const std::vector<residue_spec_t> &protei
    }
 }
 
+
+
 void
 coot::chem_feat_solvated_ligand::init_residue() {
 
-   residue = util::get_residue(ligand_spec, mol);
+   residue = get_residue(ligand_spec, mol);
 
    if (!residue) {
       std::cout << "WARNING:: null residue from spec " << ligand_spec << std::endl;
@@ -80,7 +84,7 @@ coot::chem_feat_clust::get_chemical_features(int imol,
    if (! setup_success)
       return v;   
 	 
-   mmdb::Residue *residue_p = util::get_residue(lig_spec, mol);
+   mmdb::Residue *residue_p = get_residue(lig_spec, mol);
 
    if (! residue_p) {
       std::cout << "WARNING:: failed to get ligand for molecule " << imol
@@ -224,8 +228,7 @@ coot::chem_feat_clust::fill_waters() {
 
    for (unsigned int ilig=0; ilig<ligands.size(); ilig++) {
       for (unsigned int iw=0; iw<ligands[ilig].waters.size(); iw++) {
-	 mmdb::Residue *res = util::get_residue(ligands[ilig].waters[iw],
-						ligands[ilig].mol);
+	 mmdb::Residue *res = get_residue(ligands[ilig].waters[iw], ligands[ilig].mol);
 	 if (res) {
 	    std::string res_name = res->GetResName();
 	    if (res_name == "HOH") {

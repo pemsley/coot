@@ -265,6 +265,7 @@ public:
    coot::Cartesian pt_c_1;
    coot::Cartesian pt_n_2;
    coot::Cartesian pt_ca_2;
+   coot::atom_index_quad atom_index_quad;
    graphical_bonds_cis_peptide_markup(const coot::Cartesian &pt_ca_1_in,
 				      const coot::Cartesian &pt_c_1_in,
 				      const coot::Cartesian &pt_n_2_in,
@@ -279,6 +280,10 @@ public:
       is_pre_pro_cis_peptide = is_pre_pro_cis_peptide_in;
       is_twisted = is_twisted_in;
       model_number = model_number_in;
+   }
+
+   void add_atom_index_quad(const coot::atom_index_quad &iq) {
+      atom_index_quad = iq;
    }
 
    graphical_bonds_cis_peptide_markup() {
@@ -971,7 +976,7 @@ public:
 
    class symmetry_atom_bond {
    public:
-      // bond between at_1 and symmetry relataed copy of at_2
+      // bond between at_1 and symmetry-related copy of at_2
       mmdb::Atom *at_1;
       mmdb::Atom *at_2;
       symm_trans_t st;

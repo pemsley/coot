@@ -677,12 +677,11 @@ namespace coot {
       class cis_peptide_quad_info_t {
       public:
 	 enum type_t { UNSET_TYPE, CIS, PRE_PRO_CIS, TWISTED_TRANS };
-	 type_t type;
 	 atom_quad quad;
-	 cis_peptide_quad_info_t(const atom_quad &q, type_t t_in) {
-	    quad = q;
-	    type = t_in;
-	 }
+	 atom_index_quad index_quad;
+	 type_t type;
+	 cis_peptide_quad_info_t(const atom_quad &q, const atom_index_quad &iq, type_t t_in) :
+	    quad(q), index_quad(iq), type(t_in) {}
       };
 
       // weighted RTop_orth with deviance
@@ -779,6 +778,8 @@ namespace coot {
 
       mmdb::Residue *get_first_residue_in_chain(mmdb::Chain *chain_p);
       mmdb::Residue *get_last_residue_in_chain(mmdb::Chain *chain_p);
+      mmdb::Residue *get_second_residue_in_chain(mmdb::Chain *chain_p);
+      mmdb::Residue *get_penultimate_residue_in_chain(mmdb::Chain *chain_p);
 
       std::vector<mmdb::Residue *> get_hetgroups(mmdb::Manager *mol, bool include_waters=false);
 

@@ -422,6 +422,14 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	 if (is_valid_map_molecule(imol_for_map))
 	    last_restraints->add_map(geometry_vs_map_weight);
 
+	 // this really means "moving_atoms_don't_have_hydrogens_undisplayed"
+	 // which means that it gets set to false when there are hydrogen atoms
+	 // and the hydrogen atoms are not displayed.
+	 //
+	 moving_atoms_have_hydrogens_displayed = true;
+	 if (! molecules[imol_for_atoms].draw_hydrogens())
+	    moving_atoms_have_hydrogens_displayed = false;
+
 	 atom_selection_container_t local_moving_atoms_asc =
 	    make_moving_atoms_asc(residues_mol, resno_1, resno_2);
 
@@ -801,9 +809,13 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 
 	       // Oops. Just give us a dialog and don't start the refinement
 	       info_dialog_refinement_non_matching_atoms(icheck_atoms.second);
+	       
+	    } else { 
 
-	    } else {
-	    
+	       moving_atoms_have_hydrogens_displayed = true;
+	       if (! molecules[imol].draw_hydrogens())
+		  moving_atoms_have_hydrogens_displayed = false;
+
 	       atom_selection_container_t local_moving_atoms_asc =
 		  make_moving_atoms_asc(residues_mol_and_res_vec.first, residues);
 	       std::vector<std::pair<bool,mmdb::Residue *> > local_residues;  // not fixed.
@@ -2428,7 +2440,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 
 	    // check that we are adding some atoms:
 	    // 
-	    if (mmatoms.size() == 0) { 
+	    if (mmatoms.size() == 0) {
 	       std::cout << "WARNING: failed to find a fit for terminal residue"
 			 << std::endl;
 	       if (use_graphics_interface_flag) { 
@@ -2470,16 +2482,17 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	       // involved - the methods to manipulate the standard
 	       // residues are part of molecule_class_info_t - so we
 	       // need to make an instance of that class.
-	       // 
+	       //
 // 	       std::cout << "-------------- terminal_res_asc --------" << std::endl;
 // 	       debug_atom_selection_container(terminal_res_asc);
 
 	       // terminal_res_asc.mol->WritePDBASCII("terminal_res_asc.pdb");
-	       
+
 	       // atom_selection_container_t tmp_asc = add_cb_to_terminal_res(terminal_res_asc);
 
  	       atom_selection_container_t tmp_asc =
- 		  add_side_chain_to_terminal_res(terminal_res_asc, res_type, terminus_type);
+ 		  add_side_chain_to_terminal_res(terminal_res_asc, res_type, terminus_type,
+						 add_terminal_residue_add_other_residue_flag);
 
 
 // 	       std::cout << "-------------- tmp_asc --------" << std::endl;

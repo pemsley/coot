@@ -2043,6 +2043,8 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
 				     bool against_a_dark_background,
 				     bool show_cis_peptide_markups) {
 
+   // show_cis_peptide_markups gets turned off by caller when there are intermediate atoms
+   // displayed.
    if (has_model()) { 
       if (draw_it == 1) {
 	 if (! cootsurface) {
@@ -2118,6 +2120,7 @@ molecule_class_info_t::deuterium_spots() const {
 void
 molecule_class_info_t::cis_peptide_markups() const {
 
+   const std::pair<bool, float> &use_radius_limit = graphics_info_t::model_display_radius;
    if (bonds_box.n_cis_peptide_markups > 0) {
       for (int i=0; i<bonds_box.n_cis_peptide_markups; i++) {
 	 const graphical_bonds_cis_peptide_markup &m = bonds_box.cis_peptide_markups[i];
@@ -2137,25 +2140,29 @@ molecule_class_info_t::cis_peptide_markups() const {
 	    
 	    coot::Cartesian fan_centre = m.pt_ca_1.mid_point(m.pt_ca_2);
 
-	    coot::Cartesian v1 = fan_centre - m.pt_ca_1;
-	    coot::Cartesian v2 = fan_centre - m.pt_c_1;
-	    coot::Cartesian v3 = fan_centre - m.pt_n_2;
-	    coot::Cartesian v4 = fan_centre - m.pt_ca_2;
+	    if ((! use_radius_limit.first)
+		 || graphics_info_t::is_within_display_radius(fan_centre)) {
 
-	    coot::Cartesian pt_ca_1 = m.pt_ca_1 + v1 * 0.15;
-	    coot::Cartesian pt_c_1  = m.pt_c_1  + v2 * 0.15;
-	    coot::Cartesian pt_n_2  = m.pt_n_2  + v3 * 0.15;
-	    coot::Cartesian pt_ca_2 = m.pt_ca_2 + v4 * 0.15;
+	       coot::Cartesian v1 = fan_centre - m.pt_ca_1;
+	       coot::Cartesian v2 = fan_centre - m.pt_c_1;
+	       coot::Cartesian v3 = fan_centre - m.pt_n_2;
+	       coot::Cartesian v4 = fan_centre - m.pt_ca_2;
 
-	    glBegin(GL_TRIANGLE_FAN);
+	       coot::Cartesian pt_ca_1 = m.pt_ca_1 + v1 * 0.15;
+	       coot::Cartesian pt_c_1  = m.pt_c_1  + v2 * 0.15;
+	       coot::Cartesian pt_n_2  = m.pt_n_2  + v3 * 0.15;
+	       coot::Cartesian pt_ca_2 = m.pt_ca_2 + v4 * 0.15;
+
+	       glBegin(GL_TRIANGLE_FAN);
 	 
-	    glVertex3f(fan_centre.x(), fan_centre.y(), fan_centre.z());
-	    glVertex3f(pt_ca_1.x(), pt_ca_1.y(), pt_ca_1.z());
-	    glVertex3f(pt_c_1.x(),  pt_c_1.y(),  pt_c_1.z());
-	    glVertex3f(pt_n_2.x(),  pt_n_2.y(),  pt_n_2.z());
-	    glVertex3f(pt_ca_2.x(), pt_ca_2.y(), pt_ca_2.z());
+	       glVertex3f(fan_centre.x(), fan_centre.y(), fan_centre.z());
+	       glVertex3f(pt_ca_1.x(), pt_ca_1.y(), pt_ca_1.z());
+	       glVertex3f(pt_c_1.x(),  pt_c_1.y(),  pt_c_1.z());
+	       glVertex3f(pt_n_2.x(),  pt_n_2.y(),  pt_n_2.z());
+	       glVertex3f(pt_ca_2.x(), pt_ca_2.y(), pt_ca_2.z());
 
-	    glEnd();
+	       glEnd();
+	    }
 	 }
       }
    }
@@ -2315,7 +2322,7 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 	 if (bonds_box.bonds_[i].thin_lines_flag)
 	    zsc *= 0.5;
  
-	 glBegin(GL_QUADS); 
+	 glBegin(GL_QUADS);
 
 	 if (! use_radius_limit.first) {
 
@@ -2394,8 +2401,11 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 							   const coot::Cartesian &front,
 							   const coot::Cartesian &back,
 							   bool against_a_dark_background) {
+   bool display_it = display_stick_mode_atoms_flag;
+   if (graphics_info_t::moving_atoms_displayed_p())
+      display_it = false;
 
-   if (display_stick_mode_atoms_flag) {
+   if (display_it) {
 
       if (bonds_box.atom_centres_) { 
 
@@ -2433,11 +2443,9 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 		     if ((use_radius_limit.first == false) ||
 			 (graphics_info_t::is_within_display_radius(bonds_box.consolidated_atom_centres[icol].points[i].position))) {
 		     
-			coot::Cartesian fake_pt = bonds_box.consolidated_atom_centres[icol].points[i].position;
-			fake_pt += z_delta;
-			glVertex3f(fake_pt.x(), fake_pt.y(), fake_pt.z());
+			const coot::Cartesian &fake_pt = bonds_box.consolidated_atom_centres[icol].points[i].position;
+			glVertex3f(fake_pt.x()+z_delta.x(), fake_pt.y()+z_delta.y(), fake_pt.z()+z_delta.z());
 		     }
-
 		  }
 	       }
 	    }
@@ -8145,6 +8153,11 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 				bool invert_selection,
 				coot::protein_geometry *geom) {
 
+   // This function was copied to coot-utils - don't edit this, edit the coot-utils
+   // version and call it from here - possibly delete this.
+   //
+   // But this does have_unsaved_changes_flag and make_backup.
+
    std::string problem_string;
    
    mmdb::Residue *residue = get_residue(spec);
@@ -8167,12 +8180,12 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 	       clicked_atom_idx = iat;
 	       break;
 	    } 
-	 } 
+	 }
       }
 
       if (! clicked_atom) {
 	 std::cout << "WARNING:: atom \"" << atom_name << "\" not found in residue " << std::endl;
-      } else { 
+      } else {
       
 	 std::string monomer_type = residue->GetResName();
 
@@ -8203,7 +8216,7 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 
 	       if (interesting_torsions.size() == 0) {
 		  problem_string = "There are no non-CONST non-ring torsions for this atom";
-	       } else { 
+	       } else {
 
 		  // make a constructor?
 		  atom_selection_container_t residue_asc;
@@ -8214,6 +8227,8 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 		  coot::contact_info contact = coot::getcontacts(residue_asc, monomer_type, imol_no, geom);
 		  std::vector<std::vector<int> > contact_indices =
 		     contact.get_contact_indices_with_reverse_contacts();
+
+		  std::cout << "here ... " << std::endl;
 
 		  try {
 		     coot::atom_tree_t tree(contact_indices, clicked_atom_idx, residue, alt_conf);
@@ -8242,6 +8257,11 @@ molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
 					 const std::string &atom_name,
 					 int atom_idx,
 					 bool invert_selection) {
+
+   // This function was copied to coot-utils - don't edit this, edit the coot-utils
+   // version and call it from here - possibly delete this.
+   //
+   // But this does have_unsaved_changes_flag and make_backup.
 
    std::string problem_string;
    unsigned int selected_idx = 0;
@@ -8283,6 +8303,11 @@ molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
 					 const std::string &atom_name,
 					 int clicked_atom_idx,
 					 bool invert_selection) {
+
+   // This function was copied to coot-utils - don't edit this, edit the coot-utils
+   // version and call it from here - possibly delete this.
+   //
+   // But this does have_unsaved_changes_flag and make_backup.
 
    std::string problem_string;
 

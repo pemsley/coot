@@ -2593,7 +2593,7 @@ PyObject *all_molecule_ramachandran_region_py(int imol) {
 //    v.push_back(Foo());
 //    v.push_back(Foo());
 //    return v;
-// } 
+// }
 
 #include "python-classes.hh"
 

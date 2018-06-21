@@ -1189,6 +1189,16 @@ void flip_ligand(int imol, const char *chain_id, int resno) {
    graphics_draw();
 }
 
+
+//! \brief JED-flip intermediate atoms
+//
+// @ return a success status - 0 for "intermediate atoms were not not shown"
+// 1 for intermediate atoms were shown (but not necessarily flipped
+//
+int jed_flip_intermediate_atoms() {
+   return graphics_info_t::jed_flip_intermediate_atoms();
+}
+
 void jed_flip(int imol, const char *chain_id, int res_no, const char *ins_code,
 	      const char *atom_name, const char *alt_conf, short int invert_selection) {
 
@@ -1198,6 +1208,7 @@ void jed_flip(int imol, const char *chain_id, int res_no, const char *ins_code,
       std::string alt_conf_str(alt_conf);
       std::string atom_name_str(atom_name);
       coot::residue_spec_t spec(chain_id, res_no, ins_code);
+      std::cout << "jed-flipping static atoms " << atom_name_str << std::endl;
       std::string problem_string = g.molecules[imol].jed_flip(spec, atom_name_str, alt_conf_str, 
 							      invert_selection_flag, g.Geom_p());
       if (! problem_string.empty()) {
@@ -3545,7 +3556,8 @@ void coot_all_atom_contact_dots(int imol) {
       graphics_info_t g;
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
       // spike-length ball-radius
-      coot::atom_overlaps_container_t overlaps(mol, g.Geom_p(), 0.5, 0.25);
+      bool ignore_waters = true;
+      coot::atom_overlaps_container_t overlaps(mol, g.Geom_p(), ignore_waters, 0.5, 0.25);
       // dot density
       coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(0.95, true);
 
