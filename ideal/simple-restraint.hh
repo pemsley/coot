@@ -29,6 +29,12 @@
 #include <list>
 #include <string>
 #include <stdexcept>
+#include <memory>
+
+#ifdef HAVE_CXX_THREAD
+#include <thread>
+#include <atomic>
+#endif // HAVE_CXX_THREAD
 
 #ifdef HAVE_BOOST
 #ifdef HAVE_CXX_THREAD
@@ -1074,6 +1080,7 @@ namespace coot {
 	 include_map_terms_flag = 0;
 	 have_oxt_flag = 0;
 	 do_numerical_gradients_flag = 0;
+	 n_threads = 0;
 	 lograma.init(LogRamachandran::All, 2.0, true);
 	 // when zo_rama is a static, this is already done
 // 	 try {
@@ -1087,9 +1094,11 @@ namespace coot {
 	 rama_plot_weight = 40.0;
 
 #ifdef HAVE_CXX_THREAD
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 	 thread_pool_p = 0; // null pointer
 	 if (unset_deriv_locks)
 	    gsl_vector_atom_pos_deriv_locks = 0;
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #endif // HAVE_CXX_THREAD
       }
 
@@ -2288,11 +2297,15 @@ namespace coot {
 
       void set_lennard_jones_epsilon(const double &e) { lennard_jones_epsilon = e; }
 
+      // Is it sane to have threads without a thread pool?
+      //
+      // I think so - for example crankshaft
+      //
+      unsigned int n_threads;
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
       // thread pool!
       //
       ctpl::thread_pool *thread_pool_p;
-      unsigned int n_threads;
       // std::atomic<unsigned int> &done_count_for_threads;
       void thread_pool(ctpl::thread_pool *tp_in, int n_threads_in) {
 	 thread_pool_p = tp_in;

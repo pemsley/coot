@@ -23,8 +23,12 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
    // std::cout << "----------------- split_the_gradients_with_threads() " << std::endl;
 
 #ifdef HAVE_CXX_THREAD
-
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
    // --------------------------------------- restraints --------------------------------------
+
+   // Does restraints_p->n_threads depends on having the thread pool?
+   //
+   // I will try to make it not so.
 
    // auto tp_1a = std::chrono::high_resolution_clock::now();
    unsigned int n_t = restraints_p->n_threads;
@@ -123,6 +127,7 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
       */
    }
 
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #endif // HAVE_CXX_THREAD
 
 }

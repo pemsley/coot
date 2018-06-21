@@ -862,6 +862,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
    int restraints_size = restraints_p->size();
 
 #ifdef HAVE_CXX_THREAD
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
    if (false) // debug
       std::cout << "here in coot::distortion_score() thread_pool is "
@@ -983,6 +984,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
       // << "\n";
    }
 
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #else
 
    // "return" value is passed pointer

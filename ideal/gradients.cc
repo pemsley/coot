@@ -161,12 +161,13 @@ void coot::my_df(const gsl_vector *v,
    bool split_the_gradients_with_threads_flag = false;
 
 #ifdef HAVE_CXX_THREAD
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
    // we don't need the thread pool to do this
 
    if (restraints_p->n_threads > 0) // 0 for testing, 1 for real life
       split_the_gradients_with_threads_flag = true;
-
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #endif // HAVE_CXX_THREAD
 
    if (split_the_gradients_with_threads_flag) {

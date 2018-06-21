@@ -6132,11 +6132,13 @@ coot::restraints_container_t::copy_from(const coot::restraints_container_t &rest
    cryo_em_mode = rest_in.cryo_em_mode;
 
 #ifdef HAVE_CXX_THREAD
-      // thread pool!
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+
+   // thread pool!
       //
    thread_pool_p = rest_in.thread_pool_p;
    n_threads = rest_in.n_threads;
-
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #endif // HAVE_CXX_THREAD
    
 }
