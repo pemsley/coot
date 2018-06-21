@@ -91,6 +91,8 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
 
    // imol is added into the atom specs so that the atoms know the molecule they were part of
 
+   std::cout << "----------- in pyobject_from_graphical_bonds_container() n = 4 " << std::endl;
+
    int n_data_item_types = 4; // bonds and angles, rama and cis-peptides
 
    PyObject *r = PyTuple_New(n_data_item_types);
@@ -200,7 +202,11 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
       PyObject *cis_pep_py = PyList_New(3);
       PyObject *is_pre_pro_cis_peptide_py = PyBool_FromLong(m.is_pre_pro_cis_peptide);
       PyObject *is_twisted_py             = PyBool_FromLong(m.is_twisted);
-      PyObject *atom_index_list_py = PyList_New(0);
+      PyObject *atom_index_list_py = PyList_New(4);
+      PyList_SetItem(atom_index_list_py, 0, PyInt_FromLong(m.atom_index_quad.index1));
+      PyList_SetItem(atom_index_list_py, 1, PyInt_FromLong(m.atom_index_quad.index2));
+      PyList_SetItem(atom_index_list_py, 2, PyInt_FromLong(m.atom_index_quad.index3));
+      PyList_SetItem(atom_index_list_py, 3, PyInt_FromLong(m.atom_index_quad.index4));
       PyList_SetItem(cis_pep_py, 0, is_pre_pro_cis_peptide_py);
       PyList_SetItem(cis_pep_py, 1, is_twisted_py);
       PyList_SetItem(cis_pep_py, 2, atom_index_list_py);

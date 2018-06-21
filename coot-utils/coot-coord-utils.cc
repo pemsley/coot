@@ -6804,7 +6804,8 @@ coot::util::cis_peptide_quads_from_coords(mmdb::Manager *mol,
 
    //    std::vector<atom_quad> v;
    std::vector<cis_peptide_quad_info_t> v;
-   
+   int mol_atom_index_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
+
    int n_models = mol->GetNumberOfModels();
    if (n_models == 0)
       return v;
@@ -6913,7 +6914,13 @@ coot::util::cis_peptide_quads_from_coords(mmdb::Manager *mol,
 
 				 if (type != cis_peptide_quad_info_t::UNSET_TYPE) {
 				    atom_quad q(ca_first, c_first, n_next, ca_next);
-				    cis_peptide_quad_info_t qi(q, type);
+				    int i1 = -1, i2 = -1, i3 = -1, i4 = -1;
+				    ca_first->GetUDData(mol_atom_index_handle, i1);
+				    c_first->GetUDData( mol_atom_index_handle, i2);
+				    n_next->GetUDData(  mol_atom_index_handle, i3);
+				    ca_next->GetUDData( mol_atom_index_handle, i4);
+				    atom_index_quad iq(i1, i2, i3, i4);
+				    cis_peptide_quad_info_t qi(q, iq, type);
 				    v.push_back(qi);
 				 }
 			      }
