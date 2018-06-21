@@ -153,15 +153,15 @@ coot::trace::make_seeds() {
       if (! util::is_EM_map(xmap)) {
 	 if (true) {
 	    for (std::size_t i=0; i<seeds.size(); i++) {
-	       std::string fn = "seed-residue-pre-moved-" + util::int_to_string(i) + ".pdb";
-	       frag_to_pdb(seeds[i], fn); // adds cell and symmetry for output
+	       // std::string fn = "seed-residue-pre-moved-" + util::int_to_string(i) + ".pdb";
+	       // frag_to_pdb(seeds[i], fn); // adds cell and symmetry for output
 	    }
 	 }
 	 move_seeds_close_to_origin(&seeds); // by translation
 	 if (true) {
 	    for (std::size_t i=0; i<seeds.size(); i++) {
-	       std::string fn = "seed-residue-" + util::int_to_string(i) + ".pdb";
-	       frag_to_pdb(seeds[i], fn); // adds cell and symmetry for output
+	       // std::string fn = "seed-residue-" + util::int_to_string(i) + ".pdb";
+	       // frag_to_pdb(seeds[i], fn); // adds cell and symmetry for output
 	    }
 	 }
       }
@@ -2034,7 +2034,7 @@ coot::trace::add_tree_maybe(const std::vector<scored_node_t> &path) {
 void
 coot::trace::multi_peptide(const std::vector<std::pair<std::vector<coot::scored_node_t>, coot::minimol::fragment> > &frag_store, const coot::protein_geometry &geom, std::pair<float, float> &mv) {
 
-   unsigned int n_top = 200;
+   unsigned int n_top = 20;
    if (frag_store.size() < n_top) n_top = frag_store.size();
 
    float b_factor = 20;

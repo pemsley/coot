@@ -20,6 +20,10 @@
  * 02110-1301, USA
  */
 
+#ifdef HAVE_CXX_THREAD
+#include <future>
+#endif // HAVE_CXX_THREAD
+
 #include "geometry/residue-and-atom-specs.hh"
 #include "mini-mol/mini-mol-utils.hh"
 #include "ideal/simple-restraint.hh"
@@ -131,8 +135,13 @@ coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_
 
    // this can be a thread (with later thread.join()), it doesn't need
    // to be a future and async.
-   std::future<double> store_score(std::async(store_manager, std::ref(fragment_store),
-					      std::ref(store_lock), std::ref(xmap), std::cref(sequences)));
+
+
+//    std::future<double> store_score(std::async(store_manager, std::ref(fragment_store),
+// 					      std::ref(store_lock), std::cref(xmap), std::cref(sequences)));
+
+   std::thread store_thread(store_manager, std::ref(fragment_store),
+			    std::ref(store_lock), std::cref(xmap), std::cref(sequences));
 
    std::cout << "INFO:: sequences: " << sequences.size() << " " << std::endl;
    for (std::size_t ii=0; ii<sequences.size(); ii++) {
@@ -204,7 +213,9 @@ coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_
 
    fragment_store.all_fragments_stored = true;
 
-   double ss = store_score.get();
+#ifdef HAVE_CXX_THREAD
+   store_thread.join();
+#endif // HAVE_CXX_THREAD
 
    std::cout << "The fragment store has " << fragment_store.stored_fragments.size()
 	     << " fragments, of which " << fragment_store.n_sequenced() << " have sidechains"
@@ -316,6 +327,8 @@ coot::stored_fragment_t::try_assign_sidechains(coot::stored_fragment_t &stored_f
 					       const clipper::Xmap<float> &xmap,
 					       const std::vector<std::pair<std::string, std::string> > &sequences,
 					       mmdb::Manager *standard_residues_mol) {
+
+   std::cout << "################## try_assign_sidechains() " << std::endl;
 
    if (stored_frag.sidechains_tried == false) {
 
@@ -473,7 +486,7 @@ coot::stored_fragment_t::get_standard_residue_instance(const std::string &residu
 
 
 // static
-double
+void
 coot::multi_build_terminal_residue_addition::store_manager(stored_fragment_container_t &fragment_store,
 							   std::atomic<unsigned int> &locked,
 							   const clipper::Xmap<float> &xmap,
@@ -539,7 +552,6 @@ coot::multi_build_terminal_residue_addition::store_manager(stored_fragment_conta
 
 #endif // HAVE_CXX_THREAD
 
-   return score;
 }
 
 // static
@@ -1576,7 +1588,7 @@ coot::multi_build_terminal_residue_addition::is_in_no_go_map(minimol::residue &r
 	 }
       }
 
-      std::cout << "debug:: nhit " << n_hit << " nmiss: " << n_miss << std::endl;
+      // std::cout << "debug:: nhit " << n_hit << " nmiss: " << n_miss << std::endl;
 
       if ((n_hit + n_miss)  > 12) {
 	 big_enough_atom_radius = true;

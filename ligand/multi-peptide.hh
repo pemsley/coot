@@ -137,10 +137,13 @@ namespace coot {
 				 int build_dir,
 				 bool with_sidechains=false);
 
-      static double store_manager(stored_fragment_container_t &fragment_store,
-				  std::atomic<unsigned int> &store_lock, // as above
-				  const clipper::Xmap<float> &xmap,
-				  const std::vector<std::pair<std::string, std::string> > &sequences);
+      // this can't be started with an std::async because it isn't guaranteed to run.
+      // So now we start it with a std::thread, and use thread.join.
+      //
+      static void store_manager(stored_fragment_container_t &fragment_store,
+				std::atomic<unsigned int> &store_lock, // as above
+				const clipper::Xmap<float> &xmap,
+				const std::vector<std::pair<std::string, std::string> > &sequences);
 
       mmdb::Manager *standard_residues_mol;
       void setup_standard_residues_mol();

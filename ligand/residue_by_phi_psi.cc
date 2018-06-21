@@ -306,7 +306,10 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 							      next_residue_seq_num,
 							      terminus_type, residue_type,
 							      b_factor, current_res_pos, xmap_in,
-							      map_rms, rama, debug_trials_flag,
+							      map_rms,
+							      rama, rama_max,
+							      rama_pro, rama_max_pro,
+							      debug_trials_flag,
 							      &results);
 
 	 // find the best
