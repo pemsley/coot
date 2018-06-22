@@ -133,12 +133,13 @@ coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_
    // std::string k = "SMNPPPPET SNPNKPKRQTNQLQYLLRVVLKTLWKHQFAWPFQQPVDAVKLNLPDYYKI IKTPMDMGTIKKRLENNYYWNAQECIQDFNTMFTNCYIYNKPGDDIVLMA EALEKLFLQKINELPTEE";
    // sequences.push_back(std::pair<std::string, std::string> ("A", k));
 
-   // this can be a thread (with later thread.join()), it doesn't need
+   // This can be a thread (with later thread.join()), it doesn't need
    // to be a future and async.
+   // 201806016-PE
+   // In fact a thread is better/necessary - a thread will run, but an async need not.
 
-
-//    std::future<double> store_score(std::async(store_manager, std::ref(fragment_store),
-// 					      std::ref(store_lock), std::cref(xmap), std::cref(sequences)));
+   //    std::future<double> store_score(std::async(store_manager, std::ref(fragment_store),
+   // 					      std::ref(store_lock), std::cref(xmap), std::cref(sequences)));
 
    std::thread store_thread(store_manager, std::ref(fragment_store),
 			    std::ref(store_lock), std::cref(xmap), std::cref(sequences));
