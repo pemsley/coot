@@ -136,6 +136,10 @@ void remarks_dialog(int imol) {
 
 	    remarks_browser_fill_compound_info(mol, vbox_inner);
 
+	    remarks_browser_fill_author_info(mol, vbox_inner);
+
+	    remarks_browser_fill_journal_info(mol, vbox_inner);
+
 	    remarks_browser_fill_link_info(mol, vbox_inner);
 
 	    mmdb::TitleContainer *tc_p = mol->GetRemarks();
@@ -249,7 +253,110 @@ void remarks_browser_fill_compound_info(mmdb::Manager *mol, GtkWidget *vbox) {
    }
 }
 
-void  remarks_browser_fill_link_info(mmdb::Manager *mol, GtkWidget *vbox) {
+void remarks_browser_fill_author_info(mmdb::Manager *mol, GtkWidget *vbox) {
+
+   std::vector<std::string> author_lines;
+
+   access_mol *am = static_cast<access_mol *>(mol); // causes indent problem
+
+   const mmdb::Title *tt = am->GetTitle();
+   mmdb::Title *ttmp = const_cast<mmdb::Title *>(tt);
+   access_title *at = static_cast<access_title *> (ttmp);
+   mmdb::TitleContainer *author_container = at->GetAuthor();
+   unsigned int al = author_container->Length();
+   for (unsigned int i=0; i<al; i++) {
+      mmdb::Author *a_line = mmdb::PAuthor(author_container->GetContainerClass(i));
+      if (a_line) {
+ 	 std::string line(a_line->Line);
+	 author_lines.push_back(line);
+      }
+   }
+   std::cout << "---------------- have " << author_lines.size() << " author lines" << std::endl;
+   if (author_lines.size() > 0) {
+      GtkWidget *frame = gtk_frame_new("Author");
+      gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
+      gtk_widget_show(frame);
+
+      GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
+      GtkWidget *text_view = gtk_text_view_new();
+      gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
+					   GTK_TEXT_WINDOW_RIGHT, 10);
+      gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
+      gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
+      gtk_widget_show(GTK_WIDGET(text_view));
+      gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
+      gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
+
+      GdkColor colour;
+      colour.red   = 63535;
+      colour.green = 59535;
+      colour.blue  = 53535;
+      colour.pixel = 65535;
+      gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
+
+      for (unsigned int ij=0; ij<author_lines.size(); ij++) {
+	 GtkTextIter end_iter;
+	 gtk_text_buffer_get_end_iter(text_buffer, &end_iter);
+	 std::string s = author_lines[ij];
+	 s += "\n";
+	 gtk_text_buffer_insert(text_buffer, &end_iter, s.c_str(), -1);
+      }
+   }
+}
+
+void remarks_browser_fill_journal_info(mmdb::Manager *mol, GtkWidget *vbox) {
+
+   std::vector<std::string> journal_lines;
+
+   access_mol *am = static_cast<access_mol *>(mol); // causes indent problem
+
+   const mmdb::Title *tt = am->GetTitle();
+   mmdb::Title *ttmp = const_cast<mmdb::Title *>(tt);
+   access_title *at = static_cast<access_title *> (ttmp);
+   mmdb::TitleContainer *journal_container = at->GetJournal();
+   int jl = journal_container->Length();
+   unsigned int al = journal_container->Length();
+   for (unsigned int i=0; i<al; i++) {
+      mmdb::Journal *j_line = mmdb::PJournal(journal_container->GetContainerClass(i));
+      if (j_line) {
+	 std::string line(j_line->Line);
+	 journal_lines.push_back(line);
+      }
+   }
+   std::cout << "---------------- have " << journal_lines.size() << " journal_lines" << std::endl;
+   if (journal_lines.size() > 0) {
+      GtkWidget *frame = gtk_frame_new("Journal");
+      gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
+      gtk_widget_show(frame);
+
+      GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
+      GtkWidget *text_view = gtk_text_view_new();
+      gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
+					   GTK_TEXT_WINDOW_RIGHT, 10);
+      gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
+      gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
+      gtk_widget_show(GTK_WIDGET(text_view));
+      gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
+      gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
+
+      GdkColor colour;
+      colour.red   = 45535;
+      colour.green = 49535;
+      colour.blue  = 53535;
+      colour.pixel = 65535;
+      gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
+
+      for (unsigned int ij=0; ij<journal_lines.size(); ij++) {
+	 GtkTextIter end_iter;
+	 gtk_text_buffer_get_end_iter(text_buffer, &end_iter);
+	 std::string s = journal_lines[ij];
+	 s += "\n";
+	 gtk_text_buffer_insert(text_buffer, &end_iter, s.c_str(), -1);
+      }
+   }
+}
+
+void remarks_browser_fill_link_info(mmdb::Manager *mol, GtkWidget *vbox) {
 
    int imod = 1;
    mmdb::Model *model_p = mol->GetModel(imod);

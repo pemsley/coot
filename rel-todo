@@ -1,12 +1,7 @@
 
    For Release 0.8.9.2
 
-   o panning - don't centre on atom on scroll-button-down ::: 2 h
-     Fix when you have a mouse.
-
    o SMILES -> Simple 3D
-
-   o Does --version and --version-full work OK?
 
    o Authors and Journal in header browser?
 

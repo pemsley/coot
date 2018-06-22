@@ -63,7 +63,7 @@ class access_mol : public mmdb::Manager {
  public:
    // we use a pointer so that the destuctor doesn't
    // get run
-   const mmdb::Title *GetTitle() const {return &title; }
+   const mmdb::Title  *GetTitle()  const {return &title; }
 };
 
 class access_title : public mmdb::Title {
@@ -71,6 +71,7 @@ class access_title : public mmdb::Title {
    // we use a pointer so that the destuctor doesn't
    // get run
    mmdb::TitleContainer *GetCompound() { return &compound; }
+   mmdb::TitleContainer *GetAuthor() { return &author; }
 };
 
 namespace coot {
