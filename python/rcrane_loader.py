@@ -5,7 +5,8 @@ import rcrane
 def import_rcrane_wrapper():
    
    #create the menu entry in the Extensions menu
-   extMenu = coot_menubar_menu("Extensions")
+   # extMenu = coot_menubar_menu("Extensions")
+   extMenu = coot_menubar_menu("Calculate")
    rcraneLaunch = gtk.MenuItem("RCrane launch")
    rcraneLaunch.connect("activate", lambda x: rcrane.createRCraneMenuWithCheck())
    rcraneLaunch.show()
