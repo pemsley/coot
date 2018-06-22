@@ -1,10 +1,6 @@
 
    For Release 0.8.9.2
 
-   o SMILES -> Simple 3D
-
-   o Authors and Journal in header browser?
-
 ------
 
    o when I have undisplayed hydrogens, I don't want to ever pick them during refinement.
@@ -210,3 +206,13 @@ command "cprodrg" not found
 
    o coot --version and --version-full ::: 1
 
+* Works.
+
+   o Authors and Journal in header browser? ::: 3 h
+
+* Done.
+
+
+   o SMILES -> Simple 3D ::: 1 h
+
+* missing move_molecule_to_screen_centre_internal()

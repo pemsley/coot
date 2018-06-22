@@ -1,6 +1,6 @@
 
 ylim=23
-xlim=50
+xlim=60
 
 prediction_text_x_placement = 42
 prediction_text_y_placement = 8
