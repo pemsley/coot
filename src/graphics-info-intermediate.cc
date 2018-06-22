@@ -536,3 +536,82 @@ graphics_info_t::jed_flip_intermediate_atoms() {
    return status;
 
 }
+
+#include "coot-utils/atom-selection-container.hh"
+#include "ideal/crankshaft.hh"
+
+// static
+int
+graphics_info_t::crankshaft_peptide_rotation_optimization_intermediate_atoms() {
+
+   // there is some repeated code here, consider factoring it out.
+
+   int status = 0;
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->n_selected_atoms > 0) {
+	 status = 1;
+
+	 // get active atom
+	 mmdb::Atom *active_atom = nullptr;
+	 float min_dist_sqrd = 4.0;
+
+	 coot::Cartesian pt(RotationCentre_x(),
+			    RotationCentre_y(),
+			    RotationCentre_z());
+
+	 for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+	    mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
+	    coot::Cartesian atom_pos(at->x, at->y, at->z);
+	    coot::Cartesian diff = atom_pos - pt;
+	    if (diff.amplitude_squared() < min_dist_sqrd) {
+	       min_dist_sqrd = diff.amplitude_squared();
+	       active_atom = at;
+	    }
+	 }
+
+	 if (active_atom) {
+	    mmdb::Residue *residue_p = active_atom->residue;
+	    int imol = imol_moving_atoms;
+	    coot::residue_spec_t residue_spec(residue_p);
+	    unsigned int n_peptides = 3;
+	    int n_samples = -1; // auto
+
+	    graphics_info_t g;
+	    int imol_map = g.Imol_Refinement_Map();
+	    if (is_valid_map_molecule(imol_map)) {
+	       const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
+	       float w = g.geometry_vs_map_weight;
+	       int n_solutions = 1;
+	       std::vector<mmdb::Manager *> mols =
+		  coot::crankshaft::crank_refine_and_score(residue_spec, n_peptides, xmap,
+							   moving_atoms_asc->mol, w,
+							   n_samples, n_solutions);
+	       if (mols.size() == 1) { // not 0
+
+		  // this feels super-dangerous, replacing the atoms of moving-atoms asc
+		  // with those of the crankshaft mol.
+		  // There are more crankshaft atoms than moving atoms (moving atoms
+		  // don't include the fixed atoms used in refinement).
+		  //
+		  atom_selection_container_t asc = make_asc(mols[0]);
+		  for (int iat=0; iat<moving_atoms_asc->n_selected_atoms; iat++) {
+		     if (iat<asc.n_selected_atoms) {
+			mmdb::Atom *at = moving_atoms_asc->atom_selection[iat];
+			mmdb::Atom *asc_at = asc.atom_selection[iat];
+			at->x = asc_at->x;
+			at->y = asc_at->y;
+			at->z = asc_at->z;
+		     }
+		  }
+		  add_drag_refine_idle_function();
+		  drag_refine_refine_intermediate_atoms();
+	       } else {
+		  add_status_bar_text("Couldn't crankshaft this");
+	       }
+	    }
+	 }
+      }
+   }
+   graphics_draw();
+   return status;
+}

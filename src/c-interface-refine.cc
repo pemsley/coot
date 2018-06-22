@@ -1323,3 +1323,10 @@ void crankshaft_peptide_rotation_optimization_py(int imol, PyObject *residue_spe
    }
 }
 #endif
+
+int crankshaft_peptide_rotation_optimization_intermediate_atoms() {
+
+   graphics_info_t g;
+   return g.crankshaft_peptide_rotation_optimization_intermediate_atoms();
+
+}

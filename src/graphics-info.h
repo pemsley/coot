@@ -4198,6 +4198,7 @@ string   static std::string sessionid;
    std::string get_version_for_extension(const std::string &extension_name) const;
 
    static int jed_flip_intermediate_atoms();
+   static int crankshaft_peptide_rotation_optimization_intermediate_atoms();
 
 
 #ifdef USE_PYTHON
