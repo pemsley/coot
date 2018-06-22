@@ -606,7 +606,7 @@ graphics_info_t::crankshaft_peptide_rotation_optimization_intermediate_atoms() {
 		  add_drag_refine_idle_function();
 		  drag_refine_refine_intermediate_atoms();
 	       } else {
-		  add_status_bar_text("Couldn't crankshaft this");
+		  g.add_status_bar_text("Couldn't crankshaft this");
 	       }
 	    }
 	 }
