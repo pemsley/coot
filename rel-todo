@@ -8,10 +8,7 @@
 
    o Does --version and --version-full work OK?
 
-   o Multi-sharpen should run refmac in the background and check for existance of output mtz file
-     When it does, offfer a dialog "Open sharpening?" or some such.  Try 6 steps to 400
-     Does it give the right values to refmac?
-     ::: 1
+   o Authors and Journal in header browser?
 
 ------
 

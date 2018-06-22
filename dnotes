@@ -8240,5 +8240,26 @@ Tue 12 Jun 2018 17:35:48 BST
 
   record the desktop
 
- ffmpeg -f x11grab -r 30 -i :0.0 /tmp/recording.mp4
+  ffmpeg -f x11grab -r 30 -i :0.0 /tmp/recording.mp4
+
+
+----
+Thu 21 Jun 2018 14:35:55 BST
+
+   Use PyGI+GTK instead of pygtk with Python3
+
+   Converting gtk_timeout_add:
+
+   https://askubuntu.com/questions/228849/pygtk-to-pygi-gtk-timeout-add-equivalent
+
+----
+Fri 22 Jun 2018 14:44:20 BST
+
+  Spin-search Hydrogen atoms - read this first
+
+  Hydrogen bond networks
+  R.W.W.Hooft, C.Sander and G.Vriend,
+  Positioning hydrogen atoms by optimizing hydrogen bond networks in
+  protein structures
+  PROTEINS, 26, 363--376 (1996).
 
