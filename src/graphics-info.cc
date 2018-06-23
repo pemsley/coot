@@ -2061,8 +2061,8 @@ graphics_info_t::get_rotamer_dodecs() {
 	 for (int i=0; i<regularize_object_bonds_box.n_rotamer_markups; i++) {
 
 	    clipper::Coord_orth pos = regularize_object_bonds_box.rotamer_markups[i].pos;
-	    pos -= screen_y * double(22.0/double(graphics_info_t::zoom));
 	    double size = 0.52;
+	    pos -= screen_y * double(1.5 * size * 22.0/double(graphics_info_t::zoom));
 	    coot::generic_display_object_t::dodec_t dodec(d, size, pos);
 	    dodec.col = regularize_object_bonds_box.rotamer_markups[i].col;
 	    dodecs.push_back(dodec);

@@ -571,6 +571,19 @@ class Bond_lines_container {
    std::vector<rotamer_markup_container_t> dodecs;
    // filled by return value of
    std::vector<rotamer_markup_container_t> get_rotamer_dodecs(const atom_selection_container_t &SelAtom) const;
+   // which uses:
+
+   // partially fill dodecs
+   static void
+   add_rotamer_markups(const std::vector<unsigned int> &indices,
+		       const std::vector<std::pair<mmdb::Residue *, mmdb::Atom *> > &residues,
+		       coot::rotamer_probability_tables *rpt,
+		       std::vector<rotamer_markup_container_t> *dodecs);
+   // and
+   static
+   rotamer_markup_container_t get_rotamer_probability(const std::pair<mmdb::Residue *, mmdb::Atom *> &ra,
+						      coot::rotamer_probability_tables *rpt);
+
    
    void add_cis_peptide_markup(const atom_selection_container_t &SelAtom, int model_number);
 

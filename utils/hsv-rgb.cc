@@ -156,16 +156,19 @@ coot::colour_holder::colour_holder(const std::string &hex_colour_string) {
 coot::colour_holder::colour_holder(double value, double min_z, double max_z,
 				   const std::string &dum) {
 
+   // Given a min, max range of 0,1
+   // If value ~0, we want ~green
+   // if value ~1, we want ~red
+
    float this_z = value;
    float range = max_z - min_z;
    float f = (this_z-min_z)/range;
    if (f > 1.0) f = 1.0;
    if (f < 0.0) f = 0.0;
 
-   blue = 0.0;
    blue = 0.25 - (f-0.5)*(f-0.5);
-   red = pow(f, 0.2);
-   green = pow(1 - f, 0.2);
+   red = powf(f, 0.2);
+   green = powf(1.0-f, 0.2);
 
 } 
 
