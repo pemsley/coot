@@ -170,12 +170,13 @@ coot::make_CB_ideal_pos(const coot::atom_quad &q, const std::string &res_name) {
      t1 = clipper::Util::d2rad( 115.20);
      t2 = clipper::Util::d2rad(-119.80);
    }
-   clipper::Coord_orth pt_trial1 = clipper::Coord_orth(pt_1, pt_3, pt_2, l, a1, t1);
-   clipper::Coord_orth pt_trial2 = clipper::Coord_orth(pt_3, pt_1, pt_2, l, a2, t2);
+   clipper::Coord_orth pt_trial1 = clipper::Coord_orth(pt_1, pt_3, pt_2, l, a2, t1);
+   clipper::Coord_orth pt_trial2 = clipper::Coord_orth(pt_3, pt_1, pt_2, l, a1, t2);
 
    double delta_trial_points = std::sqrt((pt_trial2-pt_trial1).lengthsq());
 
-   std::cout << "delta-trial-pts " << delta_trial_points << " " << res_name << std::endl;
+   if (false)
+      std::cout << "delta-trial-pts " << delta_trial_points << " " << res_name << std::endl;
 
    clipper::Coord_orth pt_trial = 0.5 * (pt_trial1 + pt_trial2);
 
