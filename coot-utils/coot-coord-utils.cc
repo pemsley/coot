@@ -3400,7 +3400,7 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
 						   mmdb::Manager *old_mol) {
 
    // So, first make a vector of residue sets, one residue set for each chain.
-   std::vector<coot::util::chain_id_residue_vec_helper_t> residues_of_chain;
+   std::vector<chain_id_residue_vec_helper_t> residues_of_chain;
    
    for (unsigned int i=0; i<res_vec.size(); i++) { 
       std::string chain_id = res_vec[i]->GetChainID();
@@ -3431,7 +3431,7 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
 	 } 
       }
    }
-   
+
    for (unsigned int ich=0; ich<residues_of_chain.size(); ich++) { 
       residues_of_chain[ich].sort_residues();
    }
@@ -3461,20 +3461,43 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
       }
    }
 
+   mmdb::Manager *mol = new mmdb::Manager;
    mmdb::Model *model_p = new mmdb::Model;
+   int udd_atom_index_handle = old_mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
+   int udd_old_atom_index_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "old atom index");
+   mol->AddModel(model_p);
+
    for (unsigned int ich=0; ich<residues_of_chain.size(); ich++) { 
       mmdb::Chain *chain_p = new mmdb::Chain;
       chain_p->SetChainID(residues_of_chain[ich].chain_id.c_str());
-      for (unsigned int ires=0; ires<residues_of_chain[ich].residues.size(); ires++) { 
-	 mmdb::Residue *residue_p = 
-            coot::util::deep_copy_this_residue(residues_of_chain[ich].residues[ires]);
-	 chain_p->AddResidue(residue_p);
+      for (unsigned int ires=0; ires<residues_of_chain[ich].residues.size(); ires++) {
+	 mmdb::Residue *residue_old_p = residues_of_chain[ich].residues[ires];
+	 mmdb::Residue *residue_new_p = deep_copy_this_residue(residue_old_p);
+	 mmdb::Atom **new_residue_atoms = 0;
+	 mmdb::Atom **old_residue_atoms = 0;
+	 int n_old_residue_atoms;
+	 int n_new_residue_atoms;
+	 residue_old_p->GetAtomTable(old_residue_atoms, n_old_residue_atoms);
+	 residue_new_p->GetAtomTable(new_residue_atoms, n_new_residue_atoms);
+
+	 // transfer the atom indices
+	 if (n_old_residue_atoms == n_new_residue_atoms) {
+	    for (int iat=0; iat<n_old_residue_atoms; iat++) {
+	       mmdb::Atom *at_old = old_residue_atoms[iat];
+	       mmdb::Atom *at_new = new_residue_atoms[iat];
+		  int idx = -1;
+	       if (at_old->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok) {
+		  at_new->PutUDData(udd_old_atom_index_handle, idx);
+	       } else {
+		  std::cout << __FUNCTION__ << " oops extracting idx from input mol atom" << std::endl;
+	       }
+	    }
+	 }
+
+	 chain_p->AddResidue(residue_new_p);
       }
       model_p->AddChain(chain_p);
    }
-
-   mmdb::Manager *mol = new mmdb::Manager;
-   mol->AddModel(model_p);
 
    if (old_mol) {
       int imodel = 1;

@@ -393,7 +393,8 @@ molecule_class_info_t::molecule_is_all_c_alphas() const {
 
 void
 molecule_class_info_t::bond_representation(const coot::protein_geometry *geom_p) {
-   makebonds(geom_p);
+   std::set<int> dummy;
+   makebonds(geom_p, dummy);
 }
 
 void
@@ -2821,7 +2822,8 @@ molecule_class_info_t::add_OXT_to_residue(mmdb::Residue *residue,
 	    
 	    atom_sel = make_asc(atom_sel.mol);
 	    have_unsaved_changes_flag = 1;
-	    makebonds(geom_p); // not type checked, so that we can see the atom.
+	    std::set<int> dummy;
+	    makebonds(geom_p, dummy); // not type checked, so that we can see the atom.
 	    istatus = 1;
 	    std::cout << "Added OXT at " << new_oxt_atom << std::endl;
 	 } 
@@ -4178,7 +4180,8 @@ molecule_class_info_t::fill_raster_model_info(bool against_a_dark_background) {
 	 // restore bond_box_type
 	 if (restore_bonds) {
 	    bonds_box_type = coot::NORMAL_BONDS;
-	    makebonds(geom_p);
+	    std::set<int> dummy;
+	    makebonds(geom_p, dummy);
 	 }
 
 	 std::cout << " There are " << bonds_box.n_atom_centres_

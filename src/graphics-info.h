@@ -2509,6 +2509,8 @@ public:
    static float find_ligand_score_by_correl_frac_limit; // 0.7
    static float find_ligand_score_correl_frac_interesting_limit; // 0.9;
 
+   static void rebond_molecule_corresponding_to_moving_atoms();
+
    // Geometry issues:
    
    // debugging:

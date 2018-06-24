@@ -5612,7 +5612,6 @@ void clear_up_moving_atoms() {
    // std::cout << "c-interface clear_up_moving_atoms..." << std::endl;
    g.clear_up_moving_atoms();
    g.clear_moving_atoms_object();
-
 }
 
 

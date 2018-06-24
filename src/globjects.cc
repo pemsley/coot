@@ -3378,6 +3378,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_Escape:
 
+      graphics_info_t::rebond_molecule_corresponding_to_moving_atoms();
+
       clear_up_moving_atoms();
 
       // stop the refinement

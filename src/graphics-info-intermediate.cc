@@ -588,8 +588,8 @@ graphics_info_t::crankshaft_peptide_rotation_optimization_intermediate_atoms() {
 							   n_samples, n_solutions);
 	       if (mols.size() == 1) { // not 0
 
-		  // this feels super-dangerous, replacing the atoms of moving-atoms asc
-		  // with those of the crankshaft mol.
+		  // this feels super-dangerous, replacing the coordinates of the atoms
+		  // of moving-atoms asc with those of the crankshaft mol.
 		  // There are more crankshaft atoms than moving atoms (moving atoms
 		  // don't include the fixed atoms used in refinement).
 		  //
@@ -614,4 +614,23 @@ graphics_info_t::crankshaft_peptide_rotation_optimization_intermediate_atoms() {
    }
    graphics_draw();
    return status;
+}
+
+
+
+// static
+void
+graphics_info_t::rebond_molecule_corresponding_to_moving_atoms() {
+
+   if (moving_atoms_asc) {
+
+      // we were doing some refinement and decided to give up/reject, in that case, we neeed to redraw
+      // the the "static" molecule from which the moving atoms were derived because the "static"
+      // atoms were drawn without the atoms that correspond to the moving atoms.
+      //
+      if (is_valid_model_molecule(imol_moving_atoms)) {
+	 std::set<int> empty_set;
+	 graphics_info_t::molecules[graphics_info_t::imol_moving_atoms].make_bonds_type_checked(empty_set);
+      }
+   }
 }

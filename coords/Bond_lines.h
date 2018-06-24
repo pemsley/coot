@@ -701,7 +701,6 @@ public:
    // getting caught out with Bond_lines_container dependencies?
    // We need:  mmdb-extras.h which needs mmdb-manager.h and <string>
    // Bond_lines_container(const atom_selection_container_t &asc);
-
    Bond_lines_container(const atom_selection_container_t &asc,
 			int imol,
 			int include_disulphides=0,
@@ -718,6 +717,7 @@ public:
    // 
    Bond_lines_container(const atom_selection_container_t &asc,
 			int imol,
+			const std::set<int> &no_bonds_to_these_atoms,
 			const coot::protein_geometry *geom_in,
 			int include_disulphides,
 			int include_hydrogens,
@@ -814,6 +814,7 @@ public:
    // used by above:
    void stars_for_unbonded_atoms(mmdb::Manager *mol, int UddHandle);
    void set_udd_unbonded(mmdb::Manager *mol, int UddHandle);
+   std::set<int> no_bonds_to_these_atoms; // exclude these atoms because they are part of moving atoms
 
    coot::rotamer_probability_tables *rotamer_probability_tables_p;
    void add_rotamer_tables(coot::rotamer_probability_tables *tables_p) {

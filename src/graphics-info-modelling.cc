@@ -796,8 +796,8 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 
 	 // We only want to act on these new residues and molecule, if
 	 // there is something there.
-	 // 
-	 if (residues_mol_and_res_vec.first != 0) {
+	 //
+	 if (residues_mol_and_res_vec.first) {
 
 	    // Now we want to do an atom name check.  This stops exploding residues.
 	    //
@@ -926,6 +926,8 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 #endif
 }
 
+#include "coot-utils/atom-tools.hh"
+
 // mol is new (not from molecules[imol]) molecule for the moving atoms.
 //
 // resno_1 and resno_2 need to be passed because in the
@@ -965,6 +967,7 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 				local_moving_atoms_asc.n_selected_atoms);
 
       local_moving_atoms_asc.fill_links_using_mol(residues_mol);
+
    }
    return local_moving_atoms_asc;
 }
@@ -977,6 +980,8 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
    atom_selection_container_t local_moving_atoms_asc;
    local_moving_atoms_asc.UDDOldAtomIndexHandle = -1;  // true?
    local_moving_atoms_asc.UDDAtomIndexHandle = -1;
+
+   local_moving_atoms_asc.UDDOldAtomIndexHandle = residues_mol->GetUDDHandle(mmdb::UDR_ATOM, "old atom index");
 
    int SelHnd = residues_mol->NewSelection();
 
@@ -1002,11 +1007,27 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
    residues_mol->GetSelIndex(local_moving_atoms_asc.SelectionHandle,
 			     local_moving_atoms_asc.atom_selection,
 			     local_moving_atoms_asc.n_selected_atoms);
-   // std::cout << "returning a atom selection for all moving atoms "
-   // << local_moving_atoms_asc.n_selected_atoms << " atoms "
-   // << std::endl;
+
+
+   if (true) {
+      std::cout << "returning a atom selection for all moving atoms "
+		<< local_moving_atoms_asc.n_selected_atoms << " atoms "
+		<< std::endl;
+   }
+
+   // This new block added so that we don't draw atoms in the "static" molecule when we have the
+   // corresponding atoms in the moving atoms.
+   //
+   const atom_selection_container_t &imol_asc = molecules[imol_moving_atoms].atom_sel;
+   std::set<int> atom_set = coot::atom_indices_in_other_molecule(imol_asc,
+								 local_moving_atoms_asc);
+
+   // now rebond molecule imol without bonds to atoms in atom_set
+   if (atom_set.size())
+      molecules[imol_moving_atoms].make_bonds_type_checked(atom_set);
+
    return local_moving_atoms_asc;
-} 
+}
 
 
 // Return 0 (first) if any of the residues don't have a dictionary
@@ -1173,10 +1194,22 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 		<< " residues " << std::endl;
       for (std::size_t ii=0; ii<residues.size(); ii++)
 	 std::cout << "   " << coot::residue_spec_t(residues[ii])  << std::endl;
+      int udd_atom_index_handle = mol_in->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
+      std::cout << "############ udd for atom index from seeding molecule " << udd_atom_index_handle << std::endl;
+      for (std::size_t ii=0; ii<residues.size(); ii++) {
+	 mmdb::Residue *residue_p = residues[ii];
+	 mmdb::Atom **residue_atoms = 0;
+	 int n_residue_atoms;
+	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	 mmdb::Atom *at = residue_atoms[0];
+	 int idx = -1;
+	 at->GetUDData(udd_atom_index_handle, idx);
+	 std::cout << "#### atom " << coot::atom_spec_t(at) << " had udd index " << idx << std::endl;
+      }
    }
-   
+
    float dist_crit = 3.0;
-   mmdb::Manager *new_mol = 0;
+   mmdb::Manager *new_mol = nullptr;
    std::vector<mmdb::Residue *> rv; // gets checked 
    
    int n_flanker = 0; // a info/debugging counter
@@ -1278,9 +1311,12 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 	 }
 
 	 r = coot::deep_copy_this_residue(flankers_in_reference_mol[ires],
-					  alt_conf, whole_res_flag, 
+					  alt_conf, whole_res_flag,
 					  atom_index_udd_handle);
 	 if (r) {
+
+	    // copy over the atom indices. UDDAtomIndexHandle in mol_n becomes UDDOldAtomIndexHandle
+	    // indices in the returned molecule
 
 	    int sni = find_serial_number_for_insert(r->GetSeqNum(),
 						    r->GetInsCode(),
@@ -3505,7 +3541,8 @@ graphics_info_t::drag_intermediate_atom(const coot::atom_spec_t &atom_spec, cons
 	       }
 	    }
 	 }
-	 Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, geom_p, 0, 1, 0);
+	 std::set<int> dummy;
+	 Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, dummy, geom_p, 0, 1, 0);
 	 regularize_object_bonds_box.clear_up();
 	 regularize_object_bonds_box = bonds.make_graphical_bonds();
 	 graphics_draw();
