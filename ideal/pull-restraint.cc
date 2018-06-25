@@ -62,7 +62,7 @@ coot::restraints_container_t::clear_atom_pull_restraint(const coot::atom_spec_t 
 void
 coot::restraints_container_t::clear_all_atom_pull_restraints() {
 
-   std::cout << "restraints_container_t clear_all_atom_pull_restraints called " << std::endl;
+   // std::cout << "restraints_container_t clear_all_atom_pull_restraints called " << std::endl;
 
    unsigned int pre_size = restraints_vec.size();
    if (pre_size > 0) {
