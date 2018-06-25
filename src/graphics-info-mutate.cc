@@ -81,8 +81,10 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
    // forwards, we can add to the penultimate residue rather than the last residue
    // (get_last_residue_in_chain()).
 
-   // std::cout << "here we are in add_side_chain_to_terminal_res " << res_type
-   // << " " << terminus_type << std::endl;
+   if (false)
+      std::cout << "here we are in add_side_chain_to_terminal_res " << res_type
+		<< " " << terminus_type << " with add_other_residue_flag " << add_other_residue_flag
+		<< std::endl;
 
    atom_selection_container_t rasc = asc; 
    int istat;
@@ -96,7 +98,7 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
    mmdb::Chain *chain;
    // run over chains of the existing mol
    int nchains = model_p->GetNumberOfChains();
-   if (nchains <= 0) { 
+   if (nchains <= 0) {
       std::cout << "bad nchains in add_cb_to_terminal_res: "
 		<< nchains << std::endl;
    } else {
@@ -115,19 +117,20 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 	    if (chain == NULL) {  
 	       // This should not be happen.
 	       std::cout << "NULL chain in add_cb_to_terminal_res" << std::endl;
-	    } else { 
+	    } else {
 	       mmdb::Residue *std_res_copy = coot::deep_copy_this_residue(std_res, "", 1, -1);
 	       if (std_res_copy) {
 		  int nres = chain->GetNumberOfResidues();
 		  mmdb::Residue *residue_p = 0;
 
-		  if (terminus_type == "N" || "MN") {
+		  if (terminus_type == "N" || terminus_type == "MN") {
 		     if (add_other_residue_flag)
 			residue_p = coot::util::get_second_residue_in_chain(chain);
 		     else
 			residue_p = coot::util::get_first_residue_in_chain(chain);
 		  }
-		  if (terminus_type == "C" || "MC") {
+
+		  if (terminus_type == "C" || terminus_type == "MC") {
 		     if (add_other_residue_flag)
 			residue_p = coot::util::get_penultimate_residue_in_chain(chain);
 		     else
@@ -138,8 +141,8 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 
 		     //
 		     if (false)
-			std::cout << "INFO:: mutating residue " << coot::residue_spec_t(residue_p)
-				  << " in add_cb_to_terminal_res()\n";
+			std::cout << "------- here with residue_p " << coot::residue_spec_t(residue_p)
+				  << std::endl;
 
 		     istat = molci.move_std_residue(std_res_copy, residue_p);
 
@@ -158,7 +161,7 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 			   std_residue_atoms[i]->tempFactor = default_new_atoms_b_factor;
 			};
 
-			bool verb = true;
+			bool verb = false;
 			if (verb) { 
 			   std::cout << "Mutate Atom Tables" << std::endl;
 			   std::cout << "Before" << std::endl;

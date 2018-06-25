@@ -110,7 +110,7 @@ coot::util::emma::sfs_from_boxed_molecule(mmdb::Manager *mol_orig, float border)
 
    // Write out the map from the calculated sfs:
    //
-   { 
+   {
       clipper::Grid_sampling gs(spacegroup, cell, reso);
       clipper::Xmap<float> fcalc_map(spacegroup, cell, gs);
       fcalc_map.fft_from(fc_from_model);

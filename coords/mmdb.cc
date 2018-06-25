@@ -308,5 +308,7 @@ std::string coot::get_title(mmdb::Manager *mol) {
    if (t) {
       tt = std::string(t);
    }
+   delete title;
+
    return tt;
 }

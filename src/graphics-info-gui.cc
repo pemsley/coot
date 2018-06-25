@@ -1309,8 +1309,9 @@ graphics_info_t::add_drag_refine_idle_function() {
       print_initial_chi_squareds_flag = 1;
 
    } else {
-      std::cout << "DEBUG:: not adding drag idle function because there was one already in operation"
-		<< g.drag_refine_idle_function_token << std::endl;
+      if (false)
+	 std::cout << "DEBUG:: not adding drag idle function because there was one already in operation "
+		   << g.drag_refine_idle_function_token << std::endl;
    } 
 } 
 

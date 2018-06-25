@@ -318,7 +318,6 @@ main (int argc, char *argv[]) {
 	 // accessible via window1)
 	 // 
 	 create_initial_map_color_submenu(window1);
-	 create_initial_map_scroll_wheel_submenu(window1);
 	 create_initial_ramachandran_mol_submenu(window1);
 	 create_initial_sequence_view_mol_submenu(window1);
 	

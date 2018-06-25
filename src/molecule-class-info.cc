@@ -519,7 +519,8 @@ molecule_class_info_t::install_model_with_ghosts(int imol_no_in,
 	 std::cout << "WARNING:: No symmetry available for this molecule" << std::endl;
    set_have_unit_cell_flag_maybe(warn_about_missing_symmetry_flag);
 
-   makebonds(geom_p);
+   std::set<int> dummy;
+   makebonds(geom_p, dummy);
    if (g.show_symmetry == 1)
       if (show_symmetry) 
 	 update_symmetry();
@@ -3341,11 +3342,12 @@ molecule_class_info_t::makebonds(float max_dist, const coot::protein_geometry *g
    // << bonds_box.num_colours << endl;
 }
 
-// 
+// we remove the argument for add_residue_indices because they are no longer useful.
+// bond descriptions now have atom indices.
 // 
 void
 molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
-				 bool add_residue_indices) {
+				 const std::set<int> &no_bonds_to_these_atoms) {
 
    int do_disulphide_flag = 1;
    int model_number = 0; // flag for all models
@@ -3353,8 +3355,8 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
    if (single_model_view_current_model_number != 0)
       model_number = single_model_view_current_model_number;
    
-   Bond_lines_container bonds(atom_sel, imol_no, geom_p, do_disulphide_flag, draw_hydrogens_flag,
-			      model_number);
+   Bond_lines_container bonds(atom_sel, imol_no, no_bonds_to_these_atoms,
+			      geom_p, do_disulphide_flag, draw_hydrogens_flag, model_number);
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::NORMAL_BONDS;
@@ -3454,10 +3456,11 @@ molecule_class_info_t::make_bonds_type_checked(bool add_residue_indices) {
    graphics_info_t g; // urgh!  (But the best solution?)
    coot::protein_geometry *geom_p = g.Geom_p();
    
+   std::set<int> dummy;
    if (bonds_box_type == coot::NORMAL_BONDS)
-      makebonds(geom_p, add_residue_indices);
+      makebonds(geom_p, dummy);
    if (bonds_box_type == coot::BONDS_NO_HYDROGENS)
-      makebonds(geom_p, add_residue_indices);
+      makebonds(geom_p, dummy);
    if (bonds_box_type == coot::CA_BONDS)
       make_ca_bonds();
    if (bonds_box_type == coot::COLOUR_BY_CHAIN_BONDS)
@@ -3507,6 +3510,18 @@ molecule_class_info_t::make_bonds_type_checked(bool add_residue_indices) {
    if (debug)
       std::cout << "--- make_bonds_type_checked() done " << std::endl;
 }
+
+void
+molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices) {
+
+   graphics_info_t g; // urgh!  (But the best solution?)
+   coot::protein_geometry *geom_p = g.Geom_p();
+   if (bonds_box_type == coot::NORMAL_BONDS)
+      makebonds(geom_p, no_bonds_to_these_atom_indices);
+   else
+      make_bonds_type_checked(); // function above
+}
+
 
 void
 molecule_class_info_t::update_bonds_using_phenix_geo(const coot::phenix_geo_bonds &b) {

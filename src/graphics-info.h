@@ -2509,6 +2509,8 @@ public:
    static float find_ligand_score_by_correl_frac_limit; // 0.7
    static float find_ligand_score_correl_frac_interesting_limit; // 0.9;
 
+   static void rebond_molecule_corresponding_to_moving_atoms();
+
    // Geometry issues:
    
    // debugging:
@@ -4198,6 +4200,7 @@ string   static std::string sessionid;
    std::string get_version_for_extension(const std::string &extension_name) const;
 
    static int jed_flip_intermediate_atoms();
+   static int crankshaft_peptide_rotation_optimization_intermediate_atoms();
 
 
 #ifdef USE_PYTHON

@@ -552,6 +552,9 @@ molecule_class_info_t::crankshaft_peptide_rotation_optimization(const coot::resi
    if (mols.size() == 1) {
       make_backup();
       std::cout << "DEBUG:: crankshaft updated " << std::endl;
+      // what do we do with the old atom selection and mol?
+      // should we delete them here?
+      //
       atom_sel = make_asc(mols[0]);
       have_unsaved_changes_flag = 1;
       update_molecule_after_additions();

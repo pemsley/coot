@@ -1550,6 +1550,11 @@ SCM align_to_closest_chain_scm(std::string target_seq, float match_fraction);
 #endif /* c++ */
 
 
+#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_GUILE
+SCM spherical_density_overlap(SCM i_scm, SCM j_scm);
+#endif // USE_GUILE
+#endif // __cplusplus
 
 
 /*  ----------------------------------------------------------------------- */

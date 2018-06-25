@@ -571,6 +571,19 @@ class Bond_lines_container {
    std::vector<rotamer_markup_container_t> dodecs;
    // filled by return value of
    std::vector<rotamer_markup_container_t> get_rotamer_dodecs(const atom_selection_container_t &SelAtom) const;
+   // which uses:
+
+   // partially fill dodecs
+   static void
+   add_rotamer_markups(const std::vector<unsigned int> &indices,
+		       const std::vector<std::pair<mmdb::Residue *, mmdb::Atom *> > &residues,
+		       coot::rotamer_probability_tables *rpt,
+		       std::vector<rotamer_markup_container_t> *dodecs);
+   // and
+   static
+   rotamer_markup_container_t get_rotamer_probability(const std::pair<mmdb::Residue *, mmdb::Atom *> &ra,
+						      coot::rotamer_probability_tables *rpt);
+
    
    void add_cis_peptide_markup(const atom_selection_container_t &SelAtom, int model_number);
 
@@ -688,7 +701,6 @@ public:
    // getting caught out with Bond_lines_container dependencies?
    // We need:  mmdb-extras.h which needs mmdb-manager.h and <string>
    // Bond_lines_container(const atom_selection_container_t &asc);
-
    Bond_lines_container(const atom_selection_container_t &asc,
 			int imol,
 			int include_disulphides=0,
@@ -705,6 +717,7 @@ public:
    // 
    Bond_lines_container(const atom_selection_container_t &asc,
 			int imol,
+			const std::set<int> &no_bonds_to_these_atoms,
 			const coot::protein_geometry *geom_in,
 			int include_disulphides,
 			int include_hydrogens,
@@ -801,6 +814,7 @@ public:
    // used by above:
    void stars_for_unbonded_atoms(mmdb::Manager *mol, int UddHandle);
    void set_udd_unbonded(mmdb::Manager *mol, int UddHandle);
+   std::set<int> no_bonds_to_these_atoms; // exclude these atoms because they are part of moving atoms
 
    coot::rotamer_probability_tables *rotamer_probability_tables_p;
    void add_rotamer_tables(coot::rotamer_probability_tables *tables_p) {

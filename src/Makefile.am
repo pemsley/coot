@@ -515,6 +515,7 @@ coot_bin_SOURCES = \
 	xmap-utils.h             \
 	remarks-browser-gtk-widgets.hh \
 	rama-rota-score.hh 	 \
+	spherical-density.cc     \
 	fragment-info.hh 	 \
 	atom-name-bits.hh 	 \
 	additional-representation.hh 	   \

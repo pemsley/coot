@@ -190,6 +190,7 @@ bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code
 
 #include "c-interface.h" // for set_display_generic_object()
 #include "c-interface-widgets.hh" // for add_generic_display_object
+#include "c-interface-gtk-widgets.h" // for move_molecule_to_screen_centre_internal()
 
 //! \brief
 //! import a molecule from a smiles string
@@ -235,6 +236,7 @@ int import_rdkit_mol_from_smiles(const std::string &smiles_str, const std::strin
 		  std::string label = "Imported ";
 		  label += comp_id;
 		  g.molecules[imol].install_model(imol, mol, g.Geom_p(), label, 1, false, false);
+		  move_molecule_to_screen_centre_internal(imol);
 	       }
 	       delete residue_p;
 	    }

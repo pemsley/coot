@@ -101,10 +101,11 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 // 
 Bond_lines_container::Bond_lines_container(const atom_selection_container_t &SelAtom,
 					   int imol,
+					   const std::set<int> &no_bonds_to_these_atoms_in,
 					   const coot::protein_geometry *geom_in,
 					   int do_disulphide_bonds_in, 
 					   int do_bonds_to_hydrogens_in,
-					   int model_number) {
+					   int model_number) : no_bonds_to_these_atoms(no_bonds_to_these_atoms_in) {
 
    bool do_rama_markup = false;
    do_disulfide_bonds_flag = do_disulphide_bonds_in;
@@ -3525,6 +3526,11 @@ Bond_lines_container::addBond(int col,
 			      bool add_end_end_cap      // default arg
 			      ) {
 
+   // duck out if both of these atoms are in the no-bonds to these atoms set
+   if (no_bonds_to_these_atoms.find(atom_index_1) != no_bonds_to_these_atoms.end())
+      if (no_bonds_to_these_atoms.find(atom_index_2) != no_bonds_to_these_atoms.end())
+	 return;
+
    coot::CartesianPair pair(start,end);
    if (col >= int(bonds.size())) { 
       if (bonds.empty()) {
@@ -3536,7 +3542,7 @@ Bond_lines_container::addBond(int col,
    } else {
       // normal path
       bonds[col].add_bond(pair, cc, add_begin_end_cap, add_end_end_cap, model_number, atom_index_1, atom_index_2);
-   } 
+   }
 }
 
 
@@ -3563,6 +3569,11 @@ Bond_lines_container::add_dashed_bond(int col,
 
    float dash_start = 0;
    float dash_end   = 19;
+
+   // duck out if both of these atoms are in the no-bonds to these atoms set
+   if (no_bonds_to_these_atoms.find(atom_index_1) != no_bonds_to_these_atoms.end())
+      if (no_bonds_to_these_atoms.find(atom_index_2) != no_bonds_to_these_atoms.end())
+	 return;
 
    coot::Cartesian start = start_in;
    coot::Cartesian end   = end_in;
@@ -3610,6 +3621,7 @@ Bond_lines::add_bond(const coot::CartesianPair &p,
 		     bool end_end_cap,
 		     int model_number,
 		     int atom_index_1, int atom_index_2) {
+
    graphics_line_t gl(p, cc, begin_end_cap, end_end_cap, model_number, atom_index_1, atom_index_2);
    points.push_back(gl);
 }

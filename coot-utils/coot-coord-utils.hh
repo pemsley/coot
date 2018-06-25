@@ -1125,7 +1125,6 @@ namespace coot {
       // passed residue.  Simple copy of residue and atoms.
       //
       mmdb::Residue *deep_copy_this_residue(mmdb::Residue *residue);
-      
 
       mmdb::Residue *copy_and_delete_hydrogens(mmdb::Residue *residue_in);
       

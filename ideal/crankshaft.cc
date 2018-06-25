@@ -1602,7 +1602,7 @@ coot::crankshaft::refine_and_score_mols(std::vector<mmdb::Manager *> mols,
 						 residue_specs_for_refining,
 						 residue_specs_for_scoring,
 						 geom, xmap, map_weight, "");
-      (*mol_scores)[mols_thread_vec[i]] = ms;
+      mol_scores->at(mols_thread_vec[i]) = ms;
    }
 }
 
@@ -1623,14 +1623,14 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
    // promote this to an argument for this function
    float log_prob_filter_n_sigma = 1.0; // only the top few.
 
-   mmdb::Residue *prev_res = coot::util::get_previous_residue(rs, mol_in);
+   mmdb::Residue *prev_res = util::get_previous_residue(rs, mol_in);
    if (! prev_res) {
       std::cout << "WARNING:: No residue previous to " << rs << std::endl;
    } else {
-      coot::crankshaft cs(mol_in);
+      crankshaft cs(mol_in);
       zo::rama_table_set zorts;
 
-      coot::residue_spec_t prev_residue_spec(prev_res);
+      residue_spec_t prev_residue_spec(prev_res);
       std::cout << "INFO:: using residue specifier: " << rs << std::endl;
 
       if (n_samples == -1) {

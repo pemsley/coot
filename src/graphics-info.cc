@@ -1628,6 +1628,8 @@ graphics_info_t::clear_up_moving_atoms() {
    //
    moving_atoms_asc->n_selected_atoms = 0;
 
+   graphics_info_t::rebond_molecule_corresponding_to_moving_atoms();
+
 #ifdef HAVE_GSL
    // last_restraints = coot::restraints_container_t(); // last_restraints.size() = 0;
    if (last_restraints) {
@@ -1750,7 +1752,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
        molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR ||
        molecules[imol_moving_atoms].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS) {
 
-      if (molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS) { 
+      if (molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS) {
 	 Bond_lines_container bonds;
 	 bool draw_hydrogens_flag = false;
 	 if (molecules[imol_moving_atoms].draw_hydrogens())
@@ -1766,12 +1768,15 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 	 regularize_object_bonds_box.clear_up();
 	 regularize_object_bonds_box = bonds.make_graphical_bonds();
       }
-      
+
    } else {
       int draw_hydrogens_flag = 0;
       if (molecules[imol_moving_atoms].draw_hydrogens())
 	 draw_hydrogens_flag = 1;
-      Bond_lines_container bonds(*moving_atoms_asc, do_disulphide_flag, draw_hydrogens_flag);
+      // Bond_lines_container bonds(*moving_atoms_asc, do_disulphide_flag, draw_hydrogens_flag);
+      std::set<int> dummy;
+      Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, dummy, Geom_p(),
+				 do_disulphide_flag, draw_hydrogens_flag, 0);
       regularize_object_bonds_box.clear_up();
       regularize_object_bonds_box = bonds.make_graphical_bonds();
 
@@ -2061,8 +2066,8 @@ graphics_info_t::get_rotamer_dodecs() {
 	 for (int i=0; i<regularize_object_bonds_box.n_rotamer_markups; i++) {
 
 	    clipper::Coord_orth pos = regularize_object_bonds_box.rotamer_markups[i].pos;
-	    pos -= screen_y * double(22.0/double(graphics_info_t::zoom));
 	    double size = 0.52;
+	    pos -= screen_y * double(1.5 * size * 22.0/double(graphics_info_t::zoom));
 	    coot::generic_display_object_t::dodec_t dodec(d, size, pos);
 	    dodec.col = regularize_object_bonds_box.rotamer_markups[i].col;
 	    dodecs.push_back(dodec);
