@@ -3489,11 +3489,13 @@ PyObject *map_parameters_py(int imol) {
       PyList_SetItem(r, 2, PyString_FromString(graphics_info_t::molecules[imol].save_phi_col.c_str()));
       PyList_SetItem(r, 3, PyString_FromString(graphics_info_t::molecules[imol].save_weight_col.c_str()));
       if (graphics_info_t::molecules[imol].save_use_weights) {
-        Py_INCREF(Py_True);
-        PyList_SetItem(r, 4, Py_True);
+	 // Py_INCREF(Py_True);
+	 PyObject *o_py = PyBool_FromLong(true);
+	 PyList_SetItem(r, 4, o_py);
       } else {
-        Py_INCREF(Py_False);
-        PyList_SetItem(r, 4, Py_False);
+	 // Py_INCREF(Py_False);
+	 PyObject *o_py = PyBool_FromLong(false);
+	 PyList_SetItem(r, 4, o_py);
       }
    }
    if (PyBool_Check(r)) {
