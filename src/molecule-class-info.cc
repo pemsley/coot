@@ -3405,9 +3405,10 @@ molecule_class_info_t::make_ca_plus_ligands_and_sidechains_bonds(coot::protein_g
 }
 
 void
-molecule_class_info_t::make_colour_by_chain_bonds(short int change_c_only_flag) {
+molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_to_these_atoms,
+						  short int change_c_only_flag) {
    // 
-   Bond_lines_container bonds(graphics_info_t::Geom_p());
+   Bond_lines_container bonds(graphics_info_t::Geom_p(), no_bonds_to_these_atoms);
    bonds.do_colour_by_chain_bonds(atom_sel, imol_no, draw_hydrogens_flag, change_c_only_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning(); // make_graphical_bonds() is pretty
                                                          // stupid when it comes to thining.
@@ -3433,7 +3434,7 @@ molecule_class_info_t::make_colour_by_molecule_bonds() {
    if (graphics_info_t::glarea) 
       graphics_info_t::graphics_draw();
 
-} 
+}
 
 
 
@@ -3463,10 +3464,12 @@ molecule_class_info_t::make_bonds_type_checked(bool add_residue_indices) {
       makebonds(geom_p, dummy);
    if (bonds_box_type == coot::CA_BONDS)
       make_ca_bonds();
-   if (bonds_box_type == coot::COLOUR_BY_CHAIN_BONDS)
+   if (bonds_box_type == coot::COLOUR_BY_CHAIN_BONDS) {
       // Baah, we have to use the static in graphics_info_t here as it
       // is not a per-molecule property.
-      make_colour_by_chain_bonds(graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag);
+      std::set<int> s;
+      make_colour_by_chain_bonds(s, graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag);
+   }
    if (bonds_box_type == coot::COLOUR_BY_MOLECULE_BONDS)
       make_colour_by_molecule_bonds();
    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS)
@@ -3519,7 +3522,11 @@ molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_
    if (bonds_box_type == coot::NORMAL_BONDS)
       makebonds(geom_p, no_bonds_to_these_atom_indices);
    else
-      make_bonds_type_checked(); // function above
+      if (bonds_box_type == coot::COLOUR_BY_CHAIN_BONDS)
+	 make_colour_by_chain_bonds(no_bonds_to_these_atom_indices,
+				    g.rotate_colour_map_on_read_pdb_c_only_flag);
+      else
+	 make_bonds_type_checked(); // function above
 }
 
 

@@ -2475,8 +2475,9 @@ float rotation_centre_position(int axis) {  /* only return one value: x=0, y=1, 
 void set_colour_by_chain(int imol) { 
    
    if (is_valid_model_molecule(imol)) {
+      std::set<int> s; // dummy
       short int f = graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag;
-      graphics_info_t::molecules[imol].make_colour_by_chain_bonds(f);
+      graphics_info_t::molecules[imol].make_colour_by_chain_bonds(s,f);
       graphics_draw();
    }
    std::string cmd = "set-colour-by-chain";

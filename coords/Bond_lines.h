@@ -721,7 +721,10 @@ public:
 			const coot::protein_geometry *geom_in,
 			int include_disulphides,
 			int include_hydrogens,
-			int model_number);
+			int model_number,
+			bool do_rama_markup=false,
+			bool do_rota_markup=false,
+			coot::rotamer_probability_tables *tables_p=0);
 
    Bond_lines_container(atom_selection_container_t, int imol, float max_dist);
 
@@ -766,16 +769,16 @@ public:
    // This is the one for occupancy and B-factor representation
    // 
    Bond_lines_container (const atom_selection_container_t &SelAtom,
-			 int imol,
-			 bond_representation_type by_occ);
+			 int imol, bond_representation_type by_occ);
 
    Bond_lines_container(int col);
    Bond_lines_container(symm_keys key);
 
 
-   // Used by make_colour_by_chain_bonds() - and others in the future?
+   // Used by various CA-mode bonds
    //
    Bond_lines_container(coot::protein_geometry *protein_geom) {
+
       do_bonds_to_hydrogens = 1;  // added 20070629
       b_factor_scale = 1.0;
       have_dictionary = false;
@@ -784,7 +787,27 @@ public:
       if (protein_geom)
 	 have_dictionary = true;
       for_GL_solid_model_rendering = 0;
-      if (bonds.size() == 0) { 
+      if (bonds.size() == 0) {
+	 for (int i=0; i<13; i++) {  // 13 colors now in bond_colours
+	    Bond_lines a(i);
+	    bonds.push_back(a);
+	 }
+      }
+   }
+
+   // Used by make_colour_by_chain_bonds() - and others in the future?
+   //
+   Bond_lines_container(coot::protein_geometry *protein_geom,
+			const std::set<int> &no_bonds_to_these_atoms_in) : no_bonds_to_these_atoms(no_bonds_to_these_atoms_in) {
+      do_bonds_to_hydrogens = 1;  // added 20070629
+      b_factor_scale = 1.0;
+      have_dictionary = false;
+      geom = protein_geom;
+      init();
+      if (protein_geom)
+	 have_dictionary = true;
+      for_GL_solid_model_rendering = 0;
+      if (bonds.size() == 0) {
 	 for (int i=0; i<13; i++) {  // 13 colors now in bond_colours
 	    Bond_lines a(i);
 	    bonds.push_back(a);
