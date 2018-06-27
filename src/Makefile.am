@@ -230,7 +230,8 @@ coot_extended_la_SOURCES = coot-extended.cc
 coot_embedded_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
 coot_embedded_la_LIBADD = \
                        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
-                       $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)
+                       $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)   \
+                       $(PYTHON_LIBS)
 coot_extended_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
 coot_extended_la_LIBADD = \
                        $(top_builddir)/pli/libcoot-pli.la   \
