@@ -1,6 +1,7 @@
 
    For Release 0.8.9.2
 
+   o remove default adding of monomer on read cif dictionary
 
 ------
 
