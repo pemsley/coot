@@ -1284,7 +1284,7 @@ int
 coot::rama_plot::draw_phi_psi_point(const coot::util::phi_psi_t &phi_psi,
 				    bool as_white_flag) {
 
-   return draw_phi_psi_point_internal(phi_psi, as_white_flag, 2);
+   return draw_phi_psi_point_internal(phi_psi, as_white_flag, 3);
 }
 
 int 
@@ -1302,8 +1302,8 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
 
    GooCanvasItem *item;
 
-   
-   std::string outline_color("DimGray");
+   std::string outline_color("#333333");
+   bool is_pro = false;
 
    if (box_size == 4) {
       // IDEA:: could be via callback I think
@@ -1334,7 +1334,8 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
             colour = "white";
          } else {
             if (phi_psi.residue_name() == "PRO") {
-               outline_color = "grey";
+               outline_color = "white";
+	       is_pro = true;
 
                if (r_pro.allowed(clipper::Util::d2rad(phi),
                                  clipper::Util::d2rad(psi))) {
@@ -1375,16 +1376,26 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
             if (psi_axis_mode == PSI_MINUS_120 && psi < -120)
                psi = psi + 360.0;
 
-            item = goo_canvas_rect_new(residues_grp,
-                                       phi-box_size,
-                                       -psi-box_size,
-                                       2*box_size,
-                                       2*box_size,
-                                       "fill-color", colour.c_str(),
-                                       "stroke-color", outline_color.c_str(),
-                                       "line-width", 1.,
-                                       "tooltip", label.c_str(),
-                                       NULL);
+	    if (is_pro)
+	       item = goo_canvas_rect_new(residues_grp,
+					  phi-box_size,
+					  -psi-box_size,
+					  2*box_size,
+					  2*box_size,
+					  "fill-color", colour.c_str(),
+					  "stroke-color", outline_color.c_str(),
+					  "line-width", 1.,
+					  "tooltip", label.c_str(),
+					  NULL);
+	    else
+	       item = goo_canvas_ellipse_new(residues_grp,
+					     phi, -psi,
+					     3.3, 3.3,
+					     "fill-color", colour.c_str(),
+					     "stroke-color", outline_color.c_str(),
+					     "line-width", 1.,
+					     "tooltip", label.c_str(),
+					     NULL);
 
             set_data_for_phi_psi_point_item(label, phi_psi, item);
 
@@ -1540,7 +1551,7 @@ coot::rama_plot::draw_phi_psi_as_gly(const coot::util::phi_psi_t &phi_psi) {
       item = goo_canvas_polyline_new(residues_grp,
                                      TRUE, 0,
                                      "points", points,
-                                     "line-width", 1.0,
+                                     "line-width", 2.0,
                                      "stroke-color", colour.c_str(),
                                      "tooltip", label.c_str(),
                                      NULL);
@@ -3646,7 +3657,15 @@ coot::rama_plot::apply_selection_from_widget() {
                           mmdb::STYPE_RESIDUE,
                           selection_txt,
                           mmdb::SKEY_NEW);
+
       current_mol->GetSelIndex(selHnd, SelResidue, nRes);
+      // Note to self: we can't do residue type selection because we need the
+      // upstream and down-stream neighbours of the selected residues to find
+      // phi and psi.
+      if (false)
+	 std::cout << "Using Selection \"" << selection_txt << "\" selects " << nRes
+		   <<  " residues" << std::endl;
+
       draw_it(current_mol, selHnd, 1);
    } else {
       g_print("BL WARNING:: no mols, so cannot make a (new) plot\n");

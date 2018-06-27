@@ -97,7 +97,10 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 // if model_number is 0, display all models. If it is not 0 then
 // display only the given model_number (if possible, of course).
 //
-// This one for intermediate atoms too
+// This one for intermediate atoms too.
+//
+// do_rama_markup, do_rota_markup, rotamer_probability_tables_p are default
+// arguments, false/null.
 // 
 Bond_lines_container::Bond_lines_container(const atom_selection_container_t &SelAtom,
 					   int imol,
@@ -105,9 +108,11 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   const coot::protein_geometry *geom_in,
 					   int do_disulphide_bonds_in, 
 					   int do_bonds_to_hydrogens_in,
-					   int model_number) : no_bonds_to_these_atoms(no_bonds_to_these_atoms_in) {
+					   int model_number,
+					   bool do_rama_markup,
+					   bool do_rota_markup,
+					   coot::rotamer_probability_tables *tables_p) : no_bonds_to_these_atoms(no_bonds_to_these_atoms_in) {
 
-   bool do_rama_markup = false;
    do_disulfide_bonds_flag = do_disulphide_bonds_in;
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
    for_GL_solid_model_rendering = 0;
@@ -123,7 +128,8 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    // They should have special case, handle_MET_or_MSE_case
    // However, for VNP thingy, S1 has bonds to carbons of 1.67 1.77.  Baah.
    float max_dist = 1.71;
-   construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number, do_rama_markup);
+   construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number,
+		      do_rama_markup, do_rota_markup);
    verbose_reporting = 0;
    udd_has_ca_handle = -1;
 }

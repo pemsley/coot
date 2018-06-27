@@ -139,11 +139,13 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
       }
    }
 
+   //
+   std::set<int> dummy_set; // don't remove bonds to any atoms
    Bond_lines_container bonds(*g.moving_atoms_asc, imol_moving_atoms,
-			      do_disulphide_flag, draw_hydrogens_flag,
+			      dummy_set, Geom_p(),
+			      do_disulphide_flag, draw_hydrogens_flag, 0,
 			      do_rama_markup, do_rota_markup,
-			      tables_pointer
-			      );
+			      tables_pointer);
 
    g.regularize_object_bonds_box.clear_up();
    g.regularize_object_bonds_box = bonds.make_graphical_bonds(g.ramachandrans_container,
