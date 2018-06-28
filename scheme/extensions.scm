@@ -1130,18 +1130,18 @@
 	  (add-simple-coot-menu-menuitem
 	   submenu "Smooth Refinement mode"
 	   (lambda ()
-	     (set-dragged-refinement-steps-per-frame 42))))
+	     (set-dragged-refinement-steps-per-frame 42)))
 
 	  (add-simple-coot-menu-menuitem
 	   submenu "Default Refinement mode"
 	   (lambda ()
 	     (format #t "Default Speed...~%")
-	     (set-dragged-refinement-steps-per-frame 140))))
+	     (set-dragged-refinement-steps-per-frame 140)))
 
 	  (add-simple-coot-menu-menuitem
 	   submenu "Crocodile Refinement mode"
 	   (lambda ()
-	     (set-dragged-refinement-steps-per-frame 220)))
+	     (set-dragged-refinement-steps-per-frame 220))))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-settings "Auto-weight refinement"

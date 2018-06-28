@@ -981,7 +981,7 @@ coot::process_dfs_trans_peptide(const coot::simple_restraint &restraint,
 
    double dist_sqrd = (mid_pt_2-mid_pt_1).lengthsq();
 
-   double trans_pep_dist_scale_factor = 2000.0; // needs tweaking
+   double trans_pep_dist_scale_factor = 4000.0; // needs tweaking
    double weight = trans_pep_dist_scale_factor;
 
    // d is the distance from the "mid-points" to the expected distance

@@ -119,6 +119,8 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    b_factor_scale = 1.0;
    have_dictionary = 0;
    init();
+   if (tables_p)
+      rotamer_probability_tables_p = tables_p;
    if (geom_in) {
       geom = geom_in;
       have_dictionary = 1;
@@ -128,6 +130,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    // They should have special case, handle_MET_or_MSE_case
    // However, for VNP thingy, S1 has bonds to carbons of 1.67 1.77.  Baah.
    float max_dist = 1.71;
+
    construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number,
 		      do_rama_markup, do_rota_markup);
    verbose_reporting = 0;
@@ -5371,9 +5374,10 @@ Bond_lines_container::add_zero_occ_spots(const atom_selection_container_t &SelAt
 	 std::string ele(SelAtom.atom_selection[i]->element);
 	 if (do_bonds_to_hydrogens ||
 	     ((do_bonds_to_hydrogens == 0) && (! is_hydrogen(ele)))) {
-	    zero_occ_spots.push_back(coot::Cartesian(SelAtom.atom_selection[i]->x,
-						     SelAtom.atom_selection[i]->y,
-						     SelAtom.atom_selection[i]->z));
+	    if (no_bonds_to_these_atoms.find(i) == no_bonds_to_these_atoms.end())
+	       zero_occ_spots.push_back(coot::Cartesian(SelAtom.atom_selection[i]->x,
+							SelAtom.atom_selection[i]->y,
+							SelAtom.atom_selection[i]->z));
 	 }
       }
    }
