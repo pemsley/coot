@@ -5371,9 +5371,10 @@ Bond_lines_container::add_zero_occ_spots(const atom_selection_container_t &SelAt
 	 std::string ele(SelAtom.atom_selection[i]->element);
 	 if (do_bonds_to_hydrogens ||
 	     ((do_bonds_to_hydrogens == 0) && (! is_hydrogen(ele)))) {
-	    zero_occ_spots.push_back(coot::Cartesian(SelAtom.atom_selection[i]->x,
-						     SelAtom.atom_selection[i]->y,
-						     SelAtom.atom_selection[i]->z));
+	    if (no_bonds_to_these_atoms.find(i) == no_bonds_to_these_atoms.end())
+	       zero_occ_spots.push_back(coot::Cartesian(SelAtom.atom_selection[i]->x,
+							SelAtom.atom_selection[i]->y,
+							SelAtom.atom_selection[i]->z));
 	 }
       }
    }
