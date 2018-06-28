@@ -876,6 +876,8 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 
 	 // auto tp_1 = std::chrono::high_resolution_clock::now();
 
+	 // I don't like this async.  When does it start? Investigate.
+	 //
 	 std::future<double> eds(std::async(electron_density_score_from_restraints, v, restraints_p));
 
 	 // auto tp_2 = std::chrono::high_resolution_clock::now();
@@ -922,11 +924,9 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 			 << restraints_p->thread_pool_p->n_idle() << "\n";
 	 }
 
-	 // auto tp_3 = std::chrono::high_resolution_clock::now();
 	 while (done_count_for_threads != restraints_p->n_threads) {
 	    std::this_thread::sleep_for(std::chrono::microseconds(1));
 	 }
-	 // auto tp_4 = std::chrono::high_resolution_clock::now();
 
 	 if (false)
 	    std::cout << "post-wait thread pool info: size: "
@@ -937,12 +937,9 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++)
 	    distortion += distortions[i_thread];
 
-	 // auto tp_5 = std::chrono::high_resolution_clock::now();
-
 	 distortion += eds.get();
 
 	 /*
-	 auto tp_6 = std::chrono::high_resolution_clock::now();
 
 	 auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
 	 auto d32 = chrono::duration_cast<chrono::microseconds>(tp_3 - tp_2).count();
@@ -971,10 +968,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
       }
    } else {
       // "return" value is passed distortion pointer
-      // double save_distortion_1 = distortion;
       distortion_score_single_thread(v, params, 0, restraints_size, &distortion);
-
-      // double save_distortion_2 = distortion;
 
       if (restraints_p->include_map_terms())
 	 distortion += coot::electron_density_score(v, params); // good map fit: low score
@@ -996,13 +990,6 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 
 #endif // HAVE_CXX_THREAD
 
-
-#ifdef ANALYSE_REFINEMENT_TIMING
-#endif // ANALYSE_REFINEMENT_TIMING
-
-   if (false)
-      std::cout << "debug:: exit distortion_score()  distortion: " << distortion <<  " size  "
-		<< v->size << "\n";
    return distortion; 
 }
 

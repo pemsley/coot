@@ -30,6 +30,10 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
    //
    // I will try to make it not so.
 
+
+   if (! restraints_p->thread_pool_p)
+      return; // no derivatives if we don't have a thread pool. Modern only. BOOST only.
+
    // auto tp_1a = std::chrono::high_resolution_clock::now();
    unsigned int n_t = restraints_p->n_threads;
    unsigned int restraints_size = restraints_p->size();
@@ -71,15 +75,22 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
    // use restraints in the range of restraints_indices[i}
    // to fill results
    //
-   std::vector<std::thread> threads;
+
+   std::atomic<unsigned int> done_count_for_threads(0);
    for (std::size_t ii=0; ii<restraints_indices.size(); ii++) {
-      threads.push_back(std::thread(process_dfs_in_range,
-				    std::cref(restraints_indices[ii]),
-				    restraints_p, v,
-				    std::ref(results[ii])));
+
+      restraints_p->thread_pool_p->push(process_dfs_in_range,
+					std::cref(restraints_indices[ii]),
+					restraints_p, v,
+					std::ref(results[ii]),
+					std::ref(done_count_for_threads)
+					);
    }
-   for (std::size_t ii=0; ii<restraints_indices.size(); ii++)
-      threads.at(ii).join();
+
+   // wait for the threads in the thread pool
+   while (done_count_for_threads != restraints_p->n_threads) {
+      std::this_thread::sleep_for(std::chrono::microseconds(1));
+   }
 
    // consolidate
    for (std::size_t i_thread=0; i_thread<n_t; i_thread++) {
@@ -97,7 +108,6 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
 
    if (restraints_p->include_map_terms()) {
 
-      threads.clear();
       // like above, but this time we split the set of atoms into sets for each thread
       std::vector<std::vector<std::size_t> > atom_indices(n_t);
       i_thread = 0;
@@ -109,22 +119,26 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
       }
 
       auto tp_2 = std::chrono::high_resolution_clock::now();
+
       // we can manipulate df directly because (unlike restraints) each atom can
       // only touch 3 indices in the df vector - and do so uniquely.
       //
-      for (std::size_t ii=0; ii<atom_indices.size(); ii++)
-	 threads.push_back(std::thread(process_electron_density_dfs_for_atoms,
-				       atom_indices[ii], restraints_p, v, df));
-      for (std::size_t ii=0; ii<atom_indices.size(); ii++)
-	 threads.at(ii).join();
 
-      /*
-      auto tp_3 = std::chrono::high_resolution_clock::now();
-      auto d32 = chrono::duration_cast<chrono::microseconds>(tp_3 - tp_2).count();
-      auto d_1ab = chrono::duration_cast<chrono::microseconds>(tp_1b - tp_1a).count();
-      std::cout << "info:: df geometry: " << d_1ab << " microseconds\n";
-      std::cout << "info:: df electron_density: " << d32 << " microseconds\n";
-      */
+      // reset the done count - previously we used this for the restraints, now
+      // we will use it for the electron density score of the atoms
+      //
+      done_count_for_threads = 0;
+
+      for (std::size_t ii=0; ii<atom_indices.size(); ii++) {
+	 restraints_p->thread_pool_p->push(process_electron_density_dfs_for_atoms,
+					   atom_indices[ii], restraints_p, v, df,
+					   std::ref(done_count_for_threads));
+      }
+
+      // wait for the threads in the thread pool
+      while (done_count_for_threads != restraints_p->n_threads) {
+	 std::this_thread::sleep_for(std::chrono::microseconds(1));
+      }
    }
 
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
@@ -135,10 +149,13 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
 
 // fill results
 void
-coot::process_dfs_in_range(const std::vector<std::size_t> &restraints_indices,
+coot::process_dfs_in_range(int thread_idx,
+			   const std::vector<std::size_t> &restraints_indices,
 			   coot::restraints_container_t *restraints_p,
 			   const gsl_vector *v,
-			   std::vector<double> &results) {
+			   std::vector<double> &results,  // fill results
+			   std::atomic<unsigned int> &done_count_for_threads
+			   ) {
 
    for (std::size_t i=0; i<restraints_indices.size(); i++) {
 
@@ -195,6 +212,8 @@ coot::process_dfs_in_range(const std::vector<std::size_t> &restraints_indices,
 	 process_dfs_target_position(rest, restraints_p->log_cosh_target_distance_scale_factor, v, results);
 
    }
+
+   done_count_for_threads++; // atomic operation
 }
 
 void
@@ -909,9 +928,11 @@ coot::process_dfs_target_position(const coot::simple_restraint &restraint,
 
 
 void
-coot::process_electron_density_dfs_for_atoms(const std::vector<std::size_t> &atom_indices,
+coot::process_electron_density_dfs_for_atoms(int thread_idx,
+					     const std::vector<std::size_t> &atom_indices,
 					     const restraints_container_t *restraints_p,
-					     const gsl_vector *v, gsl_vector *df) {
+					     const gsl_vector *v, gsl_vector *df,
+					     std::atomic<unsigned int> &done_count_for_threads) {
 
    for (std::size_t i=0; i<atom_indices.size(); i++) {
       const std::size_t &atom_idx = atom_indices[i];
@@ -927,6 +948,7 @@ coot::process_electron_density_dfs_for_atoms(const std::vector<std::size_t> &ato
 	 *gsl_vector_ptr(df, idx+2) -= zs * grad_orth.dz();
       }
    }
+   done_count_for_threads++;
 }
 
 

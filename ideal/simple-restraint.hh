@@ -2359,16 +2359,38 @@ namespace coot {
 					 restraints_container_t *restraints_p,
 					 gsl_vector *df);
 
-   void process_dfs_in_range(const std::vector<std::size_t> &range,
-			     restraints_container_t *restraints_p,
-			     const gsl_vector *v,
-			     std::vector<double> &results);
 #endif // HAVE_CXX_THREAD
 
    double electron_density_score(const gsl_vector *v, void *params);
    // interestingly, this needs a different name to the above so that std::async()
    // in distortion_score() refers to the correct function.
    double electron_density_score_from_restraints(const gsl_vector *v, coot::restraints_container_t *restraints_p);
+   double electron_density_score_from_restraints_simple(const gsl_vector *v, coot::restraints_container_t *restraints_p);
+
+   // The version of electron_density_score_from_restraints that can be used with a thread pool.
+   // The calling function needs to push this onto the queue, one for each thread,
+   // where the atom_index_range splits up the atom indices
+   // e.g. for 3 threads and 36 atoms, the atom_index_ranges would be:
+   // (0, 12)  (12,24) (24,36)
+   // but 2001 and 13 threads... errr...?  There is function in split-indices to do this now.
+   //
+   // atom_index_range works "as expected"
+   // so given atom_index_range of 0,10 we start at the first value (0) and check that the
+   // current value is less than the atom_index_range.second (10):
+   // ie. density values for atom indices 0 to 9 inclusive are added.
+   void electron_density_score_from_restraints_using_atom_index_range(int thread_idx,
+                                                 const gsl_vector *v,
+						 const std::pair<unsigned int, unsigned int> &atom_index_range,
+						 restraints_container_t *restraints_p,
+								      double *result,
+								      std::atomic<unsigned int> &done_count);
+//    void electron_density_score_from_restraints_using_atom_index_range_xx(int thread_idx,
+// 		     const gsl_vector *v,
+// 		     const std::pair<unsigned int, unsigned int> &atom_index_range,
+// 		     restraints_container_t *restraints_p,
+// 		     double *results);
+
+
    // new style Grad_map/Grad_orth method
    void my_df_electron_density(const gsl_vector *v, void *params, gsl_vector *df);
    // pre-threaded
