@@ -195,7 +195,8 @@ get_atom_selection(std::string pdb_name,
 	  std::string sgrp(str);
 	  std::cout << "Spacegroup: " << sgrp << "\n";
        } else {
-	  std::cout << "No Spacegroup found for this PDB file\n";
+          // Too noisy, not valuable
+	  // std::cout << "No Spacegroup found for this PDB file\n";
        } 
     
 //        std::cout << "Cell: "
