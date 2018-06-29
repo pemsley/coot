@@ -878,7 +878,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 
 	 // I don't like this async.  When does it start? Investigate.
 	 //
-	 std::future<double> eds(std::async(electron_density_score_from_restraints, v, restraints_p));
+	 // std::future<double> eds(std::async(electron_density_score_from_restraints, v, restraints_p));
 
 	 // auto tp_2 = std::chrono::high_resolution_clock::now();
 
@@ -937,7 +937,11 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++)
 	    distortion += distortions[i_thread];
 
-	 distortion += eds.get();
+	 // 201806268-PE - no more async
+	 // distortion += eds.get();
+
+	 // get the electron density values now.
+	 distortion += electron_density_score_from_restraints(v, restraints_p);
 
 	 /*
 
