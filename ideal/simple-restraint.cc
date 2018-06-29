@@ -43,6 +43,7 @@
 #include <chrono>
 #endif // HAVE_CXX_THREAD
 
+#include "utils/split-indices.hh"
 #include "geometry/mol-utils.hh"
 #include "geometry/main-chain.hh"
 #include "simple-restraint.hh"
@@ -1896,7 +1897,7 @@ coot::electron_density_score(const gsl_vector *v, void *params) {
 // Ah, but (c.f. distortion) we want to return a low value for a good
 // fit and a high one for a bad.
 double
-coot::electron_density_score_from_restraints(const gsl_vector *v,
+coot::electron_density_score_from_restraints_simple(const gsl_vector *v,
 					     coot::restraints_container_t *restraints_p) {
 
    auto tp_1 = std::chrono::high_resolution_clock::now();
@@ -1928,8 +1929,94 @@ coot::electron_density_score_from_restraints(const gsl_vector *v,
    // std::cout << "info:: f electron_density: " << d21 << " microseconds\n";
 
    return -score;
+}
+
+
+
+double
+coot::electron_density_score_from_restraints(const gsl_vector *v,
+					     coot::restraints_container_t *restraints_p) {
+
+   double score = 0.0;
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+
+   unsigned int n_atoms = restraints_p->get_n_atoms();
+   std::vector<std::pair<unsigned int, unsigned int> > ranges =
+      atom_index_ranges(n_atoms, restraints_p->n_threads);
+
+   std::atomic<unsigned int> done_count_for_threads(0);
+
+   double results[ranges.size()];  // naughty?
+   for(unsigned int i=0; i<ranges.size(); i++) {
+       // restraints_p->thread_pool_p->push(electron_density_score_from_restraints_using_atom_index_range,
+                                         // v, std::cref(ranges[i]),
+                                       // restraints_p, &results[i]);
+      restraints_p->thread_pool_p->push(electron_density_score_from_restraints_using_atom_index_range,
+					v, std::cref(ranges[i]), restraints_p, &results[i],
+					std::ref(done_count_for_threads));
+   }
+   while (done_count_for_threads < ranges.size()) {
+      std::this_thread::sleep_for(std::chrono::microseconds(1));
+   }
+
+   // consolidate
+   for(unsigned int i=0; i<ranges.size(); i++)
+      score += results[i];
+
+#else
+   std::cout << __FUNCTION__ << " no thread pool" << std::endl;
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+   return score;
+}
+
+// atom_index_range works "as expected"
+// so given atom_index_range of 0,10 we start at the first value (0) and check that the
+// current value is less than the atom_index_range.second (10):
+// ie. density values for atom indices 0 to 9 inclusive are added.
+//
+void
+coot::electron_density_score_from_restraints_using_atom_index_range(int thread_index,
+                                             const gsl_vector *v,
+					     const std::pair<unsigned int, unsigned int> &atom_index_range,
+					     coot::restraints_container_t *restraints_p,
+								    double *result,
+								    std::atomic<unsigned int> &done_count_for_threads) {
+
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+
+   // We weight and sum to get the score and negate.
+   //
+   double score = 0;
+
+   if (restraints_p->include_map_terms() == 1) {
+
+      unsigned int n_atoms = restraints_p->get_n_atoms();
+      for (unsigned int iat=atom_index_range.first; iat<atom_index_range.second; iat++) {
+	 bool use_it = false;
+	 if (restraints_p->use_map_gradient_for_atom[iat]) {
+
+	    int idx = 3 * iat;
+	    clipper::Coord_orth ao(gsl_vector_get(v,idx),
+				   gsl_vector_get(v,idx+1),
+				   gsl_vector_get(v,idx+2));
+
+	    score += restraints_p->Map_weight() *
+	       restraints_p->atom_z_occ_weight[iat] *
+	       restraints_p->electron_density_score_at_point(ao);
+	 }
+      }
+   }
+   auto tp_2 = std::chrono::high_resolution_clock::now();
+   auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
+   // std::cout << "info:: f electron_density: " << d21 << " microseconds\n";
+
+   // return -score;
+   *result = -score;
+   done_count_for_threads++; // atomic
 
 }
+
+
 
 // Note that the gradient for the electron density is opposite to that
 // of the gradient for the geometry (consider a short bond on the edge

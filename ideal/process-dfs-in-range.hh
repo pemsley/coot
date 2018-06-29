@@ -1,10 +1,12 @@
 
 namespace coot {
 
-   void process_dfs_in_range(const std::vector<std::size_t> &restraints_indices,
+   void process_dfs_in_range(int thread_index,
+			     const std::vector<std::size_t> &restraints_indices,
 			     coot::restraints_container_t *restraints_p,
 			     const gsl_vector *v,
-			     std::vector<double> &results); // fill results
+			     std::vector<double> &results,  // fill results
+			     std::atomic<unsigned int> &done_count_for_threads);
 
    void
    process_dfs_bond(const coot::simple_restraint &rest,
@@ -66,8 +68,10 @@ namespace coot {
 			 const gsl_vector *v,
 			 std::vector<double> &results);
 
-   void process_electron_density_dfs_for_atoms(const std::vector<std::size_t> &atom_indices,
+   void process_electron_density_dfs_for_atoms(int thread_idx,
+					       const std::vector<std::size_t> &atom_indices,
 					       const restraints_container_t *restraints_p,
-					       const gsl_vector *v, gsl_vector *df);
+					       const gsl_vector *v, gsl_vector *df,
+					       std::atomic<unsigned int> &done_count_for_threads);
 
 }
