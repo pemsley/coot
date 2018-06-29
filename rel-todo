@@ -3,6 +3,8 @@
 
    o remove default adding of monomer on read cif dictionary
 
+   o sync Bernie
+
 ------
 
    o when I have undisplayed hydrogens, I don't want to ever pick them during refinement.
