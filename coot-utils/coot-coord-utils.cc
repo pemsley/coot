@@ -3463,7 +3463,9 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
 
    mmdb::Manager *mol = new mmdb::Manager;
    mmdb::Model *model_p = new mmdb::Model;
-   int udd_atom_index_handle = old_mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
+   int udd_atom_index_handle = - 1;
+   if (old_mol)
+      udd_atom_index_handle = old_mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
    int udd_old_atom_index_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "old atom index");
    mol->AddModel(model_p);
 
@@ -3481,16 +3483,18 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
 	 residue_new_p->GetAtomTable(new_residue_atoms, n_new_residue_atoms);
 
 	 // transfer the atom indices
-	 if (n_old_residue_atoms == n_new_residue_atoms) {
-	    for (int iat=0; iat<n_old_residue_atoms; iat++) {
-	       mmdb::Atom *at_old = old_residue_atoms[iat];
-	       mmdb::Atom *at_new = new_residue_atoms[iat];
-		  int idx = -1;
-	       if (at_old->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok) {
-		  at_new->PutUDData(udd_old_atom_index_handle, idx);
-	       } else {
-		  std::cout << __FUNCTION__ << " oops extracting idx from input mol atom" << std::endl;
-	       }
+         if  (old_mol) {
+	    if (n_old_residue_atoms == n_new_residue_atoms) {
+	       for (int iat=0; iat<n_old_residue_atoms; iat++) {
+	          mmdb::Atom *at_old = old_residue_atoms[iat];
+	          mmdb::Atom *at_new = new_residue_atoms[iat];
+		     int idx = -1;
+	          if (at_old->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok) {
+		     at_new->PutUDData(udd_old_atom_index_handle, idx);
+	          } else {
+		     std::cout << __FUNCTION__ << " oops extracting idx from input mol atom" << std::endl;
+	          }
+               }
 	    }
 	 }
 
