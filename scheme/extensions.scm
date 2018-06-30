@@ -158,7 +158,7 @@
 			    (else (f (cdr ls)))))))))))
 
 	  (let ((coot-built-in-menu (get-coot-menu-from-item "Calculate" "Modelling...")))
-	    (format #t "############### 1 coot-built-in-menu: ~s~%" coot-built-in-menu)
+	    ;; (format #t "############### 1 coot-built-in-menu: ~s~%" coot-built-in-menu)
 	    (if coot-built-in-menu
 		(begin
 		  (let ((menu (gtk-menu-new)))
@@ -166,7 +166,7 @@
 		    (set! submenu-models menu)))))
 
 	  (let ((coot-built-in-menu (get-coot-menu-from-item "Calculate" "Map Tools...")))
-	    (format #t "############### 2 coot-built-in-menu: ~s~%" coot-built-in-menu)
+	    ;; (format #t "############### 2 coot-built-in-menu: ~s~%" coot-built-in-menu)
 	    (if coot-built-in-menu
 		(begin
 		  (let ((menu (gtk-menu-new)))
@@ -174,7 +174,7 @@
 		    (set! submenu-maps menu)))))
 
 	  (let ((coot-built-in-menu (get-coot-menu-from-item "Calculate" "All Molecule...")))
-	    (format #t "############### 3 coot-built-in-menu: ~s~%" coot-built-in-menu)
+	    ;; (format #t "############### 3 coot-built-in-menu: ~s~%" coot-built-in-menu)
 	    (if coot-built-in-menu
 		(begin
 		  (let ((menu (gtk-menu-new)))
@@ -182,7 +182,7 @@
 		    (set! submenu-all-molecule menu)))))
 
 	  (let ((coot-built-in-menu (get-coot-menu-from-item "Calculate" "PISA...")))
-	    (format #t "############### 4 coot-built-in-menu: ~s~%" coot-built-in-menu)
+	    ;; (format #t "############### 4 coot-built-in-menu: ~s~%" coot-built-in-menu)
 	    (if coot-built-in-menu
 		(begin
 		  (let ((menu (gtk-menu-new)))
@@ -190,7 +190,7 @@
 		    (set! submenu-pisa menu)))))
 
 	  (let ((coot-built-in-menu (get-coot-menu-from-item "Calculate" "Modules...")))
-	    (format #t "############### 5 coot-built-in-menu: ~s~%" coot-built-in-menu)
+	    ;; (format #t "############### 5 coot-built-in-menu: ~s~%" coot-built-in-menu)
 	    (if coot-built-in-menu
 		(begin
 		  (let ((menu (gtk-menu-new)))
@@ -198,7 +198,7 @@
 		    (set! submenu-modules menu)))))
 
 	  (let ((coot-built-in-menu (get-coot-menu-from-item "Calculate" "NCS Tools...")))
-	    (format #t "############### 6 coot-built-in-menu: ~s~%" coot-built-in-menu)
+	    ;; (format #t "############### 6 coot-built-in-menu: ~s~%" coot-built-in-menu)
 	    (if coot-built-in-menu
 		(begin
 		  (let ((menu (gtk-menu-new)))
@@ -206,7 +206,7 @@
 		    (set! submenu-ncs menu)))))
 
 	  (let ((coot-built-in-menu (get-coot-menu-from-item "Draw" "Representation Tools...")))
-	    (format #t "############### 7 coot-built-in-menu: ~s~%" coot-built-in-menu)
+	    ;; (format #t "############### 7 coot-built-in-menu: ~s~%" coot-built-in-menu)
 	    (if coot-built-in-menu
 		(begin
 		  (let ((menu (gtk-menu-new)))
@@ -214,7 +214,7 @@
 		    (set! submenu-representation menu)))))
 
 	  (let ((coot-built-in-menu (get-coot-menu-from-item "Edit" "Settings...")))
-	    (format #t "############### 8 coot-built-in-menu: ~s~%" coot-built-in-menu)
+	    ;; (format #t "############### 8 coot-built-in-menu: ~s~%" coot-built-in-menu)
 	    (if coot-built-in-menu
 		(begin
 		  (let ((menu (gtk-menu-new)))
