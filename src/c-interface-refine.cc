@@ -273,7 +273,7 @@ void do_refine(short int state) {
          // shouldnt get here any more?!? Only if we destroy the dialog above!
           g.in_range_define_for_refine = 0;
           g.model_fit_refine_unactive_togglebutton("model_refine_dialog_refine_togglebutton");
-          info_dialog("INFO:: Still, no refinement map has been set!");
+          info_dialog("WARNING:: Still, no refinement map has been set!");
       }
    } else { 
       g.normal_cursor();
