@@ -3371,7 +3371,11 @@ void set_refinement_drag_elasticity(float e);
 /*! name consistent with set_refine_with_torsion_restraints() !?  */
 void set_refine_ramachandran_angles(int state);
 
+/*! \brief change the target function type  */
 void set_refine_ramachandran_restraints_type(int type);
+/*! \brief change the target function weight
+
+a big number means bad things  */
 void set_refine_ramachandran_restraints_weight(float w);
 
 int refine_ramachandran_angles_state();

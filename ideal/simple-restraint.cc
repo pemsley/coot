@@ -801,6 +801,8 @@ coot::restraints_container_t::pre_sanitize_as_needed(std::vector<refinement_ligh
 	 gsl_vector_set(x, i, gsl_vector_get(s->x, i));
       restraints_usage_flag = restraints_usage_flag_save;
       gsl_multimin_fdfminimizer_set(s, &multimin_func, x, step_size, tolerance);
+      if (verbose_geometry_reporting != QUIET)
+	 std::cout << "debug:: :::: pre-sanitization complete" << std::endl;
    }
 }
 
@@ -964,6 +966,24 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    std::vector<coot::refinement_lights_info_t> lights_vec;
    bool done_final_chi_squares = false;
 
+   // debugging the GSL_ENOPROG from gsl_multimin_fdfminimizer_iterate()
+
+   typedef struct
+   {
+      int iter;
+      double step;
+      double max_step;
+      double tol;
+      gsl_vector *x1;
+      gsl_vector *dx1;
+      gsl_vector *x2;
+      double pnorm;
+      gsl_vector *p;
+      double g0norm;
+      gsl_vector *g0;
+   }
+   conjugate_pr_state_t;
+
    do
       {
 	 iter++;
@@ -971,6 +991,13 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 if (false)
 	    std::cout << "debug:: iteration number " << iter << " of " << nsteps_max
 		      << " status from gsl_multimin_fdfminimizer_iterate(): " << status << std::endl;
+
+	 // debugging GSL_ENOPROG - it was running out of precision, I think, the step was too small
+	 // (in intermediate_point()) - so bottom line is: don't make the ZO Rama weight too high (> 1?)
+	 //
+	 // conjugate_pr_state_t *state = (conjugate_pr_state_t *) s->state;
+	 // double pnorm = state->pnorm;
+	 // double g0norm = state->g0norm;
 
 	 if (status) {
 	    std::cout << "Unexpected error from gsl_multimin_fdfminimizer_iterate" << std::endl;
