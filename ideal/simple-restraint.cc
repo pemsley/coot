@@ -347,7 +347,7 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 void
 coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
 
-   do_numerical_gradients_flag = 0;
+   do_numerical_gradients_flag = false;
    verbose_geometry_reporting = NORMAL;
    have_oxt_flag = false; // set in mark_OXT()
    // the smaller the alpha, the more like least squares
@@ -838,8 +838,10 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 					     int nsteps_max,
 					     short int print_initial_chi_sq_flag) {
 
-   // std::cout << "debug:: minimize_inner called with usage_flags " << usage_flags << std::endl;
-   // debug_atoms();
+   if (do_numerical_gradients_flag) {
+      std::cout << "debug:: minimize_inner called with usage_flags " << usage_flags << std::endl;
+      debug_atoms();
+   }
 
    restraints_usage_flag = usage_flags;
    // restraints_usage_flag = BONDS_AND_ANGLES;
@@ -2398,6 +2400,8 @@ coot::restraints_container_t::make_restraints(int imol,
       // restraints_usage_flag = BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS;
 
       restraints_usage_flag = TRANS_PEPTIDE_RESTRAINT;
+
+      restraints_usage_flag = JUST_RAMAS;
    }
 
    if (n_atoms) {

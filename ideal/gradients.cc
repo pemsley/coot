@@ -61,7 +61,7 @@ coot::numerical_gradients(gsl_vector *v,
    double new_S_plus; 
    double new_S_minu; 
    double val;
-   double micro_step = 0.0002;  // the difference between the gradients
+   double micro_step = 0.0005;  // the difference between the gradients
 			       // seems not to depend on the
 			       // micro_step size (0.0001 vs 0.001)
                                // ... Hmm... is does for rama restraints?
@@ -196,7 +196,7 @@ void coot::my_df(const gsl_vector *v,
 
    if (restraints_p->do_numerical_gradients_status()) {
       gsl_vector *non_const_v = const_cast<gsl_vector *> (v); // because there we use gls_vector_set()
-      coot::numerical_gradients(non_const_v, params, df);
+      numerical_gradients(non_const_v, params, df);
    }
 }
 

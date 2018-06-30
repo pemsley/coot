@@ -1784,8 +1784,10 @@ coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
    double lr = rama.value(residue_type, clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
    double R = -rama_plot_weight * lr;
 
-   // std::cout << "zo-rama-distortion for " << phi << " " << psi << " is " << lr << " kdc: "
-   // << lr_kdc << "\n";
+   if (false)
+      std::cout << "zo-rama-distortion for "
+		<< std::setw(8) << std::right << std::setprecision(3) << std::fixed << phi << " "
+		<< std::setw(8) << std::right << std::setprecision(3) << std::fixed << psi << " is " << lr << "\n";
 
    if ( clipper::Util::isnan(phi) ) {
       std::cout << "WARNING: observed torsion phi is a NAN!" << std::endl;

@@ -165,6 +165,20 @@ coot::process_dfs_in_range(int thread_idx,
 	 std::cout << "process_dfs_in_range() i " << i << " restraint index " << restraints_indices[i]
 		   << " " << rest << std::endl;
 
+      if (restraints_p->restraints_usage_flag & coot::GEMAN_MCCLURE_DISTANCE_MASK)
+	 if (rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT)
+	    process_dfs_geman_mcclure_distance(rest, restraints_p->geman_mcclure_alpha, v, results);
+
+      if (restraints_p->restraints_usage_flag & coot::NON_BONDED_MASK) {
+	 if (rest.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+	    if (rest.nbc_function == simple_restraint::LENNARD_JONES) {
+	       process_dfs_non_bonded_lennard_jones(rest, restraints_p->lennard_jones_epsilon, v, results);
+	    } else {
+	       process_dfs_non_bonded(rest, v, results);
+	    }
+	 }
+      }
+
       if (restraints_p->restraints_usage_flag & coot::BONDS_MASK)
 	 if (rest.restraint_type == coot::BOND_RESTRAINT)
 	    process_dfs_bond(rest, v, results);
@@ -185,20 +199,6 @@ coot::process_dfs_in_range(int thread_idx,
       if (restraints_p->restraints_usage_flag & coot::PLANES_MASK)
 	 if (rest.restraint_type == coot::PLANE_RESTRAINT)
 	    process_dfs_plane(rest, v, results);
-
-      if (restraints_p->restraints_usage_flag & coot::GEMAN_MCCLURE_DISTANCE_MASK)
-	 if (rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT)
-	    process_dfs_geman_mcclure_distance(rest, restraints_p->geman_mcclure_alpha, v, results);
-
-      if (restraints_p->restraints_usage_flag & coot::NON_BONDED_MASK) {
-	 if (rest.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
-	    if (rest.nbc_function == simple_restraint::LENNARD_JONES) {
-	       process_dfs_non_bonded_lennard_jones(rest, restraints_p->lennard_jones_epsilon, v, results);
-	    } else {
-	       process_dfs_non_bonded(rest, v, results);
-	    }
-	 }
-      }
 
       if (restraints_p->restraints_usage_flag & coot::TRANS_PEPTIDE_MASK)
 	 if (rest.restraint_type == coot::TRANS_PEPTIDE_RESTRAINT)
@@ -1230,11 +1230,11 @@ coot::process_dfs_rama(const coot::simple_restraint &rama_restraint,
 	 std::cout << "WARNING: observed torsion psi is a NAN!" << std::endl;
 	 // throw an exception
       }
-	    
+
       double phir = clipper::Util::d2rad(phi);
       double psir = clipper::Util::d2rad(psi);
       double R = restraints->rama_prob(phir, psir);
-	    
+
       // std::cout << "df rama distortion for " << phi << " " << psi << " is "
       // << R << std::endl;
 
