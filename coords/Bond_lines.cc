@@ -3535,10 +3535,19 @@ Bond_lines_container::addBond(int col,
 			      bool add_end_end_cap      // default arg
 			      ) {
 
+   // Needs further investigation
+
    // duck out if both of these atoms are in the no-bonds to these atoms set
    if (no_bonds_to_these_atoms.find(atom_index_1) != no_bonds_to_these_atoms.end())
       if (no_bonds_to_these_atoms.find(atom_index_2) != no_bonds_to_these_atoms.end())
-	 return;
+	 {
+	    // std::cout << "ducking out with " << atom_index_1 << " " << atom_index_2 << " "
+	    // << no_bonds_to_these_atoms.size() << std::endl;
+	    return;
+	 }
+
+   // std::cout << "not ducking out with " << atom_index_1 << " " << atom_index_2 << " "
+   // << no_bonds_to_these_atoms.size() std::endl;
 
    coot::CartesianPair pair(start,end);
    if (col >= int(bonds.size())) { 
