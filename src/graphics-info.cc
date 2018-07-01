@@ -208,9 +208,12 @@ GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
    col.pixel = 1;
    col.blue  = 0;
 
-   // if (rama_type == coot::RAMA_TYPE_LOGRAMA) {
-   if (true) { // now that RAMA_TYPE_ZO are on the same scale this colour
-               // scheme will do for both
+   if (rama_type == coot::RAMA_TYPE_LOGRAMA) {
+      // This used to be true:
+      // now that RAMA_TYPE_ZO are on the same scale this colour
+      // scheme will do for both
+      // But then I changed the weight on ZO rama
+      // So colours need to be different
       if (plot_value < -15.0*scale) {
 	 col.red   = 0;
 	 col.green = 55535;
@@ -231,9 +234,23 @@ GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
       }
    } else {
       // RAMA_TYPE_ZO
-      col.red   = 33000;
-      col.green = 33000;
-      col.blue = 33000;
+      if (plot_value < -1.8) {
+	 col.red   = 0;
+	 col.green = 55535;
+      } else {
+	 if (plot_value < -1.2) {
+	    col.red   = 55000;
+	    col.green = 55000;
+	 } else {
+	    if (plot_value < -0.4) {
+	       col.red   = 64000;
+	       col.green = 32000;
+	    } else {
+	       col.red   = 65535;
+	       col.green = 0;
+	    }
+	 }
+      }
    }
    return col;
 } 

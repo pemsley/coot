@@ -765,14 +765,13 @@ int graphics_info_t::show_origin_marker_flag = 1;
 
 //
 float graphics_info_t::geometry_vs_map_weight = 60.0;
-float graphics_info_t::rama_plot_restraint_weight = 1.0;
 int   graphics_info_t::rama_n_diffs = 50;
 
 atom_selection_container_t *graphics_info_t::moving_atoms_asc = NULL;
 short int graphics_info_t::moving_atoms_asc_type = coot::NEW_COORDS_UNSET; // unset
 int graphics_info_t::imol_moving_atoms = 0;
-int graphics_info_t::imol_refinement_map = -1; // magic initial value
-                                 // checked in graphics_info_t::refine()
+int graphics_info_t::imol_refinement_map = -1; // magic initial value "None set"
+                                               // checked in graphics_info_t::refine()
 
 graphical_bonds_container graphics_info_t::regularize_object_bonds_box;
 graphical_bonds_container graphics_info_t::environment_object_bonds_box;
@@ -788,7 +787,8 @@ short int graphics_info_t::do_peptide_omega_torsion_restraints = 0;
 bool      graphics_info_t::do_rama_restraints = 0; // No.
 bool      graphics_info_t::do_numerical_gradients = 0; // No.
 int       graphics_info_t::restraints_rama_type = coot::RAMA_TYPE_LOGRAMA;
-float     graphics_info_t::rama_restraints_weight = 40; // clipper-rama weight
+float     graphics_info_t::rama_restraints_weight = 40; // clipper-rama weight, gets reset on set_refine_ramachandran_restraints_type()
+float     graphics_info_t::rama_plot_restraint_weight = 1.0;  // what is this?
 
 // for Kevin Keating 
 bool      graphics_info_t::use_only_extra_torsion_restraints_for_torsions_flag = 0; 
