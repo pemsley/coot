@@ -199,8 +199,8 @@ GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
    // ZO type data need to scaled to match
    // 20*zo_type_data-80 = log_rama_type_data
    //
-   if (rama_type == coot::RAMA_TYPE_ZO)
-      plot_value = 20*plot_value -80;
+   // if (rama_type == coot::RAMA_TYPE_ZO)
+   //   plot_value = 20*plot_value -80;
 
    GdkColor col;
    float scale = 10.0; 
