@@ -881,6 +881,51 @@ coot::rdkit_package_data_dir() {
    return r;
 }
 
+// if you can try to get the directoy dir in this directory.
+// if not, try to make it in this directory.
+// if not, try to find it in $HOME
+// if not try to make it in $HOME
+// if not, return the empty string
+std::string
+coot::get_directory(const std::string &dir) {
+
+   struct stat s;
+   int fstat = stat(dir.c_str(), &s);
+   if (fstat == -1 ) { // file not exist
+      int status = util::create_directory(dir);
+      if (status == 0) { // success
+	 return dir;
+      } else {
+	 // try to create in $HOME
+	 const char *e = getenv("HOME");
+	 if (e) {
+	    std::string home(e);
+	    const std::string d = util::append_dir_dir(home, dir);
+	    fstat = stat(d.c_str(), &s);
+	    if (fstat == -1) {
+	       int status = util::create_directory(d);
+	       if (status == 0) { // fine
+		  return d;
+	       } else {
+		  // couldn't create in $HOME either
+		  std::string empty;
+		  return empty;
+	       }
+	    } else {
+	       return d;
+	    }
+	 } else {
+	    // no $HOME
+	    std::string empty;
+	    return empty;
+	 }
+      }
+   } else {
+      return dir;
+   }
+}
+
+
  
  
 std::pair<std::string, std::string>
