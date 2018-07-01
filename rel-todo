@@ -5,6 +5,8 @@
 
    o sync Bernie
 
+   o mutate an ALA with hydrogens to a GLY. HA floats away (it should be deleted)
+
 ------
 
    o when I have undisplayed hydrogens, I don't want to ever pick them during refinement.
