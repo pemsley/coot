@@ -3836,10 +3836,10 @@
 (define (refmac-multi-sharpen-gui)
   (let ((window (gtk-window-new 'toplevel))
 	;; boxes
-	(vbox (gtk-vbox-new #f 0))
-	(hbox-1 (gtk-hbox-new #f 0))
-	(hbox-2 (gtk-hbox-new #f 0))
-	(hbox-3 (gtk-hbox-new #f 0))
+	(vbox (gtk-vbox-new #f 4))
+	(hbox-1 (gtk-hbox-new #f 4))
+	(hbox-2 (gtk-hbox-new #f 4))
+	(hbox-3 (gtk-hbox-new #f 4))
 	;; menus
 	(option-menu-map (gtk-option-menu-new))
 	(option-menu-b-factor (gtk-option-menu-new))
@@ -3890,10 +3890,10 @@
       (gtk-box-pack-end hbox-3 cancel-button #f #f 12)
       (gtk-box-pack-end hbox-3     ok-button #f #f 12)
 
-      (gtk-box-pack-start vbox hbox-1)
-      (gtk-box-pack-start vbox hbox-2)
-      (gtk-box-pack-start vbox h-sep)
-      (gtk-box-pack-start vbox hbox-3)
+      (gtk-box-pack-start vbox hbox-1 #f #f 6)
+      (gtk-box-pack-start vbox hbox-2 #f #f 6)
+      (gtk-box-pack-start vbox h-sep  #f #f 2)
+      (gtk-box-pack-start vbox hbox-3 #f #f 6)
 
       (gtk-signal-connect cancel-button "clicked"
 			  (lambda() (gtk-widget-destroy window)))
@@ -3949,13 +3949,14 @@
 								data-lines
 								log-file-name
 								#f)))
+					  (format #t "debug:: s: ~s~%" s)
 					  (if (ok-goosh-status? s)
 					      (begin
-						(format #t "s: ~s~%" s)
-						(if (file-exists? "starting-map.mtz")
+						(if (file-exists? "starting_map.mtz")
 						    (begin
-						      (rename-file  "starting-map.mtz" refmac-output-mtz-file-name)
+						      (rename-file  "starting_map.mtz" refmac-output-mtz-file-name)
 						      ;; maybe offer a read-mtz dialog now
+						      (manage-column-selector refmac-output-mtz-file-name)
 						      )))))))))
 
 			      (gtk-widget-destroy window))))
