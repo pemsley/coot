@@ -891,9 +891,13 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
    // We get ~1ms/residue with bond and angle terms and no density terms.
 
-   double tolerance = 0.1; // was 0.06 // was 0.035
-   if (! include_map_terms())
+   double tolerance = 0.13; // was 0.06 // was 0.035
+   if (! include_map_terms()) {
       tolerance = 0.18;
+   } else {
+      if (usage_flags & RAMA_PLOT_MASK)
+	 tolerance = 0.26;
+   }
 
    double step_size = 0.5 * gsl_blas_dnrm2(x);
    // std::cout << "debug:: starting with step_size " << step_size << std::endl;
