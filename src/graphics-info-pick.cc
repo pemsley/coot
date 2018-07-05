@@ -459,9 +459,10 @@ graphics_info_t::fixed_atom_for_refinement_p(mmdb::Atom *at) {
 
 // Setup moving atom-drag if we are.
 // (we are acting on button1 down)
+// note to self, maybe you wanted this (check_if_moving_atom_pull()), not pick_intermediate_atom()?
 //
 void
-graphics_info_t::check_if_moving_atom_pull() {
+graphics_info_t::check_if_moving_atom_pull(bool was_a_double_click) {
 
    short int atom_pick_mode = PICK_ATOM_ALL_ATOM;
    if (! moving_atoms_have_hydrogens_displayed)
@@ -491,25 +492,42 @@ graphics_info_t::check_if_moving_atom_pull() {
       // 20180219. Now we have many.
 
       moving_atoms_currently_dragged_atom_index = pi.atom_index;
-      //
-      moving_atoms_dragged_atom_indices.insert(pi.atom_index);
 
-      std::cout << "moving_atoms_currently_dragged_atom_index " << moving_atoms_currently_dragged_atom_index
-		<< std::endl;
+      if (! was_a_double_click) {
+	 //
+	 moving_atoms_dragged_atom_indices.insert(pi.atom_index);
 
-      in_moving_atoms_drag_atom_mode_flag = 1;
+	 std::cout << "moving_atoms_currently_dragged_atom_index " << moving_atoms_currently_dragged_atom_index
+		   << std::endl;
 
-      // Find the fixed_points_sheared_drag from the imol_moving_atoms.
-      // and their flag, have_fixed_points_sheared_drag_flag
-      // set_fixed_points_for_sheared_drag(); // superceeded
-      // 
-      if (drag_refine_idle_function_token != -1) { 
-// 	 std::cout << "DEBUG:: removing token " << drag_refine_idle_function_token
-// 		   << std::endl;
-	 gtk_idle_remove(drag_refine_idle_function_token);
-	 drag_refine_idle_function_token = -1; // magic "not in use" value
+	 in_moving_atoms_drag_atom_mode_flag = 1;
+
+	 // Find the fixed_points_sheared_drag from the imol_moving_atoms.
+	 // and their flag, have_fixed_points_sheared_drag_flag
+	 // set_fixed_points_for_sheared_drag(); // superceeded
+	 //
+	 if (drag_refine_idle_function_token != -1) {
+	    // 	 std::cout << "DEBUG:: removing token " << drag_refine_idle_function_token
+	    // 		   << std::endl;
+	    gtk_idle_remove(drag_refine_idle_function_token);
+	    drag_refine_idle_function_token = -1; // magic "not in use" value
+	 }
+      } else {
+	 // a double click on a dragged intermediate atom means "remove this pull restraint"
+
+	 std::set<int>::const_iterator it = moving_atoms_dragged_atom_indices.find(pi.atom_index);
+	 if (it != moving_atoms_dragged_atom_indices.end()) {
+	    std::cout << "erasing " << *it << std::endl;
+	    moving_atoms_dragged_atom_indices.erase(it);
+	    mmdb::Atom *at = moving_atoms_asc->atom_selection[*it];
+	    if (at) {
+	       coot::atom_spec_t spec(at);
+	       atom_pull_off(spec);
+	       clear_atom_pull_restraint(spec, true); // refine again
+	    }
+	 }
       }
-      
+
    } else {
       in_moving_atoms_drag_atom_mode_flag = 0;
    } 
@@ -518,7 +536,7 @@ graphics_info_t::check_if_moving_atom_pull() {
 void
 graphics_info_t::set_fixed_points_for_sheared_drag() {
 
-} 
+}
 
 
 // 

@@ -4435,6 +4435,10 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    
    graphics_info_t info;
    
+   bool was_a_double_click = false;
+   if (event->type==GDK_2BUTTON_PRESS)
+      was_a_double_click = true;
+
    int x_as_int, y_as_int;
    GdkModifierType state;
    gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
@@ -4458,9 +4462,13 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    // 
    if (event->type==GDK_2BUTTON_PRESS ||
        event->type==GDK_3BUTTON_PRESS) { 
-//       printf("INFO:: Ignoring this %s click on button %d\n",
-// 	     event->type==GDK_2BUTTON_PRESS ? "double" : "triple", 
-// 	     event->button);
+
+      if (false)
+	 printf("INFO:: ---- Considering this %s click on button %d\n",
+		event->type==GDK_2BUTTON_PRESS ? "double" : "triple",
+		event->button);
+
+      info.check_if_moving_atom_pull(true); // doesn't return a value, but can remove pull restraints
 
       if (state & my_button1_mask) {
 	 // instead do a label atom:
@@ -4487,9 +4495,6 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    }
    
 
-
-
-   // if (event->button == 1) {
    if (state & my_button1_mask) {
 
       if (info.shift_is_pressed == 1) {
@@ -4546,14 +4551,12 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	 //
 	 int iv = info.check_if_in_range_defines(event, state);
 	 if (! iv) 
-	    info.check_if_moving_atom_pull(); // and if so, set it up (it
+	    info.check_if_moving_atom_pull(false); // and if so, set it up (it
+	                                           // executes on *motion* not a button press event).  Also,
+                                                   // remove any on-going drag-refine-idle-function.
 
-	 // executes on *motion* not a button press event).  Also,
-	 // remove any on-going drag-refine-idle-function.
-	 //
-	 // check_if_moving_atom_pull sets
-	 // in_moving_atoms_drag_atom_mode_flag.
-	 
+	 // check_if_moving_atom_pull sets in_moving_atoms_drag_atom_mode_flag.
+
       }  // shift is pressed
    }     // button 1
 

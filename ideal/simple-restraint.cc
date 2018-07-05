@@ -866,7 +866,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 std::cout << "No minimization will happen" << std::endl;
 	 return coot::refinement_results_t(0, 0, "No Restraints!");
       }
-   } 
+   }
 
    setup_gsl_vector_variables();  //initial positions
 

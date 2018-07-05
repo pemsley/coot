@@ -3017,7 +3017,7 @@ public:
    // 
    int check_if_in_range_defines(GdkEventButton *event,
 				 const GdkModifierType &state);
-   void check_if_moving_atom_pull(); // and setup moving atom-drag if we are.
+   void check_if_moving_atom_pull(bool was_a_double_click); // and setup moving atom-drag if we are.
 
    void unset_moving_atoms_currently_dragged_atom_index() {
      moving_atoms_currently_dragged_atom_index = -1;
