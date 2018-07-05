@@ -862,7 +862,7 @@ std::string coot::get_title(mmdb::Manager *mol) {
    if (t) {
       tt = std::string(t);
    }
-   delete title;
+   delete [] title;
 
    return tt;
 }
