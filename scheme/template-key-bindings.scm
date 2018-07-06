@@ -124,7 +124,8 @@
 
 (add-key-binding "accept baton position" "A" accept-baton-position)
 
-(add-key-binding "Cootilus here" "N" (lambda () (find-nucleic-acids-local 6.0)))
+;; Note: I never use this. Free it up?
+;; (add-key-binding "Cootilus here" "N" (lambda () (find-nucleic-acids-local 6.0)))
 
 (add-key-binding "JED-Flip" "F"
    (lambda () (using-active-atom
