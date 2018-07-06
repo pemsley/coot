@@ -175,7 +175,7 @@ def jed_flip_key_func(dir):
 
 add_key_binding("JED-Flip", "F", lambda: jed_flip_key_func(0))
 
-add_key_binding("JED-Flip", "G", lambda: jed_flip_key_func(1))
+add_key_binding("Reverse JED-Flip", "G", lambda: jed_flip_key_func(1))
 
 
 # Paul's not sure about this one. I likey!
