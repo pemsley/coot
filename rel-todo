@@ -1,6 +1,11 @@
 
    For Release 0.8.9.2
 
+   o remove default adding of monomer on read cif dictionary
+
+   o sync Bernie
+
+   o mutate an ALA with hydrogens to a GLY. HA floats away (it should be deleted)
 
 ------
 
