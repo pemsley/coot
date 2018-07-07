@@ -1876,7 +1876,7 @@ graphics_info_t::draw_moving_atoms_atoms(bool against_a_dark_background) {
       coot::Cartesian z_delta = (front - back) * 0.003;
 
       glBegin(GL_POINTS);
-      glPointSize(500.0/zoom);
+      glPointSize(600.0/zoom);
 
       for (int icol=0; icol<regularize_object_bonds_box.n_consolidated_atom_centres; icol++) {
 
