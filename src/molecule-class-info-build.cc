@@ -498,8 +498,23 @@ molecule_class_info_t::reduce(coot::protein_geometry *geom_p) {
    r.add_geometry(geom_p);
    r.add_hydrogen_atoms();
    update_molecule_after_additions();
-   update_symmetry();
 
+   if (false) { // debug
+      for (int i=0; i<atom_sel.n_selected_atoms; i++) {
+	 mmdb::Atom *at = atom_sel.atom_selection[i];
+	 int idx;
+	 if (at->GetUDData(atom_sel.UDDAtomIndexHandle, idx) == mmdb::UDDATA_Ok) {
+	    std::string fail;
+	    if (idx != i)
+	       fail = "FAIL";
+	    std::cout << "atom " << coot::atom_spec_t(at) << " has index " << i << " and udd " << idx << " " << fail << "\n";
+	 } else {
+	    std::cout << "bad GetUDData() for atom " << coot::atom_spec_t(at) << std::endl;
+	 }
+      }
+   }
+
+   update_symmetry();
 }
 
 void

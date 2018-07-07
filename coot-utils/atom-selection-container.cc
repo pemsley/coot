@@ -616,7 +616,7 @@ make_asc(mmdb::Manager *mol, bool transfer_atom_index_flag) {
 
    atom_selection_container_t asc;
    asc.mol = mol;
-   
+
    asc.SelectionHandle = mol->NewSelection();
    asc.mol->SelectAtoms (asc.SelectionHandle, 0, "*",
 		     mmdb::ANY_RES, // starting resno, an int

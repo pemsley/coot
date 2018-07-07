@@ -3347,13 +3347,15 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
 				 const std::set<int> &no_bonds_to_these_atoms) {
 
 // come back to this
-//    std::cout << "-------- in makebonds() " << std::endl;
-//    std::set<int>::const_iterator it;
-//    for(it=no_bonds_to_these_atoms.begin(); it!=no_bonds_to_these_atoms.end(); it++) {
-//       int idx = *it;
-//       mmdb::Atom *at = atom_sel.atom_selection[idx];
-//       std::cout << "    " << idx << " " << coot::atom_spec_t(at) << std::endl;
-//    }
+
+   std::set<int>::const_iterator it;
+   if (false) { // debug no_bonds_to_these_atoms
+      for(it=no_bonds_to_these_atoms.begin(); it!=no_bonds_to_these_atoms.end(); it++) {
+	 int idx = *it;
+	 mmdb::Atom *at = atom_sel.atom_selection[idx];
+	 std::cout << "    " << idx << " " << coot::atom_spec_t(at) << std::endl;
+      }
+   }
 
    int do_disulphide_flag = 1;
    int model_number = 0; // flag for all models

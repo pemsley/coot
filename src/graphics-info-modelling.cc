@@ -749,7 +749,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
       if (do_torsion_restraints) { 
 	 do_residue_internal_torsions = 1;
 	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
-      } 
+      }
 
       if (do_rama_restraints)
 	 // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
@@ -1019,8 +1019,17 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
    // corresponding atoms in the moving atoms.
    //
    const atom_selection_container_t &imol_asc = molecules[imol_moving_atoms].atom_sel;
-   std::set<int> atom_set = coot::atom_indices_in_other_molecule(imol_asc,
-								 local_moving_atoms_asc);
+   std::set<int> atom_set = coot::atom_indices_in_other_molecule(imol_asc, local_moving_atoms_asc);
+
+   if (false) { // debug atoms in other molecule
+      std::set<int>::const_iterator it;
+      for(it=atom_set.begin(); it!=atom_set.end(); it++) {
+	 int idx = *it;
+	 mmdb::Atom *at = imol_asc.atom_selection[idx];
+	 coot::atom_spec_t as(at);
+	 std::cout << " this is a moving atom: " << idx << " " << as << std::endl;
+      }
+   }
 
    // now rebond molecule imol without bonds to atoms in atom_set
    if (atom_set.size())

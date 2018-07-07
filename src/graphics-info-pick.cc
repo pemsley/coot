@@ -497,8 +497,9 @@ graphics_info_t::check_if_moving_atom_pull(bool was_a_double_click) {
 	 //
 	 moving_atoms_dragged_atom_indices.insert(pi.atom_index);
 
-	 std::cout << "moving_atoms_currently_dragged_atom_index " << moving_atoms_currently_dragged_atom_index
-		   << std::endl;
+	 if (false)
+	    std::cout << "moving_atoms_currently_dragged_atom_index " << moving_atoms_currently_dragged_atom_index
+		      << std::endl;
 
 	 in_moving_atoms_drag_atom_mode_flag = 1;
 
