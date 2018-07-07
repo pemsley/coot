@@ -4090,19 +4090,25 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 			    << " dist_min: " << dist_min << std::endl;
 	       }
 
-	       if (is_hydrogen(at_1)) // should check from donor
+	       bool is_H_non_bonded_contact = false;
+
+	       if (is_hydrogen(at_1)) { // should check from donor
+		  is_H_non_bonded_contact = true;
 		  if (is_acceptor(type_2, geom))
 		     dist_min -= 0.7;
-	       if (is_hydrogen(at_2)) // should check from donor
+	       }
+	       if (is_hydrogen(at_2)) {// should check from donor
+		  is_H_non_bonded_contact = true;
 		  if (is_acceptor(type_1, geom))
-		      dist_min -= 0.7;
+		     dist_min -= 0.7;
+	       }
 
 	       simple_restraint::nbc_function_t nbcf = simple_restraint::LENNARD_JONES;
 	       // simple_restraint::nbc_function_t nbcf = simple_restraint::HARMONIC;
 	       simple_restraint r(NON_BONDED_CONTACT_RESTRAINT,
 				  nbcf,
 				  i, filtered_non_bonded_atom_indices[i][j],
-				  type_1, type_2, 
+				  type_1, type_2, is_H_non_bonded_contact,
 				  fixed_atom_flags, dist_min);
 
 	       restraints_vec.push_back(r);

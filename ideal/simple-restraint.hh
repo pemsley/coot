@@ -379,6 +379,7 @@ namespace coot {
       std::vector<bool> fixed_atom_flags;
       std::vector<bool> fixed_atom_flags_other_plane;
       bool is_user_defined_restraint;
+      bool is_H_non_bonded_contact;
       //
       // for mouse pull on an atom: this is where the user wants the atom to be
       //
@@ -407,6 +408,7 @@ namespace coot {
 	 target_value = tar; 
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = false;
+	 is_H_non_bonded_contact = false;
 	 nbc_function = HARMONIC; // not used
 	 
 	 // This finds a coding error
@@ -428,6 +430,7 @@ namespace coot {
 	 target_value = tar; 
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = true;
+	 is_H_non_bonded_contact = false;
 
 	 if (rest_type != restraint_type_t(GEMAN_MCCLURE_DISTANCE_MASK)) { 
 	    std::cout << "BOND ERROR (Geman McClure) in simple_restraint()"
@@ -452,6 +455,7 @@ namespace coot {
 	 target_value = tar; 
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = 0;
+	 is_H_non_bonded_contact = false;
 	 if (rest_type != ANGLE_RESTRAINT) { 
 	    std::cout << "ERROR::::: PROGRAM ERROR - ANGLE ERROR" << std::endl;
 	 }
@@ -474,6 +478,7 @@ namespace coot {
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 periodicity = periodicity_in; 
 	 is_user_defined_restraint = 0;
+	 is_H_non_bonded_contact = false;
 	 if ((rest_type != TORSION_RESTRAINT) && (rest_type != TRANS_PEPTIDE_RESTRAINT)) {
 	    std::cout << "ERROR::::: PROGRAM ERROR - TORSION/TRANSP-PEP ERROR" << std::endl;
 	 }
@@ -494,6 +499,7 @@ namespace coot {
 	 atom_index_5 = atom_5;
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = 0;
+	 is_H_non_bonded_contact = false;
 	 if (rest_type != RAMACHANDRAN_RESTRAINT) { 
 	    std::cout << "ERROR:: RAMACHANDRAN_RESTRAINT ERROR" << std::endl;
 	 }
@@ -520,6 +526,7 @@ namespace coot {
 	 sigma = sig;
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = 0;
+	 is_H_non_bonded_contact = false;
       }
 
       // modern (atoms individually weighted) Plane
@@ -542,6 +549,7 @@ namespace coot {
 	 sigma = 0.02; // hack 
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = 0;
+	 is_H_non_bonded_contact = false;
 	 
       }
       
@@ -563,12 +571,13 @@ namespace coot {
 	    plane_atom_index[i] = std::pair<int, double> (atom_index_plane_1_in[i], sigma_in);
 	 for (unsigned int i=0; i<atom_index_plane_2_in.size(); i++)
 	    atom_index_other_plane[i] = std::pair<int, double> (atom_index_plane_2_in[i], sigma_in);
-	 
+
 	 fixed_atom_flags             = fixed_atom_flags_plane_1_in;
 	 fixed_atom_flags_other_plane = fixed_atom_flags_plane_2_in;
 	 target_value = target_angle_in;
 	 sigma = sigma_in;
 	 is_user_defined_restraint = 1;
+	 is_H_non_bonded_contact = false;
       } 
 
       // Non-bonded - are you sure that this is the constructor that you want?
@@ -595,6 +604,7 @@ namespace coot {
 	    sigma = 0.02;
 	    fixed_atom_flags = fixed_atom_flags_in;
 	    is_user_defined_restraint = 0;
+	    is_H_non_bonded_contact = false;
 	 } else { 
 	    std::cout << "ERROR:: bad simple_restraint constructor usage "
 		      << "- should be non-bonded\n";
@@ -608,6 +618,7 @@ namespace coot {
 		       int index_2,
 		       const std::string &atom_1_type,
 		       const std::string &atom_2_type,
+		       bool is_H_non_bonded_contact_in,
 		       const std::vector<bool> &fixed_atom_flags_in,
 		       double dist_min) { 
 	 
@@ -621,6 +632,7 @@ namespace coot {
 	    sigma = 0.02;
 	    fixed_atom_flags = fixed_atom_flags_in;
 	    is_user_defined_restraint = 0;
+	    is_H_non_bonded_contact = is_H_non_bonded_contact_in;
 	 } else { 
 	    std::cout << "ERROR:: bad simple_restraint constructor usage "
 		      << "- should be non-bonded\n";
@@ -651,6 +663,7 @@ namespace coot {
 	    fixed_atom_flags = fixed_atom_flags_in;
 	    chiral_hydrogen_index = chiral_hydrogen_index_in;
 	    is_user_defined_restraint = 0;
+	    is_H_non_bonded_contact = false;
 	 } 
       }
 
@@ -665,7 +678,8 @@ namespace coot {
 	 sigma = sig; 
 	 fixed_atom_flags = std::vector<bool> (1,fixed_atom_flag_in);
 	 is_user_defined_restraint = 0;
-	 
+	 is_H_non_bonded_contact = false;
+
 	 if (rest_type != START_POS_RESTRAINT) { 
 	    std::cout << "ERROR:: START POS ERROR" << std::endl; 
 	 }
@@ -1069,6 +1083,7 @@ namespace coot {
       //
       mmdb::PPResidue SelResidue_active;
       int nSelResidues_active;
+      bool apply_H_non_bonded_contacts;
 
       void init(bool unset_deriv_locks) {
       	 verbose_geometry_reporting = NORMAL;
@@ -1081,6 +1096,7 @@ namespace coot {
 	 have_oxt_flag = 0;
 	 do_numerical_gradients_flag = 0;
 	 n_threads = 0;
+	 apply_H_non_bonded_contacts = true;
 	 lograma.init(LogRamachandran::All, 2.0, true);
 	 // when zo_rama is a static, this is already done
 // 	 try {
@@ -1237,11 +1253,8 @@ namespace coot {
       // this xmap seems to go out of scope if it's a const reference
       // (AFAICS it *can't* go out of scope), but there is a crash.
       // when we try to use pull restraints
-#ifdef HAVE_CXX11_NONONO
-      const clipper::Xmap<float> &xmap; // now needs to be passed in all constructors
-#else
       const clipper::Xmap<float> *xmap_p;
-#endif
+
       double map_weight; 
 
       void add(restraint_type_t rest_type, int atom_1, int atom_2, 
@@ -1337,17 +1350,17 @@ namespace coot {
 						   fixed_atom_flag, geom));
       } 
 
-      // What calls this?
       void add_non_bonded(int index1, int index2,
 			  const simple_restraint::nbc_function_t &nbcf,
-			  const std::string &atom_type_1, 
-			  const std::string &atom_type_2, 
+			  const std::string &atom_type_1,
+			  const std::string &atom_type_2,
+			  bool is_H_non_bonded_contact,
 			  const std::vector<bool> &fixed_atom_flag,
 			  double dist_min) {
 
 	 restraints_vec.push_back(simple_restraint(NON_BONDED_CONTACT_RESTRAINT, nbcf,
 						   index1, index2,
-						   atom_type_1, atom_type_2,
+						   atom_type_1, atom_type_2, is_H_non_bonded_contact,
 						   fixed_atom_flag, dist_min));
       }
 
@@ -2039,22 +2052,25 @@ namespace coot {
 
       int init_positions_size() {
 	 return initial_position_params_vec.size(); 
-      } 
+      }
 
       // Using this, we can mask out the restraints we don't want to
       // use using e.g. BONDS_MASK, BONDS_ANGLES_AND_PLANES etc...
       // 
       int restraints_usage_flag;
 
-      double starting_structure_diff_score(const gsl_vector *v, void *params); 
+      double starting_structure_diff_score(const gsl_vector *v, void *params);
 
+      bool apply_H_non_bonded_contacts_state() const { return apply_H_non_bonded_contacts; }
 
-      short int include_map_terms() { 
+      void set_apply_H_non_bonded_contacts(bool state) { apply_H_non_bonded_contacts = state; }
+
+      short int include_map_terms() {
 	 return include_map_terms_flag; 
       }
 
-      double Map_weight() const { 
-	 return map_weight; 
+      double Map_weight() const {
+	 return map_weight;
       }
 
       void set_map_weight(const double &mw) {

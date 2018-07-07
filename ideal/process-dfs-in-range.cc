@@ -165,17 +165,23 @@ coot::process_dfs_in_range(int thread_idx,
 	 std::cout << "process_dfs_in_range() i " << i << " restraint index " << restraints_indices[i]
 		   << " " << rest << std::endl;
 
-      if (restraints_p->restraints_usage_flag & coot::GEMAN_MCCLURE_DISTANCE_MASK)
-	 if (rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT)
+      if (restraints_p->restraints_usage_flag & coot::GEMAN_MCCLURE_DISTANCE_MASK) {
+	 if (rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
 	    process_dfs_geman_mcclure_distance(rest, restraints_p->geman_mcclure_alpha, v, results);
+	    continue;
+	 }
+      }
 
       if (restraints_p->restraints_usage_flag & coot::NON_BONDED_MASK) {
 	 if (rest.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
-	    if (rest.nbc_function == simple_restraint::LENNARD_JONES) {
-	       process_dfs_non_bonded_lennard_jones(rest, restraints_p->lennard_jones_epsilon, v, results);
-	    } else {
-	       process_dfs_non_bonded(rest, v, results);
+	    if (! rest.is_H_non_bonded_contact || restraints_p->apply_H_non_bonded_contacts_state()) {
+	       if (rest.nbc_function == simple_restraint::LENNARD_JONES) {
+		  process_dfs_non_bonded_lennard_jones(rest, restraints_p->lennard_jones_epsilon, v, results);
+	       } else {
+		  process_dfs_non_bonded(rest, v, results);
+	       }
 	    }
+	    continue;
 	 }
       }
 
