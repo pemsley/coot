@@ -347,9 +347,10 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 void
 coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
 
-   do_numerical_gradients_flag = false;
    verbose_geometry_reporting = NORMAL;
+   do_numerical_gradients_flag = false;
    have_oxt_flag = false; // set in mark_OXT()
+   dist_crit_for_bonded_pairs = 3.0;
    // the smaller the alpha, the more like least squares
    geman_mcclure_alpha = 0.2; // Is this a good value? Talk to Rob.
    mol = mol_in;
@@ -2369,6 +2370,11 @@ coot::restraints_container_t::const_test_function(const coot::protein_geometry &
    return geom.size();
 } 
 
+void
+coot::restraints_container_t::set_dist_crit_for_bonded_pairs(float dist) {
+   dist_crit_for_bonded_pairs = dist;
+}
+
 
 // We need to fill restraints_vec (which is a vector of
 // simple_restraint) using the coordinates () and the dictionary of
@@ -3422,7 +3428,7 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
    bool debug = false; // Are your residues in the same chain?  If not filter() will not bond them.
 
    coot::bonded_pair_container_t bpc;
-   float dist_crit = 3.0;
+   float dist_crit = dist_crit_for_bonded_pairs;
 
    if (verbose_geometry_reporting == VERBOSE)
       debug = true;

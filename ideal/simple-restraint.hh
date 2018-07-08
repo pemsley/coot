@@ -1820,6 +1820,8 @@ namespace coot {
 
       void make_restraint_types_index_limits();
 
+      float dist_crit_for_bonded_pairs;
+
       // return false if any of the atoms are fixed
       bool none_are_fixed_p(const std::vector<bool> &fixed_atom_indices) const;
 
@@ -1874,6 +1876,7 @@ namespace coot {
 	 n_atoms = asc_in.n_selected_atoms;
 	 atom = asc_in.atom_selection;
 	 initial_position_params_vec.resize(3*asc_in.n_selected_atoms);
+	 dist_crit_for_bonded_pairs = 3.0;
 
 	 for (int i=0; i<asc_in.n_selected_atoms; i++) {
 	    initial_position_params_vec[3*i  ] = asc_in.atom_selection[i]->x; 
@@ -2141,7 +2144,11 @@ namespace coot {
       void setup_gsl_vector_variables();
 
       double electron_density_score_at_point(const clipper::Coord_orth &ao) const;
-      clipper::Grad_orth<double> electron_density_gradient_at_point(const clipper::Coord_orth &ao) const; 
+      clipper::Grad_orth<double> electron_density_gradient_at_point(const clipper::Coord_orth &ao) const;
+
+      // sometime we want to anneal bonds for atoms that are "far" apart. Default
+      // distance is 3.0.
+      void set_dist_crit_for_bonded_pairs(float dist);
       
       // We need to fill restraints_vec (which is a vector of
       // simple_restraint) using the coordinates () and the dictionary of

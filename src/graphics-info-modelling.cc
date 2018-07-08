@@ -149,11 +149,11 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 // 	     << "coords mol: " << imol_for_atoms << " map mol: " << imol_for_map
 // 	     << std::endl;
       
-#ifdef HAVE_GSL
-
    short int irest = 0; // make 1 when restraints found.
 
    coot::refinement_results_t rr(0, GSL_CONTINUE, "");
+
+#ifdef HAVE_GSL
 
    int imol = imol_for_atoms;
    imol_moving_atoms = imol_for_atoms;  // for use when we accept the
@@ -287,6 +287,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	 rr = refine_residues_vec(imol_for_atoms, residues, altconf, mol);
    }
 
+#endif // HAVE_GSL
    return rr;
 }
 
@@ -304,230 +305,6 @@ graphics_info_t::info_dialog_missing_refinement_residues(const std::vector<std::
 
 
 
-coot::refinement_results_t
-graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
-					   int resno_1,
-					   int resno_2,
-					   int nSelResidues,
-					   mmdb::PResidue *SelResidues,
-					   const std::string &chain_id_1,
-					   const std::string &altconf,
-					   short int have_flanking_residue_at_start,
-					   short int have_flanking_residue_at_end,
-					   int imol_for_map
-					   ) {
-
-   // for debugging CCP4SRS usage
-   // 
-   // std::cout << "------------------- copy_mol_and_refine_inner() start geom size "
-   //           << Geom_p()->size() << std::endl;
-
-   coot::refinement_results_t rr(0, GSL_CONTINUE, "");
-   short int have_disulfide_residues = 0; // of course not in linear mode.
-
-   // It's OK to come here with imol_for_map = -1 - that means "regularize"
-   //
-   // if (! is_valid_map_molecule(imol_for_map)) {
-   // std::cout << "WARNING:: invalid map " << imol_for_map << std::endl;
-   // return rr;
-   // }
-
-   if (nSelResidues > 0) {
-
-      std::vector<coot::atom_spec_t> fixed_atom_specs = molecules[imol_for_atoms].get_fixed_atoms();
-      
-      const char *chn = chain_id_1.c_str();
-
-      if (nSelResidues > refine_regularize_max_residues) { 
-
-	 std::cout << "WARNING:: Hit heuristic fencepost! Too many residues "
-		   << "to refine\n "
-		   << "          FYI: " << nSelResidues
-		   << " > " << refine_regularize_max_residues
-		   << " (which is your current maximum).\n";
-	 std::cout << "Use (set-refine-max-residues "
-		   << 2*refine_regularize_max_residues
-		   << ") to increase limit\n";
-
-      } else { 
-
-	 // notice that we have to make 2 atom selections, one, which includes
-	 // flanking (and disulphide) residues that is used for the restraints
-	 // (restraints_container_t constructor) and one that is the moving atoms
-	 // (which does not have flanking atoms).
-	 // 
-	 // The restraints_container_t moves the atom of the mol that is passes to
-	 // it.  This must be the same mol as the moving atoms mol so that the
-	 // changed atom positions can be seen.  However (as I said) the moving
-	 // atom mol should not have flanking residues shown.  So we make an asc
-	 // that has the same mol as that passed to the restraints but a different
-	 // atom selection (it is the atom selection that is used in the bond
-	 // generation).
-	 //
-	 short int in_alt_conf_split_flag = 0;
-	 if (altconf != "")
-	    in_alt_conf_split_flag = 1;
-
-
-	 mmdb::Manager *residues_mol = 
-	    create_mmdbmanager_from_res_selection(SelResidues, nSelResidues, 
-						  have_flanking_residue_at_start,
-						  have_flanking_residue_at_end,
-						  altconf,
-						  chain_id_1,
-						  // 0, // 0 because we are not in alt conf split
-						  in_alt_conf_split_flag, 
-						  imol_for_atoms);
-
-// 	 coot::restraints_container_t restraints(resno_1,
-// 						 resno_2,
-// 						 have_flanking_residue_at_start,
-// 						 have_flanking_residue_at_end,
-// 						 have_disulfide_residues,
-// 						 altconf,
-// 						 chn,
-// 						 residues_mol,
-// 						 fixed_atom_specs,
-// 						 molecules[imol_for_map].xmap);
-
-	 if (last_restraints) {
-	    std::cout << "----------------------------------------------" << std::endl;
-	    std::cout << "----------------------------------------------" << std::endl;
-	    std::cout << "     ERROR:: B: last_restraints no cleared up " << std::endl;
-	    std::cout << "----------------------------------------------" << std::endl;
-	    std::cout << "----------------------------------------------" << std::endl;
-	 }
-
-	 // xmap in the restraints_container_t is a const ref, so the constructor for a
-	 // restraints_container_t needs to contain a reference to a real map (which can
-	 // be a dummy ;-)).
-
-	 clipper::Xmap<float> *xmap_p = dummy_xmap;
-
-	 if (is_valid_map_molecule(imol_for_map))
-	    xmap_p = &molecules[imol_for_map].xmap;
-
-	 last_restraints = new coot::restraints_container_t(resno_1,
-							    resno_2,
-							    have_flanking_residue_at_start,
-							    have_flanking_residue_at_end,
-							    have_disulfide_residues,
-							    altconf,
-							    chn,
-							    residues_mol,
-							    fixed_atom_specs,
-							    xmap_p);
-
-	 // this is where regularize and refine differ:
-	 if (is_valid_map_molecule(imol_for_map))
-	    last_restraints->add_map(geometry_vs_map_weight);
-
-	 // this really means "moving_atoms_don't_have_hydrogens_undisplayed"
-	 // which means that it gets set to false when there are hydrogen atoms
-	 // and the hydrogen atoms are not displayed.
-	 //
-	 moving_atoms_have_hydrogens_displayed = true;
-	 if (! molecules[imol_for_atoms].draw_hydrogens())
-	    moving_atoms_have_hydrogens_displayed = false;
-
-	 atom_selection_container_t local_moving_atoms_asc =
-	    make_moving_atoms_asc(residues_mol, resno_1, resno_2);
-
-	 // coot::restraint_usage_Flags flags = coot::BONDS;
-	 // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES;
-	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
-	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
-	 // 
-	 coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
-
-	 short int do_residue_internal_torsions = 0;
-
-	 if (do_torsion_restraints) {
-	    do_residue_internal_torsions = 1;
-	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS; // fail
-	    // flags = coot::BONDS_ANGLES_AND_TORSIONS; // OK
-	    // flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES;  // OK
-	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED; // fail
-	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS; // fail [ 20131109 - eh? ]
-	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES;
-	    flags = coot::TYPICAL_RESTRAINTS_WITH_TORSIONS;
-	 }
-
-	 if (do_rama_restraints)
-	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
-	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
-	    flags = coot::ALL_RESTRAINTS;
-
-	 // coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
-
-	 // 20080108 Recall that we do secondary structure restraints
-	 // with pseudo bonds now.  We don't do it by torsion
-	 // refinement of the phi and psi.
-	 //
-	 // However, ramachandran goodness will use phi and psi
-	 //
-	 
-	 const coot::protein_geometry &geom = *geom_p;
-
-	 int nrestraints = 
-	    last_restraints->make_restraints(imol_for_atoms, geom, flags,
-					     do_residue_internal_torsions,
-					     do_trans_peptide_restraints,
-					     rama_plot_restraint_weight,
-					     do_rama_restraints,
-					     pseudo_bonds_type);
-
-	 if (false)
-	    std::cout << "debug:: in copy_mol_and_refine_inner() nrestraints from make_restraints() was "
-		      << nrestraints << std::endl;
-
-	 last_restraints->set_geman_mcclure_alpha(geman_mcclure_alpha);
-         last_restraints->set_rama_type(restraints_rama_type);
-	 last_restraints->set_rama_plot_weight(rama_restraints_weight);
-
-	 if (molecules[imol_for_atoms].extra_restraints.has_restraints())
-	    last_restraints->add_extra_restraints(imol_for_atoms, molecules[imol_for_atoms].extra_restraints,
-						  geom);
-
-	 if (do_numerical_gradients)
-	    last_restraints->set_do_numerical_gradients();
-
-	 rr = update_refinement_atoms(nrestraints, last_restraints, rr, local_moving_atoms_asc,
-				      1, imol_for_atoms, chain_id_1);
-
-	 // local_moving_atoms_asc.clear_up(); // crash.
-	 // 
-	 // Hmm... local_moving_atoms_asc gets transfered to (class
-	 // variable) moving_atoms_asc in update_refinement_atoms().
-	 // Do we delete old moving_atoms_asc mol and selection there
-	 // before they are replaced?
-	 //
-	 // No.
-	 //
-	 // Should we?
-	 //
-	 // Yes.
-	 //
-	 // Problem is that we are not sure that every time the old
-	 // moving_atoms_asc is replaced in that manner
-	 // (make_moving_atoms_asc()) that moving_atoms_asc is
-	 // expired/unreferenced.
-	 
-	 
-      }
-      
-   } else {
-      std::cout << "No Atoms!!!!  This should never happen: " << std::endl;
-      std::cout << "  in create_regularized_graphical_object" << std::endl;
-   } 
-   return rr;
-#else 
-
-   std::cout << "Cannot refine without compilation with GSL" << std::endl;
-   return coot::refinement_results_t(0, 0, "");
-
-#endif // HAVE_GSL
-}
 
 int
 graphics_info_t::copy_active_atom_molecule() {
@@ -851,6 +628,9 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 					       *Geom_p(),
 					       residues_mol_and_res_vec.first,
 					       fixed_atom_specs, xmap_p);
+
+	       // This seems not to work yet.
+	       // last_restraints->set_dist_crit_for_bonded_pairs(9.0);
 
 	       if (use_map_flag)
 		  last_restraints->add_map(weight);
