@@ -40,7 +40,12 @@
              installation of key-bindings to fail sometimes [Colin Palmer].
 
   o BUG-FIX: The slow update on deleting deviant extra distance restraints has been
-             been replaced with a fasater version [JED]
+             been replaced with a faster version [JED]
+
+  o BUG-FIX: db_mainchain() fragment/chain indexing bug fixed [Oliver Clarke].
+
+  o BUG-FIX: db_mainchain() no longer crashes when using negative residue numbers
+             [Oliver Clarke].
 
 -----
 
