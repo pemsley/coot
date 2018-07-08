@@ -313,6 +313,23 @@
        )))
 
 
+(greg-testcase "Negative Residues in db-mainchain don't cause a crash" #t 
+   (lambda ()
+
+     ;; Oliver Clarke spotted this bug
+
+     (let ((imol (greg-pdb "tutorial-modern.pdb")))
+       (if (not (valid-model-molecule? imol))
+	   #f
+	   (begin
+	     (renumber-residue-range imol "A" 1 50 -20)
+	     (let ((imol-mc-1 (db-mainchain imol "A" -19  6 "forwards"))
+		   (imol-mc-2 (db-mainchain imol "B"  10 30 "backwards")))
+	       ;; (write-pdb-file imol-mc-1 "dbmc-1.pdb")
+	       ;; (write-pdb-file imol-mc-2 "dbmc-2.pdb")
+	       #t))))))
+
+
 (greg-testcase "Set Atom Attribute Test" #t
 	       (lambda ()
 		 (set-atom-attribute imol-rnase "A" 11 "" " CA " "" "x" 64.5) ; an Angstrom or so

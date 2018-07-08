@@ -8362,4 +8362,11 @@ Fri  6 Jul 2018 11:24:42 BST
 
     1h4h residue 49 is good for NCS jumping
 
+---
+Fri  6 Jul 2018 21:53:36 BST
 
+In refmac
+
+   vdwr 2
+
+divides sigma by 2
