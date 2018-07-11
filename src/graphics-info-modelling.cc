@@ -3142,14 +3142,14 @@ graphics_info_t::execute_db_main(int imol,
 	 for (unsigned int i=0; i<mt.fragments.size(); i++) {
 	    if (mt[i].fragment_id == chain_id) {
 	       // put in the residues of mt.fragments[i] backwards:
-	       
+
 	       // The seqnum of the residues is ignored, the only
 	       // important thing is the ires.
-	       
+
 	       int ifrag = target_ca_coords.fragment_for_chain(chain_id);
-	       if (mt[i].max_residue_number() > 1) { 
+	       if (mt[i].max_residue_number() > 1) {
 		  for (int ires=mt[i].max_residue_number(); ires>=mt[i].min_res_no(); ires--) {
-		     target_ca_coords[ifrag].residues.push_back(mt[ifrag][ires]);
+		     target_ca_coords[ifrag].addresidue(mt[i][ires], false);
 		  }
 		  break;
 	       }
@@ -3174,7 +3174,7 @@ graphics_info_t::execute_db_main(int imol,
       main_chain.merge_fragments();
       coot::minimol::molecule mol;
       mol.fragments.push_back(main_chain.mainchain_fragment());
-      mol.write_file("db-mainchain.pdb", bf);
+      // mol.write_file("db-mainchain.pdb", bf);
 
       // std::cout << "DEBUG:: mol.is_empty() returns " << mol.is_empty() << std::endl;
       std::vector<coot::minimol::atom *> serial_atoms = mol.select_atoms_serial();
