@@ -29,7 +29,8 @@ EXTRA_DIST = notes Makefile.simple molmantest.cc test-indexing.hh test-indexing.
 
 pkginclude_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh \
 	regularize-minimol.hh lograma.h \
-	parallel-planes.hh torsion-bonds.hh extra-restraints.hh model-bond-deltas.hh
+	parallel-planes.hh torsion-bonds.hh extra-restraints.hh model-bond-deltas.hh \
+        refinement-lights.hh refinement-results-t.hh rama-types.hh
 
 pkgincludedir = $(includedir)/coot/ideal
 

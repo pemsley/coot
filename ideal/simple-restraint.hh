@@ -43,6 +43,8 @@
 #endif // HAVE_CXX_THREAD
 #endif // HAVE_BOOST
 
+#include "refinement-results-t.hh"
+
 #include <mmdb2/mmdb_manager.h>
 #include "coot-utils/bonded-pairs.hh"
 
@@ -61,63 +63,6 @@
 namespace coot {
 
    enum { UNSET_INDEX = -1 };
-
-   enum { RAMA_TYPE_ZO, RAMA_TYPE_LOGRAMA };
-
-   class refinement_lights_info_t {
-   public:
-      class the_worst_t {
-      public:
-	 the_worst_t(const unsigned int idx_in, const float &val) : restraints_index(idx_in), value(val) {
-	    is_set = true;
-	    restraints_index = -1;
-	 }
-	 the_worst_t() { is_set = false; value = -99999;}
-	 unsigned int restraints_index;
-	 float value;
-	 bool is_set;
-	 // update if value_in is more than this value
-	 void update_if_worse(const float &value_in, const int &idx_in) {
-	    if (! is_set) {
-	       restraints_index = idx_in;
-	       value = value_in;
-	       is_set = true;
-	       // std::cout << "update_if_worse() setting worst to " << value << std::endl;
-	    } else {
-	       if (value_in > value) {
-		  restraints_index = idx_in;
-		  value = value_in;
-		  // std::cout << "update_if_worse() updating worst to " << value << std::endl;
-	       }
-	    }
-	 }
-	 void update_if_worse(const the_worst_t &baddie_in) {
-	    if (baddie_in.is_set) {
-	       if (! is_set) {
-		  restraints_index = baddie_in.restraints_index;
-		  value = baddie_in.value;
-		  is_set = true;
-	       } else {
-		  if (baddie_in.value > value) {
-		     restraints_index = baddie_in.restraints_index;
-		     value = baddie_in.value;
-		  }
-	       }
-	    }
-	 }
-      };
-      std::string name;   // e.g. "Bonds" or "Angles"
-      std::string label;  // e.g. "Bonds:  6.543" 
-      float value;        // e.g. 6.543
-      int rama_type;
-      the_worst_t worst_baddie;
-      refinement_lights_info_t(const std::string &name_in, const std::string label_in, float value_in) {
-	 name = name_in;
-	 label = label_in;
-	 value = value_in;
-	 rama_type = RAMA_TYPE_LOGRAMA;
-      }
-   };
 
    class rama_triple_t {
    public:
@@ -170,42 +115,6 @@ namespace coot {
       double dD_dzP4;
    };
 
-   // ---------------------------------------------------------------
-   // ---------------------------------------------------------------
-   //     class refinement_results_t, helper class for sending text
-   //     results back to invoking function.  Returned by minimize()
-   //     function.
-   // ---------------------------------------------------------------
-   // ---------------------------------------------------------------
-   
-   class refinement_results_t { 
-   public:
-      bool found_restraints_flag; // if we found restraints or not.
-      int progress; // GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress)
-      std::string info_text;
-      std::vector<refinement_lights_info_t> lights;      
-      refinement_results_t(bool frf, int prog_in,
-			   const std::vector<refinement_lights_info_t> &lights_in) {
-	 found_restraints_flag = frf;
-	 info_text = ""; // not used
-	 progress = prog_in;
-	 lights = lights_in;
-     }
-      refinement_results_t(bool frf, int prog_in, const std::string &info_in) {
-	 found_restraints_flag = frf;
-	 info_text = info_in;
-	 progress = prog_in;
-      }
-      refinement_results_t() {
-	 info_text = "";
-	 found_restraints_flag = false;
-      }
-      refinement_results_t(const std::string &s_in) {
-	 info_text = s_in;
-	 found_restraints_flag = false;
-	 progress = -1; // unset
-      }
-   };
 }
 
 // we don't want to compile anything if we don't have gsl
