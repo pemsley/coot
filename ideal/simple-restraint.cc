@@ -532,7 +532,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
       std::cout << "debug::info in init_from_residue_vec() calling bonded_flanking_residues_by_residue_vector() "
 		<< std::endl;
 
-   float dist_crit = 2.3; // 20170924-PE was 3.0 but this made a horrible link in a tight turn
+   float dist_crit = 5.3; // 20170924-PE was 3.0 but this made a horrible link in a tight turn
                           // (which I suspect is not uncommon) crazy-neighbour-refine-519.pdb
                           // for EMDB 6224.
                           // 520 was bonded to 522 in a neighb (3-residue) refine on 519.
@@ -3414,13 +3414,13 @@ coot::restraints_container_t::bonded_residues_by_linear(int SelResHnd,
 					   whole_second_residue_is_fixed, link_info.first);
 		     c.try_add(p);
 		  }
-	       } 
+	       }
 	    }
 	 }
       }
    }
    return c;
-} 
+}
 
 coot::bonded_pair_container_t
 coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_geometry &geom) const {
@@ -3428,7 +3428,8 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
    bool debug = false; // Are your residues in the same chain?  If not filter() will not bond them.
 
    coot::bonded_pair_container_t bpc;
-   float dist_crit = dist_crit_for_bonded_pairs;
+   float dist_crit_for_bonded_pairs = 6.0; // atoms that are further apart than this are not anealled
+                                           // - I hope that 6.0 is generous enough.
 
    if (verbose_geometry_reporting == VERBOSE)
       debug = true;
@@ -3455,7 +3456,7 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	    std::cout << " closest approach d " << d.first << " " << d.second << std::endl;
 	 }
 	 if (d.first) {
-	    if (d.second < dist_crit) {
+	    if (d.second < dist_crit_for_bonded_pairs) {
 	       std::pair<std::string, bool> l  = find_link_type_complicado(res_f, res_s, geom);
 	       std::string link_type = l.first;
 	       if (!link_type.empty()) {

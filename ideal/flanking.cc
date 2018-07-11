@@ -399,6 +399,7 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const s
 	 }
       }
    }
+   bpc.filter();
    return bpc;
 }
 
