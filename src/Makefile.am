@@ -386,6 +386,7 @@ coot_bin_SOURCES = \
 	coot_wrap_guile.cc       \
         curlew.hh                \
         dots-representation.hh   \
+	draw.cc                  \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
 	draw-generic-display-objects.cc \

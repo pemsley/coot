@@ -371,10 +371,6 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
 	 }
       }
 
-      regularize_object_bonds_box.clear_up();
-      make_moving_atoms_graphics_object(imol, local_moving_atoms_asc); // sets moving_atoms_asc
-      int n_cis = coot::util::count_cis_peptides(moving_atoms_asc->mol);
-      graphics_info_t::moving_atoms_n_cis_peptides = n_cis;
       // std::cout << "DEBUG:: start of ref have: " << n_cis << " cis peptides"
       // << std::endl;
       bool continue_flag = true;
@@ -431,6 +427,11 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
 	 rr = graphics_info_t::saved_dragged_refinement_results;
 	 rr.info_text = "Time's up...";
       }
+
+      regularize_object_bonds_box.clear_up();
+      make_moving_atoms_graphics_object(imol, local_moving_atoms_asc); // sets moving_atoms_asc
+      int n_cis = coot::util::count_cis_peptides(moving_atoms_asc->mol);
+      graphics_info_t::moving_atoms_n_cis_peptides = n_cis;
 
    } else { 
       if (use_graphics_interface_flag) {
@@ -554,6 +555,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
       // and
       //
       // in create_mmdbmanager_from_res_vector() make sure that that contains the flanking atoms.
+      // The create_mmdbmanager_from_res_vector() from this class is used, not coot::util
       //
       // The flanking atoms are fixed the passed residues are not fixed.
       // Keep a clear head.
@@ -978,6 +980,8 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 						    mmdb::Manager *mol_in,
 						    std::string alt_conf) {
 
+   float dist_crit = 5.0;
+
    if (false) { // debug
       std::cout << "############ starting create_mmdbmanager_from_res_vector() with these "
 		<< " residues " << std::endl;
@@ -997,7 +1001,6 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
       }
    }
 
-   float dist_crit = 3.0;
    mmdb::Manager *new_mol = nullptr;
    std::vector<mmdb::Residue *> rv; // gets checked 
    

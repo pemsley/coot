@@ -1062,6 +1062,8 @@ public:
    static int display_mode; // e.g. HARDWARE_STEREO_MODE, DTI_SIDE_BY_SIDE_STEREO
    static float hardware_stereo_angle_factor;
    static short int in_wall_eyed_side_by_side_stereo_mode;
+   enum stereo_eye_t { FRONT_EYE, LEFT_EYE, RIGHT_EYE };
+   static stereo_eye_t which_eye;
 
    // return a vector of the current valid map molecules
    std::vector<int> valid_map_molecules() const;

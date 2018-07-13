@@ -65,6 +65,7 @@ gint expose(GtkWidget *widget, GdkEventExpose *event);
 gint draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag);
 gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event);
 gint draw_zalman_stereo(GtkWidget *widget, GdkEventExpose *event);
+void stereo_projection_setup_maybe(GtkWidget *widget);
 
 void do_drag_pan(gdouble x, gdouble y, GtkWidget *widget);
 void do_button_zoom(gdouble x, gdouble y);

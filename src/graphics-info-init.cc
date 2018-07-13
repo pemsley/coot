@@ -14,7 +14,9 @@ graphics_info_t::init() {
 
 #ifdef WINDOWS_MINGW
       prefer_python = 1;
-#endif 
+#endif
+
+      which_eye = FRONT_EYE;
 
       find_ligand_ligand_mols_ = new std::vector<std::pair<int, bool> >;
       geom_p = new coot::protein_geometry;
