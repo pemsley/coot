@@ -1980,11 +1980,11 @@ coot::electron_density_score_from_restraints(const gsl_vector *v,
 
    std::atomic<unsigned int> done_count_for_threads(0);
 
-   double results[ranges.size()];  // naughty?
+   std::vector<double> results(ranges.size(), 0.0); // 0.0 is the default?
    for(unsigned int i=0; i<ranges.size(); i++) {
        // restraints_p->thread_pool_p->push(electron_density_score_from_restraints_using_atom_index_range,
                                          // v, std::cref(ranges[i]),
-                                       // restraints_p, &results[i]);
+                                         // restraints_p, &results[i]);
       restraints_p->thread_pool_p->push(electron_density_score_from_restraints_using_atom_index_range,
 					v, std::cref(ranges[i]), restraints_p, &results[i],
 					std::ref(done_count_for_threads));
