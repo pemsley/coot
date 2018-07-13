@@ -371,8 +371,14 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
 	 }
       }
 
+      regularize_object_bonds_box.clear_up();
+      make_moving_atoms_graphics_object(imol, local_moving_atoms_asc); // sets moving_atoms_asc
+      int n_cis = coot::util::count_cis_peptides(moving_atoms_asc->mol);
+      graphics_info_t::moving_atoms_n_cis_peptides = n_cis;
+
       // std::cout << "DEBUG:: start of ref have: " << n_cis << " cis peptides"
       // << std::endl;
+
       bool continue_flag = true;
       unsigned int step_count = 0; 
       print_initial_chi_squareds_flag = 1; // unset by drag_refine_idle_function
@@ -384,7 +390,7 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
       // We don't want to sphere refine with say 50 active atoms and 60,000
       // GM restraints.  That will give us a step lim of 50 - bad.
       // We need to exclude non-relevant GM restraints in make_restraints().
-      if (false)  {
+      if (false) {
          if (restraints->size() > 10000) {
 	    unsigned int new_lim = 3000000/restraints->size();
             std::cout << "debug:: here with restraints.size() " << restraints->size()
@@ -398,11 +404,8 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
 
       while ((step_count < step_count_lim) && continue_flag) {
 
-	 if (false)
-	    std::cout << ".... step_count: " << step_count << " step_count_lim "
-		      << step_count_lim << std::endl;
-
 	 int retval = drag_refine_idle_function(NULL);
+
 	 step_count += dragged_refinement_steps_per_frame;
 	 if (retval == GSL_SUCCESS) {
 	    graphics_info_t::continue_update_refinement_atoms_flag = false;
@@ -412,7 +415,7 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
 	    graphics_info_t::continue_update_refinement_atoms_flag = false;
 	    rr = graphics_info_t::saved_dragged_refinement_results;
 	 }
-	 if (retval == -1) { // no restrainst, because the user pressed Esc
+	 if (retval == -1) { // no restraints, because the user pressed Esc
 	    continue_flag = false;
 	    rr = graphics_info_t::saved_dragged_refinement_results;
 	 }
@@ -427,11 +430,6 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
 	 rr = graphics_info_t::saved_dragged_refinement_results;
 	 rr.info_text = "Time's up...";
       }
-
-      regularize_object_bonds_box.clear_up();
-      make_moving_atoms_graphics_object(imol, local_moving_atoms_asc); // sets moving_atoms_asc
-      int n_cis = coot::util::count_cis_peptides(moving_atoms_asc->mol);
-      graphics_info_t::moving_atoms_n_cis_peptides = n_cis;
 
    } else { 
       if (use_graphics_interface_flag) {
@@ -758,6 +756,8 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 atom_selection_container_t
 graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 				       const std::vector<mmdb::Residue *> &residues) const {
+
+   // This also rebonds the imol_moving_atoms molecule
 
    atom_selection_container_t local_moving_atoms_asc;
    local_moving_atoms_asc.UDDOldAtomIndexHandle = -1;  // true?
