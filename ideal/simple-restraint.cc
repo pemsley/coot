@@ -3019,7 +3019,7 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
 					  res_3_atoms[iat3]->GetUDData(udd_atom_index_handle, index3);
 					  // 98.0 degrees
 					  add(ANGLE_RESTRAINT, index2, index1, index3,
-					      fixed_flag, 98.0, 0.5, 1.2);
+					      fixed_flag, 98.0, 0.5, false);
 					  std::cout << "Strand Angle restraint ("
 						    << res_1_atoms[iat1]->name << " "
 						    << res_1_atoms[iat1]->GetSeqNum() << ") to ("
@@ -3063,7 +3063,7 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
 					  res_2_atoms[iat2]->GetUDData(udd_atom_index_handle, index2);
 					  res_3_atoms[iat3]->GetUDData(udd_atom_index_handle, index3);
 					  add(ANGLE_RESTRAINT, index2, index1, index3,
-					      fixed_flag, 120.0, 0.5, 1.2);
+					      fixed_flag, 120.0, 0.5, false);
 					  std::cout << "Strand Angle restraint ("
 						    << res_1_atoms[iat1]->name << " "
 						    << res_1_atoms[iat1]->GetSeqNum() << ") to ("
@@ -5128,7 +5128,9 @@ coot::restraints_container_t::add_N_terminal_residue_bonds_and_angles_to_hydroge
 	       add(BOND_RESTRAINT,  atom_index_1, atom_index_2, fixed_flags_b, 0.86, 0.02, 1.2);
 	       // std::cout << "debug:: add_bond " << atom_index_1 << " " << atom_index_2 << " "
 	       // << fixed_flags_b[0] << " " << fixed_flags_b[1] << std::endl;
-	       add(ANGLE_RESTRAINT, atom_index_1, atom_index_2, atom_index_3, fixed_flags_a, 109.5, 2.0, 0.0);
+	       bool is_single_H_atom_angle_restraint = true;
+	       add(ANGLE_RESTRAINT, atom_index_1, atom_index_2, atom_index_3, fixed_flags_a, 109.5, 2.0,
+		   is_single_H_atom_angle_restraint);
 	       n_bond_restraints++;
 	       rc.n_bond_restraints++;
 	       rc.n_angle_restraints++;
@@ -5171,17 +5173,17 @@ coot::restraints_container_t::add_N_terminal_residue_bonds_and_angles_to_hydroge
 	 it_3 = h3s.find(key_alt_conf);
 	 if (it_2 != h2s.end()) {
 	    std::vector<bool> fixed_flags_a12 = make_fixed_flags(it_1->second, N_index, it_2->second);
-	    add(ANGLE_RESTRAINT, it_1->second, N_index, it_2->second, fixed_flags_a12, 109.5, 2.0, 0.0);
+	    add(ANGLE_RESTRAINT, it_1->second, N_index, it_2->second, fixed_flags_a12, 109.5, 2.0, false);
 	 }
 
 	 if (it_3 != h3s.end()) {
 	    std::vector<bool> fixed_flags_a13 = make_fixed_flags(it_1->second, N_index, it_3->second);
-	    add(ANGLE_RESTRAINT, it_1->second, N_index, it_3->second, fixed_flags_a13, 109.5, 2.0, 0.0);
+	    add(ANGLE_RESTRAINT, it_1->second, N_index, it_3->second, fixed_flags_a13, 109.5, 2.0, false);
 	 }
 
 	 if (it_2 != h2s.end() && it_3 != h3s.end()) {
 	    std::vector<bool> fixed_flags_a23 = make_fixed_flags(it_2->second, N_index, it_3->second);
-	    add(ANGLE_RESTRAINT, it_2->second, N_index, it_3->second, fixed_flags_a23, 109.5, 2.0, 0.0);
+	    add(ANGLE_RESTRAINT, it_2->second, N_index, it_3->second, fixed_flags_a23, 109.5, 2.0, false);
 	 }
       }
    }
@@ -5338,21 +5340,6 @@ coot::restraints_container_t::add_angles(int idr, mmdb::PPAtom res_selection,
 		     
 		     std::string pdb_atom_name3(res_selection[iat3]->name);
 		     if (pdb_atom_name3 == geom[idr].second.angle_restraint[ib].atom_id_3_4c()) {
-		  
-
-			// now we need the indices of
-			// pdb_atom_name1 and
-			// pdb_atom_name2 in asc.atom_selection:
-
-//  			int index1_old = get_asc_index(pdb_atom_name1,
-//  						   SelRes->seqNum,
-// 						   SelRes->GetChainID());
-//  			int index2_old = get_asc_index(pdb_atom_name2,
-//  						   SelRes->seqNum,
-//  						   SelRes->GetChainID());
-//  			int index3_old = get_asc_index(pdb_atom_name3,
-//  						   SelRes->seqNum,
-//  						   SelRes->GetChainID());
 
 			std::string alt_1(res_selection[iat ]->altLoc);
 			std::string alt_2(res_selection[iat2]->altLoc);
@@ -5383,12 +5370,16 @@ coot::restraints_container_t::add_angles(int idr, mmdb::PPAtom res_selection,
 			   // atoms).
 			   // 
 			   std::vector<bool> fixed_flag = make_fixed_flags(index1, index2, index3);
+			   bool is_single_H_atom_angle_restraint = false;
+			   unsigned int nH = 0;
+			   if (is_hydrogen(res_selection[iat ])) nH++;
+			   if (is_hydrogen(res_selection[iat3])) nH++;
+			   if (nH == 1) is_single_H_atom_angle_restraint = true;
 
-			   add(ANGLE_RESTRAINT, index1, index2, index3,
-			       fixed_flag,
+			   add(ANGLE_RESTRAINT, index1, index2, index3, fixed_flag,
 			       geom[idr].second.angle_restraint[ib].angle(),
 			       geom[idr].second.angle_restraint[ib].esd(),
-			       1.2);  // junk value
+			       is_single_H_atom_angle_restraint);
 			   n_angle_restr++;
 			}
 		     }

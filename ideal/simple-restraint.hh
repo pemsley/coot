@@ -289,6 +289,7 @@ namespace coot {
       std::vector<bool> fixed_atom_flags_other_plane;
       bool is_user_defined_restraint;
       bool is_H_non_bonded_contact;
+      bool is_single_Hydrogen_atom_angle_restraint;
       //
       // for mouse pull on an atom: this is where the user wants the atom to be
       //
@@ -318,6 +319,7 @@ namespace coot {
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = false;
 	 is_H_non_bonded_contact = false;
+	 is_single_Hydrogen_atom_angle_restraint = false;
 	 nbc_function = HARMONIC; // not used
 	 
 	 // This finds a coding error
@@ -340,6 +342,7 @@ namespace coot {
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = true;
 	 is_H_non_bonded_contact = false;
+	 is_single_Hydrogen_atom_angle_restraint = false;
 
 	 if (rest_type != restraint_type_t(GEMAN_MCCLURE_DISTANCE_MASK)) { 
 	    std::cout << "BOND ERROR (Geman McClure) in simple_restraint()"
@@ -352,19 +355,19 @@ namespace coot {
       simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2, 
 		       int atom_3, 
 		       const std::vector<bool> &fixed_atom_flags_in,
-		       float tar, 
-		       float sig, float obs){
-	 
+		       float tar,
+		       float sig, bool is_single_Hydrogen_atom_angle_restraint_in) {
+
 	 restraint_type = rest_type; 
 	 atom_index_1 = atom_1; 
 	 atom_index_2 = atom_2;
 	 atom_index_3 = atom_3;
-	 observed_value = obs; 
 	 sigma = sig; 
 	 target_value = tar; 
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = 0;
 	 is_H_non_bonded_contact = false;
+	 is_single_Hydrogen_atom_angle_restraint = is_single_Hydrogen_atom_angle_restraint_in;
 	 if (rest_type != ANGLE_RESTRAINT) { 
 	    std::cout << "ERROR::::: PROGRAM ERROR - ANGLE ERROR" << std::endl;
 	 }
@@ -388,6 +391,7 @@ namespace coot {
 	 periodicity = periodicity_in; 
 	 is_user_defined_restraint = 0;
 	 is_H_non_bonded_contact = false;
+	 is_single_Hydrogen_atom_angle_restraint = false;
 	 if ((rest_type != TORSION_RESTRAINT) && (rest_type != TRANS_PEPTIDE_RESTRAINT)) {
 	    std::cout << "ERROR::::: PROGRAM ERROR - TORSION/TRANSP-PEP ERROR" << std::endl;
 	 }
@@ -409,6 +413,7 @@ namespace coot {
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = 0;
 	 is_H_non_bonded_contact = false;
+	 is_single_Hydrogen_atom_angle_restraint = false;
 	 if (rest_type != RAMACHANDRAN_RESTRAINT) { 
 	    std::cout << "ERROR:: RAMACHANDRAN_RESTRAINT ERROR" << std::endl;
 	 }
@@ -436,6 +441,7 @@ namespace coot {
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = 0;
 	 is_H_non_bonded_contact = false;
+	 is_single_Hydrogen_atom_angle_restraint = false;
       }
 
       // modern (atoms individually weighted) Plane
@@ -459,6 +465,7 @@ namespace coot {
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = 0;
 	 is_H_non_bonded_contact = false;
+	 is_single_Hydrogen_atom_angle_restraint = false;
 	 
       }
       
@@ -487,6 +494,7 @@ namespace coot {
 	 sigma = sigma_in;
 	 is_user_defined_restraint = 1;
 	 is_H_non_bonded_contact = false;
+	 is_single_Hydrogen_atom_angle_restraint = false;
       } 
 
       // Non-bonded - are you sure that this is the constructor that you want?
@@ -514,6 +522,7 @@ namespace coot {
 	    fixed_atom_flags = fixed_atom_flags_in;
 	    is_user_defined_restraint = 0;
 	    is_H_non_bonded_contact = false;
+	    is_single_Hydrogen_atom_angle_restraint = false;
 	 } else { 
 	    std::cout << "ERROR:: bad simple_restraint constructor usage "
 		      << "- should be non-bonded\n";
@@ -541,8 +550,9 @@ namespace coot {
 	    sigma = 0.02;
 	    fixed_atom_flags = fixed_atom_flags_in;
 	    is_user_defined_restraint = 0;
+	    is_single_Hydrogen_atom_angle_restraint = false;
 	    is_H_non_bonded_contact = is_H_non_bonded_contact_in;
-	 } else { 
+	 } else {
 	    std::cout << "ERROR:: bad simple_restraint constructor usage "
 		      << "- should be non-bonded\n";
 	 } 
@@ -573,6 +583,7 @@ namespace coot {
 	    chiral_hydrogen_index = chiral_hydrogen_index_in;
 	    is_user_defined_restraint = 0;
 	    is_H_non_bonded_contact = false;
+	    is_single_Hydrogen_atom_angle_restraint = false;
 	 } 
       }
 
@@ -588,6 +599,7 @@ namespace coot {
 	 fixed_atom_flags = std::vector<bool> (1,fixed_atom_flag_in);
 	 is_user_defined_restraint = 0;
 	 is_H_non_bonded_contact = false;
+	 is_single_Hydrogen_atom_angle_restraint = false;
 
 	 if (rest_type != START_POS_RESTRAINT) { 
 	    std::cout << "ERROR:: START POS ERROR" << std::endl; 
@@ -1180,12 +1192,13 @@ namespace coot {
       bool add(restraint_type_t rest_type, int atom_1, int atom_2, int atom_3, 
 	       const std::vector<bool> &fixed_atom_flags,
 	       float tar, 
-	       float sig, float obs){
+	       float sig, bool is_single_Hydrogen_atom_angle_restraint){
          
 	 bool r = 0;
 	 if (sig > 0.0) { 
 	    restraints_vec.push_back(simple_restraint(rest_type, atom_1, atom_2, atom_3,
-						      fixed_atom_flags, tar, sig, obs));
+						      fixed_atom_flags, tar, sig,
+						      is_single_Hydrogen_atom_angle_restraint));
 	    r = 1;
 	 }
 	 return r;

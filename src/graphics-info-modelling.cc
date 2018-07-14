@@ -673,6 +673,19 @@ graphics_info_t::generate_molecule_and_refine(int imol,
                last_restraints->set_rama_type(restraints_rama_type);
                last_restraints->set_rama_plot_weight(rama_restraints_weight); // >2? danger of non-convergence
 
+	       // Oh, I see... it's not just the non-Bonded contacts of the hydrogens.
+	       // It's the planes, chiral and angles too. Possibly bonds too.
+	       // How about marking non-H atoms in restraints that contain H atoms as
+	       // "invisible"? i.e. non-H atoms are not influenced by the positions of the
+	       // Hydrogen atoms (but Hydrogen atoms *are* influenced by the positions of the
+	       // non-Hydrogen atoms). This seems like a lot of work. Might be easier to turn
+	       // off angle restraints for H-X-X (but not H-X-H) in the first instance, that
+	       // should go most of the way to what "invisible" atoms would do, I imagine.
+	       // is_H_non_bonded_contact should be renamed to is_H_turn_offable_restraint
+	       // or something.
+	       //
+	       // last_restraints->set_apply_H_non_bonded_contacts(false);
+
 	       if (molecules[imol].extra_restraints.has_restraints())
 		  last_restraints->add_extra_restraints(imol, molecules[imol].extra_restraints, *Geom_p());
 

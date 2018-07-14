@@ -1248,7 +1248,7 @@ graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
    while (gtk_events_pending())
       gtk_main_iteration();
 
-   if (graphics_info_t::continue_update_refinement_atoms_flag) { 
+   if (graphics_info_t::continue_update_refinement_atoms_flag) {
 
       retprog = graphics_info_t::drag_refine_refine_intermediate_atoms();
 

@@ -296,11 +296,17 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
 				    if (other_fixed_flags[ii])
 				       fixed_flag[ii] = 1;
 
+				 bool is_single_H_atom_angle_restraint = false;
+				 unsigned int nH = 0;
+				 if (is_hydrogen(atom_1_sel[ifat])) nH++;
+				 if (is_hydrogen(atom_3_sel[itat])) nH++;
+				 if (nH == 1) is_single_H_atom_angle_restraint = true;
+
 				 add(ANGLE_RESTRAINT, index1, index2, index3,
 				     fixed_flag,
 				     geom.link(i).link_angle_restraint[j].angle(),
 				     geom.link(i).link_angle_restraint[j].angle_esd(),
-				     1.2); // junk value
+				     is_single_H_atom_angle_restraint);
 				 nangle++;
 			      } 
 			   }
