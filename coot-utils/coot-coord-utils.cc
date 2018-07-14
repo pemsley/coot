@@ -5751,7 +5751,7 @@ coot::util::mutate_internal(mmdb::Residue *residue,
    catch (const std::runtime_error &mess) {
    } 
 
-   bool verb = 0;
+   bool verb = false;
    if (verb) { 
       std::cout << "Mutate Atom Tables" << std::endl;
       std::cout << "Before" << std::endl;
@@ -5777,10 +5777,15 @@ coot::util::mutate_internal(mmdb::Residue *residue,
 	    }
 	    if (to_residue_type == "PRO") {
 	       std::string atom_name(residue_atoms[i]->name);
-	       if (atom_name == " H  ")
+	       if (atom_name == " H  ")   // PDBv3 FIXME
 		  residue->DeleteAtom(i);
 	    }
-	 } else { 
+	    if (to_residue_type == "GLY") {
+	       std::string atom_name(residue_atoms[i]->name);
+	       if (atom_name == " HA ")  // PDBv3 FIXME
+		  residue->DeleteAtom(i);
+	    }
+	 } else {
 	    residue->DeleteAtom(i);
 	 }
       }
