@@ -30,11 +30,11 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
    //
    // I will try to make it not so.
 
+   //x auto tp_0 = std::chrono::high_resolution_clock::now();
 
    if (! restraints_p->thread_pool_p)
       return; // no derivatives if we don't have a thread pool. Modern only. BOOST only.
 
-   // auto tp_1a = std::chrono::high_resolution_clock::now();
    unsigned int n_t = restraints_p->n_threads;
    unsigned int restraints_size = restraints_p->size();
    std::vector<std::vector<std::size_t> > restraints_indices(n_t);
@@ -76,6 +76,8 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
    // to fill results
    //
 
+   //x auto tp_1 = std::chrono::high_resolution_clock::now();
+
    std::atomic<unsigned int> done_count_for_threads(0);
    for (std::size_t ii=0; ii<restraints_indices.size(); ii++) {
 
@@ -86,11 +88,14 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
 					std::ref(done_count_for_threads)
 					);
    }
+   //x auto tp_2 = std::chrono::high_resolution_clock::now();
 
    // wait for the threads in the thread pool
    while (done_count_for_threads != restraints_p->n_threads) {
       std::this_thread::sleep_for(std::chrono::microseconds(1));
    }
+
+   //x auto tp_3 = std::chrono::high_resolution_clock::now();
 
    // consolidate
    for (std::size_t i_thread=0; i_thread<n_t; i_thread++) {
@@ -102,7 +107,7 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
       }
    }
 
-   // auto tp_1b = std::chrono::high_resolution_clock::now();
+   //x auto tp_4 = std::chrono::high_resolution_clock::now();
 
    // --------------------------------------- map --------------------------------------
 
@@ -118,7 +123,7 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
 	 if (i_thread==n_t) i_thread=0;
       }
 
-      auto tp_2 = std::chrono::high_resolution_clock::now();
+      //x auto tp_5 = std::chrono::high_resolution_clock::now();
 
       // we can manipulate df directly because (unlike restraints) each atom can
       // only touch 3 indices in the df vector - and do so uniquely.
@@ -135,10 +140,33 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
 					   std::ref(done_count_for_threads));
       }
 
-      // wait for the threads in the thread pool
+      //x auto tp_6 = std::chrono::high_resolution_clock::now();
+
+      // wait for the threads in the thread pool (~20us for threads to complete)
       while (done_count_for_threads != restraints_p->n_threads) {
 	 std::this_thread::sleep_for(std::chrono::microseconds(1));
       }
+      //x auto tp_7 = std::chrono::high_resolution_clock::now();
+
+      /*
+      auto d10 = chrono::duration_cast<chrono::microseconds>(tp_1 - tp_0).count();
+      auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
+      auto d32 = chrono::duration_cast<chrono::microseconds>(tp_3 - tp_2).count();
+      auto d43 = chrono::duration_cast<chrono::microseconds>(tp_4 - tp_3).count();
+      auto d54 = chrono::duration_cast<chrono::microseconds>(tp_5 - tp_4).count();
+      auto d65 = chrono::duration_cast<chrono::microseconds>(tp_6 - tp_5).count();
+      auto d76 = chrono::duration_cast<chrono::microseconds>(tp_7 - tp_6).count();
+      if (true)
+	 std::cout << "timings:: distortion "
+		   << "d10 " << std::setw(5) << d10 << " "
+		   << "d21 " << std::setw(5) << d21 << " "
+		   << "d32 " << std::setw(5) << d32 << " "
+		   << "d43 " << std::setw(5) << d43 << " "
+		   << "d54 " << std::setw(5) << d54 << " "
+		   << "d65 " << std::setw(5) << d65 << " "
+		   << "d76 " << std::setw(5) << d76 << " "
+		   << "\n";
+      */
    }
 
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
