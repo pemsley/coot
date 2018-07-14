@@ -964,6 +964,28 @@
 		 (> dd 1.4))))))))
 
 
+(greg-testcase "HA on a ALA exists after mutation to GLY" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "tutorial-modern.pdb")))
+       (let ((imol-2 (new-molecule-by-atom-selection imol "//A/5-11")))
+	 (coot-reduce imol-2)
+	 (let ((H-atom-o (get-atom imol-2 "A" 10 "" " HA " "")))
+	   (if (not (list? H-atom-o))
+	       (throw 'fail)
+
+	       (begin
+		 (mutate imol-2 "A" 10 "" "GLY")
+		 (let ((H-atom-n (get-atom imol-2 "A" 10 "" " HA " "")))
+
+		   (if (list? H-atom-n)
+		       (begin
+			 (format #t "atom still exists ~s~%" H-atom-n)
+			 #f)
+
+		       #t)))))))))
+
+
 
 (greg-testcase "Refine Zone with Alt conf" #t 
    (lambda ()
