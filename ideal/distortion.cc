@@ -893,7 +893,11 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	 // push() times considerably.
 	 //
 
-	 double distortions[restraints_p->n_threads];
+	 // 2018-716-PE move the memory allocation for distortion results by thread
+	 // from the heap to the stack
+	 //
+	 double distortions[1024]; // we will never have more than this number of threads.
+
          // set initial values of distortions to 0 - the distortion_score_multithread only
          // adds to this value - it doesn't set it to 0 at the beginning, so do that here.
          for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++)
