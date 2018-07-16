@@ -1192,7 +1192,7 @@ if (have_coot_python):
      add_simple_coot_menu_menuitem(
        submenu,
        "Smooth Refinement mode",
-       lambda func: (set_dragged_refinement_steps_per_frame(42))
+       lambda func: (set_dragged_refinement_steps_per_frame(42)))
 
 
      add_simple_coot_menu_menuitem(
