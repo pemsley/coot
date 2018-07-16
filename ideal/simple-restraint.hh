@@ -1286,10 +1286,7 @@ namespace coot {
 						   fixed_atom_flag, dist_min));
       }
 
-      void add_target_position_restraint(int idx, const atom_spec_t &spec, clipper::Coord_orth &target_pos) {
-	 simple_restraint r(TARGET_POS_RESTRANT, idx, spec, target_pos);
-	 restraints_vec.push_back(r);
-      }
+      void add_target_position_restraint(int idx, const atom_spec_t &spec, clipper::Coord_orth &target_pos);
 
       // construct a restraint and add it to restraints_vec
       //
@@ -2264,6 +2261,14 @@ namespace coot {
       // deleted in the header).
       //
       // ctpl::thread_pool another_thread_pool;
+
+      void make_df_restraints_indices();
+      void clear_df_by_thread_results();
+
+      std::vector<std::vector<double> > df_by_thread_results;
+      std::vector<std::vector<std::size_t> > df_by_thread_atom_indices; // for electron density
+      // pull restraints are dynamically added to the end of restraints_indices
+      std::vector<std::vector<std::size_t> > restraints_indices;
 
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 

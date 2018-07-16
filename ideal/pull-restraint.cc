@@ -37,6 +37,36 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
    return at;
 }
 
+
+void
+coot::restraints_container_t::add_target_position_restraint(int idx, const atom_spec_t &spec, clipper::Coord_orth &target_pos) {
+   simple_restraint r(TARGET_POS_RESTRANT, idx, spec, target_pos);
+   restraints_vec.push_back(r);
+
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+   unsigned int idx_rest = restraints_vec.size() -1;
+   // if idx_rest is not in restraints_indices, add it to the back of restraints_indices.
+
+   // If this is slow, we can go through this list backwards.
+   bool found = false;
+   for (std::size_t i=0; i<restraints_indices.size(); i++) {
+      const std::vector<std::size_t> &v = restraints_indices[i];
+      for (std::size_t j=0; j<v.size(); j++) {
+	 if (v[j] == idx_rest) {
+	    found = true;
+	    break;
+	 }
+      }
+      if (found) break;
+   }
+
+   if (! found)
+      restraints_indices.back().push_back(idx_rest);
+
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+}
+
+
 void
 coot::restraints_container_t::clear_atom_pull_restraint(const coot::atom_spec_t &spec) {
 
@@ -58,7 +88,7 @@ coot::restraints_container_t::clear_atom_pull_restraint(const coot::atom_spec_t 
 }
 
 
-// clear them all - but at the moment the user can only set one of them.
+// clear them all
 void
 coot::restraints_container_t::clear_all_atom_pull_restraints() {
 

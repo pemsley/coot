@@ -2504,6 +2504,10 @@ coot::restraints_container_t::make_restraints(int imol,
       std::cout << "returning from make_restraints() and restraints_usage_flag is "
 	        << restraints_usage_flag << std::endl;
 
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+   make_df_restraints_indices();
+#endif //  HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+
    // debug
    // info();
    return restraints_vec.size();
