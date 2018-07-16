@@ -20,7 +20,14 @@
 void
 coot::restraints_container_t::make_df_restraints_indices() {
 
+   // std::cout << "---------------------------------------------------------------" << std::endl;
+   // std::cout << "            make_df_restraints_indices() " << size() << std::endl;
+   // std::cout << "---------------------------------------------------------------" << std::endl;
+
    // does restraints index vectors and df_by_thread_results
+
+   // this can be called more than once. It is called, for example, after
+   // extra_restraints are added (geman-mcclure).
 
    unsigned int n_t = n_threads;
    unsigned int restraints_size = size();
@@ -28,7 +35,9 @@ coot::restraints_container_t::make_df_restraints_indices() {
    // these are now class variables
    // std::vector<std::vector<std::size_t> > restraints_indices(n_t);
    // std::vector<std::vector<double> > df_by_thread_results(n_t);
+   restraints_indices.clear();
    restraints_indices.resize(n_t);
+   df_by_thread_results.clear();
    df_by_thread_results.resize(n_t);
 
    // each restraint_index vector will contain about
@@ -66,8 +75,9 @@ coot::restraints_container_t::make_df_restraints_indices() {
 
    // like above, but this time we split the set of _atoms_ into sets for each thread
    //
-   // but unlike restraints_vec, this does not dymamically change size.
+   // but unlike restraints_vec, this does not dynamically change size.
 
+   df_by_thread_atom_indices.clear();
    df_by_thread_atom_indices.resize(n_t);
    i_thread = 0;
    unsigned int n = get_n_atoms();
@@ -76,6 +86,10 @@ coot::restraints_container_t::make_df_restraints_indices() {
       ++i_thread;
       if (i_thread==n_t) i_thread=0;
    }
+
+   // add this to the class when it works again
+   // threaded_distortion_container.clear();
+   // threaded_distortion_container.resize(size());
 }
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 

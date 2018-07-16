@@ -1741,6 +1741,11 @@ namespace coot {
 
       float dist_crit_for_bonded_pairs;
 
+      // regenerate the restraints_indices df_by_thread_results
+      //
+      void post_add_new_restraint();
+      void post_add_new_restraints();
+
       // return false if any of the atoms are fixed
       bool none_are_fixed_p(const std::vector<bool> &fixed_atom_indices) const;
 

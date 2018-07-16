@@ -337,6 +337,8 @@ coot::restraints_container_t::add_extra_restraints(int imol,
    add_extra_target_position_restraints(extra_restraints);
    add_extra_parallel_plane_restraints(imol, extra_restraints, geom);
    make_restraint_types_index_limits();
+
+   post_add_new_restraints();
 }
 
 void

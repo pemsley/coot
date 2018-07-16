@@ -1974,6 +1974,8 @@ coot::electron_density_score_from_restraints(const gsl_vector *v,
    double score = 0.0;
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
+   // these can be pre-computed: or use the df_by_thread_atom_indices
+   // (which are split up differently)
    unsigned int n_atoms = restraints_p->get_n_atoms();
    std::vector<std::pair<unsigned int, unsigned int> > ranges =
       atom_index_ranges(n_atoms, restraints_p->n_threads);
@@ -2024,7 +2026,6 @@ coot::electron_density_score_from_restraints_using_atom_index_range(int thread_i
 
    if (restraints_p->include_map_terms() == 1) {
 
-      unsigned int n_atoms = restraints_p->get_n_atoms();
       for (unsigned int iat=atom_index_range.first; iat<atom_index_range.second; iat++) {
 	 bool use_it = false;
 	 if (restraints_p->use_map_gradient_for_atom[iat]) {
@@ -5981,7 +5982,45 @@ coot::restraints_container_t::get_asc_index_old(const std::string &at_name,
    } 
    return index; 
 }
-					    
+
+void
+coot::restraints_container_t::post_add_new_restraint() {
+
+   // adjust just one - used for target position (atom pull) restraints
+
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+   unsigned int idx_rest = restraints_vec.size() -1;
+   // if idx_rest is not in restraints_indices, add it to the back of restraints_indices.
+
+   // If this is slow, we can go through this list backwards.
+   bool found = false;
+   for (std::size_t i=0; i<restraints_indices.size(); i++) {
+      const std::vector<std::size_t> &v = restraints_indices[i];
+      for (std::size_t j=0; j<v.size(); j++) {
+	 if (v[j] == idx_rest) {
+	    found = true;
+	    break;
+	 }
+      }
+      if (found) break;
+   }
+
+   if (! found)
+      restraints_indices.back().push_back(idx_rest);
+
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+
+}
+
+void
+coot::restraints_container_t::post_add_new_restraints() {
+
+   // regenerate them all
+
+   make_df_restraints_indices();
+
+}
+
 
 // now setup the gsl_vector with initial values
 //

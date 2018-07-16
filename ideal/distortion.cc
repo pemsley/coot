@@ -883,7 +883,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 
 	 // auto tp_2 = std::chrono::high_resolution_clock::now();
 
-	 int n_per_thread = restraints_size/restraints_p->n_threads;
+	 int n_per_thread = restraints_size/restraints_p->n_threads +1;
 	 std::atomic<unsigned int> done_count_for_threads(0);
 
 	 //std::vector<double> d32_vec(restraints_p->n_threads); time analysis of threads
@@ -896,7 +896,8 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	 double distortions[restraints_p->n_threads];
          // set initial values of distortions to 0 - the distortion_score_multithread only
          // adds to this value - it doesn't set it to 0 at the beginning, so do that here.
-         for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) distortions[i_thread] = 0;
+         for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++)
+	    distortions[i_thread] = 0;
 
 	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
 	    auto time_point_1 = std::chrono::high_resolution_clock::now();
@@ -905,7 +906,6 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	    // for the last thread, set the end restraint index
 	    if (i_thread == (restraints_p->n_threads - 1))
 	       idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
-	    distortions[i_thread] = 0;
 
 	    // auto time_point_2 = std::chrono::high_resolution_clock::now();
 
@@ -929,20 +929,14 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	    std::this_thread::sleep_for(std::chrono::microseconds(1));
 	 }
 
-	 if (false)
-	    std::cout << "post-wait thread pool info: size: "
-		      << restraints_p->thread_pool_p->size() << " idle: "
-		      << restraints_p->thread_pool_p->n_idle() 
-		      << std::endl;
-
 	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++)
 	    distortion += distortions[i_thread];
 
-	 // 201806268-PE - no more async
+	 // 20180628-PE - no more async
 	 // distortion += eds.get();
-
 	 // get the electron density values now.
 	 distortion += electron_density_score_from_restraints(v, restraints_p);
+
 
 	 /*
 
