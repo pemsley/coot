@@ -2779,8 +2779,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       if (graphics_info_t::clipping_back < 15.0) { 
 	 set_clipping_front(graphics_info_t::clipping_front + 0.4);
 	 set_clipping_back (graphics_info_t::clipping_front + 0.4);
-	 std::cout << "INFO:: clipping " << graphics_info_t::clipping_front << " "
-		   << graphics_info_t::clipping_back << std::endl;
+	 // std::cout << "INFO:: clipping " << graphics_info_t::clipping_front << " "
+	 // << graphics_info_t::clipping_back << std::endl;
       }
       handled = TRUE; 
       break;
@@ -2799,8 +2799,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       if (graphics_info_t::clipping_back > -15.2) { 
 	 set_clipping_front(graphics_info_t::clipping_front - 0.4);
 	 set_clipping_back (graphics_info_t::clipping_front - 0.4);
-	 std::cout << "INFO:: clipping " << graphics_info_t::clipping_front << " "
-		   << graphics_info_t::clipping_back << std::endl;
+	 // std::cout << "INFO:: clipping " << graphics_info_t::clipping_front << " "
+	 // << graphics_info_t::clipping_back << std::endl;
       }
       handled = TRUE; 
       break;
