@@ -63,9 +63,11 @@ void init_molecule();
 gint draw(GtkWidget *widget, GdkEventExpose *event);
 gint expose(GtkWidget *widget, GdkEventExpose *event);
 gint draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag);
+void debug_eye_position(GtkWidget *widget);
 gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event);
 gint draw_zalman_stereo(GtkWidget *widget, GdkEventExpose *event);
 void stereo_projection_setup_maybe(GtkWidget *widget);
+coot::Cartesian eye_position();
 
 void do_drag_pan(gdouble x, gdouble y, GtkWidget *widget);
 void do_button_zoom(gdouble x, gdouble y);

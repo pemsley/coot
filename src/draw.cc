@@ -749,3 +749,49 @@ gint draw_zalman_stereo(GtkWidget *widget, GdkEventExpose *event) {
 
    return TRUE;
 }
+
+
+#include "c-interface-generic-objects.h"
+
+coot::Cartesian eye_position() {
+
+   // eye position is the screen centre rotated by graphics_info_t::quat matrix
+   // and translated by a length related to graphics_info_t::zoom
+
+   coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
+		      graphics_info_t::RotationCentre_y(),
+		      graphics_info_t::RotationCentre_z());
+
+   float dist = 0.5 * graphics_info_t::zoom;
+
+   GL_matrix glm;
+   clipper::Coord_orth eye_dir(0,0,1);
+   glm.from_quaternion(graphics_info_t::quat);
+   clipper::Mat33<double> m = glm.to_clipper_mat();
+
+   clipper::Coord_orth rot_dir(m * eye_dir);
+   coot::Cartesian rot_dir_c(rot_dir.x(), rot_dir.y(), rot_dir.z());
+
+   coot::Cartesian eye_position(rc + rot_dir_c * dist);
+
+   return eye_position;
+}
+
+void
+debug_eye_position(GtkWidget *widget) {
+
+   coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
+		      graphics_info_t::RotationCentre_y(),
+		      graphics_info_t::RotationCentre_z());
+
+   coot::Cartesian ep = eye_position();
+
+   coot::Cartesian pt((ep + rc) * 0.5);
+
+   int go = generic_object_index("eye position");
+   if (go == -1)
+      go = new_generic_object_number("eye position");
+
+   to_generic_object_add_point(go, "red", 4, pt.x(), pt.y(), pt.z());
+   set_display_generic_object(go, 1);
+}
