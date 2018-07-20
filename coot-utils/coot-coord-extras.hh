@@ -622,6 +622,9 @@ namespace coot {
    };
    std::ostream& operator<<(std::ostream &o, const linked_residue_t &lr);
 
+   // use residues-near-residue to find linked residues
+   std::vector<mmdb::Residue *> simple_residue_tree(mmdb::Residue *, mmdb::Manager *mol, float dist_max);
+
    class glyco_tree_t {
    public:
       class residue_id_t {

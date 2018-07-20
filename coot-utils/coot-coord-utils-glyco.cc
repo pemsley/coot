@@ -675,7 +675,7 @@ coot::glyco_tree_t::glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol,
       while (q.size()) {
 	 mmdb::Residue *test_residue = q.front();
 	 q.pop();
-	 std::vector<mmdb::Residue *> residues = coot::residues_near_residue(test_residue, mol, dist_crit);
+	 std::vector<mmdb::Residue *> residues = residues_near_residue(test_residue, mol, dist_crit);
 	 for (unsigned int ires=0; ires<residues.size(); ires++) {
 	    if (is_pyranose(residues[ires]) || std::string(residues[ires]->name) == "ASN") {
 	       if (std::find(considered.begin(), considered.end(), residues[ires]) == considered.end()) { 
