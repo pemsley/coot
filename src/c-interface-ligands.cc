@@ -3608,3 +3608,64 @@ void coot_all_atom_contact_dots(int imol) {
       graphics_draw();
    }
 }
+
+
+#ifdef USE_GUILE
+SCM linked_residues_scm(SCM residue_centre_scm, int imol, float close_dist_max) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+
+      coot::residue_spec_t residue_spec = residue_spec_from_scm(residue_centre_scm);
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(residue_spec);
+      if (residue_p) {
+	 std::vector<mmdb::Residue *> v = coot::simple_residue_tree(residue_p, mol, close_dist_max);
+	 r = SCM_EOL;
+	 for (std::size_t i=0; i<v.size(); i++) {
+	    mmdb::Residue *residue_p = v[i];
+	    if (residue_p) {
+	       coot::residue_spec_t spec(residue_p);
+	       SCM item_scm = residue_spec_to_scm(spec);
+	       r = scm_cons(item_scm, r);
+	    }
+	 }
+      }
+   }
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *linked_residues_py(PyObject *residue_centre_py, int imol, float close_dist_max) {
+
+   PyObject *r = Py_False;
+
+   if (is_valid_model_molecule(imol)) {
+
+      coot::residue_spec_t residue_spec = residue_spec_from_py(residue_centre_py);
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(residue_spec);
+      if (residue_p) {
+	 std::vector<mmdb::Residue *> v = coot::simple_residue_tree(residue_p, mol, close_dist_max);
+	 r = PyList_New(v.size());
+	 for (std::size_t i=0; i<v.size(); i++) {
+	    mmdb::Residue *residue_p = v[i];
+	    if (residue_p) {
+	       coot::residue_spec_t spec(residue_p);
+	       PyObject *item = residue_spec_to_py(spec);
+	       PyList_SetItem(r, i, item);
+	    } else {
+	       // or put the valid residue_p in a vector first
+	       PyList_SetItem(r, i, Py_False); // Hmm..
+	    }
+	 }
+      }
+   }
+
+   if (PyBool_Check(r))
+      Py_INCREF(r);
+   return r;
+
+}
+#endif
