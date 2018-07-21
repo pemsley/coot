@@ -1177,7 +1177,7 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
 
 	    // now aromatic ring systems.
 	    int col = 0;
-	    het_residue_aromatic_rings(het_residues[ires].second, restraints.second, col);
+	    het_residue_aromatic_rings(het_residues[ires].second, restraints.second, udd_atom_index_handle, col);
 	 }
       }
    }
@@ -1188,6 +1188,7 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
 void
 Bond_lines_container::het_residue_aromatic_rings(mmdb::Residue *res,
 						 const coot::dictionary_residue_restraints_t &restraints,
+						 int udd_atom_index_handle,
 						 int col) {
 
    std::vector<std::pair<std::string, std::string> > aromatic_bonds;      
@@ -1204,7 +1205,7 @@ Bond_lines_container::het_residue_aromatic_rings(mmdb::Residue *res,
       std::vector<std::vector<std::string> > rings = ag.ring_list();
       // std::cout << "Found " << rings.size() << " aromatic ring system" << std::endl;
       for (unsigned int i=0; i<rings.size(); i++) { 
-	 add_aromatic_ring_bond_lines(rings[i], res, col);
+	 add_aromatic_ring_bond_lines(rings[i], res, udd_atom_index_handle, col);
       }
    }
 }
@@ -1212,7 +1213,8 @@ Bond_lines_container::het_residue_aromatic_rings(mmdb::Residue *res,
 // pass a list of atom name that are part of the aromatic ring system.
 void
 Bond_lines_container::add_aromatic_ring_bond_lines(const std::vector<std::string> &ring_atom_names,
-						   mmdb::Residue *residue_p, int col) {
+						   mmdb::Residue *residue_p,
+						   int udd_atom_index_handle, int col) {
 
 
    // We can't have aromatic rings with more than 7 atoms (can we?)
@@ -1241,12 +1243,20 @@ Bond_lines_container::add_aromatic_ring_bond_lines(const std::vector<std::string
 	 }
 
 	 if (found_atoms.size() == ring_atom_names.size()) {
-	 
+
+	    bool skip_this_ring = false;
 	    std::vector<clipper::Coord_orth> pts(ring_atom_names.size());
-	    for (unsigned int iat=0; iat<found_atoms.size(); iat++)
-	       pts[iat] = clipper::Coord_orth(found_atoms[iat]->x,
-					      found_atoms[iat]->y,
-					      found_atoms[iat]->z);
+	    for (unsigned int iat=0; iat<found_atoms.size(); iat++) {
+	       mmdb::Atom *found_atom = found_atoms[iat];
+	       pts[iat] = clipper::Coord_orth(found_atom->x,
+					      found_atom->y,
+					      found_atom->z);
+	       int idx_mol = -1;
+	       found_atom->GetUDData(udd_atom_index_handle, idx_mol);
+	       if (! skip_this_ring)
+		  if (no_bonds_to_these_atoms.find(idx_mol) != no_bonds_to_these_atoms.end())
+		     skip_this_ring = true;
+	    }
 	    coot::lsq_plane_info_t lp(pts);
 	    clipper::Coord_orth n = lp.normal();
 	    clipper::Coord_orth c = lp.centre();
@@ -1263,13 +1273,16 @@ Bond_lines_container::add_aromatic_ring_bond_lines(const std::vector<std::string
 	    clipper::Coord_orth cr(clipper::Coord_orth::cross(n, arb).unit());
 	    clipper::Coord_orth first_pt = c + radius * cr;
 
-	    if (! for_GL_solid_model_rendering) { 
-	       for (int istep=0; istep<n_steps; istep++) {
-		  double angle_1 = step_frac * 2.0 * M_PI * istep;
-		  double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
-		  clipper::Coord_orth pt_1 = coot::util::rotate_around_vector(n, first_pt, c, angle_1);
-		  clipper::Coord_orth pt_2 = coot::util::rotate_around_vector(n, first_pt, c, angle_2);
-		  addBond(col, pt_1, pt_2, graphics_line_t::SINGLE, -1, -1, -1); // sort of, 20171224-PE FIXME needs more thought
+	    if (! for_GL_solid_model_rendering) {
+
+	       if (! skip_this_ring) {
+		  for (int istep=0; istep<n_steps; istep++) {
+		     double angle_1 = step_frac * 2.0 * M_PI * istep;
+		     double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
+		     clipper::Coord_orth pt_1 = coot::util::rotate_around_vector(n, first_pt, c, angle_1);
+		     clipper::Coord_orth pt_2 = coot::util::rotate_around_vector(n, first_pt, c, angle_2);
+		     addBond(col, pt_1, pt_2, graphics_line_t::SINGLE, -1, -1, -1); // sort of, 20171224-PE FIXME needs more thought
+		  }
 	       }
 	    } else {
 

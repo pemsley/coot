@@ -672,9 +672,11 @@ class Bond_lines_container {
    void try_set_b_factor_scale(mmdb::Manager *mol);
    graphical_bonds_container make_graphical_bonds_with_thinning_flag(bool thinning_flag) const;
    void add_bonds_het_residues(const std::vector<std::pair<bool, mmdb::Residue *> > &het_residues, int imol, int atom_colour_t, short int have_udd_atoms, int udd_found_bond_handle, int udd_atom_index_handle);
-   void het_residue_aromatic_rings(mmdb::Residue *res, const coot::dictionary_residue_restraints_t &restraints, int col);
+   void het_residue_aromatic_rings(mmdb::Residue *res, const coot::dictionary_residue_restraints_t &restraints,
+				   int udd_atom_index_handle, int col);
    // pass a list of atom name that are part of the aromatic ring system.
-   void add_aromatic_ring_bond_lines(const std::vector<std::string> &ring_atom_names, mmdb::Residue *res, int col);
+   void add_aromatic_ring_bond_lines(const std::vector<std::string> &ring_atom_names, mmdb::Residue *res,
+				     int udd_atom_index_handle, int col);
    bool invert_deloc_bond_displacement_vector(const clipper::Coord_orth &vect,
 					      int iat_1, int iat_2, mmdb::PPAtom residue_atoms, int n_atoms,
 					      const std::vector<coot::dict_bond_restraint_t> &bond_restraints) const;
