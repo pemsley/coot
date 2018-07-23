@@ -32,6 +32,12 @@ coot::restraints_container_t::make_df_restraints_indices() {
    unsigned int n_t = n_threads;
    unsigned int restraints_size = size();
 
+   // Perhaps restraints_container_t was constructed without setting the thread pool.
+   // So we get here with n_t == 0.
+   // But the refinement still needs somewhere to put the results. Make single vectors
+   //
+   if (n_t == 0) n_t = 1;
+
    // these are now class variables
    // std::vector<std::vector<std::size_t> > restraints_indices(n_t);
    // std::vector<std::vector<double> > df_by_thread_results(n_t);
@@ -52,6 +58,7 @@ coot::restraints_container_t::make_df_restraints_indices() {
 
    unsigned int i_thread = 0; // insert to vector for this thread
    for (unsigned int ir=0; ir<restraints_size; ir++) {
+      // std::cout << "pushing back ir " << ir << " to i_thread " << i_thread << " of " << n_t << std::endl;
       restraints_indices[i_thread].push_back(ir);
       ++i_thread;
       if (i_thread==n_t) i_thread=0;
@@ -82,6 +89,7 @@ coot::restraints_container_t::make_df_restraints_indices() {
    i_thread = 0;
    unsigned int n = get_n_atoms();
    for (unsigned int ir=0; ir<n; ir++) {
+      // std::cout << "adding atom ir " << ir << " to thread indices vec " << i_thread << " of " << n_t << std::endl;
       df_by_thread_atom_indices[i_thread].push_back(ir);
       ++i_thread;
       if (i_thread==n_t) i_thread=0;
