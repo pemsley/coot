@@ -1995,7 +1995,7 @@ public:
 
    // background colour
    static float *background_colour;
-   bool background_is_black_p() const; 
+   static bool background_is_black_p();
 
    // dynarama: a list of dynarama canvases, each of which has
    // attached a pointer to a rama_plot class object.

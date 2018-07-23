@@ -69,9 +69,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
    gl_context_info_t gl_info(graphics_info_t::glarea, graphics_info_t::glarea_2);
 
-   // bool is_bb = graphics_info_t::background_is_black_p();  FIXME                           
-   bool is_bb = true;
-
+   bool is_bb = graphics_info_t::background_is_black_p();
    
 // void glDepthRange(GLclampd near, GLclampd far); Defines an encoding
 // for z coordinates that's performed during the viewport
@@ -525,8 +523,7 @@ display_density_level_maybe() {
 	 // << graphics_info_t::display_density_level_screen_string
 	 // << std::endl;
 	 
-	 // bool is_bb = graphics_info_t::background_is_black_p();  FIXME                           
-	 bool is_bb = true;
+	 bool is_bb = graphics_info_t::background_is_black_p();
 
 	 GLfloat white[3] = {1.0, 1.0, 1.0};
 	 GLfloat black[3] = {0.0, 0.0, 0.0};

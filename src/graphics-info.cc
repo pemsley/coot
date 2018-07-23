@@ -297,17 +297,18 @@ graphics_info_t::set_do_anti_aliasing(int state) {
   }
 }
 
+// static
 bool
-graphics_info_t::background_is_black_p() const {
+graphics_info_t::background_is_black_p() {
 
-   bool v = 0;
+   bool v = false;
    if (background_colour[0] < 0.3)
       if (background_colour[1] < 0.3)
 	 if (background_colour[2] < 0.3)
-	    v = 1;
+	    v = true;
 
    return v;
-} 
+}
 
 void
 graphics_info_t::draw_anti_aliasing() {
