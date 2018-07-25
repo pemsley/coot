@@ -1375,10 +1375,11 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    else 
       v = g.Geom_p()->matching_ccp4srs_residues_names(t);
 
-   std::cout << "DEBUG::  " << use_sbase_molecules
-	     << " found " << v.size() << " matching molecules "
-	     << " using string :" << t << ":" 
-	     << std::endl;
+   if (false)
+      std::cout << "DEBUG::  " << use_sbase_molecules
+		<< " found " << v.size() << " matching molecules "
+		<< " using string :" << t << ":" 
+		<< std::endl;
 
    // std::cout << "DEBUG:: " << v.size() << " solutions matching" << std::endl;
 
