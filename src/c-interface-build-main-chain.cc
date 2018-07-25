@@ -416,7 +416,7 @@ db_mainchain(int imol,
    if (imol < graphics_n_molecules()) {
       graphics_info_t g;
       imol_new = g.execute_db_main(imol, std::string(chain_id), iresno_start, iresno_end,
-			       std::string(direction_string));
+				   std::string(direction_string));
    } else {
       std::cout << "WARNING molecule index error" << std::endl;
    } 
@@ -431,6 +431,23 @@ db_mainchain(int imol,
 
    return imol_new;
 }
+
+/*! \brief CA-Zone to Mainchain for a fragment based on the given residue.
+
+Both directions are built.
+ */
+int db_mainchains_fragment(int imol, const char *chain_id, int res_no) {
+
+   int imol_new = -1;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      coot::residue_spec_t spec(chain_id, res_no, "");
+      std::pair<int, int> n = g.execute_db_main_fragment(imol, spec); // builds both
+      imol_new = n.first; // because we return an int not a SCM/PyObject *.
+   }
+   return imol_new;
+}
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  pepflip                                                 */

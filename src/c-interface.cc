@@ -8457,6 +8457,16 @@ set_solid_density_surface_opacity(int imol, float opacity) {
    }
 }
 
+float get_solid_density_surface_opacity(int imol) {
+
+   float opacity = -1;
+   if (is_valid_map_molecule(imol)) {
+      opacity = graphics_info_t::molecules[imol].density_surface_opacity;
+   }
+   return opacity;
+}
+
+
 void
 set_flat_shading_for_solid_density_surface(short int state) {
    graphics_info_t::do_flat_shading_for_solid_density_surface = state;

@@ -3171,14 +3171,22 @@ void
 graphics_info_t::execute_db_main() { 
 
    int imol = db_main_imol;
-   mmdb::Atom *at1 = molecules[imol].atom_sel.atom_selection[db_main_atom_index_1];
-   mmdb::Atom *at2 = molecules[imol].atom_sel.atom_selection[db_main_atom_index_2];
-   std::string chain_id = at1->GetChainID();
-   int iresno_start = at1->GetSeqNum();
-   int iresno_end   = at2->GetSeqNum();
+   mmdb::Atom *at_1 = molecules[imol].atom_sel.atom_selection[db_main_atom_index_1];
 
-   std::string direction_string("forwards"); // forwards
-   execute_db_main(imol, chain_id, iresno_start, iresno_end, direction_string);
+   // Replace this by the single click, double direction version
+   //
+   // mmdb::Atom *at2 = molecules[imol].atom_sel.atom_selection[db_main_atom_index_2];
+   // std::string chain_id = at1->GetChainID();
+   // int iresno_start = at1->GetSeqNum();
+   // int iresno_end   = at2->GetSeqNum();
+
+   // Replace this by the single click, double direction version
+   //
+   // std::string direction_string("forwards"); // forwards
+   // execute_db_main(imol, chain_id, iresno_start, iresno_end, direction_string);
+
+   coot::residue_spec_t residue_spec(at_1);
+   std::pair<int, int> r = execute_db_main_fragment(imol, residue_spec);
 }
 
 // this is called by interactive function and scripting function
@@ -3209,7 +3217,7 @@ graphics_info_t::execute_db_main(int imol,
       wrapped_nothing_bad_dialog(s);
    } else { 
 
-      if (iresno_start > iresno_end) { 
+      if (iresno_start > iresno_end) {
 	 int tmp = iresno_end;
 	 iresno_end = iresno_start;
 	 iresno_start = tmp;
@@ -3219,11 +3227,16 @@ graphics_info_t::execute_db_main(int imol,
       coot::minimol::molecule mt(molecules[imol].atom_sel.mol);
       coot::minimol::molecule target_ca_coords;
 
-      if (direction_string != "backwards") { 
+      if (direction_string != "backwards") {
 	 for (unsigned int i=0; i<mt.fragments.size(); i++)
-	    if (mt.fragments[i].fragment_id == chain_id)
+	    if (mt.fragments[i].fragment_id == chain_id) {
+	       std::cout << "not backwards " << mt.fragments[i] << std::endl;
 	       target_ca_coords.fragments.push_back(mt.fragments[i]);
+	    }
       } else { // backwards code.
+
+	 // Did this ever work!? (It seems to now)
+
 	 for (unsigned int i=0; i<mt.fragments.size(); i++) {
 	    if (mt[i].fragment_id == chain_id) {
 	       // put in the residues of mt.fragments[i] backwards:
@@ -3233,8 +3246,18 @@ graphics_info_t::execute_db_main(int imol,
 
 	       int ifrag = target_ca_coords.fragment_for_chain(chain_id);
 	       if (mt[i].max_residue_number() > 1) {
-		  for (int ires=mt[i].max_residue_number(); ires>=mt[i].min_res_no(); ires--) {
-		     target_ca_coords[ifrag].addresidue(mt[i][ires], false);
+		  int mnr = mt[i].max_residue_number();
+		  for (int ires=mnr; ires>=mt[i].min_res_no(); ires--) {
+
+		     int ires_target = mnr-ires+1;
+
+		     coot::minimol::atom ca = mt[i][ires][0];
+		     coot::minimol::residue residue(ires_target);
+		     residue.addatom(ca);
+
+		     target_ca_coords[ifrag].addresidue(residue, false);
+		     // std::cout << "backwards " << mt[i][ires] << std::endl;
+
 		  }
 		  break;
 	       }
@@ -3272,7 +3295,9 @@ graphics_info_t::execute_db_main(int imol,
 	 set_mmdb_cell_and_symm(asc, cell_spgr); // tinker with asc. 
 	                                         // Consider asc as an object.
 	 imol_new = create_molecule();
-	 molecules[imol_new].install_model(imol_new, asc, Geom_p(), "mainchain", 1);
+	 std::string mol_name = "mainchain-";
+	 mol_name += direction_string;
+	 molecules[imol_new].install_model(imol_new, asc, Geom_p(), mol_name, 1);
 	 graphics_draw();
       } else {
 	 std::string s("Sorry, failed to convert that residue range.\nToo short, perhaps?");
@@ -3283,6 +3308,43 @@ graphics_info_t::execute_db_main(int imol,
    }
 
    return imol_new;
+}
+
+// build both directions.
+std::pair<int, int>
+graphics_info_t::execute_db_main_fragment(int imol, coot::residue_spec_t spec) {
+
+   std::pair<int, int> new_mols = std::pair<int, int> (-1, -1);
+
+   if (is_valid_model_molecule(imol)) {
+
+      mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+      float dist_max = 4.5; // CA-CA
+      mmdb::Residue *residue_start_p = molecules[imol].get_residue(spec);
+      if (residue_start_p) {
+	 std::vector<mmdb::Residue *> residues =
+	    coot::simple_residue_tree(residue_start_p, mol, dist_max);
+	 if (residues.size() > 0) {
+	    int found_max = -9999;
+	    int found_min =  9999;
+	    for (std::size_t i=0; i<residues.size(); i++) {
+	       int resno_this = residues[i]->GetSeqNum();
+	       if (resno_this < found_min) found_min = resno_this;
+	       if (resno_this > found_max) found_max = resno_this;
+	    }
+
+	    std::cout << "-------------------------------------------------------------" << std::endl;
+	    std::cout << "Here with " << found_min << " " << found_max << std::endl;
+	    std::cout << "-------------------------------------------------------------" << std::endl;
+	    int imol_new_1 = execute_db_main(imol, spec.chain_id, found_min, found_max, "forwards");
+	    int imol_new_2 = execute_db_main(imol, spec.chain_id, found_min, found_max, "backwards");
+
+	    std::pair<int, int> nm(imol_new_1, imol_new_2);
+	    return nm;
+	 }
+      }
+   }
+   return new_mols;
 }
 
 // --------------------------------------------------------------------------------

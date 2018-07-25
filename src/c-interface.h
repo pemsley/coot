@@ -775,6 +775,8 @@ objects are no longer depth sorted) considerably faster to render.
  */
 void set_solid_density_surface_opacity(int imol, float opacity);
 
+float get_solid_density_surface_opacity(int imol);
+
 /*! \brief set the flag to do flat shading rather than smooth shading
   for solid density surface.
 
@@ -4980,12 +4982,21 @@ void do_db_main(short int state);
 
 direction is either "forwards" or "backwards"
 
+See also the function below.
+
 return the new molecule number */
 int db_mainchain(int imol,
 		 const char *chain_id,
 		 int iresno_start,
 		 int iresno_end,
 		 const char *direction);
+
+/*! \brief CA-Zone to Mainchain for a fragment based on the given residue.
+
+Both directions are built. This is the modern interface.
+ */
+int db_mainchains_fragment(int imol, const char *chain_id, int res_no);
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

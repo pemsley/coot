@@ -6609,14 +6609,12 @@ on_preferences_bond_colours_hscale_value_changed
                                         (GtkRange        *range,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
   GtkAdjustment *adjustment;
   float fvalue;
   adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
   fvalue = gtk_adjustment_get_value(adjustment);
   preferences_internal_change_value_float(PREFERENCES_BOND_COLOURS_MAP_ROTATION, fvalue);
   set_colour_map_rotation_on_read_pdb(fvalue);
-#endif
 }
 
 void
@@ -6919,14 +6917,12 @@ on_preferences_map_colours_hscale_value_changed
                                         (GtkRange        *range,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
   GtkAdjustment *adjustment;
   float fvalue;
   adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
   fvalue = gtk_adjustment_get_value(adjustment);
   preferences_internal_change_value_float(PREFERENCES_MAP_COLOURS_MAP_ROTATION, fvalue);
   set_colour_map_rotation_for_map(fvalue);
-#endif
 }
 
 

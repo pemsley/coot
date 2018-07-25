@@ -2648,6 +2648,7 @@ public:
    // return the new molecule number (can be -1)
    int execute_db_main(int imol, std::string chain_id,
 		       int iresno_start, int iresno_end, std::string direction_string); 
+   std::pair<int, int> execute_db_main_fragment(int imol, coot::residue_spec_t spec); // build both directions.
 
    static float ligand_acceptable_fit_fraction;
    static float ligand_cluster_sigma_level; // was 2.2 default
