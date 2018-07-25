@@ -52,7 +52,9 @@ int main(int argc, char **argv) {
 		     geom.try_dynamic_add(rtv[i], read_number++);
 
 	       // spike-length probe-radius
-	       coot::atom_overlaps_container_t overlaps(mol, &geom, 0.5, 0.25);
+	       bool use_waters = true;
+	       coot::atom_overlaps_container_t overlaps(mol, &geom, use_waters,
+							0.5, 0.25);
 	       double dot_density = 0.2;
 	       coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(dot_density);
 	    }

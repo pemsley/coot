@@ -172,7 +172,7 @@ map_from_mtz(std::string mtz_file_name,
    clipper::Xmap<float> xmap;
 
    try {
-      cout << "reading mtz file..." << endl;
+      std::cout << "reading mtz file..." << std::endl;
       clipper::CCP4MTZfile mtzin;
       mtzin.open_read( mtz_file_name );       // open new file
       mtzin.import_hkl_info( myhkl );         // read sg, cell, reso, hkls
@@ -198,7 +198,7 @@ map_from_mtz(std::string mtz_file_name,
 	 std::cout << dataname << "\n";
 	 mtzin.import_hkl_data( phi_fom_data, myset, myxtl, dataname );
 	 mtzin.close_read();
-	 cout << "We should use the weights: " << weight_col << endl;
+	 std::cout << "We should use the weights: " << weight_col << std::endl;
 	 // it seems to me that we should make 2 data types, an F_sigF and a phi fom
 	 // and then combine them using a Convert_fsigf_phifom_to_fphi();
 
@@ -211,11 +211,11 @@ map_from_mtz(std::string mtz_file_name,
 	 mtzin.close_read();
       }
       std::cout << "Number of reflections: " << myhkl.num_reflections() << "\n";
-      xmap.init( myhkl.spacegroup(), myhkl.cell(),
-		 clipper::Grid_sampling( myhkl.spacegroup(),
-					 myhkl.cell(),
-					 myhkl.resolution()) );
-      cout << "Grid..." << xmap.grid_sampling().format() << "\n";
+      xmap.init(myhkl.spacegroup(), myhkl.cell(),
+		clipper::Grid_sampling(myhkl.spacegroup(),
+				       myhkl.cell(),
+				       myhkl.resolution()));
+      std::cout << "Grid..." << xmap.grid_sampling().format() << "\n";
       xmap.fft_from( fphidata );                  // generate map
       status = 1;
    }
