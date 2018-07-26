@@ -1,8 +1,6 @@
 
    For Release 0.8.9.2
 
-   o use comma to split fields in search monomer library. Flight-time fun.
-
    o cherry-pick e5278d7fad21a8813cccb78ed51b5cc038947a63 from refinement
 
    o distance, symmetry atom click first -> wrong first atom
@@ -10,8 +8,6 @@
    o sync Bernie
 
    o Don't use " CG " quoting in the cif file output by Edit->Restraints->Write
-
-   o Mutate DNA in Mutate Residue Range (DNA generate in Ideal DNA/RNA)
 
    o Display sequence view from fixed.pdb
 
@@ -291,4 +287,12 @@ command "cprodrg" not found
    o Use fragment/linked-residues behind the CA-Zone -> Mainchain button
 
 * Done
+
+   o Mutate DNA in Mutate Residue Range (DNA generate in Ideal DNA/RNA)
+
+* Done.
+
+   o use comma to split fields in search monomer library. Flight-time fun.
+
+* Done.
 
