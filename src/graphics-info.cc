@@ -2770,16 +2770,14 @@ graphics_info_t::set_density_level_string(int imol, float dlevel) {
 //                   geometry
 // ------------------------------------------------------------------
 //
-void
-graphics_info_t::display_geometry_distance() {
+float
+graphics_info_t::display_geometry_distance(int imol1, const coot::Cartesian &p1,
+					   int imol2, const coot::Cartesian &p2) {
 
    mmdb::Atom *atom1 = molecules[geometry_atom_index_1_mol_no].atom_sel.atom_selection[geometry_atom_index_1];
    mmdb::Atom *atom2 = molecules[geometry_atom_index_2_mol_no].atom_sel.atom_selection[geometry_atom_index_2];
       
-   clipper::Coord_orth p1(atom1->x, atom1->y, atom1->z);
-   clipper::Coord_orth p2(atom2->x, atom2->y, atom2->z);
-
-   double dist = clipper::Coord_orth::length(p1, p2);
+   double dist = coot::Cartesian(p1 - p2).length();
 
    std::cout << "        distance atom 1: "
 	     << "(" << geometry_atom_index_1_mol_no << ") " 
@@ -2794,9 +2792,10 @@ graphics_info_t::display_geometry_distance() {
 	     << atom2->GetSeqNum()   << "/"
 	     << atom2->GetResName() << std::endl;
 
-   // std::pair<clipper::Coord_orth, clipper::Coord_orth> p(p1, p2);
-   coot::simple_distance_object_t p(geometry_atom_index_1_mol_no, p1,
-				    geometry_atom_index_2_mol_no, p2);
+   clipper::Coord_orth cp1(p1.x(), p1.y(), p1.z());
+   clipper::Coord_orth cp2(p2.x(), p2.y(), p2.z());
+   coot::simple_distance_object_t p(geometry_atom_index_1_mol_no, cp1,
+				    geometry_atom_index_2_mol_no, cp2);
    distance_object_vec->push_back(p);
    graphics_draw();
 
@@ -2805,20 +2804,21 @@ graphics_info_t::display_geometry_distance() {
    s += float_to_string(dist);
    s += " A";
    add_status_bar_text(s);
+   return dist;
 }
 
-double 
-graphics_info_t::display_geometry_distance_symm(int imol1, const coot::Cartesian &p1,
-						int imol2, const coot::Cartesian &p2) { 
+// double 
+// graphics_info_t::display_geometry_distance_symm(int imol1, const coot::Cartesian &p1,
+// 						int imol2, const coot::Cartesian &p2) { 
 
 
-   coot::simple_distance_object_t p(imol1, clipper::Coord_orth(p1.x(), p1.y(), p1.z()),
-				    imol2, clipper::Coord_orth(p2.x(), p2.y(), p2.z()));
-   distance_object_vec->push_back(p);
-   graphics_draw();
-   double d =  (p1-p2).length();
-   return d;
-} 
+//    coot::simple_distance_object_t p(imol1, clipper::Coord_orth(p1.x(), p1.y(), p1.z()),
+// 				    imol2, clipper::Coord_orth(p2.x(), p2.y(), p2.z()));
+//    distance_object_vec->push_back(p);
+//    graphics_draw();
+//    double d =  (p1-p2).length();
+//    return d;
+// } 
 
 void
 graphics_info_t::display_geometry_angle() const {
@@ -4729,7 +4729,7 @@ graphics_info_t::set_last_map_sigma_step(float f) {
 
 // ---------------------- geometry objects -----------------------------
 void
-graphics_info_t::geometry_objects() {
+graphics_info_t::draw_geometry_objects() {
 
    // 20090715 We change the type of distance_object_vec, and attach a
    // molecule from which the distance was made.  Don't display the
@@ -4839,7 +4839,7 @@ coot::intermediate_atom_distance_t::draw_dynamic_distance() const {
 }
 
 void
-graphics_info_t::pointer_distances_objects() {
+graphics_info_t::draw_pointer_distances_objects() {
 
    // and pointer distances:
    

@@ -2545,13 +2545,17 @@ public:
 
    // geometry:
    // (text message in the console, currently)
-   void display_geometry_distance() ; // not const because we add to distance_object_vec
+
+   // not const because we add to distance_object_vec
+   // return the distance
+   float display_geometry_distance(int imol1, const coot::Cartesian &p1, 
+				   int imol2, const coot::Cartesian &p2); 
    void display_geometry_angle() const;
    double get_geometry_torsion() const;
    void display_geometry_torsion() const;
    // return the distance
-   double display_geometry_distance_symm(int imol1, const coot::Cartesian &p1, 
-					 int imol2, const coot::Cartesian &p2);
+   // double display_geometry_distance_symm(int imol1, const coot::Cartesian &p1,
+   //                                       int imol2, const coot::Cartesian &p2);
    //
    void pepflip();
 
@@ -2872,7 +2876,7 @@ public:
    static int show_pointer_distances_flag;
    void clear_pointer_distances();
    static std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > *pointer_distances_object_vec;
-   static void pointer_distances_objects(); // draw them
+   static void draw_pointer_distances_objects(); // draw them
    void make_pointer_distance_objects(); // (re)generate them
 
    // Dynamic distances to intermediate atoms:
@@ -3214,7 +3218,7 @@ public:
    // distances and angles displayed on screen
    // uses distance_objects vector
    static bool display_generic_objects_as_solid_flag;
-   static void geometry_objects();
+   static void draw_geometry_objects();
    static void draw_dynamic_distances();
    static void draw_generic_objects();
    static void draw_generic_objects_simple();
