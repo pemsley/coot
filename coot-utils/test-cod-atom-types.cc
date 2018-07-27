@@ -19,17 +19,17 @@
  * 02110-1301, USA
  */
 
+#include <limits>
 #ifndef MAKE_ENHANCED_LIGAND_TOOLS
 int main(int argc, char **argv) {return 0;}
 #else 
-#include "cod-atom-types.hh"
-#include "rdkit-interface.hh"
-// #include "coot-utils/coot-coord-utils.hh" out of order
 #include "utils/coot-utils.hh"
 
-#include "bond-record-container-t.hh"
-
 #include "geometry/residue-and-atom-specs.hh"
+#include "lidia-core/cod-atom-types.hh"
+#include "lidia-core/rdkit-interface.hh"
+#include "lidia-core/bond-record-container-t.hh"
+#include "lidia-core/primes.hh"
 
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
@@ -329,8 +329,6 @@ validate(const std::string &comp_id,
    }
 }
 
-#include "primes.hh"
-#include <limits>
 void
 test_primes() {
 
