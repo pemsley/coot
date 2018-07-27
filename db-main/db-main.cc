@@ -62,7 +62,7 @@ coot::db_main::fill_with_fragments(int ilength) {
    molecule_list.resize(pdb_filename_list.size());
 
    for  (unsigned int i=0; i< pdb_filename_list.size(); i++) {
-      std::cout << "Adding fragments from: " << pdb_filename_list[i] << std::endl;
+      std::cout << "     Adding fragments from: " << pdb_filename_list[i] << std::endl;
       coot::minimol::molecule m;
       m.read_file(pdb_filename_list[i]);
 

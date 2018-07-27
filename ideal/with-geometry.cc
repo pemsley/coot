@@ -67,7 +67,7 @@ main(int argc, char **argv) {
 	 if (argc >= 3) {
 
 	    geom.init_standard();
-	    string pdb_file_name(argv[2]);
+	    std::string pdb_file_name(argv[2]);
 	    atom_selection_container_t asc = get_atom_selection(pdb_file_name, 1, 0); 
 	    int imol = 0; // dummy
 	    coot::model_bond_deltas deltas(asc.mol, imol, &geom);
@@ -79,7 +79,7 @@ main(int argc, char **argv) {
       
 	 geom.init_standard();
       
-	 string pdb_file_name(argv[1]);
+	 std::string pdb_file_name(argv[1]);
 
 	 // if pdb_file_name does not exist -> crash?
 	 atom_selection_container_t asc = get_atom_selection(pdb_file_name, 1, 0); 
@@ -122,7 +122,6 @@ main(int argc, char **argv) {
 	 short int have_flanking_residue_at_end   = 0;
 	 short int have_disulfide_residues = 0;
 	 clipper::Xmap<float> dummy_map;
-      
 	 coot::restraints_container_t restraints(istart_res,
 						 iend_res,
 						 have_flanking_residue_at_start,
@@ -132,8 +131,6 @@ main(int argc, char **argv) {
 						 chain_id,
 						 asc.mol,
 						 fixed_atom_specs, dummy_map);
-
-      
 
 	 // coot::restraint_usage_Flags flags = coot::BONDS;
 	 // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES;

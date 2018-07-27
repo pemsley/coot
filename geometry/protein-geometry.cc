@@ -3616,27 +3616,39 @@ coot::protein_geometry::matching_names(const std::string &test_string,
 				       short int allow_minimal_descriptions) const {
 
    std::vector<std::pair<std::string, std::string> > v;
-   std::string test_string_dc = coot::util::downcase(test_string);
    std::map<std::string,coot::dictionary_residue_restraints_t>::const_iterator it;
 
+   std::vector<std::string> test_name_fragments =
+      util::split_string(test_string, " ");
 
-   
    for (it=simple_monomer_descriptions.begin();
 	it!=simple_monomer_descriptions.end();
 	it++) {
-      std::string name_dc = coot::util::downcase(it->second.residue_info.name);
-      std::string::size_type ifound = name_dc.find(test_string_dc);
+      std::string name_dc = util::downcase(it->second.residue_info.name);
+
+      std::string::size_type ifound = std::string::npos;      
+
+      for (unsigned int i=0; i<test_name_fragments.size(); i++) {
+
+	 const std::string &test_string = test_name_fragments[i];
+	 std::string test_string_dc = util::downcase(test_string);
+
+	 ifound = name_dc.find(test_string_dc);
+	 if (ifound == std::string::npos)
+	    break;
+      }
       if (ifound != std::string::npos) {
-// 	 std::cout << "test_string :" << test_string << ": matched :"
-// 		   << it->second.residue_info.comp_id << ": :"
-// 		   << it->second.residue_info.name
-// 		   << ":" << std::endl;
- 	 std::pair<std::string, std::string> p(it->second.residue_info.comp_id,
+
+	 // 	 std::cout << "test_string :" << test_string << ": matched :"
+	 // 		   << it->second.residue_info.comp_id << ": :"
+	 // 		   << it->second.residue_info.name
+	 // 		   << ":" << std::endl;
+
+	 std::pair<std::string, std::string> p(it->second.residue_info.comp_id,
 					       it->second.residue_info.name);
 	 v.push_back(p);
       }
    }
-
    return v;
 }
 

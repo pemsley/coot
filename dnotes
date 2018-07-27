@@ -8367,6 +8367,7 @@ Fri  6 Jul 2018 21:53:36 BST
 
 In refmac
 
+
    vdwr 2
 
 divides sigma by 2
@@ -8389,4 +8390,81 @@ Insulin receptor and Insulin 2018 Nature 556 122-125.
 
 But still very few examples of cryo-EM in SBDD. (something... ?) bottom left panel reference?
 What was it?
+
+---
+Sat 14 Jul 2018 02:23:20 BST
+
+   std::unique_ptr: read this:
+
+http://www.drdobbs.com/cpp/c11-uniqueptr/240002708
+
+---
+Sun 15 Jul 2018 14:45:10 BST
+
+   converting a QuickTime movie
+
+ffmpeg -i {in-video}.mov -vcodec h264 -acodec aac -strict -2 {out-video}.mp4
+
+
+---
+Wed 18 Jul 2018 02:06:02 BST
+
+ Fitting problem: https://www.nature.com/articles/nature12162
+
+                  https://www.sciencedirect.com/science/article/pii/S0969212608001330
+
+
+ This?
+
+Electron Cryomicroscopy of Viruses at Near-Atomic Resolutions
+Article September 2017
+DOI: 10.1146/annurev-virology-101416-041921
+
+Accurate model annotation of a near-atomic resolution cryo-EM map
+Article (PDF Available) Proceedings of the National Academy of Sciences 114(12):201621152
+
+
+ Interesting for other reasons:
+
+The HIV-1 envelope glycoprotein structure: nailing down a moving target
+Article
+Jan 2017IMMUNOL REV
+Andrew B WardIan A Wilson
+
+
+
+----
+
+   Henry van bedem?
+
+   Read this:  minor modification in a ligand results in different binding mode.
+
+   j med chem 2016, 59, 6356
+
+
+----
+Sun 22 Jul 2018 13:47:36 EDT
+
+   transparent triangles in raster3d?
+   Yes, it is possible.
+
+---
+
+evaluation System and web infrastructure of 3d cryo em model challenge, 2018, JMB
+
+uses EMRinger
+
+
+----
+Mon 23 Jul 2018 13:59:52 EDT
+
+   sgc xchem sabrina mckinnon(?) HAO1 fragment screening.
+
+
+----
+Thu 26 Jul 2018 14:43:36 BST
+
+for difference map for cryoem from refmac:
+
+mapcalc vector
 
