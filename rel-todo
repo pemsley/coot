@@ -1,20 +1,12 @@
 
    For Release 0.8.9.2
 
-   o cherry-pick e5278d7fad21a8813cccb78ed51b5cc038947a63 from refinement
-
-   o distance, symmetry atom click first -> wrong first atom
+   o Don't use " CG " quoting in the cif file output by Edit->Restraints->Write
 
    o sync Bernie
 
-   o Don't use " CG " quoting in the cif file output by Edit->Restraints->Write
-
-   o Display sequence view from fixed.pdb
-
    o lidia dialog should have a button that looks up the exact molecule in CCD/dictionary.
      That would be nice.  Not a bug.  Punt.
-
-   o problem in refinement only? Does cis->trans on a trans residue update the graphics correctly?
 
    o does the tree comprehension work? (Marilyn Yoder problem)
    o is the carbohydrate module in a working state?
@@ -31,15 +23,13 @@
    o try harder to make raster3d build on the debian box
      Not a bug.  Punt.
 
-   o residues_near_residue() needs to have a "Don't look at hydrogens" mode -
-     because 2.0 will often find residues near a ligand and we don't want that
-     for fragment refine.
+   o Display sequence view from fixed.pdb
 
-   o FLEV on A401 NPD of 5uat (after Hydrogenate region)
+* Too esoteric for now
 
-   o Debug -> Ligand Dots -> add VdW surface -> Close generic display objects.
+   o Debug -> Ligand Dots -> add VdW surface -> Delete generic display objects.
 
-
+* Seems OK
 
 ------
 
@@ -293,6 +283,19 @@ command "cprodrg" not found
 * Done.
 
    o use comma to split fields in search monomer library. Flight-time fun.
+
+* Done.
+
+   o cherry-pick e5278d7fad21a8813cccb78ed51b5cc038947a63 from refinement
+
+* Done.
+
+
+   o FLEV on A401 NPD of 5uat (after Hydrogenate region)
+
+* What was the problem? Looks OK to me - apart from Star Wars.
+
+   o distance, symmetry atom click first -> wrong first atom
 
 * Done.
 

@@ -1934,17 +1934,6 @@ gint expose(GtkWidget *widget, GdkEventExpose *event) {
    return TRUE;
 }
 
-   
-
-void gdkglext_finish_frame(GtkWidget *widget) {
-
-   // should not even be called by GTK.
-  GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
-  gdk_gl_drawable_gl_end (gldrawable);
-  
-} 
-
-
 
 void 
 update_things_on_move_and_redraw() {
