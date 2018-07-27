@@ -426,7 +426,8 @@ int test_all_atom_overlaps() {
 
    if (read_status == mmdb::Error_NoError) {
       // spike length and probe radius (which are not used in overlaps)
-      coot::atom_overlaps_container_t overlaps(mol, &geom, 0.5, 0.25);
+      bool ignore_water = false;
+      coot::atom_overlaps_container_t overlaps(mol, &geom, ignore_water, 0.5, 0.25);
       overlaps.make_all_atom_overlaps();
       std::vector<coot::atom_overlap_t> olv = overlaps.overlaps;
       std::cout << "Found " << olv.size() << " atom overlaps" << std::endl;
