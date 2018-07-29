@@ -591,7 +591,9 @@ class molecule_class_info_t {
 				 const std::string &atom_name,
 				 int clicked_atom_idx,
 				 bool invert_selection);
-   
+
+   void asn_hydrogen_position_swap(std::vector<std::pair<bool, mmdb::Residue *> > residues);
+
    // ----------------------------------------------------------------------------------------
    // ----------------------------------------------------------------------------------------
 public:        //                      public
@@ -1572,7 +1574,7 @@ public:        //                      public
    int insert_waters_into_molecule(const coot::minimol::molecule &water_mol);
    int append_to_molecule(const coot::minimol::molecule &water_mol);
    mmdb::Residue *residue_from_external(int reso, const std::string &insertion_code,
-				   const std::string &chain_id) const;
+					const std::string &chain_id) const;
 
 
    // for the "Render As: " menu items:

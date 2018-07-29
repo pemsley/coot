@@ -277,6 +277,8 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 						    links,
 						    geom, mol, dummy_fixed_atom_specs, dummy_xmap);
 	    coot::bonded_pair_container_t bpc = restraints.bonded_residues_from_res_vec(geom);
+
+	    asn_hydrogen_position_swap(residues); // HD21 and HD22 (HD22 will be deleted)
 	    bpc.apply_chem_mods(geom);
 	    atom_sel.mol->FinishStructEdit();
 	    
@@ -401,6 +403,55 @@ molecule_class_info_t::delete_link(mmdb::Link *link, mmdb::Model *model_p) {
    model_p->RemoveLinks();
    for (unsigned int i=0; i<saved_links.size(); i++) { 
       model_p->AddLink(saved_links[i]);
+   }
+}
+
+void
+molecule_class_info_t::asn_hydrogen_position_swap(std::vector<std::pair<bool, mmdb::Residue *> > residues) {
+
+   if (residues[0].second) {
+      if (residues[1].second) {
+	 std::string rn0(residues[0].second->GetResName());
+	 std::string rn1(residues[1].second->GetResName());
+	 mmdb::Residue *r_0 = 0;
+	 mmdb::Residue *r_1 = 0;
+	 if (rn0 == "ASN") {
+	    if (rn1 == "NAG") {
+	       r_0 = residues[0].second;
+	       r_1 = residues[1].second;
+	    }
+	 }
+	 if (rn1 == "ASN") {
+	    if (rn0 == "NAG") {
+	       r_1 = residues[0].second;
+	       r_0 = residues[1].second;
+	    }
+	 }
+
+	 if (r_1 && r_0) {
+	    mmdb::Atom *at_hd21 = 0;
+	    mmdb::Atom *at_hd22 = 0;
+	    mmdb::Atom **residue_atoms_0 = 0;
+	    int n_residue_atoms_0;
+	    r_0->GetAtomTable(residue_atoms_0, n_residue_atoms_0);
+	    for (int iat=0; iat<n_residue_atoms_0; iat++) {
+	       mmdb::Atom *at = residue_atoms_0[iat];
+	       std::string atom_name(at->GetAtomName());
+	       if (atom_name == "HD21") at_hd21 = at;
+	       if (atom_name == "HD22") at_hd22 = at;
+	    }
+	    if (at_hd21 && at_hd22) {
+	       clipper::Coord_orth co21 = coot::co(at_hd21);
+	       clipper::Coord_orth co22 = coot::co(at_hd22);
+	       at_hd21->x = co22.x();
+	       at_hd21->y = co22.y();
+	       at_hd21->z = co22.z();
+	       at_hd22->x = co21.x(); // this atom will be deleted.
+	       at_hd22->y = co21.y();
+	       at_hd22->z = co21.z();
+	    }
+	 }
+      }
    }
 }
 
