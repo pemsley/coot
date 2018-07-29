@@ -214,8 +214,33 @@
 ;; now users can set this
 (define *add-linked-residue-tree-correlation-cut-off* 0.50)
 
-(define (add-linked-residue-add-cho-function parent res-pair)
+(define (add-linked-residue-add-cho-function imol parent res-pair)
 
+  (define (well-fitting? res-spec)
+    (using-active-atom
+     (let ((neighbs (residues-near-residue aa-imol res-spec 4)))
+       (let ((c (map-to-model-correlation imol (list res-spec) neighbs 0 (imol-refinement-map))))
+	 (format #t "############# new residue ~s density correlation: ~s~%" res-spec c)
+	 (if (not (number? c))
+	     #f
+	     (> c *add-linked-residue-tree-correlation-cut-off*))))))
+
+  (define (centre-view-on-residue-centre res-spec)
+    (let ((res-centre (residue-centre imol
+				      (residue-spec->chain-id res-spec)
+				      (residue-spec->res-no res-spec)
+				      (residue-spec->ins-code res-spec))))
+      (if (list? res-centre)
+	  (apply set-rotation-centre res-centre))))
+
+  (define (delete-residue-by-spec spec)
+    (delete-residue imol
+		    (residue-spec->chain-id spec)
+		    (residue-spec->res-no   spec)
+		    (residue-spec->ins-code spec)))
+
+  ;; main line
+  ;;
   (if (not (list? parent))
       (begin
 	(format #t "WARNING:: Oops not a proper res-spec ~s with residues-to-add: ~s~%"
@@ -279,14 +304,6 @@
 
 (define (add-linked-residue-tree imol parent tree)
 
-  (define (centre-view-on-residue-centre res-spec)
-    (let ((res-centre (residue-centre imol 
-				      (residue-spec->chain-id res-spec)
-				      (residue-spec->res-no res-spec)
-				      (residue-spec->ins-code res-spec))))
-      (if (list? res-centre)
-	  (apply set-rotation-centre res-centre))))
-	  
   (define func-test
     (let ((count 10))
       (lambda (parent res-pair)
@@ -294,21 +311,6 @@
 	  (set! count (+ count 1))
 	  (format #t "process res-pair ~s with parent ~s producing ~s ~%" res-pair parent rv)
 	  rv))))
-
-  (define (well-fitting? res-spec)
-    (using-active-atom
-     (let ((neighbs (residues-near-residue aa-imol res-spec 4)))
-       (let ((c (map-to-model-correlation imol (list res-spec) neighbs 0 (imol-refinement-map))))
-	 (format #t "############# new residue ~s density correlation: ~s~%" res-spec c)
-	 (if (not (number? c))
-	     #f
-	     (> c *add-linked-residue-tree-correlation-cut-off*))))))
-
-  (define (delete-residue-by-spec spec)
-    (delete-residue imol
-		    (residue-spec->chain-id spec)
-		    (residue-spec->res-no   spec)
-		    (residue-spec->ins-code spec)))
 
   (define (process-tree parent tree proc-func)
     (cond
@@ -318,7 +320,7 @@
 	    (part-2 (process-tree parent (cdr tree) proc-func)))
 	(cons part-1 part-2)))
      (else
-      (let ((new-res (proc-func parent (car tree))))
+      (let ((new-res (proc-func imol parent (car tree))))
 	(cons new-res
 	      (process-tree new-res (cdr tree) proc-func))))))
 
