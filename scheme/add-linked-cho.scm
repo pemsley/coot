@@ -223,7 +223,13 @@
 	 (format #t "############# new residue ~s density correlation: ~s~%" res-spec c)
 	 (if (not (number? c))
 	     #f
-	     (> c *add-linked-residue-tree-correlation-cut-off*))))))
+	     (if (> c *add-linked-residue-tree-correlation-cut-off*)
+		 (let ((symm-clash (clashes-with-symmetry imol
+							  (residue-spec->chain-id res-spec)
+							  (residue-spec->res-no   res-spec)
+							  (residue-spec->ins-code res-spec) 2.0)))
+		   (if (= symm-clash 1) #f #t))
+		 #f))))))
 
   (define (centre-view-on-residue-centre res-spec)
     (let ((res-centre (residue-centre imol

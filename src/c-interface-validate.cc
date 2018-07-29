@@ -2571,7 +2571,41 @@ PyObject *all_molecule_ramachandran_region_py(int imol) {
      Py_INCREF(r);
    }
    return r;
-} 
+}
+
+#include "coot-utils/atom-overlaps.hh"
+
+//! \brief return 1 if this residue clashes with the symmetry-related
+//!  atoms of the same molecule.
+//! 
+//! 0 means that it did not clash,
+//! -1 means that the residue or molecule could not be found or that there
+//!    was no cell and symmetry.
+int clashes_with_symmetry(int imol, const char *chain_id, int res_no, const char *ins_code,
+			  float clash_dist) {
+
+   int r = -1;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      coot::residue_spec_t spec(chain_id, res_no, ins_code);
+      mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+      mmdb::Residue *residue_p = g.molecules[imol].get_residue(spec);
+      if (residue_p) {
+	 if (mol) {
+	    std::vector<mmdb::Residue *> dummy; // neighbours
+	    coot::atom_overlaps_container_t ao(residue_p, dummy, mol, g.Geom_p());
+	    std::vector<coot::atom_overlap_t> v = ao.symmetry_contacts(clash_dist);
+	    if (v.empty())
+	       r = 0;
+	    else
+	       r = 1;
+	 }
+      }
+
+   }
+   return r;
+}
+
 
 #endif // USE_PYTHON
 

@@ -174,6 +174,15 @@ SCM get_symmetry(int imol);
 // return a python object as a list (or some other python container)
 PyObject *get_symmetry_py(int imol);
 #endif // USE_PYTHON
+
+//! \brief return 1 if this residue clashes with the symmetry-related
+//!  atoms of the same molecule.
+//! 
+//! 0 means that it did not clash,
+//! -1 means that the residue or molecule could not be found or that there
+//!    was no cell and symmetry.
+int clashes_with_symmetry(int imol, const char *chain_id, int res_no, const char *ins_code,
+			  float clash_dist);
 //! \}
 
 /*  ---------------------------------------------------------------------- */

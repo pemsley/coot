@@ -298,6 +298,8 @@ namespace coot {
       void make_all_atom_overlaps();
       void contact_dots_for_overlaps() const; // old
       atom_overlaps_dots_container_t contact_dots_for_ligand();
+      // this should be a vector or derived symmetry_atom class really.
+      std::vector<atom_overlap_t> symmetry_contacts(float d);
       atom_overlaps_dots_container_t all_atom_contact_dots(double dot_density = 0.5,
 							   bool make_vdw_surface = false);
 
