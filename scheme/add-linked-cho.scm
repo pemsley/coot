@@ -416,15 +416,16 @@
 	 (begin
 	   (for-each (lambda (chain-id)
 		       (for-each (lambda (res-serial)
-				   (let ((res-no (seqnum-from-serial-number aa-imol chain-id res-serial)))
-				     (let ((rn (residue-name aa-imol chain-id res-no "")))
+				   (let ((res-no (seqnum-from-serial-number aa-imol chain-id res-serial))
+					 (ins-code (insertion-code-from-serial-number aa-imol chain-id res-serial)))
+				     (let ((rn (residue-name aa-imol chain-id res-no ins-code)))
 				       (if (string? rn)
 					   ;; a better test is to find all the hetgroups and look at the _chem_comp group or type
 					   (if (or (string=? "NAG" rn) (string=? "MAN" rn) (string=? "BMA" rn) (string=? "FUL" rn)
 						   (string=? "FUC" rn) (string=? "XYP" rn) (string=? "SIA" rn) (string=? "GAL" rn)
-						   (string=? "A2G" rn))
-					       (let* ((residue-spec (list chain-id res-no "")))
-						 (set! delete-cho-list (cons (list chain-id res-no "") delete-cho-list))))))))
+						   (string=? "NDG" rn) (string=? "BGC" rn) (string=? "A2G" rn))
+					       (let* ((residue-spec (list chain-id res-no ins-code)))
+						 (set! delete-cho-list (cons residue-spec delete-cho-list))))))))
 				 (range (chain-n-residues chain-id aa-imol))))
 		     (chain-ids aa-imol))
 

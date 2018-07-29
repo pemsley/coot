@@ -1,15 +1,6 @@
 
    For Release 0.8.9.2
 
-   o does the tree comprehension work? (Marilyn Yoder problem)
-   o is the carbohydrate module in a working state?
-
-   o ASN has Hydrogen atoms. How does cho builder work?
-
-   o 1abr 140B "Delete all carbohydrate" fail
-
-   o Smooth slerping? (with accel, decel?)
-
 ------
 
    o CA-Zone -> mainchain on a zone that includes negative residue numbers -> crash
@@ -286,3 +277,15 @@ command "cprodrg" not found
 
 * Nothing new.
 
+   o does the tree comprehension work? (Marilyn Yoder problem)
+   o is the carbohydrate module in a working state?
+
+*it does now.
+
+   o ASN has Hydrogen atoms. How does cho builder work?
+
+*it does now
+
+   o 1abr 140B "Delete all carbohydrate" fail
+
+* Insertion codes!
