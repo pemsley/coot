@@ -2447,3 +2447,71 @@ coot::atom_overlaps_container_t::are_bonded_residues(mmdb::Residue *res_1, mmdb:
    }
    return r;
 }
+
+// this should be a vector of derived symmetry_atom class really.
+// the second atom needs symmetry info (if we are going to use it).
+//
+std::vector<coot::atom_overlap_t>
+coot::atom_overlaps_container_t::symmetry_contacts(float d) {
+
+   std::vector<atom_overlap_t> v;
+
+   int n_symm = mol->GetNumberOfSymOps();
+   int shift_lim = 2;
+   mmdb::realtype min_contact_dist = d;
+   mmdb::mat44 my_matt;
+
+   residue_spec_t spec(res_central);
+
+   int selHnd_1 = mol->NewSelection(); // d
+   int selHnd_2 = mol->NewSelection(); // d
+   mmdb::Atom **atom_selection_res;
+   mmdb::Atom **atom_selection_all;
+   int n_selection_atoms;
+   int n_all_atoms;
+   spec.select_atoms(mol, selHnd_1, mmdb::SKEY_NEW);
+   mol->SelectAtoms(selHnd_2, 1, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*"," * ","*","*" );
+   mol->GetSelIndex(selHnd_1, atom_selection_res, n_selection_atoms);
+   mol->GetSelIndex(selHnd_2, atom_selection_all, n_all_atoms);
+
+   for (int x_shift= -shift_lim; x_shift <= shift_lim; x_shift++) { 
+      for (int y_shift= -shift_lim; y_shift <= shift_lim; y_shift++) { 
+	 for (int z_shift= -shift_lim; z_shift <= shift_lim; z_shift++) {
+	    for (int i_symm=0; i_symm < n_symm; i_symm++) {
+	       if (! (x_shift == 0 && y_shift == 0 && z_shift == 0 && i_symm == 0)) {
+		  int i_status = mol->GetTMatrix(my_matt, i_symm, x_shift, y_shift, z_shift);
+
+		  if (i_status == 0) { // Happy
+
+		     mmdb::Contact *contact = NULL;
+		     int ncontacts = 0;
+		     long i_contact_group = 1;
+		     
+		     mol->SeekContacts(atom_selection_res, n_selection_atoms,
+				       atom_selection_all, n_all_atoms,
+				       0.001, min_contact_dist,
+				       0,
+				       contact, ncontacts,
+				       0, &my_matt, i_contact_group);
+		     if (ncontacts) {
+
+			// symm_trans_t st(i_symm, x_shift, y_shift, z_shift);
+			for (int i=0; i< ncontacts; i++) {
+			   mmdb::Atom *at_1 = atom_selection_res[contact[i].id1];
+			   mmdb::Atom *at_2 = atom_selection_all[contact[i].id2];
+			   atom_overlap_t aop(at_1, at_2);
+			   v.push_back(aop);
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   mol->DeleteSelection(selHnd_1);
+   mol->DeleteSelection(selHnd_2);
+
+   return v;
+}

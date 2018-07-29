@@ -24,8 +24,8 @@
 (define (add-cho-restraints-for-residue imol residue-spec)
    (if (list? residue-spec)
        (let ((id (glyco-tree-residue-id imol residue-spec)))
-	 (format #t "debug:: --------------------- add-cho-restraints-for-residue: glyco-tree-residue-id: ~s~%" id)
-	 (format #t "debug:: --------------------- add-cho-restraints-for-residue: glyco-tree-residues: ~s~%" (glyco-tree-residues-scm imol residue-spec))
+	 ;; (format #t "debug:: --------------------- add-cho-restraints-for-residue: glyco-tree-residue-id: ~s~%" id)
+	 ;; (format #t "debug:: --------------------- add-cho-restraints-for-residue: glyco-tree-residues: ~s~%" (glyco-tree-residues-scm imol residue-spec))
 	 (add-cho-restraints-for-residue-with-id imol residue-spec id))))
 
 ;; the smaller the sigmas the more weight the restraints have
@@ -121,7 +121,7 @@
                                    (loop (cons line lines) (read-line port))))))))))
                  (format #t "INFO:: read ~s lines from file ~s~%" (length lines) model-fn)
                  (let ((new-restraints (filter list? (map (lambda(line) (line->extra-bond-restraint-spec parent-res-spec line)) lines))))
-		    (for-each (lambda (nr) (format #t "debug ~s~%" nr)) new-restraints)
+		    ;; (for-each (lambda (nr) (format #t "debug ~s~%" nr)) new-restraints)
 		    (add-extra-bond-restraints-scm imol new-restraints))
    ))))))
 

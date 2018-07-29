@@ -1,36 +1,6 @@
 
    For Release 0.8.9.2
 
-   o Don't use " CG " quoting in the cif file output by Edit->Restraints->Write
-
-   o sync Bernie
-
-   o lidia dialog should have a button that looks up the exact molecule in CCD/dictionary.
-     That would be nice.  Not a bug.  Punt.
-
-   o does the tree comprehension work? (Marilyn Yoder problem)
-   o is the carbohydrate module in a working state?
-
-   o review the FAQ. Add nomenclature error item.
-     Not a bug.  Punt.
-
-   o Distance lines and labels in raster3d output?
-     Not a bug.  Punt.
-
-   o put a ksin(k2t) function in slerping the view, not just kt.
-     Not a bug.  Punt.
-
-   o try harder to make raster3d build on the debian box
-     Not a bug.  Punt.
-
-   o Display sequence view from fixed.pdb
-
-* Too esoteric for now
-
-   o Debug -> Ligand Dots -> add VdW surface -> Delete generic display objects.
-
-* Seems OK
-
 ------
 
    o CA-Zone -> mainchain on a zone that includes negative residue numbers -> crash
@@ -299,3 +269,23 @@ command "cprodrg" not found
 
 * Done.
 
+   o Don't use " CG " quoting in the cif file output by Edit->Restraints->Write
+
+* Done.
+
+   o sync Bernie
+
+* Nothing new.
+
+   o does the tree comprehension work? (Marilyn Yoder problem)
+   o is the carbohydrate module in a working state?
+
+*it does now.
+
+   o ASN has Hydrogen atoms. How does cho builder work?
+
+*it does now
+
+   o 1abr 140B "Delete all carbohydrate" fail
+
+* Insertion codes!

@@ -29,7 +29,23 @@
   o CHANGE:  Planar peptide restraints now apply to PTRANS restraints as well as TRANS
              restraints
 
+  o CHANGE:  "Linear" refine no longer exists, the refinement button now uses the same
+             interface as sphere refine. Residues now have environments but "finding peptide
+             links by residue number, no matter how far the residues are away from each
+             other" has been removed
+
+  o CHANGE:  Squares to cirlces in the Ramachandran Plot
+
+  o CHANGE:  Default is now not to generate a monomer on reading a dictionary cif file
+
+  o CHANGE:  More functions added to the coot_extended python module
+
   o CHANGE:  RCrane restored
+
+  o CHANGE:  Add link-by-torsion-to-NAG-core-NAG-SER.tab so that add_linked_residue() 
+             can link a NAG to a SER
+
+  o CHANGE:  CA Zone -> Mainchain builds in both directions
 
   o BUG-FIX: the H atom in a peptide is now moved along with the other peptide atoms
              on a cis->trans conversion (and vice versa)
@@ -42,10 +58,12 @@
   o BUG-FIX: The slow update on deleting deviant extra distance restraints has been
              been replaced with a faster version [JED]
 
-  o BUG-FIX: db_mainchain() fragment/chain indexing bug fixed [Oliver Clarke].
+  o BUG-FIX: db_mainchain() fragment/chain indexing bug fixed [Oliver Clarke]
 
   o BUG-FIX: db_mainchain() no longer crashes when using negative residue numbers
-             [Oliver Clarke].
+             [Oliver Clarke]
+
+  o BUG-FIX: Delete All Carbohydrate now works with carbohydrate with insertion codes
 
 -----
 

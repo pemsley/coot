@@ -3879,14 +3879,19 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 
 	    int res_no_1 = at_1->GetSeqNum();
 	    int res_no_2 = at_2->GetSeqNum();
-	    
+
 	    if (add_it) { 
 
 	       // Don't make a bump between the CD of a PRO at residue(n) and the atoms of n-1
 	    
 	       std::string res_name_1 = at_1->GetResName();
 	       std::string res_name_2 = at_2->GetResName();
-	    
+
+	       if (false)
+		  std::cout << "DEBUG:: here with res_names " << res_name_1 << " " << res_name_2 << " "
+			    << at_1->GetAtomName() << " " << at_2->GetAtomName()
+			    << std::endl;
+
 	       if (res_name_1 == "PRO" || res_name_1 == "HYP") {
 		  int res_no_pro   = res_no_1;
 		  int res_no_other = res_no_2;
@@ -3907,6 +3912,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 		     } 
 		  }
 	       }
+
 	       // hack to remove C1-OD1 NBC on N-linked glycosylation
 	       //
 	       if (res_name_1 == "ASN" || res_name_2 == "NAG") {
@@ -3915,12 +3921,19 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 		  if (atom_name_1 == " OD1")
 		     if (atom_name_2 == " C1 ")
 			add_it = false;
+		  if (atom_name_1 == "HD21")
+		     if (atom_name_2 == " C1 ")
+			add_it = false;
 	       }
+
 	       if (res_name_1 == "NAG" || res_name_2 == "ASN") {
 		  std::string atom_name_1(at_1->name);
 		  std::string atom_name_2(at_2->name);
 		  if (atom_name_1 == " C1 ")
 		     if (atom_name_2 == " OD1")
+			add_it = false;
+		  if (atom_name_1 == " C1 ")
+		     if (atom_name_2 == "HD21")
 			add_it = false;
 	       }
 	    }
