@@ -417,10 +417,10 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       graphics_info_t::baton_object();
 
       //
-      graphics_info_t::geometry_objects(); // angles and distances
+      graphics_info_t::draw_geometry_objects(); // angles and distances
 
       // pointer distances
-      graphics_info_t::pointer_distances_objects();
+      graphics_info_t::draw_pointer_distances_objects();
 
       // lsq atom blobs
       if (graphics_info_t::lsq_plane_atom_positions->size() > 0) {
@@ -512,6 +512,17 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
    gdkglext_finish_frame(widget);
    return TRUE;
 }
+
+
+
+void gdkglext_finish_frame(GtkWidget *widget) {
+
+   // should not even be called by GTK.
+  GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
+  gdk_gl_drawable_gl_end (gldrawable);
+
+}
+
 
 void
 display_density_level_maybe() {
