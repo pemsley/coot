@@ -1977,8 +1977,11 @@ coot::electron_density_score_from_restraints(const gsl_vector *v,
    // these can be pre-computed: or use the df_by_thread_atom_indices
    // (which are split up differently)
    unsigned int n_atoms = restraints_p->get_n_atoms();
-   std::vector<std::pair<unsigned int, unsigned int> > ranges =
-      atom_index_ranges(n_atoms, restraints_p->n_threads);
+
+   // std::vector<std::pair<unsigned int, unsigned int> > ranges =
+   // atom_index_ranges(n_atoms, restraints_p->n_threads);
+
+   std::vector<std::pair<unsigned int, unsigned int> > &ranges = restraints_p->m_atom_index_ranges;
 
    std::atomic<unsigned int> done_count_for_threads(0);
 
@@ -2507,12 +2510,25 @@ coot::restraints_container_t::make_restraints(int imol,
 
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
    make_df_restraints_indices();
+   make_distortion_electron_density_ranges();
 #endif //  HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
    // debug
    // info();
    return restraints_vec.size();
 }
+
+void coot::restraints_container_t::make_distortion_electron_density_ranges() {
+
+   // std::vector<std::pair<unsigned int, unsigned int> > ranges =
+   // atom_index_ranges(n_atoms, restraints_p->n_threads);
+
+   unsigned int nt = n_threads;
+   if (nt == 0) nt = 1;
+   m_atom_index_ranges = atom_index_ranges(n_atoms, nt);
+
+}
+
 
 
 void
