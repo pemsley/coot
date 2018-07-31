@@ -8,7 +8,7 @@
 #include "graphics-info.h"
 
 void
-stereo_projection_setup_maybe(GtkWidget *widget) {
+stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
 
    bool do_first  = false;
    bool do_second = false;
@@ -19,6 +19,13 @@ stereo_projection_setup_maybe(GtkWidget *widget) {
       } else {
 	 do_first = true;
       }
+   }
+
+   if (in_stereo_flag == IN_STEREO_HARDWARE_STEREO) {
+      if (graphics_info_t::which_eye == graphics_info_t::LEFT_EYE)
+         do_second = true;
+      if (graphics_info_t::which_eye == graphics_info_t::RIGHT_EYE)
+         do_first = true;
    }
 
    if (do_first || do_second) {
@@ -32,11 +39,11 @@ stereo_projection_setup_maybe(GtkWidget *widget) {
       if (do_first) {
 	 view_skew_matrix[8] = skew_factor; // 8 because this is the transpose
 	 glMultMatrixf(view_skew_matrix);
-	 glTranslatef(-0.1, 0.0, 0.0); // maybe needs more, reversed sign
+	 glTranslatef(0.01, 0.0, 0.0); // maybe needs more, reversed sign
       } else {
 	 view_skew_matrix[8] = -skew_factor;
 	 glMultMatrixf(view_skew_matrix);
-	 glTranslatef(0.1, 0.0, 0.0);
+	 glTranslatef(-0.01, 0.0, 0.0);
       }
    }
 }
@@ -148,7 +155,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       glMatrixMode(GL_PROJECTION);
       glLoadIdentity();
 
-      stereo_projection_setup_maybe(widget);
+      stereo_projection_setup_maybe(widget, in_stereo_flag);
 
       // 	 glOrtho(GLdouble left,   GLdouble right, 
       //               GLdouble bottom, GLdouble top,  

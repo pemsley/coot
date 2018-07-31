@@ -66,7 +66,7 @@ gint draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_fla
 void debug_eye_position(GtkWidget *widget);
 gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event);
 gint draw_zalman_stereo(GtkWidget *widget, GdkEventExpose *event);
-void stereo_projection_setup_maybe(GtkWidget *widget);
+void stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag);
 coot::Cartesian eye_position();
 
 void do_drag_pan(gdouble x, gdouble y, GtkWidget *widget);
