@@ -1966,7 +1966,6 @@ coot::electron_density_score_from_restraints_simple(const gsl_vector *v,
 }
 
 
-
 double
 coot::electron_density_score_from_restraints(const gsl_vector *v,
 					     coot::restraints_container_t *restraints_p) {
@@ -1986,21 +1985,26 @@ coot::electron_density_score_from_restraints(const gsl_vector *v,
    std::atomic<unsigned int> done_count_for_threads(0);
 
    std::vector<double> results(ranges.size(), 0.0); // 0.0 is the default?
-   for(unsigned int i=0; i<ranges.size(); i++) {
-       // restraints_p->thread_pool_p->push(electron_density_score_from_restraints_using_atom_index_range,
-                                         // v, std::cref(ranges[i]),
-                                         // restraints_p, &results[i]);
-      restraints_p->thread_pool_p->push(electron_density_score_from_restraints_using_atom_index_range,
-					v, std::cref(ranges[i]), restraints_p, &results[i],
-					std::ref(done_count_for_threads));
-   }
-   while (done_count_for_threads < ranges.size()) {
-      std::this_thread::sleep_for(std::chrono::microseconds(1));
-   }
 
-   // consolidate
-   for(unsigned int i=0; i<ranges.size(); i++)
-      score += results[i];
+   if (restraints_p->thread_pool_p) {
+      for(unsigned int i=0; i<ranges.size(); i++) {
+	 restraints_p->thread_pool_p->push(electron_density_score_from_restraints_using_atom_index_range,
+					   v, std::cref(ranges[i]), restraints_p, &results[i],
+					   std::ref(done_count_for_threads));
+      }
+      while (done_count_for_threads < ranges.size()) {
+	 std::this_thread::sleep_for(std::chrono::microseconds(1));
+      }
+
+      // consolidate
+      for(unsigned int i=0; i<ranges.size(); i++)
+	 score += results[i];
+   } else {
+      // null thread pool. restraints_container_t was created without a call to
+      // set the thread_pool. Happens in crankshafting currently.
+      electron_density_score_from_restraints_using_atom_index_range(0, v, ranges[0], restraints_p, &score,
+								    done_count_for_threads);
+   }
 
 #else
    std::cout << __FUNCTION__ << " no thread pool" << std::endl;
@@ -2018,8 +2022,8 @@ coot::electron_density_score_from_restraints_using_atom_index_range(int thread_i
                                              const gsl_vector *v,
 					     const std::pair<unsigned int, unsigned int> &atom_index_range,
 					     coot::restraints_container_t *restraints_p,
-								    double *result,
-								    std::atomic<unsigned int> &done_count_for_threads) {
+					     double *result,
+					     std::atomic<unsigned int> &done_count_for_threads) {
 
    auto tp_1 = std::chrono::high_resolution_clock::now();
 
@@ -2049,9 +2053,9 @@ coot::electron_density_score_from_restraints_using_atom_index_range(int thread_i
    // std::cout << "info:: f electron_density: " << d21 << " microseconds\n";
 
    // return -score;
+
    *result = -score;
    done_count_for_threads++; // atomic
-
 }
 
 
