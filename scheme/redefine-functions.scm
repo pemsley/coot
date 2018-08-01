@@ -32,6 +32,7 @@
 ;; fix typo of set-find-hydrogen-torsions (backward compatibility in case anyone was using that)
 (define set-find-hydrogen-torsion set-find-hydrogen-torsions)
 (define residues-near-position residues-near-position-scm)
+(define residues-near-residues residues-near-residues-scm)
 (define non-standard-residue-names non-standard-residue-names-scm)
 (define refine-residues refine-residues-scm)
 (define refine-residues-with-alt-conf refine-residues-with-alt-conf-scm)
