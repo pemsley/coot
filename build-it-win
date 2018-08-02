@@ -1978,7 +1978,7 @@ fi
 # libccp4: (not fortran)
 if test -n "$build_ccp4c" ; then 
     echo BUILDING: libccp4
-    libccp4_version=6.4.6
+    libccp4_version=6.5.1
     # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-2.tar.gz
     #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-3.tar.gz
     #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/martyn-extras.tar.gz
@@ -2028,6 +2028,7 @@ mmdb_version=2.0.16
 mmdb_server_dir=$extras_place
 echo ${WGET} $mmdb_server_dir/mmdb2-$mmdb_version.tar.gz
 ${WGET} $mmdb_server_dir/mmdb2-$mmdb_version.tar.gz
+${WGET} $win_extras_place/mmdb_io_file.cpp.patch
 
 (
 date
@@ -2035,6 +2036,7 @@ gzip -dc ${AUTOBUILD_SOURCES}/mmdb2-$mmdb_version.tar.gz | tar xf -
 echo gzip -dc ${AUTOBUILD_SOURCES}/mmdb2-$mmdb_version.tar.gz
 cd  mmdb2-$mmdb_version
 pwd
+patch -p0 <${AUTOBUIILD_SOURCES}/mmdb_io_file.cpp.patch
 ./configure $generic_prefix $shared_flag
 $MAKE
 $MAKE install
@@ -2152,6 +2154,7 @@ if test -n "$build_clipper" ; then
     # gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
     #
     gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
+    mv clipper-$clipper_version clipper-$clipper_dir_version
     cd clipper-$clipper_dir_version
     pwd
     date
@@ -2167,8 +2170,11 @@ if test -n "$build_clipper" ; then
     echo CPPFLAGS $CPPFLAGS
     echo LDFLAGS  $LDFLAGS
 
-    patch -p0 < ${AUTOBUILD_SOURCES}/clipper_win32.patch
+    #patch -p0 < ${AUTOBUILD_SOURCES}/clipper_win32.patch
     #patch -p0 < ${AUTOBUILD_SOURCES}/clipper-2.1.thread.patch
+    # patch the hkl_data.h header
+    sed -ibackup -e 's/int i = 0; i < list.size(); i++/unsigned int i = 0; i < list.size(); i++/' clipper/core/hkl_data.h
+
     ./configure --prefix=$install_top_dir \
 	--enable-mmdb=$install_top_dir    \
 	--enable-ccp4=$install_top_dir    \
@@ -2178,7 +2184,8 @@ if test -n "$build_clipper" ; then
 	--enable-ccp4    \
 	--enable-minimol \
 	--enable-cns     \
-       CXXFLAGS="-g -O2 -fno-strict-aliasing -DCLIPPER_DISABLE_THREADS"
+       CXXFLAGS="-g -O2 -fno-strict-aliasing"
+       # CXXFLAGS="-g -O2 -fno-strict-aliasing -DCLIPPER_DISABLE_THREADS"
        # We have to disable the threading for now, no clean exit from (Win)Coot
        # CXXFLAGS="-g -O2 -fno-strict-aliasing"
        # not need any more ?!
@@ -3214,12 +3221,29 @@ fi
 
 
 if test -n "$build_curl" ; then 
+   # we build libidn for libcurl (dont bother wiht winidn in case there are conflicts
+   # dont do a separate check, if we want curl, then we get libidn
+   # get libcurl from here:
+   echo BUILDING libidn:
+(
+   libidn_version=1.15
+   ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn-$libidn_version.tar.gz
+
+   gzip -dc ${AUTOBUILD_SOURCES}/libidn-$libidn_version.tar.gz | tar xf -
+   cd libidn-$libidn_version
+
+   ./configure  $generic_prefix
+   if $MAKE ; then
+      $MAKE install
+   fi
+) > $HOSTLOGDIR/15-a-libidn.txt
+
    echo BUILDING curl:
 (
    # get libcurl from here: 
    #libcurl_version=7.19.7
    # libcurl_version=7.27.0
-   libcurl_version=7.32.0
+   libcurl_version=7.37.0
    ${WGET} --no-check-certificate http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
 
    gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz | tar xf -
