@@ -185,7 +185,7 @@ def coot_gui(own_gtk_main=False):
        # enough of this debugging output
        # print "BL INFO:: command input is: ", entry_text
        if (entry_text != None):
-          insert_tag_text(textbuffer.create_tag(foreground="red"),
+          insert_tag_text(textbuffer.create_tag(foreground="darkblue"),
                           entry_text + "\n")
        while gtk.events_pending():
          gtk.main_iteration(False)
