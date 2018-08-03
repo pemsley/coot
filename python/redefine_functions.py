@@ -145,6 +145,7 @@ closest_atom_simple    = closest_atom_simple_py
 closest_atom           = closest_atom_py
 closest_atom_raw       = closest_atom_raw_py
 residues_near_residue  = residues_near_residue_py
+residues_near_residues = residues_near_residues_py
 residues_near_position = residues_near_position_py
 refine_zone_with_full_residue_spec = refine_zone_with_full_residue_spec_py
 list_extra_restraints  = list_extra_restraints_py

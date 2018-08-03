@@ -601,12 +601,20 @@ SCM closest_atom(int imol);
 SCM closest_atom_raw_scm();
 
 //! \brief return residues near residue
-//! 
+//!
 //! Return residue specs for residues that have atoms that are
 //! closer than radius Angstroems to any atom in the residue
 //! specified by res_in.
 //! 
-SCM residues_near_residue(int imol, SCM residue_in, float radius);
+SCM residues_near_residue(int imol, SCM residue_in_scm, float radius);
+
+//! \brief return residues near the given residues
+//!
+//! Return residue specs for residues that have atoms that are
+//! closer than radius Angstroems to any atom in the residue
+//! specified by res_in.
+//!
+SCM residues_near_residues_scm(int imol, SCM residues_in, float radius);
 
 //! \brief resdiues near residue
 //!
@@ -720,9 +728,17 @@ PyObject *closest_atom_raw_py();
 //! \brief
 // Return residue specs for residues that have atoms that are
 // closer than radius Angstroems to any atom in the residue
-// specified by res_in.
+// specified by residue_in.
 // 
 PyObject *residues_near_residue_py(int imol, PyObject *residue_in, float radius);
+
+//! \brief
+// Return residue specs for residues that have atoms that are
+// closer than radius Angstroems to any atom in the residues
+// specified by residues_in.
+// 
+PyObject *residues_near_residues_py(int imol, PyObject *residues_in, float radius);
+
 //! \brief
 //! Return residue specs for residues that have atoms that are
 //! closer than radius Angstroems to the given position.
