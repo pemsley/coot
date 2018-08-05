@@ -28,7 +28,8 @@ lib_LTLIBRARIES=libcoot-ideal.la
 EXTRA_DIST = notes Makefile.simple molmantest.cc test-indexing.hh test-indexing.cc
 
 pkginclude_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh \
-	regularize-minimol.hh lograma.h \
+	regularize-minimol.hh lograma.h zo-rama.hh phi-psi.hh \
+	parallel-planes.hh torsion-bonds.hh extra-restraints.hh model-bond-deltas.hh \
 	parallel-planes.hh torsion-bonds.hh extra-restraints.hh model-bond-deltas.hh \
         refinement-lights.hh refinement-results-t.hh rama-types.hh
 
@@ -78,7 +79,7 @@ libcoot_ideal_la_SOURCES = simple-restraint.cc \
         extra-restraints-kk.cc simple-restraint-kk.cc torsion-bonds.cc \
 	coot-compare-residues.hh coot-compare-residues.cc link-restraints.cc \
 	parallel-planes.cc pull-restraint.cc trans-peptide.cc model-bond-deltas.cc \
-	write-png.cc zo-rama.cc zo-rama.hh crankshaft.hh crankshaft.cc phi-psi.hh phi-psi.cc
+	write-png.cc zo-rama.cc crankshaft.hh crankshaft.cc phi-psi.cc
 
 libcoot_ideal_la_LDFLAGS = $(SHARED_LDFLAGS)
 
