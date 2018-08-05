@@ -1525,6 +1525,16 @@ void register_interesting_positions_list_py(PyObject *pos_list);
 #endif // USE_PYTHON 
 
 /* ------------------------------------------------------------------------- */
+/*                      all-molecule atom overlaps                           */
+/* ------------------------------------------------------------------------- */
+#ifdef USE_PYTHON
+PyObject *molecule_atom_overlaps_py(int imol);
+#endif // USE_PYTHON
+#ifdef USE_GUILE
+SCM molecule_atom_overlaps_scm(int imol);
+#endif // USE_GUILE
+
+/* ------------------------------------------------------------------------- */
 /*                      prodrg import function                               */
 /* ------------------------------------------------------------------------- */
 //
