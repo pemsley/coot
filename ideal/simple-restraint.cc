@@ -1975,8 +1975,8 @@ coot::electron_density_score_from_restraints(const gsl_vector *v,
 
    // these can be pre-computed: or use the df_by_thread_atom_indices
    // (which are split up differently)
-   unsigned int n_atoms = restraints_p->get_n_atoms();
 
+   // unsigned int n_atoms = restraints_p->get_n_atoms();
    // std::vector<std::pair<unsigned int, unsigned int> > ranges =
    // atom_index_ranges(n_atoms, restraints_p->n_threads);
 
@@ -1984,6 +1984,7 @@ coot::electron_density_score_from_restraints(const gsl_vector *v,
 
    std::atomic<unsigned int> done_count_for_threads(0);
 
+   // malloc - bah.
    std::vector<double> results(ranges.size(), 0.0); // 0.0 is the default?
 
    if (restraints_p->thread_pool_p) {
@@ -2034,17 +2035,24 @@ coot::electron_density_score_from_restraints_using_atom_index_range(int thread_i
    if (restraints_p->include_map_terms() == 1) {
 
       for (unsigned int iat=atom_index_range.first; iat<atom_index_range.second; iat++) {
-	 bool use_it = false;
-	 if (restraints_p->use_map_gradient_for_atom[iat]) {
 
-	    int idx = 3 * iat;
-	    clipper::Coord_orth ao(gsl_vector_get(v,idx),
-				   gsl_vector_get(v,idx+1),
-				   gsl_vector_get(v,idx+2));
+	 // we get a crash around here. Protect from wrong index into v vector
+	 if (iat < restraints_p->get_n_atoms()) {
+	    if (restraints_p->use_map_gradient_for_atom[iat]) {
 
-	    score += restraints_p->Map_weight() *
-	       restraints_p->atom_z_occ_weight[iat] *
-	       restraints_p->electron_density_score_at_point(ao);
+	       int idx = 3 * iat;
+	       clipper::Coord_orth ao(gsl_vector_get(v,idx),
+				      gsl_vector_get(v,idx+1),
+				      gsl_vector_get(v,idx+2));
+
+	       score += restraints_p->Map_weight() *
+		  restraints_p->atom_z_occ_weight[iat] *
+		  restraints_p->electron_density_score_at_point(ao);
+	    }
+	 } else {
+	    std::cout << "ERROR:: electron_density_score_from_restraints_using_atom_index_range "
+		      << " caught bad atom index " << iat << " " << restraints_p->get_n_atoms()
+		      << std::endl;
 	 }
       }
    }

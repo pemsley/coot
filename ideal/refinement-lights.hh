@@ -16,7 +16,7 @@ namespace coot {
 	    restraints_index = -1;
 	 }
 	 the_worst_t() { is_set = false; value = -99999;}
-	 unsigned int restraints_index;
+	 int restraints_index; // can be -1
 	 float value;
 	 bool is_set;
 	 // update if value_in is more than this value
