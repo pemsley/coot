@@ -495,6 +495,10 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    
    init_shared_pre(mol_in);
    residues_vec = residues;
+   for (std::size_t i=0; i<residues.size(); i++)
+      if (residues[i].first == false) // i.e. is moving
+	 residues_vec_moving_set.insert(residues[i].second);
+
 
    // Need to set class members mmdb::PPAtom atom and int n_atoms.
    // ...
@@ -5089,14 +5093,20 @@ coot::restraints_container_t::filter_non_bonded_by_distance(const std::vector<st
 bool
 coot::restraints_container_t::is_a_moving_residue_p(mmdb::Residue *r) const {
 
-   bool ret = 0;
-   for (unsigned int i=0; i<residues_vec.size(); i++) {
-      if (residues_vec[i].second == r) {
-	 ret = 1;
-	 break;
-      }
-   }
-   return ret;
+   bool ret = false;
+
+// Hmm! Was this even the right test?
+//
+//    for (unsigned int i=0; i<residues_vec.size(); i++) {
+//       if (residues_vec[i].second == r) {
+// 	 ret = 1;
+// 	 break;
+//       }
+//    }
+//    return ret;
+
+   return (residues_vec_moving_set.find(r) != residues_vec_moving_set.end());
+
 }
 
 int
@@ -6284,8 +6294,7 @@ coot::restraints_container_t::copy_from(const coot::restraints_container_t &rest
    mol = rest_in.mol;
       
    residues_vec = rest_in.residues_vec;
-
-
+   residues_vec_moving_set = rest_in.residues_vec_moving_set;
 
    udd_bond_angle = rest_in.udd_bond_angle;
    udd_atom_index_handle = rest_in.udd_atom_index_handle;
