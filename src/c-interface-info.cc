@@ -884,6 +884,121 @@ SCM residues_near_residue(int imol, SCM residue_in, float radius) {
 }
 #endif // USE_GUILE
 
+//! \brief return residues near the given residues
+//!
+//! Return residue specs for residues that have atoms that are
+//! closer than radius Angstroems to any atom in the residue
+//! specified by res_in.
+//!
+#ifdef USE_GUILE
+SCM residues_near_residues_scm(int imol, SCM residues_in_scm, float radius) {
+
+   SCM r = SCM_EOL;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      if (scm_is_true(scm_list_p(residues_in_scm))) {
+	 SCM l_scm = scm_length(residues_in_scm);
+	 int l = scm_to_int(l_scm);
+	 std::vector<std::pair<bool, mmdb::Residue *> > res_vec;
+	 for (int i=0; i<l; i++) {
+	    SCM item_py = scm_list_ref(residues_in_scm, SCM_MAKINUM(i));
+	    coot::residue_spec_t spec = residue_spec_from_scm(item_py);
+	    mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(spec);
+	    if (residue_p) {
+	       std::pair<bool, mmdb::Residue *> p(true, residue_p);
+	       res_vec.push_back(p);
+	    }
+	 }
+	 std::map<mmdb::Residue *, std::set<mmdb::Residue *> > rnrs =
+	    coot::residues_near_residues(res_vec, mol, radius);
+	 std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
+	 for(it=rnrs.begin(); it!=rnrs.end(); it++) {
+	    mmdb::Residue *res_key = it->first;
+	    SCM key_scm = residue_spec_to_scm(res_key);
+	    SCM value_scm = SCM_EOL;
+	    const std::set<mmdb::Residue *> &s = it->second;
+	    std::set<mmdb::Residue *>::const_iterator it_s;
+	    for (it_s=s.begin(); it_s!=s.end(); it_s++) {
+	       mmdb::Residue *r = *it_s;
+	       coot::residue_spec_t r_spec(r);
+	       SCM r_spec_scm = residue_spec_to_scm(r_spec);
+	       value_scm = scm_cons(r_spec_scm, value_scm);
+	    }
+	    SCM result_item_key_value_pair_scm = scm_list_2(key_scm, value_scm);
+	    r = scm_cons(result_item_key_value_pair_scm, r);
+	 }
+      }
+   }
+   return r;
+}
+#endif // USE_GUILE
+
+
+//! \brief
+// Return residue specs for residues that have atoms that are
+// closer than radius Angstroems to any atom in the residues
+// specified by residues_in.
+//
+#ifdef USE_PYTHON
+PyObject *residues_near_residues_py(int imol, PyObject *residues_in, float radius) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      if (PyList_Check(residues_in)) {
+	 int l = PyList_Size(residues_in);
+	 r = PyList_New(l);
+	 std::vector<std::pair<bool, mmdb::Residue *> > res_vec;
+	 for (int i=0; i<l; i++) {
+	    PyObject *item_py = PyList_GetItem(residues_in, i);
+	    coot::residue_spec_t spec = residue_spec_from_py(item_py);
+	    mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(spec);
+	    if (residue_p) {
+	       std::pair<bool, mmdb::Residue *> p(true, residue_p);
+	       res_vec.push_back(p);
+	    }
+	 }
+	 std::map<mmdb::Residue *, std::set<mmdb::Residue *> > rnrs =
+	    coot::residues_near_residues(res_vec, mol, radius);
+	 std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
+	 int map_idx = 0;
+	 for(it=rnrs.begin(); it!=rnrs.end(); it++) {
+	    mmdb::Residue *res_key = it->first;
+	    const std::set<mmdb::Residue *> &s = it->second;
+	    // FIXME
+	    // residue_spec_to_py adds a True prefix for a 4-item list
+	    // for historical reasons - get rid of that one day.
+	    PyObject *res_spec_py = residue_spec_to_py(coot::residue_spec_t(res_key));
+	    PyObject *key_py = residue_spec_make_triple_py(res_spec_py);
+	    PyObject *val_py = PyList_New(s.size());
+	    std::set<mmdb::Residue *>::const_iterator it_s;
+	    int idx = 0;
+	    for (it_s=s.begin(); it_s!=s.end(); it_s++) {
+	       mmdb::Residue *r = *it_s;
+	       coot::residue_spec_t r_spec(r);
+	       // like above, fiddle with the residue spec
+	       PyObject *r_4_py = residue_spec_to_py(r_spec);
+	       PyObject *r_3_py = residue_spec_make_triple_py(r_4_py);
+	       PyList_SetItem(val_py, idx, r_3_py);
+	       idx++;
+	    }
+	    PyObject *item_pair_py = PyList_New(2);
+	    PyList_SetItem(item_pair_py, 0, key_py);
+	    PyList_SetItem(item_pair_py, 1, val_py);
+	    PyList_SetItem(r, map_idx, item_pair_py);
+	    map_idx++;
+	 }
+      }
+   }
+
+   if (PyBool_Check(r))
+     Py_INCREF(r);
+
+   return r;
+}
+#endif // USE_PYTHON
+
+
 // Return residue specs for residues that have atoms that are
 // closer than radius Angstroems to any atom in the residue
 // specified by res_in.

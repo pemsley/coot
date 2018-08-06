@@ -518,13 +518,18 @@ graphics_info_t::check_if_moving_atom_pull(bool was_a_double_click) {
 
 	 std::set<int>::const_iterator it = moving_atoms_dragged_atom_indices.find(pi.atom_index);
 	 if (it != moving_atoms_dragged_atom_indices.end()) {
-	    std::cout << "erasing " << *it << std::endl;
+	    std::cout << "DEBUG:: erasing moving atoms dragged atom with index: " << *it << std::endl;
 	    moving_atoms_dragged_atom_indices.erase(it);
-	    mmdb::Atom *at = moving_atoms_asc->atom_selection[*it];
-	    if (at) {
-	       coot::atom_spec_t spec(at);
-	       atom_pull_off(spec);
-	       clear_atom_pull_restraint(spec, true); // refine again
+	    if (*it < moving_atoms_asc->n_selected_atoms) {
+	       mmdb::Atom *at = moving_atoms_asc->atom_selection[*it];
+	       if (at) {
+		  coot::atom_spec_t spec(at);
+		  atom_pull_off(spec);
+		  clear_atom_pull_restraint(spec, true); // refine again
+	       }
+	    } else {
+	       std::cout << "ERROR:: dragged atom out of range " << *it << " "
+			 << moving_atoms_asc->n_selected_atoms << std::endl;
 	    }
 	 }
       }

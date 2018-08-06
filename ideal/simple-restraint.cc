@@ -495,6 +495,10 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    
    init_shared_pre(mol_in);
    residues_vec = residues;
+   for (std::size_t i=0; i<residues.size(); i++)
+      if (residues[i].first == false) // i.e. is moving
+	 residues_vec_moving_set.insert(residues[i].second);
+
 
    // Need to set class members mmdb::PPAtom atom and int n_atoms.
    // ...
@@ -1975,8 +1979,8 @@ coot::electron_density_score_from_restraints(const gsl_vector *v,
 
    // these can be pre-computed: or use the df_by_thread_atom_indices
    // (which are split up differently)
-   unsigned int n_atoms = restraints_p->get_n_atoms();
 
+   // unsigned int n_atoms = restraints_p->get_n_atoms();
    // std::vector<std::pair<unsigned int, unsigned int> > ranges =
    // atom_index_ranges(n_atoms, restraints_p->n_threads);
 
@@ -1984,6 +1988,7 @@ coot::electron_density_score_from_restraints(const gsl_vector *v,
 
    std::atomic<unsigned int> done_count_for_threads(0);
 
+   // malloc - bah.
    std::vector<double> results(ranges.size(), 0.0); // 0.0 is the default?
 
    if (restraints_p->thread_pool_p) {
@@ -2034,17 +2039,24 @@ coot::electron_density_score_from_restraints_using_atom_index_range(int thread_i
    if (restraints_p->include_map_terms() == 1) {
 
       for (unsigned int iat=atom_index_range.first; iat<atom_index_range.second; iat++) {
-	 bool use_it = false;
-	 if (restraints_p->use_map_gradient_for_atom[iat]) {
 
-	    int idx = 3 * iat;
-	    clipper::Coord_orth ao(gsl_vector_get(v,idx),
-				   gsl_vector_get(v,idx+1),
-				   gsl_vector_get(v,idx+2));
+	 // we get a crash around here. Protect from wrong index into v vector
+	 if (iat < restraints_p->get_n_atoms()) {
+	    if (restraints_p->use_map_gradient_for_atom[iat]) {
 
-	    score += restraints_p->Map_weight() *
-	       restraints_p->atom_z_occ_weight[iat] *
-	       restraints_p->electron_density_score_at_point(ao);
+	       int idx = 3 * iat;
+	       clipper::Coord_orth ao(gsl_vector_get(v,idx),
+				      gsl_vector_get(v,idx+1),
+				      gsl_vector_get(v,idx+2));
+
+	       score += restraints_p->Map_weight() *
+		  restraints_p->atom_z_occ_weight[iat] *
+		  restraints_p->electron_density_score_at_point(ao);
+	    }
+	 } else {
+	    std::cout << "ERROR:: electron_density_score_from_restraints_using_atom_index_range "
+		      << " caught bad atom index " << iat << " " << restraints_p->get_n_atoms()
+		      << std::endl;
 	 }
       }
    }
@@ -5081,14 +5093,20 @@ coot::restraints_container_t::filter_non_bonded_by_distance(const std::vector<st
 bool
 coot::restraints_container_t::is_a_moving_residue_p(mmdb::Residue *r) const {
 
-   bool ret = 0;
-   for (unsigned int i=0; i<residues_vec.size(); i++) {
-      if (residues_vec[i].second == r) {
-	 ret = 1;
-	 break;
-      }
-   }
-   return ret;
+   bool ret = false;
+
+// Hmm! Was this even the right test?
+//
+//    for (unsigned int i=0; i<residues_vec.size(); i++) {
+//       if (residues_vec[i].second == r) {
+// 	 ret = 1;
+// 	 break;
+//       }
+//    }
+//    return ret;
+
+   return (residues_vec_moving_set.find(r) != residues_vec_moving_set.end());
+
 }
 
 int
@@ -6276,8 +6294,7 @@ coot::restraints_container_t::copy_from(const coot::restraints_container_t &rest
    mol = rest_in.mol;
       
    residues_vec = rest_in.residues_vec;
-
-
+   residues_vec_moving_set = rest_in.residues_vec_moving_set;
 
    udd_bond_angle = rest_in.udd_bond_angle;
    udd_atom_index_handle = rest_in.udd_atom_index_handle;

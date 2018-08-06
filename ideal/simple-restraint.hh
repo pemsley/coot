@@ -997,6 +997,7 @@ namespace coot {
       
       // The bool is the "atoms of this residue are fixed" flag.
       std::vector<std::pair<bool,mmdb::Residue *> > residues_vec;
+      std::set<mmdb::Residue *> residues_vec_moving_set;
       int udd_bond_angle;  // for is a bond, angle or not (0).
       int udd_atom_index_handle; // for indexing into the atoms array.
 

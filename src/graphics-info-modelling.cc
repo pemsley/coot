@@ -622,7 +622,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 		  }
 	       }
 
-	       last_restraints = new 
+	       last_restraints = new
 		  coot::restraints_container_t(local_residues,
 					       local_moving_atoms_asc.links,
 					       *Geom_p(),
