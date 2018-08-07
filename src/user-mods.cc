@@ -57,9 +57,8 @@ coot::flips_container::parse_set_or_single(const std::string &line) {
 	 atom_name = " CA "; // e.g. for amide.
       try { 
 	 int resno_int = coot::util::string_to_int(resno_string);
-//    if (0) {
-       if (1) {
-       std::cout <<  "chain_id :" << chain_id << ": ";
+	 if (false) { // debug
+	    std::cout <<  "chain_id :" << chain_id << ": ";
 	    std::cout << "resno_string :" << resno_string << ": ";
 	    std::cout << "resno_int :" << resno_int << ": ";
 	    std::cout << "res_type :" << res_type << ": ";

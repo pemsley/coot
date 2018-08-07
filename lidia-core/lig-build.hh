@@ -76,7 +76,6 @@ namespace lig_build {
 	 y -= p.y;
       }
       bool close_point(const pos_t &other) const {
-	 bool status = 0;
 	 double small_bit = 3;
 	 return near_point(other, small_bit);
       }
@@ -1620,7 +1619,6 @@ namespace lig_build {
 
       double median_bond_length() const {
 	 double bl = -1;
-	 double sum = 0;
 	 std::vector<double> bls;
 	 bls.reserve(bonds.size());
 	 for (unsigned int ib=0; ib<bonds.size(); ib++) {
