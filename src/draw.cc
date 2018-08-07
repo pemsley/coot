@@ -35,15 +35,16 @@ stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
       // identity matrices first
       for(unsigned int ii=0; ii<16; ii++) view_skew_matrix[ii]   = 0.0;
       for(unsigned int ii=0; ii<4;  ii++) view_skew_matrix[ii*5] = 1.0;
+      float trans_fac = 0.038;
 
       if (do_first) {
 	 view_skew_matrix[8] = skew_factor; // 8 because this is the transpose
 	 glMultMatrixf(view_skew_matrix);
-	 glTranslatef(0.01, 0.0, 0.0); // maybe needs more, reversed sign
+	 glTranslatef(trans_fac, 0.0, 0.0);
       } else {
 	 view_skew_matrix[8] = -skew_factor;
 	 glMultMatrixf(view_skew_matrix);
-	 glTranslatef(-0.01, 0.0, 0.0);
+	 glTranslatef(-trans_fac, 0.0, 0.0);
       }
    }
 }
@@ -625,7 +626,7 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
 
 gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event) {
 
-   bool draw_old = true;
+   bool draw_old = false;
    if (draw_old) {
       // tinker with graphics_info_t::quat, rotate it left, draw it,
       // rotate it right, draw it.
