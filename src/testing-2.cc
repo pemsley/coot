@@ -147,3 +147,46 @@ int test_string_splitting() {
    }
    return status;
 }
+
+#include "utils/split-indices.hh"
+
+int test_index_splitting() {
+
+   int status = 1;
+
+   unsigned int n_atoms = 303;
+   unsigned int n_threads = 20;
+
+   std::vector<std::pair<unsigned int, unsigned int> > air = coot::atom_index_ranges(n_atoms, n_threads);
+
+   std::cout << "DEBUG:: test_index_splitting:: n_atoms " << n_atoms << " nt " << n_threads << std::endl;
+
+   air = coot::atom_index_ranges(20, 20);
+   for (unsigned int i=0; i<air.size(); i++)
+      std::cout << "test-2:  atom_index_ranges  " << i << " : "
+		<< air[i].first << " " << air[i].second << std::endl;
+   air = coot::atom_index_ranges(20, 2);
+   for (unsigned int i=0; i<air.size(); i++)
+      std::cout << "test-2b: atom_index_ranges  " << i << " : "
+		<< air[i].first << " " << air[i].second << std::endl;
+   air = coot::atom_index_ranges(24, 6);
+   for (unsigned int i=0; i<air.size(); i++)
+      std::cout << "test-3:  atom_index_ranges  " << i << " : "
+		<< air[i].first << " " << air[i].second << std::endl;
+   air = coot::atom_index_ranges(n_atoms, n_threads);
+   for (unsigned int i=0; i<air.size(); i++)
+      std::cout << "test-1:  atom_index_ranges  " << i << " : "
+		<< air[i].first << " " << air[i].second << std::endl;
+   air = coot::atom_index_ranges(25, 6);
+   for (unsigned int i=0; i<air.size(); i++)
+      std::cout << "test-4:  atom_index_ranges  " << i << " : "
+		<< air[i].first << " " << air[i].second << std::endl;
+   air = coot::atom_index_ranges(5, 3);
+   for (unsigned int i=0; i<air.size(); i++)
+      std::cout << "test-4:  atom_index_ranges  " << i << " : "
+		<< air[i].first << " " << air[i].second << std::endl;
+
+   // if (air[19].first == 304) status = 0;
+
+   return status;
+}
