@@ -20,7 +20,6 @@
 #include "cc-interface-scripting.hh"
 #include "c-interface-refmac.h"
 #include "cc-interface-ncs.hh"
-#include "cc-interface-molecular-representation.hh"
 #include "c-interface-generic-objects.h"
 #include "generic-display-objects-c.h"
 #include "manipulation-modes.hh"
@@ -37,6 +36,9 @@
 #include "cfc.hh"
 #include "cc-interface-user-defined-atom-colours.hh"
 #include "cc-interface-alignment.hh"
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#include "cc-interface-molecular-representation.hh"
+#endif // USE_MOLECULES_TO_TRIANGLES
 %}
 
 
@@ -67,7 +69,9 @@ namespace std {
 %include "c-interface-preferences.h"
 %include "c-interface-refine.hh"
 %include "cc-interface-ncs.hh"
+#ifdef USE_MOLECULES_TO_TRIANGLES
 %include "cc-interface-molecular-representation.hh"
+#endif // USE_MOLECULES_TO_TRIANGLES
 %include "cc-interface.hh"
 %include "cc-interface-image.hh"
 %include "cc-interface-scripting.hh"
