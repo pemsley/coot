@@ -1445,33 +1445,37 @@ std::string residue_name(int imol, const std::string &chain_id, int resno,
    std::string r = "";
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-      int imod = 1;
-      bool have_resname_flag = 0;
-      
-      mmdb::Model *model_p = mol->GetModel(imod);
-      mmdb::Chain *chain_p;
-      // run over chains of the existing mol
-      int nchains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<nchains; ichain++) {
-         chain_p = model_p->GetChain(ichain);
-         std::string chain_id_mol(chain_p->GetChainID());
-         if (chain_id_mol == std::string(chain_id)) { 
-            int nres = chain_p->GetNumberOfResidues();
-            mmdb::PResidue residue_p;
-            for (int ires=0; ires<nres; ires++) { 
-               residue_p = chain_p->GetResidue(ires);
-               if (residue_p->GetSeqNum() == resno) { 
-                  std::string ins = residue_p->GetInsCode();
-                  if (ins == ins_code) {
-                     r = residue_p->GetResName();
-                     have_resname_flag = 1;
-                     break;
-                  }
-               }
-            }
-         }
-         if (have_resname_flag)
-            break;
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+	 bool have_resname_flag = 0;
+
+	 mmdb::Model *model_p = mol->GetModel(imod);
+
+	 if (model_p) {
+	    // run over chains of the existing mol
+	    int nchains = model_p->GetNumberOfChains();
+	    for (int ichain=0; ichain<nchains; ichain++) {
+	       mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	       std::string chain_id_mol(chain_p->GetChainID());
+	       if (chain_id_mol == std::string(chain_id)) {
+		  int nres = chain_p->GetNumberOfResidues();
+		  for (int ires=0; ires<nres; ires++) {
+		     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+		     if (residue_p->GetSeqNum() == resno) {
+			std::string ins = residue_p->GetInsCode();
+			if (ins == ins_code) {
+			   r = residue_p->GetResName();
+			   have_resname_flag = 1;
+			   break;
+			}
+		     }
+		  }
+	       }
+	    }
+	    if (have_resname_flag)
+	       break;
+	 }
+	 if (have_resname_flag)
+	    break;
       }
    }
    return r;

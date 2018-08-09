@@ -1776,13 +1776,15 @@ molecule_class_info_t::get_fragment_info(bool screen_output_also) const {
 
    std::vector<coot::fragment_info_t> v;
 
+   if (! atom_sel.mol) return v;
+
    int imod = 1;
    mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
    if (! model_p) return v;
-   mmdb::Chain *chain_p;
+
    int n_chains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<n_chains; ichain++) {
-      chain_p = model_p->GetChain(ichain);
+      mmdb::Chain *chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
       if (nres > 0) { 
 	 coot::fragment_info_t fi(chain_p->GetChainID());
