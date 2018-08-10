@@ -719,6 +719,12 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
    double d = 0;
    for (int i=idx_start; i<idx_end; i++) {
 
+      if (i>=restraints->size()) {
+	 std::cout << "ERROR:: distortion_score_multithread() i vs n " << i << " " << restraints-> size()
+		   << " for thread_idx " << thread_idx << std::endl;
+	 continue;
+      }
+
       const simple_restraint &this_restraint = restraints->at(i);
 
       if (restraints->restraints_usage_flag & coot::NON_BONDED_MASK) { // 16:
