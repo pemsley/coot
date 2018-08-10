@@ -721,7 +721,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 
       if (i>=restraints->size()) {
 	 std::cout << "ERROR:: distortion_score_multithread() i vs n " << i << " " << restraints-> size()
-		   << " for thread_idx " << thread_idx << std::endl;
+		   << " for thread_id " << thread_id << std::endl;
 	 continue;
       }
 
