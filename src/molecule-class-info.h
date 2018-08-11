@@ -3215,11 +3215,14 @@ public:        //                      public
 #endif
 #endif // USE_MOLECULES_TO_TRIANGLES
 
-   void make_molecularrepresentationinstance();
+   // return the index in the molrepinsts vector (can be negative for failure)
+   int make_molecularrepresentationinstance(const std::string &atom_selection,
+					    const std::string &colour_scheme,
+					    const std::string &style);
    int add_molecular_representation(const std::string &atom_selection,
 				    const std::string &colour_scheme,
 				    const std::string &style);
-   
+   void remove_molecular_representation(int idx);
 
    // carbohydrate validation tools
    void glyco_tree_internal_distances_fn(const coot::residue_spec_t &base_residue_spec,

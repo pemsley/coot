@@ -4,8 +4,12 @@
 #include "molecule-class-info.h"
 
 // make and add to the scene
-void
-molecule_class_info_t::make_molecularrepresentationinstance() {
+int
+molecule_class_info_t::make_molecularrepresentationinstance(const std::string &atom_selection,
+							    const std::string &colour_scheme,
+							    const std::string &style) {
+
+   int status = -1;
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
 #ifdef HAVE_CXX11
@@ -25,11 +29,11 @@ molecule_class_info_t::make_molecularrepresentationinstance() {
        auto brown_dna_cr   = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("NUCLEICACIDS", "NucleicAcids"), "brown");
 
        if (false) {
-      auto init_cr        = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("/*/*/*.*/*:*", "NoSecondary"), "grey");
-      auto none_cr        = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_None", "SSE_None"), "grey");
-      auto dark_helix_cr  = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Helix", "SSE_Helix"), "forestgreen");
-      auto stand_cr       = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Strand", "SSE_Strand"), "firebrick");
-      auto brown_dna_cr   = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("NUCLEICACIDS", "NucleicAcids"), "brown");
+	  auto init_cr        = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("/*/*/*.*/*:*", "NoSecondary"), "grey");
+	  auto none_cr        = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_None", "SSE_None"), "grey");
+	  auto dark_helix_cr  = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Helix", "SSE_Helix"), "forestgreen");
+	  auto stand_cr       = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Strand", "SSE_Strand"), "firebrick");
+	  auto brown_dna_cr   = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("NUCLEICACIDS", "NucleicAcids"), "brown");
        }
 
       // in a molecularrepresentation, set the following:
@@ -92,11 +96,13 @@ molecule_class_info_t::make_molecularrepresentationinstance() {
 	       // auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol, ramp_cs, selection_str, "Ribbon");
 	       // auto molrepinst_2 = MolecularRepresentationInstance::create(my_mol, chains_cs, mmdb_chain, "DishyBases");
 	       // auto molrepinst_2 = MolecularRepresentationInstance::create(my_mol, chains_cs, mmdb_chain, "Calpha");
+	       // auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol, ss_cs, selection_str, style);
 
-	       auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol, ss_cs, selection_str, "Ribbon");
+	       auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol, ramp_cs, selection_str, style);
 	       graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(molrepinst_1);
 
 	       molrepinsts.push_back(molrepinst_1);
+	       status = molrepinsts.size() -1; // index of back
 
 	    } else {
 	       std::cout << "No min/max found for chain " << chain_p << " " << chain_p->GetChainID() << std::endl;
@@ -106,6 +112,8 @@ molecule_class_info_t::make_molecularrepresentationinstance() {
    }
 #endif // HAVE_CXX11
 #endif // USE_MOLECULES_TO_TRIANGLES
+
+   return status;
 }
 
 void
@@ -131,8 +139,29 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
 						    const std::string &colour_scheme,
 						    const std::string &style) {
 
-   int status = 0;
-   make_molecularrepresentationinstance();
+   // return index in molrepinsts
+   int status = make_molecularrepresentationinstance(atom_selection, colour_scheme, style);
    return status;
 }
+
+#endif // USE_MOLECULES_TO_TRIANGLES
+
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+void
+molecule_class_info_t::remove_molecular_representation(int idx) {
+
+   if (idx >= 0) {
+
+      // this will shuffle the indices of the other molecule representations, hmm...
+      // molrepinsts.erase();
+      if (molrepinsts.size() > 0) {
+	 std::vector<std::shared_ptr<MolecularRepresentationInstance> >::const_iterator it = molrepinsts.end();
+	 it --;
+	 molrepinsts.erase(it);
+	 std::cout << "erased - now molrepinsts size " << molrepinsts.size() << std::endl;
+      }
+   }
+}
+
 #endif // USE_MOLECULES_TO_TRIANGLES

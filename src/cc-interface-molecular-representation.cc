@@ -33,6 +33,7 @@ int add_molecular_representation_py(int imol, PyObject *atom_selection_py, PyObj
    return status;
 
 }
+#endif // USE_PYTHON
 
 #ifdef USE_GUILE
 // e.g. 0, "//C", "RampChainsScheme", "Ribbon"
@@ -54,9 +55,15 @@ int add_molecular_representation_scm(int imol, SCM atom_selection_scm, SCM Color
 }
 #endif // USE_GUILE
 
-void remove_molecular_represenation(int imol, int rep_no) {
+void remove_molecular_representation(int imol, int rep_no) {
 
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].remove_molecular_representation(rep_no);
+      graphics_draw();
+   }
 }
-#endif // USE_PYTHON
+
+
+
 
 #endif // USE_MOLECULES_TO_TRIANGLES
