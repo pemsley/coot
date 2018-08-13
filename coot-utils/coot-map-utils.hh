@@ -175,6 +175,13 @@ namespace coot {
 					   unsigned short int atom_mask_mode,
 					   float atom_radius, // for masking 
 					   const clipper::Xmap<float> &xmap_from_sfs);
+
+      // helper
+      std::pair<clipper::Coord_frac, clipper::Coord_frac>
+      find_struct_fragment_coord_fracs_v2(const std::pair<clipper::Coord_orth, clipper::Coord_orth> &selection_extents,
+					  const clipper::Cell &cell);
+
+
       // which uses these for map statistics aggregation
       class map_stats_holder_helper_t {
       public:
