@@ -1617,7 +1617,7 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
    float atom_radius = atom_radius_in;
    float ret_val = -2;
    int SelHnd = mol->NewSelection(); // d
-   bool debug = true;
+   bool debug = false;
 
    if (debug) {
       std::cout << "INFO:: map_to_model_correlation:: there are " << specs.size()
@@ -1721,7 +1721,6 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
       clipper::Coord_frac ex_pt_2_fc;
       unsigned int n_rounds = 0;
       while (! good_frac_coords) {
-	 std::cout << "while.... " << std::endl;
 	 n_rounds++;
 	 ex_pt_1_co = clipper::Coord_orth(selection_extents.first.x()-border,
 					  selection_extents.first.y()-border,
@@ -1731,7 +1730,7 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
 					  selection_extents.second.z()+border);
 	 ex_pt_1_fc = ex_pt_1_co.coord_frac(reference_map.cell());
 	 ex_pt_2_fc = ex_pt_2_co.coord_frac(reference_map.cell());
-	 if (true) {
+	 if (false) {
 	    std::cout << "INFO:: Selection grid construction, ex_pt_1_co: " << ex_pt_1_co.format() << std::endl;
 	    std::cout << "INFO:: Selection grid construction, ex_pt_2_co: " << ex_pt_2_co.format() << std::endl;
 	    std::cout << "INFO:: Selection grid construction, ex_pt_1_fc: " << ex_pt_1_fc.format() << std::endl;
@@ -1742,10 +1741,11 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
 	 }
 	 good_frac_coords = true;
 	 for (int i=0; i<3; i++) {
-	    std::cout << "comparing: " << ex_pt_2_fc[i] << " should be greater than "
-		      << ex_pt_1_fc[i] << std::endl;
+	    // Yes, this still can happen, but we can rescue (see later)
+	    // std::cout << "comparing: " << ex_pt_2_fc[i] << " should be greater than "
+	    // << ex_pt_1_fc[i] << std::endl;
 	    if (ex_pt_2_fc[i] < ex_pt_1_fc[i]) {
-	       std::cout << "opps false " << std::endl;
+	       // std::cout << "opps false " << std::endl;
 	       good_frac_coords = false;
 	       border += 1.4;
 	    }
@@ -2023,9 +2023,11 @@ coot::util::find_struct_fragment_coord_fracs_v2(const std::pair<clipper::Coord_o
       if (cf.w() > cf_2.w()) cf_2 = clipper::Coord_frac(cf_2.u(), cf_2.v(),  cf.w());
    }
 
-   std::cout << "......... rescue " << std::endl;
-   std::cout << "     " << cf_1.format() << std::endl;
-   std::cout << "     " << cf_2.format() << std::endl;
+   if (false) {
+      std::cout << "......... rescue " << std::endl;
+      std::cout << "     " << cf_1.format() << std::endl;
+      std::cout << "     " << cf_2.format() << std::endl;
+   }
 
    return std::pair<clipper::Coord_frac, clipper::Coord_frac> (cf_1, cf_2);
 
