@@ -1727,7 +1727,9 @@
   (atom-info-string imol chain-id resno ins-code atom-name alt-conf))
 
 (define (atom-spec->residue-spec atom-spec)
-  (list-head (cddr atom-spec) 3))
+  (if (= (length atom-spec) 5)
+      (list-head atom-spec 3)
+      (list-head (cddr atom-spec) 3)))
 
 
 ;; return a guess at the map to be refined (usually called after
