@@ -655,7 +655,7 @@ get_input_details(int argc, char **argv) {
    };
 
    while (-1 !=
-	  (ch = getopt_long(argc, argv, optstr, long_options, &option_index))) {
+	  (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index))) {
 
       switch (ch) { 
       case 0:
