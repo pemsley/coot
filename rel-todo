@@ -1,6 +1,8 @@
 
    For Release 0.8.9.2
 
+   o Use dictionary, make yes/no dialog for ligand fitting: Anna.
+
 ------
 
    o CA-Zone -> mainchain on a zone that includes negative residue numbers -> crash
