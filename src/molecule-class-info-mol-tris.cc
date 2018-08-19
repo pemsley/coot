@@ -9,6 +9,8 @@ molecule_class_info_t::make_molecularrepresentationinstance(const std::string &a
 							    const std::string &colour_scheme,
 							    const std::string &style) {
 
+   std::cout << "-------------------- make_molecularrepresentationinstance() start " << std::endl;      
+
    int status = -1;
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
@@ -61,52 +63,94 @@ molecule_class_info_t::make_molecularrepresentationinstance(const std::string &a
       ss_cs->addRule(none_cr);
       ss_cs->addRule(dark_helix_cr);
       ss_cs->addRule(stand_cr);
-      ramp_cs->addRule(brown_dna_cr);
+      // ramp_cs->addRule(brown_dna_cr);
 
-      int imod = 1;
-      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-      if (model_p) {
-	 int n_chains = model_p->GetNumberOfChains();
-	 for (int ichain=0; ichain<n_chains; ichain++) {
-	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
-	    std::cout << "here with chain " << chain_p << std::endl;
-	    std::pair<bool, std::pair<int, int> > residue_min_max = coot::util::min_max_residues_in_polymer_chain(chain_p);
-	    if (residue_min_max.first) {
-	       std::cout << "min: max for chain " << chain_p->GetChainID() << " "
-			 << residue_min_max.second.first << " "
-			 << residue_min_max.second.second << " "
-			 << std::endl;
-	       AtomPropertyRampColorRule apcrr;
-	       apcrr.setStartValue(residue_min_max.second.first);
-	       apcrr.setEndValue(residue_min_max.second.second);
-	       auto apcrr_p = std::make_shared<AtomPropertyRampColorRule> (apcrr);
-	       ribbon_ramp_cs->addRule(apcrr_p);
-	       std::string selection_str = "//";
-	       std::string chain_id = chain_p->GetChainID();
-	       selection_str += chain_id;
-
-	       FCXXCoord green(0.4, 0.7, 0.4);
-	       auto green_cr = SolidColorRule::colorRuleForSelectionStringAndColor(selection_str, green);
-	       auto green_chains_cs      = ColorScheme::colorChainsScheme();
-	       green_chains_cs->addRule(green_cr);
-
-	       // VdWSurface and AccessibleSurface don't seem to work at the moment
-	       //
-	       // auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol, ribbon_ramp_cs, selection_str, "MolecularSurface");
-	       // auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol, ramp_cs, selection_str, "Ribbon");
-	       // auto molrepinst_2 = MolecularRepresentationInstance::create(my_mol, chains_cs, mmdb_chain, "DishyBases");
-	       // auto molrepinst_2 = MolecularRepresentationInstance::create(my_mol, chains_cs, mmdb_chain, "Calpha");
-	       // auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol, ss_cs, selection_str, style);
-
-	       auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol, ramp_cs, selection_str, style);
-	       graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(molrepinst_1);
-
-	       molrepinsts.push_back(molrepinst_1);
-	       status = molrepinsts.size() -1; // index of back
-
-	    } else {
-	       std::cout << "No min/max found for chain " << chain_p << " " << chain_p->GetChainID() << std::endl;
+      if (false) {
+	 std::cout << "Pre-check chains " << std::endl;
+	 for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+	    mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+	    if (model_p) {
+	       int n_chains = model_p->GetNumberOfChains();
+	       for (int ichain=0; ichain<n_chains; ichain++) {
+		  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+		  int nres = chain_p->GetNumberOfResidues();
+		  std::cout << "pre-check chain " << chain_p  << " which has chain id " << chain_p->GetChainID() << " "
+			    << chain_p->GetNumberOfResidues() << " residues " << std::endl;
+	       }
 	    }
+	 }
+      }
+
+      std::cout << "-------------------- make_molecularrepresentationinstance() model loop " << std::endl;      
+
+      for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+	 mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+	 if (model_p) {
+
+	    auto this_cs = ele_cs;
+	    auto this_atom_selection = atom_selection;
+
+	    // do need need to add/override things?
+
+	    if (colour_scheme == "colorRampChainsScheme") {
+
+	       std::vector<mmdb::Chain *> chain_selection =
+		  coot::util::chains_in_atom_selection(atom_sel.mol, imod, atom_selection);
+	       int n_chains = model_p->GetNumberOfChains();
+
+	       // run through the chains in the atom selection.
+	       for (unsigned int ichain=0; ichain<chain_selection.size(); ichain++) {
+		  mmdb::Chain *chain_p = chain_selection[ichain];
+
+		  std::cout << "here with chain " << chain_p << " which has chain id " << chain_p->GetChainID() << std::endl;
+		  std::pair<bool, std::pair<int, int> > residue_min_max = coot::util::min_max_residues_in_polymer_chain(chain_p);
+		  if (residue_min_max.first) {
+		     std::cout << "min: max for chain " << chain_p->GetChainID() << " "
+			       << residue_min_max.second.first << " "
+			       << residue_min_max.second.second << " "
+			       << std::endl;
+		     AtomPropertyRampColorRule apcrr;
+		     apcrr.setStartValue(residue_min_max.second.first);
+		     apcrr.setEndValue(residue_min_max.second.second);
+		     auto apcrr_p = std::make_shared<AtomPropertyRampColorRule> (apcrr);
+		     ribbon_ramp_cs->addRule(apcrr_p);
+		     // if we are using a ribbon_ramp_cs, then we need to apply that colour scheme only to the selected chain
+		     std::string chain_atom_selection = "/" + coot::util::int_to_string(imod) + "/" + chain_p->GetChainID();
+
+		     FCXXCoord green(0.4, 0.7, 0.4);
+		     auto green_cr = SolidColorRule::colorRuleForSelectionStringAndColor(atom_selection, green);
+		     auto green_chains_cs      = ColorScheme::colorChainsScheme();
+		     green_chains_cs->addRule(green_cr);
+
+		     this_atom_selection = chain_atom_selection;
+
+		     // VdWSurface and AccessibleSurface don't seem to work at the moment
+		     //
+		     // auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol, ribbon_ramp_cs, selection_str, "MolecularSurface");
+		     // auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol, ramp_cs, selection_str, "Ribbon");
+		     // auto molrepinst_2 = MolecularRepresentationInstance::create(my_mol, chains_cs, mmdb_chain, "DishyBases");
+		     // auto molrepinst_2 = MolecularRepresentationInstance::create(my_mol, chains_cs, mmdb_chain, "Calpha");
+		     // auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol, ss_cs, selection_str, style);
+
+		  }
+	       }
+	    }
+
+	    if (colour_scheme == "colorChainsScheme")
+	       this_cs = chains_cs;
+	    if (colour_scheme == "colorRampChainsScheme") {
+	       this_cs = ribbon_ramp_cs;
+	    }
+
+	    std::cout << "###### calling create() with this_atom_selection " << atom_selection << std::endl;
+	    auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection, style);
+	    graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(molrepinst_1);
+	    // auto molrepinst_2 = MolecularRepresentationInstance::create(my_mol, ss_cs, "//A", "MolecularSurface");
+	    // graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(molrepinst_2);
+
+	    molrepinsts.push_back(molrepinst_1);
+	    status = molrepinsts.size() -1; // index of back
+
 	 }
       }
    }
