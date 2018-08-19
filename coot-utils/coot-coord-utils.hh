@@ -872,6 +872,8 @@ namespace coot {
       // high residue numbers
       std::pair<bool, std::pair<int, int> > min_max_residues_in_polymer_chain(mmdb::Chain *chain_p);
 
+      std::vector<mmdb::Chain *> chains_in_atom_selection(mmdb::Manager *mol, int model_number, const std::string &atom_selection);
+
       // Return -1 on badness (actually, number of chains in the last model)
       int number_of_chains(mmdb::Manager *mol);
 

@@ -297,7 +297,7 @@ main(int argc, char **argv) {
       int ch;
       int option_index = 0;
       while ( -1 != 
-	      (ch = getopt_long(argc, argv, optstr, long_options, &option_index))) { 
+	      (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index))) {
 
 	 // std::cout << "DEBUG:: " << option_index << " " << optarg << std::endl;
 

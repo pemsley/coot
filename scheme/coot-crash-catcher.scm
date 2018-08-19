@@ -392,7 +392,7 @@
 
 
 (define bug-report
-  (lambda (coot-exe)
+  (lambda (coot-exe start-date)
 
     (define (is-GLX-problem? string-list)
       (let ((status #f)) ;; no problem as default
@@ -404,8 +404,11 @@
 
 
     (format #t "coot-exe: ~s~%" coot-exe)
+    (run-command/strings "ls" (list "-l" coot-exe) '())
     (format #t "coot-version: ~%" )
     (run-command/strings coot-exe (list "--version-full") '())
+    (if (> (string-length start-date) 0)
+	(format #t "start-date: ~s~%" start-date))
     (format #t "platform: ~%" )
     (run-command/strings "uname" (list "-a") '())
     
@@ -435,8 +438,17 @@
 			     (display line)
 			     (newline)) 
 			   s)))))
-		     
-	    (bug-report coot-exe)))))
+	    (begin
+
+	      ;; did we get the start date?
+	      (let ((start-date ""))
+		(for-each (lambda (idx)
+			    (let ((arg (list-ref args) idx))
+			      (if (string=? arg "--date")
+				  (set! start-date (list-ref args (+ idx 1))))))
+			  args)
+
+		(bug-report coot-exe start-date)))))))
 
 
 			   

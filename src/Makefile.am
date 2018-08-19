@@ -680,6 +680,7 @@ dynarama_bin_LDADD = \
         $(top_builddir)/utils/libcoot-utils.la  \
         $(top_builddir)/coot-utils/libcoot-coord-utils.la       \
         $(top_builddir)/coot-surface/libcoot-surface.la         \
+        $(top_builddir)/compat/libcoot-compat.la  \
         $(CLIPPER_LIBS)         \
         $(MMDB_LIBS)            \
         $(GLOB_LIBS)            \
