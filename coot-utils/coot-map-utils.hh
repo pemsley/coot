@@ -42,6 +42,8 @@ namespace coot {
       // cubic interpolation
       float density_at_point(const clipper::Xmap<float> &map_in,
 			     const clipper::Coord_orth &co);
+      float density_at_point_by_cubic_interp(const clipper::NXmap<float> &map_in,
+					     const clipper::Coord_map &cm);
       // linear interpolation (faster) use for jiggle-fit of chains and the like
       float density_at_point_by_linear_interpolation(const clipper::Xmap<float> &map_in,
 						     const clipper::Coord_orth &co);

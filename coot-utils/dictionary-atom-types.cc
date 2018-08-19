@@ -22,14 +22,15 @@
 #ifndef MAKE_ENHANCED_LIGAND_TOOLS
 int main(int argc, char **argv) {return 0;}
 #else 
-#include "cod-atom-types.hh"
+#include "lidia-core/cod-atom-types.hh"
 
 #include <map>
 #include <algorithm>
 
 #include "geometry/protein-geometry.hh"
 // #include "coot-utils/coot-coord-utils.hh" out of order now
-#include "rdkit-interface.hh"
+#include "lidia-core/rdkit-interface.hh"
+#include "coot-coord-utils.hh"
 
 // ordered so that the table is written in decreasing order
 bool string_int_pair_sorter(const std::pair<std::string, unsigned int> &p1,
@@ -89,7 +90,7 @@ int main(int argc, char **argv) {
 	 std::cout << "Null mol from mol_from_dictionary() for " <<  comp_id << std::endl;
       } else {
 	 
-	 mmdb::Residue *residue_p = coot::get_first_residue(mol);
+	 mmdb::Residue *residue_p = coot::util::get_first_residue(mol);
 
 	 if (! residue_p) {
 	    // pretty strange

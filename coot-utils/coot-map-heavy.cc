@@ -438,3 +438,55 @@ coot::util::make_rtop_orth_for_jiggle_atoms(float jiggle_trans_scale_factor,
    return rtop;
 
 }
+
+// needed?
+#include "atom-selection-container.hh"
+#include "coords/mmdb-crystal.h"
+
+clipper::NXmap<float>
+coot::util::make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_container_t asc) {
+
+   std::cout << "n_selected_atoms " << asc.n_selected_atoms << std::endl;
+   molecule_extents_t e(asc, 2.0);
+
+   clipper::Coord_orth p1(e.get_left().get_x(), e.get_top().get_y(), e.get_front().get_z());
+   clipper::Coord_orth p2(e.get_right().get_x(), e.get_bottom().get_y(), e.get_back().get_z());
+
+   p1 -= clipper::Coord_orth(3,3,3);
+   p2 += clipper::Coord_orth(3,3,3);
+
+   std::pair<clipper::Coord_orth, clipper::Coord_orth> pp(p1, p2);
+
+   std::pair<clipper::Coord_frac, clipper::Coord_frac> fc_pair =
+      find_struct_fragment_coord_fracs_v2(pp, xmap.cell());
+
+   clipper::Cell cell = xmap.cell();
+   clipper::Grid_sampling grid = xmap.grid_sampling();
+
+   float radius = 40.0;                      // fixme
+   clipper::Coord_orth comg(0.5*(p1.x()+p2.x()),
+			    0.5*(p1.y()+p2.y()),
+			    0.5*(p1.z()+p2.z()));
+
+   // make a non-cube, ideally.
+
+   // get grid range
+   // gr0: a grid range of the correct size (at the origin, going + and - in small box)
+   // gr1: a grid range of the correct size (around the correct place, comg)
+   clipper::Grid_range gr0(cell, grid, radius);
+   clipper::Grid_range gr1(gr0.min() + comg.coord_frac(cell).coord_grid(grid),
+			   gr0.max() + comg.coord_frac(cell).coord_grid(grid));
+
+   // init nxmap
+   clipper::NXmap<float> nxmap(cell, grid, gr1);
+   clipper::Xmap<float>::Map_reference_coord ix(xmap);
+   clipper::Coord_grid offset =
+      xmap.coord_map(nxmap.coord_orth(clipper::Coord_map(0.0,0.0,0.0))).coord_grid();
+   typedef clipper::NXmap<float>::Map_reference_index NRI;
+   for (NRI inx = nxmap.first(); !inx.last(); inx.next()) {
+      ix.set_coord(inx.coord() + offset);
+      nxmap[inx] = xmap[ix];
+   }
+
+   return nxmap;
+}

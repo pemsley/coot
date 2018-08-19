@@ -47,9 +47,11 @@ libcoot_coords_la_LIBADD = \
    $(top_builddir)/geometry/libcoot-geometry.la      \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
-   $(top_builddir)/ligand/libcoot-ligand.la          \
-   $(MMDB_LIBS) \
-   $(RDKIT_LIBS)
+   $(top_builddir)/ligand/libcoot-ligand.la
+
+
+#   $(MMDB_LIBS) \
+#   $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(PYTHON_LIBS) -lssl -lcrypto -lldap -lz
 
 libcoot_coords_la_LDFLAGS = $(SHARED_LDFLAGS)
 

@@ -219,6 +219,17 @@ coot::util::density_at_point(const clipper::Xmap<float> &xmap,
    return dv;
 }
 
+float
+coot::util::density_at_point_by_cubic_interp(const clipper::NXmap<float> &nxmap,
+					     const clipper::Coord_map &a_cm) {
+
+   float dv;
+   clipper::Interp_cubic::interp(nxmap, a_cm, dv);
+   return dv;
+
+}
+
+
 //
 float
 coot::util::density_at_point_by_linear_interpolation(const clipper::Xmap<float> &xmap,
@@ -1796,7 +1807,7 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
 					  selection_extents.second.z()+border);
 	 ex_pt_1_fc = ex_pt_1_co.coord_frac(reference_map.cell());
 	 ex_pt_2_fc = ex_pt_2_co.coord_frac(reference_map.cell());
-	 if (false) {
+	 if (false) { // debug
 	    std::cout << "INFO:: Selection grid construction, ex_pt_1_co: " << ex_pt_1_co.format() << std::endl;
 	    std::cout << "INFO:: Selection grid construction, ex_pt_2_co: " << ex_pt_2_co.format() << std::endl;
 	    std::cout << "INFO:: Selection grid construction, ex_pt_1_fc: " << ex_pt_1_fc.format() << std::endl;
@@ -1953,7 +1964,6 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
       double y;
       double x;
       int n = 0;
-      
 
       std::vector<double> map_samples; // for KS-test of flatness of difference map
       bool debug_grid_points = true;
@@ -2713,7 +2723,7 @@ coot::util::soi_variance::proc(float solvent_content_frac) {
       soi_xmap[ix] = variance_rank_frac * pt[ix] + other_frac * st[ix];
    }
 
-   if (true) { // debug
+   if (false) { // debug
       clipper::CCP4MAPfile mapout;
       mapout.open_write("soi.map");
       mapout.export_xmap(soi_xmap);
@@ -2872,3 +2882,5 @@ coot::util::soi_variance::protein_treatment_map() const {
    }
    return treated;
 }
+
+

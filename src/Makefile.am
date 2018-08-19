@@ -567,10 +567,13 @@ coot_fix_nomenclature_errors_LDADD = \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
 	$(top_builddir)/utils/libcoot-utils.la	  	        \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
-        $(GLOB_LIBS)		\
-	$(GSL_LIBS)		\
-	$(CLIPPER_LIBS) 	\
-	$(MMDB_LIBS)		
+		$(CLIPPER_LIBS) 	\
+		$(MMDB_LIBS)		\
+		$(PYTHON_LIBS)		\
+		$(CURL_LIBS)		\
+	  	$(RDKIT_LIBS)	        \
+		$(BOOST_LDFLAGS)        \
+		$(L_BOOST_PYTHON)
 
 # removed from fix_nomenclature_errors_LDADD:
 #        $(RDKIT_LIBS)		
