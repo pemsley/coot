@@ -1,6 +1,11 @@
 
    For Release 0.8.9.2
 
+   o SSBOND record (after reduce and modified and saved?)
+
+   o Pointer distances should not show distances to Hydrogen atom if they are not displayed!
+     Steven Sherrif
+
 ------
 
    o CA-Zone -> mainchain on a zone that includes negative residue numbers -> crash
