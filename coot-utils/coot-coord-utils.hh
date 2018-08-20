@@ -864,6 +864,8 @@ namespace coot {
       std::pair<bool, int> max_resno_in_molecule(mmdb::Manager *mol);
       
 
+      std::vector<mmdb::Chain *> chains_in_atom_selection(mmdb::Manager *mol, int model_number, const std::string &atom_selection);
+
       // Return -1 on badness (actually, number of chains in the last model)
       int number_of_chains(mmdb::Manager *mol);
 

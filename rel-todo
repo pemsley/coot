@@ -6,6 +6,8 @@
    o Pointer distances should not show distances to Hydrogen atom if they are not displayed!
      Steven Sherrif
 
+   o Use dictionary, make yes/no dialog for ligand fitting: Anna.
+
 ------
 
    o CA-Zone -> mainchain on a zone that includes negative residue numbers -> crash

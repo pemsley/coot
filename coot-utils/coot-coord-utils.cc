@@ -2073,8 +2073,24 @@ coot::util::number_of_residues_in_molecule(mmdb::Manager *mol) {
    return number_of_residues;
 }
 
+std::vector<mmdb::Chain *>
+coot::util::chains_in_atom_selection(mmdb::Manager *mol, int model_number, const std::string &atom_selection) {
 
-// Enough kludgey code.  Utilities.
+   std::vector<mmdb::Chain *> v;
+
+   int selHnd = mol->NewSelection(); // d
+   mmdb::Chain **SelChains;
+   int nSelChains = 0;
+   mol->Select(selHnd, mmdb::STYPE_CHAIN, atom_selection.c_str(), mmdb::SKEY_NEW);
+   mol->GetSelIndex(selHnd, SelChains, nSelChains);
+
+   for (int i=0; i<nSelChains; i++)
+      v.push_back(SelChains[i]);
+   mol->DeleteSelection(selHnd);
+   return v;
+}
+
+
 //
 // On failure, return "";
 std::string

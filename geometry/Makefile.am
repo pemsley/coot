@@ -78,7 +78,8 @@ coot_dictionary_bond_distributions_LDADD = ./libcoot-geometry.la
 
 coot_compare_dictionaries_SOURCES = compare-dictionaries.cc
 
-coot_compare_dictionaries_LDADD = ./libcoot-geometry.la 
+coot_compare_dictionaries_LDADD = ./libcoot-geometry.la \
+	$(top_builddir)/compat/libcoot-compat.la
 
 coot_make_shelx_restraints_SOURCES = make-shelx-restraints.cc
 
