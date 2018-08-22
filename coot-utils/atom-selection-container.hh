@@ -127,6 +127,27 @@ public:
       n_selected_atoms = 0;
       atom_selection = 0;
    }
+
+   //! return 0,0,0 on no centre.
+   //! centre is not weighted by occupancy or atomic number
+   clipper::Coord_orth get_selection_centre() const {
+      clipper::Coord_orth sum(0,0,0);
+      unsigned int count = 0;
+      for (int i=0; i<n_selected_atoms; i++) {
+	 mmdb::Atom *at = atom_selection[i];
+	 if (at) {
+	    sum += clipper::Coord_orth(at->x, at->y, at->z);
+	    count++;
+	 }
+      }
+      if (count > 0) {
+	 float d = 1.0/static_cast<float>(count);
+	 sum = d * sum;
+	 return sum;
+      } else {
+	 return sum;
+      }
+   }
    
    void apply_shift(float x_shift, float y_shift, float z_shift) {
       for (int i=0; i<n_selected_atoms; i++) { 
