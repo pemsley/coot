@@ -8362,3 +8362,9 @@ Fri 27 Jul 2018 14:45:14 BST
    o Pathwalking: Look at 2015/16 EM model-bulding trial:
      find e2pathwalker_auto.py?
 
+---
+Tue 21 Aug 2018 16:20:52 BST
+
+   o CUDA cubic spline for grid interpolation:
+
+     http://www.dannyruijters.nl/cubicinterpolation/
