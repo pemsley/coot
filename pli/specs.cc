@@ -1,8 +1,8 @@
 
 #ifdef USE_PYTHON
 
-#include<iostream>
 #include "specs.hh"
+#include<iostream>
 
 coot::py_atom_spec_t::py_atom_spec_t(PyObject *obj) {
 

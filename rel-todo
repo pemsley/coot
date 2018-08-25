@@ -1,9 +1,16 @@
 
    For Release 0.8.9.2
 
-   o do the bug fix for Robbie.
+   o Pointer distances should not show distances to Hydrogen atom if they are not displayed!
+     Steven Sherrif
+
+   o SSBOND record (after reduce and modified and saved?)
 
 ------
+
+   o do the bug fix for Robbie.
+
+* Done.
 
    o CA-Zone -> mainchain on a zone that includes negative residue numbers -> crash
      Oliver Clarke. ::: 2 h
