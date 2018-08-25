@@ -6257,12 +6257,15 @@ molecule_class_info_t::distances_to_point(const clipper::Coord_orth &pt,
    std::vector<clipper::Coord_orth> v;
    if (atom_sel.n_selected_atoms > 0) {
       for (int iat=0; iat<atom_sel.n_selected_atoms; iat++) {
-	 clipper::Coord_orth atp(atom_sel.atom_selection[iat]->x,
-				 atom_sel.atom_selection[iat]->y,
-				 atom_sel.atom_selection[iat]->z);
-	 if (clipper::Coord_orth::length(pt, atp) <= max_dist) {
-	    if (clipper::Coord_orth::length(pt, atp) >= min_dist) {
-	       v.push_back(atp);
+	 mmdb::Atom *at = atom_sel.atom_selection[iat];
+	 if (! coot::is_hydrogen_atom(at) || draw_hydrogens_flag) {
+	    clipper::Coord_orth atp(atom_sel.atom_selection[iat]->x,
+				    atom_sel.atom_selection[iat]->y,
+				    atom_sel.atom_selection[iat]->z);
+	    if (clipper::Coord_orth::length(pt, atp) <= max_dist) {
+	       if (clipper::Coord_orth::length(pt, atp) >= min_dist) {
+		  v.push_back(atp);
+	       }
 	    }
 	 }
       }

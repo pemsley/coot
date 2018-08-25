@@ -1221,6 +1221,16 @@ std::ofstream& coot::util::operator<<(std::ofstream &s, const coot::util::quater
 
 // -------------------------------------------------------------
 
+bool
+coot::is_hydrogen_atom(mmdb::Atom *at_p) {
+
+   std::string ele = at_p->element;
+   if ((ele == "H") || (ele == " H"))
+      return true;
+   else
+      return ((ele == "D") || (ele == " D"));
+}
+
 
 // Urgh.  Should use a template...
 bool

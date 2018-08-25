@@ -276,6 +276,7 @@ namespace coot {
 
    bool is_member_p(const std::vector<mmdb::Residue *> &v, mmdb::Residue *a);
 
+   bool is_hydrogen_atom(mmdb::Atom *at);
 
    // Throw an exception if there is no consistent seg id for the
    // atoms in the given residue.
