@@ -1,12 +1,16 @@
 
    For Release 0.8.9.2
 
-   o Pointer distances should not show distances to Hydrogen atom if they are not displayed!
-     Steven Sherrif
+   o Oliver-Clarke bonding
 
    o SSBOND record (after reduce and modified and saved?)
 
 ------
+
+   o Pointer distances should not show distances to Hydrogen atom if they are not displayed!
+     Steven Sherrif
+
+* Done.
 
    o do the bug fix for Robbie.
 
