@@ -3486,10 +3486,15 @@ int extra_restraints_are_shown(int imol);
 /*! \brief often we don't want to see all prosmart restraints, just the (big) violations */
 void set_extra_restraints_prosmart_sigma_limits(int imol, double limit_high, double limit_low);
 
+/*! \brief generate external distance local self restraints */
 void generate_local_self_restraints(int imol, const char *chain_id, float local_dist_max);
+
+/*! \brief generate external distance all-molecule self restraints */
+void generate_self_restraints(int imol, float local_dist_max);
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
+/*! \brief generate external distance self restraints for selected residues */
 void generate_local_self_restraints_by_residues_scm(int imol, SCM residue_specs, float local_dist_max);
 #endif // USE_GUILE
 #ifdef USE_PYTHON

@@ -1438,6 +1438,18 @@ namespace coot {
       // 
       std::pair<bool, bool> peptide_C_and_N_are_close_p(mmdb::Residue *r1, mmdb::Residue *r2) const;
 
+      // a pair, first is if C and N are close and second if and order
+      // switch is needed to make it so.
+      //
+      // the first value means the following:
+      // 1: is
+      // 0: is not
+      // -1: can't decide here (if that;s the case, use peptide_C_and_N_are_close_p())
+      //
+      enum peptide_order_info_t { IS_PEPTIDE=1, IS_NOT_PEPTIDE=0, UNKNOWN=-1 };
+      //
+      std::pair<peptide_order_info_t, bool> peptide_C_and_N_are_in_order_p(mmdb::Residue *r1, mmdb::Residue *r2) const;
+
 
       // a pair, first is if C and N are close and second if and order
       // switch is needed to make it so.

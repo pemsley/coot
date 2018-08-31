@@ -2747,6 +2747,47 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
    return bpc;
 }
 
+// a pair, first is if C and N are close and second if and order
+// switch is needed to make it so.
+std::pair<coot::restraints_container_t::peptide_order_info_t, bool>
+coot::restraints_container_t::peptide_C_and_N_are_in_order_p(mmdb::Residue *r1, mmdb::Residue *r2) const {
+
+   bool debug = false;
+   if (r1->chain == r2->chain) {
+      int serial_delta = r2->index - r1->index;
+      if (debug)
+	 std::cout << "   serial_delta " << serial_delta << std::endl;
+      if ((serial_delta == -1) || (serial_delta == 1)) {
+	 // ok to proceed
+      } else {
+	 if (debug)
+	    std::cout << "   ------ peptide_C_and_N_are_in_order_p path : A0 - "
+		      << "same chain not sequencial" << std::endl;
+	 return std::pair<peptide_order_info_t, bool> (IS_NOT_PEPTIDE, false);
+      }
+
+      if (serial_delta == 1) {
+	 if (debug)
+	    std::cout << "   ------ peptide_C_and_N_are_in_order_p path A" << std::endl;
+	 return std::pair<peptide_order_info_t, bool> (IS_PEPTIDE, false);
+      } else {
+	 if (debug)
+	    std::cout << "   ------ peptide_C_and_N_are_in_order_p path B" << std::endl;
+	 return std::pair<peptide_order_info_t, bool> (IS_PEPTIDE, true);
+      }
+
+   } else {
+      // we are considering a link between a residue in the mol and a residue
+      // of the neighbouring residues vectors (which are not residues in the mol(!))
+      // i.e. the don't have the same indexing (residue serial indexing) scheme.
+
+      // we can't make a decision. We need to be able to tell the caller that - so
+      // that the caller can choose to bond the residues by distance (and residue number
+      // and insertion code)
+
+      return std::pair<peptide_order_info_t, bool> (UNKNOWN, false);
+   }
+}
 
 
 // a pair, first is if C and N are close and second if and order

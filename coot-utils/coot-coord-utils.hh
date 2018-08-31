@@ -1095,6 +1095,9 @@ namespace coot {
 
       void add_copy_of_atom(mmdb::Manager *mol, mmdb::Atom *atom);
 
+      // important for bonding in refinement
+      void pdbcleanup_serial_residue_numbers(mmdb::Manager *mol);
+
       // return success status, 1 is good, 0 is fail.  Use clipper::Coord_orth constructor
       // 
       bool add_atom(mmdb::Residue *res,
