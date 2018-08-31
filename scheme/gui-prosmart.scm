@@ -33,6 +33,12 @@
 	    (generate-local-self-restraints aa-imol aa-chain-id 6))))
 
 	(add-simple-coot-menu-menuitem
+	 menu "Generate All-Molecule Self Restraints 4.3"
+	 (lambda ()
+	   (using-active-atom
+	    (generate-self-restraints aa-imol 4.3))))
+
+	(add-simple-coot-menu-menuitem
 	 menu "Generate Local Self Restraints 6"
 	 (lambda ()
 	   (using-active-atom
