@@ -447,10 +447,15 @@ clipper::NXmap<float>
 coot::util::make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_container_t asc) {
 
    std::cout << "n_selected_atoms " << asc.n_selected_atoms << std::endl;
-   molecule_extents_t e(asc, 2.0);
 
-   clipper::Coord_orth p1(e.get_left().get_x(), e.get_top().get_y(), e.get_front().get_z());
-   clipper::Coord_orth p2(e.get_right().get_x(), e.get_bottom().get_y(), e.get_back().get_z());
+   // molecule_extents_t e(asc, 2.0);
+   // clipper::Coord_orth p1(e.get_left().get_x(), e.get_top().get_y(), e.get_front().get_z());
+   // clipper::Coord_orth p2(e.get_right().get_x(), e.get_bottom().get_y(), e.get_back().get_z());
+
+   std::pair<clipper::Coord_orth, clipper::Coord_orth> p = util::extents(asc.mol, asc.SelectionHandle);
+
+   clipper::Coord_orth p1 = p.first;
+   clipper::Coord_orth p2 = p.second;
 
    p1 -= clipper::Coord_orth(3,3,3);
    p2 += clipper::Coord_orth(3,3,3);
