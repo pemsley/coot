@@ -2817,6 +2817,8 @@ public:        //                      public
    void update_extra_restraints_representation_parallel_planes();
    void add_refmac_extra_restraints(const std::string &file_name);
    // make them yourself - easy as pie.
+   void generate_self_restraints(float local_dist_max,
+				 const coot::protein_geometry &geom);
    void generate_local_self_restraints(float local_dist_max,
 				       const std::string &chain_id,
 				       const coot::protein_geometry &geom);

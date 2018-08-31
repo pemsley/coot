@@ -362,6 +362,27 @@ molecule_class_info_t::set_extra_restraints_prosmart_sigma_limits(double limit_l
    update_extra_restraints_representation();
 }
 
+void
+molecule_class_info_t::generate_self_restraints(float local_dist_max,
+						const coot::protein_geometry &geom) {
+
+   // Find all the contacts in chain_id that are less than or equal to local_dist_max
+   // that are not bonded or related by an angle.
+
+   int selHnd = atom_sel.mol->NewSelection(); // deleted in generate_local_self_restraints()
+                                              // Confusing! bleugh! FIXME
+
+   atom_sel.mol->SelectAtoms(selHnd, 0, "*",
+			     mmdb::ANY_RES, "*", // start, insertion code
+			     mmdb::ANY_RES, "*", // end, insertion code
+			     "*", // residue name
+			     "*",
+			     "*", // elements
+			     "*"); // alt locs
+
+   generate_local_self_restraints(selHnd, local_dist_max, geom);
+}
+
 
 // make them yourself - easy as pie.
 void
@@ -384,6 +405,7 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
 			     "*"); // alt locs
 
    generate_local_self_restraints(selHnd, local_dist_max, geom);
+   // atom_sel.mol->DeleteSelection(selHnd);
 }
 
 void

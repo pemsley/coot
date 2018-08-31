@@ -605,9 +605,21 @@ void generate_local_self_restraints(int imol, const char *chain_id, float local_
       // like prosmart self restraints
       graphics_info_t::molecules[imol].generate_local_self_restraints(local_dist_max, chain_id,
 								      *graphics_info_t::Geom_p());
+   }
+   graphics_draw();
+}
+
+/*! \brief generate external distance all-molecule self restraints */
+void generate_self_restraints(int imol, float local_dist_max) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].generate_self_restraints(local_dist_max,
+								*graphics_info_t::Geom_p());
    } 
    graphics_draw();
 }
+
+
 
 
 
