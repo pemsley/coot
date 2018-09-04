@@ -39,6 +39,11 @@
      (using-active-atom
       (fill-partial-residue aa-imol aa-chain-id aa-res-no aa-ins-code))))
 
+(add-key-binding "Delete Sidechain" "K"
+   (lambda ()
+     (using-active-atom
+      (delete-residue-sidechain aa-imol aa-chain-id aa-res-no aa-ins-code 0))))
+
 (add-key-binding "Rotamers dialog for Active Residue" "Q"
    (lambda () 
      (using-active-atom
