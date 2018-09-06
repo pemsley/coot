@@ -466,24 +466,26 @@ coot::util::make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_containe
       find_struct_fragment_coord_fracs_v2(pp, xmap.cell());
 
    clipper::Cell cell = xmap.cell();
-   clipper::Grid_sampling grid = xmap.grid_sampling();
+   clipper::Grid_sampling grid_sampling = xmap.grid_sampling();
 
-   float radius = 40.0;                      // fixme
+   float radius = sqrt((p2-p1).lengthsq());
    clipper::Coord_orth comg(0.5*(p1.x()+p2.x()),
 			    0.5*(p1.y()+p2.y()),
 			    0.5*(p1.z()+p2.z()));
 
-   // make a non-cube, ideally.
+   // make a non-cube, ideally - needs different extents to do that.
 
    // get grid range
    // gr0: a grid range of the correct size (at the origin, going + and - in small box)
    // gr1: a grid range of the correct size (around the correct place, comg)
-   clipper::Grid_range gr0(cell, grid, radius);
-   clipper::Grid_range gr1(gr0.min() + comg.coord_frac(cell).coord_grid(grid),
-			   gr0.max() + comg.coord_frac(cell).coord_grid(grid));
+   clipper::Grid_range gr0(cell, grid_sampling, radius);
+   clipper::Grid_range gr1(gr0.min() + comg.coord_frac(cell).coord_grid(grid_sampling),
+			   gr0.max() + comg.coord_frac(cell).coord_grid(grid_sampling));
+
+   // Here I need to update the grid range, gr1 to get a "good" radix (radices?)
 
    // init nxmap
-   clipper::NXmap<float> nxmap(cell, grid, gr1);
+   clipper::NXmap<float> nxmap(cell, grid_sampling, gr1);
    clipper::Xmap<float>::Map_reference_coord ix(xmap);
    clipper::Coord_grid offset =
       xmap.coord_map(nxmap.coord_orth(clipper::Coord_map(0.0,0.0,0.0))).coord_grid();
