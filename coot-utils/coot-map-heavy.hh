@@ -29,6 +29,7 @@
 #include "clipper/core/nxmap.h"
 #include "mini-mol/mini-mol.hh"
 #include "geometry/protein-geometry.hh"
+#include "atom-selection-container.hh"
 
 namespace coot {
 
@@ -156,6 +157,9 @@ namespace coot {
 	 // origin) before applying the RTop of the (negative) peaks of the fffear map.
 	 clipper::RTop_orth mid_point_transformation() const;
       };
+
+      // heavy because atom_selection_container_t
+      clipper::NXmap<float> make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_container_t asc);
 
    }
 }

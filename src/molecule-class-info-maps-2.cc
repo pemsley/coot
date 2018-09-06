@@ -70,7 +70,7 @@ molecule_class_info_t::export_map_fragment_with_origin_shift(float radius,
       double nx_a = xmap.cell().descr().a() * double(nxmap_grid_sampling.nu())/double(xmap_grid_sampling.nu());
       double nx_b = xmap.cell().descr().b() * double(nxmap_grid_sampling.nv())/double(xmap_grid_sampling.nv());
       double nx_c = xmap.cell().descr().c() * double(nxmap_grid_sampling.nw())/double(xmap_grid_sampling.nw());
-      clipper::Cell_descr nxmap_cell_descr(nx_a, nx_b, nx_c, nx_alpha, nx_beta, nx_beta);
+      clipper::Cell_descr nxmap_cell_descr(nx_a, nx_b, nx_c, nx_alpha, nx_beta, nx_gamma);
       clipper::Cell nxmap_cell(nxmap_cell_descr);
 
       // init nxmap

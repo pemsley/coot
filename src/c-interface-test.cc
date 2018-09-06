@@ -421,7 +421,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
       int imol = scm_to_int(i_scm);
       if (is_valid_model_molecule(imol)) {
-	 graphics_info_t::molecules[imol].make_molecularrepresentationinstance();
+	 graphics_info_t::molecules[imol].make_molecularrepresentationinstance("//", "RampChainsScheme", "Ribbon");
 	 // graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(graphics_info_t::molecules[imol].molrepinst);
 	 graphics_draw();
       }

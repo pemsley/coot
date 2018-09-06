@@ -36,7 +36,8 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	read-sm-cif.hh bonded-pairs.hh tree.hh helix-analysis.hh elastic.hh emma.hh \
 	glyco-torsions.hh coot-least-squares.hh coot-density-stats.hh \
         atom-overlaps.hh reduce.hh atom-selection-container.hh contact-info.hh plane-utils.hh \
-        secondary-structure-headers.hh c-beta-deviations.hh jed-flip.hh lidia-core-functions.hh
+        secondary-structure-headers.hh c-beta-deviations.hh jed-flip.hh lidia-core-functions.hh \
+	bonded-atoms.hh
 
 pkgincludedir = $(includedir)/coot/coot-utils
 
@@ -60,18 +61,18 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	bonded-pairs.cc helix-analysis.cc elastic.cc glyco-torsions.cc coot-least-squares.cc \
 	atom-overlaps.cc reduce.cc atom-selection-container.cc contact-info.cc coot-shelx-ins.cc \
 	secondary-structure-headers.cc plane-utils.cc c-beta-deviations.cc lidia-core-functions.cc \
-	atom-tools.cc
+	atom-tools.cc bonded-atoms.cc
 
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la 
 #    $(top_builddir)/utils/libcoot-utils.la 
 #    $(CLIPPER_LIBS) $(MMDB_LIBS)
 
-# clean
 libcoot_coord_utils_la_LIBADD = \
     $(top_builddir)/lidia-core/libcoot-lidia-core.la \
     $(top_builddir)/geometry/libcoot-geometry.la \
-    $(GSL_LIBS)
+    $(GSL_LIBS) $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(PYTHON_LIBS)
+
 
 libcoot_coord_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 
@@ -150,17 +151,15 @@ testshelxreader_LDADD =  ./libcoot-coord-utils.la
 #       $(top_builddir)/mini-mol/libcoot-mini-mol.la 
 #       $(top_builddir)/utils/libcoot-utils.la
 
+# other test binaries may need to be linked like this too
 testcootutils_SOURCES = test-utils.cc
-testcootutils_LDADD =            \
-	./libcoot-map-utils.la \
-	./libcoot-coord-extras.la\
-	./libcoot-coord-utils.la \
-	$(GSL_LIBS) \
-        $(GLOB_LIBS)
-
-#	$(top_builddir)/geometry/libcoot-geometry.la 
-#       $(top_builddir)/mini-mol/libcoot-mini-mol.la 
-#       $(top_builddir)/utils/libcoot-utils.la 
+testcootutils_LDADD = \
+	./libcoot-map-heavy.la    \
+	./libcoot-map-utils.la    \
+	./libcoot-coord-extras.la \
+	./libcoot-coord-utils.la  \
+	$(top_builddir)/coords/libcoot-coords.la \
+	$(CLIPPER_LIBS) $(CCP4SRS_LIBS)
 
 test_h_bonds_SOURCES = test-h-bonds.cc
 test_h_bonds_LDADD = \
@@ -169,11 +168,6 @@ test_h_bonds_LDADD = \
 
 test_hole_SOURCES = test-hole.cc
 test_hole_LDADD = ./libcoot-coord-utils.la
-
-# \
-#	$(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
-#	$(top_builddir)/geometry/libcoot-geometry.la \
-#        $(top_builddir)/mini-mol/libcoot-mini-mol.la 
 
 test_tt_morph_SOURCES = test-morph.cc
 
@@ -192,15 +186,14 @@ glyco_torsions_LDADD   = ./libcoot-coord-utils.la
 
 test_chem_feat_SOURCES = test-chem-feat.cc
 
-test_chem_feat_LDADD =
+test_chem_feat_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
-	$(top_builddir)/coot-lidia-core/libcoot-lidia-core.la \
 	$(RDKIT_LIBS)
 
 test_cod_atom_types_SOURCES = test-cod-atom-types.cc
 
 test_cod_atom_types_LDADD = \
-	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	libcoot-coord-utils.la \
 	$(RDKIT_LIBS)
 
 cod_db_access_SOURCES = cod-db-access.cc

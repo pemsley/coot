@@ -2894,6 +2894,8 @@ public:        //                      public
    void remove_extra_target_position_restraints(coot::atom_spec_t &spec);
 
    // make them yourself - easy as pie.
+   void generate_self_restraints(float local_dist_max,
+				 const coot::protein_geometry &geom);
    void generate_local_self_restraints(float local_dist_max,
 				       const std::string &chain_id,
 				       const coot::protein_geometry &geom);
@@ -3215,11 +3217,14 @@ public:        //                      public
 #endif
 #endif // USE_MOLECULES_TO_TRIANGLES
 
-   void make_molecularrepresentationinstance();
+   // return the index in the molrepinsts vector (can be negative for failure)
+   int make_molecularrepresentationinstance(const std::string &atom_selection,
+					    const std::string &colour_scheme,
+					    const std::string &style);
    int add_molecular_representation(const std::string &atom_selection,
 				    const std::string &colour_scheme,
 				    const std::string &style);
-   
+   void remove_molecular_representation(int idx);
 
    // carbohydrate validation tools
    void glyco_tree_internal_distances_fn(const coot::residue_spec_t &base_residue_spec,

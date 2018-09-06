@@ -276,6 +276,7 @@ namespace coot {
 
    bool is_member_p(const std::vector<mmdb::Residue *> &v, mmdb::Residue *a);
 
+   bool is_hydrogen_atom(mmdb::Atom *at);
 
    // Throw an exception if there is no consistent seg id for the
    // atoms in the given residue.
@@ -872,6 +873,8 @@ namespace coot {
       // high residue numbers
       std::pair<bool, std::pair<int, int> > min_max_residues_in_polymer_chain(mmdb::Chain *chain_p);
 
+      std::vector<mmdb::Chain *> chains_in_atom_selection(mmdb::Manager *mol, int model_number, const std::string &atom_selection);
+
       // Return -1 on badness (actually, number of chains in the last model)
       int number_of_chains(mmdb::Manager *mol);
 
@@ -1099,6 +1102,9 @@ namespace coot {
 							  mmdb::Manager *mol);
 
       void add_copy_of_atom(mmdb::Manager *mol, mmdb::Atom *atom);
+
+      // important for bonding in refinement
+      void pdbcleanup_serial_residue_numbers(mmdb::Manager *mol);
 
       // return success status, 1 is good, 0 is fail.  Use clipper::Coord_orth constructor
       // 

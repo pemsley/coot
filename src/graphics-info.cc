@@ -2916,24 +2916,6 @@ float
 graphics_info_t::display_geometry_distance(int imol1, const coot::Cartesian &p1,
 					   int imol2, const coot::Cartesian &p2) {
 
-   mmdb::Atom *atom1 = molecules[geometry_atom_index_1_mol_no].atom_sel.atom_selection[geometry_atom_index_1];
-   mmdb::Atom *atom2 = molecules[geometry_atom_index_2_mol_no].atom_sel.atom_selection[geometry_atom_index_2];
-      
-   double dist = coot::Cartesian(p1 - p2).length();
-
-   std::cout << "        distance atom 1: "
-	     << "(" << geometry_atom_index_1_mol_no << ") " 
-	     << atom1->name << "/"
-	     << atom1->GetChainID()  << "/"
-	     << atom1->GetSeqNum()   << "/"
-	     << atom1->GetResName() << std::endl;
-   std::cout << "        distance atom 2: "
-	     << "(" << geometry_atom_index_2_mol_no << ") " 
-	     << atom2->name << "/"
-	     << atom2->GetChainID()  << "/"
-	     << atom2->GetSeqNum()   << "/"
-	     << atom2->GetResName() << std::endl;
-
    clipper::Coord_orth cp1(p1.x(), p1.y(), p1.z());
    clipper::Coord_orth cp2(p2.x(), p2.y(), p2.z());
    coot::simple_distance_object_t p(geometry_atom_index_1_mol_no, cp1,
@@ -2941,6 +2923,7 @@ graphics_info_t::display_geometry_distance(int imol1, const coot::Cartesian &p1,
    distance_object_vec->push_back(p);
    graphics_draw();
 
+   double dist = sqrt((cp2-cp1).lengthsq());
    std::cout << "INFO:: distance: " << dist << " Angstroems" << std::endl;
    std::string s = "Distance: ";
    s += float_to_string(dist);
@@ -5175,7 +5158,7 @@ graphics_info_t::make_pointer_distance_objects() {
       for (int imol=0; imol<n_molecules(); imol++) {
 	 if (molecules[imol].has_model()) {
 	    if (molecules[imol].is_displayed_p()) { 
-	       if (molecules[imol].atom_selection_is_pickable()) { 
+	       if (molecules[imol].atom_selection_is_pickable()) {
 		  mol_distances = molecules[imol].distances_to_point(cen,
 								     pointer_min_dist,
 								     pointer_max_dist);

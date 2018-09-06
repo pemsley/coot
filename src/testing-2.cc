@@ -183,7 +183,11 @@ int test_index_splitting() {
 		<< air[i].first << " " << air[i].second << std::endl;
    air = coot::atom_index_ranges(5, 3);
    for (unsigned int i=0; i<air.size(); i++)
-      std::cout << "test-4:  atom_index_ranges  " << i << " : "
+      std::cout << "test-5:  atom_index_ranges  " << i << " : "
+		<< air[i].first << " " << air[i].second << std::endl;
+   air = coot::atom_index_ranges(5, 2);
+   for (unsigned int i=0; i<air.size(); i++)
+      std::cout << "test-6:  atom_index_ranges  " << i << " : "
 		<< air[i].first << " " << air[i].second << std::endl;
 
    // if (air[19].first == 304) status = 0;

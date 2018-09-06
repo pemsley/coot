@@ -119,6 +119,7 @@
 (define qq-plot-map-and-model qq-plot-map-and-model-scm)
 (define refinement-already-ongoing? (lambda() (= (refinement-already-ongoing-p) 1)))
 (define linked-residues linked-residues-scm)
+(define molecule-atom-overlaps molecule-atom-overlaps-scm)
 
 ;; I changed the function name - save those (just a few) with scripts that I've handed out
 (define toggle-idle-ligand-interactions toggle-flev-idle-ligand-interactions)
