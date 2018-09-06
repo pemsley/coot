@@ -979,9 +979,9 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 		  std::cout << "   peptide_C_and_N_are_in_order_p returns " <<  peptide_info.first
 			    << " and order-switch: " << peptide_info.second << std::endl;
 
-	       // magic number
+
 	       //
-	       if (peptide_info.first == 1) {
+	       if (peptide_info.first == IS_PEPTIDE) {
 		  order_switch_flag = peptide_info.second;
 
 		  mmdb::Residue *r_1 = first;
