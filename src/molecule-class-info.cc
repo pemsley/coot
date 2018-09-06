@@ -8817,12 +8817,36 @@ molecule_class_info_t::next_residue_number_in_chain(mmdb::Chain *w,
 	    if (residue_p->seqNum > max_res_no) {
 	       max_res_no = residue_p->seqNum;
 	       if (new_res_no_by_hundreds) {
-		  int res_no = coot::util::round_up_by_hundreds(max_res_no+1);
-		  p = std::pair<short int, int>(1, res_no+1);
+		  if (max_res_no < 9999) {
+		     int res_no = coot::util::round_up_by_hundreds(max_res_no+1);
+		     p = std::pair<short int, int>(1, res_no+1);
+		  }
 	       } else {
-		  p = std::pair<short int, int>(1, max_res_no+1);
+		  if (max_res_no < 9999) {
+		     p = std::pair<short int, int>(1, max_res_no+1);
+		  }
 	       }
 	    }
+	 }
+	 if (! p.first) {
+	    //  first the first space starting from the front
+	    int test_resno_start = 1001;
+	    bool is_clear = false;
+	    while (! is_clear) {
+	       is_clear = true;
+	       for (int iser=0; iser<nres; iser++) {
+		  int resno_res = w->GetResidue(iser)->seqNum;
+		  if (resno_res >= test_resno_start) {
+		     if (resno_res <= (test_resno_start+10)) {
+			is_clear = false;
+		     }
+		  }
+		  if (! is_clear)
+		     break;
+	       }
+	       test_resno_start += 100;
+	    }
+	    p = std::pair<short int, int> (1, test_resno_start);
 	 }
       }
    }

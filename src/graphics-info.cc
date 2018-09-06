@@ -5175,7 +5175,7 @@ graphics_info_t::make_pointer_distance_objects() {
       for (int imol=0; imol<n_molecules(); imol++) {
 	 if (molecules[imol].has_model()) {
 	    if (molecules[imol].is_displayed_p()) { 
-	       if (molecules[imol].atom_selection_is_pickable()) { 
+	       if (molecules[imol].atom_selection_is_pickable()) {
 		  mol_distances = molecules[imol].distances_to_point(cen,
 								     pointer_min_dist,
 								     pointer_max_dist);

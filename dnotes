@@ -8474,3 +8474,90 @@ Fri 27 Jul 2018 14:45:14 BST
    o Pathwalking: Look at 2015/16 EM model-bulding trial:
      find e2pathwalker_auto.py?
 
+---
+Tue 21 Aug 2018 16:20:52 BST
+
+   o CUDA cubic spline for grid interpolation:
+
+     http://www.dannyruijters.nl/cubicinterpolation/
+
+---
+Mon  6 Aug 15:21:40 BST 2018
+
+
+Inverse Kinematics, Featherstone?
+
+   https://github.com/bulletphysics
+
+Also
+   Bullet Physics SDK:
+   real-time collision detection and multi-physics simulation for VR,
+   games, visual effects, robotics, machine learning etc.
+
+Also
+
+   https://dartsim.github.io/ DART (Dynamic Animation and Robotics Toolkit
+
+Book: Rigid Body Dynamics Algorithms 2008, Featherstone, Roy
+   A comprehensive collection of the best rigid-body dynamics algorithms
+
+---
+Mon 27 Aug 2018 12:21:09 BST
+
+   what is geexlab?
+
+---
+Tue 28 Aug 2018 03:27:54 BST
+
+   command line parsing in c++ 11
+
+https://www.reddit.com/r/cpp/comments/4zhm2n/which_library_would_you_recommend_for_parsing/
+
+---
+Tue  4 Sep 2018 06:13:12 BST
+
+    read this:
+
+    https://www.ncbi.nlm.nih.gov/pubmed/27318041
+
+    Defining the limits and reliability of rigid-body fitting in cryo-EM maps using
+    multi-scale image pyramids.
+
+    and this:
+
+    https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3150432/
+
+    BCL::EM-Fit: Rigid body fitting of atomic structures into density maps using
+    geometric hashing and real space refinement
+
+    read this:
+
+    https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5715128/
+
+    Tools for the cryo-EM gold rush: going from the cryo-EM map to the atomistic model
+
+    read this
+
+    RosettaES: a sampling strategy enabling automated interpretation of difficult cryo-EM maps.
+    Frenz B, Walls AC, Egelman EH, Veesler D, DiMaio F
+    Nat Methods. 2017 Aug; 14(8):797-800.
+
+    read this:
+
+    Woetzel N, Lowe EW, Meiler J. Poster: GPU-accelerated rigid body fitting of atomic structures
+            into electron density maps. 2011 IEEE 1st International Conference on Computational
+            Advances in Bio and Medical Sciences (ICCABS).2011. [Ref list]
+            Journal ref?
+
+---
+Tue  4 Sep 2018 16:15:01 BST
+
+   chimera:
+
+   Visualizing density maps with UCSF Chimera.
+   Goddard TD, Huang CC, Ferrin TE
+   J Struct Biol. 2007 Jan; 157(1):281-7.
+
+   Fitting to maps described here?
+
+---

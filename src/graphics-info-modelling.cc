@@ -571,6 +571,25 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	 std::pair<mmdb::Manager *, std::vector<mmdb::Residue *> > residues_mol_and_res_vec =
 	    create_mmdbmanager_from_res_vector(residues, imol, mol, residues_alt_conf);
 
+	 if (false) { // debug
+	    mmdb::Manager *residues_mol = residues_mol_and_res_vec.first;
+	    int imod = 1;
+	    mmdb::Model *model_p = residues_mol->GetModel(imod);
+	    if (model_p) {
+	       int n_chains = model_p->GetNumberOfChains();
+	       for (int ichain=0; ichain<n_chains; ichain++) {
+		  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+		  int nres = chain_p->GetNumberOfResidues();
+		  for (int ires=0; ires<nres; ires++) {
+		     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+		     std::cout << "^^^   residue " << coot::residue_spec_t(residue_p) << " residue "
+			       << residue_p << " chain " << residue_p->chain << " index "
+			       << residue_p->index << std::endl;
+		  }
+	       }
+	    }
+	 }
+
 	 // We only want to act on these new residues and molecule, if
 	 // there is something there.
 	 //
@@ -1039,7 +1058,6 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 	 }
       }
 
-
       short int whole_res_flag = 0;
       int atom_index_udd_handle = molecules[imol].atom_sel.UDDAtomIndexHandle;
       
@@ -1138,7 +1156,29 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
       }
    }
 
+   // super-critical for correct peptide bonding in refinement!
+   //
+   coot::util::pdbcleanup_serial_residue_numbers(new_mol);
+
    if (false) {
+      int imod = 1;
+      mmdb::Model *model_p = new_mol->GetModel(imod);
+      if (model_p) {
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    for (int ires=0; ires<nres; ires++) {
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	       std::cout << "create_mmdb..  ^^^ " << coot::residue_spec_t(residue_p) << " "
+			 << residue_p << " index " << residue_p->index
+			 << std::endl;
+	    }
+	 }
+      }
+   }
+
+   if (false)
       std::cout << "DEBUG:: in create_mmdbmanager_from_res_vector: " << rv.size()
 		<< " free residues and " << n_flanker << " flankers" << std::endl;
 

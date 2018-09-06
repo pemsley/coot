@@ -943,14 +943,14 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 
 	 if (debug) {
 
-	    std::cout << "DEBUG:: found " << link_infos.size() << " link infos for residue compids/groups "
+	    std::cout << "   DEBUG:: found " << link_infos.size() << " link infos for residue compids/groups "
 		      << comp_id_1 << " " << group_1 << " and "
 		      << comp_id_2 << " " << group_2 << std::endl;
-	    std::cout << "DEBUG:: find_link_type_by_distance:: first  " << coot::residue_spec_t(first)
+	    std::cout << "   DEBUG:: find_link_type_by_distance:: first  " << coot::residue_spec_t(first)
 		      << std::endl;
-	    std::cout << "DEBUG:: find_link_type_by_distance:: second " << coot::residue_spec_t(second)
+	    std::cout << "   DEBUG:: find_link_type_by_distance:: second " << coot::residue_spec_t(second)
 		      << std::endl;
-	    std::cout << "DEBUG:: find_link_type_by_distance: " << link_infos.size() 
+	    std::cout << "   DEBUG:: find_link_type_by_distance: " << link_infos.size()
 		      << " possible links: (link_infos):\n";
 	    for (unsigned int il=0; il<link_infos.size(); il++)
 	       std::cout << "    find_link_type_complicado() link_info["
@@ -968,7 +968,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 	 for (unsigned int ilink=0; ilink<link_infos.size(); ilink++) {
 
 	    if (debug)
-	       std::cout << "DEBUG:: LINKS:: for-loop testing ilink " << ilink << " "
+	       std::cout << "   DEBUG:: LINKS:: for-loop testing ilink " << ilink << " "
 			 << link_infos[ilink].first << " bool: " << link_infos[ilink].second
 			 << std::endl;
 
@@ -976,12 +976,19 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 
 	       // ===================== is a peptide ========================================
 	       
-	       std::pair<bool, bool> close_info = peptide_C_and_N_are_close_p(first, second);
+	       // std::pair<bool, bool> close_info = peptide_C_and_N_are_close_p(first, second);
+
+	       // use an enum for the first. No magic numbers
+	       std::pair<int, bool> peptide_info = peptide_C_and_N_are_in_order_p(first, second);
+
 	       if (debug)
-		  std::cout << "   peptide_C_and_N_are_close returns " <<  close_info.first
-			    << " and order-switch: " << close_info.second << std::endl;
-	       if (close_info.first) {
-		  order_switch_flag = close_info.second;
+		  std::cout << "   peptide_C_and_N_are_in_order_p returns " <<  peptide_info.first
+			    << " and order-switch: " << peptide_info.second << std::endl;
+
+
+	       //
+	       if (peptide_info.first == IS_PEPTIDE) {
+		  order_switch_flag = peptide_info.second;
 
 		  mmdb::Residue *r_1 = first;
 		  mmdb::Residue *r_2 = second;
@@ -996,13 +1003,33 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 			link_type = "PTRANS";
 		     } else {
 
-   		        link_type = "TRANS"; // 200100415 for now, we force all peptide links to be
-			      	             // TRANS.  (We don't yet (as of today) know if this link was
-				             // CIS or TRANS). TRANS has 5-atom (plane3) plane
+			link_type = "TRANS"; // 200100415 for now, we force all peptide links to be
+			                     // TRANS.  (We don't yet (as of today) know if this link
+				             // was CIS or TRANS). TRANS has 5-atom (plane3) plane
 				             // restraints, CIS does not.
 		     }
 		  }
 	       } else {
+
+		  if (peptide_info.first == UNKNOWN) {
+
+		     // maybe it was a link between residues in different molecules
+		     // i.e. a moving residue and a non moving one (things are in a mess)
+		     // or there was an insertion code.
+		     // so let's try by distance and residue details.
+
+		     peptide_info = peptide_C_and_N_are_close_p(first, second);
+
+		     std::cout << "   moving-to-fixed " << peptide_info.first << " "
+			       << peptide_info.second << std::endl;
+
+		  }
+
+	       }
+
+	       if (peptide_info.first != IS_PEPTIDE) {
+
+		  // is not a peptide link
 
 		  std::vector<std::pair<coot::chem_link, bool> > link_infos_non_peptide =
 		     geom.matching_chem_link_non_peptide(comp_id_1, group_1, comp_id_2, group_2);
@@ -1010,7 +1037,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 		  // debug::
 		  if (debug)
 		     for (unsigned int il=0; il<link_infos_non_peptide.size(); il++)
-			std::cout << "DEBUG::    find_link_type_by_distance() non-peptide link: "
+			std::cout << "   DEBUG::    find_link_type_by_distance() non-peptide link: "
 				  << link_infos_non_peptide[il].first.Id() << std::endl;
 	       
 		  // 20100330 eh?  is something missing here?  What
@@ -1037,7 +1064,9 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 	       // ===================== is not a peptide ========================================
 
 	       if (debug)
-		  std::cout << "DEBUG::   find_link_type_complicado() this is not a peptide link... "
+		  std::cout << "   DEBUG::   find_link_type_complicado() this "
+			    << link_infos[ilink].first
+			    << " is not a peptide link... "
 			    << std::endl;
 	       //
 	       order_switch_flag = link_infos[ilink].second;
@@ -1048,7 +1077,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 	       // The test should be link_info.is_glycosidic(link_infos[ilink])
 	       //
 	       if (debug)
-		  std::cout << "DEBUG::   find_link_type_complicado() link_infos are glycosidic: "
+		  std::cout << "   DEBUG::   find_link_type_complicado() link_infos are glycosidic: "
 			    << link_infos_are_glycosidic_p(link_infos) << std::endl;
 	    
 	       if (link_infos_are_glycosidic_p(link_infos)) {
@@ -1081,7 +1110,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 		  // ===================== is not glycosidic ========================================
 		  
 		  if (debug)
-		     std::cout << "DEBUG::   find_link_type_complicado() not a glycosidic_linkage... "
+		     std::cout << "   DEBUG::   find_link_type_complicado() not a glycosidic_linkage"
 			       << std::endl;
 
 		  std::vector<std::pair<coot::chem_link, bool> > link_infos_non_peptide;

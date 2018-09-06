@@ -276,6 +276,7 @@ namespace coot {
 
    bool is_member_p(const std::vector<mmdb::Residue *> &v, mmdb::Residue *a);
 
+   bool is_hydrogen_atom(mmdb::Atom *at);
 
    // Throw an exception if there is no consistent seg id for the
    // atoms in the given residue.
@@ -1101,6 +1102,9 @@ namespace coot {
 							  mmdb::Manager *mol);
 
       void add_copy_of_atom(mmdb::Manager *mol, mmdb::Atom *atom);
+
+      // important for bonding in refinement
+      void pdbcleanup_serial_residue_numbers(mmdb::Manager *mol);
 
       // return success status, 1 is good, 0 is fail.  Use clipper::Coord_orth constructor
       // 

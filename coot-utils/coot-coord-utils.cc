@@ -1221,6 +1221,16 @@ std::ofstream& coot::util::operator<<(std::ofstream &s, const coot::util::quater
 
 // -------------------------------------------------------------
 
+bool
+coot::is_hydrogen_atom(mmdb::Atom *at_p) {
+
+   std::string ele = at_p->element;
+   if ((ele == "H") || (ele == " H"))
+      return true;
+   else
+      return ((ele == "D") || (ele == " D"));
+}
+
 
 // Urgh.  Should use a template...
 bool
@@ -3555,6 +3565,9 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
 	 }
       }
    }
+
+   pdbcleanup_serial_residue_numbers(mol);
+   mol->FinishStructEdit();
    return std::pair<bool, mmdb::Manager *> (1, mol);
 }
 
@@ -3598,6 +3611,25 @@ mmdb::Manager *coot::util::create_mmdbmanager_from_points(const std::vector<clip
    model_p->AddChain(chain_p);
    new_mol->AddModel(model_p);
    return new_mol;
+}
+
+void
+coot::util::pdbcleanup_serial_residue_numbers(mmdb::Manager *mol) {
+
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    for (int ires=0; ires<nres; ires++) {
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	       residue_p->index = ires;
+	    }
+	 }
+      }
+   }
 }
 
 void 

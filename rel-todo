@@ -1,9 +1,23 @@
 
    For Release 0.8.9.2
 
-   o Use dictionary, make yes/no dialog for ligand fitting: Anna.
+   o Oliver-Clarke bonding
+
+   o SSBOND record (after reduce and modified and saved?)
+
+   o PyObject *density_at_residue_py(imol, res_spec) # or does it exist already?
+     return sum and n_atoms
 
 ------
+
+   o Pointer distances should not show distances to Hydrogen atom if they are not displayed!
+     Steven Sherrif
+
+* Done.
+
+   o do the bug fix for Robbie.
+
+* Done.
 
    o CA-Zone -> mainchain on a zone that includes negative residue numbers -> crash
      Oliver Clarke. ::: 2 h

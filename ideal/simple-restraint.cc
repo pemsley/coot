@@ -3535,6 +3535,81 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
    return bpc;
 }
 
+// a pair, first is if C and N are close
+//       using enum peptide_order_info_t { IS_PEPTIDE=1, IS_NOT_PEPTIDE=0, UNKNOWN=-1 }
+//
+// and second if and order switch is needed to make it so.
+std::pair<coot::restraints_container_t::peptide_order_info_t, bool>
+coot::restraints_container_t::peptide_C_and_N_are_in_order_p(mmdb::Residue *r1, mmdb::Residue *r2) const {
+
+   // If the residues are next to each other in serial and residue number then it's a peptide, no
+   // matter how far apart they are.
+   //
+   // If that is not the case, then sometimes we don't know because this might be a residues pair
+   // with an insertion code - and in that case, a different check should be used.
+
+   bool debug = false;
+   if (r1->chain == r2->chain) {
+      int serial_delta = r2->index - r1->index;
+      if (debug)
+	 std::cout << "   serial_delta " << serial_delta << std::endl;
+      if ((serial_delta == -1) || (serial_delta == 1)) {
+	 // ok to proceed
+      } else {
+	 if (debug)
+	    std::cout << "   ------ peptide_C_and_N_are_in_order_p path : A0 - "
+		      << "same chain not sequencial" << std::endl;
+	 return std::pair<peptide_order_info_t, bool> (IS_NOT_PEPTIDE, false);
+      }
+
+      if (serial_delta == 1) {
+	 if (debug)
+	    std::cout << "   ------ peptide_C_and_N_are_in_order_p path A" << std::endl;
+	 std::string ins_code_1 = r1->GetInsCode();
+	 std::string ins_code_2 = r2->GetInsCode();
+	 int res_no_delta = r2->GetSeqNum() - r1->GetSeqNum();
+	 if (ins_code_1 == "") {
+	    if (ins_code_2 == "") {
+	       if (res_no_delta == 1 || res_no_delta == -1) {
+		  return std::pair<peptide_order_info_t, bool> (IS_PEPTIDE, false);
+	       }
+	    }
+	 }
+	 if (debug)
+	    std::cout << "   ------ peptide_C_and_N_are_in_order_p path A-unk" << std::endl;
+	 return std::pair<peptide_order_info_t, bool> (UNKNOWN, false);
+
+      } else {
+	 if (debug)
+	    std::cout << "   ------ peptide_C_and_N_are_in_order_p path B" << std::endl;
+
+	 std::string ins_code_1 = r1->GetInsCode();
+	 std::string ins_code_2 = r2->GetInsCode();
+	 int res_no_delta = r2->GetSeqNum() - r1->GetSeqNum();
+	 if (ins_code_1 == "") {
+	    if (ins_code_2 == "") {
+	       if (res_no_delta == 1 || res_no_delta == -1) {
+		  return std::pair<peptide_order_info_t, bool> (IS_PEPTIDE, true);
+	       }
+	    }
+	 }
+	 if (debug)
+	    std::cout << "   ------ peptide_C_and_N_are_in_order_p path B-unk" << std::endl;
+	 return std::pair<peptide_order_info_t, bool> (UNKNOWN, true);
+      }
+
+   } else {
+      // we are considering a link between a residue in the mol and a residue
+      // of the neighbouring residues vectors (which are not residues in the mol(!))
+      // i.e. the don't have the same indexing (residue serial indexing) scheme.
+
+      // we can't make a decision. We need to be able to tell the caller that - so
+      // that the caller can choose to bond the residues by distance (and residue number
+      // and insertion code)
+
+      return std::pair<peptide_order_info_t, bool> (UNKNOWN, false);
+   }
+}
 
 
 // a pair, first is if C and N are close and second if and order
