@@ -1030,15 +1030,15 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	    break;
 	 }
 
-
 	 // back of envelope calculation suggests g_crit = 0.1 for
 	 // coordinate shift of 0.001:  So let's choose 0.05
 	 // when we have 100 restraints, 0.5 is OK.
 	 // wehen we have 200,000 restraints, 0.5 is not OK.
 	 // grad_lim = sqrt(n_restraints) * 0.05
-	 double grad_lim = sqrt(size()) * 0.15;
+	 double grad_lim = pow(size(), 0.7) * 0.03;
 	 if (grad_lim < 0.3)
 	    grad_lim = 0.3;
+	 // std::cout << "debug:: grad-lim: " << grad_lim << std::endl;
 	 status = gsl_multimin_test_gradient (s->gradient, grad_lim);
 
 	 if (false) { // debug
@@ -1047,7 +1047,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 		      << " status from gsl_multimin_test_gradient() " << status << " for norm "
 		      << norm << std::endl;
 	 }
-	 
+
 	 if (status == GSL_SUCCESS) {
 	    if (verbose_geometry_reporting != QUIET) { 
 	       std::cout << "Minimum found (iteration number " << iter << ") at ";
@@ -4837,8 +4837,8 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
    //  8 -> 2.9 s
    // 11 -> 3.1 s
    //
-   const double dist_crit = 9.0;
-   
+   const double dist_crit = 8.0;
+
    filtered_non_bonded_atom_indices.resize(bonded_atom_indices.size());
 
    if (false) { // debug

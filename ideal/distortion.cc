@@ -1073,7 +1073,11 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 	    atom_index = restraints_vec[i].atom_index_1;
 	    atom_indices.push_back(rest.atom_index_1);
 	    atom_indices.push_back(rest.atom_index_2);
-	    // std::cout << " NBC i " << i << " " << distortion << std::endl;
+	    // debugging - yes they (more or less!) match dist_crit in construct_non_bonded_contact_list_by_res_vec
+	    // clipper::Coord_orth pt_1=co(atom[rest.atom_index_1]);
+	    // clipper::Coord_orth pt_2=co(atom[rest.atom_index_2]);
+	    // double dist = sqrt((pt_2-pt_1).lengthsq());
+	    // std::cout << " NBC i " << i << " dist " << dist << " distortion " << distortion << std::endl;
 	 }
       if (restraints_usage_flag & coot::GEMAN_MCCLURE_DISTANCE_MASK)
 	 if (restraints_vec[i].restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {

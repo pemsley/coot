@@ -1020,8 +1020,8 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 
 		     peptide_info = peptide_C_and_N_are_close_p(first, second);
 
-		     std::cout << "   moving-to-fixed " << peptide_info.first << " "
-			       << peptide_info.second << std::endl;
+		     // std::cout << "   moving-to-fixed " << peptide_info.first << " "
+		     //           << peptide_info.second << std::endl;
 
 		  }
 
