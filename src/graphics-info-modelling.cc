@@ -1182,7 +1182,7 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
       std::cout << "DEBUG:: in create_mmdbmanager_from_res_vector: " << rv.size()
 		<< " free residues and " << n_flanker << " flankers" << std::endl;
 
-   }
+
    return std::pair <mmdb::Manager *, std::vector<mmdb::Residue *> > (new_mol, rv);
 }
 
