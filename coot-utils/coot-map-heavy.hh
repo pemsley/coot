@@ -159,7 +159,7 @@ namespace coot {
       };
 
       // heavy because atom_selection_container_t
-      clipper::NXmap<float> make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_container_t asc);
+      clipper::NXmap<float> make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_container_t asc, float border=3.0);
 
    }
 }

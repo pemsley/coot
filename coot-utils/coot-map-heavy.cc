@@ -444,31 +444,41 @@ coot::util::make_rtop_orth_for_jiggle_atoms(float jiggle_trans_scale_factor,
 #include "coords/mmdb-crystal.h"
 
 clipper::NXmap<float>
-coot::util::make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_container_t asc) {
+coot::util::make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_container_t asc, float border) {
 
-   // std::cout << "n_selected_atoms " << asc.n_selected_atoms << std::endl;
-
-   // molecule_extents_t e(asc, 2.0);
-   // clipper::Coord_orth p1(e.get_left().get_x(), e.get_top().get_y(), e.get_front().get_z());
-   // clipper::Coord_orth p2(e.get_right().get_x(), e.get_bottom().get_y(), e.get_back().get_z());
+   bool debug = false;
 
    std::pair<clipper::Coord_orth, clipper::Coord_orth> p = util::extents(asc.mol, asc.SelectionHandle);
 
    clipper::Coord_orth p1 = p.first;
    clipper::Coord_orth p2 = p.second;
 
-   p1 -= clipper::Coord_orth(3,3,3);
-   p2 += clipper::Coord_orth(3,3,3);
+   if (debug)
+      std::cout << "extents: " << p1.format() << " " << p2.format() << std::endl;
+
+   p1 -= clipper::Coord_orth(border,border,border);
+   p2 += clipper::Coord_orth(border,border,border);
 
    std::pair<clipper::Coord_orth, clipper::Coord_orth> pp(p1, p2);
 
    std::pair<clipper::Coord_frac, clipper::Coord_frac> fc_pair =
       find_struct_fragment_coord_fracs_v2(pp, xmap.cell());
 
+   if (debug)
+      std::cout << "Coord frac for the extents: " << fc_pair.first.format() << " " << fc_pair.second.format()
+		<< std::endl;
+
    clipper::Cell cell = xmap.cell();
    clipper::Grid_sampling grid = xmap.grid_sampling();
 
-   float radius = 40.0;                      // fixme
+   double ls = (p2-p1).lengthsq();
+   double radius = 0.5 * sqrt(ls);
+
+   if (debug) {
+      std::cout << "xmap grid sampling " << grid.format() << std::endl;
+      std::cout << "here with radius " << radius << std::endl;
+   }
+
    clipper::Coord_orth comg(0.5*(p1.x()+p2.x()),
 			    0.5*(p1.y()+p2.y()),
 			    0.5*(p1.z()+p2.z()));
@@ -482,7 +492,6 @@ coot::util::make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_containe
    clipper::Grid_range gr1(gr0.min() + comg.coord_frac(cell).coord_grid(grid),
 			   gr0.max() + comg.coord_frac(cell).coord_grid(grid));
 
-   // init nxmap
    clipper::NXmap<float> nxmap(cell, grid, gr1);
    clipper::Xmap<float>::Map_reference_coord ix(xmap);
    clipper::Coord_grid offset =

@@ -170,6 +170,7 @@ key_sym_code           = key_sym_code_py
 screen_vectors         = screen_vectors_py
 get_residue_by_type    = get_residue_by_type_py
 score_rotamers         = score_rotamers_py
+generate_local_self_restraints_by_residues = generate_local_self_restraints_by_residues_py
 
 # c-interface-ligands-swig.hh:
 # new_molecule_sans_biggest_ligand = new_molecule_sans_biggest_ligand_py # comment out hack to load this smoothly.
