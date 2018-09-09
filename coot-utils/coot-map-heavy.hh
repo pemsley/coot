@@ -161,5 +161,12 @@ namespace coot {
       // heavy because atom_selection_container_t
       clipper::NXmap<float> make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_container_t asc, float border=3.0);
 
+      clipper::NXmap<float> make_nxmap(const clipper::Xmap<float> &xmap, mmdb::Manager *mol, int SelectionHandle);
+
+      //
+      clipper::NXmap<float> make_edcalc_map(const clipper::NXmap<float>& map_ref,  // for metrics
+					    mmdb::Manager *mol,
+					    int atom_selection_handle);
+
    }
 }

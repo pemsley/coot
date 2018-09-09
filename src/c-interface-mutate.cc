@@ -135,8 +135,10 @@ atom_spec_from_python_expression(PyObject *expr) {
 	 PyObject *alt_conf_python = PyList_GetItem(expr, 4+offset);
 	 std::string alt_conf = PyString_AsString(alt_conf_python);
 
-	 //       std::cout << "decoding spec :" << chain_id << ": " << resno << " :" << ins_code
-	 // 		<< ": :" << atom_name << ": :" << alt_conf << ":" << std::endl;
+	 if (false)
+	    std::cout << "decoding spec chain-id :" << chain_id << " resno :" << resno << " :" << ins_code
+		      << ": :" << atom_name << ": :" << alt_conf << ":" << std::endl;
+
 	 atom_spec = coot::atom_spec_t(chain_id, resno, ins_code, atom_name, alt_conf);
 
 	 // currently atom_spec.int_user_data is -1 - use it to store the molecule

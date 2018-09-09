@@ -74,14 +74,15 @@ molecule_class_info_t::make_molecularrepresentationinstance(const std::string &a
 	       for (int ichain=0; ichain<n_chains; ichain++) {
 		  mmdb::Chain *chain_p = model_p->GetChain(ichain);
 		  int nres = chain_p->GetNumberOfResidues();
-		  std::cout << "pre-check chain " << chain_p  << " which has chain id " << chain_p->GetChainID() << " "
+		  std::cout << "pre-check chain " << chain_p  << " which has chain id "
+			    << chain_p->GetChainID() << " "
 			    << chain_p->GetNumberOfResidues() << " residues " << std::endl;
 	       }
 	    }
 	 }
       }
 
-      std::cout << "-------------------- make_molecularrepresentationinstance() model loop " << std::endl;      
+      std::cout << "----------------- make_molecularrepresentationinstance() model loop " << std::endl;
 
       for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
 	 mmdb::Model *model_p = atom_sel.mol->GetModel(imod);

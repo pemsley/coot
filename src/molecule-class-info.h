@@ -2894,6 +2894,8 @@ public:        //                      public
    void remove_extra_target_position_restraints(coot::atom_spec_t &spec);
 
    // make them yourself - easy as pie.
+   void generate_self_restraints(float local_dist_max,
+				 const coot::protein_geometry &geom);
    void generate_local_self_restraints(float local_dist_max,
 				       const std::string &chain_id,
 				       const coot::protein_geometry &geom);

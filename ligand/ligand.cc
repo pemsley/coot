@@ -2511,7 +2511,7 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
 	    std::cout << "   iround " << iround << " moved: " << move_by_length
 		      << " angle_sum: " << angle_sum << std::endl;
       }
-      
+
       iround++;
       
    } // irounds
@@ -2585,10 +2585,11 @@ coot::ligand::get_rigid_body_angle_components(const std::vector<minimol::atom *>
 	 Vp[ir] = V.transform(rotation_component[ir]);
 	 Vp_rms_sum[ir] += Vp[ir].lengthsq();
 	 dot_prod[ir] = clipper::Coord_orth::dot(grad,Vp[ir]);
-	 if (0)
-	    std::cout << "   iat: " << ii <<  " " << grad.format() << " * " << Vp[ir].format() << " is "
-		      << dot_prod[ir] << std::endl;
 	 sum_grad[ir] += dot_prod[ir];
+	 if (debug)
+	    std::cout << "   iat: " << ii << " V(ec) " << V.format()
+		      << " grad: " << grad.format() << " * " << Vp[ir].format() << " is "
+		      << dot_prod[ir] << " now sum_grad[" << ir << "] = " << sum_grad[ir] << std::endl;
       }
    }
 
@@ -2607,9 +2608,9 @@ coot::ligand::get_rigid_body_angle_components(const std::vector<minimol::atom *>
 	 std::cout << "  a[" << ir << "] is " << sum_grad[ir] << "/" << Vp_av_len[ir] << "/sqrt("
 		   << atoms.size() << ") = " << a[ir] << "     " << a[ir] * 57.3 << " degrees " << std::endl;
 
-// 	 std::cout << "Vp_av_len[" << ir << "] is " << Vp_av_len[ir] << "    and sum_grad["
-// 		   << ir << "] is " << sum_grad[ir] << "  ";
-// 	 std::cout << "  a[" << ir << "] is " << a[ir]*57.3 << " degrees " << std::endl;
+ 	 std::cout << "Vp_av_len[" << ir << "] is " << Vp_av_len[ir] << "    and sum_grad["
+ 		   << ir << "] is " << sum_grad[ir] << "  ";
+ 	 std::cout << "  a[" << ir << "] is " << a[ir]*57.3 << " degrees " << std::endl;
       }
    }
    

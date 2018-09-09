@@ -1270,6 +1270,7 @@ molecule_class_info_t::add_linked_residue_by_atom_torsions(const coot::residue_s
 	 coot::link_by_torsion_t l(link_type, new_residue_comp_id);
 	 l.set_temperature_factor(default_b_factor_new_atoms);
 	 mmdb::Residue *result = l.make_residue(residue_ref);
+
 	 atom_sel.mol->FinishStructEdit();
 	 std::pair<bool, mmdb::Residue *> status_pair = add_residue(result, spec_in.chain_id);
 	 if (status_pair.first) {

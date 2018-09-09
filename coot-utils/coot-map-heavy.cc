@@ -444,55 +444,44 @@ coot::util::make_rtop_orth_for_jiggle_atoms(float jiggle_trans_scale_factor,
 #include "coords/mmdb-crystal.h"
 
 clipper::NXmap<float>
-coot::util::make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_container_t asc, float border) {
+coot::util::make_nxmap(const clipper::Xmap<float> &xmap, mmdb::Manager *mol, int SelectionHandle) {
 
-   bool debug = false;
-
-   std::pair<clipper::Coord_orth, clipper::Coord_orth> p = util::extents(asc.mol, asc.SelectionHandle);
+   std::pair<clipper::Coord_orth, clipper::Coord_orth> p = util::extents(mol, SelectionHandle);
 
    clipper::Coord_orth p1 = p.first;
    clipper::Coord_orth p2 = p.second;
 
-   if (debug)
-      std::cout << "extents: " << p1.format() << " " << p2.format() << std::endl;
+   std::cout << "debug:: make_nxmap() extents " << p.first.format() << " " << p.second.format() << std::endl;
 
-   p1 -= clipper::Coord_orth(border,border,border);
-   p2 += clipper::Coord_orth(border,border,border);
+   p1 -= clipper::Coord_orth(3,3,3);
+   p2 += clipper::Coord_orth(3,3,3);
 
    std::pair<clipper::Coord_orth, clipper::Coord_orth> pp(p1, p2);
 
    std::pair<clipper::Coord_frac, clipper::Coord_frac> fc_pair =
       find_struct_fragment_coord_fracs_v2(pp, xmap.cell());
 
-   if (debug)
-      std::cout << "Coord frac for the extents: " << fc_pair.first.format() << " " << fc_pair.second.format()
-		<< std::endl;
-
    clipper::Cell cell = xmap.cell();
-   clipper::Grid_sampling grid = xmap.grid_sampling();
+   clipper::Grid_sampling grid_sampling = xmap.grid_sampling();
 
-   double ls = (p2-p1).lengthsq();
-   double radius = 0.5 * sqrt(ls);
-
-   if (debug) {
-      std::cout << "xmap grid sampling " << grid.format() << std::endl;
-      std::cout << "here with radius " << radius << std::endl;
-   }
-
+   float radius = sqrt((p2-p1).lengthsq());
    clipper::Coord_orth comg(0.5*(p1.x()+p2.x()),
 			    0.5*(p1.y()+p2.y()),
 			    0.5*(p1.z()+p2.z()));
 
-   // make a non-cube, ideally.
+   // make a non-cube, ideally - needs different extents to do that.
 
    // get grid range
    // gr0: a grid range of the correct size (at the origin, going + and - in small box)
    // gr1: a grid range of the correct size (around the correct place, comg)
-   clipper::Grid_range gr0(cell, grid, radius);
-   clipper::Grid_range gr1(gr0.min() + comg.coord_frac(cell).coord_grid(grid),
-			   gr0.max() + comg.coord_frac(cell).coord_grid(grid));
+   clipper::Grid_range gr0(cell, grid_sampling, radius);
+   clipper::Grid_range gr1(gr0.min() + comg.coord_frac(cell).coord_grid(grid_sampling),
+			   gr0.max() + comg.coord_frac(cell).coord_grid(grid_sampling));
 
-   clipper::NXmap<float> nxmap(cell, grid, gr1);
+   // Here I need to update the grid range, gr1 to get a "good" radix (radices?)
+
+   // init nxmap
+   clipper::NXmap<float> nxmap(cell, grid_sampling, gr1);
    clipper::Xmap<float>::Map_reference_coord ix(xmap);
    clipper::Coord_grid offset =
       xmap.coord_map(nxmap.coord_orth(clipper::Coord_map(0.0,0.0,0.0))).coord_grid();
@@ -501,6 +490,47 @@ coot::util::make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_containe
       ix.set_coord(inx.coord() + offset);
       nxmap[inx] = xmap[ix];
    }
+   return nxmap;
+}
+
+
+clipper::NXmap<float>
+coot::util::make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_container_t asc) {
+
+   return make_nxmap(xmap, asc.mol, asc.SelectionHandle);
+}
+
+#include "clipper/contrib/edcalc.h"
+
+//
+clipper::NXmap<float>
+coot::util::make_edcalc_map(const clipper::NXmap<float>& map_ref,  // for metrics
+			    mmdb::Manager *mol, int atom_selection_handle) {
+
+   // init nxmap
+   clipper::NXmap<float> nxmap(map_ref.grid(), map_ref.operator_orth_grid());
+
+   clipper::EDcalc_iso<float> edc(1.4); // radius
+   mmdb::Atom **sel_atoms = 0;
+   int n_sel_atoms;
+   std::vector<clipper::Atom> l;
+   mol->GetSelIndex(atom_selection_handle, sel_atoms, n_sel_atoms);
+   for (int ii=0; ii<n_sel_atoms; ii++) {
+      mmdb::Atom *at = sel_atoms[ii];
+      std::string ele(at->element);
+      clipper::Coord_orth pt(at->x, at->y, at->z);
+      clipper::Atom cat;
+      cat.set_element(ele);
+      cat.set_coord_orth(pt);
+      cat.set_u_iso(at->tempFactor);
+      cat.set_u_iso(10.0);
+      cat.set_occupancy(1.0);
+      l.push_back(cat);
+   }
+
+   clipper::Atom_list al(l);
+   edc(nxmap, al);
 
    return nxmap;
+
 }

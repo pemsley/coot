@@ -276,6 +276,7 @@ namespace coot {
 
    bool is_member_p(const std::vector<mmdb::Residue *> &v, mmdb::Residue *a);
 
+   bool is_hydrogen_atom(mmdb::Atom *at);
 
    // Throw an exception if there is no consistent seg id for the
    // atoms in the given residue.
@@ -399,6 +400,26 @@ namespace coot {
    // Calls PDBCleanup() and FinishStructEdit().
    void sort_residues(mmdb::Manager *mol);
 
+
+   // split a molecule into "bricks" - cubic sets of atom indices that don't overlap
+   // return vector needs to be multiples of 8 (8 cubes will coverer all space)
+   // If the atom max radius is 3A, then the brick should have length 6A.
+   // brick-id: 0,8,16,24 (etc) are done at the same time
+   // then
+   // brick-id: 1,9,17,25 (etc) are done at the same time
+   // then
+   // brick-id: 2,10,18,26 (etc) are done at the same time.
+   //
+   // pretty tricky - not implemented yet
+   // (ints because using mmdb atom selection)
+   std::vector<std::vector<int> > molecule_to_bricks(mmdb::Manager *mol, int SelectionHandle,
+						     float max_radius);
+   int get_brick_id(const clipper::Coord_orth &pt, const clipper::Coord_orth &pt_minimums,
+		    int nx_grid, int ny_grid, int nz_grid,
+		    float brick_length);
+
+   int get_brick_id_inner(int x_idx, int y_idx, int z_idx,
+			  int nx_grid, int ny_grid, int nz_grid);
 
    // Pukka puckers?
    //
@@ -1101,6 +1122,9 @@ namespace coot {
 							  mmdb::Manager *mol);
 
       void add_copy_of_atom(mmdb::Manager *mol, mmdb::Atom *atom);
+
+      // important for bonding in refinement
+      void pdbcleanup_serial_residue_numbers(mmdb::Manager *mol);
 
       // return success status, 1 is good, 0 is fail.  Use clipper::Coord_orth constructor
       // 
