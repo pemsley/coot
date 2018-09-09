@@ -444,18 +444,14 @@ coot::util::make_rtop_orth_for_jiggle_atoms(float jiggle_trans_scale_factor,
 #include "coords/mmdb-crystal.h"
 
 clipper::NXmap<float>
-coot::util::make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_container_t asc) {
+coot::util::make_nxmap(const clipper::Xmap<float> &xmap, mmdb::Manager *mol, int SelectionHandle) {
 
-   std::cout << "n_selected_atoms " << asc.n_selected_atoms << std::endl;
-
-   // molecule_extents_t e(asc, 2.0);
-   // clipper::Coord_orth p1(e.get_left().get_x(), e.get_top().get_y(), e.get_front().get_z());
-   // clipper::Coord_orth p2(e.get_right().get_x(), e.get_bottom().get_y(), e.get_back().get_z());
-
-   std::pair<clipper::Coord_orth, clipper::Coord_orth> p = util::extents(asc.mol, asc.SelectionHandle);
+   std::pair<clipper::Coord_orth, clipper::Coord_orth> p = util::extents(mol, SelectionHandle);
 
    clipper::Coord_orth p1 = p.first;
    clipper::Coord_orth p2 = p.second;
+
+   std::cout << "debug:: make_nxmap() extents " << p.first.format() << " " << p.second.format() << std::endl;
 
    p1 -= clipper::Coord_orth(3,3,3);
    p2 += clipper::Coord_orth(3,3,3);
@@ -494,6 +490,47 @@ coot::util::make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_containe
       ix.set_coord(inx.coord() + offset);
       nxmap[inx] = xmap[ix];
    }
+   return nxmap;
+}
+
+
+clipper::NXmap<float>
+coot::util::make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_container_t asc) {
+
+   return make_nxmap(xmap, asc.mol, asc.SelectionHandle);
+}
+
+#include "clipper/contrib/edcalc.h"
+
+//
+clipper::NXmap<float>
+coot::util::make_edcalc_map(const clipper::NXmap<float>& map_ref,  // for metrics
+			    mmdb::Manager *mol, int atom_selection_handle) {
+
+   // init nxmap
+   clipper::NXmap<float> nxmap(map_ref.grid(), map_ref.operator_orth_grid());
+
+   clipper::EDcalc_iso<float> edc(1.4); // radius
+   mmdb::Atom **sel_atoms = 0;
+   int n_sel_atoms;
+   std::vector<clipper::Atom> l;
+   mol->GetSelIndex(atom_selection_handle, sel_atoms, n_sel_atoms);
+   for (int ii=0; ii<n_sel_atoms; ii++) {
+      mmdb::Atom *at = sel_atoms[ii];
+      std::string ele(at->element);
+      clipper::Coord_orth pt(at->x, at->y, at->z);
+      clipper::Atom cat;
+      cat.set_element(ele);
+      cat.set_coord_orth(pt);
+      cat.set_u_iso(at->tempFactor);
+      cat.set_u_iso(10.0);
+      cat.set_occupancy(1.0);
+      l.push_back(cat);
+   }
+
+   clipper::Atom_list al(l);
+   edc(nxmap, al);
 
    return nxmap;
+
 }

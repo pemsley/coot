@@ -61,7 +61,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	bonded-pairs.cc helix-analysis.cc elastic.cc glyco-torsions.cc coot-least-squares.cc \
 	atom-overlaps.cc reduce.cc atom-selection-container.cc contact-info.cc coot-shelx-ins.cc \
 	secondary-structure-headers.cc plane-utils.cc c-beta-deviations.cc lidia-core-functions.cc \
-	atom-tools.cc bonded-atoms.cc
+	atom-tools.cc bonded-atoms.cc bricks.cc
 
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la 

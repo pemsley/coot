@@ -688,6 +688,85 @@ int test_nxmap(int argc, char **argv) {
 
 }
 
+int
+test_nxmap_edcalc(int argc, char **argv) {
+
+   if (argc > 2) {
+      std::string map_file_name = argv[1];
+      std::string pdb_file_name = argv[2];
+      clipper::CCP4MAPfile file;
+      clipper::Xmap<float> xmap;
+      file.open_read(map_file_name);
+      file.import_xmap(xmap);
+      std::cout << "Getting atoms... " << std::endl;
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
+
+      // now a few residues
+      coot::residue_spec_t spec_1("A", 10, "");
+      coot::residue_spec_t spec_2("A", 11, "");
+      coot::residue_spec_t spec_3("A", 12, "");
+
+      int few_residues_selection_handle = asc.mol->NewSelection();
+
+      spec_1.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_NEW);
+      spec_2.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+      spec_3.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+
+      std::cout << "Making nxmap... " << std::endl;
+      clipper::NXmap<float> nxmap_ref = coot::util::make_nxmap(xmap, asc.mol, few_residues_selection_handle);
+      std::cout << "ED calc..." << std::endl;
+      clipper::NXmap<float> nxmap_edcalc = coot::util::make_edcalc_map(nxmap_ref,  // for metrics
+								       asc.mol, few_residues_selection_handle);
+
+      asc.mol->DeleteSelection(few_residues_selection_handle);
+
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write("edcalc.map");
+      mapout.set_cell(xmap.cell());
+      mapout.export_nxmap(nxmap_edcalc);
+      mapout.close_write();
+
+      clipper::CCP4MAPfile mapout_ref;
+      mapout.open_write("edcalc_ref.map");
+      mapout.set_cell(xmap.cell());
+      mapout.export_nxmap(nxmap_ref);
+      mapout.close_write();
+
+      // bricks
+
+      std::cout << "---------- testing bricks " << std::endl;
+      int t1 = coot::get_brick_id_inner(0,0,0, 2,2,2);
+      int t2 = coot::get_brick_id_inner(1,0,0, 6,4,8);
+      int t3 = coot::get_brick_id_inner(0,1,0, 6,4,8);
+      int t4 = coot::get_brick_id_inner(1,1,0, 6,4,8);
+      int t5 = coot::get_brick_id_inner(3,2,2, 6,4,8);
+
+      std::cout << "test: t1, t2, t3, t4 t5 "
+		<< t1 << " " << t2 << " " << t3 << " " << t4 << " " << t5
+		<< std::endl;
+
+
+      float atom_max_radius = 3.0;
+      std::vector<std::vector<int> > bricks =
+	 coot::molecule_to_bricks(asc.mol, asc.SelectionHandle, atom_max_radius);
+
+      std::cout << "found " << bricks.size() << " bricks for "
+		<< asc.n_selected_atoms << " atoms " << std::endl;
+
+      // this looks fine
+      if (false) {
+	 for (std::size_t ii=0; ii<bricks.size(); ii++) {
+	    std::cout << "--- brick " << ii << std::endl;
+	    for (std::size_t jj=0; jj<bricks[ii].size(); jj++) {
+	       std::cout << "   " << bricks[ii][jj] << " "
+			 << coot::atom_spec_t(asc.atom_selection[bricks[ii][jj]]) << "\n";
+	    }
+	 }
+      }
+   }
+   return 1;
+}
+
 #include "bonded-atoms.hh"
 
 int test_bonded_atoms(int argc, char **argv) {
@@ -781,12 +860,15 @@ int main(int argc, char **argv) {
    if (false)
       test_soi(argc, argv);
 
-   if (true)
+   if (false)
       test_nxmap(argc, argv);
 
-   if (true)
+   if (false)
       test_bonded_atoms(argc, argv);
    
+   if (true)
+      test_nxmap_edcalc(argc, argv);
+
    return 0;
 }
 
