@@ -1138,9 +1138,11 @@ int set_atom_attributes_py(PyObject *attribute_expression_list) {
 	 if (PyList_Check(attribute_expression)) { 
 	    int attr_expression_length = PyObject_Length(attribute_expression);
 	    if (attr_expression_length != 8) {
-	       std::cout << "Incomplete attribute expression: "
-			 << PyString_AsString(attribute_expression)
-			 << std::endl;		  
+	       char *ps = PyString_AsString(display_python(attribute_expression));
+	       if (ps) {
+		  std::string ae(ps);
+		  std::cout << "Incomplete attribute expression: " << ae << std::endl;
+	       }
 	    } else {
 	       imol_py            = PyList_GetItem(attribute_expression, 0);
 	       chain_id_py        = PyList_GetItem(attribute_expression, 1);
