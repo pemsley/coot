@@ -444,7 +444,7 @@ coot::util::make_rtop_orth_for_jiggle_atoms(float jiggle_trans_scale_factor,
 #include "coords/mmdb-crystal.h"
 
 clipper::NXmap<float>
-coot::util::make_nxmap(const clipper::Xmap<float> &xmap, mmdb::Manager *mol, int SelectionHandle) {
+coot::util::make_nxmap(const clipper::Xmap<float> &xmap, mmdb::Manager *mol, int SelectionHandle, float border) {
 
    std::pair<clipper::Coord_orth, clipper::Coord_orth> p = util::extents(mol, SelectionHandle);
 
@@ -453,8 +453,8 @@ coot::util::make_nxmap(const clipper::Xmap<float> &xmap, mmdb::Manager *mol, int
 
    std::cout << "debug:: make_nxmap() extents " << p.first.format() << " " << p.second.format() << std::endl;
 
-   p1 -= clipper::Coord_orth(3,3,3);
-   p2 += clipper::Coord_orth(3,3,3);
+   p1 -= clipper::Coord_orth(border,border,border);
+   p2 += clipper::Coord_orth(border,border,border);
 
    std::pair<clipper::Coord_orth, clipper::Coord_orth> pp(p1, p2);
 
@@ -495,7 +495,7 @@ coot::util::make_nxmap(const clipper::Xmap<float> &xmap, mmdb::Manager *mol, int
 
 
 clipper::NXmap<float>
-coot::util::make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_container_t asc) {
+coot::util::make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_container_t asc, float border) {
 
    return make_nxmap(xmap, asc.mol, asc.SelectionHandle);
 }
