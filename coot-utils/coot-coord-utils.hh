@@ -401,6 +401,26 @@ namespace coot {
    void sort_residues(mmdb::Manager *mol);
 
 
+   // split a molecule into "bricks" - cubic sets of atom indices that don't overlap
+   // return vector needs to be multiples of 8 (8 cubes will coverer all space)
+   // If the atom max radius is 3A, then the brick should have length 6A.
+   // brick-id: 0,8,16,24 (etc) are done at the same time
+   // then
+   // brick-id: 1,9,17,25 (etc) are done at the same time
+   // then
+   // brick-id: 2,10,18,26 (etc) are done at the same time.
+   //
+   // pretty tricky - not implemented yet
+   // (ints because using mmdb atom selection)
+   std::vector<std::vector<int> > molecule_to_bricks(mmdb::Manager *mol, int SelectionHandle,
+						     float max_radius);
+   int get_brick_id(const clipper::Coord_orth &pt, const clipper::Coord_orth &pt_minimums,
+		    int nx_grid, int ny_grid, int nz_grid,
+		    float brick_length);
+
+   int get_brick_id_inner(int x_idx, int y_idx, int z_idx,
+			  int nx_grid, int ny_grid, int nz_grid);
+
    // Pukka puckers?
    //
    // Throw an exception if it is not possible to generate pucker info
