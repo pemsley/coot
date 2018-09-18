@@ -2403,6 +2403,8 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 							   const coot::Cartesian &back,
 							   bool against_a_dark_background) {
    bool display_it = display_stick_mode_atoms_flag;
+
+   // this causes flashes
    if (graphics_info_t::moving_atoms_displayed_p())
       display_it = false;
 
@@ -3332,7 +3334,7 @@ molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::pro
 void
 molecule_class_info_t::makebonds(float max_dist, const coot::protein_geometry *geom_p,
 				 bool add_residue_indices) {
-   
+
    Bond_lines_container bonds(atom_sel, max_dist);
 
    bonds_box.clear_up();

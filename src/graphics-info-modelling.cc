@@ -388,11 +388,10 @@ graphics_info_t::refinement_loop_threaded() {
 
       g.update_restraints_with_atom_pull_restraints();
 
-      bool print_initial_chi_squareds_flag = false; // for now
-      int steps_per_frame = dragged_refinement_steps_per_frame;
+      bool pr_chi_sqds = false; // print inital chi squareds
+      int spf = dragged_refinement_steps_per_frame;
 
-      coot::refinement_results_t rr = g.last_restraints->minimize(flags, steps_per_frame,
-								  print_initial_chi_squareds_flag);
+      coot::refinement_results_t rr = g.last_restraints->minimize(flags, spf, pr_chi_sqds);
 
       graphics_info_t::saved_dragged_refinement_results = rr;
 
@@ -433,12 +432,15 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
 
       if (use_graphics_interface_flag) {
 
-         // if there's not a refinement redraw function already running start up a new one.
-         if (graphics_info_t::threaded_refinement_redraw_timeout_fn_id == -1) {
-	    int id = gtk_timeout_add(200,
-			    (GtkFunction)(regenerate_intermediate_atoms_bonds_timeout_function_and_draw),
-                            NULL);
-            graphics_info_t::threaded_refinement_redraw_timeout_fn_id = id;
+         if (!graphics_info_t::refinement_immediate_replacement_flag) {
+
+            // if there's not a refinement redraw function already running start up a new one.
+            if (graphics_info_t::threaded_refinement_redraw_timeout_fn_id == -1) {
+	       int id = gtk_timeout_add(200,
+			       (GtkFunction)(regenerate_intermediate_atoms_bonds_timeout_function_and_draw),
+                               NULL);
+               graphics_info_t::threaded_refinement_redraw_timeout_fn_id = id;
+            }
          }
       }
 
@@ -446,6 +448,20 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
       r.detach();
    }
 }
+
+void
+graphics_info_t::conditionally_wait_for_refinement_to_finish() {
+
+   if (refinement_immediate_replacement_flag || !use_graphics_interface_flag) {
+      while (threaded_refinement_is_running) {
+         // this is the main thread - it better be! :-)
+         std::this_thread::sleep_for(std::chrono::milliseconds(30));
+      }
+   }
+
+}
+
+
 
 
 coot::restraint_usage_Flags
@@ -527,7 +543,8 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function_and_draw()
       }
 
       // no need to do this if Esc is pressed.
-      g.check_and_warn_inverted_chirals_and_cis_peptides();
+      if (! graphics_info_t::refinement_immediate_replacement_flag)
+         g.check_and_warn_inverted_chirals_and_cis_peptides();
    }
 
    return continue_status;
@@ -629,8 +646,6 @@ graphics_info_t::refine_residues_vec(int imol,
    bool use_map_flag = 1;
    coot::refinement_results_t rr = generate_molecule_and_refine(imol, residues, alt_conf, mol, use_map_flag);
 
-   std::cout << "------------ in refine_residues_vec with rr.found_restraints_flag "
-	     << rr.found_restraints_flag << std::endl;
    short int istat = rr.found_restraints_flag;
    if (istat) {
       graphics_draw();
@@ -870,12 +885,16 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	       if (do_numerical_gradients)
 		  last_restraints->set_do_numerical_gradients();
 
-	       // or should I just use the thread pool?
-
 	       if (last_restraints->size() > 0) {
 
 		  thread_for_refinement_loop_threaded();
 		  rr.found_restraints_flag = true;
+
+               if (refinement_immediate_replacement_flag) {
+                  // wait until refinement finishes
+                  while (graphics_info_t::threaded_refinement_is_running)
+                     std::this_thread::sleep_for(std::chrono::milliseconds(10));
+               }
 
 	       } else {
 		  GtkWidget *widget = create_no_restraints_info_dialog();

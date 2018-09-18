@@ -1320,6 +1320,7 @@ refine_residues_with_alt_conf(int imol, const std::vector<coot::residue_spec_t> 
 		  mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
 		  rr = g.refine_residues_vec(imol, residues, alt_conf.c_str(), mol);
 	       }
+               g.conditionally_wait_for_refinement_to_finish();
 	    }
 	 } else {
 	    std::cout << "No residue specs found" << std::endl;
@@ -1383,6 +1384,7 @@ SCM regularize_residues_with_alt_conf_scm(int imol, SCM res_spec_scm, const char
 	    mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
 	    coot::refinement_results_t rr =
 	       g.regularize_residues_vec(imol, residues, alt_conf, mol);
+            g.conditionally_wait_for_refinement_to_finish();
 	    rv = g.refinement_results_to_scm(rr);
 	 }
       }

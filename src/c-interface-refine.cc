@@ -100,6 +100,7 @@ void refine_zone_atom_index_define(int imol, int ind1, int ind2) {
       std::cout << "WARNING: no molecule " << imol << " in "
 		<< "refine_zone_atom_index_define\n";
    }
+   g.conditionally_wait_for_refinement_to_finish();
 }
 
 void refine_zone(int imol, const char *chain_id,
@@ -119,6 +120,7 @@ void refine_zone(int imol, const char *chain_id,
 				is_water_like_flag);
       }
    }
+   g.conditionally_wait_for_refinement_to_finish();
 }
 
 /* use stored atom indices to re-run the refinement using the same atoms as previous */
@@ -126,7 +128,7 @@ void repeat_refine_zone() {
 
    graphics_info_t g;
    g.repeat_refine_zone();
-
+   g.conditionally_wait_for_refinement_to_finish();
 }
 
 
@@ -144,6 +146,7 @@ void refine_auto_range(int imol, const char *chain_id, int resno1, const char *a
 	 std::cout << "WARNING:: refine_auto_range: Can't get index for resno1: "
 		   << resno1 << std::endl;
       }
+      g.conditionally_wait_for_refinement_to_finish();
    }
 }
 
@@ -166,6 +169,7 @@ int regularize_zone(int imol, const char *chain_id, int resno1, int resno2, cons
 	       status = 1;
 	    if (rr.found_restraints_flag)
 	       status = 1;
+            g.conditionally_wait_for_refinement_to_finish();
 	    
 	 } else {
 	    std::cout << "WARNING:: regularize_zone: Can't get index for resno2: "
@@ -183,7 +187,7 @@ int regularize_zone(int imol, const char *chain_id, int resno1, int resno2, cons
 
 
 // This does not control if the atoms are accepted immediately, just
-// whether the Accept Refinemnt gui is shown.
+// whether the Accept Refinement gui is shown.
 // 
 void set_refinement_immediate_replacement(int istate) {
    graphics_info_t::refinement_immediate_replacement_flag = istate;

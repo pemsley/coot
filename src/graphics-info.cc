@@ -1617,12 +1617,10 @@ graphics_info_t::clear_up_moving_atoms() {
 
    bool unlocked = false;
    while (! graphics_info_t::threaded_refinement_is_running.compare_exchange_weak(unlocked, true)) {
-      std::cout << "oops clear_up() - refinement_is_running locked on " << std::endl;
-      std::this_thread::sleep_for(std::chrono::microseconds(500000));
+      // std::cout << "oops graphics_info_t::clear_up_moving_atoms() - refinement_is_running locked on " << std::endl;
+      std::this_thread::sleep_for(std::chrono::microseconds(50));  // make this smaller in production
       unlocked = false;
    }
-
-   std::cout << " OK - proceeding with clear_up_moving_atoms()" << std::endl;
 
    graphics_info_t::continue_update_refinement_atoms_flag = false;
 
@@ -1745,8 +1743,6 @@ void
 graphics_info_t::make_moving_atoms_graphics_object(int imol,
 						   const atom_selection_container_t &asc) {
 
-   std::cout << "Here in make_moving_atoms_graphics_object() " << std::endl;
-
    if (! moving_atoms_asc) {
       moving_atoms_asc = new atom_selection_container_t;
    } else { 
@@ -1762,17 +1758,16 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
    //    Needed that to debug doubly clear_up on a bonds box.  Now points
    //    reset in clear_up().
 
-   std::cout << "DEBUG:: make_moving_atoms_graphics_object() bonds box type of molecule "
-	     << imol_moving_atoms << " is " << molecules[imol_moving_atoms].Bonds_box_type()
- 	     << std::endl;
+   if (false)
+      std::cout << "DEBUG:: make_moving_atoms_graphics_object() bonds box type of molecule "
+	        << imol_moving_atoms << " is " << molecules[imol_moving_atoms].Bonds_box_type()
+                << std::endl;
 
    if (molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS ||
        molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS ||
        molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS ||
        molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR ||
        molecules[imol_moving_atoms].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS) {
-
-      std::cout << "DEBUG:: make_moving_atoms_graphics_object() here 1 " << std::endl;
 
       if (molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS) {
 	 Bond_lines_container bonds;

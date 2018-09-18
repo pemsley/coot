@@ -3876,6 +3876,10 @@ string   static std::string sessionid;
 #endif // HAVE_CXX_THREAD
    static int regenerate_intermediate_atoms_bonds_timeout_function();
    static int regenerate_intermediate_atoms_bonds_timeout_function_and_draw();
+   // we need to wait for the refinement to finish when we are in
+   // immediate accept mode or no-gui.  In scripted (e.g. sphere-refine)
+   // we should not wait
+   void conditionally_wait_for_refinement_to_finish();
 
 
 #ifdef USE_PYTHON
