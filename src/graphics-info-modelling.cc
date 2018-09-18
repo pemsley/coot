@@ -339,126 +339,284 @@ graphics_info_t::copy_model_molecule(int imol) {
    return iret;
 }
 
+std::atomic<unsigned int> graphics_info_t::moving_atoms_bonds_lock(0);
+std::atomic<bool> graphics_info_t::threaded_refinement_is_running(false);
+bool graphics_info_t::moving_atoms_lock = false; // not locked
+int  graphics_info_t::threaded_refinement_loop_counter = 0;
+int  graphics_info_t::threaded_refinement_loop_counter_bonds_gen = -1; // initial value is "less than" so that
+                                                                       // the regeneration is activated.
+bool graphics_info_t::threaded_refinement_needs_to_clear_up = false; // for Esc usage
+bool graphics_info_t::threaded_refinement_needs_to_accept_moving_atoms = false; // for Return usage
+bool graphics_info_t::continue_threaded_refinement_loop = true; // also for Esc usage
+int  graphics_info_t::threaded_refinement_redraw_timeout_fn_id = -1;
 
+// put this in graphics-info-intermediate-atoms?
+//
+// static
+void
+graphics_info_t::refinement_loop_threaded() {
 
+   // ---- Don't touch the graphics or the gui! ---------
 
-coot::refinement_results_t
-graphics_info_t::update_refinement_atoms(int n_restraints,
-					 coot::restraints_container_t *restraints,
-					 coot::refinement_results_t rr_in,
-					 atom_selection_container_t local_moving_atoms_asc,
-					 bool need_residue_order_check,
-					 int imol,
-					 std::string chain_id_1) {
+   if (graphics_info_t::threaded_refinement_is_running) {
+      return;
+   }
 
-   coot::refinement_results_t rr = rr_in;
-   graphics_info_t::continue_update_refinement_atoms_flag = true;
-   
-   if (n_restraints > 0) {
+   if (!graphics_info_t::last_restraints) {
+      // nothing to refine - this should not happen
+      return;
+   }
 
-      moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
+   bool unlocked = false;
+   while (! graphics_info_t::threaded_refinement_is_running.compare_exchange_weak(unlocked, true)) {
+      std::cout << "WARNING:: refinement_loop_threaded() refinement loop locked " << std::endl;
+      std::this_thread::sleep_for(std::chrono::milliseconds(50));
+      unlocked = 0;
+   }
 
-      // coot::restraints_container_t last_restraints(molecules[imol_refinement_map].xmap);
-      // last_restraints = coot::restraints_container_t(molecules[imol_refinement_map].xmap);
-      // last_restraints.copy_from(restraints);
+   graphics_info_t::threaded_refinement_needs_to_clear_up = false; // set on Esc press
+                                                                   // from the main loop
+   graphics_info_t::threaded_refinement_needs_to_accept_moving_atoms = false;
 
-      for (std::size_t j=0; j<atom_pulls.size(); j++) {
-	 const atom_pull_info_t &atom_pull = atom_pulls[j];
-	 if (atom_pull.get_status()) {
-	    std::cout << "update_refinement_atoms() adding atom_pull_restraint "
-		      << atom_pull.spec << std::endl;
-	    last_restraints->add_atom_pull_restraint(atom_pull.spec, atom_pull.pos); // mouse target position
+   graphics_info_t g;
+
+   coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS; // for now
+   flags = g.set_refinement_flags(); // flags should not be needed for minimize()
+
+   continue_threaded_refinement_loop = true;
+   while (continue_threaded_refinement_loop) {
+
+      g.update_restraints_with_atom_pull_restraints();
+
+      bool print_initial_chi_squareds_flag = false; // for now
+      int steps_per_frame = dragged_refinement_steps_per_frame;
+
+      coot::refinement_results_t rr = g.last_restraints->minimize(flags, steps_per_frame,
+								  print_initial_chi_squareds_flag);
+
+      graphics_info_t::saved_dragged_refinement_results = rr;
+
+      if (rr.progress == GSL_SUCCESS) {
+	 graphics_info_t::continue_update_refinement_atoms_flag = false; // not sure what this does
+	 rr = graphics_info_t::saved_dragged_refinement_results;
+	 continue_threaded_refinement_loop = false;
+      } else {
+	 if (rr.progress == GSL_FAILURE) {
+	    graphics_info_t::continue_update_refinement_atoms_flag = false;
+	    continue_threaded_refinement_loop = false;
+	 } else {
+	    if (rr.progress == GSL_ENOPROG) {
+	       graphics_info_t::continue_update_refinement_atoms_flag = false;
+	       continue_threaded_refinement_loop = false;
+	    }
 	 }
       }
+      graphics_info_t::threaded_refinement_loop_counter++;
+   }
+   graphics_info_t::threaded_refinement_is_running = false; // unlock!
 
-      regularize_object_bonds_box.clear_up();
-      make_moving_atoms_graphics_object(imol, local_moving_atoms_asc); // sets moving_atoms_asc
-      int n_cis = coot::util::count_cis_peptides(moving_atoms_asc->mol);
-      graphics_info_t::moving_atoms_n_cis_peptides = n_cis;
+   // when this function exits, the (detached) thread in which it's running ends
+}
 
-      // std::cout << "DEBUG:: start of ref have: " << n_cis << " cis peptides"
-      // << std::endl;
+// static
+void graphics_info_t::thread_for_refinement_loop_threaded() {
 
-      bool continue_flag = true;
-      unsigned int step_count = 0; 
-      print_initial_chi_squareds_flag = 1; // unset by drag_refine_idle_function
-      unsigned int step_count_lim = 7000; // was 5000, let's have a few more
-      // Less steps for many atoms/restraints (e.g. a domain).
-      // Not sure what I want to do here.  If we have NBC restraints for a chain
-      // or prosmart restraints for a chain, then we have many 10,000 (say 60,000)
-      // restraints - only some of which are relevant to the refinement.
-      // We don't want to sphere refine with say 50 active atoms and 60,000
-      // GM restraints.  That will give us a step lim of 50 - bad.
-      // We need to exclude non-relevant GM restraints in make_restraints().
-      if (false) {
-         if (restraints->size() > 10000) {
-	    unsigned int new_lim = 3000000/restraints->size();
-            std::cout << "debug:: here with restraints.size() " << restraints->size()
-	              << " and step_count_lim " << step_count_lim << std::endl;
+   // I think that there is a race condition here
+   // check_and_warn_inverted_chirals_and_cis_peptides()
+   // get called several times when the refine loop ends
+   // (with success?).
+
+
+   if (graphics_info_t::threaded_refinement_is_running) {
+      return;
+   } else {
+
+      if (use_graphics_interface_flag) {
+
+         // if there's not a refinement redraw function already running start up a new one.
+         if (graphics_info_t::threaded_refinement_redraw_timeout_fn_id == -1) {
+	    int id = gtk_timeout_add(200,
+			    (GtkFunction)(regenerate_intermediate_atoms_bonds_timeout_function_and_draw),
+                            NULL);
+            graphics_info_t::threaded_refinement_redraw_timeout_fn_id = id;
          }
       }
 
-      // ---------------------------------------------------------------------
-      //  refinement loop
-      // ---------------------------------------------------------------------
+      std::thread r(refinement_loop_threaded);
+      r.detach();
+   }
+}
 
-      while ((step_count < step_count_lim) && continue_flag) {
 
-	 int retval = drag_refine_idle_function(NULL);
+coot::restraint_usage_Flags
+graphics_info_t::set_refinement_flags() const {
 
-	 step_count += dragged_refinement_steps_per_frame;
-	 if (retval == GSL_SUCCESS) {
-	    graphics_info_t::continue_update_refinement_atoms_flag = false;
-	    rr = graphics_info_t::saved_dragged_refinement_results;
-	 }
-	 if (retval == GSL_ENOPROG) {
-	    graphics_info_t::continue_update_refinement_atoms_flag = false;
-	    rr = graphics_info_t::saved_dragged_refinement_results;
-	 }
-	 if (retval == -1) { // no restraints, because the user pressed Esc
-	    continue_flag = false;
-	    rr = graphics_info_t::saved_dragged_refinement_results;
-	 }
+   coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
+   if (do_torsion_restraints) {
+      flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
+   }
+
+   if (do_rama_restraints)
+      flags = coot::ALL_RESTRAINTS;
+
+   return flags;
+}
+
+
+
+void
+graphics_info_t::update_restraints_with_atom_pull_restraints() {
+
+   // not sure if this should be static or not.
+
+   // maybe we don't want to add... because it's already there at the given position
+   //
+   for (std::size_t j=0; j<atom_pulls.size(); j++) {
+      const atom_pull_info_t &atom_pull = atom_pulls[j];
+      if (atom_pull.get_status()) {
+         // noise
+         // 	 std::cout << "update_refinement_atoms() adding atom_pull_restraint "
+         // 		   << atom_pull.spec << std::endl;
+	 last_restraints->add_atom_pull_restraint(atom_pull.spec, atom_pull.pos); // mouse target position
       }
+   }
 
-      // if we reach here with continue_flag == 1, then we
-      // were refining (regularizing more like) and ran out
-      // of steps before convergence.  We still want to give
-      // the user a dialog though.
+   if (auto_clear_atom_pull_restraint_flag) {
+      // returns true when the restraint was turned off.
+      // turn_off_atom_pull_restraints_when_close_to_target_position() should not
+      // include the atom that the use is actively dragging
       //
-      if (graphics_info_t::continue_update_refinement_atoms_flag) {
-	 rr = graphics_info_t::saved_dragged_refinement_results;
-	 rr.info_text = "Time's up...";
+      // i.e. except this one:
+      mmdb::Atom *at_except = 0;
+      if (moving_atoms_currently_dragged_atom_index != -1)
+	 at_except = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
+      coot::atom_spec_t except_dragged_atom(at_except);
+
+      std::vector<coot::atom_spec_t> specs_for_removed_restraints =
+	 last_restraints->turn_off_atom_pull_restraints_when_close_to_target_position(except_dragged_atom);
+      if (specs_for_removed_restraints.size()) {
+	 atom_pulls_off(specs_for_removed_restraints);
+	 clear_atom_pull_restraints(specs_for_removed_restraints, true);
+      }
+   }
+}
+
+// static
+int
+graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function_and_draw() {
+
+   int continue_status = regenerate_intermediate_atoms_bonds_timeout_function();
+   graphics_draw();
+
+   if (continue_status == 0) { // if refinement was stopped, do we need to clean up
+                               // or accept atoms?
+
+      // ---- Here we can touch the graphics! ---------
+
+      graphics_info_t g;
+
+      if (graphics_info_t::threaded_refinement_needs_to_accept_moving_atoms) {
+	 // std::cout << "---------- now accept moving atoms! " << std::endl;
+	 g.accept_moving_atoms(); // calls clear_up_moving_atoms() which deletes last_restraints
       }
 
-   } else { 
-      if (use_graphics_interface_flag) {
+      if (graphics_info_t::threaded_refinement_needs_to_clear_up) {
+	 // std::cout << "---------- now clear up moving atoms! " << std::endl;
+	 g.clear_up_moving_atoms(); // deletes last_restraints
+	 g.clear_moving_atoms_object();
+      }
 
-	 // Residues might be out of order (causing problems in atom
-	 // selection).  But the sphere selection doesn't need this
-	 // check.
+      // no need to do this if Esc is pressed.
+      g.check_and_warn_inverted_chirals_and_cis_peptides();
+   }
 
-	 GtkWidget *widget = create_no_restraints_info_dialog();
-	 if (! need_residue_order_check) {
-	    gtk_widget_show(widget);
-	 } else { 
-	    bool residues_ordered_flag =
-	       molecules[imol].progressive_residues_in_chain_check_by_chain(chain_id_1.c_str());
-	    
-	    GtkWidget *l = lookup_widget(widget, "no_restraints_extra_label");
-	    if (l) {
-	       if (!residues_ordered_flag) {
-		  gtk_widget_show(l);
-	       } else {
-		  gtk_widget_hide(l); // by default it is show?
+   return continue_status;
+
+}
+
+// static
+int
+graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
+
+   // Sometimes this thread doesn't stop at the end of a refinement because
+   // another mouse drag starts another refinement (and sets threaded_refinement_is_running
+   // to true before we get here). Hmm.
+
+   int continue_status = 1;
+
+   if (! threaded_refinement_is_running)
+      continue_status = 0; // stop the timeout function after this redraw
+
+   if (! use_graphics_interface_flag) {
+      continue_status = 0;
+      return continue_status;
+   }
+
+   // OK, we are interactive
+
+   if (threaded_refinement_loop_counter_bonds_gen < threaded_refinement_loop_counter) {
+
+      // graphics_info_t g;
+
+      bool do_rama_markup = graphics_info_t::do_intermediate_atoms_rama_markup;
+      bool do_rota_markup = graphics_info_t::do_intermediate_atoms_rota_markup;
+
+      // wrap the filling of the rotamer probability tables
+      //
+      coot::rotamer_probability_tables *tables_pointer = NULL;
+
+      if (do_rota_markup) {
+	 if (! rot_prob_tables.tried_and_failed()) {
+	    if (rot_prob_tables.is_well_formatted()) {
+	       tables_pointer = &rot_prob_tables;
+	    } else {
+	       rot_prob_tables.fill_tables();
+	       if (rot_prob_tables.is_well_formatted()) {
+		  tables_pointer = &rot_prob_tables;
 	       }
 	    }
-	    gtk_widget_show(widget);
+	 } else {
+	    do_rota_markup = false;
 	 }
       }
-   } 
-   return rr;
-} 
+
+      threaded_refinement_loop_counter_bonds_gen = threaded_refinement_loop_counter;
+      moving_atoms_bonds_lock = true;
+
+      bool do_disulphide_flag = true;
+      bool draw_hydrogens_flag =
+	 graphics_info_t::molecules[imol_moving_atoms].draw_hydrogens(); // wrong function name
+                                                                         // given what it does.
+
+      std::set<int> dummy_set; // don't remove bonds to any atoms
+      Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms,
+				 dummy_set, Geom_p(),
+				 do_disulphide_flag, draw_hydrogens_flag, 0,
+				 do_rama_markup, do_rota_markup,
+				 tables_pointer);
+	 
+      regularize_object_bonds_box.clear_up();
+      regularize_object_bonds_box = bonds.make_graphical_bonds(ramachandrans_container,
+							       do_rama_markup, do_rota_markup);
+
+      moving_atoms_bonds_lock = false;
+
+      if (graphics_info_t::accept_reject_dialog)
+	 update_accept_reject_dialog_with_results(graphics_info_t::accept_reject_dialog,
+						  coot::CHI_SQUAREDS,
+						  graphics_info_t::saved_dragged_refinement_results);
+   }
+
+   if (! threaded_refinement_is_running)
+      continue_status = 0; // stop the timeout function
+
+   if (continue_status == 0) {
+      // unset the timeout function token
+      graphics_info_t::threaded_refinement_redraw_timeout_fn_id = -1; // we've finished
+   }
+
+   return continue_status; // return 0 to stop
+}
 
 
 
@@ -470,6 +628,9 @@ graphics_info_t::refine_residues_vec(int imol,
 
    bool use_map_flag = 1;
    coot::refinement_results_t rr = generate_molecule_and_refine(imol, residues, alt_conf, mol, use_map_flag);
+
+   std::cout << "------------ in refine_residues_vec with rr.found_restraints_flag "
+	     << rr.found_restraints_flag << std::endl;
    short int istat = rr.found_restraints_flag;
    if (istat) {
       graphics_draw();
@@ -614,9 +775,16 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 
 	       atom_selection_container_t local_moving_atoms_asc =
 		  make_moving_atoms_asc(residues_mol_and_res_vec.first, residues);
+	       make_moving_atoms_graphics_object(imol, local_moving_atoms_asc);
+
+               int n_cis = coot::util::count_cis_peptides(local_moving_atoms_asc.mol);
+               moving_atoms_n_cis_peptides = n_cis;
+
 	       std::vector<std::pair<bool,mmdb::Residue *> > local_residues;  // not fixed.
 	       for (unsigned int i=0; i<residues_mol_and_res_vec.second.size(); i++)
 		  local_residues.push_back(std::pair<bool, mmdb::Residue *>(0, residues_mol_and_res_vec.second[i]));
+
+	       moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
 
 	       int imol_for_map = Imol_Refinement_Map();
 	       clipper::Xmap<float> *xmap_p = dummy_xmap;
@@ -662,7 +830,6 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
-
 	       if (false)
 		  std::cout << "---------- debug:: in generate_molecule_and_refine() "
 			    << " calling restraints.make_restraints() with imol "
@@ -680,14 +847,6 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 								   pseudo_bonds_type);
             	                                                   // link and flank args default true
 
-	       // should this be here?  Do we want to be adding pull restraints
-	       // here?
-	       //
-	       for (std::size_t j=0; j<atom_pulls.size(); j++) {
-		  const atom_pull_info_t &atom_pull = atom_pulls[j];
-		  if (atom_pull.get_status())
-		     last_restraints->add_atom_pull_restraint(atom_pull.spec, atom_pull.pos); // mouse target position
-	       }
 	       last_restraints->set_geman_mcclure_alpha(geman_mcclure_alpha);
                last_restraints->set_rama_type(restraints_rama_type);
                last_restraints->set_rama_plot_weight(rama_restraints_weight); // >2? danger of non-convergence
@@ -711,18 +870,24 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	       if (do_numerical_gradients)
 		  last_restraints->set_do_numerical_gradients();
 
-	       last_restraints->set_log_cosh_target_distance_scale_factor(log_cosh_target_distance_scale_factor);
+	       // or should I just use the thread pool?
 
-	       std::string dummy_chain = ""; // not used
+	       if (last_restraints->size() > 0) {
 
-	       rr = update_refinement_atoms(n_restraints, last_restraints, rr, local_moving_atoms_asc,
-					    0, imol, dummy_chain);
+		  thread_for_refinement_loop_threaded();
+		  rr.found_restraints_flag = true;
+
+	       } else {
+		  GtkWidget *widget = create_no_restraints_info_dialog();
+		  gtk_widget_show(widget);
+	       }
 	    }
 	 }
       } else {
 	 // we didn't have restraints for everything.
 	 //
-	 std::pair<int, std::vector<std::string> > icheck = check_dictionary_for_residue_restraints(imol, residues);
+	 std::pair<int, std::vector<std::string> > icheck =
+	    check_dictionary_for_residue_restraints(imol, residues);
 	 if (icheck.first == 0) { 
 	    info_dialog_missing_refinement_residues(icheck.second);
 	 }
@@ -3448,15 +3613,20 @@ graphics_info_t::drag_intermediate_atom(const coot::atom_spec_t &atom_spec, cons
 	       }
 	    }
 	 }
-	 std::set<int> dummy;
-	 Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, dummy, geom_p, 0, 1, 0);
-	 regularize_object_bonds_box.clear_up();
-	 regularize_object_bonds_box = bonds.make_graphical_bonds();
-	 graphics_draw();
 
-	 // now refine (again) with the new atom position
-	 graphics_info_t g;
-	 g.add_drag_refine_idle_function();
+	 // pre-threaded refinement
+// 	 std::set<int> dummy;
+// 	 Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, dummy, geom_p, 0, 1, 0);
+// 	 regularize_object_bonds_box.clear_up();
+// 	 regularize_object_bonds_box = bonds.make_graphical_bonds();
+// 	 graphics_draw();
+
+// 	 // now refine (again) with the new atom position
+// 	 graphics_info_t g;
+// 	 g.add_drag_refine_idle_function();
+
+	 thread_for_refinement_loop_threaded();
+
       }
    }
 }

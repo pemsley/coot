@@ -772,7 +772,7 @@ coot::restraints_container_t::pre_sanitize_as_needed(std::vector<refinement_ligh
    if (do_pre_sanitize) {
       if (verbose_geometry_reporting != QUIET)
 	 std::cout << "debug:: :::: pre-sanitizing" << std::endl;
-      int nsteps_max = 100; // wow! in the basic-no-progress test only 1 round is needed!
+      int nsteps_max = 40; // wow! in the basic-no-progress test only 1 round is needed!
       int status;
       int restraints_usage_flag_save = restraints_usage_flag;
       restraints_usage_flag = BONDS_ANGLES_CHIRALS_AND_NON_BONDED;
@@ -825,8 +825,16 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags) {
 
 
 #include <gsl/gsl_blas.h> // for debugging norm of gradient
+
+void
+coot::restraints_container_t::setup_for_minimize() {
+
+}
  
- 
+
+// Remove usage_flag from this - they should be set in the constructor
+// and be a class member. Not passed here.
+//
 // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
 //
 coot::refinement_results_t
@@ -834,6 +842,10 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 				       int nsteps_max,
 				       short int print_initial_chi_sq_flag) {
    n_times_called++;
+
+   if (n_times_called == 1)
+      setup_for_minimize();
+
    return minimize_inner(usage_flags, nsteps_max, print_initial_chi_sq_flag);
 }
 
@@ -892,7 +904,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    //   objective function that it is well approximated by a quadratic
    //   hypersurface.
 
-   gsl_multimin_fdfminimizer *s = gsl_multimin_fdfminimizer_alloc(T, n_variables());
+   gsl_multimin_fdfminimizer *m_s = gsl_multimin_fdfminimizer_alloc(T, n_variables());
 
    // We get ~1ms/residue with bond and angle terms and no density terms.
 
@@ -910,7 +922,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    auto tp_0 = std::chrono::high_resolution_clock::now();
 
    // this does a lot of work - can it be faster? No.
-   gsl_multimin_fdfminimizer_set(s, &multimin_func, x, step_size, tolerance);
+   gsl_multimin_fdfminimizer_set(m_s, &multimin_func, x, step_size, tolerance);
 
    auto tp_1 = std::chrono::high_resolution_clock::now();
    if (false) {
@@ -937,7 +949,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 void *params = reinterpret_cast<void *>(this);
 	 double d = coot::distortion_score(x, params);
 	 std::cout << "    Initial distortion_score: " << d << std::endl; 
-	 std::vector<refinement_lights_info_t> lights = chi_squareds("Initial RMS Z values", s->x);
+	 std::vector<refinement_lights_info_t> lights = chi_squareds("Initial RMS Z values", m_s->x);
 	 refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights);
 	 if (worst_of_all.is_set) {
 	    const simple_restraint &baddie_restraint = restraints_vec[worst_of_all.restraints_index];
@@ -948,7 +960,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       }
    }
 
-   std::vector<refinement_lights_info_t> lights = chi_squareds("--------", s->x, false);
+   std::vector<refinement_lights_info_t> lights = chi_squareds("--------", m_s->x, false);
    // if hideous geometry, presanitize with bonds, angles, chirals and non-bonded
    // if they are passed as set. Uses restraints_usage_flag
    if (n_times_called == 1) {
@@ -957,7 +969,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       // and chiral volumes restraints (and possibly plane restraints) when we have
       // a hideous model.
 
-      pre_sanitize_as_needed(lights, s, step_size, tolerance);
+      pre_sanitize_as_needed(lights, m_s, step_size, tolerance);
    }
 
 //      std::cout << "pre minimization atom positions\n";
@@ -996,7 +1008,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    do
       {
 	 iter++;
-	 status = gsl_multimin_fdfminimizer_iterate(s);
+	 status = gsl_multimin_fdfminimizer_iterate(m_s);
 	 if (false)
 	    std::cout << "debug:: iteration number " << iter << " of " << nsteps_max
 		      << " status from gsl_multimin_fdfminimizer_iterate(): " << status << std::endl;
@@ -1012,7 +1024,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	    std::cout << "Unexpected error from gsl_multimin_fdfminimizer_iterate" << std::endl;
 	    if (status == GSL_ENOPROG) {
 	       std::cout << "Error in gsl_multimin_fdfminimizer_iterate was GSL_ENOPROG" << std::endl; 
-	       lights_vec = chi_squareds("Final Estimated RMS Z Scores", s->x);
+	       lights_vec = chi_squareds("Final Estimated RMS Z Scores", m_s->x);
 	       refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights_vec);
 	       if (worst_of_all.is_set) {
 		  const simple_restraint &baddie_restraint = restraints_vec[worst_of_all.restraints_index];
@@ -1039,10 +1051,10 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 if (grad_lim < 0.3)
 	    grad_lim = 0.3;
 	 // std::cout << "debug:: grad-lim: " << grad_lim << std::endl;
-	 status = gsl_multimin_test_gradient (s->gradient, grad_lim);
+	 status = gsl_multimin_test_gradient (m_s->gradient, grad_lim);
 
 	 if (false) { // debug
-	    double norm = gsl_blas_dnrm2(s->gradient); 
+	    double norm = gsl_blas_dnrm2(m_s->gradient);
 	    std::cout << "debug:: iteration number " << iter << " of " << nsteps_max
 		      << " status from gsl_multimin_test_gradient() " << status << " for norm "
 		      << norm << std::endl;
@@ -1051,7 +1063,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 if (status == GSL_SUCCESS) {
 	    if (verbose_geometry_reporting != QUIET) { 
 	       std::cout << "Minimum found (iteration number " << iter << ") at ";
-	       std::cout << s->f << "\n";
+	       std::cout << m_s->f << "\n";
 	    }
 	 }
 
@@ -1059,7 +1071,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	    std::string title = "Final Estimated RMS Z Scores:";
 	    if (status == GSL_ENOPROG)
 	       title = "(No Progress) Final Estimated RMS Z Scores:";
-	    std::vector<coot::refinement_lights_info_t> results = chi_squareds(title, s->x);
+	    std::vector<coot::refinement_lights_info_t> results = chi_squareds(title, m_s->x);
 	    lights_vec = results;
 	    refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights_vec);
 	    if (worst_of_all.is_set) {
@@ -1072,7 +1084,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 }
 
 	 if (verbose_geometry_reporting == VERBOSE)
-	    std::cout << "iteration number " << iter << " " << s->f << std::endl;
+	    std::cout << "iteration number " << iter << " " << m_s->f << std::endl;
 
       }
    while ((status == GSL_CONTINUE) && (iter < nsteps_max));
@@ -1089,7 +1101,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
    if (! done_final_chi_squares) {
       if (status != GSL_CONTINUE) {
-	 lights = chi_squareds("Final Estimated RMS Z Scores:", s->x);
+	 lights = chi_squareds("Final Estimated RMS Z Scores:", m_s->x);
 	 refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights);
 	 if (worst_of_all.is_set) {
 	    const simple_restraint &baddie_restraint = restraints_vec[worst_of_all.restraints_index];
@@ -1099,18 +1111,18 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       }
    }
 
-   update_atoms(s->x); // do OXT here
+   update_atoms(m_s->x); // do OXT here
 
    auto tp_5 = std::chrono::high_resolution_clock::now();
    // if there were bad Hs at the end of refinement
    if (status != GSL_ENOPROG) {
-      if (check_pushable_chiral_hydrogens(s->x)) {
-	 update_atoms(s->x);
+      if (check_pushable_chiral_hydrogens(m_s->x)) {
+	 update_atoms(m_s->x);
       }
       auto tp_5_a = std::chrono::high_resolution_clock::now();
       // check and correct them if needed. 
-      if (check_through_ring_bonds(s->x)) {
-	 update_atoms(s->x);
+      if (check_through_ring_bonds(m_s->x)) {
+	 update_atoms(m_s->x);
       }
       if (false) {
 	 // small numbers - perhaps because pushable hydrogens is not working
@@ -1128,8 +1140,9 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    // auto d65 = chrono::duration_cast<chrono::microseconds>(tp_6 - tp_5).count();
    auto d75 = chrono::duration_cast<chrono::microseconds>(tp_7 - tp_5).count();
 
-   gsl_multimin_fdfminimizer_free(s);
-   gsl_vector_free(x);
+   // Add these to the destructor of this class.
+   // gsl_multimin_fdfminimizer_free(s);
+   // gsl_vector_free(x);
 
    // (we don't get here unless restraints were found)
    coot::refinement_results_t rr(1, status, lights_vec);
