@@ -295,8 +295,9 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 
    if (false) {
       std::cout << "--- Here in update_accept_reject_dialog_with_results() with info \""
-		<< rr.info_text << "\"" << std::endl;
-      std::cout << "here with rr.progress " << rr.progress << " c.f. no-progress " << GSL_ENOPROG
+		<< rr.info_text << "\"" << " with lights.size() " << rr.lights.size()
+                << " text type " << text_type << std::endl;
+      std::cout << "   here with rr.progress " << rr.progress << " c.f. no-progress " << GSL_ENOPROG
 		<< " and success " << GSL_SUCCESS << " and continue " << GSL_CONTINUE << std::endl;
    }
    GtkWidget *no_progress_label = lookup_widget(GTK_WIDGET(accept_reject_dialog),
@@ -310,10 +311,25 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 						  "chiral_centre_text_label");
 
    if (text_type == coot::CHI_SQUAREDS) {
-      if (rr.progress != GSL_ENOPROG)
-	 gtk_label_set_text(GTK_LABEL(no_progress_label), "Success");
-      else
-	 gtk_label_set_text(GTK_LABEL(no_progress_label), "Failed - no progress");
+      if (rr.progress == GSL_ENOPROG) {
+	 gtk_label_set_text(GTK_LABEL(no_progress_label), "Failed - Error No Progress");
+      } else {
+         if (rr.progress == GSL_CONTINUE) {
+	    gtk_label_set_text(GTK_LABEL(no_progress_label), "Running...");
+         } else {
+            if (rr.progress == GSL_FAILURE) {  // -1
+	       gtk_label_set_text(GTK_LABEL(no_progress_label), "Failure");
+            } else {
+               if (rr.progress == GSL_SUCCESS) {
+	          gtk_label_set_text(GTK_LABEL(no_progress_label), "Success");
+               } else {
+	          gtk_label_set_text(GTK_LABEL(no_progress_label), "---");
+               }
+            }
+         }
+      }
+   } else {
+     // std::cout << "   text type was not chi_squared" << std::endl; // chiral presumably
    }
 
    if (rr.info_text.empty()) {
@@ -1224,104 +1240,6 @@ graphics_info_t::handle_rama_plot_update(coot::rama_plot *plot) {
 }
 #endif // HAVE_GNOME_CANVAS or HAVE_GTK_CANVAS
 
-
-// static
-gint
-graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
-
-   int retprog = -1;
-   
-#ifdef HAVE_GSL
-
-   // 20100209 allow the Escape key to be seen during the (initial)
-   // idle function running (before the refinment results dialog is
-   // shown).
-   // 
-   // I don't know why Esc is recognised after the dialog is shown,
-   // but not before.  Both before and after come through this idle
-   // function routine.  Pressing Esc while the dialog is up doesn't
-   // need this pending events/main iteration thing.
-   //
-   //
-   // I don't much like this bit of code
-   // 
-   while (gtk_events_pending())
-      gtk_main_iteration();
-
-   if (graphics_info_t::continue_update_refinement_atoms_flag) {
-
-      retprog = graphics_info_t::drag_refine_refine_intermediate_atoms();
-
-      if (retprog != GSL_CONTINUE) {
-
-	 if (retprog == GSL_ENOPROG)
-	    std::cout << " NOPROGRESS" << std::endl;
-	 if (retprog == GSL_SUCCESS)
-	    std::cout << " SUCCESS" << std::endl;
-	 long t1 = glutGet(GLUT_ELAPSED_TIME);
-	 std::cout << " TIME:: (dragged refinement): " << float(t1-T0)/1000.0 << std::endl;
-
-	 graphics_info_t g;
-	 g.check_and_warn_inverted_chirals_and_cis_peptides();
-
-	 if (false)
-	    std::cout << "graphics_info_t::drag_refine_idle_function() not GSL_CONTINUE  "
-		      << " removing idle function "
-		      << graphics_info_t::drag_refine_idle_function_token << std::endl;
-	 
-	 if (graphics_info_t::drag_refine_idle_function_token != -1) {
-	    gtk_idle_remove(graphics_info_t::drag_refine_idle_function_token);
-	    graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
-	 }
-      }
-
-
-      // 
-      graphics_draw();
-
-   } else {
-      // std::cout << "escaped out of drag_refine_idle_function" << std::endl;
-   } 
-
-#endif // HAVE_GSL   
-   return retprog;
-}
-
-
-
-// static
-void
-graphics_info_t::add_drag_refine_idle_function() {
-
-   // the calling function was activated because we dropped the tip of
-   // the pink refinment arrow, so we want to start up idle function
-   // refinement again (set continue_update_refinement_atoms_flag to true).
-   //
-   
-   // add a idle function if there isn't one in operation already.
-   graphics_info_t g;
-   if (g.drag_refine_idle_function_token == -1) {
-
-      g.continue_update_refinement_atoms_flag = true;
-      g.drag_refine_idle_function_token =
-	 gtk_idle_add((GtkFunction)graphics_info_t::drag_refine_idle_function, g.glarea);
-      T0 = glutGet(GLUT_ELAPSED_TIME);
-      print_initial_chi_squareds_flag = 1;
-
-   } else {
-      if (false)
-	 std::cout << "DEBUG:: not adding drag idle function because there was one already in operation "
-		   << g.drag_refine_idle_function_token << std::endl;
-   } 
-} 
-
-// static
-void
-graphics_info_t::remove_drag_refine_idle_function() {
-
-   gtk_idle_remove(graphics_info_t::drag_refine_idle_function_token);
-   graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
-}
 
 // --------------------------------------------------------------------------------
 //                 residue info widget

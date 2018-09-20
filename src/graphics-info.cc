@@ -1363,12 +1363,13 @@ graphics_info_t::set_refinement_map(int i) {
 void
 graphics_info_t::accept_moving_atoms() {
 
-   // std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms is " << imol_moving_atoms
-   // << std::endl;
-   // std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms type is "
-   // << moving_atoms_asc_type << std::endl;
-   
-   
+   if (false) {
+      std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms is " << imol_moving_atoms
+	        << std::endl;
+      std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms type is "
+	        << moving_atoms_asc_type << " vs " << coot::NEW_COORDS_REPLACE << std::endl;
+   }
+
    if (moving_atoms_asc_type == coot::NEW_COORDS_ADD) { // not used!
       molecules[imol_moving_atoms].add_coords(*moving_atoms_asc);
    } else {
@@ -1378,6 +1379,7 @@ graphics_info_t::accept_moving_atoms() {
 	 update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
       } else {
 	 if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {
+
 	    molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 0, mzo);
 	    // debug
 	    // molecules[imol_moving_atoms].atom_sel.mol->WritePDBASCII("post-accept_moving_atoms.pdb");
@@ -1604,16 +1606,24 @@ void
 graphics_info_t::clear_up_moving_atoms() { 
 
    // std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms..." << std::endl;
-   
+
    moving_atoms_asc_type = coot::NEW_COORDS_UNSET; // unset
    in_moving_atoms_drag_atom_mode_flag = 0; // no more dragging atoms
    have_fixed_points_sheared_drag_flag = 0;
    // and take out any drag refine idle function:
 
+   // We can't clear up until we have the lock and the lock here means that refinement
+   // can't continue
+
+   bool unlocked = false;
+   while (! graphics_info_t::threaded_refinement_is_running.compare_exchange_weak(unlocked, true)) {
+      // std::cout << "oops graphics_info_t::clear_up_moving_atoms() - refinement_is_running locked on " << std::endl;
+      std::this_thread::sleep_for(std::chrono::microseconds(50));  // make this smaller in production
+      unlocked = false;
+   }
+
    graphics_info_t::continue_update_refinement_atoms_flag = false;
-   gtk_idle_remove(drag_refine_idle_function_token); 
-   drag_refine_idle_function_token = -1; // magic "not in use" value
-   
+
    if (moving_atoms_asc->atom_selection != NULL) {
       if (moving_atoms_asc->n_selected_atoms > 0) { 
 	 moving_atoms_asc->mol->DeleteSelection(moving_atoms_asc->SelectionHandle);
@@ -1646,16 +1656,18 @@ graphics_info_t::clear_up_moving_atoms() {
    //
    moving_atoms_asc->n_selected_atoms = 0;
 
-   graphics_info_t::rebond_molecule_corresponding_to_moving_atoms();
-
 #ifdef HAVE_GSL
-   // last_restraints = coot::restraints_container_t(); // last_restraints.size() = 0;
+
    if (last_restraints) {
       last_restraints->clear();
       delete last_restraints;
       last_restraints = 0;
    }
+   graphics_info_t::threaded_refinement_is_running = false;
 #endif // HAVE_GSL
+
+   graphics_info_t::rebond_molecule_corresponding_to_moving_atoms();
+
 }
 
 
@@ -1741,29 +1753,16 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
    
    *moving_atoms_asc = asc;
 
-   // these not needed now, 
-//    moving_atoms_asc->mol = asc.mol;
-//    moving_atoms_asc->n_selected_atoms = asc.n_selected_atoms;
-//    moving_atoms_asc->atom_selection = asc.atom_selection;
-//    moving_atoms_asc->read_success = asc.read_success;
-//    moving_atoms_asc->SelectionHandle = asc.SelectionHandle;
-//    moving_atoms_asc->UDDAtomIndexHandle = asc.UDDAtomIndexHandle;
-//    moving_atoms_asc->UDDOldAtomIndexHandle = asc.UDDOldAtomIndexHandle;
-
    int do_disulphide_flag = 0;
 
-//    std::cout << "DEBUG:: There are " << moving_atoms_asc->n_selected_atoms
-// 	     << " atoms in the graphics object" << std::endl;
-//    for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
-//       std::cout << moving_atoms_asc->atom_selection[i] << std::endl;
-//    }
-//
-//    Needed that to debug doubly clear_up on a bonds box.  Now points
-//    reset in clear_up().
-   
-//    std::cout << "DEBUG:: bonds box type of molecule " << imol_moving_atoms
-// 	     << " is " << molecules[imol_moving_atoms].Bonds_box_type()
-// 	     << std::endl;
+   //    Needed that to debug doubly clear_up on a bonds box.  Now points
+   //    reset in clear_up().
+
+   if (false)
+      std::cout << "DEBUG:: make_moving_atoms_graphics_object() bonds box type of molecule "
+	        << imol_moving_atoms << " is " << molecules[imol_moving_atoms].Bonds_box_type()
+                << std::endl;
+
    if (molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS ||
        molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS ||
        molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS ||
@@ -1788,6 +1787,8 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       }
 
    } else {
+      std::cout << "DEBUG:: make_moving_atoms_graphics_object() here 2 " << std::endl;
+
       int draw_hydrogens_flag = 0;
       if (molecules[imol_moving_atoms].draw_hydrogens())
 	 draw_hydrogens_flag = 1;
@@ -1798,8 +1799,8 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       regularize_object_bonds_box.clear_up();
       regularize_object_bonds_box = bonds.make_graphical_bonds();
 
-      // if (do_coot_probe_dots_during_refine_flag)
-      // do_interactive_coot_probe();
+      
+
    }
 }
 
@@ -1808,11 +1809,20 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 // static
 // moving atoms are intermediate atoms
 void
-graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_background) { 
-   
+graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_background) {
+
    // very much most of the time, this will be zero
-   // 
+   //
    if (regularize_object_bonds_box.num_colours > 0) {
+
+      if (moving_atoms_bonds_lock) {
+	 std::cout << "in draw_moving_atoms_graphics_object() moving_atoms_bonds_lock was locked"
+		   << std::endl;
+	 return;
+      }
+      moving_atoms_bonds_lock = true; // I've got the lock.
+   
+      // std::cout << "draw_moving_atoms_graphics_object() " << std::endl;
 
       if (against_a_dark_background) {
 	 // now we want to draw out our bonds in white, 
@@ -1820,7 +1830,7 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
       } else {
 	 glColor3f (0.4, 0.4, 0.4);
       }
-      
+
       float bw = graphics_info_t::bond_thickness_intermediate_atoms;
       for (int i=0; i< graphics_info_t::regularize_object_bonds_box.num_colours; i++) {
 
@@ -1838,14 +1848,18 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 	       glColor3f (0.5, 0.5, 0.5);
 	 }
 
-	 graphical_bonds_lines_list<graphics_line_t> &ll = graphics_info_t::regularize_object_bonds_box.bonds_[i];
+	 graphical_bonds_lines_list<graphics_line_t> &ll = regularize_object_bonds_box.bonds_[i];
+
+	 // std::cout << "   debug colour ii = " << i << " has  "
+	 // << regularize_object_bonds_box.bonds_[i].num_lines << " lines" << std::endl;
+
 	 if (ll.thin_lines_flag)
 	    glLineWidth(bw * 0.5);
 	 else 
 	    glLineWidth(bw); // is this slow?
 
 	 glBegin(GL_LINES); 
-	 for (int j=0; j< graphics_info_t::regularize_object_bonds_box.bonds_[i].num_lines; j++) {
+	 for (int j=0; j< regularize_object_bonds_box.bonds_[i].num_lines; j++) {
 	   
 	    coot::CartesianPair &pair = ll.pair_list[j].positions;
 	    
@@ -1864,7 +1878,9 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
       draw_ramachandran_goodness_spots();
       draw_rotamer_probability_object();
 
+      moving_atoms_bonds_lock = false; // unlock.
    }
+
 }
 
 void

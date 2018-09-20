@@ -7,178 +7,13 @@ gint
 graphics_info_t::drag_refine_refine_intermediate_atoms() {
 
    int retprog = -1;
+
 #ifdef HAVE_GSL
 
-   graphics_info_t g;
+   thread_for_refinement_loop_threaded();
 
-   if (! g.last_restraints) {
-      std::cout << "Null last restraints " << std::endl;
-      return retprog;
-   }
-
-   // While the results of the refinement are a conventional result
-   // (unrefined), let's continue.  However, there are return values
-   // that we will stop refining and remove the idle function is on a
-   // GSL_ENOPROG(RESS) and GSL_SUCCESS.... actually, we will remove
-   // it on anything other than a GSL_CONTINUE
-   //
-
-   // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
-   // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-   // coot::restraint_usage_Flags flags = coot::BONDS_AND_PLANES;
-   // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES;
-   coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
-
-   if (do_torsion_restraints) {
-      if (use_only_extra_torsion_restraints_for_torsions_flag) { 
-	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-	 flags = coot::TYPICAL_RESTRAINTS;
-      } else {
-	 flags = coot::TYPICAL_RESTRAINTS_WITH_TORSIONS;
-      }
-   }
-
-   if (do_rama_restraints)
-      // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
-      // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
-      flags = coot::ALL_RESTRAINTS;
-   
-   if (do_torsion_restraints && do_rama_restraints) {
-
-      // Do we really need this fine control?
-      
-//       if (use_only_extra_torsion_restraints_for_torsions_flag) { 
-// 	 // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
-// 	 // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
-//       } else {
-// 	 // This changes the function to using torsions (for non-peptide torsions)
-// 	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
-// 	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
-//       }
-
-   }
-
-   if (g.auto_clear_atom_pull_restraint_flag) {
-      // returns true when the restraint was turned off.
-      // turn_off_atom_pull_restraints_when_close_to_target_position() should not
-      // include the atom that the use is actively dragging
-      // (use moving_atoms_currently_dragged_atom_index).
-      //
-      // except this one:
-      mmdb::Atom *at_except = 0;
-      if (moving_atoms_currently_dragged_atom_index != -1)
-	 at_except = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
-      coot::atom_spec_t except_dragged_atom(at_except);
-
-      std::vector<coot::atom_spec_t> specs_for_removed_restraints =
-	 g.last_restraints->turn_off_atom_pull_restraints_when_close_to_target_position(except_dragged_atom);
-      if (specs_for_removed_restraints.size()) {
-	 atom_pulls_off(specs_for_removed_restraints);
-	 g.clear_atom_pull_restraints(specs_for_removed_restraints, true);
-      }
-   }
-
-   // print_initial_chi_squareds_flag is 1 the first time then we turn it off.
-   int steps_per_frame = dragged_refinement_steps_per_frame;
-   if (! g.last_restraints->include_map_terms())
-      steps_per_frame *= 6;
-
-   // flags = coot::BONDS_AND_NON_BONDED;
-   // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS; // seems OK in parallel
-   // flags = coot::BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS;
-   // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_GEMAN_MCCLURE_DISTANCES; // crashes
-   // flags = coot::TYPICAL_RESTRAINTS; // crashes
-   // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS; // seems OK in parallel
-
-   // It is inconvenient that we can't do this:
-   // flags += coot::restraint_usage_Flags(coot::JUST_RAMAS);
-   // so turn restraint_usage_Flags into a class
-
-   // so, 1087 is crashy,  59 is fine
-
-   if (false)
-      std::cout << "debug:: in drag_refine_refine_intermediate_atoms() calling minimize() with "
-		<< flags << std::endl;
-
-   g.last_restraints->set_lennard_jones_epsilon(graphics_info_t::lennard_jones_epsilon);
-
-   graphics_info_t::saved_dragged_refinement_results =
-      g.last_restraints->minimize(flags, steps_per_frame, print_initial_chi_squareds_flag);
-
-   retprog = graphics_info_t::saved_dragged_refinement_results.progress;
-
-   if (false)
-      std::cout << "debug:: in drag_refine_refine_intermediate_atoms() with progress "
-		<< retprog << " drag_refine_idle_function_token "
-		<< graphics_info_t::drag_refine_idle_function_token << std::endl;
-
-   print_initial_chi_squareds_flag = 0;
-   int do_disulphide_flag = 0;
-   int draw_hydrogens_flag = 0;
-   if (molecules[imol_moving_atoms].draw_hydrogens())
-      draw_hydrogens_flag = 1;
-   bool do_rama_markup = graphics_info_t::do_intermediate_atoms_rama_markup;
-   bool do_rota_markup = graphics_info_t::do_intermediate_atoms_rota_markup;
-
-   // wrap the filling of the rotamer probability tables
-   //
-   coot::rotamer_probability_tables *tables_pointer = NULL;
-
-   if (do_rota_markup) {
-      if (! rot_prob_tables.tried_and_failed()) {
-	 if (rot_prob_tables.is_well_formatted()) {
-	    tables_pointer = &rot_prob_tables;
-	 } else {
-	    rot_prob_tables.fill_tables();
-	    if (rot_prob_tables.is_well_formatted()) {
-	       tables_pointer = &rot_prob_tables;
-	    }
-	 }
-      } else {
-	 do_rota_markup = false;
-      }
-   }
-
-   //
-   std::set<int> dummy_set; // don't remove bonds to any atoms
-   Bond_lines_container bonds(*g.moving_atoms_asc, imol_moving_atoms,
-			      dummy_set, Geom_p(),
-			      do_disulphide_flag, draw_hydrogens_flag, 0,
-			      do_rama_markup, do_rota_markup,
-			      tables_pointer);
-
-   g.regularize_object_bonds_box.clear_up();
-   g.regularize_object_bonds_box = bonds.make_graphical_bonds(g.ramachandrans_container,
-							      do_rama_markup, do_rota_markup);
-
-   // debug
-   // coot::geometry_distortion_info_container_t gdic = last_restraints.geometric_distortions(flags);
-
-   char *env = getenv("COOT_DEBUG_REFINEMENT");
-   if (env)
-      g.tabulate_geometric_distortions(*last_restraints, flags);
-
-   // Update the Accept/Reject Dialog if it exists (and it should do,
-   // if we are doing dragged refinement).
-   if (accept_reject_dialog) {
-      if (saved_dragged_refinement_results.lights.size() > 0) {
-
-	 if (false)
-	    std::cout << "debug:: here in drag_refine_refine_intermediate_atoms() calling "
-		      << "update_accept_reject_dialog_with_results() with rr.info \""
-		      << saved_dragged_refinement_results.info_text << "\"" << std::endl;
-	 update_accept_reject_dialog_with_results(accept_reject_dialog,
-						  coot::CHI_SQUAREDS,
-						  saved_dragged_refinement_results);
-      }
-   }
-
-   if (true)
-      if (do_coot_probe_dots_during_refine_flag)
-	 g.do_interactive_coot_probe();
-
-
-   g.run_post_intermediate_atoms_moved_hook_maybe();
+   //    g.run_post_intermediate_atoms_moved_hook_maybe();  // put this somewhere else
+   //   (after the refinement has finished.)                          
 
 #endif // HAVE_GSL
 
@@ -244,8 +79,10 @@ bool graphics_info_t::pepflip_intermediate_atoms() {
 	       coot::util::rotate_atom_about(dir, base, M_PI, at_2_n);
 	       coot::util::rotate_atom_about(dir, base, M_PI, at_2_h); // does null check
 
-	       add_drag_refine_idle_function();
-	       drag_refine_refine_intermediate_atoms();
+	       // add_drag_refine_idle_function();
+	       // drag_refine_refine_intermediate_atoms();
+
+	       thread_for_refinement_loop_threaded();
 
 	    }
 	 }
@@ -529,8 +366,11 @@ graphics_info_t::jed_flip_intermediate_atoms() {
 	    int imol = imol_moving_atoms;
 	    bool invert_selection = false;
 	    coot::util::jed_flip(imol, residue_p, active_atom, invert_selection, Geom_p());
-	    add_drag_refine_idle_function();
-	    drag_refine_refine_intermediate_atoms();
+
+	    // add_drag_refine_idle_function();
+	    // drag_refine_refine_intermediate_atoms();
+
+	    thread_for_refinement_loop_threaded();
 	 }
       }
    }
@@ -605,8 +445,9 @@ graphics_info_t::crankshaft_peptide_rotation_optimization_intermediate_atoms() {
 			at->z = asc_at->z;
 		     }
 		  }
-		  add_drag_refine_idle_function();
-		  drag_refine_refine_intermediate_atoms();
+		  // add_drag_refine_idle_function(); // pre-threaded refinement
+		  // drag_refine_refine_intermediate_atoms();
+		  thread_for_refinement_loop_threaded();
 	       } else {
 		  g.add_status_bar_text("Couldn't crankshaft this");
 	       }
@@ -627,8 +468,8 @@ graphics_info_t::rebond_molecule_corresponding_to_moving_atoms() {
    if (moving_atoms_asc) {
 
       // we were doing some refinement and decided to give up/reject, in that case, we neeed to redraw
-      // the the "static" molecule from which the moving atoms were derived because the "static"
-      // atoms were drawn without the atoms that correspond to the moving atoms.
+      // the the "static" molecule from which the moving atoms were derived because, during refinement,
+      // the "static" atoms were drawn without the atoms that correspond to the moving atoms.
       //
       if (is_valid_model_molecule(imol_moving_atoms)) {
 	 std::set<int> empty_set;

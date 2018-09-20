@@ -557,6 +557,14 @@ class graphics_info_t {
    // now used for residue_score (from c-interface.h)
    // coot::rotamer_probability_info_t get_rotamer_probability(...)
 
+
+   // do these need to be atomics? I don't think so.
+   // static std::atomic<unsigned int> moving_atoms_lock; // atom positions
+   // static std::atomic<unsigned int> moving_atoms_bonds_lock; // regularize_object_bonds_box is being
+                                                                // updated
+   static bool moving_atoms_lock;
+   // static bool moving_atoms_bonds_lock;
+   static std::atomic<unsigned int> moving_atoms_bonds_lock;
    static atom_selection_container_t *moving_atoms_asc;
    mmdb::Residue *get_first_res_of_moving_atoms();
    static int imol_moving_atoms;
@@ -841,6 +849,18 @@ class graphics_info_t {
 			     bool need_residue_order_check, 
 			     int imol,
 			     std::string chain_id);
+
+   static void refinement_loop_threaded();
+   // several function move the atoms and need some refinement afterward (pepflip,JED-flip)
+   // they all want to continue the refinement of last_restraints - but don't need to 
+   // start (and detach) a new thread to do so if a refinement thread is already running.
+   // Hence thread_for_refinement_loop_threaded() which replaces use of
+   // add_drag_refine_idle_function()
+   // drag_refine_refine_intermediate_atoms()
+   //
+   static void thread_for_refinement_loop_threaded(); 
+   void update_restraints_with_atom_pull_restraints(); // make static also?
+   coot::restraint_usage_Flags set_refinement_flags() const; // make static?
 
    // 201803004:
    // refinement now uses references to Xmaps.
@@ -3844,6 +3864,22 @@ string   static std::string sessionid;
 
    static int jed_flip_intermediate_atoms();
    static int crankshaft_peptide_rotation_optimization_intermediate_atoms();
+
+#ifdef HAVE_CXX_THREAD
+   static std::atomic<bool> threaded_refinement_is_running;
+   static bool continue_threaded_refinement_loop; // so that the ESC key can stop the refinement
+   static int  threaded_refinement_loop_counter;
+   static int  threaded_refinement_loop_counter_bonds_gen;
+   static bool threaded_refinement_needs_to_clear_up; // because ESC was pressed
+   static bool threaded_refinement_needs_to_accept_moving_atoms; // because Return was pressed
+   static int  threaded_refinement_redraw_timeout_fn_id; // -1 initially
+#endif // HAVE_CXX_THREAD
+   static int regenerate_intermediate_atoms_bonds_timeout_function();
+   static int regenerate_intermediate_atoms_bonds_timeout_function_and_draw();
+   // we need to wait for the refinement to finish when we are in
+   // immediate accept mode or no-gui.  In scripted (e.g. sphere-refine)
+   // we should not wait
+   void conditionally_wait_for_refinement_to_finish();
 
 
 #ifdef USE_PYTHON

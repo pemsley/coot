@@ -465,6 +465,21 @@ def residue_spec_to_atom_selection_string(centre_residue_spec):
           "/" + str(centre_residue_spec[1])
     return ret
 
+def residue_atom_to_atom_name(ra):
+    if not isinstance(ra, list):
+        return False
+    else:
+        return ra[0][0]
+
+def residue_atom_to_postion(ra):
+    if not isinstance(ra, list):
+        return False
+    else:
+        return ra[2]
+
+
+#         I don't like these function names - remove them at some stage
+
 def residue_atom2atom_name(ra):
     if not isinstance(ra, list):
         return False
