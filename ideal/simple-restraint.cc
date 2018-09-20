@@ -956,7 +956,6 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       }
    }
 
-   std::vector<refinement_lights_info_t> lights = chi_squareds("--------", m_s->x, false);
    // if hideous geometry, presanitize with bonds, angles, chirals and non-bonded
    // if they are passed as set. Uses restraints_usage_flag
    if (n_times_called == 1) {
@@ -965,19 +964,10 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       // and chiral volumes restraints (and possibly plane restraints) when we have
       // a hideous model.
 
-      pre_sanitize_as_needed(lights, m_s, step_size, tolerance);
+      pre_sanitize_as_needed(lights);
    }
 
-//      std::cout << "pre minimization atom positions\n";
-//      for (int i=0; i<n_atoms*3; i+=3)
-//         std::cout << i/3 << " ("
-// 		  << gsl_vector_get(x, i) << ", "
-// 		  << gsl_vector_get(x, i+1) << ", "
-// 		  << gsl_vector_get(x, i+2) << ")"
-// 		  << std::endl;
-
    auto tp_3 = std::chrono::high_resolution_clock::now();
->>>>>>> refs/remotes/origin/refinement
 
    int iter = 0; 
    int status;
@@ -1010,14 +1000,14 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 status = gsl_multimin_fdfminimizer_iterate(m_s);
 
 	 // this might be useful for debugging rama restraints
-
-	 conjugate_pr_state_t *state = (conjugate_pr_state_t *) m_s->state;
-	 double pnorm = state->pnorm;
-	 double g0norm = state->g0norm;
+	 //
+	 // conjugate_pr_state_t *state = (conjugate_pr_state_t *) m_s->state;
+	 // double pnorm = state->pnorm;
+	 // double g0norm = state->g0norm;
 	 // 
-	 if (false)
-	    std::cout << "iter: " << iter << " f " << m_s->f << " " << gsl_multimin_fdfminimizer_minimum(m_s)
-		      << " pnorm " << pnorm << " g0norm " << g0norm << std::endl;
+	 // if (false)
+	 // std::cout << "iter: " << iter << " f " << m_s->f << " " << gsl_multimin_fdfminimizer_minimum(m_s)
+	 // << " pnorm " << pnorm << " g0norm " << g0norm << std::endl;
 
 	 if (status) {
 	    std::cout << "Unexpected error from gsl_multimin_fdfminimizer_iterate" << std::endl;
