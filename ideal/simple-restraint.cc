@@ -347,6 +347,7 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 void
 coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
 
+   needs_reset = false;
    verbose_geometry_reporting = NORMAL;
    do_numerical_gradients_flag = false;
    have_oxt_flag = false; // set in mark_OXT()
@@ -755,8 +756,7 @@ coot::restraints_container_t::debug_atoms() const {
 }
 
 void
-coot::restraints_container_t::pre_sanitize_as_needed(std::vector<refinement_lights_info_t> lights,
-						     gsl_multimin_fdfminimizer *s, double step_size, double tolerance) {
+coot::restraints_container_t::pre_sanitize_as_needed(std::vector<refinement_lights_info_t> lights) {
 
 
    bool do_pre_sanitize = false;
@@ -772,14 +772,14 @@ coot::restraints_container_t::pre_sanitize_as_needed(std::vector<refinement_ligh
    if (do_pre_sanitize) {
       if (verbose_geometry_reporting != QUIET)
 	 std::cout << "debug:: :::: pre-sanitizing" << std::endl;
-      int nsteps_max = 100; // wow! in the basic-no-progress test only 1 round is needed!
+      int nsteps_max = 30; // wow! in the basic-no-progress test only 1 round is needed!
       int status;
       int restraints_usage_flag_save = restraints_usage_flag;
       restraints_usage_flag = BONDS_ANGLES_CHIRALS_AND_NON_BONDED;
       do
 	 {
 	    iter++;
-	    status = gsl_multimin_fdfminimizer_iterate(s);
+	    status = gsl_multimin_fdfminimizer_iterate(m_s);
 	    if (status) {
 	       break;
 	    }
@@ -787,12 +787,12 @@ coot::restraints_container_t::pre_sanitize_as_needed(std::vector<refinement_ligh
 	    double grad_lim = sqrt(size()) * 0.15;
 	    if (grad_lim < 0.3)
 	       grad_lim = 0.3;
-	    status = gsl_multimin_test_gradient (s->gradient, grad_lim);
+	    status = gsl_multimin_test_gradient (m_s->gradient, grad_lim);
 
 	    if (status == GSL_SUCCESS) {
 	       if (verbose_geometry_reporting != QUIET) {
 		  std::cout << "Pre-Sanitize Minimum found (iteration number " << iter << ") at ";
-		  std::cout << s->f << "\n";
+		  std::cout << m_s->f << "\n";
 	       }
 	    }
 	 
@@ -800,17 +800,29 @@ coot::restraints_container_t::pre_sanitize_as_needed(std::vector<refinement_ligh
 	       std::cout << "pre-sanitize (No Progress)\n";
 	 }
       while ((status == GSL_CONTINUE) && (iter < nsteps_max));
-      gsl_vector_set_zero(s->dx);
+      gsl_vector_set_zero(m_s->dx);
       // set the 'starting' atom positions to be the result of pre-sanitization
       for (int i=0; i<3*n_atoms; i++)
-	 gsl_vector_set(x, i, gsl_vector_get(s->x, i));
+	 gsl_vector_set(x, i, gsl_vector_get(m_s->x, i));
       restraints_usage_flag = restraints_usage_flag_save;
-      gsl_multimin_fdfminimizer_set(s, &multimin_func, x, step_size, tolerance);
+      gsl_multimin_fdfminimizer_set(m_s, &multimin_func, x, m_initial_step_size, m_tolerance);
       if (verbose_geometry_reporting != QUIET)
 	 std::cout << "debug:: :::: pre-sanitization complete" << std::endl;
    }
 }
 
+unsigned int
+coot::restraints_container_t::n_atom_pull_restraints() const {
+
+   unsigned int n=0;
+   for (unsigned int i=0; i<restraints_vec.size(); i++) {
+      const simple_restraint &rest = restraints_vec[i];
+      if (rest.restraint_type == TARGET_POS_RESTRAINT)
+	 n++;
+   }
+
+   return n;
+}
 
 
 // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
@@ -825,7 +837,45 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags) {
 
 
 #include <gsl/gsl_blas.h> // for debugging norm of gradient
- 
+
+// this does a reset/setup
+//
+void
+coot::restraints_container_t::setup_minimize() {
+
+   // T = gsl_multimin_fdfminimizer_conjugate_fr; // not as good as pr
+   // T = gsl_multimin_fdfminimizer_steepest_descent; // pathetic
+   // T = gsl_multimin_fminimizer_nmsimplex; // you can't just drop this in,
+                                             // because simplex is a
+                                             // non-gradient method.
+   // T = gsl_multimin_fdfminimizer_vector_bfgs;
+
+   //   This is the Polak-Ribiere conjugate gradient algorithm. It is
+   //   similar to the Fletcher-Reeves method, differing only in the
+   //   choice of the coefficient \beta. Both methods work well when
+   //   the evaluation point is close enough to the minimum of the
+   //   objective function that it is well approximated by a quadratic
+   //   hypersurface.
+   //
+   const gsl_multimin_fdfminimizer_type *T = gsl_multimin_fdfminimizer_conjugate_pr;
+
+   // setup before the first minimize (n_times_called == 1)
+
+   setup_gsl_vector_variables();  //initial positions
+   setup_multimin_func(); // provide functions for f, df, fdf
+
+   m_s = gsl_multimin_fdfminimizer_alloc(T, n_variables());
+
+   m_initial_step_size = 0.5 * gsl_blas_dnrm2(x); // how about just 0.1?
+   // std::cout << "debug:: using with step_size " << m_initial_step_size << std::endl;
+
+   // this does a lot of work
+   gsl_multimin_fdfminimizer_set(m_s, &multimin_func, x, m_initial_step_size, m_tolerance);
+
+   m_grad_lim = pow(size(), 0.7) * 0.03;
+   if (m_grad_lim < 0.3) m_grad_lim = 0.3;
+
+}
  
 // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
 //
@@ -834,6 +884,9 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 				       int nsteps_max,
 				       short int print_initial_chi_sq_flag) {
    n_times_called++;
+   if (n_times_called == 1 || needs_reset)
+      setup_minimize();
+
    return minimize_inner(usage_flags, nsteps_max, print_initial_chi_sq_flag);
 }
 
@@ -845,25 +898,6 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 					     int nsteps_max,
 					     short int print_initial_chi_sq_flag) {
 
-   if (do_numerical_gradients_flag) {
-      std::cout << "debug:: minimize_inner called with usage_flags " << usage_flags << std::endl;
-      debug_atoms();
-   }
-
-   restraints_usage_flag = usage_flags;
-   // restraints_usage_flag = BONDS_AND_ANGLES;
-   // restraints_usage_flag = GEMAN_MCCLURE_DISTANCE_RESTRAINTS;
-   // restraints_usage_flag = NO_GEOMETRY_RESTRAINTS;
-   // restraints_usage_flag = NON_BONDED;
-   // restraints_usage_flag = BONDS_AND_NON_BONDED;
-   // restraints_usage_flag = BONDS_ANGLES_AND_NON_BONDED;
-   // restraints_usage_flag = BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
-   // restraints_usage_flag = JUST_RAMAS;
-   
-   // std::cout << "debug:: minimize usage_flags " << restraints_usage_flag << std::endl;
-
-   const gsl_multimin_fdfminimizer_type *T;
-
    // check that we have restraints before we start to minimize:
    if (restraints_vec.size() == 0) {
       if (restraints_usage_flag != NO_GEOMETRY_RESTRAINTS) {
@@ -873,109 +907,28 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       }
    }
 
-   setup_gsl_vector_variables();  //initial positions
+   restraints_usage_flag = usage_flags;
 
-   setup_multimin_func(); // provide functions for f, df, fdf
+   if (do_numerical_gradients_flag) {
+      std::cout << "debug:: minimize_inner called with usage_flags " << usage_flags << std::endl;
+      debug_atoms();
+   }
 
-   // T = gsl_multimin_fdfminimizer_conjugate_fr; // not as good as pr
-   // T = gsl_multimin_fdfminimizer_steepest_descent; // pathetic
-   // T = gsl_multimin_fminimizer_nmsimplex; // you can't just drop this in, 
-                                             // because simplex is a 
-                                             // non-gradient method. 
-   // T = gsl_multimin_fdfminimizer_vector_bfgs;
-   T = gsl_multimin_fdfminimizer_conjugate_pr;
-
-   //   This is the Polak-Ribiere conjugate gradient algorithm. It is
-   //   similar to the Fletcher-Reeves method, differing only in the
-   //   choice of the coefficient \beta. Both methods work well when
-   //   the evaluation point is close enough to the minimum of the
-   //   objective function that it is well approximated by a quadratic
-   //   hypersurface.
-
-   gsl_multimin_fdfminimizer *s = gsl_multimin_fdfminimizer_alloc(T, n_variables());
 
    // We get ~1ms/residue with bond and angle terms and no density terms.
 
-   double tolerance = 0.13; // was 0.06 // was 0.035
-   if (! include_map_terms()) {
-      tolerance = 0.18;
-   } else {
-      if (usage_flags & RAMA_PLOT_MASK)
-	 tolerance = 0.26;
-   }
-
-   double step_size = 0.5 * gsl_blas_dnrm2(x);
-   // std::cout << "debug:: starting with step_size " << step_size << std::endl;
-
    auto tp_0 = std::chrono::high_resolution_clock::now();
-
-   // this does a lot of work - can it be faster? No.
-   gsl_multimin_fdfminimizer_set(s, &multimin_func, x, step_size, tolerance);
-
    auto tp_1 = std::chrono::high_resolution_clock::now();
-   if (false) {
-      std::cout << "-------------------------------------------\n";
-      std::cout << "Lights time: start:\n";
-      std::cout << "-------------------------------------------\n" ;
-   }
 
-   if (false) {
-      auto tp_2 = std::chrono::high_resolution_clock::now();
-      auto d10 = chrono::duration_cast<chrono::microseconds>(tp_1 - tp_0).count();
-      auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
-
-      // c.f gsl_multimin_fdfminimizer_set() 448 us
-      //     minimize iteration block: 60,200 us
-      std::cout << "-------------------------------------------\n";
-      std::cout << "gsl_multimin_fdfminimizer_set() time: " << d10 << " microseconds\n";
-      std::cout << "Lights time: " << d21 << " microseconds\n";
-      std::cout << "-------------------------------------------\n";
-   }
-
-   if (print_initial_chi_sq_flag) {
-      if (verbose_geometry_reporting != QUIET) {
-	 void *params = reinterpret_cast<void *>(this);
-	 double d = coot::distortion_score(x, params);
-	 std::cout << "    Initial distortion_score: " << d << std::endl; 
-	 std::vector<refinement_lights_info_t> lights = chi_squareds("Initial RMS Z values", s->x);
-	 refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights);
-	 if (worst_of_all.is_set) {
-	    const simple_restraint &baddie_restraint = restraints_vec[worst_of_all.restraints_index];
-	    std::cout << "Most dissatisfied restraint on input: "
-		      << baddie_restraint.format(atom, worst_of_all.value)
-		      << std::endl;
-	 }
-      }
-   }
-
-   std::vector<refinement_lights_info_t> lights = chi_squareds("--------", s->x, false);
-   // if hideous geometry, presanitize with bonds, angles, chirals and non-bonded
-   // if they are passed as set. Uses restraints_usage_flag
-   if (n_times_called == 1) {
-      // this is the first round, so try to pre-sanitize if we have hideous geometry.
-      // pre-sanitization reduces/stops the conflict between trans peptide restraints
-      // and chiral volumes restraints (and possibly plane restraints) when we have
-      // a hideous model.
-
-      pre_sanitize_as_needed(lights, s, step_size, tolerance);
-   }
-
-//      std::cout << "pre minimization atom positions\n";
-//      for (int i=0; i<n_atoms*3; i+=3)
-//         std::cout << i/3 << " ("
-// 		  << gsl_vector_get(x, i) << ", "
-// 		  << gsl_vector_get(x, i+1) << ", "
-// 		  << gsl_vector_get(x, i+2) << ")"
-// 		  << std::endl;
-
-   auto tp_3 = std::chrono::high_resolution_clock::now();
+   std::vector<refinement_lights_info_t> lights = chi_squareds("--------", m_s->x, false);
 
    int iter = 0; 
    int status;
    std::vector<coot::refinement_lights_info_t> lights_vec;
    bool done_final_chi_squares = false;
 
-   // debugging the GSL_ENOPROG from gsl_multimin_fdfminimizer_iterate()
+   // Note to self, after an atom pull, should I be using
+   // gsl_multimin_fdfminimizer_restart() to set to the current position as a starting point?
 
    typedef struct
    {
@@ -993,26 +946,27 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    }
    conjugate_pr_state_t;
 
+   
    do
       {
 	 iter++;
-	 status = gsl_multimin_fdfminimizer_iterate(s);
-	 if (false)
-	    std::cout << "debug:: iteration number " << iter << " of " << nsteps_max
-		      << " status from gsl_multimin_fdfminimizer_iterate(): " << status << std::endl;
+	 status = gsl_multimin_fdfminimizer_iterate(m_s);
 
-	 // debugging GSL_ENOPROG - it was running out of precision, I think, the step was too small
-	 // (in intermediate_point()) - so bottom line is: don't make the ZO Rama weight too high (> 1?)
-	 //
-	 // conjugate_pr_state_t *state = (conjugate_pr_state_t *) s->state;
-	 // double pnorm = state->pnorm;
-	 // double g0norm = state->g0norm;
+	 // this might be useful for debugging rama restraints
+
+	 conjugate_pr_state_t *state = (conjugate_pr_state_t *) m_s->state;
+	 double pnorm = state->pnorm;
+	 double g0norm = state->g0norm;
+	 // 
+	 if (false)
+	    std::cout << "iter: " << iter << " f " << m_s->f << " " << gsl_multimin_fdfminimizer_minimum(m_s)
+		      << " pnorm " << pnorm << " g0norm " << g0norm << std::endl;
 
 	 if (status) {
 	    std::cout << "Unexpected error from gsl_multimin_fdfminimizer_iterate" << std::endl;
 	    if (status == GSL_ENOPROG) {
 	       std::cout << "Error in gsl_multimin_fdfminimizer_iterate was GSL_ENOPROG" << std::endl; 
-	       lights_vec = chi_squareds("Final Estimated RMS Z Scores", s->x);
+	       lights_vec = chi_squareds("Final Estimated RMS Z Scores", m_s->x);
 	       refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights_vec);
 	       if (worst_of_all.is_set) {
 		  const simple_restraint &baddie_restraint = restraints_vec[worst_of_all.restraints_index];
@@ -1030,28 +984,12 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	    break;
 	 }
 
-	 // back of envelope calculation suggests g_crit = 0.1 for
-	 // coordinate shift of 0.001:  So let's choose 0.05
-	 // when we have 100 restraints, 0.5 is OK.
-	 // wehen we have 200,000 restraints, 0.5 is not OK.
-	 // grad_lim = sqrt(n_restraints) * 0.05
-	 double grad_lim = pow(size(), 0.7) * 0.03;
-	 if (grad_lim < 0.3)
-	    grad_lim = 0.3;
-	 // std::cout << "debug:: grad-lim: " << grad_lim << std::endl;
-	 status = gsl_multimin_test_gradient (s->gradient, grad_lim);
-
-	 if (false) { // debug
-	    double norm = gsl_blas_dnrm2(s->gradient); 
-	    std::cout << "debug:: iteration number " << iter << " of " << nsteps_max
-		      << " status from gsl_multimin_test_gradient() " << status << " for norm "
-		      << norm << std::endl;
-	 }
+	 status = gsl_multimin_test_gradient (m_s->gradient, m_grad_lim);
 
 	 if (status == GSL_SUCCESS) {
 	    if (verbose_geometry_reporting != QUIET) { 
 	       std::cout << "Minimum found (iteration number " << iter << ") at ";
-	       std::cout << s->f << "\n";
+	       std::cout << m_s->f << "\n";
 	    }
 	 }
 
@@ -1059,37 +997,21 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	    std::string title = "Final Estimated RMS Z Scores:";
 	    if (status == GSL_ENOPROG)
 	       title = "(No Progress) Final Estimated RMS Z Scores:";
-	    std::vector<coot::refinement_lights_info_t> results = chi_squareds(title, s->x);
+	    std::vector<coot::refinement_lights_info_t> results = chi_squareds(title, m_s->x);
 	    lights_vec = results;
-	    refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights_vec);
-	    if (worst_of_all.is_set) {
-	       const simple_restraint &baddie_restraint = restraints_vec[worst_of_all.restraints_index];
-	       if (verbose_geometry_reporting != QUIET)
-		  std::cout << "Most dissatisfied restraint (post-refine): "
-			    << baddie_restraint.format(atom, worst_of_all.value) << std::endl;
-	    }
 	    done_final_chi_squares = true;
 	 }
 
 	 if (verbose_geometry_reporting == VERBOSE)
-	    std::cout << "iteration number " << iter << " " << s->f << std::endl;
+	    cout << "iteration number " << iter << " " << m_s->f << endl;
 
+	 
       }
    while ((status == GSL_CONTINUE) && (iter < nsteps_max));
 
-   if (false)
-      std::cout << " in minimize() done_final_chi_squares: " << done_final_chi_squares
-		<< " and status " << status
-		<< " c.f GSL_SUCCESS " << GSL_SUCCESS
-		<< " c.f GSL_CONTINUE " << GSL_CONTINUE
-		<< " c.f GSL_ENOPROG " << GSL_ENOPROG
-		<< std::endl;
-   
-   auto tp_4 = std::chrono::high_resolution_clock::now();
-
    if (! done_final_chi_squares) {
       if (status != GSL_CONTINUE) {
-	 lights = chi_squareds("Final Estimated RMS Z Scores:", s->x);
+	 lights = chi_squareds("Final Estimated RMS Z Scores:", m_s->x);
 	 refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights);
 	 if (worst_of_all.is_set) {
 	    const simple_restraint &baddie_restraint = restraints_vec[worst_of_all.restraints_index];
@@ -1099,51 +1021,15 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       }
    }
 
-   update_atoms(s->x); // do OXT here
-
-   auto tp_5 = std::chrono::high_resolution_clock::now();
-   // if there were bad Hs at the end of refinement
-   if (status != GSL_ENOPROG) {
-      if (check_pushable_chiral_hydrogens(s->x)) {
-	 update_atoms(s->x);
-      }
-      auto tp_5_a = std::chrono::high_resolution_clock::now();
-      // check and correct them if needed. 
-      if (check_through_ring_bonds(s->x)) {
-	 update_atoms(s->x);
-      }
-      if (false) {
-	 // small numbers - perhaps because pushable hydrogens is not working
-	 auto tp_5_b = std::chrono::high_resolution_clock::now();
-	 auto d5a = chrono::duration_cast<chrono::microseconds>(tp_5_a - tp_5).count();
-	 auto d5b = chrono::duration_cast<chrono::microseconds>(tp_5_b - tp_5_a).count();
-	 std::cout << "Timings: pushable hydrogens: " << d5a << " microseconds" << std::endl;
-	 std::cout << "Timings: through-ring-bonds: " << d5b << " microseconds" << std::endl;
-      }
-   }
+   update_atoms(m_s->x); // do OXT here
 
    auto tp_7 = std::chrono::high_resolution_clock::now();
-   auto d43 = chrono::duration_cast<chrono::microseconds>(tp_4 - tp_3).count();
-   auto d54 = chrono::duration_cast<chrono::microseconds>(tp_5 - tp_4).count();
-   // auto d65 = chrono::duration_cast<chrono::microseconds>(tp_6 - tp_5).count();
-   auto d75 = chrono::duration_cast<chrono::microseconds>(tp_7 - tp_5).count();
 
-   gsl_multimin_fdfminimizer_free(s);
-   gsl_vector_free(x);
+   // gsl_multimin_fdfminimizer_free(m_s);
+   // gsl_vector_free(x);
 
    // (we don't get here unless restraints were found)
    coot::refinement_results_t rr(1, status, lights_vec);
-
-   if (false)
-      std::cout << "DEBUG:: returning from minimize() with progress/status " << rr.progress
-		<< ": and info \"" << rr.info_text << "\"" << std::endl;
-
-   if (false) {
-      std::cout << "-------------------------------------------\n";
-      std::cout << "Lights time - finish minimize() " << d43 << " microseconds\n";
-      std::cout << "Lights time - complete " << d54 << " microseconds\n";
-      std::cout << "-------------------------------------------\n";
-   }
 
    // the bottom line from the timing test is the only thing that matters
    // is the time spend in the core minimization iterations
@@ -1187,6 +1073,8 @@ coot::operator<<(std::ostream &s, const simple_restraint &r) {
    s << "{restraint: ";
    if (r.restraint_type == coot::BOND_RESTRAINT)
       s << "Bond   ";
+   if (r.restraint_type == coot::TARGET_POS_RESTRAINT)
+      s << "Target-Pos ";
    if (r.restraint_type == coot::ANGLE_RESTRAINT)
       s << "Angle  ";
    if (r.restraint_type == coot::TORSION_RESTRAINT)
@@ -1343,7 +1231,7 @@ coot::simple_restraint::format(mmdb::PAtom *atoms_vec, double distortion) const 
       s += util::remove_whitespace(util::float_to_string_using_dec_pl(distortion, 2));
    }
 
-   if (restraint_type == TARGET_POS_RESTRANT) {
+   if (restraint_type == TARGET_POS_RESTRAINT) {
       s = "Target_pos ";
       atom_spec_t spec_1(atoms_vec[atom_index_1]);
       s += spec_1.label();
@@ -1600,7 +1488,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	 }
       }
 
-      if (restraints_vec[i].restraint_type == coot::TARGET_POS_RESTRANT) {
+      if (restraints_vec[i].restraint_type == coot::TARGET_POS_RESTRAINT) {
 	 n_target_pos_restraints++;
 	 double dist = coot::distortion_score_target_pos(restraints_vec[i],
 							 log_cosh_target_distance_scale_factor, v);
@@ -3485,47 +3373,45 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
       mmdb::Residue *res_f = residues_vec[ii].second;
       for (unsigned int jj=ii+1; jj<residues_vec.size(); jj++) {
 	 mmdb::Residue *res_s = residues_vec[jj].second;
-	 std::pair<bool, float> d = closest_approach(res_f, res_s);
 
-	 if (debug) { 
-	    std::cout << " closest approach given " << coot::residue_spec_t(res_f)
-		      << " and " << coot::residue_spec_t(res_s) << std::endl;
-	    std::cout << " closest approach d " << d.first << " " << d.second << std::endl;
-	 }
-	 if (d.first) {
-	    if (d.second < dist_crit_for_bonded_pairs) {
-	       std::pair<std::string, bool> l  = find_link_type_complicado(res_f, res_s, geom);
-	       std::string link_type = l.first;
-	       if (!link_type.empty()) {
+	 if (res_f == res_s) continue;
 
-		  // too verbose?
-		  if (debug)
-		     std::cout << "   INFO:: find_link_type_complicado(): "
-			       << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
-			       << " link_type -> :" << link_type << ":" << std::endl;
+	 // 20180911 I now no longer want to evaluate closest approach here.
+	 //
+	 // std::pair<bool, float> d = closest_approach(res_f, res_s);
+	 // Linking should be resolved by find_link_type_complicado(), not
+	 // here by distance between residues.
 
-		  bool whole_first_residue_is_fixed = 0;
-		  bool whole_second_residue_is_fixed = 0;
-		  bool order_switch_flag = l.second;
+	 std::pair<std::string, bool> l  = find_link_type_complicado(res_f, res_s, geom);
+	 std::string link_type = l.first;
+	 if (!link_type.empty()) {
 
-		  if (!order_switch_flag) {
-		     coot::bonded_pair_t p(res_f, res_s,
-					   whole_first_residue_is_fixed,
-					   whole_second_residue_is_fixed, link_type);
-		     bool previously_added_flag = bpc.try_add(p);
-		  } else {
-		     coot::bonded_pair_t p(res_s, res_f,
-					   whole_first_residue_is_fixed,
-					   whole_second_residue_is_fixed,
-					   link_type);
-		     bool previously_added_flag = bpc.try_add(p);
-		  }
-	       } else {
-		  if (debug)
-		     std::cout << "DEBUG:: blank link_type find_link_type_complicado() returns \""
-			       << l.first << "\" " << l.second << std::endl;
-	       } 
+	    // too verbose?
+	    if (debug)
+	       std::cout << "   INFO:: find_link_type_complicado(): "
+			 << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
+			 << " link_type -> :" << link_type << ":" << std::endl;
+
+	    bool whole_first_residue_is_fixed = 0;
+	    bool whole_second_residue_is_fixed = 0;
+	    bool order_switch_flag = l.second;
+
+	    if (!order_switch_flag) {
+	       coot::bonded_pair_t p(res_f, res_s,
+				     whole_first_residue_is_fixed,
+				     whole_second_residue_is_fixed, link_type);
+	       bool previously_added_flag = bpc.try_add(p);
+	    } else {
+	       coot::bonded_pair_t p(res_s, res_f,
+				     whole_first_residue_is_fixed,
+				     whole_second_residue_is_fixed,
+				     link_type);
+	       bool previously_added_flag = bpc.try_add(p);
 	    }
+	 } else {
+	    if (debug)
+	       std::cout << "DEBUG:: blank link_type find_link_type_complicado() returns \""
+			 << l.first << "\" " << l.second << std::endl;
 	 }
       }
    }

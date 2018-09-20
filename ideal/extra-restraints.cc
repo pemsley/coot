@@ -389,7 +389,7 @@ coot::restraints_container_t::add_extra_target_position_restraints(const extra_r
 	    int atom_index = -1;
 	    at->GetUDData(udd_atom_index_handle, atom_index);
 	    // std::cout << "add target position for atom index " << atom_index << std::endl;
-	    add_user_defined_target_position_restraint(TARGET_POS_RESTRANT, atom_index, pr.atom_spec, pr.pos, pr.weight);
+	    add_user_defined_target_position_restraint(TARGET_POS_RESTRAINT, atom_index, pr.atom_spec, pr.pos, pr.weight);
 	 }
       }
    }

@@ -163,7 +163,7 @@ namespace coot {
    enum restraint_type_t {BOND_RESTRAINT=1, ANGLE_RESTRAINT=2, TORSION_RESTRAINT=4, PLANE_RESTRAINT=8,
 			  NON_BONDED_CONTACT_RESTRAINT=16, CHIRAL_VOLUME_RESTRAINT=32, RAMACHANDRAN_RESTRAINT=64,
 			  START_POS_RESTRAINT=128,
-			  TARGET_POS_RESTRANT=256, // restraint to make an atom be at a position
+			  TARGET_POS_RESTRAINT=256, // restraint to make an atom be at a position
 			  PARALLEL_PLANES_RESTRAINT=512,
 			  GEMAN_MCCLURE_DISTANCE_RESTRAINT=1024,
 			  TRANS_PEPTIDE_RESTRAINT=2048
@@ -614,7 +614,7 @@ namespace coot {
 	 restraint_type = rest_type;
 	 atom_index_1 = atom_idx;
 	 atom_pull_target_pos = pos;
-	 if (rest_type != TARGET_POS_RESTRANT) {
+	 if (rest_type != TARGET_POS_RESTRAINT) {
 	    std::cout << "ERROR:: TARGET POS ERROR" << std::endl;
 	 }
       }
@@ -639,7 +639,7 @@ namespace coot {
       }
       atom_spec_t spec;
       bool operator() (const simple_restraint &r) const {
-	 if (r.restraint_type == restraint_type_t(TARGET_POS_RESTRANT)) {
+	 if (r.restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
 	    if (r.atom_spec == spec) {
 	       return true;
 	    }
@@ -663,7 +663,7 @@ namespace coot {
       }
       bool operator() (const simple_restraint &r) const {
 	 bool v = false;
-	 if (r.restraint_type == restraint_type_t(TARGET_POS_RESTRANT)) {
+	 if (r.restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
 	    clipper::Coord_orth p_1 = co(atoms[r.atom_index_1]);
 	    double d = sqrt((p_1-r.atom_pull_target_pos).lengthsq());
 	    if (d < close_dist) {
@@ -989,11 +989,18 @@ namespace coot {
 		       // goes out of scope, we should do a
 		       // mol->DeleteSelection(SelHnd_atom).
       // atom_selection_container_t asc;
-      double *par; 
+
+      gsl_multimin_fdfminimizer *m_s;
+      double m_initial_step_size;
+      double m_tolerance;
+      double *par;
       int n_atoms;
+      double m_grad_lim;
       gsl_vector *x; // these are the variables, x_k, y_k, z_k, x_l etc.
       bool are_all_one_atom_residues; 
       mmdb::Manager *mol;
+      void setup_minimize();
+      bool needs_reset; // needs reset when an atom pull restraint gets *added*.
       
       // The bool is the "atoms of this residue are fixed" flag.
       std::vector<std::pair<bool,mmdb::Residue *> > residues_vec;
@@ -1744,9 +1751,7 @@ namespace coot {
 
       bonded_pair_container_t bonded_pairs_container;
 
-      void pre_sanitize_as_needed(std::vector<refinement_lights_info_t> lights,
-				  gsl_multimin_fdfminimizer *s,
-				  double step_size, double tolerance);
+      void pre_sanitize_as_needed(std::vector<refinement_lights_info_t> lights);
 
       model_bond_deltas resolve_bonds(const gsl_vector *v) const;
 
@@ -2113,6 +2118,7 @@ namespace coot {
       mmdb::Atom *add_atom_pull_restraint(const atom_spec_t &spec, clipper::Coord_orth pos);
       void clear_atom_pull_restraint(const atom_spec_t &spec); // clear any previous restraint for this atom.
       void clear_all_atom_pull_restraints();
+      unsigned int n_atom_pull_restraints() const;
       
       void add_extra_restraints(int imol,
 				const extra_restraints_t &extra_restraints,

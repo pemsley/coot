@@ -4547,7 +4547,7 @@ graphics_info_t::tabulate_geometric_distortions(const coot::restraints_container
 	       s += " " + rr.get_atom_spec(gd.atom_indices[iat]).format();
 	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
 	 }
-	 if (rest.restraint_type == coot::TARGET_POS_RESTRANT) {
+	 if (rest.restraint_type == coot::TARGET_POS_RESTRAINT) {
 	    std::string s = "pull-atom " + coot::util::float_to_string(gd.distortion_score);
 	    s += " " + rr.get_atom_spec(gd.atom_indices[0]).format();
 	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
