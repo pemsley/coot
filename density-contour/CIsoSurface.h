@@ -76,14 +76,14 @@ public:
 				    T tIsoLevel,
 				    float box_radius, // half length
 				    coot::Cartesian centre_point,
-				    int isample_step);
+				    int isample_step, bool is_em_map);
 
 	coot::CartesianPairInfo
 	  GenerateSurface_from_NXmap(const clipper::NXmap<T>& nx_map,
 				    T tIsoLevel,
 				    float box_radius, // half length
 				    coot::Cartesian centre_point,
-				    int isample_step);
+				    int isample_step); // is EM map
 
 	coot::density_contour_triangles_container_t
 	  GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
@@ -116,17 +116,18 @@ public:
 
 	// PE adds
 	coot::CartesianPairInfo
-	   returnTriangles( const clipper::Xmap<T>& xmap, 
-			    const clipper::Coord_frac& base,
-			    float radius,
-			    coot::Cartesian centre) const; 
+	   returnTriangles(const clipper::Xmap<T>& xmap,
+			   const clipper::Coord_frac& base,
+			   float radius,
+			   coot::Cartesian centre,
+			   bool is_em_map) const;
 
 	// PE adds
 	coot::CartesianPairInfo
-	  returnTriangles( const clipper::NXmap<T>& nx_map, 
-			    const clipper::Coord_frac& base,
-			    float radius,
-			    coot::Cartesian centre) const; 
+	  returnTriangles(const clipper::NXmap<T>& nx_map,
+			  const clipper::Coord_frac& base,
+			  float radius,
+			  coot::Cartesian centre) const; // certainly is EM map
 
 
 	// PE adds

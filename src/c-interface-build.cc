@@ -4523,6 +4523,11 @@ int secondary_structure_restraints_type() {
 
 void accept_regularizement() {
 
+   accept_moving_atoms();
+}
+
+void accept_moving_atoms() {
+
    graphics_info_t g;
    g.accept_moving_atoms();	// does a g.clear_up_moving_atoms();
    g.clear_moving_atoms_object();

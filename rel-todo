@@ -5,10 +5,24 @@
 
    o SSBOND record (after reduce and modified and saved?)
 
+
    o PyObject *density_at_residue_py(imol, res_spec) # or does it exist already?
      return sum and n_atoms
 
+
+   o when multi-sharpen fails because there is no refmac, we should get a message
+     in the status bar.
+
+   o Add map resolution from grid spacing to Map Properties dialog - Bernhard Rupp.
+
+   o Capture the mmdb error message ("Disk quota exceeded or some such") when
+     trying to save/quick-save a pdb file).
+
+   o zero occupancies markers for hydrogens should respect the no-bonds-to-hydrogens
+     setting
+
 ------
+
 
    o Pointer distances should not show distances to Hydrogen atom if they are not displayed!
      Steven Sherrif

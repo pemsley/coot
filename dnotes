@@ -8435,7 +8435,7 @@ Tue  4 Sep 2018 06:13:12 BST
     Woetzel N, Lowe EW, Meiler J. Poster: GPU-accelerated rigid body fitting of atomic structures
             into electron density maps. 2011 IEEE 1st International Conference on Computational
             Advances in Bio and Medical Sciences (ICCABS).2011. [Ref list]
-            Journal ref?
+            Journal ref is one of the above, I think (BCL::EM-Fit)
 
 ---
 Tue  4 Sep 2018 16:15:01 BST
@@ -8449,3 +8449,17 @@ Tue  4 Sep 2018 16:15:01 BST
    Fitting to maps described here?
 
 ---
+Tue 11 Sep 23:10:09 BST 2018
+
+
+http://opengl.datenwolf.net/gltut/html/index.html
+
+---
+Mon Sep 17 21:55:15 BST 2018
+
+   build this from a starting ideal helix:
+   (which you might be able to find with a cuda-based search?)
+   5toh
+
+
+

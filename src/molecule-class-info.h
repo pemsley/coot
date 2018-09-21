@@ -652,6 +652,7 @@ public:        //                      public
    }
 
    void setup_internal() { 
+
       atom_sel.atom_selection = NULL;
       atom_sel.n_selected_atoms = 0;
       atom_sel.mol = NULL;
@@ -766,6 +767,7 @@ public:        //                      public
       //
       theMapContours.first = 0;
       theMapContours.second = 0;
+      is_em_map_cached_flag = -1; // unset
 
       // don't show strict ncs unless it's turned on.
       show_strict_ncs_flag = 1;
@@ -3113,6 +3115,8 @@ public:        //                      public
    void globularize();
 
    bool is_EM_map() const;
+   short int is_em_map_cached_flag; // -1 mean unset (so set it, 0 means no, 1 means yes)
+   short int is_em_map_cached_state(); // set is_em_map_cached_flag if not set
 
    void residue_partial_alt_locs_split_residue(coot::residue_spec_t spec,
 					       int i_bond,
