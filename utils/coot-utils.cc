@@ -950,15 +950,11 @@ std::vector<std::string>
 coot::util::split_string(const std::string &string_in,
 			 const std::string &splitter) {
 
-   std::cout << "Here in split_string " << string_in << std::endl;
-  
    std::vector<std::string> v;
    std::string s=string_in;
 
    while (1) {
-      std::cout << "testing s " << s << std::endl;
       std::string::size_type isplit=s.find_first_of(splitter);
-      std::cout << "here with isplit " << isplit << std::endl;
       if (isplit != std::string::npos) {
 	 std::string f = s.substr(0, isplit);
 	 v.push_back(f);
