@@ -912,7 +912,7 @@ coot::util::split_string(const std::string &string_in,
       if (isplit != std::string::npos) {
 	 std::string f = s.substr(0, isplit);
 	 v.push_back(f);
-	 if (s.length() >= (isplit+splitter.length())) { 
+	 if (s.length() > (isplit+splitter.length())) {
 	    s = s.substr(isplit+splitter.length());
 	 } else {
 	    break;
