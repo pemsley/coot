@@ -2065,8 +2065,6 @@ namespace coot {
       refinement_results_t minimize(restraint_usage_Flags);
       refinement_results_t minimize(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
       refinement_results_t minimize_inner(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
-      void setup_for_minimize(); // variables that were local to minimize_inner are now
-                                 // class members
       void fix_chiral_atoms_maybe(gsl_vector *s);
 
       refinement_lights_info_t::the_worst_t
@@ -2316,6 +2314,13 @@ namespace coot {
 
       // friend?
       void copy_from(const restraints_container_t &other);
+
+      // allow the calling function to tell us that the atoms have moved and they
+      // need to be updated from the intermediate atoms molecule (moving_atom_asc)
+      //
+      // e.g. JED refine, cis-trans, pepflip will set this
+      //
+      void set_needs_reset() { needs_reset = true; }
 
    }; 
 

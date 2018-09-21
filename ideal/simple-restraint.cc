@@ -877,11 +877,6 @@ coot::restraints_container_t::setup_minimize() {
 
 }
  
-
-// Remove usage_flag from this - they should be set in the constructor
-// and be a class member. Not passed here.
-//
-
 // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
 //
 coot::refinement_results_t
@@ -919,55 +914,13 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       debug_atoms();
    }
 
+
    // We get ~1ms/residue with bond and angle terms and no density terms.
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
-
    auto tp_1 = std::chrono::high_resolution_clock::now();
 
    std::vector<refinement_lights_info_t> lights = chi_squareds("--------", m_s->x, false);
-
-   if (false) {
-      auto tp_2 = std::chrono::high_resolution_clock::now();
-      auto d10 = chrono::duration_cast<chrono::microseconds>(tp_1 - tp_0).count();
-      auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
-
-      // c.f gsl_multimin_fdfminimizer_set() 448 us
-      //     minimize iteration block: 60,200 us
-      std::cout << "-------------------------------------------\n";
-      std::cout << "gsl_multimin_fdfminimizer_set() time: " << d10 << " microseconds\n";
-      std::cout << "Lights time: " << d21 << " microseconds\n";
-      std::cout << "-------------------------------------------\n";
-   }
-
-   if (print_initial_chi_sq_flag) {
-      if (verbose_geometry_reporting != QUIET) {
-	 void *params = reinterpret_cast<void *>(this);
-	 double d = coot::distortion_score(x, params);
-	 std::cout << "    Initial distortion_score: " << d << std::endl; 
-	 std::vector<refinement_lights_info_t> lights = chi_squareds("Initial RMS Z values", m_s->x);
-	 refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights);
-	 if (worst_of_all.is_set) {
-	    const simple_restraint &baddie_restraint = restraints_vec[worst_of_all.restraints_index];
-	    std::cout << "Most dissatisfied restraint on input: "
-		      << baddie_restraint.format(atom, worst_of_all.value)
-		      << std::endl;
-	 }
-      }
-   }
-
-   // if hideous geometry, presanitize with bonds, angles, chirals and non-bonded
-   // if they are passed as set. Uses restraints_usage_flag
-   if (n_times_called == 1) {
-      // this is the first round, so try to pre-sanitize if we have hideous geometry.
-      // pre-sanitization reduces/stops the conflict between trans peptide restraints
-      // and chiral volumes restraints (and possibly plane restraints) when we have
-      // a hideous model.
-
-      pre_sanitize_as_needed(lights);
-   }
-
-   auto tp_3 = std::chrono::high_resolution_clock::now();
 
    int iter = 0; 
    int status;
@@ -1000,14 +953,14 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 status = gsl_multimin_fdfminimizer_iterate(m_s);
 
 	 // this might be useful for debugging rama restraints
-	 //
-	 // conjugate_pr_state_t *state = (conjugate_pr_state_t *) m_s->state;
-	 // double pnorm = state->pnorm;
-	 // double g0norm = state->g0norm;
+
+	 conjugate_pr_state_t *state = (conjugate_pr_state_t *) m_s->state;
+	 double pnorm = state->pnorm;
+	 double g0norm = state->g0norm;
 	 // 
-	 // if (false)
-	 // std::cout << "iter: " << iter << " f " << m_s->f << " " << gsl_multimin_fdfminimizer_minimum(m_s)
-	 // << " pnorm " << pnorm << " g0norm " << g0norm << std::endl;
+	 if (false)
+	    std::cout << "iter: " << iter << " f " << m_s->f << " " << gsl_multimin_fdfminimizer_minimum(m_s)
+		      << " pnorm " << pnorm << " g0norm " << g0norm << std::endl;
 
 	 if (status) {
 	    std::cout << "Unexpected error from gsl_multimin_fdfminimizer_iterate" << std::endl;
@@ -1030,7 +983,6 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	    }
 	    break;
 	 }
-
 
 	 status = gsl_multimin_test_gradient (m_s->gradient, m_grad_lim);
 
@@ -1071,39 +1023,9 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
    update_atoms(m_s->x); // do OXT here
 
-   auto tp_5 = std::chrono::high_resolution_clock::now();
-   // if there were bad Hs at the end of refinement
-   if (status != GSL_ENOPROG) {
-
-      // pushable Hydrogen atoms check is not as rubust as I want it to be (it oscillates during
-      // refinement).
-      //
-      if (false) {
-	 if (check_pushable_chiral_hydrogens(m_s->x)) {
-	    update_atoms(m_s->x);
-	 }
-      }
-
-      auto tp_5_a = std::chrono::high_resolution_clock::now();
-      // check and correct them if needed. 
-      if (check_through_ring_bonds(m_s->x)) {
-	 update_atoms(m_s->x);
-      }
-      if (false) {
-	 // small numbers - perhaps because pushable hydrogens is not working
-	 auto tp_5_b = std::chrono::high_resolution_clock::now();
-	 auto d5a = chrono::duration_cast<chrono::microseconds>(tp_5_a - tp_5).count();
-	 auto d5b = chrono::duration_cast<chrono::microseconds>(tp_5_b - tp_5_a).count();
-	 std::cout << "Timings: pushable hydrogens: " << d5a << " microseconds" << std::endl;
-	 std::cout << "Timings: through-ring-bonds: " << d5b << " microseconds" << std::endl;
-      }
-   }
-
-
    auto tp_7 = std::chrono::high_resolution_clock::now();
 
-   // Add these to the destructor of this class.
-   // gsl_multimin_fdfminimizer_free(s);
+   // gsl_multimin_fdfminimizer_free(m_s);
    // gsl_vector_free(x);
 
    // (we don't get here unless restraints were found)

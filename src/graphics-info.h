@@ -858,7 +858,9 @@ class graphics_info_t {
    // add_drag_refine_idle_function()
    // drag_refine_refine_intermediate_atoms()
    //
-   static void thread_for_refinement_loop_threaded(); 
+   static void thread_for_refinement_loop_threaded();
+   static void refinement_of_last_restraints_needs_reset();
+   static bool refinement_of_last_restraints_needs_reset_flag;
    void update_restraints_with_atom_pull_restraints(); // make static also?
    coot::restraint_usage_Flags set_refinement_flags() const; // make static?
 
