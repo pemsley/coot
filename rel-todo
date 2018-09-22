@@ -1,14 +1,10 @@
 
    For Release 0.8.9.2
 
-   o Oliver-Clarke bonding
+   o zero occupancy markers should respect the model molecule display limit
 
-   o SSBOND record (after reduce and modified and saved?)
-
-
-   o PyObject *density_at_residue_py(imol, res_spec) # or does it exist already?
-     return sum and n_atoms
-
+   o zero occupancies markers for hydrogens should respect the no-bonds-to-hydrogens
+     setting
 
    o when multi-sharpen fails because there is no refmac, we should get a message
      in the status bar.
@@ -18,11 +14,30 @@
    o Capture the mmdb error message ("Disk quota exceeded or some such") when
      trying to save/quick-save a pdb file).
 
-   o zero occupancies markers for hydrogens should respect the no-bonds-to-hydrogens
-     setting
+   o Delete extra restraints - does that work?
 
 ------
 
+   o when generating density lines, check for is-EM map, and if so, don't draw outside
+     the boundaries ofthe cell.
+
+* Done.
+
+   o accept_regularizement() needs a better name (keep this one for backwards compatibility)
+
+* Done.
+
+   o Label for "Limit Model Display Radius" should have a ...
+
+* Done.
+
+   o N-linked Additon -> remove the word "Dialog"
+
+* Done.
+
+   o Oliver-Clarke bonding
+
+*Done! Yay.
 
    o Pointer distances should not show distances to Hydrogen atom if they are not displayed!
      Steven Sherrif

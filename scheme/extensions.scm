@@ -1275,7 +1275,7 @@
 					      (clear-dots imol n)))))))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-representation "Limit Model Display Radius"
+	 submenu-representation "Limit Model Display Radius..."
 	 (lambda ()
 	   (generic-single-entry "Display Radius Limit (0 for 'no limit') "
 				 ;; "15.0" ;; maybe this should be the map radius

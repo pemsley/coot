@@ -5014,6 +5014,7 @@ int db_mainchains_fragment(int imol, const char *chain_id, int res_no);
 /*! \name Close Molecule Functions */
 /* \{ */
 
+/*! \brief close the molecule */
 void close_molecule(int imol);
 
 

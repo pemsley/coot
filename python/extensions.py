@@ -1462,7 +1462,7 @@ if (have_coot_python):
          
      add_simple_coot_menu_menuitem(
        submenu_representation,
-       "Limit Model Display Radius",
+       "Limit Model Display Radius...",
        lambda func: generic_single_entry("Display Radius Limit (0 for \'no limit\') ",
                                          #  "15.0" ;; maybe this should be the map radius
                                          # BL says:: I think it should be the current one
