@@ -603,7 +603,7 @@ def add_module_carbohydrate_gui():
             menu = coot_menubar_menu("Glyco")
 
             add_simple_coot_menu_menuitem(
-                menu, "N-linked Glycan Addition Dialog...",
+                menu, "N-linked Glycan Addition...",
                 lambda func:
                 interactive_add_cho_dialog())
             

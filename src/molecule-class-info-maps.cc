@@ -335,7 +335,7 @@ molecule_class_info_t::fill_fobs_sigfobs() {
 void
 molecule_class_info_t::compile_density_map_display_list(short int first_or_second) {
 
-   // std::cout << "Deleting theMapContours " << theMapContours << std::endl;
+   std::cout << "Deleting theMapContours " << theMapContours.first << std::endl;
    if (first_or_second == SIDE_BY_SIDE_MAIN) { 
       glDeleteLists(theMapContours.first, 1);
       theMapContours.first = glGenLists(1);
@@ -501,6 +501,11 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
    int isample_step = 1;
    graphics_info_t g;
 
+   bool is_em_map = false;
+   if (is_em_map_cached_state() == 1) {
+      is_em_map = true;
+   }
+
    // std::cout   << "DEBUG:: g.zoom: " << g.zoom << std::endl;
 
    if (g.dynamic_map_resampling == 1)
@@ -554,7 +559,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
       v = my_isosurface.GenerateSurface_from_Xmap(xmap,
 						  contour_level,
 						  dy_radius, centre,
-						  isample_step);
+						  isample_step, is_em_map);
 #ifdef ANALYSE_CONTOURING_TIMING
       auto tp_1 = std::chrono::high_resolution_clock::now();
 #endif
@@ -574,7 +579,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
       v = my_isosurface.GenerateSurface_from_Xmap(xmap,
 						  -contour_level,
 						  dy_radius, centre,
-						  isample_step);
+						  isample_step, is_em_map);
       if (is_dynamically_transformed_map_flag)
 	 dynamically_transform(v);
       set_diff_map_draw_vecs(v.data, v.size);
@@ -1834,6 +1839,19 @@ molecule_class_info_t::is_EM_map() const {
    return is_em;
 }
 
+short int
+molecule_class_info_t::is_em_map_cached_state() {
+
+   if (is_em_map_cached_flag == -1) {
+
+      if (has_xmap()) { // FIXME - need to test for NXmap too.
+	 bool is_em = is_EM_map();
+	 is_em_map_cached_flag = is_em;
+      }
+   }
+   return is_em_map_cached_flag;
+}
+
 
 void
 molecule_class_info_t::new_map(const clipper::Xmap<float> &map_in, std::string name_in) {
@@ -1846,7 +1864,7 @@ molecule_class_info_t::new_map(const clipper::Xmap<float> &map_in, std::string n
    mean_and_variance<float> mv = map_density_distribution(xmap, 40, true); 
 
    float mean = mv.mean; 
-   float var = mv.variance; 
+   float var = mv.variance;
    contour_level  = nearest_step(mean + 1.5*sqrt(var), 0.05);
    update_map_in_display_control_widget();
    
@@ -3618,7 +3636,11 @@ molecule_class_info_t::get_contours(float contour_level,
 				    float radius,
 				    const coot::Cartesian &centre) const {
 
+   // who calls this function?
+
    std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > r;
+
+   bool is_em_map_local = false; // needs setting?
 
    int isample_step = 1;
    CIsoSurface<float> my_isosurface;
@@ -3626,7 +3648,7 @@ molecule_class_info_t::get_contours(float contour_level,
    coot::CartesianPairInfo v = my_isosurface.GenerateSurface_from_Xmap(xmap,
 								       contour_level,
 								       radius, centre,
-								       isample_step);
+								       isample_step, is_em_map_local);
    if (v.data) {
       if (v.size > 0) {
 	 r.resize(v.size);

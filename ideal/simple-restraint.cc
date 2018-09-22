@@ -3498,47 +3498,45 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
       mmdb::Residue *res_f = residues_vec[ii].second;
       for (unsigned int jj=ii+1; jj<residues_vec.size(); jj++) {
 	 mmdb::Residue *res_s = residues_vec[jj].second;
-	 std::pair<bool, float> d = closest_approach(res_f, res_s);
 
-	 if (debug) { 
-	    std::cout << " closest approach given " << coot::residue_spec_t(res_f)
-		      << " and " << coot::residue_spec_t(res_s) << std::endl;
-	    std::cout << " closest approach d " << d.first << " " << d.second << std::endl;
-	 }
-	 if (d.first) {
-	    if (d.second < dist_crit_for_bonded_pairs) {
-	       std::pair<std::string, bool> l  = find_link_type_complicado(res_f, res_s, geom);
-	       std::string link_type = l.first;
-	       if (!link_type.empty()) {
+	 if (res_f == res_s) continue;
 
-		  // too verbose?
-		  if (debug)
-		     std::cout << "   INFO:: find_link_type_complicado(): "
-			       << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
-			       << " link_type -> :" << link_type << ":" << std::endl;
+	 // 20180911 I now no longer want to evaluate closest approach here.
+	 //
+	 // std::pair<bool, float> d = closest_approach(res_f, res_s);
+	 // Linking should be resolved by find_link_type_complicado(), not
+	 // here by distance between residues.
 
-		  bool whole_first_residue_is_fixed = 0;
-		  bool whole_second_residue_is_fixed = 0;
-		  bool order_switch_flag = l.second;
+	 std::pair<std::string, bool> l  = find_link_type_complicado(res_f, res_s, geom);
+	 std::string link_type = l.first;
+	 if (!link_type.empty()) {
 
-		  if (!order_switch_flag) {
-		     coot::bonded_pair_t p(res_f, res_s,
-					   whole_first_residue_is_fixed,
-					   whole_second_residue_is_fixed, link_type);
-		     bool previously_added_flag = bpc.try_add(p);
-		  } else {
-		     coot::bonded_pair_t p(res_s, res_f,
-					   whole_first_residue_is_fixed,
-					   whole_second_residue_is_fixed,
-					   link_type);
-		     bool previously_added_flag = bpc.try_add(p);
-		  }
-	       } else {
-		  if (debug)
-		     std::cout << "DEBUG:: blank link_type find_link_type_complicado() returns \""
-			       << l.first << "\" " << l.second << std::endl;
-	       } 
+	    // too verbose?
+	    if (debug)
+	       std::cout << "   INFO:: find_link_type_complicado(): "
+			 << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
+			 << " link_type -> :" << link_type << ":" << std::endl;
+
+	    bool whole_first_residue_is_fixed = 0;
+	    bool whole_second_residue_is_fixed = 0;
+	    bool order_switch_flag = l.second;
+
+	    if (!order_switch_flag) {
+	       coot::bonded_pair_t p(res_f, res_s,
+				     whole_first_residue_is_fixed,
+				     whole_second_residue_is_fixed, link_type);
+	       bool previously_added_flag = bpc.try_add(p);
+	    } else {
+	       coot::bonded_pair_t p(res_s, res_f,
+				     whole_first_residue_is_fixed,
+				     whole_second_residue_is_fixed,
+				     link_type);
+	       bool previously_added_flag = bpc.try_add(p);
 	    }
+	 } else {
+	    if (debug)
+	       std::cout << "DEBUG:: blank link_type find_link_type_complicado() returns \""
+			 << l.first << "\" " << l.second << std::endl;
 	 }
       }
    }
