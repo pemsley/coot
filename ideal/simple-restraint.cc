@@ -2502,7 +2502,7 @@ coot::restraints_container_t::make_restraints(int imol,
       if (do_link_restraints_internal)
 	 make_link_restraints(geom, do_rama_plot_restraints, do_trans_peptide_restraints);
 
-      if (false)
+      if (true)
 	 std::cout << "after make_link_restraints() bonded_pairs_container has size "
 		   << bonded_pairs_container.size() << std::endl;
 
@@ -3478,8 +3478,6 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
    bool debug = false; // Are your residues in the same chain?  If not filter() will not bond them.
 
    coot::bonded_pair_container_t bpc;
-   float dist_crit_for_bonded_pairs = 6.0; // atoms that are further apart than this are not anealled
-                                           // - I hope that 6.0 is generous enough.
 
    if (verbose_geometry_reporting == VERBOSE)
       debug = true;
@@ -3498,6 +3496,10 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
       mmdb::Residue *res_f = residues_vec[ii].second;
       for (unsigned int jj=ii+1; jj<residues_vec.size(); jj++) {
 	 mmdb::Residue *res_s = residues_vec[jj].second;
+
+	 if (false)
+	    std::cout << "debug:: in bonded_resdues_from_res_vec " << residue_spec_t(res_f) << " "
+		      << residue_spec_t(res_s) << "\n";
 
 	 if (res_f == res_s) continue;
 

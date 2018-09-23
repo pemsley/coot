@@ -1082,7 +1082,8 @@ namespace coot {
       std::string chem_link_mod_id_2;
       std::string chem_link_group_comp_2;
       std::string chem_link_name;
-   public: 
+      unsigned int hash_code;
+   public:
       chem_link(const std::string &id_in,
 		const std::string &chem_link_comp_id_1_in,
 		const std::string &chem_link_mod_id_1_in,
@@ -1092,21 +1093,30 @@ namespace coot {
 		const std::string &chem_link_group_comp_2_in,
 		const std::string &chem_link_name_in) {
 
-       id = id_in;
-       chem_link_comp_id_1 = chem_link_comp_id_1_in;
-       chem_link_mod_id_1 = chem_link_mod_id_1_in;
-       chem_link_group_comp_1 = chem_link_group_comp_1_in;
-       chem_link_comp_id_2 = chem_link_comp_id_2_in;
-       chem_link_mod_id_2 = chem_link_mod_id_2_in; 
-       chem_link_group_comp_2 = chem_link_group_comp_2_in;
-       chem_link_name = chem_link_name_in;
+         id = id_in;
+         chem_link_comp_id_1 = chem_link_comp_id_1_in;
+         chem_link_mod_id_1 = chem_link_mod_id_1_in;
+         chem_link_group_comp_1 = chem_link_group_comp_1_in;
+         chem_link_comp_id_2 = chem_link_comp_id_2_in;
+         chem_link_mod_id_2 = chem_link_mod_id_2_in;
+         chem_link_group_comp_2 = chem_link_group_comp_2_in;
+         chem_link_name = chem_link_name_in;
+         hash_code = make_hash_code(chem_link_comp_id_1_in, chem_link_comp_id_2, chem_link_group_comp_1_in, chem_link_group_comp_2_in);
       }
       friend std::ostream& operator<<(std::ostream &s, chem_link lnk);
+      static unsigned int make_hash_code(const std::string &comp_id_1, const std::string &comp_id_2, const std::string &group_1, const std::string &group_2);
+      unsigned int get_hash_code() const { return hash_code; }
       // pair: matches need-order-switch-flag
+      std::pair<bool, bool> matches_comp_ids_and_groups_hashed(const std::string &comp_id_1,
+							const std::string &group_1,
+							const std::string &comp_id_2,
+							const std::string &group_2) const;
       std::pair<bool, bool> matches_comp_ids_and_groups(const std::string &comp_id_1,
 							const std::string &group_1,
 							const std::string &comp_id_2,
 							const std::string &group_2) const;
+      std::pair<bool, bool> matches_comp_ids_and_groups_hashed(unsigned int hash_code_forward,
+                                                               unsigned int hash_code_backwards) const;
       std::string Id() const { return id; }
       bool is_peptide_link_p() const {
 	 if (id == "TRANS" || id == "PTRANS" || id == "NMTRANS" ||
@@ -1230,7 +1240,7 @@ namespace coot {
       //
       std::vector<std::pair<int, dictionary_residue_restraints_t> > dict_res_restraints;
       std::vector<dictionary_residue_link_restraints_t> dict_link_res_restraints;
-      std::vector<chem_link> chem_link_vec;
+      std::map<unsigned int, std::vector<chem_link> > chem_link_map;
       std::vector<list_chem_mod>  chem_mod_vec;
 
       // the monomer data in list/mon_lib_list.cif, not the

@@ -2363,8 +2363,9 @@ coot::protein_geometry::add_chem_links(mmdb::mmcif::PLoop mmCIFLoop) {
 			       chem_link_comp_id_1, chem_link_mod_id_1, chem_link_group_comp_1,
 			       chem_link_comp_id_2, chem_link_mod_id_2, chem_link_group_comp_2,
 			       chem_link_name);
-	 // std::cout << "Adding to chem_link_vec: " << clink << std::endl;
-	 chem_link_vec.push_back(clink);
+	 std::cout << "Adding to chem_link_map: " << clink << std::endl;
+	 // chem_link_vec.push_back(clink);
+	 chem_link_map[clink.get_hash_code()].push_back(clink);
       } else {
 	 std::cout << "WARNING:: an error occurred when trying to add link: "
 		   << "\"" << chem_link_id << "\" "
@@ -2890,54 +2891,79 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
    bool found = false;
    bool debug = false;
    
-//    if (debug) { 
+//    if (debug) {
 //       std::cout << "---------------------- Here are the chem_links: -----------------"
 // 		<< std::endl;
 //       print_chem_links();
 //    }
+
+
+   // This needs to iterate to make the count now that we use a map
+   // std::cout << "Testing vs " << chem_link_vec.size() << " chem links\n";
    
+   unsigned int search_hash_code_f = chem_link::make_hash_code(comp_id_1, comp_id_2, group_1, group_2);
+   unsigned int search_hash_code_b = chem_link::make_hash_code(comp_id_2, comp_id_1, group_2, group_1);
+
+   if (debug)
+      std::cout << "here in matching_chem_link() " << search_hash_code_f << " " << search_hash_code_b << " "
+		<< comp_id_1 << " " << comp_id_2 << " " << group_1 << " " << group_2 << std::endl;
+
    // Is this link a TRANS peptide or a CIS?  Both have same group and
    // comp_ids.  Similarly, is is BETA-1-2 or BETA1-4 (etc).  We need
    // to decide later, don't just pick the first one that matches
    // (keep the order switch flag too).
-   // 
+   //
+
+   // "gap" and "symmetry" have hash code 0 (blank strings)
+
    std::vector<std::pair<coot::chem_link, bool> > matching_chem_links;
-   for (unsigned int i_chem_link=0; i_chem_link<chem_link_vec.size(); i_chem_link++) {
-      std::pair<bool, bool> match_res =
-	 chem_link_vec[i_chem_link].matches_comp_ids_and_groups(comp_id_1, group_1,
-								comp_id_2, group_2);
-      
-      if (match_res.first) {
+   std::map<unsigned int, std::vector<chem_link> >::const_iterator it =
+      chem_link_map.find(search_hash_code_f);
+   if (it == chem_link_map.end()) {
+      it = chem_link_map.find(search_hash_code_b);
+      if (it != chem_link_map.end())
+	 switch_order_flag = true; // used?
+   }
+
+   if (debug) {
+      if (it != chem_link_map.end())
+	 std::cout << "matching_chem_link() found the hash at least! " << std::endl;
+      else
+	 std::cout << "matching_chem_link() failed to find hash " << search_hash_code_f << " "
+		   << search_hash_code_b << std::endl;
+   }
+
+   if (it != chem_link_map.end()) {
+      const std::vector<chem_link> &v = it->second;
+      std::vector<chem_link>::const_iterator itv;
+      for (itv=v.begin(); itv!=v.end(); itv++) {
+	 const chem_link &cl = *itv;
+
+	 std::pair<bool, bool> match_res =
+	    cl.matches_comp_ids_and_groups(comp_id_1, group_1, comp_id_2, group_2);
 
 	 if (debug)
-	    std::cout << "... matching_chem_link: found matching link "
-		      << comp_id_1 << " " << comp_id_2 << " " 
-		      << chem_link_vec[i_chem_link] << std::endl;
-	 
-	 // make sure that this link id is not a (currently) useless one.
-	 if (chem_link_vec[i_chem_link].Id() != "gap" &&
-	     chem_link_vec[i_chem_link].Id() != "symmetry") { 
-	    coot::chem_link clt = chem_link_vec[i_chem_link];
-	    if (!clt.is_peptide_link_p() || allow_peptide_link_flag) {
-	       switch_order_flag = match_res.second;
-	       found = 1;
-	       std::pair<coot::chem_link, bool> p(clt, switch_order_flag);
-	       matching_chem_links.push_back(p);
+	    std::cout << "   checking chem link: " << cl << " -> "
+		      << match_res.first << " " << match_res.second << std::endl;
 
-	       // no! We want all of them - not just the first glycosidic bond that matches
-	       // i.e. don't return just BETA1-2 when we have a BETA1-4.
-	       // break; // we only want to find one chem link for this comp_id pair.
-	       
+	 if (match_res.first) {
+	    if (cl.Id() != "gap" && cl.Id() != "symmetry") {
+	       if (!cl.is_peptide_link_p() || allow_peptide_link_flag) {
+		  switch_order_flag = match_res.second;
+		  found = true;
+		  std::pair<coot::chem_link, bool> p(cl, switch_order_flag);
+		  matching_chem_links.push_back(p);
+
+	       } else {
+		  if (debug)
+		     std::cout << "reject link on peptide/allow-peptide test " << std::endl;
+	       }
 	    } else {
-	       if (debug)
-		  std::cout << "reject link on peptide/allow-peptide test " << std::endl;
-	    } 
-	 } else {
-	    if (debug) { 
-	       std::cout << "reject link \"" << chem_link_vec[i_chem_link].Id() << "\""
-			 << std::endl;
-	    } 
-	 } 
+	       if (debug) {
+		  std::cout << "reject link \"" << cl.Id() << "\"" << std::endl;
+	       }
+	    }
+	 }
       }
    }
 
@@ -2957,6 +2983,9 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
       rte += "\"";
       throw std::runtime_error(rte);
    }
+   if (debug)
+      std::cout << "matching_chem_link() returns " << matching_chem_links.size()
+		<< " matching chem links" << std::endl;
    return matching_chem_links;
 }
 
