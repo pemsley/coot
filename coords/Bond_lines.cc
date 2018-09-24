@@ -5473,6 +5473,12 @@ graphical_bonds_container::add_ramachandran_goodness_spots(const std::vector<std
 	 
 	 if (spots[i].second.residue_name() == "GLY")
 	    rama = &rc.rama_gly;
+
+#ifdef CLIPPER_HAVE_TOP8000
+    if (spots[i].second.residue_name() == "ILE" ||
+        spots[i].second.residue_name() == "VAL" )
+       rama = &rc.rama_ileval;
+#endif
 	 
 	 // phi_psi_t needs to contain the next residue type to use
 	 // rama.pre_pro at some stage

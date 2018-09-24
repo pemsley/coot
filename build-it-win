@@ -2126,6 +2126,7 @@ if test -n "$build_clipper" ; then
     clipper_version=2.1-100511-ac
     clipper_version=2.1
     clipper_version=2.1.20160708
+    clipper_version=2.1.20180802
     clipper_dir_version=2.1
     #${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
 
@@ -2142,11 +2143,12 @@ if test -n "$build_clipper" ; then
 
     # fix mean and lean on windows, i.e. disable
     # ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/clipper_win32.patch
-    ${WGET} $win_extras_place/clipper_win32.patch
+    #${WGET} $win_extras_place/clipper_win32.patch
 
     # now clipper has all the bits.
     # ${WGET} $extras_place/clipper-$clipper_version.tar.gz
-    ${WGET} ftp://ftp.ccp4.ac.uk/opensource/clipper-$clipper_version.tar.gz
+    #${WGET} ftp://ftp.ccp4.ac.uk/opensource/clipper-$clipper_version.tar.gz
+    ${WGET} $win_extras_place/clipper-$clipper_version.tar.gz
 
     (
     # temp hack
@@ -2154,7 +2156,7 @@ if test -n "$build_clipper" ; then
     # gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
     #
     gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
-    mv clipper-$clipper_version clipper-$clipper_dir_version
+    #mv clipper-$clipper_version clipper-$clipper_dir_version
     cd clipper-$clipper_dir_version
     pwd
     date
@@ -2173,7 +2175,7 @@ if test -n "$build_clipper" ; then
     #patch -p0 < ${AUTOBUILD_SOURCES}/clipper_win32.patch
     #patch -p0 < ${AUTOBUILD_SOURCES}/clipper-2.1.thread.patch
     # patch the hkl_data.h header
-    sed -ibackup -e 's/int i = 0; i < list.size(); i++/unsigned int i = 0; i < list.size(); i++/' clipper/core/hkl_data.h
+#    sed -ibackup -e 's/int i = 0; i < list.size(); i++/unsigned int i = 0; i < list.size(); i++/' clipper/core/hkl_data.h
 
     ./configure --prefix=$install_top_dir \
 	--enable-mmdb=$install_top_dir    \

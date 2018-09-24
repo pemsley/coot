@@ -534,8 +534,13 @@ coot::rama_plot::setup_internal(float level_prefered, float level_allowed) {
    n_diffs = 50; // default value.
    drawing_differences = 0; 
 
+#if CLIPPER_HAS_TOP8000
+   rama.init(clipper::Ramachandran::All2);
+   displayed_rama_type = clipper::Ramachandran::All2;
+#else
    rama.init(clipper::Ramachandran::All5);
    displayed_rama_type = clipper::Ramachandran::All5;
+#endif
 
    // cliper defaults: 
    rama_threshold_preferred = 0.01; 
@@ -565,6 +570,25 @@ coot::rama_plot::setup_internal(float level_prefered, float level_allowed) {
 
    rama.set_thresholds(level_prefered, level_allowed);
    //
+#ifdef CLIPPER_HAS_TOP8000
+   r_gly.init(clipper::Ramachandran::Gly2);
+   r_gly.set_thresholds(level_prefered, level_allowed);
+   //
+   r_pro.init(clipper::Ramachandran::Pro2);
+   r_pro.set_thresholds(level_prefered, level_allowed);
+   // first approx. FIXME
+   r_non_gly_pro.init(clipper::Ramachandran::NoGPIVpreP2);
+   r_non_gly_pro.set_thresholds(level_prefered, level_allowed);
+   // new
+   r_ileval.init(clipper::Ramachandran::IleVal2);
+   r_ileval.set_thresholds(level_prefered, level_allowed);
+   //
+   r_pre_pro.init(clipper::Ramachandran::PrePro2);
+   r_pre_pro.set_thresholds(level_prefered, level_allowed);
+   //
+   r_non_gly_pro_pre_pro_ileval.init(clipper::Ramachandran::NoGPIVpreP2);
+   r_non_gly_pro_pre_pro_ileval.set_thresholds(level_prefered, level_allowed);
+#else
    r_gly.init(clipper::Ramachandran::Gly5);
    r_gly.set_thresholds(level_prefered, level_allowed);
    //
@@ -573,6 +597,7 @@ coot::rama_plot::setup_internal(float level_prefered, float level_allowed) {
    // 
    r_non_gly_pro.init(clipper::Ramachandran::NonGlyPro5);
    r_non_gly_pro.set_thresholds(level_prefered, level_allowed);
+#endif
 }
 
 void
@@ -674,11 +699,30 @@ coot::rama_plot::setup_background(bool blocks, bool isolines) {
        fabs(rama_threshold_allowed - 0.002) < 0.000001 &&
        psi_axis_mode == PSI_CLASSIC)
    {
+#ifdef CLIPPER_HAS_TOP8000
+      bg_ileval = goo_canvas_group_new(root, NULL);
+      bg_pre_pro = goo_canvas_group_new(root, NULL);
+      bg_non_gly_pro_pre_pro_ileval = goo_canvas_group_new(root, NULL);
+
+      take_bg_image = make_background_from_image(rama, bg_all, "rama2_all.png");
+      take_bg_image += make_background_from_image(r_gly, bg_gly, "rama2_gly.png");
+      take_bg_image += make_background_from_image(r_pro, bg_pro, "rama2_pro.png");
+      take_bg_image += make_background_from_image(r_non_gly_pro, bg_non_gly_pro,
+                                 "rama2_non_gly_pro.png");
+      take_bg_image += make_background_from_image(r_ileval, bg_ileval,
+                                                  "rama2_ileval.png");
+      take_bg_image += make_background_from_image(r_pre_pro, bg_pre_pro,
+                                                  "rama2_pre_pro.png");
+      take_bg_image += make_background_from_image(r_non_gly_pro_pre_pro_ileval,
+                                                  bg_non_gly_pro_pre_pro_ileval,
+                                                  "rama2_non_gly_pro_pre_pro_ileval.png");
+#else
       take_bg_image = make_background_from_image(rama, bg_all, "rama_all.png");
       take_bg_image += make_background_from_image(r_gly, bg_gly, "rama_gly.png");
       take_bg_image += make_background_from_image(r_pro, bg_pro, "rama_pro.png");
       take_bg_image += make_background_from_image(r_non_gly_pro, bg_non_gly_pro,
                                  "rama_non_gly_pro.png");
+#endif
    }
 
    // no bg done, so lets make the "classic" way
@@ -691,6 +735,11 @@ coot::rama_plot::setup_background(bool blocks, bool isolines) {
          make_background(r_gly, bg_gly);
          make_background(r_pro, bg_pro);
          make_background(r_non_gly_pro, bg_non_gly_pro);
+#ifdef CLIPPER_HAS_TOP8000
+         make_background(r_ileval, bg_ileval);
+         make_background(r_pre_pro, bg_pre_pro);
+         make_background(r_non_gly_pro_pre_pro_ileval, bg_non_gly_pro_pre_pro_ileval);
+#endif
       }
 
       if (isolines) {
@@ -698,6 +747,11 @@ coot::rama_plot::setup_background(bool blocks, bool isolines) {
          make_isolines(r_gly, bg_gly);
          make_isolines(r_pro, bg_pro);
          make_isolines(r_non_gly_pro, bg_non_gly_pro);
+#ifdef CLIPPER_HAS_TOP8000
+         make_isolines(r_ileval, bg_ileval);
+         make_isolines(r_pre_pro, bg_pre_pro);
+         make_isolines(r_non_gly_pro_pre_pro_ileval, bg_non_gly_pro_pre_pro_ileval);
+#endif
       }
    }
 
@@ -856,6 +910,17 @@ coot::rama_plot::hide_all_background() {
    g_object_set (bg_non_gly_pro,
                  "visibility", GOO_CANVAS_ITEM_INVISIBLE,
                  NULL);
+#ifdef CLIPPER_HAS_TOP8000
+   g_object_set (bg_ileval,
+                 "visibility", GOO_CANVAS_ITEM_INVISIBLE,
+                 NULL);
+   g_object_set (bg_pre_pro,
+                 "visibility", GOO_CANVAS_ITEM_INVISIBLE,
+                 NULL);
+   g_object_set (bg_non_gly_pro_pre_pro_ileval,
+                 "visibility", GOO_CANVAS_ITEM_INVISIBLE,
+                 NULL);
+#endif
 }
 #endif
 
@@ -1949,6 +2014,23 @@ coot::rama_plot::item_enter_event(GooCanvasItem *item, GdkEventCrossing *event) 
    gchar *res_name = static_cast<gchar *> (g_object_get_data(G_OBJECT(item),
                                                              "res_name"));
 
+#ifdef CLIPPER_HAS_TOP8000
+   // for clarity all copied
+   if (strcmp(res_name, "GLY") == 0) {
+      show_background(bg_gly);
+   } else {
+      if (strcmp(res_name, "PRO") == 0) {
+         show_background(bg_pro);
+      }  else {
+         if ((strcmp(res_name, "ILE") == 0) || (strcmp(res_name, "VAL") == 0)) {
+            show_background(bg_ileval);
+         } else {
+            // FIXME this should be the new one and we need pre_pro
+            show_background(bg_non_gly_pro);
+         }
+      }
+   }
+#else
    if (strcmp(res_name, "GLY") == 0) {
       show_background(bg_gly);
    } else {
@@ -1958,6 +2040,7 @@ coot::rama_plot::item_enter_event(GooCanvasItem *item, GdkEventCrossing *event) 
          show_background(bg_non_gly_pro);
       }
    }
+#endif
    return 0;
 }
 #endif
@@ -1984,6 +2067,31 @@ coot::rama_plot::is_outlier(const coot::util::phi_psi_t &phi_psi) const {
 
    double phi = clipper::Util::d2rad(phi_psi.phi());
    double psi = clipper::Util::d2rad(phi_psi.psi());
+#ifdef CLIPPER_HAS_TOP8000
+   // again for clarity all copied; needs pre_pro etc at some point
+   if (phi_psi.residue_name() == "GLY") {
+      if (! r_gly.allowed(phi, psi))
+         if (! r_gly.favored(phi, psi))
+            r = true;
+   } else {
+      if (phi_psi.residue_name() == "PRO") {
+         if (! r_pro.allowed(phi, psi))
+            if (! r_pro.favored(phi, psi))
+               r = true;
+      } else {
+         if ((phi_psi.residue_name() == "ILE") ||
+             (phi_psi.residue_name() == "VAL")) {
+            if (! r_ileval.allowed(phi, psi))
+               if (! r_ileval.favored(phi, psi))
+                  r = true;
+         } else {
+            if (! rama.allowed(phi, psi))
+               if (! rama.favored(phi, psi))
+                  r = true;
+         }
+      }
+   }
+#else
    if (phi_psi.residue_name() == "GLY") {
       if (! r_gly.allowed(phi, psi))
     if (! r_gly.favored(phi, psi))
@@ -1999,6 +2107,7 @@ coot::rama_plot::is_outlier(const coot::util::phi_psi_t &phi_psi) const {
           r = true;
       }
    }
+#endif
    return r;
 }
 
@@ -3227,6 +3336,36 @@ coot::rama_plot::make_bg_images() {
    show_background(bg_pro);
    fn = "rama_pro.png";
    write_png_simple(fn, bg_pro);
+
+#ifdef CLIPPER_HAS_TOP8000
+   show_background(bg_all);
+   fn = "rama2_all.png";
+   write_png_simple(fn, bg_all);
+
+   show_background(bg_gly);
+   fn = "rama2_gly.png";
+   write_png_simple(fn, bg_gly);
+
+   show_background(bg_non_gly_pro);
+   fn = "rama2_non_gly_pro.png";
+   write_png_simple(fn, bg_non_gly_pro);
+
+   show_background(bg_pro);
+   fn = "rama2_pro.png";
+   write_png_simple(fn, bg_pro);
+
+   show_background(bg_ileval);
+   fn = "rama2_ileval.png";
+   write_png_simple(fn, bg_ileval);
+
+   show_background(bg_pre_pro);
+   fn = "rama2_pre_pro.png";
+   write_png_simple(fn, bg_pre_pro);
+
+   show_background(bg_non_gly_pro_pre_pro_ileval);
+   fn = "rama2_non_gly_pro_pre_pro_ileval.png";
+   write_png_simple(fn, bg_non_gly_pro_pre_pro_ileval);
+#endif
 
 #endif
 }

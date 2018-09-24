@@ -188,6 +188,9 @@ class rama_plot {
    int imol;  // which molecule in mapview did this come from?
    clipper::Ramachandran rama;
    clipper::Ramachandran r_gly, r_pro, r_non_gly_pro;
+#ifdef CLIPPER_HAS_TOP8000
+   clipper::Ramachandran r_ileval, r_pre_pro, r_non_gly_pro_pre_pro_ileval;
+#endif
 
    //GtkCanvas *canvas;
    GtkWidget *canvas;
@@ -426,6 +429,11 @@ public:
    GooCanvasItem *bg_gly;
    GooCanvasItem *bg_pro;
    GooCanvasItem *bg_non_gly_pro;
+#ifdef CLIPPER_HAS_TOP8000
+   GooCanvasItem *bg_ileval;
+   GooCanvasItem *bg_pre_pro;
+   GooCanvasItem *bg_non_gly_pro_pre_pro_ileval;
+#endif
    GooCanvasItem *current_bg;
    GooCanvasItem *residues_grp;
    GooCanvasItem *current_residue;
