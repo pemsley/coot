@@ -24,23 +24,21 @@ def jiggle_fit_active_residue():
 
 if (use_gui_qm != 2):
     menu = coot_menubar_menu("Ligand")
-        
-    if enhanced_ligand_coot_p():
-    
-        add_simple_coot_menu_menuitem(
-          menu,
-          "Find Ligands...",
-          lambda func: do_find_ligands_dialog())
 
-        add_simple_coot_menu_menuitem(
-          menu,
-          "Jiggle-Fit Ligand",
-          lambda func: jiggle_fit_active_residue())
+    add_simple_coot_menu_menuitem(
+        menu,
+        "Find Ligands...",
+        lambda func: do_find_ligands_dialog())
 
-        add_simple_coot_menu_menuitem(
-            menu,
-            "Hydrogenate region",
-            lambda func: hydrogenate_region(6))
+    add_simple_coot_menu_menuitem(
+        menu,
+        "Jiggle-Fit Ligand",
+        lambda func: jiggle_fit_active_residue())
+
+    add_simple_coot_menu_menuitem(
+        menu,
+        "Hydrogenate region",
+        lambda func: hydrogenate_region(6))
 
         add_simple_coot_menu_menuitem(
           menu,
