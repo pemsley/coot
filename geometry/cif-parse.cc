@@ -2363,7 +2363,7 @@ coot::protein_geometry::add_chem_links(mmdb::mmcif::PLoop mmCIFLoop) {
 			       chem_link_comp_id_1, chem_link_mod_id_1, chem_link_group_comp_1,
 			       chem_link_comp_id_2, chem_link_mod_id_2, chem_link_group_comp_2,
 			       chem_link_name);
-	 std::cout << "Adding to chem_link_map: " << clink << std::endl;
+	 // std::cout << "Adding to chem_link_map: " << clink << std::endl;
 	 // chem_link_vec.push_back(clink);
 	 chem_link_map[clink.get_hash_code()].push_back(clink);
       } else {
