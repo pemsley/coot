@@ -2587,7 +2587,6 @@ void fill_single_map_properties_dialog(GtkWidget *window, int imol) {
    GtkWidget *rb_2  = lookup_widget(window, "displayed_map_style_as_cut_glass_radiobutton");
    GtkWidget *rb_3  = lookup_widget(window, "displayed_map_style_as_transparent_radiobutton");
    GtkWidget *scale = lookup_widget(window, "map_opacity_hscale");
-   
 
    graphics_info_t g;
    if (g.molecules[imol].draw_it_for_solid_density_surface) {

@@ -2259,13 +2259,21 @@ int test_OXT_in_restraints() {
    } else { 
       bool v1 = geom.OXT_in_residue_restraints_p("TRP");
       bool v2 = geom.OXT_in_residue_restraints_p("BCS");
-      if (v1 == 0)
-	 if (v2 == 1)
-	    r = 1;
-	 else
-	    std::cout << "fail to find OXT in BSC" << std::endl;
+
+// This doesn't work for new restraints (which *do* have OXTs)
+//       if (v1 == 0)
+// 	 if (v2 == 1)
+// 	    r = 1;
+// 	 else
+// 	    std::cout << "fail to find OXT in BSC" << std::endl;
+//       else
+// 	 std::cout << "Fail to not find OXT in TRP" << std::endl;
+
+      if (v2 == 1)
+	 r = 1;
       else
-	 std::cout << "Fail to not find OXT in TRP" << std::endl;
+	 std::cout << "fail to find OXT in BSC" << std::endl;
+
    }
    return r; 
 } 
