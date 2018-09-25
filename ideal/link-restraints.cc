@@ -1335,7 +1335,8 @@ coot::restraints_container_t::general_link_find_close_link_inner(const std::vect
 	       break;
 	 }
       } else {
-	 std::cout << "FAIL close enough with closer than dist_crit " << close.second << std::endl;
+         if (debug)
+	    std::cout << "FAIL close enough with closer than dist_crit " << close.second << std::endl;
       }
    }
    if (debug)
