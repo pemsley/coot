@@ -5289,12 +5289,14 @@ def refmac_multi_sharpen_gui():
                            log_file_name)
          
          try:
-            if (s == 0):
+            if s == 0:
                # all good
                print "BL DEBUG:: s", s
                if os.path.isfile("starting-map.mtz"):
                   os.rename("starting-map.mtz", refmac_output_mtz_file_name)
-                  # maybe offer a dialog?! Or read automatically?
+                  manage_column_selector(refmac_output_mtz_file_name)
+            else:
+               info_dialog("WARNING:: refmac5 failed")
          except:
             pass
          delete_event(widget)

@@ -167,6 +167,7 @@ namespace coot {
 	 angle_restraints.clear();
 	 torsion_restraints.clear();
 	 start_pos_restraints.clear();
+         parallel_plane_restraints.clear();
       }
       void add_restraints(const extra_restraints_t &r) {
 	 for (unsigned int i=0; i<r.bond_restraints.size(); i++)
