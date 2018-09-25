@@ -1817,7 +1817,8 @@ CIsoSurface<T>::returnTriangles(const clipper::Xmap<T>& xmap,
       if ((co3_c-centre).amplitude_squared() > radius_sqd)
 	 valid_co_3 = false;
 
-      if (is_em_map) {
+      // if (is_em_map) { // needs adding back when reboxed maps work
+      if (false) {
 	 // test for being inside the box.
 	 if (valid_co_1) {
 	    if (co1_c.x() > max_x) valid_co_1 = false;
