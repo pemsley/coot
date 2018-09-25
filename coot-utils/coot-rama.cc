@@ -69,6 +69,7 @@ std::pair<bool, coot::util::phi_psi_with_residues_t>
 coot::util::get_phi_psi(mmdb::Residue *residue_0, mmdb::Residue *residue_1, mmdb::Residue *residue_2) {
 
    bool is_valid_flag = 0;
+   bool is_pre_pro = 0;
    coot::util::phi_psi_t phi_psi; // part of the returned value
    int nResidueAtoms;
    mmdb::PPAtom res_selection;
@@ -114,6 +115,8 @@ coot::util::get_phi_psi(mmdb::Residue *residue_0, mmdb::Residue *residue_1, mmdb
    }
 
    residue_2->GetAtomTable(res_selection, nResidueAtoms);
+   if (std::string(residue_2->GetResName()) == "PRO")
+      is_pre_pro = 1;
    if (nResidueAtoms > 0) {
       for (int j=0; j<nResidueAtoms; j++) {
 	 std::string atom_name = res_selection[j]->name;
@@ -146,7 +149,8 @@ coot::util::get_phi_psi(mmdb::Residue *residue_0, mmdb::Residue *residue_1, mmdb
 				      label.c_str(),
 				      ires,
 				      inscode,
-				      segid);
+                  segid,
+                                      is_pre_pro);
       // peptide bonding atoms have to be within 2.0A, or this is not
       // a valid peptide.
       // 

@@ -576,7 +576,7 @@ coot::rama_plot::setup_internal(float level_prefered, float level_allowed) {
    //
    r_pro.init(clipper::Ramachandran::Pro2);
    r_pro.set_thresholds(level_prefered, level_allowed);
-   // first approx. FIXME
+   // first approximation; shouldnt be used if top8000 is available anyway
    r_non_gly_pro.init(clipper::Ramachandran::NoGPIVpreP2);
    r_non_gly_pro.set_thresholds(level_prefered, level_allowed);
    // new
@@ -1415,19 +1415,52 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
                   region = coot::rama_plot::RAMA_OUTLIER;
                }
             } else {
-
-               // conventional residue
-               if (r_non_gly_pro.allowed(clipper::Util::d2rad(phi),
-                                         clipper::Util::d2rad(psi))) {
-                  region = coot::rama_plot::RAMA_ALLOWED;
-                  colour = "DodgerBlue";
-                  if (r_non_gly_pro.favored(clipper::Util::d2rad(phi),
-                                            clipper::Util::d2rad(psi))) {
-                     region = coot::rama_plot::RAMA_PREFERRED;
+               // pre-pro
+               if (phi_psi.is_pre_pro()) {
+                  g_print("BL DEBUG:: have pre_pro rn %s\n", phi_psi.residue_name());
+                  if (r_pre_pro.allowed(clipper::Util::d2rad(phi),
+                                        clipper::Util::d2rad(psi))) {
+                     region = coot::rama_plot::RAMA_ALLOWED;
+                     colour = "DodgerBlue";
+                     if (r_pre_pro.favored(clipper::Util::d2rad(phi),
+                                           clipper::Util::d2rad(psi))) {
+                        region = coot::rama_plot::RAMA_PREFERRED;
+                     }
+                  } else {
+                     colour = "red3";
+                     region = coot::rama_plot::RAMA_OUTLIER;
                   }
                } else {
-                  colour = "red3";
-                  region = coot::rama_plot::RAMA_OUTLIER;
+                  // Ile  Val
+                  if (phi_psi.residue_name() == "ILE" ||
+                      phi_psi.residue_name() == "VAL") {
+                     if (r_ileval.allowed(clipper::Util::d2rad(phi),
+                                          clipper::Util::d2rad(psi))) {
+                        region = coot::rama_plot::RAMA_ALLOWED;
+                        colour = "DodgerBlue";
+                        if (r_ileval.favored(clipper::Util::d2rad(phi),
+                                             clipper::Util::d2rad(psi))) {
+                           region = coot::rama_plot::RAMA_PREFERRED;
+                        }
+                     } else {
+                        colour = "red3";
+                        region = coot::rama_plot::RAMA_OUTLIER;
+                     }
+                  } else {
+                     // conventional residue
+                     if (r_non_gly_pro_pre_pro_ileval.allowed(clipper::Util::d2rad(phi),
+                                                              clipper::Util::d2rad(psi))) {
+                        region = coot::rama_plot::RAMA_ALLOWED;
+                        colour = "DodgerBlue";
+                        if (r_non_gly_pro_pre_pro_ileval.favored(clipper::Util::d2rad(phi),
+                                                                 clipper::Util::d2rad(psi))) {
+                           region = coot::rama_plot::RAMA_PREFERRED;
+                        }
+                     } else {
+                        colour = "red3";
+                        region = coot::rama_plot::RAMA_OUTLIER;
+                     }
+                  }
                }
             }
          }
@@ -1539,6 +1572,7 @@ coot::rama_plot::set_data_for_phi_psi_point_item_other(const std::string &label,
    g_object_set_data (G_OBJECT (item), "res_name", c_res_name);
    g_object_set_data (G_OBJECT (item), "chain",    c_chain_id);
    g_object_set_data (G_OBJECT (item), "res_no", GINT_TO_POINTER(phi_psi.residue_number));
+   g_object_set_data (G_OBJECT (item), "is_pre_pro", GINT_TO_POINTER(phi_psi.is_pre_pro()));
    g_object_set_data (G_OBJECT (item), "rama_plot", (gpointer) this);
 
 }
@@ -2013,6 +2047,8 @@ coot::rama_plot::item_enter_event(GooCanvasItem *item, GdkEventCrossing *event) 
 
    gchar *res_name = static_cast<gchar *> (g_object_get_data(G_OBJECT(item),
                                                              "res_name"));
+   gint *is_pre_pro = static_cast<gint *> (g_object_get_data(G_OBJECT(item),
+                                                             "is_pre_pro"));
 
 #ifdef CLIPPER_HAS_TOP8000
    // for clarity all copied
@@ -2022,11 +2058,14 @@ coot::rama_plot::item_enter_event(GooCanvasItem *item, GdkEventCrossing *event) 
       if (strcmp(res_name, "PRO") == 0) {
          show_background(bg_pro);
       }  else {
-         if ((strcmp(res_name, "ILE") == 0) || (strcmp(res_name, "VAL") == 0)) {
-            show_background(bg_ileval);
+         if (is_pre_pro) {
+            show_background(bg_pre_pro);
          } else {
-            // FIXME this should be the new one and we need pre_pro
-            show_background(bg_non_gly_pro);
+            if ((strcmp(res_name, "ILE") == 0) || (strcmp(res_name, "VAL") == 0)) {
+               show_background(bg_ileval);
+            } else {
+               show_background(bg_non_gly_pro_pre_pro_ileval);
+            }
          }
       }
    }
@@ -2068,7 +2107,7 @@ coot::rama_plot::is_outlier(const coot::util::phi_psi_t &phi_psi) const {
    double phi = clipper::Util::d2rad(phi_psi.phi());
    double psi = clipper::Util::d2rad(phi_psi.psi());
 #ifdef CLIPPER_HAS_TOP8000
-   // again for clarity all copied; needs pre_pro etc at some point
+   // again for clarity all copied
    if (phi_psi.residue_name() == "GLY") {
       if (! r_gly.allowed(phi, psi))
          if (! r_gly.favored(phi, psi))
@@ -2079,15 +2118,21 @@ coot::rama_plot::is_outlier(const coot::util::phi_psi_t &phi_psi) const {
             if (! r_pro.favored(phi, psi))
                r = true;
       } else {
-         if ((phi_psi.residue_name() == "ILE") ||
-             (phi_psi.residue_name() == "VAL")) {
-            if (! r_ileval.allowed(phi, psi))
-               if (! r_ileval.favored(phi, psi))
+         if (phi_psi.is_pre_pro()) {
+            if (! r_pre_pro.allowed(phi, psi))
+               if (! r_pre_pro.favored(phi, psi))
                   r = true;
          } else {
-            if (! rama.allowed(phi, psi))
-               if (! rama.favored(phi, psi))
-                  r = true;
+            if ((phi_psi.residue_name() == "ILE") ||
+                (phi_psi.residue_name() == "VAL")) {
+               if (! r_ileval.allowed(phi, psi))
+                  if (! r_ileval.favored(phi, psi))
+                     r = true;
+            } else {
+               if (! rama.allowed(phi, psi))
+                  if (! rama.favored(phi, psi))
+                     r = true;
+            }
          }
       }
    }

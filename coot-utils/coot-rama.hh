@@ -48,6 +48,7 @@ namespace coot {
 	 // 		      ARG,LYS,PRO,VAL,CYH};
 	 std::string residue_name_;
 	 bool is_filled_;
+    bool is_pre_pro_;
       
       public:
 	 phi_psi_t(double a, double b,
@@ -65,8 +66,26 @@ namespace coot {
 	    chain_id = chainid;
 	    is_filled_ = 1;
 	 }
-	 phi_psi_t() {
+    phi_psi_t(double a, double b,
+         const std::string &res_name,
+         const std::string &residue_label,
+         int resno,
+         const std::string ins_code_in,
+         std::string chainid,
+         bool is_pre_pro) {
+       phi_ = a;
+       psi_ = b;
+       lab = residue_label;
+       residue_name_ = res_name;
+       residue_number = resno;
+       ins_code = ins_code_in;
+       chain_id = chainid;
+       is_filled_ = 1;
+       is_pre_pro_ = is_pre_pro;
+    }
+    phi_psi_t() {
 	    is_filled_ = 0;
+       is_pre_pro_ = 0;
 	 };
 	 // this can throw an exception (e.g. bonding atoms too far
 	 // apart).  Uses get_phi_psi() below
@@ -81,6 +100,7 @@ namespace coot {
 	 bool is_filled() const {
 	    return is_filled_;
 	 }
+    bool is_pre_pro() const { return is_pre_pro_; }
 	 friend std::ostream& operator<<(std::ostream &a, phi_psi_t v);
       };
 
