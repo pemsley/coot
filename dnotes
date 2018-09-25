@@ -8469,5 +8469,14 @@ Mon Sep 17 21:55:15 BST 2018
    (which you might be able to find with a cuda-based search?)
    5toh
 
+---
+Mon 24 Sep 2018 15:48:27 BST
 
+   quaternion axis rotation in freeglut 2.8.1 spaceball.c
+
+   void sbrot(int x, int y, int z) {
+     float axis_len = (float)sqrt(x * x + y * y + z * z);
+     rot = quat_rotate(rot, axis_len * 0.001f, -x / axis_len, -y / axis_len, z / axis_len);
+
+   Does this mean that a spaceball works? Hmm!
 

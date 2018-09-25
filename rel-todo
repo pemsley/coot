@@ -1,10 +1,13 @@
 
    For Release 0.8.9.2
 
-   o zero occupancy markers should respect the model molecule display limit
+   o when generating density lines, check for is-EM map, and if so, don't draw outside
+     the boundaries of the cell.
+     This needs to know that a reboxed map is *not* an EM map because it can have density
+     outside of the unit cell - to include reboxed map, it needs to have x,y,z limits
+     derived from the grid box.
 
-   o zero occupancies markers for hydrogens should respect the no-bonds-to-hydrogens
-     setting
+* Remove the current box restriction and move to refinement
 
    o when multi-sharpen fails because there is no refmac, we should get a message
      in the status bar.
@@ -18,10 +21,15 @@
 
 ------
 
-   o when generating density lines, check for is-EM map, and if so, don't draw outside
-     the boundaries ofthe cell.
+
+   o zero occupancy markers should respect the model molecule display limit
 
 * Done.
+
+   o zero occupancies markers for hydrogens should respect the no-bonds-to-hydrogens
+     setting
+
+* Punt. Too hard too esoteric.
 
    o accept_regularizement() needs a better name (keep this one for backwards compatibility)
 
