@@ -3597,13 +3597,17 @@ coot::rama_plot::plot_type_changed() {
          int i_chain_id2 = 0;
          if (chains2.size() > 0)
             i_chain_id2 = 1;
-         chain_ids_ = std::pair<std::string, std::string> (chains[0], chains2[i_chain_id2]);
+	 if (chains.size() > 0) {
+	    if (chains2.size() > i_chain_id2) {
+	       chain_ids_ = std::pair<std::string, std::string> (chains[0], chains2[i_chain_id2]);
 
-         draw_it(molecule_numbers().first, molecule_numbers().second,
-                 mols().first, mols().second,
-                 chain_ids().first, chain_ids().second);
-         fill_kleywegt_comboboxes(mols().first, mols().second);
-         kleywegt_plot_uses_chain_ids = 1;
+	       draw_it(molecule_numbers().first, molecule_numbers().second,
+		       mols().first, mols().second,
+		       chain_ids().first, chain_ids().second);
+	       fill_kleywegt_comboboxes(mols().first, mols().second);
+	       kleywegt_plot_uses_chain_ids = 1;
+	    }
+	 }
       } else {
          std::cout<< "BL INFO:: no molecule found, please read one in."<<std::endl;
       }
