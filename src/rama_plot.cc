@@ -1417,7 +1417,8 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
             } else {
                // pre-pro
                if (phi_psi.is_pre_pro()) {
-                  g_print("BL DEBUG:: have pre_pro rn %s\n", phi_psi.residue_name());
+                  // g_print("BL DEBUG:: have pre_pro rn %s\n", phi_psi.residue_name().c_str());
+#ifdef CLIPPER_HAS_TOP8000
                   if (r_pre_pro.allowed(clipper::Util::d2rad(phi),
                                         clipper::Util::d2rad(psi))) {
                      region = coot::rama_plot::RAMA_ALLOWED;
@@ -1430,10 +1431,12 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
                      colour = "red3";
                      region = coot::rama_plot::RAMA_OUTLIER;
                   }
+#endif // CLIPPER_HAS_TOP8000
                } else {
                   // Ile  Val
                   if (phi_psi.residue_name() == "ILE" ||
                       phi_psi.residue_name() == "VAL") {
+#ifdef CLIPPER_HAS_TOP8000
                      if (r_ileval.allowed(clipper::Util::d2rad(phi),
                                           clipper::Util::d2rad(psi))) {
                         region = coot::rama_plot::RAMA_ALLOWED;
@@ -1446,8 +1449,10 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
                         colour = "red3";
                         region = coot::rama_plot::RAMA_OUTLIER;
                      }
+#endif // CLIPPER_HAS_TOP8000
                   } else {
                      // conventional residue
+#ifdef CLIPPER_HAS_TOP8000
                      if (r_non_gly_pro_pre_pro_ileval.allowed(clipper::Util::d2rad(phi),
                                                               clipper::Util::d2rad(psi))) {
                         region = coot::rama_plot::RAMA_ALLOWED;
@@ -1460,6 +1465,7 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
                         colour = "red3";
                         region = coot::rama_plot::RAMA_OUTLIER;
                      }
+#endif // CLIPPER_HAS_TOP8000
                   }
                }
             }
