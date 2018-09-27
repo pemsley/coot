@@ -78,6 +78,13 @@ koppi-green-tick-64.png rygle-red-cross-64.png forest51690-dwcheckno-incomplete-
   rama_all.png rama_gly.png rama_pro.png rama_non_gly_pro.png \
   curlew-long.png
 
+if CLIPPER_TOP8000
+dist_cootpixmap_DATA += \
+  rama2_all.png 	rama2_gly.png 	rama2_pro.png   \
+  rama2_non_gly_pro.png rama2_ileval.png rama2_pre_pro.png \
+  rama2_non_gly_pro_pre_pro_ileval.png
+endif
+
 # removed the svg version of curlew for now because of non anti-aliasing
 
 

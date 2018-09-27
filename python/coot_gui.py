@@ -185,7 +185,7 @@ def coot_gui(own_gtk_main=False):
        # enough of this debugging output
        # print "BL INFO:: command input is: ", entry_text
        if (entry_text != None):
-          insert_tag_text(textbuffer.create_tag(foreground="red"),
+          insert_tag_text(textbuffer.create_tag(foreground="darkblue"),
                           entry_text + "\n")
        while gtk.events_pending():
          gtk.main_iteration(False)
@@ -5314,12 +5314,14 @@ def refmac_multi_sharpen_gui():
                            log_file_name)
          
          try:
-            if (s == 0):
+            if s == 0:
                # all good
                print "BL DEBUG:: s", s
                if os.path.isfile("starting-map.mtz"):
                   os.rename("starting-map.mtz", refmac_output_mtz_file_name)
-                  # maybe offer a dialog?! Or read automatically?
+                  manage_column_selector(refmac_output_mtz_file_name)
+            else:
+               info_dialog("WARNING:: refmac5 failed")
          except:
             pass
          delete_event(widget)

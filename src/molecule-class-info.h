@@ -722,6 +722,7 @@ public:        //                      public
       sharpen_b_factor_ = 0.0;
       sharpen_b_factor_kurtosis_optimised_ = -999999.0;
       pending_contour_level_change_count = 0;
+      data_resolution_ = -1; // unset
 
       // fourier (for phase recombination (potentially) in refmac:
       fourier_weight_label = ""; // unset initially.

@@ -386,7 +386,8 @@
 # 5.29 20171006 Test for libgnomecanvas devel (now not available in system for Redhat 7.3)
 # 5.30 20180109 Update python version.
 # 5.31 20180822 gdkshapes.c in gtkglext
-script_version=5.31
+# 5.32 20180924 bump the clipper version (pre-Pro)
+script_version=5.32
 
 
 
@@ -2578,7 +2579,11 @@ if test -n "$build_clipper" ; then
 
     # now clipper has all the bits.
     # ${WGET} $extras_place/clipper-$clipper_version.tar.gz
-    ${WGET} ftp://ftp.ccp4.ac.uk/opensource/clipper-$clipper_version.tar.gz
+    # ${WGET} ftp://ftp.ccp4.ac.uk/opensource/clipper-$clipper_version.tar.gz
+
+    # Bernie made this tarball
+    clipper_version=2.1.20180802
+    ${WGET} $extras_place/clipper-$clipper_version.tar.gz
 
     (
     gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -

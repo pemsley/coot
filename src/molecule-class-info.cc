@@ -2085,16 +2085,22 @@ molecule_class_info_t::zero_occupancy_spots() const {
 
    if (bonds_box.n_zero_occ_spots > 0) { 
 
+      const std::pair<bool, float> &use_radius_limit = graphics_info_t::model_display_radius;
+
       glColor3f(0.8, 0.7, 0.7);
       float zsc = graphics_info_t::zoom;
       //glPointSize(145.0/zsc);
       // scale the pointer with the bond width
       glPointSize(30.0/std::min(zsc,(float)20)*std::max(bond_width, (float)4));
       glBegin(GL_POINTS); 
-      for (int i=0; i<bonds_box.n_zero_occ_spots; i++) { 
-	 glVertex3f(bonds_box.zero_occ_spots_ptr[i].x(),
-		    bonds_box.zero_occ_spots_ptr[i].y(),
-		    bonds_box.zero_occ_spots_ptr[i].z());
+      for (int i=0; i<bonds_box.n_zero_occ_spots; i++) {
+
+	 if ((use_radius_limit.first == false) ||
+	     (graphics_info_t::is_within_display_radius(bonds_box.zero_occ_spots_ptr[i]))) {
+	    glVertex3f(bonds_box.zero_occ_spots_ptr[i].x(),
+		       bonds_box.zero_occ_spots_ptr[i].y(),
+		       bonds_box.zero_occ_spots_ptr[i].z());
+	 }
       }
       glEnd();
    }
@@ -2322,7 +2328,7 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 
 	 if (bonds_box.bonds_[i].thin_lines_flag)
 	    zsc *= 0.5;
- 
+
 	 glBegin(GL_QUADS);
 
 	 if (! use_radius_limit.first) {

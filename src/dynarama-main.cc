@@ -24,8 +24,6 @@
                     // comes before Coot's one
 #endif
 
-#include <iostream>
-
 #ifdef HAVE_GOOCANVAS
 
 #ifdef __GNU_LIBRARY__
@@ -35,6 +33,8 @@
 #include "compat/coot-getopt.h"
 #undef __GNU_LIBRARY__
 #endif
+
+#include <iostream>
 
 #include <sys/stat.h>
 

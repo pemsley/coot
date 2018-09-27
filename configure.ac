@@ -236,6 +236,9 @@ else
       :
    else
       L_BOOST_PYTHON=-l$BOOST_PYTHON_LIB
+      if test "$have_windows_mingw" = yes; then
+         COOT_WINDOWS_CFLAGS+=" -DBOOST_SYSTEM_NO_DEPRECATED"
+      fi
    fi
 fi
 AC_SUBST(L_BOOST_PYTHON)

@@ -8,7 +8,8 @@ AM_CPPFLAGS = \
 	$(CLIPPER_CXXFLAGS)             \
         $(MMDB_CXXFLAGS) \
         $(PYTHON_CFLAGS)  \
-	$(RDKIT_CXXFLAGS)
+	$(RDKIT_CXXFLAGS) $(BOOST_CPPFLAGS) \
+	$(COOT_WINDOWS_CFLAGS)
 
 lib_LTLIBRARIES=libcoot-pli.la
 

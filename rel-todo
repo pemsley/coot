@@ -1,27 +1,43 @@
 
    For Release 0.8.9.2
 
-   o zero occupancy markers should respect the model molecule display limit
+------
 
-   o zero occupancies markers for hydrogens should respect the no-bonds-to-hydrogens
-     setting
+   o Delete extra restraints - does that work?
 
-   o when multi-sharpen fails because there is no refmac, we should get a message
-     in the status bar.
-
-   o Add map resolution from grid spacing to Map Properties dialog - Bernhard Rupp.
+* Yes - I wonder what I thought the problem was.
 
    o Capture the mmdb error message ("Disk quota exceeded or some such") when
      trying to save/quick-save a pdb file).
 
-   o Delete extra restraints - does that work?
+* There's already a dialog on error on write - that will do for now (it doesn't say the error type)
 
-------
+   o when multi-sharpen fails because there is no refmac, we should get a message
+     in the status bar.
 
-   o when generating density lines, check for is-EM map, and if so, don't draw outside
-     the boundaries ofthe cell.
+* Done - something like that.
+
+   o Add map resolution from grid spacing to Map Properties dialog - Bernhard Rupp.
 
 * Done.
+
+   o when generating density lines, check for is-EM map, and if so, don't draw outside
+     the boundaries of the cell.
+     This needs to know that a reboxed map is *not* an EM map because it can have density
+     outside of the unit cell - to include reboxed map, it needs to have x,y,z limits
+     derived from the grid box.
+     Remove the current box restriction and move to refinement
+
+* Done.
+
+   o zero occupancy markers should respect the model molecule display limit
+
+* Done.
+
+   o zero occupancies markers for hydrogens should respect the no-bonds-to-hydrogens
+     setting
+
+* Punt. Too hard too esoteric.
 
    o accept_regularizement() needs a better name (keep this one for backwards compatibility)
 
