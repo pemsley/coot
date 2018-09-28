@@ -729,7 +729,8 @@ graphics_info_t::add_target_position_restraint_for_intermediate_atom(const coot:
    add_or_replace_current(atom_pull_local);
    if (last_restraints) {
       last_restraints->add_atom_pull_restraint(spec, target_pos);
-      add_drag_refine_idle_function();
+      // add_drag_refine_idle_function();
+      thread_for_refinement_loop_threaded();
    }
 }
 
@@ -792,15 +793,19 @@ graphics_info_t::move_moving_atoms_by_shear_internal(const coot::Cartesian &diff
 void
 graphics_info_t::do_post_drag_refinement_maybe() {
 
+   // is this function needed?
+
 #ifdef HAVE_GSL
-   std::cout << "Here in do_post_drag_refinement_maybe() with last_restraints_size() "
-	     << last_restraints_size() << std::endl;
-   if (last_restraints_size() > 0) {
-      graphics_info_t::add_drag_refine_idle_function();
-   } else {
-      std::cout << "DEBUG:: not doing refinement - no restraints."
-		<< std::endl;
-   }
+
+//    std::cout << "Here in do_post_drag_refinement_maybe() with last_restraints_size() "
+// 	     << last_restraints_size() << std::endl;
+//    if (last_restraints_size() > 0) {
+//       add_drag_refine_idle_function();
+//    } else {
+//       std::cout << "DEBUG:: not doing refinement - no restraints."
+// 		<< std::endl;
+//    }
+
 #endif // HAVE_GSL   
 }
 

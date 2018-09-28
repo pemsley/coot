@@ -1454,6 +1454,117 @@ coot::protein_geometry::info() const {
    
 } 
 
+// static
+unsigned int
+coot::chem_link::make_hash_code(const std::string &comp_id_1, const std::string &comp_id_2, const std::string &group_1, const std::string &group_2) {
+
+   unsigned int hash = 0;
+   unsigned int hash_c1 = 0;
+   unsigned int hash_c2 = 0;
+   unsigned int hash_g1 = 0;
+   unsigned int hash_g2 = 0;
+
+   std::string local_group_1 = group_1;
+   std::string local_group_2 = group_2;
+
+   if (local_group_1 == "L-peptide")  local_group_1 = "peptide";
+   if (local_group_2 == "L-peptide")  local_group_2 = "peptide";
+   if (local_group_1 == "M-peptide")  local_group_1 = "peptide";
+   if (local_group_2 == "M-peptide")  local_group_2 = "peptide";
+   if (local_group_1 == "D-pyranose") local_group_1 = "pyranose";
+   if (local_group_2 == "D-pyranose") local_group_2 = "pyranose";
+   if (local_group_1 == "D-SACCHARIDE") local_group_1 = "pyranose";  // CCD annotation for MAN, etc
+   if (local_group_1 == "SACCHARIDE") local_group_1 = "pyranose";    // CCD annotation for FUC
+   if (local_group_2 == "D-SACCHARIDE") local_group_2 = "pyranose";
+   if (local_group_2 == "SACCHARIDE") local_group_2 = "pyranose";
+
+   for (unsigned int i = 0; i < comp_id_1.length(); i++) {
+     unsigned int chr = comp_id_1[i];
+     hash_c1  = ((hash_c1 << 5) - hash_c1) + chr;
+     hash_c1 |= 0; // Convert to 32bit integer
+   }
+   for (unsigned int i = 0; i < comp_id_2.length(); i++) {
+     unsigned int chr = comp_id_2[i];
+     hash_c2  = ((hash_c2 << 5) - hash_c2) + chr;
+     hash_c2 |= 0;
+   }
+   for (unsigned int i = 0; i < local_group_1.length(); i++) {
+     unsigned int chr = local_group_1[i];
+     hash_g1  = ((hash_g1 << 5) - hash_g1) + chr;
+     hash_g1 |= 0;
+   }
+   for (unsigned int i = 0; i < local_group_2.length(); i++) {
+     unsigned int chr = local_group_2[i];
+     hash_g2  = ((hash_g2 << 5) - hash_g2) + chr;
+     hash_g2 |= 0;
+   }
+
+   // hash = hash_c1 + 2 * hash_c2 + 4 * hash_g1 + hash_g2;
+
+   hash = hash_g1 + 2 * hash_g2;
+
+   hash |= 0;
+
+   return hash;
+}
+
+std::pair<bool, bool>
+coot::chem_link::matches_comp_ids_and_groups_hashed(const std::string &comp_id_1,
+					     const std::string &group_1,
+					     const std::string &comp_id_2,
+					     const std::string &group_2) const {
+
+   bool match = false; // initially
+   bool order_switch = false;
+
+   std::string local_group_1 = group_1;
+   std::string local_group_2 = group_2;
+
+   // chem_links specify "peptide" or "pyranose", but comp_groups are "L-peptide"/"D-pyranose".
+   // So allow them to match.
+   // 201201013 (Friday) allow M-peptides to match too.
+   if (local_group_1 == "L-peptide")  local_group_1 = "peptide";
+   if (local_group_2 == "L-peptide")  local_group_2 = "peptide";
+   if (local_group_1 == "M-peptide")  local_group_1 = "peptide";
+   if (local_group_2 == "M-peptide")  local_group_2 = "peptide";
+   if (local_group_1 == "D-pyranose") local_group_1 = "pyranose";
+   if (local_group_2 == "D-pyranose") local_group_2 = "pyranose";
+   if (local_group_1 == "D-SACCHARIDE") local_group_1 = "pyranose";  // CCD annotation for MAN, etc
+   if (local_group_1 == "SACCHARIDE") local_group_1 = "pyranose";    // CCD annotation for FUC
+   if (local_group_2 == "D-SACCHARIDE") local_group_2 = "pyranose";
+   if (local_group_2 == "SACCHARIDE") local_group_2 = "pyranose";
+
+   unsigned int hash_test = make_hash_code(comp_id_1, comp_id_2, local_group_1, local_group_2);
+
+   if (hash_test == hash_code) {
+      match = true;
+      order_switch = false;
+   }
+
+   return std::pair<bool, bool>(match, order_switch);
+}
+
+
+std::pair<bool, bool>
+coot::chem_link::matches_comp_ids_and_groups_hashed(unsigned int hash_test_forwards,
+                                                    unsigned int hash_test_backwards) const {
+
+   bool match = false; // initially
+   bool order_switch = false;
+
+   if (hash_test_forwards == hash_code)
+      match = true;
+
+   if (hash_test_backwards == hash_code) {
+      match = true;
+      order_switch = true;
+   }
+
+   return std::pair<bool, bool>(match, order_switch);
+}
+
+
+
 
 std::pair<bool, bool>
 coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
@@ -1462,6 +1573,7 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 					     const std::string &group_2) const {
 
    bool debug = false;
+
    if (debug) { 
       std::cout << "   ------ DEBUG:: in matches_comp_ids_and_groups() "
 		<< id << " chem_link_name " << chem_link_name << ": input comp_ids "
@@ -1473,6 +1585,12 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 		<< chem_link_group_comp_1 << ": ref link-group-2 :"
 		<< chem_link_group_comp_2 << ":" << std::endl;
    }
+
+   unsigned int hash_test = make_hash_code(comp_id_1, comp_id_2, group_1, group_2);
+
+   if (debug)
+      std::cout << "   checking:: hash comparison this: " << hash_code << " test: "
+		<< hash_test << " " << *this << "\n";
 
    bool match = false; // initially
    bool order_switch = false;
@@ -1493,13 +1611,19 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
    if (local_group_1 == "SACCHARIDE") local_group_1 = "pyranose";    // CCD annotation for FUC
    if (local_group_2 == "D-SACCHARIDE") local_group_2 = "pyranose";
    if (local_group_2 == "SACCHARIDE") local_group_2 = "pyranose";
-   
+
+   if (debug)
+      std::cout << "     sigh check match \""
+		<< chem_link_group_comp_1 << "\" vs \"" << local_group_1 << "\" and "
+		<< chem_link_group_comp_2 << "\" vs \"" << local_group_2 << "\"\n";
+
    if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == local_group_1)) &&
-       ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == local_group_2)))
+       ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == local_group_2))) {
       if (((chem_link_comp_id_1 == "") || (chem_link_comp_id_1 == comp_id_1)) &&
 	  ((chem_link_comp_id_2 == "") || (chem_link_comp_id_2 == comp_id_2))) {
 	 match = true;
       }
+   }
 
    if (((chem_link_group_comp_1 == "DNA/RNA") && (local_group_1 == "RNA") && 
 	(chem_link_group_comp_1 == "DNA/RNA") && (local_group_2 == "RNA")))
@@ -4140,9 +4264,20 @@ coot::protein_geometry::mol_from_dictionary(int monomer_index,
 void
 coot::protein_geometry::print_chem_links() const {
 
-   for (unsigned int i_chem_link=0; i_chem_link<chem_link_vec.size(); i_chem_link++) {
-      std::cout<< i_chem_link << " " << chem_link_vec[i_chem_link] << "\n";
-   } 
+   // simple vector
+   // for (unsigned int i_chem_link=0; i_chem_link<chem_link_vec.size(); i_chem_link++)
+   // std::cout<< i_chem_link << " " << chem_link_vec[i_chem_link] << "\n";
+
+   std::map<unsigned int, std::vector<chem_link> >::const_iterator it;
+
+   for (it=chem_link_map.begin(); it!=chem_link_map.end(); it++) {
+      const std::vector<chem_link> &v = it->second;
+      std::vector<chem_link>::const_iterator itv;
+      for (itv=v.begin(); itv!=v.end(); itv++) {
+	 const chem_link &cl = *itv;
+	 std::cout << "   " << it->first << " " << cl << "\n";
+      }
+   }
 
 } 
 

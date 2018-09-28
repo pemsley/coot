@@ -610,34 +610,53 @@ std::pair<coot::chem_mod, coot::chem_mod>
 coot::protein_geometry::get_chem_mods_for_link(const std::string &link_id) const {
 
    bool found = false; 
-   for (unsigned int ilink=0; ilink<chem_link_vec.size(); ilink++) {
-      if (chem_link_vec[ilink].Id() == link_id) {
-	 std::pair<std::string, std::string> mod_names =
-	    chem_link_vec[ilink].chem_mod_names(); 
-// 	 std::cout << "get_chem_mod_for_link() looking for mod 1: \""
-// 		   << mod_names.first << "\"" << std::endl;
-// 	 std::cout << "get_chem_mod_for_link() looking for mod 2: \""
-// 		   << mod_names.second << "\"" << std::endl;
-	 std::map<std::string, chem_mod>::const_iterator it_1 =
-	    mods.find(mod_names.first);
-	 std::map<std::string, chem_mod>::const_iterator it_2 =
-	    mods.find(mod_names.second);
-	 if (it_1 != mods.end()) {
-	    if (it_2 != mods.end()) {
-	       // we found both mods.
-	       // std::cout << "we found both mods! " << std::endl;
-	       return std::pair<chem_mod, chem_mod>(it_1->second, it_2->second);
+
+//    for (unsigned int ilink=0; ilink<chem_link_vec.size(); ilink++) {
+//       const chem_link &chem_link = chem_link_vec[ilink];
+//       if (chem_link.Id() == link_id) {
+// 	 std::pair<std::string, std::string> mod_names = chem_link.chem_mod_names();
+// 	 std::map<std::string, chem_mod>::const_iterator it_1 = mods.find(mod_names.first);
+// 	 std::map<std::string, chem_mod>::const_iterator it_2 = mods.find(mod_names.second);
+// 	 if (it_1 != mods.end()) {
+// 	    if (it_2 != mods.end()) {
+// 	       // we found both mods.
+// 	       // std::cout << "we found both mods! " << std::endl;
+// 	       return std::pair<chem_mod, chem_mod>(it_1->second, it_2->second);
+// 	    } else {
+// 	       std::cout << "DEBUG:: oops no " << mod_names.second
+// 			 << " in mods" << std::endl;
+// 	    }
+// 	 } else {
+// 	    std::cout << "DEBUG:: oops no " << mod_names.first << " in mods" << std::endl;
+// 	 }
+//    }
+
+   std::map<unsigned int, std::vector<chem_link> >::const_iterator it;
+   for (it=chem_link_map.begin(); it!=chem_link_map.end(); it++) {
+      const std::vector<chem_link> &v = it->second;
+      std::vector<chem_link>::const_iterator itv;
+      for (itv=v.begin(); itv!=v.end(); itv++) {
+	 const chem_link &cl = *itv;
+	 if (cl.Id() == link_id) {
+	    std::pair<std::string, std::string> mod_names = cl.chem_mod_names();
+	    std::map<std::string, chem_mod>::const_iterator it_1 = mods.find(mod_names.first);
+	    std::map<std::string, chem_mod>::const_iterator it_2 = mods.find(mod_names.second);
+	    if (it_1 != mods.end()) {
+	       if (it_2 != mods.end()) {
+		  // we found both mods.
+		  // std::cout << "we found both mods! " << std::endl;
+		  return std::pair<chem_mod, chem_mod>(it_1->second, it_2->second);
+	       } else {
+		  std::cout << "DEBUG:: oops no " << mod_names.second
+			    << " in mods" << std::endl;
+	       }
 	    } else {
-	       std::cout << "DEBUG:: oops no " << mod_names.second
-			 << " in mods" << std::endl;
-	    } 
-	 } else {
-	    std::cout << "DEBUG:: oops no " << mod_names.first << " in mods" << std::endl;
-	 } 
-      } 
+	       std::cout << "DEBUG:: oops no " << mod_names.first << " in mods" << std::endl;
+	    }
+	 }
+      }
    }
 
-   // std::cout << "throwing runtime_error then - no chem_mods for link" << std::endl;
    throw std::runtime_error("No link found");
    
 //    if (link.link_id == "") {

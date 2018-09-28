@@ -2658,19 +2658,28 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_Return:
 
       if (graphics_info_t::accept_reject_dialog) {
-	 accept_regularizement();
-	 if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
-	    save_accept_reject_dialog_window_position(graphics_info_t::accept_reject_dialog);
-	    gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
+
+	 if (graphics_info_t::continue_threaded_refinement_loop) {
+	    graphics_info_t::continue_threaded_refinement_loop = false;
+	    std::cout << ".... Return key tells refinement to accept and clean up" << std::endl;
+	    graphics_info_t::threaded_refinement_needs_to_clear_up = true;
+	    graphics_info_t::threaded_refinement_needs_to_accept_moving_atoms = true;
 	 } else {
-	    // have docked dialog
-	    if (graphics_info_t::accept_reject_dialog_docked_show_flag == coot::DIALOG_DOCKED_HIDE) {
-	       gtk_widget_hide(graphics_info_t::accept_reject_dialog);
+	    accept_regularizement();
+
+	    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
+	       save_accept_reject_dialog_window_position(graphics_info_t::accept_reject_dialog);
+	       gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
 	    } else {
-	       gtk_widget_set_sensitive(graphics_info_t::accept_reject_dialog, FALSE);
+	       // have docked dialog
+	       if (graphics_info_t::accept_reject_dialog_docked_show_flag == coot::DIALOG_DOCKED_HIDE) {
+	          gtk_widget_hide(graphics_info_t::accept_reject_dialog);
+	       } else {
+	          gtk_widget_set_sensitive(graphics_info_t::accept_reject_dialog, FALSE);
+	       }
 	    }
+	    graphics_info_t::accept_reject_dialog = 0;
 	 }
-	 graphics_info_t::accept_reject_dialog = 0;
       }
       handled = TRUE;
       break;
@@ -2679,18 +2688,28 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
       graphics_info_t::rebond_molecule_corresponding_to_moving_atoms();
 
-      clear_up_moving_atoms();
+      // poke a value into the threaded refinement loop, to stop
+      if (graphics_info_t::continue_threaded_refinement_loop) {
+	 graphics_info_t::continue_threaded_refinement_loop = false;
+	 // and tell it to clear up the moving atoms
+	 std::cout << ".... Esc key tells refinement to clean up" << std::endl;
+	 graphics_info_t::threaded_refinement_needs_to_clear_up = true;
+      } else {
 
-      // stop the refinement
-      graphics_info_t::remove_drag_refine_idle_function();
-      
-      if (graphics_info_t::accept_reject_dialog) {
-	 if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
-	   save_accept_reject_dialog_window_position(graphics_info_t::accept_reject_dialog);
-	   gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
-	   graphics_info_t::accept_reject_dialog = 0;
-	 } else {
-	   gtk_widget_set_sensitive(graphics_info_t::accept_reject_dialog, FALSE);
+	 // refinement was not running. we can clear up the atoms ourselves
+	 graphics_info_t g;
+	 g.clear_up_moving_atoms();
+	 g.clear_moving_atoms_object();
+
+	 if (graphics_info_t::accept_reject_dialog) {
+	    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
+	       save_accept_reject_dialog_window_position(graphics_info_t::accept_reject_dialog);
+	       // this calls clear_up_moving_atoms() and clears atom pull restraint.
+	       gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
+	       graphics_info_t::accept_reject_dialog = 0;
+	    } else {
+	       gtk_widget_set_sensitive(graphics_info_t::accept_reject_dialog, FALSE);
+	    }
 	 }
       }
       

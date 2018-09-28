@@ -6780,6 +6780,8 @@ std::vector<coot::util::cis_peptide_info_t>
 coot::util::cis_peptides_info_from_coords(mmdb::Manager *mol) {
 
    std::vector<coot::util::cis_peptide_info_t> v;
+
+   if (!mol) return v;
    
    int n_models = mol->GetNumberOfModels();
    if (n_models== 0) {

@@ -1138,9 +1138,11 @@ int set_atom_attributes_py(PyObject *attribute_expression_list) {
 	 if (PyList_Check(attribute_expression)) { 
 	    int attr_expression_length = PyObject_Length(attribute_expression);
 	    if (attr_expression_length != 8) {
-	       std::cout << "Incomplete attribute expression: "
-			 << PyString_AsString(attribute_expression)
-			 << std::endl;		  
+	       char *ps = PyString_AsString(display_python(attribute_expression));
+	       if (ps) {
+		  std::string ae(ps);
+		  std::cout << "Incomplete attribute expression: " << ae << std::endl;
+	       }
 	    } else {
 	       imol_py            = PyList_GetItem(attribute_expression, 0);
 	       chain_id_py        = PyList_GetItem(attribute_expression, 1);
@@ -1318,6 +1320,7 @@ refine_residues_with_alt_conf(int imol, const std::vector<coot::residue_spec_t> 
 		  mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
 		  rr = g.refine_residues_vec(imol, residues, alt_conf.c_str(), mol);
 	       }
+               g.conditionally_wait_for_refinement_to_finish();
 	    }
 	 } else {
 	    std::cout << "No residue specs found" << std::endl;
@@ -1381,6 +1384,7 @@ SCM regularize_residues_with_alt_conf_scm(int imol, SCM res_spec_scm, const char
 	    mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
 	    coot::refinement_results_t rr =
 	       g.regularize_residues_vec(imol, residues, alt_conf, mol);
+            g.conditionally_wait_for_refinement_to_finish();
 	    rv = g.refinement_results_to_scm(rr);
 	 }
       }
@@ -4575,6 +4579,11 @@ int secondary_structure_restraints_type() {
 
 
 void accept_regularizement() {
+
+   accept_moving_atoms();
+}
+
+void accept_moving_atoms() {
 
    graphics_info_t g;
    g.accept_moving_atoms();	// does a g.clear_up_moving_atoms();
