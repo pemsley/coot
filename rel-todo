@@ -1,6 +1,16 @@
 
    For Release 0.8.9.2
 
+   o somewhow draw the baton so that the direction is obvious. As an arrow, perhaps?
+
+   o this was from coot-experimental but maybe it's a problem here.
+
+#7  0x00002b2579376601 in char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) () at /lib64/libstdc++.so.6
+#8  0x00002b25793769b8 in std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) () at /lib64/libstdc++.so.6
+#9  0x00000000007a0b91 in graphics_info_t::save_directory_for_saving_from_filechooser(_GtkWidget const*) (this=this@entry=0x7ffcc09e7d3f, fileselection=fileselection@entry=0x16c474c0) at graphics-info-gui.cc:665
+#10 0x000000000069f1ab in save_directory_for_saving_from_filechooser(GtkWidget const*) (fileselection=fileselection@entry=0x16c474c0) at c-interface.cc:1466
+#11 0x00000000006cd628 in on_save_coords_filechooserdialog1_response (dialog=<optimized out>, response_id=<optimized out>, user_data=<optimized out>) at callbacks.c:10897
+
 ------
 
    o Delete extra restraints - does that work?
