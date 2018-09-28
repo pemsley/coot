@@ -40,7 +40,7 @@ if (use_gui_qm != 2):
         "Hydrogenate region",
         lambda func: hydrogenate_region(6))
 
-        add_simple_coot_menu_menuitem(
+    add_simple_coot_menu_menuitem(
           menu,
           "SMILES -> 2D",
           lambda func:
@@ -49,7 +49,7 @@ if (use_gui_qm != 2):
                                lambda text: smiles_to_ligand_builder(text)))
 
 
-        add_simple_coot_menu_menuitem(
+    add_simple_coot_menu_menuitem(
           menu,
           "SMILES -> simple 3D",
           lambda func:
@@ -60,15 +60,13 @@ if (use_gui_qm != 2):
                                import_rdkit_mol_from_smiles(text_1, text_2)))
 
 
-        add_simple_coot_menu_menuitem(
+    add_simple_coot_menu_menuitem(
             menu,
             "Residue -> 2D",
             lambda func:
             using_active_atom(residue_to_ligand_builder,
                               "aa_imol", "aa_chain_id", "aa_res_no",
-                              "aa_ins_code", 0.015)
-            )
-
+                              "aa_ins_code", 0.015))
 
         def flev_rdkit_func():
             with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
