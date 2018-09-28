@@ -68,6 +68,7 @@ if (use_gui_qm != 2):
                               "aa_imol", "aa_chain_id", "aa_res_no",
                               "aa_ins_code", 0.015))
 
+    if enhanced_ligand_coot_p():
         def flev_rdkit_func():
             with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                        aa_ins_code, aa_atom_name, aa_alt_conf]:
