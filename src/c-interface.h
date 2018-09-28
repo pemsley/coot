@@ -3215,6 +3215,9 @@ void set_residue_selection_flash_frames_number(int i);
 
     If you are scripting refinement and/or regularization, this is the
     function that you need to call after refine-zone or regularize-zone.  */
+void accept_moving_atoms();
+
+/*! \brief a hideous alias for the above  */
 void accept_regularizement();
 void clear_up_moving_atoms();	/* remove the molecule and bonds */
 void clear_moving_atoms_object(); /* just get rid of just the bonds (redraw done here). */
@@ -5038,6 +5041,7 @@ int db_mainchains_fragment(int imol, const char *chain_id, int res_no);
 /*! \name Close Molecule Functions */
 /* \{ */
 
+/*! \brief close the molecule */
 void close_molecule(int imol);
 
 

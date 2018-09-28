@@ -488,7 +488,7 @@
       (let ((menu (coot-menubar-menu "Glyco")))
 
 	(add-simple-coot-menu-menuitem
-	 menu "N-linked Glycan Addition Dialog..."
+	 menu "N-linked Glycan Addition..."
 	 (lambda ()
 	   (interactive-add-cho-dialog)))
 
