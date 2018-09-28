@@ -98,7 +98,20 @@ namespace coot {
       void unit_vector_yourself() {
 	 float length = (*this).amplitude();
 	 (*this) /= length; 
-      } 
+      }
+
+      Cartesian unit() const {
+	 float length = amplitude();
+	 return Cartesian(x()/length, y()/length, z()/length);
+      }
+
+      // rotate this point about direction, with origin at origin.
+      //
+      // angle in radians
+      Cartesian rotate_about_vector(const coot::Cartesian &direction,
+				     const coot::Cartesian &origin,
+				     double angle) const;
+
 
       float distance_to_line(const Cartesian &front, const Cartesian &back) const;
       int  within_box (const Cartesian &front, const Cartesian &back) const;

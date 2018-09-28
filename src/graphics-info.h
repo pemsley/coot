@@ -2961,7 +2961,7 @@ public:
    static short int draw_baton_flag;
    static short int baton_mode; // if set, rotation moves the baton, not the view
    static short int baton_tmp_atoms_to_new_molecule; 
-   static void baton_object();
+   static void draw_baton_object();
    // return a boolean, shall we really draw the baton or not (for
    // example, we don't want to do that if there is no skeletonized
    // map

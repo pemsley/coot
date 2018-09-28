@@ -3412,20 +3412,39 @@ graphics_info_t::baton_next_directions(int imol_for_skel, mmdb::Atom *latest_ato
 
 
 void
-graphics_info_t::baton_object() {
+graphics_info_t::draw_baton_object() {
 
-//    std::cout << "baton from " << baton_root << " to " << baton_tip
-// 	     << " draw_baton_flag: " << draw_baton_flag << std::endl;
-   
    if (graphics_info_t::draw_baton_flag) {
+
+      if (false)
+	 std::cout << "baton from " << baton_root << " to " << baton_tip
+		   << " draw_baton_flag: " << draw_baton_flag << std::endl;
+
+      coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
+      coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
+      // coot::Cartesian right  = unproject_xyz(1, 0, 0.5);
+      // coot::Cartesian screen_x = (right - centre);
+      coot::Cartesian screen_z = (front - centre);
+      screen_z.unit_vector_yourself();
+
+      coot::Cartesian baton_vec = baton_tip - baton_root;
+      coot::Cartesian buv = baton_vec;
+      baton_vec.unit_vector_yourself(); // bleugh
+
+      coot::Cartesian arrow_head_pt = baton_tip - baton_vec * 0.5;
+      // rotate arrow_head_pt_1 30 degrees about screen z
+      coot::Cartesian rp_1 = arrow_head_pt.rotate_about_vector(screen_z, baton_tip,  30.0*M_PI/180.0);
+      coot::Cartesian rp_2 = arrow_head_pt.rotate_about_vector(screen_z, baton_tip, -30.0*M_PI/180.0);
+
+      glLineWidth(5);
       glColor3f (0.8, 0.8, 0.9);
       glBegin(GL_LINES);
-      glVertex3f(graphics_info_t::baton_root.x(),
-		 graphics_info_t::baton_root.y(),
-		 graphics_info_t::baton_root.z());
-      glVertex3f( graphics_info_t::baton_tip.x(),
-		  graphics_info_t::baton_tip.y(),
-		  graphics_info_t::baton_tip.z());
+      glVertex3f(baton_root.x(), baton_root.y(), baton_root.z());
+      glVertex3f(baton_tip.x(),  baton_tip.y(),  baton_tip.z());
+      glVertex3f(baton_tip.x(),  baton_tip.y(),  baton_tip.z());
+      glVertex3f(rp_1.x(), rp_1.y(), rp_1.z());
+      glVertex3f(baton_tip.x(), baton_tip.y(), baton_tip.z());
+      glVertex3f(rp_2.x(), rp_2.y(), rp_2.z());
       glEnd();
    }
    
