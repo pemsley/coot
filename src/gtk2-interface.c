@@ -12181,6 +12181,8 @@ create_single_map_properties_dialog (void)
   GtkWidget *single_map_properties_cell_text;
   GtkWidget *label165;
   GtkWidget *single_map_properties_sg_text;
+  GtkWidget *label818;
+  GtkWidget *single_map_properties_reso_text;
   GtkWidget *label751;
   GtkWidget *frame293;
   GtkWidget *alignment153;
@@ -12291,6 +12293,18 @@ create_single_map_properties_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox110), single_map_properties_sg_text, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (single_map_properties_sg_text), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (single_map_properties_sg_text), 7.45058e-09, 0.5);
+
+  label818 = gtk_label_new ("Resolution:");
+  gtk_widget_show (label818);
+  gtk_box_pack_start (GTK_BOX (vbox110), label818, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label818), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (label818), 0, 0.5);
+
+  single_map_properties_reso_text = gtk_label_new ("[reso]");
+  gtk_widget_show (single_map_properties_reso_text);
+  gtk_box_pack_start (GTK_BOX (vbox110), single_map_properties_reso_text, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (single_map_properties_reso_text), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (single_map_properties_reso_text), 0, 0.5);
 
   label751 = gtk_label_new ("<b>Cell and Symmetry:</b>");
   gtk_widget_show (label751);
@@ -12591,6 +12605,8 @@ create_single_map_properties_dialog (void)
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_properties_cell_text, "single_map_properties_cell_text");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label165, "label165");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_properties_sg_text, "single_map_properties_sg_text");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label818, "label818");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_properties_reso_text, "single_map_properties_reso_text");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label751, "label751");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, frame293, "frame293");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, alignment153, "alignment153");

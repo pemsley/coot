@@ -670,26 +670,54 @@ graphics_info_t::update_ramachandran_plot_background_from_res_spec(coot::rama_pl
                                                                    const coot::residue_spec_t &res_spec) {
 
 # if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#ifdef HAVE_GOOCANVAS
 
    std::string res_name = residue_name(imol, res_spec.chain_id, res_spec.res_no,
                                        res_spec.ins_code);
-   if (res_name == "GLY") {
 
-#ifdef HAVE_GOOCANVAS
-      plot->show_background(plot->bg_gly);
-#endif // HAVE_GOOCANVAS
-   } else {
-      if (res_name == "PRO") {
-#ifdef HAVE_GOOCANVAS
-         plot->show_background(plot->bg_pro);
-#endif // HAVE_GOOCANVAS
-      } else {
-#ifdef HAVE_GOOCANVAS
-         plot->show_background(plot->bg_non_gly_pro);
-#endif // HAVE_GOOCANVAS
-      }
+#ifdef CLIPPER_HAS_TOP8000
+   bool is_pre_pro = 0;
+   coot::residue_spec_t next_res_spec = res_spec.next();
+   if (next_res_spec.res_no != res_spec.res_no) {
+      // we have next res
+      std::string next_res_name = residue_name(imol, next_res_spec.chain_id,
+                                               next_res_spec.res_no,
+                                               next_res_spec.ins_code);
+      if (next_res_name == "PRO")
+         is_pre_pro = 1;
    }
 
+   if (res_name == "GLY") {
+      plot->show_background(plot->bg_gly);
+   } else {
+      if (res_name == "PRO") {
+         plot->show_background(plot->bg_pro);
+      } else {
+         if (is_pre_pro) {
+         // pre-pro
+            plot->show_background(plot->bg_pre_pro);
+         } else {
+            if ((res_name == "ILE") || (res_name == "VAL")) {
+               plot->show_background(plot->bg_ileval);
+            } else {
+               plot->show_background(plot->bg_non_gly_pro_pre_pro_ileval);
+            }
+         }
+      }
+   }
+#else
+   if (res_name == "GLY") {
+      plot->show_background(plot->bg_gly);
+   } else {
+      if (res_name == "PRO") {
+         plot->show_background(plot->bg_pro);
+      } else {
+         plot->show_background(plot->bg_non_gly_pro);
+      }
+   }
+#endif // CLIPPER_HAS_TOP8000
+
+#endif // HAVE_GOOCANVAS
 #endif // HAVE_GTK_CANVAS
 
 }

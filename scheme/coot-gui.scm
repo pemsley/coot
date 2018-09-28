@@ -3944,18 +3944,22 @@
 							      blur-string
 							      sharp-string
 							      "END")))
-					(let ((s (goosh-command "refmac5"
+					(let ((s (goosh-command "refmac5xx"
 								cmd-line-args
 								data-lines
 								log-file-name
 								#f)))
-					  (format #t "debug:: s: ~s~%" s)
-					  (if (ok-goosh-status? s)
+					  (if (not (ok-goosh-status? s))
+
+					      (begin
+						(info-dialog "WARNING:: refmac5 failed"))
+
+					      ;; Happy path
 					      (begin
 						(if (file-exists? "starting_map.mtz")
 						    (begin
-						      (rename-file  "starting_map.mtz" refmac-output-mtz-file-name)
-						      ;; maybe offer a read-mtz dialog now
+						      (rename-file  "starting-map.mtz" refmac-output-mtz-file-name)
+						      ;; offer a read-mtz dialog
 						      (manage-column-selector refmac-output-mtz-file-name)
 						      )))))))))
 

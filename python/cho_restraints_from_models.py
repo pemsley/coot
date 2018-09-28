@@ -28,8 +28,8 @@ def read_acedrg_pyranose_dictionaries():
 def add_cho_restraints_for_residue(imol, residue_spec):
     if isinstance(residue_spec, list):
         id = glyco_tree_residue_id(imol, residue_spec)
-        print "BL DEBUG:: --------------------- add_cho_restraints_for_residue: glyco_tree_residue_id:", id
-        print "BL DEBUG:: --------------------- add_cho_restraints_for_residue: glyco_tree_residues:", glyco_tree_residues_py(imol, residue_spec)
+        # print "BL DEBUG:: --------------------- add_cho_restraints_for_residue: glyco_tree_residue_id:", id
+        # print "BL DEBUG:: --------------------- add_cho_restraints_for_residue: glyco_tree_residues:", glyco_tree_residues_py(imol, residue_spec)
         add_cho_restraints_for_residue_with_id(imol, residue_spec, id)
 
 def add_cho_restraints_for_residue_with_id(imol, residue_spec, glyco_id):
@@ -78,7 +78,7 @@ def add_cho_restraints_for_residue_with_id(imol, residue_spec, glyco_id):
                              residue_spec_to_ins_code(parent_residue_spec),
                              at_name_2, ""],
                             mean, cho_geman_mcclure_sigma_scale]
-                
+
     def glyco_id2level_number(glyco_id):
         return glyco_id[0]
 
@@ -124,7 +124,7 @@ def add_cho_restraints_for_residue_with_id(imol, residue_spec, glyco_id):
             print "INFO:: read %s lines from file %s" %(lines, model_fn)
             new_restraints = map(lambda line: line2extra_bond_restraint_spec(line),
                                  lines)
-            print "BL DEBUG:: ", new_restraints
+            # print "BL DEBUG:: ", new_restraints
             add_extra_bond_restraints_py(imol, new_restraints)
 
 
