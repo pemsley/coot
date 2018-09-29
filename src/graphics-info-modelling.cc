@@ -3406,29 +3406,59 @@ graphics_info_t::execute_db_main(int imol,
 
 	 // Did this ever work!? (It seems to now)
 
+	 // std::cout << "---- backwards build" << std::endl;
+
 	 for (unsigned int i=0; i<mt.fragments.size(); i++) {
 	    if (mt[i].fragment_id == chain_id) {
+
 	       // put in the residues of mt.fragments[i] backwards:
 
 	       // The seqnum of the residues is ignored, the only
 	       // important thing is the ires.
 
 	       int ifrag = target_ca_coords.fragment_for_chain(chain_id);
+
+	       if (false) {
+		  std::cout << "here with ifrag " << ifrag << std::endl;
+		  std::cout << "here with max_residue_number " << i << " " << mt[i].max_residue_number() << std::endl;
+	       }
+
 	       if (mt[i].max_residue_number() > 1) {
 		  int mnr = mt[i].max_residue_number();
 		  for (int ires=mnr; ires>=mt[i].min_res_no(); ires--) {
 
 		     int ires_target = mnr-ires+1;
 
-		     coot::minimol::atom ca = mt[i][ires][0];
-		     coot::minimol::residue residue(ires_target);
-		     residue.addatom(ca);
+		     if (mt[i][ires].n_atoms() > 0) {
+			coot::minimol::atom ca = mt[i][ires][0];
+			coot::minimol::residue residue(ires_target);
+			residue.addatom(ca);
 
-		     target_ca_coords[ifrag].addresidue(residue, false);
-		     // std::cout << "backwards " << mt[i][ires] << std::endl;
+			target_ca_coords[ifrag].addresidue(residue, false);
+		     }
 
 		  }
 		  break;
+	       }
+	    }
+	 }
+      }
+
+      if (direction_string == "backwards") {
+	 if (target_ca_coords.fragments.size() > 0) {
+	    iresno_start = target_ca_coords[0].min_res_no();
+	    iresno_end   = target_ca_coords[0].max_residue_number();
+	 }
+      }
+
+      if (false) {
+	 std::cout << "Here is target_ca_coords: " << std::endl;
+	 for(unsigned int ifrag=0; ifrag<target_ca_coords.fragments.size(); ifrag++) {
+	    for(int ires=target_ca_coords[ifrag].min_res_no(); ires<=target_ca_coords[ifrag].max_residue_number(); ires++) {
+	       for (unsigned int iat=0; iat<target_ca_coords[ifrag][ires].atoms.size(); iat++) {
+		  std::cout << " " << target_ca_coords[ifrag].fragment_id << " " << ires << " " << target_ca_coords[ifrag][ires]
+			    << " " << target_ca_coords[ifrag][ires][iat].name
+			    << " " << target_ca_coords[ifrag][ires][iat].pos.format() << std::endl;
 	       }
 	    }
 	 }
@@ -3440,7 +3470,8 @@ graphics_info_t::execute_db_main(int imol,
 
 
       // write out target_ca_coords:
-      // target_ca_coords.write_file("target_ca_coords.pdb", 20);
+      // if (direction_string == "backwards")
+      // 	 target_ca_coords.write_file("target_ca_coords.pdb", 20);
 
       main_chain.match_target_fragment(target_ca_coords,
 				       iresno_start,
@@ -3451,7 +3482,9 @@ graphics_info_t::execute_db_main(int imol,
       main_chain.merge_fragments();
       coot::minimol::molecule mol;
       mol.fragments.push_back(main_chain.mainchain_fragment());
-      // mol.write_file("db-mainchain.pdb", bf);
+
+      // if (direction_string == "backwards")
+      // 	 mol.write_file("db-mainchain-backwards.pdb", bf);
 
       // std::cout << "DEBUG:: mol.is_empty() returns " << mol.is_empty() << std::endl;
       std::vector<coot::minimol::atom *> serial_atoms = mol.select_atoms_serial();
