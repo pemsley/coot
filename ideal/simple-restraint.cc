@@ -3356,7 +3356,7 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 
    if (verbose_geometry_reporting == VERBOSE)
       debug = true;
-   
+
    if (debug) {
       std::cout << "debug:: bonded_residues_from_res_vec() residues_vec.size() "
 		<< residues_vec.size() << std::endl;
@@ -3372,8 +3372,8 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
       for (unsigned int jj=ii+1; jj<residues_vec.size(); jj++) {
 	 mmdb::Residue *res_s = residues_vec[jj].second;
 
-	 if (false)
-	    std::cout << "debug:: in bonded_resdues_from_res_vec " << residue_spec_t(res_f) << " "
+	 if (debug)
+	    std::cout << "debug:: ----- in bonded_resdues_from_res_vec " << residue_spec_t(res_f) << " "
 		      << residue_spec_t(res_s) << "\n";
 
 	 if (res_f == res_s) continue;
@@ -3384,7 +3384,7 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	 // Linking should be resolved by find_link_type_complicado(), not
 	 // here by distance between residues.
 
-	 std::pair<std::string, bool> l  = find_link_type_complicado(res_f, res_s, geom);
+	 std::pair<std::string, bool> l = find_link_type_complicado(res_f, res_s, geom);
 	 std::string link_type = l.first;
 	 if (!link_type.empty()) {
 
@@ -3412,8 +3412,10 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	    }
 	 } else {
 	    if (debug)
-	       std::cout << "DEBUG:: blank link_type find_link_type_complicado() returns \""
-			 << l.first << "\" " << l.second << std::endl;
+	       std::cout << "DEBUG:: find_link_type_complicado() blank result: "
+			 << "link_type find_link_type_complicado() for "
+			 << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
+			 << " returns \"" << l.first << "\" " << l.second << std::endl;
 	 }
       }
    }
