@@ -82,6 +82,7 @@ bool graphics_info_t::pepflip_intermediate_atoms() {
 	       // add_drag_refine_idle_function();
 	       // drag_refine_refine_intermediate_atoms();
 
+	       refinement_of_last_restraints_needs_reset();
 	       thread_for_refinement_loop_threaded();
 
 	    }
@@ -143,8 +144,12 @@ graphics_info_t::backrub_rotamer_intermediate_atoms() {
 		     std::pair<coot::minimol::molecule,float> m = br.search(rest);
 		     update_moving_atoms_from_molecule_atoms(m.first);
 		     state = true;
-		     drag_refine_refine_intermediate_atoms();
-		     graphics_draw();
+
+		     refinement_of_last_restraints_needs_reset();
+		     thread_for_refinement_loop_threaded();
+
+		     // drag_refine_refine_intermediate_atoms();
+		     // graphics_draw();
 		  }
 		  catch (const std::runtime_error &rte) {
 		     std::cout << "WARNING:: thrown " << rte.what() << std::endl;
@@ -222,7 +227,7 @@ graphics_info_t::cis_trans_conversion_intermediate_atoms() {
 
 	       // the atoms have moved, we need to continue the refinement.
 
-	       drag_refine_refine_intermediate_atoms();
+	       // drag_refine_refine_intermediate_atoms();
 
 	       graphics_draw(); // needed
 
@@ -370,6 +375,7 @@ graphics_info_t::jed_flip_intermediate_atoms() {
 	    // add_drag_refine_idle_function();
 	    // drag_refine_refine_intermediate_atoms();
 
+	    refinement_of_last_restraints_needs_reset();
 	    thread_for_refinement_loop_threaded();
 	 }
       }
@@ -447,6 +453,7 @@ graphics_info_t::crankshaft_peptide_rotation_optimization_intermediate_atoms() {
 		  }
 		  // add_drag_refine_idle_function(); // pre-threaded refinement
 		  // drag_refine_refine_intermediate_atoms();
+		  refinement_of_last_restraints_needs_reset();
 		  thread_for_refinement_loop_threaded();
 	       } else {
 		  g.add_status_bar_text("Couldn't crankshaft this");

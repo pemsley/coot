@@ -349,6 +349,7 @@ bool graphics_info_t::threaded_refinement_needs_to_clear_up = false; // for Esc 
 bool graphics_info_t::threaded_refinement_needs_to_accept_moving_atoms = false; // for Return usage
 bool graphics_info_t::continue_threaded_refinement_loop = true; // also for Esc usage
 int  graphics_info_t::threaded_refinement_redraw_timeout_fn_id = -1;
+bool graphics_info_t::refinement_of_last_restraints_needs_reset_flag = false;
 
 // put this in graphics-info-intermediate-atoms?
 //
@@ -390,6 +391,11 @@ graphics_info_t::refinement_loop_threaded() {
 
       bool pr_chi_sqds = false; // print inital chi squareds
       int spf = dragged_refinement_steps_per_frame;
+
+      if (graphics_info_t::refinement_of_last_restraints_needs_reset_flag) {
+	 g.last_restraints->set_needs_reset();
+	 graphics_info_t::refinement_of_last_restraints_needs_reset_flag = false;
+      }
 
       coot::refinement_results_t rr = g.last_restraints->minimize(flags, spf, pr_chi_sqds);
 
@@ -436,7 +442,7 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
 
             // if there's not a refinement redraw function already running start up a new one.
             if (graphics_info_t::threaded_refinement_redraw_timeout_fn_id == -1) {
-	       int id = gtk_timeout_add(200,
+	       int id = gtk_timeout_add(15,
 			       (GtkFunction)(regenerate_intermediate_atoms_bonds_timeout_function_and_draw),
                                NULL);
                graphics_info_t::threaded_refinement_redraw_timeout_fn_id = id;
@@ -448,6 +454,14 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
       r.detach();
    }
 }
+
+// static
+void graphics_info_t::refinement_of_last_restraints_needs_reset() {
+
+   graphics_info_t::refinement_of_last_restraints_needs_reset_flag = true;
+
+}
+
 
 void
 graphics_info_t::conditionally_wait_for_refinement_to_finish() {
@@ -4736,7 +4750,7 @@ graphics_info_t::tabulate_geometric_distortions(const coot::restraints_container
 	       s += " " + rr.get_atom_spec(gd.atom_indices[iat]).format();
 	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
 	 }
-	 if (rest.restraint_type == coot::TARGET_POS_RESTRANT) {
+	 if (rest.restraint_type == coot::TARGET_POS_RESTRAINT) {
 	    std::string s = "pull-atom " + coot::util::float_to_string(gd.distortion_score);
 	    s += " " + rr.get_atom_spec(gd.atom_indices[0]).format();
 	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));

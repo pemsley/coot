@@ -950,7 +950,6 @@ std::vector<std::string>
 coot::util::split_string(const std::string &string_in,
 			 const std::string &splitter) {
 
-  
    std::vector<std::string> v;
    std::string s=string_in;
 
@@ -969,7 +968,7 @@ coot::util::split_string(const std::string &string_in,
 	    v.push_back(s);
 	    break;
 	 }
-      } 
+      }
    }
    return v;
 }

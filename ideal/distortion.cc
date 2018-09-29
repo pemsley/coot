@@ -695,7 +695,7 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
 	 }
       }
 
-      if ( this_restraint.restraint_type == coot::TARGET_POS_RESTRANT) { // atom pull restraint
+      if ( this_restraint.restraint_type == coot::TARGET_POS_RESTRAINT) { // atom pull restraint
 	 double d = coot::distortion_score_target_pos(this_restraint,
 						      restraints->log_cosh_target_distance_scale_factor, v);
          *distortion += d;
@@ -802,7 +802,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 
       if (restraints->restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) { 
    	 if ( (*restraints)[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) { 
-   	    d = coot::distortion_score_chiral_volume( (*restraints)[i], v);
+            d = coot::distortion_score_chiral_volume(this_restraint, v);
    	    *distortion += d;
 	    // std::cout << "dsm: chiral " << thread_id << " idx " << i << " " << d << std::endl;
 	    continue;
@@ -823,17 +823,20 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
       }
 
       if (restraints->restraints_usage_flag & coot::START_POS_RESTRAINT_MASK) {
-	 if ( (*restraints)[i].restraint_type == coot::START_POS_RESTRAINT) {
-	    d = coot::distortion_score_start_pos((*restraints)[i], params, v);
+	 if (this_restraint.restraint_type == coot::START_POS_RESTRAINT) {
+	    d = coot::distortion_score_start_pos(this_restraint, params, v);
 	    *distortion += d;
 	    // std::cout << "dsm: start-pos " << thread_id << " idx " << i << " " << d << std::endl;
 	 }
       }
 
-      if ( (*restraints)[i].restraint_type == coot::TARGET_POS_RESTRANT) { // atom pull restraint
-         *distortion += coot::distortion_score_target_pos((*restraints)[i],
-							  restraints->log_cosh_target_distance_scale_factor,
-							  v);
+      // get rid of log_cosh_target_distance_scale_factor argument here
+      //
+      if (this_restraint.restraint_type == coot::TARGET_POS_RESTRAINT) { // atom pull restraint
+         d = coot::distortion_score_target_pos(this_restraint,
+					       restraints->log_cosh_target_distance_scale_factor,
+					       v);
+	 *distortion += d;
       }
    }
    done_count_for_threads++; // atomic operation
@@ -941,6 +944,12 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 
 	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++)
 	    distortion += distortions[i_thread];
+
+	 // for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++)
+	 // std::cout << "debug:: distortion_score() adding this " << distortions[i_thread]
+	 // << " for thread " << i_thread << std::endl;
+
+	 // std::cout << "debug:: distortion_score() distortion here " << distortion << std::endl;
 
 	 // 20180628-PE - no more async
 	 // distortion += eds.get();
@@ -1124,7 +1133,7 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 	 }
       }
 
-      if (rest.restraint_type == coot::TARGET_POS_RESTRANT) {
+      if (rest.restraint_type == coot::TARGET_POS_RESTRAINT) {
 	 distortion = distortion_score_target_pos(rest, log_cosh_target_distance_scale_factor, v);
 	 atom_index = rest.atom_index_1;
 	 atom_indices.push_back(atom_index); // for display

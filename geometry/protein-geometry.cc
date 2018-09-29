@@ -1469,6 +1469,8 @@ coot::chem_link::make_hash_code(const std::string &comp_id_1, const std::string 
 
    if (local_group_1 == "L-peptide")  local_group_1 = "peptide";
    if (local_group_2 == "L-peptide")  local_group_2 = "peptide";
+   if (local_group_1 == "P-peptide")  local_group_1 = "peptide";
+   if (local_group_2 == "P-peptide")  local_group_2 = "peptide";
    if (local_group_1 == "M-peptide")  local_group_1 = "peptide";
    if (local_group_2 == "M-peptide")  local_group_2 = "peptide";
    if (local_group_1 == "D-pyranose") local_group_1 = "pyranose";
@@ -1601,8 +1603,11 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
    // chem_links specify "peptide" or "pyranose", but comp_groups are "L-peptide"/"D-pyranose".
    // So allow them to match.
    // 201201013 (Friday) allow M-peptides to match too.
+   // If you are thinkg of adding/changing this, change the one in make_hash_code() too.
    if (local_group_1 == "L-peptide")  local_group_1 = "peptide";
    if (local_group_2 == "L-peptide")  local_group_2 = "peptide";
+   if (local_group_1 == "P-peptide")  local_group_1 = "peptide";
+   if (local_group_2 == "P-peptide")  local_group_2 = "peptide";
    if (local_group_1 == "M-peptide")  local_group_1 = "peptide";
    if (local_group_2 == "M-peptide")  local_group_2 = "peptide";
    if (local_group_1 == "D-pyranose") local_group_1 = "pyranose";

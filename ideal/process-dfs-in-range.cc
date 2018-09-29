@@ -305,7 +305,7 @@ coot::process_dfs_in_range(int thread_idx,
 	 if (rest.restraint_type == coot::RAMACHANDRAN_RESTRAINT)
 	    process_dfs_rama(rest, restraints_p, v, results);
 
-      if (rest.restraint_type == coot::TARGET_POS_RESTRANT)
+      if (rest.restraint_type == coot::TARGET_POS_RESTRAINT)
 	 process_dfs_target_position(rest, restraints_p->log_cosh_target_distance_scale_factor, v, results);
 
    }

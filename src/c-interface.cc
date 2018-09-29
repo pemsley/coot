@@ -6024,7 +6024,7 @@ int mark_multiple_atoms_as_fixed_scm(int imol, SCM atom_spec_list, int state) {
 
 
 #ifdef USE_PYTHON
-// Garanteed to return a triple list (will return unset-spec if needed).
+// Guaranteed to return a triple list (will return unset-spec if needed).
 // 
 PyObject *residue_spec_make_triple_py(PyObject *res_spec_py) {
 

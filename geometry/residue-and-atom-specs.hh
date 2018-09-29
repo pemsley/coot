@@ -338,7 +338,7 @@ namespace coot {
 	    else
 	       return 1;
 	 } 
-	 return 0;
+	 // return 0; we can't here
       }
 #endif // SWIG
 

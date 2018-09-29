@@ -767,6 +767,23 @@ test_nxmap_edcalc(int argc, char **argv) {
    return 1;
 }
 
+int
+test_string_split() {
+
+   int status = 1;
+
+   std::cout << "test_string_split()" << std::endl;
+
+   std::string s = "All Loop candidates ";
+   std::vector<std::string> v = coot::util::split_string(s, " ");
+   std::cout << "0: \"" << v[0] << "\"" << std::endl;
+   std::cout << "1: \"" << v[1] << "\"" << std::endl;
+   std::cout << "2: \"" << v[2] << "\"" << std::endl;
+
+   return status;
+
+}
+
 #include "bonded-atoms.hh"
 
 int test_bonded_atoms(int argc, char **argv) {
@@ -865,6 +882,9 @@ int main(int argc, char **argv) {
 
    if (false)
       test_bonded_atoms(argc, argv);
+
+   if (true)
+      test_string_split();
    
    if (true)
       test_nxmap_edcalc(argc, argv);

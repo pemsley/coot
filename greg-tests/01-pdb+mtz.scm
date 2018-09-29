@@ -1989,7 +1989,10 @@
 (greg-testcase "update monomer restraints" #t 
    (lambda () 
 
-     (let ((atom-pair (list " CB " " CG "))
+     ;; this test needs a refinment map
+
+     (let ((atom-pair ; (list " CB " " CG ")) ;; round the wrong way in the new dictionary
+	                (list " CG " " CB "))
 	   (m (monomer-restraints "TYR")))
 
        (if (not m)
@@ -1997,7 +2000,10 @@
 	     (format #t "   update bond restraints - no momomer restraints~%")
 	     (throw 'fail)))
 
-       (let ((n (strip-bond-from-restraints atom-pair m)))
+       ;; let's delete both ways
+       ;;
+       (let* ((n-t (strip-bond-from-restraints atom-pair m))
+	      (n   (strip-bond-from-restraints (reverse atom-pair) n-t)))
 	 (set-monomer-restraints "TYR" n)
 	 
 	 (let ((imol (new-molecule-by-atom-selection imol-rnase "//A/30")))
@@ -2007,7 +2013,7 @@
 	   
 	   (let ((atom-1 (get-atom imol "A" 30 "" " CB "))
 		 (atom-2 (get-atom imol "A" 30 "" " CG ")))
-	     
+
 	     (format #t "   Bond-length: ~s: ~%"
 		     (bond-length (list-ref atom-1 2) (list-ref atom-2 2)))
 
@@ -2037,7 +2043,7 @@
 			     (begin
 			       (format #t "FAIL plane atom ~s~%" atom)
 			       (throw 'fail)))))
-		     
+
 		     (format #t "   Bond-length: ~s: ~%"
 			     (bond-length (list-ref atom-1 2) (list-ref atom-2 2)))
 		     (bond-length-within-tolerance? atom-1 atom-2 1.512 0.04))))))))))

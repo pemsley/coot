@@ -2590,6 +2590,13 @@
 
   ;; main line
   (save-state)
+
+  ;; FYI, the graphics window is set using
+  ;;
+  ;; (set-graphics-window-size 643 500)
+  ;; (set-graphics-window-position 0 1)
+  ;; They are not dialogs
+
   (let ((state-file  "0-coot.state.scm"))
     (if (not (file-exists? state-file))
 	(format #t "Ooops ~s does not exist~%" state-file)

@@ -13,7 +13,7 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
    // clear_atom_pull_restraint(spec);  // clear old ones 20180217, no longer
    std::vector<simple_restraint>::iterator it;
    for (it=restraints_vec.begin(); it!=restraints_vec.end(); it++) {
-      if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRANT)) {
+      if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
 	 if (it->atom_spec == spec) {
 	    at = atom[it->atom_index_1];
 	    it->atom_pull_target_pos = pos;
@@ -23,6 +23,7 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
    }
 
    if (! at) {
+      needs_reset = true; // 20180920-PE for fast restart of refinement - yay!
       for (int iat=0; iat<n_atoms; iat++) { 
 	 atom_spec_t atom_spec(atom[iat]);
 	 if (atom_spec == spec) {
@@ -39,10 +40,15 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
 
 
 void
-coot::restraints_container_t::add_target_position_restraint(int idx, const atom_spec_t &spec, clipper::Coord_orth &target_pos) {
-   simple_restraint r(TARGET_POS_RESTRANT, idx, spec, target_pos);
+coot::restraints_container_t::add_target_position_restraint(int idx, const atom_spec_t &spec,
+							    clipper::Coord_orth &target_pos) {
+
+   // who calls this function?
+
+   simple_restraint r(TARGET_POS_RESTRAINT, idx, spec, target_pos);
    restraints_vec.push_back(r);
    post_add_new_restraint();
+   needs_reset = true;
 }
 
 
@@ -84,10 +90,11 @@ coot::restraints_container_t::clear_all_atom_pull_restraints() {
       // std::cout << "debug:: clear_atom_pull_restraint() pre size: " << pre_size << " post size: "
       // << post_size << std::endl;
    }
+   needs_reset = true; // probably
 }
 
 bool coot::target_position_eraser(const simple_restraint &r) {
-   return (r.restraint_type == restraint_type_t(TARGET_POS_RESTRANT));
+   return (r.restraint_type == restraint_type_t(TARGET_POS_RESTRAINT));
 }
 
 
@@ -119,7 +126,6 @@ coot::distortion_score_target_pos(const coot::simple_restraint &rest,
    if (harmonic_restraint) {
       double sigma = 0.04; // (slightly refined) guess, copy below
       double weight = 1.0/(sigma*sigma);
-      // std::cout << "distortion_score_target_pos() returning " << weight * dist * dist << std::endl;
       return weight * dist * dist;
    } else {
       // f = some_scale * ln (cosh(z))
@@ -163,7 +169,7 @@ void coot::my_df_target_pos(const gsl_vector *v,
    // 20170628 investigate using restraints_limits_target_pos
    for (int i=0; i<restraints_size; i++) {
       const simple_restraint &rest = (*restraints_p)[i];
-      if (rest.restraint_type == TARGET_POS_RESTRANT) {
+      if (rest.restraint_type == TARGET_POS_RESTRAINT) {
 	 double sigma = 0.04; // change as above in distortion score
 	 int idx = 3*(rest.atom_index_1);
 
@@ -250,7 +256,7 @@ coot::restraints_container_t::turn_off_atom_pull_restraints_when_close_to_target
    //
    std::vector<simple_restraint>::const_iterator it;
    for(it=restraints_vec.begin(); it!=restraints_vec.end(); it++) {
-      if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRANT)) { 
+      if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
 	 mmdb::Atom *at = atom[it->atom_index_1];
 	 v_dragged.push_back(atom_spec_t(at));
 	 if (atom_spec_t(at) != dragged_atom_spec) {

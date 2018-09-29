@@ -2,11 +2,11 @@
 def add_pyranose_pseudo_ring_plane_restraints(comp_id):
 
     import re
-    
+
     def filter_out(plane_name_sub_string, plane_restraints):
         return filter(lambda s: not plane_name_sub_string in s[0],
                       plane_restraints)
-        
+
     restraints = monomer_restraints(comp_id)
 
     if (not isinstance(restraints, dict)):
@@ -16,11 +16,11 @@ def add_pyranose_pseudo_ring_plane_restraints(comp_id):
         new_plane_restraints = [["pseudo-ring-1", [" C1 ", " C2 ", " C4 ", " C5 "], 0.01],
                                 ["pseudo-ring-2", [" C2 ", " C3 ", " C5 ", " O5 "], 0.01],
                                 ["pseudo-ring-3", [" C3 ", " C4 ", " O5 ", " C1 "], 0.01]] + \
-                                filter_out("pseudo-ring-", plane_restraints) # should be list already 
+                                filter_out("pseudo-ring-", plane_restraints) # should be list already
         restraints["_chem_comp_plane_atom"] = new_plane_restraints
 
         set_monomer_restraints(comp_id, restraints)
-        
+
 def add_synthetic_pyranose_planes():
     for comp_id in ["NAG", "BMA", "MAN", "GAL", "GLC", "FUC", "XYP"]:
         add_pyranose_pseudo_ring_plane_restraints(comp_id)
@@ -34,7 +34,7 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
 
     "---------------- multi-add-linked-residue", imol, res_spec
     set_go_to_atom_molecule(imol)
-    wm = matrix_state() 
+    wm = matrix_state()
     set_matrix(wm/4.)
 
     current_refinement_rate = dragged_refinement_steps_per_frame()
@@ -73,16 +73,16 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
                         ls = residues_near_residue(imol, current_residue_spec, 1.9)
 
                         add_cho_restraints_for_residue(imol, new_res_spec)
-                        
+
                         with AutoAccept():
                             refine_residues(imol, [current_residue_spec] + ls)
                         # make the new res the one to add to (remove starting bool)
-                        current_residue_spec = new_res_spec[1:]  
+                        current_residue_spec = new_res_spec[1:]
 
     # restore refinement mode and matrix weight
     set_dragged_refinement_steps_per_frame(current_refinement_rate)
     set_matrix(wm)
-    
+
 # return the new molecule number
 #
 def new_molecule_from_this_glyco_tree():
@@ -289,18 +289,10 @@ def paucimannose_tree():
 global add_linked_residue_tree_correlation_cut_off
 add_linked_residue_tree_correlation_cut_off = 0.50
 
-def add_linked_residue_tree(imol, parent, tree):
+def add_linked_residue_add_cho_function(imol, parent, res_pair):
 
     global add_linked_residue_tree_correlation_cut_off
-    
-    def centre_view_on_residue_centre(res_spec):
-        res_centre = residue_centre(imol,
-                                    residue_spec_to_chain_id(res_spec),
-                                    residue_spec_to_res_no(res_spec),
-                                    residue_spec_to_ins_code(res_spec))
-        if (isinstance(res_centre, list)):
-            set_rotation_centre(*res_centre)
-    
+
     def well_fitting_qm(res_spec):
         with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
@@ -311,40 +303,53 @@ def add_linked_residue_tree(imol, parent, tree):
             if (not isNumber(c)):
                 return False
             else:
-                return c > add_linked_residue_tree_correlation_cut_off
-    
-    def func(parent, res_pair):
-        if (not isinstance(parent, list)):
-            print "WARNING:: OOps not a proper res_spec %s with residue_to_add: %s" %(parent, res_pair)
+                if c > add_linked_residue_tree_correlation_cut_off:
+                    symm_clash = clashes_with_symmetry(imol,
+                                                       residue_spec_to_chain_id(res_spec),
+                                                       residue_spec_to_res_no(res_spec),
+                                                       residue_spec_to_ins_code(res_spec),
+                                                       2.0)
+                    if (symm_clash == 1):
+                        return False
+                    else:
+                        return True
+                else:
+                    return False
+
+    def centre_view_on_residue_centre(res_spec):
+        res_centre = residue_centre(imol,
+                                    residue_spec_to_chain_id(res_spec),
+                                    residue_spec_to_res_no(res_spec),
+                                    residue_spec_to_ins_code(res_spec))
+        if (isinstance(res_centre, list)):
+            set_rotation_centre(*res_centre)
+
+    # main line
+    #
+    if (not isinstance(parent, list)):
+        print "WARNING:: OOps not a proper res_spec %s with residue_to_add: %s" %(parent, res_pair)
+        return False
+    else:
+        if not (len(res_pair) == 2):
+            print "Oops - not a residue-link string pair when adding res-pair", res_pair
             return False
         else:
-            # OK. go go go
+            # OK! Go!
             new_link = res_pair[0]
             new_res_type = res_pair[1]
 
             centre_view_on_residue_centre(parent)
 
-            # tree_residues is empty (excludes single ASN) on startup,
-            # so should add this
             tree_residues = glyco_tree_residues(imol, parent)
-            if is_just_an_ASN_qm(imol, tree_residues):
-                tree_residues = [parent]
             imol_save = new_molecule_by_residue_specs(imol,
                                                       tree_residues)
-            # old
-#            active_atom = active_residue_py()
-#            active_residue = active_atom[:4]
-#            save_residue_specs = glyco_tree_residues_py(imol, active_residue)
-#
-#            imol_glyco_pre = new_molecule_by_residue_specs_py(imol, save_residue_specs)
-#            set_mol_displayed(imol_glyco_pre, 0)
-#            set_mol_active(imol_glyco_pre, 0)
 
             new_res_spec = add_linked_residue(imol,
                                               res_spec_to_chain_id(parent),
                                               res_spec_to_res_no(parent),
                                               res_spec_to_ins_code(parent),
                                               new_res_type, new_link, 2)
+            # 2 = add and link mode
             set_mol_displayed(imol_save, 0)
             set_mol_active(imol_save, 0)
             ls = residues_near_residue(imol, parent, 1.9)
@@ -360,7 +365,6 @@ def add_linked_residue_tree(imol, parent, tree):
                 # okay!?
                 preped_new_res_spec = new_res_spec[1:]  # strip off leading result
                 if well_fitting_qm(preped_new_res_spec):
-                    # close_molecule(imol_glyco_pre)
                     return preped_new_res_spec
                 else:
                     # ------------ bad fit -----------------
@@ -370,31 +374,41 @@ def add_linked_residue_tree(imol, parent, tree):
                                                              preped_new_res_spec)
                     delete_residue_by_spec(imol, preped_new_res_spec)
                     # restore glyco-tree residues from imol_save
-                    write_pdb_file(imol_save, "test_glyco.pdb")
                     replace_fragment(imol, imol_save, "//")
                     return False
-#                    with AutoAccept():
-#                        # Note: may not get rid of screwed up refinement from
-#                        # adding a carb too much...
-#                        refine_residues(imol, local_ls)
-#                        return False
-                    
+
+def add_linked_residue_tree(imol, parent, tree):
+
+    def func_test():
+        count = 10
+        pass # needed?
+
     def process_tree(parent, tree, proc_func):
-        for branch in tree:
-            if ((len(branch) == 2) and
-                isinstance(branch[0], str) and
-                isinstance(branch[0], str)):
-                # have the link, res pair!
-                new_res = proc_func(parent, branch)
-                if new_res:
-                    parent = new_res
-                else:
-                    break
-            else:
-                if isinstance(branch, list):
-                    process_tree(parent, branch, proc_func)
+
+        # helper function to test for a link, resname pair
+        #
+        def link_res_pair(pair):
+            # test if pair i.e. two elements
+            if len(pair) == 2:
+                # test if both are strings
+                res = map(lambda x: isinstance(x, str), pair)
+                # could add tests for len pair[1] == 3 and "-" in pair[0]
+                return all(res)
+            return False
+
+        if not tree:
+            return []
+        if isinstance(tree[0], list) and not link_res_pair(tree[0]):
+            part_1 = process_tree(parent, tree[0], proc_func)
+            part_2 = process_tree(parent, tree[1:], proc_func)
+            return [part_1, part_2]
+        else:
+            new_res = proc_func(imol, parent, tree[0])
+            return [new_res, process_tree(new_res, tree[1:], proc_func)]
 
     def is_just_an_ASN_qm(imol, glyco_tree):
+
+        print "glyco-tree:", glyco_tree
         if not isinstance(glyco_tree, list):
             return False
         else:
@@ -447,9 +461,9 @@ def add_linked_residue_tree(imol, parent, tree):
             info_dialog("Must start on Single ASN")
             print "start_tree:", start_tree
         else:
-            # ok, continue
+            # OK, continue
             start_pos_view = add_view_here("Glyco Tree Start Pos")
-            process_tree(parent, tree, func)
+            process_tree(parent, tree, add_linked_residue_add_cho_function)
             go_to_view_number(start_pos_view, 0)
             with AutoAccept():
                 refine_residues(aa_imol, glyco_tree_residues(aa_imol, aa_res_spec))
@@ -470,7 +484,7 @@ def add_linked_residue_tree(imol, parent, tree):
 
     # reset
     set_default_temperature_factor_for_new_atoms(previous_m)
-    set_matrix(current_weight)
+    set_matrix(wm)
 
 
 def add_linked_residue_with_extra_restraints_to_active_residue(new_res_type,
@@ -514,25 +528,4 @@ def delete_all_cho():
 #                                   residue_spec_to_res_no(cho_res_spec), "")
                 delete_residues(aa_imol, delete_cho_ls)
 
-
-# Extra functionsnto in scheme....
-                                
-def delete_glyco_tree():
-    
-    active_atom = active_residue_py()
-    try:
-        imol = active_atom[0]
-        active_residue = active_atom[:4]
-        print "active_residue", active_residue
-        glyco_tree_residues = glyco_tree_residues_py(imol, active_residue)
-        print active_residue
-        print "glyco_tree_residues", glyco_tree_residues
-        for res in glyco_tree_residues:
-            rn = residue_name_by_spec(imol, res)
-            if rn != "ASN":
-                delete_residue_by_spec(imol, res)
-    except KeyError as e:
-        print e
-    except TypeError as e:
-        print e
 

@@ -335,7 +335,7 @@ molecule_class_info_t::fill_fobs_sigfobs() {
 void
 molecule_class_info_t::compile_density_map_display_list(short int first_or_second) {
 
-   std::cout << "Deleting theMapContours " << theMapContours.first << std::endl;
+   // std::cout << "Deleting theMapContours " << theMapContours.first << std::endl;
    if (first_or_second == SIDE_BY_SIDE_MAIN) { 
       glDeleteLists(theMapContours.first, 1);
       theMapContours.first = glGenLists(1);
