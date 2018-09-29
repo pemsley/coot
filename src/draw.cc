@@ -422,7 +422,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       graphics_info_t::picked_intermediate_atom_graphics_object();
 
       //
-      graphics_info_t::baton_object();
+      graphics_info_t::draw_baton_object();
 
       //
       graphics_info_t::draw_geometry_objects(); // angles and distances
