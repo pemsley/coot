@@ -7956,12 +7956,13 @@ molecule_class_info_t::add_multiple_dummies(mmdb::Chain *chain_p,
       res_p->seqNum = i + 1;
       res_p->SetResName("DUM");
 
-      std::cout << atom_p << " added to molecule" << std::endl;
+      // std::cout << atom_p << " added to molecule" << std::endl;
    }
 
 
-   std::cout << "DEBUG:: add_multiple_dummies finishing.. "
-	     << pos_position.size() << std::endl;
+   if (false)
+      std::cout << "DEBUG:: add_multiple_dummies finishing.. "
+		<< pos_position.size() << std::endl;
    
    // Actually, we want to run this code when there are no new guide
    // points too.  This sets atom_sel.SelectionHandle properly, which

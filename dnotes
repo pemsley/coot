@@ -8592,3 +8592,47 @@ Mon 24 Sep 2018 15:48:27 BST
 
    Does this mean that a spaceball works? Hmm!
 
+---
+Wed 26 Sep 2018 22:44:14 BST
+
+ Jeremy Huddleston Sequoia 2016-12-19 19:46:44 UTC
+
+    Indirect GLX is no longer supported by default.  You can enable it with:
+
+       defaults write org.macosforge.xquartz.X11 enable_iglx -bool true
+
+---
+Thu 27 Sep 2018 08:12:03 BST
+
+   font stuff
+
+   http://www.lighthouse3d.com/very-simple-libs/vsfl/
+
+
+---
+Thu 27 Sep 2018 11:57:26 BST
+
+   GLSL antialiasing/multisampling
+
+   https://learnopengl.com/Advanced-OpenGL/Anti-Aliasing
+
+---
+Thu 27 Sep 2018 15:12:53 BST
+
+   3gp0 needs helix shift of MR solution
+
+   Try low res, prosmart-like restraints or morphing wrapped with prosmart restraints.
+
+
+---
+Thu 27 Sep 2018 15:33:44 BST
+
+   histogram of H (or HA) density values in the apoferritin map.
+
+
+----
+Thu 27 Sep 2018 15:58:58 BST
+
+    Dave Brown suggests:
+    ligand validation meeting: what should we do with ligands from pandda - they will
+    seem to be rubbish by conventional metrics.

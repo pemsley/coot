@@ -1936,7 +1936,6 @@ gint expose(GtkWidget *widget, GdkEventExpose *event) {
    return TRUE;
 }
 
-
 void 
 update_things_on_move_and_redraw() {
 
