@@ -1815,7 +1815,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       }
 
    } else {
-      std::cout << "DEBUG:: make_moving_atoms_graphics_object() here 2 " << std::endl;
+      // std::cout << "DEBUG:: make_moving_atoms_graphics_object() here 2 " << std::endl;
 
       int draw_hydrogens_flag = 0;
       if (molecules[imol_moving_atoms].draw_hydrogens())
