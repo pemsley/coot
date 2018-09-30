@@ -1187,6 +1187,9 @@ namespace coot {
       std::vector<std::pair<int, int> > pair_residue_atoms(mmdb::Residue *a_residue_p,
 							   mmdb::Residue *b_residue_p);
 
+      // CBs in GLY etc
+      void delete_anomalous_atoms(mmdb::Manager *mol);
+
       // A useful function that was (is) in molecule_class_info_t
       //
       // If this residue has a CA, return a pointer to that atoms, if

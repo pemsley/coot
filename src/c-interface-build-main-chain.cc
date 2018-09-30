@@ -642,6 +642,7 @@ protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &resid
 	       // a molecule for each chain
 	       for(unsigned int ich=0; ich<chains.size(); ich++) { 
 		  mmdb::Manager *mol = make_mol(chains[ich], chain_id, first_res_no, preserve_residue_names);
+		  coot::util::delete_anomalous_atoms(mol); //CBs in GLY etc
 		  int imol = graphics_info_t::create_molecule();
 		  std::string name = "Loop candidate #"; 
 		  name += coot::util::int_to_string(ich+1);

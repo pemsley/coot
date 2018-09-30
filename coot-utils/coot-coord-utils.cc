@@ -8507,3 +8507,54 @@ coot::util::get_number_of_protein_or_nucleotides(mmdb::Chain *chain_p) {
 
    return n;
 }
+
+
+// CBs in GLY etc - using ProteinDBSearch
+void
+coot::util::delete_anomalous_atoms(mmdb::Manager *mol) {
+
+   bool changed = false;
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    for (int ires=0; ires<nres; ires++) {
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	       int n_atoms = residue_p->GetNumberOfAtoms();
+	       std::string res_name(residue_p->GetResName());
+	       std::set<int> delete_these_atoms;
+	       for (int iat=0; iat<n_atoms; iat++) {
+		  mmdb::Atom *at = residue_p->GetAtom(iat);
+		  std::string atom_name(at->GetAtomName());
+		  if (atom_name == " CB ") { // PDBv3 FIXME
+		     if (res_name == "GLY") {
+			delete_these_atoms.insert(iat);
+		     }
+		  }
+	       }
+	       if (! delete_these_atoms.empty()) {
+		  std::set<int>::reverse_iterator it;
+		  for (it=delete_these_atoms.rbegin(); it!=delete_these_atoms.rend(); it++) {
+		     int idx = *it;
+		     if (idx >= 0) {
+			// std::cout << "------------ delete! " << idx << std::endl;
+			residue_p->DeleteAtom(idx);
+			changed = true;
+		     }
+		  }
+		  residue_p->TrimAtomTable();
+	       }
+	    }
+	 }
+      }
+   }
+
+   if (changed) {
+      mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      mol->FinishStructEdit();
+   }
+
+}
