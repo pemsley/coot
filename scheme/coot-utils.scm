@@ -386,6 +386,12 @@
       #f
       (car (cadr ra))))
 
+;; residue-info atom
+(define (residue-atom->position ra)
+  (if (not (list? ra))
+      #f
+      (list-ref ra 2)))
+
 ;; residue-info atom needs other parameters to make a spec for an atom
 (define (residue-atom->atom-spec ra chain-id res-no ins-code)
   (list chain-id res-no ins-code (residue-atom->atom-name ra) (residue-atom->alt-conf ra)))
