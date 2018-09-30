@@ -3889,9 +3889,14 @@ string   static std::string sessionid;
 						     const graphical_bonds_container &bonds_box) const;
    PyObject *get_intermediate_atoms_bonds_representation();
    PyObject *get_intermediate_atoms_distortions_py();
-   PyObject *restraint_to_py(const coot::simple_restraint &restraint); // make const?
-   PyObject *geometry_distortion_to_py(const coot::geometry_distortion_info_t &gd);
+   PyObject *restraint_to_py(const coot::simple_restraint &restraint) const;
+   PyObject *geometry_distortion_to_py(const coot::geometry_distortion_info_t &gd) const;
 #endif
+
+#ifdef USE_GUILE
+   SCM geometry_distortion_to_scm(const coot::geometry_distortion_info_t &gd) const;
+   SCM restraint_to_scm(const coot::simple_restraint &restraint) const;
+#endif // USE_GUILE
 
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #ifdef HAVE_CXX_THREAD

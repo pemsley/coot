@@ -271,7 +271,7 @@ graphics_info_t::get_intermediate_atoms_distortions_py() {
 #include "c-interface-geometry-distortion.hh"
 
 #ifdef USE_PYTHON
-PyObject *graphics_info_t::restraint_to_py(const coot::simple_restraint &restraint) {
+PyObject *graphics_info_t::restraint_to_py(const coot::simple_restraint &restraint) const {
 
    PyObject *r = PyDict_New();
    // restraint_type
@@ -291,8 +291,25 @@ PyObject *graphics_info_t::restraint_to_py(const coot::simple_restraint &restrai
 }
 #endif // USE_PYTHON
 
+#ifdef USE_GUILE
+SCM graphics_info_t::restraint_to_scm(const coot::simple_restraint &rest) const {
+
+   SCM fixed_atom_flags_list_scm = SCM_EOL;
+   for (std::size_t i=0; i<rest.fixed_atom_flags.size(); i++)
+      fixed_atom_flags_list_scm = scm_cons(SCM_MAKINUM(rest.fixed_atom_flags[i]),
+					   fixed_atom_flags_list_scm);
+   SCM it_1_scm = scm_cons(scm_makfrom0str("restraint-type"), scm_makfrom0str(rest.type().c_str()));
+   SCM it_2_scm = scm_cons(scm_makfrom0str("target-value"), scm_double2num(rest.target_value));
+   SCM it_3_scm = scm_cons(scm_makfrom0str("sigma"), scm_double2num(rest.sigma));
+   SCM it_4_scm = scm_cons(scm_makfrom0str("fixed-atom-flags"), fixed_atom_flags_list_scm);
+
+   return scm_list_4(it_1_scm, it_2_scm, it_3_scm, it_4_scm);
+}
+
+#endif // USE_GUILE
+
 #ifdef USE_PYTHON
-PyObject *graphics_info_t::geometry_distortion_to_py(const coot::geometry_distortion_info_t &gd) {
+PyObject *graphics_info_t::geometry_distortion_to_py(const coot::geometry_distortion_info_t &gd) const {
 
    PyObject *r = Py_False;
 
@@ -302,9 +319,9 @@ PyObject *graphics_info_t::geometry_distortion_to_py(const coot::geometry_distor
       for (std::size_t i=0; i<gd.atom_indices.size(); i++)
 	 PyList_SetItem(atom_indices_py, i, PyInt_FromLong(gd.atom_indices[i]));
       PyDict_SetItemString(r, "distortion_score", PyFloat_FromDouble(gd.distortion_score));
-      PyDict_SetItemString(r, "restraint", restraint_to_py(gd.restraint));
-      PyDict_SetItemString(r, "residue_spec", residue_spec_to_py(gd.residue_spec));
-      PyDict_SetItemString(r, "atom_indices", atom_indices_py);
+      PyDict_SetItemString(r, "restraint",        restraint_to_py(gd.restraint));
+      PyDict_SetItemString(r, "residue_spec",     residue_spec_to_py(gd.residue_spec));
+      PyDict_SetItemString(r, "atom_indices",     atom_indices_py);
    }
 
    if (PyBool_Check(r))
@@ -313,6 +330,25 @@ PyObject *graphics_info_t::geometry_distortion_to_py(const coot::geometry_distor
    return r;
 }
 #endif // USE_PYTHON
+
+#ifdef USE_GUILE
+SCM graphics_info_t::geometry_distortion_to_scm(const coot::geometry_distortion_info_t &gd) const {
+
+   SCM r = SCM_BOOL_F;
+   if (gd.initialised_p()) {
+      r = SCM_EOL;
+      SCM atom_list_scm = SCM_EOL;
+      for (std::size_t i=0; i<gd.atom_indices.size(); i++)
+	 atom_list_scm = scm_cons(SCM_MAKINUM(gd.atom_indices[i]), atom_list_scm);
+      SCM it_1_scm = scm_cons(scm_makfrom0str("distortion-score"), scm_double2num(gd.distortion_score));
+      SCM it_2_scm = scm_cons(scm_makfrom0str("restraint"), restraint_to_scm(gd.restraint));
+      SCM it_3_scm = scm_cons(scm_makfrom0str("residue-spec"), residue_spec_to_scm(gd.residue_spec));
+      SCM it_4_scm = scm_cons(scm_makfrom0str("atom-indices"), atom_list_scm);
+      r = scm_list_4(it_1_scm, it_2_scm, it_3_scm, it_4_scm);
+   }
+   return r;
+}
+#endif // USE_GUILE
 
 
 #endif // USE_PYTHON (bleugh - it's a long way up, but not at the top)

@@ -694,7 +694,53 @@ molecule_class_info_t::display_solid_surface_triangles(const coot::density_conto
    } else {
 
       glShadeModel(GL_SMOOTH);
+      bool opacity_experiment = false;
+
+      /*
+      coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
+			 graphics_info_t::RotationCentre_y(),
+			 graphics_info_t::RotationCentre_z());
+
+      float dist = 0.5 * graphics_info_t::zoom;
+      GL_matrix glm;
+      clipper::Coord_orth eye_dir(0,0,1);
+      glm.from_quaternion(graphics_info_t::quat);
+      clipper::Mat33<double> m = glm.to_clipper_mat();
+      clipper::Coord_orth rot_dir(m * eye_dir);
+      coot::Cartesian rot_dir_c(rot_dir.x(), rot_dir.y(), rot_dir.z());
+      coot::Cartesian rot_dir_uv = rot_dir_c.unit();
+      */
+
       for (unsigned int i=0; i<tc.point_indices.size(); i++) {
+
+	 /*
+	   if (opacity_experiment) {
+
+	   // in fresnel mode, perhaps we need to change the specular too
+	   // to make the glass more shiny? Something for the shader.
+
+	   //
+	   coot::Cartesian n =
+	   tc.normals[tc.point_indices[i].pointID[0]] +
+	   tc.normals[tc.point_indices[i].pointID[1]] +
+	   tc.normals[tc.point_indices[i].pointID[2]];
+	   coot::Cartesian n_uv = n.unit();
+
+	   float cos_theta = coot::dot_product(n_uv, rot_dir_uv);
+	   double opacity = pow(1.0 - pow(cos_theta, 6.0), 3);
+
+	   GLfloat  mat_diffuse[]   = {float(map_colour[0][0]),
+	   float(map_colour[0][1]),
+	   float(map_colour[0][2]),
+	   static_cast<GLfloat>(0.5 * opacity)};
+	   GLfloat  mat_ambient[]   = {float(0.3*map_colour[0][0]),
+	   float(0.3*map_colour[0][1]),
+	   float(0.3*map_colour[0][2]),
+	   static_cast<GLfloat>(opacity)};
+	   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
+	   glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+	   }
+	 */
 
 	 glNormal3f(tc.normals[tc.point_indices[i].pointID[0]].x(),
 		    tc.normals[tc.point_indices[i].pointID[0]].y(),
@@ -730,9 +776,9 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
 
       // normal solid 
    
-      GLfloat  ambientLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+      GLfloat  ambientLight[] = { 0.3f, 0.3f, 0.3f, 1.0f };
       GLfloat  diffuseLight[] = { 0.4f, 0.4f, 0.4f, 1.0f };
-      GLfloat specularLight[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+      GLfloat specularLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
    
       // Assign created components to GL_LIGHT2
       glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
@@ -744,7 +790,7 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
 
       // narrowing from doubles to floats (there is no glMaterialdv).
 
-      GLfloat  mat_specular[]  = {0.4f,  0.4f,  0.4f,  opacity}; // makes a difference
+      GLfloat  mat_specular[]  = {0.6f,  0.6f,  0.6f,  opacity}; // makes a difference
       GLfloat  mat_ambient[]   = {float(0.3*map_colour[0][0]),
 				  float(0.3*map_colour[0][1]),
 				  float(0.3*map_colour[0][2]),

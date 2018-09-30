@@ -39,6 +39,12 @@ PyObject *residues_distortions_py(int imol, PyObject *residue_spec_list);
 PyObject *get_intermediate_atoms_distortions_py();
 #endif
 
+#ifdef USE_GUILE
+// this is not a ligands function (although it can be used for ligands)
+// it doesn't belong here
+SCM residues_distortions_scm(int imol, SCM residue_spec_list_scm);
+#endif
+
 // This don't call graphics_draw(), so the caller needs to do so.
 //
 coot::probe_clash_score_t
