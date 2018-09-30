@@ -1806,7 +1806,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 	 // std::cout << "done CA bonds" << std::endl;
 	 regularize_object_bonds_box.clear_up();
 	 regularize_object_bonds_box = bonds.make_graphical_bonds();
-      } else { 
+      } else {
 	 Bond_lines_container bonds;
 	 bonds.do_Ca_bonds(*moving_atoms_asc, 1.0, 4.7);
 	 // std::cout << "done CA bonds" << std::endl;
@@ -1820,7 +1820,6 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       int draw_hydrogens_flag = 0;
       if (molecules[imol_moving_atoms].draw_hydrogens())
 	 draw_hydrogens_flag = 1;
-      // Bond_lines_container bonds(*moving_atoms_asc, do_disulphide_flag, draw_hydrogens_flag);
       std::set<int> dummy;
       Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, dummy, Geom_p(),
 				 do_disulphide_flag, draw_hydrogens_flag, 0);

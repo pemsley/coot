@@ -614,28 +614,14 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
       threaded_refinement_loop_counter_bonds_gen = threaded_refinement_loop_counter;
       moving_atoms_bonds_lock = true;
 
-      bool do_disulphide_flag = true;
-      bool draw_hydrogens_flag =
-	 graphics_info_t::molecules[imol_moving_atoms].draw_hydrogens(); // wrong function name
-                                                                         // given what it does.
-
-      std::set<int> dummy_set; // don't remove bonds to any atoms
-      Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms,
-				 dummy_set, Geom_p(),
-				 do_disulphide_flag, draw_hydrogens_flag, 0,
-				 do_rama_markup, do_rota_markup,
-				 tables_pointer);
-	 
-      regularize_object_bonds_box.clear_up();
-      regularize_object_bonds_box = bonds.make_graphical_bonds(ramachandrans_container,
-							       do_rama_markup, do_rota_markup);
+      graphics_info_t g;
+      g.make_moving_atoms_graphics_object(imol_moving_atoms, *moving_atoms_asc);
 
       moving_atoms_bonds_lock = false;
 
-      if (graphics_info_t::accept_reject_dialog)
-	 update_accept_reject_dialog_with_results(graphics_info_t::accept_reject_dialog,
-						  coot::CHI_SQUAREDS,
-						  graphics_info_t::saved_dragged_refinement_results);
+      if (accept_reject_dialog)
+	 update_accept_reject_dialog_with_results(accept_reject_dialog, coot::CHI_SQUAREDS,
+						  saved_dragged_refinement_results);
    }
 
    if (! threaded_refinement_is_running)
