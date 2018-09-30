@@ -3944,7 +3944,7 @@
 							      blur-string
 							      sharp-string
 							      "END")))
-					(let ((s (goosh-command "refmac5xx"
+					(let ((s (goosh-command "refmac5"
 								cmd-line-args
 								data-lines
 								log-file-name
