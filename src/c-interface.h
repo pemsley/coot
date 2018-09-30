@@ -3270,6 +3270,9 @@ PyObject *regularize_residues_with_alt_conf_py(int imol, PyObject *r, const char
 #endif /* PYTHON */
 #endif /* c++ */
 
+/* Used by on_accept_reject_refinement_reject_button_clicked() */
+void stop_refinement_internal();
+
 /*! \brief turn on (or off) torsion restraints 
 
    Pass with istate=1 for on, istate=0 for off.

@@ -371,7 +371,7 @@ graphics_info_t::refinement_loop_threaded() {
    bool unlocked = false;
    while (! graphics_info_t::threaded_refinement_is_running.compare_exchange_weak(unlocked, true)) {
       std::cout << "WARNING:: refinement_loop_threaded() refinement loop locked " << std::endl;
-      std::this_thread::sleep_for(std::chrono::milliseconds(50));
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
       unlocked = 0;
    }
 
@@ -418,7 +418,7 @@ graphics_info_t::refinement_loop_threaded() {
       }
       graphics_info_t::threaded_refinement_loop_counter++;
    }
-   graphics_info_t::threaded_refinement_is_running = false; // unlock!
+   graphics_info_t::threaded_refinement_is_running = false; // unlock! - is this safe?
 
    // when this function exits, the (detached) thread in which it's running ends
 }
@@ -586,8 +586,6 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
    // OK, we are interactive
 
    if (threaded_refinement_loop_counter_bonds_gen < threaded_refinement_loop_counter) {
-
-      // graphics_info_t g;
 
       bool do_rama_markup = graphics_info_t::do_intermediate_atoms_rama_markup;
       bool do_rota_markup = graphics_info_t::do_intermediate_atoms_rota_markup;

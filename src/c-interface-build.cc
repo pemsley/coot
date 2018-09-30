@@ -1544,6 +1544,19 @@ PyObject *regularize_residues_with_alt_conf_py(int imol, PyObject *res_specs_py,
 }
 #endif // USE_PYTHON
 
+/* Used by on_accept_reject_refinement_reject_button_clicked() */
+void stop_refinement_internal() {
+
+   // c.f. GDK_Escape key press:
+
+   if (graphics_info_t::continue_threaded_refinement_loop) {
+      graphics_info_t::continue_threaded_refinement_loop = false;
+      graphics_info_t::threaded_refinement_needs_to_clear_up = true;
+   }
+
+}
+
+
 #ifdef USE_PYTHON
 std::vector<coot::residue_spec_t> py_to_residue_specs(PyObject *r) {
   std::vector<coot::residue_spec_t> residue_specs;
