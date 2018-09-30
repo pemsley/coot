@@ -1,7 +1,9 @@
 
    For Release 0.8.9.2
 
-   o somewhow draw the baton so that the direction is obvious. As an arrow, perhaps?
+
+------
+
 
    o this was from coot-experimental but maybe it's a problem here.
 
@@ -11,7 +13,11 @@
 #10 0x000000000069f1ab in save_directory_for_saving_from_filechooser(GtkWidget const*) (fileselection=fileselection@entry=0x16c474c0) at c-interface.cc:1466
 #11 0x00000000006cd628 in on_save_coords_filechooserdialog1_response (dialog=<optimized out>, response_id=<optimized out>, user_data=<optimized out>) at callbacks.c:10897
 
-------
+* Done as much as I can from this, I think
+
+   o somewhow draw the baton so that the direction is obvious. As an arrow, perhaps?
+
+* Done
 
    o Delete extra restraints - does that work?
 
