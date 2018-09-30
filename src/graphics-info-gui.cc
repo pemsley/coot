@@ -660,30 +660,19 @@ graphics_info_t::set_directory_for_fileselection_string(std::string filename) {
 void
 graphics_info_t::set_directory_for_fileselection(GtkWidget *fileselection) const {
 
-#if (GTK_MAJOR_VERSION > 1)
-  if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
-    set_directory_for_filechooser(fileselection);
-  } else {
-    if (directory_for_fileselection != "") {
+   if (fileselection) {
+      if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
+	 set_directory_for_filechooser(fileselection);
+      } else {
+	 if (! directory_for_fileselection.empty()) {
 
-       //       std::cout << "set directory_for_fileselection "
-// 		<< directory_for_fileselection << std::endl;
-      gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),
-				      directory_for_fileselection.c_str());
-    } else {
-      // std::cout << "not setting directory_for_fileselection" << std::endl;
-    }
-  }
-#else
-   if (directory_for_fileselection != "") {
-//       std::cout << "set directory_for_fileselection "
-// 		<< directory_for_fileselection << std::endl;
-      gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),
-				      directory_for_fileselection.c_str());
-   } else {
-      // std::cout << "not setting directory_for_fileselection" << std::endl;
-   } 
-#endif // GTK_MAJOR_VERSION
+	    gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),
+					    directory_for_fileselection.c_str());
+	 } else {
+	    // std::cout << "not setting directory_for_fileselection" << std::endl;
+	 }
+      }
+   }
 }
 
 void 
@@ -697,12 +686,9 @@ graphics_info_t::set_file_for_save_fileselection(GtkWidget *fileselection) const
       std::string stripped_name = 
 	 graphics_info_t::molecules[imol].stripped_save_name_suggestion();
       std::string full_name = stripped_name;
-      //       if (graphics_info_t::save_coordinates_in_original_dir_flag != 0) 
-      if (graphics_info_t::directory_for_saving_for_fileselection != "")
+      if (! directory_for_saving_for_fileselection.empty())
 	 full_name = directory_for_saving_for_fileselection + stripped_name;
 
-//       std::cout << "INFO:: Setting fileselection with file: " << full_name
-// 		<< std::endl;
       gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),
 				      full_name.c_str());
    }
@@ -711,17 +697,29 @@ graphics_info_t::set_file_for_save_fileselection(GtkWidget *fileselection) const
 void
 graphics_info_t::save_directory_from_filechooser(const GtkWidget *fileselection) {
 
-   gchar *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
-   directory_for_filechooser = coot::util::file_name_directory(filename);
-   g_free(filename);
+   if (fileselection) {
+      if (GTK_IS_FILE_CHOOSER(fileselection)) {
+	 gchar *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
+	 if (filename) {
+	    directory_for_filechooser = coot::util::file_name_directory(filename);
+	    g_free(filename);
+	 }
+      }
+   }
 }
 
 void
 graphics_info_t::save_directory_for_saving_from_filechooser(const GtkWidget *fileselection) {
 
-   gchar *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
-   directory_for_saving_for_filechooser = coot::util::file_name_directory(filename);
-   g_free(filename);
+   if (fileselection) {
+      if (GTK_IS_FILE_CHOOSER(fileselection)) {
+	 gchar *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
+	 if (filename) {
+	    directory_for_saving_for_filechooser = coot::util::file_name_directory(filename);
+	    g_free(filename);
+	 }
+      }
+   }
 }
 
 void
