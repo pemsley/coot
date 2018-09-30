@@ -3958,7 +3958,7 @@
 					      (begin
 						(if (file-exists? "starting_map.mtz")
 						    (begin
-						      (rename-file  "starting-map.mtz" refmac-output-mtz-file-name)
+						      (rename-file  "starting_map.mtz" refmac-output-mtz-file-name)
 						      ;; offer a read-mtz dialog
 						      (manage-column-selector refmac-output-mtz-file-name)
 						      )))))))))
