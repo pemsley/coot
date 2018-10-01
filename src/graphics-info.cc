@@ -1803,28 +1803,48 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 	 if (molecules[imol_moving_atoms].draw_hydrogens())
 	    draw_hydrogens_flag = true;
 	 bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol, Geom_p(), 1.0, 4.7, draw_hydrogens_flag);
-	 // std::cout << "done CA bonds" << std::endl;
 	 regularize_object_bonds_box.clear_up();
 	 regularize_object_bonds_box = bonds.make_graphical_bonds();
       } else {
 	 Bond_lines_container bonds;
 	 bonds.do_Ca_bonds(*moving_atoms_asc, 1.0, 4.7);
-	 // std::cout << "done CA bonds" << std::endl;
 	 regularize_object_bonds_box.clear_up();
 	 regularize_object_bonds_box = bonds.make_graphical_bonds();
       }
 
    } else {
-      // std::cout << "DEBUG:: make_moving_atoms_graphics_object() here 2 " << std::endl;
+
+      bool do_rama_markup = graphics_info_t::do_intermediate_atoms_rama_markup;
+      bool do_rota_markup = graphics_info_t::do_intermediate_atoms_rota_markup;
+
+      // wrap the filling of the rotamer probability tables
+      //
+      coot::rotamer_probability_tables *tables_pointer = NULL;
+      if (do_rota_markup) {
+	 if (! rot_prob_tables.tried_and_failed()) {
+	    if (rot_prob_tables.is_well_formatted()) {
+	       tables_pointer = &rot_prob_tables;
+	    } else {
+	       rot_prob_tables.fill_tables();
+	       if (rot_prob_tables.is_well_formatted()) {
+		  tables_pointer = &rot_prob_tables;
+	       }
+	    }
+	 } else {
+	    do_rota_markup = false;
+	 }
+      }
 
       int draw_hydrogens_flag = 0;
       if (molecules[imol_moving_atoms].draw_hydrogens())
 	 draw_hydrogens_flag = 1;
       std::set<int> dummy;
       Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, dummy, Geom_p(),
-				 do_disulphide_flag, draw_hydrogens_flag, 0);
+				 do_disulphide_flag, draw_hydrogens_flag, 0,
+				 do_rama_markup, do_rota_markup, tables_pointer);
       regularize_object_bonds_box.clear_up();
-      regularize_object_bonds_box = bonds.make_graphical_bonds();
+      regularize_object_bonds_box = bonds.make_graphical_bonds(ramachandrans_container,
+							       do_rama_markup, do_rama_markup);
 
       
 

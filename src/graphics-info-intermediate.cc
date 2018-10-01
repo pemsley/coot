@@ -71,6 +71,14 @@ bool graphics_info_t::pepflip_intermediate_atoms() {
 	    mmdb::Atom *at_2_h  = res_2->GetAtom(" H  ");
 
 	    if (at_1_ca && at_2_ca) {
+
+	       // tell the refinement to stop, wait for it to stop, move the atoms and then restart
+
+	       continue_threaded_refinement_loop = false;
+	       while(threaded_refinement_is_running == true) {
+		  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	       }
+
 	       clipper::Coord_orth base(at_1_ca->x, at_1_ca->y, at_1_ca->z);
 	       clipper::Coord_orth  top(at_2_ca->x, at_2_ca->y, at_2_ca->z);
 	       clipper::Coord_orth dir = top - base;
@@ -78,9 +86,6 @@ bool graphics_info_t::pepflip_intermediate_atoms() {
 	       coot::util::rotate_atom_about(dir, base, M_PI, at_1_o);
 	       coot::util::rotate_atom_about(dir, base, M_PI, at_2_n);
 	       coot::util::rotate_atom_about(dir, base, M_PI, at_2_h); // does null check
-
-	       // add_drag_refine_idle_function();
-	       // drag_refine_refine_intermediate_atoms();
 
 	       refinement_of_last_restraints_needs_reset();
 	       thread_for_refinement_loop_threaded();
