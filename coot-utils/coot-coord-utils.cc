@@ -6942,68 +6942,81 @@ coot::util::cis_peptide_quads_from_coords(mmdb::Manager *mol,
 
 		     if (ca_first && c_first && n_next && ca_next) {
 
-			// we don't want to include CISPEPs for residues that
-			// have a TER card between them.
-			//
-			bool is_ter = false;
-			for (int iat=0; iat<n_atoms_1; iat++) { 
-			   mmdb::Atom *at = residue_p_1->GetAtom(iat);
-			   if (at->isTer()) {
-			      is_ter = true;
-			      break;
+			// Don't have peptide planes with mixed alt-confs.
+			std::set<std::string> alt_confs;
+			std::string ac[4];
+			ac[0] = ca_first->altLoc;
+			ac[1] = c_first->altLoc;
+			ac[2] = n_next->altLoc;
+			ac[3] = ca_next->altLoc;
+			for (int i=0; i<4; i++)
+			   if (!ac[i].empty())
+			      alt_confs.insert(ac[i]);
+			if (alt_confs.size() < 2) {
+
+			   // we don't want to include CISPEPs for residues that
+			   // have a TER card between them.
+			   //
+			   bool is_ter = false;
+			   for (int iat=0; iat<n_atoms_1; iat++) {
+			      mmdb::Atom *at = residue_p_1->GetAtom(iat);
+			      if (at->isTer()) {
+				 is_ter = true;
+				 break;
+			      }
 			   }
-			}
-			if (! is_ter) {
-			   clipper::Coord_orth caf(ca_first->x, ca_first->y, ca_first->z);
-			   clipper::Coord_orth  cf( c_first->x,  c_first->y,  c_first->z);
-			   clipper::Coord_orth can( ca_next->x,  ca_next->y,  ca_next->z);
-			   clipper::Coord_orth  nn(  n_next->x,   n_next->y,   n_next->z);
-			   double tors = clipper::Coord_orth::torsion(caf, cf, nn, can);
-			   double torsion = clipper::Util::rad2d(tors);
+			   if (! is_ter) {
+			      clipper::Coord_orth caf(ca_first->x, ca_first->y, ca_first->z);
+			      clipper::Coord_orth  cf( c_first->x,  c_first->y,  c_first->z);
+			      clipper::Coord_orth can( ca_next->x,  ca_next->y,  ca_next->z);
+			      clipper::Coord_orth  nn(  n_next->x,   n_next->y,   n_next->z);
+			      double tors = clipper::Coord_orth::torsion(caf, cf, nn, can);
+			      double torsion = clipper::Util::rad2d(tors);
 
-			   // no flags for C-N distances that are more than 2A apart:
+			      // no flags for C-N distances that are more than 2A apart:
 
-			   double dist = clipper::Coord_orth::length(nn, cf);
+			      double dist = clipper::Coord_orth::length(nn, cf);
 
-			   if (dist <= 2.0) {
+			      if (dist <= 2.0) {
 
-			      // put torsion in the range -180 -> + 180
-			      //
-			      if (torsion > 180.0) torsion -= 360.0;
-			      double d = sqrt((cf - nn).lengthsq());
-			      if (d<3.0) { // the residues were close in space, not just close in sequence
+				 // put torsion in the range -180 -> + 180
+				 //
+				 if (torsion > 180.0) torsion -= 360.0;
+				 double d = sqrt((cf - nn).lengthsq());
+				 if (d<3.0) { // the residues were close in space, not just close in sequence
 
-				 cis_peptide_quad_info_t::type_t type = cis_peptide_quad_info_t::UNSET_TYPE;
+				    cis_peptide_quad_info_t::type_t type = cis_peptide_quad_info_t::UNSET_TYPE;
 
-				 double tors_crit = 90.0;
-				 // cis baddies: -90 to +90
-				 if ( (torsion > -tors_crit) && (torsion < tors_crit)) {
-				    if (is_pre_pro)
-				       type = cis_peptide_quad_info_t::PRE_PRO_CIS;
-				    else
-				       type = cis_peptide_quad_info_t::CIS;
-				 } else {
+				    double tors_crit = 90.0;
+				    // cis baddies: -90 to +90
+				    if ( (torsion > -tors_crit) && (torsion < tors_crit)) {
+				       if (is_pre_pro)
+					  type = cis_peptide_quad_info_t::PRE_PRO_CIS;
+				       else
+					  type = cis_peptide_quad_info_t::CIS;
+				    } else {
 
-				    if (! strictly_cis_flag) {
+				       if (! strictly_cis_flag) {
 
-				       double tors_twist_delta_max = 30.0; // degrees
-				       // baddies: -150 to +150
-				       if ((torsion > (-180+tors_twist_delta_max)) && (torsion < (180-tors_twist_delta_max)))
-					  type = cis_peptide_quad_info_t::TWISTED_TRANS;
+					  double tors_twist_delta_max = 30.0; // degrees
+					  // baddies: -150 to +150
+					  if ((torsion > (-180+tors_twist_delta_max)) && (torsion < (180-tors_twist_delta_max)))
+					     type = cis_peptide_quad_info_t::TWISTED_TRANS;
 
+				       }
 				    }
-				 }
 
-				 if (type != cis_peptide_quad_info_t::UNSET_TYPE) {
-				    atom_quad q(ca_first, c_first, n_next, ca_next);
-				    int i1 = -1, i2 = -1, i3 = -1, i4 = -1;
-				    ca_first->GetUDData(mol_atom_index_handle, i1);
-				    c_first->GetUDData( mol_atom_index_handle, i2);
-				    n_next->GetUDData(  mol_atom_index_handle, i3);
-				    ca_next->GetUDData( mol_atom_index_handle, i4);
-				    atom_index_quad iq(i1, i2, i3, i4);
-				    cis_peptide_quad_info_t qi(q, iq, type);
-				    v.push_back(qi);
+				    if (type != cis_peptide_quad_info_t::UNSET_TYPE) {
+				       atom_quad q(ca_first, c_first, n_next, ca_next);
+				       int i1 = -1, i2 = -1, i3 = -1, i4 = -1;
+				       ca_first->GetUDData(mol_atom_index_handle, i1);
+				       c_first->GetUDData( mol_atom_index_handle, i2);
+				       n_next->GetUDData(  mol_atom_index_handle, i3);
+				       ca_next->GetUDData( mol_atom_index_handle, i4);
+				       atom_index_quad iq(i1, i2, i3, i4);
+				       cis_peptide_quad_info_t qi(q, iq, type);
+				       v.push_back(qi);
+				    }
 				 }
 			      }
 			   }
