@@ -2052,6 +2052,11 @@
 (define (all-residues imol)
   (residues-matching-criteria imol (lambda (chain-id resno ins-code serial) #t)))
 
+;; Return a list of all the residues in the chain
+;; 
+(define (residues-in-chain imol chain-id-in)
+  (residues-matching-criteria imol (lambda (chain-id resno ins-code serial) (string=? chain-id chain-id-in))))
+
   
 ;; Return a list of all residues that have alt confs: where a residue
 ;; is specified thusly: (list chain-id resno ins-code)
