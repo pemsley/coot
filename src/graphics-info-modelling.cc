@@ -2341,6 +2341,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
       }
    } else {
 
+      int resno_added = -1; // was unset
 
       if (terminus_type == "not-terminal-residue") {
 	 std::string s = "That residue was not at a terminus";
@@ -2355,7 +2356,6 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	 std::string residue_type_string = res_type;
 	 int residue_number = res_p->GetSeqNum();  // bleugh.
 	 if (residue_type_string == "auto") {
-	    int resno_added = -1; // was unset
 	    if (terminus_type == "C" || terminus_type == "MC")
 	       resno_added = residue_number + 1;
 	    if (terminus_type == "N" || terminus_type == "MN")
@@ -2523,8 +2523,29 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	       //
 	       if (graphics_info_t::molecules[imol].is_from_shelx_ins()) {
 		  bf = 11.0;
-	       } 
+	       }
+
+	       if (add_terminal_residue_add_other_residue_flag) {
+		  // check that the other residue is not in the molecule before adding
+		  // all of mmol. If it is already in the molecule, remove it from mmol
+		  if (terminus_type == "C" || terminus_type == "MC") {
+		     coot::residue_spec_t other_residue_spec(chain_id, resno_added+1, "");
+		     mmdb::Residue *res_other = graphics_info_t::molecules[imol].get_residue(other_residue_spec);
+		     if (res_other) {
+			mmol[0][other_residue_spec.res_no].atoms.clear();
+		     }
+		  } else {
+		     if (terminus_type == "N" || terminus_type == "NC") {
+			coot::residue_spec_t other_residue_spec(chain_id, resno_added-1, "");
+			mmdb::Residue *res_other = graphics_info_t::molecules[imol].get_residue(other_residue_spec);
+			if (res_other) {
+			   mmol[0][other_residue_spec.res_no].atoms.clear();
+			}
+		     }
+		  }
+	       }
 	       terminal_res_asc.mol = mmol.pcmmdbmanager();
+	       // terminal_res_asc.mol->WritePDBASCII("terminal_res_asc.pdb");
 
 	       int SelHnd = terminal_res_asc.mol->NewSelection();
 	       terminal_res_asc.mol->SelectAtoms(SelHnd, 0, "*",
@@ -2547,20 +2568,14 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	       // residues are part of molecule_class_info_t - so we
 	       // need to make an instance of that class.
 	       //
-// 	       std::cout << "-------------- terminal_res_asc --------" << std::endl;
-// 	       debug_atom_selection_container(terminal_res_asc);
-
-	       // terminal_res_asc.mol->WritePDBASCII("terminal_res_asc.pdb");
-
-	       // atom_selection_container_t tmp_asc = add_cb_to_terminal_res(terminal_res_asc);
 
  	       atom_selection_container_t tmp_asc =
  		  add_side_chain_to_terminal_res(terminal_res_asc, res_type, terminus_type,
 						 add_terminal_residue_add_other_residue_flag);
 
 
-// 	       std::cout << "-------------- tmp_asc --------" << std::endl;
-// 	       debug_atom_selection_container(tmp_asc);
+ 	       // std::cout << "-------------- tmp_asc --------" << std::endl;
+ 	       // debug_atom_selection_container(tmp_asc);
 
 	       // If this is wrong also consider fixing execute_rigid_body_refine()
 	       // 
