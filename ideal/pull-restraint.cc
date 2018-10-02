@@ -23,7 +23,6 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
    }
 
    if (! at) {
-      needs_reset = true; // 20180920-PE for fast restart of refinement - yay!
       for (int iat=0; iat<n_atoms; iat++) { 
 	 atom_spec_t atom_spec(atom[iat]);
 	 if (atom_spec == spec) {
@@ -35,6 +34,8 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
 	 }
       }
    }
+
+   needs_reset = true; // always true makes the refinement smoother for some reason.
    return at;
 }
 

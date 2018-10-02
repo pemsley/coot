@@ -358,6 +358,8 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
    lennard_jones_epsilon = 0.1;
    cryo_em_mode = true;
    n_times_called = 0;
+   m_s = 0;
+   x = 0;
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
    n_threads = 0;
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
@@ -917,9 +919,6 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
    // We get ~1ms/residue with bond and angle terms and no density terms.
 
-   auto tp_0 = std::chrono::high_resolution_clock::now();
-   auto tp_1 = std::chrono::high_resolution_clock::now();
-
    std::vector<refinement_lights_info_t> lights = chi_squareds("--------", m_s->x, false);
 
    int iter = 0; 
@@ -945,7 +944,6 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       gsl_vector *g0;
    }
    conjugate_pr_state_t;
-
    
    do
       {
@@ -965,7 +963,11 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 if (status) {
 	    std::cout << "Unexpected error from gsl_multimin_fdfminimizer_iterate" << std::endl;
 	    if (status == GSL_ENOPROG) {
-	       std::cout << "Error in gsl_multimin_fdfminimizer_iterate was GSL_ENOPROG" << std::endl; 
+	       std::cout << "Error:: in gsl_multimin_fdfminimizer_iterate was GSL_ENOPROG" << std::endl; 
+	       if (false)
+		  std::cout << "Error:: iter: " << iter << " f " << m_s->f << " "
+			    << gsl_multimin_fdfminimizer_minimum(m_s)
+			    << " pnorm " << pnorm << " g0norm " << g0norm << "\n";
 	       lights_vec = chi_squareds("Final Estimated RMS Z Scores", m_s->x);
 	       refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights_vec);
 	       if (worst_of_all.is_set) {
@@ -1023,13 +1025,15 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
    update_atoms(m_s->x); // do OXT here
 
-   auto tp_7 = std::chrono::high_resolution_clock::now();
-
-   // gsl_multimin_fdfminimizer_free(m_s);
-   // gsl_vector_free(x);
-
    // (we don't get here unless restraints were found)
    coot::refinement_results_t rr(1, status, lights_vec);
+
+   if (status != GSL_CONTINUE) {
+      gsl_multimin_fdfminimizer_free(m_s);
+      gsl_vector_free(x);
+      m_s = 0;
+      x = 0;
+   }
 
    // the bottom line from the timing test is the only thing that matters
    // is the time spend in the core minimization iterations
