@@ -996,8 +996,105 @@ molecule_class_info_t::get_term_type(int atom_index) {
 int
 molecule_class_info_t::replace_fragment(atom_selection_container_t asc) {
 
-   bool move_zero_occ = 1;  // or should that be 0?
-   replace_coords(asc, 0, move_zero_occ);  // or should that 0 be 1?
+   if (! asc.mol) return 0;
+
+   bool move_zero_occ = 1;
+
+   // replace an atom if you can, otherwise create a new atom (and a new residue and chain if needed)
+
+   make_backup();
+   for (int i=0; i<asc.n_selected_atoms; i++) {
+      int idx = -1;
+      mmdb::Atom *at = asc.atom_selection[i];
+
+      if (! at->isTer()) {
+	 // can we find the atom with fast indexing?
+	 if (asc.UDDOldAtomIndexHandle >= 0) {
+	    // OK for fast atom indexing
+	    int ref_index = -1;
+	    if (at->GetUDData(asc.UDDOldAtomIndexHandle, ref_index) == mmdb::UDDATA_Ok) {
+	       if (ref_index >= 0) {
+		  if (moving_atom_matches(at, ref_index)) {
+		     idx = ref_index; // yay.
+		  }
+	       }
+	    }
+	 }
+
+	 if (idx == -1) {
+	    idx = full_atom_spec_to_atom_index(coot::atom_spec_t(at));
+	 }
+
+	 if (idx != -1) {
+	    mmdb::Atom *ref_atom = atom_sel.atom_selection[idx];
+	    ref_atom->x = at->x;
+	    ref_atom->y = at->y;
+	    ref_atom->z = at->z;
+
+	 } else {
+
+	    // add the atom
+	    mmdb::Chain *chain_p = get_chain(at->GetChainID());
+	    mmdb::Residue *residue_p = get_residue(coot::residue_spec_t(at));
+
+	    if (! chain_p) {
+	       int imod = 1;
+	       mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+	       if (model_p) {
+		  mmdb::Chain *chain_p = new mmdb::Chain;
+		  chain_p->SetChainID(at->GetChainID());
+		  residue_p = new mmdb::Residue;
+		  residue_p->seqNum = at->GetSeqNum();
+		  residue_p->SetResName(at->residue->GetResName());
+		  chain_p->AddResidue(residue_p);
+		  model_p->AddChain(chain_p);
+                  atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+		  atom_sel.mol->FinishStructEdit();
+	       }
+	    } else {
+	       if (residue_p) {
+		  // std::cout << "   ======= found the residue " << std::endl;
+	       } else {
+		  residue_p = new mmdb::Residue;
+		  residue_p->SetResID(at->residue->GetResName(), at->residue->seqNum, at->residue->insCode);
+		  int res_no = at->GetSeqNum();
+		  std::string ins_code(at->GetInsCode());
+		  std::pair<int, mmdb::Residue *> sn =
+		     find_serial_number_for_insert(res_no, ins_code, chain_p->GetChainID());
+
+		  if (sn.first != -1) { // normal insert
+
+		     int n_residues_before = chain_p->GetNumberOfResidues();
+		     int n_chain_residues = chain_p->InsResidue(residue_p, sn.first);
+		     mmdb::Residue *res_after_p = get_residue(coot::residue_spec_t(at));
+
+		  } else {
+		     chain_p->AddResidue(residue_p);
+		     atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);// needed?
+		     atom_sel.mol->FinishStructEdit();
+		  }
+	       }
+	    }
+
+	    if (residue_p) {
+	       mmdb::Atom *at_copy(at);
+	       residue_p->AddAtom(at_copy);
+	       // residue_p->TrimAtomTable();
+	    }
+	 }
+      }
+   }
+
+   atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
+   atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);// needed?
+   coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
+   atom_sel.mol->FinishStructEdit();
+
+   atom_sel = make_asc(atom_sel.mol);
+   have_unsaved_changes_flag = 1;
+   if (show_symmetry)
+      update_symmetry();
+   make_bonds_type_checked();
    return 1;
 }
 
