@@ -2687,9 +2687,8 @@ coot::util::get_residue(const std::string &chain_id,
 	    std::string mol_chain(chain_p->GetChainID());
 	    if (mol_chain == chain_id) {
 	       int nres = chain_p->GetNumberOfResidues();
-	       mmdb::Residue *residue_p;
 	       for (int ires=0; ires<nres; ires++) { // ires is a serial number
-		  residue_p = chain_p->GetResidue(ires);
+		  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
 		  if (residue_p->GetSeqNum() == reso) {
 		     std::string ins_code(residue_p->GetInsCode());
 		     if (insertion_code == ins_code) {

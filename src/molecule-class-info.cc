@@ -4215,11 +4215,10 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
 
    if (nSelAtoms == 0) { 
 
-      std::cout << "Sorry (full_atom_spec_to_atom_index) Could not find "
+      std::cout << "WARNING:: full_atom_spec_to_atom_index() Could not find "
 		<< "\"" << atom_name << "\"," << "\"" << alt_conf  << "\"" << "/"
 		<< resno << insertion_code << "/" << chain << " in this molecule: ("
 		<<  imol_no << ") " << name_ << std::endl; 
-
       
       int selHnd2 = atom_sel.mol->NewSelection(); // d
       
@@ -4234,15 +4233,16 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
 
       atom_sel.mol->GetSelIndex(selHnd2, local_SelAtom, nSelAtoms);
 
-      std::cout << "There were " << nSelAtoms << " atoms in that residue:\n";
-
-      std::cout << "debgu:: resno " << resno << " vs MinInt4" << mmdb::MinInt4 << "\n";
-      
-      if (resno == mmdb::MinInt4) {
-	 std::cout << "      residue with resno MinInt4\n";
-      } else { 
-	 for (int i=0; i<nSelAtoms; i++) { 
-	    std::cout << "      " << local_SelAtom[i] << "\n";
+      if (false) { // debugging.
+	 std::cout << "There were " << nSelAtoms << " atoms in that residue:\n";
+	 std::cout << "debgu:: full_atom_spec_to_atom_index() resno " << resno
+		   << " (cf MinInt4) " << mmdb::MinInt4 << "\n";
+	 if (resno == mmdb::MinInt4) {
+	    std::cout << "      residue with resno MinInt4\n";
+	 } else { 
+	    for (int i=0; i<nSelAtoms; i++) { 
+	       std::cout << "      " << local_SelAtom[i] << "\n";
+	    }
 	 }
       }
 
@@ -4441,7 +4441,7 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
    make_backup();
 
    // debug::
-   if (false) { 
+   if (false) {
       std::cout << "DEBUG:: --------------- replace_coords replacing "
 		<< asc.n_selected_atoms << " atoms " << std::endl;
       for (int i=0; i<asc.n_selected_atoms; i++) {
