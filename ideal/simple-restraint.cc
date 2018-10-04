@@ -845,6 +845,11 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags) {
 void
 coot::restraints_container_t::setup_minimize() {
 
+  if (m_s)
+      gsl_multimin_fdfminimizer_free(m_s);
+   if (x)
+      gsl_vector_free(x);
+
    // T = gsl_multimin_fdfminimizer_conjugate_fr; // not as good as pr
    // T = gsl_multimin_fdfminimizer_steepest_descent; // pathetic
    // T = gsl_multimin_fminimizer_nmsimplex; // you can't just drop this in,
