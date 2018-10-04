@@ -931,12 +931,18 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
    try {
       std::string group_1 = geom.get_group(first);
       std::string group_2 = geom.get_group(second);
+      if (group_1 == "DNA") group_1 = "DNA/RNA";
+      if (group_1 == "RNA") group_1 = "DNA/RNA";
+      if (group_2 == "DNA") group_2 = "DNA/RNA";
+      if (group_2 == "RNA") group_2 = "DNA/RNA";
       if (debug)
 	 std::cout << "====== DEBUG:: find_link_type_complicado() from "
 		   << first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetResName()
-		   << " <--> " 
+		   << " <--> "
 		   << second->GetChainID() << " " << second->GetSeqNum() << " " << second->GetResName()
-		   << " " << std::endl;
+		   << " \"" << comp_id_1 << "\" \"" << group_1 << "\" \"" << comp_id_2 << "\" \""
+		   << group_2 << "\"" << std::endl;
+
       try {
 	 std::vector<std::pair<coot::chem_link, bool> > link_infos =
 	    geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
@@ -967,7 +973,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 	 // 
 	 for (unsigned int ilink=0; ilink<link_infos.size(); ilink++) {
 
-	    if (false)
+	    if (debug)
 	       std::cout << "   DEBUG:: LINKS:: for-loop testing ilink " << ilink << " "
 			 << link_infos[ilink].first << " bool: " << link_infos[ilink].second
 			 << std::endl;
@@ -1050,8 +1056,12 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 		  // returns "" if no link found
 		  // second is the order switch flag;
 		  // 
-		  std::pair<std::string, bool> non_peptide_close_link_info = 
+		  std::pair<std::string, bool> non_peptide_close_link_info =
 		     general_link_find_close_link(link_infos_non_peptide, first, second, order_switch_flag, geom);
+		  std::cout << "---- general_link_find_close_link() "
+			    << non_peptide_close_link_info.first << " "
+			    << non_peptide_close_link_info.second << std::endl;
+
 		  if (non_peptide_close_link_info.first != "") {
 		     link_type = non_peptide_close_link_info.first;
 		     order_switch_flag = non_peptide_close_link_info.second;
