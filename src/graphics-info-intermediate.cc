@@ -227,14 +227,21 @@ graphics_info_t::cis_trans_conversion_intermediate_atoms() {
 
 	       mmdb::Manager *standard_residues_mol = standard_residues_asc.mol;
 	       mmdb::Manager *mol = moving_atoms_asc->mol;
+
+	       // tell the refinement to stop, wait for it to stop, move the atoms and then restart
+
+	       continue_threaded_refinement_loop = false;
+	       while(threaded_refinement_is_running == true) {
+		  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	       }
+
 	       int s = coot::util::cis_trans_conversion(at_close, is_N_flag, mol, standard_residues_mol);
 	       state = true; // we found intermedate atoms and tried to convert them
 
 	       // the atoms have moved, we need to continue the refinement.
 
-	       // drag_refine_refine_intermediate_atoms();
-
-	       graphics_draw(); // needed
+	       refinement_of_last_restraints_needs_reset(); // maybe not needed.
+	       thread_for_refinement_loop_threaded();
 
 	    }
 	 }

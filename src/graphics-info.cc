@@ -1645,8 +1645,9 @@ graphics_info_t::clear_up_moving_atoms() {
 
    bool unlocked = false;
    while (! graphics_info_t::threaded_refinement_is_running.compare_exchange_weak(unlocked, true)) {
-      // std::cout << "oops graphics_info_t::clear_up_moving_atoms() - refinement_is_running locked on " << std::endl;
-      std::this_thread::sleep_for(std::chrono::microseconds(50));  // make this smaller in production
+      std::cout << "WARNING:: graphics_info_t::clear_up_moving_atoms() - refinement_is_running locked on "
+                << std::endl;
+      std::this_thread::sleep_for(std::chrono::microseconds(250));
       unlocked = false;
    }
 

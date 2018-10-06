@@ -2380,7 +2380,11 @@ on_accept_reject_refinement_accept_button_clicked (GtkButton       *button,
 {
   GtkWidget *window = lookup_widget(GTK_WIDGET(button),
 				    "accept_reject_refinement_dialog");
-  accept_regularizement();
+
+  /* Pressing Return while focus is on the Accept/Reject dialog brings us here. */
+
+  stop_refinement_internal();
+  accept_moving_atoms();
   save_accept_reject_dialog_window_position(window);
   set_accept_reject_dialog(NULL);
   gtk_widget_destroy(window);
@@ -2406,12 +2410,16 @@ on_accept_reject_refinement_dialog_destroy
                                         gpointer         user_data)
 {
 
+  /* Pressing Esc while focus is on the Accept/Reject dialog brings us here. */
+
   /* 20070801 To Fix a crash reported by "Gajiwala, Ketan", we need to
      reset the value for graphics_info_t::accept_reject_dialog (it's
      gone now).  And I suppose that we should clean up (and undisplay)
      the intermediate atoms too.
  */
+
   set_accept_reject_dialog(NULL);
+  stop_refinement_internal();
   /* I want to merely clear the stick restraint, not refine again after I did that */
   clear_atom_pull_restraint_on_accept_reject_destroy();
   clear_up_moving_atoms();
