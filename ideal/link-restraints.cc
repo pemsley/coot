@@ -1058,9 +1058,10 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 		  // 
 		  std::pair<std::string, bool> non_peptide_close_link_info =
 		     general_link_find_close_link(link_infos_non_peptide, first, second, order_switch_flag, geom);
-		  std::cout << "---- general_link_find_close_link() "
-			    << non_peptide_close_link_info.first << " "
-			    << non_peptide_close_link_info.second << std::endl;
+                  if (false)
+		     std::cout << "---- general_link_find_close_link() "
+			       << non_peptide_close_link_info.first << " "
+			       << non_peptide_close_link_info.second << std::endl;
 
 		  if (non_peptide_close_link_info.first != "") {
 		     link_type = non_peptide_close_link_info.first;
