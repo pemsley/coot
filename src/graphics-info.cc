@@ -1648,7 +1648,7 @@ graphics_info_t::clear_up_moving_atoms() {
    while (! graphics_info_t::threaded_refinement_is_running.compare_exchange_weak(unlocked, true)) {
       std::cout << "WARNING:: graphics_info_t::clear_up_moving_atoms() - refinement_is_running locked on "
                 << std::endl;
-      std::this_thread::sleep_for(std::chrono::microseconds(250));
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
       unlocked = false;
    }
 
@@ -1774,13 +1774,14 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 						   const atom_selection_container_t &asc) {
 
    if (! moving_atoms_asc) {
+      std::cout << "info:: make_moving_atoms_graphics_object() makes a new moving_atoms_asc" << std::endl;
       moving_atoms_asc = new atom_selection_container_t;
    } else { 
       // moving_atoms_asc->clear_up(); // crash.  Much complexity to fix the crash, I think.
       // i.e. the clear_up() should be here - I think the problem lies elsewhere.
       // Not clearing up here produces a memory leak, I think (not a bad one (for some reason!)).
    } 
-   
+
    *moving_atoms_asc = asc;
 
    int do_disulphide_flag = 0;
