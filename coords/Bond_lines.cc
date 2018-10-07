@@ -5560,9 +5560,11 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
 	 graphical_bonds_atom_info_t p(coot::Cartesian(SelAtom.atom_selection[i]->x,
 						       SelAtom.atom_selection[i]->y,
 						       SelAtom.atom_selection[i]->z), i, is_H_flag);
-	 p.atom_p = SelAtom.atom_selection[i];
-	 atom_centres.push_back(p);
-	 atom_centres_colour.push_back(atom_colour(SelAtom.atom_selection[i], atom_colour_type));
+         if (no_bonds_to_these_atoms.find(i) == no_bonds_to_these_atoms.end()) {
+	       p.atom_p = SelAtom.atom_selection[i];
+	       atom_centres.push_back(p);
+	       atom_centres_colour.push_back(atom_colour(SelAtom.atom_selection[i], atom_colour_type));
+         }
       }
    }
 }
