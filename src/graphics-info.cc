@@ -1461,9 +1461,10 @@ graphics_info_t::accept_moving_atoms() {
    have_fixed_points_sheared_drag_flag = 0;
    in_edit_chi_mode_view_rotate_mode = 0;
 
-   if (do_coot_probe_dots_during_refine_flag) {
+   // Why do I want to do this when the intermediate atoms are undisplayed?
+   // To *clear up* the interactive probe dots.
+   if (do_coot_probe_dots_during_refine_flag)
       do_interactive_coot_probe();
-   }
 
    int mode = MOVINGATOMS;
    run_post_manipulation_hook(imol_moving_atoms, mode);
@@ -1868,10 +1869,9 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 		   << std::endl;
 	 return;
       }
+
       moving_atoms_bonds_lock = true; // I've got the lock.
    
-      // std::cout << "draw_moving_atoms_graphics_object() " << std::endl;
-
       if (against_a_dark_background) {
 	 // now we want to draw out our bonds in white, 
 	 glColor3f (0.9, 0.9, 0.9);
@@ -1880,6 +1880,8 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
       }
 
       float bw = graphics_info_t::bond_thickness_intermediate_atoms;
+      float current_bond_width = bw;
+      glLineWidth(bw);
       for (int i=0; i< graphics_info_t::regularize_object_bonds_box.num_colours; i++) {
 
 	 switch(i) {
@@ -1901,10 +1903,14 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 	 // std::cout << "   debug colour ii = " << i << " has  "
 	 // << regularize_object_bonds_box.bonds_[i].num_lines << " lines" << std::endl;
 
-	 if (ll.thin_lines_flag)
-	    glLineWidth(bw * 0.5);
-	 else 
-	    glLineWidth(bw); // is this slow?
+         float new_bond_width = bw;
+         if (ll.thin_lines_flag)
+            new_bond_width = bw * 0.5;
+
+         if (new_bond_width != current_bond_width) {
+	    glLineWidth(new_bond_width);
+            current_bond_width = new_bond_width;
+         }
 
 	 glBegin(GL_LINES); 
 	 for (int j=0; j< regularize_object_bonds_box.bonds_[i].num_lines; j++) {
@@ -1934,6 +1940,11 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 void
 graphics_info_t::draw_moving_atoms_atoms(bool against_a_dark_background) {
 
+   if (false)
+      std::cout << "draw_moving_atoms_atoms() " << regularize_object_bonds_box.atom_centres_
+	        << std::endl;
+
+   // This is a pointer. Is that what I want to be testing?
    if (regularize_object_bonds_box.atom_centres_) {
 
       coot::Cartesian front = unproject(0.0);
@@ -1941,7 +1952,15 @@ graphics_info_t::draw_moving_atoms_atoms(bool against_a_dark_background) {
       coot::Cartesian z_delta = (front - back) * 0.003;
 
       glBegin(GL_POINTS);
-      glPointSize(700.0/zoom);
+      // glPointSize(700.0/zoom);
+      // glPointSize(2);
+
+      float zsc = graphics_info_t::zoom;
+      glPointSize(560.0/zsc);
+
+      // GLdouble point_size_data[2];
+      // glGetDoublev(GL_POINT_SIZE_RANGE, point_size_data);
+      // std::cout << "Point size range " << point_size_data[0] << " " << point_size_data[1] << std::endl;
 
       for (int icol=0; icol<regularize_object_bonds_box.n_consolidated_atom_centres; icol++) {
 

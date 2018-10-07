@@ -2410,10 +2410,6 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 							   bool against_a_dark_background) {
    bool display_it = display_stick_mode_atoms_flag;
 
-   // this causes flashes
-   if (graphics_info_t::moving_atoms_displayed_p())
-      display_it = false;
-
    if (display_it) {
 
       if (bonds_box.atom_centres_) { 
