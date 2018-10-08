@@ -866,6 +866,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
             	                                                   // link and flank args default true
 
 	       last_restraints->set_geman_mcclure_alpha(geman_mcclure_alpha);
+               last_restraints->set_lennard_jones_epsilon(graphics_info_t::lennard_jones_epsilon);
                last_restraints->set_rama_type(restraints_rama_type);
                last_restraints->set_rama_plot_weight(rama_restraints_weight); // >2? danger of non-convergence
 
