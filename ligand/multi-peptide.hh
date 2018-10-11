@@ -138,7 +138,7 @@ namespace coot {
 				 bool with_sidechains=false);
 
       // this can't be started with an std::async because it isn't guaranteed to run.
-      // So now we start it with a std::thread, and use thread.join.
+      // So now we start it with a std::thread, and use thread.join().
       //
       static void store_manager(stored_fragment_container_t &fragment_store,
 				std::atomic<unsigned int> &store_lock, // as above
