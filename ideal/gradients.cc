@@ -88,15 +88,6 @@ coot::numerical_gradients(gsl_vector *v,
       std::cout << "\n";
    }
 
-   std::ofstream f;
-   if (! file_exists(gradients_file_name)) {
-      if (! gradients_file_name.empty()) {
-         f = std::ofstream(gradients_file_name.c_str());
-      }
-   } else {
-      std::cout << " gradients file " << gradients_file_name << " already exists" << std::endl;
-   }
-
    for (unsigned int i=0; i<v->size; i++) { 
 
       int iat = i/3; // if iat is a fixed atom, then we shouldn't generate val
@@ -136,19 +127,43 @@ coot::numerical_gradients(gsl_vector *v,
       // gsl_vector_set(df, i, val);
    }
 
-   for (unsigned int i=0; i<v->size; i++) {
-      if (gradients_file_name.empty()) {
-         std::cout << std::setw(3) << i << " analytical: "
-		   << std::setw(9) << std::right << std::setprecision(5) << std::fixed << analytical_derivs[i]
-		   << " numerical: "
-		   << std::setw(9) << std::setprecision(5) << std::fixed << numerical_derivs[i] << "\n";
-      } else {
-         f << std::setw(3) << i << " analytical: "
-	   << std::setw(9) << std::right << std::setprecision(5) << std::fixed << analytical_derivs[i]
-	   << " numerical: "
-	   << std::setw(9) << std::setprecision(5) << std::fixed << numerical_derivs[i] << "\n";
+   bool done_by_file = false;
+   if (! gradients_file_name.empty()) {
+      done_by_file = true;
+      if (! file_exists(gradients_file_name)) {
+	 /*
+
+	   commented because compilation error:
+
+           /usr/include/c++/4.8.2/fstream:599:11: note: 'std::basic_ofstream<char>::basic_ofstream(const std::basic_ofstream<char>&)' is implicitly deleted because the default definition would be ill-formed:
+           class basic_ofstream : public basic_ostream<_CharT,_Traits>
+           ^
+
+	 std::ofstream f = std::ofstream(gradients_file_name.c_str());
+	 for (unsigned int i=0; i<v->size; i++) {
+	    f << std::setw(3) << i << " analytical: "
+	      << std::setw(9) << std::right << std::setprecision(5) << std::fixed << analytical_derivs[i]
+	      << " numerical: "
+	      << std::setw(9) << std::setprecision(5) << std::fixed << numerical_derivs[i] << "\n";
+	      }
+         */
+      }
+   } else {
+      std::cout << "WARNING:: gradients file " << gradients_file_name << " already exists" << std::endl;
+   }
+
+   if (!done_by_file) {
+      // print it to the screen then
+      for (unsigned int i=0; i<v->size; i++) {
+	 if (gradients_file_name.empty()) {
+	    std::cout << std::setw(3) << i << " analytical: "
+		      << std::setw(9) << std::right << std::setprecision(5) << std::fixed << analytical_derivs[i]
+		      << " numerical: "
+		      << std::setw(9) << std::setprecision(5) << std::fixed << numerical_derivs[i] << "\n";
+	 }
       }
    }
+
    
 } // Note to self: try 5 atoms and doctor the .rst file if necessary.
   // Comment out the bond gradients.
