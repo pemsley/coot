@@ -916,8 +916,11 @@ namespace coot {
    
    // debugging function.
    // v needs to be non-const, because gsl_vector_set().
+   // if gradients_file_name is not of length 0, then
+   // write the gradients to the given file and not to the screen.
    void 
-   numerical_gradients(gsl_vector *v, void *params, gsl_vector *df);
+   numerical_gradients(gsl_vector *v, void *params, gsl_vector *df,
+                       std::string file_name=std::string());
    
    // non-refinement function: just checking geometry:
    // 

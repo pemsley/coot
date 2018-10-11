@@ -10,13 +10,15 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
 
    // 20180217 now we replace the target position if we can, rather than delete and add.
 
-   // clear_atom_pull_restraint(spec);  // clear old ones 20180217, no longer
    std::vector<simple_restraint>::iterator it;
    for (it=restraints_vec.begin(); it!=restraints_vec.end(); it++) {
       if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
 	 if (it->atom_spec == spec) {
 	    at = atom[it->atom_index_1];
 	    it->atom_pull_target_pos = pos;
+            if (false) // debugging
+               std::cout << "add_atom_pull_restraint() update position for " << it->atom_index_1 << " "
+                         << atom_spec_t(at) << " " << pos.format() << "\n";
 	    break;
 	 }
       }
@@ -44,9 +46,11 @@ void
 coot::restraints_container_t::add_target_position_restraint(int idx, const atom_spec_t &spec,
 							    clipper::Coord_orth &target_pos) {
 
-   // who calls this function?
-
    simple_restraint r(TARGET_POS_RESTRAINT, idx, spec, target_pos);
+
+   if (false) // debug
+      std::cout << "add_target_position_restraint() for " << idx << " "
+                << spec << target_pos.format() << "\n";
    restraints_vec.push_back(r);
    post_add_new_restraint();
    needs_reset = true;

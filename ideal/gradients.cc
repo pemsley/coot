@@ -46,9 +46,10 @@
 void
 coot::numerical_gradients(gsl_vector *v,
 			  void *params, 
-			  gsl_vector *df) {
+			  gsl_vector *df,
+                          std::string gradients_file_name) {
 
-   // Not that (at present) user-only fixed atoms re removed from numerical gradient calculations,
+   // Note that (at present) user-only fixed atoms re removed from numerical gradient calculations,
    // Other fixed atom (in flanking residues) continue to have numerical gradients calculated for them.
    // This is confusing and undesirable.
    // What are the flanking residues?
@@ -85,6 +86,15 @@ coot::numerical_gradients(gsl_vector *v,
       for (std::size_t ii=0; ii<restraints->fixed_atom_indices.size(); ii++)
 	 std::cout << " " << restraints->fixed_atom_indices[ii];
       std::cout << "\n";
+   }
+
+   std::ofstream f;
+   if (! file_exists(gradients_file_name)) {
+      if (! gradients_file_name.empty()) {
+         f = std::ofstream(gradients_file_name.c_str());
+      }
+   } else {
+      std::cout << " gradients file " << gradients_file_name << " already exists" << std::endl;
    }
 
    for (unsigned int i=0; i<v->size; i++) { 
@@ -127,10 +137,17 @@ coot::numerical_gradients(gsl_vector *v,
    }
 
    for (unsigned int i=0; i<v->size; i++) {
-      std::cout << std::setw(3) << i << " analytical: "
-		<< std::setw(9) << std::right << std::setprecision(5) << std::fixed << analytical_derivs[i]
-		<< " numerical: "
-		<< std::setw(9) << std::setprecision(5) << std::fixed << numerical_derivs[i] << "\n";
+      if (gradients_file_name.empty()) {
+         std::cout << std::setw(3) << i << " analytical: "
+		   << std::setw(9) << std::right << std::setprecision(5) << std::fixed << analytical_derivs[i]
+		   << " numerical: "
+		   << std::setw(9) << std::setprecision(5) << std::fixed << numerical_derivs[i] << "\n";
+      } else {
+         f << std::setw(3) << i << " analytical: "
+	   << std::setw(9) << std::right << std::setprecision(5) << std::fixed << analytical_derivs[i]
+	   << " numerical: "
+	   << std::setw(9) << std::setprecision(5) << std::fixed << numerical_derivs[i] << "\n";
+      }
    }
    
 } // Note to self: try 5 atoms and doctor the .rst file if necessary.

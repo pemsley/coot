@@ -988,10 +988,17 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 		  }
 	       }
 	    }
+	    if (status == GSL_ENOPROG) {
+               std::cout << "----------------------- FAIL ------------------ " << std::endl;
+               gsl_vector *non_const_v = const_cast<gsl_vector *> (m_s->x); // because there we use gls_vector_set()
+               void *params = static_cast<void *>(this);
+               numerical_gradients(non_const_v, params, m_s->gradient, "failed-gradients.tab");
+            }
 	    break;
 	 }
 
-	 status = gsl_multimin_test_gradient (m_s->gradient, m_grad_lim);
+         // if (status == GSL_CONTINUE), OK, so what *is* the status for normal refinement?
+         status = gsl_multimin_test_gradient(m_s->gradient, m_grad_lim);
 
 	 if (status == GSL_SUCCESS) {
 	    if (verbose_geometry_reporting != QUIET) { 
@@ -1028,7 +1035,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       }
    }
 
-   update_atoms(m_s->x); // do OXT here
+   update_atoms(m_s->x);
 
    // (we don't get here unless restraints were found)
    coot::refinement_results_t rr(1, status, lights_vec);

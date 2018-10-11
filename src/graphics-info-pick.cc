@@ -695,16 +695,23 @@ graphics_info_t::move_atom_pull_target_position(int screen_x, int screen_y) {
 		<< coot::co(at).format() << " to " << current_mouse_real_world
 		<< std::endl;
 
+   continue_threaded_refinement_loop = false;
+   while(threaded_refinement_is_running == true) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(2)); // not sure about the delay
+   }
+
    // add to or replace in atom_pulls (for representation)
    add_or_replace_current(atom_pull_local);
    //
    last_restraints->add_atom_pull_restraint(atom_pull_local.spec, c_pos);
+   thread_for_refinement_loop_threaded();
    graphics_draw();  // needed
 }
 
 void graphics_info_t::add_or_replace_current(const atom_pull_info_t &atom_pull_in) {
 
    bool done = false;
+
    std::vector<atom_pull_info_t>::iterator it;
    for(it=atom_pulls.begin(); it!=atom_pulls.end(); it++) {
       if (it->spec == atom_pull_in.spec) {
@@ -719,6 +726,7 @@ void graphics_info_t::add_or_replace_current(const atom_pull_info_t &atom_pull_i
       // std::cout << "Adding to atom_pulls: " << atom_pull_in.spec << " " << atom_pull_in.pos.format() << std::endl;
       atom_pulls.push_back(atom_pull_in);
    }
+
 }
 
 void
