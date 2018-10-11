@@ -4677,11 +4677,11 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 
 
 void
-graphics_info_t::tabulate_geometric_distortions(const coot::restraints_container_t &restraints,
+graphics_info_t::tabulate_geometric_distortions(coot::restraints_container_t &restraints,
 						coot::restraint_usage_Flags flags) const {
 
    // coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS; // is passed now
-   coot::restraints_container_t rr = restraints;;
+   coot::restraints_container_t &rr = restraints;
 
    coot::geometry_distortion_info_container_t gdic = rr.geometric_distortions(flags);
 

@@ -147,6 +147,12 @@ graphics_info_t::backrub_rotamer_intermediate_atoms() {
 		     coot::backrub br(chain_id, this_res, prev_res, next_res, alt_conf, mol,
 				      molecules[imol_map].xmap);
 		     std::pair<coot::minimol::molecule,float> m = br.search(rest);
+
+		     continue_threaded_refinement_loop = false;
+		     while(threaded_refinement_is_running == true) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		     }
+
 		     update_moving_atoms_from_molecule_atoms(m.first);
 		     state = true;
 

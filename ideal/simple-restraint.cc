@@ -845,7 +845,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags) {
 void
 coot::restraints_container_t::setup_minimize() {
 
-  if (m_s)
+   if (m_s)
       gsl_multimin_fdfminimizer_free(m_s);
    if (x)
       gsl_vector_free(x);
@@ -890,6 +890,7 @@ coot::refinement_results_t
 coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags, 
 				       int nsteps_max,
 				       short int print_initial_chi_sq_flag) {
+
    n_times_called++;
    if (n_times_called == 1 || needs_reset)
       setup_minimize();
@@ -949,30 +950,47 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       gsl_vector *g0;
    }
    conjugate_pr_state_t;
-   
+
    do
       {
 	 iter++;
+
+	 // we should not update the atom pull restraints while the refinement is running.
+	 // we shouldn't refine when the atom pull restraints are being updated.
+
+#ifdef HAVE_CXX_THREAD
+	 bool unlocked = false;
+	 while (! atom_pull_restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+	    std::this_thread::sleep_for(std::chrono::microseconds(10));
+	    unlocked = false;
+	 }
+#endif
 	 status = gsl_multimin_fdfminimizer_iterate(m_s);
 
+#ifdef HAVE_CXX_THREAD
+	 atom_pull_restraints_lock = false; // unlock
+#endif
 	 // this might be useful for debugging rama restraints
 
 	 conjugate_pr_state_t *state = (conjugate_pr_state_t *) m_s->state;
 	 double pnorm = state->pnorm;
 	 double g0norm = state->g0norm;
-	 // 
+	 //
 	 if (false)
 	    std::cout << "iter: " << iter << " f " << m_s->f << " " << gsl_multimin_fdfminimizer_minimum(m_s)
 		      << " pnorm " << pnorm << " g0norm " << g0norm << std::endl;
 
 	 if (status) {
-	    std::cout << "Unexpected error from gsl_multimin_fdfminimizer_iterate" << std::endl;
+	    std::cout << "Unexpected error from gsl_multimin_fdfminimizer_iterate at iter " << iter << std::endl;
 	    if (status == GSL_ENOPROG) {
 	       std::cout << "Error:: in gsl_multimin_fdfminimizer_iterate was GSL_ENOPROG" << std::endl; 
-	       if (false)
+	       if (true)
 		  std::cout << "Error:: iter: " << iter << " f " << m_s->f << " "
 			    << gsl_multimin_fdfminimizer_minimum(m_s)
 			    << " pnorm " << pnorm << " g0norm " << g0norm << "\n";
+
+	       // write out gradients here - with numerical gradients for comparison
+
 	       lights_vec = chi_squareds("Final Estimated RMS Z Scores", m_s->x);
 	       refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights_vec);
 	       if (worst_of_all.is_set) {
@@ -991,7 +1009,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	    break;
 	 }
 
-	 status = gsl_multimin_test_gradient (m_s->gradient, m_grad_lim);
+	 status = gsl_multimin_test_gradient(m_s->gradient, m_grad_lim);
 
 	 if (status == GSL_SUCCESS) {
 	    if (verbose_geometry_reporting != QUIET) { 
@@ -1003,7 +1021,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 if (status == GSL_SUCCESS || status == GSL_ENOPROG) {
 	    std::string title = "Final Estimated RMS Z Scores:";
 	    if (status == GSL_ENOPROG)
-	       title = "(No Progress) Final Estimated RMS Z Scores:";
+	       title = "(No Progress on test_gradient) Final Estimated RMS Z Scores:";
 	    std::vector<coot::refinement_lights_info_t> results = chi_squareds(title, m_s->x);
 	    lights_vec = results;
 	    done_final_chi_squares = true;
@@ -1027,6 +1045,10 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 }
       }
    }
+
+   if (false) // this is probably useful in some cases.
+      if (iter == nsteps_max)
+      std::cout << "Hit nsteps_max " << nsteps_max << " " << m_s->f << std::endl;
 
    update_atoms(m_s->x); // do OXT here
 
@@ -1305,6 +1327,10 @@ std::vector<coot::refinement_lights_info_t>
 coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *v, bool print_table_flag) const {
 
    bool print_summary = print_table_flag;
+
+   if (!v) {
+      std::cout << "ERROR:: oops null v in chi_squareds()" << std::endl;
+   }
    if (verbose_geometry_reporting == QUIET) print_summary = false;
    
    std::vector<refinement_lights_info_t> lights_vec;

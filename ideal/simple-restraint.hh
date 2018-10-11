@@ -267,8 +267,8 @@ namespace coot {
    
    class simple_restraint {
 
-   public: 
-   
+   public:
+
       int atom_index_1, atom_index_2, atom_index_3, atom_index_4, atom_index_5, atom_index_6;
       int atom_index_centre;
       // index and weight
@@ -301,8 +301,12 @@ namespace coot {
       enum nbc_function_t { LENNARD_JONES, HARMONIC};
       nbc_function_t nbc_function;
 
+#ifdef HAVE_CXX_THREAD
       // allocator for geometry_distortion_info_t
-      simple_restraint() { is_user_defined_restraint = 0; }
+      simple_restraint() {
+	 is_user_defined_restraint = 0;
+      }
+#endif // HAVE_CXX_THREAD
 
       // Bond
       simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2, 
@@ -1039,6 +1043,7 @@ namespace coot {
 	 rama_plot_weight = 40.0;
 
 #ifdef HAVE_CXX_THREAD
+	 atom_pull_restraints_lock = false; // not locked
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 	 thread_pool_p = 0; // null pointer
 	 if (unset_deriv_locks)
@@ -2041,6 +2046,10 @@ namespace coot {
       // has in mind?
       //
       std::shared_ptr<std::atomic<unsigned int> > gsl_vector_atom_pos_deriv_locks;
+
+      // we should not update the atom pull restraints while the refinement is running.
+      // we shouldn't refine when the atom pull restraints are being updated.
+      std::atomic<bool> atom_pull_restraints_lock;
 #endif
       void setup_gsl_vector_atom_pos_deriv_locks();
       unsigned int get_n_atoms() const { return n_atoms; } // access from split_the_gradients_with_threads()

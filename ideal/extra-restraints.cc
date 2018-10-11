@@ -313,8 +313,8 @@ coot::restraints_container_t::add_extra_restraints(int imol,
 
 
    if (true) {
-      std::cout << "--------------------- in add_extra_restraints() restraints_vec size() "
-		<< restraints_vec.size() << " extra bond restraints "
+      std::cout << "--------------------- in add_extra_restraints() "
+		<< restraints_vec.size() << " standard restraints "
 		<< std::endl;
       std::cout << "--------------------- in add_extra_restraints() "
 		<< extra_restraints.bond_restraints.size() << " extra bond restraints "
