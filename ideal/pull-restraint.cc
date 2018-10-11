@@ -10,7 +10,7 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
 
    // 20180217 now we replace the target position if we can, rather than delete and add.
 
-      std::vector<simple_restraint>::iterator it;
+   std::vector<simple_restraint>::iterator it;
    for (it=restraints_vec.begin(); it!=restraints_vec.end(); it++) {
       if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
 	 if (it->atom_spec == spec) {
@@ -24,6 +24,9 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
 	    }
 	    it->atom_pull_target_pos = pos;
 	    atom_pull_restraints_lock = 0; // unlocked
+            if (false) // debugging
+               std::cout << "add_atom_pull_restraint() update position for " << it->atom_index_1 << " "
+                         << atom_spec_t(at) << " " << pos.format() << "\n";
 	    break;
 	 }
       }
@@ -55,23 +58,22 @@ coot::restraints_container_t::add_target_position_restraint(int idx, const atom_
 
 #ifdef HAVE_CXX_THREAD
    // wait until you get the lock
-   std::cout << "obtaining pull restraints lock in add_target_position_restraint()" << std::endl;
    bool unlocked = false;
    while (! atom_pull_restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
-      std::cout << "waiting in add_target_position_restraint()" << std::endl;
+      // std::cout << "waiting in add_target_position_restraint()" << std::endl;
       std::this_thread::sleep_for(std::chrono::milliseconds(1000));
       unlocked = false;
    }
-   std::cout << "locked! in add_target_position_restraint() " << atom_pull_restraints_lock << std::endl;
-#endif // HAVE_CXX_THREAD
+
+   if (false) // debug
+      std::cout << "add_target_position_restraint() for " << idx << " "
+                << spec << target_pos.format() << "\n";
+
    restraints_vec.push_back(r);
-#ifdef HAVE_CXX_THREAD
    post_add_new_restraint();  // adds new restraint to one of the vectors of the restraint indices
-   std::cout << "          unset atom pull lock in add_target_position_restraint()" << std::endl;
    atom_pull_restraints_lock = false; // unlock
-   std::cout << "     ---- lock value in add_target_position_restraint() " << atom_pull_restraints_lock << std::endl;
-#endif // HAVE_CXX_THREAD
    needs_reset = true;
+#endif // HAVE_CXX_THREAD
 }
 
 
