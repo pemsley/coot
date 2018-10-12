@@ -10941,7 +10941,7 @@ on_save_coords_filechooserdialog1_destroy
 
 void
 on_cif_dictionary_filechooserdialog1_response(GtkDialog * dialog,
-					      cif gint response_id,
+					      gint response_id,
 					      gpointer user_data) {
 
   int imol_enc = -999997;	/* unset */
