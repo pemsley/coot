@@ -2060,7 +2060,7 @@ void coot::my_df_electron_density(const gsl_vector *v,
 	 }
 
 	 while (done_count_for_threads < thread_count) {
-	    std::this_thread::sleep_for(std::chrono::microseconds(20000));
+	    std::this_thread::sleep_for(std::chrono::microseconds(20));
 	 }
 
       } else {

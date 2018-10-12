@@ -23,6 +23,7 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
 	       unlocked = false;
 	    }
 	    it->atom_pull_target_pos = pos;
+            needs_reset = true;
 	    atom_pull_restraints_lock = 0; // unlocked
             if (false) // debugging
                std::cout << "add_atom_pull_restraint() update position for " << it->atom_index_1 << " "
@@ -45,7 +46,7 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
       }
    }
 
-   needs_reset = true; // always true makes the refinement smoother for some reason.
+   // needs_reset = true; // always true makes the refinement smoother for some reason.
    return at;
 }
 
@@ -61,7 +62,7 @@ coot::restraints_container_t::add_target_position_restraint(int idx, const atom_
    bool unlocked = false;
    while (! atom_pull_restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
       // std::cout << "waiting in add_target_position_restraint()" << std::endl;
-      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
       unlocked = false;
    }
 
@@ -70,9 +71,9 @@ coot::restraints_container_t::add_target_position_restraint(int idx, const atom_
                 << spec << target_pos.format() << "\n";
 
    restraints_vec.push_back(r);
-   post_add_new_restraint();  // adds new restraint to one of the vectors of the restraint indices
+   post_add_new_restraint(); // adds new restraint to one of the vectors of the restraint indices
    atom_pull_restraints_lock = false; // unlock
-   needs_reset = true;
+   // needs_reset = true;
 #endif // HAVE_CXX_THREAD
 }
 
