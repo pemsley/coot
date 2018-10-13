@@ -3282,6 +3282,9 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 				     const std::vector<std::pair<std::string, int> > &atom_number_list,
 				     const clipper::Xmap<float> &map) = coot::util::z_weighted_density_score_linear_interp;
 
+   if (true)
+      density_scoring_function = coot::util::z_weighted_density_score_nearest;
+      
    if (use_biased_density_scoring)
       density_scoring_function = coot::util::biased_z_weighted_density_score;
 

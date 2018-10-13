@@ -47,6 +47,9 @@ namespace coot {
       // linear interpolation (faster) use for jiggle-fit of chains and the like
       float density_at_point_by_linear_interpolation(const clipper::Xmap<float> &map_in,
 						     const clipper::Coord_orth &co);
+      // nearest grid point - faster yet
+      float density_at_point_by_nearest_grid(const clipper::Xmap<float> &map_in,
+					     const clipper::Coord_orth &co);
 
       float density_at_map_point(const clipper::Xmap<float> &map_in,
 				 const clipper::Coord_map &cg);

@@ -242,6 +242,20 @@ coot::util::density_at_point_by_linear_interpolation(const clipper::Xmap<float> 
    return dv;
 }
 
+// nearest grid point - faster yet
+float 
+coot::util::density_at_point_by_nearest_grid(const clipper::Xmap<float> &xmap,
+                                             const clipper::Coord_orth &co) {
+
+   float dv;
+   clipper::Coord_frac a_cf = co.coord_frac(xmap.cell());
+   clipper::Coord_map  a_cm = a_cf.coord_map(xmap.grid_sampling());
+   clipper::Interp_nearest::interp(xmap, a_cm, dv);
+   return dv;
+}
+
+
+
 void
 coot::util::filter_by_resolution(clipper::HKL_data< clipper::datatypes::F_phi<float> > *fphidata,
 				 const float &reso_low,
