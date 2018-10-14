@@ -765,6 +765,7 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
 
    clipper::Coord_orth centre( centre_point.get_x(), centre_point.get_y(),
 			       centre_point.get_z() );
+   double radius_sqd = box_radius * box_radius; // convert to double
 
    // clipper::Coord_frac centref = crystal_map.cell().to_frac( centre );
   
@@ -838,22 +839,10 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
    T nv = crystal_map.grid_sampling().nv();
    T nw = crystal_map.grid_sampling().nw();
 
-   tri_con.point_indices.resize(m_nTriangles);
-   for (unsigned int nt=0; nt < m_nTriangles; nt++) {
-      TRIANGLE tri;
-      int i = nt;
-      tri.pointID[0] = m_piTriangleIndices[i];
-      tri.pointID[1] = m_piTriangleIndices[i+1];
-      tri.pointID[2] = m_piTriangleIndices[i+2];
-      tri_con.point_indices[nt] = tri;
-      tri.mid_point = clipper::Coord_orth(0,0,0); // non-random placeholder value
-      tri.normal_for_flat_shading = clipper::Coord_orth(0,0,0); // ditto.
-      tri.back_front_projection_distance = 0; // ditto.
-   }
-
    // what is the maximum index in m_piTriangleIndices ?  (we
    // shouldn't need to do this - it should be clear(?) from other
    // code what this number is, c.f. check_max_min_vertices()
+   //
    unsigned int max_index = 0;
    for (unsigned int i=0; i < m_nTriangles*3; i++) {
       if (m_piTriangleIndices[i] > max_index)
@@ -863,7 +852,7 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
    tri_con.normals.resize(max_index+1);
    
    //
-
+   unsigned nt_for_index = 0;
    for (unsigned int nt=0; nt < m_nTriangles; nt++) {
 
       int i = nt*3;
@@ -887,35 +876,43 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
       tri_con.points[j  ] = co_1;
       tri_con.points[jp ] = co_2;
       tri_con.points[jp2] = co_3;
-      tri_con.point_indices[nt].pointID[0] = j;
-      tri_con.point_indices[nt].pointID[1] = jp;
-      tri_con.point_indices[nt].pointID[2] = jp2;
+
       clipper::Coord_orth sum_pt = co_1;
       sum_pt += co_2;
       sum_pt += co_3;
-      tri_con.point_indices[nt].mid_point = clipper::Coord_orth(0.333333333 * sum_pt.x(),
-								0.333333333 * sum_pt.y(),
-								0.333333333 * sum_pt.z());
-      
-      // Note we apply a negation to get the normal pointing out of
-      // the surface, so the shiny surface is on the outside.
-      // 
-      tri_con.point_indices[nt].normal_for_flat_shading =
-	 clipper::Coord_orth(-clipper::Coord_orth::cross((co_2-co_1), (co_3-co_1)).unit());
 
-      // If the contour level is negative then the normals need to
-      // point in the other direction (c.f. a positive contour).  If
-      // we don't do this, the bright shiny surfaces of the negative
-      // level are on the inside.
-      // 
-      if (tIsoLevel < 0.0) 
-	 tri_con.point_indices[nt].normal_for_flat_shading =
-	    -tri_con.point_indices[nt].normal_for_flat_shading;
+      TRIANGLE tri;
+      tri.pointID[0] = j;
+      tri.pointID[1] = jp;
+      tri.pointID[2] = jp2;
+      tri.mid_point = clipper::Coord_orth(0.333333333 * sum_pt.x(),
+                                          0.333333333 * sum_pt.y(),
+                                          0.333333333 * sum_pt.z());
+      tri.back_front_projection_distance = 0; // Will be reset
+
+      bool valid_co = true;
+
+      // Don't add this triangle if it's outside the sphere
+      //
+      if ((tri.mid_point-centre).lengthsq() > radius_sqd) valid_co = false;
+      // If you want to bring back "all" triangle, test on true
+      if (valid_co) {
+
+         // Note we apply a negation to get the normal pointing out of
+         // the surface, so the shiny surface is on the outside.
+         //
+         tri.normal_for_flat_shading = clipper::Coord_orth(-clipper::Coord_orth::cross((co_2-co_1), (co_3-co_1)).unit());
+
+         // If the contour level is negative then the normals need to
+         // point in the other direction (c.f. a positive contour).  If
+         // we don't do this, the bright shiny surfaces of the negative
+         // level are on the inside.
+         //
+         if (tIsoLevel < 0.0)
+	    tri.normal_for_flat_shading = - tri.normal_for_flat_shading;
       
-      
-//       std::cout << "tripoint " << j   << " " << co_1.x() << " " << co_1.y() << " " << co_1.z() << "\n";
-//       std::cout << "tripoint " << jp  << " " << co_2.x() << " " << co_2.y() << " " << co_2.z() << "\n";
-//       std::cout << "tripoint " << jp2 << " " << co_3.x() << " " << co_3.y() << " " << co_3.z() << "\n";
+         tri_con.point_indices.push_back(tri);
+      }
    }
 
    tri_con.calculate_normals();
