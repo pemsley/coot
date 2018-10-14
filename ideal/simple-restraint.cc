@@ -980,7 +980,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 double pnorm = state->pnorm;
 	 double g0norm = state->g0norm;
 	 //
-	 if (false)
+	 if (true)
 	    std::cout << "iter: " << iter << " f " << m_s->f << " " << gsl_multimin_fdfminimizer_minimum(m_s)
 		      << " pnorm " << pnorm << " g0norm " << g0norm << std::endl;
 
@@ -1926,10 +1926,12 @@ coot::electron_density_score_from_restraints(const gsl_vector *v,
    std::atomic<unsigned int> done_count_for_threads(0);
 
    // malloc - bah.
-   std::vector<double> results(ranges.size(), 0.0); // 0.0 is the default?
+   // std::vector<double> results(ranges.size(), 0.0); // 0.0 is the default?
+   double results[1024]; // we will always have less than 1024 threads
 
    if (restraints_p->thread_pool_p) {
       for(unsigned int i=0; i<ranges.size(); i++) {
+         results[i] = 0.0;
 	 restraints_p->thread_pool_p->push(electron_density_score_from_restraints_using_atom_index_range,
 					   v, std::cref(ranges[i]), restraints_p, &results[i],
 					   std::ref(done_count_for_threads));
