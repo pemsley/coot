@@ -81,13 +81,13 @@ if $coot_modern_language_tools = true ; then
    AX_CXX_HAVE_THREAD
 fi
 
-AC_ARG_WITH(glsl [ --with-glsl use OpenLG Shader Language for molecule display (experimental) ],
+AC_ARG_WITH(glsl [ --with-glsl use OpenLG Shader Language for molecule display - experimental ],
   coot_with_glsl=true,
   coot_with_glsl=false)
 
 if $coot_with_glsl = true ; then
-   USE_GLSL=-D_GLSL
-   AC_SUBST(COOT_USE_GUILE)
+   COOT_USE_GLSL=-DUSE_GLSL
+   AC_SUBST(COOT_USE_GLSL)
 fi
 
 AC_LIB_PREPARE_MULTILIB
