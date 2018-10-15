@@ -148,6 +148,7 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 
 #include "generic-display-object.hh"
 
+#include "Shader.hh"
 
 namespace coot { 
    enum {NEW_COORDS_UNSET = 0,       // moving_atoms_asc_type values
@@ -3911,6 +3912,8 @@ string   static std::string sessionid;
    static std::shared_ptr<SceneSetup>   mol_tri_scene_setup;
 #endif
 #endif // USE_MOLECULES_TO_TRIANGLES
+
+   static Shader shader;
 
 };
 

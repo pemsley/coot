@@ -81,15 +81,6 @@ if $coot_modern_language_tools = true ; then
    AX_CXX_HAVE_THREAD
 fi
 
-AC_ARG_WITH(glsl [ --with-glsl use OpenLG Shader Language for molecule display - experimental ],
-  coot_with_glsl=true,
-  coot_with_glsl=false)
-
-if $coot_with_glsl = true ; then
-   COOT_USE_GLSL=-DUSE_GLSL
-   AC_SUBST(COOT_USE_GLSL)
-fi
-
 AC_LIB_PREPARE_MULTILIB
 
 AC_SUBST(COOT_STDTYPES)
@@ -217,6 +208,16 @@ else
   AC_CHECK_LIB(GL, glLineWidth, COOT_OPENGL_LIBS="-lGL")
 fi
 AC_SUBST([COOT_OPENGL_LIBS], [${COOT_OPENGL_LIBS}])
+
+AC_ARG_WITH(glsl [ --with-glsl use OpenLG Shader Language for molecule display - experimental ],
+  coot_with_glsl=true,
+  coot_with_glsl=false)
+
+if $coot_with_glsl = true ; then
+   USE_GLSL=-D_USE_GLSL
+   AC_SUBST(USE_GLSL)
+fi
+
 
 dnl =========================== GLUT ================================
 
