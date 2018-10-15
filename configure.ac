@@ -25,7 +25,7 @@ dnl implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 dnl
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(coot, 0.8.9.2-pre)
+AC_INIT(coot, 0.9-pre)
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -74,9 +74,20 @@ AC_ARG_WITH(modern-language-tools, [  --with-modern-language-tools with optional
  coot_modern_language_tools="true",
  coot_modern_language_tools="false")
 
+# Note to self: must make these compulsory - not optional
+#
 if $coot_modern_language_tools = true ; then
    AX_CXX_COMPILE_STDCXX_11
    AX_CXX_HAVE_THREAD
+fi
+
+AC_ARG_WITH(glsl [ --with-glsl use OpenLG Shader Language for molecule display (experimental) ],
+  coot_with_glsl=true,
+  coot_with_glsl=false)
+
+if $coot_with_glsl = true ; then
+   USE_GLSL=-D_GLSL
+   AC_SUBST(COOT_USE_GUILE)
 fi
 
 AC_LIB_PREPARE_MULTILIB
