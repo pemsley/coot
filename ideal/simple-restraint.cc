@@ -876,7 +876,8 @@ coot::restraints_container_t::setup_minimize() {
    m_s = gsl_multimin_fdfminimizer_alloc(T, n_variables());
 
    m_initial_step_size = 0.5 * gsl_blas_dnrm2(x); // how about just 0.1?
-   // std::cout << "debug:: using with step_size " << m_initial_step_size << std::endl;
+
+   std::cout << "debug:: setup_minimize() with step_size " << m_initial_step_size << std::endl;
 
    // this does a lot of work
    gsl_multimin_fdfminimizer_set(m_s, &multimin_func, x, m_initial_step_size, m_tolerance);
@@ -980,7 +981,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 double pnorm = state->pnorm;
 	 double g0norm = state->g0norm;
 	 //
-	 if (true)
+	 if (false)
 	    std::cout << "iter: " << iter << " f " << m_s->f << " " << gsl_multimin_fdfminimizer_minimum(m_s)
 		      << " pnorm " << pnorm << " g0norm " << g0norm << std::endl;
 
@@ -1012,6 +1013,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
                std::cout << "----------------------- FAIL, ENOPROG --------------- " << std::endl;
                gsl_vector *non_const_v = const_cast<gsl_vector *> (m_s->x); // because there we use gls_vector_set()
                void *params = static_cast<void *>(this);
+               // useful - but not for everyone
                // numerical_gradients(non_const_v, params, m_s->gradient, "failed-gradients.tab");
             }
 	    break;
