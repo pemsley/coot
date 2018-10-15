@@ -885,6 +885,8 @@ coot::restraints_container_t::setup_minimize() {
    m_grad_lim = pow(size(), 0.7) * 0.03;
    if (m_grad_lim < 0.3) m_grad_lim = 0.3;
 
+   needs_reset = false;
+
 }
  
 // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
