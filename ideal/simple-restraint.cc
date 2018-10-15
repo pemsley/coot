@@ -877,7 +877,7 @@ coot::restraints_container_t::setup_minimize() {
 
    m_initial_step_size = 0.5 * gsl_blas_dnrm2(x); // how about just 0.1?
 
-   std::cout << "debug:: setup_minimize() with step_size " << m_initial_step_size << std::endl;
+   // std::cout << "debug:: setup_minimize() with step_size " << m_initial_step_size << std::endl;
 
    // this does a lot of work
    gsl_multimin_fdfminimizer_set(m_s, &multimin_func, x, m_initial_step_size, m_tolerance);
