@@ -609,18 +609,25 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
 	 }
       }
 
-      threaded_refinement_loop_counter_bonds_gen = threaded_refinement_loop_counter;
-      moving_atoms_bonds_lock = true;
+      if (threaded_refinement_is_running) {
+         unsigned int unlocked = false;
+         while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            unlocked = 0;
+         }
 
-      graphics_info_t g;
-      g.make_moving_atoms_graphics_object(imol_moving_atoms, *moving_atoms_asc);
 
-      // Dots on then off but dots remain? Just undisplay them in the Generic Object manager
-      if (do_coot_probe_dots_during_refine_flag) {
-	 g.do_interactive_coot_probe();
+         threaded_refinement_loop_counter_bonds_gen = threaded_refinement_loop_counter;
+         graphics_info_t g;
+         g.make_moving_atoms_graphics_object(imol_moving_atoms, *moving_atoms_asc);
+
+         // Dots on then off but dots remain? Just undisplay them in the Generic Object manager
+         if (do_coot_probe_dots_during_refine_flag) {
+	    g.do_interactive_coot_probe();
+         }
+         moving_atoms_bonds_lock = 0;
       }
 
-      moving_atoms_bonds_lock = false;
 
       if (accept_reject_dialog)
 	 update_accept_reject_dialog_with_results(accept_reject_dialog, coot::CHI_SQUAREDS,

@@ -833,7 +833,9 @@ coot::refinement_results_t
 coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags) {
 
    short int print_chi_sq_flag = 1;
-   return minimize(usage_flags, 1000, print_chi_sq_flag);
+   refinement_results_t rr = minimize(usage_flags, 1000, print_chi_sq_flag);
+   // std::cout << "minimize() returns " << rr.progress << std::endl;
+   return rr;
 
 }
 
@@ -874,13 +876,16 @@ coot::restraints_container_t::setup_minimize() {
    m_s = gsl_multimin_fdfminimizer_alloc(T, n_variables());
 
    m_initial_step_size = 0.5 * gsl_blas_dnrm2(x); // how about just 0.1?
-   // std::cout << "debug:: using with step_size " << m_initial_step_size << std::endl;
+
+   std::cout << "debug:: setup_minimize() with step_size " << m_initial_step_size << std::endl;
 
    // this does a lot of work
    gsl_multimin_fdfminimizer_set(m_s, &multimin_func, x, m_initial_step_size, m_tolerance);
 
    m_grad_lim = pow(size(), 0.7) * 0.03;
    if (m_grad_lim < 0.3) m_grad_lim = 0.3;
+
+   needs_reset = false;
 
 }
  
@@ -894,8 +899,10 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
    n_times_called++;
    if (n_times_called == 1 || needs_reset)
       setup_minimize();
-
-   return minimize_inner(usage_flags, nsteps_max, print_initial_chi_sq_flag);
+ 
+   refinement_results_t rr = minimize_inner(usage_flags, nsteps_max, print_initial_chi_sq_flag);
+   // std::cout << "minimize() returns " << rr.progress << std::endl;
+   return rr;
 }
 
 
@@ -980,10 +987,10 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	    std::cout << "iter: " << iter << " f " << m_s->f << " " << gsl_multimin_fdfminimizer_minimum(m_s)
 		      << " pnorm " << pnorm << " g0norm " << g0norm << std::endl;
 
-	 if (status) {
+	 if (status != GSL_SUCCESS) {
 	    std::cout << "Unexpected error from gsl_multimin_fdfminimizer_iterate at iter " << iter << std::endl;
 	    if (status == GSL_ENOPROG) {
-	       std::cout << "Error:: in gsl_multimin_fdfminimizer_iterate was GSL_ENOPROG" << std::endl; 
+	       std::cout << "Error:: in gsl_multimin_fdfminimizer_iterate() result was GSL_ENOPROG" << std::endl; 
 	       if (true)
 		  std::cout << "Error:: iter: " << iter << " f " << m_s->f << " "
 			    << gsl_multimin_fdfminimizer_minimum(m_s)
@@ -991,7 +998,8 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
 	       // write out gradients here - with numerical gradients for comparison
 
-	       lights_vec = chi_squareds("Final Estimated RMS Z Scores", m_s->x);
+	       lights_vec = chi_squareds("Final Estimated RMS Z Scores (ENOPROG)", m_s->x);
+	       done_final_chi_squares = true;
 	       refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights_vec);
 	       if (worst_of_all.is_set) {
 		  const simple_restraint &baddie_restraint = restraints_vec[worst_of_all.restraints_index];
@@ -1001,22 +1009,24 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 		  std::cout << "INFO:: somehow the worst restraint was not set (no-progress)"
 			    << std::endl;
 	       }
-	       if (false) { // debugging restraints
-		  for (std::size_t i=0; i<lights_vec.size(); i++) {
-		  }
-	       }
 	    }
 	    if (status == GSL_ENOPROG) {
-               std::cout << "----------------------- FAIL ------------------ " << std::endl;
+               // debugging/analysis
+               std::cout << "----------------------- FAIL, ENOPROG --------------- " << std::endl;
                gsl_vector *non_const_v = const_cast<gsl_vector *> (m_s->x); // because there we use gls_vector_set()
                void *params = static_cast<void *>(this);
-               numerical_gradients(non_const_v, params, m_s->gradient, "failed-gradients.tab");
+               // useful - but not for everyone
+               // numerical_gradients(non_const_v, params, m_s->gradient, "failed-gradients.tab");
             }
 	    break;
 	 }
 
-         // if (status == GSL_CONTINUE), OK, so what *is* the status for normal refinement?
-         status = gsl_multimin_test_gradient(m_s->gradient, m_grad_lim);
+         // std::cout << "Debug:: before gsl_multimin_test_gradient, status is " << status << std::endl;
+
+         if (status == GSL_SUCCESS || status == GSL_CONTINUE) // probably just GSL_SUCCESS is what I want
+            status = gsl_multimin_test_gradient(m_s->gradient, m_grad_lim);
+
+         // std::cout << "Debug:: after gsl_multimin_test_gradient, status is " << status << std::endl;
 
 	 if (status == GSL_SUCCESS) {
 	    if (verbose_geometry_reporting != QUIET) { 
@@ -1025,10 +1035,8 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	    }
 	 }
 
-	 if (status == GSL_SUCCESS || status == GSL_ENOPROG) {
+	 if (status == GSL_SUCCESS) {
 	    std::string title = "Final Estimated RMS Z Scores:";
-	    if (status == GSL_ENOPROG)
-	       title = "(No Progress on test_gradient) Final Estimated RMS Z Scores:";
 	    std::vector<coot::refinement_lights_info_t> results = chi_squareds(title, m_s->x);
 	    lights_vec = results;
 	    done_final_chi_squares = true;
@@ -1037,9 +1045,10 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 if (verbose_geometry_reporting == VERBOSE)
 	    cout << "iteration number " << iter << " " << m_s->f << endl;
 
-	 
       }
    while ((status == GSL_CONTINUE) && (iter < nsteps_max));
+
+   // std::cout << "Debug:: post loop status is " << status << std::endl;
 
    if (! done_final_chi_squares) {
       if (status != GSL_CONTINUE) {
@@ -1072,6 +1081,8 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    // the bottom line from the timing test is the only thing that matters
    // is the time spend in the core minimization iterations
 
+   // std::cout << "-------------- Finally returning from minimize_inner() with rr with status "
+   //           << rr.progress << std::endl;
    return rr;
 }
 
@@ -1919,10 +1930,12 @@ coot::electron_density_score_from_restraints(const gsl_vector *v,
    std::atomic<unsigned int> done_count_for_threads(0);
 
    // malloc - bah.
-   std::vector<double> results(ranges.size(), 0.0); // 0.0 is the default?
+   // std::vector<double> results(ranges.size(), 0.0); // 0.0 is the default?
+   double results[1024]; // we will always have less than 1024 threads
 
    if (restraints_p->thread_pool_p) {
       for(unsigned int i=0; i<ranges.size(); i++) {
+         results[i] = 0.0;
 	 restraints_p->thread_pool_p->push(electron_density_score_from_restraints_using_atom_index_range,
 					   v, std::cref(ranges[i]), restraints_p, &results[i],
 					   std::ref(done_count_for_threads));

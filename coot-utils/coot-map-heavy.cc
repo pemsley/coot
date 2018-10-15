@@ -258,6 +258,20 @@ coot::util::z_weighted_density_at_point_linear_interp(const clipper::Coord_orth 
    return d*z;
 }
 
+float 
+coot::util::z_weighted_density_at_nearest_grid(const clipper::Coord_orth &pt,
+                                               const std::string &ele,
+                                               const std::vector<std::pair<std::string, int> > &atom_number_list,
+                                               const clipper::Xmap<float> &map_in) {
+
+   float d = density_at_point_by_nearest_grid(map_in, pt);
+   float z = atomic_number(ele, atom_number_list);
+   if (z< 0.0)
+      z = 6; // carbon, say
+   return d*z;
+
+}
+
 float
 coot::util::z_weighted_density_score(const std::vector<mmdb::Atom *> &atoms,
 				     const std::vector<std::pair<std::string, int> > &atom_number_list,
@@ -292,6 +306,20 @@ coot::util::z_weighted_density_score_linear_interp(const minimol::molecule &mol,
    std::vector<coot::minimol::atom *> atoms = mol.select_atoms_serial();
    for (unsigned int i=0; i<atoms.size(); i++) {
       float d = z_weighted_density_at_point_linear_interp(atoms[i]->pos, atoms[i]->element, atom_number_list, map);
+      sum_d += d;
+   }
+   return sum_d;
+}
+
+float 
+coot::util::z_weighted_density_score_nearest(const minimol::molecule &mol,
+                                             const std::vector<std::pair<std::string, int> > &atom_number_list,
+                                             const clipper::Xmap<float> &map) {
+
+   float sum_d = 0;
+   std::vector<coot::minimol::atom *> atoms = mol.select_atoms_serial();
+   for (unsigned int i=0; i<atoms.size(); i++) {
+      float d = z_weighted_density_at_nearest_grid(atoms[i]->pos, atoms[i]->element, atom_number_list, map);
       sum_d += d;
    }
    return sum_d;
