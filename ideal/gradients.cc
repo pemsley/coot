@@ -137,7 +137,6 @@ coot::numerical_gradients(gsl_vector *v,
                is implicitly deleted because the default definition would be ill-formed:
            class basic_ofstream : public basic_ostream<_CharT,_Traits>
            ^
-         */
 
 	 std::ofstream f = std::ofstream(gradients_file_name.c_str());
 	 for (unsigned int i=0; i<v->size; i++) {
@@ -146,6 +145,7 @@ coot::numerical_gradients(gsl_vector *v,
 	      << " numerical: "
 	      << std::setw(9) << std::setprecision(5) << std::fixed << numerical_derivs[i] << "\n";
 	      }
+        */
       }
    } else {
       std::cout << "WARNING:: gradients file " << gradients_file_name << " already exists" << std::endl;
