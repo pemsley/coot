@@ -1007,6 +1007,7 @@ namespace coot {
       bool are_all_one_atom_residues; 
       mmdb::Manager *mol;
       void setup_minimize();
+      unsigned int n_refiners_refining;
       bool needs_reset; // needs reset when an atom pull restraint gets *added*.
       
       // The bool is the "atoms of this residue are fixed" flag.
@@ -1023,6 +1024,7 @@ namespace coot {
 
       void init(bool unset_deriv_locks) {
       	 verbose_geometry_reporting = NORMAL;
+         n_refiners_refining = 0;
 	 n_atoms = 0;
 	 x = 0;
 	 mol = 0;

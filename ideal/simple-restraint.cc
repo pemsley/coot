@@ -877,7 +877,7 @@ coot::restraints_container_t::setup_minimize() {
 
    m_initial_step_size = 0.5 * gsl_blas_dnrm2(x); // how about just 0.1?
 
-   // std::cout << "debug:: setup_minimize() with step_size " << m_initial_step_size << std::endl;
+   std::cout << "debug:: setup_minimize() with step_size " << m_initial_step_size << std::endl;
 
    // this does a lot of work
    gsl_multimin_fdfminimizer_set(m_s, &multimin_func, x, m_initial_step_size, m_tolerance);
@@ -901,6 +901,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
       setup_minimize();
  
    refinement_results_t rr = minimize_inner(usage_flags, nsteps_max, print_initial_chi_sq_flag);
+
    // std::cout << "minimize() returns " << rr.progress << std::endl;
    return rr;
 }
@@ -912,6 +913,11 @@ coot::refinement_results_t
 coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags, 
 					     int nsteps_max,
 					     short int print_initial_chi_sq_flag) {
+
+   // Was just checking that minimize() was not being called multiple times concurrently
+   // (it wasn't)
+   // std::cout << "DEBUG:: incrementing n_refiners_refining to " << n_refiners_refining+1 << std::endl;
+   // n_refiners_refining++;
 
    // check that we have restraints before we start to minimize:
    if (restraints_vec.size() == 0) {
@@ -929,10 +935,9 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       debug_atoms();
    }
 
-
    // We get ~1ms/residue with bond and angle terms and no density terms.
 
-   std::vector<refinement_lights_info_t> lights = chi_squareds("--------", m_s->x, false);
+   std::vector<refinement_lights_info_t> lights; // = chi_squareds("--------", m_s->x, false);
 
    int iter = 0; 
    int status;
@@ -972,7 +977,13 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	    unlocked = false;
 	 }
 #endif
-	 status = gsl_multimin_fdfminimizer_iterate(m_s);
+
+         if (m_s == 0) {
+            std::cout << "ERROR:: !! m_s has disappeared! " << std::endl;
+            break;
+         } else {
+	    status = gsl_multimin_fdfminimizer_iterate(m_s);
+         }
 
 #ifdef HAVE_CXX_THREAD
 	 atom_pull_restraints_lock = false; // unlock
@@ -1072,10 +1083,12 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    coot::refinement_results_t rr(1, status, lights_vec);
 
    if (status != GSL_CONTINUE) {
+      std::cout << "---- free/delete/reset m_s and x!" << std::endl;
       gsl_multimin_fdfminimizer_free(m_s);
       gsl_vector_free(x);
       m_s = 0;
       x = 0;
+      needs_reset = true;
    }
 
    // the bottom line from the timing test is the only thing that matters
@@ -1083,6 +1096,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
    // std::cout << "-------------- Finally returning from minimize_inner() with rr with status "
    //           << rr.progress << std::endl;
+   n_refiners_refining--;
    return rr;
 }
 
@@ -6166,14 +6180,18 @@ coot::restraints_container_t::update_atoms(gsl_vector *s) {
       double zz = gsl_vector_get(s, 2);
       std::cout << "                  to " << xx  << " " << yy << " " << zz << std::endl;
    }
-   
-   for (int i=0; i<n_atoms; i++) { 
-      idx = 3*i;
-      atom[i]->x = gsl_vector_get(s,idx);
-      atom[i]->y = gsl_vector_get(s,idx+1);
-      atom[i]->z = gsl_vector_get(s,idx+2);
+ 
+   if (!s) {
+      std::cout << "ERROR:: in update_atoms() s has disappeared! - skip update " << std::endl;
+   } else {
+      for (int i=0; i<n_atoms; i++) { 
+         idx = 3*i;
+         atom[i]->x = gsl_vector_get(s,idx);
+         atom[i]->y = gsl_vector_get(s,idx+1);
+         atom[i]->z = gsl_vector_get(s,idx+2);
+      }
    }
-} 
+}
 
 
 void

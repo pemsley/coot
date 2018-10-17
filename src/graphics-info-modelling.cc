@@ -417,6 +417,7 @@ graphics_info_t::refinement_loop_threaded() {
 	 }
       }
       graphics_info_t::threaded_refinement_loop_counter++;
+      // std::cout << "threaded_refinement_loop_counter " << graphics_info_t::threaded_refinement_loop_counter << std::endl;
    }
    graphics_info_t::threaded_refinement_is_running = false; // unlock! - is this safe?
 
@@ -585,6 +586,14 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
 
    // OK, we are interactive
 
+   if (false) {
+      if (threaded_refinement_loop_counter_bonds_gen < threaded_refinement_loop_counter) {
+         std::cout << "DEBUG:: threaded_refinement_loop_counter_bonds_gen signals make new bonds\n";
+      } else {
+         std::cout << "DEBUG:: threaded_refinement_loop_counter_bonds_gen bonds - already done\n";
+      }
+   }
+
    if (threaded_refinement_loop_counter_bonds_gen < threaded_refinement_loop_counter) {
 
       bool do_rama_markup = graphics_info_t::do_intermediate_atoms_rama_markup;
@@ -616,7 +625,8 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
             unlocked = 0;
          }
 
-
+         // tell the next round that we have (already) drawn the bonds for this set
+         // of atom positions
          threaded_refinement_loop_counter_bonds_gen = threaded_refinement_loop_counter;
          graphics_info_t g;
          g.make_moving_atoms_graphics_object(imol_moving_atoms, *moving_atoms_asc);

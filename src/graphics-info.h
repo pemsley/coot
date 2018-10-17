@@ -3780,23 +3780,9 @@ string   static std::string sessionid;
    // atom pull restraint
    // static atom_pull_info_t atom_pull; 20180218 just one
    static std::vector<atom_pull_info_t> atom_pulls;
-   static void all_atom_pulls_off() {
-     for (std::size_t i=0; i<atom_pulls.size(); i++)
-       atom_pulls[i].off();
-     atom_pulls.clear();
-   }
-   static void atom_pull_off(const coot::atom_spec_t &spec) {
-      for (std::size_t i=0; i<atom_pulls.size(); i++) {
-         if (atom_pulls[i].spec == spec)
-	    atom_pulls[i].off();
-      }
-   }
-   static void atom_pulls_off(const std::vector<coot::atom_spec_t> &specs) {
-      for (std::size_t j=0; j<specs.size(); j++)
-	 for (std::size_t i=0; i<atom_pulls.size(); i++)
-	    if (atom_pulls[i].spec == specs[j])
-	       atom_pulls[i].off();
-   }
+   static void all_atom_pulls_off();
+   static void atom_pull_off(const coot::atom_spec_t &spec);
+   static void atom_pulls_off(const std::vector<coot::atom_spec_t> &specs);
    void add_or_replace_current(const atom_pull_info_t &atom_pull_in);
    static void draw_atom_pull_restraint();
    // we don't want to refine_again if the accept/reject dialog "Accept" button was clicked

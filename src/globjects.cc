@@ -1139,7 +1139,7 @@ short int graphics_info_t::show_citation_notice = 0; // on by default :)
 // we have dragged shear fixed points?
 short int graphics_info_t::have_fixed_points_sheared_drag_flag = 0;
 // smaller is smoother and less jerky - especially for big molecules
-int       graphics_info_t::dragged_refinement_steps_per_frame = 40;
+int       graphics_info_t::dragged_refinement_steps_per_frame = 20;
 short int graphics_info_t::dragged_refinement_refine_per_frame_flag = 0;
 double    graphics_info_t::refinement_drag_elasticity = 0.25;
 
@@ -2220,26 +2220,8 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 #ifdef HAVE_GSL
 		  if (info.last_restraints_size() > 0) {
 
-		     if (graphics_info_t::a_is_pressed) {
+                    info.move_atom_pull_target_position(x_as_int, y_as_int);
 
-			// We can't use shift, because this never
-			// happens because
-			// in_moving_atoms_drag_atom_mode_flag is
-			// unset on shift-left-click ("label atom").
-			info.move_moving_atoms_by_shear(x_as_int, y_as_int, 1);
-			if (graphics_info_t::dragged_refinement_refine_per_frame_flag) {
-			   info.drag_refine_refine_intermediate_atoms();
-			}
-		     } else {
-
-			// info.move_moving_atoms_by_shear(x_as_int, y_as_int, 0); // pre 0.8.3
-			info.move_atom_pull_target_position(x_as_int, y_as_int);
-
-			// shall we refine the atoms all the time after a target position move?
-			if (graphics_info_t::dragged_refinement_refine_per_frame_flag || true) {
-			   info.drag_refine_refine_intermediate_atoms();
-			}
-		     }
 		  } else {
 		     // don't allow translation drag of the
 		     // intermediate atoms when they are a rotamer:
