@@ -25,6 +25,8 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 // return true if flip moving_atoms_asc was found
 bool graphics_info_t::pepflip_intermediate_atoms() {
 
+   // std::cout << "start pepflip_intermediate_atoms" << std::endl;
+
    bool status = false;
    if (moving_atoms_asc->mol) {
       status = true;
@@ -44,7 +46,11 @@ bool graphics_info_t::pepflip_intermediate_atoms() {
 	 }
       }
 
-      if (at_close) {
+      if (! at_close) {
+
+         std::cout << "INFO:: No close atom" << std::endl;
+
+      } else {
 
 	 mmdb::Residue *res_this = at_close->residue;
 	 std::string atom_name = at_close->name;
