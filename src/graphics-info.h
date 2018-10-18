@@ -3885,6 +3885,12 @@ string   static std::string sessionid;
    SCM restraint_to_scm(const coot::simple_restraint &restraint) const;
 #endif // USE_GUILE
 
+#ifdef USE_PYTHON
+   // Python function, called per frame draw - for Hamish
+   static std::string python_draw_function_string;
+  void set_python_draw_function(const std::string &f) { python_draw_function_string = f; }
+#endif // USE_PYTHON
+
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #ifdef HAVE_CXX_THREAD
    static ctpl::thread_pool static_thread_pool;

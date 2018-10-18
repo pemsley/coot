@@ -1678,6 +1678,8 @@ graphics_info_t::flash_selection(int imol,
 
    molecules[imol].atom_sel.mol->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 
+   return;
+
    if (glarea) {
       if (nSelAtoms) {
 	 // now we can make an atom_selection_container_t with our new

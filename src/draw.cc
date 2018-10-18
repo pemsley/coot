@@ -602,7 +602,11 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
 //    if (i == 0)
 //       return TRUE;
 
-
+   // Hamish function
+   if (! graphics_info_t::python_draw_function_string.empty()) {
+      PyRun_SimpleString(graphics_info_t::python_draw_function_string.c_str());
+   }
+ 
    if (graphics_info_t::display_mode == coot::HARDWARE_STEREO_MODE) {
       draw_hardware_stereo(widget, event);
    } else {

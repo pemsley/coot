@@ -220,14 +220,25 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
 PyObject *
 graphics_info_t::get_intermediate_atoms_bonds_representation() {
 
+   // I need to think about what to do if the bonds were not redraw
+   // since last time.
+
    PyObject *r = Py_False;
 
    if (moving_atoms_asc) {
       if (moving_atoms_asc->mol) {
+
+         unsigned int unlocked = false;
+         while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            unlocked = 0;
+         }
+
 	 const graphical_bonds_container &bb = regularize_object_bonds_box;
 	 int imol = -1;
-	 // maybe imol = imol_moving_atoms;
 	 r = pyobject_from_graphical_bonds_container(imol, bb);
+
+         moving_atoms_bonds_lock = 0; // unlock
       }
    }
 

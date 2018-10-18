@@ -1807,13 +1807,29 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 	 if (molecules[imol_moving_atoms].draw_hydrogens())
 	    draw_hydrogens_flag = true;
 	 bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol, Geom_p(), 1.0, 4.7, draw_hydrogens_flag);
+
+         unsigned int unlocked = false;
+         while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            unlocked = 0;
+         }
+
 	 regularize_object_bonds_box.clear_up();
 	 regularize_object_bonds_box = bonds.make_graphical_bonds();
+         moving_atoms_bonds_lock = 0;
+
       } else {
 	 Bond_lines_container bonds;
 	 bonds.do_Ca_bonds(*moving_atoms_asc, 1.0, 4.7);
+         unsigned int unlocked = false;
+         while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            unlocked = 0;
+         }
+
 	 regularize_object_bonds_box.clear_up();
 	 regularize_object_bonds_box = bonds.make_graphical_bonds();
+         moving_atoms_bonds_lock = 0;
       }
 
    } else {
@@ -1846,12 +1862,15 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, dummy, Geom_p(),
 				 do_disulphide_flag, draw_hydrogens_flag, 0,
 				 do_rama_markup, do_rota_markup, tables_pointer);
+      unsigned int unlocked = false;
+      while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+         std::this_thread::sleep_for(std::chrono::milliseconds(1));
+         unlocked = 0;
+      }
       regularize_object_bonds_box.clear_up();
       regularize_object_bonds_box = bonds.make_graphical_bonds(ramachandrans_container,
 							       do_rama_markup, do_rama_markup);
-
-      
-
+      moving_atoms_bonds_lock = 0; // unlocked
    }
 }
 
@@ -1872,8 +1891,12 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 	 return;
       }
 
-      moving_atoms_bonds_lock = true; // I've got the lock.
-   
+       unsigned int unlocked = false;
+         while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+            std::this_thread::sleep_for(std::chrono::microseconds(10));
+            unlocked = 0;
+       }
+
       if (against_a_dark_background) {
 	 // now we want to draw out our bonds in white, 
 	 glColor3f (0.9, 0.9, 0.9);
