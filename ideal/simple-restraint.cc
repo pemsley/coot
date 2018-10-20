@@ -1083,7 +1083,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    coot::refinement_results_t rr(1, status, lights_vec);
 
    if (status != GSL_CONTINUE) {
-      std::cout << "---- free/delete/reset m_s and x!" << std::endl;
+      // std::cout << "---- free/delete/reset m_s and x!" << std::endl; // works fine
       gsl_multimin_fdfminimizer_free(m_s);
       gsl_vector_free(x);
       m_s = 0;

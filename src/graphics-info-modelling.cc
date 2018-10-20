@@ -443,6 +443,8 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
 
             // if there's not a refinement redraw function already running start up a new one.
             if (graphics_info_t::threaded_refinement_redraw_timeout_fn_id == -1) {
+
+               std::cout << "starting timeout..." << std::endl;
 	       int id = gtk_timeout_add(15,
 			       (GtkFunction)(regenerate_intermediate_atoms_bonds_timeout_function_and_draw),
                                NULL);
@@ -594,6 +596,9 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
       }
    }
 
+   // std::cout << " start regenerate_intermediate_atoms_bonds_timeout_function() 1 "
+   //           << threaded_refinement_loop_counter_bonds_gen << " "
+   //           << threaded_refinement_loop_counter << std::endl;
    if (threaded_refinement_loop_counter_bonds_gen < threaded_refinement_loop_counter) {
 
       bool do_rama_markup = graphics_info_t::do_intermediate_atoms_rama_markup;
@@ -618,26 +623,29 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
 	 }
       }
 
-      if (threaded_refinement_is_running) {
-         unsigned int unlocked = false;
-         while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            unlocked = 0;
-         }
+      // if (threaded_refinement_is_running) {
 
-         // tell the next round that we have (already) drawn the bonds for this set
-         // of atom positions
-         threaded_refinement_loop_counter_bonds_gen = threaded_refinement_loop_counter;
-         graphics_info_t g;
-         g.make_moving_atoms_graphics_object(imol_moving_atoms, *moving_atoms_asc);
+      // we want to see the bonds if
+      // threaded_refinement_loop_counter_bonds_gen < threaded_refinement_loop_counter
+      // and that does not dependent on if the refinement was running.
 
-         // Dots on then off but dots remain? Just undisplay them in the Generic Object manager
-         if (do_coot_probe_dots_during_refine_flag) {
-	    g.do_interactive_coot_probe();
-         }
-         moving_atoms_bonds_lock = 0;
+      unsigned int unlocked = false;
+      while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+         std::this_thread::sleep_for(std::chrono::milliseconds(1));
+         unlocked = 0;
       }
 
+      // tell the next round that we have (already) drawn the bonds for this set
+      // of atom positions
+      threaded_refinement_loop_counter_bonds_gen = threaded_refinement_loop_counter;
+      graphics_info_t g;
+      g.make_moving_atoms_graphics_object(imol_moving_atoms, *moving_atoms_asc);
+
+      // Dots on then off but dots remain? Just undisplay them in the Generic Object manager
+      if (do_coot_probe_dots_during_refine_flag) {
+         g.do_interactive_coot_probe();
+      }
+      moving_atoms_bonds_lock = 0;
 
       if (accept_reject_dialog)
 	 update_accept_reject_dialog_with_results(accept_reject_dialog, coot::CHI_SQUAREDS,
