@@ -444,7 +444,6 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
             // if there's not a refinement redraw function already running start up a new one.
             if (graphics_info_t::threaded_refinement_redraw_timeout_fn_id == -1) {
 
-               std::cout << "starting timeout..." << std::endl;
 	       int id = gtk_timeout_add(15,
 			       (GtkFunction)(regenerate_intermediate_atoms_bonds_timeout_function_and_draw),
                                NULL);
