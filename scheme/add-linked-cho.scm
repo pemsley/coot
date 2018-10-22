@@ -361,6 +361,7 @@
     (set-matrix (/ wm 4))
     (set-residue-selection-flash-frames-number 1)
     (set-go-to-atom-molecule imol)
+    (set-go-to-atom-from-res-spec parent)
     (let* ((previous-m (default-new-atoms-b-factor))
 	   (m (median-temperature-factor imol))
 	   (new-m (* m 1.55)))
