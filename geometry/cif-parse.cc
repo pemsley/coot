@@ -2889,7 +2889,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 
    bool switch_order_flag = 0;
    bool found = false;
-   bool debug = true;
+   bool debug = false;
    
    if (debug) {
       std::cout << "---------------------- Here are the chem_links: -----------------"
@@ -2961,8 +2961,8 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 								 it->second.begin(),
 								 it->second.end());
 
-      std::cout << "-------- here with candidate_chem_links size ------- "
-		<< candidate_chem_links.size() << std::endl;
+      // std::cout << "-------- here with candidate_chem_links size ------- "
+      // << candidate_chem_links.size() << std::endl;
 
       if (candidate_chem_links.size() > 0) {
 	 const std::vector<chem_link> &v = candidate_chem_links;
@@ -3045,7 +3045,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
       rte += "\"";
       throw std::runtime_error(rte);
    }
-   if (true)
+   if (debug)
       std::cout << "matching_chem_link() returns " << matching_chem_links.size()
 		<< " matching chem links" << std::endl;
    return matching_chem_links;

@@ -1578,9 +1578,9 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 					     const std::string &comp_id_2,
 					     const std::string &group_2) const {
 
-   bool debug = true;
+   bool debug = false;
 
-   if (debug) { 
+   if (debug) {
       std::cout << "   ------ DEBUG:: in matches_comp_ids_and_groups() "
 		<< id << " chem_link_name " << chem_link_name << ": input comp_ids "
 		<< comp_id_1 << " and " << comp_id_2 << " vs ref link-comp_id-1 :"

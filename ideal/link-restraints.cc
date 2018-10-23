@@ -919,7 +919,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 			     // SSBONDs in the molecule before
 			     // assigning pyranose or disulphides etc.
 
-   bool debug = true;
+   bool debug = false;
    std::string link_type = "";
    bool order_switch_flag = false;
    std::string comp_id_1 = first->GetResName();
@@ -1037,7 +1037,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 		  std::vector<std::pair<coot::chem_link, bool> > link_infos_non_peptide =
 		     geom.matching_chem_link_non_peptide(comp_id_1, group_1, comp_id_2, group_2);
 
-		  if (true)
+		  if (debug)
 		     for (unsigned int il=0; il<link_infos_non_peptide.size(); il++)
 			std::cout << "   DEBUG::    find_link_type_complicado() non-peptide link: "
 				  << link_infos_non_peptide[il].first.Id() << std::endl;
@@ -1055,7 +1055,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 		  // 
 		  std::pair<std::string, bool> non_peptide_close_link_info =
 		     general_link_find_close_link(link_infos_non_peptide, first, second, order_switch_flag, geom);
-                  if (true)
+                  if (debug)
 		     std::cout << "---- general_link_find_close_link() "
 			       << non_peptide_close_link_info.first << " "
 			       << non_peptide_close_link_info.second << std::endl;
@@ -1070,7 +1070,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 
 	       // ===================== is not a peptide ========================================
 
-	       if (true)
+	       if (debug)
 		  std::cout << "   DEBUG::   find_link_type_complicado() this "
 			    << link_infos[ilink].first
 			    << " is not a peptide link... "
@@ -1083,7 +1083,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 	       // selects a particular link info. Hmmmm.
 	       // The test should be link_info.is_glycosidic(link_infos[ilink])
 	       //
-	       if (true)
+	       if (debug)
 		  std::cout << "   DEBUG::   find_link_type_complicado() link_infos are glycosidic: "
 			    << link_infos_are_glycosidic_p(link_infos) << std::endl;
 	    
@@ -1168,7 +1168,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
       // std::cout << mess.what() << std::endl;
    }
 
-   if (true)
+   if (debug)
       std::cout << "   DEBUG:: find_link_type_complicado() given "
 		<< coot::residue_spec_t(first) << " and "
 		<< coot::residue_spec_t(second)

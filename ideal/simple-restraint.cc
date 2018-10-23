@@ -3479,14 +3479,13 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 				     whole_second_residue_is_fixed, link_type);
 	       bool previously_added_flag = bpc.try_add(p);
 	    } else {
-	       std::cout << ":::::::: bonded_resdues_from_res_vec() this path! " << std::endl;
 	       coot::bonded_pair_t p(res_s, res_f,
 				     whole_first_residue_is_fixed,
 				     whole_second_residue_is_fixed,
 				     link_type);
 	       bool previously_added_flag = bpc.try_add(p);
-	       std::cout << "              previously_added_flag " << previously_added_flag
-			 << std::endl;
+	       // std::cout << "              previously_added_flag " << previously_added_flag
+	       // << std::endl;
 	    }
 	 } else {
 	    if (debug)
