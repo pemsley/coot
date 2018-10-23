@@ -545,7 +545,7 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function_and_draw()
 
       // ---- Here we can touch the graphics! ---------
 
-      graphics_info_t g;
+      graphics_info_t g; // 37 nanoseconds
 
       if (graphics_info_t::threaded_refinement_needs_to_accept_moving_atoms) {
 	 // std::cout << "---------- now accept moving atoms! " << std::endl;
@@ -640,6 +640,8 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
       graphics_info_t g;
       g.make_moving_atoms_graphics_object(imol_moving_atoms, *moving_atoms_asc);
 
+      g.debug_refinement(); // check COOT_DEBUG_REFINEMENT
+
       // Dots on then off but dots remain? Just undisplay them in the Generic Object manager
       if (do_coot_probe_dots_during_refine_flag) {
          g.do_interactive_coot_probe();
@@ -660,6 +662,21 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
    }
 
    return continue_status; // return 0 to stop
+}
+
+void
+graphics_info_t::debug_refinement() {
+
+   // I should not need to pass flags to an on-going refinement.
+   // These flags may not match the user flags - and it is not easy
+   // to get to the user flags (the flags with which minimize() is called).
+   //
+   coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
+
+   char *env = getenv("COOT_DEBUG_REFINEMENT");
+   if (env)
+      tabulate_geometric_distortions(*last_restraints, flags);
+
 }
 
 

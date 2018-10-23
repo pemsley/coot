@@ -863,6 +863,7 @@ class graphics_info_t {
    static bool refinement_of_last_restraints_needs_reset_flag;
    void update_restraints_with_atom_pull_restraints(); // make static also?
    coot::restraint_usage_Flags set_refinement_flags() const; // make static?
+   void debug_refinement();
 
    // 201803004:
    // refinement now uses references to Xmaps.

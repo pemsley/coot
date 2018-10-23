@@ -1473,12 +1473,16 @@ coot::chem_link::make_hash_code(const std::string &comp_id_1, const std::string 
    if (local_group_2 == "P-peptide")  local_group_2 = "peptide";
    if (local_group_1 == "M-peptide")  local_group_1 = "peptide";
    if (local_group_2 == "M-peptide")  local_group_2 = "peptide";
-   if (local_group_1 == "D-pyranose") local_group_1 = "pyranose";
-   if (local_group_2 == "D-pyranose") local_group_2 = "pyranose";
+   if (local_group_1 == "D-pyranose")   local_group_1 = "pyranose";
+   if (local_group_2 == "D-pyranose")   local_group_2 = "pyranose";
    if (local_group_1 == "D-SACCHARIDE") local_group_1 = "pyranose";  // CCD annotation for MAN, etc
-   if (local_group_1 == "SACCHARIDE") local_group_1 = "pyranose";    // CCD annotation for FUC
    if (local_group_2 == "D-SACCHARIDE") local_group_2 = "pyranose";
-   if (local_group_2 == "SACCHARIDE") local_group_2 = "pyranose";
+   if (local_group_1 == "SACCHARIDE")   local_group_1 = "pyranose";  // CCD annotation for FUC
+   if (local_group_2 == "SACCHARIDE")   local_group_2 = "pyranose";
+
+   if (false)
+      std::cout << "debug:: in make_hash_code " << group_1 << " " << group_2 << " -> "
+		<< local_group_1 << " " << local_group_2 << std::endl;
 
    for (unsigned int i = 0; i < comp_id_1.length(); i++) {
      unsigned int chr = comp_id_1[i];
@@ -1503,9 +1507,9 @@ coot::chem_link::make_hash_code(const std::string &comp_id_1, const std::string 
 
    // hash = hash_c1 + 2 * hash_c2 + 4 * hash_g1 + hash_g2;
 
-   hash = hash_g1 + 2 * hash_g2;
+   hash = hash_g1 + 8 * hash_g2;
 
-   hash |= 0;
+   // hash |= 0;
 
    return hash;
 }
@@ -1574,7 +1578,7 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 					     const std::string &comp_id_2,
 					     const std::string &group_2) const {
 
-   bool debug = false;
+   bool debug = true;
 
    if (debug) { 
       std::cout << "   ------ DEBUG:: in matches_comp_ids_and_groups() "
@@ -1613,14 +1617,14 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
    if (local_group_1 == "D-pyranose") local_group_1 = "pyranose";
    if (local_group_2 == "D-pyranose") local_group_2 = "pyranose";
    if (local_group_1 == "D-SACCHARIDE") local_group_1 = "pyranose";  // CCD annotation for MAN, etc
-   if (local_group_1 == "SACCHARIDE") local_group_1 = "pyranose";    // CCD annotation for FUC
    if (local_group_2 == "D-SACCHARIDE") local_group_2 = "pyranose";
-   if (local_group_2 == "SACCHARIDE") local_group_2 = "pyranose";
+   if (local_group_1 == "SACCHARIDE")   local_group_1 = "pyranose";    // CCD annotation for FUC
+   if (local_group_2 == "SACCHARIDE")   local_group_2 = "pyranose";
 
    if (debug)
-      std::cout << "     sigh check match \""
-		<< chem_link_group_comp_1 << "\" vs \"" << local_group_1 << "\" and "
-		<< chem_link_group_comp_2 << "\" vs \"" << local_group_2 << "\"\n";
+      std::cout << "     sigh... check match: dict \""
+		<< chem_link_group_comp_1 << "\" vs model \"" << local_group_1 << "\" -and- dict \""
+		<< chem_link_group_comp_2 << "\" vs model \"" << local_group_2 << "\"\n";
 
    if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == local_group_1)) &&
        ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == local_group_2))) {

@@ -3435,13 +3435,19 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
       }
    }
 
+   // -----------------------------------------------------------------------
+   //
+   // Do linear bonding here - take most of the residues out of the equation
+   //
+   // -----------------------------------------------------------------------
+
    int nres = residues_vec.size();
    for (unsigned int ii=0; ii<residues_vec.size(); ii++) {
       mmdb::Residue *res_f = residues_vec[ii].second;
       for (unsigned int jj=ii+1; jj<residues_vec.size(); jj++) {
 	 mmdb::Residue *res_s = residues_vec[jj].second;
 
-	 if (debug)
+	 if (true)
 	    std::cout << "debug:: ----- in bonded_resdues_from_res_vec " << residue_spec_t(res_f) << " "
 		      << residue_spec_t(res_s) << "\n";
 
@@ -3458,10 +3464,10 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	 if (!link_type.empty()) {
 
 	    // too verbose?
-	    if (debug)
-	       std::cout << "   INFO:: find_link_type_complicado(): "
+	    if (true)
+	       std::cout << "   INFO:: find_link_type_complicado() for: "
 			 << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
-			 << " link_type -> :" << link_type << ":" << std::endl;
+			 << " returns link_type -> \"" << link_type << "\"" << std::endl;
 
 	    bool whole_first_residue_is_fixed = 0;
 	    bool whole_second_residue_is_fixed = 0;
@@ -3473,11 +3479,14 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 				     whole_second_residue_is_fixed, link_type);
 	       bool previously_added_flag = bpc.try_add(p);
 	    } else {
+	       std::cout << ":::::::: bonded_resdues_from_res_vec() this path! " << std::endl;
 	       coot::bonded_pair_t p(res_s, res_f,
 				     whole_first_residue_is_fixed,
 				     whole_second_residue_is_fixed,
 				     link_type);
 	       bool previously_added_flag = bpc.try_add(p);
+	       std::cout << "              previously_added_flag " << previously_added_flag
+			 << std::endl;
 	    }
 	 } else {
 	    if (debug)
