@@ -1690,7 +1690,7 @@ graphics_info_t::clear_up_moving_atoms() {
 
    if (last_restraints) {
       last_restraints->clear();
-      std::cout << "-------------------- clear_up_moving_atoms() - delete last_restraints ------------" << std::endl;
+      // std::cout << "---------- clear_up_moving_atoms() - delete last_restraints ------" << std::endl;
       delete last_restraints;
       last_restraints = 0;
    }
