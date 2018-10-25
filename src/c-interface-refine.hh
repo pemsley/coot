@@ -23,7 +23,7 @@ void use_unimodal_ring_torsion_restraints_for_residue(const std::string &res_nam
 void set_refinement_geman_mcclure_alpha(float alpha);
 
 //! \brief set the Lennard Jones epsilon parameter
-void set_refinement_lennard_jones_epsiolon(float epsilon);
+void set_refinement_lennard_jones_epsilon(float epsilon);
 
 //! \brief set the log cosh scale factor for target position restraints
 void set_log_cosh_target_distance_scale_factor(float sf);
