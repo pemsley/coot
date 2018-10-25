@@ -2941,33 +2941,42 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
       unsigned int search_bl_2_f = chem_link::make_hash_code(comp_id_1, comp_id_2, group_1, "");
       unsigned int search_bl_2_b = chem_link::make_hash_code(comp_id_2, comp_id_1, "", group_1);
 
-      // make this vector into a set before commit             
-      std::vector<chem_link> candidate_chem_links;
+      std::set<chem_link> candidate_chem_links;
+      std::vector<chem_link>::const_iterator itv;
 
       it = chem_link_map.find(search_bl_1_f);
-      if (it != chem_link_map.end()) candidate_chem_links.insert(candidate_chem_links.end(),
-								 it->second.begin(),
-								 it->second.end());
+      if (it != chem_link_map.end()) {
+	 const std::vector<chem_link> &v = it->second;
+	 for (itv=v.begin(); itv!=v.end(); itv++)
+	    candidate_chem_links.insert(*itv);
+      }
+
       it = chem_link_map.find(search_bl_1_b);
-      if (it != chem_link_map.end()) candidate_chem_links.insert(candidate_chem_links.end(),
-								 it->second.begin(),
-								 it->second.end());
+      if (it != chem_link_map.end()) {
+	 const std::vector<chem_link> &v = it->second;
+	 for (itv=v.begin(); itv!=v.end(); itv++)
+	    candidate_chem_links.insert(*itv);
+      }
       it = chem_link_map.find(search_bl_2_f);
-      if (it != chem_link_map.end()) candidate_chem_links.insert(candidate_chem_links.end(),
-								 it->second.begin(),
-								 it->second.end());
+      if (it != chem_link_map.end()) {
+	 const std::vector<chem_link> &v = it->second;
+	 for (itv=v.begin(); itv!=v.end(); itv++)
+	    candidate_chem_links.insert(*itv);
+      }
       it = chem_link_map.find(search_bl_2_b);
-      if (it != chem_link_map.end()) candidate_chem_links.insert(candidate_chem_links.end(),
-								 it->second.begin(),
-								 it->second.end());
+      if (it != chem_link_map.end()) {
+	 const std::vector<chem_link> &v = it->second;
+	 for (itv=v.begin(); itv!=v.end(); itv++)
+	    candidate_chem_links.insert(*itv);
+      }
 
       // std::cout << "-------- here with candidate_chem_links size ------- "
       // << candidate_chem_links.size() << std::endl;
 
       if (candidate_chem_links.size() > 0) {
-	 const std::vector<chem_link> &v = candidate_chem_links;
+	 const std::set<chem_link> &v = candidate_chem_links;
 
-	 std::vector<chem_link>::const_iterator itv;
+	 std::set<chem_link>::const_iterator itv;
 	 for (itv=v.begin(); itv!=v.end(); itv++) {
 	    const chem_link &cl = *itv;
 

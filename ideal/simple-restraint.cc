@@ -3447,7 +3447,7 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
       for (unsigned int jj=ii+1; jj<residues_vec.size(); jj++) {
 	 mmdb::Residue *res_s = residues_vec[jj].second;
 
-	 if (true)
+	 if (debug)
 	    std::cout << "debug:: ----- in bonded_resdues_from_res_vec " << residue_spec_t(res_f) << " "
 		      << residue_spec_t(res_s) << "\n";
 
@@ -3464,7 +3464,7 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	 if (!link_type.empty()) {
 
 	    // too verbose?
-	    if (true)
+	    if (false)
 	       std::cout << "   INFO:: find_link_type_complicado() for: "
 			 << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
 			 << " returns link_type -> \"" << link_type << "\"" << std::endl;

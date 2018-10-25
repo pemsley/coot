@@ -673,9 +673,16 @@ graphics_info_t::debug_refinement() {
    //
    coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
 
+   // 20180923 Hmm... I guess that I need to lock the restraints? So that
+   // they are not deleted as I try to write them out.
+   //
+   // Hideous race condition somehow?
+   //
    char *env = getenv("COOT_DEBUG_REFINEMENT");
    if (env)
-      tabulate_geometric_distortions(*last_restraints, flags);
+      if (last_restraints)
+	 if (! threaded_refinement_is_running)
+	    tabulate_geometric_distortions(*last_restraints, flags);
 
 }
 
