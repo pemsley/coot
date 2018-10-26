@@ -248,7 +248,7 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="get_pdb_and_map_using_eds1">
 			  <property name="visible">True</property>
-			  <property name="tooltip" translatable="yes">Use the Electron Density Server at Uppsala University to get coords and map... (Long live the EDS!)</property>
+			  <property name="tooltip" translatable="yes">Use the Electron Density Server at the EBI to get coords and map... (Long live the EDS!)</property>
 			  <property name="label" translatable="yes">Fetch PDB &amp; Map using EDS...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_get_pdb_and_map_using_eds1_activate"/>
