@@ -341,7 +341,7 @@ graphics_info_t::copy_model_molecule(int imol) {
 
 std::atomic<unsigned int> graphics_info_t::moving_atoms_bonds_lock(0);
 std::atomic<bool> graphics_info_t::threaded_refinement_is_running(false);
-bool graphics_info_t::moving_atoms_lock = false; // not locked
+std::atomic<bool> graphics_info_t::moving_atoms_lock(false); // not locked
 int  graphics_info_t::threaded_refinement_loop_counter = 0;
 int  graphics_info_t::threaded_refinement_loop_counter_bonds_gen = -1; // initial value is "less than" so that
                                                                        // the regeneration is activated.
@@ -513,24 +513,51 @@ graphics_info_t::update_restraints_with_atom_pull_restraints() {
       }
    }
 
-   if (auto_clear_atom_pull_restraint_flag) {
-      // returns true when the restraint was turned off.
-      // turn_off_atom_pull_restraints_when_close_to_target_position() should not
-      // include the atom that the use is actively dragging
-      //
-      // i.e. except this one:
-      mmdb::Atom *at_except = 0;
-      if (moving_atoms_currently_dragged_atom_index != -1)
-	 at_except = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
-      coot::atom_spec_t except_dragged_atom(at_except);
 
-      std::vector<coot::atom_spec_t> specs_for_removed_restraints =
-	 last_restraints->turn_off_atom_pull_restraints_when_close_to_target_position(except_dragged_atom);
-      if (specs_for_removed_restraints.size()) {
-	 atom_pulls_off(specs_for_removed_restraints);
-	 clear_atom_pull_restraints(specs_for_removed_restraints, true);
+   // we don't want to make reference to the moving atoms if they have been deleted.
+
+   if (continue_threaded_refinement_loop) {
+
+      if (auto_clear_atom_pull_restraint_flag) {
+         // returns true when the restraint was turned off.
+         // turn_off_atom_pull_restraints_when_close_to_target_position() should not
+         // include the atom that the use is actively dragging
+         //
+         // i.e. except this one:
+         mmdb::Atom *at_except = 0;
+         coot::atom_spec_t except_dragged_atom(at_except);
+         if (moving_atoms_currently_dragged_atom_index != -1) {
+            if (moving_atoms_asc) {
+
+               // I need the atoms lock here, because we don't want to access the moving atoms
+               // if they have been deleted.
+               bool unlocked = false;
+               while (! moving_atoms_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                    unlocked = 0;
+               }
+	       at_except = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
+               except_dragged_atom = coot::atom_spec_t(at_except);
+               moving_atoms_lock = false;
+            }
+         }
+
+         std::vector<coot::atom_spec_t> specs_for_removed_restraints =
+	    last_restraints->turn_off_atom_pull_restraints_when_close_to_target_position(except_dragged_atom);
+         if (specs_for_removed_restraints.size()) {
+            unsigned int unlocked = false;
+            while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                 unlocked = 0;
+            }
+
+	    atom_pulls_off(specs_for_removed_restraints);
+	    clear_atom_pull_restraints(specs_for_removed_restraints, true);
+            moving_atoms_bonds_lock = false;
+         }
       }
    }
+
 }
 
 // static

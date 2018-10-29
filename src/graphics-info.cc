@@ -1648,8 +1648,16 @@ graphics_info_t::clear_up_moving_atoms() {
    while (! graphics_info_t::threaded_refinement_is_running.compare_exchange_weak(unlocked, true)) {
       std::cout << "WARNING:: graphics_info_t::clear_up_moving_atoms() - refinement_is_running locked on "
                 << std::endl;
-      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      std::this_thread::sleep_for(std::chrono::milliseconds(20));
       unlocked = false;
+   }
+
+   // We must not delete the moving atoms if they are being used to manipulate pull restraints
+   //
+   bool unlocked_atoms = false;
+   while (! moving_atoms_lock.compare_exchange_weak(unlocked_atoms, 1) && !unlocked_atoms) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+      unlocked_atoms = 0;
    }
 
    graphics_info_t::continue_update_refinement_atoms_flag = false;
@@ -1697,6 +1705,7 @@ graphics_info_t::clear_up_moving_atoms() {
    graphics_info_t::threaded_refinement_is_running = false;
 #endif // HAVE_GSL
 
+   moving_atoms_lock  = false;
    graphics_info_t::rebond_molecule_corresponding_to_moving_atoms();
 
 }

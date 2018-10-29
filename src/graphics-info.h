@@ -557,14 +557,9 @@ class graphics_info_t {
    // now used for residue_score (from c-interface.h)
    // coot::rotamer_probability_info_t get_rotamer_probability(...)
 
+   static std::atomic<bool> moving_atoms_lock;
+   static std::atomic<unsigned int> moving_atoms_bonds_lock; // regularize_object_bonds_box is being updated
 
-   // do these need to be atomics? I don't think so.
-   // static std::atomic<unsigned int> moving_atoms_lock; // atom positions
-   // static std::atomic<unsigned int> moving_atoms_bonds_lock; // regularize_object_bonds_box is being
-                                                                // updated
-   static bool moving_atoms_lock;
-   // static bool moving_atoms_bonds_lock;
-   static std::atomic<unsigned int> moving_atoms_bonds_lock;
    static atom_selection_container_t *moving_atoms_asc;
    mmdb::Residue *get_first_res_of_moving_atoms();
    static int imol_moving_atoms;
