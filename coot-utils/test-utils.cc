@@ -584,7 +584,10 @@ int test_nxmap(int argc, char **argv) {
 
    int status = 0;
 
-   if (argc > 2) {
+   if (argc <= 2) {
+      std::cout << "Usage: " << argv[0] << " map_file_name pdb_file_name" << std::endl;
+   } else {
+      // Happy path
       std::string map_file_name = argv[1];
       std::string pdb_file_name = argv[2];
       clipper::CCP4MAPfile file;
@@ -691,7 +694,9 @@ int test_nxmap(int argc, char **argv) {
 int
 test_nxmap_edcalc(int argc, char **argv) {
 
-   if (argc > 2) {
+   if (argc <= 2) {
+      std::cout << "Usage: " << argv[0] << " map_file_name pdb_file_name" << std::endl;
+   } else {
       std::string map_file_name = argv[1];
       std::string pdb_file_name = argv[2];
       clipper::CCP4MAPfile file;
@@ -705,12 +710,16 @@ test_nxmap_edcalc(int argc, char **argv) {
       coot::residue_spec_t spec_1("A", 10, "");
       coot::residue_spec_t spec_2("A", 11, "");
       coot::residue_spec_t spec_3("A", 12, "");
+      coot::residue_spec_t spec_4("A", 13, "");
+      coot::residue_spec_t spec_5("A", 14, "");
 
       int few_residues_selection_handle = asc.mol->NewSelection();
 
       spec_1.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_NEW);
       spec_2.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
       spec_3.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+      spec_4.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+      spec_5.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
 
       std::cout << "Making nxmap... " << std::endl;
       clipper::NXmap<float> nxmap_ref = coot::util::make_nxmap(xmap, asc.mol, few_residues_selection_handle);
@@ -883,7 +892,7 @@ int main(int argc, char **argv) {
    if (false)
       test_bonded_atoms(argc, argv);
 
-   if (true)
+   if (false)
       test_string_split();
    
    if (true)
