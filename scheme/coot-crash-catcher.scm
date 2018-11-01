@@ -298,10 +298,11 @@
 			 (format #f "exe-name: ~s~%" coot-exe)
 			 (format #f "version-full: ~s~%" 
 				 (run-command/strings coot-exe (list "--version-full") '()))
-			 (format #f "working directory: ~s~%" (getcwd)))))
+			 (format #f "working directory: ~s~%" (getcwd))))
+        (host-name (format #f "hostname: ~s~%" (run-command/strings "hostname" '() '()))))
 
     (run-command/strings "mail"
-			 (list "-s" "Coot Crashed" 
+			 (list "-s" (string-append "Coot Crashed " host-name " " coot-exe)
 			       (string-append "p" "e" "msley" "@" "mrc-lmb" "." "cam" ".ac.uk"))
 			 (append info-list (list gdb-string)))))
 
@@ -354,8 +355,9 @@
 				(gtk-widget-destroy window))))
 
       (gtk-signal-connect send-button "clicked"
-			  (lambda args 
+			  (lambda args
 			    (let ((coot-exe (car (cdr (command-line)))))
+                              (chmod (core-file) #o606)
 			      (send-emsley-text coot-exe gdb-strings)
 			      (gtk-widget-destroy window))))
 
