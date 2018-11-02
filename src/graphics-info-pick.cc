@@ -503,16 +503,19 @@ graphics_info_t::check_if_moving_atom_pull(bool was_a_double_click) {
 
 	 in_moving_atoms_drag_atom_mode_flag = 1;
 
+         // This is no longer relevant I think
+         //
 	 // Find the fixed_points_sheared_drag from the imol_moving_atoms.
 	 // and their flag, have_fixed_points_sheared_drag_flag
 	 // set_fixed_points_for_sheared_drag(); // superceeded
 	 //
-	 if (drag_refine_idle_function_token != -1) {
-	    // 	 std::cout << "DEBUG:: removing token " << drag_refine_idle_function_token
-	    // 		   << std::endl;
-	    gtk_idle_remove(drag_refine_idle_function_token);
-	    drag_refine_idle_function_token = -1; // magic "not in use" value
-	 }
+	 // if (drag_refine_idle_function_token != -1) {
+	 //    // 	 std::cout << "DEBUG:: removing token " << drag_refine_idle_function_token
+	 //    // 		   << std::endl;
+	 //    gtk_idle_remove(drag_refine_idle_function_token);
+	 //    drag_refine_idle_function_token = -1; // magic "not in use" value
+	 // }
+
       } else {
 	 // a double click on a dragged intermediate atom means "remove this pull restraint"
 
@@ -537,6 +540,33 @@ graphics_info_t::check_if_moving_atom_pull(bool was_a_double_click) {
    } else {
       in_moving_atoms_drag_atom_mode_flag = 0;
    } 
+}
+
+
+// static
+void
+graphics_info_t::atom_pull_off(const coot::atom_spec_t &spec) {
+    for (std::size_t i=0; i<atom_pulls.size(); i++) {
+       if (atom_pulls[i].spec == spec)
+          atom_pulls[i].off();
+    }
+}
+
+// static
+void
+graphics_info_t::atom_pulls_off(const std::vector<coot::atom_spec_t> &specs) {
+    for (std::size_t j=0; j<specs.size(); j++)
+       for (std::size_t i=0; i<atom_pulls.size(); i++)
+          if (atom_pulls[i].spec == specs[j])
+             atom_pulls[i].off();
+}
+
+// static
+void
+graphics_info_t::all_atom_pulls_off() {
+     for (std::size_t i=0; i<atom_pulls.size(); i++)
+       atom_pulls[i].off();
+     atom_pulls.clear();
 }
 
 void

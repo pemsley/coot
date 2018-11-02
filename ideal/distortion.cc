@@ -814,6 +814,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 	    // std::cout << "dsm: rama " << thread_id << " idx " << i << " " << d << std::endl;
 	    if (restraints->rama_type == restraints_container_t::RAMA_TYPE_ZO) {
 	       d = coot::distortion_score_rama(this_restraint, v, restraints->ZO_Rama(), restraints->get_rama_plot_weight());
+               // std::cout << "rama adding " << d << " to " << *distortion << " for rest " << i << std::endl;
 	    } else {
 	       d = coot::distortion_score_rama(this_restraint, v, restraints->LogRama());
 	    }

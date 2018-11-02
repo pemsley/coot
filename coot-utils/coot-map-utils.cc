@@ -603,8 +603,12 @@ coot::util::laplacian_transform(const clipper::Xmap<float> &xmap_in) {
 // Spin the torsioned atom round the rotatable bond and find the
 // orientation (in degrees) that is in the highest density.
 // 
-// return a torsion.  Return -1111 (less than -1000) on failure
-float
+// return two torsions, the first is relative to the current position,
+// the second is relative to the first atom (pa1).
+// Return first -1111 (less than -1000) on failure
+// Atoms in tors are CA (or N), CA, CB, CG.
+//
+std::pair<float, float>
 coot::util::spin_search(const clipper::Xmap<float> &xmap, mmdb::Residue *res, coot::torsion tors) {
 
    // The plan:
@@ -616,6 +620,7 @@ coot::util::spin_search(const clipper::Xmap<float> &xmap, mmdb::Residue *res, co
    //      Test density at new points
 
    float best_ori = -1111.1; //returned thing
+   float torsion_relative_to_N = -1111.1;
    
    std::vector<mmdb::Atom * > match_atoms = tors.matching_atoms(res);
 
@@ -630,23 +635,27 @@ coot::util::spin_search(const clipper::Xmap<float> &xmap, mmdb::Residue *res, co
       clipper::Coord_orth pa4(match_atoms[3]->x, match_atoms[3]->y, match_atoms[3]->z);
 
       float best_d = -99999999.9;
+      clipper::Coord_orth best_pos;
       for (double theta=0; theta <=360; theta+=3.0) {
 
 	 clipper::Coord_orth dir   = pa3 - pa2;
 	 clipper::Coord_orth pos   = pa4;
 	 clipper::Coord_orth shift = pa3;
-	 clipper::Coord_orth co = coot::util::rotate_around_vector(dir, pos, shift, theta);
-	 float this_d = coot::util::density_at_point(xmap, co);
+	 clipper::Coord_orth co = rotate_around_vector(dir, pos, shift, theta);
+	 float this_d = density_at_point(xmap, co);
 	 if (this_d > best_d) {
 	    best_d = this_d;
 	    best_ori = theta;
-// 	    std::cout << "better density " <<  best_d << " at "
-// 		      << co.format() << " " << best_ori << std::endl;
+            best_pos = co;
 	 }
       }
+      double ct = clipper::Coord_orth::torsion(pa1, pa2, pa3, best_pos);
+      torsion_relative_to_N = clipper::Util::rad2d(ct);
    }
-   // std::cout << "returning " << best_ori << std::endl;
-   return best_ori;
+
+
+   std::pair<float, float> p(best_ori, torsion_relative_to_N);
+   return p;
 }
 
 // return a map and its standard deviation.  scale is applied to

@@ -1648,8 +1648,16 @@ graphics_info_t::clear_up_moving_atoms() {
    while (! graphics_info_t::threaded_refinement_is_running.compare_exchange_weak(unlocked, true)) {
       std::cout << "WARNING:: graphics_info_t::clear_up_moving_atoms() - refinement_is_running locked on "
                 << std::endl;
-      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      std::this_thread::sleep_for(std::chrono::milliseconds(20));
       unlocked = false;
+   }
+
+   // We must not delete the moving atoms if they are being used to manipulate pull restraints
+   //
+   bool unlocked_atoms = false;
+   while (! moving_atoms_lock.compare_exchange_weak(unlocked_atoms, 1) && !unlocked_atoms) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+      unlocked_atoms = 0;
    }
 
    graphics_info_t::continue_update_refinement_atoms_flag = false;
@@ -1690,12 +1698,14 @@ graphics_info_t::clear_up_moving_atoms() {
 
    if (last_restraints) {
       last_restraints->clear();
+      // std::cout << "---------- clear_up_moving_atoms() - delete last_restraints ------" << std::endl;
       delete last_restraints;
       last_restraints = 0;
    }
    graphics_info_t::threaded_refinement_is_running = false;
 #endif // HAVE_GSL
 
+   moving_atoms_lock  = false;
    graphics_info_t::rebond_molecule_corresponding_to_moving_atoms();
 
 }
@@ -1806,13 +1816,29 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 	 if (molecules[imol_moving_atoms].draw_hydrogens())
 	    draw_hydrogens_flag = true;
 	 bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol, Geom_p(), 1.0, 4.7, draw_hydrogens_flag);
+
+         unsigned int unlocked = false;
+         while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            unlocked = 0;
+         }
+
 	 regularize_object_bonds_box.clear_up();
 	 regularize_object_bonds_box = bonds.make_graphical_bonds();
+         moving_atoms_bonds_lock = 0;
+
       } else {
 	 Bond_lines_container bonds;
 	 bonds.do_Ca_bonds(*moving_atoms_asc, 1.0, 4.7);
+         unsigned int unlocked = false;
+         while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            unlocked = 0;
+         }
+
 	 regularize_object_bonds_box.clear_up();
 	 regularize_object_bonds_box = bonds.make_graphical_bonds();
+         moving_atoms_bonds_lock = 0;
       }
 
    } else {
@@ -1845,12 +1871,15 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, dummy, Geom_p(),
 				 do_disulphide_flag, draw_hydrogens_flag, 0,
 				 do_rama_markup, do_rota_markup, tables_pointer);
+      unsigned int unlocked = false;
+      while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+         std::this_thread::sleep_for(std::chrono::milliseconds(1));
+         unlocked = 0;
+      }
       regularize_object_bonds_box.clear_up();
       regularize_object_bonds_box = bonds.make_graphical_bonds(ramachandrans_container,
 							       do_rama_markup, do_rama_markup);
-
-      
-
+      moving_atoms_bonds_lock = 0; // unlocked
    }
 }
 
@@ -1871,8 +1900,12 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 	 return;
       }
 
-      moving_atoms_bonds_lock = true; // I've got the lock.
-   
+       unsigned int unlocked = false;
+         while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+            std::this_thread::sleep_for(std::chrono::microseconds(10));
+            unlocked = 0;
+       }
+
       if (against_a_dark_background) {
 	 // now we want to draw out our bonds in white, 
 	 glColor3f (0.9, 0.9, 0.9);

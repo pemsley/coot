@@ -1259,7 +1259,7 @@ molecule_class_info_t::spin_search(clipper::Xmap<float> &xmap,
 
       if (dir_atom_1 && dir_atom_2) { 
 
-	 float angle = coot::util::spin_search(xmap, res, tors);
+	 float angle = coot::util::spin_search(xmap, res, tors).first;
 
 	 if (angle < -1000) { // an error occured
 	    std::cout << "ERROR:: something bad in spin_search" << std::endl;
@@ -1306,6 +1306,92 @@ molecule_class_info_t::spin_search(clipper::Xmap<float> &xmap,
    } else {
       std::cout << "residue not found in coordinates molecule" << std::endl;
    }
+}
+
+void
+molecule_class_info_t::em_ringer(const clipper::Xmap<float> &xmap) const {
+
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int nres = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<nres; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            coot::residue_spec_t spec(residue_p);
+            std::vector<std::string> v;
+            v.push_back(" CG ");
+            density_results_container_t drc = spin_atom(xmap, spec, " N  ", " CA ", " CB ", v);
+            if (drc.scored_points.size() == 2) {
+               float a1 = drc.scored_points[0].angle;
+               float a2 = drc.scored_points[1].angle;
+               float delta = a2 - a1;
+               if (delta < -180.0) delta += 360.0;
+               if (delta >  180.0) delta -= 360.0;
+               std::cout << "spin_atom " << spec << " " << a1 << " " << a2 << " " << delta << "\n";
+            }
+         }
+      }
+   }
+}
+
+// #include "density-results-container-t.hh" now in the molecule_class_info_t constructor.
+
+// c.f. spin search above, here we need 3 atom names for the spin - so that we
+// can use the torsion of the moving atom.
+// tors_1 ref             e.g. N
+// tors_2 base            e.g. CA
+// tors_3 tip             e.g. CB
+// tors_4 spnning atom    e.g. CG
+//
+density_results_container_t
+molecule_class_info_t::spin_atom(const clipper::Xmap<float> &xmap,
+                                 const coot::residue_spec_t &spec,
+				 const std::string &direction_atoms_ref,
+				 const std::string &direction_atoms_base,
+				 const std::string &direction_atoms_tip,
+				 const std::vector<std::string> &moving_atoms_list) const {
+
+
+   // this is the wrong container. I (at the momonet) want just current torsion and best torsion
+   //
+   density_results_container_t drc;
+
+   mmdb::Residue *residue_p = get_residue(spec);
+   if (residue_p) {
+      if (moving_atoms_list.size() > 0) {
+         // it would be nice if we could make atom specs from residue specs
+         const std::string &chain_id = spec.chain_id;
+         const std::string &ins_code = spec.ins_code;
+         int res_no = spec.res_no;
+         std::string alt_conf = "";
+         coot::atom_spec_t atom_spec_tor_1(chain_id, res_no, ins_code, direction_atoms_ref,  alt_conf);
+         coot::atom_spec_t atom_spec_tor_2(chain_id, res_no, ins_code, direction_atoms_base, alt_conf);
+         coot::atom_spec_t atom_spec_tor_3(chain_id, res_no, ins_code, direction_atoms_tip,  alt_conf);
+         coot::atom_spec_t atom_spec_tor_4(chain_id, res_no, ins_code, moving_atoms_list[0], alt_conf);
+
+         coot::torsion tors(0, // imol, not used
+			    atom_spec_tor_1, atom_spec_tor_2,
+			    atom_spec_tor_3, atom_spec_tor_4);
+
+         std::vector<mmdb::Atom *> ma = tors.matching_atoms(residue_p);
+         if (ma.size() == 4) {
+	    float best_tors_angle = coot::util::spin_search(xmap, residue_p, tors).second; // degrees, relative to N
+            coot::atom_quad q(ma[0], ma[1], ma[2], ma[3]);
+            float tors_atoms = q.torsion(); // degrees
+            double delta = best_tors_angle - tors_atoms;
+            float dv = 0;
+            clipper::Coord_orth pos(0,0,0);
+            density_results_t sp_1(pos, tors_atoms, dv); // position angle density
+            density_results_t sp_2(pos, best_tors_angle, dv);
+            drc.scored_points.push_back(sp_1);
+            drc.scored_points.push_back(sp_2);
+         }
+      }
+   }
+   return drc;
 }
 
 

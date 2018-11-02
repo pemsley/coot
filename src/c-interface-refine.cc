@@ -1349,7 +1349,7 @@ void set_refinement_geman_mcclure_alpha(float alpha) {
 }
 
 //! \brief set the Lennard Jones epsilon parameter
-void set_refinement_lennard_jones_epsiolon(float epsilon) {
+void set_refinement_lennard_jones_epsilon(float epsilon) {
 
    graphics_info_t::lennard_jones_epsilon = epsilon;
 }

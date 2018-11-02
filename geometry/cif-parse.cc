@@ -2891,16 +2891,15 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
    bool found = false;
    bool debug = false;
    
-//    if (debug) {
-//       std::cout << "---------------------- Here are the chem_links: -----------------"
-// 		<< std::endl;
-//       print_chem_links();
-//    }
-
+   if (debug) {
+      std::cout << "---------------------- Here are the chem_links: -----------------"
+		<< std::endl;
+      print_chem_links();
+   }
 
    // This needs to iterate to make the count now that we use a map
    // std::cout << "Testing vs " << chem_link_vec.size() << " chem links\n";
-   
+
    unsigned int search_hash_code_f = chem_link::make_hash_code(comp_id_1, comp_id_2, group_1, group_2);
    unsigned int search_hash_code_b = chem_link::make_hash_code(comp_id_2, comp_id_1, group_2, group_1);
 
@@ -2933,8 +2932,80 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 		   << search_hash_code_b << std::endl;
    }
 
-   if (it != chem_link_map.end()) {
+   if (it == chem_link_map.end()) {
+
+      // NAG-ASN for example
+
+      unsigned int search_bl_1_f = chem_link::make_hash_code(comp_id_1, comp_id_2, "", group_2);
+      unsigned int search_bl_1_b = chem_link::make_hash_code(comp_id_2, comp_id_1, group_2, "");
+      unsigned int search_bl_2_f = chem_link::make_hash_code(comp_id_1, comp_id_2, group_1, "");
+      unsigned int search_bl_2_b = chem_link::make_hash_code(comp_id_2, comp_id_1, "", group_1);
+
+      std::set<chem_link> candidate_chem_links;
+      std::vector<chem_link>::const_iterator itv;
+
+      it = chem_link_map.find(search_bl_1_f);
+      if (it != chem_link_map.end()) {
+	 const std::vector<chem_link> &v = it->second;
+	 for (itv=v.begin(); itv!=v.end(); itv++)
+	    candidate_chem_links.insert(*itv);
+      }
+
+      it = chem_link_map.find(search_bl_1_b);
+      if (it != chem_link_map.end()) {
+	 const std::vector<chem_link> &v = it->second;
+	 for (itv=v.begin(); itv!=v.end(); itv++)
+	    candidate_chem_links.insert(*itv);
+      }
+      it = chem_link_map.find(search_bl_2_f);
+      if (it != chem_link_map.end()) {
+	 const std::vector<chem_link> &v = it->second;
+	 for (itv=v.begin(); itv!=v.end(); itv++)
+	    candidate_chem_links.insert(*itv);
+      }
+      it = chem_link_map.find(search_bl_2_b);
+      if (it != chem_link_map.end()) {
+	 const std::vector<chem_link> &v = it->second;
+	 for (itv=v.begin(); itv!=v.end(); itv++)
+	    candidate_chem_links.insert(*itv);
+      }
+
+      // std::cout << "-------- here with candidate_chem_links size ------- "
+      // << candidate_chem_links.size() << std::endl;
+
+      if (candidate_chem_links.size() > 0) {
+	 const std::set<chem_link> &v = candidate_chem_links;
+
+	 std::set<chem_link>::const_iterator itv;
+	 for (itv=v.begin(); itv!=v.end(); itv++) {
+	    const chem_link &cl = *itv;
+
+	    std::pair<bool, bool> match_res =
+	       cl.matches_comp_ids_and_groups(comp_id_1, group_1, comp_id_2, group_2);
+
+	    if (match_res.first) {
+	       if (cl.Id() != "gap" && cl.Id() != "symmetry") {
+		  switch_order_flag = match_res.second;
+		  found = true;
+		  std::pair<coot::chem_link, bool> p(cl, switch_order_flag);
+
+		  // std::cout << "::::::::: adding matching chem link " << cl << std::endl;
+		  matching_chem_links.push_back(p);
+	       }
+	    }
+	 }
+      }
+
+   } else {
+
+      // normal (say, peptide link) hit
+
+      // v: the set of chem links that have this matching hash code
+      //
       const std::vector<chem_link> &v = it->second;
+
+      // on a match, set found and add the std::pair<coot::chem_link, bool> to matching_chem_links
+
       std::vector<chem_link>::const_iterator itv;
       for (itv=v.begin(); itv!=v.end(); itv++) {
 	 const chem_link &cl = *itv;

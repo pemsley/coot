@@ -132,10 +132,9 @@ coot::numerical_gradients(gsl_vector *v,
       done_by_file = true;
       if (! file_exists(gradients_file_name)) {
 	 /*
-
 	   commented because compilation error:
-
-           /usr/include/c++/4.8.2/fstream:599:11: note: 'std::basic_ofstream<char>::basic_ofstream(const std::basic_ofstream<char>&)' is implicitly deleted because the default definition would be ill-formed:
+           /usr/include/c++/4.8.2/fstream:599:11: note: 'std::basic_ofstream<char>::basic_ofstream(const std::basic_ofstream<char>&)'
+               is implicitly deleted because the default definition would be ill-formed:
            class basic_ofstream : public basic_ostream<_CharT,_Traits>
            ^
 
@@ -146,7 +145,7 @@ coot::numerical_gradients(gsl_vector *v,
 	      << " numerical: "
 	      << std::setw(9) << std::setprecision(5) << std::fixed << numerical_derivs[i] << "\n";
 	      }
-         */
+        */
       }
    } else {
       std::cout << "WARNING:: gradients file " << gradients_file_name << " already exists" << std::endl;
@@ -1894,7 +1893,7 @@ coot::restraints_container_t::electron_density_score_at_point(const clipper::Coo
       double dv; 
       clipper::Coord_frac af = ao.coord_frac(xmap_p->cell());
       clipper::Coord_map  am = af.coord_map(xmap_p->grid_sampling());
-      // clipper::Interp_linear::interp(map, am, dv);
+      // clipper::Interp_linear::interp(*xmap_p, am, dv);
       clipper::Interp_cubic::interp(*xmap_p, am, dv);
       return dv;  
 }
@@ -1907,6 +1906,7 @@ coot::restraints_container_t::electron_density_gradient_at_point(const clipper::
    
    clipper::Coord_frac af = ao.coord_frac(xmap_p->cell());
    clipper::Coord_map  am = af.coord_map(xmap_p->grid_sampling());
+   // clipper::Interp_linear::Interp_grad(*xmap_p, am, dv, grad) is not a thing
    clipper::Interp_cubic::interp_grad(*xmap_p, am, dv, grad);
    clipper::Grad_frac<double> grad_frac = grad.grad_frac(xmap_p->grid_sampling());
    return grad_frac.grad_orth(xmap_p->cell());

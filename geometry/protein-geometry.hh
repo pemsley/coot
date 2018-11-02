@@ -1106,6 +1106,22 @@ namespace coot {
       friend std::ostream& operator<<(std::ostream &s, chem_link lnk);
       static unsigned int make_hash_code(const std::string &comp_id_1, const std::string &comp_id_2, const std::string &group_1, const std::string &group_2);
       unsigned int get_hash_code() const { return hash_code; }
+      bool operator==(const chem_link &cl) const {
+         // cheap test - relies on the dictionary having unique entries
+         return (cl.Id() == id);
+      }
+      bool operator<(const chem_link &cl) const {
+         if (cl.Id() < id) {
+            return true;
+         } else {
+            if (cl.Id() > id) {
+               return false;
+            } else {
+              // Ids equal
+              return (cl.get_hash_code() < hash_code);
+            }
+         }
+      }
       // pair: matches need-order-switch-flag
       std::pair<bool, bool> matches_comp_ids_and_groups_hashed(const std::string &comp_id_1,
 							const std::string &group_1,

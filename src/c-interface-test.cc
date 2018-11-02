@@ -732,6 +732,18 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	 } 
       }
    }
+
+   if (1) {
+      int i = scm_to_int(i_scm); // map molecule
+      int j = scm_to_int(j_scm);
+
+      if (is_valid_model_molecule(i)) {
+         if (is_valid_map_molecule(j)) {
+            const clipper::Xmap<float> &xmap = g.molecules[j].xmap;
+            g.molecules[i].em_ringer(xmap);
+         }
+      }
+   }
    return r;
 }
 

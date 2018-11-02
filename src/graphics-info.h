@@ -558,14 +558,9 @@ class graphics_info_t {
    // now used for residue_score (from c-interface.h)
    // coot::rotamer_probability_info_t get_rotamer_probability(...)
 
+   static std::atomic<bool> moving_atoms_lock;
+   static std::atomic<unsigned int> moving_atoms_bonds_lock; // regularize_object_bonds_box is being updated
 
-   // do these need to be atomics? I don't think so.
-   // static std::atomic<unsigned int> moving_atoms_lock; // atom positions
-   // static std::atomic<unsigned int> moving_atoms_bonds_lock; // regularize_object_bonds_box is being
-                                                                // updated
-   static bool moving_atoms_lock;
-   // static bool moving_atoms_bonds_lock;
-   static std::atomic<unsigned int> moving_atoms_bonds_lock;
    static atom_selection_container_t *moving_atoms_asc;
    mmdb::Residue *get_first_res_of_moving_atoms();
    static int imol_moving_atoms;
@@ -864,6 +859,7 @@ class graphics_info_t {
    static bool refinement_of_last_restraints_needs_reset_flag;
    void update_restraints_with_atom_pull_restraints(); // make static also?
    coot::restraint_usage_Flags set_refinement_flags() const; // make static?
+   void debug_refinement();
 
    // 201803004:
    // refinement now uses references to Xmaps.
@@ -3781,23 +3777,9 @@ string   static std::string sessionid;
    // atom pull restraint
    // static atom_pull_info_t atom_pull; 20180218 just one
    static std::vector<atom_pull_info_t> atom_pulls;
-   static void all_atom_pulls_off() {
-     for (std::size_t i=0; i<atom_pulls.size(); i++)
-       atom_pulls[i].off();
-     atom_pulls.clear();
-   }
-   static void atom_pull_off(const coot::atom_spec_t &spec) {
-      for (std::size_t i=0; i<atom_pulls.size(); i++) {
-         if (atom_pulls[i].spec == spec)
-	    atom_pulls[i].off();
-      }
-   }
-   static void atom_pulls_off(const std::vector<coot::atom_spec_t> &specs) {
-      for (std::size_t j=0; j<specs.size(); j++)
-	 for (std::size_t i=0; i<atom_pulls.size(); i++)
-	    if (atom_pulls[i].spec == specs[j])
-	       atom_pulls[i].off();
-   }
+   static void all_atom_pulls_off();
+   static void atom_pull_off(const coot::atom_spec_t &spec);
+   static void atom_pulls_off(const std::vector<coot::atom_spec_t> &specs);
    void add_or_replace_current(const atom_pull_info_t &atom_pull_in);
    static void draw_atom_pull_restraint();
    // we don't want to refine_again if the accept/reject dialog "Accept" button was clicked
@@ -3899,6 +3881,12 @@ string   static std::string sessionid;
    SCM geometry_distortion_to_scm(const coot::geometry_distortion_info_t &gd) const;
    SCM restraint_to_scm(const coot::simple_restraint &restraint) const;
 #endif // USE_GUILE
+
+#ifdef USE_PYTHON
+   // Python function, called per frame draw - for Hamish
+   static std::string python_draw_function_string;
+  void set_python_draw_function(const std::string &f) { python_draw_function_string = f; }
+#endif // USE_PYTHON
 
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #ifdef HAVE_CXX_THREAD

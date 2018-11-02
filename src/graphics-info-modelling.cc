@@ -341,7 +341,7 @@ graphics_info_t::copy_model_molecule(int imol) {
 
 std::atomic<unsigned int> graphics_info_t::moving_atoms_bonds_lock(0);
 std::atomic<bool> graphics_info_t::threaded_refinement_is_running(false);
-bool graphics_info_t::moving_atoms_lock = false; // not locked
+std::atomic<bool> graphics_info_t::moving_atoms_lock(false); // not locked
 int  graphics_info_t::threaded_refinement_loop_counter = 0;
 int  graphics_info_t::threaded_refinement_loop_counter_bonds_gen = -1; // initial value is "less than" so that
                                                                        // the regeneration is activated.
@@ -417,6 +417,7 @@ graphics_info_t::refinement_loop_threaded() {
 	 }
       }
       graphics_info_t::threaded_refinement_loop_counter++;
+      // std::cout << "threaded_refinement_loop_counter " << graphics_info_t::threaded_refinement_loop_counter << std::endl;
    }
    graphics_info_t::threaded_refinement_is_running = false; // unlock! - is this safe?
 
@@ -442,6 +443,7 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
 
             // if there's not a refinement redraw function already running start up a new one.
             if (graphics_info_t::threaded_refinement_redraw_timeout_fn_id == -1) {
+
 	       int id = gtk_timeout_add(15,
 			       (GtkFunction)(regenerate_intermediate_atoms_bonds_timeout_function_and_draw),
                                NULL);
@@ -511,24 +513,51 @@ graphics_info_t::update_restraints_with_atom_pull_restraints() {
       }
    }
 
-   if (auto_clear_atom_pull_restraint_flag) {
-      // returns true when the restraint was turned off.
-      // turn_off_atom_pull_restraints_when_close_to_target_position() should not
-      // include the atom that the use is actively dragging
-      //
-      // i.e. except this one:
-      mmdb::Atom *at_except = 0;
-      if (moving_atoms_currently_dragged_atom_index != -1)
-	 at_except = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
-      coot::atom_spec_t except_dragged_atom(at_except);
 
-      std::vector<coot::atom_spec_t> specs_for_removed_restraints =
-	 last_restraints->turn_off_atom_pull_restraints_when_close_to_target_position(except_dragged_atom);
-      if (specs_for_removed_restraints.size()) {
-	 atom_pulls_off(specs_for_removed_restraints);
-	 clear_atom_pull_restraints(specs_for_removed_restraints, true);
+   // we don't want to make reference to the moving atoms if they have been deleted.
+
+   if (continue_threaded_refinement_loop) {
+
+      if (auto_clear_atom_pull_restraint_flag) {
+         // returns true when the restraint was turned off.
+         // turn_off_atom_pull_restraints_when_close_to_target_position() should not
+         // include the atom that the use is actively dragging
+         //
+         // i.e. except this one:
+         mmdb::Atom *at_except = 0;
+         coot::atom_spec_t except_dragged_atom(at_except);
+         if (moving_atoms_currently_dragged_atom_index != -1) {
+            if (moving_atoms_asc) {
+
+               // I need the atoms lock here, because we don't want to access the moving atoms
+               // if they have been deleted.
+               bool unlocked = false;
+               while (! moving_atoms_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                    unlocked = 0;
+               }
+	       at_except = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
+               except_dragged_atom = coot::atom_spec_t(at_except);
+               moving_atoms_lock = false;
+            }
+         }
+
+         std::vector<coot::atom_spec_t> specs_for_removed_restraints =
+	    last_restraints->turn_off_atom_pull_restraints_when_close_to_target_position(except_dragged_atom);
+         if (specs_for_removed_restraints.size()) {
+            unsigned int unlocked = false;
+            while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                 unlocked = 0;
+            }
+
+	    atom_pulls_off(specs_for_removed_restraints);
+	    clear_atom_pull_restraints(specs_for_removed_restraints, true);
+            moving_atoms_bonds_lock = false;
+         }
       }
    }
+
 }
 
 // static
@@ -543,7 +572,7 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function_and_draw()
 
       // ---- Here we can touch the graphics! ---------
 
-      graphics_info_t g;
+      graphics_info_t g; // 37 nanoseconds
 
       if (graphics_info_t::threaded_refinement_needs_to_accept_moving_atoms) {
 	 // std::cout << "---------- now accept moving atoms! " << std::endl;
@@ -585,6 +614,17 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
 
    // OK, we are interactive
 
+   if (false) {
+      if (threaded_refinement_loop_counter_bonds_gen < threaded_refinement_loop_counter) {
+         std::cout << "DEBUG:: threaded_refinement_loop_counter_bonds_gen signals make new bonds\n";
+      } else {
+         std::cout << "DEBUG:: threaded_refinement_loop_counter_bonds_gen bonds - already done\n";
+      }
+   }
+
+   // std::cout << " start regenerate_intermediate_atoms_bonds_timeout_function() 1 "
+   //           << threaded_refinement_loop_counter_bonds_gen << " "
+   //           << threaded_refinement_loop_counter << std::endl;
    if (threaded_refinement_loop_counter_bonds_gen < threaded_refinement_loop_counter) {
 
       bool do_rama_markup = graphics_info_t::do_intermediate_atoms_rama_markup;
@@ -609,25 +649,40 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
 	 }
       }
 
-      if (threaded_refinement_is_running) {
-         unsigned int unlocked = false;
-         while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            unlocked = 0;
-         }
+      // if (threaded_refinement_is_running) {
 
+      // we want to see the bonds if
+      // threaded_refinement_loop_counter_bonds_gen < threaded_refinement_loop_counter
+      // and that does not dependent on if the refinement was running.
 
-         threaded_refinement_loop_counter_bonds_gen = threaded_refinement_loop_counter;
-         graphics_info_t g;
-         g.make_moving_atoms_graphics_object(imol_moving_atoms, *moving_atoms_asc);
-
-         // Dots on then off but dots remain? Just undisplay them in the Generic Object manager
-         if (do_coot_probe_dots_during_refine_flag) {
-	    g.do_interactive_coot_probe();
-         }
-         moving_atoms_bonds_lock = 0;
+      unsigned int unlocked = false;
+      while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+         std::this_thread::sleep_for(std::chrono::milliseconds(1));
+         unlocked = 0;
       }
 
+      // To stop the moving atoms begin deleted as we draw them, we lock them here
+      //
+      bool unlocked_atoms = false;
+      while (! moving_atoms_lock.compare_exchange_weak(unlocked_atoms, 1) && !unlocked_atoms) {
+         std::this_thread::sleep_for(std::chrono::milliseconds(1));
+         unlocked_atoms = 0;
+      }
+
+      // tell the next round that we have (already) drawn the bonds for this set
+      // of atom positions
+      threaded_refinement_loop_counter_bonds_gen = threaded_refinement_loop_counter;
+      graphics_info_t g;
+      g.make_moving_atoms_graphics_object(imol_moving_atoms, *moving_atoms_asc);
+
+      g.debug_refinement(); // check COOT_DEBUG_REFINEMENT
+
+      // Dots on then off but dots remain? Just undisplay them in the Generic Object manager
+      if (do_coot_probe_dots_during_refine_flag) {
+         g.do_interactive_coot_probe();
+      }
+      moving_atoms_bonds_lock = 0;
+      moving_atoms_lock = false;
 
       if (accept_reject_dialog)
 	 update_accept_reject_dialog_with_results(accept_reject_dialog, coot::CHI_SQUAREDS,
@@ -643,6 +698,28 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
    }
 
    return continue_status; // return 0 to stop
+}
+
+void
+graphics_info_t::debug_refinement() {
+
+   // I should not need to pass flags to an on-going refinement.
+   // These flags may not match the user flags - and it is not easy
+   // to get to the user flags (the flags with which minimize() is called).
+   //
+   coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
+
+   // 20180923 Hmm... I guess that I need to lock the restraints? So that
+   // they are not deleted as I try to write them out.
+   //
+   // Hideous race condition somehow?
+   //
+   char *env = getenv("COOT_DEBUG_REFINEMENT");
+   if (env)
+      if (last_restraints)
+	 if (! threaded_refinement_is_running)
+	    tabulate_geometric_distortions(*last_restraints, flags);
+
 }
 
 
@@ -863,6 +940,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 			    <<  " " << molecules[imol].extra_restraints.bond_restraints.size()
 			    << std::endl;
 
+               all_atom_pulls_off();
 	       int n_restraints = last_restraints->make_restraints(imol,
 								   *Geom_p(), flags,
 								   do_residue_internal_torsions,
@@ -1667,6 +1745,8 @@ graphics_info_t::flash_selection(int imol,
 					     "*" );    // Alternate locations.
 
    molecules[imol].atom_sel.mol->GetSelIndex(selHnd, SelAtom, nSelAtoms);
+
+   return;
 
    if (glarea) {
       if (nSelAtoms) {

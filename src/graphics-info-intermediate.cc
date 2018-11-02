@@ -44,7 +44,11 @@ bool graphics_info_t::pepflip_intermediate_atoms() {
 	 }
       }
 
-      if (at_close) {
+      if (! at_close) {
+
+         std::cout << "INFO:: No close atom" << std::endl;
+
+      } else {
 
 	 mmdb::Residue *res_this = at_close->residue;
 	 std::string atom_name = at_close->name;
@@ -86,6 +90,15 @@ bool graphics_info_t::pepflip_intermediate_atoms() {
 	       coot::util::rotate_atom_about(dir, base, M_PI, at_1_o);
 	       coot::util::rotate_atom_about(dir, base, M_PI, at_2_n);
 	       coot::util::rotate_atom_about(dir, base, M_PI, at_2_h); // does null check
+
+               // in the case where the refinement finishes before the
+               // timeout function begins, we would like to force a redraw of the
+               // bonds (so we can see that the atoms flipped). Hmm.. I am not
+               // sure if this works/is-needed - difficult to test. Maybe
+               // it should be added to refinement_of_last_restraints_needs_reset().
+
+               // std::cout << "Atoms really moved - restarting refinement" << std::endl;
+               threaded_refinement_loop_counter++;
 
 	       refinement_of_last_restraints_needs_reset();
 	       thread_for_refinement_loop_threaded();

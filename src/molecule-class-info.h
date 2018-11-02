@@ -132,6 +132,8 @@ namespace molecule_map_type {
 #include "atom-name-bits.hh"
 #include "rama-rota-score.hh"
 #include "merge-molecule-results-info-t.hh"
+#include "density-results-container-t.hh"
+
 
 namespace coot {
 
@@ -2507,6 +2509,17 @@ public:        //                      public
 		    const std::pair<std::string, std::string> &direction_atoms,
 		    const std::vector<std::string> &moving_atoms_list); 
 
+ 
+    density_results_container_t
+    spin_atom(const clipper::Xmap<float> &xmap,
+              const coot::residue_spec_t &spec,
+              const std::string &direction_atoms_ref,  //e.g. N
+              const std::string &direction_atoms_base, //e.g. CA
+              const std::string &direction_atoms_tip,  //e.g. CB, where moving atom is CG
+              const std::vector<std::string> &moving_atoms_list) const;
+
+
+   void em_ringer(const clipper::Xmap<float> &xmap) const;
 
    // nomenclature errors
    // return a vector of the changed residues (used for updating the rotamer graph)

@@ -538,7 +538,7 @@ coot::util::make_edcalc_map(const clipper::NXmap<float>& map_ref,  // for metric
    // init nxmap
    clipper::NXmap<float> nxmap(map_ref.grid(), map_ref.operator_orth_grid());
 
-   clipper::EDcalc_iso<float> edc(1.4); // radius
+   clipper::EDcalc_iso<float> edc(3.0); // radius
    mmdb::Atom **sel_atoms = 0;
    int n_sel_atoms;
    std::vector<clipper::Atom> l;
@@ -550,8 +550,8 @@ coot::util::make_edcalc_map(const clipper::NXmap<float>& map_ref,  // for metric
       clipper::Atom cat;
       cat.set_element(ele);
       cat.set_coord_orth(pt);
-      cat.set_u_iso(at->tempFactor);
-      cat.set_u_iso(10.0);
+      cat.set_u_iso(at->tempFactor * 0.0125);
+      // cat.set_u_iso(0.1);
       cat.set_occupancy(1.0);
       l.push_back(cat);
    }

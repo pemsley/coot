@@ -459,3 +459,20 @@ curl_post(const std::string &url, const std::string &post_string) {
    curl_easy_cleanup(c);
 }
 #endif // USE_LIBCURL
+
+
+
+
+/*  ----------------------------------------------------------------------- */
+/*                  Client/Server                                           */
+/*  ----------------------------------------------------------------------- */
+//! \brief client/server functions
+#ifdef USE_PYTHON
+void set_python_draw_function(const std::string &s) {
+
+   graphics_info_t g;
+   g.set_python_draw_function(s);
+
+}
+#endif // USE_PYTHON
+

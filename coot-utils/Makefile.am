@@ -37,7 +37,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	glyco-torsions.hh coot-least-squares.hh coot-density-stats.hh \
         atom-overlaps.hh reduce.hh atom-selection-container.hh contact-info.hh plane-utils.hh \
         secondary-structure-headers.hh c-beta-deviations.hh jed-flip.hh lidia-core-functions.hh \
-	bonded-atoms.hh
+	bonded-atoms.hh spherical-harmonics.hh
 
 pkgincludedir = $(includedir)/coot/coot-utils
 
@@ -111,7 +111,7 @@ libcoot_map_utils_la_LIBADD = \
 libcoot_map_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # for map things that need mmdb, clipper, gsl and other things
-libcoot_map_heavy_la_SOURCES = coot-map-heavy.cc coot-fffear.cc
+libcoot_map_heavy_la_SOURCES = coot-map-heavy.cc coot-fffear.cc spherical-harmonics.cc
 
 #   $(top_builddir)/utils/libcoot-utils.la 
 
