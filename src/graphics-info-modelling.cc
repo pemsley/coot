@@ -661,6 +661,14 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
          unlocked = 0;
       }
 
+      // To stop the moving atoms begin deleted as we draw them, we lock them here
+      //
+      bool unlocked_atoms = false;
+      while (! moving_atoms_lock.compare_exchange_weak(unlocked_atoms, 1) && !unlocked_atoms) {
+         std::this_thread::sleep_for(std::chrono::milliseconds(1));
+         unlocked_atoms = 0;
+      }
+
       // tell the next round that we have (already) drawn the bonds for this set
       // of atom positions
       threaded_refinement_loop_counter_bonds_gen = threaded_refinement_loop_counter;
@@ -674,6 +682,7 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
          g.do_interactive_coot_probe();
       }
       moving_atoms_bonds_lock = 0;
+      moving_atoms_lock = false;
 
       if (accept_reject_dialog)
 	 update_accept_reject_dialog_with_results(accept_reject_dialog, coot::CHI_SQUAREDS,
@@ -931,6 +940,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 			    <<  " " << molecules[imol].extra_restraints.bond_restraints.size()
 			    << std::endl;
 
+               all_atom_pulls_off();
 	       int n_restraints = last_restraints->make_restraints(imol,
 								   *Geom_p(), flags,
 								   do_residue_internal_torsions,
