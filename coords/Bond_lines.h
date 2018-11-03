@@ -789,6 +789,7 @@ public:
       have_dictionary = false;
       geom = protein_geom;
       init();
+      udd_has_ca_handle = -1;
       if (protein_geom)
 	 have_dictionary = true;
       for_GL_solid_model_rendering = 0;
@@ -809,6 +810,7 @@ public:
       have_dictionary = false;
       geom = protein_geom;
       init();
+      udd_has_ca_handle = -1;
       if (protein_geom)
 	 have_dictionary = true;
       for_GL_solid_model_rendering = 0;
@@ -831,6 +833,7 @@ public:
       b_factor_scale = 1.0;
       have_dictionary = 0;
       for_GL_solid_model_rendering = 0;
+      udd_has_ca_handle = -1;
       init();
       if (bonds.size() == 0) { 
 	 for (int i=0; i<13; i++) { // 13 colors now in bond_colours
