@@ -1645,7 +1645,7 @@ graphics_info_t::clear_up_moving_atoms() {
    // can't continue
 
    bool unlocked = false;
-   while (! graphics_info_t::threaded_refinement_is_running.compare_exchange_weak(unlocked, true)) {
+   while (! threaded_refinement_is_running.compare_exchange_weak(unlocked, true) && !unlocked) {
       std::cout << "WARNING:: graphics_info_t::clear_up_moving_atoms() - refinement_is_running locked on "
                 << std::endl;
       std::this_thread::sleep_for(std::chrono::milliseconds(20));
@@ -1655,12 +1655,13 @@ graphics_info_t::clear_up_moving_atoms() {
    // We must not delete the moving atoms if they are being used to manipulate pull restraints
    //
    bool unlocked_atoms = false;
-   while (! moving_atoms_lock.compare_exchange_weak(unlocked_atoms, 1) && !unlocked_atoms) {
+   while (! moving_atoms_lock.compare_exchange_weak(unlocked_atoms, true) && !unlocked_atoms) {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
       unlocked_atoms = 0;
    }
 
-   graphics_info_t::continue_update_refinement_atoms_flag = false;
+   continue_update_refinement_atoms_flag = false;
+   continue_threaded_refinement_loop = false;
 
    if (moving_atoms_asc->atom_selection != NULL) {
       if (moving_atoms_asc->n_selected_atoms > 0) { 
