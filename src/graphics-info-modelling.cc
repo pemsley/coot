@@ -532,12 +532,17 @@ graphics_info_t::update_restraints_with_atom_pull_restraints() {
                // I need the atoms lock here, because we don't want to access the moving atoms
                // if they have been deleted.
                bool unlocked = false;
-               while (! moving_atoms_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+               while (! moving_atoms_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
                     std::this_thread::sleep_for(std::chrono::milliseconds(1));
                     unlocked = 0;
                }
-	       at_except = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
-               except_dragged_atom = coot::atom_spec_t(at_except);
+               if (moving_atoms_asc->atom_selection) {
+	          at_except = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
+                  except_dragged_atom = coot::atom_spec_t(at_except);
+               } else {
+                  std::cout << "WARNING:: attempted use moving_atoms_asc->atom_selection, but NULL"
+                            << std::endl;
+               }
                moving_atoms_lock = false;
             }
          }
@@ -580,7 +585,8 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function_and_draw()
       }
 
       if (graphics_info_t::threaded_refinement_needs_to_clear_up) {
-	 // std::cout << "---------- now clear up moving atoms! " << std::endl;
+	 std::cout << "---------- in regenerate_intermediate_atoms_bonds_timeout_function() clear up moving atoms! "
+                   << std::endl;
 	 g.clear_up_moving_atoms(); // deletes last_restraints
 	 g.clear_moving_atoms_object();
       }
