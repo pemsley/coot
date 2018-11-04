@@ -1634,7 +1634,10 @@ graphics_info_t::update_environment_distances_by_rotation_centre_maybe(int imol_
 void 
 graphics_info_t::clear_up_moving_atoms() { 
 
-   // std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms..." << std::endl;
+   std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms..." << std::endl;
+
+   // Note to self: why don't I do a delete moving_atoms_asc somewhere here?
+   // Where does the moving_atoms_asc->mol go?
 
    moving_atoms_asc_type = coot::NEW_COORDS_UNSET; // unset
    in_moving_atoms_drag_atom_mode_flag = 0; // no more dragging atoms
@@ -1642,25 +1645,37 @@ graphics_info_t::clear_up_moving_atoms() {
    // and take out any drag refine idle function:
 
    // We can't clear up until we have the lock and the lock here means that refinement
-   // can't continue
+   // can't continue (lock is restraints_lock).
 
-   bool unlocked = false;
-   while (! graphics_info_t::threaded_refinement_is_running.compare_exchange_weak(unlocked, true)) {
-      std::cout << "WARNING:: graphics_info_t::clear_up_moving_atoms() - refinement_is_running locked on "
+   // bool compare_exchange_weak (T& expected, T desired);
+   // when "expected" equals the value of restraint_lock, compare_exchange_weak() returns 
+   // true and replaces "desired" as the value of restraints lock - atomically of course.
+   // If the values are not equal, then we want to sleep/wait for a bit - hence
+   // enter the while loop.
+   // Dealing with spurious failure by using '&& !unlocked' in the while test:
+   // it seems that the test is always true and we never enter the while loop
+   // and wait - even if restraints_lock is true when we start.
+
+   std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms restrainst_lock pre " << restraints_lock  << std::endl;
+   bool unlocked = false; // wait for restraints_lock to be false...
+   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
+      std::cout << "WARNING:: graphics_info_t::clear_up_moving_atoms() - refinement restraints locked on "
                 << std::endl;
-      std::this_thread::sleep_for(std::chrono::milliseconds(20));
+      std::this_thread::sleep_for(std::chrono::milliseconds(40));
       unlocked = false;
    }
+   std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms restrainst_lock post " << restraints_lock  << std::endl;
 
    // We must not delete the moving atoms if they are being used to manipulate pull restraints
    //
    bool unlocked_atoms = false;
-   while (! moving_atoms_lock.compare_exchange_weak(unlocked_atoms, 1) && !unlocked_atoms) {
+   while (! moving_atoms_lock.compare_exchange_weak(unlocked_atoms, true) && !unlocked_atoms) {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
       unlocked_atoms = 0;
    }
 
-   graphics_info_t::continue_update_refinement_atoms_flag = false;
+   continue_update_refinement_atoms_flag = false;
+   continue_threaded_refinement_loop = false;
 
    if (moving_atoms_asc->atom_selection != NULL) {
       if (moving_atoms_asc->n_selected_atoms > 0) { 
@@ -1702,7 +1717,7 @@ graphics_info_t::clear_up_moving_atoms() {
       delete last_restraints;
       last_restraints = 0;
    }
-   graphics_info_t::threaded_refinement_is_running = false;
+   graphics_info_t::restraints_lock = false; // refinement ended and cleared up.
 #endif // HAVE_GSL
 
    moving_atoms_lock  = false;

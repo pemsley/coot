@@ -79,7 +79,7 @@ bool graphics_info_t::pepflip_intermediate_atoms() {
 	       // tell the refinement to stop, wait for it to stop, move the atoms and then restart
 
 	       continue_threaded_refinement_loop = false;
-	       while(threaded_refinement_is_running == true) {
+	       while (restraints_lock) {
 		  std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	       }
 
@@ -162,7 +162,7 @@ graphics_info_t::backrub_rotamer_intermediate_atoms() {
 		     std::pair<coot::minimol::molecule,float> m = br.search(rest);
 
 		     continue_threaded_refinement_loop = false;
-		     while(threaded_refinement_is_running == true) {
+		     while (restraints_lock) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		     }
 
@@ -250,7 +250,7 @@ graphics_info_t::cis_trans_conversion_intermediate_atoms() {
 	       // tell the refinement to stop, wait for it to stop, move the atoms and then restart
 
 	       continue_threaded_refinement_loop = false;
-	       while(threaded_refinement_is_running == true) {
+	       while (restraints_lock) {
 		  std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	       }
 

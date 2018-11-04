@@ -3736,7 +3736,11 @@ void
 Bond_lines_container::do_Ca_bonds(atom_selection_container_t SelAtom,
 				  float min_dist, float max_dist) {
 
-   udd_has_ca_handle = SelAtom.mol->RegisterUDInteger (mmdb::UDR_RESIDUE, "has CA");
+   if (udd_has_ca_handle == -1)
+      udd_has_ca_handle = SelAtom.mol->RegisterUDInteger(mmdb::UDR_RESIDUE, "has CA");
+   if (false)
+      std::cout << "debug:: RegisterUDInteger for udd_has_ca_handle " << udd_has_ca_handle
+                << std::endl;
    if (!udd_has_ca_handle) {
       std::cout << "ERROR getting udd_has_ca_handle\n";
    }
@@ -4308,13 +4312,14 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 					       int atom_colour_type,
 					       bool do_bonds_to_hydrogens_in) {
 
-//    std::cout << "do_Ca_plus_ligands_bonds with atom_colour_type "
-// 	     << atom_colour_type << std::endl;
+    if (false)
+       std::cout << "---- in do_Ca_plus_ligands_bonds with atom_colour_type "
+                 << atom_colour_type << std::endl;
 
-  if (! SelAtom.mol) {
-    std::cout << "ERROR:: Caught null mol in do_Ca_plus_ligands_bonds()" << std::endl;
-    return;
-  }
+   if (! SelAtom.mol) {
+      std::cout << "ERROR:: Caught null mol in do_Ca_plus_ligands_bonds()" << std::endl;
+      return;
+   }
    
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
    mmdb::Model *model_p = SelAtom.mol->GetModel(1);
@@ -4324,7 +4329,11 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
    }
    if (model_p) {
       int istat;
-      udd_has_ca_handle = SelAtom.mol->RegisterUDInteger (mmdb::UDR_RESIDUE, "has CA");
+      // udd_has_ca_handle = SelAtom.mol->RegisterUDInteger (mmdb::UDR_RESIDUE, "has CA");
+      if (udd_has_ca_handle == -1) {
+         udd_has_ca_handle = SelAtom.mol->RegisterUDInteger (mmdb::UDR_RESIDUE, "has CA");
+      }
+
       int nchains = model_p->GetNumberOfChains();
       mmdb::Residue *residue_p;
       mmdb::Chain   *chain_p;
@@ -4336,8 +4345,9 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 	    if (residue_p) {
 	       istat = residue_p->PutUDData(udd_has_ca_handle, 0);
 	       if (istat == mmdb::UDDATA_WrongUDRType) {
-		  std::cout << "ERROR::  mmdb:UDDATA_WrongUDRType in "
-			    << "do_Ca_plus_ligands_bonds" << std::endl;
+		  std::cout << "ERROR:: mmdb:UDDATA_WrongUDRType in do_Ca_plus_ligands_bonds "
+                            << coot::residue_spec_t(residue_p) << " " << udd_has_ca_handle
+                            << std::endl;
 	       }
 	    }
 	 }

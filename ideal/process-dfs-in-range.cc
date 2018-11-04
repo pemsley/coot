@@ -29,27 +29,37 @@ coot::restraints_container_t::make_df_restraints_indices() {
    // this can be called more than once. It is called, for example, after
    // extra_restraints are added (geman-mcclure).
 
-   unsigned int n_t = n_threads;
+   // no longer use n_t : now use n_r_s - the number of restraints-indices sets.
+
+   // I think that the restaints sets were not finishing evenly, so other restraints
+   // thread were waiting for one other to finish (typically). Let's have more
+   // sets and they all get shoved on to the thread pool queue - hopefully
+   // that will address some timing issues.
+   // This (or something similar) should probably for the evaluation of
+   // distortion too.
+   //
+   unsigned int n_r_s = 20; // needs optimizing
    unsigned int restraints_size = size();
 
    // Perhaps restraints_container_t was constructed without setting the thread pool.
    // So we get here with n_t == 0.
    // But the refinement still needs somewhere to put the results. Make single vectors
    //
-   if (n_t == 0) n_t = 1;
+   if (n_r_s == 0) n_r_s = 1;
+
 
    // these are now class variables
    // std::vector<std::vector<std::size_t> > restraints_indices(n_t);
    // std::vector<std::vector<double> > df_by_thread_results(n_t);
    restraints_indices.clear();
-   restraints_indices.resize(n_t);
+   restraints_indices.resize(n_r_s);
    df_by_thread_results.clear();
-   df_by_thread_results.resize(n_t);
+   df_by_thread_results.resize(n_r_s); // this may not be a good idea, needs optimization.
 
    // each restraint_index vector will contain about
    // restraints_size/n_threads restraint indices
    //
-   int r_reserve_size = std::lround(static_cast<float>(restraints_size)/static_cast<float>(n_t)) + 2;
+   int r_reserve_size = std::lround(static_cast<float>(restraints_size)/static_cast<float>(n_r_s)) + 2;
 
    // First fill the restraints indices vectors
    //
@@ -61,7 +71,7 @@ coot::restraints_container_t::make_df_restraints_indices() {
       // std::cout << "pushing back ir " << ir << " to i_thread " << i_thread << " of " << n_t << std::endl;
       restraints_indices[i_thread].push_back(ir);
       ++i_thread;
-      if (i_thread==n_t) i_thread=0;
+      if (i_thread==n_r_s) i_thread=0;
    }
 
    if (false) { // debug thread-based restraints splitting
@@ -76,7 +86,7 @@ coot::restraints_container_t::make_df_restraints_indices() {
    // Now make space for the df results, vectors of size 3*n_atoms
    //
    unsigned int n_var = n_variables();
-   for (std::size_t ii=0; ii<n_t; ii++)
+   for (std::size_t ii=0; ii<n_r_s; ii++)
       df_by_thread_results[ii] = std::vector<double>(n_var, 0);
 
 
@@ -85,14 +95,14 @@ coot::restraints_container_t::make_df_restraints_indices() {
    // but unlike restraints_vec, this does not dynamically change size.
 
    df_by_thread_atom_indices.clear();
-   df_by_thread_atom_indices.resize(n_t);
-   i_thread = 0;
+   df_by_thread_atom_indices.resize(n_r_s);
+   i_thread = 0; // not really threads - now index for sets of restraints-indices
    unsigned int n = get_n_atoms();
    for (unsigned int ir=0; ir<n; ir++) {
       // std::cout << "adding atom ir " << ir << " to thread indices vec " << i_thread << " of " << n_t << std::endl;
       df_by_thread_atom_indices[i_thread].push_back(ir);
       ++i_thread;
-      if (i_thread==n_t) i_thread=0;
+      if (i_thread==n_r_s) i_thread=0;
    }
 
    // add this to the class when it works again
@@ -156,19 +166,19 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
    //x auto tp_2 = std::chrono::high_resolution_clock::now();
 
    // wait for the threads in the thread pool
-   while (done_count_for_threads != restraints_p->n_threads) {
+   while (done_count_for_threads != restraints_p->restraints_indices.size()) {
       std::this_thread::sleep_for(std::chrono::microseconds(1));
    }
 
    //x auto tp_3 = std::chrono::high_resolution_clock::now();
 
    // consolidate
-   unsigned int n_t = restraints_p->n_threads;
+   unsigned int n_r_s = restraints_p->restraints_indices.size();
    unsigned int n_variables = restraints_p->n_variables();
-   for (std::size_t i_thread=0; i_thread<n_t; i_thread++) {
+   for (std::size_t i_r_s=0; i_r_s<n_r_s; i_r_s++) {
       for (unsigned int i=0; i<n_variables; i++) {
-	 if (restraints_p->df_by_thread_results[i_thread][i] != 0.0) {
-	    *gsl_vector_ptr(df, i) += restraints_p->df_by_thread_results[i_thread][i];
+	 if (restraints_p->df_by_thread_results[i_r_s][i] != 0.0) {
+	    *gsl_vector_ptr(df, i) += restraints_p->df_by_thread_results[i_r_s][i];
 	 }
       }
    }
@@ -200,7 +210,7 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
       //x auto tp_6 = std::chrono::high_resolution_clock::now();
 
       // wait for the threads in the thread pool (~20us for threads to complete)
-      while (done_count_for_threads != restraints_p->n_threads) {
+      while (done_count_for_threads != restraints_p->df_by_thread_atom_indices.size()) {
 	 std::this_thread::sleep_for(std::chrono::microseconds(1));
       }
       //x auto tp_7 = std::chrono::high_resolution_clock::now();

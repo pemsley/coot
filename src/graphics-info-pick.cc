@@ -726,7 +726,7 @@ graphics_info_t::move_atom_pull_target_position(int screen_x, int screen_y) {
 		<< std::endl;
 
    continue_threaded_refinement_loop = false;
-   while(threaded_refinement_is_running == true) {
+   while (restraints_lock) {
         std::this_thread::sleep_for(std::chrono::milliseconds(2)); // not sure about the delay
    }
 
