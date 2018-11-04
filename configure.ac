@@ -209,7 +209,7 @@ else
 fi
 AC_SUBST([COOT_OPENGL_LIBS], [${COOT_OPENGL_LIBS}])
 
-AC_ARG_WITH(glsl [ --with-glsl use OpenLG Shader Language for molecule display - experimental ],
+AC_ARG_WITH(glsl, [ --with-glsl use OpenGL Shader Language for molecule display - experimental ],
   coot_with_glsl=true,
   coot_with_glsl=false)
 
