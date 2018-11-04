@@ -3851,7 +3851,7 @@ string   static std::string sessionid;
    static int crankshaft_peptide_rotation_optimization_intermediate_atoms();
 
 #ifdef HAVE_CXX_THREAD
-   static std::atomic<bool> threaded_refinement_is_running;
+   static std::atomic<bool> restraints_lock;
    static bool continue_threaded_refinement_loop; // so that the ESC key can stop the refinement
    static int  threaded_refinement_loop_counter;
    static int  threaded_refinement_loop_counter_bonds_gen;

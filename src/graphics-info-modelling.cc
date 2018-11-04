@@ -340,7 +340,7 @@ graphics_info_t::copy_model_molecule(int imol) {
 }
 
 std::atomic<unsigned int> graphics_info_t::moving_atoms_bonds_lock(0);
-std::atomic<bool> graphics_info_t::threaded_refinement_is_running(false);
+std::atomic<bool> graphics_info_t::restraints_lock(false);
 std::atomic<bool> graphics_info_t::moving_atoms_lock(false); // not locked
 int  graphics_info_t::threaded_refinement_loop_counter = 0;
 int  graphics_info_t::threaded_refinement_loop_counter_bonds_gen = -1; // initial value is "less than" so that
@@ -359,7 +359,7 @@ graphics_info_t::refinement_loop_threaded() {
 
    // ---- Don't touch the graphics or the gui! ---------
 
-   if (graphics_info_t::threaded_refinement_is_running) {
+   if (graphics_info_t::restraints_lock) {
       return;
    }
 
@@ -368,8 +368,9 @@ graphics_info_t::refinement_loop_threaded() {
       return;
    }
 
+   // Perhaps threaded_refinement_is_running should be an atomic called restraints_lock
    bool unlocked = false;
-   while (! graphics_info_t::threaded_refinement_is_running.compare_exchange_weak(unlocked, true)) {
+   while (! graphics_info_t::restraints_lock.compare_exchange_weak(unlocked, true)) {
       std::cout << "WARNING:: refinement_loop_threaded() refinement loop locked " << std::endl;
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
       unlocked = 0;
@@ -384,9 +385,10 @@ graphics_info_t::refinement_loop_threaded() {
    coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS; // for now
    flags = g.set_refinement_flags(); // flags should not be needed for minimize()
 
-   continue_threaded_refinement_loop = true;
+   // continue_threaded_refinement_loop = true; not here - set it in the calling function
    while (continue_threaded_refinement_loop) {
 
+      // std::cout << "new minimize() round" << std::endl;
       g.update_restraints_with_atom_pull_restraints();
 
       bool pr_chi_sqds = false; // print inital chi squareds
@@ -418,8 +420,9 @@ graphics_info_t::refinement_loop_threaded() {
       }
       graphics_info_t::threaded_refinement_loop_counter++;
       // std::cout << "threaded_refinement_loop_counter " << graphics_info_t::threaded_refinement_loop_counter << std::endl;
+      // std::cout << "done  minimize() round" << std::endl;
    }
-   graphics_info_t::threaded_refinement_is_running = false; // unlock! - is this safe?
+   graphics_info_t::restraints_lock = false; // unlock! - is this safe? (I think so, we had the lock)
 
    // when this function exits, the (detached) thread in which it's running ends
 }
@@ -433,7 +436,7 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
    // (with success?).
 
 
-   if (graphics_info_t::threaded_refinement_is_running) {
+   if (graphics_info_t::restraints_lock) {
       return;
    } else {
 
@@ -452,6 +455,7 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
          }
       }
 
+      continue_threaded_refinement_loop = true;
       std::thread r(refinement_loop_threaded);
       r.detach();
    }
@@ -469,7 +473,7 @@ void
 graphics_info_t::conditionally_wait_for_refinement_to_finish() {
 
    if (refinement_immediate_replacement_flag || !use_graphics_interface_flag) {
-      while (threaded_refinement_is_running) {
+      while (restraints_lock) {
          // this is the main thread - it better be! :-)
          std::this_thread::sleep_for(std::chrono::milliseconds(30));
       }
@@ -580,7 +584,7 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function_and_draw()
       graphics_info_t g; // 37 nanoseconds
 
       if (graphics_info_t::threaded_refinement_needs_to_accept_moving_atoms) {
-	 // std::cout << "---------- now accept moving atoms! " << std::endl;
+	 std::cout << "---------- now accept moving atoms! " << std::endl;
 	 g.accept_moving_atoms(); // calls clear_up_moving_atoms() which deletes last_restraints
       }
 
@@ -605,12 +609,12 @@ int
 graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
 
    // Sometimes this thread doesn't stop at the end of a refinement because
-   // another mouse drag starts another refinement (and sets threaded_refinement_is_running
+   // another mouse drag starts another refinement (and sets restraints_lock
    // to true before we get here). Hmm.
 
    int continue_status = 1;
 
-   if (! threaded_refinement_is_running)
+   if (! restraints_lock)
       continue_status = 0; // stop the timeout function after this redraw
 
    if (! use_graphics_interface_flag) {
@@ -655,8 +659,6 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
 	 }
       }
 
-      // if (threaded_refinement_is_running) {
-
       // we want to see the bonds if
       // threaded_refinement_loop_counter_bonds_gen < threaded_refinement_loop_counter
       // and that does not dependent on if the refinement was running.
@@ -695,7 +697,7 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
 						  saved_dragged_refinement_results);
    }
 
-   if (! threaded_refinement_is_running)
+   if (! restraints_lock)
       continue_status = 0; // stop the timeout function
 
    if (continue_status == 0) {
@@ -723,7 +725,7 @@ graphics_info_t::debug_refinement() {
    char *env = getenv("COOT_DEBUG_REFINEMENT");
    if (env)
       if (last_restraints)
-	 if (! threaded_refinement_is_running)
+	 if (! restraints_lock)
 	    tabulate_geometric_distortions(*last_restraints, flags);
 
 }
@@ -917,6 +919,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 		  }
 	       }
 
+               continue_threaded_refinement_loop = true; // no longer set in refinement_loop_threaded()
 	       last_restraints = new
 		  coot::restraints_container_t(local_residues,
 					       local_moving_atoms_asc.links,
@@ -987,7 +990,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 
                if (refinement_immediate_replacement_flag) {
                   // wait until refinement finishes
-                  while (graphics_info_t::threaded_refinement_is_running)
+                  while (restraints_lock)
                      std::this_thread::sleep_for(std::chrono::milliseconds(10));
                }
 
