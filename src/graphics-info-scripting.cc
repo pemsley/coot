@@ -228,8 +228,10 @@ graphics_info_t::get_intermediate_atoms_bonds_representation() {
    if (moving_atoms_asc) {
       if (moving_atoms_asc->mol) {
 
-         unsigned int unlocked = false;
+         unsigned int unlocked = 0;
+         // while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1)) {
          while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+            std::cout << "in get_intermediate_atoms_bonds_representation(), waiting for bonds lock" << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             unlocked = 0;
          }
