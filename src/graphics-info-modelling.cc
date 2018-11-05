@@ -435,8 +435,8 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
    // get called several times when the refine loop ends
    // (with success?).
 
-
    if (graphics_info_t::restraints_lock) {
+      // std::cout << "thread_for_refinement_loop_threaded() restraints locked " << std::endl;
       return;
    } else {
 
@@ -614,10 +614,26 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
 
    int continue_status = 1;
 
-   if (! restraints_lock)
+   if (! restraints_lock) {
+      threaded_refinement_redraw_timeout_fn_id = -1; // we've finished
       continue_status = 0; // stop the timeout function after this redraw
+   }
 
    if (! use_graphics_interface_flag) {
+      continue_status = 0;
+      return continue_status;
+   }
+
+   if (moving_atoms_asc == NULL) {
+      // std::cout << "DEBUG:: regenerate_intermediate_atoms_bonds_timeout_function() no moving_atoms_asc" << std::endl;
+      continue_status = 0;
+      threaded_refinement_redraw_timeout_fn_id = -1; // we've finished
+      return continue_status;
+   }
+
+   if (moving_atoms_asc->atom_selection == NULL) {
+      // std::cout << "DEBUG:: regenerate_intermediate_atoms_bonds_timeout_function() no moving_atoms_asc->atom_selection" << std::endl;
+      threaded_refinement_redraw_timeout_fn_id = -1; // we've finished
       continue_status = 0;
       return continue_status;
    }
@@ -626,15 +642,12 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
 
    if (false) {
       if (threaded_refinement_loop_counter_bonds_gen < threaded_refinement_loop_counter) {
-         std::cout << "DEBUG:: threaded_refinement_loop_counter_bonds_gen signals make new bonds\n";
+         std::cout << "DEBUG:: regenerate_intermediate_atoms_bonds_timeout_function signals make new bonds\n";
       } else {
-         std::cout << "DEBUG:: threaded_refinement_loop_counter_bonds_gen bonds - already done\n";
+         std::cout << "DEBUG:: regenerate_intermediate_atoms_bonds_timeout_function bonds - already done\n";
       }
    }
 
-   // std::cout << " start regenerate_intermediate_atoms_bonds_timeout_function() 1 "
-   //           << threaded_refinement_loop_counter_bonds_gen << " "
-   //           << threaded_refinement_loop_counter << std::endl;
    if (threaded_refinement_loop_counter_bonds_gen < threaded_refinement_loop_counter) {
 
       bool do_rama_markup = graphics_info_t::do_intermediate_atoms_rama_markup;
@@ -662,6 +675,7 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
       // we want to see the bonds if
       // threaded_refinement_loop_counter_bonds_gen < threaded_refinement_loop_counter
       // and that does not dependent on if the refinement was running.
+
 
       unsigned int unlocked = false;
       while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {

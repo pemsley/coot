@@ -1634,8 +1634,6 @@ graphics_info_t::update_environment_distances_by_rotation_centre_maybe(int imol_
 void 
 graphics_info_t::clear_up_moving_atoms() { 
 
-   std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms..." << std::endl;
-
    // Note to self: why don't I do a delete moving_atoms_asc somewhere here?
    // Where does the moving_atoms_asc->mol go?
 
@@ -1656,15 +1654,13 @@ graphics_info_t::clear_up_moving_atoms() {
    // it seems that the test is always true and we never enter the while loop
    // and wait - even if restraints_lock is true when we start.
 
-   std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms restrainst_lock pre " << restraints_lock  << std::endl;
    bool unlocked = false; // wait for restraints_lock to be false...
    while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
-      std::cout << "WARNING:: graphics_info_t::clear_up_moving_atoms() - refinement restraints locked on "
+      std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms() - refinement restraints locked on "
                 << std::endl;
       std::this_thread::sleep_for(std::chrono::milliseconds(40));
       unlocked = false;
    }
-   std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms restrainst_lock post " << restraints_lock  << std::endl;
 
    // We must not delete the moving atoms if they are being used to manipulate pull restraints
    //
@@ -1832,14 +1828,28 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 	    draw_hydrogens_flag = true;
 	 bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol, Geom_p(), 1.0, 4.7, draw_hydrogens_flag);
 
-         unsigned int unlocked = false;
+         unsigned int unlocked = 0;
+         // Neither of these seems to make a difference re: the intermediate atoms python representation
+         // while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1)) {
          while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             unlocked = 0;
          }
 
-	 regularize_object_bonds_box.clear_up();
-	 regularize_object_bonds_box = bonds.make_graphical_bonds();
+         // we shouldn't draw bonds if they have been deleted in clear_up_moving_atoms():
+         if (moving_atoms_asc->atom_selection) {
+ 
+            // moving_atoms_lock is a bool
+            bool unlocked = false;
+            while (! moving_atoms_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                 unlocked = false;
+            }
+
+	    regularize_object_bonds_box.clear_up();
+	    regularize_object_bonds_box = bonds.make_graphical_bonds();
+            moving_atoms_lock = 0; // unlock them
+         }
          moving_atoms_bonds_lock = 0;
 
       } else {
@@ -1850,13 +1860,26 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             unlocked = 0;
          }
+         // we shouldn't draw bonds if they have been deleted in clear_up_moving_atoms():
+         if (moving_atoms_asc->atom_selection) {
 
-	 regularize_object_bonds_box.clear_up();
-	 regularize_object_bonds_box = bonds.make_graphical_bonds();
+            // moving_atoms_lock is a bool
+            bool unlocked = false;
+            while (! moving_atoms_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                 unlocked = false;
+            }
+
+	    regularize_object_bonds_box.clear_up();
+	    regularize_object_bonds_box = bonds.make_graphical_bonds();
+            moving_atoms_lock = 0; // unlock them
+         }
          moving_atoms_bonds_lock = 0;
       }
 
    } else {
+
+      // normal bond representation
 
       bool do_rama_markup = graphics_info_t::do_intermediate_atoms_rama_markup;
       bool do_rota_markup = graphics_info_t::do_intermediate_atoms_rota_markup;
