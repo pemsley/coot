@@ -893,7 +893,11 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 
 	 // auto tp_2 = std::chrono::high_resolution_clock::now();
 
-	 int n_per_thread = restraints_size/restraints_p->n_threads +1;
+         unsigned int n_restraints_sets = 40;
+
+	 int n_per_thread = restraints_size/n_restraints_sets + 1;
+         n_per_thread - n_restraints_sets; // new style
+
 	 std::atomic<unsigned int> done_count_for_threads(0);
 
 	 //std::vector<double> d32_vec(restraints_p->n_threads); time analysis of threads
@@ -910,15 +914,17 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 
          // set initial values of distortions to 0 - the distortion_score_multithread only
          // adds to this value - it doesn't set it to 0 at the beginning, so do that here.
-         for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++)
+         //
+         // not really threads - more like restraints_ranges/sets
+         for (unsigned int i_thread=0; i_thread<n_restraints_sets; i_thread++)
 	    distortions[i_thread] = 0;
 
-	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
+	 for (unsigned int i_thread=0; i_thread<n_restraints_sets; i_thread++) {
 	    auto time_point_1 = std::chrono::high_resolution_clock::now();
 	    int idx_start = i_thread * n_per_thread;
 	    int idx_end   = idx_start + n_per_thread;
 	    // for the last thread, set the end restraint index
-	    if (i_thread == (restraints_p->n_threads - 1))
+	    if (i_thread == (n_restraints_sets - 1))
 	       idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
 
 	    // auto time_point_2 = std::chrono::high_resolution_clock::now();
@@ -939,11 +945,11 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 			 << restraints_p->thread_pool_p->n_idle() << "\n";
 	 }
 
-	 while (done_count_for_threads != restraints_p->n_threads) {
+	 while (done_count_for_threads != n_restraints_sets) {
 	    std::this_thread::sleep_for(std::chrono::microseconds(1));
 	 }
 
-	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++)
+	 for (unsigned int i_thread=0; i_thread<n_restraints_sets; i_thread++)
 	    distortion += distortions[i_thread];
 
 	 // for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++)

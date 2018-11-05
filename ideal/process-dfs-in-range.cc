@@ -172,12 +172,24 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
 
    //x auto tp_3 = std::chrono::high_resolution_clock::now();
 
-   // consolidate
    unsigned int n_r_s = restraints_p->restraints_indices.size();
    unsigned int n_variables = restraints_p->n_variables();
+
+   /*
+      using threads slows things down by ~250us (baah!)
+
+      unsigned int n_var_split = n_variables/2;
+      done_count_for_threads = 0;
+      restraints_p->thread_pool_p->push(consolidate_derivatives, n_r_s,           0, n_var_split, restraints_p->df_by_thread_results, df, std::ref(done_count_for_threads));
+      restraints_p->thread_pool_p->push(consolidate_derivatives, n_r_s, n_var_split, n_variables, restraints_p->df_by_thread_results, df, std::ref(done_count_for_threads));
+      while (done_count_for_threads != 2)
+         std::this_thread::sleep_for(std::chrono::microseconds(1));
+   */
+
+   // consolidate - ~300us, GM restraints don't slow things down!? How can that be? Cache misses?
    for (std::size_t i_r_s=0; i_r_s<n_r_s; i_r_s++) {
       for (unsigned int i=0; i<n_variables; i++) {
-	 if (restraints_p->df_by_thread_results[i_r_s][i] != 0.0) {
+	 if (restraints_p->df_by_thread_results[i_r_s][i] != 0.0) { // this does speed things up a bit
 	    *gsl_vector_ptr(df, i) += restraints_p->df_by_thread_results[i_r_s][i];
 	 }
       }
@@ -215,6 +227,9 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
       }
       //x auto tp_7 = std::chrono::high_resolution_clock::now();
 
+      //x auto d43 = chrono::duration_cast<chrono::microseconds>(tp_4 - tp_3).count();
+      //x std::cout << "timings:: distortion consolidation d43 " << std::setw(5) << d43 << " " << std::endl;
+
       /*
       auto d10 = chrono::duration_cast<chrono::microseconds>(tp_1 - tp_0).count();
       auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
@@ -240,6 +255,25 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
 #endif // HAVE_CXX_THREAD
 
 }
+
+void
+coot::consolidate_derivatives(unsigned int thread_index,
+                              unsigned int n_restraints_sets,
+                              unsigned int variable_idx_start,
+                              unsigned int variable_idx_end,  // stop before this end, e.g. 0, 10
+                              const std::vector<std::vector<double> > &df_sets_from, gsl_vector *df,
+                              std::atomic<unsigned int> &done_count_for_threads) {
+
+   for (unsigned int i=variable_idx_start; i<variable_idx_end; i++) {
+      for (std::size_t i_r_s=0; i_r_s<n_restraints_sets; i_r_s++) {
+	 if (df_sets_from[i_r_s][i] != 0.0) { // this test does speed things up (a bit)
+	    *gsl_vector_ptr(df, i) += df_sets_from[i_r_s][i];
+	 }
+      }
+   }
+   done_count_for_threads++;
+}
+
 
 
 // fill results

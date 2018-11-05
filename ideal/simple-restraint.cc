@@ -1933,19 +1933,12 @@ coot::electron_density_score_from_restraints(const gsl_vector *v,
    double score = 0.0;
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
-   // these can be pre-computed: or use the df_by_thread_atom_indices
-   // (which are split up differently)
-
-   // unsigned int n_atoms = restraints_p->get_n_atoms();
-   // std::vector<std::pair<unsigned int, unsigned int> > ranges =
-   // atom_index_ranges(n_atoms, restraints_p->n_threads);
-
    std::vector<std::pair<unsigned int, unsigned int> > &ranges = restraints_p->m_atom_index_ranges;
 
-   std::atomic<unsigned int> done_count_for_threads(0);
+   // they are no longer "threads" - they are restraints sets - to prevent
+   // "thread starvation"
+   std::atomic<unsigned int> done_count_for_restraints_sets(0);
 
-   // malloc - bah.
-   // std::vector<double> results(ranges.size(), 0.0); // 0.0 is the default?
    double results[1024]; // we will always have less than 1024 threads
 
    if (restraints_p->thread_pool_p) {
@@ -1953,9 +1946,9 @@ coot::electron_density_score_from_restraints(const gsl_vector *v,
          results[i] = 0.0;
 	 restraints_p->thread_pool_p->push(electron_density_score_from_restraints_using_atom_index_range,
 					   v, std::cref(ranges[i]), restraints_p, &results[i],
-					   std::ref(done_count_for_threads));
+					   std::ref(done_count_for_restraints_sets));
       }
-      while (done_count_for_threads < ranges.size()) {
+      while (done_count_for_restraints_sets < ranges.size()) {
 	 std::this_thread::sleep_for(std::chrono::microseconds(1));
       }
 
@@ -1966,7 +1959,7 @@ coot::electron_density_score_from_restraints(const gsl_vector *v,
       // null thread pool. restraints_container_t was created without a call to
       // set the thread_pool. Happens in crankshafting currently.
       electron_density_score_from_restraints_using_atom_index_range(0, v, ranges[0], restraints_p, &score,
-								    done_count_for_threads);
+								    done_count_for_restraints_sets);
    }
 
 #else
