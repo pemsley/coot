@@ -170,7 +170,7 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
       std::this_thread::sleep_for(std::chrono::microseconds(1));
    }
 
-   auto tp_3 = std::chrono::high_resolution_clock::now();
+   //x auto tp_3 = std::chrono::high_resolution_clock::now();
 
    unsigned int n_r_s = restraints_p->restraints_indices.size();
    unsigned int n_variables = restraints_p->n_variables();
@@ -195,7 +195,7 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
       }
    }
 
-   auto tp_4 = std::chrono::high_resolution_clock::now();
+   //x auto tp_4 = std::chrono::high_resolution_clock::now();
 
    // --------------------------------------- map --------------------------------------
 
@@ -227,8 +227,8 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
       }
       //x auto tp_7 = std::chrono::high_resolution_clock::now();
 
-      auto d43 = chrono::duration_cast<chrono::microseconds>(tp_4 - tp_3).count();
-      std::cout << "timings:: distortion consolidation d43 " << std::setw(5) << d43 << " " << std::endl;
+      //x auto d43 = chrono::duration_cast<chrono::microseconds>(tp_4 - tp_3).count();
+      //x std::cout << "timings:: distortion consolidation d43 " << std::setw(5) << d43 << " " << std::endl;
 
       /*
       auto d10 = chrono::duration_cast<chrono::microseconds>(tp_1 - tp_0).count();
