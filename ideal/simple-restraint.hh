@@ -2358,6 +2358,16 @@ namespace coot {
 					 restraints_container_t *restraints_p,
 					 gsl_vector *df);
 
+   // this should be in process_df_in_range.hh perhaps? Anyway, splitting it up
+   // doesn't seem to speed things up.
+   void consolidate_derivatives(unsigned int thread_index,
+                                unsigned int n_restraints_sets,
+                                unsigned int variable_idx_start,
+                                unsigned int variable_idx_end,  // stop before this end, e.g. 0, 10
+                                const std::vector<std::vector<double> > &df_sets_from,
+                                gsl_vector *df,
+                                std::atomic<unsigned int> &done_count_for_threads);
+
 #endif // HAVE_CXX_THREAD
 
    double electron_density_score(const gsl_vector *v, void *params);
