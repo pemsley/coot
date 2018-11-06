@@ -895,8 +895,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 
          unsigned int n_restraints_sets = 40;
 
-	 int n_per_thread = restraints_size/n_restraints_sets + 1;
-         n_per_thread - n_restraints_sets; // new style
+	 int n_per_set = restraints_size/n_restraints_sets + 1;
 
 	 std::atomic<unsigned int> done_count_for_threads(0);
 
@@ -910,7 +909,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	 // 2018-716-PE move the memory allocation for distortion results by thread
 	 // from the heap to the stack
 	 //
-	 double distortions[1024]; // we will never have more than this number of threads.
+	 double distortions[1024]; // we will never have more than this number of restraints index sets
 
          // set initial values of distortions to 0 - the distortion_score_multithread only
          // adds to this value - it doesn't set it to 0 at the beginning, so do that here.
@@ -919,15 +918,23 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
          for (unsigned int i_thread=0; i_thread<n_restraints_sets; i_thread++)
 	    distortions[i_thread] = 0;
 
-	 for (unsigned int i_thread=0; i_thread<n_restraints_sets; i_thread++) {
+	 bool all_done = false;
+	 for (unsigned int i_thread=0; i_thread<n_restraints_sets; i_thread++) { // not really threads now
 	    auto time_point_1 = std::chrono::high_resolution_clock::now();
-	    int idx_start = i_thread * n_per_thread;
-	    int idx_end   = idx_start + n_per_thread;
-	    // for the last thread, set the end restraint index
-	    if (i_thread == (n_restraints_sets - 1))
-	       idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
+	    int idx_start = i_thread * n_per_set;
+	    int idx_end   = idx_start + n_per_set;
+	    // for the last restraints_index_set, set the end restraint index. This
+	    // handles the integer division "anomolies" that occur when there are
+	    // more restraints sets than thread (see the +1 above).
+	    if (idx_end >= restraints_size) {
+	       all_done = true;
+	       if (idx_end > restraints_size)
+		  idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
+	    }
 
 	    // auto time_point_2 = std::chrono::high_resolution_clock::now();
+
+	    // std::cout << "distortion_score() pushing range " << idx_start << " " << idx_end << std::endl;
 
 	    restraints_p->thread_pool_p->push(distortion_score_multithread,
 					      v, params, idx_start, idx_end, &distortions[i_thread],
@@ -943,6 +950,8 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	       std::cout << " loop now thread pool info: size: "
 			 << restraints_p->thread_pool_p->size() << " idle: "
 			 << restraints_p->thread_pool_p->n_idle() << "\n";
+
+	    if (all_done) break;
 	 }
 
 	 while (done_count_for_threads != n_restraints_sets) {
