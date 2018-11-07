@@ -919,6 +919,8 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	    distortions[i_thread] = 0;
 
 	 bool all_done = false;
+         unsigned int n_dispatched_restraints_sets = 0; // not all (40) of the restraints sets might
+                                                        // get dispatched (say we are refining a single GLY)
 	 for (unsigned int i_thread=0; i_thread<n_restraints_sets; i_thread++) { // not really threads now
 	    auto time_point_1 = std::chrono::high_resolution_clock::now();
 	    int idx_start = i_thread * n_per_set;
@@ -936,6 +938,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 
 	    // std::cout << "distortion_score() pushing range " << idx_start << " " << idx_end << std::endl;
 
+            n_dispatched_restraints_sets++;
 	    restraints_p->thread_pool_p->push(distortion_score_multithread,
 					      v, params, idx_start, idx_end, &distortions[i_thread],
 					      std::ref(done_count_for_threads));
@@ -954,7 +957,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	    if (all_done) break;
 	 }
 
-	 while (done_count_for_threads != n_restraints_sets) {
+	 while (done_count_for_threads != n_dispatched_restraints_sets) {
 	    std::this_thread::sleep_for(std::chrono::microseconds(1));
 	 }
 
