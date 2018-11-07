@@ -388,7 +388,7 @@ graphics_info_t::refinement_loop_threaded() {
    // continue_threaded_refinement_loop = true; not here - set it in the calling function
    while (continue_threaded_refinement_loop) {
 
-      // std::cout << "new minimize() round" << std::endl;
+      // std::cout << "refinement_loop_threaded(): new minimize() round" << std::endl;
       g.update_restraints_with_atom_pull_restraints();
 
       bool pr_chi_sqds = false; // print inital chi squareds
@@ -400,6 +400,7 @@ graphics_info_t::refinement_loop_threaded() {
       }
 
       coot::refinement_results_t rr = g.last_restraints->minimize(flags, spf, pr_chi_sqds);
+      // std::cout << "refinement_loop_threaded() minimize() returned" << std::endl;
 
       graphics_info_t::saved_dragged_refinement_results = rr;
 
@@ -420,8 +421,10 @@ graphics_info_t::refinement_loop_threaded() {
       }
       graphics_info_t::threaded_refinement_loop_counter++;
       // std::cout << "threaded_refinement_loop_counter " << graphics_info_t::threaded_refinement_loop_counter << std::endl;
-      // std::cout << "done  minimize() round" << std::endl;
+      // std::cout << "refinement_loop_threaded(): done minimize() round" << std::endl;
    }
+
+   std::cout << "unlocking restraints_lock" << std::endl;
    graphics_info_t::restraints_lock = false; // unlock! - is this safe? (I think so, we had the lock)
 
    // when this function exits, the (detached) thread in which it's running ends
@@ -725,6 +728,8 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
 void
 graphics_info_t::debug_refinement() {
 
+   // calling function must have the restraints_lock
+
    // I should not need to pass flags to an on-going refinement.
    // These flags may not match the user flags - and it is not easy
    // to get to the user flags (the flags with which minimize() is called).
@@ -739,15 +744,20 @@ graphics_info_t::debug_refinement() {
    char *env = getenv("COOT_DEBUG_REFINEMENT");
    if (env) {
       if (last_restraints) {
-         // Perhaps threaded_refinement_is_running should be an atomic called restraints_lock
-         bool unlocked = false;
-         while (! graphics_info_t::restraints_lock.compare_exchange_weak(unlocked, true)) {
-            std::cout << "DEBUG:: debug_refinement() restraints locked " << std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            unlocked = false;
-         }
+
+         // No need to lock the restraints - the calling function already has
+         // a lock
+
+         // bool unlocked = false;
+         // while (! graphics_info_t::restraints_lock.compare_exchange_weak(unlocked, true)) {
+         //    std::cout << "DEBUG:: debug_refinement() restraints locked " << std::endl;
+         //    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+         //    unlocked = false;
+         // }
+
          tabulate_geometric_distortions(*last_restraints, flags);
-         restraints_lock = false;
+
+         // restraints_lock = false;
       }
    }
 }
@@ -985,6 +995,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
                last_restraints->set_lennard_jones_epsilon(graphics_info_t::lennard_jones_epsilon);
                last_restraints->set_rama_type(restraints_rama_type);
                last_restraints->set_rama_plot_weight(rama_restraints_weight); // >2? danger of non-convergence
+                                                                              // if planar peptide restraints are used
 
 	       // Oh, I see... it's not just the non-Bonded contacts of the hydrogens.
 	       // It's the planes, chiral and angles too. Possibly bonds too.
@@ -1010,11 +1021,11 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 		  thread_for_refinement_loop_threaded();
 		  rr.found_restraints_flag = true;
 
-               if (refinement_immediate_replacement_flag) {
-                  // wait until refinement finishes
-                  while (restraints_lock)
-                     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-               }
+                  if (refinement_immediate_replacement_flag) {
+                     // wait until refinement finishes
+                     while (restraints_lock)
+                        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                  }
 
 	       } else {
 		  GtkWidget *widget = create_no_restraints_info_dialog();
