@@ -503,7 +503,7 @@ create_window1 (void)
   get_pdb_and_map_using_eds1 = gtk_image_menu_item_new_with_mnemonic ("Fetch PDB & Map using EDS...");
   gtk_widget_show (get_pdb_and_map_using_eds1);
   gtk_container_add (GTK_CONTAINER (file1_menu), get_pdb_and_map_using_eds1);
-  gtk_tooltips_set_tip (tooltips, get_pdb_and_map_using_eds1, "Use the Electron Density Server at Uppsala University to get coords and map... (Long live the EDS!)", NULL);
+  gtk_tooltips_set_tip (tooltips, get_pdb_and_map_using_eds1, "Use the Electron Density Server at the EBI to get coords and map... (Long live the EDS!)", NULL);
 
   image13796 = gtk_image_new_from_stock ("connect-to-usf.svg", GTK_ICON_SIZE_MENU);
   gtk_widget_show (image13796);
@@ -4147,6 +4147,7 @@ create_show_symmetry_window (void)
   symmetry_colorbutton = gtk_color_button_new ();
   gtk_widget_show (symmetry_colorbutton);
   gtk_box_pack_start (GTK_BOX (hbox8), symmetry_colorbutton, FALSE, FALSE, 4);
+  gtk_color_button_set_title (GTK_COLOR_BUTTON (symmetry_colorbutton), "Pick a Colour");
 
   label810 = gtk_label_new ("    ");
   gtk_widget_show (label810);
@@ -8807,6 +8808,7 @@ create_accept_reject_refinement_dialog (void)
   accept_reject_refinement_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (accept_reject_refinement_dialog), "Accept Refinement?");
   gtk_window_set_type_hint (GTK_WINDOW (accept_reject_refinement_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+  gtk_window_set_focus_on_map (GTK_WINDOW (accept_reject_refinement_dialog), FALSE);
 
   dialog_vbox9 = GTK_DIALOG (accept_reject_refinement_dialog)->vbox;
   gtk_widget_show (dialog_vbox9);

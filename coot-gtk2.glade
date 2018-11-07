@@ -6816,6 +6816,7 @@
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
 			      <property name="use_alpha">False</property>
+			      <property name="title" translatable="yes">Pick a Colour</property>
 			      <property name="focus_on_click">True</property>
 			      <signal name="color_set" handler="on_symmetry_colorbutton_color_set" last_modification_time="Tue, 01 May 2018 15:56:08 GMT"/>
 			    </widget>
@@ -16749,7 +16750,7 @@ checks the value of this checkbutton</property>
   <property name="skip_pager_hint">False</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
-  <property name="focus_on_map">True</property>
+  <property name="focus_on_map">False</property>
   <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="configure_event" handler="on_accept_reject_refinement_dialog_configure_event"/>
