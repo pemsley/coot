@@ -3594,7 +3594,7 @@ coot::rama_plot::plot_type_changed() {
          set_kleywegt_plot_state(1);
          std::vector<std::string> chains = coot::util::chains_in_molecule(mols().first);
          std::vector<std::string> chains2 = coot::util::chains_in_molecule(mols().second);
-         int i_chain_id2 = 0;
+         unsigned int i_chain_id2 = 0;
          if (chains2.size() > 0)
             i_chain_id2 = 1;
 	 if (chains.size() > 0) {
