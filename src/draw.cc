@@ -3,6 +3,8 @@
 #include <Python.h>
 #endif // USE_PYTHON
 
+#include <GL/glew.h>
+
 #include "globjects.h"
 #include "trackball.h"
 #include "graphics-info.h"
@@ -48,6 +50,24 @@ stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
       }
    }
 }
+
+void
+draw_one_triangle() {
+
+   graphics_info_t::shader.Bind();
+
+   // glDrawArrays(GL_TRIANGLES, 0, 3);
+
+   // normal triangles, 2 x 3 vertices
+   // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+   // glDrawElements(GL_LINES, 12, GL_UNSIGNED_INT, nullptr);
+
+   // glDrawElements(GL_LINES, n_indices, GL_UNSIGNED_INT, nullptr);
+
+   glUseProgram(0);
+}
+
 
 gint
 draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
@@ -408,6 +428,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       }
 #endif // CXX11
 #endif // USE_MOLECULES_TO_TRIANGLES
+
+      draw_one_triangle();
 
       // atom pull restraint
       graphics_info_t::draw_atom_pull_restraint();

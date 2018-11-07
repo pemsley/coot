@@ -43,6 +43,9 @@
 #include <sys/stat.h>
 
 #include <string>
+
+#include <GL/glew.h>
+
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
 #include "coords/Cartesian.h"
@@ -281,6 +284,9 @@ molecule_class_info_t::update_map_internal() {
 	    }
 	 }
       }
+
+      // molecular triangles for maps
+
    }
 }
 
@@ -560,6 +566,75 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 						  contour_level,
 						  dy_radius, centre,
 						  isample_step, is_em_map);
+
+
+      // -------------------------------------------------------------------
+
+
+      CIsoSurface<float> my_isosurface;
+      coot::density_contour_triangles_container_t tri_con;
+
+      tri_con = my_isosurface.GenerateTriangles_from_Xmap(xmap,
+							  contour_level,
+							  dy_radius, centre,
+							  isample_step);
+      std::cout << "Found " << tri_con.points.size() << " points and " << tri_con.point_indices.size()
+		<< " point indices" << std::endl;
+
+      std::cout << "tri_con_floats size: " << tri_con.points.size()*3 << std::endl;
+
+      float *tri_con_floats = new float[tri_con.points.size()*3];  // need to worry about memory management
+
+      for (std::size_t ii=0; ii<tri_con.points.size(); ii++) {
+	 tri_con_floats[3*ii  ] = tri_con.points[ii].x();
+	 tri_con_floats[3*ii+1] = tri_con.points[ii].y();
+	 tri_con_floats[3*ii+2] = tri_con.points[ii].z();
+      }
+
+      // vertices_per_triangle is 3 indices per triangle when drawing triangles
+      // and this will be 6 when drawing lines.
+      //
+      unsigned int vertices_per_triangle = 6; // for GL_LINES, 3 for GL_TRIANGLES
+      unsigned int n_points = tri_con.points.size();
+      unsigned int n_indices = vertices_per_triangle * tri_con.point_indices.size();
+
+      unsigned int *idx_expand = new unsigned[n_indices]; // need to worry about memory management
+
+      bool draw_lines = true;
+      if (draw_lines) {
+	 for (std::size_t ii=0; ii<tri_con.point_indices.size(); ii++) {
+	    idx_expand[vertices_per_triangle*ii  ] = tri_con.point_indices[ii].pointID[0];
+	    idx_expand[vertices_per_triangle*ii+1] = tri_con.point_indices[ii].pointID[1];
+	    idx_expand[vertices_per_triangle*ii+2] = tri_con.point_indices[ii].pointID[1];
+	    idx_expand[vertices_per_triangle*ii+3] = tri_con.point_indices[ii].pointID[2];
+	    idx_expand[vertices_per_triangle*ii+4] = tri_con.point_indices[ii].pointID[2];
+	    idx_expand[vertices_per_triangle*ii+5] = tri_con.point_indices[ii].pointID[0];
+	 }
+      }
+
+      // needs to set m_n_indices;
+      m_n_indices = n_indices;
+
+
+      GLuint VertexArrayID;
+      glGenVertexArrays(1, &VertexArrayID);
+      glBindVertexArray(VertexArrayID);
+
+      GLuint vertexbuffer;
+      glGenBuffers(1, &vertexbuffer);
+      glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+      glBufferData(GL_ARRAY_BUFFER, 3* n_points * sizeof(float), &tri_con_floats[0], GL_STATIC_DRAW);
+      glEnableVertexAttribArray(0);
+      // index size type normalized, stride, offset_pointer
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); // 3D data
+
+      unsigned int ibo;
+      glGenBuffers(1, &ibo);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+      // glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_indices * sizeof(unsigned int), static_cast<void *> (&idx_expand), GL_STATIC_DRAW);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_indices * sizeof(unsigned int), &idx_expand[0], GL_STATIC_DRAW);
+
+
 #ifdef ANALYSE_CONTOURING_TIMING
       auto tp_1 = std::chrono::high_resolution_clock::now();
 #endif
@@ -603,58 +678,68 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 void
 molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 
-   
    if (draw_it_for_map) {
+
       if (draw_it_for_solid_density_surface) {
+	 glLineWidth(1.0);
+	 graphics_info_t::shader.Bind();
+	 glDrawElements(GL_LINES, m_n_indices, GL_UNSIGNED_INT, nullptr);
+	 glUseProgram(0);
+      }
 
-	 coot::Cartesian front = unproject(0.0);
-	 coot::Cartesian back  = unproject(1.0);
+   } else {
+      if (draw_it_for_map) {
+	 if (draw_it_for_solid_density_surface) {
 
-	 glEnable(GL_LIGHTING);
-	 glEnable(GL_LIGHT0); 
-	 glEnable(GL_LIGHT1); 
-	 glEnable(GL_LIGHT2); // OK, for maps
-	 glEnable (GL_BLEND);
-	 glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+	    coot::Cartesian front = unproject(0.0);
+	    coot::Cartesian back  = unproject(1.0);
 
-	 if (density_surface_opacity < 1.0) {
-	    clipper::Coord_orth front_cl(front.x(), front.y(), front.z());
-	    clipper::Coord_orth  back_cl( back.x(),  back.y(),  back.z());
-	    tri_con.depth_sort(back_cl, front_cl);
-	    // std::cout << " sorted" << std::endl;
-	    if (xmap_is_diff_map)
-	       tri_con_diff_map_neg.depth_sort(back_cl, front_cl);
-	 } else {
+	    glEnable(GL_LIGHTING);
+	    glEnable(GL_LIGHT0);
+	    glEnable(GL_LIGHT1);
+	    glEnable(GL_LIGHT2); // OK, for maps
+	    glEnable (GL_BLEND);
+	    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	    if (density_surface_opacity < 1.0) {
+	       clipper::Coord_orth front_cl(front.x(), front.y(), front.z());
+	       clipper::Coord_orth  back_cl( back.x(),  back.y(),  back.z());
+	       tri_con.depth_sort(back_cl, front_cl);
+	       // std::cout << " sorted" << std::endl;
+	       if (xmap_is_diff_map)
+		  tri_con_diff_map_neg.depth_sort(back_cl, front_cl);
+	    } else {
+
+	       // glEnable(GL_CULL_FACE); // eek! surfaces goes dark...
 	    
-	    // glEnable(GL_CULL_FACE); // eek! surfaces goes dark...
-	    
+	    }
+
+	    // solid_mode is 1 for density maps represented without
+	    // density lines - typically for representation of EM maps
+	    // and smooth shaded.  The lighting needs to be more ambient
+	    // and the material surface has colour (shared with the
+	    // colour of the map lines).
+	 
+	    bool solid_mode = ! do_flat_shading;
+	 
+	    setup_density_surface_material(solid_mode, density_surface_opacity);
+
+	    glEnable(GL_POLYGON_OFFSET_FILL);
+	    glPolygonOffset(2.0, 2.0);
+	    glColor4f(0.2, 0.2, 0.2, density_surface_opacity);
+	    display_solid_surface_triangles(tri_con, do_flat_shading);
+
+	    if (xmap_is_diff_map) {
+	       bool is_neg = 1;
+	       setup_density_surface_material(solid_mode, density_surface_opacity, is_neg);
+	       display_solid_surface_triangles(tri_con_diff_map_neg, do_flat_shading);
+	    }
+
+	    glDisable(GL_POLYGON_OFFSET_FILL);
+	    glDisable(GL_LIGHT2);
+	    glDisable(GL_LIGHTING);
+	 
 	 }
-
-	 // solid_mode is 1 for density maps represented without
-	 // density lines - typically for representation of EM maps
-	 // and smooth shaded.  The lighting needs to be more ambient
-	 // and the material surface has colour (shared with the
-	 // colour of the map lines).
-	 
-	 bool solid_mode = ! do_flat_shading;
-	 
-	 setup_density_surface_material(solid_mode, density_surface_opacity);
-
-	 glEnable(GL_POLYGON_OFFSET_FILL);
-	 glPolygonOffset(2.0, 2.0);
-	 glColor4f(0.2, 0.2, 0.2, density_surface_opacity);
-	 display_solid_surface_triangles(tri_con, do_flat_shading);
-
-	 if (xmap_is_diff_map) {
-	    bool is_neg = 1;
-	    setup_density_surface_material(solid_mode, density_surface_opacity, is_neg);
-	    display_solid_surface_triangles(tri_con_diff_map_neg, do_flat_shading);
-	 }
-
-	 glDisable(GL_POLYGON_OFFSET_FILL);
-	 glDisable(GL_LIGHT2);
-	 glDisable(GL_LIGHTING);
-	 
       }
    }
 }

@@ -68,7 +68,7 @@ coot::restraints_container_t::make_df_restraints_indices() {
 
    unsigned int i_thread = 0; // insert to vector for this thread
    for (unsigned int ir=0; ir<restraints_size; ir++) {
-      // std::cout << "pushing back ir " << ir << " to i_thread " << i_thread << " of " << n_t << std::endl;
+      // std::cout << "pushing back ir " << ir << " to i_thread " << i_thread << " of " << restraints_size << std::endl;
       restraints_indices[i_thread].push_back(ir);
       ++i_thread;
       if (i_thread==n_r_s) i_thread=0;

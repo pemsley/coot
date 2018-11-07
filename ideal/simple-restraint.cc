@@ -940,7 +940,8 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    std::vector<refinement_lights_info_t> lights; // = chi_squareds("--------", m_s->x, false);
 
    int iter = 0; 
-   int status;
+   int status = GSL_SUCCESS; // some start value for the compiler not to complain about
+                             // construction of a refinement_results_t
    std::vector<coot::refinement_lights_info_t> lights_vec;
    bool done_final_chi_squares = false;
 

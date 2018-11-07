@@ -1366,6 +1366,7 @@ public:        //                      public
       delete [] draw_vectors;
       draw_vectors = c; n_draw_vectors = n; 
    }
+   unsigned int m_n_indices;
 
    // for negative the other map.
    // 
@@ -1374,7 +1375,8 @@ public:        //                      public
       diff_map_draw_vectors = c; n_diff_map_draw_vectors = n; 
    }
 
-   void update_map_triangles(float radius, coot::Cartesian centre); 
+   void update_map_triangles(float radius, coot::Cartesian centre);
+   unsigned int n_triangles;
 
 
    // skeleton
