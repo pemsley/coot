@@ -737,11 +737,19 @@ graphics_info_t::debug_refinement() {
    // Hideous race condition somehow?
    //
    char *env = getenv("COOT_DEBUG_REFINEMENT");
-   if (env)
-      if (last_restraints)
-	 if (! restraints_lock)
-	    tabulate_geometric_distortions(*last_restraints, flags);
-
+   if (env) {
+      if (last_restraints) {
+         // Perhaps threaded_refinement_is_running should be an atomic called restraints_lock
+         bool unlocked = false;
+         while (! graphics_info_t::restraints_lock.compare_exchange_weak(unlocked, true)) {
+            std::cout << "DEBUG:: debug_refinement() restraints locked " << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            unlocked = false;
+         }
+         tabulate_geometric_distortions(*last_restraints, flags);
+         restraints_lock = false;
+      }
+   }
 }
 
 
