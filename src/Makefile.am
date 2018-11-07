@@ -264,7 +264,6 @@ coot_fix_nomenclature_errors_SOURCES = \
 
 
 coot_bin_SOURCES = \
-	Shader.cc                \
 	main.cc 		 \
 	atom-pull.hh		 \
 	boot-python.hh           \
@@ -602,7 +601,6 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 		$(GUILE_LDFLAGS)	\
 		$(GLOB_LIBS)		\
 		$(GTKGL_CONTEXT_LIBS) 	\
-		-lGLEW \
 		$(GLUT_LIBS)		\
 		$(CANVAS_LIBS) 		\
 		$(GSL_LIBS)		\

@@ -41,7 +41,6 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h> // for keyboarding.
 
-#include <GL/glew.h>
 #include <gdk/gdkglconfig.h>
 #include <gtk/gtkgl.h>
 
@@ -1402,11 +1401,6 @@ std::shared_ptr<SceneSetup> graphics_info_t::mol_tri_scene_setup = 0;
 #endif
 #endif // USE_MOLECULES_TO_TRIANGLES
 
-// ---------------------------------------- Shaders --------------------------
-//
-Shader graphics_info_t::shader = Shader();
-
-
 
 // GTK2 code
 // 
@@ -1791,78 +1785,10 @@ init_gl_widget(GtkWidget *widget) {
    // gtk_idle_add((GtkFunction)animate, widget);
 
    // should be in graphics_info_t?
-   // setup_for_mol_triangles();
-
-   setup_for_one_triangle();
+   setup_for_mol_triangles();
 
   return TRUE;
 }
-
-
-void setup_for_one_triangle() {
-
-   // Ye old red triangle at the origin.
-
-   GLint GlewInitResult = glewInit();
-   if (GLEW_OK != GlewInitResult) {
-      std::cout << "------------------- glew was not OK ---------- " << std::endl;
-   }
-
-   const GLubyte *s = glGetString(GL_VERSION);
-   const GLubyte *sv = glGetString(GL_SHADING_LANGUAGE_VERSION);
-   const GLubyte *sr = glGetString(GL_RENDERER);
-   std::cout << "INFO:: GL_VERSION: " << s << std::endl;
-   std::cout << "INFO:: GL_SHADING_LANGUAGE_VERSION: " << sv << std::endl;
-   std::cout << "INFO:: GL_RENDERER: " << sr << std::endl;
-
-   unsigned int indices[] = {0,1,2, 2, 3, 0};
-   float vert[12];
-   vert[0] =  -1.0; vert[ 1] = -1.0; vert[ 2] = 0.0;
-   vert[3] =   1.0; vert[ 4] = -1.0; vert[ 5] = 0.0;
-   vert[6] =   1.0; vert[ 7] =  1.0; vert[ 8] = 0.0;
-   vert[9] =  -1.0; vert[10] =  1.0; vert[11] = 0.0;
-
-
-   /* without index buffer
-
-   GLuint VertexArrayID;
-   glGenVertexArrays(1, &VertexArrayID);
-   glBindVertexArray(VertexArrayID);
-
-   GLuint vertexbuffer;
-   glGenBuffers(1, &vertexbuffer);
-   glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-   glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), vert, GL_STATIC_DRAW);
-   glEnableVertexAttribArray(0);
-   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-   */
-
-   /* with index buffers - this is not what we want for easy conversion - because
-      draw_vecs are a list of Cartesian vertex pairs!
-
-      GLuint VertexArrayID;
-      glGenVertexArrays(1, &VertexArrayID);
-      glBindVertexArray(VertexArrayID);
-
-      GLuint vertexbuffer;
-      glGenBuffers(1, &vertexbuffer);
-      glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-      glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), vert, GL_STATIC_DRAW);
-      glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-      unsigned int ibo;
-      glGenBuffers(1, &ibo);
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
-   */
-
-   graphics_info_t::shader = Shader("minimal.shader");
-
-}
-
-
 
 void
 setup_for_mol_triangles() {
