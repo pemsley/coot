@@ -220,9 +220,12 @@ coot::distortion_score_trans_peptide(const int &restraint_index,
    //
    double closest_approach_fraction_CA_CA = 0.5;
    double closest_approach_fraction_C_N   = 0.5;
-   double best_closest_approach = 0.025; // or whatever it was
+   double best_closest_approach = 0.055; // or whatever it was
 
    // correct values: 0.473, 0.407, and 0.055
+   // 20181108 tried them - they made things worse.
+   // Using 0.055 alone was an improvement - I need to revisit
+   // these numbers - maybe they are round the "wrong" way.
 
    double q_CA_CA = 1.0 - closest_approach_fraction_CA_CA;
    double q_C_N   = 1.0 - closest_approach_fraction_C_N;
@@ -290,9 +293,9 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
 	    // i.e. if closest_approach_fraction_CA_CA is 0.9, that means
 	    // it is a lot closer to CA_2 than CA_1
 	    //
-	    double closest_approach_fraction_CA_CA = 0.5;
-	    double closest_approach_fraction_C_N   = 0.5;
-	    double best_closest_approach = 0.025; // or whatever it was
+            double closest_approach_fraction_CA_CA = 0.5;
+            double closest_approach_fraction_C_N   = 0.5;
+            double best_closest_approach = 0.055; // or whatever it was
 
 	    const double &p_CA_CA = closest_approach_fraction_CA_CA; // shorthand aliases
 	    const double &p_C_N   = closest_approach_fraction_C_N;

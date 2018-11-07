@@ -1131,7 +1131,7 @@ coot::process_dfs_trans_peptide(const coot::simple_restraint &restraint,
    //
    double closest_approach_fraction_CA_CA = 0.5;
    double closest_approach_fraction_C_N   = 0.5;
-   double best_closest_approach = 0.025; // or whatever it was
+   double best_closest_approach = 0.055;
 
    const double &p_CA_CA = closest_approach_fraction_CA_CA; // shorthand aliases
    const double &p_C_N   = closest_approach_fraction_C_N;
