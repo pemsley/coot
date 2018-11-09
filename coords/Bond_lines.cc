@@ -323,7 +323,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
    int col; // atom colour
 
    int udd_atom_index_handle = asc.UDDAtomIndexHandle; // so that we don't draw bonds for ligands when we have
-                                                           // intermediate atoms displayed.
+                                                       // intermediate atoms displayed.
 
    if (ncontacts == 0) {
 
@@ -3597,6 +3597,9 @@ Bond_lines_container::addBond(int col,
 
    // Needs further investigation
 
+   // if (no_bonds_to_these_atoms.size() > 0)
+   // std::cout << "debug in addBond() " << no_bonds_to_these_atoms.size() << std::endl;
+
    // duck out if both of these atoms are in the no-bonds to these atoms set
    if (no_bonds_to_these_atoms.find(atom_index_1) != no_bonds_to_these_atoms.end()) {
       if (no_bonds_to_these_atoms.find(atom_index_2) != no_bonds_to_these_atoms.end()) {
@@ -3607,6 +3610,10 @@ Bond_lines_container::addBond(int col,
       }
    }
    
+   if (no_bonds_to_these_atoms.size() > 0) {
+      std::cout << "debug in addBond() atom indices " << atom_index_1 << " " << atom_index_2 << " not found in no_bonds_to_these_atoms"
+		<< std::endl;
+   }
 
    coot::CartesianPair pair(start,end);
    if (col >= int(bonds.size())) { 
@@ -3768,6 +3775,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 
    int atom_colours_udd = -1; // unset/bad
    int udd_handle_for_user_defined_colours = -1;
+   int udd_atom_index_handle = SelAtom.UDDAtomIndexHandle;
 
    // heuristic cut off for when user has omitted GAP cards.
    // 
@@ -3834,8 +3842,12 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 				       int col = 0; // overridden.
 				       coot::Cartesian ca_1(at_1->x, at_1->y, at_1->z);
 				       coot::Cartesian ca_2(at_2->x, at_2->y, at_2->z);
-				       int iat_1 = -1; // 20171224-PE FIXME
+
+				       int iat_1 = -1;
 				       int iat_2 = -1;
+				       at_1->GetUDData(udd_atom_index_handle, iat_1);
+				       at_2->GetUDData(udd_atom_index_handle, iat_2);
+
 				       if ((ca_1-ca_2).amplitude_squared() < dist_max_sqrd) { 
 					  if (bond_colour_type == Bond_lines_container::COLOUR_BY_B_FACTOR) {
 					     coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);

@@ -1088,7 +1088,8 @@ public:        //                      public
    void makebonds(const coot::protein_geometry *geom_p, const std::set<int> &no_bonds_to_these_atom_indices);
    void makebonds(float max_dist, const coot::protein_geometry *geom_p, bool add_residue_indices=false); // maximum distance for bond (search)
    void makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p, bool add_residue_indices=false); 
-   void make_ca_bonds(float min_dist, float max_dist); 
+   void make_ca_bonds(float min_dist, float max_dist);
+   void make_ca_bonds(float min_dist, float max_dist, const std::set<int> &no_bonds_to_these_atom_indices);
    void make_ca_bonds();
    void make_ca_plus_ligands_bonds(coot::protein_geometry *pg);
    void make_ca_plus_ligands_and_sidechains_bonds(coot::protein_geometry *pg);
