@@ -2864,6 +2864,7 @@ void
 coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_auto() {
 
    float pseudo_bond_esd = 0.03;
+   unsigned int n_helical_restraints = 0;
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
 
@@ -2872,7 +2873,7 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
       sorted_residues[i] = residues_vec[i].second;
    std::sort(sorted_residues.begin(), sorted_residues.end(), util::residues_sort_function);
 
-   if (true)
+   if (false)
       for (unsigned int i=0; i<sorted_residues.size(); i++)
          std::cout << "  sorted residue " << residue_spec_t(sorted_residues[i]) << std::endl;
 
@@ -2939,14 +2940,19 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
 
             std::cout << "INFO:: Alpha Helix Bond restraint ("
                << at_1->name << " " << at_1->GetSeqNum() << ") to ("
+               << at_2->name << " " << at_3->GetSeqNum() << ") " << ideal_dist_i_3 << std::endl;
+            std::cout << "INFO:: Alpha Helix Bond restraint ("
+               << at_1->name << " " << at_1->GetSeqNum() << ") to ("
                << at_2->name << " " << at_2->GetSeqNum() << ") " << ideal_dist_i_4 << std::endl;
+            n_helical_restraints += 2;
          }
       }
 
    }
+   std::cout << "INFO:: added " << n_helical_restraints << " helical restraints" << std::endl;
    auto tp_1 = std::chrono::high_resolution_clock::now();
    auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
-   std::cout << "Timing for auto-helix " << d10 << " microseconds" << std::endl;
+   std::cout << "INFO:: Timing for auto-helix " << d10 << " microseconds" << std::endl;
 }
 
 
