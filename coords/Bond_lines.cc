@@ -3609,11 +3609,11 @@ Bond_lines_container::addBond(int col,
 	 return;
       }
    }
-   
-   if (no_bonds_to_these_atoms.size() > 0) {
-      std::cout << "debug in addBond() atom indices " << atom_index_1 << " " << atom_index_2 << " not found in no_bonds_to_these_atoms"
-		<< std::endl;
-   }
+
+   if (false)  
+      if (no_bonds_to_these_atoms.size() > 0) 
+         std::cout << "debug in addBond() atom indices " << atom_index_1 << " " << atom_index_2 << " not found in no_bonds_to_these_atoms"
+		   << std::endl;
 
    coot::CartesianPair pair(start,end);
    if (col >= int(bonds.size())) { 
