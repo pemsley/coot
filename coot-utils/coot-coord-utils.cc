@@ -3634,8 +3634,7 @@ coot::util::pdbcleanup_serial_residue_numbers(mmdb::Manager *mol) {
 void 
 coot::util::chain_id_residue_vec_helper_t::sort_residues() { 
 
-   std::sort(residues.begin(), residues.end(), 
-	     coot::util::chain_id_residue_vec_helper_t::residues_sort_func);
+   std::sort(residues.begin(), residues.end(), residues_sort_func);
 }
 
 
@@ -3664,6 +3663,32 @@ coot::util::chain_id_residue_vec_helper_t::residues_sort_func(mmdb::Residue *fir
       }
    }
    return false; // not reached.
+}
+
+
+// chain-split the residues, dont just rely on the sequence number
+bool
+coot::util::residues_sort_function(mmdb::Residue *r1, mmdb::Residue *r2) {
+
+   if (r1->chain < r2->chain) {
+      return true;
+   } else {
+      if (r1->chain > r2->chain) {
+         return false;
+      } else {
+         if (r1->GetSeqNum() < r2->GetSeqNum()) {
+            return true;
+         } else {
+            if (r1->GetSeqNum() > r2->GetSeqNum()) {
+                return false;
+            } else {
+	       std::string inscode_1 = r1->GetInsCode();
+	       std::string inscode_2 = r1->GetInsCode();
+               return (inscode_1 < inscode_2);
+            }
+         }
+      }
+   }
 }
 
 // return true if something was removed from header info

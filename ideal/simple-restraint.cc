@@ -2460,6 +2460,9 @@ coot::restraints_container_t::make_restraints(int imol,
 	 make_strand_pseudo_bond_restraints();
       }
 
+      if (true) // test for having set "Auto Helix Restraints"
+         make_helix_pseudo_bond_restraints_from_res_vec_auto();
+
       if (restraints_usage_flag & coot::NON_BONDED_MASK) {
 	 if ((iret_prev > 0) || are_all_one_atom_residues) {
 	    reduced_angle_info_container_t ai(restraints_vec);
@@ -2764,7 +2767,7 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
 
    // somewhat hacky
    if (from_residue_vector) {
-      make_helix_pseudo_bond_restraints_from_res_vec();
+      make_helix_pseudo_bond_restraints_from_res_vec(EVERYTHING_HELICAL);
       return;
    }
 
@@ -2854,8 +2857,103 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
    mol->DeleteSelection(selHnd);
 }
 
+
+#include "coot-utils/helix-like.hh"
+
 void
-coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec() {
+coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_auto() {
+
+   float pseudo_bond_esd = 0.03;
+
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+
+   std::vector<mmdb::Residue *> sorted_residues(residues_vec.size());
+   for (unsigned int i=0; i<residues_vec.size(); i++)
+      sorted_residues[i] = residues_vec[i].second;
+   std::sort(sorted_residues.begin(), sorted_residues.end(), util::residues_sort_function);
+
+   for (unsigned int i=0; i<sorted_residues.size(); i++)
+      std::cout << "  sorted residue " << residue_spec_t(sorted_residues[i]) << std::endl;
+
+   for (unsigned int i=0; i<sorted_residues.size(); i++) {
+
+      if ((i+4) >= sorted_residues.size()) continue;
+
+      if (sorted_residues[i]->GetChain() != sorted_residues[i+4]->GetChain()) continue;
+
+      // test that these residues are about helical before adding helical restraints
+      std::vector<mmdb::Residue *> test_helical_residues;
+      // fill test_helical_residues with 5 residues in order.
+      for (unsigned int iir=0; iir<5; iir++) {
+          mmdb::Residue *residue_p = sorted_residues[i+iir];
+          test_helical_residues.push_back(residue_p);
+      }
+      helical_results_t hr = compare_to_helix(test_helical_residues);
+      std::cout << "helix_result " << hr.is_alpha_helix_like << " " << residue_spec_t(sorted_residues[i]) << std::endl;
+      if (hr.is_alpha_helix_like) {
+         int index_1 = -1; // O
+         int index_2 = -1; // N (n+4)
+         int index_3 = -1; // N (n+3)
+         mmdb::Atom *at_1 = 0;
+         mmdb::Atom *at_2 = 0;
+         mmdb::Atom *at_3 = 0;
+         mmdb::Residue *residue_p = sorted_residues[i];
+         mmdb::Atom **residue_atoms_1 = 0;
+         mmdb::Atom **residue_atoms_2 = 0;
+         mmdb::Atom **residue_atoms_3 = 0;
+         int n_residue_atoms_1;
+         int n_residue_atoms_2;
+         int n_residue_atoms_3;
+         sorted_residues[i  ]->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
+         sorted_residues[i+4]->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
+         sorted_residues[i+3]->GetAtomTable(residue_atoms_3, n_residue_atoms_3);
+         for (int iat=0; iat<n_residue_atoms_1; iat++) {
+            std::string atom_name_1 = residue_atoms_1[iat]->GetAtomName();
+            if (atom_name_1 == " O  ") {
+               at_1 = residue_atoms_1[iat];
+            }
+         }
+         for (int iat=0; iat<n_residue_atoms_2; iat++) {
+            std::string atom_name_2 = residue_atoms_2[iat]->GetAtomName();
+            if (atom_name_2 == " N  ") {
+               at_2 = residue_atoms_2[iat];
+            }
+         }
+         for (int iat=0; iat<n_residue_atoms_3; iat++) {
+            std::string atom_name_3 = residue_atoms_3[iat]->GetAtomName();
+            if (atom_name_3 == " N  ") {
+               at_3 = residue_atoms_3[iat];
+            }
+         }
+         if (at_1 && at_2 && at_3) {
+            at_1->GetUDData(udd_atom_index_handle, index_1);
+            at_2->GetUDData(udd_atom_index_handle, index_2);
+            at_3->GetUDData(udd_atom_index_handle, index_3);
+            std::vector<bool> fixed_flags_1 = make_fixed_flags(index_1, index_2);
+            std::vector<bool> fixed_flags_2 = make_fixed_flags(index_1, index_3);
+            double ideal_dist_i_4 = 2.91;
+            double ideal_dist_i_3 = 3.18;
+            add(BOND_RESTRAINT, index_1, index_2, fixed_flags_1, ideal_dist_i_4, pseudo_bond_esd, 1.2);
+            add(BOND_RESTRAINT, index_1, index_3, fixed_flags_2, ideal_dist_i_3, pseudo_bond_esd, 1.2);
+
+            std::cout << "INFO:: Alpha Helix Bond restraint ("
+               << at_1->name << " " << at_1->GetSeqNum() << ") to ("
+               << at_2->name << " " << at_2->GetSeqNum() << ") " << ideal_dist_i_4 << std::endl;
+         }
+      }
+
+   }
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+   std::cout << "Timing for auto-helix " << d10 << " microseconds" << std::endl;
+}
+
+
+// restraint_addition_mode can be AUTO_HELIX - restrain anything that looks like a helix (alpha currently)
+// or EVERYTHING_HELICAL - add helix restrains to residue with the same chain id and in a residue range
+// that matches a H-bonded residue pair of a helix.
+void
+coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec(restraint_addition_mode_t restraint_addition_mode) {
 
    // this doesn't do the right thing if there are insertion codes. Maybe I could check for that
    // here and jump out at the start if so.
@@ -2912,10 +3010,12 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec() {
 				 double ideal_dist = 2.91;
 				 if (res_no_delta == 3)
 				    ideal_dist = 3.18;
-				 add(BOND_RESTRAINT, index_1, index_2, fixed_flags, 2.91, pseudo_bond_esd, 1.2);
-				 std::cout << "Helix Bond restraint ("
-					   << at_1->name << " " << at_1->GetSeqNum() << ") to ("
-					   << at_2->name << " " << at_2->GetSeqNum() << ") 2.91" << std::endl;
+                                 if (restraint_addition_mode == EVERYTHING_HELICAL) {
+				    add(BOND_RESTRAINT, index_1, index_2, fixed_flags, ideal_dist, pseudo_bond_esd, 1.2);
+				    std::cout << "INFO:: Alpha Helix Bond restraint ("
+					      << at_1->name << " " << at_1->GetSeqNum() << ") to ("
+					      << at_2->name << " " << at_2->GetSeqNum() << ") " << ideal_dist << std::endl;
+                                 }
 			      }
 			   }
 			}

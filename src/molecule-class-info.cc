@@ -3357,7 +3357,7 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
       for(it=no_bonds_to_these_atoms.begin(); it!=no_bonds_to_these_atoms.end(); it++) {
 	 int idx = *it;
 	 mmdb::Atom *at = atom_sel.atom_selection[idx];
-	 std::cout << "    " << idx << " " << coot::atom_spec_t(at) << std::endl;
+	 std::cout << "No bond to    " << idx << " " << coot::atom_spec_t(at) << std::endl;
       }
    }
 
@@ -3387,6 +3387,18 @@ molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist) {
    // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
 
 }
+
+void
+molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist, const std::set<int> &no_bonds_to_these_atom_indices) {
+
+   Bond_lines_container bonds(graphics_info_t::Geom_p(), no_bonds_to_these_atom_indices);
+   bonds.do_Ca_bonds(atom_sel, min_dist, max_dist);
+   bonds_box = bonds.make_graphical_bonds_no_thinning();
+   bonds_box_type = coot::CA_BONDS;
+
+}
+
+
 
 void
 molecule_class_info_t::make_ca_bonds() { 
@@ -3538,7 +3550,15 @@ molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_
 	 make_colour_by_chain_bonds(no_bonds_to_these_atom_indices,
 				    g.rotate_colour_map_on_read_pdb_c_only_flag);
       else
-	 make_bonds_type_checked(); // function above
+	 if (bonds_box_type == coot::CA_BONDS) {
+	    make_ca_bonds(2.4, 4.7, no_bonds_to_these_atom_indices);
+	 } else {
+	    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS) {
+	       make_ca_bonds(2.4, 4.7, no_bonds_to_these_atom_indices);
+	    } else {
+	       make_bonds_type_checked(); // function above
+	    }
+	 }
 }
 
 

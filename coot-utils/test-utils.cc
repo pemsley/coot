@@ -835,6 +835,45 @@ int test_bonded_atoms(int argc, char **argv) {
    return status;
 }
 
+#include "helix-like.hh"
+
+int test_helix_like(int argc, char **argv) {
+
+    if (argc == 2) {
+       std::string file_name = argv[1];
+       atom_selection_container_t asc = get_atom_selection(file_name, true, true);
+       if (asc.read_success) {
+          std::vector<std::string> ch_ids;
+          int imod = 1;
+          mmdb::Model *model_p = asc.mol->GetModel(imod);
+          if (model_p) {
+             int n_chains = model_p->GetNumberOfChains();
+             for (int ichain=0; ichain<n_chains; ichain++) {
+                mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                ch_ids.push_back(chain_p->GetChainID());
+             }
+          }
+
+          for (unsigned int ich=0; ich<ch_ids.size(); ich++) {
+             int residue_selection_handle = asc.mol->NewSelection();
+             asc.mol->Select (residue_selection_handle, mmdb::STYPE_RESIDUE, 0,
+                    ch_ids[ich].c_str(),
+                    mmdb::ANY_RES, "*",  // starting res
+                    mmdb::ANY_RES, "*",  // ending res
+                    "*",  // residue name
+                    "*",  // Residue must contain this atom name?
+                    "*",  // Residue must contain this Element?
+                    "*",  // altLocs
+                    mmdb::SKEY_NEW // selection key
+                    );
+             std::cout << "test like_a_helix()" << std::endl;
+             coot::like_a_helix(asc.mol, residue_selection_handle);
+             asc.mol->DeleteSelection(residue_selection_handle);
+          }
+       }
+    }
+    return 0;
+}
 
 
 int main(int argc, char **argv) {
@@ -895,8 +934,11 @@ int main(int argc, char **argv) {
    if (false)
       test_string_split();
    
-   if (true)
+   if (false)
       test_nxmap_edcalc(argc, argv);
+
+   if (true)
+      test_helix_like(argc, argv);
 
    return 0;
 }

@@ -761,6 +761,9 @@ namespace coot {
       std::ostream&  operator<<(std::ostream&  s, const quaternion &q);
       std::ofstream& operator<<(std::ofstream& s, const quaternion &q);
 
+      // chain-split the residues, dont just rely on the sequence number
+      bool residues_sort_function(mmdb::Residue *first, mmdb::Residue *second);
+
       class chain_id_residue_vec_helper_t { 
       public: 
 	 std::vector<mmdb::Residue *> residues;
