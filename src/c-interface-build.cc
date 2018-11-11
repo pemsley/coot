@@ -5676,5 +5676,71 @@ void set_add_linked_residue_do_fit_and_refine(int state) {
    graphics_info_t::linked_residue_fit_and_refine_state = state;
 } 
 
+#ifdef USE_PYTHON
+// return the number of atoms added
+int
+add_residue_with_atoms_py(int imol, PyObject *residue_spec_py, const std::string &res_name, PyObject *list_of_atoms_py) {
+
+   int n_added = 0;
+   if (is_valid_model_molecule(imol)) {
+     coot::residue_spec_t res_spec = residue_spec_from_py(residue_spec_py);
+     std::vector<coot::minimol::atom> list_of_atoms;
+     graphics_info_t g;
+     if (PyList_Check(list_of_atoms_py)) {
+        Py_ssize_t p_len = PyList_Size(list_of_atoms_py);
+        for (unsigned int i=0; i<p_len; i++) {
+           PyObject *atom_py = PyList_GetItem(list_of_atoms_py, i);
+           if (PyList_Check(atom_py)) {
+              Py_ssize_t a_len = PyList_Size(atom_py);
+              if (a_len == 3 || a_len == 4) {
+                 PyObject *name_list_py    = PyList_GetItem(atom_py, 0);
+                 PyObject *ele_occ_list_py = PyList_GetItem(atom_py, 1);
+                 PyObject *pos_list_py     = PyList_GetItem(atom_py, 2);
+                 if (PyList_Check(name_list_py)) {
+                    if (PyList_Check(ele_occ_list_py)) {
+                       if (PyList_Check(pos_list_py)) {
+                          Py_ssize_t name_list_len    = PyList_Size(name_list_py);
+                          Py_ssize_t ele_occ_list_len = PyList_Size(ele_occ_list_py);
+                          Py_ssize_t pos_list_len     = PyList_Size(pos_list_py);
+                          if (name_list_len == 2) {
+                             if (ele_occ_list_len == 4) {
+                                if (pos_list_len == 3) {
+                                   PyObject *name_py     = PyList_GetItem(name_list_py, 0);
+                                   PyObject *alt_conf_py = PyList_GetItem(name_list_py, 1);
+                                   PyObject *occ_py      = PyList_GetItem(ele_occ_list_py, 0);
+                                   PyObject *b_py        = PyList_GetItem(ele_occ_list_py, 1);
+                                   PyObject *ele_py      = PyList_GetItem(ele_occ_list_py, 2);
+                                   PyObject *seg_id_py   = PyList_GetItem(ele_occ_list_py, 3);
+                                   PyObject *pos_x_py    = PyList_GetItem(pos_list_py, 0);
+                                   PyObject *pos_y_py    = PyList_GetItem(pos_list_py, 1);
+                                   PyObject *pos_z_py    = PyList_GetItem(pos_list_py, 2);
+                                   std::string name     = PyString_AsString(name_py);
+                                   std::string alt_conf = PyString_AsString(alt_conf_py);
+                                   std::string ele      = PyString_AsString(ele_py);
+                                   std::string seg_id   = PyString_AsString(seg_id_py);
+                                   float x = PyFloat_AsDouble(pos_x_py);
+                                   float y = PyFloat_AsDouble(pos_y_py);
+                                   float z = PyFloat_AsDouble(pos_z_py);
+                                   float o = PyFloat_AsDouble(occ_py);
+                                   float b = PyFloat_AsDouble(b_py);
+                                   clipper::Coord_orth pos(x,y,z);
+                                   coot::minimol::atom at(name, ele, pos, alt_conf, o, b);
+                                   list_of_atoms.push_back(at);
+                                }
+                             }
+                          }
+                       }
+                    }
+                 }
+              }
+           }
+        }
+     }
+     std::cout << "extracted " << list_of_atoms.size() << " atoms from Python expression" << std::endl;
+     n_added = g.molecules[imol].add_residue_with_atoms(res_spec, res_name, list_of_atoms);
+   }
+   return n_added;
+}
+#endif // USE_PYTHON
 
 

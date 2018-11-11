@@ -3051,6 +3051,9 @@ public:        //                      public
    // example "NAG-ASN")
    // return a pair, success-status and the added residue (it is a deep copy of the res_new)
    std::pair<bool, mmdb::Residue *> add_residue(mmdb::Residue *res_new, const std::string &chain_id);
+
+   // return the number of added atoms
+   int add_residue_with_atoms(const coot::residue_spec_t &residue_spec, const std::string &res_name, const std::vector<coot::minimol::atom> &list_of_atoms);
    
    // Add a LINK record if link_type is not blank (link_type is for
    // example "NAG-ASN")

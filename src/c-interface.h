@@ -4893,6 +4893,24 @@ PyObject *find_terminal_residue_type_py(int imol, const char *chain_id, int resn
 
 /* \} */
 
+
+/*  ----------------------------------------------------------------------- */
+/*                  scripting a residue with atoms                          */
+/*  ----------------------------------------------------------------------- */
+/* section Add A Residue Functions */
+/*! \name  Add A Residue Functions */
+/* \{ */
+#ifdef __cplusplus
+
+/* \brief add a residue with atoms in scripting
+
+  @return the number of atoms added
+*/
+int add_residue_with_atoms_py(int imol, PyObject *residue_spec, const std::string &res_name, PyObject *list_of_atoms);
+#endif /* c++ */
+
+/* \} */
+
 /*  ----------------------------------------------------------------------- */
 /*                  delete residue                                          */
 /*  ----------------------------------------------------------------------- */

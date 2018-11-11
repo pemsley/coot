@@ -67,6 +67,7 @@ namespace coot {
 	 int int_user_data;
 	 bool is_hydrogen_p() const;
 	 friend std::ostream&  operator<<(std::ostream&, atom);
+         mmdb::Atom *make_atom() const;
       };
 
       class residue { 

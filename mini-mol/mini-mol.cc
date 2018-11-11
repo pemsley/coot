@@ -146,6 +146,19 @@ coot::minimol::molecule::molecule(mmdb::PPAtom atom_selection,
    have_spacegroup = 0;
 } 
 
+mmdb::Atom *
+coot::minimol::atom::make_atom() const {
+
+   mmdb::Atom *at = 0;
+
+   at = new mmdb::Atom;
+   at->SetAtomName(name.c_str());
+   at->SetElementName(element.c_str());
+   at->SetCoordinates(pos.x(), pos.y(), pos.z(), occupancy, temperature_factor);
+
+   return at;
+}
+
 // This is like the coot utils function, but it is here because
 // coot-coord utils depends on minimol, so minimol can't depend on
 // coot-coord-utils.
