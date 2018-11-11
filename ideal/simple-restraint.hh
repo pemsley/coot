@@ -1594,9 +1594,16 @@ namespace coot {
 						     const protein_geometry &geom) const; 
       
       
+
+      // restraint_addition_mode can be AUTO_HELIX - restrain anything that looks like a helix (alpha currently)
+      // // or EVERYTHING_HELICAL - add helix restrains to residue with the same chain id and in a residue range
+      // // that matches a H-bonded residue pair of a helix.
+      //
+      enum restraint_addition_mode_t { AUTO_HELIX, EVERYTHING_HELICAL};
       void make_helix_pseudo_bond_restraints();
       void make_strand_pseudo_bond_restraints();
-      void make_helix_pseudo_bond_restraints_from_res_vec();
+      void make_helix_pseudo_bond_restraints_from_res_vec(restraint_addition_mode_t restraint_addition_mode);
+      void make_helix_pseudo_bond_restraints_from_res_vec_auto();
 
       bool link_infos_are_glycosidic_p(const std::vector<std::pair<chem_link, bool> > &link_infos) const;
 
