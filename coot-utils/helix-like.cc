@@ -85,7 +85,7 @@ coot::like_a_helix(mmdb::Manager *mol, int residue_selection_handle) {
 //
 coot::helical_results_t
 coot::compare_to_helix(const std::vector<mmdb::Residue *> &helical_residues,
-                       const std::vector<clipper::Coord_orth> &ref_positions) {
+                       const std::vector<clipper::Coord_orth> &alpha_ref_positions) {
 
    helical_results_t r;
    std::vector<clipper::Coord_orth> match_set(20); // 5 x 4
@@ -116,17 +116,14 @@ coot::compare_to_helix(const std::vector<mmdb::Residue *> &helical_residues,
          }
       }
       if (n_found == 20) {
-         clipper::RTop_orth rtop(ref_positions, match_set);
+         clipper::RTop_orth rtop(alpha_ref_positions, match_set);
          double sum_delta = 0.0;
          for (unsigned int ii=0; ii<20; ii++) {
-            // clipper::Coord_orth moved_pos = rtop * match_set[ii]; 
-            // double dd = clipper::Coord_orth(ref_positions[ii]-moved_pos).lengthsq();
-            clipper::Coord_orth moved_pos = rtop * ref_positions[ii]; 
+            clipper::Coord_orth moved_pos = rtop * alpha_ref_positions[ii];
             double dd = clipper::Coord_orth(match_set[ii]-moved_pos).lengthsq();
             sum_delta += sqrt(dd);
          }
-         // std::cout << " sum_delta " << sum_delta << std::endl;
-         if (sum_delta < 2.5) { // or so
+         if (sum_delta < 2.5) { // or so, 2.5 is quite strict.
             r.is_alpha_helix_like = true;
          }
       }
