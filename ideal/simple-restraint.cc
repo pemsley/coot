@@ -2872,8 +2872,9 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
       sorted_residues[i] = residues_vec[i].second;
    std::sort(sorted_residues.begin(), sorted_residues.end(), util::residues_sort_function);
 
-   for (unsigned int i=0; i<sorted_residues.size(); i++)
-      std::cout << "  sorted residue " << residue_spec_t(sorted_residues[i]) << std::endl;
+   if (true)
+      for (unsigned int i=0; i<sorted_residues.size(); i++)
+         std::cout << "  sorted residue " << residue_spec_t(sorted_residues[i]) << std::endl;
 
    for (unsigned int i=0; i<sorted_residues.size(); i++) {
 
@@ -2889,7 +2890,7 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
           test_helical_residues.push_back(residue_p);
       }
       helical_results_t hr = compare_to_helix(test_helical_residues);
-      std::cout << "helix_result " << hr.is_alpha_helix_like << " " << residue_spec_t(sorted_residues[i]) << std::endl;
+      // std::cout << "helix_result " << hr.is_alpha_helix_like << " " << residue_spec_t(sorted_residues[i]) << std::endl;
       if (hr.is_alpha_helix_like) {
          int index_1 = -1; // O
          int index_2 = -1; // N (n+4)
