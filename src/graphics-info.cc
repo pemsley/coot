@@ -557,14 +557,87 @@ graphics_info_t::add_dir_file(const std::string &dirname, const std::string &fil
    return r;
 }
 
+// if dir is true, we want to go forward
+void
+graphics_info_t::reorienting_next_residue(bool dir) {
 
+   std::pair<int, mmdb::Atom *> atom_pair = get_active_atom();
+
+   if (atom_pair.second) {
+
+      int imol = atom_pair.first;
+      mmdb::Residue *residue_current = atom_pair.second->residue;
+
+      // check dir here
+      mmdb::Residue *residue_next = 0;
+      if (dir)
+	 residue_next = coot::util::next_residue(residue_current);
+      else
+	 residue_next = coot::util::previous_residue(residue_current);
+
+      if (residue_next) {
+         std::pair<bool, clipper::RTop_orth> ro =
+	    coot::util::get_reorientation_matrix(residue_current, residue_next);
+         std::pair<bool, clipper::Coord_orth> residue_centre =
+	    molecules[imol].residue_centre(residue_next);
+
+         if (ro.first) {
+            // make a view for current pos and one for where you want to go
+
+            // I want to convert from quat (which should be a quaternion) to
+            // a clipper::Mat33<double>
+            //
+	    //
+            GL_matrix m(quat);
+            clipper::Mat33<double> current_rot_mat = m.to_clipper_mat();
+
+            clipper::Mat33<double> mc = ro.second.rot() * current_rot_mat;
+            coot::util::quaternion vq(mc);
+	    // Note to self: Views should use util::quaternion, not this
+	    // old style
+	    //
+            float vqf[4];
+            vqf[0] = vq.q0; vqf[1] = vq.q1; vqf[2] = vq.q2; vqf[3] = vq.q3;
+
+            const clipper::Coord_orth &rc = residue_centre.second;
+            coot::Cartesian res_centre(rc.x(), rc.y(), rc.z());
+            coot::Cartesian rot_centre = RotationCentre();
+            coot::view_info_t view1(quat, rot_centre, zoom, "current");
+            coot::view_info_t view2(vqf,  res_centre, zoom, "next");
+            int nsteps = 60;  // make this a user-setable parameter
+            coot::view_info_t::interpolate(view1, view2, nsteps);
+
+	    // bleugh :-)
+	    quat[0] = vqf[0];
+	    quat[1] = vqf[1];
+	    quat[2] = vqf[2];
+	    quat[3] = vqf[3];
+
+	    go_to_atom_chain_       = residue_next->GetChainID();
+	    go_to_atom_residue_     = residue_next->GetSeqNum();
+	    go_to_atom_inscode_     = residue_next->GetInsCode();
+
+	    if (go_to_atom_window) {
+	       // what is next_atom here? Hmm
+	       // update_widget_go_to_atom_values(go_to_atom_window, next_atom);
+	    }
+         }
+      } else {
+	 // Oops! Next residue was not found, back to normal/standard/old mode
+	 if (dir)
+	    intelligent_next_atom_centring(go_to_atom_window);
+	 else
+	    intelligent_previous_atom_centring(go_to_atom_window);
+      }
+   }
+}
 
 void
 graphics_info_t::setRotationCentre(int index, int imol) {
 
    mmdb::PAtom atom = molecules[imol].atom_sel.atom_selection[index];
-   
-   float x = atom->x; 
+
+   float x = atom->x;
    float y = atom->y; 
    float z = atom->z;
 
@@ -574,7 +647,7 @@ graphics_info_t::setRotationCentre(int index, int imol) {
    short int do_zoom_flag = 0;
 
    if (smooth_scroll == 1)
-      smooth_scroll_maybe(x,y,z, do_zoom_flag, 100.0); 
+      smooth_scroll_maybe(x,y,z, do_zoom_flag, 100.0);
 
    rotation_centre_x = x; 
    rotation_centre_y = y; 
@@ -582,7 +655,7 @@ graphics_info_t::setRotationCentre(int index, int imol) {
 
    if (0) {  // Felix test/play code to orient the residue up the
 	     // screen on moving to next residue.
-       
+
       GL_matrix m;
       clipper::Mat33<double> mat_in = m.to_clipper_mat();
       clipper::Mat33<double> mat = coot::util::residue_orientation(atom->residue, mat_in);

@@ -46,6 +46,8 @@ class GL_matrix {
    GL_matrix(const clipper::Mat33<double> &m);
    // We want an orientation (doesn't matter which) that is along normal.
    GL_matrix(const clipper::Coord_orth &normal);
+
+   GL_matrix(float quat[4]);
    
    GL_matrix( GL_matrix, int manip);  
 

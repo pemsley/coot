@@ -123,6 +123,10 @@ GL_matrix::from_quaternion(float q[4]) { // quaternion q
    mat[15] = 1.0;
 }
 
+GL_matrix::GL_matrix(float quat[4]) {
+   from_quaternion(quat);
+}
+
 clipper::Mat33<double>
 GL_matrix::to_clipper_mat() const {
 

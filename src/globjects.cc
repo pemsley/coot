@@ -351,11 +351,15 @@ int graphics_info_t::file_selection_dialog_x_size = -1; // unset
 int graphics_info_t::file_selection_dialog_y_size = -1; 
 
 
-// things for quaternion rotation:
+// things for quaternion-based view rotation:
 double graphics_info_t::mouse_current_x = 0.0; 
 double graphics_info_t::mouse_current_y = 0.0;
 float* graphics_info_t::quat = new float[4]; 
 float graphics_info_t::trackball_size = 0.8; // for kevin
+
+// residue reorientation on "space"
+bool graphics_info_t::reorienting_next_residue_mode = false;
+
 
 // things for baton quaternion rotation: Must use a c++ class at some
 // stage:
@@ -3938,10 +3942,20 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 // 					     g.go_to_atom_residue()+next,
 // 					     g.go_to_atom_atom_name());
 
-      if (graphics_info_t::shift_is_pressed) {
-	 g.intelligent_previous_atom_centring(g.go_to_atom_window);
+      bool reorienting = graphics_info_t::reorienting_next_residue_mode;
+      if (reorienting) {
+	 if (graphics_info_t::shift_is_pressed) {
+	    g.reorienting_next_residue(false); // backwards
+	 } else {
+	    g.reorienting_next_residue(true); // forwards
+	 }
       } else {
-	 g.intelligent_next_atom_centring(g.go_to_atom_window);
+	 // old/standard simple translation
+	 if (graphics_info_t::shift_is_pressed) {
+	    g.intelligent_previous_atom_centring(g.go_to_atom_window);
+	 } else {
+	    g.intelligent_next_atom_centring(g.go_to_atom_window);
+	 }
       }
       break;
    }
