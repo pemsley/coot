@@ -894,6 +894,10 @@ coot::util::get_reorientation_matrix(mmdb::Residue *residue_current,
       if (residue_next) {
 	 mmdb::Atom *atoms_this[3];
 	 mmdb::Atom *atoms_next[3];
+	 for (unsigned int ii=0; ii<3; ii++) {
+	    atoms_this[ii] = 0;
+	    atoms_next[ii] = 0;
+	 }
 	 int n_residue_atoms_this;
 	 int n_residue_atoms_next;
 	 mmdb::PAtom *residue_atoms_this;
