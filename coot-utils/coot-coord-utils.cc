@@ -877,6 +877,66 @@ coot::util::matrix_convert(mmdb::mat44 mat) {
    return clipper::RTop_orth(clipper_mat, cco);
 }
 
+// current view has a particular orientation of the mainchain on the screen -
+// I want to move to the residue_next (which could be the previous residue)
+// for shift-space - what rotation/translation do I need?
+//
+// @return pair.first false if we don't have a valid RTop.
+//
+std::pair<bool, clipper::RTop_orth>
+coot::util::get_reorientation_matrix(mmdb::Residue *residue_current,
+				     mmdb::Residue *residue_next) {
+
+   bool status = false;
+   clipper::RTop_orth rtop;
+
+   if (residue_current) {
+      if (residue_next) {
+	 mmdb::Atom *atoms_this[3];
+	 mmdb::Atom *atoms_next[3];
+	 int n_residue_atoms_this;
+	 int n_residue_atoms_next;
+	 mmdb::PAtom *residue_atoms_this;
+	 mmdb::PAtom *residue_atoms_next;
+	 residue_current->GetAtomTable(residue_atoms_this, n_residue_atoms_this);
+	 residue_next->GetAtomTable(   residue_atoms_next, n_residue_atoms_next);
+	 for (int iat=0; iat<n_residue_atoms_this; iat++) {
+	    mmdb::Atom *at = residue_atoms_this[iat];
+	    std::string atom_name = at->GetAtomName();
+	    if (atom_name == " N  ") atoms_this[0] = at;
+	    if (atom_name == " CA ") atoms_this[1] = at;
+	    if (atom_name == " C  ") atoms_this[2] = at;
+	 }
+	 if (atoms_this[0] && atoms_this[1] && atoms_this[2]) {
+	    for (int jat=0; jat<n_residue_atoms_next; jat++) {
+	       mmdb::Atom *at = residue_atoms_next[jat];
+	       std::string atom_name = at->GetAtomName();
+	       if (atom_name == " N  ") atoms_next[0] = at;
+	       if (atom_name == " CA ") atoms_next[1] = at;
+	       if (atom_name == " C  ") atoms_next[2] = at;
+	    }
+	    if (atoms_next[0] && atoms_next[1] && atoms_next[2]) {
+	       std::vector<clipper::Coord_orth> this_pos;
+	       std::vector<clipper::Coord_orth> next_pos;
+	       this_pos.push_back(co(atoms_this[0]));
+	       this_pos.push_back(co(atoms_this[1]));
+	       this_pos.push_back(co(atoms_this[2]));
+	       next_pos.push_back(co(atoms_next[0]));
+	       next_pos.push_back(co(atoms_next[1]));
+	       next_pos.push_back(co(atoms_next[2]));
+               clipper::RTop_orth lrtop(this_pos, next_pos);
+               rtop = lrtop;
+               status = true;
+	    }
+	 }
+      }
+   }
+
+   return std::pair<bool, clipper::RTop_orth>(status, rtop);
+
+}
+
+
 std::ostream&
 coot::operator<<(std::ostream&  s, const coot::lsq_range_match_info_t &m) {
 
@@ -7758,6 +7818,7 @@ coot::util::set_mol_cell(mmdb::Manager *mol, clipper::Cell cell_local) {
    return status;
 }
 
+// c.f. get_ori_to_this_res().
 //
 clipper::Mat33<double>
 coot::util::residue_orientation(mmdb::Residue *residue_p, const clipper::Mat33<double> &orientation_in) {
