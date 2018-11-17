@@ -1320,6 +1320,10 @@ public:
    //
    void setRotationCentre(int atom_index, int imol); 
 
+   // if dir is true, we are going forward
+   void reorienting_next_residue(bool dir);
+   static bool reorienting_next_residue_mode;
+
    void setRotationCentre(coot::Cartesian centre); 
    void setRotationCentreAndZoom(coot::Cartesian centre,
 				 float target_zoom); 
@@ -3478,6 +3482,9 @@ public:
    static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec(int imol);
    static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec_internal(int imol);
    static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec_simple();
+   // direct for immediate usage, imol and atom,
+   // return (-1, null) on not found
+   std::pair<int, mmdb::Atom *> get_active_atom() const;
 
    // this can return -1 if there is no active atom molecule.
    int copy_active_atom_molecule();

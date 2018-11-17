@@ -690,3 +690,13 @@ PyObject *glyco_tree_internal_distances_fn_py(int imol, PyObject *base_residue_s
 }
 
 #endif
+
+/*! \brief rotate the view so that the next main-chain atoms are oriented
+ in the same direction as the previous - hence side-chain always seems to be
+"up" - set this mode to 1 for reorientation-mode - and 0 for off (standard translation)
+*/
+void set_reorienting_next_residue_mode(int state) {
+
+   graphics_info_t::reorienting_next_residue_mode = state;
+
+}
