@@ -48,7 +48,7 @@ zo::rama_table::test_analytical_derivs() const {
 }
 
 void
-zo::rama_table::make_a_png(int width, const std::string &file_name) {
+zo::rama_table::make_a_png(int width, const std::string &file_name) const {
 
    
    int height = width; // this is so for a ramachandran plot

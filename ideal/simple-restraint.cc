@@ -2176,10 +2176,10 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec() {
 				 double ideal_dist = 2.91;
 				 if (res_no_delta == 3)
 				    ideal_dist = 3.18;
-				 add(BOND_RESTRAINT, index_1, index_2, fixed_flags, 2.91, pseudo_bond_esd, 1.2);
+				 add(BOND_RESTRAINT, index_1, index_2, fixed_flags, ideal_dist, pseudo_bond_esd, 1.2);
 				 std::cout << "Helix Bond restraint ("
 					   << at_1->name << " " << at_1->GetSeqNum() << ") to ("
-					   << at_2->name << " " << at_2->GetSeqNum() << ") 2.91" << std::endl;
+					   << at_2->name << " " << at_2->GetSeqNum() << ") " << ideal_dist << std::endl;
 			      }
 			   }
 			}
