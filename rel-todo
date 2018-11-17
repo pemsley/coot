@@ -2,6 +2,19 @@
    For Release 0.8.9.2
 
 
+   o Add distance restraint - does that work? - What about helical restraints?
+     Test with a distorted model in a very low resolution map.
+
+   o add symmetry and try povray - crash?
+
+   o raster3d should show symmetry?
+
+   o what has happened to RCrane?
+
+   o When merging a ligand - allow the ligand to be in user-specified chain.
+     Maybe a menu item "Merge this ligand" which uses new function 
+     merge_ligand(imol, current_residue_spec, into_mol, new_residue_spec)
+
 ------
 
 
