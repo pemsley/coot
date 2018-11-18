@@ -7305,6 +7305,13 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
      graphics, The Visual Computer 5, 2-13, 1989.
 
 
+   Smoothing quaternion interpolations:
+
+   http://allenchou.net/2014/04/game-math-interpolating-quaternions-with-circular-blending/
+
+   Do it with Bezier splines?
+   http://caig.cs.nctu.edu.tw/course/CA/Lecture/slerp.pdf
+
 ----
  
   Refinement of hydrogens:  Allow them to be refined by gemetry gradients

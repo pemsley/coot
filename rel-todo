@@ -15,6 +15,15 @@
      Maybe a menu item "Merge this ligand" which uses new function 
      merge_ligand(imol, current_residue_spec, into_mol, new_residue_spec)
 
+   o Randy: update NCS matrices for "O" key after symm shift reference chain here
+
+   o Randy: origin removed patterson: what's next to fix?
+
+   o Make a trivial ligand in the ligand builder, run acedrg. make an incorrect ligand
+     (valence error) and run acedrg - the previous ligand gets imported.
+
+     -> Apply button should grey out if there is no SMILES string (perhaps)
+
 ------
 
 
