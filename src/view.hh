@@ -51,6 +51,18 @@ namespace coot {
 	 for (int i=0; i<4; i++) 
 	    quat[i] = quat_in[i];
       }
+      view_info_t(const view_info_t &v_in) {
+	 zoom = v_in.zoom;
+	 rotation_centre = v_in.rotation_centre;
+	 description = v_in.description;
+	 is_simple_spin_view_flag = v_in.is_simple_spin_view_flag;
+	 is_action_view_flag = v_in.is_action_view_flag;
+	 n_spin_steps = v_in.n_spin_steps;
+	 degrees_per_step = v_in.degrees_per_step;
+	 action = v_in.action;
+	 for (std::size_t i=0; i<4; i++)
+	    quat[i] = v_in.quat[i];
+      }
       view_info_t() {
       	is_simple_spin_view_flag = 0;
 	is_action_view_flag = 0;
@@ -76,6 +88,13 @@ namespace coot {
       float quat_length() const;
       void add_description(const std::string &descr) { 
 	description = descr;
+      }
+      // -q is the same rotation as q, but we don't want to go the long way round
+      // when moving from quat_1 to quat_2, if the dot_product is negative,
+      // we need to negate_quaternion().
+      void negate_quaternion() {
+	 for (unsigned int i=0; i<4; i++)
+	    quat[i] = -quat[i];
       }
       static view_info_t interpolate(const view_info_t &view1,
 				     const view_info_t &view2,
