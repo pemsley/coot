@@ -82,7 +82,7 @@ libcoot_ideal_la_SOURCES = simple-restraint.cc \
 
 libcoot_ideal_la_LDFLAGS = $(SHARED_LDFLAGS)
 
-check_PROGRAMS =  with-geometry logramatest crankshaft-test
+check_PROGRAMS =  with-geometry logramatest crankshaft-test test-rama-plot
 if OS_WIN32
 bin_PROGRAMS = mini-rsr-bin
 else
@@ -98,6 +98,10 @@ crankshaft_test_LDADD = ./libcoot-ideal.la
 with_geometry_SOURCES = with-geometry.cc
 
 mini_rsr_bin_SOURCES = mini-rsr.cc
+
+test_rama_plot_SOURCES = test-rama-plot.cc
+
+test_rama_plot_LDADD = ./libcoot-ideal.la
 
 # test_indexing_SOURCES = test-indexing.cc
 

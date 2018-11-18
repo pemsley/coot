@@ -2,6 +2,28 @@
    For Release 0.8.9.2
 
 
+   o Add distance restraint - does that work? - What about helical restraints?
+     Test with a distorted model in a very low resolution map.
+
+   o add symmetry and try povray - crash?
+
+   o raster3d should show symmetry?
+
+   o what has happened to RCrane?
+
+   o When merging a ligand - allow the ligand to be in user-specified chain.
+     Maybe a menu item "Merge this ligand" which uses new function 
+     merge_ligand(imol, current_residue_spec, into_mol, new_residue_spec)
+
+   o Randy: update NCS matrices for "O" key after symm shift reference chain here
+
+   o Randy: origin removed patterson: what's next to fix?
+
+   o Make a trivial ligand in the ligand builder, run acedrg. make an incorrect ligand
+     (valence error) and run acedrg - the previous ligand gets imported.
+
+     -> Apply button should grey out if there is no SMILES string (perhaps)
+
 ------
 
 

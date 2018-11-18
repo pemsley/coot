@@ -102,7 +102,7 @@ namespace zo {
 	 // init(fn);
       }
 
-      void make_a_png(int n_pixels, const std::string &file_name);
+      void make_a_png(int n_pixels, const std::string &file_name) const;
 
       void test_analytical_derivs() const;
 
