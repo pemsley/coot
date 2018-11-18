@@ -22,7 +22,9 @@ lib_LTLIBRARIES=libcoot-coords.la
 
 pkginclude_HEADERS =  Bond_lines.h Cartesian.h cos-sin.h \
 	mmdb.h mmdb-extras.h utils.h mmdb-crystal.h Bond_lines_ext.h \
-	coot-close.hh phenix-geo.hh ramachandran-container.hh
+	coot-close.hh phenix-geo.hh ramachandran-container.hh \
+	loop-path.hh
+
 pkgincludedir = $(includedir)/coot/coords
 
 AM_CPPFLAGS = \
@@ -38,7 +40,8 @@ AM_CXXFLAGS = \
 
 libcoot_coords_la_SOURCES =  Bond_lines.cc Cartesian.cc cos-sin.cc \
 		 mmdb-extras.cc utils.cc mmdb.cc mmdb-crystal.cc \
-		 Bond_lines_ext.cc coot-close.cc phenix-geo.cc phenix-geo-bonds.cc
+		 Bond_lines_ext.cc coot-close.cc phenix-geo.cc phenix-geo-bonds.cc \
+		 loop-path.cc
 
 libcoot_coords_la_LIBADD = \
    $(top_builddir)/geometry/libcoot-geometry.la      \
