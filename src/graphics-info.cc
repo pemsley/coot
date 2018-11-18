@@ -563,6 +563,8 @@ graphics_info_t::reorienting_next_residue(bool dir) {
 
    std::pair<int, mmdb::Atom *> atom_pair = get_active_atom();
 
+   bool done_it = false;
+
    if (atom_pair.second) {
 
       int imol = atom_pair.first;
@@ -582,6 +584,8 @@ graphics_info_t::reorienting_next_residue(bool dir) {
 	    molecules[imol].residue_centre(residue_next);
 
          if (ro.first) {
+
+	    // Happy case
 
 	    // make a view for current pos and one for where you want to go
 
@@ -627,7 +631,7 @@ graphics_info_t::reorienting_next_residue(bool dir) {
 	       update_things_on_move_and_redraw(); // (symmetry, environment, map) and draw
 	    }
 
-
+	    done_it = true;
 	    go_to_atom_chain_       = residue_next->GetChainID();
 	    go_to_atom_residue_     = residue_next->GetSeqNum();
 	    go_to_atom_inscode_     = residue_next->GetInsCode();
@@ -637,13 +641,14 @@ graphics_info_t::reorienting_next_residue(bool dir) {
 	       // update_widget_go_to_atom_values(go_to_atom_window, next_atom);
 	    }
          }
-      } else {
-	 // Oops! Next residue was not found, back to normal/standard/old mode
-	 if (dir)
-	    intelligent_next_atom_centring(go_to_atom_window);
-	 else
-	    intelligent_previous_atom_centring(go_to_atom_window);
       }
+   }
+   if (! done_it) {
+      // Oops! Next residue was not found, back to normal/standard/old mode
+      if (dir)
+	 intelligent_next_atom_centring(go_to_atom_window);
+      else
+	 intelligent_previous_atom_centring(go_to_atom_window);
    }
    graphics_draw();
 }
