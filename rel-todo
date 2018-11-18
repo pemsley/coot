@@ -15,8 +15,6 @@
      Maybe a menu item "Merge this ligand" which uses new function 
      merge_ligand(imol, current_residue_spec, into_mol, new_residue_spec)
 
-   o Randy: update NCS matrices for "O" key after symm shift reference chain here
-
    o Randy: origin removed patterson: what's next to fix?
 
    o Make a trivial ligand in the ligand builder, run acedrg. make an incorrect ligand
@@ -24,8 +22,14 @@
 
      -> Apply button should grey out if there is no SMILES string (perhaps)
 
+   o I don't like the double call to make_bonds() (it's in CA mode at least). Get rid of it.
+
 ------
 
+   o Randy: update NCS matrices for "O" key after symm shift reference chain here
+
+* fill_ghost_info() needs to be called again to regenerate the matrices.
+  Done.
 
    o this was from coot-experimental but maybe it's a problem here.
 
