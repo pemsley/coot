@@ -26,8 +26,12 @@ coot::loop_path(mmdb::Atom *start_back_2,
    // Now make P2 = P1 + s(P1 - P0);
    // Now make P3 = P4 + s(P4 - P5);
 
-   // says s = 1.0 for now:
-   double s = 0.9;
+   double d2 = clipper::Coord_orth(P1-P4).lengthsq();
+   double d = 0.3 * sqrt(d2); // this number could be optimized
+   if (d<0.5) d = 0.5; // and this one
+   if (d>3.0) d = 3.0; // and this one
+
+   double s = sqrt(d);
    clipper::Coord_orth P2 = P1 + s * P1 - s * P0;
    clipper::Coord_orth P3 = P4 + s * P4 - s * P5;
 

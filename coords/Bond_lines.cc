@@ -3820,7 +3820,13 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
                   int res_no_delta = res_no_2 - res_no_1;
 		  if (res_no_delta > 1) {
 
-                     std::cout << "loop this?" << std::endl;
+		     if (res_name_1 == "HOH") continue;
+		     if (res_name_2 == "HOH") continue;
+
+		     if (false)
+			std::cout << "loop this? " << coot::residue_spec_t(residue_prev)
+				  << " " << coot::residue_spec_t(residue_this) << std::endl;
+
 		     // we want to represent the missing residues as a curved loop. To do so, we
 		     // need to find the positions of the CA of n-2 (for start of loop)
 		     // and CA of n+2 (for end of the loop) - can we do that?
