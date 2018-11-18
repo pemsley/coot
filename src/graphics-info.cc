@@ -582,36 +582,51 @@ graphics_info_t::reorienting_next_residue(bool dir) {
 	    molecules[imol].residue_centre(residue_next);
 
          if (ro.first) {
-            // make a view for current pos and one for where you want to go
 
-            // I want to convert from quat (which should be a quaternion) to
-            // a clipper::Mat33<double>
-            //
+	    // make a view for current pos and one for where you want to go
+
+	    // I want to convert from quat (which should be a quaternion) to
+	    // a clipper::Mat33<double>
 	    //
-            GL_matrix m(quat);
-            clipper::Mat33<double> current_rot_mat = m.to_clipper_mat();
+	    //
+	    GL_matrix m(quat);
+	    clipper::Mat33<double> current_rot_mat = m.to_clipper_mat();
 
-            clipper::Mat33<double> mc = ro.second.rot() * current_rot_mat;
-            coot::util::quaternion vq(mc);
+	    clipper::Mat33<double> mc = ro.second.rot() * current_rot_mat;
+	    coot::util::quaternion vq(mc);
 	    // Note to self: Views should use util::quaternion, not this
 	    // old style
 	    //
-            float vqf[4];
-            vqf[0] = vq.q0; vqf[1] = vq.q1; vqf[2] = vq.q2; vqf[3] = vq.q3;
+	    float vqf[4];
+	    vqf[0] = vq.q0; vqf[1] = vq.q1; vqf[2] = vq.q2; vqf[3] = vq.q3;
 
-            const clipper::Coord_orth &rc = residue_centre.second;
-            coot::Cartesian res_centre(rc.x(), rc.y(), rc.z());
-            coot::Cartesian rot_centre = RotationCentre();
-            coot::view_info_t view1(quat, rot_centre, zoom, "current");
-            coot::view_info_t view2(vqf,  res_centre, zoom, "next");
-            int nsteps = 60;  // make this a user-setable parameter
-            coot::view_info_t::interpolate(view1, view2, nsteps);
+	    if (smooth_scroll == 1) {
 
-	    // bleugh :-)
-	    quat[0] = vqf[0];
-	    quat[1] = vqf[1];
-	    quat[2] = vqf[2];
-	    quat[3] = vqf[3];
+	       const clipper::Coord_orth &rc = residue_centre.second;
+	       coot::Cartesian res_centre(rc.x(), rc.y(), rc.z());
+	       coot::Cartesian rot_centre = RotationCentre();
+	       coot::view_info_t view1(quat, rot_centre, zoom, "current");
+	       coot::view_info_t view2(vqf,  res_centre, zoom, "next");
+	       int nsteps = smooth_scroll_steps * 2;
+	       coot::view_info_t::interpolate(view1, view2, nsteps);
+
+	       // bleugh :-)
+	       for(int i=0; i<4; i++) quat[i] = vqf[i];
+
+	    } else {
+
+	       // "snap" the view
+	       old_rotation_centre_x = rotation_centre_x; 
+	       old_rotation_centre_y = rotation_centre_y; 
+	       old_rotation_centre_z = rotation_centre_z;
+	       rotation_centre_x = residue_centre.second.x();
+	       rotation_centre_y = residue_centre.second.y();
+	       rotation_centre_z = residue_centre.second.z();
+	       // bleugh again
+	       for(int i=0; i<4; i++) quat[i] = vqf[i];
+	       update_things_on_move_and_redraw(); // (symmetry, environment, map) and draw
+	    }
+
 
 	    go_to_atom_chain_       = residue_next->GetChainID();
 	    go_to_atom_residue_     = residue_next->GetSeqNum();
@@ -630,6 +645,7 @@ graphics_info_t::reorienting_next_residue(bool dir) {
 	    intelligent_previous_atom_centring(go_to_atom_window);
       }
    }
+   graphics_draw();
 }
 
 void
@@ -649,8 +665,8 @@ graphics_info_t::setRotationCentre(int index, int imol) {
    if (smooth_scroll == 1)
       smooth_scroll_maybe(x,y,z, do_zoom_flag, 100.0);
 
-   rotation_centre_x = x; 
-   rotation_centre_y = y; 
+   rotation_centre_x = x;
+   rotation_centre_y = y;
    rotation_centre_z = z;
 
    if (0) {  // Felix test/play code to orient the residue up the
