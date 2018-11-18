@@ -44,7 +44,7 @@
 #include "coot-utils/coot-coord-utils.hh"
 
 #include "geometry/protein-donor-acceptors.hh"
-
+#include "loop-path.hh"
 
 static std::string b_factor_bonds_scale_handle_name = "B-factor-bonds-scale";
 
@@ -3761,16 +3761,15 @@ Bond_lines_container::do_Ca_bonds(atom_selection_container_t SelAtom,
 
 
 // where bond_colour_type is one of 
-// enum bond_colour_t { COLOUR_BY_CHAIN=0, COLOUR_BY_SEC_STRUCT=1};
+// COLOUR_BY_CHAIN=0, COLOUR_BY_SEC_STRUCT=1
 //
-// Don't show HETATMs.
-// 
+// Don't show HETATMs (but allow MSE in CA mode).
+//
 coot::my_atom_colour_map_t 
 Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAtom,
 						const char *backbone_atom_id,
 						coot::my_atom_colour_map_t atom_colour_map,
 						float min_dist, float max_dist, int bond_colour_type) {
-
    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 
    int atom_colours_udd = -1; // unset/bad
@@ -3782,6 +3781,8 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
    float dist_max_CA_CA = 5.0;
    float dist_max_P_P   = 8.5; // seems reasonable.
 
+   // we want to add a dotted loop where there is a break in the sequence of more than
+   // 1 residue and the distance between the 2 ends is more than dist_max_CA_CA.
 
    if (bond_colour_type == coot::COLOUR_BY_RAINBOW)
       atom_colours_udd = set_rainbow_colours(SelAtom.mol);
@@ -3802,118 +3803,215 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    chain_p = model_p->GetChain(ichain);
 	    int nres = chain_p->GetNumberOfResidues();
-	    mmdb::Residue *residue_this;
-	    mmdb::Residue *residue_prev;
 	    mmdb::Atom *at_1;
 	    mmdb::Atom *at_2;
 	    for (int ires=1; ires<nres; ires++) { 
-	       residue_this = chain_p->GetResidue(ires);
-	       residue_prev = chain_p->GetResidue(ires-1);
+	       mmdb::Residue *residue_this = chain_p->GetResidue(ires);
+	       mmdb::Residue *residue_prev = chain_p->GetResidue(ires-1);
 	       if (residue_this && residue_prev) {
+
 		  int n_atoms_prev = residue_prev->GetNumberOfAtoms();
 		  int n_atoms_this = residue_this->GetNumberOfAtoms();
 		  std::string res_name_1 = residue_prev->GetResName();
 		  std::string res_name_2 = residue_this->GetResName();
-		  for (int iat=0; iat<n_atoms_prev; iat++) {
-		     at_1 = residue_prev->GetAtom(iat);
-		     std::string atom_name_1(at_1->GetAtomName());
-		     if (atom_name_1 == " CA " || atom_name_1 == " P  ") { // PDBv3 FIXME
-			for (int jat=0; jat<n_atoms_this; jat++) {
-			   at_2 = residue_this->GetAtom(jat);
-			   std::string atom_name_2(at_2->GetAtomName());
-			   std::string alt_conf_prev = at_1->altLoc;
-			   std::string alt_conf_this = at_2->altLoc;
-			   // Allow MSE hetgroups in CA mode
-			   if ((!at_1->Het || res_name_1 == "MSE") && (!at_2->Het || res_name_2 == "MSE")) {
-			      if (!at_1->isTer() && !at_2->isTer()) {
-				 float dist_max_sqrd = dist_max_CA_CA * dist_max_CA_CA;
-				 bool phosphate_pair = false;
-				 bool Calpha_pair    = false;
-				 if ((atom_name_1 == " P  ") && (atom_name_2 == " P  ")) { 
-				    phosphate_pair = 1;
-				    dist_max_sqrd = dist_max_P_P * dist_max_P_P;
-				 } 
-				 if ((atom_name_1 == " CA ") && (atom_name_2 == " CA ")) { 
-				    Calpha_pair = 1;
+
+		  int res_no_1 = residue_prev->GetSeqNum();
+		  int res_no_2 = residue_this->GetSeqNum();
+                  int res_no_delta = res_no_2 - res_no_1;
+		  if (res_no_delta > 1) {
+
+                     std::cout << "loop this?" << std::endl;
+		     // we want to represent the missing residues as a curved loop. To do so, we
+		     // need to find the positions of the CA of n-2 (for start of loop)
+		     // and CA of n+2 (for end of the loop) - can we do that?
+		     int res_idx_n_start_back = (ires - 1) -2;
+		     int res_idx_n_end_forwards = ires + 2;
+		     if (res_idx_n_start_back >= 0) {
+			if (res_idx_n_end_forwards < nres) {
+			   mmdb::Residue *res_start_back   = chain_p->GetResidue(res_idx_n_start_back);
+			   mmdb::Residue *res_end_forwards = chain_p->GetResidue(res_idx_n_end_forwards);
+			   if (res_start_back) {
+			      if (res_end_forwards) {
+				 mmdb::PPAtom residue_atoms_pp_1 = 0;
+				 mmdb::PPAtom residue_atoms_pp_2 = 0;
+				 mmdb::PPAtom residue_atoms_pp_3 = 0;
+				 mmdb::PPAtom residue_atoms_pp_4 = 0;
+				 int n_atoms_pp_1 = 0;
+				 int n_atoms_pp_2 = 0;
+				 int n_atoms_pp_3 = 0;
+				 int n_atoms_pp_4 = 0;
+				 mmdb::Atom *at_pp_1 = 0;
+				 mmdb::Atom *at_pp_2 = 0;
+				 mmdb::Atom *at_pp_3 = 0;
+				 mmdb::Atom *at_pp_4 = 0;
+				 res_start_back->GetAtomTable(residue_atoms_pp_1, n_atoms_pp_1);
+				 residue_prev->GetAtomTable(residue_atoms_pp_2, n_atoms_pp_2);
+				 residue_this->GetAtomTable(residue_atoms_pp_3, n_atoms_pp_3);
+				 res_end_forwards->GetAtomTable(residue_atoms_pp_4, n_atoms_pp_4);
+				 for (int ipp_1=0; ipp_1<n_atoms_pp_1; ipp_1++) {
+				    mmdb::Atom *at = residue_atoms_pp_1[ipp_1];
+				    std::string atom_name = at->GetAtomName();
+				    if (atom_name == " CA " || atom_name == " P  ") {
+				       at_pp_1 = at;
+				       break;
+				    }
+				 }
+				 for (int ipp_2=0; ipp_2<n_atoms_pp_2; ipp_2++) {
+				    mmdb::Atom *at = residue_atoms_pp_2[ipp_2];
+				    std::string atom_name = at->GetAtomName();
+				    if (atom_name == " CA " || atom_name == " P  ") {
+				       at_pp_2 = at;
+				       break;
+				    }
+				 }
+				 for (int ipp_3=0; ipp_3<n_atoms_pp_3; ipp_3++) {
+				    mmdb::Atom *at = residue_atoms_pp_3[ipp_3];
+				    std::string atom_name = at->GetAtomName();
+				    if (atom_name == " CA " || atom_name == " P  ") {
+				       at_pp_3 = at;
+				       break;
+				    }
+				 }
+				 for (int ipp_4=0; ipp_4<n_atoms_pp_4; ipp_4++) {
+				    mmdb::Atom *at = residue_atoms_pp_4[ipp_4];
+				    std::string atom_name = at->GetAtomName();
+				    if (atom_name == " CA " || atom_name == " P  ") {
+				       at_pp_4 = at;
+				       break;
+				    }
 				 }
 
-				 if (Calpha_pair || phosphate_pair) { 
-				    if (alt_conf_prev == alt_conf_this || alt_conf_this == "" || alt_conf_prev == "") {
-				       int col = 0; // overridden.
-				       coot::Cartesian ca_1(at_1->x, at_1->y, at_1->z);
-				       coot::Cartesian ca_2(at_2->x, at_2->y, at_2->z);
-
+				 if (at_pp_1 && at_pp_2 && at_pp_3 && at_pp_4) {
+				    coot::Cartesian pp_2(at_pp_2->x, at_pp_2->y, at_pp_2->z);
+				    coot::Cartesian pp_3(at_pp_3->x, at_pp_3->y, at_pp_3->z);
+				    float a = (pp_3-pp_2).amplitude();
+				    int n_line_segments = static_cast<int>(a*1.2);
+				    std::vector<coot::CartesianPair> lp =
+				       coot::loop_path(at_pp_1, at_pp_2, at_pp_3, at_pp_4, n_line_segments);
+				    for (unsigned int jj =0; jj<lp.size(); jj++) {
+				       coot::CartesianPair cp = lp[jj];
+				       int col = HYDROGEN_GREY_BOND; // just grey, really.
+				       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 				       int iat_1 = -1;
 				       int iat_2 = -1;
 				       at_1->GetUDData(udd_atom_index_handle, iat_1);
 				       at_2->GetUDData(udd_atom_index_handle, iat_2);
+				       addBond(col, cp.getStart(), cp.getFinish(), cc, imod, iat_1, iat_2);
+				    }
+				 } else {
+				    if (false)
+				       std::cout << "DEBUG:: CA loops: oops! "
+						 << at_pp_1 << " " << at_pp_2 << " " << at_pp_3 << " " << at_pp_4
+						 << std::endl;
+				 }
+			      }
+			   }
+			}
+		     }
 
-				       if ((ca_1-ca_2).amplitude_squared() < dist_max_sqrd) { 
-					  if (bond_colour_type == Bond_lines_container::COLOUR_BY_B_FACTOR) {
-					     coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
-					     col = atom_colour(at_1, coot::COLOUR_BY_B_FACTOR);
-					     graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-					     addBond(col, ca_1, bond_mid_point, cc, imod, iat_1, iat_2);
-					     col = atom_colour(at_2, coot::COLOUR_BY_B_FACTOR);
-					     addBond(col, bond_mid_point, ca_2, cc, imod, iat_1, iat_2);
-					  } else {
-					     if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) {
+                  } else {
+
+		     // normal case (not a gap in the sequence)
+
+		     for (int iat=0; iat<n_atoms_prev; iat++) {
+			at_1 = residue_prev->GetAtom(iat);
+			std::string atom_name_1(at_1->GetAtomName());
+			if (atom_name_1 == " CA " || atom_name_1 == " P  ") { // PDBv3 FIXME
+			   for (int jat=0; jat<n_atoms_this; jat++) {
+			      at_2 = residue_this->GetAtom(jat);
+			      std::string atom_name_2(at_2->GetAtomName());
+			      std::string alt_conf_prev = at_1->altLoc;
+			      std::string alt_conf_this = at_2->altLoc;
+			      // Allow MSE hetgroups in CA mode
+			      if ((!at_1->Het || res_name_1 == "MSE") && (!at_2->Het || res_name_2 == "MSE")) {
+				 if (!at_1->isTer() && !at_2->isTer()) {
+				    float dist_max_sqrd = dist_max_CA_CA * dist_max_CA_CA;
+				    bool phosphate_pair = false;
+				    bool Calpha_pair    = false;
+				    if ((atom_name_1 == " P  ") && (atom_name_2 == " P  ")) {
+				       phosphate_pair = 1;
+				       dist_max_sqrd = dist_max_P_P * dist_max_P_P;
+				    }
+				    if ((atom_name_1 == " CA ") && (atom_name_2 == " CA ")) {
+				       Calpha_pair = 1;
+				    }
+
+				    if (Calpha_pair || phosphate_pair) {
+				       if (alt_conf_prev == alt_conf_this || alt_conf_this == "" || alt_conf_prev == "") {
+					  int col = 0; // overridden.
+					  coot::Cartesian ca_1(at_1->x, at_1->y, at_1->z);
+					  coot::Cartesian ca_2(at_2->x, at_2->y, at_2->z);
+					  int iat_1 = -1;
+					  int iat_2 = -1;
+					  at_1->GetUDData(udd_atom_index_handle, iat_1);
+					  at_2->GetUDData(udd_atom_index_handle, iat_2);
+					  if ((ca_1-ca_2).amplitude_squared() < dist_max_sqrd) {
+					     if (bond_colour_type == Bond_lines_container::COLOUR_BY_B_FACTOR) {
 						coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
-						col = atom_colour(at_1, coot::COLOUR_BY_SEC_STRUCT);
+						col = atom_colour(at_1, coot::COLOUR_BY_B_FACTOR);
+						graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 						addBond(col, ca_1, bond_mid_point, cc, imod, iat_1, iat_2);
-						col = atom_colour(at_2, coot::COLOUR_BY_SEC_STRUCT);
+						col = atom_colour(at_2, coot::COLOUR_BY_B_FACTOR);
 						addBond(col, bond_mid_point, ca_2, cc, imod, iat_1, iat_2);
 					     } else {
+						if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) {
+						   coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
+						   col = atom_colour(at_1, coot::COLOUR_BY_SEC_STRUCT);
+						   addBond(col, ca_1, bond_mid_point, cc, imod, iat_1, iat_2);
+						   col = atom_colour(at_2, coot::COLOUR_BY_SEC_STRUCT);
+						   addBond(col, bond_mid_point, ca_2, cc, imod, iat_1, iat_2);
+						} else {
 
-						int col_1 = 0;
-						int col_2 = 0;
-						if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
-						   if (atom_colours_udd > 0) {
-						      mmdb::realtype f;
-						      if (at_1->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok) {
-							 col_1 = atom_colour_map.index_for_rainbow(f);
-							 if (at_2->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok) {
-							    col_2 = atom_colour_map.index_for_rainbow(f);
+						   int col_1 = 0;
+						   int col_2 = 0;
+						   if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
+						      if (atom_colours_udd > 0) {
+							 mmdb::realtype f;
+							 if (at_1->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok) {
+							    col_1 = atom_colour_map.index_for_rainbow(f);
+							    if (at_2->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok) {
+							       col_2 = atom_colour_map.index_for_rainbow(f);
+							    } else {
+							       col_2 = 0;
+							    }
 							 } else {
-							    col_2 = 0;
+							    col_1 = 0;
 							 }
 						      } else {
 							 col_1 = 0;
 						      }
 						   } else {
-						      col_1 = 0;
-						   }
-						} else {
 
-						   if (bond_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS) {
-						      col_1 = get_user_defined_col_index(at_1, udd_handle_for_user_defined_colours);
-						      col_2 = get_user_defined_col_index(at_2, udd_handle_for_user_defined_colours);
-						      if (col_1 < 0) // problem
-							 col_1 = 0;
-						      if (col_2 < 0) // ditto
-							 col_2 = 0;
-						   } else {
-						      col_1 = atom_colour_map.index_for_chain(chain_p->GetChainID());
-						      col_2 = col_1;
+						      if (bond_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS) {
+							 col_1 = get_user_defined_col_index(at_1, udd_handle_for_user_defined_colours);
+							 col_2 = get_user_defined_col_index(at_2, udd_handle_for_user_defined_colours);
+							 if (col_1 < 0) // problem
+							    col_1 = 0;
+							 if (col_2 < 0) // ditto
+							    col_2 = 0;
+						      } else {
+							 col_1 = atom_colour_map.index_for_chain(chain_p->GetChainID());
+							 col_2 = col_1;
+						      }
 						   }
+						   bonds_size_colour_check(col_1);
+						   bonds_size_colour_check(col_2);
+						   coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
+						   addBond(col_1, ca_1, bond_mid_point, cc, imod, iat_1, iat_2);
+						   addBond(col_2, bond_mid_point, ca_2, cc, imod, iat_1, iat_2);
 						}
-						bonds_size_colour_check(col_1);
-						bonds_size_colour_check(col_2);
-						coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
-						addBond(col_1, ca_1, bond_mid_point, cc, imod, iat_1, iat_2);
-						addBond(col_2, bond_mid_point, ca_2, cc, imod, iat_1, iat_2);
 					     }
+					     at_1->PutUDData(udd_has_bond_handle, 1);
+					     at_2->PutUDData(udd_has_bond_handle, 1);
+					     // for use with Ca+ligand mode
+					     residue_this->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
+					     residue_prev->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
 					  }
-					  at_1->PutUDData(udd_has_bond_handle, 1);
-					  at_2->PutUDData(udd_has_bond_handle, 1);
-					  // for use with Ca+ligand mode
-					  residue_this->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
-					  residue_prev->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
 				       }
-				    }				 
+				    }
 				 }
 			      }
-			   } 
+			   }
 			}
 		     }
 		  }
