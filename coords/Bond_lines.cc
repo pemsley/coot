@@ -3900,8 +3900,8 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 				       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 				       int iat_1 = -1;
 				       int iat_2 = -1;
-				       at_1->GetUDData(udd_atom_index_handle, iat_1);
-				       at_2->GetUDData(udd_atom_index_handle, iat_2);
+				       at_pp_2->GetUDData(udd_atom_index_handle, iat_1);
+				       at_pp_3->GetUDData(udd_atom_index_handle, iat_2);
 				       addBond(col, cp.getStart(), cp.getFinish(), cc, imod, iat_1, iat_2);
 				    }
 				 } else {
