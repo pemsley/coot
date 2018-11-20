@@ -1639,6 +1639,29 @@ coot::util::get_residue_centre(mmdb::Residue *residue_p) {
  
 }
 
+std::pair<bool, clipper::Coord_orth>
+coot::util::get_CA_position_in_residue(mmdb::Residue *residue_p) {
+
+   bool status = 0;
+   clipper::Coord_orth pos(0,0,0);
+   mmdb::PPAtom residue_atoms = 0;
+   int n_residue_atoms;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int i=0; i<n_residue_atoms; i++) {
+      std::string atom_name(residue_atoms[i]->GetAtomName());
+      if (atom_name == " CA ") { // PDBv3 FIXME
+	 clipper::Coord_orth pt(residue_atoms[i]->x,
+				residue_atoms[i]->y,
+				residue_atoms[i]->z);
+         pos = pt;
+         status = true;
+         break;
+      }
+   }
+   return std::pair<bool, clipper::Coord_orth> (status, pos);
+}
+
+
 
 
 

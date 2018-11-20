@@ -63,8 +63,10 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
 	 //
 	 if (n_steps < 1)
 	    n_steps = 1;
-	 double frac = double(1.0)/double(n_steps);
-	 for (double f=0; f<=1.0; f+=frac) {
+	 // double frac = double(1.0)/double(n_steps);
+	 // for (double f=0; f<=1.0; f+=frac) {
+         for (int istep=0; istep<=n_steps; istep++) {
+            double f = static_cast<double>(istep) / static_cast<double>(n_steps);
 	    double one_over_sin_omega = 1/sin(omega);
 	    double frac1 = sin((1-f)*omega) * one_over_sin_omega;
 	    double frac2 = sin(f*omega) * one_over_sin_omega;

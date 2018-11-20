@@ -626,13 +626,35 @@ graphics_info_t::reorienting_next_residue(bool dir) {
 	    float vqf[4];
 	    vqf[0] = vq.q0; vqf[1] = vq.q1; vqf[2] = vq.q2; vqf[3] = vq.q3;
 
+	    const clipper::Coord_orth &rc = residue_centre.second;
+	    coot::Cartesian res_centre(rc.x(), rc.y(), rc.z());
+	    coot::Cartesian rot_centre = RotationCentre();
+	    coot::Cartesian target_pos = res_centre;
+
+            // however, if we were "close" to the CA of the current
+            // residue, then we should centre on the CA of the next
+            // residue (rather than the mean position) - experimental.
+
+            mmdb::Atom *at = atom_pair.second;
+            std::string atom_name(at->GetAtomName());
+            if (atom_name == " CA ") { // PDBv3 FIXME
+               coot::Cartesian ca_pos(at->x, at->y, at->z);
+               coot::Cartesian delta = ca_pos - rot_centre;
+               if (delta.amplitude() < 0.01) {
+                  std::pair<bool, clipper::Coord_orth> ca_next_pos =
+                    coot::util::get_CA_position_in_residue(residue_next);
+                  if (ca_next_pos.first) {
+                     target_pos = coot::Cartesian(ca_next_pos.second.x(),
+                                                  ca_next_pos.second.y(),
+                                                  ca_next_pos.second.z());
+                  }
+               }
+            }
+
 	    if (smooth_scroll == 1) {
 
-	       const clipper::Coord_orth &rc = residue_centre.second;
-	       coot::Cartesian res_centre(rc.x(), rc.y(), rc.z());
-	       coot::Cartesian rot_centre = RotationCentre();
 	       coot::view_info_t view1(quat, rot_centre, zoom, "current");
-	       coot::view_info_t view2(vqf,  res_centre, zoom, "next");
+	       coot::view_info_t view2(vqf,  target_pos, zoom, "next");
 	       int nsteps = smooth_scroll_steps * 2;
 	       coot::view_info_t::interpolate(view1, view2, nsteps);
 
@@ -642,12 +664,12 @@ graphics_info_t::reorienting_next_residue(bool dir) {
 	    } else {
 
 	       // "snap" the view
-	       old_rotation_centre_x = rotation_centre_x; 
-	       old_rotation_centre_y = rotation_centre_y; 
+	       old_rotation_centre_x = rotation_centre_x;
+	       old_rotation_centre_y = rotation_centre_y;
 	       old_rotation_centre_z = rotation_centre_z;
-	       rotation_centre_x = residue_centre.second.x();
-	       rotation_centre_y = residue_centre.second.y();
-	       rotation_centre_z = residue_centre.second.z();
+	       rotation_centre_x = target_pos.x();
+	       rotation_centre_y = target_pos.y();
+	       rotation_centre_z = target_pos.z();
 	       // bleugh again
 	       for(int i=0; i<4; i++) quat[i] = vqf[i];
 	       update_things_on_move_and_redraw(); // (symmetry, environment, map) and draw

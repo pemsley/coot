@@ -847,6 +847,8 @@ namespace coot {
       
       std::pair<bool, clipper::Coord_orth> get_residue_centre(mmdb::Residue *res);
 
+      std::pair<bool, clipper::Coord_orth> get_CA_position_in_residue(mmdb::Residue *residue_p);
+
       // current view has a particular orientation of the mainchain on the screen -
       // I want to move to the residue_next (which could be the previous residue)
       // for shift-space - what rotation/translation do I need?
