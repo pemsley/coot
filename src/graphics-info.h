@@ -4065,6 +4065,10 @@ string   static std::string sessionid;
 
    static bool update_maps_on_recentre_flag;
 
+   static float ca_bonds_loop_param_1;
+   static float ca_bonds_loop_param_2;
+   static float ca_bonds_loop_param_3;
+
    static pair<bool,float> coords_centre_radius;  // should the display radius limit be applied? And
                                                   // if so, what is it? (say 20A)
                                                   // used in draw_bonds().

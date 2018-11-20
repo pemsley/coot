@@ -1375,6 +1375,11 @@ std::pair<bool, float> graphics_info_t::model_display_radius = std::pair<bool, f
 // Chemical Feature Clusters, cfc
 GtkWidget *graphics_info_t::cfc_dialog = NULL;
 
+// CA-bonds missing loops dotted line params
+float graphics_info_t::ca_bonds_loop_param_1 = 0.5;
+float graphics_info_t::ca_bonds_loop_param_2 = 0.05;
+float graphics_info_t::ca_bonds_loop_param_3 = 111.0;
+
 // GTK2 code
 // 
 // if try_stereo_flag is 1, then hardware stereo.
