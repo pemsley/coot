@@ -1934,14 +1934,16 @@ coot::torsion::matching_atoms(mmdb::Residue *residue) {
    }
 
    if (! (catom_1 && catom_2 && catom_3 && catom_4)) {
-      if (!catom_1)
-	 std::cout << " atom_1 is null for " << atom_1.second.atom_name << std::endl;
-      if (!catom_2)
-	 std::cout << " atom_2 is null for " << atom_2.second.atom_name << std::endl;
-      if (!catom_3)
-	 std::cout << " atom_3 is null for " << atom_3.second.atom_name << std::endl;
-      if (!catom_4)
-	 std::cout << " atom_4 is null for " << atom_4.second.atom_name << std::endl;
+      if (false) { // too noisy
+	 if (!catom_1)
+	    std::cout << " atom_1 is null for " << atom_1.second.atom_name << std::endl;
+	 if (!catom_2)
+	    std::cout << " atom_2 is null for " << atom_2.second.atom_name << std::endl;
+	 if (!catom_3)
+	    std::cout << " atom_3 is null for " << atom_3.second.atom_name << std::endl;
+	 if (!catom_4)
+	    std::cout << " atom_4 is null for " << atom_4.second.atom_name << std::endl;
+      }
    } else { 
       v.push_back(catom_1);
       v.push_back(catom_2);
