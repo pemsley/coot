@@ -2746,7 +2746,7 @@ coot::util::soi_variance::proc(float solvent_content_frac) {
       soi_xmap[ix] = variance_rank_frac * pt[ix] + other_frac * st[ix];
    }
 
-   if (false) { // debug
+   if (true) { // debug
       clipper::CCP4MAPfile mapout;
       mapout.open_write("soi.map");
       mapout.export_xmap(soi_xmap);

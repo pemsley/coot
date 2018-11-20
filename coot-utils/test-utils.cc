@@ -541,7 +541,16 @@ int test_soi(int argc, char **argv) {
       file.import_xmap(xmap);
 
       coot::util::soi_variance sv(xmap);
+
+      /* we can't do this yet
+      clipper::Xmap<float> outmap = sv.proc(0.66);
+      clipper::CCP4MAPfile outmapfile;
+      outmapfile.open_write("soi.map");
+      outmapfile.export_xmap(outmap);
+      outmapfile.close_write();
+      */
       sv.proc(0.66);
+
    }
    catch (const clipper::Message_base &exc) {
       std::cout << "WARNING:: failed to open " << file_name << std::endl;
@@ -922,7 +931,7 @@ int main(int argc, char **argv) {
 //    if (true)
 //       test_cp();
 
-   if (false)
+   if (true)
       test_soi(argc, argv);
 
    if (false)
@@ -937,7 +946,7 @@ int main(int argc, char **argv) {
    if (false)
       test_nxmap_edcalc(argc, argv);
 
-   if (true)
+   if (false)
       test_helix_like(argc, argv);
 
    return 0;
