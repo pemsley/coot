@@ -1308,8 +1308,10 @@ molecule_class_info_t::spin_search(clipper::Xmap<float> &xmap,
    }
 }
 
-void
+std::vector<std::pair<coot::residue_spec_t, float> >
 molecule_class_info_t::em_ringer(const clipper::Xmap<float> &xmap) const {
+
+   std::vector<std::pair<coot::residue_spec_t, float> > vr;
 
    int imod = 1;
    mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
@@ -1330,11 +1332,15 @@ molecule_class_info_t::em_ringer(const clipper::Xmap<float> &xmap) const {
                float delta = a2 - a1;
                if (delta < -180.0) delta += 360.0;
                if (delta >  180.0) delta -= 360.0;
-               std::cout << "spin_atom " << spec << " " << a1 << " " << a2 << " " << delta << "\n";
+               // std::cout << "spin_atom " << spec << " " << a1 << " " << a2 << " " << delta << "\n";
+	       std::pair<coot::residue_spec_t, float> p(spec, delta);
+	       vr.push_back(p);
             }
          }
       }
    }
+
+   return vr;
 }
 
 // #include "density-results-container-t.hh" now in the molecule_class_info_t constructor.

@@ -963,10 +963,16 @@ void spin_search(int imol_map, int imol, const char *chain_id, int resno, const 
 //!  angle is in degrees.
 //!
 void spin_N_scm(int imol, SCM residue_spec_scm, float angle);
+
+//! \brief Spin search the density based on possible positions of CG of a side-chain.
+//!
+//! c.f. EM-Ringer
+SCM CG_spin_search_scm(int imol_model, int imol_map);
 #endif
 
 #ifdef USE_PYTHON
-//! \brief for the given residue, spin the atoms in moving_atom_list
+//! \brief for the given residue, spin the atoms in moving_atom_list...
+//!
 //!   around the bond defined by direction_atoms_list looking for the best
 //!   fit to density of imom_map map of the first atom in
 //!   moving_atom_list.  Works (only) with atoms in altconf ""
@@ -978,6 +984,10 @@ void spin_search_py(int imol_map, int imol, const char *chain_id, int resno, con
 //!  angle is in degrees.
 //!
 void spin_N_py(int imol, PyObject *residue_spec, float angle);
+
+//! \brief Spin search the density based on possible positions of CG of a side-chain
+PyObject *CG_spin_search_py(int imol_model, int imol_map);
+
 #endif
 
 //! \}
