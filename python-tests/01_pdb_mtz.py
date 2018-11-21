@@ -1602,18 +1602,20 @@ class PdbMtzTestFunctions(unittest.TestCase):
         self.failUnless(len(ls) > 60,
                         "   found %s matching names: %s" %(len(ls), ls))
 
-        
+
     def test33_0(self):
         """Update monomer restraints"""
 
         atom_pair = [" CB ", " CG "]
         m = monomer_restraints("TYR")
         self.failUnless(m, "   update bond restraints - no momomer restraints")
-        
-        n1 = strip_bond_from_restraints(atom_pair, m)
+
+        # let's delete both ways
+        #
+        n_t = strip_bond_from_restraints(atom_pair, m)
         atom_pair.reverse()
-        n2 = strip_bond_from_restraints(atom_pair, n1)
-        set_monomer_restraints("TYR", n2)
+        n = strip_bond_from_restraints(atom_pair, n_t)
+        set_monomer_restraints("TYR", n)
 
         imol = new_molecule_by_atom_selection(imol_rnase, "//A/30")
 
