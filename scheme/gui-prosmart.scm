@@ -26,6 +26,7 @@
 	   (using-active-atom
 	    (generate-local-self-restraints aa-imol aa-chain-id 4.3))))
 
+        ;; note to self: make this a loop next time
 	(add-simple-coot-menu-menuitem
 	 menu "Generate Self Restraints 6 for Chain"
 	 (lambda ()
@@ -37,6 +38,12 @@
 	 (lambda ()
 	   (using-active-atom
 	    (generate-self-restraints aa-imol 4.3))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Generate All-Molecule Self Restraints 5.0"
+	 (lambda ()
+	   (using-active-atom
+	    (generate-self-restraints aa-imol 5.0))))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Generate Local Self Restraints 6"
