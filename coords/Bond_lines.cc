@@ -3723,33 +3723,41 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 				 for (int ipp_1=0; ipp_1<n_atoms_pp_1; ipp_1++) {
 				    mmdb::Atom *at = residue_atoms_pp_1[ipp_1];
 				    std::string atom_name = at->GetAtomName();
-				    if (atom_name == " CA " || atom_name == " P  ") {
-				       at_pp_1 = at;
-				       break;
+                                    if (! at->Het) {
+				       if (atom_name == " CA " || atom_name == " P  ") {
+				          at_pp_1 = at;
+				          break;
+				       }
 				    }
 				 }
 				 for (int ipp_2=0; ipp_2<n_atoms_pp_2; ipp_2++) {
 				    mmdb::Atom *at = residue_atoms_pp_2[ipp_2];
 				    std::string atom_name = at->GetAtomName();
 				    if (atom_name == " CA " || atom_name == " P  ") {
-				       at_pp_2 = at;
-				       break;
+                                       if (! at->Het) {
+				          at_pp_2 = at;
+				          break;
+				       }
 				    }
 				 }
 				 for (int ipp_3=0; ipp_3<n_atoms_pp_3; ipp_3++) {
 				    mmdb::Atom *at = residue_atoms_pp_3[ipp_3];
 				    std::string atom_name = at->GetAtomName();
-				    if (atom_name == " CA " || atom_name == " P  ") {
-				       at_pp_3 = at;
-				       break;
+                                    if (! at->Het) {
+				       if (atom_name == " CA " || atom_name == " P  ") {
+				          at_pp_3 = at;
+				          break;
+				       }
 				    }
 				 }
 				 for (int ipp_4=0; ipp_4<n_atoms_pp_4; ipp_4++) {
 				    mmdb::Atom *at = residue_atoms_pp_4[ipp_4];
 				    std::string atom_name = at->GetAtomName();
-				    if (atom_name == " CA " || atom_name == " P  ") {
-				       at_pp_4 = at;
-				       break;
+                                    if (! at->Het) {
+				       if (atom_name == " CA " || atom_name == " P  ") {
+				          at_pp_4 = at;
+				          break;
+				       }
 				    }
 				 }
 
