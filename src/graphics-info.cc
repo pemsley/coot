@@ -1822,6 +1822,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
        molecules[imol_moving_atoms].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS) {
 
       if (molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS) {
+
 	 Bond_lines_container bonds;
 	 bool draw_hydrogens_flag = false;
 	 if (molecules[imol_moving_atoms].draw_hydrogens())
@@ -1831,6 +1832,9 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
          unsigned int unlocked = 0;
          // Neither of these seems to make a difference re: the intermediate atoms python representation
          // while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1)) {
+	 // For now, we don't print the python variable - now convert it to json - that seems
+	 // to work OK ~20MB/s for a chain.
+	 //
          while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             unlocked = 0;
@@ -1853,6 +1857,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
          moving_atoms_bonds_lock = 0;
 
       } else {
+
 	 Bond_lines_container bonds;
 	 bonds.do_Ca_bonds(*moving_atoms_asc, 1.0, 4.7);
          unsigned int unlocked = false;

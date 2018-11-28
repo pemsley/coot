@@ -4864,12 +4864,15 @@ void set_add_terminal_residue_immediate_addition(int i);
 
 residue type can be "auto" and immediate_add is recommended to be 1.
 
-return 0 on failure, 1 on success */
+@return 0 on failure, 1 on success */
 int add_terminal_residue(int imol, const char *chain_id, int residue_number,
 			 const char *residue_type, int immediate_add); 
 
 
 /*! \brief Add a terminal residue using given phi and psi angles
+
+
+@return the success status, 0 on failure, 1 on success
  */
 int add_terminal_residue_using_phi_psi(int imol, const char *chain_id, int res_no, 
 				       const char *residue_type, float phi, float psi);

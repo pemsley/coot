@@ -3369,7 +3369,7 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
       bool draw_hydrogens_flag = false;
       if (molecules[imol_moving_atoms].draw_hydrogens())
 	 draw_hydrogens_flag = true;
-      
+
       bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol_moving_atoms, Geom_p(), 1.0, 4.7, draw_hydrogens_flag);
       regularize_object_bonds_box.clear_up();
       regularize_object_bonds_box = bonds.make_graphical_bonds();
