@@ -28,10 +28,11 @@
 
 coot::view_info_t
 coot::view_info_t::interpolate(const coot::view_info_t &view1,
-			       const coot::view_info_t &view2,
+			       const coot::view_info_t &view2_in,
 			       int n_steps) {
    coot::view_info_t view;
    graphics_info_t g;
+   view_info_t view2(view2_in);
 
 //    std::cout << "start quat interpolation: zooms: " << view1.zoom << " " << view2.zoom
 // 	     << " and centres: "
@@ -45,20 +46,27 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
    graphics_info_t::smooth_scroll = 0;
 
    if (true) {
+      double dp = dot_product(view1, view2);
+      if (dot_product(view1, view2) < 0.0) {
+	 view2.negate_quaternion();
+	 dp = dot_product(view1, view2); // dp needs updating, else wierdness
+      }
       double dd = (view1.quat_length()*view2.quat_length());
-      double ff = coot::view_info_t::dot_product(view1, view2)/dd;
+      double ff = dp/dd;
       if (ff > 1.0) ff = 1.0; // stabilize
       double omega = acos(ff);
 
       // std::cout << "here with dd " << dd << " ff " << ff << " omega: " << omega << std::endl;
-      
+
       if (omega != 0.0) { 
 	 // slerping
 	 //
 	 if (n_steps < 1)
 	    n_steps = 1;
-	 double frac = double(1.0)/double(n_steps);
-	 for (double f=0; f<=1.0; f+=frac) {
+	 // double frac = double(1.0)/double(n_steps);
+	 // for (double f=0; f<=1.0; f+=frac) {
+         for (int istep=0; istep<=n_steps; istep++) {
+            double f = static_cast<double>(istep) / static_cast<double>(n_steps);
 	    double one_over_sin_omega = 1/sin(omega);
 	    double frac1 = sin((1-f)*omega) * one_over_sin_omega;
 	    double frac2 = sin(f*omega) * one_over_sin_omega;

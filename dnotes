@@ -7306,6 +7306,13 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
      graphics, The Visual Computer 5, 2-13, 1989.
 
 
+   Smoothing quaternion interpolations:
+
+   http://allenchou.net/2014/04/game-math-interpolating-quaternions-with-circular-blending/
+
+   Do it with Bezier splines?
+   http://caig.cs.nctu.edu.tw/course/CA/Lecture/slerp.pdf
+
 ----
  
   Refinement of hydrogens:  Allow them to be refined by gemetry gradients
@@ -8636,3 +8643,34 @@ Thu 27 Sep 2018 15:58:58 BST
     Dave Brown suggests:
     ligand validation meeting: what should we do with ligands from pandda - they will
     seem to be rubbish by conventional metrics.
+
+
+----
+Sun 14 Oct 2018 17:10:02 BST
+
+   bfgs
+
+   https://www.caam.rice.edu/~dennis/images/Broyden-Fletcher-Goldfarb-Shanno.jpg
+
+---
+Sun  4 Nov 2018 05:04:52 GMT
+
+   atomic compare_exchange_weak
+   https://www.codeproject.com/Articles/808305/Understand-std-atomic-compare-exchange-weak-in-Cpl
+
+---
+Wed  7 Nov 2018 15:45:36 GMT
+
+   PLIP is a thing (I mentioned it above!)
+   https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4489249/
+   A 500 in 1osn - what does this give in pli?
+
+---
+Sun 11 Nov 2018 16:32:37 GMT
+
+   read this before updating hydrogen bonds:
+
+   Kortemme T, Morozov AV, Baker D. An orientation-dependent hydrogen bonding potential improves
+       prediction of specificity and structure for proteins and protein-protein complexes.
+       J Mol Biol. 2003;326:1239–1259.
+

@@ -2518,7 +2518,8 @@ public:        //                      public
               const std::vector<std::string> &moving_atoms_list) const;
 
 
-   void em_ringer(const clipper::Xmap<float> &xmap) const;
+   std::vector<std::pair<coot::residue_spec_t, float> >
+   em_ringer(const clipper::Xmap<float> &xmap) const;
 
    // nomenclature errors
    // return a vector of the changed residues (used for updating the rotamer graph)

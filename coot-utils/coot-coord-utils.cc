@@ -877,6 +877,70 @@ coot::util::matrix_convert(mmdb::mat44 mat) {
    return clipper::RTop_orth(clipper_mat, cco);
 }
 
+// current view has a particular orientation of the mainchain on the screen -
+// I want to move to the residue_next (which could be the previous residue)
+// for shift-space - what rotation/translation do I need?
+//
+// @return pair.first false if we don't have a valid RTop.
+//
+std::pair<bool, clipper::RTop_orth>
+coot::util::get_reorientation_matrix(mmdb::Residue *residue_current,
+				     mmdb::Residue *residue_next) {
+
+   bool status = false;
+   clipper::RTop_orth rtop;
+
+   if (residue_current) {
+      if (residue_next) {
+	 mmdb::Atom *atoms_this[3];
+	 mmdb::Atom *atoms_next[3];
+	 for (unsigned int ii=0; ii<3; ii++) {
+	    atoms_this[ii] = 0;
+	    atoms_next[ii] = 0;
+	 }
+	 int n_residue_atoms_this;
+	 int n_residue_atoms_next;
+	 mmdb::PAtom *residue_atoms_this;
+	 mmdb::PAtom *residue_atoms_next;
+	 residue_current->GetAtomTable(residue_atoms_this, n_residue_atoms_this);
+	 residue_next->GetAtomTable(   residue_atoms_next, n_residue_atoms_next);
+	 for (int iat=0; iat<n_residue_atoms_this; iat++) {
+	    mmdb::Atom *at = residue_atoms_this[iat];
+	    std::string atom_name = at->GetAtomName();
+	    if (atom_name == " N  ") atoms_this[0] = at;
+	    if (atom_name == " CA ") atoms_this[1] = at;
+	    if (atom_name == " C  ") atoms_this[2] = at;
+	 }
+	 if (atoms_this[0] && atoms_this[1] && atoms_this[2]) {
+	    for (int jat=0; jat<n_residue_atoms_next; jat++) {
+	       mmdb::Atom *at = residue_atoms_next[jat];
+	       std::string atom_name = at->GetAtomName();
+	       if (atom_name == " N  ") atoms_next[0] = at;
+	       if (atom_name == " CA ") atoms_next[1] = at;
+	       if (atom_name == " C  ") atoms_next[2] = at;
+	    }
+	    if (atoms_next[0] && atoms_next[1] && atoms_next[2]) {
+	       std::vector<clipper::Coord_orth> this_pos;
+	       std::vector<clipper::Coord_orth> next_pos;
+	       this_pos.push_back(co(atoms_this[0]));
+	       this_pos.push_back(co(atoms_this[1]));
+	       this_pos.push_back(co(atoms_this[2]));
+	       next_pos.push_back(co(atoms_next[0]));
+	       next_pos.push_back(co(atoms_next[1]));
+	       next_pos.push_back(co(atoms_next[2]));
+               clipper::RTop_orth lrtop(this_pos, next_pos);
+               rtop = lrtop;
+               status = true;
+	    }
+	 }
+      }
+   }
+
+   return std::pair<bool, clipper::RTop_orth>(status, rtop);
+
+}
+
+
 std::ostream&
 coot::operator<<(std::ostream&  s, const coot::lsq_range_match_info_t &m) {
 
@@ -1575,6 +1639,29 @@ coot::util::get_residue_centre(mmdb::Residue *residue_p) {
  
 }
 
+std::pair<bool, clipper::Coord_orth>
+coot::util::get_CA_position_in_residue(mmdb::Residue *residue_p) {
+
+   bool status = 0;
+   clipper::Coord_orth pos(0,0,0);
+   mmdb::PPAtom residue_atoms = 0;
+   int n_residue_atoms;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int i=0; i<n_residue_atoms; i++) {
+      std::string atom_name(residue_atoms[i]->GetAtomName());
+      if (atom_name == " CA ") { // PDBv3 FIXME
+	 clipper::Coord_orth pt(residue_atoms[i]->x,
+				residue_atoms[i]->y,
+				residue_atoms[i]->z);
+         pos = pt;
+         status = true;
+         break;
+      }
+   }
+   return std::pair<bool, clipper::Coord_orth> (status, pos);
+}
+
+
 
 
 
@@ -1870,14 +1957,16 @@ coot::torsion::matching_atoms(mmdb::Residue *residue) {
    }
 
    if (! (catom_1 && catom_2 && catom_3 && catom_4)) {
-      if (!catom_1)
-	 std::cout << " atom_1 is null for " << atom_1.second.atom_name << std::endl;
-      if (!catom_2)
-	 std::cout << " atom_2 is null for " << atom_2.second.atom_name << std::endl;
-      if (!catom_3)
-	 std::cout << " atom_3 is null for " << atom_3.second.atom_name << std::endl;
-      if (!catom_4)
-	 std::cout << " atom_4 is null for " << atom_4.second.atom_name << std::endl;
+      if (false) { // too noisy
+	 if (!catom_1)
+	    std::cout << " atom_1 is null for " << atom_1.second.atom_name << std::endl;
+	 if (!catom_2)
+	    std::cout << " atom_2 is null for " << atom_2.second.atom_name << std::endl;
+	 if (!catom_3)
+	    std::cout << " atom_3 is null for " << atom_3.second.atom_name << std::endl;
+	 if (!catom_4)
+	    std::cout << " atom_4 is null for " << atom_4.second.atom_name << std::endl;
+      }
    } else { 
       v.push_back(catom_1);
       v.push_back(catom_2);
@@ -8319,6 +8408,7 @@ coot::util::set_mol_cell(mmdb::Manager *mol, clipper::Cell cell_local) {
    return status;
 }
 
+// c.f. get_ori_to_this_res().
 //
 clipper::Mat33<double>
 coot::util::residue_orientation(mmdb::Residue *residue_p, const clipper::Mat33<double> &orientation_in) {

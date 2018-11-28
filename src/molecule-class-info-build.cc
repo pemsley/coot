@@ -503,6 +503,10 @@ molecule_class_info_t::move_reference_chain_to_symm_chain_position(coot::Symm_At
 	    have_unsaved_changes_flag = 1; // because we do a backup whatever...
 	    atom_sel.mol->FinishStructEdit();
 	    update_molecule_after_additions();
+	    // update NCS ghosts, if they were present
+	    if (ncs_ghosts.size() > 0) {
+	       fill_ghost_info(true, 0.7);
+	    }
 	    update_symmetry();
 	 }
       }

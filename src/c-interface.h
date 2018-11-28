@@ -2351,6 +2351,13 @@ PyObject *go_to_ligand_py();
 
 /*! \brief go to the ligand that has more than n_atom_min atoms */
 void set_go_to_ligand_n_atoms_limit(int n_atom_min);
+
+/*! \brief rotate the view so that the next main-chain atoms are oriented
+ in the same direction as the previous - hence side-chain always seems to be
+"up" - set this mode to 1 for reorientation-mode - and 0 for off (standard translation)
+*/
+void set_reorienting_next_residue_mode(int state);
+
 /* \} */
 
 /*  ---------------------------------------------------------------------- */

@@ -2962,6 +2962,9 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
 void
 coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec(restraint_addition_mode_t restraint_addition_mode) {
 
+   // Note to slef restraint_addition_mode is no longer used/checked in this function -
+   // it can be removed from the call (was an experiment)
+
    // this doesn't do the right thing if there are insertion codes. Maybe I could check for that
    // here and jump out at the start if so.
 
@@ -3017,12 +3020,10 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec(res
 				 double ideal_dist = 2.91;
 				 if (res_no_delta == 3)
 				    ideal_dist = 3.18;
-                                 if (restraint_addition_mode == EVERYTHING_HELICAL) {
-				    add(BOND_RESTRAINT, index_1, index_2, fixed_flags, ideal_dist, pseudo_bond_esd, 1.2);
-				    std::cout << "INFO:: Alpha Helix Bond restraint ("
-					      << at_1->name << " " << at_1->GetSeqNum() << ") to ("
-					      << at_2->name << " " << at_2->GetSeqNum() << ") " << ideal_dist << std::endl;
-                                 }
+				 add(BOND_RESTRAINT, index_1, index_2, fixed_flags, ideal_dist, pseudo_bond_esd, 1.2);
+				 std::cout << "Helix Bond restraint ("
+					   << at_1->name << " " << at_1->GetSeqNum() << ") to ("
+					   << at_2->name << " " << at_2->GetSeqNum() << ") " << ideal_dist << std::endl;
 			      }
 			   }
 			}

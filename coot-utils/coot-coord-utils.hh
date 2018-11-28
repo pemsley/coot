@@ -846,6 +846,17 @@ namespace coot {
 
       
       std::pair<bool, clipper::Coord_orth> get_residue_centre(mmdb::Residue *res);
+
+      std::pair<bool, clipper::Coord_orth> get_CA_position_in_residue(mmdb::Residue *residue_p);
+
+      // current view has a particular orientation of the mainchain on the screen -
+      // I want to move to the residue_next (which could be the previous residue)
+      // for shift-space - what rotation/translation do I need?
+      //
+      // @return pair.first false if we don't have a valid RTop.
+      //
+      std::pair<bool, clipper::RTop_orth> get_reorientation_matrix(mmdb::Residue *residue_current,
+                                                                   mmdb::Residue *residue_next);
       
 
       // now in mol-utils

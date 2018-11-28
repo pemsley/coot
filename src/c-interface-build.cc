@@ -762,6 +762,65 @@ void spin_N_scm(int imol, SCM residue_spec_scm, float angle) {
 }
 #endif // USE_GUILE
 
+#ifdef USE_PYTHON
+//! \brief Spin search the density based on possible positions of CG of a side-chain
+PyObject *CG_spin_search_py(int imol_model, int imol_map) {
+
+   PyObject *r = Py_False;
+
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+	 graphics_info_t g;
+	 const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+	 std::vector<std::pair<coot::residue_spec_t, float> > rv =
+	    g.molecules[imol_model].em_ringer(xmap);
+	 r = PyList_New(rv.size());
+	 for (std::size_t i=0; i<rv.size(); i++) {
+	    const coot::residue_spec_t &spec = rv[i].first;
+	    double delta_angle = rv[i].second;
+	    PyObject *item_py = PyList_New(2);
+	    PyList_SetItem(item_py, 0, PyFloat_FromDouble(delta_angle));
+	    PyList_SetItem(item_py, 1, residue_spec_to_py(spec));
+	    PyList_SetItem(r, i, item_py);
+	 }
+      }
+   }
+
+   if (PyBool_Check(r))
+     Py_INCREF(r);
+
+   return r;
+}
+#endif // USE_PYTHON
+
+#ifdef USE_GUILE
+//! \brief Spin search the density based on possible positions of CG of a side-chain
+SCM CG_spin_search_scm(int imol_model, int imol_map) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+	 graphics_info_t g;
+	 const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+	 std::vector<std::pair<coot::residue_spec_t, float> > rv =
+	    g.molecules[imol_model].em_ringer(xmap);
+	 r = SCM_EOL;
+	 for (std::size_t i=0; i<rv.size(); i++) {
+	    const coot::residue_spec_t &spec = rv[i].first;
+	    double delta_angle = rv[i].second;
+	    SCM res_spec_scm = residue_spec_to_scm(spec);
+	    SCM item_scm = scm_list_2(res_spec_scm, scm_float2num(delta_angle));
+	    r = scm_cons(item_scm, r);
+	 }
+	 r = scm_reverse(r);
+      }
+   }
+   return r;
+}
+#endif // USE_GUILE
+
+
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  delete residue                                          */
@@ -1297,7 +1356,7 @@ refine_residues_with_alt_conf(int imol, const std::vector<coot::residue_spec_t> 
 
    coot::refinement_results_t rr;
    if (graphics_info_t::moving_atoms_displayed_p()) {
-      add_status_bar_text("No refinement - a modelling/refinemnt operation is already underway");
+      add_status_bar_text("No refinement - a modelling/refinement operation is already underway");
    } else {
       if (is_valid_model_molecule(imol)) {
 	 if (residue_specs.size() > 0) {
@@ -1497,7 +1556,7 @@ PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *res_sp
         } 
       } else {
         std::cout << "No residue specs found" << std::endl;
-      } 
+      }
    }
 
    if (PyBool_Check(rv)) {

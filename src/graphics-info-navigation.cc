@@ -979,9 +979,40 @@ graphics_info_t::active_atom_spec_internal(int imol_only) {
    return std::pair<bool, std::pair<int, coot::atom_spec_t> > (was_found_flag, p1);
 }
 
+std::pair<int, mmdb::Atom *>
+graphics_info_t::get_active_atom() const {
+
+   mmdb::Atom *at_close = 0;
+   float dist_best = 999999999.9;
+   int imol_closest = -1;
+   for (int imol=0; imol<n_molecules(); imol++) {
+      if (true) {
+	 if (is_valid_model_molecule(imol)) {
+	    if (molecules[imol].is_displayed_p()) {
+	       if (molecules[imol].atom_selection_is_pickable()) {
+		  coot::at_dist_info_t at_info =
+		     molecules[imol].closest_atom(RotationCentre());
+		  if (at_info.atom) {
+		     if (at_info.dist <= dist_best) {
+			dist_best = at_info.dist;
+			imol_closest = at_info.imol;
+			at_close = at_info.atom;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   if (at_close)
+      return std::pair<int, mmdb::Atom *>(imol_closest, at_close);
+   else
+      return std::pair<int, mmdb::Atom *>(-1, 0);
+}
+
 std::pair<bool, std::pair<int, coot::atom_spec_t> >
 graphics_info_t::active_atom_spec_simple() {
-   
+
    int imol_closest = -1;
    coot::atom_spec_t spec;
    bool was_found_flag = false;
