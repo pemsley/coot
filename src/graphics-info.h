@@ -2263,6 +2263,8 @@ public:
    // the pepflip was made)
    //
    bool pepflip_intermediate_atoms();
+   bool pepflip_intermediate_atoms_other_peptide();
+   bool pepflip_intermediate_atoms(mmdb::Atom *at_close);
 
    // return true if moving_atoms_asc was not null (more or less if
    // the rotamer fit was made)

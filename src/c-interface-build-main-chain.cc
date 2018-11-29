@@ -500,6 +500,12 @@ int pepflip_intermediate_atoms() {
    return g.pepflip_intermediate_atoms();
 } 
 
+int pepflip_intermediate_atoms_other_peptide() {
+
+   graphics_info_t g;
+   return g.pepflip_intermediate_atoms_other_peptide();
+}
+
 									 
 /*  ----------------------------------------------------------------------- */
 /*                         Planar Peptide Restraints                        */

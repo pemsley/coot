@@ -4775,6 +4775,7 @@ void do_pepflip(short int state); /* sets up pepflip, ready for atom pick. */
 void pepflip(int imol, const char *chain_id, int resno, const char *inscode, 
 	     const char *altconf);
 int pepflip_intermediate_atoms();
+int pepflip_intermediate_atoms_other_peptide();
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

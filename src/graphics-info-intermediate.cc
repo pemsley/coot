@@ -23,11 +23,12 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 #include "ligand/backrub-rotamer.hh"
 
 // return true if flip moving_atoms_asc was found
-bool graphics_info_t::pepflip_intermediate_atoms() {
+bool graphics_info_t::pepflip_intermediate_atoms_other_peptide() {
+
+   mmdb::Atom *at_close = 0;
 
    bool status = false;
    if (moving_atoms_asc->mol) {
-      status = true;
 
       mmdb::Atom *at_close = NULL;
       float min_dist_sqrd = 4.0;
@@ -43,6 +44,64 @@ bool graphics_info_t::pepflip_intermediate_atoms() {
 	    at_close = at;
 	 }
       }
+
+      if (at_close) {
+	 mmdb::Residue *residue_p = at_close->residue;
+	 if (residue_p) {
+	    mmdb::Atom *at_other = 0;
+	    std::string at_name_close(at_close->GetAtomName());
+	    if (at_name_close == " N  ") { // PDBv3 FIXME
+	       at_other = residue_p->GetAtom(" CA ");
+	    } else {
+	       at_other = residue_p->GetAtom(" N ");
+	    }
+	    status = pepflip_intermediate_atoms(at_other);
+	 }
+      }
+   }
+   return status;
+}
+
+
+// return true if flip moving_atoms_asc was found
+bool graphics_info_t::pepflip_intermediate_atoms() {
+
+   bool status = false;
+   if (moving_atoms_asc->mol) {
+
+      mmdb::Atom *at_close = NULL;
+      float min_dist_sqrd = 4.0;
+
+      coot::Cartesian pt(graphics_info_t::RotationCentre());
+
+      for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+	 mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
+	 coot::Cartesian atom_pos(at->x, at->y, at->z);
+	 coot::Cartesian diff = atom_pos - pt;
+	 if (diff.amplitude_squared() < min_dist_sqrd) {
+	    min_dist_sqrd = diff.amplitude_squared();
+	    at_close = at;
+	 }
+      }
+
+      if (at_close) {
+	 status = pepflip_intermediate_atoms(at_close);
+      }
+   }
+   return status;
+}
+
+// return true if flip moving_atoms_asc was found
+bool graphics_info_t::pepflip_intermediate_atoms(mmdb::Atom *at_close) {
+
+   // If we are on CA, C, O or any other atom except N
+   // flip (this_res)-(next_res)
+   // If we are on N
+   // flip (prev_res)-(this_res)
+
+   bool status = false;
+
+   if (true) {
 
       if (! at_close) {
 
@@ -103,6 +162,7 @@ bool graphics_info_t::pepflip_intermediate_atoms() {
 	       refinement_of_last_restraints_needs_reset();
 	       thread_for_refinement_loop_threaded();
 
+	       status = true;
 	    }
 	 }
       }
