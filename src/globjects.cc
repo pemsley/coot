@@ -1405,7 +1405,6 @@ std::shared_ptr<SceneSetup> graphics_info_t::mol_tri_scene_setup = 0;
 #endif
 #endif // USE_MOLECULES_TO_TRIANGLES
 
-
 // GTK2 code
 // 
 // if try_stereo_flag is 1, then hardware stereo.

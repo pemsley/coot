@@ -4629,6 +4629,8 @@ int set_b_factor_bonds_scale_factor(int imol, float f);
   the centre of the screen */
 void change_model_molecule_representation_mode(int up_or_down);
 
+void set_ca_bonds_loop_params(float p1, float p2, float p3);
+
 /*! \brief make the carbon atoms for molecule imol be grey
  */
 void set_use_grey_carbons_for_molecule(int imol, short int state);
