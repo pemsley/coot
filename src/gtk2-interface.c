@@ -4147,7 +4147,6 @@ create_show_symmetry_window (void)
   symmetry_colorbutton = gtk_color_button_new ();
   gtk_widget_show (symmetry_colorbutton);
   gtk_box_pack_start (GTK_BOX (hbox8), symmetry_colorbutton, FALSE, FALSE, 4);
-  gtk_color_button_set_title (GTK_COLOR_BUTTON (symmetry_colorbutton), "Pick a Colour");
 
   label810 = gtk_label_new ("    ");
   gtk_widget_show (label810);
@@ -8361,6 +8360,19 @@ create_refine_params_dialog (void)
   GtkWidget *refine_params_weight_matrix_entry;
   GtkWidget *weight_maxtrix_estimate_button;
   GtkWidget *label737;
+  GtkWidget *hbox451;
+  GtkWidget *refine_params_more_control_togglebutton;
+  GtkWidget *label823;
+  GtkWidget *refine_params_more_control_frame;
+  GtkWidget *alignment171;
+  GtkWidget *table9;
+  GtkWidget *label820;
+  GtkWidget *label821;
+  GtkWidget *label822;
+  GtkWidget *refine_params_geman_mcclure_alpha_combobox;
+  GtkWidget *refine_params_lennard_jones_epsilon_combobox;
+  GtkWidget *refine_params_rama_restraints_weight_combobox;
+  GtkWidget *label819;
   GtkWidget *dialog_action_area8;
   GtkWidget *refine_params_dialog_ok_button;
   GtkWidget *alignment44;
@@ -8602,6 +8614,103 @@ create_refine_params_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (refine_params_weight_matrix_frame), label737);
   gtk_label_set_use_markup (GTK_LABEL (label737), TRUE);
 
+  hbox451 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox451);
+  gtk_box_pack_start (GTK_BOX (vbox60), hbox451, TRUE, TRUE, 0);
+
+  refine_params_more_control_togglebutton = gtk_toggle_button_new_with_mnemonic ("More Control...");
+  gtk_widget_show (refine_params_more_control_togglebutton);
+  gtk_box_pack_start (GTK_BOX (hbox451), refine_params_more_control_togglebutton, FALSE, FALSE, 0);
+
+  label823 = gtk_label_new (" ---- Non-operational ATM ---- ");
+  gtk_widget_show (label823);
+  gtk_box_pack_start (GTK_BOX (hbox451), label823, FALSE, FALSE, 0);
+
+  refine_params_more_control_frame = gtk_frame_new (NULL);
+  gtk_widget_show (refine_params_more_control_frame);
+  gtk_box_pack_start (GTK_BOX (vbox60), refine_params_more_control_frame, TRUE, TRUE, 0);
+
+  alignment171 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment171);
+  gtk_container_add (GTK_CONTAINER (refine_params_more_control_frame), alignment171);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment171), 0, 0, 12, 0);
+
+  table9 = gtk_table_new (3, 2, FALSE);
+  gtk_widget_show (table9);
+  gtk_container_add (GTK_CONTAINER (alignment171), table9);
+
+  label820 = gtk_label_new ("Geman-McClure alpha ");
+  gtk_widget_show (label820);
+  gtk_table_attach (GTK_TABLE (table9), label820, 0, 1, 0, 1,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_label_set_use_markup (GTK_LABEL (label820), TRUE);
+  gtk_misc_set_alignment (GTK_MISC (label820), 0, 0.5);
+
+  label821 = gtk_label_new ("Lennard-Jones epsilon ");
+  gtk_widget_show (label821);
+  gtk_table_attach (GTK_TABLE (table9), label821, 0, 1, 1, 2,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_label_set_use_markup (GTK_LABEL (label821), TRUE);
+  gtk_misc_set_alignment (GTK_MISC (label821), 0, 0.5);
+
+  label822 = gtk_label_new ("Rama Restraints weight ");
+  gtk_widget_show (label822);
+  gtk_table_attach (GTK_TABLE (table9), label822, 0, 1, 2, 3,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_misc_set_alignment (GTK_MISC (label822), 0, 0.5);
+
+  refine_params_geman_mcclure_alpha_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (refine_params_geman_mcclure_alpha_combobox);
+  gtk_table_attach (GTK_TABLE (table9), refine_params_geman_mcclure_alpha_combobox, 1, 2, 0, 1,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_FILL), 0, 0);
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "0.001");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "0.003");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "0.01");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "0.03");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "0.1");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "0.3");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "1.0");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "3.0");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "10.0");
+
+  refine_params_lennard_jones_epsilon_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (refine_params_lennard_jones_epsilon_combobox);
+  gtk_table_attach (GTK_TABLE (table9), refine_params_lennard_jones_epsilon_combobox, 1, 2, 1, 2,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (GTK_FILL), 0, 0);
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_lennard_jones_epsilon_combobox), "0.1");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_lennard_jones_epsilon_combobox), "0.2");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_lennard_jones_epsilon_combobox), "0.5");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_lennard_jones_epsilon_combobox), "1.0");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_lennard_jones_epsilon_combobox), "2.0");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_lennard_jones_epsilon_combobox), "5.0");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_lennard_jones_epsilon_combobox), "10.0");
+
+  refine_params_rama_restraints_weight_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (refine_params_rama_restraints_weight_combobox);
+  gtk_table_attach (GTK_TABLE (table9), refine_params_rama_restraints_weight_combobox, 1, 2, 2, 3,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (GTK_FILL), 0, 0);
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_rama_restraints_weight_combobox), "0.1");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_rama_restraints_weight_combobox), "0.2");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_rama_restraints_weight_combobox), "0.5");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_rama_restraints_weight_combobox), "1.0");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_rama_restraints_weight_combobox), "2.0");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_rama_restraints_weight_combobox), "5.0");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_rama_restraints_weight_combobox), "10.0");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_rama_restraints_weight_combobox), "20.0");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_rama_restraints_weight_combobox), "50.0");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_rama_restraints_weight_combobox), "100.0");
+
+  label819 = gtk_label_new ("");
+  gtk_widget_show (label819);
+  gtk_frame_set_label_widget (GTK_FRAME (refine_params_more_control_frame), label819);
+  gtk_label_set_use_markup (GTK_LABEL (label819), TRUE);
+
   dialog_action_area8 = GTK_DIALOG (refine_params_dialog)->action_area;
   gtk_widget_show (dialog_action_area8);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area8), GTK_BUTTONBOX_END);
@@ -8726,6 +8835,19 @@ create_refine_params_dialog (void)
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_weight_matrix_entry, "refine_params_weight_matrix_entry");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, weight_maxtrix_estimate_button, "weight_maxtrix_estimate_button");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, label737, "label737");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, hbox451, "hbox451");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_more_control_togglebutton, "refine_params_more_control_togglebutton");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, label823, "label823");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_more_control_frame, "refine_params_more_control_frame");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, alignment171, "alignment171");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, table9, "table9");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, label820, "label820");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, label821, "label821");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, label822, "label822");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_geman_mcclure_alpha_combobox, "refine_params_geman_mcclure_alpha_combobox");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_lennard_jones_epsilon_combobox, "refine_params_lennard_jones_epsilon_combobox");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_rama_restraints_weight_combobox, "refine_params_rama_restraints_weight_combobox");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, label819, "label819");
   GLADE_HOOKUP_OBJECT_NO_REF (refine_params_dialog, dialog_action_area8, "dialog_action_area8");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_dialog_ok_button, "refine_params_dialog_ok_button");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, alignment44, "alignment44");
