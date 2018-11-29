@@ -4914,7 +4914,7 @@ void graphics_to_phenix_geo_representation(int imol, int mode,
 
 } 
 
-
+/*  Not today
 void set_ca_bonds_loop_params(float p1, float p2, float p3) {
 
     graphics_info_t::ca_bonds_loop_param_1 = p1;
@@ -4922,6 +4922,8 @@ void set_ca_bonds_loop_params(float p1, float p2, float p3) {
     graphics_info_t::ca_bonds_loop_param_3 = p3;
 
 }
+
+*/
 
 
 // -------------------------------------------------------------------------
