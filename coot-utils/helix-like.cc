@@ -87,7 +87,7 @@ coot::helical_results_t
 coot::compare_to_helix(const std::vector<mmdb::Residue *> &helical_residues,
                        const std::vector<clipper::Coord_orth> &alpha_ref_positions) {
 
-   doube sum_delta_lim = 3.0; // beyond this we don't have a helix (sum delta limit).
+   double sum_delta_lim = 3.0; // beyond this we don't have a helix (sum delta limit).
                               // 2.5 is quite strict.
 
    helical_results_t r;
