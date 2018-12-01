@@ -771,6 +771,12 @@ int graphics_info_t::show_origin_marker_flag = 1;
 
 //
 float graphics_info_t::geometry_vs_map_weight = 60.0;
+
+int graphics_info_t::refine_params_dialog_geman_mcclure_alpha_combobox_position    = 3;
+int graphics_info_t::refine_params_dialog_lennard_jones_epsilon_combobox_position  = 3;
+int graphics_info_t::refine_params_dialog_rama_restraints_weight_combobox_position = 3;
+bool graphics_info_t::refine_params_dialog_extra_control_frame_is_visible = false;
+
 int   graphics_info_t::rama_n_diffs = 50;
 
 atom_selection_container_t *graphics_info_t::moving_atoms_asc = NULL;

@@ -12834,3 +12834,56 @@ on_calculate_load_tutorial_model_and_data1_activate
   load_tutorial_model_and_data();
 }
 
+
+void
+on_refine_params_geman_mcclure_alpha_combobox_changed
+                                        (GtkComboBox     *combobox,
+                                        gpointer         user_data)
+{
+
+   const char *t = gtk_combo_box_get_active_text(GTK_COMBO_BOX(combobox));
+   int active_item_idx = gtk_combo_box_get_active(combobox);
+   set_refinement_geman_mcclure_alpha_from_text(active_item_idx, t);
+}
+
+
+void
+on_refine_params_lennard_jones_epsilon_combobox_changed
+                                        (GtkComboBox     *combobox,
+                                        gpointer         user_data)
+{
+   const char *t = gtk_combo_box_get_active_text(GTK_COMBO_BOX(combobox));
+   int active_item_idx = gtk_combo_box_get_active(combobox);
+   set_refinement_lennard_jones_epsilon_from_text(active_item_idx, t);
+}
+
+
+void
+on_refine_params_rama_restraints_weight_combobox_changed
+                                        (GtkComboBox     *combobox,
+                                        gpointer         user_data)
+{
+   const char *t = gtk_combo_box_get_active_text(GTK_COMBO_BOX(combobox));
+   int active_item_idx = gtk_combo_box_get_active(combobox);
+   set_refinement_ramachandran_restraints_weight_from_text(active_item_idx, t);
+}
+
+
+void
+on_refine_params_more_control_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+   if (togglebutton) {
+      GtkWidget *frame = lookup_widget(GTK_WIDGET(togglebutton), "refine_params_more_control_frame");
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
+         gtk_widget_show(frame);
+         set_refine_params_dialog_more_control_frame_is_active(1);
+      } else {
+         gtk_widget_hide(frame);
+         set_refine_params_dialog_more_control_frame_is_active(0);
+      }
+   }
+}
+

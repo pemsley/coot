@@ -4147,6 +4147,7 @@ create_show_symmetry_window (void)
   symmetry_colorbutton = gtk_color_button_new ();
   gtk_widget_show (symmetry_colorbutton);
   gtk_box_pack_start (GTK_BOX (hbox8), symmetry_colorbutton, FALSE, FALSE, 4);
+  gtk_color_button_set_title (GTK_COLOR_BUTTON (symmetry_colorbutton), "Pick a Colour");
 
   label810 = gtk_label_new ("    ");
   gtk_widget_show (label810);
@@ -8622,12 +8623,11 @@ create_refine_params_dialog (void)
   gtk_widget_show (refine_params_more_control_togglebutton);
   gtk_box_pack_start (GTK_BOX (hbox451), refine_params_more_control_togglebutton, FALSE, FALSE, 0);
 
-  label823 = gtk_label_new (" ---- Non-operational ATM ---- ");
+  label823 = gtk_label_new ("");
   gtk_widget_show (label823);
   gtk_box_pack_start (GTK_BOX (hbox451), label823, FALSE, FALSE, 0);
 
   refine_params_more_control_frame = gtk_frame_new (NULL);
-  gtk_widget_show (refine_params_more_control_frame);
   gtk_box_pack_start (GTK_BOX (vbox60), refine_params_more_control_frame, TRUE, TRUE, 0);
 
   alignment171 = gtk_alignment_new (0.5, 0.5, 1, 1);
@@ -8780,6 +8780,18 @@ create_refine_params_dialog (void)
                     NULL);
   g_signal_connect ((gpointer) weight_maxtrix_estimate_button, "clicked",
                     G_CALLBACK (on_weight_maxtrix_estimate_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) refine_params_more_control_togglebutton, "toggled",
+                    G_CALLBACK (on_refine_params_more_control_togglebutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) refine_params_geman_mcclure_alpha_combobox, "changed",
+                    G_CALLBACK (on_refine_params_geman_mcclure_alpha_combobox_changed),
+                    NULL);
+  g_signal_connect ((gpointer) refine_params_lennard_jones_epsilon_combobox, "changed",
+                    G_CALLBACK (on_refine_params_lennard_jones_epsilon_combobox_changed),
+                    NULL);
+  g_signal_connect ((gpointer) refine_params_rama_restraints_weight_combobox, "changed",
+                    G_CALLBACK (on_refine_params_rama_restraints_weight_combobox_changed),
                     NULL);
   g_signal_connect ((gpointer) refine_params_dialog_ok_button, "clicked",
                     G_CALLBACK (on_refine_params_dialog_ok_button_clicked),

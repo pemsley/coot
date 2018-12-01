@@ -1809,6 +1809,10 @@ public:
    static float geometry_vs_map_weight; 
    static float rama_plot_restraint_weight;
    static int rama_n_diffs;
+   static int refine_params_dialog_geman_mcclure_alpha_combobox_position;
+   static int refine_params_dialog_lennard_jones_epsilon_combobox_position;
+   static int refine_params_dialog_rama_restraints_weight_combobox_position;
+   static bool refine_params_dialog_extra_control_frame_is_visible;
 
    // similarly for distance and angles:
    //
@@ -2284,6 +2288,7 @@ public:
 
    void make_moving_atoms_graphics_object(int imol, const atom_selection_container_t &asc);
    static short int moving_atoms_asc_type; 
+   void make_moving_atoms_restraints_object();
 
    //
    static float environment_min_distance;

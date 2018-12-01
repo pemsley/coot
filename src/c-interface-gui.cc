@@ -2351,7 +2351,29 @@ GtkWidget *wrapped_create_refine_params_dialog() {
 
    GtkWidget *w = create_refine_params_dialog();
    set_refine_params_toggle_buttons(w);
+   set_refine_params_comboboxes(w);
    return w;
+}
+
+void set_refine_params_comboboxes(GtkWidget *button) {
+
+   graphics_info_t g;
+   GtkWidget *cb1 = lookup_widget(button, "refine_params_geman_mcclure_alpha_combobox");
+   GtkWidget *cb2 = lookup_widget(button, "refine_params_rama_restraints_weight_combobox");
+   GtkWidget *cb3 = lookup_widget(button, "refine_params_lennard_jones_epsilon_combobox");
+   GtkWidget *tb  = lookup_widget(button, "refine_params_more_control_togglebutton");
+
+   if (cb1) gtk_combo_box_set_active(GTK_COMBO_BOX(cb1), g.refine_params_dialog_geman_mcclure_alpha_combobox_position);
+   if (cb2) gtk_combo_box_set_active(GTK_COMBO_BOX(cb2), g.refine_params_dialog_lennard_jones_epsilon_combobox_position);
+   if (cb3) gtk_combo_box_set_active(GTK_COMBO_BOX(cb3), g.refine_params_dialog_rama_restraints_weight_combobox_position);
+   if (tb) {
+      if (g.refine_params_dialog_extra_control_frame_is_visible) {
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tb), TRUE);
+         // GtkWidget *frame = lookup_widget(button, "refine_params_more_control_frame");
+         // gtk_widget_show(frame);
+      }
+   }
+
 }
 
 void set_refine_params_toggle_buttons(GtkWidget *button) {

@@ -5085,6 +5085,8 @@ graphics_info_t::draw_atom_pull_restraint() {
    }
 }
 
+// Question to self? Have I locked the restraints before I call this?
+//
 void
 graphics_info_t::clear_all_atom_pull_restraints(bool refine_again_flag) {
 
