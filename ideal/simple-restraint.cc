@@ -2763,8 +2763,6 @@ coot::restraints_container_t::make_fixed_flags(const std::vector<int> &indices) 
 void
 coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
 
-   std::cout << "here in make_helix_pseudo_bond_restraints()" << std::endl;
-
    // somewhat hacky
    if (from_residue_vector) {
       make_helix_pseudo_bond_restraints_from_res_vec(EVERYTHING_HELICAL);
@@ -3013,19 +3011,39 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec(res
 			      if (alt_conf_1 == alt_conf_2) {
 
 				 int index_1 = -1;
-				 int index_2= -1;
+				 int index_2 = -1;
 				 at_1->GetUDData(udd_atom_index_handle, index_1);
 				 at_2->GetUDData(udd_atom_index_handle, index_2);
 				 std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
-				 double ideal_dist = 2.91;
+				 double ideal_dist = 2.919;
 				 if (res_no_delta == 3)
-				    ideal_dist = 3.18;
+				    ideal_dist = 3.181;
 				 add(BOND_RESTRAINT, index_1, index_2, fixed_flags, ideal_dist, pseudo_bond_esd, 1.2);
 				 std::cout << "Helix Bond restraint ("
 					   << at_1->name << " " << at_1->GetSeqNum() << ") to ("
 					   << at_2->name << " " << at_2->GetSeqNum() << ") " << ideal_dist << std::endl;
 			      }
 			   }
+			   if (atom_name_2 == " O  ") {
+			      std::string alt_conf_1 = at_1->altLoc;
+			      std::string alt_conf_2 = at_2->altLoc;
+			      if (alt_conf_1 == alt_conf_2) {
+
+				 int index_1 = -1;
+				 int index_2 = -1;
+				 at_1->GetUDData(udd_atom_index_handle, index_1);
+				 at_2->GetUDData(udd_atom_index_handle, index_2);
+				 std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
+				 double ideal_dist = 6.16;
+				 if (res_no_delta == 3)
+				    ideal_dist = 4.92;
+                                 double O_O_pseudo_bond_esd = 0.07; // guess
+				 add(BOND_RESTRAINT, index_1, index_2, fixed_flags, ideal_dist, O_O_pseudo_bond_esd, 1.2);
+				 std::cout << "Helix Bond restraint ("
+					   << at_1->name << " " << at_1->GetSeqNum() << ") to ("
+					   << at_2->name << " " << at_2->GetSeqNum() << ") " << ideal_dist << std::endl;
+			      }
+                           }
 			}
 		     }
 		  }
