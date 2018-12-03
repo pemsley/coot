@@ -474,6 +474,8 @@ GtkWidget *wrapped_create_refine_params_dialog();
 void do_torsions_toggle(GtkWidget *button);
 
 void set_refine_params_toggle_buttons(GtkWidget *button);
+void set_refine_params_comboboxes(GtkWidget *button);
+
 
 /* Now the refinement weight can be set from an entry in the refine_params_dialog. */
 void set_refinement_weight_from_entry(GtkWidget *entry);

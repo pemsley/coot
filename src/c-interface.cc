@@ -5670,6 +5670,37 @@ int refine_ramachandran_angles_state() {
    return graphics_info_t::do_rama_restraints;
 }
 
+
+#include "c-interface-refine.hh"
+
+void set_refinement_geman_mcclure_alpha_from_text(int idx, const char *t) {
+
+   float v = coot::util::string_to_float(t);
+   set_refinement_geman_mcclure_alpha(v);
+   graphics_info_t::refine_params_dialog_geman_mcclure_alpha_combobox_position = idx;
+}
+
+void set_refinement_lennard_jones_epsilon_from_text(int idx, const char *t) {
+
+   float v = coot::util::string_to_float(t);
+   set_refinement_lennard_jones_epsilon(v);
+   graphics_info_t::refine_params_dialog_lennard_jones_epsilon_combobox_position = idx;
+}
+
+void set_refinement_ramachandran_restraints_weight_from_text(int idx, const char *t) {
+
+   float v = coot::util::string_to_float(t);
+   set_refine_ramachandran_restraints_weight(v);
+   graphics_info_t::refine_params_dialog_rama_restraints_weight_combobox_position = idx;
+}
+
+void set_refine_params_dialog_more_control_frame_is_active(int state) {
+
+   graphics_info_t::refine_params_dialog_extra_control_frame_is_visible = state;
+}
+
+
+
 void chiral_volume_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos) { 
 
    graphics_info_t::chiral_volume_molecule_option_menu_item_select_molecule = pos;

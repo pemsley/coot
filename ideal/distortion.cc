@@ -918,7 +918,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
          for (unsigned int i_thread=0; i_thread<n_restraints_sets; i_thread++)
 	    distortions[i_thread] = 0;
 
-	 bool all_done = false;
+	 bool all_pushed = false;
          unsigned int n_dispatched_restraints_sets = 0; // not all (40) of the restraints sets might
                                                         // get dispatched (say we are refining a single GLY)
 	 for (unsigned int i_thread=0; i_thread<n_restraints_sets; i_thread++) { // not really threads now
@@ -929,7 +929,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	    // handles the integer division "anomolies" that occur when there are
 	    // more restraints sets than thread (see the +1 above).
 	    if (idx_end >= restraints_size) {
-	       all_done = true;
+	       all_pushed = true;
 	       if (idx_end > restraints_size)
 		  idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
 	    }
@@ -954,8 +954,12 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 			 << restraints_p->thread_pool_p->size() << " idle: "
 			 << restraints_p->thread_pool_p->n_idle() << "\n";
 
-	    if (all_done) break;
+	    if (all_pushed) break;
 	 }
+
+         // we don't want to wait for all thread in the thread pool to complete because the
+         // thread pool may be being using for other parts of the program that (that may have
+         // (much) longer-lived threads).
 
 	 while (done_count_for_threads != n_dispatched_restraints_sets) {
 	    std::this_thread::sleep_for(std::chrono::microseconds(1));
@@ -964,14 +968,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	 for (unsigned int i_thread=0; i_thread<n_restraints_sets; i_thread++)
 	    distortion += distortions[i_thread];
 
-	 // for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++)
-	 // std::cout << "debug:: distortion_score() adding this " << distortions[i_thread]
-	 // << " for thread " << i_thread << std::endl;
-
-	 // std::cout << "debug:: distortion_score() distortion here " << distortion << std::endl;
-
 	 // 20180628-PE - no more async
-	 // distortion += eds.get();
 	 // get the electron density values now.
 	 distortion += electron_density_score_from_restraints(v, restraints_p);
 

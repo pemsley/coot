@@ -771,11 +771,20 @@ int graphics_info_t::show_origin_marker_flag = 1;
 
 //
 float graphics_info_t::geometry_vs_map_weight = 60.0;
+
+int graphics_info_t::refine_params_dialog_geman_mcclure_alpha_combobox_position    = 3;
+int graphics_info_t::refine_params_dialog_lennard_jones_epsilon_combobox_position  = 3;
+int graphics_info_t::refine_params_dialog_rama_restraints_weight_combobox_position = 3;
+bool graphics_info_t::refine_params_dialog_extra_control_frame_is_visible = false;
+
 int   graphics_info_t::rama_n_diffs = 50;
 
 atom_selection_container_t *graphics_info_t::moving_atoms_asc = NULL;
 short int graphics_info_t::moving_atoms_asc_type = coot::NEW_COORDS_UNSET; // unset
 int graphics_info_t::imol_moving_atoms = 0;
+coot::extra_restraints_representation_t graphics_info_t::moving_atoms_extra_restraints_representation;
+
+bool graphics_info_t::draw_it_for_moving_atoms_restraints_graphics_object = true;
 int graphics_info_t::imol_refinement_map = -1; // magic initial value "None set"
                                                // checked in graphics_info_t::refine()
 

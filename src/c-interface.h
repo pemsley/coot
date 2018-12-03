@@ -3393,6 +3393,11 @@ void set_refine_ramachandran_restraints_type(int type);
 a big number means bad things  */
 void set_refine_ramachandran_restraints_weight(float w);
 
+void set_refinement_geman_mcclure_alpha_from_text(int idx, const char *t);
+void set_refinement_lennard_jones_epsilon_from_text(int idx, const char *t);
+void set_refinement_ramachandran_restraints_weight_from_text(int idx, const char *t);
+void set_refine_params_dialog_more_control_frame_is_active(int state);
+
 int refine_ramachandran_angles_state();
 
 void set_numerical_gradients(int istate);
@@ -4775,6 +4780,7 @@ void do_pepflip(short int state); /* sets up pepflip, ready for atom pick. */
 void pepflip(int imol, const char *chain_id, int resno, const char *inscode, 
 	     const char *altconf);
 int pepflip_intermediate_atoms();
+int pepflip_intermediate_atoms_other_peptide();
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

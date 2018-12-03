@@ -1809,6 +1809,10 @@ public:
    static float geometry_vs_map_weight; 
    static float rama_plot_restraint_weight;
    static int rama_n_diffs;
+   static int refine_params_dialog_geman_mcclure_alpha_combobox_position;
+   static int refine_params_dialog_lennard_jones_epsilon_combobox_position;
+   static int refine_params_dialog_rama_restraints_weight_combobox_position;
+   static bool refine_params_dialog_extra_control_frame_is_visible;
 
    // similarly for distance and angles:
    //
@@ -1975,6 +1979,7 @@ public:
    static void draw_rotamer_probability_object();
    static void draw_moving_atoms_peptide_markup();
    static void draw_moving_atoms_atoms(bool against_a_dark_background);
+   static void draw_moving_atoms_restraints_graphics_object();
    std::vector<coot::generic_display_object_t::dodec_t> get_rotamer_dodecs();
 
    static int mol_no_for_environment_distances;
@@ -2263,6 +2268,8 @@ public:
    // the pepflip was made)
    //
    bool pepflip_intermediate_atoms();
+   bool pepflip_intermediate_atoms_other_peptide();
+   bool pepflip_intermediate_atoms(mmdb::Atom *at_close);
 
    // return true if moving_atoms_asc was not null (more or less if
    // the rotamer fit was made)
@@ -2282,6 +2289,9 @@ public:
 
    void make_moving_atoms_graphics_object(int imol, const atom_selection_container_t &asc);
    static short int moving_atoms_asc_type; 
+   void make_moving_atoms_restraints_graphics_object();
+   static coot::extra_restraints_representation_t moving_atoms_extra_restraints_representation;
+   static bool draw_it_for_moving_atoms_restraints_graphics_object;
 
    //
    static float environment_min_distance;

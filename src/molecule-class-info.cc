@@ -1200,7 +1200,7 @@ molecule_class_info_t::draw_extra_restraints_representation() {
 	    
 	    glBegin(GL_LINES);
 	    for (unsigned int ib=0; ib<extra_restraints_representation.bonds.size(); ib++) {
-	       
+
 	       const coot::extra_restraints_representation_t::extra_bond_restraints_respresentation_t &res =
 		  extra_restraints_representation.bonds[ib];
 

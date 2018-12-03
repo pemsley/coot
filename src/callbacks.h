@@ -4691,3 +4691,23 @@ void
 on_calculate_load_tutorial_model_and_data1_activate
                                         (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
+
+void
+on_refine_params_geman_mcclure_alpha_combobox_changed
+                                        (GtkComboBox     *combobox,
+                                        gpointer         user_data);
+
+void
+on_refine_params_lennard_jones_epsilon_combobox_changed
+                                        (GtkComboBox     *combobox,
+                                        gpointer         user_data);
+
+void
+on_refine_params_rama_restraints_weight_combobox_changed
+                                        (GtkComboBox     *combobox,
+                                        gpointer         user_data);
+
+void
+on_refine_params_more_control_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
