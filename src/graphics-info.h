@@ -1979,6 +1979,7 @@ public:
    static void draw_rotamer_probability_object();
    static void draw_moving_atoms_peptide_markup();
    static void draw_moving_atoms_atoms(bool against_a_dark_background);
+   static void draw_moving_atoms_restraints_graphics_object();
    std::vector<coot::generic_display_object_t::dodec_t> get_rotamer_dodecs();
 
    static int mol_no_for_environment_distances;
@@ -2288,7 +2289,9 @@ public:
 
    void make_moving_atoms_graphics_object(int imol, const atom_selection_container_t &asc);
    static short int moving_atoms_asc_type; 
-   void make_moving_atoms_restraints_object();
+   void make_moving_atoms_restraints_graphics_object();
+   static coot::extra_restraints_representation_t moving_atoms_extra_restraints_representation;
+   static bool draw_it_for_moving_atoms_restraints_graphics_object;
 
    //
    static float environment_min_distance;

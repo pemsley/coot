@@ -1167,6 +1167,70 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
    return local_moving_atoms_asc;
 }
 
+void
+graphics_info_t::make_moving_atoms_restraints_graphics_object() {
+
+   if (moving_atoms_asc) {
+      if (last_restraints) {
+
+         moving_atoms_extra_restraints_representation.clear();
+         for (int i=0; i<last_restraints->size(); i++) {
+            const coot::simple_restraint &rest = last_restraints->at(i);
+            if (rest.restraint_type == coot::BOND_RESTRAINT || rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+               // std::cout << "Found a bond " << i << " " << rest.target_value << std::endl;
+               if (rest.target_value > 2.15) {
+                  int idx_1 = rest.atom_index_1;
+                  int idx_2 = rest.atom_index_2;
+                  clipper::Coord_orth p1 = coot::co(moving_atoms_asc->atom_selection[idx_1]);
+                  clipper::Coord_orth p2 = coot::co(moving_atoms_asc->atom_selection[idx_2]);
+                  double dd = rest.target_value;
+                  double de = sqrt(clipper::Coord_orth(p1-p2).lengthsq());
+                  moving_atoms_extra_restraints_representation.add_bond(p1, p2, dd, de);
+               }
+            }
+         }
+      }
+   }
+}
+
+// static
+void
+graphics_info_t::draw_moving_atoms_restraints_graphics_object() {
+
+   if (draw_it_for_moving_atoms_restraints_graphics_object) {
+      if (moving_atoms_asc) {
+         if (last_restraints) {
+            if (moving_atoms_extra_restraints_representation.bonds.size() > 0) {
+               glLineWidth(2.0);
+
+               glBegin(GL_LINES);
+               for (unsigned int ib=0; ib<moving_atoms_extra_restraints_representation.bonds.size(); ib++) {
+
+                  const coot::extra_restraints_representation_t::extra_bond_restraints_respresentation_t &res =
+                     moving_atoms_extra_restraints_representation.bonds[ib];
+
+                  // red if actual distance is greater than target
+                  //
+                  double d_sqd = (res.second - res.first).clipper::Coord_orth::lengthsq();
+                  double esd = 0.05;
+
+                  double b = (res.target_dist*res.target_dist - d_sqd)/esd * 0.002;
+                  if (b >  0.4999) b =  0.4999;
+                  if (b < -0.4999) b = -0.4999;
+                  double b_green = b;
+                  if (b > 0) b_green *= 0.2;
+                  glColor3f(0.5-b, 0.5+b_green*0.9, 0.5+b);
+
+                  glVertex3f(res.first.x(), res.first.y(), res.first.z());
+                  glVertex3f(res.second.x(), res.second.y(), res.second.z());
+               }
+               glEnd();
+            }
+         }
+      }
+   }
+}
+
 
 // Return 0 (first) if any of the residues don't have a dictionary
 // entry and a list of the residue type that don't have restraints.

@@ -1921,6 +1921,10 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 
    *moving_atoms_asc = asc;
 
+   // --------------- also do the restraints -----------------------
+   //
+   make_moving_atoms_restraints_graphics_object();
+
    int do_disulphide_flag = 0;
 
    //    Needed that to debug doubly clear_up on a bonds box.  Now points
