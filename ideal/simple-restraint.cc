@@ -2877,18 +2877,20 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
 
    for (unsigned int i=0; i<sorted_residues.size(); i++) {
 
-      if ((i+4) >= sorted_residues.size()) continue;
+      if ((i+3) >= sorted_residues.size()) continue;
 
-      if (sorted_residues[i]->GetChain() != sorted_residues[i+4]->GetChain()) continue;
+      if (sorted_residues[i]->GetChain() != sorted_residues[i+3]->GetChain()) continue;
 
       // test that these residues are about helical before adding helical restraints
       std::vector<mmdb::Residue *> test_helical_residues;
       // fill test_helical_residues with 5 residues in order.
       for (unsigned int iir=0; iir<5; iir++) {
-          mmdb::Residue *residue_p = sorted_residues[i+iir];
-          test_helical_residues.push_back(residue_p);
+         if ((i+iir) < sorted_residues.size()) {
+             mmdb::Residue *residue_p = sorted_residues[i+iir];
+             test_helical_residues.push_back(residue_p);
+         }
       }
-      helical_results_t hr = compare_to_helix(test_helical_residues);
+      helical_results_t hr = compare_to_helix(test_helical_residues); // tests for 5 residues
       std::cout << "DEBUG:: helix_result " << hr.is_alpha_helix_like << " " << residue_spec_t(sorted_residues[i]) << std::endl;
       if (hr.is_alpha_helix_like) {
          int index_1 = -1; // O
