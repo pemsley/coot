@@ -21,6 +21,12 @@
       (let ((menu (coot-menubar-menu "ProSMART")))
 	
 	(add-simple-coot-menu-menuitem
+	 menu "Generate Self Restraints 3.7 for Chain"
+	 (lambda ()
+	   (using-active-atom
+	    (generate-local-self-restraints aa-imol aa-chain-id 3.7))))
+
+	(add-simple-coot-menu-menuitem
 	 menu "Generate Self Restraints 4.3 for Chain"
 	 (lambda ()
 	   (using-active-atom
