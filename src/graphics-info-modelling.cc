@@ -951,6 +951,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 		  }
 	       }
 
+	       moving_atoms_extra_restraints_representation.clear();
                continue_threaded_refinement_loop = true; // no longer set in refinement_loop_threaded()
 	       last_restraints = new
 		  coot::restraints_container_t(local_residues,
