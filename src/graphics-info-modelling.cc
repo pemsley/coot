@@ -424,7 +424,7 @@ graphics_info_t::refinement_loop_threaded() {
       // std::cout << "refinement_loop_threaded(): done minimize() round" << std::endl;
    }
 
-   std::cout << "unlocking restraints_lock" << std::endl;
+   std::cout << "DEBUG:: refinement_loop_threaded() unlocking restraints_lock" << std::endl;
    graphics_info_t::restraints_lock = false; // unlock! - is this safe? (I think so, we had the lock)
 
    // when this function exits, the (detached) thread in which it's running ends

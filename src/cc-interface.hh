@@ -252,6 +252,19 @@ PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py, in
 
 
 /*  ------------------------------------------------------------------------ */
+/*                         merge fragments                                   */
+/*  ------------------------------------------------------------------------ */
+//! \name Merge Fragments
+//! \{
+//! \brief merge fragments
+//
+//! each fragment is presumed to be in its own chain.
+//
+int merge_fragments(int imol);
+//! \}
+
+
+/*  ------------------------------------------------------------------------ */
 /*                         refmac stuff                                      */
 /*  ------------------------------------------------------------------------ */
 //! \name Execute Refmac
@@ -341,7 +354,7 @@ void add_to_database(const std::vector<std::string> &command_strings);
 /*  ----------------------------------------------------------------------- */
 #include "merge-molecule-results-info-t.hh"
 // return the status and vector of chain-ids of the new chain ids.
-// 
+//
 std::pair<int, std::vector<merge_molecule_results_info_t> > merge_molecules_by_vector(const std::vector<int> &add_molecules, int imol);
 
 /*  ----------------------------------------------------------------------- */

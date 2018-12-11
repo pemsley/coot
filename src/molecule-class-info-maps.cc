@@ -2156,6 +2156,18 @@ molecule_class_info_t::make_map_from_cif_generic(int imol_in,
       return -1;
    }
 }
+
+
+// fill original_fphis
+void
+molecule_class_info_t::save_original_fphis_from_map() {
+
+   // clipper::HKL_data< clipper::datatypes::F_phi<float> > original_fphis;
+
+
+
+}
+
    
 int
 molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,

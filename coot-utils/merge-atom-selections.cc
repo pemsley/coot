@@ -51,7 +51,7 @@ coot::mergeable_atom_selections(mmdb::Manager *mol, int selection_handle_1, int 
                         pscontact, n_contacts,
                         0, &my_matt, i_contact_group);
       if (n_contacts > 0) {
-         std::cout << "in mergeable_atom_selections() n_contacts is " << n_contacts << std::endl;
+         // std::cout << "in mergeable_atom_selections() n_contacts is " << n_contacts << std::endl;
          if (pscontact) {
             match_container_t match_set;
             for (int i=0; i<n_contacts; i++) {
@@ -61,24 +61,25 @@ coot::mergeable_atom_selections(mmdb::Manager *mol, int selection_handle_1, int 
                std::string atom_name_2 = at_2->GetAtomName();
                if (atom_name_1 == atom_name_2) {
                   std::pair<mmdb::Atom *, mmdb::Atom *> p(at_1, at_2);
-                  std::cout << "Adding pair " << atom_spec_t(at_1) << " and " << atom_spec_t(at_2) << std::endl;
+                  // std::cout << "Adding pair " << atom_spec_t(at_1) << " and " << atom_spec_t(at_2) << std::endl;
                   match_set.add(at_1, at_2);
                }
             }
             // match_set is filled.
 
-            std::cout << "in mergeable_atom_selections() match_set size " << match_set.matches.size() << std::endl;
+            // std::cout << "in mergeable_atom_selections() match_set size " << match_set.matches.size() << std::endl;
 
             // which is the closest matching residue with more than 2 matches?
             // find_best_match() returns null for res_1 on failure
             match_container_for_residues_t best_match = match_set.find_best_match();
-            std::cout << "in mergeable_atom_selections() best_match " << best_match.residue_1 << std::endl;
-            best_match.debug();
+            // std::cout << "in mergeable_atom_selections() best_match " << best_match.residue_1 << std::endl;
+            // best_match.debug();
             if (best_match.residue_1) {
                m = best_match;
                status = true;
-               std::cout << "in mergeable_atom_selections() best_match "
-                         << residue_spec_t(best_match.residue_1) << " " << residue_spec_t(best_match.residue_2) << std::endl;
+               if (false)
+                  std::cout << "in mergeable_atom_selections() best_match "
+                            << residue_spec_t(best_match.residue_1) << " " << residue_spec_t(best_match.residue_2) << std::endl;
             }
          }
       }
@@ -107,7 +108,6 @@ coot::match_container_t::add(mmdb::Atom *at_1, mmdb::Atom *at_2) {
             // make a new one
             match_container_for_residues_t m(res_1, res_2);
             m.add(at_1, at_2);
-            std::cout << "debug in add() " << atom_spec_t(at_1) << " and " << atom_spec_t(at_2) << std::endl;
             matches.push_back(m);
          }
       }
@@ -118,7 +118,6 @@ void
 coot::match_container_for_residues_t::add(mmdb::Atom *at_1, mmdb::Atom *at_2) {
 
    std::pair<mmdb::Atom *, mmdb::Atom *> p(at_1, at_2);
-   std::cout << "debug in add() " << atom_spec_t(at_1) << " and " << atom_spec_t(at_2) << std::endl;
    atom_pairs.push_back(p);
 
 }
@@ -197,11 +196,12 @@ coot::match_container_for_residues_t::find_short_fragment_around_overlap(mmdb::M
       }
    }
 
-   std::cout << "debug in find_short_fragment_around_overlap() "
-             << "atom_sel_1_n_below " << atom_sel_1_n_below << " "
-             << "atom_sel_1_n_above " << atom_sel_1_n_above << " "
-             << "atom_sel_2_n_below " << atom_sel_2_n_below << " "
-             << "atom_sel_2_n_above " << atom_sel_2_n_above << "\n";
+   if (false)
+      std::cout << "debug in find_short_fragment_around_overlap() "
+                << "atom_sel_1_n_below " << atom_sel_1_n_below << " "
+                << "atom_sel_1_n_above " << atom_sel_1_n_above << " "
+                << "atom_sel_2_n_below " << atom_sel_2_n_below << " "
+                << "atom_sel_2_n_above " << atom_sel_2_n_above << "\n";
 
    int idx = 1;
    if (atom_sel_1_n_below < atom_sel_1_n_above)
@@ -216,9 +216,6 @@ coot::match_container_for_residues_t::find_short_fragment_around_overlap(mmdb::M
       if (atom_sel_2_n_below < atom_sel_1_n_below)
          if (atom_sel_2_n_below < atom_sel_2_n_above)
             idx = 4;
-
-   std::cout << "debug in find_short_fragment_around_overlap() "
-             << " idx " << idx << std::endl;
 
    if (idx==2) { is_upstream = false; }
    if (idx==3) { is_first_selection = false; }
@@ -242,8 +239,8 @@ coot::merge_atom_selections(mmdb::Manager *mol, int selection_handle_1, int sele
       // delete that, which means that we keep the other fragment for that selection
       // which means that we know we keep the same stream of the other selection (and delete the other)
       std::pair<bool,bool> r = m.second.find_short_fragment_around_overlap(mol, selection_handle_1, selection_handle_2);
+      // std::cout << " ------ in merge_atom_selections() with r " << r.first << " " << r.second << std::endl;
 
-      std::cout << " ------ in merge_atom_selections() with r " << r.first << " " << r.second << std::endl;
       if (r.first) {
          if (r.second) {
             m.second.delete_upstream(mol,   true,  selection_handle_1);
@@ -274,8 +271,6 @@ coot::merge_atom_selections(mmdb::Manager *mol, int selection_handle_1, int sele
 
 void
 coot::match_container_for_residues_t::delete_downstream(mmdb::Manager *mol, bool from_first, int selection_handle_1) {
-
-   std::cout << "   debug in delete_downstream() starting " << from_first << " " << selection_handle_1 << std::endl;
 
    // delete downstream in selection
    bool found_matchers = false;
@@ -310,12 +305,11 @@ coot::match_container_for_residues_t::delete_downstream(mmdb::Manager *mol, bool
 	 if (at->residue != matchers_residue)
 	    delete_these_residues.insert(at->residue);
    }
-   std::cout << "debug in delete_downstream() delete_these_residues size " << delete_these_residues.size() << std::endl;
    if (delete_these_residues.size() > 0) {
       std::set<mmdb::Residue *>::iterator it;
       for (it=delete_these_residues.begin(); it!=delete_these_residues.end(); it++) {
 	 mmdb::Residue *r = *it;
-	 std::cout << "in delete_downstream() delete " << residue_spec_t(r) << std::endl;
+	 // std::cout << "in delete_downstream() delete " << residue_spec_t(r) << std::endl;
       }
       for (it=delete_these_residues.begin(); it!=delete_these_residues.end(); it++) {
 	 mmdb::Residue *r = *it;
@@ -403,7 +397,7 @@ coot::match_container_for_residues_t::meld(mmdb::Manager *mol, std::pair<bool, b
       if (merge_flags.first) {
 
          int res_no_delta = residue_1->GetSeqNum() - residue_2->GetSeqNum();
-         std::cout << "debug in meld() A res_no_delta " << res_no_delta << std::endl;
+         // std::cout << "debug in meld() A res_no_delta " << res_no_delta << std::endl;
 
          // upstream of selection 1 was deleted, so 
          // merge "upstream" of the second selection, that is,
@@ -428,7 +422,7 @@ coot::match_container_for_residues_t::meld(mmdb::Manager *mol, std::pair<bool, b
 
       } else {
          int res_no_delta = residue_2->GetSeqNum() - residue_1->GetSeqNum();
-         std::cout << "debug in meld() B res_no_delta " << res_no_delta << std::endl;
+         // std::cout << "debug in meld() B res_no_delta " << res_no_delta << std::endl;
          std::vector<mmdb::Residue *> res_vec = residue_vector_from_residue(mol, residue_1);
          for (unsigned int i=0; i<res_vec.size(); i++) {
             mmdb::Residue *residue_p = res_vec[i];
@@ -482,8 +476,9 @@ coot::match_container_for_residues_t::meld_residues(std::vector<mmdb::Residue *>
 	    }
 	 }
 
-	 std::cout << "debug in meld() for " << residue_spec_t(residue_p) << " target_res_serial_number "
-		   << target_res_serial_number << " best_diff " << best_diff << std::endl;
+         if (false)
+	    std::cout << "debug in meld() for " << residue_spec_t(residue_p) << " target_res_serial_number "
+		      << target_res_serial_number << " best_diff " << best_diff << std::endl;
 
 	 if (target_res_serial_number >= 0)
 	    to_chain_p->InsResidue(residue_copy, target_res_serial_number);
@@ -499,8 +494,6 @@ coot::match_container_for_residues_t::meld_residues(std::vector<mmdb::Residue *>
 void
 coot::match_container_for_residues_t::delete_upstream(mmdb::Manager *mol, bool from_first, int selection_handle_1) {
 
-   std::cout << "debug in delete_upstream() starting " << from_first << " " << selection_handle_1 << std::endl;
-
    // delete upstream in selection_1  
    bool found_matchers = false;
    std::set<mmdb::Residue *> delete_these_residues;
@@ -513,13 +506,11 @@ coot::match_container_for_residues_t::delete_upstream(mmdb::Manager *mol, bool f
       for (unsigned int ip=0; ip<atom_pairs.size(); ip++) {
 	 if (from_first) {
 	    if (atom_pairs[ip].first == at) {
-	       std::cout << "       matched! " << std::endl;
 	       found_matchers = true;
 	       break;
 	    }
 	 } else {
 	    if (atom_pairs[ip].second == at) {
-	       std::cout << "       matched! " << std::endl;
 	       found_matchers = true;
 	       break;
 	    }
@@ -527,16 +518,15 @@ coot::match_container_for_residues_t::delete_upstream(mmdb::Manager *mol, bool f
       }
       if (found_matchers)
 	 break;
-      std::cout << "debug in delete_upstream() i = " << i << " inserting residue for atom " << atom_spec_t(at) << std::endl;
+      // std::cout << "debug in delete_upstream() i = " << i << " inserting residue for atom " << atom_spec_t(at) << std::endl;
       delete_these_residues.insert(at->residue);
    }
-   std::cout << "debug in delete_upstream() delete_these_residues size " << delete_these_residues.size() << std::endl;
    if (delete_these_residues.size() > 0) {
       std::set<mmdb::Residue *>::iterator it;
 
       for (it=delete_these_residues.begin(); it!=delete_these_residues.end(); it++) {
 	 mmdb::Residue *r = *it;
-	 std::cout << "in delete_upstream() delete residue " << residue_spec_t(r) << std::endl;
+	 // std::cout << "in delete_upstream() delete residue " << residue_spec_t(r) << std::endl;
       }
 
       for (it=delete_these_residues.begin(); it!=delete_these_residues.end(); it++) {
@@ -545,7 +535,6 @@ coot::match_container_for_residues_t::delete_upstream(mmdb::Manager *mol, bool f
       }
       chain_p->TrimResidueTable();
    }
-   std::cout << "delete_upstream() finish" << std::endl;
 }
 
 void

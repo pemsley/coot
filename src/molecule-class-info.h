@@ -1492,6 +1492,7 @@ public:        //                      public
    void set_sharpen_b_factor_kurtosis_optimised(float b_factor_in) {
       sharpen_b_factor_kurtosis_optimised_ = b_factor_in;
    }
+   void save_original_fphis_from_map();
 
    // for debugging.
    int test_function();
@@ -2377,6 +2378,10 @@ public:        //                      public
    std::pair<bool, std::vector<std::string> > try_add_by_consolidation(mmdb::Manager *adding_mol);
    bool merge_molecules_just_one_residue_homogeneous(atom_selection_container_t molecule_to_add);
    std::pair<bool, coot::residue_spec_t> merge_ligand_to_near_chain(mmdb::Manager *mol); // return success status and spec if new residue if possible.
+
+   // merge change/fragments of this molecule
+   // return 1 if a merge was done;
+   int merge_fragments();
 
    int renumber_residue_range(const std::string &chain_id,
 			      int start_resno, int last_resno, int offset);
