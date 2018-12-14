@@ -911,9 +911,7 @@ void
 graphics_info_t::undo_last_move() {  // suggested by Frank von Delft
 
 
-   coot::Cartesian c(old_rotation_centre_x,
-		     old_rotation_centre_y,
-		     old_rotation_centre_z);
+   coot::Cartesian c = get_old_rotation_centre();
    
    std::cout << "INFO:: Moving back to old centre: " << c << std::endl;
    setRotationCentre(c);

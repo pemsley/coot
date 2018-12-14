@@ -1,9 +1,33 @@
 
    For Release 0.8.9.2
 
+   o Carmen question: ?
+
+    if you are on the keyboard and doing rotamer, can you accept it with Enter?
+    No.
+    Fix it then
+
+    Adding solvent molecules - add it to the right molecule - make the spacing bigger to make the widget bigger.
+
+   o OXT in residue type LYS fle_view_with_rditk() failure.
+     New monomer library!?
+
+   o Draw hydrogens is not respected in colour-by-chain mode.
+
+   o Add a test that fle_view with_png output makes a sensible file.
+
+   o in refinement add a UDData to the molecule named "FixedDuringRefinement" - set this on the
+     non-moving (flanking) residues.
+
+   o compare the origins of a rebox and maps from the EMDB - look for nxstart etc differences
+     use mrcfile for convenience.
+
+   o CryoEM tutorial says "choose a sensible weight for the map" - how do we do that Paul?
 
    o Add distance restraint - does that work? - What about helical restraints?
      Test with a distorted model in a very low resolution map.
+
+   o can you add a download for EMDB bundles?
 
    o add symmetry and try povray - crash?
 
@@ -23,6 +47,8 @@
      -> Apply button should grey out if there is no SMILES string (perhaps)
 
    o I don't like the double call to make_bonds() (it's in CA mode at least). Get rid of it.
+
+   o multiple maps - undefined refinement map - jiggle fit this molecule needs an dialog alert.
 
 ------
 

@@ -258,9 +258,10 @@ std::pair<double, double> graphics_info_t::mouse_clicked_begin = std::pair<doubl
 float  graphics_info_t::rotation_centre_x = 0.0;
 float  graphics_info_t::rotation_centre_y = 0.0;
 float  graphics_info_t::rotation_centre_z = 0.0;
-float  graphics_info_t::old_rotation_centre_x = 0.0;
-float  graphics_info_t::old_rotation_centre_y = 0.0;
-float  graphics_info_t::old_rotation_centre_z = 0.0;
+// float  graphics_info_t::old_rotation_centre_x = 0.0;
+// float  graphics_info_t::old_rotation_centre_y = 0.0;
+// float  graphics_info_t::old_rotation_centre_z = 0.0;
+coot::Cartesian graphics_info_t::old_rotation_centre(0,0,0);
 float  graphics_info_t::zoom                = 100;
 int    graphics_info_t::smooth_scroll       =   1; // flag: default is ..
 int    graphics_info_t::smooth_scroll_steps =  40;
