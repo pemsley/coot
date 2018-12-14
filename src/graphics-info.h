@@ -480,9 +480,17 @@ class graphics_info_t {
    static float rotation_centre_y;
    static float rotation_centre_z;
 
-   static float old_rotation_centre_x;
-   static float old_rotation_centre_y;
-   static float old_rotation_centre_z;
+   static coot::Cartesian old_rotation_centre;
+   static void set_old_rotation_centre(const coot::Cartesian &rc) {
+     old_rotation_centre = rc;
+   }
+   static coot::Cartesian get_old_rotation_centre() {
+     return old_rotation_centre;
+   }
+   // delete these when working
+   // static float old_rotation_centre_x;
+   // static float old_rotation_centre_y;
+   // static float old_rotation_centre_z;
 
    static long int T0; 
    static long int Frames;
@@ -1627,15 +1635,17 @@ public:
    // Those coordinates will get used in draw() to centre on that
    // atom. 
    //
-   void setRotationCentre(int atom_index, int imol); 
+   void setRotationCentre(int atom_index, int imol);
 
    // if dir is true, we are going forward
    void reorienting_next_residue(bool dir);
    static bool reorienting_next_residue_mode;
 
-   void setRotationCentre(coot::Cartesian centre); 
+   void setRotationCentre(coot::Cartesian centre);
    void setRotationCentreAndZoom(coot::Cartesian centre,
-				 float target_zoom); 
+				 float target_zoom);
+   void setRotationCentreSimple(const coot::Cartesian &c);
+
 
    // old style: soon to be redundent
    void setRotationCentre(const symm_atom_info_t &symm_atom_info);

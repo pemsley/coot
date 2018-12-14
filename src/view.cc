@@ -74,7 +74,11 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
 	       g.quat[iq] = frac1*view1.quat[iq] + frac2*view2.quat[iq];
 	    coot::Cartesian rct =
 	       view1.rotation_centre + (view2.rotation_centre - view1.rotation_centre).by_scalar(f);
-	    g.setRotationCentre(rct);
+
+	    // I don't want to setRotationCentre() because that sets the old rotation centre
+	    // (and we need the original version of that to go "back")
+	    // g.setRotationCentre(rct);
+	    g.setRotationCentreSimple(rct);
 	    
 	    g.zoom = view1.zoom + pow(f,0.5)*(view2.zoom-view1.zoom);
 	    // std::cout << "f " << f << " sqrt(t) " << sqrt(f)
