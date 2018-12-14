@@ -1383,7 +1383,7 @@ float graphics_info_t::mogul_max_badness = 5.0;   // The z value colour at which
 bool graphics_info_t::linked_residue_fit_and_refine_state = true;
 
 //
-bool graphics_info_t::allow_duplseqnum = false;
+bool graphics_info_t::allow_duplseqnum = true; // 20181214-PE - I presume that this is safe now?
 
 std::map<std::string, std::string> graphics_info_t::extensions_registry;
 
