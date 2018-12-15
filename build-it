@@ -2585,12 +2585,13 @@ if test -n "$build_clipper" ; then
 
     # Bernie made this tarball
     clipper_version=2.1.20180802
+    clipper_version_dir=2.1
     ${WGET} $extras_place/clipper-$clipper_version.tar.gz
 
     (
     gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
 
-    cd clipper-$clipper_dir_version
+    cd clipper-$clipper_version_dir
     pwd
     date
 
