@@ -641,6 +641,8 @@ graphics_info_t::reorienting_next_residue(bool dir) {
 	       // bleugh :-)
 	       for(int i=0; i<4; i++) quat[i] = vqf[i];
 
+               update_things_on_move_and_redraw(); // (symmetry, environment, rama, map) and draw it
+
 	    } else {
 
 	       // "snap" the view
@@ -671,7 +673,7 @@ graphics_info_t::reorienting_next_residue(bool dir) {
       else
 	 intelligent_previous_atom_centring(go_to_atom_window);
    }
-   graphics_draw();
+   // graphics_draw();
 }
 
 void
