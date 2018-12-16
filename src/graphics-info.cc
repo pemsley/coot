@@ -641,8 +641,6 @@ graphics_info_t::reorienting_next_residue(bool dir) {
 	       // bleugh :-)
 	       for(int i=0; i<4; i++) quat[i] = vqf[i];
 
-               update_things_on_move_and_redraw(); // (symmetry, environment, rama, map) and draw it
-
 	    } else {
 
 	       // "snap" the view
@@ -651,13 +649,16 @@ graphics_info_t::reorienting_next_residue(bool dir) {
 	       rotation_centre_z = target_pos.z();
 	       // bleugh again
 	       for(int i=0; i<4; i++) quat[i] = vqf[i];
-	       update_things_on_move_and_redraw(); // (symmetry, environment, map) and draw
+
 	    }
 
 	    done_it = true;
 	    go_to_atom_chain_       = residue_next->GetChainID();
 	    go_to_atom_residue_     = residue_next->GetSeqNum();
 	    go_to_atom_inscode_     = residue_next->GetInsCode();
+
+	    try_centre_from_new_go_to_atom();
+	    update_things_on_move_and_redraw(); // (symmetry, environment, rama, map) and draw it
 
 	    if (go_to_atom_window) {
 	       // what is next_atom here? Hmm
