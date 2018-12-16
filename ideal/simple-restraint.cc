@@ -2891,7 +2891,7 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
          }
       }
       helical_results_t hr = compare_to_helix(test_helical_residues); // tests for 5 residues
-      std::cout << "DEBUG:: helix_result " << hr.is_alpha_helix_like << " " << residue_spec_t(sorted_residues[i]) << std::endl;
+      // std::cout << "DEBUG:: helix_result " << hr.is_alpha_helix_like << " " << residue_spec_t(sorted_residues[i]) << std::endl;
       if (hr.is_alpha_helix_like) {
          int index_1 = -1; // O
          int index_2 = -1; // N (n+4)
