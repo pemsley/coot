@@ -2238,7 +2238,8 @@ molecule_class_info_t::display_bonds(bool against_a_dark_background) {
 }
 
 
-
+// no symmetry here - for that see display_bonds(bool)
+//
 void
 molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 				     float p_bond_width,

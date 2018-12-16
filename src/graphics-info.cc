@@ -2067,11 +2067,11 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 	 return;
       }
 
-       unsigned int unlocked = false;
-         while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
-            std::this_thread::sleep_for(std::chrono::microseconds(10));
-            unlocked = 0;
-       }
+      unsigned int unlocked = false;
+      while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+	 std::this_thread::sleep_for(std::chrono::microseconds(10));
+	 unlocked = 0;
+      }
 
       if (against_a_dark_background) {
 	 // now we want to draw out our bonds in white, 

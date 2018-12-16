@@ -166,7 +166,7 @@ graphics_info_t::set_go_to_atom_molecule(int pos) {
 }
 
 int
-graphics_info_t::try_centre_from_new_go_to_atom() { 
+graphics_info_t::try_centre_from_new_go_to_atom() {
 
    // 
    // std::string atom_string = make_mmdb_atom_string_from_go_to_atom(); 
