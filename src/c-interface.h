@@ -4645,6 +4645,8 @@ can be not grey if you desire, r, g, b in the range 0 to 1.
  */
 void set_grey_carbon_colour(int imol, float r, float g, float b);
 
+/* undocumented feature for development. */
+void set_draw_moving_atoms_restraints(int state);
 
 /*! \brief make a ball and stick representation of imol given atom selection
 

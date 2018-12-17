@@ -4793,6 +4793,13 @@ void set_grey_carbon_colour(int imol, float r, float g, float b) {
    // no graphics draw... Hmm.
 }
 
+/* undocumented feature for development. */
+void set_draw_moving_atoms_restraints(int state) {
+   graphics_info_t::draw_it_for_moving_atoms_restraints_graphics_object = state;
+   graphics_draw();
+}
+
+
 
 int
 graphics_molecule_bond_type(int imol) { 

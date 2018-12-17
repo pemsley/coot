@@ -8667,6 +8667,7 @@ create_refine_params_dialog (void)
   gtk_table_attach (GTK_TABLE (table9), refine_params_geman_mcclure_alpha_combobox, 1, 2, 0, 1,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_FILL), 0, 0);
+  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "0.0");
   gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "0.001");
   gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "0.003");
   gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "0.01");
