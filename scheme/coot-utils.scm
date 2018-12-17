@@ -1102,6 +1102,23 @@
 	  #f
 	  (string-append (directory-as-file-name dir-name) "/" sub-dir-name))))
 
+;; the first elements are directories, the last is the file name
+;; c.f. os.path.join
+;; 
+(define (join-dir-file path-elements)
+  (if (null? path-elements)
+      ""
+      (let ((fn (car (reverse path-elements)))
+	    (dirs (reverse (cdr (reverse path-elements)))))
+	(let ((running ""))
+	  (for-each (lambda (d)
+		      (set! running (append-dir-dir running d)))
+		    dirs)
+	  ;; (format #t "dirs: ~s~%" dirs)
+	  ;; (format #t "fn: ~s~%" fn)
+	  (append-dir-file running fn)))))
+
+
 ;; remove any trailing /s
 ;; 
 (define (directory-as-file-name dir)
