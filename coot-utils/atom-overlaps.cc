@@ -106,6 +106,7 @@ coot::atom_overlaps_container_t::init() {
    overlap_mode = CENTRAL_RESIDUE;
 
    have_dictionary = false; // initially.
+   molecule_has_hydrogens = false; // initially
 
    if (res_central) {
 
@@ -157,6 +158,7 @@ coot::atom_overlaps_container_t::init_for_all_atom() {
    // neighbours is a misnomer in this case - it is merely a list of all residue
 
    have_dictionary = true; // initially.
+   molecule_has_hydrogens = false; // initially
 
    int imod = 1;
    mmdb::Model *model_p = mol->GetModel(imod);
@@ -221,6 +223,7 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_central_residue(int u
 	 std::string atom_name(at->name);
 	 std::string ele = at->element;
 	 if (ele == " H") {
+	    molecule_has_hydrogens = true;
 	    // Hydrogens have energy type "H" from Refmac and acedrg, that doesn't
 	    // tell us if this atom is a donor hydrogen.
 	    // So, find the atom to which the H is attached and if that is a donor then this
@@ -291,6 +294,7 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_for_neighbours(int ud
 	    std::string atom_name(n_at->name);
 	    std::string ele = n_at->element;
 	    if (ele == " H") {
+	       molecule_has_hydrogens = true;
 	       // as above
 	       std::string heavy_neighb_of_H_atom = dict.get_bonded_atom(atom_name);
 	       if (! heavy_neighb_of_H_atom.empty()) {
@@ -410,23 +414,24 @@ coot::atom_overlaps_container_t::make_overlaps() {
 
 	       // first is yes/no, second is if the H is on the ligand
 	       // 
-	       std::pair<bool, bool> might_be_h_bond_flag =
-		  is_h_bond_H_and_acceptor(cr_at, n_at, udd_h_bond_type_handle);
+	       // std::pair<bool, bool> might_be_h_bond_flag =
+	       // is_h_bond_H_and_acceptor(cr_at, n_at, udd_h_bond_type_handle);
+	       h_bond_info_t hbi(cr_at, n_at, udd_h_bond_type_handle);
 
 	       if (d < (r_1 + r_2 + probe_radius)) { 
 		  double o = get_overlap_volume(d, r_2, r_1);
 		  bool h_bond_flag = false;
-		  if (might_be_h_bond_flag.first) {
+		  if (hbi.is_h_bond_H_and_acceptor) {
 		     h_bond_flag = true;
-		     if (might_be_h_bond_flag.second) { 
+		     if (hbi.H_is_first_atom_flag) { 
 			std::cout << atom_spec_t(cr_at) << "   " << " and " << atom_spec_t(n_at)
 				  << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d 
 				  << " overlap " << o << " IS H-Bond (ligand donor)" << std::endl;
-		     } else { 
+		     } else {
 			   std::cout << atom_spec_t(cr_at) << "   " << " and " << atom_spec_t(n_at)
 				     << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d 
 				     << " overlap " << o << " IS H-Bond (ligand acceptor)" << std::endl;
-			   
+
 		     }
 		  } else { 
 		     std::cout << atom_spec_t(cr_at) << "   " << " and " << atom_spec_t(n_at)
@@ -439,7 +444,7 @@ coot::atom_overlaps_container_t::make_overlaps() {
 		  overlaps.push_back(ao);
 		  // overlaps.push_back(ao2);
 	       } else {
-		  if (might_be_h_bond_flag.first) { 
+		  if (hbi.is_h_bond_H_and_acceptor) { 
 		     if (d < (dist_crit + 0.5)) {
 			std::cout << atom_spec_t(cr_at) << "   " << " and " << atom_spec_t(n_at)
 				  << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d
@@ -637,11 +642,72 @@ coot::atom_overlaps_container_t::is_h_bond_H_and_acceptor(mmdb::Atom *ligand_ato
    return std::pair<bool, bool> (status, H_on_ligand);
 }
 
+coot::atom_overlaps_container_t::h_bond_info_t::h_bond_info_t(mmdb::Atom *ligand_atom,
+							      mmdb::Atom *env_atom,
+							      int udd_h_bond_type_handle) {
+
+   is_h_bond_H_and_acceptor = false;
+   is_h_bond_donor_and_acceptor = false;
+   H_is_first_atom_flag = false;
+   H_is_second_atom_flag = false;
+   donor_is_second_atom_flag = false;
+
+   int hb_1 = -1;
+   int hb_2 = -1;
+   if (ligand_atom->GetUDData(udd_h_bond_type_handle, hb_1) == mmdb::UDDATA_Ok) {
+      if (env_atom->GetUDData(udd_h_bond_type_handle, hb_2) == mmdb::UDDATA_Ok) {
+
+	 if (hb_1 == HB_HYDROGEN) {
+	    if (hb_2 == HB_ACCEPTOR || hb_2 == HB_BOTH) {
+	       is_h_bond_H_and_acceptor = true;
+	       H_is_first_atom_flag = true;
+	    }
+	 }
+
+	 if (hb_1 == HB_ACCEPTOR || hb_1 == HB_BOTH) {
+	    if (hb_2 == HB_HYDROGEN) {
+	       is_h_bond_H_and_acceptor = true;
+	       H_is_second_atom_flag = true;
+	    }
+	 }
+
+	 if (hb_1 == HB_DONOR || hb_1 == HB_BOTH) {
+	    if (hb_2 == HB_ACCEPTOR || hb_2 == HB_BOTH) {
+	       is_h_bond_donor_and_acceptor = true;
+	    }
+	 }
+
+	 if (hb_1 == HB_ACCEPTOR || hb_1 == HB_BOTH) {
+	    if (hb_2 == HB_DONOR || hb_2 == HB_BOTH) {
+	       is_h_bond_donor_and_acceptor = true;
+	    }
+	 }
+      }
+
+      if (is_h_bond_donor_and_acceptor == false) {
+	 // as before, allow HOH to H-bond
+	 std::string resname_1 = ligand_atom->GetResName();
+	 std::string resname_2 = env_atom->GetResName();
+	 if (resname_1 == "HOH") {
+	    if (hb_2 == HB_ACCEPTOR || hb_2 == HB_DONOR || hb_2 == HB_BOTH || hb_2 == HB_HYDROGEN) {
+	       is_h_bond_H_and_acceptor = true;
+	    }
+	 }
+	 if (resname_2 == "HOH") {
+	    if (hb_1 == HB_ACCEPTOR || hb_1 == HB_DONOR || hb_1 == HB_BOTH || hb_1 == HB_HYDROGEN){
+	       is_h_bond_H_and_acceptor = true;
+	    }
+	 }
+      }
+   }
+}
+
+
 // in A^3
 double
 coot::atom_overlaps_container_t::get_overlap_volume(const double &d, const double &r_1, const double &r_2) const {
 
-   // V = π /(12d) * (r1+r2−d) ^2 * (d^2+2d(r1+r2)−3*(r1−r2)^2)
+   // V = π /(12d) * (r1+r2-d) ^2 * (d^2+2d(r1+r2)-3*(r1-r2)^2)
 
    double V = (M_PI/(12*d)) * (r_1+r_2-d) * (r_1+r_2-d) * (d*d + 2.0*d*(r_1+r_2) - 3*(r_1-r_2)*(r_1-r_2));
    return V;
@@ -1094,10 +1160,11 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand() { // or residue
 			      double overlap_delta = r_2_for_biggest_overlap - d_surface_pt_to_atom;
 
 			      // first is yes/no, second is H-is-on-ligand?
-			      std::pair<bool, bool> might_be_h_bond_flag =
-				 is_h_bond_H_and_acceptor(cr_at, atom_with_biggest_overlap, udd_h_bond_type_handle);
+			      // std::pair<bool, bool> might_be_h_bond_flag =
+			      // is_h_bond_H_and_acceptor(cr_at, atom_with_biggest_overlap, udd_h_bond_type_handle);
+			      h_bond_info_t hbi(cr_at, atom_with_biggest_overlap, udd_h_bond_type_handle);
 			      bool is_h_bond = false;
-			      if (might_be_h_bond_flag.first)
+			      if (hbi.is_h_bond_H_and_acceptor)
 				 is_h_bond = true;
 			      std::pair<std::string, std::string> c_type_col =
 				 overlap_delta_to_contact_type(overlap_delta, is_h_bond);
@@ -1369,10 +1436,11 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_single_thread(do
 			   double overlap_delta = r_2_for_biggest_overlap - d_surface_pt_to_atom;
 			   // first is yes/no, second is H-is-on-ligand?
 			   // allow waters to H-bond (without being an H)
-			   std::pair<bool, bool> might_be_h_bond_flag =
-			      is_h_bond_H_and_acceptor(at, atom_with_biggest_overlap, udd_h_bond_type_handle);
+			   // std::pair<bool, bool> might_be_h_bond_flag =
+			   // is_h_bond_H_and_acceptor(at, atom_with_biggest_overlap, udd_h_bond_type_handle);
+			   h_bond_info_t hbi(at, atom_with_biggest_overlap, udd_h_bond_type_handle);
 			   bool is_h_bond = false;
-			   if (might_be_h_bond_flag.first)
+			   if (hbi.is_h_bond_H_and_acceptor)
 			      is_h_bond = true;
 
 			   std::pair<std::string, std::string> c_type_col =
@@ -1556,7 +1624,8 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 	    results_container_vec[i_thread] = atom_overlaps_dots_container_t(n_per_thread);
  	    threads.push_back(std::thread(contacts_for_atoms, iat_start, iat_end,
 					  atom_selection, contact_map, bonded_map,
-					  neighb_atom_radius, udd_h_bond_type_handle, probe_radius,
+					  neighb_atom_radius, udd_h_bond_type_handle,
+					  molecule_has_hydrogens, probe_radius,
 					  dot_density_in, clash_spike_length, make_vdw_surface,
 					  &results_container_vec[i_thread]));
 
@@ -1604,6 +1673,7 @@ coot::atom_overlaps_container_t::contacts_for_atoms(int iat_start, int iat_end,
 						    const std::map<int, std::vector<int> > &bonded_map,
 						    const std::vector<double> &neighb_atom_radius,
 						    int udd_h_bond_type_handle,
+						    bool molecule_has_hydrogens,
 						    double probe_radius,
 						    double dot_density_in,
 						    double clash_spike_length,
@@ -1613,8 +1683,8 @@ coot::atom_overlaps_container_t::contacts_for_atoms(int iat_start, int iat_end,
    for (int iat=iat_start; iat<iat_end; iat++) {
 
       ao->add(contacts_for_atom(iat, atom_selection, contact_map, bonded_map, neighb_atom_radius,
-       				udd_h_bond_type_handle, probe_radius, dot_density_in,
-				clash_spike_length, make_vdw_surface));
+       				udd_h_bond_type_handle, molecule_has_hydrogens,
+				probe_radius, dot_density_in, clash_spike_length, make_vdw_surface));
    }
 }
 
@@ -1626,6 +1696,7 @@ coot::atom_overlaps_container_t::contacts_for_atom(int iat,
 						   const std::map<int, std::vector<int> > &bonded_map,
 						   const std::vector<double> &neighb_atom_radius,
 						   int udd_h_bond_type_handle,
+						   bool molecule_has_hydrogens,
 						   double probe_radius,
 						   double dot_density_in,
 						   double clash_spike_length,
@@ -1702,9 +1773,10 @@ coot::atom_overlaps_container_t::contacts_for_atom(int iat,
 		  double overlap_delta = r_2_for_biggest_overlap - d_surface_pt_to_atom;
 		  // first is yes/no, second is H-is-on-ligand?
 		  // allow waters to H-bond (without being an H)
-		  std::pair<bool, bool> might_be_h_bond_flag =
-		     is_h_bond_H_and_acceptor(at, atom_with_biggest_overlap, udd_h_bond_type_handle);
-		  const bool &is_h_bond = might_be_h_bond_flag.first;
+		  // std::pair<bool, bool> might_be_h_bond_flag =
+		  // is_h_bond_H_and_acceptor(at, atom_with_biggest_overlap, udd_h_bond_type_handle);
+		  h_bond_info_t hbi(at, atom_with_biggest_overlap, udd_h_bond_type_handle);
+		  const bool &is_h_bond_HA = hbi.is_h_bond_H_and_acceptor;
 
 		  // std::pair<std::string, std::string> c_type_col =
 		  // overlap_delta_to_contact_type(overlap_delta, is_h_bond);
@@ -1724,10 +1796,9 @@ coot::atom_overlaps_container_t::contacts_for_atom(int iat,
 		  // const std::string &col    = c_type_col.second;
 
 		  std::pair<std::string, std::string> c_type_col =
-		     overlap_delta_to_contact_type(overlap_delta, is_h_bond);
+		     overlap_delta_to_contact_type(overlap_delta, hbi, molecule_has_hydrogens);
 		  const std::string &c_type = c_type_col.first;
 		  const std::string &col    = c_type_col.second;
-		  
 
 		  clipper::Coord_orth pt_spike_inner = pt_at_surface;
 		  if (c_type == "clash") {
@@ -1948,6 +2019,110 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta, boo
    return std::pair<std::string, std::string> (type, colour);
 
 }
+
+// a h_bond_info_t contains information about donor-acceptor as well as H-acceptor
+//
+std::pair<std::string, std::string>
+coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta,
+							       const h_bond_info_t &hbi,
+							       bool molecule_has_hydrogens_flag) {
+
+// from the Word 1999 paper:
+// pale green for H-bonds
+// green (narrow gaps) or yellow (slight overlaps, < 0.2) for good contacts
+// blue for wider gaps > 0.25
+// orange and red for unfavourable (0.25 to 0.4)
+// hot pink for >= 0.4
+
+   // If the contact is a hydrogen-bond, then
+   //   it's either clash or green-pillow
+   // else
+   //   rainbow colours
+   // 
+   // Note: I am not sure that I like this for the case of H-bond donor and acceptor
+   // with no Hydrogen atoms in the model.
+
+   std::string type = "wide-contact";
+   std::string colour = "sky";
+
+   bool done = false;
+
+   if (hbi.is_h_bond_H_and_acceptor) {
+      done = true;
+      if (delta >= -0.15) { // not 0, so that we turn small overlaps to H-bond dots
+	 delta -= 0.8;
+	 if (delta > 0.4) {
+	    type = "clash";
+	    colour = "hotpink";
+	 } else {
+	    type = "H-bond";
+	    colour = "greentint";
+	 }
+      }
+   } else {
+      if (! molecule_has_hydrogens_flag) {
+	 if (hbi.is_h_bond_donor_and_acceptor) {
+	    done = true;
+	    delta -= 0.6;
+	    if (delta > 0.4) {
+	       type = "clash";
+	       colour = "hotpink";
+	    } else {
+	       type = "H-bond";
+	       colour = "greentint";
+	    }
+	 }
+      }
+   }
+	 
+   if (! done) {
+
+      // "not hydrogen bond" colouring
+
+      if (delta > -0.3) {
+	 type = "close-contact";
+	 colour = "royalblue";
+      }
+
+      if (delta > -0.2) {
+	 type = "close-contact";
+	 colour = "sea";
+      }
+
+      if (delta > -0.1) {
+	 type = "small-overlap";
+	 colour = "green";
+      }
+
+      if (delta > 0.10) {
+	 type = "small-overlap";
+	 colour = "yellow";
+      }
+
+      if (delta > 0.18) {
+	 type = "small-overlap";
+	 colour = "orange";
+      }
+
+      if (delta > 0.25) {
+	 type = "small-overlap";
+	 colour = "orangered";
+      }
+
+      if (delta > 0.3) {
+	 type = "big-overlap";
+	 colour = "red";
+      }
+
+      if (delta > 0.4) {         // Word: 0.4
+	 type = "clash";
+	 colour = "hotpink";
+      }
+   }
+   return std::pair<std::string, std::string> (type, colour);
+
+}
+
 
 void
 coot::atom_overlaps_container_t::add_residue_neighbour_index_to_neighbour_atoms() {
