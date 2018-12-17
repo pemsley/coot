@@ -16886,7 +16886,8 @@ checks the value of this checkbutton</property>
 				  <child>
 				    <widget class="GtkComboBox" id="refine_params_geman_mcclure_alpha_combobox">
 				      <property name="visible">True</property>
-				      <property name="items" translatable="yes">0.001
+				      <property name="items" translatable="yes">0.0
+0.001
 0.003
 0.01
 0.03
