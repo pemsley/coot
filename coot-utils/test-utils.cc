@@ -885,6 +885,33 @@ int test_helix_like(int argc, char **argv) {
 }
 
 
+#include "merge-atom-selections.hh"
+
+int
+test_merge_fragments(int argc, char **argv) {
+
+   if (argc == 2) {
+      std::string file_name = argv[1];
+      atom_selection_container_t asc = get_atom_selection(file_name, true, true);
+      if (asc.read_success) {
+         std::vector<std::string> ch_ids;
+         int imod = 1;
+         mmdb::Model *model_p = asc.mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               ch_ids.push_back(chain_p->GetChainID());
+            }
+         }
+         coot::merge_atom_selections(asc.mol);
+         asc.mol->WritePDBASCII("merged.pdb");
+      }
+   }
+   return 1;
+}
+
+
 int main(int argc, char **argv) {
 
    if (1)
@@ -931,7 +958,7 @@ int main(int argc, char **argv) {
 //    if (true)
 //       test_cp();
 
-   if (true)
+   if (false)
       test_soi(argc, argv);
 
    if (false)
@@ -948,6 +975,9 @@ int main(int argc, char **argv) {
 
    if (false)
       test_helix_like(argc, argv);
+
+   if (true)
+      test_merge_fragments(argc, argv);
 
    return 0;
 }

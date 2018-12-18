@@ -424,7 +424,7 @@ graphics_info_t::refinement_loop_threaded() {
       // std::cout << "refinement_loop_threaded(): done minimize() round" << std::endl;
    }
 
-   std::cout << "unlocking restraints_lock" << std::endl;
+   std::cout << "DEBUG:: refinement_loop_threaded() unlocking restraints_lock" << std::endl;
    graphics_info_t::restraints_lock = false; // unlock! - is this safe? (I think so, we had the lock)
 
    // when this function exits, the (detached) thread in which it's running ends
@@ -951,6 +951,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 		  }
 	       }
 
+	       moving_atoms_extra_restraints_representation.clear();
                continue_threaded_refinement_loop = true; // no longer set in refinement_loop_threaded()
 	       last_restraints = new
 		  coot::restraints_container_t(local_residues,

@@ -87,8 +87,8 @@ coot::helical_results_t
 coot::compare_to_helix(const std::vector<mmdb::Residue *> &helical_residues,
                        const std::vector<clipper::Coord_orth> &alpha_ref_positions) {
 
-   double sum_delta_lim = 3.0; // beyond this we don't have a helix (sum delta limit).
-                              // 2.5 is quite strict.
+   double sum_delta_lim = 3.5; // beyond this we don't have a helix (sum delta limit).
+                              // 2.5 is quite strict. 3.0 seems a bit strict too!
 
    helical_results_t r;
    std::vector<clipper::Coord_orth> match_set(20); // 5 x 4
@@ -126,6 +126,8 @@ coot::compare_to_helix(const std::vector<mmdb::Residue *> &helical_residues,
             double dd = clipper::Coord_orth(match_set[ii]-moved_pos).lengthsq();
             sum_delta += sqrt(dd);
          }
+         if (false) // useful debugging
+            std::cout << " helix_like: sum_delta: " << sum_delta << std::endl;
          if (sum_delta < sum_delta_lim) {
             r.is_alpha_helix_like = true;
          }

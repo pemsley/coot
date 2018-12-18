@@ -3426,7 +3426,6 @@ PyObject *add_target_position_restraint_for_intermediate_atom_py(PyObject *atom_
 	 double y = PyFloat_AsDouble(y_py);
 	 double z = PyFloat_AsDouble(z_py);
 	 clipper::Coord_orth pt(x,y,z);
-
 	 graphics_info_t g;
 	 g.add_target_position_restraint_for_intermediate_atom(p.second, pt); // refines after added
 

@@ -338,6 +338,7 @@ coot_bin_SOURCES = \
 	c-interface-test.cc      \
 	cc-interface.hh		 \
 	cc-interface-alignment.cc \
+	cc-interface-merge.cc    \
 	cc-interface-alignment.hh \
 	cc-interface-ncs.hh      \
 	cc-interface-molecular-representation.cc \

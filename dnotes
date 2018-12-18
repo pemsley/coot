@@ -8644,7 +8644,6 @@ Thu 27 Sep 2018 15:58:58 BST
     ligand validation meeting: what should we do with ligands from pandda - they will
     seem to be rubbish by conventional metrics.
 
-
 ----
 Sun 14 Oct 2018 17:10:02 BST
 
@@ -8673,4 +8672,18 @@ Sun 11 Nov 2018 16:32:37 GMT
    Kortemme T, Morozov AV, Baker D. An orientation-dependent hydrogen bonding potential improves
        prediction of specificity and structure for proteins and protein-protein complexes.
        J Mol Biol. 2003;326:1239–1259.
+
+---
+Sun 25 Nov 2018 12:26:00 BRST
+
+   porting pygtk to python3  PyGI+GTK PyGObject Introspection
+   https://wiki.gnome.org/action/show/Projects/PyGObject/IntrospectionPorting?action=show&redirect=PyGObject%2FIntrospectionPorting
+
+
+---
+Tue 11 Dec 2018 02:47:48 GMT
+
+   differential equation solver
+
+https://github.com/sheljohn/osd
 

@@ -2358,3 +2358,25 @@ molecule_class_info_t::move_atom(const std::string &atom_name_in, mmdb::Residue 
    }
    return done;
 }
+
+#include "coot-utils/merge-atom-selections.hh"
+
+// merge change/fragments of this molecule
+// return 1 if a merge was done;
+int
+molecule_class_info_t::merge_fragments() {
+
+   int status = 1;
+
+   make_backup();
+
+   coot::merge_atom_selections(atom_sel.mol); // doesn't return a value, should it?
+
+   have_unsaved_changes_flag = 1;
+   atom_sel.mol->FinishStructEdit();
+   atom_sel = make_asc(atom_sel.mol);
+   make_bonds_type_checked();
+
+   return status;
+
+}

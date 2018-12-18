@@ -651,6 +651,8 @@ graphics_info_t::reorienting_next_residue(bool dir) {
                }
             }
 
+	    set_old_rotation_centre(RotationCentre());
+
 	    if (smooth_scroll == 1) {
 
 	       coot::view_info_t view1(quat, rot_centre, zoom, "current");
@@ -664,21 +666,21 @@ graphics_info_t::reorienting_next_residue(bool dir) {
 	    } else {
 
 	       // "snap" the view
-	       old_rotation_centre_x = rotation_centre_x;
-	       old_rotation_centre_y = rotation_centre_y;
-	       old_rotation_centre_z = rotation_centre_z;
 	       rotation_centre_x = target_pos.x();
 	       rotation_centre_y = target_pos.y();
 	       rotation_centre_z = target_pos.z();
 	       // bleugh again
 	       for(int i=0; i<4; i++) quat[i] = vqf[i];
-	       update_things_on_move_and_redraw(); // (symmetry, environment, map) and draw
+
 	    }
 
 	    done_it = true;
 	    go_to_atom_chain_       = residue_next->GetChainID();
 	    go_to_atom_residue_     = residue_next->GetSeqNum();
 	    go_to_atom_inscode_     = residue_next->GetInsCode();
+
+	    try_centre_from_new_go_to_atom();
+	    update_things_on_move_and_redraw(); // (symmetry, environment, rama, map) and draw it
 
 	    if (go_to_atom_window) {
 	       // what is next_atom here? Hmm
@@ -694,7 +696,7 @@ graphics_info_t::reorienting_next_residue(bool dir) {
       else
 	 intelligent_previous_atom_centring(go_to_atom_window);
    }
-   graphics_draw();
+   // graphics_draw();
 }
 
 void
@@ -706,9 +708,8 @@ graphics_info_t::setRotationCentre(int index, int imol) {
    float y = atom->y; 
    float z = atom->z;
 
-   old_rotation_centre_x = rotation_centre_x; 
-   old_rotation_centre_y = rotation_centre_y; 
-   old_rotation_centre_z = rotation_centre_z;
+   set_old_rotation_centre(RotationCentre());
+
    short int do_zoom_flag = 0;
 
    if (smooth_scroll == 1)
@@ -929,9 +930,10 @@ graphics_info_t::setRotationCentre(const symm_atom_info_t &symm_atom_info) {
 void
 graphics_info_t::setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom) { 
 
-   std::cout << "setRotationCentre by symmetry hybrid atom " 
-	     << hybrid_atom.atom << " at " 
-	     << hybrid_atom.pos << std::endl;
+   if (false)
+      std::cout << "INFO:: setRotationCentre by symmetry hybrid atom " 
+		<< hybrid_atom.atom << " at " 
+		<< hybrid_atom.pos << std::endl;
    
    rotation_centre_x = hybrid_atom.pos.x();
    rotation_centre_y = hybrid_atom.pos.y();
@@ -1175,16 +1177,20 @@ graphics_info_t::undisplay_all_model_molecules_except(const std::vector<int> &ke
 }
 
 
+void
+graphics_info_t::setRotationCentreSimple(const coot::Cartesian &c) {
 
+   rotation_centre_x = c.get_x();
+   rotation_centre_y = c.get_y();
+   rotation_centre_z = c.get_z();
+
+}
    
 void
 graphics_info_t::setRotationCentre(coot::Cartesian centre) {
 
-   old_rotation_centre_x = rotation_centre_x; 
-   old_rotation_centre_y = rotation_centre_y; 
-   old_rotation_centre_z = rotation_centre_z; 
+   set_old_rotation_centre(RotationCentre());
 
-   // std::cout << "in setRotationCentre Cartesian" << graphics_info_t::smooth_scroll << std::endl;
    if (graphics_info_t::smooth_scroll == 1)
       smooth_scroll_maybe(centre.x(), centre.y(), centre.z(),
 			  0, 100.0); // don't zoom and dummy value
@@ -1199,9 +1205,7 @@ void
 graphics_info_t::setRotationCentreAndZoom(coot::Cartesian centre,
 					  float target_zoom) {
 
-   old_rotation_centre_x = rotation_centre_x; 
-   old_rotation_centre_y = rotation_centre_y; 
-   old_rotation_centre_z = rotation_centre_z; 
+   set_old_rotation_centre(RotationCentre());
 
    if (graphics_info_t::smooth_scroll == 1)
       smooth_scroll_maybe(centre.x(), centre.y(), centre.z(),
@@ -2063,11 +2067,11 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 	 return;
       }
 
-       unsigned int unlocked = false;
-         while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
-            std::this_thread::sleep_for(std::chrono::microseconds(10));
-            unlocked = 0;
-       }
+      unsigned int unlocked = false;
+      while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+	 std::this_thread::sleep_for(std::chrono::microseconds(10));
+	 unlocked = 0;
+      }
 
       if (against_a_dark_background) {
 	 // now we want to draw out our bonds in white, 
@@ -2612,7 +2616,7 @@ graphics_info_t::printString_internal(const std::string &s,
       // user-settable parameter/function:
       // set_use_smooth_stroke_characters()
       //
-      if (0) { 
+      if (0) {
 	 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	 glEnable(GL_BLEND);
 	 glEnable(GL_LINE_SMOOTH);

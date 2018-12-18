@@ -258,9 +258,10 @@ std::pair<double, double> graphics_info_t::mouse_clicked_begin = std::pair<doubl
 float  graphics_info_t::rotation_centre_x = 0.0;
 float  graphics_info_t::rotation_centre_y = 0.0;
 float  graphics_info_t::rotation_centre_z = 0.0;
-float  graphics_info_t::old_rotation_centre_x = 0.0;
-float  graphics_info_t::old_rotation_centre_y = 0.0;
-float  graphics_info_t::old_rotation_centre_z = 0.0;
+// float  graphics_info_t::old_rotation_centre_x = 0.0;
+// float  graphics_info_t::old_rotation_centre_y = 0.0;
+// float  graphics_info_t::old_rotation_centre_z = 0.0;
+coot::Cartesian graphics_info_t::old_rotation_centre(0,0,0);
 float  graphics_info_t::zoom                = 100;
 int    graphics_info_t::smooth_scroll       =   1; // flag: default is ..
 int    graphics_info_t::smooth_scroll_steps =  40;
@@ -1382,7 +1383,7 @@ float graphics_info_t::mogul_max_badness = 5.0;   // The z value colour at which
 bool graphics_info_t::linked_residue_fit_and_refine_state = true;
 
 //
-bool graphics_info_t::allow_duplseqnum = false;
+bool graphics_info_t::allow_duplseqnum = true; // 20181214-PE - I presume that this is safe now?
 
 std::map<std::string, std::string> graphics_info_t::extensions_registry;
 
