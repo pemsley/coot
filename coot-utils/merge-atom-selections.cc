@@ -2,6 +2,7 @@
 #include <string>
 #include <set>
 #include <queue>
+#include <algorithm>
 
 #include <clipper/core/coords.h>
 
