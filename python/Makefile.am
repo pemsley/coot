@@ -39,6 +39,6 @@ dist_pkgpython_PYTHON = \
    dictionary_generators.py cho_restraints_from_models.py interactive_nudge_residues.py \
    acedrg_link.py coot_toolbuttons.py rcrane_loader.py \
    pdbe_validation_data.py  ligand_validation_sliders.py \
-   chemical_feature_clusters.py res_spec_utils.py \
+   chemical_feature_clusters.py res_spec_utils.py coot_output_to_window.py \
    $(TEXI_FILE)
 
