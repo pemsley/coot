@@ -3413,7 +3413,8 @@ coot::restraints_container_t::make_rama_triples(int SelResHnd,
 
    for (int i=0; i<(nSelResidues-2); i++) {
       if (SelResidue[i] && SelResidue[i+1] && SelResidue[i+2]) {
-	 coot::rama_triple_t t(SelResidue[i], SelResidue[i+1], SelResidue[i+2]);
+	 std::string link_type = "TRANS";
+	 rama_triple_t t(SelResidue[i], SelResidue[i+1], SelResidue[i+2], link_type);
 	 v.push_back(t);
       }
    }
@@ -5971,7 +5972,8 @@ coot::restraints_container_t::add_rama(std::string link_type,
    // (1st C) (2nd N) (2nd CA) (2nd C) (3rd N)
 
    
-   // std::cout << "DEBUG:: --------- :: Adding RAMA phi_psi_restraints_type" << std::endl;
+   //std::cout << "DEBUG:: --------- :: Adding RAMA phi_psi_restraints_type for " << this_res
+   //     << std::endl;
    
    int n_rama = 0;
       
@@ -6049,20 +6051,25 @@ coot::restraints_container_t::add_rama(std::string link_type,
       if ( (atom_indices[0] != -1) && (atom_indices[1] != -1) && (atom_indices[2] != -1) && 
 	   (atom_indices[3] != -1) && (atom_indices[4] != -1)) { 
 
-// 	 std::cout << "in add_rama() Adding RAMACHANDRAN_RESTRAINT\n       "
-// 		   << coot::atom_spec_t(atom[atom_indices[0]]) << " " 
-// 		   << coot::atom_spec_t(atom[atom_indices[1]]) << " " 
-// 		   << coot::atom_spec_t(atom[atom_indices[2]]) << " " 
-// 		   << coot::atom_spec_t(atom[atom_indices[3]]) << " " 
-// 		   << coot::atom_spec_t(atom[atom_indices[4]]) << " fixed: "
-// 		   << fixed_flag[0] << " " << fixed_flag[1] << " " 
-// 		   << fixed_flag[2] << " " << fixed_flag[3] << " " 
-// 		   << fixed_flag[4]
-// 		   << std::endl;
-
 
 	 std::string zort = zo_rama.get_residue_type(this_res->GetResName(),
 						     post_res->GetResName());
+
+	 if (true)
+	    std::cout << "in add_rama() Adding RAMACHANDRAN_RESTRAINT "
+		      << "type " << std::setw(6) << zort << " for " << residue_spec_t(this_res)
+		      << " " << this_res->GetResName() << " "
+// 		      << coot::atom_spec_t(atom[atom_indices[0]]) << " "
+// 		      << coot::atom_spec_t(atom[atom_indices[1]]) << " "
+// 		      << coot::atom_spec_t(atom[atom_indices[2]]) << " "
+// 		      << coot::atom_spec_t(atom[atom_indices[3]]) << " "
+// 		      << coot::atom_spec_t(atom[atom_indices[4]])
+		      << "fixed: "
+		      << fixed_flag[0] << " " << fixed_flag[1] << " "
+		      << fixed_flag[2] << " " << fixed_flag[3] << " "
+		      << fixed_flag[4]
+		      << std::endl;
+
 	 add(RAMACHANDRAN_RESTRAINT,
 	     zort,
 	     atom_indices[0], atom_indices[1], atom_indices[2],
