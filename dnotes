@@ -8575,3 +8575,13 @@ Tue 11 Dec 2018 02:47:48 GMT
 
 https://github.com/sheljohn/osd
 
+---
+Tue 18 Dec 2018 03:42:49 GMT
+
+   svg problem maybe compile gtk-pixbuf2 with --enable-relocations
+
+   https://github.com/Alexpux/MINGW-packages/issues/818
+
+   This is most probably caused by wrong /usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders.cache file. Try:
+   gdk-pixbuf-query-loaders > $prfx/gdk-pixbuf-2.0/2.10.0/loaders.cache
+   to regenerate it.
