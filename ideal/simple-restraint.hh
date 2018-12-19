@@ -74,22 +74,27 @@ namespace coot {
       mmdb::Residue *r_1; 
       mmdb::Residue *r_2; 
       mmdb::Residue *r_3;
+      std::string link_type;
       bool fixed_1; 
       bool fixed_2; 
       bool fixed_3; 
-      rama_triple_t(mmdb::Residue *r1, mmdb::Residue *r2, mmdb::Residue *r3) {
+      rama_triple_t(mmdb::Residue *r1, mmdb::Residue *r2, mmdb::Residue *r3,
+		    const std::string &link_type_in) {
 	 r_1 = r1;
 	 r_2 = r2;
 	 r_3 = r3;
+	 link_type = link_type_in;
 	 fixed_1 = 0;
 	 fixed_2 = 0;
 	 fixed_3 = 0;
       }
       rama_triple_t(mmdb::Residue *r1, mmdb::Residue *r2, mmdb::Residue *r3,
+		    const std::string &link_type_in,
 		    bool fixed_1_in, bool fixed_2_in, bool fixed_3_in) {
 	 r_1 = r1;
 	 r_2 = r2;
 	 r_3 = r3;
+	 link_type = link_type_in;
 	 fixed_1 = fixed_1_in;
 	 fixed_2 = fixed_2_in;
 	 fixed_3 = fixed_3_in;

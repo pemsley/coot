@@ -8585,3 +8585,9 @@ Tue 18 Dec 2018 03:42:49 GMT
    This is most probably caused by wrong /usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders.cache file. Try:
    gdk-pixbuf-query-loaders > $prfx/gdk-pixbuf-2.0/2.10.0/loaders.cache
    to regenerate it.
+
+----
+Sun 16 Dec 2018 14:48:21 GMT
+
+   set_thread *is* run just once at the start of ctpl.h.
+
