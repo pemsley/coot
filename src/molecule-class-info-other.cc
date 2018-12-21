@@ -435,7 +435,7 @@ void
 molecule_class_info_t::bonds_sec_struct_representation() { 
 
    // 
-   Bond_lines_container bonds;
+   Bond_lines_container bonds(graphics_info_t::Geom_p(), draw_hydrogens_flag);
    bonds.do_colour_sec_struct_bonds(atom_sel, imol_no, 0.01, 1.9);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::BONDS_SEC_STRUCT_COLOUR;
