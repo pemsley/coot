@@ -738,8 +738,8 @@ public:
 
    // Used by make_colour_by_chain_bonds() - and others in the future?
    //
-   Bond_lines_container(coot::protein_geometry *protein_geom) {
-      do_bonds_to_hydrogens = 1;  // added 20070629
+   Bond_lines_container(coot::protein_geometry *protein_geom, bool do_bonds_to_hydrogens_in=true) {
+      do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
       b_factor_scale = 1.0;
       have_dictionary = false;
       geom = protein_geom;

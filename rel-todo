@@ -23,6 +23,8 @@
 
    o Draw hydrogens is not respected in colour-by-chain mode.
 
+* I wonder what I meant. It was respected, but colour-by-secondary-structure was not. Fixed.
+
    o Add a test that fle_view with_png output makes a sensible file.
 
    o in refinement add a UDData to the molecule named "FixedDuringRefinement" - set this on the
