@@ -5170,7 +5170,7 @@ coot::restraints_container_t::add_rama(std::string link_type,
 	 std::string zort = zo_rama.get_residue_type(this_res->GetResName(),
 						     post_res->GetResName());
 
-	 if (true)
+	 if (false)
 	    std::cout << "in add_rama() Adding RAMACHANDRAN_RESTRAINT "
 		      << "type " << std::setw(6) << zort << " for " << residue_spec_t(this_res)
 		      << " " << this_res->GetResName() << " "
