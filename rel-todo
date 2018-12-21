@@ -1,13 +1,22 @@
 
    For Release 0.8.9.2
 
+   o add-terminal-residue should do not make intermediate atoms and not do a rigid body fit.
+     Use --no-startup-scripts to help test this.
+
+* The second of those was already so, immediate addition mode changed.
+
    o Carmen question: ?
 
-    if you are on the keyboard and doing rotamer, can you accept it with Enter?
-    No.
-    Fix it then
+       If you are on the keyboard and doing rotamer, can you accept it with Enter?
+       No.
+       Fix it then.
 
-    Adding solvent molecules - add it to the right molecule - make the spacing bigger to make the widget bigger.
+* Done.
+
+       Adding solvent molecules - add it to the right molecule - make the spacing bigger to make the widget bigger.
+
+* Done.
 
    o OXT in residue type LYS fle_view_with_rditk() failure.
      New monomer library!?
