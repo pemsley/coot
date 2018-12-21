@@ -3189,6 +3189,13 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	 }
 	 graphics_info_t::accept_reject_dialog = 0;
       }
+
+      if (graphics_info_t::rotamer_dialog) {
+	 accept_regularizement();
+	 gtk_widget_destroy(graphics_info_t::rotamer_dialog);
+	 set_graphics_rotamer_dialog(NULL);
+      }
+
       handled = TRUE;
       break;
 
