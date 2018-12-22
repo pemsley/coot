@@ -3477,12 +3477,28 @@ merge_molecules_by_vector(const std::vector<int> &add_molecules, int imol) {
    if (graphics_info_t::use_graphics_interface_flag) {
       graphics_info_t g;
       g.update_go_to_atom_window_on_changed_mol(imol);
-   } 
+   }
    return merged_info;
 }
 
 
+#ifdef USE_GUILE
+void set_merge_molecules_ligand_spec_scm(SCM ligand_spec_scm) {
 
+   coot::residue_spec_t spec = residue_spec_from_scm(ligand_spec_scm);
+   graphics_info_t g;
+   g.set_merge_molecules_ligand_spec(spec);
+}
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+void set_merge_molecules_ligand_spec_py(PyObject *ligand_spec_py) {
+
+   coot::residue_spec_t spec = residue_spec_from_py(ligand_spec_py);
+   graphics_info_t g;
+   g.set_merge_molecules_ligand_spec(spec);
+}
+#endif // USE_PYTHON
 
 
 

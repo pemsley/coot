@@ -5970,3 +5970,10 @@ graphics_info_t::is_within_display_radius(const coot::Cartesian &p) {
    return (delta.amplitude_squared() <= d_sqrd);
 
 }
+
+
+void
+graphics_info_t::set_merge_molecules_ligand_spec(const coot::residue_spec_t &spec_in) {
+
+   merge_molecules_ligand_spec = spec_in;
+}

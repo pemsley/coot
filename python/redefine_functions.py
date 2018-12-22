@@ -41,6 +41,7 @@ space_group            = space_group_py
 symmetry_operators     = symmetry_operators_py
 symmetry_operators_to_xHM = symmetry_operators_to_xHM_py
 merge_molecules        = merge_molecules_py
+set_merge_molecules_ligand_spec = set_merge_molecules_ligand_spec_py
 alignment_results      = alignment_results_py
 nearest_residue_by_sequence = nearest_residue_by_sequence_py
 change_chain_id_with_result        = change_chain_id_with_result_py

@@ -3524,6 +3524,8 @@ public:
    // ----- merge molecules ------
    static int merge_molecules_master_molecule;
    static std::vector<int> *merge_molecules_merging_molecules;
+   static coot::residue_spec_t merge_molecules_ligand_spec; // JED feature
+   void set_merge_molecules_ligand_spec(const coot::residue_spec_t &spec_in);
 
    // ------ change chain ids:
    static int change_chain_id_molecule;
