@@ -5487,7 +5487,7 @@ molecule_class_info_t::merge_molecules_just_one_residue_at_given_spec(atom_selec
 		   << "in molecule " << target_spec << std::endl;
       }
    } else {
-      if (true) // debug
+      if (false) // debug
 	 std::cout << "merge_molecules_just_one_residue_at_given_spec() null residue spec" << std::endl;
    }
 
@@ -5498,7 +5498,7 @@ molecule_class_info_t::merge_molecules_just_one_residue_at_given_spec(atom_selec
 	 update_symmetry();
    }
 
-   if (true) // debug
+   if (false) // debug
       std::cout << "merge_molecules_just_one_residue_at_given_spec() returns " << status << std::endl;
 
    return status;
