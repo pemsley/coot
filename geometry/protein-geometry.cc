@@ -1621,10 +1621,17 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
    if (local_group_1 == "SACCHARIDE")   local_group_1 = "pyranose";    // CCD annotation for FUC
    if (local_group_2 == "SACCHARIDE")   local_group_2 = "pyranose";
 
-   if (debug)
-      std::cout << "     sigh... check match: dict \""
-		<< chem_link_group_comp_1 << "\" vs model \"" << local_group_1 << "\" -and- dict \""
-		<< chem_link_group_comp_2 << "\" vs model \"" << local_group_2 << "\"\n";
+   if (debug) {
+      std::cout << "   ------ DEBUG:: in matches_comp_ids_and_groups() "
+		<< id << " chem_link_name " << chem_link_name << ": input comp_ids "
+		<< comp_id_1 << " and " << comp_id_2 << " vs ref link-comp_id-1 :"
+		<< chem_link_comp_id_1 << ": ref link-comp_id-2:"
+		<< chem_link_comp_id_2 << ":" << std::endl;
+      std::cout << "         for chem_link_comp_name " << chem_link_name << ": input groups "
+		<< local_group_1 << " and " << local_group_2 << " vs ref link-group-1 :"
+		<< chem_link_group_comp_1 << ": ref link-group-2 :"
+		<< chem_link_group_comp_2 << ":" << std::endl;
+   }
 
    if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == local_group_1)) &&
        ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == local_group_2))) {

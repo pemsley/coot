@@ -3014,6 +3014,11 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 	    cl.matches_comp_ids_and_groups(comp_id_1, group_1, comp_id_2, group_2);
 
 	 if (debug)
+	    std::cout << "... matching_chem_link: found matching link "
+		      << comp_id_1 << " " << comp_id_2 << " " 
+		      << cl << std::endl;
+
+	 if (debug)
 	    std::cout << "   checking chem link: " << cl << " -> "
 		      << match_res.first << " " << match_res.second << std::endl;
 
