@@ -2377,6 +2377,10 @@ public:        //                      public
    std::pair<int, std::vector<merge_molecule_results_info_t> > merge_molecules(const std::vector<atom_selection_container_t> &add_molecules);
    std::pair<bool, std::vector<std::string> > try_add_by_consolidation(mmdb::Manager *adding_mol);
    bool merge_molecules_just_one_residue_homogeneous(atom_selection_container_t molecule_to_add);
+   // try to add the ligand at the given spec, if not (say the spec was not filled or there
+   // was already a ligand at the given spec) then return false.
+   bool merge_molecules_just_one_residue_at_given_spec(atom_selection_container_t molecule_to_add,
+						       coot::residue_spec_t target_spec);
    std::pair<bool, coot::residue_spec_t> merge_ligand_to_near_chain(mmdb::Manager *mol); // return success status and spec if new residue if possible.
 
    // merge change/fragments of this molecule

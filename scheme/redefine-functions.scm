@@ -39,6 +39,7 @@
 (define regularize-residues regularize-residues-scm)
 (define refine-zone-with-score refine-zone-with-score-scm)
 (define regularize-zone-with-score regularize-zone-with-score-scm)
+(define set-merge-molecules-ligand-spec set-merge-molecules-ligand-spec-scm)
 (define map-peaks map-peaks-scm)
 (define map-peaks-near-point map-peaks-near-point-scm)
 (define add-dipole add-dipole-scm)

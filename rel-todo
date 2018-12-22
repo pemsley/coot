@@ -1,6 +1,15 @@
 
    For Release 0.8.9.2
 
+   o When merging a ligand - allow the ligand to be in user-specified chain.
+     Maybe a menu item "Merge this ligand" which uses new function
+     merge_ligand(imol, current_residue_spec, into_mol, new_residue_spec)
+
+   o Make a trivial ligand in the ligand builder, run acedrg. make an incorrect ligand
+     (valence error) and run acedrg - the previous ligand gets imported.
+
+     -> Apply button should grey out if there is no SMILES string (perhaps)
+
    o add-terminal-residue should do not make intermediate atoms and not do a rigid body fit.
      Use --no-startup-scripts to help test this.
 
@@ -44,16 +53,7 @@
 
    o what has happened to RCrane?
 
-   o When merging a ligand - allow the ligand to be in user-specified chain.
-     Maybe a menu item "Merge this ligand" which uses new function 
-     merge_ligand(imol, current_residue_spec, into_mol, new_residue_spec)
-
    o Randy: origin removed patterson: what's next to fix?
-
-   o Make a trivial ligand in the ligand builder, run acedrg. make an incorrect ligand
-     (valence error) and run acedrg - the previous ligand gets imported.
-
-     -> Apply button should grey out if there is no SMILES string (perhaps)
 
    o I don't like the double call to make_bonds() (it's in CA mode at least). Get rid of it.
 
