@@ -1460,17 +1460,6 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 					     const std::string &group_2) const {
 
    bool debug = false;
-   if (debug) { 
-      std::cout << "   ------ DEBUG:: in matches_comp_ids_and_groups() "
-		<< id << " chem_link_name " << chem_link_name << ": input comp_ids "
-		<< comp_id_1 << " and " << comp_id_2 << " vs ref link-comp_id-1 :"
-		<< chem_link_comp_id_1 << ": ref link-comp_id-2:"
-		<< chem_link_comp_id_2 << ":" << std::endl; 
-      std::cout << "         for chem_link_comp_name " << chem_link_name << ": input groups "
-		<< group_1 << " and " << group_2 << " vs ref link-group-1 :"
-		<< chem_link_group_comp_1 << ": ref link-group-2 :"
-		<< chem_link_group_comp_2 << ":" << std::endl;
-   }
 
    bool match = false; // initially
    bool order_switch = false;
@@ -1483,6 +1472,8 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
    // 201201013 (Friday) allow M-peptides to match too.
    if (local_group_1 == "L-peptide")  local_group_1 = "peptide";
    if (local_group_2 == "L-peptide")  local_group_2 = "peptide";
+   if (local_group_1 == "P-peptide")  local_group_1 = "peptide";
+   if (local_group_2 == "P-peptide")  local_group_2 = "peptide";
    if (local_group_1 == "M-peptide")  local_group_1 = "peptide";
    if (local_group_2 == "M-peptide")  local_group_2 = "peptide";
    if (local_group_1 == "D-pyranose") local_group_1 = "pyranose";
@@ -1492,6 +1483,18 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
    if (local_group_2 == "D-SACCHARIDE") local_group_2 = "pyranose";
    if (local_group_2 == "SACCHARIDE") local_group_2 = "pyranose";
    
+   if (debug) {
+      std::cout << "   ------ DEBUG:: in matches_comp_ids_and_groups() "
+		<< id << " chem_link_name " << chem_link_name << ": input comp_ids "
+		<< comp_id_1 << " and " << comp_id_2 << " vs ref link-comp_id-1 :"
+		<< chem_link_comp_id_1 << ": ref link-comp_id-2:"
+		<< chem_link_comp_id_2 << ":" << std::endl;
+      std::cout << "         for chem_link_comp_name " << chem_link_name << ": input groups "
+		<< local_group_1 << " and " << local_group_2 << " vs ref link-group-1 :"
+		<< chem_link_group_comp_1 << ": ref link-group-2 :"
+		<< chem_link_group_comp_2 << ":" << std::endl;
+   }
+
    if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == local_group_1)) &&
        ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == local_group_2)))
       if (((chem_link_comp_id_1 == "") || (chem_link_comp_id_1 == comp_id_1)) &&

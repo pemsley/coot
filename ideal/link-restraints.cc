@@ -606,9 +606,14 @@ coot::restraints_container_t::make_link_restraints_from_res_vec(const coot::prot
 
    bonded_pair_container_t bonded_residue_pairs = bonded_residues_from_res_vec(geom);
 
-   if (debug)
+   if (debug) {
       std::cout << "   DEBUG:: in make_link_restraints_from_res_vec() found "
 		<< bonded_residue_pairs.size() << " bonded residues " << std::endl;
+      for (std::size_t i=0; i<bonded_residue_pairs.size(); i++) {
+	 const bonded_pair_t &bp = bonded_residue_pairs.bonded_residues[i];
+	 std::cout << "   " << i << " " << residue_spec_t(bp.res_1) << " " << residue_spec_t(bp.res_2) << std::endl;
+      }
+   }
 
    int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, do_trans_peptide_restraints, "Link");
 
@@ -650,7 +655,7 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
       mmdb::Residue *sel_res_1 = bonded_residue_pairs[ibonded_residue].res_1;
       mmdb::Residue *sel_res_2 = bonded_residue_pairs[ibonded_residue].res_2;
 
-      if (verbose_geometry_reporting == VERBOSE) { 
+      if (verbose_geometry_reporting == VERBOSE) {
 	 std::cout << " ------- looking for link :" << link_type
 		   << ": restraints etc. between residues " 
 		   << residue_spec_t(sel_res_1) << " " << sel_res_1->GetResName()
@@ -849,7 +854,7 @@ coot::restraints_container_t::find_link_type(mmdb::Residue *first,
 	 }
       }
    }
-   
+
    if (coot::util::is_nucleotide_by_dict(first, geom))
       link_type = "p"; // phosphodiester linkage
 
@@ -928,11 +933,11 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
       std::string group_1 = geom.get_group(first);
       std::string group_2 = geom.get_group(second);
       if (debug)
-	 std::cout << "====== DEBUG:: find_link_type_by_distance() from "
+	 std::cout << "====== DEBUG:: find_link_type_complicado() from "
 		   << first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetResName()
-		   << " <--> " 
+		   << " (group " << group_1 << ") <--> "
 		   << second->GetChainID() << " " << second->GetSeqNum() << " " << second->GetResName()
-		   << " " << std::endl;
+		   << " (group " << group_2 << ")" << std::endl;
       try {
 	 std::vector<std::pair<coot::chem_link, bool> > link_infos =
 	    geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
@@ -942,11 +947,11 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 	    std::cout << "   DEBUG:: found " << link_infos.size() << " link infos for residue compids/groups "
 		      << comp_id_1 << " " << group_1 << " and "
 		      << comp_id_2 << " " << group_2 << std::endl;
-	    std::cout << "   DEBUG:: find_link_type_by_distance:: first  " << coot::residue_spec_t(first)
+	    std::cout << "   DEBUG:: find_link_type_complicado:: first  " << coot::residue_spec_t(first)
 		      << std::endl;
-	    std::cout << "   DEBUG:: find_link_type_by_distance:: second " << coot::residue_spec_t(second)
+	    std::cout << "   DEBUG:: find_link_type_complicado:: second " << coot::residue_spec_t(second)
 		      << std::endl;
-	    std::cout << "   DEBUG:: find_link_type_by_distance: " << link_infos.size()
+	    std::cout << "   DEBUG:: find_link_type_complicado:: " << link_infos.size()
 		      << " possible links: (link_infos):\n";
 	    for (unsigned int il=0; il<link_infos.size(); il++)
 	       std::cout << "    find_link_type_complicado() link_info["
@@ -1033,9 +1038,9 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 		  // debug::
 		  if (debug)
 		     for (unsigned int il=0; il<link_infos_non_peptide.size(); il++)
-			std::cout << "   DEBUG::    find_link_type_by_distance() non-peptide link: "
+			std::cout << "   DEBUG::    find_link_type_complicado() non-peptide link: "
 				  << link_infos_non_peptide[il].first.Id() << std::endl;
-	       
+
 		  // 20100330 eh?  is something missing here?  What
 		  // shall we do with link_infos_non_peptide?  did I
 		  // mean that, now the peptide test has failed,
@@ -1140,12 +1145,12 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 		  }
 	       }
 	    }
-	 } 
+	 }
       }
       catch (const std::runtime_error &mess_in) {
 	 if (debug) { 
 	    // didn't find a chem_link for this pair, that's OK sometimes.
-	    std::cout << "CAUGHT exception in find_link_type_by_distance(): "
+	    std::cout << "CAUGHT exception in find_link_type_complicado(): "
 		      << mess_in.what() << std::endl;
 	    geom.print_chem_links();
 	 }
@@ -1158,7 +1163,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
    }
 
    if (debug)
-      std::cout << "   DEBUG:: find_link_type_by_distance() given "
+      std::cout << "   DEBUG:: find_link_type_complicado() given "
 		<< coot::residue_spec_t(first) << " and "
 		<< coot::residue_spec_t(second)
 		<< " find_link_type_by_distance returns link type :"

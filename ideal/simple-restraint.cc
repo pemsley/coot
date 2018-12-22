@@ -493,7 +493,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 
    // debug:
    bool debug = false;
-   if (debug) { 
+   if (debug) {
       for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
 	 mmdb::PAtom *res_atom_selection = NULL;
 	 int n_res_atoms;
@@ -2683,7 +2683,7 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 
    if (verbose_geometry_reporting == VERBOSE)
       debug = true;
-   
+
    if (debug) {
       std::cout << "debug:: bonded_residues_from_res_vec() residues_vec.size() "
 		<< residues_vec.size() << std::endl;
@@ -2707,7 +2707,7 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	 // Linking should be resolved by find_link_type_complicado(), not
 	 // here by distance between residues.
 
-	 std::pair<std::string, bool> l  = find_link_type_complicado(res_f, res_s, geom);
+	 std::pair<std::string, bool> l = find_link_type_complicado(res_f, res_s, geom);
 	 std::string link_type = l.first;
 	 if (!link_type.empty()) {
 
@@ -2733,9 +2733,26 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 				     link_type);
 	       bool previously_added_flag = bpc.try_add(p);
 	    }
+
+	    // if the link type is a straight-forward TRANS link of 2 residue next to each other
+	    // in residue numbers and serial numbers, then we don't need to find any other type
+	    // of link for this residue (so break out of the inner for-loop).
+	    bool was_straight_forward_trans_link = false;
+	    int resno_1 = res_f->GetSeqNum();
+	    int resno_2 = res_s->GetSeqNum();
+	    int ser_num_1 = res_f->index;
+	    int ser_num_2 = res_s->index;
+	    if (resno_2 == (resno_1 + 1))
+	       if (ser_num_2 == (ser_num_1 + 1))
+		  was_straight_forward_trans_link = true;
+	    if (was_straight_forward_trans_link)
+	       break;
+
 	 } else {
 	    if (debug)
-	       std::cout << "DEBUG:: blank link_type find_link_type_complicado() returns \""
+	       std::cout << "DEBUG:: for residues " << residue_spec_t(res_f) << " "
+			 << residue_spec_t(res_s)
+			 << " blank link_type find_link_type_complicado() returns \""
 			 << l.first << "\" " << l.second << std::endl;
 	 }
       }

@@ -2896,7 +2896,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 // 		<< std::endl;
 //       print_chem_links();
 //    }
-   
+
    // Is this link a TRANS peptide or a CIS?  Both have same group and
    // comp_ids.  Similarly, is is BETA-1-2 or BETA1-4 (etc).  We need
    // to decide later, don't just pick the first one that matches
@@ -2914,27 +2914,27 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 	    std::cout << "... matching_chem_link: found matching link "
 		      << comp_id_1 << " " << comp_id_2 << " " 
 		      << chem_link_vec[i_chem_link] << std::endl;
-	 
+
 	 // make sure that this link id is not a (currently) useless one.
 	 if (chem_link_vec[i_chem_link].Id() != "gap" &&
 	     chem_link_vec[i_chem_link].Id() != "symmetry") { 
-	    coot::chem_link clt = chem_link_vec[i_chem_link];
-	    if (!clt.is_peptide_link_p() || allow_peptide_link_flag) {
+	    chem_link cl = chem_link_vec[i_chem_link];
+	    if (!cl.is_peptide_link_p() || allow_peptide_link_flag) {
 	       switch_order_flag = match_res.second;
 	       found = 1;
-	       std::pair<coot::chem_link, bool> p(clt, switch_order_flag);
+	       std::pair<chem_link, bool> p(cl, switch_order_flag);
 	       matching_chem_links.push_back(p);
 
 	       // no! We want all of them - not just the first glycosidic bond that matches
 	       // i.e. don't return just BETA1-2 when we have a BETA1-4.
 	       // break; // we only want to find one chem link for this comp_id pair.
-	       
+
 	    } else {
 	       if (debug)
 		  std::cout << "reject link on peptide/allow-peptide test " << std::endl;
-	    } 
+	    }
 	 } else {
-	    if (debug) { 
+	    if (debug) {
 	       std::cout << "reject link \"" << chem_link_vec[i_chem_link].Id() << "\""
 			 << std::endl;
 	    } 
