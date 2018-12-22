@@ -539,6 +539,12 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
       }
    }
 
+   // rama restraints on?
+   if (do_rama_restraints) {
+      commands.push_back(state_command("set-refine-ramachandran-torsion-angles", 1, il));
+      commands.push_back(state_command("set-refine-ramachandran-restraints-weight", rama_restraints_weight, il));
+   }
+
    // last things to do:
 
    // did we find a map that was the scroll wheel map?

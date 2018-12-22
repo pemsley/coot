@@ -23,12 +23,10 @@
 
    o Draw hydrogens is not respected in colour-by-chain mode.
 
-* I wonder what I meant. It was respected, but colour-by-secondary-structure was not. Fixed.
+* I wonder what I meant. It was respected, but colour-by-secondary-structure was not. I had been looking at the
+  refinement build, which has (had?) different arguments. Fixed.
 
    o Add a test that fle_view with_png output makes a sensible file.
-
-   o in refinement add a UDData to the molecule named "FixedDuringRefinement" - set this on the
-     non-moving (flanking) residues.
 
    o compare the origins of a rebox and maps from the EMDB - look for nxstart etc differences
      use mrcfile for convenience.
