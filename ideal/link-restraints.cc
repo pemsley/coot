@@ -926,7 +926,8 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 			     // SSBONDs in the molecule before
 			     // assigning pyranose or disulphides etc.
 
-   bool debug = false;
+   bool debug = false; // TMI.
+
    std::string link_type = "";
    bool order_switch_flag = false;
    std::string comp_id_1 = first->GetResName();
@@ -986,9 +987,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 
 	       // ===================== is a peptide ========================================
 	       
-	       // std::pair<bool, bool> close_info = peptide_C_and_N_are_close_p(first, second);
-
-	       // use an enum for the first. No magic numbers
+	       // note to self: use an enum for the first, don't use magic numbers
 	       std::pair<int, bool> peptide_info = peptide_C_and_N_are_in_order_p(first, second);
 
 	       if (false)
@@ -1030,11 +1029,13 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 
 		     peptide_info = peptide_C_and_N_are_close_p(first, second);
 
-		     // std::cout << "   moving-to-fixed " << peptide_info.first << " "
-		     //           << peptide_info.second << std::endl;
-
+                     if (false) {
+		        std::cout << "   DEBUG:: find_link_type_complicado() unknown, so moving-to-fixed? for "
+				  << residue_spec_t(first) << " " << residue_spec_t(second) << " "
+                                  << peptide_info.first << " " << peptide_info.second
+                                  << std::endl;
+		     }
 		  }
-
 	       }
 
 	       if (peptide_info.first != IS_PEPTIDE) {
