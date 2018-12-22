@@ -5,6 +5,8 @@
      Maybe a menu item "Merge this ligand" which uses new function
      merge_ligand(imol, current_residue_spec, into_mol, new_residue_spec)
 
+* Done. Even added a test.
+
    o Make a trivial ligand in the ligand builder, run acedrg. make an incorrect ligand
      (valence error) and run acedrg - the previous ligand gets imported.
 
