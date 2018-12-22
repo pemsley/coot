@@ -1934,6 +1934,11 @@ coot::distortion_score_non_bonded_contact_lennard_jones(const coot::simple_restr
    int idx_1 = 3*(nbc_restraint.atom_index_1);
    int idx_2 = 3*(nbc_restraint.atom_index_2);
 
+   // I don't understand what is going wrong (jiggled-yanked and won't fix it now)
+   if (false)
+      std::cout << "debug atom indices " << nbc_restraint.atom_index_1 << " " << nbc_restraint.atom_index_2
+		<< std::endl;
+
    double dist_sq = 0.0;
    double delta = gsl_vector_get(v, idx_1) - gsl_vector_get(v, idx_2);
    dist_sq += delta * delta;
