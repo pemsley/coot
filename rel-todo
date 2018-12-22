@@ -12,6 +12,8 @@
 
      -> Apply button should grey out if there is no SMILES string (perhaps)
 
+* Done.
+
    o add-terminal-residue should do not make intermediate atoms and not do a rigid body fit.
      Use --no-startup-scripts to help test this.
 
@@ -60,6 +62,8 @@
    o I don't like the double call to make_bonds() (it's in CA mode at least). Get rid of it.
 
    o multiple maps - undefined refinement map - jiggle fit this molecule needs an dialog alert.
+
+* Done.
 
 ------
 
