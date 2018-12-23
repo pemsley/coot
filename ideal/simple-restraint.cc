@@ -6071,7 +6071,7 @@ coot::restraints_container_t::add_rama(std::string link_type,
 						     post_res->GetResName());
 
 	 if (true)
-	    std::cout << "in add_rama() Adding RAMACHANDRAN_RESTRAINT "
+	    std::cout << "INFO:: Adding Ramachandran restraint "
 		      << "type " << std::setw(6) << zort << " for " << residue_spec_t(this_res)
 		      << " " << this_res->GetResName() << " "
 // 		      << coot::atom_spec_t(atom[atom_indices[0]]) << " "
