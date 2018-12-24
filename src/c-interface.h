@@ -5262,7 +5262,6 @@ onto what is currently residue 21.  The mainchain numbering and atoms is not cha
 */
 int nudge_residue_sequence(int imol, char *chain_id, int res_no_range_start, int res_no_range_end, int nudge_by, short int nudge_residue_numbers_also);
 
-
 /*! \brief Do you want Coot to automatically run a refinement after
   every mutate and autofit?
 
