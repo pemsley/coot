@@ -4589,6 +4589,11 @@ graphics_info_t::tabulate_geometric_distortions(const coot::restraints_container
 	    std::string s = "geman-mcclure " + coot::util::float_to_string(gd.distortion_score);
 	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
 	       s += " " + rr.get_atom_spec(gd.atom_indices[iat]).format();
+	    s += " indices: ";
+	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
+	       s += " " + coot::util::int_to_string(gd.atom_indices[iat]);
+	    s += " target: ";
+	    s += coot::util::float_to_string(rest.target_value);
 	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
 	 }
       }
