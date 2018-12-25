@@ -1367,6 +1367,8 @@ lbg_info_t::handle_item_add(GdkEventButton *event) {
 void
 lbg_info_t::update_apply_button_sensitivity() {
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
    if (use_graphics_interface_flag) {
       try {
 	 RDKit::RWMol rdkm = rdkit_mol(mol);
@@ -1379,7 +1381,7 @@ lbg_info_t::update_apply_button_sensitivity() {
          gtk_widget_set_sensitive(GTK_WIDGET(lbg_apply_button), FALSE);
       }
    }
-
+#endif
 }
 
 void
