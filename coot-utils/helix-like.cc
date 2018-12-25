@@ -25,10 +25,6 @@ coot::alpha_helical_reference_positions() {
       ref_pos.push_back(clipper::Coord_orth(4.881,   6.777,   2.238));
       ref_pos.push_back(clipper::Coord_orth(6.063,   6.539,   3.181));
       ref_pos.push_back(clipper::Coord_orth(6.987,   7.362,   3.267));
-      ref_pos.push_back(clipper::Coord_orth(5.989,   5.409,   3.859));
-      ref_pos.push_back(clipper::Coord_orth(7.017,   4.983,   4.820));
-      ref_pos.push_back(clipper::Coord_orth(8.378,   4.895,   4.125));
-      ref_pos.push_back(clipper::Coord_orth(9.391,   5.393,   4.639));
       return ref_pos;
 }
 
@@ -37,11 +33,10 @@ coot::compare_to_helix(const std::vector<mmdb::Residue *> &helical_residues) {
 
    helical_results_t r;
    std::vector<clipper::Coord_orth> ref_pos = alpha_helical_reference_positions();
-   if (helical_residues.size() == 5) {
-      r = compare_to_helix(helical_residues, ref_pos);
-   }
-   return r;
 
+   if (helical_residues.size() == 4)
+      r = compare_to_helix(helical_residues, ref_pos);
+   return r;
 }
 
 void
@@ -58,22 +53,21 @@ coot::like_a_helix(mmdb::Manager *mol, int residue_selection_handle) {
    // ideal helix atom positions
    // N CA C O
 
-   if (nSelResidues > 4) {
+   if (nSelResidues > 3) {
 
       std::vector<clipper::Coord_orth> ref_pos = alpha_helical_reference_positions();
 
-      for (int istart=0; istart<(nSelResidues-5); istart++) {
+      for (int istart=0; istart<(nSelResidues-4); istart++) {
 
 	 std::vector<mmdb::Residue *> test_residues;
-	 if ((istart+5) < nSelResidues) {
-	    for (int i_5=istart; i_5<(istart+5); i_5++) {
+	 if ((istart+4) < nSelResidues) {
+	    for (int i_4=istart; i_4<(istart+4); i_4++) {
                // std::cout << "pushing back " << residue_spec_t(SelResidues[i_5]) << std::endl;
-	       test_residues.push_back(SelResidues[i_5]);
+	       test_residues.push_back(SelResidues[i_4]);
 	    }
 
-	    if (test_residues.size() == 5) {
+	    if (test_residues.size() == 4) {
 	       coot::helical_results_t helicals = compare_to_helix(test_residues, ref_pos);
-               std::cout << "Here with helicals.is_alpha_helix_like " << helicals.is_alpha_helix_like << std::endl;
 	    }
 	 }
       }
@@ -87,15 +81,18 @@ coot::helical_results_t
 coot::compare_to_helix(const std::vector<mmdb::Residue *> &helical_residues,
                        const std::vector<clipper::Coord_orth> &alpha_ref_positions) {
 
-   double sum_delta_lim = 3.5; // beyond this we don't have a helix (sum delta limit).
-                              // 2.5 is quite strict. 3.0 seems a bit strict too!
+   double sum_delta_lim = 2.4; // needs testing.
+
+                               // for 5 residue helix:
+                               // beyond this we don't have a helix (sum delta limit).
+                               // 2.5 is quite strict. 3.0 seems a bit strict too!
 
    helical_results_t r;
-   std::vector<clipper::Coord_orth> match_set(20); // 5 x 4
+   std::vector<clipper::Coord_orth> match_set(16); // 4 x 4
 
-   if (helical_residues.size() == 5) {
+   if (helical_residues.size() == 4) {
       int n_found = 0;
-      for (unsigned int i=0; i<5; i++) {
+      for (unsigned int i=0; i<4; i++) {
          mmdb::PPAtom residue_atoms = NULL;
          int n_residue_atoms;
          mmdb::Residue *residue_p = helical_residues[i];
@@ -118,10 +115,11 @@ coot::compare_to_helix(const std::vector<mmdb::Residue *> &helical_residues,
              }
          }
       }
-      if (n_found == 20) {
+
+      if (n_found == 16) {
          clipper::RTop_orth rtop(alpha_ref_positions, match_set);
          double sum_delta = 0.0;
-         for (unsigned int ii=0; ii<20; ii++) {
+         for (unsigned int ii=0; ii<16; ii++) {
             clipper::Coord_orth moved_pos = rtop * alpha_ref_positions[ii];
             double dd = clipper::Coord_orth(match_set[ii]-moved_pos).lengthsq();
             sum_delta += sqrt(dd);

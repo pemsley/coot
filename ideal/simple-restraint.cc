@@ -466,7 +466,7 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
       if (z < 0.0) {
 	 std::cout << "Unknown element :" << atom[i]->element << ": " << std::endl;
 	 z = 6.0; // as for carbon
-      } 
+      }
       atom_z_occ_weight[i] = weight * z * occupancy;
    }
    
@@ -2902,14 +2902,18 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
 
       // test that these residues are about helical before adding helical restraints
       std::vector<mmdb::Residue *> test_helical_residues;
-      // fill test_helical_residues with 5 residues in order.
-      for (unsigned int iir=0; iir<5; iir++) {
+      // fill test_helical_residues with 4 residues in order.
+      for (unsigned int iir=0; iir<4; iir++) {
          if ((i+iir) < sorted_residues.size()) {
              mmdb::Residue *residue_p = sorted_residues[i+iir];
              test_helical_residues.push_back(residue_p);
          }
       }
-      helical_results_t hr = compare_to_helix(test_helical_residues); // tests for 5 residues
+
+      // std::cout << "calling compare_to_helix() with test_helical_residues size "
+      // << test_helical_residues.size() << std::endl;
+
+      helical_results_t hr = compare_to_helix(test_helical_residues); // tests for 4 residues
       // std::cout << "DEBUG:: helix_result " << hr.is_alpha_helix_like << " " << residue_spec_t(sorted_residues[i]) << std::endl;
       if (hr.is_alpha_helix_like) {
          int index_1 = -1; // O
