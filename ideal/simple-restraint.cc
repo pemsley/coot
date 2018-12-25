@@ -485,7 +485,24 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
 	 std::cout << atom[i]->name << " " << atom[i]->residue->seqNum << " "
 		   << use_map_gradient_for_atom[i] << std::endl;
 
-} 
+}
+
+// uses fixed_atom_indices
+void
+coot::restraints_container_t::set_fixed_during_refinement_udd() {
+
+   int uddHnd = mol->RegisterUDInteger(mmdb::UDR_ATOM , "FixedDuringRefinement");
+   for (int i=0; i<n_atoms; i++) {
+      mmdb::Atom *at = atom[i];
+      // std::cout << "  setting fixed udd flag on atom " << atom_spec_t(at) << std::endl;
+      if (std::find(fixed_atom_indices.begin(), fixed_atom_indices.end(), i) == fixed_atom_indices.end())
+	 at->PutUDData(uddHnd, 0);
+      else
+	 at->PutUDData(uddHnd, 1);
+   }
+
+}
+
 
 void
 coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
@@ -682,6 +699,8 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 
    add_fixed_atoms_from_flanking_residues(bpc);
    add_fixed_atoms_from_non_bonded_neighbours();
+
+   set_fixed_during_refinement_udd(); // uses fixed_atom_indices
 
    if (debug) {
       std::cout << "DEBUG:: init_from_residue_vec() Selecting residues gives "
