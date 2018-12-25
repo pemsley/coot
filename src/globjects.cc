@@ -3968,13 +3968,13 @@ gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 
 		  // Only try to pick symmetry atoms if the symmetry atoms
 		  // are being displayed. 
-	 
+
 		  if (g.show_symmetry == 1) {
-	    
+
 		     std::cout << "Trying symmetry pick" << std::endl;
 		     coot::Symm_Atom_Pick_Info_t symm_atom_info = g.symmetry_atom_pick();
 		     if (symm_atom_info.success == GL_TRUE) {
-	    
+
 			std::cout << "Found Symmetry atom pick" << std::endl;
 
 			// info.setRotationCentre(symm_atom_info.Hyb_atom());
@@ -3984,7 +3984,6 @@ gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 									  symm_atom_info.atom_index,
 									  symtransshiftinfo));
 
-	       
 			// clear_symm_atom_info(symm_atom_info);
 
 			for (int ii=0; ii<g.n_molecules(); ii++) {
