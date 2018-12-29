@@ -81,7 +81,7 @@ coot::helical_results_t
 coot::compare_to_helix(const std::vector<mmdb::Residue *> &helical_residues,
                        const std::vector<clipper::Coord_orth> &alpha_ref_positions) {
 
-   double sum_delta_lim = 2.4; // needs testing.
+   double sum_delta_lim = 3.6; // needs testing.
 
                                // for 5 residue helix:
                                // beyond this we don't have a helix (sum delta limit).
@@ -129,6 +129,7 @@ coot::compare_to_helix(const std::vector<mmdb::Residue *> &helical_residues,
          if (sum_delta < sum_delta_lim) {
             r.is_alpha_helix_like = true;
          }
+	 r.sum_delta = sum_delta;
       }
    }
    return r;

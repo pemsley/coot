@@ -2903,19 +2903,48 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
       // test that these residues are about helical before adding helical restraints
       std::vector<mmdb::Residue *> test_helical_residues;
       // fill test_helical_residues with 4 residues in order.
+
+      // unfortunately(?) test_helical_residues vector is "disconneted"
+      // from the atom selection (below) for the restraints, so we do a
+      // similar test for the chain there also.
+      //
+      mmdb::Residue *residue_0 = sorted_residues[i];
       for (unsigned int iir=0; iir<4; iir++) {
          if ((i+iir) < sorted_residues.size()) {
-             mmdb::Residue *residue_p = sorted_residues[i+iir];
-             test_helical_residues.push_back(residue_p);
+	    mmdb::Residue *residue_p = sorted_residues[i+iir];
+	    // only add residues that are in the same chain as the first (0th) residue
+	    if (residue_0) {
+	       if (residue_p->GetChain() == residue_0->GetChain()) {
+		  test_helical_residues.push_back(residue_p);
+	       }
+	    }
          }
       }
 
       // std::cout << "calling compare_to_helix() with test_helical_residues size "
       // << test_helical_residues.size() << std::endl;
 
+      bool sane_residue_numbers = false;
+      if (test_helical_residues.size() == 4)
+	 if ((test_helical_residues[0]->GetSeqNum()+3) == test_helical_residues[3]->GetSeqNum())
+	    sane_residue_numbers = true;
+
+      // maybe we *do* want compare_to_helix() to be run on 5 residues?
+      // i -> i+4 is the convention for alpha helical H-bonds, after all.
+      //
+      if (test_helical_residues.size() == 5)
+	 if ((test_helical_residues[0]->GetSeqNum()+4) == test_helical_residues[4]->GetSeqNum())
+	    sane_residue_numbers = true;
+
       helical_results_t hr = compare_to_helix(test_helical_residues); // tests for 4 residues
-      // std::cout << "DEBUG:: helix_result " << hr.is_alpha_helix_like << " " << residue_spec_t(sorted_residues[i]) << std::endl;
-      if (hr.is_alpha_helix_like) {
+
+      if (false) // useful for debugging helical restraints
+	 std::cout << "DEBUG:: helix_result " << hr.is_alpha_helix_like << " "
+		   << hr.sum_delta << " "
+		   << residue_spec_t(sorted_residues[i]) << std::endl;
+
+      if (hr.is_alpha_helix_like && sane_residue_numbers) {
+
          int index_1 = -1; // O
          int index_2 = -1; // N (n+4)
          int index_3 = -1; // N (n+3)
@@ -2930,8 +2959,16 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
          int n_residue_atoms_2;
          int n_residue_atoms_3;
 	 bool do_i_plus_4_also = true;
-	 if ((i+4) > sorted_residues.size())
+	 bool do_i_plus_3 = true;
+	 if ((i+4) >= sorted_residues.size())
 	    do_i_plus_4_also = false;
+
+	 if (do_i_plus_4_also) {
+	    if (sorted_residues[i+4]->GetChain() != residue_0->GetChain())
+	       do_i_plus_4_also = false;
+	 }
+	 if (sorted_residues[i+3]->GetChain() != residue_0->GetChain())
+	    do_i_plus_3 = false;
          sorted_residues[i  ]->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
          sorted_residues[i+3]->GetAtomTable(residue_atoms_3, n_residue_atoms_3);
 	 if (do_i_plus_4_also) {
@@ -2943,12 +2980,14 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
                at_1 = residue_atoms_1[iat];
             }
          }
-         for (int iat=0; iat<n_residue_atoms_3; iat++) {
-            std::string atom_name_3 = residue_atoms_3[iat]->GetAtomName();
-            if (atom_name_3 == " N  ") {
+	 if (do_i_plus_3) {
+	    for (int iat=0; iat<n_residue_atoms_3; iat++) {
+	       std::string atom_name_3 = residue_atoms_3[iat]->GetAtomName();
+	       if (atom_name_3 == " N  ") {
                at_3 = residue_atoms_3[iat];
-            }
-         }
+	       }
+	    }
+	 }
 	 if (do_i_plus_4_also) {
 	    for (int iat=0; iat<n_residue_atoms_2; iat++) {
 	       std::string atom_name_2 = residue_atoms_2[iat]->GetAtomName();

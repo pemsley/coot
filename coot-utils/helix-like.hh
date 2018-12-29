@@ -14,10 +14,12 @@ namespace coot {
       bool is_alpha_helix_like;
       bool is_pi_helix_like;
       bool is_3_10_helix_like;
+      float sum_delta;
       helical_results_t() {
 	 is_alpha_helix_like = false;
 	 is_pi_helix_like    = false;
 	 is_3_10_helix_like  = false;
+	 sum_delta = 0;
       }
    };
 
