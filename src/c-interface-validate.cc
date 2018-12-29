@@ -1936,6 +1936,7 @@ SCM alignment_mismatches_scm(int imol) {
    std::vector<std::pair<coot::residue_spec_t,std::string> > mutations;
    std::vector<std::pair<coot::residue_spec_t,std::string> > insertions;
    std::vector<std::pair<coot::residue_spec_t,std::string> > deletions;
+   SCM list_of_alignments_as_text = SCM_EOL;
 
    if (is_valid_model_molecule(imol)) {
       std::pair<bool, std::vector<coot::chain_mutation_info_container_t> > ar = 
@@ -1956,44 +1957,62 @@ SCM alignment_mismatches_scm(int imol) {
 	    deletions.push_back(d);
 	 }
       }
-   }
 
-   if ((mutations.size() > 0) || (insertions.size() > 0) || (deletions.size() > 0)) {
-      SCM insertions_scm = SCM_EOL;
-      SCM deletions_scm = SCM_EOL;
-      SCM mutations_scm = SCM_EOL;
-      for (unsigned int i=0; i<mutations.size(); i++) {
-	 SCM rs_scm = residue_spec_to_scm(mutations[i].first);
-	 SCM str = scm_makfrom0str(mutations[i].second.c_str());
-	 SCM c = SCM_EOL;
-	 c = scm_cons(str, c);
-	 c = scm_cons(str, rs_scm);
-	 mutations_scm = scm_cons(c, mutations_scm);
+      if ((mutations.size() > 0) || (insertions.size() > 0) || (deletions.size() > 0)) {
+	 SCM insertions_scm = SCM_EOL;
+	 SCM deletions_scm = SCM_EOL;
+	 SCM mutations_scm = SCM_EOL;
+	 for (unsigned int i=0; i<mutations.size(); i++) {
+	    SCM rs_scm = residue_spec_to_scm(mutations[i].first);
+	    SCM str = scm_makfrom0str(mutations[i].second.c_str());
+	    SCM c = SCM_EOL;
+	    c = scm_cons(str, c);
+	    c = scm_cons(str, rs_scm);
+	    mutations_scm = scm_cons(c, mutations_scm);
+	 }
+	 for (unsigned int i=0; i<insertions.size(); i++) {
+	    SCM rs_scm = residue_spec_to_scm(insertions[i].first);
+	    SCM str = scm_makfrom0str(insertions[i].second.c_str());
+	    SCM c = SCM_EOL;
+	    c = scm_cons(str, c);
+	    c = scm_cons(str, rs_scm);
+	    insertions_scm = scm_cons(c, insertions_scm);
+	 }
+	 for (unsigned int i=0; i<deletions.size(); i++) {
+	    SCM rs_scm = residue_spec_to_scm(deletions[i].first);
+	    SCM str = scm_makfrom0str(deletions[i].second.c_str());
+	    SCM c = SCM_EOL;
+	    c = scm_cons(str, c);
+	    c = scm_cons(str, rs_scm);
+	    deletions_scm = scm_cons(c, deletions_scm);
+	 }
+	 r = SCM_EOL;
+	 // These are reversed so that the residue numbers come out in
+	 // numerical order (not backwards) and the returned list is
+	 // (list mutations deletions insertions).
+	 r = scm_cons(scm_reverse(insertions_scm), r);
+	 r = scm_cons(scm_reverse(deletions_scm),  r);
+	 r = scm_cons(scm_reverse(mutations_scm),  r);
+
+	 for (std::size_t i=0; i<ar.second.size(); i++) {
+
+	    // and the dialog text
+
+	    const coot::chain_mutation_info_container_t &mic = ar.second[i];
+
+	    std::cout << ":::::::::::::: Here with alignment_string: " << mic.alignment_string
+		      << std::endl;
+
+	    SCM alignment_as_text_scm = scm_makfrom0str(mic.alignment_string.c_str());
+
+	    list_of_alignments_as_text = scm_cons(alignment_as_text_scm, list_of_alignments_as_text);
+	 }
+
+
+	 // Put list_of_alignments_as_text at the end of r
+	 r = scm_reverse(scm_cons(list_of_alignments_as_text, scm_reverse(r)));
       }
-      for (unsigned int i=0; i<insertions.size(); i++) {
-	 SCM rs_scm = residue_spec_to_scm(insertions[i].first);
-	 SCM str = scm_makfrom0str(insertions[i].second.c_str());
-	 SCM c = SCM_EOL;
-	 c = scm_cons(str, c);
-	 c = scm_cons(str, rs_scm);
-	 insertions_scm = scm_cons(c, insertions_scm);
-      }
-      for (unsigned int i=0; i<deletions.size(); i++) {
-	 SCM rs_scm = residue_spec_to_scm(deletions[i].first);
-	 SCM str = scm_makfrom0str(deletions[i].second.c_str());
-	 SCM c = SCM_EOL;
-	 c = scm_cons(str, c);
-	 c = scm_cons(str, rs_scm);
-	 deletions_scm = scm_cons(c, deletions_scm);
-      }
-      r = SCM_EOL;
-      // These are reversed so that the residue numbers come out in
-      // numerical order (not backwards) and the returned list is
-      // (list mutations deletions insertions).
-      r = scm_cons(scm_reverse(insertions_scm), r);
-      r = scm_cons(scm_reverse(deletions_scm),  r);
-      r = scm_cons(scm_reverse(mutations_scm),  r);
-   } 
+   }
    return r;
 }
 #endif // USE_GUILE

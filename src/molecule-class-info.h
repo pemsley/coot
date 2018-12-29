@@ -504,7 +504,9 @@ class molecule_class_info_t {
    // (no backup).  For use in alignment (maybe other places)
    void simplify_numbering_internal(mmdb::Chain *chain_p);
 
-
+   std::string output_alignment_in_blocks(const std::string &aligned,
+					  const std::string &target,
+					  const std::string &matches) const;
 
    // String munging helper function (for reading mtz files).
    // Return a pair.first string of length 0 on error to construct dataname(s).
