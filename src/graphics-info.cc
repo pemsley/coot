@@ -1133,7 +1133,7 @@ graphics_info_t::display_all_model_molecules() {
    }
 }
 
-// an unactivate
+// and unactivate
 void
 graphics_info_t::undisplay_all_model_molecules_except(int imol) {
 
