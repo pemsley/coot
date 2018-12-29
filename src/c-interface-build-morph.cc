@@ -215,7 +215,7 @@ float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, con
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       int imol_map = g.Imol_Refinement_Map();
-      if (is_valid_map_molecule(imol_map)) { 
+      if (! is_valid_map_molecule(imol_map)) {
 	 coot::residue_spec_t rs(chain_id, resno, ins_code);
 	 float map_sigma = g.molecules[imol_map].map_sigma();
 	 val = g.molecules[imol].fit_to_map_by_random_jiggle(rs,
@@ -237,7 +237,9 @@ float fit_molecule_to_map_by_random_jiggle(int imol, int n_trials, float jiggle_
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       int imol_map = g.Imol_Refinement_Map();
-      if (is_valid_map_molecule(imol_map)) { 
+      if (! is_valid_map_molecule(imol_map)) {
+	 info_dialog("WARNING:: Refinement map is not set");
+      } else {
 	 float map_sigma = g.molecules[imol_map].map_sigma();
 	 mmdb::PPAtom atom_selection = g.molecules[imol].atom_sel.atom_selection;
 	 int n_atoms = g.molecules[imol].atom_sel.n_selected_atoms;
@@ -260,7 +262,9 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
       graphics_info_t g;
       int imol_map = g.Imol_Refinement_Map();
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
-      if (is_valid_map_molecule(imol_map)) { 
+      if (! is_valid_map_molecule(imol_map)) {
+	 info_dialog("WARNING:: Refinement map is not set");
+      } else {
 	 float map_sigma = g.molecules[imol_map].map_sigma();
 	 
 	 mmdb::PPAtom atom_selection = 0;
