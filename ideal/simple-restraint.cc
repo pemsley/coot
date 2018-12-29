@@ -2929,19 +2929,18 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
          int n_residue_atoms_1;
          int n_residue_atoms_2;
          int n_residue_atoms_3;
+	 bool do_i_plus_4_also = true;
+	 if ((i+4) > sorted_residues.size())
+	    do_i_plus_4_also = false;
          sorted_residues[i  ]->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
-         sorted_residues[i+4]->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
          sorted_residues[i+3]->GetAtomTable(residue_atoms_3, n_residue_atoms_3);
+	 if (do_i_plus_4_also) {
+	    sorted_residues[i+4]->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
+	 }
          for (int iat=0; iat<n_residue_atoms_1; iat++) {
             std::string atom_name_1 = residue_atoms_1[iat]->GetAtomName();
             if (atom_name_1 == " O  ") {
                at_1 = residue_atoms_1[iat];
-            }
-         }
-         for (int iat=0; iat<n_residue_atoms_2; iat++) {
-            std::string atom_name_2 = residue_atoms_2[iat]->GetAtomName();
-            if (atom_name_2 == " N  ") {
-               at_2 = residue_atoms_2[iat];
             }
          }
          for (int iat=0; iat<n_residue_atoms_3; iat++) {
@@ -2950,6 +2949,14 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
                at_3 = residue_atoms_3[iat];
             }
          }
+	 if (do_i_plus_4_also) {
+	    for (int iat=0; iat<n_residue_atoms_2; iat++) {
+	       std::string atom_name_2 = residue_atoms_2[iat]->GetAtomName();
+	       if (atom_name_2 == " N  ") {
+		  at_2 = residue_atoms_2[iat];
+	       }
+	    }
+	 }
          if (at_1 && at_2 && at_3) {
             at_1->GetUDData(udd_atom_index_handle, index_1);
             at_2->GetUDData(udd_atom_index_handle, index_2);
@@ -2963,12 +2970,25 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
 
             std::cout << "INFO:: Alpha Helix Bond restraint ("
                << at_1->name << " " << at_1->GetSeqNum() << ") to ("
-               << at_2->name << " " << at_3->GetSeqNum() << ") " << ideal_dist_i_3 << std::endl;
+               << at_3->name << " " << at_3->GetSeqNum() << ") " << ideal_dist_i_3 << std::endl;
             std::cout << "INFO:: Alpha Helix Bond restraint ("
                << at_1->name << " " << at_1->GetSeqNum() << ") to ("
                << at_2->name << " " << at_2->GetSeqNum() << ") " << ideal_dist_i_4 << std::endl;
             n_helical_restraints += 2;
-         }
+         } else {
+	    if (at_1 && at_3) {
+	       at_1->GetUDData(udd_atom_index_handle, index_1);
+	       at_3->GetUDData(udd_atom_index_handle, index_3);
+	       std::vector<bool> fixed_flags_2 = make_fixed_flags(index_1, index_3);
+	       double ideal_dist_i_3 = 3.18;
+	       add(BOND_RESTRAINT, index_1, index_3, fixed_flags_2, ideal_dist_i_3, pseudo_bond_esd, 1.2);
+
+	       std::cout << "INFO:: Alpha Helix Bond restraint ("
+			 << at_1->name << " " << at_1->GetSeqNum() << ") to ("
+			 << at_3->name << " " << at_3->GetSeqNum() << ") " << ideal_dist_i_3 << std::endl;
+	       n_helical_restraints += 1;
+	    }
+	 }
       }
 
    }
