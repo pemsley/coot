@@ -120,8 +120,12 @@ class LigandTestFunctions(unittest.TestCase):
     def test08_0(self):
         """Test dipole"""
 
-        self.assertTrue(True)
+        if self.skip_test(True, "Skipping dipole test. disabled for now!"):
+            return
 
+        imol = unittest_pdb("dipole-residues.pdb")
+
+        self.failUnless(valid_model_molecule_qm(imol), "dipole-residues.pdb not found")
 
     def test09_0(self):
         """Reading new dictionary restraints replaces"""

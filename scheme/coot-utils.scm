@@ -249,6 +249,63 @@
 (define (model-molecule-number-list)
   (filter valid-model-molecule? (molecule-number-list)))
 
+
+
+;; c.f. graphics_info_t::undisplay_all_model_molecules_except(int imol)
+(define (undisplay-all-maps-except imol-map)
+
+  (format #t "undisplay-all-maps-except imol-map: ~s~%" imol-map)
+
+  (let ((map-list (map-molecule-list)))
+    (for-each (lambda (imol)
+		(if (not (= imol imol-map))
+		    (set-map-displayed imol 0)))
+	      map-list)
+    (set-map-displayed imol-map 1)))
+
+
+(define (just-one-or-next-map)
+
+  ;; return an index or #f, lst must be a list
+  (define (find-in-list item lst)
+    (let loop ((idx 0))
+      (cond
+       ((= (length lst) idx) #f)
+       ((eq? (list-ref lst idx) item) idx)
+       (else
+	(loop (+ idx 1))))))
+
+  (define (next-map current-map-number map-number-list)
+    (let ((current-idx (find-in-list current-map-number map-number-list))
+	  (l (length map-number-list)))
+      (format #t "current-idx: ~s from list map-number-list ~s~%" current-idx map-number-list)
+      (if (number? current-idx)
+	  (let ((next-index (if (= (+ current-idx 1) l)
+				0
+				(+ current-idx 1))))
+	    (list-ref map-number-list next-index))
+	  (list-ref map-number-list 0))))
+
+  (let ((map-list (map-molecule-list)))
+    (let ((current-displayed-maps
+	   (filter (lambda(imol)
+		     (= (map-is-displayed imol) 1))
+		   map-list)))
+      (let ((n-displayed (length current-displayed-maps)))
+
+      ;; if nothing is displayed, display the first map in map-list
+      ;; if one map is displayed, display the next map in map-list
+      ;; if more than one map is displayed, display only the last map
+      ;;    in the current-displayed-maps
+
+      (cond
+       ((= n-displayed 0) (if (> (length map-list) 0)
+			      (undisplay-all-maps-except (car map-list))))
+       ((= n-displayed 1) (if (> (length map-list) 1)
+			      (undisplay-all-maps-except (next-map (car current-displayed-maps)
+								   map-list))))
+       (else (undisplay-all-maps-except (car (reverse current-displayed-maps)))))))))
+
 ;; first n fields of ls. if length ls is less than n, return ls.
 ;; if ls is not a list, return ls.  If n is negative, return ls.
 ;; 

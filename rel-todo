@@ -1,70 +1,6 @@
 
    For Release 0.8.9.2
 
-   o When merging a ligand - allow the ligand to be in user-specified chain.
-     Maybe a menu item "Merge this ligand" which uses new function
-     merge_ligand(imol, current_residue_spec, into_mol, new_residue_spec)
-
-* Done. Even added a test.
-
-   o Make a trivial ligand in the ligand builder, run acedrg. make an incorrect ligand
-     (valence error) and run acedrg - the previous ligand gets imported.
-
-     -> Apply button should grey out if there is no SMILES string (perhaps)
-
-* Done.
-
-   o add-terminal-residue should do not make intermediate atoms and not do a rigid body fit.
-     Use --no-startup-scripts to help test this.
-
-* The second of those was already so, immediate addition mode changed.
-
-   o Carmen question: ?
-
-       If you are on the keyboard and doing rotamer, can you accept it with Enter?
-       No.
-       Fix it then.
-
-* Done.
-
-       Adding solvent molecules - add it to the right molecule - make the spacing bigger to make the widget bigger.
-
-* Done.
-
-   o OXT in residue type LYS fle_view_with_rditk() failure.
-     New monomer library!?
-
-   o Draw hydrogens is not respected in colour-by-chain mode.
-
-* I wonder what I meant. It was respected, but colour-by-secondary-structure was not. I had been looking at the
-  refinement build, which has (had?) different arguments. Fixed.
-
-   o Add a test that fle_view with_png output makes a sensible file.
-
-   o compare the origins of a rebox and maps from the EMDB - look for nxstart etc differences
-     use mrcfile for convenience.
-
-   o CryoEM tutorial says "choose a sensible weight for the map" - how do we do that Paul?
-
-   o Add distance restraint - does that work? - What about helical restraints?
-     Test with a distorted model in a very low resolution map.
-
-   o can you add a download for EMDB bundles?
-
-   o add symmetry and try povray - crash?
-
-   o raster3d should show symmetry?
-
-   o what has happened to RCrane?
-
-   o Randy: origin removed patterson: what's next to fix?
-
-   o I don't like the double call to make_bonds() (it's in CA mode at least). Get rid of it.
-
-   o multiple maps - undefined refinement map - jiggle fit this molecule needs an dialog alert.
-
-* Done.
-
 ------
 
    o Randy: update NCS matrices for "O" key after symm shift reference chain here
@@ -433,3 +369,93 @@ command "cprodrg" not found
    o 1abr 140B "Delete all carbohydrate" fail
 
 * Insertion codes!
+
+   o multiple maps - undefined refinement map - jiggle fit this molecule needs an dialog alert.
+
+* Done.
+
+   o When merging a ligand - allow the ligand to be in user-specified chain.
+     Maybe a menu item "Merge this ligand" which uses new function
+     merge_ligand(imol, current_residue_spec, into_mol, new_residue_spec)
+
+* Done. Even added a test.
+
+   o Make a trivial ligand in the ligand builder, run acedrg. make an incorrect ligand
+     (valence error) and run acedrg - the previous ligand gets imported.
+
+     -> Apply button should grey out if there is no SMILES string (perhaps)
+
+* Done.
+
+   o add-terminal-residue should do not make intermediate atoms and not do a rigid body fit.
+     Use --no-startup-scripts to help test this.
+
+* The second of those was already so, immediate addition mode changed.
+
+   o Carmen question: ?
+
+       If you are on the keyboard and doing rotamer, can you accept it with Enter?
+       No.
+       Fix it then.
+
+* Done.
+
+       Adding solvent molecules - add it to the right molecule - make the spacing bigger to make the widget bigger.
+
+* Done.
+
+   o Draw hydrogens is not respected in colour-by-chain mode.
+
+* I wonder what I meant. It was respected, but colour-by-secondary-structure was not. I had been looking at the
+  refinement build, which has (had?) different arguments. Fixed.
+
+   o Add a test that fle_view with_png output makes a sensible file.
+
+* Done
+
+   o Add distance restraint - does that work? - What about helical restraints?
+     Test with a distorted model in a very low resolution map.
+
+* It's working fine. There needs to be a lot of them to make a serious impact on the refinement.
+
+   o what has happened to RCrane?
+
+* It has moved to Calculate
+
+   o I don't like the double call to make_bonds() (it's in CA mode at least). Get rid of it.
+
+* I don't see it.
+
+   o OXT in residue type LYS fle_view_with_rditk() failure.
+     New monomer library!?
+
+* Punt.
+
+   o Randy: origin removed patterson: what's next to fix?
+
+Punt.
+
+   o compare the origins of a rebox and maps from the EMDB - look for nxstart etc differences
+     use mrcfile for convenience.
+
+* Punt.
+
+   o CryoEM tutorial says "choose a sensible weight for the map" - how do we do that Paul?
+
+* Is this really a problem - if so, punt.
+
+   o add symmetry and try povray - crash?
+
+* Punt.
+
+   o raster3d should show symmetry?
+
+* Punt.
+
+   o can you add a download for EMDB bundles?
+
+* Punt.
+
+   o does normal/old/standard cis-trans update the bonds?
+
+* Yes

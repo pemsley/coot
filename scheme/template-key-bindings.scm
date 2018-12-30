@@ -93,10 +93,13 @@
 	     (ls (residues-near-residue aa-imol rc-spec 3.0)))
 	(regularize-residues aa-imol (cons rc-spec ls))))))
 	
-(add-key-binding "Edit Chi Angles" "X"
-   (lambda ()
-     (using-active-atom
-      (edit-chi-angles aa-imol aa-chain-id aa-res-no aa-ins-code aa-alt-conf))))
+;; (add-key-binding "Edit Chi Angles" "X"
+;;    (lambda ()
+;;      (using-active-atom
+;;       (edit-chi-angles aa-imol aa-chain-id aa-res-no aa-ins-code aa-alt-conf))))
+
+;; This is more useful
+(add-key-binding "Just One or Next Map" "X" just-one-or-next-map)
 
 (add-key-binding "Jiggle Fit Residue" "J" (lambda ()
 				    (using-active-atom 
