@@ -134,9 +134,11 @@ int set_go_to_atom_from_spec(const coot::atom_spec_t &atom_spec);
 int set_go_to_atom_from_res_spec(const coot::residue_spec_t &spec);
 #ifdef USE_GUILE
 int set_go_to_atom_from_res_spec_scm(SCM residue_spec);
+int set_go_to_atom_from_atom_spec_scm(SCM residue_spec);
 #endif 
 #ifdef USE_PYTHON
 int set_go_to_atom_from_res_spec_py(PyObject *residue_spec);
+int set_go_to_atom_from_atom_spec_py(PyObject *residue_spec);
 #endif 
 
 

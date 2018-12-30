@@ -1623,6 +1623,14 @@ int set_go_to_atom_from_res_spec_scm(SCM residue_spec_scm) {
    return set_go_to_atom_from_res_spec(spec);
 }
 
+#ifdef USE_GUILE
+int set_go_to_atom_from_atom_spec_scm(SCM atom_spec_scm) {
+   coot::atom_spec_t spec = atom_spec_from_scm_expression(atom_spec_scm);
+   return set_go_to_atom_from_spec(spec);
+}
+#endif // USE_GUILE
+
+
 #endif 
 
 #ifdef USE_PYTHON
@@ -1637,6 +1645,14 @@ int set_go_to_atom_from_res_spec_py(PyObject *residue_spec_py) {
 } 
 #endif 
 
+
+#ifdef USE_PYTHON
+int set_go_to_atom_from_atom_spec_py(PyObject *atom_spec_py) {
+
+   coot::atom_spec_t spec = atom_spec_from_python_expression(atom_spec_py);
+   return set_go_to_atom_from_spec(spec);
+}
+#endif
 
 
 // (is-it-valid? (active-molecule-number spec))

@@ -489,6 +489,27 @@
 		(list-ref spec 2)
 		(list-ref spec 3)))
 
+;; for sorting residue specs
+(define (residue-spec-less-than spec-1 spec-2)
+  (let ((chain-id-1 (residue-spec->chain-id spec-1))
+	(chain-id-2 (residue-spec->chain-id spec-2)))
+    (if (string<? chain-id-2 chain-id-1)
+	#t
+	(let ((rn-1 (residue-spec->res-no spec-1))
+	      (rn-2 (residue-spec->res-no spec-2)))
+	  (if (< rn-2 rn-1)
+	      #t
+	      (let ((ins-code-1 (residue-spec->ins-code spec-1))
+		    (ins-code-2 (residue-spec->ins-code spec-2)))
+		(string<? ins-code-2 ins-code-1)))))))
+
+(define (residue-spec->string spec)
+  (string-append
+   (residue-spec->chain-id spec)
+   " "
+   (number->string (residue-spec->res-no spec))
+   (residue-spec->ins-code spec)))
+
 
 ;; Return a list of molecules that are maps
 ;; 
@@ -2157,8 +2178,8 @@
   ;; atom-spec example (list "A" 7 "" " SG " "")
   (cond
    ((null? atom-spec) #f)
-   ((= (length atom-spec) 5)
-    (list-ref atom-spec 0))
+   ((= (length atom-spec) 5) (list-ref atom-spec 0))
+   ((= (length atom-spec) 6) (list-ref atom-spec 1))
    (else
     #f)))
 
@@ -2167,8 +2188,8 @@
   ;; atom-spec example (list "A" 7 "" " SG " "")
   (cond
    ((null? atom-spec) #f)
-   ((= (length atom-spec) 5)
-    (list-ref atom-spec 1))
+   ((= (length atom-spec) 5) (list-ref atom-spec 1))
+   ((= (length atom-spec) 6) (list-ref atom-spec 2))
    (else
     #f)))
 
@@ -2177,8 +2198,8 @@
   ;; atom-spec example (list "A" 7 "" " SG " "")
   (cond
    ((null? atom-spec) #f)
-   ((= (length atom-spec) 5)
-    (list-ref atom-spec 2))
+   ((= (length atom-spec) 5) (list-ref atom-spec 2))
+   ((= (length atom-spec) 6) (list-ref atom-spec 3))
    (else
     #f)))
 
@@ -2187,8 +2208,8 @@
   ;; atom-spec example (list "A" 7 "" " SG " "")
   (cond
    ((null? atom-spec) #f)
-   ((= (length atom-spec) 5)
-    (list-ref atom-spec 3))
+   ((= (length atom-spec) 5) (list-ref atom-spec 3))
+   ((= (length atom-spec) 6) (list-ref atom-spec 4))
    (else
     #f)))
 
@@ -2197,10 +2218,11 @@
   ;; atom-spec example (list "A" 7 "" " SG " "")
   (cond
    ((null? atom-spec) #f)
-   ((= (length atom-spec) 5)
-    (list-ref atom-spec 4))
+   ((= (length atom-spec) 5) (list-ref atom-spec 4))
+   ((= (length atom-spec) 6) (list-ref atom-spec 5))
    (else
     #f)))
+
 
 ;; simple extraction function
 (define (res-spec->chain-id res-spec)
@@ -2235,7 +2257,6 @@
    (else 
     #f)))
     
-
 
 ;; Return #f if no atom can be found given the spec else return a list
 ;; consisting of the atom name and alt-conf specifier.  

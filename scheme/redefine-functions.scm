@@ -117,6 +117,14 @@
 (define new-molecule-by-residue-specs new-molecule-by-residue-specs-scm)
 (define delete-residues delete-residues-scm)
 (define qq-plot-map-and-model qq-plot-map-and-model-scm)
+(define refinement-already-ongoing? (lambda() (= (refinement-already-ongoing-p) 1)))
+(define linked-residues linked-residues-scm)
+(define molecule-atom-overlaps molecule-atom-overlaps-scm)
+(define CG-spin-search CG-spin-search-scm)
+(define c-beta-deviations c-beta-deviations-scm)
+(define set-go-to-atom-from-atom-spec set-go-to-atom-from-atom-spec-scm)
+
+;; (define residues-distortions residues-distortions-scm)
 
 ;; I changed the function name - save those (just a few) with scripts that I've handed out
 (define toggle-idle-ligand-interactions toggle-flev-idle-ligand-interactions)
