@@ -1804,6 +1804,20 @@
 (define (atom-specs imol chain-id resno ins-code atom-name alt-conf)
   (atom-info-string imol chain-id resno ins-code atom-name alt-conf))
 
+(define (atom-spec->string spec)
+
+  (string-append
+   (atom-spec->chain-id spec)
+   " "
+   (number->string (atom-spec->res-no spec))
+   (atom-spec->ins-code spec)
+   " "
+   (atom-spec->atom-name spec)
+   (let ((al (atom-spec->alt-loc spec)))
+     (if (= (string-length al) 0)
+	 ""
+	 (string-append " " al)))))
+
 (define (atom-spec->residue-spec atom-spec)
   (list-head (cddr atom-spec) 3))
 

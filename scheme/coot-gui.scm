@@ -1488,7 +1488,7 @@
 
 ;; geometry is an improper list of ints.
 ;; 
-;; return the h-box of the buttons.
+;; return a list of (h-box-buttons window)
 ;;
 ;; a button is a list of (label callback-thunk text-description)
 ;; where text-description is an option arg (can be omitted)
@@ -1500,7 +1500,7 @@
 
 ;; geometry is an improper list of ints.
 ;; 
-;; return the h-box of the buttons.
+;; return a list of (h-box-buttons window)
 ;;
 ;; a button is a list of (label callback-thunk text-description)
 ;;
@@ -1560,7 +1560,7 @@
 			  (lambda args
 			    (set! inside-vbox #f)))
       (gtk-widget-show-all window)
-      inside-vbox))
+      (list inside-vbox window)))
 
 ;; This is exported outside of the box-of-buttons gui because the
 ;; clear-and-add-back function (e.g. from using the check button)
