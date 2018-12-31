@@ -722,7 +722,7 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
 // 		     std::cout << "DEBUG:: model " << imod << " pushing back " << nrestraints
 // 			       << " restraints" << std::endl;
 
-		     dcv.push_back(restraints.geometric_distortions(flags));
+		     dcv.push_back(restraints.geometric_distortions());
 		  
 		  } else {
 

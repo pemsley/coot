@@ -1554,7 +1554,7 @@ coot::crankshaft::refine_and_score_mol(mmdb::Manager *mol,
       if (! output_pdb_file_name.empty())
 	 restraints.write_new_atoms(output_pdb_file_name);
 
-      coot::geometry_distortion_info_container_t gdic = restraints.geometric_distortions(flags);
+      coot::geometry_distortion_info_container_t gdic = restraints.geometric_distortions();
       for (std::size_t id=0; id<gdic.geometry_distortion.size(); id++) {
 	 // std::cout << "   " << gdic.geometry_distortion[id] << std::endl;
       }

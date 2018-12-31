@@ -678,7 +678,7 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
       //if ( abs(sel_res_1->GetSeqNum() - sel_res_2->GetSeqNum()) <= 1
       // || abs(sel_res_1->index - sel_res_2->index) <= 1) {
 
-      if (debug) {
+      {
 
 	 bool is_fixed_first_residue  = bonded_residue_pairs[ibonded_residue].is_fixed_first;
 	 bool is_fixed_second_residue = bonded_residue_pairs[ibonded_residue].is_fixed_second;

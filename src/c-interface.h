@@ -3396,6 +3396,11 @@ void set_refine_ramachandran_restraints_type(int type);
 a big number means bad things  */
 void set_refine_ramachandran_restraints_weight(float w);
 
+/*! ramachandran restraints weight
+
+@return weight as a float */
+float refine_ramachandran_restraints_weight();
+
 void set_refinement_geman_mcclure_alpha_from_text(int idx, const char *t);
 void set_refinement_lennard_jones_epsilon_from_text(int idx, const char *t);
 void set_refinement_ramachandran_restraints_weight_from_text(int idx, const char *t);
