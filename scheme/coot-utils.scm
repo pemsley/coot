@@ -475,6 +475,17 @@
 	  (list-ref rs 3)
 	  #f))))
 
+(define (residue-specs-match? spec-1 spec-2)
+  (if (string=? (residue-spec->chain-id spec-1)
+		(residue-spec->chain-id spec-2))
+      (if (= (residue-spec->res-no spec-1)
+	     (residue-spec->res-no spec-2))
+	  (if (string=? (residue-spec->ins-code spec-1)
+			(residue-spec->ins-code spec-2))
+	      #t)
+	  #f)
+      #f))
+
 (define (atom-spec->imol atom-spec)
   (if (not (list? atom-spec))
       #f
@@ -2135,6 +2146,16 @@
 ;; 
 (define (all-residues imol)
   (residues-matching-criteria imol (lambda (chain-id resno ins-code serial) #t)))
+
+(define (all-residues-sans-water imol)
+  (residues-matching-criteria imol (lambda (chain-id res-no ins-code serial)
+				     (let ((rn (residue-name imol chain-id res-no ins-code)))
+				       (not (string=? rn "HOH"))))))
+
+;; Return a list of all the residues in the chain
+;; 
+(define (residues-in-chain imol chain-id-in)
+  (residues-matching-criteria imol (lambda (chain-id resno ins-code serial) (string=? chain-id chain-id-in))))
 
   
 ;; Return a list of all residues that have alt confs: where a residue
