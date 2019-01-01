@@ -724,9 +724,11 @@ coot::rama_plot::setup_background(bool blocks, bool isolines) {
                                  "rama_non_gly_pro.png");
 #endif
    } else {
+#ifdef CLIPPER_HAS_TOP8000
       bg_ileval = goo_canvas_group_new(root, NULL);
       bg_pre_pro = goo_canvas_group_new(root, NULL);
       bg_non_gly_pro_pre_pro_ileval = goo_canvas_group_new(root, NULL);
+#endif
    }
 
    std::cout << "---      here with take_bg_image " << take_bg_image << std::endl;
