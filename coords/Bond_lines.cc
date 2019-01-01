@@ -1851,9 +1851,6 @@ Bond_lines_container::handle_MET_or_MSE_case(mmdb::PAtom mse_atom,
 
    // std::cout << "Handling MET/MSE case for atom " << mse_atom << std::endl;
 
-   int iat_1 = -1;
-   int iat_2 = -1; // 20171224-PE FIXME by udd lookup
-
    std::string atom_name(mse_atom->name);
    std::string residue_name(mse_atom->GetResName());
    int model_number = mse_atom->GetModelNum();
@@ -1881,6 +1878,11 @@ Bond_lines_container::handle_MET_or_MSE_case(mmdb::PAtom mse_atom,
 		  coot::Cartesian bond_mid_point = cart_at1.mid_point(cart_at2);
 		  int colc = atom_colour(residue_atoms[i], atom_colour_type, atom_colour_map_p);
 		  // int colc = atom_colour_type; // just to check
+
+		  int iat_1 = -1;
+		  int iat_2 = -1; // 20171224-PE FIXME by udd lookup
+		  int udd_status_1 = mse_atom->GetUDData(udd_handle_atom_index, iat_1);
+		  int udd_status_2 = residue_atoms[i]->GetUDData(udd_handle_atom_index, iat_2);
 
 		  float bond_length = (cart_at1 - cart_at2).amplitude();
 		  if (bond_length < 3.0) { // surely not longer than this?
@@ -1921,6 +1923,9 @@ Bond_lines_container::handle_MET_or_MSE_case(mmdb::PAtom mse_atom,
 		     int colc = atom_colour(residue_atoms[i], atom_colour_type, atom_colour_map_p);
 		     graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 
+		     // 20181231-PE fix up UDData for atom indices at last
+		     int iat_1 = -1;
+		     int iat_2 = -1;
 		     mse_atom->GetUDData(udd_handle_atom_index, iat_1);
 		     residue_atoms[i]->GetUDData(udd_handle_atom_index, iat_2);
 		     addBond(col,  cart_at1, bond_mid_point, cc, model_number, iat_1, iat_2);
@@ -1999,9 +2004,13 @@ Bond_lines_container::handle_long_bonded_atom(mmdb::PAtom atom,
 		  int colc = atom_colour(residue_atoms[i], atom_colour_type, atom_colour_map_p);
 		  graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 
-		  // 20171224-PE FIXME lookup iat_1, iat_1
+		  // 20171224-PE FIXME lookup iat_1, iat_2
 		  int iat_1 = -1;
 		  int iat_2 = -1;
+
+		  // 20181231-PE Done.
+		  int udd_status_1 = atom->GetUDData(udd_handle_atom_index, iat_1);
+		  int udd_status_2 = residue_atoms[i]->GetUDData(udd_handle_atom_index, iat_2);
 
 		  addBond(col,  atom_pos, bond_mid_point, cc, model_number, iat_1, iat_2);
 		  addBond(colc, bond_mid_point, res_atom_pos, cc, model_number, iat_2, iat_2);
