@@ -2059,6 +2059,30 @@ coot::electron_density_score_from_restraints_using_atom_index_range(int thread_i
 
 
 
+// Note that the gradient for the electron density is opposite to that
+// of the gradient for the geometry (consider a short bond on the edge
+// of a peak - in that case the geometry gradient will be negative as
+// the bond is lengthened and the electron density gradient will be
+// positive).
+//
+// So we want to change that positive gradient for a low score when
+// the atoms coinside with the density - hence the contributions that
+// we add are negated.
+//
+void coot::my_df_electron_density(const gsl_vector *v,
+				  void *params,
+				  gsl_vector *df) {
+
+   // first extract the object from params
+   //
+   coot::restraints_container_t *restraints_p = static_cast<restraints_container_t *> (params);
+   if (restraints_p->include_map_terms() == 1) {
+      my_df_electron_density_single(v, restraints_p, df, 0, v->size/3);
+   }
+}
+
+
+
 #ifdef HAVE_CXX_THREAD
 
 
