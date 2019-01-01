@@ -542,7 +542,7 @@ graphics_info_t::geometric_distortion(int imol) {
 #ifdef HAVE_GSL
 coot::geometry_distortion_info_container_t
 graphics_info_t::geometric_distortions(int imol, mmdb::Residue *residue_p, bool with_nbcs) {
-   
+
    coot::geometry_distortion_info_container_t gdc(NULL, 0, "");
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
