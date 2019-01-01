@@ -122,24 +122,29 @@ def shelx_waters_all_good_occ_qm(test, imol_insulin_res):
             occ = atom[1][0]
             test.failUnlessAlmostEqual(occ, 11.0, 1, "  bad occupancy in SHELXL molecule %s" %atom)
 
-#  return restraints without the given bond restraints or False if no restraints given
+#  return restraints without the given bond restraints or
+# False if no restraints given
 def strip_bond_from_restraints(atom_pair, restraints):
 
     import copy
     restr_dict = copy.deepcopy(restraints)
-    if restr_dict:
-        # make a copy of restraints, so that we dont overwrite
-        # the original dictionary
-        bonds = restr_dict["_chem_comp_bond"]
-        if bonds:
-            for i, bond in enumerate(bonds):
-                atom1 = bond[0]
-                atom2 = bond[1]
-                if (atom1 in atom_pair and atom2 in atom_pair):
-                    del restr_dict["_chem_comp_bond"][i]
-                    return restr_dict
-        return False
-    return False
+    if (restr_dict == []):
+        return []
+    else:
+        if not restr_dict:
+            return False
+        else:
+            # make a copy of restraints, so that we dont overwrite
+            # the original dictionary
+            bonds = restr_dict["_chem_comp_bond"]
+            if bonds:
+                for i, bond in enumerate(bonds):
+                    atom1 = bond[0]
+                    atom2 = bond[1]
+                    if (atom1 in atom_pair and atom2 in atom_pair):
+                        del restr_dict["_chem_comp_bond"][i]
+                        return restr_dict
+                return restr_dict
 
 # are the attributes of atom-1 the same as atom-2? (given we test for
 # failUnless/IfAlmostEqual)

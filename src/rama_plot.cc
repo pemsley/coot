@@ -717,13 +717,19 @@ coot::rama_plot::setup_background(bool blocks, bool isolines) {
                                                   bg_non_gly_pro_pre_pro_ileval,
                                                   "rama2_non_gly_pro_pre_pro_ileval.png");
 #else
-      take_bg_image = make_background_from_image(rama, bg_all, "rama_all.png");
+      take_bg_image  = make_background_from_image(rama, bg_all, "rama_all.png");
       take_bg_image += make_background_from_image(r_gly, bg_gly, "rama_gly.png");
       take_bg_image += make_background_from_image(r_pro, bg_pro, "rama_pro.png");
       take_bg_image += make_background_from_image(r_non_gly_pro, bg_non_gly_pro,
                                  "rama_non_gly_pro.png");
 #endif
+   } else {
+      bg_ileval = goo_canvas_group_new(root, NULL);
+      bg_pre_pro = goo_canvas_group_new(root, NULL);
+      bg_non_gly_pro_pre_pro_ileval = goo_canvas_group_new(root, NULL);
    }
+
+   std::cout << "---      here with take_bg_image " << take_bg_image << std::endl;
 
    // no bg done, so lets make the "classic" way
    if (take_bg_image) {
@@ -753,7 +759,14 @@ coot::rama_plot::setup_background(bool blocks, bool isolines) {
          make_isolines(r_non_gly_pro_pre_pro_ileval, bg_non_gly_pro_pre_pro_ileval);
 #endif
       }
+   } else {
+#ifdef CLIPPER_HAS_TOP8000
+      make_background(r_ileval, bg_ileval);
+      make_background(r_pre_pro, bg_pre_pro);
+      make_background(r_non_gly_pro_pre_pro_ileval, bg_non_gly_pro_pre_pro_ileval);
+#endif
    }
+
 
    hide_all_background();
    // upon init show all

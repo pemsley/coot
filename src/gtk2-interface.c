@@ -18263,7 +18263,6 @@ create_nothing_bad_dialog (void)
   gtk_widget_show (nothing_bad_label);
   gtk_box_pack_start (GTK_BOX (hbox443), nothing_bad_label, FALSE, FALSE, 0);
   gtk_label_set_use_markup (GTK_LABEL (nothing_bad_label), TRUE);
-  gtk_label_set_justify (GTK_LABEL (nothing_bad_label), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (nothing_bad_label), 50, 24);
 
   dialog_action_area71 = GTK_DIALOG (nothing_bad_dialog)->action_area;

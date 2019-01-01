@@ -3432,8 +3432,10 @@ molecule_class_info_t::make_ca_plus_ligands_and_sidechains_bonds(coot::protein_g
 void
 molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_to_these_atoms,
 						  short int change_c_only_flag) {
-   // 
    Bond_lines_container bonds(graphics_info_t::Geom_p(), no_bonds_to_these_atoms);
+
+   // Bond_lines_container bonds(graphics_info_t::Geom_p(), draw_hydrogens_flag);
+
    bonds.do_colour_by_chain_bonds(atom_sel, imol_no, draw_hydrogens_flag, change_c_only_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning(); // make_graphical_bonds() is pretty
                                                          // stupid when it comes to thining.
@@ -3578,7 +3580,7 @@ molecule_class_info_t::update_bonds_using_phenix_geo(const coot::phenix_geo_bond
 int
 molecule_class_info_t::n_models() const {
    int r = -1;
-   if (has_model()) { 
+   if (has_model()) {
       r = atom_sel.mol->GetNumberOfModels();
    }
    return r;

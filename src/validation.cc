@@ -21,6 +21,7 @@ PyObject *c_beta_deviations_py(int imol) {
 	 PyObject *outer_list_py = PyList_New(residue_c_beta_map.size());
 	 unsigned int counter = 0;
 	 for (it=residue_c_beta_map.begin(); it!=residue_c_beta_map.end(); it++) {
+	    // multiple alt confs
 	    mmdb::Residue *res_key = it->first;
 	    const std::map<std::string, coot::c_beta_deviation_t> &value_map = it->second;
 	    std::map<std::string, coot::c_beta_deviation_t>::const_iterator it_inner;
@@ -48,3 +49,40 @@ PyObject *c_beta_deviations_py(int imol) {
    return o;
 }
 #endif // USE_PYTHON
+
+#ifdef USE_GUILE
+SCM c_beta_deviations_scm(int imol) {
+
+   SCM r = SCM_BOOL_F;
+   if (graphics_info_t::is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      if (mol) {
+	 r = SCM_EOL;
+	 std::map<mmdb::Residue *, std::map<std::string, coot::c_beta_deviation_t> >
+	    residue_c_beta_map = coot::get_c_beta_deviations(mol);
+	 std::map<mmdb::Residue *, std::map<std::string, coot::c_beta_deviation_t> >::const_iterator it;
+	 SCM outer_list_scm = SCM_EOL;
+	 unsigned int counter = 0;
+	 for (it=residue_c_beta_map.begin(); it!=residue_c_beta_map.end(); it++) {
+	    // multiple alt confs
+	    mmdb::Residue *res_key = it->first;
+	    const std::map<std::string, coot::c_beta_deviation_t> &value_map = it->second;
+	    std::map<std::string, coot::c_beta_deviation_t>::const_iterator it_inner;
+	    SCM map_dict_scm = SCM_EOL;
+	    SCM residue_spec_scm = residue_spec_to_scm(coot::residue_spec_t(res_key));
+	    for (it_inner=value_map.begin(); it_inner!=value_map.end(); it_inner++) {
+	       const std::string alt_conf_key = it_inner->first;
+	       const coot::c_beta_deviation_t &cbd = it_inner->second;
+	       SCM item_scm = scm_list_2(scm_makfrom0str(alt_conf_key.c_str()),
+					 scm_double2num(cbd.dist));
+	       map_dict_scm = scm_cons(item_scm, map_dict_scm);
+	    }
+	    SCM l_scm = scm_list_2(residue_spec_scm, scm_reverse(map_dict_scm));
+	    r = scm_cons(l_scm, r);
+	 }
+      }
+   }
+   return r;
+
+}
+#endif // USE_GUILE

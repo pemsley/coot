@@ -38,7 +38,7 @@ coot::restraints_container_t::make_df_restraints_indices() {
    // This (or something similar) should probably for the evaluation of
    // distortion too.
    //
-   unsigned int n_r_s = 20; // needs optimizing
+   unsigned int n_r_s = n_threads; // needs optimizing
    unsigned int restraints_size = size();
 
    // Perhaps restraints_container_t was constructed without setting the thread pool.
@@ -187,10 +187,12 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
    */
 
    // consolidate - ~300us, GM restraints don't slow things down!? How can that be? Cache misses?
+   //
    for (std::size_t i_r_s=0; i_r_s<n_r_s; i_r_s++) {
+      const std::vector<double> &results_block = restraints_p->df_by_thread_results[i_r_s];
       for (unsigned int i=0; i<n_variables; i++) {
-	 if (restraints_p->df_by_thread_results[i_r_s][i] != 0.0) { // this does speed things up a bit
-	    *gsl_vector_ptr(df, i) += restraints_p->df_by_thread_results[i_r_s][i];
+	 if (results_block[i] != 0.0) { // this does speed things up a bit
+	    *gsl_vector_ptr(df, i) += results_block[i];
 	 }
       }
    }

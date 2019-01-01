@@ -782,9 +782,8 @@ public:
 
    // Used by various CA-mode bonds
    //
-   Bond_lines_container(coot::protein_geometry *protein_geom) {
-
-      do_bonds_to_hydrogens = 1;  // added 20070629
+   Bond_lines_container(coot::protein_geometry *protein_geom, bool do_bonds_to_hydrogens_in=true) {
+      do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
       b_factor_scale = 1.0;
       have_dictionary = false;
       geom = protein_geom;
@@ -952,6 +951,11 @@ public:
    void check_graphical_bonds() const; 
    void check_static() const; 
    void do_disulphide_bonds(atom_selection_container_t, int imodel);
+
+   // This can get called for intermediate atoms before the restraints have been made
+   // (and the FixedDuringRefinement UDD is set), so that loops can flash on
+   // then off (when FixedDuringRefinement UDDs *are* set).
+   // Oh well, a brief flash is better than permanently on during refinement.
    void do_Ca_bonds(atom_selection_container_t SelAtom, 
 		    float min_dist, float max_dist);
    // make bonds/lies dependent on residue order in molecule - no neighbour search needed. Don't show HETATMs
@@ -965,6 +969,11 @@ public:
 							coot::my_atom_colour_map_t acm,
 							float min_dist, float max_dist,
 							int bond_colour_type); 
+   void do_Ca_loop(int imod, int ires, int nres,
+		   mmdb::Chain *chain_p, mmdb::Residue *residue_prev, mmdb::Residue *residue_this,
+		   int udd_atom_index_handle,
+		   int udd_fixed_during_refinement_handle);
+
    void do_Ca_plus_ligands_bonds(atom_selection_container_t SelAtom,
 				 int imol,
 				 coot::protein_geometry *pg,

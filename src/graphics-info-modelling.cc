@@ -478,10 +478,10 @@ graphics_info_t::conditionally_wait_for_refinement_to_finish() {
    if (refinement_immediate_replacement_flag || !use_graphics_interface_flag) {
       while (restraints_lock) {
          // this is the main thread - it better be! :-)
+	 // std::cout << "conditionally_wait_for_refinement_to_finish()\n";
          std::this_thread::sleep_for(std::chrono::milliseconds(30));
       }
    }
-
 }
 
 
@@ -700,7 +700,7 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
       graphics_info_t g;
       g.make_moving_atoms_graphics_object(imol_moving_atoms, *moving_atoms_asc);
 
-      g.debug_refinement(); // check COOT_DEBUG_REFINEMENT
+      g.debug_refinement(); // checks COOT_DEBUG_REFINEMENT
 
       // Dots on then off but dots remain? Just undisplay them in the Generic Object manager
       if (do_coot_probe_dots_during_refine_flag) {
@@ -730,16 +730,11 @@ graphics_info_t::debug_refinement() {
 
    // calling function must have the restraints_lock
 
-   // I should not need to pass flags to an on-going refinement.
-   // These flags may not match the user flags - and it is not easy
-   // to get to the user flags (the flags with which minimize() is called).
-   //
-   coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
-
    // 20180923 Hmm... I guess that I need to lock the restraints? So that
    // they are not deleted as I try to write them out.
    //
-   // Hideous race condition somehow?
+   // Hideous race condition somehow? Yes, there was when flags was passed to
+   // the refinement and it updated the restraints_container_t's internal flags
    //
    char *env = getenv("COOT_DEBUG_REFINEMENT");
    if (env) {
@@ -755,7 +750,7 @@ graphics_info_t::debug_refinement() {
          //    unlocked = false;
          // }
 
-         tabulate_geometric_distortions(*last_restraints, flags);
+         tabulate_geometric_distortions(*last_restraints);
 
          // restraints_lock = false;
       }
@@ -814,7 +809,9 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 					      const std::vector<mmdb::Residue *> &residues_in,
 					      const std::string &alt_conf,
 					      mmdb::Manager *mol,
-					      bool use_map_flag) { 
+					      bool use_map_flag) {
+
+   auto tp_0 = std::chrono::high_resolution_clock::now();
 
    coot::refinement_results_t rr(0, GSL_CONTINUE, "");
 
@@ -974,7 +971,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
-	       if (false)
+	       if (true)
 		  std::cout << "---------- debug:: in generate_molecule_and_refine() "
 			    << " calling restraints.make_restraints() with imol "
 			    << imol << " "
@@ -1044,6 +1041,13 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	 }
       }
    }
+
+   if (false) {
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+      std::cout << "INFO:: ---------- Timing for refinement " << d10 << " milliseconds" << std::endl;
+   }
+
    return rr;
 
 #else
@@ -1177,16 +1181,26 @@ graphics_info_t::make_moving_atoms_restraints_graphics_object() {
          moving_atoms_extra_restraints_representation.clear();
          for (int i=0; i<last_restraints->size(); i++) {
             const coot::simple_restraint &rest = last_restraints->at(i);
-            if (rest.restraint_type == coot::BOND_RESTRAINT || rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
-               // std::cout << "Found a bond " << i << " " << rest.target_value << std::endl;
-               if (rest.target_value > 2.15) {
+            if (rest.restraint_type == coot::BOND_RESTRAINT ||
+		rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+
+               if (rest.target_value > 2.15) {  // no real bond restraints
                   int idx_1 = rest.atom_index_1;
                   int idx_2 = rest.atom_index_2;
-                  clipper::Coord_orth p1 = coot::co(moving_atoms_asc->atom_selection[idx_1]);
-                  clipper::Coord_orth p2 = coot::co(moving_atoms_asc->atom_selection[idx_2]);
+		  mmdb::Atom *at_1 = moving_atoms_asc->atom_selection[idx_1];
+		  mmdb::Atom *at_2 = moving_atoms_asc->atom_selection[idx_2];
+                  clipper::Coord_orth p1 = coot::co(at_1);
+                  clipper::Coord_orth p2 = coot::co(at_2);
                   double dd = rest.target_value;
                   double de = sqrt(clipper::Coord_orth(p1-p2).lengthsq());
-                  moving_atoms_extra_restraints_representation.add_bond(p1, p2, dd, de);
+		  bool do_it = true;
+		  std::string atom_name_1 = at_1->GetAtomName();
+		  std::string atom_name_2 = at_2->GetAtomName();
+		  if (atom_name_1 == " CA ")
+		     if (atom_name_2 == " CA ")
+			do_it = false;
+		  if (do_it)
+		     moving_atoms_extra_restraints_representation.add_bond(p1, p2, dd, de);
                }
             }
          }
@@ -1215,7 +1229,7 @@ graphics_info_t::draw_moving_atoms_restraints_graphics_object() {
                   double d_sqd = (res.second - res.first).clipper::Coord_orth::lengthsq();
                   double esd = 0.05;
 
-                  double b = (res.target_dist*res.target_dist - d_sqd)/esd * 0.002;
+                  double b = (res.target_dist*res.target_dist - d_sqd)/esd * 0.001;
                   if (b >  0.4999) b =  0.4999;
                   if (b < -0.4999) b = -0.4999;
                   double b_green = b;
@@ -4871,13 +4885,13 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 
 
 void
-graphics_info_t::tabulate_geometric_distortions(coot::restraints_container_t &restraints,
-						coot::restraint_usage_Flags flags) const {
+graphics_info_t::tabulate_geometric_distortions(coot::restraints_container_t &restraints) const {
 
    // coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS; // is passed now
+
    coot::restraints_container_t &rr = restraints;
 
-   coot::geometry_distortion_info_container_t gdic = rr.geometric_distortions(flags);
+   coot::geometry_distortion_info_container_t gdic = rr.geometric_distortions();
 
    std::ofstream f("coot-refinement-debug.tab");
 
@@ -4987,6 +5001,11 @@ graphics_info_t::tabulate_geometric_distortions(coot::restraints_container_t &re
 	    std::string s = "geman-mcclure " + coot::util::float_to_string(gd.distortion_score);
 	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
 	       s += " " + rr.get_atom_spec(gd.atom_indices[iat]).format();
+	    s += " indices: ";
+	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
+	       s += " " + coot::util::int_to_string(gd.atom_indices[iat]);
+	    s += " target: ";
+	    s += coot::util::float_to_string(rest.target_value);
 	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
 	 }
 	 if (rest.restraint_type == coot::TARGET_POS_RESTRAINT) {

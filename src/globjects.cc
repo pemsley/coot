@@ -957,7 +957,7 @@ int       graphics_info_t::imol_rigid_body_refine = 0;
 
 // terminal residue define
 short int graphics_info_t::in_terminal_residue_define = 0;
-short int graphics_info_t::add_terminal_residue_immediate_addition_flag = 0;
+short int graphics_info_t::add_terminal_residue_immediate_addition_flag = 1;
 short int graphics_info_t::add_terminal_residue_do_post_refine = 0;
 float graphics_info_t::terminal_residue_addition_direct_phi = -135.0;
 float graphics_info_t::terminal_residue_addition_direct_psi =  135.0;
@@ -1256,6 +1256,7 @@ float graphics_info_t::bond_thickness_intermediate_atoms = 4; // (no so) thick w
 // merge molecules
 int graphics_info_t::merge_molecules_master_molecule = -1;
 std::vector<int> *graphics_info_t::merge_molecules_merging_molecules;
+coot::residue_spec_t graphics_info_t::merge_molecules_ligand_spec;
 
 // change chain ids:
 int graphics_info_t::change_chain_id_molecule = -1;
@@ -2677,6 +2678,13 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	    graphics_info_t::accept_reject_dialog = 0;
 	 }
       }
+
+      if (graphics_info_t::rotamer_dialog) {
+	 accept_regularizement();
+	 gtk_widget_destroy(graphics_info_t::rotamer_dialog);
+	 set_graphics_rotamer_dialog(NULL);
+      }
+
       handled = TRUE;
       break;
 
@@ -3960,13 +3968,13 @@ gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 
 		  // Only try to pick symmetry atoms if the symmetry atoms
 		  // are being displayed. 
-	 
+
 		  if (g.show_symmetry == 1) {
-	    
+
 		     std::cout << "Trying symmetry pick" << std::endl;
 		     coot::Symm_Atom_Pick_Info_t symm_atom_info = g.symmetry_atom_pick();
 		     if (symm_atom_info.success == GL_TRUE) {
-	    
+
 			std::cout << "Found Symmetry atom pick" << std::endl;
 
 			// info.setRotationCentre(symm_atom_info.Hyb_atom());
@@ -3976,7 +3984,6 @@ gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 									  symm_atom_info.atom_index,
 									  symtransshiftinfo));
 
-	       
 			// clear_symm_atom_info(symm_atom_info);
 
 			for (int ii=0; ii<g.n_molecules(); ii++) {

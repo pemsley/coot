@@ -2961,10 +2961,12 @@ the first argument is a list of molecule numbers and the second is the target
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
 SCM merge_molecules(SCM add_molecules, int imol);
+void set_merge_molecules_ligand_spec_scm(SCM ligand_spec_scm);
 #endif
 
 #ifdef USE_PYTHON
 PyObject *merge_molecules_py(PyObject *add_molecules, int imol);
+void set_merge_molecules_ligand_spec_py(PyObject *ligand_spec_py);
 #endif /* PYTHON */
 #endif	/* c++ */
 
@@ -3385,6 +3387,7 @@ void set_refinement_drag_elasticity(float e);
 /*! \brief turn on Ramachandran angles refinement in refinement and regularization */
 /*! name consistent with set_refine_with_torsion_restraints() !?  */
 void set_refine_ramachandran_angles(int state);
+void set_refine_ramachandran_torsion_angles(int state);
 
 /*! \brief change the target function type  */
 void set_refine_ramachandran_restraints_type(int type);
@@ -3392,6 +3395,11 @@ void set_refine_ramachandran_restraints_type(int type);
 
 a big number means bad things  */
 void set_refine_ramachandran_restraints_weight(float w);
+
+/*! ramachandran restraints weight
+
+@return weight as a float */
+float refine_ramachandran_restraints_weight();
 
 void set_refinement_geman_mcclure_alpha_from_text(int idx, const char *t);
 void set_refinement_lennard_jones_epsilon_from_text(int idx, const char *t);
@@ -5258,7 +5266,6 @@ onto what is currently residue 21.  The mainchain numbering and atoms is not cha
         and 1 for success.
 */
 int nudge_residue_sequence(int imol, char *chain_id, int res_no_range_start, int res_no_range_end, int nudge_by, short int nudge_residue_numbers_also);
-
 
 /*! \brief Do you want Coot to automatically run a refinement after
   every mutate and autofit?

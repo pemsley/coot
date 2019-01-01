@@ -3266,6 +3266,8 @@ public:
    // ----- merge molecules ------
    static int merge_molecules_master_molecule;
    static std::vector<int> *merge_molecules_merging_molecules;
+   static coot::residue_spec_t merge_molecules_ligand_spec; // JED feature
+   void set_merge_molecules_ligand_spec(const coot::residue_spec_t &spec_in);
 
    // ------ change chain ids:
    static int change_chain_id_molecule;
@@ -3781,8 +3783,7 @@ string   static std::string sessionid;
 								    bool with_nbcs);
 
    // tabulate_geometric_distortions runs geometric_distortions() on restraints.
-   void tabulate_geometric_distortions(coot::restraints_container_t &restraints,
-				       coot::restraint_usage_Flags flags) const;
+   void tabulate_geometric_distortions(coot::restraints_container_t &restraints) const;
 
    static bool linked_residue_fit_and_refine_state;
 

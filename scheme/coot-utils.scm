@@ -249,6 +249,63 @@
 (define (model-molecule-number-list)
   (filter valid-model-molecule? (molecule-number-list)))
 
+
+
+;; c.f. graphics_info_t::undisplay_all_model_molecules_except(int imol)
+(define (undisplay-all-maps-except imol-map)
+
+  (format #t "undisplay-all-maps-except imol-map: ~s~%" imol-map)
+
+  (let ((map-list (map-molecule-list)))
+    (for-each (lambda (imol)
+		(if (not (= imol imol-map))
+		    (set-map-displayed imol 0)))
+	      map-list)
+    (set-map-displayed imol-map 1)))
+
+
+(define (just-one-or-next-map)
+
+  ;; return an index or #f, lst must be a list
+  (define (find-in-list item lst)
+    (let loop ((idx 0))
+      (cond
+       ((= (length lst) idx) #f)
+       ((eq? (list-ref lst idx) item) idx)
+       (else
+	(loop (+ idx 1))))))
+
+  (define (next-map current-map-number map-number-list)
+    (let ((current-idx (find-in-list current-map-number map-number-list))
+	  (l (length map-number-list)))
+      (format #t "current-idx: ~s from list map-number-list ~s~%" current-idx map-number-list)
+      (if (number? current-idx)
+	  (let ((next-index (if (= (+ current-idx 1) l)
+				0
+				(+ current-idx 1))))
+	    (list-ref map-number-list next-index))
+	  (list-ref map-number-list 0))))
+
+  (let ((map-list (map-molecule-list)))
+    (let ((current-displayed-maps
+	   (filter (lambda(imol)
+		     (= (map-is-displayed imol) 1))
+		   map-list)))
+      (let ((n-displayed (length current-displayed-maps)))
+
+      ;; if nothing is displayed, display the first map in map-list
+      ;; if one map is displayed, display the next map in map-list
+      ;; if more than one map is displayed, display only the last map
+      ;;    in the current-displayed-maps
+
+      (cond
+       ((= n-displayed 0) (if (> (length map-list) 0)
+			      (undisplay-all-maps-except (car map-list))))
+       ((= n-displayed 1) (if (> (length map-list) 1)
+			      (undisplay-all-maps-except (next-map (car current-displayed-maps)
+								   map-list))))
+       (else (undisplay-all-maps-except (car (reverse current-displayed-maps)))))))))
+
 ;; first n fields of ls. if length ls is less than n, return ls.
 ;; if ls is not a list, return ls.  If n is negative, return ls.
 ;; 
@@ -424,6 +481,17 @@
 	  (list-ref rs 3)
 	  #f))))
 
+(define (residue-specs-match? spec-1 spec-2)
+  (if (string=? (residue-spec->chain-id spec-1)
+		(residue-spec->chain-id spec-2))
+      (if (= (residue-spec->res-no spec-1)
+	     (residue-spec->res-no spec-2))
+	  (if (string=? (residue-spec->ins-code spec-1)
+			(residue-spec->ins-code spec-2))
+	      #t)
+	  #f)
+      #f))
+
 (define (atom-spec->imol atom-spec)
   (if (not (list? atom-spec))
       #f
@@ -437,6 +505,27 @@
 		(list-ref spec 1)
 		(list-ref spec 2)
 		(list-ref spec 3)))
+
+;; for sorting residue specs
+(define (residue-spec-less-than spec-1 spec-2)
+  (let ((chain-id-1 (residue-spec->chain-id spec-1))
+	(chain-id-2 (residue-spec->chain-id spec-2)))
+    (if (string<? chain-id-2 chain-id-1)
+	#t
+	(let ((rn-1 (residue-spec->res-no spec-1))
+	      (rn-2 (residue-spec->res-no spec-2)))
+	  (if (< rn-2 rn-1)
+	      #t
+	      (let ((ins-code-1 (residue-spec->ins-code spec-1))
+		    (ins-code-2 (residue-spec->ins-code spec-2)))
+		(string<? ins-code-2 ins-code-1)))))))
+
+(define (residue-spec->string spec)
+  (string-append
+   (residue-spec->chain-id spec)
+   " "
+   (number->string (residue-spec->res-no spec))
+   (residue-spec->ins-code spec)))
 
 
 ;; Return a list of molecules that are maps
@@ -1749,6 +1838,20 @@
 (define (atom-specs imol chain-id resno ins-code atom-name alt-conf)
   (atom-info-string imol chain-id resno ins-code atom-name alt-conf))
 
+(define (atom-spec->string spec)
+
+  (string-append
+   (atom-spec->chain-id spec)
+   " "
+   (number->string (atom-spec->res-no spec))
+   (atom-spec->ins-code spec)
+   " "
+   (atom-spec->atom-name spec)
+   (let ((al (atom-spec->alt-loc spec)))
+     (if (= (string-length al) 0)
+	 ""
+	 (string-append " " al)))))
+
 (define (atom-spec->residue-spec atom-spec)
   (if (= (length atom-spec) 5)
       (list-head atom-spec 3)
@@ -2069,6 +2172,11 @@
 (define (all-residues imol)
   (residues-matching-criteria imol (lambda (chain-id resno ins-code serial) #t)))
 
+(define (all-residues-sans-water imol)
+  (residues-matching-criteria imol (lambda (chain-id res-no ins-code serial)
+				     (let ((rn (residue-name imol chain-id res-no ins-code)))
+				       (not (string=? rn "HOH"))))))
+
 ;; Return a list of all the residues in the chain
 ;; 
 (define (residues-in-chain imol chain-id-in)
@@ -2130,8 +2238,8 @@
   ;; atom-spec example (list "A" 7 "" " SG " "")
   (cond
    ((null? atom-spec) #f)
-   ((= (length atom-spec) 5)
-    (list-ref atom-spec 0))
+   ((= (length atom-spec) 5) (list-ref atom-spec 0))
+   ((= (length atom-spec) 6) (list-ref atom-spec 1))
    (else
     #f)))
 
@@ -2140,8 +2248,8 @@
   ;; atom-spec example (list "A" 7 "" " SG " "")
   (cond
    ((null? atom-spec) #f)
-   ((= (length atom-spec) 5)
-    (list-ref atom-spec 1))
+   ((= (length atom-spec) 5) (list-ref atom-spec 1))
+   ((= (length atom-spec) 6) (list-ref atom-spec 2))
    (else
     #f)))
 
@@ -2150,8 +2258,8 @@
   ;; atom-spec example (list "A" 7 "" " SG " "")
   (cond
    ((null? atom-spec) #f)
-   ((= (length atom-spec) 5)
-    (list-ref atom-spec 2))
+   ((= (length atom-spec) 5) (list-ref atom-spec 2))
+   ((= (length atom-spec) 6) (list-ref atom-spec 3))
    (else
     #f)))
 
@@ -2160,8 +2268,8 @@
   ;; atom-spec example (list "A" 7 "" " SG " "")
   (cond
    ((null? atom-spec) #f)
-   ((= (length atom-spec) 5)
-    (list-ref atom-spec 3))
+   ((= (length atom-spec) 5) (list-ref atom-spec 3))
+   ((= (length atom-spec) 6) (list-ref atom-spec 4))
    (else
     #f)))
 
@@ -2170,10 +2278,11 @@
   ;; atom-spec example (list "A" 7 "" " SG " "")
   (cond
    ((null? atom-spec) #f)
-   ((= (length atom-spec) 5)
-    (list-ref atom-spec 4))
+   ((= (length atom-spec) 5) (list-ref atom-spec 4))
+   ((= (length atom-spec) 6) (list-ref atom-spec 5))
    (else
     #f)))
+
 
 ;; simple extraction function
 (define (res-spec->chain-id res-spec)
@@ -2208,7 +2317,6 @@
    (else 
     #f)))
     
-
 
 ;; Return #f if no atom can be found given the spec else return a list
 ;; consisting of the atom name and alt-conf specifier.  

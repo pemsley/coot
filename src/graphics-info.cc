@@ -274,13 +274,19 @@ void graphics_info_t::SetMouseClicked(double x, double y) {
 }
 
 // static 
-GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label) { 
+GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label) {
 
    GtkWidget *w = NULL;
    if (use_graphics_interface_flag) { 
       w = create_nothing_bad_dialog();
       GtkWidget *label_widget = lookup_widget(w, "nothing_bad_label");
       gtk_label_set_use_markup(GTK_LABEL(label_widget), TRUE); // needed?
+
+      // for gtk2
+      gtk_misc_set_alignment(GTK_MISC(label_widget), 0.0, 0.5);
+      // for gtk3
+      // gtk_label_set_xalign (label1, 0.0);
+
       gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
       gtk_window_set_transient_for(GTK_WINDOW(w), GTK_WINDOW(lookup_widget(graphics_info_t::glarea, "window1")));
    }
@@ -1127,7 +1133,7 @@ graphics_info_t::display_all_model_molecules() {
    }
 }
 
-// an unactivate
+// and unactivate
 void
 graphics_info_t::undisplay_all_model_molecules_except(int imol) {
 
@@ -1829,7 +1835,7 @@ graphics_info_t::clear_up_moving_atoms() {
 
    if (last_restraints) {
       last_restraints->clear();
-      // std::cout << "---------- clear_up_moving_atoms() - delete last_restraints ------" << std::endl;
+      std::cout << "DEBUG:: ------ clear_up_moving_atoms() - delete last_restraints ---" << std::endl;
       delete last_restraints;
       last_restraints = 0;
    }
@@ -3484,7 +3490,7 @@ graphics_info_t::Imol_Refinement_Map() const {
    if (direct_maps.size() == 1) {
       // let's set it then
       imol_refinement_map = direct_maps[0];
-   } else { 
+   } else {
       imol_refinement_map = -1;
    }
    return imol_refinement_map;
@@ -6396,4 +6402,11 @@ graphics_info_t::is_within_display_radius(const coot::Cartesian &p) {
    coot::Cartesian delta = p - c;
    return (delta.amplitude_squared() <= d_sqrd);
 
+}
+
+
+void
+graphics_info_t::set_merge_molecules_ligand_spec(const coot::residue_spec_t &spec_in) {
+
+   merge_molecules_ligand_spec = spec_in;
 }

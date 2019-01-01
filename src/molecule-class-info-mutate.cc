@@ -602,14 +602,14 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 
    { // make a string for the GUI - displayed as the result
       std::string as = "<tt>";
-      as += ">  " + name_ + "\n";
-      as += "> target sequence:\n";
+      as += ".  " + name_ + "\n";
+      as += ". target sequence:\n";
       std::string aligned = align.GetAlignedS();
       std::string target  = align.GetAlignedT();
       std::string matches = coot::alignment_matches(aligned, target);
       as += "   " + aligned + "\n";
       as += "   " + matches + "\n";
-      as += "   " + target + "\n";
+      as += "   " + target  + "\n";
       as += "</tt>"; // is this pango at work?
       ch_info.alignment_string = as;
    }
@@ -624,15 +624,34 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 	 std::cout << "> target seq: \n" << align.GetAlignedT() << std::endl;
 	 std::cout << "INFO:: alignment score " << align.GetScore() << std::endl;
       } else {
-	 std::cout << ">  " << name_ << "\n";
-	 std::cout << "> target sequence:\n";
+
 	 std::string aligned = align.GetAlignedS();
 	 std::string target  = align.GetAlignedT();
 	 std::string matches = coot::alignment_matches(aligned, target);
-	 std::cout << "   " << aligned << "\n";
-	 std::cout << "   " << matches << "\n";
-	 std::cout << "   " << target  << "\n";
-	 std::cout << "INFO:: alignment score " << align.GetScore() << std::endl;
+
+	 if (false) { // old style
+	    std::cout << ">  " << name_ << "\n";
+	    std::cout << "> target sequence:\n";
+	    std::cout << "   " << aligned << "\n";
+	    std::cout << "   " << matches << "\n";
+	    std::cout << "   " << target  << "\n";
+	 }
+
+	 // this doesn't make tt format on my mac, maybe it does on PC?
+
+	 std::string s;
+	 s += "<tt>Alignment model vs. target\n\n";
+	 s += output_alignment_in_blocks(aligned, target, matches);
+	 s += "INFO:: alignment score ";
+	 s += coot::util::int_to_string(align.GetScore());
+	 s += "</tt>\n";
+
+	 // debug
+	 // s = "<tt>some text here</tt>\nxyz\n";
+
+	 std::cout << s;
+	 ch_info.alignment_string = s;
+
       }
    }
 
@@ -824,6 +843,64 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    ch_info.rationalize_insertions();
    return ch_info;
 }
+
+
+
+std::string
+molecule_class_info_t::output_alignment_in_blocks(const std::string &aligned,
+                                                  const std::string &target,
+                                                  const std::string &matches) const {
+
+   std::string o;
+
+    // they should all be the same length, don't bother trying to handle the case
+    // when they are not.
+
+   std::size_t la = aligned.length();
+   std::size_t lt = target.length();
+   std::size_t lm = matches.length();
+
+   if (la != lt) return o;
+   if (la != lm) return o;
+
+   std::size_t block_size = 80;
+   bool do_blocks = true;
+   std::string rem_ali = aligned;
+   std::string rem_tar = target;
+   std::string rem_mat = matches;
+   while (do_blocks) {
+      std::size_t la = rem_ali.length();
+      std::size_t lt = rem_tar.length();
+      std::size_t lm = rem_mat.length();
+      // std::cout << "\n";
+      // std::cout << " aligned: " << rem_ali.substr(0, block_size) << "\n";
+      // std::cout << "          " << rem_mat.substr(0, block_size) << "\n";
+      // std::cout << "  target: " << rem_tar.substr(0, block_size) << "\n";
+
+      o += " aligned: ";
+      o += rem_ali.substr(0, block_size);
+      o += "\n";
+
+      o += "          ";
+      o += rem_mat.substr(0, block_size);
+      o += "\n";
+
+      o += "  target: ";
+      o += rem_tar.substr(0, block_size);
+      o += "\n\n";
+
+      if (la < block_size) {
+	 do_blocks = false;
+      } else {
+	 rem_ali = rem_ali.substr(80, std::string::npos);
+	 rem_tar = rem_tar.substr(80, std::string::npos);
+	 rem_mat = rem_mat.substr(80, std::string::npos);
+      }
+   }
+   return o;
+}
+
+
 
 // Try to align on all chains - pick the best one and return it in the
 // second.  If there is no chain that matches within match_frag

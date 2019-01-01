@@ -67,7 +67,6 @@ CCP4 SW:
 - Windows: save working dir directory to properties/start in (possible?)
 - powerpoint plug in
 
-- add nomenclature error check to preferences
 - show all bond distances (angles etc?) for ligand/residue
 - update WIKI (key bindings)
 
@@ -154,6 +153,8 @@ scripting exercise
 	from Eugene
 
    o add more things to Preferences, e.g. no of auto refine residues steps;
+	add nomenclature error check to preferences
+	reorienting_next_residue
 	Preferences could include all (almost) default
 	settings from globjects e.g.
 	add zero occ box size??
@@ -298,8 +299,6 @@ scripting exercise
    o domain NCS (use parrot's code?!)
 
    o make LINK search and LINK in pdb
-
-   o default bond length (e.g.) preferences conflict with state file
 
    o seq view colour by alignment (optional/button)
 

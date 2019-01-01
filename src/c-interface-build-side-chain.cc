@@ -637,7 +637,7 @@ int mutate_base(int imol, const char *chain_id, int res_no, const char *ins_code
    add_to_history_typed(cmd, args);
    
    return istate; 
-} 
+}
 
 
 

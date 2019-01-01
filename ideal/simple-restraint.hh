@@ -69,22 +69,27 @@ namespace coot {
       mmdb::Residue *r_1; 
       mmdb::Residue *r_2; 
       mmdb::Residue *r_3;
+      std::string link_type;
       bool fixed_1; 
       bool fixed_2; 
       bool fixed_3; 
-      rama_triple_t(mmdb::Residue *r1, mmdb::Residue *r2, mmdb::Residue *r3) {
+      rama_triple_t(mmdb::Residue *r1, mmdb::Residue *r2, mmdb::Residue *r3,
+		    const std::string &link_type_in) {
 	 r_1 = r1;
 	 r_2 = r2;
 	 r_3 = r3;
+	 link_type = link_type_in;
 	 fixed_1 = 0;
 	 fixed_2 = 0;
 	 fixed_3 = 0;
       }
       rama_triple_t(mmdb::Residue *r1, mmdb::Residue *r2, mmdb::Residue *r3,
+		    const std::string &link_type_in,
 		    bool fixed_1_in, bool fixed_2_in, bool fixed_3_in) {
 	 r_1 = r1;
 	 r_2 = r2;
 	 r_3 = r3;
+	 link_type = link_type_in;
 	 fixed_1 = fixed_1_in;
 	 fixed_2 = fixed_2_in;
 	 fixed_3 = fixed_3_in;
@@ -274,17 +279,19 @@ namespace coot {
       // index and weight
       std::vector <std::pair<int, double> > plane_atom_index; // atom_index values can return negative (-1) for planes
       std::vector <std::pair<int, double> > atom_index_other_plane; // for the second plane in parallel planes
-      double target_value; 
-      double sigma; 
-      float observed_value;    
+      double target_value;
+      double sigma;
+      float observed_value;
       restraint_type_t restraint_type;
-      int periodicity; 
+      int periodicity;
       int chiral_volume_sign;
       double target_chiral_volume;
       int chiral_hydrogen_index; // if exactly one H attached to this chiral
                                  // centre, then the atom index,
                                  // otherwise this is -1.
       atom_spec_t atom_spec; // for pull atoms (so that we can on the fly delete this restraints)
+      int n_atoms_from_all_restraints; // for debugging GSL/atom index errors
+      int restraints_index;            // ditto
       std::vector<bool> fixed_atom_flags;
       std::vector<bool> fixed_atom_flags_other_plane;
       bool is_user_defined_restraint;
@@ -354,7 +361,6 @@ namespace coot {
 	 }
       };
       
-    
       // Angle
       simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2, 
 		       int atom_3, 
@@ -1048,7 +1054,7 @@ namespace coot {
 	 rama_plot_weight = 40.0;
 
 #ifdef HAVE_CXX_THREAD
-	 atom_pull_restraints_lock = false; // not locked
+	 restraints_lock = false; // not locked
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 	 thread_pool_p = 0; // null pointer
 	 if (unset_deriv_locks)
@@ -1169,6 +1175,7 @@ namespace coot {
       void init_shared_pre(mmdb::Manager *mol_in);
 
       void init_shared_post(const std::vector<atom_spec_t> &fixed_atom_specs);
+      void set_fixed_during_refinement_udd(); // uses fixed_atom_indices
       // neighbour residues already are fixed.
       void add_fixed_atoms_from_flanking_residues(const bonded_pair_container_t &bpc);
       void add_fixed_atoms_from_non_bonded_neighbours(); // use non_bonded_neighbour_residues
@@ -1912,8 +1919,11 @@ namespace coot {
       // geometric_distortions not const because we set restraints_usage_flag:
       //
       // return data useful for making the graphs:
-      geometry_distortion_info_container_t
-      geometric_distortions(restraint_usage_Flags flags);
+      //
+      // 20181231 - yeah, I don't think that reseting restraints_usage_flags is a
+      //            good idea. Remove this function.
+      // geometry_distortion_info_container_t
+      // geometric_distortions(restraint_usage_Flags flags);
 
       // Here we use the internal flags.  Causes crash currently (no inital atom positions?)
       // remove const
@@ -2061,7 +2071,8 @@ namespace coot {
 
       // we should not update the atom pull restraints while the refinement is running.
       // we shouldn't refine when the atom pull restraints are being updated.
-      std::atomic<bool> atom_pull_restraints_lock;
+      // we shouldn't clear the gsl_vector x when o
+      std::atomic<bool> restraints_lock;
 #endif
       void setup_gsl_vector_atom_pos_deriv_locks();
       unsigned int get_n_atoms() const { return n_atoms; } // access from split_the_gradients_with_threads()

@@ -1488,7 +1488,7 @@
 
 ;; geometry is an improper list of ints.
 ;; 
-;; return the h-box of the buttons.
+;; return a list of (h-box-buttons window)
 ;;
 ;; a button is a list of (label callback-thunk text-description)
 ;; where text-description is an option arg (can be omitted)
@@ -1500,7 +1500,7 @@
 
 ;; geometry is an improper list of ints.
 ;; 
-;; return the h-box of the buttons.
+;; return a list of (h-box-buttons window)
 ;;
 ;; a button is a list of (label callback-thunk text-description)
 ;;
@@ -1560,7 +1560,7 @@
 			  (lambda args
 			    (set! inside-vbox #f)))
       (gtk-widget-show-all window)
-      inside-vbox))
+      (list inside-vbox window)))
 
 ;; This is exported outside of the box-of-buttons gui because the
 ;; clear-and-add-back function (e.g. from using the check button)
@@ -2724,7 +2724,7 @@
 	   (res-no   (list-ref res-info 3))
 	   (ins-code (list-ref res-info 4)))
       (let ((residue-atoms (residue-info imol chain-id res-no ins-code)))
-	(if (null? residue-atoms) 
+	(if (null? residue-atoms)
 	    " CA " ;; won't work of course
 	    (let loop ((atoms residue-atoms))
 	      (cond 
@@ -2734,7 +2734,6 @@
 	       (else (loop (cdr atoms)))))))))
 
 
-	   
   (format #t "------------- alignment-mismatches-gui called with imol ~s~%" imol)
 
   ;; main line
@@ -2812,12 +2811,16 @@
 		      (list button-1-label button-1-action)))
 		  (list-ref am 2))))
 
-	(let ((buttons (append delete-buttons mutate-buttons insert-buttons)))
-	  
+	(let ((buttons (append delete-buttons mutate-buttons insert-buttons))
+	      (alignments-as-text-list (list-ref am 3)))
+
+	  (for-each (lambda (alignment-text)
+		      (info-dialog alignment-text))
+		    alignments-as-text-list)
+
 	  (dialog-box-of-buttons "Residue mismatches"
 				 (cons 300 300)
 				 buttons "  Close  ")))))))
-
 
 
 ;; Wrapper in that we test if there have been sequence(s) assigned to
@@ -3130,22 +3133,22 @@
 	 (inside-vbox  (gtk-vbox-new #f 2))
 	 (label (gtk-label-new "\nSolvent molecules added to molecule: "))
 	 (menu (gtk-menu-new))
-	 (frame-for-option-menu (gtk-frame-new ""))
-	 (vbox-for-option-menu (gtk-vbox-new #f 2))
+	 (frame-for-option-menu (gtk-frame-new " Choose Molecule "))
+	 (vbox-for-option-menu (gtk-vbox-new #f 6))
 	 (molecule-option-menu (gtk-option-menu-new))
 	 (model-list (fill-option-menu-with-coordinates-mol-options menu))
 	 (add-new-button (gtk-button-new-with-label "  Add a new Residue Type..."))
 	 (h-sep (gtk-hseparator-new))
 	 (close-button (gtk-button-new-with-label "  Close  ")))
     
-    (gtk-window-set-default-size window 250 400)
+    (gtk-window-set-default-size window 250 500)
     (gtk-window-set-title window "Solvent Ligands")
     (gtk-container-border-width window 8)
     (gtk-container-add window outside-vbox)
     (gtk-box-pack-start outside-vbox label #f #f 2)
     (gtk-container-add frame-for-option-menu vbox-for-option-menu)
-    (gtk-box-pack-start vbox-for-option-menu molecule-option-menu #f #f 2)
-    (gtk-container-border-width frame-for-option-menu 4)
+    (gtk-box-pack-start vbox-for-option-menu molecule-option-menu #f #f 8)
+    (gtk-container-border-width frame-for-option-menu 6)
     (gtk-box-pack-start outside-vbox frame-for-option-menu #f #f 2)
     (gtk-box-pack-start outside-vbox scrolled-win #t #t 0)
     (gtk-scrolled-window-add-with-viewport scrolled-win inside-vbox)

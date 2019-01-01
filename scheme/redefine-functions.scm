@@ -39,6 +39,7 @@
 (define regularize-residues regularize-residues-scm)
 (define refine-zone-with-score refine-zone-with-score-scm)
 (define regularize-zone-with-score regularize-zone-with-score-scm)
+(define set-merge-molecules-ligand-spec set-merge-molecules-ligand-spec-scm)
 (define map-peaks map-peaks-scm)
 (define map-peaks-near-point map-peaks-near-point-scm)
 (define add-dipole add-dipole-scm)
@@ -121,6 +122,9 @@
 (define linked-residues linked-residues-scm)
 (define molecule-atom-overlaps molecule-atom-overlaps-scm)
 (define CG-spin-search CG-spin-search-scm)
+(define c-beta-deviations c-beta-deviations-scm)
+(define set-go-to-atom-from-atom-spec set-go-to-atom-from-atom-spec-scm)
+
 ;; (define residues-distortions residues-distortions-scm)
 
 ;; I changed the function name - save those (just a few) with scripts that I've handed out
