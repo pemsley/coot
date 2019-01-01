@@ -4711,3 +4711,28 @@ void
 on_refine_params_more_control_togglebutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
+
+void
+on_accept_reject_flip_this_peptide_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_accept_reject_flip_next_peptide_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_accept_reject_crankshaft_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_accept_reject_backrub_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_accept_reject_backrub_rotamer_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);

@@ -8924,6 +8924,14 @@ create_accept_reject_refinement_dialog (void)
   GtkWidget *accept_reject_refinement_atom_pull_autoclear_checkbutton;
   GtkWidget *accept_reject_atom_pull_clear_button;
   GtkWidget *label790;
+  GtkWidget *frame308;
+  GtkWidget *alignment172;
+  GtkWidget *vbox330;
+  GtkWidget *accept_reject_flip_this_peptide_button;
+  GtkWidget *accept_reject_flip_next_peptide_button;
+  GtkWidget *accept_reject_crankshaft_button;
+  GtkWidget *accept_reject_backrub_rotamer_button;
+  GtkWidget *label824;
   GtkWidget *dialog_action_area9;
   GtkWidget *hbox41;
   GtkWidget *accept_reject_refinement_accept_button;
@@ -9201,6 +9209,41 @@ create_accept_reject_refinement_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (frame302), label790);
   gtk_label_set_use_markup (GTK_LABEL (label790), TRUE);
 
+  frame308 = gtk_frame_new (NULL);
+  gtk_widget_show (frame308);
+  gtk_box_pack_start (GTK_BOX (vbox195), frame308, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame308), 2);
+
+  alignment172 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment172);
+  gtk_container_add (GTK_CONTAINER (frame308), alignment172);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment172), 0, 0, 12, 0);
+
+  vbox330 = gtk_vbox_new (FALSE, 4);
+  gtk_widget_show (vbox330);
+  gtk_container_add (GTK_CONTAINER (alignment172), vbox330);
+
+  accept_reject_flip_this_peptide_button = gtk_button_new_with_mnemonic ("Flip This Peptide");
+  gtk_widget_show (accept_reject_flip_this_peptide_button);
+  gtk_box_pack_start (GTK_BOX (vbox330), accept_reject_flip_this_peptide_button, FALSE, FALSE, 0);
+
+  accept_reject_flip_next_peptide_button = gtk_button_new_with_mnemonic ("Flip Next Peptide");
+  gtk_widget_show (accept_reject_flip_next_peptide_button);
+  gtk_box_pack_start (GTK_BOX (vbox330), accept_reject_flip_next_peptide_button, FALSE, FALSE, 0);
+
+  accept_reject_crankshaft_button = gtk_button_new_with_mnemonic ("Crankshaft Peptide Optimise");
+  gtk_widget_show (accept_reject_crankshaft_button);
+  gtk_box_pack_start (GTK_BOX (vbox330), accept_reject_crankshaft_button, FALSE, FALSE, 0);
+
+  accept_reject_backrub_rotamer_button = gtk_button_new_with_mnemonic ("Backrub Rotamer Fit");
+  gtk_widget_show (accept_reject_backrub_rotamer_button);
+  gtk_box_pack_start (GTK_BOX (vbox330), accept_reject_backrub_rotamer_button, FALSE, FALSE, 0);
+
+  label824 = gtk_label_new ("<b>Active Refinement</b>");
+  gtk_widget_show (label824);
+  gtk_frame_set_label_widget (GTK_FRAME (frame308), label824);
+  gtk_label_set_use_markup (GTK_LABEL (label824), TRUE);
+
   dialog_action_area9 = GTK_DIALOG (accept_reject_refinement_dialog)->action_area;
   gtk_widget_show (dialog_action_area9);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area9), GTK_BUTTONBOX_END);
@@ -9263,6 +9306,18 @@ create_accept_reject_refinement_dialog (void)
   g_signal_connect ((gpointer) accept_reject_atom_pull_clear_button, "clicked",
                     G_CALLBACK (on_accept_reject_atom_pull_clear_button_clicked),
                     NULL);
+  g_signal_connect ((gpointer) accept_reject_flip_this_peptide_button, "clicked",
+                    G_CALLBACK (on_accept_reject_flip_this_peptide_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) accept_reject_flip_next_peptide_button, "clicked",
+                    G_CALLBACK (on_accept_reject_flip_next_peptide_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) accept_reject_crankshaft_button, "clicked",
+                    G_CALLBACK (on_accept_reject_crankshaft_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) accept_reject_backrub_rotamer_button, "clicked",
+                    G_CALLBACK (on_accept_reject_backrub_rotamer_button_clicked),
+                    NULL);
   g_signal_connect ((gpointer) accept_reject_refinement_accept_button, "clicked",
                     G_CALLBACK (on_accept_reject_refinement_accept_button_clicked),
                     NULL);
@@ -9318,6 +9373,14 @@ create_accept_reject_refinement_dialog (void)
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_refinement_atom_pull_autoclear_checkbutton, "accept_reject_refinement_atom_pull_autoclear_checkbutton");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_atom_pull_clear_button, "accept_reject_atom_pull_clear_button");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label790, "label790");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame308, "frame308");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, alignment172, "alignment172");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, vbox330, "vbox330");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_flip_this_peptide_button, "accept_reject_flip_this_peptide_button");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_flip_next_peptide_button, "accept_reject_flip_next_peptide_button");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_crankshaft_button, "accept_reject_crankshaft_button");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_backrub_rotamer_button, "accept_reject_backrub_rotamer_button");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label824, "label824");
   GLADE_HOOKUP_OBJECT_NO_REF (accept_reject_refinement_dialog, dialog_action_area9, "dialog_action_area9");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, hbox41, "hbox41");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_refinement_accept_button, "accept_reject_refinement_accept_button");
