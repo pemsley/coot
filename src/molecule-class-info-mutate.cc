@@ -1399,20 +1399,25 @@ molecule_class_info_t::em_ringer(const clipper::Xmap<float> &xmap) const {
          int nres = chain_p->GetNumberOfResidues();
          for (int ires=0; ires<nres; ires++) {
             mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-            coot::residue_spec_t spec(residue_p);
-            std::vector<std::string> v;
-            v.push_back(" CG ");
-            density_results_container_t drc = spin_atom(xmap, spec, " N  ", " CA ", " CB ", v);
-            if (drc.scored_points.size() == 2) {
-               float a1 = drc.scored_points[0].angle;
-               float a2 = drc.scored_points[1].angle;
-               float delta = a2 - a1;
-               if (delta < -180.0) delta += 360.0;
-               if (delta >  180.0) delta -= 360.0;
-               // std::cout << "spin_atom " << spec << " " << a1 << " " << a2 << " " << delta << "\n";
-	       std::pair<coot::residue_spec_t, float> p(spec, delta);
-	       vr.push_back(p);
-            }
+	    std::string residue_name = residue_p->GetResName();
+	    // PRO has a CG but we don't want to ringer it. Other residues with CG we do.
+	    // and spin_atom doesn't know about residue types or atom names, it's generic.
+	    if (residue_name != "PRO") {
+	       coot::residue_spec_t spec(residue_p);
+	       std::vector<std::string> v;
+	       v.push_back(" CG ");
+	       density_results_container_t drc = spin_atom(xmap, spec, " N  ", " CA ", " CB ", v);
+	       if (drc.scored_points.size() == 2) {
+		  float a1 = drc.scored_points[0].angle;
+		  float a2 = drc.scored_points[1].angle;
+		  float delta = a2 - a1;
+		  if (delta < -180.0) delta += 360.0;
+		  if (delta >  180.0) delta -= 360.0;
+		  // std::cout << "spin_atom " << spec << " " << a1 << " " << a2 << " " << delta << "\n";
+		  std::pair<coot::residue_spec_t, float> p(spec, delta);
+		  vr.push_back(p);
+	       }
+	    }
          }
       }
    }
@@ -1437,8 +1442,7 @@ molecule_class_info_t::spin_atom(const clipper::Xmap<float> &xmap,
 				 const std::string &direction_atoms_tip,
 				 const std::vector<std::string> &moving_atoms_list) const {
 
-
-   // this is the wrong container. I (at the momonet) want just current torsion and best torsion
+   // this is the wrong container. I (at the moment) want just current torsion and best torsion
    //
    density_results_container_t drc;
 
@@ -1460,18 +1464,18 @@ molecule_class_info_t::spin_atom(const clipper::Xmap<float> &xmap,
 			    atom_spec_tor_3, atom_spec_tor_4);
 
          std::vector<mmdb::Atom *> ma = tors.matching_atoms(residue_p);
-         if (ma.size() == 4) {
+	 if (ma.size() == 4) {
 	    float best_tors_angle = coot::util::spin_search(xmap, residue_p, tors).second; // degrees, relative to N
-            coot::atom_quad q(ma[0], ma[1], ma[2], ma[3]);
-            float tors_atoms = q.torsion(); // degrees
-            double delta = best_tors_angle - tors_atoms;
-            float dv = 0;
-            clipper::Coord_orth pos(0,0,0);
-            density_results_t sp_1(pos, tors_atoms, dv); // position angle density
-            density_results_t sp_2(pos, best_tors_angle, dv);
-            drc.scored_points.push_back(sp_1);
-            drc.scored_points.push_back(sp_2);
-         }
+	    coot::atom_quad q(ma[0], ma[1], ma[2], ma[3]);
+	    float tors_atoms = q.torsion(); // degrees
+	    double delta = best_tors_angle - tors_atoms;
+	    float dv = 0;
+	    clipper::Coord_orth pos(0,0,0);
+	    density_results_t sp_1(pos, tors_atoms, dv); // position angle density
+	    density_results_t sp_2(pos, best_tors_angle, dv);
+	    drc.scored_points.push_back(sp_1);
+	    drc.scored_points.push_back(sp_2);
+	 }
       }
    }
    return drc;
