@@ -4121,6 +4121,7 @@ graphics_info_t::get_rotamer_probability(mmdb::Residue *res,
 					 float lowest_probability,
 					 short int add_extra_PHE_and_TYR_rotamers_flag) {
 
+   bool debug = false;
    coot::rotamer_probability_info_t r(coot::rotamer_probability_info_t::MISSING_ATOMS,0,"");
 #ifdef USE_DUNBRACK_ROTAMERS			
    coot::dunbrack d(res, mol, rotamer_lowest_probability, 1);
@@ -4133,7 +4134,8 @@ graphics_info_t::get_rotamer_probability(mmdb::Residue *res,
 	 std::vector<coot::rotamer_probability_info_t> v = rot_prob_tables.probability_this_rotamer(res);
 	 if (v.size() > 0) {
 	    r = v[0];
-	    std::cout << "  residue " << coot::residue_spec_t(res) << " " << v[0] << std::endl;
+	    if (debug)
+	       std::cout << "  residue " << coot::residue_spec_t(res) << " " << v[0] << std::endl;
 	 }
 
       }
