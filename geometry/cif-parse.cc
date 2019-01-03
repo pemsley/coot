@@ -3015,13 +3015,10 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 
 	 if (debug)
 	    std::cout << "... matching_chem_link: found matching link "
-		      << comp_id_1 << " " << comp_id_2 << " " 
-		      << chem_link_vec[i_chem_link] << std::endl;
+		      << comp_id_1 << " " << comp_id_2 << " " << cl << std::endl;
 
 	 // make sure that this link id is not a (currently) useless one.
-	 if (chem_link_vec[i_chem_link].Id() != "gap" &&
-	     chem_link_vec[i_chem_link].Id() != "symmetry") { 
-	    chem_link cl = chem_link_vec[i_chem_link];
+	 if (cl.Id() != "gap" && cl.Id() != "symmetry") {
 	    if (!cl.is_peptide_link_p() || allow_peptide_link_flag) {
 	       switch_order_flag = match_res.second;
 	       found = 1;
@@ -3038,8 +3035,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 	    }
 	 } else {
 	    if (debug) {
-	       std::cout << "reject link \"" << chem_link_vec[i_chem_link].Id() << "\""
-			 << std::endl;
+	       std::cout << "reject link \"" << cl.Id() << "\"" << std::endl;
 	    } 
 	 }
       }
