@@ -56,10 +56,10 @@ int test_sound(int argc, char **argv) {
 	 }
       }
 
+      fclose(f);
+
       // close oggvorbisfile?
    }
-
-   fclose(f);
 
    return(0);
 
