@@ -152,6 +152,7 @@ lbg(lig_build::molfile_molecule_t mm,
 	       lbg->import_from_widgeted_molecule(wmol);
 	       lbg->render();
 	       lbg->update_descriptor_attributes();
+               lbg->update_apply_button_sensitivity();
 	       lbg->save_molecule();
 	    }
 	 }
@@ -167,7 +168,7 @@ lbg(lig_build::molfile_molecule_t mm,
 	 widgeted_molecule_t wmol = lbg->import_mol_file(mm, molecule_file_name, mol);
 	 lbg->import_from_widgeted_molecule(wmol);
 	 lbg->render();
-	 lbg->update_descriptor_attributes();
+	 lbg->update_descriptor_attributes(); // why?
       }
 
       if (lbg) {
@@ -1359,7 +1360,28 @@ lbg_info_t::handle_item_add(GdkEventButton *event) {
    if (changed_status) {
       save_molecule();
       update_descriptor_attributes();
+      update_apply_button_sensitivity();
    }
+}
+
+void
+lbg_info_t::update_apply_button_sensitivity() {
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+   if (use_graphics_interface_flag) {
+      try {
+	 RDKit::RWMol rdkm = rdkit_mol(mol);
+	 coot::rdkit_mol_sanitize(rdkm);
+         // restore sensitive (if needed)
+         gtk_widget_set_sensitive(GTK_WIDGET(lbg_apply_button), TRUE);
+      }
+      catch (const std::exception &e) {
+	 std::cout << "WARNING:: Oops non-sane molecule " << e.what() << std::endl;
+         gtk_widget_set_sensitive(GTK_WIDGET(lbg_apply_button), FALSE);
+      }
+   }
+#endif
 }
 
 void
@@ -1367,7 +1389,7 @@ lbg_info_t::update_descriptor_attributes() {
    
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
-   if (use_graphics_interface_flag) { 
+   if (use_graphics_interface_flag) {
       try {
 	 RDKit::RWMol rdkm = rdkit_mol(mol);
 	 coot::rdkit_mol_sanitize(rdkm);
@@ -1378,7 +1400,7 @@ lbg_info_t::update_descriptor_attributes() {
       catch (const std::exception &e) {
 	 std::cout << "WARNING:: from update_descriptor_attributes() " << e.what() << std::endl;
 
-	 if (lbg_statusbar) { 
+	 if (lbg_statusbar) {
 	    std::string status_string;
 	    guint statusbar_context_id =
 	       gtk_statusbar_get_context_id(GTK_STATUSBAR(lbg_statusbar), status_string.c_str());
@@ -1418,6 +1440,7 @@ lbg_info_t::handle_item_delete(GdkEventButton *event) {
       }
       save_molecule();
       update_descriptor_attributes();
+      update_apply_button_sensitivity();
    }
 }
 
@@ -3024,6 +3047,7 @@ lbg_info_t::clear(bool do_descriptor_updates) {
 
    if (do_descriptor_updates) {
       update_descriptor_attributes();
+      update_apply_button_sensitivity();
    }
 }
 
@@ -3089,6 +3113,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 about_dialog =    GTK_WIDGET (gtk_builder_get_object (builder, "lbg_aboutdialog"));
 	 open_dialog     = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_open_filechooserdialog"));
 	 save_as_dialog  = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_save_as_filechooserdialog"));
+         lbg_apply_button = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_apply_button"));
 	 lbg_sbase_search_results_dialog = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_sbase_search_results_dialog"));
 	 lbg_sbase_search_results_vbox = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_sbase_search_results_vbox"));
 	 lbg_export_as_pdf_dialog =      GTK_WIDGET (gtk_builder_get_object (builder, "lbg_export_as_pdf_filechooserdialog"));
@@ -3964,6 +3989,7 @@ lbg_info_t::undo() {
       import_from_widgeted_molecule(saved_mol);
       render();
       update_descriptor_attributes();
+      update_apply_button_sensitivity();
    } else {
       clear(true);
    } 
@@ -4343,6 +4369,7 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
       import_from_widgeted_molecule(wmol);
       render();
       update_descriptor_attributes();
+      update_apply_button_sensitivity();
    }
 }
 
@@ -4403,6 +4430,7 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
 	 import_from_widgeted_molecule(wmol);
 	 render();
 	 update_descriptor_attributes();
+         update_apply_button_sensitivity();
 
       } else {
 	 std::cout << "WARNING:: molecule from " << file_name << " had 0 conformers " << std::endl;

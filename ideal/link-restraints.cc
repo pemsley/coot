@@ -612,9 +612,14 @@ coot::restraints_container_t::make_link_restraints_from_res_vec(const coot::prot
 
    bonded_pair_container_t bonded_residue_pairs = bonded_residues_from_res_vec(geom);
 
-   if (debug)
+   if (false) {
       std::cout << "   DEBUG:: in make_link_restraints_from_res_vec() found "
 		<< bonded_residue_pairs.size() << " bonded residues " << std::endl;
+      for (std::size_t i=0; i<bonded_residue_pairs.size(); i++) {
+	 const bonded_pair_t &bp = bonded_residue_pairs.bonded_residues[i];
+	 std::cout << "   " << i << " " << residue_spec_t(bp.res_1) << " " << residue_spec_t(bp.res_2) << std::endl;
+      }
+   }
 
    int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, do_trans_peptide_restraints, "Link");
 
@@ -641,6 +646,26 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
    int n_link_plane_restr = 0;
    int n_link_parallel_plane_restr = 0;
 
+   if (false) {
+      std::cout << "Here are the bonded pairs: " << std::endl;
+      for (unsigned int ibonded_residue=0;
+	   ibonded_residue<bonded_residue_pairs.size();
+	   ibonded_residue++) {
+
+	 std::string link_type = bonded_residue_pairs[ibonded_residue].link_type;
+	 mmdb::Residue *sel_res_1 = bonded_residue_pairs[ibonded_residue].res_1;
+	 mmdb::Residue *sel_res_2 = bonded_residue_pairs[ibonded_residue].res_2;
+
+	 std::cout << " ------- looking for link :" << link_type
+		   << ": restraints etc. between residues "
+		   << residue_spec_t(sel_res_1) << " " << sel_res_1->GetResName()
+		   << " - "
+		   << residue_spec_t(sel_res_2) << " " << sel_res_2->GetResName()
+		   << std::endl;
+      }
+   }
+   // std::cout << "---------- Done bonded pairs" << std::endl;
+
    for (unsigned int ibonded_residue=0;
 	ibonded_residue<bonded_residue_pairs.size();
 	ibonded_residue++) {
@@ -657,11 +682,11 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
       mmdb::Residue *sel_res_1 = bonded_residue_pairs[ibonded_residue].res_1;
       mmdb::Residue *sel_res_2 = bonded_residue_pairs[ibonded_residue].res_2;
 
-      if (verbose_geometry_reporting == VERBOSE) { 
+      if (verbose_geometry_reporting == VERBOSE) {
 	 std::cout << " ------- looking for link :" << link_type
-		   << ": restraints etc. between residues " 
+		   << ": restraints etc. between residues "
 		   << residue_spec_t(sel_res_1) << " " << sel_res_1->GetResName()
-		   << " - " 
+		   << " - "
 		   << residue_spec_t(sel_res_2) << " " << sel_res_2->GetResName()
 		   << std::endl;
       }
@@ -852,7 +877,7 @@ coot::restraints_container_t::find_link_type(mmdb::Residue *first,
 	 }
       }
    }
-   
+
    if (coot::util::is_nucleotide_by_dict(first, geom))
       link_type = "p"; // phosphodiester linkage
 
@@ -921,7 +946,8 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 			     // SSBONDs in the molecule before
 			     // assigning pyranose or disulphides etc.
 
-   bool debug = false;
+   bool debug = false; // TMI.
+
    std::string link_type = "";
    bool order_switch_flag = false;
    std::string comp_id_1 = first->GetResName();
@@ -981,9 +1007,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 
 	       // ===================== is a peptide ========================================
 	       
-	       // std::pair<bool, bool> close_info = peptide_C_and_N_are_close_p(first, second);
-
-	       // use an enum for the first. No magic numbers
+	       // note to self: use an enum for the first, don't use magic numbers
 	       std::pair<int, bool> peptide_info = peptide_C_and_N_are_in_order_p(first, second);
 
 	       if (false)
@@ -1025,11 +1049,13 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 
 		     peptide_info = peptide_C_and_N_are_close_p(first, second);
 
-		     // std::cout << "   moving-to-fixed " << peptide_info.first << " "
-		     //           << peptide_info.second << std::endl;
-
+                     if (false) {
+		        std::cout << "   DEBUG:: find_link_type_complicado() unknown, so moving-to-fixed? for "
+				  << residue_spec_t(first) << " " << residue_spec_t(second) << " "
+                                  << peptide_info.first << " " << peptide_info.second
+                                  << std::endl;
+		     }
 		  }
-
 	       }
 
 	       if (peptide_info.first != IS_PEPTIDE) {
@@ -1043,7 +1069,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 		     for (unsigned int il=0; il<link_infos_non_peptide.size(); il++)
 			std::cout << "   DEBUG::    find_link_type_complicado() non-peptide link: "
 				  << link_infos_non_peptide[il].first.Id() << std::endl;
-	       
+
 		  // 20100330 eh?  is something missing here?  What
 		  // shall we do with link_infos_non_peptide?  did I
 		  // mean that, now the peptide test has failed,
@@ -1153,7 +1179,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 		  }
 	       }
 	    }
-	 } 
+	 }
       }
       catch (const std::runtime_error &mess_in) {
 	 if (debug) {

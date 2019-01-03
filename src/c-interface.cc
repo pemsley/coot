@@ -5631,7 +5631,10 @@ void clear_up_moving_atoms() {
    g.clear_moving_atoms_object();
 }
 
-
+// this is a better function name
+void set_refine_ramachandran_torsion_angles(int state) {
+   set_refine_ramachandran_angles(state);
+}
 
 
 // either alpha helix, beta strand or ramachandran goodness

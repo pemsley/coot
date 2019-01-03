@@ -20,6 +20,6 @@ redefine-functions.scm user-define-restraints.scm template-key-bindings.scm \
 gui-add-linked-cho.scm ligand-check.scm   run-mogul.scm  \
 contact-score-isolated-ligand.scm enhanced-ligand.scm gui-ligand-sliders.scm \
 dictionary-generators.scm cho-restraints-from-models.scm interactive-nudge-residues.scm \
-acedrg-link.scm add-linked-cho.scm
+acedrg-link.scm add-linked-cho.scm        find-baddies.scm
 
 # scheme_TEXINFOS = ... something generated?  More reading needed.

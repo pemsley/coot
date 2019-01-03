@@ -2961,10 +2961,12 @@ the first argument is a list of molecule numbers and the second is the target
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
 SCM merge_molecules(SCM add_molecules, int imol);
+void set_merge_molecules_ligand_spec_scm(SCM ligand_spec_scm);
 #endif
 
 #ifdef USE_PYTHON
 PyObject *merge_molecules_py(PyObject *add_molecules, int imol);
+void set_merge_molecules_ligand_spec_py(PyObject *ligand_spec_py);
 #endif /* PYTHON */
 #endif	/* c++ */
 
@@ -3385,6 +3387,7 @@ void set_refinement_drag_elasticity(float e);
 /*! \brief turn on Ramachandran angles refinement in refinement and regularization */
 /*! name consistent with set_refine_with_torsion_restraints() !?  */
 void set_refine_ramachandran_angles(int state);
+void set_refine_ramachandran_torsion_angles(int state);
 
 /*! \brief change the target function type  */
 void set_refine_ramachandran_restraints_type(int type);

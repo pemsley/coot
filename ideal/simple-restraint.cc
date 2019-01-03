@@ -509,7 +509,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 
    // debug:
    bool debug = false;
-   if (debug) { 
+   if (debug) {
       for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
 	 mmdb::PAtom *res_atom_selection = NULL;
 	 int n_res_atoms;
@@ -3549,22 +3549,30 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
    if (verbose_geometry_reporting == VERBOSE)
       debug = true;
 
+   int nres = residues_vec.size();
+
    if (debug) {
-      std::cout << "debug:: bonded_residues_from_res_vec() residues_vec.size() "
+      std::cout << "debug:: ------------------- bonded_residues_from_res_vec() residues_vec.size() "
 		<< residues_vec.size() << std::endl;
       for (unsigned int i=0; i<residues_vec.size(); i++) {
 	 std::cout << "   " << residues_vec[i].first << " "
 		   << residue_spec_t(residues_vec[i].second) << std::endl;
       }
+      for (unsigned int ii=0; ii<residues_vec.size(); ii++) {
+	 mmdb::Residue *res_f = residues_vec[ii].second;
+	 for (unsigned int jj=ii+1; jj<residues_vec.size(); jj++) {
+	    mmdb::Residue *res_s = residues_vec[jj].second;
+
+	    std::cout << "debug:: ------------ test here with res_f and res_s "
+		      << residue_spec_t(res_f) << " " << residue_spec_t(res_s) << std::endl;
+
+	    if (res_f == res_s) {
+	       continue;
+	    }
+	 }
+      }
    }
 
-   // -----------------------------------------------------------------------
-   //
-   // Do linear bonding here - take most of the residues out of the equation
-   //
-   // -----------------------------------------------------------------------
-
-   int nres = residues_vec.size();
    for (unsigned int ii=0; ii<residues_vec.size(); ii++) {
       mmdb::Residue *res_f = residues_vec[ii].second;
       for (unsigned int jj=ii+1; jj<residues_vec.size(); jj++) {
@@ -3610,8 +3618,31 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	       // std::cout << "              previously_added_flag " << previously_added_flag
 	       // << std::endl;
 	    }
+
+	    // if the link type is a straight-forward TRANS link of 2 residue next to each other
+	    // in residue numbers and serial numbers, then we don't need to find any other type
+	    // of link for this residue (so break out of the inner for-loop).
+	    bool was_straight_forward_trans_link = false;
+	    int resno_1 = res_f->GetSeqNum();
+	    int resno_2 = res_s->GetSeqNum();
+	    int ser_num_1 = res_f->index;
+	    int ser_num_2 = res_s->index;
+	    if (resno_2 == (resno_1 + 1)) {
+	       if (ser_num_2 == (ser_num_1 + 1)) {
+		  std::string rn_1 = res_f->GetResName();
+		  if (rn_1 != "ASN" && rn_1 != "CYS" && rn_1 != "SER" && rn_1 != "TYR") {
+		     was_straight_forward_trans_link = true;
+		  }
+	       }
+	    }
+	    if (was_straight_forward_trans_link) {
+	       // std::cout << "------------ was straight_forward TRANS link! - breaking"  << std::endl;
+	       break;
+	    }
+
 	 } else {
 	    if (debug)
+
 	       std::cout << "DEBUG:: find_link_type_complicado() blank result: "
 			 << "link_type find_link_type_complicado() for "
 			 << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
@@ -3621,6 +3652,8 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
    }
 
    bpc.filter(); // removes 1-3 bond items and if 1-2 and 1-3 bonds exist
+
+   // std::cout << "---------------- done bonded_residues_from_res_vec()" << std::endl;
 
    return bpc;
 }

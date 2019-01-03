@@ -87,8 +87,15 @@ handle_command_line_data(command_line_data cld) {
    }
 
    // command line scripting (direct using -c)
+#ifdef USE_GUILE
    if (cld.script_is_python_flag)
       graphics_info_t::command_line_commands.is_python = 1;
+#else
+#ifdef USE_PYTHON
+   // Use python automatically if there is only python available
+   graphics_info_t::command_line_commands.is_python = 1;
+#endif //USE_PYTHON
+#endif // USE_GUILE
    for (unsigned int i=0; i<cld.command.size(); i++) {
       graphics_info_t::command_line_commands.commands.push_back(cld.command[i]);
    }
