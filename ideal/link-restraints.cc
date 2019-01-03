@@ -612,7 +612,7 @@ coot::restraints_container_t::make_link_restraints_from_res_vec(const coot::prot
 
    bonded_pair_container_t bonded_residue_pairs = bonded_residues_from_res_vec(geom);
 
-   if (debug) {
+   if (false) {
       std::cout << "   DEBUG:: in make_link_restraints_from_res_vec() found "
 		<< bonded_residue_pairs.size() << " bonded residues " << std::endl;
       for (std::size_t i=0; i<bonded_residue_pairs.size(); i++) {
@@ -646,6 +646,26 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
    int n_link_plane_restr = 0;
    int n_link_parallel_plane_restr = 0;
 
+   if (false) {
+      std::cout << "Here are the bonded pairs: " << std::endl;
+      for (unsigned int ibonded_residue=0;
+	   ibonded_residue<bonded_residue_pairs.size();
+	   ibonded_residue++) {
+
+	 std::string link_type = bonded_residue_pairs[ibonded_residue].link_type;
+	 mmdb::Residue *sel_res_1 = bonded_residue_pairs[ibonded_residue].res_1;
+	 mmdb::Residue *sel_res_2 = bonded_residue_pairs[ibonded_residue].res_2;
+
+	 std::cout << " ------- looking for link :" << link_type
+		   << ": restraints etc. between residues "
+		   << residue_spec_t(sel_res_1) << " " << sel_res_1->GetResName()
+		   << " - "
+		   << residue_spec_t(sel_res_2) << " " << sel_res_2->GetResName()
+		   << std::endl;
+      }
+   }
+   // std::cout << "---------- Done bonded pairs" << std::endl;
+
    for (unsigned int ibonded_residue=0;
 	ibonded_residue<bonded_residue_pairs.size();
 	ibonded_residue++) {
@@ -664,9 +684,9 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
 
       if (verbose_geometry_reporting == VERBOSE) {
 	 std::cout << " ------- looking for link :" << link_type
-		   << ": restraints etc. between residues " 
+		   << ": restraints etc. between residues "
 		   << residue_spec_t(sel_res_1) << " " << sel_res_1->GetResName()
-		   << " - " 
+		   << " - "
 		   << residue_spec_t(sel_res_2) << " " << sel_res_2->GetResName()
 		   << std::endl;
       }
