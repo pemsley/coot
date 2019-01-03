@@ -394,17 +394,6 @@ coot::geometry_distortion_info_container_t::distortion() const {
    return total_distortion;
 }
 
-
-
-coot::geometry_distortion_info_container_t
-coot::restraints_container_t::geometric_distortions(coot::restraint_usage_Flags flags) {
-
-   restraints_usage_flag = flags;
-   setup_gsl_vector_variables();  //initial positions in x array
-   // coot::geometry_distortion_info_container_t dv = distortion_vector(x);
-   return distortion_vector(x);
-}
-
 coot::geometry_distortion_info_container_t
 coot::restraints_container_t::geometric_distortions() {
 
@@ -412,9 +401,25 @@ coot::restraints_container_t::geometric_distortions() {
    //
    // that's because this can be called when we are part-way through a refinement
    //
+
+#ifdef HAVE_CXX_THREAD
+
+      // protection so that clearing of the x and s vectors doesn't coincide with geometric_distortions()
+      // evaluation
+
+      bool unlocked = false;
+      while (! restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+	 std::this_thread::sleep_for(std::chrono::microseconds(10));
+	 unlocked = false;
+      }
+
+#endif
    if (!x)
       setup_gsl_vector_variables();  //initial positions in x array
 
+#ifdef HAVE_CXX_THREAD
+      restraints_lock = false; // unlock
+#endif
    return distortion_vector(x);
 } 
 
@@ -893,7 +898,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 
 	 // auto tp_2 = std::chrono::high_resolution_clock::now();
 
-         unsigned int n_restraints_sets = 40;
+         unsigned int n_restraints_sets = restraints_p->n_threads;
 
 	 int n_per_set = restraints_size/n_restraints_sets + 1;
 
@@ -1030,11 +1035,9 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 coot::geometry_distortion_info_container_t
 coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 
-   std::string chainid;
+   std::string chainid("blank");
    if (n_atoms > 0)
       chainid = atom[0]->GetChainID();
-   else
-      chainid = "blank";
 
    coot::geometry_distortion_info_container_t distortion_vec_container(atom, n_atoms, chainid);
    double distortion = 0.0;
@@ -1121,7 +1124,7 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 	    atom_indices.push_back(rest.atom_index_1);
 	    atom_indices.push_back(rest.atom_index_2);
 	    atom_indices.push_back(rest.atom_index_3);
-	 } 
+	 }
 
       if (restraints_usage_flag & coot::RAMA_PLOT_MASK) 
     	 if (restraints_vec[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) { 
@@ -1933,6 +1936,32 @@ coot::distortion_score_non_bonded_contact_lennard_jones(const coot::simple_restr
 
    int idx_1 = 3*(nbc_restraint.atom_index_1);
    int idx_2 = 3*(nbc_restraint.atom_index_2);
+
+   // I don't understand what is going wrong (jiggled-yanked and won't fix it now)
+   //
+   // 20181231-PE This happens (only?) when using tabulate_geometric_distortions()
+   //             Not any more with this commit, hopefully! (restraints are now locked on clear)
+   //
+   if (false)
+      std::cout << "debug atom indices " << nbc_restraint.atom_index_1 << " " << nbc_restraint.atom_index_2
+		<< std::endl;
+
+   if (false) { // debugging
+      if (nbc_restraint.atom_index_1 >= nbc_restraint.n_atoms_from_all_restraints)
+	 std::cout << "   Oops! distortion_score_non_bonded_contact_lennard_jones() atom index 1 error "
+		   << nbc_restraint.atom_index_1 << " vs " << nbc_restraint.n_atoms_from_all_restraints
+		   << " with v " << v << std::endl;
+      if (nbc_restraint.atom_index_2 >= nbc_restraint.n_atoms_from_all_restraints)
+	 std::cout << "   Oops! distortion_score_non_bonded_contact_lennard_jones() atom index 2 error "
+		   << nbc_restraint.atom_index_2 << " vs " << nbc_restraint.n_atoms_from_all_restraints
+		   << " with v " << v << std::endl;
+      if (idx_1 >= static_cast<int>(v->size))
+	 std::cout << "   Oops! distortion_score_non_bonded_contact_lennard_jones() idx_1 error "
+		   << idx_1 << " vs v " << v << " size " << v->size << std::endl;
+      if (idx_2 >= static_cast<int>(v->size))
+	 std::cout << "   Oops! distortion_score_non_bonded_contact_lennard_jones() idx_2 error "
+		   << idx_2 << " vs v " << " v  size " << v->size << std::endl;
+   }
 
    double dist_sq = 0.0;
    double delta = gsl_vector_get(v, idx_1) - gsl_vector_get(v, idx_2);

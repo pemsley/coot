@@ -3015,28 +3015,30 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 
 	 if (debug)
 	    std::cout << "... matching_chem_link: found matching link "
-		      << comp_id_1 << " " << comp_id_2 << " " << cl << std::endl;
+		      << comp_id_1 << " " << comp_id_2 << " " 
+		      << cl << std::endl;
 
-	 // make sure that this link id is not a (currently) useless one.
-	 if (cl.Id() != "gap" && cl.Id() != "symmetry") {
-	    if (!cl.is_peptide_link_p() || allow_peptide_link_flag) {
-	       switch_order_flag = match_res.second;
-	       found = 1;
-	       std::pair<chem_link, bool> p(cl, switch_order_flag);
-	       matching_chem_links.push_back(p);
+	 if (debug)
+	    std::cout << "   checking chem link: " << cl << " -> "
+		      << match_res.first << " " << match_res.second << std::endl;
 
-	       // no! We want all of them - not just the first glycosidic bond that matches
-	       // i.e. don't return just BETA1-2 when we have a BETA1-4.
-	       // break; // we only want to find one chem link for this comp_id pair.
+	 if (match_res.first) {
+	    if (cl.Id() != "gap" && cl.Id() != "symmetry") {
+	       if (!cl.is_peptide_link_p() || allow_peptide_link_flag) {
+		  switch_order_flag = match_res.second;
+		  found = true;
+		  std::pair<coot::chem_link, bool> p(cl, switch_order_flag);
+		  matching_chem_links.push_back(p);
 
+	       } else {
+		  if (debug)
+		     std::cout << "reject link on peptide/allow-peptide test " << std::endl;
+	       }
 	    } else {
-	       if (debug)
-		  std::cout << "reject link on peptide/allow-peptide test " << std::endl;
+	       if (debug) {
+		  std::cout << "reject link \"" << cl.Id() << "\"" << std::endl;
+	       }
 	    }
-	 } else {
-	    if (debug) {
-	       std::cout << "reject link \"" << cl.Id() << "\"" << std::endl;
-	    } 
 	 }
       }
    }

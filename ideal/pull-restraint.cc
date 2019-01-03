@@ -18,7 +18,7 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
 
 	    // wait until you get the lock
 	    bool unlocked = false;
-	    while (! atom_pull_restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+	    while (! restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
 	       std::this_thread::sleep_for(std::chrono::nanoseconds(10));
 	       unlocked = false;
 	    }
@@ -29,7 +29,7 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
 	    it->atom_pull_target_pos = pos;
             if (is_different)
                needs_reset = true;
-	    atom_pull_restraints_lock = 0; // unlocked
+	    restraints_lock = false; // unlocked
             if (false) // debugging
                std::cout << "add_atom_pull_restraint() update position for " << it->atom_index_1 << " "
                          << atom_spec_t(at) << " " << pos.format() << "\n";
@@ -65,7 +65,7 @@ coot::restraints_container_t::add_target_position_restraint(int idx, const atom_
 #ifdef HAVE_CXX_THREAD
    // wait until you get the lock
    bool unlocked = false;
-   while (! atom_pull_restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+   while (! restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
       // std::cout << "waiting in add_target_position_restraint()" << std::endl;
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
       unlocked = false;
@@ -77,7 +77,7 @@ coot::restraints_container_t::add_target_position_restraint(int idx, const atom_
 
    restraints_vec.push_back(r);
    post_add_new_restraint(); // adds new restraint to one of the vectors of the restraint indices
-   atom_pull_restraints_lock = false; // unlock
+   restraints_lock = false; // unlock
    needs_reset = true;
 #endif // HAVE_CXX_THREAD
 }

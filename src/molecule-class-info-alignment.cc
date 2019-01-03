@@ -34,6 +34,7 @@ molecule_class_info_t::max_res_no_in_chain(mmdb::Chain *chain_p) const {
 void
 molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 
+   bool debug = false;
    std::map<std::string, coot::pir_alignment_t>::const_iterator it;
    // std::cout << "INFO:: apply_pir_alignment " << chain_id << std::endl;
 
@@ -103,13 +104,13 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 			   while (!found_matching_residue) {
 			      if (residue_p) {
 				 std::string mol_res_type = residue_p->GetResName();
-				 if (false)
+				 if (debug)
 				    std::cout << "looking for \"" << mr.aligned << "\" \""
 					      << pir_res_type << "\" found "
 					      << mol_res_type << std::endl;
                                  if (residue_p->GetSeqNum() < a.resno_start) {
 				    // we haven't found the sarting residue yet
-				    if (false)
+				    if (debug)
 				       std::cout << "We haven't found the starting residue yet "
 						 << residue_p->GetSeqNum() << " " << a.resno_start
 						 << std::endl;
@@ -133,7 +134,7 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 				          // now actually mutate (if needed)
 				          std::string to = "to";
 				          if (mr.aligned == mr.target) to = "..";
-					  if (false)
+					  if (debug)
 					     std::cout << "INFO:: mutate " << coot::residue_spec_t(residue_p)
 						       << " " << residue_p->GetResName() << " from "
 						       << mr.aligned << " " << to << " " << mr.target << std::endl;
@@ -149,7 +150,9 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 			      }
 
 			      // try something new
+
 			      i_res++;
+			      std::cout << "trying next residue " << i_res << std::endl;
 			      if (i_res < n_residues) {
 				 residue_p = residues[i_res];
 			      } else {

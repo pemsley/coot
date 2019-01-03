@@ -1851,9 +1851,6 @@ Bond_lines_container::handle_MET_or_MSE_case(mmdb::PAtom mse_atom,
 
    // std::cout << "Handling MET/MSE case for atom " << mse_atom << std::endl;
 
-   int iat_1 = -1;
-   int iat_2 = -1; // 20171224-PE FIXME by udd lookup
-
    std::string atom_name(mse_atom->name);
    std::string residue_name(mse_atom->GetResName());
    int model_number = mse_atom->GetModelNum();
@@ -1881,6 +1878,11 @@ Bond_lines_container::handle_MET_or_MSE_case(mmdb::PAtom mse_atom,
 		  coot::Cartesian bond_mid_point = cart_at1.mid_point(cart_at2);
 		  int colc = atom_colour(residue_atoms[i], atom_colour_type, atom_colour_map_p);
 		  // int colc = atom_colour_type; // just to check
+
+		  int iat_1 = -1;
+		  int iat_2 = -1; // 20171224-PE FIXME by udd lookup
+		  int udd_status_1 = mse_atom->GetUDData(udd_handle_atom_index, iat_1);
+		  int udd_status_2 = residue_atoms[i]->GetUDData(udd_handle_atom_index, iat_2);
 
 		  float bond_length = (cart_at1 - cart_at2).amplitude();
 		  if (bond_length < 3.0) { // surely not longer than this?
@@ -1921,6 +1923,9 @@ Bond_lines_container::handle_MET_or_MSE_case(mmdb::PAtom mse_atom,
 		     int colc = atom_colour(residue_atoms[i], atom_colour_type, atom_colour_map_p);
 		     graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 
+		     // 20181231-PE fix up UDData for atom indices at last
+		     int iat_1 = -1;
+		     int iat_2 = -1;
 		     mse_atom->GetUDData(udd_handle_atom_index, iat_1);
 		     residue_atoms[i]->GetUDData(udd_handle_atom_index, iat_2);
 		     addBond(col,  cart_at1, bond_mid_point, cc, model_number, iat_1, iat_2);
@@ -1999,9 +2004,13 @@ Bond_lines_container::handle_long_bonded_atom(mmdb::PAtom atom,
 		  int colc = atom_colour(residue_atoms[i], atom_colour_type, atom_colour_map_p);
 		  graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 
-		  // 20171224-PE FIXME lookup iat_1, iat_1
+		  // 20171224-PE FIXME lookup iat_1, iat_2
 		  int iat_1 = -1;
 		  int iat_2 = -1;
+
+		  // 20181231-PE Done.
+		  int udd_status_1 = atom->GetUDData(udd_handle_atom_index, iat_1);
+		  int udd_status_2 = residue_atoms[i]->GetUDData(udd_handle_atom_index, iat_2);
 
 		  addBond(col,  atom_pos, bond_mid_point, cc, model_number, iat_1, iat_2);
 		  addBond(colc, bond_mid_point, res_atom_pos, cc, model_number, iat_2, iat_2);
@@ -3738,7 +3747,11 @@ Bond_lines::size() const {
 // The distances are the minimum and maximum distances to look check
 // between for ca-ca (pseudo) bond.  Typically 3.6-3.8 (tight) or
 // 0.0-5.0 (loose).
-// 
+//
+// This can get called for intermediate atoms before the restraints have been made
+// (and the FixedDuringRefinement UDD is set), so that loops can flash on
+// then off (when FixedDuringRefinement UDDs *are* set).
+// Oh well, a brief flash is better than permanently on during refinement.
 void
 Bond_lines_container::do_Ca_bonds(atom_selection_container_t SelAtom,
 				  float min_dist, float max_dist) {
@@ -3759,6 +3772,183 @@ Bond_lines_container::do_Ca_bonds(atom_selection_container_t SelAtom,
 			     0.1,      7.5, coot::COLOUR_BY_CHAIN);
 }
 
+void
+Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
+				 mmdb::Chain *chain_p, mmdb::Residue *residue_prev, mmdb::Residue *residue_this,
+				 int udd_atom_index_handle,
+				 int udd_fixed_during_refinement_handle) {
+
+   std::string res_name_1 = residue_prev->GetResName();
+   std::string res_name_2 = residue_this->GetResName();
+
+   if (res_name_1 == "HOH") return;
+   if (res_name_2 == "HOH") return;
+
+   if (false)
+      std::cout << "loop this? " << coot::residue_spec_t(residue_prev)
+		<< " " << coot::residue_spec_t(residue_this) << std::endl;
+
+   // we want to represent the missing residues as a curved loop. To do so, we
+   // need to find the positions of the CA of n-2 (for start of loop)
+   // and CA of n+2 (for end of the loop) - can we do that?
+   int res_idx_n_start_back = (ires - 1) -2;
+   int res_idx_n_end_forwards = ires + 2;
+   if (res_idx_n_start_back >= 0) {
+      if (res_idx_n_end_forwards < nres) {
+	 mmdb::Residue *res_start_back   = chain_p->GetResidue(res_idx_n_start_back);
+	 mmdb::Residue *res_end_forwards = chain_p->GetResidue(res_idx_n_end_forwards);
+	 if (res_start_back) {
+	    if (res_end_forwards) {
+	       mmdb::PPAtom residue_atoms_pp_1 = 0;
+	       mmdb::PPAtom residue_atoms_pp_2 = 0;
+	       mmdb::PPAtom residue_atoms_pp_3 = 0;
+	       mmdb::PPAtom residue_atoms_pp_4 = 0;
+	       int n_atoms_pp_1 = 0;
+	       int n_atoms_pp_2 = 0;
+	       int n_atoms_pp_3 = 0;
+	       int n_atoms_pp_4 = 0;
+	       mmdb::Atom *at_pp_1 = 0;
+	       mmdb::Atom *at_pp_2 = 0;
+	       mmdb::Atom *at_pp_3 = 0;
+	       mmdb::Atom *at_pp_4 = 0;
+
+	       // we want to not draw loops if the atoms
+	       // are from a moving atoms molecule
+	       // (in which case udd_fixed_during_refinement_handle will
+	       // have been set) and the atoms are not fixed
+	       //
+	       // or
+	       //
+	       // we are not in a moving atoms molecule
+	       //
+	       bool loop_is_possible = true;
+	       bool these_are_moving_atoms = false;
+	       int  udd_is_fixed_during_refinement = 0;
+
+	       if (udd_fixed_during_refinement_handle > 0) {
+		  these_are_moving_atoms = true;
+	       }
+
+	       res_start_back->GetAtomTable(residue_atoms_pp_1, n_atoms_pp_1);
+	       residue_prev->GetAtomTable(residue_atoms_pp_2, n_atoms_pp_2);
+	       residue_this->GetAtomTable(residue_atoms_pp_3, n_atoms_pp_3);
+	       res_end_forwards->GetAtomTable(residue_atoms_pp_4, n_atoms_pp_4);
+
+	       if (loop_is_possible) { // true
+		  for (int ipp_1=0; ipp_1<n_atoms_pp_1; ipp_1++) {
+		     mmdb::Atom *at = residue_atoms_pp_1[ipp_1];
+		     std::string atom_name = at->GetAtomName();
+		     if (! at->Het) {
+			if (atom_name == " CA " || atom_name == " P  ") {
+			   at_pp_1 = at;
+			   if (these_are_moving_atoms) {
+			      at->GetUDData(udd_fixed_during_refinement_handle,
+					    udd_is_fixed_during_refinement);
+			      if (udd_is_fixed_during_refinement == 1) {
+				 at_pp_1 = 0; // nullptr
+				 loop_is_possible = false;
+			      }
+			   }
+			   break;
+			}
+		     }
+		  }
+	       }
+
+	       if (loop_is_possible) {
+		  for (int ipp_2=0; ipp_2<n_atoms_pp_2; ipp_2++) {
+		     mmdb::Atom *at = residue_atoms_pp_2[ipp_2];
+		     std::string atom_name = at->GetAtomName();
+		     if (atom_name == " CA " || atom_name == " P  ") {
+			if (! at->Het) {
+			   at_pp_2 = at;
+			   if (these_are_moving_atoms) {
+			      at->GetUDData(udd_fixed_during_refinement_handle,
+					    udd_is_fixed_during_refinement);
+			      if (udd_is_fixed_during_refinement == 1) {
+				 at_pp_2 = 0; // nullptr
+				 loop_is_possible = false;
+			      }
+			   }
+			   break;
+			}
+		     }
+		  }
+	       }
+
+	       if (loop_is_possible) {
+		  for (int ipp_3=0; ipp_3<n_atoms_pp_3; ipp_3++) {
+		     mmdb::Atom *at = residue_atoms_pp_3[ipp_3];
+		     std::string atom_name = at->GetAtomName();
+		     if (! at->Het) {
+			if (atom_name == " CA " || atom_name == " P  ") {
+			   at_pp_3 = at;
+			   if (these_are_moving_atoms) {
+			      at->GetUDData(udd_fixed_during_refinement_handle,
+					    udd_is_fixed_during_refinement);
+			      if (udd_is_fixed_during_refinement == 1) {
+				 at_pp_3 = 0; // nullptr
+				 loop_is_possible = false;
+			      }
+			   }
+			   break;
+			}
+		     }
+		  }
+	       }
+
+	       if (loop_is_possible) {
+		  for (int ipp_4=0; ipp_4<n_atoms_pp_4; ipp_4++) {
+		     mmdb::Atom *at = residue_atoms_pp_4[ipp_4];
+		     std::string atom_name = at->GetAtomName();
+		     if (! at->Het) {
+			if (atom_name == " CA " || atom_name == " P  ") {
+			   at_pp_4 = at;
+			   if (these_are_moving_atoms) {
+			      at->GetUDData(udd_fixed_during_refinement_handle,
+					    udd_is_fixed_during_refinement);
+			      if (udd_is_fixed_during_refinement == 1) {
+				 at_pp_4 = 0; // nullptr
+				 loop_is_possible = false;
+			      }
+			   }
+			   break;
+			}
+		     }
+		  }
+	       }
+
+	       if (loop_is_possible) {
+		  if (at_pp_1 && at_pp_2 && at_pp_3 && at_pp_4) {
+		     coot::Cartesian pp_2(at_pp_2->x, at_pp_2->y, at_pp_2->z);
+		     coot::Cartesian pp_3(at_pp_3->x, at_pp_3->y, at_pp_3->z);
+		     float a = (pp_3-pp_2).amplitude();
+		     int n_line_segments = static_cast<int>(a*1.2);
+		     std::vector<coot::CartesianPair> lp =
+			coot::loop_path(at_pp_1, at_pp_2, at_pp_3, at_pp_4, n_line_segments);
+		     for (unsigned int jj =0; jj<lp.size(); jj++) {
+			coot::CartesianPair cp = lp[jj];
+			int col = HYDROGEN_GREY_BOND; // just grey, really.
+			graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+			int iat_1 = -1;
+			int iat_2 = -1;
+			at_pp_2->GetUDData(udd_atom_index_handle, iat_1);
+			at_pp_3->GetUDData(udd_atom_index_handle, iat_2);
+			addBond(col, cp.getStart(), cp.getFinish(), cc, imod, iat_1, iat_2);
+		     }
+		  } else {
+		     if (false)
+			std::cout << "DEBUG:: CA loops: oops! "
+				  << at_pp_1 << " " << at_pp_2 << " " << at_pp_3 << " " << at_pp_4
+				  << std::endl;
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+}
+
 
 // where bond_colour_type is one of 
 // COLOUR_BY_CHAIN=0, COLOUR_BY_SEC_STRUCT=1
@@ -3775,6 +3965,10 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
    int atom_colours_udd = -1; // unset/bad
    int udd_handle_for_user_defined_colours = -1;
    int udd_atom_index_handle = SelAtom.UDDAtomIndexHandle;
+
+   int udd_fixed_during_refinement_handle = SelAtom.mol->GetUDDHandle(mmdb::UDR_ATOM, "FixedDuringRefinement");
+   // that might fail, a return value of 0 represents failure to find that handle name
+   // positive means that it was OK!
 
    // heuristic cut off for when user has omitted GAP cards.
    // 
@@ -3820,108 +4014,8 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
                   int res_no_delta = res_no_2 - res_no_1;
 		  if (res_no_delta > 1) {
 
-		     if (res_name_1 == "HOH") continue;
-		     if (res_name_2 == "HOH") continue;
-
-		     if (false)
-			std::cout << "loop this? " << coot::residue_spec_t(residue_prev)
-				  << " " << coot::residue_spec_t(residue_this) << std::endl;
-
-		     // we want to represent the missing residues as a curved loop. To do so, we
-		     // need to find the positions of the CA of n-2 (for start of loop)
-		     // and CA of n+2 (for end of the loop) - can we do that?
-		     int res_idx_n_start_back = (ires - 1) -2;
-		     int res_idx_n_end_forwards = ires + 2;
-		     if (res_idx_n_start_back >= 0) {
-			if (res_idx_n_end_forwards < nres) {
-			   mmdb::Residue *res_start_back   = chain_p->GetResidue(res_idx_n_start_back);
-			   mmdb::Residue *res_end_forwards = chain_p->GetResidue(res_idx_n_end_forwards);
-			   if (res_start_back) {
-			      if (res_end_forwards) {
-				 mmdb::PPAtom residue_atoms_pp_1 = 0;
-				 mmdb::PPAtom residue_atoms_pp_2 = 0;
-				 mmdb::PPAtom residue_atoms_pp_3 = 0;
-				 mmdb::PPAtom residue_atoms_pp_4 = 0;
-				 int n_atoms_pp_1 = 0;
-				 int n_atoms_pp_2 = 0;
-				 int n_atoms_pp_3 = 0;
-				 int n_atoms_pp_4 = 0;
-				 mmdb::Atom *at_pp_1 = 0;
-				 mmdb::Atom *at_pp_2 = 0;
-				 mmdb::Atom *at_pp_3 = 0;
-				 mmdb::Atom *at_pp_4 = 0;
-				 res_start_back->GetAtomTable(residue_atoms_pp_1, n_atoms_pp_1);
-				 residue_prev->GetAtomTable(residue_atoms_pp_2, n_atoms_pp_2);
-				 residue_this->GetAtomTable(residue_atoms_pp_3, n_atoms_pp_3);
-				 res_end_forwards->GetAtomTable(residue_atoms_pp_4, n_atoms_pp_4);
-				 for (int ipp_1=0; ipp_1<n_atoms_pp_1; ipp_1++) {
-				    mmdb::Atom *at = residue_atoms_pp_1[ipp_1];
-				    std::string atom_name = at->GetAtomName();
-                                    if (! at->Het) {
-				       if (atom_name == " CA " || atom_name == " P  ") {
-				          at_pp_1 = at;
-				          break;
-				       }
-				    }
-				 }
-				 for (int ipp_2=0; ipp_2<n_atoms_pp_2; ipp_2++) {
-				    mmdb::Atom *at = residue_atoms_pp_2[ipp_2];
-				    std::string atom_name = at->GetAtomName();
-				    if (atom_name == " CA " || atom_name == " P  ") {
-                                       if (! at->Het) {
-				          at_pp_2 = at;
-				          break;
-				       }
-				    }
-				 }
-				 for (int ipp_3=0; ipp_3<n_atoms_pp_3; ipp_3++) {
-				    mmdb::Atom *at = residue_atoms_pp_3[ipp_3];
-				    std::string atom_name = at->GetAtomName();
-                                    if (! at->Het) {
-				       if (atom_name == " CA " || atom_name == " P  ") {
-				          at_pp_3 = at;
-				          break;
-				       }
-				    }
-				 }
-				 for (int ipp_4=0; ipp_4<n_atoms_pp_4; ipp_4++) {
-				    mmdb::Atom *at = residue_atoms_pp_4[ipp_4];
-				    std::string atom_name = at->GetAtomName();
-                                    if (! at->Het) {
-				       if (atom_name == " CA " || atom_name == " P  ") {
-				          at_pp_4 = at;
-				          break;
-				       }
-				    }
-				 }
-
-				 if (at_pp_1 && at_pp_2 && at_pp_3 && at_pp_4) {
-				    coot::Cartesian pp_2(at_pp_2->x, at_pp_2->y, at_pp_2->z);
-				    coot::Cartesian pp_3(at_pp_3->x, at_pp_3->y, at_pp_3->z);
-				    float a = (pp_3-pp_2).amplitude();
-				    int n_line_segments = static_cast<int>(a*1.2);
-				    std::vector<coot::CartesianPair> lp =
-				       coot::loop_path(at_pp_1, at_pp_2, at_pp_3, at_pp_4, n_line_segments);
-				    for (unsigned int jj =0; jj<lp.size(); jj++) {
-				       coot::CartesianPair cp = lp[jj];
-				       int col = HYDROGEN_GREY_BOND; // just grey, really.
-				       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-				       int iat_1 = -1;
-				       int iat_2 = -1;
-				       at_pp_2->GetUDData(udd_atom_index_handle, iat_1);
-				       at_pp_3->GetUDData(udd_atom_index_handle, iat_2);
-				       addBond(col, cp.getStart(), cp.getFinish(), cc, imod, iat_1, iat_2);
-				    }
-				 } else {
-				    if (false)
-				       std::cout << "DEBUG:: CA loops: oops! "
-						 << at_pp_1 << " " << at_pp_2 << " " << at_pp_3 << " " << at_pp_4
-						 << std::endl;
-				 }
-			      }
-			   }
-			}
-		     }
+		     do_Ca_loop(imod, ires, nres, chain_p, residue_prev, residue_this,
+				udd_atom_index_handle, udd_fixed_during_refinement_handle);
 
                   } else {
 

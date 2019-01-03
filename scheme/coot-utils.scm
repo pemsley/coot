@@ -2177,7 +2177,6 @@
 				     (let ((rn (residue-name imol chain-id res-no ins-code)))
 				       (not (string=? rn "HOH"))))))
 
-
 ;; Return a list of all the residues in the chain
 ;; 
 (define (residues-in-chain imol chain-id-in)

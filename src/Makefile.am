@@ -218,6 +218,8 @@ AM_CPPFLAGS = \
 	$(CLIPPER_CXXFLAGS) 		\
 	$(PYGTK_CFLAGS)                 \
 	$(GLOB_CFLAGS)                  \
+	$(WITH_SOUND)                   \
+	$(VORBISFILE_CFLAGS)            \
 	$(SQLITE3_CFLAGS)               \
 	$(CURL_CFLAGS)                 
 
@@ -498,6 +500,7 @@ coot_bin_SOURCES = \
 	restraints-editor-c.h    \
 	rotate-translate-modes.hh \
 	rotamer-search-modes.hh  \
+        sound.cc \
 	sdf-interface.hh         \
 	sdf-internal.hh          \
 	sdf-interface.cc         \
@@ -592,6 +595,7 @@ coot_bin_LDFLAGS =
 #
 coot_bin_LDADD = $(OPENMP_CFLAGS)       \
                 $(COOT_EXTRA_LIBS)      \
+		$(VORBISFILE_LIBS)      \
 		$(CLIPPER_LIBS) 	\
 		$(LIBSSM_LIBS)		\
 		$(CCP4SRS_LIBS) 	\

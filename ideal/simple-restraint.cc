@@ -466,7 +466,7 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
       if (z < 0.0) {
 	 std::cout << "Unknown element :" << atom[i]->element << ": " << std::endl;
 	 z = 6.0; // as for carbon
-      } 
+      }
       atom_z_occ_weight[i] = weight * z * occupancy;
    }
    
@@ -485,7 +485,24 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
 	 std::cout << atom[i]->name << " " << atom[i]->residue->seqNum << " "
 		   << use_map_gradient_for_atom[i] << std::endl;
 
-} 
+}
+
+// uses fixed_atom_indices
+void
+coot::restraints_container_t::set_fixed_during_refinement_udd() {
+
+   int uddHnd = mol->RegisterUDInteger(mmdb::UDR_ATOM , "FixedDuringRefinement");
+   for (int i=0; i<n_atoms; i++) {
+      mmdb::Atom *at = atom[i];
+      // std::cout << "  setting fixed udd flag on atom " << atom_spec_t(at) << std::endl;
+      if (std::find(fixed_atom_indices.begin(), fixed_atom_indices.end(), i) == fixed_atom_indices.end())
+	 at->PutUDData(uddHnd, 0);
+      else
+	 at->PutUDData(uddHnd, 1);
+   }
+
+}
+
 
 void
 coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
@@ -682,6 +699,8 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 
    add_fixed_atoms_from_flanking_residues(bpc);
    add_fixed_atoms_from_non_bonded_neighbours();
+
+   set_fixed_during_refinement_udd(); // uses fixed_atom_indices
 
    if (debug) {
       std::cout << "DEBUG:: init_from_residue_vec() Selecting residues gives "
@@ -973,7 +992,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
 #ifdef HAVE_CXX_THREAD
 	 bool unlocked = false;
-	 while (! atom_pull_restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+	 while (! restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
 	    std::this_thread::sleep_for(std::chrono::microseconds(10));
 	    unlocked = false;
 	 }
@@ -987,7 +1006,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
          }
 
 #ifdef HAVE_CXX_THREAD
-	 atom_pull_restraints_lock = false; // unlock
+	 restraints_lock = false; // unlock
 #endif
 	 // this might be useful for debugging rama restraints
 
@@ -1084,12 +1103,28 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    coot::refinement_results_t rr(1, status, lights_vec);
 
    if (status != GSL_CONTINUE) {
-      // std::cout << "---- free/delete/reset m_s and x!" << std::endl; // works fine
+
+#ifdef HAVE_CXX_THREAD
+
+      // protection so that clearing of the vectors doesn't coincide with geometric_distortions()
+      // evaluation
+
+      bool unlocked = false;
+      while (! restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+	 std::this_thread::sleep_for(std::chrono::microseconds(10));
+	 unlocked = false;
+	 }
+#endif
+
+      std::cout << "DEBUG:: ---- free/delete/reset m_s and x" << std::endl; // works fine
       gsl_multimin_fdfminimizer_free(m_s);
       gsl_vector_free(x);
       m_s = 0;
       x = 0;
       needs_reset = true;
+#ifdef HAVE_CXX_THREAD
+      restraints_lock = false; // unlock
+#endif
    }
 
    // the bottom line from the timing test is the only thing that matters
@@ -2023,6 +2058,7 @@ coot::electron_density_score_from_restraints_using_atom_index_range(int thread_i
 
 
 
+
 // Note that the gradient for the electron density is opposite to that
 // of the gradient for the geometry (consider a short bond on the edge
 // of a peak - in that case the geometry gradient will be negative as
@@ -2032,155 +2068,19 @@ coot::electron_density_score_from_restraints_using_atom_index_range(int thread_i
 // So we want to change that positive gradient for a low score when
 // the atoms coinside with the density - hence the contributions that
 // we add are negated.
-// 
-void coot::my_df_electron_density(const gsl_vector *v, 
-				  void *params, 
+//
+void coot::my_df_electron_density(const gsl_vector *v,
+				  void *params,
 				  gsl_vector *df) {
 
-#ifdef ANALYSE_REFINEMENT_TIMING
-   auto tp_1 = std::chrono::high_resolution_clock::now();
-#endif // ANALYSE_REFINEMENT_TIMING
-
-   // first extract the object from params 
+   // first extract the object from params
    //
-   coot::restraints_container_t *restraints_p = static_cast<restraints_container_t *> (params); 
-
-   if (restraints_p->include_map_terms() == 1) { 
-
-#ifdef HAVE_CXX_THREADxx
-
-      // This doesn't work. done_count_for_threads never reaches thread_count (4 in this edited case).
-      // Why? Not sure - it seems that the thread pool is not running all the jobs that it has been given.
-      // (because the thread pool is being used elsewhere?? - maybe we can't have do thread_pool->push()
-      // in different threads without some of the work-packages getting dropped?
-      // 20180101-PE Hmm... I wonder which thread pool I was talking about.
-      //             I supsect that if I didn't mention it, then it was the stl-based thread pool.
-
-      std::atomic<unsigned int> done_count_for_threads(0);
-
-      if (restraints_p->thread_pool_p) {
-	 int idx_max = (v->size)/3;
-	 unsigned int n_per_thread = idx_max/4 + 1;
-	 unsigned int thread_count = 0;
-
-	 for (unsigned int i_thread=0; i_thread<4; i_thread++) {
-	    int idx_start = i_thread * n_per_thread;
-	    int idx_end   = idx_start + n_per_thread;
-	    // for the last thread, set the end atom index
-	    if (i_thread == 3)
-	       idx_end = idx_max; // for loop uses iat_start and tests for < iat_end
-	    if (idx_start >= idx_max) break;
-
-	    // should be called threaded_inner (single is misleading)
-	    // restraints_p is passed so that we have access to use_map_gradient_for_atom flags
-	    restraints_p->thread_pool_p->push(my_df_electron_density_threaded_single,
-					      v, restraints_p, df, idx_start, idx_end,
-					      std::ref(done_count_for_threads));
-	    //std::cout << "thread: " << thread_count << " from " << idx_start << " to " << idx_end << std::endl;
-	    ++thread_count;
-	 }
-
-	 while (done_count_for_threads < thread_count) {
-	    std::this_thread::sleep_for(std::chrono::microseconds(20));
-	 }
-
-      } else {
-	 my_df_electron_density_single(v, restraints_p, df, 0, v->size/3);
-      }
-#else
-      // run this code instead
-      
+   coot::restraints_container_t *restraints_p = static_cast<restraints_container_t *> (params);
+   if (restraints_p->include_map_terms() == 1) {
       my_df_electron_density_single(v, restraints_p, df, 0, v->size/3);
-#endif // HAVE_CXX_THREAD
    }
-
-#ifdef ANALYSE_REFINEMENT_TIMING
-   auto tp_2 = std::chrono::high_resolution_clock::now();
-   auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
-   std::cout << "my_df_electron_density: " << d21 << " microseconds" << std::endl;
-#endif // ANALYSE_REFINEMENT_TIMING
 }
 
-// Note that the gradient for the electron density is opposite to that
-// of the gradient for the geometry (consider a short bond on the edge
-// of a peak - in that case the geometry gradient will be negative as
-// the bond is lengthened and the electron density gradient will be
-// positive).
-//
-// So we want to change that positive gradient for a low score when
-// the atoms cooinside with the density - hence the contributions that
-// we add are negated.
-// 
-void coot::my_df_electron_density_old_2017(const gsl_vector *v, 
-					   void *params, 
-					   gsl_vector *df) {
-
-#ifdef ANALYSE_REFINEMENT_TIMING
-#endif // ANALYSE_REFINEMENT_TIMING
-
-   // first extract the object from params 
-   //
-   coot::restraints_container_t *restraints = static_cast<restraints_container_t *> (params); 
-
-   if (restraints->include_map_terms() == 1) { 
-
-      clipper::Grad_orth<double> grad_orth;
-      float scale = restraints->Map_weight();
-      float zs;
-      
-      for (unsigned int i=0; i<v->size; i+=3) {
-
-	 int iat = i/3;
-	 
-	 if (restraints->use_map_gradient_for_atom[iat]) {
-
-	    clipper::Coord_orth ao(gsl_vector_get(v,i), 
-				   gsl_vector_get(v,i+1), 
-				   gsl_vector_get(v,i+2));
-	    
-	    // std::cout << "gradients: " << grad_orth.format() << std::endl;
-	    // std::cout << "adding to " << gsl_vector_get(df, i  ) << std::endl;
-	    // add this density term to the gradient
-	    //
-	    // 
-	    grad_orth = restraints->electron_density_gradient_at_point(ao);
-	    zs = scale * restraints->atom_z_occ_weight[iat];
-
-	    if (0) {
-	       std::cout << "electron density df: adding "
-			 <<  - zs * grad_orth.dx() << " "
-			 <<  - zs * grad_orth.dy() << " "
-			 <<  - zs * grad_orth.dz() << " to "
-			 <<  gsl_vector_get(df, i  ) << " "
-			 <<  gsl_vector_get(df, i+1) << " "
-			 <<  gsl_vector_get(df, i+2) << "\n";
-	    }
-	    
-// 	    gsl_vector_set(df, i,   gsl_vector_get(df, i  ) - zs * grad_orth.dx());
-// 	    gsl_vector_set(df, i+1, gsl_vector_get(df, i+1) - zs * grad_orth.dy());
-// 	    gsl_vector_set(df, i+2, gsl_vector_get(df, i+2) - zs * grad_orth.dz());
-	    
-	    *gsl_vector_ptr(df, i  ) -= zs * grad_orth.dx();
-	    *gsl_vector_ptr(df, i+1) -= zs * grad_orth.dy();
-	    *gsl_vector_ptr(df, i+2) -= zs * grad_orth.dz();
-
-	 } else {
-	    // atom is private	    
-// 	    std::cout << "  Not adding elecron density for atom "
-// 		      << restraints->atom[iat]->GetChainID() << " "
-// 		      << restraints->atom[iat]->GetSeqNum() << " "
-// 		      << restraints->atom[iat]->GetAtom() << std::endl;
-	 } 
-      }
-   }
-#ifdef ANALYSE_REFINEMENT_TIMING
-   gettimeofday(&current_time, NULL);
-   double td = current_time.tv_sec - start_time.tv_sec;
-   td *= 1000.0;
-   td += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
-   // std::cout << "------------- mark my_df_electron_density: " << td << std::endl;
-#endif // ANALYSE_REFINEMENT_TIMING
-}
 
 
 #ifdef HAVE_CXX_THREAD
@@ -2440,7 +2340,7 @@ coot::restraints_container_t::make_restraints(int imol,
       if (do_link_restraints_internal)
 	 make_link_restraints(geom, do_rama_plot_restraints, do_trans_peptide_restraints);
 
-      if (true)
+      if (false)
 	 std::cout << "after make_link_restraints() bonded_pairs_container has size "
 		   << bonded_pairs_container.size() << std::endl;
 
@@ -2460,8 +2360,7 @@ coot::restraints_container_t::make_restraints(int imol,
 	 make_strand_pseudo_bond_restraints();
       }
 
-      if (true) // test for having set "Auto Helix Restraints"
-         make_helix_pseudo_bond_restraints_from_res_vec_auto();
+      make_helix_pseudo_bond_restraints_from_res_vec_auto();
 
       if (restraints_usage_flag & coot::NON_BONDED_MASK) {
 	 if ((iret_prev > 0) || are_all_one_atom_residues) {
@@ -2883,16 +2782,49 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
 
       // test that these residues are about helical before adding helical restraints
       std::vector<mmdb::Residue *> test_helical_residues;
-      // fill test_helical_residues with 5 residues in order.
-      for (unsigned int iir=0; iir<5; iir++) {
+      // fill test_helical_residues with 4 residues in order.
+
+      // unfortunately(?) test_helical_residues vector is "disconneted"
+      // from the atom selection (below) for the restraints, so we do a
+      // similar test for the chain there also.
+      //
+      mmdb::Residue *residue_0 = sorted_residues[i];
+      for (unsigned int iir=0; iir<4; iir++) {
          if ((i+iir) < sorted_residues.size()) {
-             mmdb::Residue *residue_p = sorted_residues[i+iir];
-             test_helical_residues.push_back(residue_p);
+	    mmdb::Residue *residue_p = sorted_residues[i+iir];
+	    // only add residues that are in the same chain as the first (0th) residue
+	    if (residue_0) {
+	       if (residue_p->GetChain() == residue_0->GetChain()) {
+		  test_helical_residues.push_back(residue_p);
+	       }
+	    }
          }
       }
-      helical_results_t hr = compare_to_helix(test_helical_residues); // tests for 5 residues
-      // std::cout << "DEBUG:: helix_result " << hr.is_alpha_helix_like << " " << residue_spec_t(sorted_residues[i]) << std::endl;
-      if (hr.is_alpha_helix_like) {
+
+      // std::cout << "calling compare_to_helix() with test_helical_residues size "
+      // << test_helical_residues.size() << std::endl;
+
+      bool sane_residue_numbers = false;
+      if (test_helical_residues.size() == 4)
+	 if ((test_helical_residues[0]->GetSeqNum()+3) == test_helical_residues[3]->GetSeqNum())
+	    sane_residue_numbers = true;
+
+      // maybe we *do* want compare_to_helix() to be run on 5 residues?
+      // i -> i+4 is the convention for alpha helical H-bonds, after all.
+      //
+      if (test_helical_residues.size() == 5)
+	 if ((test_helical_residues[0]->GetSeqNum()+4) == test_helical_residues[4]->GetSeqNum())
+	    sane_residue_numbers = true;
+
+      helical_results_t hr = compare_to_helix(test_helical_residues); // tests for 4 residues
+
+      if (false) // useful for debugging helical restraints
+	 std::cout << "DEBUG:: helix_result " << hr.is_alpha_helix_like << " "
+		   << hr.sum_delta << " "
+		   << residue_spec_t(sorted_residues[i]) << std::endl;
+
+      if (hr.is_alpha_helix_like && sane_residue_numbers) {
+
          int index_1 = -1; // O
          int index_2 = -1; // N (n+4)
          int index_3 = -1; // N (n+3)
@@ -2906,27 +2838,44 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
          int n_residue_atoms_1;
          int n_residue_atoms_2;
          int n_residue_atoms_3;
+	 bool do_i_plus_4_also = true;
+	 bool do_i_plus_3 = true;
+	 if ((i+4) >= sorted_residues.size())
+	    do_i_plus_4_also = false;
+
+	 if (do_i_plus_4_also) {
+	    if (sorted_residues[i+4]->GetChain() != residue_0->GetChain())
+	       do_i_plus_4_also = false;
+	 }
+	 if (sorted_residues[i+3]->GetChain() != residue_0->GetChain())
+	    do_i_plus_3 = false;
          sorted_residues[i  ]->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
-         sorted_residues[i+4]->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
          sorted_residues[i+3]->GetAtomTable(residue_atoms_3, n_residue_atoms_3);
+	 if (do_i_plus_4_also) {
+	    sorted_residues[i+4]->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
+	 }
          for (int iat=0; iat<n_residue_atoms_1; iat++) {
             std::string atom_name_1 = residue_atoms_1[iat]->GetAtomName();
             if (atom_name_1 == " O  ") {
                at_1 = residue_atoms_1[iat];
             }
          }
-         for (int iat=0; iat<n_residue_atoms_2; iat++) {
-            std::string atom_name_2 = residue_atoms_2[iat]->GetAtomName();
-            if (atom_name_2 == " N  ") {
-               at_2 = residue_atoms_2[iat];
-            }
-         }
-         for (int iat=0; iat<n_residue_atoms_3; iat++) {
-            std::string atom_name_3 = residue_atoms_3[iat]->GetAtomName();
-            if (atom_name_3 == " N  ") {
+	 if (do_i_plus_3) {
+	    for (int iat=0; iat<n_residue_atoms_3; iat++) {
+	       std::string atom_name_3 = residue_atoms_3[iat]->GetAtomName();
+	       if (atom_name_3 == " N  ") {
                at_3 = residue_atoms_3[iat];
-            }
-         }
+	       }
+	    }
+	 }
+	 if (do_i_plus_4_also) {
+	    for (int iat=0; iat<n_residue_atoms_2; iat++) {
+	       std::string atom_name_2 = residue_atoms_2[iat]->GetAtomName();
+	       if (atom_name_2 == " N  ") {
+		  at_2 = residue_atoms_2[iat];
+	       }
+	    }
+	 }
          if (at_1 && at_2 && at_3) {
             at_1->GetUDData(udd_atom_index_handle, index_1);
             at_2->GetUDData(udd_atom_index_handle, index_2);
@@ -2940,12 +2889,25 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
 
             std::cout << "INFO:: Alpha Helix Bond restraint ("
                << at_1->name << " " << at_1->GetSeqNum() << ") to ("
-               << at_2->name << " " << at_3->GetSeqNum() << ") " << ideal_dist_i_3 << std::endl;
+               << at_3->name << " " << at_3->GetSeqNum() << ") " << ideal_dist_i_3 << std::endl;
             std::cout << "INFO:: Alpha Helix Bond restraint ("
                << at_1->name << " " << at_1->GetSeqNum() << ") to ("
                << at_2->name << " " << at_2->GetSeqNum() << ") " << ideal_dist_i_4 << std::endl;
             n_helical_restraints += 2;
-         }
+         } else {
+	    if (at_1 && at_3) {
+	       at_1->GetUDData(udd_atom_index_handle, index_1);
+	       at_3->GetUDData(udd_atom_index_handle, index_3);
+	       std::vector<bool> fixed_flags_2 = make_fixed_flags(index_1, index_3);
+	       double ideal_dist_i_3 = 3.18;
+	       add(BOND_RESTRAINT, index_1, index_3, fixed_flags_2, ideal_dist_i_3, pseudo_bond_esd, 1.2);
+
+	       std::cout << "INFO:: Alpha Helix Bond restraint ("
+			 << at_1->name << " " << at_1->GetSeqNum() << ") to ("
+			 << at_3->name << " " << at_3->GetSeqNum() << ") " << ideal_dist_i_3 << std::endl;
+	       n_helical_restraints += 1;
+	    }
+	 }
       }
 
    }
@@ -3642,7 +3604,6 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 
 	 } else {
 	    if (debug)
-
 	       std::cout << "DEBUG:: find_link_type_complicado() blank result: "
 			 << "link_type find_link_type_complicado() for "
 			 << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
@@ -4329,7 +4290,6 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 		  }
 	       }
 
-	 
 	       if (false) { // debug.
 	          clipper::Coord_orth pt1(atom[i]->x, atom[i]->y, atom[i]->z);
 	          clipper::Coord_orth pt2(at_2->x,    at_2->y,    at_2->z);
@@ -4365,7 +4325,9 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 				  i, filtered_non_bonded_atom_indices[i][j],
 				  type_1, type_2, is_H_non_bonded_contact,
 				  fixed_atom_flags, dist_min);
-
+	       r.n_atoms_from_all_restraints = n_atoms; // for debugging crash in non-bonded contact
+	                                                // restraints
+	       r.restraints_index = restraints_vec.size(); // likewise
 	       restraints_vec.push_back(r);
 
 	       n_nbc_r++;
@@ -6089,7 +6051,7 @@ coot::restraints_container_t::add_rama(std::string link_type,
 						     post_res->GetResName());
 
 	 if (true)
-	    std::cout << "in add_rama() Adding RAMACHANDRAN_RESTRAINT "
+	    std::cout << "INFO:: Adding Ramachandran restraint "
 		      << "type " << std::setw(6) << zort << " for " << residue_spec_t(this_res)
 		      << " " << this_res->GetResName() << " "
 // 		      << coot::atom_spec_t(atom[atom_indices[0]]) << " "

@@ -3783,8 +3783,7 @@ string   static std::string sessionid;
 								    bool with_nbcs);
 
    // tabulate_geometric_distortions runs geometric_distortions() on restraints.
-   void tabulate_geometric_distortions(coot::restraints_container_t &restraints,
-				       coot::restraint_usage_Flags flags) const;
+   void tabulate_geometric_distortions(coot::restraints_container_t &restraints) const;
 
    static bool linked_residue_fit_and_refine_state;
 

@@ -455,8 +455,7 @@ main(int argc, char **argv) {
 	       }
 
 	       if (inputs.tabulate_distortions_flag) {
-		  coot::geometry_distortion_info_container_t gd =
-		     restraints.geometric_distortions(flags);
+		  coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions();
 		  gd.print();
 	       }
 

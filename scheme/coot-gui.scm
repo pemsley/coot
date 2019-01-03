@@ -2724,7 +2724,7 @@
 	   (res-no   (list-ref res-info 3))
 	   (ins-code (list-ref res-info 4)))
       (let ((residue-atoms (residue-info imol chain-id res-no ins-code)))
-	(if (null? residue-atoms) 
+	(if (null? residue-atoms)
 	    " CA " ;; won't work of course
 	    (let loop ((atoms residue-atoms))
 	      (cond 
@@ -2734,7 +2734,6 @@
 	       (else (loop (cdr atoms)))))))))
 
 
-	   
   (format #t "------------- alignment-mismatches-gui called with imol ~s~%" imol)
 
   ;; main line
@@ -2812,12 +2811,16 @@
 		      (list button-1-label button-1-action)))
 		  (list-ref am 2))))
 
-	(let ((buttons (append delete-buttons mutate-buttons insert-buttons)))
-	  
+	(let ((buttons (append delete-buttons mutate-buttons insert-buttons))
+	      (alignments-as-text-list (list-ref am 3)))
+
+	  (for-each (lambda (alignment-text)
+		      (info-dialog alignment-text))
+		    alignments-as-text-list)
+
 	  (dialog-box-of-buttons "Residue mismatches"
 				 (cons 300 300)
 				 buttons "  Close  ")))))))
-
 
 
 ;; Wrapper in that we test if there have been sequence(s) assigned to

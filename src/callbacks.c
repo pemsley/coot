@@ -10848,7 +10848,7 @@ on_phs_coordinates_filechooserdialog1_response
                                         gint             response_id,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
+
    GtkWidget *phs_fileselection; 
    phs_fileselection = lookup_widget(GTK_WIDGET(dialog), 
                                      "phs_coordinates_filechooserdialog1");
@@ -10862,7 +10862,7 @@ on_phs_coordinates_filechooserdialog1_response
      read_phs_and_coords_and_make_map(filename); 
    } 
    gtk_widget_destroy(phs_fileselection);
-#endif /* GTK_MAJOR_VERSION  */
+
 }
 
 
@@ -11381,7 +11381,6 @@ on_all2_activate                       (GtkMenuItem     *menuitem,
 
 }
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_residue_editor_select_monomer_type_ok_button_clicked (GtkButton       *button,
 						    gpointer         user_data) { 
@@ -11400,10 +11399,8 @@ on_residue_editor_select_monomer_type_ok_button_clicked (GtkButton       *button
 #endif
   gtk_widget_destroy(dialog);
 }
-#endif	/* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_residue_editor_select_monomer_type_cancel_button_clicked (GtkButton       *button,
 							gpointer         user_data) {
@@ -11411,10 +11408,8 @@ on_residue_editor_select_monomer_type_cancel_button_clicked (GtkButton       *bu
   GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "residue_editor_select_monomer_type_dialog");
   gtk_widget_destroy(dialog);
 }
-#endif	/* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_restraints1_activate                (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
@@ -11423,7 +11418,6 @@ on_restraints1_activate                (GtkMenuItem     *menuitem,
   GtkWidget *w = wrapped_create_residue_editor_select_monomer_type_dialog();
   gtk_widget_show(w);
 }
-#endif	/* GTK_MAJOR_VERSION */
 
 
 void

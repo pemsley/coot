@@ -151,6 +151,8 @@ int setup_database();
 
 #include "scm-boot-guile.hh"
 
+#include "sound.hh"
+
 // This main is used for both python/guile useage and unscripted. 
 int
 main (int argc, char *argv[]) {
@@ -173,6 +175,10 @@ main (int argc, char *argv[]) {
 
    command_line_data cld = parse_command_line(argc, argv);
    cld.handle_immediate_settings();
+
+#ifdef WITH_SOUND
+   test_sound(argc, argv);
+#endif // WITH_SOUND
 
    if (cld.run_internal_tests_and_exit) {
       // do self tests
