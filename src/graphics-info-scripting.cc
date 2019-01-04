@@ -91,8 +91,6 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
 
    // imol is added into the atom specs so that the atoms know the molecule they were part of
 
-   std::cout << "----------- in pyobject_from_graphical_bonds_container() n = 4 " << std::endl;
-
    int n_data_item_types = 4; // bonds and angles, rama and cis-peptides
 
    PyObject *r = PyTuple_New(n_data_item_types);
