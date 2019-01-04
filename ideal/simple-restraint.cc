@@ -2847,8 +2847,16 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
 	    if (sorted_residues[i+4]->GetChain() != residue_0->GetChain())
 	       do_i_plus_4_also = false;
 	 }
+	 if (do_i_plus_4_also) {
+	    if (sorted_residues[i+4]->GetSeqNum() != (residue_0->GetSeqNum() + 4))
+	       do_i_plus_4_also = false;
+	 }
 	 if (sorted_residues[i+3]->GetChain() != residue_0->GetChain())
 	    do_i_plus_3 = false;
+	 if (do_i_plus_3) {
+	    if (sorted_residues[i+3]->GetSeqNum() != (residue_0->GetSeqNum() + 3))
+	       do_i_plus_3 = false;
+	 }
          sorted_residues[i  ]->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
          sorted_residues[i+3]->GetAtomTable(residue_atoms_3, n_residue_atoms_3);
 	 if (do_i_plus_4_also) {
