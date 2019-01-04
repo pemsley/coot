@@ -268,9 +268,9 @@ else
       ccp4_mode=true
    fi
 
-   echo coot-script with PATH $PATH and PYTHON $PYTHON
-   which rsvg-convert
-   otool -L $HOME/bin/rsvg-convert
+   # echo coot-script with PATH $PATH and PYTHON $PYTHON
+   # which rsvg-convert
+   # otool -L $HOME/bin/rsvg-convert
 
    # this doesn't fix the svg icon/library problem
    # export DYLD_FALLBACK_LIBRARY_PATH=/Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib:/Users/pemsley/ccp4/ccp4-src-2015-02-05/ccp4-6.5/lib
