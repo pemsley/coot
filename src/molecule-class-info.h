@@ -2332,7 +2332,10 @@ public:        //                      public
    coot::ray_trace_molecule_info fill_raster_map_info(short int lev) const;
    coot::ray_trace_molecule_info fill_raster_additional_info() const;
 
-   // return a list of bad chiral volumes for this molecule:
+   // return a list of bad chiral volumes for this molecule
+   // (first is a vector of bad chiral volume types (residues for which we don't have
+   //  a dictionary).
+   //
    std::pair<std::vector<std::string>, std::vector<coot::atom_spec_t> > bad_chiral_volumes() const;
 
    // a other function

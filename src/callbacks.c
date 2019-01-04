@@ -59,6 +59,7 @@
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
 #include "c-interface-refmac.h"
+#include "c-interface-refine.h"	/* do things with intermediate atoms */
 #include "c-interface-preferences.h"
 #include "positioned-widgets.h"
 
@@ -12881,3 +12882,38 @@ on_refine_params_more_control_togglebutton_toggled
    }
 }
 
+
+void
+on_accept_reject_flip_this_peptide_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  pepflip_intermediate_atoms();
+}
+
+
+void
+on_accept_reject_flip_next_peptide_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  pepflip_intermediate_atoms_other_peptide();
+}
+
+
+void
+on_accept_reject_crankshaft_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  crankshaft_peptide_rotation_optimization_intermediate_atoms();
+}
+
+
+void
+on_accept_reject_backrub_rotamer_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  backrub_rotamer_intermediate_atoms();
+}

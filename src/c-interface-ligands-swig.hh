@@ -186,8 +186,11 @@ SCM linked_residues_scm(SCM residue_centre, int imol, float close_dist_max);
 PyObject *linked_residues_py(PyObject *residue_centre, int imol, float close_dist_max);
 #endif
 
-// is enhanced ligand version
+//! \brief is this an "enhanced-ligand" version?
 bool enhanced_ligand_coot_p();
+
+//! \brief JED-Flip the bond of the active atoms
+int jed_flip_intermediate_atoms();
 
 
 #endif // C_INTERFACE_LIGANDS_SWIG_HH

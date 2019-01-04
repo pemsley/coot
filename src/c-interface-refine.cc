@@ -53,7 +53,7 @@
 #include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
 #include "c-interface-scm.hh" // for display_scm
-
+#include "c-interface-refine.h" // for crankshaft_peptide_rotation_optimization_intermediate_atoms()
 
 
 /*  ----------------------------------------------------------------------- */
@@ -1403,6 +1403,7 @@ void crankshaft_peptide_rotation_optimization_py(int imol, PyObject *residue_spe
    }
 }
 #endif
+
 
 int crankshaft_peptide_rotation_optimization_intermediate_atoms() {
 
