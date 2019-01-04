@@ -215,7 +215,7 @@ float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, con
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       int imol_map = g.Imol_Refinement_Map();
-      if (! is_valid_map_molecule(imol_map)) {
+      if (is_valid_map_molecule(imol_map)) {
 	 coot::residue_spec_t rs(chain_id, resno, ins_code);
 	 float map_sigma = g.molecules[imol_map].map_sigma();
 	 val = g.molecules[imol].fit_to_map_by_random_jiggle(rs,
