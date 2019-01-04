@@ -57,7 +57,7 @@ class LigandTestFunctions(unittest.TestCase):
                 v = get_ccp4_version()
                 # will always be string
                 return v < "6.2"
-            
+
         r_1 = monomer_restraints("LIG")
         o = old_ccp4_restraints_qm()
         unittest_pdb("test-LIG.pdb")
@@ -115,7 +115,55 @@ class LigandTestFunctions(unittest.TestCase):
         set_mol_displayed(imol_npo, 0)
         # checked for non crash
 
-        
+
+    def test07_0(self):
+        """flip residue (around eigen vectors)"""
+
+        # new version
+        imol_orig = unittest_pdb("monomer-3GP.pdb")
+        imol_copy = copy_molecule(imol_orig)
+
+        self.failIf(not valid_model_molecule_qm(imol_orig),
+                    "not valid molecule for monomer-3GP.pdb")
+
+        # we need this, otherwise active-atom is (accidentally) the wrong
+        # molecule
+        set_go_to_atom_molecule(imol_copy)
+        set_go_to_atom_chain_residue_atom_name("A", 1, " C8 ")
+
+        active_atom = active_residue()
+        self.failUnless(active_atom, "No active atom")
+        imol      = active_atom[0]
+        chain_id  = active_atom[1]
+        res_no    = active_atom[2]
+        ins_code  = active_atom[3]
+        atom_name = active_atom[4]
+        alt_conf  = active_atom[5]
+        self.failIf(imol == imol_orig,
+                    "oops - didn't pick the copy for active res")
+        flip_ligand(imol, chain_id, res_no)
+        atom_orig_1 = get_atom(imol_orig, "A", 1, "", " C8 ")
+        atom_move_1 = get_atom(imol     , "A", 1, "", " C8 ")
+
+        self.failUnless(isinstance(atom_orig_1, list), "atom_orig_1 not found")
+
+        self.failUnless(isinstance(atom_move_1, list), "atom_move_1 not found")
+
+        d = bond_length(atom_orig_1[2], atom_move_1[2])
+        print "distance: ", d
+        self.failUnless(d > 2.1, "fail to move test atom d1")
+        flip_ligand(imol, chain_id, res_no)
+        flip_ligand(imol, chain_id, res_no)
+        flip_ligand(imol, chain_id, res_no)
+        # having flipped it round the axes 4
+        # times, we should be back where we
+        # started.
+        atom_orig_1 = get_atom(imol_orig, "A", 1, "", " C8 ")
+        atom_move_1 = get_atom(imol     , "A", 1, "", " C8 ")
+        d2 = bond_length(atom_orig_1[2], atom_move_1[2])
+        print "distance d2: ", d2
+        self.failUnless(d2 < 0.001, "fail to move atom back to start d2")
+
 
     def test08_0(self):
         """Test dipole"""
@@ -126,6 +174,28 @@ class LigandTestFunctions(unittest.TestCase):
         imol = unittest_pdb("dipole-residues.pdb")
 
         self.failUnless(valid_model_molecule_qm(imol), "dipole-residues.pdb not found")
+
+        residue_specs = [["A", 1, ""],
+                         ["A", 2, ""],
+                         ["A", 3, ""]]
+        dipole = add_dipole_for_residues(imol, residue_specs)
+
+        self.failIf(not dipole, "bad dipole %s" %dipole)
+
+        d = dipole[0]
+        dip = dipole[1]
+
+        dip_x = dip[0]
+        dip_y = dip[1]
+        dip_z = dip[2]
+
+        print "info:: dipole components", dip
+
+        self.failUnlessAlmostEqual(dip_y, 0.0, 2, "bad dipole y component %s" %dip_y)
+        self.failUnlessAlmostEqual(dip_z, 0.0, 2, "bad dipole z component %s" %dip_z)
+
+        self.failUnless(dip_x < 0 and dip_x > -20)
+
 
     def test09_0(self):
         """Reading new dictionary restraints replaces"""
@@ -145,7 +215,7 @@ class LigandTestFunctions(unittest.TestCase):
         self.failUnless(len(t) < 26, "torsions: %s %s" %(len(t), t))
         # 22 in new dictionary, it seems
 
-        
+
     def test10_0(self):
         """Pyrogen Runs OK?"""
 
@@ -154,10 +224,10 @@ class LigandTestFunctions(unittest.TestCase):
             return
 
         # bad things may well happen if we run the wrong version of pyrogen.
-        # so force pyrogen to be the one that is installed alongside this version of coot 
+        # so force pyrogen to be the one that is installed alongside this version of coot
         # that we are running. We do that by looking and manipulating sys.argv[0]
         import os, sys
-        
+
         coot_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
         prefix_dir = os.path.normpath(os.path.join(coot_dir, ".."))
         pyrogen_exe = "pyrogen"
@@ -202,7 +272,7 @@ class LigandTestFunctions(unittest.TestCase):
         # untested - no mogul
 
         # make sure that you are running the correct pyrogen
-        
+
         if self.skip_test(not enhanced_ligand_coot_p(),
                           "No ligand enhaced version, skipping Pyrogen test"):
             return
@@ -210,7 +280,7 @@ class LigandTestFunctions(unittest.TestCase):
         import os
         if os.path.isfile("UVP-pyrogen.cif"):
             os.remove("UVP-pyrogen.cif")
-        
+
         popen_status = popen_command("pyrogen",
                                      ["-nM", "-r", "UVP",
                                       "CO[C@@H]1[C@H](O)[C@H](O[C@H]1[n+]1ccc(O)nc1O)\\C=C\\P(O)(O)=O"],
@@ -227,9 +297,5 @@ class LigandTestFunctions(unittest.TestCase):
             atom_name = residue_atom2atom_name(atom)
             self.failIf("\"" in atom_name,
                         "Atom name quote fail %s" %atom_name)
-    
-        
-        
 
-                         
 
