@@ -3511,22 +3511,30 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
    if (verbose_geometry_reporting == VERBOSE)
       debug = true;
 
+   int nres = residues_vec.size();
+
    if (debug) {
-      std::cout << "debug:: bonded_residues_from_res_vec() residues_vec.size() "
+      std::cout << "debug:: ------------------- bonded_residues_from_res_vec() residues_vec.size() "
 		<< residues_vec.size() << std::endl;
       for (unsigned int i=0; i<residues_vec.size(); i++) {
 	 std::cout << "   " << residues_vec[i].first << " "
 		   << residue_spec_t(residues_vec[i].second) << std::endl;
       }
+      for (unsigned int ii=0; ii<residues_vec.size(); ii++) {
+	 mmdb::Residue *res_f = residues_vec[ii].second;
+	 for (unsigned int jj=ii+1; jj<residues_vec.size(); jj++) {
+	    mmdb::Residue *res_s = residues_vec[jj].second;
+
+	    std::cout << "debug:: ------------ test here with res_f and res_s "
+		      << residue_spec_t(res_f) << " " << residue_spec_t(res_s) << std::endl;
+
+	    if (res_f == res_s) {
+	       continue;
+	    }
+	 }
+      }
    }
 
-   // -----------------------------------------------------------------------
-   //
-   // Do linear bonding here - take most of the residues out of the equation
-   //
-   // -----------------------------------------------------------------------
-
-   int nres = residues_vec.size();
    for (unsigned int ii=0; ii<residues_vec.size(); ii++) {
       mmdb::Residue *res_f = residues_vec[ii].second;
       for (unsigned int jj=ii+1; jj<residues_vec.size(); jj++) {
@@ -3581,11 +3589,18 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	    int resno_2 = res_s->GetSeqNum();
 	    int ser_num_1 = res_f->index;
 	    int ser_num_2 = res_s->index;
-	    if (resno_2 == (resno_1 + 1))
-	       if (ser_num_2 == (ser_num_1 + 1))
-		  was_straight_forward_trans_link = true;
-	    if (was_straight_forward_trans_link)
+	    if (resno_2 == (resno_1 + 1)) {
+	       if (ser_num_2 == (ser_num_1 + 1)) {
+		  std::string rn_1 = res_f->GetResName();
+		  if (rn_1 != "ASN" && rn_1 != "CYS" && rn_1 != "SER" && rn_1 != "TYR") {
+		     was_straight_forward_trans_link = true;
+		  }
+	       }
+	    }
+	    if (was_straight_forward_trans_link) {
+	       // std::cout << "------------ was straight_forward TRANS link! - breaking"  << std::endl;
 	       break;
+	    }
 
 	 } else {
 	    if (debug)
@@ -3598,6 +3613,8 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
    }
 
    bpc.filter(); // removes 1-3 bond items and if 1-2 and 1-3 bonds exist
+
+   // std::cout << "---------------- done bonded_residues_from_res_vec()" << std::endl;
 
    return bpc;
 }

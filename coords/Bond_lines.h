@@ -803,8 +803,9 @@ public:
    // Used by make_colour_by_chain_bonds() - and others in the future?
    //
    Bond_lines_container(coot::protein_geometry *protein_geom,
-			const std::set<int> &no_bonds_to_these_atoms_in) : no_bonds_to_these_atoms(no_bonds_to_these_atoms_in) {
-      do_bonds_to_hydrogens = 1;  // added 20070629
+			const std::set<int> &no_bonds_to_these_atoms_in,
+			bool do_bonds_to_hydrogens_in=true) : no_bonds_to_these_atoms(no_bonds_to_these_atoms_in) {
+      do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
       b_factor_scale = 1.0;
       have_dictionary = false;
       geom = protein_geom;
