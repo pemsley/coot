@@ -28,6 +28,13 @@
 			       interesting)))
 	      (list "Ramachandran Improbables" munged))))))
 
+    ;; a list of atom specs
+    (define (find-chiral-volume-baddies)
+      (let ((r (chiral-volume-errors imol)))
+	(if (not (list? r))
+	    '()
+	    r)))
+
     (define (make-window-title n)
       (string-append "Coot Interesting/Outliers/Problems: "
 		     (number->string (- n 1))))
@@ -329,7 +336,7 @@
 								(set-go-to-atom-from-res-spec spec))))
 						      (list button-label fn)))))
 					      density-baddies))
-		
+
 		(cg-torsion-buttons (map (lambda(baddie)
 					   (let ((spec (car baddie))
 						 (score (cadr baddie)))
@@ -344,6 +351,16 @@
 							   (set-go-to-atom-from-res-spec spec))))
 						 (list button-label fn)))))
 					 cg-torsion-baddies))
+
+		(chiral-volume-buttons (map (lambda (baddie-atom-spec)
+					      (let ((button-label
+						     (string-append "Chiral Volume Error "
+								    (atom-spec->string baddie-atom-spec)))
+						    (fn (lambda ()
+							   (set-go-to-atom-molecule imol)
+							   (set-go-to-atom-from-atom-spec baddie-atom-spec))))
+						(list button-label fn)))
+					    (find-chiral-volume-baddies)))
 
 		(atom-overlap-buttons (map (lambda(baddie)
 					     (let ((atom-spec-1 (cdr (list-ref baddie 0))) ;; unprefix
@@ -361,16 +378,10 @@
 							   (set-go-to-atom-molecule imol)
 							   (set-go-to-atom-from-atom-spec atom-spec-1))))
 						 (list buton-label fn))))
-					   filtered-mao-baddies))
+					   filtered-mao-baddies)))
 
-		(regenerate-button (list "Update Buttons" regenerate-button-fn)))
-
-;	    (for-each (lambda(baddie)
-;			(format #t "filtered rotamer baddie: ~s~%" baddie))
-;		      filtered-rotamer-baddies)
-
-	    ;; (set! cg-torsion-buttons '()) ;; too noisy for the moment - which are the *real* baddies?
-	    (let ((buttons (append rama-buttons
+	    (let ((buttons (append chiral-volume-buttons
+				   rama-buttons
 				   rota-buttons
 				   non-pro-cis-peptide-buttons
 				   density-baddies-buttons
@@ -386,6 +397,7 @@
       ;; It would be nice to regenerate this box of buttons (it's fast to do so)
       ;; but that would mean changing it to a "dynamic" dialog
       ;; (update-dialog-with-new-buttons dialog new-buttons)
+      ;; So, OK, let's do that...
       ;;
       (let ((p (dialog-box-of-buttons (make-window-title (length buttons)) (cons 350 400) buttons " Close ")))
       (set! dialog-vbox (car p))
@@ -437,7 +449,6 @@
 				    (let ((state (gtk-toggle-button-get-active cg-torsion-diff-checkbutton)))
 				      (if (not state)
 					  (destroy-buttons-with-label "CG Torsion" dialog-vbox)))))))
-		    
 
 	      (gtk-widget-show control-button-vbox-1)
 	      (gtk-widget-show missing-sidechains-checkbutton)
