@@ -3421,6 +3421,15 @@ void set_fix_chiral_volumes_before_refinement(int istate);
 /*! \brief query the state of the above option */
 void check_chiral_volumes(int imol);
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM chiral_volume_errors_scm(int imol);
+#endif /* USE_GUILE */
+#ifdef USE_PYTHON
+PyObject *chiral_volume_errors_py(int imol);
+#endif	/* USE_PYTHON */
+#endif	/* __cplusplus */
+
 
 /*! \brief For experienced Cooters who don't like Coot nannying about
   chiral volumes during refinement. */

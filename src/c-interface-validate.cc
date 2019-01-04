@@ -526,6 +526,46 @@ void check_chiral_volumes(int imol) {
    } 
 }
 
+#ifdef USE_GUILE
+SCM chiral_volume_errors_scm(int imol) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      r = SCM_EOL;
+      graphics_info_t g;
+      std::pair<std::vector<std::string>, std::vector<coot::atom_spec_t> > v = g.molecules[imol].bad_chiral_volumes();
+      std::cout << "::::: here with v.second.size() " << v.second.size() << std::endl;
+      for (std::size_t i=0; i<v.second.size(); i++) {
+	 SCM atom_spec_scm = atom_spec_to_scm(v.second[i]);
+	 r = scm_cons(atom_spec_scm, r);
+      }
+      r = scm_reverse(r);
+   }
+   return r;
+
+}
+#endif /* USE_GUILE */
+
+#ifdef USE_PYTHON
+PyObject *chiral_volume_errors_py(int imol) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      std::pair<std::vector<std::string>, std::vector<coot::atom_spec_t> > v = g.molecules[imol].bad_chiral_volumes();
+      r = PyList_New(v.second.size());
+      for (std::size_t i=0; i<v.second.size(); i++) {
+	 PyObject *atom_spec_py = atom_spec_to_py(v.second[i]);
+	 PyList_SetItem(r, i, atom_spec_py);
+      }
+   }
+   if (PyBool_Check(r))
+     Py_INCREF(r);
+   return r;
+}
+#endif	/* USE_PYTHON */
+
+
 
 
 void set_fix_chiral_volumes_before_refinement(int istate) {
