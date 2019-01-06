@@ -66,7 +66,7 @@ def interactive_add_cho_dialog():
     ]
 
     vbox = dialog_box_of_buttons("Add N-linked Glycan",
-                                 [420, 600], buttons, "Close")
+                                 [420, 600], buttons, "Close")[0]
     gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox)
     # set the callback on the first button
     children = vbox.get_children()

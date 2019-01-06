@@ -116,6 +116,10 @@ def edit_chi_angles_key_func():
         set_graphics_edit_current_chi(1)
 add_key_binding("Edit Chi Angles", "X", lambda: edit_chi_angles_key_func())
 
+# BL says:: I like to keep edit chi, so use "Y" for something potentially
+# more useful (according to Paule)
+add_key_binding("Just One or Next Map", "Y", lambda: just_one_or_next_map())
+
 def jiggle_fit_residue_key():
     with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                aa_ins_code, aa_atom_name, aa_alt_conf]:

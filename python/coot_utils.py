@@ -401,6 +401,54 @@ def molecule_number_list():
 def model_molecule_number_list():
     return filter(valid_model_molecule_qm, molecule_number_list())
 
+# c.f. graphics_info_t::undisplay_all_model_molecules_except(int imol)
+def undisplay_all_maps_except(imol_map):
+
+    print "BL INFO:: undisplay_all_maps_except imol_map:", imol_map
+
+    map_list = map_molecule_list()
+    for imol in map_list:
+        if (imol != imol_map):
+            set_map_displayed(imol, 0)
+    set_map_displayed(imol_map, 1)
+
+#
+def just_one_or_next_map():
+
+    def next_map(current_map_number, map_number_list):
+        try:
+            current_idx = map_number_list.index(current_map_number)
+        except:
+            current_idx = -1
+        l = len(map_number_list)
+        print "BL INFO:: current_idx: %s from list %s" %(current_idx,
+                                                         map_number_list)
+        if current_idx > -1:
+            next_index = 0 if current_idx + 1 == l else current_idx + 1
+            return map_number_list[next_index]
+        return map_number_list[0]
+
+    map_list = map_molecule_list()
+    current_displayed_maps = filter(lambda imol: map_is_displayed(imol) == 1,
+                                    map_list)
+    n_displayed = len(current_displayed_maps)
+
+    # if nothing is displayed, display the first map in map-list
+    # if one map is displayed, display the next map in map-list
+    # if more than one map is displayed, display only the last map
+    # in the current-displayed-maps
+
+    if n_displayed == 0:
+        if len(map_list) > 0:
+            undisplay_all_maps_except(map_list[0])
+    elif n_displayed == 1:
+        if len(map_list) > 1:
+            undisplay_all_maps_except(next_map(current_displayed_maps[0],
+                                               map_list))
+    else:
+        undisplay_all_maps_except(current_displayed_maps[-1])
+
+
 # Test for prefix-dir (1) being a string (2) existing (3) being a
 # directory (4-6) modifiable by user (ie. u+rwx).  prefix_dir must be a
 # string.
@@ -534,6 +582,16 @@ def residue_spec_to_ins_code(rs):
                 return rs[3]
         return False
 
+def residue_specs_match_qm(spec_1, spec_2):
+    if (residue_spec_to_chain_id(spec_1) ==
+        residue_spec_to_chain_id(spec_2)):
+        if (residue_spec_to_res_no(spec_1) ==
+            residue_spec_to_res_no(spec_2)):
+            if (residue_spec_to_ins_code(spec_1) ==
+                residue_spec_to_ins_code(spec_2)):
+                return True
+    return False
+
 def atom_spec_to_imol(atom_spec):
     import types
     if not (isinstance(atom_spec, types.ListType)):
@@ -551,6 +609,28 @@ def residue_spec_to_residue_name(imol, spec):
                         spec[2],
                         spec[3])
 
+# for sorting residue specs
+#
+def residue_spec_less_than(spec_1, spec_2):
+    chain_id_1 = residue_spec_to_chain_id(spec_1)
+    chain_id_2 = residue_spec_to_chain_id(spec_2)
+    if chain_id_2 < chain_id_1:
+        return True
+    else:
+        rn_1 = residue_spec_to_res_no(spec_1)
+        rn_2 = residue_spec_to_res_no(spec_2)
+        if rn_2 < rn_1:
+            return True
+        else:
+            ins_code_1 = residue_spec_to_ins_code(spec_1)
+            ins_code_2 = residue_spec_to_ins_code(spec_2)
+            return ins_code_2 < ins_code_1
+
+def residue_spec_to_string(spec):
+    ret = residue_spec_to_chain_id(spec) + " "
+    ret += str(residue_spec_to_res_no(spec))
+    ret += residue_spec_to_ins_code
+    return ret
 
 # Return a list of molecules that are maps
 # 
@@ -1615,6 +1695,17 @@ def atom_specs(imol, chain_id, resno, ins_code, atom_name, alt_conf):
 
     return atom_info_string(imol, chain_id, resno, ins_code, atom_name, alt_conf)
 
+def atom_spec_to_string(spec):
+
+    ret = atom_spec_to_chain_id(spec) + " "
+    ret += str(atom_spec_to_res_no(spec))
+    ret += atom_spec_to_ins_code(spec) + " "
+    ret += atom_spec_to_atom_name(spec)
+    al = atom_spec_to_alt_loc(spec)
+    if al:
+        ret += " " + al
+    return ret
+
 # I don't like this function name
 def atom_spec_to_residue_spec(atom_spec):
     return atom_spec[2:][0:3]
@@ -1966,19 +2057,25 @@ def residues_matching_criteria(imol, residue_test_func):
     else:
         return False
 
-# Now this is in the API
-#
 # Return residue specs for all residues in imol (each spec is preceeded by True)
 #
-#def all_residues(imol):
-#    return residues_matching_criteria(imol, lambda chain_id, resno, ins_code, serial: True)
-
 def all_residues(imol):
     r = all_residues_with_serial_numbers(imol)
     try:
         return [e[1:] for e in r]
     except TypeError as e:
         return r
+
+def all_residues_sans_water(imol):
+    return residues_matching_criteria(imol,
+                                      lambda chain_id, res_no, ins_code, serial: residue_name(imol, chain_id, res_no, ins_code) != "HOH")
+
+# Return a list of all the residues in the chain
+#
+def residues_in_chain(imol, chain_id_in):
+    """Return a list of all the residues in the chain"""
+    return residues_matching_criteria(imol,
+                                      lambda chain_id, resno, ins_code, serial: chain_id == chain_id_in)
 
 # Return a list of all residues that have alt confs: where a residue
 # is specified thusly: [[chain_id, resno, ins_code], [...] ]
@@ -2055,6 +2152,8 @@ def atom_spec_to_chain_id(atom_spec):
         return False
     if (len(atom_spec) == 5):
         return atom_spec[0]
+    elif (len(atom_spec) == 6):
+        return atom_spec[1]
     else:
         return False
 
@@ -2066,6 +2165,8 @@ def atom_spec_to_res_no(atom_spec):
         return False
     if (len(atom_spec) == 5):
         return atom_spec[1]
+    elif (len(atom_spec) == 6):
+        return atom_spec[2]
     else:
         return False
 
@@ -2077,6 +2178,8 @@ def atom_spec_to_ins_code(atom_spec):
         return False
     if (len(atom_spec) == 5):
         return atom_spec[2]
+    elif (len(atom_spec) == 6):
+        return atom_spec[3]
     else:
         return False
     
@@ -2088,6 +2191,8 @@ def atom_spec_to_atom_name(atom_spec):
         return False
     if (len(atom_spec) == 5):
         return atom_spec[3]
+    elif (len(atom_spec) == 6):
+        return atom_spec[4]
     else:
         return False
     
@@ -2099,8 +2204,11 @@ def atom_spec_to_alt_loc(atom_spec):
         return False
     if (len(atom_spec) == 5):
         return atom_spec[4]
+    if (len(atom_spec) == 6):
+        return atom_spec[5]
     else:
         return False    
+
 
 # simple extraction function
 #
@@ -2528,8 +2636,15 @@ def save_dialog_positions_to_init_file():
             print "BL ERROR:: no valid port to write to!"
 
     # main line
-    state_file = "0-coot.state.py"
     save_state()
+
+    # FYI, the graphics window is set using
+    #
+    # set_graphics_window_size(643, 500)
+    # set_graphics_window_position(0, 1)
+    # They are not dialogs
+
+    state_file = "0-coot.state.py"
     if (not os.path.isfile(state_file)):
         print "Ooops %s does not exist (either guile enabled or problem writing the file" %state_file
     else:

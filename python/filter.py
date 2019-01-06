@@ -19,7 +19,10 @@
 # Basic python function, filter the objects in list ls by function
 # fn.  e.g. filter(lambda x: not x%2, [0,1,2,3]) -> [0,2]
 # 
-def filter(fn,ls):
+# BL says:: python has this function build in (now), so use python's
+# version
+#
+def filter_coot(fn,ls):
 
   ret_ls = []
   if len(ls) > 0:
