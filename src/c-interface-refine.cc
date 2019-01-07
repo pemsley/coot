@@ -1344,14 +1344,17 @@ void use_unimodal_ring_torsion_restraints_for_residue(const std::string &res_nam
 
 void set_refinement_geman_mcclure_alpha(float alpha) {
 
-   graphics_info_t::geman_mcclure_alpha = alpha;
+   graphics_info_t g;
+   g.set_geman_mcclure_alpha(alpha);
 
 }
 
 //! \brief set the Lennard Jones epsilon parameter
 void set_refinement_lennard_jones_epsilon(float epsilon) {
 
-   graphics_info_t::lennard_jones_epsilon = epsilon;
+   graphics_info_t g;
+   g.set_lennard_jones_epsilon(epsilon);
+
 }
 
 //! \brief set the log cosh scale factor for target position restraints

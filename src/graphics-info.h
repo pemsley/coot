@@ -2988,6 +2988,7 @@ public:
    void move_atom_pull_target_position(int screenx, int screeny);
    void add_target_position_restraint_for_intermediate_atom(const coot::atom_spec_t &spec,
 							    const clipper::Coord_orth &target_pos);
+   void add_target_position_restraints_for_intermediate_atoms(const std::vector<std::pair<coot::atom_spec_t, clipper::Coord_orth> > &atom_spec_position_vec); // refines after added
    short int rotate_intermediate_atoms_maybe(short int axis, double angle); 
                                                  // do it if have intermediate atoms
                                                  // and ctrl is pressed.
@@ -3856,9 +3857,13 @@ string   static std::string sessionid;
 
    static double geman_mcclure_alpha;
 
+   static void set_geman_mcclure_alpha(float alpha); // reruns refinement if we have restraints
+
    static bool update_maps_on_recentre_flag;
 
    static double lennard_jones_epsilon;
+
+   static void set_lennard_jones_epsilon(float epsilon); // reruns refinement if we have restraints
 
    static double log_cosh_target_distance_scale_factor;
 

@@ -501,6 +501,29 @@ graphics_info_t::set_refinement_flags() const {
    return flags;
 }
 
+// reruns refinement if we have restraints
+//
+// static
+void
+graphics_info_t::set_geman_mcclure_alpha(float alpha) {
+
+   graphics_info_t g;
+   geman_mcclure_alpha = alpha;
+   if (g.last_restraints_size() > 0)
+      thread_for_refinement_loop_threaded();
+}
+
+// reruns refinement if we have restraints
+//
+// static
+void
+graphics_info_t::set_lennard_jones_epsilon(float epsilon) {
+
+   graphics_info_t g;
+   lennard_jones_epsilon = epsilon;
+   if (g.last_restraints_size() > 0)
+      thread_for_refinement_loop_threaded();
+}
 
 
 void
@@ -1172,6 +1195,8 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
    return local_moving_atoms_asc;
 }
 
+// surely we need to have control of one of the locks before we can do this?
+//
 void
 graphics_info_t::make_moving_atoms_restraints_graphics_object() {
 
@@ -1189,19 +1214,21 @@ graphics_info_t::make_moving_atoms_restraints_graphics_object() {
                   int idx_2 = rest.atom_index_2;
 		  mmdb::Atom *at_1 = moving_atoms_asc->atom_selection[idx_1];
 		  mmdb::Atom *at_2 = moving_atoms_asc->atom_selection[idx_2];
-                  clipper::Coord_orth p1 = coot::co(at_1);
-                  clipper::Coord_orth p2 = coot::co(at_2);
-                  double dd = rest.target_value;
-                  double de = sqrt(clipper::Coord_orth(p1-p2).lengthsq());
-		  bool do_it = true;
-		  std::string atom_name_1 = at_1->GetAtomName();
-		  std::string atom_name_2 = at_2->GetAtomName();
-		  if (atom_name_1 == " CA ")
-		     if (atom_name_2 == " CA ")
-			do_it = false;
-		  if (do_it)
-		     moving_atoms_extra_restraints_representation.add_bond(p1, p2, dd, de);
-               }
+		  if (at_1 && at_2) {
+		     clipper::Coord_orth p1 = coot::co(at_1);
+		     clipper::Coord_orth p2 = coot::co(at_2);
+		     double dd = rest.target_value;
+		     double de = sqrt(clipper::Coord_orth(p1-p2).lengthsq());
+		     bool do_it = true;
+		     std::string atom_name_1 = at_1->GetAtomName();
+		     std::string atom_name_2 = at_2->GetAtomName();
+		     if (atom_name_1 == " CA ")
+			if (atom_name_2 == " CA ")
+			   do_it = false;
+		     if (do_it)
+			moving_atoms_extra_restraints_representation.add_bond(p1, p2, dd, de);
+		  }
+	       }
             }
          }
       }
@@ -1216,7 +1243,7 @@ graphics_info_t::draw_moving_atoms_restraints_graphics_object() {
       if (moving_atoms_asc) {
          if (last_restraints) {
             if (moving_atoms_extra_restraints_representation.bonds.size() > 0) {
-               glLineWidth(2.0);
+               glLineWidth(1.0); // 2 is smoother and fatter
 
                glBegin(GL_LINES);
                for (unsigned int ib=0; ib<moving_atoms_extra_restraints_representation.bonds.size(); ib++) {

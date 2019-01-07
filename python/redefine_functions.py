@@ -220,6 +220,8 @@ kolmogorov_smirnov     = kolmogorov_smirnov_py
 kolmogorov_smirnov_vs_normal = kolmogorov_smirnov_vs_normal_py
 kullback_liebler       = kullback_liebler_py
 linked_residues        = linked_residues_py
+add_target_position_restraint_for_intermediate_atom = add_target_position_restraint_for_intermediate_atom_py
+add_target_position_restraints_for_intermediate_atoms = add_target_position_restraints_for_intermediate_atoms_py
 
 coot_contact_dots_for_ligand = coot_contact_dots_for_ligand_py
 switch_HIS_protonation = switch_HIS_protonation_py

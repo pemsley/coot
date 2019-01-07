@@ -759,18 +759,73 @@ void graphics_info_t::add_or_replace_current(const atom_pull_info_t &atom_pull_i
 
 }
 
+
+// we need a vector version of this.
 void
 graphics_info_t::add_target_position_restraint_for_intermediate_atom(const coot::atom_spec_t &spec,
 								     const clipper::Coord_orth &target_pos) {
+
+
+   // get the restraints lock before adding these
+
+   bool unlocked = false; // wait for restraints_lock to be false...
+   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
+      std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms() - refinement restraints locked on "
+                << std::endl;
+      std::this_thread::sleep_for(std::chrono::milliseconds(40));
+      unlocked = false;
+   }
 
    atom_pull_info_t atom_pull_local = atom_pull_info_t(spec, target_pos);
    add_or_replace_current(atom_pull_local);
    if (last_restraints) {
       last_restraints->add_atom_pull_restraint(spec, target_pos);
-      // add_drag_refine_idle_function();
-      thread_for_refinement_loop_threaded();
    }
+
+   // unlock restraints
+   restraints_lock = false;
+
+   thread_for_refinement_loop_threaded();
+
 }
+
+// vector version of above
+void
+graphics_info_t::add_target_position_restraints_for_intermediate_atoms(const std::vector<std::pair<coot::atom_spec_t, clipper::Coord_orth> > &atom_spec_position_vec) {
+
+   std::cout << "-------------------------- add_target_position_restraints_for_intermediate_atoms() called"
+	     << std::endl;
+
+   // get the restraints lock before adding this
+
+   if (last_restraints) {
+
+      bool unlocked = false; // wait for restraints_lock to be false...
+      while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
+	 std::cout << "INFO:: add_target_position_restraints_for_intermediate_atoms() - refinement restraints locked on "
+		   << std::endl;
+	 std::this_thread::sleep_for(std::chrono::milliseconds(40));
+	 unlocked = false;
+      }
+
+      for (std::size_t i=0; i<atom_spec_position_vec.size(); i++) {
+	 coot::atom_spec_t spec  = atom_spec_position_vec[i].first;
+	 clipper::Coord_orth pos = atom_spec_position_vec[i].second;
+	 atom_pull_info_t atom_pull_local = atom_pull_info_t(spec, pos);
+	 add_or_replace_current(atom_pull_local);
+	 last_restraints->add_atom_pull_restraint(spec, pos);
+      }
+
+      // unlock restraints and start refinement again
+      restraints_lock = false;
+      thread_for_refinement_loop_threaded();
+
+   } else {
+      std::cout << "WARNING:: in add_target_position_restraints_for_intermediate_atoms() no restraints" << std::endl;
+   }
+
+}
+
 
 
 

@@ -6438,6 +6438,9 @@ PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position);
 // does not. This activates refinement after the restraint is added (add_extra_target_position_restraint
 // does not).
 PyObject *add_target_position_restraint_for_intermediate_atom_py(PyObject *atom_spec, PyObject *position);
+
+// and the multiple-atom version of that (so that they can be applied at the same time)
+PyObject *add_target_position_restraints_for_intermediate_atoms_py(PyObject *atom_spec_position_list);
 #endif 
 #endif /* c++ */
 /* \} */

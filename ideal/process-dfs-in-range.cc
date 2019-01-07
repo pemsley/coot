@@ -378,7 +378,7 @@ coot::process_dfs_bond(const coot::simple_restraint &restraint,
    double b_i_sqrd = (a1-a2).lengthsq();
    b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
 
-   double weight = 1/(restraint.sigma * restraint.sigma);
+   double weight = 1.0/(restraint.sigma * restraint.sigma);
 
    double constant_part = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
 
