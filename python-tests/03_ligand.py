@@ -22,7 +22,7 @@ class LigandTestFunctions(unittest.TestCase):
     def test01_0(self):
         """Get monomer test"""
 
-	imol = monomer_molecule_from_3_let_code("3GP", "")
+	imol = get_monomer("3GP")
 	if (valid_model_molecule_qm(imol)):
             delete_residue_hydrogens(imol, "A", 1, "", "")
         self.failIf(not valid_model_molecule_qm(imol), "not valid molecule for 3GP")
@@ -81,6 +81,58 @@ class LigandTestFunctions(unittest.TestCase):
                              old_ccp4_restraints_qm() else \
                              isinstance(r_3, dict)]))
 
+
+    def test05_0(self):
+        """Merge molecules of a ligand with a spec"""
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+        imol_lig = get_monomer("3GP")
+
+        spec = ["L", 1, ""]
+
+        set_merge_molecules_ligand_spec(spec)
+        merge_molecules([imol_lig], imol)
+
+        # now check that L1 exists in imol
+
+        # residue_spec_to_residue_name expects a 4-ele spec. Hmm
+        spec[0:0] = [True]
+        rn = residue_spec_to_residue_name(imol, spec)
+        self.failUnless(isinstance(rn, str))
+        self.failUnless(rn == "3GP")
+
+
+    def test05_1(self):
+        """Move and Refine Ligand test"""
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+        self.failUnless(valid_model_molecule_qm(imol))
+        new_rc = [55.3, 9.1, 20.6]
+        # set the view
+        view_number = add_view([54.5698, 8.7148, 20.5308],
+                               [0.046229, -0.157139, -0.805581, 0.569395],
+                               19.8858,
+                               "ligand-view")
+
+        go_to_view_number(view_number, 1)
+
+        # update the map
+        set_rotation_centre(*new_rc)
+        move_molecule_here(imol)
+        backup_mode = backup_state(imol)
+        alt_conf = ""
+        replacement_state = refinement_immediate_replacement_state()
+
+        turn_off_backup(imol)
+        set_refinement_immediate_replacement(1)
+        refine_zone(imol, "A", 1, 1, alt_conf)
+        accept_regularizement()
+        rotate_y_scene(600, 0.1)
+        if replacement_state == 0:
+            set_refinement_immediate_replacement(0)
+        if backup_mode == 1:
+            turn_on_backup(imol)
+        # ok. no fail.
 
 
     def test06_0(self):
@@ -220,7 +272,7 @@ class LigandTestFunctions(unittest.TestCase):
         """Pyrogen Runs OK?"""
 
         if self.skip_test(not enhanced_ligand_coot_p(),
-                          "No ligand enhaced version, skipping Pyrogen test"):
+                          "No ligand enhanced version, skipping Pyrogen test"):
             return
 
         # bad things may well happen if we run the wrong version of pyrogen.
@@ -274,7 +326,7 @@ class LigandTestFunctions(unittest.TestCase):
         # make sure that you are running the correct pyrogen
 
         if self.skip_test(not enhanced_ligand_coot_p(),
-                          "No ligand enhaced version, skipping Pyrogen test"):
+                          "No ligand enhanced version, skipping Pyrogen test"):
             return
 
         import os
@@ -299,3 +351,29 @@ class LigandTestFunctions(unittest.TestCase):
                         "Atom name quote fail %s" %atom_name)
 
 
+    # FLEV will not make a PNG if it is not compiled with
+    # C++-11 - and that is OK for 0.8.9.x.
+    #
+    # def test12_0(self):
+    #     """FLEV makes a PNG"""
+
+    #     import os
+
+    #     if self.skip_test(not enhanced_ligand_coot_p(),
+    #                       "No ligand enhanced version, skipping FLEV test"):
+    #         return
+
+    #     fn = "test-flev-greg-testcase.png"
+
+    #     if os.path.exists(fn):
+    #         os.remove(fn)
+
+    #     imol = unittest_data_dir("tutorial-modern.pdb")
+    #     imol_ligand = get_monomer("3GP")
+
+    #     set_rotation_centre(54, 10, 20)
+    #     move_molecule_to_screen_centre(imol_ligand)
+    #     set_merge_molecules_ligand_spec(["L", 1, ""])
+    #     merge_molecules([imol_ligand], imol)
+    #     fle_view_with_rdkit_to_png(imol, "L", 1, "", 4.8, fn)
+    #     self.failUnless(os.path.exists(fn))
