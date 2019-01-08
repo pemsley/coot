@@ -30,14 +30,15 @@
 					 (string-append
 					  (coot-replace-string (molecule-name-stub imol-target 0)
 							       " " "_" )
-					  "-prosmart.txt"))))
+					  "-prosmart.txt")))
+	  (prosmart-rmax 6.0))
 
       (write-pdb-file imol-target target-pdb-file-name)
       (write-pdb-file imol-ref reference-pdb-file-name)
       (goosh-command "prosmart"
 		     (let ((l (list "-p1" target-pdb-file-name
 				    "-p2" reference-pdb-file-name
-				    "-restrain_seqid" "30")))
+				    "-restrain_seqid" "30" "--rmax" (number->string prosmart-rmax))))
 		       (if include-side-chains?
 			   (append l (list "-side"))
 			   l))
