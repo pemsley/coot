@@ -430,14 +430,14 @@ coot::match_container_for_residues_t::meld(mmdb::Manager *mol, std::pair<bool, b
             residue_p->seqNum += res_no_delta;
          }
 
-	 mmdb::Chain *to_chain_p = residue_1->GetChain();
+	 mmdb::Chain *to_chain_p = residue_2->GetChain();
          // select the residues of the fragment - looking for residues that are contiguous with the passed
          // residue.
 
          // Now delete the matching residue residue_1 (high value comment)
          delete residue_1;
 
-	 meld_residues(res_vec, residue_1, res_no_delta, to_chain_p);
+	 meld_residues(res_vec, residue_1, 0, to_chain_p);
 
       }
    }
@@ -454,7 +454,9 @@ coot::match_container_for_residues_t::meld_residues(std::vector<mmdb::Residue *>
 	 residue_spec_t spec_pre(residue_p);
 	 residue_p->seqNum += res_no_delta;
 	 residue_spec_t spec_post(residue_p);
-	 // std::cout << "in meld() residue " << spec_pre << " becomes " << spec_post << std::endl;
+         if (false)
+	    std::cout << "in meld() res_no_delta " << res_no_delta << " " << " residue " << spec_pre << " becomes "
+                      << spec_post << std::endl;
 	 int this_res_seq_num = residue_p->GetSeqNum();
 
 	 // don't make a new chain for this residue
@@ -469,6 +471,7 @@ coot::match_container_for_residues_t::meld_residues(std::vector<mmdb::Residue *>
 	    mmdb::Residue *r = chain_residues[iserial];
 	    int chain_residue_seq_num = r->GetSeqNum();
 	    int this_diff = chain_residue_seq_num - this_res_seq_num;
+            // std::cout << "   Here with iserial " << iserial << " and this_diff " << this_diff << std::endl;
 	    if (this_diff > 0) {
 	       if (this_diff < best_diff) {
 		  best_diff = this_diff;
@@ -481,12 +484,18 @@ coot::match_container_for_residues_t::meld_residues(std::vector<mmdb::Residue *>
 	    std::cout << "debug in meld() for " << residue_spec_t(residue_p) << " target_res_serial_number "
 		      << target_res_serial_number << " best_diff " << best_diff << std::endl;
 
-	 if (target_res_serial_number >= 0)
+	 if (target_res_serial_number >= 0) {
+            if (false)
+               std::cout << "InsResidue() on " << residue_spec_t(residue_copy) << " to chain \"" << to_chain_p->GetChainID()
+                         << "\"" << std::endl;
 	    to_chain_p->InsResidue(residue_copy, target_res_serial_number);
-	 else
+	 } else {
+            if (false)
+               std::cout << "AddResidue() on " << residue_spec_t(residue_copy) << " to chain \"" << to_chain_p->GetChainID()
+                         << "\"" << std::endl;
 	    to_chain_p->AddResidue(residue_copy);
+         }
 
-	 // chain_p->DeleteResidue(this_res_seq_num, "");
 	 delete residue_p;
       }
    }
