@@ -3407,9 +3407,13 @@ PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position) {
 //! \brief add a target position for an intermediate atom and refine
 //
 // A function requested by Hamish.
-// This aplies to intermediate atoms (add_extra_target_position_restraint)
+// This applies to intermediate atoms (add_extra_target_position_restraint)
 // does not. This activates refinement after the restraint is added (add_extra_target_position_restraint
 // does not).
+//
+// We need a vector (of atom specs) version of this so that we don't keep stopping and starting
+// the refinement as we add new pull restraints (maybe there will be 50 of them or so)
+//
 PyObject *add_target_position_restraint_for_intermediate_atom_py(PyObject *atom_spec, PyObject *position) {
 
 // e.g. atom_spec: ["A", 81, "", " CA ", ""]
@@ -3437,6 +3441,57 @@ PyObject *add_target_position_restraint_for_intermediate_atom_py(PyObject *atom_
    return retval;
 }
 #endif
+
+// and the multiple-atom version of that (so that they can be applied at the same time)
+PyObject *add_target_position_restraints_for_intermediate_atoms_py(PyObject *atom_spec_position_list) {
+
+   PyObject *ret_val = Py_False; // not changed by function at the moment
+
+   if (PyList_Check(atom_spec_position_list)) {
+      graphics_info_t g;
+      if (false) // debug
+	 std::cout << "add_target_position_restraints_for_intermediate_atoms_py processing "
+		   << PyString_AsString(display_python(atom_spec_position_list)) << std::endl;
+      std::vector<std::pair<coot::atom_spec_t, clipper::Coord_orth> > atom_spec_position_vec;
+      unsigned int len = PyObject_Length(atom_spec_position_list);
+      for (std::size_t i=0; i<len; i++) {
+	 PyObject *list_item = PyList_GetItem(atom_spec_position_list, i);
+	 PyObject *atom_spec_py = PyList_GetItem(list_item, 0);
+	 PyObject *position_py  = PyList_GetItem(list_item, 1);
+	 std::pair<bool, coot::atom_spec_t> p = make_atom_spec_py(atom_spec_py);
+	 if (p.first) {
+	    int pos_length = PyObject_Length(position_py);
+	    if (PyList_Check(position_py)) {
+	       if (pos_length == 3) {
+		  PyObject *x_py = PyList_GetItem(position_py, 0);
+		  PyObject *y_py = PyList_GetItem(position_py, 1);
+		  PyObject *z_py = PyList_GetItem(position_py, 2);
+		  double x = PyFloat_AsDouble(x_py);
+		  double y = PyFloat_AsDouble(y_py);
+		  double z = PyFloat_AsDouble(z_py);
+		  clipper::Coord_orth pt(x,y,z);
+		  std::pair<coot::atom_spec_t, clipper::Coord_orth> pp(p.second, pt);
+		  atom_spec_position_vec.push_back(pp);
+	       }
+	    } else {
+	       PyObject *ds = display_python(position_py);
+	       if (ds)
+		  std::cout << "WARNING:: position is not a list "
+			    << PyString_AsString(ds) << std::endl;
+	       else
+		  std::cout << "WARNING:: position is not a list - null from display_python() with input"
+			    << position_py << std::endl;
+	    }
+	 }
+      }
+      g.add_target_position_restraints_for_intermediate_atoms(atom_spec_position_vec); // refines after added
+
+   } else {
+      std::cout << "WARNING:: add_target_position_restraints_for_intermediate_atoms_py() Not a list" << std::endl;
+   }
+   Py_INCREF(ret_val);
+   return ret_val;
+}
 
 
 

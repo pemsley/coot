@@ -198,7 +198,7 @@ coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
 // If there is no imol_map then the geometry graph could not have been displayed.  You can
 // pass -1 for the map in that case.
 void
-graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelResidues, int imol, int imol_map) { // searching for update_validation_graphs?
+graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelResidues, int imol, int imol_map) { // searching for update_validation_graphs? Check the next function also
 
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
@@ -714,7 +714,7 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
 						flags,
 						do_residue_internal_torsions,
 						do_trans_peptide_restraints,
-						0.0, 0,
+						0.0, 0, false, false,
 						pseudos);
 
 		  if (nrestraints > 0) {

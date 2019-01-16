@@ -441,7 +441,7 @@ main(int argc, char **argv) {
 
 	       int imol = 0; // dummy
 	       restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
-					  1.0, do_rama_plot_restraints, pseudos);
+					  1.0, do_rama_plot_restraints, true, true, pseudos);
 
 	       if (inputs.extra_restraints_file_names.size() > 0) {
 		  restraints.add_extra_restraints(imol, extra_restraints, geom);

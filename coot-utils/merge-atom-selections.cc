@@ -6,6 +6,8 @@
 
 #include <clipper/core/coords.h>
 
+#include "utils/coot-utils.hh"
+
 #include "merge-atom-selections.hh"
 #include "coot-coord-utils.hh"
 
@@ -152,6 +154,8 @@ coot::match_container_t::find_best_match() const {
 
 
 // atom_selection_1(true) vs atom_selection_2(false)  and  upstream(true) vs downstream (false)
+// @return short-fragment-is-in-first-selection, short_fragment_is_upstream_fragment
+//
 std::pair<bool, bool>
 coot::match_container_for_residues_t::find_short_fragment_around_overlap(mmdb::Manager *mol, int selection_handle_1, int selection_handle_2) const {
 
@@ -175,52 +179,66 @@ coot::match_container_for_residues_t::find_short_fragment_around_overlap(mmdb::M
    for (int iat=0; iat<n_atoms_1; iat++) {
       mmdb::Atom *at = atom_selection_1[iat];
       // bleugh
-      for (unsigned int ip=0; ip<atom_pairs.size(); ip++) {
-         if (atom_pairs[ip].first == at)
-            hit_matches = true;
-         if (! hit_matches)
-            atom_sel_1_n_above++;
-         else 
-            atom_sel_1_n_below++;
+      if (! hit_matches) {
+         for (unsigned int ip=0; ip<atom_pairs.size(); ip++) {
+            if (atom_pairs[ip].first == at) {
+               hit_matches = true;
+               break;
+            }
+         }
       }
+      if (! hit_matches)
+         atom_sel_1_n_above++;
+      else
+         atom_sel_1_n_below++;
    }
    hit_matches = false;
    for (int iat=0; iat<n_atoms_2; iat++) {
       mmdb::Atom *at = atom_selection_2[iat];
-      for (unsigned int ip=0; ip<atom_pairs.size(); ip++) {
-         if (atom_pairs[ip].second == at)
-            hit_matches = true;
-         if (! hit_matches)
-            atom_sel_2_n_above++;
-         else 
-            atom_sel_2_n_below++;
+      if (! hit_matches) {
+         for (unsigned int ip=0; ip<atom_pairs.size(); ip++) {
+            if (atom_pairs[ip].second == at) {
+               hit_matches = true;
+               break;
+            }
+         }
       }
+      if (! hit_matches)
+         atom_sel_2_n_above++;
+      else
+         atom_sel_2_n_below++;
    }
+
+   // idx == 1: is_in_first = true;  is_upstream = true
+   // idx == 2: is_in_first = true;  is_upstream = false
+   // idx == 3: is_in_first = false; is_upstream = true
+   // idx == 4: is_in_first = false; is_upstream = false
+
+   int idx = 1;
+   if (atom_sel_1_n_below <= atom_sel_1_n_above)
+      if (atom_sel_1_n_below <= atom_sel_2_n_above)
+         if (atom_sel_1_n_below <= atom_sel_2_n_below)
+            idx = 2;
+   if (atom_sel_2_n_above <= atom_sel_1_n_above)
+      if (atom_sel_2_n_above <= atom_sel_1_n_below)
+         if (atom_sel_2_n_above <= atom_sel_2_n_below)
+            idx = 3;
+   if (atom_sel_2_n_below <= atom_sel_1_n_above)
+      if (atom_sel_2_n_below <= atom_sel_1_n_below)
+         if (atom_sel_2_n_below <= atom_sel_2_n_above)
+            idx = 4;
+
+   if (idx==2) { is_upstream = false; }
+   if (idx==3) { is_first_selection = false; }
+   if (idx==4) { is_first_selection = false; is_upstream = false;}
 
    if (false)
       std::cout << "debug in find_short_fragment_around_overlap() "
                 << "atom_sel_1_n_below " << atom_sel_1_n_below << " "
                 << "atom_sel_1_n_above " << atom_sel_1_n_above << " "
                 << "atom_sel_2_n_below " << atom_sel_2_n_below << " "
-                << "atom_sel_2_n_above " << atom_sel_2_n_above << "\n";
-
-   int idx = 1;
-   if (atom_sel_1_n_below < atom_sel_1_n_above)
-      if (atom_sel_1_n_below < atom_sel_2_n_above)
-         if (atom_sel_1_n_below < atom_sel_2_n_below)
-            idx = 2;
-   if (atom_sel_2_n_above < atom_sel_1_n_above)
-      if (atom_sel_2_n_above < atom_sel_1_n_below)
-         if (atom_sel_2_n_above < atom_sel_2_n_below)
-            idx = 3;
-   if (atom_sel_2_n_below < atom_sel_1_n_above)
-      if (atom_sel_2_n_below < atom_sel_1_n_below)
-         if (atom_sel_2_n_below < atom_sel_2_n_above)
-            idx = 4;
-
-   if (idx==2) { is_upstream = false; }
-   if (idx==3) { is_first_selection = false; }
-   if (idx==4) { is_first_selection = false; is_upstream = false;}
+                << "atom_sel_2_n_above " << atom_sel_2_n_above
+                << " with idx " << idx << "\n";
 
    return std::pair<bool, bool>(is_first_selection, is_upstream);
 
@@ -240,12 +258,13 @@ coot::merge_atom_selections(mmdb::Manager *mol, int selection_handle_1, int sele
       // delete that, which means that we keep the other fragment for that selection
       // which means that we know we keep the same stream of the other selection (and delete the other)
       std::pair<bool,bool> r = m.second.find_short_fragment_around_overlap(mol, selection_handle_1, selection_handle_2);
-      // std::cout << " ------ in merge_atom_selections() with r " << r.first << " " << r.second << std::endl;
 
       if (r.first) {
          if (r.second) {
             m.second.delete_upstream(mol,   true,  selection_handle_1);
             m.second.delete_downstream(mol, false, selection_handle_2);
+            // m.second.delete_downstream(mol, true,  selection_handle_1);
+            // m.second.delete_upstream(mol,   false, selection_handle_2);
             m.second.meld(mol, r);
          } else {
             m.second.delete_downstream(mol, true, selection_handle_1);
@@ -272,6 +291,8 @@ coot::merge_atom_selections(mmdb::Manager *mol, int selection_handle_1, int sele
 
 void
 coot::match_container_for_residues_t::delete_downstream(mmdb::Manager *mol, bool from_first, int selection_handle_1) {
+
+   bool debug = false;
 
    // delete downstream in selection
    bool found_matchers = false;
@@ -310,11 +331,13 @@ coot::match_container_for_residues_t::delete_downstream(mmdb::Manager *mol, bool
       std::set<mmdb::Residue *>::iterator it;
       for (it=delete_these_residues.begin(); it!=delete_these_residues.end(); it++) {
 	 mmdb::Residue *r = *it;
-	 // std::cout << "in delete_downstream() delete " << residue_spec_t(r) << std::endl;
+         if (debug)
+	    std::cout << "in delete_downstream() delete " << residue_spec_t(r) << std::endl;
       }
       for (it=delete_these_residues.begin(); it!=delete_these_residues.end(); it++) {
 	 mmdb::Residue *r = *it;
-	 chain_p->DeleteResidue(r->GetSeqNum(), r->GetInsCode());
+	 // chain_p->DeleteResidue(r->GetSeqNum(), r->GetInsCode());
+         delete r;
       }
       chain_p->TrimResidueTable();
    }
@@ -430,14 +453,14 @@ coot::match_container_for_residues_t::meld(mmdb::Manager *mol, std::pair<bool, b
             residue_p->seqNum += res_no_delta;
          }
 
-	 mmdb::Chain *to_chain_p = residue_1->GetChain();
+	 mmdb::Chain *to_chain_p = residue_2->GetChain();
          // select the residues of the fragment - looking for residues that are contiguous with the passed
          // residue.
 
          // Now delete the matching residue residue_1 (high value comment)
          delete residue_1;
 
-	 meld_residues(res_vec, residue_1, res_no_delta, to_chain_p);
+	 meld_residues(res_vec, residue_1, 0, to_chain_p);
 
       }
    }
@@ -454,7 +477,9 @@ coot::match_container_for_residues_t::meld_residues(std::vector<mmdb::Residue *>
 	 residue_spec_t spec_pre(residue_p);
 	 residue_p->seqNum += res_no_delta;
 	 residue_spec_t spec_post(residue_p);
-	 // std::cout << "in meld() residue " << spec_pre << " becomes " << spec_post << std::endl;
+         if (false) // debug
+	    std::cout << "in meld() res_no_delta " << res_no_delta << " " << " residue " << spec_pre << " becomes "
+                      << spec_post << std::endl;
 	 int this_res_seq_num = residue_p->GetSeqNum();
 
 	 // don't make a new chain for this residue
@@ -469,6 +494,7 @@ coot::match_container_for_residues_t::meld_residues(std::vector<mmdb::Residue *>
 	    mmdb::Residue *r = chain_residues[iserial];
 	    int chain_residue_seq_num = r->GetSeqNum();
 	    int this_diff = chain_residue_seq_num - this_res_seq_num;
+            // std::cout << "   Here with iserial " << iserial << " and this_diff " << this_diff << std::endl;
 	    if (this_diff > 0) {
 	       if (this_diff < best_diff) {
 		  best_diff = this_diff;
@@ -478,15 +504,21 @@ coot::match_container_for_residues_t::meld_residues(std::vector<mmdb::Residue *>
 	 }
 
          if (false)
-	    std::cout << "debug in meld() for " << residue_spec_t(residue_p) << " target_res_serial_number "
+	    std::cout << "   debug in meld() for " << residue_spec_t(residue_p) << " target_res_serial_number "
 		      << target_res_serial_number << " best_diff " << best_diff << std::endl;
 
-	 if (target_res_serial_number >= 0)
+	 if (target_res_serial_number >= 0) {
+            if (false)
+               std::cout << "   InsResidue() on " << residue_spec_t(residue_copy) << " to chain \"" << to_chain_p->GetChainID()
+                         << "\"" << std::endl;
 	    to_chain_p->InsResidue(residue_copy, target_res_serial_number);
-	 else
+	 } else {
+            if (false)
+               std::cout << "   AddResidue() on " << residue_spec_t(residue_copy) << " to chain \"" << to_chain_p->GetChainID()
+                         << "\"" << std::endl;
 	    to_chain_p->AddResidue(residue_copy);
+         }
 
-	 // chain_p->DeleteResidue(this_res_seq_num, "");
 	 delete residue_p;
       }
    }
@@ -494,6 +526,13 @@ coot::match_container_for_residues_t::meld_residues(std::vector<mmdb::Residue *>
 
 void
 coot::match_container_for_residues_t::delete_upstream(mmdb::Manager *mol, bool from_first, int selection_handle_1) {
+
+   if (false) { // debugging
+      std::cout << "in delete_upstream here are the atom pairs " << std::endl;
+      for (unsigned int ip=0; ip<atom_pairs.size(); ip++) {
+         std::cout << "   " << atom_spec_t(atom_pairs[ip].first) << " " << atom_spec_t(atom_pairs[ip].second) << std::endl;
+      }
+   }
 
    // delete upstream in selection_1  
    bool found_matchers = false;
@@ -519,7 +558,14 @@ coot::match_container_for_residues_t::delete_upstream(mmdb::Manager *mol, bool f
       }
       if (found_matchers)
 	 break;
-      // std::cout << "debug in delete_upstream() i = " << i << " inserting residue for atom " << atom_spec_t(at) << std::endl;
+
+      if (false) { // debug
+         mmdb::Residue *residue_p = at->residue;
+         std::set<mmdb::Residue *>::const_iterator it = delete_these_residues.find(residue_p);
+         if (it == delete_these_residues.end())
+         std::cout << "debug in delete_upstream() i = " << i << " inserting residue for atom "
+                   << atom_spec_t(at) << std::endl;
+      }
       delete_these_residues.insert(at->residue);
    }
    if (delete_these_residues.size() > 0) {
@@ -527,12 +573,14 @@ coot::match_container_for_residues_t::delete_upstream(mmdb::Manager *mol, bool f
 
       for (it=delete_these_residues.begin(); it!=delete_these_residues.end(); it++) {
 	 mmdb::Residue *r = *it;
-	 // std::cout << "in delete_upstream() delete residue " << residue_spec_t(r) << std::endl;
+         if (false)
+	    std::cout << "in delete_upstream() delete residue " << residue_spec_t(r) << std::endl;
       }
 
       for (it=delete_these_residues.begin(); it!=delete_these_residues.end(); it++) {
 	 mmdb::Residue *r = *it;
-	 chain_p->DeleteResidue(r->GetSeqNum(), r->GetInsCode());
+	 // chain_p->DeleteResidue(r->GetSeqNum(), r->GetInsCode());
+	 delete r;
       }
       chain_p->TrimResidueTable();
    }
@@ -550,11 +598,13 @@ coot::merge_atom_selections(mmdb::Manager *mol) {
    mmdb::Model *model_p = mol->GetModel(imod);
    if (model_p) {
 
+      int  merge_count = 0; // for debugging filename construction
       bool continue_merging = true;
       while (continue_merging) {
 	 continue_merging = false;
 	 int n_chains = model_p->GetNumberOfChains();
 	 std::vector<int> atom_selection_handles;
+	 std::vector<std::string> chain_ids; // for debugging
 	 for (int ichain=0; ichain<n_chains; ichain++) {
 	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
 	    int sel_hnd = mol->NewSelection();
@@ -570,6 +620,7 @@ coot::merge_atom_selections(mmdb::Manager *mol) {
 			mmdb::SKEY_NEW // selection key
 			);
 	    atom_selection_handles.push_back(sel_hnd);
+            chain_ids.push_back(chain_p->GetChainID());
 	 }
 
 	 bool r = false;
@@ -579,6 +630,14 @@ coot::merge_atom_selections(mmdb::Manager *mol) {
 	       if (i != j) {
 		  // tests for mergeability first, did we do a merge?
 		  r = merge_atom_selections(mol, atom_selection_handles[i], atom_selection_handles[j]);
+
+                  if (false) { // debugging
+                     if (r) {
+                        std::string debug_file_name = "debug-merge-" + util::int_to_string(merge_count) + ".pdb";
+                        mol->WritePDBASCII(debug_file_name.c_str());
+                        merge_count++;
+                     }
+                  }
 		  if (r) {
 		     continue_merging = true;
 		     atom_selections_changed.push_back(atom_selection_handles[i]);
@@ -591,7 +650,7 @@ coot::merge_atom_selections(mmdb::Manager *mol) {
 	       break;
 	 }
 
-	 if (true) // crashes because molecule was modified?
+	 if (true) // crashes because molecule was modified? (20190112-PE doesn't seem to crash)
 	    for (unsigned int i=0; i<atom_selection_handles.size(); i++)
 	       if (std::find(atom_selections_changed.begin(), atom_selections_changed.end(), atom_selection_handles[i]) ==
 		   atom_selections_changed.end())

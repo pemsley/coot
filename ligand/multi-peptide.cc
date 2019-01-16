@@ -1443,7 +1443,7 @@ coot::multi_build_terminal_residue_addition::refine_end(coot::minimol::fragment 
    bool do_trans_peptide_restraints = true;
    do_trans_peptide_restraints = false;
    int imol = 0;
-   restraints.make_restraints(imol, geom, flags, do_internal_torsions, do_internal_torsions, 0, 0, pseudos);
+   restraints.make_restraints(imol, geom, flags, do_internal_torsions, do_internal_torsions, 0, 0, true, true, pseudos);
    restraints.minimize(flags);
 
    if (false) {

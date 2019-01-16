@@ -429,6 +429,7 @@ PyObject *residues_distortions_py(int imol, PyObject *residue_specs_list_py) {
 					     do_trans_peptide_restraints,
 					     rama_plot_restraint_weight,
 					     do_rama_restraints,
+					     false, false,
 					     pseudo_bonds_type);
 	       coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions();
 	       // std::cout << "Found " << gd.size() << " geometry distortions" << std::endl;
@@ -512,12 +513,13 @@ SCM residues_distortions_scm(int imol, SCM residue_specs_scm) {
 
 	       coot::restraints_container_t restraints(local_residues, links, geom, mol,
 						       fixed_atom_specs, &xmap);
+	       // don't do auto-secondary structure restraints
 	       int nrestraints =
 		  restraints.make_restraints(imol, geom, flags,
 					     do_residue_internal_torsions,
 					     do_trans_peptide_restraints,
 					     rama_plot_restraint_weight,
-					     do_rama_restraints,
+					     do_rama_restraints, false, false,
 					     pseudo_bonds_type);
 	       coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions();
 	       if (gd.size() > 0) {
@@ -1344,14 +1346,17 @@ void use_unimodal_ring_torsion_restraints_for_residue(const std::string &res_nam
 
 void set_refinement_geman_mcclure_alpha(float alpha) {
 
-   graphics_info_t::geman_mcclure_alpha = alpha;
+   graphics_info_t g;
+   g.set_geman_mcclure_alpha(alpha);
 
 }
 
 //! \brief set the Lennard Jones epsilon parameter
 void set_refinement_lennard_jones_epsilon(float epsilon) {
 
-   graphics_info_t::lennard_jones_epsilon = epsilon;
+   graphics_info_t g;
+   g.set_lennard_jones_epsilon(epsilon);
+
 }
 
 //! \brief set the log cosh scale factor for target position restraints
