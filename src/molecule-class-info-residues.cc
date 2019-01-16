@@ -266,7 +266,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		  bool do_trans_peptide_restraints = false;
 		  int n_restraints = restraints.make_restraints(imol_no, geom, flags, do_torsions,
 								do_trans_peptide_restraints,
-								0, 0, coot::NO_PSEUDO_BONDS);
+								0, 0, false, false, coot::NO_PSEUDO_BONDS);
 		  restraints.minimize(flags);
 		  residue_mol->FinishStructEdit();
 
@@ -282,7 +282,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		     n_restraints = restraints_2.make_restraints(imol_no, geom,
 								 flags, do_torsions,
 								 do_trans_peptide_restraints,
-								 0, 0, coot::NO_PSEUDO_BONDS);
+								 0, 0, false, false, coot::NO_PSEUDO_BONDS);
 		     restraints_2.minimize(flags);
 		  }
 

@@ -1009,6 +1009,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 								   do_trans_peptide_restraints,
 								   rama_plot_restraint_weight,
 								   do_rama_restraints,
+								   true, true,
 								   pseudo_bonds_type);
             	                                                   // link and flank args default true
 

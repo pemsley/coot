@@ -151,7 +151,7 @@ main(int argc, char **argv) {
 	 bool do_flank_restraints = true;
 	 int imol = 0; // dummy
 	 restraints.make_restraints(imol, geom, flags, 1, do_trans_peptide_restraints,
-				    0.0, 0, pseudos, do_link_restraints, do_flank_restraints);
+				    0.0, 0, true, true, pseudos, do_link_restraints, do_flank_restraints);
 
 	 // restraints.set_do_numerical_gradients();
 	 restraints.minimize(flags);

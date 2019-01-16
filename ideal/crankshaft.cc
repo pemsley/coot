@@ -1549,7 +1549,7 @@ coot::crankshaft::refine_and_score_mol(mmdb::Manager *mol,
       restraints.set_rama_type(restraints_rama_type);
       restraints.set_rama_plot_weight(1);
       restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
-				 1.0, do_rama_plot_restraints, pseudos);
+				 1.0, do_rama_plot_restraints, true, true, pseudos);
       restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
       if (! output_pdb_file_name.empty())
 	 restraints.write_new_atoms(output_pdb_file_name);

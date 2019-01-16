@@ -2261,7 +2261,9 @@ coot::restraints_container_t::make_restraints(int imol,
 					      bool do_residue_internal_torsions,
 					      bool do_trans_peptide_restraints,
 					      float rama_plot_target_weight,
-					      bool do_rama_plot_restraints, 
+					      bool do_rama_plot_restraints,
+					      bool do_auto_helix_restraints,
+					      bool do_auto_strand_restraints,
 					      coot::pseudo_restraint_bond_type sec_struct_pseudo_bonds,
 					      bool do_link_restraints,
 					      bool do_flank_restraints) {
@@ -2360,7 +2362,8 @@ coot::restraints_container_t::make_restraints(int imol,
 	 make_strand_pseudo_bond_restraints();
       }
 
-      make_helix_pseudo_bond_restraints_from_res_vec_auto();
+      if (do_auto_helix_restraints)
+	 make_helix_pseudo_bond_restraints_from_res_vec_auto();
 
       if (restraints_usage_flag & coot::NON_BONDED_MASK) {
 	 if ((iret_prev > 0) || are_all_one_atom_residues) {
@@ -6442,7 +6445,7 @@ coot::simple_refine(mmdb::Residue *residue_p,
 	 bool do_internal_torsions = true;
 	 bool do_trans_peptide_restraints = true;
 	 restraints.make_restraints(imol, geom, flags, do_internal_torsions,
-				    do_trans_peptide_restraints, 0, 0, pseudos);
+				    do_trans_peptide_restraints, 0, 0, true, true, pseudos);
 	 restraints.minimize(flags, 3000, 1);
       }
    }

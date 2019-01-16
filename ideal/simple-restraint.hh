@@ -2133,7 +2133,9 @@ namespace coot {
 			  bool do_residue_internal_torsions,
 			  bool do_trans_peptide_restraints,
 			  float rama_plot_target_weight,
-			  bool do_rama_plot_retraints, 
+			  bool do_rama_plot_retraints,
+			  bool do_auto_helix_restraints,
+			  bool do_auto_strand_restraints,
 			  pseudo_restraint_bond_type sec_struct_pseudo_bonds,
 			  bool do_link_restraints=true,
 			  bool do_flank_restraints=true);
