@@ -193,6 +193,12 @@ coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
 
+// convenience function
+void
+graphics_info_t::update_geometry_graphs(int imol) {
+   update_geometry_graphs(molecules[imol].atom_sel, imol);
+}
+
 
 // imol map is passed in case that the density fit graph was displayed.
 // If there is no imol_map then the geometry graph could not have been displayed.  You can
