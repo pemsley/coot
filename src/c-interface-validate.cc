@@ -2646,6 +2646,42 @@ int clashes_with_symmetry(int imol, const char *chain_id, int res_no, const char
    return r;
 }
 
+#include "analysis/b-factor-histogram.hh"
+#include "goograph/goograph.hh"
+
+//! B-factor distribution histogram
+void b_factor_distribution_graph(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      coot::b_factor_histogram b(mol);
+      b.model();
+      std::vector<std::pair<double, double> > data  = b.get_data();
+      std::vector<std::pair<double, double> > model = b.get_model();
+
+      coot::goograph* g = new coot::goograph();
+      int trace_data  = g->trace_new();
+      int trace_model = g->trace_new();
+
+      g->set_trace_type(trace_data, coot::graph_trace_info_t::PLOT_TYPE_BAR);
+      g->set_trace_colour(trace_data, "#88bb88");
+      g->set_data(trace_data, data);
+
+      g->set_trace_type(trace_model, coot::graph_trace_info_t::PLOT_TYPE_LINE);
+      g->set_trace_colour(trace_model, "#333333");
+      g->set_data(trace_model, model);
+
+      g->set_plot_title("B-factor histogram");
+      // g->set_extents(coot::goograph::X_AXIS, 0,  140);
+      // g->set_extents(coot::goograph::Y_AXIS, 0, 2000);
+
+      g->draw_graph();
+      g->show_dialog();
+
+   }
+}
+
+
 
 #endif // USE_PYTHON
 

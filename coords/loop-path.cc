@@ -18,6 +18,12 @@ coot::loop_path(mmdb::Atom *start_back_2,
 
    // sane input
 
+
+   // 20190118-PE, we want to add the John Berrisford request: that residues
+   // that do not have enough of a gap in the residue numbering for the distance
+   // between them should be flagged with something big and red.
+   // Also, they will be drawn as a straight line, not a spline.
+
    int res_no_start = start->residue->GetSeqNum();
    int res_no_end   =   end->residue->GetSeqNum();
    int res_no_delta = res_no_end - res_no_start;

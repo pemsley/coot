@@ -834,7 +834,10 @@ SCM find_blobs_scm(int imol_model, int imol_map, float cut_off_density_level);
 #endif 
 #ifdef USE_PYTHON
 PyObject *find_blobs_py(int imol_model, int imol_map, float cut_off_density_level);
-#endif 
+#endif
+
+//! B-factor distribution histogram
+void b_factor_distribution_graph(int imol);
 
 /*  ----------------------------------------------------------------------- */
 /*                  water chain                                             */
