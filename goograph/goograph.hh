@@ -127,6 +127,8 @@ namespace coot {
       std::vector<annotation_text_t> annotation_texts;
       std::vector<annotation_box_t>  annotation_boxes;
       std::string title_string;
+      bool   extents_x_are_set;
+      bool   extents_y_are_set;
       double extents_min_x;
       double extents_max_x;
       double extents_min_y;
@@ -280,12 +282,16 @@ namespace coot {
       void set_draw_axis(int axis, bool draw_state);
       void set_draw_ticks(int axis, bool draw_state);
       void set_plot_title(const std::string &title);
+
+      // if using auto-extents, then the first use of set_data() sets the extents
+      // (they are not over-ridden by subsequent set_data() usage)
+      //
       void set_data(int trace_id, const std::vector<std::pair<double, double> > &data);
       int trace_new();
       void plot_trace(int trace_id);
       std::pair<double, double> min_max_x() const {
 	 return std::pair<double, double> (extents_min_x, extents_max_x);
-      } 
+      }
       std::pair<double, double> min_max_y() const {
 	 return std::pair<double, double> (extents_min_y, extents_max_y);
       }
