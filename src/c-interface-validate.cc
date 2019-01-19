@@ -2667,9 +2667,10 @@ void b_factor_distribution_graph(int imol) {
       g->set_trace_colour(trace_data, "#88bb88");
       g->set_data(trace_data, data);
 
-      g->set_trace_type(trace_model, coot::graph_trace_info_t::PLOT_TYPE_LINE);
-      g->set_trace_colour(trace_model, "#333333");
-      g->set_data(trace_model, model);
+      // Don't draw the model until it is correctly calculated
+      // g->set_trace_type(trace_model, coot::graph_trace_info_t::PLOT_TYPE_LINE);
+      // g->set_trace_colour(trace_model, "#333333");
+      // g->set_data(trace_model, model);
 
       g->set_plot_title("B-factor histogram");
       // g->set_extents(coot::goograph::X_AXIS, 0,  140);
