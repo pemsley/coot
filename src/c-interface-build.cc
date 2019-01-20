@@ -2310,13 +2310,23 @@ return -1 if this is a map or closed.
  */
 int n_residues(int imol) {
 
-   int r = -1; 
+   int r = -1;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       r = g.molecules[imol].n_residues();
-   } 
+   }
    return r;
-} 
+}
+
+int n_atoms(int imol) {
+
+   int r = -1;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      r = g.molecules[imol].n_atoms();
+   }
+   return r;
+}
 
 
 

@@ -1957,6 +1957,9 @@ public:        //                      public
    // return the number of residues in the molecule. return -1 on error.
    int n_residues() const;
 
+   // return the number of atoms in the molecule. return -1 on error.
+   int n_atoms() const;
+
    // Fourier stuff
    std::string Fourier_f_label()      const { return fourier_f_label; }
    std::string Fourier_phi_label()    const { return fourier_phi_label; }
