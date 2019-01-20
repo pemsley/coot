@@ -1793,6 +1793,11 @@ namespace coot {
 
       unsigned int n_times_called; // so that we can do certain things only the first time
 
+      // what is the energy type of the atom to which the Hydrogen atom is bonded?
+      //
+      std::map<mmdb::Atom *, hb_t> H_atom_parent_energy_type_atom_map;
+      bool H_parent_atom_is_donor(mmdb::Atom *at); // adds to the above map potentially
+
    public:
 
       enum link_torsion_restraints_type { NO_LINK_TORSION = 0, 
