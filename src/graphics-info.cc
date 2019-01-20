@@ -953,8 +953,11 @@ graphics_info_t::smooth_scroll_maybe(float x, float y, float z,
 				     short int do_zoom_and_move_flag,
 				     float target_zoom) {
 
-   smooth_scroll_maybe_sinusoidal_acceleration(x,y,z,do_zoom_and_move_flag, target_zoom);
-   // smooth_scroll_maybe_stepped_acceleration(x,y,z,do_zoom_and_move_flag, target_zoom);
+   if ( (x - rotation_centre_x) != 0.0 ||
+        (y - rotation_centre_y) != 0.0 ||
+        (z - rotation_centre_z) != 0.0) {
+      smooth_scroll_maybe_sinusoidal_acceleration(x,y,z,do_zoom_and_move_flag, target_zoom);
+   }
 
 }
 
@@ -1757,7 +1760,7 @@ graphics_info_t::update_environment_distances_by_rotation_centre_maybe(int imol_
 }
 
 
-void 
+void
 graphics_info_t::clear_up_moving_atoms() { 
 
    // Note to self: why don't I do a delete moving_atoms_asc somewhere here?
@@ -1822,7 +1825,10 @@ graphics_info_t::clear_up_moving_atoms() {
 	 std::cout << "ignoring " << std::endl;
       } 
    } else {
-      // std::cout << "WARNING:: attempting to delete NULL moving_atoms_asc.mol - ignoring" << std::endl;
+      if (false) {
+	 std::cout << "attempting to delete NULL moving_atoms_asc.mol" << std::endl;
+	 std::cout << "ignoring " << std::endl;
+      }
    }
 
    dynamic_distances.clear();

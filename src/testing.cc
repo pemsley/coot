@@ -184,8 +184,13 @@ int test_internal() {
 
    // restore me at some stage.
    // functions.push_back(named_func(test_peptide_link, "test_peptide_link"));
-   functions.push_back(named_func(test_dictionary_partial_charges,
-				  "test dictionary partial charges"));
+
+
+   // dictionaries don't have partial charges at the moment
+   //
+   // functions.push_back(named_func(test_dictionary_partial_charges,
+   // 				  "test dictionary partial charges"));
+
    // restore me at some stage
    // functions.push_back(named_func(test_dipole, "test_dipole"));
 
