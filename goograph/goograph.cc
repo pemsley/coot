@@ -859,7 +859,7 @@ coot::goograph::plot_bar_graph(int trace_id) {
 	 colour = "#70e070";
       double mbw = median_bin_width(trace_id);
 
-      if (false
+      if (false)
          std::cout << "debug  in plot_bar_graph() mbw is "
 		   << mbw << " data_scale_x " << data_scale_x << std::endl;
 
