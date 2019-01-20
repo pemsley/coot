@@ -48,13 +48,15 @@
       (if (not (defined? 'CG-spin-search))
 	  '()
 	  (let ((scored-residues (CG-spin-search imol imol-map)))
-	    (let ((interesting (filter (lambda(item)
-					 (let ((delta (cadr item)))
-					   (or (< delta -30)
-					       (> delta 30))))
-				       scored-residues)))
-	      ;; return a list of residue specs - not what is expected?
-	      interesting))))
+	    (if (not (list? scored-residues))
+		'()
+		(let ((interesting (filter (lambda(item)
+					     (let ((delta (cadr item)))
+					       (or (< delta -30)
+						   (> delta 30))))
+					   scored-residues)))
+		  ;; return a list of residue specs - not what is expected?
+		  interesting)))))
 
     (define (rotamer-score-residues imol)
 

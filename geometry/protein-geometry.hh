@@ -1930,10 +1930,14 @@ namespace coot {
       void read_energy_lib(const std::string &file_name);
 
       // return HB_UNASSIGNED when not found
-      // 
+      //
       hb_t get_h_bond_type(const std::string &atom_name,
 			   const std::string &monomer_name,
 			   int imol_enc) const;
+
+      // return HB_UNASSIGNED when not found
+      //
+      hb_t get_h_bond_type(const std::string &type_energy) const;
 
       // Find the bonded neighbours of the given atoms - throw an
       // exception if residue name is not in dictionary.
