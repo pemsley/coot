@@ -368,6 +368,12 @@ return -1 if this is a map or closed.
  */
 int n_residues(int imol);
 
+/*!\brief return the atoms of residues in the molecule, 
+
+return -1 if this is a map or closed.
+ */
+int n_atoms(int imol);
+
 
 /* Does this work? */
 /*! \brief return a list of the remarks of hte molecule number imol  
