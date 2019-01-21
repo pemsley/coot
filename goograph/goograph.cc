@@ -74,6 +74,8 @@ coot::goograph::init() {
    dialog_width = dialog_width_orig;
    dialog_height = dialog_height_orig;
 
+   extents_x_are_set = false;
+   extents_y_are_set = false;
    extents_min_x =  9999999990.0;
    extents_min_y =  9999999990.0;
    extents_max_x = -9999999990.0;
@@ -504,17 +506,23 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 void
 coot::goograph::set_extents(int axis, double min, double max) {
 
-   if (axis == X_AXIS) {
-      extents_min_x = min;
-      extents_max_x = max;
-      double x_major_tick = calc_tick(x_range());
-      set_ticks(X_AXIS, x_major_tick, x_major_tick*0.2);
+   if (! extents_x_are_set) {
+      if (axis == X_AXIS) {
+	 extents_min_x = min;
+	 extents_max_x = max;
+	 double x_major_tick = calc_tick(x_range());
+	 set_ticks(X_AXIS, x_major_tick, x_major_tick*0.2);
+	 extents_x_are_set = true;
+      }
    }
-   if (axis == Y_AXIS) {
-      extents_min_y = min;
-      extents_max_y = max;
-      double y_major_tick = calc_tick(y_range());
-      set_ticks(Y_AXIS, y_major_tick, y_major_tick*0.2);
+   if (! extents_y_are_set) {
+      if (axis == Y_AXIS) {
+	 extents_min_y = min;
+	 extents_max_y = max;
+	 double y_major_tick = calc_tick(y_range());
+	 set_ticks(Y_AXIS, y_major_tick, y_major_tick*0.2);
+	 extents_y_are_set = true;
+      }
    }
 
    set_data_scales(axis);
@@ -851,6 +859,10 @@ coot::goograph::plot_bar_graph(int trace_id) {
 	 colour = "#70e070";
       double mbw = median_bin_width(trace_id);
 
+      if (false)
+         std::cout << "debug  in plot_bar_graph() mbw is "
+		   << mbw << " data_scale_x " << data_scale_x << std::endl;
+
       for (unsigned int i=0; i<data.size(); i++) {
 	 double width  = mbw * data_scale_x;
 	 double height = -(data[i].second - extents_min_y) * data_scale_y;
@@ -978,11 +990,14 @@ coot::goograph::median_bin_width(int trace_id) const {
       
       for (unsigned int i=0; i<x.size()-1; i++) { 
 	 double this_bw = x[i+1] - x[i];
-	 bin_widths.push_back(this_bw);
+	 if (this_bw > 0)
+	    bin_widths.push_back(this_bw);
       }
 
-      int idx = bin_widths.size() / 2;
-      bw = bin_widths[idx];
+      if (bin_widths.size() > 0) {
+	 int idx = bin_widths.size() / 2;
+	 bw = bin_widths[idx];
+      }
    }
    return bw;
 }

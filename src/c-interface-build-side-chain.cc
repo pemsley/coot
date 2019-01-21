@@ -604,7 +604,7 @@ mutate(int imol, const char *chain_id, int ires, const char *inscode,  const cha
    if (is_valid_model_molecule(imol)) { 
       istate = graphics_info_t::molecules[imol].mutate(ires, inscode, std::string(chain_id), std::string(target_res_type));
       graphics_info_t g;
-      g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+      g.update_geometry_graphs(imol);
       graphics_draw();
    }
    std::string cmd = "mutate";

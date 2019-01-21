@@ -2952,6 +2952,7 @@ if test -n "$build_python" ; then
 
    cd Python-$pver
 
+   # --with-ensurepip=install
    echo INFO:: ./configure $generic_prefix $python_lib_flags $python_spec_flags for python
    # 
    # do we also need to use --with-threads=dir?

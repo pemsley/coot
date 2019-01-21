@@ -968,6 +968,7 @@ coot::dictionary_residue_restraints_t::type_energy(const std::string &atom_name)
    return r;
 }
 
+
 std::vector<std::string>
 coot::dictionary_residue_restraints_t::neighbours(const std::string &atom_name, bool allow_hydrogen_neighbours_flag) const {
 

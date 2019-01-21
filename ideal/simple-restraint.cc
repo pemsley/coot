@@ -3919,6 +3919,22 @@ coot::restraints_container_t::set_non_bonded_neighbour_residues_by_residue_vecto
    non_bonded_neighbour_residues = nbr;
 } 
 
+bool
+coot::restraints_container_t::H_parent_atom_is_donor(mmdb::Atom *at) {
+
+   bool state = false;
+   std::map<mmdb::Atom *, hb_t>::const_iterator it;
+   it = H_atom_parent_energy_type_atom_map.find(at);
+   if (it != H_atom_parent_energy_type_atom_map.end()) {
+      // found it
+      const hb_t &hbt = it->second;
+      if (hbt == HB_DONOR || hbt == HB_BOTH)
+	 state = true;
+   } else {
+      // not found
+   }
+   return state;
+}
 
 int 
 coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const coot::bonded_pair_container_t &bpc,
@@ -4090,7 +4106,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 	       std::string res_name_2 = at_2->GetResName();
 
 	       if (false)
-		  std::cout << "DEBUG:: here with res_names " << res_name_1 << " " << res_name_2 << " "
+		  std::cout << "DEBUG:: here with " << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
+			    << " res_names " << res_name_1 << " " << res_name_2 << " "
 			    << at_1->GetAtomName() << " " << at_2->GetAtomName()
 			    << std::endl;
 
@@ -4306,6 +4323,10 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 	          clipper::Coord_orth pt2(at_2->x,    at_2->y,    at_2->z);
 	          double dd = sqrt((pt1-pt2).lengthsq());
 
+		  std::pair<bool, double> nbc_dist = geom.get_nbc_dist(type_1, type_2,
+								       in_same_residue_flag,
+								       in_same_ring_flag);
+
 	          std::cout << "adding non-bonded contact restraint index " 
 			    << i << " to index " << filtered_non_bonded_atom_indices[i][j]
 			    << " "
@@ -4313,21 +4334,25 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 			    << atom_spec_t(atom[filtered_non_bonded_atom_indices[i][j]])
 			    << "  types: " << type_1 <<  " " << type_2 <<  " fixed: "
 			    << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << "   current: " << dd
-			    << " dist_min: " << dist_min << std::endl;
+			    << " dist_min: " << dist_min << " using nbc dist " << nbc_dist.second
+			    << "\n";
 	       }
 
 	       bool is_H_non_bonded_contact = false;
 
-	       if (is_hydrogen(at_1)) { // should check from donor
+	       if (is_hydrogen(at_1)) {
 		  is_H_non_bonded_contact = true;
-		  if (is_acceptor(type_2, geom))
-		     dist_min -= 0.7;
+		  if (H_parent_atom_is_donor(at_1))
+		     if (is_acceptor(type_2, geom))
+			dist_min -= 0.7;
 	       }
-	       if (is_hydrogen(at_2)) {// should check from donor
+	       if (is_hydrogen(at_2)) {
 		  is_H_non_bonded_contact = true;
-		  if (is_acceptor(type_1, geom))
-		     dist_min -= 0.7;
+		  if (H_parent_atom_is_donor(at_2))
+		     if (is_acceptor(type_1, geom))
+			dist_min -= 0.7;
 	       }
+
 
 	       simple_restraint::nbc_function_t nbcf = simple_restraint::LENNARD_JONES;
 	       // simple_restraint::nbc_function_t nbcf = simple_restraint::HARMONIC;
@@ -5432,6 +5457,8 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
    if (debug)
       std::cout << "in add_bonds() for " << residue_spec_t(SelRes) << std::endl;
 
+   const dictionary_residue_restraints_t &dict = geom[idr].second;
+
    for (unsigned int ib=0; ib<geom[idr].second.bond_restraint.size(); ib++) {
       for (int iat=0; iat<i_no_res_atoms; iat++) {
 	 std::string pdb_atom_name1(res_selection[iat]->name);
@@ -5507,10 +5534,32 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 			try {
 			   add(BOND_RESTRAINT, index1, index2,
 			       fixed_flags,
-			       geom[idr].second.bond_restraint[ib].value_dist(),
-			       geom[idr].second.bond_restraint[ib].value_esd(),
+			       dict.bond_restraint[ib].value_dist(),
+			       dict.bond_restraint[ib].value_esd(),
 			       1.2);  // junk value
+
 			   n_bond_restr++;
+
+			   // now cache the parent energy type: for looking up the type
+			   // of the H atom so that we can adjust the bond type (target
+			   // distance) when making non-bonded contacts
+			   //
+			   if (is_hydrogen(atom[index1])) {
+			      mmdb::Atom *H_at = atom[index1];
+			      mmdb::Atom *parent_at = atom[index2];
+			      std::string atom_name(parent_at->name);
+			      std::string te = dict.type_energy(atom_name);
+			      hb_t hbt = geom.get_h_bond_type(te);
+			      H_atom_parent_energy_type_atom_map[H_at] = hbt;
+			   }
+			   if (is_hydrogen(atom[index2])) {
+			      mmdb::Atom *H_at = atom[index2];
+			      mmdb::Atom *parent_at = atom[index1];
+			      std::string atom_name(parent_at->name);
+			      std::string te = dict.type_energy(atom_name);
+			      hb_t hbt = geom.get_h_bond_type(te);
+			      H_atom_parent_energy_type_atom_map[H_at] = hbt;
+			   }
 			}
 
 			catch (const std::runtime_error &rte) {
@@ -5520,7 +5569,7 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 			   // from a Chemical Component Dictionary entry for example).
 			   std::cout << "trapped a runtime_error on adding bond restraint "
 				     << " no target. " << rte.what() << std::endl;
-			} 
+			}
 		     } else {
 			std::cout << "ERROR:: Caught Enrico Stura bug.  How did it happen?" << std::endl;
 		     }
