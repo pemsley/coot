@@ -2368,25 +2368,35 @@ coot::atom_overlaps_container_t::is_linked(mmdb::Atom *at_1,
 					   mmdb::Atom *at_2) const {
 
    bool status = false;
-   int imod = 1;
-   mmdb::Model *model_p = mol->GetModel(imod);
-   int n_links = model_p->GetNumberOfLinks();
-   if (n_links > 0) {
-      for (int i_link=1; i_link<=n_links; i_link++) {
-	 mmdb::PLink link = model_p->GetLink(i_link);
-	 std::pair<atom_spec_t, atom_spec_t> atoms = link_atoms(link, model_p);
-	 atom_spec_t spec_1(at_1);
-	 atom_spec_t spec_2(at_2);
-	 if (spec_1 == atoms.first) {
-	    if (spec_2 == atoms.second) {
-	       status = true;
-	       break;
-	    }
-	 }
-	 if (spec_2 == atoms.first) {
-	    if (spec_1 == atoms.second) {
-	       status = true;
-	       break;
+   if (! at_1) return false;
+   if (! at_2) return false;
+
+   mmdb::Model *model_p_1 = at_1->GetModel();
+   mmdb::Model *model_p_2 = at_2->GetModel();
+
+   if (model_p_2 != model_p_1) return false;
+
+   if (model_p_1) {
+      int n_links = model_p_1->GetNumberOfLinks();
+      if (n_links > 0) {
+	 for (int i_link=1; i_link<=n_links; i_link++) {
+	    mmdb::Link *link = model_p_1->GetLink(i_link);
+	    if (link) {
+	       std::pair<atom_spec_t, atom_spec_t> atoms = link_atoms(link, model_p_1);
+	       atom_spec_t spec_1(at_1);
+	       atom_spec_t spec_2(at_2);
+	       if (spec_1 == atoms.first) {
+		  if (spec_2 == atoms.second) {
+		     status = true;
+		     break;
+		  }
+	       }
+	       if (spec_2 == atoms.first) {
+		  if (spec_1 == atoms.second) {
+		     status = true;
+		     break;
+		  }
+	       }
 	    }
 	 }
       }
