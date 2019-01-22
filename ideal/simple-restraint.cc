@@ -4323,6 +4323,10 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 	          clipper::Coord_orth pt2(at_2->x,    at_2->y,    at_2->z);
 	          double dd = sqrt((pt1-pt2).lengthsq());
 
+		  std::pair<bool, double> nbc_dist = geom.get_nbc_dist(type_1, type_2,
+								       in_same_residue_flag,
+								       in_same_ring_flag);
+
 	          std::cout << "adding non-bonded contact restraint index " 
 			    << i << " to index " << filtered_non_bonded_atom_indices[i][j]
 			    << " "
@@ -4330,18 +4334,19 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 			    << atom_spec_t(atom[filtered_non_bonded_atom_indices[i][j]])
 			    << "  types: " << type_1 <<  " " << type_2 <<  " fixed: "
 			    << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << "   current: " << dd
-			    << " dist_min: " << dist_min << std::endl;
+			    << " dist_min: " << dist_min << " using nbc dist " << nbc_dist.second
+			    << "\n";
 	       }
 
 	       bool is_H_non_bonded_contact = false;
 
-	       if (is_hydrogen(at_1)) { // should check from donor
+	       if (is_hydrogen(at_1)) {
 		  is_H_non_bonded_contact = true;
 		  if (H_parent_atom_is_donor(at_1))
 		     if (is_acceptor(type_2, geom))
 			dist_min -= 0.7;
 	       }
-	       if (is_hydrogen(at_2)) {// should check from donor
+	       if (is_hydrogen(at_2)) {
 		  is_H_non_bonded_contact = true;
 		  if (H_parent_atom_is_donor(at_2))
 		     if (is_acceptor(type_1, geom))

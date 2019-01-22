@@ -6024,7 +6024,7 @@ generic_objects_dialog_table_add_object_internal(const coot::generic_display_obj
 						 int io) {
    
    if (! gdo.is_closed_flag) { 
-	 
+
       GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (_("Display"));
       std::string label_str = gdo.name;
       GtkWidget *label = gtk_label_new(label_str.c_str());
@@ -6072,23 +6072,18 @@ GtkWidget *wrapped_create_generic_objects_dialog() {
 
    graphics_info_t g;
    
-   GtkWidget *w;
-   if (g.generic_objects_dialog) { 
-      w = g.generic_objects_dialog;
-   } else {
-      w = create_generic_objects_dialog();
-      g.generic_objects_dialog = w;
-   }
+   GtkWidget *w = create_generic_objects_dialog();
+   g.generic_objects_dialog = w;
 
    GtkWidget *generic_objects_dialog_table = lookup_widget(w, "generic_objects_dialog_table");
 
    if (generic_objects_dialog_table) {
 
       unsigned int n_objs = g.generic_objects_p->size();
-
       gtk_table_resize(GTK_TABLE(generic_objects_dialog_table), n_objs, 2);
+
       for (unsigned int io=0; io<n_objs; io++) {
-	 coot::generic_display_object_t &gdo = (*g.generic_objects_p)[io];
+	 const coot::generic_display_object_t &gdo = g.generic_objects_p->at(io);
 	 generic_objects_dialog_table_add_object_internal(gdo, w, generic_objects_dialog_table, io);
       }
    }

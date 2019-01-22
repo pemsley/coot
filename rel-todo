@@ -20,6 +20,8 @@
 
    o Acedrg Link interface needs to be able to change the bond order and delete a bond.
 
+   o Try rotate/translate on a chain by picking C4',B in B 2 of 2H0N
+
    o Andreas K:
 
    > Coot now adds new ligands to the chain of the corresponding protein. Refmac5 (5.8.0238) then adds two TER
