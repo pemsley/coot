@@ -89,7 +89,7 @@ if $coot_modern_language_tools = true ; then
    AX_CXX_HAVE_THREAD
 fi
 
-AC_ARG_WITH(glsl [ --with-glsl use OpenLG Shader Language for molecule display - experimental ],
+AC_ARG_WITH(glsl, [ --with-glsl use OpenLG Shader Language for molecule display - experimental ],
   coot_with_glsl=true,
   coot_with_glsl=false)
 
