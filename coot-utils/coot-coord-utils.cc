@@ -3587,6 +3587,7 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
       mmdb::Chain *chain_p = new mmdb::Chain;
       chain_p->SetChainID(residues_of_chain[ich].chain_id.c_str());
       for (unsigned int ires=0; ires<residues_of_chain[ich].residues.size(); ires++) {
+	 // deep_copy_this_residue() doesn't copy TER atoms
 	 mmdb::Residue *residue_old_p = residues_of_chain[ich].residues[ires];
 	 mmdb::Residue *residue_new_p = deep_copy_this_residue(residue_old_p);
 	 mmdb::Atom **new_residue_atoms = 0;
@@ -3598,16 +3599,26 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
 
 	 // transfer the atom indices
          if  (old_mol) {
-	    if (n_old_residue_atoms == n_new_residue_atoms) {
-	       for (int iat=0; iat<n_old_residue_atoms; iat++) {
+	    // residue_new_p doesn't have TER atoms, but residue_old_p might,
+	    // so deal with that here.
+	    for (int iat=0; iat<n_old_residue_atoms; iat++) {
+	       if (iat < n_new_residue_atoms) {
 	          mmdb::Atom *at_old = old_residue_atoms[iat];
 	          mmdb::Atom *at_new = new_residue_atoms[iat];
-		     int idx = -1;
-	          if (at_old->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok) {
-		     at_new->PutUDData(udd_old_atom_index_handle, idx);
-	          } else {
-		     std::cout << __FUNCTION__ << " oops extracting idx from input mol atom" << std::endl;
-	          }
+		  std::string at_name_old = at_old->GetAtomName();
+		  std::string at_name_new = at_new->GetAtomName();
+		  if (at_name_old == at_name_new) {
+		     std::string alt_conf_old = at_old->altLoc;
+		     std::string alt_conf_new = at_new->altLoc;
+		     if (alt_conf_new == alt_conf_old) {
+			int idx = -1;
+			if (at_old->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok) {
+			   at_new->PutUDData(udd_old_atom_index_handle, idx);
+			} else {
+			   std::cout << __FUNCTION__ << " oops extracting idx from input mol atom" << std::endl;
+			}
+		     }
+		  }
                }
 	    }
 	 }

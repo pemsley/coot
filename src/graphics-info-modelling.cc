@@ -1136,9 +1136,7 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
    // This also rebonds the imol_moving_atoms molecule
 
    atom_selection_container_t local_moving_atoms_asc;
-   local_moving_atoms_asc.UDDOldAtomIndexHandle = -1;  // true?
    local_moving_atoms_asc.UDDAtomIndexHandle = -1;
-
    local_moving_atoms_asc.UDDOldAtomIndexHandle = residues_mol->GetUDDHandle(mmdb::UDR_ATOM, "old atom index");
 
    int SelHnd = residues_mol->NewSelection();
@@ -1168,7 +1166,7 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 
 
    if (true) {
-      std::cout << "returning a atom selection for all moving atoms "
+      std::cout << "returning an atom selection for all moving atoms "
 		<< local_moving_atoms_asc.n_selected_atoms << " atoms "
 		<< std::endl;
    }
@@ -1186,6 +1184,16 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 	 mmdb::Atom *at = imol_asc.atom_selection[idx];
 	 coot::atom_spec_t as(at);
 	 std::cout << " this is a moving atom: " << idx << " " << as << std::endl;
+      }
+   }
+
+   if (false) { // debug old atom index
+      for (int i=0; i<local_moving_atoms_asc.n_selected_atoms; i++) {
+	 mmdb::Atom *at = local_moving_atoms_asc.atom_selection[i];
+	 coot::atom_spec_t as(at);
+	 int idx = -1;
+	 at->GetUDData(local_moving_atoms_asc.UDDOldAtomIndexHandle, idx);
+	 std::cout << "DEBUG:: in make_moving_atoms_asc " << as << " idx " << idx << std::endl;
       }
    }
 
@@ -1442,16 +1450,20 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
       for (std::size_t ii=0; ii<residues.size(); ii++)
 	 std::cout << "   " << coot::residue_spec_t(residues[ii])  << std::endl;
       int udd_atom_index_handle = mol_in->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
-      std::cout << "############ udd for atom index from seeding molecule " << udd_atom_index_handle << std::endl;
+      std::cout << "############ udd for atom index from seeding molecule " << udd_atom_index_handle
+		<< std::endl;
       for (std::size_t ii=0; ii<residues.size(); ii++) {
 	 mmdb::Residue *residue_p = residues[ii];
 	 mmdb::Atom **residue_atoms = 0;
 	 int n_residue_atoms;
 	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-	 mmdb::Atom *at = residue_atoms[0];
-	 int idx = -1;
-	 at->GetUDData(udd_atom_index_handle, idx);
-	 std::cout << "#### atom " << coot::atom_spec_t(at) << " had udd index " << idx << std::endl;
+	 for (int iat=0; iat<n_residue_atoms; iat++) {
+	    mmdb::Atom *at = residue_atoms[iat];
+	    int idx = -1;
+	    at->GetUDData(udd_atom_index_handle, idx);
+	    std::cout << "#### input residue atom " << coot::atom_spec_t(at) << " had udd index "
+		      << idx << std::endl;
+	 }
       }
    }
 
@@ -1464,6 +1476,31 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 
       std::pair<bool, mmdb::Manager *> n_mol_1 =
 	 coot::util::create_mmdbmanager_from_residue_vector(residues, mol_in);
+
+      if (true) {
+	 if (n_mol_1.first) {
+	    int imod = 1;
+	    mmdb::Model *model_p = n_mol_1.second->GetModel(imod);
+	    if (model_p) {
+	       int n_chains = model_p->GetNumberOfChains();
+	       for (int ichain=0; ichain<n_chains; ichain++) {
+		  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+		  int nres = chain_p->GetNumberOfResidues();
+		  for (int ires=0; ires<nres; ires++) {
+		     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+		     int n_atoms = residue_p->GetNumberOfAtoms();
+		     for (int iat=0; iat<n_atoms; iat++) {
+			mmdb::Atom *at = residue_p->GetAtom(iat);
+			int idx = -1;
+			if (false)
+			   std::cout << "   create_mmdbmanager_from_residue_vector() returns this mol atom "
+				     << iat << " " << coot::atom_spec_t(at) << " with idx " << idx << std::endl;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
       
       new_mol = n_mol_1.second;
       mmdb::Model *model_p = new_mol->GetModel(1);
@@ -1573,7 +1610,11 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 	    r->seqNum = flankers_in_reference_mol[ires]->GetSeqNum();
 	    r->SetResName(flankers_in_reference_mol[ires]->GetResName());
 	    n_flanker++;
-	    // std::cout << "debug:: inserted/added " << coot::residue_spec_t(r) << std::endl;
+
+	    if (false)
+	       std::cout << "debug:: create_mmdbmanager_from_residue_vector() inserted/added flanker "
+			 << coot::residue_spec_t(r) << std::endl;
+
 	 }
       }
    }
