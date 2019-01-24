@@ -2554,7 +2554,8 @@ PyObject *all_molecule_ramachandran_score_py(int imol) {
 	     rs.scores[ii].residue_next) {
 	    PyObject *phi_py = PyFloat_FromDouble(rs.scores[ii].phi_psi.phi());
 	    PyObject *psi_py = PyFloat_FromDouble(rs.scores[ii].phi_psi.psi());
-	    PyObject *phi_psi_py = PyList_New(2);
+       PyObject *residue_score_py = PyFloat_FromDouble(rs.scores[ii].score);
+       PyObject *phi_psi_py = PyList_New(2);
 	    PyObject *res_names_py = PyList_New(3);
 	    PyList_SetItem(phi_psi_py, 0, phi_py);
 	    PyList_SetItem(phi_psi_py, 1, psi_py);
@@ -2563,7 +2564,7 @@ PyObject *all_molecule_ramachandran_score_py(int imol) {
 	    PyList_SetItem(res_names_py, 2, PyString_FromString(rs.scores[ii].residue_next->GetResName()));
 	    PyList_SetItem(info_for_residue_py, 0, phi_psi_py);
 	    PyList_SetItem(info_for_residue_py, 1, residue_spec_py);
-	    PyList_SetItem(info_for_residue_py, 2, a_py);
+       PyList_SetItem(info_for_residue_py, 2, residue_score_py);
 	    PyList_SetItem(info_for_residue_py, 3, res_names_py);
 	    PyList_SetItem(info_by_residue_py, ii, info_for_residue_py);
 	 } else {
