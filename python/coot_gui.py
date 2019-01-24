@@ -2192,10 +2192,20 @@ def add_button_info_to_box_of_buttons_vbox(button_info, vbox):
             eval(call)
          button.connect("clicked", callback_func, callback)
       elif (type(callback) is ListType):
-         def callback_func(button, call):
-            for item in call:
-               eval(item)
-         button.connect("clicked", callback_func, callback)                   
+         # list can be list of strings or list of functions
+         # with args
+         #
+         if (isinstance(callback[0], str)):
+            # we have strings to evaluate
+            def callback_func(button, call):
+               for item in call:
+                  eval(item)
+            button.connect("clicked", callback_func, callback)
+         else:
+            def callback_func(button, call):
+               for item in call:
+                  item[0](*item[1:])
+            button.connect("clicked", callback_func, callback)
       else:
          button.connect("clicked", callback)
 

@@ -604,10 +604,20 @@ def atom_spec_to_imol(atom_spec):
         return False
 
 def residue_spec_to_residue_name(imol, spec):
-    return residue_name(imol,
-                        spec[1],
-                        spec[2],
-                        spec[3])
+    if not isinstance(spec, list):
+        return False
+    if (len(spec) == 3):
+        return residue_name(imol,
+                            spec[0],
+                            spec[1],
+                            spec[2])
+    elif (len(spec) == 4):
+        return residue_name(imol,
+                            spec[1],
+                            spec[2],
+                            spec[3])
+    else:
+        return False
 
 # for sorting residue specs
 #
@@ -629,7 +639,7 @@ def residue_spec_less_than(spec_1, spec_2):
 def residue_spec_to_string(spec):
     ret = residue_spec_to_chain_id(spec) + " "
     ret += str(residue_spec_to_res_no(spec))
-    ret += residue_spec_to_ins_code
+    ret += residue_spec_to_ins_code(spec)
     return ret
 
 # Return a list of molecules that are maps
@@ -1081,65 +1091,6 @@ def get_atom(imol, chain_id, resno, ins_code, atom_name, alt_conf_internal=""):
         ret = get_atom_from_residue(atom_name, res_info, alt_conf_internal)
         return ret
 
-# not to be confused with residue_atom_to_atom_name
-# (which uses the output of residue_info)
-#
-# extraction function
-def atom_spec_to_chain_id(atom_spec):
-    # atom_spec example ["A", 7, "", " SG ", ""]
-    ret = False
-    if not atom_spec:
-        return False
-    if (len(atom_spec) == 5):
-        return atom_spec[0]
-    else:
-        return False
-
-# extraction function
-def atom_spec_to_res_no(atom_spec):
-    # atom_spec example ["A", 7, "", " SG ", ""]
-    ret = False
-    if not atom_spec:
-        return False
-    if (len(atom_spec) == 5):
-        return atom_spec[1]
-    else:
-        return False
-
-# extraction function
-def atom_spec_to_ins_code(atom_spec):
-    # atom_spec example ["A", 7, "", " SG ", ""]
-    ret = False
-    if not atom_spec:
-        return False
-    if (len(atom_spec) == 5):
-        return atom_spec[2]
-    else:
-        return False
-    
-# extraction function
-def atom_spec_to_atom_name(atom_spec):
-    # atom_spec example ["A", 7, "", " SG ", ""]
-    ret = False
-    if not atom_spec:
-        return False
-    if (len(atom_spec) == 5):
-        return atom_spec[3]
-    else:
-        return False
-    
-# extraction function
-def atom_spec_to_alt_loc(atom_spec):
-    # atom_spec example ["A", 7, "", " SG ", ""]
-    ret = False
-    if not atom_spec:
-        return False
-    if (len(atom_spec) == 5):
-        return atom_spec[4]
-    else:
-        return False
-    
-    
 #
 def residue_info_dialog_displayed_qm():
     if (residue_info_dialog_is_displayed == 1):
@@ -1705,10 +1656,6 @@ def atom_spec_to_string(spec):
     if al:
         ret += " " + al
     return ret
-
-# I don't like this function name
-def atom_spec_to_residue_spec(atom_spec):
-    return atom_spec[2:][0:3]
 
 def atom_spec_to_residue_spec(atom_spec):
     l = len(atom_spec)
