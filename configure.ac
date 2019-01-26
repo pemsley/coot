@@ -54,15 +54,6 @@ m4_ifset([LT_INIT],
 GNOME_COMPILE_WARNINGS
 GNOME_CXX_WARNINGS
 
-# sound
-PKG_CHECK_MODULES([VORBISFILE], vorbisfile >= 1.2.3, ac_cv_vorbis=yes, ac_cv_vorbis=no)
-
-if test $ac_cv_vorbis = yes ; then
-  export WITH_SOUND=-DWITH_SOUND
-  AC_SUBST(WITH_SOUND)
-fi
-
-
 m4_define([v_git_revision_count], m4_esyscmd([(git rev-list --count HEAD 2>/dev/null || echo 0) | tr -d '\n']))
 #dnl m4_define([vxx_git_revision_count], m4_esyscmd([git rev-list --count HEAD]))
 # old gits can't use count with HEAD.
