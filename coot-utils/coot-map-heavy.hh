@@ -152,6 +152,14 @@ namespace coot {
 	 std::vector<std::pair<float, clipper::RTop_orth> >
 	 filter_by_distance_to_higher_peak(const std::vector<std::pair<float, clipper::RTop_orth> > &vr) const;
 	 
+
+	 static void fffear_search_inner_threaded(const clipper::Xmap<float> &xmap,
+						  const clipper::NXmap<float> &nxmap,
+						  const clipper::NXmap<float> &nxmap_mask,
+						  const std::vector<clipper::RTop_orth> &ops,
+						  const std::vector<unsigned int> &ops_idx_set,
+						  clipper::Xmap<std::pair<float, int> > &results);
+
       public:
 	 clipper::NXmap<float> nxmap;
 	 clipper::NXmap<float> nxmap_mask;

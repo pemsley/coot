@@ -24,6 +24,9 @@
 // then fixed with the help of Kevin Cowtan.
 
 
+// CXX11 version
+#include <thread>
+
 #include "clipper/core/map_interp.h"
 #include "clipper/core/hkl_compute.h"
 
@@ -105,7 +108,21 @@ coot::util::fffear_search::fffear_search(mmdb::Manager *mol, int SelectionHandle
 				       clipper::Coord_orth(0,0,0)));
    else
       generate_search_rtops(angular_resolution); // fill class member ops
-   
+
+   // sets of ops indices for each thread
+   std::vector<std::vector<unsigned int> > ops_index_set;
+   unsigned int n_threads = get_max_number_of_threads();
+   if (n_threads > 0) {
+      ops_index_set.resize(n_threads);
+      int unsigned thread_idx = 0;
+      for (std::size_t i=0; i<ops.size(); i++) {
+	 ops_index_set[thread_idx].push_back(i);
+	 thread_idx++;
+	 if (thread_idx == n_threads)
+	    thread_idx = 0;
+      }
+   }
+
    clipper::Grid_range grid_extent(xmap.cell(), grid_sampling, box_size);
 
    // For each grid point store a best score and the rtop that
@@ -165,32 +182,55 @@ coot::util::fffear_search::fffear_search(mmdb::Manager *mol, int SelectionHandle
 	    // 		   << std::endl;
 	 }
 
-   
-	 for (unsigned int iop=0; iop<ops.size(); iop++) {
+	 std::vector<std::thread> threads;
 
-	    clipper::Xmap<float> r1;
-	    r1.init(clipper::Spacegroup::p1(), xmap.cell(), xmap.grid_sampling()); // fixed to be consistent with above results init.
-	    clipper::FFFear_fft<float> search(xmap);
-	    clipper::NX_operator nxop( xmap, nxmap, ops[iop]);
-	    search(r1, nxmap, nxmap_mask, nxop); // fill r1 with fffear search values at this orientation
-      
-	    clipper::Xmap<float>::Map_reference_index ix;
-	    for ( ix = r1.first(); !ix.last(); ix.next() )
-	       if ( r1[ix] < results[ix].first) {
-		  results[ix].first = r1[ix];
-		  results[ix].second = iop;
-	       }
+	 for (std::size_t ith=0; ith<n_threads; ith++)
+	    threads.push_back(std::thread(fffear_search_inner_threaded,
+					  std::cref(xmap), std::cref(nxmap), std::cref(nxmap_mask),
+					  std::cref(ops), ops_index_set.at(ith), std::ref(results)));
 
-	    icount++;
+	 // wait
+	 for (std::size_t ith=0; ith<n_threads; ith++)
+	    threads.at(ith).join();
+      }
+   }
+}
 
-	    std::cout.flush();
-	    if (icount == 50) {
-	       std::cout << " " <<100*(float(iop)/float(ops.size())) << "%";
-	       std::cout.flush();
-	       icount = 0;
-	    }
+// static (of course)
+//
+// Fill results
+void
+coot::util::fffear_search::fffear_search_inner_threaded(const clipper::Xmap<float> &xmap,
+							const clipper::NXmap<float> &nxmap,
+							const clipper::NXmap<float> &nxmap_mask,
+							const std::vector<clipper::RTop_orth> &ops,
+							const std::vector<unsigned int> &ops_idx_set,
+							clipper::Xmap<std::pair<float, int> > &results) {
+
+   unsigned int icount = 0;
+   for (unsigned int i=0; i<ops_idx_set.size(); i++) {
+      unsigned int iop = ops_idx_set[i];
+      clipper::Xmap<float> r1;
+      r1.init(clipper::Spacegroup::p1(), xmap.cell(), xmap.grid_sampling()); // fixed to be consistent with above results init.
+      clipper::FFFear_fft<float> search(xmap);
+      clipper::NX_operator nxop(xmap, nxmap, ops[iop]);
+      search(r1, nxmap, nxmap_mask, nxop); // fill r1 with fffear search values at this orientation
+
+      clipper::Xmap<float>::Map_reference_index ix;
+      for (ix = r1.first(); !ix.last(); ix.next() ) {
+	 if (r1[ix] < results[ix].first) {
+	    results[ix].first = r1[ix];
+	    results[ix].second = iop;
 	 }
-	 std::cout << "\n";
+      }
+
+      icount++;
+
+      std::cout.flush();
+      if (icount == 50) {
+	 std::cout << " " <<100*(float(iop)/float(ops.size())) << "%";
+	 std::cout.flush();
+	 icount = 0;
       }
    }
 }
