@@ -368,7 +368,6 @@ graphics_info_t::refinement_loop_threaded() {
       return;
    }
 
-   // Perhaps threaded_refinement_is_running should be an atomic called restraints_lock
    bool unlocked = false;
    while (! graphics_info_t::restraints_lock.compare_exchange_weak(unlocked, true)) {
       std::cout << "WARNING:: refinement_loop_threaded() refinement loop locked " << std::endl;
@@ -420,11 +419,12 @@ graphics_info_t::refinement_loop_threaded() {
 	 }
       }
       graphics_info_t::threaded_refinement_loop_counter++;
-      // std::cout << "threaded_refinement_loop_counter " << graphics_info_t::threaded_refinement_loop_counter << std::endl;
+      // std::cout << "threaded_refinement_loop_counter "
+      // << graphics_info_t::threaded_refinement_loop_counter << std::endl;
       // std::cout << "refinement_loop_threaded(): done minimize() round" << std::endl;
    }
 
-   std::cout << "DEBUG:: refinement_loop_threaded() unlocking restraints_lock" << std::endl;
+   // std::cout << "DEBUG:: refinement_loop_threaded() unlocking restraints_lock" << std::endl;
    graphics_info_t::restraints_lock = false; // unlock! - is this safe? (I think so, we had the lock)
 
    // when this function exits, the (detached) thread in which it's running ends
@@ -651,14 +651,16 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
    }
 
    if (moving_atoms_asc == NULL) {
-      // std::cout << "DEBUG:: regenerate_intermediate_atoms_bonds_timeout_function() no moving_atoms_asc" << std::endl;
+      // std::cout << "DEBUG:: regenerate_intermediate_atoms_bonds_timeout_function() no moving_atoms_asc"
+      // << std::endl;
       continue_status = 0;
       threaded_refinement_redraw_timeout_fn_id = -1; // we've finished
       return continue_status;
    }
 
    if (moving_atoms_asc->atom_selection == NULL) {
-      // std::cout << "DEBUG:: regenerate_intermediate_atoms_bonds_timeout_function() no moving_atoms_asc->atom_selection" << std::endl;
+      // std::cout << "DEBUG:: regenerate_intermediate_atoms_bonds_timeout_function() no moving_atoms_asc->atom_selection"
+      // << std::endl;
       threaded_refinement_redraw_timeout_fn_id = -1; // we've finished
       continue_status = 0;
       return continue_status;
@@ -751,33 +753,33 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
 void
 graphics_info_t::debug_refinement() {
 
-   // calling function must have the restraints_lock
+   // we get the restraints restraints_lock here if needed
 
    // 20180923 Hmm... I guess that I need to lock the restraints? So that
    // they are not deleted as I try to write them out.
    //
-   // Hideous race condition somehow? Yes, there was when flags was passed to
+   // Hideous race condition somehow? Yes, there was - when flags was passed to
    // the refinement and it updated the restraints_container_t's internal flags
    //
+
+   // auto tp_0 = std::chrono::high_resolution_clock::now();
    char *env = getenv("COOT_DEBUG_REFINEMENT");
    if (env) {
       if (last_restraints) {
 
-         // No need to lock the restraints - the calling function already has
-         // a lock
-
-         // bool unlocked = false;
-         // while (! graphics_info_t::restraints_lock.compare_exchange_weak(unlocked, true)) {
-         //    std::cout << "DEBUG:: debug_refinement() restraints locked " << std::endl;
-         //    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-         //    unlocked = false;
-         // }
-
+	 bool unlocked = false;
+	 while (! graphics_info_t::restraints_lock.compare_exchange_weak(unlocked, true)) {
+	    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+	    unlocked = 0;
+	 }
          tabulate_geometric_distortions(*last_restraints);
-
-         // restraints_lock = false;
+	 graphics_info_t::restraints_lock = false;
       }
    }
+   //   auto tp_1 = std::chrono::high_resolution_clock::now();
+   // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+   // std::cout << "INFO:: ---------- Timing check DEBUG env " << d10 << " microseconds" << std::endl;
+   // 1-12 us when not used.
 }
 
 
@@ -4955,12 +4957,9 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 
 
 
+// calling function must have the restraints lock.
 void
-graphics_info_t::tabulate_geometric_distortions(coot::restraints_container_t &restraints) const {
-
-   // coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS; // is passed now
-
-   coot::restraints_container_t &rr = restraints;
+graphics_info_t::tabulate_geometric_distortions(coot::restraints_container_t &rr) const {
 
    coot::geometry_distortion_info_container_t gdic = rr.geometric_distortions();
 

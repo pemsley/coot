@@ -473,6 +473,7 @@ coot::match_container_for_residues_t::meld_residues(std::vector<mmdb::Residue *>
 
    for (unsigned int i=0; i<res_vec.size(); i++) {
       mmdb::Residue *residue_p = res_vec[i];
+      if (! residue_p) continue;
       if (residue_p != residue_2) {
 	 residue_spec_t spec_pre(residue_p);
 	 residue_p->seqNum += res_no_delta;
@@ -485,41 +486,47 @@ coot::match_container_for_residues_t::meld_residues(std::vector<mmdb::Residue *>
 	 // don't make a new chain for this residue
 	 mmdb::Residue *residue_copy = util::deep_copy_this_residue_add_chain(residue_p, "", true, false);
 
-	 int n_chain_residues;
-	 mmdb::PResidue *chain_residues;
-	 to_chain_p->GetResidueTable(chain_residues, n_chain_residues);
-	 int best_diff = 99999;
-	 int target_res_serial_number = -1;
-	 for (int iserial=0; iserial<n_chain_residues; iserial++) {
-	    mmdb::Residue *r = chain_residues[iserial];
-	    int chain_residue_seq_num = r->GetSeqNum();
-	    int this_diff = chain_residue_seq_num - this_res_seq_num;
-            // std::cout << "   Here with iserial " << iserial << " and this_diff " << this_diff << std::endl;
-	    if (this_diff > 0) {
-	       if (this_diff < best_diff) {
-		  best_diff = this_diff;
-		  target_res_serial_number = iserial;
+	 if (! residue_copy) {
+	    std::cout << "WARNING:: deep_copy_this_residue_add_chain() returned NULL for "
+		      << residue_spec_t(residue_p) << std::endl;
+	 } else {
+
+	    int n_chain_residues;
+	    mmdb::PResidue *chain_residues;
+	    to_chain_p->GetResidueTable(chain_residues, n_chain_residues);
+	    int best_diff = 99999;
+	    int target_res_serial_number = -1;
+	    for (int iserial=0; iserial<n_chain_residues; iserial++) {
+	       mmdb::Residue *r = chain_residues[iserial];
+	       int chain_residue_seq_num = r->GetSeqNum();
+	       int this_diff = chain_residue_seq_num - this_res_seq_num;
+	       // std::cout << "   Here with iserial " << iserial << " and this_diff " << this_diff << std::endl;
+	       if (this_diff > 0) {
+		  if (this_diff < best_diff) {
+		     best_diff = this_diff;
+		     target_res_serial_number = iserial;
+		  }
 	       }
 	    }
+
+	    if (false)
+	       std::cout << "   debug in meld() for " << residue_spec_t(residue_p) << " target_res_serial_number "
+			 << target_res_serial_number << " best_diff " << best_diff << std::endl;
+
+	    if (target_res_serial_number >= 0) {
+	       if (false)
+		  std::cout << "   InsResidue() on " << residue_spec_t(residue_copy) << " to chain \"" << to_chain_p->GetChainID()
+			    << "\"" << std::endl;
+	       to_chain_p->InsResidue(residue_copy, target_res_serial_number);
+	    } else {
+	       if (false)
+		  std::cout << "   AddResidue() on " << residue_spec_t(residue_copy) << " to chain \"" << to_chain_p->GetChainID()
+			    << "\"" << std::endl;
+	       to_chain_p->AddResidue(residue_copy);
+	    }
+
+	    delete residue_p;
 	 }
-
-         if (false)
-	    std::cout << "   debug in meld() for " << residue_spec_t(residue_p) << " target_res_serial_number "
-		      << target_res_serial_number << " best_diff " << best_diff << std::endl;
-
-	 if (target_res_serial_number >= 0) {
-            if (false)
-               std::cout << "   InsResidue() on " << residue_spec_t(residue_copy) << " to chain \"" << to_chain_p->GetChainID()
-                         << "\"" << std::endl;
-	    to_chain_p->InsResidue(residue_copy, target_res_serial_number);
-	 } else {
-            if (false)
-               std::cout << "   AddResidue() on " << residue_spec_t(residue_copy) << " to chain \"" << to_chain_p->GetChainID()
-                         << "\"" << std::endl;
-	    to_chain_p->AddResidue(residue_copy);
-         }
-
-	 delete residue_p;
       }
    }
 }
