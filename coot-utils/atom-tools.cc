@@ -14,7 +14,7 @@ coot::atom_indices_in_other_molecule(atom_selection_container_t mol_atom_sel,
    std::set<int> s;
    bool debug = false;
 
-   if (debug) {
+   if (false) {
       std::cout << "Here with moving_atom_sel SelectionHandle    "    << moving_atom_sel.SelectionHandle << std::endl;
       std::cout << "Here with moving_atom_sel UDDAtomIndexHandle "    << moving_atom_sel.UDDAtomIndexHandle << std::endl;
       std::cout << "Here with moving_atom_sel UDDOldAtomIndexHandle " << moving_atom_sel.UDDOldAtomIndexHandle << std::endl;
@@ -28,6 +28,8 @@ coot::atom_indices_in_other_molecule(atom_selection_container_t mol_atom_sel,
    
    for (int iat=0; iat<moving_atom_sel.n_selected_atoms; iat++) {
       mmdb::Atom *at = moving_atom_sel.atom_selection[iat];
+      if (debug)
+	 std::cout << "debug:: in atom_indices_in_other_molecule() with moving atom " << atom_spec_t(at) << std::endl;
       int idx = -1;
       if (at->GetUDData(moving_atom_sel.UDDOldAtomIndexHandle, idx) == mmdb::UDDATA_Ok) {
 	 if ((idx < mol_atom_sel.n_selected_atoms) && (idx != -1)) {
@@ -38,12 +40,13 @@ coot::atom_indices_in_other_molecule(atom_selection_container_t mol_atom_sel,
 	       if (moving_atom_spec.res_no == mol_atom_spec.res_no) {
 		  if (moving_atom_spec.chain_id == mol_atom_spec.chain_id) {
 		     int udd_idx_atom;
-		     // std::cout << "debug:: here with mol_udd_atom_index_handle " << mol_udd_atom_index_handle << std::endl;
+		     if (debug)
+			std::cout << "debug:: here with mol_udd_atom_index_handle " << mol_udd_atom_index_handle << std::endl;
 		     if (at_mol->GetUDData(mol_udd_atom_index_handle, udd_idx_atom) == mmdb::UDDATA_Ok) {
 			if (udd_idx_atom == idx) {
 			   s.insert(idx);
-			   if (false)
-			      std::cout << "WARNING:: atom_indices_in_other_molecule " << iat << " "
+			   if (debug)
+			      std::cout << "INFO:: atom_indices_in_other_molecule " << iat << " "
 					<< moving_atom_spec << " " << idx << std::endl;
 			} else {
 			   std::cout << "WARNING:: atom_indices_in_other_molecule() rejecting atom from set because "

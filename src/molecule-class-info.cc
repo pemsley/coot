@@ -4455,11 +4455,12 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 
    int n_atom = 0;
    int tmp_index;
+   bool debug = false;
 
    make_backup();
 
    // debug::
-   if (false) {
+   if (debug) {
       std::cout << "DEBUG:: --------------- replace_coords replacing "
 		<< asc.n_selected_atoms << " atoms " << std::endl;
       for (int i=0; i<asc.n_selected_atoms; i++) {
@@ -4472,7 +4473,7 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 		   << atom->name << ": altloc :"
 		   << atom->altLoc << ": occupancy: "
 		   << atom->occupancy << " :"
-		   << " ter state: " << is_ter_state << std::endl;
+		   << " TER state: " << is_ter_state << std::endl;
       }
    }
 
@@ -4481,15 +4482,23 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
    for (int i=0; i<asc.n_selected_atoms; i++) {
       int idx = -1;
       mmdb::Atom *atom = asc.atom_selection[i];
-      if (! atom->isTer()) { 
-//       std::cout << "considering replacement for selected atom " << coot::atom_spec_t(atom) << std::endl;
-//       idx = atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
-// 				    atom->residue->seqNum,
-// 				    std::string(atom->name));
+      if (! atom->isTer()) {
+
+	 if (debug) { // debug
+	    std::cout << "considering replacement for selected atom " << coot::atom_spec_t(atom) << std::endl;
+
+	    //
+	    // idx = atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
+	    // atom->residue->seqNum, std::string(atom->name));
+
+	 }
+
 	 if (asc.UDDOldAtomIndexHandle >= 0) { // OK for fast atom indexing
-	    if (false)
+
+	    if (debug)
 	       std::cout << "... OK for fast atom indexing, asc.UDDOldAtomIndexHandle: " << asc.UDDOldAtomIndexHandle
-			 << std::endl;
+			 << " for atom " << coot::atom_spec_t(atom) << std::endl;
+
 	    if (atom->GetUDData(asc.UDDOldAtomIndexHandle, tmp_index) == mmdb::UDDATA_Ok) {
 	       if (tmp_index >= 0) { 
 		  if (moving_atom_matches(atom, tmp_index)) { 
@@ -4513,10 +4522,10 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 						     std::string(atom->name),
 						     std::string(atom->altLoc));
 	       }
-	    } else { 
+	    } else {
 	       std::cout << "ERROR:: non-bad handle (" << asc.UDDOldAtomIndexHandle 
-			 <<  "), bad GetUDData for this atom " << std::endl;
-	    } 
+			 <<  "), but bad GetUDData for atom " << coot::atom_spec_t(atom) << std::endl;
+	    }
 	 } else {
 
 	    if (false)
@@ -4592,16 +4601,17 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 	    }
 	 } else {
 
-	    // don't change alt confs.
+	    // "don't change alt confs" mode
 
-	    if (idx != -1 ) {  // enable this text when fixed.
+	    if (idx != -1 ) {
 	       mmdb::Atom *mol_atom = atom_sel.atom_selection[idx];
 	       if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag)) {
-		  if (false) {
+		  if (debug) {
 		     coot::Cartesian old_pos(mol_atom->x, mol_atom->y, mol_atom->z);
 		     coot::Cartesian new_pos(atom->x, atom->y, atom->z);
 		     double d = (new_pos - old_pos).amplitude();
-		     std::cout << "    changing coords for atom " << coot::atom_spec_t(mol_atom) << std::endl;
+		     std::cout << "    changing coords for atom with idx " << idx << " "
+			       << coot::atom_spec_t(mol_atom) << std::endl;
 		     std::cout << "   " << old_pos << " " << new_pos << " moved-by " << d << std::endl;
 		  }
 		  mol_atom->SetCoordinates(atom->x,
@@ -4611,6 +4621,8 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 					   mol_atom->tempFactor);
 		  n_atom++;
 	       }
+	    } else {
+	       std::cout << "WARNING:: bad atom idx -1" << std::endl;
 	    }
 	 }
       }
