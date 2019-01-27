@@ -353,7 +353,7 @@ main(int argc, char **argv) {
 	    if (inputs.residues_around != mmdb::MinInt4) {
 	       coot::residue_spec_t res_spec(inputs.chain_id, inputs.residues_around);
 	       mmdb::Residue *res_ref = coot::util::get_residue(res_spec, asc.mol);
-	       if (res_ref) { 
+	       if (res_ref) {
 		  std::vector<mmdb::Residue *> residues =
 		     coot::residues_near_residue(res_ref, asc.mol, inputs.radius);
 		  local_residues.push_back(std::pair<bool,mmdb::Residue *>(false, res_ref));

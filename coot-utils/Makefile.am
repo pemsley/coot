@@ -94,6 +94,7 @@ libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc \
 #     $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #    $(top_builddir)/utils/libcoot-utils.la
 
+# should libcoot-coord-utils link $CLIPPER_LIBS?
 libcoot_coord_extras_la_LIBADD = \
    libcoot-coord-utils.la 
 
@@ -104,9 +105,10 @@ libcoot_coord_extras_la_LDFLAGS = $(SHARED_LDFLAGS)
 libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from-list.cc trim.cc \
 	xmap-stats.cc maps-spherical.cc
 
-# clean
+# should libcoot-coord-utils link $CLIPPER_LIBS directly? (Hence CLIPPER_LIBS is not needed here)
 libcoot_map_utils_la_LIBADD = \
-   libcoot-coord-utils.la
+   libcoot-coord-utils.la \
+   $(CLIPPER_LIBS)
 
 libcoot_map_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 
@@ -170,14 +172,13 @@ test_hole_SOURCES = test-hole.cc
 test_hole_LDADD = ./libcoot-coord-utils.la
 
 test_tt_morph_SOURCES = test-morph.cc
-
 test_tt_morph_LDADD = 	./libcoot-map-heavy.la
 
 test_elastic_SOURCES = test-elastic.cc
 test_elastic_LDADD   = ./libcoot-coord-utils.la $(GLOB_LIBS)
 
 test_spherical_SOURCES = test-spherical.cc
-test_spherical_LDADD   = ./libcoot-coord-utils.la $(GSL_LIBS)
+test_spherical_LDADD   = ./libcoot-coord-utils.la $(CLIPPER_LIBS) $(GSL_LIBS)
 
 glyco_torsions_SOURCES = test-glyco-torsions.cc
 glyco_torsions_LDADD   = ./libcoot-coord-utils.la
