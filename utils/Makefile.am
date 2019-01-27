@@ -28,7 +28,7 @@ AM_CXXFLAGS = $(COOT_WINDOWS_CFLAGS) \
 lib_LTLIBRARIES=libcoot-utils.la
 
 pkginclude_HEADERS = coot-utils.hh coot-fasta.hh dodec.hh win-compat.hh ctpl_stl.h ctpl.h \
-	pir-alignment.hh align-utils.hh split-indices.hh radix.hh
+	pir-alignment.hh align-utils.hh split-indices.hh radix.hh logging.hh
 
 pkgincludedir = $(includedir)/coot/utils
 
@@ -36,9 +36,15 @@ pkgincludedir = $(includedir)/coot/utils
 # for simple things:
 libcoot_utils_la_SOURCES = coot-utils.cc coot-fasta.cc atomic-numbers.cc \
 	gdk-keysyms.cc hsv-rgb.cc dodec.cc win-compat.cc threads.cc align-utils.cc \
-	pir-alignment.cc split-indices.cc radix.cc
+	pir-alignment.cc split-indices.cc radix.cc logging.cc
 
 libcoot_utils_la_LIBADD = \
 	$(GLOB_LIBS)
 
 libcoot_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
+
+check_PROGRAMS = test-logging
+
+test_logging_SOURCES = test-logging.cc
+
+test_logging_LDADD = libcoot-utils.la
