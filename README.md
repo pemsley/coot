@@ -11,7 +11,7 @@ operations.
 Blog
 ----
 
-[Coot Development Blog](blog "Coot Development Blog")
+[Coot Development Blog](https://pemsley.github.io/coot/ "Coot Development Blog")
 
 Redistribution
 --------------
