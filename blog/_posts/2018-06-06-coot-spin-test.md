@@ -29,6 +29,7 @@ than 60 FPS (it was 50 FPS) on my new PC desktop.
 
 Doing the same on my 2-year old MacBook Pro gave 5 FPS.
 
-Perhaps 60 &#8491; should be the new standard.
+Perhaps 60 &#8491; should be the new standard, but for now, let's quote both
+the FPS at a radius of 12 and at 60  &#8491;.
 
 
