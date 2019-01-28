@@ -8,3 +8,5 @@ Coot now displays missing loops with dotted lines when in CA Mode:
 
 ![Coot Missing Loops]({{"../../../images/screenshot-missing-loops-2018.png"}})
 
+The bigger the residue gap, the more loopy and segmented is the loop.
+
