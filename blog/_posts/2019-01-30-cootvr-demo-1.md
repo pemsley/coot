@@ -7,6 +7,6 @@ date: Wed 30 Jan 18:04:07 GMT 2019
 Hamish has recently made a demonstration video for CootVR.
 Slightly non-optimal video and audio, but interesting.
 
-[Link]("https://www.youtube.com/watch?v=TdyYOWKDpGc")
+[Youtube Link](https://www.youtube.com/watch?v=TdyYOWKDpGc)
 
 
