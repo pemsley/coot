@@ -3311,6 +3311,7 @@ Bond_lines_container::make_graphical_bonds_with_thinning_flag(bool do_thinning_f
 
    box.add_atom_centres(atom_centres, atom_centres_colour);
    box.rings = rings;
+   box.add_bad_CA_CA_dist_spots(bad_CA_CA_dist_spots);
    box.add_cis_peptide_markup(cis_peptide_quads);
    return box;
 }
@@ -3766,16 +3767,28 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 				    coot::Cartesian pp_3(at_pp_3->x, at_pp_3->y, at_pp_3->z);
 				    float a = (pp_3-pp_2).amplitude();
 				    int n_line_segments = static_cast<int>(a*1.2);
-				    std::vector<coot::CartesianPair> lp =
+				    std::pair<bool, std::vector<coot::CartesianPair> > lp =
 				       coot::loop_path(at_pp_1, at_pp_2, at_pp_3, at_pp_4, n_line_segments);
-				    for (unsigned int jj =0; jj<lp.size(); jj++) {
-				       coot::CartesianPair cp = lp[jj];
+				    for (unsigned int jj=0; jj<lp.second.size(); jj++) {
+				       const coot::CartesianPair &cp = lp.second[jj];
 				       int col = HYDROGEN_GREY_BOND; // just grey, really.
 				       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 				       int iat_1 = -1;
 				       int iat_2 = -1;
 				       addBond(col, cp.getStart(), cp.getFinish(), cc, imod, iat_1, iat_2);
 				    }
+
+				    if (lp.first) {
+				       // Add the balls of CA-CA badness
+				       for (unsigned int jj=0; jj<lp.second.size(); jj++) {
+					  const coot::CartesianPair &cp = lp.second[jj];
+					  int col = HYDROGEN_GREY_BOND;
+					  int iat = -1;
+					  bad_CA_CA_dist_spots.push_back(cp.getStart());
+					  bad_CA_CA_dist_spots.push_back(cp.getFinish());
+				       }
+				    }
+
 				 } else {
 				    if (false)
 				       std::cout << "DEBUG:: CA loops: oops! "
@@ -3923,7 +3936,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 		  for (int iat=0; iat<n_atoms; iat++) { 
 		     mmdb::Atom *at = residue_p->GetAtom(iat);
 		     std::string atom_name(at->GetAtomName());
-		     if (atom_name == " CA " || atom_name == " P  ") {
+		     if (atom_name == " CA " || atom_name == " P  ") { //
 			udd_status = at->GetUDData(udd_has_bond_handle, udd_value);
 			// All atoms have OK status, some are marked as not having a bond
 			// 
@@ -3954,6 +3967,9 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 	 }
       }
    }
+
+   std::cout << "returing from do_Ca_or_P_bonds_internal() with atom_centres size "
+	     << atom_centres.size() << std::endl;
    return atom_colour_map;
 }
 
@@ -5666,6 +5682,19 @@ graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_at
 	 std::cout << "    col " << i << " has " << consolidated_atom_centres[i].num_points
 		   << std::endl;
 
+}
+
+void
+graphical_bonds_container::add_bad_CA_CA_dist_spots(const std::vector<coot::Cartesian> &bad_CA_CA_dist_spots_in) {
+
+   unsigned int s = bad_CA_CA_dist_spots_in.size();
+   if (s > 0) {
+      n_bad_CA_CA_dist_spots = s;
+      bad_CA_CA_dist_spots_ptr = new coot::Cartesian[s];
+      for (std::size_t i=0; i<s; i++) {
+	 bad_CA_CA_dist_spots_ptr[i] = bad_CA_CA_dist_spots_in[i];
+      }
+   }
 }
 
 void

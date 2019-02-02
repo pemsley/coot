@@ -1,13 +1,19 @@
 
    For Release 0.8.9.2
 
+   o function to return current graphics mode (Oliver Clarke)
+
+   o Using delelete residue range for all residues in the moleucle should delete the
+     molecule from the display manager.
+
    o something for the trip: The acedrg link dialog needs to be able to delete a bond
      and change a bond order
 
    o fill and use go_to_ligand_non_interesting_comp_ids: add_non_interesting_ligand_type()
 
    o loops: when the gap between residue number is small but the gap is large, we
-     need to be able to represent that differently. With big red discs.
+     need to be able to represent that differently. With big red discs - or something.
+     John Berrisford.
 
    o Map Dialog, Setting 8 rmsd should move the block in the graph below
 

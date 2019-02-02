@@ -299,10 +299,16 @@ class graphical_bonds_container {
    int symmetry_has_been_created;
    graphical_bonds_lines_list<graphics_line_t> *symmetry_bonds_;
 
+   // if the distance between CAs in a missing loop is longer than is possible given
+   // the residue number difference, then we want to mark up that line with
+   // dots along the line joining the residues.  This should work similarly with P-P
+   // for nucleic acid chains - but I won't change the function name.
+   coot::Cartesian *bad_CA_CA_dist_spots_ptr;
    coot::Cartesian *zero_occ_spots_ptr;
    coot::Cartesian *deuterium_spots_ptr;
    std::pair<coot::Cartesian, float> *ramachandran_goodness_spots_ptr;
    int n_zero_occ_spots;
+   int n_bad_CA_CA_dist_spots;
    int n_deuterium_spots;
    int n_ramachandran_goodness_spots;
 
@@ -322,6 +328,8 @@ class graphical_bonds_container {
       symmetry_has_been_created = 0; 
       symmetry_bonds_ = NULL; 
       zero_occ_spots_ptr = NULL;
+      bad_CA_CA_dist_spots_ptr = NULL;
+      n_bad_CA_CA_dist_spots = 0;
       n_zero_occ_spots = 0;
       deuterium_spots_ptr = NULL;
       n_deuterium_spots = 0;
@@ -434,6 +442,7 @@ class graphical_bonds_container {
    }
 
    void add_zero_occ_spots(const std::vector<coot::Cartesian> &spots);
+   void add_bad_CA_CA_dist_spots(const std::vector<coot::Cartesian> &spots);
    void add_deuterium_spots(const std::vector<coot::Cartesian> &spots);
    void add_ramachandran_goodness_spots(const std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > &spots,
 					const ramachandrans_container_t &rc);
@@ -602,6 +611,7 @@ class Bond_lines_container {
  protected:
    std::vector<Bond_lines> bonds;
    std::vector<coot::Cartesian>  zero_occ_spots;
+   std::vector<coot::Cartesian>  bad_CA_CA_dist_spots;
    std::vector<coot::Cartesian>  deuterium_spots;
    std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> >  ramachandran_goodness_spots;
    std::vector<graphical_bonds_atom_info_t>  atom_centres;
