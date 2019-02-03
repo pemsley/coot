@@ -1,17 +1,24 @@
 
    For Release 0.8.9.2
 
+   o function to return current graphics mode (Oliver Clarke)
+
+   o Using delelete residue range for all residues in the moleucle should delete the
+     molecule from the display manager.
+
+   o something for the trip: The acedrg link dialog needs to be able to delete a bond
+     and change a bond order
+
    o fill and use go_to_ligand_non_interesting_comp_ids: add_non_interesting_ligand_type()
 
    o loops: when the gap between residue number is small but the gap is large, we
-     need to be able to represent that differently.
-
-   o update the copyright in the about dialog?
+     need to be able to represent that differently. With big red discs - or something.
+     John Berrisford.
 
    o Map Dialog, Setting 8 rmsd should move the block in the graph below
 
-   o Add residue type to the ramachandran outlier button
-     (shoudl the rama plot and the rama outlier have the same criterion?)
+   o Add residue type to the validation outlier ramachandran outlier button
+     (should the rama plot and the rama outlier have the same criterion?)
 
    o fix the colours of (say) 5vic in Calpha Backbone mode
 
@@ -27,6 +34,8 @@
    > Coot now adds new ligands to the chain of the corresponding protein. Refmac5 (5.8.0238) then adds two TER
    > records to that chain, one after the protein and one after the ligand. When now adding a C-terminal residue
    > in Coot, it will not remove the original TER record after the protein
+
+   o update the copyright in the about dialog?
 
 ------
 

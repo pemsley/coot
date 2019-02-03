@@ -18,7 +18,35 @@ if False: # debugging
     print("pygtk version", gtk.pygtk_version)
 
 class Application():
-    
+
+    def dont_press_that(self):
+        w = gtk.Window()
+        w.set_title("Close Coot")
+        label = gtk.Label("        You really don't want to press that        ")
+        vbox = gtk.VBox(False, 6)
+        hbox = gtk.HBox(True, 6)
+        vbox.pack_start(label, False, False, 8)
+        vbox.pack_start(hbox,  False, False, 6)
+        button_yes = gtk.Button(" Yeah, I do ")
+        button_no = gtk.Button("     OK      ")
+        hbox.pack_start(button_yes, False, False, 8)
+        hbox.pack_start(button_no,  False, False, 8)
+        w.add(vbox)
+        button_yes.connect("clicked", self.close_everything, w)
+        button_no.connect("clicked", self.close_mini_dialog, w)
+        w.show_all()
+
+    def close_mini_dialog(self, button, mini_window):
+        mini_window.destroy()
+
+    def close_everything(self, button, mini_dialog):
+        mini_dialog.destroy()
+        self.window.destroy()
+
+    def window_delete(self, something, otherthing):
+        self.dont_press_that()
+        return True
+
     def __init__(self, argv):
 
         path = os.getenv("PATH")
@@ -29,6 +57,7 @@ class Application():
         self.window.set_title("Coot Output")
         self.create_widgets()
         self.window.iconify()
+        self.window.connect("delete_event", self.window_delete)
 
         coot_arg_list = argv[1:]
 
@@ -158,18 +187,14 @@ class Application():
 
     def check_for_new_lines_and_show_them(self):
 
-       # print("debug:: check_for_new_lines_and_show_them() start")
-
-       # We want to return False when the process is dead.
+       # We want to exit when the process is dead.
        # We want to return True when when we have finished reading all the
        # text in the pipeline.
-       # In the meantime, we want to send off lines for display when we
-       # see a new-line.
+       # We want to send off lines for display when we see a new-line.
 
-       # check if the process is alive!
-
-       # set this to False when the stdout for the process dies
-       continue_timeout_status = True
+       if self.process.poll() == 0:
+           gtk.main_quit()
+           exit()
 
        has_input = True
        while has_input:
@@ -178,13 +203,11 @@ class Application():
           s_out = s[0]
           if s_out:
              running_line = self.process.stdout.readline()
-             # print("sending for display: {}".format(running_line))
              self.update_text_view_with_new_text(running_line)
              self.save_to_log_file(running_line)
           else:
              has_input = False
-       # print("debug:: check_for_new_lines_and_show_them() returns", continue_timeout_status)
-       return continue_timeout_status
+       return True # continue timeout
 
 if __name__ == "__main__":
     app = Application(sys.argv)

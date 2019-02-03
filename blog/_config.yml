@@ -14,13 +14,11 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 title: Coot Development Blog
-# email: something@somewhere.com
+email: p emsley at mrc dash lmb dot cam dot ac uk humans stop reading
 description: >- # this means to ignore newlines until "baseurl:"
   Coot updates and screenshots
-# baseurl: "coot/blog" # the subpath of your site, e.g. /blog
-# url: "https://pemsley.github.io/coot/blog" # the base hostname & protocol for your site, e.g. http://example.com
-baseurl: "/" # the subpath of your site, e.g. /blog
-url: "/" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "" # the base hostname & protocol for your site, e.g. http://example.com
 github_username:  pemsley
 
 show_excerpts: true
@@ -43,4 +41,3 @@ plugins:
 #   - vendor/cache/
 #   - vendor/gems/
 #   - vendor/ruby/
-
