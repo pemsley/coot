@@ -1,31 +1,36 @@
 
    For Release 0.8.9.2
 
-   o function to return current graphics mode (Oliver Clarke)
-
-   o Using delelete residue range for all residues in the moleucle should delete the
-     molecule from the display manager.
-
    o something for the trip: The acedrg link dialog needs to be able to delete a bond
      and change a bond order
+     Needs to be done in python too
 
-   o fill and use go_to_ligand_non_interesting_comp_ids: add_non_interesting_ligand_type()
+   o Phosphorylate this residue on a SER. New dictionary problems? Problem is in refinement part. OXT?
+     What happens if there is no map? We should get a regularized model.
+
+   o Add residue type to the validation outlier ramachandran outlier button
+     (should the rama plot and the rama outlier have the same criterion?)
+     Needs to be done in python too
+
+   o fix the colours of (say) 5vic in Calpha Backbone mode
 
    o loops: when the gap between residue number is small but the gap is large, we
      need to be able to represent that differently. With big red discs - or something.
      John Berrisford.
 
-   o Map Dialog, Setting 8 rmsd should move the block in the graph below
+* Done.
 
-   o Add residue type to the validation outlier ramachandran outlier button
-     (should the rama plot and the rama outlier have the same criterion?)
+   o OC: Using delelete residue range for all residues in the moleucle should delete the
+     molecule from the display manager.
 
-   o fix the colours of (say) 5vic in Calpha Backbone mode
+* Done
+
+   o fill and use go_to_ligand_non_interesting_comp_ids: add_non_interesting_ligand_type(). Punt
+
+   o Map Dialog, Setting 8 rmsd should move the block in the graph below. Puntable
 
    o check for double ligands and/or nan atoms when using set_merge_molecules_ligand_spec().
      Add it to the test (do I have a test already?)
-
-   o Acedrg Link interface needs to be able to change the bond order and delete a bond.
 
    o Try rotate/translate on a chain by picking C4',B in B 2 of 2H0N
 
