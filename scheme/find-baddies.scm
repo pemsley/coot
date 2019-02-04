@@ -257,6 +257,8 @@
 							     (number->string (residue-spec->res-no spec))
 							     (residue-spec->ins-code spec)
 							     " "
+							     (residue-spec->residue-name imol spec)
+							     " "
 							     score-string))
 					      (fn (lambda()
 						    (set-go-to-atom-molecule imol)
@@ -273,6 +275,8 @@
 						   "C-beta deviant "
 						   (residue-spec->string spec)
 						   "  "
+						   (residue-spec->residue-name imol spec)
+						   " "
 						   score-string "Å"))
 						 (fn (lambda()
 						       (set-go-to-atom-molecule imol)
