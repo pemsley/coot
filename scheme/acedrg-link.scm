@@ -8,16 +8,28 @@
 	 (vbox (gtk-vbox-new #f 4))
 	 (inside-hbox-1 (gtk-hbox-new #f 4))
 	 (inside-hbox-2 (gtk-hbox-new #f 4))
+	 (inside-hbox-3 (gtk-hbox-new #f 4))
+	 (inside-hbox-4 (gtk-hbox-new #f 4))
 	 (cancel-hbox (gtk-hbox-new #f 2))
 	 (order-label  (gtk-label-new "  Order: "))
-	 (delete-label (gtk-label-new "  Delete: "))
+	 (delete-atom-label (gtk-label-new "  Delete Atom: "))
+	 (change-bond-order-label (gtk-label-new "  Change Bond Order of the Bond between Atoms"))
+	 (delete-bond-label (gtk-label-new "  Delete Bond: "))
 	 (other-label (gtk-label-new " from First Residue "))
-	 (option-menu-order (gtk-option-menu-new))
-	 (menu (gtk-menu-new))
-	 (tte (gtk-tooltips-new))
-	 (tto (gtk-tooltips-new))
-	 (ttp (gtk-tooltips-new))
-	 (entry (gtk-entry-new))
+	 (to-order-label (gtk-label-new " to order"))
+	 (right-space-label (gtk-label-new " ")) ;; hacketty hack :-)
+	 (option-menu-bond-order (gtk-option-menu-new)) ;; for the newly-formed bond
+	 (option-menu-change-bond-order (gtk-option-menu-new)) ;; for a bond already in the ligand
+	 (bond-order-menu (gtk-menu-new))
+	 (change-bond-order-menu (gtk-menu-new))
+	 (tte   (gtk-tooltips-new))
+	 (tto   (gtk-tooltips-new))
+	 (ttp   (gtk-tooltips-new))
+	 (ttdb  (gtk-tooltips-new))
+	 (ttcbo (gtk-tooltips-new))
+	 (delete-atom-entry (gtk-entry-new))
+	 (delete-bond-entry (gtk-entry-new))
+	 (change-bond-order-entry (gtk-entry-new))
 	 (h-sep (gtk-hseparator-new))
 	 (cancel-button     (gtk-button-new-with-label "  Cancel  "))
 	 (pick-button       (gtk-button-new-with-label "Start (Pick 2 Atoms)...")))
@@ -25,30 +37,57 @@
     (gtk-window-set-title window "Make a Link using Acedrg and Atom Click Click")
     (gtk-box-pack-start vbox inside-hbox-1 #f #f 2)
     (gtk-box-pack-start vbox inside-hbox-2 #f #f 2)
+    (gtk-box-pack-start vbox inside-hbox-3 #f #f 2)
+    (gtk-box-pack-start vbox inside-hbox-4 #f #f 2)
     (gtk-box-pack-start inside-hbox-1 order-label #f #f 2)
-    (gtk-box-pack-start inside-hbox-1 option-menu-order #f #f 2)
-    (gtk-box-pack-start inside-hbox-2 delete-label #f #f 2)
-    (gtk-box-pack-start inside-hbox-2 entry #f #f 2)
+    (gtk-box-pack-start inside-hbox-1 option-menu-bond-order #f #f 2)
+    (gtk-box-pack-start inside-hbox-2 delete-atom-label #f #f 2)
+    (gtk-box-pack-start inside-hbox-2 delete-atom-entry #f #f 2)
     (gtk-box-pack-start inside-hbox-2 other-label #f #f 2)
+    (gtk-box-pack-start inside-hbox-3 change-bond-order-label #f #f 2)
+    (gtk-box-pack-start inside-hbox-3 change-bond-order-entry #f #f 2)
+    (gtk-box-pack-start inside-hbox-3 to-order-label #f #f 2)
+    (gtk-box-pack-start inside-hbox-3 option-menu-change-bond-order #f #f 2)
+    (gtk-box-pack-start inside-hbox-3 right-space-label #f #f 2)
+    (gtk-box-pack-start inside-hbox-4 delete-bond-label #f #f 2)
+    (gtk-box-pack-start inside-hbox-4 delete-bond-entry #f #f 2)
     (gtk-box-pack-start vbox h-sep)
     (gtk-box-pack-start vbox cancel-hbox #f #f 6)
     (gtk-box-pack-start cancel-hbox   pick-button #f #f 6)
     (gtk-box-pack-start cancel-hbox cancel-button #f #f 6)
-    (gtk-widget-set-usize entry 80 -1)
+    (gtk-widget-set-usize delete-atom-entry 80 -1)
+    (gtk-widget-set-usize delete-bond-entry 80 -1)
+    (gtk-widget-set-usize change-bond-order-entry 80 -1)
 
     (let* ((menu-item-1 (gtk-menu-item-new-with-label "Single"))
 	   (menu-item-2 (gtk-menu-item-new-with-label "Double")))
-      (gtk-menu-append menu menu-item-1)
-      (gtk-menu-append menu menu-item-2)
-      (gtk-menu-set-active menu 0))
-    (gtk-option-menu-set-menu option-menu-order menu)
+      (gtk-menu-append bond-order-menu menu-item-1)
+      (gtk-menu-append bond-order-menu menu-item-2)
+      (gtk-menu-set-active bond-order-menu 0))
+    (gtk-option-menu-set-menu option-menu-bond-order bond-order-menu)
 
-    (gtk-tooltips-set-tip tte entry "Type the atom name to be deleted" "")
-    (gtk-tooltips-set-tip tte option-menu-order "Like a cheeseburger - you can only have single or double" "")
-    (gtk-tooltips-set-tip ttp pick-button "Click on 2 atoms, Acedrg starts after the second click" "")
+    (let* ((menu-item-1 (gtk-menu-item-new-with-label "Single"))
+	   (menu-item-2 (gtk-menu-item-new-with-label "Double")))
+      (gtk-menu-append change-bond-order-menu menu-item-1)
+      (gtk-menu-append change-bond-order-menu menu-item-2)
+      (gtk-menu-set-active change-bond-order-menu 0))
+    (gtk-option-menu-set-menu option-menu-change-bond-order change-bond-order-menu)
+
+
+    (gtk-tooltips-set-tip tte   delete-atom-entry "Type the atom name to be deleted (leave blank if unsure)" "")
+    (gtk-tooltips-set-tip tte   option-menu-bond-order "Like a cheeseburger - you can only have single or double" "")
+    (gtk-tooltips-set-tip ttp   pick-button "Click on 2 atoms, Acedrg starts after the second click" "")
+    (gtk-tooltips-set-tip ttdb  delete-bond-entry "Delete a bond between atoms (leave blank if unsure)" "")
+    (gtk-tooltips-set-tip ttcbo change-bond-order-entry "Change the bond order of the bond between atoms (leave blank if unsure)" "")
     (gtk-signal-connect cancel-button "clicked" (lambda () (gtk-widget-destroy window)))
 
-    (gtk-signal-connect   pick-button "clicked" (lambda () (click-select-residues-for-acedrg window option-menu-order entry)))
+    (gtk-signal-connect   pick-button "clicked" (lambda () (click-select-residues-for-acedrg window
+											     option-menu-bond-order
+											     delete-atom-entry
+											     delete-bond-entry
+											     change-bond-order-entry
+											     option-menu-change-bond-order
+											     )))
 
     (gtk-container-add window vbox)
     (gtk-widget-show-all window)))
@@ -76,16 +115,40 @@
       new-file-name)))
 
 
-(define (click-select-residues-for-acedrg window option-menu entry)
+(define (click-select-residues-for-acedrg window option-menu
+					  delete-atom-entry delete-bond-entry change-bond-order-entry
+					  change-bond-order-option-menu)
 
-  (format #t "window: ~s~%" window)
+  ;; return a 3-member list: is-correct atom-name-1 atom-name-2)
+  ;; is-correct can either be
+  ;; 'yes or 'no or 'syntax-error
+  ;; 'no means that there was a blank or empty string
+  ;; 'yes mean we found 2 atom names
+  ;; 'syntax-error means that we found 1 or 3 or more atom names
+  ;; Typicall this will return '('no "" "")
+  ;;
+  (define (extract-atom-names-from-string str-in)
+    (let ((atom-name-1 "")
+	  (atom-name-2 "")
+	  (is-correct 'no))
 
+      (let ((sl (string-length str-in)))
+	(if (= sl 0)
+	    (list is-correct atom-name-1 atom-name-2)
+	    (let ((parts (string->list-of-strings str-in)))
+	      (if (not (= (length parts) 2))
+		  (list 'syntax-error atom-name-1 atom-name-2)
+		  (cons 'yes parts)))))))
+
+  ;; main line of click-select-residues-for-acedrg
+  ;;
   (user-defined-click 
    2
    (lambda (clicks)
      (format #t "we received these clicks: ~s~%" clicks)
 
-     (let ((bond-order (get-option-menu-active-item option-menu (list 'single 'double))))
+     (let ((bond-order (get-option-menu-active-item option-menu (list 'single 'double)))
+	   (change-bond-order (get-option-menu-active-item change-bond-order-option-menu (list 'single 'double))))
        (if (= (length clicks) 2)
 	   (let ((click-1 (list-ref clicks 0))
 		 (click-2 (list-ref clicks 1)))
@@ -109,7 +172,9 @@
 		       (spec-2 (cddr click-2))
 		       (imol-click-1 (list-ref click-1 1))
 		       (imol-click-2 (list-ref click-2 1))
-		       (delete-atom-text (gtk-entry-get-text entry)))
+		       (delete-atom-text (gtk-entry-get-text delete-atom-entry))
+		       (delete-bond-entry-text (gtk-entry-get-text delete-bond-entry))
+		       (change-bond-order-entry-text (gtk-entry-get-text change-bond-order-entry)))
 
 		   (if (not (and (string? resname-1)
 				 (string? resname-2)))
@@ -130,6 +195,8 @@
 				    (delete-atom-txt (if (> (string-length delete-stripped-1) 0) 
 							 (string-append " DELETE ATOM " delete-stripped-1 " 1 ")
 							 ""))
+				    (delete-bond-info (extract-atom-names-from-string delete-bond-entry-text))
+				    (change-bond-order-info (extract-atom-names-from-string change-bond-order-entry-text))
 				    (s (string-append
 					"LINK:"
 					" RES-NAME-1 " resname-1 " ATOM-NAME-1 " at-name-1 
@@ -159,8 +226,31 @@
 				 (if (string-member? resname-2 ns)
 				     (set! s (string-append s " FILE-2 " cif-fn-2)))
 
-				 ;; and finally delete atom
+				 ;; delete atom?
 				 (set! s (string-append s delete-atom-txt))
+
+				 ;; change-bond order?
+				 (if (eq? (car change-bond-order-info) 'yes)
+				     (let ((ss (string-append " CHANGE BOND "
+							      (list-ref change-bond-order-info 1)
+							      " "
+							      (list-ref change-bond-order-info 2)
+							      " "
+							      (if (eq? change-bond-order 'double)
+								  "DOUBLE"
+								  "SINGLE")
+							      " 1 "
+							      )))
+				       (set! s (string-append s ss))))
+
+				 ;; delete-bond?
+				 (if (eq? (car delete-bond-info) 'yes)
+				     (let ((ss (string-append " DELETE BOND "
+							      (list-ref delete-bond-info 1)
+							      " "
+							      (list-ref delete-bond-info 2)
+							      " 1 ")))
+				       (set! s (string-append s ss))))
 
 				 (format #t "LINK string: ~s~%" s)
 				 (let* ((st-1 (string-append "acedrg-link-from-coot-"
