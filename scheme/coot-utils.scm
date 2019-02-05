@@ -2412,6 +2412,49 @@
 ;; 
 (define (mutate-by-overlap imol chain-id-in resno tlc)
 
+  ;; residue is standard residues or phosphorylated version?
+  ;;
+  (define (is-amino-acid? imol chain-id res-no)
+
+    (let ((rn (residue-name imol chain-id res-no "")))
+      (if (not (string? rn))
+	  #f
+	  (or (string=? rn "ALA")
+	      (string=? rn "ARG")
+	      (string=? rn "ASN")
+	      (string=? rn "ASP")
+	      (string=? rn "CYS")
+	      (string=? rn "GLY")
+	      (string=? rn "GLU")
+	      (string=? rn "GLN")
+	      (string=? rn "PHE")
+	      (string=? rn "HIS")
+	      (string=? rn "ILE")
+	      (string=? rn "LEU")
+	      (string=? rn "LYS")
+	      (string=? rn "MET")
+	      (string=? rn "PRO")
+	      (string=? rn "SER")
+	      (string=? rn "TYR")
+	      (string=? rn "THR")
+	      (string=? rn "VAL")
+	      (string=? rn "TRP")
+	      (string=? rn "SEP")
+	      (string=? rn "PTR")
+	      (string=? rn "TPO")))))
+
+  ;;
+  (define (overlap-by-main-chain imol-mov chain-id-mov res-no-mov ins-code-mov
+				 imol-ref chain-id-ref res-no-ref ins-code-ref)
+
+    (format #t "debug:: in overlap-by-main-chain:: ---------------- imol-mov: ~s imol-ref: ~s~%" imol-mov imol-ref)
+    (clear-lsq-matches)
+    (for-each (lambda (atom-name)
+		(add-lsq-atom-pair (list chain-id-ref res-no-ref ins-code-ref atom-name "")
+				   (list chain-id-mov res-no-mov ins-code-mov atom-name "")))
+	      (list " CA " " N  " " C  "))
+    (apply-lsq-matches imol-ref imol-mov))
+
   ;; get-monomer-and-dictionary, now we check to see if we have a
   ;; molecule already loaded that matches this residue, if we have,
   ;; then use it.
@@ -2439,7 +2482,7 @@
 	      (format #t "we have dict and model for tlc already~%")
 	      have-tlc-molecule)))))
 
-  ;; 
+  ;;
   (define (mutate-it)
     (let ((imol-ligand (get-monomer-and-dictionary tlc)))
       (if (not (valid-model-molecule? imol-ligand))
@@ -2448,24 +2491,31 @@
 	  (begin
 	    (delete-residue-hydrogens imol-ligand "A" 1 "" "")
 	    (delete-atom imol-ligand "A" 1 "" " OXT" "")
-	    (overlap-ligands imol-ligand imol chain-id-in resno)
+	    (if (and (is-amino-acid? imol-ligand "A" 1)
+		     (is-amino-acid? imol chain-id-in resno))
+		(overlap-by-main-chain imol-ligand "A" 1 "" imol chain-id-in resno "")
+		(overlap-ligands imol-ligand imol chain-id-in resno))
+
 	    (match-ligand-torsions imol-ligand imol chain-id-in resno)
 	    (delete-residue imol chain-id-in resno "")
 	    (let* ((new-chain-id-info (merge-molecules (list imol-ligand) imol))
-		   (nov (format #t "new-chain-id-info: ~s~%" new-chain-id-info)))
+		   (nov (format #t "DEBUG:: ------ new-chain-id-info: ~s~%" new-chain-id-info)))
 	      (let ((merge-status (car new-chain-id-info)))
+		(format #t "DEBUG:: ------ merge-status: ~s~%" merge-status)
 		(if (= merge-status 1)
 		    (let* ((new-res-spec (car (car (cdr new-chain-id-info))))
 			   (new-chain-id (residue-spec->chain-id new-res-spec)))
-		      (format #t "debug:: new-res-spec: ~s~%" new-res-spec)
-		      (format #t "debug:: change-residue-number to ~s~%" resno)
+		      (format #t "debug:: ------ new-res-spec: ~s~%" new-res-spec)
+		      (format #t "debug:: ------ change-residue-number to ~s~%" resno)
 		      (change-residue-number imol
 					     (residue-spec->chain-id new-res-spec)
 					     (residue-spec->res-no   new-res-spec)
 					     (residue-spec->ins-code new-res-spec)
 					     resno "")
+		      
+		      (format #t "debug:: ------ chain ids : ~s ~s~%" new-chain-id chain-id-in)
 		      (if (not (string=? new-chain-id chain-id-in))
-			  (change-chain-id imol new-chain-id chain-id-in 1 resno resno))
+			  (change-chain-id imol new-chain-id chain-id-in 0 resno resno))
 
 		      (let ((replacement-state (refinement-immediate-replacement-state))
 			    (imol-map (imol-refinement-map)))
@@ -2479,11 +2529,11 @@
 					      ((string=? tlc "TPO") (list " CB " " OG1"))
 					      (else 
 					       #f))))
-			      (refine-zone imol chain-id-in resno resno "")
+			      ;; (refine-zone imol chain-id-in resno resno "")
 			      (if dir-atoms
 				  (spin-search imol-map imol chain-id-in resno "" 
 					       dir-atoms spin-atoms))
-			      (refine-zone imol chain-id-in resno resno "")
+			      ;; (refine-zone imol chain-id-in resno resno "")
 			      ))
 			(accept-regularizement)
 			(set-refinement-immediate-replacement replacement-state))
