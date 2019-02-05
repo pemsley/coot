@@ -1,6 +1,14 @@
 
    For Release 0.8.9.2
 
+   o Andreas K:
+
+   > Coot now adds new ligands to the chain of the corresponding protein. Refmac5 (5.8.0238) then adds two TER
+   > records to that chain, one after the protein and one after the ligand. When now adding a C-terminal residue
+   > in Coot, it will not remove the original TER record after the protein
+
+* Can't reproduce.
+
    o something for the trip: The acedrg link dialog needs to be able to delete a bond
      and change a bond order
      Needs to be done in python too
@@ -10,9 +18,13 @@
    o Phosphorylate this residue on a SER. New dictionary problems? Problem is in refinement part. OXT?
      What happens if there is no map? We should get a regularized model.
 
+* Done.
+
    o Add residue type to the validation outlier ramachandran outlier button
      (should the rama plot and the rama outlier have the same criterion?)
      Needs to be done in python too
+
+* Done - needs python update.
 
    o fix the colours of (say) 5vic in Calpha Backbone mode
 
@@ -35,13 +47,9 @@
      Add it to the test (do I have a test already?)
      Check that the returned value corresponds to the new ligand: L 1
 
+* Done.
+
    o Try rotate/translate on a chain by picking C4',B in B 2 of 2H0N
-
-   o Andreas K:
-
-   > Coot now adds new ligands to the chain of the corresponding protein. Refmac5 (5.8.0238) then adds two TER
-   > records to that chain, one after the protein and one after the ligand. When now adding a C-terminal residue
-   > in Coot, it will not remove the original TER record after the protein
 
    o update the copyright in the about dialog?
 
