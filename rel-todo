@@ -5,6 +5,8 @@
      and change a bond order
      Needs to be done in python too
 
+* Done for the moment, needs Bernie to do python version.
+
    o Phosphorylate this residue on a SER. New dictionary problems? Problem is in refinement part. OXT?
      What happens if there is no map? We should get a regularized model.
 
@@ -31,6 +33,7 @@
 
    o check for double ligands and/or nan atoms when using set_merge_molecules_ligand_spec().
      Add it to the test (do I have a test already?)
+     Check that the returned value corresponds to the new ligand: L 1
 
    o Try rotate/translate on a chain by picking C4',B in B 2 of 2H0N
 
