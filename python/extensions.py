@@ -1661,7 +1661,7 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(
          submenu_modules, "Carbohydrate",
-         lambda func: add_module_carbohydrate())
+         lambda func: add_module_carbohydrate_gui())
      
      add_simple_coot_menu_menuitem(
          submenu_modules, "Cryo-EM",

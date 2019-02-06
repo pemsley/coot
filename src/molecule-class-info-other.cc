@@ -5301,18 +5301,33 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 	       multi_residue_add_flag = ! done_homogeneous_addition_flag;
 
 	    if (! done_homogeneous_addition_flag) {
-	       done_merge_ligand_to_near_chain = merge_ligand_to_near_chain(adding_mol);
+
+	       if (! done_add_specific)
+		  done_merge_ligand_to_near_chain = merge_ligand_to_near_chain(adding_mol);
 
 	       if (done_merge_ligand_to_near_chain.first) {
-		  merge_molecule_results_info_t mmr;
-		  mmr.is_chain = false;
-		  mmr.spec = done_merge_ligand_to_near_chain.second;
-		  resulting_merge_info.push_back(mmr);
-		  istat = 1;
+		     merge_molecule_results_info_t mmr;
+		     mmr.is_chain = false;
+		     mmr.spec = done_merge_ligand_to_near_chain.second;
+		     resulting_merge_info.push_back(mmr);
+		     istat = 1;
+	       } else {
+
+		  if (done_add_specific) {
+		     // JED ligand addition
+		     merge_molecule_results_info_t mmr;
+		     mmr.is_chain = false;
+		     mmr.spec = spec;
+		     // std::cout << "---- JED case pushing back mmr " << mmr.spec << std::endl;
+		     resulting_merge_info.push_back(mmr);
+		     istat = 1;
+		  }
 	       }
 
 	       // set multi_residue_add_flag if that was not a successful merge
-	       multi_residue_add_flag = ! done_merge_ligand_to_near_chain.first;
+	       if (! done_add_specific)
+		  multi_residue_add_flag = ! done_merge_ligand_to_near_chain.first;
+
 	    }
 	 }
 
@@ -5336,7 +5351,7 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 		  update_symmetry();
 	       multi_residue_add_flag = false; // we've added everything for this mol.
                istat = add_state.first;
-	    }            
+	    }
 	 }
 
 	 // this should happen rarely these days...
@@ -5398,6 +5413,9 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 	 }
       }
    }
+
+   std::cout << "------- resulting_merge_info has size " << resulting_merge_info.size() << std::endl;
+   std::cout << "-------- resulting_merge_info[0] " << resulting_merge_info[0].spec << std::endl;
    return std::pair<int, std::vector<merge_molecule_results_info_t> > (istat, resulting_merge_info);
 }
 

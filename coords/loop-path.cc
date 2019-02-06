@@ -115,7 +115,8 @@ coot::is_sane_inter_residue_distance(double dist_between_residues, int res_no_de
    // return false if the residue number difference is too small for the
    // position difference of the loop residues
 
-   double dist_crit = std::abs(res_no_delta) * 3.7;
+   // old compiler
+   double dist_crit = static_cast<double>(std::abs(static_cast<double>(res_no_delta))) * 3.7;
 
    if (dist_between_residues > dist_crit)
       status = false;
