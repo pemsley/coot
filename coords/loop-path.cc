@@ -120,9 +120,10 @@ coot::is_sane_inter_residue_distance(double dist_between_residues, int res_no_de
    if (dist_between_residues > dist_crit)
       status = false;
 
-   std::cout << "debug:: is_sane_inter_residue_distance() returns " << status
-	     << " based on " << res_no_delta << " -> " << dist_crit << " vs "
-	     << dist_between_residues << std::endl;
+   if (false)
+      std::cout << "debug:: is_sane_inter_residue_distance() returns " << status
+		<< " based on " << res_no_delta << " -> " << dist_crit << " vs "
+		<< dist_between_residues << std::endl;
 
    return status;
 }

@@ -2067,7 +2067,9 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
 		  }
 	       }
 	       if (show_cis_peptide_markups)
-		  cis_peptide_markups();
+		  draw_cis_peptide_markups();
+
+	       draw_bad_CA_CA_dist_spots();
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
 #ifdef HAVE_CXX11
@@ -2125,7 +2127,7 @@ molecule_class_info_t::deuterium_spots() const {
 }
 
 void
-molecule_class_info_t::cis_peptide_markups() const {
+molecule_class_info_t::draw_cis_peptide_markups() const {
 
    const std::pair<bool, float> &use_radius_limit = graphics_info_t::model_display_radius;
    if (bonds_box.n_cis_peptide_markups > 0) {
@@ -2175,6 +2177,23 @@ molecule_class_info_t::cis_peptide_markups() const {
    }
 }
 
+void
+molecule_class_info_t::draw_bad_CA_CA_dist_spots() const {
+
+   if (bonds_box.n_bad_CA_CA_dist_spots > 0) {
+
+      glColor3f(0.9, 0.6, 0.3);
+      const float &z = graphics_info_t::zoom;
+      glPointSize(200.0 / z);
+      glBegin(GL_POINTS);
+      for (int i=0; i<bonds_box.n_bad_CA_CA_dist_spots; i++) {
+        glVertex3f(bonds_box.bad_CA_CA_dist_spots_ptr[i].x(),
+                   bonds_box.bad_CA_CA_dist_spots_ptr[i].y(),
+                   bonds_box.bad_CA_CA_dist_spots_ptr[i].z());
+      }
+      glEnd();
+   }
+}
 
 void
 molecule_class_info_t::draw_fixed_atom_positions() const {
