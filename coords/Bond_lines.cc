@@ -3416,6 +3416,7 @@ Bond_lines_container::make_graphical_bonds_with_thinning_flag(bool do_thinning_f
 
    box.add_atom_centres(atom_centres, atom_centres_colour);
    box.rings = rings;
+   box.add_bad_CA_CA_dist_spots(bad_CA_CA_dist_spots);
    box.add_cis_peptide_markup(cis_peptide_quads);
    return box;
 }
@@ -3919,23 +3920,34 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 	       }
 
 	       if (loop_is_possible) {
+
 		  if (at_pp_1 && at_pp_2 && at_pp_3 && at_pp_4) {
 		     coot::Cartesian pp_2(at_pp_2->x, at_pp_2->y, at_pp_2->z);
 		     coot::Cartesian pp_3(at_pp_3->x, at_pp_3->y, at_pp_3->z);
 		     float a = (pp_3-pp_2).amplitude();
 		     int n_line_segments = static_cast<int>(a*1.2);
-		     std::vector<coot::CartesianPair> lp =
+		     std::pair<bool, std::vector<coot::CartesianPair> > lp =
 			coot::loop_path(at_pp_1, at_pp_2, at_pp_3, at_pp_4, n_line_segments);
-		     for (unsigned int jj =0; jj<lp.size(); jj++) {
-			coot::CartesianPair cp = lp[jj];
+		     for (unsigned int jj=0; jj<lp.second.size(); jj++) {
+			const coot::CartesianPair &cp = lp.second[jj];
 			int col = HYDROGEN_GREY_BOND; // just grey, really.
 			graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 			int iat_1 = -1;
 			int iat_2 = -1;
-			at_pp_2->GetUDData(udd_atom_index_handle, iat_1);
-			at_pp_3->GetUDData(udd_atom_index_handle, iat_2);
 			addBond(col, cp.getStart(), cp.getFinish(), cc, imod, iat_1, iat_2);
 		     }
+
+		     if (lp.first) {
+			// Add the balls of CA-CA badness
+			for (unsigned int jj=0; jj<lp.second.size(); jj++) {
+			   const coot::CartesianPair &cp = lp.second[jj];
+			   int col = HYDROGEN_GREY_BOND;
+			   int iat = -1;
+			   bad_CA_CA_dist_spots.push_back(cp.getStart());
+			   bad_CA_CA_dist_spots.push_back(cp.getFinish());
+			}
+		     }
+
 		  } else {
 		     if (false)
 			std::cout << "DEBUG:: CA loops: oops! "
@@ -5805,9 +5817,18 @@ Bond_lines_container::add_cis_peptide_markup(const atom_selection_container_t &S
    cis_peptide_quads = coot::util::cis_peptide_quads_from_coords(SelAtom.mol, model_number);
 }
 
+void
+graphical_bonds_container::add_bad_CA_CA_dist_spots(const std::vector<coot::Cartesian> &bad_CA_CA_dist_spots_in) {
 
-
-
+   unsigned int s = bad_CA_CA_dist_spots_in.size();
+   if (s > 0) {
+      n_bad_CA_CA_dist_spots = s;
+      bad_CA_CA_dist_spots_ptr = new coot::Cartesian[s];
+      for (std::size_t i=0; i<s; i++) {
+        bad_CA_CA_dist_spots_ptr[i] = bad_CA_CA_dist_spots_in[i];
+      }
+   }
+}
 
 void
 graphical_bonds_container::add_zero_occ_spots(const std::vector<coot::Cartesian> &spots) { 

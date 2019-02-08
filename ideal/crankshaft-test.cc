@@ -109,7 +109,7 @@ get_input_details(int argc, char **argv) {
    };
 
    while (-1 !=
-	  (ch = getopt_long(argc, argv, optstr, long_options, &option_index))) {
+	  (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index))) {
 
       switch (ch) {
       case 0:
@@ -195,7 +195,7 @@ refine_and_score_mol(mmdb::Manager *mol,
 	 residue_specs_vec[ir] = coot::residue_spec_t(residues[ir].second);
 
       auto tp_0 = std::chrono::high_resolution_clock::now();
-      coot::restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs, xmap);
+      coot::restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs, &xmap);
       restraints.add_map(map_weight);
       restraints.set_rama_type(restraints_rama_type);
       restraints.set_rama_plot_weight(1);
@@ -205,7 +205,7 @@ refine_and_score_mol(mmdb::Manager *mol,
       if (! output_pdb_file_name.empty())
 	 restraints.write_new_atoms(output_pdb_file_name);
 
-      coot::geometry_distortion_info_container_t gdic = restraints.geometric_distortions(flags);
+      coot::geometry_distortion_info_container_t gdic = restraints.geometric_distortions();
       for (std::size_t id=0; id<gdic.geometry_distortion.size(); id++) {
 	 // std::cout << "   " << gdic.geometry_distortion[id] << std::endl;
       }

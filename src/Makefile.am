@@ -140,6 +140,9 @@ coot_wrap_guile.cc: coot_wrap_guile_pre.cc
 
 # python
 
+# you can't use PYTHON_CFLAGS for swig because that introduces
+# -iwithsysroot dir - and swig barfs on that.
+# so make a variable that gives us python flags without -iwithsysroot
 coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
 			 $(top_srcdir)/src/cc-interface.hh    \
 	                 $(top_srcdir)/src/coot.i             \
@@ -152,7 +155,7 @@ coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
                          $(top_srcdir)/src/curlew.hh \
 	                 $(top_srcdir)/src/validation.hh \
                          $(top_srcdir)/src/c-interface-mogul.hh
-	swig -o $@  $(CPPFLAGS) $(MOLTRIANGLES_CPPFLAGS) -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -c++ $(top_srcdir)/src/coot.i
+	swig -o $@  $(CPPFLAGS) $(MOLTRIANGLES_CPPFLAGS) -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CPPFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -c++ $(top_srcdir)/src/coot.i
 
 coot_wrap_python.cc: coot_wrap_python_pre.cc
 	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk2 $^ $@

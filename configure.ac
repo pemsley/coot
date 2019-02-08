@@ -115,7 +115,14 @@ if test "$have_windows_mingw" = yes; then
   AC_CONFIG_FILES(pyrogen/pyrogen.bat)
 fi
 
-AM_PATH_LIBPNG
+# This seems not to be returning the correct value
+# AM_PATH_LIBPNG
+# so try this:
+PKG_CHECK_MODULES([LIBPNG], [libpng >= 1.6])
+
+# and while we are thinking about images, let's check for Cairo also
+PKG_CHECK_MODULES([CAIRO], [cairo >= 1.14])
+
 
 AM_PATH_SQLITE3
 
@@ -188,6 +195,7 @@ AC_SUBST(COOT_GSL_FLAGS)
 dnl =========================== GTK, GNOMECANVAS ===========================
 
 coot_gtk2=TRUE
+
 
 # AM_PATH_GTK(2.4.14)
 PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.12)

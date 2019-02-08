@@ -107,6 +107,7 @@
 								      "acedrg-link.scm"
 								      "interactive-nudge-residues.scm"
 								      "gui-ligand-sliders.scm"
+								      "find-baddies.scm"
 								      )))
 	      (else 
 	       (append pre-list post-list)))))

@@ -199,7 +199,13 @@ coot::b_factor_histogram::ig(const double &x) const {
 double
 coot::b_factor_histogram::Gamma(const double &b) const {
 
+#ifdef HAVE_CXX11
    return std::tgamma(b);
+#else
+   std::cout << "ERROR:: Missing CXX11" << std::endl;
+   return 1.0;
+#endif
+
 }
 
 void

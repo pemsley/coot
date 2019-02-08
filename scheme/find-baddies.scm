@@ -205,7 +205,7 @@
 				   (let ((spec (car baddie))
 					 (alt-conf-map (cadr baddie))
 					 (score (cadr (car (cadr baddie))))) ;; only the first score (lazy?)
-				     (> score 0.3)))) ;; pretty close
+				     (> score 0.25)))) ;; pretty close
 	       (c-beta-baddies (filter c-beta-filter-fn fcbb))
 	       (sorted-filtered-c-beta-baddies (reverse (sort c-beta-baddies
 							      (lambda(ele-1 ele-2)
@@ -257,6 +257,8 @@
 							     (number->string (residue-spec->res-no spec))
 							     (residue-spec->ins-code spec)
 							     " "
+							     (residue-spec->residue-name imol spec)
+							     " "
 							     score-string))
 					      (fn (lambda()
 						    (set-go-to-atom-molecule imol)
@@ -273,6 +275,8 @@
 						   "C-beta deviant "
 						   (residue-spec->string spec)
 						   "  "
+						   (residue-spec->residue-name imol spec)
+						   " "
 						   score-string "Å"))
 						 (fn (lambda()
 						       (set-go-to-atom-molecule imol)
@@ -396,11 +400,6 @@
 
     (let* ((buttons (make-buttons)))
 
-      ;; It would be nice to regenerate this box of buttons (it's fast to do so)
-      ;; but that would mean changing it to a "dynamic" dialog
-      ;; (update-dialog-with-new-buttons dialog new-buttons)
-      ;; So, OK, let's do that...
-      ;;
       (let ((p (dialog-box-of-buttons (make-window-title (length buttons)) (cons 350 400) buttons " Close ")))
       (set! dialog-vbox (car p))
       (set! window (cadr p))

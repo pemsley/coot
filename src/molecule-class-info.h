@@ -986,7 +986,8 @@ public:        //                      public
    void zero_occupancy_spots() const;
    void deuterium_spots() const;
    void set_occupancy_residue_range(const std::string &chain_id, int ires1, int ires2, float occ_val);
-   void cis_peptide_markups() const;
+   void draw_cis_peptide_markups() const;
+   void draw_bad_CA_CA_dist_spots() const;
    
 
    void set_b_factor_residue_range(const std::string &chain_id, int ires1, int ires2, float b_val);
