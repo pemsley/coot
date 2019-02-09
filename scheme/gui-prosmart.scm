@@ -38,7 +38,7 @@
       (goosh-command "prosmart"
 		     (let ((l (list "-p1" target-pdb-file-name
 				    "-p2" reference-pdb-file-name
-				    "-restrain_seqid" "30" "--rmax" (number->string prosmart-rmax))))
+				    "-restrain_seqid" "30" "-rmax" (number->string prosmart-rmax))))
 		       (if include-side-chains?
 			   (append l (list "-side"))
 			   l))
