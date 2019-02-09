@@ -1,6 +1,14 @@
 
    For Release 0.8.9.2
 
+   o fix clipper configure fftw2 - Don't use the system version.
+
+   o Can you do "x" refine on a residue with a insertion code, ee.g. H 35A in 5aco.  Triple Refine this too.
+
+   o glyco tree refine A 1334 in 5aco.
+
+   o fix the colours of (say) 5vic in Calpha Backbone mode
+
    o Andreas K:
 
    > Coot now adds new ligands to the chain of the corresponding protein. Refmac5 (5.8.0238) then adds two TER
@@ -25,8 +33,6 @@
      Needs to be done in python too
 
 * Done - needs python update.
-
-   o fix the colours of (say) 5vic in Calpha Backbone mode
 
    o loops: when the gap between residue number is small but the gap is large, we
      need to be able to represent that differently. With big red discs - or something.
@@ -508,6 +514,6 @@ Punt.
 
 * Punt.
 
-   o does normal/old/standard cis-trans update the bonds?
+   o does normal/old/standard coot cis-trans update the bonds?
 
 * Yes
