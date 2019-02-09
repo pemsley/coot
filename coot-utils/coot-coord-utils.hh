@@ -1073,7 +1073,9 @@ namespace coot {
 
       // adjust the atoms of residue_p
       void delete_alt_confs_except(mmdb::Residue *residue_p, const std::string &alt_conf);
-      
+
+      // helper function for below create_mmdbmanager function
+      void transfer_links(mmdb::Manager *mol_old, mmdb::Manager *mol_new);
 
       // The flanking residues (if any) are in the residue selection (SelResidues).
       // The flags are not needed now we have made adjustments in the calling
