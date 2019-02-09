@@ -4060,9 +4060,64 @@ coot::util::create_mmdbmanager_from_atom_selection_straight(mmdb::Manager *orig_
    if (sg) { 
      atoms_mol->SetSpaceGroup(sg);
    }
+
+   transfer_links(orig_mol ,atoms_mol);
    atoms_mol->FinishStructEdit();
    return atoms_mol;
 }
+
+// transfer links from mol_orig to mol_new
+void
+coot::util::transfer_links(mmdb::Manager *mol_orig, mmdb::Manager *mol_new) {
+
+   // c.f. create_mmdbmanager_from_residue_vector
+
+   if (! mol_orig) return;
+   if (! mol_new) return;
+
+   int n_models = mol_orig->GetNumberOfModels();
+   for (int imod=1; imod <= n_models; imod++) {
+      mmdb::Model *model_p = mol_orig->GetModel(imod);
+      if (model_p) {
+	 mmdb::Model *new_model_p = mol_new->GetModel(imod);
+	 if (new_model_p) {
+	    int n_links = model_p->GetNumberOfLinks();
+	    for (int i=1; i<=n_links; i++) {
+	       mmdb::Link *ref_link = model_p->GetLink(i);
+	       if (ref_link) {
+		  // If there is an atom in new_mol that corresponds to this link,
+		  // then copy the link and add it to new_mol
+		  std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(ref_link, model_p);
+		  // are those atoms in (new) mol?
+		  mmdb::Atom *at_1 = get_atom(linked_atoms.first,  mol_new);
+		  mmdb::Atom *at_2 = get_atom(linked_atoms.second, mol_new);
+		  if (at_1 && at_2) {
+		     // add this link to mol
+		     mmdb::Link *link = new mmdb::Link; // sym ids default to 1555 1555
+
+		     strncpy(link->atName1,  at_1->GetAtomName(), 19);
+		     strncpy(link->aloc1,    at_1->altLoc, 9);
+		     strncpy(link->resName1, at_1->GetResName(), 19);
+		     strncpy(link->chainID1, at_1->GetChainID(), 9);
+		     strncpy(link->insCode1, at_1->GetInsCode(), 9);
+		     link->seqNum1         = at_1->GetSeqNum();
+
+		     strncpy(link->atName2,  at_2->GetAtomName(), 19);
+		     strncpy(link->aloc2,    at_2->altLoc, 9);
+		     strncpy(link->resName2, at_2->GetResName(), 19);
+		     strncpy(link->chainID2, at_2->GetChainID(), 9);
+		     strncpy(link->insCode2, at_2->GetInsCode(), 9);
+		     link->seqNum2         = at_2->GetSeqNum();
+
+		     new_model_p->AddLink(link);
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+}
+
 
 // Beware This destroys (inverts) the atom selection as passed.
 mmdb::Manager *
