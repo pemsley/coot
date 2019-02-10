@@ -1243,6 +1243,47 @@ void set_residue_name(int imol, const char *chain_id, int res_no, const char *in
    }
 } 
 
+#ifdef USE_GUILE
+SCM all_residues_with_serial_numbers_scm(int imol) {
+
+   SCM r = SCM_BOOL_F;
+
+   if (is_valid_model_molecule(imol)) {
+      std::vector<coot::residue_spec_t> specs = graphics_info_t::molecules[imol].all_residues();
+      r = SCM_EOL;
+      for (std::size_t i=0; i<specs.size(); i++) {
+	 SCM spec_scm = residue_spec_to_scm(specs[i]);
+	 int iserial = specs[i].int_user_data;
+	 spec_scm = scm_cons(SCM_MAKINUM(iserial), spec_scm);
+	 r = scm_cons(spec_scm, r);
+      }
+      r = scm_reverse(r);
+   }
+   return r;
+}
+#endif
+
+
+#ifdef USE_PYTHON
+PyObject *all_residues_with_serial_numbers_py(int imol) {
+
+   PyObject *r = Py_False;
+
+   if (is_valid_model_molecule(imol)) {
+      std::vector<coot::residue_spec_t> specs = graphics_info_t::molecules[imol].all_residues();
+      r = PyList_New(specs.size());
+      for (std::size_t i=0; i<specs.size(); i++) {
+	 PyObject *spec_py = residue_spec_to_py(specs[i]);
+	 int iserial = specs[i].int_user_data;
+	 PyList_Insert(spec_py, 0, PyInt_FromLong(iserial));
+	 PyList_SetItem(r, i, spec_py);
+      }
+   }
+   if (PyBool_Check(r))
+     Py_INCREF(r);
+   return r;
+}
+#endif
 
 void
 regularize_residues(int imol, const std::vector<coot::residue_spec_t> &residue_specs) {

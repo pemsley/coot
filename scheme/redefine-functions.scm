@@ -121,6 +121,7 @@
 (define molecule-atom-overlaps molecule-atom-overlaps-scm)
 (define set-go-to-atom-from-atom-spec set-go-to-atom-from-atom-spec-scm)
 (define chiral-volume-errors chiral-volume-errors-scm)
+(define all-residues-with-serial-numbers all-residues-with-serial-numbers-scm)
 
 ;; (define residues-distortions residues-distortions-scm)
 

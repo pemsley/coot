@@ -3028,6 +3028,8 @@ public:        //                      public
    
    std::vector<coot::residue_spec_t> get_residues_by_type(const std::string &residue_type) const;
 
+   std::vector<coot::residue_spec_t> all_residues() const;
+
    std::vector<coot::residue_spec_t> het_groups() const;
 
    // return null on failure.  seq_trip is something like "ACE".

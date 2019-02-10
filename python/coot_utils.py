@@ -1966,10 +1966,12 @@ def residues_matching_criteria(imol, residue_test_func):
     else:
         return False
 
+# Now this is in the API
+#
 # Return residue specs for all residues in imol (each spec is preceeded by True)
 #
-def all_residues(imol):
-    return residues_matching_criteria(imol, lambda chain_id, resno, ins_code, serial: True)
+#def all_residues(imol):
+#    return residues_matching_criteria(imol, lambda chain_id, resno, ins_code, serial: True)
 
 # Return a list of all residues that have alt confs: where a residue
 # is specified thusly: [[chain_id, resno, ins_code], [...] ]

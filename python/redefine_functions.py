@@ -158,6 +158,7 @@ get_residue_by_type    = get_residue_by_type_py
 atom_info_string       = atom_info_string_py
 residue_info           = residue_info_py
 residue_name           = residue_name_py
+all_residues_with_serial_numbers = all_residues_with_serial_numbers_py
 residue_centre_from_spec = residue_centre_from_spec_py
 chain_fragments        = chain_fragments_py
 set_b_factor_residues  = set_b_factor_residues_py
