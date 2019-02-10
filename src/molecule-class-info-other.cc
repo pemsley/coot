@@ -7613,7 +7613,7 @@ molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
 	    }
 
 	    if (! done_merge) {
-	       std::cout << "WARNING:: CONFLICT: target chain id already exists "
+	       std::cout << "WARNING:: CONFLICT: target chain id " << to_chain_id << " already exists "
 			 << "in this molecule" << std::endl;
 	       message = "WARNING:: CONFLICT: target chain id (";
 	       message += to_chain_id;
