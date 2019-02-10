@@ -578,6 +578,12 @@
     (= result 1)))
 
 
+(define (delete-residue-by-spec imol spec)
+  (delete-residue imol
+		  (residue-spec->chain-id spec)
+		  (residue-spec->res-no   spec)
+		  (residue-spec->ins-code spec)))
+
 ;;; No! don't define this.  It is misleading.  It can return 0, which
 ;;; is true!  use instead valid-model-molecule?
 ;;; 
@@ -2133,44 +2139,29 @@
 ;; start, ie. (list return-value chain-id res-no ins-code)
 ;; 
 (define (residues-matching-criteria imol residue-test-func)
-  
-  (reverse 
-   (let f ((chain-list (chain-ids imol))
-	   (seq-residue-list #f)
-	   (alt-conf-residue-list '()))
 
-     ;; "double-shuffle" for starting a new chain...
-     (cond
-      ((null? chain-list) alt-conf-residue-list)
-      ((null? seq-residue-list) (f (cdr chain-list)
-				   #f
-				   alt-conf-residue-list))
-      ((eq? #f seq-residue-list) (f chain-list
-				    (number-list 0 (- (chain-n-residues 
-						       (car chain-list) imol) 1))
-				    alt-conf-residue-list))
-      (else 
-       (let* ((chain-id (car chain-list))
-	      (serial-number (car seq-residue-list))
-	      (res-no (seqnum-from-serial-number imol chain-id (car seq-residue-list)))
-	      (ins-code (insertion-code-from-serial-number imol chain-id serial-number)))
+  ;; these specs are prefixed by the serial number
+  (let loop ((molecule-residue-specs (all-residues-with-serial-numbers imol))
+	     (matchers '()))
 
-	 (let ((r (residue-test-func chain-id
-				     res-no
-				     ins-code
-				     serial-number)))
-	   (cond
-	    ((eq? r #f) (f chain-list (cdr seq-residue-list) alt-conf-residue-list))
-	    (else
-	     (f chain-list
-		(cdr seq-residue-list)
-		(cons (list r chain-id res-no ins-code) 
-		      alt-conf-residue-list)))))))))))
+      (cond
+       ((null? molecule-residue-specs)
+	(reverse matchers))
+       (else
+	(let ((rs (cdr (car molecule-residue-specs))))
+	  (if (residue-test-func (residue-spec->chain-id rs)
+				 (residue-spec->res-no rs)
+				 (residue-spec->ins-code rs)
+				 (car (car molecule-residue-specs)))
+	      (loop (cdr molecule-residue-specs) (cons rs matchers))
+	      (loop (cdr molecule-residue-specs) matchers)))))))
 
+;; now this is in the API
+;;
 ;; Return residue specs for all residues in imol (each spec is preceeded by #t)
 ;; 
-(define (all-residues imol)
-  (residues-matching-criteria imol (lambda (chain-id resno ins-code serial) #t)))
+;; (define (all-residues imol)
+;;  (residues-matching-criteria imol (lambda (chain-id resno ins-code serial) #t)))
 
 (define (all-residues-sans-water imol)
   (residues-matching-criteria imol (lambda (chain-id res-no ins-code serial)
