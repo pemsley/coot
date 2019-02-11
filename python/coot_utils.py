@@ -1973,6 +1973,13 @@ def residues_matching_criteria(imol, residue_test_func):
 #def all_residues(imol):
 #    return residues_matching_criteria(imol, lambda chain_id, resno, ins_code, serial: True)
 
+def all_residues(imol):
+    r = all_residues_with_serial_numbers(imol)
+    try:
+        return [e[1:] for e in r]
+    except TypeError as e:
+        return r
+
 # Return a list of all residues that have alt confs: where a residue
 # is specified thusly: [[chain_id, resno, ins_code], [...] ]
 # 
