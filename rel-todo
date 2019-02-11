@@ -9,6 +9,10 @@
 
    o fix the colours of (say) 5vic in Calpha Backbone mode
 
+   o Fetch molecule favipiravir doesn't work
+
+   o Copy Fragment (new_molecule_by_atom_selection()) should copy links too.
+
    o Andreas K:
 
    > Coot now adds new ligands to the chain of the corresponding protein. Refmac5 (5.8.0238) then adds two TER

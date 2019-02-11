@@ -454,11 +454,10 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
 	 if (occupancy > 1.0) occupancy = 1.0;
 	 if (cryo_em_mode) {
 	    // is-side-chain? would be a better test
-	    if (! is_main_chain_or_cb_p(atom[i]))
-	       {
+	    if (! is_main_chain_or_cb_p(at)) {
 		  // std::cout << "downweighting atom " << coot::atom_spec_t(atom[i]) << std::endl;
 		  weight = 0.2;
-	       }
+	    }
 	    std::string at_name = atom[i]->name;
 	    if (at_name == " O  ") {
 	       weight = 0.4;

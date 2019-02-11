@@ -2162,6 +2162,12 @@
 ;; 
 ;; (define (all-residues imol)
 ;;  (residues-matching-criteria imol (lambda (chain-id resno ins-code serial) #t)))
+;;
+(define (all-residues imol)
+  (let ((l (all-residues-with-serial-numbers imol)))
+    (if (not (list? l))
+	l
+	(map cdr l))))
 
 (define (all-residues-sans-water imol)
   (residues-matching-criteria imol (lambda (chain-id res-no ins-code serial)
