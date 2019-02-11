@@ -8653,3 +8653,16 @@ Software Violations in Binary Code
 https://nixos.org/~eelco/pubs/clones-msr2011-final.pdf
 
 
+----
+Tue  5 Feb 2019 11:44:27 PST
+
+  gettext problems in cj build gtkglext (glib)
+
+  configuration of glib failed because it couldn't find gettext (perhaps msgfmt, actually)
+  That was because cj build didn't install the msgfmt file.
+
+  The solution was to put the directory for msgfmt in the path before running cj (and that
+  directory was provided by homebrew).
+
+  A better solution is for cj to install msgfmt and put the directory into which it installs
+  it into the path itself.

@@ -1,6 +1,10 @@
 
    For Release 0.8.9.2
 
+   o Fetch molecule favipiravir doesn't work
+
+   o Copy Fragment (new_molecule_by_atom_selection()) should copy links too.
+
    o Andreas K:
 
    > Coot now adds new ligands to the chain of the corresponding protein. Refmac5 (5.8.0238) then adds two TER
