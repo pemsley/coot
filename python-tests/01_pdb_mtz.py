@@ -289,7 +289,19 @@ class PdbMtzTestFunctions(unittest.TestCase):
         imol = read_pdb(rnase_pdb())
         db_mainchain(imol, "A", 10, 20, "forward")
         # didn't hang
-        
+
+
+    def test09_2(self):
+        """"Negative Residues in db-mainchain don't cause a crash"""
+
+        # Oliver Clarke spotted this bug
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+        self.failUnless(valid_model_molecule_qm(imol))
+        renumber_residue_range(imol, "A", 1, 50, -20)
+        imol_mc_1 = db_mainchain(imol, "A", -19, 6, "forwards")
+        imol_mc_2 = db_mainchain(imol, "B", 10, 30, "backwards")
+        # didnt crash...
 
     def test10_0(self):
         """Set Atom Atribute Test"""
@@ -822,7 +834,23 @@ class PdbMtzTestFunctions(unittest.TestCase):
         close_molecule(imol_2)
         print "dd:", dd
         self.failUnless(dd> 1.4)
-        
+
+
+    def test18_2(self):
+        """HA on a ALA exists after mutation to GLY"""
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+        self.failUnless(valid_model_molecule_qm(imol))
+        imol_2 = new_molecule_by_atom_selection(imol, "//A/5-11")
+        self.failUnless(valid_model_molecule_qm(imol_2))
+        coot_reduce(imol_2)
+        H_atom_o = get_atom(imol_2, "A", 10, "", " HA ", "")
+        self.failUnless(isinstance(H_atom_o, list))
+        mutate(imol_2, "A", 10, "", "GLY")
+        H_atom_n = get_atom(imol_2, "A", 10, "", " HA ", "")
+        self.failIf(isinstance(H_atom_n, list),
+                    "atom still exists %s" %H_atom_n)
+
 
     def test19_0(self):
         """Refine Zone with Alt conf"""

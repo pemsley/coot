@@ -436,6 +436,7 @@ def add_linked_residue_tree(imol, parent, tree):
     set_matrix(wm / 4.)
     set_residue_selection_flash_frames_number(1)
     set_go_to_atom_molecule(imol)
+    set_go_to_atom_from_res_spec(parent)
     previous_m = default_new_atoms_b_factor()
     m = median_temperature_factor(imol)
     try:

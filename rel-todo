@@ -13,6 +13,8 @@
 
    o Copy Fragment (new_molecule_by_atom_selection()) should copy links too.
 
+* Done.
+
    o Andreas K:
 
    > Coot now adds new ligands to the chain of the corresponding protein. Refmac5 (5.8.0238) then adds two TER

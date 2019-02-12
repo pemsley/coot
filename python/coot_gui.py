@@ -2077,6 +2077,8 @@ def add_view_to_views_panel(view_name, view_number):
       views_dialog_vbox.pack_start(button, False, False, 2)
       button.show()
 
+# return a list of [h_box_buttons, window]
+#
 # a button is a list of [label, callback, text_description]
 #
 def dialog_box_of_buttons(window_name, geometry, buttons,
@@ -2087,7 +2089,7 @@ def dialog_box_of_buttons(window_name, geometry, buttons,
 
 # geometry is an improper list of ints
 #
-# return the h_box of the buttons
+# return a list of [h_box_buttons, window]
 #
 # a button is a list of [label, callback, (optional: text_description)]
 # where callback is a string or list of strings to be evaluated
@@ -2159,7 +2161,7 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
    ok_button.connect("clicked", close_cb_func, window, post_close_hook)
 	
    window.show_all()
-   return inside_vbox
+   return [inside_vbox, window]
 
 # This is exported outside of the box-of-buttons gui because the
 # clear_and_add_back function (e.g. from using the check button)
@@ -2191,10 +2193,20 @@ def add_button_info_to_box_of_buttons_vbox(button_info, vbox):
             eval(call)
          button.connect("clicked", callback_func, callback)
       elif (type(callback) is ListType):
-         def callback_func(button, call):
-            for item in call:
-               eval(item)
-         button.connect("clicked", callback_func, callback)                   
+         # list can be list of strings or list of functions
+         # with args
+         #
+         if (isinstance(callback[0], str)):
+            # we have strings to evaluate
+            def callback_func(button, call):
+               for item in call:
+                  eval(item)
+            button.connect("clicked", callback_func, callback)
+         else:
+            def callback_func(button, call):
+               for item in call:
+                  item[0](*item[1:])
+            button.connect("clicked", callback_func, callback)
       else:
          button.connect("clicked", callback)
 
@@ -4641,22 +4653,22 @@ def solvent_ligands_gui():
    outside_vbox = gtk.VBox(False, 2)
    inside_vbox  = gtk.VBox(False, 2)
    label = gtk.Label("\nSolvent molecules added to molecule: ")
-   frame_for_option_menu = gtk.Frame()
-   vbox_for_option_menu = gtk.VBox(False, 2)
+   frame_for_option_menu = gtk.Frame(" Choose Molecule ")
+   vbox_for_option_menu = gtk.VBox(False, 6)
    molecule_option_menu = gtk.combo_box_new_text()
    model_list = fill_option_menu_with_coordinates_mol_options(molecule_option_menu)
    add_new_button = gtk.Button("  Add a new Residue Type...")
    h_sep = gtk.HSeparator()
    close_button = gtk.Button("  Close  ")
 
-   window.set_default_size(250, 400)
+   window.set_default_size(250, 500)
    window.set_title("Solvent Ligands")
    window.set_border_width(8)
    window.add(outside_vbox)
    outside_vbox.pack_start(label, False, False, 2)
    frame_for_option_menu.add(vbox_for_option_menu)
-   vbox_for_option_menu.pack_start(molecule_option_menu, False, False, 2)
-   frame_for_option_menu.set_border_width(4)
+   vbox_for_option_menu.pack_start(molecule_option_menu, False, False, 8)
+   frame_for_option_menu.set_border_width(6)
    outside_vbox.pack_start(frame_for_option_menu, False, False, 2)
    outside_vbox.pack_start(scrolled_win, True, True, 0)
    scrolled_win.add_with_viewport(inside_vbox)

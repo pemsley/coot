@@ -381,6 +381,32 @@ STABLE_DEST_DIR=${STABLE_DEST_DIR:=${HOME}/public_html/software/binaries/stable}
 #
 fallback_coot_version=coot-0.8
 
+# For windows shared and Ligand enhanced compilation
+#
+# set this to "yes", i.e. 1 if you want to compile ligand enhanced.
+#
+build_ligand_enhanced=${build_ligand_enhanced:=0}
+build_shared=${build_shared:=0}
+
+# LE needs shared, so set this too then
+if [ $build_ligand_enhanced = 1 ]  ; then
+    build_shared=1
+    build_boost=1
+    build_rdkit=1
+else
+    build_boost=0
+    build_rdkit=0
+fi
+
+if [ $build_shared = 1 ]  ; then
+    shared_static_flag="--enable-shared --disable-static"
+else
+    shared_static_flag="--disable-shared"
+fi
+
+# not shared yet
+shared_lib_ext=dll
+
 # ----------------------------------------------------------------
 #   End of tinkering with parameters.
 # ----------------------------------------------------------------
@@ -705,13 +731,7 @@ fi
 # now make the build logs directory
 mkdir -p $LOGS
 
-
-shared_static_flag="--disable-shared"
-shared_flag="--enable-shared --disable-static"
-# not shared yet
-shared_flag=
-shared_lib_ext=dll
-systype=unknown 
+systype=unknown
 
 # malloc.h business, Darwin does not have malloc.h
 # used in the gtk_canvas build
@@ -1180,7 +1200,7 @@ fi
 #pver=2.5.2
 # no 2.6.7 for windows yet, need 2.6 because of gtk 2.16, cos of gtkglext
 #pver=2.6.7
-pver=2.7.8
+pver=2.7.15
 pver_short=${pver%.*}
 # remove the "." to make more Windows compliant
 python_version=python${pver_short//./}
@@ -1673,7 +1693,10 @@ if test $? != 0 ; then
    build_pygtk=1
    build_pycairo=1
    build_pygobject=1
-else 
+   if [ $build_ligand_enhanced = 1 ] ; then
+       build_numpy=1
+   fi
+else
    python_version_installed=`python -V 2>&1`
    python_target_version="Python $pver"
 
@@ -1699,6 +1722,9 @@ else
          build_pygobject=1
          build_pycairo=1
          build_pygtk=1
+         if [ $build_ligand_enhanced = 1 ] ; then
+             build_numpy=1
+         fi
          ;;
    esac
 fi
@@ -1737,6 +1763,16 @@ if test -z "$build_pygtk" ; then
       echo pygtk keysyms NOT exists, pygtk should be built
       build_pygtk=1
    fi      
+fi
+
+# test for numpy
+if test -z "$build_numpy" ; then
+   if test -e $install_top_dir/$python_version/Lib/site-packages/numpy/version.py ; then
+      echo numpy version exists, not build numpy
+   else
+      echo numpy version NOT exists, numpy should be built
+      build_numpy=1
+   fi
 fi
 
 
@@ -1963,6 +1999,31 @@ else
     build_ccp4c=1
 fi
 
+# for boost and rdkit
+if [ $build_ligand_enhanced = 1 ]  ; then
+    if [ -z "$build_boost" ] ; then
+        if [ -e $install_top_dir/include/boost/version.hpp ] ; then
+          echo $install_top_dir/include/boost/version.hpp exists not building boost
+	      build_boost=
+        else
+            echo $install_top_dir/include/boost/version.hpp not exist, building boost
+  	        build_boost=1
+        fi
+    fi
+    if [ -z "$build_rdkit" ] ; then
+        if [ -e $install_top_dir/include/rdkit/RDGeneral/versions.h ] ; then
+          echo $install_top_dir/include/rdkit/RDGeneral/versions.h exists not building rdkit
+	      build_rdkit=
+        else
+            echo $install_top_dir/include/rdkit/RDGeneral/versions.h not exist, building rdkit
+  	        build_rdkit=1
+        fi
+    fi
+else
+   echo No LE version, so no boost and rdkit
+fi
+
+
 # Here we can force the building of clipper because we don't
 # know if the dependency libccp4c.la was from 6.0 or 5.0.2
 # But, let's not do that any more.
@@ -1993,7 +2054,7 @@ if test -n "$build_ccp4c" ; then
     date
     gzip -dc ${AUTOBUILD_SOURCES}/libccp4-$libccp4_version.tar.gz | tar xf -
     cd libccp4-$libccp4_version
-    ./configure $generic_prefix $shared_flag --disable-fortran
+    ./configure $generic_prefix $shared_static_flag --disable-fortran
     $MAKE
     $MAKE install
     ) 2>&1 >  $HOSTLOGDIR/01-libccp4.txt 
@@ -2038,7 +2099,7 @@ echo gzip -dc ${AUTOBUILD_SOURCES}/mmdb2-$mmdb_version.tar.gz
 cd  mmdb2-$mmdb_version
 pwd
 patch -p0 <${AUTOBUIILD_SOURCES}/mmdb_io_file.cpp.patch
-./configure $generic_prefix $shared_flag
+./configure $generic_prefix $shared_static_flag
 $MAKE
 $MAKE install
 ) > $HOSTLOGDIR/02-mmdb.txt 2>&1
@@ -2065,7 +2126,7 @@ gzip -cd ${AUTOBUILD_SOURCES}/ssm-$ssm_version.tar.gz | tar xf -
 cd ssm-$ssm_version
 # ./configure $generic_prefix --with-mmdb-prefix=$install_top_dir
 # grrr PE I agree
-./configure $generic_prefix $shared_flag CPPFLAGS=-I$install_top_dir/include LDFLAGS=-L$install_top_dir/lib 
+./configure $generic_prefix $shared_static_flag CPPFLAGS=-I$install_top_dir/include LDFLAGS=-L$install_top_dir/lib
 $MAKE
 $MAKE install
 ) >  $HOSTLOGDIR/02-ssmlib.txt 2>&1
@@ -2092,12 +2153,12 @@ gzip -dc ${AUTOBUILD_SOURCES}/fftw-2.1.5.tar.gz | tar xf -
 #gzip -dc ${AUTOBUILD_SOURCES}/fftw-configure-stuff.tar.gz | tar xf -
 # FIXME:: needs some post-processing for dlls
 cd fftw-2.1.5
-if [ -n "$shared_flag" ] ; then
+if [ $build_ligand_enhanced = 1 ] ; then
   ./bootstrap.sh
   libtoolize -c -f
 fi
-./configure $generic_prefix $shared_flag --enable-float
-if [ -n "$shared_flag" ] ; then
+./configure $generic_prefix $shared_static_flag --enable-float
+if [ $build_shared = 1 ] ; then
   ${AUTOBUIILD_SOURCES}/fix_shared_makefiles.sh
   patch -p0 <${AUTOBUIILD_SOURCES}/fftw-2.1.5_shared.patch
 fi
@@ -2181,7 +2242,7 @@ if test -n "$build_clipper" ; then
     ./configure --prefix=$install_top_dir \
 	--enable-mmdb=$install_top_dir    \
 	--enable-ccp4=$install_top_dir    \
-	$shared_flag  \
+	$shared_static_flag  \
 	--enable-mmdb    \
 	--enable-cif     \
 	--enable-ccp4    \
@@ -2193,10 +2254,10 @@ if test -n "$build_clipper" ; then
        # CXXFLAGS="-g -O2 -fno-strict-aliasing"
        # not need any more ?!
        # CCP4_CXXFLAGS=-I$install_top_dir/include CCP4_LIBS=$install_top_dir/lib/libccp4c.la	\
-    # we don't want to make the clipper executables, so let's cd in to the clipper libs and 
+    # we don't want to make the clipper executables, so let's cd in to the clipper libs and
     # make (just) those.
     # not any more!!! make all!!!
-    if [ -n "$shared_flag" ] ; then 
+    if [ $build_shared = 1 ] ; then
       ${AUTOBUILD_SOURCES}/fix_shared_makefiles.sh
     fi
     $MAKE
@@ -2711,7 +2772,7 @@ fi
 
 # So that python is found when it is installed:
 #
-PATH=$install_top_dir/bin:$install_top_dir/$python_version:$PATH
+PATH=$install_top_dir/bin:$install_top_dir/$python_version:$install_top_dir/$python_version/Scripts:$PATH
 export PATH
 
 # python_version is the filename of the python executable.  For python
@@ -2952,6 +3013,18 @@ if test -n "$build_pygtk" ; then
 ) > $HOSTLOGDIR/07-pygtk.txt 2>&1
 else 
    echo not building pytgtk
+fi
+
+if test -n "$build_numpy" ; then
+   echo BUILDING numpy:
+   pip install numpy
+   # maybe other python things can be installed using pip too?
+   status=$?
+   if [ $status = 0 ] ; then
+       echo numpy seems to have installed ok
+   else
+       echo issues installing numpy!?
+   fi
 fi
 
 # finally we shall cp (or move?) Lib and DLL directories to bin
@@ -3290,11 +3363,10 @@ gsl_version=2.2.1
 ( 
 date
 pwd
-#if [ -n "$shared_flag" ] ; then
 if [ 0 == 1 ] ; then
 gzip -dc ${AUTOBUILD_SOURCES}/gsl-$gsl_version.tar.gz | tar xf -
 cd gsl-$gsl_version
-./configure $generic_prefix $shared_flag
+./configure $generic_prefix $shared_static_flag
 $MAKE
 status=$?
 if [ "$status" != 0 ] ; then 
@@ -3459,6 +3531,77 @@ fi
 # fi
 
 
+#########
+## build BOOST and rdkit
+#########
+if [ $build_ligand_enhanced = 1 ] ; then
+    if test -n "$build_boost" ; then
+        echo BUILDING Boost:
+        boost_version=1.60.0
+        # old wget cant get from sourceforge but new one can. Make sure there 
+        # is a new one! e.g. https://eternallybored.org/misc/wget/
+        ${WGET} http://sourceforge.net/projects/boost/files/boost/${boost_version}/boost_${boost_version//./_}.7z
+        ${WGET} $win_extras_place/boost_1_60_0.patch
+        ${WGET} $win_extras_place/make_boost.bat
+        (
+            date
+            pwd
+            7z x -y ${AUTOBUILD_SOURCES}/boost_${boost_version//./_}.7z
+            cd boost_${boost_version//./_}
+            patch -p0 < ${AUTOBUILD_SOURCES}/boost_1_60_0.patch
+            cmd /c < ${AUTOBUILD_SOURCES}/make_boost.bat
+            cd -
+            ) > $HOSTLOGDIR/21-boost.txt 2>&1
+    else
+        echo not building Boost
+    fi
+
+    if test -n "$build_rdkit" ; then
+        echo BUILDING rdkit:
+        rdkit_version=2017_09_3
+        ${WGET} https://github.com/rdkit/rdkit/archive/Release_${rdkit_version}.tar.gz
+        ${WGET} ${win_extras_place}/rdkit_strtok.patch
+        ${WGET} ${win_extras_place}/rdkit_cmake.patch
+        (
+            date
+            pwd
+            gzip -cd ${AUTOBUILD_SOURCES}/Release_${rdkit_version}.tar.gz | xf -
+            cd rdkit-Release_${rdkit_version}
+            patch -p0 < ${AUTOBUILD_SOURCES}/rdkit_strtok.patch
+            # patch -p0 < ${AUTOBUILD_SOURCES}/rdkit_cmake.patch
+            export RDBASE=`pwd`
+            export PYTHONPATH=$RDBASE
+            export PATH=$PATH:$RDBASE/lib
+            export PATH=$PATH:$install_top_dir/lib
+            mkdir build
+            cd build
+            cmake -G "MSYS Makefiles" \
+                  -DRDK_BUILD_PYTHON_WRAPPERS=ON \
+                  -DBOOST_ROOT=$install_top_dir  \
+                  -DRDK_BUILD_SLN_SUPPORT=OFF \
+                  -DRDK_TEST_MMFF_COMPLIANCE=OFF \
+                  -DRDK_BUILD_CPP_TESTS=OFF \
+                  -DRDK_BUILD_THREADSAFE_SSS=OFF \
+                  -DRDK_USE_BOOST_SERIALIZATION=OFF \
+                  -DBoost_USE_DEBUG_LIBS=OFF \
+                  -DBoost_USE_RELEASE_LIBS=ON \
+                  -DRDK_INSTALL_INTREE=OFF \
+                  -DBUILD_SHARED_LIBS=ON \
+                  -DRDK_INSTALL_STATIC_LIBS=OFF \
+                  -DPYTHON_INSTDIR=$install_top_dir/${python_version}/lib/site-packages \
+                  -DCMAKE_INSTALL_PREFIX=$install_top_dir ..
+#                   -DCMAKE_CXX_FLAGS="-g -O -std=gnu++11 -Wno-deprecated -Wno-unused-function -fno-strict-aliasing -Wall -Wextra -DWIN32" \
+            $MAKE
+            $MAKE install
+            ) > $HOSTLOGDIR/22-rdkit.txt 2>&1
+    else
+        echo not building rdkit
+    fi
+    check build necessary!!
+fi  # ligand enhanced
+
+
+
 
 ###############################################################################
 ##########         build Coot                                     #############
@@ -3503,6 +3646,11 @@ date
 # means we need to supply libgcc_s_dw2-1.dll
 export CXXFLAGS="-g -O -static-libstdc++"
 
+# for boost and rdkit:
+if [ $build_ligand_enhanced = 1 ]  ; then
+    coot_extra_args+=" --with-enhanced-ligand-tools RDKIT_CXXFLAGS=-I${install_top_dir}/include/rdkit RDKIT_LIBS='-lRDKitDescriptors -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitForceFieldHelpers -lRDKitForceField -lRDKitMolChemicalFeatures -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDepictor -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitSmilesParse -lRDKitDistGeomHelpers -lRDKitDataStructs -lRDKitRDGeneral' --with-boost=${install_top_dir} --with-boost-python=yes"
+fi
+
 if [ $architecture = x86_64 ] ; then 
    # This could well be too general a test, certainly on 64 bit CentOS 5 we need this, 
    # and possibly on 64 bit Gutsy.
@@ -3546,7 +3694,7 @@ echo ./configure $coot_prefix \
     $python_scripting   \
     $shared_static_flag \
     $coot_optim_args	  \
-    $coot_extra_args   
+    $coot_extra_args
 
 ./configure $coot_prefix \
     --with-fftw-prefix=$install_top_dir \
@@ -3557,7 +3705,7 @@ echo ./configure $coot_prefix \
     $python_scripting   \
     $shared_static_flag \
     $coot_optim_args	  \
-    $coot_extra_args   
+    $coot_extra_args
 
 # consider adding -DCOOT_SYS_TYPE=systype (or something like that)
 # here, so that coot --version-info/full returns it.

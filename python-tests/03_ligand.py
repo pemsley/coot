@@ -22,7 +22,7 @@ class LigandTestFunctions(unittest.TestCase):
     def test01_0(self):
         """Get monomer test"""
 
-	imol = monomer_molecule_from_3_let_code("3GP", "")
+	imol = get_monomer("3GP")
 	if (valid_model_molecule_qm(imol)):
             delete_residue_hydrogens(imol, "A", 1, "", "")
         self.failIf(not valid_model_molecule_qm(imol), "not valid molecule for 3GP")
@@ -57,7 +57,7 @@ class LigandTestFunctions(unittest.TestCase):
                 v = get_ccp4_version()
                 # will always be string
                 return v < "6.2"
-            
+
         r_1 = monomer_restraints("LIG")
         o = old_ccp4_restraints_qm()
         unittest_pdb("test-LIG.pdb")
@@ -81,6 +81,58 @@ class LigandTestFunctions(unittest.TestCase):
                              old_ccp4_restraints_qm() else \
                              isinstance(r_3, dict)]))
 
+
+    def test05_0(self):
+        """Merge molecules of a ligand with a spec"""
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+        imol_lig = get_monomer("3GP")
+
+        spec = ["L", 1, ""]
+
+        set_merge_molecules_ligand_spec(spec)
+        merge_molecules([imol_lig], imol)
+
+        # now check that L1 exists in imol
+
+        # residue_spec_to_residue_name expects a 4-ele spec. Hmm
+        spec[0:0] = [True]
+        rn = residue_spec_to_residue_name(imol, spec)
+        self.failUnless(isinstance(rn, str))
+        self.failUnless(rn == "3GP")
+
+
+    def test05_1(self):
+        """Move and Refine Ligand test"""
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+        self.failUnless(valid_model_molecule_qm(imol))
+        new_rc = [55.3, 9.1, 20.6]
+        # set the view
+        view_number = add_view([54.5698, 8.7148, 20.5308],
+                               [0.046229, -0.157139, -0.805581, 0.569395],
+                               19.8858,
+                               "ligand-view")
+
+        go_to_view_number(view_number, 1)
+
+        # update the map
+        set_rotation_centre(*new_rc)
+        move_molecule_here(imol)
+        backup_mode = backup_state(imol)
+        alt_conf = ""
+        replacement_state = refinement_immediate_replacement_state()
+
+        turn_off_backup(imol)
+        set_refinement_immediate_replacement(1)
+        refine_zone(imol, "A", 1, 1, alt_conf)
+        accept_regularizement()
+        rotate_y_scene(600, 0.1)
+        if replacement_state == 0:
+            set_refinement_immediate_replacement(0)
+        if backup_mode == 1:
+            turn_on_backup(imol)
+        # ok. no fail.
 
 
     def test06_0(self):
@@ -115,7 +167,55 @@ class LigandTestFunctions(unittest.TestCase):
         set_mol_displayed(imol_npo, 0)
         # checked for non crash
 
-        
+
+    def test07_0(self):
+        """flip residue (around eigen vectors)"""
+
+        # new version
+        imol_orig = unittest_pdb("monomer-3GP.pdb")
+        imol_copy = copy_molecule(imol_orig)
+
+        self.failIf(not valid_model_molecule_qm(imol_orig),
+                    "not valid molecule for monomer-3GP.pdb")
+
+        # we need this, otherwise active-atom is (accidentally) the wrong
+        # molecule
+        set_go_to_atom_molecule(imol_copy)
+        set_go_to_atom_chain_residue_atom_name("A", 1, " C8 ")
+
+        active_atom = active_residue()
+        self.failUnless(active_atom, "No active atom")
+        imol      = active_atom[0]
+        chain_id  = active_atom[1]
+        res_no    = active_atom[2]
+        ins_code  = active_atom[3]
+        atom_name = active_atom[4]
+        alt_conf  = active_atom[5]
+        self.failIf(imol == imol_orig,
+                    "oops - didn't pick the copy for active res")
+        flip_ligand(imol, chain_id, res_no)
+        atom_orig_1 = get_atom(imol_orig, "A", 1, "", " C8 ")
+        atom_move_1 = get_atom(imol     , "A", 1, "", " C8 ")
+
+        self.failUnless(isinstance(atom_orig_1, list), "atom_orig_1 not found")
+
+        self.failUnless(isinstance(atom_move_1, list), "atom_move_1 not found")
+
+        d = bond_length(atom_orig_1[2], atom_move_1[2])
+        print "distance: ", d
+        self.failUnless(d > 2.1, "fail to move test atom d1")
+        flip_ligand(imol, chain_id, res_no)
+        flip_ligand(imol, chain_id, res_no)
+        flip_ligand(imol, chain_id, res_no)
+        # having flipped it round the axes 4
+        # times, we should be back where we
+        # started.
+        atom_orig_1 = get_atom(imol_orig, "A", 1, "", " C8 ")
+        atom_move_1 = get_atom(imol     , "A", 1, "", " C8 ")
+        d2 = bond_length(atom_orig_1[2], atom_move_1[2])
+        print "distance d2: ", d2
+        self.failUnless(d2 < 0.001, "fail to move atom back to start d2")
+
 
     def test08_0(self):
         """Test dipole"""
@@ -126,6 +226,28 @@ class LigandTestFunctions(unittest.TestCase):
         imol = unittest_pdb("dipole-residues.pdb")
 
         self.failUnless(valid_model_molecule_qm(imol), "dipole-residues.pdb not found")
+
+        residue_specs = [["A", 1, ""],
+                         ["A", 2, ""],
+                         ["A", 3, ""]]
+        dipole = add_dipole_for_residues(imol, residue_specs)
+
+        self.failIf(not dipole, "bad dipole %s" %dipole)
+
+        d = dipole[0]
+        dip = dipole[1]
+
+        dip_x = dip[0]
+        dip_y = dip[1]
+        dip_z = dip[2]
+
+        print "info:: dipole components", dip
+
+        self.failUnlessAlmostEqual(dip_y, 0.0, 2, "bad dipole y component %s" %dip_y)
+        self.failUnlessAlmostEqual(dip_z, 0.0, 2, "bad dipole z component %s" %dip_z)
+
+        self.failUnless(dip_x < 0 and dip_x > -20)
+
 
     def test09_0(self):
         """Reading new dictionary restraints replaces"""
@@ -145,19 +267,19 @@ class LigandTestFunctions(unittest.TestCase):
         self.failUnless(len(t) < 26, "torsions: %s %s" %(len(t), t))
         # 22 in new dictionary, it seems
 
-        
+
     def test10_0(self):
         """Pyrogen Runs OK?"""
 
         if self.skip_test(not enhanced_ligand_coot_p(),
-                          "No ligand enhaced version, skipping Pyrogen test"):
+                          "No ligand enhanced version, skipping Pyrogen test"):
             return
 
         # bad things may well happen if we run the wrong version of pyrogen.
-        # so force pyrogen to be the one that is installed alongside this version of coot 
+        # so force pyrogen to be the one that is installed alongside this version of coot
         # that we are running. We do that by looking and manipulating sys.argv[0]
         import os, sys
-        
+
         coot_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
         prefix_dir = os.path.normpath(os.path.join(coot_dir, ".."))
         pyrogen_exe = "pyrogen"
@@ -202,15 +324,15 @@ class LigandTestFunctions(unittest.TestCase):
         # untested - no mogul
 
         # make sure that you are running the correct pyrogen
-        
+
         if self.skip_test(not enhanced_ligand_coot_p(),
-                          "No ligand enhaced version, skipping Pyrogen test"):
+                          "No ligand enhanced version, skipping Pyrogen test"):
             return
 
         import os
         if os.path.isfile("UVP-pyrogen.cif"):
             os.remove("UVP-pyrogen.cif")
-        
+
         popen_status = popen_command("pyrogen",
                                      ["-nM", "-r", "UVP",
                                       "CO[C@@H]1[C@H](O)[C@H](O[C@H]1[n+]1ccc(O)nc1O)\\C=C\\P(O)(O)=O"],
@@ -227,9 +349,31 @@ class LigandTestFunctions(unittest.TestCase):
             atom_name = residue_atom2atom_name(atom)
             self.failIf("\"" in atom_name,
                         "Atom name quote fail %s" %atom_name)
-    
-        
-        
 
-                         
 
+    # FLEV will not make a PNG if it is not compiled with
+    # C++-11 - and that is OK for 0.8.9.x.
+    #
+    # def test12_0(self):
+    #     """FLEV makes a PNG"""
+
+    #     import os
+
+    #     if self.skip_test(not enhanced_ligand_coot_p(),
+    #                       "No ligand enhanced version, skipping FLEV test"):
+    #         return
+
+    #     fn = "test-flev-greg-testcase.png"
+
+    #     if os.path.exists(fn):
+    #         os.remove(fn)
+
+    #     imol = unittest_data_dir("tutorial-modern.pdb")
+    #     imol_ligand = get_monomer("3GP")
+
+    #     set_rotation_centre(54, 10, 20)
+    #     move_molecule_to_screen_centre(imol_ligand)
+    #     set_merge_molecules_ligand_spec(["L", 1, ""])
+    #     merge_molecules([imol_ligand], imol)
+    #     fle_view_with_rdkit_to_png(imol, "L", 1, "", 4.8, fn)
+    #     self.failUnless(os.path.exists(fn))

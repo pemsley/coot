@@ -59,6 +59,7 @@ regularize_residues_with_alt_conf  = regularize_residues_with_alt_conf_py
 refine_zone_with_score = refine_zone_with_score_py
 regularize_zone_with_score = regularize_zone_with_score_py
 
+chiral_volume_errors = chiral_volume_errors_py
 add_extra_bond_restraints = add_extra_bond_restraints_py
 delete_extra_restraints_for_residue_spec = delete_extra_restraints_for_residue_spec_py
 generate_local_self_restraints_by_residues = generate_local_self_restraints_by_residues_py
@@ -141,6 +142,7 @@ make_atom_spec         = make_atom_spec_py
 goto_next_atom_maybe   = goto_next_atom_maybe_py
 goto_prev_atom_maybe   = goto_prev_atom_maybe_py
 set_go_to_atom_from_res_spec = set_go_to_atom_from_res_spec_py
+set_go_to_atom_from_atom_spec = set_go_to_atom_from_atom_spec_py
 active_atom_spec       = active_atom_spec_py
 get_symmetry           = get_symmetry_py
 map_colour_components  = map_colour_components_py
