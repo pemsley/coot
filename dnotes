@@ -8666,3 +8666,31 @@ Tue  5 Feb 2019 11:44:27 PST
 
   A better solution is for cj to install msgfmt and put the directory into which it installs
   it into the path itself.
+
+----
+Mon 11 Feb 2019 13:05:44 PST
+
+   compiling readdline from  source
+
+https://stackoverflow.com/questions/26670417/how-to-compile-readline-from-source
+
+ldd -r /mypath/lib/libreadline.so.6.2
+        linux-vdso.so.1 =>  (0x00007ffffb186000)
+        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f450c62f000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007f450cc07000)
+undefined symbol: UP    (/mypath/lib/libreadline.so.6.2)
+undefined symbol: PC    (/mypath/lib/libreadline.so.6.2)
+undefined symbol: BC    (/mypath/lib/libreadline.so.6.2)
+
+--with-curses'
+    This tells readline that it can find the termcap library functions
+    (tgetent, et al.) in the curses library, rather than a separate
+    termcap library.  Readline uses the termcap functions, but does not
+    link with the termcap or curses library itself, allowing applications
+    which link with readline the to choose an appropriate library.
+    This option tells readline to link the example programs with the
+    curses library rather than libtermcap.
+
+make SHLIB_LIBS=/mypath/libncurses.so
+
+
