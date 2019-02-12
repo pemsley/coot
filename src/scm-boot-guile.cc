@@ -28,10 +28,11 @@
 
 #include <string>
 #include <iostream>
+#include <cstddef> // needed for gmp.h I think.
 
 #include <libguile.h>
 #include <glib.h>
-#include  <gtk/gtk.h>
+#include <gtk/gtk.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
