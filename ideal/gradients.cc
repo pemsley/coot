@@ -1769,7 +1769,7 @@ coot::my_df_planes(const gsl_vector *v,
 	    }
 
 	    coot::plane_distortion_info_t plane_info =
-	       distortion_score_plane_internal(plane_restraint, v);
+	       distortion_score_plane_internal(plane_restraint, v, false);
 	    n_plane_atoms = plane_restraint.plane_atom_index.size();
 	    // weight = 1/((*restraints)[i].sigma * (*restraints)[i].sigma);
 	    for (int j=0; j<n_plane_atoms; j++) {

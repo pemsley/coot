@@ -835,8 +835,11 @@ coot::process_dfs_plane(const coot::simple_restraint &plane_restraint,
    int idx; 
 
    double devi_len;
+   // this calculates plane_info.distortion_score, but we don't need it here.
+   // should I skip that?
+   //
    coot::plane_distortion_info_t plane_info =
-      distortion_score_plane_internal(plane_restraint, v);
+      distortion_score_plane_internal(plane_restraint, v, false);
    int n_plane_atoms = plane_restraint.plane_atom_index.size();
 
    for (int j=0; j<n_plane_atoms; j++) {
@@ -869,7 +872,8 @@ coot::process_dfs_parallel_planes(const coot::simple_restraint &ppr,
    unsigned int first_atoms_size = ppr.plane_atom_index.size();
 
    // this calculates plane_info.distortion_score, but we don't need it here.
-   // should I skip that?
+   // should I skip that? No. We don't need to optimize parallel plane restraints
+   // at the moment.
    //
    plane_distortion_info_t plane_info =
       distortion_score_2_planes(ppr.plane_atom_index, ppr.atom_index_other_plane, ppr.sigma, v);
