@@ -210,7 +210,7 @@ molecule_class_info_t::add_parallel_plane_restraint(coot::residue_spec_t spec_1,
    std::string alt_conf_2; // to a residue with an alt conf.
    
    mmdb::Residue *r_1 = get_residue(spec_1);
-   mmdb::Residue *r_2 = get_residue(spec_1);
+   mmdb::Residue *r_2 = get_residue(spec_2);
 
    if (r_1) {
       if (r_2) {
@@ -221,6 +221,15 @@ molecule_class_info_t::add_parallel_plane_restraint(coot::residue_spec_t spec_1,
 	 ap_1_names = nucelotide_residue_name_to_base_atom_names(rn_1);
 	 ap_2_names = nucelotide_residue_name_to_base_atom_names(rn_2);
 
+	 if (ap_1_names.empty()) ap_1_names = residue_name_to_plane_atom_names(rn_1);
+	 if (ap_2_names.empty()) ap_2_names = residue_name_to_plane_atom_names(rn_2);
+
+	 std::cout << "ap_2_names ";
+	 for (auto i: ap_2_names)
+	    std::cout << i << " ";
+	 std::cout << "" << std::endl;
+
+	 std::cout << "Adding parallel plane restraint " << spec_1 << " " << spec_2 << std::endl;
 	 coot::parallel_planes_t pp(spec_1, spec_2, ap_1_names, ap_2_names,
 				    alt_conf_1, alt_conf_2);
 
@@ -234,7 +243,7 @@ molecule_class_info_t::add_parallel_plane_restraint(coot::residue_spec_t spec_1,
    }
 
    update_extra_restraints_representation_parallel_planes();
-} 
+}
 
 std::vector<std::string>
 molecule_class_info_t::nucelotide_residue_name_to_base_atom_names(const std::string &rn) const {
@@ -259,7 +268,36 @@ molecule_class_info_t::nucelotide_residue_name_to_base_atom_names(const std::str
    }
 
    return names;
-} 
+}
+
+
+std::vector<std::string>
+molecule_class_info_t::residue_name_to_plane_atom_names(const std::string &rn) const {
+
+   std::vector<std::string> names;
+
+   if (rn == "PHE" || rn == "TYR") {
+      names.push_back("CG");  names.push_back("CZ");
+      names.push_back("CD1"); names.push_back("CD2");
+      names.push_back("CE1"); names.push_back("CE2");
+   }
+   if (rn == "ARG") {
+      names.push_back("CD");  names.push_back("NE");
+      names.push_back("CZ");
+      names.push_back("NH1"); names.push_back("NH2");
+   }
+   if (rn == "TRP") {
+      names.push_back("CG");   names.push_back("CD1");
+      names.push_back("NE1");  names.push_back("CE2");
+      names.push_back("CD2");  names.push_back("CE3");
+      names.push_back("CZ2");  names.push_back("CH2");
+      names.push_back("CZ3");
+   }
+   return names;
+}
+
+
+
 
 void
 molecule_class_info_t::delete_extra_restraints_for_residue(const coot::residue_spec_t &rs) {

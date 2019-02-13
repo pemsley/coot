@@ -800,7 +800,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 	 if (this_restraint.restraint_type == coot::PARALLEL_PLANES_RESTRAINT) {
 	    d =  coot::distortion_score_parallel_planes(this_restraint, v);
 	    *distortion += d;
-	    // std::cout << "dsm: parallel plane " << thread_id << " idx " << i << " " << d << std::endl;
+	    // std::cout << "dsm: parallel plane thread: " << thread_id << " idx " << i << " " << d << std::endl;
 	    continue;
 	 }
       }
@@ -2321,7 +2321,7 @@ coot::distortion_score_2_planes(const std::vector<std::pair<int, double> > &atom
       for (unsigned int i=0; i<atom_index_set_2.size(); i++) {
 	 idx = 3*(atom_index_set_2[i].first);
 	 if (idx < 0) {
-	 } else { 
+	 } else {
 	    val = 
 	       abcd[0]*(gsl_vector_get(v,idx  ) - x_cen_2) +
 	       abcd[1]*(gsl_vector_get(v,idx+1) - y_cen_2) +
@@ -2330,7 +2330,8 @@ coot::distortion_score_2_planes(const std::vector<std::pair<int, double> > &atom
 	 }
       }
    }
-   info.distortion_score = sum_devi / (restraint_sigma * restraint_sigma);
+   // hack down the weight
+   info.distortion_score = 0.25 * sum_devi / (restraint_sigma * restraint_sigma);
    return info;
 }
 

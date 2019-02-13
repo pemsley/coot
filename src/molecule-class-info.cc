@@ -3906,7 +3906,7 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 void
 molecule_class_info_t::update_extra_restraints_representation_parallel_planes() {
 
-   std::string s = "Mol " + coot::util::int_to_string(imol_no) + "Parallel-Plane-Restraints";
+   std::string s = "Mol " + coot::util::int_to_string(imol_no) + " Parallel-Plane-Restraints";
    coot::generic_display_object_t rest_rep(s);
 
    // needed for parallel plane restraints atom name lookup.
@@ -3924,10 +3924,10 @@ molecule_class_info_t::update_extra_restraints_representation_parallel_planes() 
 	 std::string res_type_2 = r_2->GetResName();
 	 std::pair<bool, coot::dictionary_residue_restraints_t> dri_1 = geom.get_monomer_restraints(res_type_1, imol_no);
 	 std::pair<bool, coot::dictionary_residue_restraints_t> dri_2 = geom.get_monomer_restraints(res_type_2, imol_no);
-	 
+
 	 std::vector<clipper::Coord_orth> p_1_positions;
 	 std::vector<clipper::Coord_orth> p_2_positions;
-	 
+
 	 mmdb::PPAtom residue_atoms = 0;
 	 int n_residue_atoms;
 	 r_1->GetAtomTable(residue_atoms, n_residue_atoms);
@@ -3950,6 +3950,7 @@ molecule_class_info_t::update_extra_restraints_representation_parallel_planes() 
 	 // second plane
 	 residue_atoms = 0;
 	 r_2->GetAtomTable(residue_atoms, n_residue_atoms);
+	 std::cout << "second plane " << coot::residue_spec_t(r_2) << std::endl;
 	 for (unsigned int i_rest_at=0; i_rest_at<pp.plane_2_atoms.atom_names.size(); i_rest_at++) {
 	    std::string plane_atom_expanded_name =
 	       dri_2.second.atom_name_for_tree_4c(pp.plane_2_atoms.atom_names[i_rest_at]);
@@ -3957,6 +3958,9 @@ molecule_class_info_t::update_extra_restraints_representation_parallel_planes() 
 	       mmdb::Atom *at = residue_atoms[iat];
 	       std::string atom_name(at->name);
 	       std::string alt_conf(at->altLoc);
+	       if (false)
+		  std::cout << "comparing ref-plane-name \"" << plane_atom_expanded_name << "\" and molecule atom name \""
+			    << atom_name << "\"" << std::endl;
 	       if (plane_atom_expanded_name == atom_name) {
 		  if (pp.plane_2_atoms.alt_conf == alt_conf) {
 		     p_2_positions.push_back(clipper::Coord_orth(at->x, at->y, at->z));
