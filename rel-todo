@@ -1,6 +1,11 @@
 
    For Release 0.8.9.2
 
+   o click click for ARG/PHE pi-cation stacking parallel plane restraints.
+     Add to user-defined restraints dialog.
+
+   o multisharpen in a directory not writable. Give a better error message
+
    o Fetch molecule favipiravir doesn't work
 
    o Copy Fragment (new_molecule_by_atom_selection()) should copy links too.
