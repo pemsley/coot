@@ -1,6 +1,7 @@
 
    For Release 0.8.9.2
 
+
    o fix clipper configure fftw2 - Don't use the system version.
 
    o Can you do "x" refine on a residue with a insertion code, ee.g. H 35A in 5aco.  Triple Refine this too.
@@ -8,6 +9,11 @@
    o glyco tree refine A 1334 in 5aco.
 
    o fix the colours of (say) 5vic in Calpha Backbone mode
+
+   o click click for ARG/PHE pi-cation stacking parallel plane restraints.
+     Add to user-defined restraints dialog.
+
+   o multisharpen in a directory not writable. Give a better error message
 
    o Fetch molecule favipiravir doesn't work
 
