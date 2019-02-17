@@ -25,6 +25,9 @@
 ; to detect windows version
 !include "WinVer.nsh"
 
+!ifndef src_dir
+!define src_dir "C:\MinGW\msys\1.0\home\bernhard\autobuild\MINGW32_NT-6.1-bernie-pc-pre-release-gtk2"
+!endif
 ; pre setting of Coot version
 !include "${src_dir}\coot-version"
 
@@ -32,7 +35,7 @@
 !define PRODUCT_NAME "WinCoot"
 !define PRODUCT_VERSION "${WinCootVersion}"
 !define PRODUCT_PUBLISHER "Bernhard Lohkamp & Paul Emsley"
-!define PRODUCT_WEB_SITE "http://www.ysbl.york.ac.uk/~lohkamp/coot/wincoot.html"
+!define PRODUCT_WEB_SITE "http://bernhardcl.github.io/coot"
 !define PRODUCT_WEB_SITE_2 "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\uninst.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -62,12 +65,19 @@ Var STARTDIR
 !define MUI_HEADERIMAGE_BITMAP "C:\MinGW\msys\1.0\home\bernhard\installer\coot_pic_header.bmp"
 !define MUI_PAGE_CUSTOMFUNCTION_PRE InitPreFunction
 !insertmacro MUI_PAGE_WELCOME
-; License page
-!define MUI_PAGE_CUSTOMFUNCTION_PRE CheckForUpdate
-!insertmacro MUI_PAGE_LICENSE "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\COPYING"
 ; Components page
 !define MUI_PAGE_CUSTOMFUNCTION_PRE CheckForUpdate
 !insertmacro MUI_PAGE_COMPONENTS
+; License page
+!define MUI_PAGE_CUSTOMFUNCTION_PRE CheckForUpdate
+!define MUI_LICENSEPAGE_TEXT_TOP "Coot licence"
+!define MUI_LICENSEPAGE_CHECKBOX
+!insertmacro MUI_PAGE_LICENSE "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\COPYING"
+!define MUI_PAGE_CUSTOMFUNCTION_PRE SkipProbeReduceInfo
+!define MUI_LICENSEPAGE_TEXT_TOP "Probe && Reduce information"
+!define MUI_LICENSEPAGE_TEXT_BOTTOM "This is just for your information. No licence as such is required."
+!define MUI_LICENSEPAGE_BUTTON "Got it!"
+!insertmacro MUI_PAGE_LICENSE "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\probe_reduce.txt"
 ; Directory page (install directory)
 !define MUI_PAGE_CUSTOMFUNCTION_PRE ComponentPost
 !define MUI_PAGE_CUSTOMFUNCTION_SHOW DirectoryShow
@@ -107,17 +117,58 @@ Var STARTDIR
 ; for replacing strings
 !include "WordFunc.nsh"
 !insertmacro WordReplace
+; actually a macro wrapping the error handler function
+; well, doesnt seem to work and always throws errors
+; itself somewhere, so revert to old school if and repeating
+; code. Keep in case it can be resolved at some point...
+!macro MyErrorHandlerMacro un
 
-; for error handling
+Function ${un}ErrorHandlerFunction
+
+  Pop $0  ; Abort Flag
+  Pop $1  ; Message txt
+  Pop $2  ; error code
+
+; convert strings to ints
+  IntOp $0 $0 + 0
+  IntOp $2 $2 + 0
+
+; the message box could be rather a question to abort!?
+  IfSilent +2 0
+  MessageBox MB_OK 'Error in Installation. Aborting!$\n$\r$\n$\r$1'
+
+  DetailPrint $1
+  SetErrorLevel $2
+  ${If} $0 == 1
+    Abort $1
+  ${EndIf}
+
+FunctionEnd
+!macroend
+
+; for error handling, need the second one for uninstall section
 !define ErrorHandler "!insertmacro ErrorHandler"
+!define UnErrorHandler "!insertmacro UnErrorHandler"
+
+!insertmacro MyErrorHandlerMacro ""
+!insertmacro MyErrorHandlerMacro "un."
+
 
 ; ErrorCode is returned by the installer, ErrorText is written in log
 ; AbortFlag is 1/"True" or 0/"False", (un)installer terminates upon error
 !macro ErrorHandler ErrorCode ErrorText AbortFlag
-  Push ${ErrorCode}
-  Push ${ErrorText}
-  push ${AbortFlag}
-  Call ErrorHandler
+  Push "${ErrorCode}"
+  Push "${ErrorText}"
+  Push "${AbortFlag}"
+  Call ErrorHandlerFunction
+!macroend
+
+; same for uninstall (needs "un." in front of function)
+!macro UnErrorHandler ErrorCode ErrorText AbortFlag
+  Push "${ErrorCode}"
+  Push "${ErrorText}"
+  Push "${AbortFlag}"
+  Call un.ErrorHandlerFunction
 !macroend
 
 ; MUI end ------
@@ -125,8 +176,8 @@ Var STARTDIR
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 
 !ifndef binary_dir
-; default to nightlies output dir
-!define binary_dir "C:\MinGW\msys\1.0\home\bernhard\public_html\software\binaries\nightlies\pre-release"
+; default to pre-release output dir
+!define binary_dir "C:\MinGW\msys\1.0\home\bernhard\public_html\software\binaries\pre-release"
 !endif
 ; just in case something goes wrong, we define src to be pre-release (default)
 !ifndef src_dir
@@ -192,33 +243,35 @@ Section "!WinCoot" SEC01
   endifbat:
 
   SetOverwrite on
-  File /oname=$INSTDIR\runwincoot.bat.tmp "C:\MinGW\msys\1.0\home\bernhard\Projects\coot\windows\runwincoot.bat"
+  File /oname=$INSTDIR\wincoot.bat.tmp "C:\MinGW\msys\1.0\home\bernhard\Projects\coot\windows\wincoot.bat"
 
-  SetOverwrite ifnewer
-; libexec DIR
-  SetOutPath "$INSTDIR\libexec"
-  SetOverwrite on
-  File "${src_dir}\libexec\coot-bin.exe"
-  File "${src_dir}\libexec\mini-rsr-bin.exe"
   SetOverwrite ifnewer
 ; bin DIR
   SetOutPath "$INSTDIR\bin"
+  SetOverwrite on
+  File "${src_dir}\bin\coot-bin.exe"
+  File "${src_dir}\bin\coot-density-score-by-residue-bin.exe"
+  File "${src_dir}\bin\findligand-bin.exe"
+  File "${src_dir}\bin\findwaters-bin.exe"
+  File "${src_dir}\bin\mini-rsr-bin.exe"
+  File "${src_dir}\bin\dynarama-bin.exe"
+  File "${src_dir}\bin\pyrogen.bat"
+  File "C:\MinGW\msys\1.0\home\bernhard\Projects\coot\windows\dynarama.bat"
+  SetOverwrite ifnewer
   File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\coot-icon.ico"
+  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\rama_all.ico"
   File "${src_dir}\bin\*.dll"
   File "${src_dir}\bin\coot-bfactan.exe"
   File "${src_dir}\bin\coot"
   File "${src_dir}\bin\coot-mini-rsr"
-  SetOverwrite ifnewer
   File "${src_dir}\bin\coot-available-comp-id.exe"
   File "${src_dir}\bin\coot-compare-dictionaries.exe"
-  File "${src_dir}\bin\coot-dictionary-bond-distributions.exe"
+;  File "${src_dir}\bin\coot-dictionary-bond-distributions.exe"
   File "${src_dir}\bin\coot-make-shelx-restraints.exe"
-  File "${src_dir}\bin\density-score-by-residue"
+  File "${src_dir}\bin\coot-density-score-by-residue"
   File "${src_dir}\bin\findligand"
-  File "${src_dir}\bin\findligand-bin.exe"
   File "${src_dir}\bin\findwaters"
-  File "${src_dir}\bin\findwaters-bin.exe"
-  File "${src_dir}\bin\fix-nomenclature-errors.exe"
+  File "${src_dir}\bin\coot-fix-nomenclature-errors.exe"
   File "${src_dir}\bin\gdk-pixbuf-csource.exe"
   File "${src_dir}\bin\gdk-pixbuf-query-loaders.exe"
   File "${src_dir}\bin\glib-genmarshal.exe"
@@ -245,7 +298,7 @@ Section "!WinCoot" SEC01
   ; FIXME:: seems to be only needed in newer versions of msys
   ; ....... and maybe if we have shared compilation - not yet
   File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\libstdc++-6.dll"
-  ;File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\libgcc_s_dw2-1.dll"
+  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\libgcc_s_dw2-1.dll"
 ; PYTHON stuff new
   SetOutPath "$INSTDIR\python27"
   File /r "${src_dir}\python27\*.*"
@@ -422,9 +475,13 @@ Section "!WinCoot" SEC01
   SetOutPath "$INSTDIR\coot-backup"
   ; set outpath to $INSTDIR so that shortcuts are started in $INSTDIR
   SetOutPath "$INSTDIR"
-
-  IfErrors 0 +2
-    ${ErrorHandler} 1 "Error in installation. Could not write files." 1
+  IfErrors 0 +6
+;    ${ErrorHandler} 1 "Error in installation. Could not write files." 1
+     DetailPrint "Error in installation. Could not write files."
+     SetErrorLevel 1
+     IfSilent +2 0
+       MessageBox MB_OK 'Error in Installation. Aborting!$\n$\r$\n$\rCould not write files.'
+     Abort "Abort. Could not write files."
 
 SectionEnd
 
@@ -436,16 +493,39 @@ Section /o "Windows feel" SEC02
   File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\cootrc"
   SetOverwrite ifnewer
 ;  maybe here the other guile things?!
-
-  IfErrors 0 +2
-    ${ErrorHandler} 2 "Error in installation. Could not install windows feel." 1
+  IfErrors 0 +5
+  ;  ${ErrorHandler} 2 "Error in installation. Could not install Windows feel." 1
+     DetailPrint "Error in installation. Could not install Windows feel. Continuing."
+     SetErrorLevel 2
+     IfSilent +2 0
+        MessageBox MB_OK 'Error in Installation. Continuing!$\n$\r$\n$\rCould not install Windows feel'
 
 SectionEnd
 
+; probe and reduce here 
+Section /o "Add probe&reduce" SEC03
+  ClearErrors
+  SetOverwrite on
+  SetOutPath "$INSTDIR\bin"
+  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\probe.exe"
+  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\reduce.exe"
+  SetOutPath "$INSTDIR\share\coot"
+  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\reduce_wwPDB_het_dict.txt"
+  SetOverwrite ifnewer
+
+  IfErrors 0 +5
+    ; ${ErrorHandler} 2 "Error in installation. Could not install probe&reduce." 1
+     DetailPrint "Error in installation. Could not install probe&reduce. Continuing."
+     SetErrorLevel 2
+     IfSilent +2 0
+        MessageBox MB_OK 'Error in Installation. Continuing!$\n$\r$\n$\rCould not install probe & reduce'
+
+SectionEnd
+
+!ifdef WITH_GUILE
 ; we dont want guile for now
-; 2nd section for guile
-!ifdef WITH_GUIL
-Section /o "Guile/Scheme Add-On" SEC03
+; 3rd section for guile
+Section /o "Guile/Scheme Add-On" SEC04
   SetOverwrite on
   SetOutPath "$INSTDIR\bin"
   File "${src_dir}-guile\bin\coot-real.exe"
@@ -456,7 +536,6 @@ SectionEnd
 ; WITH_GUILE
 
 Section -AddIcons
-  ClearErrors
   ;; First install for all users, if anything fails, install
   ;; for current user only.
   ClearErrors
@@ -478,10 +557,12 @@ Section -AddIcons
   ; won't be edited.
   IfSilent 0 +2
     Call FinishPagePreFunction
-
-  IfErrors 0 +2
-    ${ErrorHandler} 3 "Error in installation. Could install icons." 0
-
+  IfErrors 0 +5
+    ; ${ErrorHandler} 3 "Error in installation. Could not install icons." 0
+    DetailPrint "Error in installation. Could not install icons. Continuing."
+    SetErrorLevel 3
+    IfSilent +2 0
+        MessageBox MB_OK 'Error in Installation. Continuing!$\n$\r$\n$\rCould not install icons.'
 SectionEnd
 
 Section -Post
@@ -495,10 +576,12 @@ Section -Post
 ;  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
 ;  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
 ;  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
-
-  IfErrors 0 +2
-    ${ErrorHandler} 4 "Error in installation. Could not write uninstaller." 0
-
+  IfErrors 0 +5
+    ; ${ErrorHandler} 4 "Error in installation. Could not write uninstaller." 0
+    DetailPrint "Error in installation. Could not write uninstaller."
+    SetErrorLevel 4
+    IfSilent +2 0
+        MessageBox MB_OK 'Error in Installation. Continuing!$\n$\r$\n$\rCould not write uninstaller.'
 SectionEnd
 
 
@@ -510,7 +593,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC03} "Select if you want $\nprobe and reduce installed.$\nNote: Not required if you have CCP4."
 ; disable guile for now
 !ifdef WITH_GUILE
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Tick if you want additionally $\nGuile/Scheme scripting"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC04} "Tick if you want additionally $\nGuile/Scheme scripting"
 !endif
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
@@ -599,19 +682,28 @@ Section Uninstall
   Delete "$INSTDIR\bin\coot-bfactan.exe"
   Delete "$INSTDIR\bin\coot"
   Delete "$INSTDIR\bin\coot-real.exe"
-  Delete "$INSTDIR\libexec\coot-bin.exe"
-  Delete "$INSTDIR\libexec\density-score-by-residue-bin.exe"
-  Delete "$INSTDIR\libexec\findligand-bin.exe"
-  Delete "$INSTDIR\libexec\findwaters-bin.exe"
-  Delete "$INSTDIR\libexec\mini-rsr-bin.exe"
+  Delete "$INSTDIR\bin\coot-bin.exe"
+  Delete "$INSTDIR\libexec\*.exe"
+  Delete "$INSTDIR\bin\coot-density-score-by-residue"
+  Delete "$INSTDIR\bin\density-score-by-residue-bin.exe"
   Delete "$INSTDIR\bin\density-score-by-residue"
+  Delete "$INSTDIR\bin\dynarama-bin.exe"
+  Delete "$INSTDIR\bin\dynarama.bat"
+  Delete "$INSTDIR\bin\dynarama"
+  Delete "$INSTDIR\bin\pyrogen.bat"
+  Delete "$INSTDIR\bin\rama_all.ico"
   Delete "$INSTDIR\bin\findligand"
   Delete "$INSTDIR\bin\findligand-bin.exe"
   Delete "$INSTDIR\bin\findligand-real.exe"
   Delete "$INSTDIR\bin\findwaters"
   Delete "$INSTDIR\bin\findwaters-bin.exe"
   Delete "$INSTDIR\bin\findwaters-real.exe"
+  Delete "$INSTDIR\bin\coot-available-comp-id.exe"
+  Delete "$INSTDIR\bin\coot-compare-dictionaries.exe"
+  Delete "$INSTDIR\bin\coot-density-score-by-residue-bin.exe"
   Delete "$INSTDIR\bin\coot-fix-nomenclature-errors.exe"
+  Delete "$INSTDIR\bin\coot-make-shelx-restraints.exe"
+  Delete "$INSTDIR\bin\coot-mini-rsr"
   Delete "$INSTDIR\bin\fix-nomenclature-errors.exe"
   Delete "$INSTDIR\bin\gdk-pixbuf-csource.exe"
   Delete "$INSTDIR\bin\gdk-pixbuf-query-loaders.exe"
@@ -766,10 +858,12 @@ Section Uninstall
 ;  DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
 ;  DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
   SetAutoClose true
-
-  IfErrors 0 +2
-    ${ErrorHandler} 5 "Error in uninstallation. Could not completely uninstall." 1
-
+  IfErrors 0 +5
+    ;${UnErrorHandler} 5 "Error in uninstallation. Could not completely uninstall." 1
+    DetailPrint "Error in uninstallation. Could not completely uninstall."
+    SetErrorLevel 5
+    IfSilent +2 0
+        MessageBox MB_OK 'Error in Uninstallation. Aborting!$\n$\r$\n$\rCould not completely uninstall.'
 SectionEnd
 
 ######################
@@ -786,17 +880,23 @@ FunctionEnd
 !endif
 
 Function .onInit
-
   ClearErrors
 
   ; logging
   ; if old log exists save simply (could be by date)
-  ; StrCpy $INSTDIR .
-  IfFileExists $INSTDIR\install.log 0 +5
-    IfFileExists $INSTDIR\install.log.1 0 +2
-      Delete $INSTDIR\install.log.1
-    Rename $INSTDIR\install.log $INSTDIR\install.log.1
+  ; StrCpy $TEMP .
+  ; Dont use INSTDIR as it doesnt exist from the beginning use $TEMP instead.
+  ; Maybe use a different place at some point.
+  IfFileExists $TEMP\install.log 0 +4
+    IfFileExists $TEMP\install.log.1 0 +2
+      Delete $TEMP\install.log.1
+    Rename $TEMP\install.log $TEMP\install.log.1
+  ; Seems install.log always goes to $INSTDIR, since this doesnt
+  ; exists yet we try to set it in another way 
+  Push $INSTDIR 
+  StrCpy $INSTDIR $TEMP 
   LogSet on
+  Pop $INSTDIR 
 
     ; Get Command line parameters
         var /GLOBAL INSTDIR_TMP
@@ -854,9 +954,13 @@ Function .onInit
   ${If} $STARTDIR == ""
     StrCpy $STARTDIR "$INSTDIR"
   ${EndIf}
-
-  IfErrors 0 +2
-    ${ErrorHandler} 6 "Error in installation. Could not initiate installation." 1
+  IfErrors 0 +6
+    ;${ErrorHandler} 6 "Error in installation. Could not initiate installation." 1
+    DetailPrint "Error in installation. Could not initiate installation."
+    SetErrorLevel 6
+    IfSilent +2 0
+        MessageBox MB_OK 'Error in Installation. Aborting!$\n$\r$\n$\rCould not initiate installation.'
+    Abort "Error in installation. Could not initiate installation. Aborting."
 
 FunctionEnd
 
@@ -885,9 +989,13 @@ Function .onGUIEnd
     SetOutPath $STARTDIR
     Exec $INSTDIR\wincoot.bat
   ${EndIf}
-
-  IfErrors 0 +2
-    ${ErrorHandler} 7 "Error in installation. Could not write/edit runwincoot.bat." 1
+  IfErrors 0 +6
+    ; ${ErrorHandler} 7 "Error in installation. Could not write/edit runwincoot.bat." 1
+    DetailPrint "Error in installation. Could not write/edit runwincoot.bat."
+    SetErrorLevel 7
+    IfSilent +2 0
+        MessageBox MB_OK 'Error in Installation. Aborting!$\n$\r$\n$\rCould not write/edit runwincoot.bat.'
+    Abort "Error in installation. Could not write/edit runwincoot.bat. Aborting!"
 
 FunctionEnd
 
@@ -1008,6 +1116,13 @@ Function CheckForUpdate
   ${EndIf}
 FunctionEnd
 
+; to skip the probe & reduce info if we dont install this
+Function SkipProbeReduceInfo
+  ${IfNot} ${SectionIsSelected} ${SEC03}
+     abort ; no selected
+  ${EndIf}
+FunctionEnd
+
 ; before we start pages
 Function InitPreFunction
   Call CheckForUpdate
@@ -1047,8 +1162,9 @@ Function FinishPagePreFunction
    ; Maybe not too much any more... (since graphics card issue)
    ${If} ${AtLeastWinVista}
        ; change to run on 1 core only (to enable compositing!)
-       !insertmacro AdvReplaceInFile "coot-bin.exe" "start /affinity 1 coot-bin.exe" "0" "1" "$INSTDIR\runwincoot.bat.tmp"
-   ${EndIf}
+       !insertmacro AdvReplaceInFile "coot-bin.exe" "start /affinity 1 coot-bin.exe" "0" "1" "$INSTDIR\wincoot.bat.tmp"
+     ${EndIf}
+
    ; if we have an old bat file
    ${If} $have_bat == "True"
      ; check if wincootbats are different
@@ -1079,13 +1195,11 @@ Function FinishPagePreFunction
      ; dont have any wincoot.bat
      Rename "$INSTDIR\wincoot.bat.tmp" "$INSTDIR\wincoot.bat"
   ${EndIf}  ; have_bat nothing further to be one
-  ; deal with dynarama
-   !insertmacro ReplaceOnLine "yourWinCootdirectory" "$INSTDIR" "5" "$INSTDIR\dynarama.bat"
   ; executable access to everyone
   AccessControl::GrantOnFile /NOINHERIT "$INSTDIR\wincoot.bat" "(BA)" "FullAccess"
   AccessControl::GrantOnFile /NOINHERIT "$INSTDIR\wincoot.bat" "(BU)" "GenericExecute"
-  AccessControl::GrantOnFile /NOINHERIT "$INSTDIR\dynarama.bat" "(BA)" "FullAccess"
-  AccessControl::GrantOnFile /NOINHERIT "$INSTDIR\dynarama.bat" "(BU)" "GenericExecute"
+  AccessControl::GrantOnFile /NOINHERIT "$INSTDIR\bin\dynarama.bat" "(BA)" "FullAccess"
+  AccessControl::GrantOnFile /NOINHERIT "$INSTDIR\bin\dynarama.bat" "(BU)" "GenericExecute"
 
 ;  for now dont mess with pixbuf query loader
 ;  ExecWait 'cmd /c ""$INSTDIR\bin\gdk-pixbuf-query-loaders.exe" > "$INSTDIR\etc\gtk-2.0\gdk-pixbuf.loaders""'
@@ -1107,11 +1221,13 @@ ${If} $update = 0
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
   CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
   SetOutPath "$STARTDIR"
-  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\wincoot.bat"' "$INSTDIR\bin\coot-icon.ico"
   CreateShortCut "$QUICKLAUNCH\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\wincoot.bat"' "$INSTDIR\bin\coot-icon.ico"
   CreateShortCut "$DESKTOP\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\wincoot.bat"' "$INSTDIR\bin\coot-icon.ico"
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\wincoot.bat"' "$INSTDIR\bin\coot-icon.ico"
+  Sleep 10
   SetOutPath "$INSTDIR"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\DynaRama.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\bin\dynarama.bat"' "$INSTDIR\bin\rama_all.ico"
+  Sleep 10
   WriteIniStr "$INSTDIR\WinCoot.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
   WriteIniStr "$INSTDIR\Coot.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE_2}"
   CreateShortCut "$SMPROGRAMS\WinCoot\WinCoot Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
@@ -1119,8 +1235,11 @@ ${If} $update = 0
   CreateShortCut "$SMPROGRAMS\WinCoot\Coot Website.lnk" "$INSTDIR\Coot.url"
   Sleep 10
   CreateShortCut "$SMPROGRAMS\WinCoot\Uninstall.lnk" "$INSTDIR\uninst.exe"
+  Sleep 10
   CreateShortCut "$SMPROGRAMS\WinCoot\Coot Manual.lnk" "$INSTDIR\doc\coot-user-manual.pdf"
+  Sleep 10
   CreateShortCut "$SMPROGRAMS\WinCoot\Coot Keys and Buttons.lnk" "$INSTDIR\doc\crib-sheet.pdf"
+  Sleep 10
   CreateShortCut "$SMPROGRAMS\WinCoot\Coot Tutorial.lnk" "$INSTDIR\doc\tutorial.pdf"
   !insertmacro MUI_STARTMENU_WRITE_END
   SetOutPath "$INSTDIR"

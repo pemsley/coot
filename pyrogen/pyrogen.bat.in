@@ -1,19 +1,20 @@
 REM pyrogen version for windows
 
-set RDKIT_DIR=C:\boost\rdkit-Release_2017_09_3
-set RDKIT_LIBDIR=%RDKIT_DIR%\build\lib
-set RDKIT_BINDIR=%RDKIT_DIR%\build\bin
-set RDBASE=%RDKIT_DIR%
-set PYTHONPATH=%RDBASE%
-set BOOST_DIR=C:\boost-install
-set PATH=%PATH%;%RDBASE%\lib;%BOOST_DIR%\lib
-
 set prfx=%~dp0\..
 
 echo prfx is %prfx%
 
+REM BL says: I dont think I need these!?!
+REM set RDKIT_DIR=C:\boost\rdkit-Release_2017_09_3
+REM set RDKIT_LIBDIR=%RDKIT_DIR%\build\lib
+REM set RDKIT_BINDIR=%RDKIT_DIR%\build\bin
+REM set RDBASE=%RDKIT_DIR%
+REM set PYTHONPATH=%RDBASE%
+REM set BOOST_DIR=C:\boost-install
+REM set PATH=%PATH%;%RDBASE%\lib;%BOOST_DIR%\lib
+
 set PYTHONHOME=%prfx%\python27
 
-set PATH=%prfx%\python27;%prfx%\bin;%RDKIT_BINDIR%;%PATH%
+set PATH=%prfx%\python27;%prfx%\bin;%prfx%\lib;%PATH%
 
 python -m pyrogen %*
