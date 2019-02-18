@@ -40,8 +40,8 @@
 #include <map>
 
 #include <mmdb2/mmdb_manager.h>
+#include <clipper/core/coords.h>
 
-#include "clipper/core/coords.h"
 #include "mini-mol/atom-quads.hh"
 #include "coot-lsq-types.h"
 
