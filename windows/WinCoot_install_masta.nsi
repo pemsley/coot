@@ -407,6 +407,9 @@ Section "!WinCoot" SEC01
   SetOutPath "$INSTDIR\share\coot\scheme"
   File "${src_dir}\share\coot\scheme\*"
   ;lib
+  ; maybe the boost and rdkit dlls should be in bin rather than lib?!
+  SetOutPath "$INSTDIR\lib"
+  File /r "${src_dir}\lib\*.dll"
   SetOutPath "$INSTDIR\lib\gdk-pixbuf-2.0"
   File /r "${src_dir}\lib\gdk-pixbuf-2.0\*.*"
   SetOutPath "$INSTDIR\lib\gtk-2.0"
@@ -740,6 +743,7 @@ Section Uninstall
   Delete "$INSTDIR\etc\gtk-2.0\*"
   Delete "$INSTDIR\etc\fonts\*"
   Delete "$INSTDIR\etc\*"
+  Delete "$INSTDIR\lib\*"
   Delete "$INSTDIR\lib\gdk-pixbuf-2.0\*"
   Delete "$INSTDIR\lib\gtk-2.0\engines\*"
   Delete "$INSTDIR\lib\gtk-2.0\2.10.0\loaders\*"
