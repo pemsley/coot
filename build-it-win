@@ -3775,7 +3775,11 @@ date
 #
 # dont use -static-libgcc on windows otherwise we cannot throw exceptions.
 # means we need to supply libgcc_s_dw2-1.dll
-export CXXFLAGS="-g -O -static-libstdc++"
+if [ $build_shared = 1 ]  ; then
+  export CXXFLAGS="-g -O"
+else
+  export CXXFLAGS="-g -O -static-libstdc++"
+fi
 
 # for boost and rdkit:
 if [ $build_ligand_enhanced = 1 ]  ; then

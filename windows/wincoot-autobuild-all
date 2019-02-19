@@ -319,7 +319,7 @@ if [ "$build_installer" = "0" ] ; then
    # But should get the icons e.g.
    wget -N -P ${HOME}/autobuild/extras http://bernhardcl.github.io/coot/software/extras/coot-icon.ico
    wget -N -P ${HOME}/autobuild/extras http://bernhardcl.github.io/coot/software/extras/rama_all.ico
-   # some more extras (actually only required for newer msys!?
+   # some more extras (for probe and reduce)
    wget --no-check-certificate -N -P ${HOME}/autobuild/extras https://github.com/bernhardcl/coot/raw/gh-binaries/auxil_binaries/libgcc_s_dw2-1.dll
    wget --no-check-certificate -N -P ${HOME}/autobuild/extras https://github.com/bernhardcl/coot/raw/gh-binaries/auxil_binaries/libstdc++-6.dll
    # now make the installer

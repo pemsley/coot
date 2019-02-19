@@ -297,8 +297,9 @@ Section "!WinCoot" SEC01
   ; now the new mingw files for static compilation (or not)
   ; FIXME:: seems to be only needed in newer versions of msys
   ; ....... and maybe if we have shared compilation - not yet
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\libstdc++-6.dll"
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\libgcc_s_dw2-1.dll"
+  ; 19/2/19 take the system file on the system its build on
+  File "C:\MinGW\bin\libstdc++-6.dll"
+  File "C:\MinGW\bin\libgcc_s_dw2-1.dll"
 ; PYTHON stuff new
   SetOutPath "$INSTDIR\python27"
   File /r "${src_dir}\python27\*.*"
@@ -509,9 +510,13 @@ SectionEnd
 Section /o "Add probe&reduce" SEC03
   ClearErrors
   SetOverwrite on
-  SetOutPath "$INSTDIR\bin"
+  ; This needs to go in another bin as to void conflicst with the libstd and
+  ; libgcc dlls. Needs addition to PATH as well
+  SetOutPath "$INSTDIR\bin\extras"
   File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\probe.exe"
   File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\reduce.exe"
+  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\libstdc++-6.dll"
+  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\libgcc_s_dw2-1.dll"
   SetOutPath "$INSTDIR\share\coot"
   File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\reduce_wwPDB_het_dict.txt"
   SetOverwrite ifnewer
@@ -731,8 +736,7 @@ Section Uninstall
   Delete "$INSTDIR\bin\pkg-config.exe"
   Delete "$INSTDIR\bin\ppm2bmp.exe"
   ; probe & reduce (optional?)
-  Delete "$INSTDIR\bin\probe.exe"
-  Delete "$INSTDIR\bin\reduce.exe"
+  Delete "$INSTDIR\bin\extras\*"
   ; guile things
   Delete "$INSTDIR\bin\*guile*"
   Delete "$INSTDIR\bin\libgmp-3.dll"
@@ -845,6 +849,7 @@ Section Uninstall
   RMDir "$INSTDIR\etc\gtk-2.0"
   RMDir "$INSTDIR\etc\fonts"
   RMDir "$INSTDIR\etc"
+  RMDir "$INSTDIR\bin\extras"
   RMDir "$INSTDIR\bin"
   RMDir /r "$INSTDIR\lib\gdk-pixbuf-2.0"
   RMDir /r "$INSTDIR\lib\gtk-2.0"
