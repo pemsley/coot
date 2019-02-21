@@ -3701,10 +3701,17 @@ int show_environment_distances_state();
 /*! \brief min and max distances for the environment distances */
 void set_environment_distances_distance_limits(float min_dist, float max_dist);
 
+/*! \brief show the environment distances with solid modelling */
 void set_show_environment_distances_as_solid(int state);
 
+/*! \brief Label the atom on Environment Distances start/change */
 void set_environment_distances_label_atom(int state);
 
+/*! \brief Add a geometry distance between points in a given molecule
+
+@return the distance between the points
+
+*/
 double add_geometry_distance(int imol_1, float x_1, float y_1, float z_1, int imol_2, float x_2, float y_2, float z_2);
 #ifdef __cplusplus
 #ifdef USE_GUILE
