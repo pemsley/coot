@@ -13,6 +13,11 @@ REM set PYTHONPATH=%RDBASE%
 REM set BOOST_DIR=C:\boost-install
 REM set PATH=%PATH%;%RDBASE%\lib;%BOOST_DIR%\lib
 
+if not exist "%CLIBD%" (
+  echo dont have $CLIBD so setting ENERGY_LIB_CIF
+  set ENERGY_LIB_CIF=%prfx%\share\coot\lib\data\monomers\ener_lib.cif
+)
+
 set PYTHONHOME=%prfx%\python27
 
 set PATH=%prfx%\python27;%prfx%\bin;%prfx%\lib;%PATH%
