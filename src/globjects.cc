@@ -1011,8 +1011,7 @@ int         graphics_info_t::align_and_mutate_imol;
 std::string graphics_info_t::align_and_mutate_chain_from_optionmenu;
 int         graphics_info_t::nsv_canvas_pixel_limit = 22500;
 
-// Bob recommends:
-mmdb::realtype    graphics_info_t::alignment_wgap   = -0.5; // was -3.0;
+mmdb::realtype    graphics_info_t::alignment_wgap   = -3.0; // was -0.5 (Bob) // was -3.0;
 mmdb::realtype    graphics_info_t::alignment_wspace = -0.4;
 
 //
