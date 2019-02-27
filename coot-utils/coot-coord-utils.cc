@@ -4917,9 +4917,14 @@ coot::util::sort_residues_by_seqno(mmdb::PResidue *residues,
    // 
    std::vector<std::pair<mmdb::Residue *, int> >::iterator start = v.begin();
    std::vector<std::pair<mmdb::Residue *, int> >::iterator end   = v.end();
-   std::sort(start, end, coot::util::compare_residues);
+   std::sort(start, end, util::compare_residues);
    // sort(start, end) for things that have implicit comparison function.
-      
+
+   if (false) {
+      for (unsigned int i=0; i<v.size(); i++)
+         std::cout << " sorted " << residue_spec_t(v[i].first) << " " << v[i].second << std::endl;
+   }
+
    return v;
 }
 
@@ -4939,9 +4944,9 @@ coot::util::compare_residues(const std::pair<mmdb::Residue *, int> &a,
 	 std::string ins1(a.first->GetInsCode());
 	 std::string ins2(b.first->GetInsCode());
 	 if (ins1 > ins2) {
-	    return 0;
+	    return 1;
 	 } else {
-	    return 1; // check
+	    return 0; // now checked
 	 }
       }
    }
