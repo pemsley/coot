@@ -1,14 +1,14 @@
 
    For Release 0.8.9.2
 
-   o turn off CG torsion diff and update the dialog.
+   o Does align and mutate work?
+
+   o Dock sequence?
 
    o refinement: anchored atom is still highlighted when intermediate atoms are displayed.
      Ideally the fixed atom highlight should track the intermediate atom.
 
-   o twsted peptide/geometry omega added to validation outlier dialog.
-
-   o delete is_sane_inter_residue_distance debug
+   o twisted peptide/geometry omega added to validation outlier dialog.
 
    o can you make a stand-alone doxygen version of the python documentation?
 
@@ -18,6 +18,10 @@
    o multisharpen in a directory not writable. Give a better error message
 
    o Fetch molecule favipiravir doesn't work
+
+   o delete is_sane_inter_residue_distance debug
+
+* Done.
 
    o Copy Fragment (new_molecule_by_atom_selection()) should copy links too.
 

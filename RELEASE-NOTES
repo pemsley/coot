@@ -47,8 +47,15 @@
 
   o CHANGE:  CA Zone -> Mainchain builds in both directions
 
+  o CHANGE:  Alignment gap penalty changed to -3.0
+
+  o CHANGE:  Merging a ligand molecule now adds the ligand to the closest chain - unless
+             a merging molecule ligand has been specified
+
   o BUG-FIX: the H atom in a peptide is now moved along with the other peptide atoms
              on a cis->trans conversion (and vice versa)
+
+  o BUG-FIX: align-and-mutate occasional reversing of residues fixed [Rob Kirchdoerfer]
 
   O BUG-FIX: Using PDB-REDO now loads an anomalous map also (if possible) [Robbie Joosten]
 
