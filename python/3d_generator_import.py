@@ -13,6 +13,12 @@ global sbase_to_coot_tlc
 prodrg_xyzin      = "coot-lidia.mdl"
 sbase_to_coot_tlc = ".sbase-to-coot-comp-id"
 
+def get_file_latest_time(file_name):
+    if not os.path.isfile(file_name):
+        return False
+    else:
+        return os.stat(file_name).st_mtime
+
 global mdl_latest_time
 global sbase_transfer_latest_time
 mdl_latest_time = get_file_latest_time(prodrg_xyzin)
