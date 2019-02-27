@@ -235,6 +235,15 @@ if [ $systype = IRIX64 ] ; then
 fi
 
 
+# For installation using a non-local python
+if ! [ -e $COOT_PREFIX/lib/python2.7/site.py -o -e $COOT_PREFIX/lib64/python2.7/site.py ]; then
+  unset PYTHONHOME
+  # pth in PYTHONPATH are ignored, insert gtk-2.0 and coot explicitly
+  site_packages="$COOT_PREFIX/lib/python2.7/site-packages"
+  extra_pypath="$site_packages:$site_packages/coot:$site_packages/gtk-2.0"
+  export PYTHONPATH="$extra_pypath:${extra_pypath//lib/lib64}:$PYTHONPATH"
+fi
+
 export SYMINFO
 export COOT_PREFIX
 export COOT_STANDARD_RESIDUES
