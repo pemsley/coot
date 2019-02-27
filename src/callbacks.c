@@ -8307,7 +8307,7 @@ on_checked_waters_baddies_cancel_button_clicked
 
 
 void
-on_align___mutate1_activate            (GtkMenuItem     *menuitem,
+on_align_and_mutate1_activate            (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 
@@ -12747,15 +12747,6 @@ on_edit_settings_activate              (GtkMenuItem     *menuitem,
 {
 
 }
-
-
-void
-on_align_and_mutate1_activate          (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-
-}
-
 
 void
 on_calculate_all_molecule_activate     (GtkMenuItem     *menuitem,
