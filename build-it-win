@@ -381,15 +381,15 @@ STABLE_DEST_DIR=${STABLE_DEST_DIR:=${HOME}/public_html/software/binaries/stable}
 #
 fallback_coot_version=coot-0.8
 
-# For windows shared and Ligand enhanced compilation
+# For windows shared and enhanced Ligand compilation
 #
-# set this to "yes", i.e. 1 if you want to compile ligand enhanced.
+# set this to "yes", i.e. 1 if you want to compile wth enhanced ligand 
 #
-build_ligand_enhanced=${build_ligand_enhanced:=0}
+build_enhanced_ligand=${build_enhanced_ligand:=0}
 build_shared=${build_shared:=0}
 
 # LE needs shared, so set this too then
-if [ $build_ligand_enhanced = 1 ]  ; then
+if [ $build_enhanced_ligand = 1 ]  ; then
     build_shared=1
     build_boost=1
     build_rdkit=1
@@ -1696,7 +1696,7 @@ if test $? != 0 ; then
    build_pygtk=1
    build_pycairo=1
    build_pygobject=1
-   if [ $build_ligand_enhanced = 1 ] ; then
+   if [ $build_enhanced_ligand = 1 ] ; then
        build_numpy=1
        build_six=1
        build_qed=1
@@ -1727,7 +1727,7 @@ else
          build_pygobject=1
          build_pycairo=1
          build_pygtk=1
-         if [ $build_ligand_enhanced = 1 ] ; then
+         if [ $build_enhanced_ligand = 1 ] ; then
              build_numpy=1
              build_six=1
              build_qed=1
@@ -2047,7 +2047,7 @@ fi
 
 
 # test for boost and rdkit
-if [ $build_ligand_enhanced = 1 ]  ; then
+if [ $build_enhanced_ligand = 1 ]  ; then
     if [ -n "$build_boost" ] ; then
         if [ -e $install_top_dir/include/boost/version.hpp ] ; then
           echo $install_top_dir/include/boost/version.hpp exists not building boost
@@ -3529,7 +3529,7 @@ fi
 #########
 ## build BOOST and rdkit
 #########
-if [ $build_ligand_enhanced = 1 ] ; then
+if [ $build_enhanced_ligand = 1 ] ; then
     if test -n "$build_boost" ; then
         echo BUILDING Boost:
         boost_version=1.60.0
@@ -3782,7 +3782,7 @@ else
 fi
 
 # for boost and rdkit:
-if [ $build_ligand_enhanced = 1 ]  ; then
+if [ $build_enhanced_ligand = 1 ]  ; then
     coot_extra_args+=" --with-enhanced-ligand-tools  --with-boost=${install_top_dir} --with-boost-python=yes"
     # I think we have to export this otherwise there is some configure issue
     export RDKIT_CXXFLAGS="-I${install_top_dir}/include/rdkit"
