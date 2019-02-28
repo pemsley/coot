@@ -804,6 +804,16 @@ std::string atom_info_as_text_for_statusbar(int atom_index, int imol,
 //! \{
 
 //! \brief
+//! a utility to return the specs of all the residues, each spec prefixed by the serial number
+#ifdef USE_GUILE
+SCM all_residues_with_serial_numbers_scm(int imol);
+#endif
+#ifdef USE_PYTHON
+PyObject *all_residues_with_serial_numbers_py(int imol);
+#endif
+
+
+//! \brief
 //! regularize the given residues
 //!
 void regularize_residues(int imol, const std::vector<coot::residue_spec_t> &residues);

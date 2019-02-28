@@ -315,7 +315,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 	    // std::cout << "df weight is " << weight << std::endl;
 
 	    // double constant_part = 2.0*weight*(b_i - target_val)/b_i;
-	    double constant_part = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
+	    double constant_part = 2.0*weight * (1.0 - target_val * f_inv_fsqrt(b_i_sqrd));
 	    
 	    x_k_contrib = constant_part*(a1.x()-a2.x());
 	    y_k_contrib = constant_part*(a1.y()-a2.y());
@@ -325,8 +325,8 @@ void coot::my_df_bonds(const gsl_vector *v,
 	    y_l_contrib = constant_part*(a2.y()-a1.y());
 	    z_l_contrib = constant_part*(a2.z()-a1.z());
 
-	    if (!(*restraints)[i].fixed_atom_flags[0]) {
-	       idx = 3*(*restraints)[i].atom_index_1;
+	    if (!restraints->at(i).fixed_atom_flags[0]) {
+	       idx = 3*restraints->at(i).atom_index_1;
 
 	       *gsl_vector_ptr(df, idx  ) += x_k_contrib;
 	       *gsl_vector_ptr(df, idx+1) += y_k_contrib;
@@ -1769,7 +1769,7 @@ coot::my_df_planes(const gsl_vector *v,
 	    }
 
 	    coot::plane_distortion_info_t plane_info =
-	       distortion_score_plane_internal(plane_restraint, v);
+	       distortion_score_plane_internal(plane_restraint, v, false);
 	    n_plane_atoms = plane_restraint.plane_atom_index.size();
 	    // weight = 1/((*restraints)[i].sigma * (*restraints)[i].sigma);
 	    for (int j=0; j<n_plane_atoms; j++) {

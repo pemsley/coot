@@ -351,6 +351,10 @@ coot::process_dfs_in_range(int thread_idx,
 	 if (rest.restraint_type == coot::RAMACHANDRAN_RESTRAINT)
 	    process_dfs_rama(rest, restraints_p, v, results);
 
+      if (restraints_p->restraints_usage_flag & coot::PARALLEL_PLANES_MASK)
+	 if (rest.restraint_type == coot::PARALLEL_PLANES_RESTRAINT)
+	    process_dfs_parallel_planes(rest, v, results);
+
       if (rest.restraint_type == coot::TARGET_POS_RESTRAINT)
 	 process_dfs_target_position(rest, restraints_p->log_cosh_target_distance_scale_factor, v, results);
 
@@ -831,8 +835,11 @@ coot::process_dfs_plane(const coot::simple_restraint &plane_restraint,
    int idx; 
 
    double devi_len;
+   // this calculates plane_info.distortion_score, but we don't need it here.
+   // should I skip that?
+   //
    coot::plane_distortion_info_t plane_info =
-      distortion_score_plane_internal(plane_restraint, v);
+      distortion_score_plane_internal(plane_restraint, v, false);
    int n_plane_atoms = plane_restraint.plane_atom_index.size();
 
    for (int j=0; j<n_plane_atoms; j++) {
@@ -844,16 +851,73 @@ coot::process_dfs_plane(const coot::simple_restraint &plane_restraint,
 	    plane_info.abcd[2]*gsl_vector_get(v,idx+2) -
 	    plane_info.abcd[3];
 
-	 double weight = 1/(plane_restraint.plane_atom_index[j].second *
-			    plane_restraint.plane_atom_index[j].second);
+	 double weight = 1.0/(plane_restraint.plane_atom_index[j].second *
+			      plane_restraint.plane_atom_index[j].second);
+
+	 clipper::Grad_orth<double> d(2.0 * weight * devi_len * plane_info.abcd[0],
+				      2.0 * weight * devi_len * plane_info.abcd[1],
+				      2.0 * weight * devi_len * plane_info.abcd[2]);
+	 results[idx  ] += d.dx();
+	 results[idx+1] += d.dy();
+	 results[idx+2] += d.dz();
+      }
+   }
+}
+
+void
+coot::process_dfs_parallel_planes(const coot::simple_restraint &ppr,
+				  const gsl_vector *v,
+				  std::vector<double> &results) { // fill results
+
+   unsigned int first_atoms_size = ppr.plane_atom_index.size();
+
+   // this calculates plane_info.distortion_score, but we don't need it here.
+   // should I skip that? No. We don't need to optimize parallel plane restraints
+   // at the moment.
+   //
+   plane_distortion_info_t plane_info =
+      distortion_score_2_planes(ppr.plane_atom_index, ppr.atom_index_other_plane, ppr.sigma, v);
+
+   unsigned int n_plane_atoms = ppr.plane_atom_index.size();
+
+   double weight = 0.25 /(ppr.sigma * ppr.sigma); // hack down the weight, c.f. distortion_score_2_planes
+
+   // hack the weight - needs a better fix than this
+   // weight *= 0.1;
+
+   for (unsigned int j=0; j<n_plane_atoms; j++) {
+      if (! ppr.fixed_atom_flags[j] ) {
+	 unsigned int idx = 3*ppr.plane_atom_index[j].first;
+	 double devi_len =
+	    plane_info.abcd[0]*(gsl_vector_get(v,idx  ) - plane_info.centre_1.x()) +
+	    plane_info.abcd[1]*(gsl_vector_get(v,idx+1) - plane_info.centre_1.y()) +
+	    plane_info.abcd[2]*(gsl_vector_get(v,idx+2) - plane_info.centre_1.z()) -
+	    plane_info.abcd[3];
 
 	 clipper::Grad_orth<double> d(2.0 * weight * devi_len * plane_info.abcd[0],
 				      2.0 * weight * devi_len * plane_info.abcd[1],
 				      2.0 * weight * devi_len * plane_info.abcd[2]);
 
-	 // *gsl_vector_ptr(df, idx  ) += d.dx();
-	 // *gsl_vector_ptr(df, idx+1) += d.dy();
-	 // *gsl_vector_ptr(df, idx+2) += d.dz();
+	 results[idx  ] += d.dx();
+	 results[idx+1] += d.dy();
+	 results[idx+2] += d.dz();
+      }
+   }
+
+   // second plane
+   n_plane_atoms = ppr.atom_index_other_plane.size();
+   for (unsigned int j=0; j<n_plane_atoms; j++) {
+      if (! ppr.fixed_atom_flags_other_plane[j] ) {
+	 unsigned int idx = 3*ppr.atom_index_other_plane[j].first;
+	 double devi_len =
+	    plane_info.abcd[0]*(gsl_vector_get(v,idx  ) - plane_info.centre_2.x()) +
+	    plane_info.abcd[1]*(gsl_vector_get(v,idx+1) - plane_info.centre_2.y()) +
+	    plane_info.abcd[2]*(gsl_vector_get(v,idx+2) - plane_info.centre_2.z()) -
+	    plane_info.abcd[3];
+
+	 clipper::Grad_orth<double> d(2.0 * weight * devi_len * plane_info.abcd[0],
+				      2.0 * weight * devi_len * plane_info.abcd[1],
+				      2.0 * weight * devi_len * plane_info.abcd[2]);
 
 	 results[idx  ] += d.dx();
 	 results[idx+1] += d.dy();
@@ -861,6 +925,7 @@ coot::process_dfs_plane(const coot::simple_restraint &plane_restraint,
       }
    }
 }
+
 
 void
 coot::process_dfs_non_bonded(const coot::simple_restraint &this_restraint,

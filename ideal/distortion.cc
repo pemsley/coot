@@ -800,7 +800,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 	 if (this_restraint.restraint_type == coot::PARALLEL_PLANES_RESTRAINT) {
 	    d =  coot::distortion_score_parallel_planes(this_restraint, v);
 	    *distortion += d;
-	    // std::cout << "dsm: parallel plane " << thread_id << " idx " << i << " " << d << std::endl;
+	    // std::cout << "dsm: parallel plane thread: " << thread_id << " idx " << i << " " << d << std::endl;
 	    continue;
 	 }
       }
@@ -1512,7 +1512,7 @@ coot::distortion_score_plane(const coot::simple_restraint &plane_restraint,
 			     const gsl_vector *v) {
 
    coot::plane_distortion_info_t info =
-      distortion_score_plane_internal(plane_restraint, v);
+      distortion_score_plane_internal(plane_restraint, v, true);
 
    return info.distortion_score;
 
@@ -2015,7 +2015,8 @@ coot::distortion_score_non_bonded_contact_lennard_jones(const coot::simple_restr
 
 coot::plane_distortion_info_t
 coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restraint,
-				      const gsl_vector *v) {
+				      const gsl_vector *v,
+				      bool calculate_distortion_flag) {
 
 
    coot::plane_distortion_info_t info;
@@ -2038,19 +2039,16 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
    double sum_x = 0, sum_y = 0, sum_z = 0;
    int idx;
    int n_atoms = plane_restraint.plane_atom_index.size();
-   double dn_atoms = double(n_atoms); 
+   double dn_atoms = static_cast<double>(n_atoms);
 
    if (n_atoms > 0) { 
       for (int i=0; i<n_atoms; i++) {
 
 	 idx = 3*(plane_restraint.plane_atom_index[i].first);
 
-// 	 std::cout << "atom_index vs n_atom " << plane_restraint.atom_index[i]
-// 		   << " " << n_atoms << std::endl;
 	 if (plane_restraint.plane_atom_index[i].first < 0) {
 	    std::cout << "trapped bad plane restraint! " << plane_restraint.plane_atom_index[i].first
 		      << std::endl;
-	    // return info;
 	 } else {
 	    sum_x += gsl_vector_get(v,idx);
 	    sum_y += gsl_vector_get(v,idx+1);
@@ -2068,13 +2066,16 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 	 // std::cout << "plane restraint adding plane deviations for atom index "
 	 // << plane_restraint.atom_index[i] << std::endl;
 	 if (plane_restraint.plane_atom_index[i].first < 0) {
-	 } else { 
-	    mat(0,0) += (gsl_vector_get(v,idx  ) - x_cen) * (gsl_vector_get(v,idx  ) - x_cen);
-	    mat(1,1) += (gsl_vector_get(v,idx+1) - y_cen) * (gsl_vector_get(v,idx+1) - y_cen);
-	    mat(2,2) += (gsl_vector_get(v,idx+2) - z_cen) * (gsl_vector_get(v,idx+2) - z_cen);
-	    mat(0,1) += (gsl_vector_get(v,idx  ) - x_cen) * (gsl_vector_get(v,idx+1) - y_cen);
-	    mat(0,2) += (gsl_vector_get(v,idx  ) - x_cen) * (gsl_vector_get(v,idx+2) - z_cen);
-	    mat(1,2) += (gsl_vector_get(v,idx+1) - y_cen) * (gsl_vector_get(v,idx+2) - z_cen);
+	 } else {
+	    double v_idx_0 = gsl_vector_get(v,idx  );
+	    double v_idx_1 = gsl_vector_get(v,idx+1);
+	    double v_idx_2 = gsl_vector_get(v,idx+2);
+	    mat(0,0) += (v_idx_0 - x_cen) * (v_idx_0 - x_cen);
+	    mat(1,1) += (v_idx_1 - y_cen) * (v_idx_1 - y_cen);
+	    mat(2,2) += (v_idx_2 - z_cen) * (v_idx_2 - z_cen);
+	    mat(0,1) += (v_idx_0 - x_cen) * (v_idx_1 - y_cen);
+	    mat(0,2) += (v_idx_0 - x_cen) * (v_idx_2 - z_cen);
+	    mat(1,2) += (v_idx_1 - y_cen) * (v_idx_2 - z_cen);
 	 }
       }
       mat(1,0) = mat(0,1);
@@ -2083,8 +2084,8 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 
       if (false) { // debug
 	 std::cout << "mat pre  eigens:\n";
-	 for (unsigned int ii=0; ii<3; ii++) { 
-	    for (unsigned int jj=0; jj<3; jj++) { 
+	 for (unsigned int ii=0; ii<3; ii++) {
+	    for (unsigned int jj=0; jj<3; jj++) {
 	       std::cout << "mat(" << ii << "," << jj << ") = " << mat(ii,jj) << "   ";
 	    }
 	    std::cout << "\n";
@@ -2099,16 +2100,16 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
       abcd[1] = mat(1,0);
       abcd[2] = mat(2,0);
 
-      if (0) { // debug
+      if (false) { // debug
 	 std::cout << "mat post eigens:\n";
-	 for (unsigned int ii=0; ii<3; ii++) { 
-	    for (unsigned int jj=0; jj<3; jj++) { 
+	 for (unsigned int ii=0; ii<3; ii++) {
+	    for (unsigned int jj=0; jj<3; jj++) {
 	       std::cout << "mat(" << ii << "," << jj << ") = " << mat(ii,jj) << "   ";
 	    }
 	    std::cout << "\n";
 	 }
       }
-      
+
       double sqsum = 1e-20;
 
       for (int i=0; i<3; i++)
@@ -2116,32 +2117,28 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
       for (int i=0; i<3; i++)
 	 abcd[i] /= sqsum;
 
-
       //set d, recall di = Axi+Byi+Czi-D, so xi = x_cen, yi = y_cen, zi = z_cen:
       abcd[3] = abcd[0]*x_cen + abcd[1]*y_cen + abcd[2]*z_cen;
       info.abcd = abcd;
 
-      double val;
-      for (int i=0; i<n_atoms; i++) {
-	 idx = 3*(plane_restraint.plane_atom_index[i].first);
-	 if (idx < 0) {
-	 } else { 
-	    // if (! plane_restraint.fixed_atom_flags[i] ) {
-	    if (true) { // should fixed atoms contribute to the distortion of the plane?
-	                // yes.
-	       val = 
-		  abcd[0]*gsl_vector_get(v,idx  ) +
-		  abcd[1]*gsl_vector_get(v,idx+1) +
-		  abcd[2]*gsl_vector_get(v,idx+2) -
-		  abcd[3];
-	       double r = val/plane_restraint.plane_atom_index[i].second; // .second is the weight
-	       sum_devi += r*r;
+      if (calculate_distortion_flag) {
+
+	 for (int i=0; i<n_atoms; i++) {
+	    idx = 3*(plane_restraint.plane_atom_index[i].first);
+	    if (idx < 0) {
+	    } else {
+	       // if (! plane_restraint.fixed_atom_flags[i] ) {
+	       if (true) { // should fixed atoms contribute to the distortion of the plane?
+		  // yes.
+		  double val = abcd[0]*gsl_vector_get(v,idx  ) +
+		               abcd[1]*gsl_vector_get(v,idx+1) +
+		               abcd[2]*gsl_vector_get(v,idx+2) -
+		               abcd[3];
+		  double r = val/plane_restraint.plane_atom_index[i].second; // .second is the weight
+		  sum_devi += r*r;
+	       }
 	    }
 	 }
-      }
-
-      if (false) {
-	 std::cout << plane_restraint << " " << sum_devi << std::endl;
       }
    }
 
@@ -2150,9 +2147,8 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 		<< sum_devi << " for " << plane_restraint.plane_atom_index.size() << " atoms"
 		<< std::endl;
    
-    // info.distortion_score = sum_devi / (plane_restraint.sigma * plane_restraint.sigma);
-    // now individually weighted
-    info.distortion_score = sum_devi;
+   if (calculate_distortion_flag)
+      info.distortion_score = sum_devi;
    
    return info;
 }
@@ -2321,7 +2317,7 @@ coot::distortion_score_2_planes(const std::vector<std::pair<int, double> > &atom
       for (unsigned int i=0; i<atom_index_set_2.size(); i++) {
 	 idx = 3*(atom_index_set_2[i].first);
 	 if (idx < 0) {
-	 } else { 
+	 } else {
 	    val = 
 	       abcd[0]*(gsl_vector_get(v,idx  ) - x_cen_2) +
 	       abcd[1]*(gsl_vector_get(v,idx+1) - y_cen_2) +
@@ -2330,7 +2326,8 @@ coot::distortion_score_2_planes(const std::vector<std::pair<int, double> > &atom
 	 }
       }
    }
-   info.distortion_score = sum_devi / (restraint_sigma * restraint_sigma);
+   // hack down the weight
+   info.distortion_score = 0.25 * sum_devi / (restraint_sigma * restraint_sigma);
    return info;
 }
 

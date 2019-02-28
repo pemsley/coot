@@ -785,7 +785,7 @@ short int graphics_info_t::moving_atoms_asc_type = coot::NEW_COORDS_UNSET; // un
 int graphics_info_t::imol_moving_atoms = 0;
 coot::extra_restraints_representation_t graphics_info_t::moving_atoms_extra_restraints_representation;
 
-bool graphics_info_t::draw_it_for_moving_atoms_restraints_graphics_object = true;
+bool graphics_info_t::draw_it_for_moving_atoms_restraints_graphics_object = false;
 int graphics_info_t::imol_refinement_map = -1; // magic initial value "None set"
                                                // checked in graphics_info_t::refine()
 
@@ -1035,8 +1035,7 @@ int         graphics_info_t::align_and_mutate_imol;
 std::string graphics_info_t::align_and_mutate_chain_from_optionmenu;
 int         graphics_info_t::nsv_canvas_pixel_limit = 22500;
 
-// Bob recommends:
-mmdb::realtype    graphics_info_t::alignment_wgap   = -0.5; // was -3.0;
+mmdb::realtype    graphics_info_t::alignment_wgap   = -3.0; // was -0.5 (Bob) // was -3.0;
 mmdb::realtype    graphics_info_t::alignment_wspace = -0.4;
 
 //

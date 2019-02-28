@@ -1253,7 +1253,7 @@ create_window1 (void)
                       GTK_SIGNAL_FUNC (on_mutate_molecule1_activate),
                       NULL);
   gtk_signal_connect (GTK_OBJECT (align___mutate1), "activate",
-                      GTK_SIGNAL_FUNC (on_align___mutate1_activate),
+                      GTK_SIGNAL_FUNC (on_align_and_mutate1_activate),
                       NULL);
   gtk_signal_connect (GTK_OBJECT (renumber_residues1), "activate",
                       GTK_SIGNAL_FUNC (on_renumber_residues1_activate),

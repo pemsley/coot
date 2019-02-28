@@ -7389,6 +7389,32 @@ $ apt-get install librsvg2-dev
 
 (maybe it was not the dev package but the libs/common that solved it, librsvg2-common)
 
+
+
+----
+Wed 20 Feb 2019 16:07:02 PST
+
+
+$ ls ~/ccp4/ccp4-src-2015-02-05%/ccp4-6.5/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
+$ ls "/Users/pemsley/ccp4/ccp4-src-2015-02-05/ccp4-6.5/lib/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-svg.so"
+$ otool -L "/Users/pemsley/ccp4/ccp4-src-2015-02-05/ccp4-6.5/lib/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-svg.so"
+
+fragment of loaders.cache:
+
+"/Users/pemsley/ccp4/ccp4-src-2015-02-05/ccp4-6.5/lib/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-ras.so"
+"ras" 4 "gdk-pixbuf" "The Sun raster image format" "LGPL"
+"image/x-cmu-raster" "image/x-sun-raster" ""
+"ras" ""
+"Y\246j\225" "" 100
+
+"/Users/pemsley/ccp4/ccp4-src-2015-02-05/ccp4-6.5/lib/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-svg.so"
+"svg" 2 "gdk-pixbuf" "Scalable Vector Graphics" "LGPL"
+"image/svg+xml" "image/svg" "image/svg-xml" "image/vnd.adobe.svg+xml" "text/xml-svg" ""
+"svg" ""
+" <svg" "*    " 100
+" <!DOCTYPE svg" "*             " 100
+
+
 ----
 
    using lldb:
@@ -8768,4 +8794,55 @@ Fri 25 Jan 2019 20:54:54 GMT
 
 Software Violations in Binary Code
 https://nixos.org/~eelco/pubs/clones-msr2011-final.pdf
+
+----
+Tue  5 Feb 2019 11:44:27 PST
+
+  gettext problems in cj build gtkglext (glib)
+
+  configuration of glib failed because it couldn't find gettext (perhaps msgfmt, actually)
+  That was because cj build didn't install the msgfmt file.
+
+  The solution was to put the directory for msgfmt in the path before running cj (and that
+  directory was provided by homebrew).
+
+  A better solution is for cj to install msgfmt and put the directory into which it installs
+  it into the path itself.
+
+----
+Mon 11 Feb 2019 13:05:44 PST
+
+   compiling readline from source
+
+https://stackoverflow.com/questions/26670417/how-to-compile-readline-from-source
+
+ldd -r /mypath/lib/libreadline.so.6.2
+        linux-vdso.so.1 =>  (0x00007ffffb186000)
+        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f450c62f000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007f450cc07000)
+undefined symbol: UP    (/mypath/lib/libreadline.so.6.2)
+undefined symbol: PC    (/mypath/lib/libreadline.so.6.2)
+undefined symbol: BC    (/mypath/lib/libreadline.so.6.2)
+
+--with-curses'
+    This tells readline that it can find the termcap library functions
+    (tgetent, et al.) in the curses library, rather than a separate
+    termcap library.  Readline uses the termcap functions, but does not
+    link with the termcap or curses library itself, allowing applications
+    which link with readline the to choose an appropriate library.
+    This option tells readline to link the example programs with the
+    curses library rather than libtermcap.
+
+make SHLIB_LIBS=/mypath/libncurses.so
+
+
+----
+Sat 16 Feb 2019 06:02:48 PST
+
+LBFGS insights:
+https://www12.cs.fau.de/edu/map/ss12/talks/lbfgs_map_superresolution.pdf
+
+   Does changing the Rama weight make our function more like a rosenbrock function?
+
+   http://en.wikipedia.org/wiki/Rosenbrock_function
 

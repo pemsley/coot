@@ -2945,6 +2945,8 @@ public:        //                      public
 				     coot::residue_spec_t spec_2);
    // which uses:
    std::vector<std::string> nucelotide_residue_name_to_base_atom_names(const std::string &rn) const;
+   // for non-bases, normal amino acids (simple-minded, currently).
+   std::vector<std::string> residue_name_to_plane_atom_names(const std::string &rn) const;
    
    void clear_extra_restraints();
 
@@ -3129,6 +3131,8 @@ public:        //                      public
    coot::residue_spec_t get_residue_by_type(const std::string &residue_type) const;
    
    std::vector<coot::residue_spec_t> get_residues_by_type(const std::string &residue_type) const;
+
+   std::vector<coot::residue_spec_t> all_residues() const;
 
    std::vector<coot::residue_spec_t> het_groups() const;
 

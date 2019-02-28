@@ -1190,6 +1190,9 @@ coot::trace::spin_score(unsigned int idx_1, unsigned int idx_2) const {
    // spin this points A, B and C around the pos_1 - pos_2 line and the score is
    // rho(A) - rho(B) - rho(C)
 
+   // Note to self: also "above" and "below" the peptide plane we expect to have
+   // little to no density - so that should be added to the scoring system too.
+
    clipper::Coord_orth arb(0,0,1);
    clipper::Coord_orth diff_p(pos_2 - pos_1);
    clipper::Coord_orth diff_p_unit(diff_p.unit());

@@ -50,7 +50,7 @@ AC_PROVIDE([AM_PATH_GUILE_GTK])
 
 
 AC_ARG_WITH(
-	guile-gtk-prefix, [  --with-glut-prefix=PFX for guile-gtk Installation],
+	guile-gtk-prefix, [  --with-guile-gtk-prefix=PRFX for guile-gtk Installation],
 	guile_gtk_prefix="$withval",
 	guile_gtk_prefix="")
 

@@ -647,6 +647,13 @@
 (define (refine-active-residue-triple)
   (refine-active-residue-generic 1))
 
+(define (refine-active-fragment)
+  (using-active-atom
+   ;; needs a "don't count Hydrogen atom" mode
+   (let ((residues (linked-residues-scm aa-res-spec aa-imol 1.7)))
+     (if (list? residues)
+         (refine-residues aa-imol residues)
+	 (format #t "WARNING:: residues not a list!~%")))))
 
 ;; For just one (this) residue, side-residue-offset is 0.
 ;; 

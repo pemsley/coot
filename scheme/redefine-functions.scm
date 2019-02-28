@@ -126,6 +126,8 @@
 (define c-beta-deviations c-beta-deviations-scm)
 (define set-go-to-atom-from-atom-spec set-go-to-atom-from-atom-spec-scm)
 (define chiral-volume-errors chiral-volume-errors-scm)
+(define all-residues-with-serial-numbers all-residues-with-serial-numbers-scm)
+(define generate-local-self-restraints-by-residues generate-local-self-restraints-by-residues-scm)
 
 ;; (define residues-distortions residues-distortions-scm)
 

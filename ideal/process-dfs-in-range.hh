@@ -34,6 +34,11 @@ namespace coot {
 		     std::vector<double> &results);
 
    void
+   process_dfs_parallel_planes(const simple_restraint &restraint,
+			       const gsl_vector *v,
+			       std::vector<double> &results);
+
+   void
    process_dfs_non_bonded(const simple_restraint &restraint,
 			  const gsl_vector *v,
 			  std::vector<double> &results); // fill results

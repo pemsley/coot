@@ -446,30 +446,33 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
    atom_z_occ_weight.resize(n_atoms);
    std::vector<std::pair<std::string, int> > atom_list = coot::util::atomic_number_atom_list();
    for (int i=0; i<n_atoms; i++) {
-      double z = coot::util::atomic_number(atom[i]->element, atom_list);
-      double weight = 1.0;
-      double occupancy = atom[i]->occupancy;
-      if (occupancy > 1.0) occupancy = 1.0;
-      if (cryo_em_mode) {
-	 // is-side-chain? would be a better test
-	 if (! is_main_chain_or_cb_p(atom[i]))
-	    {
-	       // std::cout << "downweighting atom " << coot::atom_spec_t(atom[i]) << std::endl;
-	       weight = 0.1;
+      mmdb::Atom *at = atom[i];
+      if (! at->isTer()) {
+	 double z = coot::util::atomic_number(at->element, atom_list);
+	 double weight = 1.0;
+	 double occupancy = atom[i]->occupancy;
+	 if (occupancy > 1.0) occupancy = 1.0;
+	 if (cryo_em_mode) {
+	    // is-side-chain? would be a better test
+	    if (! is_main_chain_or_cb_p(at)) {
+		  // std::cout << "downweighting atom " << coot::atom_spec_t(atom[i]) << std::endl;
+		  weight = 0.2;
 	    }
-	 std::string at_name = atom[i]->name;
-	 if (at_name == " O  ") {
-	    weight = 0.2;
+	    std::string at_name = atom[i]->name;
+	    if (at_name == " O  ") {
+	       weight = 0.4;
+	    }
 	 }
-      }
 
-      if (z < 0.0) {
-	 std::cout << "Unknown element :" << atom[i]->element << ": " << std::endl;
-	 z = 6.0; // as for carbon
+	 if (z < 0.0) {
+	    std::cout << "WARNING:: init_shared_post() atom " << i << " " << atom_spec_t(atom[i])
+		      << " Unknown element \"" << atom[i]->element << "\"" << std::endl;
+	    z = 6.0; // as for carbon
+	 }
+	 atom_z_occ_weight[i] = weight * z * occupancy;
       }
-      atom_z_occ_weight[i] = weight * z * occupancy;
    }
-   
+
    // the fixed atoms:   
    // 
    assign_fixed_atom_indices(fixed_atom_specs); // convert from std::vector<atom_spec_t>
@@ -479,7 +482,7 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
    for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
       use_map_gradient_for_atom[fixed_atom_indices[ifixed]] = false;
    } 
-   
+
    if (verbose_geometry_reporting == VERBOSE)
       for (int i=0; i<n_atoms; i++)
 	 std::cout << atom[i]->name << " " << atom[i]->residue->seqNum << " "
@@ -3528,7 +3531,7 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
       std::cout << "debug:: ------------------- bonded_residues_from_res_vec() residues_vec.size() "
 		<< residues_vec.size() << std::endl;
       for (unsigned int i=0; i<residues_vec.size(); i++) {
-	 std::cout << "   " << residues_vec[i].first << " "
+	 std::cout << "   fixed: " << residues_vec[i].first << " spec: "
 		   << residue_spec_t(residues_vec[i].second) << std::endl;
       }
       for (unsigned int ii=0; ii<residues_vec.size(); ii++) {
@@ -3539,9 +3542,6 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	    std::cout << "debug:: ------------ test here with res_f and res_s "
 		      << residue_spec_t(res_f) << " " << residue_spec_t(res_s) << std::endl;
 
-	    if (res_f == res_s) {
-	       continue;
-	    }
 	 }
       }
    }
@@ -3564,14 +3564,15 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	 // here by distance between residues.
 
 	 std::pair<std::string, bool> l = find_link_type_complicado(res_f, res_s, geom);
+
+	 // too verbose?
+	 if (false)
+	    std::cout << "   INFO:: find_link_type_complicado() for: "
+		      << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
+		      << " returns link_type -> \"" << l.first << "\"" << std::endl;
+
 	 std::string link_type = l.first;
 	 if (!link_type.empty()) {
-
-	    // too verbose?
-	    if (false)
-	       std::cout << "   INFO:: find_link_type_complicado() for: "
-			 << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
-			 << " returns link_type -> \"" << link_type << "\"" << std::endl;
 
 	    bool whole_first_residue_is_fixed = 0;
 	    bool whole_second_residue_is_fixed = 0;
@@ -3604,7 +3605,8 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	       if (ser_num_2 == (ser_num_1 + 1)) {
 		  std::string rn_1 = res_f->GetResName();
 		  if (rn_1 != "ASN" && rn_1 != "CYS" && rn_1 != "SER" && rn_1 != "TYR") {
-		     was_straight_forward_trans_link = true;
+		     if (link_type == "TRANS" || link_type == "PTRANS")
+			was_straight_forward_trans_link = true;
 		  }
 	       }
 	    }
