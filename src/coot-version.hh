@@ -1,4 +1,8 @@
 
+/*! \file
+  \brief Coot Scripting Interface - Version info
+*/
+
 
 /*! \brief the coot version string 
 

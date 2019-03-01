@@ -40,8 +40,13 @@
 
 #include "coords/phenix-geo.hh"
 
+/*! \file
+  \brief Coot Scripting Interface - General (C++ functions)
+*/
+
 namespace coot {
 
+   //! alias path
    class alias_path_t {
    public:
       int index;
@@ -54,7 +59,7 @@ namespace coot {
       }
    };
 
-   // pisa internal function
+   //! pisa internal function
    //
    class pisa_interface_bond_info_t {
    public:
@@ -295,6 +300,7 @@ std::string refmac_name(int imol);
 /*  ------------------------------------------------------------------- */
 
 namespace coot {
+   //! str mtime for for attributes
    class str_mtime {
    public:
       str_mtime(std::string file_in, time_t mtime_in) {
@@ -306,7 +312,7 @@ namespace coot {
       std::string file;
    };
    
-   // trivial helper function
+   //! trivial helper function for file attributes
    class file_attribs_info_t {
    public:
       std::string directory_prefix;

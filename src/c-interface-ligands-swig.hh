@@ -6,6 +6,10 @@
 #include "probe-clash-score.hh"
 #include "ligand-check.hh"
 
+/*! \file
+  \brief Coot Scripting Interface - Ligands interface
+*/
+
 // We don't need to SWIG this one...
 std::pair<mmdb::Residue *, int>
 new_molecule_sans_biggest_ligand(int imol);

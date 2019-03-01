@@ -22,6 +22,12 @@
 
 #include "generic-display-objects-c.h"
 
+
+/*! \file
+  \brief Coot Scripting Interface - Generic Objects interface
+*/
+
+
 /*  ----------------------------------------------------------------------- */
 /*                  Generic Objects                                         */
 /*  ----------------------------------------------------------------------- */

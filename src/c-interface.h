@@ -24,7 +24,7 @@
 /* svn $Id: c-interface.h 1458 2007-01-26 20:20:18Z emsley $ */
 
 /*! \file 
-  \brief Coot Scripting Interface
+  \brief Coot Scripting Interface - General
 
   Here is a list of all the scripting interface functions. They are
   described/formatted in c/python format.
@@ -266,11 +266,11 @@ void manage_column_selector(const char *filename);
 /*! \name Molecule Info Functions */
 /* \{ */
 
-/*! \brief  the number of residues in chain chain_id and molecule number imol
+/*! \brief the number of residues in chain chain_id and molecule number imol
   @return the number of residues 
 */
 int chain_n_residues(const char *chain_id, int imol); 
-/* \brief internal function for molecule centre
+/*! \brief internal function for molecule centre
 
 @return status, less than -9999 is for failure (eg. bad imol); */
 float molecule_centre_internal(int imol, int iaxis);
@@ -362,13 +362,13 @@ int is_protein_chain_p(int imol, const char *chain_id);
 int is_nucleotide_chain_p(int imol, const char *chain_id);
 
 
-/*!\brief return the number of residues in the molecule, 
+/*! \brief return the number of residues in the molecule,
 
 return -1 if this is a map or closed.
  */
 int n_residues(int imol);
 
-/*!\brief return the atoms of residues in the molecule, 
+/*! \brief return the atoms of residues in the molecule,
 
 return -1 if this is a map or closed.
  */
@@ -934,12 +934,12 @@ int main_toolbar_style_state();
 /*! \name   Mouse Buttons */
 /* \{ */
 
-/* \brief quanta-like buttons
+/*! \brief quanta-like buttons
 
 Note, when you have set these, there is no way to turn them of
    again (other than restarting). */
 void quanta_buttons(); 
-/* \brief quanta-like zoom buttons
+/*! \brief quanta-like zoom buttons
 
 Note, when you have set these, there is no way to turn them of
    again (other than restarting). */
@@ -1185,15 +1185,15 @@ void set_last_map_colour(double f1, double f2, double f3);
 /*! \brief set the colour of the imolth map */
 void set_map_colour(int imol, float red, float green, float blue);
 
-/* \brief set the contour level, direct control */
+/*! \brief set the contour level, direct control */
 void set_contour_level_absolute(int imol_map, float level);
-/* \brief set the contour level, direct control in r.m.s.d. (if you like that sort of thing) */
+/*! \brief set the contour level, direct control in r.m.s.d. (if you like that sort of thing) */
 void set_contour_level_in_sigma(int imol_map, float level);
 
-/* \brief get the contour level */
+/*! \brief get the contour level */
 float get_contour_level_absolute(int imol);
 
-/* \brief get the contour level in rmd above 0. */
+/*! \brief get the contour level in rmd above 0. */
 float get_contour_level_in_sigma(int imol);
 
 /*! \brief set the sigma step of the last map to f sigma */
@@ -2904,7 +2904,7 @@ void set_all_models_displayed_and_active(int on_or_off);
 */
 void set_only_last_model_molecule_displayed();
 
-/*\brief display only the active mol and the refinement map */
+/*! \brief display only the active mol and the refinement map */
 void display_only_active();
 
 
@@ -3441,7 +3441,7 @@ int set_imol_refinement_map(int imol);	/* returns imol on success, otherwise -1 
 */
 int does_residue_exist_p(int imol, char *chain_id, int resno, char *inscode); 
 
-/* ! \brief delete the restraints for the given comp_id (i.e. residue name)  
+/*! \brief delete the restraints for the given comp_id (i.e. residue name)
 
 @return success status (0 is failed, 1 is success)
 */
@@ -3648,7 +3648,7 @@ void do_residue_info_dialog();
 /* MOVE-ME to c-interface-gtk-widgets.h */
  void output_residue_info_dialog    (int imol, int atom_index); /* widget version */
 /* scripting version */
- /*! \brief show residue info dialog for given residue */
+/*! \brief show residue info dialog for given residue */
 void residue_info_dialog(int imol, const char *chain_id, int resno, const char *ins_code); 
 int residue_info_dialog_is_displayed();
 void output_residue_info_as_text(int atom_index, int imol); /* text version */
@@ -6896,9 +6896,9 @@ PyObject *all_molecule_ramachandran_region_py(int imol);
 /*! 
 
     20100616 This doesn't get into the doxygen documentation for some
-    reason I can't figure out.  Ask Kevin.
+    reason I can't figure out.
 
-    \fn user_defined_click(int n_clicks, SCM func);
+    \fn user_defined_click_scm(int n_clicks, SCM func);
 
     \brief run a user defined function
 
