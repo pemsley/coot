@@ -3946,25 +3946,33 @@
 					    (data-lines (list "MODE SFCALC"
 							      blur-string
 							      sharp-string
-							      "END")))
-					(let ((s (goosh-command "refmac5"
-								cmd-line-args
-								data-lines
-								log-file-name
-								#f)))
-					  (if (not (ok-goosh-status? s))
+							      "END"))
+					    (this-dir (getcwd)))
+					(if (not (directory-is-modifiable? this-dir))
+					    (info-dialog "WARNING:: Current directory is not writable")
+					    (let ((s (goosh-command "refmac5"
+								    cmd-line-args
+								    data-lines
+								    log-file-name
+								    #f)))
+					      (if (not (ok-goosh-status? s))
 
-					      (begin
-						(info-dialog "WARNING:: refmac5 failed"))
+						  (begin
+						    (info-dialog "WARNING:: refmac5 failed"))
 
-					      ;; Happy path
-					      (begin
-						(if (file-exists? "starting_map.mtz")
-						    (begin
-						      (rename-file  "starting_map.mtz" refmac-output-mtz-file-name)
-						      ;; offer a read-mtz dialog
-						      (manage-column-selector refmac-output-mtz-file-name)
-						      )))))))))
+						  ;; Happy path
+						  (begin
+						    (format #t "s: ~s~%" s)
+						    (if (not (file-exists? "starting_map.mtz"))
+							(begin
+							  (format #t "WARNING:: starting_map.mtz does not exist~%"))
+							(begin
+							  (format #t "INFO renaming starting_map.mtz to ~s~%"
+								  refmac-output-mtz-file-name)
+							  (rename-file  "starting_map.mtz" refmac-output-mtz-file-name)
+							  ;; offer a read-mtz dialog
+							  (manage-column-selector refmac-output-mtz-file-name)
+							  ))))))))))
 
 			      (gtk-widget-destroy window))))
 

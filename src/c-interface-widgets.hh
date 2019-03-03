@@ -23,26 +23,6 @@
 
 /* svn $Id: c-interface.h 1458 2007-01-26 20:20:18Z emsley $ */
 
-/*! \file 
-  \brief Coot Scripting Interface
-
-  Here is a list of all the scripting interface functions. They are
-  described/formatted in c/python format.
-
-  Usually coot is compiled with the guile interpreter, and in this
-  case these function names and usage are changed a little, e.g.:
-
-  c-format:
-  chain_n_residues("A", 1)
-
-  scheme format:
-  (chain-n-residues "A" 1)
-
-  Note the prefix usage of the parenthesis and the lack of comma to
-  separate the arguments.
-
-*/
-
 #ifndef C_INTERFACE_WIDGETS_HH
 #define C_INTERFACE_WIDGETS_HH
 

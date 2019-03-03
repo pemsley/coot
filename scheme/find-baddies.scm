@@ -131,6 +131,9 @@
 			(not (string=? rn "PRO")))))
 		  cis-peps)))
 
+    (define (twisted-trans-peptide-baddies)
+      (twisted-trans-peptides imol))
+
     (define (destroy-buttons-with-label label-fragment-txt dialog-vbox)
       (let ((current-buttons (gtk-container-children dialog-vbox)))
 	(for-each (lambda (button)
@@ -299,6 +302,21 @@
 							(list button-label fn))))
 						  (non-pro-cis-peptide-baddies)))
 
+		(twisted-trans-peptide-buttons (map (lambda (baddie)
+						    (let ((spec-1 (list-ref baddie 0))
+							  (spec-2 (list-ref baddie 1))
+							  (omega  (list-ref baddie 2)))
+						      (let ((button-label (string-append
+									   "Twisted trans-peptide "
+									   (residue-spec->string spec-1)
+									   " - "
+									   (residue-spec->string spec-2)))
+							    (fn (lambda()
+								  (set-go-to-atom-molecule imol)
+								  (set-go-to-atom-from-res-spec spec-1))))
+							(list button-label fn))))
+						  (twisted-trans-peptide-baddies)))
+
 		(rota-buttons (map (lambda(baddie)
 				     (let ((spec (car baddie))
 					   (score (cadr baddie)))
@@ -390,6 +408,7 @@
 				   rama-buttons
 				   rota-buttons
 				   non-pro-cis-peptide-buttons
+				   twisted-trans-peptide-buttons
 				   density-baddies-buttons
 				   c-beta-buttons
 				   cg-torsion-buttons

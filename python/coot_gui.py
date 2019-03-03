@@ -5300,14 +5300,18 @@ def refmac_multi_sharpen_gui():
       # It is not stored. So we make/guess it...
       map_file_name = molecule_name(active_item_imol)
       if (map_file_name.find(" ") > 0):
-         # we have map ceoffs - but then sharpen as here wont work anyway
+         # we have map coeffs - but then sharpen as here wont work anyway
          map_file_name = map_file_name[:map_file_name.find(" ")]
       map_file_name_stub = strip_path(file_name_sans_extension(map_file_name))
-      refmac_output_mtz_file_name = "starting-map-" + map_file_name_stub + ".mtz"
+      refmac_output_mtz_file_name = "starting_map-" + map_file_name_stub + ".mtz"
       log_file_name = "refmac-sharp" + map_file_name_stub + ".log"
       if not os.path.isfile(map_file_name):
          info_dialog("WARNING:: file not found %s" %map_file_name)
       else:
+         if not directory_is_modifiable_qm(os.getcwd()):
+            m = "ERROR:: Current directory " + os.getcwd() + " is not writable"
+            info_dialog(m)
+            return
          print "active_item_imol", active_item_imol
          step_size = max_b/n_levels
          numbers_string = ' '.join(str(i+1) for i in range(n_levels))
@@ -5331,8 +5335,8 @@ def refmac_multi_sharpen_gui():
             else:
                # Happy path
                print "BL DEBUG:: s", s
-               if os.path.isfile("starting-map.mtz"):
-                  os.rename("starting-map.mtz", refmac_output_mtz_file_name)
+               if os.path.isfile("starting_map.mtz"):
+                  os.rename("starting_map.mtz", refmac_output_mtz_file_name)
                   # offer a read-mtz dialog
                   manage_column_selector(refmac_output_mtz_file_name)
 

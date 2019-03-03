@@ -32,8 +32,14 @@
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
 
+/*! \file
+  \brief Coot Scripting Interface - Probe clash interface
+*/
+
 namespace coot {
 
+   //! probe atom type
+   //
    // " B  72 CYS  HG A: B  53 HIS  H   "
    // 
    class probe_atom_spec_t : public atom_spec_t {
@@ -62,6 +68,7 @@ namespace coot {
       probe_atom_spec_t() : atom_spec_t() {}
    };
 
+   //! one way probe contact
    class one_way_probe_contact_t {
    public:
       probe_atom_spec_t from_atom;
@@ -79,6 +86,7 @@ namespace coot {
       }
    };
 
+   //! one way probe contacts container
    class one_way_probe_contact_container_t {
    public:
       std::vector<one_way_probe_contact_t> contacts;
@@ -105,6 +113,7 @@ namespace coot {
       }
    };
 
+   //! probe clash score
    class probe_clash_score_t {
    public:
       bool filled;
@@ -132,7 +141,8 @@ namespace coot {
       probe_clash_score_t(const std::string &dots_file_name);
    }; 
 
-   
+
+   //! This doesn't work
    // couldn't get this to work - so I did by another method.
    // deleteable cruft.
    class spec_eraser {
