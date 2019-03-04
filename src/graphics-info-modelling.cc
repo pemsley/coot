@@ -567,8 +567,11 @@ graphics_info_t::update_restraints_with_atom_pull_restraints() {
                     unlocked = 0;
                }
                if (moving_atoms_asc->atom_selection) {
-	          at_except = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
-                  except_dragged_atom = coot::atom_spec_t(at_except);
+		  // check that moving_atoms_currently_dragged_atom_index is set before using it
+		  if (moving_atoms_currently_dragged_atom_index > -1) {
+		     at_except = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
+		     except_dragged_atom = coot::atom_spec_t(at_except);
+		  }
                } else {
                   std::cout << "WARNING:: attempted use moving_atoms_asc->atom_selection, but NULL"
                             << std::endl;

@@ -1844,8 +1844,10 @@ graphics_info_t::clear_up_moving_atoms() {
       std::cout << "DEBUG:: ------ clear_up_moving_atoms() - delete last_restraints ---" << std::endl;
       delete last_restraints;
       last_restraints = 0;
+      unset_moving_atoms_currently_dragged_atom_index();
    }
    graphics_info_t::restraints_lock = false; // refinement ended and cleared up.
+
 #endif // HAVE_GSL
 
    moving_atoms_lock  = false;
