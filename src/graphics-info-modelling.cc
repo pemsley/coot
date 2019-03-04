@@ -2814,6 +2814,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	       }
 
 	       if (add_terminal_residue_add_other_residue_flag) {
+
 		  // check that the other residue is not in the molecule before adding
 		  // all of mmol. If it is already in the molecule, remove it from mmol
 		  if (terminus_type == "C" || terminus_type == "MC") {
@@ -2823,7 +2824,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 			mmol[0][other_residue_spec.res_no].atoms.clear();
 		     }
 		  } else {
-		     if (terminus_type == "N" || terminus_type == "NC") {
+		     if (terminus_type == "N" || terminus_type == "MN") {
 			coot::residue_spec_t other_residue_spec(chain_id, resno_added-1, "");
 			mmdb::Residue *res_other = graphics_info_t::molecules[imol].get_residue(other_residue_spec);
 			if (res_other) {
