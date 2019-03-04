@@ -3848,7 +3848,14 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 			      if (udd_is_fixed_during_refinement == 1) {
 				 at_pp_1 = 0; // nullptr
 				 loop_is_possible = false;
+
 			      }
+			   } else {
+			      // don't make a loop to atoms that are not draw (because they are in the moving atoms set)
+			      int idx_in_mol = -1;
+			      at->GetUDData(udd_atom_index_handle, idx_in_mol);
+			      if (no_bonds_to_these_atoms.find(idx_in_mol) != no_bonds_to_these_atoms.end())
+				 loop_is_possible = false;
 			   }
 			   break;
 			}
@@ -3870,6 +3877,12 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 				 at_pp_2 = 0; // nullptr
 				 loop_is_possible = false;
 			      }
+			   } else {
+			      // don't make a loop to atoms that are not draw (because they are in the moving atoms set)
+			      int idx_in_mol = -1;
+			      at->GetUDData(udd_atom_index_handle, idx_in_mol);
+			      if (no_bonds_to_these_atoms.find(idx_in_mol) != no_bonds_to_these_atoms.end())
+				 loop_is_possible = false;
 			   }
 			   break;
 			}
@@ -3891,6 +3904,12 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 				 at_pp_3 = 0; // nullptr
 				 loop_is_possible = false;
 			      }
+			   } else {
+			      // don't make a loop to atoms that are not draw (because they are in the moving atoms set)
+			      int idx_in_mol = -1;
+			      at->GetUDData(udd_atom_index_handle, idx_in_mol);
+			      if (no_bonds_to_these_atoms.find(idx_in_mol) != no_bonds_to_these_atoms.end())
+				 loop_is_possible = false;
 			   }
 			   break;
 			}
@@ -3912,6 +3931,12 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 				 at_pp_4 = 0; // nullptr
 				 loop_is_possible = false;
 			      }
+			   } else {
+			      // don't make a loop to atoms that are not draw (because they are in the moving atoms set)
+			      int idx_in_mol = -1;
+			      at->GetUDData(udd_atom_index_handle, idx_in_mol);
+			      if (no_bonds_to_these_atoms.find(idx_in_mol) != no_bonds_to_these_atoms.end())
+				 loop_is_possible = false;
 			   }
 			   break;
 			}
