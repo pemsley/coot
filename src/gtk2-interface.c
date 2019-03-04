@@ -17224,6 +17224,7 @@ create_renumber_residue_range_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox440), renumber_residue_range_radiobutton_2, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (renumber_residue_range_radiobutton_2), renumber_residue_range_radiobutton_1_group);
   renumber_residue_range_radiobutton_1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (renumber_residue_range_radiobutton_2));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (renumber_residue_range_radiobutton_2), TRUE);
 
   renumber_residue_range_resno_1_entry = gtk_entry_new ();
   gtk_widget_show (renumber_residue_range_resno_1_entry);
@@ -17272,6 +17273,7 @@ create_renumber_residue_range_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox441), renumber_residue_range_radiobutton_4, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (renumber_residue_range_radiobutton_4), renumber_residue_range_radiobutton_3_group);
   renumber_residue_range_radiobutton_3_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (renumber_residue_range_radiobutton_4));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (renumber_residue_range_radiobutton_4), TRUE);
 
   label803 = gtk_label_new ("<b>End Residue</b>");
   gtk_widget_show (label803);
