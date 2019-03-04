@@ -227,7 +227,9 @@
 
 	       ;; CG Torsion
 	       ;;
-	       (cg-torsion-baddies (find-em-ringer-baddies))
+	       (if (not (ok-to-do-CG-torsion-diffs?))
+		   '()
+		   (cg-torsion-baddies (find-em-ringer-baddies)))
 
 	       ;; Rotamers
 	       ;;
@@ -458,7 +460,7 @@
 				      (if (not state)
 					  (destroy-buttons-with-label "Poor Density" dialog-vbox)))))
 
-	      ;; 20190102-PE depends on the version of coot that we are using
+	      ;; 20190102-PE CG-spin-seach buttons depends on the version of coot that we are using
 	      ;;
 	      (if (defined? 'CG-spin-search)
 		  (begin
