@@ -3934,11 +3934,12 @@
 				    (format #t "active-item-imol: ~s~%" active-item-imol)
 
 				    (let* ((step-size (/ max-b n-levels))
-					   (numbers-string (apply string-append (map (lambda(i) 
-										       (let ((lev (* step-size (+ i 1))))
-											 (string-append
-											  (number->string lev) " ")))
-										     (range n-levels))))
+					   (numbers-string
+					    (apply string-append (map (lambda(i)
+									(let ((lev (* step-size (+ i 1))))
+									  (string-append
+									   (number->string (exact->inexact lev)) " ")))
+								      (range n-levels))))
 					   (blur-string  (string-append "SFCALC BLUR  " numbers-string))
 					   (sharp-string (string-append "SFCALC SHARP " numbers-string)))
 
