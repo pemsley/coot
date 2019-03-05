@@ -243,6 +243,13 @@ AM_PATH_GUILE_GTK
 AX_BOOST_BASE
 AX_BOOST_PYTHON
 
+# so, we must have boost (for the thread pool), so check that BOOST_LDFLAGS was set to something
+#
+if test "x$BOOST_LDFLAGS" = x ; then
+   echo Failed to find boost
+   exit 1
+fi
+
 # So now BOOST_PYTHON_LIB is set (and that is typically "boost_python").
 # How do we use that?  At the moment we want to only use 
 # -l$(BOOST_PYTHON_LIB) when we have RDKIT_LIBS set
