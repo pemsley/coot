@@ -1589,6 +1589,8 @@ echo coot_version $coot_version
 # real_ssl_prefix=/usr  # for mac, for PC, libs go in /usr/lib64 and
 # sed -i -e "s?#SSL=.*?SSL=$real_ssl_prefix?" -e 's/^#_ssl/_ssl/' -e's/^#.*-DUSE_SSL/    -DUSE_SSL/' -e 's?^#.*-L$(SSL)/lib?    -L$(SSL)/lib?' Modules/Setup
 # also add --with-ensurepip=install
+# For ubuntu, you need system OpenSSL:
+# sudo apt-get install openssl-dev
 #
 if [ "$build_coot_prerelease" = 1 ] ; then 
     if [ "$coot_prerelease_exists" = 1 ] ; then 
