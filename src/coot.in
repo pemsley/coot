@@ -279,7 +279,7 @@ else
    # normal path
    # "Use $@ to stop word splitting" from Ben Eisenbraun.
    if [ -z "$ccp4_mode" ] ; then
-      echo ::: DYLD_FALLBACK_LIBRARY_PATH is $DYLD_FALLBACK_LIBRARY_PATH
+      # echo ::: DYLD_FALLBACK_LIBRARY_PATH is $DYLD_FALLBACK_LIBRARY_PATH
       $coot_bin "$@"
       status=$?
    else
