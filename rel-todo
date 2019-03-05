@@ -3,12 +3,19 @@
 
    o Does align and mutate work?
 
+* It does now.
+
    o Dock sequence?
+
+* Hmm...
 
    o refinement: anchored atom is still highlighted when intermediate atoms are displayed.
      Ideally the fixed atom highlight should track the intermediate atom.
 
+* for refinement branch
+
    o twisted peptide/geometry omega added to validation outlier dialog.
+     does cis_peptides(imol) do what is needed?
 
    o can you make a stand-alone doxygen version of the python documentation?
 

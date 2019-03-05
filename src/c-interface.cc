@@ -6084,6 +6084,44 @@ SCM cis_peptides(int imol) {
 }
 #endif //  USE_GUILE 
 
+#ifdef USE_GUILE
+// Return a SCM list object of (residue1 residue2 omega)
+SCM twisted_trans_peptides(int imol) {
+   SCM r = SCM_EOL;
+
+   // more info on the real cis peptides derived from atom positions:
+
+   if (is_valid_model_molecule(imol)) {
+
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      std::vector<coot::util::cis_peptide_quad_info_t> v =
+	 coot::util::cis_peptide_quads_from_coords(mol, 0, false);
+
+      for (unsigned int i=0; i<v.size(); i++) {
+	 if (v[i].type == coot::util::cis_peptide_quad_info_t::TWISTED_TRANS) {
+	    try {
+	       coot::residue_spec_t r1(v[i].quad.atom_1);
+	       coot::residue_spec_t r2(v[i].quad.atom_4);
+	       SCM scm_r1 = residue_spec_to_scm(r1);
+	       SCM scm_r2 = residue_spec_to_scm(r2);
+	       double omega = v[i].quad.torsion();
+	       SCM scm_omega = scm_double2num(omega);
+	       SCM scm_residue_info = scm_list_3(scm_r1, scm_r2, scm_omega);
+
+	       // add scm_residue_info to r
+	       r = scm_cons(scm_residue_info, r);
+	    }
+	    catch (const std::runtime_error &e) {
+	       std::cout << "WARNING:: " << e.what() << std::endl;
+	    }
+	 }
+      }
+      r = scm_reverse(r);
+   }
+   return r;
+}
+#endif //  USE_GUILE
+
 #ifdef USE_PYTHON 
 // Return a python list object of [residue1, residue2, omega] 
 PyObject *cis_peptides_py(int imol) {
@@ -6131,6 +6169,50 @@ PyObject *cis_peptides_py(int imol) {
 }
 #endif //  USE_PYTHON
 
+#ifdef USE_PYTHON
+// Return a python list object of [residue1, residue2, omega]
+PyObject *twisted_trans_peptides_py(int imol) {
+
+   PyObject *r;
+   r = PyList_New(0);
+
+   // more info on the real cis peptides derived from atom positions:
+
+   if (is_valid_model_molecule(imol)) {
+
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      std::vector<coot::util::cis_peptide_quad_info_t> v =
+	 coot::util::cis_peptide_quads_from_coords(mol, 0, false);
+
+      for (unsigned int i=0; i<v.size(); i++) {
+	 if (v[i].type == coot::util::cis_peptide_quad_info_t::TWISTED_TRANS) {
+	    try {
+	       PyObject *py_r1, *py_r2, *py_residue_info;
+	       coot::residue_spec_t r1(v[i].quad.atom_1);
+	       coot::residue_spec_t r2(v[i].quad.atom_4);
+	       py_r1 = residue_spec_to_py(r1);
+	       py_r2 = residue_spec_to_py(r2);
+	       py_residue_info = PyList_New(3);
+	       PyObject *py_omega = PyFloat_FromDouble(v[i].quad.torsion());
+	       PyList_SetItem(py_residue_info, 0, py_r1);
+	       PyList_SetItem(py_residue_info, 1, py_r2);
+	       PyList_SetItem(py_residue_info, 2, py_omega);
+
+	       // add py_residue_info to r
+	       PyList_Append(r, py_residue_info);
+	       // Py_XDECREF(py_residue_info); // is py_residue_info copied? I doubt that this is needed.
+
+	    }
+	    catch (const std::runtime_error &e) {
+	       std::cout << "WARNING:: " << e.what() << std::endl;
+	    }
+	 }
+      }
+   }
+
+   return r;
+}
+#endif //  USE_PYTHON
 
 void post_scripting_window() {
 

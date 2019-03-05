@@ -4991,25 +4991,27 @@ void set_rot_trans_object_type(short int rt_type); /* zone, chain, mol */
 int get_rot_trans_object_type();
 
 /*  ----------------------------------------------------------------------- */
-/*                  cis <-> trans conversion                                */
+/*                  cis and trans info and conversion                       */
 /*  ----------------------------------------------------------------------- */
 void do_cis_trans_conversion_setup(int istate);
 void cis_trans_convert(int imol, const char *chain_id, int resno, const char *altconf);
 
 #ifdef __cplusplus	/* need this wrapper, else gmp.h problems in callback.c */
-#ifdef USE_GUILE 
+#ifdef USE_GUILE
 /*! \brief return cis_peptide info for imol.
 
 Return a SCM list object of (residue1 residue2 omega) */
 SCM cis_peptides(int imol);
+SCM twisted_trans_peptides(int imol);
 #endif /* GUILE */
 #ifdef USE_PYTHON
 /*! \brief return cis_peptide info for imol.
 
 Return a Python list object of [residue1, residue2, omega] */
 PyObject *cis_peptides_py(int imol);
+PyObject *twisted_trans_peptides_py(int imol);
 #endif /* PYTHON */
-#endif 
+#endif
 
 
 /*  ----------------------------------------------------------------------- */
