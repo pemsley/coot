@@ -2815,7 +2815,7 @@
 	      (alignments-as-text-list (list-ref am 3)))
 
 	  (for-each (lambda (alignment-text)
-		      (info-dialog alignment-text))
+		      (info-dialog-with-markup alignment-text))
 		    alignments-as-text-list)
 
 	  (dialog-box-of-buttons "Residue mismatches"

@@ -40,7 +40,7 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 
    it = pir_alignments.find(chain_id);
    if (it == pir_alignments.end()) {
-      std::cout << "No chain " << chain_id << " found in " << pir_alignments.size() << " alignments"
+      std::cout << "WARNING:: No chain " << chain_id << " found in " << pir_alignments.size() << " alignments"
                 << std::endl;
    } else {
 
@@ -152,7 +152,7 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 			      // try something new
 
 			      i_res++;
-			      std::cout << "trying next residue " << i_res << std::endl;
+			      // std::cout << "trying next residue " << i_res << std::endl;
 			      if (i_res < n_residues) {
 				 residue_p = residues[i_res];
 			      } else {

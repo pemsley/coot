@@ -1394,6 +1394,17 @@ void info_dialog_and_text(const char *txt) {
    add_to_history_typed(cmd, args);
 }
 
+void info_dialog_with_markup(const char *txt) {
+
+   graphics_info_t g;
+   g.info_dialog_and_text(txt, true);
+   std::string cmd = "info-dialog-and-text";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(single_quote(txt));
+   add_to_history_typed(cmd, args);
+}
+
+
 void
 set_main_window_title(const char *s) {
 
