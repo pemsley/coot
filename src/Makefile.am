@@ -211,7 +211,6 @@ AM_CPPFLAGS = \
 	$(CANVAS_CFLAGS) 		\
 	$(SWIG_FLAGS)			\
 	$(GTKGL_CONTEXT_CFLAGS)		\
-	$(LIBGLADE_CFLAGS)		\
         $(GOOCANVAS_CFLAGS)             \
 	@GTK_CFLAGS@ 			\
 	$(GLUT_CFLAGS)			\
@@ -618,7 +617,6 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 		$(GSL_LIBS)		\
 		$(MYSQL_LIBS)		\
 		$(CURL_LIBS)		\
-		$(LIBGLADE_LIBS)	\
 	  	$(RDKIT_LIBS)	        \
 		$(BOOST_LDFLAGS)        \
 		$(L_BOOST_PYTHON)	\
@@ -626,10 +624,6 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 		$(SQLITE3_LIBS)         \
 		@GTK_LIBS@
 
-#                -lglade-2.0
-
-
-#		@COOT_WRAP_LIBS@	do it a different way
 
 #		$(INTLLIBS) 		Fix when GETTEXT workds
 
@@ -701,5 +695,4 @@ dynarama_bin_LDADD = \
         $(MMDB_LIBS)            \
         $(GLOB_LIBS)            \
         $(GOOCANVAS_LIBS)       \
-        $(LIBGLADE_LIBS) 	\
         @GTK_LIBS@

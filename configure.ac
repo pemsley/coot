@@ -283,15 +283,6 @@ if test -n "$RDKIT_LIBS" ; then
    esac
 fi
 
-
-dnl =========================== GLADE ================================
-
-# libglade:
-
-# AM_PATH_LIBGLADE, problems in glade-3 include files not including
-# declaration of GladeXML and other things.
-AM_PATH_LIBGLADE
-
 dnl =========================== GooCanvas ================================
 
 AM_PATH_GOOCANVAS
