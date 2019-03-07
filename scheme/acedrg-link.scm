@@ -276,10 +276,11 @@
 
 					   (let ((hack-link-file-name (hack-link link-file-name)))
 
+					     ;; read-cif-dictionary returns the monomer index or -1. not a status.
 					     (let ((dict-read-status (read-cif-dictionary hack-link-file-name)))
 					       ;; dict-read-status is the number of bonds read
 					       (format #t "dict-read-status: ~s~%" dict-read-status)
-					       (if (> dict-read-status 0)
+					       (if (> dict-read-status -2) ;; don't test for valid
 						   (make-link imol-click-1 spec-1 spec-2 "dummy-name" 1.0))))))))))))))))))
 
      (gtk-widget-destroy window))))
