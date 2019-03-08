@@ -431,11 +431,20 @@ wrapped_create_accept_reject_refinement_dialog() {
 
 // static
 GtkWidget *
-graphics_info_t::info_dialog(const std::string &s) {
-   
+graphics_info_t::info_dialog(const std::string &s, bool use_markup) {
+
    GtkWidget *w = NULL;
    if (graphics_info_t::use_graphics_interface_flag) {
       w = wrapped_nothing_bad_dialog(s);
+
+      if (use_markup) {
+	 GtkWidget *label = lookup_widget(w, "nothing_bad_label");
+	 gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
+	 gtk_label_set_markup(GTK_LABEL(label), s.c_str());
+      }
+
+      // Handle the info icon
+      //
       bool warning = false;
       if (s.find(std::string("WARNING")) != std::string::npos) warning = true;
       if (s.find(std::string("warning")) != std::string::npos) warning = true;
@@ -457,10 +466,10 @@ graphics_info_t::info_dialog(const std::string &s) {
 }
 
 void
-graphics_info_t::info_dialog_and_text(const std::string &s) {
+graphics_info_t::info_dialog_and_text(const std::string &s, bool use_markup) {
    
   if (graphics_info_t::use_graphics_interface_flag) { 
-     info_dialog(s);
+     info_dialog(s, use_markup);
    }
    std::cout<< s <<std::endl;
 }

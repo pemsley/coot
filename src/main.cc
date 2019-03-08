@@ -49,14 +49,6 @@
 
 #include <gtk/gtk.h>
 
-// Sorted out by configure.
-// #define USE_LIBGLADE
-// #undef USE_LIBGLADE // for now
-
-#ifdef USE_LIBGLADE
-#include <glade/glade.h>
-#endif // USE_LIBGLADE
-
 #include <GL/glut.h> // for glutInit()
 
 // #include "lbg/lbg.hh"
@@ -272,21 +264,8 @@ main (int argc, char *argv[]) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
 
-#ifdef USE_LIBGLADE
-	
-      /* load the interface */
-      GladeXML *xml = glade_xml_new("../../coot/coot-gtk2-try2.glade", NULL, NULL);
-      /* connect the signals in the interface */
-      glade_xml_signal_autoconnect(xml);
-      window1 = glade_xml_get_widget(xml, "window1");
-      g_object_set_data_full (G_OBJECT(xml), "window1", 
-			      gtk_widget_ref (window1), (GDestroyNotify) gtk_widget_unref);
-      // std::cout << "DEBUG:: ..... window1: " << window1 << std::endl;
-
-#else
       window1 = create_window1 ();
-#endif // USE_LIBGLADE
-     
+
       std::string version_string = VERSION;
       std::string main_title = "Coot " + version_string;
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS	

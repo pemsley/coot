@@ -528,14 +528,20 @@
 				      #f
 				      )))
 
-	;; --- D --- 
+	;; --- D ---
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Delete Side-chains for Active Chain"
+	 (lambda ()
+	   (using-active-atom
+	    (delete-sidechains-for-chain aa-imol aa-chain-id))))
 
 	;; (add-simple-coot-menu-menuitem submenu-models "DB Loop..." click-protein-db-loop-gui)
 
 	;; errr... move this...
 	(let ((submenu (gtk-menu-new))
 	      (menuitem2 (gtk-menu-item-new-with-label "Dock Sequence...")))
-	  
+
 	  (gtk-menu-item-set-submenu menuitem2 submenu)
 	  (gtk-menu-append (coot-menubar-menu "Calculate") menuitem2)
 	  (gtk-widget-show menuitem2)

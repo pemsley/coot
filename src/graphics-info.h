@@ -2644,9 +2644,9 @@ public:
    // show citation?
    static short int show_citation_notice; 
 
-   static GtkWidget *info_dialog(const std::string &s);
+   static GtkWidget *info_dialog(const std::string &s, bool use_markup=false);
    // makes an info_dialog and writes text
-   void info_dialog_and_text(const std::string &s);
+   void info_dialog_and_text(const std::string &s, bool use_markup=false);
    
    // Return success status.
    // 

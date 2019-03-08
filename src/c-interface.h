@@ -1682,7 +1682,15 @@ void info_dialog(const char *txt);
 /*! \brief create a dialog with information and print to console
 
   as info_dialog but print to console as well.  */
-void info_dialog_and_text(const char *txt); 
+void info_dialog_and_text(const char *txt);
+
+/*! \brief as above, create a dialog with information
+
+This dialog is left-justified and can use markup such as <tt> or <i>
+
+ */
+void info_dialog_with_markup(const char *txt);
+
 
 /* \} */
 

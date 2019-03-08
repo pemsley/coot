@@ -240,15 +240,14 @@ AM_PATH_PYTHON
 AM_WITH_GUILE_GTK
 AM_PATH_GUILE_GTK
 
-AX_BOOST_BASE
-AX_BOOST_PYTHON
+AX_BOOST_BASE(,,[AC_MSG_ERROR([No boost found])])
 
-# so, we must have boost (for the thread pool), so check that BOOST_LDFLAGS was set to something
-#
-if test "x$BOOST_LDFLAGS" = x ; then
-   echo Failed to find boost
-   exit 1
-fi
+# Boost-Python is needed for RDKit interface.
+# Actually, this should only be tested if enhanced-ligand-tools was passed - not all the time as
+# we currently have. And in that case, it should be
+# AX_BOOST_PYTHON(,,[AC_MSG_ERROR([No boost-python found])]) because it is required.
+# FIXME Later.
+AX_BOOST_PYTHON
 
 # So now BOOST_PYTHON_LIB is set (and that is typically "boost_python").
 # How do we use that?  At the moment we want to only use 
@@ -268,6 +267,8 @@ else
 fi
 AC_SUBST(L_BOOST_PYTHON)
 
+# this can go away in 2020 - no one will try to use that old RDKit.
+#
 # was RDKIT used and if it was does it have Cairo support (if it does
 # have cairo support, we can use it to generate molecular (chemical)
 # depictions.
@@ -282,15 +283,6 @@ if test -n "$RDKIT_LIBS" ; then
    esac
 fi
 
-
-dnl =========================== GLADE ================================
-
-# libglade:
-
-# AM_PATH_LIBGLADE, problems in glade-3 include files not including
-# declaration of GladeXML and other things.
-AM_PATH_LIBGLADE
-
 dnl =========================== GooCanvas ================================
 
 AM_PATH_GOOCANVAS
@@ -299,7 +291,7 @@ if test "$GOOCANVAS_CFLAGS" != "" ; then
    GOOCANVAS_CFLAGS="-DHAVE_GOOCANVAS $GOOCANVAS_CFLAGS"
 fi
 
-AC_ARG_WITH(enhanced-ligand-tools, [  --with-enhanced-ligand-tools with optional complicated/experimental ligand-related dependencies ],
+AC_ARG_WITH(enhanced-ligand-tools, [  --with-enhanced-ligand-tools with optional ligand-related dependencies ],
  coot_enhanced_ligand_additions="true",
  coot_enhanced_ligand_additions="false")
 
