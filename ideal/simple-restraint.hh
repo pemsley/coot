@@ -308,12 +308,10 @@ namespace coot {
       enum nbc_function_t { LENNARD_JONES, HARMONIC};
       nbc_function_t nbc_function;
 
-#ifdef HAVE_CXX_THREAD
       // allocator for geometry_distortion_info_t
       simple_restraint() {
 	 is_user_defined_restraint = 0;
       }
-#endif // HAVE_CXX_THREAD
 
       // Bond
       simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2, 
