@@ -3860,7 +3860,7 @@
 	;; buttons
 	(ok-button (gtk-button-new-with-label "   OK   "))
 	(cancel-button (gtk-button-new-with-label " Cancel "))
-	(n-levels-list (list 1 2 3 4 5 6))
+	(n-levels-list (list 1 2 3 4 5 6 8 10 12 15))
 	(b-factor-list (list 50 100 200 400 800 2000)))
 
     (let ((map-molecule-list (fill-option-menu-with-map-mol-options
