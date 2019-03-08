@@ -3918,7 +3918,7 @@
 									       map-file-name-stub
 									       ".mtz"))
 				   (log-file-name (string-append
-						   "refmac-sharp"
+						   "refmac-multisharp-"
 						   map-file-name-stub
 						   ".log")))
 
@@ -3931,7 +3931,7 @@
 				    (format #t "active-item-imol: ~s~%" active-item-imol)
 
 				    (let* ((step-size (/ max-b n-levels))
-					   (numbers-string (apply string-append (map (lambda(i) 
+					   (numbers-string (apply string-append (map (lambda(i)
 										       (let ((lev (* step-size (+ i 1))))
 											 (string-append
 											  (number->string lev) " ")))
