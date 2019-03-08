@@ -2400,6 +2400,7 @@ namespace coot {
    double electron_density_score_from_restraints(const gsl_vector *v, coot::restraints_container_t *restraints_p);
    double electron_density_score_from_restraints_simple(const gsl_vector *v, coot::restraints_container_t *restraints_p);
 
+#ifdef HAVE_CXX_THREAD
    // The version of electron_density_score_from_restraints that can be used with a thread pool.
    // The calling function needs to push this onto the queue, one for each thread,
    // where the atom_index_range splits up the atom indices
@@ -2415,14 +2416,9 @@ namespace coot {
                                                  const gsl_vector *v,
 						 const std::pair<unsigned int, unsigned int> &atom_index_range,
 						 restraints_container_t *restraints_p,
-								      double *result,
-								      std::atomic<unsigned int> &done_count);
-//    void electron_density_score_from_restraints_using_atom_index_range_xx(int thread_idx,
-// 		     const gsl_vector *v,
-// 		     const std::pair<unsigned int, unsigned int> &atom_index_range,
-// 		     restraints_container_t *restraints_p,
-// 		     double *results);
-
+                                                 double *result,
+                                                 std::atomic<unsigned int> &done_count);
+#endif // HAVE_CXX_THREAD
 
    // new style Grad_map/Grad_orth method
    void my_df_electron_density(const gsl_vector *v, void *params, gsl_vector *df);
