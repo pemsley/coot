@@ -885,6 +885,10 @@
 
       (gtk-widget-show-all window))))
 
+;; works with below function generic-chooser-entry-and-file-selector
+;;
+(define *generic-chooser-entry-and-file-selector-file-entry-default-text* "")
+
 ;; Create a window
 ;; 
 ;; Return a pair of widgets, a molecule chooser and an entry.  The
@@ -893,7 +897,10 @@
 ;; 
 ;; chooser-filter is typically valid-map-molecule? or valid-model-molecule?
 ;; 
-(define (generic-chooser-entry-and-file-selector chooser-label chooser-filter entry-hint-text default-entry-text file-selector-hint callback-function)
+;; If file-entry-default-text is passed, then *generic-chooser-entry-and-file-selector-file-entry-default-text* is set
+;; to be the contents of the file selection entry on "OK" button click.
+;;
+(define (generic-chooser-entry-and-file-selector chooser-label chooser-filter entry-hint-text default-entry-text file-selector-hint callback-function . file-entry-default-text)
 
   (let* ((window (gtk-window-new 'toplevel))
 	 (label (gtk-label-new chooser-label))
@@ -927,6 +934,10 @@
       (gtk-box-pack-start vbox hbox-buttons #f #f 5)
     
       (gtk-option-menu-set-menu option-menu menu)
+
+      (if (not (null? file-entry-default-text))
+	 (let ((file-name (car file-entry-default-text)))
+            (gtk-entry-set-text file-sel-entry file-name)))
       
       ;; button callbacks:
       (gtk-signal-connect ok-button "clicked"
@@ -940,8 +951,10 @@
 				  (begin
 				    (let ((text (gtk-entry-get-text entry))
 					  (file-sel-text (gtk-entry-get-text file-sel-entry)))
+                                      (if (not (null? file-entry-default-text))
+                                          (set! *generic-chooser-entry-and-file-selector-file-entry-default-text* file-sel-text))
 				      (callback-function active-mol-no text file-sel-text)))))
-			    
+
 			    (gtk-widget-destroy window)))
       
       (gtk-signal-connect cancel-button "clicked"
@@ -2702,12 +2715,13 @@
    valid-model-molecule?
    "Chain ID"
    ""
-   "Select PIR file"
+   "Select PIR Alignment file"
    (lambda (imol chain-id file-name)
      (associate-pir-file imol chain-id file-name)
      (if do-alignment?
-	 (alignment-mismatches-gui imol)))))
-	   
+        (alignment-mismatches-gui imol)))
+    *generic-chooser-entry-and-file-selector-file-entry-default-text*))
+
 
 ;; Make a box-of-buttons GUI for the various modifications that need
 ;; to be made to match the model sequence to the assigned sequence(s).
