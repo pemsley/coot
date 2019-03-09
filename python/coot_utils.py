@@ -1988,22 +1988,19 @@ def read_vu_file(filename, obj_name):
 #
 def residues_matching_criteria(imol, residue_test_func):
 
-    chain_list = chain_ids(imol)
-    seq_residue_list = []
-    alt_conf_residue_list = []
+    matchers = []
+    # these specs are prefixed by the serial number
+    for molecule_residue_specs in all_residues_with_serial_numbers(imol):
+        rs = molecule_residue_specs[1:]
+        if residue_test_func(residue_spec_to_chain_id(rs),
+                             residue_spec_to_res_no(rs),
+                             residue_spec_to_ins_code(rs),
+                             molecule_residue_specs[0]):
+            matchers.append(rs)
+    return matchers
 
-    for chain_id in chain_list:
-        for serial_number in range(chain_n_residues(chain_id,imol)):
-            res_no = seqnum_from_serial_number(imol, chain_id, serial_number)
-            ins_code = insertion_code_from_serial_number(imol, chain_id, serial_number)
-            r = residue_test_func(chain_id, res_no, ins_code, serial_number)
-            if r:
-                seq_residue_list.append([chain_id, res_no, ins_code])
-    if seq_residue_list:
-        return seq_residue_list
-    else:
-        return False
-
+# Now this is in the API
+#
 # Return residue specs for all residues in imol (each spec is preceeded by True)
 #
 def all_residues(imol):
@@ -2288,6 +2285,34 @@ def delete_atom_by_active_residue():
 # 
 def mutate_by_overlap(imol, chain_id_in, resno, tlc):
 
+    # residue is standard residues or phosphorylated version
+    #
+    # BL says:: maybe this can/should be a global function
+    #
+    def is_amino_acid(imol, chain_id, res_no):
+
+        aa_list = ["ALA", "ARG", "ASN", "ASP", "CYS", "GLY", "GLU", "GLN",
+                   "PHE", "HIS", "ILE", "LEU", "LYS", "MET", "PRO", "SER",
+                   "TYR", "THR", "VAL", "TRP", "SEP", "PTR", "TPO"]
+        rn = residue_name(imol. chain_id, res_no, "")
+        if not isinstance(rn, string):
+            return False
+        else:
+            if rn in aa_list:
+                return True
+        return False
+
+    #
+    def overlap_by_main_chain(imol_mov, chain_id_mov, res_no_mov, ins_code_move,
+                              imol_ref, chain_id_ref, res_no_ref, ins_code_ref):
+
+        print "BL DEBUG:: in overlap_by_main_chain : ---------------- imol-mov: %s imol-ref: %s" %(imol_mov, imol_ref)
+        clear_lsq_matches()
+        map(lambda atom_name:
+            add_lsq_atom_pair([chain_id_ref, res_no_ref, ins_code_ref, atom_name, ""],
+                              [chain_id_mov, res_no_mov, ins_code_mov, atom_name, ""]), [" CA ", " N  ", " C  "])
+        apply_lsq_matches(imol_ref, imol_mov)
+
     # get_monomer_and_dictionary, now we check to see if we have a
     # molecule already loaded that matches this residue, if we have,
     # then use it.
@@ -2321,11 +2346,17 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
         else:
             delete_residue_hydrogens(imol_ligand, "A", 1, "", "")
             delete_atom(imol_ligand, "A", 1, "", " OXT", "")
-            overlap_ligands(imol_ligand, imol, chain_id_in, resno)
+            if (is_amino_acid(imol_ligand, "A", 1) and
+                is_amino_acid(imol, chain_id_in, resno)):
+                overlap_by_main_chain(imol_ligand, "A", 1, "",
+                                      imol, chain_id_in, resno, "")
+            else:
+                overlap_ligands(imol_ligand, imol, chain_id_in, resno)
+
             match_ligand_torsions(imol_ligand, imol, chain_id_in, resno)
             delete_residue(imol, chain_id_in, resno, "")
             new_chain_id_info = merge_molecules([imol_ligand], imol)
-            print "INFO:: new_chain_id_info: ", new_chain_id_info
+            print "BL DEBUG:: new_chain_id_info: ", new_chain_id_info
             merge_status = new_chain_id_info[0]
             if merge_status == 1:
                 new_res_spec = new_chain_id_info[1]
@@ -2335,8 +2366,9 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                                       residue_spec_to_res_no(new_res_spec),
                                       residue_spec_to_ins_code(new_res_spec),
                                       resno, "")
-                # not needed any more
-                #change_chain_id(imol, new_chain_id, chain_id_in, 1, resno, resno)
+                if not (new_chain_id == chain_id_in):
+                    change_chain_id(imol, new_chain_id, chain_id_in, 0, resno,
+                                    resno)
 
                 replacement_state = refinement_immediate_replacement_state()
                 imol_map = imol_refinement_map()
