@@ -349,3 +349,8 @@
 	  (if (= backup-mode 1)
 	      (turn-on-backup imol)))))))
 
+(define delete-sidechains
+  (lambda (imol)
+    (if (valid-model-molecule? imol)
+	(let ((ch-ids (chain-ids imol)))
+	  (for-each (lambda(ch) (delete-sidechains-for-chain imol ch)) ch-ids)))))
