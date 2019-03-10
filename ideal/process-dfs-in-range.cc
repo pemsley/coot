@@ -1088,7 +1088,7 @@ coot::process_dfs_target_position(const coot::simple_restraint &restraint,
 				  const gsl_vector *v,
 				  std::vector<double> &results) {
 
-   double sigma = 0.04;
+   double sigma = 0.03;
    int idx = 3*(restraint.atom_index_1);
 
    bool harmonic_restraint = true;
