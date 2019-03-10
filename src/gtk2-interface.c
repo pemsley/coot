@@ -2491,14 +2491,18 @@ create_window1 (void)
                     G_CALLBACK (on_model_toolbar_rigid_body_fit_togglebutton_toggled),
                     NULL);
 #ifdef GTK_TYPE_MENU_TOOL_BUTTON
+#ifdef GTK_TYPE_MENU_TOOL_BUTTON
   g_signal_connect ((gpointer) model_toolbar_rot_trans_toolbutton, "show_menu",
                     G_CALLBACK (on_model_toolbar_rot_trans_toolbutton_show_menu),
                     NULL);
 #endif
+#endif
+#ifdef GTK_TYPE_MENU_TOOL_BUTTON
 #ifdef GTK_TYPE_MENU_TOOL_BUTTON
   g_signal_connect ((gpointer) model_toolbar_rot_trans_toolbutton, "clicked",
                     G_CALLBACK (on_model_toolbar_rot_trans_toolbutton_clicked),
                     NULL);
+#endif
 #endif
   g_signal_connect ((gpointer) model_toolbar_auto_fit_rotamer_togglebutton, "toggled",
                     G_CALLBACK (on_model_toolbar_auto_fit_rotamer_togglebutton_toggled),
@@ -4012,9 +4016,10 @@ create_show_symmetry_window (void)
   GtkWidget *vbox169;
   GtkWidget *frame7;
   GtkWidget *vbox11;
-  GtkWidget *show_symmetry_yes_radiobutton;
-  GSList *show_symmetry_yes_radiobutton_group = NULL;
   GtkWidget *show_symmetry_no_radiobutton;
+  GSList *show_symmetry_no_radiobutton_group = NULL;
+  GtkWidget *show_symmetry_yes_radiobutton;
+  GtkWidget *symmetry_always_on_checkbutton;
   GtkWidget *label277;
   GtkWidget *show_symmetry_molecule_control_button;
   GtkWidget *frame8;
@@ -4086,18 +4091,22 @@ create_show_symmetry_window (void)
   gtk_widget_show (vbox11);
   gtk_container_add (GTK_CONTAINER (frame7), vbox11);
 
-  show_symmetry_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Symmetry On");
-  gtk_widget_show (show_symmetry_yes_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox11), show_symmetry_yes_radiobutton, FALSE, FALSE, 0);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (show_symmetry_yes_radiobutton), show_symmetry_yes_radiobutton_group);
-  show_symmetry_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (show_symmetry_yes_radiobutton));
-
   show_symmetry_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Symmetry Off");
   gtk_widget_show (show_symmetry_no_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox11), show_symmetry_no_radiobutton, FALSE, FALSE, 0);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (show_symmetry_no_radiobutton), show_symmetry_yes_radiobutton_group);
-  show_symmetry_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (show_symmetry_no_radiobutton));
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (show_symmetry_no_radiobutton), show_symmetry_no_radiobutton_group);
+  show_symmetry_no_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (show_symmetry_no_radiobutton));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (show_symmetry_no_radiobutton), TRUE);
+
+  show_symmetry_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Symmetry On");
+  gtk_widget_show (show_symmetry_yes_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox11), show_symmetry_yes_radiobutton, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (show_symmetry_yes_radiobutton), show_symmetry_no_radiobutton_group);
+  show_symmetry_no_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (show_symmetry_yes_radiobutton));
+
+  symmetry_always_on_checkbutton = gtk_check_button_new_with_mnemonic ("Always On");
+  gtk_widget_show (symmetry_always_on_checkbutton);
+  gtk_box_pack_start (GTK_BOX (vbox11), symmetry_always_on_checkbutton, FALSE, FALSE, 0);
 
   label277 = gtk_label_new ("Master Switch");
   gtk_widget_show (label277);
@@ -4276,6 +4285,9 @@ create_show_symmetry_window (void)
   gtk_widget_show (label347);
   gtk_box_pack_start (GTK_BOX (hbox173), label347, FALSE, FALSE, 0);
 
+  g_signal_connect ((gpointer) symmetry_always_on_checkbutton, "toggled",
+                    G_CALLBACK (on_symmetry_always_on_checkbutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) show_symmetry_molecule_control_button, "clicked",
                     G_CALLBACK (on_show_symmetry_molecule_control_button_clicked),
                     NULL);
@@ -4303,8 +4315,9 @@ create_show_symmetry_window (void)
   GLADE_HOOKUP_OBJECT (show_symmetry_window, vbox169, "vbox169");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, frame7, "frame7");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, vbox11, "vbox11");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, show_symmetry_yes_radiobutton, "show_symmetry_yes_radiobutton");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, show_symmetry_no_radiobutton, "show_symmetry_no_radiobutton");
+  GLADE_HOOKUP_OBJECT (show_symmetry_window, show_symmetry_yes_radiobutton, "show_symmetry_yes_radiobutton");
+  GLADE_HOOKUP_OBJECT (show_symmetry_window, symmetry_always_on_checkbutton, "symmetry_always_on_checkbutton");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, label277, "label277");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, show_symmetry_molecule_control_button, "show_symmetry_molecule_control_button");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, frame8, "frame8");
@@ -25208,6 +25221,7 @@ create_sft_dialog (void)
 }
 
 #if (((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 5)) || GTK_MAJOR_VERSION > 2)
+#if (((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 5)) || GTK_MAJOR_VERSION > 2)
 GtkWidget*
 create_aboutdialog (void)
 {
@@ -25278,6 +25292,7 @@ create_aboutdialog (void)
 
   return aboutdialog;
 }
+#endif /* GTK2 version */
 #endif /* GTK2 version */
 
 GtkWidget*
@@ -25457,7 +25472,7 @@ create_coords_filechooserdialog1 (void)
   GtkWidget *button5;
   GtkWidget *button6;
 
-  coords_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select Coordinates File", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  coords_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select Coordinates File", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (coords_filechooserdialog1), 10);
   g_object_set (coords_filechooserdialog1,
                 "show-hidden", TRUE,
@@ -25537,7 +25552,7 @@ create_dataset_filechooserdialog1 (void)
   GtkWidget *button7;
   GtkWidget *button8;
 
-  dataset_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select Dataset File", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  dataset_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select Dataset File", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (dataset_filechooserdialog1), 10);
   gtk_window_set_modal (GTK_WINDOW (dataset_filechooserdialog1), TRUE);
   gtk_window_set_role (GTK_WINDOW (dataset_filechooserdialog1), "GtkFileChooserDialog");
@@ -25591,7 +25606,7 @@ create_map_name_filechooserdialog1 (void)
   GtkWidget *button9;
   GtkWidget *button10;
 
-  map_name_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select Map...", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  map_name_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select Map...", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (map_name_filechooserdialog1), 10);
   gtk_window_set_modal (GTK_WINDOW (map_name_filechooserdialog1), TRUE);
   gtk_window_set_role (GTK_WINDOW (map_name_filechooserdialog1), "GtkFileChooserDialog");
@@ -25666,7 +25681,7 @@ create_phs_coordinates_filechooserdialog1 (void)
   GtkWidget *button11;
   GtkWidget *button12;
 
-  phs_coordinates_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select Coordinates File for .phs symm/cell", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  phs_coordinates_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select Coordinates File for .phs symm/cell", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (phs_coordinates_filechooserdialog1), 10);
   gtk_window_set_modal (GTK_WINDOW (phs_coordinates_filechooserdialog1), TRUE);
   gtk_window_set_role (GTK_WINDOW (phs_coordinates_filechooserdialog1), "GtkFileChooserDialog");
@@ -25722,7 +25737,7 @@ create_save_coords_filechooserdialog1 (void)
 
   tooltips = gtk_tooltips_new ();
 
-  save_coords_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select Filename for Saved Coordinates ", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
+  save_coords_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select Filename for Saved Coordinates ", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (save_coords_filechooserdialog1), 10);
   gtk_tooltips_set_tip (tooltips, save_coords_filechooserdialog1, "Saved File type: By extension", NULL);
   gtk_window_set_modal (GTK_WINDOW (save_coords_filechooserdialog1), TRUE);
@@ -25761,9 +25776,12 @@ create_save_coords_filechooserdialog1 (void)
   GTK_WIDGET_SET_FLAGS (button14, GTK_CAN_DEFAULT);
 
 #if (GTK_MINOR_VERSION > 9)
+#if (GTK_MINOR_VERSION > 9)
   g_signal_connect ((gpointer) save_coords_filechooserdialog1, "confirm_overwrite",
                     G_CALLBACK (on_save_coords_filechooserdialog1_confirm_overwrite),
                     NULL);
+#endif /* (GTK_MINOR_VERSION > 9) */
+
 #endif /* (GTK_MINOR_VERSION > 9) */
 
   g_signal_connect ((gpointer) save_coords_filechooserdialog1, "response",
@@ -25797,7 +25815,7 @@ create_cif_dictionary_filechooserdialog1 (void)
   GtkWidget *button15;
   GtkWidget *button16;
 
-  cif_dictionary_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select Cif Dictionary File", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  cif_dictionary_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select Cif Dictionary File", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (cif_dictionary_filechooserdialog1), 10);
   gtk_window_set_modal (GTK_WINDOW (cif_dictionary_filechooserdialog1), TRUE);
   gtk_window_set_role (GTK_WINDOW (cif_dictionary_filechooserdialog1), "GtkFileChooserDialog");
@@ -25847,7 +25865,7 @@ create_run_script_filechooserdialog1 (void)
   GtkWidget *button17;
   GtkWidget *button18;
 
-  run_script_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select Scripting File", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  run_script_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select Scripting File", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (run_script_filechooserdialog1), 10);
   gtk_window_set_modal (GTK_WINDOW (run_script_filechooserdialog1), TRUE);
   gtk_window_set_role (GTK_WINDOW (run_script_filechooserdialog1), "GtkFileChooserDialog");
@@ -25897,7 +25915,7 @@ create_save_symmetry_coords_filechooserdialog1 (void)
   GtkWidget *button19;
   GtkWidget *button20;
 
-  save_symmetry_coords_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select File", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
+  save_symmetry_coords_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select File", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (save_symmetry_coords_filechooserdialog1), 10);
   g_object_set (save_symmetry_coords_filechooserdialog1,
                 "show-hidden", TRUE,
@@ -25924,9 +25942,12 @@ create_save_symmetry_coords_filechooserdialog1 (void)
   GTK_WIDGET_SET_FLAGS (button20, GTK_CAN_DEFAULT);
 
 #if (GTK_MINOR_VERSION > 9)
+#if (GTK_MINOR_VERSION > 9)
   g_signal_connect ((gpointer) save_symmetry_coords_filechooserdialog1, "confirm_overwrite",
                     G_CALLBACK (on_save_symmetry_coords_filechooserdialog1_confirm_overwrite),
                     NULL);
+#endif /* (GTK_MINOR_VERSION > 9) */
+
 #endif /* (GTK_MINOR_VERSION > 9) */
 
   g_signal_connect ((gpointer) save_symmetry_coords_filechooserdialog1, "response",
@@ -25956,7 +25977,7 @@ create_save_state_filechooserdialog1 (void)
   GtkWidget *button21;
   GtkWidget *button22;
 
-  save_state_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select File-name for State File", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
+  save_state_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select File-name for State File", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (save_state_filechooserdialog1), 10);
   g_object_set (save_state_filechooserdialog1,
                 "show-hidden", TRUE,
@@ -25983,9 +26004,12 @@ create_save_state_filechooserdialog1 (void)
   GTK_WIDGET_SET_FLAGS (button22, GTK_CAN_DEFAULT);
 
 #if (GTK_MINOR_VERSION > 9)
+#if (GTK_MINOR_VERSION > 9)
   g_signal_connect ((gpointer) save_state_filechooserdialog1, "confirm_overwrite",
                     G_CALLBACK (on_save_state_filechooserdialog1_confirm_overwrite),
                     NULL);
+#endif /* (GTK_MINOR_VERSION > 9) */
+
 #endif /* (GTK_MINOR_VERSION > 9) */
 
   g_signal_connect ((gpointer) save_state_filechooserdialog1, "response",
@@ -26015,7 +26039,7 @@ create_screendump_filechooserdialog1 (void)
   GtkWidget *button23;
   GtkWidget *button24;
 
-  screendump_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select File", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
+  screendump_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select File", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (screendump_filechooserdialog1), 10);
   gtk_window_set_modal (GTK_WINDOW (screendump_filechooserdialog1), TRUE);
   gtk_window_set_role (GTK_WINDOW (screendump_filechooserdialog1), "GtkFileChooserDialog");
@@ -26039,9 +26063,12 @@ create_screendump_filechooserdialog1 (void)
   GTK_WIDGET_SET_FLAGS (button24, GTK_CAN_DEFAULT);
 
 #if (GTK_MINOR_VERSION > 9)
+#if (GTK_MINOR_VERSION > 9)
   g_signal_connect ((gpointer) screendump_filechooserdialog1, "confirm_overwrite",
                     G_CALLBACK (on_screendump_filechooserdialog1_confirm_overwrite),
                     NULL);
+#endif /* (GTK_MINOR_VERSION > 9) */
+
 #endif /* (GTK_MINOR_VERSION > 9) */
 
   g_signal_connect ((gpointer) screendump_filechooserdialog1, "response",
@@ -27216,7 +27243,7 @@ create_save_restraint_chooserdialog (void)
   GtkWidget *button27;
   GtkWidget *button28;
 
-  save_restraint_chooserdialog = gtk_file_chooser_dialog_new ("Save Restraints as mmCIF", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
+  save_restraint_chooserdialog = gtk_file_chooser_dialog_new ("Save Restraints as mmCIF", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (save_restraint_chooserdialog), 5);
   gtk_window_set_modal (GTK_WINDOW (save_restraint_chooserdialog), TRUE);
   gtk_window_set_role (GTK_WINDOW (save_restraint_chooserdialog), "GtkFileChooserDialog");
@@ -27240,9 +27267,12 @@ create_save_restraint_chooserdialog (void)
   GTK_WIDGET_SET_FLAGS (button28, GTK_CAN_DEFAULT);
 
 #if (GTK_MINOR_VERSION > 9)
+#if (GTK_MINOR_VERSION > 9)
   g_signal_connect ((gpointer) save_restraint_chooserdialog, "confirm_overwrite",
                     G_CALLBACK (on_save_restraint_chooserdialog_confirm_overwrite),
                     NULL);
+#endif /* (GTK_MINOR_VERSION > 9) */
+
 #endif /* (GTK_MINOR_VERSION > 9) */
 
   g_signal_connect ((gpointer) save_restraint_chooserdialog, "response",
@@ -27619,7 +27649,7 @@ create_run_refmac_mtz_filechooserdialog (void)
   GtkWidget *button30;
   GtkWidget *button31;
 
-  run_refmac_mtz_filechooserdialog = gtk_file_chooser_dialog_new ("Select Dataset for Twin Refmac", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  run_refmac_mtz_filechooserdialog = gtk_file_chooser_dialog_new ("Select Dataset for Twin Refmac", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (run_refmac_mtz_filechooserdialog), 5);
   gtk_window_set_modal (GTK_WINDOW (run_refmac_mtz_filechooserdialog), TRUE);
   gtk_window_set_role (GTK_WINDOW (run_refmac_mtz_filechooserdialog), "GtkFileChooserDialog");
@@ -29303,7 +29333,7 @@ create_export_map_filechooserdialog (void)
   GtkWidget *export_map_filechooserdialog_cancel_button;
   GtkWidget *export_map_filechooserdialog_save_button;
 
-  export_map_filechooserdialog = gtk_file_chooser_dialog_new ("Export Map", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
+  export_map_filechooserdialog = gtk_file_chooser_dialog_new ("Export Map", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (export_map_filechooserdialog), 5);
   gtk_window_set_role (GTK_WINDOW (export_map_filechooserdialog), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (export_map_filechooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);

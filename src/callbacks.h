@@ -4631,3 +4631,12 @@ void
 on_curlew_dialog_response              (GtkDialog       *dialog,
                                         gint             response_id,
                                         gpointer         user_data);
+
+void
+on_symmetry_always_on_toggled          (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_symmetry_always_on_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);

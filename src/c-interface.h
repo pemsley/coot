@@ -1782,6 +1782,8 @@ void set_symmetry_atom_labels_expanded(int state);
    @return 1 on "yes, it has a cell", 0 for "no" */
 int has_unit_cell_state(int imol); 
 
+/* a gui function really */
+void add_symmetry_on_to_preferences_and_apply();
 
 /*! \brief Undo symmetry view. Translate back to main molecule from
   this symmetry position.  */

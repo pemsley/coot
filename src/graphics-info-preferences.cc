@@ -683,7 +683,6 @@ graphics_info_t::preferences_internal_change_value(int preference_type,
 }
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 graphics_info_t::preferences_model_toolbar_icon_toggled(GtkCellRendererToggle *button,
                                                         gchar *path_string,
@@ -730,7 +729,6 @@ graphics_info_t::preferences_toolbar_icon_toggled(GtkCellRendererToggle *button,
 
   gtk_tree_path_free (path);
 }
-#endif // GTK_MAJOR_VERSION
 
 enum {
   BUTTON_COL,
@@ -739,7 +737,6 @@ enum {
   INDEX_COL
 };
 
-#if (GTK_MAJOR_VERSION >1)
 void
 graphics_info_t::fill_preferences_model_toolbar_icons(GtkWidget *preferences,
 						      GtkWidget *scrolled_window) {
@@ -889,7 +886,6 @@ graphics_info_t::fill_preferences_toolbar_icons(GtkWidget *preferences,
 
   gtk_widget_show(icons_tree);
 }
-#endif // GTK_MAJOR_VERSION
 
 
 void
@@ -1002,4 +998,42 @@ graphics_info_t::update_main_toolbar_icons(GtkTreeModel *model) {
     update_toolbar_icons(model, MAIN_TOOLBAR);
 
 }
+
+std::string
+graphics_info_t::get_preferences_directory() const {
+
+   const char *home = getenv("HOME");
+   const char *coot_home = getenv("COOT_HOME");
+   std::string pkgdatadir = coot::package_data_dir();
+
+   std::string fn;
+
+   if (coot_home) {
+      fn = coot::util::append_dir_file(coot_home, ".coot-preferences");
+   }
+   if (fn.empty()) {
+      if (home) {
+         fn = coot::util::append_dir_file(home, ".coot-preferences");
+      }
+   }
+   if (fn.empty()) {
+      fn = coot::util::append_dir_file(pkgdatadir, ".coot-preferences");
+   }
+
+   return fn;
+}
+
+void
+graphics_info_t::add_to_preferences(const std::string &file_name, const std::string &contents) const {
+
+   std::string pref_dir = get_preferences_directory();
+   std::string fn = coot::util::append_dir_file(pref_dir, file_name);
+
+   std::ofstream f(fn.c_str());
+   if (f) {
+      f << contents << std::endl;
+   }
+   f.close();
+}
+
 
