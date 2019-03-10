@@ -1590,8 +1590,12 @@ molecule_class_info_t::rotate_rgb_in_place(float *rgb, const float &amount) cons
 // So they need to be filled after calling this function.
 void 
 molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecule_name,
-							      int is_diff_map,
-							      short int swap_difference_map_colours) {
+							      bool is_diff_map,
+							      bool is_anomalous_map,
+							      bool swap_difference_map_colours) {
+
+   std::cout << "------------------- initialize_map_things_on_read_molecule() is_anomalous_map: "
+	     << is_diff_map << " " << is_anomalous_map << " " << swap_difference_map_colours << std::endl;
 
    // unset coordinates, this is not a set of coordinates:
    atom_sel.n_selected_atoms = 0;
@@ -1614,16 +1618,22 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
    map_colour = new double*[10];
 
    map_colour[0] = new double[4];
-   if (is_diff_map == 1) { 
+   if (is_diff_map) { 
       if (! swap_difference_map_colours) { 
-	 map_colour[0][0] = 0.2; 
-	 map_colour[0][1] = 0.6; 
+	 if (! is_anomalous_map) {
+	    map_colour[0][0] = 0.2; 
+	    map_colour[0][1] = 0.6; 
+	    map_colour[0][2] = 0.2;
+	 } else {
+	    map_colour[0][0] = 0.6;
+	    map_colour[0][1] = 0.6;
+	    map_colour[0][2] = 0.4;
+	 }
+      } else {
+	 map_colour[0][0] = 0.6;
+	 map_colour[0][1] = 0.2;
 	 map_colour[0][2] = 0.2;
-      } else { 
-	 map_colour[0][0] = 0.6; 
-	 map_colour[0][1] = 0.2; 
-	 map_colour[0][2] = 0.2; 
-      } 
+      }
    } else {
       std::vector<float> orig_colours(3);
       orig_colours[0] =  0.2;
@@ -1638,13 +1648,19 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
    } 
       
    // negative contour level
-   // 
+   //
    map_colour[1] = new double[4];
-   if (! swap_difference_map_colours) { 
-      map_colour[1][0] = 0.6; 
-      map_colour[1][1] = 0.2; 
-      map_colour[1][2] = 0.2; 
-   } else { 
+   if (! swap_difference_map_colours) {
+      if (! is_anomalous_map) {
+	 map_colour[1][0] = 0.6;
+	 map_colour[1][1] = 0.2;
+	 map_colour[1][2] = 0.2;
+      } else {
+	 map_colour[1][0] = 0.55;
+	 map_colour[1][1] = 0.25;
+	 map_colour[1][2] = 0.45;
+      }
+   } else {
       map_colour[1][0] = 0.2; 
       map_colour[1][1] = 0.6; 
       map_colour[1][2] = 0.2;

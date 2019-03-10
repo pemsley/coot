@@ -9061,7 +9061,7 @@ molecule_class_info_t::make_map_from_cns_data(const clipper::Spacegroup &sg,
 
    std::string mol_name = cns_data_filename;
 
-   initialize_map_things_on_read_molecule(mol_name, 0, 0); // not diff map
+   initialize_map_things_on_read_molecule(mol_name, false, false, false); // not diff map
 
    cout << "initializing map..."; 
    xmap.init(mydata.spacegroup(), 

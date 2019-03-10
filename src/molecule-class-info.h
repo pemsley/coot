@@ -1117,8 +1117,10 @@ public:        //                      public
 
    void initialize_on_read_molecule(); 
    
-   void initialize_map_things_on_read_molecule(std::string name, int is_diff_map, 
-					       short int swap_difference_map_colours);
+   void initialize_map_things_on_read_molecule(std::string name,
+					       bool is_diff_map,
+					       bool is_anomalous_map,
+					       bool swap_difference_map_colours);
    void initialize_coordinate_things_on_read_molecule(std::string name);
    void initialize_coordinate_things_on_read_molecule_internal(std::string name,
 							       short int is_undo_or_redo);
