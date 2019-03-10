@@ -81,7 +81,7 @@ def validation_outlier_dialog(imol, imol_map):
                 pass
             else:
                 # if spec is a het-group then no rotamers for that (return False)
-                is_het = any(map(lambda item: residue_spec_match_qm(item, spec),
+                is_het = any(map(lambda item: residue_specs_match_qm(item, spec),
                                  het_groups_in_mol))
                 if is_het:
                     pass
