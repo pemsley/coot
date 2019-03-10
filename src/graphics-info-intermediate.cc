@@ -218,7 +218,7 @@ graphics_info_t::backrub_rotamer_intermediate_atoms() {
 		     // function.
 
 		     coot::backrub br(chain_id, this_res, prev_res, next_res, alt_conf, mol,
-				      molecules[imol_map].xmap);
+				      &molecules[imol_map].xmap); // use a pointer for the map
 		     std::pair<coot::minimol::molecule,float> m = br.search(rest);
 
 		     continue_threaded_refinement_loop = false;

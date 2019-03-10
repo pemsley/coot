@@ -2329,7 +2329,7 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
 		     mmdb::Residue *next_res = coot::util::next_residue(res);
 		     mmdb::Manager *mol = atom_sel.mol;
 		     coot::backrub br(chain_id, res, prev_res, next_res, alt_conf, mol,
-				      g.molecules[imol_map].xmap);
+				      &g.molecules[imol_map].xmap); // use a pointer for the map
 		     std::pair<coot::minimol::molecule,float> m = br.search(rest);
 		     score = m.second;
 		     status = 1;
@@ -8439,12 +8439,18 @@ molecule_class_info_t::fill_partial_residues(coot::protein_geometry *geom_p,
       info = missing_atoms(0, geom_p);
 
       if (info.residues_with_missing_atoms.size() > 0) {
-	 std::cout << " Residues with missing atoms:" << "\n";
-	 for (unsigned int i=0; i<info.residues_with_missing_atoms.size(); i++)
-	    std::cout << info.residues_with_missing_atoms[i]->GetResName() << " "
-		      << info.residues_with_missing_atoms[i]->GetSeqNum()  << " "
-		      << info.residues_with_missing_atoms[i]->GetChainID() << " "
-		      << "\n";
+	 std::cout << "INFO:: Residues with missing atoms:" << "\n";
+	 unsigned int n_per_line = 10;
+	 for (unsigned int i=0; i<info.residues_with_missing_atoms.size(); i+=n_per_line) {
+	    for (unsigned int ip=0; ip<n_per_line; ip++) {
+	       if ((i+ip) < info.residues_with_missing_atoms.size()) {
+		  std::cout << info.residues_with_missing_atoms[i+ip]->GetResName() << " "
+			    << info.residues_with_missing_atoms[i+ip]->GetSeqNum()  << " "
+			    << info.residues_with_missing_atoms[i+ip]->GetChainID() << "  ";
+	       }
+	    }
+	    std::cout << "\n";
+	 }
 
 	 for (unsigned int i=0; i<info.residues_with_missing_atoms.size(); i++) {
 	    int resno =  info.residues_with_missing_atoms[i]->GetSeqNum();
@@ -8454,10 +8460,11 @@ molecule_class_info_t::fill_partial_residues(coot::protein_geometry *geom_p,
 	    std::string altloc("");
 	    float lowest_probability = 0.8;
 	    int clash_flag = 1;
-	    
+
 	    mutate(resno, inscode, chain_id, residue_type); // fill missing atoms
 	    if (refinement_map_number >= 0)
-	       auto_fit_best_rotamer(resno, altloc, inscode, chain_id,
+	       auto_fit_best_rotamer(ROTAMERSEARCHLOWRES, // backrub rotamers
+				     resno, altloc, inscode, chain_id,
 				     refinement_map_number, clash_flag,
 				     lowest_probability, *geom_p);
 

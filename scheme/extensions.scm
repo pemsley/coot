@@ -233,7 +233,7 @@
 	;;     Post MR
 	;;
 	;; ---------------------------------------------------------------------
-	
+
 	(add-simple-coot-menu-menuitem
 	 submenu-all-molecule "[Post MR] Fill Partial Residues..."
 	 (lambda ()

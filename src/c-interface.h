@@ -5221,6 +5221,12 @@ void fill_partial_residues(int imol);
 
 void fill_partial_residue(int imol, const char *chain_id, int resno, const char* inscode);
 
+/*! \brief Fill amino acid residues
+
+do backrub rotamer search for residues, but don't do refinement
+*/
+void simple_fill_partial_residues(int imol);
+
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM missing_atom_info_scm(int imol);

@@ -1787,7 +1787,7 @@ graphics_info_t::clear_up_moving_atoms() {
    while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
       std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms() - refinement restraints locked on "
                 << std::endl;
-      std::this_thread::sleep_for(std::chrono::milliseconds(40));
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
       unlocked = false;
    }
 
