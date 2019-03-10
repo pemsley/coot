@@ -277,7 +277,8 @@ else
       ccp4_mode=true
    fi
 
-   # echo coot-script with PATH $PATH and PYTHON $PYTHON
+   # echo DEBUG:: coot-script with PATH $PATH and PYTHON $PYTHON
+
    # which rsvg-convert
    # otool -L $HOME/bin/rsvg-convert
 
@@ -288,7 +289,7 @@ else
    # normal path
    # "Use $@ to stop word splitting" from Ben Eisenbraun.
    if [ -z "$ccp4_mode" ] ; then
-      echo ::: DYLD_FALLBACK_LIBRARY_PATH is $DYLD_FALLBACK_LIBRARY_PATH
+      # echo ::: DYLD_FALLBACK_LIBRARY_PATH is $DYLD_FALLBACK_LIBRARY_PATH
       $coot_bin "$@"
       status=$?
    else

@@ -6547,14 +6547,14 @@
 		      <property name="spacing">0</property>
 
 		      <child>
-			<widget class="GtkRadioButton" id="show_symmetry_yes_radiobutton">
+			<widget class="GtkRadioButton" id="show_symmetry_no_radiobutton">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
-			  <property name="label" translatable="yes">Symmetry On</property>
+			  <property name="label" translatable="yes">Symmetry Off</property>
 			  <property name="use_underline">True</property>
 			  <property name="relief">GTK_RELIEF_NORMAL</property>
 			  <property name="focus_on_click">True</property>
-			  <property name="active">False</property>
+			  <property name="active">True</property>
 			  <property name="inconsistent">False</property>
 			  <property name="draw_indicator">True</property>
 			</widget>
@@ -6566,17 +6566,37 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkRadioButton" id="show_symmetry_no_radiobutton">
+			<widget class="GtkRadioButton" id="show_symmetry_yes_radiobutton">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
-			  <property name="label" translatable="yes">Symmetry Off</property>
+			  <property name="label" translatable="yes">Symmetry On</property>
 			  <property name="use_underline">True</property>
 			  <property name="relief">GTK_RELIEF_NORMAL</property>
 			  <property name="focus_on_click">True</property>
-			  <property name="active">True</property>
+			  <property name="active">False</property>
 			  <property name="inconsistent">False</property>
 			  <property name="draw_indicator">True</property>
-			  <property name="group">show_symmetry_yes_radiobutton</property>
+			  <property name="group">show_symmetry_no_radiobutton</property>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">False</property>
+			  <property name="fill">False</property>
+			</packing>
+		      </child>
+
+		      <child>
+			<widget class="GtkCheckButton" id="symmetry_always_on_checkbutton">
+			  <property name="visible">True</property>
+			  <property name="can_focus">True</property>
+			  <property name="label" translatable="yes">Always On</property>
+			  <property name="use_underline">True</property>
+			  <property name="relief">GTK_RELIEF_NORMAL</property>
+			  <property name="focus_on_click">True</property>
+			  <property name="active">False</property>
+			  <property name="inconsistent">False</property>
+			  <property name="draw_indicator">True</property>
+			  <signal name="toggled" handler="on_symmetry_always_on_checkbutton_toggled" last_modification_time="Sat, 09 Mar 2019 19:46:04 GMT"/>
 			</widget>
 			<packing>
 			  <property name="padding">0</property>

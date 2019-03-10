@@ -1026,8 +1026,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
       mol_name += g.float_to_string(high_reso_limit);
    }
    
-   initialize_map_things_on_read_molecule(mol_name,
-					  is_diff_map,
+   initialize_map_things_on_read_molecule(mol_name, is_diff_map, is_anomalous_flag,
 					  g.swap_difference_map_colours);
    
    // If use weights, use both strings, else just use the first
@@ -1035,8 +1034,8 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 
    if (p.first.length() == 0) { // mechanism to signal an error
       std::cout << "ERROR:: fill_map.. - There was a column label error.\n";
-   } else { 
-      
+   } else {
+
       if (use_weights) {
 	 // 	 std::cout << "DEBUG:: Importing f_sigf_data: " << p.first << std::endl;
 	 mtzin.import_hkl_data( f_sigf_data, p.first );
@@ -1051,11 +1050,11 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 mtzin.import_hkl_data(fphidata, p.first);
 	 mtzin.close_read();
       }
-   
+
       long T1 = glutGet(GLUT_ELAPSED_TIME);
 
       int n_reflections = fphidata.num_obs();
-      std::cout << "Number of OBSERVED reflections: " << n_reflections << "\n";
+      std::cout << "INFO:: Number of observed reflections: " << n_reflections << "\n";
       if (n_reflections <= 0) {
 	 std::cout << "WARNING:: No reflections in mtz file!?" << std::endl;
       } else { 
@@ -1082,7 +1081,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 				   fphidata.cell(),
 				   fft_reso,
 				   map_sampling_rate);
-	 cout << "INFO grid sampling..." << gs.format() << endl; 
+	 cout << "INFO:: grid sampling..." << gs.format() << endl; 
 	 xmap.init( fphidata.spacegroup(), fphidata.cell(), gs); // 1.5 default
 	 // 	 cout << "Grid..." << xmap.grid_sampling().format() << "\n";
    
@@ -1158,7 +1157,6 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 // update_map_colour_menu_manual(g.n_molecules, name_.c_str()); 
 	 // update_map_scroll_wheel_menu_manual(g.n_molecules, name_.c_str()); 
 
-
 	 update_map();
 	 long T5 = glutGet(GLUT_ELAPSED_TIME);
 	 std::cout << "INFO:: " << float(T5-T4)/1000.0 << " seconds for contour map\n";
@@ -1232,8 +1230,6 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 }
       }
    }
-   // std::cout << "DEBUG:: finishing map_fill_from_mtz_with_reso_limits, imol_no is "
-   // << imol_no << std::endl;
 }
 
 
@@ -1274,7 +1270,7 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
 
 	 
       initialize_map_things_on_read_molecule(mol_name,
-					     is_diff_map,
+					     is_diff_map, false,
 					     g.swap_difference_map_colours);
       long T1 = glutGet(GLUT_ELAPSED_TIME);
 
@@ -1784,9 +1780,10 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
      file.close_read();
    }
 
-   if (bad_read == false) {
+   if (! bad_read) {
 
-      initialize_map_things_on_read_molecule(filename, is_diff_map_flag, 
+      bool is_anomalous_flag = false;
+      initialize_map_things_on_read_molecule(filename, is_diff_map_flag, is_anomalous_flag,
 					     graphics_info_t::swap_difference_map_colours);
 
       mean_and_variance<float> mv = map_density_distribution(xmap, 40, true, true);
@@ -1905,7 +1902,7 @@ molecule_class_info_t::new_map(const clipper::Xmap<float> &map_in, std::string n
    xmap = map_in; 
    // the map name is filled by using set_name(std::string)
    // sets name_ to name_in:
-   initialize_map_things_on_read_molecule(name_in, 0, 0); // not a diff_map
+   initialize_map_things_on_read_molecule(name_in, false, false, false); // not a diff_map
 
    mean_and_variance<float> mv = map_density_distribution(xmap, 40, true); 
 
@@ -2001,7 +1998,7 @@ molecule_class_info_t::make_map_from_phs_using_reso(std::string phs_filename,
    
   std::string mol_name = phs_filename; 
 
-  initialize_map_things_on_read_molecule(mol_name, 0, 0); // not diff map
+  initialize_map_things_on_read_molecule(mol_name, false, false, false); // not diff map
 
   std::cout << "initializing map..."; 
   xmap.init(mydata.spacegroup(), 
@@ -2176,7 +2173,7 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
 						  atom_selection_container_t SelAtom,
 						  short int is_2fofc_type) {
 
-   initialize_map_things_on_read_molecule(mol_name, 0, 0); // not diff map
+   initialize_map_things_on_read_molecule(mol_name, false, false, false); // not diff map
    
    std::cout << "calculating structure factors..." << std::endl;
 
@@ -2563,7 +2560,7 @@ molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
 	    // xmap.fft_from( fphidata );       // generate Fc alpha-c map
 	    xmap.fft_from( map_fphidata );       // generate sigmaA map 20050804
 	    cout << "done." << endl;
-	    initialize_map_things_on_read_molecule(mol_name, is_diff, 0);
+	    initialize_map_things_on_read_molecule(mol_name, is_diff, false, false);
 	    // now need to fill contour_level, xmap_is_diff_map xmap_is_filled
 	    if (is_diff)
 	       xmap_is_diff_map = 1;
@@ -2670,8 +2667,9 @@ molecule_class_info_t::make_map_from_cif_nfofc(int imol_no_in,
 	 if (map_type == molecule_map_type::TYPE_FO_ALPHA_CALC) {
 	    mol_name += " Fo ac";
 	 }
-	 
-	 initialize_map_things_on_read_molecule(mol_name, is_diff_map_flag,
+
+	 bool is_anomalous_flag = false;
+	 initialize_map_things_on_read_molecule(mol_name, is_diff_map_flag, is_anomalous_flag,
 						swap_difference_map_colours);
 	
 	 cout << "initializing map..."; 
@@ -2878,7 +2876,7 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
 
       std::string mol_name = phs_filename; 
 
-      initialize_map_things_on_read_molecule(mol_name, 0, 0); // not diff map
+      initialize_map_things_on_read_molecule(mol_name, false, false, false); // not diff map
 
       cout << "initializing map..."; 
       xmap.init(mydata.spacegroup(), 

@@ -3935,7 +3935,7 @@
 									       map-file-name-stub
 									       ".mtz"))
 				   (log-file-name (string-append
-						   "refmac-sharp"
+						   "refmac-multisharp-"
 						   map-file-name-stub
 						   ".log")))
 

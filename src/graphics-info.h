@@ -3386,6 +3386,8 @@ public:
    void show_hide_toolbar_icon_pos(int pos, int show_hide_flag, int toolbar_index);
    std::vector<int> get_model_toolbar_icons_list();
    std::vector<int> get_main_toolbar_icons_list();
+   void add_to_preferences(const std::string &file_name, const std::string &contents) const;
+   std::string get_preferences_directory() const;
 
    // --- remote controlled coot: ----
    static int try_port_listener;

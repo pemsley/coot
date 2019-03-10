@@ -1532,6 +1532,17 @@ int scroll_by_wheel_mouse_state() {
 }
 
 
+void add_symmetry_on_to_preferences_and_apply() {
+
+   set_show_symmetry_master(1);
+
+   graphics_info_t g;
+   g.add_to_preferences("xenops-symmetry.scm", "(set-show-symmetry-master 1)");
+   g.add_to_preferences("xenops_symmetry.py",   "set_show_symmetry_master(1)");
+
+}
+
+
 //
 char* get_text_for_symmetry_size_widget() {
 
