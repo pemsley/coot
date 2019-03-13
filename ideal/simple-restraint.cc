@@ -2124,16 +2124,20 @@ void coot::my_df_electron_density_threaded_single(int thread_idx, const gsl_vect
 	 // 	    gsl_vector_set(df, i+1, gsl_vector_get(df, i+1) - zs * grad_orth.dy());
 	 // 	    gsl_vector_set(df, i+2, gsl_vector_get(df, i+2) - zs * grad_orth.dz());
 
+
+         // we no longer do this sort of locking
+
 	 // use atomic lock to access derivs of atom idx
-	 unsigned int unlocked = 0;
-	 while (! restraints->gsl_vector_atom_pos_deriv_locks.get()[idx].compare_exchange_weak(unlocked, 1)) {
-	    std::this_thread::sleep_for(std::chrono::nanoseconds(10));
-	    unlocked = 0;
-	 }
+	 // unsigned int unlocked = 0;
+	 // while (! restraints->gsl_vector_atom_pos_deriv_locks.get()[idx].compare_exchange_weak(unlocked, 1)) {
+	 //    std::this_thread::sleep_for(std::chrono::nanoseconds(10));
+	 //    unlocked = 0;
+	 // }
+
 	 *gsl_vector_ptr(df, idx  ) -= zs * grad_orth.dx();
 	 *gsl_vector_ptr(df, idx+1) -= zs * grad_orth.dy();
 	 *gsl_vector_ptr(df, idx+2) -= zs * grad_orth.dz();
-	 restraints->gsl_vector_atom_pos_deriv_locks.get()[idx] = 0; // unlock
+	 // restraints->gsl_vector_atom_pos_deriv_locks.get()[idx] = 0; // unlock
       }
    }
 
@@ -6337,26 +6341,6 @@ coot::restraints_container_t::setup_gsl_vector_variables() {
       gsl_vector_set(x, idx+2, atom[i]->z);
    }
 
-   setup_gsl_vector_atom_pos_deriv_locks();
-}
-
-void
-coot::restraints_container_t::setup_gsl_vector_atom_pos_deriv_locks() {
-
-   // setup gsl vector atom pos deriv locks.
-   // We don't lock every derivative, we lock every atom (which corresponds to 3 derivs)
-   //
-#ifdef HAVE_CXX_THREAD
-
-   // we need only do this once per instance gsl_vector_atom_pos_deriv_locks is set to 0 in init().
-   //
-   if (! gsl_vector_atom_pos_deriv_locks) {
-
-      gsl_vector_atom_pos_deriv_locks = std::shared_ptr<std::atomic<unsigned int> > (new std::atomic<unsigned int>[n_atoms]);
-      for (int ii=0; ii<n_atoms; ii++)
-	 gsl_vector_atom_pos_deriv_locks.get()[ii] = 0; // unlocked
-   }
-#endif
 }
 
 

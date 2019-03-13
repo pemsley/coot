@@ -1027,6 +1027,7 @@ namespace coot {
       int nSelResidues_active;
       bool apply_H_non_bonded_contacts;
 
+      // pointless argument - remove later
       void init(bool unset_deriv_locks) {
       	 verbose_geometry_reporting = NORMAL;
          n_refiners_refining = 0;
@@ -1056,8 +1057,6 @@ namespace coot {
 	 restraints_lock = false; // not locked
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 	 thread_pool_p = 0; // null pointer
-	 if (unset_deriv_locks)
-	    gsl_vector_atom_pos_deriv_locks = 0;
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #endif // HAVE_CXX_THREAD
       }
@@ -1956,9 +1955,6 @@ namespace coot {
 	 from_residue_vector = 0;
 	 include_map_terms_flag = 0;
 	 
-#ifdef HAVE_CXX_THREAD
-	 gsl_vector_atom_pos_deriv_locks = 0;
-#endif
       };
 
       ~restraints_container_t() {
@@ -2063,22 +2059,12 @@ namespace coot {
       }
 
 #ifdef HAVE_CXX_THREAD
-      // we can't have a vector of atomic (unsigned int)s for
-      // reasons of deleted copy/delete constructors that I don't follow.
-      //
-      // std::vector<std::atomic<unsigned int> > gsl_vector_atom_pos_deriv_locks;
-      //
-      // Do it with pointers (haha) - is this what the designers of C++ atomics
-      // has in mind?
-      //
-      std::shared_ptr<std::atomic<unsigned int> > gsl_vector_atom_pos_deriv_locks;
-
       // we should not update the atom pull restraints while the refinement is running.
       // we shouldn't refine when the atom pull restraints are being updated.
       // we shouldn't clear the gsl_vector x when o
       std::atomic<bool> restraints_lock;
 #endif
-      void setup_gsl_vector_atom_pos_deriv_locks();
+
       unsigned int get_n_atoms() const { return n_atoms; } // access from split_the_gradients_with_threads()
       unsigned int n_variables() const { 
 	 // return 3 * the number of atoms
