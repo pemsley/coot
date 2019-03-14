@@ -5082,7 +5082,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 	 for (int jat=0; jat<n_atoms; jat++) {
 
 	    if (iat != jat) {
-		     
+
 	       mmdb::Residue *other_atom_residue = atom[jat]->residue;
 	       if (bonded_atom_residue != other_atom_residue) {
 
@@ -5114,7 +5114,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 			   // Simple part, the residues were not bonded to each other.
 
 			   if (! is_member_p(bonded_atom_indices[iat], jat)) {
-			
+
 			      // atom j is not bonded to atom i, is it close? (i.e. within dist_crit?)
 			      clipper::Coord_orth pt1(atom[iat]->x, atom[iat]->y, atom[iat]->z);
 			      clipper::Coord_orth pt2(atom[jat]->x, atom[jat]->y, atom[jat]->z);
@@ -5163,21 +5163,17 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 	       if (j > 0)
 		  if (j != (filtered_non_bonded_atom_indices[i].size()-1))
 		     std::cout << "\n          ";
-	 } 
+	 }
 	 std::cout << std::endl;
-      } 
+      }
       std::cout << "--------------------------------------------------\n";
    }
-   
+
 #ifdef HAVE_CXX_THREAD
 
-   // end = std::chrono::system_clock::now();
-
-   // std::chrono::duration<double> elapsed_seconds = end-start;
-   // std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-
-   // std::cout << "INFO:: nbc computation " // std::ctime(&end_time)
-   //           << "elapsed time: " << elapsed_seconds.count() << "s\n";
+   end = std::chrono::system_clock::now();
+   std::chrono::duration<double> elapsed_seconds = end-start;
+   std::cout << "INFO:: nbc computation " << "elapsed time: " << elapsed_seconds.count() << "s\n";
 
 #endif // HAVE_CXX_THREAD
 

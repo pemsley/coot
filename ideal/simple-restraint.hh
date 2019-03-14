@@ -2198,7 +2198,7 @@ namespace coot {
       // calling function should also provide the plot type
       // residue type eg "ALL!nP" "ALLnP" "GLY!nP"  "GLYnP" "PRO!nP"
       //
-      float zo_rama_prob(const std::string &residue_type, const double &phir, const double &psir) {
+      float zo_rama_prob(const std::string &residue_type, const double &phir, const double &psir) const {
 	 return zo_rama.value(residue_type, phir, psir);
       }
 
