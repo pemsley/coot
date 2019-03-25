@@ -3749,6 +3749,18 @@ coot::util::chain_id_residue_vec_helper_t::operator<(const chain_id_residue_vec_
 // static 
 bool
 coot::util::chain_id_residue_vec_helper_t::residues_sort_func(mmdb::Residue *first, mmdb::Residue *second) { 
+
+   if (! first) {
+      if (! second) {
+         return false;
+      } else {
+         return true;
+      }
+   } else {
+     if (! second) {
+        return true; // check? - perverse case.
+     }
+   }
    
    if (first->GetSeqNum() < second->GetSeqNum()) { 
       return true;
@@ -3771,6 +3783,18 @@ coot::util::chain_id_residue_vec_helper_t::residues_sort_func(mmdb::Residue *fir
 // chain-split the residues, dont just rely on the sequence number
 bool
 coot::util::residues_sort_function(mmdb::Residue *r1, mmdb::Residue *r2) {
+
+   if (!r1) {
+      if (!r2) {
+         return false;
+      } else {
+         return true;
+      }
+   } else {
+      if (!r2) {
+         return false;
+      }
+   }
 
    if (r1->chain < r2->chain) {
       return true;

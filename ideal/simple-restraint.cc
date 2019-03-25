@@ -61,6 +61,38 @@ zo::rama_table_set coot::restraints_container_t::zo_rama;
 
 
 
+coot::restraints_container_t::~restraints_container_t() {
+   if (from_residue_vector) {
+      if (atom) {
+	 // this is constructed manually.
+
+	 // Oh we can't do this here because we copy the
+	 // restraints in simple_refine_residues() and that
+	 // shallow copies the atom pointer - the original
+	 // restriants go out of scope and call this destructor.
+	 //
+	 // We need a new way to get rid of atom - c.f. the
+	 // linear/conventional way?
+	 //
+	 // delete [] atom;
+	 // atom = NULL;
+      }
+   } else {
+      // member data item mmdb::PPAtom atom is constructed by an
+      // mmdb SelectAtoms()/GetSelIndex() (which includes
+      // flanking atoms).
+      // 20081207: don't do this here now - because the
+      // memory/selection is deleted again in
+      // clear_up_moving_atoms(). It *should* be done here of
+      // course, but we'll save that for the future.
+      //
+      //if (atom) {
+      // mol->DeleteSelection(SelHnd_atom);
+      // atom = NULL;
+      // }
+   }
+}
+
 // iend_res is inclusive, so that 17,17 selects just residue 17.
 //   have_disulfide_residues: other residues are included in the
 //				residues_mol for disphide restraints.
@@ -231,10 +263,54 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
    // std::cout << "-------------------- in restraints_container_t() constructor " << std::endl;
    istart_minus_flag = false; // used in make_flanking_atoms_rama_restraints
    iend_plus_flag = false;
+
    init(true);
    from_residue_vector = 1;
    are_all_one_atom_residues = false;
-   init_from_residue_vec(residues, geom, mol_in, fixed_atom_specs);
+
+   std::vector<std::pair<bool,mmdb::Residue *> > residues_local;
+   residues_local.reserve(residues.size());
+
+   for(unsigned int i=0; i<residues.size(); i++)
+      if (residues[i].second)
+         residues_local.push_back(residues[i]);
+
+   residues_vec = residues_local;
+   init_from_residue_vec(residues_local, geom, mol_in, fixed_atom_specs);
+}
+
+coot::restraints_container_t::restraints_container_t(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
+						     const coot::protein_geometry &geom,
+						     mmdb::Manager *mol_in,
+						     const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
+
+   init(true);
+   from_residue_vector = 1;
+   are_all_one_atom_residues = false;
+
+   std::vector<atom_spec_t> fixed_atom_specs;
+   std::vector<std::pair<bool,mmdb::Residue *> > residues_local;
+   residues_local.reserve(residues.size());
+
+   for(unsigned int i=0; i<residues.size(); i++)
+      if (residues[i].second)
+         residues_local.push_back(residues[i]);
+
+   residues_vec = residues_local;
+
+   if (false) {
+      std::cout << "debug:: in restraints_container_t() constructor with local residue size " << residues_local.size() << std::endl;
+      for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
+         if (residues_vec[ir].second) {
+           std::cout << "INFO:: starting init_from_residue_vec() residue " << residues_vec[ir].second << std::endl;
+         } else {
+           std::cout << "ERROR:: starting init_from_residue_vec() NUll residue " << ir << std::endl;
+         }
+      }
+   }
+
+   init_from_residue_vec(residues_local, geom, mol_in, fixed_atom_specs);
+
 }
 
 
@@ -515,11 +591,27 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 						    mmdb::Manager *mol_in,
 						    const std::vector<atom_spec_t> &fixed_atom_specs) {
 
+   if (false) {
+      for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
+         if (residues_vec[ir].second) {
+           std::cout << "INFO:: starting init_from_residue_vec() residue " << residues_vec[ir].second << std::endl;
+         } else {
+           std::cout << "ERROR:: starting init_from_residue_vec() NUll residue " << ir << std::endl;
+         }
+      }
+   }
    // This function is called from the constructor.
    // make_restraints() is called after this function by the user of this class.
    
    init_shared_pre(mol_in);
-   residues_vec = residues;
+
+   if (residues.size() > 2000000) {
+      std::cout << "ERROR:: in init_from_residue_vec() - memory error " << residues.size() << std::endl;
+      return;
+   }
+   residues_vec.resize(residues.size());
+
+   // residues_vec = residues;
    for (std::size_t i=0; i<residues.size(); i++)
       if (residues[i].first == false) // i.e. is moving
 	 residues_vec_moving_set.insert(residues[i].second);
@@ -720,6 +812,9 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 		   << atom[iat]->GetResName() << " fixed: " << fixed_flag << std::endl;
       }
    }
+
+
+   std::cout << "Done init_from_residue_vec()" << std::endl;
    
    
 }
@@ -2255,6 +2350,24 @@ coot::restraints_container_t::set_dist_crit_for_bonded_pairs(float dist) {
    dist_crit_for_bonded_pairs = dist;
 }
 
+int
+coot::restraints_container_t::something_like_make_restraints(
+                                              // int imol
+					      // bool do_residue_internal_torsions,
+					      // bool do_trans_peptide_restraints,
+					      // float rama_plot_target_weight,
+					      // bool do_rama_plot_restraints,
+					      // bool do_auto_helix_restraints,
+					      // bool do_auto_strand_restraints,
+					      // coot::pseudo_restraint_bond_type sec_struct_pseudo_bonds,
+					      // bool do_link_restraints,
+					      // bool do_flank_restraints
+					      ) {
+
+   return df_by_thread_results_size();
+
+}
+
 
 // We need to fill restraints_vec (which is a vector of
 // simple_restraint) using the coordinates () and the dictionary of
@@ -2390,6 +2503,7 @@ coot::restraints_container_t::make_restraints(int imol,
 	        << restraints_usage_flag << std::endl;
 
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+
    make_df_restraints_indices();
    make_distortion_electron_density_ranges();
 #endif //  HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
@@ -2777,9 +2891,13 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
 
-   std::vector<mmdb::Residue *> sorted_residues(residues_vec.size());
+   // somehow sometimes the residues of residue_vec can be null here
+
+   std::vector<mmdb::Residue *> sorted_residues;
+   sorted_residues.reserve(residues_vec.size());
    for (unsigned int i=0; i<residues_vec.size(); i++)
-      sorted_residues[i] = residues_vec[i].second;
+      if (residues_vec[i].second)
+         sorted_residues.push_back(residues_vec[i].second);
    std::sort(sorted_residues.begin(), sorted_residues.end(), util::residues_sort_function);
 
    if (false)
@@ -3276,10 +3394,15 @@ coot::restraints_container_t::make_monomer_restraints_from_res_vec(int imol,
    restraint_counts_t sum;
 
    for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
-      restraint_counts_t local =
-	 make_monomer_restraints_by_residue(imol, residues_vec[ir].second, geom,
-					    do_residue_internal_torsions);
-      sum += local;
+      if (residues_vec[ir].second) {
+         restraint_counts_t local =
+	    make_monomer_restraints_by_residue(imol, residues_vec[ir].second, geom,
+					       do_residue_internal_torsions);
+         sum += local;
+      } else {
+         std::cout << "ERROR:: in make_monomer_restraints_from_res_vec() null residue "
+                   << ir << " of " << residues_vec.size() << std::endl;
+      }
    } 
 
    if (verbose_geometry_reporting != QUIET) {
@@ -3299,6 +3422,12 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 								 bool do_residue_internal_torsions) {
 
    restraint_counts_t local;
+
+   if (! residue_p) {
+      std::cout << "ERROR in make_monomer_restraints_by_residue() null residue" << std::endl;
+      return local;
+   }
+
    int i_no_res_atoms;
    mmdb::PPAtom res_selection = NULL;
    std::string pdb_resname(residue_p->name);
@@ -6609,6 +6738,8 @@ coot::restraints_container_t::copy_from(const coot::restraints_container_t &rest
    
 }
 
+unsigned int 
+coot::restraints_container_t::df_by_thread_results_size() const { return df_by_thread_results.size(); }
 
 
 #endif // HAVE_GSL
