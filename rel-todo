@@ -3,21 +3,6 @@
 
    o --command in --help
 
-   o make anamalous maps non-red/green
-
- * Done.
-
-   o All symmetry to always be on (add a setting to ~/.coot-preferences)
-
-* Done
-
-   o Difference map Peak search results came from which map? Put it in the titlebar
-     EJD
-
-* Done.
-
-   o make the screen output of peak-search give the Nsigma also.  BR
-
    o Fetch molecule favipiravir doesn't work
 
    o fix the colours of (say) 5vic in Calpha Backbone mode
@@ -25,6 +10,23 @@
    o Dock sequence?
 
 * Hmm...
+
+   o make the screen output of peak-search give the Nsigma also.  BR
+
+* Done.
+
+   o All symmetry to always be on (add a setting to ~/.coot-preferences)
+
+* Done.
+
+   o Difference map Peak search results came from which map? Put it in the titlebar
+     EJD
+
+* Done.
+
+   o make anamalous maps non-red/green
+
+ * Done.
 
    o twisted peptide/geometry omega added to validation outlier dialog.
      does cis_peptides(imol) do what is needed?
