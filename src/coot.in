@@ -261,10 +261,6 @@ export DYLD_FALLBACK_LIBRARY_PATH
 export LD_LIBRARY_PATH
 export LD_LIBRARYN32_PATH
 
-# if a pending binary install exists, apply it before starting coot
-if [ -e $COOT_PREFIX/pending-install ] ; then
-   apply_pending_install $COOT_PREFIX
-fi
 
 if [ "$1" = --check-libs ] ; then 
    if [ $systype = Darwin ] ; then
@@ -277,14 +273,24 @@ else
       ccp4_mode=true
    fi
 
-   # echo DEBUG:: coot-script with PATH $PATH and PYTHON $PYTHON
+   while (( "$#" )) ; do
+      case "$1" in
+         --libtool-hack)
+         export LTDL_LIBRARY_PATH=$COOT_PREFIX/lib
+         shift
+         ;;
+         *)
+         shift
+         ;;
+      esac
+   done
 
    # which rsvg-convert
    # otool -L $HOME/bin/rsvg-convert
 
    # this doesn't fix the svg icon/library problem
    # export DYLD_FALLBACK_LIBRARY_PATH=/Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib:/Users/pemsley/ccp4/ccp4-src-2015-02-05/ccp4-6.5/lib
-
+   # install librsvg: that fixes the svg icon/library problem
 
    # normal path
    # "Use $@ to stop word splitting" from Ben Eisenbraun.
