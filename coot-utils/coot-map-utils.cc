@@ -288,6 +288,22 @@ coot::util::density_at_map_point(const clipper::Xmap<float> &xmap,
    return dv;
 }
 
+clipper::Grad_orth<double>
+coot::util::gradient_at_point(const clipper::Xmap<float> &xmap_in,
+			     const clipper::Coord_orth &co) {
+
+   clipper::Grad_map<double> grad;
+   double dv;
+   
+   clipper::Coord_frac af = co.coord_frac(xmap_in.cell());
+   clipper::Coord_map  am = af.coord_map(xmap_in.grid_sampling());
+   // clipper::Interp_linear::Interp_grad(*xmap_p, am, dv, grad) is not a thing
+   clipper::Interp_cubic::interp_grad(xmap_in, am, dv, grad);
+   clipper::Grad_frac<double> grad_frac = grad.grad_frac(xmap_in.grid_sampling());
+   return grad_frac.grad_orth(xmap_in.cell());
+}
+
+
 coot::util::density_stats_info_t
 coot::util::density_around_point(const clipper::Coord_orth &point,
 				 const clipper::Xmap<float> &xmap,

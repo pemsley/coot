@@ -54,6 +54,8 @@ namespace coot {
       float density_at_map_point(const clipper::Xmap<float> &map_in,
 				 const clipper::Coord_map &cg);
 
+      clipper::Grad_orth<double> gradient_at_point(const clipper::Xmap<float> &map_in,
+						   const clipper::Coord_orth &co);
 
       // return a variance of -1 on error.
       std::pair<float, float> mean_and_variance(const clipper::Xmap<float> &xmap);
