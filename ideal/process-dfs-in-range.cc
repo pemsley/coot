@@ -413,18 +413,7 @@ coot::process_dfs_angle(const coot::simple_restraint &restraint,
 		       const gsl_vector *v,
 		       std::vector<double> &results) { // fill results
 
-   int idx; 
-
-   double a;
-   double b;
-   double l_over_a_sqd;
-   double l_over_b_sqd;
-   double l_ab;
-
-   double a_dot_b;
-   double cos_theta;
-   double theta;
-   double prem;
+   int idx;
 
    double x_k_contrib;
    double y_k_contrib;
@@ -446,10 +435,6 @@ coot::process_dfs_angle(const coot::simple_restraint &restraint,
    double y_l_mid_contrib;
    double z_l_mid_contrib;
 
-   double weight;
-   double ds_dth;
-   double w_ds_dth;
-
    double target_value = restraint.target_value*DEGTORAD;
 
    idx = 3*(restraint.atom_index_1); 
@@ -467,51 +452,45 @@ coot::process_dfs_angle(const coot::simple_restraint &restraint,
 
    clipper::Coord_orth a_vec = (k - l); 
    clipper::Coord_orth b_vec = (m - l);  
-   a = sqrt(a_vec.lengthsq());
-   b = sqrt(b_vec.lengthsq()); 
+   double a = sqrt(a_vec.lengthsq());
+   double b = sqrt(b_vec.lengthsq());
 
    // Garib's stabilization
-   if (a < 0.01) { 
+   if (a < 0.01) {
       a = 0.01;
       a_vec = clipper::Coord_orth(0.01, 0.01, 0.01);
    }
-   if (b < 0.01) { 
+   if (b < 0.01) {
       b = 0.01;
       b_vec = clipper::Coord_orth(0.01, 0.01, 0.01);
    }
 	    
-   l_over_a_sqd = 1/(a*a);
-   l_over_b_sqd = 1/(b*b);
-   l_ab = 1/(a*b); 
+   double l_over_a_sqd = 1.0/(a*a);
+   double l_over_b_sqd = 1.0/(b*b);
+   double l_ab = 1.0/(a*b);
 
    // for the end atoms: 
    // \frac{\partial \theta}{\partial x_k} =
    //    -\frac{1}{sin\theta} [(x_l-x_k)cos\theta + \frac{x_m-x_l}{ab}]
 	 
-   a_dot_b = clipper::Coord_orth::dot(a_vec,b_vec);
-   cos_theta = a_dot_b/(a*b);
+   double a_dot_b = clipper::Coord_orth::dot(a_vec,b_vec);
+   double cos_theta = a_dot_b/(a*b);
    // we need to stabilize cos_theta
    if (cos_theta < -1.0) cos_theta = -1.0;
    if (cos_theta >  1.0) cos_theta =  1.0;
-   theta = acos(cos_theta); 
+   double theta = acos(cos_theta);
 
    // we need to stabilize $\theta$ too.
-   a_dot_b = clipper::Coord_orth::dot(a_vec, b_vec); 
-   cos_theta = a_dot_b/(a*b);
-   if (cos_theta < -1) cos_theta = -1.0;
-   if (cos_theta >  1) cos_theta =  1.0;
-   theta = acos(cos_theta);
-
    // theta = theta > 0.001 ? theta : 0.001;
    if (theta < 0.001) theta = 0.001; // it was never -ve.
 
-   prem = -1/sin(theta); 
+   double prem = -1.0/sin(theta);
 
    // The end atoms:
    x_k_contrib = prem*(cos_theta*(l.x()-k.x())*l_over_a_sqd + l_ab*(m.x()-l.x()));
    y_k_contrib = prem*(cos_theta*(l.y()-k.y())*l_over_a_sqd + l_ab*(m.y()-l.y()));
    z_k_contrib = prem*(cos_theta*(l.z()-k.z())*l_over_a_sqd + l_ab*(m.z()-l.z()));
-	    
+
    x_m_contrib = prem*(cos_theta*(l.x()-m.x())*l_over_b_sqd + l_ab*(k.x()-l.x()));
    y_m_contrib = prem*(cos_theta*(l.y()-m.y())*l_over_b_sqd + l_ab*(k.y()-l.y()));
    z_m_contrib = prem*(cos_theta*(l.z()-m.z())*l_over_b_sqd + l_ab*(k.z()-l.z()));
@@ -526,30 +505,39 @@ coot::process_dfs_angle(const coot::simple_restraint &restraint,
    term1z = (-cos_theta*(l.z()-k.z())*l_over_a_sqd) -cos_theta*(l.z()-m.z())*l_over_b_sqd;
 
    term2x = (-(k.x()-l.x())-(m.x()-l.x()))*l_ab;
-   term2y = (-(k.y()-l.y())-(m.y()-l.y()))*l_ab; 
+   term2y = (-(k.y()-l.y())-(m.y()-l.y()))*l_ab;
    term2z = (-(k.z()-l.z())-(m.z()-l.z()))*l_ab; 
 
-   x_l_mid_contrib = prem*(term1x + term2x); 
-   y_l_mid_contrib = prem*(term1y + term2y); 
+   x_l_mid_contrib = prem*(term1x + term2x);
+   y_l_mid_contrib = prem*(term1y + term2y);
    z_l_mid_contrib = prem*(term1z + term2z);
 
    // and finally the term that is common to all, $\frac{\partial S}{\partial \theta}
    // dS/d(th).
    //
-   weight = 1/(restraint.sigma * restraint.sigma);
-   ds_dth = 2*(theta - target_value)*RADTODEG*RADTODEG;
-   w_ds_dth = weight * ds_dth; 
+   double weight = 1.0/(restraint.sigma * restraint.sigma);
+   double ds_dth = 2.0*(theta - target_value)*RADTODEG*RADTODEG;
+   double w_ds_dth = weight * ds_dth;
 
    if (!restraint.fixed_atom_flags[0]) { 
       idx = 3*(restraint.atom_index_1);
       // gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + x_k_contrib*w_ds_dth); 
       // gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + y_k_contrib*w_ds_dth); 
       // gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + z_k_contrib*w_ds_dth);
+
+      if (false)
+	 std::cout << "debug angle gradient: " << idx << " "
+		   << " theta " << theta << " target_value " << target_value << " "
+		   << std::setw(12) << x_k_contrib << " "
+		   << std::setw(12) << y_k_contrib << " "
+		   << std::setw(12) << z_k_contrib << " "
+		   << std::setw(12) << " w_ds_dth " << w_ds_dth << std::endl;
+
       results[idx  ] += x_k_contrib*w_ds_dth;
       results[idx+1] += y_k_contrib*w_ds_dth;
       results[idx+2] += z_k_contrib*w_ds_dth;
    }
-   if (!restraint.fixed_atom_flags[2]) { 
+   if (!restraint.fixed_atom_flags[2]) {
       idx = 3*(restraint.atom_index_3);
       // gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + x_m_contrib*w_ds_dth); 
       // gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + y_m_contrib*w_ds_dth); 
