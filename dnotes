@@ -8847,3 +8847,19 @@ https://www12.cs.fau.de/edu/map/ss12/talks/lbfgs_map_superresolution.pdf
 
    http://en.wikipedia.org/wiki/Rosenbrock_function
 
+---
+Thu 14 Mar 2019 11:03:04 CET
+
+    EMD 3908 helix at (125, 118, 103)
+
+---
+Tue 26 Mar 2019 14:14:51 GMT
+
+vulkan and cuda:
+
+https://github.com/NVIDIA/cuda-samples/tree/master/Samples/simpleVulkan
+
+So can I do marching cudes with cuda and display them with vulkan?
+
+Does that mean moving everything to vulkan?
+
