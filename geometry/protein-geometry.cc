@@ -3579,7 +3579,8 @@ coot::dict_chiral_restraint_t::assign_chiral_volume_target_internal(double a, do
    if (param < 0) param = 0;
    target_volume_ = volume_sign * a*b*c*sqrt(param);
 
-   volume_sigma_ = 0.2;  // seems reasonable give target voluemes of about 2.6
+   // volume_sigma_ = 0.2;  // seems reasonable give target voluemes of about 2.6
+   volume_sigma_ = 0.3; // test
 
    if (false)
       std::cout << "DEBUG:: assign_chiral_volume_target_internal() target_volume chiral: "
