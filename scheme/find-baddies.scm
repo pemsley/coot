@@ -178,7 +178,11 @@
     (define (ok-to-do-CG-torsion-diffs?)
       (if (not (defined? 'CG-spin-search))
 	  #f
-	  (gtk-toggle-button-get-active cg-torsion-diff-checkbutton)))
+	  (if (not cg-torsion-diff-checkbutton)
+	      (begin
+		(format #t "cg-torsion-diff-checkbutton not set yet~%")
+		#f)
+	      (gtk-toggle-button-get-active cg-torsion-diff-checkbutton))))
 
     (define (make-buttons)
 
@@ -227,9 +231,10 @@
 
 	       ;; CG Torsion
 	       ;;
-	       (if (not (ok-to-do-CG-torsion-diffs?))
-		   '()
-		   (cg-torsion-baddies (find-em-ringer-baddies)))
+	       (cg-torsion-baddies
+		(if (not (ok-to-do-CG-torsion-diffs?))
+		    '()
+		    (find-em-ringer-baddies)))
 
 	       ;; Rotamers
 	       ;;
@@ -378,14 +383,16 @@
 						 (list button-label fn)))))
 					 cg-torsion-baddies))
 
-		(chiral-volume-buttons (map (lambda (baddie-atom-spec)
-					      (let ((button-label
-						     (string-append "Chiral Volume Error "
-								    (atom-spec->string baddie-atom-spec)))
-						    (fn (lambda ()
-							   (set-go-to-atom-molecule imol)
-							   (set-go-to-atom-from-atom-spec baddie-atom-spec))))
-						(list button-label fn)))
+		(chiral-volume-buttons (map (lambda (baddie-atom-spec-6)
+					      ;; strip off leading incorrect imol
+					      (let ((baddie-atom-spec (cdr baddie-atom-spec-6)))
+						(let ((button-label
+						       (string-append "Chiral Volume Error "
+								      (atom-spec->string baddie-atom-spec)))
+						      (fn (lambda ()
+							    (set-go-to-atom-molecule imol)
+							    (set-go-to-atom-from-atom-spec baddie-atom-spec))))
+						  (list button-label fn))))
 					    (find-chiral-volume-baddies)))
 
 		(atom-overlap-buttons (map (lambda(baddie)
@@ -405,6 +412,11 @@
 							   (set-go-to-atom-from-atom-spec atom-spec-1))))
 						 (list buton-label fn))))
 					   filtered-mao-baddies)))
+
+	    ;; This gives a list in "baddie-type" order.
+	    ;; If we want a list in Chain/Residue order,
+	    ;;    each baddie will need to be associated with (prefixed by)
+	    ;;    a residue spec - and use those to sort residues.
 
 	    (let ((buttons (append chiral-volume-buttons
 				   rama-buttons
@@ -460,7 +472,7 @@
 				      (if (not state)
 					  (destroy-buttons-with-label "Poor Density" dialog-vbox)))))
 
-	      ;; 20190102-PE CG-spin-seach buttons depends on the version of coot that we are using
+	      ;; 20190102-PE depends on the version of coot that we are using
 	      ;;
 	      (if (defined? 'CG-spin-search)
 		  (begin
