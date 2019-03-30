@@ -312,7 +312,7 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 
    if (text_type == coot::CHI_SQUAREDS) {
       if (rr.progress == GSL_ENOPROG) {
-	 gtk_label_set_text(GTK_LABEL(no_progress_label), "Failed - Error No Progress");
+	 gtk_label_set_text(GTK_LABEL(no_progress_label), "Failed - Error: No Progress");
       } else {
          if (rr.progress == GSL_CONTINUE) {
 	    gtk_label_set_text(GTK_LABEL(no_progress_label), "Running...");
