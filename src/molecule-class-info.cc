@@ -1594,8 +1594,9 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
 							      bool is_anomalous_map,
 							      bool swap_difference_map_colours) {
 
-   std::cout << "------------------- initialize_map_things_on_read_molecule() is_anomalous_map: "
-	     << is_diff_map << " " << is_anomalous_map << " " << swap_difference_map_colours << std::endl;
+   if (false)
+      std::cout << "------------------- initialize_map_things_on_read_molecule() is_anomalous_map: "
+		<< is_diff_map << " " << is_anomalous_map << " " << swap_difference_map_colours << std::endl;
 
    // unset coordinates, this is not a set of coordinates:
    atom_sel.n_selected_atoms = 0;

@@ -4077,6 +4077,7 @@ read_phs_and_make_map_with_reso_limits(int imol_ref, const char* phs_filename,
 							     graphics_info_t::map_sampling_rate);
 
       if (istat != -1) {
+	 g.scroll_wheel_map = imol;
 	 imol = istat;
 	 graphics_draw();
       } else {
@@ -4149,6 +4150,7 @@ read_phs_and_make_map_using_cell_symm_from_mol(const char *phs_filename_str, int
 
 	 imol = g.create_molecule();
 	 g.molecules[imol].make_map_from_phs(spacegroup, cell, phs_filename);
+	 g.scroll_wheel_map = imol;
 	 graphics_draw();
       }
    }
