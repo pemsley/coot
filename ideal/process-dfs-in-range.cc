@@ -1297,7 +1297,7 @@ coot::process_dfs_geman_mcclure_distance(const coot::simple_restraint &this_rest
    double bit = b_i - this_restraint.target_value;
    double z = bit/this_restraint.sigma;
 
-   double beta  = 1 + alpha * z * z;
+   double beta  = 1.0 + alpha * z * z;
    double d_Si_d_zi = 2.0 * z  / (beta * beta);
    double d_zi_d_bi = 1.0/this_restraint.sigma;
    double d_b_d_x_m = 1.0/b_i;

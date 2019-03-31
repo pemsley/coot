@@ -480,7 +480,7 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
    // Find all the contacts in chain_id that are less than or equal to local_dist_max
    // that are not bonded or related by an angle.
 
-   int selHnd = atom_sel.mol->NewSelection(); // d
+   int selHnd = atom_sel.mol->NewSelection(); // - check the deletion
 
    atom_sel.mol->SelectAtoms(selHnd, 0, chain_id.c_str(), 
 			     mmdb::ANY_RES, "*", // start, insertion code
@@ -491,6 +491,7 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
 			     "*"); // alt locs
 
    generate_local_self_restraints(selHnd, local_dist_max, geom);
+
    // atom_sel.mol->DeleteSelection(selHnd);
 }
 
