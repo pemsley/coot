@@ -5,8 +5,6 @@
      tree.rotate_about() with 2 atoms as the arguments.  tree should preferentially
      choose N as the base atom, if it is an option. Also, CG1 rather than CG2.
 
-   o read in a phs file - can you scroll the map? No, but + and - work.
-
    o validation outliers gui in the release, in the gui.
 
    o Fetch molecule favipiravir doesn't work
@@ -16,6 +14,10 @@
    o Dock sequence?
 
 * Hmm...
+
+   o read in a phs file - can you scroll the map? No, but + and - work.
+
+* Done.
 
    o add --command in --help
 
