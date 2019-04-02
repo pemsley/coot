@@ -213,12 +213,56 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       m.from_quaternion(graphics_info_t::quat); // consider a constructor.
       glMultMatrixf(m.get());
 
+
       // Translate the scene to the the view centre
       // i.e. the screenrotation center is at (X(), Y(), Z())
       //
       glTranslatef(-graphics_info_t::RotationCentre_x(),
 		   -graphics_info_t::RotationCentre_y(),
 		   -graphics_info_t::RotationCentre_z());
+
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
+
+      // Martin's triangular molecules
+      //
+      // centre of the screen
+      FCXXCoord pos(graphics_info_t::RotationCentre_x(),
+		    graphics_info_t::RotationCentre_y(),
+		    graphics_info_t::RotationCentre_z());
+      // where is the eye?  That's what we want.
+      // front plane is at z=0;
+      coot::Cartesian tp_1_cart = unproject_xyz(widget->allocation.width/2, widget->allocation.height/2, 1);
+      FCXXCoord tp_1(tp_1_cart.x(), tp_1_cart.y(), tp_1_cart.z());
+      FCXXCoord diff = tp_1 - pos;
+      FCXXCoord eye_pos = pos + diff * 5.0;
+      // std::cout << "eye_pos: " << eye_pos << "\n";
+      // coot::Cartesian eye_cart = pos + 20 * diff;
+      // FCXXCoord eye_pos(eye_cart.x(), eye_cart.y(), eye_cart.z());
+      if (graphics_info_t::mol_tri_scene_setup) {
+	 if (graphics_info_t::mol_tri_renderer) {
+
+	    //Can retrieve reference to the light if so preferred
+	    FCXXCoord light_pos = pos + diff * 10;
+	    // graphics_info_t::mol_tri_scene_setup->getLight(0)->setTranslation(light_pos);
+	    
+	    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+	       if (graphics_info_t::is_valid_model_molecule(ii)) {
+		  if (graphics_info_t::molecules[ii].draw_it) {
+		     if (graphics_info_t::molecules[ii].molrepinsts.size()) {
+			// molrepinsts get added to mol_tri_scene_setup when then are made
+			// turns on glLighting.
+			graphics_info_t::mol_tri_scene_setup->renderWithRendererFromViewpoint(graphics_info_t::mol_tri_renderer, eye_pos);
+		     }
+		  }
+	       }
+	    }
+	    glDisable(GL_LIGHTING);
+	 }
+      }
+#endif // CXX11
+#endif // USE_MOLECULES_TO_TRIANGLES
 
       if (false) { // try/test clipping
 	 // This does indeed clip the model, but it's in world coordinates,
@@ -229,8 +273,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 glPopMatrix();
       }
 
-      if (! graphics_info_t::esoteric_depth_cue_flag) { 
-      	 coot::Cartesian front = unproject(0.0);
+      if (! graphics_info_t::esoteric_depth_cue_flag) {
+	 coot::Cartesian front = unproject(0.0);
 	 coot::Cartesian back  = unproject(1.0);
 	 coot::Cartesian front_to_back = back - front;
 	 coot::Cartesian fbs = front_to_back.by_scalar(-0.2);
@@ -367,47 +411,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 graphics_info_t::molecules[ii].draw_skeleton(is_bb);
       }
 
-#ifdef USE_MOLECULES_TO_TRIANGLES
-#ifdef HAVE_CXX11
-
-      // Martin's triangular molecules
-      //
-      // centre of the screen
-      FCXXCoord pos(graphics_info_t::RotationCentre_x(),
-		    graphics_info_t::RotationCentre_y(),
-		    graphics_info_t::RotationCentre_z());
-      // where is the eye?  That's what we want.
-      // front plane is at z=0;
-      coot::Cartesian tp_1_cart = unproject_xyz(widget->allocation.width/2, widget->allocation.height/2, 1);
-      FCXXCoord tp_1(tp_1_cart.x(), tp_1_cart.y(), tp_1_cart.z());
-      FCXXCoord diff = tp_1 - pos;
-      FCXXCoord eye_pos = pos + diff * 5.0;
-      // std::cout << "eye_pos: " << eye_pos << "\n";
-      // coot::Cartesian eye_cart = pos + 20 * diff;
-      // FCXXCoord eye_pos(eye_cart.x(), eye_cart.y(), eye_cart.z());
-      if (graphics_info_t::mol_tri_scene_setup) {
-	 if (graphics_info_t::mol_tri_renderer) {
-
-	    //Can retrieve reference to the light if so preferred
-	    FCXXCoord light_pos = pos + diff * 10;
-	    // graphics_info_t::mol_tri_scene_setup->getLight(0)->setTranslation(light_pos);
-	    
-	    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-	       if (graphics_info_t::is_valid_model_molecule(ii)) {
-		  if (graphics_info_t::molecules[ii].draw_it) {
-		     if (graphics_info_t::molecules[ii].molrepinsts.size()) {
-			// molrepinsts get added to mol_tri_scene_setup when then are made
-			// turns on glLighting.
-			graphics_info_t::mol_tri_scene_setup->renderWithRendererFromViewpoint(graphics_info_t::mol_tri_renderer, eye_pos);
-		     }
-		  }
-	       }
-	    }
-	    glDisable(GL_LIGHTING);
-	 }
-      }
-#endif // CXX11
-#endif // USE_MOLECULES_TO_TRIANGLES
 
       // atom pull restraint
       graphics_info_t::draw_atom_pull_restraint();
