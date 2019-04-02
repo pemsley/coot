@@ -269,20 +269,15 @@ if [ "$1" = --check-libs ] ; then
       ldd $coot_bin
    fi
 else 
-   if [ "$1" = --ccp4-mode ] ; then
-      ccp4_mode=true
-   fi
 
-   while (( "$#" )) ; do
-      case "$1" in
-         --libtool-hack)
+   for arg in "$@" ;
+   do
+      if [ "$arg" = --ccp4-mode ] ; then
+         ccp4_mode=true
+      fi
+      if [ "$arg" = --libtool-hack ] ; then
          export LTDL_LIBRARY_PATH=$COOT_PREFIX/lib
-         shift
-         ;;
-         *)
-         shift
-         ;;
-      esac
+      fi
    done
 
    # which rsvg-convert
