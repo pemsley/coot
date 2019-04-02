@@ -508,6 +508,8 @@ coot::util::make_nxmap(const clipper::Xmap<float> &xmap, mmdb::Manager *mol, int
 
    // Here I need to update the grid range, gr1 to get a "good" radix (radices?)
 
+   // this constructor will fail throwing a std::length_error if the map is too big.
+   //
    // init nxmap
    clipper::NXmap<float> nxmap(cell, grid_sampling, gr1);
    clipper::Xmap<float>::Map_reference_coord ix(xmap);
@@ -525,7 +527,7 @@ coot::util::make_nxmap(const clipper::Xmap<float> &xmap, mmdb::Manager *mol, int
 clipper::NXmap<float>
 coot::util::make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_container_t asc, float border) {
 
-   return make_nxmap(xmap, asc.mol, asc.SelectionHandle);
+   return make_nxmap(xmap, asc.mol, asc.SelectionHandle, border);
 }
 
 #include "clipper/contrib/edcalc.h"
