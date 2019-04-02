@@ -11,17 +11,42 @@
 
    o make anamalous maps non-red/green
 
-   o All symmetry to always be on (add a setting to ~/.coot-preferences)
+   o edit chi angles gives the wrong chi angles for chi2? update_residue_by_chi_change() uses
+     tree.rotate_about() with 2 atoms as the arguments.  tree should preferentially
+     choose N as the base atom, if it is an option. Also, CG1 rather than CG2.
+
+   o read in a phs file - can you scroll the map? No, but + and - work.
+
+   o validation outliers gui in the release, in the gui.
 
    o Fetch molecule favipiravir doesn't work
 
    o fix the colours of (say) 5vic in Calpha Backbone mode
 
-   o Difference map Peak search results came from which map? Put it in the titlebar
-
    o Dock sequence?
 
 * Hmm...
+
+   o add --command in --help
+
+* Done.
+
+   o make the screen output of peak-search give the Nsigma also.  BR
+
+* Done.
+
+   o All symmetry to always be on (add a setting to ~/.coot-preferences)
+
+* Done.
+
+   o Difference map Peak search results came from which map? Put it in the titlebar
+     EJD
+
+* Done.
+
+   o make anamalous maps non-red/green
+
+ * Done.
 
    o twisted peptide/geometry omega added to validation outlier dialog.
      does cis_peptides(imol) do what is needed?

@@ -4063,6 +4063,7 @@ void handle_scroll_density_level_event(int scroll_up_down_flag) {
    }
 
    int s = info.scroll_wheel_map;
+
    if (scroll_up_down_flag == 1) {
       if (graphics_info_t::do_scroll_by_wheel_mouse_flag) { 
 	 if (s>=0) {

@@ -36,8 +36,7 @@
 	    r)))
 
     (define (make-window-title n)
-      (string-append "Coot Interesting/Outliers/Problems: "
-		     (number->string (- n 1))))
+      (string-append "Coot Interesting/Outliers/Problems: " (number->string n)))
 
     (define (find-c-beta-baddies)
       (if (defined? 'c-beta-deviations)

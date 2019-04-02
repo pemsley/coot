@@ -1114,15 +1114,19 @@ difference_map_peaks(int imol, int imol_coords,
 	       gtk_widget_show(w);
 	    }
 	 } else {
+	    float map_sigma = graphics_info_t::molecules[imol].map_sigma();
 	    if (graphics_info_t::use_graphics_interface_flag) { 
-	       float map_sigma = graphics_info_t::molecules[imol].map_sigma();
-	       GtkWidget *w = graphics_info_t::wrapped_create_diff_map_peaks_dialog(centres, map_sigma);
+	       std::string title = "Difference Map Peaks Dialog From Map No. ";
+	       title += coot::util::int_to_string(imol);
+	       GtkWidget *w = graphics_info_t::wrapped_create_diff_map_peaks_dialog(centres, map_sigma, title);
 	       gtk_widget_show(w);
 	    }
 
 	    std::cout << "\n   Found these peak positions:\n";
 	    for (unsigned int i=0; i<centres.size(); i++) {
-	       std::cout << "   " << i << " " << centres[i].second << " "
+	       std::cout << "   " << i << " dv: "
+			 << centres[i].second << " n-rmsd: "
+			 << centres[i].second/map_sigma << " "
 			 << centres[i].first.format() << std::endl;
 	    }
 	    std::cout << "\n   Found " << centres.size() << " peak positions:\n";

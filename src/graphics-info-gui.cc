@@ -3825,9 +3825,12 @@ graphics_info_t::renumber_residue_range_chain_menu_item_select(GtkWidget *item,
 
 // static
 GtkWidget *
-graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pair<clipper::Coord_orth, float> > &centres, float map_sigma) {
+graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pair<clipper::Coord_orth, float> > &centres, float map_sigma, const std::string &dialog_title) {
 
    GtkWidget *w = create_diff_map_peaks_dialog();
+
+   gtk_window_set_title(GTK_WINDOW(w), dialog_title.c_str());
+
    difference_map_peaks_dialog = w; // save it for use with , and .
                                     // (globjects key press callback)
    set_transient_and_position(COOT_DIFF_MAPS_PEAK_DIALOG, w);
