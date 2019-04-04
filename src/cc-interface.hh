@@ -1498,7 +1498,7 @@ map_to_model_correlation_per_residue_scm(int imol, SCM residue_specs,
 					 unsigned short int atom_mask_mode,
 					 int imol_map);
 
-//! \brief QQ pllot of the model density correlation, reported per residue
+//! \brief QQ plot of the model density correlation, reported per residue
 //! 
 //! \brief atom-mask-mode is as follows:
 // 0: all-atoms
