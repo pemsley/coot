@@ -1165,9 +1165,9 @@ FunctionEnd
 Function FinishPagePreFunction
    ; first apply changes to wincoot.bat
    Var /GLOBAL GUILE_INST_DIR
-   ${WordReplace} "$INSTDIR" "\" "/" "+" $GUILE_INST_DIR
+;   ${WordReplace} "$INSTDIR" "\" "/" "+" $GUILE_INST_DIR
    !insertmacro ReplaceOnLine "yourWinCootdirectory" "$INSTDIR" "5" "$INSTDIR\wincoot.bat.tmp"
-   !insertmacro ReplaceOnLine "yourWinCootdirectoryGuile" "$GUILE_INST_DIR" "6" "$INSTDIR\wincoot.bat.tmp"
+;   !insertmacro ReplaceOnLine "yourWinCootdirectoryGuile" "$GUILE_INST_DIR" "6" "$INSTDIR\wincoot.bat.tmp"
    ;we want to change more for Vista (and possibly for Windows 7 too FIXME!)
    ; Maybe not too much any more... (since graphics card issue)
    ${If} ${AtLeastWinVista}
