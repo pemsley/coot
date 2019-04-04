@@ -650,6 +650,8 @@ if test "$run_tests" = true ; then
    # for python build we need to set COOT_PYTHON_DIR and COOT_HOME
    COOT_PYTHON_DIR=$install_top_dir/python27/lib/site-packages/coot
    COOT_HOME=$HOME
+   # add lib to path for rdkit and boost
+   PATH=$install_top_dir/lib:$PATH
    PYTHONPATH=$COOT_PYTHON_DIR
    PYTHONHOME=$install_top_dir/python27
    export PYTHONPATH
