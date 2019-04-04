@@ -373,6 +373,8 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner_multithread(i
    bool done_unexpected_missing_phi_message = false;
    bool done_unexpected_missing_psi_message = false;
 
+   coot::ligand_score_card current_best; // zero score
+
    for (int itrial=itrial_start; itrial<itrial_end; itrial++) {
 
       coot::minimol::fragment frag;
@@ -426,17 +428,20 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner_multithread(i
 	 rphipsi.add_characteristic_low_points(&s, itrial, current_res_pos,
 					       pp1, pp2, res_p, offset, next_n, next_ca, next_c, frag, xmap_in);
       }
-      std::pair<ligand_score_card, minimol::fragment> result(s, frag);
 
-      results->at(itrial) = result;
+      if (s.get_score() > current_best.get_score()) {
+	 current_best = s;
+	 std::pair<ligand_score_card, minimol::fragment> result(s, frag);
 
-      if (debug_solutions)
-	 debug_trials(frag, itrial, offset, res_p->GetSeqNum(),
-		      current_res_pos,
-		      phi_conditional,
-		      psi_conditional,
-		      pp1, pp2, s);
+	 results->at(itrial) = result;
 
+	 if (debug_solutions)
+	    debug_trials(frag, itrial, offset, res_p->GetSeqNum(),
+			 current_res_pos,
+			 phi_conditional,
+			 psi_conditional,
+			 pp1, pp2, s);
+      }
    }
 }
 
