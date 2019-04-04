@@ -36,8 +36,7 @@
 	    r)))
 
     (define (make-window-title n)
-      (string-append "Coot Interesting/Outliers/Problems: "
-		     (number->string (- n 1))))
+      (string-append "Coot Interesting/Outliers/Problems: " (number->string n)))
 
     (define (find-c-beta-baddies)
       (if (defined? 'c-beta-deviations)
@@ -131,6 +130,9 @@
 			(not (string=? rn "PRO")))))
 		  cis-peps)))
 
+    (define (twisted-trans-peptide-baddies)
+      (twisted-trans-peptides imol))
+
     (define (destroy-buttons-with-label label-fragment-txt dialog-vbox)
       (let ((current-buttons (gtk-container-children dialog-vbox)))
 	(for-each (lambda (button)
@@ -175,7 +177,11 @@
     (define (ok-to-do-CG-torsion-diffs?)
       (if (not (defined? 'CG-spin-search))
 	  #f
-	  (gtk-toggle-button-get-active cg-torsion-diff-checkbutton)))
+	  (if (not cg-torsion-diff-checkbutton)
+	      (begin
+		(format #t "cg-torsion-diff-checkbutton not set yet~%")
+		#f)
+	      (gtk-toggle-button-get-active cg-torsion-diff-checkbutton))))
 
     (define (make-buttons)
 
@@ -224,7 +230,10 @@
 
 	       ;; CG Torsion
 	       ;;
-	       (cg-torsion-baddies (find-em-ringer-baddies))
+	       (cg-torsion-baddies
+		(if (not (ok-to-do-CG-torsion-diffs?))
+		    '()
+		    (find-em-ringer-baddies)))
 
 	       ;; Rotamers
 	       ;;
@@ -299,6 +308,21 @@
 							(list button-label fn))))
 						  (non-pro-cis-peptide-baddies)))
 
+		(twisted-trans-peptide-buttons (map (lambda (baddie)
+						    (let ((spec-1 (list-ref baddie 0))
+							  (spec-2 (list-ref baddie 1))
+							  (omega  (list-ref baddie 2)))
+						      (let ((button-label (string-append
+									   "Twisted trans-peptide "
+									   (residue-spec->string spec-1)
+									   " - "
+									   (residue-spec->string spec-2)))
+							    (fn (lambda()
+								  (set-go-to-atom-molecule imol)
+								  (set-go-to-atom-from-res-spec spec-1))))
+							(list button-label fn))))
+						  (twisted-trans-peptide-baddies)))
+
 		(rota-buttons (map (lambda(baddie)
 				     (let ((spec (car baddie))
 					   (score (cadr baddie)))
@@ -358,14 +382,16 @@
 						 (list button-label fn)))))
 					 cg-torsion-baddies))
 
-		(chiral-volume-buttons (map (lambda (baddie-atom-spec)
-					      (let ((button-label
-						     (string-append "Chiral Volume Error "
-								    (atom-spec->string baddie-atom-spec)))
-						    (fn (lambda ()
-							   (set-go-to-atom-molecule imol)
-							   (set-go-to-atom-from-atom-spec baddie-atom-spec))))
-						(list button-label fn)))
+		(chiral-volume-buttons (map (lambda (baddie-atom-spec-6)
+					      ;; strip off leading incorrect imol
+					      (let ((baddie-atom-spec (cdr baddie-atom-spec-6)))
+						(let ((button-label
+						       (string-append "Chiral Volume Error "
+								      (atom-spec->string baddie-atom-spec)))
+						      (fn (lambda ()
+							    (set-go-to-atom-molecule imol)
+							    (set-go-to-atom-from-atom-spec baddie-atom-spec))))
+						  (list button-label fn))))
 					    (find-chiral-volume-baddies)))
 
 		(atom-overlap-buttons (map (lambda(baddie)
@@ -386,10 +412,16 @@
 						 (list buton-label fn))))
 					   filtered-mao-baddies)))
 
+	    ;; This gives a list in "baddie-type" order.
+	    ;; If we want a list in Chain/Residue order,
+	    ;;    each baddie will need to be associated with (prefixed by)
+	    ;;    a residue spec - and use those to sort residues.
+
 	    (let ((buttons (append chiral-volume-buttons
 				   rama-buttons
 				   rota-buttons
 				   non-pro-cis-peptide-buttons
+				   twisted-trans-peptide-buttons
 				   density-baddies-buttons
 				   c-beta-buttons
 				   cg-torsion-buttons

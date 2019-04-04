@@ -12908,3 +12908,18 @@ on_accept_reject_backrub_rotamer_button_clicked
 {
   backrub_rotamer_intermediate_atoms();
 }
+
+void
+on_symmetry_always_on_checkbutton_toggled (GtkToggleButton *togglebutton,
+					   gpointer         user_data) {
+
+   GtkWidget *symmetry_on_radio_button = NULL;
+   if (togglebutton->active) {
+      add_symmetry_on_to_preferences_and_apply();
+      symmetry_on_radio_button = lookup_widget(GTK_WIDGET(togglebutton), "show_symmetry_yes_radiobutton");
+      if (! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(symmetry_on_radio_button)))
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(symmetry_on_radio_button), TRUE);
+   }
+
+}
+

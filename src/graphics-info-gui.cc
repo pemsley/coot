@@ -312,7 +312,7 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 
    if (text_type == coot::CHI_SQUAREDS) {
       if (rr.progress == GSL_ENOPROG) {
-	 gtk_label_set_text(GTK_LABEL(no_progress_label), "Failed - Error No Progress");
+	 gtk_label_set_text(GTK_LABEL(no_progress_label), "Failed - Error: No Progress");
       } else {
          if (rr.progress == GSL_CONTINUE) {
 	    gtk_label_set_text(GTK_LABEL(no_progress_label), "Running...");
@@ -431,11 +431,20 @@ wrapped_create_accept_reject_refinement_dialog() {
 
 // static
 GtkWidget *
-graphics_info_t::info_dialog(const std::string &s) {
-   
+graphics_info_t::info_dialog(const std::string &s, bool use_markup) {
+
    GtkWidget *w = NULL;
    if (graphics_info_t::use_graphics_interface_flag) {
       w = wrapped_nothing_bad_dialog(s);
+
+      if (use_markup) {
+	 GtkWidget *label = lookup_widget(w, "nothing_bad_label");
+	 gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
+	 gtk_label_set_markup(GTK_LABEL(label), s.c_str());
+      }
+
+      // Handle the info icon
+      //
       bool warning = false;
       if (s.find(std::string("WARNING")) != std::string::npos) warning = true;
       if (s.find(std::string("warning")) != std::string::npos) warning = true;
@@ -457,10 +466,10 @@ graphics_info_t::info_dialog(const std::string &s) {
 }
 
 void
-graphics_info_t::info_dialog_and_text(const std::string &s) {
+graphics_info_t::info_dialog_and_text(const std::string &s, bool use_markup) {
    
   if (graphics_info_t::use_graphics_interface_flag) { 
-     info_dialog(s);
+     info_dialog(s, use_markup);
    }
    std::cout<< s <<std::endl;
 }
@@ -3816,9 +3825,12 @@ graphics_info_t::renumber_residue_range_chain_menu_item_select(GtkWidget *item,
 
 // static
 GtkWidget *
-graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pair<clipper::Coord_orth, float> > &centres, float map_sigma) {
+graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pair<clipper::Coord_orth, float> > &centres, float map_sigma, const std::string &dialog_title) {
 
    GtkWidget *w = create_diff_map_peaks_dialog();
+
+   gtk_window_set_title(GTK_WINDOW(w), dialog_title.c_str());
+
    difference_map_peaks_dialog = w; // save it for use with , and .
                                     // (globjects key press callback)
    set_transient_and_position(COOT_DIFF_MAPS_PEAK_DIALOG, w);

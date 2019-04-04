@@ -9,21 +9,61 @@
 
    o fix the colours of (say) 5vic in Calpha Backbone mode
 
+   o make anamalous maps non-red/green
+
+   o edit chi angles gives the wrong chi angles for chi2? update_residue_by_chi_change() uses
+     tree.rotate_about() with 2 atoms as the arguments.  tree should preferentially
+     choose N as the base atom, if it is an option. Also, CG1 rather than CG2.
+
+   o read in a phs file - can you scroll the map? No, but + and - work.
+
+   o validation outliers gui in the release, in the gui.
+
+   o Fetch molecule favipiravir doesn't work
+
+   o fix the colours of (say) 5vic in Calpha Backbone mode
+
    o Dock sequence?
 
-   o refinement: anchored atom is still highlighted when intermediate atoms are displayed.
-     Ideally the fixed atom highlight should track the intermediate atom.
+* Hmm...
+
+   o add --command in --help
+
+* Done.
+
+   o make the screen output of peak-search give the Nsigma also.  BR
+
+* Done.
+
+   o All symmetry to always be on (add a setting to ~/.coot-preferences)
+
+* Done.
+
+   o Difference map Peak search results came from which map? Put it in the titlebar
+     EJD
+
+* Done.
+
+   o make anamalous maps non-red/green
+
+ * Done.
 
    o twisted peptide/geometry omega added to validation outlier dialog.
+     does cis_peptides(imol) do what is needed?
+
+* Fixed.
 
    o can you make a stand-alone doxygen version of the python documentation?
 
-   o click click for ARG/PHE pi-cation stacking parallel plane restraints.
-     Add to user-defined restraints dialog.
+* In part - python files need to be added.
+
+   o Does align and mutate work?
+
+* It does now.
 
    o multisharpen in a directory not writable. Give a better error message
 
-   o Fetch molecule favipiravir doesn't work
+* Done.
 
 ------
 
@@ -72,9 +112,13 @@
 
 * Done
 
-   o fill and use go_to_ligand_non_interesting_comp_ids: add_non_interesting_ligand_type(). Punt
+   o fill and use go_to_ligand_non_interesting_comp_ids: add_non_interesting_ligand_type().
 
-   o Map Dialog, Setting 8 rmsd should move the block in the graph below. Puntable
+* Punt
+
+   o Map Dialog, Setting 8 rmsd should move the block in the graph below.
+
+* Punt
 
    o check for double ligands and/or nan atoms when using set_merge_molecules_ligand_spec().
      Add it to the test (do I have a test already?)

@@ -241,9 +241,9 @@ coot::backrub::score_fragment(minimol::fragment &frag) const {
    float d_score = 0;
    for (int ires=frag.min_res_no(); ires<=frag.max_residue_number(); ires++) {
       for (unsigned int iat=0; iat<frag[ires].n_atoms(); iat++) {
-	 float d = coot::util::density_at_point(xmap, frag[ires][iat].pos);
+	 float d = util::density_at_point(*xmap_p, frag[ires][iat].pos);
 	 d_score += d;
-      } 
+      }
    }
    return d_score;
 } 

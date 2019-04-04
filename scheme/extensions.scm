@@ -53,8 +53,16 @@
       (add-simple-coot-menu-menuitem 
        menu "Highly coordinated waters..."
        (lambda ()
-	 (water-coordination-gui)))))
+	 (water-coordination-gui)))
 
+		(add-simple-coot-menu-menuitem
+		 menu "Validation Outliers"
+		 (lambda ()
+			(using-active-atom
+			 (let ((imol-map (imol-refinement-map)))
+				(if (not (valid-map-molecule? imol-map))
+					 (add-status-bar-text "Refinement Map is currently not set")
+					 (validation-outliers-dialog aa-imol imol-map))))))))
 
 
 (define (add-module-user-defined-restraints)
@@ -233,7 +241,7 @@
 	;;     Post MR
 	;;
 	;; ---------------------------------------------------------------------
-	
+
 	(add-simple-coot-menu-menuitem
 	 submenu-all-molecule "[Post MR] Fill Partial Residues..."
 	 (lambda ()
@@ -528,14 +536,20 @@
 				      #f
 				      )))
 
-	;; --- D --- 
+	;; --- D ---
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Delete Side-chains for Active Chain"
+	 (lambda ()
+	   (using-active-atom
+	    (delete-sidechains-for-chain aa-imol aa-chain-id))))
 
 	;; (add-simple-coot-menu-menuitem submenu-models "DB Loop..." click-protein-db-loop-gui)
 
 	;; errr... move this...
 	(let ((submenu (gtk-menu-new))
 	      (menuitem2 (gtk-menu-item-new-with-label "Dock Sequence...")))
-	  
+
 	  (gtk-menu-item-set-submenu menuitem2 submenu)
 	  (gtk-menu-append (coot-menubar-menu "Calculate") menuitem2)
 	  (gtk-widget-show menuitem2)

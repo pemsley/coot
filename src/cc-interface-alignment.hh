@@ -1,6 +1,11 @@
 
 #include <string>
 
+
+/*! \file
+  \brief Coot Scripting Interface - Alignment utilities
+*/
+
 //!  \brief associate an alignment with a chain in a model molecule
 //!
 //! The pir_alignment is a string (with newlines)

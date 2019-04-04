@@ -8812,6 +8812,7 @@ Tue  5 Feb 2019 11:44:27 PST
 ----
 Mon 11 Feb 2019 13:05:44 PST
 
+
    compiling readline from source
 
 https://stackoverflow.com/questions/26670417/how-to-compile-readline-from-source
@@ -8846,3 +8847,46 @@ https://www12.cs.fau.de/edu/map/ss12/talks/lbfgs_map_superresolution.pdf
 
    http://en.wikipedia.org/wiki/Rosenbrock_function
 
+---
+Thu 14 Mar 2019 11:03:04 CET
+
+    EMD 3908 helix at (125, 118, 103)
+
+---
+Tue 26 Mar 2019 14:14:51 GMT
+
+vulkan and cuda:
+
+https://github.com/NVIDIA/cuda-samples/tree/master/Samples/simpleVulkan
+
+So can I do marching cudes with cuda and display them with vulkan?
+
+Does that mean moving everything to vulkan?
+
+----
+Sun 31 Mar 2019 23:41:34 BST
+
+   Advances in the molecular dynamics flexible fitting method for cryo-EM modeling
+   There are tutorials:
+   https://www.sciencedirect.com/science/article/pii/S1046202316300093?via%3Dihub
+
+----
+Mon  1 Apr 2019 00:11:03 BST
+
+   Rosetta: Read this:
+   https://www.nature.com/articles/nmeth.3286
+
+---
+Sun 10 Mar 2019 12:39:28 GMT
+
+   use pip to install xmltramp2 to use muscle.py
+
+   https://raw.githubusercontent.com/ebi-wp/webservice-clients/master/python/muscle.py
+
+
+---
+Tue 12 Mar 2019 17:34:23 GMT
+
+ Is this what I need to test that svg works? (found in gtk3-opengl/Makefile)
+ 
+ rsvg-convert --format png --output $@ $^

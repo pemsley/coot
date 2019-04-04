@@ -142,6 +142,12 @@ molecule_class_info_t::make_molecularrepresentationinstance(const std::string &a
 	    if (colour_scheme == "colorRampChainsScheme") {
 	       this_cs = ribbon_ramp_cs;
 	    }
+	    if (colour_scheme == "colorByElementScheme") {
+	       this_cs = ele_cs;
+	    }
+	    if (colour_scheme == "colorBySecondaryScheme") {
+	       this_cs = ss_cs;
+	    }
 
 	    std::cout << "###### calling create() with this_atom_selection " << atom_selection << std::endl;
 	    auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection, style);

@@ -961,9 +961,10 @@ molecule_class_info_t::install_ghost_map(const clipper::Xmap<float> &map_in, std
 
    is_dynamically_transformed_map_flag = 1;
    xmap = map_in;
-   
+
+   bool is_anomalous_flag = false;
    initialize_map_things_on_read_molecule(name_in,
-					  is_diff_map_flag,
+					  is_diff_map_flag, is_anomalous_flag,
 					  swap_difference_map_colours_flag);
    update_map_in_display_control_widget();
    map_ghost_info = ghost_info;

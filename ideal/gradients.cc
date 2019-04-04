@@ -801,43 +801,20 @@ coot::my_df_geman_mcclure_distances_old(const  gsl_vector *v,
  	       z_l_contrib = constant_part*(a2.z()-a1.z());
 
 	       if (! rest.fixed_atom_flags[0]) {
-#ifdef HAVE_CXX_THREAD
-		  // use atomic lock to access derivs of atom atom_idx_1
-		  unsigned int unlocked = 0;
-		  while (! restraints->gsl_vector_atom_pos_deriv_locks.get()[rest.atom_index_1].compare_exchange_weak(unlocked, 1)) {
-		     std::cout << "oops locked! [0] " << rest.atom_index_1 << std::endl;
-		     std::this_thread::sleep_for(std::chrono::nanoseconds(10));
-		     unlocked = 0;
-		  }
-#endif
+
 		  idx = 3*rest.atom_index_1;
 		  *gsl_vector_ptr(df, idx  ) += x_k_contrib;
 		  *gsl_vector_ptr(df, idx+1) += y_k_contrib;
 		  *gsl_vector_ptr(df, idx+2) += z_k_contrib;
 		  // std::cout << "unlock [0] " << rest.atom_index_1 << std::endl;
-#ifdef HAVE_CXX_THREAD
-		  restraints->gsl_vector_atom_pos_deriv_locks.get()[rest.atom_index_1] = 0; // unlock
-#endif
 	       }
 
 	       if (! rest.fixed_atom_flags[1]) {
-#ifdef HAVE_CXX_THREAD
-		  // use atomic lock to access derivs of atom atom_idx_2
-		  unsigned int unlocked = 0;
-		  while (! restraints->gsl_vector_atom_pos_deriv_locks.get()[rest.atom_index_2].compare_exchange_weak(unlocked, 1)) {
-		     std::cout << "oops locked! [1] " << rest.atom_index_2 << std::endl;
-		     std::this_thread::sleep_for(std::chrono::nanoseconds(10));
-		     unlocked = 0;
-		  }
-#endif
 		  idx = 3*rest.atom_index_2;
 		  *gsl_vector_ptr(df, idx  ) += x_l_contrib;
 		  *gsl_vector_ptr(df, idx+1) += y_l_contrib;
 		  *gsl_vector_ptr(df, idx+2) += z_l_contrib;
 		  // std::cout << "unlock [1] " << rest.atom_index_1 << std::endl;
-#ifdef HAVE_CXX_THREAD
-		  restraints->gsl_vector_atom_pos_deriv_locks.get()[rest.atom_index_2] = 0; // unlock
-#endif
 	       }
 	    }
 	 }

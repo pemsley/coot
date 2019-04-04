@@ -2644,9 +2644,9 @@ public:
    // show citation?
    static short int show_citation_notice; 
 
-   static GtkWidget *info_dialog(const std::string &s);
+   static GtkWidget *info_dialog(const std::string &s, bool use_markup=false);
    // makes an info_dialog and writes text
-   void info_dialog_and_text(const std::string &s);
+   void info_dialog_and_text(const std::string &s, bool use_markup=false);
    
    // Return success status.
    // 
@@ -3321,7 +3321,7 @@ public:
    void omega_graphs(int imol);
    coot::rotamer_graphs_info_t rotamer_graphs(int imol); // give results back to scripting layer
    void density_fit_graphs(int imol);
-   static GtkWidget *wrapped_create_diff_map_peaks_dialog(const std::vector<std::pair<clipper::Coord_orth, float> > &centres, float map_sigma);
+   static GtkWidget *wrapped_create_diff_map_peaks_dialog(const std::vector<std::pair<clipper::Coord_orth, float> > &centres, float map_sigma, const std::string &dialog_title);
    // the buttons callback for above:
    static void on_diff_map_peak_button_selection_toggled (GtkButton       *button,
 							  gpointer         user_data);
@@ -3386,6 +3386,8 @@ public:
    void show_hide_toolbar_icon_pos(int pos, int show_hide_flag, int toolbar_index);
    std::vector<int> get_model_toolbar_icons_list();
    std::vector<int> get_main_toolbar_icons_list();
+   void add_to_preferences(const std::string &file_name, const std::string &contents) const;
+   std::string get_preferences_directory() const;
 
    // --- remote controlled coot: ----
    static int try_port_listener;

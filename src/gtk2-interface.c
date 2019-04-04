@@ -3994,9 +3994,10 @@ create_show_symmetry_window (void)
   GtkWidget *vbox169;
   GtkWidget *frame7;
   GtkWidget *vbox11;
-  GtkWidget *show_symmetry_yes_radiobutton;
-  GSList *show_symmetry_yes_radiobutton_group = NULL;
   GtkWidget *show_symmetry_no_radiobutton;
+  GSList *show_symmetry_no_radiobutton_group = NULL;
+  GtkWidget *show_symmetry_yes_radiobutton;
+  GtkWidget *symmetry_always_on_checkbutton;
   GtkWidget *label277;
   GtkWidget *show_symmetry_molecule_control_button;
   GtkWidget *frame8;
@@ -4068,18 +4069,22 @@ create_show_symmetry_window (void)
   gtk_widget_show (vbox11);
   gtk_container_add (GTK_CONTAINER (frame7), vbox11);
 
-  show_symmetry_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Symmetry On");
-  gtk_widget_show (show_symmetry_yes_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox11), show_symmetry_yes_radiobutton, FALSE, FALSE, 0);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (show_symmetry_yes_radiobutton), show_symmetry_yes_radiobutton_group);
-  show_symmetry_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (show_symmetry_yes_radiobutton));
-
   show_symmetry_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Symmetry Off");
   gtk_widget_show (show_symmetry_no_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox11), show_symmetry_no_radiobutton, FALSE, FALSE, 0);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (show_symmetry_no_radiobutton), show_symmetry_yes_radiobutton_group);
-  show_symmetry_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (show_symmetry_no_radiobutton));
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (show_symmetry_no_radiobutton), show_symmetry_no_radiobutton_group);
+  show_symmetry_no_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (show_symmetry_no_radiobutton));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (show_symmetry_no_radiobutton), TRUE);
+
+  show_symmetry_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Symmetry On");
+  gtk_widget_show (show_symmetry_yes_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox11), show_symmetry_yes_radiobutton, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (show_symmetry_yes_radiobutton), show_symmetry_no_radiobutton_group);
+  show_symmetry_no_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (show_symmetry_yes_radiobutton));
+
+  symmetry_always_on_checkbutton = gtk_check_button_new_with_mnemonic ("Always On");
+  gtk_widget_show (symmetry_always_on_checkbutton);
+  gtk_box_pack_start (GTK_BOX (vbox11), symmetry_always_on_checkbutton, FALSE, FALSE, 0);
 
   label277 = gtk_label_new ("Master Switch");
   gtk_widget_show (label277);
@@ -4147,7 +4152,6 @@ create_show_symmetry_window (void)
   symmetry_colorbutton = gtk_color_button_new ();
   gtk_widget_show (symmetry_colorbutton);
   gtk_box_pack_start (GTK_BOX (hbox8), symmetry_colorbutton, FALSE, FALSE, 4);
-  gtk_color_button_set_title (GTK_COLOR_BUTTON (symmetry_colorbutton), "Pick a Colour");
 
   label810 = gtk_label_new ("    ");
   gtk_widget_show (label810);
@@ -4258,6 +4262,9 @@ create_show_symmetry_window (void)
   gtk_widget_show (label347);
   gtk_box_pack_start (GTK_BOX (hbox173), label347, FALSE, FALSE, 0);
 
+  g_signal_connect ((gpointer) symmetry_always_on_checkbutton, "toggled",
+                    G_CALLBACK (on_symmetry_always_on_checkbutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) show_symmetry_molecule_control_button, "clicked",
                     G_CALLBACK (on_show_symmetry_molecule_control_button_clicked),
                     NULL);
@@ -4285,8 +4292,9 @@ create_show_symmetry_window (void)
   GLADE_HOOKUP_OBJECT (show_symmetry_window, vbox169, "vbox169");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, frame7, "frame7");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, vbox11, "vbox11");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, show_symmetry_yes_radiobutton, "show_symmetry_yes_radiobutton");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, show_symmetry_no_radiobutton, "show_symmetry_no_radiobutton");
+  GLADE_HOOKUP_OBJECT (show_symmetry_window, show_symmetry_yes_radiobutton, "show_symmetry_yes_radiobutton");
+  GLADE_HOOKUP_OBJECT (show_symmetry_window, symmetry_always_on_checkbutton, "symmetry_always_on_checkbutton");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, label277, "label277");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, show_symmetry_molecule_control_button, "show_symmetry_molecule_control_button");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, frame8, "frame8");
@@ -13076,7 +13084,7 @@ create_splash_screen_window (void)
   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
   gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
 
-  image10854 = create_pixmap (splash_screen_window, "coot-0.8.9.1.png");
+  image10854 = create_pixmap (splash_screen_window, "coot-0.9-pre.png");
   gtk_widget_show (image10854);
   gtk_container_add (GTK_CONTAINER (splash_screen_window), image10854);
 
@@ -17224,6 +17232,7 @@ create_renumber_residue_range_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox440), renumber_residue_range_radiobutton_2, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (renumber_residue_range_radiobutton_2), renumber_residue_range_radiobutton_1_group);
   renumber_residue_range_radiobutton_1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (renumber_residue_range_radiobutton_2));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (renumber_residue_range_radiobutton_2), TRUE);
 
   renumber_residue_range_resno_1_entry = gtk_entry_new ();
   gtk_widget_show (renumber_residue_range_resno_1_entry);
@@ -17272,6 +17281,7 @@ create_renumber_residue_range_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox441), renumber_residue_range_radiobutton_4, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (renumber_residue_range_radiobutton_4), renumber_residue_range_radiobutton_3_group);
   renumber_residue_range_radiobutton_3_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (renumber_residue_range_radiobutton_4));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (renumber_residue_range_radiobutton_4), TRUE);
 
   label803 = gtk_label_new ("<b>End Residue</b>");
   gtk_widget_show (label803);

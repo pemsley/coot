@@ -229,6 +229,8 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
 						     const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
 
    // std::cout << "-------------------- in restraints_container_t() constructor " << std::endl;
+   istart_minus_flag = false; // used in make_flanking_atoms_rama_restraints
+   iend_plus_flag = false;
    init(true);
    from_residue_vector = 1;
    are_all_one_atom_residues = false;
@@ -2124,16 +2126,20 @@ void coot::my_df_electron_density_threaded_single(int thread_idx, const gsl_vect
 	 // 	    gsl_vector_set(df, i+1, gsl_vector_get(df, i+1) - zs * grad_orth.dy());
 	 // 	    gsl_vector_set(df, i+2, gsl_vector_get(df, i+2) - zs * grad_orth.dz());
 
+
+         // we no longer do this sort of locking
+
 	 // use atomic lock to access derivs of atom idx
-	 unsigned int unlocked = 0;
-	 while (! restraints->gsl_vector_atom_pos_deriv_locks.get()[idx].compare_exchange_weak(unlocked, 1)) {
-	    std::this_thread::sleep_for(std::chrono::nanoseconds(10));
-	    unlocked = 0;
-	 }
+	 // unsigned int unlocked = 0;
+	 // while (! restraints->gsl_vector_atom_pos_deriv_locks.get()[idx].compare_exchange_weak(unlocked, 1)) {
+	 //    std::this_thread::sleep_for(std::chrono::nanoseconds(10));
+	 //    unlocked = 0;
+	 // }
+
 	 *gsl_vector_ptr(df, idx  ) -= zs * grad_orth.dx();
 	 *gsl_vector_ptr(df, idx+1) -= zs * grad_orth.dy();
 	 *gsl_vector_ptr(df, idx+2) -= zs * grad_orth.dz();
-	 restraints->gsl_vector_atom_pos_deriv_locks.get()[idx] = 0; // unlock
+	 // restraints->gsl_vector_atom_pos_deriv_locks.get()[idx] = 0; // unlock
       }
    }
 
@@ -3950,6 +3956,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 
 } 
 
+#include "coot-utils/contacts-by-bricks.hh"
+
 // Atoms that are not involved in bonds or angles, but are in the
 // residue selection should be at least 2.7A away from each other.
 // 
@@ -4001,6 +4009,28 @@ int
 coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const coot::bonded_pair_container_t &bpc,
 								 const coot::restraints_container_t::reduced_angle_info_container_t &ai,
 								 const coot::protein_geometry &geom) {
+
+
+   std::cout << "------------------- timing" << std::endl;
+   std::set<unsigned int> fixed_atom_flags_set; // fill this properly!
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+   contacts_by_bricks cb(atom, n_atoms, fixed_atom_flags_set);
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   std::vector<std::set<unsigned int> > vcontacts;
+   cb.find_the_contacts(&vcontacts);
+   auto tp_2 = std::chrono::high_resolution_clock::now();
+   cb.find_the_contacts(&vcontacts);
+   auto tp_3 = std::chrono::high_resolution_clock::now();
+
+   unsigned int n_nbc = 0;
+   for (std::size_t ii=0; ii<vcontacts.size(); ii++) {
+      n_nbc += vcontacts.at(ii).size();
+   }
+   auto d32 = chrono::duration_cast<chrono::milliseconds>(tp_3 - tp_2).count();
+   auto d21 = chrono::duration_cast<chrono::milliseconds>(tp_2 - tp_1).count();
+   auto d10 = chrono::duration_cast<chrono::milliseconds>(tp_1 - tp_0).count();
+   std::cout << "------------------- timing: " << d10 << " " << d21 << " " << d32
+	     << " milliseconds for " << n_nbc << " nbcs " << std::endl;
 
    std::map<std::string, std::pair<bool, std::vector<std::list<std::string> > > > residue_ring_map_cache;
    construct_non_bonded_contact_list(bpc, geom);
@@ -4961,6 +4991,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
    // 11 -> 3.1 s
    //
    const double dist_crit = 8.0;
+   const double dist_crit_sqrd = dist_crit * dist_crit;
 
    filtered_non_bonded_atom_indices.resize(bonded_atom_indices.size());
 
@@ -5034,12 +5065,19 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 		  // debug bonded atoms
 		  
 	       } else {
-		  
+
 		  // atom j is not bonded to atom i, is it close? (i.e. within dist_crit?)
-		  clipper::Coord_orth pt1(atom[i]->x, atom[i]->y, atom[i]->z);
-		  clipper::Coord_orth pt2(atom[j]->x, atom[j]->y, atom[j]->z);
-		  double d = clipper::Coord_orth::length(pt1, pt2);
-		  if (d < dist_crit) {
+
+		  // Go faster than this...
+		  // clipper::Coord_orth pt1(atom[i]->x, atom[i]->y, atom[i]->z);
+		  // clipper::Coord_orth pt2(atom[j]->x, atom[j]->y, atom[j]->z);
+		  // double d = clipper::Coord_orth::length(pt1, pt2);
+
+		  double xd(atom[i]->x - atom[j]->x);
+		  double yd(atom[i]->y - atom[j]->y);
+		  double zd(atom[i]->z - atom[j]->z);
+		  double d_sqrd = xd*xd + yd*yd + zd*zd;
+		  if (d_sqrd < dist_crit_sqrd) {
 		     mmdb::Residue *r1 = atom[i]->residue;
 		     mmdb::Residue *r2 = atom[j]->residue;
 
@@ -5078,7 +5116,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 	 for (int jat=0; jat<n_atoms; jat++) {
 
 	    if (iat != jat) {
-		     
+
 	       mmdb::Residue *other_atom_residue = atom[jat]->residue;
 	       if (bonded_atom_residue != other_atom_residue) {
 
@@ -5110,7 +5148,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 			   // Simple part, the residues were not bonded to each other.
 
 			   if (! is_member_p(bonded_atom_indices[iat], jat)) {
-			
+
 			      // atom j is not bonded to atom i, is it close? (i.e. within dist_crit?)
 			      clipper::Coord_orth pt1(atom[iat]->x, atom[iat]->y, atom[iat]->z);
 			      clipper::Coord_orth pt2(atom[jat]->x, atom[jat]->y, atom[jat]->z);
@@ -5159,25 +5197,22 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 	       if (j > 0)
 		  if (j != (filtered_non_bonded_atom_indices[i].size()-1))
 		     std::cout << "\n          ";
-	 } 
+	 }
 	 std::cout << std::endl;
-      } 
+      }
       std::cout << "--------------------------------------------------\n";
    }
-   
+
 #ifdef HAVE_CXX_THREAD
 
-   // end = std::chrono::system_clock::now();
-
-   // std::chrono::duration<double> elapsed_seconds = end-start;
-   // std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-
-   // std::cout << "INFO:: nbc computation " // std::ctime(&end_time)
-   //           << "elapsed time: " << elapsed_seconds.count() << "s\n";
+   end = std::chrono::system_clock::now();
+   std::chrono::duration<double> elapsed_seconds = end-start;
+   std::cout << "INFO:: nbc computation " << "elapsed time: " << elapsed_seconds.count() << "s\n";
 
 #endif // HAVE_CXX_THREAD
 
 }
+
 
 // Add non-bonded contacts for atoms that are in residues that are
 // bonded to each other.  Atom iat is in a moving residue and atom jat
@@ -6337,26 +6372,6 @@ coot::restraints_container_t::setup_gsl_vector_variables() {
       gsl_vector_set(x, idx+2, atom[i]->z);
    }
 
-   setup_gsl_vector_atom_pos_deriv_locks();
-}
-
-void
-coot::restraints_container_t::setup_gsl_vector_atom_pos_deriv_locks() {
-
-   // setup gsl vector atom pos deriv locks.
-   // We don't lock every derivative, we lock every atom (which corresponds to 3 derivs)
-   //
-#ifdef HAVE_CXX_THREAD
-
-   // we need only do this once per instance gsl_vector_atom_pos_deriv_locks is set to 0 in init().
-   //
-   if (! gsl_vector_atom_pos_deriv_locks) {
-
-      gsl_vector_atom_pos_deriv_locks = std::shared_ptr<std::atomic<unsigned int> > (new std::atomic<unsigned int>[n_atoms]);
-      for (int ii=0; ii<n_atoms; ii++)
-	 gsl_vector_atom_pos_deriv_locks.get()[ii] = 0; // unlocked
-   }
-#endif
 }
 
 

@@ -389,7 +389,8 @@
 # 5.32 20180924 bump the clipper version (pre-Pro)
 # 5.33 20181214 bump the mmdb2 version (pdbx_ins_code)
 # 5.34 20181215 clipper patch fixes
-script_version=5.34
+# 5.35 20190401 clipper configure fftw patch
+script_version=5.35
 
 
 
@@ -1589,6 +1590,8 @@ echo coot_version $coot_version
 # real_ssl_prefix=/usr  # for mac, for PC, libs go in /usr/lib64 and
 # sed -i -e "s?#SSL=.*?SSL=$real_ssl_prefix?" -e 's/^#_ssl/_ssl/' -e's/^#.*-DUSE_SSL/    -DUSE_SSL/' -e 's?^#.*-L$(SSL)/lib?    -L$(SSL)/lib?' Modules/Setup
 # also add --with-ensurepip=install
+# For ubuntu, you need system OpenSSL:
+# sudo apt-get install openssl-dev
 #
 if [ "$build_coot_prerelease" = 1 ] ; then 
     if [ "$coot_prerelease_exists" = 1 ] ; then 
@@ -2588,6 +2591,7 @@ if test -n "$build_clipper" ; then
     clipper_version=2.1.20180802
     clipper_version_dir=2.1
     ${WGET} $extras_place/clipper-$clipper_version.tar.gz
+    ${WGET} $extras_place/clipper-configure-2.patch
 
     (
     gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
@@ -2599,7 +2603,14 @@ if test -n "$build_clipper" ; then
     # patch the hkl_data.h header
     # sed -ibackup -e 's/int i = 0; i < list.size(); i++/unsigned int i = 0; i < list.size(); i++/' clipper/core/hkl_data.h
     
-    # make clipper
+    # --- make clipper
+
+    # patch clipper
+
+    # fix the linking to the wrong libfftw
+    echo patching clipper with ${AUTOBUILD_SOURCES}/clipper-configure-2.patch
+    patch -p0 < ${AUTOBUILD_SOURCES}/clipper-configure-2.patch
+
     echo . ------------------------------------------------------------------------------
     echo . "         clipper                                                            "
     echo . ------------------------------------------------------------------------------

@@ -567,8 +567,11 @@ graphics_info_t::update_restraints_with_atom_pull_restraints() {
                     unlocked = 0;
                }
                if (moving_atoms_asc->atom_selection) {
-	          at_except = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
-                  except_dragged_atom = coot::atom_spec_t(at_except);
+		  // check that moving_atoms_currently_dragged_atom_index is set before using it
+		  if (moving_atoms_currently_dragged_atom_index > -1) {
+		     at_except = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
+		     except_dragged_atom = coot::atom_spec_t(at_except);
+		  }
                } else {
                   std::cout << "WARNING:: attempted use moving_atoms_asc->atom_selection, but NULL"
                             << std::endl;
@@ -2811,6 +2814,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	       }
 
 	       if (add_terminal_residue_add_other_residue_flag) {
+
 		  // check that the other residue is not in the molecule before adding
 		  // all of mmol. If it is already in the molecule, remove it from mmol
 		  if (terminus_type == "C" || terminus_type == "MC") {
@@ -2820,7 +2824,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 			mmol[0][other_residue_spec.res_no].atoms.clear();
 		     }
 		  } else {
-		     if (terminus_type == "N" || terminus_type == "NC") {
+		     if (terminus_type == "N" || terminus_type == "MN") {
 			coot::residue_spec_t other_residue_spec(chain_id, resno_added-1, "");
 			mmdb::Residue *res_other = graphics_info_t::molecules[imol].get_residue(other_residue_spec);
 			if (res_other) {

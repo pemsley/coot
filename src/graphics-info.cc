@@ -1787,7 +1787,7 @@ graphics_info_t::clear_up_moving_atoms() {
    while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
       std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms() - refinement restraints locked on "
                 << std::endl;
-      std::this_thread::sleep_for(std::chrono::milliseconds(40));
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
       unlocked = false;
    }
 
@@ -1844,8 +1844,10 @@ graphics_info_t::clear_up_moving_atoms() {
       std::cout << "DEBUG:: ------ clear_up_moving_atoms() - delete last_restraints ---" << std::endl;
       delete last_restraints;
       last_restraints = 0;
+      unset_moving_atoms_currently_dragged_atom_index();
    }
    graphics_info_t::restraints_lock = false; // refinement ended and cleared up.
+
 #endif // HAVE_GSL
 
    moving_atoms_lock  = false;

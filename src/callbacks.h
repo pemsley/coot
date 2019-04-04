@@ -4736,3 +4736,8 @@ void
 on_accept_reject_backrub_rotamer_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
+
+void
+on_symmetry_always_on_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);

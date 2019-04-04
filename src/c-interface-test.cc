@@ -524,7 +524,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       } 
    } 
 
-   if (0) {
+   if (false) {
 
       std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
       if (pp.first) {
@@ -540,7 +540,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
    // ------------------------ spherical density overlap -------------------------
    // 
-   if (0) {
+   if (false) {
       int imol = scm_to_int(i_scm); // map molecule
       int imol_map = scm_to_int(j_scm); // map molecule
 
@@ -733,7 +733,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       }
    }
 
-   if (1) {
+   if (false) {
       int i = scm_to_int(i_scm); // map molecule
       int j = scm_to_int(j_scm);
 
@@ -742,6 +742,42 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
             const clipper::Xmap<float> &xmap = g.molecules[j].xmap;
             g.molecules[i].em_ringer(xmap);
          }
+      }
+   }
+
+   if (true) {
+      int i = scm_to_int(i_scm); // map molecule
+      int j = scm_to_int(j_scm);
+
+      if (is_valid_model_molecule(i)) {
+         if (is_valid_map_molecule(j)) {
+            const clipper::Xmap<float> &xmap = g.molecules[j].xmap;
+
+	    int icount = 0;
+	    int imod = 1;
+	    mmdb::Model *model_p = graphics_info_t::molecules[i].atom_sel.mol->GetModel(imod);
+	    if (model_p) {
+	       int n_chains = model_p->GetNumberOfChains();
+	       for (int ichain=0; ichain<n_chains; ichain++) {
+		  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+		  int nres = chain_p->GetNumberOfResidues();
+		  for (int ires=0; ires<nres; ires++) {
+		     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+		     int n_atoms = residue_p->GetNumberOfAtoms();
+		     for (int iat=0; iat<n_atoms; iat++) {
+			mmdb::Atom *at = residue_p->GetAtom(iat);
+			clipper::Coord_orth co = coot::co(at);
+			float dv = coot::util::density_at_point_by_linear_interpolation(xmap, co);
+			clipper::Grad_orth<double> grad = coot::util::gradient_at_point(xmap, co);
+
+			std::cout << icount << " " << coot::atom_spec_t(at) << " dv "
+				  << dv << " grad " << grad.format() << std::endl;
+			icount++;
+		     }
+		  }
+	       }
+	    }
+	 }
       }
    }
    return r;

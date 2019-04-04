@@ -308,12 +308,10 @@ namespace coot {
       enum nbc_function_t { LENNARD_JONES, HARMONIC};
       nbc_function_t nbc_function;
 
-#ifdef HAVE_CXX_THREAD
       // allocator for geometry_distortion_info_t
       simple_restraint() {
 	 is_user_defined_restraint = 0;
       }
-#endif // HAVE_CXX_THREAD
 
       // Bond
       simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2, 
@@ -1029,6 +1027,7 @@ namespace coot {
       int nSelResidues_active;
       bool apply_H_non_bonded_contacts;
 
+      // pointless argument - remove later
       void init(bool unset_deriv_locks) {
       	 verbose_geometry_reporting = NORMAL;
          n_refiners_refining = 0;
@@ -1058,8 +1057,6 @@ namespace coot {
 	 restraints_lock = false; // not locked
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 	 thread_pool_p = 0; // null pointer
-	 if (unset_deriv_locks)
-	    gsl_vector_atom_pos_deriv_locks = 0;
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #endif // HAVE_CXX_THREAD
       }
@@ -1958,9 +1955,6 @@ namespace coot {
 	 from_residue_vector = 0;
 	 include_map_terms_flag = 0;
 	 
-#ifdef HAVE_CXX_THREAD
-	 gsl_vector_atom_pos_deriv_locks = 0;
-#endif
       };
 
       ~restraints_container_t() {
@@ -2065,22 +2059,12 @@ namespace coot {
       }
 
 #ifdef HAVE_CXX_THREAD
-      // we can't have a vector of atomic (unsigned int)s for
-      // reasons of deleted copy/delete constructors that I don't follow.
-      //
-      // std::vector<std::atomic<unsigned int> > gsl_vector_atom_pos_deriv_locks;
-      //
-      // Do it with pointers (haha) - is this what the designers of C++ atomics
-      // has in mind?
-      //
-      std::shared_ptr<std::atomic<unsigned int> > gsl_vector_atom_pos_deriv_locks;
-
       // we should not update the atom pull restraints while the refinement is running.
       // we shouldn't refine when the atom pull restraints are being updated.
       // we shouldn't clear the gsl_vector x when o
       std::atomic<bool> restraints_lock;
 #endif
-      void setup_gsl_vector_atom_pos_deriv_locks();
+
       unsigned int get_n_atoms() const { return n_atoms; } // access from split_the_gradients_with_threads()
       unsigned int n_variables() const { 
 	 // return 3 * the number of atoms
@@ -2214,7 +2198,7 @@ namespace coot {
       // calling function should also provide the plot type
       // residue type eg "ALL!nP" "ALLnP" "GLY!nP"  "GLYnP" "PRO!nP"
       //
-      float zo_rama_prob(const std::string &residue_type, const double &phir, const double &psir) {
+      float zo_rama_prob(const std::string &residue_type, const double &phir, const double &psir) const {
 	 return zo_rama.value(residue_type, phir, psir);
       }
 
@@ -2402,6 +2386,7 @@ namespace coot {
    double electron_density_score_from_restraints(const gsl_vector *v, coot::restraints_container_t *restraints_p);
    double electron_density_score_from_restraints_simple(const gsl_vector *v, coot::restraints_container_t *restraints_p);
 
+#ifdef HAVE_CXX_THREAD
    // The version of electron_density_score_from_restraints that can be used with a thread pool.
    // The calling function needs to push this onto the queue, one for each thread,
    // where the atom_index_range splits up the atom indices
@@ -2417,14 +2402,9 @@ namespace coot {
                                                  const gsl_vector *v,
 						 const std::pair<unsigned int, unsigned int> &atom_index_range,
 						 restraints_container_t *restraints_p,
-								      double *result,
-								      std::atomic<unsigned int> &done_count);
-//    void electron_density_score_from_restraints_using_atom_index_range_xx(int thread_idx,
-// 		     const gsl_vector *v,
-// 		     const std::pair<unsigned int, unsigned int> &atom_index_range,
-// 		     restraints_container_t *restraints_p,
-// 		     double *results);
-
+                                                 double *result,
+                                                 std::atomic<unsigned int> &done_count);
+#endif // HAVE_CXX_THREAD
 
    // new style Grad_map/Grad_orth method
    void my_df_electron_density(const gsl_vector *v, void *params, gsl_vector *df);

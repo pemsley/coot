@@ -770,9 +770,9 @@ graphics_info_t::add_target_position_restraint_for_intermediate_atom(const coot:
 
    bool unlocked = false; // wait for restraints_lock to be false...
    while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
-      std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms() - refinement restraints locked on "
-                << std::endl;
-      std::this_thread::sleep_for(std::chrono::milliseconds(40));
+      std::cout << "INFO:: graphics_info_t::add_target_position_restraint_for_intermediate_atom() "
+		<< "- refinement restraints locked on " << std::endl;
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
       unlocked = false;
    }
 
@@ -793,17 +793,14 @@ graphics_info_t::add_target_position_restraint_for_intermediate_atom(const coot:
 void
 graphics_info_t::add_target_position_restraints_for_intermediate_atoms(const std::vector<std::pair<coot::atom_spec_t, clipper::Coord_orth> > &atom_spec_position_vec) {
 
-   std::cout << "-------------------------- add_target_position_restraints_for_intermediate_atoms() called"
-	     << std::endl;
-
    // get the restraints lock before adding this
 
    if (last_restraints) {
 
       bool unlocked = false; // wait for restraints_lock to be false...
       while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
-	 std::cout << "INFO:: add_target_position_restraints_for_intermediate_atoms() - refinement restraints locked on "
-		   << std::endl;
+	 std::cout << "INFO:: add_target_position_restraints_for_intermediate_atoms() "
+		   << "- refinement restraints locked on" << std::endl;
 	 std::this_thread::sleep_for(std::chrono::milliseconds(40));
 	 unlocked = false;
       }
@@ -821,7 +818,8 @@ graphics_info_t::add_target_position_restraints_for_intermediate_atoms(const std
       thread_for_refinement_loop_threaded();
 
    } else {
-      std::cout << "WARNING:: in add_target_position_restraints_for_intermediate_atoms() no restraints" << std::endl;
+      std::cout << "WARNING:: in add_target_position_restraints_for_intermediate_atoms() no restraints"
+		<< std::endl;
    }
 
 }

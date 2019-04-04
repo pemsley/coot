@@ -456,11 +456,18 @@ GtkWidget *wrapped_create_renumber_residue_range_dialog() {
       g.fill_renumber_residue_range_dialog(w);  // fills the coordinates option menu
       g.fill_renumber_residue_range_internal(w, imol); // fills the chain option menu
 
-      // by default the N-term button is on for the first choice
-      // (and C-term is of for the second)
+      // by default, now the N-term button is off for the first choice
+      // (and C-term is on for the second)
       GtkWidget *entry_1 = lookup_widget(GTK_WIDGET(w), "renumber_residue_range_resno_1_entry");
-      gtk_widget_set_sensitive(GTK_WIDGET(entry_1), FALSE);
-      
+      GtkWidget *entry_2 = lookup_widget(GTK_WIDGET(w), "renumber_residue_range_resno_2_entry");
+      gtk_widget_set_sensitive(entry_2, FALSE);
+      // but anyway, let's put the residue number of the active residue there, just in case
+      // the user wanted to start from there.
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+      if (pp.first) {
+	 int res_no = pp.second.second.res_no;
+	 gtk_entry_set_text(GTK_ENTRY(entry_1), coot::util::int_to_string(res_no).c_str());
+      }
    }
    return w;
 }

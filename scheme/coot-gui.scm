@@ -885,6 +885,10 @@
 
       (gtk-widget-show-all window))))
 
+;; works with below function generic-chooser-entry-and-file-selector
+;;
+(define *generic-chooser-entry-and-file-selector-file-entry-default-text* "")
+
 ;; Create a window
 ;; 
 ;; Return a pair of widgets, a molecule chooser and an entry.  The
@@ -893,7 +897,10 @@
 ;; 
 ;; chooser-filter is typically valid-map-molecule? or valid-model-molecule?
 ;; 
-(define (generic-chooser-entry-and-file-selector chooser-label chooser-filter entry-hint-text default-entry-text file-selector-hint callback-function)
+;; If file-entry-default-text is passed, then *generic-chooser-entry-and-file-selector-file-entry-default-text* is set
+;; to be the contents of the file selection entry on "OK" button click.
+;;
+(define (generic-chooser-entry-and-file-selector chooser-label chooser-filter entry-hint-text default-entry-text file-selector-hint callback-function . file-entry-default-text)
 
   (let* ((window (gtk-window-new 'toplevel))
 	 (label (gtk-label-new chooser-label))
@@ -927,6 +934,10 @@
       (gtk-box-pack-start vbox hbox-buttons #f #f 5)
     
       (gtk-option-menu-set-menu option-menu menu)
+
+      (if (not (null? file-entry-default-text))
+	 (let ((file-name (car file-entry-default-text)))
+            (gtk-entry-set-text file-sel-entry file-name)))
       
       ;; button callbacks:
       (gtk-signal-connect ok-button "clicked"
@@ -940,8 +951,10 @@
 				  (begin
 				    (let ((text (gtk-entry-get-text entry))
 					  (file-sel-text (gtk-entry-get-text file-sel-entry)))
+                                      (if (not (null? file-entry-default-text))
+                                          (set! *generic-chooser-entry-and-file-selector-file-entry-default-text* file-sel-text))
 				      (callback-function active-mol-no text file-sel-text)))))
-			    
+
 			    (gtk-widget-destroy window)))
       
       (gtk-signal-connect cancel-button "clicked"
@@ -2702,12 +2715,13 @@
    valid-model-molecule?
    "Chain ID"
    ""
-   "Select PIR file"
+   "Select PIR Alignment file"
    (lambda (imol chain-id file-name)
      (associate-pir-file imol chain-id file-name)
      (if do-alignment?
-	 (alignment-mismatches-gui imol)))))
-	   
+        (alignment-mismatches-gui imol)))
+    *generic-chooser-entry-and-file-selector-file-entry-default-text*))
+
 
 ;; Make a box-of-buttons GUI for the various modifications that need
 ;; to be made to match the model sequence to the assigned sequence(s).
@@ -2815,7 +2829,7 @@
 	      (alignments-as-text-list (list-ref am 3)))
 
 	  (for-each (lambda (alignment-text)
-		      (info-dialog alignment-text))
+		      (info-dialog-with-markup alignment-text))
 		    alignments-as-text-list)
 
 	  (dialog-box-of-buttons "Residue mismatches"
@@ -3860,7 +3874,7 @@
 	;; buttons
 	(ok-button (gtk-button-new-with-label "   OK   "))
 	(cancel-button (gtk-button-new-with-label " Cancel "))
-	(n-levels-list (list 1 2 3 4 5 6))
+	(n-levels-list (list 1 2 3 4 5 6 8 10 12 15))
 	(b-factor-list (list 50 100 200 400 800 2000)))
 
     (let ((map-molecule-list (fill-option-menu-with-map-mol-options
@@ -3921,7 +3935,7 @@
 									       map-file-name-stub
 									       ".mtz"))
 				   (log-file-name (string-append
-						   "refmac-sharp"
+						   "refmac-multisharp-"
 						   map-file-name-stub
 						   ".log")))
 
@@ -3934,11 +3948,12 @@
 				    (format #t "active-item-imol: ~s~%" active-item-imol)
 
 				    (let* ((step-size (/ max-b n-levels))
-					   (numbers-string (apply string-append (map (lambda(i) 
-										       (let ((lev (* step-size (+ i 1))))
-											 (string-append
-											  (number->string lev) " ")))
-										     (range n-levels))))
+					   (numbers-string
+					    (apply string-append (map (lambda(i)
+									(let ((lev (* step-size (+ i 1))))
+									  (string-append
+									   (number->string (exact->inexact lev)) " ")))
+								      (range n-levels))))
 					   (blur-string  (string-append "SFCALC BLUR  " numbers-string))
 					   (sharp-string (string-append "SFCALC SHARP " numbers-string)))
 
@@ -3946,25 +3961,33 @@
 					    (data-lines (list "MODE SFCALC"
 							      blur-string
 							      sharp-string
-							      "END")))
-					(let ((s (goosh-command "refmac5"
-								cmd-line-args
-								data-lines
-								log-file-name
-								#f)))
-					  (if (not (ok-goosh-status? s))
+							      "END"))
+					    (this-dir (getcwd)))
+					(if (not (directory-is-modifiable? this-dir))
+					    (info-dialog "WARNING:: Current directory is not writable")
+					    (let ((s (goosh-command "refmac5"
+								    cmd-line-args
+								    data-lines
+								    log-file-name
+								    #f)))
+					      (if (not (ok-goosh-status? s))
 
-					      (begin
-						(info-dialog "WARNING:: refmac5 failed"))
+						  (begin
+						    (info-dialog "WARNING:: refmac5 failed"))
 
-					      ;; Happy path
-					      (begin
-						(if (file-exists? "starting_map.mtz")
-						    (begin
-						      (rename-file  "starting_map.mtz" refmac-output-mtz-file-name)
-						      ;; offer a read-mtz dialog
-						      (manage-column-selector refmac-output-mtz-file-name)
-						      )))))))))
+						  ;; Happy path
+						  (begin
+						    (format #t "s: ~s~%" s)
+						    (if (not (file-exists? "starting_map.mtz"))
+							(begin
+							  (format #t "WARNING:: starting_map.mtz does not exist~%"))
+							(begin
+							  (format #t "INFO renaming starting_map.mtz to ~s~%"
+								  refmac-output-mtz-file-name)
+							  (rename-file  "starting_map.mtz" refmac-output-mtz-file-name)
+							  ;; offer a read-mtz dialog
+							  (manage-column-selector refmac-output-mtz-file-name)
+							  ))))))))))
 
 			      (gtk-widget-destroy window))))
 
