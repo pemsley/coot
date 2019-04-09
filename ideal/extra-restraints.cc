@@ -409,14 +409,14 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
       bool fixed_1 = false;
       bool fixed_2 = false;
       if (from_residue_vector) {
+	 residue_spec_t br_res_atom_1(extra_restraints.bond_restraints[i].atom_1);
+	 residue_spec_t br_res_atom_2(extra_restraints.bond_restraints[i].atom_2);
 	 for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
-	    if (residue_spec_t(extra_restraints.bond_restraints[i].atom_1) ==
-		residue_spec_t(residues_vec[ir].second)) {
+	    if (br_res_atom_1 == residue_spec_t(residues_vec[ir].second)) {
 	       r_1 = residues_vec[ir].second;
 	       fixed_1 = residues_vec[ir].first;
 	    }
-	    if (residue_spec_t(extra_restraints.bond_restraints[i].atom_2) ==
-		residue_spec_t(residues_vec[ir].second)) {
+	    if (br_res_atom_2 == residue_spec_t(residues_vec[ir].second)) {
 	       r_2 = residues_vec[ir].second;
 	       fixed_2 = residues_vec[ir].first;
 	    }
