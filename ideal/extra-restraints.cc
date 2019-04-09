@@ -316,16 +316,16 @@ coot::restraints_container_t::add_extra_restraints(int imol,
       std::cout << "--------------------- in add_extra_restraints() "
 		<< restraints_vec.size() << " standard restraints "
 		<< std::endl;
-      std::cout << "--------------------- in add_extra_restraints() "
+      std::cout << "--------------------- in add_extra_restraints() adding "
 		<< extra_restraints.bond_restraints.size() << " extra bond restraints "
 		<< std::endl;
-      std::cout << "--------------------- in add_extra_restraints() "
+      std::cout << "--------------------- in add_extra_restraints() adding "
 		<< extra_restraints.angle_restraints.size() << " extra angle restraints "
 		<< std::endl;
-      std::cout << "--------------------- in add_extra_restraints() par-plan "
+      std::cout << "--------------------- in add_extra_restraints() par-plan adding "
 		<< extra_restraints.parallel_plane_restraints.size() << " pp restraints "
 		<< std::endl;
-      std::cout << "--------------------- in add_extra_restraints() target-position "
+      std::cout << "--------------------- in add_extra_restraints() target-position adding "
 		<< extra_restraints.target_position_restraints.size() << " position restraints "
 		<< std::endl;
    }
