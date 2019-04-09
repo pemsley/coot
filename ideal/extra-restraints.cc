@@ -406,20 +406,21 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
       mmdb::Residue *r_2 = NULL;
       mmdb::Atom *at_1 = 0;
       mmdb::Atom *at_2 = 0;
-      bool fixed_1 = 0;
-      bool fixed_2 = 0;
+      bool fixed_1 = false;
+      bool fixed_2 = false;
       if (from_residue_vector) {
 	 for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
-	    if (coot::residue_spec_t(extra_restraints.bond_restraints[i].atom_1) ==
-		coot::residue_spec_t(residues_vec[ir].second)) {
+	    if (residue_spec_t(extra_restraints.bond_restraints[i].atom_1) ==
+		residue_spec_t(residues_vec[ir].second)) {
 	       r_1 = residues_vec[ir].second;
 	       fixed_1 = residues_vec[ir].first;
 	    }
-	    if (coot::residue_spec_t(extra_restraints.bond_restraints[i].atom_2) ==
-		coot::residue_spec_t(residues_vec[ir].second)) {
+	    if (residue_spec_t(extra_restraints.bond_restraints[i].atom_2) ==
+		residue_spec_t(residues_vec[ir].second)) {
 	       r_2 = residues_vec[ir].second;
 	       fixed_2 = residues_vec[ir].first;
 	    }
+	    if (r_1 && r_2) break;
 	 }
       } else {
 
