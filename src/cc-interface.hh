@@ -1471,11 +1471,12 @@ map_to_model_correlation(int imol,
 // 5: side-chain atoms if is standard amino-acid, else nothing
 //
 coot::util::density_correlation_stats_info_t
-map_to_model_correlation_stats(int imol, 
+map_to_model_correlation_stats(int imol,
 			       const std::vector<coot::residue_spec_t> &residue_specs,
 			       const std::vector<coot::residue_spec_t> &neigh_residue_specs,
 			       unsigned short int atom_mask_mode,
 			       int imol_map);
+#ifndef SWIG
 
 //! \brief map to model density correlation, reported per residue
 //! 
@@ -1492,11 +1493,29 @@ map_to_model_correlation_per_residue(int imol, const std::vector<coot::residue_s
 				     unsigned short int atom_mask_mode,
 				     int imol_map);
 
+//! \brief map to model density statistics, reported per residue
+std::map<coot::residue_spec_t, coot::util::density_stats_info_t>
+map_to_model_correlation_stats_per_residue(int imol,
+					   const std::vector<coot::residue_spec_t> &residue_specs,
+					   unsigned short int atom_mask_mode,
+					   float atom_radius_for_masking,
+					   int imol_map);
+#endif // not for swigging.
+
 #ifdef USE_GUILE
+//! \brief map to model correlation
 SCM
 map_to_model_correlation_per_residue_scm(int imol, SCM residue_specs,
 					 unsigned short int atom_mask_mode,
 					 int imol_map);
+
+//! \brief map to model stats
+SCM
+map_to_model_correlation_stats_per_residue_scm(int imol,
+					       SCM residue_specs_scm,
+					       unsigned short int atom_mask_mode,
+					       float atom_radius_for_masking,
+					       int imol_map);
 
 //! \brief QQ plot of the model density correlation, reported per residue
 //! 

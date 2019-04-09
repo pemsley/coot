@@ -1769,7 +1769,7 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
 	    }
 	 }
       }
-      
+
       mol->SelectAtoms(SelHnd, 1,
 		       specs[ilocal].chain_id.c_str(),
 		       specs[ilocal].res_no,
@@ -1796,6 +1796,10 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
 				reference_map.cell(),
 				reference_map.spacegroup(),
 				reference_map.grid_sampling());
+
+   if (debug)
+      std::cout << "DEBUG:: map_to_model_correlation_stats() calc_map null status: "
+		<< calc_map.is_null() << std::endl;
 
    if (not (calc_map.is_null())) { 
       clipper::Xmap<short int> masked_map(reference_map.spacegroup(),
@@ -2349,6 +2353,160 @@ coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
    mol->DeleteSelection(SelHnd);
    return v;
 }
+
+std::map<coot::residue_spec_t, coot::util::density_stats_info_t>
+coot::util::map_to_model_correlation_stats_per_residue(mmdb::Manager *mol,
+						       const std::vector<residue_spec_t> &specs,
+						       unsigned short int atom_mask_mode,
+						       float atom_radius, // for masking
+						       const clipper::Xmap<float> &xmap) {
+
+   std::map<residue_spec_t, density_stats_info_t> res_map;
+
+   int SelHnd = mol->NewSelection(); // d
+
+   for (unsigned int ispec=0; ispec<specs.size(); ispec++) {
+
+      std::string res_name_selection  = "*";
+      std::string atom_name_selection = "*";
+
+      if (atom_mask_mode != 0) { // main chain for standard amino acids
+	 mmdb::Residue *res = get_residue(specs[ispec], mol);
+	 if (res) {
+	    std::string residue_name(res->GetResName());
+	    if (is_standard_residue_name(residue_name)) {
+
+	       // PDBv3 FIXME
+	       //
+	       if (atom_mask_mode == 1 || atom_mask_mode == 4)
+		  atom_name_selection = " N  , H  , HA , CA , C  , O  ";
+	       if (atom_mask_mode == 2 || atom_mask_mode == 5)
+		  atom_name_selection = "!( N  , H  , HA , CA , C  , O  )";
+	       if (atom_mask_mode == 3)
+		  atom_name_selection = "!( N  , H  , HA , CA , C  , O  , CB )";
+	    } else {
+	       if (atom_mask_mode == 4)
+		  atom_name_selection = "%%%%%%"; // nothing (perhaps use "")
+	       if (atom_mask_mode == 5)
+		  atom_name_selection = "%%%%%%"; // nothing
+	    }
+	 }
+      }
+
+      mol->SelectAtoms(SelHnd, 1,
+		       specs[ispec].chain_id.c_str(),
+		       specs[ispec].res_no,
+		       specs[ispec].ins_code.c_str(),
+		       specs[ispec].res_no,
+		       specs[ispec].ins_code.c_str(),
+		       res_name_selection.c_str(),
+		       atom_name_selection.c_str(),
+		       "*", // elements
+		       "*", // alt loc.
+		       mmdb::SKEY_OR
+		       );
+      if (false) { // debugging selection
+	 mmdb::PPAtom atom_selection = 0;
+	 int n_atoms;
+	 mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
+
+	 std::cout << "selected n_atoms " << n_atoms << " where specs[0] is " << specs[0]
+		   << " for mask mode " << atom_mask_mode << std::endl;
+	 for (int iat=0; iat<n_atoms; iat++)
+	    std::cout << "    " << iat << " " << atom_spec_t(atom_selection[iat]) << std::endl;
+      }
+   }
+
+   clipper::Xmap<float> calc_map =
+      coot::util::calc_atom_map(mol, SelHnd, xmap.cell(), xmap.spacegroup(), xmap.grid_sampling());
+
+   if (not (calc_map.is_null())) {
+      // fill with null residue specs
+      clipper::Xmap<residue_spec_t> contributor_map(xmap.spacegroup(),
+						    xmap.cell(),
+						    xmap.grid_sampling());
+      clipper::Xmap_base::Map_reference_index ix;
+      mmdb::PPAtom atom_selection = 0;
+      int n_atoms;
+      mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
+
+      residue_spec_t many_contributors; // we don't want map that is contributed to by
+                                        // many (2 or more) residues.
+      int MANY_CONTRIBUTORS = 200; // magic value
+      many_contributors.int_user_data = MANY_CONTRIBUTORS;
+
+
+      for (int iat=0; iat<n_atoms; iat++) {
+	 residue_spec_t res_spec(atom_selection[iat]);
+	 clipper::Coord_orth co(atom_selection[iat]->x,
+				atom_selection[iat]->y,
+				atom_selection[iat]->z);
+	 clipper::Coord_frac cf = co.coord_frac(xmap.cell());
+	 clipper::Coord_frac box0(
+				  cf.u() - atom_radius/xmap.cell().descr().a(),
+				  cf.v() - atom_radius/xmap.cell().descr().b(),
+				  cf.w() - atom_radius/xmap.cell().descr().c());
+
+	 clipper::Coord_frac box1(
+				  cf.u() + atom_radius/xmap.cell().descr().a(),
+				  cf.v() + atom_radius/xmap.cell().descr().b(),
+				  cf.w() + atom_radius/xmap.cell().descr().c());
+
+	 clipper::Grid_map grid(box0.coord_grid(xmap.grid_sampling()),
+				box1.coord_grid(xmap.grid_sampling()));
+
+	 float atom_radius_sq = atom_radius * atom_radius;
+	 clipper::Xmap_base::Map_reference_coord ix(xmap, grid.min() ), iu, iv, iw;
+	 for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+	    for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
+	       for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+		  if ( (iw.coord().coord_frac(xmap.grid_sampling()).coord_orth(xmap.cell()) - co).lengthsq() < atom_radius_sq) {
+		     if (false)
+			std::cout << "specs: masked point at "
+// 				  << iw.coord().coord_frac(reference_map.grid_sampling()).coord_orth(reference_map.cell()).format()
+// 				  << " centre point: " << co.format() << " " 
+// 				  << (iw.coord().coord_frac(reference_map.grid_sampling()).coord_orth(reference_map.cell()) - co).lengthsq()
+				  << iw.coord().format()
+				  << std::endl;
+		     if (contributor_map[iw].int_user_data != MANY_CONTRIBUTORS) {
+			// so it was either set once or not at all (so far).
+			if (contributor_map[iw].unset_p()) {
+			   // was a default residue spec (an as-yet untouched grid point).
+			   contributor_map[iw] = res_spec;
+			} else {
+			   if (contributor_map[iw] == res_spec) {
+			      // OK, cool we are in the same residue
+			   } else {
+			      // Oops. A bang.  Mask this point out
+			      // std::cout << "   4 a bang for grid point " << iw.coord().format() << " "
+			      // << contributor_map[iw] << " vs " << res_spec << std::endl;
+			      contributor_map[iw] = many_contributors;
+			   }
+			}
+		     } else {
+			// std::cout << iw.coord().format() << " was already a many_contributor" << std::endl;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+
+      for (ix = contributor_map.first(); !ix.last(); ix.next()) {
+	 if (! contributor_map[ix].unset_p()) {
+	    if (contributor_map[ix].int_user_data != MANY_CONTRIBUTORS) {
+	       const residue_spec_t &res_spec = contributor_map[ix];
+	       res_map[res_spec].add(xmap[ix]);
+	    }
+	 }
+      }
+   }
+   mol->DeleteSelection(SelHnd);
+
+   return res_map;
+
+}
+
 
 
 

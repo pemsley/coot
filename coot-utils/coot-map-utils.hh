@@ -165,7 +165,7 @@ namespace coot {
 				     const std::vector<residue_spec_t> &specs_for_correl,
 				     const std::vector<residue_spec_t> &specs_for_masking_neighbs,
 				     unsigned short int atom_mask_mode,
-				     float atom_radius, // for masking 
+				     float atom_radius, // for masking
 				     const clipper::Xmap<float> &xmap_from_sfs);
 
       density_correlation_stats_info_t
@@ -173,7 +173,7 @@ namespace coot {
 				     const std::vector<residue_spec_t> &specs_for_correl,
 				     const std::vector<residue_spec_t> &specs_for_masking_neighbs,
 				     unsigned short int atom_mask_mode,
-				     float atom_radius, // for masking 
+				     float atom_radius, // for masking
 				     const clipper::Xmap<float> &xmap_from_sfs,
 				     map_stats_t map_stats_flag);
 
@@ -185,6 +185,13 @@ namespace coot {
 					   unsigned short int atom_mask_mode,
 					   float atom_radius, // for masking 
 					   const clipper::Xmap<float> &xmap_from_sfs);
+
+      std::map<coot::residue_spec_t, density_stats_info_t>
+      map_to_model_correlation_stats_per_residue(mmdb::Manager *mol,
+						 const std::vector<residue_spec_t> &specs,
+						 unsigned short int atom_mask_mode,
+						 float atom_radius, // for masking 
+						 const clipper::Xmap<float> &xmap);
 
       // helper
       std::pair<clipper::Coord_frac, clipper::Coord_frac>
