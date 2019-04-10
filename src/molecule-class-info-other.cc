@@ -4329,15 +4329,19 @@ molecule_class_info_t::fill_raster_map_info(short int lev) const {
                                                 // at least, if we are displaying a volume surface....
 	 if (1) { 
 	    if (lev == 1) {
-	       if (n_draw_vectors>0) { 
+	       if (! draw_vector_sets.empty()) {
 
 		  rtmi.density_colour.col.resize(3);
 		  rtmi.density_colour.col[0] = map_colour[0][0];
 		  rtmi.density_colour.col[1] = map_colour[0][1];
 		  rtmi.density_colour.col[2] = map_colour[0][2];
 
-		  for(int i=0; i<n_draw_vectors; i++) {
-		     rtmi.density_lines.push_back(std::pair<coot::Cartesian, coot::Cartesian>(draw_vectors[i].getStart(), draw_vectors[i].getFinish()));
+		  for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
+		     for (int j=0; j<draw_vector_sets[i].second; j++) {
+			std::pair<coot::Cartesian, coot::Cartesian> p(draw_vector_sets[i].first[j].getStart(),
+								      draw_vector_sets[i].first[j].getFinish());
+			rtmi.density_lines.push_back(p);
+		     }
 		  }
 	       }
 	    } else {
