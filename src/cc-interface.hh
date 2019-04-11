@@ -1157,6 +1157,13 @@ mmdb::Manager *new_molecule_by_symmetry_matrix_from_molecule(mmdb::Manager *mol,
 /*  ----------------------------------------------------------------------- */
 /*                  LIBCURL/Download                                        */
 /*  ----------------------------------------------------------------------- */
+
+/*! \brief if possible, read in the new coords getting coords via web.
+
+(no return value because get-url-str does not return one).
+ */
+   void get_coords_for_accession_code(const std::string &code);
+
 #ifdef USE_LIBCURL
 // return 0 on success.
 int coot_get_url(const char *url, const char *file_name);
