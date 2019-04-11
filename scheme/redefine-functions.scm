@@ -98,6 +98,7 @@
 (define molecule-name-stub molecule-name-stub-scm)
 (define map-to-model-correlation map-to-model-correlation-scm)
 (define map-to-model-correlation-per-residue map-to-model-correlation-per-residue-scm)
+(define map-to-model-correlation-stats map-to-model-correlation-stats-scm)
 (define het-group-residues het-group-residues-scm)
 (define score-rotamers score-rotamers-scm)
 (define link-info link-info-scm)

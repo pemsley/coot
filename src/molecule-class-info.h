@@ -676,7 +676,7 @@ public:        //                      public
 
       // while zero maps, don't need to intialise the arrays (xmap_is_filled)
       is_patterson = 0;
-      draw_vectors = NULL;
+      // draw_vectors = NULL;
       diff_map_draw_vectors = NULL;
       
       //
@@ -1186,10 +1186,11 @@ public:        //                      public
 			  int residue_range_2,
 			  clipper::RTop_orth a_to_b_transform);
 
-   const coot::CartesianPair* draw_vectors;
+   // const coot::CartesianPair* draw_vectors;
+   // int n_draw_vectors;
+   std::vector<std::pair<const coot::CartesianPair *,int> > draw_vector_sets;
    const coot::CartesianPair* diff_map_draw_vectors;
    int n_diff_map_draw_vectors;
-   int n_draw_vectors;
 
    coot::Cartesian  centre_of_molecule() const;
    float size_of_molecule() const; // return the standard deviation of
@@ -1368,9 +1369,16 @@ public:        //                      public
    
    
    void dynamically_transform(coot::CartesianPairInfo v);
-   void set_draw_vecs(const coot::CartesianPair* c, int n) { 
-      delete [] draw_vectors;
-      draw_vectors = c; n_draw_vectors = n; 
+
+   void clear_draw_vecs() {
+      for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
+	 delete draw_vector_sets[i].first;
+      }
+      draw_vector_sets.clear();
+   }
+   void add_draw_vecs_to_set(const coot::CartesianPair* c, int n) {
+      std::pair<const coot::CartesianPair *, int> p(c,n);
+      draw_vector_sets.push_back(p);
    }
 
    // for negative the other map.
