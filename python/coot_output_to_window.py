@@ -97,10 +97,10 @@ class Application():
 
         self.add_timeout_check_for_new_text()
 
-        proc_list = ['./coot-bin', '--no-state-script']
+        # proc_list = ['./coot-bin', '--no-state-script'] # testing.
         proc_list = ['coot']
         proc_list += coot_arg_list
-        
+
         self.process = subprocess.Popen(proc_list, stdout=subprocess.PIPE)
 
         self.window.show_all()
