@@ -53,7 +53,11 @@ coot::restraints_container_t::make_df_restraints_indices() {
    // std::vector<std::vector<double> > df_by_thread_results(n_t);
    restraints_indices.clear();
    restraints_indices.resize(n_r_s);
-   df_by_thread_results.clear();
+   if (df_by_thread_results.size() > 0) {
+      std::cout << "currently df_by_thread_results has size " << df_by_thread_results.size() << " - so clearing" << std::endl;
+      df_by_thread_results.clear();
+   }
+   std::vector<mmdb::Link> links;
    df_by_thread_results.resize(n_r_s); // this may not be a good idea, needs optimization.
 
    // each restraint_index vector will contain about
@@ -63,8 +67,11 @@ coot::restraints_container_t::make_df_restraints_indices() {
 
    // First fill the restraints indices vectors
    //
-   for (std::size_t n=0; n<restraints_indices.size(); n++)
+   for (std::size_t n=0; n<restraints_indices.size(); n++) {
+      // std::cout << "DEBUG:: reserve size " << r_reserve_size << " for restraints_index set "
+      //           << n << std::endl;
       restraints_indices[n].reserve(r_reserve_size);
+   }
 
    unsigned int i_thread = 0; // insert to vector for this thread
    for (unsigned int ir=0; ir<restraints_size; ir++) {
@@ -452,6 +459,7 @@ coot::process_dfs_angle(const coot::simple_restraint &restraint,
 
    clipper::Coord_orth a_vec = (k - l); 
    clipper::Coord_orth b_vec = (m - l);  
+
    double a = sqrt(a_vec.lengthsq());
    double b = sqrt(b_vec.lengthsq());
 
@@ -467,7 +475,7 @@ coot::process_dfs_angle(const coot::simple_restraint &restraint,
 	    
    double l_over_a_sqd = 1.0/(a*a);
    double l_over_b_sqd = 1.0/(b*b);
-   double l_ab = 1.0/(a*b);
+   double l_ab         = 1.0/(a*b);
 
    // for the end atoms: 
    // \frac{\partial \theta}{\partial x_k} =

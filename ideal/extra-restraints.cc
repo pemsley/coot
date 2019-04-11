@@ -400,26 +400,37 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
 
    int n_extra_bond_restraints = 0;
    // don't add the restraint if both the residues are fixed.
-   // 
+   //
+
+   // pre-calculate the residue specs for speed
+   std::vector<residue_spec_t> residues_vec_residue_specs(residues_vec.size());
+   for (unsigned int ir=0; ir<residues_vec.size(); ir++)
+      residues_vec_residue_specs[ir] = residue_spec_t(residues_vec[ir].second);
+
    for (unsigned int i=0; i<extra_restraints.bond_restraints.size(); i++) {
       mmdb::Residue *r_1 = NULL;
       mmdb::Residue *r_2 = NULL;
       mmdb::Atom *at_1 = 0;
       mmdb::Atom *at_2 = 0;
-      bool fixed_1 = 0;
-      bool fixed_2 = 0;
+      bool fixed_1 = false;
+      bool fixed_2 = false;
       if (from_residue_vector) {
+	 residue_spec_t br_res_atom_1(extra_restraints.bond_restraints[i].atom_1);
+	 residue_spec_t br_res_atom_2(extra_restraints.bond_restraints[i].atom_2);
 	 for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
-	    if (coot::residue_spec_t(extra_restraints.bond_restraints[i].atom_1) ==
-		coot::residue_spec_t(residues_vec[ir].second)) {
-	       r_1 = residues_vec[ir].second;
-	       fixed_1 = residues_vec[ir].first;
+	    if (!r_1) {
+	       if (br_res_atom_1 == residues_vec_residue_specs[ir]) {
+		  r_1 = residues_vec[ir].second;
+		  fixed_1 = residues_vec[ir].first;
+	       }
 	    }
-	    if (coot::residue_spec_t(extra_restraints.bond_restraints[i].atom_2) ==
-		coot::residue_spec_t(residues_vec[ir].second)) {
-	       r_2 = residues_vec[ir].second;
-	       fixed_2 = residues_vec[ir].first;
+	    if (! r_2) {
+	       if (br_res_atom_2 == residues_vec_residue_specs[ir]) {
+		  r_2 = residues_vec[ir].second;
+		  fixed_2 = residues_vec[ir].first;
+	       }
 	    }
+	    if (r_1 && r_2) break;
 	 }
       } else {
 

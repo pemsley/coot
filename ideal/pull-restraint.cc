@@ -154,7 +154,7 @@ coot::distortion_score_target_pos(const coot::simple_restraint &rest,
 
    // we don't need to calculate dist
    //double dist = clipper::Coord_orth::length(current_pos, rest.atom_pull_target_pos);
-   double dist_sq = clipper::Coord_orth::lengthsq(current_pos-rest.atom_pull_target_pos);
+   double dist_sq = (current_pos-rest.atom_pull_target_pos).lengthsq();
 
    if (harmonic_restraint) {
       double sigma = 0.03; // (slightly refined) guess, copy below
@@ -173,6 +173,7 @@ coot::distortion_score_target_pos(const coot::simple_restraint &rest,
       // double scale = log_cosh_target_distance_scale_factor;       // needs tweaking
       double scale = scale_factor;
 
+      double dist = sqrt(dist_sq);
       double z = dist/top_out_dist;
       double e_z = exp(z);
       double cosh_z = 0.5 * (e_z + 1.0/e_z);

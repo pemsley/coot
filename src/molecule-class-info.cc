@@ -1651,13 +1651,14 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
                       // set this to NULL.
 
    // Map initialization:
-   n_draw_vectors = 0;
+   // n_draw_vectors = 0;
+   // draw_vectors = NULL;
+
    n_diff_map_draw_vectors = 0;
+   diff_map_draw_vectors = NULL;
 
    xmap_is_diff_map = is_diff_map;
 
-   draw_vectors = NULL;
-   diff_map_draw_vectors = NULL;
 
    show_unit_cell_flag = 0;
    have_unit_cell      = 0; // hmmm - CHECKME.
@@ -5557,19 +5558,26 @@ molecule_class_info_t::close_yourself() {
 
    if (was_xmap) {
       fc_skeleton_draw_on = 0; // turn off the skeleton
-      delete [] draw_vectors;
+
+      // delete [] draw_vectors;
+      // draw_vectors = NULL;
+      clear_draw_vecs(); // not difference map
+
       delete [] diff_map_draw_vectors;
-      draw_vectors = NULL;
       diff_map_draw_vectors = NULL;
+
       clipper::Xmap<float> empty;
       xmap = empty; // clear xmap
    }
 
    if (was_nxmap) {
       fc_skeleton_draw_on = 0; // turn off the skeleton
-      delete [] draw_vectors;
+
+      // delete [] draw_vectors;
+      // draw_vectors = NULL;
+      clear_draw_vecs();
+
       delete [] diff_map_draw_vectors;
-      draw_vectors = NULL;
       diff_map_draw_vectors = NULL;
       clipper::NXmap<float> empty;
       nxmap = empty; // clear nxmap

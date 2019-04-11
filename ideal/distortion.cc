@@ -1296,7 +1296,7 @@ coot::distortion_score_angle(const coot::simple_restraint &angle_restraint,
    if (cos_theta >  1) cos_theta =  1.0;
    double theta = acos(cos_theta);
    double bit = clipper::Util::rad2d(theta) - angle_restraint.target_value;
-   double weight = 1/(angle_restraint.sigma * angle_restraint.sigma);
+   double weight = 1.0/(angle_restraint.sigma * angle_restraint.sigma);
    if (0)
       std::cout << "actual: " << clipper::Util::rad2d(theta)
 		<< " cos_theta " << cos_theta

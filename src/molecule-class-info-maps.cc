@@ -414,7 +414,8 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 // 	     << std::endl;
 
 
-   int nvecs = n_draw_vectors; // cartesianpair pointer counter (old code)
+   // int nvecs = n_draw_vectors; // cartesianpair pointer counter (old code)
+
    if (draw_map_local_flag) {  // i.e. drawit_for_map (except when compiling a new map display list)
 
       if (!xmap.is_null()) { // NXMAP-FIXME
@@ -448,19 +449,22 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 
 	    // std::cout << "DEBUG:: some vectors " << nvecs << std::endl;
 	    // std::cout << "   debug draw immediate mode " << std::endl;
-	    if ( nvecs > 0 ) {
+	    if ( draw_vector_sets.size() > 0 ) {
 
 	       glColor3dv (map_colour[0]);
 	       glLineWidth(graphics_info_t::map_line_width);
       
 	       glBegin(GL_LINES);
-	       for (int i=0; i< nvecs; i++) { 
-		  glVertex3f(draw_vectors[i].getStart().x(),
-			     draw_vectors[i].getStart().y(),
-			     draw_vectors[i].getStart().z());
-		  glVertex3f(draw_vectors[i].getFinish().x(),
-			     draw_vectors[i].getFinish().y(),
-			     draw_vectors[i].getFinish().z());
+	       for (unsigned int iset=0; iset<draw_vector_sets.size(); iset++) {
+		  for (int i=0; i<draw_vector_sets[iset].second; i++) {
+		     const coot::CartesianPair &cp = draw_vector_sets[iset].first[i];
+		     glVertex3f(cp.getStart().x(),
+				cp.getStart().y(),
+				cp.getStart().z());
+		     glVertex3f(cp.getFinish().x(),
+				cp.getFinish().y(),
+				cp.getFinish().z());
+		  }
 	       }
 	       glEnd();
 	    }
@@ -471,7 +475,9 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 
 		  glColor3dv (map_colour[1]);
 		  // we only need to do this if it wasn't done above.
-		  if (n_draw_vectors == 0)
+		  // if (n_draw_vectors == 0)
+
+		  if (true)
 		     glLineWidth(graphics_info_t::map_line_width);
 	       
 		  glBegin(GL_LINES);
@@ -556,6 +562,9 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 #ifdef ANALYSE_CONTOURING_TIMING
       auto tp_0 = std::chrono::high_resolution_clock::now();
 #endif
+      clear_draw_vecs();
+
+      // parallel this bit
       v = my_isosurface.GenerateSurface_from_Xmap(xmap,
 						  contour_level,
 						  dy_radius, centre,
@@ -565,7 +574,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 #endif
       if (is_dynamically_transformed_map_flag)
 	 dynamically_transform(v);
-      set_draw_vecs(v.data, v.size);
+      add_draw_vecs_to_set(v.data, v.size);
 
 #ifdef ANALYSE_CONTOURING_TIMING
       auto tp_2 = std::chrono::high_resolution_clock::now();

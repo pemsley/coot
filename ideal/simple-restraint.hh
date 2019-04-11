@@ -31,17 +31,21 @@
 #include <stdexcept>
 #include <memory>
 
+#ifndef __NVCC__
 #ifdef HAVE_CXX_THREAD
 #include <thread>
 #include <atomic>
 #endif // HAVE_CXX_THREAD
+#endif // __NVCC__
 
+#ifndef __NVCC__
 #ifdef HAVE_BOOST
 #ifdef HAVE_CXX_THREAD
 #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #include "utils/ctpl.h"
 #endif // HAVE_CXX_THREAD
 #endif // HAVE_BOOST
+#endif // __NVCC__
 
 #include "refinement-results-t.hh"
 
@@ -812,11 +816,13 @@ namespace coot {
    // GSL multimin and that takes a function that doesn't have const void *params.
    double distortion_score(const gsl_vector *v, void *params);
 #ifdef HAVE_CXX_THREAD
+#ifndef __NVCC__
    // return value in distortion
    void distortion_score_multithread(int thread_id,
 				     const gsl_vector *v, void *params,
 				     int idx_start, int idx_end, double *distortion,
 				     std::atomic<unsigned int> &done_count);
+#endif // __NVCC__
 #endif // HAVE_CXX_THREAD
    void distortion_score_single_thread(const gsl_vector *v, void *params,
 				       int idx_start, int idx_end, double *distortion);
@@ -1054,10 +1060,12 @@ namespace coot {
 	 rama_plot_weight = 40.0;
 
 #ifdef HAVE_CXX_THREAD
+#ifndef __NVCC__
 	 restraints_lock = false; // not locked
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 	 thread_pool_p = 0; // null pointer
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+#endif // __NVCC__
 #endif // HAVE_CXX_THREAD
       }
 
@@ -1918,6 +1926,13 @@ namespace coot {
 			     const std::vector<atom_spec_t> &fixed_atom_specs,
 			     const clipper::Xmap<float> *xmap_p_in);
 
+      restraints_container_t(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
+			     const protein_geometry &geom,			     
+			     mmdb::Manager *mol,
+			     const clipper::Xmap<float> *xmap_p_in);
+
+      unsigned int df_by_thread_results_size() const;
+
       // 
       // geometric_distortions not const because we set restraints_usage_flag:
       //
@@ -1957,37 +1972,7 @@ namespace coot {
 	 
       };
 
-      ~restraints_container_t() {
-	 if (from_residue_vector) {
-	    if (atom) { 
-	       // this is constructed manually.
-
-	       // Oh we can't do this here because we copy the
-	       // restraints in simple_refine_residues() and that
-	       // shallow copies the atom pointer - the original
-	       // restriants go out of scope and call this destructor.
-	       //
-	       // We need a new way to get rid of atom - c.f. the
-	       // linear/conventional way?
-	       
-	       // delete [] atom;
-	       // atom = NULL;
-	    } 
-	 } else {
-	       // member data item mmdb::PPAtom atom is constructed by an
-	       // mmdb SelectAtoms()/GetSelIndex() (which includes
-	       // flanking atoms).
-	    // 20081207: don't do this here now - because the
-	    // memory/selection is deleted again in
-	    // clear_up_moving_atoms(). It *should* be done here of
-	    // course, but we'll save that for the future.
-	    // 
-	    //if (atom) { 
-	    // mol->DeleteSelection(SelHnd_atom);
-	    // atom = NULL;
-	    // } 
-	 } 
-      }
+      ~restraints_container_t();
 
       mmdb::Atom *get_atom(int i) const {
 	 if (atom) 
@@ -2059,10 +2044,12 @@ namespace coot {
       }
 
 #ifdef HAVE_CXX_THREAD
+#ifndef __NVCC__
       // we should not update the atom pull restraints while the refinement is running.
       // we shouldn't refine when the atom pull restraints are being updated.
       // we shouldn't clear the gsl_vector x when o
       std::atomic<bool> restraints_lock;
+#endif
 #endif
 
       unsigned int get_n_atoms() const { return n_atoms; } // access from split_the_gradients_with_threads()
@@ -2129,6 +2116,18 @@ namespace coot {
 			  pseudo_restraint_bond_type sec_struct_pseudo_bonds,
 			  bool do_link_restraints=true,
 			  bool do_flank_restraints=true);
+
+      int something_like_make_restraints( // int imol
+			  // bool do_residue_internal_torsions,
+			  // bool do_trans_peptide_restraints,
+			  // float rama_plot_target_weight,
+			  // bool do_rama_plot_retraints,
+			  // bool do_auto_helix_restraints,
+			  // bool do_auto_strand_restraints,
+			  // pseudo_restraint_bond_type sec_struct_pseudo_bonds,
+			  // bool do_link_restraints=true,
+			  // bool do_flank_restraints=true
+			  );
 
       unsigned int test_function(const protein_geometry &geom);
       unsigned int inline_const_test_function(const protein_geometry &geom) const {
@@ -2349,6 +2348,7 @@ namespace coot {
    }; 
 
 #ifdef HAVE_CXX_THREAD
+#ifndef __NVCC__
    void my_df_non_bonded_thread_dispatcher(int thread_idx,
 					   const gsl_vector *v,
 					   gsl_vector *df,
@@ -2378,6 +2378,7 @@ namespace coot {
                                 gsl_vector *df,
                                 std::atomic<unsigned int> &done_count_for_threads);
 
+#endif
 #endif // HAVE_CXX_THREAD
 
    double electron_density_score(const gsl_vector *v, void *params);
@@ -2387,6 +2388,7 @@ namespace coot {
    double electron_density_score_from_restraints_simple(const gsl_vector *v, coot::restraints_container_t *restraints_p);
 
 #ifdef HAVE_CXX_THREAD
+#ifndef __NVCC__
    // The version of electron_density_score_from_restraints that can be used with a thread pool.
    // The calling function needs to push this onto the queue, one for each thread,
    // where the atom_index_range splits up the atom indices
@@ -2404,6 +2406,7 @@ namespace coot {
 						 restraints_container_t *restraints_p,
                                                  double *result,
                                                  std::atomic<unsigned int> &done_count);
+#endif // __NVCC__
 #endif // HAVE_CXX_THREAD
 
    // new style Grad_map/Grad_orth method
@@ -2440,6 +2443,7 @@ namespace coot {
 				      gsl_vector *df, int idx_start, int idx_end);
 
 #ifdef HAVE_CXX_THREAD
+#ifndef __NVCC__
    // done_count_for_threads is modified
    //
    void my_df_electron_density_threaded_single(int thread_idx, const gsl_vector *v,
@@ -2447,6 +2451,7 @@ namespace coot {
 					       gsl_vector *df,
 					       int atom_idx_start, int atom_idx_end,
 					       std::atomic<unsigned int> &done_count_for_threads);
+#endif // __NVCC__
 #endif // HAVE_CXX_THREAD
 
    void simple_refine(mmdb::Residue *residue_p,

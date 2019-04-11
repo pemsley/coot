@@ -8182,8 +8182,9 @@ int go_to_view_number(int view_number, int snap_to_view_flag) {
       coot::view_info_t view = (*graphics_info_t::views)[view_number];
       if (view.is_simple_spin_view_flag) {
 	 int nsteps = 2000;
+         nsteps = 500;
 	 if (graphics_info_t::views_play_speed > 0.000000001)
-	    nsteps = int(2000.0/graphics_info_t::views_play_speed);
+	    nsteps = int(static_cast<float>(nsteps)/graphics_info_t::views_play_speed);
 	 float play_speed = 1.0; 
 	 if (graphics_info_t::views_play_speed > 0.0)
 	    play_speed = graphics_info_t::views_play_speed;
