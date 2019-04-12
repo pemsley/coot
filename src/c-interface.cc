@@ -1110,7 +1110,7 @@ void set_unit_cell_colour(float red, float green, float blue) {
 
 /*! \brief return the new molecule number */
 
-void get_coords_for_accession_code(const char *text) {
+void get_coords_for_accession_code(const std::string &text) {
 
    std::vector<coot::command_arg_t> args;
    args.push_back(single_quote(text));

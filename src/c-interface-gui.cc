@@ -2167,13 +2167,7 @@ GtkWidget *coot_save_state_chooser() {
       w = create_save_state_fileselection();
    } else {
       w = create_save_state_filechooserdialog1(); 
-
-#if (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION < 10)
-      // we don't have confirmation overwrite
-#else      
       gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
-#endif      
-      
    }
    return w;
 }
@@ -2186,12 +2180,7 @@ GtkWidget *coot_save_symmetry_chooser() {
       w = create_save_symmetry_coords_fileselection();
    } else {
       w = create_save_symmetry_coords_filechooserdialog1();
-
-#if (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION < 10)
-      // we don't have confirmation overwrite
-#else      
       gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
-#endif      
    }
    return w;
 }
@@ -2204,27 +2193,19 @@ GtkWidget *coot_screendump_chooser() {
       w = create_screendump_fileselection();
    } else {
       w = create_screendump_filechooserdialog1(); 
-
-#if (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION < 10)
-      // we don't have confirmation overwrite
-#else      
       gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
-#endif      
-
    }
    return w;
-
 }
 
 
 void set_directory_for_coot_file_chooser(GtkWidget *coords_fileselection1) {
 
-      if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
-	set_directory_for_filechooser(coords_fileselection1);
-      } else {
-        set_directory_for_fileselection(coords_fileselection1);
-      }
-
+   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
+      set_directory_for_filechooser(coords_fileselection1);
+   } else {
+      set_directory_for_fileselection(coords_fileselection1);
+   }
 }
 
 const char *coot_file_chooser_file_name(GtkWidget *widget) {
@@ -2244,84 +2225,90 @@ const char *coot_file_chooser_file_name(GtkWidget *widget) {
    the model.  Hmmm.  */
 void handle_get_accession_code(GtkWidget *widget) {
 
-   const gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
-   text = coot::util::remove_trailing_whitespace(text).c_str();
-   cout << "PDB Accession Code: " << text << endl;
-   int *n_p = (int *) gtk_object_get_user_data(GTK_OBJECT(lookup_widget(GTK_WIDGET(widget),
+   const gchar *text_c = gtk_entry_get_text(GTK_ENTRY(widget));
+   std::string text;
+
+   if (! text_c) {
+      std::cout << "WARNING:: handle_get_accession_code no text " << std::endl;
+   } else {
+      std::string text_s = std::string(text_c);
+      text = coot::util::remove_trailing_whitespace(text_s);
+      std::cout << "PDB Accession Code: " << text << std::endl;
+      int *n_p = (int *) gtk_object_get_user_data(GTK_OBJECT(lookup_widget(GTK_WIDGET(widget),
 									"accession_code_window")));
-   int n = *n_p;
-   
+      int n = *n_p;
+      std::cout << "DEBUG:: extracted accession code handle mode n " << n << std::endl;
+
 #ifdef USE_GUILE
-   string scheme_command;
+      string scheme_command;
 
-   if (n == 1) {
-      get_coords_for_accession_code(text);
-   } else { 
-      if (n == COOT_ACCESSION_CODE_WINDOW_EDS) {
-	 // 20050725 EDS code:
-	 scheme_command = "(get-eds-pdb-and-mtz ";
-	 scheme_command += single_quote(text);
-	 scheme_command += ")";
+      if (n == 1) {
+         get_coords_for_accession_code(text);
       } else {
-
-	 if (n == 2) { 
-	    // *n == 2 see callbacks.c on_get_pdb_and_sf_using_code1_activate
-	    scheme_command = "(get-ebi-pdb-and-sfs ";
+         if (n == COOT_ACCESSION_CODE_WINDOW_EDS) {
+	    // 20050725 EDS code:
+	    scheme_command = "(get-eds-pdb-and-mtz ";
 	    scheme_command += single_quote(text);
 	    scheme_command += ")";
-	 } else {
-	    if (n == 3) {
-	       scheme_command = "(get-pdb-redo ";
+         } else {
+
+	    if (n == 2) {
+	       // *n == 2 see callbacks.c on_get_pdb_and_sf_using_code1_activate
+	       scheme_command = "(get-ebi-pdb-and-sfs ";
 	       scheme_command += single_quote(text);
 	       scheme_command += ")";
+	    } else {
+	       if (n == 3) {
+		  scheme_command = "(get-pdb-redo ";
+		  scheme_command += single_quote(text);
+		  scheme_command += ")";
+	       }
 	    }
 	 }
+	 safe_scheme_command(scheme_command);
       }
-      safe_scheme_command(scheme_command);
-   }
 
 #else 
    
 #ifdef USE_PYTHON
-   string python_command;
-   if (n == 1) {
-      get_coords_for_accession_code(text);
-   } else {
-
-      if (n == COOT_ACCESSION_CODE_WINDOW_EDS) {
-	 // 20050725 EDS code:
-	 python_command = "get_eds_pdb_and_mtz(";
-	 python_command += single_quote(text);
-	 python_command += ")";
+      string python_command;
+      if (n == 1) {
+	 get_coords_for_accession_code(text);
       } else {
-	 if (n == 2) { 
-	    // *n == 2 see callbacks.c on_get_pdb_and_sf_using_code1_activate
-	    python_command = "get_ebi_pdb_and_sfs(";
+
+	 if (n == COOT_ACCESSION_CODE_WINDOW_EDS) {
+	    // 20050725 EDS code:
+	    python_command = "get_eds_pdb_and_mtz(";
 	    python_command += single_quote(text);
 	    python_command += ")";
 	 } else {
-	    if (n == 3) { 
-	       python_command = "get_pdb_redo(";
+	    if (n == 2) {
+	       // *n == 2 see callbacks.c on_get_pdb_and_sf_using_code1_activate
+	       python_command = "get_ebi_pdb_and_sfs(";
 	       python_command += single_quote(text);
 	       python_command += ")";
+	    } else {
+	       if (n == 3) {
+		  python_command = "get_pdb_redo(";
+		  python_command += single_quote(text);
+		  python_command += ")";
+	       }
 	    }
-	 } 
+	 }
+	 safe_python_command(python_command);
       }
-      safe_python_command(python_command);
-   }
-#else 
-   std::cout << "WARING:: Executable not compiled with guile or python." << std::endl;
-   std::cout << "         This won't work." << std::endl; 
 
 #endif // USE_PYTHON
 
 #endif // USE_GUILE
 
-   // and kill the accession code window
-   gtk_widget_destroy(lookup_widget(GTK_WIDGET(widget),
-				    "accession_code_window")); 
-} 
+   }
+   std::cout << "WARING:: Executable not compiled with guile or python." << std::endl;
+   std::cout << "         This won't work." << std::endl; 
 
+   // and kill the accession code window
+   gtk_widget_destroy(lookup_widget(GTK_WIDGET(widget), "accession_code_window")); 
+}
 
 
 
