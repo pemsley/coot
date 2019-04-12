@@ -541,6 +541,38 @@ template <class T> void CIsoSurface<T>::GenerateSurface(const T* ptScalarField, 
 //
 //
 
+template <class T> // vector<CartesianPair>
+std::pair<int, int>
+CIsoSurface<T>::rangeify(const clipper::Grid_map &grid, int isample_step,
+			 int isection_start,
+			 int isection_end, int n_sections) const {
+
+   // we need to include the last section
+
+   int gmin = grid.min().w();
+   int gmax = grid.max().w();
+
+   if (isample_step != 1) {
+
+      // haven't worked this out yet
+      return std::pair<int,int>(gmin, gmax);
+
+   } else {
+
+      int grange = gmax - gmin;
+
+      float f1 = static_cast<float>(isection_start)/static_cast<float>(n_sections);
+      float f2 = static_cast<float>(isection_end)/static_cast<float>(n_sections);
+
+      int fg1 = grange * f1 + gmin;
+      int fg2 = grange * f2 + gmin;
+
+      // std::cout << ".....rangeify input: " << isection_start << " " << isection_end
+      // << " output " << fg1 << " " << fg2 << std::endl;
+
+      return std::pair<int, int> (fg1, fg2);
+   }
+}
 
 
 // The stardard usage of GenerateSurface_from_Xmap, generated usually from re-centring
@@ -553,10 +585,11 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
 					  float box_radius, // half length
 					  coot::Cartesian centre_point,
 					  int isample_step,
+					  int iream_start, int iream_end, int n_reams,
 					  bool is_em_map) {
 
 #ifdef ANALYSE_CONTOURING_TIMING
-   std::cout << "------ start GenerateSurface_from_Xmap() " << std::endl;
+   // std::cout << "------ start GenerateSurface_from_Xmap() " << std::endl;
    auto tp_0 = std::chrono::high_resolution_clock::now();
 #endif
 
@@ -592,6 +625,7 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
    clipper::Grid_map grid(box0.coord_grid(crystal_map.grid_sampling()),
 			  box1.coord_grid(crystal_map.grid_sampling()));
 
+
 #ifdef ANALYSE_CONTOURING_TIMING
    auto tp_1 = std::chrono::high_resolution_clock::now();
 #endif
@@ -601,7 +635,7 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
    auto tp_2 = std::chrono::high_resolution_clock::now();
 #endif
 
-   if (0) { // debug
+   if (false) { // debug
      std::cout << "    tIsoLevel: " << tIsoLevel << std::endl;
      std::cout << "    box_radius " << box_radius << std::endl;
      std::cout << "    centre_point: " << centre_point << std::endl;
@@ -614,10 +648,12 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
   clipper::Xmap_base::Map_reference_coord ix( crystal_map ); 
   int icount = 0;
   int w, v, u, ii;
+
   for (w = grid.min().w(); w <= grid.max().w(); w+=isample_step ) { 
      for (v = grid.min().v(); v <= grid.max().v(); v+=isample_step ) {
         ix.set_coord(clipper::Coord_grid( grid.min().u(), v, w )); 
-        for (u = grid.min().u(); u <= grid.max().u(); u+= isample_step ) { 
+        for (u = grid.min().u(); u <= grid.max().u(); u+= isample_step ) {
+	   // std::cout << "ix " << ix.coord().format() << " icount " << icount << std::endl;
            ptScalarField[icount] = crystal_map[ ix ]; 
            icount++;
 	   for(ii=0; ii<isample_step; ii++) 

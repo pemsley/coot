@@ -1188,7 +1188,11 @@ public:        //                      public
 
    // const coot::CartesianPair* draw_vectors;
    // int n_draw_vectors;
-   std::vector<std::pair<const coot::CartesianPair *,int> > draw_vector_sets;
+   //
+   // now coot makes many draw_vectors by sending off a "set" - sets of planes - calculated in threads.
+   // no need for consolidation before draw time.
+   std::vector<coot::CartesianPairInfo> draw_vector_sets;
+   static std::atomic<bool> draw_vector_sets_lock; // not here because implicitly deleted copy constructor(?)
    const coot::CartesianPair* diff_map_draw_vectors;
    int n_diff_map_draw_vectors;
 
@@ -1371,16 +1375,15 @@ public:        //                      public
    void dynamically_transform(coot::CartesianPairInfo v);
 
    void clear_draw_vecs() {
-      for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
-	 delete draw_vector_sets[i].first;
-      }
+      for (std::size_t i=0; i<draw_vector_sets.size(); i++)
+	 delete draw_vector_sets[i].data;
       draw_vector_sets.clear();
+      draw_vector_sets.reserve(12);
    }
-   void add_draw_vecs_to_set(const coot::CartesianPair* c, int n) {
-      std::pair<const coot::CartesianPair *, int> p(c,n);
-      draw_vector_sets.push_back(p);
+   void add_draw_vecs_to_set(const coot::CartesianPairInfo &cpi) {
+      draw_vector_sets.push_back(cpi);
    }
-
+   
    // for negative the other map.
    // 
    void set_diff_map_draw_vecs(const coot::CartesianPair* c, int n) { 

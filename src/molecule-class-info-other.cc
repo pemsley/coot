@@ -4337,9 +4337,9 @@ molecule_class_info_t::fill_raster_map_info(short int lev) const {
 		  rtmi.density_colour.col[2] = map_colour[0][2];
 
 		  for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
-		     for (int j=0; j<draw_vector_sets[i].second; j++) {
-			std::pair<coot::Cartesian, coot::Cartesian> p(draw_vector_sets[i].first[j].getStart(),
-								      draw_vector_sets[i].first[j].getFinish());
+		     for (int j=0; j<draw_vector_sets[i].size; j++) {
+			std::pair<coot::Cartesian, coot::Cartesian> p(draw_vector_sets[i].data[j].getStart(),
+								      draw_vector_sets[i].data[j].getFinish());
 			rtmi.density_lines.push_back(p);
 		     }
 		  }
