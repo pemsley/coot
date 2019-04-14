@@ -598,7 +598,7 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
 					  int iream_start, int iream_end, int n_reams,
 					  bool is_em_map) {
 
-   // std::cout << "------ start GenerateSurface_from_Xmap() " << std::endl;
+   // std::cout << "------ start GenerateSurface_from_Xmap() " << n_reams << std::endl;
 
 #ifdef ANALYSE_CONTOURING_TIMING
    auto tp_0 = std::chrono::high_resolution_clock::now();
@@ -636,16 +636,6 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
    clipper::Grid_map grid(box0.coord_grid(crystal_map.grid_sampling()),
 			  box1.coord_grid(crystal_map.grid_sampling()));
 
-
-#ifdef ANALYSE_CONTOURING_TIMING
-   auto tp_1 = std::chrono::high_resolution_clock::now();
-#endif
-   T* ptScalarField = new T[grid.size()];
-
-#ifdef ANALYSE_CONTOURING_TIMING
-   auto tp_2 = std::chrono::high_resolution_clock::now();
-#endif
-
    if (false) { // debug
       std::cout << "    tIsoLevel: " << tIsoLevel << std::endl;
       std::cout << "    box_radius " << box_radius << std::endl;
@@ -663,11 +653,15 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
    clipper::Coord_grid base_grid = grid.min();
    base_grid.w() = rt.first;
 
+   // std::cout << "debug:: allocating ptScalarField grid.size() " << grid.size() << std::endl;
+   int grid_size = (rt.second-rt.first+1) * (grid.max().u() - grid.min().u() + 1) * (grid.max().v() - grid.min().v() + 1);
+   T* ptScalarField = new T[grid_size];
+
    clipper::Xmap_base::Map_reference_coord ix(crystal_map);
 
    int nu = grid.max().u() - grid.min().u() + 1;
    int nv = grid.max().u() - grid.min().u() + 1;
-   int icount = 0; // needs offset rt.first * nu * nv;
+   int icount = 0; // needs offset rt.first * nu * nv (base_grid)
    int w, v, u, ii;
 
    // note: old test is <=
@@ -679,7 +673,13 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
 	 ix.set_coord(clipper::Coord_grid( grid.min().u(), v, w ));
 	 for (u = grid.min().u(); u <= grid.max().u(); u+= isample_step) {
 	    // std::cout << "ix " << ix.coord().format() << " icount " << icount << std::endl;
-	    ptScalarField[icount] = crystal_map[ ix ];
+	    if (icount < grid_size) {
+	       ptScalarField[icount] = crystal_map[ ix ];
+	    } else {
+	       std::cout << "ERROR:: out of grid " << icount << " " << grid_size << " "
+			 << ix.coord().format() << " min,max "
+			 << grid.min().format() << " " << grid.max().format() << std::endl;
+	    }
 	    icount++;
 	    for(ii=0; ii<isample_step; ii++)
 	       ix.next_u();
@@ -1197,71 +1197,15 @@ template <class T> void CIsoSurface<T>::RenameVerticesAndTriangles() {
    auto tp_1 = std::chrono::high_resolution_clock::now();
 #endif
 
-#ifdef HAVE_CXX_THREAD
-   std::size_t ss = m_trivecTriangles.size();
-   // std::cout << "   RenameVerticesAndTriangles() start try threaded  ss: " << ss << std::endl;
-
-   auto tp_1a = std::chrono::high_resolution_clock::now();
-   unsigned int n_threads = coot::get_max_number_of_threads();
-
-   if (n_threads > 0) {
-      // if there are 8888 items in m_trivecTriangles, then
-      // if we have 4 threads, then
-      // index_ranges will be:
-      // 0 [0,2222]
-      // 0 [2222,4444]
-      // 0 [4444,6666]
-      // 0 [6666,8888]
-      // note that the second value is used with a < test.
-      //
-      std::pair<unsigned int, unsigned int> blank(0,0);
-      std::vector<std::pair<unsigned int, unsigned int> > index_ranges(n_threads, blank);
-      unsigned int n_per_thread = ss/n_threads + 1;
-      for (std::size_t i=0; i<n_threads; i++) {
-	 unsigned int start = i*n_per_thread;
-	 unsigned int stop  = start + n_per_thread;
-	 if (stop > ss) stop = ss;
-	 if (start < ss)
-	    index_ranges[i] = std::pair<unsigned int, unsigned int>(start, stop);
-      }
-      auto tp_1b = std::chrono::high_resolution_clock::now();
-      std::vector<std::thread> threads;
-      for (std::size_t i=0; i<n_threads; i++) {
-	 threads.push_back(std::thread(rename_tris_in_thread, std::cref(index_ranges[i]),
-				       std::ref(m_trivecTriangles), std::ref(m_i2pt3idVertices)));
-      }
-      auto tp_1c = std::chrono::high_resolution_clock::now();
-      for (unsigned int i_thread=0; i_thread<threads.size(); i_thread++)
-	 threads.at(i_thread).join();
-      auto tp_1d = std::chrono::high_resolution_clock::now();
-   } else {
-
-      // Now rename triangles.
-      while (vecIterator != m_trivecTriangles.end()) {
-	 for (unsigned int i=0; i<3; i++) {
-	    unsigned int newID = m_i2pt3idVertices.at(vecIterator->pointID[i]).newID;
-	    vecIterator->pointID[i] = newID;
-	 }
-	 vecIterator++;
-      }
-   }
-
-#else
-   // Now rename triangles.
+   // Now rename triangles (don't do this with (now inner) threads)
    while (vecIterator != m_trivecTriangles.end()) {
       for (unsigned int i=0; i<3; i++) {
-	 // unsigned int newID = m_i2pt3idVertices[(*vecIterator).pointID[i]].newID;
-	 // (*vecIterator).pointID[i] = newID;
-	 // vecIterator->pointID[i] = m_i2pt3idVertices[vecIterator->pointID[i]].newID;
-
 	 unsigned int newID = m_i2pt3idVertices.at(vecIterator->pointID[i]).newID;
 	 vecIterator->pointID[i] = newID;
-
       }
       vecIterator++;
    }
-#endif // HAVE_CXX_THREAD
-
+   
 #ifdef ANALYSE_CONTOURING_TIMING
    auto tp_2 = std::chrono::high_resolution_clock::now();
 #endif
@@ -1331,8 +1275,8 @@ template <class T> void CIsoSurface<T>::rename_tris_in_thread(const std::pair<un
 	 tv[idx].pointID[i] = new_id;
       }
    }
-
 }
+
 
 // debugging function
 template <class T> void CIsoSurface<T>::check_max_min_vertex_index_from_triangles() {
