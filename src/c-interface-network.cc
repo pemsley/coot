@@ -61,6 +61,11 @@ int coot_get_url(const char *url, const char *file_name) {
 int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
 					short int activate_curl_hook_flag) {
 
+   std::cout << "DEBUG:: in coot_get_url_and_activate_curl_hook "
+	     << url << " " << file_name
+             << std::endl;
+
+
    // This can take a while to download files - i.e. can block.  If
    // this is called in a guile thread, then that is bad because it
    // stops the syncing of guile threads (1.8 behavour). See "Blocking
@@ -105,9 +110,9 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
 #endif 	 
 #else
 #ifdef USE_PYTHON
-     Py_BEGIN_ALLOW_THREADS;
+	 Py_BEGIN_ALLOW_THREADS;
 	 success = curl_easy_perform(c);
-     Py_END_ALLOW_THREADS;
+	 Py_END_ALLOW_THREADS;
 #else
 	 success = curl_easy_perform(c);
 #endif /* USE_PYTHON */

@@ -449,6 +449,9 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 
 	    // std::cout << "DEBUG:: some vectors " << nvecs << std::endl;
 	    // std::cout << "   debug draw immediate mode " << std::endl;
+
+	    // std::cout << ".... in draw draw_vector_sets size " << draw_vector_sets.size() << std::endl;
+
 	    if ( draw_vector_sets.size() > 0 ) {
 
 	       glColor3dv (map_colour[0]);
@@ -567,8 +570,9 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
       clear_draw_vecs();
 
       std::vector<std::thread> threads;
-      int n_threads = coot::get_max_number_of_threads();
-      for (int ii=0; ii<n_threads; ii++) {
+      int n_reams = coot::get_max_number_of_threads();
+
+      for (int ii=0; ii<n_reams; ii++) {
 	 int iream_start = ii;
 	 int iream_end   = ii+1;
 
@@ -576,23 +580,29 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 				       &xmap,
 				       contour_level, dy_radius, centre,
 				       isample_step,
-				       iream_start, iream_end, n_threads, is_em_map,
+				       iream_start, iream_end, n_reams, is_em_map,
 				       &draw_vector_sets));
       }
-      for (int ii=0; ii<n_threads; ii++)
+      for (int ii=0; ii<n_reams; ii++)
 	 threads[ii].join();
+
    }
 
+   /*
    if (is_dynamically_transformed_map_flag)
       for(unsigned int i=0; i<draw_vector_sets.size(); i++)
 	 dynamically_transform(draw_vector_sets[i]);
+   */
+
+   // --- Pre 2019 map contouring -----
 
    if (xmap_is_diff_map) {
       v = my_isosurface.GenerateSurface_from_Xmap(xmap,
 						  -contour_level,
 						  dy_radius, centre,
+						  isample_step,
 						  0,1,1,
-						  isample_step, is_em_map);
+						  is_em_map);
       if (is_dynamically_transformed_map_flag)
 	 dynamically_transform(v);
       set_diff_map_draw_vecs(v.data, v.size);
@@ -629,15 +639,23 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
 						  isample_step,
 						  iream_start, iream_end, n_reams,
 						  is_em_map);
-
+      /*
       bool unlocked = false;
-      while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+      while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true)) {
 	 std::this_thread::sleep_for(std::chrono::microseconds(400));
 	 unlocked = false;
       }
-      draw_vector_sets_p->push_back(v);
-      molecule_class_info_t::draw_vector_sets_lock = false; // unlock
+      // std::cout << "............. got the lock! old size " << draw_vector_sets_p->size() << std::endl;
 
+      draw_vector_sets_p->push_back(v);
+      // std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      // std::cout << "............. release the lock! new size() " << draw_vector_sets_p->size() << std::endl;
+      molecule_class_info_t::draw_vector_sets_lock = false; // unlock
+      */
+
+      // std::cout << "pushing back a vector set of size " << v.size << std::endl;
+      draw_vector_sets_p->push_back(v);
+   
    }
    catch (const std::out_of_range &oor) {
       std::cout << "ERROR:: contouring threaded workpackage " << oor.what() << std::endl;
