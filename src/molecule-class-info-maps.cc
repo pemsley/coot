@@ -640,13 +640,12 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
 						  iream_start, iream_end, n_reams,
 						  is_em_map);
       bool unlocked = false;
-      while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true)) {
+      while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
 	 std::this_thread::sleep_for(std::chrono::microseconds(10));
 	 unlocked = false;
       }
       draw_vector_sets_p->push_back(v);
       molecule_class_info_t::draw_vector_sets_lock = false; // unlock
-   
    }
    catch (const std::out_of_range &oor) {
       std::cout << "ERROR:: contouring threaded workpackage " << oor.what() << std::endl;
