@@ -639,22 +639,13 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
 						  isample_step,
 						  iream_start, iream_end, n_reams,
 						  is_em_map);
-      /*
       bool unlocked = false;
       while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true)) {
-	 std::this_thread::sleep_for(std::chrono::microseconds(400));
+	 std::this_thread::sleep_for(std::chrono::microseconds(10));
 	 unlocked = false;
       }
-      // std::cout << "............. got the lock! old size " << draw_vector_sets_p->size() << std::endl;
-
       draw_vector_sets_p->push_back(v);
-      // std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      // std::cout << "............. release the lock! new size() " << draw_vector_sets_p->size() << std::endl;
       molecule_class_info_t::draw_vector_sets_lock = false; // unlock
-      */
-
-      // std::cout << "pushing back a vector set of size " << v.size << std::endl;
-      draw_vector_sets_p->push_back(v);
    
    }
    catch (const std::out_of_range &oor) {
