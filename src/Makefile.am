@@ -406,6 +406,7 @@ coot_bin_SOURCES = \
 	generic-display-object.cc\
 	generic-objects.cc   	 \
         generic-display-objects-c.h \
+	gensurf.hh               \
 	geometry-graphs.cc	 \
 	geometry-graphs.hh	 \
 	get-residue.hh           \

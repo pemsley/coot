@@ -111,6 +111,7 @@
 #endif // WII_INTERFACE_WIIUSE
 
 std::vector<molecule_class_info_t> graphics_info_t::molecules;
+std::atomic<bool> molecule_class_info_t::draw_vector_sets_lock(false);
 
 
 // Initialize the graphics_info_t mouse positions

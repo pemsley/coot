@@ -449,6 +449,9 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 
 	    // std::cout << "DEBUG:: some vectors " << nvecs << std::endl;
 	    // std::cout << "   debug draw immediate mode " << std::endl;
+
+	    // std::cout << ".... in draw draw_vector_sets size " << draw_vector_sets.size() << std::endl;
+
 	    if ( draw_vector_sets.size() > 0 ) {
 
 	       glColor3dv (map_colour[0]);
@@ -456,8 +459,8 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
       
 	       glBegin(GL_LINES);
 	       for (unsigned int iset=0; iset<draw_vector_sets.size(); iset++) {
-		  for (int i=0; i<draw_vector_sets[iset].second; i++) {
-		     const coot::CartesianPair &cp = draw_vector_sets[iset].first[i];
+		  for (int i=0; i<draw_vector_sets[iset].size; i++) {
+		     const coot::CartesianPair &cp = draw_vector_sets[iset].data[i];
 		     glVertex3f(cp.getStart().x(),
 				cp.getStart().y(),
 				cp.getStart().z());
@@ -498,10 +501,15 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
    }
 }
 
+// not a member of the class because of the burden it puts on the header: CIsoSurface is not needed to compile
+// main.cc (or should not be)
+
+#include "gensurf.hh"
+
 // 
 void
 molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre) {
-   
+
    CIsoSurface<float> my_isosurface;
    coot::CartesianPairInfo v;
    int isample_step = 1;
@@ -559,36 +567,42 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 
    if (!xmap.is_null()) {
 
-#ifdef ANALYSE_CONTOURING_TIMING
-      auto tp_0 = std::chrono::high_resolution_clock::now();
-#endif
       clear_draw_vecs();
 
-      // parallel this bit
-      v = my_isosurface.GenerateSurface_from_Xmap(xmap,
-						  contour_level,
-						  dy_radius, centre,
-						  isample_step, is_em_map);
-#ifdef ANALYSE_CONTOURING_TIMING
-      auto tp_1 = std::chrono::high_resolution_clock::now();
-#endif
-      if (is_dynamically_transformed_map_flag)
-	 dynamically_transform(v);
-      add_draw_vecs_to_set(v.data, v.size);
+      std::vector<std::thread> threads;
+      int n_reams = coot::get_max_number_of_threads();
 
-#ifdef ANALYSE_CONTOURING_TIMING
-      auto tp_2 = std::chrono::high_resolution_clock::now();
-      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-      std::cout << "update_map_triangles() d10 " << d10 << "  d21 " << d21 << " microseconds\n";
-#endif      
+      for (int ii=0; ii<n_reams; ii++) {
+	 int iream_start = ii;
+	 int iream_end   = ii+1;
+
+	 threads.push_back(std::thread(gensurf_and_add_vecs_threaded_workpackage,
+				       &xmap,
+				       contour_level, dy_radius, centre,
+				       isample_step,
+				       iream_start, iream_end, n_reams, is_em_map,
+				       &draw_vector_sets));
+      }
+      for (int ii=0; ii<n_reams; ii++)
+	 threads[ii].join();
 
    }
+
+   /*
+   if (is_dynamically_transformed_map_flag)
+      for(unsigned int i=0; i<draw_vector_sets.size(); i++)
+	 dynamically_transform(draw_vector_sets[i]);
+   */
+
+   // --- Pre 2019 map contouring -----
+
    if (xmap_is_diff_map) {
       v = my_isosurface.GenerateSurface_from_Xmap(xmap,
 						  -contour_level,
 						  dy_radius, centre,
-						  isample_step, is_em_map);
+						  isample_step,
+						  0,1,1,
+						  is_em_map);
       if (is_dynamically_transformed_map_flag)
 	 dynamically_transform(v);
       set_diff_map_draw_vecs(v.data, v.size);
@@ -607,6 +621,47 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
       } 
    }
 }
+
+void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_p,
+					       float contour_level, float dy_radius,
+					       coot::Cartesian centre,
+					       int isample_step,
+					       int iream_start, int iream_end, int n_reams,
+					       bool is_em_map,
+					       std::vector<coot::CartesianPairInfo> *draw_vector_sets_p) {
+
+   try {
+      CIsoSurface<float> my_isosurface;
+      coot::CartesianPairInfo v;
+      v = my_isosurface.GenerateSurface_from_Xmap(*xmap_p,
+						  contour_level,
+						  dy_radius, centre,
+						  isample_step,
+						  iream_start, iream_end, n_reams,
+						  is_em_map);
+      /*
+      bool unlocked = false;
+      while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true)) {
+	 std::this_thread::sleep_for(std::chrono::microseconds(400));
+	 unlocked = false;
+      }
+      // std::cout << "............. got the lock! old size " << draw_vector_sets_p->size() << std::endl;
+
+      draw_vector_sets_p->push_back(v);
+      // std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      // std::cout << "............. release the lock! new size() " << draw_vector_sets_p->size() << std::endl;
+      molecule_class_info_t::draw_vector_sets_lock = false; // unlock
+      */
+
+      // std::cout << "pushing back a vector set of size " << v.size << std::endl;
+      draw_vector_sets_p->push_back(v);
+   
+   }
+   catch (const std::out_of_range &oor) {
+      std::cout << "ERROR:: contouring threaded workpackage " << oor.what() << std::endl;
+   }
+}
+
 
 // not const because we sort in place the triangles of tri_con
 void
@@ -3716,6 +3771,7 @@ molecule_class_info_t::get_contours(float contour_level,
    coot::CartesianPairInfo v = my_isosurface.GenerateSurface_from_Xmap(xmap,
 								       contour_level,
 								       radius, centre,
+								       0,1,1,
 								       isample_step, is_em_map_local);
    if (v.data) {
       if (v.size > 0) {

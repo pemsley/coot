@@ -541,6 +541,48 @@ template <class T> void CIsoSurface<T>::GenerateSurface(const T* ptScalarField, 
 //
 //
 
+template <class T> // vector<CartesianPair>
+std::pair<int, int>
+CIsoSurface<T>::rangeify(const clipper::Grid_map &grid, int isample_step,
+			 int isection_start,
+			 int isection_end, int n_sections) const {
+
+   // we need to include the last section
+
+   int gmin = grid.min().w();
+   int gmax = grid.max().w();
+
+   if (isample_step != 1) {
+
+      // haven't worked this out yet
+      return std::pair<int,int>(gmin, gmax);
+
+   } else {
+
+      int grange = gmax - gmin;
+
+      float f1 = static_cast<float>(isection_start)/static_cast<float>(n_sections);
+      float f2 = static_cast<float>(isection_end)/static_cast<float>(n_sections);
+
+      // fg2 uses an additional +1 because to get:
+
+      // rangeify input: 0 1 3 gmin 14 gmax 66   output 14 32
+      // rangeify input: 1 2 3 gmin 14 gmax 66   output 31 49
+      // rangeify input: 2 3 3 gmin 14 gmax 66   output 48 67
+
+      // This covers the gap between sections - we need both edges
+
+      int fg1 = grange * f1 + gmin;
+      int fg2 = grange * f2 + gmin + 1;
+
+      if (false)
+	 std::cout << ".....rangeify input: " << isection_start << " " << isection_end
+		   << " " << n_sections << " gmin " << gmin << " gmax " << gmax
+		   << "   output " << fg1 << " " << fg2 << std::endl;
+
+      return std::pair<int, int> (fg1, fg2);
+   }
+}
 
 
 // The stardard usage of GenerateSurface_from_Xmap, generated usually from re-centring
@@ -553,10 +595,12 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
 					  float box_radius, // half length
 					  coot::Cartesian centre_point,
 					  int isample_step,
+					  int iream_start, int iream_end, int n_reams,
 					  bool is_em_map) {
 
+   // std::cout << "------ start GenerateSurface_from_Xmap() " << std::endl;
+
 #ifdef ANALYSE_CONTOURING_TIMING
-   std::cout << "------ start GenerateSurface_from_Xmap() " << std::endl;
    auto tp_0 = std::chrono::high_resolution_clock::now();
 #endif
 
@@ -592,6 +636,7 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
    clipper::Grid_map grid(box0.coord_grid(crystal_map.grid_sampling()),
 			  box1.coord_grid(crystal_map.grid_sampling()));
 
+
 #ifdef ANALYSE_CONTOURING_TIMING
    auto tp_1 = std::chrono::high_resolution_clock::now();
 #endif
@@ -601,39 +646,62 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
    auto tp_2 = std::chrono::high_resolution_clock::now();
 #endif
 
-   if (0) { // debug
-     std::cout << "    tIsoLevel: " << tIsoLevel << std::endl;
-     std::cout << "    box_radius " << box_radius << std::endl;
-     std::cout << "    centre_point: " << centre_point << std::endl;
-     std::cout << "    isample_step " << isample_step << std::endl;
-     std::cout << "    box0: " << box0.format() << std::endl
-	       << "    box1: " << box1.format() << std::endl;
-     std::cout << "    grid: " << grid.format() << std::endl;
-  }
+   if (false) { // debug
+      std::cout << "    tIsoLevel: " << tIsoLevel << std::endl;
+      std::cout << "    box_radius " << box_radius << std::endl;
+      std::cout << "    centre_point: " << centre_point << std::endl;
+      std::cout << "    isample_step " << isample_step << std::endl;
+      std::cout << "    iream_start " << iream_start << std::endl;
+      std::cout << "    iream_end " << iream_end << std::endl;
+      std::cout << "    n_reams " << n_reams << std::endl;
+      std::cout << "    box0: " << box0.format() << std::endl;
+      std::cout << "    box1: " << box1.format() << std::endl;
+      std::cout << "    grid: " << grid.format() << std::endl;
+   }
 
-  clipper::Xmap_base::Map_reference_coord ix( crystal_map ); 
-  int icount = 0;
-  int w, v, u, ii;
-  for (w = grid.min().w(); w <= grid.max().w(); w+=isample_step ) { 
-     for (v = grid.min().v(); v <= grid.max().v(); v+=isample_step ) {
-        ix.set_coord(clipper::Coord_grid( grid.min().u(), v, w )); 
-        for (u = grid.min().u(); u <= grid.max().u(); u+= isample_step ) { 
-           ptScalarField[icount] = crystal_map[ ix ]; 
-           icount++;
-	   for(ii=0; ii<isample_step; ii++) 
-	      ix.next_u(); 
-        } 
-     }
-  }
+   std::pair<int, int> rt = rangeify(grid, isample_step, iream_start, iream_end, n_reams);
+   clipper::Coord_grid base_grid = grid.min();
+   base_grid.w() = rt.first;
+
+   clipper::Xmap_base::Map_reference_coord ix(crystal_map);
+
+   int nu = grid.max().u() - grid.min().u() + 1;
+   int nv = grid.max().u() - grid.min().u() + 1;
+   int icount = 0; // needs offset rt.first * nu * nv;
+   int w, v, u, ii;
+
+   // note: old test is <=
+   // for (w = grid.min().w(); w <= grid.max().w(); w+=isample_step ) {
+   // and so rangeify gives a +1 on the second element.
+
+   for (w = rt.first; w <= rt.second; w+=isample_step) {
+      for (v = grid.min().v(); v <= grid.max().v(); v+=isample_step) {
+	 ix.set_coord(clipper::Coord_grid( grid.min().u(), v, w ));
+	 for (u = grid.min().u(); u <= grid.max().u(); u+= isample_step) {
+	    // std::cout << "ix " << ix.coord().format() << " icount " << icount << std::endl;
+	    ptScalarField[icount] = crystal_map[ ix ];
+	    icount++;
+	    for(ii=0; ii<isample_step; ii++)
+	       ix.next_u();
+	 }
+      }
+   }
 
 #ifdef ANALYSE_CONTOURING_TIMING
   auto tp_3 = std::chrono::high_resolution_clock::now();
 #endif
 
+  /*
   GenerateSurface(ptScalarField, tIsoLevel,
 		  (grid.nu()-1)/isample_step,
 		  (grid.nv()-1)/isample_step,
 		  (grid.nw()-1)/isample_step,
+		  isample_step * 1.0, isample_step * 1.0, isample_step * 1.0);
+  */
+  GenerateSurface(ptScalarField, tIsoLevel,
+		  (grid.nu()-1)/isample_step,
+		  (grid.nv()-1)/isample_step,
+		  (rt.second-rt.first-1)/isample_step,
 		  isample_step * 1.0, isample_step * 1.0, isample_step * 1.0);
 
 #ifdef ANALYSE_CONTOURING_TIMING
@@ -645,9 +713,11 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
   auto tp_5 = std::chrono::high_resolution_clock::now();
 #endif
 
+
+  clipper::Coord_frac base_frc = base_grid.coord_frac(crystal_map.grid_sampling());
   coot::CartesianPairInfo cpi =
      returnTriangles(crystal_map,
-		     grid.min().coord_frac(crystal_map.grid_sampling()),
+		     base_frc,
 		     box_radius, centre_point, is_em_map);
 #ifdef ANALYSE_CONTOURING_TIMING
    auto tp_6 = std::chrono::high_resolution_clock::now();
@@ -1761,47 +1831,23 @@ CIsoSurface<T>::returnTriangles(const clipper::Xmap<T>& xmap,
       unsigned int jp  = m_piTriangleIndices[i+1]; 
       unsigned int jp2 = m_piTriangleIndices[i+2];
 
-      // d1_2 = do_line(done_line_list, j,  jp);
-      // d1_3 = do_line(done_line_list, j,  jp2);
-      // d2_3 = do_line(done_line_list, jp, jp2);
+      cf = clipper::Coord_frac(m_ppt3dVertices[j][0]/nu,
+			       m_ppt3dVertices[j][1]/nv,
+			       m_ppt3dVertices[j][2]/nw) + base;
+      co1 = cf.coord_orth(xmap.cell());
+      co1_c = coot::Cartesian(co1.x(), co1.y(), co1.z());
 
-      d1_2 = true;
-      d1_3 = true;
-      d2_3 = true;
+      cf = clipper::Coord_frac(m_ppt3dVertices[jp][0]/nu,
+			       m_ppt3dVertices[jp][1]/nv,
+			       m_ppt3dVertices[jp][2]/nw) + base;
+      co2 = cf.coord_orth(xmap.cell());
+      co2_c = coot::Cartesian(co2.x(), co2.y(), co2.z());
 
-      if (d1_2 || d1_3) {
-	 cf = clipper::Coord_frac(m_ppt3dVertices[j][0]/nu,
-				  m_ppt3dVertices[j][1]/nv,
-				  m_ppt3dVertices[j][2]/nw) + base;
-	 co1 = cf.coord_orth(xmap.cell()); 
-	 co1_c = coot::Cartesian(co1.x(), co1.y(), co1.z());
-      }
-
-      if (d1_2 || d2_3) { 
-	 cf = clipper::Coord_frac(m_ppt3dVertices[jp][0]/nu,
-				  m_ppt3dVertices[jp][1]/nv,
-				  m_ppt3dVertices[jp][2]/nw) + base;
-	 co2 = cf.coord_orth(xmap.cell()); 
-	 co2_c = coot::Cartesian(co2.x(), co2.y(), co2.z());
-      }
-
-      if (d1_3 || d2_3) { 
-	 cf = clipper::Coord_frac(m_ppt3dVertices[jp2][0]/nu,
-				  m_ppt3dVertices[jp2][1]/nv,
-				  m_ppt3dVertices[jp2][2]/nw) + base;
-	 co3 = cf.coord_orth(xmap.cell());
-	 co3_c =  coot::Cartesian( co3.x(), co3.y(), co3.z());
-      }
-
-      // Cartesian co1_c ( co1.x(), co1.y(), co1.z() );
-      // Cartesian co2_c ( co2.x(), co2.y(), co2.z() );
-      // Cartesian co3_c ( co3.x(), co3.y(), co3.z() );
-      // if (d1_2 == 1) 
-      //    result.push_back(coot::CartesianPair(co1_c, co2_c));
-      // if (d1_3 == 1) 
-      //    result.push_back(coot::CartesianPair(co1_c, co3_c));
-      // if (d2_3 == 1) 
-      //    result.push_back(coot::CartesianPair(co3_c, co2_c));
+      cf = clipper::Coord_frac(m_ppt3dVertices[jp2][0]/nu,
+			       m_ppt3dVertices[jp2][1]/nv,
+			       m_ppt3dVertices[jp2][2]/nw) + base;
+      co3 = cf.coord_orth(xmap.cell());
+      co3_c =  coot::Cartesian( co3.x(), co3.y(), co3.z());
 
       valid_co_1 = true;
       valid_co_2 = true;
@@ -1814,60 +1860,15 @@ CIsoSurface<T>::returnTriangles(const clipper::Xmap<T>& xmap,
       if ((co3_c-centre).amplitude_squared() > radius_sqd)
 	 valid_co_3 = false;
 
-      // if (is_em_map) { // needs adding back when reboxed maps work
-      if (false) {
-	 // test for being inside the box.
-	 if (valid_co_1) {
-	    if (co1_c.x() > max_x) valid_co_1 = false;
-	    if (co1_c.x() < 0)     valid_co_1 = false;
-	    if (co1_c.y() > max_y) valid_co_1 = false;
-	    if (co1_c.y() < 0)     valid_co_1 = false;
-	    if (co1_c.z() > max_z) valid_co_1 = false;
-	    if (co1_c.z() < 0)     valid_co_1 = false;
-	 }
-	 if (valid_co_2) {
-	    if (co2_c.x() > max_x) valid_co_2 = false;
-	    if (co2_c.x() < 0)     valid_co_2 = false;
-	    if (co2_c.y() > max_y) valid_co_2 = false;
-	    if (co2_c.y() < 0)     valid_co_2 = false;
-	    if (co2_c.z() > max_z) valid_co_2 = false;
-	    if (co2_c.z() < 0)     valid_co_2 = false;
-	 }
-	 if (valid_co_3) {
-	    if (co3_c.x() > max_x) valid_co_3 = false;
-	    if (co3_c.x() < 0)     valid_co_3 = false;
-	    if (co3_c.y() > max_y) valid_co_3 = false;
-	    if (co3_c.y() < 0)     valid_co_3 = false;
-	    if (co3_c.z() > max_z) valid_co_3 = false;
-	    if (co3_c.z() < 0)     valid_co_3 = false;
-	 }
-      }
       if (valid_co_1 && valid_co_2)
-	 if (d1_2 == 1)
-	    result_wrapper.data[result_wrapper.size++] = coot::CartesianPair(co1_c, co2_c);
+	 result_wrapper.data[result_wrapper.size++] = coot::CartesianPair(co1_c, co2_c);
       if (valid_co_1 && valid_co_3)
-	 if (d1_3 == 1)
-	    result_wrapper.data[result_wrapper.size++] = coot::CartesianPair(co1_c, co3_c); 
+	 result_wrapper.data[result_wrapper.size++] = coot::CartesianPair(co1_c, co3_c); 
       if (valid_co_2 && valid_co_3)
-	 if (d2_3 == 1)
-	    result_wrapper.data[result_wrapper.size++] = coot::CartesianPair(co3_c, co2_c);
+	 result_wrapper.data[result_wrapper.size++] = coot::CartesianPair(co3_c, co2_c);
 
 
-      // done_count += d1_2 + d1_3 + d2_3;
    }
-#ifdef ANALYSE_CONTOURING_TIMING
-   auto tp_4 = std::chrono::high_resolution_clock::now();
-
-   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-   auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
-   auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
-   
-   std::cout << "   returnTriangles "
-	     << "  d10 " << d10 << "  d21 " << d21
-	     << "  d32 " << d32 << "  d43 " << d43
-	     << " milliseconds\n";
-#endif
 
    return result_wrapper;
 }

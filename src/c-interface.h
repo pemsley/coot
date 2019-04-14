@@ -3100,12 +3100,6 @@ void set_found_coot_python_gui();
 /*! \name Monomer */
 /* \{ */
 
-/*! \brief if possible, read in the new coords getting coords via web.
-
-(no return value because get-url-str does not return one).
- */
-void get_coords_for_accession_code(const char *code);
-
 int get_monomer_for_molecule_by_index(int dict_idx, int imol_enc);
 
 
