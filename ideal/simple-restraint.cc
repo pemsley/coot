@@ -1174,7 +1174,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 }
 
 	 if (verbose_geometry_reporting == VERBOSE)
-	    cout << "iteration number " << iter << " " << m_s->f << endl;
+	    std::cout << "iteration number " << iter << " " << m_s->f << std::endl;
 
       }
    while ((status == GSL_CONTINUE) && (iter < nsteps_max));
@@ -2054,7 +2054,7 @@ coot::electron_density_score_from_restraints_simple(const gsl_vector *v,
       }
    }
    auto tp_2 = std::chrono::high_resolution_clock::now();
-   auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
+   auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
    // std::cout << "info:: f electron_density: " << d21 << " microseconds\n";
 
    return -score;
@@ -2147,7 +2147,7 @@ coot::electron_density_score_from_restraints_using_atom_index_range(int thread_i
       }
    }
    auto tp_2 = std::chrono::high_resolution_clock::now();
-   auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
+   auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
    // std::cout << "info:: f electron_density: " << d21 << " microseconds\n";
 
    // return -score;
@@ -4155,9 +4155,9 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
    for (std::size_t ii=0; ii<vcontacts.size(); ii++) {
       n_nbc += vcontacts.at(ii).size();
    }
-   auto d32 = chrono::duration_cast<chrono::milliseconds>(tp_3 - tp_2).count();
-   auto d21 = chrono::duration_cast<chrono::milliseconds>(tp_2 - tp_1).count();
-   auto d10 = chrono::duration_cast<chrono::milliseconds>(tp_1 - tp_0).count();
+   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+   auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
    std::cout << "------------------- timing: " << d10 << " " << d21 << " " << d32
 	     << " milliseconds for " << n_nbc << " nbcs " << std::endl;
 

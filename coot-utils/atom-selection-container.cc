@@ -153,11 +153,11 @@ get_atom_selection(std::string pdb_name,
 		//
 		MMDBManager->GetInputBuffer(error_buf, error_count);
 		if (error_count >= 0) { 
-		   cout << "         LINE #" << error_count << "\n     "
-			<< error_buf << endl << endl;
+		   std::cout << "         LINE #" << error_count << "\n     "
+			     << error_buf << std::endl << std::endl;
 		} else {
 		   if (error_count == -1) { 
-		      cout << "       CIF ITEM: " << error_buf << endl << endl;
+		      std::cout << "       CIF ITEM: " << error_buf << std::endl << std::endl;
 		   }
 		}
 		asc.read_success = 0; // FAIL
@@ -170,11 +170,11 @@ get_atom_selection(std::string pdb_name,
 	     // we read the coordinate file OK.
 	     //
 	     switch (MMDBManager->GetFileType())  {
-	     case mmdb::MMDB_FILE_PDB    :  cout << " PDB"         ;
+	     case mmdb::MMDB_FILE_PDB    :  std::cout << " PDB"         ;
 		break;
-	     case mmdb::MMDB_FILE_CIF    :  cout << " mmCIF"       ; 
+	     case mmdb::MMDB_FILE_CIF    :  std::cout << " mmCIF"       ; 
 		break;
-	     case mmdb::MMDB_FILE_Binary :  cout << " MMDB binary" ;
+	     case mmdb::MMDB_FILE_Binary :  std::cout << " MMDB binary" ;
 		break;
 	     default:
 		std::cout << " Unknown\n";
@@ -182,7 +182,7 @@ get_atom_selection(std::string pdb_name,
 
 	     MMDBManager->PDBCleanup(mmdb::PDBCLEAN_ELEMENT);
 	  
-	     cout << " file " << pdb_name.c_str() << " has been read.\n";
+	     std::cout << "INFO:: file " << pdb_name.c_str() << " has been read.\n";
 	     asc.read_success = 1; // TRUE
 
 	     // atom_selection_container.read_error_message = NULL; // its a string
@@ -578,11 +578,11 @@ debug_atom_selection_container(atom_selection_container_t asc) {
    //
    mmdb::PAtom ap;
    
-   cout << "DEBUG: asc " << "mol=" << asc.mol << endl;
-   cout << "DEBUG: asc " << "n_selected_atoms=" << asc.n_selected_atoms << endl;
-   cout << "DEBUG: asc " << "atom_selection=" << asc.atom_selection << endl;
-   cout << "DEBUG: asc " << "read_error_message=" << asc.read_error_message << endl;
-   cout << "DEBUG: asc " << "read_success=" << asc.read_success << endl;
+   std::cout << "DEBUG: asc " << "mol=" << asc.mol << std::endl;
+   std::cout << "DEBUG: asc " << "n_selected_atoms=" << asc.n_selected_atoms << std::endl;
+   std::cout << "DEBUG: asc " << "atom_selection=" << asc.atom_selection << std::endl;
+   std::cout << "DEBUG: asc " << "read_error_message=" << asc.read_error_message << std::endl;
+   std::cout << "DEBUG: asc " << "read_success=" << asc.read_success << std::endl;
 
 //    cout << "DEBUG: asc " << "cell="
 // 	<< asc.mol->get_cell_p()->a << " "
@@ -590,21 +590,21 @@ debug_atom_selection_container(atom_selection_container_t asc) {
 // 	<< asc.mol->get_cell_p()->c << " "
 // 	<< asc.mol->get_cell_p()->alpha << " "
 // 	<< asc.mol->get_cell_p()->beta << " "
-// 	<< asc.mol->get_cell_p()->gamma << endl;
+// 	<< asc.mol->get_cell_p()->gamma << std::endl;
    
 //    cout << "DEBUG: asc " << "spacegroup=" << asc.mol->get_cell_p()->spaceGroup
-// 	<< endl;
+// 	<< std::endl;
 
    if (asc.n_selected_atoms > 10) {
-      cout << "DEBUG start 10 atoms: " << endl;
+      std::cout << "DEBUG start 10 atoms: " << std::endl;
       for (int ii = 0; ii< 10; ii++) { 
-	 cout << ii << " " << asc.atom_selection[ii] << " " ; 
+	 std::cout << ii << " " << asc.atom_selection[ii] << " " ; 
 	 ap = asc.atom_selection[ii];
 	 std::cout << coot::atom_spec_t(ap) << std::endl;
       }
       std::cout << "DEBUG end 10 atoms: " << std::endl;
       for (int ii = asc.n_selected_atoms - 10; ii< asc.n_selected_atoms; ii++) { 
-	 cout << ii << " " << asc.atom_selection[ii] << " " ;
+	 std::cout << ii << " " << asc.atom_selection[ii] << " " ;
 	 ap = asc.atom_selection[ii];
 	 std::cout << coot::atom_spec_t(ap) << std::endl;
       }
