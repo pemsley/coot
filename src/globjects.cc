@@ -106,9 +106,7 @@
 #include "rotate-translate-modes.hh"
 #include "rotamer-search-modes.hh"
 
-#ifdef WII_INTERFACE_WIIUSE
-#include "wiiuse.h"
-#endif // WII_INTERFACE_WIIUSE
+#include "draw.hh"
 
 std::vector<molecule_class_info_t> graphics_info_t::molecules;
 std::atomic<bool> molecule_class_info_t::draw_vector_sets_lock(false);
@@ -1801,7 +1799,9 @@ init_gl_widget(GtkWidget *widget) {
    // should be in graphics_info_t?
    setup_for_mol_triangles();
 
-  return TRUE;
+   // setup_for_single_triangle();
+
+   return TRUE;
 }
 
 void

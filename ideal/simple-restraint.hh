@@ -127,7 +127,7 @@ namespace coot {
 }
 
 // we don't want to compile anything if we don't have gsl
-#ifdef HAVE_GSL  
+#ifdef HAVE_GSL
 
 #include <map>
 
@@ -152,7 +152,7 @@ namespace coot {
 // for protein dictionary container:
 #include "geometry/protein-geometry.hh"
 
-// For Kevin's (Log) Ramachandran Plot and derivativesn
+// For Kevin's (Log) Ramachandran Plot and derivatives
 #include "lograma.h"
 // For ZO's Ramachandran Plot and derivatives
 #include "zo-rama.hh"
@@ -166,7 +166,7 @@ namespace coot {
 
 namespace coot {
 
-   
+
    // restraint types:
    // 
    enum restraint_type_t {BOND_RESTRAINT=1, ANGLE_RESTRAINT=2, TORSION_RESTRAINT=4, PLANE_RESTRAINT=8,
