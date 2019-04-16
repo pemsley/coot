@@ -253,6 +253,41 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
    }
 }
 
+void
+molecule_class_info_t::clear_draw_vecs() {
+
+   // crash on double free of the draw vectors. Not sure why. Let's add a lock
+
+   bool unlocked = false;
+   while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true) &&
+	  !unlocked) {
+      std::this_thread::sleep_for(std::chrono::microseconds(10));
+      unlocked = false;
+   }
+   for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
+      // std::cout << "deleting set " << i << " " << draw_vector_sets[i].data << std::endl;
+      delete draw_vector_sets[i].data;
+      draw_vector_sets[i].data = 0;
+   }
+   draw_vector_sets.clear();
+   draw_vector_sets.reserve(12);
+   molecule_class_info_t::draw_vector_sets_lock = false; // unlock
+
+}
+
+void
+molecule_class_info_t::add_draw_vecs_to_set(const coot::CartesianPairInfo &cpi) {
+   draw_vector_sets.push_back(cpi);
+}
+   
+// for negative the other map.
+// 
+void
+molecule_class_info_t::set_diff_map_draw_vecs(const coot::CartesianPair* c, int n) { 
+   delete [] diff_map_draw_vectors;
+   diff_map_draw_vectors = c; n_diff_map_draw_vectors = n; 
+}
+
 
 void
 molecule_class_info_t::update_map() {
@@ -452,6 +487,16 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 
 	    // std::cout << ".... in draw draw_vector_sets size " << draw_vector_sets.size() << std::endl;
 
+	    // Is it possible that the map is being drawn as it is being deleted?
+	    // I don't see how - but I got a crash here. So let's lock the draw too
+	    //
+	    bool unlocked = false;
+	    while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true) &&
+		   !unlocked) {
+	       std::this_thread::sleep_for(std::chrono::microseconds(1));
+	       unlocked = false;
+	    }
+
 	    if ( draw_vector_sets.size() > 0 ) {
 
 	       glColor3dv (map_colour[0]);
@@ -471,6 +516,8 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 	       }
 	       glEnd();
 	    }
+
+	    molecule_class_info_t::draw_vector_sets_lock = false; // unlock
 
 	    if (xmap_is_diff_map == 1) {
 

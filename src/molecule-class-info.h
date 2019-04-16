@@ -1374,22 +1374,13 @@ public:        //                      public
    
    void dynamically_transform(coot::CartesianPairInfo v);
 
-   void clear_draw_vecs() {
-      for (std::size_t i=0; i<draw_vector_sets.size(); i++)
-	 delete draw_vector_sets[i].data;
-      draw_vector_sets.clear();
-      draw_vector_sets.reserve(12);
-   }
-   void add_draw_vecs_to_set(const coot::CartesianPairInfo &cpi) {
-      draw_vector_sets.push_back(cpi);
-   }
+   void clear_draw_vecs();
+
+   void add_draw_vecs_to_set(const coot::CartesianPairInfo &cpi);
    
    // for negative the other map.
    // 
-   void set_diff_map_draw_vecs(const coot::CartesianPair* c, int n) { 
-      delete [] diff_map_draw_vectors;
-      diff_map_draw_vectors = c; n_diff_map_draw_vectors = n; 
-   }
+   void set_diff_map_draw_vecs(const coot::CartesianPair* c, int n);
 
    void update_map_triangles(float radius, coot::Cartesian centre); 
 
