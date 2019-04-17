@@ -873,6 +873,7 @@ parse_shader(const std::string &file_name) {
 
 unsigned int compile_shader(const std::string &source, unsigned int type) {
 
+#ifdef GRAPHICS_TESTING
    std::string type_s = "vertex";
    if (type == GL_FRAGMENT_SHADER)
       type_s = "fragment";
@@ -893,8 +894,10 @@ unsigned int compile_shader(const std::string &source, unsigned int type) {
    } else {
       std::cout << "glCompileShader() result was good for " << type_s << " shader " << std::endl;
    } 
-
    return id;
+#else
+   return 0;
+#endif
 }
 
 std::string file_to_string(const std::string &file_name) {
@@ -911,6 +914,7 @@ std::string file_to_string(const std::string &file_name) {
 
 unsigned int CreateShader(const std::string &vertex_shader, const std::string &fragment_shader) {
 
+#ifdef GRAPHICS_TESTING
    unsigned int program  = glCreateProgram();
    unsigned int vs = compile_shader(vertex_shader, GL_VERTEX_SHADER);
    unsigned int fs = compile_shader(fragment_shader, GL_FRAGMENT_SHADER);
@@ -925,18 +929,25 @@ unsigned int CreateShader(const std::string &vertex_shader, const std::string &f
 
    return program;
 
+#endif // GRAPHICS_TESTING
+
 }
+
+#ifdef GRAPHICS_TESTING
 
 static int programID_global = -1;
 static int location_global = -1;
 GLuint VertexArrayID = -1;
 
-# define glGenVertexArrays glGenVertexArraysAPPLE
-# define glDeleteVertexArrays glDeleteVertexArraysAPPLE
-# define glBindVertexArray glBindVertexArrayAPPLE
+#define glGenVertexArrays glGenVertexArraysAPPLE
+#define glDeleteVertexArrays glDeleteVertexArraysAPPLE
+#define glBindVertexArray glBindVertexArrayAPPLE
+
+#endif // GRAPHICS_TESTING
 
 void setup_for_single_triangle() {
 
+#ifdef GRAPHICS_TESTING
 
    std::cout << "setup for single triangle: " << glGetString(GL_VERSION) << std::endl;
 
@@ -977,9 +988,12 @@ void setup_for_single_triangle() {
       // location_global = ul;
 
    }
+#endif GRAPHICS_TESTING
 }
 
 void draw_single_triangle() {
+
+#ifdef GRAPHICS_TESTING
 
    // std::cout << "drawing single triangle " << std::endl;
    glBindVertexArray(VertexArrayID);
@@ -988,6 +1002,7 @@ void draw_single_triangle() {
    glBindVertexArray(0); // unbind
    glUseProgram(0);
 
+#endif // GRAPHICS_TESTING
 }
 
 /* Basic.shader
