@@ -3697,30 +3697,30 @@ draw_axes(GL_matrix &m) {
       glBegin(GL_LINES);
 
       // axes
-      glVertex3f(0.0, 0.0, 0.0);
-      glVertex3f(0.2, 0.0, 0.0);
+      glVertex3f(0.0f, 0.0f, 0.0f);
+      glVertex3f(0.2f, 0.0f, 0.0f);
 
-      glVertex3f(0.0, 0.0, 0.0);
-      glVertex3f(0.0, 0.2, 0.0);
+      glVertex3f(0.0f, 0.0f, 0.0f);
+      glVertex3f(0.0f, 0.2f, 0.0f);
 
-      glVertex3f(0.0, 0.0, 0.0);
-      glVertex3f(0.0, 0.0, 0.2);
+      glVertex3f(0.0f, 0.0f, 0.0f);
+      glVertex3f(0.0f, 0.0f, 0.2f);
 
       // arrowheads:
-      glVertex3f(0.2,  0.0,  0.0);
-      glVertex3f(0.18, 0.02, 0.0);
-      glVertex3f(0.2,  0.0,  0.0);
-      glVertex3f(0.18, -0.02, 0.0);
+      glVertex3f(0.2f,   0.0f,  0.0f);
+      glVertex3f(0.18f,  0.02f, 0.0f);
+      glVertex3f(0.2f,   0.0f,  0.0f);
+      glVertex3f(0.18f, -0.02f, 0.0f);
 
-      glVertex3f(0.0,  0.2,   0.0);
-      glVertex3f(0.0,  0.18,  0.02);
-      glVertex3f(0.0,  0.2,   0.0);
-      glVertex3f(0.0,  0.18, -0.02);
+      glVertex3f(0.0f,  0.2f,   0.0f);
+      glVertex3f(0.0f,  0.18f,  0.02f);
+      glVertex3f(0.0f,  0.2f,   0.0f);
+      glVertex3f(0.0f,  0.18f, -0.02f);
 
-      glVertex3f(0.0,   0.0,   0.2);
-      glVertex3f(0.02,  0.0,   0.18);
-      glVertex3f(0.0,   0.0,   0.2);
-      glVertex3f(-0.02,  0.0,   0.18);
+      glVertex3f(0.0f,   0.0f,   0.2f);
+      glVertex3f(0.02f,  0.0f,   0.18f);
+      glVertex3f(0.0f,   0.0f,   0.2f);
+      glVertex3f(-0.02f, 0.0f,   0.18f);
       
       glEnd();
 
