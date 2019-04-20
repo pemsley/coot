@@ -928,6 +928,9 @@ unsigned int CreateShader(const std::string &vertex_shader, const std::string &f
    glDeleteShader(fs);
 
    return program;
+#else
+
+   return 0;
 
 #endif // GRAPHICS_TESTING
 
@@ -988,7 +991,7 @@ void setup_for_single_triangle() {
       // location_global = ul;
 
    }
-#endif GRAPHICS_TESTING
+#endif // GRAPHICS_TESTING
 }
 
 void draw_single_triangle() {
