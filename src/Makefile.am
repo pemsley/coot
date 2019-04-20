@@ -125,6 +125,7 @@ coot_wrap_guile_pre.cc:      $(top_srcdir)/src/c-interface.h    \
 			     $(top_srcdir)/src/c-interface-generic-objects.h \
                              $(top_srcdir)/src/sdf-interface.hh \
                              $(top_srcdir)/src/cfc.hh \
+                             $(top_srcdir)/src/curlew.h \
                              $(top_srcdir)/src/curlew.hh \
                              $(top_srcdir)/src/cmtz-interface.hh \
                              $(top_srcdir)/src/c-interface-mogul.hh
@@ -146,6 +147,7 @@ coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
                          $(top_srcdir)/src/c-interface-ligands-swig.hh \
 			 $(top_srcdir)/src/sdf-interface.hh   \
                          $(top_srcdir)/src/cfc.hh \
+                         $(top_srcdir)/src/curlew.h \
                          $(top_srcdir)/src/curlew.hh \
                          $(top_srcdir)/src/c-interface-mogul.hh
 	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -c++ $(top_srcdir)/src/coot.i
@@ -376,6 +378,7 @@ coot_bin_SOURCES = \
 	coot-setup-python.hh     \
 	coot-version.hh          \
 	coot_wrap_guile.cc       \
+        curlew.h                 \
         curlew.hh                \
         dots-representation.hh   \
 	drag-and-drop.hh         \

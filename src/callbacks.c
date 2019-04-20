@@ -63,6 +63,7 @@
 #include "positioned-widgets.h"
 
 #include "generic-display-objects-c.h"
+// #include "curlew.h"
 
 /* This is our data identification string to store
  * data in list items
@@ -12783,5 +12784,14 @@ on_show_symmetry_expanded_labels_checkbutton_toggled
      set_symmetry_atom_labels_expanded(1);
    else
      set_symmetry_atom_labels_expanded(0);
+}
+
+
+void
+on_curlew1_activate              (GtkMenuItem     *menuitem,
+                                  gpointer         user_data) {
+
+  curlew();
+
 }
 

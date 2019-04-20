@@ -73,7 +73,8 @@ create_window1 (void)
   GtkWidget *separator7;
   GtkWidget *close_molecule1;
   GtkWidget *image12048;
-  GtkWidget *separator6;
+  GtkWidget *curlew1;
+  GtkWidget *separator9;
   GtkWidget *exit1;
   GtkWidget *image12049;
   GtkWidget *edit1;
@@ -581,10 +582,15 @@ create_window1 (void)
   gtk_widget_show (image12048);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (close_molecule1), image12048);
 
-  separator6 = gtk_separator_menu_item_new ();
-  gtk_widget_show (separator6);
-  gtk_container_add (GTK_CONTAINER (file1_menu), separator6);
-  gtk_widget_set_sensitive (separator6, FALSE);
+  curlew1 = gtk_image_menu_item_new_with_mnemonic ("Curlew");
+  gtk_widget_show (curlew1);
+  gtk_container_add (GTK_CONTAINER (file1_menu), curlew1);
+  gtk_tooltips_set_tip (tooltips, curlew1, "Coot's Extension Wrangler", NULL);
+
+  separator9 = gtk_separator_menu_item_new ();
+  gtk_widget_show (separator9);
+  gtk_container_add (GTK_CONTAINER (file1_menu), separator9);
+  gtk_widget_set_sensitive (separator9, FALSE);
 
   exit1 = gtk_image_menu_item_new_with_mnemonic ("Exit");
   gtk_widget_show (exit1);
@@ -2133,6 +2139,9 @@ create_window1 (void)
   g_signal_connect ((gpointer) close_molecule1, "activate",
                     G_CALLBACK (on_close_molecule1_activate),
                     NULL);
+  g_signal_connect ((gpointer) curlew1, "activate",
+                    G_CALLBACK (on_curlew1_activate),
+                    NULL);
   g_signal_connect ((gpointer) exit1, "activate",
                     G_CALLBACK (on_exit1_activate),
                     NULL);
@@ -2619,7 +2628,8 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, separator7, "separator7");
   GLADE_HOOKUP_OBJECT (window1, close_molecule1, "close_molecule1");
   GLADE_HOOKUP_OBJECT (window1, image12048, "image12048");
-  GLADE_HOOKUP_OBJECT (window1, separator6, "separator6");
+  GLADE_HOOKUP_OBJECT (window1, curlew1, "curlew1");
+  GLADE_HOOKUP_OBJECT (window1, separator9, "separator9");
   GLADE_HOOKUP_OBJECT (window1, exit1, "exit1");
   GLADE_HOOKUP_OBJECT (window1, image12049, "image12049");
   GLADE_HOOKUP_OBJECT (window1, edit1, "edit1");
