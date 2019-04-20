@@ -49,7 +49,7 @@
 PyObject * display_python(PyObject *o) {
 
    PyObject *dest;
-   const char *mess = "object: {}\n";
+   const char *mess = "object: %s\n";
    dest = PyString_FromString(mess);
    return PyString_Format(dest, o);
 }

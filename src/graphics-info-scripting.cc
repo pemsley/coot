@@ -90,7 +90,9 @@ PyObject *
 graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
 							 const graphical_bonds_container &bonds_box) const {
 
-   // imol is added into the atom specs so that the atoms know the molecule they were part of
+   // imol is added into the atom specs so that the atoms know the molecule they were part of.
+
+   // You can't use Py_False to fill the lists/tuples
 
    int n_data_item_types = 8; // bonds and angles, rama and cis-peptides
 
@@ -129,7 +131,6 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
 	    PyTuple_SetItem(coords_py, 2, PyFloat_FromDouble(pt.z()));
 	    PyTuple_SetItem(atom_info_quad_py, 0, coords_py);
 	    PyTuple_SetItem(atom_info_quad_py, 1, PyBool_FromLong(is_H_flag));
-	    // PyTuple_SetItem(atom_info_quad_py, 2, PyString_FromString(s.c_str())); old
 	    PyTuple_SetItem(atom_info_quad_py, 2, atom_spec_py);
 	    PyTuple_SetItem(atom_info_quad_py, 3, atom_index_py);
 	    PyTuple_SetItem(atom_set_py, i, atom_info_quad_py);
@@ -139,18 +140,17 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
       PyTuple_SetItem(r, 0, PyString_FromString("atom-positions"));
       PyTuple_SetItem(r, 1, all_atom_positions_py);
    } else {
-      PyObject *empty_py = PyTuple_New(1);
-      PyTuple_SetItem(empty_py, 0, PyInt_FromLong(-1));
       PyTuple_SetItem(r, 0, PyString_FromString("atom-positions"));
-      PyTuple_SetItem(r, 1, empty_py);
+      PyTuple_SetItem(r, 1, PyList_New(0));
    }
+
    PyObject *bonds_tuple = PyTuple_New(bonds_box.num_colours);
    for (int i=0; i<bonds_box.num_colours; i++) {
       graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
       // Python doesn't like me creating a tuple of size 0. So in that case, let's make it False
       PyObject *line_set_py = 0;
       if (bonds_box.bonds_[i].num_lines == 0) {
-	 line_set_py = Py_False;
+	 line_set_py = PyList_New(0);
       } else {
 	 // happy path
 	 line_set_py = PyTuple_New(bonds_box.bonds_[i].num_lines);
@@ -200,7 +200,7 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
 	 PyList_SetItem(pos_py, 2, o2_py);
 	 PyTuple_SetItem(p_py, 0, pos_py);
 	 PyTuple_SetItem(p_py, 1, goodness_py);
-	 PyList_SetItem(rama_info_py, 0, p_py);
+	 PyList_SetItem(rama_info_py, i, p_py);
       }
    }
    PyTuple_SetItem(r, 4, PyString_FromString("rama-goodness"));
@@ -232,7 +232,7 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
 PyObject *
 graphics_info_t::get_intermediate_atoms_bonds_representation() {
 
-   // I need to think about what to do if the bonds were not redraw
+   // I need to think about what to do if the bonds were not redrawn
    // since last time.
 
    PyObject *r = Py_False;
@@ -241,7 +241,6 @@ graphics_info_t::get_intermediate_atoms_bonds_representation() {
       if (moving_atoms_asc->mol) {
 
          unsigned int unlocked = 0;
-         // while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1)) {
          while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
             std::cout << "in get_intermediate_atoms_bonds_representation(), waiting for bonds lock" << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
