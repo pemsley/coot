@@ -64,6 +64,7 @@
 #include "positioned-widgets.h"
 
 #include "generic-display-objects-c.h"
+// #include "curlew.h"
 
 /* This is our data identification string to store
  * data in list items
@@ -12920,6 +12921,15 @@ on_symmetry_always_on_checkbutton_toggled (GtkToggleButton *togglebutton,
       if (! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(symmetry_on_radio_button)))
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(symmetry_on_radio_button), TRUE);
    }
+
+}
+
+
+void
+on_curlew1_activate              (GtkMenuItem     *menuitem,
+                                  gpointer         user_data) {
+
+  curlew();
 
 }
 

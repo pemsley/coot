@@ -4741,3 +4741,9 @@ void
 on_symmetry_always_on_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
+
+void
+on_curlew1_activate              (GtkMenuItem     *menuitem,
+                                  gpointer         user_data);
+
+
