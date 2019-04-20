@@ -1813,7 +1813,7 @@ namespace coot {
 
       // my_df_electron_density and electron_density_score need access
       // to fixed_atom_indices.
-      std::vector<int> fixed_atom_indices;
+      std::set<int> fixed_atom_indices;
 
       // In all of these constructors the mmdb::PPAtom that is passed, either
       // explicitly or as part of an atom_selection_container_t has the
@@ -1963,7 +1963,7 @@ namespace coot {
 			     int n_moving_residue_atoms, // e.g. 21
 			     mmdb::PResidue previous_residue, // e.g. residue 15
 			     mmdb::PResidue next_atom,
-			     const std::vector<int> &fixed_atom_indices,
+			     const std::set<int> &fixed_atom_indices,
 			     clipper::Xmap<float> *map_p_in);
 
       restraints_container_t(const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {

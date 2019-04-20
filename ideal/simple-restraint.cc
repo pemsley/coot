@@ -374,8 +374,9 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
    if (false) { // debugging;
       std::cout << "debug:: in init_from_mol() here are the " << fixed_atom_indices.size()
 		<< " fixed_atom indices: \n";
-      for (std::size_t ii=0; ii<fixed_atom_indices.size(); ii++)
-	 std::cout << " " << fixed_atom_indices[ii];
+      std::set<int>::const_iterator it;
+      for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
+	 std::cout << " " << *it;
       std::cout << "\n";
 
       for (int iat=0; iat<n_atoms; iat++)
@@ -557,9 +558,10 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
    				                // to std::vector<int> fixed_atom_indices;
 
    // blank out those atoms from seeing electron density map gradients
-   for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
-      use_map_gradient_for_atom[fixed_atom_indices[ifixed]] = false;
-   } 
+
+   std::set<int>::const_iterator it;
+   for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
+      use_map_gradient_for_atom[*it] = false;
 
    if (verbose_geometry_reporting == VERBOSE)
       for (int i=0; i<n_atoms; i++)
@@ -790,8 +792,9 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    if (false) {
       std::cout << "---- after init_shared_post(): here are the "<< fixed_atom_indices.size()
 		<< " fixed atoms " << std::endl;
-      for (unsigned int i=0; i<fixed_atom_indices.size(); i++)
-	 std::cout << "    " << i << " " << atom_spec_t(atom[fixed_atom_indices[i]]) << std::endl;
+      std::set<int>::const_iterator it;
+      for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
+	 std::cout << "    " << atom_spec_t(atom[*it]) << std::endl;
    }
 
    add_fixed_atoms_from_flanking_residues(bpc);
@@ -825,12 +828,11 @@ void
 coot::restraints_container_t::assign_fixed_atom_indices(const std::vector<coot::atom_spec_t> &fixed_atom_specs) {
 
    fixed_atom_indices.clear();
-//    std::cout << "Finding atom indices for " << fixed_atom_specs.size()
-// 	     << " fixed atoms " << std::endl;
+
    for (unsigned int i=0; i<fixed_atom_specs.size(); i++) {
       for (int iat=0; iat<n_atoms; iat++) {
 	 if (fixed_atom_specs[i].matches_spec(atom[iat])) {
-	    fixed_atom_indices.push_back(iat);
+	    fixed_atom_indices.insert(iat);
 	 }
       }
    }
@@ -862,8 +864,10 @@ coot::restraints_container_t::debug_atoms() const {
    std::cout << "---- " << n_atoms << " atoms" << std::endl;
    for (int iat=0; iat<n_atoms; iat++) {
       bool is_fixed = false;
-      for (std::size_t j=0; j<fixed_atom_indices.size(); j++) {
-	 if (fixed_atom_indices[j] == iat) {
+      // use fixed_atom_indices.find()
+      std::set<int>::const_iterator it;
+      for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++) {
+	 if (*it == iat) {
 	    is_fixed = true;
 	    break;
 	 }
@@ -2671,12 +2675,8 @@ bool
 coot::restraints_container_t::fixed_check(int index_1) const {
 
    bool r = false;
-   for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
-      if (index_1 == fixed_atom_indices[ifixed]) {
-	 r = true;
-	 break;
-      }
-   }
+   if (fixed_atom_indices.find(index_1) != fixed_atom_indices.end())
+      r = true;
    return r;
 } 
 
@@ -2684,12 +2684,16 @@ std::vector<bool>
 coot::restraints_container_t::make_fixed_flags(int index1, int index2) const {
 
    std::vector<bool> r(2, false);
-   for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
-      if (index1 == fixed_atom_indices[ifixed])
-	 r[0] = true;
-      if (index2 == fixed_atom_indices[ifixed])
-	 r[1] = true;
-   }
+//    for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
+//       if (index1 == fixed_atom_indices[ifixed])
+// 	 r[0] = true;
+//       if (index2 == fixed_atom_indices[ifixed])
+// 	 r[1] = true;
+//    }
+   if (fixed_atom_indices.find(index1) != fixed_atom_indices.end())
+      r[0] = true;
+   if (fixed_atom_indices.find(index2) != fixed_atom_indices.end())
+      r[1] = true;
 
    return r;
 }
@@ -2697,26 +2701,20 @@ coot::restraints_container_t::make_fixed_flags(int index1, int index2) const {
 std::vector<bool>
 coot::restraints_container_t::make_non_bonded_fixed_flags(int index1, int index2) const {
 
-   std::vector<bool> r(2,0);
+   std::vector<bool> r(2,false);
    bool set_0 = 0;
    bool set_1 = 0;
-   for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
-      if (index1 == fixed_atom_indices[ifixed]) { 
-	 r[0] =  true;
-	 set_0 = true;
-	 break;
-      }
-   } 
-      
-   for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
-      if (index2 == fixed_atom_indices[ifixed]) { 
-	 r[1] = true;
-	 set_1 = true;
-	 break;
-      }
+
+   if (fixed_atom_indices.find(index1) != fixed_atom_indices.end()) {
+      r[0] = true;
+      set_0 = true;
+   }
+   if (fixed_atom_indices.find(index2) != fixed_atom_indices.end()) {
+      r[1] = true;
+      set_1 = true;
    }
 
-   if (set_0 && set_1 ) {
+   if (set_0 && set_1) {
       return r;  // yay, fast.
    }
 
@@ -2742,15 +2740,10 @@ coot::restraints_container_t::make_non_bonded_fixed_flags(int index1, int index2
 std::vector<bool>
 coot::restraints_container_t::make_fixed_flags(int index1, int index2, int index3) const {
 
-   std::vector<bool> r(3,0);
-   for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
-      if (index1 == fixed_atom_indices[ifixed])
-	 r[0] = 1;
-      if (index2 == fixed_atom_indices[ifixed])
-	 r[1] = 1;
-      if (index3 == fixed_atom_indices[ifixed])
-	 r[2] = 1;
-   }
+   std::vector<bool> r(3,false);
+   if (fixed_atom_indices.find(index1) != fixed_atom_indices.end()) r[0] = true;
+   if (fixed_atom_indices.find(index2) != fixed_atom_indices.end()) r[1] = true;
+   if (fixed_atom_indices.find(index3) != fixed_atom_indices.end()) r[2] = true;
    return r;
 } 
 
@@ -2758,16 +2751,10 @@ std::vector<bool>
 coot::restraints_container_t::make_fixed_flags(int index1, int index2, int index3, int index4) const {
 
    std::vector<bool> r(4,0);
-   for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
-      if (index1 == fixed_atom_indices[ifixed])
-	 r[0] = 1;
-      if (index2 == fixed_atom_indices[ifixed])
-	 r[1] = 1;
-      if (index3 == fixed_atom_indices[ifixed])
-	 r[2] = 1;
-      if (index4 == fixed_atom_indices[ifixed])
-	 r[3] = 1;
-   }
+   if (fixed_atom_indices.find(index1) != fixed_atom_indices.end()) r[0] = true;
+   if (fixed_atom_indices.find(index2) != fixed_atom_indices.end()) r[1] = true;
+   if (fixed_atom_indices.find(index3) != fixed_atom_indices.end()) r[2] = true;
+   if (fixed_atom_indices.find(index4) != fixed_atom_indices.end()) r[3] = true;
    return r;
 }
 
@@ -2775,14 +2762,12 @@ std::vector<bool>
 coot::restraints_container_t::make_fixed_flags(const std::vector<int> &indices) const {
 
    std::vector<bool> r(indices.size(), 0);
-   for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
-      for (unsigned int i_index=0; i_index<indices.size(); i_index++) {
-	 if (indices[i_index] == fixed_atom_indices[ifixed])
-	    r[i_index] = 1;
-      }
+   for (unsigned int i_index=0; i_index<indices.size(); i_index++) {
+      if (fixed_atom_indices.find(indices[i_index]) != fixed_atom_indices.end())
+	 r[i_index] = true;
    }
    return r;
-} 
+}
 
 
 void

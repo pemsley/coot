@@ -7835,6 +7835,10 @@ Sat  4 Mar 2017 01:13:08 GMT
 
    puts a breakpoint in all methods/functions called set_dihedral()
 
+   breakpoint set -b malloc_error_break
+
+   for malloc errors
+
 ----
 Sat  4 Mar 2017 12:05:58 GMT
 

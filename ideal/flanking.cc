@@ -61,9 +61,7 @@ coot::restraints_container_t::add_fixed_atoms_from_flanking_residues(const coot:
 	 if (! (at->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok)) {
 	    std::cout << "ERROR:: bad UDD for atom " << iat << std::endl;
 	 } else {
-	    if (std::find(fixed_atom_indices.begin(),
-			  fixed_atom_indices.end(), idx) == fixed_atom_indices.end())
-	       fixed_atom_indices.push_back(idx);
+	    fixed_atom_indices.insert(idx);
 	 }
       }
    }
@@ -89,7 +87,7 @@ coot::restraints_container_t::add_fixed_atoms_from_non_bonded_neighbours() {
 	 } else {
 	    if (std::find(fixed_atom_indices.begin(),
 			  fixed_atom_indices.end(), idx) == fixed_atom_indices.end())
-	       fixed_atom_indices.push_back(idx);
+	       fixed_atom_indices.insert(idx);
 	 }
       }
    }
@@ -113,20 +111,13 @@ coot::restraints_container_t::add_fixed_atoms_from_flanking_residues(bool have_f
 	 mmdb::Atom *at = atom[iat];
 	 if (have_flanking_residue_at_start) {
 	    if (at->residue->GetSeqNum() == iselection_start_res) {
-	       // perhaps this should be a set
-	       if (std::find(fixed_atom_indices.begin(),
-			     fixed_atom_indices.end(), iat) == fixed_atom_indices.end()) {
-		  fixed_atom_indices.push_back(iat);
-	       }
+	       // perhaps this should be a set - yes.
+	       fixed_atom_indices.insert(iat);
 	    }
 	 }
 	 if (have_flanking_residue_at_end) {
 	    if (at->residue->GetSeqNum() == iselection_end_res) {
-	       // perhaps this should be a set
-	       if (std::find(fixed_atom_indices.begin(),
-			     fixed_atom_indices.end(), iat) == fixed_atom_indices.end()) {
-		  fixed_atom_indices.push_back(iat);
-	       }
+	       fixed_atom_indices.insert(iat);
 	    }
 	 }
       }
