@@ -1464,7 +1464,7 @@ void segment_map(int imol_map, float low_level) {
 
 void segment_map_multi_scale(int imol_map, float low_level, float b_factor_inc, int n_rounds) {
 
-   int max_segments = 300;
+   int max_segments = 8;
    if (is_valid_map_molecule(imol_map)) {
       clipper::Xmap<float> &xmap_in = graphics_info_t::molecules[imol_map].xmap;
       coot::util::segment_map s;
@@ -1478,8 +1478,9 @@ void segment_map_multi_scale(int imol_map, float low_level, float b_factor_inc, 
 	 clipper::Xmap_base::Map_reference_index ix;
 	 int n_points_in_map = 0;
 	 for (ix = segmented_map.second.first(); !ix.last(); ix.next()) {
-	    if (segmented_map.second[ix] == iseg) { 
-	       xmap[ix] = xmap_in[ix];
+	    if (segmented_map.second[ix] == iseg) {
+	       float f = xmap_in[ix];
+	       xmap[ix] = f;
 	       n_points_in_map++;
 	    }
 	 }

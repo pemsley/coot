@@ -1179,6 +1179,11 @@ coot::util::segment_map::segment(const clipper::Xmap<float> &xmap_in,
 				 float gaussian_sigma, // per round
 				 int n_rounds) {
 
+   std::cout << "DEBUG:: start of segment with low_level " << low_level
+	     << " gaussian_sigma " << gaussian_sigma
+	     << " n_rounds " << n_rounds
+	     << std::endl;
+
    // This algorithm is critically dependent on the gradient around
    // points on the borders between segments (the watershed regions).
    // 
@@ -1233,7 +1238,6 @@ coot::util::segment_map::segment(const clipper::Xmap<float> &xmap_in,
       std::cout << "  segment " << dit->first << " has " << dit->second << " grid points" << std::endl;
    std::cout << " ========================================\n";
 
-   
    
    for (int i_round=0; i_round<n_rounds; i_round++) {
 
