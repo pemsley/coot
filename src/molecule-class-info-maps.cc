@@ -488,8 +488,8 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 	    // std::cout << ".... in draw draw_vector_sets size " << draw_vector_sets.size() << std::endl;
 
 	    // Is it possible that the map is being drawn as it is being deleted?
-	    // I don't see how - but I got a crash here. So let's lock the draw too
-	    //
+	    // I don't see how - but I got a crash here. So let's lock the draw too.
+	    // I got a crash when this lock was in place. Hmm.
 	    bool unlocked = false;
 	    while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true) &&
 		   !unlocked) {
