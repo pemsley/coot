@@ -9,6 +9,8 @@
 
 #include "draw.hh"
 
+// #define GRAPHICS_TESTING
+
 void
 stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
 
@@ -215,7 +217,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       m.from_quaternion(graphics_info_t::quat); // consider a constructor.
       glMultMatrixf(m.get());
 
-
       // Translate the scene to the the view centre
       // i.e. the screenrotation center is at (X(), Y(), Z())
       //
@@ -223,9 +224,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 		   -graphics_info_t::RotationCentre_y(),
 		   -graphics_info_t::RotationCentre_z());
 
-      // draw_single_triangle();
-
       draw_molecular_triangles(widget);
+
+      draw_single_triangle();
 
       if (false) { // try/test clipping
 	 // This does indeed clip the model, but it's in world coordinates,
@@ -322,7 +323,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
  	       graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
 	    glDisable(GL_LIGHTING);
 	 }
-
+	 
 	 if (graphics_info_t::molecules[ii].draw_animated_ligand_interactions_flag) { 
 	    glEnable(GL_LIGHTING);
 	    glEnable(GL_LIGHT0);
@@ -373,7 +374,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 //
 	 graphics_info_t::molecules[ii].draw_skeleton(is_bb);
       }
-
 
       // atom pull restraint
       graphics_info_t::draw_atom_pull_restraint();
@@ -485,6 +485,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // show_lighting();
 
    } // gtkgl make area current test
+
 
    gdkglext_finish_frame(widget);
    return TRUE;
@@ -952,14 +953,14 @@ void setup_for_single_triangle() {
 
 #ifdef GRAPHICS_TESTING
 
-   std::cout << "setup for single triangle: " << glGetString(GL_VERSION) << std::endl;
+   std::cout << "---------- setup for single triangle: " << glGetString(GL_VERSION) << std::endl;
 
    {
       float positions[12] = {
-	 -0.5,  -0.5, 0.0,
-   	 -0.5,   0.5, 0.0,
-  	  0.5,   0.5, 0.0,
-	  0.5,  -0.5, 0.0
+	 -0.5,  -0.5, -0.0,
+   	 -0.5,   0.5, -0.0,
+  	  0.5,   0.5, -0.0,
+	  0.5,  -0.5, -0.0
       };
 
       unsigned int indices[8] { 0,1,1,2,2,3,3,0 };
@@ -971,20 +972,22 @@ void setup_for_single_triangle() {
       GLuint vertexbuffer;
       glGenBuffers(1, &vertexbuffer);
       glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-      glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), positions, GL_STATIC_DRAW);
+      glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, &positions[0], GL_STATIC_DRAW);
       glEnableVertexAttribArray(0);
       glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
       unsigned int ibo;
       glGenBuffers(1, &ibo);
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, 8 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 8, &indices[0], GL_STATIC_DRAW);
 
       std::cout << "----------- parse and create shader " << std::endl;
       shader_program_source sps = parse_shader("Basic.shader");
       unsigned int programID = CreateShader(sps.VertexSource, sps.FragmentSource);
       programID_global = programID;
       std::cout << "----------- created shader program " << programID << std::endl;
+
+      glBindAttribLocation(programID, 0, "position");
 
       // int ul = glGetUniformLocation(programID, "u_Color");
       // std::cout << "Got glGetUniformLocation for u_Color " << ul << std::endl;
@@ -998,7 +1001,6 @@ void draw_single_triangle() {
 
 #ifdef GRAPHICS_TESTING
 
-   // std::cout << "drawing single triangle " << std::endl;
    glBindVertexArray(VertexArrayID);
    glUseProgram(programID_global);
    glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, nullptr);
@@ -1014,11 +1016,15 @@ void draw_single_triangle() {
 
 #version 120
 
-varying vec3 position;
+uniform mat4 mygl_ModelViewMatrix;
+uniform mat4 mygl_ProjectionMatrix;
+uniform mat3 mygl_NormalMatrix;
+
+attribute vec3 position;
 
 void main() {
 
-   gl_Position = vec4(position, 0.0);
+   gl_Position = gl_ModelViewProjectionMatrix * vec4(position, 1.0);
 
 }
 
