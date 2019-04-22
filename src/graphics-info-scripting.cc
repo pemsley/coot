@@ -145,16 +145,16 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
    }
 
    PyObject *bonds_tuple = PyTuple_New(bonds_box.num_colours);
-   for (int i=0; i<bonds_box.num_colours; i++) {
-      graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
-      // Python doesn't like me creating a tuple of size 0. So in that case, let's make it False
+   for (int icol=0; icol<bonds_box.num_colours; icol++) {
+      graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[icol];
+      // Python doesn't like me creating a tuple of size 0. So in that case, let's make an empty list
       PyObject *line_set_py = 0;
-      if (bonds_box.bonds_[i].num_lines == 0) {
+      if (bonds_box.bonds_[icol].num_lines == 0) {
 	 line_set_py = PyList_New(0);
       } else {
 	 // happy path
-	 line_set_py = PyTuple_New(bonds_box.bonds_[i].num_lines);
-	 for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
+	 line_set_py = PyTuple_New(bonds_box.bonds_[icol].num_lines);
+	 for (int j=0; j< bonds_box.bonds_[icol].num_lines; j++) {
 	    const graphics_line_t::cylinder_class_t &cc = ll.pair_list[j].cylinder_class;
 	    int iat_1 = ll.pair_list[j].atom_index_1;
 	    int iat_2 = ll.pair_list[j].atom_index_2;
@@ -179,7 +179,7 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
 	    PyTuple_SetItem(line_set_py, j, positions_and_order_py);
 	 }
       }
-      PyTuple_SetItem(bonds_tuple, i, line_set_py);
+      PyTuple_SetItem(bonds_tuple, icol, line_set_py);
    }
    PyTuple_SetItem(r, 2, PyString_FromString("bonds"));
    PyTuple_SetItem(r, 3, bonds_tuple);
