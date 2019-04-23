@@ -12059,6 +12059,7 @@ on_displayed_map_style_as_lines_radiobutton_toggled
 
 } 
 
+/* we should call this "third-map-mode" or something */
 void
 on_displayed_map_style_as_cut_glass_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
@@ -12069,10 +12070,7 @@ on_displayed_map_style_as_cut_glass_radiobutton_toggled
   int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(window)));
   if (GTK_TOGGLE_BUTTON(togglebutton)->active) { 
 
-    set_draw_map_standard_lines(imol, 1);
-    set_draw_solid_density_surface(imol, 0);
-
-    set_draw_map_standard_lines(imol, 1);
+    set_draw_map_standard_lines(imol, 0);
     set_draw_solid_density_surface(imol, 1);
     set_flat_shading_for_solid_density_surface(1);
   }

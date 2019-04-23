@@ -11,6 +11,19 @@
 
 // #define GRAPHICS_TESTING
 
+
+#ifdef GRAPHICS_TESTING
+
+static int programID_global = -1;
+static int location_global = -1;
+GLuint VertexArrayID = -1;
+
+#define glGenVertexArrays glGenVertexArraysAPPLE
+#define glDeleteVertexArrays glDeleteVertexArraysAPPLE
+#define glBindVertexArray glBindVertexArrayAPPLE
+
+#endif // GRAPHICS_TESTING
+
 void
 stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
 
@@ -226,8 +239,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       draw_molecular_triangles(widget);
 
-      draw_single_triangle();
-
       if (false) { // try/test clipping
 	 // This does indeed clip the model, but it's in world coordinates,
 	 // not eye coordinates
@@ -293,6 +304,36 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       }
 
       glMatrixMode(GL_MODELVIEW);
+
+#ifdef GRAPHICS_TESTING
+      // GLSL density maps
+
+      // this should not be a graphics_info_t variable. Needs to be put into molecule/map
+      bool do_flat_shading = graphics_info_t::do_flat_shading_for_solid_density_surface;
+      // do_flat_shading = false; // turn off
+      if (do_flat_shading) {
+	 glUseProgram(programID_global);
+
+	 glLineWidth(graphics_info_t::map_line_width);
+	 for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+	    if (graphics_info_t::molecules[ii].n_vertices_for_VertexArray > 0) {
+	       if (false)
+		  std::cout << "GLSL for imol " << ii << " binding "
+			    << graphics_info_t::molecules[ii].m_VertexArrayID << " "
+			    << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
+			    << std::endl;
+	       glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID);
+	       glDrawElements(GL_LINES, graphics_info_t::molecules[ii].n_vertices_for_VertexArray,
+			      GL_UNSIGNED_INT, nullptr);
+	       glBindVertexArray(0); // unbind
+	    }
+	 }
+	 glUseProgram(0);
+      }
+
+      draw_single_triangle();
+
+#endif // GRAPHICS_TESTING
 
       // do we need to turn on the lighting?
       int n_display_list_objects = 0;
@@ -936,18 +977,6 @@ unsigned int CreateShader(const std::string &vertex_shader, const std::string &f
 #endif // GRAPHICS_TESTING
 
 }
-
-#ifdef GRAPHICS_TESTING
-
-static int programID_global = -1;
-static int location_global = -1;
-GLuint VertexArrayID = -1;
-
-#define glGenVertexArrays glGenVertexArraysAPPLE
-#define glDeleteVertexArrays glDeleteVertexArraysAPPLE
-#define glBindVertexArray glBindVertexArrayAPPLE
-
-#endif // GRAPHICS_TESTING
 
 void setup_for_single_triangle() {
 

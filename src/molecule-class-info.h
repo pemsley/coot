@@ -786,6 +786,8 @@ public:        //                      public
       theMapContours.first = 0;
       theMapContours.second = 0;
       is_em_map_cached_flag = -1; // unset
+      n_vertices_for_VertexArray = 0;
+      m_VertexArrayID =  0;
 
       // don't show strict ncs unless it's turned on.
       show_strict_ncs_flag = 1;
@@ -943,7 +945,7 @@ public:        //                      public
 
    void set_map_is_displayed_as_standard_lines(short int state) {
       draw_it_for_map_standard_lines = state;
-   } 
+   }
 
    void do_solid_surface_for_density(short int on_off_flag);
 
@@ -2962,6 +2964,10 @@ public:        //                      public
 					bool do_flat_shading) const;
    void draw_solid_density_surface(bool do_flat_shading);
    void set_draw_solid_density_surface(bool state);
+   void setup_glsl_map_rendering();
+   GLuint m_VertexArrayID;
+   GLuint n_vertices_for_VertexArray;
+
    float density_surface_opacity;
    void setup_density_surface_material(bool solid_mode, float opacity,
 				       bool is_negative_level = 0); // shininess, material colour etc.

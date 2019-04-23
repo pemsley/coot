@@ -326,7 +326,7 @@ molecule_class_info_t::set_draw_solid_density_surface(bool state) {
    if (state) {
       update_map(); // gets solid triangles too.
    }
-} 
+}
 
 
 // Create a new combo box for this newly created map.
@@ -413,13 +413,17 @@ void
 molecule_class_info_t::draw_density_map(short int display_lists_for_maps_flag,
 					short int main_or_secondary) {
 
-   if (draw_it_for_map)
+   if (draw_it_for_map) {
+      // std::cout << "here in draw_density_map " << imol_no
+      // << " draw_it_for_map_standard_lines " << draw_it_for_map_standard_lines
+      // << std::endl;
       if (draw_it_for_map_standard_lines)
 	 draw_density_map_internal(display_lists_for_maps_flag, draw_it_for_map,
 				   main_or_secondary);
+   }
 }
 
-// standard lines, testd for draw_it_for_map_standard_lines before
+// standard lines, tested for draw_it_for_map_standard_lines before
 // calling this.
 // 
 void
@@ -474,7 +478,7 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 // 	       std::cout << "OK:: using display list " << display_list_index
 // 			 << " when main_or_secondary is " << main_or_secondary << std::endl;
 	       glCallList(display_list_index);
-	    } else { 
+	    } else {
 	       std::cout << "ERROR:: using display list " << display_list_index
 			 << " when main_or_secondary is " << main_or_secondary << std::endl;
 	    }
@@ -497,7 +501,7 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 	       unlocked = false;
 	    }
 
-	    if ( draw_vector_sets.size() > 0 ) {
+	    if (draw_vector_sets.size() > 0) {
 
 	       glColor3dv (map_colour[0]);
 	       glLineWidth(graphics_info_t::map_line_width);
@@ -557,6 +561,10 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 void
 molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre) {
 
+   // cut glass mode means
+   // do_solid_surface_for_density
+   // do_flat_shading_for_solid_density_surface is true
+
    CIsoSurface<float> my_isosurface;
    coot::CartesianPairInfo v;
    int isample_step = 1;
@@ -613,59 +621,62 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
    }
 
    if (!xmap.is_null()) {
+      if (! draw_it_for_solid_density_surface) {
 
-      clear_draw_vecs();
+	 clear_draw_vecs();
 
-      std::vector<std::thread> threads;
-      int n_reams = coot::get_max_number_of_threads();
+	 std::vector<std::thread> threads;
+	 int n_reams = coot::get_max_number_of_threads();
 
-      for (int ii=0; ii<n_reams; ii++) {
-	 int iream_start = ii;
-	 int iream_end   = ii+1;
+	 for (int ii=0; ii<n_reams; ii++) {
+	    int iream_start = ii;
+	    int iream_end   = ii+1;
 
-	 threads.push_back(std::thread(gensurf_and_add_vecs_threaded_workpackage,
-				       &xmap,
-				       contour_level, dy_radius, centre,
-				       isample_step,
-				       iream_start, iream_end, n_reams, is_em_map,
-				       &draw_vector_sets));
+	    threads.push_back(std::thread(gensurf_and_add_vecs_threaded_workpackage,
+					  &xmap,
+					  contour_level, dy_radius, centre,
+					  isample_step,
+					  iream_start, iream_end, n_reams, is_em_map,
+					  &draw_vector_sets));
+	 }
+	 for (int ii=0; ii<n_reams; ii++)
+	    threads[ii].join();
+
       }
-      for (int ii=0; ii<n_reams; ii++)
-	 threads[ii].join();
 
-   }
+      // --- Pre 2019 map contouring -----
 
-   /*
-   if (is_dynamically_transformed_map_flag)
-      for(unsigned int i=0; i<draw_vector_sets.size(); i++)
-	 dynamically_transform(draw_vector_sets[i]);
-   */
-
-   // --- Pre 2019 map contouring -----
-
-   if (xmap_is_diff_map) {
-      v = my_isosurface.GenerateSurface_from_Xmap(xmap,
-						  -contour_level,
-						  dy_radius, centre,
-						  isample_step,
-						  0,1,1,
-						  is_em_map);
-      if (is_dynamically_transformed_map_flag)
-	 dynamically_transform(v);
-      set_diff_map_draw_vecs(v.data, v.size);
-   }
-
-   if (draw_it_for_solid_density_surface) {
-      tri_con = my_isosurface.GenerateTriangles_from_Xmap(xmap,
-							  contour_level,
-							  dy_radius, centre,
-							  isample_step);
       if (xmap_is_diff_map) {
-	 tri_con_diff_map_neg = my_isosurface.GenerateTriangles_from_Xmap(xmap,
-									  -contour_level,
-									  dy_radius, centre,
-									  isample_step);
-      } 
+	 v = my_isosurface.GenerateSurface_from_Xmap(xmap,
+						     -contour_level,
+						     dy_radius, centre,
+						     isample_step,
+						     0,1,1,
+						     is_em_map);
+	 if (is_dynamically_transformed_map_flag)
+	    dynamically_transform(v);
+	 set_diff_map_draw_vecs(v.data, v.size);
+      }
+
+      if (draw_it_for_solid_density_surface) {
+	 tri_con = my_isosurface.GenerateTriangles_from_Xmap(xmap,
+							     contour_level,
+							     dy_radius, centre,
+							     isample_step);
+
+	 // if "cut-glass mode", then make re-wire to use map GLSL triangles
+	 //
+	 if (graphics_info_t::do_flat_shading_for_solid_density_surface) {
+	    setup_glsl_map_rendering(); // turn tri_con into buffers.
+	 }
+
+	 if (xmap_is_diff_map) {
+	    tri_con_diff_map_neg = my_isosurface.GenerateTriangles_from_Xmap(xmap,
+									     -contour_level,
+									     dy_radius, centre,
+									     isample_step);
+	 }
+      }
    }
 }
 
@@ -699,12 +710,74 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
    }
 }
 
+#ifdef GRAPHICS_TESTING
+
+#define glGenVertexArrays glGenVertexArraysAPPLE
+#define glDeleteVertexArrays glDeleteVertexArraysAPPLE
+#define glBindVertexArray glBindVertexArrayAPPLE
+
+#endif // GRAPHICS_TESTING
+
+void
+molecule_class_info_t::setup_glsl_map_rendering() {
+
+#ifdef GRAPHICS_TESTING
+
+   // This is called from update_map_triangles().
+
+   // using coot::density_contour_triangles_container_t tri_con;
+
+   // transfer the points
+   float *points = new float[3 * tri_con.points.size()];
+   for (std::size_t i=0; i<tri_con.points.size(); i++) {
+      points[3*i  ] = tri_con.points[i].x();
+      points[3*i+1] = tri_con.points[i].y();
+      points[3*i+2] = tri_con.points[i].z();
+   }
+
+   // transfer the indices
+   n_vertices_for_VertexArray = 6 * tri_con.point_indices.size();
+   int *indices = new int[n_vertices_for_VertexArray];
+   for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
+      indices[6*i  ] = tri_con.point_indices[i].pointID[0];
+      indices[6*i+1] = tri_con.point_indices[i].pointID[1];
+      indices[6*i+2] = tri_con.point_indices[i].pointID[1];
+      indices[6*i+3] = tri_con.point_indices[i].pointID[2];
+      indices[6*i+4] = tri_con.point_indices[i].pointID[2];
+      indices[6*i+5] = tri_con.point_indices[i].pointID[0];
+   }
+
+   glGenVertexArrays(1, &m_VertexArrayID);
+   glBindVertexArray(m_VertexArrayID);
+
+   GLuint vertexbuffer;
+   glGenBuffers(1, &vertexbuffer);
+   glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+   glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * tri_con.points.size(), &points[0], GL_STATIC_DRAW);
+   glEnableVertexAttribArray(0);
+   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+   unsigned int ibo;
+   glGenBuffers(1, &ibo);
+   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_vertices_for_VertexArray,
+		&indices[0], GL_STATIC_DRAW);
+
+   delete [] points;
+   delete [] indices;
+
+#endif // GRAPHICS_TESTING
+
+}
+
 
 // not const because we sort in place the triangles of tri_con
 void
 molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 
-   
+   if (do_flat_shading)
+      return; //
+
    if (draw_it_for_map) {
       if (draw_it_for_solid_density_surface) {
 
@@ -714,7 +787,7 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 	 glEnable(GL_LIGHTING);
 	 glEnable(GL_LIGHT0); 
 	 glEnable(GL_LIGHT1); 
-	 glEnable(GL_LIGHT2); // OK, for maps
+	 // glEnable(GL_LIGHT2); // OK, for maps
 	 glEnable (GL_BLEND);
 	 glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 

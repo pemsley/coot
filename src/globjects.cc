@@ -1762,7 +1762,9 @@ init_gl_widget(GtkWidget *widget) {
    // 
    glEnable(GL_DEPTH_TEST);
 
-   glEnable(GL_POINT_SMOOTH); // cirlces not squares
+   // glDepthFunc(GL_LESS); what does this do?
+
+   glEnable(GL_POINT_SMOOTH); // circles not squares
    
    if (g.do_anti_aliasing_flag)
       glEnable(GL_LINE_SMOOTH);
@@ -1797,7 +1799,7 @@ init_gl_widget(GtkWidget *widget) {
    // gtk_idle_add((GtkFunction)animate, widget);
 
    // should be in graphics_info_t?
-   setup_for_mol_triangles();
+   // setup_for_mol_triangles();
 
    setup_for_single_triangle();
 
