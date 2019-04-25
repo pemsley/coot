@@ -24,7 +24,8 @@
 #include <iomanip> 
 #include "compat/coot-sysdep.h"
 
-#include "libgtkgraph/gtkgraph.h"
+// We don't use gtkgraph these days
+// #include "libgtkgraph/gtkgraph.h"
 
 #ifdef HAVE_GOOCANVAS
 #include "goograph/goograph.hh"
@@ -175,10 +176,11 @@ void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coo
 
    
    GtkWidget *d = gtk_dialog_new();
-   gtk_object_set_data(GTK_OBJECT(d), "probe_radius_graph", d);
+   g_object_set_data(G_OBJECT(d), "probe_radius_graph", d);
    gtk_window_set_title (GTK_WINDOW(d), "Probe Radius Graph");
    gtk_window_set_default_size(GTK_WINDOW(d), 600, 500);
-   GtkWidget *vbox = GTK_DIALOG(d)->vbox;
+   // GtkWidget *vbox = GTK_DIALOG(d)->vbox;
+   GtkWidget *vbox = gtk_dialog_get_content_area(GTK_DIALOG(d));
    GtkWidget *vbox_inner = gtk_vbox_new(FALSE, 2);
    GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
@@ -186,7 +188,9 @@ void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coo
    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
    gtk_widget_show(scrolled_window);
    gtk_widget_show(vbox_inner);
-      
+
+/* Replace by goograph GTK-FIXME
+
    GtkWidget *graph = gtk_graph_new(XY);
    gtk_graph_set_title(GTK_GRAPH(graph), "Probe Radius along Path", NULL);
    gtk_container_add(GTK_CONTAINER(vbox_inner), graph);
@@ -225,6 +229,7 @@ void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coo
 			     3.5, 0.0);
    gtk_graph_axis_set_tick(GTK_GRAPH(graph), GTK_GRAPH_AXIS_INDEPENDANT, 5.0, 1.0);
    gtk_graph_trace_format_title(GTK_GRAPH(graph), trace, "Hole Radius");
+*/
 }
 
 void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length) {

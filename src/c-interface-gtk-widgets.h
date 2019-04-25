@@ -119,10 +119,10 @@ gboolean on_filename_filter_key_press_event (GtkWidget       *widget,
 
 /* a c callable wrapper to the graphics_info_t function */
 void fill_option_menu_with_coordinates_options(GtkWidget *option_menu, 
-					       GtkSignalFunc signal_func,
+					       GCallback signal_func,
 					       int imol_active_position);
 void fill_option_menu_with_coordinates_options_unsaved_first(GtkWidget *option_menu, 
-							     GtkSignalFunc signal_func,
+							     GCallback signal_func,
 							     int imol_active_position);
 GtkWidget *coot_file_chooser();
 
@@ -291,7 +291,7 @@ void save_directory_for_saving_from_filechooser(const GtkWidget *fileselection);
 GtkWidget *add_sort_button_fileselection(GtkWidget *fileselection); 
 
 void add_ccp4i_project_optionmenu(GtkWidget *fileselection, int file_selector_type);
-void add_ccp4i_projects_to_optionmenu(GtkWidget *optionmenu, int file_selector_type, GtkSignalFunc func);
+void add_ccp4i_projects_to_optionmenu(GtkWidget *optionmenu, int file_selector_type, GCallback func);
 void add_ccp4i_project_shortcut(GtkWidget *fileselection);
 void option_menu_refmac_ccp4i_project_signal_func(GtkWidget *item, GtkPositionType pos);
 void run_refmac_ccp4i_option_menu_signal_func(GtkWidget *item, GtkPositionType pos);
@@ -367,16 +367,21 @@ void clear_atom_list(GtkWidget *atom_gtklist);
 
 void apply_go_to_atom_from_widget(GtkWidget *widget);
 
-void
-on_go_to_atom_residue_list_select_child (GtkList         *list,
-					 GtkWidget       *widget,
-					 gpointer         user_data);
+
+// GTK-FIXME
+// void
+// on_go_to_atom_residue_list_select_child (GtkList         *list,
+// 					 GtkWidget       *widget,
+// 					 gpointer         user_data);
 
 
-void
-on_go_to_atom_residue_list_unselect_child (GtkList         *list,
-					   GtkWidget       *widget,
-					   gpointer         user_data);
+
+// GTK-FIXME
+//
+// void
+// on_go_to_atom_residue_list_unselect_child (GtkList         *list,
+					   // GtkWidget       *widget,
+					   // gpointer         user_data);
 
 void save_display_control_widget_in_graphics(GtkWidget *widget); 
 
@@ -388,7 +393,7 @@ GtkWidget *wrapped_create_merge_molecules_dialog();
 void do_merge_molecules_gui();
 void do_merge_molecules(GtkWidget *dialog);
 void fill_vbox_with_coordinates_options(GtkWidget *vbox,
-					GtkSignalFunc checkbox_callback_func);
+					GCallback checkbox_callback_func);
 void merge_molecules_menu_item_activate(GtkWidget *item, 
 					GtkPositionType pos);
 void on_merge_molecules_check_button_toggled (GtkToggleButton *togglebutton,
@@ -747,8 +752,8 @@ int coot_socket_listener_idle_func(GtkWidget *w);
 GtkWidget *wrapped_create_map_sharpening_dialog();
 void map_sharpening_map_select(GtkWidget *item, GtkPositionType pos);
 void map_sharpening_value_changed (GtkAdjustment *adj, GtkWidget *window);
-int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signalfunc);
-int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signalfunc);
+int fill_option_menu_with_map_options(GtkWidget *option_menu, GCallback signalfunc);
+int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GCallback signalfunc);
 
 void calc_and_set_optimal_b_factor ( GtkWidget *w ) ;
 

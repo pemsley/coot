@@ -92,7 +92,7 @@ short int
 string_member(const std::string &search, const std::vector<std::string> &list); 
 bool compare_strings(const std::string &a, const std::string &b); 
 
-
+/*
 std::string pre_directory_file_selection(GtkWidget *sort_button);
 void filelist_into_fileselection_clist(GtkWidget *fileselection, const std::vector<std::string> &v);
 
@@ -107,13 +107,15 @@ void create_initial_validation_graph_submenu_generic(GtkWidget *window1,
 						     const std::string &menu_name,
 						     const std::string &sub_menu_name);
 
-std::string probe_dots_short_contact_name_to_expanded_name(const std::string &short_name);
-
 // To be used to (typically) get the menu item text label from chain
 // option menus (rather than the ugly/broken casting of
 // GtkPositionType data.  A wrapper to a static graphics_info_t
 // function.
 std::string menu_item_label(GtkWidget *menu_item);
+
+*/
+
+std::string probe_dots_short_contact_name_to_expanded_name(const std::string &short_name);
 
 
 /*  ---------------------------------------------------------------------- */
@@ -210,14 +212,15 @@ std::vector<int> auto_read_make_and_draw_maps(const char *filename);
 std::vector<int> auto_read_make_and_draw_maps_from_mtz(const char *filename);
 std::vector<int> auto_read_make_and_draw_maps_from_cns(const char *filename);
 
-
+/* ----- remove wiget functions from this header GTK-FIXME
 void add_map_colour_mol_menu_item(int imol, const std::string &name,
 				  GtkWidget *sub_menu, GtkSignalFunc callback);
-/* Actually this function is generic and could be renamed so. */
+ Actually this function is generic and could be renamed so.
 void add_map_scroll_wheel_mol_menu_item(int imol, 
 					const std::string &name,
 					GtkWidget *menu, 
 					GtkSignalFunc callback);
+*/
 
 //! \brief return the colour triple of the imolth map
 //! 

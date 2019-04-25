@@ -152,6 +152,8 @@ int setup_database();
 
 #include "scm-boot-guile.hh"
 
+#include "widget-headers.hh" // put these somewhere else? better name? -------- GTK-FIME
+
 // This main is used for both python/guile useage and unscripted. 
 int
 main (int argc, char *argv[]) {
@@ -199,7 +201,6 @@ main (int argc, char *argv[]) {
 
   
    if (graphics_info_t::use_graphics_interface_flag) {
-      gtk_set_locale(); // gtk stuff
       load_gtk_resources();
       gtk_init (&argc, &argv);
       // activate to force icons in menus; cannot get it to work with 
@@ -881,10 +882,7 @@ menutoolbutton_rot_trans_activated(GtkWidget *item, GtkPositionType pos) {
 
 void create_rot_trans_menutoolbutton_menu(GtkWidget *window1) {
 
-   // RHEL 4 (gtk 2.4.13) does't have menutoolbuttons (not sure at which
-   // minor version it was introduced).  FC4 (GTK 2.6.7 *does* have it).
    //
-#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 4) ) || GTK_MAJOR_VERSION > 2)
    GtkWidget *menu_tool_button = lookup_widget(window1, "model_toolbar_rot_trans_toolbutton");
 
    if (menu_tool_button) { 
@@ -893,33 +891,32 @@ void create_rot_trans_menutoolbutton_menu(GtkWidget *window1) {
       GSList *group = NULL;
 
       menu_item = gtk_radio_menu_item_new_with_label(group, "By Residue Range...");
-      group = gtk_radio_menu_item_group(GTK_RADIO_MENU_ITEM(menu_item));
-      gtk_menu_append(GTK_MENU(menu), menu_item);
+      group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
+      gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
       gtk_widget_show(menu_item);
-      gtk_signal_connect(GTK_OBJECT(menu_item), "activate",
-			 GTK_SIGNAL_FUNC(menutoolbutton_rot_trans_activated),
-			 GINT_TO_POINTER(ROT_TRANS_TYPE_ZONE));
+      g_signal_connect(G_OBJECT(menu_item), "activate",
+	              (GCallback) (menutoolbutton_rot_trans_activated),
+		GINT_TO_POINTER(ROT_TRANS_TYPE_ZONE));
       /* activate the first item */
       gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), TRUE);
 
       menu_item = gtk_radio_menu_item_new_with_label(group, "By Chain...");
-      group = gtk_radio_menu_item_group(GTK_RADIO_MENU_ITEM(menu_item));
-      gtk_menu_append(GTK_MENU(menu), menu_item);
+      group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
+      gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
       gtk_widget_show(menu_item);
-      gtk_signal_connect(GTK_OBJECT(menu_item), "activate",
-			 GTK_SIGNAL_FUNC(menutoolbutton_rot_trans_activated),
+      g_signal_connect(G_OBJECT(menu_item), "activate",
+			 (GCallback) (menutoolbutton_rot_trans_activated),
 			 GINT_TO_POINTER(ROT_TRANS_TYPE_CHAIN));
 
       menu_item = gtk_radio_menu_item_new_with_label(group, "By Molecule...");
-      group = gtk_radio_menu_item_group(GTK_RADIO_MENU_ITEM(menu_item));
-      gtk_menu_append(GTK_MENU(menu), menu_item);
+      group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
+      gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
       gtk_widget_show(menu_item);
-      gtk_signal_connect(GTK_OBJECT(menu_item), "activate",
-			 GTK_SIGNAL_FUNC(menutoolbutton_rot_trans_activated),
+      g_signal_connect(G_OBJECT(menu_item), "activate",
+			 (GCallback) (menutoolbutton_rot_trans_activated),
 			 GINT_TO_POINTER(ROT_TRANS_TYPE_MOLECULE));
       
       gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(menu_tool_button), menu);
    }
-#endif  // GTK_MINOR_VERSION
 } 
 

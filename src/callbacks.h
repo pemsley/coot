@@ -23,8 +23,12 @@
 
 typedef const char entry_char_type;
 
+// GtkObject functionality has been moved into GtkWidget
+// void
+// on_window1_destroy                     (GtkObject       *object,
+//                                         gpointer         user_data);
 void
-on_window1_destroy                     (GtkObject       *object,
+on_window1_destroy                     (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -47,12 +51,18 @@ void
 on_clipping1_activate                  (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
 
+// void
+// on_coords_fileselection1_destroy       (GtkObject       *object,
+//                                         gpointer         user_data);
 void
-on_coords_fileselection1_destroy       (GtkObject       *object,
+on_coords_fileselection1_destroy       (GtkWidget       *object,
                                         gpointer         user_data);
 
+// void
+// on_dataset_fileselection1_destroy      (GtkObject       *object,
+                                        // gpointer         user_data);
 void
-on_dataset_fileselection1_destroy      (GtkObject       *object,
+on_dataset_fileselection1_destroy      (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -75,8 +85,11 @@ void
 on_cancel_button2_clicked              (GtkButton       *button,
                                         gpointer         user_data);
 
+// void
+// on_dataset_fileselection1_destroy      (GtkObject       *object,
+//                                        gpointer         user_data);
 void
-on_dataset_fileselection1_destroy      (GtkObject       *object,
+on_dataset_fileselection1_destroy      (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -410,9 +423,12 @@ on_display_control_ok_button_clicked   (GtkButton       *button,
                                         gpointer         user_data);
 
 
+// void
+// on_display_control_window_glade_destroy(GtkObject       *object,
+
 void
 on_display_control_window_glade_destroy
-                                        (GtkObject       *object,
+                                        (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -705,7 +721,7 @@ on_refine_params_dialog_ok_button_clicked
                                         gpointer         user_data);
 
 void
-on_goto_atom_window_destroy            (GtkObject       *object,
+on_goto_atom_window_destroy            (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -1267,7 +1283,7 @@ on_run_refmac_mtz_filechooserdialog_response
 
 void
 on_run_refmac_mtz_filechooserdialog_destroy
-                                        (GtkObject       *object,
+                                        (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -1366,7 +1382,7 @@ on_import_all_dictionary_cifs1_activate
                                         gpointer         user_data);
 
 void
-on_model_refine_dialog_destroy         (GtkObject       *object,
+on_model_refine_dialog_destroy         (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -1379,7 +1395,7 @@ on_residue_parameters1_activate        (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
 
 void
-on_residue_info_dialog_destroy         (GtkObject       *object,
+on_residue_info_dialog_destroy         (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -1473,7 +1489,7 @@ on_run_state_file_cancel_button_clicked
 
 void
 on_edit_backbone_torsions_dialog_destroy
-                                        (GtkObject       *object,
+                                        (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -1607,7 +1623,7 @@ on_model_refine_dialog_add_alt_conf_button_clicked
                                         gpointer         user_data);
 
 void
-on_add_alt_conf_dialog_destroy         (GtkObject       *object,
+on_add_alt_conf_dialog_destroy         (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -1706,7 +1722,7 @@ on_distances_and_angles1_activate      (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
 
 void
-on_geometry_dialog_destroy             (GtkObject       *object,
+on_geometry_dialog_destroy             (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -1728,7 +1744,7 @@ on_zoom_dialog_ok_button_clicked       (GtkButton       *button,
                                         gpointer         user_data);
 
 void
-on_edit_chi_angles_dialog_destroy      (GtkObject       *object,
+on_edit_chi_angles_dialog_destroy      (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -1796,7 +1812,7 @@ on_help_chi_angles_dismiss_button_clicked
                                         gpointer         user_data);
 
 void
-on_rotate_translate_obj_dialog_destroy (GtkObject       *object,
+on_rotate_translate_obj_dialog_destroy (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -1867,7 +1883,7 @@ on_chiral_volume_baddies_dialog_cancel_button_clicked
                                         gpointer         user_data);
 
 void
-on_dynarama_window_destroy             (GtkObject       *object,
+on_dynarama_window_destroy             (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -2118,7 +2134,7 @@ on_geometry_graphs_ok_button_clicked   (GtkButton       *button,
                                         gpointer         user_data);
 
 void
-on_geometry_graphs_dialog_destroy      (GtkObject       *object,
+on_geometry_graphs_dialog_destroy      (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -2733,7 +2749,7 @@ on_preferences_main_toolbar_style_text_radiobutton_toggled
                                         gpointer         user_data);
 
 void
-on_preferences_destroy                 (GtkObject       *object,
+on_preferences_destroy                 (GtkWidget       *object,
                                         gpointer         user_data);
 
 
@@ -2789,7 +2805,7 @@ on_ncs_maps1_activate                  (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
 
 void
-on_rotamer_selection_dialog_destroy    (GtkObject       *object,
+on_rotamer_selection_dialog_destroy    (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -2871,7 +2887,7 @@ on_delete_item_keep_active_checkbutton_toggled
                                         gpointer         user_data);
 
 void
-on_delete_item_dialog_destroy          (GtkObject       *object,
+on_delete_item_dialog_destroy          (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -2945,7 +2961,7 @@ on_base_chooser_cancel_button_clicked  (GtkButton       *button,
 
 void
 on_nucleic_acid_base_chooser_dialog_destroy
-                                        (GtkObject       *object,
+                                        (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -3063,7 +3079,7 @@ on_cis_trans_conversion_toggle_button_toggled
                                         gpointer         user_data);
 
 void
-on_other_model_tools_dialog_destroy    (GtkObject       *object,
+on_other_model_tools_dialog_destroy    (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -3080,7 +3096,7 @@ on_fetch_pdb_and_map_using_pdbredo1_activate
                                         gpointer         user_data);
 
 void
-on_ligand_big_blob_dialog_destroy      (GtkObject       *object,
+on_ligand_big_blob_dialog_destroy      (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -3134,7 +3150,7 @@ on_other_tools_place_strand_here_button_clicked     (GtkButton       *button,
 
 
 void
-on_diff_map_peaks_dialog_destroy       (GtkObject       *object,
+on_diff_map_peaks_dialog_destroy       (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -3218,7 +3234,7 @@ on_lsq_plane_ok_button_clicked         (GtkButton       *button,
                                         gpointer         user_data);
 
 void
-on_lsq_plane_dialog_destroy            (GtkObject       *object,
+on_lsq_plane_dialog_destroy            (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -3236,7 +3252,7 @@ on_ncs_ghost_control1_activate         (GtkMenuItem     *menuitem,
 
 void
 on_coords_colour_control_dialog_destroy
-                                        (GtkObject       *object,
+                                        (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -3250,7 +3266,7 @@ on_bond_colours1_activate              (GtkMenuItem     *menuitem,
 
 void
 on_accept_reject_refinement_dialog_destroy
-                                        (GtkObject       *object,
+                                        (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -3484,37 +3500,37 @@ on_dynarama_window_configure_event     (GtkWidget       *widget,
                                         gpointer         user_data);
 
 void
-on_coords_fileselection1_destroy       (GtkObject       *object,
+on_coords_fileselection1_destroy       (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
-on_dataset_fileselection1_destroy      (GtkObject       *object,
+on_dataset_fileselection1_destroy      (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
-on_map_name_fileselection1_destroy     (GtkObject       *object,
+on_map_name_fileselection1_destroy     (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
 on_phs_coordinates_fileselection_destroy
-                                        (GtkObject       *object,
+                                        (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
-on_save_coords_fileselection1_destroy  (GtkObject       *object,
+on_save_coords_fileselection1_destroy  (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
 on_save_symmetry_coords_fileselection_destroy
-                                        (GtkObject       *object,
+                                        (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
-on_save_state_fileselection_destroy    (GtkObject       *object,
+on_save_state_fileselection_destroy    (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
-on_screendump_fileselection_destroy    (GtkObject       *object,
+on_screendump_fileselection_destroy    (GtkWidget       *object,
                                         gpointer         user_data);
 
 gboolean
@@ -3580,7 +3596,7 @@ on_superpose_nonsense_cancel_button_clicked
                                         gpointer         user_data);
 
 void
-on_refine_params_dialog_destroy        (GtkObject       *object,
+on_refine_params_dialog_destroy        (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -3623,7 +3639,7 @@ on_coords_filechooserdialog1_response  (GtkDialog       *dialog,
 
 void
 on_coords_filechooserdialog1_destroy
-                                        (GtkObject       *object,
+                                        (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -3637,7 +3653,7 @@ on_dataset_filechooserdialog1_response (GtkDialog       *dialog,
                                         gpointer         user_data);
 
 void
-on_dataset_filechooserdialog1_destroy  (GtkObject       *object,
+on_dataset_filechooserdialog1_destroy  (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -3647,7 +3663,7 @@ on_map_name_filechooserdialog1_response
                                         gpointer         user_data);
 
 void
-on_map_name_filechooserdialog1_destroy (GtkObject       *object,
+on_map_name_filechooserdialog1_destroy (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -3663,7 +3679,7 @@ on_phs_coordinates_filechooserdialog1_response
 
 void
 on_phs_coordinates_filechooserdialog1_destroy
-                                        (GtkObject       *object,
+                                        (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -3674,7 +3690,7 @@ on_save_coords_filechooserdialog1_response
 
 void
 on_save_coords_filechooserdialog1_destroy
-					(GtkObject * object, 
+					(GtkWidget * object, 
 					gpointer user_data);
 
 void
@@ -3685,7 +3701,7 @@ on_cif_dictionary_filechooserdialog1_response
 
 void
 on_cif_dictionary_filechooserdialog1_destroy
-					(GtkObject * object, 
+					(GtkWidget * object, 
 					gpointer user_data);
 
 void
@@ -3696,7 +3712,7 @@ on_run_script_filechooserdialog1_response
 
 void
 on_run_script_filechooserdialog1_destroy
-					(GtkObject * object, 
+					(GtkWidget * object, 
 					gpointer user_data);
 
 #if ((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 9))
@@ -3729,7 +3745,7 @@ on_save_symmetry_coords_filechooserdialog1_response
 
 void
 on_save_symmetry_coords_filechooserdialog1_destroy
-					(GtkObject * object, 
+					(GtkWidget * object, 
 					gpointer user_data);
 
 
@@ -3741,7 +3757,7 @@ on_save_state_filechooserdialog1_response
 
 void
 on_save_state_filechooserdialog1_destroy
-					(GtkObject * object, 
+					(GtkWidget * object, 
 					gpointer user_data);
 
 
@@ -3753,7 +3769,7 @@ on_screendump_filechooserdialog1_response
 
 void
 on_screendump_filechooserdialog1_destroy
-					(GtkObject * object, 
+					(GtkWidget * object, 
 					gpointer user_data);
 
 #endif 
@@ -3776,7 +3792,7 @@ on_single_map_properties_contour_level_apply_button_clicked
 
 void
 on_checked_waters_baddies_dialog_destroy
-                                        (GtkObject       *object,
+                                        (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -4043,7 +4059,7 @@ on_fixed_atom_close_button_clicked     (GtkButton       *button,
                                         gpointer         user_data);
 
 void
-on_fixed_atom_dialog_destroy           (GtkObject       *object,
+on_fixed_atom_dialog_destroy           (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -4287,7 +4303,7 @@ on_find_ligands_search_here_radiobutton_toggled
                                         gpointer         user_data);
 
 void
-on_symmetry_controller_dialog_destroy  (GtkObject       *object,
+on_symmetry_controller_dialog_destroy  (GtkWidget       *object,
                                         gpointer         user_data);
 
 void
@@ -4473,7 +4489,7 @@ on_generic_objects_dialog_close        (GtkDialog       *dialog,
                                         gpointer         user_data);
 
 void
-on_generic_objects_dialog_destroy      (GtkObject       *object,
+on_generic_objects_dialog_destroy      (GtkWidget       *object,
                                         gpointer         user_data);
 
 void

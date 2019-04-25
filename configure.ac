@@ -180,19 +180,23 @@ dnl =========================== GTK, GNOMECANVAS ===========================
 coot_gtk2=TRUE
 
 # AM_PATH_GTK(2.4.14)
-PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.12)
+PKG_CHECK_MODULES(GTK, gtk+-3.0 >= 3.20)
 
 # libgnomecanvas is not provided on new GNU/Linux systems.
 # So until all libgnomecanvas-using code is replaced I will have to install that myself
 # rather than rely on the system for it
 #
-PKG_CHECK_MODULES(GNOME_CANVAS, libgnomecanvas-2.0 >= 0.15.0)
-if test -n "$GNOME_CANVAS_CFLAGS" ; then 
-   GNOME_CANVAS_CFLAGS="-DHAVE_GNOME_CANVAS $GNOME_CANVAS_CFLAGS"
-fi
-AC_SUBST(GNOME_CANVAS_CFLAGS)
 
-AM_PATH_GTKGLEXT_1_0(1.0.0,,[exit 1]) 
+# I don't know what is happening here yet.
+
+# PKG_CHECK_MODULES(GNOME_CANVAS, libgnomecanvas-2.0 >= 0.15.0)
+# if test -n "$GNOME_CANVAS_CFLAGS" ; then 
+   # GNOME_CANVAS_CFLAGS="-DHAVE_GNOME_CANVAS $GNOME_CANVAS_CFLAGS"
+# fi
+# AC_SUBST(GNOME_CANVAS_CFLAGS)
+
+# AM_PATH_GTKGLEXT_1_0(1.0.0,,[exit 1]) 
+
 MAKE_COOTRC_CMD="sed -e 's/\#GTK2 //' "
 AC_SUBST(MAKE_COOTRC_CMD)
 
