@@ -153,17 +153,21 @@ void delete_object_handle_delete_dialog(short int do_delete_dialog) {
 	 //
 	 GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget,
 						"delete_item_keep_active_checkbutton");
-	 if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
+	 // if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
+	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) {
 	    // don't kill the widget
 	    pick_cursor_maybe(); // it was set to normal_cursor() in
                                  // graphics-info-define's delete_item().
 	 } else {
 	 
 	    gint upositionx, upositiony;
-	    gdk_window_get_root_origin (graphics_info_t::delete_item_widget->window,
-					&upositionx, &upositiony);
-	    graphics_info_t::delete_item_widget_x_position = upositionx;
-	    graphics_info_t::delete_item_widget_y_position = upositiony;
+
+            // set the position for the dialog GTK-FIXME
+	    // gdk_window_get_root_origin (graphics_info_t::delete_item_widget->window,
+					// &upositionx, &upositiony);
+	    // graphics_info_t::delete_item_widget_x_position = upositionx;
+	    // graphics_info_t::delete_item_widget_y_position = upositiony;
+
 	    gtk_widget_destroy(graphics_info_t::delete_item_widget);
 	    graphics_info_t::delete_item_widget = NULL;
 	    graphics_draw();

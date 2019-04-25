@@ -68,6 +68,7 @@
 #include "coords/Bond_lines.h"
 
 #include "graphics-info.h"
+#include "widget-headers.hh"
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "utils/coot-fasta.hh"
