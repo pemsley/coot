@@ -10,7 +10,7 @@ namespace coot {
 }
 
 GtkWidget *make_menu_item( gchar         *name,
-                           GtkSignalFunc  callback,
+                           GCallback  callback,
                            gpointer       data );
 
 

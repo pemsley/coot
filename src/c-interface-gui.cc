@@ -82,10 +82,6 @@
 #include "coords/mmdb.h"  // for centre of molecule
 #include "clipper/core/clipper_instance.h"
 
-#if (GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION > 5))
-#define HAVE_GTK_COMBO_BOX_GET_ACTIVE_TEXT
-#endif
-
 void set_show_paths_in_display_manager(int i) { 
    std::string cmd = "set-show-paths-in-display-manager";
    std::vector<coot::command_arg_t> args;
@@ -141,24 +137,19 @@ open_cif_dictionary_file_selector_dialog() {
       set_directory_for_fileselection(fileselection);
       set_file_selection_dialog_size(fileselection);
 
-      if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
+      if (true) {
 
-	 GtkWidget *aa_hbutton_box = gtk_dialog_get_action_area(GTK_DIALOG(fileselection));
+	 // GtkWidget *aa_hbutton_box = gtk_dialog_get_action_area(GTK_DIALOG(fileselection));
+
+	 std::cout << "GTK-FIXME no action area" << std::endl;
+	 
+	 GtkWidget *aa_hbutton_box = gtk_dialog_get_header_bar(GTK_DIALOG(fileselection));
 	 if (GTK_IS_HBUTTON_BOX(aa_hbutton_box)) {
 	    add_cif_dictionary_selector_molecule_selector(fileselection, aa_hbutton_box);
 	    add_cif_dictionary_selector_create_molecule_checkbutton(fileselection, aa_hbutton_box);
 	 }
-
-      } else {
-
-	 // classic (I'm in the club, Moet Chandon in my cup...)
-
-	 GtkWidget *aa_hbox = GTK_FILE_SELECTION(fileselection)->action_area;
-	 if (aa_hbox) {
-	    add_cif_dictionary_selector_molecule_selector(fileselection, aa_hbox);
-	    add_cif_dictionary_selector_create_molecule_checkbutton(fileselection, aa_hbox);
-	 }
       }
+      // there is no file selector now
       gtk_widget_show(fileselection);
    }
 }
@@ -167,27 +158,9 @@ void
 add_cif_dictionary_selector_molecule_selector(GtkWidget *fileselection, // maybe it's a chooser
 					      GtkWidget *aa_hbox) {
 
-   // if we came from a chooser, aa_hbox is an hbutton_box
-   // if we came from a selector, aa_hbox is an hbox.
+   std::cout << "GTK-FIXME --- delete this function add_cif_dictionary_selector_molecule_selector"
+	     << std::endl;
 
-   GtkWidget *frame = gtk_frame_new("Select Mol");
-   GtkWidget *optionmenu = gtk_option_menu_new();
-   g_object_set_data_full(G_OBJECT(fileselection),
-			  "cif_dictionary_file_selector_molecule_select_option_menu",
-			  gtk_widget_ref(optionmenu),
-			  (GDestroyNotify) gtk_widget_unref);
-
-   GtkSignalFunc callback_func =
-      GTK_SIGNAL_FUNC(cif_dictionary_molecule_menu_item_select);
-
-   graphics_info_t g;
-   int imol = first_coords_imol();
-   fill_option_menu_with_coordinates_options_for_dictionary(optionmenu);
-
-   gtk_box_pack_start(GTK_BOX(aa_hbox), frame, FALSE, TRUE, 0);
-   gtk_container_add(GTK_CONTAINER(frame),optionmenu);
-   gtk_widget_show(optionmenu);
-   gtk_widget_show(frame);
 }
 
 void
@@ -195,49 +168,55 @@ fill_option_menu_with_coordinates_options_for_dictionary(GtkWidget *option_menu)
 
    // Auto is at the top, followed by All, then numbers
 
-   GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
-   if (GTK_IS_MENU(menu))
-      gtk_widget_destroy(menu);
-   menu = gtk_menu_new();
+//    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
+//    if (GTK_IS_MENU(menu))
+//       gtk_widget_destroy(menu);
+//    menu = gtk_menu_new();
 
-   GtkSignalFunc signal_func = GTK_SIGNAL_FUNC(cif_dictionary_molecule_menu_item_select);
+   std::cout << "GTK-FIXME no gtk_option_menu_get_menu" << std::endl;
+
+   GtkWidget *menu = NULL;
+
+   GCallback signal_func = G_CALLBACK(cif_dictionary_molecule_menu_item_select);
 
    if (graphics_n_molecules() > 0) {
       GtkWidget *menuitem = gtk_menu_item_new_with_label ("Auto");
-      gtk_signal_connect (GTK_OBJECT (menuitem), "activate",
+      g_signal_connect (G_OBJECT (menuitem), "activate",
 			  signal_func,
 			  GINT_TO_POINTER(coot::protein_geometry::IMOL_ENC_AUTO));
       g_object_set_data(G_OBJECT(menuitem),
 			"select_molecule_number",
 			GINT_TO_POINTER(coot::protein_geometry::IMOL_ENC_AUTO));
-      gtk_menu_append(GTK_MENU(menu), menuitem);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
       gtk_widget_show(menuitem);
       menuitem = gtk_menu_item_new_with_label ("All");
-      gtk_signal_connect (GTK_OBJECT (menuitem), "activate",
+      g_signal_connect (G_OBJECT (menuitem), "activate",
 			  signal_func,
 			  GINT_TO_POINTER(coot::protein_geometry::IMOL_ENC_ANY));
       g_object_set_data(G_OBJECT(menuitem),
 			"select_molecule_number",
 			GINT_TO_POINTER(coot::protein_geometry::IMOL_ENC_ANY));
-      gtk_menu_append(GTK_MENU(menu), menuitem);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
       gtk_widget_show(menuitem);
       for (int imol=0; imol<graphics_n_molecules(); imol++) {
 	 if (is_valid_model_molecule(imol)) {
 	    std::string ss = coot::util::int_to_string(imol);
 	    GtkWidget *menuitem = gtk_menu_item_new_with_label (ss.c_str());
-	    gtk_signal_connect(GTK_OBJECT (menuitem), "activate",
+	    g_signal_connect(G_OBJECT (menuitem), "activate",
 			       signal_func,
 			       GINT_TO_POINTER(imol));
 	    g_object_set_data(G_OBJECT(menuitem),
 			      "select_molecule_number",
 			      GINT_TO_POINTER(imol));
-	    gtk_menu_append(GTK_MENU(menu), menuitem);
+	    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 	    gtk_widget_show(menuitem);
 	 }
       }
       gtk_menu_set_active(GTK_MENU(menu), 0);
    }
-   gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
+
+   // gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
+   std::cout << "GTK-FIXME no gtk_option_menu_set_menu A" << std::endl;
 }
 
 void cif_dictionary_molecule_menu_item_select(GtkWidget *item, GtkPositionType pos) {
@@ -259,8 +238,8 @@ add_cif_dictionary_selector_create_molecule_checkbutton(GtkWidget *fileselection
    GtkWidget *checkbutton = gtk_check_button_new_with_label(" Generate a Molecule");
    g_object_set_data_full(G_OBJECT(fileselection),
 			  "cif_dictionary_file_selector_create_molecule_checkbutton",
-			  gtk_widget_ref(checkbutton),
-			  (GDestroyNotify) gtk_widget_unref);
+			  checkbutton, // remove gtk_widget_ref
+			  (GDestroyNotify) NULL);
 
    graphics_info_t g;
 
@@ -268,8 +247,8 @@ add_cif_dictionary_selector_create_molecule_checkbutton(GtkWidget *fileselection
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
 
    // do we need to connect this signal?
-   GtkSignalFunc callback_func =
-      GTK_SIGNAL_FUNC(on_cif_dictionary_file_selector_create_molecule_checkbutton_toggled);
+   GCallback callback_func =
+      G_CALLBACK(on_cif_dictionary_file_selector_create_molecule_checkbutton_toggled);
 
    gtk_box_pack_start(GTK_BOX(aa_hbox), frame, FALSE, TRUE, 0);
    gtk_container_add(GTK_CONTAINER(frame), checkbutton);
@@ -283,7 +262,7 @@ void
 on_cif_dictionary_file_selector_create_molecule_checkbutton_toggled (GtkButton       *button,
 								     gpointer         user_data) {
 
-   if (GTK_TOGGLE_BUTTON(button)->active) {
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
       std::cout << "Make a molecule after dictionary" << std::endl;
    } else {
       std::cout << "on_cif_dictionary_file_selector_create_molecule_checkbutton_toggled() "
@@ -311,7 +290,7 @@ void fill_remarks_browswer_chooser(GtkWidget *w) {
    GtkWidget *option_menu = lookup_widget(w, "remarks_browser_molecule_chooser_optionmenu");
    if (option_menu) {
       graphics_info_t g;
-      GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(remarks_browswer_molecule_item_select);
+      GCallback callback_func = G_CALLBACK(remarks_browswer_molecule_item_select);
       int imol = first_coords_imol();
       graphics_info_t::imol_remarks_browswer = imol;
       g.fill_option_menu_with_coordinates_options(option_menu, callback_func, imol);
@@ -504,7 +483,7 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
 					    "use_weights_checkbutton"));
 
    
-   if (GTK_TOGGLE_BUTTON(check_weights)->active == 1) { 
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check_weights))) { 
       use_weights = 1;
    } else { 
       use_weights = 0;
@@ -515,14 +494,15 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
    is_diff_map_checkbutton = GTK_CHECK_BUTTON(lookup_widget(GTK_WIDGET(column_label_window),
 							    "difference_map_checkbutton"));
 
-   if (GTK_TOGGLE_BUTTON(is_diff_map_checkbutton)->active) { 
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(is_diff_map_checkbutton))) { 
      is_diff_map = 1;
    } else{ 
      is_diff_map = 0;
    }
      
    coot::mtz_column_types_info_t *saved_f_phi_columns
-      = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(column_label_window));
+      = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(column_label_window),
+							    "mtz_column_type_info");
 
    const char *object_mtz_filename = saved_f_phi_columns->mtz_filename.c_str();
    /* Get the values that the user has selected in the option menu
@@ -556,7 +536,7 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
      resolution_limit_check_button = 
        GTK_CHECK_BUTTON(lookup_widget(GTK_WIDGET(column_label_window), 
 				       "column_labels_use_resolution_limits_checkbutton"));
-     if (GTK_TOGGLE_BUTTON(resolution_limit_check_button)->active) { 
+     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(resolution_limit_check_button))) { 
 
        /* yes, it is.. */
 
@@ -581,7 +561,7 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
      refmac_checkbutton = lookup_widget(GTK_WIDGET(column_label_window),
 					"refmac_column_labels_checkbutton");
 
-     if (GTK_TOGGLE_BUTTON(refmac_checkbutton)->active) { 
+     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(refmac_checkbutton))) { 
 
        have_refmac_params = 1; 
 
@@ -591,10 +571,12 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
        r_free_option_menu  = lookup_widget(column_label_window, "refmac_rfree_optionmenu");
   
        /* find the refmac menus */
-       fobs_menu    = gtk_option_menu_get_menu(GTK_OPTION_MENU(fobs_option_menu));
-       sigfobs_menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(sigfobs_option_menu));
-       r_free_menu  = gtk_option_menu_get_menu(GTK_OPTION_MENU(r_free_option_menu));
-
+       // fobs_menu    = gtk_option_menu_get_menu(GTK_OPTION_MENU(fobs_option_menu));
+       // sigfobs_menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(sigfobs_option_menu));
+       // r_free_menu  = gtk_option_menu_get_menu(GTK_OPTION_MENU(r_free_option_menu));
+       
+       std::cout << "GTK-FIXME no gtk_option_menu_get_menu B" << std::endl;
+       
        /* now assign the columns */
        icol = saved_f_phi_columns->selected_refmac_fobs_col;
        fobs_col = saved_f_phi_columns->f_cols[icol].column_label;
@@ -679,7 +661,8 @@ void add_coot_references_button(GtkWidget *widget) {
 
   GtkWidget *hbox;
   GtkWidget *button;
-  hbox = GTK_DIALOG(widget)->action_area;
+  // hbox = GTK_DIALOG(widget)->action_area;
+  hbox = gtk_dialog_get_header_bar(GTK_DIALOG(widget));
   button = gtk_button_new_with_label("References");
   gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
   gtk_button_box_set_child_secondary(GTK_BUTTON_BOX(hbox), button, TRUE);
@@ -1068,7 +1051,8 @@ void set_graphics_window_position(int x_pos, int y_pos) {
       graphics_info_t g;
       GtkWidget *main = lookup_widget(g.glarea, "window1");
       if (main) { 
-	 gtk_widget_set_uposition(main, x_pos, y_pos);
+	 // gtk_widget_set_uposition(main, x_pos, y_pos);
+	 std::cout << "GTK-FIXME no gtk_widget_set_usize A" << std::endl;
 	 while (gtk_events_pending())
 	    gtk_main_iteration();
       }
@@ -1097,7 +1081,8 @@ store_window_position(int window_type, GtkWidget *widget) {
 #ifdef WINDOWS_MINGW
    gdk_window_get_position (widget->window, &upositionx, &upositiony);
 #else
-   gdk_window_get_root_origin (widget->window, &upositionx, &upositiony);
+   std::cout << "GTK-FIXME no widget window" << std::endl;
+   gtk_window_get_position(GTK_WINDOW(widget), &upositionx, &upositiony);
 #endif // MINGW
 
 //    std::cout << "in store_window_position, widget is " << widget
@@ -1134,27 +1119,32 @@ store_window_position(int window_type, GtkWidget *widget) {
    if (window_type == COOT_DISPLAY_CONTROL_WINDOW) {
       graphics_info_t::display_manager_x_position = upositionx;
       graphics_info_t::display_manager_y_position = upositiony;
-      graphics_info_t::display_manager_x_size = widget->allocation.width;
-      graphics_info_t::display_manager_y_size = widget->allocation.height;
+   std::cout << "GTK-FIXME no widget allocation" << std::endl;
+      // graphics_info_t::display_manager_x_size = widget->allocation.width;
+      // graphics_info_t::display_manager_y_size = widget->allocation.height;
    }
 
    if (window_type == COOT_DISPLAY_CONTROL_MAPS_VBOX) {
-      graphics_info_t::display_manager_maps_vbox_x_size =
-	 widget->allocation.width;
-      graphics_info_t::display_manager_maps_vbox_y_size =
-	 widget->allocation.height;
+      std::cout << "GTK-FIXME no widget allocation" << std::endl;
+      // graphics_info_t::display_manager_maps_vbox_x_size =
+      // widget->allocation.width;
+      // graphics_info_t::display_manager_maps_vbox_y_size =
+      // widget->allocation.height;
    }
    if (window_type == COOT_DISPLAY_CONTROL_MOLECULES_VBOX) {
-      graphics_info_t::display_manager_molecules_vbox_x_size =
-	 widget->allocation.width;
-      graphics_info_t::display_manager_molecules_vbox_y_size =
-	 widget->allocation.height;
+      std::cout << "GTK-FIXME no widget allocation" << std::endl;
+      // graphics_info_t::display_manager_molecules_vbox_x_size =
+      // widget->allocation.width;
+      // graphics_info_t::display_manager_molecules_vbox_y_size =
+      // widget->allocation.height;
    }
    if (window_type == COOT_DISPLAY_CONTROL_PANE) {
       // This is a klude because this version of gtk doesn't seem to
       // have a nice accessor such as gtk_pane_get_position()
       GtkPaned *paned = GTK_PANED(widget);
-      graphics_info_t::display_manager_paned_position = paned->child1_size;
+
+      std::cout << "GTK-FIXME no child1_size A" << std::endl;
+      // graphics_info_t::display_manager_paned_position = paned->child1_size;
    }
 
    if (window_type == COOT_EDIT_CHI_DIALOG) {
@@ -1183,19 +1173,16 @@ void
 store_window_size(int window_type, GtkWidget *widget) {
 
    if (window_type == COOT_FILESELECTION_DIALOG) {
-      graphics_info_t::file_selection_dialog_x_size = widget->allocation.width;
-      graphics_info_t::file_selection_dialog_y_size = widget->allocation.height;
+      std::cout << "GTK-FIXME no widget allocation" << std::endl;
+      // graphics_info_t::file_selection_dialog_x_size = widget->allocation.width;
+      // graphics_info_t::file_selection_dialog_y_size = widget->allocation.height;
    }
 }
 
 void set_file_selection_dialog_size(GtkWidget *dialog) {
 
    if (graphics_info_t::file_selection_dialog_x_size > 0) {
-#if (GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION > 2))
       if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
-//          gtk_widget_set_size_request(dialog,
-//  			   graphics_info_t::file_selection_dialog_x_size,
-// 			   graphics_info_t::file_selection_dialog_y_size);
          gtk_window_set_default_size(GTK_WINDOW(dialog),
 				     graphics_info_t::file_selection_dialog_x_size,
 				     graphics_info_t::file_selection_dialog_y_size);
@@ -1204,11 +1191,6 @@ void set_file_selection_dialog_size(GtkWidget *dialog) {
  			   graphics_info_t::file_selection_dialog_x_size,
 			   graphics_info_t::file_selection_dialog_y_size);
       }
-#else
-      gtk_widget_set_usize(dialog,
-			   graphics_info_t::file_selection_dialog_x_size,
-			   graphics_info_t::file_selection_dialog_y_size);
-#endif // GTK_MAJOR
    }
 }
 
@@ -1383,17 +1365,7 @@ coot_save_state_and_exit(int retval, int save_state_flag) {
 void
 add_file_dialog_action_area_vbox(GtkWidget *fileselection) {
 
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
-   } else {
-      GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
-      GtkWidget *frame = gtk_frame_new("Options");
-      GtkWidget *vbox  = gtk_vbox_new(FALSE, 2);
-      gtk_object_set_data(GTK_OBJECT(fileselection), "action_area_vbox", vbox);
-      gtk_widget_show(vbox);
-      gtk_widget_show(frame);
-      gtk_container_add(GTK_CONTAINER(aa), frame);
-      gtk_container_add(GTK_CONTAINER(frame), vbox);
-   }  
+   std::cout << "GTK-FIXME no fileselection" << std::endl;
 }
 
 
@@ -1414,25 +1386,6 @@ GtkWidget *add_filename_filter_button(GtkWidget *fileselection,
       	no_chooser_filter = 0;
 	add_filechooser_filter_button(fileselection, data_type);
    }
-
-   if (no_chooser_filter) {
-      GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
-      GtkWidget *frame = gtk_frame_new("File-name filter:");
-      
-      int d = data_type;
-      button = gtk_toggle_button_new_with_label("Filter");
-
-      gtk_widget_ref(button);
-      gtk_widget_show(button);
-      gtk_container_add(GTK_CONTAINER(aa),frame);
-      
-      gtk_container_add(GTK_CONTAINER(frame), button);
-      // callback in c-interface-gtk2.cc
-      gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			  GTK_SIGNAL_FUNC (on_filename_filter_toggle_button_toggled),
-			  GINT_TO_POINTER(d));
-      gtk_widget_show(frame);
-   }
    
    return button;
 }
@@ -1445,30 +1398,6 @@ void add_save_coordinates_include_hydrogens_and_aniso_checkbutton(GtkWidget *fil
       	no_chooser_filter = 0;
    }
 
-   if (no_chooser_filter) {
-      GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
-      GtkWidget *vbox = lookup_widget(GTK_WIDGET(fileselection), "action_area_vbox");
-
-      if (vbox) { 
-
-	 GtkWidget *checkbutton_hydrogens = gtk_check_button_new_with_label("Save Hydrogens");
-	 GtkWidget *checkbutton_aniso = gtk_check_button_new_with_label("Save ANISO records");
-
-	 gtk_object_set_data(GTK_OBJECT(fileselection), "checkbutton_hydrogens",
-			     checkbutton_hydrogens);
-	 gtk_object_set_data(GTK_OBJECT(fileselection), "checkbutton_aniso",
-			     checkbutton_aniso);
-	 
-	 gtk_box_pack_start(GTK_BOX(vbox), checkbutton_hydrogens, FALSE, FALSE, 2);
-	 gtk_box_pack_start(GTK_BOX(vbox), checkbutton_aniso,     FALSE, FALSE, 2);
-	 
-	 gtk_widget_show(checkbutton_hydrogens);
-	 gtk_widget_show(checkbutton_aniso);
-
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton_hydrogens), TRUE);
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton_aniso),     TRUE);
-      }
-   }
 }
 
 
@@ -1590,7 +1519,7 @@ void
 on_read_map_difference_map_toggle_button_toggled (GtkButton       *button,
 						  gpointer         user_data)
 {
-   if (GTK_TOGGLE_BUTTON(button)->active) { 
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) { 
       std::cout << "is a difference map...!\n";
    } 
 }
@@ -1607,14 +1536,9 @@ on_filename_filter_key_press_event (GtkWidget       *widget,
    //    { // Tab is not good.  It takes you to the next widget too,
    //    which is not want we want.  It's confusing, so let's just use
    //    return.
-   if (event->keyval == GDK_Return) { 
-      // std::cout << "Return pressed!\n";
-#ifdef COOT_USE_GTK2_INTERFACE
+   if (event->keyval == GDK_KEY_Return) {
       handle_filename_filter_gtk2(widget);
-#else       
-      handle_filename_filter_gtk1(widget);
-#endif       
-   } 
+   }
    return FALSE;
 }
 
@@ -1622,6 +1546,12 @@ on_filename_filter_key_press_event (GtkWidget       *widget,
 
 std::string pre_directory_file_selection(GtkWidget *sort_button) { 
 
+
+   std::cout << "GTK-FIXME pre_directory_file_selection() " << std::endl;
+
+   std::string pre_directory("");
+
+   /*
    GtkOptionMenu *history_pulldown =
       GTK_OPTION_MENU(gtk_object_get_user_data(GTK_OBJECT(sort_button)));
 
@@ -1631,11 +1561,8 @@ std::string pre_directory_file_selection(GtkWidget *sort_button) {
 
    GList *dlist = gtk_container_children(GTK_CONTAINER(history_pulldown));
    GList *free_list = dlist;
-   std::string pre_directory("");
    
    while (dlist) {
-      // GtkWidget *list_item;
-      // list_item = (GtkWidget *) (dlist->data);
       gchar *t = GTK_LABEL(dlist->data)->label;
       if (t != NULL) {
 	 pre_directory = t; 
@@ -1644,7 +1571,8 @@ std::string pre_directory_file_selection(GtkWidget *sort_button) {
       } 
       dlist = dlist->next;
    }
-   g_list_free(free_list); 
+   g_list_free(free_list);
+   */
 
    return pre_directory;
 }
@@ -1656,121 +1584,36 @@ void push_the_buttons_on_fileselection(GtkWidget *filter_button,
 				       GtkWidget *sort_button,
 				       GtkWidget *fileselection) {
 
-   bool no_chooser = 1;
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE)
-      {
-	 no_chooser = 0;
-      }
-   if (filter_fileselection_filenames_state() && no_chooser) {
-      g_signal_emit_by_name(G_OBJECT(filter_button), "clicked");
-      std::cout << "INFO:: Filtering file names \n";
-   }
-   if (graphics_info_t::sticky_sort_by_date) {
-      GtkWidget *file_list;
-      if (no_chooser) {
-	 std::cout << "INFO:: Sorting files by date\n";
-	 file_list = GTK_FILE_SELECTION(fileselection)->file_list;
-      }
-      if (no_chooser) {
-	 g_signal_emit_by_name(G_OBJECT(sort_button), "clicked", file_list);
-      }
-   }
+   std::cout << "GTK-FIXME no fileselection C" << std::endl;
 }
 
 void 
 filelist_into_fileselection_clist(GtkWidget *fileselection, const std::vector<std::string> &v) {
 
-   GtkCList  *file_list = GTK_CLIST(GTK_FILE_SELECTION(fileselection)->file_list);
-   gtk_clist_clear(file_list);
-   std::string::size_type islash;
-   std::string t;
-   for (unsigned int i=0; i<v.size(); i++) {
-      islash = v[i].find_last_of("/");
-      if (islash == string::npos) { 
-	 // no slash found:
-	 t = v[i];
-      } else {
-	 t = v[i].substr(islash + 1);
-      }
-      char *text = new char[t.length()+1];
-      strncpy(text, t.c_str(), t.length()+1);
-      gtk_clist_append(file_list, &text);
-   }
+   std::cout << "GTK-FIXME no fileselection" << std::endl;
 }
 
 /*  Eleanor likes to sort her files by date when selecting a file
 */
 GtkWidget *add_sort_button_fileselection(GtkWidget *fileselection) {
 
-   GtkWidget *button = 0;
-   bool doit = 1;
-
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == 1)
-      doit = 0;
-   
-   if (doit) {
-      GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
-      GtkWidget *frame = gtk_frame_new("File Order");
-      button = gtk_button_new_with_label("  Sort by Date  ");
-      gtk_widget_ref(button);
-      gtk_object_set_data_full(GTK_OBJECT(fileselection),
-			       "fileselection_sort_button",
-			       button,
-			       (GtkDestroyNotify) gtk_widget_unref);
-      GtkWidget *file_list = GTK_FILE_SELECTION(fileselection)->file_list;
-      
-      GtkOptionMenu *history_pulldown =
-	 GTK_OPTION_MENU(GTK_FILE_SELECTION(fileselection)->history_pulldown);
-      
-      gtk_object_set_user_data(GTK_OBJECT(button), (char *) history_pulldown); 
-      
-      
-      g_signal_connect (G_OBJECT(button), "clicked",
-			G_CALLBACK(fileselection_sort_button_clicked),
-			file_list);
-      
-      gtk_container_add(GTK_CONTAINER(aa),frame);
-      gtk_container_add(GTK_CONTAINER(frame), button);
-      gtk_widget_show(frame);
-      gtk_widget_show(button);
-
-   } else {
-	// we have the chooser and don't need a sort button
-   }
-   return button;
+   std::cout << "GTK-FIXME no fileselection" << std::endl;
+   return 0;
 }
 
 void add_is_difference_map_checkbutton(GtkWidget *fileselection) { 
 
   bool add_map_button = 1;
-#if (GTK_MAJOR_VERSION > 1)
+
   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
       add_map_button = 0;
-  }
-#endif // GTK_MAJOR_VERSION
-  if (add_map_button) {
-   GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
-   GtkWidget *button = gtk_check_button_new_with_label("Is Difference Map");
-   GtkWidget *frame = gtk_frame_new("Difference Map?");
-
-   gtk_widget_ref(button);
-   gtk_object_set_data_full(GTK_OBJECT(fileselection),
-			    "map_fileselection_is_difference_map_button",
-			    button,
-			    (GtkDestroyNotify) gtk_widget_unref);
-   gtk_widget_show(button);
-   gtk_container_add(GTK_CONTAINER(aa),frame);
-   gtk_container_add(GTK_CONTAINER(frame), button);
-   gtk_signal_connect (GTK_OBJECT (button), "toggled",
-		       GTK_SIGNAL_FUNC (on_read_map_difference_map_toggle_button_toggled),
-		       NULL);
-   gtk_widget_show(frame);
   }
 
 }
 
 void add_recentre_on_read_pdb_checkbutton(GtkWidget *fileselection) { 
 
+   /* 
    bool doit = 1;
 
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
@@ -1811,9 +1654,9 @@ void add_recentre_on_read_pdb_checkbutton(GtkWidget *fileselection) {
 	 gtk_widget_show(button);
 	 gtk_container_add(GTK_CONTAINER(aa),frame);
 	 gtk_container_add(GTK_CONTAINER(frame), button);
-	 gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			     GTK_SIGNAL_FUNC (on_recentre_on_read_pdb_toggle_button_toggled),
-			     NULL);
+	 g_signal_connect (G_OBJECT (button), "toggled",
+			   GTK_SIGNAL_FUNC (on_recentre_on_read_pdb_toggle_button_toggled),
+			   NULL);
 	 gtk_widget_show(frame);
       } else {
 
@@ -1837,22 +1680,21 @@ void add_recentre_on_read_pdb_checkbutton(GtkWidget *fileselection) {
 	 GtkWidget *menuitem;
 
 	 menuitem = gtk_menu_item_new_with_label("Recentre on Molecule");
-	 gtk_menu_append(GTK_MENU(menu), menuitem);
+	 gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 	 gtk_widget_show(menuitem);
 	 // shall we activate the button?
 	 if (graphics_info_t::recentre_on_read_pdb)
 	    gtk_menu_item_activate(GTK_MENU_ITEM(menuitem));
 	 //
 	 menuitem = gtk_menu_item_new_with_label("Don't Recentre");
-	 gtk_menu_append(GTK_MENU(menu), menuitem);
+	 gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 	 if (!graphics_info_t::recentre_on_read_pdb)
 	    gtk_menu_item_activate(GTK_MENU_ITEM(menuitem));
 	 gtk_widget_show(menuitem);
 	 // 
 	 menuitem = gtk_menu_item_new_with_label("Recentre Molecule Here");
-	 gtk_menu_append(GTK_MENU(menu), menuitem);
+	 gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 	 gtk_widget_show(menuitem);
-	 
 
 
 	 gtk_widget_show(om);
@@ -1862,6 +1704,7 @@ void add_recentre_on_read_pdb_checkbutton(GtkWidget *fileselection) {
 	 gtk_widget_show(frame);
       }
    }
+   */
 }
 
 
@@ -1869,7 +1712,7 @@ void
 on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
 					       gpointer         user_data)
 {
-   if (GTK_TOGGLE_BUTTON(button)->active) { 
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) { 
       std::cout << "INFO:: activated recentering on new coordinates.\n";
    } else {
       std::cout << "INFO:: de-activated recentering on new coordinates.\n";
@@ -1890,15 +1733,9 @@ setup_python_window_entry(GtkWidget *entry) {
 
    // add python entry in entry callback code here...
 
-#if (GTK_MAJOR_VERSION > 1) 
     g_signal_connect(G_OBJECT(entry), "activate",
 		     G_CALLBACK(python_window_enter_callback),
 		     (gpointer) entry);
-#else
-    gtk_signal_connect(GTK_OBJECT(entry), "activate",
-		       GTK_SIGNAL_FUNC(python_window_enter_callback),
-		       entry);
-# endif // GTK_MAJOR_VERSION
 
 #endif // USE_PYTHON
 
@@ -1983,7 +1820,7 @@ void guile_window_enter_callback( GtkWidget *widget,
 // it to graphics_info_t because it is also used when there is an
 // ambiguity in the map for refinement (graphics_info_t::refine)
 // 
-int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signalfunc) {
+int fill_option_menu_with_map_options(GtkWidget *option_menu, GCallback signalfunc) {
 
    graphics_info_t g;
 
@@ -1991,7 +1828,7 @@ int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc sign
 }
 
 // This is for maps which come from mtz (i.e. have SFs)
-int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signalfunc) {
+int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GCallback signalfunc) {
 
    graphics_info_t g;
 
@@ -2018,7 +1855,7 @@ void set_contour_by_sigma_step_maybe(GtkWidget *window, int imol) {
    GtkWidget *button = lookup_widget(window, "single_map_sigma_checkbutton");
    GtkWidget *entry  = lookup_widget(window, "single_map_sigma_step_entry");
 
-   if (GTK_TOGGLE_BUTTON(button)->active) { 
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) { 
       const gchar *text = gtk_entry_get_text(GTK_ENTRY(entry));
       if (text) {
 	 float v = atof(text);
@@ -2045,9 +1882,12 @@ void set_transient_and_position(int widget_type, GtkWidget *window) {
 	 bool done_set_pos = false;
 	 if (graphics_info_t::delete_item_widget_x_position > -100) {
 	    if (graphics_info_t::delete_item_widget_y_position > -100) {
-	       gtk_widget_set_uposition(window,
-					graphics_info_t::delete_item_widget_x_position,
-					graphics_info_t::delete_item_widget_y_position);
+	       
+	       std::cout << "GTK-FIXME no gtk_widget_set_uposition C" << std::endl;
+
+// 	       gtk_widget_set_uposition(window,
+// 					graphics_info_t::delete_item_widget_x_position,
+// 					graphics_info_t::delete_item_widget_y_position);
 	       done_set_pos = true;
 	    }
 	 }
@@ -2055,16 +1895,18 @@ void set_transient_and_position(int widget_type, GtkWidget *window) {
 	    int x_pos = graphics_info_t::graphics_x_position - 100;
 	    int y_pos = graphics_info_t::graphics_y_position + 100;
 	    if (x_pos < 5) x_pos = 5;
-	    gtk_widget_set_uposition(window, x_pos, y_pos);
+	       std::cout << "GTK-FIXME no gtk_widget_set_uposition D" << std::endl;
+	    // gtk_widget_set_uposition(window, x_pos, y_pos);
 	 }
       }
       if (widget_type == COOT_DISTANCES_ANGLES_WINDOW) {
 	 bool done_set_pos = false;
 	 if (graphics_info_t::distances_and_angles_dialog_x_position > -100) {
 	    if (graphics_info_t::distances_and_angles_dialog_y_position > -100) {
-	       gtk_widget_set_uposition(window,
-					graphics_info_t::distances_and_angles_dialog_x_position,
-					graphics_info_t::distances_and_angles_dialog_y_position);
+	       std::cout << "GTK-FIXME no gtk_widget_set_uposition E" << std::endl;
+// 	       gtk_widget_set_uposition(window,
+// 					graphics_info_t::distances_and_angles_dialog_x_position,
+// 					graphics_info_t::distances_and_angles_dialog_y_position);
 	       done_set_pos = true;
 	    }
 	 }
@@ -2072,7 +1914,8 @@ void set_transient_and_position(int widget_type, GtkWidget *window) {
 	    int x_pos = graphics_info_t::graphics_x_position - 100;
 	    int y_pos = graphics_info_t::graphics_y_position + 100;
 	    if (x_pos < 5) x_pos = 5;
-	    gtk_widget_set_uposition(window, x_pos, y_pos);
+	    std::cout << "GTK-FIXME no gtk_widget_set_uposition F" << std::endl;
+	    // gtk_widget_set_uposition(window, x_pos, y_pos);
 	 }
       }
    }
@@ -2082,37 +1925,21 @@ GtkWidget *coot_file_chooser() {
 
    GtkWidget *w;
 
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
-      w = create_coords_fileselection1();
-      gtk_file_selection_set_select_multiple(GTK_FILE_SELECTION(w), TRUE);
-   } else {
-      w = create_coords_filechooserdialog1(); 
-      gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(w), TRUE);
-   }
+   w = create_coords_filechooserdialog1(); 
+   gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(w), TRUE);
+
    return w;
 }
 
 GtkWidget *coot_dataset_chooser() {
 
-   GtkWidget *w;
-
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
-      w = create_dataset_fileselection1();
-   } else {
-      w = create_dataset_filechooserdialog1(); 
-   }
+   GtkWidget *w = create_dataset_filechooserdialog1(); 
    return w;
 }
 
 GtkWidget *coot_map_name_chooser() {
 
-   GtkWidget *w;
-
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
-      w = create_map_name_fileselection1();
-   } else {
-      w = create_map_name_filechooserdialog1(); 
-   }
+   GtkWidget *w = create_map_name_filechooserdialog1(); 
    return w;
 }
 
@@ -2120,110 +1947,49 @@ GtkWidget *coot_save_coords_chooser() {
 
    GtkWidget *w;
 
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
-      w = create_save_coords_fileselection1();
-   } else {
-      w = create_save_coords_filechooserdialog1();
-#if (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION < 10)
-      // we don't have confirmation overwrite
-#else      
-      gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
-#endif      
-   }
+   w = create_save_coords_filechooserdialog1();
+   gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
+
    return w;
 }
 
 GtkWidget *coot_cif_dictionary_chooser() {
 
-   GtkWidget *w;
-
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
-      w = create_cif_dictionary_fileselection();
-   } else {
-      w = create_cif_dictionary_filechooserdialog1();
-   }
-
+   GtkWidget *w = create_cif_dictionary_filechooserdialog1();
    return w;
 }
 
 GtkWidget *coot_run_script_chooser() {
 
-   GtkWidget *w;
-
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
-      w = create_run_script_fileselection();
-   } else {
-      w = create_run_script_filechooserdialog1(); 
-   }
-
+   GtkWidget *w = create_run_script_filechooserdialog1(); 
    return w;
 }
 
 GtkWidget *coot_save_state_chooser() {
 
-   GtkWidget *w;
-
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
-      w = create_save_state_fileselection();
-   } else {
-      w = create_save_state_filechooserdialog1(); 
-
-#if (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION < 10)
-      // we don't have confirmation overwrite
-#else      
-      gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
-#endif      
-      
-   }
+   GtkWidget *w = create_save_state_filechooserdialog1(); 
+   gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
    return w;
 }
 
 GtkWidget *coot_save_symmetry_chooser() {
 
-   GtkWidget *w;
-
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
-      w = create_save_symmetry_coords_fileselection();
-   } else {
-      w = create_save_symmetry_coords_filechooserdialog1();
-
-#if (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION < 10)
-      // we don't have confirmation overwrite
-#else      
-      gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
-#endif      
-   }
+   GtkWidget *w = create_save_symmetry_coords_filechooserdialog1();
+   gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
    return w;
 }
 
 GtkWidget *coot_screendump_chooser() {
 
-   GtkWidget *w;
-
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
-      w = create_screendump_fileselection();
-   } else {
-      w = create_screendump_filechooserdialog1(); 
-
-#if (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION < 10)
-      // we don't have confirmation overwrite
-#else      
-      gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
-#endif      
-
-   }
+   GtkWidget *w = create_screendump_filechooserdialog1(); 
+   gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
    return w;
-
 }
 
 
 void set_directory_for_coot_file_chooser(GtkWidget *coords_fileselection1) {
 
-      if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
-	set_directory_for_filechooser(coords_fileselection1);
-      } else {
-        set_directory_for_fileselection(coords_fileselection1);
-      }
+   set_directory_for_filechooser(coords_fileselection1);
 
 }
 
@@ -2247,8 +2013,9 @@ void handle_get_accession_code(GtkWidget *widget) {
    const gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
    text = coot::util::remove_trailing_whitespace(text).c_str();
    cout << "PDB Accession Code: " << text << endl;
-   int *n_p = (int *) gtk_object_get_user_data(GTK_OBJECT(lookup_widget(GTK_WIDGET(widget),
-									"accession_code_window")));
+
+   GtkWidget *w = lookup_widget(widget, "accession_code_window");
+   int *n_p = (int *) g_object_get_data(G_OBJECT(w), "accession_code");
    int n = *n_p;
    
 #ifdef USE_GUILE
@@ -2335,7 +2102,7 @@ void do_torsions_toggle(GtkWidget *togglebutton) {
       lookup_widget(togglebutton,
 		    "refine_params_use_peptide_torsions_checkbutton");
 
-   if (GTK_TOGGLE_BUTTON(togglebutton)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton)))
       g.do_torsion_restraints = 1;
    else
       g.do_torsion_restraints = 0;
@@ -2447,8 +2214,8 @@ void fill_chiral_volume_molecule_option_menu(GtkWidget *w) {
       } 
    }
    int imol = graphics_info_t::chiral_volume_molecule_option_menu_item_select_molecule;
-   GtkSignalFunc callback_func =
-      GTK_SIGNAL_FUNC(chiral_volume_molecule_option_menu_item_select);
+   GCallback callback_func =
+      G_CALLBACK(chiral_volume_molecule_option_menu_item_select);
 
    graphics_info_t g;
    g.fill_option_menu_with_coordinates_options(optionmenu, callback_func, imol);
@@ -2466,8 +2233,6 @@ void toggle_environment_show_distances(GtkToggleButton *button) {
 
    graphics_info_t g;
 
-   //    if (g.environment_show_distances == 0) {
-   
    GtkWidget *hbox = lookup_widget(GTK_WIDGET(button),
 				   "environment_distance_distances_frame");
    GtkWidget *distance_type_frame =
@@ -2476,17 +2241,14 @@ void toggle_environment_show_distances(GtkToggleButton *button) {
       lookup_widget(GTK_WIDGET(button),
 		    "environment_distance_label_atom_checkbutton");
    
-   if (button->active) { 
-      // std::cout << "toggled evironment distances on" << std::endl;
+   if (gtk_toggle_button_get_active(button)) {
+
       g.environment_show_distances = 1;
       gtk_widget_set_sensitive(hbox, TRUE);
       gtk_widget_set_sensitive(label_atom_check_button, TRUE);
       gtk_widget_set_sensitive(distance_type_frame, TRUE);
 
-      //
       std::pair<int, int> r =  g.get_closest_atom();
-//       std::cout << "DEBUG:: got close info: " 
-// 		<< r.first << " " << r.second << std::endl;
       if (r.first >= 0) {
 	 g.mol_no_for_environment_distances = r.second;
 	 g.update_environment_distances_maybe(r.first, r.second);
@@ -2578,7 +2340,7 @@ void toggle_pointer_distances_show_distances(GtkToggleButton *togglebutton) {
 
    GtkWidget *frame = lookup_widget(GTK_WIDGET(togglebutton),
 				    "pointer_distances_frame");
-   if (togglebutton->active) {
+   if (gtk_toggle_button_get_active(togglebutton)) {
       set_show_pointer_distances(1);
       gtk_widget_set_sensitive(frame, TRUE);
    } else {
@@ -2811,70 +2573,76 @@ toolbar_popup_menu (GtkToolbar *toolbar,
 		    GdkEventButton *event_button,
 		    gpointer user_data)
 {
-  GtkHandleBox *hdlbox = GTK_HANDLE_BOX(GTK_WIDGET(toolbar)->parent);
-  GtkWidget *menu = gtk_menu_new ();
-  GtkWidget *item;
 
-  static struct {
-    char const *text;
-    coot::model_toolbar::toolbar_position_type pos;
-  } const pos_items[] = {
-    { N_("Display to the right"),  coot::model_toolbar::RIGHT },
-    { N_("Display to the left"),   coot::model_toolbar::LEFT },
-    { N_("Display on the top"),    coot::model_toolbar::TOP },
-    { N_("Display on the bottom"), coot::model_toolbar::BOTTOM },
-  };
+   // deprecated GTK-FIXME
 
-#if (GTK_MAJOR_VERSION > 1)
-  if (hdlbox->child_detached) {
-    item = gtk_menu_item_new_with_label (_("Reattach to main window"));
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-    g_signal_connect (G_OBJECT (item), "activate",
-		      G_CALLBACK (reattach_modelling_toolbar),
-		      NULL);
-  } else {
-    size_t ui;
-    GSList *group = NULL;
+   
+   // I don't know how to fix this
+
+   /*
+   GtkHandleBox *hdlbox = GTK_HANDLE_BOX(GTK_WIDGET(toolbar)->parent);
+   GtkWidget *menu = gtk_menu_new ();
+   GtkWidget *item;
+
+   static struct {
+      char const *text;
+      coot::model_toolbar::toolbar_position_type pos;
+   } const pos_items[] = {
+      { N_("Display to the right"),  coot::model_toolbar::RIGHT },
+      { N_("Display to the left"),   coot::model_toolbar::LEFT },
+      { N_("Display on the top"),    coot::model_toolbar::TOP },
+      { N_("Display on the bottom"), coot::model_toolbar::BOTTOM },
+   };
+
+   if (hdlbox->child_detached) {
+      item = gtk_menu_item_new_with_label (_("Reattach to main window"));
+      gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+      g_signal_connect (G_OBJECT (item), "activate",
+			G_CALLBACK (reattach_modelling_toolbar),
+			NULL);
+   } else {
+      size_t ui;
+      GSList *group = NULL;
     
-    for (ui = 0; ui < G_N_ELEMENTS (pos_items); ui++) {
-      char const *text = _(pos_items[ui].text);
-      coot::model_toolbar::toolbar_position_type pos = pos_items[ui].pos;
+      for (ui = 0; ui < G_N_ELEMENTS (pos_items); ui++) {
+	 char const *text = _(pos_items[ui].text);
+	 coot::model_toolbar::toolbar_position_type pos = pos_items[ui].pos;
       
-      item = gtk_radio_menu_item_new_with_label(group, text);
-      group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM (item));
+	 item = gtk_radio_menu_item_new_with_label(group, text);
+	 group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM (item));
 	    
-      if (graphics_info_t::model_toolbar_position_state == pos) {
-	GTK_CHECK_MENU_ITEM(item)->active = 1;
-      } else {
-	GTK_CHECK_MENU_ITEM(item)->active = 0;
+	 if (graphics_info_t::model_toolbar_position_state == pos) {
+	    GTK_CHECK_MENU_ITEM(item)->active = 1;
+	 } else {
+	    GTK_CHECK_MENU_ITEM(item)->active = 0;
+	 }
+
+	 gtk_menu_shell_append(GTK_MENU_SHELL (menu), item);
+	 g_object_set_data(G_OBJECT (item), "position", GINT_TO_POINTER (pos));
+	 g_signal_connect(G_OBJECT (item), "toggled",
+			  G_CALLBACK (set_model_toolbar_docked_position_callback),
+			  item);
       }
-
-      gtk_menu_shell_append(GTK_MENU_SHELL (menu), item);
-      g_object_set_data(G_OBJECT (item), "position", GINT_TO_POINTER (pos));
-      g_signal_connect(G_OBJECT (item), "toggled",
-		       G_CALLBACK (set_model_toolbar_docked_position_callback),
-		       item);
-    }
     
-    //    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(save_w), TRUE);
+      //    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(save_w), TRUE);
 
-  }
+   }
 
-  item = gtk_menu_item_new ();
-  gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-  gtk_widget_set_sensitive (item, FALSE);
+   item = gtk_menu_item_new ();
+   gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+   gtk_widget_set_sensitive (item, FALSE);
   
-  item = gtk_menu_item_new_with_label (_("Hide"));
-  gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-  g_signal_connect (G_OBJECT (item), "activate",
-		    G_CALLBACK (hide_modelling_toolbar),
-		    NULL);
+   item = gtk_menu_item_new_with_label (_("Hide"));
+   gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+   g_signal_connect (G_OBJECT (item), "activate",
+		     G_CALLBACK (hide_modelling_toolbar),
+		     NULL);
 
-  gtk_widget_show_all (menu);
-  gtk_menu_popup (GTK_MENU(menu), NULL, NULL, NULL, NULL, 0, 
-		  (event_button != NULL) ? event_button->time 
-		  : gtk_get_current_event_time());
-#endif // GTK_MAJOR_VERSION
+   gtk_widget_show_all (menu);
+   gtk_menu_popup (GTK_MENU(menu), NULL, NULL, NULL, NULL, 0, 
+		   (event_button != NULL) ? event_button->time 
+		   : gtk_get_current_event_time());
+   */		   
 }
 
 void
@@ -2888,6 +2656,9 @@ set_model_toolbar_docked_position_callback(GtkWidget *w, gpointer user_data) {
 void
 reattach_modelling_toolbar() {
 
+   // don't know how to fix this. GTK-FIXME
+
+   /*
   GtkWidget *handlebox = lookup_widget(graphics_info_t::glarea,
 				       "model_fit_refine_toolbar_handlebox");
   GdkEvent *event = gdk_event_new (GDK_DELETE);
@@ -2898,6 +2669,7 @@ reattach_modelling_toolbar() {
   gdk_event_free (event);
 
   g_object_ref (GTK_HANDLE_BOX(handlebox));
+   */
 }
 
 /*  ------------------------------------------------------------------------ */
@@ -2907,6 +2679,8 @@ reattach_modelling_toolbar() {
 
 void
 set_model_toolbar_docked_position(int state) {
+
+   /*
   
   if (graphics_info_t::use_graphics_interface_flag) {
     GtkWidget *left_frame  = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
@@ -3031,12 +2805,16 @@ set_model_toolbar_docked_position(int state) {
 	  std::cout <<"INFO:: invalid position "<< state <<std::endl;
 	  break;
 
+	  }
        }
     }
-  }
+
+   */
 }
 
 int suck_model_fit_dialog_bl() {
+
+   /*
 
    if (graphics_info_t::use_graphics_interface_flag) { 
       GtkWidget *main_window_hbox = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
@@ -3062,11 +2840,14 @@ int suck_model_fit_dialog_bl() {
       graphics_info_t::model_fit_refine_dialog_was_sucked = 1;
    }
    add_to_history_simple("suck-model-fit-dialog-bl");
+
+   */
    return 0;
 }
 
 int suck_model_fit_dialog() {
 
+   /*
    if (graphics_info_t::use_graphics_interface_flag) { 
       GtkWidget *main_window_hbox = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
 						  "main_window_hbox");
@@ -3090,6 +2871,7 @@ int suck_model_fit_dialog() {
       graphics_info_t::model_fit_refine_dialog_was_sucked = 1;
    }
    add_to_history_simple("suck-model-fit-dialog");
+   */
    return 0;
 }
 
@@ -3120,13 +2902,18 @@ GtkWidget *wrapped_create_model_fit_refine_dialog() {
 
    GtkWidget *widget = graphics_info_t::model_fit_refine_dialog;
    if (widget) {
+
+      std::cout << "GTK-FIXME Raise the model/fit/refine dialog " << std::endl;
       
       // raise/uniconify (or whatever) what we have:
-      // 
+      //
+      /*
       if (!GTK_WIDGET_MAPPED(widget))
 	 gtk_widget_show(widget);
       else
-	 gdk_window_raise(widget->window);
+      gdk_window_raise(widget->window);
+      */
+
    } else {
       
       // create (then store) a new one.
@@ -3141,10 +2928,13 @@ GtkWidget *wrapped_create_model_fit_refine_dialog() {
 					 GTK_WINDOW(lookup_widget(graphics_info_t::glarea,
 								  "window1")));
 	    
-	    if (graphics_info_t::model_fit_refine_x_position > -1) { 
-	       gtk_widget_set_uposition(widget,
-					graphics_info_t::model_fit_refine_x_position,
-					graphics_info_t::model_fit_refine_y_position);
+	    if (graphics_info_t::model_fit_refine_x_position > -1) {
+
+	       std::cout << "GTK-FIXME no gtk_widget_set_uposition G" << std::endl;
+	       
+// 	       gtk_widget_set_uposition(widget,
+// 					graphics_info_t::model_fit_refine_x_position,
+// 					graphics_info_t::model_fit_refine_y_position);
 	    }
 	 }
       }
@@ -3154,9 +2944,11 @@ GtkWidget *wrapped_create_model_fit_refine_dialog() {
    
    button = lookup_widget(widget, "model_refine_dialog_pointer_atom_button");
    if (button) {
-      if (graphics_info_t::model_fit_refine_place_atom_at_pointer_string  != "")
-	 gtk_label_set_text(GTK_LABEL(GTK_BIN(button)->child),
-			    graphics_info_t::model_fit_refine_place_atom_at_pointer_string.c_str());
+      if (graphics_info_t::model_fit_refine_place_atom_at_pointer_string  != "") {
+	 std::cout << "GTK-FIXME no button child" << std::endl;
+// 	 gtk_label_set_text(GTK_LABEL(GTK_BIN(button)->child),
+// 			    graphics_info_t::model_fit_refine_place_atom_at_pointer_string.c_str());
+      }
    }
    
    update_model_fit_refine_dialog_menu(widget);
@@ -3168,10 +2960,11 @@ GtkWidget *wrapped_create_model_fit_refine_dialog() {
    GtkWidget *refmac_button = lookup_widget(widget, "model_refine_dialog_refmac_button");
    if (refmac_button) {
       if (graphics_info_t::external_refinement_program_button_label != "*-*") {
-	 gtk_label_set_text(GTK_LABEL(GTK_BIN(refmac_button)->child),
-			    graphics_info_t::external_refinement_program_button_label.c_str());
+	 std::cout << "GTK-FIXME no button child" << std::endl;
+	 // gtk_label_set_text(GTK_LABEL(GTK_BIN(refmac_button)->child),
+	 // graphics_info_t::external_refinement_program_button_label.c_str());
       }
-   } 
+   }
 
    return widget; 
 }
@@ -3210,14 +3003,14 @@ update_model_fit_refine_dialog_buttons(GtkWidget *dialog) {
   if (button) {
     if (graphics_info_t::model_fit_refine_rotate_translate_zone_string != "") {
 	//	 gtk_label_set_text(GTK_LABEL(GTK_BIN(button)->child),
-#if (GTK_MAJOR_VERSION > 1)
-      children = gtk_container_get_children(GTK_CONTAINER(GTK_BIN(button)->child));
-#else
-      children = gtk_container_children(GTK_CONTAINER(GTK_BIN(button)->child));
-#endif
-      children = children->next;
-      gtk_label_set_text(GTK_LABEL(children->data),
-			 graphics_info_t::model_fit_refine_rotate_translate_zone_string.c_str());
+
+   std::cout << "GTK-FIXME no button child" << std::endl;
+       
+//       children = gtk_container_get_children(GTK_CONTAINER(GTK_BIN(button)->child));
+
+//       children = children->next;
+//       gtk_label_set_text(GTK_LABEL(children->data),
+// 			 graphics_info_t::model_fit_refine_rotate_translate_zone_string.c_str());
     }
       
   }
@@ -3535,7 +3328,7 @@ save_molecule_coords_button_select(GtkWidget *item, GtkPositionType pos) {
 
 /* a c callable wrapper to the graphics_info_t function */
 void fill_option_menu_with_coordinates_options(GtkWidget *option_menu, 
-					       GtkSignalFunc signal_func,
+					       GCallback signal_func,
 					       int imol_active_position) {
 
    graphics_info_t g;
@@ -3545,7 +3338,7 @@ void fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
 }
 
 void fill_option_menu_with_coordinates_options_unsaved_first(GtkWidget *option_menu, 
-							     GtkSignalFunc signal_func,
+							     GCallback signal_func,
 							     int imol_active_position) {
    // a mess.  This function could be deleted.
    fill_option_menu_with_coordinates_options(option_menu, signal_func, imol_active_position);
@@ -3581,7 +3374,7 @@ new_close_molecules(GtkWidget *window) {
 	 button_name += graphics_info_t::int_to_string(imol);
 	 checkbutton = lookup_widget(vbox, button_name.c_str());
 	 if (checkbutton) { 
-	    if (GTK_TOGGLE_BUTTON(checkbutton)->active) { 
+	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) { 
 	       if (is_valid_model_molecule(imol))
 		  closed_model_molecules.push_back(imol);
 	       
@@ -3652,8 +3445,8 @@ new_close_molecules(GtkWidget *window) {
 	 // g.fill_go_to_atom_option_menu(optionmenu);
 	 int gimol = g.go_to_atom_molecule();
 	 
-	 GtkSignalFunc callback_func =
-	    GTK_SIGNAL_FUNC(graphics_info_t::go_to_atom_mol_menu_item_select);
+	 GCallback callback_func =
+	    G_CALLBACK(graphics_info_t::go_to_atom_mol_menu_item_select);
 	 g.fill_option_menu_with_coordinates_options(optionmenu, callback_func, gimol);
       }
       graphics_draw();
@@ -3678,13 +3471,11 @@ GtkWidget *wrapped_create_new_close_molecules_dialog() {
 	 mol_name += graphics_info_t::molecules[imol].name_for_display_manager();
 	 button_name += graphics_info_t::int_to_string(imol);
 	 checkbutton = gtk_check_button_new_with_label(mol_name.c_str());
-	 gtk_widget_ref (checkbutton);
-	 gtk_object_set_data_full (GTK_OBJECT (w), 
-				   button_name.c_str(), checkbutton,
-				   (GtkDestroyNotify) gtk_widget_unref);
+	 // gtk_widget_ref (checkbutton);
+	 g_object_set_data(G_OBJECT(w), button_name.c_str(), (gpointer)checkbutton);
 	 gtk_widget_show (checkbutton);
 	 frame = gtk_frame_new(NULL);
-	 gtk_container_add (GTK_CONTAINER(frame), checkbutton);
+	 gtk_container_add(GTK_CONTAINER(frame), checkbutton);
 
 	 gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, FALSE, 0);
 	 gtk_container_set_border_width (GTK_CONTAINER (frame), 2);
@@ -3702,11 +3493,14 @@ GtkWidget *wrapped_create_new_close_molecules_dialog() {
 void
 close_molecule_by_widget(GtkWidget *optionmenu) {
 
+   std::cout << "GTK-FIXME no gtk_option_menu_get_menu" << std::endl;
+
+   /*
    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu));
    GtkWidget *active_item = gtk_menu_get_active(GTK_MENU(menu));
 
    if (active_item) { 
-      int *imol_p = (int *) gtk_object_get_user_data(GTK_OBJECT(active_item));
+      int *imol_p = (int *)g_object_get_data(G_OBJECT(active_item));
 
       if (imol_p) { 
 
@@ -3728,7 +3522,8 @@ close_molecule_by_widget(GtkWidget *optionmenu) {
       } 
    } else {
       std::cout << "WARNING:: menu has no active item - nothing to close.\n";
-   } 
+      }
+   */
 }
 
 
@@ -3779,6 +3574,9 @@ void close_molecule(int imol) {
 
 void fill_close_option_menu_with_all_molecule_options(GtkWidget *optionmenu) {
 
+   std::cout << "GTK-FIXME no gtk_option_menu_get_menu" << std::endl;
+
+   /*
    graphics_info_t g;
    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu));
    
@@ -3803,13 +3601,13 @@ void fill_close_option_menu_with_all_molecule_options(GtkWidget *optionmenu) {
 	 ss += " ";
 	 ss += g.molecules[imol].name_;
 	 menuitem = gtk_menu_item_new_with_label (ss.c_str());
-	 gtk_signal_connect (GTK_OBJECT (menuitem), "activate",
-			     GTK_SIGNAL_FUNC(close_molecule_item_select),
-			     GINT_TO_POINTER(imol));
+	 g_signal_connect (G_OBJECT (menuitem), "activate",
+			   GTK_SIGNAL_FUNC(close_molecule_item_select),
+			   GINT_TO_POINTER(imol));
 	 int *ip = new int;
 	 *ip = imol;
 	 gtk_object_set_user_data(GTK_OBJECT(menuitem), ip );
-	 gtk_menu_append(GTK_MENU(menu), menuitem); 
+	 gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem); 
 	 gtk_widget_show(menuitem); 
       }
    }
@@ -3819,6 +3617,7 @@ void fill_close_option_menu_with_all_molecule_options(GtkWidget *optionmenu) {
    }
    gtk_option_menu_set_menu(GTK_OPTION_MENU(optionmenu),
 			    menu);
+   */
    
 }
 
@@ -3876,33 +3675,12 @@ void add_ccp4i_project_optionmenu(GtkWidget *fileselection, int file_selection_t
       if (GTK_IS_FILE_CHOOSER(fileselection))
 	 add_ccp4i_project_shortcut(fileselection);
 
-   } else {
-
-      if (GTK_IS_FILE_SELECTION(fileselection)) {
-
-	 GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
-
-	 GtkWidget *optionmenu = gtk_option_menu_new();
-	 gtk_widget_ref(optionmenu);
-	 gtk_widget_show(optionmenu);
-	 gtk_object_set_data(GTK_OBJECT(fileselection), "ccp4i_project_optionmenu", optionmenu);
-	 gtk_object_set_user_data(GTK_OBJECT(optionmenu), GINT_TO_POINTER(file_selection_type));
-	 GtkSignalFunc project_signal_func =
-	    GTK_SIGNAL_FUNC(option_menu_refmac_ccp4i_project_signal_func);
-	 add_ccp4i_projects_to_optionmenu(optionmenu, file_selection_type, project_signal_func);
-
-	 // Let's put the optionmenu in a frame with a label
-	 GtkWidget *frame = gtk_frame_new("CCP4i Project Directory");
-	 gtk_container_add(GTK_CONTAINER(aa), frame);
-	 gtk_widget_show(frame);
-	 gtk_container_add(GTK_CONTAINER(frame),optionmenu);
-      }
    }
 }
 
 void add_ccp4i_projects_to_optionmenu(GtkWidget *optionmenu,
 				      int file_selection_type,
-				      GtkSignalFunc func) {
+				      GCallback func) {
 
    std::string ccp4_defs_file_name = graphics_info_t::ccp4_defs_file_name();
 
@@ -3916,15 +3694,17 @@ void add_ccp4i_projects_to_optionmenu(GtkWidget *optionmenu,
    for (unsigned int i=0; i<project_pairs.size(); i++) {
       GtkWidget *menu_item = gtk_menu_item_new_with_label(project_pairs[i].first.c_str());
       gtk_widget_show(menu_item);
-      gtk_menu_append(GTK_MENU(menu), menu_item);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
       int i_info = file_selection_type;
       i_info <<= 10;
       i_info += i;
-      gtk_signal_connect(GTK_OBJECT(menu_item), "activate",
-			 GTK_SIGNAL_FUNC(func),
-			 GINT_TO_POINTER(i_info));
+      g_signal_connect(G_OBJECT(menu_item), "activate",
+		       G_CALLBACK(func),
+		       GINT_TO_POINTER(i_info));
    }
-   gtk_option_menu_set_menu(GTK_OPTION_MENU(optionmenu), menu);
+
+   std::cout << "GTK-FIXME no gtk_option_menu_set_menu" << std::endl;
+   // gtk_option_menu_set_menu(GTK_OPTION_MENU(optionmenu), menu);
 
    // set the active menu item here...
    
@@ -4004,36 +3784,7 @@ void clear_refmac_ccp4i_project() {
 
 void add_filename_filter(GtkWidget *fileselection) { 
 
-  bool add_filter = 1;
-  if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
-      add_filter = 0;
-      // maybe we use it to set the scripting filter for now!
-      // not general enough but may do for now!
-      add_filechooser_filter_button(fileselection, COOT_SCRIPTS_FILE_SELECTION);
-  }
-
-  if (add_filter) {
-   GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
-
-   GtkWidget *frame = gtk_frame_new("File-name filter:");
-   GtkWidget *entry = gtk_entry_new();
-   gtk_widget_set_usize (entry, 60, -2);
-
-   gtk_widget_ref(entry);
-   gtk_widget_show(entry);
-   gtk_widget_ref(frame);
-
-   gtk_container_add(GTK_CONTAINER(aa),frame);
-   gtk_container_add(GTK_CONTAINER(frame), entry);
-   // I want the entry to be not-expandable:  How do I do that?
-   // gtk_box_pack_start (GTK_BOX (hbox), entry, FALSE, TRUE, 0);
-
-   gtk_signal_connect (GTK_OBJECT (entry), "key_press_event",
-		       GTK_SIGNAL_FUNC (on_filename_filter_key_press_event),
-		       NULL);
-   gtk_widget_show(frame);
-  }
-
+   std::cout << "Nope add_filename_filter" << std::endl;
 }
 
 
@@ -4144,9 +3895,9 @@ GtkWidget *wrapped_create_show_symmetry_window() {
       (gtk_adjustment_new(0.5, 0.0, 3.0, 0.02, 0.05, 2.0));
 
    gtk_range_set_adjustment(GTK_RANGE(hscale), adjustment);
-   gtk_signal_connect (GTK_OBJECT (adjustment), "value_changed",
-		       GTK_SIGNAL_FUNC (symmetry_colour_adjustment_changed), 
-		       NULL);
+   g_signal_connect(G_OBJECT (adjustment), "value_changed",
+		    G_CALLBACK(symmetry_colour_adjustment_changed), 
+		    NULL);
 
 /*  The Symmetry Search Radius Entry */
 
@@ -4226,7 +3977,7 @@ void symmetry_colour_adjustment_changed (GtkAdjustment *adj,
 
 
    // does a graphics_draw() for us...
-   set_symmetry_colour_merge(adj->value); /* this adjusts
+   set_symmetry_colour_merge(gtk_adjustment_get_value(adj)); /* this adjusts
 				             graphics_info_t::
 					     symm_colour_merge_weight,
 					     which is a double
@@ -4301,11 +4052,12 @@ void set_map_colour(int imol, float red, float green, float blue) {
 }
 
 
+#include "widget-headers.hh"
 
 
 void add_on_map_colour_choices(GtkWidget *menu) {
 
-   GtkSignalFunc callback = GTK_SIGNAL_FUNC(map_colour_mol_selector_activate);
+   GCallback callback = G_CALLBACK(map_colour_mol_selector_activate);
    std::string sub_menu_name = "map_colour1_menu";
    GtkWidget *sub_menu = lookup_widget(menu, sub_menu_name.c_str());
    if (!sub_menu) {
@@ -4327,14 +4079,14 @@ void add_on_map_colour_choices(GtkWidget *menu) {
 
 void
 add_map_colour_mol_menu_item(int imol, const std::string &name,
-			     GtkWidget *menu, GtkSignalFunc callback) {
+			     GtkWidget *menu, GCallback callback) {
 
    int *imol_data = new int;
    *imol_data = imol;
    GtkWidget *menu_item = gtk_menu_item_new_with_label(name.c_str());
    gtk_container_add(GTK_CONTAINER(menu), menu_item);
-   gtk_signal_connect(GTK_OBJECT(menu_item), "activate",
-		      callback, (gpointer) imol_data);
+   g_signal_connect(G_OBJECT(menu_item), "activate",
+		    callback, (gpointer) imol_data);
    gtk_widget_show(menu_item);
 
 }
@@ -4348,6 +4100,8 @@ void my_delete_menu_items(GtkWidget *widget, void *data) {
 void map_colour_mol_selector_activate (GtkMenuItem     *menuitem,
 				       gpointer         user_data) {
 
+   std::cout << "GTK-FIXME use modern color selector" << std::endl;
+   /*
    GtkWidget *col_sel_window;
    GtkWidget  *colorseldlg;
    GtkColorSelection *colorsel;
@@ -4364,6 +4118,7 @@ void map_colour_mol_selector_activate (GtkMenuItem     *menuitem,
    gtk_color_selection_set_color(colorsel, colour);
    gtk_widget_show(col_sel_window); 
    free(colour); 
+   */
 }
 
 // ---------------------------------------------------------
@@ -4385,8 +4140,8 @@ void set_scroll_wheel_map(int imap) {
 
 void add_on_map_scroll_whell_choices(GtkWidget *menu) {
 
-   GtkSignalFunc callback =
-      GTK_SIGNAL_FUNC(map_scroll_wheel_mol_selector_activate);
+   GCallback callback =
+      G_CALLBACK(map_scroll_wheel_mol_selector_activate);
    //    std::string sub_menu_name = "attach_scroll_wheel_to_which_map_1";
    // std::string sub_menu_name = "mapscroll_wheelmap1";
    std::string sub_menu_name = "map_scroll_wheel_menu";
@@ -4426,14 +4181,14 @@ map_scroll_wheel_mol_selector_activate (GtkMenuItem     *menuitem,
 
 void
 add_map_scroll_wheel_mol_menu_item(int imol, const std::string &name,
-				    GtkWidget *menu, GtkSignalFunc callback) {
+				    GtkWidget *menu, GCallback callback) {
 
    int *imol_data = new int;
    *imol_data = imol;
    GtkWidget *menu_item = gtk_menu_item_new_with_label(name.c_str());
    gtk_container_add(GTK_CONTAINER(menu), menu_item);
-   gtk_signal_connect(GTK_OBJECT(menu_item), "activate",
-		      callback, (gpointer) imol_data);
+   g_signal_connect(G_OBJECT(menu_item), "activate",
+		    callback, (gpointer) imol_data);
    gtk_widget_show(menu_item);
 
 }
@@ -4445,7 +4200,7 @@ GtkWidget *wrapped_create_bond_parameters_dialog() {
    GtkWidget *optionmenu =
       lookup_widget(widget, "bond_parameters_molecule_optionmenu");
 
-   GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(graphics_info_t::bond_parameters_molecule_menu_item_select);
+   GCallback callback_func = G_CALLBACK(graphics_info_t::bond_parameters_molecule_menu_item_select);
 
 
    // fill the colour map rotation entry
@@ -4512,7 +4267,7 @@ void apply_bond_parameters(GtkWidget *w) {
 	    // draw hydrogens?
 
 	    GtkWidget *toggle_button = lookup_widget(w, "draw_hydrogens_yes_radiobutton");
-	    if (GTK_TOGGLE_BUTTON(toggle_button)->active) {
+	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle_button))) {
 	       set_draw_hydrogens(imol, 1);
 	    } else {
 	       set_draw_hydrogens(imol, 0);
@@ -4537,7 +4292,7 @@ skeletonize_map_single_map_maybe(GtkWidget *window, int imol) {
    GtkWidget *on_radio_button = 
       lookup_widget(window, "single_map_skeleton_on_radiobutton");
 
-   if (GTK_TOGGLE_BUTTON(on_radio_button)->active) {
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(on_radio_button))) {
 
       graphics_info_t::skeletonize_map(imol, 0);
       if (graphics_info_t::map_for_skeletonize < 0) {
@@ -4578,42 +4333,23 @@ void save_coordinates_using_widget(GtkWidget *widget) {
 
    // the widget that we get passed is the fileselection widget
 
-   char *stuff =  (char *) gtk_object_get_user_data(GTK_OBJECT(widget));
-
-   if (! stuff) {
-
-      std::cout << "Ooops no data associated with that widget - "
-		<< " no molecules with coordinates?" << std::endl;
-
-   } else { 
-
-      int imol = *((int *) stuff);
+   {
+      int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "imol"));
       bool save_hydrogens = 1;
       bool save_aniso_records = 1;
 
       // How do we get the filename?
 
       const gchar *filename;
-#if (GTK_MAJOR_VERSION > 1)
 
       GtkWidget *chk_but = lookup_widget(GTK_WIDGET(widget), "checkbutton_hydrogens");
-      if (! GTK_TOGGLE_BUTTON(chk_but)->active)
+      if (! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(chk_but)))
 	 save_hydrogens = 0;
       chk_but = lookup_widget(GTK_WIDGET(widget), "checkbutton_aniso");
-      if (! GTK_TOGGLE_BUTTON(chk_but)->active)
+      if (! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(chk_but)))
 	 save_aniso_records = 0;
       
-      if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE)  {
-      	filename = gtk_file_chooser_get_filename
-	 (GTK_FILE_CHOOSER(widget));
-      } else {
-	filename = gtk_file_selection_get_filename
-	   (GTK_FILE_SELECTION(widget));
-     }
-#else
-      filename = gtk_file_selection_get_filename
-	 (GTK_FILE_SELECTION(widget));
-#endif
+      filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(widget));
 
       std::cout << "save coordinates for molecule "
 		<< imol << " to file " << filename << std::endl;
@@ -4635,15 +4371,12 @@ void save_coordinates_using_widget(GtkWidget *widget) {
 void save_symmetry_coords_from_fileselection(GtkWidget *fileselection) {
 
    coot::Symm_Atom_Pick_Info_t *symm_info =
-      (coot::Symm_Atom_Pick_Info_t *) gtk_object_get_user_data(GTK_OBJECT(fileselection));
+      (coot::Symm_Atom_Pick_Info_t *) g_object_get_data(G_OBJECT(fileselection),
+							"symm_info");
 
    const gchar *filename;
 
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
-	 filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
-   } else {
-	 filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(fileselection));
-   }
+   filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
 
    if (symm_info) {
       // std::cout << "Preshift to origin:  " << symm_info->pre_shift_to_origin << std::endl;
@@ -4668,17 +4401,22 @@ GtkWidget *wrapped_create_goto_atom_window() {
 
    GtkWidget *widget = graphics_info_t::go_to_atom_window; 
    if (widget) {
+
+      /*
       if (!GTK_WIDGET_MAPPED(widget))
 	 gtk_widget_show(widget);
       else
-	 gdk_window_raise(widget->window);
+      gdk_window_raise(widget->window);
+      */
+      std::cout << "GTK-FIXME no raise" << std::endl;
    } else {
       widget = create_goto_atom_window();
       graphics_info_t::go_to_atom_window = widget;
       if (graphics_info_t::go_to_atom_window_x_position > -1) { 
-	 gtk_widget_set_uposition(widget,
-				  graphics_info_t::go_to_atom_window_x_position,
-				  graphics_info_t::go_to_atom_window_y_position);
+	 std::cout << "GTK-FIXME no gtk_widget_set_uposition F" << std::endl;
+// 	 gtk_widget_set_uposition(widget,
+// 				  graphics_info_t::go_to_atom_window_x_position,
+// 				  graphics_info_t::go_to_atom_window_y_position);
       }
       fill_go_to_atom_window(widget);
    } 
@@ -4707,11 +4445,13 @@ void fill_go_to_atom_window(GtkWidget *widget) {
      gchar *text; 
      GtkWidget *scrolled_window;
 
-/* First lets do the molecule optionmenu. */
+     /* First lets do the molecule optionmenu. */
+
+#if 0
 
      graphics_info_t g;
-     GtkSignalFunc callback_func =
-      GTK_SIGNAL_FUNC(graphics_info_t::go_to_atom_mol_menu_item_select);
+     GCallback callback_func =
+      G_CALLBACK(graphics_info_t::go_to_atom_mol_menu_item_select);
      option_menu = lookup_widget(GTK_WIDGET(widget), 
 				 "go_to_atom_molecule_optionmenu");
      
@@ -4780,6 +4520,8 @@ void fill_go_to_atom_window(GtkWidget *widget) {
      /* store the widget */
      save_go_to_atom_widget(widget);
 
+#endif
+
 }
 
 /* used by keypress (return) callbacks */
@@ -4830,108 +4572,22 @@ int apply_go_to_atom_values(GtkWidget * window) {
 // }
 
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-
-void on_go_to_atom_residue_tree_selection_changed_gtk1 (GtkList         *gtktree,
-							gpointer         user_data) {
-   
-   graphics_info_t g;
-   g.on_go_to_atom_residue_tree_selection_changed_gtk1(gtktree, user_data);
-}
-#endif
-
 
 void clear_atom_list(GtkWidget *atom_gtklist) {
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-   gtk_list_clear_items(GTK_LIST(atom_gtklist), 0, -1);
-#else
-   // FILL ME
-#endif 
 }
 
-void on_go_to_atom_residue_list_select_child (GtkList         *list,
-					      GtkWidget       *widget,
-					      gpointer         user_data) {
-   std::cout << "child selected.\n";
-}
+// void on_go_to_atom_residue_list_select_child (GtkList         *list,
+// 					      GtkWidget       *widget,
+// 					      gpointer         user_data) {
+//    std::cout << "child selected.\n";
+// }
 
-void on_go_to_atom_residue_list_unselect_child (GtkList         *list,
-						GtkWidget       *widget,
-						gpointer         user_data) {
-   std::cout << "child unselected.\n"; 
-}
-
-
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-
-void on_go_to_atom_atom_list_selection_changed_gtk1(GtkList         *atom_gtklist,
-					       gpointer         user_data) {
-
-   graphics_info_t g;
-   GList   *dlist;
-   coot::model_view_atom_button_info_t *item_data;
-   
-   /* Fetch the doubly linked list of selected items
-    * of the List, remember to treat this as read-only!
-    */
-   dlist=GTK_LIST(atom_gtklist)->selection;
-   /* If there are no selected items there is nothing more
-    * to do than just telling the user so
-    */
-   if (!dlist) {
-      // g_print("Selection cleared\n");
-      return;
-   }  
-   /* Ok, we got a selection and so we print it
-    */
-   // std::cout << "The selection is a ";
-    
-   /* Get the list item from the doubly linked list
-    * and then query the data associated with list_item_data_key.
-    * We then just print it */
-   while (dlist) {
-      GtkObject       *list_item;
-      // gchar           *item_data_string;
-
-      if (! dlist->data) 
-	 std::cout << "ERROR: (coot) on_go_to_atom_atom_list_selection_changed: "
-		   << "no dlist->data!\n";
-      
-      list_item=GTK_OBJECT(dlist->data);
-//       item_data_string=gtk_object_get_data(list_item,
-// 					   list_item_data_key);
-
-      if (list_item) { 
-	 item_data = (coot::model_view_atom_button_info_t *) gtk_object_get_user_data(list_item);
-	 //       std::cout << "DEBUG:: buton_label " << item_data->button_label << std::endl;
-
-	 if (item_data) { 
-	    mmdb::Atom *at = item_data->atom;
-
-	    // Try looking up at in g.go_to_atom_molecule() here?
-	    if (at) {
-	       g.set_go_to_atom_chain_residue_atom_name(at->GetChainID(),
-							at->GetSeqNum(),
-							at->name,
-							at->altLoc);
-	       g.update_widget_go_to_atom_values(g.go_to_atom_window, at);
-	    }
-	 } else { 
-	    std::cout << "ERROR:: Oops! Can't get item data in "
-		      << "on_go_to_atom_atom_list_selection_changed\n";
-	 }
-      } else { 
-	    std::cout << "ERROR:: Oops! NULL list_item in "
-		      << "on_go_to_atom_atom_list_selection_changed\n";
-      }
-      dlist=dlist->next;
-   }
-   // g_print("\n");
-
-}
-
-#endif // GTK version
+// void on_go_to_atom_residue_list_unselect_child (GtkList         *list,
+// 						GtkWidget       *widget,
+// 						gpointer         user_data) {
+//    std::cout << "child unselected.\n"; 
+// }
 
 
 void apply_go_to_atom_from_widget(GtkWidget *widget) { 
@@ -4998,10 +4654,13 @@ void ideal_nucleic_acid_by_widget(GtkWidget *builder_dialog) {
 						"nucleotide_builder_strand_optionmenu");
 
 
-   GtkWidget *menu;
-   GtkWidget *active_item;
-   int active_index;
+   GtkWidget *menu = 0;
+   GtkWidget *active_item = 0;
+   int active_index = -1;
 
+   std::cout << "GTK-FIXME no gtk_option_menu_get_menu" << std::endl;
+
+   /*
    menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(type_optionmenu));
    active_item = gtk_menu_get_active(GTK_MENU(menu));
    active_index = g_list_index(GTK_MENU_SHELL(menu)->children, active_item);
@@ -5023,11 +4682,13 @@ void ideal_nucleic_acid_by_widget(GtkWidget *builder_dialog) {
    if (active_index == 1)
       single_stranded_flag = 1;
 
-   
    const char *txt = gtk_entry_get_text(GTK_ENTRY(entry));
    if (txt) {
       ideal_nucleic_acid(type.c_str(), form.c_str(), single_stranded_flag, txt);
    }
+
+   */
+
 }
 
 
@@ -5040,10 +4701,11 @@ GtkWidget *wrapped_create_display_control_window() {
    if (widget) { 
       // raise/uniconify (or whatever) what we have:
       // 
-      if (!GTK_WIDGET_MAPPED(widget))
-	 gtk_widget_show(widget);
-      else
-	 gdk_window_raise(widget->window);
+      std::cout << "GTK-FIXME no raise wrapped_create_display_control_window" << std::endl;
+//       if (!GTK_WIDGET_MAPPED(widget))
+// 	 gtk_widget_show(widget);
+//       else
+// 	 gdk_window_raise(widget->window);
    } else {
 
       // create (then store) a new one.
@@ -5065,9 +4727,10 @@ GtkWidget *wrapped_create_display_control_window() {
 	 }
       }
       if (graphics_info_t::display_manager_x_position != -1) {
-	 gtk_widget_set_uposition(widget,
-				  graphics_info_t::display_manager_x_position,
-				  graphics_info_t::display_manager_y_position);
+	 std::cout << "GTK-FIXME no gtk_widget_set_uposition H" << std::endl;
+// 	 gtk_widget_set_uposition(widget,
+// 				  graphics_info_t::display_manager_x_position,
+// 				  graphics_info_t::display_manager_y_position);
       }
    }
    return widget;
@@ -5078,7 +4741,7 @@ void
 align_labels_checkbutton_toggled(GtkToggleButton *togglebutton) {
 
    float align = 0.0;
-   if (togglebutton->active)
+   if (gtk_toggle_button_get_active(togglebutton))
       align = 1.0;
 
    graphics_info_t g;
@@ -5158,8 +4821,9 @@ void on_export_map_dialog_ok_button_clicked_cc(GtkButton *button) {
    GtkWidget *file_selection_dialog;
    const gchar *entry_text = gtk_entry_get_text(GTK_ENTRY(text_entry));
 
-   GtkWidget *active_menu_item =
-      gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu))));
+   std::cout << "GTK-FIXME no gtk_menu_get_active" << std::endl;
+   GtkWidget *active_menu_item = 0;
+   // gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu))));
 
 
    if (active_menu_item) { 
@@ -5197,12 +4861,6 @@ void set_filename_for_filechooserselection(GtkWidget *fileselection,
 					filename);     
    }
 
-   if (chooser) {
-	// dont do anything, as already done
-   } else {
-	   gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),  
-					   filename);
-   }
 }
 
 // functions to dock the accept/reject dialog
@@ -5256,10 +4914,13 @@ GtkWidget *wrapped_create_geometry_dialog() {
       w = g.geometry_dialog;
       // I'm not sure this magic does anything - it's a transient (and
       // I don't have a minimize handle for it).
-      if (!GTK_WIDGET_MAPPED(w))
-	 gtk_widget_show(w);
-      else
-	 gdk_window_raise(w->window);
+
+      std::cout << "GTK-FIXME no raise" << std::endl;
+
+//       if (!GTK_WIDGET_MAPPED(w))
+// 	 gtk_widget_show(w);
+//       else
+// 	 gdk_window_raise(w->window);
    } else {
       w = create_geometry_dialog();
    }
@@ -5286,7 +4947,7 @@ void store_fixed_atom_dialog(GtkWidget *w) {
 void fill_chi_angles_vbox(GtkWidget *vbox) {
 
    graphics_info_t g;
-   gchar *strval = (gchar *) gtk_object_get_user_data(GTK_OBJECT(vbox));
+   gchar *strval = (gchar *) g_object_get_data(G_OBJECT(vbox), "strval");
    g.fill_chi_angles_vbox(vbox, strval, graphics_info_t::EDIT_CHI);
 }
 
@@ -5313,8 +4974,7 @@ GtkWidget *wrapped_create_add_additional_representation_gui() {
       GtkWidget *add_reps_ball_and_stick_radiobutton = lookup_widget(w, "add_rep_rep_ball_and_stick_radiobutton");
       GtkWidget *add_rep_bond_width_combobox = lookup_widget(w, "add_rep_bond_width_combobox");
 
-      GtkSignalFunc signal_func = 
-	 GTK_SIGNAL_FUNC(add_reps_molecule_option_menu_item_select);
+      GCallback signal_func = G_CALLBACK(add_reps_molecule_option_menu_item_select);
       int imol_active_position = graphics_info_t::add_reps_molecule_option_menu_item_select_molecule;
       fill_option_menu_with_coordinates_options(option_menu,  signal_func, imol_active_position);
 
@@ -5322,7 +4982,7 @@ GtkWidget *wrapped_create_add_additional_representation_gui() {
       // set the active item to be the 8
       gtk_combo_box_set_active(GTK_COMBO_BOX(add_rep_bond_width_combobox), 7);
 #endif      
-   } 
+   }
    return w;
 }
 
@@ -5352,7 +5012,7 @@ void add_additional_representation_by_widget(GtkWidget *w) {
    float bond_width = 8;
    int bonds_box_type = coot::NORMAL_BONDS;
    short int representation_type = coot::SIMPLE_LINES;
-   if (GTK_TOGGLE_BUTTON(add_reps_ball_and_stick_radiobutton)->active) {
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(add_reps_ball_and_stick_radiobutton))) {
       representation_type = coot::BALL_AND_STICK;
    }
    bool draw_H_flag = 1;
@@ -5377,7 +5037,7 @@ void add_additional_representation_by_widget(GtkWidget *w) {
    graphics_info_t g;
    GtkWidget *dcw = g.display_control_window();
    int imol = graphics_info_t::add_reps_molecule_option_menu_item_select_molecule;
-   if (GTK_TOGGLE_BUTTON(position_radiobutton)->active) {
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(position_radiobutton))) {
       std::pair<bool, std::pair<int, coot::atom_spec_t> > aas = active_atom_spec();
       if (aas.first) {
 	 int imol_active = aas.second.first;
@@ -5393,7 +5053,7 @@ void add_additional_representation_by_widget(GtkWidget *w) {
 								asi, dcw, glci, g.Geom_p());
       } 
    } 
-   if (GTK_TOGGLE_BUTTON(resno_radiobutton)->active) {
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(resno_radiobutton))) {
       // std::cout << "By chainid/resno" << std::endl;
       std::string chain_id = gtk_entry_get_text(GTK_ENTRY(chain_id_entry));
       std::string resno_1s = gtk_entry_get_text(GTK_ENTRY(resno_start_entry));
@@ -5411,7 +5071,7 @@ void add_additional_representation_by_widget(GtkWidget *w) {
 									asi, dcw, glci, g.Geom_p());
       } 
    }
-   if (GTK_TOGGLE_BUTTON(selection_string_radiobutton)->active) {
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(selection_string_radiobutton))) {
       // std::cout << "By selection string" << std::endl;
       std::string s = gtk_entry_get_text(GTK_ENTRY(string_selection_entry));
       coot::atom_selection_info_t asi(s);
@@ -5433,11 +5093,17 @@ GtkWidget *wrapped_create_residue_editor_select_monomer_type_dialog() {
    std::vector<std::string> v = g.Geom_p()->monomer_types();
 
    // remove the 2 items that are already there from the glade interface (I suppose).
-   gtk_combo_box_remove_text(GTK_COMBO_BOX(combo_box), 0);
-   gtk_combo_box_remove_text(GTK_COMBO_BOX(combo_box), 0);
+
+   std::cout << "GTK-FIXME no gtk_combo_box_remove_text" << std::endl;
+
+   // gtk_combo_box_remove_text(GTK_COMBO_BOX(combo_box), 0);
+   // gtk_combo_box_remove_text(GTK_COMBO_BOX(combo_box), 0);
+
+
    for (unsigned int i=0; i<v.size(); i++) {
       std::string s = v[i];
-      gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), s.c_str());
+      std::cout << "GTK-FIXME no gtk_combo_box_append_text" << std::endl;
+      // gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), s.c_str());
       gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), i);
    }
    return w;
@@ -5518,7 +5184,8 @@ void nsv(int imol) {
 	    if (!GTK_WIDGET_MAPPED(widget)) {
 	       gtk_widget_show(widget);
 	    } else {
-	       gdk_window_raise(widget->window);
+	       std::cout << "GTK-FIXME no raise" << std::endl;
+	       // gdk_window_raise(widget->window);
 	    }
 	 } else { 
 
@@ -5838,7 +5505,7 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
 
    float sharpening_limit = graphics_info_t::map_sharpening_scale_limit;
    GtkWidget *w = create_map_sharpening_dialog();
-   GtkSignalFunc signal_func = G_CALLBACK(map_sharpening_map_select);
+   GCallback signal_func = G_CALLBACK(map_sharpening_map_select);
 
    GtkWidget *option_menu = lookup_widget(w, "map_sharpening_optionmenu");
 
@@ -5853,15 +5520,15 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
       GtkWidget *h_scale = lookup_widget(w, "map_sharpening_hscale");
       //GtkObject *adj = gtk_adjustment_new(0.0, -sharpening_limit, 2*sharpening_limit,
       // 0.05, 2, 30.1);
-      GtkObject *adj = gtk_adjustment_new(0.0, -sharpening_limit, 2*sharpening_limit,
-					  0.05, 0.2, (sharpening_limit+0.1));
+      GtkAdjustment *adj = gtk_adjustment_new(0.0, -sharpening_limit, 2*sharpening_limit,
+					      0.05, 0.2, (sharpening_limit+0.1));
       gtk_range_set_adjustment(GTK_RANGE(h_scale), GTK_ADJUSTMENT(adj));
       g_object_set_data_full(G_OBJECT (w), "map_sharpening_adjustment",
 			     g_object_ref (adj),
 			     (GDestroyNotify) g_object_unref);
 
-      gtk_signal_connect(GTK_OBJECT(adj), "value_changed",
-			 GTK_SIGNAL_FUNC(map_sharpening_value_changed), NULL);
+      g_signal_connect(G_OBJECT(adj), "value_changed",
+		       G_CALLBACK(map_sharpening_value_changed), NULL);
    
       // set to sharpening value
       gtk_adjustment_set_value(GTK_ADJUSTMENT(adj), graphics_info_t::molecules[imol].sharpen_b_factor());
@@ -5898,7 +5565,7 @@ calc_and_set_optimal_b_factor ( GtkWidget *w ) {
       info_dialog_and_text(txt.c_str());
    }
 	GtkWidget *h_scale = lookup_widget(w, "map_sharpening_hscale");
-	GtkAdjustment *adj = GTK_RANGE(h_scale)->adjustment;
+	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(h_scale));
         gtk_adjustment_set_value(adj, Bopt);
 }
 
@@ -5918,7 +5585,7 @@ void map_sharpening_value_changed (GtkAdjustment *adj,
    int imol = graphics_info_t::imol_map_sharpening;
    if (is_valid_map_molecule(imol)) {
       // std::cout << "sharpen " << imol << " by " << adj->value << std::endl;
-      sharpen(imol, adj->value);
+      sharpen(imol, gtk_adjustment_get_value(adj));
    } 
 }
 
@@ -5932,7 +5599,7 @@ void set_baton_build_params_from_widget(GtkWidget *params_dialog) {
    const char *chain_id  = gtk_entry_get_text(GTK_ENTRY(ent_chain_id));
 
    const char *direction = "forwards";
-   if (GTK_TOGGLE_BUTTON(check_button)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check_button)))
       direction = "backwards";
 
    try {
@@ -5953,7 +5620,11 @@ void show_go_to_residue_keyboarding_mode_window() {
    // g.graphics_x_position, graphics_x_size
    int x_pos = g.graphics_x_position + 5;
    int y_pos = g.graphics_y_position + g.graphics_y_size + 65;
-   gtk_widget_set_uposition(w, x_pos, y_pos);   
+
+   std::cout << "GTK-FIXME no gtk_widget_set_uposition show_go_to_residue_keyboarding_mode_window"
+	     << std::endl;
+   // gtk_widget_set_uposition(w, x_pos, y_pos);   
+
    gtk_widget_show(w);
 
 }
@@ -5987,7 +5658,7 @@ on_generic_objects_dialog_object_toggle_button_toggled(GtkButton       *button,
 
    int generic_object_number = GPOINTER_TO_INT(user_data);
    int state = 0;
-   if (GTK_TOGGLE_BUTTON(button)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
       state = 1;
    set_display_generic_object(generic_object_number, state);
 }
@@ -6015,12 +5686,8 @@ generic_objects_dialog_table_add_object_internal(const coot::generic_display_obj
       // set the names of these widgets so that they can be
       // looked up and toggled/hidden dynamically.
 	    
-      gtk_object_set_data_full (GTK_OBJECT (dialog), toggle_button_name.c_str(), 
-				checkbutton,
-				(GtkDestroyNotify) gtk_widget_unref);
-      gtk_object_set_data_full (GTK_OBJECT (dialog), label_name.c_str(), 
-				label,
-				(GtkDestroyNotify) gtk_widget_unref);
+      g_object_set_data(G_OBJECT(dialog), toggle_button_name.c_str(), checkbutton);
+      g_object_set_data(G_OBJECT(dialog), label_name.c_str(), label);
 
       gtk_table_attach (GTK_TABLE (table), label,
 			0, 1, io, io+1,
@@ -6035,9 +5702,9 @@ generic_objects_dialog_table_add_object_internal(const coot::generic_display_obj
       if (gdo.is_displayed_flag)
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
 
-      gtk_signal_connect(GTK_OBJECT(checkbutton), "toggled",
-			 GTK_SIGNAL_FUNC(on_generic_objects_dialog_object_toggle_button_toggled),
-			 GINT_TO_POINTER(io));
+      g_signal_connect(G_OBJECT(checkbutton), "toggled",
+		       G_CALLBACK(on_generic_objects_dialog_object_toggle_button_toggled),
+		       GINT_TO_POINTER(io));
 
       gtk_widget_show (label);
       gtk_widget_show (checkbutton);
