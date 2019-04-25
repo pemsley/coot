@@ -36,7 +36,7 @@ else
         coot-utils surface coot-surface lidia-core \
 	coords angles skeleton ccp4mg-utils density-contour \
 	db-main analysis ideal ligand high-res build greg-tests python-tests \
-	tw libgtkgraph lbg cootaneer cootilus goograph pli pyrogen src data \
+	tw lbg cootaneer cootilus goograph pli pyrogen src data \
 	man rama-data doc rcrane pixmaps
 endif
 
