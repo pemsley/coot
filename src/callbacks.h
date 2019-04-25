@@ -1250,7 +1250,7 @@ on_single_map_properties_colour_button_clicked
 
 void
 on_run_refmac_phase_input_optionmenu_changed
-                                        (GtkOptionMenu   *optionmenu,
+                                        (GtkComboBox   *optionmenu,
                                         gpointer         user_data);
 
 void
@@ -1315,7 +1315,7 @@ on_run_refmac_nolabels_checkbutton_toggled
                                         gpointer         user_data);
 
 void
-on_run_refmac_map_optionmenu_changed   (GtkOptionMenu   *optionmenu,
+on_run_refmac_map_optionmenu_changed   (GtkComboBox     *optionmenu,
                                         gpointer         user_data);
 
 void
@@ -4363,7 +4363,7 @@ on_environment_distances_bumps_checkbutton_toggled
 
 void
 on_check_water_by_difference_map_optionmenu_changed
-                                        (GtkOptionMenu   *optionmenu,
+                                        (GtkComboBox     *optionmenu,
                                         gpointer         user_data);
 
 void
