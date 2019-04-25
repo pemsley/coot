@@ -79,6 +79,8 @@
 
 #include "c-interface-bonds.hh"
 
+#include "widget-headers.hh"
+
 #ifdef USE_PYTHON
 PyObject *go_to_ligand_py() {
 
@@ -1362,10 +1364,10 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    short int allow_minimal_descriptions_flag = 0;
    GtkWidget *dialog = lookup_widget(viewport, "monomer_search_dialog");
 
-   if (GTK_TOGGLE_BUTTON(checkbutton)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
       allow_minimal_descriptions_flag = 1;
 
-   if (GTK_TOGGLE_BUTTON(use_sbase_checkbutton)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(use_sbase_checkbutton)))
       use_sbase_molecules = 1;
 
    graphics_info_t g;
@@ -1385,15 +1387,19 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
 
    // here clear the current contents of the monomer vbox:
    // delete the user_data assocated with the buttons too.
-    GList *children = gtk_container_children(GTK_CONTAINER(vbox_current));
-    int nchild = 0; 
-    while (children) {
-       // std::cout << "child " << nchild << "  " << (GtkWidget *) children->data << std::endl;
-       gtk_widget_destroy((GtkWidget *) children->data); 
-       nchild++;
-       children = g_list_remove_link(children, children);
-       
-    }
+
+   
+//     GList *children = gtk_container_children(GTK_CONTAINER(vbox_current));
+//     int nchild = 0; 
+//     while (children) {
+//        // std::cout << "child " << nchild << "  " << (GtkWidget *) children->data << std::endl;
+//        gtk_widget_destroy((GtkWidget *) children->data); 
+//        nchild++;
+//        children = g_list_remove_link(children, children);
+//     }
+
+   std::cout << "GTK-FIXME no gtk_container_children" << std::endl;
+
 
    GtkWidget *vbox = vbox_current;
 
@@ -1412,19 +1418,19 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
       // gets embedded as user data (hmm).
       string *s = new string(v[i].first); // the 3-letter-code/comp_id (for user data).
       button_name += v[i].first;
-      gtk_widget_ref (button);
-      gtk_object_set_data_full (GTK_OBJECT (dialog), 
-				button_name.c_str(), button,
-				(GtkDestroyNotify) gtk_widget_unref);
-      gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
-      gtk_container_set_border_width (GTK_CONTAINER (button), 2);
+      std::cout << "GTK-FIXME widget_ref b" << std::endl;
+      // gtk_widget_ref (button);
+      g_object_set_data(G_OBJECT (dialog), 
+			button_name.c_str(), button);
+      gtk_box_pack_start(GTK_BOX (vbox), button, FALSE, FALSE, 0);
+      gtk_container_set_border_width(GTK_CONTAINER (button), 2);
 
       if (! use_sbase_molecules)
-	 gtk_signal_connect(GTK_OBJECT(button), "clicked",
-			    GTK_SIGNAL_FUNC (on_monomer_lib_search_results_button_press), s);
+	 g_signal_connect(G_OBJECT(button), "clicked",
+			  G_CALLBACK(on_monomer_lib_search_results_button_press), s);
       else
-	 gtk_signal_connect(GTK_OBJECT(button), "clicked",
-			    GTK_SIGNAL_FUNC (on_monomer_lib_sbase_molecule_button_press), s);
+	 g_signal_connect(G_OBJECT(button), "clicked",
+			  G_CALLBACK (on_monomer_lib_sbase_molecule_button_press), s);
       gtk_widget_show(button);
    }
 
@@ -1434,10 +1440,11 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    
    // we need to set widget size to new_box_size.  On the dialog?
 
-   gtk_widget_set_usize(dialog, dialog->allocation.width, new_box_size);
+   std::cout << "GTK-FIXME no gtk_widget_set_usize c" << std::endl;
+   // gtk_widget_set_usize(dialog, dialog->allocation.width, new_box_size);
       
    // a box of 14 is 400 pixels.  400 is about max size, I'd say 
-   gtk_signal_emit_by_name(GTK_OBJECT(vbox), "check_resize");
+   g_signal_emit_by_name(G_OBJECT(vbox), "check_resize");
    gtk_widget_show (vbox);
    return stat;
 

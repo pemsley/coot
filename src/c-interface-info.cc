@@ -103,6 +103,7 @@
 #include "cc-interface-scripting.hh"
 #include "c-interface-python.hh"
 
+#include "widget-headers.hh"
 
 /*  ----------------------------------------------------------------- */
 /*                         Scripting:                                 */
@@ -314,12 +315,12 @@ void output_residue_info_dialog(int imol, int atom_index) {
 	       GtkWidget *master_b_factor_entry =
 		  lookup_widget(widget, "residue_info_master_atom_b_factor_entry");
 
-	       gtk_signal_connect (GTK_OBJECT (master_occ_entry), "changed",
-				   GTK_SIGNAL_FUNC (graphics_info_t::on_residue_info_master_atom_occ_changed),
+	       g_signal_connect (G_OBJECT (master_occ_entry), "changed",
+				   G_CALLBACK (graphics_info_t::on_residue_info_master_atom_occ_changed),
 				   NULL);
-	       gtk_signal_connect (GTK_OBJECT (master_b_factor_entry),
+	       g_signal_connect (G_OBJECT (master_b_factor_entry),
 				   "changed",
-				   GTK_SIGNAL_FUNC (graphics_info_t::on_residue_info_master_atom_b_factor_changed),
+				   G_CALLBACK (graphics_info_t::on_residue_info_master_atom_b_factor_changed),
 				   NULL);
 
 
@@ -327,7 +328,7 @@ void output_residue_info_dialog(int imol, int atom_index) {
 	       gtk_entry_set_text(GTK_ENTRY(master_b_factor_entry),
 				  graphics_info_t::float_to_string(graphics_info_t::default_new_atoms_b_factor).c_str());
 					   
-	       gtk_object_set_user_data(GTK_OBJECT(widget), res_spec_p);
+	       g_object_set_data(G_OBJECT(widget), "res_spec_p",  res_spec_p);
 	       g.fill_output_residue_info_widget(widget, imol, residue_name, atoms, n_atoms);
 	       gtk_widget_show(widget);
 	       g.reset_residue_info_edits();
@@ -2354,7 +2355,7 @@ void execute_environment_settings(GtkWidget *widget) {
 
    GtkWidget *label_check_button;
    label_check_button = lookup_widget(widget, "environment_distance_label_atom_checkbutton");
-   if (GTK_TOGGLE_BUTTON(label_check_button)->active) {
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(label_check_button))) {
       g.environment_distance_label_atom = 1;
    }
 
