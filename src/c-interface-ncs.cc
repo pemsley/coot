@@ -452,7 +452,7 @@ int make_dynamically_transformed_ncs_maps_by_widget(GtkWidget *dialog) {
 	 map_str += graphics_info_t::int_to_string(imol);
 	 map_button = lookup_widget(dialog, map_str.c_str());
 	 if (map_button) {
-	    if (GTK_TOGGLE_BUTTON(map_button)->active) { 
+	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(map_button))) { 
 	       imol_map = imol;
 	       found_active_button_for_map = 1;
 	       break;
@@ -473,7 +473,7 @@ int make_dynamically_transformed_ncs_maps_by_widget(GtkWidget *dialog) {
 	    coords_str += graphics_info_t::int_to_string(imol);
 	    coords_button = lookup_widget(dialog, coords_str.c_str());
 	    if (coords_button) {
-	       if (GTK_TOGGLE_BUTTON(coords_button)->active) {
+	       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(coords_button))) {
 		  imol_coords = imol;
 		  found_active_button_for_coords = 1;
 	       }

@@ -69,6 +69,7 @@
 #include "c-interface-ligands.hh"
 #include "c-interface-ligands-swig.hh"
 #include "c-interface-ligand-search.hh"
+#include "widget-headers.hh"
 
 #include "guile-fixups.h"
 
@@ -281,18 +282,18 @@ int fill_ligands_dialog_map_bits_by_dialog_name(GtkWidget *find_ligand_dialog,
 		  gtk_radio_button_new_with_label (find_ligand_map_group,
 						   map_button_label.c_str());
 	       find_ligand_map_group =
-		  gtk_radio_button_group (GTK_RADIO_BUTTON (find_ligand_map_radiobutton_imol));
-	       gtk_widget_ref (find_ligand_map_radiobutton_imol);
-	       gtk_object_set_data_full (GTK_OBJECT (find_ligand_dialog),
+		  gtk_radio_button_get_group(GTK_RADIO_BUTTON (find_ligand_map_radiobutton_imol));
+	       // gtk_widget_ref (find_ligand_map_radiobutton_imol);
+	       g_object_set_data_full (G_OBJECT (find_ligand_dialog),
 					 map_str.c_str(),
 					 find_ligand_map_radiobutton_imol,
-					 (GtkDestroyNotify) gtk_widget_unref);
+					 (GDestroyNotify) NULL);
 
-	       gtk_signal_connect (GTK_OBJECT (find_ligand_map_radiobutton_imol), "toggled",
-				   GTK_SIGNAL_FUNC (on_find_ligand_map_radiobutton_imol_toggled),
-				   GINT_TO_POINTER(imol));
+	       g_signal_connect(G_OBJECT(find_ligand_map_radiobutton_imol), "toggled",
+				G_CALLBACK(on_find_ligand_map_radiobutton_imol_toggled),
+				GINT_TO_POINTER(imol));
 
-	       gtk_widget_show (find_ligand_map_radiobutton_imol);
+	       gtk_widget_show(find_ligand_map_radiobutton_imol);
 	       gtk_box_pack_start (GTK_BOX (find_ligand_map_vbox),
 				   find_ligand_map_radiobutton_imol, FALSE, FALSE, 0);
 	    }
@@ -307,7 +308,7 @@ on_find_ligand_map_radiobutton_imol_toggled(GtkToggleButton *togglebutton,
 					    gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
-   if (togglebutton->active) {
+   if (gtk_toggle_button_get_active(togglebutton)) {
       std::cout << "imol " << imol << " active "<< std::endl;
       GtkWidget *w = lookup_widget(GTK_WIDGET(togglebutton), "find_ligand_sigma_level_entry");
       if (w) {
@@ -360,13 +361,12 @@ int fill_ligands_dialog_protein_bits_by_dialog_name(GtkWidget *find_ligand_dialo
 	       gtk_radio_button_new_with_label (find_ligand_protein_group,
 						protein_button_label.c_str());
 	    find_ligand_protein_group =
-	       gtk_radio_button_group (GTK_RADIO_BUTTON
-				       (find_ligand_protein_radiobutton_imol));
-	    gtk_widget_ref (find_ligand_protein_radiobutton_imol);
-	    gtk_object_set_data_full (GTK_OBJECT (find_ligand_dialog),
+	       gtk_radio_button_get_group(GTK_RADIO_BUTTON(find_ligand_protein_radiobutton_imol));
+	    // gtk_widget_ref (find_ligand_protein_radiobutton_imol);
+	    g_object_set_data_full (G_OBJECT (find_ligand_dialog),
 				      protein_str.c_str(),
 				      find_ligand_protein_radiobutton_imol,
-				      (GtkDestroyNotify) gtk_widget_unref);
+				      (GDestroyNotify) NULL);
 	    gtk_widget_show (find_ligand_protein_radiobutton_imol);
 	    gtk_box_pack_start (GTK_BOX (find_ligand_protein_vbox),
 				find_ligand_protein_radiobutton_imol, FALSE, FALSE, 0);
@@ -411,13 +411,13 @@ int fill_vbox_with_coords_options_by_dialog_name(GtkWidget *find_ligand_dialog,
 		  gtk_radio_button_new_with_label (find_ligand_protein_group,
 						   protein_button_label.c_str());
 	       find_ligand_protein_group =
-		  gtk_radio_button_group (GTK_RADIO_BUTTON
+		  gtk_radio_button_get_group (GTK_RADIO_BUTTON
 					  (find_ligand_protein_radiobutton_imol));
-	       gtk_widget_ref (find_ligand_protein_radiobutton_imol);
-	       gtk_object_set_data_full (GTK_OBJECT (find_ligand_dialog),
+	       // gtk_widget_ref (find_ligand_protein_radiobutton_imol);
+	       g_object_set_data_full (G_OBJECT (find_ligand_dialog),
 					 protein_str.c_str(),
 					 find_ligand_protein_radiobutton_imol,
-					 (GtkDestroyNotify) gtk_widget_unref);
+					 (GDestroyNotify) NULL);
 	       gtk_widget_show (find_ligand_protein_radiobutton_imol);
 	       gtk_box_pack_start (GTK_BOX (find_ligand_protein_vbox),
 				   find_ligand_protein_radiobutton_imol, FALSE, FALSE, 0);
@@ -462,11 +462,12 @@ int fill_ligands_dialog_ligands_bits(GtkWidget *find_ligand_dialog) {
 	    wligands_str += g.int_to_string(imol);
 	    GtkWidget *find_ligand_wligands_checkbutton_imol =
 	       gtk_check_button_new_with_label ("Flexible?");
-	    gtk_widget_ref (find_ligand_wligands_checkbutton_imol);
-	    gtk_object_set_data_full (GTK_OBJECT (find_ligand_dialog),
+
+	    // gtk_widget_ref (find_ligand_wligands_checkbutton_imol);
+	    g_object_set_data_full (G_OBJECT (find_ligand_dialog),
 				      wligands_str.c_str(),
 				      find_ligand_wligands_checkbutton_imol,
-				      (GtkDestroyNotify) gtk_widget_unref);
+				      (GDestroyNotify) NULL);
 
 	    gtk_widget_show (find_ligand_wligands_checkbutton_imol);
 	    gtk_box_pack_start (GTK_BOX (hbox),
@@ -481,11 +482,12 @@ int fill_ligands_dialog_ligands_bits(GtkWidget *find_ligand_dialog) {
 	    // 
 	    GtkWidget *find_ligand_ligands_checkbutton_imol =
 	       gtk_check_button_new_with_label (ligands_button_label.c_str());
-	    gtk_widget_ref (find_ligand_ligands_checkbutton_imol);
-	    gtk_object_set_data_full (GTK_OBJECT (find_ligand_dialog),
+
+	    // gtk_widget_ref (find_ligand_ligands_checkbutton_imol);
+	    g_object_set_data_full(G_OBJECT (find_ligand_dialog),
 				      ligands_str.c_str(),
 				      find_ligand_ligands_checkbutton_imol,
-				      (GtkDestroyNotify) gtk_widget_unref);
+				      (GDestroyNotify) NULL);
 
 	    gtk_widget_show (find_ligand_ligands_checkbutton_imol);
 	    gtk_box_pack_start (GTK_BOX (hbox),
@@ -544,7 +546,7 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
 	 map_str += g.int_to_string(imol);
 	 ligand_button = lookup_widget(button, map_str.c_str());
 	 if (ligand_button) { 
-	    if (GTK_TOGGLE_BUTTON(ligand_button)->active) {
+	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ligand_button))) {
 	       find_ligand_map_mol = imol;
 	       found_active_button_for_map = 1;
 	       break;
@@ -564,7 +566,7 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
 	 protein_str += g.int_to_string(imol);
 	 ligand_button = lookup_widget(button, protein_str.c_str());
 	 if (ligand_button) { 
-	    if (GTK_TOGGLE_BUTTON(ligand_button)->active) {
+	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ligand_button))) {
 	       find_ligand_protein_mol = imol;
 	       found_active_button_for_protein = 1;
 	       break;
@@ -581,7 +583,7 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
    GtkWidget *togglebutton;
    togglebutton = lookup_widget(button,
 				"find_ligand_mask_waters_yes_radiobutton");
-   if (GTK_TOGGLE_BUTTON(togglebutton)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton)))
       graphics_info_t::find_ligand_mask_waters_flag = 1;
    else 
       graphics_info_t::find_ligand_mask_waters_flag = 0;
@@ -593,7 +595,7 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
    search_here_toggle_button = lookup_widget(button,
 					     "find_ligands_search_here_radiobutton");
    if (search_here_toggle_button) {
-      if (GTK_TOGGLE_BUTTON(search_here_toggle_button)->active) {
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(search_here_toggle_button))) {
 	 std::cout << " Activating SEARCH HERE in ligand fitting" << std::endl;
 	 graphics_info_t::find_ligand_here_cluster_flag = 1;
       } else {
@@ -619,10 +621,10 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
 	 GtkWidget *wiggly_button = lookup_widget(button, wiggly_str.c_str());
 		  
 	 if (ligand_button && wiggly_button) { 
-	    if (GTK_TOGGLE_BUTTON(ligand_button)->active) {
+	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ligand_button))) {
 	       
 	       bool wiggly_state = 0;
-	       if (GTK_TOGGLE_BUTTON(wiggly_button)->active)
+	       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(wiggly_button)))
 		  wiggly_state = 1;
 	       wiggly_ligand_info.push_back(std::pair<int, bool> (imol, wiggly_state));
 // 	       std::cout << "DEBUG:: wiggly info: " << imol <<  " " << wiggly_state
@@ -650,7 +652,7 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
    //
    GtkWidget *multi_solution_check_button = lookup_widget(button,
 							  "find_ligand_multi_solution_checkbutton");
-   if (GTK_TOGGLE_BUTTON(multi_solution_check_button)->active) {
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(multi_solution_check_button))) {
       g.find_ligand_multiple_solutions_per_cluster_flag = true;
    }
 
@@ -721,7 +723,7 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
 void do_find_ligand_many_atoms_in_ligands(GtkWidget *find_ligand_dialog) {
 
    GtkWidget *widget = create_find_ligand_many_atoms_dialog();
-   gtk_object_set_user_data(GTK_OBJECT(widget), (char *) find_ligand_dialog);
+   g_object_set_data(G_OBJECT(widget), "find_ligand_dialog", find_ligand_dialog);
    gtk_widget_show(widget); 
 }
 
@@ -747,7 +749,7 @@ void set_ligand_dialog_number_of_sites_sensitivity(GtkWidget *toggle_button) {
 
    GtkWidget *hbox = lookup_widget(toggle_button, "find_ligands_dialog_number_of_sites_hbox");
    if (hbox) {
-      if (GTK_TOGGLE_BUTTON(toggle_button)->active) {
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle_button))) {
 	 gtk_widget_set_sensitive(hbox, FALSE);
       } else {
 	 gtk_widget_set_sensitive(hbox, TRUE);
@@ -1200,7 +1202,7 @@ void setup_ligands_progress_bar_idle(coot::wligand *wlig,
 
    // 20170925 do we need this cast I doubt it.
    // gint idle = gtk_idle_add((GtkFunction) install_simple_wiggly_ligand_idle_fn, ldb);
-   gint idle = gtk_idle_add(install_simple_wiggly_ligand_idle_fn, ldb);
+   gint idle = g_idle_add(install_simple_wiggly_ligand_idle_fn, ldb);
 
    graphics_info_t g;
    g.ligand_wiggly_ligand_count = 0;
