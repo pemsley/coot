@@ -29,7 +29,7 @@
 #include "compat/coot-sysdep.h"
 
 #if defined _MSC_VER
-#include <windows.h>
+n#include <windows.h>
 #endif
 
 #include <stdlib.h>
@@ -52,6 +52,7 @@
 #include "coords/mmdb-crystal.h"
 
 #include "graphics-info.h"
+#include "widget-headers.hh"
 
 #ifdef USE_GUILE
 #include <libguile.h>

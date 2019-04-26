@@ -89,22 +89,22 @@ void show_preferences(){
      GtkWidget *scrolled_win_main_toolbar = lookup_widget(w, "preferences_main_toolbar_icons_scrolledwindow");
      fill_preferences_main_toolbar_icons(w, scrolled_win_main_toolbar);
 
-     GtkComboBox *combobox;
+     GtkComboBoxText *combobox;
      // fill the bond combobox
-     combobox = GTK_COMBO_BOX(lookup_widget(w, "preferences_bond_width_combobox"));
+     combobox = GTK_COMBO_BOX_TEXT(lookup_widget(w, "preferences_bond_width_combobox"));
      for (int j=1; j<21; j++) {
 	std::string s = graphics_info_t::int_to_string(j);
-	gtk_combo_box_append_text(combobox, s.c_str());
+	gtk_combo_box_text_append_text(combobox, s.c_str());
      }
      // fill the font combobox
-     combobox = GTK_COMBO_BOX(lookup_widget(w, "preferences_font_size_combobox"));
+     combobox = GTK_COMBO_BOX_TEXT(lookup_widget(w, "preferences_font_size_combobox"));
      std::vector<std::string> fonts;  
      fonts.push_back("Times Roman 10");
      fonts.push_back("Times Roman 24");
      fonts.push_back("Fixed 8/13");
      fonts.push_back("Fixed 9/15");
      for (unsigned int j=0; j<fonts.size(); j++) {
-	gtk_combo_box_append_text(combobox, fonts[j].c_str());
+	gtk_combo_box_text_append_text(combobox, fonts[j].c_str());
      }
   }
 
@@ -855,10 +855,12 @@ void save_accept_reject_dialog_window_position(GtkWidget *acc_rej_dialog) {
    
    if (acc_rej_dialog) { 
       gint upositionx, upositiony;
-      if (acc_rej_dialog->window) {
-	 gdk_window_get_root_origin (acc_rej_dialog->window, &upositionx, &upositiony);
-	 graphics_info_t::accept_reject_dialog_x_position = upositionx;
-	 graphics_info_t::accept_reject_dialog_y_position = upositiony;
+      // if (acc_rej_dialog->window) {
+      if (true) { // no access to window
+	    std::cout << "GTK-FIXME no root origin B" << std::endl;
+	 // gdk_window_get_root_origin (acc_rej_dialog->window, &upositionx, &upositiony);
+	 // graphics_info_t::accept_reject_dialog_x_position = upositionx;
+	 //	 graphics_info_t::accept_reject_dialog_y_position = upositiony;
       } else {
 	 std::cout << "ERROR:: Trapped an error in save_accept_reject_dialog_window_position\n"
 		   << "        Report to Central Control!\n"
