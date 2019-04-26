@@ -61,7 +61,7 @@ short int delete_item_widget_keep_active_on() {
    if (delete_item_widget_is_being_shown()) { 
       GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget,
 					     "delete_item_keep_active_checkbutton");
-      if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) {
 	 r = 1;
       }
    }
@@ -71,8 +71,10 @@ short int delete_item_widget_keep_active_on() {
 void store_delete_item_widget_position() {
 
    gint upositionx, upositiony;
-   gdk_window_get_root_origin (graphics_info_t::delete_item_widget->window,
-			       &upositionx, &upositiony);
+   // gdk_window_get_root_origin (graphics_info_t::delete_item_widget->window,
+   // &upositionx, &upositiony);
+   gtk_window_get_position(GTK_WINDOW(graphics_info_t::delete_item_widget),
+			   &upositionx, &upositiony);
    graphics_info_t::delete_item_widget_x_position = upositionx;
    graphics_info_t::delete_item_widget_y_position = upositiony;
    gtk_widget_destroy(graphics_info_t::delete_item_widget);
@@ -95,7 +97,8 @@ void store_delete_item_widget(GtkWidget *widget) {
     the contour level and redraw */
 void single_map_properties_apply_contour_level_to_map(GtkWidget *w) {
 
-   int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(w)));
+   std::cout << "needs to set widget data imol " << std::endl;
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "imol"));
 
    if (is_valid_map_molecule(imol)) { 
       GtkToggleButton *toggle_button =
@@ -104,7 +107,7 @@ void single_map_properties_apply_contour_level_to_map(GtkWidget *w) {
       GtkWidget *entry = lookup_widget(w, "single_map_properties_contour_level_entry");
       const char *txt = gtk_entry_get_text(GTK_ENTRY(entry));
       float level = atof(txt);
-      if (toggle_button->active) {
+      if (gtk_toggle_button_get_active(toggle_button)) {
 	 set_contour_level_in_sigma(imol, level);
       } else {
 	 set_contour_level_absolute(imol, level);
@@ -124,8 +127,10 @@ void remarks_dialog(int imol) {
 
 	    GtkWidget *d = gtk_dialog_new();
 	    gtk_window_set_title(GTK_WINDOW(d), "Coot Header Browser");
-	    gtk_object_set_data(GTK_OBJECT(d), "remarks_dialog", d);
-	    GtkWidget *vbox = GTK_DIALOG(d)->vbox;
+	    g_object_set_data(G_OBJECT(d), "remarks_dialog", d);
+	    // is this correct!?
+	    // GtkWidget *vbox = GTK_DIALOG(d)->vbox;
+	    GtkWidget *vbox = gtk_dialog_get_header_bar(GTK_DIALOG(d));
 	    GtkWidget *vbox_inner = gtk_vbox_new(FALSE, 2);
 	    GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
 	    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
@@ -167,7 +172,11 @@ void remarks_dialog(int imol) {
 		  GtkWidget *text_view = gtk_text_view_new();
 		  gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
 						       GTK_TEXT_WINDOW_RIGHT, 10);
-		  gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
+
+
+		  // gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
+		  gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
+
 		  gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
 		  gtk_widget_show(GTK_WIDGET(text_view));
 		  gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
@@ -187,13 +196,14 @@ void remarks_dialog(int imol) {
 
 
 	       GtkWidget *close_button = gtk_button_new_with_label("  Close   ");
-	       GtkWidget *aa = GTK_DIALOG(d)->action_area;
+	       GtkWidget *aa = gtk_dialog_get_action_area(GTK_DIALOG(d));
 	       gtk_box_pack_start(GTK_BOX(aa), close_button, FALSE, FALSE, 2);
 	       
-	       gtk_signal_connect(GTK_OBJECT(close_button), "clicked",
-				  GTK_SIGNAL_FUNC(on_remarks_dialog_close_button_clicked), NULL);
+	       g_signal_connect(G_OBJECT(close_button), "clicked",
+				G_CALLBACK(on_remarks_dialog_close_button_clicked), NULL);
 	       gtk_widget_show(close_button);
-	       gtk_widget_set_usize(d, 500, 400);
+	       // gtk_widget_set_usize(d, 500, 400);
+	       gtk_widget_set_size_request(d, 500, 400);
 	       gtk_widget_show(d);
 	    }
 	 } 
@@ -230,7 +240,8 @@ void remarks_browser_fill_compound_info(mmdb::Manager *mol, GtkWidget *vbox) {
       GtkWidget *text_view = gtk_text_view_new();
       gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
 					   GTK_TEXT_WINDOW_RIGHT, 10);
-      gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
+      // gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
+      gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
       gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
       gtk_widget_show(GTK_WIDGET(text_view));
       gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
@@ -281,7 +292,8 @@ void remarks_browser_fill_author_info(mmdb::Manager *mol, GtkWidget *vbox) {
       GtkWidget *text_view = gtk_text_view_new();
       gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
 					   GTK_TEXT_WINDOW_RIGHT, 10);
-      gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
+      // gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
+      gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
       gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
       gtk_widget_show(GTK_WIDGET(text_view));
       gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
@@ -333,7 +345,8 @@ void remarks_browser_fill_journal_info(mmdb::Manager *mol, GtkWidget *vbox) {
       GtkWidget *text_view = gtk_text_view_new();
       gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
 					   GTK_TEXT_WINDOW_RIGHT, 10);
-      gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
+      // gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
+      gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
       gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
       gtk_widget_show(GTK_WIDGET(text_view));
       gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
@@ -378,7 +391,8 @@ void remarks_browser_fill_link_info(mmdb::Manager *mol, GtkWidget *vbox) {
 
 	 gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
 					      GTK_TEXT_WINDOW_RIGHT, 10);
-	 gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
+	 // gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
+	 gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
 	 gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
 	 gtk_widget_show(GTK_WIDGET(text_view));
 	 gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
@@ -500,11 +514,13 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
    if (graphics_info_t::use_graphics_interface_flag) {
 
       GtkWidget *d = gtk_dialog_new();
-      gtk_object_set_data(GTK_OBJECT(d), "simple_text_dialog", d);
+      g_object_set_data(G_OBJECT(d), "simple_text_dialog", d);
       gtk_window_set_title (GTK_WINDOW (d), _(dialog_title.c_str()));
-      GtkWidget *vbox = GTK_DIALOG(d)->vbox;
+
+      // is this correct?
+      GtkWidget *vbox = gtk_dialog_get_header_bar(GTK_DIALOG(d));
       GtkWidget *vbox_inner = gtk_vbox_new(FALSE, 2);
-      GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+      GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
       gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
 					    GTK_WIDGET(vbox_inner));
       gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);

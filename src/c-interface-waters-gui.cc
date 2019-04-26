@@ -132,7 +132,7 @@ void execute_find_blobs_from_widget(GtkWidget *dialog) {
 	    map_str += graphics_info_t::int_to_string(imol);
 	    map_button = lookup_widget(dialog, map_str.c_str());
 	    if (map_button) { 
-	       if (GTK_TOGGLE_BUTTON(map_button)->active) {
+	       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(map_button))) {
 		  imol_for_map = imol;
 		  found_active_button_for_map = 1;
 		  break;
@@ -153,7 +153,7 @@ void execute_find_blobs_from_widget(GtkWidget *dialog) {
 	    protein_str += graphics_info_t::int_to_string(imol);
 	    protein_button = lookup_widget(dialog, protein_str.c_str());
 	    if (protein_button) { 
-	       if (GTK_TOGGLE_BUTTON(protein_button)->active) {
+	       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(protein_button))) {
 		  imol_model = imol;
 		  found_active_button_for_protein = 1;
 		  break;
@@ -226,9 +226,9 @@ void execute_find_blobs(int imol_model, int imol_for_map,
 		     //	 gtk_widget_ref(button);
 		     clipper::Coord_orth *c = new clipper::Coord_orth;
 		     *c = lig.big_blobs()[i].first;
-		     gtk_signal_connect (GTK_OBJECT(button), "clicked", 
-					 GTK_SIGNAL_FUNC(on_big_blob_button_clicked),
-					 c);
+		     g_signal_connect (G_OBJECT(button), "clicked", 
+				       G_CALLBACK(on_big_blob_button_clicked),
+				       c);
 		     gtk_widget_show(button);
 		     gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
 		     gtk_container_set_border_width(GTK_CONTAINER(button), 2);
@@ -320,7 +320,7 @@ execute_find_waters(GtkWidget *dialog_ok_button) {
 	 map_str += g.int_to_string(imol);
 	 dialog_button = lookup_widget(dialog_ok_button, map_str.c_str());
 	 if (dialog_button) {
-	    if (GTK_TOGGLE_BUTTON(dialog_button)->active) {
+	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(dialog_button))) {
 	       find_waters_map_mol = imol;
 	       found_active_button_for_map = 1;
 	       break;
@@ -339,7 +339,7 @@ execute_find_waters(GtkWidget *dialog_ok_button) {
 	 protein_str += g.int_to_string(imol);
 	 dialog_button = lookup_widget(dialog_ok_button, protein_str.c_str());
 	 if (dialog_button) {
-	    if (GTK_TOGGLE_BUTTON(dialog_button)->active) {
+	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(dialog_button))) {
 	       find_waters_protein_mol = imol;
 	       found_active_button_for_protein = 1;
 	       break;
@@ -399,11 +399,11 @@ execute_find_waters(GtkWidget *dialog_ok_button) {
    
    GtkWidget *waters_toggle_button = lookup_widget(dialog_ok_button,
 						   "water_mol_protein_mask_radiobutton");
-   if (GTK_TOGGLE_BUTTON(waters_toggle_button)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(waters_toggle_button)))
       new_waters_mol_flag = 0;
    waters_toggle_button = lookup_widget(dialog_ok_button,
 					"water_mol_new_mol_radiobutton");
-   if (GTK_TOGGLE_BUTTON(waters_toggle_button)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(waters_toggle_button)))
       new_waters_mol_flag = 1;
    
    if (found_active_button_for_map &&
@@ -492,9 +492,9 @@ void find_waters(int imol_for_map,
 			//	 gtk_widget_ref(button);
 			clipper::Coord_orth *c = new clipper::Coord_orth;
 			*c = lig.big_blobs()[i].first;
-			gtk_signal_connect (GTK_OBJECT(button), "clicked", 
-					    GTK_SIGNAL_FUNC(on_big_blob_button_clicked),
-					    c);
+			g_signal_connect(G_OBJECT(button), "clicked", 
+					 G_CALLBACK(on_big_blob_button_clicked),
+					 c);
 			gtk_widget_show(button);
 			gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
 			gtk_container_set_border_width(GTK_CONTAINER(button), 2);
