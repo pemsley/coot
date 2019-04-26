@@ -12331,7 +12331,7 @@ on_generic_objects_dialog_destroy      (GtkObject       *object,
   clear_generic_objects_dialog_pointer();
 
 }
-#end
+#endif
 
 
 void
