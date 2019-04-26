@@ -76,13 +76,14 @@ const gchar *list_item_data_key_for_atoms="list_item_data_for_atoms";
 
 
 
-
+#if 0
 void
 on_window1_destroy                     (GtkObject       *object,
                                         gpointer         user_data)
 {
   gtk_main_quit();
 }
+#endif
 
 /* When the user uses the window manager to close coot, this gets called. */
 /* When the window manager "close window" events happens it send the
@@ -130,7 +131,7 @@ on_open_dataset1_activate              (GtkMenuItem     *menuitem,
 
   /* stuff in user data saying if this is autoread or not... */
   is = is_auto_read_fileselection;
-  gtk_object_set_user_data(GTK_OBJECT(dataset_fileselection1), GINT_TO_POINTER(is));
+  g_object_set_data(G_OBJECT(dataset_fileselection1), "is_auto_read", GINT_TO_POINTER(is));
   set_file_selection_dialog_size(dataset_fileselection1);
 
   set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_fileselection1);
@@ -158,7 +159,7 @@ on_auto_open_mtz_activate              (GtkMenuItem     *menuitem,
 
   /* stuff in user data saying if this is autoread or not... */
   is = is_auto_read_fileselection;
-  gtk_object_set_user_data(GTK_OBJECT(dataset_fileselection1), GINT_TO_POINTER(is));
+  g_object_set_data(G_OBJECT(dataset_fileselection1), "is_auto_read", GINT_TO_POINTER(is));
   set_file_selection_dialog_size(dataset_fileselection1);
 
   set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_fileselection1);
@@ -285,7 +286,7 @@ on_ok_button_dataset_clicked           (GtkButton       *button,
    copied_filename = (char *) malloc(strlen(filename) + 1);
    strcpy(copied_filename, filename);
 
-   auto_read_flag = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(dataset_fileselection1)));
+   auto_read_flag = GPOINTER_TO_INT(g_object_get_data(GTK_OBJECT(dataset_fileselection1), "is_mtz"));
    ismtz = is_mtz_file_p(filename);
    if (ismtz) ismtzauto = mtz_file_has_phases_p(filename);
    else       iscnsauto = cns_file_has_phases_p(filename);
@@ -650,7 +651,7 @@ on_show_symmetry_ok_button_clicked     (GtkButton       *button,
 				  
 
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
-								    "show_symmetry_no_radiobutton"))->active))
+								    "show_symmetry_no_radiobutton"))))
       set_show_symmetry_master(0);
 
 /* Symmetry Radius Entry */
@@ -709,7 +710,7 @@ on_show_symmetry_ok_button_clicked     (GtkButton       *button,
 
    checkbutton = lookup_widget(GTK_WIDGET(button), 
 			       "show_symmetry_expanded_labels_checkbutton");
-   if (GTK_TOGGLE_BUTTON(checkbutton)->active) 
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
      set_symmetry_atom_labels_expanded(1);
    else
      set_symmetry_atom_labels_expanded(0);
@@ -889,8 +890,8 @@ on_anisotropic_atoms1_activate         (GtkMenuItem     *menuitem,
          (gtk_adjustment_new(hscale_initial, 0.0, 110.0, 0.01, 4.0, 10.)); 
 
    gtk_range_set_adjustment(GTK_RANGE(hscale), adjustment);
-   gtk_signal_connect (GTK_OBJECT (adjustment), "value_changed",
-		       GTK_SIGNAL_FUNC (aniso_probability_adjustment_changed), 
+   g_signal_connect (G_OBJECT(adjustment), "value_changed",
+		       G_CALLBACK(aniso_probability_adjustment_changed), 
 		       NULL);
 
 
@@ -1867,7 +1868,7 @@ on_get_pdb_using_code1_activate        (GtkMenuItem     *menuitem,
 
   *n = 1;
   window = create_accession_code_window(); 
-  gtk_object_set_user_data(GTK_OBJECT(window), (char *) n); 
+  g_object_set_data(G_OBJECT(window), "mode", (char *) n); 
   
   gtk_widget_show(window); 
 
@@ -1884,7 +1885,7 @@ on_get_pdb_and_sf_using_code1_activate (GtkMenuItem     *menuitem,
   *n = 2; 
 
   window = create_accession_code_window(); 
-  gtk_object_set_user_data(GTK_OBJECT(window), n); 
+  g_object_set_data(G_OBJECT(window), "mode", n); 
   gtk_widget_show(window); 
 
 }
@@ -1897,11 +1898,11 @@ on_fetch_pdb_and_map_using_pdbredo1_activate
   GtkWidget *window; 
   int *n; 
   n = (int *) g_malloc(sizeof(int)); 
-  *n = 3; 
+  *n = 3;
 
   window = create_accession_code_window(); 
-  gtk_object_set_user_data(GTK_OBJECT(window), n); 
-  gtk_widget_show(window); 
+  g_object_set_user_data(G_OBJECT(window), "mode", n);
+  gtk_widget_show(window);
 
 }
 
@@ -1913,7 +1914,7 @@ gboolean on_accession_code_entry_key_press_event (GtkWidget       *widget,
 
  /* go somewhere if keypress was a carriage return  */
 
-  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) { 
+  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
     handle_get_accession_code(widget); 
   } 
 
@@ -2062,13 +2063,15 @@ on_find_ligand_many_atoms_continue_button_clicked (GtkButton       *button,
 
    GtkWidget *window = lookup_widget(GTK_WIDGET(button), 
 				     "find_ligand_many_atoms_dialog");
-   GtkWidget *find_ligand_dialog = (GtkWidget *) gtk_object_get_user_data(GTK_OBJECT(window));
+   GtkWidget *find_ligand_dialog = (GtkWidget *) g_object_get_data(GTK_OBJECT(window), "find_ligand_dialog");
 
 /* Needed at all, the if? */
 #if defined USE_GUILE && defined USE_PYTHON
    execute_ligand_search();
 #endif 
    gtk_widget_destroy(window);
+   printf("GTK-FIXME on_find_ligand_many_atoms_continue_button_clicked() find_ligand_dialog 0%d\n",
+	  find_ligand_dialog);
    gtk_widget_destroy(find_ligand_dialog); 
 }
 
@@ -2193,7 +2196,9 @@ on_save_coords_dialog_save_button_clicked (GtkButton       *button,
      widget = coot_save_coords_chooser();
   
      /* we transfer the pointer to imol to the save coordinates fileselection */
-     gtk_object_set_user_data(GTK_OBJECT(widget), imol_str);
+
+     printf("bleugh - needs a fixup here\n");
+     g_object_set_user_data(G_OBJECT(widget), "imol", imol_str);
 
      add_file_dialog_action_area_vbox(widget);
      add_save_coordinates_include_hydrogens_and_aniso_checkbutton(widget);
@@ -2225,7 +2230,8 @@ on_save_coord_ok_button_clicked        (GtkButton       *button,
 
   widget = lookup_widget(GTK_WIDGET(button), "save_coords_fileselection1");
   save_directory_for_saving_from_fileselection(fileselection);
-  stuff = gtk_object_get_user_data(GTK_OBJECT(widget));
+  printf("needs a fixup B\n");
+  stuff = g_object_get_data(G_OBJECT(widget), "unknown-data-name");
   save_coordinates_using_widget(widget);
   free(stuff);
   gtk_widget_destroy(widget);
@@ -2239,8 +2245,7 @@ on_save_coords_cancel_button_clicked   (GtkButton       *button,
   GtkWidget *widget;
   char *stuff;
 
-  widget = lookup_widget(GTK_WIDGET(button),
-			 "save_coords_fileselection1");
+  widget = lookup_widget(GTK_WIDGET(button), "save_coords_fileselection1");
   stuff = gtk_object_get_user_data(GTK_OBJECT(widget));
   free(stuff);
   gtk_widget_destroy(widget);
@@ -3577,7 +3582,7 @@ on_go_to_atom_chain_entry_key_press_event
                                         GdkEventKey     *event,
                                         gpointer         user_data)
 {
-  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) { 
+  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) { 
     apply_go_to_atom_values(lookup_widget(widget, "goto_atom_window"));
   } 
   return FALSE;
@@ -3591,7 +3596,7 @@ on_go_to_atom_residue_entry_key_press_event (GtkWidget       *widget,
 {
 
 
-  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) { 
+  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) { 
     apply_go_to_atom_values(lookup_widget(widget, "goto_atom_window"));
   } 
   return FALSE;
@@ -3604,7 +3609,7 @@ on_go_to_atom_atom_name_entry_key_press_event (GtkWidget       *widget,
 					       gpointer         user_data)
 {
 
-  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) { 
+  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) { 
     apply_go_to_atom_values(lookup_widget(widget, "goto_atom_window"));
   } 
 
@@ -3878,21 +3883,21 @@ on_pointer_atom_type_ok_button_clicked (GtkButton       *button,
     /* Adding something here? 
        Remember to change also molecule_class_info_t::add_typed_pointer_atom(). */
     tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_water"));
-    if (tbut->active) place_typed_atom_at_pointer("Water");
+    if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("Water");
     tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_ca"));
-    if (tbut->active) place_typed_atom_at_pointer("Ca");
+    if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("Ca");
     tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_mg"));
-    if (tbut->active) place_typed_atom_at_pointer("Mg");
+    if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("Mg");
     tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_na"));
-    if (tbut->active) place_typed_atom_at_pointer("Na");
+    if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("Na");
     tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_cl"));
-    if (tbut->active) place_typed_atom_at_pointer("Cl");
+    if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("Cl");
     tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_br"));
-    if (tbut->active) place_typed_atom_at_pointer("Br");
+    if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("Br");
     tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_so4"));
-    if (tbut->active) place_typed_atom_at_pointer("SO4");
+    if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("SO4");
     tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_po4"));
-    if (tbut->active) place_typed_atom_at_pointer("PO4");
+    if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("PO4");
   }
   /* Recall that the molecule is set by the callback from menu item "activate" */
 
@@ -3994,7 +3999,10 @@ void
 on_single_map_properties_colour_button_clicked (GtkButton       *button,
 						gpointer         user_data)
 {
-  
+
+  printf("GDK-FIXME on_single_map_properties_colour_button_clicked");
+
+#if 0
   GtkWidget *window = lookup_widget(GTK_WIDGET(button),
 				    "single_map_properties_dialog");
   struct map_colour_data_type *map_colour_data; 
@@ -4002,7 +4010,7 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
   GtkWidget  *colorseldlg;
   GtkColorSelection *colorsel;
   gdouble *colour;
-  int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(window)));
+  int imol = GPOINTER_TO_INT(g_object_get_user_data(G_OBJECT(window), "imol"));
 
   if (is_valid_map_molecule(imol)) { 
       if (1) { 
@@ -4025,8 +4033,10 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
 	printf("no imol for the colour chooser for map:\n"); 
       }
     }
+#endif
 }
 
+#if 0
 void
 on_run_refmac_phase_input_optionmenu_changed
                                         (GtkOptionMenu   *optionmenu,
@@ -4091,8 +4101,8 @@ on_run_refmac_phase_input_optionmenu_changed
     }
 
   }
-    
 }
+#endif
 
 void
 on_run_refmac_tls_checkbutton_toggled  (GtkToggleButton *togglebutton,
@@ -4235,7 +4245,7 @@ on_run_refmac_mtz_filechooserdialog_response
   gtk_widget_destroy(mtz_fileselection);
 }
 
-
+#if 0
 void
 on_run_refmac_mtz_filechooserdialog_destroy
                                         (GtkObject       *object,
@@ -4248,13 +4258,13 @@ on_run_refmac_mtz_filechooserdialog_destroy
   gtk_widget_destroy(mtz_fileselection);
 
 }
+#endif
 
 
 void
 on_run_refmac_mtz_filechooser_button_clicked
                                         (GtkButton       *button,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
   GtkWidget *mtz_file_chooser;
   mtz_file_chooser = create_run_refmac_mtz_filechooserdialog();
@@ -4272,7 +4282,6 @@ on_run_refmac_file_help_button_clicked (GtkButton       *button,
 {
   GtkWidget *widget = create_run_refmac_file_help_dialog();
   gtk_widget_show(widget);
-
 
 }
 
@@ -4321,6 +4330,7 @@ on_run_refmac_nolabels_checkbutton_toggled (GtkToggleButton *togglebutton,
 }
 
 
+#if 0
 /* we want to update the phases/hl boxes if the mtz changes */
 void
 on_run_refmac_map_optionmenu_changed   (GtkOptionMenu   *optionmenu,
@@ -4329,6 +4339,7 @@ on_run_refmac_map_optionmenu_changed   (GtkOptionMenu   *optionmenu,
   //update_refmac_column_labels_frame(optionmenu);
 
 }
+#endif
 
 /* Actually, we only are interested in the state of this when the
    "Run" button is pressed */
@@ -5391,7 +5402,7 @@ on_libcheck_monomer_entry_key_press_event (GtkWidget       *widget,
 					   GdkEventKey     *event,
 					   gpointer         user_data)
 {
-  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) { 
+  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) { 
     handle_get_libcheck_monomer_code(widget); 
   } 
 
@@ -9316,7 +9327,7 @@ on_coot_online_doc_search_entry_key_press_event
 
   const char *text;
 
-  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) {
+  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
     text = gtk_entry_get_text(GTK_ENTRY(widget));
     handle_online_coot_search_request(text);
   }
@@ -9375,7 +9386,7 @@ on_entry1_key_press_event              (GtkWidget       *widget,
 {
   GtkEntry *entry = (GTK_ENTRY(lookup_widget(widget, "entry1")));
   const char *text = gtk_entry_get_text(entry);
-  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) { 
+  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) { 
     set_density_size_from_widget(text);
   }
   return FALSE;
@@ -9648,7 +9659,7 @@ on_monomer_search_entry_key_press_event
 				   "monomer_search_results_viewport");
 
   if (entry) { 
-    if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) { 
+    if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) { 
       text = gtk_entry_get_text(GTK_ENTRY(entry));
       if (text) {
 	handle_make_monomer_search(text, viewport);
@@ -11849,7 +11860,7 @@ on_map_sharpening_reset_button_clicked (GtkButton       *button,
 {
     // reset to zero!?
     GtkWidget *h_scale = lookup_widget(GTK_WIDGET(button), "map_sharpening_hscale");
-    GtkAdjustment *adj = GTK_RANGE(h_scale)->adjustment;
+    GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(h_scale));
     gtk_adjustment_set_value(adj, 0.);
 
 }
@@ -11975,7 +11986,7 @@ on_environment_distance_max_entry_key_press_event
                                         gpointer         user_data)
 {
 
-  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) {
+  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
        execute_environment_settings(widget);
   }
   return FALSE;
@@ -11988,7 +11999,7 @@ on_environment_distance_min_entry_key_press_event
                                         gpointer         user_data)
 {
 
-  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) {
+  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
        execute_environment_settings(widget);
   }
   return FALSE;
@@ -12256,12 +12267,12 @@ on_keyboard_go_to_residue_entry_key_press_event
 
   GtkWidget *w = lookup_widget(widget, "keyboard_goto_residue_window");
   const gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
-  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) {
+  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
     handle_go_to_residue_keyboarding_mode(text);
     gtk_widget_destroy(w);
     return TRUE;
   }
-  if (event->keyval == GDK_Escape) {
+  if (event->keyval == GDK_KEY_Escape) {
     gtk_widget_destroy(w);
     return TRUE;
   }
@@ -12311,13 +12322,16 @@ on_generic_objects_dialog_close        (GtkDialog       *dialog,
 
 }
 
+#if 0
+// generated interface - how does the new one work?
 void
 on_generic_objects_dialog_destroy      (GtkObject       *object,
                                         gpointer         user_data) { 
 
   clear_generic_objects_dialog_pointer();
 
-} 
+}
+#end
 
 
 void
