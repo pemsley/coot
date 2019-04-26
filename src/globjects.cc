@@ -4049,8 +4049,8 @@ animate_idle_spin(GtkWidget *widget) {
 
 // widget is the glarea.
 // 
-gint
-animate_idle_rock(GtkWidget *widget) {
+bool
+animate_idle_rock(gpointer user_data) {
 
    graphics_info_t g; 
    double target_angle = get_idle_function_rock_target_angle();
@@ -4105,8 +4105,8 @@ get_idle_function_rock_target_angle() {
 
 // widget is the glarea.
 // 
-gint
-animate_idle_ligand_interactions(GtkWidget *widget) {
+gboolean
+animate_idle_ligand_interactions(gpointer data) {
 
    graphics_info_t g;
    for (int imol=0; imol<graphics_n_molecules(); imol++) {

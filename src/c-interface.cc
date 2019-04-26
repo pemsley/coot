@@ -129,6 +129,7 @@
 #include "testing.hh"
 
 #include "positioned-widgets.h"
+#include "widget-headers.hh"
 
 // moving column_label selection to c-interface from mtz bits.
 #include "cmtz-interface.hh"
@@ -863,9 +864,9 @@ void mono_mode() {
       
       if (graphics_info_t::display_mode != coot::MONO_MODE) { 
 	 int previous_mode = graphics_info_t::display_mode;
-         GtkWidget *main_win = lookup_widget(graphics_info_t::glarea, "window1");
-         int x_size = main_win->allocation.width;
-         int y_size = main_win->allocation.height;
+         GtkWidget *gl_widget = lookup_widget(graphics_info_t::glarea, "window1");
+         int x_size = gtk_widget_get_allocated_width(gl_widget);
+         int y_size = gtk_widget_get_allocated_height(gl_widget);
 	 graphics_info_t::display_mode = coot::MONO_MODE;
 	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
 	 if (!vbox) {
@@ -1262,10 +1263,13 @@ void toggle_idle_spin_function() {
    graphics_info_t g; 
 
    if (g.idle_function_spin_rock_token == 0) { 
-      g.idle_function_spin_rock_token = gtk_idle_add((GtkFunction)animate_idle_spin, g.glarea);
+      // g.idle_function_spin_rock_token = gtk_idle_add((GtkFunction)animate_idle_spin, g.glarea);
+      g.idle_function_spin_rock_token = g_idle_add(animate_idle_spin, g.glarea);
    } else {
-      gtk_idle_remove(g.idle_function_spin_rock_token);
-      g.idle_function_spin_rock_token = 0; 
+
+      std::cout << "GTK-FIXME remove spin idle function here!" << std::endl;
+      // gboolean remove_status = g_idle_remove_by_data(g.idle_function_spin_rock_token);
+      // g.idle_function_spin_rock_token = 0; 
    }
    add_to_history_simple("toggle-idle-function");
 }
@@ -1277,17 +1281,18 @@ void toggle_idle_rock_function() {
 
    if (g.idle_function_spin_rock_token == 0) { 
       g.idle_function_spin_rock_token =
-	 // gtk_idle_add((GtkFunction)animate_idle_rock, g.glarea);
-	 gtk_timeout_add(25, // 40 fps
-			 (GtkFunction) animate_idle_rock,
-			 g.glarea);
+// 	 g_timeout_add(25, // 40 fps
+// 			 animate_idle_rock,
+// 			 g.glarea);
+	 g_timeout_add(25, animate_idle_rock, NULL);
       g.time_holder_for_rocking = glutGet(GLUT_ELAPSED_TIME);
 
       g.idle_function_rock_angle_previous =
 	 get_idle_function_rock_target_angle();
    } else {
-      gtk_idle_remove(g.idle_function_spin_rock_token);
-      g.idle_function_spin_rock_token = 0;
+      std::cout << "GTK-FIXME remove rock idle function here!" << std::endl;
+      // g_idle_remove(g.idle_function_spin_rock_token);
+      // g.idle_function_spin_rock_token = 0;
    }
    add_to_history_simple("toggle-idle-rock-function");
 }
@@ -1319,9 +1324,12 @@ void set_flev_idle_ligand_interactions(int state) {
    graphics_info_t g;
    if (state == 0) {
       // turn them off if they were on
-      if (g.idle_function_ligand_interactions_token) { 
-	 gtk_idle_remove(g.idle_function_ligand_interactions_token);
-	 g.idle_function_ligand_interactions_token = 0;
+      if (g.idle_function_ligand_interactions_token) {
+
+	 std::cout << "GTK-FIXME set_flev_idle_ligand_interactions" << std::endl;
+	 // g_idle_remove(g.idle_function_ligand_interactions_token);
+	 //g.idle_function_ligand_interactions_token = 0;
+
 	 for (unsigned int imol=0; imol<g.molecules.size(); imol++) { 
 	    if (is_valid_model_molecule(imol)) {
 	       g.molecules[imol].draw_animated_ligand_interactions_flag = 0;
@@ -1332,9 +1340,9 @@ void set_flev_idle_ligand_interactions(int state) {
       // turn them on if they were off.
       if (g.idle_function_ligand_interactions_token == 0) {
 	 g.idle_function_ligand_interactions_token =
-	    gtk_timeout_add(100,
-			    (GtkFunction) animate_idle_ligand_interactions,
-			    NULL);
+	    gdk_threads_add_timeout(100,
+				    animate_idle_ligand_interactions,
+				    NULL); // Hmm.
 	 g.time_holder_for_ligand_interactions = glutGet(GLUT_ELAPSED_TIME);
       }
    }
@@ -3875,9 +3883,9 @@ void do_clipping1_activate(){
       (gtk_adjustment_new(0.0, -10.0, 20.0, 0.05, 4.0, 10.1)); 
 
    gtk_range_set_adjustment(GTK_RANGE(hscale), adjustment);
-   gtk_signal_connect (GTK_OBJECT (adjustment), "value_changed",
-		       GTK_SIGNAL_FUNC (clipping_adjustment_changed), NULL);
-   
+   g_signal_connect(G_OBJECT(adjustment), "value_changed",
+		    G_CALLBACK(clipping_adjustment_changed), NULL);
+
    gtk_widget_show(clipping_window); 
 }
 
@@ -3885,8 +3893,8 @@ void clipping_adjustment_changed (GtkAdjustment *adj, GtkWidget *window) {
 
    /*    printf("Clipping adjustment: %f\n", adj->value); */
 
-   set_clipping_front(adj->value);
-   set_clipping_back (adj->value);
+   set_clipping_front(gtk_adjustment_get_value(adj));
+   set_clipping_back (gtk_adjustment_get_value(adj));
 }
  
 
@@ -7747,11 +7755,13 @@ void make_socket_listener_maybe() {
       safe_python_command(python_command);
 #endif // USE_PYTHON
 #endif // USE_GUILE
-      if (graphics_info_t::coot_socket_listener_idle_function_token == -1)
-	 if (graphics_info_t::listener_socket_have_good_socket_state) 
+      if (graphics_info_t::coot_socket_listener_idle_function_token == -1) {
+	 if (graphics_info_t::listener_socket_have_good_socket_state) {
+	    GSourceFunc f = coot_socket_listener_idle_func;
 	    graphics_info_t::coot_socket_listener_idle_function_token =
-	       gtk_idle_add((GtkFunction) coot_socket_listener_idle_func,
-			    graphics_info_t::glarea);
+	       g_idle_add(f, NULL);
+	 }
+      }
    }
 }
 
@@ -7768,7 +7778,7 @@ int get_remote_control_port_number() {
 }
 
 
-int coot_socket_listener_idle_func(GtkWidget *w) { 
+bool coot_socket_listener_idle_func() { 
 
 #ifdef USE_GUILE
    std::cout << "DEBUG:: running socket idle function" << std::endl;
