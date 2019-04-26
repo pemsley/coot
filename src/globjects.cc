@@ -1799,9 +1799,10 @@ init_gl_widget(GtkWidget *widget) {
    // gtk_idle_add((GtkFunction)animate, widget);
 
    // should be in graphics_info_t?
-   // setup_for_mol_triangles();
+   //
+   setup_for_mol_triangles();
 
-   setup_for_single_triangle();
+   // setup_for_single_triangle();
 
    return TRUE;
 }

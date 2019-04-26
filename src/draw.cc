@@ -331,7 +331,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 glUseProgram(0);
       }
 
-      draw_single_triangle();
+      // draw_single_triangle();
 
 #endif // GRAPHICS_TESTING
 
