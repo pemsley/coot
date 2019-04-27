@@ -283,6 +283,7 @@ coot_bin_SOURCES = \
 	c-interface-generic-objects.h	 \
 	c-interface-geometry-distortion.hh \
 	c-interface-gui.cc	 \
+	c-interface-gui.hh	 \
 	c-interface-gtk2.cc	 \
 	c-interface-gtk-widgets.h \
 	c-interface-info.cc	 \

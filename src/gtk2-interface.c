@@ -3036,10 +3036,12 @@ create_column_label_window (void)
   GtkWidget *hbox1;
   GtkWidget *label2;
   GtkWidget *optionmenu1;
+  GtkWidget *column_selector_amplitudes_combobox;
   GtkWidget *frame2;
   GtkWidget *hbox4;
   GtkWidget *label3;
   GtkWidget *optionmenu2;
+  GtkWidget *column_selector_phases_combobox;
   GtkWidget *frame23;
   GtkWidget *vbox28;
   GtkWidget *hbox15;
@@ -3048,6 +3050,7 @@ create_column_label_window (void)
   GtkWidget *column_label_window_weights_hbox;
   GtkWidget *label31;
   GtkWidget *optionmenu3;
+  GtkWidget *column_selector_weights_combobox;
   GtkWidget *column_labels_resolution_limit_frame;
   GtkWidget *vbox113;
   GtkWidget *column_labels_use_resolution_limits_checkbutton;
@@ -3137,6 +3140,10 @@ create_column_label_window (void)
   gtk_widget_show (optionmenu1);
   gtk_box_pack_start (GTK_BOX (hbox1), optionmenu1, FALSE, FALSE, 0);
 
+  column_selector_amplitudes_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (column_selector_amplitudes_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox1), column_selector_amplitudes_combobox, TRUE, TRUE, 0);
+
   frame2 = gtk_frame_new (NULL);
   gtk_widget_show (frame2);
   gtk_box_pack_start (GTK_BOX (vbox3), frame2, TRUE, TRUE, 0);
@@ -3154,6 +3161,10 @@ create_column_label_window (void)
   optionmenu2 = gtk_option_menu_new ();
   gtk_widget_show (optionmenu2);
   gtk_box_pack_start (GTK_BOX (hbox4), optionmenu2, FALSE, FALSE, 0);
+
+  column_selector_phases_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (column_selector_phases_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox4), column_selector_phases_combobox, TRUE, TRUE, 0);
 
   frame23 = gtk_frame_new (NULL);
   gtk_widget_show (frame23);
@@ -3193,6 +3204,10 @@ create_column_label_window (void)
   gtk_widget_show (optionmenu3);
   gtk_box_pack_start (GTK_BOX (column_label_window_weights_hbox), optionmenu3, FALSE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, optionmenu3, "Usually not needed for map from refmac...", NULL);
+
+  column_selector_weights_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (column_selector_weights_combobox);
+  gtk_box_pack_start (GTK_BOX (column_label_window_weights_hbox), column_selector_weights_combobox, TRUE, TRUE, 0);
 
   column_labels_resolution_limit_frame = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (vbox3), column_labels_resolution_limit_frame, TRUE, TRUE, 0);
@@ -3386,10 +3401,12 @@ create_column_label_window (void)
   GLADE_HOOKUP_OBJECT (column_label_window, hbox1, "hbox1");
   GLADE_HOOKUP_OBJECT (column_label_window, label2, "label2");
   GLADE_HOOKUP_OBJECT (column_label_window, optionmenu1, "optionmenu1");
+  GLADE_HOOKUP_OBJECT (column_label_window, column_selector_amplitudes_combobox, "column_selector_amplitudes_combobox");
   GLADE_HOOKUP_OBJECT (column_label_window, frame2, "frame2");
   GLADE_HOOKUP_OBJECT (column_label_window, hbox4, "hbox4");
   GLADE_HOOKUP_OBJECT (column_label_window, label3, "label3");
   GLADE_HOOKUP_OBJECT (column_label_window, optionmenu2, "optionmenu2");
+  GLADE_HOOKUP_OBJECT (column_label_window, column_selector_phases_combobox, "column_selector_phases_combobox");
   GLADE_HOOKUP_OBJECT (column_label_window, frame23, "frame23");
   GLADE_HOOKUP_OBJECT (column_label_window, vbox28, "vbox28");
   GLADE_HOOKUP_OBJECT (column_label_window, hbox15, "hbox15");
@@ -3398,6 +3415,7 @@ create_column_label_window (void)
   GLADE_HOOKUP_OBJECT (column_label_window, column_label_window_weights_hbox, "column_label_window_weights_hbox");
   GLADE_HOOKUP_OBJECT (column_label_window, label31, "label31");
   GLADE_HOOKUP_OBJECT (column_label_window, optionmenu3, "optionmenu3");
+  GLADE_HOOKUP_OBJECT (column_label_window, column_selector_weights_combobox, "column_selector_weights_combobox");
   GLADE_HOOKUP_OBJECT (column_label_window, column_labels_resolution_limit_frame, "column_labels_resolution_limit_frame");
   GLADE_HOOKUP_OBJECT (column_label_window, vbox113, "vbox113");
   GLADE_HOOKUP_OBJECT (column_label_window, column_labels_use_resolution_limits_checkbutton, "column_labels_use_resolution_limits_checkbutton");

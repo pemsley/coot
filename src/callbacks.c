@@ -7723,7 +7723,6 @@ on_preferences_pink_pointer_entry_changed
 }
 
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_preferences_bond_width_combobox_changed
                                         (GtkComboBox     *combobox,
@@ -7735,7 +7734,6 @@ on_preferences_bond_width_combobox_changed
   preferences_internal_change_value_int(PREFERENCES_BONDS_THICKNESS, val);
   set_default_bond_thickness(val);
 }
-#endif
 
 
 void

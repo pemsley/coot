@@ -82,6 +82,8 @@
 #include "coords/mmdb.h"  // for centre of molecule
 #include "clipper/core/clipper_instance.h"
 
+#include "c-interface-gui.hh"
+
 void set_show_paths_in_display_manager(int i) { 
    std::string cmd = "set-show-paths-in-display-manager";
    std::vector<coot::command_arg_t> args;
@@ -443,9 +445,29 @@ void save_refmac_phase_params_to_map(int imol_map,
 }
 
 
+// get string for column 0 (which are strings)
+std::string
+get_active_label_in_combobox(GtkComboBox *combobox) {
+
+   std::string f_label;
+   GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox));
+   GtkTreeIter iter;
+   gboolean state = gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &iter);
+   if (state) {
+      GValue f_label_as_value = { 0, };
+      // g_value_init (&f_label_as_value, G_TYPE_STRING);
+      gtk_tree_model_get_value(model, &iter, 0, &f_label_as_value);
+      const char *f_label_cstr = g_value_get_string(&f_label_as_value);
+      f_label = f_label_cstr;
+   }
+   return f_label;
+}
+
 void handle_column_label_make_fourier(GtkWidget *column_label_window) {
 
-  GtkWidget *refmac_checkbutton;
+   std::cout << "---- handle_column_label_make_fourier()" << std::endl;
+
+   GtkWidget *refmac_checkbutton;
    int icol; 
    int use_weights = 0;
    int is_diff_map;
@@ -470,17 +492,10 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
    GtkEntry *low_entry;
    GtkEntry *high_entry;
 
-  std::string phi_label;
-  std::string f_label;
-  std::string w_label;
-  std::string fobs_col;
-  std::string sigfobs_col;
-  std::string r_free_col;
-
-  /* Was the "Use Weights checkbutton clicked?  */
+   /* Was the "Use Weights checkbutton clicked?  */
 
    check_weights = GTK_CHECK_BUTTON(lookup_widget(GTK_WIDGET(column_label_window), 
-					    "use_weights_checkbutton"));
+						  "use_weights_checkbutton"));
 
    
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check_weights))) { 
@@ -489,17 +504,17 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
       use_weights = 0;
    }
 
- /* Similarly, we ask, was the "Is difference map" checkbutton active?  */
+   /* Similarly, we ask, was the "Is difference map" checkbutton active?  */
 
    is_diff_map_checkbutton = GTK_CHECK_BUTTON(lookup_widget(GTK_WIDGET(column_label_window),
 							    "difference_map_checkbutton"));
 
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(is_diff_map_checkbutton))) { 
-     is_diff_map = 1;
-   } else{ 
-     is_diff_map = 0;
+      is_diff_map = 1;
+   } else {
+      is_diff_map = 0;
    }
-     
+
    coot::mtz_column_types_info_t *saved_f_phi_columns
       = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(column_label_window),
 							    "mtz_column_type_info");
@@ -508,109 +523,160 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
    /* Get the values that the user has selected in the option menu
       buttons. */ 
 
-   icol = saved_f_phi_columns->selected_phi_col; 
-   if (icol == -1) { 
-     printf("WARNING!!!! No phi col was set!!!!!!! \n");
+   std::string f_label;   
+   std::string phi_label;   
+   std::string w_label;
+
+   icol = saved_f_phi_columns->selected_phi_col;
+   if (icol == -1) {
+      printf("WARNING!!!! No phi col was set!!!!!!! \n");
    } else { 
       phi_label = saved_f_phi_columns->phi_cols[icol].column_label; 
 
-     icol = saved_f_phi_columns->selected_f_col;
-     if (icol < int(saved_f_phi_columns->f_cols.size()))
-	f_label = saved_f_phi_columns->f_cols[icol].column_label;
-     else {
-	f_label = saved_f_phi_columns->d_cols[icol-saved_f_phi_columns->f_cols.size()].column_label;
-	is_anomalous_flag = 1;
-     }
+      icol = saved_f_phi_columns->selected_f_col;
+      if (icol < int(saved_f_phi_columns->f_cols.size()))
+	 f_label = saved_f_phi_columns->f_cols[icol].column_label;
+      else {
+	 f_label = saved_f_phi_columns->d_cols[icol-saved_f_phi_columns->f_cols.size()].column_label;
+	 is_anomalous_flag = 1;
+      }
    
-     if (use_weights) { 
-	std::cout << " Making map from " << f_label << " " << phi_label << " and "
-		  << w_label << std::endl;
-	icol = saved_f_phi_columns->selected_weight_col;
-	if (icol < int(saved_f_phi_columns->weight_cols.size()))
-	   w_label = saved_f_phi_columns->weight_cols[icol].column_label;
-     } else { 
-	std::cout << " Making map from " << f_label << " and " << phi_label << std::endl;
-     } 
+      if (use_weights) { 
+	 std::cout << " Making map from " << f_label << " " << phi_label << " and "
+		   << w_label << std::endl;
+	 icol = saved_f_phi_columns->selected_weight_col;
+	 if (icol < int(saved_f_phi_columns->weight_cols.size()))
+	    w_label = saved_f_phi_columns->weight_cols[icol].column_label;
+      } else { 
+	 std::cout << " Making map from " << f_label << " and " << phi_label << std::endl;
+      } 
 
-     /* is the resolution limit check button in use? */
-     resolution_limit_check_button = 
-       GTK_CHECK_BUTTON(lookup_widget(GTK_WIDGET(column_label_window), 
-				       "column_labels_use_resolution_limits_checkbutton"));
-     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(resolution_limit_check_button))) { 
+      /* is the resolution limit check button in use? */
+      resolution_limit_check_button = 
+	 GTK_CHECK_BUTTON(lookup_widget(GTK_WIDGET(column_label_window), 
+					"column_labels_use_resolution_limits_checkbutton"));
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(resolution_limit_check_button))) {
 
-       /* yes, it is.. */
+	 /* yes, it is.. */
 
-       low_entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(column_label_window),
-			     "column_labels_reso_low_entry"));
-       high_entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(column_label_window),
-			      "column_labels_reso_high_entry"));
+	 low_entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(column_label_window),
+					     "column_labels_reso_low_entry"));
+	 high_entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(column_label_window),
+					      "column_labels_reso_high_entry"));
 
-       low_reso_lim  = get_positive_float_from_entry(low_entry);
-       high_reso_lim = get_positive_float_from_entry(high_entry);
-       std::cout << "Resolution limits: low: " << low_reso_lim << " and high: "
-		 << high_reso_lim << std::endl;
-       if (high_reso_lim > 0.0001)
-	  use_resolution_limits_flag = 1;
-       // if low_reso_lim is not set, presume that it was 999.9;
-       if (low_reso_lim < 0.0)
-	  low_reso_lim = 999.9;
-     }
+	 low_reso_lim  = get_positive_float_from_entry(low_entry);
+	 high_reso_lim = get_positive_float_from_entry(high_entry);
+	 std::cout << "Resolution limits: low: " << low_reso_lim << " and high: "
+		   << high_reso_lim << std::endl;
+	 if (high_reso_lim > 0.0001)
+	    use_resolution_limits_flag = 1;
+	 // if low_reso_lim is not set, presume that it was 999.9;
+	 if (low_reso_lim < 0.0)
+	    low_reso_lim = 999.9;
+      }
 
-     /* Refmac label stuff */
+      GtkWidget *amplitudes_combobox = lookup_widget(column_label_window,
+						     "column_selector_amplitudes_combobox");
+      GtkWidget *phases_combobox = lookup_widget(column_label_window,
+						 "column_selector_phases_combobox");
+      GtkWidget *weights_combobox = lookup_widget(column_label_window,
+						  "column_selector_weights_combobox");
+      std::string phi_label;
+      std::string f_label;
+      std::string fobs_col;
+      std::string sigfobs_col;
+      std::string r_free_col;
 
-     refmac_checkbutton = lookup_widget(GTK_WIDGET(column_label_window),
-					"refmac_column_labels_checkbutton");
+      f_label = get_active_label_in_combobox(GTK_COMBO_BOX(amplitudes_combobox));
+      phi_label = get_active_label_in_combobox(GTK_COMBO_BOX(phases_combobox));
 
-     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(refmac_checkbutton))) { 
+      if (use_weights) {
+	 w_label = get_active_label_in_combobox(GTK_COMBO_BOX(weights_combobox));
+	 std::cout << " Making map from " << f_label << " " << phi_label << " and "
+		   << w_label << std::endl;
+      } else {
+	 std::cout << " Making map from " << f_label << " and " << phi_label << std::endl;
+      }
 
-       have_refmac_params = 1; 
+      /* is the resolution limit check button in use? */
+      resolution_limit_check_button = 
+	 GTK_CHECK_BUTTON(lookup_widget(GTK_WIDGET(column_label_window), 
+					"column_labels_use_resolution_limits_checkbutton"));
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(resolution_limit_check_button))) {
 
-       /* find the refmac option menu */
-       fobs_option_menu    = lookup_widget(column_label_window, "refmac_fobs_optionmenu");
-       sigfobs_option_menu = lookup_widget(column_label_window, "refmac_sigfobs_optionmenu");
-       r_free_option_menu  = lookup_widget(column_label_window, "refmac_rfree_optionmenu");
+	 /* yes, it is.. */
+
+	 low_entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(column_label_window),
+					     "column_labels_reso_low_entry"));
+	 high_entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(column_label_window),
+					      "column_labels_reso_high_entry"));
+
+	 low_reso_lim  = get_positive_float_from_entry(low_entry);
+	 high_reso_lim = get_positive_float_from_entry(high_entry);
+	 std::cout << "Resolution limits: low: " << low_reso_lim << " and high: "
+		   << high_reso_lim << std::endl;
+	 if (high_reso_lim > 0.0001)
+	    use_resolution_limits_flag = 1;
+	 // if low_reso_lim is not set, presume that it was 999.9;
+	 if (low_reso_lim < 0.0)
+	    low_reso_lim = 999.9;
+      }
+
+      /* Refmac label stuff */
+
+      refmac_checkbutton = lookup_widget(GTK_WIDGET(column_label_window),
+					 "refmac_column_labels_checkbutton");
+
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(refmac_checkbutton))) {
+
+	 have_refmac_params = 1; 
+
+	 /* find the refmac option menu */
+	 fobs_option_menu    = lookup_widget(column_label_window, "refmac_fobs_optionmenu");
+	 sigfobs_option_menu = lookup_widget(column_label_window, "refmac_sigfobs_optionmenu");
+	 r_free_option_menu  = lookup_widget(column_label_window, "refmac_rfree_optionmenu");
   
-       /* find the refmac menus */
-       // fobs_menu    = gtk_option_menu_get_menu(GTK_OPTION_MENU(fobs_option_menu));
-       // sigfobs_menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(sigfobs_option_menu));
-       // r_free_menu  = gtk_option_menu_get_menu(GTK_OPTION_MENU(r_free_option_menu));
+	 /* find the refmac menus */
+	 // fobs_menu    = gtk_option_menu_get_menu(GTK_OPTION_MENU(fobs_option_menu));
+	 // sigfobs_menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(sigfobs_option_menu));
+	 // r_free_menu  = gtk_option_menu_get_menu(GTK_OPTION_MENU(r_free_option_menu));
        
-       std::cout << "GTK-FIXME no gtk_option_menu_get_menu B" << std::endl;
+	 std::cout << "GTK-FIXME no gtk_option_menu_get_menu B" << std::endl;
        
-       /* now assign the columns */
-       icol = saved_f_phi_columns->selected_refmac_fobs_col;
-       fobs_col = saved_f_phi_columns->f_cols[icol].column_label;
+	 /* now assign the columns */
+	 icol = saved_f_phi_columns->selected_refmac_fobs_col;
+	 fobs_col = saved_f_phi_columns->f_cols[icol].column_label;
 
-       icol = saved_f_phi_columns->selected_refmac_sigfobs_col;
-       sigfobs_col = saved_f_phi_columns->sigf_cols[icol].column_label;
+	 icol = saved_f_phi_columns->selected_refmac_sigfobs_col;
+	 sigfobs_col = saved_f_phi_columns->sigf_cols[icol].column_label;
 
-       icol = saved_f_phi_columns->selected_refmac_r_free_col; /* magic -1 if not set */
-       if (icol >= 0) { 
-	 // 
-	 sensible_r_free_col = 1;
-	 r_free_col = saved_f_phi_columns->r_free_cols[icol].column_label;
-       } else { 
-	 sensible_r_free_col = 0;
-	 r_free_col = "";
-       }
-     }
+	 icol = saved_f_phi_columns->selected_refmac_r_free_col; /* magic -1 if not set */
+	 if (icol >= 0) { 
+	    // 
+	    sensible_r_free_col = 1;
+	    r_free_col = saved_f_phi_columns->r_free_cols[icol].column_label;
+	 } else { 
+	    sensible_r_free_col = 0;
+	    r_free_col = "";
+	 }
+      }
 
 
-     /* And proceed with the actual map-making. 
-	If use_weights is 1, then weights should be used.*/
-     make_and_draw_map_with_reso_with_refmac_params(object_mtz_filename,
-						    f_label.c_str(),
-						    phi_label.c_str(), 
-						    w_label.c_str(),
-						    use_weights, is_diff_map, 
-						    have_refmac_params,
-						    fobs_col.c_str(),
-						    sigfobs_col.c_str(),
-						    r_free_col.c_str(), 
-						    sensible_r_free_col, 
-						    is_anomalous_flag,
-						    use_resolution_limits_flag,
-						    low_reso_lim, high_reso_lim);
+      /* And proceed with the actual map-making. 
+	 If use_weights is 1, then weights should be used.*/
+      make_and_draw_map_with_reso_with_refmac_params(object_mtz_filename,
+						     f_label.c_str(),
+						     phi_label.c_str(), 
+						     w_label.c_str(),
+						     use_weights, is_diff_map, 
+						     have_refmac_params,
+						     fobs_col.c_str(),
+						     sigfobs_col.c_str(),
+						     r_free_col.c_str(), 
+						     sensible_r_free_col, 
+						     is_anomalous_flag,
+						     use_resolution_limits_flag,
+						     low_reso_lim, high_reso_lim);
    }
    /* We can destroy the column_label_window top level widget now. */
    gtk_widget_destroy(column_label_window);
