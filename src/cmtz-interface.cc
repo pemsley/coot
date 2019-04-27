@@ -355,7 +355,7 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
 
 
   /* Fobs and Sig Fobs*/
-  /* we always asume following pairs of Fobs and sigFobs */
+  /* we always assume following pairs of Fobs and sigFobs */
   int fobs_pos;
   int sigfobs_pos;
   int islash;
@@ -721,7 +721,7 @@ f_button_select(GtkWidget *item, GtkPositionType pos) {
    
    if (p.second.length() > 2) {
       // std::cout << "DEBUG DEL test :" << p.second.substr(0,3) << ":\n";
-      if ( p.second.substr(0,3) == "DEL") { 
+      if ( p.second.substr(0,3) == "DEL") {
 	 make_diff_map_flag = 1;
       }
    }
@@ -731,7 +731,7 @@ f_button_select(GtkWidget *item, GtkPositionType pos) {
 	 make_diff_map_flag = 1; 
       }
    }
-   
+
    if (make_diff_map_flag) {
       checkbutton = lookup_widget(window, "difference_map_checkbutton");
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
@@ -1092,6 +1092,15 @@ coot::column_selector_using_cmtz(const std::string &filename) {
    set_transient_and_position(COOT_MTZ_COLUMN_SELECTOR_DIALOG, column_label_window);
    gtk_object_set_user_data(GTK_OBJECT(column_label_window), f_phi_columns);
 
+
+   // ----------------------- comboboxes! ----------------------
+
+   coot::column_selector_using_cmtz_setup_comboboxes(column_label_window,
+						     f_phi_columns);
+
+
+   // ------------------- back to option menus ------------------
+
    /* The default column labels are at the top of the list.  The
       selcted_{f,phi}_cols get changed by the menubutton function
       (callbacks I suppose, but they are not listed there, they are in
@@ -1167,5 +1176,69 @@ coot::column_selector_using_cmtz(const std::string &filename) {
    return column_label_window;
 }
 
+// where should this go?
+namespace coot {
+   void on_column_label_combobox_changed(GtkComboBox *combobox, gpointer user_data);
+}
 
+// Thsee are for labels that don't have callbacks
+// The active values of these combo boxes are read when some other widget
+// is activated.
+//
+// Make a copy of this for std::vector<std::string>.
+void
+my_combo_box_text_add_labels(GtkComboBox *combobox,
+			     const std::vector<coot::mtz_type_label> &labels,
+			     int active_label_index) {
 
+   GtkListStore *store = gtk_list_store_new(1, G_TYPE_STRING);
+   GtkTreeIter iter;
+   for (unsigned int ii=0; ii<labels.size(); ii++) {
+      const std::string &col_lab = labels[ii].column_label;
+      gtk_list_store_append(store, &iter);
+      gtk_list_store_set(store, &iter, 0, col_lab.c_str(), -1);
+   }
+
+   // does't do anything
+   g_signal_connect(combobox, "changed", G_CALLBACK(coot::on_column_label_combobox_changed), NULL);
+   
+   GtkTreeModel *model = GTK_TREE_MODEL(store);
+   GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
+   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox), renderer, TRUE);
+
+   gtk_combo_box_set_model(GTK_COMBO_BOX(combobox), model);
+
+   if (active_label_index >= 0)
+      gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), active_label_index);
+
+}
+
+void
+coot::column_selector_using_cmtz_setup_comboboxes(GtkWidget *column_label_window,
+						  coot::mtz_column_types_info_t *f_phi_columns) {
+
+   GtkWidget *amplitudes_combobox_w = lookup_widget(column_label_window,
+						  "column_selector_amplitudes_combobox");
+   GtkWidget *phases_combobox_w = lookup_widget(column_label_window,
+					      "column_selector_phases_combobox");
+   GtkWidget *weights_combobox_w = lookup_widget(column_label_window,
+						 "column_selector_weights_combobox");
+   GtkComboBox *amplitudes_combobox = GTK_COMBO_BOX(amplitudes_combobox_w);
+   GtkComboBox *phases_combobox     = GTK_COMBO_BOX(phases_combobox_w);
+   GtkComboBox *weights_combobox    = GTK_COMBO_BOX(weights_combobox_w);
+
+   const mtz_column_types_info_t &col_labs = *f_phi_columns;
+
+   std::vector<std::string> labels;
+   my_combo_box_text_add_labels(amplitudes_combobox, col_labs.f_cols,      0);
+   my_combo_box_text_add_labels(phases_combobox,     col_labs.phi_cols,    0);
+   my_combo_box_text_add_labels(weights_combobox,    col_labs.weight_cols, 0);
+
+}
+
+void
+coot::on_column_label_combobox_changed(GtkComboBox *combobox,
+				       gpointer user_data) {
+
+   // std::cout << "changed" << std::endl; // happens on set-active
+}
