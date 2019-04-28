@@ -5705,8 +5705,10 @@ on_column_label_expert_mode_button_clicked
 
   GtkWidget *frame = lookup_widget(GTK_WIDGET(button),
 				   "column_labels_resolution_limit_frame");
-  GtkWidget *f_optionmenu = lookup_widget(GTK_WIDGET(button),
-					  "optionmenu1");
+
+/*   GtkWidget *f_optionmenu = lookup_widget(GTK_WIDGET(button), "optionmenu1"); */
+
+  GtkWidget *combobox = lookup_widget(GTK_WIDGET(button), "column_selector_amplitudes_combobox");
 
   /* we also need to redo the F column label chooser to include anomalous option  */
 
@@ -5715,7 +5717,8 @@ on_column_label_expert_mode_button_clicked
     gtk_widget_hide(frame);
    } else {
      gtk_widget_show(frame);
-     fill_f_optionmenu_with_expert_options(f_optionmenu);
+/*      fill_f_optionmenu_with_expert_options(f_optionmenu); */
+     fill_combobox_with_expert_options(combobox);
    }
 
 }

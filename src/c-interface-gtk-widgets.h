@@ -172,7 +172,8 @@ GtkWidget *main_hbox();
 /* entry_info_t entry_to_number(GtkWidget *entry);  */
 
 void manage_refmac_column_selection(GtkWidget *w);
-void fill_f_optionmenu_with_expert_options(GtkWidget *f_optionmenu);
+/* void fill_f_optionmenu_with_expert_options(GtkWidget *f_optionmenu); */
+void fill_combobox_with_expert_options(GtkWidget *f_optionmenu);
 void handle_column_label_make_fourier(GtkWidget *column_label_window);
 void wrapped_create_run_refmac_dialog();
 

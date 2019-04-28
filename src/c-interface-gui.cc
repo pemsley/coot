@@ -486,7 +486,8 @@ get_active_label_in_combobox(GtkComboBox *combobox) {
 
 void handle_column_label_make_fourier(GtkWidget *column_label_window) {
 
-   std::cout << "---- handle_column_label_make_fourier()" << std::endl;
+   std::cout << "---- handle_column_label_make_fourier() with column_label_window "
+	     << column_label_window << std::endl;
 
   GtkWidget *refmac_checkbutton;
    int icol; 
@@ -535,11 +536,14 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
    } else {
      is_diff_map = 0;
    }
-     
-   coot::mtz_column_types_info_t *saved_f_phi_columns
-      = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(column_label_window));
+   void *t = g_object_get_data(G_OBJECT(column_label_window), "f_phi_columns");
+   coot::mtz_column_types_info_t *saved_f_phi_columns = static_cast<coot::mtz_column_types_info_t *> (t);
+
+   if (! saved_f_phi_columns)
+      return;
 
    const char *object_mtz_filename = saved_f_phi_columns->mtz_filename.c_str();
+
    /* Get the values that the user has selected in the option menu
       buttons. */ 
 
@@ -653,11 +657,33 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
 
 
 
-void fill_f_optionmenu_with_expert_options(GtkWidget *f_optionmenu) {
+// void fill_f_optionmenu_with_expert_options(GtkWidget *f_optionmenu) {
 
-   coot::fill_f_optionmenu(f_optionmenu, 1);
+//    coot::fill_f_optionmenu(f_optionmenu, 1);
+
+// }
+
+void fill_combobox_with_expert_options(GtkWidget *amplitudes_combobox) {
+
+   // data for this widget is set in... coot::column_selector_using_cmtz(const std::string &filename)
+
+   GtkWidget *column_label_window = lookup_widget(amplitudes_combobox, "column_label_window");
+   coot::mtz_column_types_info_t *saved_f_phi_columns
+      = static_cast<coot::mtz_column_types_info_t *> (g_object_get_data(G_OBJECT(column_label_window),
+									"f_phi_columns"));
+   if (saved_f_phi_columns) {
+      const coot::mtz_column_types_info_t &col_labs = *saved_f_phi_columns;
+      int f_prefered_idx = col_labs.get_prefered_f_col_idx();
+      std::vector<coot::mtz_type_label> labels = col_labs.f_cols;
+      std::vector<coot::mtz_type_label> d_labels = col_labs.d_cols;
+      labels.insert(labels.end(), d_labels.begin(), d_labels.end());
+      my_combo_box_text_add_items(GTK_COMBO_BOX(amplitudes_combobox), labels, f_prefered_idx);
+   } else {
+      std::cout << "failed to lookup" << std::endl;
+   }
 
 }
+
 
 void fill_about_window(GtkWidget *widget) {
 
