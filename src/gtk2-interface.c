@@ -3066,12 +3066,15 @@ create_column_label_window (void)
   GtkWidget *hbox53;
   GtkWidget *label105;
   GtkWidget *refmac_fobs_optionmenu;
+  GtkWidget *column_label_selector_refmac_fobs_combobox;
   GtkWidget *hbox54;
   GtkWidget *label106;
   GtkWidget *refmac_sigfobs_optionmenu;
+  GtkWidget *column_label_selector_refmac_sigfobs_combobox;
   GtkWidget *hbox55;
   GtkWidget *label107;
   GtkWidget *refmac_rfree_optionmenu;
+  GtkWidget *column_label_selector_refmac_rfree_combobox;
   GtkWidget *hbox3;
   GtkWidget *column_label_ok_button;
   GtkWidget *alignment35;
@@ -3275,6 +3278,10 @@ create_column_label_window (void)
   gtk_widget_show (refmac_fobs_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox53), refmac_fobs_optionmenu, FALSE, FALSE, 0);
 
+  column_label_selector_refmac_fobs_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (column_label_selector_refmac_fobs_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox53), column_label_selector_refmac_fobs_combobox, TRUE, TRUE, 0);
+
   hbox54 = gtk_hbox_new (FALSE, 4);
   gtk_widget_show (hbox54);
   gtk_box_pack_start (GTK_BOX (vbox79), hbox54, TRUE, TRUE, 2);
@@ -3289,6 +3296,10 @@ create_column_label_window (void)
   gtk_widget_show (refmac_sigfobs_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox54), refmac_sigfobs_optionmenu, FALSE, FALSE, 0);
 
+  column_label_selector_refmac_sigfobs_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (column_label_selector_refmac_sigfobs_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox54), column_label_selector_refmac_sigfobs_combobox, TRUE, TRUE, 0);
+
   hbox55 = gtk_hbox_new (FALSE, 21);
   gtk_widget_show (hbox55);
   gtk_box_pack_start (GTK_BOX (vbox79), hbox55, TRUE, TRUE, 2);
@@ -3302,6 +3313,10 @@ create_column_label_window (void)
   refmac_rfree_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (refmac_rfree_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox55), refmac_rfree_optionmenu, FALSE, FALSE, 0);
+
+  column_label_selector_refmac_rfree_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (column_label_selector_refmac_rfree_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox55), column_label_selector_refmac_rfree_combobox, TRUE, TRUE, 0);
 
   hbox3 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox3);
@@ -3415,12 +3430,15 @@ create_column_label_window (void)
   GLADE_HOOKUP_OBJECT (column_label_window, hbox53, "hbox53");
   GLADE_HOOKUP_OBJECT (column_label_window, label105, "label105");
   GLADE_HOOKUP_OBJECT (column_label_window, refmac_fobs_optionmenu, "refmac_fobs_optionmenu");
+  GLADE_HOOKUP_OBJECT (column_label_window, column_label_selector_refmac_fobs_combobox, "column_label_selector_refmac_fobs_combobox");
   GLADE_HOOKUP_OBJECT (column_label_window, hbox54, "hbox54");
   GLADE_HOOKUP_OBJECT (column_label_window, label106, "label106");
   GLADE_HOOKUP_OBJECT (column_label_window, refmac_sigfobs_optionmenu, "refmac_sigfobs_optionmenu");
+  GLADE_HOOKUP_OBJECT (column_label_window, column_label_selector_refmac_sigfobs_combobox, "column_label_selector_refmac_sigfobs_combobox");
   GLADE_HOOKUP_OBJECT (column_label_window, hbox55, "hbox55");
   GLADE_HOOKUP_OBJECT (column_label_window, label107, "label107");
   GLADE_HOOKUP_OBJECT (column_label_window, refmac_rfree_optionmenu, "refmac_rfree_optionmenu");
+  GLADE_HOOKUP_OBJECT (column_label_window, column_label_selector_refmac_rfree_combobox, "column_label_selector_refmac_rfree_combobox");
   GLADE_HOOKUP_OBJECT (column_label_window, hbox3, "hbox3");
   GLADE_HOOKUP_OBJECT (column_label_window, column_label_ok_button, "column_label_ok_button");
   GLADE_HOOKUP_OBJECT (column_label_window, alignment35, "alignment35");
