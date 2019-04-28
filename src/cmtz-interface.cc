@@ -236,10 +236,6 @@ coot::setup_refmac_parameters(GtkWidget *window,
   GtkWidget *sigfobs_comboxbox = lookup_widget(window, "column_label_selector_refmac_sigfobs_combobox");
   GtkWidget *rfree_comboxbox   = lookup_widget(window, "column_label_selector_refmac_rfree_combobox");
 
-  std::cout << "fobs_comboxbox " << fobs_comboxbox<< std::endl;
-  std::cout << "sigfobs_comboxbox " << sigfobs_comboxbox<< std::endl;
-  std::cout << "rfee_comboxbox " << rfree_comboxbox<< std::endl;
-
   my_combo_box_text_add_items(GTK_COMBO_BOX(fobs_comboxbox), col_labs.f_cols, 0);
   my_combo_box_text_add_items(GTK_COMBO_BOX(sigfobs_comboxbox), col_labs.sigf_cols, 0);
   my_combo_box_text_add_items(GTK_COMBO_BOX(rfree_comboxbox), col_labs.r_free_cols, 0);

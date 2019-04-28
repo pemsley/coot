@@ -4934,16 +4934,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkOptionMenu" id="refmac_fobs_optionmenu">
-			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="history">-1</property>
-			</widget>
-			<packing>
-			  <property name="padding">0</property>
-			  <property name="expand">False</property>
-			  <property name="fill">False</property>
-			</packing>
+			<placeholder/>
 		      </child>
 
 		      <child>
@@ -4998,16 +4989,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkOptionMenu" id="refmac_sigfobs_optionmenu">
-			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="history">-1</property>
-			</widget>
-			<packing>
-			  <property name="padding">0</property>
-			  <property name="expand">False</property>
-			  <property name="fill">False</property>
-			</packing>
+			<placeholder/>
 		      </child>
 
 		      <child>
@@ -5062,16 +5044,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkOptionMenu" id="refmac_rfree_optionmenu">
-			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="history">-1</property>
-			</widget>
-			<packing>
-			  <property name="padding">0</property>
-			  <property name="expand">False</property>
-			  <property name="fill">False</property>
-			</packing>
+			<placeholder/>
 		      </child>
 
 		      <child>
