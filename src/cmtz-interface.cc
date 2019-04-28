@@ -230,6 +230,21 @@ coot::setup_refmac_parameters(GtkWidget *window,
   gtk_widget_show(sigfobs_menu);
   gtk_widget_show(r_free_menu);
 
+
+  // comboboxes
+  GtkWidget *fobs_comboxbox    = lookup_widget(window, "column_label_selector_refmac_fobs_combobox");
+  GtkWidget *sigfobs_comboxbox = lookup_widget(window, "column_label_selector_refmac_sigfobs_combobox");
+  GtkWidget *rfree_comboxbox   = lookup_widget(window, "column_label_selector_refmac_rfree_combobox");
+
+  std::cout << "fobs_comboxbox " << fobs_comboxbox<< std::endl;
+  std::cout << "sigfobs_comboxbox " << sigfobs_comboxbox<< std::endl;
+  std::cout << "rfee_comboxbox " << rfree_comboxbox<< std::endl;
+
+  my_combo_box_text_add_items(GTK_COMBO_BOX(fobs_comboxbox), col_labs.f_cols, 0);
+  my_combo_box_text_add_items(GTK_COMBO_BOX(sigfobs_comboxbox), col_labs.sigf_cols, 0);
+  my_combo_box_text_add_items(GTK_COMBO_BOX(rfree_comboxbox), col_labs.r_free_cols, 0);
+
+
 }
 
 
@@ -245,14 +260,10 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
     GtkWidget *file_mtz_label = lookup_widget(window, "run_refmac_mtz_file_label");
     // in twin we use the label as a dummy widget
     option_menu = file_mtz_label;
-#if (GTK_MAJOR_VERSION > 1)
+
     const gchar *mtz_filename = gtk_label_get_text(GTK_LABEL(file_mtz_label));
     filename = mtz_filename;
-#else
-    gchar **mtz_filename = 0;
-    gtk_label_get(GTK_LABEL(file_mtz_label), mtz_filename);
-    filename = (char *)mtz_filename;
-#endif // GTK
+
     if (coot::file_exists(filename)) {
       std::cout <<"BL DEBUG:: have filename from label "<< filename<<std::endl;
       graphics_info_t::saved_refmac_file_filename = filename.c_str();
@@ -267,7 +278,7 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
     GtkWidget *active_item = gtk_menu_get_active(GTK_MENU(menu));
     if (active_item == 0) {
       add_status_bar_text("No map has associated Refmac Parameters - no REFMAC!");
-    } else { 
+    } else {
       int imol_window = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(active_item)));
       if (imol_window < 0) {
 	std::cout << "No map data selected for refmac\n";
@@ -760,7 +771,7 @@ phase_button_select(GtkWidget *item, GtkPositionType pos) {
    /*     printf("setting phase position %d\n", pos);   */
    GtkWidget *window = lookup_widget(item, "column_label_window");
   coot::mtz_column_types_info_t *save_f_phi_columns
-     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+     = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
 
   save_f_phi_columns->selected_phi_col = pos;
 }
@@ -770,8 +781,8 @@ weight_button_select(GtkWidget *item, GtkPositionType pos) {
    
 /*    printf("setting weight  position %d\n", pos);  */
    GtkWidget *window = lookup_widget(item, "column_label_window");
-   coot::mtz_column_types_info_t *save_f_phi_columns
-      = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+  coot::mtz_column_types_info_t *save_f_phi_columns
+     = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
    save_f_phi_columns->selected_weight_col = pos;
 }
 
@@ -782,7 +793,7 @@ refmac_f_button_select(GtkWidget *item, GtkPositionType pos) {
   printf("setting refmac f obs position %d\n", pos); 
    GtkWidget *window = lookup_widget(item, "column_label_window");
   coot::mtz_column_types_info_t *save_f_phi_columns
-     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+     = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
   save_f_phi_columns->selected_refmac_fobs_col = pos;
 }
 
@@ -792,7 +803,7 @@ refmac_sigf_button_select(GtkWidget *item, GtkPositionType pos) {
    printf("setting refmac sigf position %d\n", pos);  
    GtkWidget *window = lookup_widget(item, "column_label_window");
    coot::mtz_column_types_info_t *save_f_phi_columns
-      = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+     = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
    save_f_phi_columns->selected_refmac_sigfobs_col = pos;
 }
 
@@ -800,9 +811,9 @@ void
 refmac_r_free_button_select(GtkWidget *item, GtkPositionType pos) { 
    
   printf("setting r free position %d\n", pos); 
-   GtkWidget *window = lookup_widget(item, "column_label_window");
+  GtkWidget *window = lookup_widget(item, "column_label_window");
   coot::mtz_column_types_info_t *save_f_phi_columns
-     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+     = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
   save_f_phi_columns->selected_refmac_r_free_col = pos;
 }
 
@@ -813,7 +824,7 @@ refmac_dialog_f_button_select(GtkWidget *item, GtkPositionType pos) {
   printf("setting refmac f obs position %d\n", pos); 
   GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
   coot::mtz_column_types_info_t *save_f_phi_columns
-     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+     = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
   save_f_phi_columns->selected_refmac_fobs_col = pos;
   // get the corresponding Sig Fobs
   int sigfobs_pos;
@@ -843,7 +854,7 @@ refmac_dialog_fpm_button_select(GtkWidget *item, GtkPositionType pos) {
   printf("setting refmac f+/- obs position %d\n", pos); 
   GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
   coot::mtz_column_types_info_t *save_f_phi_columns
-     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+     = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
   save_f_phi_columns->selected_refmac_fp_col = pos;
   save_f_phi_columns->selected_refmac_fm_col = pos+1;
   // get the corresponding F- and SigF+/F-
@@ -869,7 +880,7 @@ refmac_dialog_i_button_select(GtkWidget *item, GtkPositionType pos) {
   printf("setting refmac i obs position %d\n", pos); 
   GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
   coot::mtz_column_types_info_t *save_f_phi_columns
-     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+     = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
   save_f_phi_columns->selected_refmac_iobs_col = pos;
   // get the corresponding Sig Fobs
   int sigiobs_pos;
@@ -889,7 +900,7 @@ refmac_dialog_ipm_button_select(GtkWidget *item, GtkPositionType pos) {
   printf("setting refmac i+/- obs position %d\n", pos); 
   GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
   coot::mtz_column_types_info_t *save_f_phi_columns
-     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+     = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
   save_f_phi_columns->selected_refmac_ip_col = pos;
   save_f_phi_columns->selected_refmac_im_col = pos+1;
   // get the corresponding I- and SigI+/I-
@@ -914,7 +925,7 @@ refmac_dialog_r_free_button_select(GtkWidget *item, GtkPositionType pos) {
   printf("setting r free position %d\n", pos); 
    GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
   coot::mtz_column_types_info_t *save_f_phi_columns
-     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+     = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
   save_f_phi_columns->selected_refmac_r_free_col = pos;
 }
 
@@ -924,7 +935,7 @@ refmac_dialog_phases_button_select(GtkWidget *item, GtkPositionType pos) {
   printf("setting phases position %d\n", pos); 
    GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
   coot::mtz_column_types_info_t *save_f_phi_columns
-     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+     = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
   save_f_phi_columns->selected_refmac_phi_col = pos;
 }
 
@@ -934,7 +945,7 @@ refmac_dialog_fom_button_select(GtkWidget *item, GtkPositionType pos) {
   printf("setting fom position %d\n", pos); 
    GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
   coot::mtz_column_types_info_t *save_f_phi_columns
-     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+     = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
   save_f_phi_columns->selected_refmac_fom_col = pos;
 }
 
@@ -944,7 +955,7 @@ refmac_dialog_hl_button_select(GtkWidget *item, GtkPositionType pos) {
   printf("setting hl position %d\n", pos); 
    GtkWidget *window = lookup_widget(item, "run_refmac_dialog");
   coot::mtz_column_types_info_t *save_f_phi_columns
-     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+     = (coot::mtz_column_types_info_t *) g_object_get_data(G_OBJECT(window), "f_phi_columns");
   save_f_phi_columns->selected_refmac_hla_col = pos;
   // get the 3 following HLs
   save_f_phi_columns->selected_refmac_hlb_col = pos + 1;
@@ -961,7 +972,7 @@ refmac_dialog_hl_button_select(GtkWidget *item, GtkPositionType pos) {
 // 
 GtkWidget *
 coot::column_selector_using_cmtz(const std::string &filename) { 
-   
+
    unsigned int i;
    GtkWidget *column_label_window;
    GtkWidget *optionmenu2_menu, *optionmenu3_menu;
