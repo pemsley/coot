@@ -84,6 +84,12 @@
 
 #include "c-interface-gui.hh"
 
+// I think this test is wrong. New gtk doesn't have get active text.
+// Use a gtkcomboboxtext for that.
+// #if (GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION > 5))
+// #define HAVE_GTK_COMBO_BOX_GET_ACTIVE_TEXT
+// #endif
+
 void set_show_paths_in_display_manager(int i) { 
    std::string cmd = "set-show-paths-in-display-manager";
    std::vector<coot::command_arg_t> args;
@@ -455,10 +461,12 @@ get_active_label_in_combobox(GtkComboBox *combobox) {
    gboolean state = gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &iter);
    if (state) {
       GValue f_label_as_value = { 0, };
-      // g_value_init (&f_label_as_value, G_TYPE_STRING);
+      // g_value_init (&f_label_as_value, G_TYPE_STRING); init is done in the get below
       gtk_tree_model_get_value(model, &iter, 0, &f_label_as_value);
       const char *f_label_cstr = g_value_get_string(&f_label_as_value);
       f_label = f_label_cstr;
+   } else {
+      std::cout << "Bad state" << std::endl;
    }
    return f_label;
 }
@@ -1738,7 +1746,7 @@ void add_recentre_on_read_pdb_checkbutton(GtkWidget *fileselection) {
    
    if (doit) {
 
-      if (0) { 
+      if (0) {
       
 	 GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
 	 GtkWidget *button = gtk_check_button_new_with_label("Recentre");
@@ -4542,23 +4550,39 @@ void post_go_to_atom_window() {
 
 void fill_go_to_atom_window(GtkWidget *widget) {
 
+   // make this a wrapper function for a graphics_info_t function
+   // After the GTK3 build is working - FIXME
+
+     graphics_info_t g;
+     int gimol = g.go_to_atom_molecule();
      GtkWidget *option_menu; 
      GtkWidget *chain_entry;
      GtkWidget *residue_entry; 
      GtkWidget *atom_name_entry; 
      GtkWidget *residue_gtklist;
-     gchar *text; 
+     gchar *text;
      GtkWidget *scrolled_window;
 
-     /* First lets do the molecule optionmenu. */
-
 #if 0
+
+     /* First lets do the molecule optionmenu. */
 
      graphics_info_t g;
      GCallback callback_func =
       G_CALLBACK(graphics_info_t::go_to_atom_mol_menu_item_select);
      option_menu = lookup_widget(GTK_WIDGET(widget), 
 				 "go_to_atom_molecule_optionmenu");
+     /* First lets do the molecule optionmenu. */
+     GtkSignalFunc callback_func =
+      GTK_SIGNAL_FUNC(graphics_info_t::go_to_atom_mol_menu_item_select);
+     option_menu = lookup_widget(GTK_WIDGET(widget),
+
+#endif
+
+     GCallback callback_func = G_CALLBACK(graphics_info_t::go_to_atom_mol_combobox_item_select);
+     GtkWidget *combobox = lookup_widget(widget, "go_to_atom_molecule_combobox");
+     g.fill_combobox_with_coordinates_options(combobox, callback_func, gimol);
+
      
      /* These are in a special order: The residue is done first
 	because it is set to a magic number (-9999 (or so)) initially.
@@ -4584,10 +4608,12 @@ void fill_go_to_atom_window(GtkWidget *widget) {
 
      /* Now that the go to atom molecule has been set, we can use it
 	to fill the molecule option menu */
-     int gimol = g.go_to_atom_molecule();
+
+#if 0 // no option_menu
      g.fill_option_menu_with_coordinates_options(option_menu,
 						 callback_func,
 						 gimol);
+#endif
 
      /* The chain entry */
 

@@ -464,6 +464,8 @@ graphics_info_t::make_synthetic_select_on_residue_tree(GtkWidget *residue_tree, 
 
 #else
 
+   // actually it would be nice to fix this
+
 #endif   
 
 }
@@ -671,31 +673,6 @@ graphics_info_t::update_go_to_atom_window_on_changed_mol(int imol) {
 }
 
 
-#if (GTK_MAJOR_VERSION == 1)
-
-/* for all the GtkItem:: and GtkTreeItem:: signals */
-// static
-void graphics_info_t::residue_tree_view_itemsignal( GtkWidget *item,
-						    gchar     *signame )
-{
-   gchar *name;
-   GtkLabel *label;
-   
-   /* It's a Bin, so it has one child, which we know to be a
-      label, so get that */
-   label = GTK_LABEL (GTK_BIN (item)->child);
-   /* Get the text of the label */
-   gtk_label_get (label, &name);
-   /* Get the level of the tree which the item is in */
-   g_print ("%s called for item %s->%p, level %d\n", signame, name,
-	    item, GTK_TREE (item->parent)->level);
-}
-
-#endif // #if (GTK_MAJOR_VERSION == 1)
-
-
-
-
 
 void 
 graphics_info_t::apply_go_to_atom_from_widget(GtkWidget *widget) {
@@ -758,17 +735,29 @@ graphics_info_t::apply_go_to_atom_from_widget(GtkWidget *widget) {
 void
 graphics_info_t::update_go_to_atom_window_on_new_mol() {
 
-   // std::cout << "DEBUG:: update_go_to_atom_window_on_new_mol called" << std::endl;
+   std::cout << "DEBUG:: --------------- update_go_to_atom_window_on_new_mol called" << std::endl;
 
    if (go_to_atom_window) {
-      GtkWidget *option_menu =
-	 lookup_widget(GTK_WIDGET(go_to_atom_window), 
-		       "go_to_atom_molecule_optionmenu");
-      
-      GtkSignalFunc callback_func = 
-	 GTK_SIGNAL_FUNC(graphics_info_t::go_to_atom_mol_menu_item_select);
+
+      // GtkWidget *option_menu =
+      // lookup_widget(GTK_WIDGET(go_to_atom_window), 
+      //"go_to_atom_molecule_optionmenu");
+
+      GtkWidget *combobox = lookup_widget(go_to_atom_window, "go_to_atom_molecule_combobox");
+
+      std::cout << "debug:: in update_go_to_atom_window_on_new_mol() got combobox " << combobox
+		<< std::endl;
+
+      // this may not be the write function for a combobox item
+      GCallback callback_func = 
+	 G_CALLBACK(graphics_info_t::go_to_atom_mol_menu_item_select);
+
       // set last active (1)
-      fill_option_menu_with_coordinates_options_internal(option_menu, callback_func, 0);
+      // fill_option_menu_with_coordinates_options_internal(option_menu, callback_func, 0);
+
+      short int set_last_active_flag = 0;
+
+      fill_combobox_with_coordinates_options(combobox, callback_func, set_last_active_flag);
 
       // If there was no molecule already, we need to update the atom
       // lists too.
@@ -883,27 +872,51 @@ graphics_info_t::clear_atom_list(GtkWidget *atom_gtklist) {
 void
 graphics_info_t::go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionType pos) { 
 
-   // std::cout << "INFO:: (menu item select) Go To Atom molecule now: " << pos << std::endl;
+   std::cout << "DEBUG:: (menu item select) Go To Atom molecule now: " << pos << std::endl;
    graphics_info_t g;
    int old_go_to_molecule = g.go_to_atom_molecule();
    g.set_go_to_atom_molecule(pos);
 
-   // std::cout << "debug pos: " << pos << " vs old go to atom mol: " << old_go_to_molecule << std::endl;
    if (pos != old_go_to_molecule) {
-      // old style:
-//       GtkWidget *residue_gtklist = lookup_widget(GTK_WIDGET(item),
-// 						 "go_to_atom_residue_list");
+
       GtkWidget *residue_tree = lookup_widget(GTK_WIDGET(item),
 						 "go_to_atom_residue_tree");
       GtkWidget *atom_list = lookup_widget(GTK_WIDGET(item),
 					   "go_to_atom_atom_list");
-#if (GTK_MAJOR_VERSION == 1)
-      fill_go_to_atom_residue_list_gtk1(residue_tree);
-#else
-      // std::cout << "Debug:: fill_go_to_atom_residue_tree_gtk2 " << pos << std::endl;
+
+      std::cout << "Debug:: fill_go_to_atom_residue_tree_gtk2 " << pos << std::endl;
       fill_go_to_atom_residue_tree_and_atom_list_gtk2(pos, residue_tree, atom_list);
-#endif      
+
    }
+}
+
+void
+graphics_info_t::go_to_atom_mol_combobox_item_select(GtkWidget *combobox, gpointer data) {
+
+   GtkTreeIter iter;
+   gboolean state = gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &iter);
+   if (state) {
+      GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox));
+      GValue label_as_value = { 0, };
+      gtk_tree_model_get_value(model, &iter, 0, &label_as_value);
+      int imol = g_value_get_int(&label_as_value);
+      std::cout << "imol: " << imol << std::endl;
+      graphics_info_t g;
+      int old_go_to_molecule = g.go_to_atom_molecule();
+      g.set_go_to_atom_molecule(imol);
+      if (imol != old_go_to_molecule) {
+	 GtkWidget *residue_tree = lookup_widget(GTK_WIDGET(combobox),
+						 "go_to_atom_residue_tree");
+	 GtkWidget *atom_list = lookup_widget(GTK_WIDGET(combobox),
+					      "go_to_atom_atom_list");
+	 std::cout << "Debug:: fill_go_to_atom_residue_tree_gtk2 " << imol << std::endl;
+	 fill_go_to_atom_residue_tree_and_atom_list_gtk2(imol, residue_tree, atom_list);
+
+      }
+   } else {
+      std::cout << "bad state" << std::endl;
+   }
+   
 }
 
 

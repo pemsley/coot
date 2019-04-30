@@ -1798,6 +1798,74 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal(GtkWidget *o
 
 }
 
+void
+graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
+							GCallback callback_func,
+							bool set_last_active_flag) {
+
+   std::vector<int> fill_with_these_molecules;
+   for (int imol=0; imol<n_molecules(); imol++) {
+      if (molecules[imol].has_model()) {
+	 fill_with_these_molecules.push_back(imol);
+      }
+   }
+
+   std::cout << "--- in fill_combobox_with_coordinates_options " << fill_with_these_molecules.size()
+	     << std::endl;
+
+   GtkListStore *store = gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
+   GtkTreeIter iter;
+   int last_idx = fill_with_these_molecules.size() -1;
+   int active_idx = 0; // overridden by last_idx maybe
+   int n_mol = fill_with_these_molecules.size();
+
+   for (int idx=0; idx<n_mol; idx++) {
+      int imol = fill_with_these_molecules[idx];
+      std::string ss; // = int_to_string(imol); done in renderer now.
+      ss += " " ;
+      int ilen = molecules[imol].name_.length();
+      int left_size = ilen-go_to_atom_menu_label_n_chars_max;
+      if (left_size <= 0)
+	 left_size = 0;
+      else
+	 ss += "...";
+      ss += molecules[imol].name_.substr(left_size, ilen);
+
+      gtk_list_store_append(store, &iter);
+      gtk_list_store_set(store, &iter, 0, imol, 1, ss.c_str(), -1);
+
+      if (imol == go_to_atom_molecule())
+	 active_idx = idx;
+
+   }
+
+   std::cout << "--- in fill_combobox_with_coordinates_options here A " << std::endl;
+
+   g_signal_connect(combobox, "changed", callback_func, NULL);
+   GtkTreeModel *model = GTK_TREE_MODEL(store);
+   GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
+   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox), renderer, TRUE);
+   gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(combobox), renderer, "text", 1, NULL);
+   gtk_combo_box_set_model(GTK_COMBO_BOX(combobox), model);
+
+   std::cout << "--- in fill_combobox_with_coordinates_options here B " << std::endl;
+
+   if (fill_with_these_molecules.size() > 0) {
+      if (set_last_active_flag) {
+	 active_idx = last_idx;
+      }
+      std::cout << "setting active..." << std::endl;
+      // active_idx = 0; // testing
+      std::cout << "calling gtk_combo_box_set_active " << last_idx << std::endl;
+      gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), active_idx);
+      std::cout << "done set active..." << std::endl;
+   }
+
+   std::cout << "--- in fill_combobox_with_coordinates_options here C " << std::endl;
+
+
+}
+
 // 20100629 this was used in fill_renumber_residue_range_dialog() - the modern way, I guess.
 void
 graphics_info_t::fill_option_menu_with_coordinates_options_internal_2(GtkWidget *option_menu,
