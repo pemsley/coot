@@ -200,6 +200,7 @@ void
 on_ok_button_coordinates_clicked       (GtkButton       *button,
                                         gpointer         user_data)
 {
+#if 0
   GtkWidget *coords_fileselection1;
   GtkWidget *checkbutton;
   int recentre_on_read_pdb_flag = 0;
@@ -262,7 +263,7 @@ on_ok_button_coordinates_clicked       (GtkButton       *button,
     files_arr++;
   }
   gtk_widget_destroy(coords_fileselection1); 
-
+#endif
 }
 
 
@@ -270,49 +271,7 @@ void
 on_ok_button_dataset_clicked           (GtkButton       *button,
                                         gpointer         user_data)
 {
-   const gchar *filename; 
-   gchar *copied_filename;
-   int auto_read_flag = 0, ismtz = 0, ismtzauto = 0, iscnsauto = 0;
-
-   GtkWidget *dataset_fileselection1;
-
-   dataset_fileselection1 = lookup_widget(GTK_WIDGET(button),
-					  "dataset_fileselection1");
-
-   save_directory_from_fileselection(dataset_fileselection1);
-   filename = gtk_file_selection_get_filename 
-      (GTK_FILE_SELECTION(dataset_fileselection1));
-   
-   copied_filename = (char *) malloc(strlen(filename) + 1);
-   strcpy(copied_filename, filename);
-
-   auto_read_flag = GPOINTER_TO_INT(g_object_get_data(GTK_OBJECT(dataset_fileselection1), "is_mtz"));
-   ismtz = is_mtz_file_p(filename);
-   if (ismtz) ismtzauto = mtz_file_has_phases_p(filename);
-   else       iscnsauto = cns_file_has_phases_p(filename);
-
-   if (ismtzauto || iscnsauto) {
-
-      if (auto_read_flag) { 
-	 wrapped_auto_read_make_and_draw_maps(filename);
-      } else {
-	 /* this does a create_column_label_window, fills and displays it. */
-	 manage_column_selector(copied_filename);
-      }
-
-   } else { 
-
-      /* no phases path */
-      if (auto_read_flag) printf ("INFO:: This file is not a map coefficient file. Coot can auto-read\nINFO::  - MTZ files from refmac, phenix.refine, phaser, parrot, dm.\nINFO::  - CNS files (new 2009 format only) with cell, symops, F1, F2.\n");
-      if (ismtz) { 
-	 calc_phases_generic(filename);
-      } else { 
-	 /* try to read as a phs, cif, fcf etc... */
-	 manage_column_selector(copied_filename);
-      }
-   }
-   free(copied_filename);
-   gtk_widget_destroy(dataset_fileselection1); 
+  /* goodbye fileselection code */
 }
 
 void
@@ -810,6 +769,7 @@ void
 on_symmetry_colour_patch_button_clicked (GtkButton       *button,
 					 gpointer         user_data)
 {
+#if 0
    GtkWidget *colorseldlg;
    gdouble *colour;
    GtkColorSelection *colorsel;
@@ -821,6 +781,7 @@ on_symmetry_colour_patch_button_clicked (GtkButton       *button,
    gtk_color_selection_set_color(colorsel, colour);
 
    gtk_widget_show(colorseldlg); 
+#endif
 }
 
 
@@ -952,7 +913,7 @@ on_show_aniso_close_button_clicked     (GtkButton       *button,
 
 void aniso_probability_adjustment_changed(GtkAdjustment *adj, GtkWidget *window) { 
 
-   set_aniso_probability(adj->value); 
+   set_aniso_probability(gtk_adjustment_get_value(adj));
 }
 
 
@@ -1710,13 +1671,14 @@ on_display_control_ok_button_clicked   (GtkButton       *button,
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_display_control_window_glade_destroy (GtkObject       *object,
 					 gpointer         user_data)
 {
   reset_graphics_display_control_window(); /* (also resets the scroll group) */
 }
-
+#endif
 
 void
 on_rotation_centre_size_ok_button_clicked (GtkButton       *button,
@@ -1916,7 +1878,7 @@ gboolean on_accession_code_entry_key_press_event (GtkWidget       *widget,
 
   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
     handle_get_accession_code(widget); 
-  } 
+  }
 
   return FALSE;
 }
@@ -1985,6 +1947,7 @@ on_dynarama_cancel_button_clicked      (GtkButton       *button,
 
 }
 
+#if 0				/* GtkObject problem */
 void
 on_dynarama_window_destroy             (GtkObject       *object,
                                         gpointer         user_data)
@@ -2003,6 +1966,7 @@ on_dynarama_window_destroy             (GtkObject       *object,
 			      	          // memory of the user data.
    }
 }
+#endif
 
 
 
@@ -2138,9 +2102,10 @@ void
 on_save_coordinates1_activate          (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+#if 0
   GtkWidget *widget;
   GtkWidget *option_menu; 
-  GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(save_molecule_coords_button_select);
+  GCallback callback_func = G_CALLBACK(save_molecule_coords_button_select);
   int imol = first_coords_imol();
   int imol_unsaved = first_unsaved_coords_imol();
   if (imol_unsaved != -1) 
@@ -2149,13 +2114,13 @@ on_save_coordinates1_activate          (GtkMenuItem     *menuitem,
 
   widget = create_save_coords_dialog(); 
 
-  option_menu = lookup_widget(GTK_WIDGET(widget),
-			      "save_coords_optionmenu");
+  option_menu = lookup_widget(GTK_WIDGET(widget), "save_coords_optionmenu");
 
   fill_option_menu_with_coordinates_options_unsaved_first(option_menu, callback_func, imol);
   set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
   gtk_widget_show(widget);
   gtk_window_present(GTK_WINDOW(widget));
+#endif
 }
 
 
@@ -2333,6 +2298,7 @@ on_refine_params_dialog_ok_button_clicked
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_goto_atom_window_destroy            (GtkObject       *object,
                                         gpointer         user_data)
@@ -2343,7 +2309,7 @@ on_goto_atom_window_destroy            (GtkObject       *object,
    "Cancel" button callback. Fixes July 12 bug? */
   unset_go_to_atom_widget(); 
 }
-
+#endif
 
 void
 on_distance1_activate                  (GtkMenuItem     *menuitem,
@@ -2401,6 +2367,8 @@ on_accept_reject_refinement_reject_button_clicked (GtkButton       *button,
   gtk_widget_destroy(window);
 }
 
+
+#if 0				/* GtkObject problem */
 void
 on_accept_reject_refinement_dialog_destroy
                                         (GtkObject       *object,
@@ -2415,7 +2383,7 @@ on_accept_reject_refinement_dialog_destroy
   set_accept_reject_dialog(NULL);
   clear_up_moving_atoms();
 }
-
+#endif
 
 /* accept_reject_refinement_docked_accept_button */
 
@@ -3478,6 +3446,7 @@ on_residue_info_cancel_button_clicked  (GtkButton       *button,
 
 }
 
+#if 0				/* GtkObject problem */
 void
 on_residue_info_dialog_destroy         (GtkObject       *object,
                                         gpointer         user_data)
@@ -3488,6 +3457,7 @@ on_residue_info_dialog_destroy         (GtkObject       *object,
    unset_residue_info_widget();
 
 }
+#endif
 
 
 
@@ -4245,7 +4215,7 @@ on_run_refmac_mtz_filechooserdialog_response
   gtk_widget_destroy(mtz_fileselection);
 }
 
-#if 0
+#if 0				/* GtkObject problem */
 void
 on_run_refmac_mtz_filechooserdialog_destroy
                                         (GtkObject       *object,
@@ -4553,13 +4523,14 @@ on_import_all_dictionary_cifs1_activate (GtkMenuItem     *menuitem,
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_model_refine_dialog_destroy         (GtkObject       *object,
                                         gpointer         user_data)
 {
    unset_model_fit_refine_dialog();
 }
-
+#endif
 
 void
 on_residue_info_apply_all_checkbutton_toggled
@@ -4759,8 +4730,11 @@ on_window1_configure_event             (GtkWidget       *widget,
                                         gpointer         user_data)
 {
   gint upositionx, upositiony;
+  printf("GTK3-FIXME on_window1_configure_event\n");
+  /*
   gdk_window_get_root_origin (widget->window, &upositionx, &upositiony);
   store_graphics_window_position(upositionx, upositiony);
+  */
   return FALSE;
 }
 
@@ -4784,6 +4758,7 @@ on_run_state_file_cancel_button_clicked (GtkButton       *button,
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_edit_backbone_torsions_dialog_destroy
                                         (GtkObject       *object,
@@ -4793,6 +4768,7 @@ on_edit_backbone_torsions_dialog_destroy
   /* FIXME: also clear out the edib backbone ramaplot, if it exists. */
 /*   destroy_edit_backbone_rama_plot(); */
 }
+#endif
 
 
 void
@@ -4802,8 +4778,8 @@ on_edit_backbone_torsion_rotate_peptide_button_pressed
 {
   int ix, iy;
   GdkModifierType state;
-  gdk_window_get_pointer(GTK_WIDGET(button)->window, &ix, &iy, &state);
-/*   printf("button press at %d %d \n", ix, iy); */
+  GtkWidget *window = gtk_widget_get_window(GTK_WIDGET(button));
+  gdk_window_get_pointer(GTK_WIDGET(window), &ix, &iy, &state);
   set_backbone_torsion_peptide_button_start_pos(ix, iy);
 }
 
@@ -4825,8 +4801,8 @@ on_edit_backbone_torsion_rotate_peptide_button_motion_notify_event
 {
   int ix, iy;
   GdkModifierType state;
-  gdk_window_get_pointer(widget->window, &ix, &iy, &state);
-/*   printf("button moved to %d %d \n", ix, iy); */
+  GtkWidget *window = gtk_widget_get_window(GTK_WIDGET(widget));
+  gdk_window_get_pointer(window, &ix, &iy, &state);
 
   change_peptide_peptide_by_current_button_pos(ix, iy);
   return FALSE;
@@ -4840,8 +4816,8 @@ on_edit_backbone_torsion_rotate_peptide_carbonyl_button_pressed
 {
   int ix, iy;
   GdkModifierType state;
-  gdk_window_get_pointer(GTK_WIDGET(button)->window, &ix, &iy, &state);
-/*   printf("button press at %d %d \n", ix, iy); */
+  GtkWidget *window = gtk_widget_get_window(GTK_WIDGET(button));
+  gdk_window_get_pointer(GTK_WIDGET(window), &ix, &iy, &state);
   set_backbone_torsion_carbonyl_button_start_pos(ix, iy);
 
 }
@@ -4865,9 +4841,8 @@ on_edit_backbone_torsion_rotate_peptide_carbonyl_button_motion_notify_event
 
   int ix, iy;
   GdkModifierType state;
-  gdk_window_get_pointer(widget->window, &ix, &iy, &state);
-/*   printf("button moved to %d %d \n", ix, iy); */
-
+  GtkWidget *window = gtk_widget_get_window(widget);
+  gdk_window_get_pointer(window, &ix, &iy, &state);
   change_peptide_carbonyl_by_current_button_pos(ix, iy);
   return FALSE;
 }
@@ -5027,6 +5002,7 @@ on_model_refine_dialog_add_alt_conf_button_clicked (GtkButton       *button,
   altconf();
 }
 
+#if 0				/* GtkObject problem */
 void
 on_add_alt_conf_dialog_destroy         (GtkObject       *object,
                                         gpointer         user_data)
@@ -5035,7 +5011,7 @@ on_add_alt_conf_dialog_destroy         (GtkObject       *object,
   unset_add_alt_conf_define();
   unset_add_alt_conf_dialog();
 }
-
+#endif
 
 void
 on_run_refmac_help_button_clicked      (GtkButton       *button,
@@ -5280,6 +5256,7 @@ on_distances_and_angles1_activate      (GtkMenuItem     *menuitem,
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_geometry_dialog_destroy             (GtkObject       *object,
                                         gpointer         user_data)
@@ -5296,6 +5273,7 @@ on_geometry_dialog_destroy             (GtkObject       *object,
   store_geometry_dialog(NULL);
 
 }
+#endif
 
 
 void
@@ -5338,6 +5316,7 @@ on_zoom_dialog_ok_button_clicked       (GtkButton       *button,
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_edit_chi_angles_dialog_destroy      (GtkObject       *object,
                                         gpointer         user_data)
@@ -5347,7 +5326,7 @@ on_edit_chi_angles_dialog_destroy      (GtkObject       *object,
   unset_moving_atom_move_chis();
   set_show_chi_angle_bond(0);
 }
-
+#endif
 
 void
 on_check_waters_low_occ_dist_checkbutton_toggled
@@ -5492,6 +5471,7 @@ on_help_chi_angles_dismiss_button_clicked (GtkButton       *button,
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_rotate_translate_obj_dialog_destroy (GtkObject       *object,
                                         gpointer         user_data)
@@ -5499,6 +5479,7 @@ on_rotate_translate_obj_dialog_destroy (GtkObject       *object,
    /* need to save the position coordinates of dialog */
    rot_trans_reset_previous();
 }
+#endif
 
 
 void
@@ -6231,6 +6212,7 @@ on_geometry_graphs_ok_button_clicked   (GtkButton       *button,
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_geometry_graphs_dialog_destroy      (GtkObject       *object,
                                         gpointer         user_data)
@@ -6248,7 +6230,7 @@ on_geometry_graphs_dialog_destroy      (GtkObject       *object,
    }
 
 }
-
+#endif
 
 void
 on_save_symmetry_coords_fileselection_ok_button_clicked
@@ -6584,12 +6566,14 @@ on_preferences_reset_button_clicked    (GtkButton       *button,
 
 }
 
+#if 0				/* GtkObject problem */
 void
 on_preferences_destroy                 (GtkObject       *object,
                                         gpointer         user_data)
 {
   clear_preferences();
 }
+#endif
 
 void
 on_preferences_geometry_cis_peptide_bad_yes_radiobutton_toggled
@@ -8124,6 +8108,7 @@ on_ncs_maps1_activate                  (GtkMenuItem     *menuitem,
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_rotamer_selection_dialog_destroy    (GtkObject       *object,
                                         gpointer         user_data)
@@ -8132,7 +8117,7 @@ on_rotamer_selection_dialog_destroy    (GtkObject       *object,
       store_window_position(COOT_ROTAMER_SELECTION_DIALOG, dialog); */
    set_graphics_rotamer_dialog(NULL);
 }
-
+#endif
 
 void
 on_pointer_distances_checkbutton_toggled
@@ -8318,6 +8303,7 @@ on_delete_item_keep_active_checkbutton_toggled
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_delete_item_dialog_destroy          (GtkObject       *object,
                                         gpointer         user_data)
@@ -8328,6 +8314,7 @@ on_delete_item_dialog_destroy          (GtkObject       *object,
    normal_cursor();
    store_delete_item_widget(NULL);
 }
+#endif
 
 
 void
@@ -8492,7 +8479,7 @@ on_base_chooser_cancel_button_clicked  (GtkButton       *button,
    gtk_widget_destroy(w);
 }
 
-
+#if 0				/* GtkObject problem */
 void
 on_nucleic_acid_base_chooser_dialog_destroy
                                         (GtkObject       *object,
@@ -8500,7 +8487,7 @@ on_nucleic_acid_base_chooser_dialog_destroy
 {
    clear_pending_picks();
 }
-
+#endif
 
 void
 on_change_chain_ids2_activate          (GtkMenuItem     *menuitem,
@@ -8815,6 +8802,7 @@ on_cis_trans_conversion_toggle_button_toggled
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_other_model_tools_dialog_destroy    (GtkObject       *object,
                                         gpointer         user_data)
@@ -8822,6 +8810,7 @@ on_other_model_tools_dialog_destroy    (GtkObject       *object,
    do_cis_trans_conversion_setup(0);
    unset_other_modelling_tools_dialog();
 }
+#endif
 
 
 void
@@ -8849,13 +8838,14 @@ on_get_pdb_and_map_using_eds1_activate (GtkMenuItem     *menuitem,
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_ligand_big_blob_dialog_destroy      (GtkObject       *object,
                                         gpointer         user_data)
 {
   free_blob_dialog_memory(GTK_WIDGET(object));
 }
-
+#endif
 
 void
 on_model_refine_dialog_do_180_degree_sidechain_flip_togglebutton_toggled
@@ -8985,13 +8975,14 @@ on_other_tools_place_strand_here_button_clicked     (GtkButton       *button,
   place_strand_here_dialog(); 	/* choose the python version in there, if needed. */
 } 
 
+#if 0				/* GtkObject problem */
 void
 on_diff_map_peaks_dialog_destroy       (GtkObject       *object,
                                         gpointer         user_data)
 {
   set_difference_map_peaks_widget(0); /* a null pointer */
 }
-
+#endif
 
 void
 on_symmetry_controller_ok_button_clicked
@@ -9101,7 +9092,7 @@ on_colour_symm_by_molecule_molecule_0_toggled
 {
 
   int imol = GPOINTER_TO_INT(user_data);
-  if (togglebutton->active) {
+  if (gtk_toggle_button_get_active(togglebutton)) {
     set_symmetry_colour_by_symop(imol, 0);
     set_symmetry_molecule_rotate_colour_map(imol, 1);
   }
@@ -9225,6 +9216,7 @@ on_lsq_plane_ok_button_clicked         (GtkButton       *button,
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_lsq_plane_dialog_destroy            (GtkObject       *object,
                                         gpointer         user_data)
@@ -9232,7 +9224,7 @@ on_lsq_plane_dialog_destroy            (GtkObject       *object,
   unset_lsq_plane_dialog();	/* which clears the plane points too */
   normal_cursor();
 }
-
+#endif
 
 void
 on_plane_distances1_activate           (GtkMenuItem     *menuitem,
@@ -9263,6 +9255,7 @@ on_ncs_ghost_control1_activate         (GtkMenuItem     *menuitem,
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_coords_colour_control_dialog_destroy
                                         (GtkObject       *object,
@@ -9270,6 +9263,7 @@ on_coords_colour_control_dialog_destroy
 {
 
 }
+#endif
 
 
 void
@@ -9818,30 +9812,35 @@ on_dynarama_window_configure_event     (GtkWidget       *widget,
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_coords_fileselection1_destroy       (GtkObject       *object,
                                         gpointer         user_data)
 {
    store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
 }
+#endif
 
-
+#if 0				/* GtkObject problem */
 void
 on_dataset_fileselection1_destroy      (GtkObject       *object,
                                         gpointer         user_data)
 {
    store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
 }
+#endif
 
 
+#if 0				/* GtkObject problem */
 void
 on_map_name_fileselection1_destroy     (GtkObject       *object,
                                         gpointer         user_data)
 {
    store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
 }
+#endif
 
-
+#if 0				/* GtkObject problem */
 void
 on_phs_coordinates_fileselection_destroy
                                         (GtkObject       *object,
@@ -9849,16 +9848,18 @@ on_phs_coordinates_fileselection_destroy
 {
    store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
 }
+#endif
 
-
+#if 0				/* GtkObject problem */
 void
 on_save_coords_fileselection1_destroy  (GtkObject       *object,
                                         gpointer         user_data)
 {
    store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
 }
+#endif
 
-
+#if 0				/* GtkObject problem */
 void
 on_save_symmetry_coords_fileselection_destroy
                                         (GtkObject       *object,
@@ -9866,22 +9867,25 @@ on_save_symmetry_coords_fileselection_destroy
 {
    store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
 }
+#endif
 
-
+#if 0				/* GtkObject problem */
 void
 on_save_state_fileselection_destroy    (GtkObject       *object,
                                         gpointer         user_data)
 {
    store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
 }
+#endif
 
-
+#if 0				/* GtkObject problem */
 void
 on_screendump_fileselection_destroy    (GtkObject       *object,
                                         gpointer         user_data)
 {
    store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
 }
+#endif
 
 void
 on_residue_type_chooser_stub_checkbutton_toggled
@@ -9952,13 +9956,14 @@ on_sec_str_rest_strand_rest_radiobutton_toggled
 
 
 
+#if 0				/* GtkObject problem */
 void
 on_refine_params_dialog_destroy        (GtkObject       *object,
                                         gpointer         user_data)
 {
   unset_refine_params_dialog();
 }
-
+#endif
 
 void
 on_update_go_to_atom_from_current_position_button_clicked
@@ -10073,6 +10078,7 @@ on_single_map_properties_contour_level_apply_button_clicked
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_checked_waters_baddies_dialog_destroy
                                         (GtkObject       *object,
@@ -10080,7 +10086,7 @@ on_checked_waters_baddies_dialog_destroy
 {
   store_checked_waters_baddies_dialog(NULL);
 }
-
+#endif
 
 void
 on_model_toolbar_style_changed         (GtkToolbar      *toolbar,
@@ -10413,7 +10419,7 @@ on_model_toolbar_icons_and_text1_activate
                                         gpointer         user_data)
 {
   GtkWidget *toolbar = lookup_widget(GTK_WIDGET(menuitem), "model_toolbar");
-  if (GTK_CHECK_MENU_ITEM(menuitem)->active){
+  if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
       gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
       /* change the labels for R/RC and Map too */
       GtkWidget *button;
@@ -10430,7 +10436,7 @@ on_model_toolbar_icons1_activate       (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   GtkWidget *toolbar = lookup_widget(GTK_WIDGET(menuitem), "model_toolbar");
-  if (GTK_CHECK_MENU_ITEM(menuitem)->active){
+  if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
     gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_ICONS); 
     /* change the labels for R/RC and Map too */
     GtkWidget *button;
@@ -10447,7 +10453,7 @@ on_model_toolbar_text1_activate        (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   GtkWidget *toolbar = lookup_widget(GTK_WIDGET(menuitem), "model_toolbar");
-  if (GTK_CHECK_MENU_ITEM(menuitem)->active){
+  if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
     gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_TEXT); 
     /* change the labels for R/RC and Map too */
     GtkWidget *button;
@@ -10463,7 +10469,7 @@ void
 on_model_toolbar_main_icons_activate   (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  if (GTK_CHECK_MENU_ITEM(menuitem)->active){
+  if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
     show_model_toolbar_main_icons();
   }
 }
@@ -10473,7 +10479,7 @@ void
 on_model_toolbar_all_icons_activate    (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  if (GTK_CHECK_MENU_ITEM(menuitem)->active){
+  if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
     show_model_toolbar_all_icons();
   } //else {
     //show_model_toolbar_main_icons();
@@ -10655,6 +10661,7 @@ on_coords_filechooserdialog1_response  (GtkDialog       *dialog,
  }
 }
 
+#if 0				/* GtkObject problem */
 void
 on_coords_filechooserdialog1_destroy  (GtkObject       *object,
                                         gpointer         user_data)
@@ -10666,7 +10673,7 @@ on_coords_filechooserdialog1_destroy  (GtkObject       *object,
 
   gtk_widget_destroy(coords_fileselection1);
 }
-
+#endif
 
 void
 on_coords_filechooserdialog1_recentre_checkbutton_toggled
@@ -10742,6 +10749,7 @@ on_dataset_filechooserdialog1_response (GtkDialog       *dialog,
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_dataset_filechooserdialog1_destroy (GtkObject       *object,
                                         gpointer         user_data)
@@ -10753,7 +10761,7 @@ on_dataset_filechooserdialog1_destroy (GtkObject       *object,
 
   gtk_widget_destroy(dataset_fileselection1);
 }
-
+#endif
 
 void
 on_map_name_filechooserdialog1_response
@@ -10815,6 +10823,7 @@ on_map_filechooser_is_difference_map_button_toggled
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_map_name_filechooserdialog1_destroy (GtkObject       *object,
                                         gpointer         user_data)
@@ -10826,7 +10835,7 @@ on_map_name_filechooserdialog1_destroy (GtkObject       *object,
 
   gtk_widget_destroy(map_name_fileselection1);
 }
-
+#endif
 
 void
 on_phs_coordinates_filechooserdialog1_response
@@ -10852,6 +10861,7 @@ on_phs_coordinates_filechooserdialog1_response
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_phs_coordinates_filechooserdialog1_destroy
                                         (GtkObject       *object,
@@ -10864,9 +10874,8 @@ on_phs_coordinates_filechooserdialog1_destroy
 
   gtk_widget_destroy(phs_fileselection1);
 }
+#endif
 
-
-#if (GTK_MAJOR_VERSION > 1) && (GTK_MINOR_VERSION > 9)
 GtkFileChooserConfirmation
 on_save_coords_filechooserdialog1_confirm_overwrite
 					(GtkFileChooser * filechooser, 
@@ -10884,7 +10893,6 @@ on_save_coords_filechooserdialog1_confirm_overwrite
   }
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
 void
@@ -10910,7 +10918,7 @@ on_save_coords_filechooserdialog1_response
   }
 }
 
-
+#if 0				/* GtkObject problem */
 void
 on_save_coords_filechooserdialog1_destroy
 					(GtkObject * object, 
@@ -10923,7 +10931,7 @@ on_save_coords_filechooserdialog1_destroy
 
   gtk_widget_destroy(fileselection);
 }
-
+#endif
 
 void
 on_cif_dictionary_filechooserdialog1_response(GtkDialog * dialog, 
@@ -10979,6 +10987,7 @@ on_cif_dictionary_filechooserdialog1_response(GtkDialog * dialog,
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_cif_dictionary_filechooserdialog1_destroy
 					(GtkObject * object, 
@@ -10991,7 +11000,7 @@ on_cif_dictionary_filechooserdialog1_destroy
 
   gtk_widget_destroy(fileselection);
 }
-
+#endif
 
 void
 on_run_script_filechooserdialog1_response
@@ -11018,6 +11027,7 @@ on_run_script_filechooserdialog1_response
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_run_script_filechooserdialog1_destroy
 					(GtkObject * object, 
@@ -11030,9 +11040,9 @@ on_run_script_filechooserdialog1_destroy
 
   gtk_widget_destroy(fileselection);
 }
+#endif
 
 
-#if (GTK_MAJOR_VERSION > 1) && (GTK_MINOR_VERSION > 9)
 GtkFileChooserConfirmation
 on_save_symmetry_coords_filechooserdialog1_confirm_overwrite
 					(GtkFileChooser * filechooser, 
@@ -11050,7 +11060,6 @@ on_save_symmetry_coords_filechooserdialog1_confirm_overwrite
   }
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
 void
@@ -11073,6 +11082,7 @@ on_save_symmetry_coords_filechooserdialog1_response
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_save_symmetry_coords_filechooserdialog1_destroy
 					(GtkObject * object, 
@@ -11085,7 +11095,7 @@ on_save_symmetry_coords_filechooserdialog1_destroy
 
   gtk_widget_destroy(coords_fileselection1);
 }
-
+#endif
 
 GtkFileChooserConfirmation
 on_save_state_filechooserdialog1_confirm_overwrite 
@@ -11130,6 +11140,7 @@ on_save_state_filechooserdialog1_response (GtkDialog * dialog,
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_save_state_filechooserdialog1_destroy (GtkObject * object, 
 					gpointer user_data)
@@ -11141,9 +11152,8 @@ on_save_state_filechooserdialog1_destroy (GtkObject * object,
 
   gtk_widget_destroy(coords_fileselection1);
 }
+#endif
 
-
-#if (GTK_MAJOR_VERSION > 1) && (GTK_MINOR_VERSION > 9)
 GtkFileChooserConfirmation
 on_screendump_filechooserdialog1_confirm_overwrite 
 					(GtkFileChooser * filechooser, 
@@ -11161,7 +11171,6 @@ on_screendump_filechooserdialog1_confirm_overwrite
   }
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
 void
@@ -11198,6 +11207,7 @@ on_screendump_filechooserdialog1_response (GtkDialog * dialog,
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_screendump_filechooserdialog1_destroy (GtkObject * object, 
 					gpointer user_data)
@@ -11210,7 +11220,7 @@ on_screendump_filechooserdialog1_destroy (GtkObject * object,
   gtk_widget_destroy(fileselection);
 }
 /* end of chooser insert */
-
+#endif
 
 void
 on_model_refine_dialog_torsion_general_togglebutton_toggled
@@ -11290,12 +11300,14 @@ on_fixed_atom_close_button_clicked     (GtkButton       *button,
 }
 
 
+#if 0				/* GtkObject problem */
 void
 on_fixed_atom_dialog_destroy           (GtkObject       *object,
                                         gpointer         user_data)
 {
   store_fixed_atom_dialog(0);
 }
+#endif
 
 void
 on_add_rep_add_rep_button_clicked      (GtkButton       *button,
@@ -11789,13 +11801,14 @@ on_find_ligands_search_here_radiobutton_toggled
 
 }
 
+#if 0				/* GtkObject problem */
 void
 on_symmetry_controller_dialog_destroy  (GtkObject       *object,
                                         gpointer         user_data)
 {
   set_symmetry_controller_dialog_widget(0);
 }
-
+#endif
 
 void
 on_toolbar_multi_refine_continue_button_clicked
