@@ -362,7 +362,7 @@ int goto_previous_atom_maybe_new(GtkWidget *window);
  
 int apply_go_to_atom_values(GtkWidget * window);
 
-int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget); 
+// int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget);  DELETE-ME
 
 void clear_atom_list(GtkWidget *atom_gtklist);
 

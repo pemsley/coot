@@ -3572,15 +3572,6 @@ int cns_file_has_phases_p(const char *cns_file_name) {
 /*                        go to atom widget                                 */
 /*  ----------------------------------------------------------------------- */
 
-// return -1 on error
-//
-int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget) { 
-
-   graphics_info_t g;
-   return g.go_to_atom_molecule_optionmenu_active_molecule(widget);
-}
-
-
 void save_go_to_atom_widget(GtkWidget *widget) { /* store in a static */
    graphics_info_t::go_to_atom_window = widget;
 }

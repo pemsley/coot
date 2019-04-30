@@ -836,16 +836,6 @@ graphics_info_t::update_go_to_atom_molecule_on_go_to_atom_molecule_deleted() {
 } 
 
 
-
-
-// return -1 on error
-//
-int
-graphics_info_t::go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget) { 
-
-   return go_to_atom_molecule();
-}
-
 // a static
 void
 graphics_info_t::clear_atom_list(GtkWidget *atom_gtklist) {

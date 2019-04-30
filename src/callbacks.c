@@ -1434,10 +1434,7 @@ on_go_to_atom_cancel_button_clicked    (GtkButton       *button,
   GtkWidget *widget; 
   
   widget     = lookup_widget(GTK_WIDGET(button), "goto_atom_window");
-  lookup_widget(GTK_WIDGET(button), "go_to_atom_molecule_optionmenu");
-/*   save_go_to_atom_mol_menu_ative_position(optionmenu);  no longer 20050526 */
 
-/*   printf("go to atom_window: %ld\n", widget ); */
   unset_go_to_atom_widget();
   gtk_widget_destroy(widget);	/* There is something that had been
 				   added to the Go To Atom window that
@@ -1446,7 +1443,6 @@ on_go_to_atom_cancel_button_clicked    (GtkButton       *button,
 				   I don't think that it is the dialog
 				   itself.  The problem does not
 				   happen in the GTK1 path.  */
-/*    printf("done destroy go to atom window\n"); */
 }
 
 

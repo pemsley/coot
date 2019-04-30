@@ -5398,7 +5398,6 @@ create_goto_atom_window (void)
   GtkWidget *label39;
   GtkWidget *vbox35;
   GtkWidget *hbox23;
-  GtkWidget *go_to_atom_molecule_optionmenu;
   GtkWidget *go_to_atom_molecule_combobox;
   GtkWidget *label40;
   GtkWidget *table5;
@@ -5469,10 +5468,6 @@ create_goto_atom_window (void)
   gtk_widget_show (hbox23);
   gtk_box_pack_start (GTK_BOX (vbox35), hbox23, FALSE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox23), 3);
-
-  go_to_atom_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (go_to_atom_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox23), go_to_atom_molecule_optionmenu, FALSE, FALSE, 0);
 
   go_to_atom_molecule_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (go_to_atom_molecule_combobox);
@@ -5706,7 +5701,6 @@ create_goto_atom_window (void)
   GLADE_HOOKUP_OBJECT (goto_atom_window, label39, "label39");
   GLADE_HOOKUP_OBJECT (goto_atom_window, vbox35, "vbox35");
   GLADE_HOOKUP_OBJECT (goto_atom_window, hbox23, "hbox23");
-  GLADE_HOOKUP_OBJECT (goto_atom_window, go_to_atom_molecule_optionmenu, "go_to_atom_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (goto_atom_window, go_to_atom_molecule_combobox, "go_to_atom_molecule_combobox");
   GLADE_HOOKUP_OBJECT (goto_atom_window, label40, "label40");
   GLADE_HOOKUP_OBJECT (goto_atom_window, table5, "table5");
