@@ -1,12 +1,12 @@
 
 namespace coot { 
+
    // return 0 on not a valid mtz/data file
    GtkWidget *column_selector_using_cmtz(const std::string &filename);
    void fill_f_optionmenu(GtkWidget *optionmenu_f, short int is_expert_mode_flag);
    void setup_refmac_parameters(GtkWidget *window, 
 				const coot::mtz_column_types_info_t &col_labs);
    void setup_refmac_parameters_from_file(GtkWidget *window);
-
 }
 
 GtkWidget *make_menu_item( gchar         *name,
