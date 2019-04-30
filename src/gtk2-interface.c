@@ -5399,6 +5399,7 @@ create_goto_atom_window (void)
   GtkWidget *vbox35;
   GtkWidget *hbox23;
   GtkWidget *go_to_atom_molecule_optionmenu;
+  GtkWidget *go_to_atom_molecule_combobox;
   GtkWidget *label40;
   GtkWidget *table5;
   GtkWidget *hbox25;
@@ -5472,7 +5473,10 @@ create_goto_atom_window (void)
   go_to_atom_molecule_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (go_to_atom_molecule_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox23), go_to_atom_molecule_optionmenu, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (go_to_atom_molecule_optionmenu), 2);
+
+  go_to_atom_molecule_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (go_to_atom_molecule_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox23), go_to_atom_molecule_combobox, TRUE, TRUE, 0);
 
   label40 = gtk_label_new ("  Molecule");
   gtk_widget_show (label40);
@@ -5703,6 +5707,7 @@ create_goto_atom_window (void)
   GLADE_HOOKUP_OBJECT (goto_atom_window, vbox35, "vbox35");
   GLADE_HOOKUP_OBJECT (goto_atom_window, hbox23, "hbox23");
   GLADE_HOOKUP_OBJECT (goto_atom_window, go_to_atom_molecule_optionmenu, "go_to_atom_molecule_optionmenu");
+  GLADE_HOOKUP_OBJECT (goto_atom_window, go_to_atom_molecule_combobox, "go_to_atom_molecule_combobox");
   GLADE_HOOKUP_OBJECT (goto_atom_window, label40, "label40");
   GLADE_HOOKUP_OBJECT (goto_atom_window, table5, "table5");
   GLADE_HOOKUP_OBJECT (goto_atom_window, hbox25, "hbox25");
@@ -8209,6 +8214,7 @@ create_save_coords_dialog (void)
   GtkWidget *vbox50;
   GtkWidget *label78;
   GtkWidget *save_coords_optionmenu;
+  GtkWidget *save_coordinates_combobox;
   GtkWidget *dialog_action_area7;
   GtkWidget *save_coords_dialog_save_button;
   GtkWidget *alignment43;
@@ -8242,6 +8248,10 @@ create_save_coords_dialog (void)
   gtk_widget_show (save_coords_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox50), save_coords_optionmenu, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (save_coords_optionmenu), 1);
+
+  save_coordinates_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (save_coordinates_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox50), save_coordinates_combobox, TRUE, TRUE, 0);
 
   dialog_action_area7 = GTK_DIALOG (save_coords_dialog)->action_area;
   gtk_widget_show (dialog_action_area7);
@@ -8280,6 +8290,7 @@ create_save_coords_dialog (void)
   GLADE_HOOKUP_OBJECT (save_coords_dialog, vbox50, "vbox50");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, label78, "label78");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, save_coords_optionmenu, "save_coords_optionmenu");
+  GLADE_HOOKUP_OBJECT (save_coords_dialog, save_coordinates_combobox, "save_coordinates_combobox");
   GLADE_HOOKUP_OBJECT_NO_REF (save_coords_dialog, dialog_action_area7, "dialog_action_area7");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, save_coords_dialog_save_button, "save_coords_dialog_save_button");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, alignment43, "alignment43");
@@ -10472,6 +10483,7 @@ create_close_molecule_dialog (void)
   GtkWidget *label96;
   GtkWidget *frame52;
   GtkWidget *close_molecule_optionmenu;
+  GtkWidget *close_molecule_combobox;
   GtkWidget *dialog_action_area13;
   GtkWidget *hbox48;
   GtkWidget *close_molecule_close_button;
@@ -10510,6 +10522,10 @@ create_close_molecule_dialog (void)
   close_molecule_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (close_molecule_optionmenu);
   gtk_container_add (GTK_CONTAINER (frame52), close_molecule_optionmenu);
+
+  close_molecule_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (close_molecule_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox64), close_molecule_combobox, TRUE, TRUE, 0);
 
   dialog_action_area13 = GTK_DIALOG (close_molecule_dialog)->action_area;
   gtk_widget_show (dialog_action_area13);
@@ -10575,6 +10591,7 @@ create_close_molecule_dialog (void)
   GLADE_HOOKUP_OBJECT (close_molecule_dialog, label96, "label96");
   GLADE_HOOKUP_OBJECT (close_molecule_dialog, frame52, "frame52");
   GLADE_HOOKUP_OBJECT (close_molecule_dialog, close_molecule_optionmenu, "close_molecule_optionmenu");
+  GLADE_HOOKUP_OBJECT (close_molecule_dialog, close_molecule_combobox, "close_molecule_combobox");
   GLADE_HOOKUP_OBJECT_NO_REF (close_molecule_dialog, dialog_action_area13, "dialog_action_area13");
   GLADE_HOOKUP_OBJECT (close_molecule_dialog, hbox48, "hbox48");
   GLADE_HOOKUP_OBJECT (close_molecule_dialog, close_molecule_close_button, "close_molecule_close_button");
@@ -11525,7 +11542,7 @@ create_pointer_atom_type_dialog (void)
   GtkWidget *pointer_atom_type_other_button;
   GtkWidget *pointer_atom_type_other_entry;
   GtkWidget *frame80;
-  GtkWidget *pointer_atom_molecule_optionmenu;
+  GtkWidget *pointer_atom_molecule_combobox;
   GtkWidget *label290;
   GtkWidget *dialog_action_area21;
   GtkWidget *hbox52;
@@ -11630,9 +11647,9 @@ create_pointer_atom_type_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox77), frame80, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame80), 6);
 
-  pointer_atom_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (pointer_atom_molecule_optionmenu);
-  gtk_container_add (GTK_CONTAINER (frame80), pointer_atom_molecule_optionmenu);
+  pointer_atom_molecule_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (pointer_atom_molecule_combobox);
+  gtk_container_add (GTK_CONTAINER (frame80), pointer_atom_molecule_combobox);
 
   label290 = gtk_label_new ("Pointer Atom Added to Molecule:");
   gtk_widget_show (label290);
@@ -11686,7 +11703,7 @@ create_pointer_atom_type_dialog (void)
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_type_other_button, "pointer_atom_type_other_button");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_type_other_entry, "pointer_atom_type_other_entry");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, frame80, "frame80");
-  GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_molecule_optionmenu, "pointer_atom_molecule_optionmenu");
+  GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_molecule_combobox, "pointer_atom_molecule_combobox");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, label290, "label290");
   GLADE_HOOKUP_OBJECT_NO_REF (pointer_atom_type_dialog, dialog_action_area21, "dialog_action_area21");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, hbox52, "hbox52");
@@ -11705,8 +11722,10 @@ create_run_refmac_dialog (void)
   GtkWidget *hbox347;
   GtkWidget *label645;
   GtkWidget *run_refmac_method_optionmenu;
+  GtkWidget *run_refmac_method_combobox;
   GtkWidget *label646;
   GtkWidget *run_refmac_phase_input_optionmenu;
+  GtkWidget *run_refmac_phase_input_combobox;
   GtkWidget *label647;
   GtkWidget *run_refmac_extra_refinement_options_frame;
   GtkWidget *vbox279;
@@ -11730,7 +11749,7 @@ create_run_refmac_dialog (void)
   GtkWidget *hseparator15;
   GtkWidget *label109;
   GtkWidget *frame64;
-  GtkWidget *run_refmac_coords_optionmenu;
+  GtkWidget *run_refmac_coords_combobox;
   GtkWidget *hseparator4;
   GtkWidget *frame281;
   GtkWidget *vbox293;
@@ -11743,6 +11762,7 @@ create_run_refmac_dialog (void)
   GtkWidget *run_refmac_map_optionmenu;
   GtkWidget *label686;
   GtkWidget *run_refmac_help_button;
+  GtkWidget *run_refmac_map_combobox;
   GtkWidget *run_refmac_mtz_file_radiobutton;
   GtkWidget *run_refmac_mtz_file_hbox;
   GtkWidget *label689;
@@ -11760,36 +11780,45 @@ create_run_refmac_dialog (void)
   GtkWidget *refmac_dialog_fobs_hbox;
   GtkWidget *label640;
   GtkWidget *refmac_dialog_fobs_optionmenu;
+  GtkWidget *refmac_dialog_fobs_combobox;
   GtkWidget *refmac_dialog_fpm_hbox;
   GtkWidget *label655;
   GtkWidget *refmac_dialog_fpm_optionmenu;
+  GtkWidget *refmac_dialog_fpm_combobox;
   GtkWidget *refmac_dialog_fiobs_hbox;
   GtkWidget *label656;
   GtkWidget *refmac_dialog_fiobs_optionmenu;
+  GtkWidget *refmac_dlalog_fiobs_combobox;
   GtkWidget *refmac_dialog_ipm_hbox;
   GtkWidget *label657;
   GtkWidget *refmac_dialog_ipm_optionmenu;
+  GtkWidget *refmac_dialog_ipm_combobox;
   GtkWidget *hbox344;
   GtkWidget *label642;
   GtkWidget *refmac_dialog_rfree_optionmenu;
+  GtkWidget *refmac_dialog_rfree_combobox;
   GtkWidget *refmac_dialog_phases_hbox;
   GtkWidget *label649;
   GtkWidget *refmac_dialog_phases_optionmenu;
   GtkWidget *label648;
   GtkWidget *refmac_dialog_fom_optionmenu;
+  GtkWidget *refmac_dialog_phases_combobox;
+  GtkWidget *refmac_dialog_fom_combobox;
   GtkWidget *refmac_dialog_hl_hbox;
   GtkWidget *label650;
   GtkWidget *refmac_dialog_hl_optionmenu;
+  GtkWidget *refmac_dialog_hl_combobox;
   GtkWidget *frame276;
   GtkWidget *hbox346;
   GtkWidget *label644;
   GtkWidget *run_refmac_ncycle_optionmenu;
+  GtkWidget *run_refmac_ncycle_combobox;
   GtkWidget *frame275;
   GtkWidget *run_refmac_ncs_checkbutton;
   GtkWidget *frame68;
   GtkWidget *run_refmac_diff_map_checkbutton;
   GtkWidget *frame87;
-  GtkWidget *run_refmac_ccp4i_optionmenu;
+  GtkWidget *run_refmac_ccp4i_combobox;
   GtkWidget *label291;
   GtkWidget *dialog_action_area22;
   GtkWidget *hbox56;
@@ -11825,6 +11854,10 @@ create_run_refmac_dialog (void)
   gtk_widget_show (run_refmac_method_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox347), run_refmac_method_optionmenu, FALSE, FALSE, 0);
 
+  run_refmac_method_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (run_refmac_method_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox347), run_refmac_method_combobox, TRUE, TRUE, 0);
+
   label646 = gtk_label_new ("using");
   gtk_widget_show (label646);
   gtk_box_pack_start (GTK_BOX (hbox347), label646, FALSE, FALSE, 0);
@@ -11834,6 +11867,10 @@ create_run_refmac_dialog (void)
   run_refmac_phase_input_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (run_refmac_phase_input_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox347), run_refmac_phase_input_optionmenu, FALSE, FALSE, 0);
+
+  run_refmac_phase_input_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (run_refmac_phase_input_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox347), run_refmac_phase_input_combobox, TRUE, TRUE, 0);
 
   label647 = gtk_label_new ("input");
   gtk_widget_show (label647);
@@ -11952,10 +11989,9 @@ create_run_refmac_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox81), frame64, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame64), 2);
 
-  run_refmac_coords_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (run_refmac_coords_optionmenu);
-  gtk_container_add (GTK_CONTAINER (frame64), run_refmac_coords_optionmenu);
-  gtk_container_set_border_width (GTK_CONTAINER (run_refmac_coords_optionmenu), 1);
+  run_refmac_coords_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (run_refmac_coords_combobox);
+  gtk_container_add (GTK_CONTAINER (frame64), run_refmac_coords_combobox);
 
   hseparator4 = gtk_hseparator_new ();
   gtk_widget_show (hseparator4);
@@ -12006,6 +12042,10 @@ create_run_refmac_dialog (void)
   gtk_widget_show (run_refmac_help_button);
   gtk_box_pack_start (GTK_BOX (hbox370), run_refmac_help_button, FALSE, FALSE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (run_refmac_help_button), 1);
+
+  run_refmac_map_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (run_refmac_map_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox370), run_refmac_map_combobox, TRUE, TRUE, 0);
 
   run_refmac_mtz_file_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Choose an mtz file for refmac:");
   gtk_widget_show (run_refmac_mtz_file_radiobutton);
@@ -12085,6 +12125,10 @@ create_run_refmac_dialog (void)
   gtk_widget_show (refmac_dialog_fobs_optionmenu);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_fobs_hbox), refmac_dialog_fobs_optionmenu, FALSE, FALSE, 0);
 
+  refmac_dialog_fobs_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (refmac_dialog_fobs_combobox);
+  gtk_box_pack_start (GTK_BOX (refmac_dialog_fobs_hbox), refmac_dialog_fobs_combobox, TRUE, TRUE, 0);
+
   refmac_dialog_fpm_hbox = gtk_hbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (vbox278), refmac_dialog_fpm_hbox, TRUE, TRUE, 2);
 
@@ -12097,6 +12141,10 @@ create_run_refmac_dialog (void)
   refmac_dialog_fpm_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (refmac_dialog_fpm_optionmenu);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_fpm_hbox), refmac_dialog_fpm_optionmenu, FALSE, FALSE, 0);
+
+  refmac_dialog_fpm_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (refmac_dialog_fpm_combobox);
+  gtk_box_pack_start (GTK_BOX (refmac_dialog_fpm_hbox), refmac_dialog_fpm_combobox, TRUE, TRUE, 0);
 
   refmac_dialog_fiobs_hbox = gtk_hbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (vbox278), refmac_dialog_fiobs_hbox, TRUE, TRUE, 2);
@@ -12111,6 +12159,10 @@ create_run_refmac_dialog (void)
   gtk_widget_show (refmac_dialog_fiobs_optionmenu);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_fiobs_hbox), refmac_dialog_fiobs_optionmenu, FALSE, FALSE, 0);
 
+  refmac_dlalog_fiobs_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (refmac_dlalog_fiobs_combobox);
+  gtk_box_pack_start (GTK_BOX (refmac_dialog_fiobs_hbox), refmac_dlalog_fiobs_combobox, TRUE, TRUE, 0);
+
   refmac_dialog_ipm_hbox = gtk_hbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (vbox278), refmac_dialog_ipm_hbox, TRUE, TRUE, 2);
 
@@ -12123,6 +12175,10 @@ create_run_refmac_dialog (void)
   refmac_dialog_ipm_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (refmac_dialog_ipm_optionmenu);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_ipm_hbox), refmac_dialog_ipm_optionmenu, FALSE, FALSE, 0);
+
+  refmac_dialog_ipm_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (refmac_dialog_ipm_combobox);
+  gtk_box_pack_start (GTK_BOX (refmac_dialog_ipm_hbox), refmac_dialog_ipm_combobox, TRUE, TRUE, 0);
 
   hbox344 = gtk_hbox_new (FALSE, 61);
   gtk_widget_show (hbox344);
@@ -12137,6 +12193,10 @@ create_run_refmac_dialog (void)
   refmac_dialog_rfree_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (refmac_dialog_rfree_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox344), refmac_dialog_rfree_optionmenu, FALSE, FALSE, 0);
+
+  refmac_dialog_rfree_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (refmac_dialog_rfree_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox344), refmac_dialog_rfree_combobox, TRUE, TRUE, 0);
 
   refmac_dialog_phases_hbox = gtk_hbox_new (FALSE, 10);
   gtk_box_pack_start (GTK_BOX (vbox278), refmac_dialog_phases_hbox, TRUE, TRUE, 2);
@@ -12159,6 +12219,14 @@ create_run_refmac_dialog (void)
   gtk_widget_show (refmac_dialog_fom_optionmenu);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_phases_hbox), refmac_dialog_fom_optionmenu, FALSE, FALSE, 0);
 
+  refmac_dialog_phases_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (refmac_dialog_phases_combobox);
+  gtk_box_pack_start (GTK_BOX (refmac_dialog_phases_hbox), refmac_dialog_phases_combobox, TRUE, TRUE, 0);
+
+  refmac_dialog_fom_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (refmac_dialog_fom_combobox);
+  gtk_box_pack_start (GTK_BOX (refmac_dialog_phases_hbox), refmac_dialog_fom_combobox, TRUE, TRUE, 0);
+
   refmac_dialog_hl_hbox = gtk_hbox_new (FALSE, 4);
   gtk_box_pack_start (GTK_BOX (vbox278), refmac_dialog_hl_hbox, TRUE, TRUE, 2);
 
@@ -12171,6 +12239,10 @@ create_run_refmac_dialog (void)
   refmac_dialog_hl_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (refmac_dialog_hl_optionmenu);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_hl_hbox), refmac_dialog_hl_optionmenu, FALSE, FALSE, 0);
+
+  refmac_dialog_hl_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (refmac_dialog_hl_combobox);
+  gtk_box_pack_start (GTK_BOX (refmac_dialog_hl_hbox), refmac_dialog_hl_combobox, TRUE, TRUE, 0);
 
   frame276 = gtk_frame_new (NULL);
   gtk_widget_show (frame276);
@@ -12190,6 +12262,10 @@ create_run_refmac_dialog (void)
   run_refmac_ncycle_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (run_refmac_ncycle_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox346), run_refmac_ncycle_optionmenu, FALSE, FALSE, 0);
+
+  run_refmac_ncycle_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (run_refmac_ncycle_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox346), run_refmac_ncycle_combobox, TRUE, TRUE, 0);
 
   frame275 = gtk_frame_new (NULL);
   gtk_widget_show (frame275);
@@ -12218,10 +12294,9 @@ create_run_refmac_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox81), frame87, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame87), 4);
 
-  run_refmac_ccp4i_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (run_refmac_ccp4i_optionmenu);
-  gtk_container_add (GTK_CONTAINER (frame87), run_refmac_ccp4i_optionmenu);
-  gtk_container_set_border_width (GTK_CONTAINER (run_refmac_ccp4i_optionmenu), 1);
+  run_refmac_ccp4i_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (run_refmac_ccp4i_combobox);
+  gtk_container_add (GTK_CONTAINER (frame87), run_refmac_ccp4i_combobox);
 
   label291 = gtk_label_new ("CCP4i Project");
   gtk_widget_show (label291);
@@ -12300,8 +12375,10 @@ create_run_refmac_dialog (void)
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, hbox347, "hbox347");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label645, "label645");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_method_optionmenu, "run_refmac_method_optionmenu");
+  GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_method_combobox, "run_refmac_method_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label646, "label646");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_phase_input_optionmenu, "run_refmac_phase_input_optionmenu");
+  GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_phase_input_combobox, "run_refmac_phase_input_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label647, "label647");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_extra_refinement_options_frame, "run_refmac_extra_refinement_options_frame");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, vbox279, "vbox279");
@@ -12325,7 +12402,7 @@ create_run_refmac_dialog (void)
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, hseparator15, "hseparator15");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label109, "label109");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, frame64, "frame64");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_coords_optionmenu, "run_refmac_coords_optionmenu");
+  GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_coords_combobox, "run_refmac_coords_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, hseparator4, "hseparator4");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, frame281, "frame281");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, vbox293, "vbox293");
@@ -12337,6 +12414,7 @@ create_run_refmac_dialog (void)
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_map_optionmenu, "run_refmac_map_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label686, "label686");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_help_button, "run_refmac_help_button");
+  GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_map_combobox, "run_refmac_map_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_mtz_file_radiobutton, "run_refmac_mtz_file_radiobutton");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_mtz_file_hbox, "run_refmac_mtz_file_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label689, "label689");
@@ -12354,36 +12432,45 @@ create_run_refmac_dialog (void)
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fobs_hbox, "refmac_dialog_fobs_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label640, "label640");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fobs_optionmenu, "refmac_dialog_fobs_optionmenu");
+  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fobs_combobox, "refmac_dialog_fobs_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fpm_hbox, "refmac_dialog_fpm_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label655, "label655");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fpm_optionmenu, "refmac_dialog_fpm_optionmenu");
+  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fpm_combobox, "refmac_dialog_fpm_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fiobs_hbox, "refmac_dialog_fiobs_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label656, "label656");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fiobs_optionmenu, "refmac_dialog_fiobs_optionmenu");
+  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dlalog_fiobs_combobox, "refmac_dlalog_fiobs_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_ipm_hbox, "refmac_dialog_ipm_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label657, "label657");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_ipm_optionmenu, "refmac_dialog_ipm_optionmenu");
+  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_ipm_combobox, "refmac_dialog_ipm_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, hbox344, "hbox344");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label642, "label642");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_rfree_optionmenu, "refmac_dialog_rfree_optionmenu");
+  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_rfree_combobox, "refmac_dialog_rfree_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_phases_hbox, "refmac_dialog_phases_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label649, "label649");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_phases_optionmenu, "refmac_dialog_phases_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label648, "label648");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fom_optionmenu, "refmac_dialog_fom_optionmenu");
+  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_phases_combobox, "refmac_dialog_phases_combobox");
+  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fom_combobox, "refmac_dialog_fom_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_hl_hbox, "refmac_dialog_hl_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label650, "label650");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_hl_optionmenu, "refmac_dialog_hl_optionmenu");
+  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_hl_combobox, "refmac_dialog_hl_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, frame276, "frame276");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, hbox346, "hbox346");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label644, "label644");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_ncycle_optionmenu, "run_refmac_ncycle_optionmenu");
+  GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_ncycle_combobox, "run_refmac_ncycle_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, frame275, "frame275");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_ncs_checkbutton, "run_refmac_ncs_checkbutton");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, frame68, "frame68");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_diff_map_checkbutton, "run_refmac_diff_map_checkbutton");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, frame87, "frame87");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_ccp4i_optionmenu, "run_refmac_ccp4i_optionmenu");
+  GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_ccp4i_combobox, "run_refmac_ccp4i_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label291, "label291");
   GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_dialog, dialog_action_area22, "dialog_action_area22");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, hbox56, "hbox56");
@@ -12901,6 +12988,7 @@ create_undo_molecule_chooser_dialog (void)
   GtkWidget *label116;
   GtkWidget *frame70;
   GtkWidget *undo_molecule_chooser_option_menu;
+  GtkWidget *undo_molecule_chooser_combobox;
   GtkWidget *dialog_action_area24;
   GtkWidget *undo_molecule_chooser_ok_button;
   GtkTooltips *tooltips;
@@ -12934,6 +13022,10 @@ create_undo_molecule_chooser_dialog (void)
   gtk_container_add (GTK_CONTAINER (frame70), undo_molecule_chooser_option_menu);
   gtk_tooltips_set_tip (tooltips, undo_molecule_chooser_option_menu, "You want to undo a modification.  There are 2 or more molecules that have been modified.  To which molecule should the undo apply?", NULL);
 
+  undo_molecule_chooser_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (undo_molecule_chooser_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox83), undo_molecule_chooser_combobox, TRUE, TRUE, 0);
+
   dialog_action_area24 = GTK_DIALOG (undo_molecule_chooser_dialog)->action_area;
   gtk_widget_show (dialog_action_area24);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area24), GTK_BUTTONBOX_END);
@@ -12954,6 +13046,7 @@ create_undo_molecule_chooser_dialog (void)
   GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, label116, "label116");
   GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, frame70, "frame70");
   GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, undo_molecule_chooser_option_menu, "undo_molecule_chooser_option_menu");
+  GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, undo_molecule_chooser_combobox, "undo_molecule_chooser_combobox");
   GLADE_HOOKUP_OBJECT_NO_REF (undo_molecule_chooser_dialog, dialog_action_area24, "dialog_action_area24");
   GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, undo_molecule_chooser_ok_button, "undo_molecule_chooser_ok_button");
   GLADE_HOOKUP_OBJECT_NO_REF (undo_molecule_chooser_dialog, tooltips, "tooltips");
@@ -12972,6 +13065,7 @@ create_skeleton_dialog (void)
   GtkWidget *label117;
   GtkWidget *frame71;
   GtkWidget *skeleton_map_optionmenu;
+  GtkWidget *skeleton_map_combobox;
   GtkWidget *skeleton_dialog_on_off_frame;
   GtkWidget *vbox85;
   GtkWidget *skeleton_on_radiobutton;
@@ -13015,6 +13109,10 @@ create_skeleton_dialog (void)
   skeleton_map_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (skeleton_map_optionmenu);
   gtk_container_add (GTK_CONTAINER (frame71), skeleton_map_optionmenu);
+
+  skeleton_map_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (skeleton_map_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox84), skeleton_map_combobox, TRUE, TRUE, 0);
 
   skeleton_dialog_on_off_frame = gtk_frame_new (NULL);
   gtk_widget_show (skeleton_dialog_on_off_frame);
@@ -13077,6 +13175,7 @@ create_skeleton_dialog (void)
   GLADE_HOOKUP_OBJECT (skeleton_dialog, label117, "label117");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, frame71, "frame71");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_map_optionmenu, "skeleton_map_optionmenu");
+  GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_map_combobox, "skeleton_map_combobox");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_dialog_on_off_frame, "skeleton_dialog_on_off_frame");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, vbox85, "vbox85");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_on_radiobutton, "skeleton_on_radiobutton");
@@ -13853,6 +13952,7 @@ create_select_fitting_map_dialog (void)
   GtkWidget *vbox95;
   GtkWidget *label128;
   GtkWidget *select_map_for_fitting_optionmenu;
+  GtkWidget *select_map_for_fitting_combobox;
   GtkWidget *dialog_action_area32;
   GtkWidget *select_map_for_fitting_button;
 
@@ -13881,6 +13981,10 @@ create_select_fitting_map_dialog (void)
   gtk_widget_show (select_map_for_fitting_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox95), select_map_for_fitting_optionmenu, FALSE, FALSE, 0);
 
+  select_map_for_fitting_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (select_map_for_fitting_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox95), select_map_for_fitting_combobox, TRUE, TRUE, 0);
+
   dialog_action_area32 = GTK_DIALOG (select_fitting_map_dialog)->action_area;
   gtk_widget_show (dialog_action_area32);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area32), GTK_BUTTONBOX_END);
@@ -13901,6 +14005,7 @@ create_select_fitting_map_dialog (void)
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, vbox95, "vbox95");
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, label128, "label128");
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, select_map_for_fitting_optionmenu, "select_map_for_fitting_optionmenu");
+  GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, select_map_for_fitting_combobox, "select_map_for_fitting_combobox");
   GLADE_HOOKUP_OBJECT_NO_REF (select_fitting_map_dialog, dialog_action_area32, "dialog_action_area32");
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, select_map_for_fitting_button, "select_map_for_fitting_button");
 
@@ -14362,6 +14467,7 @@ create_check_waters_dialog (void)
   GtkWidget *hbox73;
   GtkWidget *label136;
   GtkWidget *check_waters_molecule_optionmenu;
+  GtkWidget *check_waters_molecule_combobox;
   GtkWidget *hbox72;
   GtkWidget *label135;
   GtkWidget *check_waters_action_optionmenu;
@@ -14370,6 +14476,7 @@ create_check_waters_dialog (void)
   GtkWidget *image6016;
   GtkWidget *check_waters_delete1;
   GtkWidget *image6017;
+  GtkWidget *check_waters_action_combobox;
   GtkWidget *frame84;
   GtkWidget *vbox101;
   GtkWidget *hbox74;
@@ -14403,6 +14510,7 @@ create_check_waters_dialog (void)
   GtkWidget *hbox415;
   GtkWidget *label753;
   GtkWidget *check_water_by_difference_map_optionmenu;
+  GtkWidget *check_waters_by_difference_map_combobox;
   GtkWidget *label754;
   GtkWidget *check_waters_by_difference_map_active_checkbutton;
   GtkWidget *check_waters_low_occ_dist_checkbutton;
@@ -14446,6 +14554,10 @@ create_check_waters_dialog (void)
   gtk_widget_show (check_waters_molecule_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox73), check_waters_molecule_optionmenu, FALSE, FALSE, 0);
 
+  check_waters_molecule_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (check_waters_molecule_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox73), check_waters_molecule_combobox, TRUE, TRUE, 0);
+
   hbox72 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox72);
   gtk_box_pack_start (GTK_BOX (vbox100), hbox72, TRUE, TRUE, 0);
@@ -14479,6 +14591,10 @@ create_check_waters_dialog (void)
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (check_waters_delete1), image6017);
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (check_waters_action_optionmenu), menu1);
+
+  check_waters_action_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (check_waters_action_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox72), check_waters_action_combobox, TRUE, TRUE, 0);
 
   frame84 = gtk_frame_new (NULL);
   gtk_widget_show (frame84);
@@ -14635,6 +14751,10 @@ create_check_waters_dialog (void)
   gtk_widget_show (check_water_by_difference_map_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox415), check_water_by_difference_map_optionmenu, FALSE, FALSE, 0);
 
+  check_waters_by_difference_map_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (check_waters_by_difference_map_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox415), check_waters_by_difference_map_combobox, TRUE, TRUE, 0);
+
   label754 = gtk_label_new ("   ");
   gtk_widget_show (label754);
   gtk_box_pack_start (GTK_BOX (hbox415), label754, FALSE, FALSE, 0);
@@ -14741,6 +14861,7 @@ create_check_waters_dialog (void)
   GLADE_HOOKUP_OBJECT (check_waters_dialog, hbox73, "hbox73");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, label136, "label136");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_molecule_optionmenu, "check_waters_molecule_optionmenu");
+  GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_molecule_combobox, "check_waters_molecule_combobox");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, hbox72, "hbox72");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, label135, "label135");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_action_optionmenu, "check_waters_action_optionmenu");
@@ -14749,6 +14870,7 @@ create_check_waters_dialog (void)
   GLADE_HOOKUP_OBJECT (check_waters_dialog, image6016, "image6016");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_delete1, "check_waters_delete1");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, image6017, "image6017");
+  GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_action_combobox, "check_waters_action_combobox");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, frame84, "frame84");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, vbox101, "vbox101");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, hbox74, "hbox74");
@@ -14782,6 +14904,7 @@ create_check_waters_dialog (void)
   GLADE_HOOKUP_OBJECT (check_waters_dialog, hbox415, "hbox415");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, label753, "label753");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_water_by_difference_map_optionmenu, "check_water_by_difference_map_optionmenu");
+  GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_by_difference_map_combobox, "check_waters_by_difference_map_combobox");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, label754, "label754");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_by_difference_map_active_checkbutton, "check_waters_by_difference_map_active_checkbutton");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_low_occ_dist_checkbutton, "check_waters_low_occ_dist_checkbutton");
@@ -16053,6 +16176,7 @@ create_check_chiral_volumes_dialog (void)
   GtkWidget *vbox111;
   GtkWidget *label171;
   GtkWidget *check_chiral_volumes_molecule_optionmenu;
+  GtkWidget *check_chiral_volumes_molecule_combobox;
   GtkWidget *dialog_action_area53;
   GtkWidget *hbox85;
   GtkWidget *check_chiral_volumes_ok_button;
@@ -16083,6 +16207,10 @@ create_check_chiral_volumes_dialog (void)
   check_chiral_volumes_molecule_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (check_chiral_volumes_molecule_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox111), check_chiral_volumes_molecule_optionmenu, FALSE, FALSE, 0);
+
+  check_chiral_volumes_molecule_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (check_chiral_volumes_molecule_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox111), check_chiral_volumes_molecule_combobox, TRUE, TRUE, 0);
 
   dialog_action_area53 = GTK_DIALOG (check_chiral_volumes_dialog)->action_area;
   gtk_widget_show (dialog_action_area53);
@@ -16118,6 +16246,7 @@ create_check_chiral_volumes_dialog (void)
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, vbox111, "vbox111");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, label171, "label171");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, check_chiral_volumes_molecule_optionmenu, "check_chiral_volumes_molecule_optionmenu");
+  GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, check_chiral_volumes_molecule_combobox, "check_chiral_volumes_molecule_combobox");
   GLADE_HOOKUP_OBJECT_NO_REF (check_chiral_volumes_dialog, dialog_action_area53, "dialog_action_area53");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, hbox85, "hbox85");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, check_chiral_volumes_ok_button, "check_chiral_volumes_ok_button");
@@ -16339,6 +16468,7 @@ create_merge_molecules_dialog (void)
   GtkWidget *merge_molecules_vbox;
   GtkWidget *label179;
   GtkWidget *merge_molecules_optionmenu;
+  GtkWidget *merge_molecules_combobox;
   GtkWidget *label180;
   GtkWidget *dialog_action_area57;
   GtkWidget *hbox89;
@@ -16396,6 +16526,10 @@ create_merge_molecules_dialog (void)
   merge_molecules_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (merge_molecules_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox114), merge_molecules_optionmenu, FALSE, FALSE, 0);
+
+  merge_molecules_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (merge_molecules_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox114), merge_molecules_combobox, TRUE, TRUE, 0);
 
   label180 = gtk_label_new (" ");
   gtk_widget_show (label180);
@@ -16468,6 +16602,7 @@ create_merge_molecules_dialog (void)
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, merge_molecules_vbox, "merge_molecules_vbox");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, label179, "label179");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, merge_molecules_optionmenu, "merge_molecules_optionmenu");
+  GLADE_HOOKUP_OBJECT (merge_molecules_dialog, merge_molecules_combobox, "merge_molecules_combobox");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, label180, "label180");
   GLADE_HOOKUP_OBJECT_NO_REF (merge_molecules_dialog, dialog_action_area57, "dialog_action_area57");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, hbox89, "hbox89");
@@ -16494,9 +16629,11 @@ create_mutate_sequence_dialog (void)
   GtkWidget *vbox116;
   GtkWidget *function_for_molecule_label;
   GtkWidget *mutate_molecule_optionmenu;
+  GtkWidget *mutate_molecule_combobox;
   GtkWidget *hbox90;
   GtkWidget *label182;
   GtkWidget *mutate_molecule_chain_optionmenu;
+  GtkWidget *mutate_molecule_chain_combobox;
   GtkWidget *hbox91;
   GtkWidget *label183;
   GtkWidget *mutate_molecule_resno_1_entry;
@@ -16563,6 +16700,10 @@ create_mutate_sequence_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox116), mutate_molecule_optionmenu, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (mutate_molecule_optionmenu), 2);
 
+  mutate_molecule_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (mutate_molecule_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox116), mutate_molecule_combobox, TRUE, TRUE, 0);
+
   hbox90 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox90);
   gtk_box_pack_start (GTK_BOX (vbox116), hbox90, TRUE, TRUE, 0);
@@ -16576,6 +16717,10 @@ create_mutate_sequence_dialog (void)
   mutate_molecule_chain_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (mutate_molecule_chain_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox90), mutate_molecule_chain_optionmenu, FALSE, FALSE, 0);
+
+  mutate_molecule_chain_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (mutate_molecule_chain_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox90), mutate_molecule_chain_combobox, TRUE, TRUE, 0);
 
   hbox91 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox91);
@@ -16788,9 +16933,11 @@ create_mutate_sequence_dialog (void)
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, vbox116, "vbox116");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, function_for_molecule_label, "function_for_molecule_label");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_molecule_optionmenu, "mutate_molecule_optionmenu");
+  GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_molecule_combobox, "mutate_molecule_combobox");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, hbox90, "hbox90");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, label182, "label182");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_molecule_chain_optionmenu, "mutate_molecule_chain_optionmenu");
+  GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_molecule_chain_combobox, "mutate_molecule_chain_combobox");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, hbox91, "hbox91");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, label183, "label183");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_molecule_resno_1_entry, "mutate_molecule_resno_1_entry");
@@ -16847,6 +16994,7 @@ create_bond_parameters_dialog (void)
   GtkWidget *vbox118;
   GtkWidget *hbox94;
   GtkWidget *bond_parameters_bond_width_optionmenu;
+  GtkWidget *bond_parameters_bond_width_combobox;
   GtkWidget *label191;
   GtkWidget *label307;
   GtkWidget *frame112;
@@ -16928,6 +17076,10 @@ create_bond_parameters_dialog (void)
   bond_parameters_bond_width_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (bond_parameters_bond_width_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox94), bond_parameters_bond_width_optionmenu, FALSE, FALSE, 0);
+
+  bond_parameters_bond_width_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (bond_parameters_bond_width_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox94), bond_parameters_bond_width_combobox, TRUE, TRUE, 0);
 
   label191 = gtk_label_new ("  pixels  ");
   gtk_widget_show (label191);
@@ -17093,6 +17245,7 @@ create_bond_parameters_dialog (void)
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, vbox118, "vbox118");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, hbox94, "hbox94");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, bond_parameters_bond_width_optionmenu, "bond_parameters_bond_width_optionmenu");
+  GLADE_HOOKUP_OBJECT (bond_parameters_dialog, bond_parameters_bond_width_combobox, "bond_parameters_bond_width_combobox");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, label191, "label191");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, label307, "label307");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, frame112, "frame112");
@@ -17136,6 +17289,7 @@ create_renumber_residue_range_dialog (void)
   GtkWidget *vbox120;
   GtkWidget *label192;
   GtkWidget *renumber_residue_range_molecule_optionmenu;
+  GtkWidget *renumber_residue_range_combobox;
   GtkWidget *hbox95;
   GtkWidget *label193;
   GtkWidget *renumber_residue_range_chain_optionmenu;
@@ -17199,6 +17353,10 @@ create_renumber_residue_range_dialog (void)
   gtk_widget_show (renumber_residue_range_molecule_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox120), renumber_residue_range_molecule_optionmenu, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (renumber_residue_range_molecule_optionmenu), 2);
+
+  renumber_residue_range_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (renumber_residue_range_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox120), renumber_residue_range_combobox, TRUE, TRUE, 0);
 
   hbox95 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox95);
@@ -17362,6 +17520,7 @@ create_renumber_residue_range_dialog (void)
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, vbox120, "vbox120");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, label192, "label192");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_molecule_optionmenu, "renumber_residue_range_molecule_optionmenu");
+  GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_combobox, "renumber_residue_range_combobox");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, hbox95, "hbox95");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, label193, "label193");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_chain_optionmenu, "renumber_residue_range_chain_optionmenu");
@@ -17408,9 +17567,11 @@ create_add_OXT_dialog (void)
   GtkWidget *hbox101;
   GtkWidget *label199;
   GtkWidget *add_OXT_molecule_optionmenu;
+  GtkWidget *add_OXT_molecule_combobox;
   GtkWidget *hbox102;
   GtkWidget *label200;
   GtkWidget *add_OXT_chain_optionmenu;
+  GtkWidget *add_OXT_chain_combobox;
   GtkWidget *frame115;
   GtkWidget *vbox122;
   GtkWidget *hbox103;
@@ -17467,6 +17628,10 @@ create_add_OXT_dialog (void)
   gtk_widget_show (add_OXT_molecule_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox101), add_OXT_molecule_optionmenu, FALSE, FALSE, 0);
 
+  add_OXT_molecule_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (add_OXT_molecule_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox101), add_OXT_molecule_combobox, TRUE, TRUE, 0);
+
   hbox102 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox102);
   gtk_box_pack_start (GTK_BOX (vbox121), hbox102, TRUE, TRUE, 0);
@@ -17479,6 +17644,10 @@ create_add_OXT_dialog (void)
   add_OXT_chain_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (add_OXT_chain_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox102), add_OXT_chain_optionmenu, FALSE, FALSE, 0);
+
+  add_OXT_chain_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (add_OXT_chain_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox102), add_OXT_chain_combobox, TRUE, TRUE, 0);
 
   frame115 = gtk_frame_new (NULL);
   gtk_widget_show (frame115);
@@ -17583,9 +17752,11 @@ create_add_OXT_dialog (void)
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, hbox101, "hbox101");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, label199, "label199");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, add_OXT_molecule_optionmenu, "add_OXT_molecule_optionmenu");
+  GLADE_HOOKUP_OBJECT (add_OXT_dialog, add_OXT_molecule_combobox, "add_OXT_molecule_combobox");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, hbox102, "hbox102");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, label200, "label200");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, add_OXT_chain_optionmenu, "add_OXT_chain_optionmenu");
+  GLADE_HOOKUP_OBJECT (add_OXT_dialog, add_OXT_chain_combobox, "add_OXT_chain_combobox");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, frame115, "frame115");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, vbox122, "vbox122");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, hbox103, "hbox103");
@@ -18394,6 +18565,7 @@ create_skeletonize_map_dialog (void)
   GtkWidget *vbox134;
   GtkWidget *label218;
   GtkWidget *skeletonize_map_optionmenu;
+  GtkWidget *skeletonize_map_combobox;
   GtkWidget *dialog_action_area72;
   GtkWidget *hbox113;
   GtkWidget *skeletonize_map_dialog_ok_button;
@@ -18425,6 +18597,10 @@ create_skeletonize_map_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox134), skeletonize_map_optionmenu, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (skeletonize_map_optionmenu), 2);
 
+  skeletonize_map_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (skeletonize_map_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox134), skeletonize_map_combobox, TRUE, TRUE, 0);
+
   dialog_action_area72 = GTK_DIALOG (skeletonize_map_dialog)->action_area;
   gtk_widget_show (dialog_action_area72);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area72), GTK_BUTTONBOX_END);
@@ -18455,6 +18631,7 @@ create_skeletonize_map_dialog (void)
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, vbox134, "vbox134");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, label218, "label218");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, skeletonize_map_optionmenu, "skeletonize_map_optionmenu");
+  GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, skeletonize_map_combobox, "skeletonize_map_combobox");
   GLADE_HOOKUP_OBJECT_NO_REF (skeletonize_map_dialog, dialog_action_area72, "dialog_action_area72");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, hbox113, "hbox113");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, skeletonize_map_dialog_ok_button, "skeletonize_map_dialog_ok_button");
@@ -22187,9 +22364,11 @@ create_align_and_mutate_dialog (void)
   GtkWidget *vbox151;
   GtkWidget *label239;
   GtkWidget *align_and_mutate_molecule_optionmenu;
+  GtkWidget *align_and_mutate_molecule_combobox;
   GtkWidget *hbox121;
   GtkWidget *label240;
   GtkWidget *align_and_mutate_chain_optionmenu;
+  GtkWidget *align_and_mutate_chain_combobox;
   GtkWidget *label241;
   GtkWidget *scrolledwindow19;
   GtkWidget *align_and_mutate_sequence_text;
@@ -22225,6 +22404,10 @@ create_align_and_mutate_dialog (void)
   gtk_widget_show (align_and_mutate_molecule_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox151), align_and_mutate_molecule_optionmenu, FALSE, FALSE, 0);
 
+  align_and_mutate_molecule_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (align_and_mutate_molecule_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox151), align_and_mutate_molecule_combobox, TRUE, TRUE, 0);
+
   hbox121 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox121);
   gtk_box_pack_start (GTK_BOX (vbox151), hbox121, FALSE, FALSE, 0);
@@ -22238,6 +22421,10 @@ create_align_and_mutate_dialog (void)
   align_and_mutate_chain_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (align_and_mutate_chain_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox121), align_and_mutate_chain_optionmenu, FALSE, FALSE, 0);
+
+  align_and_mutate_chain_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (align_and_mutate_chain_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox121), align_and_mutate_chain_combobox, TRUE, TRUE, 0);
 
   label241 = gtk_label_new ("\n     to (single letter) sequence:\n");
   gtk_widget_show (label241);
@@ -22291,9 +22478,11 @@ create_align_and_mutate_dialog (void)
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, vbox151, "vbox151");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, label239, "label239");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_molecule_optionmenu, "align_and_mutate_molecule_optionmenu");
+  GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_molecule_combobox, "align_and_mutate_molecule_combobox");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, hbox121, "hbox121");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, label240, "label240");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_chain_optionmenu, "align_and_mutate_chain_optionmenu");
+  GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_chain_combobox, "align_and_mutate_chain_combobox");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, label241, "label241");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, scrolledwindow19, "scrolledwindow19");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_sequence_text, "align_and_mutate_sequence_text");
@@ -22316,19 +22505,23 @@ create_ramachandran_plot_differences_dialog (void)
   GtkWidget *frame150;
   GtkWidget *vbox153;
   GtkWidget *ramachandran_plot_differences_first_mol_optionmenu;
+  GtkWidget *ramachandran_plot_differences_first_mol_combobox;
   GtkWidget *frame151;
   GtkWidget *vbox154;
   GtkWidget *ramachandran_plot_differences_first_chain_checkbutton;
   GtkWidget *ramachandran_plot_differences_first_chain_optionmenu;
+  GtkWidget *ramachandran_plot_differences_first_chain_combobox;
   GtkWidget *label316;
   GtkWidget *label243;
   GtkWidget *frame152;
   GtkWidget *vbox155;
+  GtkWidget *ramachran_plot_differences_second_mol_combobox;
   GtkWidget *ramachandran_plot_differences_second_mol_optionmenu;
   GtkWidget *frame153;
   GtkWidget *vbox156;
   GtkWidget *ramachandran_plot_differences_second_chain_checkbutton;
   GtkWidget *ramachandran_plot_differences_second_chain_optionmenu;
+  GtkWidget *ramachandran_plot_differences_second_chain_combobox;
   GtkWidget *label317;
   GtkWidget *dialog_action_area82;
   GtkWidget *hbox122;
@@ -22365,6 +22558,10 @@ create_ramachandran_plot_differences_dialog (void)
   gtk_widget_show (ramachandran_plot_differences_first_mol_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox153), ramachandran_plot_differences_first_mol_optionmenu, FALSE, FALSE, 0);
 
+  ramachandran_plot_differences_first_mol_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (ramachandran_plot_differences_first_mol_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox153), ramachandran_plot_differences_first_mol_combobox, TRUE, TRUE, 0);
+
   frame151 = gtk_frame_new (NULL);
   gtk_widget_show (frame151);
   gtk_box_pack_start (GTK_BOX (vbox153), frame151, TRUE, TRUE, 0);
@@ -22380,6 +22577,10 @@ create_ramachandran_plot_differences_dialog (void)
   ramachandran_plot_differences_first_chain_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (ramachandran_plot_differences_first_chain_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox154), ramachandran_plot_differences_first_chain_optionmenu, FALSE, FALSE, 0);
+
+  ramachandran_plot_differences_first_chain_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (ramachandran_plot_differences_first_chain_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox154), ramachandran_plot_differences_first_chain_combobox, TRUE, TRUE, 0);
 
   label316 = gtk_label_new ("First Structure");
   gtk_widget_show (label316);
@@ -22398,6 +22599,10 @@ create_ramachandran_plot_differences_dialog (void)
   vbox155 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox155);
   gtk_container_add (GTK_CONTAINER (frame152), vbox155);
+
+  ramachran_plot_differences_second_mol_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (ramachran_plot_differences_second_mol_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox155), ramachran_plot_differences_second_mol_combobox, TRUE, TRUE, 0);
 
   ramachandran_plot_differences_second_mol_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (ramachandran_plot_differences_second_mol_optionmenu);
@@ -22418,6 +22623,10 @@ create_ramachandran_plot_differences_dialog (void)
   ramachandran_plot_differences_second_chain_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (ramachandran_plot_differences_second_chain_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox156), ramachandran_plot_differences_second_chain_optionmenu, FALSE, FALSE, 0);
+
+  ramachandran_plot_differences_second_chain_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (ramachandran_plot_differences_second_chain_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox156), ramachandran_plot_differences_second_chain_combobox, TRUE, TRUE, 0);
 
   label317 = gtk_label_new ("Second Structure");
   gtk_widget_show (label317);
@@ -22464,19 +22673,23 @@ create_ramachandran_plot_differences_dialog (void)
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, frame150, "frame150");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, vbox153, "vbox153");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_first_mol_optionmenu, "ramachandran_plot_differences_first_mol_optionmenu");
+  GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_first_mol_combobox, "ramachandran_plot_differences_first_mol_combobox");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, frame151, "frame151");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, vbox154, "vbox154");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_first_chain_checkbutton, "ramachandran_plot_differences_first_chain_checkbutton");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_first_chain_optionmenu, "ramachandran_plot_differences_first_chain_optionmenu");
+  GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_first_chain_combobox, "ramachandran_plot_differences_first_chain_combobox");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, label316, "label316");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, label243, "label243");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, frame152, "frame152");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, vbox155, "vbox155");
+  GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachran_plot_differences_second_mol_combobox, "ramachran_plot_differences_second_mol_combobox");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_second_mol_optionmenu, "ramachandran_plot_differences_second_mol_optionmenu");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, frame153, "frame153");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, vbox156, "vbox156");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_second_chain_checkbutton, "ramachandran_plot_differences_second_chain_checkbutton");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_second_chain_optionmenu, "ramachandran_plot_differences_second_chain_optionmenu");
+  GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_second_chain_combobox, "ramachandran_plot_differences_second_chain_combobox");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, label317, "label317");
   GLADE_HOOKUP_OBJECT_NO_REF (ramachandran_plot_differences_dialog, dialog_action_area82, "dialog_action_area82");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, hbox122, "hbox122");
@@ -22704,10 +22917,12 @@ create_change_chain_id_dialog (void)
   GtkWidget *vbox161;
   GtkWidget *label246;
   GtkWidget *change_chain_id_molecule_optionmenu;
+  GtkWidget *change_chain_id_molecule_combobox;
   GtkWidget *label248;
   GtkWidget *hbox125;
   GtkWidget *label247;
   GtkWidget *change_chain_id_chain_optionmenu;
+  GtkWidget *change_chain_id_chain_combobox;
   GtkWidget *frame157;
   GtkWidget *vbox162;
   GtkWidget *hbox126;
@@ -22766,6 +22981,10 @@ create_change_chain_id_dialog (void)
   gtk_widget_show (change_chain_id_molecule_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox161), change_chain_id_molecule_optionmenu, FALSE, FALSE, 0);
 
+  change_chain_id_molecule_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (change_chain_id_molecule_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox161), change_chain_id_molecule_combobox, TRUE, TRUE, 0);
+
   label248 = gtk_label_new ("From:");
   gtk_widget_show (label248);
   gtk_box_pack_start (GTK_BOX (vbox161), label248, FALSE, FALSE, 2);
@@ -22784,6 +23003,10 @@ create_change_chain_id_dialog (void)
   change_chain_id_chain_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (change_chain_id_chain_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox125), change_chain_id_chain_optionmenu, FALSE, FALSE, 0);
+
+  change_chain_id_chain_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (change_chain_id_chain_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox125), change_chain_id_chain_combobox, TRUE, TRUE, 0);
 
   frame157 = gtk_frame_new (NULL);
   gtk_widget_show (frame157);
@@ -22932,10 +23155,12 @@ create_change_chain_id_dialog (void)
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, vbox161, "vbox161");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, label246, "label246");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, change_chain_id_molecule_optionmenu, "change_chain_id_molecule_optionmenu");
+  GLADE_HOOKUP_OBJECT (change_chain_id_dialog, change_chain_id_molecule_combobox, "change_chain_id_molecule_combobox");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, label248, "label248");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, hbox125, "hbox125");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, label247, "label247");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, change_chain_id_chain_optionmenu, "change_chain_id_chain_optionmenu");
+  GLADE_HOOKUP_OBJECT (change_chain_id_dialog, change_chain_id_chain_combobox, "change_chain_id_chain_combobox");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, frame157, "frame157");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, vbox162, "vbox162");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, hbox126, "hbox126");
@@ -24287,6 +24512,7 @@ create_nucleotide_builder_dialog (void)
   GtkWidget *menu2;
   GtkWidget *rna1;
   GtkWidget *dna1;
+  GtkWidget *nucleotide_builder_type_combobox;
   GtkWidget *frame165;
   GtkWidget *vbox181;
   GtkWidget *label284;
@@ -24294,6 +24520,7 @@ create_nucleotide_builder_dialog (void)
   GtkWidget *menu3;
   GtkWidget *a1;
   GtkWidget *b1;
+  GtkWidget *nucleotide_builder_form_combobox;
   GtkWidget *frame166;
   GtkWidget *vbox182;
   GtkWidget *label285;
@@ -24301,6 +24528,7 @@ create_nucleotide_builder_dialog (void)
   GtkWidget *menu4;
   GtkWidget *double_stranded1;
   GtkWidget *single_stranded1;
+  GtkWidget *nucleotide_builder_strand_combobox;
   GtkWidget *frame167;
   GtkWidget *vbox183;
   GtkWidget *label286;
@@ -24364,6 +24592,10 @@ create_nucleotide_builder_dialog (void)
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (nucleotide_builder_type_optionmenu), menu2);
 
+  nucleotide_builder_type_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (nucleotide_builder_type_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox180), nucleotide_builder_type_combobox, TRUE, TRUE, 0);
+
   frame165 = gtk_frame_new (NULL);
   gtk_widget_show (frame165);
   gtk_box_pack_start (GTK_BOX (vbox179), frame165, TRUE, TRUE, 0);
@@ -24394,6 +24626,10 @@ create_nucleotide_builder_dialog (void)
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (nucleotide_builder_form_optionmenu), menu3);
 
+  nucleotide_builder_form_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (nucleotide_builder_form_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox181), nucleotide_builder_form_combobox, TRUE, TRUE, 0);
+
   frame166 = gtk_frame_new (NULL);
   gtk_widget_show (frame166);
   gtk_box_pack_start (GTK_BOX (vbox179), frame166, TRUE, TRUE, 0);
@@ -24423,6 +24659,10 @@ create_nucleotide_builder_dialog (void)
   gtk_container_add (GTK_CONTAINER (menu4), single_stranded1);
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (nucleotide_builder_strand_optionmenu), menu4);
+
+  nucleotide_builder_strand_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (nucleotide_builder_strand_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox182), nucleotide_builder_strand_combobox, TRUE, TRUE, 0);
 
   frame167 = gtk_frame_new (NULL);
   gtk_widget_show (frame167);
@@ -24509,6 +24749,7 @@ create_nucleotide_builder_dialog (void)
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, menu2, "menu2");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, rna1, "rna1");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, dna1, "dna1");
+  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, nucleotide_builder_type_combobox, "nucleotide_builder_type_combobox");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, frame165, "frame165");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, vbox181, "vbox181");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, label284, "label284");
@@ -24516,6 +24757,7 @@ create_nucleotide_builder_dialog (void)
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, menu3, "menu3");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, a1, "a1");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, b1, "b1");
+  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, nucleotide_builder_form_combobox, "nucleotide_builder_form_combobox");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, frame166, "frame166");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, vbox182, "vbox182");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, label285, "label285");
@@ -24523,6 +24765,7 @@ create_nucleotide_builder_dialog (void)
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, menu4, "menu4");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, double_stranded1, "double_stranded1");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, single_stranded1, "single_stranded1");
+  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, nucleotide_builder_strand_combobox, "nucleotide_builder_strand_combobox");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, frame167, "frame167");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, vbox183, "vbox183");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, label286, "label286");
@@ -24552,6 +24795,7 @@ create_move_molecule_here_dialog (void)
   GtkWidget *label287;
   GtkWidget *move_molecule_here_big_molecules_checkbutton;
   GtkWidget *move_molecule_here_optionmenu;
+  GtkWidget *move_molecule_here_combobox;
   GtkWidget *dialog_action_area94;
   GtkWidget *hbox143;
   GtkWidget *move_molecule_here_ok_button;
@@ -24592,6 +24836,10 @@ create_move_molecule_here_dialog (void)
   move_molecule_here_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (move_molecule_here_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox184), move_molecule_here_optionmenu, FALSE, FALSE, 2);
+
+  move_molecule_here_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (move_molecule_here_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox184), move_molecule_here_combobox, TRUE, TRUE, 0);
 
   dialog_action_area94 = GTK_DIALOG (move_molecule_here_dialog)->action_area;
   gtk_widget_show (dialog_action_area94);
@@ -24659,6 +24907,7 @@ create_move_molecule_here_dialog (void)
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, label287, "label287");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, move_molecule_here_big_molecules_checkbutton, "move_molecule_here_big_molecules_checkbutton");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, move_molecule_here_optionmenu, "move_molecule_here_optionmenu");
+  GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, move_molecule_here_combobox, "move_molecule_here_combobox");
   GLADE_HOOKUP_OBJECT_NO_REF (move_molecule_here_dialog, dialog_action_area94, "dialog_action_area94");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, hbox143, "hbox143");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, move_molecule_here_ok_button, "move_molecule_here_ok_button");
@@ -24880,8 +25129,10 @@ create_least_squares_dialog (void)
   GtkWidget *vbox189;
   GtkWidget *label292;
   GtkWidget *least_squares_reference_molecule_optionmenu;
+  GtkWidget *least_squares_reference_molecule_combobox;
   GtkWidget *label293;
   GtkWidget *least_squares_moving_molecule_optionmenu;
+  GtkWidget *least_squares_moving_molecule_combobox;
   GtkWidget *frame171;
   GtkWidget *vbox190;
   GtkWidget *hbox147;
@@ -24954,6 +25205,10 @@ create_least_squares_dialog (void)
   gtk_widget_show (least_squares_reference_molecule_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox189), least_squares_reference_molecule_optionmenu, FALSE, FALSE, 0);
 
+  least_squares_reference_molecule_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (least_squares_reference_molecule_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox189), least_squares_reference_molecule_combobox, TRUE, TRUE, 0);
+
   label293 = gtk_label_new ("Moving Molecule:");
   gtk_widget_show (label293);
   gtk_box_pack_start (GTK_BOX (vbox189), label293, FALSE, FALSE, 0);
@@ -24963,6 +25218,10 @@ create_least_squares_dialog (void)
   least_squares_moving_molecule_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (least_squares_moving_molecule_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox189), least_squares_moving_molecule_optionmenu, FALSE, FALSE, 0);
+
+  least_squares_moving_molecule_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (least_squares_moving_molecule_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox189), least_squares_moving_molecule_combobox, TRUE, TRUE, 0);
 
   frame171 = gtk_frame_new (NULL);
   gtk_widget_show (frame171);
@@ -25170,8 +25429,10 @@ create_least_squares_dialog (void)
   GLADE_HOOKUP_OBJECT (least_squares_dialog, vbox189, "vbox189");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label292, "label292");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_reference_molecule_optionmenu, "least_squares_reference_molecule_optionmenu");
+  GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_reference_molecule_combobox, "least_squares_reference_molecule_combobox");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label293, "label293");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_moving_molecule_optionmenu, "least_squares_moving_molecule_optionmenu");
+  GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_moving_molecule_combobox, "least_squares_moving_molecule_combobox");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, frame171, "frame171");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, vbox190, "vbox190");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, hbox147, "hbox147");
@@ -26078,6 +26339,9 @@ create_run_script_filechooserdialog1 (void)
 
   run_script_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select Scripting File", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (run_script_filechooserdialog1), 10);
+  g_object_set (run_script_filechooserdialog1,
+                "show-hidden", TRUE,
+                NULL);
   gtk_window_set_modal (GTK_WINDOW (run_script_filechooserdialog1), TRUE);
   gtk_window_set_role (GTK_WINDOW (run_script_filechooserdialog1), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (run_script_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -26374,6 +26638,7 @@ create_add_reps_dialog (void)
   GtkWidget *vbox267;
   GtkWidget *label608;
   GtkWidget *add_rep_molecule_optionmenu;
+  GtkWidget *add_reps_molecule_combobox;
   GtkWidget *frame271;
   GtkWidget *alignment117;
   GtkWidget *vbox272;
@@ -26420,6 +26685,7 @@ create_add_reps_dialog (void)
   GtkWidget *hbox334;
   GtkWidget *label622;
   GtkWidget *add_rep_bond_width_combobox;
+  GtkWidget *add_reps_bond_width_combobox;
   GtkWidget *label620;
   GtkWidget *frame270;
   GtkWidget *alignment116;
@@ -26459,6 +26725,10 @@ create_add_reps_dialog (void)
   add_rep_molecule_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (add_rep_molecule_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox267), add_rep_molecule_optionmenu, FALSE, FALSE, 0);
+
+  add_reps_molecule_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (add_reps_molecule_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox267), add_reps_molecule_combobox, TRUE, TRUE, 0);
 
   frame271 = gtk_frame_new (NULL);
   gtk_widget_show (frame271);
@@ -26693,6 +26963,10 @@ create_add_reps_dialog (void)
   gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "19");
   gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "20");
 
+  add_reps_bond_width_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (add_reps_bond_width_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox334), add_reps_bond_width_combobox, TRUE, TRUE, 0);
+
   label620 = gtk_label_new ("");
   gtk_widget_show (label620);
   gtk_frame_set_label_widget (GTK_FRAME (frame269), label620);
@@ -26792,6 +27066,7 @@ create_add_reps_dialog (void)
   GLADE_HOOKUP_OBJECT (add_reps_dialog, vbox267, "vbox267");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, label608, "label608");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, add_rep_molecule_optionmenu, "add_rep_molecule_optionmenu");
+  GLADE_HOOKUP_OBJECT (add_reps_dialog, add_reps_molecule_combobox, "add_reps_molecule_combobox");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, frame271, "frame271");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, alignment117, "alignment117");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, vbox272, "vbox272");
@@ -26836,6 +27111,7 @@ create_add_reps_dialog (void)
   GLADE_HOOKUP_OBJECT (add_reps_dialog, hbox334, "hbox334");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, label622, "label622");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, add_rep_bond_width_combobox, "add_rep_bond_width_combobox");
+  GLADE_HOOKUP_OBJECT (add_reps_dialog, add_reps_bond_width_combobox, "add_reps_bond_width_combobox");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, label620, "label620");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, frame270, "frame270");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, alignment116, "alignment116");
@@ -27447,6 +27723,9 @@ create_save_restraint_chooserdialog (void)
 
   save_restraint_chooserdialog = gtk_file_chooser_dialog_new ("Save Restraints as mmCIF", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (save_restraint_chooserdialog), 5);
+  g_object_set (save_restraint_chooserdialog,
+                "show-hidden", TRUE,
+                NULL);
   gtk_window_set_modal (GTK_WINDOW (save_restraint_chooserdialog), TRUE);
   gtk_window_set_role (GTK_WINDOW (save_restraint_chooserdialog), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (save_restraint_chooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -27850,6 +28129,9 @@ create_run_refmac_mtz_filechooserdialog (void)
 
   run_refmac_mtz_filechooserdialog = gtk_file_chooser_dialog_new ("Select Dataset for Twin Refmac", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (run_refmac_mtz_filechooserdialog), 5);
+  g_object_set (run_refmac_mtz_filechooserdialog,
+                "show-hidden", TRUE,
+                NULL);
   gtk_window_set_modal (GTK_WINDOW (run_refmac_mtz_filechooserdialog), TRUE);
   gtk_window_set_role (GTK_WINDOW (run_refmac_mtz_filechooserdialog), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (run_refmac_mtz_filechooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -28106,6 +28388,7 @@ create_map_sharpening_dialog (void)
   GtkWidget *vbox302;
   GtkWidget *label728;
   GtkWidget *map_sharpening_optionmenu;
+  GtkWidget *map_sharpending_combobox;
   GtkWidget *alignment141;
   GtkWidget *map_sharpening_hscale;
   GtkWidget *hbuttonbox7;
@@ -28153,6 +28436,10 @@ create_map_sharpening_dialog (void)
   map_sharpening_optionmenu = gtk_option_menu_new ();
   gtk_widget_show (map_sharpening_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox302), map_sharpening_optionmenu, FALSE, FALSE, 0);
+
+  map_sharpending_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (map_sharpending_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox302), map_sharpending_combobox, TRUE, TRUE, 0);
 
   alignment141 = gtk_alignment_new (0.5, 0.5, 1, 1);
   gtk_widget_show (alignment141);
@@ -28277,6 +28564,7 @@ create_map_sharpening_dialog (void)
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, vbox302, "vbox302");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, label728, "label728");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, map_sharpening_optionmenu, "map_sharpening_optionmenu");
+  GLADE_HOOKUP_OBJECT (map_sharpening_dialog, map_sharpending_combobox, "map_sharpending_combobox");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, alignment141, "alignment141");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, map_sharpening_hscale, "map_sharpening_hscale");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, hbuttonbox7, "hbuttonbox7");
@@ -29441,6 +29729,7 @@ create_export_map_dialog (void)
   GtkWidget *dialog_vbox132;
   GtkWidget *vbox324;
   GtkWidget *export_map_map_optionmenu;
+  GtkWidget *export_map_map_combobox;
   GtkWidget *export_map_fragment_hbox;
   GtkWidget *label786;
   GtkWidget *export_map_radius_entry;
@@ -29464,6 +29753,11 @@ create_export_map_dialog (void)
   gtk_widget_show (export_map_map_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox324), export_map_map_optionmenu, FALSE, FALSE, 6);
   gtk_container_set_border_width (GTK_CONTAINER (export_map_map_optionmenu), 6);
+
+  export_map_map_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (export_map_map_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox324), export_map_map_combobox, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (export_map_map_combobox), 6);
 
   export_map_fragment_hbox = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (export_map_fragment_hbox);
@@ -29512,6 +29806,7 @@ create_export_map_dialog (void)
   GLADE_HOOKUP_OBJECT_NO_REF (export_map_dialog, dialog_vbox132, "dialog_vbox132");
   GLADE_HOOKUP_OBJECT (export_map_dialog, vbox324, "vbox324");
   GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_map_optionmenu, "export_map_map_optionmenu");
+  GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_map_combobox, "export_map_map_combobox");
   GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_fragment_hbox, "export_map_fragment_hbox");
   GLADE_HOOKUP_OBJECT (export_map_dialog, label786, "label786");
   GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_radius_entry, "export_map_radius_entry");
@@ -29534,6 +29829,9 @@ create_export_map_filechooserdialog (void)
 
   export_map_filechooserdialog = gtk_file_chooser_dialog_new ("Export Map", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (export_map_filechooserdialog), 5);
+  g_object_set (export_map_filechooserdialog,
+                "show-hidden", TRUE,
+                NULL);
   gtk_window_set_role (GTK_WINDOW (export_map_filechooserdialog), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (export_map_filechooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 

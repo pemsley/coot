@@ -11392,14 +11392,9 @@ on_residue_editor_select_monomer_type_ok_button_clicked (GtkButton       *button
   GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "residue_editor_select_monomer_type_dialog");
   GtkWidget *combo_box = lookup_widget(GTK_WIDGET(button), "residue_editor_select_monomer_type_combobox");
   gchar *t = 0;
-#if (((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 5)) || GTK_MAJOR_VERSION > 2)
+
   t = gtk_combo_box_get_active_text(GTK_COMBO_BOX(combo_box));
-/*   printf("residue editor for type %s\n", t); */
   show_restraints_editor(t);
-#else
-  gint iactive = gtk_combo_box_get_active(GTK_COMBO_BOX(combo_box));
-  show_restraints_editor_by_index(iactive);
-#endif
   gtk_widget_destroy(dialog);
 }
 
