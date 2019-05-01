@@ -96,7 +96,6 @@
 
 #include "guile-fixups.h"
 
-
 int
 graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu, 
 						   GtkSignalFunc signal_func) {
@@ -106,10 +105,19 @@ graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
 
 int
 graphics_info_t::fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, 
-						   GtkSignalFunc signal_func) {
+						       GtkSignalFunc signal_func) {
 
    return fill_option_menu_with_map_options_generic(option_menu, signal_func, 1);
 }
+
+int
+graphics_info_t::fill_combobox_with_map_mtz_options(GtkWidget *combobox, GtkSignalFunc signal_func) {
+
+   std::cout << "fill fill_combobox_with_map_mtz_options" << combobox << std::endl;
+
+   return 0;
+}
+
 
 int
 graphics_info_t::fill_option_menu_with_map_options_generic(GtkWidget *option_menu, 
@@ -246,6 +254,15 @@ graphics_info_t::fill_option_menu_with_map_options_internal(GtkWidget *option_me
    }
    gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
 }
+
+void
+graphics_info_t::fill_combobox_with_difference_map_options(GtkWidget *combobox, 
+							   GtkSignalFunc signal_func,
+							   int imol_active_position) {
+
+   std::cout << "fill me in " << std::endl;                   
+}
+
 
 // These are of course *maps*.
 void

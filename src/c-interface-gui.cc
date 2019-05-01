@@ -315,10 +315,10 @@ void fill_remarks_browswer_chooser(GtkWidget *w) {
    GtkWidget *option_menu = lookup_widget(w, "remarks_browser_molecule_chooser_optionmenu");
    if (option_menu) {
       graphics_info_t g;
-      GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(remarks_browswer_molecule_item_select);
+      GCallback callback_func = G_CALLBACK(remarks_browswer_molecule_item_select);
       int imol = first_coords_imol();
       graphics_info_t::imol_remarks_browswer = imol;
-      g.fill_option_menu_with_coordinates_options(option_menu, callback_func, imol);
+      g.fill_combobox_with_coordinates_options(option_menu, callback_func, imol);
    } 
 }
 
@@ -376,7 +376,7 @@ GtkWidget *wrapped_create_undo_molecule_chooser_dialog() {
    GtkWidget *option_menu = lookup_widget(w, "undo_molecule_chooser_option_menu");
    graphics_info_t g;
    
-   g.fill_option_menu_with_undo_options(option_menu);
+   g.fill_combobox_with_undo_options(option_menu);
    return w;
 } 
 
@@ -2038,24 +2038,30 @@ void guile_window_enter_callback( GtkWidget *widget,
 }
 #endif //  USE_GUILE
 
+// This is for maps which come from mtz (i.e. have SFs)
+int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signalfunc) {
+
+   graphics_info_t g;
+   return g.fill_combobox_with_map_mtz_options(option_menu, signalfunc);
+}
 
 // Similar to fill_option_menu_with_coordinates_options, but I moved
 // it to graphics_info_t because it is also used when there is an
 // ambiguity in the map for refinement (graphics_info_t::refine)
 // 
-int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signalfunc) {
+int fill_combobox_with_map_options(GtkWidget *combobox, GtkSignalFunc signalfunc) {
 
    graphics_info_t g;
 
-   return g.fill_option_menu_with_map_options(option_menu, signalfunc);
+   return g.fill_option_menu_with_map_options(combobox, signalfunc);
 }
 
 // This is for maps which come from mtz (i.e. have SFs)
-int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signalfunc) {
+int fill_combobox_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signalfunc) {
 
    graphics_info_t g;
 
-   return g.fill_option_menu_with_map_mtz_options(option_menu, signalfunc);
+   return g.fill_combobox_with_map_mtz_options(option_menu, signalfunc);
 }
 
 
@@ -2506,7 +2512,8 @@ void set_refine_params_toggle_buttons(GtkWidget *button) {
 
 void fill_chiral_volume_molecule_option_menu(GtkWidget *w) { 
 
-   GtkWidget *optionmenu = lookup_widget(w, "check_chiral_volumes_molecule_optionmenu");
+   // GtkWidget *optionmenu = lookup_widget(w, "check_chiral_volumes_molecule_optionmenu");
+   GtkWidget *combobox = lookup_widget(w, "check_chiral_volumes_molecule_combobox");
 
    // now set chiral_volume_molecule_option_menu_item_select_molecule to the top of the list
    for (int i=0; i<graphics_info_t::n_molecules(); i++) { 
@@ -2520,7 +2527,7 @@ void fill_chiral_volume_molecule_option_menu(GtkWidget *w) {
       GTK_SIGNAL_FUNC(chiral_volume_molecule_option_menu_item_select);
 
    graphics_info_t g;
-   g.fill_option_menu_with_coordinates_options(optionmenu, callback_func, imol);
+   g.fill_combobox_with_coordinates_options(combobox, callback_func, imol);
 
 }
 
@@ -3599,17 +3606,30 @@ void fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
 					       int imol_active_position) {
 
    graphics_info_t g;
-   g.fill_option_menu_with_coordinates_options(option_menu,
-					       signal_func,
-					       imol_active_position);
+//    g.fill_option_menu_with_coordinates_options(option_menu,
+// 					       signal_func,
+// 					       imol_active_position);
+
+   std::cout << "100% full of wronability fill_option_menu_with_coordinates_options"
+	     << std::endl;
 }
 
-void fill_option_menu_with_coordinates_options_unsaved_first(GtkWidget *option_menu, 
-							     GtkSignalFunc signal_func,
-							     int imol_active_position) {
-   // a mess.  This function could be deleted.
-   fill_option_menu_with_coordinates_options(option_menu, signal_func, imol_active_position);
-} 
+void fill_combobox_with_coordinates_options(GtkWidget *combobox,
+					    GCallback signal_func,
+					    int imol_active_position) {
+   graphics_info_t g;
+   g.fill_combobox_with_coordinates_options(combobox, signal_func, imol_active_position);
+
+}
+
+
+// void fill_option_menu_with_coordinates_options_unsaved_first(GtkWidget *option_menu, 
+// 							     GtkSignalFunc signal_func,
+// 							     int imol_active_position) {
+//    // a mess.  This function could be deleted.
+//    fill_option_menu_with_coordinates_options(option_menu, signal_func, imol_active_position);
+// }
+
 
 
 
@@ -3707,14 +3727,13 @@ new_close_molecules(GtkWidget *window) {
    if (closed_something_flag) { 
       if (graphics_info_t::go_to_atom_window) { 
 	 graphics_info_t g;
-	 GtkWidget *optionmenu = lookup_widget(graphics_info_t::go_to_atom_window, 
-					       "go_to_atom_molecule_optionmenu");
-	 // g.fill_go_to_atom_option_menu(optionmenu);
+	 GtkWidget *combobox = lookup_widget(graphics_info_t::go_to_atom_window, 
+					       "go_to_atom_molecule_combobox");
 	 int gimol = g.go_to_atom_molecule();
-	 
+
 	 GtkSignalFunc callback_func =
 	    GTK_SIGNAL_FUNC(graphics_info_t::go_to_atom_mol_menu_item_select);
-	 g.fill_option_menu_with_coordinates_options(optionmenu, callback_func, gimol);
+	 g.fill_combobox_with_coordinates_options(combobox, callback_func, gimol);
       }
       graphics_draw();
    }
@@ -4500,13 +4519,13 @@ add_map_scroll_wheel_mol_menu_item(int imol, const std::string &name,
 
 GtkWidget *wrapped_create_bond_parameters_dialog() {
 
+   graphics_info_t g;
+
    GtkWidget *widget = create_bond_parameters_dialog();
 
-   GtkWidget *optionmenu =
-      lookup_widget(widget, "bond_parameters_molecule_optionmenu");
+   GtkWidget *combobox = lookup_widget(widget, "bond_parameters_molecule_combobox");
 
-   GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(graphics_info_t::bond_parameters_molecule_menu_item_select);
-
+   GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(g.bond_parameters_molecule_menu_item_select);
 
    // fill the colour map rotation entry
 
@@ -4522,7 +4541,6 @@ GtkWidget *wrapped_create_bond_parameters_dialog() {
    // want bond_parameters_molecule to be set to first_coords_imol()
    // i.e. imol.
 
-   graphics_info_t g;
    int imol = first_coords_imol(); // can be -1;
    if (g.bond_parameters_molecule >= 0)
       if (g.molecules[g.bond_parameters_molecule].has_model())
@@ -4533,7 +4551,7 @@ GtkWidget *wrapped_create_bond_parameters_dialog() {
       // g.bond_parameters_molecule not set yet.
       g.bond_parameters_molecule = imol;
 
-   g.fill_option_menu_with_coordinates_options(optionmenu, callback_func, imol);
+   g.fill_combobox_with_coordinates_options(combobox, callback_func, imol);
    graphics_info_t::fill_bond_parameters_internals(widget, imol);
 
    return widget;

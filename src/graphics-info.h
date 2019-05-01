@@ -1572,8 +1572,12 @@ public:
 							       GtkWidget *gtktree, 
 							       GtkWidget *atom_list);
    void fill_go_to_atom_option_menu(GtkWidget *option_menu);
-   void fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
-						  GtkSignalFunc callback_func);
+
+
+   // goodbye my friends.
+
+    void fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
+ 						  GtkSignalFunc callback_func);
    void fill_option_menu_with_coordinates_options(GtkWidget *option_menu, 
 						  GtkSignalFunc signal_func,
 						  int imol_active_position);
@@ -1589,9 +1593,6 @@ public:
 							     std::vector<int> fill_with_these_molecules,
 							     short int set_last_active_flag,
 							     int imol_active);
-   void fill_combobox_with_coordinates_options(GtkWidget *combobox,
-					       GCallback callback_func,
-					       bool set_last_active_flag);
    void fill_option_menu_with_coordinates_options_internal_with_active_mol(GtkWidget *option_menu,
 									   GtkSignalFunc callback_func, 
 									   int imol_active);
@@ -1600,6 +1601,11 @@ public:
 								 int imol,
 								 bool fill_with_small_molecule_only_flag);
 
+
+
+   void fill_combobox_with_coordinates_options(GtkWidget *combobox,
+					       GCallback callback_func,
+					       bool set_last_active_flag);
    
    static void go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionType pos); // delete this
    static void go_to_atom_mol_combobox_item_select(GtkWidget *combobox, gpointer data);
@@ -2455,6 +2461,7 @@ public:
    void fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signal_func,
 					  int imol_active_position);
    int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signal_func); 
+   int fill_combobox_with_map_mtz_options(GtkWidget *combobox, GtkSignalFunc signal_func); 
    int fill_option_menu_with_map_options_generic(GtkWidget *option_menu, GtkSignalFunc signal_func, int mtz_only=0); 
    void fill_option_menu_with_difference_map_options(GtkWidget *option_menu, 
 						     GtkSignalFunc signal_func,
@@ -2463,6 +2470,11 @@ public:
 						   GtkSignalFunc signal_func,
 						   std::vector<int> map_molecule_numbers,
 						   int imol_active_position);
+
+   void fill_combobox_with_difference_map_options(GtkWidget *combobox, 
+						  GtkSignalFunc signal_func,
+						  int imol_active_position);
+
    GtkWidget *wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_label);
    void skeletonize_map_by_optionmenu(GtkWidget *optionmenu);
 
@@ -2599,7 +2611,8 @@ public:
 
    // align and mutate
    static int         align_and_mutate_imol;
-   static std::string align_and_mutate_chain_from_optionmenu;
+   // static std::string align_and_mutate_chain_from_optionmenu;
+   static std::string align_and_mutate_chain_from_combobox;
    static mmdb::realtype alignment_wgap;
    static mmdb::realtype alignment_wspace;
 
@@ -2694,7 +2707,8 @@ public:
    void set_undo_molecule_number(int i) { undo_molecule = i; }
    // undo_molecule_select uses set_undo_molecule_number()
    static void undo_molecule_select(GtkWidget *item, GtkPositionType pos);
-   void fill_option_menu_with_undo_options(GtkWidget *option_menu); // not const
+   // void fill_option_menu_with_undo_options(GtkWidget *option_menu); // not const
+   void fill_combobox_with_undo_options(GtkWidget *option_menu); // not const
    int Undo_molecule(coot::undo_type) const; // return -2 on ambiguity, -1 on unset
 			      // and a molecule number >=0 for no
 			      // ambiguity (or undo_molecule has been
@@ -3254,9 +3268,19 @@ public:
    void fill_add_OXT_dialog_internal(GtkWidget *widget, int imol);
    // return the default chain string (top of the list).
    // (return "no-chain" if it was not assigned (nothing in the list)).
+
    static std::string fill_option_menu_with_chain_options(GtkWidget *option_menu,
-					     int imol,
-					     GtkSignalFunc signal_func);
+							  int imol,
+							  GtkSignalFunc signal_func);
+
+   static std::string fill_combobox_with_chain_options(GtkWidget *combobox,
+						       int imol,
+						       GCallback f);
+   static std::string fill_combobox_with_chain_options(GtkWidget *combobox,
+						       int imol,
+						       GCallback f,
+						       const std::string &active_chain_id);
+
    // as above, except if one of the chain options is active_chain_id,
    // then set the active menu item to that.
    static std::string fill_option_menu_with_chain_options(GtkWidget *option_menu,

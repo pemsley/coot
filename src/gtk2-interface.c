@@ -8207,7 +8207,6 @@ create_save_coords_dialog (void)
   GtkWidget *frame41;
   GtkWidget *vbox50;
   GtkWidget *label78;
-  GtkWidget *save_coords_optionmenu;
   GtkWidget *save_coordinates_combobox;
   GtkWidget *dialog_action_area7;
   GtkWidget *save_coords_dialog_save_button;
@@ -8237,11 +8236,6 @@ create_save_coords_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox50), label78, FALSE, FALSE, 3);
   gtk_label_set_justify (GTK_LABEL (label78), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label78), 60, 9);
-
-  save_coords_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (save_coords_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox50), save_coords_optionmenu, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (save_coords_optionmenu), 1);
 
   save_coordinates_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (save_coordinates_combobox);
@@ -8283,7 +8277,6 @@ create_save_coords_dialog (void)
   GLADE_HOOKUP_OBJECT (save_coords_dialog, frame41, "frame41");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, vbox50, "vbox50");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, label78, "label78");
-  GLADE_HOOKUP_OBJECT (save_coords_dialog, save_coords_optionmenu, "save_coords_optionmenu");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, save_coordinates_combobox, "save_coordinates_combobox");
   GLADE_HOOKUP_OBJECT_NO_REF (save_coords_dialog, dialog_action_area7, "dialog_action_area7");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, save_coords_dialog_save_button, "save_coords_dialog_save_button");

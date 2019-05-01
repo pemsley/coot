@@ -2136,7 +2136,7 @@ on_save_coordinates1_activate          (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   GtkWidget *widget;
-  GtkWidget *option_menu; 
+  GtkWidget *combobox; 
   GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(save_molecule_coords_button_select);
   int imol = first_coords_imol();
   int imol_unsaved = first_unsaved_coords_imol();
@@ -2146,13 +2146,18 @@ on_save_coordinates1_activate          (GtkMenuItem     *menuitem,
 
   widget = create_save_coords_dialog(); 
 
-  option_menu = lookup_widget(GTK_WIDGET(widget),
-			      "save_coords_optionmenu");
+  combobox = lookup_widget(GTK_WIDGET(widget), "save_coords_combobox");
 
-  fill_option_menu_with_coordinates_options_unsaved_first(option_menu, callback_func, imol);
-  set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
-  gtk_widget_show(widget);
-  gtk_window_present(GTK_WINDOW(widget));
+  if (combobox) {
+
+/*     fill_option_menu_with_coordinates_options_unsaved_first(option_menu, callback_func, imol); */
+    fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+    set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
+    gtk_widget_show(widget);
+    gtk_window_present(GTK_WINDOW(widget));
+  } else {
+    printf("bad combobox!\n");
+  }
 }
 
 
@@ -8244,14 +8249,13 @@ on_ramachandran_plot_differences_first_chain_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-   GtkWidget *optionmenu = 
-      lookup_widget(GTK_WIDGET(togglebutton), 
-		    "ramachandran_plot_differences_first_chain_optionmenu");
-   if (togglebutton->active) {
-      gtk_widget_set_sensitive(GTK_WIDGET(optionmenu), TRUE);
-      fill_ramachandran_plot_differences_option_menu_with_chain_options(optionmenu, 1);
+   GtkWidget *combobox = lookup_widget(GTK_WIDGET(togglebutton), 
+				       "ramachandran_plot_differences_first_chain_optionmenu");
+   if (gtk_toggle_button_get_active(togglebutton)) {
+      gtk_widget_set_sensitive(GTK_WIDGET(combobox), TRUE);
+      fill_ramachandran_plot_differences_combobox_with_chain_options(combobox, 1);
    } else {
-      gtk_widget_set_sensitive(GTK_WIDGET(optionmenu), FALSE);
+      gtk_widget_set_sensitive(GTK_WIDGET(combobox), FALSE);
    }
 
 }
@@ -8262,15 +8266,14 @@ on_ramachandran_plot_differences_second_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-   GtkWidget *optionmenu = 
-      lookup_widget(GTK_WIDGET(togglebutton), 
-		    "ramachandran_plot_differences_second_chain_optionmenu");
+   GtkWidget *combobox = lookup_widget(GTK_WIDGET(togglebutton), 
+				       "ramachandran_plot_differences_second_chain_combobox");
 
    if (togglebutton->active) {
-      gtk_widget_set_sensitive(GTK_WIDGET(optionmenu), TRUE);
-      fill_ramachandran_plot_differences_option_menu_with_chain_options(optionmenu, 0);
+      gtk_widget_set_sensitive(GTK_WIDGET(combobox), TRUE);
+      fill_ramachandran_plot_differences_combobox_with_chain_options(combobox, 0);
    } else {
-      gtk_widget_set_sensitive(GTK_WIDGET(optionmenu), FALSE);
+      gtk_widget_set_sensitive(GTK_WIDGET(combobox), FALSE);
    }
 
 }

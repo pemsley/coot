@@ -1031,7 +1031,8 @@ atom_selection_container_t graphics_info_t::standard_residues_asc = asc;
 std::string graphics_info_t::mutate_sequence_chain_from_optionmenu;
 int         graphics_info_t::mutate_sequence_imol;
 int         graphics_info_t::align_and_mutate_imol;
-std::string graphics_info_t::align_and_mutate_chain_from_optionmenu;
+// std::string graphics_info_t::align_and_mutate_chain_from_optionmenu;
+std::string graphics_info_t::align_and_mutate_chain_from_combobox;
 int         graphics_info_t::nsv_canvas_pixel_limit = 22500;
 
 mmdb::realtype    graphics_info_t::alignment_wgap   = -3.0; // was -0.5 (Bob) // was -3.0;

@@ -134,7 +134,7 @@ GtkWidget *wrapped_create_check_waters_dialog() {
 
    GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(check_waters_molecule_menu_item_activate);
 
-   GtkWidget *optionmenu = lookup_widget(dialog, "check_waters_molecule_optionmenu");
+   GtkWidget *combobox = lookup_widget(dialog, "check_waters_molecule_combobox");
 //    std::cout << "optionmenu: " << optionmenu << std::endl;
 //    std::cout << "optionmenu is widget: " << GTK_IS_WIDGET(optionmenu) << std::endl;
 //    std::cout << "optionmenu is option menu: " << GTK_IS_OPTION_MENU(optionmenu) << std::endl;
@@ -147,11 +147,10 @@ GtkWidget *wrapped_create_check_waters_dialog() {
       }
    }
    graphics_info_t g;
-   g.fill_option_menu_with_coordinates_options(optionmenu, callback_func,
-					       graphics_info_t::check_waters_molecule);
+   g.fill_combobox_with_coordinates_options(combobox, callback_func, g.check_waters_molecule);
 
-   GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu));
-   
+   // GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu));
+
    GtkWidget *entry;
    // char text[100];
    std::string text_str;
@@ -180,12 +179,12 @@ GtkWidget *wrapped_create_check_waters_dialog() {
    // 20100131 We have put the variance map check into this dialog
    // too, to better organise the menus.
    //
-   GtkWidget *diff_map_option_menu =
-      lookup_widget(dialog, "check_water_by_difference_map_optionmenu");
+   //GtkWidget *diff_map_option_menu =
+   // lookup_widget(dialog, "check_water_by_difference_map_optionmenu");
 
-   // It's not in the gtk1 version
-   // 
-   if (diff_map_option_menu) {
+   GtkWidget *diff_map_combobox = lookup_widget(dialog, "check_water_by_difference_map_combobox");
+
+   if (diff_map_combobox) {
       // set imol_active to the first difference map.
       int imol_active = -1; // unset (no difference maps found yet)
       for (int i=0; i<graphics_n_molecules(); i++) {
@@ -199,10 +198,9 @@ GtkWidget *wrapped_create_check_waters_dialog() {
 
       if (imol_active != -1) {
 	 graphics_info_t::check_waters_by_difference_map_map_number = imol_active;
-	 GtkSignalFunc signal_func =
-	    GTK_SIGNAL_FUNC(check_water_by_difference_maps_option_menu_item_select);
-	 g.fill_option_menu_with_difference_map_options(diff_map_option_menu,
-							signal_func, imol_active);
+	 GCallback signal_func = G_CALLBACK(check_water_by_difference_maps_combobox_item_select);
+	 g.fill_combobox_with_difference_map_options(diff_map_combobox,
+						     signal_func, imol_active);
       }
    }
 
@@ -210,8 +208,17 @@ GtkWidget *wrapped_create_check_waters_dialog() {
 
 }
 
+#if 0
 void
 check_water_by_difference_maps_option_menu_item_select(GtkWidget *item, GtkPositionType pos) {
+
+   graphics_info_t::check_waters_by_difference_map_map_number = pos;
+}
+#endif
+
+// Hmmmmmmmmmmm... is this the way to do it?
+void
+check_water_by_difference_maps_combobox_item_select(GtkWidget *item, GtkPositionType pos) {
 
    graphics_info_t::check_waters_by_difference_map_map_number = pos;
 }
@@ -1511,15 +1518,18 @@ GtkWidget *wrapped_ramachandran_plot_differences_dialog() {
 
    GtkWidget *w = 0; // Not NULL, compiler (maybe).
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+// #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+
+#if 0 // do this later                       
    w = create_ramachandran_plot_differences_dialog();
 
    // We don't have to worry about chains because they are not active on startup.
 
-   GtkWidget *optionmenu1 =
-      lookup_widget(w, "ramachandran_plot_differences_first_mol_optionmenu");
-   GtkWidget *optionmenu2 =
-      lookup_widget(w, "ramachandran_plot_differences_second_mol_optionmenu");
+   GtkWidget *combobox1 = lookup_widget(w, "ramachandran_plot_differences_first_mol_combobox");
+   GtkWidget *combobox2 = lookup_widget(w, "ramachandran_plot_differences_second_mol_combobox");
+
+   if (! combobox1) std::cout << "null combobox1" << std::endl;
+   if (! combobox2) std::cout << "null combobox2" << std::endl;
 
    GtkSignalFunc signal_func1 =
       GTK_SIGNAL_FUNC(ramachandran_plot_differences_mol_option_menu_activate_first);
@@ -1536,8 +1546,8 @@ GtkWidget *wrapped_ramachandran_plot_differences_dialog() {
 
    if (imol >= 0) {
       graphics_info_t g;
-      g.fill_option_menu_with_coordinates_options(optionmenu1, signal_func1, imol);
-      g.fill_option_menu_with_coordinates_options(optionmenu2, signal_func2, imol);
+      g.fill_combobox_with_coordinates_options(combobox1, signal_func1, imol);
+      g.fill_combobox_with_coordinates_options(combobox2, signal_func2, imol);
       graphics_info_t::ramachandran_plot_differences_imol1 = imol;
       graphics_info_t::ramachandran_plot_differences_imol2 = imol;
    }
@@ -1604,23 +1614,28 @@ void set_ramachandran_plot_background_block_size(float blocksize) {
 // 
 void ramachandran_plot_differences_mol_option_menu_activate_first(GtkWidget *item, GtkPositionType pos) {
    graphics_info_t::ramachandran_plot_differences_imol1 = pos;
-   GtkWidget *chain_optionmenu = lookup_widget(GTK_WIDGET(item),
-						"ramachandran_plot_differences_first_chain_optionmenu");
+//    GtkWidget *chain_optionmenu = lookup_widget(GTK_WIDGET(item),
+// 						"ramachandran_plot_differences_first_chain_optionmenu");
+   GtkWidget *chain_combobox = lookup_widget(GTK_WIDGET(item),
+						"ramachandran_plot_differences_first_chain_combobox");
    GtkWidget *checkbutton = lookup_widget(GTK_WIDGET(item),
 					  "ramachandran_plot_differences_first_chain_checkbutton");
-   if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
-      fill_ramachandran_plot_differences_option_menu_with_chain_options(chain_optionmenu, 1);
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) {
+      // fill_ramachandran_plot_differences_option_menu_with_chain_options(chain_optionmenu, 1);
+      fill_ramachandran_plot_differences_combobox_with_chain_options(chain_combobox, 1);
    }
 }
 
 void ramachandran_plot_differences_mol_option_menu_activate_second(GtkWidget *item, GtkPositionType pos) {
    graphics_info_t::ramachandran_plot_differences_imol2 = pos; 
-   GtkWidget *chain_optionmenu = lookup_widget(GTK_WIDGET(item),
-						"ramachandran_plot_differences_second_chain_optionmenu");
+//    GtkWidget *chain_optionmenu = lookup_widget(GTK_WIDGET(item),
+// 						"ramachandran_plot_differences_second_chain_optionmenu");
+   GtkWidget *chain_combobox = lookup_widget(GTK_WIDGET(item),
+					     "ramachandran_plot_differences_second_chain_combobox");
    GtkWidget *checkbutton = lookup_widget(GTK_WIDGET(item),
 					  "ramachandran_plot_differences_second_chain_checkbutton");
    if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
-      fill_ramachandran_plot_differences_option_menu_with_chain_options(chain_optionmenu, 0);
+      fill_ramachandran_plot_differences_combobox_with_chain_options(chain_combobox, 0);
    }
 }
 
@@ -1634,6 +1649,12 @@ void ramachandran_plot_differences_chain_option_menu_activate_second(GtkWidget *
 
       graphics_info_t::ramachandran_plot_differences_imol2_chain = menu_item_label(item);
 }
+
+void ramachandran_plot_differences_mol_combobox_activate_first(GtkWidget *item, GtkPositionType pos) {}
+void ramachandran_plot_differences_mol_combobox_activate_second(GtkWidget *item, GtkPositionType pos) {}
+void ramachandran_plot_differences_chain_combobox_activate_first(GtkWidget *item, GtkPositionType pos) {}
+void ramachandran_plot_differences_chain_combobox_activate_second(GtkWidget *item, GtkPositionType pos) {}
+
 
 void do_ramachandran_plot(int imol) {
 
@@ -1789,36 +1810,33 @@ void ramachandran_plot_differences_by_chain(int imol1, int imol2,
 
 // This is called when the "Use chain" option button is pressed.
 // 
-void fill_ramachandran_plot_differences_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
-								       int is_first_mol_flag) {
-   GtkWidget *mol_optionmenu = NULL;
+void fill_ramachandran_plot_differences_combobox_with_chain_options(GtkWidget *chain_combobox,
+								    int is_first_mol_flag) {
+
+   GtkWidget *mol_combobox = 0;
 
    if (is_first_mol_flag) {
-      mol_optionmenu =
-	 lookup_widget(chain_optionmenu,
-		       "ramachandran_plot_differences_first_mol_optionmenu");
+      mol_combobox = lookup_widget(chain_combobox,
+				   "ramachandran_plot_differences_first_mol_combobox");
    } else {
-      mol_optionmenu =
-	 lookup_widget(chain_optionmenu,
-		       "ramachandran_plot_differences_second_mol_optionmenu");
+      mol_combobox = lookup_widget(chain_combobox,
+				   "ramachandran_plot_differences_second_mol_combobox");
    }
 
-   GtkSignalFunc callback_func;
+   GCallback callback_func;
    int imol;
 
    if (is_first_mol_flag) { 
       imol = graphics_info_t::ramachandran_plot_differences_imol1;
-      callback_func =
-	 GTK_SIGNAL_FUNC(ramachandran_plot_differences_chain_option_menu_activate_first);
+      callback_func = G_CALLBACK(ramachandran_plot_differences_chain_combobox_activate_first);
    } else {
       imol = graphics_info_t::ramachandran_plot_differences_imol2;
-      callback_func =
-	 GTK_SIGNAL_FUNC(ramachandran_plot_differences_chain_option_menu_activate_second);
+      callback_func = G_CALLBACK(ramachandran_plot_differences_chain_combobox_activate_second);
    }
 
    if (imol >=0 && imol< graphics_info_t::n_molecules()) {
-      std::string set_chain = graphics_info_t::fill_option_menu_with_chain_options(chain_optionmenu,
-										   imol, callback_func);
+      std::string set_chain = graphics_info_t::fill_combobox_with_chain_options(chain_combobox,
+										imol, callback_func);
       if (is_first_mol_flag) {
 	 graphics_info_t::ramachandran_plot_differences_imol1_chain = set_chain;
       } else {

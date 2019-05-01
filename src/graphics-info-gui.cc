@@ -2007,6 +2007,8 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_with_active_
 							set_last_active_flag, imol_active);
 } 
 
+
+#if 0
 // not const
 void
 graphics_info_t::fill_option_menu_with_undo_options(GtkWidget *option_menu) {
@@ -2055,8 +2057,17 @@ graphics_info_t::fill_option_menu_with_undo_options(GtkWidget *option_menu) {
    if (undo_local > -1) {
       set_undo_molecule_number(undo_local);
    }
+}
+#endif
 
-} 
+void
+graphics_info_t::fill_combobox_with_undo_options(GtkWidget *combobox) {
+
+   // fill me                                      
+}
+
+
+
 
 // a static function
 void
@@ -3706,10 +3717,10 @@ graphics_info_t::bond_width_item_select(GtkWidget *item, GtkPositionType pos) {
 void
 graphics_info_t::fill_add_OXT_dialog_internal(GtkWidget *widget, int imol) {
 
-   GtkWidget *chain_optionmenu = lookup_widget(widget, "add_OXT_chain_optionmenu");
-   GtkSignalFunc signal_func = GTK_SIGNAL_FUNC(graphics_info_t::add_OXT_chain_menu_item_activate);
+   GtkWidget *chain_combobox = lookup_widget(widget, "add_OXT_chain_combobox");
+   GCallback signal_func = G_CALLBACK(add_OXT_chain_menu_item_activate);
 
-   std::string a = fill_option_menu_with_chain_options(chain_optionmenu, imol, signal_func);
+   std::string a = fill_combobox_with_chain_options(chain_combobox, imol, signal_func);
    if (a != "no-chain") {
       graphics_info_t::add_OXT_chain = a;
    }
@@ -3732,7 +3743,8 @@ graphics_info_t::add_OXT_chain_menu_item_activate (GtkWidget *item,
 // static
 // 
 std::string 
-graphics_info_t::fill_option_menu_with_chain_options(GtkWidget *chain_option_menu, int imol,
+graphics_info_t::fill_option_menu_with_chain_options(GtkWidget *chain_option_menu,
+						     int imol,
 						     GtkSignalFunc signal_func) {
 
    std::string r("no-chain");
@@ -3775,6 +3787,39 @@ graphics_info_t::fill_option_menu_with_chain_options(GtkWidget *chain_option_men
    }
    return r;
 }
+
+// static
+std::string
+graphics_info_t::fill_combobox_with_chain_options(GtkWidget *combobox,
+						  int imol,
+						  GCallback f) {
+
+   return fill_combobox_with_chain_options(combobox, imol, f, "unset-chain");
+}
+
+// static
+std::string
+graphics_info_t::fill_combobox_with_chain_options(GtkWidget *combobox,
+						  int imol,
+						  GCallback f,
+						  const std::string &ac) {
+
+   std::cout << "GTK-FIXME" << std::endl;
+   std::string r("no-chain");
+
+   if (imol<graphics_info_t::n_molecules()) {
+      if (imol >= 0) { 
+	 if (graphics_info_t::molecules[imol].has_model()) {
+	    std::vector<std::string> chains =
+	       coot::util::chains_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
+
+	    std::cout << "tralalalalalala" << std::endl;
+	 }
+      }
+   }
+   return r;
+}
+
 
 
 
@@ -3862,11 +3907,11 @@ graphics_info_t::fill_renumber_residue_range_dialog(GtkWidget *window) {
 void
 graphics_info_t::fill_renumber_residue_range_internal(GtkWidget *w, int imol) {
 
-   GtkWidget *chain_option_menu =
-      lookup_widget(w, "renumber_residue_range_chain_optionmenu");
+   GtkWidget *chain_combobox =
+      lookup_widget(w, "renumber_residue_range_chain_combobox");
    GtkSignalFunc callback_func = 
       GTK_SIGNAL_FUNC(graphics_info_t::renumber_residue_range_chain_menu_item_select);
-   std::string a = fill_option_menu_with_chain_options(chain_option_menu, imol, callback_func);
+   std::string a = fill_combobox_with_chain_options(chain_combobox, imol, callback_func);
    if (a != "no-chain") {
       graphics_info_t::renumber_residue_range_chain = a;
    } 

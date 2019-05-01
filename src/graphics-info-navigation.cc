@@ -802,14 +802,10 @@ void
 graphics_info_t::update_go_to_atom_window_on_other_molecule_chosen(int imol) {
 
    if (go_to_atom_window) {
-      GtkWidget *option_menu =
-	 lookup_widget(GTK_WIDGET(go_to_atom_window), 
-		       "go_to_atom_molecule_optionmenu");
-      
-      GtkSignalFunc callback_func = 
-	 GTK_SIGNAL_FUNC(graphics_info_t::go_to_atom_mol_menu_item_select);
-      fill_option_menu_with_coordinates_options_internal_with_active_mol(option_menu,
-									callback_func, imol);
+      GtkWidget *combobox = lookup_widget(GTK_WIDGET(go_to_atom_window), 
+					     "go_to_atom_molecule_combobox");
+      GCallback callback_func = G_CALLBACK(go_to_atom_mol_menu_item_select);
+      fill_combobox_with_coordinates_options(combobox, callback_func, imol);
 
       update_go_to_atom_window_on_changed_mol(imol);
    }

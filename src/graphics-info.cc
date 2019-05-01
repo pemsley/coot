@@ -4221,8 +4221,8 @@ graphics_info_t::create_molecule_and_display(std::vector<coot::scored_skel_coord
    // now add atoms:
    for (unsigned int i=0; i<pos_position.size(); i++) {
       coot::Cartesian c(pos_position[i].position.x(),
-		  pos_position[i].position.y(),
-		  pos_position[i].position.z());
+			pos_position[i].position.y(),
+			pos_position[i].position.z());
       cv.push_back(c);
    }
    molecules[imol].add_multiple_dummies(cv);
@@ -4320,7 +4320,9 @@ graphics_info_t::apply_undo() {
 	 GtkWidget *dialog = create_undo_molecule_chooser_dialog();
 	 GtkWidget *option_menu = lookup_widget(dialog,
 						"undo_molecule_chooser_option_menu");
-	 fill_option_menu_with_undo_options(option_menu);
+	 // fill_option_menu_with_undo_options(option_menu);
+	 GtkWidget *combobox = lookup_widget(dialog, "undo_molecule_chooser_combobox");
+	 fill_combobox_with_undo_options(combobox);
 	 gtk_widget_show(dialog);
       }
    } else {
@@ -4389,9 +4391,8 @@ graphics_info_t::apply_redo() {
    int umol = Undo_molecule(coot::REDO);
    if (umol == -2) { // ambiguity
       GtkWidget *dialog = create_undo_molecule_chooser_dialog();
-      GtkWidget *option_menu = lookup_widget(dialog,
-					     "undo_molecule_chooser_option_menu");
-      fill_option_menu_with_undo_options(option_menu);
+      GtkWidget *combobox = lookup_widget(dialog, "undo_molecule_chooser_combobox");
+      fill_combobox_with_undo_options(combobox);
       gtk_widget_show(dialog);
    } else {
       if (umol == -1) { // unset
