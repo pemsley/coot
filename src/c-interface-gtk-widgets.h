@@ -124,6 +124,10 @@ void fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
 void fill_option_menu_with_coordinates_options_unsaved_first(GtkWidget *option_menu, 
 							     GtkSignalFunc signal_func,
 							     int imol_active_position);
+void fill_combobox_with_coordinates_options(GtkWidget *combobox,
+					    GCallback signal_func,
+					    int imol_active);
+
 GtkWidget *coot_file_chooser();
 
 GtkWidget *coot_dataset_chooser();
@@ -595,13 +599,21 @@ void resize_rama_canvas(GtkWidget *widget, GdkEventConfigure *event);
 
 GtkWidget *wrapped_ramachandran_plot_differences_dialog();
 int  do_ramachandran_plot_differences_by_widget(GtkWidget *w); /* return status */
-void fill_ramachandran_plot_differences_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
-								       int is_first_mol_flag);
-void ramachandran_plot_differences_mol_option_menu_activate_first(GtkWidget *item, GtkPositionType pos);
-void ramachandran_plot_differences_mol_option_menu_activate_second(GtkWidget *item, GtkPositionType pos);
-void ramachandran_plot_differences_chain_option_menu_activate_first(GtkWidget *item, GtkPositionType pos);
-void ramachandran_plot_differences_chain_option_menu_activate_second(GtkWidget *item, GtkPositionType pos);
- 
+// void fill_ramachandran_plot_differences_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
+// 								       int is_first_mol_flag);
+void fill_ramachandran_plot_differences_combobox_with_chain_options(GtkWidget *chain_optionmenu, 
+								    int is_first_mol_flag);
+
+/* void ramachandran_plot_differences_mol_option_menu_activate_first(GtkWidget *item, GtkPositionType pos); */
+/* void ramachandran_plot_differences_mol_option_menu_activate_second(GtkWidget *item, GtkPositionType pos); */
+/* void ramachandran_plot_differences_chain_option_menu_activate_first(GtkWidget *item, GtkPositionType pos); */
+/* void ramachandran_plot_differences_chain_option_menu_activate_second(GtkWidget *item, GtkPositionType pos); */
+
+void ramachandran_plot_differences_mol_combobox_activate_first(GtkWidget *item, GtkPositionType pos);
+void ramachandran_plot_differences_mol_combobox_activate_second(GtkWidget *item, GtkPositionType pos);
+void ramachandran_plot_differences_chain_combobox_activate_first(GtkWidget *item, GtkPositionType pos);
+void ramachandran_plot_differences_chain_combobox_activate_second(GtkWidget *item, GtkPositionType pos);
+
 void set_sequence_view_is_displayed(GtkWidget *widget, int imol); 
 
 void set_ligand_cluster_sigma_level_from_widget(GtkWidget *button);
@@ -704,8 +716,10 @@ void fill_chi_angles_vbox(GtkWidget *vbox);
 GtkWidget *wrapped_create_check_waters_dialog();
 void check_waters_molecule_menu_item_activate(GtkWidget *item, 
 					      GtkPositionType pos);
-void check_water_by_difference_maps_option_menu_item_select(GtkWidget *item, 
-							    GtkPositionType pos);
+// void check_water_by_difference_maps_option_menu_item_select(GtkWidget *item, 
+// 							    GtkPositionType pos);
+void check_water_by_difference_maps_combobox_item_select(GtkWidget *item, 
+							 GtkPositionType pos);
 void do_check_waters_by_widget(GtkWidget *dialog);
 void store_checked_waters_baddies_dialog(GtkWidget *dialog);
 
