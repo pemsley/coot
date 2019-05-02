@@ -1098,6 +1098,18 @@ my_combo_box_text_add_items(GtkComboBox *combobox,
 
 }
 
+int
+my_combobox_get_imol(GtkComboBox *combobox) {
+
+   int imol = -1;
+
+   if (combobox) {
+      graphics_info_t g;
+      imol = g.combobox_get_imol(combobox);
+   }
+   return imol;
+}
+
 void
 coot::column_selector_using_cmtz_setup_comboboxes(GtkWidget *column_label_window,
 						  coot::mtz_column_types_info_t *f_phi_columns) {

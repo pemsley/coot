@@ -1607,6 +1607,8 @@ public:
 					       GCallback callback_func,
 					       bool set_last_active_flag);
    
+   // and the counterpart:
+   int combobox_get_imol(GtkComboBox *combobox) const;
    // static void go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionType pos); // delete this
    static void go_to_atom_mol_combobox_changed(GtkWidget *combobox, gpointer data);
 

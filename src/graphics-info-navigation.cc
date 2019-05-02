@@ -903,7 +903,29 @@ graphics_info_t::go_to_atom_mol_combobox_changed(GtkWidget *combobox, gpointer d
    } else {
       std::cout << "bad state" << std::endl;
    }
-   
+
+}
+
+int
+graphics_info_t::combobox_get_imol(GtkComboBox *combobox) const {
+
+   int imol = -1;
+
+   std::cout << "----- combobox_get_imol " << combobox<< std::endl;
+   if (combobox) {
+      GtkTreeIter iter;
+      gboolean state = gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &iter);
+      if (state) {
+	 GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox));
+	 GValue label_as_value = { 0, };
+	 gtk_tree_model_get_value(model, &iter, 0, &label_as_value);
+	 imol = g_value_get_int(&label_as_value);
+	 std::cout << "imol: " << imol << std::endl;
+      } else {
+	 std::cout << "combobox_get_imol(): bad state" << std::endl;
+      }
+   }
+   return imol;
 }
 
 

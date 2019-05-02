@@ -2146,7 +2146,7 @@ on_save_coordinates1_activate          (GtkMenuItem     *menuitem,
 
   widget = create_save_coords_dialog(); 
 
-  combobox = lookup_widget(GTK_WIDGET(widget), "save_coords_combobox");
+  combobox = lookup_widget(GTK_WIDGET(widget), "save_coordinates_combobox");
 
   if (combobox) {
 
@@ -2165,58 +2165,20 @@ void
 on_save_coords_dialog_save_button_clicked (GtkButton       *button,
 					   gpointer         user_data)
 {
-  GtkWidget *dialog;
-  GtkWidget *widget;
-  GtkWidget *menu;
-  GtkWidget *option_menu;
-  char *imol_str;
-  int imol_of_save_active_menu_item = 0; 
-  int *itmp_p;
-
-  dialog = lookup_widget(GTK_WIDGET(button), "save_coords_dialog");
-
-  option_menu = lookup_widget(GTK_WIDGET(button),
-			      "save_coords_optionmenu");
-
-  menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
-  gtk_menu_get_active(GTK_MENU(menu));
-
-  /* we need to know the molecule number of the active menu item.  Now
-     that the save molecule options use the standard coordinate option
-     menu mechanism, the way to get to the active molecule is by a
-     graphics_info_t static.  We provide a c-interface access to that
-     varible in the case (where we need access to it from the C
-     interface) */
-
-  imol_of_save_active_menu_item = save_molecule_number_from_option_menu();
-  if (imol_of_save_active_menu_item == -1) { 
-     info_dialog("No molecules available to save.");
-  } else { 
-     itmp_p = (int *) malloc(sizeof(int));
-     *itmp_p = imol_of_save_active_menu_item; 
-     imol_str = (char *) itmp_p;
-     widget = coot_save_coords_chooser();
-  
-     /* we transfer the pointer to imol to the save coordinates fileselection */
-     gtk_object_set_user_data(GTK_OBJECT(widget), imol_str);
-
-     add_file_dialog_action_area_vbox(widget);
-     add_save_coordinates_include_hydrogens_and_aniso_checkbutton(widget);
-
-     add_sort_button_fileselection(widget); 
-     /*   set_directory_for_fileselection(widget); */
-     set_file_for_save_fileselection(widget);
-     add_ccp4i_project_optionmenu(widget, COOT_SAVE_COORDS_FILE_SELECTION);
-     /*   add_filename_filter(widget); */
-     add_filename_filter_button(widget, COOT_SAVE_COORDS_FILE_SELECTION);
-
-     set_file_selection_dialog_size(widget);
-
-     set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
-
-     gtk_widget_show(widget);
-     gtk_widget_destroy(dialog);
+  GtkWidget *combobox = lookup_widget(GTK_WIDGET(button), "save_coordinates_combobox");
+  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "save_coords_dialog");
+  GtkWidget *chooser;
+  int imol;
+  if (! combobox) {
+    printf("on_save_coords_dialog_save_button_clicked: bad combobox\n");
+  } else {
+    imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+    chooser = coot_save_coords_chooser();
+    g_object_set_data(G_OBJECT(chooser), "imol", GINT_TO_POINTER(imol));
+    gtk_widget_show(chooser);
   }
+  gtk_widget_destroy(dialog);
+
 }
 
 
@@ -10882,7 +10844,6 @@ on_phs_coordinates_filechooserdialog1_destroy
 }
 
 
-#if (GTK_MAJOR_VERSION > 1) && (GTK_MINOR_VERSION > 9)
 GtkFileChooserConfirmation
 on_save_coords_filechooserdialog1_confirm_overwrite
 					(GtkFileChooser * filechooser, 
@@ -10890,17 +10851,12 @@ on_save_coords_filechooserdialog1_confirm_overwrite
 {
 
   if (file_chooser_overwrite_state() == 1) {
-
     return GTK_FILE_CHOOSER_CONFIRMATION_CONFIRM;
-
   } else {
-
     return GTK_FILE_CHOOSER_CONFIRMATION_ACCEPT_FILENAME;
-
   }
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
 void
