@@ -3731,8 +3731,7 @@ new_close_molecules(GtkWidget *window) {
 					       "go_to_atom_molecule_combobox");
 	 int gimol = g.go_to_atom_molecule();
 
-	 GCallback callback_func =
-	    G_CALLBACK(graphics_info_t::go_to_atom_mol_combobox_changed);
+	 GCallback callback_func = G_CALLBACK(graphics_info_t::go_to_atom_mol_combobox_changed);
 	 g.fill_combobox_with_coordinates_options(combobox, callback_func, gimol);
       }
       graphics_draw();

@@ -789,7 +789,7 @@ graphics_info_t::update_go_to_atom_window_on_new_mol() {
 	 }
       }
       if (mol_no != -1)
-	 if (imols_existing.size() == 1) 
+	 if (imols_existing.size() == 1)
 	    update_go_to_atom_window_on_changed_mol(mol_no);
    }
 }
@@ -803,9 +803,9 @@ graphics_info_t::update_go_to_atom_window_on_other_molecule_chosen(int imol) {
    if (go_to_atom_window) {
       GtkWidget *combobox = lookup_widget(GTK_WIDGET(go_to_atom_window), 
 					     "go_to_atom_molecule_combobox");
+
       GCallback callback_func = G_CALLBACK(go_to_atom_mol_combobox_changed);
       fill_combobox_with_coordinates_options(combobox, callback_func, imol);
-
       update_go_to_atom_window_on_changed_mol(imol);
    }
 }
