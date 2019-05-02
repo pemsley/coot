@@ -24781,7 +24781,6 @@ create_move_molecule_here_dialog (void)
   GtkWidget *vbox184;
   GtkWidget *label287;
   GtkWidget *move_molecule_here_big_molecules_checkbutton;
-  GtkWidget *move_molecule_here_optionmenu;
   GtkWidget *move_molecule_here_combobox;
   GtkWidget *dialog_action_area94;
   GtkWidget *hbox143;
@@ -24819,10 +24818,6 @@ create_move_molecule_here_dialog (void)
   gtk_widget_show (move_molecule_here_big_molecules_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox184), move_molecule_here_big_molecules_checkbutton, FALSE, FALSE, 5);
   gtk_tooltips_set_tip (tooltips, move_molecule_here_big_molecules_checkbutton, "\"Big\" means more than 400 atoms", NULL);
-
-  move_molecule_here_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (move_molecule_here_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox184), move_molecule_here_optionmenu, FALSE, FALSE, 2);
 
   move_molecule_here_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (move_molecule_here_combobox);
@@ -24893,7 +24888,6 @@ create_move_molecule_here_dialog (void)
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, vbox184, "vbox184");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, label287, "label287");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, move_molecule_here_big_molecules_checkbutton, "move_molecule_here_big_molecules_checkbutton");
-  GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, move_molecule_here_optionmenu, "move_molecule_here_optionmenu");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, move_molecule_here_combobox, "move_molecule_here_combobox");
   GLADE_HOOKUP_OBJECT_NO_REF (move_molecule_here_dialog, dialog_action_area94, "dialog_action_area94");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, hbox143, "hbox143");

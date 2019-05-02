@@ -1789,6 +1789,9 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal(GtkWidget *o
 
 }
 
+
+// The callback_func pass here is connected to the combobox, not the menu items.
+//
 void
 graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
 							GCallback callback_func,
@@ -1847,7 +1850,7 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
       }
       std::cout << "setting active..." << std::endl;
       // active_idx = 0; // testing
-      std::cout << "calling gtk_combo_box_set_active " << last_idx << std::endl;
+      std::cout << "calling gtk_combo_box_set_active " << active_idx << std::endl;
       gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), active_idx);
       std::cout << "done set active..." << std::endl;
    }

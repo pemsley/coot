@@ -1607,8 +1607,8 @@ public:
 					       GCallback callback_func,
 					       bool set_last_active_flag);
    
-   static void go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionType pos); // delete this
-   static void go_to_atom_mol_combobox_item_select(GtkWidget *combobox, gpointer data);
+   // static void go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionType pos); // delete this
+   static void go_to_atom_mol_combobox_changed(GtkWidget *combobox, gpointer data);
 
    static void on_go_to_atom_residue_list_selection_changed (GtkList *gtklist,
 							     gpointer user_data);
@@ -3579,8 +3579,10 @@ public:
 
    // -- move molecule here
    static int move_molecule_here_molecule_number;
-   static void move_molecule_here_item_select(GtkWidget *item,
-					      GtkPositionType pos);
+   // static void move_molecule_here_item_select(GtkWidget *item,
+   // GtkPositionType pos);
+   static void move_molecule_here_combobox_changed(GtkWidget *combobox, gpointer data);
+
 
    // -- make the key user changable.  A template for other bound
    // functions:
