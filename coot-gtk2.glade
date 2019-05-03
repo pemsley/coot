@@ -35766,16 +35766,7 @@ search (this may not work well)</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="add_OXT_molecule_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>
@@ -35830,16 +35821,7 @@ search (this may not work well)</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="add_OXT_chain_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>

@@ -17553,11 +17553,9 @@ create_add_OXT_dialog (void)
   GtkWidget *label198;
   GtkWidget *hbox101;
   GtkWidget *label199;
-  GtkWidget *add_OXT_molecule_optionmenu;
   GtkWidget *add_OXT_molecule_combobox;
   GtkWidget *hbox102;
   GtkWidget *label200;
-  GtkWidget *add_OXT_chain_optionmenu;
   GtkWidget *add_OXT_chain_combobox;
   GtkWidget *frame115;
   GtkWidget *vbox122;
@@ -17611,10 +17609,6 @@ create_add_OXT_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox101), label199, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label199), GTK_JUSTIFY_CENTER);
 
-  add_OXT_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (add_OXT_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox101), add_OXT_molecule_optionmenu, FALSE, FALSE, 0);
-
   add_OXT_molecule_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (add_OXT_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (hbox101), add_OXT_molecule_combobox, TRUE, TRUE, 0);
@@ -17627,10 +17621,6 @@ create_add_OXT_dialog (void)
   gtk_widget_show (label200);
   gtk_box_pack_start (GTK_BOX (hbox102), label200, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label200), GTK_JUSTIFY_CENTER);
-
-  add_OXT_chain_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (add_OXT_chain_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox102), add_OXT_chain_optionmenu, FALSE, FALSE, 0);
 
   add_OXT_chain_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (add_OXT_chain_combobox);
@@ -17738,11 +17728,9 @@ create_add_OXT_dialog (void)
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, label198, "label198");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, hbox101, "hbox101");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, label199, "label199");
-  GLADE_HOOKUP_OBJECT (add_OXT_dialog, add_OXT_molecule_optionmenu, "add_OXT_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, add_OXT_molecule_combobox, "add_OXT_molecule_combobox");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, hbox102, "hbox102");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, label200, "label200");
-  GLADE_HOOKUP_OBJECT (add_OXT_dialog, add_OXT_chain_optionmenu, "add_OXT_chain_optionmenu");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, add_OXT_chain_combobox, "add_OXT_chain_combobox");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, frame115, "frame115");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, vbox122, "vbox122");
