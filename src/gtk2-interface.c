@@ -16454,7 +16454,6 @@ create_merge_molecules_dialog (void)
   GtkWidget *viewport7;
   GtkWidget *merge_molecules_vbox;
   GtkWidget *label179;
-  GtkWidget *merge_molecules_optionmenu;
   GtkWidget *merge_molecules_combobox;
   GtkWidget *label180;
   GtkWidget *dialog_action_area57;
@@ -16509,10 +16508,6 @@ create_merge_molecules_dialog (void)
   gtk_widget_show (label179);
   gtk_box_pack_start (GTK_BOX (vbox114), label179, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label179), GTK_JUSTIFY_CENTER);
-
-  merge_molecules_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (merge_molecules_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox114), merge_molecules_optionmenu, FALSE, FALSE, 0);
 
   merge_molecules_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (merge_molecules_combobox);
@@ -16588,7 +16583,6 @@ create_merge_molecules_dialog (void)
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, viewport7, "viewport7");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, merge_molecules_vbox, "merge_molecules_vbox");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, label179, "label179");
-  GLADE_HOOKUP_OBJECT (merge_molecules_dialog, merge_molecules_optionmenu, "merge_molecules_optionmenu");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, merge_molecules_combobox, "merge_molecules_combobox");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, label180, "label180");
   GLADE_HOOKUP_OBJECT_NO_REF (merge_molecules_dialog, dialog_action_area57, "dialog_action_area57");

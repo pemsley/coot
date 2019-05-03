@@ -394,8 +394,9 @@ void do_merge_molecules_gui();
 void do_merge_molecules(GtkWidget *dialog);
 void fill_vbox_with_coordinates_options(GtkWidget *vbox,
 					GtkSignalFunc checkbox_callback_func);
-void merge_molecules_menu_item_activate(GtkWidget *item, 
-					GtkPositionType pos);
+/* void merge_molecules_menu_item_activate(GtkWidget *item,  */
+/* 					GtkPositionType pos); */
+void merge_molecules_master_molecule_combobox_changed(GtkWidget *w, gpointer data);
 void on_merge_molecules_check_button_toggled (GtkToggleButton *togglebutton,
 					      gpointer         user_data);
 

@@ -732,7 +732,9 @@ GtkWidget *wrapped_create_merge_molecules_dialog() {
    GtkWidget *combobox = lookup_widget(w, "merge_molecules_combobox");
    GtkWidget *molecules_vbox       = lookup_widget(w, "merge_molecules_vbox");
 
-   GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(merge_molecules_menu_item_activate);
+   // GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(merge_molecules_menu_item_activate);
+   GCallback callback_func = G_CALLBACK(merge_molecules_master_molecule_combobox_changed);
+
    GtkSignalFunc checkbox_callback_func = GTK_SIGNAL_FUNC(on_merge_molecules_check_button_toggled);
 
 
@@ -754,10 +756,18 @@ GtkWidget *wrapped_create_merge_molecules_dialog() {
    return w;
 }
 
-void merge_molecules_menu_item_activate(GtkWidget *item, 
-					GtkPositionType pos) {
+// void merge_molecules_menu_item_activate(GtkWidget *item, 
+// 					GtkPositionType pos) {
+//    graphics_info_t::merge_molecules_master_molecule = pos;
+// }
 
-   graphics_info_t::merge_molecules_master_molecule = pos;
+// #include "c-interface-gui.hh"
+
+void merge_molecules_master_molecule_combobox_changed(GtkWidget *combobox, 
+						      gpointer data) {
+
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t::merge_molecules_master_molecule = imol;
 }
 
 void fill_vbox_with_coordinates_options(GtkWidget *dialog,
@@ -814,7 +824,7 @@ void on_merge_molecules_check_button_toggled (GtkToggleButton *togglebutton,
 					      gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
-   if (togglebutton->active) {
+   if (gtk_toggle_button_get_active(togglebutton)) {
       std::cout << "INFO:: adding molecule " << imol << " to merging list\n";
       graphics_info_t::merge_molecules_merging_molecules->push_back(imol);
    } else {
@@ -839,7 +849,14 @@ void do_merge_molecules_gui() {
 void do_merge_molecules(GtkWidget *dialog) {
 
    std::vector<int> add_molecules = *graphics_info_t::merge_molecules_merging_molecules;
-   if (add_molecules.size() > 0) { 
+   if (add_molecules.size() > 0) {
+
+      if (true)
+	 std::cout << "calling merge_molecules_by_vector into "
+		   << graphics_info_t::merge_molecules_master_molecule
+		   << " n-molecules " << add_molecules.size()
+		   << " starting with " << add_molecules[0]
+		   << std::endl;
       std::pair<int, std::vector<merge_molecule_results_info_t> > stat =
 	 merge_molecules_by_vector(add_molecules,
 				   graphics_info_t::merge_molecules_master_molecule);
