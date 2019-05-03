@@ -472,20 +472,8 @@ void save_refmac_phase_params_to_map(int imol_map,
 std::string
 get_active_label_in_combobox(GtkComboBox *combobox) {
 
-   std::string f_label;
-   GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox));
-   GtkTreeIter iter;
-   gboolean state = gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &iter);
-   if (state) {
-      GValue f_label_as_value = { 0, };
-      // g_value_init (&f_label_as_value, G_TYPE_STRING); init is done in the get below
-      gtk_tree_model_get_value(model, &iter, 0, &f_label_as_value);
-      const char *f_label_cstr = g_value_get_string(&f_label_as_value);
-      f_label = f_label_cstr;
-   } else {
-      std::cout << "Bad state" << std::endl;
-   }
-   return f_label;
+   graphics_info_t g;
+   return g.get_active_label_in_combobox(combobox);
 }
 
 void handle_column_label_make_fourier(GtkWidget *column_label_window) {

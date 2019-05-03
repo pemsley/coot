@@ -1789,6 +1789,14 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal(GtkWidget *o
 
 }
 
+// we need this
+// void
+// graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
+// 							GCallback callback_func,
+// 							int imol_active) {
+// }
+
+
 
 // The callback_func pass here is connected to the combobox, not the menu items.
 //
@@ -1833,8 +1841,6 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
 
    }
 
-   std::cout << "--- in fill_combobox_with_coordinates_options here A " << std::endl;
-
    g_signal_connect(combobox, "changed", callback_func, NULL);
    GtkTreeModel *model = GTK_TREE_MODEL(store);
    GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
@@ -1842,20 +1848,13 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
    gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(combobox), renderer, "text", 1, NULL);
    gtk_combo_box_set_model(GTK_COMBO_BOX(combobox), model);
 
-   std::cout << "--- in fill_combobox_with_coordinates_options here B " << std::endl;
-
    if (fill_with_these_molecules.size() > 0) {
       if (set_last_active_flag) {
 	 active_idx = last_idx;
       }
-      std::cout << "setting active..." << std::endl;
       // active_idx = 0; // testing
-      std::cout << "calling gtk_combo_box_set_active " << active_idx << std::endl;
       gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), active_idx);
-      std::cout << "done set active..." << std::endl;
    }
-
-   std::cout << "--- in fill_combobox_with_coordinates_options here C " << std::endl;
 
 
 }
@@ -2066,7 +2065,8 @@ graphics_info_t::fill_option_menu_with_undo_options(GtkWidget *option_menu) {
 void
 graphics_info_t::fill_combobox_with_undo_options(GtkWidget *combobox) {
 
-   // fill me                                      
+   // make the first undo molecule be the active one.
+   fill_combobox_with_coordinates_options(combobox, NULL, false);
 }
 
 
@@ -3721,7 +3721,7 @@ void
 graphics_info_t::fill_add_OXT_dialog_internal(GtkWidget *widget, int imol) {
 
    GtkWidget *chain_combobox = lookup_widget(widget, "add_OXT_chain_combobox");
-   GCallback signal_func = G_CALLBACK(add_OXT_chain_menu_item_activate);
+   GCallback signal_func = G_CALLBACK(add_OXT_chain_combobox_changed);
 
    std::string a = fill_combobox_with_chain_options(chain_combobox, imol, signal_func);
    if (a != "no-chain") {
@@ -3729,15 +3729,47 @@ graphics_info_t::fill_add_OXT_dialog_internal(GtkWidget *widget, int imol) {
    }
 }
 
-// static (menu item ativate callback)
-void
-graphics_info_t::add_OXT_chain_menu_item_activate (GtkWidget *item,
-						   GtkPositionType pos) {
+// // static (menu item ativate callback)
+// void
+// graphics_info_t::add_OXT_chain_menu_item_activate (GtkWidget *item,
+// 						   GtkPositionType pos) {
 
-   char *chain_id = (char *) g_object_get_data(G_OBJECT(item), "chain-id");
-   if (chain_id)
-      add_OXT_chain = std::string(chain_id);
+//    char *chain_id = (char *) g_object_get_data(G_OBJECT(item), "chain-id");
+//    if (chain_id)
+//       add_OXT_chain = std::string(chain_id);
+// }
+
+// static
+void
+graphics_info_t::add_OXT_chain_combobox_changed(GtkWidget *combobox,
+						gpointer data) {
+
+   std::cout << "combobox changed" << std::endl;
+   graphics_info_t g;
+   add_OXT_chain = g.get_active_label_in_combobox(GTK_COMBO_BOX(combobox));
+
 }
+
+// get string for column 0 (which are strings)
+std::string
+graphics_info_t::get_active_label_in_combobox(GtkComboBox *combobox) const {
+
+   std::string f_label;
+   GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox));
+   GtkTreeIter iter;
+   gboolean state = gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &iter);
+   if (state) {
+      GValue f_label_as_value = { 0, };
+      // g_value_init (&f_label_as_value, G_TYPE_STRING); init is done in the get below
+      gtk_tree_model_get_value(model, &iter, 0, &f_label_as_value);
+      const char *f_label_cstr = g_value_get_string(&f_label_as_value);
+      f_label = f_label_cstr;
+   } else {
+      std::cout << "Bad state" << std::endl;
+   }
+   return f_label;
+}
+
 
 // a copy of the c-interface function which does not pass the signal
 // function.  We also return the string at the top of the list:
@@ -3807,19 +3839,38 @@ graphics_info_t::fill_combobox_with_chain_options(GtkWidget *combobox,
 						  GCallback f,
 						  const std::string &ac) {
 
-   std::cout << "GTK-FIXME" << std::endl;
    std::string r("no-chain");
+   GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox));
+   gtk_list_store_clear(GTK_LIST_STORE(model));
+   gtk_combo_box_set_model(GTK_COMBO_BOX(combobox),NULL);
 
-   if (imol<graphics_info_t::n_molecules()) {
-      if (imol >= 0) { 
-	 if (graphics_info_t::molecules[imol].has_model()) {
-	    std::vector<std::string> chains =
-	       coot::util::chains_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
+   // std::cout << "--------- chain model and store " << model << " " << store << std::endl;
 
-	    std::cout << "tralalalalalala" << std::endl;
-	 }
+   GtkListStore *store = gtk_list_store_new(1, G_TYPE_STRING);
+   model = GTK_TREE_MODEL(store);
+   
+   GtkTreeIter iter;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+      std::vector<std::string> chains = coot::util::chains_in_molecule(mol);
+      for (std::size_t i=0; i<chains.size(); i++) {
+	 std::cout << "fill_combobox_with_chain_options() " << imol << " " << chains[i] << std::endl;
+	 gtk_list_store_append(store, &iter);
+	 gtk_list_store_set(store, &iter, 0, chains[i].c_str(), -1);
+	 if (i == 0)
+	    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
       }
    }
+
+   // OXT chain callback
+   // GCallback signal_func = G_CALLBACK(add_OXT_chain_menu_item_activate);
+   
+   g_signal_connect(combobox, "changed", f, NULL);
+   GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
+   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox), renderer, TRUE);
+   gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(combobox), renderer, "text", 0, NULL);
+   gtk_combo_box_set_model(GTK_COMBO_BOX(combobox), model);
+
    return r;
 }
 

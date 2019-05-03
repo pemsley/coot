@@ -547,26 +547,32 @@ void renumber_residues_from_widget(GtkWidget *window) {
 
 
 
-void apply_add_OXT_from_widget(GtkWidget *w) {
+void apply_add_OXT_from_widget(GtkWidget *ok_button) {
 
-   int imol = graphics_info_t::add_OXT_molecule;
+   std::cout << "---------- apply_add_OXT_from_widget() " << ok_button << std::endl;
+
+   GtkWidget *combobox = lookup_widget(ok_button, "add_OXT_molecule_combobox");
+
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+
+   std::cout << "combobox " << combobox << " imol " << imol << std::endl;
    int resno = -9999;
    std::string chain_id = graphics_info_t::add_OXT_chain;
 
-   GtkWidget *terminal_checkbutton = lookup_widget(w, "add_OXT_c_terminus_radiobutton");
-   GtkWidget *residue_number_entry = lookup_widget(w, "add_OXT_residue_entry");
+   GtkWidget *terminal_checkbutton = lookup_widget(ok_button, "add_OXT_c_terminus_radiobutton");
+   GtkWidget *residue_number_entry = lookup_widget(ok_button, "add_OXT_residue_entry");
 
-   if (GTK_TOGGLE_BUTTON(terminal_checkbutton)->active) {
-      std::cout << "DEBUG:: auto determine C terminus..." << std::endl;
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(terminal_checkbutton))) {
+      std::cout << "DEBUG:: auto determine C terminus for imol " << imol << std::endl;
       // we need to determine the last residue in this chain:
-      if (is_valid_model_molecule(imol)) { 
-	 if (graphics_info_t::molecules[imol].has_model()) {
-	    std::pair<short int, int> p =
-	       graphics_info_t::molecules[imol].last_residue_in_chain(chain_id);
-	    if (p.first) {
-	       resno = p.second;
-	    } 
-	 }
+      if (is_valid_model_molecule(imol)) {
+	 std::cout << "here A with chain_id :" << chain_id <<  ":" << std::endl;
+	 graphics_info_t g;
+	 std::pair<bool, int> p = g.molecules[imol].last_residue_in_chain(chain_id);
+	 std::cout << "here with last_residue_in_chain " << p.first << " " << p.second << std::endl;
+	 if (p.first) {
+	    resno = p.second;
+	 } 
       }
    } else {
       // we get the resno from the widget
@@ -586,7 +592,8 @@ void apply_add_OXT_from_widget(GtkWidget *w) {
 	 }
       }
    } else {
-      std::cout << "WARNING:: Could not determine last residue - not adding OXT\n";
+      std::cout << "WARNING:: Could not determine last residue - not adding OXT "
+		<< imol << " " << resno << "\n";
    } 
 }
 

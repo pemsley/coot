@@ -2137,8 +2137,8 @@ public:        //                      public
 				coot::protein_geometry *geom_p); // external usage
    bool residue_has_oxt_p(mmdb::Residue *residue) const; // used by above.  Dont add if returns true.
 
-   std::pair<short int, int>  last_residue_in_chain(const std::string &chain_id) const;
-   std::pair<short int, int> first_residue_in_chain(const std::string &chain_id) const;
+   std::pair<bool, int>  last_residue_in_chain(const std::string &chain_id) const;
+   std::pair<bool, int> first_residue_in_chain(const std::string &chain_id) const;
 
    // return NULL on no last residue.
    mmdb::Residue *last_residue_in_chain(mmdb::Chain *chain_p) const;

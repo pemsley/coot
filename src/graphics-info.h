@@ -3260,7 +3260,10 @@ public:
    static int auto_read_do_difference_map_too_flag;
 
    // ------- refmac molecules option menu  -----
-   static int refmac_molecule; 
+   static int refmac_molecule;
+
+   // ------ new style combobox usage -------
+   std::string get_active_label_in_combobox(GtkComboBox *combobox) const;
 
    // ------ add OXT -------
    void fill_add_OXT_dialog_internal(GtkWidget *w);
@@ -3290,8 +3293,9 @@ public:
 							  GtkSignalFunc signal_func, 
 							  const std::string &active_chain_id);
    static std::string add_OXT_chain;
-   static void add_OXT_chain_menu_item_activate (GtkWidget *item,
-						 GtkPositionType pos);
+   // static void add_OXT_chain_menu_item_activate (GtkWidget *item,
+   //GtkPositionType pos);
+   static void add_OXT_chain_combobox_changed(GtkWidget *combobox, gpointer data);
 
    // 
    static GtkWidget *wrapped_nothing_bad_dialog(const std::string &label);
