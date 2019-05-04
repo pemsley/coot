@@ -429,10 +429,15 @@ void wrapped_fit_loop_db_loop_dialog();
 GtkWidget *wrapped_create_align_and_mutate_dialog();
 /* return the handled_state, so that we know if we should kill the dialog or not */
 int do_align_mutate_sequence(GtkWidget *w);
-void align_and_mutate_molecule_menu_item_activate(GtkWidget *item, 
-						  GtkPositionType pos);
-void align_and_mutate_chain_option_menu_item_activate (GtkWidget *item,
-						       GtkPositionType pos);
+
+/* void align_and_mutate_molecule_menu_item_activate(GtkWidget *item,  */
+/* 						  GtkPositionType pos); */
+/* void align_and_mutate_chain_option_menu_item_activate (GtkWidget *item, */
+/* 						       GtkPositionType pos); */
+
+void align_and_mutate_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
+void align_and_mutate_chain_combobox_changed(GtkWidget *combobox, gpointer data);
+
 GtkWidget *wrapped_create_renumber_residue_range_dialog();
 void renumber_residues_from_widget(GtkWidget *window);
 
@@ -440,6 +445,7 @@ GtkWidget *wrapped_create_change_chain_id_dialog();
 void change_chain_id_by_widget(GtkWidget *w);
 void change_chain_ids_mol_option_menu_item_activate(GtkWidget *item,
 						    GtkPositionType pos);
+void change_chain_ids_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
 void change_chain_ids_chain_menu_item_activate(GtkWidget *item,
 					       GtkPositionType pos);
 void setup_guile_window_entry(GtkWidget *entry); 

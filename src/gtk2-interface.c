@@ -22885,12 +22885,10 @@ create_change_chain_id_dialog (void)
   GtkWidget *frame156;
   GtkWidget *vbox161;
   GtkWidget *label246;
-  GtkWidget *change_chain_id_molecule_optionmenu;
   GtkWidget *change_chain_id_molecule_combobox;
   GtkWidget *label248;
   GtkWidget *hbox125;
   GtkWidget *label247;
-  GtkWidget *change_chain_id_chain_optionmenu;
   GtkWidget *change_chain_id_chain_combobox;
   GtkWidget *frame157;
   GtkWidget *vbox162;
@@ -22946,10 +22944,6 @@ create_change_chain_id_dialog (void)
   gtk_misc_set_alignment (GTK_MISC (label246), 0, 0.5);
   gtk_misc_set_padding (GTK_MISC (label246), 0, 4);
 
-  change_chain_id_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (change_chain_id_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox161), change_chain_id_molecule_optionmenu, FALSE, FALSE, 0);
-
   change_chain_id_molecule_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (change_chain_id_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox161), change_chain_id_molecule_combobox, TRUE, TRUE, 0);
@@ -22969,13 +22963,10 @@ create_change_chain_id_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox125), label247, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label247), GTK_JUSTIFY_CENTER);
 
-  change_chain_id_chain_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (change_chain_id_chain_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox125), change_chain_id_chain_optionmenu, FALSE, FALSE, 0);
-
   change_chain_id_chain_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (change_chain_id_chain_combobox);
   gtk_box_pack_start (GTK_BOX (hbox125), change_chain_id_chain_combobox, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (change_chain_id_chain_combobox, 44, -1);
 
   frame157 = gtk_frame_new (NULL);
   gtk_widget_show (frame157);
@@ -23123,12 +23114,10 @@ create_change_chain_id_dialog (void)
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, frame156, "frame156");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, vbox161, "vbox161");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, label246, "label246");
-  GLADE_HOOKUP_OBJECT (change_chain_id_dialog, change_chain_id_molecule_optionmenu, "change_chain_id_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, change_chain_id_molecule_combobox, "change_chain_id_molecule_combobox");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, label248, "label248");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, hbox125, "hbox125");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, label247, "label247");
-  GLADE_HOOKUP_OBJECT (change_chain_id_dialog, change_chain_id_chain_optionmenu, "change_chain_id_chain_optionmenu");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, change_chain_id_chain_combobox, "change_chain_id_chain_combobox");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, frame157, "frame157");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, vbox162, "vbox162");

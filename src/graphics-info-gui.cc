@@ -1841,7 +1841,8 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
 
    }
 
-   g_signal_connect(combobox, "changed", callback_func, NULL);
+   if (callback_func)
+      g_signal_connect(combobox, "changed", callback_func, NULL);
    GtkTreeModel *model = GTK_TREE_MODEL(store);
    GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox), renderer, TRUE);
@@ -3857,15 +3858,22 @@ graphics_info_t::fill_combobox_with_chain_options(GtkWidget *combobox,
 	 std::cout << "fill_combobox_with_chain_options() " << imol << " " << chains[i] << std::endl;
 	 gtk_list_store_append(store, &iter);
 	 gtk_list_store_set(store, &iter, 0, chains[i].c_str(), -1);
-	 if (i == 0)
+	 if (i == 0) {
 	    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
+	    r = chains[i];
+	 }
+	 if (chains[i] == ac) {
+	    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), i);
+	    r = chains[i];
+	 }
       }
    }
 
    // OXT chain callback
    // GCallback signal_func = G_CALLBACK(add_OXT_chain_menu_item_activate);
-   
-   g_signal_connect(combobox, "changed", f, NULL);
+
+   if (f)
+      g_signal_connect(combobox, "changed", f, NULL);
    GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox), renderer, TRUE);
    gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(combobox), renderer, "text", 0, NULL);
