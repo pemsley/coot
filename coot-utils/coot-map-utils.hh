@@ -361,7 +361,7 @@ namespace coot {
       };
 
 
-
+      clipper::Xmap<float> sharpen_blur_map(const clipper::Xmap<float> &xmap_in, float b_factor);
 
       class segment_map {
 	 enum {UNASSIGNED = -1, TOO_LOW = -2 };

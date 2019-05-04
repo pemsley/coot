@@ -835,6 +835,54 @@ coot::util::backrub_residue_triple_t::trim_next_residue_atoms() {
    trim_residue_atoms_generic(this_residue, vec, 0);
 }
 
+clipper::Xmap<float>
+coot::util::sharpen_blur_map(const clipper::Xmap<float> &xmap_in, float b_factor) {
+
+   float mg = coot::util::max_gridding(xmap_in);
+   clipper::Resolution reso(3.0);
+   clipper::HKL_info myhkl(xmap_in.spacegroup(), xmap_in.cell(), reso, true);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
+   clipper::Xmap<float> xmap_out(xmap_in.spacegroup(), xmap_in.cell(), xmap_in.grid_sampling());
+   xmap_in.fft_to(fphis);
+   clipper::HKL_info::HKL_reference_index hri;
+
+#if 0 // 10 times slower
+   //...and inside loop:
+   it = reso_map.find(irs);
+   if (it != reso_map.end()) {
+      fphis[hri].f() *= it->second;
+   } else {
+      float esf = exp(-b_factor * irs * 0.25);
+      reso_map[irs] = esf;
+      fphis[hri].f() *= esf;
+   }
+#endif
+
+   std::map<float, float> reso_map;
+   std::map<float, float>::const_iterator it;
+   int count = 0;
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   for (hri = fphis.first(); !hri.last(); hri.next()) {
+      if (true) {
+	 float f = fphis[hri].f();
+	 if (! clipper::Util::is_nan(f)) {
+	    float irs =  hri.invresolsq();
+	    fphis[hri].f() *= exp(-b_factor * irs * 0.25);
+	 }
+	 count++;
+      }
+   }
+   auto tp_2 = std::chrono::high_resolution_clock::now();
+   xmap_out.fft_from(fphis);
+   auto tp_3 = std::chrono::high_resolution_clock::now();
+   auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+   // FFT takes ~50 times more time than the adjust of the Fs.
+   // std::cout << "::::::: Timings " << d21 << " " << d32 << " milliseconds"  << std::endl;
+   return xmap_out;
+}
+
+
 // as in the verb, not the noun., return the number of segments (0 is
 // also useful segment).
 // 
