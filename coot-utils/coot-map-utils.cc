@@ -861,7 +861,7 @@ coot::util::sharpen_blur_map(const clipper::Xmap<float> &xmap_in, float b_factor
    std::map<float, float> reso_map;
    std::map<float, float>::const_iterator it;
    int count = 0;
-   auto tp_1 = std::chrono::high_resolution_clock::now();
+   // auto tp_1 = std::chrono::high_resolution_clock::now();
    for (hri = fphis.first(); !hri.last(); hri.next()) {
       if (true) {
 	 float f = fphis[hri].f();
@@ -872,11 +872,11 @@ coot::util::sharpen_blur_map(const clipper::Xmap<float> &xmap_in, float b_factor
 	 count++;
       }
    }
-   auto tp_2 = std::chrono::high_resolution_clock::now();
+   // auto tp_2 = std::chrono::high_resolution_clock::now();
    xmap_out.fft_from(fphis);
-   auto tp_3 = std::chrono::high_resolution_clock::now();
-   auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+   // auto tp_3 = std::chrono::high_resolution_clock::now();
+   // auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+   // auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
    // FFT takes ~50 times more time than the adjust of the Fs.
    // std::cout << "::::::: Timings " << d21 << " " << d32 << " milliseconds"  << std::endl;
    return xmap_out;
