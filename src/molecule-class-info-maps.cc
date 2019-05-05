@@ -259,19 +259,18 @@ molecule_class_info_t::clear_draw_vecs() {
    // crash on double free of the draw vectors. Not sure why. Let's add a lock
 
    bool unlocked = false;
-   while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true) &&
-	  !unlocked) {
+   while (!draw_vector_sets_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
       std::this_thread::sleep_for(std::chrono::microseconds(10));
       unlocked = false;
    }
    for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
       // std::cout << "deleting set " << i << " " << draw_vector_sets[i].data << std::endl;
-      delete draw_vector_sets[i].data;
+      delete [] draw_vector_sets[i].data;
       draw_vector_sets[i].data = 0;
    }
    draw_vector_sets.clear();
    draw_vector_sets.reserve(12);
-   molecule_class_info_t::draw_vector_sets_lock = false; // unlock
+   draw_vector_sets_lock = false; // unlock
 
 }
 

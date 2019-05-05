@@ -459,23 +459,151 @@ coot::util::make_rtop_orth_from(mmdb::mat44 mat) {
 clipper::Xmap<float>
 coot::util::sharpen_map(const clipper::Xmap<float> &xmap_in, float sharpen_factor) {
 
+   // Does this function work?
+
    clipper::HKL_info myhkl; 
-   clipper::HKL_data< clipper::datatypes::F_phi<float> >       fphidata(myhkl); 
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
 
-   xmap_in.fft_to(fphidata);
+   xmap_in.fft_to(fphis);
 
-//    for (clipper::HKL_info::HKL_reference_index hri = fphidata->first(); !hri.last(); hri.next()) {
-//       float reso = hri.invresolsq();
-//       std::cout << hri.format() << " has reso " << reso << std::endl;
-//       float fac = 1.0;
-      
-//       (*fphidata)[hri].f() = fac;
-//    }
+   clipper::HKL_info::HKL_reference_index hri;
+   for (hri = fphis.first(); !hri.last(); hri.next()) {
+      float irs = hri.invresolsq();
+      // std::cout << hri.format() << " has reso " << irs << std::endl;
+      float fac = exp(-sharpen_factor * irs * 0.25);
+      fphis[hri].f() *= fac;
+   }
 
    clipper::Xmap<float> r;
-   r.fft_from(fphidata);
+   r.fft_from(fphis);
    return r;
 }
+
+clipper::Xmap<float>
+coot::util::sharpen_blur_map(const clipper::Xmap<float> &xmap_in, float b_factor) {
+
+   float mg = coot::util::max_gridding(xmap_in);
+   clipper::Resolution reso(2.0 * mg);
+   clipper::HKL_info myhkl(xmap_in.spacegroup(), xmap_in.cell(), reso, true);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
+   clipper::Xmap<float> xmap_out(xmap_in.spacegroup(), xmap_in.cell(), xmap_in.grid_sampling());
+   xmap_in.fft_to(fphis);
+   clipper::HKL_info::HKL_reference_index hri;
+
+   /*
+   // using a map to cache the scale factors is 10 times slower
+   std::map<float, float> reso_map;
+   std::map<float, float>::const_iterator it;
+   //...and inside loop:
+   it = reso_map.find(irs);
+   if (it != reso_map.end()) {
+      fphis[hri].f() *= it->second;
+   } else {
+      float esf = exp(-b_factor * irs * 0.25);
+      reso_map[irs] = esf;
+      fphis[hri].f() *= esf;
+   }
+   */
+
+   int count = 0;
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   for (hri = fphis.first(); !hri.last(); hri.next()) {
+      float f = fphis[hri].f();
+      if (! clipper::Util::is_nan(f)) {
+	 float irs =  hri.invresolsq();
+	 fphis[hri].f() *= exp(-b_factor * irs * 0.25);
+	 count++;
+      }
+   }
+   auto tp_2 = std::chrono::high_resolution_clock::now();
+   xmap_out.fft_from(fphis);
+   auto tp_3 = std::chrono::high_resolution_clock::now();
+   auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+   // FFT takes ~50 times more time than the adjust of the Fs.
+   // std::cout << "::::::: Timings " << d21 << " " << d32 << " milliseconds"  << std::endl;
+   return xmap_out;
+}
+
+void
+coot::util::multi_sharpen_blur_map(const clipper::Xmap<float> &xmap_in,
+				   const std::vector<float> &b_factors,
+				   std::vector<clipper::Xmap<float> > *xmaps_p) {
+
+   float mg = coot::util::max_gridding(xmap_in);
+   clipper::Resolution reso(2.0 * mg);
+   clipper::HKL_info myhkl(xmap_in.spacegroup(), xmap_in.cell(), reso, true);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
+   xmap_in.fft_to(fphis);
+   clipper::HKL_info::HKL_reference_index hri;
+
+   for (std::size_t i=0; i<b_factors.size(); i++) {
+      clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_loop = fphis;
+      xmaps_p->at(i).init(xmap_in.spacegroup(), xmap_in.cell(), xmap_in.grid_sampling());
+      const float &b_factor = b_factors[i];
+      for (hri = fphis_loop.first(); !hri.last(); hri.next()) {
+	 float f = fphis[hri].f();
+	 if (! clipper::Util::is_nan(f)) {
+	    float irs =  hri.invresolsq();
+	    fphis_loop[hri].f() *= exp(-b_factor * irs * 0.25);
+	 }
+      }
+      xmaps_p->at(i).fft_from(fphis_loop);
+   }
+}
+
+
+// if n_bins is -1, let the function decide how many bins
+//
+std::vector<coot::util::amplitude_vs_resolution_point>
+coot::util::amplitude_vs_resolution(const clipper::Xmap<float> &xmap_in,
+				    int n_bins_in) {
+
+   std::vector<coot::util::amplitude_vs_resolution_point> v;
+   int n_bins = n_bins_in;
+   if (n_bins_in == -1)
+      n_bins = 60;
+   v.resize(n_bins);
+   if (n_bins < 1) return v;
+
+   float mg = coot::util::max_gridding(xmap_in);
+   clipper::Resolution reso(2.0 * mg);
+   clipper::HKL_info myhkl(xmap_in.spacegroup(), xmap_in.cell(), reso, true);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
+   clipper::Xmap<float> xmap_out(xmap_in.spacegroup(), xmap_in.cell(), xmap_in.grid_sampling());
+   xmap_in.fft_to(fphis);
+   clipper::HKL_info::HKL_reference_index hri;
+
+   float irs_max = 0.0f;
+
+   for (hri = fphis.first(); !hri.last(); hri.next()) {
+      float f = fphis[hri].f();
+      if (! clipper::Util::is_nan(f)) {
+	 float irs =  hri.invresolsq();
+	 if (irs > irs_max)
+	    irs_max = irs;
+      }
+   }
+
+   for (hri = fphis.first(); !hri.last(); hri.next()) {
+      float f = fphis[hri].f();
+      if (! clipper::Util::is_nan(f)) {
+	 float irs =  hri.invresolsq();
+	 float res_frac = irs/irs_max;
+	 int bin = static_cast<int> (n_bins * res_frac);
+	 if (bin == n_bins) {
+	    bin = n_bins-1;
+	 }
+	 v[bin].add(fphis[hri].f(), irs);
+      }
+   }
+
+   for (std::size_t i=0; i<v.size(); i++)
+      v[i].finish(); // calculate averages
+
+   return v;
+}
+
 
 
 clipper::Xmap<float>
@@ -887,52 +1015,6 @@ coot::util::backrub_residue_triple_t::trim_next_residue_atoms() {
    trim_residue_atoms_generic(this_residue, vec, 0);
 }
 
-clipper::Xmap<float>
-coot::util::sharpen_blur_map(const clipper::Xmap<float> &xmap_in, float b_factor) {
-
-   float mg = coot::util::max_gridding(xmap_in);
-   clipper::Resolution reso(3.0);
-   clipper::HKL_info myhkl(xmap_in.spacegroup(), xmap_in.cell(), reso, true);
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
-   clipper::Xmap<float> xmap_out(xmap_in.spacegroup(), xmap_in.cell(), xmap_in.grid_sampling());
-   xmap_in.fft_to(fphis);
-   clipper::HKL_info::HKL_reference_index hri;
-
-#if 0 // 10 times slower
-   //...and inside loop:
-   it = reso_map.find(irs);
-   if (it != reso_map.end()) {
-      fphis[hri].f() *= it->second;
-   } else {
-      float esf = exp(-b_factor * irs * 0.25);
-      reso_map[irs] = esf;
-      fphis[hri].f() *= esf;
-   }
-#endif
-
-   std::map<float, float> reso_map;
-   std::map<float, float>::const_iterator it;
-   int count = 0;
-   auto tp_1 = std::chrono::high_resolution_clock::now();
-   for (hri = fphis.first(); !hri.last(); hri.next()) {
-      if (true) {
-	 float f = fphis[hri].f();
-	 if (! clipper::Util::is_nan(f)) {
-	    float irs =  hri.invresolsq();
-	    fphis[hri].f() *= exp(-b_factor * irs * 0.25);
-	 }
-	 count++;
-      }
-   }
-   auto tp_2 = std::chrono::high_resolution_clock::now();
-   xmap_out.fft_from(fphis);
-   auto tp_3 = std::chrono::high_resolution_clock::now();
-   auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
-   // FFT takes ~50 times more time than the adjust of the Fs.
-   // std::cout << "::::::: Timings " << d21 << " " << d32 << " milliseconds"  << std::endl;
-   return xmap_out;
-}
 
 
 // as in the verb, not the noun., return the number of segments (0 is

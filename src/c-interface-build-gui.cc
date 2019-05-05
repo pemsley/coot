@@ -1530,7 +1530,7 @@ change_chain_id_by_widget(GtkWidget *w) {
 
 	 if (false)
 	    std::cout << "in change_chain_id_molecule() with " << imol << " "
-		      << nfrom_chain_id << " " << to_chain_id<< std::endl;
+		      << from_chain_id << " " << to_chain_id<< std::endl;
 
 	 std::pair<int, std::string> r = 
 	    graphics_info_t::molecules[imol].change_chain_id(from_chain_id,
