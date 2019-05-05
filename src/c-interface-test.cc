@@ -729,7 +729,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	       delete moving_mol;
 	       graphics_draw();
 	    }
-	 } 
+	 }
       }
    }
 
@@ -745,7 +745,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       }
    }
 
-   if (true) {
+   if (false) {
       int i = scm_to_int(i_scm); // map molecule
       int j = scm_to_int(j_scm);
 
@@ -779,6 +779,20 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	    }
 	 }
       }
+   }
+
+      
+   if (true) {
+      int imol_map   = scm_to_int(i_scm);
+      float b_factor = scm_to_double(j_scm);
+      graphics_info_t g;
+      int imol_new = graphics_info_t::create_molecule();
+      const clipper::Xmap<float> &xmap_orig = g.molecules[imol_map].xmap;
+      clipper::Xmap<float> xmap_new = coot::util::sharpen_blur_map(xmap_orig, b_factor);
+      g.molecules[imol_new].new_map(xmap_new, "Blur map map");
+      float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
+      graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
+      graphics_draw();
    }
    return r;
 }
