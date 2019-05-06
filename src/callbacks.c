@@ -8212,7 +8212,7 @@ on_ramachandran_plot_differences_first_chain_checkbutton_toggled
                                         gpointer         user_data)
 {
    GtkWidget *combobox = lookup_widget(GTK_WIDGET(togglebutton), 
-				       "ramachandran_plot_differences_first_chain_optionmenu");
+				       "ramachandran_plot_differences_first_chain_combobox");
    if (gtk_toggle_button_get_active(togglebutton)) {
       gtk_widget_set_sensitive(GTK_WIDGET(combobox), TRUE);
       fill_ramachandran_plot_differences_combobox_with_chain_options(combobox, 1);
@@ -8231,7 +8231,7 @@ on_ramachandran_plot_differences_second_checkbutton_toggled
    GtkWidget *combobox = lookup_widget(GTK_WIDGET(togglebutton), 
 				       "ramachandran_plot_differences_second_chain_combobox");
 
-   if (togglebutton->active) {
+   if (gtk_toggle_button_get_active(togglebutton)) {
       gtk_widget_set_sensitive(GTK_WIDGET(combobox), TRUE);
       fill_ramachandran_plot_differences_combobox_with_chain_options(combobox, 0);
    } else {

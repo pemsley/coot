@@ -606,9 +606,13 @@ void resize_rama_canvas(GtkWidget *widget, GdkEventConfigure *event);
 
 GtkWidget *wrapped_ramachandran_plot_differences_dialog();
 int  do_ramachandran_plot_differences_by_widget(GtkWidget *w); /* return status */
+
 // void fill_ramachandran_plot_differences_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
 // 								       int is_first_mol_flag);
-void fill_ramachandran_plot_differences_combobox_with_chain_options(GtkWidget *chain_optionmenu, 
+// void fill_ramachandran_plot_differences_combobox_with_chain_options(GtkWidget *chain_optionmenu, 
+// 								    int is_first_mol_flag);
+
+void fill_ramachandran_plot_differences_combobox_with_chain_options(GtkWidget *chain_combobox,
 								    int is_first_mol_flag);
 
 /* void ramachandran_plot_differences_mol_option_menu_activate_first(GtkWidget *item, GtkPositionType pos); */
@@ -616,10 +620,10 @@ void fill_ramachandran_plot_differences_combobox_with_chain_options(GtkWidget *c
 /* void ramachandran_plot_differences_chain_option_menu_activate_first(GtkWidget *item, GtkPositionType pos); */
 /* void ramachandran_plot_differences_chain_option_menu_activate_second(GtkWidget *item, GtkPositionType pos); */
 
-void ramachandran_plot_differences_mol_combobox_activate_first(GtkWidget *item, GtkPositionType pos);
-void ramachandran_plot_differences_mol_combobox_activate_second(GtkWidget *item, GtkPositionType pos);
-void ramachandran_plot_differences_chain_combobox_activate_first(GtkWidget *item, GtkPositionType pos);
-void ramachandran_plot_differences_chain_combobox_activate_second(GtkWidget *item, GtkPositionType pos);
+void ramachandran_plot_differences_mol_combobox_first_changed(GtkWidget *cb, gpointer data);
+void ramachandran_plot_differences_mol_combobox_second_changed(GtkWidget *cb, gpointer data);
+void ramachandran_plot_differences_chain_combobox_first_changed(GtkWidget *cb, gpointer data);
+void ramachandran_plot_differences_chain_combobox_second_changed(GtkWidget *cb, gpointer data);
 
 void set_sequence_view_is_displayed(GtkWidget *widget, int imol); 
 

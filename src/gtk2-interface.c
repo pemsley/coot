@@ -22473,23 +22473,19 @@ create_ramachandran_plot_differences_dialog (void)
   GtkWidget *label242;
   GtkWidget *frame150;
   GtkWidget *vbox153;
-  GtkWidget *ramachandran_plot_differences_first_mol_optionmenu;
   GtkWidget *ramachandran_plot_differences_first_mol_combobox;
   GtkWidget *frame151;
   GtkWidget *vbox154;
   GtkWidget *ramachandran_plot_differences_first_chain_checkbutton;
-  GtkWidget *ramachandran_plot_differences_first_chain_optionmenu;
   GtkWidget *ramachandran_plot_differences_first_chain_combobox;
   GtkWidget *label316;
   GtkWidget *label243;
   GtkWidget *frame152;
   GtkWidget *vbox155;
-  GtkWidget *ramachran_plot_differences_second_mol_combobox;
-  GtkWidget *ramachandran_plot_differences_second_mol_optionmenu;
+  GtkWidget *ramachandran_plot_differences_second_mol_combobox;
   GtkWidget *frame153;
   GtkWidget *vbox156;
   GtkWidget *ramachandran_plot_differences_second_chain_checkbutton;
-  GtkWidget *ramachandran_plot_differences_second_chain_optionmenu;
   GtkWidget *ramachandran_plot_differences_second_chain_combobox;
   GtkWidget *label317;
   GtkWidget *dialog_action_area82;
@@ -22523,10 +22519,6 @@ create_ramachandran_plot_differences_dialog (void)
   gtk_widget_show (vbox153);
   gtk_container_add (GTK_CONTAINER (frame150), vbox153);
 
-  ramachandran_plot_differences_first_mol_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (ramachandran_plot_differences_first_mol_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox153), ramachandran_plot_differences_first_mol_optionmenu, FALSE, FALSE, 0);
-
   ramachandran_plot_differences_first_mol_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (ramachandran_plot_differences_first_mol_combobox);
   gtk_box_pack_start (GTK_BOX (vbox153), ramachandran_plot_differences_first_mol_combobox, TRUE, TRUE, 0);
@@ -22542,10 +22534,6 @@ create_ramachandran_plot_differences_dialog (void)
   ramachandran_plot_differences_first_chain_checkbutton = gtk_check_button_new_with_mnemonic ("Use Specific Chain");
   gtk_widget_show (ramachandran_plot_differences_first_chain_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox154), ramachandran_plot_differences_first_chain_checkbutton, FALSE, FALSE, 0);
-
-  ramachandran_plot_differences_first_chain_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (ramachandran_plot_differences_first_chain_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox154), ramachandran_plot_differences_first_chain_optionmenu, FALSE, FALSE, 0);
 
   ramachandran_plot_differences_first_chain_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (ramachandran_plot_differences_first_chain_combobox);
@@ -22569,13 +22557,9 @@ create_ramachandran_plot_differences_dialog (void)
   gtk_widget_show (vbox155);
   gtk_container_add (GTK_CONTAINER (frame152), vbox155);
 
-  ramachran_plot_differences_second_mol_combobox = gtk_combo_box_new_text ();
-  gtk_widget_show (ramachran_plot_differences_second_mol_combobox);
-  gtk_box_pack_start (GTK_BOX (vbox155), ramachran_plot_differences_second_mol_combobox, TRUE, TRUE, 0);
-
-  ramachandran_plot_differences_second_mol_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (ramachandran_plot_differences_second_mol_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox155), ramachandran_plot_differences_second_mol_optionmenu, FALSE, FALSE, 0);
+  ramachandran_plot_differences_second_mol_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (ramachandran_plot_differences_second_mol_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox155), ramachandran_plot_differences_second_mol_combobox, TRUE, TRUE, 0);
 
   frame153 = gtk_frame_new (NULL);
   gtk_widget_show (frame153);
@@ -22588,10 +22572,6 @@ create_ramachandran_plot_differences_dialog (void)
   ramachandran_plot_differences_second_chain_checkbutton = gtk_check_button_new_with_mnemonic ("Use Specific Chain");
   gtk_widget_show (ramachandran_plot_differences_second_chain_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox156), ramachandran_plot_differences_second_chain_checkbutton, FALSE, FALSE, 0);
-
-  ramachandran_plot_differences_second_chain_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (ramachandran_plot_differences_second_chain_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox156), ramachandran_plot_differences_second_chain_optionmenu, FALSE, FALSE, 0);
 
   ramachandran_plot_differences_second_chain_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (ramachandran_plot_differences_second_chain_combobox);
@@ -22641,23 +22621,19 @@ create_ramachandran_plot_differences_dialog (void)
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, label242, "label242");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, frame150, "frame150");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, vbox153, "vbox153");
-  GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_first_mol_optionmenu, "ramachandran_plot_differences_first_mol_optionmenu");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_first_mol_combobox, "ramachandran_plot_differences_first_mol_combobox");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, frame151, "frame151");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, vbox154, "vbox154");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_first_chain_checkbutton, "ramachandran_plot_differences_first_chain_checkbutton");
-  GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_first_chain_optionmenu, "ramachandran_plot_differences_first_chain_optionmenu");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_first_chain_combobox, "ramachandran_plot_differences_first_chain_combobox");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, label316, "label316");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, label243, "label243");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, frame152, "frame152");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, vbox155, "vbox155");
-  GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachran_plot_differences_second_mol_combobox, "ramachran_plot_differences_second_mol_combobox");
-  GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_second_mol_optionmenu, "ramachandran_plot_differences_second_mol_optionmenu");
+  GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_second_mol_combobox, "ramachandran_plot_differences_second_mol_combobox");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, frame153, "frame153");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, vbox156, "vbox156");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_second_chain_checkbutton, "ramachandran_plot_differences_second_chain_checkbutton");
-  GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_second_chain_optionmenu, "ramachandran_plot_differences_second_chain_optionmenu");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_second_chain_combobox, "ramachandran_plot_differences_second_chain_combobox");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, label317, "label317");
   GLADE_HOOKUP_OBJECT_NO_REF (ramachandran_plot_differences_dialog, dialog_action_area82, "dialog_action_area82");

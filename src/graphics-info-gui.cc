@@ -3838,7 +3838,12 @@ std::string
 graphics_info_t::fill_combobox_with_chain_options(GtkWidget *combobox,
 						  int imol,
 						  GCallback f,
-						  const std::string &ac) {
+						  const std::string &acid) {
+
+   // This function is bad.
+
+   std::cout << "----- fill_combobox_with_chain_options() " << imol << " " << acid
+	     << std::endl;
 
    std::string r("no-chain");
    GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox));
@@ -3848,35 +3853,36 @@ graphics_info_t::fill_combobox_with_chain_options(GtkWidget *combobox,
    // std::cout << "--------- chain model and store " << model << " " << store << std::endl;
 
    GtkListStore *store = gtk_list_store_new(1, G_TYPE_STRING);
+   // gtk_list_store_clear(store);
    model = GTK_TREE_MODEL(store);
-   
+
    GtkTreeIter iter;
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = molecules[imol].atom_sel.mol;
       std::vector<std::string> chains = coot::util::chains_in_molecule(mol);
       for (std::size_t i=0; i<chains.size(); i++) {
-	 std::cout << "fill_combobox_with_chain_options() " << imol << " " << chains[i] << std::endl;
+	 std::cout << "fill_combobox_with_chain_options() " << imol << " "
+		   << chains[i] << std::endl;
 	 gtk_list_store_append(store, &iter);
 	 gtk_list_store_set(store, &iter, 0, chains[i].c_str(), -1);
 	 if (i == 0) {
 	    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
 	    r = chains[i];
 	 }
-	 if (chains[i] == ac) {
+	 if (chains[i] == acid) {
 	    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), i);
 	    r = chains[i];
 	 }
       }
    }
 
-   // OXT chain callback
-   // GCallback signal_func = G_CALLBACK(add_OXT_chain_menu_item_activate);
-
    if (f)
       g_signal_connect(combobox, "changed", f, NULL);
    GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox), renderer, TRUE);
    gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(combobox), renderer, "text", 0, NULL);
+
+   // Do I want to do this?
    gtk_combo_box_set_model(GTK_COMBO_BOX(combobox), model);
 
    return r;

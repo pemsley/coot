@@ -46028,16 +46028,7 @@ distances more than:</property>
 		  <property name="spacing">0</property>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="ramachandran_plot_differences_first_mol_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>
@@ -46087,16 +46078,7 @@ distances more than:</property>
 			  </child>
 
 			  <child>
-			    <widget class="GtkOptionMenu" id="ramachandran_plot_differences_first_chain_optionmenu">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="history">-1</property>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
-			    </packing>
+			    <placeholder/>
 			  </child>
 
 			  <child>
@@ -46193,7 +46175,7 @@ distances more than:</property>
 		  <property name="spacing">0</property>
 
 		  <child>
-		    <widget class="GtkComboBox" id="ramachran_plot_differences_second_mol_combobox">
+		    <widget class="GtkComboBox" id="ramachandran_plot_differences_second_mol_combobox">
 		      <property name="visible">True</property>
 		      <property name="add_tearoffs">False</property>
 		      <property name="focus_on_click">True</property>
@@ -46206,16 +46188,7 @@ distances more than:</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="ramachandran_plot_differences_second_mol_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>
@@ -46252,16 +46225,7 @@ distances more than:</property>
 			  </child>
 
 			  <child>
-			    <widget class="GtkOptionMenu" id="ramachandran_plot_differences_second_chain_optionmenu">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="history">-1</property>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
-			    </packing>
+			    <placeholder/>
 			  </child>
 
 			  <child>
