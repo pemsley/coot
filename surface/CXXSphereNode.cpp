@@ -12,7 +12,7 @@
 #include "CXXTriangle.h"
 #include <list>
 
-CXXSphereNode::CXXSphereNode() : 
+CXX_mot::CXXSphereNode::CXXSphereNode() : 
 theVertex(CXXCoord(0.,0.,0.)),
 theIntersector(0),
 shouldBeDrawn(1),
@@ -21,7 +21,7 @@ theAtom(0)
 //	references.resize(0);
 }
 
-CXXSphereNode::CXXSphereNode(const CXXCoord &aCoord) : 
+CXX_mot::CXXSphereNode::CXXSphereNode(const CXXCoord &aCoord) : 
 theVertex(aCoord), 
 theIntersector(0), 
 shouldBeDrawn(1) ,
@@ -30,29 +30,29 @@ theAtom(0)
 //	references.resize(0);
 }
 
-const CXXCoord &CXXSphereNode::vertex() const{
+const CXX_mot::CXXCoord &CXX_mot::CXXSphereNode::vertex() const{
 	return theVertex;
 }
 
-int CXXSphereNode::doDraw() const{
+int CXX_mot::CXXSphereNode::doDraw() const{
 	return shouldBeDrawn;
 }
 
-int CXXSphereNode::setDoDraw(const int yesNo){
+int CXX_mot::CXXSphereNode::setDoDraw(const int yesNo){
 	shouldBeDrawn = yesNo;
 	return shouldBeDrawn;
 }
 
-int CXXSphereNode::setVertex(const CXXCoord &crd){
+int CXX_mot::CXXSphereNode::setVertex(const CXXCoord &crd){
 	theVertex = crd;
 	return 0;
 }
 
-void CXXSphereNode::setIntersector (const CXXCircle *aCircle){
+void CXX_mot::CXXSphereNode::setIntersector (const CXXCircle *aCircle){
 	theIntersector = aCircle;
 }
 
-const CXXCircle *CXXSphereNode::getIntersector() const{
+const CXX_mot::CXXCircle *CXX_mot::CXXSphereNode::getIntersector() const{
 	return theIntersector;
 }
 

@@ -41,8 +41,12 @@ else
     aclocal -I macros $aclocal_extras
 fi
 
+which git
+
 echo autoconf
 autoconf
+
+which git
 
 echo automake --add-missing --copy
 automake --add-missing --copy

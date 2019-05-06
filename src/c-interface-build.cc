@@ -763,6 +763,65 @@ void spin_N_scm(int imol, SCM residue_spec_scm, float angle) {
 }
 #endif // USE_GUILE
 
+#ifdef USE_PYTHON
+//! \brief Spin search the density based on possible positions of CG of a side-chain
+PyObject *CG_spin_search_py(int imol_model, int imol_map) {
+
+   PyObject *r = Py_False;
+
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+	 graphics_info_t g;
+	 const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+	 std::vector<std::pair<coot::residue_spec_t, float> > rv =
+	    g.molecules[imol_model].em_ringer(xmap);
+	 r = PyList_New(rv.size());
+	 for (std::size_t i=0; i<rv.size(); i++) {
+	    const coot::residue_spec_t &spec = rv[i].first;
+	    double delta_angle = rv[i].second;
+	    PyObject *item_py = PyList_New(2);
+	    PyList_SetItem(item_py, 0, PyFloat_FromDouble(delta_angle));
+	    PyList_SetItem(item_py, 1, residue_spec_to_py(spec));
+	    PyList_SetItem(r, i, item_py);
+	 }
+      }
+   }
+
+   if (PyBool_Check(r))
+     Py_INCREF(r);
+
+   return r;
+}
+#endif // USE_PYTHON
+
+#ifdef USE_GUILE
+//! \brief Spin search the density based on possible positions of CG of a side-chain
+SCM CG_spin_search_scm(int imol_model, int imol_map) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+	 graphics_info_t g;
+	 const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+	 std::vector<std::pair<coot::residue_spec_t, float> > rv =
+	    g.molecules[imol_model].em_ringer(xmap);
+	 r = SCM_EOL;
+	 for (std::size_t i=0; i<rv.size(); i++) {
+	    const coot::residue_spec_t &spec = rv[i].first;
+	    double delta_angle = rv[i].second;
+	    SCM res_spec_scm = residue_spec_to_scm(spec);
+	    SCM item_scm = scm_list_2(res_spec_scm, scm_float2num(delta_angle));
+	    r = scm_cons(item_scm, r);
+	 }
+	 r = scm_reverse(r);
+      }
+   }
+   return r;
+}
+#endif // USE_GUILE
+
+
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  delete residue                                          */
@@ -1314,6 +1373,18 @@ regularize_residues(int imol, const std::vector<coot::residue_spec_t> &residue_s
 }
 
 
+/*! \brief If there is a refinement on-going already, we don't want to start a new one
+
+The is the means to ask if that is the case. This needs a scheme wrapper to provide refinement-already-ongoing?
+  */
+short int refinement_already_ongoing_p() {
+
+   short int state = 0;
+   if (graphics_info_t::moving_atoms_displayed_p())
+      state = 1;
+   return state;
+}
+
 
 #ifdef USE_GUILE
 SCM refine_residues_scm(int imol, SCM r) {
@@ -1332,30 +1403,35 @@ refine_residues_with_alt_conf(int imol, const std::vector<coot::residue_spec_t> 
 			      const std::string &alt_conf) {
 
    coot::refinement_results_t rr;
-   if (is_valid_model_molecule(imol)) {
-      if (residue_specs.size() > 0) {
-	 std::vector<mmdb::Residue *> residues;
-	 for (unsigned int i=0; i<residue_specs.size(); i++) {
-	    coot::residue_spec_t rs = residue_specs[i];
-	    mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(rs);
-	    if (r) {
-	       residues.push_back(r);
+   if (graphics_info_t::moving_atoms_displayed_p()) {
+      add_status_bar_text("No refinement - a modelling/refinement operation is already underway");
+   } else {
+      if (is_valid_model_molecule(imol)) {
+	 if (residue_specs.size() > 0) {
+	    std::vector<mmdb::Residue *> residues;
+	    for (unsigned int i=0; i<residue_specs.size(); i++) {
+	       coot::residue_spec_t rs = residue_specs[i];
+	       mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(rs);
+	       if (r) {
+		  residues.push_back(r);
+	       }
 	    }
-	 }
 
-	 if (residues.size() > 0) {
-	    graphics_info_t g;
-	    int imol_map = g.Imol_Refinement_Map();
-	    if (! is_valid_map_molecule(imol_map)) {
-	       add_status_bar_text("Refinement map not set");
-	    } else {
-	       // normal
-	       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
-	       rr = g.refine_residues_vec(imol, residues, alt_conf.c_str(), mol);
+	    if (residues.size() > 0) {
+	       graphics_info_t g;
+	       int imol_map = g.Imol_Refinement_Map();
+	       if (! is_valid_map_molecule(imol_map)) {
+		  add_status_bar_text("Refinement map not set");
+	       } else {
+		  // normal
+		  mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+		  rr = g.refine_residues_vec(imol, residues, alt_conf.c_str(), mol);
+	       }
+               g.conditionally_wait_for_refinement_to_finish();
 	    }
-	 } 
-      } else {
-	 std::cout << "No residue specs found" << std::endl;
+	 } else {
+	    std::cout << "No residue specs found" << std::endl;
+	 }
       }
    }
    return rr;
@@ -1415,6 +1491,7 @@ SCM regularize_residues_with_alt_conf_scm(int imol, SCM res_spec_scm, const char
 	    mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
 	    coot::refinement_results_t rr =
 	       g.regularize_residues_vec(imol, residues, alt_conf, mol);
+            g.conditionally_wait_for_refinement_to_finish();
 	    rv = g.refinement_results_to_scm(rr);
 	 }
       }
@@ -1527,7 +1604,7 @@ PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *res_sp
         } 
       } else {
         std::cout << "No residue specs found" << std::endl;
-      } 
+      }
    }
 
    if (PyBool_Check(rv)) {
@@ -1573,6 +1650,19 @@ PyObject *regularize_residues_with_alt_conf_py(int imol, PyObject *res_specs_py,
    return rv;
 }
 #endif // USE_PYTHON
+
+/* Used by on_accept_reject_refinement_reject_button_clicked() */
+void stop_refinement_internal() {
+
+   // c.f. GDK_Escape key press:
+
+   if (graphics_info_t::continue_threaded_refinement_loop) {
+      graphics_info_t::continue_threaded_refinement_loop = false;
+      graphics_info_t::threaded_refinement_needs_to_clear_up = true;
+   }
+
+}
+
 
 #ifdef USE_PYTHON
 std::vector<coot::residue_spec_t> py_to_residue_specs(PyObject *r) {
@@ -3324,6 +3414,8 @@ SCM drag_intermediate_atom_scm(SCM atom_spec, SCM position) {
 	 clipper::Coord_orth pt(x,y,z);
 	 graphics_info_t::drag_intermediate_atom(p.second, pt);
       }
+   } else {
+      std::cout << "WARNING:: bad atom spec in drag_intermediate_atom_scm() " << std::endl;
    }
    return retval;
 }
@@ -3370,6 +3462,97 @@ PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position) {
    return retval;
 }
 #endif // USE_PYTHON
+
+#ifdef USE_PYTHON
+//! \brief add a target position for an intermediate atom and refine
+//
+// A function requested by Hamish.
+// This applies to intermediate atoms (add_extra_target_position_restraint)
+// does not. This activates refinement after the restraint is added (add_extra_target_position_restraint
+// does not).
+//
+// We need a vector (of atom specs) version of this so that we don't keep stopping and starting
+// the refinement as we add new pull restraints (maybe there will be 50 of them or so)
+//
+PyObject *add_target_position_restraint_for_intermediate_atom_py(PyObject *atom_spec, PyObject *position) {
+
+// e.g. atom_spec: ["A", 81, "", " CA ", ""]
+//      position   [2.3, 3.4, 5.6]
+   PyObject *retval = Py_False;
+   std::pair<bool, coot::atom_spec_t> p = make_atom_spec_py(atom_spec);
+   if (p.first) {
+      int pos_length = PyObject_Length(position);
+      if (pos_length == 3) {
+	 PyObject *x_py = PyList_GetItem(position, 0);
+	 PyObject *y_py = PyList_GetItem(position, 1);
+	 PyObject *z_py = PyList_GetItem(position, 2);
+	 double x = PyFloat_AsDouble(x_py);
+	 double y = PyFloat_AsDouble(y_py);
+	 double z = PyFloat_AsDouble(z_py);
+	 clipper::Coord_orth pt(x,y,z);
+	 graphics_info_t g;
+	 g.add_target_position_restraint_for_intermediate_atom(p.second, pt); // refines after added
+
+	 retval = Py_True;
+      }
+   }
+
+   Py_INCREF(retval);
+   return retval;
+}
+#endif
+
+// and the multiple-atom version of that (so that they can be applied at the same time)
+PyObject *add_target_position_restraints_for_intermediate_atoms_py(PyObject *atom_spec_position_list) {
+
+   PyObject *ret_val = Py_False; // not changed by function at the moment
+
+   if (PyList_Check(atom_spec_position_list)) {
+      graphics_info_t g;
+      if (false) // debug
+	 std::cout << "add_target_position_restraints_for_intermediate_atoms_py processing "
+		   << PyString_AsString(display_python(atom_spec_position_list)) << std::endl;
+      std::vector<std::pair<coot::atom_spec_t, clipper::Coord_orth> > atom_spec_position_vec;
+      unsigned int len = PyObject_Length(atom_spec_position_list);
+      for (std::size_t i=0; i<len; i++) {
+	 PyObject *list_item = PyList_GetItem(atom_spec_position_list, i);
+	 PyObject *atom_spec_py = PyList_GetItem(list_item, 0);
+	 PyObject *position_py  = PyList_GetItem(list_item, 1);
+	 std::pair<bool, coot::atom_spec_t> p = make_atom_spec_py(atom_spec_py);
+	 if (p.first) {
+	    int pos_length = PyObject_Length(position_py);
+	    if (PyList_Check(position_py)) {
+	       if (pos_length == 3) {
+		  PyObject *x_py = PyList_GetItem(position_py, 0);
+		  PyObject *y_py = PyList_GetItem(position_py, 1);
+		  PyObject *z_py = PyList_GetItem(position_py, 2);
+		  double x = PyFloat_AsDouble(x_py);
+		  double y = PyFloat_AsDouble(y_py);
+		  double z = PyFloat_AsDouble(z_py);
+		  clipper::Coord_orth pt(x,y,z);
+		  std::pair<coot::atom_spec_t, clipper::Coord_orth> pp(p.second, pt);
+		  atom_spec_position_vec.push_back(pp);
+	       }
+	    } else {
+	       PyObject *ds = display_python(position_py);
+	       if (ds)
+		  std::cout << "WARNING:: position is not a list "
+			    << PyString_AsString(ds) << std::endl;
+	       else
+		  std::cout << "WARNING:: position is not a list - null from display_python() with input"
+			    << position_py << std::endl;
+	    }
+	 }
+      }
+      g.add_target_position_restraints_for_intermediate_atoms(atom_spec_position_vec); // refines after added
+
+   } else {
+      std::cout << "WARNING:: add_target_position_restraints_for_intermediate_atoms_py() Not a list" << std::endl;
+   }
+   Py_INCREF(ret_val);
+   return ret_val;
+}
+
 
 
 #ifdef USE_PYTHON
@@ -5104,7 +5287,6 @@ void do_smiles_gui() {
 
 } 
 
-
 void set_residue_density_fit_scale_factor(float f) {
 
    graphics_info_t::residue_density_fit_scale_factor = f;
@@ -5484,6 +5666,13 @@ int backrub_rotamer(int imol, const char *chain_id, int res_no,
 /*! \} */
 
 
+int backrub_rotamer_intermediate_atoms() {
+
+   graphics_info_t g;
+   return g.backrub_rotamer_intermediate_atoms();
+}
+
+
 /* add a linked residue based purely on dictionary templete. 
    For addition of NAG to ASNs typically.
 
@@ -5676,5 +5865,71 @@ void set_add_linked_residue_do_fit_and_refine(int state) {
    graphics_info_t::linked_residue_fit_and_refine_state = state;
 } 
 
+#ifdef USE_PYTHON
+// return the number of atoms added
+int
+add_residue_with_atoms_py(int imol, PyObject *residue_spec_py, const std::string &res_name, PyObject *list_of_atoms_py) {
+
+   int n_added = 0;
+   if (is_valid_model_molecule(imol)) {
+     coot::residue_spec_t res_spec = residue_spec_from_py(residue_spec_py);
+     std::vector<coot::minimol::atom> list_of_atoms;
+     graphics_info_t g;
+     if (PyList_Check(list_of_atoms_py)) {
+        Py_ssize_t p_len = PyList_Size(list_of_atoms_py);
+        for (unsigned int i=0; i<p_len; i++) {
+           PyObject *atom_py = PyList_GetItem(list_of_atoms_py, i);
+           if (PyList_Check(atom_py)) {
+              Py_ssize_t a_len = PyList_Size(atom_py);
+              if (a_len == 3 || a_len == 4) {
+                 PyObject *name_list_py    = PyList_GetItem(atom_py, 0);
+                 PyObject *ele_occ_list_py = PyList_GetItem(atom_py, 1);
+                 PyObject *pos_list_py     = PyList_GetItem(atom_py, 2);
+                 if (PyList_Check(name_list_py)) {
+                    if (PyList_Check(ele_occ_list_py)) {
+                       if (PyList_Check(pos_list_py)) {
+                          Py_ssize_t name_list_len    = PyList_Size(name_list_py);
+                          Py_ssize_t ele_occ_list_len = PyList_Size(ele_occ_list_py);
+                          Py_ssize_t pos_list_len     = PyList_Size(pos_list_py);
+                          if (name_list_len == 2) {
+                             if (ele_occ_list_len == 4) {
+                                if (pos_list_len == 3) {
+                                   PyObject *name_py     = PyList_GetItem(name_list_py, 0);
+                                   PyObject *alt_conf_py = PyList_GetItem(name_list_py, 1);
+                                   PyObject *occ_py      = PyList_GetItem(ele_occ_list_py, 0);
+                                   PyObject *b_py        = PyList_GetItem(ele_occ_list_py, 1);
+                                   PyObject *ele_py      = PyList_GetItem(ele_occ_list_py, 2);
+                                   PyObject *seg_id_py   = PyList_GetItem(ele_occ_list_py, 3);
+                                   PyObject *pos_x_py    = PyList_GetItem(pos_list_py, 0);
+                                   PyObject *pos_y_py    = PyList_GetItem(pos_list_py, 1);
+                                   PyObject *pos_z_py    = PyList_GetItem(pos_list_py, 2);
+                                   std::string name     = PyString_AsString(name_py);
+                                   std::string alt_conf = PyString_AsString(alt_conf_py);
+                                   std::string ele      = PyString_AsString(ele_py);
+                                   std::string seg_id   = PyString_AsString(seg_id_py);
+                                   float x = PyFloat_AsDouble(pos_x_py);
+                                   float y = PyFloat_AsDouble(pos_y_py);
+                                   float z = PyFloat_AsDouble(pos_z_py);
+                                   float o = PyFloat_AsDouble(occ_py);
+                                   float b = PyFloat_AsDouble(b_py);
+                                   clipper::Coord_orth pos(x,y,z);
+                                   coot::minimol::atom at(name, ele, pos, alt_conf, o, b);
+                                   list_of_atoms.push_back(at);
+                                }
+                             }
+                          }
+                       }
+                    }
+                 }
+              }
+           }
+        }
+     }
+     std::cout << "extracted " << list_of_atoms.size() << " atoms from Python expression" << std::endl;
+     n_added = g.molecules[imol].add_residue_with_atoms(res_spec, res_name, list_of_atoms);
+   }
+   return n_added;
+}
+#endif // USE_PYTHON
 
 

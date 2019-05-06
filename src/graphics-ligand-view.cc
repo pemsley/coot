@@ -101,7 +101,7 @@ graphics_ligand_atom::get_colour(bool against_a_dark_background) const {
 }
 
 // c.f. lbg_info_t::render_from_molecule()
-// 
+//
 void graphics_ligand_molecule::gl_bonds(bool dark_background) {
 
    for (unsigned int ib=0; ib<bonds.size(); ib++) {
@@ -189,9 +189,9 @@ graphics_ligand_bond::gl_bond(const lig_build::pos_t &pos_1_raw, const lig_build
    case lig_build::bond_t::DOUBLE_OR_AROMATIC:
       {
 	 if (have_centre_pos()) {
-	    gl_bond_double_aromatic_bond(pos_1, pos_2);
+	    gl_bond_double_aromatic_bond(pos_1_raw, pos_2_raw, shorten_first, shorten_second);
 	 } else {
-	    gl_bond_double_bond(pos_1, pos_2);
+	    gl_bond_double_bond(pos_1, pos_2, shorten_first, shorten_second);
 	 } 
       }
       break;
@@ -251,14 +251,29 @@ graphics_ligand_bond::gl_bond(const lig_build::pos_t &pos_1_raw, const lig_build
 
 }
 
+
+// also know as draw_double_in_ring_bond() for cairo
+//
+// Does both bond of a double bond.
+//
 void
-graphics_ligand_bond::gl_bond_double_aromatic_bond(const lig_build::pos_t &pos_1,
-						   const lig_build::pos_t &pos_2) {
+graphics_ligand_bond::gl_bond_double_aromatic_bond(const lig_build::pos_t &pos_1_in,
+						   const lig_build::pos_t &pos_2_in,
+						   bool shorten_first, bool shorten_second) {
 
    double screen_z = -1.5;
-   
+
+   lig_build::pos_t pos_1 = pos_1_in;
+   lig_build::pos_t pos_2 = pos_2_in;
+
+   double shorten_fraction = 0.74;
+   if (shorten_first)
+      pos_1 = lig_build::pos_t::fraction_point(pos_2_in, pos_1_in, shorten_fraction);
+   if (shorten_second)
+      pos_2 = lig_build::pos_t::fraction_point(pos_1_in, pos_2_in, shorten_fraction);
+
    std::pair<lig_build::pos_t, lig_build::pos_t> p = 
-      make_double_aromatic_short_stick(pos_1, pos_2);
+      make_double_aromatic_short_stick(pos_1, pos_2, shorten_first, shorten_second);
 
    glBegin(GL_LINES);
    glVertex3d(pos_1.x, pos_1.y, screen_z);
@@ -269,9 +284,10 @@ graphics_ligand_bond::gl_bond_double_aromatic_bond(const lig_build::pos_t &pos_1
 }
 
 void
-graphics_ligand_bond::gl_bond_double_bond(const lig_build::pos_t &pos_1, const lig_build::pos_t &pos_2) {
+graphics_ligand_bond::gl_bond_double_bond(const lig_build::pos_t &pos_1, const lig_build::pos_t &pos_2, bool shorten_first, bool shorten_second) {
 
-   std::pair<std::pair<lig_build::pos_t, lig_build::pos_t>, std::pair<lig_build::pos_t, lig_build::pos_t> > p = make_double_bond(pos_1, pos_2);
+   std::pair<std::pair<lig_build::pos_t, lig_build::pos_t>, std::pair<lig_build::pos_t, lig_build::pos_t> > p =
+      make_double_bond(pos_1, pos_2, shorten_first, shorten_second);
 
    double screen_z = -1.5;
    glBegin(GL_LINES);

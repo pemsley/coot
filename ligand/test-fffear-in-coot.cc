@@ -34,24 +34,23 @@
 #undef __GNU_LIBRARY__
 #endif
 
+#include <iostream>
+
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include <iostream>
-
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
 #include "ligand.hh"
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "clipper/core/map_utils.h"
 #include "clipper/ccp4/ccp4_map_io.h"
 #include "coot-utils/coot-map-heavy.hh"
+#include "coot-utils/atom-selection-container.hh"
 
 int
 main(int argc, char **argv) {
-   
+
    if (argc < 6) { 
       std::cout << "Usage: " << argv[0] 
 		<< " --pdbin pdb-in-filename" << " --hklin mtz-filename"
@@ -96,10 +95,10 @@ main(int argc, char **argv) {
       int ch;
       int option_index = 0;
       while ( -1 != 
-	      (ch = getopt_long(argc, argv, optstr, long_options, &option_index))) { 
+	      (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index))) {
 
-	 switch(ch) { 
-	    
+	 switch(ch) {
+
 	 case 0:
 	    if (optarg) { 
 	       std::string arg_str = long_options[option_index].name;
@@ -317,8 +316,7 @@ main(int argc, char **argv) {
 	       std::string filename("fffear-ori-test-");
 	       filename += coot::util::int_to_string(iop);
 	       filename += ".pdb";
-	       new_mol->WritePDBASCII((char *) filename.c_str());
-	       // new_mol->WritePDBASCII((char *) output_pdb.c_str());
+	       new_mol->WritePDBASCII(filename.c_str());
 	    }
 
 	    for (unsigned int iop=0; iop<p.size(); iop++) {
@@ -352,12 +350,12 @@ main(int argc, char **argv) {
 		     }
 		  }
 	       }
+
 	       // write the file:
 	       std::string filename("fffear-results-");
 	       filename += coot::util::int_to_string(iop);
 	       filename += ".pdb";
-	       new_mol->WritePDBASCII((char *) filename.c_str());
-	       // new_mol->WritePDBASCII((char *) output_pdb.c_str());
+	       new_mol->WritePDBASCII(filename.c_str());
 	    }
 	    
 	 } else { 

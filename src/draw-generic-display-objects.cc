@@ -109,19 +109,27 @@ graphics_info_t::draw_generic_objects_simple() {
 
    // std::cout << "debug:: drawing " << generic_objects_p->size()
    // << " generic objects" << std::endl;
-   
+
+   unsigned int n_points = 0;
    for (unsigned int i=0; i<generic_objects_p->size(); i++) {
 
       if ((*generic_objects_p)[i].is_displayed_flag) {
 
 	 // if this is attached to a molecule that is not displayed, skip it.
-	 if ((*generic_objects_p)[i].is_valid_imol()) { // i.e. is not UNDEFINED
-	    int imol = (*generic_objects_p)[i].get_imol();
+	 if (generic_objects_p->at(i).is_valid_imol()) { // i.e. is not UNDEFINED
+	    int imol = generic_objects_p->at(i).get_imol();
 	    if (is_valid_model_molecule(imol))
 	       if (! graphics_info_t::molecules[imol].is_displayed_p()) {
 		  continue;
-	       } 
-	 } 
+	       }
+	 } else {
+	    if (generic_objects_p->at(i).is_intermediate_atoms_object()) {
+	       if (! moving_atoms_asc)
+		  continue;
+	       if (! moving_atoms_asc->mol)
+		  continue;
+	    }
+	 }
 
 	 // Lines
 	 for (unsigned int ils=0; ils< (*generic_objects_p)[i].lines_set.size(); ils++) {
@@ -150,6 +158,7 @@ graphics_info_t::draw_generic_objects_simple() {
 		      (*generic_objects_p)[i].points_set[ips].colour.blue);
 	    glBegin(GL_POINTS);
 	    unsigned int npoints = (*generic_objects_p)[i].points_set[ips].points.size();
+	    n_points += npoints;
 	    for (unsigned int ipoint=0; ipoint<npoints; ipoint++) { 
 	       glVertex3f((*generic_objects_p)[i].points_set[ips].points[ipoint].x(),
 			  (*generic_objects_p)[i].points_set[ips].points[ipoint].y(),
@@ -164,6 +173,8 @@ graphics_info_t::draw_generic_objects_simple() {
          }
       }
    }
+   // VRCoot info
+   // std::cout << "drew " << n_points << " points" << std::endl; -> ~2000
 }
 
 // static
@@ -442,8 +453,6 @@ graphics_info_t::draw_generic_objects_solid() {
 		  g.graphics_object_internal_pentakis_dodec(obj.pentakis_dodecs[idodec]);
 	       }
 	    }
-
-	    
 	 }
       }
       glDisable(GL_LIGHTING);

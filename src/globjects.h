@@ -63,8 +63,11 @@ void init_molecule();
 gint draw(GtkWidget *widget, GdkEventExpose *event);
 gint expose(GtkWidget *widget, GdkEventExpose *event);
 gint draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag);
+void debug_eye_position(GtkWidget *widget);
 gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event);
 gint draw_zalman_stereo(GtkWidget *widget, GdkEventExpose *event);
+void stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag);
+coot::Cartesian eye_position();
 
 void do_drag_pan(gdouble x, gdouble y, GtkWidget *widget);
 void do_button_zoom(gdouble x, gdouble y);
@@ -102,9 +105,10 @@ std::vector<float> convert_hsv_to_rgb(const std::vector<float> &hsv);
 
 //
 
+void setup_for_mol_triangles();
 
 void setup_lighting(short int do_lighting_flag); 
-
+void show_lighting();
 
 void draw_surface_as_display_list();
 

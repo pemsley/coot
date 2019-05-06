@@ -34,9 +34,16 @@
 /*! \name Generic Objects */
 /* \{ */
 
-/*! \brief create a new generic object with name objname and return the index 
-   of the object */
-int new_generic_object_number(const char *objname);
+/*! \brief create a new generic object with name objname
+
+   return the index of the object */
+int new_generic_object_number(const std::string &obj_name);
+
+/*! \brief create a new generic object with name objname
+           and attach it to the given molecule
+
+  @return the index of the object */
+int new_generic_object_number_for_molecule(const std::string &obj_name, int imol);
 
 /*! \brief add line to generic object object_number */
 void to_generic_object_add_line(int object_number, 
@@ -145,7 +152,8 @@ int generic_object_index(const std::string &name);
 SCM generic_object_name_scm(int obj_number);
 #endif /* USE_GUILE */
 #ifdef USE_PYTHON
-PyObject *generic_object_name_py(int obj_number);
+PyObject *generic_object_name_py(unsigned int obj_number);
+PyObject *get_generic_object_py(unsigned int obj_number);
 #endif /* USE_PYTHON */
 #endif /*  __cplusplus */
 

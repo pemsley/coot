@@ -105,7 +105,7 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
 
 			   // set the UDD flag for this residue being bonded/angle with 
 			   // the other
-		  
+
 			   bonded_atom_indices[index1].push_back(index2);
 			   bonded_atom_indices[index2].push_back(index1);
 
@@ -296,11 +296,17 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
 				    if (other_fixed_flags[ii])
 				       fixed_flag[ii] = 1;
 
+				 bool is_single_H_atom_angle_restraint = false;
+				 unsigned int nH = 0;
+				 if (is_hydrogen(atom_1_sel[ifat])) nH++;
+				 if (is_hydrogen(atom_3_sel[itat])) nH++;
+				 if (nH == 1) is_single_H_atom_angle_restraint = true;
+
 				 add(ANGLE_RESTRAINT, index1, index2, index3,
 				     fixed_flag,
 				     geom.link(i).link_angle_restraint[j].angle(),
 				     geom.link(i).link_angle_restraint[j].angle_esd(),
-				     1.2); // junk value
+				     is_single_H_atom_angle_restraint);
 				 nangle++;
 			      } 
 			   }
@@ -631,6 +637,7 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
 							    bool do_trans_peptide_restraints,
 							    std::string link_flank_link_string) {
 
+   bool debug = true;
    int iret = 0;
    int n_link_bond_restr = 0;
    int n_link_angle_restr = 0;
@@ -684,7 +691,6 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
 		   << std::endl;
       }
 	 
-// 	    gettimeofday(&start_time, NULL);
 
       // Are these residues neighbours?  We can add some sort of
       // ins code test here in the future.
@@ -692,7 +698,7 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
       //if ( abs(sel_res_1->GetSeqNum() - sel_res_2->GetSeqNum()) <= 1
       // || abs(sel_res_1->index - sel_res_2->index) <= 1) {
 
-      if (true) { 
+      {
 
 	 bool is_fixed_first_residue  = bonded_residue_pairs[ibonded_residue].is_fixed_first;
 	 bool is_fixed_second_residue = bonded_residue_pairs[ibonded_residue].is_fixed_second;
@@ -705,9 +711,6 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
 					       is_fixed_first_residue,
 					       is_fixed_second_residue,
 					       geom);
-	 // 	    gettimeofday(&current_time, NULL);
-	 // td = time_diff(current_time, start_time);
-	 // t0 = td;
 
 	 if (restraints_usage_flag & ANGLES_MASK)
 	    n_link_angle_restr += add_link_angle(link_type,
@@ -953,12 +956,18 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
    try {
       std::string group_1 = geom.get_group(first);
       std::string group_2 = geom.get_group(second);
+      if (group_1 == "DNA") group_1 = "DNA/RNA";
+      if (group_1 == "RNA") group_1 = "DNA/RNA";
+      if (group_2 == "DNA") group_2 = "DNA/RNA";
+      if (group_2 == "RNA") group_2 = "DNA/RNA";
       if (debug)
 	 std::cout << "====== DEBUG:: find_link_type_complicado() from "
 		   << first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetResName()
-		   << " (group " << group_1 << ") <--> "
+		   << " <--> "
 		   << second->GetChainID() << " " << second->GetSeqNum() << " " << second->GetResName()
-		   << " (group " << group_2 << ")" << std::endl;
+		   << "  comp-id-1 \"" << comp_id_1 << "\" group-1 \"" << group_1 << "\" comp-id-2 \""
+                   << comp_id_2 << "\" group-2 \"" << group_2 << "\"" << std::endl;
+
       try {
 	 std::vector<std::pair<coot::chem_link, bool> > link_infos =
 	    geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
@@ -1001,7 +1010,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 	       // note to self: use an enum for the first, don't use magic numbers
 	       std::pair<int, bool> peptide_info = peptide_C_and_N_are_in_order_p(first, second);
 
-	       if (debug)
+	       if (false)
 		  std::cout << "   peptide_C_and_N_are_in_order_p returns " <<  peptide_info.first
 			    << " and order-switch: " << peptide_info.second << std::endl;
 
@@ -1056,7 +1065,6 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 		  std::vector<std::pair<coot::chem_link, bool> > link_infos_non_peptide =
 		     geom.matching_chem_link_non_peptide(comp_id_1, group_1, comp_id_2, group_2);
 
-		  // debug::
 		  if (debug)
 		     for (unsigned int il=0; il<link_infos_non_peptide.size(); il++)
 			std::cout << "   DEBUG::    find_link_type_complicado() non-peptide link: "
@@ -1073,8 +1081,13 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 		  // returns "" if no link found
 		  // second is the order switch flag;
 		  // 
-		  std::pair<std::string, bool> non_peptide_close_link_info = 
+		  std::pair<std::string, bool> non_peptide_close_link_info =
 		     general_link_find_close_link(link_infos_non_peptide, first, second, order_switch_flag, geom);
+                  if (debug)
+		     std::cout << "---- general_link_find_close_link() "
+			       << non_peptide_close_link_info.first << " "
+			       << non_peptide_close_link_info.second << std::endl;
+
 		  if (non_peptide_close_link_info.first != "") {
 		     link_type = non_peptide_close_link_info.first;
 		     order_switch_flag = non_peptide_close_link_info.second;
@@ -1107,8 +1120,9 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 		  // ===================== is  glycosidic ========================================
 
 		  link_type = find_glycosidic_linkage_type(first, second, geom, use_links_in_molecule);
-		  std::cout << "DEBUG:: find_link_type_complicado() find_glycosidic_linkage_type() returns \""
-			    << link_type << "\"" << std::endl;
+		  if (debug)
+		     std::cout << "DEBUG:: find_link_type_complicado() find_glycosidic_linkage_type() returns \""
+			       << link_type << "\"" << std::endl;
 		  if (link_type == "") {
 		     link_type = find_glycosidic_linkage_type(second, first, geom, use_links_in_molecule);
 		     if (link_type != "")
@@ -1130,7 +1144,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 	       } else {
 
 		  // ===================== is not glycosidic ========================================
-		  
+
 		  if (debug)
 		     std::cout << "   DEBUG::   find_link_type_complicado() not a glycosidic_linkage"
 			       << std::endl;
@@ -1145,14 +1159,13 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 			geom.matching_chem_link_non_peptide(comp_id_1, group_1, comp_id_2, group_2, mol);
 		  } 
 
-		  // debug::
 		  if (debug)
 		     for (unsigned int il=0; il<link_infos_non_peptide.size(); il++)
 			std::cout << "   DEBUG:: pre-calling general_link_find_close_link() "
 				  << il << " of " << link_infos_non_peptide.size()
 				  << " possible non-peptide link: " << link_infos_non_peptide[il].first.Id()
 				  << std::endl;
-	       
+
 		  // returns "" if no link found
 		  // second is the order switch flag;
 		  //
@@ -1169,13 +1182,13 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 	 }
       }
       catch (const std::runtime_error &mess_in) {
-	 if (debug) { 
+	 if (debug) {
 	    // didn't find a chem_link for this pair, that's OK sometimes.
 	    std::cout << "CAUGHT exception in find_link_type_complicado(): "
 		      << mess_in.what() << std::endl;
 	    geom.print_chem_links();
 	 }
-      } 
+      }
    }
    catch (const std::runtime_error &mess) {
       // Failed to get group.  We don't want to hear about not getting
@@ -1187,7 +1200,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
       std::cout << "   DEBUG:: find_link_type_complicado() given "
 		<< coot::residue_spec_t(first) << " and "
 		<< coot::residue_spec_t(second)
-		<< " find_link_type_by_distance returns link type :"
+		<< " find_link_type_complicado returns link type :"
 		<< link_type << ": and order-switch flag " << order_switch_flag << std::endl;
    return std::pair<std::string, bool> (link_type, order_switch_flag);
 }
@@ -1284,7 +1297,7 @@ coot::restraints_container_t::general_link_find_close_link_inner(const std::vect
    if (order_switch_flag)
       std::swap(r1, r2);
 
-   if (debug) { 
+   if (debug) {
       std::cout << "DEBUG:: general_link_find_close_link_inner() 1: " << coot::residue_spec_t(r1) << std::endl;
       std::cout << "DEBUG:: general_link_find_close_link_inner() 2: " << coot::residue_spec_t(r2) << std::endl;
    }

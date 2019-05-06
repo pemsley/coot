@@ -885,6 +885,10 @@
 
       (gtk-widget-show-all window))))
 
+;; works with below function generic-chooser-entry-and-file-selector
+;;
+(define *generic-chooser-entry-and-file-selector-file-entry-default-text* "")
+
 ;; Create a window
 ;; 
 ;; Return a pair of widgets, a molecule chooser and an entry.  The
@@ -893,7 +897,10 @@
 ;; 
 ;; chooser-filter is typically valid-map-molecule? or valid-model-molecule?
 ;; 
-(define (generic-chooser-entry-and-file-selector chooser-label chooser-filter entry-hint-text default-entry-text file-selector-hint callback-function)
+;; If file-entry-default-text is passed, then *generic-chooser-entry-and-file-selector-file-entry-default-text* is set
+;; to be the contents of the file selection entry on "OK" button click.
+;;
+(define (generic-chooser-entry-and-file-selector chooser-label chooser-filter entry-hint-text default-entry-text file-selector-hint callback-function . file-entry-default-text)
 
   (let* ((window (gtk-window-new 'toplevel))
 	 (label (gtk-label-new chooser-label))
@@ -927,6 +934,10 @@
       (gtk-box-pack-start vbox hbox-buttons #f #f 5)
     
       (gtk-option-menu-set-menu option-menu menu)
+
+      (if (not (null? file-entry-default-text))
+	 (let ((file-name (car file-entry-default-text)))
+            (gtk-entry-set-text file-sel-entry file-name)))
       
       ;; button callbacks:
       (gtk-signal-connect ok-button "clicked"
@@ -940,8 +951,10 @@
 				  (begin
 				    (let ((text (gtk-entry-get-text entry))
 					  (file-sel-text (gtk-entry-get-text file-sel-entry)))
+                                      (if (not (null? file-entry-default-text))
+                                          (set! *generic-chooser-entry-and-file-selector-file-entry-default-text* file-sel-text))
 				      (callback-function active-mol-no text file-sel-text)))))
-			    
+
 			    (gtk-widget-destroy window)))
       
       (gtk-signal-connect cancel-button "clicked"
@@ -1383,7 +1396,7 @@
 	       (inside-vbox (gtk-vbox-new #f 2))
 	       (h-sep (gtk-hseparator-new))
 	       (buttons-hbox (gtk-hbox-new #t 2))
-	       (go-button (gtk-button-new-with-label "  Dock Sequence!  "))
+	       (go-button (gtk-button-new-with-label "  Dock Sequence  "))
 	       (cancel-button (gtk-button-new-with-label "  Cancel  ")))
 
 	  (let ((seq-info-ls (sequence-info imol)))
@@ -2702,12 +2715,13 @@
    valid-model-molecule?
    "Chain ID"
    ""
-   "Select PIR file"
+   "Select PIR Alignment file"
    (lambda (imol chain-id file-name)
      (associate-pir-file imol chain-id file-name)
      (if do-alignment?
-	 (alignment-mismatches-gui imol)))))
-	   
+        (alignment-mismatches-gui imol)))
+    *generic-chooser-entry-and-file-selector-file-entry-default-text*))
+
 
 ;; Make a box-of-buttons GUI for the various modifications that need
 ;; to be made to match the model sequence to the assigned sequence(s).
@@ -2724,7 +2738,7 @@
 	   (res-no   (list-ref res-info 3))
 	   (ins-code (list-ref res-info 4)))
       (let ((residue-atoms (residue-info imol chain-id res-no ins-code)))
-	(if (null? residue-atoms) 
+	(if (null? residue-atoms)
 	    " CA " ;; won't work of course
 	    (let loop ((atoms residue-atoms))
 	      (cond 
@@ -2734,7 +2748,6 @@
 	       (else (loop (cdr atoms)))))))))
 
 
-	   
   (format #t "------------- alignment-mismatches-gui called with imol ~s~%" imol)
 
   ;; main line
@@ -2812,12 +2825,16 @@
 		      (list button-1-label button-1-action)))
 		  (list-ref am 2))))
 
-	(let ((buttons (append delete-buttons mutate-buttons insert-buttons)))
-	  
+	(let ((buttons (append delete-buttons mutate-buttons insert-buttons))
+	      (alignments-as-text-list (list-ref am 3)))
+
+	  (for-each (lambda (alignment-text)
+		      (info-dialog-with-markup alignment-text))
+		    alignments-as-text-list)
+
 	  (dialog-box-of-buttons "Residue mismatches"
 				 (cons 300 300)
 				 buttons "  Close  ")))))))
-
 
 
 ;; Wrapper in that we test if there have been sequence(s) assigned to
@@ -3836,10 +3853,10 @@
 (define (refmac-multi-sharpen-gui)
   (let ((window (gtk-window-new 'toplevel))
 	;; boxes
-	(vbox (gtk-vbox-new #f 0))
-	(hbox-1 (gtk-hbox-new #f 0))
-	(hbox-2 (gtk-hbox-new #f 0))
-	(hbox-3 (gtk-hbox-new #f 0))
+	(vbox (gtk-vbox-new #f 4))
+	(hbox-1 (gtk-hbox-new #f 4))
+	(hbox-2 (gtk-hbox-new #f 4))
+	(hbox-3 (gtk-hbox-new #f 4))
 	;; menus
 	(option-menu-map (gtk-option-menu-new))
 	(option-menu-b-factor (gtk-option-menu-new))
@@ -3857,7 +3874,7 @@
 	;; buttons
 	(ok-button (gtk-button-new-with-label "   OK   "))
 	(cancel-button (gtk-button-new-with-label " Cancel "))
-	(n-levels-list (list 1 2 3 4 5 6))
+	(n-levels-list (list 1 2 3 4 5 6 8 10 12 15))
 	(b-factor-list (list 50 100 200 400 800 2000)))
 
     (let ((map-molecule-list (fill-option-menu-with-map-mol-options
@@ -3890,10 +3907,10 @@
       (gtk-box-pack-end hbox-3 cancel-button #f #f 12)
       (gtk-box-pack-end hbox-3     ok-button #f #f 12)
 
-      (gtk-box-pack-start vbox hbox-1)
-      (gtk-box-pack-start vbox hbox-2)
-      (gtk-box-pack-start vbox h-sep)
-      (gtk-box-pack-start vbox hbox-3)
+      (gtk-box-pack-start vbox hbox-1 #f #f 6)
+      (gtk-box-pack-start vbox hbox-2 #f #f 6)
+      (gtk-box-pack-start vbox h-sep  #f #f 2)
+      (gtk-box-pack-start vbox hbox-3 #f #f 6)
 
       (gtk-signal-connect cancel-button "clicked"
 			  (lambda() (gtk-widget-destroy window)))
@@ -3931,11 +3948,12 @@
 				    (format #t "active-item-imol: ~s~%" active-item-imol)
 
 				    (let* ((step-size (/ max-b n-levels))
-					   (numbers-string (apply string-append (map (lambda(i)
-										       (let ((lev (* step-size (+ i 1))))
-											 (string-append
-											  (number->string lev) " ")))
-										     (range n-levels))))
+					   (numbers-string
+					    (apply string-append (map (lambda(i)
+									(let ((lev (* step-size (+ i 1))))
+									  (string-append
+									   (number->string (exact->inexact lev)) " ")))
+								      (range n-levels))))
 					   (blur-string  (string-append "SFCALC BLUR  " numbers-string))
 					   (sharp-string (string-append "SFCALC SHARP " numbers-string)))
 
@@ -3975,7 +3993,6 @@
 
     (gtk-container-add window vbox)
     (gtk-widget-show-all window))))
-
 ;;
 (define (add-module-cryo-em)
   (if (defined? 'coot-main-menubar)
@@ -3985,6 +4002,10 @@
 (define (add-module-ccp4)
   (if (defined? 'coot-main-menubar)
       (add-module-ccp4-gui)))
+
+(define (add-module-pdbe)
+  (if (defined? 'coot-main-menubar)
+      (add-module-pdbe-gui)))
 
 ;;
 (define (add-module-cryo-em-gui)
@@ -4008,6 +4029,36 @@
 	 menu "Make Link via Acedrg"
 	 (lambda ()
 	   (acedrg-link-generation-control-window))))))
+
+(define (add-module-pdbe-gui)
+  (if (defined? 'coot-main-menubar)
+      (let ((menu (coot-menubar-menu "PDBe")))
+
+	;; ---------------------------------------------------------------------
+	;;     Recent structures from the PDBe
+	;; ---------------------------------------------------------------------
+	;;
+	;; 20110921 too crashy at the moment (something to do with lots of threads?)
+	;; 
+	(add-simple-coot-menu-menuitem
+	 menu "PDBe recent structures..."
+	 pdbe-latest-releases-gui)
+
+	(add-simple-coot-menu-menuitem
+	 menu "Get from PDBe..."
+	 (lambda () 
+	   (let ((mess
+		  (if (command-in-path? "refmac5")
+		      "Get PDBe accession code"
+		      (string-append
+		       "\n  WARNING:: refmac5 not in the path - SF calculation will fail  \n\n"
+		       "Get PDBe accession code"))))
+	     (generic-single-entry mess
+				   "" " Get it "
+				   (lambda (text)
+				     ;; fire off something that is controlled by a time-out -
+				     ;; doesn't return a useful value.
+				     (pdbe-get-pdb-and-sfs-cif 'include-sfs (string-downcase text))))))))))
 
 
 ;; let the c++ part of coot know that this file was loaded:

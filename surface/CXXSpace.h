@@ -7,6 +7,9 @@
  *
  */
 
+#ifndef CXXSPACE_H
+#define CXXSPACE_H
+
 #include "CXXCoord.h"
 #include <iostream>
 #include <iomanip>
@@ -21,6 +24,8 @@
 #ifndef  __CXXException__
 #include <CXXException.h>
 #endif
+
+namespace CXX_mot {
 
 class CXXSpace:public SolventMap {
 	
@@ -80,3 +85,7 @@ public:
 	
 	
 };
+
+}
+
+#endif

@@ -9,13 +9,15 @@
 
 #include <cstring>
 
-#ifndef CXXTorusNode_included
-#define CXXTorusNode_included
+#ifndef CXX_mot_CXXTorusNode_included
+#define CXX_mot_CXXTorusNode_included
 #include <mmdb2/mmdb_manager.h>
 
 #include "CXXCoord.h"
 
 // class mmdb::Atom;
+
+namespace CXX_mot {
 
 class CXXTorusNode{
 private:
@@ -37,4 +39,5 @@ public:
 	mmdb::Atom *getAtom() const;
 };
 
+}
 #endif

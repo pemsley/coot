@@ -28,8 +28,8 @@ pkginclude_HEADERS =  Bond_lines.h Cartesian.h cos-sin.h \
 pkgincludedir = $(includedir)/coot/coords
 
 AM_CPPFLAGS = \
-	-I$(top_srcdir) \
-	$(ENHANCED_LIGAND_TOOLS_CFLAGS)      \
+	-I$(top_srcdir)                 \
+	$(ENHANCED_LIGAND_TOOLS_CFLAGS) \
 	$(RDKIT_CXXFLAGS) $(BOOST_CPPFLAGS)	\
 	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
 
@@ -41,17 +41,20 @@ AM_CXXFLAGS = \
 libcoot_coords_la_SOURCES =  Bond_lines.cc Cartesian.cc cos-sin.cc \
 		 mmdb-extras.cc utils.cc mmdb.cc mmdb-crystal.cc \
 		 Bond_lines_ext.cc coot-close.cc phenix-geo.cc phenix-geo-bonds.cc \
+		 rotamer-markup.cc \
 		 loop-path.cc
 
 libcoot_coords_la_LIBADD = \
-   $(top_builddir)/geometry/libcoot-geometry.la      \
-   $(top_builddir)/coot-utils/libcoot-shelx.la       \
-   $(top_builddir)/coot-utils/libcoot-coord-utils.la \
-   $(top_builddir)/mini-mol/libcoot-mini-mol.la      \
-   $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
    $(top_builddir)/utils/libcoot-utils.la            \
-   $(MMDB_LIBS) \
-   $(RDKIT_LIBS)
+   $(top_builddir)/mini-mol/libcoot-mini-mol.la      \
+   $(top_builddir)/geometry/libcoot-geometry.la      \
+   $(top_builddir)/coot-utils/libcoot-coord-utils.la \
+   $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
+   $(top_builddir)/ligand/libcoot-ligand.la
+
+
+#   $(MMDB_LIBS) \
+#   $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(PYTHON_LIBS) -lssl -lcrypto -lldap -lz
 
 libcoot_coords_la_LDFLAGS = $(SHARED_LDFLAGS)
 

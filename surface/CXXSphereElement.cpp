@@ -23,14 +23,14 @@
 #include <mmdb2/mmdb_tables.h>
 
 
-void CXXSphereElement::init(){
+void CXX_mot::CXXSphereElement::init(){
 //	theVertices.reserve(720);
 //	theTriangles.reserve(720);
 //	flatTriangles.reserve(2000);
 //	theEdges.reserve(720);
 	nDrawnTriangles=0;
 }
-CXXSphereElement::CXXSphereElement() : 
+CXX_mot::CXXSphereElement::CXXSphereElement() : 
 theAtom(0)
 {
 	init();
@@ -39,7 +39,7 @@ theAtom(0)
 CXXSphereElement::~CXXSphereElement(){
 }
 */
-CXXSphereElement::CXXSphereElement (mmdb::PAtom anAtom, double del) : 
+CXX_mot::CXXSphereElement::CXXSphereElement (mmdb::PAtom anAtom, double del) : 
 theAtom(anAtom), 
 deltaRadians(del)
 {
@@ -48,14 +48,14 @@ deltaRadians(del)
 	calculate();
 }
 
-CXXSphereElement::CXXSphereElement(const CXXCoord &position, double radius, double del) :
+CXX_mot::CXXSphereElement::CXXSphereElement(const CXXCoord &position, double radius, double del) :
 theCentre(position), 
 theRadius(radius),
 deltaRadians(del) {
 	init ();	
 	calculate();
-	std::list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::iterator trianglesEnd = flatTriangles.end();
-	for (std::list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::iterator triangle = flatTriangles.begin();
+	std::list<CXXSphereFlatTriangle, CXX_old::CXXAlloc<CXXSphereFlatTriangle> >::iterator trianglesEnd = flatTriangles.end();
+	for (std::list<CXXSphereFlatTriangle, CXX_old::CXXAlloc<CXXSphereFlatTriangle> >::iterator triangle = flatTriangles.begin();
 		 triangle!=trianglesEnd;
 		 ++triangle){
 		CXXSphereFlatTriangle &flatTriangle(*triangle);
@@ -65,15 +65,12 @@ deltaRadians(del) {
 	}
 }
 
-int CXXSphereElement::calculate(){
-	// 	theVertices.resize(0);
-	// 	theTriangles.resize(0);
-	// 	flatTriangles.resize(0);
+int CXX_mot::CXXSphereElement::calculate(){
 
 	theVertices.clear();
 	theTriangles.clear();
 	flatTriangles.clear();
-	
+
 	CXXCoord xAxis(1.,0.,0.,0.);
 	CXXCoord yAxis(0.,1.,0.,0.);
 	CXXCoord zAxis(0.,0.,1.,0.);
@@ -144,8 +141,8 @@ int CXXSphereElement::calculate(){
 	return 0;
 }
 
-int CXXSphereElement::addTriangularPatch(const CXXCoord &u1_in, const CXXCoord &u2_in, 
-										 const CXXCoord &u3_in, mmdb::Atom *anAtom, vector<CXXCircle, CXX::CXXAlloc<CXXCircle> >&circles, 
+int CXX_mot::CXXSphereElement::addTriangularPatch(const CXXCoord &u1_in, const CXXCoord &u2_in, 
+										 const CXXCoord &u3_in, mmdb::Atom *anAtom, vector<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >&circles, 
                                          int UseOrGenerate)
 {	
 	
@@ -244,7 +241,7 @@ int CXXSphereElement::addTriangularPatch(const CXXCoord &u1_in, const CXXCoord &
 	return 0;
 }
 
-CXXSphereElement::CXXSphereElement (const CXXSphereElement &oldOne) :
+CXX_mot::CXXSphereElement::CXXSphereElement (const CXX_mot::CXXSphereElement &oldOne) :
 theAtom ( oldOne.getAtom()),
 theCentre ( oldOne.centre()),
 theVertices(oldOne.getVertices()),
@@ -256,8 +253,8 @@ deltaRadians ( oldOne.delta()),
 nDrawnTriangles (oldOne.getNDrawnTriangles())
 {
 	//Makes a complete independent copy of the oldOne;	
-	std::vector<CXXSphereTriangle, CXX::CXXAlloc<CXXSphereTriangle> >::iterator trianglesEnd = theTriangles.end();
-	for (std::vector<CXXSphereTriangle, CXX::CXXAlloc<CXXSphereTriangle> >::iterator triangle = theTriangles.begin();
+	std::vector<CXXSphereTriangle, CXX_old::CXXAlloc<CXXSphereTriangle> >::iterator trianglesEnd = theTriangles.end();
+	for (std::vector<CXXSphereTriangle, CXX_old::CXXAlloc<CXXSphereTriangle> >::iterator triangle = theTriangles.begin();
 		 triangle!= trianglesEnd;
 		 ++triangle){
 		triangle->setSphereElement(this);
@@ -269,7 +266,7 @@ nDrawnTriangles (oldOne.getNDrawnTriangles())
 	}
 }
 
-void CXXSphereElement::initWith(const CXXCircleNode &aNode, double delta, 
+void CXX_mot::CXXSphereElement::initWith(const CXXCircleNode &aNode, double delta, 
                                 double radius_in, bool *includeAtoms, int UseOrGenerate){
     theCentre=aNode.getCoord();
     theRadius=radius_in;
@@ -327,7 +324,7 @@ void CXXSphereElement::initWith(const CXXCircleNode &aNode, double delta,
 	}
 }
 
-void CXXSphereElement::initWith(const CXXCoord &aCentre, mmdb::PAtom atomI, mmdb::PAtom atomJ, mmdb::PAtom atomK, 
+void CXX_mot::CXXSphereElement::initWith(const CXXCoord &aCentre, mmdb::PAtom atomI, mmdb::PAtom atomJ, mmdb::PAtom atomK, 
 								double delta, double radius_in, const bool *includeAtoms){
 	
 	int UseOrGenerate = CXXSphereElement::GenerateCircles;
@@ -384,7 +381,7 @@ void CXXSphereElement::initWith(const CXXCoord &aCentre, mmdb::PAtom atomI, mmdb
 }
 
 
-int CXXSphereElement::addVertex(const CXXSphereNode &vert){
+int CXX_mot::CXXSphereElement::addVertex(const CXXSphereNode &vert){
 	int debug = 0;
 	int iVertex = theVertices.size();
 	theVertices.push_back(vert);
@@ -392,7 +389,7 @@ int CXXSphereElement::addVertex(const CXXSphereNode &vert){
 	return iVertex;
 }
 
-int CXXSphereElement::addTriangle(const CXXSphereTriangle &newTri){
+int CXX_mot::CXXSphereElement::addTriangle(const CXXSphereTriangle &newTri){
 	int debug = 0;
 	int iTriangle = theTriangles.size();
 	theTriangles.push_back(newTri);
@@ -400,13 +397,13 @@ int CXXSphereElement::addTriangle(const CXXSphereTriangle &newTri){
 	return iTriangle;
 }
 
-int CXXSphereElement::addEdge(const CXXSphereTriangleEdge &newEdge){
+int CXX_mot::CXXSphereElement::addEdge(const CXXSphereTriangleEdge &newEdge){
 	int iEdge = theEdges.size();
 	theEdges.push_back(newEdge);
 	return iEdge;
 }
 
-void CXXSphereElement::flattenLastTriangle(void){
+void CXX_mot::CXXSphereElement::flattenLastTriangle(void){
 	int debug = 0;
 	if (debug)  cout << "Finished with Triangle " << flatTriangles.size() <<endl; 
 	int i = theTriangles.back().vertex(0);
@@ -423,46 +420,46 @@ void CXXSphereElement::flattenLastTriangle(void){
 	return;
 } 
 
-const CXXCoord &CXXSphereElement::centre() const{
+const CXX_mot::CXXCoord &CXX_mot::CXXSphereElement::centre() const{
 	return theCentre;
 }
-const double CXXSphereElement::radius() const{
+const double CXX_mot::CXXSphereElement::radius() const{
 	return theRadius;
 }
-const unsigned CXXSphereElement::nVertices() const{
+const unsigned CXX_mot::CXXSphereElement::nVertices() const{
 	return theVertices.size();
 }
-const int CXXSphereElement::nEdges() const {
+const int CXX_mot::CXXSphereElement::nEdges() const {
 	return theEdges.size();
 }
 
-const int CXXSphereElement::nFlatTriangles() const{
+const int CXX_mot::CXXSphereElement::nFlatTriangles() const{
 	return flatTriangles.size();
 }
-const CXXSphereNode &CXXSphereElement::vertex(const int iVertex) const{
+const CXX_mot::CXXSphereNode &CXX_mot::CXXSphereElement::vertex(const int iVertex) const{
 	return theVertices[iVertex];
 }
-void CXXSphereElement::moveVertex( const int iVertex, const CXXCoord &position){
+void CXX_mot::CXXSphereElement::moveVertex( const int iVertex, const CXXCoord &position){
 	theVertices[iVertex].setVertex(position);
 	return ;
 }
-const CXXSphereTriangle &CXXSphereElement::triangle(const int iTriangle) const{
+const CXX_mot::CXXSphereTriangle &CXX_mot::CXXSphereElement::triangle(const int iTriangle) const{
 	return theTriangles[iTriangle];
 }
-const CXXSphereTriangleEdge &CXXSphereElement::edge(const int iEdge) const{
+const CXX_mot::CXXSphereTriangleEdge &CXX_mot::CXXSphereElement::edge(const int iEdge) const{
 	return theEdges[iEdge];
 }
 
 
-int CXXSphereElement::trimBy(const CXXCircle &aCircle, int carefully){
+int CXX_mot::CXXSphereElement::trimBy(const CXXCircle &aCircle, int carefully){
 	CXXSphereFlatTriangle newTriangle;
     int wasTrimmed = 0;
-	vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > theIntersections(2);							 
+	vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > theIntersections(2);							 
 
 	list<CXXSphereFlatTriangle>newFlatTriangles;
 	
-	list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::iterator trianglesEnd = flatTriangles.end();
-	for (list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::iterator triangle = flatTriangles.begin();
+	list<CXXSphereFlatTriangle, CXX_old::CXXAlloc<CXXSphereFlatTriangle> >::iterator trianglesEnd = flatTriangles.end();
+	for (list<CXXSphereFlatTriangle, CXX_old::CXXAlloc<CXXSphereFlatTriangle> >::iterator triangle = flatTriangles.begin();
 		 triangle != trianglesEnd;
 		 ++triangle){
 		CXXSphereFlatTriangle &flatTriangle(*triangle);
@@ -637,19 +634,19 @@ int CXXSphereElement::trimBy(const CXXCircle &aCircle, int carefully){
 	return wasTrimmed;
 }
 
-const double CXXSphereElement::delta() const{
+const double CXX_mot::CXXSphereElement::delta() const{
 	return deltaRadians;
 }
 
-int CXXSphereElement::translateBy (const CXXCoord &crd){
+int CXX_mot::CXXSphereElement::translateBy (const CXXCoord &crd){
 	theCentre = theCentre + crd;
 	for (unsigned i=0; i<nVertices(); i++){
 		const CXXCoord result = theVertices[i].vertex() + crd;
 		theVertices[i].setVertex(result);
 	}
-	std::vector<CXXSphereTriangle, CXX::CXXAlloc<CXXSphereTriangle> >::iterator trianglesEnd = 
+	std::vector<CXXSphereTriangle, CXX_old::CXXAlloc<CXXSphereTriangle> >::iterator trianglesEnd = 
 	theTriangles.end();
-	for (std::vector<CXXSphereTriangle, CXX::CXXAlloc<CXXSphereTriangle> >::iterator triangle = 
+	for (std::vector<CXXSphereTriangle, CXX_old::CXXAlloc<CXXSphereTriangle> >::iterator triangle = 
 		 theTriangles.begin();
 		 triangle != trianglesEnd;
 		 ++triangle){
@@ -666,7 +663,7 @@ int CXXSphereElement::translateBy (const CXXCoord &crd){
 	return 0;
 }
 
-int CXXSphereElement::scaleBy (const double factor){
+int CXX_mot::CXXSphereElement::scaleBy (const double factor){
 	double oldRadius = theRadius;
 	theRadius = theRadius * factor;
 	for (unsigned i=0; i<nVertices(); i++){
@@ -678,21 +675,21 @@ int CXXSphereElement::scaleBy (const double factor){
 	return 0;
 }
 
-int CXXSphereElement::setAtom(const mmdb::Atom *anAtom){
+int CXX_mot::CXXSphereElement::setAtom(const mmdb::Atom *anAtom){
 	theAtom = anAtom;
 	return 0;
 }
 
-const mmdb::Atom *CXXSphereElement::getAtom() const{
+const mmdb::Atom *CXX_mot::CXXSphereElement::getAtom() const{
 	return theAtom;
 }
 
-int CXXSphereElement::addFlatTriangle(const CXXSphereFlatTriangle &theTriangle){
+int CXX_mot::CXXSphereElement::addFlatTriangle(const CXXSphereFlatTriangle &theTriangle){
 	flatTriangles.push_back(theTriangle);
 	return 0;
 }
 
-CXXCoord CXXSphereElement::voronoiPoint(const CXXCoord &a, const CXXCoord &b, const CXXCoord &c) const{
+CXX_mot::CXXCoord CXX_mot::CXXSphereElement::voronoiPoint(const CXXCoord &a, const CXXCoord &b, const CXXCoord &c) const{
 	CXXCoord edge1(b-a);
 	CXXCoord edge2(c-a);
 	CXXCoord planeNormal(edge1^edge2);
@@ -729,13 +726,13 @@ CXXCoord CXXSphereElement::voronoiPoint(const CXXCoord &a, const CXXCoord &b, co
 	
 }
 
-void CXXSphereElement::identifyRaggedEdges(CXXCircle &theCircle, std::map<const CXXBall*, vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > >&raggedEdges){
+void CXX_mot::CXXSphereElement::identifyRaggedEdges(CXXCircle &theCircle, std::map<const CXXBall*, vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > >&raggedEdges){
 	//First collect the list of triangles that have this circle as an edge, and evaluate their omega values
 	//	edgeTriangles[&theCircle] = set <CXXSphereFlatTriangle *>;
 	bool noneForThisCircle = true;
-	vector<CXXCoord, CXX::CXXAlloc<CXXCoord> >*raggedEdgesOfBall;
-	std::list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::iterator trianglesEnd = flatTriangles.end();
-	for (std::list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::iterator triangle = flatTriangles.begin();
+	vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> >*raggedEdgesOfBall;
+	std::list<CXXSphereFlatTriangle, CXX_old::CXXAlloc<CXXSphereFlatTriangle> >::iterator trianglesEnd = flatTriangles.end();
+	for (std::list<CXXSphereFlatTriangle, CXX_old::CXXAlloc<CXXSphereFlatTriangle> >::iterator triangle = flatTriangles.begin();
 		 triangle!=trianglesEnd;
 		 ++triangle){
 		CXXSphereFlatTriangle &flatTriangle(*triangle);
@@ -760,13 +757,13 @@ void CXXSphereElement::identifyRaggedEdges(CXXCircle &theCircle, std::map<const 
 }
 
 
-int CXXSphereElement::flagCutTriangles(const CXXCircle &theCircle){
+int CXX_mot::CXXSphereElement::flagCutTriangles(const CXXCircle &theCircle){
 	//First collect the list of triangles that have this circle as an edge, and evaluate their omega values
 	//	edgeTriangles[&theCircle] = set <CXXSphereFlatTriangle *>;
 	clearCutFlags();
 
-	std::list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::iterator trianglesEnd = flatTriangles.end();
-	for (std::list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::iterator triangle = flatTriangles.begin();
+	std::list<CXXSphereFlatTriangle, CXX_old::CXXAlloc<CXXSphereFlatTriangle> >::iterator trianglesEnd = flatTriangles.end();
+	for (std::list<CXXSphereFlatTriangle, CXX_old::CXXAlloc<CXXSphereFlatTriangle> >::iterator triangle = flatTriangles.begin();
 		 triangle!=trianglesEnd;
 		 ++triangle){
 		CXXSphereFlatTriangle &flatTriangle(*triangle);
@@ -793,7 +790,7 @@ int CXXSphereElement::flagCutTriangles(const CXXCircle &theCircle){
     return edgeTriangles.size();
 }
 
-void CXXSphereElement::addCircleVertices(const CXXCircle &theCircle, int iEdge, double delta)
+void CXX_mot::CXXSphereElement::addCircleVertices(const CXXCircle &theCircle, int iEdge, double delta)
 {
     const CXXCircleNode &node1(*theCircle.start(iEdge));
     const CXXCircleNode &node2(*theCircle.stop(iEdge));
@@ -823,7 +820,7 @@ void CXXSphereElement::addCircleVertices(const CXXCircle &theCircle, int iEdge, 
     if (nPlaced != nSteps) std::cout << "Placed "<< nPlaced << " of " << nSteps+1<<std::endl;
 }
 
-void CXXSphereElement::addTorusVertices(const CXXTorusElement &aTorus){
+void CXX_mot::CXXSphereElement::addTorusVertices(const CXXTorusElement &aTorus){
 	//Walk around the edge of this segment, evaluating location of extra vertices
 	for (int iStep=0; iStep <= aTorus.getNOmegaSteps(); iStep++){
 		double omega = aTorus.getAbsoluteStartOmega() + double(iStep) * aTorus.getDeltaOmega();
@@ -836,7 +833,7 @@ void CXXSphereElement::addTorusVertices(const CXXTorusElement &aTorus){
 	}
 }
 
-int CXXSphereElement::addVertex(const CXXCircleNode &extraNode){
+int CXX_mot::CXXSphereElement::addVertex(const CXXCircleNode &extraNode){
 	
 	//There is a problem here:  adding vertices to this sphereelement 
 	//invalidates the edgeTriangle map...not sure what to do
@@ -900,10 +897,10 @@ int CXXSphereElement::addVertex(const CXXCircleNode &extraNode){
     else return 1;
 }
 
-int CXXSphereElement::countDrawnTriangles() const{
+int CXX_mot::CXXSphereElement::countDrawnTriangles() const{
 	int nToDraw = 0;
-	std::list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::const_iterator trianglesEnd = flatTriangles.end();
-	for (std::list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::const_iterator triangle = flatTriangles.begin();
+	std::list<CXXSphereFlatTriangle, CXX_old::CXXAlloc<CXXSphereFlatTriangle> >::const_iterator trianglesEnd = flatTriangles.end();
+	for (std::list<CXXSphereFlatTriangle, CXX_old::CXXAlloc<CXXSphereFlatTriangle> >::const_iterator triangle = flatTriangles.begin();
 		 triangle != trianglesEnd;
 		 ++triangle){
 		if (triangle->doDraw()) nToDraw++;

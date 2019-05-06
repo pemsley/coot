@@ -29,7 +29,8 @@ EXTRA_DIST = notes Makefile.simple molmantest.cc test-indexing.hh test-indexing.
 
 pkginclude_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh \
 	regularize-minimol.hh lograma.h zo-rama.hh phi-psi.hh \
-	parallel-planes.hh torsion-bonds.hh extra-restraints.hh model-bond-deltas.hh
+	parallel-planes.hh torsion-bonds.hh extra-restraints.hh model-bond-deltas.hh \
+        refinement-lights.hh refinement-results-t.hh rama-types.hh
 
 pkgincludedir = $(includedir)/coot/ideal
 
@@ -58,11 +59,11 @@ AM_LDFLAGS = $(MMDB_LIBS) $(CLIPPER_LIBS) $(GLS_LIBS)
 # change dependency_libs in the .la file though).
 # 
 # libcoot_ideal_la_LDFLAGS = $(GSL_LIBS) $(MMDB_LIBS) $(CLIPPER_LIBS)
+# reworking library order  $(top_builddir)/coords/libcoot-coords.la           
 
 libcoot_ideal_la_LIBADD =                 \
    $(top_builddir)/coot-utils/libcoot-map-heavy.la     \
    $(top_builddir)/geometry/libcoot-geometry.la        \
-   $(top_builddir)/coords/libcoot-coords.la            \
    $(top_builddir)/coot-utils/libcoot-coord-extras.la  \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la   \
    $(top_builddir)/utils/libcoot-utils.la              \
@@ -73,10 +74,10 @@ libcoot_ideal_la_LIBADD =                 \
 
 libcoot_ideal_la_SOURCES = simple-restraint.cc \
 	mods.cc distortion.cc chirals.cc flanking.cc gradients.cc extra-restraints.cc \
-	pepflip.cc regularize-minimol.cc lograma.cpp \
+	pepflip.cc regularize-minimol.cc lograma.cpp process-dfs-in-range.cc process-dfs-in-range.hh \
         extra-restraints-kk.cc simple-restraint-kk.cc torsion-bonds.cc \
 	coot-compare-residues.hh coot-compare-residues.cc link-restraints.cc \
-	parallel-planes.cc trans-peptide.cc model-bond-deltas.cc \
+	parallel-planes.cc pull-restraint.cc trans-peptide.cc model-bond-deltas.cc \
 	write-png.cc zo-rama.cc crankshaft.hh crankshaft.cc phi-psi.cc
 
 libcoot_ideal_la_LDFLAGS = $(SHARED_LDFLAGS)
@@ -92,7 +93,8 @@ logramatest_SOURCES = logramatest.cpp
 
 crankshaft_test_SOURCES = crankshaft-test.cc
 
-crankshaft_test_LDADD = ./libcoot-ideal.la
+crankshaft_test_LDADD = ./libcoot-ideal.la \
+        $(top_builddir)/compat/libcoot-compat.la
 
 with_geometry_SOURCES = with-geometry.cc
 
@@ -113,7 +115,6 @@ with_geometry_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-map-heavy.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/coords/libcoot-coords.la           \
-	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
 	$(top_builddir)/utils/libcoot-utils.la             \
@@ -128,9 +129,7 @@ mini_rsr_bin_LDADD =  \
         ./libcoot-ideal.la                                 \
 	$(top_builddir)/coot-utils/libcoot-map-heavy.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
-	$(top_builddir)/coords/libcoot-coords.la           \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
-	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la  \

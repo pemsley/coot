@@ -126,7 +126,9 @@ void
 clear_extra_restraints(int imol) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].clear_extra_restraints(); 
+      graphics_info_t::molecules[imol].set_display_extra_restraints(0);
    }
+   graphics_draw();
 }
 
 #ifdef USE_PYTHON
@@ -255,7 +257,7 @@ PyObject *regularize_zone_with_score_py(int imol, const char *chain_id, int resn
 	 if (index2 >= 0) { 
 	    coot::refinement_results_t rr = g.regularize(imol, auto_range, index1, index2);
 	    std::cout << "debug:: restraints results " << rr.found_restraints_flag << " "
-		      << rr.lights.size() << " " << rr.info << std::endl;
+		      << rr.lights.size() << " " << rr.info_text << std::endl;
 	    if ((rr.lights.size() > 0) || (rr.found_restraints_flag)) {
 	       rv = g.refinement_results_to_py(rr);
 	    }
@@ -296,11 +298,11 @@ SCM regularize_zone_with_score_scm(int imol, const char *chain_id, int resno1, i
 	 if (index2 >= 0) { 
 	    coot::refinement_results_t rr = g.regularize(imol, auto_range, index1, index2);
 	    std::cout << "debug:: restraints results " << rr.found_restraints_flag << " "
-		      << rr.lights.size() << " " << rr.info << std::endl;
+		      << rr.lights.size() << " " << rr.info_text << std::endl;
 	    if ((rr.lights.size() > 0) || (rr.found_restraints_flag)) {
 	       rv = g.refinement_results_to_scm(rr);
 	    }
-	    
+
 	 } else {
 	    std::cout << "WARNING:: regularize_zone: Can't get index for resno2: "
 		      << resno2 << std::endl;

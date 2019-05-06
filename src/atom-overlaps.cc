@@ -195,10 +195,13 @@ graphics_info_t::do_interactive_coot_probe() {
 
    if (moving_atoms_asc->n_selected_atoms > 0) {
       if (moving_atoms_asc->mol) {
+
+	 graphics_info_t g;
 	 bool ignore_waters = true;
 	 coot::atom_overlaps_container_t ao(moving_atoms_asc->mol, Geom_p(), ignore_waters);
+
 	 // dot density
-	 coot::atom_overlaps_dots_container_t c = ao.all_atom_contact_dots(0.5);
+	 coot::atom_overlaps_dots_container_t c = ao.all_atom_contact_dots(0.4);
 
 	 std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
 
@@ -219,38 +222,43 @@ graphics_info_t::do_interactive_coot_probe() {
 	 colour_map["grey"      ] = coot::generic_display_object_t::colour_values_from_colour_name("grey");
 	 colour_map["magenta"   ] = coot::generic_display_object_t::colour_values_from_colour_name("magenta");
 
-	 graphics_info_t g;
 	 for (it=c.dots.begin(); it!=c.dots.end(); it++) {
 	    const std::string &type = it->first;
 	    const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
-	    std::string obj_name = type;
-	    int obj = g.generic_object_index(obj_name.c_str());
-	    if (obj == -1)
-	       obj = new_generic_object_number(obj_name.c_str());
-	    else
-	       (*g.generic_objects_p)[obj].clear();
-	    std::string col = "#445566";
+	    std::string obj_name = std::string("Intermediate Atoms ") + type;
+	    int obj_idx = g.generic_object_index(obj_name.c_str());
+	    if (obj_idx == -1) {
+	       obj_idx = new_generic_object_number(obj_name.c_str());
+	       g.generic_objects_p->at(obj_idx).attach_to_intermediate_atoms();
+	       if (type != "vdw-surface")
+		  g.generic_objects_p->at(obj_idx).is_displayed_flag = true;
+	    } else {
+	       g.generic_objects_p->at(obj_idx).clear();
+	    }
+	    // std::string col = "#445566";
 	    int point_size = 2;
 	    if (type == "vdw-surface") point_size = 1;
 	    for (unsigned int i=0; i<v.size(); i++) {
 	       const std::string &col_inner = v[i].col;
-	       (*g.generic_objects_p)[obj].add_point(colour_map[col_inner], col_inner, point_size, v[i].pos);
+	       g.generic_objects_p->at(obj_idx).add_point(colour_map[col_inner], col_inner, point_size, v[i].pos);
 	    }
-	    if (type != "vdw-surface")
-	       (*g.generic_objects_p)[obj].is_displayed_flag = true;
 	 }
 
-	 int clashes_obj = g.generic_object_index("clashes"); // find or set
-	 if (clashes_obj == -1)
-	    clashes_obj = new_generic_object_number("clashes");
-	 else
-	    (*g.generic_objects_p)[clashes_obj].clear();
+	 std::string clashes_object_name = "Intermediate atom clashes";
+	 int clashes_obj_idx = g.generic_object_index(clashes_object_name); // find or set
+	 if (clashes_obj_idx == -1) {
+	    clashes_obj_idx = new_generic_object_number(clashes_object_name);
+	    g.generic_objects_p->at(clashes_obj_idx).attach_to_intermediate_atoms();
+	    g.generic_objects_p->at(clashes_obj_idx).is_displayed_flag = true;
+	 } else {
+	    // just clear the old one, but don't over-ride the current displayed status
+	    g.generic_objects_p->at(clashes_obj_idx).clear();
+	 }
 	 std::string cn =  "#ff59b4";
 	 coot::colour_holder ch(cn);
 	 for (unsigned int i=0; i<c.clashes.size(); i++) {
-	    (*g.generic_objects_p)[clashes_obj].add_line(ch, cn, 2, c.clashes[i]);
+	    g.generic_objects_p->at(clashes_obj_idx).add_line(ch, cn, 2, c.clashes[i]);
 	 }
-	 (*g.generic_objects_p)[clashes_obj].is_displayed_flag = true;
 
 	 // do we need to draw here?
 	 // graphics_draw();

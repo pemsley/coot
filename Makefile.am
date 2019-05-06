@@ -29,14 +29,15 @@ ACLOCAL_AMFLAGS=-I macros
 # geometry depends on utils
 #
 
+# also: coords depends on ligand because now we do rotamer markup.
+#       so ligand functions must not use coot::Cartesian
 if COND_LIDIA_ONLY
    SUBDIRS = compat utils mini-mol geometry lidia-core lbg
 else
    SUBDIRS = auxil scheme python pdb-templates macros compat utils protein_db mini-mol geometry  \
-        coot-utils surface coot-surface lidia-core \
-	coords angles skeleton ccp4mg-utils density-contour \
-	db-main analysis ideal ligand high-res build greg-tests python-tests \
-	tw lbg cootaneer cootilus goograph pli pyrogen src data \
+        lidia-core coot-utils angles ccp4mg-utils db-main analysis ideal cootaneer ligand coords \
+	density-contour surface coot-surface skeleton  high-res build greg-tests \
+	python-tests tw libgtkgraph lbg cootilus goograph pli fonts pyrogen src data \
 	man rama-data doc rcrane pixmaps
 endif
 
@@ -67,6 +68,7 @@ EXTRA_DIST = 		\
 	guile.supp	\
 	windows/syminfo.lib	\
 	fix-cif-loops.awk       \
+        fixup-interface.h.sh \
 	ifdef-for-create-aboutdialog.awk \
 	mtrix-to-ncs-matrix.awk  \
 	RELEASE-NOTES	         \

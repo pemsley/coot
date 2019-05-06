@@ -235,6 +235,15 @@ if [ $systype = IRIX64 ] ; then
 fi
 
 
+# For installation using a non-local python
+if ! [ -e $COOT_PREFIX/lib/python2.7/site.py -o -e $COOT_PREFIX/lib64/python2.7/site.py ]; then
+  unset PYTHONHOME
+  # pth in PYTHONPATH are ignored, insert gtk-2.0 and coot explicitly
+  site_packages="$COOT_PREFIX/lib/python2.7/site-packages"
+  extra_pypath="$site_packages:$site_packages/coot:$site_packages/gtk-2.0"
+  export PYTHONPATH="$extra_pypath:${extra_pypath//lib/lib64}:$PYTHONPATH"
+fi
+
 export SYMINFO
 export COOT_PREFIX
 export COOT_STANDARD_RESIDUES
@@ -252,10 +261,6 @@ export DYLD_FALLBACK_LIBRARY_PATH
 export LD_LIBRARY_PATH
 export LD_LIBRARYN32_PATH
 
-# if a pending binary install exists, apply it before starting coot
-if [ -e $COOT_PREFIX/pending-install ] ; then
-   apply_pending_install $COOT_PREFIX
-fi
 
 if [ "$1" = --check-libs ] ; then 
    if [ $systype = Darwin ] ; then
@@ -264,17 +269,23 @@ if [ "$1" = --check-libs ] ; then
       ldd $coot_bin
    fi
 else 
-   if [ "$1" = --ccp4-mode ] ; then
-      ccp4_mode=true
-   fi
 
-   # echo DEBUG:: coot-script with PATH $PATH and PYTHON $PYTHON
+   for arg in "$@" ;
+   do
+      if [ "$arg" = --ccp4-mode ] ; then
+         ccp4_mode=true
+      fi
+      if [ "$arg" = --libtool-hack ] ; then
+         export LTDL_LIBRARY_PATH=$COOT_PREFIX/lib
+      fi
+   done
+
    # which rsvg-convert
    # otool -L $HOME/bin/rsvg-convert
 
    # this doesn't fix the svg icon/library problem
    # export DYLD_FALLBACK_LIBRARY_PATH=/Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib:/Users/pemsley/ccp4/ccp4-src-2015-02-05/ccp4-6.5/lib
-
+   # install librsvg: that fixes the svg icon/library problem
 
    # normal path
    # "Use $@ to stop word splitting" from Ben Eisenbraun.
@@ -285,7 +296,7 @@ else
    else
       shift
       coot_py_dir=$COOT_PREFIX/lib/python2.7/site-packages/coot
-      $PYTHON $coot_py_dir/coot_output_to_window.py $@
+      $PYTHON $coot_py_dir/coot_output_to_window.py "$@"
       status=$?
    fi
    if [ $status != 0 ] ; then

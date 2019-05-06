@@ -751,7 +751,7 @@ coot::ligand::close_to_another(const clipper::Coord_orth &p1,
       } 
    }
    return is_close;
-} 
+}
 
 
 // void

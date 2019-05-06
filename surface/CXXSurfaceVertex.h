@@ -6,22 +6,23 @@
  *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
-#ifndef CXXSurfaceVertex_included
-#define CXXSurfaceVertex_included
+#ifndef CXX_mot_CXXSurfaceVertex_included
+#define CXX_mot_CXXSurfaceVertex_included
 #include "CXXCoord.h"
 #include <vector>
 #include <deque>
 #include "CXXAlloc.h"
 
 using namespace std;
+namespace CXX_mot {
 
 class CXXSurfaceVertex {
 private:
-	vector<void *, CXX::CXXAlloc<void *> > pointers;
-	vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > vectors;
-	vector<double, CXX::CXXAlloc<double> > scalars;
+	vector<void *, CXX_old::CXXAlloc<void *> > pointers;
+	vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > vectors;
+	vector<double, CXX_old::CXXAlloc<double> > scalars;
 	void init();
-	static CXX::CXXAlloc<CXXSurfaceVertex> allocator;
+	static CXX_old::CXXAlloc<CXXSurfaceVertex> allocator;
 public:
 	CXXSurfaceVertex() {init();};
 	
@@ -52,6 +53,8 @@ public:
 		allocator.deallocate(static_cast<CXXSurfaceVertex *>(pntr), 0);
 	};
 };
+
+}
 #endif
 
 

@@ -6,9 +6,9 @@
  *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
-#ifndef CXXTorusElement_included
-#define CXXTorusElement_included
-//#include <CXXTorusTriangle.h>
+#ifndef CXX_mot_CXXTorusElement_included
+#define CXX_mot_CXXTorusElement_included
+
 #include "CXXTorusNode.h"
 #include "CXXTriangle.h"
 #include "CXXCircleNode.h"
@@ -16,19 +16,24 @@
 #include <vector>
 #include <list>
 
-class CXXSurface;
-class CXXTriangle;
-class CXXCircle;
+// try class CXXSurface;
+// try class CXXTriangle;
+// try class CXXCircle;
+
 #include "CXXCoord.h"
 
 using std::vector;
  
+namespace CXX_mot {
+
+  class CXXSurface;
+
 class CXXTorusElement {
 private:
 	static CXXCircle nullCircle;
 	const CXXCircle &theCircle;
-	vector <CXXTorusNode, CXX::CXXAlloc<CXXTorusNode> > nodes;
-	list <CXXTriangle, CXX::CXXAlloc<CXXTriangle> > flatTriangles;
+	vector <CXXTorusNode, CXX_old::CXXAlloc<CXXTorusNode> > nodes;
+	list <CXXTriangle, CXX_old::CXXAlloc<CXXTriangle> > flatTriangles;
 	//omega1 and omega2 are the limits of the arc on the surface of a torus
 	//	that is in the plane of the axis of the torus
 	double omega1;
@@ -49,7 +54,7 @@ private:
 	double theta2;
 	//Here a set of triangles that point into the flatTriangles array to identify
 	//triangles that constitute the edge strip (i.e. last step in theta
-	list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle *> > edgeTriangles;
+	list<CXXTriangle *, CXX_old::CXXAlloc<CXXTriangle *> > edgeTriangles;
 	// v1unit and v2unit are unit vectors from the centre of the circle that defines
 	//the trajectory of the probe around a torus, to the start and end point around that
 	//orbit
@@ -94,4 +99,5 @@ public:
 	};
 };
 
+}
 #endif

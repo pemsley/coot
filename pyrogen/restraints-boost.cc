@@ -25,6 +25,8 @@
 #include "compat/coot-sysdep.h"
 #include <GraphMol/GraphMol.h>
 
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+
 #include <boost/python.hpp>
 
 using namespace boost::python;
@@ -38,6 +40,8 @@ using namespace boost::python;
 #include "restraints-private.hh" // for bond-order conversion
 
 #include "mmff-restraints.hh"
+
+#include "cairo-molecule.hh"
 
 namespace coot {
 
@@ -58,6 +62,7 @@ namespace coot {
 
    // compiling/linking problems - give up for now.
    // PyObject *convert_rdkit_mol_to_pyobject(RDKit::ROMol *mol);
+
 }
 
 
@@ -75,7 +80,9 @@ BOOST_PYTHON_MODULE(pyrogen_boost) {
    def("mmff_bonds_and_angles",    coot::mmff_bonds_and_angles,    return_value_policy<manage_new_object>());
    // rdkit-like function name
    def("MolFromPDBXr", coot::rdkit_mol_chem_comp_pdbx, return_value_policy<manage_new_object>());
-
+   def("cairo_png_depict_from_mmcif", coot::cairo_png_depict_from_mmcif);
+   def("cairo_png_depict_to_string",  coot::cairo_png_string_from_mol);
+   def("cairo_svg_depict_to_string",  coot::cairo_svg_string_from_mol);
 
    class_<coot::mmff_bond_restraint_info_t>("mmff_bond_restraint_info_t")
       .def("get_idx_1",         &coot::mmff_bond_restraint_info_t::get_idx_1)
@@ -128,6 +135,7 @@ coot::regularize(RDKit::ROMol &mol_in) {
 
    RDKit::ROMol *m = new RDKit::ROMol(mol_in);
    return m;
+
 }
 
 RDKit::ROMol *
@@ -135,6 +143,7 @@ coot::regularize_with_dict(RDKit::ROMol &mol_in, PyObject *restraints_py, const 
 
    coot::dictionary_residue_restraints_t dict_restraints = 
       monomer_restraints_from_python(restraints_py);
+
    RDKit::RWMol *m = new RDKit::RWMol(mol_in);
    mmdb::Residue *residue_p = make_residue(mol_in, 0, comp_id);
    if (! residue_p) {
@@ -173,6 +182,10 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
    idealized = true; // 20150622 - so that we pick up the coords of OXT in 01Y
    bool try_autoload_if_needed = false;
 
+   // We use this (mmdb::Restraints-using) interface to rdkit_mol()
+   // because it allows a code path fall-back when there are no
+   // coordinates for the atoms of the molecule
+   
    mmdb::Residue *r = geom.get_residue(comp_id, idealized, try_autoload_if_needed);
 
    int imol = 0; // dummy
@@ -198,11 +211,14 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	    // bool undelocalize = false;
             // 
 	    bool undelocalize_flag = true;
+	    int iconf = 0;
 
 	    RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest.second, "", undelocalize_flag);
-
 	    RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
 
+	    // Let's skip this step here if we can - because the chiral centres should have been
+	    // assigned in rdkit_mol() and we don't want to wipe them out here.
+	    // 
 	    bool clean = false;
 	    bool force = true;
 	    bool flag_stereo = true;
@@ -213,12 +229,21 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	    //
 	    if (false) {
 	       for (unsigned int iat=0; iat<m->getNumAtoms(); iat++) {
-		  // std::cout << "DEBUG:: rdkit_mol_chem_comp_pdbx(): testing atom " << iat << std::endl;
+
+		  std::string name;
+		  // std::cout << "DEBUG:: rdkit_mol_chem_comp_pdbx(): testing atom "
+		  // << iat << std::endl;
+
 		  RDKit::ATOM_SPTR at_p = (*m)[iat];
 		  try {
-		     std::string name;
-		     std::string cv;
 		     at_p->getProp("name", name);
+		     std::cout << "   name " << name << std::endl;
+		  }
+		  catch (const KeyErrorException &err) {
+		     std::cout << "   no name " << std::endl;
+		  }
+		  try {
+		     std::string cv;
 		     at_p->getProp("mmcif_chiral_volume_sign", cv);
 		     std::cout << "m: name " << name << " " << cv << std::endl;
 		  }
@@ -228,10 +253,10 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 		  try {
 		     std::string cip;
 		     at_p->getProp("_CIPCode", cip);
-		     std::cout << "m: CIP-code " << cip << std::endl;
+		     std::cout << name << " cip-code " << cip << std::endl;
 		  }
 		  catch (const KeyErrorException &err) {
-		     // std::cout << "no-error: no _CIPCode " << err.what() << std::endl;
+		     std::cout << name << " cip-code - " << std::endl;
 		  }
 		  try {
 		     int cip_rank;
@@ -239,11 +264,11 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 		     std::cout << "m: CIP-rank " << cip_rank << std::endl;
 		  }
 		  catch (const KeyErrorException &err) {
-		     // std::cout << "no-error: no _CIPRank " << err.what() << std::endl;
+		     std::cout << "no-error: no _CIPRank " << err.what() << std::endl;
 		  }
 		  catch (const boost::bad_any_cast &bac) {
 		     // Goodness knows why this is thrown... 
-		     // std::cout << "strange - caught bad_any_cast" << std::endl;
+		     std::cout << "strange - caught bad_any_cast on _CIPRank get" << std::endl;
 		  } 
 	       }
 	    }

@@ -193,12 +193,18 @@ coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
 
+// convenience function
+void
+graphics_info_t::update_geometry_graphs(int imol) {
+   update_geometry_graphs(molecules[imol].atom_sel, imol);
+}
+
 
 // imol map is passed in case that the density fit graph was displayed.
 // If there is no imol_map then the geometry graph could not have been displayed.  You can
 // pass -1 for the map in that case.
 void
-graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelResidues, int imol, int imol_map) { // searching for update_validation_graphs?
+graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelResidues, int imol, int imol_map) { // searching for update_validation_graphs? Check the next function also
 
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
@@ -542,7 +548,7 @@ graphics_info_t::geometric_distortion(int imol) {
 #ifdef HAVE_GSL
 coot::geometry_distortion_info_container_t
 graphics_info_t::geometric_distortions(int imol, mmdb::Residue *residue_p, bool with_nbcs) {
-   
+
    coot::geometry_distortion_info_container_t gdc(NULL, 0, "");
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
@@ -683,7 +689,7 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
 							  *Geom_p(),
 							  asc.mol,
 							  fixed_atom_specs,
-							  dummy_xmap);
+							  &dummy_xmap);
 	       
 		  // coot::restraint_usage_Flags flags = coot::BONDS;
 		  // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES;
@@ -714,7 +720,7 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
 						flags,
 						do_residue_internal_torsions,
 						do_trans_peptide_restraints,
-						0.0, 0,
+						0.0, 0, false, false,
 						pseudos);
 
 		  if (nrestraints > 0) {
@@ -722,7 +728,7 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
 // 		     std::cout << "DEBUG:: model " << imod << " pushing back " << nrestraints
 // 			       << " restraints" << std::endl;
 
-		     dcv.push_back(restraints.geometric_distortions(flags));
+		     dcv.push_back(restraints.geometric_distortions());
 		  
 		  } else {
 
@@ -1021,7 +1027,7 @@ graphics_info_t::omega_graphs(int imol) {
 			if (nSelResidues > 0) { 
 			   coot::restraints_container_t restraints(molecules[imol].atom_sel,
 								   std::string(chain_id),
-								   dummy_xmap);
+								   &dummy_xmap);
 
 			   coot::omega_distortion_info_container_t om_dist = 
 			      restraints.omega_trans_distortions(*geom_p,
@@ -1050,7 +1056,7 @@ graphics_info_t::omega_distortions_from_mol(const atom_selection_container_t &as
 					    const std::string &chain_id) {
 
    clipper::Xmap<float> dummy_xmap;
-   coot::restraints_container_t restraints(asc, chain_id, dummy_xmap);
+   coot::restraints_container_t restraints(asc, chain_id, &dummy_xmap);
    coot::omega_distortion_info_container_t om_dist =
       restraints.omega_trans_distortions(*geom_p, mark_cis_peptides_as_bad_flag);
    return om_dist;
@@ -1332,7 +1338,7 @@ graphics_info_t::rotamers_from_residue_selection(mmdb::PResidue *SelResidues,
    std::vector<coot::geometry_graph_block_info_generic> v;
    for (int ires=0; ires<nSelResidues; ires++) {
       std::string res_name = SelResidues[ires]->GetResName();
-      if (res_name != "HOH") { 
+      if (res_name != "HOH") {
 	 int this_resno = SelResidues[ires]->GetSeqNum();
 	 std::string chain_id = SelResidues[ires]->GetChainID();
 	 std::string alt_conf = ""; // fixme?

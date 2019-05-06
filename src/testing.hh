@@ -98,6 +98,7 @@ int test_minimol();
 int test_monomer_organic_set();
 int test_output_link_distances_are_correct();
 int test_string_splitting();
+int test_index_splitting();
 int test_trailing_slash();
 
 // uses greg data test data

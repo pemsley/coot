@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef CXXChargeTable_included
-#define CXXChargeTable_included
+#ifndef CXX_mot_CXXChargeTable_included
+#define CXX_mot_CXXChargeTable_included
 
 #include <iostream>
 #ifndef  __STRING_H
@@ -20,6 +20,8 @@ using namespace std;
 
 typedef map<string, double> stringDoubleMap;
 typedef map<string, stringDoubleMap> stringStringDoubleMap;
+
+namespace CXX_mot {
 
 class CXXChargeTable {
 	
@@ -37,5 +39,7 @@ public:
 	
 	
 };
+
+}
 
 #endif

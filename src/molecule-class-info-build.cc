@@ -275,7 +275,7 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 
 	    coot::restraints_container_t restraints(residues,
 						    links,
-						    geom, mol, dummy_fixed_atom_specs, dummy_xmap);
+						    geom, mol, dummy_fixed_atom_specs, &dummy_xmap);
 	    coot::bonded_pair_container_t bpc = restraints.bonded_residues_from_res_vec(geom);
 
 	    asn_hydrogen_position_swap(residues); // HD21 and HD22 (HD22 will be deleted)
@@ -553,8 +553,23 @@ molecule_class_info_t::reduce(coot::protein_geometry *geom_p) {
    r.add_geometry(geom_p);
    r.add_hydrogen_atoms();
    update_molecule_after_additions();
-   update_symmetry();
 
+   if (false) { // debug
+      for (int i=0; i<atom_sel.n_selected_atoms; i++) {
+	 mmdb::Atom *at = atom_sel.atom_selection[i];
+	 int idx;
+	 if (at->GetUDData(atom_sel.UDDAtomIndexHandle, idx) == mmdb::UDDATA_Ok) {
+	    std::string fail;
+	    if (idx != i)
+	       fail = "FAIL";
+	    std::cout << "atom " << coot::atom_spec_t(at) << " has index " << i << " and udd " << idx << " " << fail << "\n";
+	 } else {
+	    std::cout << "bad GetUDData() for atom " << coot::atom_spec_t(at) << std::endl;
+	 }
+      }
+   }
+
+   update_symmetry();
 }
 
 void
@@ -607,9 +622,62 @@ molecule_class_info_t::crankshaft_peptide_rotation_optimization(const coot::resi
    if (mols.size() == 1) {
       make_backup();
       std::cout << "DEBUG:: crankshaft updated " << std::endl;
+      // what do we do with the old atom selection and mol?
+      // should we delete them here?
+      //
       atom_sel = make_asc(mols[0]);
       have_unsaved_changes_flag = 1;
       update_molecule_after_additions();
       update_symmetry();
    }
 }
+
+int
+molecule_class_info_t::add_residue_with_atoms(const coot::residue_spec_t &residue_spec, const std::string &res_name, const std::vector<coot::minimol::atom> &list_of_atoms) {
+
+   std::cout << "start add_residue_with_atoms()" << std::endl;
+   int r_added = 0;
+
+   mmdb::Residue *residue_p = get_residue(residue_spec);
+   if (! residue_p) {
+      // make one then
+      mmdb::Chain *chain_p_for_residue = 0; // set this
+      int imod = 1;
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            std::string chain_id = chain_p->GetChainID();
+            if (chain_id == residue_spec.chain_id) {
+               chain_p_for_residue = chain_p;
+            }
+         }
+      }
+      if (chain_p_for_residue) {
+         residue_p = new mmdb::Residue(chain_p_for_residue, res_name.c_str(), residue_spec.res_no, residue_spec.ins_code.c_str());
+      } else {
+         chain_p_for_residue = new mmdb::Chain;
+         chain_p_for_residue->SetChain(residue_spec.chain_id.c_str());
+         model_p->AddChain(chain_p_for_residue);
+         residue_p = new mmdb::Residue(chain_p_for_residue, res_name.c_str(), residue_spec.res_no, residue_spec.ins_code.c_str());
+      }
+   }
+   if (residue_p) {
+      for (unsigned int i=0; i<list_of_atoms.size(); i++) {
+         const coot::minimol::atom &atom = list_of_atoms[i];
+         mmdb::Atom *at = atom.make_atom();
+         if (at) {
+            residue_p->AddAtom(at);
+         }
+      }
+      atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle); // correct?
+      atom_sel = make_asc(atom_sel.mol);
+      have_unsaved_changes_flag = 1;
+      update_molecule_after_additions();
+      update_symmetry();
+   }
+   return r_added;
+}
+
+

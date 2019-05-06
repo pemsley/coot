@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef CXXSphereTriangle_included
-#define CXXSphereTriangle_included
+#ifndef CXX_mot_CXXSphereTriangle_included
+#define CXX_mot_CXXSphereTriangle_included
 
 #include "CXXCoord.h"
 #include "CXXSphereTriangleEdge.h"
@@ -18,6 +18,8 @@
 class CXXSphereElement;
 //class CXXCoord;
 //class CXXSphereNode;
+
+namespace CXX_mot {
 
 class CXXSphereTriangle {
 private:
@@ -50,4 +52,6 @@ public:
 	int setCentre(const CXXCoord &);
 	int setRadius(const double radius);
 };
+
+}
 #endif

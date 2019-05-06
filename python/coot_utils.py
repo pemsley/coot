@@ -22,6 +22,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import re, string
         
 # 3D annotations - a bit of a hack currently
@@ -35,7 +36,7 @@ default_ball_and_stick_selection = "//A/1-2"
 # for mingw debug
 global have_mingw
 have_mingw = False
-if  os.getenv("MSYSTEM"):
+if os.getenv("MSYSTEM"):
     have_mingw = True
 
 # this is set by the main application: False or 1 (use this python gui)
@@ -511,6 +512,21 @@ def residue_spec_to_atom_selection_string(centre_residue_spec):
     ret = "//" + centre_residue_spec[0] + \
           "/" + str(centre_residue_spec[1])
     return ret
+
+def residue_atom_to_atom_name(ra):
+    if not isinstance(ra, list):
+        return False
+    else:
+        return ra[0][0]
+
+def residue_atom_to_postion(ra):
+    if not isinstance(ra, list):
+        return False
+    else:
+        return ra[2]
+
+
+#         I don't like these function names - remove them at some stage
 
 def residue_atom2atom_name(ra):
     if not isinstance(ra, list):
@@ -1541,11 +1557,8 @@ def darken_maps():
 #
 def chain_ids(imol):
 
-    chain_id_is = []
-    number_of_chains = n_chains(imol)
-    for chain_no in range(number_of_chains):
-        chain_id_is.append(chain_id(imol,chain_no))
-    return chain_id_is
+   # if this fails, check that you have not set chain_id to override coot's chain_id()
+   return [chain_id(imol, ic) for ic in range(n_chains(imol))]
 
 # convert from interface name to schemisch name to be equivalent to Paul's naming
 #

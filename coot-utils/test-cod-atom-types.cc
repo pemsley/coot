@@ -19,20 +19,37 @@
  * 02110-1301, USA
  */
 
+#include <limits>
 #ifndef MAKE_ENHANCED_LIGAND_TOOLS
 int main(int argc, char **argv) {return 0;}
 #else 
-#include "cod-atom-types.hh"
-#include "rdkit-interface.hh"
-#include "coot-utils/coot-coord-utils.hh"
 #include "utils/coot-utils.hh"
 
-#include "bond-record-container-t.hh"
-
 #include "geometry/residue-and-atom-specs.hh"
+#include "lidia-core/cod-atom-types.hh"
+#include "lidia-core/rdkit-interface.hh"
+#include "lidia-core/bond-record-container-t.hh"
+#include "lidia-core/primes.hh"
 
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
+
+
+mmdb::Residue *
+get_residue(coot::residue_spec_t residue_spec, mmdb::Manager *mol) {
+
+   // Fill this FIXME
+   return nullptr;
+
+}
+
+mmdb::Residue *
+get_first_residue(mmdb::Manager *mol) {
+
+   // Fill this FIXME
+   return nullptr;
+
+}
 
 
 // rdkit_mol is not const because there is no const beginAtoms() operator.
@@ -100,7 +117,7 @@ void molecule_from_ccd_pdbx(const std::string &comp_id,
    if (! mol) {
       std::cout << "Null mol from mol_from_dictionary() for " <<  comp_id << std::endl;
    } else {
-      mmdb::Residue *residue_p = coot::util::get_first_residue(mol);
+      mmdb::Residue *residue_p = get_first_residue(mol);
 
       if (! residue_p) {
 	 // pretty strange
@@ -136,7 +153,7 @@ void molecule_from_comp_id(const std::string &comp_id) {
 	 std::cout << "Null mol from mol_from_dictionary() for " <<  comp_id << std::endl;
       } else {
 	 
-	 mmdb::Residue *residue_p = coot::util::get_first_residue(mol);
+	 mmdb::Residue *residue_p = get_first_residue(mol);
 
 	 if (! residue_p) {
 	    // pretty strange
@@ -292,7 +309,7 @@ validate(const std::string &comp_id,
 
    coot::residue_spec_t residue_spec(chain_id, res_no, "");
 
-   mmdb::Residue *res = coot::util::get_residue(residue_spec, asc.mol);
+   mmdb::Residue *res = get_residue(residue_spec, asc.mol);
 
    if (res) { 
 
@@ -312,8 +329,6 @@ validate(const std::string &comp_id,
    }
 }
 
-#include "primes.hh"
-#include <limits>
 void
 test_primes() {
 

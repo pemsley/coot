@@ -99,6 +99,8 @@ namespace cod {
       bool db_add_level_4_types(sqlite3 *db);
 #endif // USE_SQLITE3
 
+      clipper::Coord_orth co(mmdb::Atom *at) const { return clipper::Coord_orth(at->x, at->y, at->z); }
+
    public:
       bond_record_container_t() {}
       bond_record_container_t(const std::string &table_dir_name) {

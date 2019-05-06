@@ -598,9 +598,10 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
 	       geom_matcher.get_monomer_restraints(cif_dict_comp_id, imol);
 	    if (rp_2.first) {
 	       mmdb::Residue *residue_p = NULL; // for the moment
-	       // std::cout << "------ about to match "
-	       // << rp_2.second.residue_info.comp_id << " to "
-	       // << rp_1.second.residue_info.comp_id << " names" << std::endl;
+
+	       std::cout << "DEBUG:: ------ about to match "
+			 << rp_2.second.residue_info.comp_id << " to "
+			 << rp_1.second.residue_info.comp_id << " names" << std::endl;
 	       coot::dictionary_match_info_t dmi = 
 		  rp_2.second.match_to_reference(rp_1.second, residue_p, output_comp_id,
 						 output_compound_name);
@@ -609,10 +610,12 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
 		  dmi.dict.residue_info.name = output_compound_name;
 		  dmi.dict.write_cif(cif_dict_out);
 	       } else {
-		  std::cout << "INFO:: not similar enough" << std::endl;
+		  std::cout << "WARNING:: not similar enough, n_matches = "
+			    << dmi.n_matches << std::endl;
 	       }
 	    } else {
-	       std::cout << " not bonds from " << cif_dict_in << std::endl;
+	       std::cout << "WARNING:: no monomer restraints for " << cif_dict_comp_id
+			 << " in " << cif_dict_in << std::endl;
 	    }
 	 }
       } else {
@@ -1188,6 +1191,16 @@ void flip_ligand(int imol, const char *chain_id, int resno) {
    graphics_draw();
 }
 
+
+//! \brief JED-flip intermediate atoms
+//
+// @ return a success status - 0 for "intermediate atoms were not not shown"
+// 1 for intermediate atoms were shown (but not necessarily flipped
+//
+int jed_flip_intermediate_atoms() {
+   return graphics_info_t::jed_flip_intermediate_atoms();
+}
+
 void jed_flip(int imol, const char *chain_id, int res_no, const char *ins_code,
 	      const char *atom_name, const char *alt_conf, short int invert_selection) {
 
@@ -1197,6 +1210,7 @@ void jed_flip(int imol, const char *chain_id, int res_no, const char *ins_code,
       std::string alt_conf_str(alt_conf);
       std::string atom_name_str(atom_name);
       coot::residue_spec_t spec(chain_id, res_no, ins_code);
+      std::cout << "jed-flipping static atoms " << atom_name_str << std::endl;
       std::string problem_string = g.molecules[imol].jed_flip(spec, atom_name_str, alt_conf_str, 
 							      invert_selection_flag, g.Geom_p());
       if (! problem_string.empty()) {
@@ -1344,6 +1358,7 @@ std::vector<std::pair<std::string, std::string> > monomer_lib_3_letter_codes_mat
    return v;
 } 
 
+#include "c-interface-image-widget.hh"
 
 // we allocate new memory here, without ever giving it back.  The
 // memory should be freed when the dialog is destroyed.
@@ -1407,21 +1422,39 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    // add new buttons
    for (unsigned int i=0; i<v.size(); i++) {
       // std::cout << i << " " << v[i].first << std::endl;
-      std::string l = v[i].first;
+      std::string l = "  ";
+      l += v[i].first;
       l += " : ";
       l += v[i].second;
       // std::cout << "Giving the button the label :" << l << ":" << std::endl;
-      GtkWidget *button = gtk_button_new_with_label(l.c_str());
-      // std::cout << "Adding button: " << button << std::endl;
-      std::string button_name = "monomer_button_";
+      // GtkWidget *button = gtk_button_new_with_label(l.c_str());
+      GtkWidget *button = gtk_button_new();
+      GtkWidget *label  = gtk_label_new(l.c_str());
 
+      GtkWidget *button_hbox = gtk_hbox_new(FALSE, 0);
+      gtk_container_add(GTK_CONTAINER(button), button_hbox);
+
+      int imol = 0; // dummy
+      GtkWidget *wp = get_image_widget_for_comp_id(v[i].first, imol);
+
+      // gtk_image_new_from_file("test.png");
+
+      if (wp) { 
+	 gtk_widget_show(wp);
+	 gtk_box_pack_start(GTK_BOX(button_hbox), wp, FALSE, FALSE, 0);
+      } 
+      gtk_box_pack_start(GTK_BOX(button_hbox), label, FALSE, FALSE, 0);
+      gtk_widget_show(label);
+      gtk_widget_show(button_hbox);
+      
+      std::string button_name = "monomer_button_";
       // gets embedded as user data (hmm).
       string *s = new string(v[i].first); // the 3-letter-code/comp_id (for user data).
       button_name += v[i].first;
+
       std::cout << "GTK-FIXME widget_ref b" << std::endl;
       // gtk_widget_ref (button);
-      g_object_set_data(G_OBJECT (dialog), 
-			button_name.c_str(), button);
+      g_object_set_data(G_OBJECT (dialog), button_name.c_str(), button);
       gtk_box_pack_start(GTK_BOX (vbox), button, FALSE, FALSE, 0);
       gtk_container_set_border_width(GTK_CONTAINER (button), 2);
 
@@ -1448,7 +1481,8 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    gtk_widget_show (vbox);
    return stat;
 
-} 
+}
+
 
 void
 on_monomer_lib_sbase_molecule_button_press (GtkButton *button,
@@ -2927,17 +2961,19 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 	    
 	    if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
 	       n_restraints_chirals++;
-	       if (gdc.geometry_distortion[i].distortion_score > 0) { // arbitrons
+	       double chiral_volume_distortion_limit = 0.1; // arbitrons
+	       chiral_volume_distortion_limit = 0;
+	       if (gdc.geometry_distortion[i].distortion_score > chiral_volume_distortion_limit) {
 		  mmdb::Atom *at_c = residue_p->GetAtom(rest.atom_index_centre);
 		  mmdb::Atom *at_1 = residue_p->GetAtom(rest.atom_index_1);
 		  mmdb::Atom *at_2 = residue_p->GetAtom(rest.atom_index_2);
 		  mmdb::Atom *at_3 = residue_p->GetAtom(rest.atom_index_3);
 		  if (at_c && at_1 && at_2 && at_3) {
-		     std::cout << "   chiral volume distortion centred at: "
+		     std::cout << "   chiral volume penalty score for chiral vol centred at: "
 			       << at_c->name << " with neighbours "
 			       << at_1->name << " "
 			       << at_2->name << " "
-			       << at_2->name << " penalty-score: "
+			       << at_3->name << " penalty-score: "
 			       << gdc.geometry_distortion[i].distortion_score
 			       << std::endl;
 		  }
@@ -3412,7 +3448,7 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
       std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
       coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, g.Geom_p(), 0.5, 0.25);
       coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand();
-      std::cout << "------------- score " << c.score() << std::endl;
+      std::cout << "------------- coot_contact_dots_for_ligand_internal(): score " << c.score() << std::endl;
 
       // for quick colour lookups.
       std::map<std::string, coot::colour_holder> colour_map;
@@ -3431,14 +3467,14 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
       colour_map["grey"      ] = coot::generic_display_object_t::colour_values_from_colour_name("grey");
       colour_map["magenta"   ] = coot::generic_display_object_t::colour_values_from_colour_name("magenta");
       colour_map["royalblue" ] = coot::generic_display_object_t::colour_values_from_colour_name("royalblue");
-      
+
       std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
       for (it=c.dots.begin(); it!=c.dots.end(); it++) {
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
 	 std::string obj_name = "Molecule ";
 	 obj_name += coot::util::int_to_string(imol) + ": " + type;
-	 int obj = new_generic_object_number(obj_name.c_str());
+	 int obj = new_generic_object_number_for_molecule(obj_name, imol);
 	 int point_size = 2;
 	 if (type == "vdw-surface") point_size = 1;
 	 for (unsigned int i=0; i<v.size(); i++) {
@@ -3450,7 +3486,7 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
       }
       std::string clashes_name = "Molecule " + coot::util::int_to_string(imol) + ":";
       clashes_name += " clashes";
-      int clashes_obj = new_generic_object_number(clashes_name.c_str()); // change this func to use std::string arg
+      int clashes_obj = new_generic_object_number_for_molecule(clashes_name, imol);
       for (unsigned int i=0; i<c.clashes.size(); i++) {
 	 to_generic_object_add_line(clashes_obj, "#ff59b4", 2,
 				    c.clashes[i].first.x(),  c.clashes[i].first.y(),  c.clashes[i].first.z(),
@@ -3556,7 +3592,7 @@ void coot_all_atom_contact_dots(int imol) {
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
 	 std::string obj_name = "Molecule ";
 	 obj_name += coot::util::int_to_string(imol) + ": " + type;
-	 int obj = new_generic_object_number(obj_name.c_str());
+	 int obj = new_generic_object_number_for_molecule(obj_name, imol);
 	 std::string col = "#445566";
 	 int point_size = 2;
 	 if (type == "vdw-surface") point_size = 1;
@@ -3569,7 +3605,7 @@ void coot_all_atom_contact_dots(int imol) {
       }
       std::string clashes_name = "Molecule " + coot::util::int_to_string(imol) + ":";
       clashes_name += " clashes";
-      int clashes_obj = new_generic_object_number(clashes_name.c_str());
+      int clashes_obj = new_generic_object_number_for_molecule(clashes_name, imol);
       for (unsigned int i=0; i<c.clashes.size(); i++) {
 	 to_generic_object_add_line(clashes_obj, "#ff59b4", 2,
 				    c.clashes[i].first.x(),  c.clashes[i].first.y(),  c.clashes[i].first.z(),
@@ -3579,3 +3615,64 @@ void coot_all_atom_contact_dots(int imol) {
       graphics_draw();
    }
 }
+
+
+#ifdef USE_GUILE
+SCM linked_residues_scm(SCM residue_centre_scm, int imol, float close_dist_max) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+
+      coot::residue_spec_t residue_spec = residue_spec_from_scm(residue_centre_scm);
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(residue_spec);
+      if (residue_p) {
+	 std::vector<mmdb::Residue *> v = coot::simple_residue_tree(residue_p, mol, close_dist_max);
+	 r = SCM_EOL;
+	 for (std::size_t i=0; i<v.size(); i++) {
+	    mmdb::Residue *residue_p = v[i];
+	    if (residue_p) {
+	       coot::residue_spec_t spec(residue_p);
+	       SCM item_scm = residue_spec_to_scm(spec);
+	       r = scm_cons(item_scm, r);
+	    }
+	 }
+      }
+   }
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *linked_residues_py(PyObject *residue_centre_py, int imol, float close_dist_max) {
+
+   PyObject *r = Py_False;
+
+   if (is_valid_model_molecule(imol)) {
+
+      coot::residue_spec_t residue_spec = residue_spec_from_py(residue_centre_py);
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(residue_spec);
+      if (residue_p) {
+	 std::vector<mmdb::Residue *> v = coot::simple_residue_tree(residue_p, mol, close_dist_max);
+	 r = PyList_New(v.size());
+	 for (std::size_t i=0; i<v.size(); i++) {
+	    mmdb::Residue *residue_p = v[i];
+	    if (residue_p) {
+	       coot::residue_spec_t spec(residue_p);
+	       PyObject *item = residue_spec_to_py(spec);
+	       PyList_SetItem(r, i, item);
+	    } else {
+	       // or put the valid residue_p in a vector first
+	       PyList_SetItem(r, i, Py_False); // Hmm..
+	    }
+	 }
+      }
+   }
+
+   if (PyBool_Check(r))
+      Py_INCREF(r);
+   return r;
+
+}
+#endif

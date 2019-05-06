@@ -258,6 +258,20 @@ coot::util::z_weighted_density_at_point_linear_interp(const clipper::Coord_orth 
    return d*z;
 }
 
+float 
+coot::util::z_weighted_density_at_nearest_grid(const clipper::Coord_orth &pt,
+                                               const std::string &ele,
+                                               const std::vector<std::pair<std::string, int> > &atom_number_list,
+                                               const clipper::Xmap<float> &map_in) {
+
+   float d = density_at_point_by_nearest_grid(map_in, pt);
+   float z = atomic_number(ele, atom_number_list);
+   if (z< 0.0)
+      z = 6; // carbon, say
+   return d*z;
+
+}
+
 float
 coot::util::z_weighted_density_score(const std::vector<mmdb::Atom *> &atoms,
 				     const std::vector<std::pair<std::string, int> > &atom_number_list,
@@ -292,6 +306,20 @@ coot::util::z_weighted_density_score_linear_interp(const minimol::molecule &mol,
    std::vector<coot::minimol::atom *> atoms = mol.select_atoms_serial();
    for (unsigned int i=0; i<atoms.size(); i++) {
       float d = z_weighted_density_at_point_linear_interp(atoms[i]->pos, atoms[i]->element, atom_number_list, map);
+      sum_d += d;
+   }
+   return sum_d;
+}
+
+float 
+coot::util::z_weighted_density_score_nearest(const minimol::molecule &mol,
+                                             const std::vector<std::pair<std::string, int> > &atom_number_list,
+                                             const clipper::Xmap<float> &map) {
+
+   float sum_d = 0;
+   std::vector<coot::minimol::atom *> atoms = mol.select_atoms_serial();
+   for (unsigned int i=0; i<atoms.size(); i++) {
+      float d = z_weighted_density_at_nearest_grid(atoms[i]->pos, atoms[i]->element, atom_number_list, map);
       sum_d += d;
    }
    return sum_d;
@@ -414,6 +442,12 @@ clipper::RTop_orth
 coot::util::make_rtop_orth_for_jiggle_atoms(float jiggle_trans_scale_factor,
 					    float annealing_factor) {
 
+   // Read this:
+   // https://en.wikipedia.org/wiki/Rotation_matrix#Uniform_random_rotation_matrices
+   // make a quaternion where the 4 q values are sampled from a normal distribution
+   // normalize
+   // convert to 3x3 matrix
+
    float rmi = 1.0/float(RAND_MAX);
 
    // If these angles are small, then we get small rotations of the model
@@ -430,5 +464,103 @@ coot::util::make_rtop_orth_for_jiggle_atoms(float jiggle_trans_scale_factor,
    clipper::Coord_orth shift(rand_pos_1, rand_pos_2, rand_pos_3);
    clipper::RTop_orth rtop(r, shift);
    return rtop;
+
+}
+
+// needed?
+#include "atom-selection-container.hh"
+#include "coords/mmdb-crystal.h"
+
+clipper::NXmap<float>
+coot::util::make_nxmap(const clipper::Xmap<float> &xmap, mmdb::Manager *mol, int SelectionHandle, float border) {
+
+   std::pair<clipper::Coord_orth, clipper::Coord_orth> p = util::extents(mol, SelectionHandle);
+
+   clipper::Coord_orth p1 = p.first;
+   clipper::Coord_orth p2 = p.second;
+
+   std::cout << "debug:: make_nxmap() extents " << p.first.format() << " " << p.second.format() << std::endl;
+
+   p1 -= clipper::Coord_orth(border,border,border);
+   p2 += clipper::Coord_orth(border,border,border);
+
+   std::pair<clipper::Coord_orth, clipper::Coord_orth> pp(p1, p2);
+
+   std::pair<clipper::Coord_frac, clipper::Coord_frac> fc_pair =
+      find_struct_fragment_coord_fracs_v2(pp, xmap.cell());
+
+   clipper::Cell cell = xmap.cell();
+   clipper::Grid_sampling grid_sampling = xmap.grid_sampling();
+
+   float radius = sqrt((p2-p1).lengthsq());
+   clipper::Coord_orth comg(0.5*(p1.x()+p2.x()),
+			    0.5*(p1.y()+p2.y()),
+			    0.5*(p1.z()+p2.z()));
+
+   // make a non-cube, ideally - needs different extents to do that.
+
+   // get grid range
+   // gr0: a grid range of the correct size (at the origin, going + and - in small box)
+   // gr1: a grid range of the correct size (around the correct place, comg)
+   clipper::Grid_range gr0(cell, grid_sampling, radius);
+   clipper::Grid_range gr1(gr0.min() + comg.coord_frac(cell).coord_grid(grid_sampling),
+			   gr0.max() + comg.coord_frac(cell).coord_grid(grid_sampling));
+
+   // Here I need to update the grid range, gr1 to get a "good" radix (radices?)
+
+   // this constructor will fail throwing a std::length_error if the map is too big.
+   //
+   // init nxmap
+   clipper::NXmap<float> nxmap(cell, grid_sampling, gr1);
+   clipper::Xmap<float>::Map_reference_coord ix(xmap);
+   clipper::Coord_grid offset =
+      xmap.coord_map(nxmap.coord_orth(clipper::Coord_map(0.0,0.0,0.0))).coord_grid();
+   typedef clipper::NXmap<float>::Map_reference_index NRI;
+   for (NRI inx = nxmap.first(); !inx.last(); inx.next()) {
+      ix.set_coord(inx.coord() + offset);
+      nxmap[inx] = xmap[ix];
+   }
+   return nxmap;
+}
+
+
+clipper::NXmap<float>
+coot::util::make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_container_t asc, float border) {
+
+   return make_nxmap(xmap, asc.mol, asc.SelectionHandle, border);
+}
+
+#include "clipper/contrib/edcalc.h"
+
+//
+clipper::NXmap<float>
+coot::util::make_edcalc_map(const clipper::NXmap<float>& map_ref,  // for metrics
+			    mmdb::Manager *mol, int atom_selection_handle) {
+
+   // init nxmap
+   clipper::NXmap<float> nxmap(map_ref.grid(), map_ref.operator_orth_grid());
+
+   clipper::EDcalc_iso<float> edc(3.0); // radius
+   mmdb::Atom **sel_atoms = 0;
+   int n_sel_atoms;
+   std::vector<clipper::Atom> l;
+   mol->GetSelIndex(atom_selection_handle, sel_atoms, n_sel_atoms);
+   for (int ii=0; ii<n_sel_atoms; ii++) {
+      mmdb::Atom *at = sel_atoms[ii];
+      std::string ele(at->element);
+      clipper::Coord_orth pt(at->x, at->y, at->z);
+      clipper::Atom cat;
+      cat.set_element(ele);
+      cat.set_coord_orth(pt);
+      cat.set_u_iso(at->tempFactor * 0.0125);
+      // cat.set_u_iso(0.1);
+      cat.set_occupancy(1.0);
+      l.push_back(cat);
+   }
+
+   clipper::Atom_list al(l);
+   edc(nxmap, al);
+
+   return nxmap;
 
 }

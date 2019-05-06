@@ -1186,7 +1186,13 @@ if (have_coot_python):
        submenu,
        "Molasses Refinement mode", 
        lambda func: (printf("Molasses..."),
-                     set_dragged_refinement_steps_per_frame(5)))
+                     set_dragged_refinement_steps_per_frame(20)))
+
+
+     add_simple_coot_menu_menuitem(
+       submenu,
+       "Smooth Refinement mode",
+       lambda func: (set_dragged_refinement_steps_per_frame(42)))
 
 
      add_simple_coot_menu_menuitem(
@@ -1255,55 +1261,55 @@ if (have_coot_python):
 
 
 
-     # ---------------------------------------------------------------------
-     #     Recent structures from the PDBe
-     # ---------------------------------------------------------------------
-     #
-     add_simple_coot_menu_menuitem(
-       submenu_pdbe, "PDBe recent structures...",
-       lambda func: pdbe_latest_releases_gui())
+#      # ---------------------------------------------------------------------
+#      #     Recent structures from the PDBe
+#      # ---------------------------------------------------------------------
+#      #
+#      add_simple_coot_menu_menuitem(
+#        submenu_pdbe, "PDBe recent structures...",
+#        lambda func: pdbe_latest_releases_gui())
 
-     # we do test for refmac at startup not runtime (for simplicity)
-     if command_in_path_qm("refmac5"):
-       mess = " Get it "
-     else:
-       mess = "\n  WARNING::refmac5 not in the path - SF calculation will fail  \n\n"
+#      # we do test for refmac at startup not runtime (for simplicity)
+#      if command_in_path_qm("refmac5"):
+#        mess = " Get it "
+#      else:
+#        mess = "\n  WARNING::refmac5 not in the path - SF calculation will fail  \n\n"
        
-     add_simple_coot_menu_menuitem(
-       submenu_pdbe, "Get from PDBe...",
-       lambda func: generic_single_entry("Get PDBe accession code",
-                                         "", " Get it ",
-                                         lambda text:
-                                         pdbe_get_pdb_and_sfs_cif("include-sfs", text.rstrip().lstrip())))
+#      add_simple_coot_menu_menuitem(
+#        submenu_pdbe, "Get from PDBe...",
+#        lambda func: generic_single_entry("Get PDBe accession code",
+#                                          "", " Get it ",
+#                                          lambda text:
+#                                          pdbe_get_pdb_and_sfs_cif("include-sfs", text.rstrip().lstrip())))
 
-     # ---------------------------------------------------------------------
-     #     Tutorial data
-     # ---------------------------------------------------------------------
-     #
-     def load_tutorial_data_func():
-       data_dir = False
-       prefix_dir = os.getenv("COOT_PREFIX")
-       if not prefix_dir:
-         pkg_data_dir = pkgdatadir()
-       else:
-         pkg_data_dir = os.path.join(prefix_dir, "share", "coot")
-       if os.path.isdir(pkg_data_dir):  
-         data_dir = os.path.join(pkg_data_dir, "data")
-       if data_dir:
-         pdb_file_name = os.path.join(data_dir, "tutorial-modern.pdb")
-         mtz_file_name = os.path.join(data_dir, "rnasa-1.8-all_refmac1.mtz")
+#      # ---------------------------------------------------------------------
+#      #     Tutorial data
+#      # ---------------------------------------------------------------------
+#      #
+#      def load_tutorial_data_func():
+#        data_dir = False
+#        prefix_dir = os.getenv("COOT_PREFIX")
+#        if not prefix_dir:
+#          pkg_data_dir = pkgdatadir()
+#        else:
+#          pkg_data_dir = os.path.join(prefix_dir, "share", "coot")
+#        if os.path.isdir(pkg_data_dir):  
+#          data_dir = os.path.join(pkg_data_dir, "data")
+#        if data_dir:
+#          pdb_file_name = os.path.join(data_dir, "tutorial-modern.pdb")
+#          mtz_file_name = os.path.join(data_dir, "rnasa-1.8-all_refmac1.mtz")
 
-         if os.path.isfile(pdb_file_name):
-           read_pdb(pdb_file_name)
-         if os.path.isfile(mtz_file_name):
-           make_and_draw_map(mtz_file_name, "FWT", "PHWT", "", 0, 0)
-           make_and_draw_map(mtz_file_name, "DELFWT", "PHDELWT", "", 0, 1)
+#          if os.path.isfile(pdb_file_name):
+#            read_pdb(pdb_file_name)
+#          if os.path.isfile(mtz_file_name):
+#            make_and_draw_map(mtz_file_name, "FWT", "PHWT", "", 0, 0)
+#            make_and_draw_map(mtz_file_name, "DELFWT", "PHDELWT", "", 0, 1)
        
-     add_simple_coot_menu_menuitem(
-       menu,
-       "Load tutorial model and data",
-       lambda func: load_tutorial_data_func()
-       )
+#      add_simple_coot_menu_menuitem(
+#        menu,
+#        "Load tutorial model and data",
+#        lambda func: load_tutorial_data_func()
+#        )
 
      
      # ---------------------------------------------------------------------

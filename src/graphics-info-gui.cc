@@ -96,7 +96,7 @@
 // 
 void do_accept_reject_dialog(std::string fit_type, const coot::refinement_results_t &rr) {
 
-   bool debug = 0; 
+   bool debug = false;
    GtkWidget *window = wrapped_create_accept_reject_refinement_dialog();
    GtkWindow *main_window = GTK_WINDOW(lookup_widget(graphics_info_t::glarea, 
 						     "window1"));
@@ -106,11 +106,13 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
       label = lookup_widget(GTK_WIDGET(window),
 			    "accept_dialog_accept_docked_label_string");
    } else {
-      
       label = lookup_widget(GTK_WIDGET(window), "accept_dialog_accept_label_string");
-
    }
-   
+
+   if (false)
+      std::cout << "debug:: here in do_accept_reject_dialog() calling "
+		<< "update_accept_reject_dialog_with_results() with rr.info \""
+		<< rr.info_text << "\"" << std::endl;
    update_accept_reject_dialog_with_results(window, coot::CHI_SQUAREDS, rr);
    if (rr.lights.size() > 0){
       if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
@@ -126,6 +128,21 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
    txt += "?";
 
    gtk_label_set_text(GTK_LABEL(label), txt.c_str());
+
+   // atom pull autoclear state
+   GtkWidget *auto_clear_atom_pull_restraint_checkbutton =
+      lookup_widget(window, "accept_reject_refinement_atom_pull_autoclear_checkbutton");
+
+   if (auto_clear_atom_pull_restraint_checkbutton) {
+      // it's on by default, should we turn it off?
+      if (! graphics_info_t::auto_clear_atom_pull_restraint_flag) {
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(auto_clear_atom_pull_restraint_checkbutton), FALSE);
+      }
+   } else {
+      std::cout << "::::::::::::::::::::: missing widget :::::::::::::::::::::::"
+		<< std::endl;
+   } 
+   
 
    // Was this a torsion general, in which we need to active the reverse button?
    GtkWidget *reverse_button;
@@ -269,88 +286,129 @@ void set_colour_accept_reject_event_box(GtkWidget *eventbox, GdkColor *col) {
    gtk_widget_modify_bg(eventbox, GTK_STATE_NORMAL, col);
 }
 
+// text_type can be coot::CHIRAL_CENTRES or coot::CHI_SQUAREDS
+//
 void
 update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 					 coot::accept_reject_text_type text_type,
 					 const coot::refinement_results_t &rr) {
 
-    std::string extra_text = rr.info;
-    if (extra_text != "") {
+   if (false) {
+      std::cout << "--- Here in update_accept_reject_dialog_with_results() with info \""
+		<< rr.info_text << "\"" << " with lights.size() " << rr.lights.size()
+                << " text type " << text_type << std::endl;
+      std::cout << "   here with rr.progress " << rr.progress << " c.f. no-progress " << GSL_ENOPROG
+		<< " and success " << GSL_SUCCESS << " and continue " << GSL_CONTINUE << std::endl;
+   }
+   GtkWidget *no_progress_label = lookup_widget(GTK_WIDGET(accept_reject_dialog),
+						"accept_reject_dialog_no_progress_label");
+
+   // now look up the label in window and change it.
+   GtkWidget *extra_label = lookup_widget(GTK_WIDGET(accept_reject_dialog),
+					  "extra_text_label");
+
+   GtkWidget *chiral_centre_label = lookup_widget(GTK_WIDGET(accept_reject_dialog),
+						  "chiral_centre_text_label");
+
+   if (text_type == coot::CHI_SQUAREDS) {
+      if (rr.progress == GSL_ENOPROG) {
+	 gtk_label_set_text(GTK_LABEL(no_progress_label), "Failed - Error: No Progress");
+      } else {
+         if (rr.progress == GSL_CONTINUE) {
+	    gtk_label_set_text(GTK_LABEL(no_progress_label), "Running...");
+         } else {
+            if (rr.progress == GSL_FAILURE) {  // -1
+	       gtk_label_set_text(GTK_LABEL(no_progress_label), "Failure");
+            } else {
+               if (rr.progress == GSL_SUCCESS) {
+	          gtk_label_set_text(GTK_LABEL(no_progress_label), "Success");
+               } else {
+	          gtk_label_set_text(GTK_LABEL(no_progress_label), "---");
+               }
+            }
+         }
+      }
+   } else {
+     // std::cout << "   text type was not chi_squared" << std::endl; // chiral presumably
+   }
+
+   if (rr.info_text.empty()) {
+      gtk_widget_hide(extra_label);
+      gtk_widget_hide(chiral_centre_label);
+   } else {
       if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG){
-      
-	// now look up the label in window and change it.
-	GtkWidget *extra_label = lookup_widget(GTK_WIDGET(accept_reject_dialog),
-					       "extra_text_label");
-      
-	if (text_type == coot::CHIRAL_CENTRES) { 
-	   extra_label = lookup_widget(GTK_WIDGET(accept_reject_dialog), "chiral_centre_text_label");
-	}
-	
-	gtk_widget_show(extra_label);
-	gtk_label_set_text(GTK_LABEL(extra_label), extra_text.c_str());
+
+	 if (text_type == coot::CHIRAL_CENTRES) { 
+	    // std::cout << "------- here with rr.info_text \"" << rr.info_text << "\"" << std::endl;
+	    gtk_label_set_text(GTK_LABEL(chiral_centre_label), rr.info_text.c_str());
+	    gtk_widget_show(chiral_centre_label);
+	 }
 	
       } else {
 
-	// we have a docked accept/reject dialog
-	GtkWidget *window = lookup_widget(accept_reject_dialog, "window1");
-	GtkTooltips *tooltips;
-	GtkTooltipsData *td;
-	tooltips = GTK_TOOLTIPS(lookup_widget(GTK_WIDGET(window), "tooltips"));
+	 // we have a docked accept/reject dialog
+	 GtkWidget *window = lookup_widget(accept_reject_dialog, "window1");
+	 GtkTooltips *tooltips;
+	 GtkTooltipsData *td;
+	 tooltips = GTK_TOOLTIPS(lookup_widget(GTK_WIDGET(window), "tooltips"));
 
-	int cis_pep_warn = extra_text.find("CIS");
-	int chirals_warn = extra_text.find("chiral");
+	 int cis_pep_warn = rr.info_text.find("CIS");
+	 int chirals_warn = rr.info_text.find("chiral");
 
-	GtkWidget *cis_eventbox = lookup_widget(GTK_WIDGET(accept_reject_dialog),
-						       "cis_peptides_eventbox_docked");
-	GtkWidget *p = cis_eventbox->parent;
-	GtkWidget *chirals_eventbox = lookup_widget(GTK_WIDGET(accept_reject_dialog),"chirals_eventbox_docked");
+	 GtkWidget *cis_eventbox = lookup_widget(GTK_WIDGET(accept_reject_dialog),
+						 "cis_peptides_eventbox_docked");
+	 GtkWidget *p = cis_eventbox->parent;
+	 GtkWidget *chirals_eventbox = lookup_widget(GTK_WIDGET(accept_reject_dialog),"chirals_eventbox_docked");
 
-	td = gtk_tooltips_data_get(chirals_eventbox);
-	std::string old_tip = td->tip_text;
+	 td = gtk_tooltips_data_get(chirals_eventbox);
+	 std::string old_tip = td->tip_text;
 
-	std::string tips_info_chirals;
-        std::string tips_info_cis;
+	 std::string tips_info_chirals;
+	 std::string tips_info_cis;
 	
-	if (cis_pep_warn > -1) {
-	  // we have extra cis peptides
+	 if (cis_pep_warn > -1) {
+	    // we have extra cis peptides
 
-	  if (chirals_warn > -1) {
-	    // remove the chirals warn text
-	    string::size_type start_warn = extra_text.find("WARN");
-	    string::size_type end_warn = extra_text.size();
-	    tips_info_cis = extra_text.substr(start_warn, end_warn); // list the extra cis peptides here?
-	  } else {
-	    tips_info_cis = extra_text; // list the extra cis peptides?
-	  }
+	    if (chirals_warn > -1) {
+	       // remove the chirals warn text
+	       string::size_type start_warn = rr.info_text.find("WARN");
+	       string::size_type end_warn   = rr.info_text.size();
+	       tips_info_cis = rr.info_text.substr(start_warn, end_warn); // list the extra cis peptides here?
+	    } else {
+	       tips_info_cis = rr.info_text; // list the extra cis peptides?
+	    }
 
-	  gtk_tooltips_set_tip(tooltips, cis_eventbox, tips_info_cis.c_str(), NULL);
-	  GdkColor red = colour_by_distortion(1000.0);	// red
-	  set_colour_accept_reject_event_box(cis_eventbox, &red);
-	  gtk_widget_show(p);
+	    gtk_tooltips_set_tip(tooltips, cis_eventbox, tips_info_cis.c_str(), NULL);
+	    GdkColor red = colour_by_distortion(1000.0);	// red
+	    set_colour_accept_reject_event_box(cis_eventbox, &red);
+	    gtk_widget_show(p);
 
-	}
-	if (chirals_warn > -1) {
-	  // we may have some extra chiral text
+	 }
+	 if (chirals_warn > -1) {
+	    // we may have some extra chiral text
 
-	  if (cis_pep_warn > -1) {
-	    // remove the cis warn text
-	    string::size_type start_warn = extra_text.find("WARN");
-	    tips_info_chirals = extra_text.substr(0,start_warn) + old_tip;
-	  } else {
-	    tips_info_chirals = extra_text + old_tip;
-	  }
+	    if (cis_pep_warn > -1) {
+	       // remove the cis warn text
+	       string::size_type start_warn = rr.info_text.find("WARN");
+	       tips_info_chirals = rr.info_text.substr(0,start_warn) + old_tip;
+	    } else {
+	       tips_info_chirals = rr.info_text + old_tip;
+	    }
 
-	  gtk_tooltips_set_tip(tooltips, chirals_eventbox, tips_info_chirals.c_str(), NULL);
+	    gtk_tooltips_set_tip(tooltips, chirals_eventbox, tips_info_chirals.c_str(), NULL);
 
-	}
-	if (extra_text == " "){
-	// reset the tips
-	  gtk_widget_hide(p);
-	  gtk_tooltips_set_tip(tooltips, chirals_eventbox, old_tip.c_str(), NULL);
-	}
-      }		   
-    }
-    if (rr.lights.size() > 0)
+	 }
+	 if (rr.info_text == " "){
+	    // reset the tips
+	    gtk_widget_hide(p);
+	    gtk_tooltips_set_tip(tooltips, chirals_eventbox, old_tip.c_str(), NULL);
+	 }
+
+	 std::cout << "update_accept_reject_dialog_with_results() extra text is "
+		   << rr.info_text << std::endl;
+      }
+   } 
+   if (rr.lights.size() > 0)
       add_accept_reject_lights(accept_reject_dialog, rr);
 }
 
@@ -373,11 +431,20 @@ wrapped_create_accept_reject_refinement_dialog() {
 
 // static
 GtkWidget *
-graphics_info_t::info_dialog(const std::string &s) {
-   
+graphics_info_t::info_dialog(const std::string &s, bool use_markup) {
+
    GtkWidget *w = NULL;
    if (graphics_info_t::use_graphics_interface_flag) {
       w = wrapped_nothing_bad_dialog(s);
+
+      if (use_markup) {
+	 GtkWidget *label = lookup_widget(w, "nothing_bad_label");
+	 gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
+	 gtk_label_set_markup(GTK_LABEL(label), s.c_str());
+      }
+
+      // Handle the info icon
+      //
       bool warning = false;
       if (s.find(std::string("WARNING")) != std::string::npos) warning = true;
       if (s.find(std::string("warning")) != std::string::npos) warning = true;
@@ -399,10 +466,10 @@ graphics_info_t::info_dialog(const std::string &s) {
 }
 
 void
-graphics_info_t::info_dialog_and_text(const std::string &s) {
+graphics_info_t::info_dialog_and_text(const std::string &s, bool use_markup) {
    
   if (graphics_info_t::use_graphics_interface_flag) { 
-     info_dialog(s);
+     info_dialog(s, use_markup);
    }
    std::cout<< s <<std::endl;
 }
@@ -1181,82 +1248,6 @@ graphics_info_t::handle_rama_plot_update(coot::rama_plot *plot) {
 #endif // HAVE_GNOME_CANVAS or HAVE_GTK_CANVAS
 
 
-// static
-gint
-graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
-
-#ifdef HAVE_GSL
-
-   // 20100209 allow the Escape key to be seen during the (initial)
-   // idle function running (before the refinment results dialog is
-   // shown).
-   // 
-   // I don't know why Esc is recognised after the dialog is shown,
-   // but not before.  Both before and after come through this idle
-   // function routine.  Pressing Esc while the dialog is up doesn't
-   // need this pending events/main iteration thing.
-   // 
-   while (gtk_events_pending())
-      gtk_main_iteration();
-
-   int retprog = graphics_info_t::drag_refine_refine_intermediate_atoms();
-
-   if (retprog != GSL_CONTINUE) {
-      if (retprog == GSL_ENOPROG)
-	 std::cout << " NOPROGRESS" << std::endl;
-      if (retprog == GSL_SUCCESS)
-	 std::cout << " SUCCESS" << std::endl;
-      long t1 = glutGet(GLUT_ELAPSED_TIME);
-      std::cout << " TIME:: (dragged refinement): " << float(t1-T0)/1000.0 << std::endl;
-
-      graphics_info_t g;
-      g.check_and_warn_inverted_chirals_and_cis_peptides();
-
-      if (graphics_info_t::drag_refine_idle_function_token != -1) {
-	 std::cout << "Removing idle function " << graphics_info_t::drag_refine_idle_function_token << std::endl;
-	 gtk_idle_remove(graphics_info_t::drag_refine_idle_function_token);
-	 graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
-      }
-   } 
-
-
-   // 
-   graphics_draw();
-
-#else
-   int retprog = -1;
-#endif // HAVE_GSL   
-   return retprog;
-}
-
-
-
-// static
-void
-graphics_info_t::add_drag_refine_idle_function() {
-
-   std::cout << "called add_drag_refine_idle_function() " << std::endl;
-
-   // add a idle function if there isn't one in operation already.
-   graphics_info_t g;
-   if (g.drag_refine_idle_function_token == -1) {
-      g.drag_refine_idle_function_token =
-	 gtk_idle_add((GtkFunction)graphics_info_t::drag_refine_idle_function, g.glarea);
-      T0 = glutGet(GLUT_ELAPSED_TIME);
-      print_initial_chi_squareds_flag = 1;
-   }
-}
-
-// static
-void
-graphics_info_t::remove_drag_refine_idle_function() {
-
-   gtk_idle_remove(graphics_info_t::drag_refine_idle_function_token);
-   graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
-}
-
-
-
 // --------------------------------------------------------------------------------
 //                 residue info widget
 // --------------------------------------------------------------------------------
@@ -1514,9 +1505,9 @@ graphics_info_t::residue_info_edit_b_factor_apply_to_other_entries_maybe(GtkWidg
 	       gtk_entry_set_text(GTK_ENTRY(entry), entry_text.c_str());
 	    } else { 
 	       std::cout << "ERROR: no entry\n";
-	    } 
+	    }
 	 }
-      } 
+      }
    }
 }
 
@@ -1801,8 +1792,7 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal(GtkWidget *o
 void
 graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
 							GCallback callback_func,
-							bool set_last_active_flag) {
-
+							int imol_active) {
    std::vector<int> fill_with_these_molecules;
    for (int imol=0; imol<n_molecules(); imol++) {
       if (molecules[imol].has_model()) {
@@ -1810,13 +1800,12 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
       }
    }
 
-   std::cout << "--- in fill_combobox_with_coordinates_options " << fill_with_these_molecules.size()
-	     << std::endl;
+   std::cout << "debug:: --- in fill_combobox_with_coordinates_options() n_molecules: "
+	     << fill_with_these_molecules.size() << std::endl;
 
    GtkListStore *store = gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
    GtkTreeIter iter;
-   int last_idx = fill_with_these_molecules.size() -1;
-   int active_idx = 0; // overridden by last_idx maybe
+   int active_idx = 0;
    int n_mol = fill_with_these_molecules.size();
 
    for (int idx=0; idx<n_mol; idx++) {
@@ -1834,35 +1823,49 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
       gtk_list_store_append(store, &iter);
       gtk_list_store_set(store, &iter, 0, imol, 1, ss.c_str(), -1);
 
-      if (imol == go_to_atom_molecule())
+      if (imol == imol_active)
 	 active_idx = idx;
 
    }
 
-   std::cout << "--- in fill_combobox_with_coordinates_options here A " << std::endl;
-
-   g_signal_connect(combobox, "changed", callback_func, NULL);
+   if (callback_func)
+      g_signal_connect(combobox, "changed", callback_func, NULL);
    GtkTreeModel *model = GTK_TREE_MODEL(store);
    GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox), renderer, TRUE);
    gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(combobox), renderer, "text", 1, NULL);
    gtk_combo_box_set_model(GTK_COMBO_BOX(combobox), model);
 
-   std::cout << "--- in fill_combobox_with_coordinates_options here B " << std::endl;
-
-   if (fill_with_these_molecules.size() > 0) {
-      if (set_last_active_flag) {
-	 active_idx = last_idx;
-      }
-      std::cout << "setting active..." << std::endl;
-      // active_idx = 0; // testing
-      std::cout << "calling gtk_combo_box_set_active " << last_idx << std::endl;
+   // maybe this can go into the above loop?
+   if (fill_with_these_molecules.size() > 0)
       gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), active_idx);
-      std::cout << "done set active..." << std::endl;
+
+}
+
+
+
+// The callback_func pass here is connected to the combobox, not the menu items.
+//
+void
+graphics_info_t::fill_combobox_with_coordinates_options_with_set_last(GtkWidget *combobox,
+								      GCallback callback_func,
+								      bool set_last_active_flag) {
+
+   int imol_active = -1;
+   std::vector<int> fill_with_these_molecules;
+   for (int imol=0; imol<n_molecules(); imol++) {
+      if (molecules[imol].has_model()) {
+	 fill_with_these_molecules.push_back(imol);
+      }
+   }
+   if (fill_with_these_molecules.size() > 0) {
+      imol_active = fill_with_these_molecules[0];
+
+      if (set_last_active_flag)
+	 imol_active = fill_with_these_molecules.back();
    }
 
-   std::cout << "--- in fill_combobox_with_coordinates_options here C " << std::endl;
-
+   fill_combobox_with_coordinates_options(combobox, callback_func, imol_active);
 
 }
 
@@ -2016,6 +2019,8 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_with_active_
 							set_last_active_flag, imol_active);
 } 
 
+
+#if 0
 // not const
 void
 graphics_info_t::fill_option_menu_with_undo_options(GtkWidget *option_menu) {
@@ -2064,15 +2069,39 @@ graphics_info_t::fill_option_menu_with_undo_options(GtkWidget *option_menu) {
    if (undo_local > -1) {
       set_undo_molecule_number(undo_local);
    }
+}
+#endif
 
-} 
+void
+graphics_info_t::fill_combobox_with_undo_options(GtkWidget *combobox) {
+
+   // make the first undo molecule (a molecule with changes) be the active one.
+   int imol_active = -1;
+   for (int i=0; i<n_molecules(); i++) {
+      if (molecules[i].has_model()) { 
+	 if (molecules[i].atom_sel.mol) { 
+	    if (molecules[i].Have_modifications_p()) {
+	       imol_active = i;
+	       break;
+	    }
+	 }
+      }
+   }
+
+   GCallback callback = G_CALLBACK(undo_molecule_combobox_changed);
+   fill_combobox_with_coordinates_options(combobox, callback, imol_active);
+}
+
+
+
 
 // a static function
 void
-graphics_info_t::undo_molecule_select(GtkWidget *item, GtkPositionType pos) {
+graphics_info_t::undo_molecule_combobox_changed(GtkWidget *combobox, gpointer data) {
    graphics_info_t g;
-   g.set_undo_molecule_number(pos);
-   std::cout << "undo molecule number set to " << pos << std::endl;
+   int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
+   g.set_undo_molecule_number(imol);
+   std::cout << "INFO:: undo molecule number set to " << imol << std::endl;
 }
 
 void
@@ -3339,7 +3368,7 @@ void
 graphics_info_t::on_generic_atom_spec_button_clicked (GtkButton *button,
 						      gpointer user_data) {
 
-   if (GTK_TOGGLE_BUTTON(button)->active) { 
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
 
       graphics_info_t g;
       coot::atom_spec_t *atom_spec = (coot::atom_spec_t *) user_data;
@@ -3413,9 +3442,9 @@ graphics_info_t::wrapped_check_chiral_volumes_dialog(const std::vector <coot::at
 	 atom_spec = new coot::atom_spec_t(v[i]);
 	 atom_spec->int_user_data = imol;
       
-	 gtk_signal_connect(GTK_OBJECT(button), "clicked",
-			    GTK_SIGNAL_FUNC (on_inverted_chiral_volume_button_clicked),
-			    atom_spec);
+	 g_signal_connect(G_OBJECT(button), "clicked",
+			  G_CALLBACK(on_inverted_chiral_volume_button_clicked),
+			  atom_spec);
 
 	 gtk_box_pack_start(GTK_BOX(bad_chiral_volume_atom_vbox),
 			    button, FALSE, FALSE, 0);
@@ -3423,7 +3452,7 @@ graphics_info_t::wrapped_check_chiral_volumes_dialog(const std::vector <coot::at
 	 gtk_widget_show(button);
       }
 
-   } else { 
+   } else {
       std::cout << "Congratulations: there are no bad chiral volumes in this molecule.\n";
       w = create_no_bad_chiral_volumes_dialog();
    } 
@@ -3457,8 +3486,17 @@ graphics_info_t::on_inverted_chiral_volume_button_clicked (GtkButton       *butt
    g.try_centre_from_new_go_to_atom();
    g.update_things_on_move_and_redraw();
 
-
 }
+
+// static
+void
+graphics_info_t::check_chiral_volume_molecule_combobox_changed(GtkWidget *w, gpointer data) {
+
+   graphics_info_t g;
+   int imol = g.combobox_get_imol(GTK_COMBO_BOX(w));
+   check_chiral_volume_molecule = imol;
+}
+
 
 // static
 //
@@ -3715,24 +3753,56 @@ graphics_info_t::bond_width_item_select(GtkWidget *item, GtkPositionType pos) {
 void
 graphics_info_t::fill_add_OXT_dialog_internal(GtkWidget *widget, int imol) {
 
-   GtkWidget *chain_optionmenu = lookup_widget(widget, "add_OXT_chain_optionmenu");
-   GtkSignalFunc signal_func = GTK_SIGNAL_FUNC(graphics_info_t::add_OXT_chain_menu_item_activate);
+   GtkWidget *chain_combobox = lookup_widget(widget, "add_OXT_chain_combobox");
+   GCallback signal_func = G_CALLBACK(add_OXT_chain_combobox_changed);
 
-   std::string a = fill_option_menu_with_chain_options(chain_optionmenu, imol, signal_func);
+   std::string a = fill_combobox_with_chain_options(chain_combobox, imol, signal_func);
    if (a != "no-chain") {
       graphics_info_t::add_OXT_chain = a;
    }
 }
 
-// static (menu item ativate callback)
-void
-graphics_info_t::add_OXT_chain_menu_item_activate (GtkWidget *item,
-						   GtkPositionType pos) {
+// // static (menu item ativate callback)
+// void
+// graphics_info_t::add_OXT_chain_menu_item_activate (GtkWidget *item,
+// 						   GtkPositionType pos) {
 
-   char *chain_id = (char *) g_object_get_data(G_OBJECT(item), "chain-id");
-   if (chain_id)
-      add_OXT_chain = std::string(chain_id);
+//    char *chain_id = (char *) g_object_get_data(G_OBJECT(item), "chain-id");
+//    if (chain_id)
+//       add_OXT_chain = std::string(chain_id);
+// }
+
+// static
+void
+graphics_info_t::add_OXT_chain_combobox_changed(GtkWidget *combobox,
+						gpointer data) {
+
+   std::cout << "combobox changed" << std::endl;
+   graphics_info_t g;
+   add_OXT_chain = g.get_active_label_in_combobox(GTK_COMBO_BOX(combobox));
+
 }
+
+// get string for column 0 (which are strings)
+std::string
+graphics_info_t::get_active_label_in_combobox(GtkComboBox *combobox) const {
+
+   std::string f_label;
+   GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox));
+   GtkTreeIter iter;
+   gboolean state = gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &iter);
+   if (state) {
+      GValue f_label_as_value = { 0, };
+      // g_value_init (&f_label_as_value, G_TYPE_STRING); init is done in the get below
+      gtk_tree_model_get_value(model, &iter, 0, &f_label_as_value);
+      const char *f_label_cstr = g_value_get_string(&f_label_as_value);
+      f_label = f_label_cstr;
+   } else {
+      std::cout << "Bad state" << std::endl;
+   }
+   return f_label;
+}
+
 
 // a copy of the c-interface function which does not pass the signal
 // function.  We also return the string at the top of the list:
@@ -3741,7 +3811,8 @@ graphics_info_t::add_OXT_chain_menu_item_activate (GtkWidget *item,
 // static
 // 
 std::string 
-graphics_info_t::fill_option_menu_with_chain_options(GtkWidget *chain_option_menu, int imol,
+graphics_info_t::fill_option_menu_with_chain_options(GtkWidget *chain_option_menu,
+						     int imol,
 						     GtkSignalFunc signal_func) {
 
    std::string r("no-chain");
@@ -3784,6 +3855,71 @@ graphics_info_t::fill_option_menu_with_chain_options(GtkWidget *chain_option_men
    }
    return r;
 }
+
+// static
+std::string
+graphics_info_t::fill_combobox_with_chain_options(GtkWidget *combobox,
+						  int imol,
+						  GCallback f) {
+
+   return fill_combobox_with_chain_options(combobox, imol, f, "unset-chain");
+}
+
+// static
+std::string
+graphics_info_t::fill_combobox_with_chain_options(GtkWidget *combobox,
+						  int imol,
+						  GCallback f,
+						  const std::string &acid) {
+
+   // This function is bad.
+
+   std::cout << "----- fill_combobox_with_chain_options() " << imol << " " << acid
+	     << std::endl;
+
+   std::string r("no-chain");
+   GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox));
+   gtk_list_store_clear(GTK_LIST_STORE(model));
+   gtk_combo_box_set_model(GTK_COMBO_BOX(combobox),NULL);
+
+   // std::cout << "--------- chain model and store " << model << " " << store << std::endl;
+
+   GtkListStore *store = gtk_list_store_new(1, G_TYPE_STRING);
+   // gtk_list_store_clear(store);
+   model = GTK_TREE_MODEL(store);
+
+   GtkTreeIter iter;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+      std::vector<std::string> chains = coot::util::chains_in_molecule(mol);
+      for (std::size_t i=0; i<chains.size(); i++) {
+	 std::cout << "fill_combobox_with_chain_options() " << imol << " "
+		   << chains[i] << std::endl;
+	 gtk_list_store_append(store, &iter);
+	 gtk_list_store_set(store, &iter, 0, chains[i].c_str(), -1);
+	 if (i == 0) {
+	    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
+	    r = chains[i];
+	 }
+	 if (chains[i] == acid) {
+	    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), i);
+	    r = chains[i];
+	 }
+      }
+   }
+
+   if (f)
+      g_signal_connect(combobox, "changed", f, NULL);
+   GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
+   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox), renderer, TRUE);
+   gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(combobox), renderer, "text", 0, NULL);
+
+   // Do I want to do this?
+   gtk_combo_box_set_model(GTK_COMBO_BOX(combobox), model);
+
+   return r;
+}
+
 
 
 
@@ -3871,11 +4007,11 @@ graphics_info_t::fill_renumber_residue_range_dialog(GtkWidget *window) {
 void
 graphics_info_t::fill_renumber_residue_range_internal(GtkWidget *w, int imol) {
 
-   GtkWidget *chain_option_menu =
-      lookup_widget(w, "renumber_residue_range_chain_optionmenu");
+   GtkWidget *chain_combobox =
+      lookup_widget(w, "renumber_residue_range_chain_combobox");
    GtkSignalFunc callback_func = 
       GTK_SIGNAL_FUNC(graphics_info_t::renumber_residue_range_chain_menu_item_select);
-   std::string a = fill_option_menu_with_chain_options(chain_option_menu, imol, callback_func);
+   std::string a = fill_combobox_with_chain_options(chain_combobox, imol, callback_func);
    if (a != "no-chain") {
       graphics_info_t::renumber_residue_range_chain = a;
    } 
@@ -3902,9 +4038,12 @@ graphics_info_t::renumber_residue_range_chain_menu_item_select(GtkWidget *item,
 
 // static
 GtkWidget *
-graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pair<clipper::Coord_orth, float> > &centres, float map_sigma) {
+graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pair<clipper::Coord_orth, float> > &centres, float map_sigma, const std::string &dialog_title) {
 
    GtkWidget *w = create_diff_map_peaks_dialog();
+
+   gtk_window_set_title(GTK_WINDOW(w), dialog_title.c_str());
+
    difference_map_peaks_dialog = w; // save it for use with , and .
                                     // (globjects key press callback)
    set_transient_and_position(COOT_DIFF_MAPS_PEAK_DIALOG, w);

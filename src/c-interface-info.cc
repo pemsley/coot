@@ -341,7 +341,7 @@ void output_residue_info_dialog(int imol, int atom_index) {
 		  if (chis.size() > 0) {
 		     unsigned int i_chi_set = 0;
 		     for (unsigned int ich=0; ich<chis[i_chi_set].chi_angles.size(); ich++) {
-		     
+
 			int ic = chis[i_chi_set].chi_angles[ich].first;
 			std::string label_name = "residue_info_chi_";
 			label_name += coot::util::int_to_string(ic);
@@ -363,7 +363,7 @@ void output_residue_info_dialog(int imol, int atom_index) {
 			} else {
 			   std::cout << "WARNING:: chi label not found " << label_name << std::endl;
 			}
-		     } 
+		     }
 		  }
 	       }
 	       catch (const std::runtime_error &mess) {
@@ -885,6 +885,121 @@ SCM residues_near_residue(int imol, SCM residue_in, float radius) {
 }
 #endif // USE_GUILE
 
+//! \brief return residues near the given residues
+//!
+//! Return residue specs for residues that have atoms that are
+//! closer than radius Angstroems to any atom in the residue
+//! specified by res_in.
+//!
+#ifdef USE_GUILE
+SCM residues_near_residues_scm(int imol, SCM residues_in_scm, float radius) {
+
+   SCM r = SCM_EOL;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      if (scm_is_true(scm_list_p(residues_in_scm))) {
+	 SCM l_scm = scm_length(residues_in_scm);
+	 int l = scm_to_int(l_scm);
+	 std::vector<std::pair<bool, mmdb::Residue *> > res_vec;
+	 for (int i=0; i<l; i++) {
+	    SCM item_py = scm_list_ref(residues_in_scm, SCM_MAKINUM(i));
+	    coot::residue_spec_t spec = residue_spec_from_scm(item_py);
+	    mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(spec);
+	    if (residue_p) {
+	       std::pair<bool, mmdb::Residue *> p(true, residue_p);
+	       res_vec.push_back(p);
+	    }
+	 }
+	 std::map<mmdb::Residue *, std::set<mmdb::Residue *> > rnrs =
+	    coot::residues_near_residues(res_vec, mol, radius);
+	 std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
+	 for(it=rnrs.begin(); it!=rnrs.end(); it++) {
+	    mmdb::Residue *res_key = it->first;
+	    SCM key_scm = residue_spec_to_scm(res_key);
+	    SCM value_scm = SCM_EOL;
+	    const std::set<mmdb::Residue *> &s = it->second;
+	    std::set<mmdb::Residue *>::const_iterator it_s;
+	    for (it_s=s.begin(); it_s!=s.end(); it_s++) {
+	       mmdb::Residue *r = *it_s;
+	       coot::residue_spec_t r_spec(r);
+	       SCM r_spec_scm = residue_spec_to_scm(r_spec);
+	       value_scm = scm_cons(r_spec_scm, value_scm);
+	    }
+	    SCM result_item_key_value_pair_scm = scm_list_2(key_scm, value_scm);
+	    r = scm_cons(result_item_key_value_pair_scm, r);
+	 }
+      }
+   }
+   return r;
+}
+#endif // USE_GUILE
+
+
+//! \brief
+// Return residue specs for residues that have atoms that are
+// closer than radius Angstroems to any atom in the residues
+// specified by residues_in.
+//
+#ifdef USE_PYTHON
+PyObject *residues_near_residues_py(int imol, PyObject *residues_in, float radius) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      if (PyList_Check(residues_in)) {
+	 int l = PyList_Size(residues_in);
+	 r = PyList_New(l);
+	 std::vector<std::pair<bool, mmdb::Residue *> > res_vec;
+	 for (int i=0; i<l; i++) {
+	    PyObject *item_py = PyList_GetItem(residues_in, i);
+	    coot::residue_spec_t spec = residue_spec_from_py(item_py);
+	    mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(spec);
+	    if (residue_p) {
+	       std::pair<bool, mmdb::Residue *> p(true, residue_p);
+	       res_vec.push_back(p);
+	    }
+	 }
+	 std::map<mmdb::Residue *, std::set<mmdb::Residue *> > rnrs =
+	    coot::residues_near_residues(res_vec, mol, radius);
+	 std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
+	 int map_idx = 0;
+	 for(it=rnrs.begin(); it!=rnrs.end(); it++) {
+	    mmdb::Residue *res_key = it->first;
+	    const std::set<mmdb::Residue *> &s = it->second;
+	    // FIXME
+	    // residue_spec_to_py adds a True prefix for a 4-item list
+	    // for historical reasons - get rid of that one day.
+	    PyObject *res_spec_py = residue_spec_to_py(coot::residue_spec_t(res_key));
+	    PyObject *key_py = residue_spec_make_triple_py(res_spec_py);
+	    PyObject *val_py = PyList_New(s.size());
+	    std::set<mmdb::Residue *>::const_iterator it_s;
+	    int idx = 0;
+	    for (it_s=s.begin(); it_s!=s.end(); it_s++) {
+	       mmdb::Residue *r = *it_s;
+	       coot::residue_spec_t r_spec(r);
+	       // like above, fiddle with the residue spec
+	       PyObject *r_4_py = residue_spec_to_py(r_spec);
+	       PyObject *r_3_py = residue_spec_make_triple_py(r_4_py);
+	       PyList_SetItem(val_py, idx, r_3_py);
+	       idx++;
+	    }
+	    PyObject *item_pair_py = PyList_New(2);
+	    PyList_SetItem(item_pair_py, 0, key_py);
+	    PyList_SetItem(item_pair_py, 1, val_py);
+	    PyList_SetItem(r, map_idx, item_pair_py);
+	    map_idx++;
+	 }
+      }
+   }
+
+   if (PyBool_Check(r))
+     Py_INCREF(r);
+
+   return r;
+}
+#endif // USE_PYTHON
+
+
 // Return residue specs for residues that have atoms that are
 // closer than radius Angstroems to any atom in the residue
 // specified by res_in.
@@ -1331,33 +1446,37 @@ std::string residue_name(int imol, const std::string &chain_id, int resno,
    std::string r = "";
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-      int imod = 1;
-      bool have_resname_flag = 0;
-      
-      mmdb::Model *model_p = mol->GetModel(imod);
-      mmdb::Chain *chain_p;
-      // run over chains of the existing mol
-      int nchains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<nchains; ichain++) {
-         chain_p = model_p->GetChain(ichain);
-         std::string chain_id_mol(chain_p->GetChainID());
-         if (chain_id_mol == std::string(chain_id)) { 
-            int nres = chain_p->GetNumberOfResidues();
-            mmdb::PResidue residue_p;
-            for (int ires=0; ires<nres; ires++) { 
-               residue_p = chain_p->GetResidue(ires);
-               if (residue_p->GetSeqNum() == resno) { 
-                  std::string ins = residue_p->GetInsCode();
-                  if (ins == ins_code) {
-                     r = residue_p->GetResName();
-                     have_resname_flag = 1;
-                     break;
-                  }
-               }
-            }
-         }
-         if (have_resname_flag)
-            break;
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+	 bool have_resname_flag = 0;
+
+	 mmdb::Model *model_p = mol->GetModel(imod);
+
+	 if (model_p) {
+	    // run over chains of the existing mol
+	    int nchains = model_p->GetNumberOfChains();
+	    for (int ichain=0; ichain<nchains; ichain++) {
+	       mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	       std::string chain_id_mol(chain_p->GetChainID());
+	       if (chain_id_mol == std::string(chain_id)) {
+		  int nres = chain_p->GetNumberOfResidues();
+		  for (int ires=0; ires<nres; ires++) {
+		     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+		     if (residue_p->GetSeqNum() == resno) {
+			std::string ins = residue_p->GetInsCode();
+			if (ins == ins_code) {
+			   r = residue_p->GetResName();
+			   have_resname_flag = 1;
+			   break;
+			}
+		     }
+		  }
+	       }
+	    }
+	    if (have_resname_flag)
+	       break;
+	 }
+	 if (have_resname_flag)
+	    break;
       }
    }
    return r;
@@ -1847,6 +1966,68 @@ PyObject *closest_atom_py(int imol) {
    return r;
 } 
 #endif // USE_PYTHON
+
+#ifdef USE_GUILE
+SCM closest_atom_raw_scm() {
+
+   SCM r = SCM_BOOL_F;
+   graphics_info_t g;
+   // index, imol
+   std::pair<int, int> ca_ii = g.get_closest_atom();
+
+   int imol = ca_ii.second;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Atom *at = g.molecules[imol].get_atom(ca_ii.first);
+      if (at) {
+	 r = SCM_EOL;
+	 r = scm_cons(scm_double2num(at->z), r);
+	 r = scm_cons(scm_double2num(at->y), r);
+	 r = scm_cons(scm_double2num(at->x), r);
+	 r = scm_cons(scm_makfrom0str(at->altLoc), r);
+	 r = scm_cons(scm_makfrom0str(at->name), r);
+	 r = scm_cons(scm_makfrom0str(at->GetInsCode()), r);
+	 r = scm_cons(scm_int2num(at->GetSeqNum()), r);
+	 r = scm_cons(scm_makfrom0str(at->GetChainID()), r);
+	 r = scm_cons(scm_int2num(imol), r);
+      }
+   }
+   return r;
+}
+#endif 
+
+#ifdef USE_PYTHON
+PyObject *closest_atom_raw_py() {
+
+   PyObject *r;
+   r = Py_False;
+   graphics_info_t g;
+   // index, imol
+   std::pair<int, int> ca_ii = g.get_closest_atom();
+
+   int imol = ca_ii.second;
+   if (is_valid_model_molecule(imol)) {
+
+      mmdb::Atom *at = g.molecules[imol].get_atom(ca_ii.first);
+      if (at) {
+         r = PyList_New(9);
+	 PyList_SetItem(r, 0, PyInt_FromLong(imol));
+	 PyList_SetItem(r, 1, PyString_FromString(at->GetChainID()));
+	 PyList_SetItem(r, 2, PyInt_FromLong(at->GetSeqNum()));
+	 PyList_SetItem(r, 3, PyString_FromString(at->GetInsCode()));
+	 PyList_SetItem(r, 4, PyString_FromString(at->name));
+	 PyList_SetItem(r, 5, PyString_FromString(at->altLoc));
+	 PyList_SetItem(r, 6, PyFloat_FromDouble(at->x));
+	 PyList_SetItem(r, 7, PyFloat_FromDouble(at->y));
+	 PyList_SetItem(r, 8, PyFloat_FromDouble(at->z));
+      }
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+}
+#endif
+
 
 /*! \brief update the Go To Atom widget entries to atom closest to
   screen centre. */
@@ -3458,11 +3639,13 @@ PyObject *map_parameters_py(int imol) {
       PyList_SetItem(r, 2, PyString_FromString(graphics_info_t::molecules[imol].save_phi_col.c_str()));
       PyList_SetItem(r, 3, PyString_FromString(graphics_info_t::molecules[imol].save_weight_col.c_str()));
       if (graphics_info_t::molecules[imol].save_use_weights) {
-        Py_INCREF(Py_True);
-        PyList_SetItem(r, 4, Py_True);
+	 // Py_INCREF(Py_True);
+	 PyObject *o_py = PyBool_FromLong(true);
+	 PyList_SetItem(r, 4, o_py);
       } else {
-        Py_INCREF(Py_False);
-        PyList_SetItem(r, 4, Py_False);
+	 // Py_INCREF(Py_False);
+	 PyObject *o_py = PyBool_FromLong(false);
+	 PyList_SetItem(r, 4, o_py);
       }
    }
    if (PyBool_Check(r)) {
@@ -4919,6 +5102,15 @@ char *get_atom_colour_from_mol_no(int imol, const char *element) {
       break;
    case CYAN_BOND:
       rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
+      break;
+   case DARK_GREEN_BOND:
+      rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
+      break;
+   case DARK_ORANGE_BOND:
+      rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
+      break;
+   case DARK_BROWN_BOND:
+      rgb[0] = 0.4; rgb[1] =  0.4; rgb[2] = 0.02;
       break;
       
    default:

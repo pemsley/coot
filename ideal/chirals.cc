@@ -418,22 +418,22 @@ bool
 coot::restraints_container_t::check_pushable_chiral_hydrogens(gsl_vector *v) {
 
    bool state = 0; // none
-   for (int i=0; i<size(); i++) {
-      if (restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) { 
-	 if ( (*this)[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
-	    if ((*this)[i].chiral_hydrogen_index != coot::UNSET_INDEX) {
+   if (restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) {
+      for (int i=0; i<size(); i++) {
+	 if ( restraints_vec[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
+	    if (restraints_vec[i].chiral_hydrogen_index != coot::UNSET_INDEX) {
 	       // so we have a single H attached to this chiral centre.
 
 	       // is the hydrogen on the wrong side of the chiral centre?
 	       // 
-	       bool val = chiral_hydrogen_needs_pushing((*this)[i], v);
+	       bool val = chiral_hydrogen_needs_pushing(restraints_vec[i], v);
 	       // std::cout << "::::  chiral_hydrogen_needs_pushing() returned " << val << std::endl;
 	       if (val) {
-		  const coot::simple_restraint &restraint = (*this)[i];
+		  const coot::simple_restraint &restraint = restraints_vec[i];
 		  push_chiral_hydrogen(restraint, v);
 		  state = 1;
 		  break; // only do one at a time.
-	       } 
+	       }
 	    } 
 	 }
       }

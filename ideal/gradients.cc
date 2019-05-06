@@ -28,28 +28,28 @@
 
 #include <string.h> // for strcmp
 
-#ifdef ANALYSE_REFINEMENT_TIMING
-#include <sys/time.h> // for gettimeofday()
-#endif // ANALYSE_REFINEMENT_TIMING
-
-
 #ifdef HAVE_CXX_THREAD
 #include <thread>
 #include <chrono>
 #endif
 
 #include <fstream>
+#include <iostream>
+#include <iomanip>
 #include <algorithm> // for sort
 #include <stdexcept>
 
 #include "simple-restraint.hh"
 
-void 
-coot::numerical_gradients(gsl_vector *v, 
-			  void *params, 
-			  gsl_vector *df) {
 
-   // Not that (at present) user-only fixed atoms re removed from numerical gradient calculations,
+// v needs to be non-const
+void
+coot::numerical_gradients(gsl_vector *v,
+			  void *params, 
+			  gsl_vector *df,
+                          std::string gradients_file_name) {
+
+   // Note that (at present) user-only fixed atoms re removed from numerical gradient calculations,
    // Other fixed atom (in flanking residues) continue to have numerical gradients calculated for them.
    // This is confusing and undesirable.
    // What are the flanking residues?
@@ -62,10 +62,10 @@ coot::numerical_gradients(gsl_vector *v,
    double new_S_plus; 
    double new_S_minu; 
    double val;
-   double micro_step = 0.0001;  // the difference between the gradients
-			        // seems not to depend on the
-			        // micro_step size (0.0001 vs 0.001)
-                                // ... Hmm... is does for rama restraints?
+   double micro_step = 0.0005;  // the difference between the gradients
+			       // seems not to depend on the
+			       // micro_step size (0.0001 vs 0.001)
+                               // ... Hmm... is does for rama restraints?
 
    if (false) {
       std::cout << "in numerical_gradients: df->size is " << df->size << std::endl;
@@ -83,8 +83,10 @@ coot::numerical_gradients(gsl_vector *v,
    if (false) {
       std::cout << "debug:: in numerical_gradients() here are the " << restraints->fixed_atom_indices.size()
 		<< " fixed_atom indices: \n";
-      for (std::size_t ii=0; ii<restraints->fixed_atom_indices.size(); ii++)
-	 std::cout << " " << restraints->fixed_atom_indices[ii];
+
+      std::set<int>::const_iterator it;
+      for (it=restraints->fixed_atom_indices.begin(); it!=restraints->fixed_atom_indices.end(); it++)
+	 std::cout << " " << *it;
       std::cout << "\n";
    }
 
@@ -108,7 +110,16 @@ coot::numerical_gradients(gsl_vector *v,
 	 // now put v[i] back to tmp
 	 gsl_vector_set(v, i, tmp);
 
-	 val = (new_S_plus - new_S_minu)/(2*micro_step);
+	 double diff = (new_S_plus - new_S_minu);
+	 val = diff/(2*micro_step);
+
+	 // if sets of 3 parameters indices corresponding to atoms are inconsistent,
+	 // check that the distortion_score and the df are using exactly the same restraints
+	 //
+	 if (false)
+	    std::cout << "numerical_gradients: new_S_plus " << new_S_plus
+		      << " new_S_minu " << new_S_minu << " = " << diff << " -> "<< val << "\n";
+
       } else {
 	 val = 0; // does the constructor of numerical_derivs make this unnecessary?
       }
@@ -118,10 +129,42 @@ coot::numerical_gradients(gsl_vector *v,
       // gsl_vector_set(df, i, val);
    }
 
-   for (unsigned int i=0; i<v->size; i++) {
-      std::cout << i << " analytical: " << analytical_derivs[i]
-		<< " numerical: " << numerical_derivs[i] << "\n";
+   bool done_by_file = false;
+   if (! gradients_file_name.empty()) {
+      done_by_file = true;
+      if (! file_exists(gradients_file_name)) {
+	 /*
+	   commented because compilation error:
+           /usr/include/c++/4.8.2/fstream:599:11: note: 'std::basic_ofstream<char>::basic_ofstream(const std::basic_ofstream<char>&)'
+               is implicitly deleted because the default definition would be ill-formed:
+           class basic_ofstream : public basic_ostream<_CharT,_Traits>
+           ^
+
+	 std::ofstream f = std::ofstream(gradients_file_name.c_str());
+	 for (unsigned int i=0; i<v->size; i++) {
+	    f << std::setw(3) << i << " analytical: "
+	      << std::setw(9) << std::right << std::setprecision(5) << std::fixed << analytical_derivs[i]
+	      << " numerical: "
+	      << std::setw(9) << std::setprecision(5) << std::fixed << numerical_derivs[i] << "\n";
+	      }
+        */
+      }
+   } else {
+      std::cout << "WARNING:: gradients file " << gradients_file_name << " already exists" << std::endl;
    }
+
+   if (!done_by_file) {
+      // print it to the screen then
+      for (unsigned int i=0; i<v->size; i++) {
+	 if (gradients_file_name.empty()) {
+	    std::cout << std::setw(3) << i << " analytical: "
+		      << std::setw(9) << std::right << std::setprecision(5) << std::fixed << analytical_derivs[i]
+		      << " numerical: "
+		      << std::setw(9) << std::setprecision(5) << std::fixed << numerical_derivs[i] << "\n";
+	 }
+      }
+   }
+
    
 } // Note to self: try 5 atoms and doctor the .rst file if necessary.
   // Comment out the bond gradients.
@@ -134,46 +177,62 @@ void coot::my_df(const gsl_vector *v,
 		 void *params, 
 		 gsl_vector *df) {
 
-#ifdef ANALYSE_REFINEMENT_TIMING
-#endif // ANALYSE_REFINEMENT_TIMING
 
-   // first extract the object from params 
+   // std::cout << "debug:: entered my_df(): v size " << v->size << std::endl;
+
+
+   // first extract the object from params
    //
-   coot::restraints_container_t *restraints =
-      (coot::restraints_container_t *)params;
-   int n_var = restraints->n_variables();
+   restraints_container_t *restraints_p = static_cast<restraints_container_t *>(params);
+   int n_var = restraints_p->n_variables();
 
    // first initialize the derivative vector:
-   for (int i=0; i<n_var; i++) {
+   // 2011230 Note: I doubt this is needed, it happens in gsl_multimin_fdfminimizer_set().
+   for (int i=0; i<n_var; i++)
       gsl_vector_set(df,i,0);
+
+   bool split_the_gradients_with_threads_flag = false;
+
+#ifdef HAVE_CXX_THREAD
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+
+   // we don't need the thread pool to do this
+
+   if (restraints_p->n_threads > 0) // 0 for testing, 1 for real life
+      split_the_gradients_with_threads_flag = true;
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+#endif // HAVE_CXX_THREAD
+
+   if (split_the_gradients_with_threads_flag) {
+
+      split_the_gradients_with_threads(v, restraints_p, df);
+
+   } else {
+
+      my_df_bonds     (v, params, df);
+      my_df_angles    (v, params, df);
+      my_df_torsions  (v, params, df);
+      my_df_rama      (v, params, df);
+      my_df_planes    (v, params, df);
+      my_df_non_bonded(v, params, df);
+      my_df_trans_peptides(v, params, df);
+      my_df_chiral_vol(v, params, df);
+      my_df_start_pos (v, params, df);
+      my_df_target_pos(v, params, df);
+      my_df_parallel_planes(v, params, df);
+      my_df_geman_mcclure_distances(v, params, df);
+
+      if (restraints_p->include_map_terms()) {
+	 my_df_electron_density(v, params, df);
+      }
    }
 
-   // std::cout << "debug:: in my_df() usage_flags " << restraints->restraints_usage_flag
-   // << std::endl;
-   my_df_bonds     (v, params, df); 
-   my_df_angles    (v, params, df);
-   my_df_torsions  (v, params, df);
-   my_df_trans_peptides(v, params, df);
-   my_df_rama      (v, params, df);
-   my_df_planes    (v, params, df);
-   my_df_non_bonded(v, params, df);
-   my_df_chiral_vol(v, params, df);
-   my_df_start_pos (v, params, df);
-   my_df_parallel_planes(v, params, df);
-   my_df_geman_mcclure_distances(v, params, df);
-   
-   if (restraints->include_map_terms()) {
-      // std::cout << "Using map terms " << std::endl;
-      coot::my_df_electron_density(v, params, df);
-   } 
-
-   if (restraints->do_numerical_gradients_status())
-      coot::numerical_gradients((gsl_vector *)v, params, df); 
-
-#ifdef ANALYSE_REFINEMENT_TIMING
-#endif // ANALYSE_REFINEMENT_TIMING
-
+   if (restraints_p->do_numerical_gradients_status()) {
+      gsl_vector *non_const_v = const_cast<gsl_vector *> (v); // because there we use gls_vector_set()
+      numerical_gradients(non_const_v, params, df);
+   }
 }
+
    
 /* The gradients of f, df = (df/dx(k), df/dy(k) .. df/dx(l) .. ). */
 void coot::my_df_bonds(const gsl_vector *v,
@@ -182,8 +241,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 
    // first extract the object from params 
    //
-   coot::restraints_container_t *restraints =
-      (coot::restraints_container_t *)params; 
+   restraints_container_t *restraints = reinterpret_cast<restraints_container_t *> (params);
 
    // the length of gsl_vector should be equal to n_var: 
    // 
@@ -196,10 +254,10 @@ void coot::my_df_bonds(const gsl_vector *v,
    //       gsl_vector_set(df, i, derivative_value); 
    //     } 
 
-    // Now run over the bonds
-    // and add the contribution from this bond/restraint to 
-    // dS/dx_k dS/dy_k dS/dz_k dS/dx_l dS/dy_l dS/dz_l for each bond
-    // 
+   // Now run over the bonds
+   // and add the contribution from this bond/restraint to
+   // dS/dx_k dS/dy_k dS/dz_k dS/dx_l dS/dy_l dS/dz_l for each bond
+   //
 
    if (restraints->restraints_usage_flag & coot::BONDS_MASK) {
 
@@ -218,32 +276,32 @@ void coot::my_df_bonds(const gsl_vector *v,
 
 	 if ( (*restraints)[i].restraint_type == coot::BOND_RESTRAINT) { 
 
-// 	    std::cout << "DEBUG bond restraint fixed flags: "
-// 		      << (*restraints)[i].fixed_atom_flags[0] << " "
-// 		      << (*restraints)[i].fixed_atom_flags[1] << " "
-// 		      << restraints->get_atom((*restraints)[i].atom_index_1)->GetSeqNum() << " "
-// 		      << restraints->get_atom((*restraints)[i].atom_index_1)->name
-// 		      << " to " 
-// 		      << restraints->get_atom((*restraints)[i].atom_index_2)->GetSeqNum() << " "
-// 		      << restraints->get_atom((*restraints)[i].atom_index_2)->name
-// 		      << std::endl;
+	    // 	    std::cout << "DEBUG bond restraint fixed flags: "
+	    // 		      << (*restraints)[i].fixed_atom_flags[0] << " "
+	    // 		      << (*restraints)[i].fixed_atom_flags[1] << " "
+	    // 		      << restraints->get_atom((*restraints)[i].atom_index_1)->GetSeqNum() << " "
+	    // 		      << restraints->get_atom((*restraints)[i].atom_index_1)->name
+	    // 		      << " to "
+	    // 		      << restraints->get_atom((*restraints)[i].atom_index_2)->GetSeqNum() << " "
+	    // 		      << restraints->get_atom((*restraints)[i].atom_index_2)->name
+	    // 		      << std::endl;
 	    
-// 	    int n_fixed=0;
-// 	    if  ((*restraints)[i].fixed_atom_flags[0])
-// 	       n_fixed++;
-// 	    if  ((*restraints)[i].fixed_atom_flags[1])
-// 	       n_fixed++;
-	    
-	    n_bond_restr++; 
+	    // 	    int n_fixed=0;
+	    // 	    if  ((*restraints)[i].fixed_atom_flags[0])
+	    // 	       n_fixed++;
+	    // 	    if  ((*restraints)[i].fixed_atom_flags[1])
+	    // 	       n_fixed++;
+
+	    n_bond_restr++;
 
 	    target_val = (*restraints)[i].target_value;
 
 	    // what is the index of x_k?
-	    idx = 3*((*restraints)[i].atom_index_1); 
+	    idx = 3*restraints->at(i).atom_index_1;
 	    clipper::Coord_orth a1(gsl_vector_get(v,idx), 
 				   gsl_vector_get(v,idx+1), 
 				   gsl_vector_get(v,idx+2));
-	    idx = 3*((*restraints)[i].atom_index_2); 
+	    idx = 3*restraints->at(i).atom_index_2;
 	    clipper::Coord_orth a2(gsl_vector_get(v,idx), 
 				   gsl_vector_get(v,idx+1), 
 				   gsl_vector_get(v,idx+2));
@@ -252,10 +310,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 	    b_i_sqrd = (a1-a2).lengthsq();
 	    b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
 
-	    // b_i = clipper::Coord_orth::length(a1,a2); 
-	    // b_i = b_i > 0.1 ? b_i : 0.1;  // Garib's stabilization
-
-	    weight = 1/((*restraints)[i].sigma * (*restraints)[i].sigma);
+	    weight = 1.0/((*restraints)[i].sigma * (*restraints)[i].sigma);
 	    
 	    // weight = 1.0;
 	    // weight = pow(0.021, -2.0);
@@ -282,7 +337,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 	    } else {
 	       // debug
 	       if (0) {
-		  idx = 3*((*restraints)[i].atom_index_1 - 0);  
+		  idx = 3*restraints->at(i).atom_index_1;
 		  std::cout << "BOND Fixed atom[0] "
 			    << restraints->get_atom((*restraints)[i].atom_index_1)->GetSeqNum() << " " 
 			    << restraints->get_atom((*restraints)[i].atom_index_1)->name << " " 
@@ -294,11 +349,8 @@ void coot::my_df_bonds(const gsl_vector *v,
 	       }
 	    }
 
-	    if (!(*restraints)[i].fixed_atom_flags[1]) { 
-	       idx = 3*((*restraints)[i].atom_index_2 - 0); 
-	       // std::cout << "bond second non-fixed  idx is " << idx << std::endl; 
-	       // cout << "second idx is " << idx << endl;
-
+	    if (! restraints->at(i).fixed_atom_flags[1]) {
+	       idx = 3*restraints->at(i).atom_index_2;
 	       *gsl_vector_ptr(df, idx  ) += x_l_contrib;
 	       *gsl_vector_ptr(df, idx+1) += y_l_contrib;
 	       *gsl_vector_ptr(df, idx+2) += z_l_contrib;
@@ -306,7 +358,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 	    } else {
 	       // debug
 	       if (false) {
-		  idx = 3*((*restraints)[i].atom_index_2 - 0);  
+		  idx = 3*restraints->at(i).atom_index_2;
 		  std::cout << "BOND Fixed atom[1] "
 			    << restraints->get_atom((*restraints)[i].atom_index_2)->GetSeqNum() << " " 
 			    << restraints->get_atom((*restraints)[i].atom_index_2)->name << " " 
@@ -317,7 +369,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 			    << gsl_vector_get(df, idx+1) << " "
 			    << gsl_vector_get(df, idx+2) << std::endl;
 	       }
-	    } 
+	    }
 	 }
       }
    }
@@ -354,36 +406,25 @@ coot::my_df_non_bonded_single(const gsl_vector *v,
 			  gsl_vector_get(v,idx_2+1),
 			  gsl_vector_get(v,idx_2+2));
 
-   double b_i_sqrd;
-   double weight;
-   double x_k_contrib;
-   double y_k_contrib;
-   double z_k_contrib;
-
-   double x_l_contrib;
-   double y_l_contrib;
-   double z_l_contrib;
-
-   b_i_sqrd = (a1-a2).lengthsq();
+   double b_i_sqrd = (a1-a2).lengthsq();
 
    if (b_i_sqrd < this_restraint.target_value * this_restraint.target_value) {
 
-      weight = 1.0/(this_restraint.sigma * this_restraint.sigma);
+      double weight = 1.0/(this_restraint.sigma * this_restraint.sigma);
 
       double b_i = sqrt(b_i_sqrd);
       // b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
       double constant_part = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
 
-      x_k_contrib = constant_part*(a1.x()-a2.x());
-      y_k_contrib = constant_part*(a1.y()-a2.y());
-      z_k_contrib = constant_part*(a1.z()-a2.z());
+      double x_k_contrib = constant_part*(a1.x()-a2.x());
+      double y_k_contrib = constant_part*(a1.y()-a2.y());
+      double z_k_contrib = constant_part*(a1.z()-a2.z());
 
-      x_l_contrib = constant_part*(a2.x()-a1.x());
-      y_l_contrib = constant_part*(a2.y()-a1.y());
-      z_l_contrib = constant_part*(a2.z()-a1.z());
+      double x_l_contrib = constant_part*(a2.x()-a1.x());
+      double y_l_contrib = constant_part*(a2.y()-a1.y());
+      double z_l_contrib = constant_part*(a2.z()-a1.z());
 
       if (! this_restraint.fixed_atom_flags[0]) {
-	 idx_1 = 3*this_restraint.atom_index_1;
 
 // 	 std::cout << "df: " << this_restraint.atom_index_1 << " " << this_restraint.atom_index_2 << " "
 // 		   << x_k_contrib << " " << y_k_contrib << " " << z_k_contrib << " "
@@ -396,7 +437,6 @@ coot::my_df_non_bonded_single(const gsl_vector *v,
       }
 
       if (! this_restraint.fixed_atom_flags[1]) {
-	 idx_2 = 3*this_restraint.atom_index_2;
 
 // 	 std::cout << "df: " << this_restraint.atom_index_2 << " " << this_restraint.atom_index_1 << " "
 // 		   << x_l_contrib << " " << y_l_contrib << " " << z_l_contrib << std::endl;
@@ -407,6 +447,83 @@ coot::my_df_non_bonded_single(const gsl_vector *v,
       }
    }
 }
+
+// c.f. my_df_non_bonded_single()
+void
+coot::my_df_non_bonded_lennard_jones(const gsl_vector *v,
+				     gsl_vector *df,
+				     const simple_restraint &this_restraint,
+				     const double &lj_epsilon) {
+
+   // no need to calculate anything if both these atoms are non-moving
+   //
+   if (this_restraint.fixed_atom_flags[0] && this_restraint.fixed_atom_flags[1])
+      return;
+
+   int idx_1 = 3*this_restraint.atom_index_1;
+   int idx_2 = 3*this_restraint.atom_index_2;
+
+   clipper::Coord_orth a1(gsl_vector_get(v,idx_1),
+			  gsl_vector_get(v,idx_1+1),
+			  gsl_vector_get(v,idx_1+2));
+
+   clipper::Coord_orth a2(gsl_vector_get(v,idx_2),
+			  gsl_vector_get(v,idx_2+1),
+			  gsl_vector_get(v,idx_2+2));
+
+   double lj_sigma = this_restraint.target_value;
+   double max_dist = lj_sigma * 2.5; // 2.5 is conventional limit, i.e. ~3.5 * 2.5
+   double b_i_sqrd = (a1-a2).lengthsq();
+   if (b_i_sqrd < 0.81) b_i_sqrd = 0.81; // stabilize (as per distortion score lj)
+
+   if (b_i_sqrd < (max_dist * max_dist)) {
+
+      // double lj_r_min = pow(2.0, 1.0/6.0) * lj_sigma; // precalculate this pow value - done
+      double lj_r_min = 1.122462048309373 * lj_sigma;
+      double lj_r = std::sqrt(b_i_sqrd);
+      double alpha = lj_r_min/lj_r;
+      double dalpha_dr = -lj_r_min/b_i_sqrd;
+
+      double alpha_sqrd = lj_r_min*lj_r_min/b_i_sqrd;
+      double alpha_up_5  = alpha_sqrd * alpha_sqrd * alpha;
+      double alpha_up_6  = alpha_sqrd * alpha_sqrd * alpha_sqrd;
+      double alpha_up_11 = alpha_up_6 * alpha_up_5;
+      // double dVlj_dalpha = 12.0 * lj_epsilon * (std::pow(alpha, 11) - std::pow(alpha, 5));
+      double dVlj_dalpha = 12.0 * lj_epsilon * (alpha_up_11 - alpha_up_5);
+
+      double dVlj_dr = dVlj_dalpha * dalpha_dr;
+
+      double constant_part = dVlj_dr/lj_r; // this is why we need the square root
+
+      double delta_x = a1.x() - a2.x();
+      double delta_y = a1.y() - a2.y();
+      double delta_z = a1.z() - a2.z();
+
+      double x_k_contrib = constant_part*(a1.x()-a2.x());
+      double y_k_contrib = constant_part*(a1.y()-a2.y());
+      double z_k_contrib = constant_part*(a1.z()-a2.z());
+
+      double x_l_contrib = constant_part*(a2.x()-a1.x());
+      double y_l_contrib = constant_part*(a2.y()-a1.y());
+      double z_l_contrib = constant_part*(a2.z()-a1.z());
+
+      if (! this_restraint.fixed_atom_flags[0]) {
+	 if (false)
+	    std::cout << "debug:: df: " << idx_1  << " adding " << std::setw(9) << x_k_contrib
+		      << " from dVlj_dalpha * dalpha_dr " << dVlj_dalpha << " * " << dalpha_dr
+		      << " / " << lj_r << " to " << gsl_vector_get(df, idx_1) << "\n";
+ 	 *gsl_vector_ptr(df, idx_1  ) += x_k_contrib;
+ 	 *gsl_vector_ptr(df, idx_1+1) += y_k_contrib;
+ 	 *gsl_vector_ptr(df, idx_1+2) += z_k_contrib;
+      }
+      if (! this_restraint.fixed_atom_flags[1]) {
+ 	 *gsl_vector_ptr(df, idx_2  ) += x_l_contrib;
+ 	 *gsl_vector_ptr(df, idx_2+1) += y_l_contrib;
+ 	 *gsl_vector_ptr(df, idx_2+2) += z_l_contrib;
+      }
+   }
+}
+
 
 #ifdef HAVE_CXX_THREAD
 void
@@ -433,80 +550,164 @@ coot::my_df_non_bonded_thread_dispatcher(int thread_idx,
 
 void
 coot::my_df_non_bonded(const  gsl_vector *v, 
-			void *params, 
-			gsl_vector *df) {
+		       void *params, 
+		       gsl_vector *df) {
 
    // first extract the object from params 
    //
    restraints_container_t *restraints_p = static_cast<restraints_container_t *>(params);
 
-   // the length of gsl_vector should be equal to n_var: 
-   // 
-   // int n_var = restraints->n_variables();
-   // float derivative_value; 
-   int idx; 
-   int n_non_bonded_restr = 0; // debugging counter
+   if (restraints_p->restraints_usage_flag & coot::NON_BONDED_MASK) {
 
-   if (restraints_p->restraints_usage_flag & coot::NON_BONDED_MASK) { 
+      for (unsigned int i=restraints_p->restraints_limits_non_bonded_contacts.first;
+	   i<=restraints_p->restraints_limits_non_bonded_contacts.second; i++) {
+	 const simple_restraint &this_restraint = restraints_p->at(i);
 
-      unsigned int restraints_size = restraints_p->size();
+	 if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+	    if (this_restraint.nbc_function == simple_restraint::LENNARD_JONES) {
 
-#ifdef HAVE_CXX_THREAD
+	       // no need to calculate anything if both these atoms are non-moving
+	       //
+	       if (this_restraint.fixed_atom_flags[0]==false || this_restraint.fixed_atom_flags[1]==false)
+		  my_df_non_bonded_lennard_jones(v, df, this_restraint, restraints_p->lennard_jones_epsilon);
 
-      std::atomic<unsigned int> done_count_for_threads(0); // updated by my_df_non_bonded_thread_dispatcher
+	    } else {
 
-      if ((restraints_p->thread_pool_p) && (restraints_p->n_threads > 0)) {
-
-	 unsigned int n_per_thread = restraints_size/restraints_p->n_threads;
-
-	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
-	    int idx_start = i_thread * n_per_thread;
-	    int idx_end   = idx_start + n_per_thread;
-	    // for the last thread, set the end atom index
-	    if (i_thread == (restraints_p->n_threads - 1))
-	       idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
-
-	    restraints_p->thread_pool_p->push(my_df_non_bonded_thread_dispatcher,
-					      v, df, restraints_p, idx_start, idx_end,
-					      std::ref(done_count_for_threads));
-
-	 }
-	 // restraints->thread_pool_p->stop(true); // wait
-	 while (done_count_for_threads != restraints_p->n_threads) {
-	    std::this_thread::sleep_for(std::chrono::microseconds(1));
-	 }
-	 
-      } else {
-	 for (unsigned int i=0; i<restraints_size; i++) {
-	    const simple_restraint &this_restraint = (*restraints_p)[i];
-	    if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+	       // no need to calculate anything if both these atoms are non-moving
+	       //
 	       if (this_restraint.fixed_atom_flags[0]==false || this_restraint.fixed_atom_flags[1]==false)
 		  my_df_non_bonded_single(v, df, this_restraint);
 	    }
 	 }
       }
-
-#else
-      for (unsigned int i=0; i<restraints_size; i++) {
-	 const simple_restraint &this_restraint = (*restraints_p)[i];
-	 if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
-	    // no need to calculate anything if both these atoms are non-moving
-	    //
-	    if (this_restraint.fixed_atom_flags[0]==false || this_restraint.fixed_atom_flags[1]==false)
-	       my_df_non_bonded_single(v, df, this_restraint);
-	 }
-      }
-#endif
-
    }
 }
+
+void
+coot::my_df_geman_mcclure_distances_single(const gsl_vector *v,
+					   gsl_vector *df,
+					   const simple_restraint &this_restraint,
+					   const double &alpha) {
+
+   int idx;
+
+   double target_val;
+   double b_i_sqrd;
+   double weight;
+   double x_k_contrib;
+   double y_k_contrib;
+   double z_k_contrib;
+   double x_l_contrib;
+   double y_l_contrib;
+   double z_l_contrib;
+
+   if (this_restraint.restraint_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+
+      int idx_1 = 3*this_restraint.atom_index_1;
+      clipper::Coord_orth a1(gsl_vector_get(v,idx_1),
+			     gsl_vector_get(v,idx_1+1),
+			     gsl_vector_get(v,idx_1+2));
+      int idx_2 = 3*this_restraint.atom_index_2;
+      clipper::Coord_orth a2(gsl_vector_get(v,idx_2),
+			     gsl_vector_get(v,idx_2+1),
+			     gsl_vector_get(v,idx_2+2));
+
+      // what is b_i?
+      // b_i = clipper::Coord_orth::length(a1,a2);
+      b_i_sqrd = (a1-a2).lengthsq();
+      b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
+
+      double b_i = sqrt(b_i_sqrd);
+      double weight = 1.0/(this_restraint.sigma * this_restraint.sigma);
+
+      // Let z = (boi - bi)/sigma
+      //    S_i = z^2/(1 + alpha * z^2)
+      //
+      double bit = b_i - this_restraint.target_value;
+      double z = bit/this_restraint.sigma;
+
+      double beta  = 1 + alpha * z * z;
+      double d_Si_d_zi = 2.0 * z  / (beta * beta);
+      double d_zi_d_bi = 1.0/this_restraint.sigma;
+      double d_b_d_x_m = 1.0/b_i;
+
+      double constant_part_gm = d_Si_d_zi * d_zi_d_bi * d_b_d_x_m;
+      double constant_part = constant_part_gm;
+
+      const double &target_val = this_restraint.target_value;
+      double constant_part_lsq = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
+
+      constant_part = constant_part_lsq / (beta * beta);
+
+      // constant_part = constant_part_lsq; // force least squares
+
+      // The final part is dependent on the coordinates:
+      x_k_contrib = constant_part*(a1.x()-a2.x());
+      y_k_contrib = constant_part*(a1.y()-a2.y());
+      z_k_contrib = constant_part*(a1.z()-a2.z());
+      x_l_contrib = constant_part*(a2.x()-a1.x());
+      y_l_contrib = constant_part*(a2.y()-a1.y());
+      z_l_contrib = constant_part*(a2.z()-a1.z());
+
+      if (! this_restraint.fixed_atom_flags[0]) {
+	 *gsl_vector_ptr(df, idx_1  ) += x_k_contrib;
+	 *gsl_vector_ptr(df, idx_1+1) += y_k_contrib;
+	 *gsl_vector_ptr(df, idx_1+2) += z_k_contrib;
+      }
+
+      if (! this_restraint.fixed_atom_flags[1]) {
+	 *gsl_vector_ptr(df, idx_2  ) += x_l_contrib;
+	 *gsl_vector_ptr(df, idx_2+1) += y_l_contrib;
+	 *gsl_vector_ptr(df, idx_2+2) += z_l_contrib;
+      }
+   }
+}
+
+
+#ifdef HAVE_CXX_THREAD
+void
+coot::my_df_geman_mcclure_distances_thread_dispatcher(int thread_idx,
+						      const gsl_vector *v,
+						      gsl_vector *df,
+						      restraints_container_t *restraints_p,
+						      int idx_start,
+						      int idx_end,
+						      std::atomic<unsigned int> &done_count_for_threads) {
+   for (int i=idx_start; i<idx_end; i++) {
+      const simple_restraint &this_restraint = (*restraints_p)[i];
+      if (this_restraint.restraint_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT)
+	 my_df_geman_mcclure_distances_single(v, df, this_restraint, restraints_p->geman_mcclure_alpha);
+   }
+   done_count_for_threads++;
+}
+#endif // HAVE_CXX_THREAD
 
 void
 coot::my_df_geman_mcclure_distances(const  gsl_vector *v, 
 				    void *params, 
 				    gsl_vector *df) {
 
-   restraints_container_t *restraints = (restraints_container_t *)params;
+   restraints_container_t *restraints_p = static_cast<restraints_container_t *> (params);
+   if (restraints_p->restraints_usage_flag & GEMAN_MCCLURE_DISTANCE_MASK) {
+      unsigned int restraints_size = restraints_p->size();
+
+      for (unsigned int i=0; i<restraints_size; i++) {
+	 const simple_restraint &this_restraint = (*restraints_p)[i];
+	 if (this_restraint.restraint_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+	    my_df_geman_mcclure_distances_single(v, df, this_restraint, restraints_p->geman_mcclure_alpha);
+	 }
+      }
+   }
+}
+
+
+// only single-threaded - all in place
+void
+coot::my_df_geman_mcclure_distances_old(const  gsl_vector *v,
+					void *params,
+					gsl_vector *df) {
+
+   restraints_container_t *restraints = static_cast<restraints_container_t *> (params);
 
    // the length of gsl_vector should be equal to n_var: 
    // 
@@ -521,7 +722,6 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
       double x_k_contrib;
       double y_k_contrib;
       double z_k_contrib;
-      
       double x_l_contrib;
       double y_l_contrib;
       double z_l_contrib;
@@ -551,13 +751,10 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
 	    b_i_sqrd = (a1-a2).lengthsq();
 	    b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
 
-	    if (true) {
+	    {
 
 	       double b_i = sqrt(b_i_sqrd);
 	       double weight = 1.0/(rest.sigma * rest.sigma);
-
-	       // double constant_part = 2.0*weight*(b_i - target_val)/b_i;
-	       // double constant_part = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
 
 	       // Let z = (boi - bi)/sigma
 	       //    S_i = z^2/(1 + alpha * z^2)
@@ -606,43 +803,20 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
  	       z_l_contrib = constant_part*(a2.z()-a1.z());
 
 	       if (! rest.fixed_atom_flags[0]) {
-#ifdef HAVE_CXX_THREAD
-		  // use atomic lock to access derivs of atom atom_idx_1
-		  unsigned int unlocked = 0;
-		  while (! restraints->gsl_vector_atom_pos_deriv_locks.get()[rest.atom_index_1].compare_exchange_weak(unlocked, 1)) {
-		     std::cout << "oops locked! [0] " << rest.atom_index_1 << std::endl;
-		     std::this_thread::sleep_for(std::chrono::nanoseconds(10));
-		     unlocked = 0;
-		  }
-#endif
+
 		  idx = 3*rest.atom_index_1;
 		  *gsl_vector_ptr(df, idx  ) += x_k_contrib;
 		  *gsl_vector_ptr(df, idx+1) += y_k_contrib;
 		  *gsl_vector_ptr(df, idx+2) += z_k_contrib;
 		  // std::cout << "unlock [0] " << rest.atom_index_1 << std::endl;
-#ifdef HAVE_CXX_THREAD
-		  restraints->gsl_vector_atom_pos_deriv_locks.get()[rest.atom_index_1] = 0; // unlock
-#endif
 	       }
 
-	       if (! rest.fixed_atom_flags[1]) { 
-#ifdef HAVE_CXX_THREAD
-		  // use atomic lock to access derivs of atom atom_idx_2
-		  unsigned int unlocked = 0;
-		  while (! restraints->gsl_vector_atom_pos_deriv_locks.get()[rest.atom_index_2].compare_exchange_weak(unlocked, 1)) {
-		     std::cout << "oops locked! [1] " << rest.atom_index_2 << std::endl;
-		     std::this_thread::sleep_for(std::chrono::nanoseconds(10));
-		     unlocked = 0;
-		  }
-#endif
+	       if (! rest.fixed_atom_flags[1]) {
 		  idx = 3*rest.atom_index_2;
 		  *gsl_vector_ptr(df, idx  ) += x_l_contrib;
 		  *gsl_vector_ptr(df, idx+1) += y_l_contrib;
 		  *gsl_vector_ptr(df, idx+2) += z_l_contrib;
 		  // std::cout << "unlock [1] " << rest.atom_index_1 << std::endl;
-#ifdef HAVE_CXX_THREAD
-		  restraints->gsl_vector_atom_pos_deriv_locks.get()[rest.atom_index_2] = 0; // unlock
-#endif
 	       }
 	    }
 	 }
@@ -704,7 +878,7 @@ void coot::my_df_angles(const gsl_vector *v,
       double w_ds_dth;
 
       for (unsigned int i=restraints->restraints_limits_angles.first; i<=restraints->restraints_limits_angles.second; i++) {
-
+      
 	 if ( (*restraints)[i].restraint_type == coot::ANGLE_RESTRAINT) {
 
 	    n_angle_restr++;
@@ -894,7 +1068,7 @@ coot::fill_distortion_torsion_gradients(const clipper::Coord_orth &P1,
    // instabilty when the P2-P3-P4 or P1-P2-p3 angle is linear. Give up with the derivatives
    // similar escape in the distortion score
    
-   if (cos_a1 > 0.9 || cos_a2> 0.9) {
+   if (cos_a1 > 0.999 || cos_a2> 0.999) {
 
       dtg.zero_gradients = true;
 
@@ -1066,26 +1240,27 @@ void coot::my_df_torsions_internal(const gsl_vector *v,
    if (restraints->restraints_usage_flag & coot::TORSIONS_MASK) { 
 
       for (unsigned int i=restraints->restraints_limits_torsions.first; i<=restraints->restraints_limits_torsions.second; i++) {
-      
-	 if ( (*restraints)[i].restraint_type == coot::TORSION_RESTRAINT) {
+ 
+         const simple_restraint &this_restraint = (*restraints)[i];
+	 if (this_restraint.restraint_type == coot::TORSION_RESTRAINT) {
 
 	    n_torsion_restr++;
 
-	    idx = 3*((*restraints)[i].atom_index_1); 
-	    clipper::Coord_orth P1(gsl_vector_get(v,idx), 
-				   gsl_vector_get(v,idx+1), 
+	    idx = 3*(this_restraint.atom_index_1); 
+	    clipper::Coord_orth P1(gsl_vector_get(v,idx),
+				   gsl_vector_get(v,idx+1),
 				   gsl_vector_get(v,idx+2));
-	    idx = 3*((*restraints)[i].atom_index_2); 
-	    clipper::Coord_orth P2(gsl_vector_get(v,idx), 
-				   gsl_vector_get(v,idx+1), 
+	    idx = 3*(this_restraint.atom_index_2);
+	    clipper::Coord_orth P2(gsl_vector_get(v,idx),
+				   gsl_vector_get(v,idx+1),
 				   gsl_vector_get(v,idx+2));
-	    idx = 3*((*restraints)[i].atom_index_3); 
-	    clipper::Coord_orth P3(gsl_vector_get(v,idx), 
-				   gsl_vector_get(v,idx+1), 
+	    idx = 3*(this_restraint.atom_index_3);
+	    clipper::Coord_orth P3(gsl_vector_get(v,idx),
+				   gsl_vector_get(v,idx+1),
 				   gsl_vector_get(v,idx+2));
-	    idx = 3*((*restraints)[i].atom_index_4); 
-	    clipper::Coord_orth P4(gsl_vector_get(v,idx), 
-				   gsl_vector_get(v,idx+1), 
+	    idx = 3*((*restraints)[i].atom_index_4);
+	    clipper::Coord_orth P4(gsl_vector_get(v,idx),
+				   gsl_vector_get(v,idx+1),
 				   gsl_vector_get(v,idx+2));
 
 	    try { 
@@ -1206,8 +1381,9 @@ void coot::my_df_rama(const gsl_vector *v,
    try { 
 
       if (restraints->restraints_usage_flag & coot::RAMA_PLOT_MASK) { 
-     
-	 for (int i=0; i<restraints->size(); i++) {
+
+	 int restraints_size = restraints->size();
+	 for (int i=0; i<restraints_size; i++) {
       
 	    if ( (*restraints)[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
 
@@ -1435,9 +1611,9 @@ coot::my_df_chiral_vol(const gsl_vector *v, void *params, gsl_vector *df) {
    double distortion;
    
    if (restraints->restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) {
-      
+ 
       for (unsigned int i=restraints->restraints_limits_chirals.first; i<=restraints->restraints_limits_chirals.second; i++) {
-	 
+
 	 if ( (*restraints)[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
 
 	    n_chiral_vol_restr++;
@@ -1466,7 +1642,7 @@ coot::my_df_chiral_vol(const gsl_vector *v, void *params, gsl_vector *df) {
 
 	    cv = clipper::Coord_orth::dot(a, clipper::Coord_orth::cross(b,c));
 
-	    distortion = cv - (*restraints)[i].target_chiral_volume;
+	    distortion = cv - restraints->at(i).target_chiral_volume;
 	    
 // 	    std::cout << "---- xxx ---- DEBUG:: chiral volume deriv: " 
 // 		      << cv << " chiral distortion " 
@@ -1556,7 +1732,7 @@ coot::my_df_planes(const gsl_vector *v,
       double weight;
 
       for (unsigned int i=restraints->restraints_limits_planes.first; i<=restraints->restraints_limits_planes.second; i++) {
-       
+ 
 	 if ( (*restraints)[i].restraint_type == coot::PLANE_RESTRAINT) {
 
 	    const simple_restraint &plane_restraint = (*restraints)[i];
@@ -1572,7 +1748,7 @@ coot::my_df_planes(const gsl_vector *v,
 	    }
 
 	    coot::plane_distortion_info_t plane_info =
-	       distortion_score_plane_internal(plane_restraint, v);
+	       distortion_score_plane_internal(plane_restraint, v, false);
 	    n_plane_atoms = plane_restraint.plane_atom_index.size();
 	    // weight = 1/((*restraints)[i].sigma * (*restraints)[i].sigma);
 	    for (int j=0; j<n_plane_atoms; j++) {
@@ -1641,7 +1817,7 @@ coot::my_df_parallel_planes(const gsl_vector *v,
 	    unsigned int n_plane_atoms = ppr.plane_atom_index.size();
 	    double weight = 1/(ppr.sigma * ppr.sigma);
 	    // hack the weight - needs a better fix than this
-	    weight *= 8.0;
+	    weight *= 0.1;
 	    for (unsigned int j=0; j<n_plane_atoms; j++) {
 	       if (! ppr.fixed_atom_flags[j] ) { 
 		  idx = 3*ppr.plane_atom_index[j].first;
@@ -1694,12 +1870,10 @@ coot::my_df_parallel_planes(const gsl_vector *v,
 double
 coot::restraints_container_t::electron_density_score_at_point(const clipper::Coord_orth &ao) const {
       double dv; 
-      
-      clipper::Coord_frac af = ao.coord_frac(xmap.cell()); 
-      clipper::Coord_map  am = af.coord_map(xmap.grid_sampling()); 
-      // clipper::Interp_linear::interp(map, am, dv); 
-      clipper::Interp_cubic::interp(xmap, am, dv); 
-      
+      clipper::Coord_frac af = ao.coord_frac(xmap_p->cell());
+      clipper::Coord_map  am = af.coord_map(xmap_p->grid_sampling());
+      // clipper::Interp_linear::interp(*xmap_p, am, dv);
+      clipper::Interp_cubic::interp(*xmap_p, am, dv);
       return dv;  
 }
 
@@ -1709,11 +1883,12 @@ coot::restraints_container_t::electron_density_gradient_at_point(const clipper::
    clipper::Grad_map<double> grad;
    double dv;
    
-   clipper::Coord_frac af = ao.coord_frac(xmap.cell()); 
-   clipper::Coord_map  am = af.coord_map(xmap.grid_sampling()); 
-   clipper::Interp_cubic::interp_grad(xmap, am, dv, grad);
-   clipper::Grad_frac<double> grad_frac = grad.grad_frac(xmap.grid_sampling());
-   return grad_frac.grad_orth(xmap.cell());
+   clipper::Coord_frac af = ao.coord_frac(xmap_p->cell());
+   clipper::Coord_map  am = af.coord_map(xmap_p->grid_sampling());
+   // clipper::Interp_linear::Interp_grad(*xmap_p, am, dv, grad) is not a thing
+   clipper::Interp_cubic::interp_grad(*xmap_p, am, dv, grad);
+   clipper::Grad_frac<double> grad_frac = grad.grad_frac(xmap_p->grid_sampling());
+   return grad_frac.grad_orth(xmap_p->cell());
 } 
 
 #endif // HAVE_GSL

@@ -7,46 +7,48 @@
  *
  */
 
-#ifndef CXXSphereElement_included
-#define CXXSphereElement_included
+#ifndef CXX_mot_CXXSphereElement_included
+#define CXX_mot_CXXSphereElement_included
 #include <vector>
 #include <list> 
 #include <iostream>
 #include "CXXCoord.h"
-//#include "CXXAlloc.h"
 
 using namespace std;
-class CXXSphereTriangleEdge;
-#include "CXXSphereTriangle.h"
-//class CXXSphereTriangle;
-class CXXSphereNode;
-// class mmdb::Atom;
-#include "CXXSphereFlatTriangle.h"
-//class CXXSphereFlatTriangle;
-class CXXTriangle;
-class CXXSurface;
-class CXXCircleNode;
-#include "CXXCircle.h"
-//class CXXCircle;
-class CXXTorusElement;
 
-class TriangleEdgePair{
-public:
-	int triangle;
-	int edge;
-	TriangleEdgePair(int i, int j) : triangle(i), edge(j){
-	};
-};
+// try class CXXSphereTriangleEdge;
+#include "CXXSphereTriangle.h"
+
+// try class CXXSphereNode;
+#include "CXXSphereFlatTriangle.h"
+// try class CXXTriangle;
+
+// try class CXXSurface;
+#include "CXXSurface.h"
+
+// try class CXXCircleNode;
+#include "CXXCircle.h"
+
+namespace CXX_mot {
+
+  class CXXTorusElement;
+  
+  class TriangleEdgePair{
+  public:
+     int triangle;
+     int edge;
+     TriangleEdgePair(int i, int j) : triangle(i), edge(j) {}
+  };
 
 class CXXSphereElement{
 private:
 	const mmdb::Atom *theAtom;
 	CXXCoord theCentre;
-	vector<CXXSphereNode, CXX::CXXAlloc<CXXSphereNode> >theVertices;
-	vector<CXXSphereTriangle, CXX::CXXAlloc<CXXSphereTriangle> >theTriangles;
-	vector<CXXSphereTriangleEdge, CXX::CXXAlloc<CXXSphereTriangleEdge> >theEdges;
-	list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >flatTriangles;
-    vector<vector<CXXCircle, CXX::CXXAlloc<CXXCircle> >, CXX::CXXAlloc<vector<CXXCircle, CXX::CXXAlloc<CXXCircle> > > >theCircles;
+	vector<CXXSphereNode, CXX_old::CXXAlloc<CXXSphereNode> >theVertices;
+	vector<CXXSphereTriangle, CXX_old::CXXAlloc<CXXSphereTriangle> >theTriangles;
+	vector<CXXSphereTriangleEdge, CXX_old::CXXAlloc<CXXSphereTriangleEdge> >theEdges;
+	list<CXXSphereFlatTriangle, CXX_old::CXXAlloc<CXXSphereFlatTriangle> >flatTriangles;
+    vector<vector<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >, CXX_old::CXXAlloc<vector<CXXCircle, CXX_old::CXXAlloc<CXXCircle> > > >theCircles;
 	map<CXXSphereFlatTriangle *, int> edgeTriangles;
 	double theRadius;
 	double deltaRadians;
@@ -78,19 +80,19 @@ public:
 	void flattenLastTriangle(void);
 	
 	//Accessors to allow copy constructor
-	const std::vector<CXXSphereNode, CXX::CXXAlloc<CXXSphereNode> > &getVertices() const {
+	const std::vector<CXXSphereNode, CXX_old::CXXAlloc<CXXSphereNode> > &getVertices() const {
 		return theVertices;
 	};
-	const std::vector<CXXSphereTriangle, CXX::CXXAlloc<CXXSphereTriangle> > &getTriangles() const {
+	const std::vector<CXXSphereTriangle, CXX_old::CXXAlloc<CXXSphereTriangle> > &getTriangles() const {
 		return theTriangles;
 	};
-	const std::vector<CXXSphereTriangleEdge, CXX::CXXAlloc<CXXSphereTriangleEdge> > &getEdges() const{
+	const std::vector<CXXSphereTriangleEdge, CXX_old::CXXAlloc<CXXSphereTriangleEdge> > &getEdges() const{
 		return theEdges;
 	};
-	const std::list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> > &getFlatTriangles() const{
+	const std::list<CXXSphereFlatTriangle, CXX_old::CXXAlloc<CXXSphereFlatTriangle> > &getFlatTriangles() const{
 		return flatTriangles;
 	};
-	const vector<vector<CXXCircle, CXX::CXXAlloc<CXXCircle> >, CXX::CXXAlloc<vector<CXXCircle, CXX::CXXAlloc<CXXCircle> > > > &getCircles() const{
+	const vector<vector<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >, CXX_old::CXXAlloc<vector<CXXCircle, CXX_old::CXXAlloc<CXXCircle> > > > &getCircles() const{
 		return theCircles;
 	};
 	const CXXCoord &centre() const;
@@ -130,7 +132,7 @@ public:
 	int addTriangularPatch(const CXXCoord &u1, 
 						   const CXXCoord &u2, 
 						   const CXXCoord &u3, mmdb::Atom *, 
-						   vector<CXXCircle, CXX::CXXAlloc<CXXCircle> >&circles, 
+						   vector<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >&circles, 
 						   int UseOrGenerate);
 	
 	static const int Reentrant = 1;
@@ -143,9 +145,9 @@ public:
 	CXXCoord voronoiPoint(const CXXCoord &a, const CXXCoord &b, const CXXCoord &c) const;
 
 	
-	void identifyRaggedEdges(CXXCircle &theCircle, std::map<const CXXCircleNode*, vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > >&raggedEdges);
+	void identifyRaggedEdges(CXXCircle &theCircle, std::map<const CXXCircleNode*, vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > >&raggedEdges);
 	
-	void identifyRaggedEdges(CXXCircle &theCircle, std::map<const CXXBall*, vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > >&raggedEdges);
+	void identifyRaggedEdges(CXXCircle &theCircle, std::map<const CXXBall*, vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > >&raggedEdges);
 
 	//flagCutTriangles: a stitching routine that inserts points around the edge of an intersection with a family of
 	//segments of a torus
@@ -174,5 +176,6 @@ public:
 									double delta, double radius_in, const bool *includeAtoms);
 		
 };
+}
 #endif
 

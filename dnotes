@@ -3976,15 +3976,16 @@ INFO::
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
      Make sure the release is called Release, not pre-release
    o change the version in configure.ac
-   o artists acknowledged in glade/aboutdialog?
-   o change the splash screen
-        Use glade-2
+   o Artists acknowledged in glade/aboutdialog?
+   o Use glade-2
+        Change the splash screen
         Fix the release name in the About dialog (aboutdialog)
         and copyright years.
         To correct the transparency, duplicate layer, bucket fill with white 
         the bottom layer, merge and bevel 6.
    o git add the new splash screen pixmap
    o Change the pixmaps/Makefile.am for the current splash screen image
+   o are coot_wrap*cc generated correctly (no enhanced-ligand code)?
    o git commit -a
    o git push [maybe here? not sure]
    o git tag Release-0.x.y
@@ -7477,6 +7478,13 @@ Thu Jul 23 12:31:24 BST 2015
 
     Clever old Labute.
 
+-----
+
+    Is this interesting?
+
+http://www.koreascience.or.kr/article/ArticleFullRecord.jsp?cn=CDCHCH_2009_v14n6_404
+
+
 ----
 
    o experiment: use Rdkit with pdb perception to generate molecules and 
@@ -7493,6 +7501,13 @@ Thu Jul 23 12:31:24 BST 2015
 ------
 
     Pathology scatter plots: holiday project.  
+    Use matplotlib
+
+------
+
+    gtk font size: 
+
+    http://stackoverflow.com/questions/1269326/how-can-i-change-the-font-size-in-gtk
 
 ------
 
@@ -7523,7 +7538,53 @@ Thu Jul 23 12:31:24 BST 2015
 
 -----
 
+   New Presentation slides
+
      to CSHL talk: A front page: accession code, comp-id
+
+   non-Pro cis-peptides
+
+     why is cis-Pro so much more common than non-cis Pro?
+
+   non-Pro cis-peptides in structures
+
+     1) "if you don't know what a cis-peptide is and don't care to
+        find out when Coot tells you that you've introduced one, then on
+        your own head be it - there is a validation tool that will navigate
+	you to all the cis-peptides in your structure should you care to
+	press the button. Validations tests won't help you if you choose
+	not to run them."
+
+     2) ... but there was a bug ... as I was writing the code and
+     testing it, I could see that there was a danger of flipping the N
+     to the same (of the CA-CA vector) side as the CO and then coot
+     would happily use plane restraint minimization to create a
+     cis-peptide... so I tried to make this less probable by
+     introducing a non-linearity term so that the atoms further from
+     the pull point are pulled less than their linearn fraction (by
+     raising a fraction to a power). Unfortunately I made an
+     arithmetic error which meant that I had made such pull
+     transformations *more* likely than less.
+
+     October 2014 I heard Jane Richardson discuss the problem and
+     reviewed, fixed the problem that afternoon.
+
+     Given that several papers have recently (now) been published about
+     non-Pro cis-peptides in the PDB, it seems that my expectation of
+     skill had not been met in large part and it necessary for me to
+     rework the interface to remove the possibility unitentional
+     creation of non-Pro cis-peptides during refinement.
+
+  trans-restraints:
+
+     what's trans, cis? draw arrows to mid-line.  Why is this
+     restraint necessary (because user can create non-local changes
+     that have large energy difference (and accidentally create a
+     peptide with and omega of 89 degress)).
+
+     how does this help refinement?  Before and after video?
+
+
 
 -----
 
@@ -7638,11 +7699,16 @@ imort rdkit # we need this of course
 # but don't forget:
 from rdkit import Chem
 
+----
+
+   Keep an eye on this:
+
+   https://apps.fedoraproject.org/packages/coot
 
 -----
 
 
-when trying to bundle, and run coot-bin:
+when trying to lib bundle, and run coot-bin:
    
 * thread #1: tid = 0x0000, 0x000000010bf485e1 libcoot-bundle.0.dylib`set_model_toolbar_docked_position + 337, stop reason = signal SIGSTOP
 use_graphics_interface_state ()
@@ -7698,12 +7764,10 @@ failed to lookup toolbar
     frame #15: 0x00007fff893645c9 libdyld.dylib`start + 1
 (lldb) ^D
 
-
 ----
 Thu Aug 18 12:03:32 BST 2016
 
    RNA building test: coot-download/5fw1.ent
-
 
 ---
 Wed 24 Aug 2016 00:54:22 BST
@@ -7713,6 +7777,16 @@ Redo the torsion energy/distortion:
 
 http://www.cryst.bbk.ac.uk/PPS2/course/section7/os_cov.html#tor_graph_back
 
+----
+Fri 26 Aug 2016 20:59:55 BST
+
+   http://osiris.laya.com/coding/dylib_linking.html
+
+   libtool -dynamic -flat_namespace -install_name @executable_path/../lib/libbz2.1.0.2.dylib \
+    -lSystem -compatibility_version 1.0 -current_version 1.0.2 \
+    -o libbz2.1.0.2.dylib $(OBJS) 
+
+   this should be in libtool archive_cmds
 
 ---
 Mon Sep  5 23:19:46 BST 2016
@@ -7747,6 +7821,12 @@ Thu  1 Dec 2016 23:08:27 GMT
    https://github.com/emcrisostomo/CXX-Autoconf-Macros/blob/master/ax_cxx_have_thread.m4
 
 ---
+Sun 26 Feb 2017 14:41:03 GMT
+
+   for soft mode/hard mode, look at the way (when)
+   turn_off_when_close_target_position_restraint_eraser is evoked
+
+---
 Sat  4 Mar 2017 01:13:08 GMT
 
    How to set a breakpoint in lldb:
@@ -7754,6 +7834,10 @@ Sat  4 Mar 2017 01:13:08 GMT
    breakpoint set --method set_dihedral
 
    puts a breakpoint in all methods/functions called set_dihedral()
+
+   breakpoint set -b malloc_error_break
+
+   for malloc errors
 
 ----
 Sat  4 Mar 2017 12:05:58 GMT
@@ -7876,7 +7960,14 @@ what's this?
    PHASE: a new engine for pharmacophore perception, 3D QSAR model development,
    and 3D database screening: 1. Methodology and preliminary results.
    J. Comput. Aided Mol. Des. 20, 647-671,
-   doi: 10.1007/s10822-006-9087-6   (2006).
+  doi: 10.1007/s10822-006-9087-6   (2006).
+
+---
+Sat 19 Aug 2017 00:09:10 BST
+
+   jupyter notebook intereting rdkit and pymol usage from years ago
+
+   http://nbviewer.jupyter.org/gist/greglandrum/4316435
 
 ---
 Thu Jul 27 19:48:52 BST 2017
@@ -7893,6 +7984,13 @@ Thu Jul 27 20:07:08 BST 2017
 
    $ pip install ipython --upgrade
 
+   to force PIL (say)
+
+   $ pip install --upgrade --force-reinstall PIL
+
+   (this didn't work for version-related issues)
+  
+   $ pip install --upgrade --force-reinstall pillow
 
 ---
 Sat 29 Jul 2017 15:37:06 BST
@@ -8311,6 +8409,25 @@ In refmac
 
 divides sigma by 2
 
+----
+Sat 21 Jul 2018 21:59:38 BST
+
+
+  Scapin Potter Carragher 2018 Cell Chem Bio  in press
+
+ maps between 4 and 2.5. standard MR is still possible but lodel building/rebuilding and refinement
+need to be guided.  Ligands are a guessing game.
+
+Maps worse than 5A standard MR likely to fail model building/rebuilding and refinement need to
+be guided Ligands? What ligands?
+
+A good model is essential for god modelling. Validation.
+
+Insulin receptor and Insulin 2018 Nature 556 122-125.
+
+But still very few examples of cryo-EM in SBDD. (something... ?) bottom left panel reference?
+What was it?
+
 ---
 Sat 14 Jul 2018 02:23:20 BST
 
@@ -8387,7 +8504,6 @@ Thu 26 Jul 2018 14:43:36 BST
 for difference map for cryoem from refmac:
 
 mapcalc vector
-
 
 ---
 Fri 27 Jul 2018 14:45:14 BST
@@ -8618,6 +8734,12 @@ Sun 16 Dec 2018 14:48:21 GMT
    set_thread *is* run just once at the start of ctpl.h.
 
 ---
+Sun 13 Jan 2019 19:13:55 GMT
+
+ CUDA
+ http://people.maths.ox.ac.uk/gilesm/cuda/lecs/lec4.pdf
+
+---
 Sun  6 Jan 2019 14:57:30 GMT
 
    check my blob
@@ -8635,7 +8757,6 @@ Tue  8 Jan 2019 14:42:58 GMT
    Here is homebrew's patch for Python
 
    https://github.com/Homebrew/homebrew-core/blob/master/Formula/python.rb
-
 
 ---
 Wed  9 Jan 2019 02:25:27 GMT
@@ -8678,7 +8799,6 @@ Fri 25 Jan 2019 20:54:54 GMT
 Software Violations in Binary Code
 https://nixos.org/~eelco/pubs/clones-msr2011-final.pdf
 
-
 ----
 Tue  5 Feb 2019 11:44:27 PST
 
@@ -8696,7 +8816,8 @@ Tue  5 Feb 2019 11:44:27 PST
 ----
 Mon 11 Feb 2019 13:05:44 PST
 
-   compiling readdline from  source
+
+   compiling readline from source
 
 https://stackoverflow.com/questions/26670417/how-to-compile-readline-from-source
 
@@ -8729,4 +8850,91 @@ https://www12.cs.fau.de/edu/map/ss12/talks/lbfgs_map_superresolution.pdf
    Does changing the Rama weight make our function more like a rosenbrock function?
 
    http://en.wikipedia.org/wiki/Rosenbrock_function
+
+---
+Thu 14 Mar 2019 11:03:04 CET
+
+    EMD 3908 helix at (125, 118, 103)
+
+---
+Tue 26 Mar 2019 14:14:51 GMT
+
+vulkan and cuda:
+
+https://github.com/NVIDIA/cuda-samples/tree/master/Samples/simpleVulkan
+
+So can I do marching cudes with cuda and display them with vulkan?
+
+Does that mean moving everything to vulkan?
+
+----
+Sun 31 Mar 2019 23:41:34 BST
+
+   Advances in the molecular dynamics flexible fitting method for cryo-EM modeling
+   There are tutorials:
+   https://www.sciencedirect.com/science/article/pii/S1046202316300093?via%3Dihub
+
+----
+Mon  1 Apr 2019 00:11:03 BST
+
+   Rosetta: Read this:
+   https://www.nature.com/articles/nmeth.3286
+
+---
+Sun 10 Mar 2019 12:39:28 GMT
+
+   use pip to install xmltramp2 to use muscle.py
+
+   https://raw.githubusercontent.com/ebi-wp/webservice-clients/master/python/muscle.py
+
+
+---
+Tue 12 Mar 2019 17:34:23 GMT
+
+ Is this what I need to test that svg works? (found in gtk3-opengl/Makefile)
+ 
+ rsvg-convert --format png --output $@ $^
+
+----
+Tue 16 Apr 2019 06:18:36 BST
+
+   2D Vector Graphics:
+   https://blend2d.com/
+
+---
+Thu 18 Apr 2019 04:32:45 BST
+
+   Angle-modulated transparency in VMD
+
+
+---
+Mon 29 Apr 2019 12:23:07 BST
+
+   o Converting to GTK3: At some stage Use define (GTK_DISABLE_DEPRECATED) in the gtk2 build
+     gtk_combo_box_get_active_text is deprecated
+
+ * Deprecated: 2.24: If you used this with a #GtkComboBox constructed with 
+ * gtk_combo_box_new_text() then you should now use #GtkComboBoxText and 
+ * gtk_combo_box_text_get_active_text() instead. Or if you used this with a
+ * #GtkComboBoxEntry then you should now use #GtkComboBox with 
+ * #GtkComboBox:has-entry as %TRUE and use
+ * gtk_entry_get_text (GTK_ENTRY (gtk_bin_get_child (GTK_BIN (combobox)))).
+
+---
+Mon 29 Apr 2019 12:37:01 BST
+
+  GPU Optimizations for games:
+
+  https://gist.github.com/silvesthu/505cf0cbf284bb4b971f6834b8fec93d
+
+  interesting stuff
+
+---
+Tue 30 Apr 2019 15:30:25 BST
+
+   rtx/Vulkan with Linux:
+
+   https://iorange.github.io/p01/HappyTriangle.html
+
+   Good stuff - not sure how to get the vulkan directory :-)
 

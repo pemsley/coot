@@ -1,5 +1,5 @@
 
-#include "coot-utils/coot-coord-utils.hh"
+// #include "coot-utils/coot-coord-utils.hh"
 
 extern "C" {
    
@@ -14,6 +14,12 @@ extern "C" {
 
 }
 
+namespace coot {
+   class residue_spec_t;
+}
+namespace clipper {
+   class Coord_orth;
+}
 
 void orient_view(int imol,
  		 const coot::residue_spec_t &central_residue_spec,

@@ -124,7 +124,6 @@ namespace coot {
 
       std::string label(const std::string &residue_name) const;
 
-      
 #ifndef SWIG
       bool operator==(const atom_spec_t &matcher) const {
 	 bool r = false;
@@ -146,7 +145,7 @@ namespace coot {
       bool operator !=(const atom_spec_t &matcher) const {
 	 return ! operator==(matcher);
       }
-#endif 
+#endif
 
 #ifndef SWIG
       // we need this if atom_spec_t are used in a std::map.
@@ -181,6 +180,24 @@ namespace coot {
 	 return false;
       }
 #endif // SWIG
+
+      // like operator==() but we don't test the model
+      bool is_same(const atom_spec_t &matcher) const {
+	 bool r = false;
+	 if (matcher.chain_id == chain_id) {
+	    if (matcher.res_no == res_no) {
+	       if (matcher.ins_code == ins_code) {
+		  if (matcher.atom_name == atom_name) {
+		     if (matcher.alt_conf == alt_conf) {
+			r = true;
+		     }
+		  }
+	       }
+	    }
+	 }
+	 return r;
+      }
+      
       
 #ifndef SWIG
       friend std::ostream& operator<< (std::ostream& s, const atom_spec_t &spec);
@@ -321,7 +338,7 @@ namespace coot {
 	    else
 	       return 1;
 	 } 
-	 return 0;
+	 // return 0; we can't here
       }
 #endif // SWIG
 

@@ -43,6 +43,12 @@ PyObject *residues_distortions_py(int imol, PyObject *residue_spec_list);
 PyObject *get_intermediate_atoms_distortions_py();
 #endif
 
+#ifdef USE_GUILE
+// this is not a ligands function (although it can be used for ligands)
+// it doesn't belong here
+SCM residues_distortions_scm(int imol, SCM residue_spec_list_scm);
+#endif
+
 // This don't call graphics_draw(), so the caller needs to do so.
 //
 coot::probe_clash_score_t
@@ -171,9 +177,24 @@ void switch_HIS_protonation_scm(int imol, SCM residue_spec_scm);
 // 
 double get_ligand_percentile(std::string metric_name, double metric_value, short int reverse_order);
 
+#ifdef USE_GUILE
+// find all the residues that are linked to this reside (and those that are attached to those and so on)
+// the attachment test is trivial: is an atom of a potential neighber within close_dist_max of
+// an atom of the current residue?
+SCM linked_residues_scm(SCM residue_centre, int imol, float close_dist_max);
+#endif
+#ifdef USE_PYTHON
+// find all the residues that are linked to this reside (and those that are attached to those and so on)
+// the attachment test is trivial: is an atom of a potential neighber within close_dist_max of
+// an atom of the current residue?
+PyObject *linked_residues_py(PyObject *residue_centre, int imol, float close_dist_max);
+#endif
 
-// is enhanced ligand version
+//! \brief is this an "enhanced-ligand" version?
 bool enhanced_ligand_coot_p();
+
+//! \brief JED-Flip the bond of the active atoms
+int jed_flip_intermediate_atoms();
 
 
 #endif // C_INTERFACE_LIGANDS_SWIG_HH

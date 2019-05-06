@@ -254,12 +254,17 @@ coot::restraints_container_t::mod_angle_add(const coot::chem_mod_angle &mod_angl
 			   residue_atoms[iat_3]->GetUDData(udd_atom_index_handle, index_3);
 			   std::vector<bool> fixed_flags =
 			      make_fixed_flags(index_1, index_2, index_3);
-			   
+			   bool is_single_Hydrogen_atom_angle_restraint = false;
+			   unsigned int nH = 0;
+			   if (is_hydrogen(residue_atoms[iat_1])) nH++;
+			   if (is_hydrogen(residue_atoms[iat_3])) nH++;
+			   if (nH == 1) is_single_Hydrogen_atom_angle_restraint = true;
+
 			   add(ANGLE_RESTRAINT, index_1, index_2, index_3,
 			       fixed_flags,
 			       mod_angle.new_value_angle,
 			       mod_angle.new_value_angle_esd,
-			       1.2);  // junk value
+			       is_single_Hydrogen_atom_angle_restraint);  // junk value
 			}
 		  }
 	       }

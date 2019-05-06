@@ -99,6 +99,7 @@ public:
       use_trans_peptide_restraints = true;
       use_torsion_targets = false;
       tabulate_distortions_flag = false;
+      no_refine = false; // if we want distortions only, say
       correlations = false;
       do_crankshaft = false;
       crankshaft_n_peptides = 7;
@@ -111,6 +112,7 @@ public:
    bool use_planar_peptide_restraints;
    bool use_trans_peptide_restraints;
    bool tabulate_distortions_flag;
+   bool no_refine;
    bool correlations;
    bool do_crankshaft;
    int resno_start;
@@ -199,6 +201,7 @@ void show_usage() {
 	     << "       --extra-restraints extra-restraints-file-name\n"
 	     << "       --correlations\n"
 	     << "       --crankshaft\n"
+	     << "       --no-refine\n"
 	     << "       --version\n"
 	     << "       --debug\n"
 	     << "\n"
@@ -350,7 +353,7 @@ main(int argc, char **argv) {
 	    if (inputs.residues_around != mmdb::MinInt4) {
 	       coot::residue_spec_t res_spec(inputs.chain_id, inputs.residues_around);
 	       mmdb::Residue *res_ref = coot::util::get_residue(res_spec, asc.mol);
-	       if (res_ref) { 
+	       if (res_ref) {
 		  std::vector<mmdb::Residue *> residues =
 		     coot::residues_near_residue(res_ref, asc.mol, inputs.radius);
 		  local_residues.push_back(std::pair<bool,mmdb::Residue *>(false, res_ref));
@@ -403,7 +406,7 @@ main(int argc, char **argv) {
 						       links,
 						       geom,
 						       asc.mol,
-						       fixed_atom_specs, xmap);
+						       fixed_atom_specs, &xmap);
       
 	       restraints.add_map(map_weight);
 
@@ -438,20 +441,27 @@ main(int argc, char **argv) {
 
 	       int imol = 0; // dummy
 	       restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
-					  1.0, do_rama_plot_restraints, pseudos);
+	       				  1.0, do_rama_plot_restraints, true, true, pseudos);
+
+               // std::vector<std::pair<bool,mmdb::Residue *> > residues;
+               // coot::protein_geometry geom;
+               // mmdb::Manager *mol = 0;
+               // clipper::Xmap<float> xmap; // don't go out of scope until refinement is over
+               // coot::restraints_container_t restraints_2(residues, geom, mol, &xmap);
 
 	       if (inputs.extra_restraints_file_names.size() > 0) {
 		  restraints.add_extra_restraints(imol, extra_restraints, geom);
 	       }
 
-	       int nsteps_max = 4000;
-	       short int print_chi_sq_flag = 1;
-	       restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
-	       restraints.write_new_atoms(inputs.output_pdb_file_name);
+	       if (! inputs.no_refine) {
+		  int nsteps_max = 4000;
+		  short int print_chi_sq_flag = 1;
+		  restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
+		  restraints.write_new_atoms(inputs.output_pdb_file_name);
+	       }
 
 	       if (inputs.tabulate_distortions_flag) {
-		  coot::geometry_distortion_info_container_t gd =
-		     restraints.geometric_distortions(flags);
+		  coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions();
 		  gd.print();
 	       }
 
@@ -645,6 +655,7 @@ get_input_details(int argc, char **argv) {
       {"no-planar-peptide-restraints", 0, 0, 0},
       {"no-trans-peptide-restraints",  0, 0, 0},
       {"tabulate-distortions", 0, 0, 0},
+      {"no-refine", 0, 0, 0},
       {"correlations", 0, 0, 0},
       {"crankshaft", 0, 0, 0},
       {"n-peptides", 1, 0, 0},
@@ -760,14 +771,17 @@ get_input_details(int argc, char **argv) {
 	    if (arg_str == "torsion") {
 	       d.use_torsion_targets = 1;
 	    }
-	    if (arg_str == "no-planar-peptide-restraints") { 
+	    if (arg_str == "no-planar-peptide-restraints") {
 	       d.use_planar_peptide_restraints = false;
 	    }
-	    if (arg_str == "no-trans-peptide-restraints") { 
+	    if (arg_str == "no-trans-peptide-restraints") {
 	       d.use_trans_peptide_restraints = false;
 	    }
-	    if (arg_str == "tabulate-distortions") { 
+	    if (arg_str == "tabulate-distortions") {
 	       d.tabulate_distortions_flag = true;
+	    }
+	    if (arg_str == "no-refine") {
+	       d.no_refine = true;
 	    }
 	    if (arg_str == "correlations") {
 	       d.correlations = true;

@@ -84,7 +84,7 @@
 					  (list-ref (list-ref atom-specs 1) 4)
 					  (list-ref (list-ref atom-specs 1) 5)
 					  (list-ref (list-ref atom-specs 1) 6)
-					  bl 0.035))))))))))
+					  bl 0.01))))))))))
 
 ;; spec-1 and spec-2 are 7-element atom-specs
 ;; 
@@ -285,42 +285,6 @@
 			      (format port "VALUE ~s SIGMA ~s~%" value esd)))))
 		      restraints))))))
 
-;; target is my molecule, ref is the homologous (high-res) model
-;; 
-(define (run-prosmart imol-target imol-ref include-side-chains?)
-  (let ((dir-stub "coot-ccp4"))
-    (make-directory-maybe dir-stub)
-    (let ((target-pdb-file-name (append-dir-file dir-stub 
-						 (string-append (molecule-name-stub imol-target 0)
-								"-prosmart.pdb")))
-	  (reference-pdb-file-name (append-dir-file dir-stub
-						    (string-append (molecule-name-stub imol-ref 0)
-								   "-prosmart-ref.pdb")))
-	  (prosmart-out (append-dir-file "ProSMART_Output"
-					 (string-append
-					  (coot-replace-string (molecule-name-stub imol-target 0) 
-							       " " "_" )
-					  "-prosmart.txt"))))
-			 
-      (write-pdb-file imol-target target-pdb-file-name)
-      (write-pdb-file imol-ref reference-pdb-file-name)
-      (goosh-command "prosmart" 
-		     (let ((l (list "-p1" target-pdb-file-name
-				    "-p2" reference-pdb-file-name
-				    "-restrain_seqid" "30")))
-		       (if include-side-chains? 
-			   (append l (list "-side"))
-			   l))
-		     '()
-		     (append-dir-file dir-stub "prosmart.log")
-		     #f)
-      (if (not (file-exists? prosmart-out))
-	  (begin
-	    (format #t "file not found ~s~%" prosmart-out))
-	  (begin 
-	    (format #t "Reading ProSMART restraints from ~s~%" prosmart-out)
-	    (add-refmac-extra-restraints imol-target prosmart-out))))))
-
 
 (define (res-name->plane-atom-name-list res-name)
 
@@ -414,49 +378,6 @@
       (add-simple-coot-menu-menuitem
        menu "DNA B form bond restraints..."
        user-defined-DNA-B-form)
-
-      (add-simple-coot-menu-menuitem
-       menu "ProSMART..."
-       (lambda ()
-	 (let ((window (gtk-window-new 'toplevel))
-	       (hbox (gtk-hbox-new #f 0))
-	       (vbox (gtk-vbox-new #f 0))
-	       (h-sep (gtk-hseparator-new))
-	       (chooser-hint-text-1 " Target molecule ")
-	       (chooser-hint-text-2 " Reference (high-res) molecule ")
-	       (go-button (gtk-button-new-with-label " ProSMART "))
-	       (cancel-button (gtk-button-new-with-label " Cancel "))
-	       (check-button (gtk-check-button-new-with-label "Include Side-chains")))
-			  
-	   (let ((option-menu-mol-list-pair-tar (generic-molecule-chooser 
-						 vbox chooser-hint-text-1))
-		 (option-menu-mol-list-pair-ref (generic-molecule-chooser 
-						 vbox chooser-hint-text-2)))
-
-	     (gtk-box-pack-start vbox check-button  #f #f 2)
-	     (gtk-box-pack-start vbox h-sep         #f #f 2)
-	     (gtk-box-pack-start vbox hbox          #f #f 2)
-	     (gtk-box-pack-start hbox go-button     #f #f 6)
-	     (gtk-box-pack-start hbox cancel-button #f #f 6)
-	     (gtk-container-add window vbox)
-
-	     (gtk-signal-connect cancel-button "clicked"
-				 (lambda ()
-				   (gtk-widget-destroy window)))
-
-	     (gtk-signal-connect go-button "clicked"
-				 (lambda ()
-				   (let ((imol-tar 
-					  (apply get-option-menu-active-molecule
-						 option-menu-mol-list-pair-tar))
-					 (imol-ref
-					  (apply get-option-menu-active-molecule
-						 option-menu-mol-list-pair-ref))
-					 (do-side-chains? (gtk-toggle-button-get-active check-button)))
-				     (run-prosmart imol-tar imol-ref do-side-chains?)
-				     (gtk-widget-destroy window))))
-	     (gtk-widget-show-all window)))))
-
 
       (add-simple-coot-menu-menuitem
        menu "Read Refmac Extra Restraints..."

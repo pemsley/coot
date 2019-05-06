@@ -603,6 +603,8 @@ mutate(int imol, const char *chain_id, int ires, const char *inscode,  const cha
 
    if (is_valid_model_molecule(imol)) { 
       istate = graphics_info_t::molecules[imol].mutate(ires, inscode, std::string(chain_id), std::string(target_res_type));
+      graphics_info_t g;
+      g.update_geometry_graphs(imol);
       graphics_draw();
    }
    std::string cmd = "mutate";
@@ -637,7 +639,7 @@ int mutate_base(int imol, const char *chain_id, int res_no, const char *ins_code
    add_to_history_typed(cmd, args);
    
    return istate; 
-} 
+}
 
 
 
@@ -1048,3 +1050,20 @@ void fill_partial_residue(int imol, const char *chain_id, int resno, const char*
    }
 }
 
+
+// Fill amino acid residues, do backrub rotamer search for residues, but don't do refinement
+//
+void simple_fill_partial_residues(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      int imol_map = g.Imol_Refinement_Map();
+      if (imol_map > -1) {
+	 coot::util::missing_atom_info m_i_info =
+	    g.molecules[imol].fill_partial_residues(g.Geom_p(), imol_map);
+	 graphics_draw();
+      } else {
+	 add_status_bar_text("Refinement map not set");
+      }
+   }
+}

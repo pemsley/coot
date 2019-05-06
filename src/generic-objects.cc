@@ -328,14 +328,11 @@ int generic_object_is_displayed_p(int object_number) {
 }
 
 
-int new_generic_object_number(const char *name) {
+int new_generic_object_number(const std::string &name_string) {
 
    graphics_info_t g;
-   std::string name_string;
-   if (name)
-      name_string = std::string(name);
    int n_new = g.new_generic_object_number(name_string);
-   
+
    if (g.generic_objects_dialog) {
       GtkWidget *table = lookup_widget(GTK_WIDGET(g.generic_objects_dialog),
 				       "generic_objects_dialog_table");
@@ -348,6 +345,17 @@ int new_generic_object_number(const char *name) {
       }
    }
    return n_new;
+}
+
+// create a new generic display object that is attached to imol
+//
+int new_generic_object_number_for_molecule(const std::string &name, int imol) {
+
+   int idx = new_generic_object_number(name);
+   graphics_info_t g;
+   g.generic_objects_p->at(idx).imol = imol;
+
+   return idx;
 }
 
 
@@ -399,8 +407,9 @@ SCM generic_object_name_scm(int obj_number) {
 #endif /* USE_GUILE */
 
 #ifdef USE_PYTHON
-PyObject *generic_object_name_py(int obj_number) {
+PyObject *generic_object_name_py(unsigned int obj_number_in) {
    graphics_info_t g;
+   int obj_number = obj_number_in;
    int n_objs = g.generic_objects_p->size();
    PyObject *r;
    r = Py_False;
@@ -493,9 +502,7 @@ void close_all_generic_objects() {
 void generic_objects_gui_wrapper() {
 
    graphics_info_t g;
-   if (! g.generic_objects_dialog) { 
-      g.generic_objects_dialog = wrapped_create_generic_objects_dialog();
-   }
+   g.generic_objects_dialog = wrapped_create_generic_objects_dialog();
    gtk_widget_show(g.generic_objects_dialog);
 } 
 

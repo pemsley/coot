@@ -96,7 +96,6 @@
 
 #include "guile-fixups.h"
 
-
 int
 graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu, 
 						   GtkSignalFunc signal_func) {
@@ -106,10 +105,19 @@ graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
 
 int
 graphics_info_t::fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, 
-						   GtkSignalFunc signal_func) {
+						       GtkSignalFunc signal_func) {
 
    return fill_option_menu_with_map_options_generic(option_menu, signal_func, 1);
 }
+
+int
+graphics_info_t::fill_combobox_with_map_mtz_options(GtkWidget *combobox, GtkSignalFunc signal_func) {
+
+   std::cout << "fill fill_combobox_with_map_mtz_options" << combobox << std::endl;
+
+   return 0;
+}
+
 
 int
 graphics_info_t::fill_option_menu_with_map_options_generic(GtkWidget *option_menu, 
@@ -246,6 +254,59 @@ graphics_info_t::fill_option_menu_with_map_options_internal(GtkWidget *option_me
    }
    gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
 }
+
+void
+graphics_info_t::fill_combobox_with_difference_map_options(GtkWidget *combobox, 
+							   GCallback signal_func,
+							   int imol_active_position) {
+
+   std::vector<int> maps_vec;
+   for (int i=0; i<n_molecules(); i++) {
+      if (molecules[i].is_difference_map_p())
+	 maps_vec.push_back(i);
+   }
+
+   // we could factor this out - it is more or less the same as
+   // fill_combobox_with_coordinates_options
+   
+   GtkListStore *store = gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
+   GtkTreeIter iter;
+   int active_idx = 0;
+   int n_mol = maps_vec.size();
+   for (unsigned int imap=0; imap<maps_vec.size(); imap++) {
+      int imol = maps_vec[imap];
+      std::string ss; // = int_to_string(imol); done in renderer now.
+      ss += " " ;
+      int ilen = molecules[imol].name_.length();
+      int left_size = ilen-go_to_atom_menu_label_n_chars_max;
+      if (left_size <= 0)
+	 left_size = 0;
+      else
+	 ss += "...";
+      ss += molecules[imol].name_.substr(left_size, ilen);
+
+      gtk_list_store_append(store, &iter);
+      gtk_list_store_set(store, &iter, 0, imol, 1, ss.c_str(), -1);
+
+      if (imol == imol_active_position)
+	 active_idx = imap;
+
+   }
+
+   if (signal_func)
+      g_signal_connect(combobox, "changed", signal_func, NULL);
+   GtkTreeModel *model = GTK_TREE_MODEL(store);
+   GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
+   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox), renderer, TRUE);
+   gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(combobox), renderer, "text", 1, NULL);
+   gtk_combo_box_set_model(GTK_COMBO_BOX(combobox), model);
+
+   // maybe this can go into the above loop?
+   if (maps_vec.size() > 0)
+      gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), active_idx);
+
+}
+
 
 // These are of course *maps*.
 void

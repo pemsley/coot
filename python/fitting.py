@@ -823,11 +823,14 @@ def pepflip_active_residue():
        print "No active atom"
     else:
        imol       = active_atom[0]
-       chain_id   = active_atom[1]
-       res_no     = active_atom[2]
-       ins_code   = active_atom[3]
-       atom_name  = active_atom[4]
-       alt_conf   = active_atom[5]
+
+       ca = closest_atom_raw() # don't map to CA
+
+       chain_id   = ca[1]
+       res_no     = ca[2]
+       ins_code   = ca[3]
+       atom_name  = ca[4]
+       alt_conf   = ca[5]
 
        if (atom_name == " N  "): # PDBv3 fixme
 	   res_no -= 1;

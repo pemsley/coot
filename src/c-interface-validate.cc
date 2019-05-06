@@ -29,7 +29,7 @@
 #include "compat/coot-sysdep.h"
 
 #if defined _MSC_VER
-n#include <windows.h>
+#include <windows.h>
 #endif
 
 #include <stdlib.h>
@@ -46,13 +46,14 @@ n#include <windows.h>
 #include <vector>
 #include <string>
 
+#include "clipper/ccp4/ccp4_mtz_io.h" // pathology plots
+
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
 #include "coords/mmdb-crystal.h"
 
 #include "graphics-info.h"
-#include "widget-headers.hh"
 
 #ifdef USE_GUILE
 #include <libguile.h>
@@ -82,6 +83,10 @@ n#include <windows.h>
 
 #include "coot-utils/peak-search.hh"
 #include "user-mods.hh"
+
+#include "data-pair-remover.hh"
+
+#include "c-interface-gui.hh"
 
 /*  ----------------------------------------------------------------------- */
 /*                  check waters interface                                  */
@@ -129,12 +134,13 @@ GtkWidget *wrapped_create_check_waters_dialog() {
 
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_waters_OR_radiobutton), TRUE);
 
-   GCallback callback_func = G_CALLBACK(check_waters_molecule_menu_item_activate);
+   GtkWidget *check_waters_action_combobox = lookup_widget(dialog, "check_waters_action_combobox");
 
-   GtkWidget *optionmenu = lookup_widget(dialog, "check_waters_molecule_optionmenu");
-//    std::cout << "optionmenu: " << optionmenu << std::endl;
-//    std::cout << "optionmenu is widget: " << GTK_IS_WIDGET(optionmenu) << std::endl;
-//    std::cout << "optionmenu is option menu: " << GTK_IS_OPTION_MENU(optionmenu) << std::endl;
+   gtk_combo_box_set_active(GTK_COMBO_BOX(check_waters_action_combobox), 0); // "Check"
+
+   GCallback callback_func = G_CALLBACK(check_waters_molecule_combobox_changed);
+
+   GtkWidget *combobox = lookup_widget(dialog, "check_waters_molecule_combobox");
 
    // now fill that dialog's optionmenu with coordinate options.
    for (int imol=0; imol<graphics_n_molecules(); imol++) {
@@ -144,14 +150,10 @@ GtkWidget *wrapped_create_check_waters_dialog() {
       }
    }
    graphics_info_t g;
-   g.fill_option_menu_with_coordinates_options(optionmenu, callback_func,
-					       graphics_info_t::check_waters_molecule);
+   g.fill_combobox_with_coordinates_options(combobox, callback_func, g.check_waters_molecule);
 
-   std::cout << "GTK-FIXME no gtk_option_menu_get_menu J" << std::endl;
-   //
    // GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu));
-   GtkWidget *menu = 0;
-   
+
    GtkWidget *entry;
    // char text[100];
    std::string text_str;
@@ -180,12 +182,14 @@ GtkWidget *wrapped_create_check_waters_dialog() {
    // 20100131 We have put the variance map check into this dialog
    // too, to better organise the menus.
    //
-   GtkWidget *diff_map_option_menu =
-      lookup_widget(dialog, "check_water_by_difference_map_optionmenu");
+   //GtkWidget *diff_map_option_menu =
+   // lookup_widget(dialog, "check_water_by_difference_map_optionmenu");
 
-   // It's not in the gtk1 version
-   // 
-   if (diff_map_option_menu) {
+   GtkWidget *diff_map_combobox = lookup_widget(dialog, "check_waters_by_difference_map_combobox");
+
+   std::cout << "debug:: diff_map_combobox " << diff_map_combobox << std::endl;
+
+   if (diff_map_combobox) {
       // set imol_active to the first difference map.
       int imol_active = -1; // unset (no difference maps found yet)
       for (int i=0; i<graphics_n_molecules(); i++) {
@@ -197,12 +201,12 @@ GtkWidget *wrapped_create_check_waters_dialog() {
 	 }
       }
 
+      std::cout << "debug:: diff_map imol_active " << imol_active << std::endl;
+
       if (imol_active != -1) {
 	 graphics_info_t::check_waters_by_difference_map_map_number = imol_active;
-	 GCallback signal_func =
-	    G_CALLBACK(check_water_by_difference_maps_option_menu_item_select);
-	 g.fill_option_menu_with_difference_map_options(diff_map_option_menu,
-							signal_func, imol_active);
+	 GCallback signal_func = G_CALLBACK(check_water_by_difference_maps_combobox_changed);
+	 g.fill_combobox_with_difference_map_options(diff_map_combobox, signal_func, imol_active);
       }
    }
 
@@ -211,10 +215,13 @@ GtkWidget *wrapped_create_check_waters_dialog() {
 }
 
 void
-check_water_by_difference_maps_option_menu_item_select(GtkWidget *item, GtkPositionType pos) {
+check_water_by_difference_maps_combobox_changed(GtkWidget *combobox, gpointer data) {
 
-   graphics_info_t::check_waters_by_difference_map_map_number = pos;
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t::check_waters_by_difference_map_map_number = imol;
+   
 }
+
 
 // The OK button was pressed on the dialog, so read the dialog and do
 // the check.
@@ -223,10 +230,11 @@ check_water_by_difference_maps_option_menu_item_select(GtkWidget *item, GtkPosit
 // 
 void do_check_waters_by_widget(GtkWidget *dialog) {
 
-#if 0
+
    // GtkWidget *optionmenu = lookup_widget(dialog, "check_waters_molecule_optionmenu");
-   GtkWidget *action_optionmenu = lookup_widget(dialog, "check_waters_action_optionmenu");
+   // GtkWidget *action_optionmenu = lookup_widget(dialog, "check_waters_action_optionmenu");
    // GtkWidget *checklogic_AND_radiobutton = lookup_widget(dialog, "check_waters_AND_radiobutton");
+
    GtkWidget *checklogic_OR_radiobutton  = lookup_widget(dialog, "check_waters_OR_radiobutton");
 
    GtkWidget *entry1, *entry2, *entry3, *entry4;
@@ -297,9 +305,13 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
       logical_operator_and_or_flag = 1;
    }
 
-   GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(action_optionmenu));
-   GtkWidget *active_item = gtk_menu_get_active(GTK_MENU(menu));
-   int active_index = g_list_index(GTK_MENU_SHELL(menu)->children, active_item);
+   // GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(action_optionmenu));
+   // GtkWidget *active_item = gtk_menu_get_active(GTK_MENU(menu));
+   // int active_index = g_list_index(GTK_MENU_SHELL(menu)->children, active_item);
+
+   // Check or Delete?
+   GtkWidget *action_combobox = lookup_widget(dialog, "check_waters_molecule_combobox");
+   int active_index = gtk_combo_box_get_active(GTK_COMBO_BOX(action_combobox));
 
    // This will give us another dialog
    // 
@@ -339,7 +351,7 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
 				    zero_occ_flag,
 				    logical_operator_and_or_flag); // calls graphics_draw()
    }
-#endif   
+   
 }
 
 void store_checked_waters_baddies_dialog(GtkWidget *w) {
@@ -348,10 +360,11 @@ void store_checked_waters_baddies_dialog(GtkWidget *w) {
 
 
 
-void check_waters_molecule_menu_item_activate(GtkWidget *item, 
-					      GtkPositionType pos) {
+void check_waters_molecule_combobox_changed(GtkWidget *combobox, 
+					  gpointer data) {
 
-   graphics_info_t::check_waters_molecule = pos;
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t::check_waters_molecule = imol;
 }
 
 
@@ -403,7 +416,7 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 
 	    // User data is used to keyboard up and down baddie water
 	    // list (in graphics_info_t::checked_waters_next_baddie).
-	    g_object_set_data(G_OBJECT(w), "baddies_size", GINT_TO_POINTER(baddies.size()));
+	    gtk_object_set_user_data(GTK_OBJECT(w), GINT_TO_POINTER(baddies.size()));
 	 
 	    GtkWidget *button;
 	    GtkWidget *vbox = lookup_widget(w, "checked_waters_baddies_vbox");
@@ -434,20 +447,20 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 		  button_label += " " ;
 		  
 		  button = gtk_radio_button_new_with_label(gr_group, button_label.c_str());
-		  gr_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON (button));
+		  gr_group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
 		  coot::atom_spec_t *atom_spec = new coot::atom_spec_t(baddies[i]);
 		  atom_spec->int_user_data = imol;
 
 		  std::string button_name = "checked_waters_baddie_button_";
 		  button_name += coot::util::int_to_string(i);
 
- 		  g_object_set_data_full(G_OBJECT(w),
-					 button_name.c_str(), button,
-					 NULL);
+ 		  gtk_object_set_data_full(GTK_OBJECT(w),
+ 					   button_name.c_str(), button,
+					   NULL);
 		  
-		  g_signal_connect(G_OBJECT(button), "clicked",
-				   G_CALLBACK(graphics_info_t::on_generic_atom_spec_button_clicked),
-				   atom_spec);
+		  gtk_signal_connect(GTK_OBJECT(button), "clicked",
+				     GTK_SIGNAL_FUNC (graphics_info_t::on_generic_atom_spec_button_clicked),
+				     atom_spec);
 		  
 		  GtkWidget *frame = gtk_frame_new(NULL);
 		  gtk_container_add(GTK_CONTAINER(frame), button);
@@ -575,7 +588,7 @@ void set_fix_chiral_volumes_before_refinement(int istate) {
 
 void check_chiral_volumes_from_widget(GtkWidget *window) { 
    
-   check_chiral_volumes(graphics_info_t::chiral_volume_molecule_option_menu_item_select_molecule);
+   check_chiral_volumes(graphics_info_t::check_chiral_volume_molecule);
 }
 
 
@@ -625,9 +638,9 @@ void free_geometry_graph(GtkWidget *dialog) {
    if (dialog) {
       GtkWidget *w = lookup_widget(dialog, "geometry_graph_canvas");
       if (w) { 
-	 GObject *obj = G_OBJECT(w);
+	 GtkObject *obj = GTK_OBJECT(w);
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-	 coot::geometry_graphs *graphs = (coot::geometry_graphs *) g_object_get_data(obj, "graphs");
+	 coot::geometry_graphs *graphs = (coot::geometry_graphs *) gtk_object_get_user_data(obj);
 	 if (!graphs) {
 	    std::cout << "ERROR:: NULL graphs in free_geometry_graph\n";
 	 } else {
@@ -781,53 +794,53 @@ void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in) {
    graphics_info_t g;
    std::string validation_type(type_in);
    std::string sub_menu_name;
-   GCallback callback = 0; // depends on type
+   GtkSignalFunc callback = 0; // depends on type
    short int found_validation_type = 0;
 
    if (validation_type == "b factor") {
-      callback = G_CALLBACK(validation_graph_b_factor_mol_selector_activate);
+      callback = GTK_SIGNAL_FUNC(validation_graph_b_factor_mol_selector_activate);
       found_validation_type = 1;
       sub_menu_name = "temp_factor_variance_submenu";
    }
 ////B B GRAPH
    if (validation_type == "calc b factor") {
-      callback = G_CALLBACK(validation_graph_calc_b_factor_mol_selector_activate);
+      callback = GTK_SIGNAL_FUNC(validation_graph_calc_b_factor_mol_selector_activate);
       found_validation_type = 1;
       sub_menu_name = "temp_factor_submenu";
    }
 ////E B GRAPH
    if (validation_type == "geometry") {
-      callback = G_CALLBACK(validation_graph_geometry_mol_selector_activate);
+      callback = GTK_SIGNAL_FUNC(validation_graph_geometry_mol_selector_activate);
       found_validation_type = 1;
       sub_menu_name = "geometry_submenu";
    }
    if (validation_type == "omega") {
-      callback = G_CALLBACK(validation_graph_omega_mol_selector_activate);
+      callback = GTK_SIGNAL_FUNC(validation_graph_omega_mol_selector_activate);
       found_validation_type = 1;
       sub_menu_name = "omega_submenu";
    }
    if (validation_type == "rotamer") {
-      callback = G_CALLBACK(validation_graph_rotamer_mol_selector_activate);
+      callback = GTK_SIGNAL_FUNC(validation_graph_rotamer_mol_selector_activate);
       found_validation_type = 1;
       sub_menu_name = "rotamer_submenu";
    }
    if (validation_type == "density-fit") {
-      callback = G_CALLBACK(validation_graph_density_fit_mol_selector_activate);
+      callback = GTK_SIGNAL_FUNC(validation_graph_density_fit_mol_selector_activate);
       found_validation_type = 1;
       sub_menu_name = "density_fit_submenu";
    }
    if (validation_type == "probe") {
-      callback = G_CALLBACK(probe_mol_selector_activate);
+      callback = GTK_SIGNAL_FUNC(probe_mol_selector_activate);
       found_validation_type = 1;
       sub_menu_name = "probe_submenu";
    }
    if (validation_type == "gln_and_asn_b_factor_outliers") {
-      callback = G_CALLBACK(gln_and_asn_b_factor_outlier_mol_selector_activate);
+      callback = GTK_SIGNAL_FUNC(gln_and_asn_b_factor_outlier_mol_selector_activate);
       found_validation_type = 1;
       sub_menu_name = "gln_and_asn_b_factor_outliers_submenu";
    }
    if (validation_type == "ncs-diffs") {
-      callback = G_CALLBACK(validation_graph_ncs_diffs_mol_selector_activate);
+      callback = GTK_SIGNAL_FUNC(validation_graph_ncs_diffs_mol_selector_activate);
       found_validation_type = 1;
       sub_menu_name = "ncs_diffs_submenu";
    }
@@ -857,12 +870,12 @@ void
 add_validation_mol_menu_item(int imol,
 			     const std::string &name,
 			     GtkWidget *menu,
-			     GCallback callback) {
+			     GtkSignalFunc callback) {
 
    GtkWidget *menu_item = gtk_menu_item_new_with_label(name.c_str());
    gtk_container_add(GTK_CONTAINER(menu), menu_item);
-   g_signal_connect(G_OBJECT(menu_item), "activate",
-		    callback, GINT_TO_POINTER(imol));
+   gtk_signal_connect(GTK_OBJECT(menu_item), "activate",
+		      callback, GINT_TO_POINTER(imol));
    gtk_widget_show(menu_item);
 }
 
@@ -1051,11 +1064,11 @@ create_initial_validation_graph_submenu_generic(GtkWidget *widget,
 
    GtkWidget *b_factor_menu_item = lookup_widget(widget, menu_name.c_str());
    GtkWidget *b_factor_sub_menu = gtk_menu_new();
-   // gtk_widget_ref(b_factor_sub_menu);
-   g_object_set_data_full(G_OBJECT(widget),
-			  sub_menu_name.c_str(),
-			  b_factor_sub_menu,
-			  NULL);
+   gtk_widget_ref(b_factor_sub_menu);
+   gtk_object_set_data_full(GTK_OBJECT(widget),
+			    sub_menu_name.c_str(),
+			    b_factor_sub_menu,
+			    (GtkDestroyNotify) gtk_widget_unref);
 
    gtk_menu_item_set_submenu(GTK_MENU_ITEM(b_factor_menu_item),
 			     b_factor_sub_menu);
@@ -1114,15 +1127,19 @@ difference_map_peaks(int imol, int imol_coords,
 	       gtk_widget_show(w);
 	    }
 	 } else {
+	    float map_sigma = graphics_info_t::molecules[imol].map_sigma();
 	    if (graphics_info_t::use_graphics_interface_flag) { 
-	       float map_sigma = graphics_info_t::molecules[imol].map_sigma();
-	       GtkWidget *w = graphics_info_t::wrapped_create_diff_map_peaks_dialog(centres, map_sigma);
+	       std::string title = "Difference Map Peaks Dialog From Map No. ";
+	       title += coot::util::int_to_string(imol);
+	       GtkWidget *w = graphics_info_t::wrapped_create_diff_map_peaks_dialog(centres, map_sigma, title);
 	       gtk_widget_show(w);
 	    }
 
 	    std::cout << "\n   Found these peak positions:\n";
 	    for (unsigned int i=0; i<centres.size(); i++) {
-	       std::cout << "   " << i << " " << centres[i].second << " "
+	       std::cout << "   " << i << " dv: "
+			 << centres[i].second << " n-rmsd: "
+			 << centres[i].second/map_sigma << " "
 			 << centres[i].first.format() << std::endl;
 	    }
 	    std::cout << "\n   Found " << centres.size() << " peak positions:\n";
@@ -1212,7 +1229,7 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
 	    map_str += graphics_info_t::int_to_string(imol);
 	    map_button = lookup_widget(dialog, map_str.c_str());
 	    if (map_button) {
-	       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(map_button))) {
+	       if (GTK_TOGGLE_BUTTON(map_button)->active) {
 		  imol_diff_map = imol;
 		  found_active_button_for_map = 1;
 	       }
@@ -1232,7 +1249,7 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
 	 coords_str += graphics_info_t::int_to_string(imol);
 	 coords_button = lookup_widget(dialog, coords_str.c_str());
 	 if (coords_button) {
-	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(coords_button))) {
+	    if (GTK_TOGGLE_BUTTON(coords_button)->active) {
 	       imol_coords = imol;
 	       found_active_button_for_map = 1;
 	    }
@@ -1267,10 +1284,10 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
    GtkWidget *checkbutton_positive =
       lookup_widget(dialog, "generate_diff_map_peaks_positive_level_checkbutton");
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton_negative)))
+   if (GTK_TOGGLE_BUTTON(checkbutton_negative)->active)
       do_negative_level = 1;
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton_positive)))
+   if (GTK_TOGGLE_BUTTON(checkbutton_positive)->active)
       do_positive_level = 1;
 
    if (found_active_button_for_map) {
@@ -1508,17 +1525,19 @@ GtkWidget *wrapped_ramachandran_plot_differences_dialog() {
    GtkWidget *w = 0; // Not NULL, compiler (maybe).
 
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+
    w = create_ramachandran_plot_differences_dialog();
 
    // We don't have to worry about chains because they are not active on startup.
 
-   GtkWidget *optionmenu1 =
-      lookup_widget(w, "ramachandran_plot_differences_first_mol_optionmenu");
-   GtkWidget *optionmenu2 =
-      lookup_widget(w, "ramachandran_plot_differences_second_mol_optionmenu");
+   GtkWidget *combobox1 = lookup_widget(w, "ramachandran_plot_differences_first_mol_combobox");
+   GtkWidget *combobox2 = lookup_widget(w, "ramachandran_plot_differences_second_mol_combobox");
 
-   GCallback signal_func1 = G_CALLBACK(ramachandran_plot_differences_mol_option_menu_activate_first);
-   GCallback signal_func2 = G_CALLBACK(ramachandran_plot_differences_mol_option_menu_activate_second);
+   if (! combobox1) std::cout << "null combobox1" << std::endl;
+   if (! combobox2) std::cout << "null combobox2" << std::endl;
+
+   GCallback signal_func1 = G_CALLBACK(ramachandran_plot_differences_mol_combobox_first_changed);
+   GCallback signal_func2 = G_CALLBACK(ramachandran_plot_differences_mol_combobox_second_changed);
 
    int imol = -1;
    for (int i=0; i<graphics_info_t::n_molecules(); i++) {
@@ -1530,12 +1549,11 @@ GtkWidget *wrapped_ramachandran_plot_differences_dialog() {
 
    if (imol >= 0) {
       graphics_info_t g;
-      g.fill_option_menu_with_coordinates_options(optionmenu1, signal_func1, imol);
-      g.fill_option_menu_with_coordinates_options(optionmenu2, signal_func2, imol);
+      g.fill_combobox_with_coordinates_options(combobox1, signal_func1, imol);
+      g.fill_combobox_with_coordinates_options(combobox2, signal_func2, imol);
       graphics_info_t::ramachandran_plot_differences_imol1 = imol;
       graphics_info_t::ramachandran_plot_differences_imol2 = imol;
    }
-
 #endif
    return w;
 }
@@ -1566,8 +1584,8 @@ int do_ramachandran_plot_differences_by_widget(GtkWidget *w) {
 					     first_chain.c_str(),
 					     second_chain.c_str());
    } else {
-      if (! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton1)) &&
-	  ! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton2))) {
+      if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton1)) &&
+	  !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton2))) {
 	 istat = 1;
 	 ramachandran_plot_differences(imol1, imol2);
       } else {
@@ -1595,41 +1613,95 @@ void set_ramachandran_plot_background_block_size(float blocksize) {
 
 
 
-// OK, the molecule was changed in the option menu, so if the checkbutton is on,
-// then change the elements of the chain option menu
-// 
-void ramachandran_plot_differences_mol_option_menu_activate_first(GtkWidget *item, GtkPositionType pos) {
-   graphics_info_t::ramachandran_plot_differences_imol1 = pos;
-   GtkWidget *chain_optionmenu = lookup_widget(GTK_WIDGET(item),
-						"ramachandran_plot_differences_first_chain_optionmenu");
-   GtkWidget *checkbutton = lookup_widget(GTK_WIDGET(item),
-					  "ramachandran_plot_differences_first_chain_checkbutton");
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) {
-      fill_ramachandran_plot_differences_option_menu_with_chain_options(chain_optionmenu, 1);
+// // OK, the molecule was changed in the option menu, so if the checkbutton is on,
+// // then change the elements of the chain option menu
+// // 
+// void ramachandran_plot_differences_mol_option_menu_activate_first(GtkWidget *item, GtkPositionType pos) {
+//    graphics_info_t::ramachandran_plot_differences_imol1 = pos;
+// //    GtkWidget *chain_optionmenu = lookup_widget(GTK_WIDGET(item),
+// // 						"ramachandran_plot_differences_first_chain_optionmenu");
+//    GtkWidget *chain_combobox = lookup_widget(GTK_WIDGET(item),
+// 						"ramachandran_plot_differences_first_chain_combobox");
+//    GtkWidget *checkbutton = lookup_widget(GTK_WIDGET(item),
+// 					  "ramachandran_plot_differences_first_chain_checkbutton");
+//    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) {
+//       // fill_ramachandran_plot_differences_option_menu_with_chain_options(chain_optionmenu, 1);
+//       fill_ramachandran_plot_differences_combobox_with_chain_options(chain_combobox, 1);
+//    }
+// }
+
+// void ramachandran_plot_differences_mol_option_menu_activate_second(GtkWidget *item, GtkPositionType pos) {
+//    graphics_info_t::ramachandran_plot_differences_imol2 = pos; 
+// //    GtkWidget *chain_optionmenu = lookup_widget(GTK_WIDGET(item),
+// // 						"ramachandran_plot_differences_second_chain_optionmenu");
+//    GtkWidget *chain_combobox = lookup_widget(GTK_WIDGET(item),
+// 					     "ramachandran_plot_differences_second_chain_combobox");
+//    GtkWidget *checkbutton = lookup_widget(GTK_WIDGET(item),
+// 					  "ramachandran_plot_differences_second_chain_checkbutton");
+//    if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
+//       fill_ramachandran_plot_differences_combobox_with_chain_options(chain_combobox, 0);
+//    }
+// }
+
+
+// void ramachandran_plot_differences_chain_option_menu_activate_first(GtkWidget *item, GtkPositionType pos){
+
+//    graphics_info_t::ramachandran_plot_differences_imol1_chain = menu_item_label(item);
+// }
+
+// void ramachandran_plot_differences_chain_option_menu_activate_second(GtkWidget *item, GtkPositionType pos){
+
+//       graphics_info_t::ramachandran_plot_differences_imol2_chain = menu_item_label(item);
+// }
+
+void ramachandran_plot_differences_mol_combobox_first_changed(GtkWidget *combobox, gpointer pos) {
+
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t::ramachandran_plot_differences_imol1 = imol;
+
+   GtkWidget *chain_combobox = lookup_widget(combobox, "ramachandran_plot_differences_first_chain_combobox");
+   GtkWidget *checkbutton    = lookup_widget(combobox, "ramachandran_plot_differences_first_chain_checkbutton");
+   if (!chain_combobox) {
+      std::cout << "first bad combobox" << std::endl;
+   } else {
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) {
+	 fill_ramachandran_plot_differences_combobox_with_chain_options(chain_combobox, true);
+      }
    }
 }
 
-void ramachandran_plot_differences_mol_option_menu_activate_second(GtkWidget *item, GtkPositionType pos) {
-   graphics_info_t::ramachandran_plot_differences_imol2 = pos; 
-   GtkWidget *chain_optionmenu = lookup_widget(GTK_WIDGET(item),
-						"ramachandran_plot_differences_second_chain_optionmenu");
-   GtkWidget *checkbutton = lookup_widget(GTK_WIDGET(item),
-					  "ramachandran_plot_differences_second_chain_checkbutton");
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) {
-      fill_ramachandran_plot_differences_option_menu_with_chain_options(chain_optionmenu, 0);
+void ramachandran_plot_differences_mol_combobox_second_changed(GtkWidget *combobox, gpointer data) {
+
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t::ramachandran_plot_differences_imol2 = imol;
+
+   GtkWidget *chain_combobox = lookup_widget(combobox, "ramachandran_plot_differences_second_chain_combobox");
+   GtkWidget *checkbutton    = lookup_widget(combobox, "ramachandran_plot_differences_second_chain_checkbutton");
+   if (!chain_combobox) {
+      std::cout << "first bad combobox" << std::endl;
+   } else {
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) {
+	 fill_ramachandran_plot_differences_combobox_with_chain_options(chain_combobox, false);
+      }
    }
+
 }
 
+void ramachandran_plot_differences_chain_combobox_first_changed(GtkWidget *combobox, gpointer data) {
 
-void ramachandran_plot_differences_chain_option_menu_activate_first(GtkWidget *item, GtkPositionType pos){
-
-   graphics_info_t::ramachandran_plot_differences_imol1_chain = menu_item_label(item);
+   std::string label = get_active_label_in_combobox(GTK_COMBO_BOX(combobox));
+   graphics_info_t::ramachandran_plot_differences_imol1_chain = label;
+   std::cout << "changed the first chain combobox " << label << std::endl;
 }
 
-void ramachandran_plot_differences_chain_option_menu_activate_second(GtkWidget *item, GtkPositionType pos){
+void ramachandran_plot_differences_chain_combobox_second_changed(GtkWidget *combobox, gpointer data) {
 
-      graphics_info_t::ramachandran_plot_differences_imol2_chain = menu_item_label(item);
+   std::string label = get_active_label_in_combobox(GTK_COMBO_BOX(combobox));
+   graphics_info_t::ramachandran_plot_differences_imol2_chain = label;
+   std::cout << "changed the second chain combobox " << label << std::endl;
+
 }
+
 
 void do_ramachandran_plot(int imol) {
 
@@ -1783,20 +1855,23 @@ void ramachandran_plot_differences_by_chain(int imol1, int imol2,
 }
 
 
+
 // This is called when the "Use chain" option button is pressed.
 // 
-void fill_ramachandran_plot_differences_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
-								       int is_first_mol_flag) {
-   GtkWidget *mol_optionmenu = NULL;
+void fill_ramachandran_plot_differences_combobox_with_chain_options(GtkWidget *chain_combobox,
+								    int is_first_mol_flag) {
+
+   std::cout << "start fill_ramachandran_plot_differences_combobox_with_chain_options"
+	     << std::endl;
+
+   GtkWidget *mol_combobox = 0;
 
    if (is_first_mol_flag) {
-      mol_optionmenu =
-	 lookup_widget(chain_optionmenu,
-		       "ramachandran_plot_differences_first_mol_optionmenu");
+      mol_combobox = lookup_widget(chain_combobox,
+				   "ramachandran_plot_differences_first_mol_combobox");
    } else {
-      mol_optionmenu =
-	 lookup_widget(chain_optionmenu,
-		       "ramachandran_plot_differences_second_mol_optionmenu");
+      mol_combobox = lookup_widget(chain_combobox,
+				   "ramachandran_plot_differences_second_mol_combobox");
    }
 
    GCallback callback_func;
@@ -1804,15 +1879,16 @@ void fill_ramachandran_plot_differences_option_menu_with_chain_options(GtkWidget
 
    if (is_first_mol_flag) { 
       imol = graphics_info_t::ramachandran_plot_differences_imol1;
-      callback_func = G_CALLBACK(ramachandran_plot_differences_chain_option_menu_activate_first);
+      callback_func = G_CALLBACK(ramachandran_plot_differences_chain_combobox_first_changed);
    } else {
       imol = graphics_info_t::ramachandran_plot_differences_imol2;
-      callback_func = G_CALLBACK(ramachandran_plot_differences_chain_option_menu_activate_second);
+      callback_func = G_CALLBACK(ramachandran_plot_differences_chain_combobox_second_changed);
    }
 
    if (imol >=0 && imol< graphics_info_t::n_molecules()) {
-      std::string set_chain = graphics_info_t::fill_option_menu_with_chain_options(chain_optionmenu,
-										   imol, callback_func);
+      std::string set_chain =
+	 graphics_info_t::fill_combobox_with_chain_options(chain_combobox,
+							   imol, callback_func);
       if (is_first_mol_flag) {
 	 graphics_info_t::ramachandran_plot_differences_imol1_chain = set_chain;
       } else {
@@ -1823,6 +1899,17 @@ void fill_ramachandran_plot_differences_option_menu_with_chain_options(GtkWidget
    } 
 
 }
+
+// void ramachandran_plot_differences_mol_combobox_first_changed(GtkWidget *cb, gpointer data) {
+
+//    std::cout << "first combobox changed " << std::endl;
+// }
+// void ramachandran_plot_differences_mol_combobox_second_changed(GtkWidget *cb, gpointer data) {
+
+//    std::cout << "second combobox changed " << std::endl;
+// }
+
+
 
 
 /*  ----------------------------------------------------------------------- */
@@ -1939,13 +2026,11 @@ void toggle_dynarama_outliers(GtkWidget *window, int state) {
 
 void set_ramachandran_psi_axis_mode(int mode) {
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    graphics_info_t g;
    if (mode == 1)
       g.rama_psi_axis_mode = coot::rama_plot::PSI_MINUS_120;
    else
       g.rama_psi_axis_mode = coot::rama_plot::PSI_CLASSIC;
-#endif
 }
 
 int
@@ -1976,6 +2061,7 @@ SCM alignment_mismatches_scm(int imol) {
    std::vector<std::pair<coot::residue_spec_t,std::string> > mutations;
    std::vector<std::pair<coot::residue_spec_t,std::string> > insertions;
    std::vector<std::pair<coot::residue_spec_t,std::string> > deletions;
+   SCM list_of_alignments_as_text = SCM_EOL;
 
    if (is_valid_model_molecule(imol)) {
       std::pair<bool, std::vector<coot::chain_mutation_info_container_t> > ar = 
@@ -1996,44 +2082,62 @@ SCM alignment_mismatches_scm(int imol) {
 	    deletions.push_back(d);
 	 }
       }
-   }
 
-   if ((mutations.size() > 0) || (insertions.size() > 0) || (deletions.size() > 0)) {
-      SCM insertions_scm = SCM_EOL;
-      SCM deletions_scm = SCM_EOL;
-      SCM mutations_scm = SCM_EOL;
-      for (unsigned int i=0; i<mutations.size(); i++) {
-	 SCM rs_scm = residue_spec_to_scm(mutations[i].first);
-	 SCM str = scm_makfrom0str(mutations[i].second.c_str());
-	 SCM c = SCM_EOL;
-	 c = scm_cons(str, c);
-	 c = scm_cons(str, rs_scm);
-	 mutations_scm = scm_cons(c, mutations_scm);
+      if ((mutations.size() > 0) || (insertions.size() > 0) || (deletions.size() > 0)) {
+	 SCM insertions_scm = SCM_EOL;
+	 SCM deletions_scm = SCM_EOL;
+	 SCM mutations_scm = SCM_EOL;
+	 for (unsigned int i=0; i<mutations.size(); i++) {
+	    SCM rs_scm = residue_spec_to_scm(mutations[i].first);
+	    SCM str = scm_makfrom0str(mutations[i].second.c_str());
+	    SCM c = SCM_EOL;
+	    c = scm_cons(str, c);
+	    c = scm_cons(str, rs_scm);
+	    mutations_scm = scm_cons(c, mutations_scm);
+	 }
+	 for (unsigned int i=0; i<insertions.size(); i++) {
+	    SCM rs_scm = residue_spec_to_scm(insertions[i].first);
+	    SCM str = scm_makfrom0str(insertions[i].second.c_str());
+	    SCM c = SCM_EOL;
+	    c = scm_cons(str, c);
+	    c = scm_cons(str, rs_scm);
+	    insertions_scm = scm_cons(c, insertions_scm);
+	 }
+	 for (unsigned int i=0; i<deletions.size(); i++) {
+	    SCM rs_scm = residue_spec_to_scm(deletions[i].first);
+	    SCM str = scm_makfrom0str(deletions[i].second.c_str());
+	    SCM c = SCM_EOL;
+	    c = scm_cons(str, c);
+	    c = scm_cons(str, rs_scm);
+	    deletions_scm = scm_cons(c, deletions_scm);
+	 }
+	 r = SCM_EOL;
+	 // These are reversed so that the residue numbers come out in
+	 // numerical order (not backwards) and the returned list is
+	 // (list mutations deletions insertions).
+	 r = scm_cons(scm_reverse(insertions_scm), r);
+	 r = scm_cons(scm_reverse(deletions_scm),  r);
+	 r = scm_cons(scm_reverse(mutations_scm),  r);
+
+	 for (std::size_t i=0; i<ar.second.size(); i++) {
+
+	    // and the dialog text
+
+	    const coot::chain_mutation_info_container_t &mic = ar.second[i];
+
+	    std::cout << ":::::::::::::: Here with alignment_string: " << mic.alignment_string
+		      << std::endl;
+
+	    SCM alignment_as_text_scm = scm_makfrom0str(mic.alignment_string.c_str());
+
+	    list_of_alignments_as_text = scm_cons(alignment_as_text_scm, list_of_alignments_as_text);
+	 }
+
+
+	 // Put list_of_alignments_as_text at the end of r
+	 r = scm_reverse(scm_cons(list_of_alignments_as_text, scm_reverse(r)));
       }
-      for (unsigned int i=0; i<insertions.size(); i++) {
-	 SCM rs_scm = residue_spec_to_scm(insertions[i].first);
-	 SCM str = scm_makfrom0str(insertions[i].second.c_str());
-	 SCM c = SCM_EOL;
-	 c = scm_cons(str, c);
-	 c = scm_cons(str, rs_scm);
-	 insertions_scm = scm_cons(c, insertions_scm);
-      }
-      for (unsigned int i=0; i<deletions.size(); i++) {
-	 SCM rs_scm = residue_spec_to_scm(deletions[i].first);
-	 SCM str = scm_makfrom0str(deletions[i].second.c_str());
-	 SCM c = SCM_EOL;
-	 c = scm_cons(str, c);
-	 c = scm_cons(str, rs_scm);
-	 deletions_scm = scm_cons(c, deletions_scm);
-      }
-      r = SCM_EOL;
-      // These are reversed so that the residue numbers come out in
-      // numerical order (not backwards) and the returned list is
-      // (list mutations deletions insertions).
-      r = scm_cons(scm_reverse(insertions_scm), r);
-      r = scm_cons(scm_reverse(deletions_scm),  r);
-      r = scm_cons(scm_reverse(mutations_scm),  r);
-   } 
+   }
    return r;
 }
 #endif // USE_GUILE
@@ -2531,7 +2635,7 @@ SCM all_molecule_ramachandran_score(int imol) {
 	    by_residue_scm = scm_cons(residue_results_scm, by_residue_scm);
 	 }
       }
-      r = SCM_LIST6(a_scm, b_scm, c_scm, d_scm, e_scm, by_residue_scm);
+      r = SCM_LIST6(a_scm, b_scm, c_scm, d_scm, e_scm, scm_reverse(by_residue_scm));
    }
 
    return r;
@@ -2705,4 +2809,178 @@ void b_factor_distribution_graph(int imol) {
 //    v.push_back(Foo());
 //    v.push_back(Foo());
 //    return v;
-// } 
+// }
+
+#include "python-classes.hh"
+
+/*  ----------------------------------------------------------------------- */
+/*                  Pathology Plots                                         */
+/*  ----------------------------------------------------------------------- */
+#ifdef USE_PYTHON
+PyObject *pathology_data(const std::string &mtz_file_name,
+			 const std::string &fp_col,
+			 const std::string &sigfp_col) {
+
+   PyObject *r = Py_False;
+
+   std::vector<std::pair<double, double> >   fp_vs_reso_data;
+   std::vector<std::pair<double, double> > fosf_vs_reso_data;
+   std::vector<std::pair<double, double> >      sf_vs_f_data;
+   std::vector<std::pair<double, double> >    fosf_vs_f_data;
+   // how about sigF vs resolution also?
+   double invresolsq_max = 0;
+
+   try {
+      clipper::CCP4MTZfile mtz;
+      std::cout << "INFO:: reading mtz file " << mtz_file_name << std::endl; 
+      mtz.open_read(mtz_file_name);
+      clipper::HKL_data< clipper::datatypes::F_sigF<float> > fsigf;
+      std::string dataname = "/*/*/[" + fp_col + " " + sigfp_col + "]";
+      mtz.import_hkl_data(fsigf, dataname);
+      mtz.close_read();
+
+      int n_reflns = fsigf.num_obs();
+      clipper::HKL_info::HKL_reference_index hri;
+      for (hri=fsigf.first(); !hri.last(); hri.next()) {
+	 if (! clipper::Util::isnan(fsigf[hri].f())) {
+	    double invresolsq = hri.invresolsq();
+	    std::pair<double, double> p(invresolsq, fsigf[hri].f());
+	    fp_vs_reso_data.push_back(p);
+	    const double &f    = fsigf[hri].f();
+	    const double &sigf = fsigf[hri].sigf();
+	    if (! clipper::Util::isnan(sigf)) {
+	       if (sigf != 0) {
+		  std::pair<double, double> p1(invresolsq, f/sigf);
+		  fosf_vs_reso_data.push_back(p1);
+		  std::pair<double, double> p2(f, sigf);
+		  sf_vs_f_data.push_back(p2);
+		  std::pair<double, double> p3(f, f/sigf);
+		  fosf_vs_f_data.push_back(p3);
+		  if (invresolsq > invresolsq_max)
+		     invresolsq_max = invresolsq;
+	       }
+	    }
+	 }
+      }
+   }
+   catch (const clipper::Message_fatal &e) {
+      std::cout << "error: " << e.text() << std::endl;
+   }
+
+   std::cout << "INFO:: pathology_plots() found "
+	     << fp_vs_reso_data.size() << " data" << std::endl;
+
+
+   // this is just a bit of fun - looking for large FP outliers.
+   // 
+   if (false) { 
+      int n_data = fp_vs_reso_data.size();
+      for (std::size_t i=0; i<fp_vs_reso_data.size(); i++) {
+	 int i_int = i;
+	 int low_lim = i-20;
+	 int high_lim = i+20;
+	 if (low_lim < 0) low_lim = 0;
+	 if (high_lim >= n_data) high_lim = n_data;
+	 double sum = 0;
+	 double n = 0;
+	 for (int j=low_lim; j<high_lim; j++) {
+	    if (j != i_int) {
+	       sum += fp_vs_reso_data[j].second;
+	       n += 1;
+	    }
+	 }
+	 double local_average =  sum/n;
+	 double this_f    = fp_vs_reso_data[i].second;
+	 double this_reso = fp_vs_reso_data[i].first;
+	 if (this_f > 3 * local_average) {
+	    std::cout << "   " << this_reso << " " << this_f << " / " << local_average
+		      << " = " << this_f/local_average << std::endl;
+	 } 
+      }
+   }
+
+   if (  fp_vs_reso_data.size() > 0 &&
+       fosf_vs_reso_data.size() > 0 && 
+  	    sf_vs_f_data.size() > 0 && 
+          fosf_vs_f_data.size() > 0) {
+
+      if (false) { 
+	 PyTypeObject *type = NULL; // should be something
+	 PyObject *args = NULL;
+	 PyObject *kwds = NULL;
+	 // PyObject *test_object = PathologyData_new(type, args, kwds);
+      }
+
+      unsigned int data_size = fp_vs_reso_data.size();
+      if (data_size > 20000) {
+	 double r = double(20000)/double(data_size);
+	 fp_vs_reso_data.erase(std::remove_if(fp_vs_reso_data.begin(),
+					      fp_vs_reso_data.end(),
+					      data_pair_remover(r)),
+			       fp_vs_reso_data.end());
+	 fosf_vs_reso_data.erase(std::remove_if(fosf_vs_reso_data.begin(),
+					      fosf_vs_reso_data.end(),
+					      data_pair_remover(r)),
+			       fosf_vs_reso_data.end());
+	 sf_vs_f_data.erase(std::remove_if(sf_vs_f_data.begin(),
+					      sf_vs_f_data.end(),
+					      data_pair_remover(r)),
+			       sf_vs_f_data.end());
+	 fosf_vs_f_data.erase(std::remove_if(fosf_vs_f_data.begin(),
+					      fosf_vs_f_data.end(),
+					      data_pair_remover(r)),
+			       fosf_vs_f_data.end());
+
+	 if (0) { 
+	    std::cout << "  now data size " << fp_vs_reso_data.size() << "" << std::endl;
+	    std::cout << "  now data size " << fosf_vs_reso_data.size() << "" << std::endl;
+	    std::cout << "  now data size " << sf_vs_f_data.size() << "" << std::endl;
+	    std::cout << "  now data size " << fosf_vs_f_data.size() << "" << std::endl;
+	 }
+
+      }
+
+      PyObject *r0 = PyList_New(fp_vs_reso_data.size());
+      for (unsigned int i=0; i<fp_vs_reso_data.size(); i++) { 
+	 PyObject *o = PyTuple_New(2);
+	 PyTuple_SetItem(o, 0, PyFloat_FromDouble(fp_vs_reso_data[i].first));
+	 PyTuple_SetItem(o, 1, PyFloat_FromDouble(fp_vs_reso_data[i].second));
+	 PyList_SetItem(r0, i, o);
+      }
+      PyObject *r1 = PyList_New(fosf_vs_reso_data.size());
+      for (unsigned int i=0; i<fosf_vs_reso_data.size(); i++) { 
+	 PyObject *o = PyTuple_New(2);
+	 PyTuple_SetItem(o, 0, PyFloat_FromDouble(fosf_vs_reso_data[i].first));
+	 PyTuple_SetItem(o, 1, PyFloat_FromDouble(fosf_vs_reso_data[i].second));
+	 PyList_SetItem(r1, i, o);
+      }
+      PyObject *r2 = PyList_New(sf_vs_f_data.size());
+      for (unsigned int i=0; i<sf_vs_f_data.size(); i++) { 
+	 PyObject *o = PyTuple_New(2);
+	 PyTuple_SetItem(o, 0, PyFloat_FromDouble(sf_vs_f_data[i].first));
+	 PyTuple_SetItem(o, 1, PyFloat_FromDouble(sf_vs_f_data[i].second));
+	 PyList_SetItem(r2, i, o);
+      }
+      PyObject *r3 = PyList_New(fosf_vs_f_data.size());
+      for (unsigned int i=0; i<fosf_vs_f_data.size(); i++) { 
+	 PyObject *o = PyTuple_New(2);
+	 PyTuple_SetItem(o, 0, PyFloat_FromDouble(fosf_vs_f_data[i].first));
+	 PyTuple_SetItem(o, 1, PyFloat_FromDouble(fosf_vs_f_data[i].second));
+	 PyList_SetItem(r3, i, o);
+      }
+      r = PyList_New(5);
+      PyList_SetItem(r, 0, PyFloat_FromDouble(invresolsq_max));
+      PyList_SetItem(r, 1, r0);
+      PyList_SetItem(r, 2, r1);
+      PyList_SetItem(r, 3, r2);
+      PyList_SetItem(r, 4, r3);
+
+     
+   } 
+
+   if (PyBool_Check(r))
+     Py_INCREF(r);
+   
+   return r;
+}
+#endif // USE_PYTHON

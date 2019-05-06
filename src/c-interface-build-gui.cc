@@ -153,21 +153,17 @@ void delete_object_handle_delete_dialog(short int do_delete_dialog) {
 	 //
 	 GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget,
 						"delete_item_keep_active_checkbutton");
-	 // if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
-	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) {
+	 if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
 	    // don't kill the widget
 	    pick_cursor_maybe(); // it was set to normal_cursor() in
                                  // graphics-info-define's delete_item().
 	 } else {
 	 
 	    gint upositionx, upositiony;
-
-            // set the position for the dialog GTK-FIXME
-	    // gdk_window_get_root_origin (graphics_info_t::delete_item_widget->window,
-					// &upositionx, &upositiony);
-	    // graphics_info_t::delete_item_widget_x_position = upositionx;
-	    // graphics_info_t::delete_item_widget_y_position = upositiony;
-
+	    gdk_window_get_root_origin (graphics_info_t::delete_item_widget->window,
+					&upositionx, &upositiony);
+	    graphics_info_t::delete_item_widget_x_position = upositionx;
+	    graphics_info_t::delete_item_widget_y_position = upositiony;
 	    gtk_widget_destroy(graphics_info_t::delete_item_widget);
 	    graphics_info_t::delete_item_widget = NULL;
 	    graphics_draw();
@@ -266,25 +262,25 @@ GtkWidget *wrapped_create_move_molecule_here_dialog() {
 void
 fill_move_molecule_here_dialog(GtkWidget *w) {
 
-   GtkWidget *option_menu  = lookup_widget(w, "move_molecule_here_optionmenu");
-   GtkWidget *check_button = lookup_widget(w, "move_molecule_here_big_molecules_checkbutton");
-
-   bool fill_with_small_molecule_only_flag = 1;
-   int imol_active = first_small_coords_imol();
-   GCallback callback_func = G_CALLBACK(graphics_info_t::move_molecule_here_item_select);
-
-   if (check_button) {
-      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check_button))) { 
-	 fill_with_small_molecule_only_flag = 0;
-	 imol_active = first_coords_imol();
-      }
-   }
+   // GtkWidget *option_menu  = lookup_widget(w, "move_molecule_here_optionmenu");
 
    graphics_info_t g;
-   graphics_info_t::move_molecule_here_molecule_number = imol_active;
-   g.fill_option_menu_with_coordinates_options_possibly_small(option_menu, callback_func, imol_active,
-							      fill_with_small_molecule_only_flag);
-} 
+
+   GtkWidget *combobox  = lookup_widget(w, "move_molecule_here_combobox");
+   GtkWidget *check_button = lookup_widget(w, "move_molecule_here_big_molecules_checkbutton");
+   gtk_widget_hide(check_button);
+
+   // GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(graphics_info_t::move_molecule_here_item_select);
+
+   GCallback callback_func = G_CALLBACK(graphics_info_t::move_molecule_here_combobox_changed);
+
+   bool fill_with_small_molecule_only_flag = false;
+   int imol_active = first_coords_imol();
+
+   g.move_molecule_here_molecule_number = imol_active;
+   g.fill_combobox_with_coordinates_options(combobox, callback_func, imol_active);
+
+}
 
 
 void move_molecule_here_by_widget(GtkWidget *w) {
@@ -309,21 +305,12 @@ void move_molecule_here_by_widget(GtkWidget *w) {
 // 
 void fill_place_atom_molecule_option_menu(GtkWidget *optionmenu) { 
 
-   // GtkSignalFunc callback_func = 
-   // GTK_SIGNAL_FUNC(graphics_info_t::pointer_atom_molecule_menu_item_activate);
-
-   GCallback callback_func = G_CALLBACK(graphics_info_t::pointer_atom_molecule_menu_item_activate);
-
-   // GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu));
-
-   GtkWidget *menu = 0;
-
-   /* GTK-FIXME - I don't understand what is to be done with combobox menus
-     menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu));
-     if (menu) 
-        gtk_widget_destroy(menu);
-     menu = gtk_menu_new();
-   */
+   GtkSignalFunc callback_func = 
+      GTK_SIGNAL_FUNC(graphics_info_t::pointer_atom_molecule_menu_item_activate);
+   GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu));
+   if (menu) 
+      gtk_widget_destroy(menu);
+   menu = gtk_menu_new();
 
    GtkWidget *menuitem;
    int pointer_atoms_mol = -1;
@@ -344,10 +331,10 @@ void fill_place_atom_molecule_option_menu(GtkWidget *optionmenu) {
       // 
       GtkWidget *menu_item = gtk_menu_item_new_with_label("New Molecule");
       int imol_new = -10;
-      g_signal_connect(G_OBJECT(menu_item), "activate",
-		       callback_func,
-		       GINT_TO_POINTER(imol_new));
-      gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item); 
+      gtk_signal_connect(GTK_OBJECT(menu_item), "activate",
+			 callback_func,
+			 GINT_TO_POINTER(imol_new));
+      gtk_menu_append(GTK_MENU(menu), menu_item); 
       gtk_widget_show(menu_item); 
       gtk_menu_set_active(GTK_MENU(menu), 0);
       menu_index = 0;
@@ -369,29 +356,24 @@ void fill_place_atom_molecule_option_menu(GtkWidget *optionmenu) {
 	 ss += graphics_info_t::molecules[imol].name_.substr(left_size, ilen);
 	 menuitem =  gtk_menu_item_new_with_label (ss.c_str());
 	 menu_index++;
-	 g_signal_connect (G_OBJECT (menuitem), "activate",
+	 gtk_signal_connect (GTK_OBJECT (menuitem), "activate",
 			     callback_func,
 			     GINT_TO_POINTER(imol));
-	 gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem); 
+	 gtk_menu_append(GTK_MENU(menu), menuitem); 
 	 gtk_widget_show(menuitem);
 
 	 // set any previously saved active position:
 	 if (graphics_info_t::user_pointer_atom_molecule == imol) {
 	    std::cout << "setting active menu item to "
 		      << menu_index << std::endl;
-
-	    // GTK-FIXME I don't know how to do this
-	    std::cout << "GTK3-FIXME" << std::endl;
-	    //gtk_menu_set_active(GTK_SHELL(menu), menu_index);
+	    gtk_menu_set_active(GTK_MENU(menu), menu_index);
 	 }
       }
    }
    
    /* Link the new menu to the optionmenu widget */
-
-   // GTK-FIXME I don't know how to do this
-   std::cout << "GTK3-FIXME" << std::endl;
-   // gtk_option_menu_set_menu(GTK_OPTION_MENU(optionmenu), menu);
+   gtk_option_menu_set_menu(GTK_OPTION_MENU(optionmenu),
+			    menu);
 }
 
 /* Now the refinement weight can be set from an entry in the refine_params_dialog. */
@@ -449,11 +431,11 @@ void baton_mode_calculate_skeleton(GtkWidget *window) {
 
    int *i;
 
-   std::cout << "INFO:: getting intermediate data in baton_mode_calculate_skeleton "
+   std::cout << "getting intermediate data in baton_mode_calculate_skeleton "
 	     << std::endl;
-   i = (int *) g_object_get_data(G_OBJECT(window), "imol");
+   i = (int *) gtk_object_get_user_data(GTK_OBJECT(window));
 
-   std::cout << "DEBUG:: got intermediate int: " << i << " " << *i << std::endl;
+   std::cout << "got intermediate int: " << i << " " << *i << std::endl;
 
    imol = *i;
 
@@ -474,16 +456,21 @@ GtkWidget *wrapped_create_renumber_residue_range_dialog() {
       g.fill_renumber_residue_range_dialog(w);  // fills the coordinates option menu
       g.fill_renumber_residue_range_internal(w, imol); // fills the chain option menu
 
-      // by default the N-term button is on for the first choice
-      // (and C-term is of for the second)
+      // by default, now the N-term button is off for the first choice
+      // (and C-term is on for the second)
       GtkWidget *entry_1 = lookup_widget(GTK_WIDGET(w), "renumber_residue_range_resno_1_entry");
-      gtk_widget_set_sensitive(GTK_WIDGET(entry_1), FALSE);
-      
+      GtkWidget *entry_2 = lookup_widget(GTK_WIDGET(w), "renumber_residue_range_resno_2_entry");
+      gtk_widget_set_sensitive(entry_2, FALSE);
+      // but anyway, let's put the residue number of the active residue there, just in case
+      // the user wanted to start from there.
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+      if (pp.first) {
+	 int res_no = pp.second.second.res_no;
+	 gtk_entry_set_text(GTK_ENTRY(entry_1), coot::util::int_to_string(res_no).c_str());
+      }
    }
    return w;
 }
-
-#include "widget-headers.hh"
 
 void renumber_residues_from_widget(GtkWidget *window) {
 
@@ -505,7 +492,7 @@ void renumber_residues_from_widget(GtkWidget *window) {
       mmdb::Chain *chain_p = graphics_info_t::molecules[imol].get_chain(chain_id);
 
       if (chain_p) {
-	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rb1))) {
+	 if (GTK_TOGGLE_BUTTON(rb1)->active) {
 	    // use N-terminus of chain
 	    std::pair<bool, int> nt_resno = coot::util::min_resno_in_chain(chain_p);
 	    if (nt_resno.first) {
@@ -514,7 +501,7 @@ void renumber_residues_from_widget(GtkWidget *window) {
 	    }
 	 }
 
-	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rb4))) {
+	 if (GTK_TOGGLE_BUTTON(rb4)->active) {
 	    // use C-terminus of chain
 	    std::pair<bool, int> ct_resno = coot::util::max_resno_in_chain(chain_p);
 	    if (ct_resno.first) {
@@ -560,26 +547,32 @@ void renumber_residues_from_widget(GtkWidget *window) {
 
 
 
-void apply_add_OXT_from_widget(GtkWidget *w) {
+void apply_add_OXT_from_widget(GtkWidget *ok_button) {
 
-   int imol = graphics_info_t::add_OXT_molecule;
+   std::cout << "---------- apply_add_OXT_from_widget() " << ok_button << std::endl;
+
+   GtkWidget *combobox = lookup_widget(ok_button, "add_OXT_molecule_combobox");
+
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+
+   std::cout << "combobox " << combobox << " imol " << imol << std::endl;
    int resno = -9999;
    std::string chain_id = graphics_info_t::add_OXT_chain;
 
-   GtkWidget *terminal_checkbutton = lookup_widget(w, "add_OXT_c_terminus_radiobutton");
-   GtkWidget *residue_number_entry = lookup_widget(w, "add_OXT_residue_entry");
+   GtkWidget *terminal_checkbutton = lookup_widget(ok_button, "add_OXT_c_terminus_radiobutton");
+   GtkWidget *residue_number_entry = lookup_widget(ok_button, "add_OXT_residue_entry");
 
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(terminal_checkbutton))) {
-      std::cout << "DEBUG:: auto determine C terminus..." << std::endl;
+      std::cout << "DEBUG:: auto determine C terminus for imol " << imol << std::endl;
       // we need to determine the last residue in this chain:
-      if (is_valid_model_molecule(imol)) { 
-	 if (graphics_info_t::molecules[imol].has_model()) {
-	    std::pair<short int, int> p =
-	       graphics_info_t::molecules[imol].last_residue_in_chain(chain_id);
-	    if (p.first) {
-	       resno = p.second;
-	    } 
-	 }
+      if (is_valid_model_molecule(imol)) {
+	 std::cout << "here A with chain_id :" << chain_id <<  ":" << std::endl;
+	 graphics_info_t g;
+	 std::pair<bool, int> p = g.molecules[imol].last_residue_in_chain(chain_id);
+	 std::cout << "here with last_residue_in_chain " << p.first << " " << p.second << std::endl;
+	 if (p.first) {
+	    resno = p.second;
+	 } 
       }
    } else {
       // we get the resno from the widget
@@ -599,26 +592,32 @@ void apply_add_OXT_from_widget(GtkWidget *w) {
 	 }
       }
    } else {
-      std::cout << "WARNING:: Could not determine last residue - not adding OXT\n";
+      std::cout << "WARNING:: Could not determine last residue - not adding OXT "
+		<< imol << " " << resno << "\n";
    } 
 }
 
 
 GtkWidget *wrapped_create_add_OXT_dialog() {
 
+   graphics_info_t g;
+
    GtkWidget *w = create_add_OXT_dialog();
 
-   GtkWidget *option_menu = lookup_widget(w, "add_OXT_molecule_optionmenu");
+   // GtkWidget *option_menu = lookup_widget(w, "add_OXT_molecule_optionmenu");
+   GtkWidget *combobox = lookup_widget(w, "add_OXT_molecule_combobox");
 
-   // GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(graphics_info_t::add_OXT_molecule_item_select);
-   GCallback callback_func = G_CALLBACK(graphics_info_t::add_OXT_molecule_item_select);
+   GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(g.add_OXT_molecule_item_select);
 
-   graphics_info_t g;
    int imol = first_coords_imol();
-   graphics_info_t::add_OXT_molecule = imol;
-   g.fill_option_menu_with_coordinates_options(option_menu, callback_func, imol);
+   g.add_OXT_molecule = imol;
 
-   g.fill_add_OXT_dialog_internal(w, imol); // function needs object (not static)
+   if (combobox) {
+      g.fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+      g.fill_add_OXT_dialog_internal(w, imol); // function needs object (not static)
+   } else {
+      std::cout << "bad combobox!" << std::endl;
+   }
 
    return w;
 }
@@ -681,8 +680,7 @@ void recover_session() {
 	    info_copy->imol = imol;
 	    
 	    GtkWidget *widget = create_recover_coordinates_dialog();
-	    // gtk_object_set_user_data(GTK_OBJECT(widget), info_copy);
-	    g_object_set_data(G_OBJECT(widget), "backup_file_info", info_copy);
+	    gtk_object_set_user_data(GTK_OBJECT(widget), info_copy);
 	    
 	    GtkWidget *label1, *label2;
 	    label1 = lookup_widget(widget, "recover_coordinates_read_coords_label");
@@ -706,8 +704,7 @@ void recover_session() {
 // 
 void execute_recover_session(GtkWidget *widget) { 
 
-   coot::backup_file_info *info =
-      (coot::backup_file_info *) g_object_get_data(G_OBJECT(widget), "backup_file_info");
+   coot::backup_file_info *info = (coot::backup_file_info *) gtk_object_get_user_data(GTK_OBJECT(widget));
 
    if (info) { 
       
@@ -731,13 +728,14 @@ GtkWidget *wrapped_create_merge_molecules_dialog() {
 
    GtkWidget *w = create_merge_molecules_dialog();
    // fill the dialog here
-   GtkWidget *molecule_option_menu = lookup_widget(w, "merge_molecules_optionmenu");
+   // GtkWidget *molecule_option_menu = lookup_widget(w, "merge_molecules_optionmenu");
+   GtkWidget *combobox = lookup_widget(w, "merge_molecules_combobox");
    GtkWidget *molecules_vbox       = lookup_widget(w, "merge_molecules_vbox");
 
    // GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(merge_molecules_menu_item_activate);
-   GCallback callback_func = G_CALLBACK(merge_molecules_menu_item_activate);
-   //GtkSignalFunc checkbox_callback_func = GTK_SIGNAL_FUNC(on_merge_molecules_check_button_toggled);
-   GCallback checkbox_callback_func = G_CALLBACK(on_merge_molecules_check_button_toggled);
+   GCallback callback_func = G_CALLBACK(merge_molecules_master_molecule_combobox_changed);
+
+   GtkSignalFunc checkbox_callback_func = GTK_SIGNAL_FUNC(on_merge_molecules_check_button_toggled);
 
 
    fill_vbox_with_coordinates_options(molecules_vbox, checkbox_callback_func);
@@ -754,19 +752,26 @@ GtkWidget *wrapped_create_merge_molecules_dialog() {
    }
 
    graphics_info_t g;
-   g.fill_option_menu_with_coordinates_options(molecule_option_menu,
-					       callback_func, imol_master);
+   g.fill_combobox_with_coordinates_options(combobox, callback_func, imol_master);
    return w;
 }
 
-void merge_molecules_menu_item_activate(GtkWidget *item, 
-					GtkPositionType pos) {
+// void merge_molecules_menu_item_activate(GtkWidget *item, 
+// 					GtkPositionType pos) {
+//    graphics_info_t::merge_molecules_master_molecule = pos;
+// }
 
-   graphics_info_t::merge_molecules_master_molecule = pos;
+// #include "c-interface-gui.hh"
+
+void merge_molecules_master_molecule_combobox_changed(GtkWidget *combobox, 
+						      gpointer data) {
+
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t::merge_molecules_master_molecule = imol;
 }
 
 void fill_vbox_with_coordinates_options(GtkWidget *dialog,
-					GCallback checkbox_callback_func) {
+					GtkSignalFunc checkbox_callback_func) {
 
    GtkWidget *checkbutton;
    std::string button_label;
@@ -785,18 +790,10 @@ void fill_vbox_with_coordinates_options(GtkWidget *dialog,
 	 button_name += graphics_info_t::int_to_string(i);
 
 	 checkbutton = gtk_check_button_new_with_label(button_label.c_str());
-
-	 // GTK-FIXME what does this do?
-  	 // gtk_widget_ref (checkbutton);
-  	 //gtk_object_set_data_full (GTK_OBJECT (dialog),
-	 // button_name.c_str(), checkbutton,
-	 //(GtkDestroyNotify) gtk_widget_unref);
-
-	 g_object_set_data(G_OBJECT(dialog),
-			   "button_name",
-			   (gpointer) button_name.c_str());
-
-
+  	 gtk_widget_ref (checkbutton);
+  	 gtk_object_set_data_full (GTK_OBJECT (dialog),
+  				   button_name.c_str(), checkbutton,
+  				   (GtkDestroyNotify) gtk_widget_unref);
 	 // The callback (if active) adds this molecule to the merging molecules list.
 	 // If not active, it tries to remove it from the list.
 	 //
@@ -810,15 +807,9 @@ void fill_vbox_with_coordinates_options(GtkWidget *dialog,
 	 // "Merge" button is pressed - we don't need a callback to do
 	 // that.
 	 // 
-
-// 	 gtk_signal_connect (GTK_OBJECT (checkbutton), "toggled",
-//   			     GTK_SIGNAL_FUNC (checkbox_callback_func),
-//   			     GINT_TO_POINTER(i));
-
-	 g_signal_connect(G_OBJECT(checkbutton), "toggled",
-			  G_CALLBACK(checkbox_callback_func),
-			  GINT_TO_POINTER(i));
-
+  	 gtk_signal_connect (GTK_OBJECT (checkbutton), "toggled",
+  			     GTK_SIGNAL_FUNC (checkbox_callback_func),
+  			     GINT_TO_POINTER(i));
 	 gtk_widget_show (checkbutton);
 	 gtk_box_pack_start (GTK_BOX (molecules_vbox), checkbutton, FALSE, FALSE, 0);
 	 gtk_container_set_border_width (GTK_CONTAINER (checkbutton), 2);
@@ -858,7 +849,14 @@ void do_merge_molecules_gui() {
 void do_merge_molecules(GtkWidget *dialog) {
 
    std::vector<int> add_molecules = *graphics_info_t::merge_molecules_merging_molecules;
-   if (add_molecules.size() > 0) { 
+   if (add_molecules.size() > 0) {
+
+      if (true)
+	 std::cout << "calling merge_molecules_by_vector into "
+		   << graphics_info_t::merge_molecules_master_molecule
+		   << " n-molecules " << add_molecules.size()
+		   << " starting with " << add_molecules[0]
+		   << std::endl;
       std::pair<int, std::vector<merge_molecule_results_info_t> > stat =
 	 merge_molecules_by_vector(add_molecules,
 				   graphics_info_t::merge_molecules_master_molecule);
@@ -873,18 +871,22 @@ void do_merge_molecules(GtkWidget *dialog) {
 
 GtkWidget *wrapped_create_mutate_sequence_dialog() {
 
+   graphics_info_t g;
+
    GtkWidget *w = create_mutate_sequence_dialog();
 
    set_transient_and_position(COOT_MUTATE_RESIDUE_RANGE_WINDOW, w);
 
-   GtkWidget *molecule_option_menu = lookup_widget(w, "mutate_molecule_optionmenu");
-   GtkWidget *chain_option_menu    = lookup_widget(w, "mutate_molecule_chain_optionmenu");
-//    GtkWidget *entry1 = lookup_widget(w, "mutate_molecule_resno_1_entry");
-//    GtkWidget *entry2 = lookup_widget(w, "mutate_molecule_resno_2_entry");
-//    GtkWidget *textwindow = lookup_widget(w, "mutate_molecule_sequence_text");
+   // GtkWidget *molecule_option_menu = lookup_widget(w, "mutate_molecule_optionmenu");
+   // GtkWidget *chain_option_menu    = lookup_widget(w, "mutate_molecule_chain_optionmenu");
+   //   GtkWidget *chain_option_menu    = lookup_widget(w, "mutate_molecule_chain_optionmenu");
+   //    GtkWidget *entry1 = lookup_widget(w, "mutate_molecule_resno_1_entry");
+   //    GtkWidget *entry2 = lookup_widget(w, "mutate_molecule_resno_2_entry");
+   //    GtkWidget *textwindow = lookup_widget(w, "mutate_molecule_sequence_text");
 
-   // GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(mutate_sequence_molecule_menu_item_activate);
-   GCallback callback_func = G_CALLBACK(mutate_sequence_molecule_menu_item_activate);
+   GtkWidget *combobox_molecule = lookup_widget(w, "mutate_molecule_combobox");
+   GtkWidget *combobox_chain    = lookup_widget(w, "mutate_molecule_chain_combobox");
+   GCallback callback_func      = G_CALLBACK(mutate_sequence_molecule_menu_item_activate);
 
    // Get the default molecule and fill chain optionmenu with the molecules chains:
    int imol = -1; 
@@ -896,19 +898,15 @@ GtkWidget *wrapped_create_mutate_sequence_dialog() {
    }
    if (imol >= 0) {
       graphics_info_t::mutate_sequence_imol = imol;
-      //GtkSignalFunc callback =
-      // GTK_SIGNAL_FUNC(mutate_sequence_chain_option_menu_item_activate);
-      GCallback callback =
-	 G_CALLBACK(mutate_sequence_chain_option_menu_item_activate);
-      std::string set_chain = graphics_info_t::fill_option_menu_with_chain_options(chain_option_menu, imol,
-										   callback);
+      GCallback callback = G_CALLBACK(mutate_sequence_chain_option_menu_item_activate);
+      std::string set_chain = graphics_info_t::fill_combobox_with_chain_options(combobox_chain, imol, callback);
       graphics_info_t::mutate_sequence_chain_from_optionmenu = set_chain;
    } else {
       graphics_info_t::mutate_sequence_imol = -1; // flag for can't mutate
    }
-   graphics_info_t g;
-   // std::cout << "DEBUG:: filling option menu with default molecule " << imol << std::endl;
-   g.fill_option_menu_with_coordinates_options(molecule_option_menu, callback_func, imol);
+
+   std::cout << "DEBUG:: filling option menu with default molecule " << imol << std::endl;
+   g.fill_combobox_with_coordinates_options(combobox_molecule, callback_func, imol);
    return w;
 }
 
@@ -924,13 +922,11 @@ void mutate_sequence_molecule_menu_item_activate(GtkWidget *item,
    GtkWidget *chain_option_menu =
       lookup_widget(item, "mutate_molecule_chain_optionmenu");
 
-   // GtkSignalFunc callback_func =
-   // GTK_SIGNAL_FUNC(mutate_sequence_chain_option_menu_item_activate);
-   GCallback callback_func =
-      G_CALLBACK(mutate_sequence_chain_option_menu_item_activate);
+   GtkSignalFunc callback_func =
+      GTK_SIGNAL_FUNC(mutate_sequence_chain_option_menu_item_activate);
    
-   std::string set_chain = graphics_info_t::fill_option_menu_with_chain_options(chain_option_menu,
-										pos, callback_func);
+   std::string set_chain = graphics_info_t::fill_combobox_with_chain_options(chain_option_menu,
+									     pos, callback_func);
 
    graphics_info_t::mutate_sequence_chain_from_optionmenu = set_chain;
 }
@@ -1020,7 +1016,7 @@ void do_mutate_sequence(GtkWidget *dialog) {
    GtkWidget *checkbutton = lookup_widget(dialog, "mutate_sequence_do_autofit_checkbutton"); 
    short int autofit_flag = 0;
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
+   if (GTK_TOGGLE_BUTTON(checkbutton)->active)
       autofit_flag = 1;
 
    if (imol>= 0) { // redundant
@@ -1194,13 +1190,13 @@ void fit_loop_from_widget(GtkWidget *dialog) {
    GtkWidget *checkbutton = lookup_widget(dialog, "mutate_sequence_do_autofit_checkbutton"); 
    short int autofit_flag = 0;
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
+   if (GTK_TOGGLE_BUTTON(checkbutton)->active)
       autofit_flag = 1;
 
    // use Ramachandran restraints?
    int use_rama_restraints = 0;
    GtkWidget *rama_checkbutton   = lookup_widget(dialog, "mutate_sequence_use_ramachandran_restraints_checkbutton");
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rama_checkbutton)))
+   if (GTK_TOGGLE_BUTTON(rama_checkbutton)->active) 
       use_rama_restraints = 1;
 
    if (imol>= 0) { // redundant
@@ -1280,13 +1276,17 @@ GtkWidget *wrapped_create_align_and_mutate_dialog() {
 
    graphics_info_t g;
    GtkWidget *w = create_align_and_mutate_dialog();
-   // fill w
-   GtkWidget *mol_optionmenu   = lookup_widget(w, "align_and_mutate_molecule_optionmenu");
-   GtkWidget *chain_optionmenu = lookup_widget(w, "align_and_mutate_chain_optionmenu");
-   // GtkSignalFunc callback = GTK_SIGNAL_FUNC(align_and_mutate_molecule_menu_item_activate);
-   GCallback callback = G_CALLBACK(align_and_mutate_molecule_menu_item_activate);
-   // GtkSignalFunc chain_callback = GTK_SIGNAL_FUNC(align_and_mutate_chain_option_menu_item_activate);
-   GCallback chain_callback = G_CALLBACK(align_and_mutate_chain_option_menu_item_activate);
+
+   // GtkWidget *mol_optionmenu   = lookup_widget(w, "align_and_mutate_molecule_optionmenu");
+   // GtkWidget *chain_optionmenu = lookup_widget(w, "align_and_mutate_chain_optionmenu");
+   GtkWidget *mol_combobox   = lookup_widget(w, "align_and_mutate_molecule_combobox");
+   GtkWidget *chain_combobox = lookup_widget(w, "align_and_mutate_chain_combobox");
+
+   // GCallback callback = G_CALLBACK(align_and_mutate_molecule_menu_item_activate);
+   // GCallback chain_callback = GCallback(align_and_mutate_chain_option_menu_item_activate);
+
+   GCallback molecule_callback = G_CALLBACK(align_and_mutate_molecule_combobox_changed);
+   GCallback    chain_callback = G_CALLBACK(align_and_mutate_chain_combobox_changed);
 
    int imol = graphics_info_t::align_and_mutate_imol;
    if (imol == -1 || (! g.molecules[imol].has_model())) { 
@@ -1299,10 +1299,10 @@ GtkWidget *wrapped_create_align_and_mutate_dialog() {
    }
 
    if (imol >= 0) {
-      g.fill_option_menu_with_coordinates_options(mol_optionmenu, callback, imol);
-      std::string set_chain = graphics_info_t::fill_option_menu_with_chain_options(chain_optionmenu, imol,
-										   chain_callback);
-      graphics_info_t::align_and_mutate_chain_from_optionmenu = set_chain;
+      g.fill_combobox_with_coordinates_options(mol_combobox, molecule_callback, imol);
+      std::string set_chain = g.fill_combobox_with_chain_options(chain_combobox, imol,
+								 chain_callback);
+      g.align_and_mutate_chain_from_combobox = set_chain;
    }
    
    return w;
@@ -1316,6 +1316,8 @@ GtkWidget *wrapped_create_fixed_atom_dialog() {
    return w;
 }
 
+#include "c-interface-gui.hh"
+
 int do_align_mutate_sequence(GtkWidget *w) {
 
    //
@@ -1323,8 +1325,17 @@ int do_align_mutate_sequence(GtkWidget *w) {
 
    bool renumber_residues_flag = 0; // make this derived from the GUI one day
    int imol = graphics_info_t::align_and_mutate_imol;
-   std::string chain_id = graphics_info_t::align_and_mutate_chain_from_optionmenu;
+
+   GtkWidget *molecule_combobox = lookup_widget(w, "align_and_mutate_molecule_combobox");
+   GtkWidget    *chain_combobox = lookup_widget(w, "align_and_mutate_chain_combobox");
+   std::string chain_id = get_active_label_in_combobox(GTK_COMBO_BOX(chain_combobox));
+   imol = my_combobox_get_imol(GTK_COMBO_BOX(molecule_combobox));
+
    GtkWidget *autofit_checkbutton = lookup_widget(w, "align_and_mutate_autofit_checkbutton");
+
+   std::cout << "--- in do_align_mutate_sequence(): combobox " << molecule_combobox
+	     << " " << GTK_IS_COMBO_BOX(molecule_combobox) << " chain-id:" << chain_id << ":"
+	     << std::endl;
 
    short int do_auto_fit = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(autofit_checkbutton)))
@@ -1343,7 +1354,8 @@ int do_align_mutate_sequence(GtkWidget *w) {
       std::cout << s << "\n";
       GtkWidget *warn = wrapped_nothing_bad_dialog(s);
       gtk_widget_show(warn);
-   } else { 
+
+   } else {
 
       handled_state = 1;
       if (imol >= 0) {
@@ -1363,10 +1375,13 @@ int do_align_mutate_sequence(GtkWidget *w) {
 	    std::string sequence(txt);
 
 	    if (is_valid_model_molecule(imol)) {
+
+	       std::cout << "debug:: calling mutate_chain " << imol << " chain-id: " << chain_id << " "
+			 << sequence << " " << do_auto_fit << std::endl;
 	       g.mutate_chain(imol, chain_id, sequence, do_auto_fit, renumber_residues_flag);
 	       g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
 	       graphics_draw();
-	       
+
 	    }
 	 }
       } else {
@@ -1377,28 +1392,37 @@ int do_align_mutate_sequence(GtkWidget *w) {
 }
 
 
-void align_and_mutate_molecule_menu_item_activate(GtkWidget *item, 
-						  GtkPositionType pos) {
+// void align_and_mutate_molecule_menu_item_activate(GtkWidget *item, 
+// 						  GtkPositionType pos) {
 
-   GtkWidget *chain_optionmenu = lookup_widget(item, "align_and_mutate_chain_optionmenu");
-   // GtkSignalFunc chain_callback = GTK_SIGNAL_FUNC(align_and_mutate_chain_option_menu_item_activate);
-   GCallback chain_callback = G_CALLBACK(align_and_mutate_chain_option_menu_item_activate);
-   graphics_info_t::align_and_mutate_imol = pos;
-   int imol = pos;
-   std::string set_chain = graphics_info_t::fill_option_menu_with_chain_options(chain_optionmenu, imol,
-										chain_callback);
+//    // GtkWidget *chain_optionmenu = lookup_widget(item, "align_and_mutate_chain_optionmenu");
+//    GtkWidget *chain_combobox = lookup_widget(item, "align_and_mutate_chain_combobox");
+//    GCallback chain_callback = GCallback(align_and_mutate_chain_option_menu_item_activate);
+//    graphics_info_t::align_and_mutate_imol = pos;
+//    int imol = pos;
+//    std::string set_chain = graphics_info_t::fill_combobox_with_chain_options(chain_combobox, imol,
+// 									     chain_callback);
+// }
+
+// // needs combobox version GTK-FIXME
+// void align_and_mutate_chain_option_menu_item_activate (GtkWidget *item,
+// 						       GtkPositionType pos) {
+
+//    graphics_info_t::align_and_mutate_chain_from_combobox = menu_item_label(item);
+//    std::cout << "align_and_mutate_chain_from_combobox is now "
+// 	     << graphics_info_t::align_and_mutate_chain_from_combobox
+// 	     << std::endl;
+// }
+
+void align_and_mutate_molecule_combobox_changed(GtkWidget *combobox,
+						gpointer data) {
+
 }
 
-void align_and_mutate_chain_option_menu_item_activate (GtkWidget *item,
-						       GtkPositionType pos) {
+void align_and_mutate_chain_combobox_changed(GtkWidget *combobox,
+					     gpointer data) {
 
-   graphics_info_t::align_and_mutate_chain_from_optionmenu = menu_item_label(item);
-   std::cout << "align_and_mutate_chain_from_optionmenu is now "
-	     << graphics_info_t::align_and_mutate_chain_from_optionmenu
-	     << std::endl;
 }
-
-
 
 
 /*  ----------------------------------------------------------------------- */
@@ -1407,54 +1431,69 @@ void align_and_mutate_chain_option_menu_item_activate (GtkWidget *item,
 
 GtkWidget *wrapped_create_change_chain_id_dialog() {
 
+   graphics_info_t g;
+
    GtkWidget *w = create_change_chain_id_dialog();
-   GtkWidget *mol_option_menu =  lookup_widget(w, "change_chain_id_molecule_optionmenu");
-   GtkWidget *chain_option_menu =  lookup_widget(w, "change_chain_id_chain_optionmenu");
-   GtkWidget *residue_range_no_radiobutton =  lookup_widget(w, "change_chain_residue_range_no_radiobutton");
+   // GtkWidget *mol_option_menu =  lookup_widget(w, "change_chain_id_molecule_optionmenu");
+   // GtkWidget *chain_option_menu =  lookup_widget(w, "change_chain_id_chain_optionmenu");
+
+   GtkWidget *mol_combobox   =  lookup_widget(w, "change_chain_id_molecule_combobox");
+   GtkWidget *chain_combobox =  lookup_widget(w, "change_chain_id_chain_combobox");
+   GtkWidget *residue_range_no_radiobutton =
+      lookup_widget(w, "change_chain_residue_range_no_radiobutton");
 
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(residue_range_no_radiobutton), TRUE);
 
-   // GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(change_chain_ids_mol_option_menu_item_activate);
-   GCallback callback_func = G_CALLBACK(change_chain_ids_mol_option_menu_item_activate);
+   // GCallback callback_func = G_CALLBACK(change_chain_ids_mol_option_menu_item_activate);
+   GCallback molecule_callback_func = G_CALLBACK(change_chain_ids_molecule_combobox_changed);
 
    int imol = first_coords_imol();
    if (imol >= 0) {
-      graphics_info_t::change_chain_id_molecule = imol;
-      // GtkSignalFunc chain_callback_func =
-      // GTK_SIGNAL_FUNC(change_chain_ids_chain_menu_item_activate);
-      GCallback chain_callback_func =
-	 G_CALLBACK(change_chain_ids_chain_menu_item_activate);
-      std::string set_chain = graphics_info_t::fill_option_menu_with_chain_options(chain_option_menu,
-										   imol,
-										   chain_callback_func);
-      graphics_info_t::change_chain_id_from_chain = set_chain;
+      g.change_chain_id_molecule = imol;
+      GCallback chain_callback_func = NULL; // G_CALLBACK(change_chain_ids_chain_menu_item_activate);
+      std::string set_chain = g.fill_combobox_with_chain_options(chain_combobox,
+								 imol,
+								 chain_callback_func);
+      g.change_chain_id_from_chain = set_chain;
    }
-   graphics_info_t g; 
-   g.fill_option_menu_with_coordinates_options(mol_option_menu, callback_func, imol);
+   g.fill_combobox_with_coordinates_options(mol_combobox, molecule_callback_func, imol);
    return w;
 }
 
-void
-change_chain_ids_mol_option_menu_item_activate(GtkWidget *item,
-					       GtkPositionType pos) {
-   graphics_info_t::change_chain_id_molecule = pos;
-   int imol = pos;
-   GtkWidget *chain_option_menu =  lookup_widget(item, "change_chain_id_chain_optionmenu");
-   // GtkSignalFunc chain_callback_func =
-   // GTK_SIGNAL_FUNC(change_chain_ids_chain_menu_item_activate);
-   GCallback chain_callback_func =
-      G_CALLBACK(change_chain_ids_chain_menu_item_activate);
-   std::string set_chain = graphics_info_t::fill_option_menu_with_chain_options(chain_option_menu,
-										imol,
-										chain_callback_func);
-   graphics_info_t::change_chain_id_from_chain = set_chain;
-}
+
+// GTK3 dump
+// void
+// change_chain_ids_mol_option_menu_item_activate(GtkWidget *item,
+// 					       GtkPositionType pos) {
+//    graphics_info_t::change_chain_id_molecule = pos;
+//    int imol = pos;
+//    GtkWidget *chain_option_menu =  lookup_widget(item, "change_chain_id_chain_optionmenu");
+//    GCallback chain_callback_func = G_CALLBACK(change_chain_ids_chain_menu_item_activate);
+//    std::string set_chain = graphics_info_t::fill_combobox_with_chain_options(chain_option_menu,
+// 									     imol,
+// 									     chain_callback_func);
+//    graphics_info_t::change_chain_id_from_chain = set_chain;
+// }
 
 void
-change_chain_ids_chain_menu_item_activate(GtkWidget *item,
-					  GtkPositionType pos) {
-   graphics_info_t::change_chain_id_from_chain = menu_item_label(item);
+change_chain_ids_molecule_combobox_changed(GtkWidget *combobox, gpointer data) {
+
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t::change_chain_id_molecule = imol;
+   GtkWidget *chain_combobox = lookup_widget(combobox, "change_chain_id_chain_combobox");
+   if (chain_combobox) {
+      graphics_info_t g;
+      g.fill_combobox_with_chain_options(chain_combobox, imol, NULL);
+   }
 }
+
+
+// // needs a combobox version
+// void
+// change_chain_ids_chain_menu_item_activate(GtkWidget *item,
+// 					  GtkPositionType pos) {
+//    graphics_info_t::change_chain_id_from_chain = menu_item_label(item);
+// }
 
 
 void
@@ -1483,11 +1522,16 @@ change_chain_id_by_widget(GtkWidget *w) {
 
    const gchar *txt = gtk_entry_get_text(GTK_ENTRY(change_chains_new_chain_entry));
 
-   if (txt) { 
+   if (txt) {
    
       if (is_valid_model_molecule(imol)) {
 	 std::string to_chain_id(txt);
 	 std::string from_chain_id = graphics_info_t::change_chain_id_from_chain;
+
+	 if (false)
+	    std::cout << "in change_chain_id_molecule() with " << imol << " "
+		      << from_chain_id << " " << to_chain_id<< std::endl;
+
 	 std::pair<int, std::string> r = 
 	    graphics_info_t::molecules[imol].change_chain_id(from_chain_id,
 							     to_chain_id,
@@ -1515,7 +1559,7 @@ void fill_option_menu_with_refine_options(GtkWidget *option_menu) {
    graphics_info_t g;
 
    g.fill_option_menu_with_map_options(option_menu, 
-				       G_CALLBACK(graphics_info_t::refinement_map_select));
+				       GTK_SIGNAL_FUNC(graphics_info_t::refinement_map_select));
 }
 
 void
@@ -1558,9 +1602,7 @@ show_fix_nomenclature_errors_gui(int imol,
 	 else 
 	    s += "  Correct it?\n";
 
-
-	 // gtk_object_set_user_data(GTK_OBJECT(w), GINT_TO_POINTER(imol));
-	 g_object_set_data(G_OBJECT(w), "imol", GINT_TO_POINTER(imol));
+	 gtk_object_set_user_data(GTK_OBJECT(w), GINT_TO_POINTER(imol));
 	 
 	 gtk_label_set_text(GTK_LABEL(label), s.c_str());
 
@@ -1644,38 +1686,33 @@ GtkWidget *
 create_skeleton_colour_selection_window() { 
 
    GtkWidget  *colorseldialog;
-   GtkWidget *colorsel = 0;
+   GtkWidget *colorsel;
 
-   // deprecated, fix.
-   colorseldialog = gtk_color_selection_dialog_new("Skeleton Colour Selection"); 
+   colorseldialog = 
+      gtk_color_selection_dialog_new("Skeleton Colour Selection"); 
 
-   std::cout << "GTK-FIXME" << std::endl;
+/* How do we get to the buttons? */
 
-   // GTK-FIXME
-   // colorsel = GTK_COLOR_SELECTION_DIALOG(colorseldialog)->colorsel;
+   colorsel = GTK_COLOR_SELECTION_DIALOG(colorseldialog)->colorsel;
 
   /* Capture "color_changed" events in col_sel_window */
 
-  g_signal_connect (G_OBJECT (colorsel), "color_changed",
-                      (GCallback)on_skeleton_color_changed, 
+  gtk_signal_connect (GTK_OBJECT (colorsel), "color_changed",
+                      (GtkSignalFunc)on_skeleton_color_changed, 
 		      (gpointer)colorsel);
   
-   /* How do we get to the buttons? */
-
-  /*
-  g_signal_connect(G_OBJECT(GTK_COLOR_SELECTION_DIALOG(colorseldialog)->
-			    ok_button), "clicked",
-		   G_CALLBACK(on_skeleton_col_sel_cancel_button_clicked),
-		   colorseldialog);
-
-  g_signal_connect(G_OBJECT(GTK_COLOR_SELECTION_DIALOG(colorseldialog)->
-				cancel_button), "clicked",
-		     G_CALLBACK(on_skeleton_col_sel_cancel_button_clicked), 
+  gtk_signal_connect(GTK_OBJECT(GTK_COLOR_SELECTION_DIALOG(colorseldialog)->
+				ok_button), "clicked",
+		     GTK_SIGNAL_FUNC(on_skeleton_col_sel_cancel_button_clicked),
 		     colorseldialog);
+
+  gtk_signal_connect(GTK_OBJECT(GTK_COLOR_SELECTION_DIALOG(colorseldialog)->
+				cancel_button), "clicked",
+		     GTK_SIGNAL_FUNC(on_skeleton_col_sel_cancel_button_clicked), 
+		     colorseldialog);
+
   gtk_color_selection_set_color(GTK_COLOR_SELECTION(colorsel),
 				graphics_info_t::skeleton_colour);
-
- */
 
   return GTK_WIDGET(colorseldialog);
 
@@ -1760,8 +1797,12 @@ void  do_edit_copy_molecule() {
 #endif   
 
 #ifdef USE_GUILE
-   std::string cmd = "(molecule-chooser-gui \"Molecule to Copy...\" (lambda (imol) (copy-molecule imol)))";
-   
+
+   // std::string cmd = "(molecule-chooser-gui \"Molecule to Copy...\" (lambda (imol) (copy-molecule imol)))";
+
+   std::string cmd =
+      "(generic-chooser-and-entry-and-checkbutton \"Copy Molecule\" \"Selection\" \"/\" \"Move Molecule Here?\" (lambda (imol text button-state) (let ((imol-new (copy-molecule imol))) (if button-state (move-molecule-to-screen-centre imol-new) (valid-model-molecule? imol-new)))))";
+
    if (state_lang == coot::STATE_SCM) {
       safe_scheme_command(cmd);
    }
@@ -1886,3 +1927,4 @@ void  do_edit_replace_fragment() {
 #endif // PYTHON
 #endif // GUILE
 }
+

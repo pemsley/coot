@@ -21,6 +21,7 @@
  */
 
 #include "coot-setup-python.hh"
+#include "python-classes.hh"
 
 #include "compat/coot-sysdep.h"
 
@@ -47,14 +48,6 @@
 // #endif // DATADIR
 
 #include <gtk/gtk.h>
-
-// Sorted out by configure.
-// #define USE_LIBGLADE
-// #undef USE_LIBGLADE // for now
-
-#ifdef USE_LIBGLADE
-#include <glade/glade.h>
-#endif // USE_LIBGLADE
 
 #include <GL/glut.h> // for glutInit()
 
@@ -153,6 +146,7 @@ int setup_database();
 #include "scm-boot-guile.hh"
 
 #include "widget-headers.hh" // put these somewhere else? better name? -------- GTK-FIME
+#include "sound.hh"
 
 // This main is used for both python/guile useage and unscripted. 
 int
@@ -176,6 +170,10 @@ main (int argc, char *argv[]) {
 
    command_line_data cld = parse_command_line(argc, argv);
    cld.handle_immediate_settings();
+
+#ifdef WITH_SOUND
+   test_sound(argc, argv);
+#endif // WITH_SOUND
 
    if (cld.run_internal_tests_and_exit) {
       // do self tests
@@ -266,21 +264,8 @@ main (int argc, char *argv[]) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
 
-#ifdef USE_LIBGLADE
-	
-      /* load the interface */
-      GladeXML *xml = glade_xml_new("../../coot/coot-gtk2-try2.glade", NULL, NULL);
-      /* connect the signals in the interface */
-      glade_xml_signal_autoconnect(xml);
-      window1 = glade_xml_get_widget(xml, "window1");
-      g_object_set_data_full (G_OBJECT(xml), "window1", 
-			      gtk_widget_ref (window1), (GDestroyNotify) gtk_widget_unref);
-      // std::cout << "DEBUG:: ..... window1: " << window1 << std::endl;
-
-#else
       window1 = create_window1 ();
-#endif // USE_LIBGLADE
-     
+
       std::string version_string = VERSION;
       std::string main_title = "Coot " + version_string;
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS	
@@ -328,7 +313,6 @@ main (int argc, char *argv[]) {
 	 // accessible via window1)
 	 // 
 	 create_initial_map_color_submenu(window1);
-	 create_initial_map_scroll_wheel_submenu(window1);
 	 create_initial_ramachandran_mol_submenu(window1);
 	 create_initial_sequence_view_mol_submenu(window1);
 	
@@ -423,6 +407,7 @@ main (int argc, char *argv[]) {
 
 
    setup_python(argc, argv);
+   setup_python_classes();
      
 #ifdef USE_GUILE
      
@@ -532,7 +517,7 @@ get_max_effective_screen_height() {
     gint height;
     int max_height;
     max_height = -1;
-#if (GTK_MAJOR_VERSION >1)
+
 // no gdk_property get on windows (at the moment)
 #if !defined WINDOWS_MINGW && !defined _MSC_VER 
     ok = gdk_property_get(gdk_get_default_root_window(),  // a gdk window
@@ -576,7 +561,6 @@ get_max_effective_screen_height() {
             g_print ("BL ERROR:: couldnt get gdk screen; should never happen\n");
         }
     }
-#endif //GTK
     return max_height;
 }
 

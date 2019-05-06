@@ -239,11 +239,6 @@
       (if (list? res-centre)
 	  (apply set-rotation-centre res-centre))))
 
-  (define (delete-residue-by-spec spec)
-    (delete-residue imol
-		    (residue-spec->chain-id spec)
-		    (residue-spec->res-no   spec)
-		    (residue-spec->ins-code spec)))
 
   ;; main line
   ;;

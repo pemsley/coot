@@ -59,7 +59,7 @@ pick_atom(const atom_selection_container_t &SelAtom, int imol,
 	  const coot::Cartesian &front, const coot::Cartesian &back, short int pick_mode,
 	  bool verbose_mode) {
 
-   float min_dist = 0.4;
+   float min_dist = 0.6;
    int nearest_atom_index = -1;
    float dist = -999.9;
    pick_info p_i;

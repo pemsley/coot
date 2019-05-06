@@ -23,6 +23,8 @@
 #include <algorithm> // for sorting.
 #include <queue>
 #include <fstream>
+#include <thread>
+#include <iomanip>
 
 #include <gsl/gsl_sf_bessel.h>
 
@@ -217,6 +219,17 @@ coot::util::density_at_point(const clipper::Xmap<float> &xmap,
    return dv;
 }
 
+float
+coot::util::density_at_point_by_cubic_interp(const clipper::NXmap<float> &nxmap,
+					     const clipper::Coord_map &a_cm) {
+
+   float dv;
+   clipper::Interp_cubic::interp(nxmap, a_cm, dv);
+   return dv;
+
+}
+
+
 //
 float
 coot::util::density_at_point_by_linear_interpolation(const clipper::Xmap<float> &xmap,
@@ -228,6 +241,20 @@ coot::util::density_at_point_by_linear_interpolation(const clipper::Xmap<float> 
    clipper::Interp_linear::interp(xmap, a_cm, dv);
    return dv;
 }
+
+// nearest grid point - faster yet
+float 
+coot::util::density_at_point_by_nearest_grid(const clipper::Xmap<float> &xmap,
+                                             const clipper::Coord_orth &co) {
+
+   float dv;
+   clipper::Coord_frac a_cf = co.coord_frac(xmap.cell());
+   clipper::Coord_map  a_cm = a_cf.coord_map(xmap.grid_sampling());
+   clipper::Interp_nearest::interp(xmap, a_cm, dv);
+   return dv;
+}
+
+
 
 void
 coot::util::filter_by_resolution(clipper::HKL_data< clipper::datatypes::F_phi<float> > *fphidata,
@@ -260,6 +287,22 @@ coot::util::density_at_map_point(const clipper::Xmap<float> &xmap,
    clipper::Interp_cubic::interp(xmap, cm, dv);
    return dv;
 }
+
+clipper::Grad_orth<double>
+coot::util::gradient_at_point(const clipper::Xmap<float> &xmap_in,
+			     const clipper::Coord_orth &co) {
+
+   clipper::Grad_map<double> grad;
+   double dv;
+   
+   clipper::Coord_frac af = co.coord_frac(xmap_in.cell());
+   clipper::Coord_map  am = af.coord_map(xmap_in.grid_sampling());
+   // clipper::Interp_linear::Interp_grad(*xmap_p, am, dv, grad) is not a thing
+   clipper::Interp_cubic::interp_grad(xmap_in, am, dv, grad);
+   clipper::Grad_frac<double> grad_frac = grad.grad_frac(xmap_in.grid_sampling());
+   return grad_frac.grad_orth(xmap_in.cell());
+}
+
 
 coot::util::density_stats_info_t
 coot::util::density_around_point(const clipper::Coord_orth &point,
@@ -416,23 +459,151 @@ coot::util::make_rtop_orth_from(mmdb::mat44 mat) {
 clipper::Xmap<float>
 coot::util::sharpen_map(const clipper::Xmap<float> &xmap_in, float sharpen_factor) {
 
+   // Does this function work?
+
    clipper::HKL_info myhkl; 
-   clipper::HKL_data< clipper::datatypes::F_phi<float> >       fphidata(myhkl); 
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
 
-   xmap_in.fft_to(fphidata);
+   xmap_in.fft_to(fphis);
 
-//    for (clipper::HKL_info::HKL_reference_index hri = fphidata->first(); !hri.last(); hri.next()) {
-//       float reso = hri.invresolsq();
-//       std::cout << hri.format() << " has reso " << reso << std::endl;
-//       float fac = 1.0;
-      
-//       (*fphidata)[hri].f() = fac;
-//    }
+   clipper::HKL_info::HKL_reference_index hri;
+   for (hri = fphis.first(); !hri.last(); hri.next()) {
+      float irs = hri.invresolsq();
+      // std::cout << hri.format() << " has reso " << irs << std::endl;
+      float fac = exp(-sharpen_factor * irs * 0.25);
+      fphis[hri].f() *= fac;
+   }
 
    clipper::Xmap<float> r;
-   r.fft_from(fphidata);
+   r.fft_from(fphis);
    return r;
 }
+
+clipper::Xmap<float>
+coot::util::sharpen_blur_map(const clipper::Xmap<float> &xmap_in, float b_factor) {
+
+   float mg = coot::util::max_gridding(xmap_in);
+   clipper::Resolution reso(2.0 * mg);
+   clipper::HKL_info myhkl(xmap_in.spacegroup(), xmap_in.cell(), reso, true);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
+   clipper::Xmap<float> xmap_out(xmap_in.spacegroup(), xmap_in.cell(), xmap_in.grid_sampling());
+   xmap_in.fft_to(fphis);
+   clipper::HKL_info::HKL_reference_index hri;
+
+   /*
+   // using a map to cache the scale factors is 10 times slower
+   std::map<float, float> reso_map;
+   std::map<float, float>::const_iterator it;
+   //...and inside loop:
+   it = reso_map.find(irs);
+   if (it != reso_map.end()) {
+      fphis[hri].f() *= it->second;
+   } else {
+      float esf = exp(-b_factor * irs * 0.25);
+      reso_map[irs] = esf;
+      fphis[hri].f() *= esf;
+   }
+   */
+
+   int count = 0;
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   for (hri = fphis.first(); !hri.last(); hri.next()) {
+      float f = fphis[hri].f();
+      if (! clipper::Util::is_nan(f)) {
+	 float irs =  hri.invresolsq();
+	 fphis[hri].f() *= exp(-b_factor * irs * 0.25);
+	 count++;
+      }
+   }
+   auto tp_2 = std::chrono::high_resolution_clock::now();
+   xmap_out.fft_from(fphis);
+   auto tp_3 = std::chrono::high_resolution_clock::now();
+   auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+   // FFT takes ~50 times more time than the adjust of the Fs.
+   // std::cout << "::::::: Timings " << d21 << " " << d32 << " milliseconds"  << std::endl;
+   return xmap_out;
+}
+
+void
+coot::util::multi_sharpen_blur_map(const clipper::Xmap<float> &xmap_in,
+				   const std::vector<float> &b_factors,
+				   std::vector<clipper::Xmap<float> > *xmaps_p) {
+
+   float mg = coot::util::max_gridding(xmap_in);
+   clipper::Resolution reso(2.0 * mg);
+   clipper::HKL_info myhkl(xmap_in.spacegroup(), xmap_in.cell(), reso, true);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
+   xmap_in.fft_to(fphis);
+   clipper::HKL_info::HKL_reference_index hri;
+
+   for (std::size_t i=0; i<b_factors.size(); i++) {
+      clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_loop = fphis;
+      xmaps_p->at(i).init(xmap_in.spacegroup(), xmap_in.cell(), xmap_in.grid_sampling());
+      const float &b_factor = b_factors[i];
+      for (hri = fphis_loop.first(); !hri.last(); hri.next()) {
+	 float f = fphis[hri].f();
+	 if (! clipper::Util::is_nan(f)) {
+	    float irs =  hri.invresolsq();
+	    fphis_loop[hri].f() *= exp(-b_factor * irs * 0.25);
+	 }
+      }
+      xmaps_p->at(i).fft_from(fphis_loop);
+   }
+}
+
+
+// if n_bins is -1, let the function decide how many bins
+//
+std::vector<coot::util::amplitude_vs_resolution_point>
+coot::util::amplitude_vs_resolution(const clipper::Xmap<float> &xmap_in,
+				    int n_bins_in) {
+
+   std::vector<coot::util::amplitude_vs_resolution_point> v;
+   int n_bins = n_bins_in;
+   if (n_bins_in == -1)
+      n_bins = 60;
+   v.resize(n_bins);
+   if (n_bins < 1) return v;
+
+   float mg = coot::util::max_gridding(xmap_in);
+   clipper::Resolution reso(2.0 * mg);
+   clipper::HKL_info myhkl(xmap_in.spacegroup(), xmap_in.cell(), reso, true);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
+   clipper::Xmap<float> xmap_out(xmap_in.spacegroup(), xmap_in.cell(), xmap_in.grid_sampling());
+   xmap_in.fft_to(fphis);
+   clipper::HKL_info::HKL_reference_index hri;
+
+   float irs_max = 0.0f;
+
+   for (hri = fphis.first(); !hri.last(); hri.next()) {
+      float f = fphis[hri].f();
+      if (! clipper::Util::is_nan(f)) {
+	 float irs =  hri.invresolsq();
+	 if (irs > irs_max)
+	    irs_max = irs;
+      }
+   }
+
+   for (hri = fphis.first(); !hri.last(); hri.next()) {
+      float f = fphis[hri].f();
+      if (! clipper::Util::is_nan(f)) {
+	 float irs =  hri.invresolsq();
+	 float res_frac = irs/irs_max;
+	 int bin = static_cast<int> (n_bins * res_frac);
+	 if (bin == n_bins) {
+	    bin = n_bins-1;
+	 }
+	 v[bin].add(fphis[hri].f(), irs);
+      }
+   }
+
+   for (std::size_t i=0; i<v.size(); i++)
+      v[i].finish(); // calculate averages
+
+   return v;
+}
+
 
 
 clipper::Xmap<float>
@@ -576,8 +747,12 @@ coot::util::laplacian_transform(const clipper::Xmap<float> &xmap_in) {
 // Spin the torsioned atom round the rotatable bond and find the
 // orientation (in degrees) that is in the highest density.
 // 
-// return a torsion.  Return -1111 (less than -1000) on failure
-float
+// return two torsions, the first is relative to the current position,
+// the second is relative to the first atom (pa1).
+// Return first -1111 (less than -1000) on failure
+// Atoms in tors are CA (or N), CA, CB, CG.
+//
+std::pair<float, float>
 coot::util::spin_search(const clipper::Xmap<float> &xmap, mmdb::Residue *res, coot::torsion tors) {
 
    // The plan:
@@ -589,6 +764,7 @@ coot::util::spin_search(const clipper::Xmap<float> &xmap, mmdb::Residue *res, co
    //      Test density at new points
 
    float best_ori = -1111.1; //returned thing
+   float torsion_relative_to_N = -1111.1;
    
    std::vector<mmdb::Atom * > match_atoms = tors.matching_atoms(res);
 
@@ -603,23 +779,27 @@ coot::util::spin_search(const clipper::Xmap<float> &xmap, mmdb::Residue *res, co
       clipper::Coord_orth pa4(match_atoms[3]->x, match_atoms[3]->y, match_atoms[3]->z);
 
       float best_d = -99999999.9;
+      clipper::Coord_orth best_pos;
       for (double theta=0; theta <=360; theta+=3.0) {
 
 	 clipper::Coord_orth dir   = pa3 - pa2;
 	 clipper::Coord_orth pos   = pa4;
 	 clipper::Coord_orth shift = pa3;
-	 clipper::Coord_orth co = coot::util::rotate_around_vector(dir, pos, shift, theta);
-	 float this_d = coot::util::density_at_point(xmap, co);
+	 clipper::Coord_orth co = rotate_around_vector(dir, pos, shift, theta);
+	 float this_d = density_at_point(xmap, co);
 	 if (this_d > best_d) {
 	    best_d = this_d;
 	    best_ori = theta;
-// 	    std::cout << "better density " <<  best_d << " at "
-// 		      << co.format() << " " << best_ori << std::endl;
+            best_pos = co;
 	 }
       }
+      double ct = clipper::Coord_orth::torsion(pa1, pa2, pa3, best_pos);
+      torsion_relative_to_N = clipper::Util::rad2d(ct);
    }
-   // std::cout << "returning " << best_ori << std::endl;
-   return best_ori;
+
+
+   std::pair<float, float> p(best_ori, torsion_relative_to_N);
+   return p;
 }
 
 // return a map and its standard deviation.  scale is applied to
@@ -834,6 +1014,8 @@ coot::util::backrub_residue_triple_t::trim_next_residue_atoms() {
    vec.push_back(" H  ");
    trim_residue_atoms_generic(this_residue, vec, 0);
 }
+
+
 
 // as in the verb, not the noun., return the number of segments (0 is
 // also useful segment).
@@ -1127,6 +1309,11 @@ coot::util::segment_map::segment(const clipper::Xmap<float> &xmap_in,
 				 float gaussian_sigma, // per round
 				 int n_rounds) {
 
+   std::cout << "DEBUG:: start of segment with low_level " << low_level
+	     << " gaussian_sigma " << gaussian_sigma
+	     << " n_rounds " << n_rounds
+	     << std::endl;
+
    // This algorithm is critically dependent on the gradient around
    // points on the borders between segments (the watershed regions).
    // 
@@ -1181,7 +1368,6 @@ coot::util::segment_map::segment(const clipper::Xmap<float> &xmap_in,
       std::cout << "  segment " << dit->first << " has " << dit->second << " grid points" << std::endl;
    std::cout << " ========================================\n";
 
-   
    
    for (int i_round=0; i_round<n_rounds; i_round++) {
 
@@ -1591,6 +1777,70 @@ coot::util::map_to_model_correlation(mmdb::Manager *mol,
 }
 
 
+clipper::Xmap<float>
+coot::util::mask_map(const clipper::Xmap<float> &xmap_in,
+		    const std::vector<mmdb::Residue *> &neighb_residues) {
+
+   clipper::Xmap<float> masked_map = xmap_in;
+
+   for (unsigned int ir=0; ir<neighb_residues.size(); ir++) { 
+      mmdb::PPAtom residue_atoms = 0;
+      int n_residue_atoms;
+      mmdb::Residue *residue_p = neighb_residues[ir];
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) { 
+	 mmdb::Atom *at = residue_atoms[iat];
+	 clipper::Coord_orth pt = co(at);
+	 // float atom_radius = refmac_atom_radius(at);
+	 float atom_radius = 1.4;
+	    
+	 clipper::Coord_frac cf = pt.coord_frac(masked_map.cell());
+	 clipper::Coord_frac box0(
+				  cf.u() - atom_radius/masked_map.cell().descr().a(),
+				  cf.v() - atom_radius/masked_map.cell().descr().b(),
+				  cf.w() - atom_radius/masked_map.cell().descr().c());
+
+	 clipper::Coord_frac box1(
+				  cf.u() + atom_radius/masked_map.cell().descr().a(),
+				  cf.v() + atom_radius/masked_map.cell().descr().b(),
+				  cf.w() + atom_radius/masked_map.cell().descr().c());
+
+	 clipper::Grid_map grid(box0.coord_grid(masked_map.grid_sampling()),
+				box1.coord_grid(masked_map.grid_sampling()));
+
+	 float atom_radius_sq = atom_radius * atom_radius;
+
+	 clipper::Xmap_base::Map_reference_coord ix(masked_map, grid.min() ), iu, iv, iw;
+	 for (iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) { 
+	    for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) { 
+	       for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+		  if ( (iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()) - pt).lengthsq() < atom_radius_sq) {
+		     masked_map[iw] = -10;
+		     if (false)
+			std::cout << "cutting into map at point " 
+				  << iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()).format()
+				  << " for neighb atom at: " << pt.format() << " " 
+				  << (iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()) - pt).lengthsq() 
+				  << std::endl;
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   if (false) {
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write("masked.map");
+      mapout.export_xmap(masked_map);
+      mapout.close_write();
+   }
+   
+   return masked_map;
+}
+
+
+
 // 0: all-atoms
 // 1: main-chain atoms if is standard amino-acid, else all atoms
 // 2: side-chain atoms if is standard amino-acid, else all atoms
@@ -1653,7 +1903,7 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
 	    }
 	 }
       }
-      
+
       mol->SelectAtoms(SelHnd, 1,
 		       specs[ilocal].chain_id.c_str(),
 		       specs[ilocal].res_no,
@@ -1680,6 +1930,10 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
 				reference_map.cell(),
 				reference_map.spacegroup(),
 				reference_map.grid_sampling());
+
+   if (debug)
+      std::cout << "DEBUG:: map_to_model_correlation_stats() calc_map null status: "
+		<< calc_map.is_null() << std::endl;
 
    if (not (calc_map.is_null())) { 
       clipper::Xmap<short int> masked_map(reference_map.spacegroup(),
@@ -1730,7 +1984,7 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
 					  selection_extents.second.z()+border);
 	 ex_pt_1_fc = ex_pt_1_co.coord_frac(reference_map.cell());
 	 ex_pt_2_fc = ex_pt_2_co.coord_frac(reference_map.cell());
-	 if (false) {
+	 if (false) { // debug
 	    std::cout << "INFO:: Selection grid construction, ex_pt_1_co: " << ex_pt_1_co.format() << std::endl;
 	    std::cout << "INFO:: Selection grid construction, ex_pt_2_co: " << ex_pt_2_co.format() << std::endl;
 	    std::cout << "INFO:: Selection grid construction, ex_pt_1_fc: " << ex_pt_1_fc.format() << std::endl;
@@ -1887,7 +2141,6 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
       double y;
       double x;
       int n = 0;
-      
 
       std::vector<double> map_samples; // for KS-test of flatness of difference map
       bool debug_grid_points = true;
@@ -2235,6 +2488,160 @@ coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
    return v;
 }
 
+std::map<coot::residue_spec_t, coot::util::density_stats_info_t>
+coot::util::map_to_model_correlation_stats_per_residue(mmdb::Manager *mol,
+						       const std::vector<residue_spec_t> &specs,
+						       unsigned short int atom_mask_mode,
+						       float atom_radius, // for masking
+						       const clipper::Xmap<float> &xmap) {
+
+   std::map<residue_spec_t, density_stats_info_t> res_map;
+
+   int SelHnd = mol->NewSelection(); // d
+
+   for (unsigned int ispec=0; ispec<specs.size(); ispec++) {
+
+      std::string res_name_selection  = "*";
+      std::string atom_name_selection = "*";
+
+      if (atom_mask_mode != 0) { // main chain for standard amino acids
+	 mmdb::Residue *res = get_residue(specs[ispec], mol);
+	 if (res) {
+	    std::string residue_name(res->GetResName());
+	    if (is_standard_residue_name(residue_name)) {
+
+	       // PDBv3 FIXME
+	       //
+	       if (atom_mask_mode == 1 || atom_mask_mode == 4)
+		  atom_name_selection = " N  , H  , HA , CA , C  , O  ";
+	       if (atom_mask_mode == 2 || atom_mask_mode == 5)
+		  atom_name_selection = "!( N  , H  , HA , CA , C  , O  )";
+	       if (atom_mask_mode == 3)
+		  atom_name_selection = "!( N  , H  , HA , CA , C  , O  , CB )";
+	    } else {
+	       if (atom_mask_mode == 4)
+		  atom_name_selection = "%%%%%%"; // nothing (perhaps use "")
+	       if (atom_mask_mode == 5)
+		  atom_name_selection = "%%%%%%"; // nothing
+	    }
+	 }
+      }
+
+      mol->SelectAtoms(SelHnd, 1,
+		       specs[ispec].chain_id.c_str(),
+		       specs[ispec].res_no,
+		       specs[ispec].ins_code.c_str(),
+		       specs[ispec].res_no,
+		       specs[ispec].ins_code.c_str(),
+		       res_name_selection.c_str(),
+		       atom_name_selection.c_str(),
+		       "*", // elements
+		       "*", // alt loc.
+		       mmdb::SKEY_OR
+		       );
+      if (false) { // debugging selection
+	 mmdb::PPAtom atom_selection = 0;
+	 int n_atoms;
+	 mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
+
+	 std::cout << "selected n_atoms " << n_atoms << " where specs[0] is " << specs[0]
+		   << " for mask mode " << atom_mask_mode << std::endl;
+	 for (int iat=0; iat<n_atoms; iat++)
+	    std::cout << "    " << iat << " " << atom_spec_t(atom_selection[iat]) << std::endl;
+      }
+   }
+
+   clipper::Xmap<float> calc_map =
+      coot::util::calc_atom_map(mol, SelHnd, xmap.cell(), xmap.spacegroup(), xmap.grid_sampling());
+
+   if (not (calc_map.is_null())) {
+      // fill with null residue specs
+      clipper::Xmap<residue_spec_t> contributor_map(xmap.spacegroup(),
+						    xmap.cell(),
+						    xmap.grid_sampling());
+      clipper::Xmap_base::Map_reference_index ix;
+      mmdb::PPAtom atom_selection = 0;
+      int n_atoms;
+      mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
+
+      residue_spec_t many_contributors; // we don't want map that is contributed to by
+                                        // many (2 or more) residues.
+      int MANY_CONTRIBUTORS = 200; // magic value
+      many_contributors.int_user_data = MANY_CONTRIBUTORS;
+
+
+      for (int iat=0; iat<n_atoms; iat++) {
+	 residue_spec_t res_spec(atom_selection[iat]);
+	 clipper::Coord_orth co(atom_selection[iat]->x,
+				atom_selection[iat]->y,
+				atom_selection[iat]->z);
+	 clipper::Coord_frac cf = co.coord_frac(xmap.cell());
+	 clipper::Coord_frac box0(
+				  cf.u() - atom_radius/xmap.cell().descr().a(),
+				  cf.v() - atom_radius/xmap.cell().descr().b(),
+				  cf.w() - atom_radius/xmap.cell().descr().c());
+
+	 clipper::Coord_frac box1(
+				  cf.u() + atom_radius/xmap.cell().descr().a(),
+				  cf.v() + atom_radius/xmap.cell().descr().b(),
+				  cf.w() + atom_radius/xmap.cell().descr().c());
+
+	 clipper::Grid_map grid(box0.coord_grid(xmap.grid_sampling()),
+				box1.coord_grid(xmap.grid_sampling()));
+
+	 float atom_radius_sq = atom_radius * atom_radius;
+	 clipper::Xmap_base::Map_reference_coord ix(xmap, grid.min() ), iu, iv, iw;
+	 for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+	    for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
+	       for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+		  if ( (iw.coord().coord_frac(xmap.grid_sampling()).coord_orth(xmap.cell()) - co).lengthsq() < atom_radius_sq) {
+		     if (false)
+			std::cout << "specs: masked point at "
+// 				  << iw.coord().coord_frac(reference_map.grid_sampling()).coord_orth(reference_map.cell()).format()
+// 				  << " centre point: " << co.format() << " " 
+// 				  << (iw.coord().coord_frac(reference_map.grid_sampling()).coord_orth(reference_map.cell()) - co).lengthsq()
+				  << iw.coord().format()
+				  << std::endl;
+		     if (contributor_map[iw].int_user_data != MANY_CONTRIBUTORS) {
+			// so it was either set once or not at all (so far).
+			if (contributor_map[iw].unset_p()) {
+			   // was a default residue spec (an as-yet untouched grid point).
+			   contributor_map[iw] = res_spec;
+			} else {
+			   if (contributor_map[iw] == res_spec) {
+			      // OK, cool we are in the same residue
+			   } else {
+			      // Oops. A bang.  Mask this point out
+			      // std::cout << "   4 a bang for grid point " << iw.coord().format() << " "
+			      // << contributor_map[iw] << " vs " << res_spec << std::endl;
+			      contributor_map[iw] = many_contributors;
+			   }
+			}
+		     } else {
+			// std::cout << iw.coord().format() << " was already a many_contributor" << std::endl;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+
+      for (ix = contributor_map.first(); !ix.last(); ix.next()) {
+	 if (! contributor_map[ix].unset_p()) {
+	    if (contributor_map[ix].int_user_data != MANY_CONTRIBUTORS) {
+	       const residue_spec_t &res_spec = contributor_map[ix];
+	       res_map[res_spec].add(xmap[ix]);
+	    }
+	 }
+      }
+   }
+   mol->DeleteSelection(SelHnd);
+
+   return res_map;
+
+}
+
+
 
 
 // should this be here, or is it heavy?
@@ -2552,3 +2959,259 @@ coot::util::is_EM_map(const clipper::Xmap<float> &xmap) {
    }
    return is_em;
 } 
+
+#include "analysis/stats.hh"
+
+// static
+bool
+coot::util::soi_variance::mri_var_pair_sorter(const std::pair<clipper::Xmap_base::Map_reference_index, float> &p1,
+					      const std::pair<clipper::Xmap_base::Map_reference_index, float> &p2) {
+   return (p1.second < p2.second);
+}
+
+void
+coot::util::soi_variance::proc(float solvent_content_frac) {
+
+   // do I want a coord_grid?
+   typedef std::pair<clipper::Xmap_base::Map_reference_index, float>  dd;
+   std::vector<dd> data(200000);
+   clipper::Xmap<float> variance_xmap = make_variance_map();
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = variance_xmap.first(); !ix.last(); ix.next()) {
+      float fv = variance_xmap[ix];
+      std::pair<clipper::Xmap_base::Map_reference_index, float> p(ix, fv);
+      data.push_back(p);
+   }
+
+   std::cout << "INFO:: sorting variances " << std::endl;
+   // high variance has high rank index
+   std::sort(data.begin(), data.end(), mri_var_pair_sorter);
+   std::cout << "INFO:: done sorting " << std::endl;
+
+   clipper::Xmap<unsigned int> variance_rank_xmap;
+   variance_rank_xmap.init(xmap.spacegroup(), xmap.cell(), xmap.grid_sampling());
+   for (std::size_t i=0; i<data.size(); i++) {
+      variance_rank_xmap[data[i].first] = i;
+   }
+   std::cout << "INFO:: done variance map " << std::endl;
+
+   if (false) { // debug
+      for (ix = variance_rank_xmap.first(); !ix.last(); ix.next()) {
+	 unsigned int iv = variance_rank_xmap[ix];
+	 clipper::Coord_grid cg = ix.coord();
+	 std::cout << "   " << cg.format() << " " << iv << std::endl;
+      }
+      // output rank map -> high variance over the gaps between atoms in the protein region
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write("var-rank.map");
+      mapout.export_xmap(variance_rank_xmap);
+      mapout.close_write();
+
+      // data for table
+      std::ofstream f("var-ranks.tab");
+      for (std::size_t i=0; i<data.size(); i++)
+	 f << "   " << i << " " << data[i].second << "\n";
+      f.close();
+   }
+
+   std::size_t size = data.size();
+   float size_f(size);
+   const clipper::Xmap<float> &pt = protein_treatment_map();
+   const clipper::Xmap<float> &st = solvent_treatment_map();
+
+   if (solvent_content_frac > 0.75) solvent_content_frac = 0.75;
+   if (solvent_content_frac < 0.25) solvent_content_frac = 0.25;
+
+   // How about a cubic spline using point (solvent_content_frac, 0.5)
+
+   clipper::Xmap<float> soi_xmap; // treatments applied
+   // The top 25% is definitely protein, the bottom 25% is definitely solvent
+   //
+   soi_xmap.init(xmap.spacegroup(), xmap.cell(), xmap.grid_sampling());
+   for (ix = xmap.first(); !ix.last(); ix.next()) {
+      const unsigned int &idx = variance_rank_xmap[ix];
+      float variance_rank_frac = static_cast<float>(idx)/size_f; // raw
+      float fr = variance_rank_frac; // adjust this according to solvent content
+
+      if (variance_rank_frac < 0.25) {
+	 fr = 0.0;
+      } else {
+	 if (variance_rank_frac > 0.75) {
+	    fr = 1.0;
+	 } else {
+	    if (variance_rank_frac < solvent_content_frac) {
+	       float x_prime = fr - 0.25;
+	       float m = 0.5/(solvent_content_frac - 0.25);
+	       fr = m * x_prime;
+	    } else {
+	       float x_prime = fr - solvent_content_frac;
+	       float m = 2.0/(3.0 - 4.0 * solvent_content_frac);
+	       fr = m * x_prime + 0.5;
+	    }
+	 }
+      }
+      float other_frac = 1.0 - fr;
+      soi_xmap[ix] = variance_rank_frac * pt[ix] + other_frac * st[ix];
+   }
+
+   if (true) { // debug
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write("soi.map");
+      mapout.export_xmap(soi_xmap);
+      mapout.close_write();
+   }
+}
+
+clipper::Xmap<float>
+coot::util::soi_variance::make_variance_map() const {
+
+   std::cout << "INFO:: making variance map" << std::endl;
+
+   clipper::Xmap<float> var_map = xmap;
+
+   const clipper::Cell &cell = xmap.cell();
+   const clipper::Grid_sampling &gs = xmap.grid_sampling();
+
+   // I don't much like this method, the grid spacing may be too course
+   // to get a good sampling of points that are 2.42 A away
+
+   float soi_dist  = 2.42;
+   float soi_delta = 0.014; // for high-res test map this is a good starting value.
+                            // We can be more clever and set this initial value
+                            // dependent on grid_sampling/cell.
+   std::vector<clipper::Coord_grid> soi_gps;
+
+   bool n_in_sphere_is_ok = false; // to get started
+   //
+   while (! n_in_sphere_is_ok) {
+      double ddmin = (soi_dist - soi_delta) * (soi_dist - soi_delta);
+      double ddmax = (soi_dist + soi_delta) * (soi_dist + soi_delta);
+
+      float radius = 2.5; // a bit more than 2.42
+      clipper::Grid_range gr0(cell, gs, radius);
+      for(clipper::Coord_grid cg=gr0.min(); cg!=gr0.max(); cg=cg.next(gr0)) {
+	 // std::cout << "   test " << cg.format() << std::endl;
+	 clipper::Coord_frac cf = cg.coord_frac(gs);
+	 clipper::Coord_orth co = cf.coord_orth(cell);
+	 double ll = co.lengthsq();
+	 if ((ll < ddmax) && (ll > ddmin)) {
+	    soi_gps.push_back(cg);
+	 }
+      }
+
+      if (soi_gps.size() < 50) {
+	 if (soi_delta < 0.6) {  // we will never match an echidnahedron
+	    soi_delta *= 1.8;
+	 } else {
+	    n_in_sphere_is_ok = true; // hacky escape for hideous low res maps
+	 }
+      } else {
+	 n_in_sphere_is_ok = true;
+      }
+   }
+
+   std::cout << "INFO:: Found " << soi_gps.size() << " SOI grid points " << std::endl;
+
+   if (false) { // debuging SOI
+      std::ofstream f("soi.tab");
+      for (std::size_t i=0; i<soi_gps.size(); i++)
+	 f << i << " " << soi_gps[i].format() << "\n";
+      f.close();
+   }
+
+   if (true) {
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+
+      clipper::Xmap_base::Map_reference_index ix;
+      unsigned int n_grids = 0;
+      // is there a better way?
+      for (ix = xmap.first(); !ix.last(); ix.next())
+	 ++n_grids;
+
+      unsigned int n_threads = 4;
+      std::vector<std::vector<clipper::Xmap_base::Map_reference_index> > grid_indices(n_threads);
+      int r_reserve_size = std::lround(static_cast<float>(n_grids)/static_cast<float>(n_threads)) + 2;
+      for (std::size_t n=0; n<n_threads; n++)
+	 grid_indices[n].reserve(r_reserve_size);
+      unsigned int i_thread = 0; // insert to vector for this thread
+      for (ix=xmap.first(); !ix.last(); ix.next()) {
+	 grid_indices[i_thread].push_back(ix);
+	 ++i_thread;
+	 if (i_thread==n_threads) i_thread=0;
+      }
+
+      auto tp_2 = std::chrono::high_resolution_clock::now();
+      std::vector<std::thread> threads;
+      for (std::size_t n=0; n<n_threads; n++) {
+	 threads.push_back(std::thread(soi_variance::apply_variance_values,
+				       std::ref(var_map),
+				       std::cref(xmap),
+				       std::cref(soi_gps),
+				       std::cref(grid_indices[n])));
+      }
+
+      auto tp_3 = std::chrono::high_resolution_clock::now();
+
+      for (std::size_t ithread=0; ithread<threads.size(); ithread++)
+	 threads[ithread].join();
+
+      auto tp_4 = std::chrono::high_resolution_clock::now();
+      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+      auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+      auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
+      std::cout << "Timings:: grid spliting: grid-points  " << std::setw(4) << d21 << " milliseconds" << std::endl;
+      std::cout << "Timings:: grid spliting: make-threads " << std::setw(4) << d32 << " milliseconds" << std::endl;
+      std::cout << "Timings:: grid spliting: wait threads " << std::setw(4) << d43 << " milliseconds" << std::endl;
+   }
+
+   return var_map;
+}
+
+// static
+void
+coot::util::soi_variance::apply_variance_values(clipper::Xmap<float> &variance_map, // modify this
+						const clipper::Xmap<float> &xmap,
+						const std::vector<clipper::Coord_grid> &soi_gps,
+						const std::vector<clipper::Xmap_base::Map_reference_index> &grid_indices) {
+
+   for (std::size_t i=0; i<grid_indices.size(); i++) {
+      const clipper::Xmap_base::Map_reference_index &ix = grid_indices[i];
+      clipper::Coord_grid cg = ix.coord();
+      std::vector<double> data(soi_gps.size());
+      for (std::size_t j=0; j<soi_gps.size(); j++) {
+	 clipper::Coord_grid cg_soi_gp = cg + soi_gps[j];
+	 float fv = xmap.get_data(cg_soi_gp);
+	 data[j] = fv;
+      }
+      stats::single s(data);
+      variance_map[ix] = s.variance();
+   }
+}
+
+
+clipper::Xmap<float>
+coot::util::soi_variance::solvent_treatment_map() const {
+
+   clipper::Xmap<float> treated = xmap;
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = treated.first(); !ix.last(); ix.next()) {
+      treated[ix] = -treated[ix];
+   }
+   return treated;
+}
+
+clipper::Xmap<float>
+coot::util::soi_variance::protein_treatment_map() const {
+
+   clipper::Xmap<float> treated = xmap;
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = treated.first(); !ix.last(); ix.next()) {
+      float fv = treated[ix];
+      if (fv < 0) {
+	 treated[ix] = 0.0;
+      }
+   }
+   return treated;
+}
+
+

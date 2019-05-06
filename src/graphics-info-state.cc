@@ -1142,3 +1142,4 @@ graphics_info_t::file_type_coords(const std::string &file_name) {
       state = 1;
    return state;
 } 
+

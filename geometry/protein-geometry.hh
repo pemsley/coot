@@ -1043,6 +1043,7 @@ namespace coot {
       std::vector<int> atom_comp_ids;
       unsigned int n_atoms() const { return atom_ids.size(); }
       double dist_esd() const { return dist_esd_; }
+      void set_dist_esd(double d) { dist_esd_ = d; }
       std::string atom_id(int i) const { return atom_id_mmdb_expand(atom_ids[i]); }
    };
 
@@ -1081,7 +1082,8 @@ namespace coot {
       std::string chem_link_mod_id_2;
       std::string chem_link_group_comp_2;
       std::string chem_link_name;
-   public: 
+      unsigned int hash_code;
+   public:
       chem_link(const std::string &id_in,
 		const std::string &chem_link_comp_id_1_in,
 		const std::string &chem_link_mod_id_1_in,
@@ -1091,21 +1093,46 @@ namespace coot {
 		const std::string &chem_link_group_comp_2_in,
 		const std::string &chem_link_name_in) {
 
-       id = id_in;
-       chem_link_comp_id_1 = chem_link_comp_id_1_in;
-       chem_link_mod_id_1 = chem_link_mod_id_1_in;
-       chem_link_group_comp_1 = chem_link_group_comp_1_in;
-       chem_link_comp_id_2 = chem_link_comp_id_2_in;
-       chem_link_mod_id_2 = chem_link_mod_id_2_in; 
-       chem_link_group_comp_2 = chem_link_group_comp_2_in;
-       chem_link_name = chem_link_name_in;
+         id = id_in;
+         chem_link_comp_id_1 = chem_link_comp_id_1_in;
+         chem_link_mod_id_1 = chem_link_mod_id_1_in;
+         chem_link_group_comp_1 = chem_link_group_comp_1_in;
+         chem_link_comp_id_2 = chem_link_comp_id_2_in;
+         chem_link_mod_id_2 = chem_link_mod_id_2_in;
+         chem_link_group_comp_2 = chem_link_group_comp_2_in;
+         chem_link_name = chem_link_name_in;
+         hash_code = make_hash_code(chem_link_comp_id_1_in, chem_link_comp_id_2, chem_link_group_comp_1_in, chem_link_group_comp_2_in);
       }
       friend std::ostream& operator<<(std::ostream &s, chem_link lnk);
+      static unsigned int make_hash_code(const std::string &comp_id_1, const std::string &comp_id_2, const std::string &group_1, const std::string &group_2);
+      unsigned int get_hash_code() const { return hash_code; }
+      bool operator==(const chem_link &cl) const {
+         // cheap test - relies on the dictionary having unique entries
+         return (cl.Id() == id);
+      }
+      bool operator<(const chem_link &cl) const {
+         if (cl.Id() < id) {
+            return true;
+         } else {
+            if (cl.Id() > id) {
+               return false;
+            } else {
+              // Ids equal
+              return (cl.get_hash_code() < hash_code);
+            }
+         }
+      }
       // pair: matches need-order-switch-flag
+      std::pair<bool, bool> matches_comp_ids_and_groups_hashed(const std::string &comp_id_1,
+							const std::string &group_1,
+							const std::string &comp_id_2,
+							const std::string &group_2) const;
       std::pair<bool, bool> matches_comp_ids_and_groups(const std::string &comp_id_1,
 							const std::string &group_1,
 							const std::string &comp_id_2,
 							const std::string &group_2) const;
+      std::pair<bool, bool> matches_comp_ids_and_groups_hashed(unsigned int hash_code_forward,
+                                                               unsigned int hash_code_backwards) const;
       std::string Id() const { return id; }
       bool is_peptide_link_p() const {
 	 if (id == "TRANS" || id == "PTRANS" || id == "NMTRANS" ||
@@ -1229,7 +1256,7 @@ namespace coot {
       //
       std::vector<std::pair<int, dictionary_residue_restraints_t> > dict_res_restraints;
       std::vector<dictionary_residue_link_restraints_t> dict_link_res_restraints;
-      std::vector<chem_link> chem_link_vec;
+      std::map<unsigned int, std::vector<chem_link> > chem_link_map;
       std::vector<list_chem_mod>  chem_mod_vec;
 
       // the monomer data in list/mon_lib_list.cif, not the
@@ -1797,6 +1824,7 @@ namespace coot {
 
       // add "synthetic" 5 atom planar peptide restraint
       void add_planar_peptide_restraint();
+      bool make_tight_planar_peptide_restraint();
       void remove_planar_peptide_restraint();
       bool planar_peptide_restraint_state() const;
       
@@ -1902,10 +1930,14 @@ namespace coot {
       void read_energy_lib(const std::string &file_name);
 
       // return HB_UNASSIGNED when not found
-      // 
+      //
       hb_t get_h_bond_type(const std::string &atom_name,
 			   const std::string &monomer_name,
 			   int imol_enc) const;
+
+      // return HB_UNASSIGNED when not found
+      //
+      hb_t get_h_bond_type(const std::string &type_energy) const;
 
       // Find the bonded neighbours of the given atoms - throw an
       // exception if residue name is not in dictionary.

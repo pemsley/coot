@@ -128,7 +128,7 @@ namespace coot {
 	    period = period_in;
 	 }
       };
-      
+
       class extra_start_pos_restraint_t {
       public:
 	 atom_spec_t atom_1;
@@ -139,10 +139,23 @@ namespace coot {
 	 }
       };
 
+      class extra_target_position_restraint_t {
+      public:
+	 atom_spec_t atom_spec;
+	 clipper::Coord_orth pos;
+	 double weight;
+	 extra_target_position_restraint_t(const atom_spec_t &as, const clipper::Coord_orth &pos_in, double w) {
+	    atom_spec = as;
+	    weight = w;
+	    pos = pos_in;
+	 }
+      };
+
       std::vector<extra_bond_restraint_t> bond_restraints;
       std::vector<extra_angle_restraint_t> angle_restraints;
       std::vector<extra_torsion_restraint_t> torsion_restraints;
       std::vector<extra_start_pos_restraint_t> start_pos_restraints;
+      std::vector<extra_target_position_restraint_t> target_position_restraints;
       std::vector<parallel_planes_t> parallel_plane_restraints;
 
       void read_refmac_extra_restraints(const std::string &file_name);
@@ -158,7 +171,9 @@ namespace coot {
 	    return true;
 	 else if (parallel_plane_restraints.size() > 0)
 	    return true;
-	 else 
+	 else if (target_position_restraints.size() > 0)
+	    return true;
+	 else
 	    return false;
       }
       

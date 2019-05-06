@@ -1111,7 +1111,7 @@ void set_unit_cell_colour(float red, float green, float blue) {
 
 /*! \brief return the new molecule number */
 
-void get_coords_for_accession_code(const char *text) {
+void get_coords_for_accession_code(const std::string &text) {
 
    std::vector<coot::command_arg_t> args;
    args.push_back(single_quote(text));
@@ -1402,6 +1402,17 @@ void info_dialog_and_text(const char *txt) {
    add_to_history_typed(cmd, args);
 }
 
+void info_dialog_with_markup(const char *txt) {
+
+   graphics_info_t g;
+   g.info_dialog_and_text(txt, true);
+   std::string cmd = "info-dialog-and-text";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(single_quote(txt));
+   add_to_history_typed(cmd, args);
+}
+
+
 void
 set_main_window_title(const char *s) {
 
@@ -1526,6 +1537,17 @@ void set_scroll_by_wheel_mouse(int istate) {
 int scroll_by_wheel_mouse_state() {
    add_to_history_simple("scroll-by-wheel-mouse-state");
    return graphics_info_t::do_scroll_by_wheel_mouse_flag;
+}
+
+
+void add_symmetry_on_to_preferences_and_apply() {
+
+   set_show_symmetry_master(1);
+
+   graphics_info_t g;
+   g.add_to_preferences("xenops-symmetry.scm", "(set-show-symmetry-master 1)");
+   g.add_to_preferences("xenops_symmetry.py",   "set_show_symmetry_master(1)");
+
 }
 
 
@@ -2298,9 +2320,10 @@ short int get_show_symmetry() {
 void
 set_clipping_front(float v) {
 
+   float clipping_max = 15.0; // was 10
    graphics_info_t::clipping_front = v;
-   if (graphics_info_t::clipping_front > 10)
-      graphics_info_t::clipping_front = 10;
+   if (graphics_info_t::clipping_front > clipping_max)
+      graphics_info_t::clipping_front = clipping_max;
    graphics_draw();
    std::string cmd = "set-clipping-front";
    std::vector<coot::command_arg_t> args;
@@ -2313,9 +2336,10 @@ set_clipping_front(float v) {
 void
 set_clipping_back(float v) {
 
+   float clipping_max = 15.0;
    graphics_info_t::clipping_back = v;
-   if (graphics_info_t::clipping_back > 10)
-      graphics_info_t::clipping_back = 10;
+   if (graphics_info_t::clipping_back > clipping_max)
+      graphics_info_t::clipping_back = clipping_max;
    graphics_draw();
    std::string cmd = "set-clipping-back";
    std::vector<coot::command_arg_t> args;
@@ -2481,8 +2505,9 @@ float rotation_centre_position(int axis) {  /* only return one value: x=0, y=1, 
 void set_colour_by_chain(int imol) { 
    
    if (is_valid_model_molecule(imol)) {
+      std::set<int> s; // dummy
       short int f = graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag;
-      graphics_info_t::molecules[imol].make_colour_by_chain_bonds(f);
+      graphics_info_t::molecules[imol].make_colour_by_chain_bonds(s,f);
       graphics_draw();
    }
    std::string cmd = "set-colour-by-chain";
@@ -4074,6 +4099,7 @@ read_phs_and_make_map_with_reso_limits(int imol_ref, const char* phs_filename,
 							     graphics_info_t::map_sampling_rate);
 
       if (istat != -1) {
+	 g.scroll_wheel_map = imol;
 	 imol = istat;
 	 graphics_draw();
       } else {
@@ -4146,6 +4172,7 @@ read_phs_and_make_map_using_cell_symm_from_mol(const char *phs_filename_str, int
 
 	 imol = g.create_molecule();
 	 g.molecules[imol].make_map_from_phs(spacegroup, cell, phs_filename);
+	 g.scroll_wheel_map = imol;
 	 graphics_draw();
       }
    }
@@ -4798,6 +4825,13 @@ void set_grey_carbon_colour(int imol, float r, float g, float b) {
    // no graphics draw... Hmm.
 }
 
+/* undocumented feature for development. */
+void set_draw_moving_atoms_restraints(int state) {
+   graphics_info_t::draw_it_for_moving_atoms_restraints_graphics_object = state;
+   graphics_draw();
+}
+
+
 
 int
 graphics_molecule_bond_type(int imol) { 
@@ -4919,7 +4953,7 @@ void graphics_to_phenix_geo_representation(int imol, int mode,
 
 } 
 
-
+/*  Not today
 void set_ca_bonds_loop_params(float p1, float p2, float p3) {
 
     graphics_info_t::ca_bonds_loop_param_1 = p1;
@@ -4927,6 +4961,8 @@ void set_ca_bonds_loop_params(float p1, float p2, float p3) {
     graphics_info_t::ca_bonds_loop_param_3 = p3;
 
 }
+
+*/
 
 
 // -------------------------------------------------------------------------
@@ -5371,6 +5407,7 @@ void set_only_last_model_molecule_displayed() {
 
    int n_mols = graphics_info_t::n_molecules();
    int imol_last = -1;
+   graphics_info_t g;
    std::vector<int> turn_these_off; // can contain last
    for (int i=0; i<n_mols; i++) {
       if (is_valid_model_molecule(i)) {
@@ -5383,16 +5420,32 @@ void set_only_last_model_molecule_displayed() {
 
    for (unsigned int j=0; j<turn_these_off.size(); j++) {
       if (turn_these_off[j] != imol_last) {
-	 set_mol_displayed(turn_these_off[j], 0);
-	 set_mol_active(turn_these_off[j], 0);
+
+	 // These do a redraw
+	 // set_mol_displayed(turn_these_off[j], 0);
+	 // set_mol_active(turn_these_off[j], 0);
+
+	 g.molecules[turn_these_off[j]].set_mol_is_displayed(0);
+	 g.molecules[turn_these_off[j]].set_mol_is_active(0);
+	 if (g.display_control_window())
+	    set_display_control_button_state(turn_these_off[j], "Displayed", 0);
+
       }
    }
    if (is_valid_model_molecule(imol_last)) {
       if (! mol_is_displayed(imol_last)) {
-	 set_mol_displayed(imol_last, 1);
-	 set_mol_active(imol_last, 1);
+
+	 // set_mol_displayed(imol_last, 1);
+	 // set_mol_active(imol_last, 1);
+
+	 g.molecules[imol_last].set_mol_is_displayed(1);
+	 g.molecules[imol_last].set_mol_is_active(1);
+	 if (g.display_control_window())
+	    set_display_control_button_state(imol_last, "Displayed", 1);
+
       }
    }
+   graphics_draw();
 
 }
 
@@ -5608,7 +5661,6 @@ void clear_up_moving_atoms() {
    // std::cout << "c-interface clear_up_moving_atoms..." << std::endl;
    g.clear_up_moving_atoms();
    g.clear_moving_atoms_object();
-
 }
 
 // this is a better function name
@@ -5641,11 +5693,13 @@ void set_refine_ramachandran_angles(int state) {
 	 }
       }
    }
-} 
+}
 
 
 void set_refine_ramachandran_restraints_type(int type) {
    graphics_info_t::restraints_rama_type = type;
+   if (type == 0)
+      graphics_info_t::rama_restraints_weight = 0.1; // big numbers make the refinement fail (precision?)
 }
 
 
@@ -5653,15 +5707,43 @@ void set_refine_ramachandran_restraints_weight(float w) {
    graphics_info_t::rama_restraints_weight = w;
 }
 
+float refine_ramachandran_restraints_weight() {
+   return graphics_info_t::rama_restraints_weight;
+}
+
+
 
 int refine_ramachandran_angles_state() {
    return graphics_info_t::do_rama_restraints;
 }
 
-void chiral_volume_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos) { 
 
-   graphics_info_t::chiral_volume_molecule_option_menu_item_select_molecule = pos;
+#include "c-interface-refine.hh"
 
+void set_refinement_geman_mcclure_alpha_from_text(int idx, const char *t) {
+
+   float v = coot::util::string_to_float(t);
+   set_refinement_geman_mcclure_alpha(v);
+   graphics_info_t::refine_params_dialog_geman_mcclure_alpha_combobox_position = idx;
+}
+
+void set_refinement_lennard_jones_epsilon_from_text(int idx, const char *t) {
+
+   float v = coot::util::string_to_float(t);
+   set_refinement_lennard_jones_epsilon(v);
+   graphics_info_t::refine_params_dialog_lennard_jones_epsilon_combobox_position = idx;
+}
+
+void set_refinement_ramachandran_restraints_weight_from_text(int idx, const char *t) {
+
+   float v = coot::util::string_to_float(t);
+   set_refine_ramachandran_restraints_weight(v);
+   graphics_info_t::refine_params_dialog_rama_restraints_weight_combobox_position = idx;
+}
+
+void set_refine_params_dialog_more_control_frame_is_active(int state) {
+
+   graphics_info_t::refine_params_dialog_extra_control_frame_is_visible = state;
 }
 
 
@@ -6021,7 +6103,7 @@ int mark_multiple_atoms_as_fixed_scm(int imol, SCM atom_spec_list, int state) {
 
 
 #ifdef USE_PYTHON
-// Garanteed to return a triple list (will return unset-spec if needed).
+// Guaranteed to return a triple list (will return unset-spec if needed).
 // 
 PyObject *residue_spec_make_triple_py(PyObject *res_spec_py) {
 
@@ -6176,6 +6258,15 @@ PyObject *cis_peptides_py(int imol) {
    return r;
 }
 #endif //  USE_PYTHON
+
+/*! \brief cis-trans convert the active residue of the active atom in the 
+    inermediate atoms, and continue with the refinement  */
+int cis_trans_convert_intermediate_atoms() {
+
+   graphics_info_t g;
+   return g.cis_trans_conversion_intermediate_atoms();
+}
+
 
 #ifdef USE_PYTHON
 // Return a python list object of [residue1, residue2, omega]
@@ -6494,6 +6585,22 @@ run_state_file_py() {
 }
 #endif // USE_PYTHON
 
+#include "pre-load.hh"
+#ifdef HAVE_CXX_THREAD
+#include <thread>
+#endif
+
+void pre_load_rotamer_tables() {
+
+   // I don't have this right.  Deactivate for now.
+
+#ifdef HAVE_CXX_THREAD
+   // std::thread t(graphics_info_t::fill_rotamer_probability_tables);
+   // t.join();
+#endif
+}
+
+
 
 void
 run_state_file_maybe() { 
@@ -6625,7 +6732,7 @@ import_python_module(const char *module_name, int use_namespace) {
    int err = 1;
 
 #ifdef USE_PYTHON
-  
+
    std::string simple;
    if (use_namespace) {
       simple = "import ";
@@ -6640,8 +6747,7 @@ import_python_module(const char *module_name, int use_namespace) {
       std::cout << "Importing python module " << module_name
 		<< " using command " << simple << std::endl;
 
-   // not a const argument?  Dear oh dear....
-   err = PyRun_SimpleString((char *)simple.c_str());
+   err = PyRun_SimpleString(simple.c_str());
 #endif // USE_PYTHON
    return err;
 }
@@ -8078,8 +8184,9 @@ int go_to_view_number(int view_number, int snap_to_view_flag) {
       coot::view_info_t view = (*graphics_info_t::views)[view_number];
       if (view.is_simple_spin_view_flag) {
 	 int nsteps = 2000;
+         nsteps = 500;
 	 if (graphics_info_t::views_play_speed > 0.000000001)
-	    nsteps = int(2000.0/graphics_info_t::views_play_speed);
+	    nsteps = int(static_cast<float>(nsteps)/graphics_info_t::views_play_speed);
 	 float play_speed = 1.0; 
 	 if (graphics_info_t::views_play_speed > 0.0)
 	    play_speed = graphics_info_t::views_play_speed;
@@ -8604,3 +8711,37 @@ float get_electrostatic_surface_opacity(int imol) {
    return r;
 } 
 
+
+/*! \brief load tutorial model and data  */
+void load_tutorial_model_and_data() {
+
+   // implement this                                    
+
+   /*                                           
+	   (let* ((prefix-dir (getenv "COOT_PREFIX")))
+
+	     (let* ((pkg-data-dir
+		     (if (string? prefix-dir)
+			 (append-dir-dir (append-dir-dir prefix-dir "share") "coot")
+			 (pkgdatadir)))
+		    (data-dir (append-dir-dir pkg-data-dir "data"))
+		    (pdb-file-name (append-dir-file data-dir "tutorial-modern.pdb"))
+		    (mtz-file-name (append-dir-file data-dir "rnasa-1.8-all_refmac1.mtz")))
+
+	       (read-pdb pdb-file-name)
+	       (make-and-draw-map mtz-file-name "FWT" "PHWT" "" 0 0)
+	       (make-and-draw-map mtz-file-name "DELFWT" "PHDELWT" "" 0 1)))))
+
+   */
+
+   std::string p = coot::package_data_dir();
+   std::string d = coot::util::append_dir_dir(p, "data");
+
+   std::string pdb_fn = coot::util::append_dir_file(d, "tutorial-modern.pdb");
+   std::string mtz_fn = coot::util::append_dir_file(d, "rnasa-1.8-all_refmac1.mtz");
+
+   int imol = handle_read_draw_molecule_with_recentre(pdb_fn.c_str(), true);
+   int imol_map = make_and_draw_map(mtz_fn.c_str(), "FWT", "PHWT", "", 0, 0);
+   int imol_diff_map = make_and_draw_map(mtz_fn.c_str(), "DELFWT", "PHDELWT", "", 0, 1);
+
+}

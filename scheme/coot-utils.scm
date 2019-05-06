@@ -443,6 +443,12 @@
       #f
       (car (cadr ra))))
 
+;; residue-info atom
+(define (residue-atom->position ra)
+  (if (not (list? ra))
+      #f
+      (list-ref ra 2)))
+
 ;; residue-info atom needs other parameters to make a spec for an atom
 (define (residue-atom->atom-spec ra chain-id res-no ins-code)
   (list chain-id res-no ins-code (residue-atom->atom-name ra) (residue-atom->alt-conf ra)))
@@ -1191,6 +1197,23 @@
 	  #f
 	  (string-append (directory-as-file-name dir-name) "/" sub-dir-name))))
 
+;; the first elements are directories, the last is the file name
+;; c.f. os.path.join
+;; 
+(define (join-dir-file path-elements)
+  (if (null? path-elements)
+      ""
+      (let ((fn (car (reverse path-elements)))
+	    (dirs (reverse (cdr (reverse path-elements)))))
+	(let ((running ""))
+	  (for-each (lambda (d)
+		      (set! running (append-dir-dir running d)))
+		    dirs)
+	  ;; (format #t "dirs: ~s~%" dirs)
+	  ;; (format #t "fn: ~s~%" fn)
+	  (append-dir-file running fn)))))
+
+
 ;; remove any trailing /s
 ;; 
 (define (directory-as-file-name dir)
@@ -1836,7 +1859,9 @@
 	 (string-append " " al)))))
 
 (define (atom-spec->residue-spec atom-spec)
-  (list-head (cddr atom-spec) 3))
+  (if (= (length atom-spec) 5)
+      (list-head atom-spec 3)
+      (list-head (cddr atom-spec) 3)))
 
 
 ;; return a guess at the map to be refined (usually called after

@@ -24,3 +24,8 @@ void run_generic_script(const std::vector<std::string> &cmd_strings);
 #ifdef USE_GUILE
 SCM coot_has_python_p();
 #endif
+
+
+#ifdef USE_GUILE
+SCM test_mol_triangles_scm(SCM i_scm, SCM j_scm);
+#endif

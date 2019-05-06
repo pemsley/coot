@@ -316,9 +316,10 @@ int test_internal_single() {
       // status = test_map_tools();
       // status = test_minimol();
       // status = test_monomer_organic_set();
-      status = test_COO_mod();
+      // status = test_COO_mod();
       // status = test_output_link_distances_are_correct();
       // status = test_string_splitting();
+      status = test_index_splitting();
    }
    catch (const std::runtime_error &mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -694,7 +695,7 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
 					   altconf,
 					   chn,
 					   residues_mol_pair.first,
-					   fixed_atom_specs, dummy_xmap);
+					   fixed_atom_specs, &dummy_xmap);
 
    short int do_rama_restraints = 0;
    short int do_residue_internal_torsions = 1;
@@ -724,7 +725,7 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
 				 do_residue_internal_torsions,
 				 do_trans_peptide_restraints,
 				 rama_plot_restraint_weight,
-				 do_rama_restraints,
+				 do_rama_restraints, false, false,
 				 pseudos);
 
    if (output_numerical_gradients)
@@ -1065,7 +1066,7 @@ int test_peptide_link() {
       std::vector<mmdb::Link> links;
       clipper::Xmap<float> dummy_xmap;
 
-      coot::restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs, dummy_xmap);
+      coot::restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs, &dummy_xmap);
       restraints.add_map(weight);
       std::string link_type = "";
       // restraints.find_link_type(residues[0].second,
@@ -1143,11 +1144,11 @@ restr_res_vector() {
       geom.init_standard();
       std::vector<mmdb::Link> links;
       coot::restraints_container_t
-	 restraints(residues, links, geom, mol, fixed_atom_specs, xmap);
+	 restraints(residues, links, geom, mol, fixed_atom_specs, &xmap);
       restraints.add_map(weight);
       bool do_trans_peptide_restraints = true;
       int imol = 0;
-      restraints.make_restraints(imol, geom, flags, 0, do_trans_peptide_restraints, 0.0, 0, coot::NO_PSEUDO_BONDS);
+      restraints.make_restraints(imol, geom, flags, 0, do_trans_peptide_restraints, 0.0, 0, false, false, coot::NO_PSEUDO_BONDS);
       restraints.minimize(flags);
       restraints.write_new_atoms("ss-test.pdb");
    }

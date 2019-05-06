@@ -188,6 +188,9 @@
 	   (mtz-file-name (append-dir-file coot-tmp-dir
 					   (string-append down-code "_map.mtz"))))
 
+      (format #t "::::::::: pdb-file-name: ~s~%" pdb-file-name)
+      (format #t "::::::::: mtz-file-name: ~s~%" mtz-file-name)
+
       (if (not (file-exists? pdb-file-name))
 	  #f
 	  (if (not (file-exists? mtz-file-name))
@@ -297,11 +300,17 @@
 		 (url-scm (string-append stub ".scm")))
 
 	    (format #t "getting ~s~%" url-pdb)
-	    (net-get-url url-mtz mtz-file-name)
+	    (let ((status (net-get-url url-pdb pdb-file-name)))
+	      (if (not (= status 0))
+		  (format #t "Failed to get ~s ~s status ~s ~%" url-pdb pdb-file-name status)))
 	    (format #t "getting ~s~%" url-mtz)
-	    (net-get-url url-pdb pdb-file-name)
+	    (let ((status (net-get-url url-mtz mtz-file-name)))
+	      (if (not (= status 0))
+		  (format #t "Failed to get ~s ~s status ~s ~%" url-mtz mtz-file-name status)))
 	    (format #t "getting ~s~%" url-scm)
-	    (net-get-url url-scm scm-file-name)
+	    (let ((status (net-get-url url-scm scm-file-name)))
+	      (if (not (= status 0))
+		  (format #t "Failed to get ~s ~s status ~s ~%" url-scm scm-file-name status)))
 
 	    (read-pdb pdb-file-name)
 	    (format #t "make-and-draw-map with ~s~%" mtz-file-name)

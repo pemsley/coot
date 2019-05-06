@@ -248,7 +248,9 @@
 (define (residue-name-from-spec imol spec)
 
   (if (= (length spec) 4)
-      (apply residue-name imol (cdr spec))))
+      (apply residue-name imol (cdr spec))
+      (apply residue-name imol spec)))
+
 
 ;; return residue specs of all residues that are type residue-type
 ;; 

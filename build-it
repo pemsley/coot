@@ -389,7 +389,8 @@
 # 5.32 20180924 bump the clipper version (pre-Pro)
 # 5.33 20181214 bump the mmdb2 version (pdbx_ins_code)
 # 5.34 20181215 clipper patch fixes
-script_version=5.34
+# 5.35 20190401 clipper configure fftw patch
+script_version=5.35
 
 
 
@@ -2590,6 +2591,7 @@ if test -n "$build_clipper" ; then
     clipper_version=2.1.20180802
     clipper_version_dir=2.1
     ${WGET} $extras_place/clipper-$clipper_version.tar.gz
+    ${WGET} $extras_place/clipper-configure-2.patch
 
     (
     gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
@@ -2601,7 +2603,14 @@ if test -n "$build_clipper" ; then
     # patch the hkl_data.h header
     # sed -ibackup -e 's/int i = 0; i < list.size(); i++/unsigned int i = 0; i < list.size(); i++/' clipper/core/hkl_data.h
     
-    # make clipper
+    # --- make clipper
+
+    # patch clipper
+
+    # fix the linking to the wrong libfftw
+    echo patching clipper with ${AUTOBUILD_SOURCES}/clipper-configure-2.patch
+    patch -p0 < ${AUTOBUILD_SOURCES}/clipper-configure-2.patch
+
     echo . ------------------------------------------------------------------------------
     echo . "         clipper                                                            "
     echo . ------------------------------------------------------------------------------
@@ -2739,7 +2748,6 @@ if [ "$build_gtkglext" = 1 ] ; then
      # gtk+ 2.20 needs converting GTK_WIDGET_REALIZED to gtk_widget_get_realised, but 
      # gtk+ 2.18 does not (it fails if we add that patch), so use a simpler one.
      if pkg-config gtk+-2.0 --atleast-version 2.16 ; then
-
         patch_file_1=gtk-gtkglwidget.c-for-modern-gtk-for-2.18.patch
         patch_file_2=gtkglext-context-finalize.diff
         patch_file_3=gtkglext-multisample.patch.patch
@@ -2749,6 +2757,7 @@ if [ "$build_gtkglext" = 1 ] ; then
         if pkg-config gtk+-2.0 --atleast-version 2.20 ; then
            patch_file_1=gtk-gtkglwidget.c-for-modern-gtk.patch
         fi
+
         echo we have sufficiently new version of gtk+, we need to patch gtkglext with $patch_file_1
 
         # when in the gtkglext dir, patch patch_file_2 with -p0 and patch_file_3 with -p1 

@@ -34,6 +34,8 @@
 
 using namespace std;
 
+namespace CXX_mot {
+
 class CXXCreator {
 
 private:
@@ -110,4 +112,5 @@ public:
 	clipper::NXmap<double> coerceToClipperMap(clipper::Cell &cell);
 
 };
-	
+
+}	

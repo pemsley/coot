@@ -146,6 +146,19 @@ coot::minimol::molecule::molecule(mmdb::PPAtom atom_selection,
    have_spacegroup = 0;
 } 
 
+mmdb::Atom *
+coot::minimol::atom::make_atom() const {
+
+   mmdb::Atom *at = 0;
+
+   at = new mmdb::Atom;
+   at->SetAtomName(name.c_str());
+   at->SetElementName(element.c_str());
+   at->SetCoordinates(pos.x(), pos.y(), pos.z(), occupancy, temperature_factor);
+
+   return at;
+}
+
 // This is like the coot utils function, but it is here because
 // coot-coord utils depends on minimol, so minimol can't depend on
 // coot-coord-utils.
@@ -642,7 +655,25 @@ coot::minimol::residue::operator[](const std::string &atname) const {
 	 return atoms[i];
       } 
    }
-   std::cout << "ERROR!  DISASTER! Atom name lookup failed atom \"" 
+   std::cout << "ERROR!  DISASTER! in const operator[] Atom name lookup failed atom \"" 
+	     << atname << "\" amongst " << atoms.size() << " atoms: not found in residue "
+	     << seqnum << std::endl;
+   return atoms[0]; 
+}
+
+// reference - when we want to move the atoms of this residue
+coot::minimol::atom&
+coot::minimol::residue::at(const std::string &atname) {
+
+   for (unsigned int i=0; i<atoms.size(); i++) {
+      if (atoms[i].name == atname) {
+	 return atoms[i];
+      }
+   }
+
+   // maybe throw a runtime error here?                         
+   
+   std::cout << "ERROR::  DISASTER! in operator[] Atom name lookup failed atom \""
 	     << atname << "\" amongst " << atoms.size() << " atoms: not found in residue "
 	     << seqnum << std::endl;
    return atoms[0]; 
@@ -1111,6 +1142,17 @@ coot::minimol::fragment::first_residue() const {
    } 
    return i;
 }
+
+void
+coot::minimol::fragment::delete_first_residue() {
+
+   if (residues.size() > 0)
+      residues.erase(residues.begin());
+
+   residues_offset++; // this is correct if seqnum of (now) residues[0] is seqnum of old residues[0]+1
+
+}
+
 
 
 void

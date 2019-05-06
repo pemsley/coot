@@ -1682,7 +1682,15 @@ void info_dialog(const char *txt);
 /*! \brief create a dialog with information and print to console
 
   as info_dialog but print to console as well.  */
-void info_dialog_and_text(const char *txt); 
+void info_dialog_and_text(const char *txt);
+
+/*! \brief as above, create a dialog with information
+
+This dialog is left-justified and can use markup such as <tt> or <i>
+
+ */
+void info_dialog_with_markup(const char *txt);
+
 
 /* \} */
 
@@ -1782,6 +1790,8 @@ void set_symmetry_atom_labels_expanded(int state);
    @return 1 on "yes, it has a cell", 0 for "no" */
 int has_unit_cell_state(int imol); 
 
+/* a gui function really */
+void add_symmetry_on_to_preferences_and_apply();
 
 /*! \brief Undo symmetry view. Translate back to main molecule from
   this symmetry position.  */
@@ -3090,12 +3100,6 @@ void set_found_coot_python_gui();
 /*! \name Monomer */
 /* \{ */
 
-/*! \brief if possible, read in the new coords getting coords via web.
-
-(no return value because get-url-str does not return one).
- */
-void get_coords_for_accession_code(const char *code);
-
 int get_monomer_for_molecule_by_index(int dict_idx, int imol_enc);
 
 
@@ -3184,6 +3188,12 @@ void add_planar_peptide_restraints();
 /*! \brief remove restraints on peptides to make them planar. */
 void remove_planar_peptide_restraints();
 
+/*! \brief make the planar peptide restraints tight
+
+Useful when refining models with cryo-EM maps */
+void make_tight_planar_peptide_restraints();
+
+
 /* return 1 if planar peptide restraints are on, 0 if off */
 int planar_peptide_restraints_state();
 
@@ -3233,6 +3243,15 @@ void clear_moving_atoms_object(); /* just get rid of just the bonds (redraw done
 
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 
+
+/*! \brief If there is a refinement on-going already, we don't want to start a new one
+
+The is the means to ask if that is the case. This needs a scheme wrapper to provide refinement-already-ongoing?
+
+@return 1 for yes, 0 for no.
+*/
+short int refinement_already_ongoing_p();
+
 #ifdef USE_GUILE
 /*! \brief refine residues, r is a list of residue specs.
 
@@ -3269,6 +3288,9 @@ PyObject *regularize_residues_py(int imol, PyObject *r);  /* presumes the alt_co
 PyObject *regularize_residues_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf);
 #endif /* PYTHON */
 #endif /* c++ */
+
+/* Used by on_accept_reject_refinement_reject_button_clicked() */
+void stop_refinement_internal();
 
 /*! \brief turn on (or off) torsion restraints 
 
@@ -3377,8 +3399,22 @@ void set_refinement_drag_elasticity(float e);
 void set_refine_ramachandran_angles(int state);
 void set_refine_ramachandran_torsion_angles(int state);
 
+/*! \brief change the target function type  */
 void set_refine_ramachandran_restraints_type(int type);
+/*! \brief change the target function weight
+
+a big number means bad things  */
 void set_refine_ramachandran_restraints_weight(float w);
+
+/*! ramachandran restraints weight
+
+@return weight as a float */
+float refine_ramachandran_restraints_weight();
+
+void set_refinement_geman_mcclure_alpha_from_text(int idx, const char *t);
+void set_refinement_lennard_jones_epsilon_from_text(int idx, const char *t);
+void set_refinement_ramachandran_restraints_weight_from_text(int idx, const char *t);
+void set_refine_params_dialog_more_control_frame_is_active(int state);
 
 int refine_ramachandran_angles_state();
 
@@ -3479,14 +3515,12 @@ int add_extra_torsion_restraint(int imol,
 				double torsion_angle, double esd, int period);
 int add_extra_start_pos_restraint(int imol, const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, double esd);
 
-/* Code this up in due course - needs extra support in simple-restrtaint */
-/* int add_extra_target_position_restraint(int imol,  */
-/* 					const char *chain_id,  */
-/* 					int res_no,  */
-/* 					const char *ins_code,  */
-/* 					const char *atom_name,  */
-/* 					const char *alt_conf); */
-					
+int add_extra_target_position_restraint(int imol,
+					const char *chain_id,
+					int res_no,
+					const char *ins_code,
+					const char *atom_name,
+ 					const char *alt_conf, float x, float y, float z, float weight);
 
 /*! \brief clear out all the extra/user-defined restraints for molecule number imol  */
 void delete_all_extra_restraints(int imol); 
@@ -3570,6 +3604,10 @@ PyObject *list_extra_restraints_py(int imol);
 void set_use_only_extra_torsion_restraints_for_torsions(short int state);
 /*! \brief return only-use-extra-torsion-restraints-for-torsions state */
 int use_only_extra_torsion_restraints_for_torsions_state();
+
+void clear_all_atom_pull_restraints();
+void set_auto_clear_atom_pull_restraint(int state);
+int  get_auto_clear_atom_pull_restraint_state();
 
 
 /*  ----------------------------------------------------------------------- */
@@ -4630,7 +4668,7 @@ int set_b_factor_bonds_scale_factor(int imol, float f);
   the centre of the screen */
 void change_model_molecule_representation_mode(int up_or_down);
 
-void set_ca_bonds_loop_params(float p1, float p2, float p3);
+/* not today void set_ca_bonds_loop_params(float p1, float p2, float p3); */
 
 /*! \brief make the carbon atoms for molecule imol be grey
  */
@@ -4641,6 +4679,8 @@ can be not grey if you desire, r, g, b in the range 0 to 1.
  */
 void set_grey_carbon_colour(int imol, float r, float g, float b);
 
+/* undocumented feature for development. */
+void set_draw_moving_atoms_restraints(int state);
 
 /*! \brief make a ball and stick representation of imol given atom selection
 
@@ -4774,7 +4814,9 @@ void do_pepflip(short int state); /* sets up pepflip, ready for atom pick. */
 /*! \brief pepflip the given residue */
 /* the residue with CO, for scripting interface. */
 void pepflip(int imol, const char *chain_id, int resno, const char *inscode, 
-	     const char *altconf); 
+	     const char *altconf);
+int pepflip_intermediate_atoms();
+int pepflip_intermediate_atoms_other_peptide();
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -4860,7 +4902,8 @@ void set_add_terminal_residue_n_phi_psi_trials(int n);
    see both residues - default is 0 (off). */
 void set_add_terminal_residue_add_other_residue_flag(int i);
 void set_add_terminal_residue_do_rigid_body_refine(short int v); 
-void set_terminal_residue_do_rigid_body_refine(short int v); 
+void set_terminal_residue_do_rigid_body_refine(short int v); /* remove this for 0.9, wraps above */
+void set_add_terminal_residue_debug_trials(short int debug_state);
 int add_terminal_residue_immediate_addition_state(); 
 
 /*! \brief set immediate addition of terminal residue
@@ -4872,12 +4915,15 @@ void set_add_terminal_residue_immediate_addition(int i);
 
 residue type can be "auto" and immediate_add is recommended to be 1.
 
-return 0 on failure, 1 on success */
+@return 0 on failure, 1 on success */
 int add_terminal_residue(int imol, const char *chain_id, int residue_number,
 			 const char *residue_type, int immediate_add); 
 
 
 /*! \brief Add a terminal residue using given phi and psi angles
+
+
+@return the success status, 0 on failure, 1 on success
  */
 int add_terminal_residue_using_phi_psi(int imol, const char *chain_id, int res_no, 
 				       const char *residue_type, float phi, float psi);
@@ -4897,6 +4943,24 @@ SCM find_terminal_residue_type(int imol, const char *chain_id, int resno);
 #ifdef USE_PYTHON
 PyObject *find_terminal_residue_type_py(int imol, const char *chain_id, int resno);
 #endif /* PYTHON */
+#endif /* c++ */
+
+/* \} */
+
+
+/*  ----------------------------------------------------------------------- */
+/*                  scripting a residue with atoms                          */
+/*  ----------------------------------------------------------------------- */
+/* section Add A Residue Functions */
+/*! \name  Add A Residue Functions */
+/* \{ */
+#ifdef __cplusplus
+
+/* \brief add a residue with atoms in scripting
+
+  @return the number of atoms added
+*/
+int add_residue_with_atoms_py(int imol, PyObject *residue_spec, const std::string &res_name, PyObject *list_of_atoms);
 #endif /* c++ */
 
 /* \} */
@@ -5012,6 +5076,10 @@ PyObject *cis_peptides_py(int imol);
 PyObject *twisted_trans_peptides_py(int imol);
 #endif /* PYTHON */
 #endif
+
+/*! \brief cis-trans convert the active residue of the active atom in the 
+    inermediate atoms, and continue with the refinement  */
+int cis_trans_convert_intermediate_atoms();
 
 
 /*  ----------------------------------------------------------------------- */
@@ -5147,6 +5215,12 @@ void fill_partial_residues(int imol);
 
 void fill_partial_residue(int imol, const char *chain_id, int resno, const char* inscode);
 
+/*! \brief Fill amino acid residues
+
+do backrub rotamer search for residues, but don't do refinement
+*/
+void simple_fill_partial_residues(int imol);
+
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM missing_atom_info_scm(int imol);
@@ -5226,7 +5300,6 @@ onto what is currently residue 21.  The mainchain numbering and atoms is not cha
         and 1 for success.
 */
 int nudge_residue_sequence(int imol, char *chain_id, int res_no_range_start, int res_no_range_end, int nudge_by, short int nudge_residue_numbers_also);
-
 
 /*! \brief Do you want Coot to automatically run a refinement after
   every mutate and autofit?
@@ -5475,6 +5548,9 @@ void setup_residue_partial_alt_locs(short int state);
 @return the success status, 0 for fail, 1 for successful fit.  */
 int backrub_rotamer(int imol, const char *chain_id, int res_no, 
 		    const char *ins_code, const char *alt_conf);
+
+int backrub_rotamer_intermediate_atoms();
+
 /*! \} */
 
 
@@ -6379,6 +6455,17 @@ SCM drag_intermediate_atom_scm(SCM atom_spec, SCM position);
 #endif 
 #ifdef USE_PYTHON
 PyObject *drag_intermediate_atom_py(PyObject *atom_spec, PyObject *position);
+
+//! \brief add a target position for an intermediate atom and refine
+//
+// A function requested by Hamish.
+// This aplies to intermediate atoms (add_extra_target_position_restraint)
+// does not. This activates refinement after the restraint is added (add_extra_target_position_restraint
+// does not).
+PyObject *add_target_position_restraint_for_intermediate_atom_py(PyObject *atom_spec, PyObject *position);
+
+// and the multiple-atom version of that (so that they can be applied at the same time)
+PyObject *add_target_position_restraints_for_intermediate_atoms_py(PyObject *atom_spec_position_list);
 #endif 
 #endif /* c++ */
 /* \} */
@@ -6819,6 +6906,8 @@ void set_visible_toolbar_multi_refine_cancel_button(short int state);
 /* button_type is one of "stop", "continue", "cancel"
    state is 1 for on, 0 for off. */
 void toolbar_multi_refine_button_set_sensitive(const char *button_type, short int state);
+/*! \brief load tutorial model and data  */
+void load_tutorial_model_and_data();
 
 
 /*  ----------------------------------------------------------------------- */
@@ -6893,6 +6982,7 @@ PyObject *all_molecule_ramachandran_region_py(int imol);
 #endif /* USE_PYTHON */
 #endif /* __cplusplus */
 
+void globularize(int imol);
 
 #ifdef __cplusplus
 /*! 

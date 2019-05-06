@@ -384,7 +384,7 @@ graphics_info_t::moving_atoms_atom_pick(short int pick_mode) const {
    float close_score_best = 999.9;
 
    float d_front_to_back = (back-front).amplitude();
-   
+
    // This is the signal that moving_atoms_asc is clear
    if (moving_atoms_asc->n_selected_atoms > 0) {
 
@@ -459,9 +459,10 @@ graphics_info_t::fixed_atom_for_refinement_p(mmdb::Atom *at) {
 
 // Setup moving atom-drag if we are.
 // (we are acting on button1 down)
+// note to self, maybe you wanted this (check_if_moving_atom_pull()), not pick_intermediate_atom()?
 //
 void
-graphics_info_t::check_if_moving_atom_pull() {
+graphics_info_t::check_if_moving_atom_pull(bool was_a_double_click) {
 
    short int atom_pick_mode = PICK_ATOM_ALL_ATOM;
    if (! moving_atoms_have_hydrogens_displayed)
@@ -488,29 +489,90 @@ graphics_info_t::check_if_moving_atom_pull() {
       // imol_moving_atoms molecule.
       //
 
-      moving_atoms_dragged_atom_index = pi.atom_index;
-      in_moving_atoms_drag_atom_mode_flag = 1;
+      // 20180219. Now we have many.
 
-      // Find the fixed_points_sheared_drag from the imol_moving_atoms.
-      // and their flag, have_fixed_points_sheared_drag_flag
-      // set_fixed_points_for_sheared_drag(); // superceeded
-      // 
-      if (drag_refine_idle_function_token != -1) { 
-// 	 std::cout << "DEBUG:: removing token " << drag_refine_idle_function_token
-// 		   << std::endl;
-	 gtk_idle_remove(drag_refine_idle_function_token);
-	 drag_refine_idle_function_token = -1; // magic "not in use" value
+      moving_atoms_currently_dragged_atom_index = pi.atom_index;
+
+      if (! was_a_double_click) {
+	 //
+	 moving_atoms_dragged_atom_indices.insert(pi.atom_index);
+
+	 if (false)
+	    std::cout << "moving_atoms_currently_dragged_atom_index " << moving_atoms_currently_dragged_atom_index
+		      << std::endl;
+
+	 in_moving_atoms_drag_atom_mode_flag = 1;
+
+         // This is no longer relevant I think
+         //
+	 // Find the fixed_points_sheared_drag from the imol_moving_atoms.
+	 // and their flag, have_fixed_points_sheared_drag_flag
+	 // set_fixed_points_for_sheared_drag(); // superceeded
+	 //
+	 // if (drag_refine_idle_function_token != -1) {
+	 //    // 	 std::cout << "DEBUG:: removing token " << drag_refine_idle_function_token
+	 //    // 		   << std::endl;
+	 //    gtk_idle_remove(drag_refine_idle_function_token);
+	 //    drag_refine_idle_function_token = -1; // magic "not in use" value
+	 // }
+
+      } else {
+	 // a double click on a dragged intermediate atom means "remove this pull restraint"
+
+	 std::set<int>::const_iterator it = moving_atoms_dragged_atom_indices.find(pi.atom_index);
+	 if (it != moving_atoms_dragged_atom_indices.end()) {
+	    std::cout << "DEBUG:: erasing moving atoms dragged atom with index: " << *it << std::endl;
+	    moving_atoms_dragged_atom_indices.erase(it);
+	    if (*it < moving_atoms_asc->n_selected_atoms) {
+	       mmdb::Atom *at = moving_atoms_asc->atom_selection[*it];
+	       if (at) {
+		  coot::atom_spec_t spec(at);
+		  atom_pull_off(spec);
+		  clear_atom_pull_restraint(spec, true); // refine again
+	       }
+	    } else {
+	       std::cout << "ERROR:: dragged atom out of range " << *it << " "
+			 << moving_atoms_asc->n_selected_atoms << std::endl;
+	    }
+	 }
       }
-      
+
    } else {
       in_moving_atoms_drag_atom_mode_flag = 0;
    } 
 }
 
+
+// static
+void
+graphics_info_t::atom_pull_off(const coot::atom_spec_t &spec) {
+    for (std::size_t i=0; i<atom_pulls.size(); i++) {
+       if (atom_pulls[i].spec == spec)
+          atom_pulls[i].off();
+    }
+}
+
+// static
+void
+graphics_info_t::atom_pulls_off(const std::vector<coot::atom_spec_t> &specs) {
+    for (std::size_t j=0; j<specs.size(); j++)
+       for (std::size_t i=0; i<atom_pulls.size(); i++)
+          if (atom_pulls[i].spec == specs[j])
+             atom_pulls[i].off();
+}
+
+// static
+void
+graphics_info_t::all_atom_pulls_off() {
+     for (std::size_t i=0; i<atom_pulls.size(); i++)
+       atom_pulls[i].off();
+     atom_pulls.clear();
+}
+
 void
 graphics_info_t::set_fixed_points_for_sheared_drag() {
 
-} 
+}
 
 
 // 
@@ -534,6 +596,11 @@ graphics_info_t::move_moving_atoms_by_shear(int screenx, int screeny,
    coot::Cartesian diff = current_mouse_real_world - old_mouse_real_world;
    
    // now tinker with the moving atoms coordinates...
+
+   // 20180219 - I can't be bothered to fix this non-used code
+
+   /*
+
    if (moving_atoms_dragged_atom_index >= 0) {
       if (moving_atoms_dragged_atom_index < moving_atoms_asc->n_selected_atoms) {
 	 mmdb::Atom *at = moving_atoms_asc->atom_selection[moving_atoms_dragged_atom_index];
@@ -557,6 +624,7 @@ graphics_info_t::move_moving_atoms_by_shear(int screenx, int screeny,
    } else {
       std::cout << "ERROR: out of index (under) in move_moving_atoms_by_shear\n";
    }
+   */
 }
 
 
@@ -605,12 +673,11 @@ graphics_info_t::move_single_atom_of_moving_atoms(int screenx, int screeny) {
 
    
    coot::Cartesian old_mouse_real_world = unproject_xyz(int(GetMouseBeginX()),
-						  int(GetMouseBeginY()),
-						  0.5);
+							int(GetMouseBeginY()), 0.5);
    coot::Cartesian current_mouse_real_world = unproject_xyz(screenx, screeny, 0.5);
 
    coot::Cartesian diff = current_mouse_real_world - old_mouse_real_world;
-   mmdb::Atom *at = moving_atoms_asc->atom_selection[moving_atoms_dragged_atom_index];
+   mmdb::Atom *at = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
    at->x += diff.x();
    at->y += diff.y();
    at->z += diff.z();
@@ -623,6 +690,143 @@ graphics_info_t::move_single_atom_of_moving_atoms(int screenx, int screeny) {
 
 }
 
+void
+graphics_info_t::move_atom_pull_target_position(int screen_x, int screen_y) {
+
+   coot::Cartesian front = unproject_xyz(screen_x, screen_y, 0);
+   coot::Cartesian back  = unproject_xyz(screen_x, screen_y, 1);
+
+   mmdb::Atom *at = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
+   coot::Cartesian c_at(at->x, at->y, at->z);
+   coot::Cartesian fb = back - front;
+   coot::Cartesian  h = c_at - front;
+
+   float d_fb = fb.length();
+   float d_h  =  h.length();
+
+   double cos_theta = coot::dot_product(fb, h)/(d_fb*d_h);
+   double d = d_h * cos_theta;
+   float z_depth = d/d_fb;
+
+   if (z_depth > 1.0) z_depth = 1.0;
+   if (z_depth < 0.0) z_depth = 0.0;
+
+   coot::Cartesian current_mouse_real_world = unproject_xyz(screen_x, screen_y, z_depth);
+   clipper::Coord_orth c_pos(current_mouse_real_world.x(),
+			     current_mouse_real_world.y(),
+			     current_mouse_real_world.z());
+
+   atom_pull_info_t atom_pull_local = atom_pull_info_t(coot::atom_spec_t(at), c_pos);
+
+   if (false)
+      std::cout << "graphics_info_t::move_atom_pull_target_position() atom_pull.status: "
+		<< atom_pull_local.get_status() << " "
+		<< " atom pull:: idx " << moving_atoms_currently_dragged_atom_index << " "
+		<< coot::co(at).format() << " to " << current_mouse_real_world
+		<< std::endl;
+
+   continue_threaded_refinement_loop = false;
+   while (restraints_lock) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(2)); // not sure about the delay
+   }
+
+   // add to or replace in atom_pulls (for representation)
+   add_or_replace_current(atom_pull_local);
+   //
+   last_restraints->add_atom_pull_restraint(atom_pull_local.spec, c_pos);
+   thread_for_refinement_loop_threaded();
+   graphics_draw();  // needed
+}
+
+void graphics_info_t::add_or_replace_current(const atom_pull_info_t &atom_pull_in) {
+
+   bool done = false;
+
+   std::vector<atom_pull_info_t>::iterator it;
+   for(it=atom_pulls.begin(); it!=atom_pulls.end(); it++) {
+      if (it->spec == atom_pull_in.spec) {
+	 it->pos = atom_pull_in.pos;
+	 it->on(); // do do do be do... turn it o-o-o-on
+	 done = true;
+	 break;
+      }
+   }
+
+   if (! done) {
+      // std::cout << "Adding to atom_pulls: " << atom_pull_in.spec << " " << atom_pull_in.pos.format() << std::endl;
+      atom_pulls.push_back(atom_pull_in);
+   }
+
+}
+
+
+// we need a vector version of this.
+void
+graphics_info_t::add_target_position_restraint_for_intermediate_atom(const coot::atom_spec_t &spec,
+								     const clipper::Coord_orth &target_pos) {
+
+
+   // get the restraints lock before adding these
+
+   bool unlocked = false; // wait for restraints_lock to be false...
+   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
+      std::cout << "INFO:: graphics_info_t::add_target_position_restraint_for_intermediate_atom() "
+		<< "- refinement restraints locked on " << std::endl;
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      unlocked = false;
+   }
+
+   atom_pull_info_t atom_pull_local = atom_pull_info_t(spec, target_pos);
+   add_or_replace_current(atom_pull_local);
+   if (last_restraints) {
+      last_restraints->add_atom_pull_restraint(spec, target_pos);
+   }
+
+   // unlock restraints
+   restraints_lock = false;
+
+   thread_for_refinement_loop_threaded();
+
+}
+
+// vector version of above
+void
+graphics_info_t::add_target_position_restraints_for_intermediate_atoms(const std::vector<std::pair<coot::atom_spec_t, clipper::Coord_orth> > &atom_spec_position_vec) {
+
+   // get the restraints lock before adding this
+
+   if (last_restraints) {
+
+      bool unlocked = false; // wait for restraints_lock to be false...
+      while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
+	 std::cout << "INFO:: add_target_position_restraints_for_intermediate_atoms() "
+		   << "- refinement restraints locked on" << std::endl;
+	 std::this_thread::sleep_for(std::chrono::milliseconds(40));
+	 unlocked = false;
+      }
+
+      for (std::size_t i=0; i<atom_spec_position_vec.size(); i++) {
+	 coot::atom_spec_t spec  = atom_spec_position_vec[i].first;
+	 clipper::Coord_orth pos = atom_spec_position_vec[i].second;
+	 atom_pull_info_t atom_pull_local = atom_pull_info_t(spec, pos);
+	 add_or_replace_current(atom_pull_local);
+	 last_restraints->add_atom_pull_restraint(spec, pos);
+      }
+
+      // unlock restraints and start refinement again
+      restraints_lock = false;
+      thread_for_refinement_loop_threaded();
+
+   } else {
+      std::cout << "WARNING:: in add_target_position_restraints_for_intermediate_atoms() no restraints"
+		<< std::endl;
+   }
+
+}
+
+
+
+
 // diff_std is the difference in position of the moving atoms, the
 // other atoms of the moving_atoms_asc are moved relative to it by
 // different amounts...
@@ -634,7 +838,7 @@ graphics_info_t::move_moving_atoms_by_shear_internal(const coot::Cartesian &diff
                                                      short int linear_movement_scaling_flag) {
 
    coot::Cartesian diff = diff_std;
-   mmdb::Atom *mat = moving_atoms_asc->atom_selection[moving_atoms_dragged_atom_index];
+   mmdb::Atom *mat = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
    coot::Cartesian moving_atom(mat->x, mat->y, mat->z);
    float d_to_moving_at_max = -9999999.9;
    int d_array_size = moving_atoms_asc->n_selected_atoms;
@@ -675,19 +879,22 @@ graphics_info_t::move_moving_atoms_by_shear_internal(const coot::Cartesian &diff
       }
    }
    delete [] d_to_moving_at;
-} 
+}
 
 void
 graphics_info_t::do_post_drag_refinement_maybe() {
 
 #ifdef HAVE_GSL
-   if (last_restraints_size() > 0) { 
-      // std::cout << "do refinement now!\n";
-      graphics_info_t::add_drag_refine_idle_function();
-   } else { 
-      // std::cout << "DEBUG:: not doing refinement - no restraints."
-      // << std::endl;
-   }
+
+   // std::cout << "Here in do_post_drag_refinement_maybe() with last_restraints_size() "
+   // << last_restraints_size() << std::endl;
+
+   if (last_restraints_size() > 0) {
+       thread_for_refinement_loop_threaded();
+    } else {
+       std::cout << "DEBUG:: not doing refinement - no restraints." << std::endl;
+    }
+
 #endif // HAVE_GSL   
 }
 

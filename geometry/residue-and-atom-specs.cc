@@ -61,7 +61,7 @@ std::ostream& coot::operator<< (std::ostream& s, const coot::residue_spec_t &spe
 std::string
 coot::atom_spec_t::label() const {
    std::string s;
-   s += atom_name;
+   s += util::remove_whitespace(atom_name);
    if (! alt_conf.empty()) {
       s += ",";
       s += alt_conf;

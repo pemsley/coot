@@ -45,6 +45,13 @@ namespace coot {
    // using this:
    long get_number_of_threads_by_system_call();
 
+   // if you can try to get the directoy dir in this directory.
+   // if not, try to make it in this directory.
+   // if not, try to find it in $HOME
+   // if not try to make it in $HOME
+   // if not, return the empty string
+   std::string get_directory(const std::string &dir);
+
    namespace sequence {
 
       class fasta {

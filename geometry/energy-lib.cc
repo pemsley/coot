@@ -421,6 +421,19 @@ coot::energy_lib_t::add_energy_lib_torsions(mmdb::mmcif::PLoop mmCIFLoop) {
 
 
 
+// return HB_UNASSIGNED when not found
+//
+coot::hb_t
+coot::protein_geometry::get_h_bond_type(const std::string &te) const {
+
+   hb_t hb_type = HB_UNASSIGNED;
+   std::map<std::string, energy_lib_atom>::const_iterator it = energy_lib.atom_map.find(te);
+   if (it != energy_lib.atom_map.end()) {
+      hb_type = it->second.hb_type;
+   }
+   return hb_type;
+}
+
 coot::hb_t
 coot::protein_geometry::get_h_bond_type(const std::string &atom_name,
 					const std::string &monomer_name,
@@ -481,7 +494,7 @@ coot::protein_geometry::get_h_bond_type(const std::string &atom_name,
 	 
    return hb_type;
 
-} 
+}
 
 
 // Find the non_bonded_contact distance, get_nbc_dist()
@@ -616,7 +629,7 @@ coot::energy_lib_t::get_bond(const std::string &energy_type_1,
       }
       catch (const std::runtime_error &rte2) {
 
-	 if (1)
+	 if (false) // too noisy for now
 	    std::cout << "WARNING:: energy-lib search: falling back to "
 		      << "permissive search for bond "
 		      << energy_type_1 << " " << energy_type_2 << " "

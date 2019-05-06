@@ -13,7 +13,7 @@
 #include <mmdb2/mmdb_manager.h>
 #include <mmdb2/mmdb_tables.h>
 
-CXXCircle::CXXCircle() :
+CXX_mot::CXXCircle::CXXCircle() :
 theAtomJ(0),
 theBallJ(0),
 theParent(0),
@@ -31,7 +31,7 @@ nodeNumber(0)
 {
 }
 
-CXXCircle::CXXCircle (CXXNewHood *aHood, mmdb::PAtom atom2, double radiusOfAtom2, double probeRadius) :
+CXX_mot::CXXCircle::CXXCircle (CXXNewHood *aHood, mmdb::PAtom atom2, double radiusOfAtom2, double probeRadius) :
 theAtomJ(atom2),
 theBallJ(0),
 theParent(aHood),
@@ -54,7 +54,7 @@ nodeNumber(0)
 	performPrecalculations();
 }
 
-CXXCircle::CXXCircle (CXXNewHood *aHood, const CXXBall &aBall) :
+CXX_mot::CXXCircle::CXXCircle (CXXNewHood *aHood, const CXXBall &aBall) :
 theAtomJ(aBall.getAtomI()),
 theBallJ(&aBall),
 theParent(aHood),
@@ -75,7 +75,7 @@ nodeNumber(0)
     performPrecalculations();	
 }
 
-void CXXCircle::performPrecalculations(){
+void CXX_mot::CXXCircle::performPrecalculations(){
     theNormal.normalise();
 	
 	// first calculate the centre of the intersection circle - this starts at the centre of the central sphere and is parallel
@@ -111,7 +111,7 @@ void CXXCircle::performPrecalculations(){
 	unitCentreToCircle.normalise();
 }
 /*
-CXXCircle::CXXCircle (const CXXCircle &oldOne) :
+CXX_mot::CXXCircle::CXXCircle (const CXXCircle &oldOne) :
 theAtomJ(oldOne.getAtomJ()),
 theBallJ(oldOne.getBallJ()),
 theParent(oldOne.getParent()),
@@ -138,7 +138,7 @@ completelyEaten(oldOne.getEaten())
 	}
 }
 */
-int CXXCircle::meetsCircle(const CXXCircle &otherCircle, vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > &nodeList) const{
+int CXX_mot::CXXCircle::meetsCircle(const CXXCircle &otherCircle, vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > &nodeList) const{
 	
 	// check if there is an intersection between this circle and another circle
 	// return 0 if there is intersection
@@ -238,7 +238,7 @@ int CXXCircle::meetsCircle(const CXXCircle &otherCircle, vector<CXXCoord, CXX::C
 	
 }
 
-int CXXCircle::isSomewhereInsideSphere(const CXXCoord &centre, const double radius) const{
+int CXX_mot::CXXCircle::isSomewhereInsideSphere(const CXXCoord &centre, const double radius) const{
 	//This can be checked by looking at any point on the circle rj and evaluating
 	//if it is within the sphere
 	CXXCoord xAxis(1.0, 0.0, 0.0);
@@ -261,33 +261,33 @@ int CXXCircle::isSomewhereInsideSphere(const CXXCoord &centre, const double radi
 	}
 }
 
-const CXXCoord &CXXCircle::getCentreOfSecondSphere() const{
+const CXX_mot::CXXCoord &CXX_mot::CXXCircle::getCentreOfSecondSphere() const{
 	return centreOfSecondSphere;
 }
-const CXXCoord &CXXCircle::getCentreOfSphere() const{
+const CXX_mot::CXXCoord &CXX_mot::CXXCircle::getCentreOfSphere() const{
     return theParent->getCentre();
 };
-const CXXCoord &CXXCircle::getCentreToCircle() const{
+const CXX_mot::CXXCoord &CXX_mot::CXXCircle::getCentreToCircle() const{
 	return centreToCircle;
 }
-double CXXCircle::getRadiusOfSphere() const{
+double CXX_mot::CXXCircle::getRadiusOfSphere() const{
 	return radiusOfSphere;
 }
-double CXXCircle::getRadiusOfSecondSphere() const{
+double CXX_mot::CXXCircle::getRadiusOfSecondSphere() const{
 	return radiusOfSecondSphere;
 }
-const mmdb::PAtom CXXCircle::getAtomJ() const{
+const mmdb::PAtom CXX_mot::CXXCircle::getAtomJ() const{
 	return theAtomJ;
 }
 
-const CXXCoord &CXXCircle::getNormal() const {
+const CXX_mot::CXXCoord &CXX_mot::CXXCircle::getNormal() const {
 	return theNormal;
 }
 
-int CXXCircle::trimNodesBy(const CXXCircle &otherCircle)  {
+int CXX_mot::CXXCircle::trimNodesBy(const CXXCircle &otherCircle)  {
     int deletedCount = 0;
-    list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator lastNode = theNodes.end();
-    for (list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator nodeIter = theNodes.begin();
+    list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator lastNode = theNodes.end();
+    for (list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator nodeIter = theNodes.begin();
          nodeIter != lastNode;
          ++nodeIter){
         CXXCircleNode &node(*nodeIter);
@@ -303,7 +303,7 @@ int CXXCircle::trimNodesBy(const CXXCircle &otherCircle)  {
     return deletedCount;
 }
 
-bool CXXCircle::abBracketsC(const CXXCircleNode &nodea, 
+bool CXX_mot::CXXCircle::abBracketsC(const CXXCircleNode &nodea, 
                             const CXXCircleNode &nodeb, 
                             const CXXCircleNode &nodec) const
 {
@@ -325,7 +325,7 @@ bool CXXCircle::abBracketsC(const CXXCircleNode &nodea,
     return liesBetween;
 }
 
-bool CXXCircle::smallabBracketsC(const CXXCircleNode &nodea, 
+bool CXX_mot::CXXCircle::smallabBracketsC(const CXXCircleNode &nodea, 
                             const CXXCircleNode &nodeb, 
                             const CXXCircleNode &nodec) const
 {
@@ -342,20 +342,20 @@ bool CXXCircle::smallabBracketsC(const CXXCircleNode &nodea,
     return liesBetween;
 }
 
-void CXXCircle::trimOwnNodes(){    
+void CXX_mot::CXXCircle::trimOwnNodes(){    
 	
 	//Delete all nodes that lie within any of the segments
-    list<CXXCircle, CXX::CXXAlloc<CXXCircle> > &otherCircles = theParent->getCircles();
+    list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> > &otherCircles = theParent->getCircles();
 	int nodesToDraw = countDrawnNodes();
-	list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator otherCirclesEnd = otherCircles.end();
-	for (list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator otherCircleIter = otherCircles.begin();
+	list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::iterator otherCirclesEnd = otherCircles.end();
+	for (list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::iterator otherCircleIter = otherCircles.begin();
 		 otherCircleIter != otherCirclesEnd && nodesToDraw > 0;
 		 ++otherCircleIter){
 		CXXCircle &otherCircle (*otherCircleIter);
 		if (!otherCircle.getEaten()  &&
 			&otherCircle != this){
-			list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator nodesEnd = theNodes.end();
-			for (list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator nodeIter = theNodes.begin();
+			list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator nodesEnd = theNodes.end();
+			for (list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator nodeIter = theNodes.begin();
 				 nodeIter != nodesEnd && nodesToDraw>0;
 				 ++nodeIter){
 				CXXCircleNode &nodec(*nodeIter);
@@ -373,7 +373,7 @@ void CXXCircle::trimOwnNodes(){
 	return;
 }
 
-int CXXCircle::sortNodes(){
+int CXX_mot::CXXCircle::sortNodes(){
 	if (theNodes.empty()) return 1;
 	
 	int initialNNodes = theNodes.size();
@@ -398,8 +398,8 @@ int CXXCircle::sortNodes(){
     
     CXXCircleNode *startNode = 0;    
 	//March round till we find an undeleted class2 node
-    list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator nodesEnd = theNodes.end();
-    for (list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator nodeIter = theNodes.begin();
+    list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator nodesEnd = theNodes.end();
+    for (list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator nodeIter = theNodes.begin();
          nodeIter != nodesEnd;
          ++nodeIter){
         CXXCircleNode &theNode(*nodeIter);
@@ -410,15 +410,14 @@ int CXXCircle::sortNodes(){
 		}
 	}
 	if (startNode == 0) {
-        if (theNodes.size()>0) std::cout << theNodes.size() << "nodes but no startpoint\n";
-	//			theNodes.resize(0);
-			theNodes.clear();
-		return 0;
+	   if (theNodes.size()>0) std::cout << theNodes.size() << "nodes but no startpoint\n";
+	   theNodes.clear();
+	   return 0;
 	}	
 	referenceUnitRadius = startNode->getUnitRadius();
     
     nodesEnd = theNodes.end();
-    for (list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator nodeIter = theNodes.begin();
+    for (list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator nodeIter = theNodes.begin();
          nodeIter != nodesEnd;
          ++nodeIter){
         CXXCircleNode &theNode(*nodeIter);
@@ -433,14 +432,14 @@ int CXXCircle::sortNodes(){
 	return 0;
 }
 
-int CXXCircle::newIdentifyArcs(){
+int CXX_mot::CXXCircle::newIdentifyArcs(){
 	int nNodes = theNodes.size();
 	
 	//No arcs to upload if completely eaten
 	if (getEaten() || nNodes==0) {
-		theStarts.resize(0);
-		theStops.resize(0);
-		return 1;
+	   theStarts.clear();
+	   theStops.clear();
+	   return 1;
 	}	
 	
 	//If this is an intact orbit, then atomK will be zero, and the first two nodes are trivially the start and
@@ -452,8 +451,8 @@ int CXXCircle::newIdentifyArcs(){
 		return 0;
 	}
 	
-    list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator nodesEnd = theNodes.end();
-    for (list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator nodeIter = theNodes.begin();
+    list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator nodesEnd = theNodes.end();
+    for (list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator nodeIter = theNodes.begin();
          nodeIter != nodesEnd;
          ++nodeIter){
         CXXCircleNode &theNode(*nodeIter);
@@ -470,66 +469,66 @@ int CXXCircle::newIdentifyArcs(){
 	}
     if (theStarts.size() != theStops.size()) {
         std::cout << "uneven count of starts and stops\n";
-        theStarts.resize(0);
+        theStarts.clear();
     }
 	return 0;
 }
 
-CXXNewHood *CXXCircle::getParent() const{
+CXX_mot::CXXNewHood *CXX_mot::CXXCircle::getParent() const{
 	return theParent;
 }
 
-unsigned CXXCircle::getNNodes() const{
+unsigned CXX_mot::CXXCircle::getNNodes() const{
 	return theNodes.size();
 }
 /*
-CXXCircleNode &CXXCircle::getNode(const int i) {
+CXXCircleNode &CXX_mot::CXXCircle::getNode(const int i) {
 	return theNodes[i];
 }
 
-const CXXCircleNode &CXXCircle::getNode(const int i) const{
+const CXXCircleNode &CXX_mot::CXXCircle::getNode(const int i) const{
 	return theNodes[i];
 }
 */
-int CXXCircle::addNode(const CXXCircleNode &aNode){
+int CXX_mot::CXXCircle::addNode(const CXXCircleNode &aNode){
 	theNodes.push_back(aNode);
 	return 0;
 }
 
-int CXXCircle::getEaten() const{
+int CXX_mot::CXXCircle::getEaten() const{
 	return completelyEaten;
 }
 
-void CXXCircle::setEaten(int flag){
+void CXX_mot::CXXCircle::setEaten(int flag){
 	completelyEaten = flag;
     if (flag) theNodes.clear();
 }
 
-unsigned CXXCircle::nSegments () const{
+unsigned CXX_mot::CXXCircle::nSegments () const{
 	return theStarts.size();
 }
 
-CXXCircleNode* CXXCircle::start(const int i) const {
+CXX_mot::CXXCircleNode* CXX_mot::CXXCircle::start(const int i) const {
 	return theStarts[i];
 }
 
-CXXCircleNode* CXXCircle::stop(const int i) const{
+CXX_mot::CXXCircleNode* CXX_mot::CXXCircle::stop(const int i) const{
 	return theStops[i];
 }
 
-double CXXCircle::getRadiusOfVdWCircle() const{
+double CXX_mot::CXXCircle::getRadiusOfVdWCircle() const{
 	return getRadiusOfCircle() * 
 	(getRadiusOfSphere()-theParent->getProbeRadius()) / getRadiusOfSphere();
 }
 
-const CXXCoord CXXCircle::getCentreOfVdWCircle() const{
+const CXX_mot::CXXCoord CXX_mot::CXXCircle::getCentreOfVdWCircle() const{
 	CXXCoord diff = getCentreToCircle();
 	double frac = (getRadiusOfSphere()-theParent->getProbeRadius()) / getRadiusOfSphere();
 	diff *= frac;
 	return getCentreOfSphere()+diff;
 }
 
-void CXXCircle::dumpVdw() const{
+void CXX_mot::CXXCircle::dumpVdw() const{
 	CXXCoord aRadius; 
 	if (theNormal*CXXCoord(1.,0.,0.) < 0.9999999)
 		aRadius = theNormal^CXXCoord(1.,0.,0.);
@@ -565,12 +564,12 @@ void CXXCircle::dumpVdw() const{
 	}
 }
 
-int CXXCircle::vdwIsBehind(const CXXCoord &crd) const{
+int CXX_mot::CXXCircle::vdwIsBehind(const CXXCoord &crd) const{
 	CXXCoord diff = crd - getCentreOfVdWCircle();
 	return (diff*getNormal() < 0.);
 }
 
-const CXXCoord CXXCircle::vdwPlaneIntersect(const CXXCoord &A, const CXXCoord &B) const{
+const CXX_mot::CXXCoord CXX_mot::CXXCircle::vdwPlaneIntersect(const CXXCoord &A, const CXXCoord &B) const{
 	CXXCoord AO = getCentreOfVdWCircle() - A;
 	CXXCoord AB = B - A;
 	double frac = (AO*getNormal()) / (AB*getNormal());
@@ -578,7 +577,7 @@ const CXXCoord CXXCircle::vdwPlaneIntersect(const CXXCoord &A, const CXXCoord &B
 	return A + AB;
 }
 
-const CXXCoord CXXCircle::accPlaneIntersect(const CXXCoord &A, const CXXCoord &B) const{
+const CXX_mot::CXXCoord CXX_mot::CXXCircle::accPlaneIntersect(const CXXCoord &A, const CXXCoord &B) const{
 	CXXCoord AO(getCentreOfCircle() - A);
 	CXXCoord AB(B - A);
 	double frac = (AO*getNormal()) / (AB*getNormal());
@@ -590,11 +589,11 @@ const CXXCoord CXXCircle::accPlaneIntersect(const CXXCoord &A, const CXXCoord &B
 	return getCentreOfCircle() + OC;
 }
 
-const CXXCoord & CXXCircle::getReferenceUnitRadius() const{
+const CXX_mot::CXXCoord & CXX_mot::CXXCircle::getReferenceUnitRadius() const{
 	return referenceUnitRadius;
 }
 
-void CXXCircle::setArbitraryReference(){
+void CXX_mot::CXXCircle::setArbitraryReference(){
 	CXXCoord v1unit;
 	CXXCoord xAxis(1.,0.,0.,0.);
 	CXXCoord zAxis(0.,0.,1.,0.);
@@ -613,11 +612,11 @@ void CXXCircle::setArbitraryReference(){
     addNode(CXXCircleNode(this, 0, arbitraryEdgePoint, -1));
 }
 
-int CXXCircle::countDrawnNodes() const
+int CXX_mot::CXXCircle::countDrawnNodes() const
 {
     int answer = 0;
-    list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::const_iterator nodesEnd = theNodes.end();
-    for (list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::const_iterator nodeIter = theNodes.begin();
+    list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::const_iterator nodesEnd = theNodes.end();
+    for (list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::const_iterator nodeIter = theNodes.begin();
          nodeIter != nodesEnd;
          ++nodeIter){
         const CXXCircleNode &theNode(*nodeIter);

@@ -29,6 +29,7 @@
 #include "clipper/core/nxmap.h"
 #include "mini-mol/mini-mol.hh"
 #include "geometry/protein-geometry.hh"
+#include "atom-selection-container.hh"
 
 namespace coot {
 
@@ -73,6 +74,11 @@ namespace coot {
 						      const std::vector<std::pair<std::string, int> > &atom_number_list,
 						      const clipper::Xmap<float> &map_in);
 
+      float z_weighted_density_at_nearest_grid(const clipper::Coord_orth &pt,
+					       const std::string &ele,
+					       const std::vector<std::pair<std::string, int> > &atom_number_list,
+					       const clipper::Xmap<float> &map_in);
+
       float z_weighted_density_score(const std::vector<mmdb::Atom *> &atoms,
 				     const std::vector<std::pair<std::string, int> > &atom_number_list,
 				     const clipper::Xmap<float> &map);
@@ -91,6 +97,10 @@ namespace coot {
       float z_weighted_density_score_linear_interp(const minimol::molecule &mol,
 						   const std::vector<std::pair<std::string, int> > &atom_number_list,
 						   const clipper::Xmap<float> &map);
+
+      float z_weighted_density_score_nearest(const minimol::molecule &mol,
+					     const std::vector<std::pair<std::string, int> > &atom_number_list,
+					     const clipper::Xmap<float> &map);
 
       float biased_z_weighted_density_score(const minimol::molecule &mol,
 					    const std::vector<std::pair<std::string, int> > &atom_number_list,
@@ -142,6 +152,14 @@ namespace coot {
 	 std::vector<std::pair<float, clipper::RTop_orth> >
 	 filter_by_distance_to_higher_peak(const std::vector<std::pair<float, clipper::RTop_orth> > &vr) const;
 	 
+
+	 static void fffear_search_inner_threaded(const clipper::Xmap<float> &xmap,
+						  const clipper::NXmap<float> &nxmap,
+						  const clipper::NXmap<float> &nxmap_mask,
+						  const std::vector<clipper::RTop_orth> &ops,
+						  const std::vector<unsigned int> &ops_idx_set,
+						  clipper::Xmap<std::pair<float, int> > &results);
+
       public:
 	 clipper::NXmap<float> nxmap;
 	 clipper::NXmap<float> nxmap_mask;
@@ -156,6 +174,16 @@ namespace coot {
 	 // origin) before applying the RTop of the (negative) peaks of the fffear map.
 	 clipper::RTop_orth mid_point_transformation() const;
       };
+
+      // heavy because atom_selection_container_t
+      clipper::NXmap<float> make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_container_t asc, float border=3.0);
+
+      clipper::NXmap<float> make_nxmap(const clipper::Xmap<float> &xmap, mmdb::Manager *mol, int SelectionHandle, float border=3.0);
+
+      //
+      clipper::NXmap<float> make_edcalc_map(const clipper::NXmap<float>& map_ref,  // for metrics
+					    mmdb::Manager *mol,
+					    int atom_selection_handle);
 
    }
 }

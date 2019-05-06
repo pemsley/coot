@@ -76,7 +76,7 @@
 			  <signal name="activate" handler="on_open_coordinates1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12035">
+			    <widget class="GtkImage" id="image13943">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-open</property>
 			      <property name="icon_size">1</property>
@@ -97,7 +97,7 @@
 			  <signal name="activate" handler="on_auto_open_mtz_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12036">
+			    <widget class="GtkImage" id="image13944">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-open</property>
 			      <property name="icon_size">1</property>
@@ -119,7 +119,7 @@
 			  <signal name="activate" handler="on_open_dataset1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12037">
+			    <widget class="GtkImage" id="image13945">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-open</property>
 			      <property name="icon_size">1</property>
@@ -141,7 +141,7 @@
 			  <signal name="activate" handler="on_open_map1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12038">
+			    <widget class="GtkImage" id="image13946">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-open</property>
 			      <property name="icon_size">1</property>
@@ -162,7 +162,7 @@
 			  <signal name="activate" handler="on_import_cif_dictionary1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12039">
+			    <widget class="GtkImage" id="image13947">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-add</property>
 			      <property name="icon_size">1</property>
@@ -190,7 +190,7 @@
 			  <signal name="activate" handler="on_get_monomer1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12040">
+			    <widget class="GtkImage" id="image13948">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">connect-to-ccp4.svg</property>
 			      <property name="xalign">0.5</property>
@@ -211,7 +211,7 @@
 			  <signal name="activate" handler="on_search_monomer_library1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12041">
+			    <widget class="GtkImage" id="image13949">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-index</property>
 			      <property name="icon_size">1</property>
@@ -233,7 +233,7 @@
 			  <signal name="activate" handler="on_get_pdb_using_code1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12042">
+			    <widget class="GtkImage" id="image13950">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">connect-to-oca.svg</property>
 			      <property name="xalign">0.5</property>
@@ -248,13 +248,13 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="get_pdb_and_map_using_eds1">
 			  <property name="visible">True</property>
-			  <property name="tooltip" translatable="yes">Use the Electron Density Server at Uppsala University to get coords and map... (Long live the EDS!)</property>
+			  <property name="tooltip" translatable="yes">Use the Electron Density Server at the EBI to get coords and map... (Long live the EDS!)</property>
 			  <property name="label" translatable="yes">Fetch PDB &amp; Map using EDS...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_get_pdb_and_map_using_eds1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12043">
+			    <widget class="GtkImage" id="image13951">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">connect-to-usf.svg</property>
 			      <property name="xalign">0.5</property>
@@ -289,7 +289,7 @@
 			  <signal name="activate" handler="on_save_coordinates1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12044">
+			    <widget class="GtkImage" id="image13952">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-save</property>
 			      <property name="icon_size">1</property>
@@ -310,7 +310,7 @@
 			  <signal name="activate" handler="on_save_symmetry_coordinates1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12045">
+			    <widget class="GtkImage" id="image13953">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">coot-save-symm.png</property>
 			      <property name="xalign">0.5</property>
@@ -330,7 +330,7 @@
 			  <signal name="activate" handler="on_save_state1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12046">
+			    <widget class="GtkImage" id="image13954">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">coot-save.png</property>
 			      <property name="xalign">0.5</property>
@@ -350,7 +350,7 @@
 			  <signal name="activate" handler="on_recover_session1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12047">
+			    <widget class="GtkImage" id="image13955">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-find-and-replace</property>
 			      <property name="icon_size">1</property>
@@ -401,7 +401,7 @@
 			  <signal name="activate" handler="on_close_molecule1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12048">
+			    <widget class="GtkImage" id="image13956">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-close</property>
 			      <property name="icon_size">1</property>
@@ -421,6 +421,22 @@
 		      </child>
 
 		      <child>
+			<widget class="GtkImageMenuItem" id="curlew1">
+			  <property name="visible">True</property>
+			  <property name="tooltip" translatable="yes">Coot's Extension Wrangler</property>
+			  <property name="label" translatable="yes">Curlew</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_curlew1_activate" last_modification_time="Sat, 20 Apr 2019 12:00:27 GMT"/>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkSeparatorMenuItem" id="separator9">
+			  <property name="visible">True</property>
+			</widget>
+		      </child>
+
+		      <child>
 			<widget class="GtkImageMenuItem" id="exit1">
 			  <property name="visible">True</property>
 			  <property name="tooltip" translatable="yes">bye</property>
@@ -429,7 +445,7 @@
 			  <signal name="activate" handler="on_exit1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12049">
+			    <widget class="GtkImage" id="image13958">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-quit</property>
 			      <property name="icon_size">1</property>
@@ -456,6 +472,68 @@
 		    <widget class="GtkMenu" id="edit1_menu">
 
 		      <child>
+			<widget class="GtkImageMenuItem" id="bond_colours1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Bond Colours...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_bond_colours1_activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image13959">
+			      <property name="visible">True</property>
+			      <property name="stock">gtk-select-color</property>
+			      <property name="icon_size">1</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="bond_parameters1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Bond Parameters...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_bond_parameters1_activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image13960">
+			      <property name="visible">True</property>
+			      <property name="stock">gtk-preferences</property>
+			      <property name="icon_size">1</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="edit_change_chain_ids1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Change Chain IDs...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_edit_change_chain_ids1_activate" last_modification_time="Thu, 30 Nov 2017 20:33:55 GMT"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image13961">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">change-chain-id.svg</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
 			<widget class="GtkImageMenuItem" id="edit_copy_molecule1">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Copy Molecule...</property>
@@ -463,7 +541,7 @@
 			  <signal name="activate" handler="on_edit_copy_molecule1_activate" last_modification_time="Thu, 30 Nov 2017 20:30:02 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12050">
+			    <widget class="GtkImage" id="image13962">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-copy</property>
 			      <property name="icon_size">1</property>
@@ -484,153 +562,10 @@
 			  <signal name="activate" handler="on_edit_copy_fragment1_activate" last_modification_time="Thu, 30 Nov 2017 20:31:04 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12051">
+			    <widget class="GtkImage" id="image13963">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-copy</property>
 			      <property name="icon_size">1</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="edit_replace_residue1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Replace Residue...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_edit_replace_residue1_activate" last_modification_time="Thu, 30 Nov 2017 20:32:26 GMT"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12052">
-			      <property name="visible">True</property>
-			      <property name="stock">gtk-refresh</property>
-			      <property name="icon_size">1</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="edit_replace_fragment1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Replace Fragment...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_edit_replace_fragment1_activate" last_modification_time="Thu, 30 Nov 2017 20:32:26 GMT"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12053">
-			      <property name="visible">True</property>
-			      <property name="stock">gtk-refresh</property>
-			      <property name="icon_size">1</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="edit_renumber_residues1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Renumber Residues...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_edit_renumber_residues1_activate" last_modification_time="Thu, 30 Nov 2017 20:33:15 GMT"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12054">
-			      <property name="visible">True</property>
-			      <property name="pixbuf">renumber-residues.svg</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="edit_change_chain_ids1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Change Chain IDs...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_edit_change_chain_ids1_activate" last_modification_time="Thu, 30 Nov 2017 20:33:55 GMT"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12055">
-			      <property name="visible">True</property>
-			      <property name="pixbuf">change-chain-id.svg</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="edit_merge_molecules1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Merge Molecules...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_edit_merge_molecules1_activate" last_modification_time="Thu, 30 Nov 2017 20:42:11 GMT"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12056">
-			      <property name="visible">True</property>
-			      <property name="pixbuf">merge-molecules.svg</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="bond_colours1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Bond Colours...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_bond_colours1_activate"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12057">
-			      <property name="visible">True</property>
-			      <property name="stock">gtk-select-color</property>
-			      <property name="icon_size">1</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="restraints1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Restraints...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_restraints1_activate" last_modification_time="Sun, 20 Apr 2008 08:14:40 GMT"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12058">
-			      <property name="visible">True</property>
-			      <property name="pixbuf">radacina_handcuffs-small.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -648,7 +583,7 @@
 			  <signal name="activate" handler="on_map_colour1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12059">
+			    <widget class="GtkImage" id="image13964">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-select-color</property>
 			      <property name="icon_size">1</property>
@@ -669,7 +604,7 @@
 			  <signal name="activate" handler="on_density_size1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12060">
+			    <widget class="GtkImage" id="image13965">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-preferences</property>
 			      <property name="icon_size">1</property>
@@ -683,17 +618,98 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkImageMenuItem" id="bond_parameters1">
+			<widget class="GtkImageMenuItem" id="edit_merge_molecules1">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Bond Parameters...</property>
+			  <property name="label" translatable="yes">Merge Molecules...</property>
 			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_bond_parameters1_activate"/>
+			  <signal name="activate" handler="on_edit_merge_molecules1_activate" last_modification_time="Thu, 30 Nov 2017 20:42:11 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12061">
+			    <widget class="GtkImage" id="image13966">
 			      <property name="visible">True</property>
-			      <property name="stock">gtk-preferences</property>
+			      <property name="pixbuf">merge-molecules.svg</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="edit_replace_residue1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Replace Residue...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_edit_replace_residue1_activate" last_modification_time="Thu, 30 Nov 2017 20:32:26 GMT"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image13967">
+			      <property name="visible">True</property>
+			      <property name="stock">gtk-refresh</property>
 			      <property name="icon_size">1</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="edit_replace_fragment1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Replace Fragment...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_edit_replace_fragment1_activate" last_modification_time="Thu, 30 Nov 2017 20:32:26 GMT"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image13968">
+			      <property name="visible">True</property>
+			      <property name="stock">gtk-refresh</property>
+			      <property name="icon_size">1</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="edit_renumber_residues1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Renumber Residues...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_edit_renumber_residues1_activate" last_modification_time="Thu, 30 Nov 2017 20:33:15 GMT"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image13969">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">renumber-residues.svg</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="restraints1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Restraints...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_restraints1_activate" last_modification_time="Sun, 20 Apr 2008 08:14:40 GMT"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image13970">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">radacina_handcuffs-small.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -710,7 +726,7 @@
 			  <property name="use_underline">True</property>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12062">
+			    <widget class="GtkImage" id="image13971">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-preferences</property>
 			      <property name="icon_size">1</property>
@@ -732,7 +748,7 @@
 				  <signal name="activate" handler="on_skeleton_colour1_activate"/>
 
 				  <child internal-child="image">
-				    <widget class="GtkImage" id="image12063">
+				    <widget class="GtkImage" id="image13972">
 				      <property name="visible">True</property>
 				      <property name="stock">gtk-select-color</property>
 				      <property name="icon_size">1</property>
@@ -781,7 +797,7 @@
 			  <signal name="activate" handler="on_residue_info2_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12064">
+			    <widget class="GtkImage" id="image13973">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">residue-info.svg</property>
 			      <property name="xalign">0.5</property>
@@ -800,7 +816,7 @@
 			  <signal name="activate" handler="on_font_size1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12065">
+			    <widget class="GtkImage" id="image13974">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">gtk-font.png</property>
 			      <property name="xalign">0.5</property>
@@ -819,7 +835,7 @@
 			  <signal name="activate" handler="on_pink_pointer_size1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12066">
+			    <widget class="GtkImage" id="image13975">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">pink-pointer.svg</property>
 			      <property name="xalign">0.5</property>
@@ -839,7 +855,7 @@
 			  <signal name="activate" handler="on_background_colour1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12067">
+			    <widget class="GtkImage" id="image13976">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-select-color</property>
 			      <property name="icon_size">1</property>
@@ -885,6 +901,15 @@
 		      </child>
 
 		      <child>
+			<widget class="GtkMenuItem" id="edit_settings">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Settings...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_edit_settings_activate" last_modification_time="Mon, 04 Jun 2018 22:07:35 GMT"/>
+			</widget>
+		      </child>
+
+		      <child>
 			<widget class="GtkImageMenuItem" id="preferences1">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Preferences...</property>
@@ -892,7 +917,7 @@
 			  <signal name="activate" handler="on_preferences1_activate" last_modification_time="Wed, 13 Feb 2008 13:39:23 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12068">
+			    <widget class="GtkImage" id="image13977">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-preferences</property>
 			      <property name="icon_size">1</property>
@@ -919,91 +944,29 @@
 		    <widget class="GtkMenu" id="calculate1_menu">
 
 		      <child>
-			<widget class="GtkImageMenuItem" id="regularize1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Model/Fit/Refine...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_model_refine_activate"/>
-			  <accelerator key="F5" modifiers="0" signal="activate"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12069">
-			      <property name="visible">True</property>
-			      <property name="stock">gtk-find-and-replace</property>
-			      <property name="icon_size">1</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="other_modelling_tools1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Other Modelling Tools...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_other_modelling_tools1_activate"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12070">
-			      <property name="visible">True</property>
-			      <property name="pixbuf">gnome-run.png</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkMenuItem" id="ssm_superposition1">
-			  <property name="visible">True</property>
-			  <property name="tooltip" translatable="yes">Overlay protein structures using Secondary Structure</property>
-			  <property name="label" translatable="yes">SSM Superpose...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_ssm_superposition1_activate"/>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkMenuItem" id="lsq_superpose1">
-			  <property name="visible">True</property>
-			  <property name="tooltip" translatable="yes">Least squares fit structures using residue range</property>
-			  <property name="label" translatable="yes">LSQ Superpose...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_lsq_superpose1_activate"/>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkMenuItem" id="mutate_molecule1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Mutate Residue Range...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_mutate_molecule1_activate"/>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkMenuItem" id="align_&amp;_mutate1">
+			<widget class="GtkMenuItem" id="align_and_mutate1">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Align &amp; Mutate...</property>
 			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_align_&amp;_mutate1_activate"/>
+			  <signal name="activate" handler="on_align_and_mutate1_activate" last_modification_time="Mon, 04 Jun 2018 22:07:35 GMT"/>
 			</widget>
 		      </child>
 
 		      <child>
-			<widget class="GtkMenuItem" id="move_molecule_here1">
+			<widget class="GtkMenuItem" id="calculate_all_molecule">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Move Molecule Here...</property>
+			  <property name="label" translatable="yes">All Molecule...</property>
 			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_move_molecule_here1_activate"/>
+			  <signal name="activate" handler="on_calculate_all_molecule_activate" last_modification_time="Mon, 04 Jun 2018 22:07:35 GMT"/>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkMenuItem" id="calculate_dock_sequence">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Dock Sequence...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_calculate_dock_sequence_activate" last_modification_time="Mon, 04 Jun 2018 22:07:35 GMT"/>
 			</widget>
 		      </child>
 
@@ -1040,6 +1003,74 @@
 		      </child>
 
 		      <child>
+			<widget class="GtkImageMenuItem" id="frames/sec1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Frames/Sec...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_fps1_activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image13978">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">appointment-new.png</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkMenuItem" id="calculate_load_tutorial_model_and_data1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Load Tutorial Model and Data</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_calculate_load_tutorial_model_and_data1_activate" last_modification_time="Mon, 04 Jun 2018 22:23:02 GMT"/>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="ligand_builder1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Ligand Builder</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_ligand_builder1_activate" last_modification_time="Wed, 27 Jul 2011 15:15:37 GMT"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image13979">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">go-to-ligand.svg</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkMenuItem" id="lsq_superpose1">
+			  <property name="visible">True</property>
+			  <property name="tooltip" translatable="yes">Least squares fit structures using residue range</property>
+			  <property name="label" translatable="yes">LSQ Superpose...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_lsq_superpose1_activate"/>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkMenuItem" id="calculate_map_tools">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Map Tools...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_calculate_map_tools_activate" last_modification_time="Mon, 04 Jun 2018 22:07:35 GMT"/>
+			</widget>
+		      </child>
+
+		      <child>
 			<widget class="GtkMenuItem" id="map_sharpening1">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Map Sharpening/Blurring...</property>
@@ -1058,6 +1089,63 @@
 		      </child>
 
 		      <child>
+			<widget class="GtkMenuItem" id="modelling">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Modelling...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_modelling_activate" last_modification_time="Mon, 04 Jun 2018 19:55:26 GMT"/>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="regularize1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Model/Fit/Refine...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_model_refine_activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image13980">
+			      <property name="visible">True</property>
+			      <property name="stock">gtk-find-and-replace</property>
+			      <property name="icon_size">1</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkMenuItem" id="calculate_modules">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Modules...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_calculate_modules_activate" last_modification_time="Mon, 04 Jun 2018 22:07:35 GMT"/>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkMenuItem" id="move_molecule_here1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Move Molecule Here...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_move_molecule_here1_activate"/>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkMenuItem" id="mutate_molecule1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Mutate Residue Range...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_mutate_molecule1_activate"/>
+			</widget>
+		      </child>
+
+		      <child>
 			<widget class="GtkImageMenuItem" id="ncs_maps1">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">NCS Maps...</property>
@@ -1065,7 +1153,7 @@
 			  <signal name="activate" handler="on_ncs_maps1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12071">
+			    <widget class="GtkImage" id="image13981">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">calculate-ghosts.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1078,22 +1166,71 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkImageMenuItem" id="frames/sec1">
+			<widget class="GtkMenuItem" id="calculate_ncs_tools">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Frames/Sec...</property>
+			  <property name="label" translatable="yes">NCS Tools...</property>
 			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_fps1_activate"/>
+			  <signal name="activate" handler="on_calculate_ncs_tools_activate" last_modification_time="Mon, 04 Jun 2018 22:07:35 GMT"/>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="other_modelling_tools1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Other Modelling Tools...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_other_modelling_tools1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12072">
+			    <widget class="GtkImage" id="image13982">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">appointment-new.png</property>
+			      <property name="pixbuf">gnome-run.png</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
 			      <property name="ypad">0</property>
 			    </widget>
 			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkMenuItem" id="calculate_pisa">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">PISA...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_calculate_pisa_activate" last_modification_time="Mon, 04 Jun 2018 22:07:35 GMT"/>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="run_script1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Run Script...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_run_script1_activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image13983">
+			      <property name="visible">True</property>
+			      <property name="stock">gtk-execute</property>
+			      <property name="icon_size">1</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkMenuItem" id="ssm_superposition1">
+			  <property name="visible">True</property>
+			  <property name="tooltip" translatable="yes">Overlay protein structures using Secondary Structure</property>
+			  <property name="label" translatable="yes">SSM Superpose...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_ssm_superposition1_activate"/>
 			</widget>
 		      </child>
 
@@ -1105,7 +1242,7 @@
 			  <signal name="activate" handler="on_scripting_window_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12073">
+			    <widget class="GtkImage" id="image13984">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-justify-left</property>
 			      <property name="icon_size">1</property>
@@ -1140,47 +1277,6 @@
 			  </child>
 			</widget>
 		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="run_script1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Run Script...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_run_script1_activate"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12074">
-			      <property name="visible">True</property>
-			      <property name="stock">gtk-execute</property>
-			      <property name="icon_size">1</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="ligand_builder1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Ligand Builder</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_ligand_builder1_activate" last_modification_time="Wed, 27 Jul 2011 15:15:37 GMT"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12075">
-			      <property name="visible">True</property>
-			      <property name="pixbuf">go-to-ligand.svg</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
 		    </widget>
 		  </child>
 		</widget>
@@ -1196,17 +1292,103 @@
 		    <widget class="GtkMenu" id="draw1_menu">
 
 		      <child>
-			<widget class="GtkImageMenuItem" id="go_to_atom1">
+			<widget class="GtkMenuItem" id="additional_representation1">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Go To Atom...</property>
+			  <property name="label" translatable="yes">Additional Representation...</property>
 			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_go_to_atom1_activate"/>
-			  <accelerator key="F6" modifiers="0" signal="activate"/>
+			  <signal name="activate" handler="on_additional_representation1_activate" last_modification_time="Thu, 13 Mar 2008 15:39:25 GMT"/>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="anisotropic_atoms1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Anisotropic Atoms...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_anisotropic_atoms1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12076">
+			    <widget class="GtkImage" id="image13985">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">go-to-atom.svg</property>
+			      <property name="pixbuf">aniso-atom.svg</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="show_symmetry1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Cell &amp; Symmetry...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_show_symmetry1_activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image13986">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">cell+symm.svg</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="centre_atom_label1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Centre Atom Label...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_centre_atom_label1_activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image13987">
+			      <property name="visible">True</property>
+			      <property name="stock">gtk-justify-center</property>
+			      <property name="icon_size">1</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkMenuItem" id="clipping1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Clipping...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_clipping1_activate"/>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkMenuItem" id="coordinates_recentring1">
+			  <property name="label" translatable="yes">Coordinates Recentring...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_coordinates_recentring1_activate"/>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="crosshairs1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Crosshairs...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_crosshairs1_activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image13988">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">crosshairs.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -1226,7 +1408,7 @@
 			  <accelerator key="F7" modifiers="0" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12077">
+			    <widget class="GtkImage" id="image13989">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">display-manager.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1249,18 +1431,24 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkImageMenuItem" id="undo_last_navigation1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Undo Last Navigation</property>
+			<widget class="GtkMenuItem" id="dragged_map1">
+			  <property name="label" translatable="yes">Dragged Map...</property>
 			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_undo_last_navigation1_activate"/>
-			  <accelerator key="U" modifiers="0" signal="activate"/>
+			  <signal name="activate" handler="on_dragged_map1_activate"/>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="generic_display_objects1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Generic Display Objects...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_generic_display_objects1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12078">
+			    <widget class="GtkImage" id="image13990">
 			      <property name="visible">True</property>
-			      <property name="stock">gtk-undo</property>
-			      <property name="icon_size">1</property>
+			      <property name="pixbuf">generic-display-objects.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -1271,17 +1459,76 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkImageMenuItem" id="centre_atom_label1">
+			<widget class="GtkImageMenuItem" id="go_to_atom1">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Centre Atom Label...</property>
+			  <property name="label" translatable="yes">Go To Atom...</property>
 			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_centre_atom_label1_activate"/>
+			  <signal name="activate" handler="on_go_to_atom1_activate"/>
+			  <accelerator key="F6" modifiers="0" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12079">
+			    <widget class="GtkImage" id="image13991">
 			      <property name="visible">True</property>
-			      <property name="stock">gtk-justify-center</property>
-			      <property name="icon_size">1</property>
+			      <property name="pixbuf">go-to-atom.svg</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="ncs_ghost_control1">
+			  <property name="visible">True</property>
+			  <property name="tooltip" translatable="yes">Non-crystallographic Ghost Controller</property>
+			  <property name="label" translatable="yes">NCS Ghost Control...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_ncs_ghost_control1_activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image13992">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">ghosts.svg</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkMenuItem" id="draw_representation_tools">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Representation Tools...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_draw_representation_tools_activate" last_modification_time="Mon, 04 Jun 2018 22:07:35 GMT"/>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkMenuItem" id="rock_view_on/off1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Rock View On/Off</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_rock_view_on/off1_activate" last_modification_time="Thu, 14 Apr 2011 10:25:43 GMT"/>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="spin_view_on/off1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Spin View On/Off</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_spin_view_on/off1_activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image13993">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">spin-view.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -1299,7 +1546,7 @@
 			  <signal name="activate" handler="on_sequence_view1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12080">
+			    <widget class="GtkImage" id="image13994">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">sequence-view.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1312,112 +1559,13 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkImageMenuItem" id="anisotropic_atoms1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Anisotropic Atoms...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_anisotropic_atoms1_activate"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12081">
-			      <property name="visible">True</property>
-			      <property name="pixbuf">aniso-atom.svg</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="show_symmetry1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Cell &amp; Symmetry...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_show_symmetry1_activate"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12082">
-			      <property name="visible">True</property>
-			      <property name="pixbuf">cell+symm.svg</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkMenuItem" id="additional_representation1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Additional Representation...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_additional_representation1_activate" last_modification_time="Thu, 13 Mar 2008 15:39:25 GMT"/>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="ncs_ghost_control1">
-			  <property name="visible">True</property>
-			  <property name="tooltip" translatable="yes">Non-crystallographic Ghost Controller</property>
-			  <property name="label" translatable="yes">NCS Ghost Control...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_ncs_ghost_control1_activate"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12083">
-			      <property name="visible">True</property>
-			      <property name="pixbuf">ghosts.svg</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="spin_view_on/off1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Spin View On/Off</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_spin_view_on/off1_activate"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12084">
-			      <property name="visible">True</property>
-			      <property name="pixbuf">spin-view.svg</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkMenuItem" id="rock_view_on/off1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Rock View On/Off</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_rock_view_on/off1_activate" last_modification_time="Thu, 14 Apr 2011 10:25:43 GMT"/>
-			</widget>
-		      </child>
-
-		      <child>
 			<widget class="GtkImageMenuItem" id="screenshot1">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Screenshot</property>
 			  <property name="use_underline">True</property>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12085">
+			    <widget class="GtkImage" id="image13995">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">panel-screenshot.png</property>
 			      <property name="xalign">0.5</property>
@@ -1462,16 +1610,46 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkImageMenuItem" id="generic_display_objects1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Generic Display Objects...</property>
+			<widget class="GtkMenuItem" id="recentring1">
+			  <property name="label" translatable="yes">Smooth Recentring...</property>
 			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_generic_display_objects1_activate"/>
+			  <signal name="activate" handler="on_recentring1_activate"/>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="stereo1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Stereo...</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_stereo1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12086">
+			    <widget class="GtkImage" id="image13996">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">generic-display-objects.svg</property>
+			      <property name="pixbuf">stereo-view.svg</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="undo_last_navigation1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Undo Last Navigation</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_undo_last_navigation1_activate"/>
+			  <accelerator key="U" modifiers="0" signal="activate"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image13997">
+			      <property name="visible">True</property>
+			      <property name="stock">gtk-undo</property>
+			      <property name="icon_size">1</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -1488,7 +1666,7 @@
 			  <signal name="activate" handler="on_antialiasing1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12087">
+			    <widget class="GtkImage" id="image13998">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">add-peptide-1.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1497,100 +1675,6 @@
 			      <property name="ypad">0</property>
 			    </widget>
 			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="stereo1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Stereo...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_stereo1_activate"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12088">
-			      <property name="visible">True</property>
-			      <property name="pixbuf">stereo-view.svg</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkMenuItem" id="clipping1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Clipping...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_clipping1_activate"/>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="crosshairs1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Crosshairs...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_crosshairs1_activate"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12089">
-			      <property name="visible">True</property>
-			      <property name="pixbuf">crosshairs.svg</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="zoom1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Zoom...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_zoom1_activate"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12090">
-			      <property name="visible">True</property>
-			      <property name="stock">gtk-zoom-in</property>
-			      <property name="icon_size">1</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkMenuItem" id="dragged_map1">
-			  <property name="label" translatable="yes">Dragged Map...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_dragged_map1_activate"/>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkMenuItem" id="recentring1">
-			  <property name="label" translatable="yes">Smooth Recentring...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_recentring1_activate"/>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkMenuItem" id="coordinates_recentring1">
-			  <property name="label" translatable="yes">Coordinates Recentring...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_coordinates_recentring1_activate"/>
 			</widget>
 		      </child>
 		    </widget>
@@ -1616,7 +1700,7 @@
 			  <signal name="activate" handler="on_residue_info1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12091">
+			    <widget class="GtkImage" id="image13999">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">residue-info.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1636,7 +1720,7 @@
 			  <signal name="activate" handler="on_distances_and_angles1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12092">
+			    <widget class="GtkImage" id="image14000">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-unindent</property>
 			      <property name="icon_size">1</property>
@@ -1657,7 +1741,7 @@
 			  <signal name="activate" handler="on_environment_distances1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12093">
+			    <widget class="GtkImage" id="image14001">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">env-distances.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1677,7 +1761,7 @@
 			  <signal name="activate" handler="on_plane_distances1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12094">
+			    <widget class="GtkImage" id="image14002">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">plane-distances.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1697,7 +1781,7 @@
 			  <signal name="activate" handler="on_pointer_distances1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12095">
+			    <widget class="GtkImage" id="image14003">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">pointer-distances.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1717,7 +1801,7 @@
 			  <signal name="activate" handler="on_clear_atom_labels1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12096">
+			    <widget class="GtkImage" id="image14004">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-clear</property>
 			      <property name="icon_size">1</property>
@@ -1752,7 +1836,7 @@
 			  <signal name="activate" handler="on_ramachandran_plot1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12097">
+			    <widget class="GtkImage" id="image14005">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">ramachandran.png</property>
 			      <property name="xalign">0.5</property>
@@ -1773,7 +1857,7 @@
 			  <signal name="activate" handler="on_ramachandran_differences_plot1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12098">
+			    <widget class="GtkImage" id="image14006">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">kleywegt.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1793,7 +1877,7 @@
 			  <signal name="activate" handler="on_incorrect_chiral_volumes1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12099">
+			    <widget class="GtkImage" id="image14007">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">chiral.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1813,7 +1897,7 @@
 			  <signal name="activate" handler="on_unmodelled_blobs1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12100">
+			    <widget class="GtkImage" id="image14008">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">unknown-blob.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1833,7 +1917,7 @@
 			  <signal name="activate" handler="on_difference_map_peaks1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12101">
+			    <widget class="GtkImage" id="image14009">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">diff-map.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1853,7 +1937,7 @@
 			  <signal name="activate" handler="on_check_waters1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12102">
+			    <widget class="GtkImage" id="image14010">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">water-drop.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1874,7 +1958,7 @@
 			  <signal name="activate" handler="on_geometry_analysis1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12103">
+			    <widget class="GtkImage" id="image14011">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">geom.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1895,7 +1979,7 @@
 			  <signal name="activate" handler="on_peptide_omega_analysis1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12104">
+			    <widget class="GtkImage" id="image14012">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">peptide-omega.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1916,7 +2000,7 @@
 			  <signal name="activate" handler="on_temp_fact_variance_analysis1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12105">
+			    <widget class="GtkImage" id="image14013">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">temperature.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1937,7 +2021,7 @@
 			  <signal name="activate" handler="on_temp_fact_analysis1_activate" last_modification_time="Thu, 28 May 2015 15:13:30 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12106">
+			    <widget class="GtkImage" id="image14014">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">temperature.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1958,7 +2042,7 @@
 			  <signal name="activate" handler="on_gln_and_asn_b_factor_outliers1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12107">
+			    <widget class="GtkImage" id="image14015">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">gln-asn-b-factors.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1979,7 +2063,7 @@
 			  <signal name="activate" handler="on_rotamer_analysis1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12108">
+			    <widget class="GtkImage" id="image14016">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">rotamers.svg</property>
 			      <property name="xalign">0.5</property>
@@ -1999,7 +2083,7 @@
 			  <signal name="activate" handler="on_density_fit_analysis1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12109">
+			    <widget class="GtkImage" id="image14017">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">density-fit.svg</property>
 			      <property name="xalign">0.5</property>
@@ -2019,7 +2103,7 @@
 			  <signal name="activate" handler="on_probe_clashes1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12110">
+			    <widget class="GtkImage" id="image14018">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">probe-clash.svg</property>
 			      <property name="xalign">0.5</property>
@@ -2037,108 +2121,6 @@
 			  <property name="label" translatable="yes">NCS Differences</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_ncs_differences1_activate" last_modification_time="Thu, 24 Jan 2008 20:38:51 GMT"/>
-			</widget>
-		      </child>
-		    </widget>
-		  </child>
-		</widget>
-	      </child>
-
-	      <child>
-		<widget class="GtkMenuItem" id="hid1">
-		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">HID</property>
-		  <property name="use_underline">True</property>
-
-		  <child>
-		    <widget class="GtkMenu" id="hid1_menu">
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="reset_view1">
-			  <property name="visible">True</property>
-			  <property name="tooltip" translatable="yes">Recentre of the last read molecule that is displayed</property>
-			  <property name="label" translatable="yes">Reset View</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_reset_view1_activate"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12111">
-			      <property name="visible">True</property>
-			      <property name="stock">gtk-zoom-fit</property>
-			      <property name="icon_size">1</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="scrollwheel1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">ScrollWheel</property>
-			  <property name="use_underline">True</property>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12112">
-			      <property name="visible">True</property>
-			      <property name="pixbuf">scroll-wheel.svg</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-
-			  <child>
-			    <widget class="GtkMenu" id="scrollwheel1_menu">
-
-			      <child>
-				<widget class="GtkMenuItem" id="attach_scroll_wheel_to_which_map?1">
-				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">Attach scroll wheel to which map?</property>
-				  <property name="use_underline">True</property>
-				  <signal name="activate" handler="on_attach_scroll_wheel_to_which_map?1_activate"/>
-				</widget>
-			      </child>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkMenuItem" id="virtual_trackball1">
-			  <property name="label" translatable="yes">Virtual Trackball</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_virtual_trackball_menu_pops"/>
-
-			  <child>
-			    <widget class="GtkMenu" id="virtual_trackball1_menu">
-
-			      <child>
-				<widget class="GtkRadioMenuItem" id="flat1">
-				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">Flat</property>
-				  <property name="use_underline">True</property>
-				  <property name="active">True</property>
-				  <signal name="activate" handler="on_vt_flat1_activate"/>
-				</widget>
-			      </child>
-
-			      <child>
-				<widget class="GtkRadioMenuItem" id="spherical_surface1">
-				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">Spherical Surface</property>
-				  <property name="use_underline">True</property>
-				  <property name="active">True</property>
-				  <property name="group">flat1</property>
-				  <signal name="activate" handler="on_vt_spherical_surface1_activate"/>
-				</widget>
-			      </child>
-			    </widget>
-			  </child>
 			</widget>
 		      </child>
 		    </widget>
@@ -2173,7 +2155,7 @@
 			  <signal name="activate" handler="on_on_line_docs_url1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12113">
+			    <widget class="GtkImage" id="image14019">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-justify-fill</property>
 			      <property name="icon_size">1</property>
@@ -2194,7 +2176,7 @@
 			  <signal name="activate" handler="on_hints1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12114">
+			    <widget class="GtkImage" id="image14020">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-dialog-info</property>
 			      <property name="icon_size">1</property>
@@ -2215,7 +2197,7 @@
 			  <signal name="activate" handler="on_about1_activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image12115">
+			    <widget class="GtkImage" id="image14021">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-about</property>
 			      <property name="icon_size">1</property>
@@ -6604,14 +6586,14 @@
 		      <property name="spacing">0</property>
 
 		      <child>
-			<widget class="GtkRadioButton" id="show_symmetry_yes_radiobutton">
+			<widget class="GtkRadioButton" id="show_symmetry_no_radiobutton">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
-			  <property name="label" translatable="yes">Symmetry On</property>
+			  <property name="label" translatable="yes">Symmetry Off</property>
 			  <property name="use_underline">True</property>
 			  <property name="relief">GTK_RELIEF_NORMAL</property>
 			  <property name="focus_on_click">True</property>
-			  <property name="active">False</property>
+			  <property name="active">True</property>
 			  <property name="inconsistent">False</property>
 			  <property name="draw_indicator">True</property>
 			</widget>
@@ -6623,17 +6605,37 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkRadioButton" id="show_symmetry_no_radiobutton">
+			<widget class="GtkRadioButton" id="show_symmetry_yes_radiobutton">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
-			  <property name="label" translatable="yes">Symmetry Off</property>
+			  <property name="label" translatable="yes">Symmetry On</property>
 			  <property name="use_underline">True</property>
 			  <property name="relief">GTK_RELIEF_NORMAL</property>
 			  <property name="focus_on_click">True</property>
-			  <property name="active">True</property>
+			  <property name="active">False</property>
 			  <property name="inconsistent">False</property>
 			  <property name="draw_indicator">True</property>
-			  <property name="group">show_symmetry_yes_radiobutton</property>
+			  <property name="group">show_symmetry_no_radiobutton</property>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">False</property>
+			  <property name="fill">False</property>
+			</packing>
+		      </child>
+
+		      <child>
+			<widget class="GtkCheckButton" id="symmetry_always_on_checkbutton">
+			  <property name="visible">True</property>
+			  <property name="can_focus">True</property>
+			  <property name="label" translatable="yes">Always On</property>
+			  <property name="use_underline">True</property>
+			  <property name="relief">GTK_RELIEF_NORMAL</property>
+			  <property name="focus_on_click">True</property>
+			  <property name="active">False</property>
+			  <property name="inconsistent">False</property>
+			  <property name="draw_indicator">True</property>
+			  <signal name="toggled" handler="on_symmetry_always_on_checkbutton_toggled" last_modification_time="Sat, 09 Mar 2019 19:46:04 GMT"/>
 			</widget>
 			<packing>
 			  <property name="padding">0</property>
@@ -9506,16 +9508,7 @@ just the cell and symmetry)
 		      <property name="spacing">0</property>
 
 		      <child>
-			<widget class="GtkOptionMenu" id="go_to_atom_molecule_optionmenu">
-			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="history">-1</property>
-			</widget>
-			<packing>
-			  <property name="padding">0</property>
-			  <property name="expand">False</property>
-			  <property name="fill">False</property>
-			</packing>
+			<placeholder/>
 		      </child>
 
 		      <child>
@@ -15764,17 +15757,7 @@ Do you want to continue?
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="save_coords_optionmenu">
-		  <property name="border_width">1</property>
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
+		<placeholder/>
 	      </child>
 
 	      <child>
@@ -16792,6 +16775,289 @@ checks the value of this checkbutton</property>
 			  <property name="fill">True</property>
 			</packing>
 		      </child>
+
+		      <child>
+			<widget class="GtkHBox" id="hbox451">
+			  <property name="visible">True</property>
+			  <property name="homogeneous">False</property>
+			  <property name="spacing">0</property>
+
+			  <child>
+			    <widget class="GtkToggleButton" id="refine_params_more_control_togglebutton">
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="label" translatable="yes">More Control...</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <property name="active">False</property>
+			      <property name="inconsistent">False</property>
+			      <signal name="toggled" handler="on_refine_params_more_control_togglebutton_toggled" last_modification_time="Sat, 01 Dec 2018 17:28:35 GMT"/>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">False</property>
+			      <property name="fill">False</property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkLabel" id="label823">
+			      <property name="visible">True</property>
+			      <property name="label" translatable="yes"></property>
+			      <property name="use_underline">False</property>
+			      <property name="use_markup">False</property>
+			      <property name="justify">GTK_JUSTIFY_LEFT</property>
+			      <property name="wrap">False</property>
+			      <property name="selectable">False</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+			      <property name="width_chars">-1</property>
+			      <property name="single_line_mode">False</property>
+			      <property name="angle">0</property>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">False</property>
+			      <property name="fill">False</property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <placeholder/>
+			  </child>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">True</property>
+			  <property name="fill">True</property>
+			</packing>
+		      </child>
+
+		      <child>
+			<widget class="GtkFrame" id="refine_params_more_control_frame">
+			  <property name="label_xalign">0</property>
+			  <property name="label_yalign">0.5</property>
+			  <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
+
+			  <child>
+			    <widget class="GtkAlignment" id="alignment171">
+			      <property name="visible">True</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xscale">1</property>
+			      <property name="yscale">1</property>
+			      <property name="top_padding">0</property>
+			      <property name="bottom_padding">0</property>
+			      <property name="left_padding">12</property>
+			      <property name="right_padding">0</property>
+
+			      <child>
+				<widget class="GtkTable" id="table9">
+				  <property name="visible">True</property>
+				  <property name="n_rows">3</property>
+				  <property name="n_columns">2</property>
+				  <property name="homogeneous">False</property>
+				  <property name="row_spacing">0</property>
+				  <property name="column_spacing">0</property>
+
+				  <child>
+				    <widget class="GtkLabel" id="label820">
+				      <property name="visible">True</property>
+				      <property name="label" translatable="yes">Geman-McClure alpha </property>
+				      <property name="use_underline">False</property>
+				      <property name="use_markup">True</property>
+				      <property name="justify">GTK_JUSTIFY_LEFT</property>
+				      <property name="wrap">False</property>
+				      <property name="selectable">False</property>
+				      <property name="xalign">0</property>
+				      <property name="yalign">0.5</property>
+				      <property name="xpad">0</property>
+				      <property name="ypad">0</property>
+				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+				      <property name="width_chars">-1</property>
+				      <property name="single_line_mode">False</property>
+				      <property name="angle">0</property>
+				    </widget>
+				    <packing>
+				      <property name="left_attach">0</property>
+				      <property name="right_attach">1</property>
+				      <property name="top_attach">0</property>
+				      <property name="bottom_attach">1</property>
+				      <property name="x_options">fill</property>
+				      <property name="y_options"></property>
+				    </packing>
+				  </child>
+
+				  <child>
+				    <widget class="GtkLabel" id="label821">
+				      <property name="visible">True</property>
+				      <property name="label" translatable="yes">Lennard-Jones epsilon </property>
+				      <property name="use_underline">False</property>
+				      <property name="use_markup">True</property>
+				      <property name="justify">GTK_JUSTIFY_LEFT</property>
+				      <property name="wrap">False</property>
+				      <property name="selectable">False</property>
+				      <property name="xalign">0</property>
+				      <property name="yalign">0.5</property>
+				      <property name="xpad">0</property>
+				      <property name="ypad">0</property>
+				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+				      <property name="width_chars">-1</property>
+				      <property name="single_line_mode">False</property>
+				      <property name="angle">0</property>
+				    </widget>
+				    <packing>
+				      <property name="left_attach">0</property>
+				      <property name="right_attach">1</property>
+				      <property name="top_attach">1</property>
+				      <property name="bottom_attach">2</property>
+				      <property name="x_options">fill</property>
+				      <property name="y_options"></property>
+				    </packing>
+				  </child>
+
+				  <child>
+				    <widget class="GtkLabel" id="label822">
+				      <property name="visible">True</property>
+				      <property name="label" translatable="yes">Rama Restraints weight </property>
+				      <property name="use_underline">False</property>
+				      <property name="use_markup">False</property>
+				      <property name="justify">GTK_JUSTIFY_LEFT</property>
+				      <property name="wrap">False</property>
+				      <property name="selectable">False</property>
+				      <property name="xalign">0</property>
+				      <property name="yalign">0.5</property>
+				      <property name="xpad">0</property>
+				      <property name="ypad">0</property>
+				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+				      <property name="width_chars">-1</property>
+				      <property name="single_line_mode">False</property>
+				      <property name="angle">0</property>
+				    </widget>
+				    <packing>
+				      <property name="left_attach">0</property>
+				      <property name="right_attach">1</property>
+				      <property name="top_attach">2</property>
+				      <property name="bottom_attach">3</property>
+				      <property name="x_options">fill</property>
+				      <property name="y_options"></property>
+				    </packing>
+				  </child>
+
+				  <child>
+				    <widget class="GtkComboBox" id="refine_params_geman_mcclure_alpha_combobox">
+				      <property name="visible">True</property>
+				      <property name="items" translatable="yes">0.0
+0.001
+0.003
+0.01
+0.03
+0.1
+0.3
+1.0
+3.0
+10.0</property>
+				      <property name="add_tearoffs">False</property>
+				      <property name="focus_on_click">True</property>
+				      <signal name="changed" handler="on_refine_params_geman_mcclure_alpha_combobox_changed" last_modification_time="Sat, 01 Dec 2018 16:03:15 GMT"/>
+				    </widget>
+				    <packing>
+				      <property name="left_attach">1</property>
+				      <property name="right_attach">2</property>
+				      <property name="top_attach">0</property>
+				      <property name="bottom_attach">1</property>
+				      <property name="y_options">fill</property>
+				    </packing>
+				  </child>
+
+				  <child>
+				    <widget class="GtkComboBox" id="refine_params_lennard_jones_epsilon_combobox">
+				      <property name="visible">True</property>
+				      <property name="items" translatable="yes">0.1
+0.2
+0.5
+1.0
+2.0
+5.0
+10.0</property>
+				      <property name="add_tearoffs">False</property>
+				      <property name="focus_on_click">True</property>
+				      <signal name="changed" handler="on_refine_params_lennard_jones_epsilon_combobox_changed" last_modification_time="Sat, 01 Dec 2018 16:03:28 GMT"/>
+				    </widget>
+				    <packing>
+				      <property name="left_attach">1</property>
+				      <property name="right_attach">2</property>
+				      <property name="top_attach">1</property>
+				      <property name="bottom_attach">2</property>
+				      <property name="x_options">fill</property>
+				      <property name="y_options">fill</property>
+				    </packing>
+				  </child>
+
+				  <child>
+				    <widget class="GtkComboBox" id="refine_params_rama_restraints_weight_combobox">
+				      <property name="visible">True</property>
+				      <property name="items" translatable="yes">0.1
+0.2
+0.5
+1.0
+2.0
+5.0
+10.0
+20.0
+50.0
+100.0</property>
+				      <property name="add_tearoffs">False</property>
+				      <property name="focus_on_click">True</property>
+				      <signal name="changed" handler="on_refine_params_rama_restraints_weight_combobox_changed" last_modification_time="Sat, 01 Dec 2018 16:03:36 GMT"/>
+				    </widget>
+				    <packing>
+				      <property name="left_attach">1</property>
+				      <property name="right_attach">2</property>
+				      <property name="top_attach">2</property>
+				      <property name="bottom_attach">3</property>
+				      <property name="x_options">fill</property>
+				      <property name="y_options">fill</property>
+				    </packing>
+				  </child>
+				</widget>
+			      </child>
+			    </widget>
+			  </child>
+
+			  <child>
+			    <widget class="GtkLabel" id="label819">
+			      <property name="visible">True</property>
+			      <property name="label" translatable="yes"></property>
+			      <property name="use_underline">False</property>
+			      <property name="use_markup">True</property>
+			      <property name="justify">GTK_JUSTIFY_LEFT</property>
+			      <property name="wrap">False</property>
+			      <property name="selectable">False</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+			      <property name="width_chars">-1</property>
+			      <property name="single_line_mode">False</property>
+			      <property name="angle">0</property>
+			    </widget>
+			    <packing>
+			      <property name="type">label_item</property>
+			    </packing>
+			  </child>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">True</property>
+			  <property name="fill">True</property>
+			</packing>
+		      </child>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -16832,7 +17098,7 @@ checks the value of this checkbutton</property>
   <property name="skip_pager_hint">False</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
-  <property name="focus_on_map">True</property>
+  <property name="focus_on_map">False</property>
   <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
   <signal name="configure_event" handler="on_accept_reject_refinement_dialog_configure_event"/>
@@ -17043,7 +17309,7 @@ checks the value of this checkbutton</property>
 	      <child>
 		<widget class="GtkLabel" id="chiral_centre_text_label">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes"></property>
+		  <property name="label" translatable="yes">-------- Chiral Info Here ------</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -17052,7 +17318,7 @@ checks the value of this checkbutton</property>
 		  <property name="xalign">0.0399999991059</property>
 		  <property name="yalign">0.5</property>
 		  <property name="xpad">0</property>
-		  <property name="ypad">1</property>
+		  <property name="ypad">0</property>
 		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
 		  <property name="width_chars">-1</property>
 		  <property name="single_line_mode">False</property>
@@ -17066,95 +17332,71 @@ checks the value of this checkbutton</property>
 	      </child>
 
 	      <child>
-		<widget class="GtkButton" id="accept_reject_reverse_button">
-		  <property name="border_width">10</property>
-		  <property name="relief">GTK_RELIEF_NORMAL</property>
-		  <property name="focus_on_click">True</property>
-		  <signal name="clicked" handler="on_accept_reject_reverse_button_clicked" last_modification_time="Fri, 28 Dec 2007 21:04:24 GMT"/>
+		<placeholder/>
+	      </child>
 
-		  <child>
-		    <widget class="GtkAlignment" id="alignment105">
-		      <property name="visible">True</property>
-		      <property name="xalign">0.5</property>
-		      <property name="yalign">0.5</property>
-		      <property name="xscale">0</property>
-		      <property name="yscale">0</property>
-		      <property name="top_padding">0</property>
-		      <property name="bottom_padding">0</property>
-		      <property name="left_padding">0</property>
-		      <property name="right_padding">0</property>
-
-		      <child>
-			<widget class="GtkHBox" id="hbox272">
-			  <property name="visible">True</property>
-			  <property name="homogeneous">False</property>
-			  <property name="spacing">2</property>
-
-			  <child>
-			    <widget class="GtkImage" id="image6023">
-			      <property name="visible">True</property>
-			      <property name="stock">gtk-refresh</property>
-			      <property name="icon_size">4</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkLabel" id="label442">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">  Reverse</property>
-			      <property name="use_underline">True</property>
-			      <property name="use_markup">False</property>
-			      <property name="justify">GTK_JUSTIFY_LEFT</property>
-			      <property name="wrap">False</property>
-			      <property name="selectable">False</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-			      <property name="width_chars">-1</property>
-			      <property name="single_line_mode">False</property>
-			      <property name="angle">0</property>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
-			    </packing>
-			  </child>
-			</widget>
-		      </child>
-		    </widget>
-		  </child>
+	      <child>
+		<widget class="GtkLabel" id="extra_text_label">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">---- Extra Text Here ----</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">True</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.0399999991059</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">2</property>
+		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
 		</widget>
 		<packing>
-		  <property name="padding">1</property>
+		  <property name="padding">0</property>
 		  <property name="expand">False</property>
 		  <property name="fill">False</property>
 		</packing>
 	      </child>
 
 	      <child>
-		<widget class="GtkLabel" id="extra_text_label">
+		<widget class="GtkLabel" id="accept_dialog_accept_label_string">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes"></property>
+		  <property name="label" translatable="yes">&lt;b&gt;Accept Refinement?&lt;/b&gt;</property>
 		  <property name="use_underline">False</property>
-		  <property name="use_markup">False</property>
+		  <property name="use_markup">True</property>
 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
 		  <property name="wrap">False</property>
 		  <property name="selectable">False</property>
-		  <property name="xalign">0.0399999991059</property>
+		  <property name="xalign">0.5</property>
 		  <property name="yalign">0.5</property>
-		  <property name="xpad">10</property>
+		  <property name="xpad">22</property>
+		  <property name="ypad">4</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
+		</widget>
+		<packing>
+		  <property name="padding">0</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="accept_reject_dialog_no_progress_label">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">&lt;b&gt;No Progress&lt;/b&gt;</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">True</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
 		  <property name="ypad">0</property>
 		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
 		  <property name="width_chars">-1</property>
@@ -17255,31 +17497,6 @@ checks the value of this checkbutton</property>
 		  <property name="padding">0</property>
 		  <property name="expand">True</property>
 		  <property name="fill">True</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkLabel" id="accept_dialog_accept_label_string">
-		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">Accept Refinement?</property>
-		  <property name="use_underline">False</property>
-		  <property name="use_markup">False</property>
-		  <property name="justify">GTK_JUSTIFY_CENTER</property>
-		  <property name="wrap">False</property>
-		  <property name="selectable">False</property>
-		  <property name="xalign">0.5</property>
-		  <property name="yalign">0.5</property>
-		  <property name="xpad">22</property>
-		  <property name="ypad">20</property>
-		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-		  <property name="width_chars">-1</property>
-		  <property name="single_line_mode">False</property>
-		  <property name="angle">0</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
 		</packing>
 	      </child>
 
@@ -17872,13 +18089,240 @@ checks the value of this checkbutton</property>
 		  <property name="fill">True</property>
 		</packing>
 	      </child>
+
+	      <child>
+		<widget class="GtkFrame" id="frame302">
+		  <property name="border_width">4</property>
+		  <property name="visible">True</property>
+		  <property name="label_xalign">0</property>
+		  <property name="label_yalign">0.5</property>
+		  <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
+
+		  <child>
+		    <widget class="GtkAlignment" id="alignment163">
+		      <property name="visible">True</property>
+		      <property name="xalign">0.5</property>
+		      <property name="yalign">0.5</property>
+		      <property name="xscale">1</property>
+		      <property name="yscale">1</property>
+		      <property name="top_padding">0</property>
+		      <property name="bottom_padding">0</property>
+		      <property name="left_padding">12</property>
+		      <property name="right_padding">0</property>
+
+		      <child>
+			<widget class="GtkVBox" id="vbox325">
+			  <property name="visible">True</property>
+			  <property name="homogeneous">False</property>
+			  <property name="spacing">0</property>
+
+			  <child>
+			    <widget class="GtkCheckButton" id="accept_reject_refinement_atom_pull_autoclear_checkbutton">
+			      <property name="border_width">4</property>
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="label" translatable="yes">Auto-clear</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <property name="active">True</property>
+			      <property name="inconsistent">False</property>
+			      <property name="draw_indicator">True</property>
+			      <signal name="toggled" handler="on_accept_reject_refinement_atom_pull_autoclear_checkbutton_toggled" last_modification_time="Sun, 13 Dec 2015 19:37:11 GMT"/>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">False</property>
+			      <property name="fill">False</property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkButton" id="accept_reject_atom_pull_clear_button">
+			      <property name="border_width">4</property>
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="label" translatable="yes">Clear Atom Pull Restraint</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <signal name="clicked" handler="on_accept_reject_atom_pull_clear_button_clicked" last_modification_time="Sun, 13 Dec 2015 19:38:13 GMT"/>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">False</property>
+			      <property name="fill">False</property>
+			    </packing>
+			  </child>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkLabel" id="label790">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">&lt;b&gt;Atom Pull Restraint&lt;/b&gt;</property>
+		      <property name="use_underline">False</property>
+		      <property name="use_markup">True</property>
+		      <property name="justify">GTK_JUSTIFY_LEFT</property>
+		      <property name="wrap">False</property>
+		      <property name="selectable">False</property>
+		      <property name="xalign">0.5</property>
+		      <property name="yalign">0.5</property>
+		      <property name="xpad">0</property>
+		      <property name="ypad">0</property>
+		      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		      <property name="width_chars">-1</property>
+		      <property name="single_line_mode">False</property>
+		      <property name="angle">0</property>
+		    </widget>
+		    <packing>
+		      <property name="type">label_item</property>
+		    </packing>
+		  </child>
+		</widget>
+		<packing>
+		  <property name="padding">0</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkFrame" id="frame308">
+		  <property name="border_width">2</property>
+		  <property name="visible">True</property>
+		  <property name="label_xalign">0</property>
+		  <property name="label_yalign">0.5</property>
+		  <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
+
+		  <child>
+		    <widget class="GtkAlignment" id="alignment172">
+		      <property name="visible">True</property>
+		      <property name="xalign">0.5</property>
+		      <property name="yalign">0.5</property>
+		      <property name="xscale">1</property>
+		      <property name="yscale">1</property>
+		      <property name="top_padding">0</property>
+		      <property name="bottom_padding">0</property>
+		      <property name="left_padding">12</property>
+		      <property name="right_padding">0</property>
+
+		      <child>
+			<widget class="GtkVBox" id="vbox330">
+			  <property name="visible">True</property>
+			  <property name="homogeneous">False</property>
+			  <property name="spacing">4</property>
+
+			  <child>
+			    <widget class="GtkButton" id="accept_reject_flip_this_peptide_button">
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="label" translatable="yes">Flip This Peptide</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <signal name="clicked" handler="on_accept_reject_flip_this_peptide_button_clicked" last_modification_time="Tue, 01 Jan 2019 15:48:55 GMT"/>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">False</property>
+			      <property name="fill">False</property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkButton" id="accept_reject_flip_next_peptide_button">
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="label" translatable="yes">Flip Next Peptide</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <signal name="clicked" handler="on_accept_reject_flip_next_peptide_button_clicked" last_modification_time="Tue, 01 Jan 2019 15:49:03 GMT"/>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">False</property>
+			      <property name="fill">False</property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkButton" id="accept_reject_crankshaft_button">
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="label" translatable="yes">Crankshaft Peptide Optimise</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <signal name="clicked" handler="on_accept_reject_crankshaft_button_clicked" last_modification_time="Tue, 01 Jan 2019 15:49:09 GMT"/>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">False</property>
+			      <property name="fill">False</property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkButton" id="accept_reject_backrub_rotamer_button">
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="label" translatable="yes">Backrub Rotamer Fit</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <signal name="clicked" handler="on_accept_reject_backrub_rotamer_button_clicked" last_modification_time="Tue, 01 Jan 2019 17:14:33 GMT"/>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">False</property>
+			      <property name="fill">False</property>
+			    </packing>
+			  </child>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkLabel" id="label824">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">&lt;b&gt;Active Refinement&lt;/b&gt;</property>
+		      <property name="use_underline">False</property>
+		      <property name="use_markup">True</property>
+		      <property name="justify">GTK_JUSTIFY_LEFT</property>
+		      <property name="wrap">False</property>
+		      <property name="selectable">False</property>
+		      <property name="xalign">0.5</property>
+		      <property name="yalign">0.5</property>
+		      <property name="xpad">0</property>
+		      <property name="ypad">0</property>
+		      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		      <property name="width_chars">-1</property>
+		      <property name="single_line_mode">False</property>
+		      <property name="angle">0</property>
+		    </widget>
+		    <packing>
+		      <property name="type">label_item</property>
+		    </packing>
+		  </child>
+		</widget>
+		<packing>
+		  <property name="padding">0</property>
+		  <property name="expand">True</property>
+		  <property name="fill">True</property>
+		</packing>
+	      </child>
 	    </widget>
 	  </child>
 	</widget>
 	<packing>
-	  <property name="padding">6</property>
-	  <property name="expand">False</property>
-	  <property name="fill">False</property>
+	  <property name="padding">4</property>
+	  <property name="expand">True</property>
+	  <property name="fill">True</property>
 	</packing>
       </child>
     </widget>
@@ -25583,12 +26027,7 @@ programs to which you may be more accustomed.
 	      <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="undo_molecule_chooser_option_menu">
-		  <property name="visible">True</property>
-		  <property name="tooltip" translatable="yes">You want to undo a modification.  There are 2 or more molecules that have been modified.  To which molecule should the undo apply?</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
+		<placeholder/>
 	      </child>
 	    </widget>
 	    <packing>
@@ -25908,7 +26347,7 @@ programs to which you may be more accustomed.
   <child>
     <widget class="GtkImage" id="image10854">
       <property name="visible">True</property>
-      <property name="pixbuf">coot-0.8.9.1.png</property>
+      <property name="pixbuf">coot-0.9-pre.png</property>
       <property name="xalign">0.5</property>
       <property name="yalign">0.5</property>
       <property name="xpad">0</property>
@@ -28469,16 +28908,7 @@ density (too big to be waters):
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="check_waters_molecule_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
+		<placeholder/>
 	      </child>
 
 	      <child>
@@ -28534,68 +28964,15 @@ density (too big to be waters):
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="check_waters_action_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">0</property>
-
-		  <child>
-		    <widget class="GtkMenu" id="menu1">
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="check_waters_check1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Check</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_check_waters_check1_activate" last_modification_time="Wed, 12 Dec 2007 13:32:31 GMT"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6016">
-			      <property name="visible">True</property>
-			      <property name="stock">gtk-apply</property>
-			      <property name="icon_size">1</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="check_waters_delete1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Delete</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_check_waters_delete1_activate" last_modification_time="Wed, 12 Dec 2007 13:32:31 GMT"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6017">
-			      <property name="visible">True</property>
-			      <property name="stock">gtk-delete</property>
-			      <property name="icon_size">1</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-		    </widget>
-		  </child>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
+		<placeholder/>
 	      </child>
 
 	      <child>
 		<widget class="GtkComboBox" id="check_waters_action_combobox">
 		  <property name="visible">True</property>
+		  <property name="items" translatable="yes">Check
+Delete
+</property>
 		  <property name="add_tearoffs">False</property>
 		  <property name="focus_on_click">True</property>
 		</widget>
@@ -29227,16 +29604,7 @@ density (too big to be waters):
 				  </child>
 
 				  <child>
-				    <widget class="GtkOptionMenu" id="check_water_by_difference_map_optionmenu">
-				      <property name="visible">True</property>
-				      <property name="can_focus">True</property>
-				      <property name="history">-1</property>
-				    </widget>
-				    <packing>
-				      <property name="padding">0</property>
-				      <property name="expand">False</property>
-				      <property name="fill">False</property>
-				    </packing>
+				    <placeholder/>
 				  </child>
 
 				  <child>
@@ -31396,10 +31764,10 @@ Secondary Structure Matching</property>
 		  <property name="spacing">0</property>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="superpose_dialog_reference_mol_optionmenu">
+		    <widget class="GtkComboBox" id="superpose_dialog_reference_mol_combobox">
 		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
+		      <property name="add_tearoffs">False</property>
+		      <property name="focus_on_click">True</property>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -31442,16 +31810,7 @@ Secondary Structure Matching</property>
 			  </child>
 
 			  <child>
-			    <widget class="GtkOptionMenu" id="superpose_reference_chain_optionmenu">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="history">-1</property>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
-			    </packing>
+			    <placeholder/>
 			  </child>
 			</widget>
 		      </child>
@@ -31464,7 +31823,16 @@ Secondary Structure Matching</property>
 		  </child>
 
 		  <child>
-		    <placeholder/>
+		    <widget class="GtkComboBox" id="superpose_dialog_reference_chain_combobox">
+		      <property name="visible">True</property>
+		      <property name="add_tearoffs">False</property>
+		      <property name="focus_on_click">True</property>
+		    </widget>
+		    <packing>
+		      <property name="padding">0</property>
+		      <property name="expand">True</property>
+		      <property name="fill">True</property>
+		    </packing>
 		  </child>
 
 		  <child>
@@ -31543,10 +31911,10 @@ Secondary Structure Matching</property>
 		  <property name="spacing">0</property>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="superpose_dialog_moving_mol_optionmenu">
+		    <widget class="GtkComboBox" id="superpose_dialog_moving_mol_combobox">
 		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
+		      <property name="add_tearoffs">False</property>
+		      <property name="focus_on_click">True</property>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -31589,15 +31957,19 @@ Secondary Structure Matching</property>
 			  </child>
 
 			  <child>
-			    <widget class="GtkOptionMenu" id="superpose_moving_chain_optionmenu">
+			    <placeholder/>
+			  </child>
+
+			  <child>
+			    <widget class="GtkComboBox" id="superpose_dialog_moving_chain_combobox">
 			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="history">-1</property>
+			      <property name="add_tearoffs">False</property>
+			      <property name="focus_on_click">True</property>
 			    </widget>
 			    <packing>
 			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
+			      <property name="expand">True</property>
+			      <property name="fill">True</property>
 			    </packing>
 			  </child>
 			</widget>
@@ -32094,16 +32466,7 @@ in this molecule.</property>
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="check_chiral_volumes_molecule_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
+		<placeholder/>
 	      </child>
 
 	      <child>
@@ -32815,16 +33178,7 @@ into Molecule:
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="merge_molecules_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
+		<placeholder/>
 	      </child>
 
 	      <child>
@@ -34711,7 +35065,7 @@ search (this may not work well)</property>
 				  <property name="use_underline">True</property>
 				  <property name="relief">GTK_RELIEF_NORMAL</property>
 				  <property name="focus_on_click">True</property>
-				  <property name="active">False</property>
+				  <property name="active">True</property>
 				  <property name="inconsistent">False</property>
 				  <property name="draw_indicator">True</property>
 				  <property name="group">renumber_residue_range_radiobutton_1</property>
@@ -34900,7 +35254,7 @@ search (this may not work well)</property>
 				  <property name="use_underline">True</property>
 				  <property name="relief">GTK_RELIEF_NORMAL</property>
 				  <property name="focus_on_click">True</property>
-				  <property name="active">False</property>
+				  <property name="active">True</property>
 				  <property name="inconsistent">False</property>
 				  <property name="draw_indicator">True</property>
 				  <property name="group">renumber_residue_range_radiobutton_3</property>
@@ -35322,16 +35676,7 @@ search (this may not work well)</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="add_OXT_molecule_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>
@@ -35386,16 +35731,7 @@ search (this may not work well)</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="add_OXT_chain_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>
@@ -37164,7 +37500,7 @@ WARNING:: No Models with Waters Available!
 		  <property name="label" translatable="yes">&lt;tt&gt;Nothing Bad&lt;/tt&gt;</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">True</property>
-		  <property name="justify">GTK_JUSTIFY_CENTER</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
 		  <property name="wrap">False</property>
 		  <property name="selectable">False</property>
 		  <property name="xalign">0.5</property>
@@ -45611,16 +45947,7 @@ distances more than:</property>
 		  <property name="spacing">0</property>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="ramachandran_plot_differences_first_mol_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>
@@ -45670,16 +45997,7 @@ distances more than:</property>
 			  </child>
 
 			  <child>
-			    <widget class="GtkOptionMenu" id="ramachandran_plot_differences_first_chain_optionmenu">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="history">-1</property>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
-			    </packing>
+			    <placeholder/>
 			  </child>
 
 			  <child>
@@ -45776,7 +46094,7 @@ distances more than:</property>
 		  <property name="spacing">0</property>
 
 		  <child>
-		    <widget class="GtkComboBox" id="ramachran_plot_differences_second_mol_combobox">
+		    <widget class="GtkComboBox" id="ramachandran_plot_differences_second_mol_combobox">
 		      <property name="visible">True</property>
 		      <property name="add_tearoffs">False</property>
 		      <property name="focus_on_click">True</property>
@@ -45789,16 +46107,7 @@ distances more than:</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="ramachandran_plot_differences_second_mol_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>
@@ -45835,16 +46144,7 @@ distances more than:</property>
 			  </child>
 
 			  <child>
-			    <widget class="GtkOptionMenu" id="ramachandran_plot_differences_second_chain_optionmenu">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="history">-1</property>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
-			    </packing>
+			    <placeholder/>
 			  </child>
 
 			  <child>
@@ -46535,16 +46835,7 @@ distances more than:</property>
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="change_chain_id_molecule_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
+		<placeholder/>
 	      </child>
 
 	      <child>
@@ -46617,20 +46908,12 @@ distances more than:</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="change_chain_id_chain_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>
 		    <widget class="GtkComboBox" id="change_chain_id_chain_combobox">
+		      <property name="width_request">44</property>
 		      <property name="visible">True</property>
 		      <property name="add_tearoffs">False</property>
 		      <property name="focus_on_click">True</property>
@@ -50457,16 +50740,7 @@ Move Molecule Here:</property>
 	  </child>
 
 	  <child>
-	    <widget class="GtkOptionMenu" id="move_molecule_here_optionmenu">
-	      <property name="visible">True</property>
-	      <property name="can_focus">True</property>
-	      <property name="history">-1</property>
-	    </widget>
-	    <packing>
-	      <property name="padding">2</property>
-	      <property name="expand">False</property>
-	      <property name="fill">False</property>
-	    </packing>
+	    <placeholder/>
 	  </child>
 
 	  <child>
@@ -62012,6 +62286,378 @@ Bumps</property>
 		  <property name="fill">False</property>
 		</packing>
 	      </child>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">True</property>
+	      <property name="fill">True</property>
+	    </packing>
+	  </child>
+	</widget>
+	<packing>
+	  <property name="padding">0</property>
+	  <property name="expand">True</property>
+	  <property name="fill">True</property>
+	</packing>
+      </child>
+    </widget>
+  </child>
+</widget>
+
+<widget class="GtkInputDialog" id="inputdialog1">
+  <property name="border_width">5</property>
+  <property name="visible">True</property>
+  <property name="title" translatable="yes">Input</property>
+  <property name="type">GTK_WINDOW_TOPLEVEL</property>
+  <property name="window_position">GTK_WIN_POS_NONE</property>
+  <property name="modal">False</property>
+  <property name="resizable">True</property>
+  <property name="destroy_with_parent">False</property>
+  <property name="decorated">True</property>
+  <property name="skip_taskbar_hint">False</property>
+  <property name="skip_pager_hint">False</property>
+  <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
+  <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
+  <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
+
+  <child internal-child="save_button">
+    <widget class="GtkButton" id="save_button1">
+      <property name="visible">True</property>
+      <property name="can_default">True</property>
+      <property name="can_focus">True</property>
+      <property name="relief">GTK_RELIEF_NORMAL</property>
+      <property name="focus_on_click">True</property>
+    </widget>
+  </child>
+
+  <child internal-child="close_button">
+    <widget class="GtkButton" id="close_button1">
+      <property name="visible">True</property>
+      <property name="can_default">True</property>
+      <property name="can_focus">True</property>
+      <property name="relief">GTK_RELIEF_NORMAL</property>
+      <property name="focus_on_click">True</property>
+    </widget>
+  </child>
+</widget>
+
+<widget class="GtkDialog" id="refinement_restraints_sliders_dialog">
+  <property name="visible">True</property>
+  <property name="title" translatable="yes">Restraints Sliders</property>
+  <property name="type">GTK_WINDOW_TOPLEVEL</property>
+  <property name="window_position">GTK_WIN_POS_NONE</property>
+  <property name="modal">False</property>
+  <property name="resizable">True</property>
+  <property name="destroy_with_parent">False</property>
+  <property name="decorated">True</property>
+  <property name="skip_taskbar_hint">False</property>
+  <property name="skip_pager_hint">False</property>
+  <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
+  <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
+  <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
+  <property name="has_separator">False</property>
+
+  <child internal-child="vbox">
+    <widget class="GtkVBox" id="dialog-vbox136">
+      <property name="visible">True</property>
+      <property name="homogeneous">False</property>
+      <property name="spacing">0</property>
+
+      <child internal-child="action_area">
+	<widget class="GtkHButtonBox" id="dialog-action_area135">
+	  <property name="visible">True</property>
+	  <property name="layout_style">GTK_BUTTONBOX_END</property>
+
+	  <child>
+	    <widget class="GtkButton" id="cancelbutton2">
+	      <property name="visible">True</property>
+	      <property name="can_default">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="label">gtk-cancel</property>
+	      <property name="use_stock">True</property>
+	      <property name="relief">GTK_RELIEF_NORMAL</property>
+	      <property name="focus_on_click">True</property>
+	      <property name="response_id">-6</property>
+	    </widget>
+	  </child>
+
+	  <child>
+	    <widget class="GtkButton" id="okbutton2">
+	      <property name="visible">True</property>
+	      <property name="can_default">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="label">gtk-ok</property>
+	      <property name="use_stock">True</property>
+	      <property name="relief">GTK_RELIEF_NORMAL</property>
+	      <property name="focus_on_click">True</property>
+	      <property name="response_id">-5</property>
+	    </widget>
+	  </child>
+	</widget>
+	<packing>
+	  <property name="padding">0</property>
+	  <property name="expand">False</property>
+	  <property name="fill">True</property>
+	  <property name="pack_type">GTK_PACK_END</property>
+	</packing>
+      </child>
+
+      <child>
+	<widget class="GtkVBox" id="vbox331">
+	  <property name="visible">True</property>
+	  <property name="homogeneous">False</property>
+	  <property name="spacing">0</property>
+
+	  <child>
+	    <widget class="GtkHBox" id="hbox452">
+	      <property name="visible">True</property>
+	      <property name="homogeneous">False</property>
+	      <property name="spacing">0</property>
+
+	      <child>
+		<widget class="GtkLabel" id="label825">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes"> Stale Bread </property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
+		</widget>
+		<packing>
+		  <property name="padding">0</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="label826">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes"> Cheesecake </property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
+		</widget>
+		<packing>
+		  <property name="padding">0</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="label827">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes"> Jelly </property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
+		</widget>
+		<packing>
+		  <property name="padding">0</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="label828">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes"> Pretty Flexible </property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
+		</widget>
+		<packing>
+		  <property name="padding">0</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="label829">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes"> WetSpaghetti </property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
+		</widget>
+		<packing>
+		  <property name="padding">0</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
+		</packing>
+	      </child>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">True</property>
+	      <property name="fill">True</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkAlignment" id="alignment173">
+	      <property name="visible">True</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xscale">1</property>
+	      <property name="yscale">1</property>
+	      <property name="top_padding">0</property>
+	      <property name="bottom_padding">0</property>
+	      <property name="left_padding">0</property>
+	      <property name="right_padding">0</property>
+
+	      <child>
+		<widget class="GtkHScale" id="hscale5">
+		  <property name="visible">True</property>
+		  <property name="can_focus">True</property>
+		  <property name="draw_value">True</property>
+		  <property name="value_pos">GTK_POS_TOP</property>
+		  <property name="digits">1</property>
+		  <property name="update_policy">GTK_UPDATE_CONTINUOUS</property>
+		  <property name="inverted">False</property>
+		  <property name="adjustment">0 0 0 0 0 0</property>
+		</widget>
+	      </child>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">True</property>
+	      <property name="fill">True</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkLabel" id="label830">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">Fit to Mapness</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_LEFT</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+	      <property name="width_chars">-1</property>
+	      <property name="single_line_mode">False</property>
+	      <property name="angle">0</property>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">False</property>
+	      <property name="fill">False</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkHScale" id="hscale6">
+	      <property name="visible">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="draw_value">True</property>
+	      <property name="value_pos">GTK_POS_TOP</property>
+	      <property name="digits">1</property>
+	      <property name="update_policy">GTK_UPDATE_CONTINUOUS</property>
+	      <property name="inverted">False</property>
+	      <property name="adjustment">0 0 0 0 0 0</property>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">True</property>
+	      <property name="fill">True</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkLabel" id="label831">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">Rama-Strength</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_LEFT</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+	      <property name="width_chars">-1</property>
+	      <property name="single_line_mode">False</property>
+	      <property name="angle">0</property>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">False</property>
+	      <property name="fill">False</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkHScale" id="hscale7">
+	      <property name="visible">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="draw_value">True</property>
+	      <property name="value_pos">GTK_POS_TOP</property>
+	      <property name="digits">1</property>
+	      <property name="update_policy">GTK_UPDATE_CONTINUOUS</property>
+	      <property name="inverted">False</property>
+	      <property name="adjustment">0 0 0 0 0 0</property>
 	    </widget>
 	    <packing>
 	      <property name="padding">0</property>

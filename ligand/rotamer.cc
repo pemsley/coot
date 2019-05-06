@@ -288,6 +288,7 @@ coot::rotamer_probability_info_t
 coot::rotamer::probability_of_this_rotamer(const std::vector<double> &chi_angle_values,
 					   const std::vector<coot::simple_rotamer> &rots) const {
 
+   std::cout << "probability_of_this_rotamer() " << rots.size() << std::endl;
 
    short int state;  // flag for assigned,                    1 
                      // unassigned due to missing atoms,      0 
@@ -495,6 +496,7 @@ coot::rotamer::rotamer_atom_names_to_indices(const std::vector<std::vector<std::
 					      mmdb::PAtom *residue_atoms,
 					      int n_residue_atoms) const {
 
+   bool verbose = false;
    std::vector<std::string> atom_indices(n_residue_atoms);
    std::vector<std::vector<int> > r;
 
@@ -525,11 +527,12 @@ coot::rotamer::rotamer_atom_names_to_indices(const std::vector<std::vector<std::
 	 if (single.size() == 4) 
 	    r.push_back(single);
 	 else
-	    std::cout << "PROBLEM in coordinates file? failed to find all atoms in "
-		      << "ich number " << ich << " "
-		      << residue_atoms[0]->residue->name << " "
-		      << residue_atoms[0]->residue->GetSeqNum() << " "
-		      << residue_atoms[0]->residue->GetChainID() << std::endl;
+	    if (verbose)
+	       std::cout << "PROBLEM in coordinates file? failed to find all atoms in "
+			 << "ich number " << ich << " "
+			 << residue_atoms[0]->residue->name << " "
+			 << residue_atoms[0]->residue->GetSeqNum() << " "
+			 << residue_atoms[0]->residue->GetChainID() << std::endl;
       }
    }
    return r;

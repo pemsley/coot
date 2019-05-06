@@ -13,19 +13,19 @@
 #include "CXXSphereElement.h"
 #include "CXXSphereNode.h"
 
-CXXSphereTriangle::CXXSphereTriangle() :
+CXX_mot::CXXSphereTriangle::CXXSphereTriangle() :
 theRadius(0),
 theCentre(CXXCoord(0.,0.,0.)){
 	
 }
 
-CXXSphereTriangle::CXXSphereTriangle(CXXSphereElement *se, int *inputVertices, int *inputEdges, 
+CXX_mot::CXXSphereTriangle::CXXSphereTriangle(CXXSphereElement *se, int *inputVertices, int *inputEdges, 
 									 double inRad, CXXCoord &incent){
 	CXXSphereTriangle newTriangle(se, inputVertices, inputEdges, inRad, incent, 0);
 	*this = newTriangle;
 }
 
-CXXSphereTriangle::CXXSphereTriangle(CXXSphereElement *se, int *inputVertices, int *inputEdges, 
+CXX_mot::CXXSphereTriangle::CXXSphereTriangle(CXXSphereElement *se, int *inputVertices, int *inputEdges, 
 									 double inRad, CXXCoord &incent, mmdb::Atom *anAtom){
 	theAtom = anAtom;
 	theSphereElement = se;
@@ -36,21 +36,21 @@ CXXSphereTriangle::CXXSphereTriangle(CXXSphereElement *se, int *inputVertices, i
 	theRadius = inRad;
 	theCentre = incent;
 }
-//CXXSphereTriangle::~CXXSphereTriangle(){}
-int CXXSphereTriangle::vertex(int i) const{
+//CXX_mot::CXXSphereTriangle::~CXXSphereTriangle(){}
+int CXX_mot::CXXSphereTriangle::vertex(int i) const{
 	return triangleVertices[i];
 }
-int CXXSphereTriangle::edge(int i) const{
+int CXX_mot::CXXSphereTriangle::edge(int i) const{
 	return triangleEdges[i];
 }
-double CXXSphereTriangle::radius() const {
+double CXX_mot::CXXSphereTriangle::radius() const {
 	return theRadius;
 }
-const CXXCoord &CXXSphereTriangle::centre() const {
+const CXX_mot::CXXCoord &CXX_mot::CXXSphereTriangle::centre() const {
 	return theCentre;
 }
 
-int CXXSphereTriangle::bisect(double radians){
+int CXX_mot::CXXSphereTriangle::bisect(double radians){
 	int iLongest = 0;
 	double longestLength = -1e30;
 	for (int i=0; i<3; i++){
@@ -120,40 +120,40 @@ int CXXSphereTriangle::bisect(double radians){
 	else return 0;
 }
 
-int CXXSphereTriangle::setVertex(int i, int newOne){
+int CXX_mot::CXXSphereTriangle::setVertex(int i, int newOne){
 	triangleVertices[i] = newOne;
 	return 0;
 }
 
-CXXSphereElement *CXXSphereTriangle::sphereElement() const{
+CXX_mot::CXXSphereElement *CXX_mot::CXXSphereTriangle::sphereElement() const{
 	return theSphereElement;
 }
 
-int CXXSphereTriangle::setEdge(int i, int newOne){
+int CXX_mot::CXXSphereTriangle::setEdge(int i, int newOne){
 	triangleEdges[i] = newOne;
 	return 0;
 }
 
-int CXXSphereTriangle::setSphereElement(CXXSphereElement *se){
+int CXX_mot::CXXSphereTriangle::setSphereElement(CXXSphereElement *se){
 	theSphereElement = se;
 	return 0;
 }
 
-int CXXSphereTriangle::setCentre(const CXXCoord &crd){
+int CXX_mot::CXXSphereTriangle::setCentre(const CXXCoord &crd){
 	theCentre = crd;
 	return 0;
 }
 
-int CXXSphereTriangle::setRadius(const double rad){
+int CXX_mot::CXXSphereTriangle::setRadius(const double rad){
 	theRadius = rad;
 	return 0;
 }
 
-mmdb::Atom *CXXSphereTriangle::getAtom() const {
+mmdb::Atom *CXX_mot::CXXSphereTriangle::getAtom() const {
 	return theAtom;
 }
 
-int CXXSphereTriangle::setAtom(mmdb::Atom *anAtom) {
+int CXX_mot::CXXSphereTriangle::setAtom(mmdb::Atom *anAtom) {
 	theAtom = anAtom;
 	return 0;
 }

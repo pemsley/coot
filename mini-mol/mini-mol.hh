@@ -67,6 +67,7 @@ namespace coot {
 	 int int_user_data;
 	 bool is_hydrogen_p() const;
 	 friend std::ostream&  operator<<(std::ostream&, atom);
+         mmdb::Atom *make_atom() const;
       };
 
       class residue { 
@@ -89,6 +90,8 @@ namespace coot {
 	 const atom& operator[](const std::string &atname) const; // look it up, return atom 
                                             	 // with name "FAIL" if the atom is not there.
 	 atom&       operator[](int i) {return atoms[i];}
+	 atom& at(const std::string &atname) ; // look it up, return atom 
+                                               // with name "FAIL" if the atom is not there.
 	 void addatom(std::string atom_name, std::string element,
 		      float x, float y, float z, const std::string &altloc, float bf, float occupancy);
 	 void addatom(std::string atom_name, std::string element,
@@ -152,6 +155,7 @@ namespace coot {
 	    return residues[i-residues_offset];
 	 }
 	 residue&       operator[](int i);
+	 residue& at(int i) { return (*this)[i]; }
 	 // can throw a std::runtime_error exception if this is called
 	 // with an uninialised (and empty) res and we try to add it.
 	 void addresidue(const residue &res, bool add_if_empty_flag);
@@ -166,6 +170,7 @@ namespace coot {
 	 clipper::Coord_orth midpoint() const;
 	 // transform all coordinates in the fragment by rtop:
 	 void transform(const clipper::RTop_orth &rtop);
+	 void delete_first_residue();
 	 bool operator<(const fragment &f1) const {
 	    return (fragment_id < f1.fragment_id);
 	 }

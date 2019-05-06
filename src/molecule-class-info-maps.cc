@@ -36,6 +36,9 @@
 // For stat, mkdir:
 #include <iomanip> // for std::setw
 
+// is this a C++11 thing?
+#include <functional> // std::ref() for GCC C++11 (not clang)
+
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -76,6 +79,7 @@
 // #include "coords/mmdb.h"
 
 // for jiggle_fit
+#include "coot-utils/coot-map-utils.hh"
 #include "coot-utils/coot-map-heavy.hh"
 #include "ligand/ligand.hh"
 
@@ -249,6 +253,40 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
    }
 }
 
+void
+molecule_class_info_t::clear_draw_vecs() {
+
+   // crash on double free of the draw vectors. Not sure why. Let's add a lock
+
+   bool unlocked = false;
+   while (!draw_vector_sets_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+      std::this_thread::sleep_for(std::chrono::microseconds(10));
+      unlocked = false;
+   }
+   for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
+      // std::cout << "deleting set " << i << " " << draw_vector_sets[i].data << std::endl;
+      delete [] draw_vector_sets[i].data;
+      draw_vector_sets[i].data = 0;
+   }
+   draw_vector_sets.clear();
+   draw_vector_sets.reserve(12);
+   draw_vector_sets_lock = false; // unlock
+
+}
+
+void
+molecule_class_info_t::add_draw_vecs_to_set(const coot::CartesianPairInfo &cpi) {
+   draw_vector_sets.push_back(cpi);
+}
+   
+// for negative the other map.
+// 
+void
+molecule_class_info_t::set_diff_map_draw_vecs(const coot::CartesianPair* c, int n) { 
+   delete [] diff_map_draw_vectors;
+   diff_map_draw_vectors = c; n_diff_map_draw_vectors = n; 
+}
+
 
 void
 molecule_class_info_t::update_map() {
@@ -287,7 +325,7 @@ molecule_class_info_t::set_draw_solid_density_surface(bool state) {
    if (state) {
       update_map(); // gets solid triangles too.
    }
-} 
+}
 
 
 // Create a new combo box for this newly created map.
@@ -374,13 +412,17 @@ void
 molecule_class_info_t::draw_density_map(short int display_lists_for_maps_flag,
 					short int main_or_secondary) {
 
-   if (draw_it_for_map)
+   if (draw_it_for_map) {
+      // std::cout << "here in draw_density_map " << imol_no
+      // << " draw_it_for_map_standard_lines " << draw_it_for_map_standard_lines
+      // << std::endl;
       if (draw_it_for_map_standard_lines)
 	 draw_density_map_internal(display_lists_for_maps_flag, draw_it_for_map,
 				   main_or_secondary);
+   }
 }
 
-// standard lines, testd for draw_it_for_map_standard_lines before
+// standard lines, tested for draw_it_for_map_standard_lines before
 // calling this.
 // 
 void
@@ -410,7 +452,8 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 // 	     << std::endl;
 
 
-   int nvecs = n_draw_vectors; // cartesianpair pointer counter (old code)
+   // int nvecs = n_draw_vectors; // cartesianpair pointer counter (old code)
+
    if (draw_map_local_flag) {  // i.e. drawit_for_map (except when compiling a new map display list)
 
       if (!xmap.is_null()) { // NXMAP-FIXME
@@ -434,7 +477,7 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 // 	       std::cout << "OK:: using display list " << display_list_index
 // 			 << " when main_or_secondary is " << main_or_secondary << std::endl;
 	       glCallList(display_list_index);
-	    } else { 
+	    } else {
 	       std::cout << "ERROR:: using display list " << display_list_index
 			 << " when main_or_secondary is " << main_or_secondary << std::endl;
 	    }
@@ -444,22 +487,40 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 
 	    // std::cout << "DEBUG:: some vectors " << nvecs << std::endl;
 	    // std::cout << "   debug draw immediate mode " << std::endl;
-	    if ( nvecs > 0 ) {
+
+	    // std::cout << ".... in draw draw_vector_sets size " << draw_vector_sets.size() << std::endl;
+
+	    // Is it possible that the map is being drawn as it is being deleted?
+	    // I don't see how - but I got a crash here. So let's lock the draw too.
+	    // I got a crash when this lock was in place. Hmm.
+	    bool unlocked = false;
+	    while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true) &&
+		   !unlocked) {
+	       std::this_thread::sleep_for(std::chrono::microseconds(1));
+	       unlocked = false;
+	    }
+
+	    if (draw_vector_sets.size() > 0) {
 
 	       glColor3dv (map_colour[0]);
 	       glLineWidth(graphics_info_t::map_line_width);
       
 	       glBegin(GL_LINES);
-	       for (int i=0; i< nvecs; i++) { 
-		  glVertex3f(draw_vectors[i].getStart().x(),
-			     draw_vectors[i].getStart().y(),
-			     draw_vectors[i].getStart().z());
-		  glVertex3f(draw_vectors[i].getFinish().x(),
-			     draw_vectors[i].getFinish().y(),
-			     draw_vectors[i].getFinish().z());
+	       for (unsigned int iset=0; iset<draw_vector_sets.size(); iset++) {
+		  for (int i=0; i<draw_vector_sets[iset].size; i++) {
+		     const coot::CartesianPair &cp = draw_vector_sets[iset].data[i];
+		     glVertex3f(cp.getStart().x(),
+				cp.getStart().y(),
+				cp.getStart().z());
+		     glVertex3f(cp.getFinish().x(),
+				cp.getFinish().y(),
+				cp.getFinish().z());
+		  }
 	       }
 	       glEnd();
 	    }
+
+	    molecule_class_info_t::draw_vector_sets_lock = false; // unlock
 
 	    if (xmap_is_diff_map == 1) {
 
@@ -467,7 +528,9 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 
 		  glColor3dv (map_colour[1]);
 		  // we only need to do this if it wasn't done above.
-		  if (n_draw_vectors == 0)
+		  // if (n_draw_vectors == 0)
+
+		  if (true)
 		     glLineWidth(graphics_info_t::map_line_width);
 	       
 		  glBegin(GL_LINES);
@@ -488,10 +551,19 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
    }
 }
 
+// not a member of the class because of the burden it puts on the header: CIsoSurface is not needed to compile
+// main.cc (or should not be)
+
+#include "gensurf.hh"
+
 // 
 void
 molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre) {
-   
+
+   // cut glass mode means
+   // do_solid_surface_for_density
+   // do_flat_shading_for_solid_density_surface is true
+
    CIsoSurface<float> my_isosurface;
    coot::CartesianPairInfo v;
    int isample_step = 1;
@@ -548,58 +620,163 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
    }
 
    if (!xmap.is_null()) {
+      if (! draw_it_for_solid_density_surface) {
 
-#ifdef ANALYSE_CONTOURING_TIMING
-      auto tp_0 = std::chrono::high_resolution_clock::now();
-#endif
-      v = my_isosurface.GenerateSurface_from_Xmap(xmap,
-						  contour_level,
-						  dy_radius, centre,
-						  isample_step, is_em_map);
-#ifdef ANALYSE_CONTOURING_TIMING
-      auto tp_1 = std::chrono::high_resolution_clock::now();
-#endif
-      if (is_dynamically_transformed_map_flag)
-	 dynamically_transform(v);
-      set_draw_vecs(v.data, v.size);
+	 clear_draw_vecs();
 
-#ifdef ANALYSE_CONTOURING_TIMING
-      auto tp_2 = std::chrono::high_resolution_clock::now();
-      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-      std::cout << "update_map_triangles() d10 " << d10 << "  d21 " << d21 << " microseconds\n";
-#endif      
+	 std::vector<std::thread> threads;
+	 int n_reams = coot::get_max_number_of_threads();
 
-   }
-   if (xmap_is_diff_map) {
-      v = my_isosurface.GenerateSurface_from_Xmap(xmap,
-						  -contour_level,
-						  dy_radius, centre,
-						  isample_step, is_em_map);
-      if (is_dynamically_transformed_map_flag)
-	 dynamically_transform(v);
-      set_diff_map_draw_vecs(v.data, v.size);
-   }
+	 for (int ii=0; ii<n_reams; ii++) {
+	    int iream_start = ii;
+	    int iream_end   = ii+1;
 
-   if (draw_it_for_solid_density_surface) {
-      tri_con = my_isosurface.GenerateTriangles_from_Xmap(xmap,
-							  contour_level,
-							  dy_radius, centre,
-							  isample_step);
+	    threads.push_back(std::thread(gensurf_and_add_vecs_threaded_workpackage,
+					  &xmap,
+					  contour_level, dy_radius, centre,
+					  isample_step,
+					  iream_start, iream_end, n_reams, is_em_map,
+					  &draw_vector_sets));
+	 }
+	 for (int ii=0; ii<n_reams; ii++)
+	    threads[ii].join();
+
+      }
+
+      // --- Pre 2019 map contouring -----
+
       if (xmap_is_diff_map) {
-	 tri_con_diff_map_neg = my_isosurface.GenerateTriangles_from_Xmap(xmap,
-									  -contour_level,
-									  dy_radius, centre,
-									  isample_step);
-      } 
+	 v = my_isosurface.GenerateSurface_from_Xmap(xmap,
+						     -contour_level,
+						     dy_radius, centre,
+						     isample_step,
+						     0,1,1,
+						     is_em_map);
+	 if (is_dynamically_transformed_map_flag)
+	    dynamically_transform(v);
+	 set_diff_map_draw_vecs(v.data, v.size);
+      }
+
+      if (draw_it_for_solid_density_surface) {
+	 tri_con = my_isosurface.GenerateTriangles_from_Xmap(xmap,
+							     contour_level,
+							     dy_radius, centre,
+							     isample_step);
+
+	 // if "cut-glass mode", then make re-wire to use map GLSL triangles
+	 //
+	 if (graphics_info_t::do_flat_shading_for_solid_density_surface) {
+	    setup_glsl_map_rendering(); // turn tri_con into buffers.
+	 }
+
+	 if (xmap_is_diff_map) {
+	    tri_con_diff_map_neg = my_isosurface.GenerateTriangles_from_Xmap(xmap,
+									     -contour_level,
+									     dy_radius, centre,
+									     isample_step);
+	 }
+      }
    }
 }
+
+void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_p,
+					       float contour_level, float dy_radius,
+					       coot::Cartesian centre,
+					       int isample_step,
+					       int iream_start, int iream_end, int n_reams,
+					       bool is_em_map,
+					       std::vector<coot::CartesianPairInfo> *draw_vector_sets_p) {
+
+   try {
+      CIsoSurface<float> my_isosurface;
+      coot::CartesianPairInfo v;
+      v = my_isosurface.GenerateSurface_from_Xmap(*xmap_p,
+						  contour_level,
+						  dy_radius, centre,
+						  isample_step,
+						  iream_start, iream_end, n_reams,
+						  is_em_map);
+      bool unlocked = false;
+      while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+	 std::this_thread::sleep_for(std::chrono::microseconds(10));
+	 unlocked = false;
+      }
+      draw_vector_sets_p->push_back(v);
+      molecule_class_info_t::draw_vector_sets_lock = false; // unlock
+   }
+   catch (const std::out_of_range &oor) {
+      std::cout << "ERROR:: contouring threaded workpackage " << oor.what() << std::endl;
+   }
+}
+
+#ifdef GRAPHICS_TESTING
+
+#define glGenVertexArrays glGenVertexArraysAPPLE
+#define glDeleteVertexArrays glDeleteVertexArraysAPPLE
+#define glBindVertexArray glBindVertexArrayAPPLE
+
+#endif // GRAPHICS_TESTING
+
+void
+molecule_class_info_t::setup_glsl_map_rendering() {
+
+#ifdef GRAPHICS_TESTING
+
+   // This is called from update_map_triangles().
+
+   // using coot::density_contour_triangles_container_t tri_con;
+
+   // transfer the points
+   float *points = new float[3 * tri_con.points.size()];
+   for (std::size_t i=0; i<tri_con.points.size(); i++) {
+      points[3*i  ] = tri_con.points[i].x();
+      points[3*i+1] = tri_con.points[i].y();
+      points[3*i+2] = tri_con.points[i].z();
+   }
+
+   // transfer the indices
+   n_vertices_for_VertexArray = 6 * tri_con.point_indices.size();
+   int *indices = new int[n_vertices_for_VertexArray];
+   for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
+      indices[6*i  ] = tri_con.point_indices[i].pointID[0];
+      indices[6*i+1] = tri_con.point_indices[i].pointID[1];
+      indices[6*i+2] = tri_con.point_indices[i].pointID[1];
+      indices[6*i+3] = tri_con.point_indices[i].pointID[2];
+      indices[6*i+4] = tri_con.point_indices[i].pointID[2];
+      indices[6*i+5] = tri_con.point_indices[i].pointID[0];
+   }
+
+   glGenVertexArrays(1, &m_VertexArrayID);
+   glBindVertexArray(m_VertexArrayID);
+
+   GLuint vertexbuffer;
+   glGenBuffers(1, &vertexbuffer);
+   glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+   glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * tri_con.points.size(), &points[0], GL_STATIC_DRAW);
+   glEnableVertexAttribArray(0);
+   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+   unsigned int ibo;
+   glGenBuffers(1, &ibo);
+   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_vertices_for_VertexArray,
+		&indices[0], GL_STATIC_DRAW);
+
+   delete [] points;
+   delete [] indices;
+
+#endif // GRAPHICS_TESTING
+
+}
+
 
 // not const because we sort in place the triangles of tri_con
 void
 molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 
-   
+   if (do_flat_shading)
+      return; //
+
    if (draw_it_for_map) {
       if (draw_it_for_solid_density_surface) {
 
@@ -609,7 +786,7 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 	 glEnable(GL_LIGHTING);
 	 glEnable(GL_LIGHT0); 
 	 glEnable(GL_LIGHT1); 
-	 glEnable(GL_LIGHT2); // OK, for maps
+	 // glEnable(GL_LIGHT2); // OK, for maps
 	 glEnable (GL_BLEND);
 	 glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
@@ -690,7 +867,53 @@ molecule_class_info_t::display_solid_surface_triangles(const coot::density_conto
    } else {
 
       glShadeModel(GL_SMOOTH);
+      bool opacity_experiment = false;
+
+      /*
+      coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
+			 graphics_info_t::RotationCentre_y(),
+			 graphics_info_t::RotationCentre_z());
+
+      float dist = 0.5 * graphics_info_t::zoom;
+      GL_matrix glm;
+      clipper::Coord_orth eye_dir(0,0,1);
+      glm.from_quaternion(graphics_info_t::quat);
+      clipper::Mat33<double> m = glm.to_clipper_mat();
+      clipper::Coord_orth rot_dir(m * eye_dir);
+      coot::Cartesian rot_dir_c(rot_dir.x(), rot_dir.y(), rot_dir.z());
+      coot::Cartesian rot_dir_uv = rot_dir_c.unit();
+      */
+
       for (unsigned int i=0; i<tc.point_indices.size(); i++) {
+
+	 /*
+	   if (opacity_experiment) {
+
+	   // in fresnel mode, perhaps we need to change the specular too
+	   // to make the glass more shiny? Something for the shader.
+
+	   //
+	   coot::Cartesian n =
+	   tc.normals[tc.point_indices[i].pointID[0]] +
+	   tc.normals[tc.point_indices[i].pointID[1]] +
+	   tc.normals[tc.point_indices[i].pointID[2]];
+	   coot::Cartesian n_uv = n.unit();
+
+	   float cos_theta = coot::dot_product(n_uv, rot_dir_uv);
+	   double opacity = pow(1.0 - pow(cos_theta, 6.0), 3);
+
+	   GLfloat  mat_diffuse[]   = {float(map_colour[0][0]),
+	   float(map_colour[0][1]),
+	   float(map_colour[0][2]),
+	   static_cast<GLfloat>(0.5 * opacity)};
+	   GLfloat  mat_ambient[]   = {float(0.3*map_colour[0][0]),
+	   float(0.3*map_colour[0][1]),
+	   float(0.3*map_colour[0][2]),
+	   static_cast<GLfloat>(opacity)};
+	   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
+	   glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+	   }
+	 */
 
 	 glNormal3f(tc.normals[tc.point_indices[i].pointID[0]].x(),
 		    tc.normals[tc.point_indices[i].pointID[0]].y(),
@@ -726,9 +949,9 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
 
       // normal solid 
    
-      GLfloat  ambientLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+      GLfloat  ambientLight[] = { 0.3f, 0.3f, 0.3f, 1.0f };
       GLfloat  diffuseLight[] = { 0.4f, 0.4f, 0.4f, 1.0f };
-      GLfloat specularLight[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+      GLfloat specularLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
    
       // Assign created components to GL_LIGHT2
       glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
@@ -740,7 +963,7 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
 
       // narrowing from doubles to floats (there is no glMaterialdv).
 
-      GLfloat  mat_specular[]  = {0.4f,  0.4f,  0.4f,  opacity}; // makes a difference
+      GLfloat  mat_specular[]  = {0.6f,  0.6f,  0.6f,  opacity}; // makes a difference
       GLfloat  mat_ambient[]   = {float(0.3*map_colour[0][0]),
 				  float(0.3*map_colour[0][1]),
 				  float(0.3*map_colour[0][2]),
@@ -783,17 +1006,34 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
    } else {
 
       // cut glass mode:
+      int shinyness = 128;
 
-      GLfloat  ambientLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-      GLfloat  diffuseLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-      GLfloat specularLight[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-   
-      // Assign created components to GL_LIGHT2
-      glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
-      glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
-      glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
+      bool less_shiny = false; // testing
 
-      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
+      if (! less_shiny) { // so, shiny.
+
+	 GLfloat  ambientLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	 GLfloat  diffuseLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	 GLfloat specularLight[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	 // Assign created components to GL_LIGHT2
+	 glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
+	 glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
+	 glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
+
+	 glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shinyness);
+      } else {
+	 // can't assign to arrays.
+	 GLfloat ambientLight[]  = { 0.03, 0.3f, 0.3f, 1.0f };
+	 GLfloat diffuseLight[]  = { 0.6f, 0.6f, 0.6f, 1.0f };
+	 GLfloat specularLight[] = { 0.4f, 0.4f, 0.4f, 1.0f };
+	 shinyness = 8;
+	 // Assign created components to GL_LIGHT2
+	 glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
+	 glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
+	 glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
+
+	 glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shinyness);
+      }
 
       // glDisable(GL_COLOR_MATERIAL);
 
@@ -802,6 +1042,19 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
       GLfloat  mat_ambient[]   = {0.160, 0.160, 0.160, opacity};
       GLfloat  mat_diffuse[]   = {0.200, 0.2,   0.200, opacity}; // lit surface is this colour 
       GLfloat  mat_shininess[] = {120.0};                        // in the direction of the light.
+
+      // interesting and different
+      //
+      if (less_shiny) {
+	 mat_ambient[0] = 0.1*map_colour[0][0];
+	 mat_ambient[1] = 0.1*map_colour[0][1];
+	 mat_ambient[2] = 0.1*map_colour[0][2];
+	 mat_ambient[3] = opacity;
+	 mat_diffuse[0] = map_colour[0][0];
+	 mat_diffuse[1] = map_colour[0][1];
+	 mat_diffuse[2] = map_colour[0][2];
+	 mat_diffuse[3] = opacity;
+      }
 
       if (is_difference_map_p()) {
 
@@ -827,9 +1080,9 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
       }
 
       glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-      glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
       glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
       glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shinyness);
 
    } 
    
@@ -946,8 +1199,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
       mol_name += g.float_to_string(high_reso_limit);
    }
    
-   initialize_map_things_on_read_molecule(mol_name,
-					  is_diff_map,
+   initialize_map_things_on_read_molecule(mol_name, is_diff_map, is_anomalous_flag,
 					  g.swap_difference_map_colours);
    
    // If use weights, use both strings, else just use the first
@@ -955,8 +1207,8 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 
    if (p.first.length() == 0) { // mechanism to signal an error
       std::cout << "ERROR:: fill_map.. - There was a column label error.\n";
-   } else { 
-      
+   } else {
+
       if (use_weights) {
 	 // 	 std::cout << "DEBUG:: Importing f_sigf_data: " << p.first << std::endl;
 	 mtzin.import_hkl_data( f_sigf_data, p.first );
@@ -971,11 +1223,11 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 mtzin.import_hkl_data(fphidata, p.first);
 	 mtzin.close_read();
       }
-   
+
       long T1 = glutGet(GLUT_ELAPSED_TIME);
 
       int n_reflections = fphidata.num_obs();
-      std::cout << "Number of OBSERVED reflections: " << n_reflections << "\n";
+      std::cout << "INFO:: Number of observed reflections: " << n_reflections << "\n";
       if (n_reflections <= 0) {
 	 std::cout << "WARNING:: No reflections in mtz file!?" << std::endl;
       } else { 
@@ -1002,7 +1254,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 				   fphidata.cell(),
 				   fft_reso,
 				   map_sampling_rate);
-	 cout << "INFO grid sampling..." << gs.format() << endl; 
+	 cout << "INFO:: grid sampling..." << gs.format() << endl; 
 	 xmap.init( fphidata.spacegroup(), fphidata.cell(), gs); // 1.5 default
 	 // 	 cout << "Grid..." << xmap.grid_sampling().format() << "\n";
    
@@ -1078,7 +1330,6 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 // update_map_colour_menu_manual(g.n_molecules, name_.c_str()); 
 	 // update_map_scroll_wheel_menu_manual(g.n_molecules, name_.c_str()); 
 
-
 	 update_map();
 	 long T5 = glutGet(GLUT_ELAPSED_TIME);
 	 std::cout << "INFO:: " << float(T5-T4)/1000.0 << " seconds for contour map\n";
@@ -1152,8 +1403,6 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 }
       }
    }
-   // std::cout << "DEBUG:: finishing map_fill_from_mtz_with_reso_limits, imol_no is "
-   // << imol_no << std::endl;
 }
 
 
@@ -1194,7 +1443,7 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
 
 	 
       initialize_map_things_on_read_molecule(mol_name,
-					     is_diff_map,
+					     is_diff_map, false,
 					     g.swap_difference_map_colours);
       long T1 = glutGet(GLUT_ELAPSED_TIME);
 
@@ -1704,9 +1953,10 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
      file.close_read();
    }
 
-   if (bad_read == false) {
+   if (! bad_read) {
 
-      initialize_map_things_on_read_molecule(filename, is_diff_map_flag, 
+      bool is_anomalous_flag = false;
+      initialize_map_things_on_read_molecule(filename, is_diff_map_flag, is_anomalous_flag,
 					     graphics_info_t::swap_difference_map_colours);
 
       mean_and_variance<float> mv = map_density_distribution(xmap, 40, true, true);
@@ -1825,7 +2075,7 @@ molecule_class_info_t::new_map(const clipper::Xmap<float> &map_in, std::string n
    xmap = map_in; 
    // the map name is filled by using set_name(std::string)
    // sets name_ to name_in:
-   initialize_map_things_on_read_molecule(name_in, 0, 0); // not a diff_map
+   initialize_map_things_on_read_molecule(name_in, false, false, false); // not a diff_map
 
    mean_and_variance<float> mv = map_density_distribution(xmap, 40, true); 
 
@@ -1921,7 +2171,7 @@ molecule_class_info_t::make_map_from_phs_using_reso(std::string phs_filename,
    
   std::string mol_name = phs_filename; 
 
-  initialize_map_things_on_read_molecule(mol_name, 0, 0); // not diff map
+  initialize_map_things_on_read_molecule(mol_name, false, false, false); // not diff map
 
   std::cout << "initializing map..."; 
   xmap.init(mydata.spacegroup(), 
@@ -2076,6 +2326,18 @@ molecule_class_info_t::make_map_from_cif_generic(int imol_in,
       return -1;
    }
 }
+
+
+// fill original_fphis
+void
+molecule_class_info_t::save_original_fphis_from_map() {
+
+   // clipper::HKL_data< clipper::datatypes::F_phi<float> > original_fphis;
+
+
+
+}
+
    
 int
 molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
@@ -2084,7 +2346,7 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
 						  atom_selection_container_t SelAtom,
 						  short int is_2fofc_type) {
 
-   initialize_map_things_on_read_molecule(mol_name, 0, 0); // not diff map
+   initialize_map_things_on_read_molecule(mol_name, false, false, false); // not diff map
    
    std::cout << "calculating structure factors..." << std::endl;
 
@@ -2471,7 +2733,7 @@ molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
 	    // xmap.fft_from( fphidata );       // generate Fc alpha-c map
 	    xmap.fft_from( map_fphidata );       // generate sigmaA map 20050804
 	    cout << "done." << endl;
-	    initialize_map_things_on_read_molecule(mol_name, is_diff, 0);
+	    initialize_map_things_on_read_molecule(mol_name, is_diff, false, false);
 	    // now need to fill contour_level, xmap_is_diff_map xmap_is_filled
 	    if (is_diff)
 	       xmap_is_diff_map = 1;
@@ -2578,8 +2840,9 @@ molecule_class_info_t::make_map_from_cif_nfofc(int imol_no_in,
 	 if (map_type == molecule_map_type::TYPE_FO_ALPHA_CALC) {
 	    mol_name += " Fo ac";
 	 }
-	 
-	 initialize_map_things_on_read_molecule(mol_name, is_diff_map_flag,
+
+	 bool is_anomalous_flag = false;
+	 initialize_map_things_on_read_molecule(mol_name, is_diff_map_flag, is_anomalous_flag,
 						swap_difference_map_colours);
 	
 	 cout << "initializing map..."; 
@@ -2786,7 +3049,7 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
 
       std::string mol_name = phs_filename; 
 
-      initialize_map_things_on_read_molecule(mol_name, 0, 0); // not diff map
+      initialize_map_things_on_read_molecule(mol_name, false, false, false); // not diff map
 
       cout << "initializing map..."; 
       xmap.init(mydata.spacegroup(), 
@@ -3085,6 +3348,80 @@ trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
 
 }
 
+#ifdef HAVE_CXX_THREAD
+
+// static
+void
+molecule_class_info_t::test_jiggle_fit_func(unsigned int thread_index,
+					    unsigned int i_trial,
+					    unsigned int n_trials,
+					    mmdb::PPAtom atom_selection,
+					    int n_atoms,
+					    const std::vector<mmdb::Atom *> &initial_atoms,
+					    const clipper::Coord_orth &centre_pt,
+					    const std::vector<std::pair<std::string, int> > &atom_numbers,
+					    const clipper::Xmap<float> *xmap_masked,
+					    float jiggle_scale_factor) {
+
+}
+
+// static
+void
+molecule_class_info_t::jiggle_fit_multi_thread_func_1(int thread_index,
+						      unsigned int i_trial,
+						      unsigned int n_trials,
+						      mmdb::PPAtom atom_selection,
+						      int n_atoms,
+						      const std::vector<mmdb::Atom *> &initial_atoms,
+						      const clipper::Coord_orth &centre_pt,
+						      float jiggle_scale_factor,
+						      const std::vector<std::pair<std::string, int> > &atom_numbers,
+						      const clipper::Xmap<float> *xmap_masked_p,
+						      float (*density_scoring_function)(const coot::minimol::molecule &mol,
+											const std::vector<std::pair<std::string, int> > &atom_number_list,
+											const clipper::Xmap<float> &map),
+						      std::pair<clipper::RTop_orth, float> *trial_results_p) {
+   molecule_class_info_t m;
+   float annealing_factor = 1 - float(i_trial)/float(n_trials);
+   std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> > jiggled_atoms =
+      coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor);
+   coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms.second);
+   float this_score = density_scoring_function(jiggled_mol, atom_numbers, *xmap_masked_p);
+   std::pair<clipper::RTop_orth, float> p(jiggled_atoms.first, this_score);
+   *trial_results_p = p;
+}
+#endif // HAVE_CXX_THREAD
+
+#ifdef HAVE_CXX_THREAD
+// static
+void
+molecule_class_info_t::jiggle_fit_multi_thread_func_2(int thread_index,
+						      const coot::minimol::molecule &direct_mol,
+						      const clipper::Xmap<float> &xmap_masked,
+						      float map_sigma,
+						      const clipper::Coord_orth &centre_pt,
+						      const std::vector<std::pair<std::string, int> > &atom_numbers,
+						      float trial_results_pre_fit_score_for_trial,
+						      float (*density_scoring_function)(const coot::minimol::molecule &mol,
+											const std::vector<std::pair<std::string, int> > &atom_number_list,
+											const clipper::Xmap<float> &map),
+						      std::pair<clipper::RTop_orth, float> *post_fit_scores_p) {
+
+   coot::minimol::molecule trial_mol = direct_mol;
+   trial_mol.transform(post_fit_scores_p->first, centre_pt);
+   float pre_score = density_scoring_function(trial_mol, atom_numbers, xmap_masked);
+   molecule_class_info_t m;
+   coot::minimol::molecule fitted_mol = m.rigid_body_fit(trial_mol, xmap_masked, map_sigma);
+   // sorting and selection works by sorting the score of fitted_mols.
+   float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
+   std::cout << " thread_index " << std::setw(2) << thread_index
+	     << " pre-score " << std::setw(5) << pre_score
+	     << " post-fit-score " << std::setw(5) << this_score << std::endl;
+   post_fit_scores_p->second = this_score; // hand the score back
+}
+#endif // HAVE_CXX_THREAD
+
+
 // called by above and split_water.
 //
 // chain_for_moving is default arg, with value 0.
@@ -3102,6 +3439,9 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 						   bool use_biased_density_scoring,
 						   mmdb::Chain *chain_for_moving) {
    float v = 0;
+
+   if (! atom_sel.mol) return v;
+      
    std::vector<std::pair<std::string, int> > atom_numbers = coot::util::atomic_number_atom_list();
    if (n_trials <= 0)
       n_trials = 1;
@@ -3125,20 +3465,60 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 				     const std::vector<std::pair<std::string, int> > &atom_number_list,
 				     const clipper::Xmap<float> &map) = coot::util::z_weighted_density_score_linear_interp;
 
+   if (true)
+      density_scoring_function = coot::util::z_weighted_density_score_nearest;
+      
    if (use_biased_density_scoring)
       density_scoring_function = coot::util::biased_z_weighted_density_score;
+
+
+   // what residues are near to but not in atom_selection?
+   //
+   std::vector<mmdb::Residue *> neighbs;  // fill this
+   //
+   // we want to use residues_near_position(), so we want a list of residue that will be each of
+   // the target residues for residues_near_residue().
+   // 
+   std::vector<mmdb::Residue *> central_residues;
+   for (int iat=0; iat<n_atoms; iat++) {
+      mmdb::Atom *at = atom_selection[iat];
+      mmdb::Residue *r = at->GetResidue();
+      if (std::find(central_residues.begin(), central_residues.end(), r) == central_residues.end()) {
+	 central_residues.push_back(r);
+      }
+   }
+
+   if (false)
+      for (unsigned int ii=0; ii<central_residues.size(); ii++)
+	 std::cout << "            central residue: " << coot::residue_spec_t(central_residues[ii]) << std::endl;
+
+   float radius = 4.0; 
+   for (unsigned int ires=0; ires<central_residues.size(); ires++) {
+      mmdb::Residue *res_ref = central_residues[ires];
+      std::pair<bool, clipper::Coord_orth> pt = residue_centre(res_ref);
+      if (pt.first) { 
+	 std::vector<mmdb::Residue *> r_residues =
+	    coot::residues_near_position(pt.second, atom_sel.mol, radius);
+	 for (unsigned int ii=0; ii<r_residues.size(); ii++) {
+	    if (std::find(neighbs.begin(), neighbs.end(), r_residues[ii]) == neighbs.end())
+	       if (std::find(central_residues.begin(), central_residues.end(), r_residues[ii]) == central_residues.end())
+		  neighbs.push_back(r_residues[ii]);
+	 }
+      }
+   }
    
+   clipper::Xmap<float> xmap_masked = coot::util::mask_map(xmap, neighbs);
    
    // best score is the inital score (without the atoms being jiggled) (could be a good score!)
    // 
-   float initial_score = density_scoring_function(direct_mol, atom_numbers, xmap);
+   float initial_score = density_scoring_function(direct_mol, atom_numbers, xmap_masked);
    // float initial_score = coot::util::z_weighted_density_score(direct_mol, atom_numbers, xmap);
    // initial_score = coot::util::biased_z_weighted_density_score(direct_mol, atom_numbers, xmap);
    
    float best_score = initial_score;
 
-   std::cout << "------------------------- initial_score " << initial_score
-	     << " ------------------------------" << std::endl;
+   std::cout << "------------------ initial_score " << initial_score
+	     << " -----------------" << std::endl;
    bool  bested = false;
    coot::minimol::molecule best_molecule;
    clipper::RTop_orth best_rtop;
@@ -3157,56 +3537,156 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    clipper::Coord_orth centre_pt(p[0]*fact, p[1]*fact, p[2]*fact);
 
    std::vector<std::pair<clipper::RTop_orth, float> > trial_results(n_trials);
-   for (int itrial=0; itrial<n_trials; itrial++) {
+   bool do_multi_thread = false;
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+   int n_threads = coot::get_max_number_of_threads();
+   if (n_threads > 0)
+      do_multi_thread = true;
+#endif
 
-      float annealing_factor = 1 - float(itrial)/float(n_trials);
-      std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> > jiggled_atoms =
-	 coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor);
-      coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms.second);
-      float this_score = density_scoring_function(jiggled_mol, atom_numbers, xmap);
-      std::pair<clipper::RTop_orth, float> p(jiggled_atoms.first, this_score);
-      trial_results[itrial] = p;
+   if (do_multi_thread) {
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+
+      try {
+	 unsigned int n_threads = coot::get_max_number_of_threads();
+
+	 for (int itrial=0; itrial<n_trials; itrial++) {
+
+	    auto tp_1 = std::chrono::high_resolution_clock::now();
+
+
+	    graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_1, itrial, n_trials, atom_selection, n_atoms,
+						     initial_atoms, centre_pt, jiggle_scale_factor, atom_numbers,
+						     &xmap_masked, // pointer arg, no std::ref()
+						     density_scoring_function, &trial_results[itrial]);
+
+	    auto tp_2 = std::chrono::high_resolution_clock::now();
+	    auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
+	    // not to self: it takes 40ms to copy a const xmap reference to the function.
+	    // question for self: was it actually a reference though? I suspect not, because
+	    // std::ref() was not in the code until I (just) added it.
+	    //
+
+	    // this is useful for debugging, but makes a mess
+	    if (false)
+	       std::cout << "pushing trial thread into pool: " << itrial << " " << d21
+			 << " microseconds" << std::endl;
+	 }
+
+	 // wait for thread pool to finish jobs.
+	 bool wait_continue = true;
+	 while (wait_continue) {
+	    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	    if (graphics_info_t::static_thread_pool.n_idle() == graphics_info_t::static_thread_pool.size())
+	       wait_continue = false;
+	 }
+      }
+
+      catch (const std::bad_alloc &ba) {
+	 std::cout << "ERROR:: ------------------------ out of memory! ----------------- " << std::endl;
+	 std::cout << "ERROR:: " << ba.what() << std::endl;
+      }
+#endif
+   } else {
+
+      for (int itrial=0; itrial<n_trials; itrial++) {
+	 float annealing_factor = 1 - float(itrial)/float(n_trials);
+	 std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> > jiggled_atoms =
+	    coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor);
+	 coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms.second);
+	 float this_score = density_scoring_function(jiggled_mol, atom_numbers, xmap_masked);
+	 std::pair<clipper::RTop_orth, float> p(jiggled_atoms.first, this_score);
+	 trial_results[itrial] = p;
+      }
    }
 
    int n_for_rigid = int(float(n_trials) * 0.1);
    if (n_for_rigid > 10) n_for_rigid = 10;
    if (n_for_rigid == 0)  n_for_rigid = 1;
 
+   if (false) {
+      unsigned int n_top = 20;
+      if (trial_results.size() < 20)
+	 n_top = trial_results.size();
+      for (unsigned int i_trial=0; i_trial<n_top; i_trial++)
+	 std::cout << " debug pre-sort trial scores: " << i_trial << " " << trial_results[i_trial].second << std::endl;
+   }
+
    std::sort(trial_results.begin(),
 	     trial_results.end(),
  	     trial_results_comparer);
    
    // sorted results (debugging)
-   // for (unsigned int i_trial=0; i_trial<trial_results.size(); i_trial++) 
-   // std::cout << "   " << i_trial << " " << trial_results[i_trial].second << std::endl;
-
+   if (false) {
+      unsigned int n_top = 20;
+      if (trial_results.size() < 20)
+	 n_top = trial_results.size();
+      for (unsigned int i_trial=0; i_trial<n_top; i_trial++) 
+	 std::cout << " debug sorted trials: " << i_trial << " " << trial_results[i_trial].second << std::endl;
+   }
 
    // Here grid-search each of top n_for_rigid solution, replacing
    // each by best of grid-search results.  {5,10} degrees x 3 angles?
 
-   // these get updated in the following loop
+   clipper::RTop_orth rtop_orth_identity;
+   std::pair<clipper::RTop_orth, float> start_pair(rtop_orth_identity, 0);
+   // these get updated in the upcoming loop
    std::vector<std::pair<clipper::RTop_orth, float> > post_fit_trial_results = trial_results;
-   //
+
    float best_score_so_far = -999999;
+
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+
+   // fit and score best random jiggled results
+
+   try {
+      for (int i_trial=0; i_trial<n_for_rigid; i_trial++) {
+	 // does the fitting
+	 graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_2, direct_mol, std::ref(xmap_masked), map_sigma,
+						  centre_pt, atom_numbers,
+						  trial_results[i_trial].second,
+						  density_scoring_function,
+						  &post_fit_trial_results[i_trial]);
+      }
+
+      // wait
+      std::cout << "waiting for rigid-body fits..." << std::endl;
+      bool wait_continue = true;
+      while (wait_continue) {
+	 std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	 if (graphics_info_t::static_thread_pool.n_idle() == graphics_info_t::static_thread_pool.size())
+	    wait_continue = false;
+      }
+   }
+   catch (const std::bad_alloc &ba) {
+      std::cout << "ERROR:: ------------------------ out of memory! ----------------- " << std::endl;
+      std::cout << "ERROR:: " << ba.what() << std::endl;
+   }
+
+#else
+
+   // non-threaded, fit and score top jiggled results
+
    for (int i_trial=0; i_trial<n_for_rigid; i_trial++) {
       coot::minimol::molecule  trial_mol = direct_mol;
 
       trial_mol.transform(trial_results[i_trial].first, centre_pt);
-      coot::minimol::molecule fitted_mol = rigid_body_fit(trial_mol, xmap, map_sigma);
-      float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap);
+      coot::minimol::molecule fitted_mol = rigid_body_fit(trial_mol, xmap_masked, map_sigma);
+      float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
       std::cout << "INFO:: Jiggle-fit: optimizing trial "
-		<< std::setw(2) << i_trial << ": prelim-score was "
+		<< std::setw(3) << i_trial << ": prelim-score was "
 		<< std::setw(7) << trial_results[i_trial].second << " post-fit "
 		<< std::setw(5) << this_score;
       if (this_score > best_score_so_far) {
 	 best_score_so_far = this_score;
-	 if (this_score > initial_score) { 
+	 if (this_score > initial_score) {
 	    std::cout << " ***";
 	 }
       }
       std::cout << std::endl;
       post_fit_trial_results[i_trial].second = this_score;
    }
+#endif // HAVE_CXX_THREAD
 
    std::sort(post_fit_trial_results.begin(),
 	     post_fit_trial_results.end(),
@@ -3217,10 +3697,10 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
        best_rtop = post_fit_trial_results[0].first; // the rtop from before the rigid-body fitting
        coot::minimol::molecule  post_fit_mol = direct_mol;
        post_fit_mol.transform(post_fit_trial_results[0].first, centre_pt);
-       coot::minimol::molecule fitted_mol = rigid_body_fit(post_fit_mol, xmap, map_sigma);
+       coot::minimol::molecule fitted_mol = rigid_body_fit(post_fit_mol, xmap_masked, map_sigma);
        best_molecule = fitted_mol;
 
-       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap);
+       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
        std::cout << "INFO:: chose new molecule with score " << this_score << std::endl;
        best_score = this_score;
     }
@@ -3400,6 +3880,7 @@ molecule_class_info_t::get_contours(float contour_level,
    coot::CartesianPairInfo v = my_isosurface.GenerateSurface_from_Xmap(xmap,
 								       contour_level,
 								       radius, centre,
+								       0,1,1,
 								       isample_step, is_em_map_local);
    if (v.data) {
       if (v.size > 0) {

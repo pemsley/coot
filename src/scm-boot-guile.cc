@@ -28,10 +28,11 @@
 
 #include <string>
 #include <iostream>
+#include <cstddef> // needed for gmp.h I think.
 
 #include <libguile.h>
 #include <glib.h>
-#include  <gtk/gtk.h>
+#include <gtk/gtk.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -48,9 +49,9 @@
 #include "startup-scripts.hh"
 
 #include "coot-init-glue.hh"
+#include "pre-load.hh"
 
 #include <glob.h>
-#include "startup-scripts.hh"
 #include "graphics-info.h"
 
 #include "command-line-extern.hh"
@@ -146,6 +147,7 @@ void inner_main(void *closure, int argc, char **argv) {
 
    run_command_line_scripts(); // i.e. -c '(do-something)'
    run_state_file_maybe();
+   pre_load_rotamer_tables();
   
   if (use_graphics_interface_state()) { 
      gtk_main(); 
@@ -158,7 +160,7 @@ void inner_main(void *closure, int argc, char **argv) {
 					   as --pdb --no-graphics etc. (guile
 					   doesn't understand them). */
   }
-  
+
 }
 
 
@@ -226,8 +228,7 @@ void try_load_dot_coot_and_preferences() {
 		  // if python prefered, don't load coot-preferences.scm
 		  if (preferences_file_str == full_path_coot_pref_scm) {
 		     if (prefer_python()) {
-			std::cout << "skip" << std::endl;
-			// skip
+			// std::cout << "skip coot-prefences.scm " << std::endl;
 		     } else {
 			std::cout << "load " << preferences_file_str << std::endl;
 			scm_c_primitive_load(preferences_file);

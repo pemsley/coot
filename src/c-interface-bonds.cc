@@ -128,4 +128,38 @@ PyObject *get_dictionary_radii() {
 
 
 
+// deliberately inside the Python test
+
+//! \brief return the continue-updating-refinement-atoms state
+//
+// 0 means off, 1 means on.
+int get_continue_updating_refinement_atoms_state() {
+
+   // bool to int
+   return graphics_info_t::continue_update_refinement_atoms_flag;
+
+}
+
 #endif // Python
+
+
+#ifdef USE_GUILE
+SCM test_mol_triangles_scm(SCM i_scm, SCM j_scm) {
+
+   SCM r = SCM_BOOL_F;
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+   if (true) {
+
+      int imol = scm_to_int(i_scm);
+      if (is_valid_model_molecule(imol)) {
+	 graphics_info_t::molecules[imol].make_molecularrepresentationinstance("//", "RampChainsScheme", "Ribbon");
+	 // graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(graphics_info_t::molecules[imol].molrepinst);
+	 graphics_draw();
+      }
+   }
+#endif // USE_MOLECULES_TO_TRIANGLES
+
+   return r;
+}
+#endif

@@ -211,6 +211,7 @@ void remarks_dialog(int imol) {
    }
 }
 
+#include "coords/mmdb.h"
 
 void remarks_browser_fill_compound_info(mmdb::Manager *mol, GtkWidget *vbox) {
 

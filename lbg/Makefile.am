@@ -45,10 +45,11 @@ libcoot_lidia_la_SOURCES = lbg.cc lbg-flev.cc wmolecule.cc  \
 # qed-interface.cc uses a boost::python function directly, so add L_BOOST_PYTHON
 # Thanks Marcin.
 libcoot_lidia_la_LIBADD = \
+	$(top_builddir)/utils/libcoot-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
-	$(top_builddir)/utils/libcoot-utils.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) \
 	$(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(GOOCANVAS_LIBS) $(GTK_LIBS) $(PYTHON_LIBS)
 

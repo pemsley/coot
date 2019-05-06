@@ -104,7 +104,7 @@ lbg(lig_build::molfile_molecule_t mm,
 	 
 	 GtkBuilder *builder = gtk_builder_new();
 	 guint add_from_file_status =
-	    gtk_builder_add_from_file (builder, glade_file_full.c_str(), NULL);
+	    gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
 
 	 if (! add_from_file_status) {
 
@@ -4655,6 +4655,8 @@ lbg_info_t::import_via_rdkit_from_restraints_dictionary(const coot::dictionary_r
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS 
 widgeted_molecule_t
 lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
+
+   // see that this returns a widgeted_molecule_t, it doesn't fill the class's mol data item.
 
    // transfer atom names if you can.
 

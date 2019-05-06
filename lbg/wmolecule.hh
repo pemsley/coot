@@ -109,7 +109,7 @@ public:
       // root and let this item inherit it from there
       
       GooCanvasItem *item = 
- 	 goo_canvas_polyline_new_line(root, 
+ 	 goo_canvas_polyline_new_line(root,
  				      pos_1_x, pos_1_y,
  				      pos_2_x, pos_2_y,
  				      key.c_str(), value.c_str(),
@@ -344,12 +344,13 @@ public:
    // 
    lig_build::pos_t get_atom_canvas_position(const std::string &atom_name) const;
 
+   // Moved down
    // to draw double bonds without centre correctly (and below)
-   std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
-      make_other_connections_to_first_atom_info(unsigned int bond_index) const;
+   // std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
+   // make_other_connections_to_first_atom_info(unsigned int bond_index) const;
    // to draw wedge bonds correctly
-   std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
-      make_other_connections_to_second_atom_info(unsigned int bond_index) const;
+   //    std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
+   // make_other_connections_to_second_atom_info(unsigned int bond_index) const;
    
 
    // can throw an exception (no atoms)

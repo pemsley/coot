@@ -27,7 +27,6 @@
 // draw, reshape, init, mouse_move and mouse_button press
 // (and animate(for idle)).
 
-
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
@@ -107,11 +106,10 @@
 #include "rotate-translate-modes.hh"
 #include "rotamer-search-modes.hh"
 
-#ifdef WII_INTERFACE_WIIUSE
-#include "wiiuse.h"
-#endif // WII_INTERFACE_WIIUSE
+#include "draw.hh"
 
 std::vector<molecule_class_info_t> graphics_info_t::molecules;
+std::atomic<bool> molecule_class_info_t::draw_vector_sets_lock(false);
 
 
 // Initialize the graphics_info_t mouse positions
@@ -159,12 +157,11 @@ std::vector<coot::generic_text_object_t> *graphics_info_t::generic_texts_p = 0;
 std::vector<coot::view_info_t> *graphics_info_t::views = 0;
 bool graphics_info_t::do_expose_swap_buffers_flag = 1;
 
-#ifdef HAVE_CXX_THREAD
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 ctpl::thread_pool graphics_info_t::static_thread_pool(coot::get_max_number_of_threads());
-#endif // HAVE_CC_THREAD
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
 clipper::Xmap<float> *graphics_info_t::dummy_xmap = new clipper::Xmap<float>;
-
 
 //WII
 #ifdef WII_INTERFACE_WIIUSE
@@ -206,6 +203,8 @@ int graphics_info_t::save_imol = -1;
 
 bool graphics_info_t::cryo_EM_refinement_flag = false;
 double graphics_info_t::geman_mcclure_alpha = 1; // soft, (20180230-PE was 2, too soft, I think)
+double graphics_info_t::lennard_jones_epsilon = 2.0; // 20181008-PE less soft than 0.5
+double graphics_info_t::log_cosh_target_distance_scale_factor = 2000.0;
 
 // accept/reject
 GtkWidget *graphics_info_t::accept_reject_dialog = 0;
@@ -253,8 +252,8 @@ int    graphics_info_t::a_is_pressed = 0;
 int    graphics_info_t::shift_is_pressed = 0 ;       // false
 int    graphics_info_t::y_is_pressed = 0 ;       // false
 int    graphics_info_t::z_is_pressed = 0 ;       // false
-double graphics_info_t::mouse_begin_x = 0.0;
-double graphics_info_t::mouse_begin_y = 0.0;
+std::pair<double, double> graphics_info_t::mouse_begin         = std::pair<double, double> (0,0);
+std::pair<double, double> graphics_info_t::mouse_clicked_begin = std::pair<double, double> (0,0);
 float  graphics_info_t::rotation_centre_x = 0.0;
 float  graphics_info_t::rotation_centre_y = 0.0;
 float  graphics_info_t::rotation_centre_z = 0.0;
@@ -438,8 +437,10 @@ float graphics_info_t::map_sharpening_scale_limit = 200.0;
 int graphics_info_t::imol_remarks_browswer = -1;
 
 // dragged moving atom:
-int       graphics_info_t::moving_atoms_dragged_atom_index = -1;
+int       graphics_info_t::moving_atoms_currently_dragged_atom_index = -1;
 short int graphics_info_t::in_moving_atoms_drag_atom_mode_flag = 0;
+std::set<int> empty_int_set;
+std::set<int> graphics_info_t::moving_atoms_dragged_atom_indices = empty_int_set;
 
 // validate moving atoms
 int       graphics_info_t::moving_atoms_n_cis_peptides = -1;  // unset
@@ -549,6 +550,8 @@ double graphics_info_t::idle_function_rock_amplitude_scale_factor = 1.0;
 double graphics_info_t::idle_function_rock_freq_scale_factor = 1.0;
 double graphics_info_t::idle_function_rock_angle_previous = 0;
 
+// Hamish python
+std::string graphics_info_t::python_draw_function_string;
 
 // new style (20110505 ligand interactions)
 // 
@@ -561,6 +564,12 @@ int   graphics_info_t::drag_refine_idle_function_token = -1; // magic unused val
 coot::refinement_results_t graphics_info_t::saved_dragged_refinement_results(0, -2, "");
 float graphics_info_t::idle_function_rotate_angle = 1.0; // degrees
 bool  graphics_info_t::refinement_move_atoms_with_zero_occupancy_flag = 1; // yes
+
+bool graphics_info_t::post_intermediate_atoms_moved_ready;
+#ifdef USE_PYTHON
+PyObject *graphics_info_t::post_intermediate_atoms_moved_hook = 0;
+#endif
+
 
 float graphics_info_t::map_sampling_rate = 1.8;
 
@@ -687,7 +696,7 @@ short int graphics_info_t::in_distance_define = 0;
 short int graphics_info_t::in_angle_define = 0;
 short int graphics_info_t::in_torsion_define = 0;
 short int graphics_info_t::fix_chiral_volume_before_refinement_flag = 1;
-int       graphics_info_t::chiral_volume_molecule_option_menu_item_select_molecule = 0; // option menu
+int       graphics_info_t::check_chiral_volume_molecule = 0;
 int       graphics_info_t::add_reps_molecule_option_menu_item_select_molecule = 0; // option menu
 short int graphics_info_t::refinement_immediate_replacement_flag = 0;
 short int graphics_info_t::show_chiral_volume_errors_dialog_flag = 1; // on by default
@@ -762,14 +771,22 @@ int graphics_info_t::show_origin_marker_flag = 1;
 
 //
 float graphics_info_t::geometry_vs_map_weight = 60.0;
-float graphics_info_t::rama_plot_restraint_weight = 1.0;
+
+int graphics_info_t::refine_params_dialog_geman_mcclure_alpha_combobox_position    = 3;
+int graphics_info_t::refine_params_dialog_lennard_jones_epsilon_combobox_position  = 3;
+int graphics_info_t::refine_params_dialog_rama_restraints_weight_combobox_position = 3;
+bool graphics_info_t::refine_params_dialog_extra_control_frame_is_visible = false;
+
 int   graphics_info_t::rama_n_diffs = 50;
 
 atom_selection_container_t *graphics_info_t::moving_atoms_asc = NULL;
 short int graphics_info_t::moving_atoms_asc_type = coot::NEW_COORDS_UNSET; // unset
 int graphics_info_t::imol_moving_atoms = 0;
-int graphics_info_t::imol_refinement_map = -1; // magic initial value
-                                 // checked in graphics_info_t::refine()
+coot::extra_restraints_representation_t graphics_info_t::moving_atoms_extra_restraints_representation;
+
+bool graphics_info_t::draw_it_for_moving_atoms_restraints_graphics_object = false;
+int graphics_info_t::imol_refinement_map = -1; // magic initial value "None set"
+                                               // checked in graphics_info_t::refine()
 
 graphical_bonds_container graphics_info_t::regularize_object_bonds_box;
 graphical_bonds_container graphics_info_t::environment_object_bonds_box;
@@ -785,13 +802,18 @@ short int graphics_info_t::do_peptide_omega_torsion_restraints = 0;
 bool      graphics_info_t::do_rama_restraints = 0; // No.
 bool      graphics_info_t::do_numerical_gradients = 0; // No.
 int       graphics_info_t::restraints_rama_type = coot::RAMA_TYPE_LOGRAMA;
-float     graphics_info_t::rama_restraints_weight = 40;
+float     graphics_info_t::rama_restraints_weight = 40; // clipper-rama weight, gets reset on set_refine_ramachandran_restraints_type()
+float     graphics_info_t::rama_plot_restraint_weight = 1.0;  // what is this?
 
 // for Kevin Keating 
 bool      graphics_info_t::use_only_extra_torsion_restraints_for_torsions_flag = 0; 
 
-// This needs a gui presence
+//
 bool      graphics_info_t::do_trans_peptide_restraints = true;
+
+// 
+bool graphics_info_t::do_intermediate_atoms_rama_markup = true;
+bool graphics_info_t::do_intermediate_atoms_rota_markup = false;
 
 // 
 short int graphics_info_t::guile_gui_loaded_flag = FALSE;
@@ -983,7 +1005,8 @@ coot::history_list_t graphics_info_t::history_list;
 int graphics_info_t::add_terminal_residue_n_phi_psi_trials = 5000;
 int graphics_info_t::add_terminal_residue_add_other_residue_flag = 0; // no.
 std::string graphics_info_t::add_terminal_residue_type = "auto"; // was "ALA" before 20080601
-short int graphics_info_t::terminal_residue_do_rigid_body_refine = 0; // off by default
+short int graphics_info_t::add_terminal_residue_do_rigid_body_refine = 0; // off by default
+bool      graphics_info_t::add_terminal_residue_debug_trials = false;
 float graphics_info_t::rigid_body_fit_acceptable_fit_fraction = 0.75;
 
 // rotamer
@@ -1008,7 +1031,8 @@ atom_selection_container_t graphics_info_t::standard_residues_asc = asc;
 std::string graphics_info_t::mutate_sequence_chain_from_optionmenu;
 int         graphics_info_t::mutate_sequence_imol;
 int         graphics_info_t::align_and_mutate_imol;
-std::string graphics_info_t::align_and_mutate_chain_from_optionmenu;
+// std::string graphics_info_t::align_and_mutate_chain_from_optionmenu;
+std::string graphics_info_t::align_and_mutate_chain_from_combobox;
 int         graphics_info_t::nsv_canvas_pixel_limit = 22500;
 
 mmdb::realtype    graphics_info_t::alignment_wgap   = -3.0; // was -0.5 (Bob) // was -3.0;
@@ -1129,7 +1153,8 @@ short int graphics_info_t::show_citation_notice = 0; // on by default :)
 
 // we have dragged shear fixed points?
 short int graphics_info_t::have_fixed_points_sheared_drag_flag = 0;
-int       graphics_info_t::dragged_refinement_steps_per_frame = 140;
+// smaller is smoother and less jerky - especially for big molecules
+int       graphics_info_t::dragged_refinement_steps_per_frame = 20;
 short int graphics_info_t::dragged_refinement_refine_per_frame_flag = 0;
 double    graphics_info_t::refinement_drag_elasticity = 0.25;
 
@@ -1225,7 +1250,7 @@ int graphics_info_t::map_line_width = 1;
 
 // bonding stuff
 int   graphics_info_t::bond_thickness_intermediate_value = -1;
-float graphics_info_t::bond_thickness_intermediate_atoms = 5; // thick white atom bonds
+float graphics_info_t::bond_thickness_intermediate_atoms = 4; // (no so) thick white atom bonds
 
 // merge molecules
 int graphics_info_t::merge_molecules_master_molecule = -1;
@@ -1251,6 +1276,7 @@ bool      graphics_info_t::do_flat_shading_for_solid_density_surface = 1;
 // stereo?
 int graphics_info_t::display_mode = coot::MONO_MODE;
 float graphics_info_t::hardware_stereo_angle_factor = 1.0;
+graphics_info_t::stereo_eye_t graphics_info_t::which_eye = graphics_info_t::FRONT_EYE;
 
 // remote controlled coot
 int graphics_info_t::try_port_listener = 0;
@@ -1367,6 +1393,12 @@ std::map<std::string, std::pair<std::string, std::string> > graphics_info_t::use
 std::vector<std::pair<clipper::Coord_orth, std::string> > graphics_info_t::user_defined_interesting_positions;
 unsigned int graphics_info_t::user_defined_interesting_positions_idx = 0;
 
+// atom pull
+// atom_pull_info_t graphics_info_t:: atom_pull = atom_pull_info_t();
+std::vector<atom_pull_info_t> graphics_info_t:: atom_pulls;
+bool graphics_info_t::auto_clear_atom_pull_restraint_flag = true;
+
+bool graphics_info_t::continue_update_refinement_atoms_flag = false;
 
 std::pair<bool, float> graphics_info_t::model_display_radius = std::pair<bool, float> (false, 15);
 
@@ -1376,10 +1408,12 @@ std::pair<bool, float> graphics_info_t::model_display_radius = std::pair<bool, f
 // Chemical Feature Clusters, cfc
 GtkWidget *graphics_info_t::cfc_dialog = NULL;
 
-// CA-bonds missing loops dotted line params
-float graphics_info_t::ca_bonds_loop_param_1 = 0.5;
-float graphics_info_t::ca_bonds_loop_param_2 = 0.05;
-float graphics_info_t::ca_bonds_loop_param_3 = 111.0;
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
+std::shared_ptr<Renderer>   graphics_info_t::mol_tri_renderer    = 0;
+std::shared_ptr<SceneSetup> graphics_info_t::mol_tri_scene_setup = 0;
+#endif
+#endif // USE_MOLECULES_TO_TRIANGLES
 
 // GTK2 code
 // 
@@ -1441,7 +1475,6 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 	     GDK_GL_MODE_DOUBLE);
       }
    }
-
 
    if (try_stereo_flag == coot::ZALMAN_STEREO) {
      mode = static_cast<GdkGLConfigMode>
@@ -1511,7 +1544,7 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 
      context_count++;
   
-     GtkWidget *drawing_area_tmp = gtk_drawing_area_new ();
+     GtkWidget *drawing_area_tmp = gtk_drawing_area_new();
      if (context_count == 1) {
 	drawing_area = drawing_area_tmp;
      } else {
@@ -1730,13 +1763,16 @@ init_gl_widget(GtkWidget *widget) {
    // 
    glEnable(GL_DEPTH_TEST);
 
-   glEnable(GL_POINT_SMOOTH); // cirlces not squares
+   // glDepthFunc(GL_LESS); what does this do?
+
+   glEnable(GL_POINT_SMOOTH); // circles not squares
    
    if (g.do_anti_aliasing_flag)
       glEnable(GL_LINE_SMOOTH);
 
    // glEnable(GL_POLYGON_SMOOTH);
-   // glEnable(GL_MULTISAMPLE_ARB);
+
+   glEnable(GL_MULTISAMPLE_ARB);
 
    // Mac play
    // glEnable(GL_LINE_SMOOTH);
@@ -1747,7 +1783,6 @@ init_gl_widget(GtkWidget *widget) {
    //
    setup_lighting(graphics_info_t::do_lighting_flag);
 
-   
    
    // set the skeleton to initially be yellow
    graphics_info_t::skeleton_colour[0] = 0.7;
@@ -1764,12 +1799,53 @@ init_gl_widget(GtkWidget *widget) {
 
    // gtk_idle_add((GtkFunction)animate, widget);
 
-  return TRUE;
+   // should be in graphics_info_t?
+   //
+   setup_for_mol_triangles();
+
+   // setup_for_single_triangle();
+
+   return TRUE;
+}
+
+void
+setup_for_mol_triangles() {
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
+
+   graphics_info_t::mol_tri_renderer    = RendererGLSL::create();
+   graphics_info_t::mol_tri_renderer->init();
+
+   graphics_info_t::mol_tri_scene_setup = SceneSetup::defaultSceneSetup();
+
+   //Add a simple light..set some parameters and move it
+   auto simpleLight = Light::defaultLight();
+   simpleLight->setIntensity(0.8);
+   simpleLight->setAmbient(FCXXCoord(0.2, 0.2, 0.2, 0.0));
+   simpleLight->setDrawLight(false); // crash on true, why is that?
+   simpleLight->setLightType(Light::Directional);
+   graphics_info_t::mol_tri_scene_setup->addLight(simpleLight);
+
+   //Add another simple light
+   auto simpleLight2 = Light::defaultLight();
+   graphics_info_t::mol_tri_scene_setup->addLight(simpleLight2);
+   simpleLight2->setIntensity(0.7);
+   simpleLight2->setDrawLight(false);
+   simpleLight2->setTranslation(FCXXCoord(0.0, 0.9, -20.2));
+
+#endif
+#endif // USE_MOLECULES_TO_TRIANGLES
+
 }
 
 void
 setup_lighting(short int do_lighting_flag) {
 
+   // I'm not sure that this does anything other than enable the lights.
+   // The light positions are properly set in draw_mono().
+   // Needs rationalization.
+   // FIXME-lighting
 
    if (do_lighting_flag) { // set this to 1 to light a surface currently.
 
@@ -1777,26 +1853,73 @@ setup_lighting(short int do_lighting_flag) {
       //
       // GL_LIGHT2 is for cut-glass mode
       // 
+      glClearColor(0.0, 0.0, 0.0, 0.0);
+      glShadeModel(GL_SMOOTH);
+
+      GLfloat light_ambient[]  = { 0.4, 0.4, 0.4, 0.0 };
+      GLfloat light_diffuse[]  = { 0.4, 0.4, 0.4, 0.4 };
+      GLfloat light_specular[] = { 0.4, 0.4, 0.4, 0.4 };
+      GLfloat light_position[] = { 0.4, 0.4, 0.4, 0.0 };
+
       GLfloat  light_0_position[] = { 1.0,  1.0, 1.0, 0.0};
       GLfloat  light_1_position[] = {-1.0,  0.0, 1.0, 0.0};
       GLfloat  light_2_position[] = { 0.0,  0.0, 0.0, 0.0};
-
-      glClearColor(0.0, 0.0, 0.0, 0.0);
-      glShadeModel(GL_SMOOTH);
 
       glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
       glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
       glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
 
+      glLightfv(GL_LIGHT0, GL_AMBIENT,  light_ambient);
+      glLightfv(GL_LIGHT0, GL_DIFFUSE,  light_diffuse);
+      glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+      glLightfv(GL_LIGHT0, GL_POSITION, light_position);      
+
+      glLightfv(GL_LIGHT1, GL_AMBIENT,  light_ambient);
+      glLightfv(GL_LIGHT1, GL_DIFFUSE,  light_diffuse);
+      glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
+      glLightfv(GL_LIGHT1, GL_POSITION, light_position);
+
       glEnable(GL_LIGHT0);
       glEnable(GL_LIGHT1);
+      // GLfloat  light_0_position[] = { 1.0,  1.0,  1.0, 1.0};
+      // GLfloat  light_1_position[] = {-1.0,  0.0,  1.0, 1.0};
+      // GLfloat  light_2_position[] = { 0.0,  0.0, -1.0, 1.0};
+
+      // glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
+      // glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
+      // glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
+
+      // glEnable(GL_LIGHT0);
+      // glEnable(GL_LIGHT1);
+
       glEnable(GL_LIGHTING);
       glEnable(GL_DEPTH_TEST);
+
+      glPopMatrix();
    } else {
       glDisable(GL_LIGHTING);
       glDisable(GL_LIGHT0);
       glDisable(GL_LIGHT1);
       glDisable(GL_LIGHT2);
+   }
+}
+
+void show_lighting() {
+
+   if (true) {
+
+      glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
+      glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      
+      glPushMatrix();
+      glLoadIdentity();
+
+      GLfloat  light_0_position[] = { 1.0,  1.0, 1.0, 0.0};
+      GLfloat  light_1_position[] = { 1.0, -1.0, 1.0, 0.0};
+      
+      glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);      
+      glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
+      glPopMatrix();
    }
 }
 
@@ -1831,631 +1954,6 @@ gint expose(GtkWidget *widget, GdkEventExpose *event) {
    
    graphics_info_t::do_expose_swap_buffers_flag = 1;
    return TRUE;
-}
-
-   
-/* When widget is exposed it's contents are redrawn. */
-gint draw(GtkWidget *widget, GdkEventExpose *event) {
-
-//    GtkWidget *w = graphics_info_t::glarea;
-//    GdkGLContext *glcontext = gtk_widget_get_gl_context (w);
-//    GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (w);
-//    int i = gdk_gl_drawable_gl_begin (gldrawable, glcontext);
-//    std::cout << "DEBUG gdk_gl_drawable_gl_begin returns state: "
-// 	     << i << std::endl;
-//    if (i == 0)
-//       return TRUE;
-
-
-   if (graphics_info_t::display_mode == coot::HARDWARE_STEREO_MODE) {
-      draw_hardware_stereo(widget, event);
-   } else {
-      if (graphics_info_t::display_mode == coot::ZALMAN_STEREO) {
-	 draw_zalman_stereo(widget, event);
-      } else {
-	 if (graphics_info_t::display_mode_use_secondary_p()) { 
-	    if (widget == graphics_info_t::glarea_2) {
-	       // std::cout << "DEBUG:: draw other window" << std::endl;
-	       graphics_info_t g; // is this a slow thing?
-	       float tbs =  g.get_trackball_size(); 
-	       float spin_quat[4];
-	       // 0.0174 = 1/(2*pi)
-	       float eye_fac = 1.0;
-	       if (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE)
-		  eye_fac = -1.0;
-	       trackball(spin_quat, 0, 0, eye_fac*g.hardware_stereo_angle_factor*0.07, 0.0, tbs);
-	       add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
-	       // std::cout << "drawing gl_area_2 (right)" << std::endl;
-	       draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_RIGHT);
-	       // reset the viewing angle:
-	       trackball(spin_quat, 0, 0, -eye_fac*g.hardware_stereo_angle_factor*0.07, 0.0, tbs);
-	       add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
-	    } else {
-	       // std::cout << "drawing regular gl_area (left) " << std::endl;
-	       draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_LEFT);
-	    }
-	 } else {
-	    draw_mono(widget, event, IN_STEREO_MONO);
-	 }
-      }
-   }
-   return TRUE;
-}
-
-
-gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event) {
-
-   // tinker with graphics_info_t::quat, rotate it left, draw it,
-   // rotate it right, draw it.
-   graphics_info_t g; // is this a slow thing?
-   float tbs =  g.get_trackball_size(); 
-   float spin_quat[4];
-   // 0.0174 = 1/(2*pi)
-   trackball(spin_quat, 0, 0, -g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);
-   add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
-
-   // draw right:
-   glDrawBuffer(GL_BACK_RIGHT);
-   draw_mono(widget, event, IN_STEREO_HARDWARE_STEREO);
-   
-   trackball(spin_quat, 0, 0, 2.0*g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);
-   add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
-
-   // draw left:
-   glDrawBuffer(GL_BACK_LEFT);
-   draw_mono(widget, event, IN_STEREO_HARDWARE_STEREO);
-
-   // reset the viewing angle:
-   trackball(spin_quat, 0, 0, -g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);
-   add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
-
-   // draw it
-   GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
-   gdk_gl_drawable_swap_buffers(gldrawable);
-   return TRUE;
-}
-
-gint draw_zalman_stereo(GtkWidget *widget, GdkEventExpose *event) {
-
-   // tinker with graphics_info_t::quat, rotate it left, draw it,
-   // rotate it right, draw it.
-   graphics_info_t g; // is this a slow thing?
-   float tbs =  g.get_trackball_size(); 
-   float spin_quat[4];
-   // 0.0174 = 1/(2*pi)
-   if (graphics_info_t::display_mode == coot::ZALMAN_STEREO) {
-     GLint viewport[4];
-     glGetIntegerv(GL_VIEWPORT,viewport);
-    
-     glPushAttrib(GL_ENABLE_BIT);
-     glMatrixMode(GL_PROJECTION);
-     glPushMatrix();
-     glLoadIdentity();
-     glOrtho(0,viewport[2],0,viewport[3],-10.0,10.0);
-     glMatrixMode(GL_MODELVIEW);
-     glPushMatrix();
-     glLoadIdentity();
-     glTranslatef(0.33F,0.33F,0.0F); 
-     glDisable(GL_STENCIL_TEST);
-     /* We/you may not need all of these... FIXME*/
-
-     glDisable(GL_ALPHA_TEST);
-     glDisable(GL_LIGHTING);
-     glDisable(GL_FOG);
-     glDisable(GL_NORMALIZE);
-     glDisable(GL_DEPTH_TEST);
-     glDisable(GL_COLOR_MATERIAL);
-     glDisable(GL_LINE_SMOOTH);
-     glDisable(GL_DITHER);
-     glDisable(GL_BLEND);
-     glShadeModel(GL_SMOOTH);
-     //glDisable(0x809D); /* GL_MULTISAMPLE_ARB */ 
-     glDisable(0x809D); /* GL_MULTISAMPLE_ARB */ 
-
-     //glDisable(GL_STENCIL_TEST);
-     glClearStencil(0);
-     glColorMask(false,false,false,false);
-     glDepthMask(false);
-     glClear(GL_STENCIL_BUFFER_BIT);
-
-     glEnable(GL_STENCIL_TEST);
-     glStencilFunc(GL_ALWAYS, 1, 1);
-     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
-     glLineWidth(1.0);
-     glBegin(GL_LINES);
-     int h = viewport[3], w=viewport[2];
-     int y;
-     for(y=0;y<h;y+=2) {
-       glVertex2i(0,y);
-       glVertex2i(w,y);
-     }
-     glEnd();
-
-     glColorMask(true,true,true,true);
-     glDepthMask(true);
-
-     glMatrixMode(GL_MODELVIEW);
-     glPopMatrix();
-     glMatrixMode(GL_PROJECTION);
-     glPopMatrix();
-     //
-     glPopAttrib();
-   }
-
-   trackball(spin_quat, 0, 0, -g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);
-   add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
-
-   // draw right (should maybe be left)??:
-   draw_mono(widget, event, IN_STEREO_ZALMAN_RIGHT); // 5 for right
-   
-   trackball(spin_quat, 0, 0, 2.0*g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);
-   add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
-
-   // draw left (should maybe be right)??:
-   draw_mono(widget, event, IN_STEREO_ZALMAN_LEFT); // 6 for left
-
-   // reset the viewing angle:
-   trackball(spin_quat, 0, 0, -g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);
-   add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
-
-   return TRUE;
-}
-
-void gdkglext_finish_frame(GtkWidget *widget) {
-
-   // should not even be called by GTK.
-  GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
-  gdk_gl_drawable_gl_end (gldrawable);
-  
-} 
-
-
-gint
-draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
-
-   // std::cout << "draw_mono() with widget " << widget << std::endl;
-
-   if ((event-1) != 0) { 
-      /* Draw only last expose. */
-      if (event->count > 0) {
-	 //       cout << "event->count is " << event->count << endl;
-	 //       cout << "chucking an event" << endl;
-	 return TRUE;
-      }
-   }
-
-   // graphics_info_t info;          // static members
-   // Those two classes should be rationalised.
-
-   if (graphics_info_t::GetFPSFlag()) {
-      graphics_info_t::ShowFPS();
-   }
-
-   // GLCONTEXT
-   int gl_context = GL_CONTEXT_MAIN;
-   if (in_stereo_flag == IN_STEREO_SIDE_BY_SIDE_RIGHT)
-      gl_context = GL_CONTEXT_SECONDARY;
-
-   gl_context_info_t gl_info(graphics_info_t::glarea, graphics_info_t::glarea_2);
-
-   bool is_bb = background_is_black_p();
-
-
-// void glDepthRange(GLclampd near, GLclampd far); Defines an encoding
-// for z coordinates that's performed during the viewport
-// transformation. The near and far values represent adjustments to the
-// minimum and maximum values that can be stored in the depth buffer. By
-// default, they're 0.0 and 1.0, respectively, which work for most
-// applications. These parameters are clamped to lie within [0,1].
-   
-   /* OpenGL functions can be called only if make_current returns true */
-   if (graphics_info_t::make_current_gl_context(widget)) {
-
-      float aspect_ratio = float (widget->allocation.width)/
-	 float (widget->allocation.height);
-
-      if (graphics_info_t::display_mode == coot::DTI_SIDE_BY_SIDE_STEREO) {
-	 aspect_ratio *= 2.0; // DTI side by side stereo mode
-      } 
-
-      // Clear the scene
-      // 
-      // BL says:: another hack!? FIXME
-      // dont clear when we want to draw the 2 Zalman views
-      
-      if (in_stereo_flag != IN_STEREO_ZALMAN_LEFT) 
-      	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-
-
-      // From Bernhard
-
-      // do these need to be here every frame?
-      glEnable (GL_FOG);
-      glFogi(GL_FOG_MODE, GL_LINEAR);
-      glFogf(GL_FOG_START, -20.0);
-      glFogf(GL_FOG_END, 20.0);
-      glDepthFunc (GL_LESS);
-      glFogfv(GL_FOG_COLOR, graphics_info_t::background_colour);
-      glEnable(GL_DEPTH_TEST);
-
-      // BL:: this is code for Zalman monitor. Maybe can be somewhere else!?
-      // Zalman works here?! but crap lighting!?
-      if (in_stereo_flag == IN_STEREO_ZALMAN_RIGHT) {
-	// draws one Zalman lines
-	glEnable(GL_STENCIL_TEST);
-	glStencilFunc(GL_EQUAL, 1, 1);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-	glEnable(GL_STENCIL_TEST);
-
-	/* red triangle for testing*/
-	//glColor3ub(200, 0, 0);
-	//glBegin(GL_POLYGON);
-	//glVertex3i(-4, -4, 0);
-	//glVertex3i(4, -4, 0);
-	//glVertex3i(0, 4, 0);
-	//glEnd();
-
-	//glDisable(GL_STENCIL_TEST);
-      }
-
-      if (in_stereo_flag == IN_STEREO_ZALMAN_LEFT) {
-	// g_print("BL DEBUG:: now draw 'right'\n");
-	// draws the other Zalman lines
-	glStencilFunc(GL_EQUAL, 0, 1);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-	glEnable(GL_STENCIL_TEST);
-	/* green square for testing */
-	//glColor3ub(0, 200, 0);
-	//glBegin(GL_POLYGON);
-	//glVertex3i(3, 3, 0);
-	//glVertex3i(-3, 3, 0);
-	//glVertex3i(-3, -3, 0);
-	//glVertex3i(3, -3, 0);
-	//glEnd();
-      }
-
-
-      glMatrixMode(GL_PROJECTION);
-      glLoadIdentity();
-
-      // 	 glOrtho(GLdouble left,   GLdouble right, 
-      //               GLdouble bottom, GLdouble top,  
-      //               GLdouble near,   GLdouble far);
-
-      GLdouble near_scale = 0.1;
-//       if (! graphics_info_t::esoteric_depth_cue_flag)
-// 	 near_scale = 0.3;
-      
-      GLdouble near = -near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.1 + 1.0);
-      GLdouble far  =        0.30*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.1 + 1.0);
-
-      //	 if (graphics_info_t::esoteric_depth_cue_flag) 
-      glOrtho(-0.3*graphics_info_t::zoom*aspect_ratio, 0.3*graphics_info_t::zoom*aspect_ratio,
-	      -0.3*graphics_info_t::zoom,  0.3*graphics_info_t::zoom,
-	      near, far);
-      // 	 else
-      // 	    glOrtho(-0.3*info.zoom*aspect_ratio, 0.3*info.zoom*aspect_ratio,
-      // 		    -0.3*info.zoom,  0.3*info.zoom,
-      // 		    -0.10*info.zoom,
-      //   		    +0.30*info.zoom);
-
-      //glFogf(GL_FOG_START, -0.00*info.zoom);
-      //glFogf(GL_FOG_END,    0.3*info.zoom);
-
-
-      if (graphics_info_t::esoteric_depth_cue_flag) {
-	 glFogf(GL_FOG_START,  0.0f);
-	 glFogf(GL_FOG_END, far);
-      } else {
-	 glFogf(GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
-	 glFogf(GL_FOG_DENSITY, 1.0);
-	 GLdouble fog_start = 0;
-	 GLdouble fog_end =  far;
-	 glFogf(GL_FOG_START,  fog_start);
-	 glFogf(GL_FOG_END,    fog_end);
-	 // std::cout << "GL_FOG_START " << fog_start << " with far  " << far  << std::endl;
-	 // std::cout << "GL_FOG_END "   << fog_end   << " with near " << near << std::endl;
-      }
-
-      if (false) { // try/test clipping
-	 // I don't understand what I need to do
-	 GLdouble plane[] = { 0.0, 0.0, -1.0, -2.0};
-	 glEnable(GL_CLIP_PLANE0);
-	 glClipPlane(GL_CLIP_PLANE0, plane);
-	 glPopMatrix();
-      }
-
-      glMatrixMode(GL_MODELVIEW);
-      glLoadIdentity();
-
-      // Scene Rotation
-      GL_matrix m;
-      m.from_quaternion(graphics_info_t::quat); // consider a constructor.
-      glMultMatrixf(m.get());
-
-      // Translate the scene to the the view centre
-      // i.e. the screenrotation center is at (X(), Y(), Z())
-      //
-      glTranslatef(-graphics_info_t::RotationCentre_x(),
-		   -graphics_info_t::RotationCentre_y(),
-		   -graphics_info_t::RotationCentre_z());
-
-      if (false) { // try/test clipping
-	 // This does indeed clip the model, but it's in world coordinates,
-	 // not eye coordinates
-	 GLdouble plane[] = { 0.0, 0.0, -1.0, -2.0};
-	 glEnable(GL_CLIP_PLANE0);
-	 glClipPlane(GL_CLIP_PLANE0, plane);
-	 glPopMatrix();
-      }
-
-      if (! graphics_info_t::esoteric_depth_cue_flag) { 
-      	 coot::Cartesian front = unproject(0.0);
-	 coot::Cartesian back  = unproject(1.0);
-	 coot::Cartesian front_to_back = back - front;
-	 coot::Cartesian fbs = front_to_back.by_scalar(-0.2);
-	 // glTranslatef(fbs.x(), fbs.y(), fbs.z());
-      }
-
-
-      if (true) {
-	 glPushMatrix();
-	 glLoadIdentity();
-	 GLfloat  light_0_position[] = {  1.0,  1.0, 1.0, 0.0};
-	 GLfloat  light_1_position[] = {  0.6, -0.7, 1.0, 0.0};
-	 GLfloat  light_2_position[] = {  0.7, -0.7, 1.0, 0.0};
-
-	 glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
-	 glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
-	 glLightfv(GL_LIGHT2, GL_POSITION, light_2_position);
-	 glPopMatrix();
-      }
-
-      glMatrixMode(GL_MODELVIEW);
-
-      // do we need to turn on the lighting?
-      int n_display_list_objects = 0;
-
-      for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-
-	 // Molecule stuff
-	 //
-	 graphics_info_t::molecules[ii].draw_molecule(graphics_info_t::draw_zero_occ_spots_flag,
-						      is_bb, graphics_info_t::draw_cis_peptide_markups);
-
-	 //
-	 graphics_info_t::molecules[ii].draw_dipoles();
-
-	 // draw display list objects
-	 if (graphics_info_t::molecules[ii].has_display_list_objects()) {
-	    glEnable(GL_LIGHTING);
-	    glEnable(GL_LIGHT0);
-	    glEnable(GL_LIGHT1);
-	    glDisable(GL_LIGHT2);
- 	    n_display_list_objects +=
- 	       graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
-
-	    glDisable(GL_LIGHT0);
-	    glDisable(GL_LIGHT1);
-	    glDisable(GL_LIGHTING);
-	 }
-
-	 if (graphics_info_t::molecules[ii].draw_animated_ligand_interactions_flag) { 
-	    glEnable(GL_LIGHTING);
-	    glEnable(GL_LIGHT0);
-	    glEnable(GL_LIGHT1);
-	    glDisable(GL_LIGHT2);
-	    graphics_info_t::molecules[ii].draw_animated_ligand_interactions(gl_info,
-									     graphics_info_t::time_holder_for_ligand_interactions);
-	    glDisable(GL_LIGHTING);
-	 } 
-
-	 // draw anisotropic atoms maybe
-	 graphics_info_t::molecules[ii].anisotropic_atoms();
-
-	 // We need to (also) pass whether we are drawing the first or
-	 // secondary window, so that, when display lists are being
-	 // used we use the correct part of theMapContours.
-	 //
-         // BL says:: bad hack FIXME
-         if (in_stereo_flag == IN_STEREO_ZALMAN_LEFT || in_stereo_flag == IN_STEREO_ZALMAN_RIGHT) {
-	    graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
-							    0);
-         } else {
-	    graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
-							    in_stereo_flag);
-         }
-
-	 // Turn the light(s) on and after off, if needed.
-	 // 
-	 graphics_info_t::molecules[ii].draw_surface();
-
-	 // extra restraints - thin blue lines or some such
-	 graphics_info_t::molecules[ii].draw_extra_restraints_representation();
-
-	 // Label the atoms in the atoms label list.
-	 //
-	 graphics_info_t::molecules[ii].label_atoms(graphics_info_t::brief_atom_labels_flag,
-						    graphics_info_t::seg_ids_in_atom_labels_flag);
-
-	 // Draw the dotted atoms:
-	 graphics_info_t::molecules[ii].draw_dots();
-
-	 // Draw Unit cell maybe.
-	 graphics_info_t::molecules[ii].draw_coord_unit_cell(graphics_info_t::cell_colour);
-
-	 // Draw Map unit cell maybe;
-	 graphics_info_t::molecules[ii].draw_map_unit_cell(graphics_info_t::cell_colour);
-
-	 //
-	 graphics_info_t::molecules[ii].draw_skeleton(is_bb);
-      }
-
-
-      // regularize object 
-      graphics_info_t::draw_moving_atoms_graphics_object(is_bb);
-
-      // environment object
-      graphics_info_t::draw_environment_graphics_object();
-
-      // flash the picked intermediate atom (Erik-mode)
-      graphics_info_t::picked_intermediate_atom_graphics_object();
-
-      //
-      graphics_info_t::draw_baton_object();
-
-      //
-      graphics_info_t::draw_geometry_objects(); // angles and distances
-
-      // pointer distances
-      graphics_info_t::draw_pointer_distances_objects();
-
-      // lsq atom blobs
-      if (graphics_info_t::lsq_plane_atom_positions->size() > 0) {
-	 graphics_info_t g;
-	 g.render_lsq_plane_atoms();
-      }
-
-      // ligand flash bond
-      graphics_info_t::draw_chi_angles_flash_bond();
-	 
-      // draw reference object, which sits at the model origin.
-      //
-      if (graphics_info_t::show_origin_marker_flag) { 
-	 glLineWidth(1.0);
-	 glColor3f(0.7,0.7,0.2);
-	 myWireCube (0.6);
-      }
-
-      graphics_info_t::draw_generic_objects();
-      graphics_info_t::draw_generic_text();
-
-      // Put a wirecube at the rotation centre.
-      //
-      glPushMatrix();
-      glTranslatef(graphics_info_t::RotationCentre_x(),
-		   graphics_info_t::RotationCentre_y(),
-		   graphics_info_t::RotationCentre_z());
-
-      draw_axes(m);
-
-      graphics_info_t::graphics_ligand_view();
-
-      glScalef (graphics_info_t::rotation_centre_cube_size, 
-		graphics_info_t::rotation_centre_cube_size, 
-		graphics_info_t::rotation_centre_cube_size);
-	 
-      if (! graphics_info_t::smooth_scroll_on) { 
-	 glLineWidth(2.0);
-	 glColor3f(0.8,0.6,0.7);
-	 myWireCube (1.0);
-      }
-
-     // Now we have finished displaying our annotation objects and
-     // making transformations, lets put the matrix back how it used
-      // to be.
-      glPopMatrix();
-
-      // Note that is important to leave with the modelling and
-      // view matrices that are the same as those that were when
-      // the molecule was drawn.  Atom picking depends on this.
-
-      // Transparent density maps
-      // 
-      for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-	 if (is_valid_map_molecule(ii)) {
-	    // enable lighting internal to this function
-	    bool do_flat =
-	       graphics_info_t::do_flat_shading_for_solid_density_surface;
-	    graphics_info_t::molecules[ii].draw_solid_density_surface(do_flat);
-	 }
-      }
-
-
-      //
-      draw_crosshairs_maybe();
-
-      // 
-      display_density_level_maybe();
-
-      // BL says:: not sure if we dont need to do this for 2nd Zalman view
-      if (in_stereo_flag != IN_STEREO_HARDWARE_STEREO && in_stereo_flag != IN_STEREO_ZALMAN_RIGHT) {
-         /* Swap backbuffer to front */
-         GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
-         if (gdk_gl_drawable_is_double_buffered (gldrawable)) {
-            gdk_gl_drawable_swap_buffers (gldrawable);
-         } else {
-            glFlush ();
-         }
-         graphics_info_t::Increment_Frames();
-      }
-
-
-      if (graphics_info_t::display_mode == coot::ZALMAN_STEREO)
-	glDisable(GL_STENCIL_TEST);
-
-
-   } // gtkgl make area current test
-
-   gdkglext_finish_frame(widget);
-   return TRUE;
-}
-
-void
-display_density_level_maybe() {
-
-   if (graphics_info_t::display_density_level_on_screen == 1) {
-      if (graphics_info_t::display_density_level_this_image == 1) {
-
-	 //	 std::cout << "DEBUG:: screen label: "
-	 // << graphics_info_t::display_density_level_screen_string
-	 // << std::endl;
-	 
-	 GLfloat white[3] = {1.0, 1.0, 1.0};
-	 GLfloat black[3] = {0.0, 0.0, 0.0};
-
-	 if (background_is_black_p())
-	    glColor3fv(white);
-	 else 
-	    glColor3fv(black);
-
-	 glPushMatrix();
-	 glLoadIdentity();
-
- 	 glMatrixMode(GL_PROJECTION);
-	 glPushMatrix();
- 	 glLoadIdentity();
-
-	 // Disable the fog so that the density level text will not
-	 // change intensity in a zoom-dependent way:
-	 glPushAttrib(GL_ENABLE_BIT);
-	 glDisable(GL_FOG);
-
-	 // glRasterPos3f();
-	 graphics_info_t::printString_for_density_level(graphics_info_t::display_density_level_screen_string,
-							0.0, 0.95, -0.9);
-
-         glPopAttrib();
-	 glPopMatrix();
-	 glMatrixMode(GL_MODELVIEW);
-	 
-	 glPopMatrix();
-
-      }
-   }
-   graphics_info_t::display_density_level_this_image = 0;
-
-   // glScalef (2.0, 2.0, 2.0);
-   // glRasterPos3f(2.0, 28.0,0.0);
-
-   // This does resonable things when changing the contour level (it
-   // waits until each change has been made before returning (rather
-   // than combining them into one change), but terrible things to
-   // regular rotation (unusable jerkiness).
-//    while (gtk_events_pending())
-//       gtk_main_iteration();
-
 }
 
 void 
@@ -2698,7 +2196,7 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 		  if (graphics_info_t::do_probe_dots_on_rotamers_and_chis_flag) {
 		     graphics_info_t g;
 		     g.do_probe_dots_on_rotamers_and_chis();
-		  } 
+		  }
 		  info.rotate_chi(x, y);
 	       }
 	    }
@@ -2733,8 +2231,8 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 // 				<< y_as_int << " " << x << " " << y << std::endl;
 
 		  info.move_single_atom_of_moving_atoms(x_as_int, y_as_int);
-
-
+		  // info.move_atom_pull_target_position(x_as_int ,y_as_int);
+		  
 	       } else {
 
 		  // multi atom move
@@ -2742,22 +2240,8 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 #ifdef HAVE_GSL
 		  if (info.last_restraints_size() > 0) {
 
-		     if (graphics_info_t::a_is_pressed) {
+                    info.move_atom_pull_target_position(x_as_int, y_as_int);
 
-			// We can't use shift, because this never
-			// happens because
-			// in_moving_atoms_drag_atom_mode_flag is
-			// unset on shift-left-click ("label atom").
-			info.move_moving_atoms_by_shear(x_as_int, y_as_int, 1);
-			if (graphics_info_t::dragged_refinement_refine_per_frame_flag) {
-			   info.drag_refine_refine_intermediate_atoms();
-			}
-		     } else {
-			info.move_moving_atoms_by_shear(x_as_int, y_as_int, 0);
-			if (graphics_info_t::dragged_refinement_refine_per_frame_flag) {
-			   info.drag_refine_refine_intermediate_atoms();
-			}
-		     }
 		  } else {
 		     // don't allow translation drag of the
 		     // intermediate atoms when they are a rotamer:
@@ -2768,7 +2252,7 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 								     y_as_int);
 		     }
 		  }
-#endif // HAVE_GSL		  
+#endif // HAVE_GSL
 	       }
 
 	    } else {
@@ -3175,19 +2659,28 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_Return:
 
       if (graphics_info_t::accept_reject_dialog) {
-	 accept_regularizement();
-	 if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
-	    save_accept_reject_dialog_window_position(graphics_info_t::accept_reject_dialog);
-	    gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
+
+	 if (graphics_info_t::continue_threaded_refinement_loop) {
+	    graphics_info_t::continue_threaded_refinement_loop = false;
+	    std::cout << ".... Return key tells refinement to accept and clean up" << std::endl;
+	    graphics_info_t::threaded_refinement_needs_to_clear_up = true;
+	    graphics_info_t::threaded_refinement_needs_to_accept_moving_atoms = true;
 	 } else {
-	    // have docked dialog
-	    if (graphics_info_t::accept_reject_dialog_docked_show_flag == coot::DIALOG_DOCKED_HIDE) {
-	       gtk_widget_hide(graphics_info_t::accept_reject_dialog);
+	    accept_regularizement();
+
+	    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
+	       save_accept_reject_dialog_window_position(graphics_info_t::accept_reject_dialog);
+	       gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
 	    } else {
-	       gtk_widget_set_sensitive(graphics_info_t::accept_reject_dialog, FALSE);
+	       // have docked dialog
+	       if (graphics_info_t::accept_reject_dialog_docked_show_flag == coot::DIALOG_DOCKED_HIDE) {
+	          gtk_widget_hide(graphics_info_t::accept_reject_dialog);
+	       } else {
+	          gtk_widget_set_sensitive(graphics_info_t::accept_reject_dialog, FALSE);
+	       }
 	    }
+	    graphics_info_t::accept_reject_dialog = 0;
 	 }
-	 graphics_info_t::accept_reject_dialog = 0;
       }
 
       if (graphics_info_t::rotamer_dialog) {
@@ -3201,20 +2694,30 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_Escape:
 
-      // std::cout << "GDK_Escape pressed" << std::endl;
+      graphics_info_t::rebond_molecule_corresponding_to_moving_atoms();
 
-      clear_up_moving_atoms();
+      // poke a value into the threaded refinement loop, to stop
+      if (graphics_info_t::continue_threaded_refinement_loop) {
+	 graphics_info_t::continue_threaded_refinement_loop = false;
+	 // and tell it to clear up the moving atoms
+	 std::cout << ".... Esc key tells refinement to clean up" << std::endl;
+	 graphics_info_t::threaded_refinement_needs_to_clear_up = true;
+      } else {
 
-      // stop the refinement
-      graphics_info_t::remove_drag_refine_idle_function();
-      
-      if (graphics_info_t::accept_reject_dialog) {
-	 if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
-	   save_accept_reject_dialog_window_position(graphics_info_t::accept_reject_dialog);
-	   gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
-       graphics_info_t::accept_reject_dialog = 0;
-	 } else {
-	   gtk_widget_set_sensitive(graphics_info_t::accept_reject_dialog, FALSE);
+	 // refinement was not running. we can clear up the atoms ourselves
+	 graphics_info_t g;
+	 g.clear_up_moving_atoms();
+	 g.clear_moving_atoms_object();
+
+	 if (graphics_info_t::accept_reject_dialog) {
+	    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
+	       save_accept_reject_dialog_window_position(graphics_info_t::accept_reject_dialog);
+	       // this calls clear_up_moving_atoms() and clears atom pull restraint.
+	       gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
+	       graphics_info_t::accept_reject_dialog = 0;
+	    } else {
+	       gtk_widget_set_sensitive(graphics_info_t::accept_reject_dialog, FALSE);
+	    }
 	 }
       }
       
@@ -3291,10 +2794,11 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_d:
       
-      if (graphics_info_t::clipping_back < 10.0) { 
+      if (graphics_info_t::clipping_back < 15.0) { 
 	 set_clipping_front(graphics_info_t::clipping_front + 0.4);
 	 set_clipping_back (graphics_info_t::clipping_front + 0.4);
-	 // std::cout << graphics_info_t::clipping_front << " " << graphics_info_t::clipping_back << std::endl;
+	 // std::cout << "INFO:: clipping " << graphics_info_t::clipping_front << " "
+	 // << graphics_info_t::clipping_back << std::endl;
       }
       handled = TRUE; 
       break;
@@ -3310,10 +2814,11 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       
    case GDK_f:
       
-      if (graphics_info_t::clipping_back > -10.2) { 
+      if (graphics_info_t::clipping_back > -15.2) { 
 	 set_clipping_front(graphics_info_t::clipping_front - 0.4);
 	 set_clipping_back (graphics_info_t::clipping_front - 0.4);
-	 // std::cout << graphics_info_t::clipping_front << " " << graphics_info_t::clipping_back << std::endl;
+	 // std::cout << "INFO:: clipping " << graphics_info_t::clipping_front << " "
+	 // << graphics_info_t::clipping_back << std::endl;
       }
       handled = TRUE; 
       break;
@@ -3680,7 +3185,9 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	    scheme_command += graphics_info_t::int_to_string(ikey);
 	    // scheme_command += "\"";
 	    scheme_command += ")";
-	    // std::cout << "running scheme command: " << scheme_command << std::endl;
+	    if (false)
+	       std::cout << "::::::: key press event not handled~! running scheme command: "
+			 << scheme_command << std::endl;
 	    safe_scheme_command(scheme_command);
 #else // not GUILE
 #ifdef USE_PYTHON	    
@@ -3694,10 +3201,11 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 #endif // USE_GUILE
 	    
 	 } else {
-	    std::cout << "Ignoring GDK_backslash key press event" << std::endl;
+	    std::cout << "INFO:: Ignoring GDK_backslash key press event" << std::endl;
 	 }
       }
-   } 
+   }
+
    return TRUE;
 }
 
@@ -4193,30 +3701,30 @@ draw_axes(GL_matrix &m) {
       glBegin(GL_LINES);
 
       // axes
-      glVertex3f(0.0, 0.0, 0.0);
-      glVertex3f(0.2, 0.0, 0.0);
+      glVertex3f(0.0f, 0.0f, 0.0f);
+      glVertex3f(0.2f, 0.0f, 0.0f);
 
-      glVertex3f(0.0, 0.0, 0.0);
-      glVertex3f(0.0, 0.2, 0.0);
+      glVertex3f(0.0f, 0.0f, 0.0f);
+      glVertex3f(0.0f, 0.2f, 0.0f);
 
-      glVertex3f(0.0, 0.0, 0.0);
-      glVertex3f(0.0, 0.0, 0.2);
+      glVertex3f(0.0f, 0.0f, 0.0f);
+      glVertex3f(0.0f, 0.0f, 0.2f);
 
       // arrowheads:
-      glVertex3f(0.2,  0.0,  0.0);
-      glVertex3f(0.18, 0.02, 0.0);
-      glVertex3f(0.2,  0.0,  0.0);
-      glVertex3f(0.18, -0.02, 0.0);
+      glVertex3f(0.2f,   0.0f,  0.0f);
+      glVertex3f(0.18f,  0.02f, 0.0f);
+      glVertex3f(0.2f,   0.0f,  0.0f);
+      glVertex3f(0.18f, -0.02f, 0.0f);
 
-      glVertex3f(0.0,  0.2,   0.0);
-      glVertex3f(0.0,  0.18,  0.02);
-      glVertex3f(0.0,  0.2,   0.0);
-      glVertex3f(0.0,  0.18, -0.02);
+      glVertex3f(0.0f,  0.2f,   0.0f);
+      glVertex3f(0.0f,  0.18f,  0.02f);
+      glVertex3f(0.0f,  0.2f,   0.0f);
+      glVertex3f(0.0f,  0.18f, -0.02f);
 
-      glVertex3f(0.0,   0.0,   0.2);
-      glVertex3f(0.02,  0.0,   0.18);
-      glVertex3f(0.0,   0.0,   0.2);
-      glVertex3f(-0.02,  0.0,   0.18);
+      glVertex3f(0.0f,   0.0f,   0.2f);
+      glVertex3f(0.02f,  0.0f,   0.18f);
+      glVertex3f(0.0f,   0.0f,   0.2f);
+      glVertex3f(-0.02f, 0.0f,   0.18f);
       
       glEnd();
 
@@ -4261,13 +3769,18 @@ float rad_50_and_prob_to_radius(float rad_50, float prob) {
 // 
 gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    
-   graphics_info_t info; // declared at the top of the file
+   graphics_info_t info;
    
+   bool was_a_double_click = false;
+   if (event->type==GDK_2BUTTON_PRESS)
+      was_a_double_click = true;
+
    int x_as_int, y_as_int;
    GdkModifierType state;
    gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
 
    info.SetMouseBegin(event->x, event->y);
+   info.SetMouseClicked(event->x, event->y);
 
    GdkModifierType my_button1_mask = info.gdk_button1_mask();
    GdkModifierType my_button2_mask = info.gdk_button2_mask();
@@ -4285,9 +3798,13 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    // 
    if (event->type==GDK_2BUTTON_PRESS ||
        event->type==GDK_3BUTTON_PRESS) { 
-//       printf("INFO:: Ignoring this %s click on button %d\n",
-// 	     event->type==GDK_2BUTTON_PRESS ? "double" : "triple", 
-// 	     event->button);
+
+      if (false)
+	 printf("INFO:: ---- Considering this %s click on button %d\n",
+		event->type==GDK_2BUTTON_PRESS ? "double" : "triple",
+		event->button);
+
+      info.check_if_moving_atom_pull(true); // doesn't return a value, but can remove pull restraints
 
       if (state & my_button1_mask) {
 	 // instead do a label atom:
@@ -4314,9 +3831,6 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    }
    
 
-
-
-   // if (event->button == 1) {
    if (state & my_button1_mask) {
 
       if (info.shift_is_pressed == 1) {
@@ -4362,7 +3876,7 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	    }
 	 }
 
-      } else { 
+      } else {
 
 	 // Left mouse, but not shift-left-mouse:
 
@@ -4373,83 +3887,18 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	 //
 	 int iv = info.check_if_in_range_defines(event, state);
 	 if (! iv) 
-	    info.check_if_moving_atom_pull(); // and if so, set it up (it
-	 
-	 // executes on *motion* not a button press event).  Also,
-	 // remove any on-going drag-refine-idle-function.
-	 //
-	 // check_if_moving_atom_pull sets
-	 // in_moving_atoms_drag_atom_mode_flag.
-	 
+	    info.check_if_moving_atom_pull(false); // and if so, set it up (it
+	                                           // executes on *motion* not a button press event).  Also,
+                                                   // remove any on-going drag-refine-idle-function.
+
+	 // check_if_moving_atom_pull sets in_moving_atoms_drag_atom_mode_flag.
+
       }  // shift is pressed
    }     // button 1
 
    
    if (state & my_button2_mask) {
-
-      // Atom picking (recentre)
-      
-      pick_info nearest_atom_index_info; 
-      nearest_atom_index_info = atom_pick(event);
-      
-      if ( nearest_atom_index_info.success == GL_TRUE) {
-
-	 int im = nearest_atom_index_info.imol; 
-	 std::cout << "INFO:: recentre: clicked on imol: " << im << std::endl;
-	 
-	 info.setRotationCentre(nearest_atom_index_info.atom_index,
-				nearest_atom_index_info.imol);
-
-	 // Lets display the coordinate centre change
-	 // *then* update the map, so we can see how fast
-	 // the map updating is.
-	 // 
-	 info.graphics_draw();
-
-	 info.post_recentre_update_and_redraw();
-
-      } else {
-
-	 std::cout << "Model atom pick failed. " << std::endl; 
-
-	 // Only try to pick symmetry atoms if the symmetry atoms
-	 // are being displayed. 
-	 
-	 if ( info.show_symmetry == 1 ) {
-	    
-	    std::cout << "Trying symmetry pick" << std::endl;
-	    coot::Symm_Atom_Pick_Info_t symm_atom_info = info.symmetry_atom_pick();
-	    if (symm_atom_info.success == GL_TRUE) {
-	    
-	       std::cout << "Found Symmetry atom pick" << std::endl;
-
-	       // info.setRotationCentre(symm_atom_info.Hyb_atom());
-	       std::pair<symm_trans_t, Cell_Translation> symtransshiftinfo(symm_atom_info.symm_trans,
-									   symm_atom_info.pre_shift_to_origin);
-	       info.setRotationCentre(translate_atom_with_pre_shift(info.molecules[symm_atom_info.imol].atom_sel, 
-								    symm_atom_info.atom_index,
-								    symtransshiftinfo));
-
-	       
-	       // clear_symm_atom_info(symm_atom_info);
-
-	       for (int ii=0; ii<info.n_molecules(); ii++) {
-		  info.molecules[ii].update_symmetry();
-	       }
-	       info.graphics_draw();
-	       for (int ii=0; ii<info.n_molecules(); ii++) {
-		  info.molecules[ii].update_clipper_skeleton();
-		  info.molecules[ii].update_map();
-	       }
-	       info.graphics_draw();
-
-	    } else {
-
-	       std::cout << "Symmetry atom pick failed." << std::endl;
-
-	    }
-	 }
-      }
+      // std::cout << "Nothing doin' at the moment" << std::endl;
    }
    
    if (event->button == 4) {
@@ -4464,9 +3913,102 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 
 gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 
+   graphics_info_t g;
    if (graphics_info_t::in_moving_atoms_drag_atom_mode_flag) {
-      graphics_info_t g;
+      g.unset_moving_atoms_currently_dragged_atom_index();
       g.do_post_drag_refinement_maybe();
+   } else {
+
+      int x_as_int, y_as_int;
+      GdkModifierType state;
+      gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
+      GdkModifierType my_button2_mask = g.gdk_button2_mask();
+
+      if (event->button == 2) {
+
+	 // move this block into glarea_button_release (now done of course)
+
+	 // Atom picking (recentre)
+
+	 // check that the mouse hasn't moved much
+	 // c.f. event->x vs mouse_clicked_begin.first
+	 //      event->y vs mouse_clicked_begin.second
+
+	 pick_info nearest_atom_index_info; 
+	 nearest_atom_index_info = atom_pick(event);
+
+	 double delta_x = g.GetMouseClickedX() - x_as_int;
+	 double delta_y = g.GetMouseClickedY() - y_as_int;
+
+	 if (false) {
+	    std::cout << "MouseBegin " << g.GetMouseBeginX() << " " << g.GetMouseBeginY()
+		      << " now " << x_as_int << " " << y_as_int << std::endl;
+	    std::cout << "mouse deltas " << delta_x << " " << delta_y << std::endl;
+	 }
+
+	 if (std::abs(delta_x) < 10.0) {
+	    if (std::abs(delta_y) < 10.0) {
+
+	       if (nearest_atom_index_info.success == GL_TRUE) {
+
+		  int im = nearest_atom_index_info.imol; 
+		  std::cout << "INFO:: recentre: clicked on imol: " << im << std::endl;
+
+	 
+		  g.setRotationCentre(nearest_atom_index_info.atom_index,
+				      nearest_atom_index_info.imol);
+
+		  // Lets display the coordinate centre change
+		  // *then* update the map, so we can see how fast
+		  // the map updating is.
+		  // 
+		  g.graphics_draw();
+
+		  g.post_recentre_update_and_redraw();
+
+	       } else {
+
+		  std::cout << "Model atom pick failed. " << std::endl; 
+
+		  // Only try to pick symmetry atoms if the symmetry atoms
+		  // are being displayed. 
+
+		  if (g.show_symmetry == 1) {
+
+		     std::cout << "Trying symmetry pick" << std::endl;
+		     coot::Symm_Atom_Pick_Info_t symm_atom_info = g.symmetry_atom_pick();
+		     if (symm_atom_info.success == GL_TRUE) {
+
+			std::cout << "Found Symmetry atom pick" << std::endl;
+
+			// info.setRotationCentre(symm_atom_info.Hyb_atom());
+			std::pair<symm_trans_t, Cell_Translation> symtransshiftinfo(symm_atom_info.symm_trans,
+										    symm_atom_info.pre_shift_to_origin);
+			g.setRotationCentre(translate_atom_with_pre_shift(g.molecules[symm_atom_info.imol].atom_sel, 
+									  symm_atom_info.atom_index,
+									  symtransshiftinfo));
+
+			// clear_symm_atom_info(symm_atom_info);
+
+			for (int ii=0; ii<g.n_molecules(); ii++) {
+			   g.molecules[ii].update_symmetry();
+			}
+			for (int ii=0; ii<g.n_molecules(); ii++) {
+			   g.molecules[ii].update_clipper_skeleton();
+			   g.molecules[ii].update_map();
+			}
+			g.graphics_draw();
+
+		     } else {
+
+			std::cout << "Symmetry atom pick failed." << std::endl;
+
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
    }
    graphics_info_t::in_moving_atoms_drag_atom_mode_flag = 0;
    return TRUE;
@@ -4510,7 +4052,7 @@ gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event) {
 	 handle_scroll_density_level_event(1);
       if (event->direction == GDK_SCROLL_DOWN)
 	 handle_scroll_density_level_event(0);
-   } 
+   }
    return TRUE;
 }
 
@@ -4526,6 +4068,7 @@ void handle_scroll_density_level_event(int scroll_up_down_flag) {
    }
 
    int s = info.scroll_wheel_map;
+
    if (scroll_up_down_flag == 1) {
       if (graphics_info_t::do_scroll_by_wheel_mouse_flag) { 
 	 if (s>=0) {
@@ -4615,10 +4158,24 @@ void test_object() {
 void
 set_bond_colour(int i) {
 
+   if (false)
+      std::cout << "globjects.cc set_bond_colour() idx: " << i << " vs "
+		<< " green "   << GREEN_BOND << " "
+		<< " blue "    << BLUE_BOND << " "
+		<< " red "     << RED_BOND << " "
+		<< " yellow "  << YELLOW_BOND << " "
+		<< " grey "    << GREY_BOND << " "
+		<< " H-grey "  << HYDROGEN_GREY_BOND << " "
+		<< " magenta " << MAGENTA_BOND << " "
+		<< std::endl;
+
    if (background_is_black_p()) { 
       switch (i) {
+      case CARBON_BOND:
+	 glColor3f (0.2, 0.7, 0.1);
+	 break;
       case GREEN_BOND:
-	 glColor3f (0.1, 0.8, 0.1);
+	 glColor3f (0.0, 0.7, 0.0);
 	 break;
       case BLUE_BOND: 
 	 glColor3f (0.2, 0.2, 0.8);
@@ -4636,7 +4193,16 @@ set_bond_colour(int i) {
 	 glColor3f (0.6, 0.6, 0.6);
 	 break;
       case MAGENTA_BOND: 
-	 glColor3f (0.99, 0.2, 0.99);
+	 glColor3f (0.8, 0.1, 0.8);
+	 break;
+      case DARK_GREEN_BOND:
+	 glColor3f (0.05, 0.69, 0.05);
+	 break;
+      case DARK_ORANGE_BOND:
+	 glColor3f (0.7, 0.7, 0.05);
+	 break;
+      case DARK_BROWN_BOND:
+	 glColor3f (0.5, 0.5, 0.1);
 	 break;
       default:
 	 glColor3f (0.7, 0.8, 0.8);
@@ -4645,6 +4211,9 @@ set_bond_colour(int i) {
       // Are you sure that this is begin executed (and the colour-state not overwritten?)
       // How about set_bond_colour_by_mol_no()?
       switch (i) {
+      case CARBON_BOND:
+	 glColor3f (0.2, 0.6, 0.0);
+	 break;
       case GREEN_BOND:
 	 glColor3f (0.05, 0.6, 0.05);
 	 break;
@@ -4665,6 +4234,15 @@ set_bond_colour(int i) {
 	 break;
       case MAGENTA_BOND: 
 	 glColor3f (0.7, 0.1, 0.7);
+	 break;
+      case DARK_GREEN_BOND:
+	 glColor3f (0.05, 0.69, 0.05);
+	 break;
+      case DARK_ORANGE_BOND:
+	 glColor3f (0.7, 0.7, 0.05);
+	 break;
+      case DARK_BROWN_BOND:
+	 glColor3f (0.5, 0.5, 0.1);
 	 break;
       default:
 	 glColor3f (0.3, 0.4, 0.4);

@@ -386,6 +386,24 @@ int test_function(int i, int j) {
 #include "analysis/kolmogorov.hh"
 #include "analysis/stats.hh"
 
+#ifdef USE_MOLECULES_TO_TRIANGLES
+
+// Martin's MoleculeToTriangles
+//
+//
+#include <CXXClasses/RendererGL.h>
+#include <CXXClasses/Light.h>
+#include <CXXClasses/Camera.h>
+// #include <CXXClasses/CameraPort.h>
+#include <CXXClasses/SceneSetup.h>
+#include <CXXClasses/ColorScheme.h>
+#include <CXXClasses/MyMolecule.h>
+#include <CXXClasses/RepresentationInstance.h>
+#include <CXXClasses/MolecularRepresentationInstance.h>
+#endif // USE_MOLECULES_TO_TRIANGLES
+
+#include "coot-utils/c-beta-deviations.hh"
+
 #ifdef USE_GUILE
 SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
@@ -393,6 +411,24 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    SCM r = SCM_BOOL_F;
 
    if (true) {
+      mmdb::Manager *mol = new mmdb::Manager;
+      mol->ReadPDBASCII("test.pdb");
+      coot::get_c_beta_deviations(mol);
+   }
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+   if (false) {
+
+      int imol = scm_to_int(i_scm);
+      if (is_valid_model_molecule(imol)) {
+	 graphics_info_t::molecules[imol].make_molecularrepresentationinstance("//", "RampChainsScheme", "Ribbon");
+	 // graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(graphics_info_t::molecules[imol].molrepinst);
+	 graphics_draw();
+      }
+   }
+#endif // USE_MOLECULES_TO_TRIANGLES
+
+   if (false) {
       int imol_1 = scm_to_int(i_scm); // from
       int imol_2 = scm_to_int(j_scm); // to
 
@@ -404,6 +440,45 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	    write_pdb_file(imol_2, "copied-here.pdb");
 	 }
       }
+   }
+
+
+   if (false) {
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+      mmdb::Manager *mol = new mmdb::Manager;
+      mol->ReadPDBASCII("test.pdb");
+      MyMolecule mymol(mol);
+
+      auto myMolecule= MyMolecule::create("test.pdb");
+      myMolecule->setDoDraw(true);
+      auto colorScheme = ColorScheme::colorByElementScheme();
+      auto camera = std::shared_ptr<Camera>(Camera::defaultCamera());
+      auto light0 = Light::defaultLight();
+      light0->setDrawLight(false);
+      auto renderer = RendererGL::create();
+      // std::string sel = "/*/*/*","ThirtySixToFortyFive";
+      std::string sel = "//36-45";
+      CompoundSelection comp_sel(sel);
+      auto inst1 = MolecularRepresentationInstance::create(myMolecule,
+							   colorScheme,
+							   sel,
+							   "Ribbon");
+      auto sceneSetup = SceneSetup::defaultSceneSetup();
+      sceneSetup->addLight(light0);
+      sceneSetup->addCamera(camera);
+      camera->setSceneSetup(sceneSetup);
+      sceneSetup->addRepresentationInstance(inst1);
+      CXXCoord<float> c = myMolecule->getCentre();
+      CXXCoord<float> minusC = c * -1.;
+      std::cout << minusC;
+      sceneSetup->setTranslation(minusC);
+      // CameraPort *cameraPort = new CameraPort;
+      // cameraPort->setCamera(camera);
+      // cameraPort->setRenderer(renderer);
+      // cameraPort->runLoop("Message"); hangs (not surprising)
+
+#endif // USE_MOLECULES_TO_TRIANGLES
    }
 
    if (false) {
@@ -449,7 +524,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       } 
    } 
 
-   if (0) {
+   if (false) {
 
       std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
       if (pp.first) {
@@ -465,7 +540,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
    // ------------------------ spherical density overlap -------------------------
    // 
-   if (0) {
+   if (false) {
       int imol = scm_to_int(i_scm); // map molecule
       int imol_map = scm_to_int(j_scm); // map molecule
 
@@ -654,23 +729,108 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	       delete moving_mol;
 	       graphics_draw();
 	    }
-	 } 
+	 }
       }
    }
+
+   if (false) {
+      int i = scm_to_int(i_scm); // map molecule
+      int j = scm_to_int(j_scm);
+
+      if (is_valid_model_molecule(i)) {
+         if (is_valid_map_molecule(j)) {
+            const clipper::Xmap<float> &xmap = g.molecules[j].xmap;
+            g.molecules[i].em_ringer(xmap);
+         }
+      }
+   }
+
+   if (false) {
+      int i = scm_to_int(i_scm); // map molecule
+      int j = scm_to_int(j_scm);
+
+      if (is_valid_model_molecule(i)) {
+         if (is_valid_map_molecule(j)) {
+            const clipper::Xmap<float> &xmap = g.molecules[j].xmap;
+
+	    int icount = 0;
+	    int imod = 1;
+	    mmdb::Model *model_p = graphics_info_t::molecules[i].atom_sel.mol->GetModel(imod);
+	    if (model_p) {
+	       int n_chains = model_p->GetNumberOfChains();
+	       for (int ichain=0; ichain<n_chains; ichain++) {
+		  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+		  int nres = chain_p->GetNumberOfResidues();
+		  for (int ires=0; ires<nres; ires++) {
+		     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+		     int n_atoms = residue_p->GetNumberOfAtoms();
+		     for (int iat=0; iat<n_atoms; iat++) {
+			mmdb::Atom *at = residue_p->GetAtom(iat);
+			clipper::Coord_orth co = coot::co(at);
+			float dv = coot::util::density_at_point_by_linear_interpolation(xmap, co);
+			clipper::Grad_orth<double> grad = coot::util::gradient_at_point(xmap, co);
+
+			std::cout << icount << " " << coot::atom_spec_t(at) << " dv "
+				  << dv << " grad " << grad.format() << std::endl;
+			icount++;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+      
+   if (false) {
+      int imol_map   = scm_to_int(i_scm);
+      float b_factor = scm_to_double(j_scm);
+      graphics_info_t g;
+      int imol_new = graphics_info_t::create_molecule();
+      const clipper::Xmap<float> &xmap_orig = g.molecules[imol_map].xmap;
+      clipper::Xmap<float> xmap_new = coot::util::sharpen_blur_map(xmap_orig, b_factor);
+      g.molecules[imol_new].new_map(xmap_new, "Blur map map");
+      float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
+      graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
+      graphics_draw();
+   }
+
+
+   if (true) {
+
+      try {
+	 int imol_map   = scm_to_int(i_scm);
+	 graphics_info_t g;
+	 const clipper::Xmap<float> &xmap_orig = g.molecules[imol_map].xmap;
+	 std::vector<float> b_factors = {-100, -50, 5, 50, 100, 160};
+	 std::vector<clipper::Xmap<float> > xmaps(b_factors.size());
+	 coot::util::multi_sharpen_blur_map(xmap_orig, b_factors, &xmaps);
+	 float contour_level = g.molecules[imol_map].get_contour_level();
+	 for (std::size_t i=0; i<b_factors.size(); i++) {
+	    const clipper::Xmap<float> &xmap_new = xmaps[i];
+	    float b_factor = b_factors[i];
+	    int imol_new = graphics_info_t::create_molecule();
+	    std::string map_name = "Map";
+	    if (b_factor < 0)
+	       map_name += " Sharpen ";
+	    else
+	       map_name += " Blur ";
+	    map_name += coot::util::float_to_string(b_factor);
+	    g.molecules[imol_new].new_map(xmap_new, map_name);
+	    graphics_info_t::molecules[imol_new].set_contour_level(contour_level*exp(-0.01*b_factor));
+	 }
+      }
+      catch (const std::runtime_error &rte) {
+	 std::cout << "ERROR:: " << rte.what() << std::endl;
+      }
+   }
+
    return r;
 }
 
 #endif
 
 
-// Testing headless png output 
-// #include <cairo.h>
-// #include <MolDraw2DCairo.h>
-// #include "lidia-core/rdkit-interface.hh"
-// #include "utils/coot-utils.hh"
-// #include "graphics-info.h"
-// #include "globjects.h" //includes gtk/gtk.h
-// #include "c-interface-image-widget.hh"
 
 #include "utils/dodec.hh"
 
@@ -679,7 +839,6 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
    graphics_info_t g;
    PyObject *r = Py_False;
-
    if (true) {
       graphics_info_t g;
       int imol = g.create_molecule();
@@ -700,29 +859,6 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
    }
 
    if (0) {
-
-//       std::string comp_id = "GOL"; 
-//       std::string smiles="CO[C@@H](O)C1=C(O[C@H](F)Cl)C(C#N)=C1ONNC[NH3+]";
-//       RDKit::ROMol *m_local = RDKit::SmilesToMol(smiles);
-//       TEST_ASSERT(m_local);
-//       RDDepict::compute2DCoords(*m_local);
-//       WedgeMolBonds(*m_local,&(m_local->getConformer()));
-//       std::string png_file_name = "image-" + comp_id + ".png";
-
-//       { 
-// 	 RDKit::MolDraw2DCairo drawer(300,300);
-// 	 drawer.drawMolecule(*m_local);
-// 	 drawer.finishDrawing();
-// 	 std::string dt = drawer.getDrawingText();
-// 	 // std::cout << "PE-debug drawing-text :" << dt << ":" << std::endl;
-// 	 std::cout << "drawingtext is of length " << dt.length() << std::endl;
-// 	 drawer.writeDrawingText(png_file_name.c_str());
-//       }
-
-   } 
-
-   if (0) {
-
      int i = PyInt_AsLong(i_py); // map molecule
      int j = PyInt_AsLong(j_py);
 

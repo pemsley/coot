@@ -26,7 +26,11 @@
 #include "utils/coot-utils.hh"
 #include "rdkit-interface.hh"
 #include <GraphMol/Chirality.h>  // for CIP ranks
-#include "coot-utils/coot-coord-utils.hh" // after rdkit-interface.hh to avoid ::strchr problems
+#include "geometry/residue-and-atom-specs.hh"
+#include "geometry/mol-utils.hh"
+
+// what does this give us?
+// #include "coot-utils/coot-coord-utils.hh" // after rdkit-interface.hh to avoid ::strchr problems
 #include "neighbour-sorter.hh"
 
 
@@ -86,7 +90,11 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		<< do_undelocalize
 		<< " for residue " << residue_spec_t(residue_p) << " and alt conf "
 		<< "\"" << alt_conf << "\"" << std::endl;
-   
+
+   if (debug)
+      for (unsigned int ii=0; ii<restraints.atom_info.size(); ii++)
+	 std::cout << ii << "   " << restraints.atom_info[ii] << std::endl;
+
    RDKit::RWMol m;
 
    std::string n = coot::util::remove_trailing_whitespace(restraints.residue_info.name);
@@ -326,13 +334,22 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    if (idx_2 != -1) {
 
 	       // wedge bonds should have the chiral centre as the first atom.
-	       // 
+	       //
 	       bool swap_order = false;
 	       if (restraints.chiral_restraint.size()) {
 		  swap_order = chiral_check_order_swap(m[idx_1], m[idx_2], restraints.chiral_restraint);
 	       } else {
 		  // use the atoms rdkit chiral status
+		  // 20170810: this makes sense for atoms that are marked as S/R in the pdbx_stereo_config
+		  //           but not for other ones that RDKit conjures up for as yet unknown reason
+		  //           e.g. CT in FAK
 		  swap_order = chiral_check_order_swap(m[idx_1], m[idx_2]);
+	       }
+
+	       // Finally, heuristic: so that atoms with more than 1 bond are end atom if the
+	       // other atom has just 1 bond (this one).
+	       if (! swap_order) {
+		  swap_order = chiral_check_order_swap_singleton(m[idx_1], m[idx_2], restraints);
 	       }
 
 	       if (! swap_order) {  // normal
@@ -566,7 +583,6 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
       // Violation occurred on line 166 in file xxx/rdkit-Release_2015_03_1/Code/GraphMol/Atom.cpp
       // Failed Expression: d_implicitValence>-1
       // ****
-
       // 
       // Either from 3d or via R/S.  We need to calculate the CIP ranks.
       // 
@@ -662,13 +678,13 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		     std::sort(sorted_neighbs.begin(), sorted_neighbs.end(), cip_rank_sorter);
 
 		     if (false) {
-			std::cout << "---------- sorted neighbs: " << std::endl;
+			std::cout << "---------- CIP sorted neighbs: " << std::endl;
 			for (unsigned int jj=0; jj<sorted_neighbs.size(); jj++) { 
 			   std::cout << jj << " " << sorted_neighbs[jj].first << " "
 				     << sorted_neighbs[jj].second << std::endl;
 			}
 		     }
-	    
+
 		     bool inverted = true; // set this using cleverness
 
 		     if (neighbs.size() == 3) {
@@ -911,7 +927,10 @@ coot::set_atom_chirality(RDKit::Atom *rdkit_at, const coot::dict_atom &dict_atom
    bool debug = false;
 
    if (dict_atom.pdbx_stereo_config.first) {
+
       if (dict_atom.pdbx_stereo_config.second == "R") {
+
+	 // std::cout << "here in R: set_atom_chirality() for a dict_atom " << dict_atom << std::endl;
 
 	 // "work it out later" using rdkit sanitize doesn't seem to work
 	 //
@@ -941,6 +960,8 @@ coot::set_atom_chirality(RDKit::Atom *rdkit_at, const coot::dict_atom &dict_atom
 	 std::cout << "No pdbx_stereoconfig for atom " << dict_atom.atom_id << std::endl;
    }
 }
+
+
 
 // sorts atoms so that the smallest ranks are at the top (close to index 0).
 //
@@ -1012,11 +1033,59 @@ coot::chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2) {
    return status;
 }
 
+bool
+coot::chiral_check_order_swap_singleton(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2,
+					const dictionary_residue_restraints_t  &restraints) {
+
+   // This improves things, but needs further improvement because it doesn't correct the
+   // atom order of a bond of a CH3 connected to a C that is connected to 3 other CH3s -
+   // e.g. GN5
+   //
+
+   bool status = false;
+
+   try {
+      std::string name_1;
+      std::string name_2;
+      at_1->getProp("name", name_1);
+      at_2->getProp("name", name_2);
+
+      bool allow_H = true;
+      std::vector<std::string> n_1 = restraints.neighbours(name_1, allow_H);
+      std::vector<std::string> n_2 = restraints.neighbours(name_2, allow_H);
+      if (n_1.size() == 1)
+	 if (n_2.size() > 1)
+	    status = true;
+
+      // perhaps it was an OH?
+      if (! status) {
+	 allow_H = false;
+	 n_1 = restraints.neighbours(name_1, allow_H);
+	 n_2 = restraints.neighbours(name_2, allow_H);
+	 if (n_1.size() == 1)
+	    if (n_2.size() > 1)
+	       status = true;
+
+	 // actually, let's turn around everything where the second atom has more
+	 // non-H bonds than the first
+	 if (n_2.size() > n_1.size())
+	    status = true;
+      }
+   }
+   catch (...) {
+      // this should not catch anything, the names should be set as properties
+   }
+   return status;
+}
+
+
 
 // fill the coords from the dictionary if you can.
 // 
 RDKit::RWMol
 coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
+
+   // std::cout << "===== rdkit_mol(dict) " << std::endl;
 
    RDKit::RWMol m;
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
@@ -1071,7 +1140,6 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	 if (! done_chiral) {
 	    set_atom_chirality(at, r.atom_info[iat]);
 	 }
-
 
          if (false) {
 	    RDKit::Atom::ChiralType ct = at->getChiralTag();

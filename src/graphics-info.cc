@@ -199,8 +199,8 @@ GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
    // ZO type data need to scaled to match
    // 20*zo_type_data-80 = log_rama_type_data
    //
-   if (rama_type == coot::RAMA_TYPE_ZO)
-      plot_value = 20*plot_value -80;
+   // if (rama_type == coot::RAMA_TYPE_ZO)
+   //   plot_value = 20*plot_value -80;
 
    GdkColor col;
    float scale = 10.0; 
@@ -208,9 +208,12 @@ GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
    col.pixel = 1;
    col.blue  = 0;
 
-   // if (rama_type == coot::RAMA_TYPE_LOGRAMA) {
-   if (true) { // now that RAMA_TYPE_ZO are on the same scale this colour
-               // scheme will do for both
+   if (rama_type == coot::RAMA_TYPE_LOGRAMA) {
+      // This used to be true:
+      // now that RAMA_TYPE_ZO are on the same scale this colour
+      // scheme will do for both
+      // But then I changed the weight on ZO rama
+      // So colours need to be different
       if (plot_value < -15.0*scale) {
 	 col.red   = 0;
 	 col.green = 55535;
@@ -231,9 +234,23 @@ GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
       }
    } else {
       // RAMA_TYPE_ZO
-      col.red   = 33000;
-      col.green = 33000;
-      col.blue = 33000;
+      if (plot_value < -1.8) {
+	 col.red   = 0;
+	 col.green = 55535;
+      } else {
+	 if (plot_value < -1.2) {
+	    col.red   = 55000;
+	    col.green = 55000;
+	 } else {
+	    if (plot_value < -0.4) {
+	       col.red   = 64000;
+	       col.green = 32000;
+	    } else {
+	       col.red   = 65535;
+	       col.green = 0;
+	    }
+	 }
+      }
    }
    return col;
 } 
@@ -242,24 +259,34 @@ GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
 
 
 
-double graphics_info_t::GetMouseBeginX() const { return mouse_begin_x; };
+double graphics_info_t::GetMouseBeginX() const { return mouse_begin.first; };
 
-double graphics_info_t::GetMouseBeginY() const { return mouse_begin_y; };
+double graphics_info_t::GetMouseBeginY() const { return mouse_begin.second; };
 
 void graphics_info_t::SetMouseBegin(double x, double y) {
+   mouse_begin.first  = x;
+   mouse_begin.second = y;
+}
 
-   mouse_begin_x = x;
-   mouse_begin_y = y;
+void graphics_info_t::SetMouseClicked(double x, double y) {
+   mouse_clicked_begin.first  = x;
+   mouse_clicked_begin.second = y;
 }
 
 // static 
-GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label) { 
+GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label) {
 
    GtkWidget *w = NULL;
    if (use_graphics_interface_flag) { 
       w = create_nothing_bad_dialog();
       GtkWidget *label_widget = lookup_widget(w, "nothing_bad_label");
       gtk_label_set_use_markup(GTK_LABEL(label_widget), TRUE); // needed?
+
+      // for gtk2
+      gtk_misc_set_alignment(GTK_MISC(label_widget), 0.0, 0.5);
+      // for gtk3
+      // gtk_label_set_xalign (label1, 0.0);
+
       gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
       gtk_window_set_transient_for(GTK_WINDOW(w), GTK_WINDOW(lookup_widget(graphics_info_t::glarea, "window1")));
    }
@@ -276,17 +303,18 @@ graphics_info_t::set_do_anti_aliasing(int state) {
   }
 }
 
+// static
 bool
-graphics_info_t::background_is_black_p() const {
+graphics_info_t::background_is_black_p() {
 
-   bool v = 0;
+   bool v = false;
    if (background_colour[0] < 0.3)
       if (background_colour[1] < 0.3)
 	 if (background_colour[2] < 0.3)
-	    v = 1;
+	    v = true;
 
    return v;
-} 
+}
 
 void
 graphics_info_t::draw_anti_aliasing() {
@@ -1108,7 +1136,7 @@ graphics_info_t::display_all_model_molecules() {
    }
 }
 
-// an unactivate
+// and unactivate
 void
 graphics_info_t::undisplay_all_model_molecules_except(int imol) {
 
@@ -1492,12 +1520,13 @@ graphics_info_t::set_refinement_map(int i) {
 void
 graphics_info_t::accept_moving_atoms() {
 
-   // std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms is " << imol_moving_atoms
-   // << std::endl;
-   // std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms type is "
-   // << moving_atoms_asc_type << std::endl;
-   
-   
+   if (false) {
+      std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms is " << imol_moving_atoms
+	        << std::endl;
+      std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms type is "
+	        << moving_atoms_asc_type << " vs " << coot::NEW_COORDS_REPLACE << std::endl;
+   }
+
    if (moving_atoms_asc_type == coot::NEW_COORDS_ADD) { // not used!
       molecules[imol_moving_atoms].add_coords(*moving_atoms_asc);
    } else {
@@ -1507,6 +1536,7 @@ graphics_info_t::accept_moving_atoms() {
 	 update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
       } else {
 	 if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {
+
 	    molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 0, mzo);
 	    // debug
 	    // molecules[imol_moving_atoms].atom_sel.mol->WritePDBASCII("post-accept_moving_atoms.pdb");
@@ -1548,6 +1578,7 @@ graphics_info_t::accept_moving_atoms() {
    }
 #endif // HAVE_GTK_CANVAS || HAVE_GNOME_CANVAS
 
+   clear_all_atom_pull_restraints(false); // no re-refine
    clear_up_moving_atoms();
    update_environment_distances_by_rotation_centre_maybe(imol_moving_atoms);
 
@@ -1559,13 +1590,10 @@ graphics_info_t::accept_moving_atoms() {
    have_fixed_points_sheared_drag_flag = 0;
    in_edit_chi_mode_view_rotate_mode = 0;
 
-   if (do_probe_dots_post_refine_flag) {
-      if (do_coot_probe_dots_during_refine_flag) {
-	 // do_interactive_coot_probe();
-      } else {
-	 do_interactive_probe(); // old molprobity way
-      }
-   }
+   // Why do I want to do this when the intermediate atoms are undisplayed?
+   // To *clear up* the interactive probe dots.
+   if (do_coot_probe_dots_during_refine_flag)
+      do_interactive_coot_probe();
 
    int mode = MOVINGATOMS;
    run_post_manipulation_hook(imol_moving_atoms, mode);
@@ -1735,16 +1763,45 @@ graphics_info_t::update_environment_distances_by_rotation_centre_maybe(int imol_
 void
 graphics_info_t::clear_up_moving_atoms() { 
 
-   // std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms..." << std::endl;
+   // Note to self: why don't I do a delete moving_atoms_asc somewhere here?
+   // Where does the moving_atoms_asc->mol go?
+
    moving_atoms_asc_type = coot::NEW_COORDS_UNSET; // unset
    in_moving_atoms_drag_atom_mode_flag = 0; // no more dragging atoms
    have_fixed_points_sheared_drag_flag = 0;
    // and take out any drag refine idle function:
-//    std::cout << "DEBUG:: removing token " << drag_refine_idle_function_token
-// 	     << " (clear_up_moving_atoms) " << std::endl;
-   gtk_idle_remove(drag_refine_idle_function_token); 
-   drag_refine_idle_function_token = -1; // magic "not in use" value
-   
+
+   // We can't clear up until we have the lock and the lock here means that refinement
+   // can't continue (lock is restraints_lock).
+
+   // bool compare_exchange_weak (T& expected, T desired);
+   // when "expected" equals the value of restraint_lock, compare_exchange_weak() returns 
+   // true and replaces "desired" as the value of restraints lock - atomically of course.
+   // If the values are not equal, then we want to sleep/wait for a bit - hence
+   // enter the while loop.
+   // Dealing with spurious failure by using '&& !unlocked' in the while test:
+   // it seems that the test is always true and we never enter the while loop
+   // and wait - even if restraints_lock is true when we start.
+
+   bool unlocked = false; // wait for restraints_lock to be false...
+   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
+      std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms() - refinement restraints locked on "
+                << std::endl;
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      unlocked = false;
+   }
+
+   // We must not delete the moving atoms if they are being used to manipulate pull restraints
+   //
+   bool unlocked_atoms = false;
+   while (! moving_atoms_lock.compare_exchange_weak(unlocked_atoms, true) && !unlocked_atoms) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+      unlocked_atoms = 0;
+   }
+
+   continue_update_refinement_atoms_flag = false;
+   continue_threaded_refinement_loop = false;
+
    if (moving_atoms_asc->atom_selection != NULL) {
       if (moving_atoms_asc->n_selected_atoms > 0) { 
 	 moving_atoms_asc->mol->DeleteSelection(moving_atoms_asc->SelectionHandle);
@@ -1763,7 +1820,7 @@ graphics_info_t::clear_up_moving_atoms() {
       if (moving_atoms_asc->n_selected_atoms > 0) { 
 	 moving_atoms_asc->mol = NULL; 
       } else {
-	 std::cout << "attempting to delete non-NULL moving_atoms_asc.mol" << std::endl;
+	 std::cout << "WARNING:: attempting to delete non-NULL moving_atoms_asc.mol" << std::endl;
 	 std::cout << "but moving_atoms_asc.n_selected_atoms == 0" << std::endl;
 	 std::cout << "ignoring " << std::endl;
       } 
@@ -1781,13 +1838,21 @@ graphics_info_t::clear_up_moving_atoms() {
    moving_atoms_asc->n_selected_atoms = 0;
 
 #ifdef HAVE_GSL
-   // last_restraints = coot::restraints_container_t(); // last_restraints.size() = 0;
+
    if (last_restraints) {
       last_restraints->clear();
+      std::cout << "DEBUG:: ------ clear_up_moving_atoms() - delete last_restraints ---" << std::endl;
       delete last_restraints;
       last_restraints = 0;
+      unset_moving_atoms_currently_dragged_atom_index();
    }
+   graphics_info_t::restraints_lock = false; // refinement ended and cleared up.
+
 #endif // HAVE_GSL
+
+   moving_atoms_lock  = false;
+   graphics_info_t::rebond_molecule_corresponding_to_moving_atoms();
+
 }
 
 
@@ -1806,110 +1871,6 @@ graphics_info_t::clear_up_moving_atoms_maybe(int imol) {
 }
 
 
-
-
-// static 
-gint
-graphics_info_t::drag_refine_refine_intermediate_atoms() {
-
-   int retprog = -1;
-#ifdef HAVE_GSL
-
-   graphics_info_t g;
-
-   if (! g.last_restraints) {
-      std::cout << "Null last restraints " << std::endl;
-      return retprog;
-   }
-
-   // While the results of the refinement are a conventional result
-   // (unrefined), let's continue.  However, there are return values
-   // that we will stop refining and remove the idle function is on a
-   // GSL_ENOPROG(RESS) and GSL_SUCCESS.... actually, we will remove
-   // it on anything other than a GSL_CONTINUE
-   //
-
-   // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
-   // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-   // coot::restraint_usage_Flags flags = coot::BONDS_AND_PLANES;
-   // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES;
-   coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
-   
-   if (do_torsion_restraints) {
-      if (use_only_extra_torsion_restraints_for_torsions_flag) { 
-	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-	 flags = coot::TYPICAL_RESTRAINTS;
-      } else {
-	 flags = coot::TYPICAL_RESTRAINTS_WITH_TORSIONS;
-      }
-   }
-
-   if (do_rama_restraints)
-      // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
-      // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
-      flags = coot::ALL_RESTRAINTS;
-
-   
-   if (do_torsion_restraints && do_rama_restraints) {
-
-      // Do we really need this fine control?
-      
-//       if (use_only_extra_torsion_restraints_for_torsions_flag) { 
-// 	 // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
-// 	 // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
-//       } else {
-// 	 // This changes the function to using torsions (for non-peptide torsions)
-// 	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
-// 	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
-//       }
-
-      flags = coot::ALL_RESTRAINTS;
-   }
-
-   // print_initial_chi_squareds_flag is 1 the first time then we turn it off.
-   int steps_per_frame = dragged_refinement_steps_per_frame;
-   if (! g.last_restraints->include_map_terms())
-      steps_per_frame *= 6;
-
-   g.saved_dragged_refinement_results =
-      g.last_restraints->minimize(flags, steps_per_frame, print_initial_chi_squareds_flag);
-
-
-   retprog = graphics_info_t::saved_dragged_refinement_results.progress;
-   print_initial_chi_squareds_flag = 0;
-   int do_disulphide_flag = 0;
-   int draw_hydrogens_flag = 0;
-   if (molecules[imol_moving_atoms].draw_hydrogens())
-      draw_hydrogens_flag = 1;
-   Bond_lines_container bonds(*(g.moving_atoms_asc), do_disulphide_flag, draw_hydrogens_flag);
-   g.regularize_object_bonds_box.clear_up();
-   bool do_markup = true;
-   g.regularize_object_bonds_box = bonds.make_graphical_bonds(g.ramachandrans_container,
-							      do_markup);
-
-   if (g.do_coot_probe_dots_during_refine_flag)
-      g.do_interactive_coot_probe();
-
-   char *env = getenv("COOT_DEBUG_REFINEMENT");
-   if (moving_atoms_asc)
-      if (moving_atoms_asc->mol)
-         if (env)
-            g.tabulate_geometric_distortions(*last_restraints, flags);
-
-   // Update the Accept/Reject Dialog if it exists (and it should do,
-   // if we are doing dragged refinement).
-   if (accept_reject_dialog) {
-      if (saved_dragged_refinement_results.lights.size() > 0) {
-	 update_accept_reject_dialog_with_results(accept_reject_dialog,
-						  coot::CHI_SQUAREDS,
-						  saved_dragged_refinement_results);
-      }
-   }
-   
-#endif // HAVE_GSL
-
-   return retprog;
-}
 
 
 void
@@ -1968,71 +1929,138 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 						   const atom_selection_container_t &asc) {
 
    if (! moving_atoms_asc) {
+      std::cout << "info:: make_moving_atoms_graphics_object() makes a new moving_atoms_asc" << std::endl;
       moving_atoms_asc = new atom_selection_container_t;
    } else { 
       // moving_atoms_asc->clear_up(); // crash.  Much complexity to fix the crash, I think.
       // i.e. the clear_up() should be here - I think the problem lies elsewhere.
       // Not clearing up here produces a memory leak, I think (not a bad one (for some reason!)).
    } 
-   
+
    *moving_atoms_asc = asc;
 
-   // these not needed now, 
-//    moving_atoms_asc->mol = asc.mol;
-//    moving_atoms_asc->n_selected_atoms = asc.n_selected_atoms;
-//    moving_atoms_asc->atom_selection = asc.atom_selection;
-//    moving_atoms_asc->read_success = asc.read_success;
-//    moving_atoms_asc->SelectionHandle = asc.SelectionHandle;
-//    moving_atoms_asc->UDDAtomIndexHandle = asc.UDDAtomIndexHandle;
-//    moving_atoms_asc->UDDOldAtomIndexHandle = asc.UDDOldAtomIndexHandle;
+   // --------------- also do the restraints -----------------------
+   //
+   make_moving_atoms_restraints_graphics_object();
 
    int do_disulphide_flag = 0;
 
-//    std::cout << "DEBUG:: There are " << moving_atoms_asc->n_selected_atoms
-// 	     << " atoms in the graphics object" << std::endl;
-//    for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
-//       std::cout << moving_atoms_asc->atom_selection[i] << std::endl;
-//    }
-//
-//    Needed that to debug doubly clear_up on a bonds box.  Now points
-//    reset in clear_up().
-   
-//    std::cout << "DEBUG:: bonds box type of molecule " << imol_moving_atoms
-// 	     << " is " << molecules[imol_moving_atoms].Bonds_box_type()
-// 	     << std::endl;
+   //    Needed that to debug doubly clear_up on a bonds box.  Now points
+   //    reset in clear_up().
+
+   if (false)
+      std::cout << "DEBUG:: make_moving_atoms_graphics_object() bonds box type of molecule "
+	        << imol_moving_atoms << " is " << molecules[imol_moving_atoms].Bonds_box_type()
+                << std::endl;
+
    if (molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS ||
        molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS ||
        molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS ||
        molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR ||
        molecules[imol_moving_atoms].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS) {
 
-      if (molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS) { 
+      if (molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS) {
+
 	 Bond_lines_container bonds;
 	 bool draw_hydrogens_flag = false;
 	 if (molecules[imol_moving_atoms].draw_hydrogens())
 	    draw_hydrogens_flag = true;
 	 bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol, Geom_p(), 1.0, 4.7, draw_hydrogens_flag);
-	 // std::cout << "done CA bonds" << std::endl;
-	 regularize_object_bonds_box.clear_up();
-	 regularize_object_bonds_box = bonds.make_graphical_bonds();
-      } else { 
+
+         unsigned int unlocked = 0;
+         // Neither of these seems to make a difference re: the intermediate atoms python representation
+         // while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1)) {
+	 // For now, we don't print the python variable - now convert it to json - that seems
+	 // to work OK ~20MB/s for a chain.
+	 //
+         while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            unlocked = 0;
+         }
+
+         // we shouldn't draw bonds if they have been deleted in clear_up_moving_atoms():
+         if (moving_atoms_asc->atom_selection) {
+ 
+            // moving_atoms_lock is a bool
+            bool unlocked = false;
+            while (! moving_atoms_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                 unlocked = false;
+            }
+
+	    regularize_object_bonds_box.clear_up();
+	    regularize_object_bonds_box = bonds.make_graphical_bonds();
+            moving_atoms_lock = 0; // unlock them
+         }
+         moving_atoms_bonds_lock = 0;
+
+      } else {
+
 	 Bond_lines_container bonds;
 	 bonds.do_Ca_bonds(*moving_atoms_asc, 1.0, 4.7);
-	 // std::cout << "done CA bonds" << std::endl;
-	 regularize_object_bonds_box.clear_up();
-	 regularize_object_bonds_box = bonds.make_graphical_bonds();
+         unsigned int unlocked = false;
+         while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            unlocked = 0;
+         }
+         // we shouldn't draw bonds if they have been deleted in clear_up_moving_atoms():
+         if (moving_atoms_asc->atom_selection) {
+
+            // moving_atoms_lock is a bool
+            bool unlocked = false;
+            while (! moving_atoms_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                 unlocked = false;
+            }
+
+	    regularize_object_bonds_box.clear_up();
+	    regularize_object_bonds_box = bonds.make_graphical_bonds();
+            moving_atoms_lock = 0; // unlock them
+         }
+         moving_atoms_bonds_lock = 0;
       }
-      
+
    } else {
+
+      // normal bond representation
+
+      bool do_rama_markup = graphics_info_t::do_intermediate_atoms_rama_markup;
+      bool do_rota_markup = graphics_info_t::do_intermediate_atoms_rota_markup;
+
+      // wrap the filling of the rotamer probability tables
+      //
+      coot::rotamer_probability_tables *tables_pointer = NULL;
+      if (do_rota_markup) {
+	 if (! rot_prob_tables.tried_and_failed()) {
+	    if (rot_prob_tables.is_well_formatted()) {
+	       tables_pointer = &rot_prob_tables;
+	    } else {
+	       rot_prob_tables.fill_tables();
+	       if (rot_prob_tables.is_well_formatted()) {
+		  tables_pointer = &rot_prob_tables;
+	       }
+	    }
+	 } else {
+	    do_rota_markup = false;
+	 }
+      }
+
       int draw_hydrogens_flag = 0;
       if (molecules[imol_moving_atoms].draw_hydrogens())
 	 draw_hydrogens_flag = 1;
-      Bond_lines_container bonds(*moving_atoms_asc, do_disulphide_flag, draw_hydrogens_flag);
+      std::set<int> dummy;
+      Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, dummy, Geom_p(),
+				 do_disulphide_flag, draw_hydrogens_flag, 0,
+				 do_rama_markup, do_rota_markup, tables_pointer);
+      unsigned int unlocked = false;
+      while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+         std::this_thread::sleep_for(std::chrono::milliseconds(1));
+         unlocked = 0;
+      }
       regularize_object_bonds_box.clear_up();
-      regularize_object_bonds_box = bonds.make_graphical_bonds();
-
-      // if (do_coot_probe_dots_during_refine_flag)
-      // do_interactive_coot_probe();
+      regularize_object_bonds_box = bonds.make_graphical_bonds(ramachandrans_container,
+							       do_rama_markup, do_rama_markup);
+      moving_atoms_bonds_lock = 0; // unlocked
    }
 }
 
@@ -2040,12 +2068,24 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 // Display the graphical object of the regularization.
 // static
 // moving atoms are intermediate atoms
-void 
-graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_background) { 
-   
+void
+graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_background) {
+
    // very much most of the time, this will be zero
-   // 
-   if (graphics_info_t::regularize_object_bonds_box.num_colours > 0) {
+   //
+   if (regularize_object_bonds_box.num_colours > 0) {
+
+      if (moving_atoms_bonds_lock) {
+	 std::cout << "in draw_moving_atoms_graphics_object() moving_atoms_bonds_lock was locked"
+		   << std::endl;
+	 return;
+      }
+
+      unsigned int unlocked = false;
+      while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+	 std::this_thread::sleep_for(std::chrono::microseconds(10));
+	 unlocked = 0;
+      }
 
       if (against_a_dark_background) {
 	 // now we want to draw out our bonds in white, 
@@ -2053,16 +2093,18 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
       } else {
 	 glColor3f (0.4, 0.4, 0.4);
       }
-      
-      glLineWidth(graphics_info_t::bond_thickness_intermediate_atoms);
+
+      float bw = graphics_info_t::bond_thickness_intermediate_atoms;
+      float current_bond_width = bw;
+      glLineWidth(bw);
       for (int i=0; i< graphics_info_t::regularize_object_bonds_box.num_colours; i++) {
 
 	 switch(i) {
 	 case BLUE_BOND:
-	    glColor3f (0.60, 0.6, 0.99);
+	    glColor3f (0.40, 0.4, 0.79);
 	    break;
 	 case RED_BOND:
-	    glColor3f (0.95, 0.65, 0.65);
+	    glColor3f (0.79, 0.40, 0.640);
 	    break;
 	 default:
 	    if (against_a_dark_background)
@@ -2071,10 +2113,22 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 	       glColor3f (0.5, 0.5, 0.5);
 	 }
 
-	 graphical_bonds_lines_list<graphics_line_t> &ll = graphics_info_t::regularize_object_bonds_box.bonds_[i];
+	 graphical_bonds_lines_list<graphics_line_t> &ll = regularize_object_bonds_box.bonds_[i];
+
+	 // std::cout << "   debug colour ii = " << i << " has  "
+	 // << regularize_object_bonds_box.bonds_[i].num_lines << " lines" << std::endl;
+
+         float new_bond_width = bw;
+         if (ll.thin_lines_flag)
+            new_bond_width = bw * 0.5;
+
+         if (new_bond_width != current_bond_width) {
+	    glLineWidth(new_bond_width);
+            current_bond_width = new_bond_width;
+         }
 
 	 glBegin(GL_LINES); 
-	 for (int j=0; j< graphics_info_t::regularize_object_bonds_box.bonds_[i].num_lines; j++) {
+	 for (int j=0; j< regularize_object_bonds_box.bonds_[i].num_lines; j++) {
 	   
 	    coot::CartesianPair &pair = ll.pair_list[j].positions;
 	    
@@ -2086,6 +2140,166 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 		       pair.getFinish().get_z());
 	 }
 	 glEnd();
+      }
+
+      draw_moving_atoms_atoms(against_a_dark_background);
+      draw_moving_atoms_peptide_markup();
+      draw_ramachandran_goodness_spots();
+      draw_rotamer_probability_object();
+
+      moving_atoms_bonds_lock = false; // unlock.
+   }
+
+}
+
+void
+graphics_info_t::draw_moving_atoms_atoms(bool against_a_dark_background) {
+
+   if (false)
+      std::cout << "draw_moving_atoms_atoms() " << regularize_object_bonds_box.atom_centres_
+	        << std::endl;
+
+   // This is a pointer. Is that what I want to be testing?
+   if (regularize_object_bonds_box.atom_centres_) {
+
+      coot::Cartesian front = unproject(0.0);
+      coot::Cartesian back  = unproject(1.0);
+      coot::Cartesian z_delta = (front - back) * 0.003;
+
+      glBegin(GL_POINTS);
+      // glPointSize(700.0/zoom);
+      // glPointSize(2);
+
+      float zsc = graphics_info_t::zoom;
+      glPointSize(560.0/zsc);
+
+      // GLdouble point_size_data[2];
+      // glGetDoublev(GL_POINT_SIZE_RANGE, point_size_data);
+      // std::cout << "Point size range " << point_size_data[0] << " " << point_size_data[1] << std::endl;
+
+      for (int icol=0; icol<regularize_object_bonds_box.n_consolidated_atom_centres; icol++) {
+
+	 switch(icol) {
+	 case BLUE_BOND:
+	    glColor3f (0.40, 0.4, 0.79);
+	    break;
+	 case RED_BOND:
+	    glColor3f (0.79, 0.40, 0.640);
+	    break;
+	 default:
+	    if (against_a_dark_background)
+	       glColor3f (0.8, 0.8, 0.8);
+	    else
+	       glColor3f (0.5, 0.5, 0.5);
+	 }
+
+	 for (unsigned int i=0; i<regularize_object_bonds_box.consolidated_atom_centres[icol].num_points; i++) {
+	    // no points for hydrogens
+	    if (! regularize_object_bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
+
+	       coot::Cartesian fake_pt = regularize_object_bonds_box.consolidated_atom_centres[icol].points[i].position;
+	       fake_pt += z_delta;
+	       glVertex3f(fake_pt.x(), fake_pt.y(), fake_pt.z());
+	    }
+	 }
+      }
+      glEnd();
+   }
+}
+
+
+void
+graphics_info_t::draw_moving_atoms_peptide_markup() {
+
+   if (regularize_object_bonds_box.n_cis_peptide_markups > 0) {
+      for (int i=0; i<regularize_object_bonds_box.n_cis_peptide_markups; i++) {
+	 const graphical_bonds_cis_peptide_markup &m = regularize_object_bonds_box.cis_peptide_markups[i];
+
+	 glColor3f(0.7, 0.7, 0.8);
+	 coot::Cartesian fan_centre = m.pt_ca_1.mid_point(m.pt_ca_2);
+
+	 coot::Cartesian v1 = fan_centre - m.pt_ca_1;
+	 coot::Cartesian v2 = fan_centre - m.pt_c_1;
+	 coot::Cartesian v3 = fan_centre - m.pt_n_2;
+	 coot::Cartesian v4 = fan_centre - m.pt_ca_2;
+
+	 coot::Cartesian pt_ca_1 = m.pt_ca_1 + v1 * 0.15;
+	 coot::Cartesian pt_c_1  = m.pt_c_1  + v2 * 0.15;
+	 coot::Cartesian pt_n_2  = m.pt_n_2  + v3 * 0.15;
+	 coot::Cartesian pt_ca_2 = m.pt_ca_2 + v4 * 0.15;
+
+	 glBegin(GL_TRIANGLE_FAN);
+
+	 glVertex3f(fan_centre.x(), fan_centre.y(), fan_centre.z());
+	 glVertex3f(pt_ca_1.x(), pt_ca_1.y(), pt_ca_1.z());
+	 glVertex3f(pt_c_1.x(),  pt_c_1.y(),  pt_c_1.z());
+	 glVertex3f(pt_n_2.x(),  pt_n_2.y(),  pt_n_2.z());
+	 glVertex3f(pt_ca_2.x(), pt_ca_2.y(), pt_ca_2.z());
+
+	 glEnd();
+      }
+   }
+}
+
+
+// Display the graphical object of the regularization.
+// static
+void 
+graphics_info_t::draw_ramachandran_goodness_spots() {
+
+   if (graphics_info_t::regularize_object_bonds_box.num_colours > 0) {
+      if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
+
+	 glEnable(GL_LIGHTING);
+	 glEnable(GL_LIGHT1);
+	 glEnable(GL_LIGHT0);
+	 glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
+	 glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	 // ------------------------------------------
+
+	 coot::Cartesian top       = unproject_xyz(100, 100, 0.5);
+	 coot::Cartesian bottom    = unproject_xyz(100,   0, 0.5);
+	 coot::Cartesian screen_y = top - bottom;
+
+	 // ------------------------------------------
+
+	 float ball_scale_factor = 1.0; // 1.2;
+	 for (int i=0; i<graphics_info_t::regularize_object_bonds_box.n_ramachandran_goodness_spots; i++) {
+
+	    coot::Cartesian pos = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].first;
+	    const float &prob_raw      = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].second;
+
+	    // ------------------------------------------
+
+	    pos -= screen_y * (float(7.5)/float(graphics_info_t::zoom));
+	    double prob = prob_raw;
+	    if (prob > 0.5) prob = 0.5; // 0.4 and 2.5 f(for q) might be better (not tested)
+	    double q = (1 - 2.0 * prob);
+	    q = pow(q, 25);
+	    coot::colour_holder col = coot::colour_holder(q, 0.0, 1.0, std::string(""));
+	    double radius = 0.5;
+
+	    // ------------------------------------------
+
+	    int slices = 20;
+	    GLUquadric* quad = gluNewQuadric();
+
+	    GLfloat  mat_specular[]  = {col.red, col.green, col.blue, 0.6};
+	    GLfloat  mat_shininess[] = {25};
+	    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+	    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
+	    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
+	    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+	       
+	    glPushMatrix();
+	    glTranslatef(pos.x(), pos.y(), pos.z());
+	    // gluDisk(quad, 0, base, slices, 2);
+	    gluSphere(quad, radius, 10, 10);
+	    glPopMatrix();
+	 }
+
+	 glDisable(GL_LIGHTING); // maybe not needed.
       }
 
       // we don't want disks any more
@@ -2107,6 +2321,79 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
       } 
    }
 }
+
+#include "utils/dodec.hh"
+
+// static
+void
+graphics_info_t::draw_rotamer_probability_object() {
+
+   graphics_info_t g;
+   std::vector<coot::generic_display_object_t::dodec_t> dodecs = g.get_rotamer_dodecs();
+
+   if (dodecs.size()) {
+
+      glDisable(GL_COLOR_MATERIAL);
+      glEnable(GL_NORMALIZE); // slows things, but makes the shiny nice
+
+      // draw with:
+      glEnable(GL_LIGHTING);
+      glEnable(GL_LIGHT1);
+      glEnable(GL_LIGHT0);
+
+      // glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
+      // glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+      for (unsigned int i=0; i<dodecs.size(); i++) {
+
+	 float feature_opacity = 0.6;
+	 const coot::generic_display_object_t::dodec_t &dodec = dodecs[i];
+	 GLfloat  mat_diffuse[]  = {dodec.col.red,
+				    dodec.col.green,
+				    dodec.col.blue, 
+				    feature_opacity};
+	 GLfloat  mat_specular[]  = {0.3, 0.3, 0.3, 1.0};
+	 GLfloat  mat_shininess[] = {100};
+	 glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+	 glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+	 glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_diffuse);
+	 glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+
+	 g.graphics_object_internal_dodec(dodec);
+      }
+      glDisable(GL_LIGHTING);
+   }
+}
+
+// can this be const?
+std::vector<coot::generic_display_object_t::dodec_t>
+graphics_info_t::get_rotamer_dodecs() {
+
+   std::vector<coot::generic_display_object_t::dodec_t> dodecs;
+   if (regularize_object_bonds_box.num_colours > 0) {
+      if (regularize_object_bonds_box.n_rotamer_markups > 0) {
+	 dodec d;
+	 coot::Cartesian top    = unproject_xyz(100, 100, 0.5);
+	 coot::Cartesian bottom = unproject_xyz(100,   0, 0.5);
+	 clipper::Coord_orth screen_y(top.x()-bottom.x(),
+				      top.y()-bottom.y(),
+				      top.z()-bottom.z());
+
+	 for (int i=0; i<regularize_object_bonds_box.n_rotamer_markups; i++) {
+
+	    clipper::Coord_orth pos = regularize_object_bonds_box.rotamer_markups[i].pos;
+	    double size = 0.52;
+	    pos -= screen_y * double(1.5 * size * 22.0/double(graphics_info_t::zoom));
+	    coot::generic_display_object_t::dodec_t dodec(d, size, pos);
+	    dodec.col = regularize_object_bonds_box.rotamer_markups[i].col;
+	    dodecs.push_back(dodec);
+	 }
+      }
+   }
+   return dodecs;
+}
+
+
 
 // This does (draws) symmetry too.
 // 
@@ -2153,8 +2440,8 @@ graphics_info_t::environment_graphics_object_internal(const graphical_bonds_cont
       environment_graphics_object_internal_lines(env_bonds_box); // GL lines
    } else {
       glEnable(GL_LIGHTING);
-      glEnable(GL_LIGHT0);
-      glEnable(GL_LIGHT1);
+      // glEnable(GL_LIGHT0);
+      // glEnable(GL_LIGHT1);
       environment_graphics_object_internal_tubes(env_bonds_box); // GL cylinders and disks
       glDisable(GL_LIGHTING);
    } 
@@ -2802,7 +3089,7 @@ void
 graphics_info_t::graphics_object_internal_pentakis_dodec(const coot::generic_display_object_t::pentakis_dodec_t &penta_dodec) {
 
    glPushMatrix();
-	       
+
    glTranslated(penta_dodec.position.x(), penta_dodec.position.y(), penta_dodec.position.z());
    glScaled(penta_dodec.size, penta_dodec.size, penta_dodec.size);
 
@@ -2824,7 +3111,7 @@ graphics_info_t::graphics_object_internal_pentakis_dodec(const coot::generic_dis
 	 clipper::Coord_orth pvu(pv[i].unit());
 	 glNormal3d(pvu.x(), pvu.y(), pvu.z());
 	 glVertex3d(pv[i].x(), pv[i].y(), pv[i].z()); 
-      
+
 	 for (unsigned int j=0; j<=4; j++) {
 	    const clipper::Coord_orth &pt = v[face[j]];
 	    clipper::Coord_orth ptu(pt.unit());
@@ -2837,7 +3124,7 @@ graphics_info_t::graphics_object_internal_pentakis_dodec(const coot::generic_dis
 	 glVertex3d(pt.x(),  pt.y(),  pt.z());
 	 glEnd();
       }
-      
+
    } else {
 
       // the surfaces of the triangles are flat/sharp and don't blend into each other.
@@ -3139,10 +3426,7 @@ graphics_info_t::get_geometry_torsion() const {
 	     << std::endl;
 
    return torsion;
-
 }
-
-
 
 
 void
@@ -3152,6 +3436,7 @@ graphics_info_t::pepflip() {
    normal_cursor();
    model_fit_refine_unactive_togglebutton("model_refine_dialog_pepflip_togglebutton");
 }
+
  
 // ----------------------------------------------------------
 //                     some utilities:
@@ -3213,7 +3498,7 @@ graphics_info_t::Imol_Refinement_Map() const {
    if (direct_maps.size() == 1) {
       // let's set it then
       imol_refinement_map = direct_maps[0];
-   } else { 
+   } else {
       imol_refinement_map = -1;
    }
    return imol_refinement_map;
@@ -3228,7 +3513,7 @@ graphics_info_t::set_imol_refinement_map(int imol) {
       r = imol;
    }
    return r;
-} 
+}
 
 // for threading, static
 void
@@ -3237,82 +3522,70 @@ graphics_info_t::update_maps_for_mols(const std::vector<int> &mol_idxs) {
       graphics_info_t::molecules[mol_idxs[i]].update_map();
 }
 
-// move (on) up
-#ifdef HAVE_CXX_THREAD
 #include <thread>
-#include <future>
-#endif // HAVE_CXX_THREAD
-// remember to link with -std=c++11 to get thread constructors
-
-void
-call_from_thread() {
-    std::cout << "Hello World" << std::endl;
-}
-
-void
-call_from_thread_v2(int i) {
-   std::cout << "Hello World " << i << std::endl;
-}
 
 
 void
 graphics_info_t::update_maps() {
 
-   // put it in it's own file xxx_threaded.cc and
-   // link that with -std=c++11 (or use macros to work out correct flags)
-
    if (GetActiveMapDrag() == 1) {
 
-#ifndef HAVE_CXX_THREAD
-      for (int ii=0; ii<n_molecules(); ii++) { 
-	 if (molecules[ii].has_xmap()) { 
-	    molecules[ii].update_map(); // to take account
-	                                // of new rotation centre.
-	 }
-      }
-#else
-      // unsigned int n_threads = 4;
-      unsigned int n_threads = coot::get_max_number_of_threads();
-      // std::cout << "got n_threads: " << n_threads << std::endl;
+      // now map updates are internally threaded - we don't need
+      // this extra threaded mechanism (makes things crash?)
 
-      if (n_threads == 0) {
+      bool do_threaded_map_updates = false;
+
+      if (! do_threaded_map_updates) {
 	 for (int ii=0; ii<n_molecules(); ii++) {
 	    if (molecules[ii].has_xmap()) {
 	       molecules[ii].update_map(); // to take account
 	       // of new rotation centre.
 	    }
 	 }
+
       } else {
-	 std::vector<std::thread> threads;
-	 std::vector<int> molecules_with_maps;
-	 for (int ii=0; ii<n_molecules(); ii++) {
-	    if (molecules[ii].has_xmap()) {
-	       molecules_with_maps.push_back(ii);
+
+	 // unsigned int n_threads = 4;
+	 unsigned int n_threads = coot::get_max_number_of_threads();
+	 // std::cout << "got n_threads: " << n_threads << std::endl;
+
+	 if (n_threads == 0) {
+	    for (int ii=0; ii<n_molecules(); ii++) {
+	       if (molecules[ii].has_xmap()) {
+		  molecules[ii].update_map(); // to take account
+		  // of new rotation centre.
+	       }
 	    }
+	 } else {
+	    std::vector<std::thread> threads;
+	    std::vector<int> molecules_with_maps;
+	    for (int ii=0; ii<n_molecules(); ii++) {
+	       if (molecules[ii].has_xmap()) { // or nxmap
+		  molecules_with_maps.push_back(ii);
+	       }
+	    }
+
+	    // we must make sure that the threads don't update the same map
+	    //
+
+	    std::vector<std::vector<int> > maps_vec_vec(n_threads);
+	    unsigned int thread_idx = 0;
+	    // put the maps in maps_vec_vec
+	    for (unsigned int ii=0; ii<molecules_with_maps.size(); ii++) {
+	       maps_vec_vec[thread_idx].push_back(molecules_with_maps[ii]);
+	       thread_idx++;
+	       if (thread_idx == n_threads) thread_idx = 0;
+	    }
+
+	    for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
+	       const std::vector<int> &mv = maps_vec_vec[i_thread];
+	       threads.push_back(std::thread(update_maps_for_mols, mv));
+	    }
+	    for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
+	       threads.at(i_thread).join();
+
 	 }
-
-	 // we must make sure that the threads don't update the same map
-	 //
-
-	 std::vector<std::vector<int> > maps_vec_vec(n_threads);
-	 unsigned int thread_idx = 0;
-	 // put the maps in maps_vec_vec
-	 for (unsigned int ii=0; ii<molecules_with_maps.size(); ii++) {
-	    maps_vec_vec[thread_idx].push_back(molecules_with_maps[ii]);
-	    thread_idx++;
-	    if (thread_idx == n_threads) thread_idx = 0;
-	 }
-
-
-	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
-	    const std::vector<int> &mv = maps_vec_vec[i_thread];
-	    threads.push_back(std::thread(update_maps_for_mols, mv));
-	 }
-	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
-	    threads.at(i_thread).join();
       }
-#endif // HAVE_CXX_THREAD
-
    } // active map drag test
 }
 
@@ -3948,8 +4221,8 @@ graphics_info_t::create_molecule_and_display(std::vector<coot::scored_skel_coord
    // now add atoms:
    for (unsigned int i=0; i<pos_position.size(); i++) {
       coot::Cartesian c(pos_position[i].position.x(),
-		  pos_position[i].position.y(),
-		  pos_position[i].position.z());
+			pos_position[i].position.y(),
+			pos_position[i].position.z());
       cv.push_back(c);
    }
    molecules[imol].add_multiple_dummies(cv);
@@ -4047,7 +4320,9 @@ graphics_info_t::apply_undo() {
 	 GtkWidget *dialog = create_undo_molecule_chooser_dialog();
 	 GtkWidget *option_menu = lookup_widget(dialog,
 						"undo_molecule_chooser_option_menu");
-	 fill_option_menu_with_undo_options(option_menu);
+	 // fill_option_menu_with_undo_options(option_menu);
+	 GtkWidget *combobox = lookup_widget(dialog, "undo_molecule_chooser_combobox");
+	 fill_combobox_with_undo_options(combobox);
 	 gtk_widget_show(dialog);
       }
    } else {
@@ -4116,9 +4391,8 @@ graphics_info_t::apply_redo() {
    int umol = Undo_molecule(coot::REDO);
    if (umol == -2) { // ambiguity
       GtkWidget *dialog = create_undo_molecule_chooser_dialog();
-      GtkWidget *option_menu = lookup_widget(dialog,
-					     "undo_molecule_chooser_option_menu");
-      fill_option_menu_with_undo_options(option_menu);
+      GtkWidget *combobox = lookup_widget(dialog, "undo_molecule_chooser_combobox");
+      fill_combobox_with_undo_options(combobox);
       gtk_widget_show(dialog);
    } else {
       if (umol == -1) { // unset
@@ -4692,7 +4966,167 @@ graphics_info_t::add_flash_bond(const std::pair<clipper::Coord_orth, clipper::Co
 
    draw_chi_angle_flash_bond_flag = 1;
    flash_bond = bond;
+}
 
+
+void
+graphics_info_t::draw_atom_pull_restraint() {
+
+   // don't draw this if there are not intermediate atoms shown.
+
+   if (! regularize_object_bonds_box.empty()) {
+      if (moving_atoms_asc->n_selected_atoms) {
+	 for (std::size_t i=0; i<atom_pulls.size(); i++) {
+	    // std::cout << "Here with pull number  " << i << " of " << atom_pulls.size() << std::endl;
+	    const atom_pull_info_t &atom_pull = atom_pulls[i];
+	    if (atom_pull.get_status()) {
+	       std::pair<bool, int> spec = atom_pull.find_spec(moving_atoms_asc->atom_selection,
+							       moving_atoms_asc->n_selected_atoms);
+	       if (spec.first) {
+		  clipper::Coord_orth pt_start = coot::co(graphics_info_t::moving_atoms_asc->atom_selection[spec.second]);
+		  clipper::Coord_orth pt_end = atom_pull.pos;
+
+		  bool do_gl_lines = false;
+		  bool do_arrow    = true;
+
+		  if (do_gl_lines) { 
+		     float ll = clipper::Coord_orth::length(pt_start, pt_end);
+		     float dash_density = 8;
+		     int n_dashes = int(dash_density * ll);
+		     n_dashes = 16;
+
+		     bool visible = true;
+		     glBegin(GL_LINES);
+		     glColor3f(0.3, 1.0, 0.6);
+		     for (int idash=0; idash<(n_dashes-1); idash++) {
+			if (visible) {
+			   float fracs = float(idash)/float(n_dashes);
+			   float fracn = float(idash+1)/float(n_dashes);
+			   clipper::Coord_orth p1 = pt_start + fracs * (pt_end - pt_start);
+			   clipper::Coord_orth p2 = pt_start + fracn * (pt_end - pt_start);
+
+			   glVertex3f(p1.x(), p1.y(), p1.z());
+			   glVertex3f(p2.x(), p2.y(), p2.z());
+	       
+			}
+			visible = !visible;
+		     }
+		     glEnd();
+		  }
+
+		  if (do_arrow) {
+
+		     double radius = 0.1;
+		     double fraction_head_size = 0.1;
+		  
+		     double top =  radius;
+		     double base = radius;
+		     int slices  = 12;
+		     int stacks  = 2;
+
+		     GLfloat  mat_specular[] = {0.9, 0.7, 0.7, 0.8};
+		     GLfloat  mat_ambient[]  = {0.9, 0.5, 0.6, 1.0};
+		     GLfloat  mat_shininess[] = {15};
+		     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+		     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
+		     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
+		     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+		     glEnable(GL_LIGHTING);
+		     glEnable(GL_LIGHT1);
+		     glEnable(GL_LIGHT0); // enabled here
+		     glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
+		     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+   
+		     glPushMatrix();
+	       
+		     clipper::Coord_orth bond_frag = pt_end - pt_start;
+		     double height = sqrt(bond_frag.lengthsq());
+
+		     glTranslatef(pt_start.x(), pt_start.y(), pt_start.z());
+
+		     double ax;
+		     double rx = 0; 
+		     double ry = 0;
+		     double length = height;
+		     double vz = bond_frag.z();
+	 
+		     bool rot_x = false;
+		     if (fabs(vz)>1e-7) {
+			ax = 180.0/M_PI*acos(vz/length);
+			if(vz<0.0) ax = -ax;
+			rx = -bond_frag.y()*vz;
+			ry = bond_frag.x()*vz;
+		     } else {
+			double vx = bond_frag.x();
+			double vy = bond_frag.y();
+			ax = 180.0/M_PI*acos(vx/length);
+			if(vy<0) ax = -ax;
+			rot_x = true;
+		     }
+	 
+		     if (rot_x) { 
+			glRotated(90.0, 0.0, 1.0, 0.0);
+			glRotated(ax,  -1.0, 0.0, 0.0);
+		     } else {
+			glRotated(ax, rx, ry, 0.0);
+		     }
+		     // 	    --------
+
+		     GLUquadric* quad_1 = gluNewQuadric();
+		     GLUquadric* quad_2 = gluNewQuadric();
+		     GLUquadric* quad_3 = gluNewQuadric();
+   
+		     gluCylinder(quad_1, base, top, height, slices, stacks);
+		     glTranslated(0, 0, height);
+		     gluCylinder(quad_2, 2*base, 0, fraction_head_size * height, slices, stacks);
+   
+		     glScalef(1.0, 1.0, -1.0);
+		     gluDisk(quad_3, 0, base, slices, 2);
+
+		     gluDeleteQuadric(quad_1);
+		     gluDeleteQuadric(quad_2);
+		     gluDeleteQuadric(quad_3);
+		     glPopMatrix();
+		     glDisable(GL_LIGHTING);
+
+		  } 
+	       } else {
+
+		  // we don't want to see this (e.g. when we change the sphere
+		  // position and the saved pull atom is not in this region)
+	       
+		  // std::cout << "draw_atom_pull_restraint(): failed to find the atom "
+		  // << atom_pull.spec << std::endl;
+	       
+	       }
+	    } 
+	 }
+      }
+   }
+}
+
+// Question to self? Have I locked the restraints before I call this?
+//
+void
+graphics_info_t::clear_all_atom_pull_restraints(bool refine_again_flag) {
+
+   all_atom_pulls_off();
+   if (last_restraints) {
+      last_restraints->clear_all_atom_pull_restraints();
+      if (refine_again_flag)
+	 drag_refine_refine_intermediate_atoms();
+   }
+}
+
+// this is not static
+void
+graphics_info_t::clear_atom_pull_restraint(const coot::atom_spec_t &spec, bool refine_again_flag) {
+   if (last_restraints) {
+      last_restraints->clear_atom_pull_restraint(spec);
+      atom_pull_off(spec);
+      if (refine_again_flag)
+	 drag_refine_refine_intermediate_atoms();
+   }
 }
 
 // setup and draw

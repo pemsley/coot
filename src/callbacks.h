@@ -763,6 +763,16 @@ on_accept_reject_dialog_frame_docked_hide
                                         gpointer         user_data);
 
 void
+on_accept_reject_refinement_atom_pull_autoclear_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_accept_reject_atom_pull_clear_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
 on_model_refine_dialog_find_waters_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
@@ -4647,3 +4657,109 @@ void
 on_curlew_dialog_response              (GtkDialog       *dialog,
                                         gint             response_id,
                                         gpointer         user_data);
+
+void
+on_modelling_activate                  (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+
+void
+on_edit_settings_activate              (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_align_and_mutate1_activate          (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_calculate_all_molecule_activate     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_calculate_dock_sequence_activate    (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_calculate_map_tools_activate        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_calculate_modules_activate          (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_calculate_ncs_tools_activate        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_calculate_pisa_activate             (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_draw_representation_tools_activate  (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_calculate_views_activate            (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_calculate_load_tutorial_model_and_data1_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_refine_params_geman_mcclure_alpha_combobox_changed
+                                        (GtkComboBox     *combobox,
+                                        gpointer         user_data);
+
+void
+on_refine_params_lennard_jones_epsilon_combobox_changed
+                                        (GtkComboBox     *combobox,
+                                        gpointer         user_data);
+
+void
+on_refine_params_rama_restraints_weight_combobox_changed
+                                        (GtkComboBox     *combobox,
+                                        gpointer         user_data);
+
+void
+on_refine_params_more_control_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_accept_reject_flip_this_peptide_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_accept_reject_flip_next_peptide_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_accept_reject_crankshaft_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_accept_reject_backrub_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_accept_reject_backrub_rotamer_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_symmetry_always_on_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_curlew1_activate              (GtkMenuItem     *menuitem,
+                                  gpointer         user_data);
+
+

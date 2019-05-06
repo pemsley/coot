@@ -1393,7 +1393,7 @@ coot::ligand::trace_along(const clipper::Coord_grid &cg_start,
 	 trace_along(c_g, neighb, n_clusters);
       }
    }
-} 
+}
 
 
 void
@@ -1755,7 +1755,7 @@ coot::ligand::install_ligand(const coot::minimol::molecule &ligand) {
 std::ostream&
 coot::operator<<(std::ostream &s, const coot::ligand_score_card &lsc) {
 
-   s << "[ligand-score: #" << lsc.ligand_no << " at-score: " <<  lsc.atom_point_score
+   s << "[ligand-score: #" << lsc.ligand_no << " at-score: " <<  lsc.get_score()
      << " r-state: [" << lsc.correlation.first;
 
    if (lsc.correlation.first)
@@ -1910,7 +1910,7 @@ coot::ligand::sort_final_ligand(unsigned int iclust) {
 bool
 coot::ligand::compare_scored_ligands(const std::pair<coot::minimol::molecule, ligand_score_card> &sl_1,
 				     const std::pair<coot::minimol::molecule, ligand_score_card> &sl_2) {
-   return (sl_1.second.atom_point_score < sl_2.second.atom_point_score);
+   return (sl_1.second.get_score() < sl_2.second.get_score());
 }
 // static
 bool
@@ -1920,7 +1920,7 @@ coot::ligand::compare_scored_ligands_using_correlation(const std::pair<coot::min
 
    if (sl_1.second.correlation.first && sl_2.second.correlation.first)
       return (sl_1.second.correlation < sl_2.second.correlation);
-   return (sl_1.second.atom_point_score < sl_2.second.atom_point_score);
+   return (sl_1.second.get_score() < sl_2.second.get_score());
 }
 
 unsigned int
@@ -1931,9 +1931,9 @@ coot::ligand::n_ligands_for_cluster(unsigned int iclust,
    float top_score = -1;
    
    if (final_ligand[iclust].size() > 0) {
-      top_score = final_ligand[iclust][0].second.atom_point_score;
+      top_score = final_ligand[iclust][0].second.get_score();
       for (unsigned int i=0; i<final_ligand[iclust].size(); i++) {
-	 if (final_ligand[iclust][i].second.atom_point_score > frac_limit_of_peak_score * top_score)
+	 if (final_ligand[iclust][i].second.get_score() > frac_limit_of_peak_score * top_score)
 	    n++;
       }
    }
@@ -2511,7 +2511,7 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
 	    std::cout << "   iround " << iround << " moved: " << move_by_length
 		      << " angle_sum: " << angle_sum << std::endl;
       }
-      
+
       iround++;
       
    } // irounds
@@ -2585,10 +2585,11 @@ coot::ligand::get_rigid_body_angle_components(const std::vector<minimol::atom *>
 	 Vp[ir] = V.transform(rotation_component[ir]);
 	 Vp_rms_sum[ir] += Vp[ir].lengthsq();
 	 dot_prod[ir] = clipper::Coord_orth::dot(grad,Vp[ir]);
-	 if (0)
-	    std::cout << "   iat: " << ii <<  " " << grad.format() << " * " << Vp[ir].format() << " is "
-		      << dot_prod[ir] << std::endl;
 	 sum_grad[ir] += dot_prod[ir];
+	 if (debug)
+	    std::cout << "   iat: " << ii << " V(ec) " << V.format()
+		      << " grad: " << grad.format() << " * " << Vp[ir].format() << " is "
+		      << dot_prod[ir] << " now sum_grad[" << ir << "] = " << sum_grad[ir] << std::endl;
       }
    }
 
@@ -2607,9 +2608,9 @@ coot::ligand::get_rigid_body_angle_components(const std::vector<minimol::atom *>
 	 std::cout << "  a[" << ir << "] is " << sum_grad[ir] << "/" << Vp_av_len[ir] << "/sqrt("
 		   << atoms.size() << ") = " << a[ir] << "     " << a[ir] * 57.3 << " degrees " << std::endl;
 
-// 	 std::cout << "Vp_av_len[" << ir << "] is " << Vp_av_len[ir] << "    and sum_grad["
-// 		   << ir << "] is " << sum_grad[ir] << "  ";
-// 	 std::cout << "  a[" << ir << "] is " << a[ir]*57.3 << " degrees " << std::endl;
+ 	 std::cout << "Vp_av_len[" << ir << "] is " << Vp_av_len[ir] << "    and sum_grad["
+ 		   << ir << "] is " << sum_grad[ir] << "  ";
+ 	 std::cout << "  a[" << ir << "] is " << a[ir]*57.3 << " degrees " << std::endl;
       }
    }
    
@@ -2653,7 +2654,8 @@ coot::ligand::apply_angles_to_ligand(const clipper::Vec3<double> &angles ,
 // return the score
 coot::ligand_score_card
 coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms, 
-				const clipper::Xmap<float> &xmap_fitting) const {
+				const clipper::Xmap<float> &xmap_fitting,
+				bool use_linear_interpolation) const {
 
    coot::ligand_score_card score_card;
    int n_positive_atoms = 0; 
@@ -2664,8 +2666,13 @@ coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
       const clipper::Coord_orth &atom_pos = atoms[ii]->pos;
       clipper::Coord_frac atom_pos_frc = atom_pos.coord_frac(xmap_fitting.cell());
       if (!atoms[ii]->is_hydrogen_p()) {
-	 float dv = xmap_fitting.interp<clipper::Interp_cubic>(atom_pos_frc);
-	 score_card.atom_point_score += dv;
+	 // float dv = xmap_fitting.interp<clipper::Interp_cubic>(atom_pos_frc);
+	 float dv = 0;
+	 if (use_linear_interpolation)
+	    dv = xmap_fitting.interp<clipper::Interp_linear>(atom_pos_frc);
+	 else
+	    dv = xmap_fitting.interp<clipper::Interp_cubic>(atom_pos_frc); // faster and accurate enough
+	 score_card.add(dv * atoms[ii]->occupancy);
 	 n_non_hydrogens++; 
 	 if (dv > 0)
 	    n_positive_atoms++; 
@@ -2682,18 +2689,20 @@ coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
 		      << n_non_hydrogens << " (" 
 		      << float(n_positive_atoms)/float(n_non_hydrogens)
 		      << ") < " << fit_fraction << std::endl;
-	 if ( float(n_positive_atoms)/float(n_non_hydrogens) >= fit_fraction ) { // arbitary
+	 if (float(n_positive_atoms)/float(n_non_hydrogens) >= fit_fraction ) { // arbitary
 	    score_card.many_atoms_fit = 1; // consider using a member function
-	    score_card.score_per_atom = score_card.atom_point_score/float(n_non_hydrogens);
+	    score_card.score_per_atom = score_card.get_score()/float(n_non_hydrogens);
 	 } else {
-	    // std::cout << "badly fitting atoms, failing fit_fraction test " << std::endl;
+	    std::cout << "WARNING:: badly fitting atoms, failing fit_fraction test "
+		      << n_positive_atoms << " / " << n_non_hydrogens << " vs " << fit_fraction
+		      << std::endl;
 	 }
       } else {
 	 // Pathalogical case.  No non-hydrogens in ligand.  This code
 	 // should never realistically be run...
 	 score_card.many_atoms_fit = 0;
 	 score_card.score_per_atom = -1.0;
-      } 
+      }
       
 //       std::cout << "for score card score: "  << score_card.score << std::endl;
 //       for (int i=0; i< atoms.size(); i++) {

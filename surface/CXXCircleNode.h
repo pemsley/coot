@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef CXXCircleNode_included
-#define CXXCircleNode_included
+#ifndef CXX_mot_CXXCircleNode_included
+#define CXX_mot_CXXCircleNode_included
 // #include <string.h>
 #include <cstring>
 #ifndef  __MMDB_Manager__
@@ -20,8 +20,9 @@
 //#include "CXXAlloc.h"
 #include <map>
 #include <vector>
-class CXXCircle;
 
+namespace CXX_mot {
+class CXXCircle;
 
 class CXXCircleNode {
 private:
@@ -93,15 +94,15 @@ public:
 		return theCoord[i];
 	};
 
-	static int probeContacts(std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> > &probes, double probeRadius, 
-					  std::map<CXXCircleNode *, std::vector< CXXCircleNode *, CXX::CXXAlloc< CXXCircleNode *> > > &contactMap);
+	static int probeContacts(std::vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> > &probes, double probeRadius, 
+					  std::map<CXXCircleNode *, std::vector< CXXCircleNode *, CXX_old::CXXAlloc< CXXCircleNode *> > > &contactMap);
 	static bool shouldDeletePointer(CXXCircleNode* &aNodePointer);
     static bool equalsPntr(CXXCircleNode* &node1, CXXCircleNode* &node2);
     static bool equals(CXXCircleNode &node1, CXXCircleNode &node2);
-	static void filterContacts(std::map<CXXCircleNode *, std::vector< CXXCircleNode *, CXX::CXXAlloc< CXXCircleNode *> > > &contactMap);
+	static void filterContacts(std::map<CXXCircleNode *, std::vector< CXXCircleNode *, CXX_old::CXXAlloc< CXXCircleNode *> > > &contactMap);
     static bool angleLessThan(const CXXCircleNode &node1, const CXXCircleNode &node2);
 };
 
+}
+
 #endif
-
-

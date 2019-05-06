@@ -1528,7 +1528,7 @@ coot::crankshaft::refine_and_score_mol(mmdb::Manager *mol,
       bool make_trans_peptide_restraints = true;
       short int print_chi_sq_flag = 1;
       bool do_rama_plot_restraints = true;
-      coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+      pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
       int restraints_rama_type = restraints_container_t::RAMA_TYPE_ZO;
 
       std::vector<std::pair<bool, mmdb::Residue *> > refine_residues;
@@ -1543,18 +1543,18 @@ coot::crankshaft::refine_and_score_mol(mmdb::Manager *mol,
 #ifdef HAVE_CXX_THREAD
       auto tp_0 = std::chrono::high_resolution_clock::now();
 #endif
-      coot::restraints_container_t restraints(refine_residues, links, geom, mol, fixed_atom_specs, xmap);
+      restraints_container_t restraints(refine_residues, links, geom, mol, fixed_atom_specs, &xmap);
       restraints.set_quiet_reporting();
       restraints.add_map(map_weight);
       restraints.set_rama_type(restraints_rama_type);
       restraints.set_rama_plot_weight(1);
       restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
-				 1.0, do_rama_plot_restraints, pseudos);
+				 1.0, do_rama_plot_restraints, true, true, pseudos);
       restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
       if (! output_pdb_file_name.empty())
 	 restraints.write_new_atoms(output_pdb_file_name);
 
-      coot::geometry_distortion_info_container_t gdic = restraints.geometric_distortions(flags);
+      coot::geometry_distortion_info_container_t gdic = restraints.geometric_distortions();
       for (std::size_t id=0; id<gdic.geometry_distortion.size(); id++) {
 	 // std::cout << "   " << gdic.geometry_distortion[id] << std::endl;
       }
@@ -1602,7 +1602,7 @@ coot::crankshaft::refine_and_score_mols(std::vector<mmdb::Manager *> mols,
 						 residue_specs_for_refining,
 						 residue_specs_for_scoring,
 						 geom, xmap, map_weight, "");
-      (*mol_scores)[mols_thread_vec[i]] = ms;
+      mol_scores->at(mols_thread_vec[i]) = ms;
    }
 }
 
@@ -1623,14 +1623,14 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
    // promote this to an argument for this function
    float log_prob_filter_n_sigma = 1.0; // only the top few.
 
-   mmdb::Residue *prev_res = coot::util::get_previous_residue(rs, mol_in);
+   mmdb::Residue *prev_res = util::get_previous_residue(rs, mol_in);
    if (! prev_res) {
       std::cout << "WARNING:: No residue previous to " << rs << std::endl;
    } else {
-      coot::crankshaft cs(mol_in);
+      crankshaft cs(mol_in);
       zo::rama_table_set zorts;
 
-      coot::residue_spec_t prev_residue_spec(prev_res);
+      residue_spec_t prev_residue_spec(prev_res);
       std::cout << "INFO:: using residue specifier: " << rs << std::endl;
 
       if (n_samples == -1) {

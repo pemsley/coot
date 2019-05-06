@@ -20,10 +20,11 @@
  */
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
-#include "coot-utils/coot-coord-utils.hh" // this is out of order.  Hmmm.
-#include "chemical-feature-clusters.hh"
+
+#include "atom-selection-container.hh"
+#include "coot-coord-utils.hh"
+#include "lidia-core/chemical-feature-clusters.hh"
+
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 
 int main(int argc, char **argv) {
@@ -45,8 +46,7 @@ int main(int argc, char **argv) {
 
       const coot::residue_spec_t &ligand_spec = l[il].second;
 
-      atom_selection_container_t atom_sel =
-	 get_atom_selection(l[il].first, true, true);
+      atom_selection_container_t atom_sel = get_atom_selection(l[il].first, true, true);
 
       if (atom_sel.read_success) {
 
@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
 		     neighbs_residues.push_back(neighbs_raw[i]);
 	    }
 	 }
-	 
+
 	 std::cout << "INFO:: found " << neighbs_residues.size()
 		   << " residue neighbour of the ligand and "
 		   << neighbs_waters.size() << " water neighbours for ligand "

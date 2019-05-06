@@ -1,5 +1,6 @@
 
 %module coot
+
 %{
 #include <cstdio>
 #include <cstddef>
@@ -14,6 +15,7 @@
 #include "c-interface-mogul.hh"
 #include "c-interface-sequence.hh"
 #include "c-interface-refmac.h"
+#include "c-interface-refine.h"
 #include "cc-interface.hh"
 #include "cc-interface-image.hh"
 #include "cc-interface-scripting.hh"
@@ -31,9 +33,13 @@
 #include "get-monomer.hh"
 #include "globularize.hh"
 #include "curlew.hh"
+#include "validation.hh"
 #include "cfc.hh"
 #include "cc-interface-user-defined-atom-colours.hh"
 #include "cc-interface-alignment.hh"
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#include "cc-interface-molecular-representation.hh"
+#endif // USE_MOLECULES_TO_TRIANGLES
 %}
 
 
@@ -64,6 +70,9 @@ namespace std {
 %include "c-interface-preferences.h"
 %include "c-interface-refine.hh"
 %include "cc-interface-ncs.hh"
+#ifdef USE_MOLECULES_TO_TRIANGLES
+%include "cc-interface-molecular-representation.hh"
+#endif // USE_MOLECULES_TO_TRIANGLES
 %include "cc-interface.hh"
 %include "cc-interface-image.hh"
 %include "cc-interface-scripting.hh"
@@ -73,6 +82,7 @@ namespace std {
 %include "c-interface-mogul.hh"
 %include "c-interface-sequence.hh"
 %include "c-interface-refmac.h"
+%include "c-interface-refine.h"
 %include "c-interface-generic-objects.h"
 %include "cmtz-interface.hh"
 %include "manipulation-modes.hh"
@@ -85,6 +95,7 @@ namespace std {
 %include "get-monomer.hh"
 %include "globularize.hh"
 %include "curlew.hh"
+%include "validation.hh"
 %include "generic-display-objects-c.h"
 %include "cfc.hh"
 %include "cc-interface-user-defined-atom-colours.hh"

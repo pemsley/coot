@@ -87,7 +87,6 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la  	\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  	\
-	$(top_builddir)/coot-utils/libcoot-shelx.la	  	\
 	$(top_builddir)/utils/libcoot-utils.la  		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
 	$(top_builddir)/analysis/libcoot-analysis.la 		\
@@ -119,16 +118,20 @@ subpkgdata_DATA = dynarama.glade
 coot_wrap_guile_pre.cc:      $(top_srcdir)/src/c-interface.h    \
                              $(top_srcdir)/src/cc-interface.hh  \
                              $(top_srcdir)/src/cc-interface-ncs.hh  \
+                             $(top_srcdir)/src/cc-interface-molecular-representation.hh  \
                              $(top_srcdir)/src/coot.i           \
                              $(top_srcdir)/src/lbg-interface.hh \
+                             $(top_srcdir)/src/c-interface-refine.hh \
                              $(top_srcdir)/src/c-interface-ligands-swig.hh \
 			     $(top_srcdir)/src/c-interface-generic-objects.h \
                              $(top_srcdir)/src/sdf-interface.hh \
                              $(top_srcdir)/src/cfc.hh \
+                             $(top_srcdir)/src/curlew.h \
                              $(top_srcdir)/src/curlew.hh \
+                             $(top_srcdir)/src/validation.hh \
                              $(top_srcdir)/src/cmtz-interface.hh \
                              $(top_srcdir)/src/c-interface-mogul.hh
-	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(WITH_GUILE_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -I$(top_srcdir) -guile -c++  $(top_srcdir)/src/coot.i
+	swig -o $@ $(CPPFLAGS) $(MOLTRIANGLES_CPPFLAGS) -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(WITH_GUILE_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -I$(top_srcdir) -guile -c++  $(top_srcdir)/src/coot.i
 
 # For GOOPS support: -proxy -Linkage module (or passive), however, doing that makes SWIG_init() go away.
 # -proxy  exports the GOOPS wrapper definitions into module.scm
@@ -138,17 +141,23 @@ coot_wrap_guile.cc: coot_wrap_guile_pre.cc
 
 # python
 
+# you can't use PYTHON_CFLAGS for swig because that introduces
+# -iwithsysroot dir - and swig barfs on that.
+# so make a variable that gives us python flags without -iwithsysroot
 coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
 			 $(top_srcdir)/src/cc-interface.hh    \
 	                 $(top_srcdir)/src/coot.i             \
                          $(top_srcdir)/src/cc-interface-ncs.hh  \
 			 $(top_srcdir)/src/lbg-interface.hh   \
+	                 $(top_srcdir)/src/c-interface-refine.hh \
                          $(top_srcdir)/src/c-interface-ligands-swig.hh \
 			 $(top_srcdir)/src/sdf-interface.hh   \
                          $(top_srcdir)/src/cfc.hh \
+                         $(top_srcdir)/src/curlew.h \
                          $(top_srcdir)/src/curlew.hh \
+	                 $(top_srcdir)/src/validation.hh \
                          $(top_srcdir)/src/c-interface-mogul.hh
-	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -c++ $(top_srcdir)/src/coot.i
+	swig -o $@  $(CPPFLAGS) $(MOLTRIANGLES_CPPFLAGS) -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CPPFLAGS)  -DUSE_PYTHON $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -c++ $(top_srcdir)/src/coot.i
 
 coot_wrap_python.cc: coot_wrap_python_pre.cc
 	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk2 $^ $@
@@ -204,10 +213,10 @@ AM_CPPFLAGS = \
 	$(CANVAS_CFLAGS) 		\
 	$(SWIG_FLAGS)			\
 	$(GTKGL_CONTEXT_CFLAGS)		\
-	$(LIBGLADE_CFLAGS)		\
         $(GOOCANVAS_CFLAGS)             \
 	@GTK_CFLAGS@ 			\
 	$(GLUT_CFLAGS)			\
+	$(MOLTRIANGLES_CPPFLAGS)	\
 	$(LIBSSM_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
 	$(CCP4SRS_CXXFLAGS) 		\
@@ -215,6 +224,8 @@ AM_CPPFLAGS = \
 	$(CLIPPER_CXXFLAGS) 		\
 	$(PYGTK_CFLAGS)                 \
 	$(GLOB_CFLAGS)                  \
+	$(WITH_SOUND)                   \
+	$(VORBISFILE_CFLAGS)            \
 	$(SQLITE3_CFLAGS)               \
 	$(CURL_CFLAGS)                 
 
@@ -235,7 +246,9 @@ coot_embedded_la_LIBADD = \
 coot_extended_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
 coot_extended_la_LIBADD = \
                        $(top_builddir)/pli/libcoot-pli.la   \
+                       $(top_builddir)/geometry/libcoot-geometry.la   \
                        $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)
+
 pyexec_LTLIBRARIES = coot_embedded.la coot_extended.la
 endif
 endif
@@ -261,6 +274,7 @@ coot_fix_nomenclature_errors_SOURCES = \
 
 coot_bin_SOURCES = \
 	main.cc 		 \
+	atom-pull.hh		 \
 	boot-python.hh           \
 	boot-python.cc           \
 	atom-overlaps.cc         \
@@ -288,12 +302,14 @@ coot_bin_SOURCES = \
 	c-interface-gtk-widgets.h \
 	c-interface-info.cc	 \
 	c-interface-kk.cc	 \
-	c-interface-ligand-search.hh \
-	c-interface-ligands.hh   \
+	c-interface-image.cc     \
+	c-interface-image-widget.hh    \
+	c-interface-ligand-search.hh   \
+	c-interface-ligands.hh         \
 	c-interface-ligands-widgets.hh \
-	c-interface-ligands-swig.hh   \
-	c-interface-ligands.cc   \
+	c-interface-ligands-swig.hh    \
 	c-interface-ligands-gui.cc \
+	c-interface-ligands.cc   \
 	c-interface-maps.cc	 \
 	c-interface-mmdb.cc	 \
 	c-interface-mmdb.hh      \
@@ -311,6 +327,7 @@ coot_bin_SOURCES = \
 	c-interface-preferences.h  \
 	c-interface-python.hh	 \
 	c-interface-refine.hh	 \
+	c-interface-refine.h	 \
 	c-interface-refine.cc	 \
 	c-interface-residues.cc	 \
 	c-interface-refmac.cc	 \
@@ -332,8 +349,10 @@ coot_bin_SOURCES = \
 	c-interface-test.cc      \
 	cc-interface.hh		 \
 	cc-interface-alignment.cc \
+	cc-interface-merge.cc    \
 	cc-interface-alignment.hh \
 	cc-interface-ncs.hh      \
+	cc-interface-molecular-representation.cc \
 	cc-interface-network.hh  \
 	cc-interface-mogul.hh    \
 	cc-interface-scripting.hh\
@@ -376,17 +395,22 @@ coot_bin_SOURCES = \
 	coot-setup-python.cc     \
 	coot-setup-python.hh     \
 	coot-version.hh          \
+	data-pair-remover.hh     \
 	coot_wrap_guile.cc       \
+        curlew.h                 \
         curlew.hh                \
         dots-representation.hh   \
+	draw.cc                  \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
 	draw-generic-display-objects.cc \
 	flev.hh			 \
 	flev.cc                  \
 	generic-display-object.hh\
+	generic-display-object.cc\
 	generic-objects.cc   	 \
         generic-display-objects-c.h \
+	gensurf.hh               \
 	geometry-graphs.cc	 \
 	geometry-graphs.hh	 \
 	get-residue.hh           \
@@ -402,6 +426,8 @@ coot_bin_SOURCES = \
 	graphics-info-defines.cc \
 	graphics-info-graphs.cc	 \
 	graphics-info-gui.cc	 \
+	graphics-info-init.cc	 \
+	graphics-info-intermediate.cc	 \
 	graphics-info-modelling.cc \
 	graphics-info-navigation.cc	\
 	graphics-info-navigation-gtk1.cc\
@@ -430,7 +456,6 @@ coot_bin_SOURCES = \
 	guile-fixups.h		 \
 	history_list.hh		 \
         idles.hh                 \
-	interface.c	 	 \
 	interface.h              \
         manipulation-modes.hh    \
 	lsq-dialog-values.hh     \
@@ -458,6 +483,7 @@ coot_bin_SOURCES = \
 	molecule-class-info-surface.cc 	\
 	molecule-class-info-patterson.cc \
 	molecule-class-info-ncs.cc 	\
+	molecule-class-info-mol-tris.cc 	\
 	molecule-class-info-widget-work.cc \
 	mtz-column-auto-read.hh  \
 	named-rotamer-score.hh   \
@@ -465,10 +491,12 @@ coot_bin_SOURCES = \
 	pisa-interface.hh	 \
         pick.h pick.cc		 \
 	positioned-widgets.h     \
+	pre-load.hh              \
 	probe-clash-score.cc     \
 	probe-clash-score.hh     \
 	protein_db-interface.hh  \
 	protein_db-interface.cc  \
+	python-classes.cc	 \
 	read-phs.h		 \
 	read-phs.c		 \
 	read-cif.h		 \
@@ -482,6 +510,7 @@ coot_bin_SOURCES = \
 	restraints-editor-c.h    \
 	rotate-translate-modes.hh \
 	rotamer-search-modes.hh  \
+        sound.cc \
 	sdf-interface.hh         \
 	sdf-internal.hh          \
 	sdf-interface.cc         \
@@ -504,6 +533,7 @@ coot_bin_SOURCES = \
 	xmap-utils.h             \
 	remarks-browser-gtk-widgets.hh \
 	rama-rota-score.hh 	 \
+	spherical-density.cc     \
 	fragment-info.hh 	 \
 	atom-name-bits.hh 	 \
 	additional-representation.hh 	   \
@@ -513,6 +543,8 @@ coot_bin_SOURCES = \
 	atom-selection.hh 	 \
 	ncs.hh 		         \
 	model-view.hh 		 \
+	validation.hh            \
+	validation.cc            \
 	view.hh 		 \
 	view.cc 		 \
 	new-centre.hh            \
@@ -547,14 +579,16 @@ coot_fix_nomenclature_errors_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la	\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la	\
 	$(top_builddir)/coot-utils/libcoot-map-utils.la		\
-	$(top_builddir)/coot-utils/libcoot-shelx.la	  	\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
 	$(top_builddir)/utils/libcoot-utils.la	  	        \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
-        $(GLOB_LIBS)		\
-	$(GSL_LIBS)		\
-	$(CLIPPER_LIBS) 	\
-	$(MMDB_LIBS)		
+		$(CLIPPER_LIBS) 	\
+		$(MMDB_LIBS)		\
+		$(PYTHON_LIBS)		\
+		$(CURL_LIBS)		\
+	  	$(RDKIT_LIBS)	        \
+		$(BOOST_LDFLAGS)        \
+		$(L_BOOST_PYTHON)
 
 # removed from fix_nomenclature_errors_LDADD:
 #        $(RDKIT_LIBS)		
@@ -571,10 +605,12 @@ coot_bin_LDFLAGS =
 #
 coot_bin_LDADD = $(OPENMP_CFLAGS)       \
                 $(COOT_EXTRA_LIBS)      \
+		$(VORBISFILE_LIBS)      \
 		$(CLIPPER_LIBS) 	\
 		$(LIBSSM_LIBS)		\
 		$(CCP4SRS_LIBS) 	\
 		$(MMDB_LIBS)		\
+		$(MOLTRIANGLES_LIBS)	\
 		$(PYTHON_LIBS)		\
 		$(GUILE_GTK_LIBS)       \
 		$(GUILE_LDFLAGS)	\
@@ -585,7 +621,6 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 		$(GSL_LIBS)		\
 		$(MYSQL_LIBS)		\
 		$(CURL_LIBS)		\
-		$(LIBGLADE_LIBS)	\
 	  	$(RDKIT_LIBS)	        \
 		$(BOOST_LDFLAGS)        \
 		$(L_BOOST_PYTHON)	\
@@ -593,10 +628,6 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 		$(SQLITE3_LIBS)         \
 		@GTK_LIBS@
 
-#                -lglade-2.0
-
-
-#		@COOT_WRAP_LIBS@	do it a different way
 
 #		$(INTLLIBS) 		Fix when GETTEXT workds
 
@@ -605,7 +636,6 @@ test_cholesky_LDADD =	\
 	$(top_builddir)/coords/libcoot-coords.la          \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
-	$(top_builddir)/coot-utils/libcoot-shelx.la       \
 	$(top_builddir)/geometry/libcoot-geometry.la      \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
 	$(top_builddir)/utils/libcoot-utils.la            \
@@ -631,7 +661,6 @@ test_coot_align_LDADD =	\
 	$(top_builddir)/coords/libcoot-coords.la 		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la 	\
-	$(top_builddir)/coot-utils/libcoot-shelx.la  		\
 	$(top_builddir)/utils/libcoot-utils.la  		\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
         $(GLOB_LIBS)		\
@@ -650,7 +679,6 @@ coot_density_score_by_residue_bin_LDADD  =	\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
 	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  	\
-	$(top_builddir)/coot-utils/libcoot-shelx.la  		\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
 	$(top_builddir)/utils/libcoot-utils.la  		\
 	$(top_builddir)/compat/libcoot-compat.la  		\
@@ -671,5 +699,4 @@ dynarama_bin_LDADD = \
         $(MMDB_LIBS)            \
         $(GLOB_LIBS)            \
         $(GOOCANVAS_LIBS)       \
-        $(LIBGLADE_LIBS) 	\
         @GTK_LIBS@

@@ -1465,7 +1465,7 @@ void segment_map(int imol_map, float low_level) {
 
 void segment_map_multi_scale(int imol_map, float low_level, float b_factor_inc, int n_rounds) {
 
-   int max_segments = 300;
+   int max_segments = 8;
    if (is_valid_map_molecule(imol_map)) {
       clipper::Xmap<float> &xmap_in = graphics_info_t::molecules[imol_map].xmap;
       coot::util::segment_map s;
@@ -1479,8 +1479,9 @@ void segment_map_multi_scale(int imol_map, float low_level, float b_factor_inc, 
 	 clipper::Xmap_base::Map_reference_index ix;
 	 int n_points_in_map = 0;
 	 for (ix = segmented_map.second.first(); !ix.last(); ix.next()) {
-	    if (segmented_map.second[ix] == iseg) { 
-	       xmap[ix] = xmap_in[ix];
+	    if (segmented_map.second[ix] == iseg) {
+	       float f = xmap_in[ix];
+	       xmap[ix] = f;
 	       n_points_in_map++;
 	    }
 	 }
@@ -1855,7 +1856,7 @@ map_to_model_correlation_stats(int imol,
    }
    return dcs;
 }
-   
+
 
 #ifdef USE_GUILE
 SCM map_to_model_correlation_scm(int imol,
@@ -1901,11 +1902,11 @@ SCM map_to_model_correlation_stats_scm(int imol,
    double map_sd_at_ligand   = sqrt(stats.variance());
    double D2 = coot::stats::get_kolmogorov_smirnov_vs_normal(dcs.density_values,
 							     map_mean_at_ligand, map_sd_at_ligand);
-   
+
    SCM ret_val = scm_list_n(scm_double2num(dcs.correlation()),
 			    scm_double2num(dcs.var_x()),
 			    scm_double2num(dcs.var_y()),
-			    scm_double2num(dcs.n),
+			    SCM_MAKINUM(dcs.n),
 			    scm_double2num(dcs.sum_x),
 			    scm_double2num(dcs.sum_y),
 			    scm_double2num(D),
@@ -1968,14 +1969,35 @@ map_to_model_correlation_per_residue(int imol, const std::vector<coot::residue_s
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
 	 mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-	 clipper::Xmap<float> xmap_reference = graphics_info_t::molecules[imol_map].xmap;
+	 const clipper::Xmap<float> &xmap_reference = graphics_info_t::molecules[imol_map].xmap;
 	 v = coot::util::map_to_model_correlation_per_residue(mol, specs, atom_mask_mode, atom_radius, xmap_reference);
       }
    }
    return v;
 }
 
-						   
+//! \brief map to model density statistics, reported per residue
+std::map<coot::residue_spec_t, coot::util::density_stats_info_t>
+map_to_model_correlation_stats_per_residue(int imol,
+					   const std::vector<coot::residue_spec_t> &residue_specs,
+					   unsigned short int atom_mask_mode,
+					   float atom_radius,
+					   int imol_map) {
+
+   std::map<coot::residue_spec_t, coot::util::density_stats_info_t> res_map;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map)) {
+	 mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	 const clipper::Xmap<float> &xmap_reference = graphics_info_t::molecules[imol_map].xmap;
+	 res_map = coot::util::map_to_model_correlation_stats_per_residue(mol, residue_specs,
+								    atom_mask_mode, atom_radius,
+								    xmap_reference);
+      }
+   }
+   return res_map;
+}
+
+
 
 
 #ifdef USE_GUILE
@@ -1996,6 +2018,42 @@ map_to_model_correlation_per_residue_scm(int imol, SCM specs_scm, unsigned short
    return r;
 }
 #endif
+
+#ifdef USE_GUILE
+//! \brief map to model stats
+SCM
+map_to_model_correlation_stats_per_residue_scm(int imol,
+					       SCM specs_scm,
+					       unsigned short int atom_mask_mode,
+					       float atom_radius_for_masking,
+					       int imol_map) {
+   SCM r = SCM_EOL;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map)) {
+	 double map_mean = graphics_info_t::molecules[imol_map].map_mean();
+	 double map_sd   = graphics_info_t::molecules[imol_map].map_sigma();
+	 std::vector<coot::residue_spec_t> specs = scm_to_residue_specs(specs_scm);
+	 std::map<coot::residue_spec_t, coot::util::density_stats_info_t> res_map;
+	 res_map = map_to_model_correlation_stats_per_residue(imol, specs, atom_mask_mode, atom_radius_for_masking, imol_map);
+	 std::map<coot::residue_spec_t, coot::util::density_stats_info_t>::const_iterator it;
+	 for (it=res_map.begin(); it!=res_map.end(); it++) {
+	    const coot::residue_spec_t &spec = it->first;
+	    const coot::util::density_stats_info_t &dcs = it->second;
+	    SCM residue_spec_scm = residue_spec_to_scm(spec);
+
+	    SCM dcs_scm = SCM_EOL; // fixme
+
+	    SCM item_scm = scm_list_2(residue_spec_scm, dcs_scm);
+	    r = scm_cons(item_scm, r);
+
+	 }
+      }
+   }
+   return r;
+
+}
+#endif
+
 
 #ifdef USE_GUILE
 
@@ -2161,3 +2219,157 @@ PyObject *map_contours(int imol, float contour_level) {
 // \}
 #endif // USE_PYTHON
 
+int sharpen_blur_map(int imol_map, float b_factor) {
+
+   int imol_new = -1;
+   if (is_valid_map_molecule(imol_map)) {
+      graphics_info_t g;
+      imol_new = g.create_molecule();
+      clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+      clipper::Xmap<float> xmap_new = coot::util::sharpen_blur_map(xmap, b_factor);
+      std::string map_name = "Map";
+      if (b_factor < 0)
+	 map_name += " Sharpen ";
+      else
+	 map_name += " Blur ";
+      map_name += coot::util::float_to_string(b_factor);
+      g.molecules[imol_new].new_map(xmap_new, map_name);
+      float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
+      graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
+      graphics_draw();
+   }
+   return imol_new;
+}
+
+#ifdef USE_GUILE
+//! \brief make many sharpened or blurred maps
+//!
+//! blurred maps are generated by using a positive value of b_factor.
+//!
+void multi_sharpen_blur_map_scm(int imol_map, SCM b_factors_list_scm) {
+
+   if (is_valid_map_molecule(imol_map)) {
+
+      std::vector<float> b_factors;
+      SCM l_scm = scm_length(b_factors_list_scm);
+      int l = scm_to_int(l_scm);
+      for (int i=0; i<l; i++) {
+	 float f = scm_to_double(scm_list_ref(b_factors_list_scm, SCM_MAKINUM(i)));
+	 b_factors.push_back(f);
+      }
+
+      try {
+	 graphics_info_t g;
+	 const clipper::Xmap<float> &xmap_orig = g.molecules[imol_map].xmap;
+	 std::vector<clipper::Xmap<float> > xmaps(b_factors.size());
+	 coot::util::multi_sharpen_blur_map(xmap_orig, b_factors, &xmaps);
+	 float contour_level = g.molecules[imol_map].get_contour_level();
+	 for (std::size_t i=0; i<b_factors.size(); i++) {
+	    const clipper::Xmap<float> &xmap_new = xmaps[i];
+	    float b_factor = b_factors[i];
+	    int imol_new = graphics_info_t::create_molecule();
+	    std::string map_name = "Map";
+	    if (b_factor < 0)
+	       map_name += " Sharpen ";
+	    else
+	       map_name += " Blur ";
+	    map_name += coot::util::float_to_string(b_factor);
+	    g.molecules[imol_new].new_map(xmap_new, map_name);
+	    graphics_info_t::molecules[imol_new].set_contour_level(contour_level*exp(-0.02*b_factor));
+	 }
+      }
+      catch (const std::runtime_error &rte) {
+	 std::cout << "ERROR:: " << rte.what() << std::endl;
+      }
+   }
+
+}
+#endif
+
+#ifdef USE_PYTHON
+void multi_sharpen_blur_map_py(int imol_map, PyObject *b_factors_list_py) {
+
+   if (is_valid_map_molecule(imol_map)) {
+
+      std::vector<float> b_factors;
+      int l = PyObject_Length(b_factors_list_py);
+      for (int i=0; i<l; i++) {
+	 PyObject *o = PyList_GetItem(b_factors_list_py, i);
+	 double b = PyFloat_AsDouble(o);
+	 b_factors.push_back(b);
+      }
+
+      try {
+	 graphics_info_t g;
+	 const clipper::Xmap<float> &xmap_orig = g.molecules[imol_map].xmap;
+	 std::vector<clipper::Xmap<float> > xmaps(b_factors.size());
+	 coot::util::multi_sharpen_blur_map(xmap_orig, b_factors, &xmaps);
+	 float contour_level = g.molecules[imol_map].get_contour_level();
+	 for (std::size_t i=0; i<b_factors.size(); i++) {
+	    const clipper::Xmap<float> &xmap_new = xmaps[i];
+	    float b_factor = b_factors[i];
+	    int imol_new = graphics_info_t::create_molecule();
+	    std::string map_name = "Map";
+	    if (b_factor < 0)
+	       map_name += " Sharpen ";
+	    else
+	       map_name += " Blur ";
+	    map_name += coot::util::float_to_string(b_factor);
+	    g.molecules[imol_new].new_map(xmap_new, map_name);
+	    graphics_info_t::molecules[imol_new].set_contour_level(contour_level*exp(-0.02*b_factor));
+	 }
+      }
+      catch (const std::runtime_error &rte) {
+	 std::cout << "ERROR:: " << rte.what() << std::endl;
+      }
+   }
+
+}
+#endif
+
+
+#ifdef USE_GUILE
+SCM amplitude_vs_resolution_scm(int imol_map) {
+
+   // return a list of (list sum count reso_average_recip)
+
+   SCM r = SCM_EOL;
+   if (is_valid_map_molecule(imol_map)) {
+      graphics_info_t g;
+      clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+      // amplitude_vs_resolution decides the number of bins
+      std::vector<coot::util::amplitude_vs_resolution_point> data = coot::util::amplitude_vs_resolution(xmap);
+      std::cout << "amplitude_vs_resolution_scm() with data.size() " << data.size() << std::endl;
+      for (std::size_t i=0; i<data.size(); i++) {
+	 SCM n = scm_list_3(scm_double2num(data[i].get_average_f()),
+			    SCM_MAKINUM(data[i].count),
+			    scm_double2num(data[i].get_invresolsq()));
+	 r = scm_cons(n, r);
+      }
+   }
+   r = scm_reverse(r);
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *amplitude_vs_resolution_py(int imol_map) {
+
+   // return a list of [sum count reso_average_recip]
+
+   PyObject *r = Py_False;
+
+   if (is_valid_map_molecule(imol_map)) {
+      graphics_info_t g;
+      clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+      std::vector<coot::util::amplitude_vs_resolution_point> data = coot::util::amplitude_vs_resolution(xmap);
+      for (std::size_t i=0; i<data.size(); i++) {
+      }
+   }
+
+   if (PyBool_Check(r))
+      Py_XINCREF(r);
+
+   return r;
+}
+#endif

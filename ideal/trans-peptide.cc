@@ -19,6 +19,8 @@
  * 02110-1301, USA
  */
 
+#include <iomanip>
+
 #include "simple-restraint.hh"
 int
 coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
@@ -26,7 +28,7 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
 						     short int is_fixed_first,
 						     short int is_fixed_second,
 						     const coot::protein_geometry &geom) {
-   int n_torsion = 0;
+   int n_trans_peptide_torsion = 0;
 
    mmdb::PPAtom first_sel;
    mmdb::PPAtom second_sel;
@@ -69,7 +71,7 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
 
    for (int ifat=0; ifat<n_atom_1; ifat++) { 
       std::string pdb_atom_name_1(atom_1_sel[ifat]->name);
-	       
+
       if (pdb_atom_name_1 == " CA ") {
 	 for (int isat=0; isat<n_atom_2; isat++) { 
 	    std::string pdb_atom_name_2(atom_2_sel[isat]->name);
@@ -83,7 +85,7 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
 			std::string pdb_atom_name_4(atom_4_sel[iffat]->name);
 				 			   
 			if (pdb_atom_name_4 == " CA ") {
-				    
+
 			   int index1 = get_asc_index(atom_1_sel[ifat]->name,
 						      atom_1_sel[ifat]->altLoc,
 						      atom_1_sel[ifat]->residue->seqNum,
@@ -95,7 +97,7 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
 						      atom_2_sel[isat]->residue->seqNum,
 						      atom_2_sel[isat]->GetInsCode(),
 						      atom_2_sel[isat]->GetChainID());
-				    
+
 			   int index3 = get_asc_index(atom_3_sel[itat]->name,
 						      atom_3_sel[itat]->altLoc,
 						      atom_3_sel[itat]->residue->seqNum,
@@ -142,15 +144,26 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
 				 for (unsigned int ii=0; ii<other_fixed_flags.size(); ii++)
 				    if (other_fixed_flags[ii])
 				       fixed_flags[ii] = true;
-				 double target_omega = 180.0;
-				 double esd = 2.0; // 5.0 lets slip 72A in 2bmd to trans
-				 add(TRANS_PEPTIDE_RESTRAINT, index1, index2, index3, index4,
-				     fixed_flags,
-				     target_omega,
-				     esd,
-				     1.2, // dummy value
-				     1);
-				 n_torsion++;
+
+				 if (none_are_fixed_p(fixed_flags)) {
+
+				    if (false) {
+				       std::cout << "debug:: making trans-peptide restraint with fixed flags: ";
+				       for (std::size_t jj=0; jj<fixed_flags.size(); jj++)
+					  std::cout << " " << fixed_flags[jj];
+				       std::cout << std::endl;
+				    }
+				    double target_omega = 180.0;
+				    double esd = 2.0; // 5.0 lets slip 72A in 2bmd to trans
+				    // esd = 0.2; // 20171228 trial - does this beat the plane restraints?
+				    add(TRANS_PEPTIDE_RESTRAINT, index1, index2, index3, index4,
+					fixed_flags,
+					target_omega,
+					esd,
+					1.2, // dummy value
+					1);
+				    n_trans_peptide_torsion++;
+				 }
 			      }
 			   }
 			}
@@ -161,7 +174,7 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
 	 }
       }
    }
-   return n_torsion; 
+   return n_trans_peptide_torsion;
 }
 
 //
@@ -170,95 +183,67 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
 // can throw a std::runtime_error if there is a problem calculating the torsion.
 // 
 double
-coot::distortion_score_trans_peptide(const coot::simple_restraint &restraint,
+coot::distortion_score_trans_peptide(const int &restraint_index,
+				     const coot::simple_restraint &restraint,
 				     const gsl_vector *v) {
 
-   // First calculate the torsion:
-   // theta = arctan(E/G); 
-   // where E = a.(bxc) and G = -a.c + (a.b)(b.c)
+   int idx;
 
-   int idx; 
+   // checked: P1 is CA_1
+   //          P2 is C_1
+   //          P3 is N_2
+   //          P4 is CA_2
 
    idx = 3*(restraint.atom_index_1);
-   clipper::Coord_orth P1(gsl_vector_get(v,idx), 
-			  gsl_vector_get(v,idx+1), 
+   clipper::Coord_orth P1(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
 			  gsl_vector_get(v,idx+2));
-   idx = 3*(restraint.atom_index_2); 
-   clipper::Coord_orth P2(gsl_vector_get(v,idx), 
-			  gsl_vector_get(v,idx+1), 
+   idx = 3*(restraint.atom_index_2);
+   clipper::Coord_orth P2(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
 			  gsl_vector_get(v,idx+2));
-   idx = 3*(restraint.atom_index_3); 
-   clipper::Coord_orth P3(gsl_vector_get(v,idx), 
-			  gsl_vector_get(v,idx+1), 
+   idx = 3*(restraint.atom_index_3);
+   clipper::Coord_orth P3(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
 			  gsl_vector_get(v,idx+2));
-   idx = 3*(restraint.atom_index_4); 
-   clipper::Coord_orth P4(gsl_vector_get(v,idx), 
-			  gsl_vector_get(v,idx+1), 
+   idx = 3*(restraint.atom_index_4);
+   clipper::Coord_orth P4(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
 			  gsl_vector_get(v,idx+2));
 
-   clipper::Coord_orth a = P2 - P1; 
-   clipper::Coord_orth b = P3 - P2; 
-   clipper::Coord_orth c = P4 - P3;
+   // mid-point is a misnomer here
+   // I mean "point at the "closest-approach" fraction -
+   // which is close to the mid-point, but not quite.
 
-   double al = sqrt(clipper::Coord_orth::dot(a,a));
-   double bl = sqrt(clipper::Coord_orth::dot(b,b));
-   double cl = sqrt(clipper::Coord_orth::dot(c,c));
-   double cos_a1 = clipper::Coord_orth::dot(a,b)/(al*bl);
-   double cos_a2 = clipper::Coord_orth::dot(b,c)/(bl*cl);
-
-   // instabilty when the P2-P3-P4 or P1-P2-p3 line is linear. Give up with the derivatives
-   // similar escape in the derivatives
+   // i.e. if closest_approach_fraction_CA_CA is 0.9, that means
+   // it is a lot closer to CA_2 than CA_1
    //
-   if (cos_a1 > 0.9 || cos_a2> 0.9) {
-      return 0;
-   } else {
+   double closest_approach_fraction_CA_CA = 0.5;
+   double closest_approach_fraction_C_N   = 0.5;
+   double best_closest_approach = 0.055; // or whatever it was
 
-      // b*b * [ a.(bxc)/b ]
-      double E = clipper::Coord_orth::dot(a,clipper::Coord_orth::cross(b,c)) *
-	 sqrt( b.lengthsq() );
+   // correct values: 0.473, 0.407, and 0.055
+   // 20181108 tried them - they made things worse.
+   // Using 0.055 alone was an improvement - I need to revisit
+   // these numbers - maybe they are round the "wrong" way.
 
-      // b*b * [ -a.c+(a.b)(b.c)/(b*b) ] = -a.c*b*b + (a.b)(b.c)
-      double G = - clipper::Coord_orth::dot(a,c)*b.lengthsq()
-	 + clipper::Coord_orth::dot(a,b)*clipper::Coord_orth::dot(b,c);
+   double q_CA_CA = 1.0 - closest_approach_fraction_CA_CA;
+   double q_C_N   = 1.0 - closest_approach_fraction_C_N;
 
-      double theta = clipper::Util::rad2d(atan2(E,G));
-      if (false) {
-	 if (clipper::Util::isnan(theta)) {
-	    std::string mess = "WARNING: distortion_score_torsion() observed torsion theta is a NAN!";
-	    throw std::runtime_error(mess);
-	 }
-      }
+   clipper::Coord_orth mid_pt_1 = q_CA_CA * P1 + closest_approach_fraction_CA_CA * P4;
+   clipper::Coord_orth mid_pt_2 = q_C_N   * P2 + closest_approach_fraction_C_N * P3;
 
-      double diff = theta - restraint.target_value;
+   double dist_sqrd = (mid_pt_2-mid_pt_1).lengthsq();
+   // dd is the distance from the "mid-points" to the expected distance
+   // between "midpoints" for an ideal trans-peptide
 
-      // the target is 180, so if theta is -179, then we want
-      // to add 360
-      // if theta is -110, we want to add 360, -> 250 - diff is 70
+   double delta = sqrt(dist_sqrd) - best_closest_approach;
 
-      if (diff > 180)
-	 diff -= 360;
-      if (diff < -180)
-	 diff += 360;
+   double trans_pep_dist_scale_factor = 4000.0; // needs tweaking
 
-      if (false) { // debug
-	 double pen = diff*diff/(restraint.sigma * restraint.sigma);
-	 std::cout << "in distortion_trans_peptide theta (calc): " << theta
-		   << " periodicity " << restraint.periodicity
-		   << " target "      << restraint.target_value
-		   << " diff: " << diff << " ";
-	 std::cout << "sigma= " << restraint.sigma
-		   << " weight= " << pow(restraint.sigma,-2.0) << " ";
-	 std::cout << "score " << pen;
-	 if (false) {
-	    std::cout << " " << P1.format();
-	    std::cout << " " << P2.format();
-	    std::cout << " " << P3.format();
-	    std::cout << " " << P4.format();
-	 }
-	 std::cout << "\n";
-      }
-      return diff*diff/(restraint.sigma * restraint.sigma);
-   }
+   double d = trans_pep_dist_scale_factor * delta * delta;
+
+   return d;
 }
 
 // Add in the torsion gradients
@@ -266,154 +251,122 @@ coot::distortion_score_trans_peptide(const coot::simple_restraint &restraint,
 void coot::my_df_trans_peptides(const gsl_vector *v, 
 				void *params, 
 				gsl_vector *df) {
-   
-   int n_trans_peptide_restr = 0; 
-   int idx; 
 
-   // first extract the object from params 
-   //
-   restraints_container_t *restraints = (restraints_container_t *)params;
+   restraints_container_t *restraints = static_cast<restraints_container_t *>(params);
 
-   if (restraints->restraints_usage_flag & TRANS_PEPTIDE_MASK) { 
+   if (restraints->restraints_usage_flag & coot::TRANS_PEPTIDE_MASK) {
 
-      int restraints_size = restraints->size();
-      for (int i=0; i< restraints_size; i++) {
+      for (unsigned int i=restraints->restraints_limits_trans_peptide.first;
+	   i<=restraints->restraints_limits_trans_peptide.second; i++) {
 
-	 const simple_restraint &restraint = restraints->at(i);
-      
-	 if (restraint.restraint_type == TRANS_PEPTIDE_RESTRAINT) {
+         const simple_restraint &restraint = restraints->at(i);
+	 if (restraint.restraint_type == coot::TRANS_PEPTIDE_RESTRAINT) {
 
-	    n_trans_peptide_restr++;
+	    int idx;
 
-	    idx = 3*(restraint.atom_index_1); 
-	    clipper::Coord_orth P1(gsl_vector_get(v,idx), 
-				   gsl_vector_get(v,idx+1), 
+	    // checked:    P1 is CA_1
+	    //             P2 is C_1
+	    //             P3 is N_2
+	    //             P4 is CA_2
+
+	    idx = 3*(restraint.atom_index_1);
+	    clipper::Coord_orth P1(gsl_vector_get(v,idx),
+				   gsl_vector_get(v,idx+1),
 				   gsl_vector_get(v,idx+2));
-	    idx = 3*(restraint.atom_index_2); 
-	    clipper::Coord_orth P2(gsl_vector_get(v,idx), 
-				   gsl_vector_get(v,idx+1), 
+	    idx = 3*(restraint.atom_index_2);
+	    clipper::Coord_orth P2(gsl_vector_get(v,idx),
+				   gsl_vector_get(v,idx+1),
 				   gsl_vector_get(v,idx+2));
-	    idx = 3*(restraint.atom_index_3); 
-	    clipper::Coord_orth P3(gsl_vector_get(v,idx), 
-				   gsl_vector_get(v,idx+1), 
+	    idx = 3*(restraint.atom_index_3);
+	    clipper::Coord_orth P3(gsl_vector_get(v,idx),
+				   gsl_vector_get(v,idx+1),
 				   gsl_vector_get(v,idx+2));
-	    idx = 3*(restraint.atom_index_4); 
-	    clipper::Coord_orth P4(gsl_vector_get(v,idx), 
-				   gsl_vector_get(v,idx+1), 
+	    idx = 3*(restraint.atom_index_4);
+	    clipper::Coord_orth P4(gsl_vector_get(v,idx),
+				   gsl_vector_get(v,idx+1),
 				   gsl_vector_get(v,idx+2));
 
-	    try {
+	    // mid-point is a misnomer here
+	    // I mean "point at the "closest-approach" fraction -
+	    // which is close to the real mid-point, but not quite.
 
-	       // if the bond angles are (near) linear, then the distortion gradients
-	       // are zero.
-	       //
-	       distortion_torsion_gradients_t dtg =
-		  fill_distortion_torsion_gradients(P1, P2, P3, P4);
+	    // i.e. if closest_approach_fraction_CA_CA is 0.9, that means
+	    // it is a lot closer to CA_2 than CA_1
+	    //
+            double closest_approach_fraction_CA_CA = 0.5;
+            double closest_approach_fraction_C_N   = 0.5;
+            double best_closest_approach = 0.055; // or whatever it was
 
-	       if (! dtg.zero_gradients) {
+	    const double &p_CA_CA = closest_approach_fraction_CA_CA; // shorthand aliases
+	    const double &p_C_N   = closest_approach_fraction_C_N;
 
-		  double diff = dtg.theta - restraint.target_value;
-		  // because trans restraints - 180, (see distortion score notes)
-		  if (diff > 180)
-		     diff -= 360;
-		  if (diff < -180)
-		     diff += 360;
+	    double q_CA_CA = 1.0 - closest_approach_fraction_CA_CA;
+	    double q_C_N   = 1.0 - closest_approach_fraction_C_N;
 
-		  if (false)
-		     std::cout << "in df_trans_peptide: dtg.theta is " << dtg.theta 
-			       <<  " and target is " << restraint.target_value 
-			       << " and diff is " << diff 
-			       << " and periodicity: " << restraint.periodicity << std::endl;
+	    clipper::Coord_orth mid_pt_1 = q_CA_CA * P1 + closest_approach_fraction_CA_CA * P4;
+	    clipper::Coord_orth mid_pt_2 = q_C_N   * P2 + closest_approach_fraction_C_N * P3;
 
-		  double tt = tan(clipper::Util::d2rad(dtg.theta));
-		  double trans_peptide_scale = (1.0/(1+tt*tt)) *
-		     clipper::Util::rad2d(1.0);
+	    double dist_sqrd = (mid_pt_2-mid_pt_1).lengthsq();
 
-		  double weight = 1/(restraint.sigma * restraint.sigma);
+	    double trans_pep_dist_scale_factor = 4000.0; // needs tweaking
+	    double weight = trans_pep_dist_scale_factor;
 
-		  // 	       std::cout << "trans_peptide weight: " << weight << std::endl;
-		  // 	       std::cout << "trans_peptide_scale : " << trans_peptide_scale << std::endl; 
-		  // 	       std::cout << "diff          : " << trans_peptide_scale << std::endl; 	       
+	    // d is the distance from the "mid-points" to the expected distance
+	    // between "midpoints" for an ideal trans-peptide
+	    double b = sqrt(dist_sqrd);
+	    double delta = b - best_closest_approach;
 
-		  double xP1_contrib = 2.0*diff*dtg.dD_dxP1*trans_peptide_scale * weight;
-		  double xP2_contrib = 2.0*diff*dtg.dD_dxP2*trans_peptide_scale * weight;
-		  double xP3_contrib = 2.0*diff*dtg.dD_dxP3*trans_peptide_scale * weight;
-		  double xP4_contrib = 2.0*diff*dtg.dD_dxP4*trans_peptide_scale * weight;
+	    double dS_ddelta = weight * 2.0 * delta;
+	    double db_da = 0.5 / b;
 
-		  double yP1_contrib = 2.0*diff*dtg.dD_dyP1*trans_peptide_scale * weight;
-		  double yP2_contrib = 2.0*diff*dtg.dD_dyP2*trans_peptide_scale * weight;
-		  double yP3_contrib = 2.0*diff*dtg.dD_dyP3*trans_peptide_scale * weight;
-		  double yP4_contrib = 2.0*diff*dtg.dD_dyP4*trans_peptide_scale * weight;
+	    // std::cout << "b: " << b << " delta: " << delta << std::endl;
 
-		  double zP1_contrib = 2.0*diff*dtg.dD_dzP1*trans_peptide_scale * weight;
-		  double zP2_contrib = 2.0*diff*dtg.dD_dzP2*trans_peptide_scale * weight;
-		  double zP3_contrib = 2.0*diff*dtg.dD_dzP3*trans_peptide_scale * weight;
-		  double zP4_contrib = 2.0*diff*dtg.dD_dzP4*trans_peptide_scale * weight;
+	    double constant_part = dS_ddelta * db_da;
 
-		  if (false) {
-		     std::cout << "trans-peptide " << dtg.theta << " derivs: "
-			       << dtg.dD_dxP1 << " " << dtg.dD_dyP1 << " " << dtg.dD_dzP1 << " "
-			       << dtg.dD_dxP2 << " " << dtg.dD_dyP2 << " " << dtg.dD_dzP2 << " "
-			       << dtg.dD_dxP3 << " " << dtg.dD_dyP3 << " " << dtg.dD_dzP3 << " "
-			       << dtg.dD_dxP4 << " " << dtg.dD_dyP4 << " " << dtg.dD_dzP4 << " "
-			       << dtg.dD_dxP1 << " " << dtg.dD_dyP1 << " " << dtg.dD_dzP1 << " "
-			       << std::endl;
-		  }
-		  if (false) {
-		     std::cout << "trans-peptide " << dtg.theta << " delta: "
-			       << xP1_contrib << " " << yP1_contrib << " " << zP1_contrib << " "
-			       << xP2_contrib << " " << yP2_contrib << " " << zP2_contrib << " "
-			       << xP3_contrib << " " << yP3_contrib << " " << zP3_contrib << " "
-			       << xP4_contrib << " " << yP4_contrib << " " << zP4_contrib << " "
-			       << " prior-dfs "
-			       << gsl_vector_get(df, 3*restraint.atom_index_1) << " "
-			       << gsl_vector_get(df, 3*restraint.atom_index_1+1) << " "
-			       << gsl_vector_get(df, 3*restraint.atom_index_1+2) << " "
-			       << gsl_vector_get(df, 3*restraint.atom_index_2) << " "
-			       << gsl_vector_get(df, 3*restraint.atom_index_2+1) << " "
-			       << gsl_vector_get(df, 3*restraint.atom_index_2+2) << " "
-			       << gsl_vector_get(df, 3*restraint.atom_index_3) << " "
-			       << gsl_vector_get(df, 3*restraint.atom_index_3+1) << " "
-			       << gsl_vector_get(df, 3*restraint.atom_index_3+2) << " "
-			       << gsl_vector_get(df, 3*restraint.atom_index_4) << " "
-			       << gsl_vector_get(df, 3*restraint.atom_index_4+1) << " "
-			       << gsl_vector_get(df, 3*restraint.atom_index_4+2) << " "
-			       << std::endl;
-		  }
+	    double xP1_contrib = constant_part * 2.0 * q_CA_CA * ( mid_pt_1.x() - mid_pt_2.x());
+	    double yP1_contrib = constant_part * 2.0 * q_CA_CA * ( mid_pt_1.y() - mid_pt_2.y());
+	    double zP1_contrib = constant_part * 2.0 * q_CA_CA * ( mid_pt_1.z() - mid_pt_2.z());
 
-		  if (! restraint.fixed_atom_flags[0]) { 
-		     idx = 3*(restraint.atom_index_1);
-		     *gsl_vector_ptr(df, idx  ) += xP1_contrib;
-		     *gsl_vector_ptr(df, idx+1) += yP1_contrib;
-		     *gsl_vector_ptr(df, idx+2) += zP1_contrib;
-		  }
+	    double xP2_contrib = constant_part * 2.0 * q_C_N * ( mid_pt_2.x() - mid_pt_1.x());
+	    double yP2_contrib = constant_part * 2.0 * q_C_N * ( mid_pt_2.y() - mid_pt_1.y());
+	    double zP2_contrib = constant_part * 2.0 * q_C_N * ( mid_pt_2.z() - mid_pt_1.z());
 
-		  if (! restraint.fixed_atom_flags[1]) { 
-		     idx = 3*(restraint.atom_index_2);
-		     *gsl_vector_ptr(df, idx  ) += xP2_contrib;
-		     *gsl_vector_ptr(df, idx+1) += yP2_contrib;
-		     *gsl_vector_ptr(df, idx+2) += zP2_contrib;
-		  }
+	    double xP3_contrib = constant_part * 2.0 * p_C_N * ( mid_pt_2.x() - mid_pt_1.x());
+	    double yP3_contrib = constant_part * 2.0 * p_C_N * ( mid_pt_2.y() - mid_pt_1.y());
+	    double zP3_contrib = constant_part * 2.0 * p_C_N * ( mid_pt_2.z() - mid_pt_1.z());
 
-		  if (! restraint.fixed_atom_flags[2]) { 
-		     idx = 3*(restraint.atom_index_3);
-		     *gsl_vector_ptr(df, idx  ) += xP3_contrib;
-		     *gsl_vector_ptr(df, idx+1) += yP3_contrib;
-		     *gsl_vector_ptr(df, idx+2) += zP3_contrib;
-		  }
+	    double xP4_contrib = constant_part * 2.0 * p_CA_CA * ( mid_pt_1.x() - mid_pt_2.x());
+	    double yP4_contrib = constant_part * 2.0 * p_CA_CA * ( mid_pt_1.y() - mid_pt_2.y());
+	    double zP4_contrib = constant_part * 2.0 * p_CA_CA * ( mid_pt_1.z() - mid_pt_2.z());
 
-		  if (! restraint.fixed_atom_flags[3]) { 
-		     idx = 3*(restraint.atom_index_4);
-		     *gsl_vector_ptr(df, idx  ) += xP4_contrib;
-		     *gsl_vector_ptr(df, idx+1) += yP4_contrib;
-		     *gsl_vector_ptr(df, idx+2) += zP4_contrib;
-		  }
-	       }
+	    if (! restraint.fixed_atom_flags[0]) {
+	       idx = 3*(restraint.atom_index_1);
+	       *gsl_vector_ptr(df, idx  ) += xP1_contrib;
+	       *gsl_vector_ptr(df, idx+1) += yP1_contrib;
+	       *gsl_vector_ptr(df, idx+2) += zP1_contrib;
 	    }
-	    catch (const std::runtime_error &rte) {
-	       std::cout << "Caught runtime_error" << rte.what() << std::endl;
-	    } 
-	 } 
+
+	    if (! restraint.fixed_atom_flags[1]) {
+	       idx = 3*(restraint.atom_index_2);
+	       *gsl_vector_ptr(df, idx  ) += xP2_contrib;
+	       *gsl_vector_ptr(df, idx+1) += yP2_contrib;
+	       *gsl_vector_ptr(df, idx+2) += zP2_contrib;
+	    }
+
+	    if (! restraint.fixed_atom_flags[2]) {
+	       idx = 3*(restraint.atom_index_3);
+	       *gsl_vector_ptr(df, idx  ) += xP3_contrib;
+	       *gsl_vector_ptr(df, idx+1) += yP3_contrib;
+	       *gsl_vector_ptr(df, idx+2) += zP3_contrib;
+	    }
+
+	    if (! restraint.fixed_atom_flags[3]) {
+	       idx = 3*(restraint.atom_index_4);
+	       *gsl_vector_ptr(df, idx  ) += xP4_contrib;
+	       *gsl_vector_ptr(df, idx+1) += yP4_contrib;
+	       *gsl_vector_ptr(df, idx+2) += zP4_contrib;
+	    }
+	 }
       }
    }
 }

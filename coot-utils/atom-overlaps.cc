@@ -1630,6 +1630,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 					  &results_container_vec[i_thread]));
 
 	 }
+
 	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
 	    threads.at(i_thread).join();
 
@@ -1643,7 +1644,6 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 			    << it->first << " " << it->second.size() << std::endl;
 	       }
 	    }
-	    std::cout << "consolidating..." << std::endl;
 	 }
 
 	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
@@ -1801,12 +1801,6 @@ coot::atom_overlaps_container_t::contacts_for_atom(int iat,
 		  const std::string &col    = c_type_col.second;
 
 		  clipper::Coord_orth pt_spike_inner = pt_at_surface;
-		  if (c_type == "clash") {
-		     clipper::Coord_orth vect_to_pt_1 = pt_at_1 - pt_at_surface;
-		     clipper::Coord_orth vect_to_pt_1_unit(vect_to_pt_1.unit());
-		     pt_spike_inner = pt_at_surface -
-			0.3 * sqrt(biggest_overlap) * clash_spike_length * vect_to_pt_1_unit;
-		  }
 
 		  if (c_type != "clash") {
 
@@ -1991,27 +1985,27 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta, boo
 	 colour = "green";
       }
 
-      if (delta > 0.10) {
+      if (delta > 0.15) {
 	 type = "small-overlap";
 	 colour = "yellow";
       }
 
-      if (delta > 0.2) {
+      if (delta > 0.25) {
 	 type = "small-overlap";
 	 colour = "orange";
       }
 
-      if (delta > 0.3) {
+      if (delta > 0.35) {
 	 type = "small-overlap";
 	 colour = "orangered";
       }
 
-      if (delta > 0.35) {        // was 0.30, not enough red
+      if (delta > 0.40) {        // was 0.30, not enough red
 	 type = "big-overlap";
 	 colour = "red";
       }
 
-      if (delta > 0.45) {         // Word: 0.4
+      if (delta > 0.5) {        // Word: 0.4
 	 type = "clash";
 	 colour = "hotpink";
       }

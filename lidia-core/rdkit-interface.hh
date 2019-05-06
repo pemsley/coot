@@ -81,6 +81,8 @@ namespace coot {
    bool chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2,
 				const std::vector<dict_chiral_restraint_t>  &chiral_restraints);
    bool chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2);
+   bool chiral_check_order_swap_singleton(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2,
+					  const dictionary_residue_restraints_t &restraints);
 
 
    // tweaking function used by above (change mol maybe).

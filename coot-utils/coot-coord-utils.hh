@@ -40,8 +40,8 @@
 #include <map>
 
 #include <mmdb2/mmdb_manager.h>
+#include <clipper/core/coords.h>
 
-#include "clipper/core/coords.h"
 #include "mini-mol/atom-quads.hh"
 #include "coot-lsq-types.h"
 
@@ -401,6 +401,26 @@ namespace coot {
    void sort_residues(mmdb::Manager *mol);
 
 
+   // split a molecule into "bricks" - cubic sets of atom indices that don't overlap
+   // return vector needs to be multiples of 8 (8 cubes will coverer all space)
+   // If the atom max radius is 3A, then the brick should have length 6A.
+   // brick-id: 0,8,16,24 (etc) are done at the same time
+   // then
+   // brick-id: 1,9,17,25 (etc) are done at the same time
+   // then
+   // brick-id: 2,10,18,26 (etc) are done at the same time.
+   //
+   // pretty tricky - not implemented yet
+   // (ints because using mmdb atom selection)
+   std::vector<std::vector<int> > molecule_to_bricks(mmdb::Manager *mol, int SelectionHandle,
+						     float max_radius);
+   int get_brick_id(const clipper::Coord_orth &pt, const clipper::Coord_orth &pt_minimums,
+		    int nx_grid, int ny_grid, int nz_grid,
+		    float brick_length);
+
+   int get_brick_id_inner(int x_idx, int y_idx, int z_idx,
+			  int nx_grid, int ny_grid, int nz_grid);
+
    // Pukka puckers?
    //
    // Throw an exception if it is not possible to generate pucker info
@@ -678,12 +698,11 @@ namespace coot {
       class cis_peptide_quad_info_t {
       public:
 	 enum type_t { UNSET_TYPE, CIS, PRE_PRO_CIS, TWISTED_TRANS };
-	 type_t type;
 	 atom_quad quad;
-	 cis_peptide_quad_info_t(const atom_quad &q, type_t t_in) {
-	    quad = q;
-	    type = t_in;
-	 }
+	 atom_index_quad index_quad;
+	 type_t type;
+	 cis_peptide_quad_info_t(const atom_quad &q, const atom_index_quad &iq, type_t t_in) :
+	    quad(q), index_quad(iq), type(t_in) {}
       };
 
       // weighted RTop_orth with deviance
@@ -742,6 +761,9 @@ namespace coot {
       std::ostream&  operator<<(std::ostream&  s, const quaternion &q);
       std::ofstream& operator<<(std::ofstream& s, const quaternion &q);
 
+      // chain-split the residues, dont just rely on the sequence number
+      bool residues_sort_function(mmdb::Residue *first, mmdb::Residue *second);
+
       class chain_id_residue_vec_helper_t { 
       public: 
 	 std::vector<mmdb::Residue *> residues;
@@ -777,6 +799,11 @@ namespace coot {
 						  mmdb::Manager *mol);
 
       mmdb::Residue *get_first_residue(mmdb::Manager *mol);
+
+      mmdb::Residue *get_first_residue_in_chain(mmdb::Chain *chain_p);
+      mmdb::Residue *get_last_residue_in_chain(mmdb::Chain *chain_p);
+      mmdb::Residue *get_second_residue_in_chain(mmdb::Chain *chain_p);
+      mmdb::Residue *get_penultimate_residue_in_chain(mmdb::Chain *chain_p);
 
       std::vector<mmdb::Residue *> get_hetgroups(mmdb::Manager *mol, bool include_waters=false);
 
@@ -831,7 +858,9 @@ namespace coot {
       std::pair<bool, clipper::RTop_orth> get_reorientation_matrix(mmdb::Residue *residue_current,
                                                                    mmdb::Residue *residue_next);
       
-      std::vector<std::string> get_residue_alt_confs(mmdb::Residue *res);
+
+      // now in mol-utils
+      // std::vector<std::string> get_residue_alt_confs(mmdb::Residue *res);
 
 
       std::vector<std::string> residue_types_in_molecule(mmdb::Manager *mol);
@@ -874,7 +903,9 @@ namespace coot {
       std::pair<bool, int> min_resno_in_chain(mmdb::Chain *chain_p);
       std::pair<bool, int> max_resno_in_chain(mmdb::Chain *chain_p);
       std::pair<bool, int> max_resno_in_molecule(mmdb::Manager *mol);
-      
+      // like the above, but don't count ligands and waters that might have
+      // high residue numbers
+      std::pair<bool, std::pair<int, int> > min_max_residues_in_polymer_chain(mmdb::Chain *chain_p);
 
       std::vector<mmdb::Chain *> chains_in_atom_selection(mmdb::Manager *mol, int model_number, const std::string &atom_selection);
 
@@ -1136,7 +1167,6 @@ namespace coot {
       // passed residue.  Simple copy of residue and atoms.
       //
       mmdb::Residue *deep_copy_this_residue(mmdb::Residue *residue);
-      
 
       mmdb::Residue *copy_and_delete_hydrogens(mmdb::Residue *residue_in);
       
@@ -1195,6 +1225,12 @@ namespace coot {
 			  const clipper::Coord_orth &direction,
 			  const clipper::Coord_orth &origin_shift,
 			  double angle);
+
+      // move the coordinates of at:
+      // angle in radians
+      void rotate_atom_about(const clipper::Coord_orth &direction,
+			     const clipper::Coord_orth &origin_shift,
+			     double angle, mmdb::Atom *at);
 
       // This presumes that a_residue_p and b_residue_p are valid.
       std::vector<std::pair<int, int> > pair_residue_atoms(mmdb::Residue *a_residue_p,
@@ -1349,6 +1385,15 @@ namespace coot {
       std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > peptide_C_N_pairs(mmdb::Chain *chain_p);
       void standardize_peptide_C_N_distances(const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &C_N_pairs);
 
+      // alter the model to fix the cis peptide of the given atom
+      int cis_trans_conversion(mmdb::Atom *at, bool is_N_flag, mmdb::Manager *mol, mmdb::Manager *standard_residues_mol);
+
+      // mol_residues, trans_residues, cis_residues must be at least of length 2.
+      int
+      cis_trans_convert(mmdb::PResidue *mol_residues,
+			mmdb::PResidue *trans_residues,
+			mmdb::PResidue *cis_residues);
+
       // return the number of cis peptides in mol:
       int count_cis_peptides(mmdb::Manager *mol);
 
@@ -1426,6 +1471,7 @@ namespace coot {
       clipper::Coord_frac shift_to_origin(const std::vector<clipper::Coord_orth> &protein_coords,
 					  clipper::Cell cell,
 					  clipper::Spacegroup spacegroup);
+      bool is_000_shift(const clipper::Coord_frac &cf_shift);
 
       //
       clipper::Mat33<double> residue_orientation(mmdb::Residue *residue_p,

@@ -52,32 +52,39 @@
 
   (if (not (command-in-path? "pyrogen"))
       
-      (info-dialog "pyrogen not found in path")
+      (info-dialog "WARNING:: pyrogen not found in path")
 
       ;; happy path
       (let ((status
-	     (goosh-command
-	      "pyrogen"
-	      (list "-m" mdl-file-name "--residue-type" comp-id)
-	      '()
-	      "pyrogen.log"
-	      #t)))
+	     (if *use-mogul*
+		 (goosh-command
+		  "pyrogen"
+		  (list "-m" mdl-file-name "--residue-type" comp-id)
+		  '()
+		  "pyrogen.log"
+		  #t)
+		 (goosh-command
+		  "pyrogen"
+		  (list "--no-mogul" "-M" "-m" mdl-file-name "--residue-type" comp-id)
+		  '()
+		  "pyrogen.log"
+		  #t))))
 
 	(if (ok-goosh-status? status)
 
-	    (let* ((active-res (active-residue))
-		   (pdb-out-file-name (string-append comp-id "-pyrogen.pdb"))
+	    (let* ((pdb-out-file-name (string-append comp-id "-pyrogen.pdb"))
 		   (cif-out-file-name (string-append comp-id "-pyrogen.cif"))
 		   (imol-ligand (handle-read-draw-molecule-and-move-molecule-here pdb-out-file-name)))
 	      (if (not (valid-model-molecule? imol-ligand))
 		  (begin
 		    (info-dialog "WARNING:: Something bad happened running pyrogen.\nSee pyrogen.log"))
 		  (begin
-		    (read-cif-dictionary cif-out-file-name)
+		    ;; (read-cif-dictionary cif-out-file-name)
+		    (handle-cif-dictionary-for-molecule cif-out-file-name imol-ligand 0)
 		    imol-ligand)))
 
 	    ;; fail
-	    (info-dialog "Bad exit status for pyrogen\n - see pyrogen.log")))))
+	    (info-dialog "WARNING:: Bad exit status for pyrogen\n - see pyrogen.log")))))
 
 
 
@@ -414,6 +421,9 @@
 	      ((> (string-length tlc-text) 0)
 	       (substring tlc-text 0 3))
 	      (else "XXX"))))
+
+	(format #t "::::::::::::::::::::: three-letter-code: ~s~%" three-letter-code)
+	(format #t "::::::::::::::::::::: enhanced-ligand-coot?: ~s~%" (enhanced-ligand-coot?))
 	
 	(if (not (enhanced-ligand-coot?))
 

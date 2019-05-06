@@ -43,8 +43,8 @@ coot::restraints_container_t::add_fixed_atoms_from_flanking_residues(const coot:
    // std::cout << "debug:: add_fixed_atoms_from_flanking_residues() called " << bpc.size() << std::endl;
 
    std::vector<mmdb::Residue *> residues_for_fixed_atoms;
-   
-   for (unsigned int i=0; i<bpc.size(); i++) { 
+
+   for (unsigned int i=0; i<bpc.size(); i++) {
       if (bpc[i].is_fixed_first)
 	 residues_for_fixed_atoms.push_back(bpc[i].res_1);
       if (bpc[i].is_fixed_second)
@@ -61,9 +61,33 @@ coot::restraints_container_t::add_fixed_atoms_from_flanking_residues(const coot:
 	 if (! (at->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok)) {
 	    std::cout << "ERROR:: bad UDD for atom " << iat << std::endl;
 	 } else {
+	    fixed_atom_indices.insert(idx);
+	 }
+      }
+   }
+}
+
+// use non_bonded_neighbour_residues to extend the set of fixed atoms.
+// (these are not flanking residues)
+void
+coot::restraints_container_t::add_fixed_atoms_from_non_bonded_neighbours() {
+
+   for (std::size_t jj=0; jj<non_bonded_neighbour_residues.size(); jj++) {
+      // std::cout << "    " << residue_spec_t(non_bonded_neighbour_residues[jj]) << std::endl;
+      mmdb::Residue *residue_p = non_bonded_neighbour_residues[jj];
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+	 int idx = -1;
+	 mmdb::Atom *at = residue_atoms[iat];
+	 if (! (at->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok)) {
+	    std::cout << "ERROR:: in add_fixed_atoms_from_non_bonded_neighbours() "
+		      << " bad UDD for atom " << iat << std::endl;
+	 } else {
 	    if (std::find(fixed_atom_indices.begin(),
 			  fixed_atom_indices.end(), idx) == fixed_atom_indices.end())
-	       fixed_atom_indices.push_back(idx);
+	       fixed_atom_indices.insert(idx);
 	 }
       }
    }
@@ -87,20 +111,13 @@ coot::restraints_container_t::add_fixed_atoms_from_flanking_residues(bool have_f
 	 mmdb::Atom *at = atom[iat];
 	 if (have_flanking_residue_at_start) {
 	    if (at->residue->GetSeqNum() == iselection_start_res) {
-	       // perhaps this should be a set
-	       if (std::find(fixed_atom_indices.begin(),
-			     fixed_atom_indices.end(), iat) == fixed_atom_indices.end()) {
-		  fixed_atom_indices.push_back(iat);
-	       }
+	       // perhaps this should be a set - yes.
+	       fixed_atom_indices.insert(iat);
 	    }
 	 }
 	 if (have_flanking_residue_at_end) {
 	    if (at->residue->GetSeqNum() == iselection_end_res) {
-	       // perhaps this should be a set
-	       if (std::find(fixed_atom_indices.begin(),
-			     fixed_atom_indices.end(), iat) == fixed_atom_indices.end()) {
-		  fixed_atom_indices.push_back(iat);
-	       }
+	       fixed_atom_indices.insert(iat);
 	    }
 	 }
       }
@@ -373,6 +390,7 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const s
 	 }
       }
    }
+   bpc.filter();
    return bpc;
 }
 

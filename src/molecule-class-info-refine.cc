@@ -152,6 +152,54 @@ molecule_class_info_t::add_refmac_extra_restraints(const std::string &file_name)
    update_extra_restraints_representation();
 }
 
+// extra target position restraints refine like pull atom restraints
+// but are stored differently (like other extra restraints)
+int
+molecule_class_info_t::add_extra_target_position_restraint(coot::atom_spec_t &spec,
+							   const clipper::Coord_orth &pos,
+							   float weight) {
+   int r = -1;
+   mmdb::Atom *at = get_atom(spec);
+   if (at) {
+      int atom_index = -1;
+      at->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
+      spec.int_user_data = atom_index;
+      coot::extra_restraints_t::extra_target_position_restraint_t tpr(spec, pos, weight);
+      std::cout << "debug:: adding target position restraint for " << spec << std::endl;
+      extra_restraints.target_position_restraints.push_back(tpr);
+      r = 1;
+   }
+   if (r == -1)
+      std::cout << "WARNING:: Failure to add_extra_target_position_restraint for " << spec << std::endl;
+   return r;
+}
+
+#ifdef HAVE_CXX11
+// extra target position restraints refine like pull atom restraints
+// but are stored differently (like other extra restraints)
+int
+molecule_class_info_t::add_extra_target_position_restraints(const std::vector<std::tuple<coot::atom_spec_t, const clipper::Coord_orth , float > > &etprs) {
+
+   int r = -1;
+   for (std::size_t i=0; i<etprs.size(); i++) {
+
+      coot::atom_spec_t spec         = std::get<0>(etprs[i]); // copy
+      const clipper::Coord_orth &pos = std::get<1>(etprs[i]);
+      float  weight                  = std::get<2>(etprs[i]);
+      mmdb::Atom *at = get_atom(spec);
+      if (at) {
+	 int atom_index = -1;
+	 at->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
+	 spec.int_user_data = atom_index;
+	 coot::extra_restraints_t::extra_target_position_restraint_t tpr(spec, pos, weight);
+	 extra_restraints.target_position_restraints.push_back(tpr);
+	 r = 1;
+      }
+   }
+   return r;
+}
+#endif
+
 void
 molecule_class_info_t::add_parallel_plane_restraint(coot::residue_spec_t spec_1,
 						    coot::residue_spec_t spec_2) {
@@ -162,7 +210,7 @@ molecule_class_info_t::add_parallel_plane_restraint(coot::residue_spec_t spec_1,
    std::string alt_conf_2; // to a residue with an alt conf.
    
    mmdb::Residue *r_1 = get_residue(spec_1);
-   mmdb::Residue *r_2 = get_residue(spec_1);
+   mmdb::Residue *r_2 = get_residue(spec_2);
 
    if (r_1) {
       if (r_2) {
@@ -173,6 +221,15 @@ molecule_class_info_t::add_parallel_plane_restraint(coot::residue_spec_t spec_1,
 	 ap_1_names = nucelotide_residue_name_to_base_atom_names(rn_1);
 	 ap_2_names = nucelotide_residue_name_to_base_atom_names(rn_2);
 
+	 if (ap_1_names.empty()) ap_1_names = residue_name_to_plane_atom_names(rn_1);
+	 if (ap_2_names.empty()) ap_2_names = residue_name_to_plane_atom_names(rn_2);
+
+	 std::cout << "ap_2_names ";
+	 for (auto i: ap_2_names)
+	    std::cout << i << " ";
+	 std::cout << "" << std::endl;
+
+	 std::cout << "Adding parallel plane restraint " << spec_1 << " " << spec_2 << std::endl;
 	 coot::parallel_planes_t pp(spec_1, spec_2, ap_1_names, ap_2_names,
 				    alt_conf_1, alt_conf_2);
 
@@ -186,7 +243,7 @@ molecule_class_info_t::add_parallel_plane_restraint(coot::residue_spec_t spec_1,
    }
 
    update_extra_restraints_representation_parallel_planes();
-} 
+}
 
 std::vector<std::string>
 molecule_class_info_t::nucelotide_residue_name_to_base_atom_names(const std::string &rn) const {
@@ -211,7 +268,36 @@ molecule_class_info_t::nucelotide_residue_name_to_base_atom_names(const std::str
    }
 
    return names;
-} 
+}
+
+
+std::vector<std::string>
+molecule_class_info_t::residue_name_to_plane_atom_names(const std::string &rn) const {
+
+   std::vector<std::string> names;
+
+   if (rn == "PHE" || rn == "TYR") {
+      names.push_back("CG");  names.push_back("CZ");
+      names.push_back("CD1"); names.push_back("CD2");
+      names.push_back("CE1"); names.push_back("CE2");
+   }
+   if (rn == "ARG") {
+      names.push_back("CD");  names.push_back("NE");
+      names.push_back("CZ");
+      names.push_back("NH1"); names.push_back("NH2");
+   }
+   if (rn == "TRP") {
+      names.push_back("CG");   names.push_back("CD1");
+      names.push_back("NE1");  names.push_back("CE2");
+      names.push_back("CD2");  names.push_back("CE3");
+      names.push_back("CZ2");  names.push_back("CH2");
+      names.push_back("CZ3");
+   }
+   return names;
+}
+
+
+
 
 void
 molecule_class_info_t::delete_extra_restraints_for_residue(const coot::residue_spec_t &rs) {
@@ -394,7 +480,7 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
    // Find all the contacts in chain_id that are less than or equal to local_dist_max
    // that are not bonded or related by an angle.
 
-   int selHnd = atom_sel.mol->NewSelection(); // d
+   int selHnd = atom_sel.mol->NewSelection(); // - check the deletion
 
    atom_sel.mol->SelectAtoms(selHnd, 0, chain_id.c_str(), 
 			     mmdb::ANY_RES, "*", // start, insertion code
@@ -405,6 +491,7 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
 			     "*"); // alt locs
 
    generate_local_self_restraints(selHnd, local_dist_max, geom);
+
    // atom_sel.mol->DeleteSelection(selHnd);
 }
 
@@ -507,7 +594,7 @@ molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_di
 		  clipper::Coord_orth p1 = coot::co(at_1);
 		  clipper::Coord_orth p2 = coot::co(at_2);
 		  double dist = sqrt((p1-p2).lengthsq());
-		  double esd  = 0.5;
+		  double esd  = 0.05;
 		  coot::atom_spec_t atom_spec_1(at_1);
 		  coot::atom_spec_t atom_spec_2(at_2);
 		  int idx_1 = -1;

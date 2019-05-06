@@ -39,8 +39,7 @@ coot::parallel_planes_t::parallel_planes_t(const std::string &line) {
    for (unsigned int i=0; i<words.size(); i++)
       u[i] = coot::util::upcase(words[i]);
 
-   if (u.size()) {
-
+   if (u.size() > 10) {
       if (u[0].length() > 3) {
 	 if (u[0].substr(0,4) == "EXTE") {
 	    if (u[1].length() > 3) {

@@ -28,19 +28,6 @@
 #include "dunbrack.hh"
 #include "ccp4mg-utils/mgtree.h"
 
-// #include "clipper/core/coords.h"
-
-// coot::dunbrack::dunbrack(mmdb::Residue *residue_in,
-// 			 mmdb::Manager *mol_in,
-// 			 float lowest_prob) {
-
-// //    residue = residue_in;
-// //    stored_mol = mol_in;
-//    probability_limit = lowest_prob;
-//    //   residue_type = residue->GetResName();
-
-
-// } 
 
 std::vector<float>
 coot::dunbrack::probabilities() const {

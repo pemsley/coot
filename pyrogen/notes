@@ -131,3 +131,29 @@ pyrogen -n -M -o DB00225 drugbank/DB00225.smiles
 * Done.
 
 ----
+Sun 13 Aug 2017 01:43:50 BST
+
+   5SA looks interesting for the next ligand puzzles
+
+---
+Sun 13 Aug 2017 11:20:37 BST
+
+   7UZ spurious chirality
+
+   7FK is a macrocycle - it is a good test case for layout.
+
+---
+Wed Aug 16 13:47:35 BST 2017
+
+   Cairo standard (symmetrically-displaced) double bonds are a tiny bit too wide (was 0.1) * bl.
+
+---
+Thu  7 Sep 2017 07:36:38 BST
+
+   ligands for puzzles: 5gtz 4cfp
+
+   5gty for next time - SS linked.
+
+   NAG (b1-4) AMU (b1-4) NAG (b1-4) AMV
+
+

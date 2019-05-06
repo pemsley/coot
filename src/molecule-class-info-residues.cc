@@ -56,6 +56,7 @@
 #include "ideal/torsion-bonds.hh"
 
 #include "molecule-class-info.h"
+#include "geometry/mol-utils.hh"
 #include "utils/coot-utils.hh"
 #include "coot-hydrogens.hh"
 
@@ -258,14 +259,14 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		  coot::restraints_container_t restraints(residues,
 							  atom_sel.links,
 							  geom, residue_mol, fixed_atoms,
-							  dummy_xmap);
+							  &dummy_xmap);
 		  bool do_torsions = 0;
 
 		  coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
 		  bool do_trans_peptide_restraints = false;
 		  int n_restraints = restraints.make_restraints(imol_no, geom, flags, do_torsions,
 								do_trans_peptide_restraints,
-								0, 0, coot::NO_PSEUDO_BONDS);
+								0, 0, false, false, coot::NO_PSEUDO_BONDS);
 		  restraints.minimize(flags);
 		  residue_mol->FinishStructEdit();
 
@@ -275,13 +276,13 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		  if (needs_more) {
 		     coot::restraints_container_t restraints_2(residues,
 							       atom_sel.links,
-							       geom, residue_mol, fixed_atoms, dummy_xmap);
+							       geom, residue_mol, fixed_atoms, &dummy_xmap);
 		     flags = coot::CHIRAL_VOLUMES;
 		     flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
 		     n_restraints = restraints_2.make_restraints(imol_no, geom,
 								 flags, do_torsions,
 								 do_trans_peptide_restraints,
-								 0, 0, coot::NO_PSEUDO_BONDS);
+								 0, 0, false, false, coot::NO_PSEUDO_BONDS);
 		     restraints_2.minimize(flags);
 		  }
 
@@ -1831,13 +1832,15 @@ molecule_class_info_t::get_fragment_info(bool screen_output_also) const {
 
    std::vector<coot::fragment_info_t> v;
 
+   if (! atom_sel.mol) return v;
+
    int imod = 1;
    mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
    if (! model_p) return v;
-   mmdb::Chain *chain_p;
+
    int n_chains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<n_chains; ichain++) {
-      chain_p = model_p->GetChain(ichain);
+      mmdb::Chain *chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
       if (nres > 0) { 
 	 coot::fragment_info_t fi(chain_p->GetChainID());
@@ -2353,4 +2356,57 @@ void molecule_class_info_t::spin_N(const coot::residue_spec_t &residue_spec, flo
 
       }
    }
+}
+
+
+// place the O (because we have added a new residue)
+bool
+molecule_class_info_t::move_atom(const std::string &atom_name_in, mmdb::Residue *res_p, const clipper::Coord_orth &new_O_pos) {
+
+   // Hmm! we are passed res_p - that's unusual.
+
+   // just change the position of the first atom that matches atom_name_in
+   bool done = false;
+
+   mmdb::Atom **residue_atoms = 0;
+   int n_residue_atoms;
+   res_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int i=0; i<n_residue_atoms; i++) {
+      mmdb::Atom *at = residue_atoms[i];
+      std::string atom_name(at->name);
+      if (atom_name == atom_name_in) {
+	 at->x = new_O_pos.x();
+	 at->y = new_O_pos.y();
+	 at->z = new_O_pos.z();
+	 have_unsaved_changes_flag = 1;
+	 atom_sel.mol->FinishStructEdit();
+	 atom_sel = make_asc(atom_sel.mol);
+	 make_bonds_type_checked();
+	 done = true;
+	 break;
+      }
+   }
+   return done;
+}
+
+#include "coot-utils/merge-atom-selections.hh"
+
+// merge change/fragments of this molecule
+// return 1 if a merge was done;
+int
+molecule_class_info_t::merge_fragments() {
+
+   int status = 1;
+
+   make_backup();
+
+   coot::merge_atom_selections(atom_sel.mol); // doesn't return a value, should it?
+
+   have_unsaved_changes_flag = 1;
+   atom_sel.mol->FinishStructEdit();
+   atom_sel = make_asc(atom_sel.mol);
+   make_bonds_type_checked();
+
+   return status;
+
 }

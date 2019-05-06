@@ -43,16 +43,21 @@
 #   include <GL/gl.h>
 #endif
 
-
-// #include <gdk/gdkglconfig.h>
-// #include <gdk/gdkgldrawable.h>
-// #include <gtk/gtkgl.h>
-
-#include <gdk/gdk.h>
+#include <gdk/gdkglconfig.h>
+#include <gdk/gdkgldrawable.h>
+#include <gtk/gtkgl.h>
 
 #ifdef HAVE_CXX_THREAD
-#include <utils/ctpl_stl.h>
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+#include <utils/ctpl.h>
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #endif // HAVE_CXX_THREAD
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
+#include <CXXClasses/RendererGLSL.hpp>
+#endif // HAVE_CXX11
+#endif // USE_MOLECULES_TO_TRIANGLES
 
 #ifdef WII_INTERFACE_WIIUSE
 #include "wiiuse.h"
@@ -99,6 +104,8 @@
 #include "coot-database.hh"
 
 #include "mtz-column-auto-read.hh"
+
+#include "atom-pull.hh"
 
 #ifdef USE_LIBCURL
 #ifndef HAVE_CURL_H
@@ -476,7 +483,8 @@ class graphics_info_t {
 
    static short int in_side_by_side_stereo_mode; 
 
-   static double mouse_begin_x, mouse_begin_y; 
+   static std::pair<double, double> mouse_begin;
+   static std::pair<double, double> mouse_clicked_begin;
 
    static float rotation_centre_x;
    static float rotation_centre_y;
@@ -556,6 +564,9 @@ class graphics_info_t {
 
    // now used for residue_score (from c-interface.h)
    // coot::rotamer_probability_info_t get_rotamer_probability(...)
+
+   static std::atomic<bool> moving_atoms_lock;
+   static std::atomic<unsigned int> moving_atoms_bonds_lock; // regularize_object_bonds_box is being updated
 
    static atom_selection_container_t *moving_atoms_asc;
    mmdb::Residue *get_first_res_of_moving_atoms();
@@ -697,7 +708,15 @@ class graphics_info_t {
    static std::vector<coot::simple_distance_object_t> *distance_object_vec;
    static std::vector<coot::coord_orth_triple> *angle_object_vec;
 
-   static int moving_atoms_dragged_atom_index;
+   // 20180217 moving_atoms_dragged_atom_index -> moving_atoms_dragged_atom_indices
+   //          Now we can have many dragged atoms
+   //
+   static int moving_atoms_currently_dragged_atom_index;
+   static std::set<int> moving_atoms_dragged_atom_indices;
+   static void remove_moving_atoms_dragged_atom_index(int idx);
+   static void    add_moving_atoms_dragged_atom_index(int idx);
+   // make unset_moving_atoms_currently_dragged_atom_index() public
+
 #ifdef  HAVE_GSL
    static coot::restraints_container_t *last_restraints;
 #endif // HAVE_GSL   
@@ -834,6 +853,21 @@ class graphics_info_t {
 			     int imol,
 			     std::string chain_id);
 
+   static void refinement_loop_threaded();
+   // several function move the atoms and need some refinement afterward (pepflip,JED-flip)
+   // they all want to continue the refinement of last_restraints - but don't need to 
+   // start (and detach) a new thread to do so if a refinement thread is already running.
+   // Hence thread_for_refinement_loop_threaded() which replaces use of
+   // add_drag_refine_idle_function()
+   // drag_refine_refine_intermediate_atoms()
+   //
+   static void thread_for_refinement_loop_threaded();
+   static void refinement_of_last_restraints_needs_reset();
+   static bool refinement_of_last_restraints_needs_reset_flag;
+   void update_restraints_with_atom_pull_restraints(); // make static also?
+   coot::restraint_usage_Flags set_refinement_flags() const; // make static?
+   void debug_refinement();
+
    // 201803004:
    // refinement now uses references to Xmaps.
    // A dummy_map is created and a reference to that is created. Then
@@ -893,358 +927,8 @@ public:
 
    }
 
-   void init() { 
 
-      for (int i=0; i<4; i++) 
-	 background_colour[i] = 0.0;
-
-#ifdef WINDOWS_MINGW
-      prefer_python = 1;
-#endif 
-
-      find_ligand_ligand_mols_ = new std::vector<std::pair<int, bool> >;
-      geom_p = new coot::protein_geometry;
-      geom_p->set_verbose(false);
-     
-      cif_dictionary_read_number = geom_p->init_standard();
-      geom_p->add_planar_peptide_restraint();
-
-      geom_p->init_ccp4srs("srsdata"); // overridden by COOT_CCP4SRS_DIR and CCP4_LIB
-
-      // rotamer probabilitiles
-      // guess we shall rather use COOT_DATA_DIR and only as fallback PKGDATADIR?!
-      // maybe only for windows!?
-      //
-      // 20090920-PE, no, not only windows.  If they set
-      // COOT_DATA_DIR, let's use that instead of PKGDATADIR (useful
-      // for Justin Lecher and Gentoo who test before installing (and
-      // they need a way to specify the data dir (before installing
-      // it's not in PKGDATADIR)).
-      // 
-      std::string tables_dir = PKGDATADIR;
-
-      char *data_dir = getenv("COOT_DATA_DIR");
-      if (data_dir) {
-	tables_dir = data_dir;
-      }
-
-      tables_dir += "/rama-data";
-      rot_prob_tables.set_tables_dir(tables_dir);
-
-      moving_atoms_asc = new atom_selection_container_t;
-      moving_atoms_asc->mol = NULL;
-      moving_atoms_asc->atom_selection = NULL;
-      moving_atoms_asc->n_selected_atoms = 0;
-
-      standard_residues_asc.read_success = 0;
-      standard_residues_asc.n_selected_atoms = 0;
-      read_standard_residues(); // updates read_success
-
-      symmetry_colour_merge_weight = 0.5; // 0.0 -> 1.0
-
-      symmetry_colour = std::vector<double> (4, 0.5);
-      symmetry_colour[0] = 0.1;
-      symmetry_colour[1] = 0.2;
-      symmetry_colour[2] = 0.8;
-
-      // use_graphics_interface_flag = 1;  don't (re)set this here, 
-      // it is set as a static and possibly modified by immediate 
-      // handling of command line data in main.cc
-
-      // moving_atoms_asc gets filled in copy_mol_and_regularize, not
-      // here.
-
-      // db_main = NULL;
-
-      // command line scripts:
-      command_line_scripts = new std::vector<std::string>;
-
-      // LSQ matching info
-      lsq_matchers = new std::vector<coot::lsq_range_match_info_t>;
-
-      // LSQ Plane
-      lsq_plane_atom_positions = new std::vector<clipper::Coord_orth>;
-
-      directory_for_fileselection = "";
-
-      directory_for_filechooser = "";
-
-      baton_next_ca_options = new std::vector<coot::scored_skel_coord>;
-      baton_previous_ca_positions = new std::vector<clipper::Coord_orth>;
-
-      // rotamer distortion graph scale
-      rotamer_distortion_scale = 0.3;
-
-      // cif dictionary
-      cif_dictionary_filename_vec = new std::vector<std::string>;
-
-/*       // ramachandran plots: */
-/*       dynarama_is_displayed = new GtkWidget *[n_molecules_max]; */
-/*       for (int i=0; i<n_molecules_max; i++) */
-/* 	 dynarama_is_displayed[i] = NULL; // belt and braces */
-
-/*       // sequence_view */
-/*       sequence_view_is_displayed = new GtkWidget * [n_molecules_max]; */
-/*       for (int i=0; i<n_molecules_max; i++) */
-/* 	 sequence_view_is_displayed[i] = NULL; */
-
-      // residue edits
-      residue_info_edits = new std::vector<coot::select_atom_info>;
-
-      // display distances
-      distance_object_vec = new std::vector<coot::simple_distance_object_t>;
-
-      // pointer distances
-      pointer_distances_object_vec = new std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> >;
-
-      // ligand blobs:
-      ligand_big_blobs = new std::vector<clipper::Coord_orth>;
-
-      // rot_trans adjustments:
-      for (int i=0; i<6; i++) 
-	 previous_rot_trans_adjustment[i] = -10000;
-
-      // merging molecules
-      merge_molecules_merging_molecules = new std::vector<int>;
-
-      // generic display objects
-      generic_objects_p = new std::vector<coot::generic_display_object_t>;
-      generic_objects_dialog = NULL;
-
-      // generic text:
-      generic_texts_p = new std::vector<coot::generic_text_object_t>;
-
-      // views
-      views = new std::vector<coot::view_info_t>;
-
-      // glob extensions:
-      coordinates_glob_extensions = new std::vector<std::string>;
-      data_glob_extensions = new std::vector<std::string>;
-      map_glob_extensions = new std::vector<std::string>;
-      dictionary_glob_extensions  = new std::vector<std::string>;
-
-      coordinates_glob_extensions->push_back(".pdb");
-      coordinates_glob_extensions->push_back(".pdb.gz");
-      coordinates_glob_extensions->push_back(".brk");
-      coordinates_glob_extensions->push_back(".brk.gz");
-      coordinates_glob_extensions->push_back(".ent");
-      coordinates_glob_extensions->push_back(".ent.gz");
-      coordinates_glob_extensions->push_back(".ent.Z");
-      coordinates_glob_extensions->push_back(".cif");
-      coordinates_glob_extensions->push_back(".mmcif");
-      coordinates_glob_extensions->push_back(".mmCIF");
-      coordinates_glob_extensions->push_back(".cif.gz");
-      coordinates_glob_extensions->push_back(".mmcif.gz");
-      coordinates_glob_extensions->push_back(".mmCIF.gz");
-      coordinates_glob_extensions->push_back(".res");  // SHELX
-      coordinates_glob_extensions->push_back(".ins");  // SHELX
-      coordinates_glob_extensions->push_back(".pda");  // SHELX
-
-      data_glob_extensions->push_back(".mtz");
-      data_glob_extensions->push_back(".hkl");
-      data_glob_extensions->push_back(".data");
-      data_glob_extensions->push_back(".phs");
-      data_glob_extensions->push_back(".pha");
-      data_glob_extensions->push_back(".cif");
-      data_glob_extensions->push_back(".fcf"); // SHELXL
-      data_glob_extensions->push_back(".mmcif");
-      data_glob_extensions->push_back(".mmCIF");
-      data_glob_extensions->push_back(".cif.gz");
-      data_glob_extensions->push_back(".mmcif.gz");
-      data_glob_extensions->push_back(".mmCIF.gz");
-
-      map_glob_extensions->push_back(".map");
-      map_glob_extensions->push_back(".mrc");
-      map_glob_extensions->push_back(".ext");
-      map_glob_extensions->push_back(".msk");
-      map_glob_extensions->push_back(".ccp4");
-      map_glob_extensions->push_back(".cns");
-
-      dictionary_glob_extensions->push_back(".cif");
-      dictionary_glob_extensions->push_back(".mmcif");
-      dictionary_glob_extensions->push_back(".mmCIF");
-      dictionary_glob_extensions->push_back(".cif.gz");
-      dictionary_glob_extensions->push_back(".mmcif.gz");
-      dictionary_glob_extensions->push_back(".mmCIF.gz");
-      dictionary_glob_extensions->push_back(".lib");
-
-      /* things for preferences */
-      //preferences_internal = new std::vector<coot::preference_info_t>;
-      preferences_general_tabs = new std::vector<std::string>;
-      preferences_bond_tabs = new std::vector<std::string>;
-      preferences_geometry_tabs = new std::vector<std::string>;
-      preferences_colour_tabs = new std::vector<std::string>;
-      preferences_map_tabs = new std::vector<std::string>;
-      preferences_other_tabs = new std::vector<std::string>;
-      
-      preferences_general_tabs->push_back("preferences_file_selection");
-      preferences_general_tabs->push_back("preferences_dock_accept_dialog");
-      preferences_general_tabs->push_back("preferences_hid");
-      preferences_general_tabs->push_back("preferences_recentre_pdb");
-      preferences_general_tabs->push_back("preferences_model_toolbar_style");
-      preferences_general_tabs->push_back("preferences_smooth_scroll");
-      preferences_general_tabs->push_back("preferences_main_toolbar_style");
-      
-      preferences_bond_tabs->push_back("preferences_bond_parameters");
-      preferences_bond_tabs->push_back("preferences_bond_colours");
-      
-      preferences_map_tabs->push_back("preferences_map_parameters");
-      preferences_map_tabs->push_back("preferences_map_colours");
-      preferences_map_tabs->push_back("preferences_map_drag");      
-      
-      preferences_geometry_tabs->push_back("preferences_cis_peptides");
-
-      preferences_colour_tabs->push_back("preferences_background_colour");
-      preferences_colour_tabs->push_back("preferences_bond_colours");
-      preferences_colour_tabs->push_back("preferences_map_colours");
-
-      preferences_other_tabs->push_back("preferences_console");
-      preferences_other_tabs->push_back("preferences_tips");
-      preferences_other_tabs->push_back("preferences_speed");
-      preferences_other_tabs->push_back("preferences_antialias");
-      preferences_other_tabs->push_back("preferences_font");
-      preferences_other_tabs->push_back("preferences_pink_pointer");
-      // for toolbar icons in preferences
-      model_toolbar_icons = new std::vector<coot::preferences_icon_info_t>;
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(0, "refine-1.svg",
-								   "Real Space Refine",
-								   "model_toolbar_refine_togglebutton",
-								   1, 1));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(1, "regularize-1.svg",
-								   "Regularize",
-								   "model_toolbar_regularize_togglebutton",
-								   1, 1));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(2, "anchor.svg",
-								   "Fixed Atoms...",
-								   "model_toolbar_fixed_atoms_button",
-								   1, 1));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(3, "rigid-body.svg",
-								   "Rigid Body Fit Zone",
-								   "model_toolbar_rigid_body_fit_togglebutton",
-								   1, 1));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(4, "rtz.svg",
-								   "Rotate/Translate Zone",
-								   "model_toolbar_rot_trans_toolbutton",
-								   1, 1));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(5, "auto-fit-rotamer.svg",
-								   "Auto Fit Rotamer",
-								   "model_toolbar_auto_fit_rotamer_togglebutton",
-								   1, 1));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(6, "rotamers.svg",
-								   "Rotamers",
-								   "model_toolbar_rotamers_togglebutton",
-								   1,1 ));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(7, "edit-chi.svg",
-								   "Edit Chi Angles",
-								   "model_toolbar_edit_chi_angles_togglebutton",
-								   1, 1));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(8, "torsion-general.svg",
-								   "Torsion General",
-								   "model_toolbar_torsion_general_toggletoolbutton",
-								   1, 0));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(9, "flip-peptide.svg",
-								   "Flip Peptide",
-								   "model_toolbar_flip_peptide_togglebutton",
-								   1, 1));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(10, "side-chain-180.svg",
-								   "Side Chain 180 Degree Flip",
-								   "model_toolbar_sidechain_180_togglebutton",
-								   1, 1));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(11, "edit-backbone.svg",
-								   "Edit Backbone Torsions",
-								   "model_toolbar_edit_backbone_torsions_toggletoolbutton",
-								   1, 1));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(12, "",
-								   "---------------------",
-								   "model_toolbar_hsep_toolitem",
-								   1, 1));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(13, "mutate-auto-fit.svg",
-								   "Mutate and Auto-Fit...",
-								   "model_toolbar_mutate_and_autofit_togglebutton",
-								   1, 1));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(14, "mutate.svg",
-								   "Simple Mutate...",
-								   "model_toolbar_simple_mutate_togglebutton",
-								   1, 1));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(15, "add-peptide-1.svg",
-								   "Add Terminal Residue...",
-								   "model_toolbar_add_terminal_residue_togglebutton",
-								   1, 1));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(16, "add-alt-conf.svg",
-								   "Add Alt Conf...",
-								   "model_toolbar_add_alt_conf_toolbutton",
-								   1, 1));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(17, "atom-at-pointer.svg",
-								   "Place Atom at Pointer",
-								   "model_toolbar_add_atom_button",
-								   1, 1));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(18, "gtk-clear",
-								   "Clear Pending Picks",
-								   "model_toolbar_clear_pending_picks_button",
-								   1, 1));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(19, "gtk-delete",
-								   "Delete...",
-								   "model_toolbar_delete_button",
-								   1, 1));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(20, "gtk-undo",
-								   "Undo",
-								   "model_toolbar_undo_button",
-								   1, 1));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(21, "gtk-redo",
-								   "Redo",
-								   "model_toolbar_redo_button",
-								   1, 1));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(22, "",
-								   "---------------------",
-								   "model_toolbar_hsep_toolitem2",
-								   1, 0));
-      model_toolbar_icons->push_back(coot::preferences_icon_info_t(23, "azerbaijan.svg",
-								   "Run Refmac...",
-								   "model_toolbar_refmac_button",
-								   1, 0));
-      // for main icons in preferences
-      main_toolbar_icons = new std::vector<coot::preferences_icon_info_t>;
-      main_toolbar_icons->push_back(coot::preferences_icon_info_t(0, "gtk-open",
-								  "Open Coords...",
-								  "coords_toolbutton",
-								  1, 1));
-      main_toolbar_icons->push_back(coot::preferences_icon_info_t(1, "gtk-zoom-fit",
-								  "Reset View",
-								  "reset_view_toolbutton",
-								  1, 1));
-      main_toolbar_icons->push_back(coot::preferences_icon_info_t(2, "display-manager.png",
-								  "Display Manager",
-								  "display_manager_toolbutton",
-								  1, 1));
-      main_toolbar_icons->push_back(coot::preferences_icon_info_t(3, "go-to-atom.svg",
-								  "Go To Atom...",
-								  "go_to_atom_toolbutton",
-								  1, 1));
-      main_toolbar_icons->push_back(coot::preferences_icon_info_t(4, "go-to-ligand.svg",
-								  "Go To Ligand",
-								  "go_to_ligand_toolbutton",
-								  1, 1));
-
-      do_expose_swap_buffers_flag = 1;
-#ifdef WII_INTERFACE_WIIUSE
-      wiimotes = NULL;
-#endif
-
-      refmac_dialog_mtz_file_label = NULL;
-      /* set no of refmac cycles */
-      preset_number_refmac_cycles = new std::vector<int>;
-      preset_number_refmac_cycles->push_back(0);
-      preset_number_refmac_cycles->push_back(1);
-      preset_number_refmac_cycles->push_back(2);
-      preset_number_refmac_cycles->push_back(3);
-      preset_number_refmac_cycles->push_back(5);
-      preset_number_refmac_cycles->push_back(7);
-      preset_number_refmac_cycles->push_back(10);
-      preset_number_refmac_cycles->push_back(15);
-      preset_number_refmac_cycles->push_back(20);
-      preset_number_refmac_cycles->push_back(50);
-
-   }
+   void init();
 
    static bool prefer_python;
 
@@ -1310,11 +994,9 @@ public:
    /* OpenGL functions can be called only if make_current returns true */
    static int make_current_gl_context(GtkWidget *widget) {
    
-     // GTK-FIXME
-     // jGdkGLContext *glcontext = gtk_widget_get_gl_context (widget);
-     // jGdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
-     // jreturn gdk_gl_drawable_gl_begin (gldrawable, glcontext);
-     return 1;
+     GdkGLContext *glcontext = gtk_widget_get_gl_context (widget);
+     GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
+     return gdk_gl_drawable_gl_begin (gldrawable, glcontext);
    }
 
 
@@ -1407,6 +1089,8 @@ public:
    static int display_mode; // e.g. HARDWARE_STEREO_MODE, DTI_SIDE_BY_SIDE_STEREO
    static float hardware_stereo_angle_factor;
    static short int in_wall_eyed_side_by_side_stereo_mode;
+   enum stereo_eye_t { FRONT_EYE, LEFT_EYE, RIGHT_EYE };
+   static stereo_eye_t which_eye;
 
    // return a vector of the current valid map molecules
    std::vector<int> valid_map_molecules() const;
@@ -1630,9 +1314,12 @@ public:
 
 
    void SetMouseBegin(double x, double y);
+   void SetMouseClicked(double x, double y);
 
-   double  GetMouseBeginX() const ;
-   double  GetMouseBeginY() const ;
+   double GetMouseBeginX() const;
+   double GetMouseBeginY() const;
+   double GetMouseClickedX() const {return mouse_clicked_begin.first;}
+   double GetMouseClickedY() const {return mouse_clicked_begin.second;}
    
    // We are given atom atom index, we will use this to look up 
    // the atom using molecule_class_info and find its coordinates.
@@ -1660,14 +1347,13 @@ public:
    void update_ramachandran_plot_point_maybe(int imol, mmdb::Atom *atom);
    void update_ramachandran_plot_point_maybe(int imol, const coot::residue_spec_t &res_spec);
    void update_ramachandran_plot_point_maybe(int imol, atom_selection_container_t moving_atoms);
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    void update_ramachandran_plot_background_from_res_spec(coot::rama_plot *plot, int imol,
                                                           const coot::residue_spec_t &res_spec);
-#endif
 
-   float X(void) { return rotation_centre_x; };
-   float Y(void) { return rotation_centre_y; };
-   float Z(void) { return rotation_centre_z; };
+
+   float X() { return rotation_centre_x; };
+   float Y() { return rotation_centre_y; };
+   float Z() { return rotation_centre_z; };
 
    coot::Cartesian RotationCentre() const 
       { return coot::Cartesian(rotation_centre_x,
@@ -1773,6 +1459,14 @@ public:
    static gint drag_refine_refine_intermediate_atoms();
    static double refinement_drag_elasticity;
    static coot::refinement_results_t saved_dragged_refinement_results;
+   static bool post_intermediate_atoms_moved_ready;
+#ifdef USE_PYTHON
+   static PyObject *post_intermediate_atoms_moved_hook;
+   void register_post_intermediate_atoms_moved_hook(PyObject *function_name);
+#endif
+   void run_post_intermediate_atoms_moved_hook_maybe(); // set a python variable when the intermediate
+                                                      // atoms move
+
 #ifdef USE_GUILE
    SCM refinement_results_to_scm(coot::refinement_results_t &rr);
 #endif    
@@ -1861,7 +1555,7 @@ public:
    void update_go_to_atom_window_on_new_mol(); 
    void update_go_to_atom_window_on_other_molecule_chosen(int imol);
    int update_go_to_atom_molecule_on_go_to_atom_molecule_deleted(); // return new gotoatom mol
-   int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget);
+   //int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget); // DELETE-ME
    static void fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
 					   GtkWidget *residue_tree_scrolled_window,
 					   GtkWidget *atom_list_scrolled_window);
@@ -1878,49 +1572,53 @@ public:
 							       GtkWidget *gtktree, 
 							       GtkWidget *atom_list);
    void fill_go_to_atom_option_menu(GtkWidget *option_menu);
-   void fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
-						  GCallback callback_func);
+
+
+   // goodbye my friends.
+
+    void fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
+ 						  GtkSignalFunc callback_func);
    void fill_option_menu_with_coordinates_options(GtkWidget *option_menu, 
-						  GCallback signal_func,
+						  GtkSignalFunc signal_func,
 						  int imol_active_position);
    void fill_option_menu_with_coordinates_options_internal(GtkWidget *option_menu,
-							   GCallback callback_func,
+							   GtkSignalFunc callback_func,
 							   short int set_last_active_flag);
    void fill_option_menu_with_coordinates_options_internal_2(GtkWidget *option_menu,
-							     GCallback callback_func, 
+							     GtkSignalFunc callback_func, 
 							     short int set_last_active_flag,
 							     int imol_active);
    void fill_option_menu_with_coordinates_options_internal_3(GtkWidget *option_menu,
-							     GCallback callback_func, 
+							     GtkSignalFunc callback_func, 
 							     std::vector<int> fill_with_these_molecules,
 							     short int set_last_active_flag,
 							     int imol_active);
-   void fill_combobox_with_coordinates_options(GtkWidget *combobox,
-					       GCallback callback_func,
-					       bool set_last_active_flag);
    void fill_option_menu_with_coordinates_options_internal_with_active_mol(GtkWidget *option_menu,
-									   GCallback callback_func, 
+									   GtkSignalFunc callback_func, 
 									   int imol_active);
    void fill_option_menu_with_coordinates_options_possibly_small(GtkWidget *option_menu, 
-								 GCallback callback_func, 
+								 GtkSignalFunc callback_func, 
 								 int imol,
 								 bool fill_with_small_molecule_only_flag);
 
+   void fill_combobox_with_coordinates_options(GtkWidget *combobox,
+					       GCallback callback_func,
+					       int imol_active);
+
+   void fill_combobox_with_coordinates_options_with_set_last(GtkWidget *combobox,
+							     GCallback callback_func,
+							     bool set_last_active_flag);
    
-   static void go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionType pos); // delete this
-   static void go_to_atom_mol_combobox_item_select(GtkWidget *combobox, gpointer data);
+   // and the counterpart:
+   int combobox_get_imol(GtkComboBox *combobox) const;
+   // static void go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionType pos); // delete this
+   static void go_to_atom_mol_combobox_changed(GtkWidget *combobox, gpointer data);
 
    static void on_go_to_atom_residue_list_selection_changed (GtkList *gtklist,
 							     gpointer user_data);
 
-   // GtkList usage - GTK-FIXME
-   // static void on_go_to_atom_residue_list_selection_changed (GtkList *gtklist,
-						     // gpointer user_data);
-
-   // GtkList usage - GTK-FIXME
-   // static void on_go_to_atom_residue_tree_selection_changed_gtk1(GtkList *gtklist,
-								 // gpointer user_data);
-
+   static void on_go_to_atom_residue_tree_selection_changed_gtk1(GtkList *gtklist,
+								 gpointer user_data);
    // -------------------- Gtk2 code -----------------------------
    static void on_go_to_atom_residue_tree_selection_changed (GtkTreeView *gtklist,
 							     gpointer user_data);
@@ -2136,6 +1834,10 @@ public:
    static float geometry_vs_map_weight; 
    static float rama_plot_restraint_weight;
    static int rama_n_diffs;
+   static int refine_params_dialog_geman_mcclure_alpha_combobox_position;
+   static int refine_params_dialog_lennard_jones_epsilon_combobox_position;
+   static int refine_params_dialog_rama_restraints_weight_combobox_position;
+   static bool refine_params_dialog_extra_control_frame_is_visible;
 
    // similarly for distance and angles:
    //
@@ -2274,7 +1976,7 @@ public:
 				  bool use_map_flag);
 
    coot::refinement_results_t
-     refine_residues_vec(int imol, 
+     refine_residues_vec(int imol,
 			 const std::vector<mmdb::Residue *> &residues,
 			 const std::string &alt_conf,
 			 mmdb::Manager *mol);
@@ -2292,11 +1994,19 @@ public:
 
    // geometry graphs
    void update_geometry_graphs(const atom_selection_container_t &asc, int imol_moving_atoms);
+   void update_geometry_graphs(int imol_moving_atoms); // convenience function
    void update_validation_graphs(int imol);  // and ramachandran
 
 
    // Display the graphical object of the regularization
-   static void draw_moving_atoms_graphics_object(bool against_a_dark_background); // filled by flash_selection
+
+   static void draw_moving_atoms_graphics_object(bool against_a_dark_background);
+   static void draw_ramachandran_goodness_spots();
+   static void draw_rotamer_probability_object();
+   static void draw_moving_atoms_peptide_markup();
+   static void draw_moving_atoms_atoms(bool against_a_dark_background);
+   static void draw_moving_atoms_restraints_graphics_object();
+   std::vector<coot::generic_display_object_t::dodec_t> get_rotamer_dodecs();
 
    static int mol_no_for_environment_distances;
    static bool display_environment_graphics_object_as_solid_flag;
@@ -2325,7 +2035,7 @@ public:
 
    // background colour
    static float *background_colour;
-   bool background_is_black_p() const; 
+   static bool background_is_black_p();
 
    // dynarama: a list of dynarama canvases, each of which has
    // attached a pointer to a rama_plot class object.
@@ -2491,6 +2201,8 @@ public:
    static float find_ligand_score_by_correl_frac_limit; // 0.7
    static float find_ligand_score_correl_frac_interesting_limit; // 0.9;
 
+   static void rebond_molecule_corresponding_to_moving_atoms();
+
    // Geometry issues:
    
    // debugging:
@@ -2505,6 +2217,9 @@ public:
    // copy the contents of moving_atoms_asc into the molecule being refined.
    // 
    void accept_moving_atoms();
+
+   void update_moving_atoms_from_molecule_atoms(const coot::minimol::molecule &mm);
+
    void set_refinement_map(int imol);
 
    // public access to the clear the in range defines
@@ -2575,6 +2290,18 @@ public:
    //
    void pepflip();
 
+   // return true if moving_atoms_asc was not null (more or less if
+   // the pepflip was made)
+   //
+   bool pepflip_intermediate_atoms();
+   bool pepflip_intermediate_atoms_other_peptide();
+   bool pepflip_intermediate_atoms(mmdb::Atom *at_close);
+
+   // return true if moving_atoms_asc was not null (more or less if
+   // the rotamer fit was made)
+   //
+   bool backrub_rotamer_intermediate_atoms();
+
    // we need this in c-interface.cc for the rigid body refinement
    // which refines against a map
    //
@@ -2588,6 +2315,9 @@ public:
 
    void make_moving_atoms_graphics_object(int imol, const atom_selection_container_t &asc);
    static short int moving_atoms_asc_type; 
+   void make_moving_atoms_restraints_graphics_object();
+   static coot::extra_restraints_representation_t moving_atoms_extra_restraints_representation;
+   static bool draw_it_for_moving_atoms_restraints_graphics_object;
 
    //
    static float environment_min_distance;
@@ -2641,8 +2371,12 @@ public:
    static short int add_terminal_residue_do_post_refine; 
    static float terminal_residue_addition_direct_phi; 
    static float terminal_residue_addition_direct_psi; 
+   static bool add_terminal_residue_debug_trials;
+   // we allow terminal fitting without rigid body refinement
+   static short int add_terminal_residue_do_rigid_body_refine; 
 
-   void execute_add_terminal_residue(int imol, 
+   // return success status: 1 for success
+   int execute_add_terminal_residue(int imol, 
 				     const std::string &terminus,
 				     mmdb::Residue *res_p,
 				     const std::string &chain_id, 
@@ -2655,10 +2389,10 @@ public:
    static short int refinement_immediate_replacement_flag;  // don't dialog me please
    // called by above (private)
    atom_selection_container_t add_side_chain_to_terminal_res(atom_selection_container_t asc, 
-							     const std::string res_type); 
+							     const std::string &res_type,
+							     const std::string &terminus_type,
+							     bool add_other_residue_flag);
 
-   // we allow terminal fitting without rigid body refinement
-   static short int terminal_residue_do_rigid_body_refine; 
 
    // public (from globjects);
    // 
@@ -2727,18 +2461,24 @@ public:
 								 gpointer         user_data);
    // Return the molecule number of the selected map (I mean, top of
    // the list, in the option menu)
-   int fill_option_menu_with_map_options(GtkWidget *option_menu, GCallback signal_func); 
-   void fill_option_menu_with_map_options(GtkWidget *option_menu, GCallback signal_func,
+   int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signal_func); 
+   void fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signal_func,
 					  int imol_active_position);
-   int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GCallback signal_func); 
-   int fill_option_menu_with_map_options_generic(GtkWidget *option_menu, GCallback signal_func, int mtz_only=0); 
+   int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signal_func); 
+   int fill_combobox_with_map_mtz_options(GtkWidget *combobox, GtkSignalFunc signal_func); 
+   int fill_option_menu_with_map_options_generic(GtkWidget *option_menu, GtkSignalFunc signal_func, int mtz_only=0); 
    void fill_option_menu_with_difference_map_options(GtkWidget *option_menu, 
-						     GCallback signal_func,
+						     GtkSignalFunc signal_func,
 						     int imol_active_position);
    void fill_option_menu_with_map_options_internal(GtkWidget *option_menu, 
-						   GCallback signal_func,
+						   GtkSignalFunc signal_func,
 						   std::vector<int> map_molecule_numbers,
 						   int imol_active_position);
+
+   void fill_combobox_with_difference_map_options(GtkWidget *combobox, 
+						  GCallback signal_func,
+						  int imol_active_position);
+
    GtkWidget *wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_label);
    void skeletonize_map_by_optionmenu(GtkWidget *optionmenu);
 
@@ -2875,7 +2615,8 @@ public:
 
    // align and mutate
    static int         align_and_mutate_imol;
-   static std::string align_and_mutate_chain_from_optionmenu;
+   // static std::string align_and_mutate_chain_from_optionmenu;
+   static std::string align_and_mutate_chain_from_combobox;
    static mmdb::realtype alignment_wgap;
    static mmdb::realtype alignment_wspace;
 
@@ -2925,9 +2666,9 @@ public:
    // show citation?
    static short int show_citation_notice; 
 
-   static GtkWidget *info_dialog(const std::string &s);
+   static GtkWidget *info_dialog(const std::string &s, bool use_markup=false);
    // makes an info_dialog and writes text
-   void info_dialog_and_text(const std::string &s);
+   void info_dialog_and_text(const std::string &s, bool use_markup=false);
    
    // Return success status.
    // 
@@ -2969,8 +2710,14 @@ public:
    // used by option menu item callback which sets the molecule for undoing
    void set_undo_molecule_number(int i) { undo_molecule = i; }
    // undo_molecule_select uses set_undo_molecule_number()
-   static void undo_molecule_select(GtkWidget *item, GtkPositionType pos);
-   void fill_option_menu_with_undo_options(GtkWidget *option_menu); // not const
+
+   // who calls this?
+   //   static void undo_molecule_select(GtkWidget *item, GtkPositionType pos);
+
+   static void undo_molecule_combobox_changed(GtkWidget *c, gpointer data);
+
+   // void fill_option_menu_with_undo_options(GtkWidget *option_menu); // not const
+   void fill_combobox_with_undo_options(GtkWidget *option_menu); // not const
    int Undo_molecule(coot::undo_type) const; // return -2 on ambiguity, -1 on unset
 			      // and a molecule number >=0 for no
 			      // ambiguity (or undo_molecule has been
@@ -2984,7 +2731,11 @@ public:
    // 
    int check_if_in_range_defines(GdkEventButton *event,
 				 const GdkModifierType &state);
-   void check_if_moving_atom_pull(); // and setup moving atom-drag if we are.
+   void check_if_moving_atom_pull(bool was_a_double_click); // and setup moving atom-drag if we are.
+
+   void unset_moving_atoms_currently_dragged_atom_index() {
+     moving_atoms_currently_dragged_atom_index = -1;
+   }
 
    // baton stuff:
    // 
@@ -3263,6 +3014,10 @@ public:
 					    short int squared_flag);
    void move_moving_atoms_by_simple_translation(int screenx, int screeny); // for rot/trans
    void move_single_atom_of_moving_atoms(int screenx, int screeny);
+   void move_atom_pull_target_position(int screenx, int screeny);
+   void add_target_position_restraint_for_intermediate_atom(const coot::atom_spec_t &spec,
+							    const clipper::Coord_orth &target_pos);
+   void add_target_position_restraints_for_intermediate_atoms(const std::vector<std::pair<coot::atom_spec_t, clipper::Coord_orth> > &atom_spec_position_vec); // refines after added
    short int rotate_intermediate_atoms_maybe(short int axis, double angle); 
                                                  // do it if have intermediate atoms
                                                  // and ctrl is pressed.
@@ -3283,6 +3038,7 @@ public:
 						    int resno_2) const;
    atom_selection_container_t make_moving_atoms_asc(mmdb::Manager *mol,
 						    const std::vector<mmdb::Residue *> &residues) const;
+   static bool moving_atoms_displayed_p() { return moving_atoms_asc->mol; }
    // so that we know that fixed_points_sheared_drag_1 and
    // fixed_points_sheared_drag_2 are sensible:
    // 
@@ -3374,6 +3130,8 @@ public:
    static int superpose_imol2;
    static std::string superpose_imol1_chain;
    static std::string superpose_imol2_chain;
+
+   /*
    static void superpose_optionmenu_activate_mol1(GtkWidget *item, GtkPositionType pos);
    static void superpose_optionmenu_activate_mol2(GtkWidget *item, GtkPositionType pos);
    static void superpose_moving_chain_option_menu_item_activate (GtkWidget *item,
@@ -3382,6 +3140,16 @@ public:
 								    GtkPositionType pos);
    static void fill_superpose_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
 							     int is_reference_structure_flag);
+   */
+
+   static void superpose_reference_chain_combobox_changed(GtkWidget *combobox, gpointer data);
+   static void superpose_moving_chain_combobox_changed(GtkWidget *combobox, gpointer data);
+
+   static void superpose_combobox_changed_mol1(GtkWidget *c, gpointer data);
+   static void superpose_combobox_changed_mol2(GtkWidget *c, gpointer data);
+   static void fill_superpose_combobox_with_chain_options(GtkWidget *combobox,
+							  int is_reference_structure_flag);
+
    static int         ramachandran_plot_differences_imol1;
    static int         ramachandran_plot_differences_imol2;
    static std::string ramachandran_plot_differences_imol1_chain;
@@ -3469,16 +3237,17 @@ public:
    static void on_generic_atom_spec_button_clicked (GtkButton *button,
 						    gpointer user_data);
 
+   // ----- chiral volumes: ----
 
    void check_chiral_volumes(int imol);
    GtkWidget *wrapped_check_chiral_volumes_dialog(const std::vector <coot::atom_spec_t> &v,
 						  int imol);
-   static int chiral_volume_molecule_option_menu_item_select_molecule; // option menu 
+   static int check_chiral_volume_molecule;
    static void on_inverted_chiral_volume_button_clicked(GtkButton *button,
 							gpointer user_data);
    // Tell us which residue types for chiral volumes restraints were missing:
    GtkWidget *wrapped_create_chiral_restraints_problem_dialog(const std::vector<std::string> &sv) const; 
-
+   static void check_chiral_volume_molecule_combobox_changed(GtkWidget *w, gpointer data);
 
 
    // unbonded star size - actually too messy to fix properly - so not used.
@@ -3511,7 +3280,10 @@ public:
    static int auto_read_do_difference_map_too_flag;
 
    // ------- refmac molecules option menu  -----
-   static int refmac_molecule; 
+   static int refmac_molecule;
+
+   // ------ new style combobox usage -------
+   std::string get_active_label_in_combobox(GtkComboBox *combobox) const;
 
    // ------ add OXT -------
    void fill_add_OXT_dialog_internal(GtkWidget *w);
@@ -3521,18 +3293,29 @@ public:
    void fill_add_OXT_dialog_internal(GtkWidget *widget, int imol);
    // return the default chain string (top of the list).
    // (return "no-chain" if it was not assigned (nothing in the list)).
+
    static std::string fill_option_menu_with_chain_options(GtkWidget *option_menu,
-					     int imol,
-					     GCallback signal_func);
+							  int imol,
+							  GtkSignalFunc signal_func);
+
+   static std::string fill_combobox_with_chain_options(GtkWidget *combobox,
+						       int imol,
+						       GCallback f);
+   static std::string fill_combobox_with_chain_options(GtkWidget *combobox,
+						       int imol,
+						       GCallback f,
+						       const std::string &active_chain_id);
+
    // as above, except if one of the chain options is active_chain_id,
    // then set the active menu item to that.
    static std::string fill_option_menu_with_chain_options(GtkWidget *option_menu,
 							  int imol,
-							  GCallback signal_func, 
+							  GtkSignalFunc signal_func, 
 							  const std::string &active_chain_id);
    static std::string add_OXT_chain;
-   static void add_OXT_chain_menu_item_activate (GtkWidget *item,
-						 GtkPositionType pos);
+   // static void add_OXT_chain_menu_item_activate (GtkWidget *item,
+   //GtkPositionType pos);
+   static void add_OXT_chain_combobox_changed(GtkWidget *combobox, gpointer data);
 
    // 
    static GtkWidget *wrapped_nothing_bad_dialog(const std::string &label);
@@ -3593,7 +3376,7 @@ public:
    void omega_graphs(int imol);
    coot::rotamer_graphs_info_t rotamer_graphs(int imol); // give results back to scripting layer
    void density_fit_graphs(int imol);
-   static GtkWidget *wrapped_create_diff_map_peaks_dialog(const std::vector<std::pair<clipper::Coord_orth, float> > &centres, float map_sigma);
+   static GtkWidget *wrapped_create_diff_map_peaks_dialog(const std::vector<std::pair<clipper::Coord_orth, float> > &centres, float map_sigma, const std::string &dialog_title);
    // the buttons callback for above:
    static void on_diff_map_peak_button_selection_toggled (GtkButton       *button,
 							  gpointer         user_data);
@@ -3658,6 +3441,8 @@ public:
    void show_hide_toolbar_icon_pos(int pos, int show_hide_flag, int toolbar_index);
    std::vector<int> get_model_toolbar_icons_list();
    std::vector<int> get_main_toolbar_icons_list();
+   void add_to_preferences(const std::string &file_name, const std::string &contents) const;
+   std::string get_preferences_directory() const;
 
    // --- remote controlled coot: ----
    static int try_port_listener;
@@ -3721,6 +3506,11 @@ public:
 
    // ---- cis trans conversion ---
    void cis_trans_conversion(mmdb::Atom *at, int imol, short int is_N_flag);
+
+   // return true if the isomerisation was made
+   // 
+   bool cis_trans_conversion_intermediate_atoms();
+
 
    // symmetry control dialog:
    GtkWidget *wrapped_create_symmetry_controller_dialog() const;
@@ -3815,8 +3605,10 @@ public:
 
    // -- move molecule here
    static int move_molecule_here_molecule_number;
-   static void move_molecule_here_item_select(GtkWidget *item,
-					      GtkPositionType pos);
+   // static void move_molecule_here_item_select(GtkWidget *item,
+   // GtkPositionType pos);
+   static void move_molecule_here_combobox_changed(GtkWidget *combobox, gpointer data);
+
 
    // -- make the key user changable.  A template for other bound
    // functions:
@@ -4051,8 +3843,8 @@ string   static std::string sessionid;
    coot::geometry_distortion_info_container_t geometric_distortions(int imol, mmdb::Residue *residue_p,
 								    bool with_nbcs);
 
-   void tabulate_geometric_distortions(const coot::restraints_container_t &restraints,
-				       coot::restraint_usage_Flags flags) const;
+   // tabulate_geometric_distortions runs geometric_distortions() on restraints.
+   void tabulate_geometric_distortions(coot::restraints_container_t &restraints) const;
 
    static bool linked_residue_fit_and_refine_state;
 
@@ -4070,12 +3862,46 @@ string   static std::string sessionid;
 
    void register_user_defined_interesting_positions(const std::vector<std::pair<clipper::Coord_orth, std::string> > &udip);
 
+   // atom pull restraint
+   // static atom_pull_info_t atom_pull; 20180218 just one
+   static std::vector<atom_pull_info_t> atom_pulls;
+   static void all_atom_pulls_off();
+   static void atom_pull_off(const coot::atom_spec_t &spec);
+   static void atom_pulls_off(const std::vector<coot::atom_spec_t> &specs);
+   void add_or_replace_current(const atom_pull_info_t &atom_pull_in);
+   static void draw_atom_pull_restraint();
+   // we don't want to refine_again if the accept/reject dialog "Accept" button was clicked
+   // (not least because now the refined atoms have gone out of scope)
+   void clear_atom_pull_restraint(const coot::atom_spec_t &spec, bool refine_again_flag);
+   void clear_atom_pull_restraints(const std::vector<coot::atom_spec_t> &specs,
+				   bool refine_again_flag) {
+      for (std::size_t i=0; i<specs.size(); i++)
+	 clear_atom_pull_restraint(specs[i], false);
+      if (refine_again_flag)
+	 if (last_restraints)
+	    drag_refine_refine_intermediate_atoms();
+	 
+   }
+   void clear_all_atom_pull_restraints(bool refine_again_flag);
+   static bool auto_clear_atom_pull_restraint_flag;
+
+   static bool continue_update_refinement_atoms_flag;
+
    // for CFC, no graphics_draw()
    void display_all_model_molecules();
    void undisplay_all_model_molecules_except(int imol);
    void undisplay_all_model_molecules_except(const std::vector<int> &keep_these);
    static GtkWidget *cfc_dialog;
 
+   static bool do_intermediate_atoms_rama_markup; // true
+   static bool do_intermediate_atoms_rota_markup; // false
+
+   static void fill_rotamer_probability_tables() {
+
+     if (! rot_prob_tables.tried_and_failed()) {
+       rot_prob_tables.fill_tables();
+     }
+   }
 
    static std::pair<bool, float> model_display_radius;
    void set_model_display_radius(bool on_off, float radius_in) {
@@ -4091,11 +3917,15 @@ string   static std::string sessionid;
 
    static double geman_mcclure_alpha;
 
+   static void set_geman_mcclure_alpha(float alpha); // reruns refinement if we have restraints
+
    static bool update_maps_on_recentre_flag;
 
-   static float ca_bonds_loop_param_1;
-   static float ca_bonds_loop_param_2;
-   static float ca_bonds_loop_param_3;
+   static double lennard_jones_epsilon;
+
+   static void set_lennard_jones_epsilon(float epsilon); // reruns refinement if we have restraints
+
+   static double log_cosh_target_distance_scale_factor;
 
    static pair<bool,float> coords_centre_radius;  // should the display radius limit be applied? And
                                                   // if so, what is it? (say 20A)
@@ -4110,18 +3940,58 @@ string   static std::string sessionid;
 			   const std::string &version);
    std::string get_version_for_extension(const std::string &extension_name) const;
 
+   static int jed_flip_intermediate_atoms();
+   static int crankshaft_peptide_rotation_optimization_intermediate_atoms();
+
+#ifdef HAVE_CXX_THREAD
+   static std::atomic<bool> restraints_lock;
+   static bool continue_threaded_refinement_loop; // so that the ESC key can stop the refinement
+   static int  threaded_refinement_loop_counter;
+   static int  threaded_refinement_loop_counter_bonds_gen;
+   static bool threaded_refinement_needs_to_clear_up; // because ESC was pressed
+   static bool threaded_refinement_needs_to_accept_moving_atoms; // because Return was pressed
+   static int  threaded_refinement_redraw_timeout_fn_id; // -1 initially
+#endif // HAVE_CXX_THREAD
+   static int regenerate_intermediate_atoms_bonds_timeout_function();
+   static int regenerate_intermediate_atoms_bonds_timeout_function_and_draw();
+   // we need to wait for the refinement to finish when we are in
+   // immediate accept mode or no-gui.  In scripted (e.g. sphere-refine)
+   // we should not wait
+   void conditionally_wait_for_refinement_to_finish();
+
+
 #ifdef USE_PYTHON
    PyObject *pyobject_from_graphical_bonds_container(int imol,
 						     const graphical_bonds_container &bonds_box) const;
    PyObject *get_intermediate_atoms_bonds_representation();
    PyObject *get_intermediate_atoms_distortions_py();
-   PyObject *restraint_to_py(const coot::simple_restraint &restraint); // make const?
-   PyObject *geometry_distortion_to_py(const coot::geometry_distortion_info_t &gd);
+   PyObject *restraint_to_py(const coot::simple_restraint &restraint) const;
+   PyObject *geometry_distortion_to_py(const coot::geometry_distortion_info_t &gd) const;
 #endif
 
+#ifdef USE_GUILE
+   SCM geometry_distortion_to_scm(const coot::geometry_distortion_info_t &gd) const;
+   SCM restraint_to_scm(const coot::simple_restraint &restraint) const;
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+   // Python function, called per frame draw - for Hamish
+   static std::string python_draw_function_string;
+  void set_python_draw_function(const std::string &f) { python_draw_function_string = f; }
+#endif // USE_PYTHON
+
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #ifdef HAVE_CXX_THREAD
    static ctpl::thread_pool static_thread_pool;
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #endif
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
+   static std::shared_ptr<Renderer> mol_tri_renderer;
+   static std::shared_ptr<SceneSetup>   mol_tri_scene_setup;
+#endif
+#endif // USE_MOLECULES_TO_TRIANGLES
 
 };
 

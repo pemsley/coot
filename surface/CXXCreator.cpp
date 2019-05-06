@@ -10,7 +10,7 @@
 #include "CXXCreator.h"
 #include <algorithm>
 
-CXXCreator::CXXCreator (mmdb::pstr thePdb) {
+CXX_mot::CXXCreator::CXXCreator (mmdb::pstr thePdb) {
 	mmdb::InitMatType();
 
 	int RC;
@@ -22,7 +22,7 @@ CXXCreator::CXXCreator (mmdb::pstr thePdb) {
 	RC = theMMDBManager->ReadCoorFile (thePdb);
 	// if RC > 0 reading in file has failed - say so and quit
 	if (RC) {
-		CXXException theException = CXXException ("ERROR in: CXXCreator::CXXCreator( pstr thePdb) - could not read pdb file");
+		CXXException theException = CXXException ("ERROR in: CXX_mot::CXXCreator::CXXCreator( pstr thePdb) - could not read pdb file");
 		throw theException;
 	}   
 	
@@ -31,13 +31,13 @@ CXXCreator::CXXCreator (mmdb::pstr thePdb) {
 	theMMDBManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 }
 
-CXXCreator::CXXCreator (mmdb::PManager theMMDBManager_in) {
+CXX_mot::CXXCreator::CXXCreator (mmdb::PManager theMMDBManager_in) {
 	theMMDBManager = theMMDBManager_in;
 	int selHnd = selectAllAtoms();
 	theMMDBManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 }
 
-CXXCreator::CXXCreator (mmdb::PManager theMMDBManager, int selHnd, int context_selHnd ) {
+CXX_mot::CXXCreator::CXXCreator (mmdb::PManager theMMDBManager, int selHnd, int context_selHnd ) {
 	init();
 	theMMDBManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
         
@@ -61,7 +61,7 @@ CXXCreator::CXXCreator (mmdb::PManager theMMDBManager, int selHnd, int context_s
         }   
 }
 	
-void CXXCreator::init(){
+void CXX_mot::CXXCreator::init(){
 	// defaults can be changed using setGridSpacing and set probeRadius but only before space is made ..
 	gridSpacing = 1.2;
 	probeRadius = 1.6; // WARNING need to have these changable depending on sor options ect. ..
@@ -78,7 +78,7 @@ void CXXCreator::init(){
 	theChargeTable= CXXChargeTable();
 }
 
-int CXXCreator::selectAllAtoms(){
+int CXX_mot::CXXCreator::selectAllAtoms(){
 		//make new selection. First create new selection handle...
 	int selHnd = theMMDBManager->NewSelection();
 	theMMDBManager->SelectAtoms( selHnd, 0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*" );	
@@ -88,7 +88,7 @@ int CXXCreator::selectAllAtoms(){
 	return selHnd;
 }
 	
-int CXXCreator::setParameters( double IonicStrength, double Temperature, double gridConstant) {
+int CXX_mot::CXXCreator::setParameters( double IonicStrength, double Temperature, double gridConstant) {
 	
 	gridSpacing = gridConstant;
 	temp = Temperature;
@@ -99,7 +99,7 @@ int CXXCreator::setParameters( double IonicStrength, double Temperature, double 
 
 
 
-CXXCoord CXXCreator::getAtomCoord(int atomNr) {
+CXX_mot::CXXCoord CXX_mot::CXXCreator::getAtomCoord(int atomNr) {
 	
 	CXXCoord theCoord;
 	
@@ -118,7 +118,7 @@ CXXCoord CXXCreator::getAtomCoord(int atomNr) {
 	return theCoord;
 }
 
-double CXXCreator::getAtomRadius(int atomNr) {
+double CXX_mot::CXXCreator::getAtomRadius(int atomNr) {
 	
 	double radius = 0;
 	
@@ -136,7 +136,7 @@ double CXXCreator::getAtomRadius(int atomNr) {
 }
 
 
-string CXXCreator::getAtomElement(int atomNr) {
+string CXX_mot::CXXCreator::getAtomElement(int atomNr) {
 	
 	string theElement;
 	
@@ -152,7 +152,7 @@ string CXXCreator::getAtomElement(int atomNr) {
 }
 
 
-string CXXCreator::getAtomName(int atomNr) {
+string CXX_mot::CXXCreator::getAtomName(int atomNr) {
 	
 	string theName;
 	if (atomNr >= nSelAtoms) {
@@ -167,7 +167,7 @@ string CXXCreator::getAtomName(int atomNr) {
 }
 
 
-string CXXCreator::getAtomResidueName(int atomNr) {
+string CXX_mot::CXXCreator::getAtomResidueName(int atomNr) {
 	
         mmdb::pstr name;
 	string theResidueName;
@@ -185,7 +185,7 @@ string CXXCreator::getAtomResidueName(int atomNr) {
 
 
 
-double CXXCreator::lookUpCharge(int atomNr) {
+double CXX_mot::CXXCreator::lookUpCharge(int atomNr) {
 	
 	string residueName, atomName, element, charge;
 	double theCharge = 0.0;
@@ -212,7 +212,7 @@ double CXXCreator::lookUpCharge(int atomNr) {
 
 
 
-int CXXCreator::distributeAtomCharge(CXXCoord gridOrigin, CXXCoord xGridVector, CXXCoord yGridVector, CXXCoord zGridVector, int atomNr) {
+int CXX_mot::CXXCreator::distributeAtomCharge(CXXCoord gridOrigin, CXXCoord xGridVector, CXXCoord yGridVector, CXXCoord zGridVector, int atomNr) {
 	
 	// this is very much the same as for finding the atom grid volume - only that now each grid point 
 	// gets charge associated with it:
@@ -326,7 +326,7 @@ int CXXCreator::distributeAtomCharge(CXXCoord gridOrigin, CXXCoord xGridVector, 
 }
 
 
-double CXXCreator::getGridVolumeOfAtom(CXXCoord gridOrigin, CXXCoord xGridVector, CXXCoord yGridVector, CXXCoord zGridVector, int atomNr) {
+double CXX_mot::CXXCreator::getGridVolumeOfAtom(CXXCoord gridOrigin, CXXCoord xGridVector, CXXCoord yGridVector, CXXCoord zGridVector, int atomNr) {
 	
 	
 	// WARNING - want to do this with setOptions() type accessor ...
@@ -443,7 +443,7 @@ double CXXCreator::getGridVolumeOfAtom(CXXCoord gridOrigin, CXXCoord xGridVector
 	return atomGridVolume;
 }
 
-double CXXCreator::fractionOfGridPointCoveredByAtom(CXXCoord theGridPoint, CXXCoord xGridVector, CXXCoord yGridVector, CXXCoord zGridVector, int atomNr) {
+double CXX_mot::CXXCreator::fractionOfGridPointCoveredByAtom(CXXCoord theGridPoint, CXXCoord xGridVector, CXXCoord yGridVector, CXXCoord zGridVector, int atomNr) {
 	
 	
 	// determines the how many subgrid points cover the neighbourhood of the central gird point
@@ -518,7 +518,7 @@ double CXXCreator::fractionOfGridPointCoveredByAtom(CXXCoord theGridPoint, CXXCo
 
 
 
-int CXXCreator::createSpace() {
+int CXX_mot::CXXCreator::createSpace() {
 	
 	// first find out how big space needs to be to contain the content of the pdb
 	// this could allow optimisation by adding a rotation function to make box as small as possible !
@@ -581,7 +581,7 @@ int CXXCreator::createSpace() {
 }
 
 
-int CXXCreator::introduceMatter(double dielectricOfSolvent, double dielectricOfProtein) {
+int CXX_mot::CXXCreator::introduceMatter(double dielectricOfSolvent, double dielectricOfProtein) {
 	
 	
 	externalDielectric = dielectricOfSolvent;
@@ -645,7 +645,7 @@ int CXXCreator::introduceMatter(double dielectricOfSolvent, double dielectricOfP
 }
 
 
-int CXXCreator::addAtomSolvationParameters() { // WARNING - need this to check if the solvent map does yet excist...
+int CXX_mot::CXXCreator::addAtomSolvationParameters() { // WARNING - need this to check if the solvent map does yet excist...
 	
 				
 	// get currentAtom name
@@ -682,7 +682,7 @@ int CXXCreator::addAtomSolvationParameters() { // WARNING - need this to check i
 
 
 
-int CXXCreator::evolve(int optionSOR, double convergenceCriterion) {
+int CXX_mot::CXXCreator::evolve(int optionSOR, double convergenceCriterion) {
 	
 	/* when this is called the system is described by the four discrete properties in space:
 	
@@ -894,11 +894,11 @@ charge(i,j,k)/h =   dielGrid(i-1,j,k,0)[potentialGrid(i,j,k) - potentialGrid(i-1
 	}
 	}
 
-double CXXCreator::getGridSpacing(){
+double CXX_mot::CXXCreator::getGridSpacing(){
 	return gridSpacing;
 }
 
-int CXXCreator::calculate(){
+int CXX_mot::CXXCreator::calculate(){
 	setParameters(0.15, 300, 1.2);
 	createSpace();	
 	introduceMatter(78,4);
@@ -906,7 +906,7 @@ int CXXCreator::calculate(){
 	return 0;
 }
 
-clipper::NXmap<double> CXXCreator::coerceToClipperMap(clipper::Cell &cell){
+clipper::NXmap<double> CXX_mot::CXXCreator::coerceToClipperMap(clipper::Cell &cell){
 	//Coerce it into a clipper NXmap:
 	//First evaluate the limits, and corresponding cell dimensions etc
 	double spacing = getGridSpacing();

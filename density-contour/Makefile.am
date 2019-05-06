@@ -27,8 +27,11 @@ pkgincludedir = $(includedir)/coot/density-contour
 
 libcoot_isosurface_la_SOURCES = Vectors.cpp CIsoSurface.cpp density-contour-triangles.cc
 
-libcoot_isosurface_la_LIBADD = \
-	$(top_builddir)/coords/libcoot-coords.la \
-        $(CLIPPER_LIBS)
+#libcoot_isosurface_la_LIBADD = \
+#	$(top_builddir)/coords/libcoot-coords.la \
+#        $(CLIPPER_LIBS)
+
+libcoot_isosurface_la_LIBADD = $(top_builddir)/coords/libcoot-coords.la    \
+                               $(CLIPPER_LIBS)
 
 libcoot_isosurface_la_LDFLAGS = $(SHARED_LDFLAGS)

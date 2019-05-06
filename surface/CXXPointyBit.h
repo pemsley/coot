@@ -6,8 +6,8 @@
  *  Copyright 2005 __MyCompanyName__. All rights reserved.
  *
  */
-#ifndef CXXPointyBit_included
-#define CXXPointyBit_included
+#ifndef CXX_mot_CXXPointyBit_included
+#define CXX_mot_CXXPointyBit_included
 #include "CXXCoord.h"
 
 class mmdb::Atom;

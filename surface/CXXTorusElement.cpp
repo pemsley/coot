@@ -16,26 +16,25 @@
 #include "CXXCircleNode.h"
 #include "CXXNewHood.h"
 
-CXXCircle CXXTorusElement::nullCircle = CXXCircle();
+CXX_mot::CXXCircle CXX_mot::CXXTorusElement::nullCircle = CXXCircle();
 
-CXXTorusElement::CXXTorusElement() : 
+CXX_mot::CXXTorusElement::CXXTorusElement() : 
 theCircle(nullCircle),
 debug(0)
 {
 	init();
 }
 
-CXXTorusElement::~CXXTorusElement()
+CXX_mot::CXXTorusElement::~CXXTorusElement()
 {
 }
 
-void CXXTorusElement::init()
+void CXX_mot::CXXTorusElement::init()
 {
-	// flatTriangles.resize(0);
-	flatTriangles.clear();
+   flatTriangles.clear();
 }
 
-CXXTorusElement::CXXTorusElement(const CXXCircle &aCircle, int iEdge, double delta, double probeRadius) :
+CXX_mot::CXXTorusElement::CXXTorusElement(const CXXCircle &aCircle, int iEdge, double delta, double probeRadius) :
 theCircle(aCircle),
 rProbe(probeRadius),
 debug(0)
@@ -150,7 +149,7 @@ debug(0)
 	}
 }
 
-int CXXTorusElement::addNode(CXXTorusNode &aNode){
+int CXX_mot::CXXTorusElement::addNode(CXXTorusNode &aNode){
 	CXXTorusNode newNode(aNode);
 	int debug = 0;
 	
@@ -161,11 +160,11 @@ int CXXTorusElement::addNode(CXXTorusNode &aNode){
 	return (nodes.size() - 1);
 }
 
-const int CXXTorusElement::numberOfTorusNodes(void){
+const int CXX_mot::CXXTorusElement::numberOfTorusNodes(void){
 	return nodes.size();
 }
 
-const CXXCoord CXXTorusElement::probeAtOmega(double omega) const{
+const CXX_mot::CXXCoord CXX_mot::CXXTorusElement::probeAtOmega(double omega) const{
 	CXXCoord temp1 = v1unit;
 	temp1.scale(cos(omega));
 	CXXCoord temp2 = n1unit;
@@ -175,7 +174,7 @@ const CXXCoord CXXTorusElement::probeAtOmega(double omega) const{
 	return torusCentre + temp3;
 }
 
-const CXXCoord CXXTorusElement::normalToProbeAtTheta(CXXCoord &p, double theta) const {
+const CXX_mot::CXXCoord CXX_mot::CXXTorusElement::normalToProbeAtTheta(CXXCoord &p, double theta) const {
 	CXXCoord temp1 = torusAxis;
 	temp1.scale(cos(theta));
 	CXXCoord temp2 = torusCentre - p;
@@ -184,14 +183,14 @@ const CXXCoord CXXTorusElement::normalToProbeAtTheta(CXXCoord &p, double theta) 
 	return temp1 + temp2;
 }
 
-const CXXCoord CXXTorusElement::coordFromThetaOmega(double theta, double omega) const{
+const CXX_mot::CXXCoord CXX_mot::CXXTorusElement::coordFromThetaOmega(double theta, double omega) const{
 	CXXCoord p(probeAtOmega(omega));
 	CXXCoord normal(normalToProbeAtTheta(p, theta));
 	normal.scale(rProbe);
 	return  p + normal;
 }
 
-int CXXTorusElement::upload(CXXSurface *aSurface){
+int CXX_mot::CXXTorusElement::upload(CXX_mot::CXXSurface *aSurface){
 	//	Add vertices to surface
 	int oldVertexCount;
 	{
@@ -227,8 +226,8 @@ int CXXTorusElement::upload(CXXSurface *aSurface){
 	{
 		int triangleBuffer[flatTriangles.size()*3];// = new int[flatTriangles.size()*3];
 		int nToDraw = 0;
-		list<CXXTriangle, CXX::CXXAlloc<CXXTriangle> >::iterator trianglesEnd(flatTriangles.end());
-		for (list<CXXTriangle, CXX::CXXAlloc<CXXTriangle> >::iterator triangle=flatTriangles.begin();
+		list<CXXTriangle, CXX_old::CXXAlloc<CXXTriangle> >::iterator trianglesEnd(flatTriangles.end());
+		for (list<CXXTriangle, CXX_old::CXXAlloc<CXXTriangle> >::iterator triangle=flatTriangles.begin();
 		     triangle != trianglesEnd;
 		     ++triangle){
 		   CXXTriangle &flatTriangle(*triangle);
@@ -247,25 +246,25 @@ int CXXTorusElement::upload(CXXSurface *aSurface){
 	return 0;
 }	
 
-const CXXTorusNode &CXXTorusElement::getNode(const int i) const{
+const CXX_mot::CXXTorusNode &CXX_mot::CXXTorusElement::getNode(const int i) const{
 	return nodes[i];
 } 
 
-void CXXTorusElement::addEdgeVertex(CXXCircleNode &aNode){
+void CXX_mot::CXXTorusElement::addEdgeVertex(CXXCircleNode &aNode){
 	double omega = aNode.getAngle() - absoluteStartOmega;
 	while (omega < 0.) omega += 2.*M_PI;
 	if (omega < omega2){
 		//This vertex falls somewhere in the range of the segment:  find which of the edgeTriagles it falls within
 		int triangleFound = 0;
-// 		list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle> >::iterator matchingTriangle;
-// 		list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle> >::iterator edgeTrianglesEnd = edgeTriangles.end();
+// 		list<CXXTriangle *, CXX_old::CXXAlloc<CXXTriangle> >::iterator matchingTriangle;
+// 		list<CXXTriangle *, CXX_old::CXXAlloc<CXXTriangle> >::iterator edgeTrianglesEnd = edgeTriangles.end();
 
 		// from the header:
-		// list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle *> > edgeTriangles;
+		// list<CXXTriangle *, CXX_old::CXXAlloc<CXXTriangle *> > edgeTriangles;
 		
-		list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle *> >::iterator matchingTriangle;
-		list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle *> >::iterator edgeTrianglesEnd = edgeTriangles.end();
-		for (list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle *> >::iterator triangle = edgeTriangles.begin();
+		list<CXXTriangle *, CXX_old::CXXAlloc<CXXTriangle *> >::iterator matchingTriangle;
+		list<CXXTriangle *, CXX_old::CXXAlloc<CXXTriangle *> >::iterator edgeTrianglesEnd = edgeTriangles.end();
+		for (list<CXXTriangle *, CXX_old::CXXAlloc<CXXTriangle *> >::iterator triangle = edgeTriangles.begin();
 		     triangle != edgeTrianglesEnd && !triangleFound;
 		     ++triangle){
 

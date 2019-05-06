@@ -59,10 +59,12 @@
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
 #include "c-interface-refmac.h"
+#include "c-interface-refine.h"	/* do things with intermediate atoms */
 #include "c-interface-preferences.h"
 #include "positioned-widgets.h"
 
 #include "generic-display-objects-c.h"
+// #include "curlew.h"
 
 /* This is our data identification string to store
  * data in list items
@@ -76,14 +78,13 @@ const gchar *list_item_data_key_for_atoms="list_item_data_for_atoms";
 
 
 
-#if 0
+
 void
 on_window1_destroy                     (GtkObject       *object,
                                         gpointer         user_data)
 {
   gtk_main_quit();
 }
-#endif
 
 /* When the user uses the window manager to close coot, this gets called. */
 /* When the window manager "close window" events happens it send the
@@ -131,7 +132,7 @@ on_open_dataset1_activate              (GtkMenuItem     *menuitem,
 
   /* stuff in user data saying if this is autoread or not... */
   is = is_auto_read_fileselection;
-  g_object_set_data(G_OBJECT(dataset_fileselection1), "is_auto_read", GINT_TO_POINTER(is));
+  gtk_object_set_user_data(GTK_OBJECT(dataset_fileselection1), GINT_TO_POINTER(is));
   set_file_selection_dialog_size(dataset_fileselection1);
 
   set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_fileselection1);
@@ -159,7 +160,7 @@ on_auto_open_mtz_activate              (GtkMenuItem     *menuitem,
 
   /* stuff in user data saying if this is autoread or not... */
   is = is_auto_read_fileselection;
-  g_object_set_data(G_OBJECT(dataset_fileselection1), "is_auto_read", GINT_TO_POINTER(is));
+  gtk_object_set_user_data(GTK_OBJECT(dataset_fileselection1), GINT_TO_POINTER(is));
   set_file_selection_dialog_size(dataset_fileselection1);
 
   set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_fileselection1);
@@ -200,7 +201,6 @@ void
 on_ok_button_coordinates_clicked       (GtkButton       *button,
                                         gpointer         user_data)
 {
-#if 0
   GtkWidget *coords_fileselection1;
   GtkWidget *checkbutton;
   int recentre_on_read_pdb_flag = 0;
@@ -219,7 +219,7 @@ on_ok_button_coordinates_clicked       (GtkButton       *button,
     checkbutton = lookup_widget(GTK_WIDGET(button), 
 			      "coords_fileselection1_recentre_checkbutton");
     if (checkbutton)
-      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
+      if (GTK_TOGGLE_BUTTON(checkbutton)->active)
 	recentre_on_read_pdb_flag = 1;
   } else {
     /* new style 20081214 */
@@ -263,7 +263,7 @@ on_ok_button_coordinates_clicked       (GtkButton       *button,
     files_arr++;
   }
   gtk_widget_destroy(coords_fileselection1); 
-#endif
+
 }
 
 
@@ -271,7 +271,49 @@ void
 on_ok_button_dataset_clicked           (GtkButton       *button,
                                         gpointer         user_data)
 {
-  /* goodbye fileselection code */
+   const gchar *filename; 
+   gchar *copied_filename;
+   int auto_read_flag = 0, ismtz = 0, ismtzauto = 0, iscnsauto = 0;
+
+   GtkWidget *dataset_fileselection1;
+
+   dataset_fileselection1 = lookup_widget(GTK_WIDGET(button),
+					  "dataset_fileselection1");
+
+   save_directory_from_fileselection(dataset_fileselection1);
+   filename = gtk_file_selection_get_filename 
+      (GTK_FILE_SELECTION(dataset_fileselection1));
+   
+   copied_filename = (char *) malloc(strlen(filename) + 1);
+   strcpy(copied_filename, filename);
+
+   auto_read_flag = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(dataset_fileselection1)));
+   ismtz = is_mtz_file_p(filename);
+   if (ismtz) ismtzauto = mtz_file_has_phases_p(filename);
+   else       iscnsauto = cns_file_has_phases_p(filename);
+
+   if (ismtzauto || iscnsauto) {
+
+      if (auto_read_flag) { 
+	 wrapped_auto_read_make_and_draw_maps(filename);
+      } else {
+	 /* this does a create_column_label_window, fills and displays it. */
+	 manage_column_selector(copied_filename);
+      }
+
+   } else { 
+
+      /* no phases path */
+      if (auto_read_flag) printf ("INFO:: This file is not a map coefficient file. Coot can auto-read\nINFO::  - MTZ files from refmac, phenix.refine, phaser, parrot, dm.\nINFO::  - CNS files (new 2009 format only) with cell, symops, F1, F2.\n");
+      if (ismtz) { 
+	 calc_phases_generic(filename);
+      } else { 
+	 /* try to read as a phs, cif, fcf etc... */
+	 manage_column_selector(copied_filename);
+      }
+   }
+   free(copied_filename);
+   gtk_widget_destroy(dataset_fileselection1); 
 }
 
 void
@@ -511,11 +553,12 @@ on_fps_window_ok_button_clicked        (GtkButton       *button,
     button is active then set the flag to 1, if no is active, set it
     to 0.  */
    
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "radiobutton1"))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), 
+				       "radiobutton1"))->active)
       set_fps_flag(1);
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), 
-								   "radiobutton2"))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), 
+				       "radiobutton2"))->active)
       set_fps_flag(0);
 
    gtk_widget_destroy(lookup_widget(GTK_WIDGET(button), "fps_window"));
@@ -528,12 +571,12 @@ on_active_map_ok_button_clicked        (GtkButton       *button,
                                         gpointer         user_data)
 {
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), 
-								   "active_map_radiobutton_yes"))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), 
+				       "active_map_radiobutton_yes"))->active)
       set_active_map_drag_flag(1);
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), 
-								   "active_map_radiobutton_no"))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), 
+				       "active_map_radiobutton_no"))->active)
       set_active_map_drag_flag(0);
 
    gtk_widget_destroy(lookup_widget(GTK_WIDGET(button), 
@@ -604,13 +647,13 @@ on_show_symmetry_ok_button_clicked     (GtkButton       *button,
    const char *text;
 
 /* Show Symmetry Radiobuttons */
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
-								    "show_symmetry_yes_radiobutton"))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
+				       "show_symmetry_yes_radiobutton"))->active)
       set_show_symmetry_master(1);
 				  
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
-								    "show_symmetry_no_radiobutton"))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
+				       "show_symmetry_no_radiobutton"))->active)
       set_show_symmetry_master(0);
 
 /* Symmetry Radius Entry */
@@ -627,12 +670,12 @@ on_show_symmetry_ok_button_clicked     (GtkButton       *button,
 
 /* Show UnitCell Radiobuttons */
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
-								    "unit_cell_yes_radiobutton"))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
+				       "unit_cell_yes_radiobutton"))->active)
       set_show_unit_cells_all(1);
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
-								    "unit_cell_no_radiobutton"))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
+				       "unit_cell_no_radiobutton"))->active)
       set_show_unit_cells_all(0);
 
 /* The Symmetry Colour Checkbutton */
@@ -669,7 +712,7 @@ on_show_symmetry_ok_button_clicked     (GtkButton       *button,
 
    checkbutton = lookup_widget(GTK_WIDGET(button), 
 			       "show_symmetry_expanded_labels_checkbutton");
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
+   if (GTK_TOGGLE_BUTTON(checkbutton)->active) 
      set_symmetry_atom_labels_expanded(1);
    else
      set_symmetry_atom_labels_expanded(0);
@@ -692,13 +735,13 @@ on_show_symmetry_apply_button_clicked  (GtkButton       *button,
    const char *text;
 
 /* Show Symmetry Radiobuttons */
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
-								    "show_symmetry_yes_radiobutton"))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
+				       "show_symmetry_yes_radiobutton"))->active)
       set_show_symmetry_master(1);
 				  
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
-								    "show_symmetry_no_radiobutton"))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
+				       "show_symmetry_no_radiobutton"))->active)
       set_show_symmetry_master(0);
 
 /* Symmetry Radius Entry */
@@ -715,12 +758,12 @@ on_show_symmetry_apply_button_clicked  (GtkButton       *button,
 
 /* Show UnitCell Radiobuttons */
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
-								    "unit_cell_yes_radiobutton"))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
+				       "unit_cell_yes_radiobutton"))->active)
       set_show_unit_cells_all(1);
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
-								    "unit_cell_no_radiobutton"))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
+				       "unit_cell_no_radiobutton"))->active)
       set_show_unit_cells_all(0);
 
 /* The Symmetry Colour Checkbutton */
@@ -757,7 +800,7 @@ on_show_symmetry_apply_button_clicked  (GtkButton       *button,
 
    checkbutton = lookup_widget(GTK_WIDGET(button), 
 			       "show_symmetry_expanded_labels_checkbutton");
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
+   if (GTK_TOGGLE_BUTTON(checkbutton)->active) 
      set_symmetry_atom_labels_expanded(1);
    else
      set_symmetry_atom_labels_expanded(0);
@@ -769,7 +812,6 @@ void
 on_symmetry_colour_patch_button_clicked (GtkButton       *button,
 					 gpointer         user_data)
 {
-#if 0
    GtkWidget *colorseldlg;
    gdouble *colour;
    GtkColorSelection *colorsel;
@@ -781,7 +823,6 @@ on_symmetry_colour_patch_button_clicked (GtkButton       *button,
    gtk_color_selection_set_color(colorsel, colour);
 
    gtk_widget_show(colorseldlg); 
-#endif
 }
 
 
@@ -851,8 +892,8 @@ on_anisotropic_atoms1_activate         (GtkMenuItem     *menuitem,
          (gtk_adjustment_new(hscale_initial, 0.0, 110.0, 0.01, 4.0, 10.)); 
 
    gtk_range_set_adjustment(GTK_RANGE(hscale), adjustment);
-   g_signal_connect (G_OBJECT(adjustment), "value_changed",
-		       G_CALLBACK(aniso_probability_adjustment_changed), 
+   gtk_signal_connect (GTK_OBJECT (adjustment), "value_changed",
+		       GTK_SIGNAL_FUNC (aniso_probability_adjustment_changed), 
 		       NULL);
 
 
@@ -871,14 +912,14 @@ on_show_aniso_ok_button_clicked        (GtkButton       *button,
 
 /* Limit Display Atoms? */
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
-								    "limit_display_radius_yes_radiobutton"
-								    ))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
+				       "limit_display_radius_yes_radiobutton"
+				       ))->active)
       set_limit_aniso(1);
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
-								    "limit_display_radius_no_radiobutton"
-								    ))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
+				       "limit_display_radius_no_radiobutton"
+				       ))->active)
       set_limit_aniso(0);
 
 
@@ -892,13 +933,13 @@ on_show_aniso_ok_button_clicked        (GtkButton       *button,
    set_aniso_limit_size_from_widget(text);
 
  /* Show Aniso Radiobuttons */
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
-								    "show_aniso_yes_radiobutton"))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
+				       "show_aniso_yes_radiobutton"))->active)
 
       set_show_aniso(1);	/* model, state */
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
-								    "show_aniso_no_radiobutton"))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
+				       "show_aniso_no_radiobutton"))->active)
       set_show_aniso(0); 
 }
 
@@ -913,7 +954,7 @@ on_show_aniso_close_button_clicked     (GtkButton       *button,
 
 void aniso_probability_adjustment_changed(GtkAdjustment *adj, GtkWidget *window) { 
 
-   set_aniso_probability(gtk_adjustment_get_value(adj));
+   set_aniso_probability(adj->value); 
 }
 
 
@@ -924,13 +965,13 @@ void on_smooth_scrolling_window_ok_button_clicked (GtkButton       *button,
    const char *text;
 
 /* Show Smooth Scrolling Radio Buttons */
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
-								    "smooth_scroll_yes_radiobutton"))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
+				       "smooth_scroll_yes_radiobutton"))->active)
        
       set_smooth_scroll_flag(1);
    
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
-								    "smooth_scroll_no_radiobutton"))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
+				       "smooth_scroll_no_radiobutton"))->active)
       
       set_smooth_scroll_flag(0);
 
@@ -1045,18 +1086,19 @@ on_font_size_ok_button_clicked         (GtkButton       *button,
 {   
 
 /* The Font Size RadioButtons */
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
-								   "font_size_small_radiobutton"))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
+				       "font_size_small_radiobutton"))->active)
        
       set_font_size(1);
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
-								   "font_size_medium_radiobutton"))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
+				       "font_size_medium_radiobutton"))->active)
        
       set_font_size(2);
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
-								   "font_size_large_radiobutton"))))
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
+				       "font_size_large_radiobutton"))->active)
+       
       set_font_size(3);
 
 /* goodbye widget */
@@ -1124,7 +1166,7 @@ on_attach_scroll_wheel_to_which_map_1_activate (GtkMenuItem     *menuitem,
      submenu */
   GtkWidget *menu = lookup_widget(GTK_WIDGET(menuitem), "attach_scroll_wheel_to_which_map_1");
   if (menu) { 
-    add_on_map_scroll_whell_choices(menu);
+    add_on_map_scroll_wheel_choices(menu);
   } else { 
     printf("ERROR:: failed to get menu in on_attach_scroll_wheel_to_which_map_1_activate\n");
   }
@@ -1227,7 +1269,7 @@ on_ok_button_map_name_clicked          (GtkButton       *button,
 			       "map_fileselection_is_difference_map_button");
 
    if (checkbutton)
-     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) 
+     if (GTK_TOGGLE_BUTTON(checkbutton)->active) 
        is_diff_map_flag = 1;
 
    filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(map_name_fileselection1)); 
@@ -1392,10 +1434,7 @@ on_go_to_atom_cancel_button_clicked    (GtkButton       *button,
   GtkWidget *widget; 
   
   widget     = lookup_widget(GTK_WIDGET(button), "goto_atom_window");
-  lookup_widget(GTK_WIDGET(button), "go_to_atom_molecule_optionmenu");
-/*   save_go_to_atom_mol_menu_ative_position(optionmenu);  no longer 20050526 */
 
-/*   printf("go to atom_window: %ld\n", widget ); */
   unset_go_to_atom_widget();
   gtk_widget_destroy(widget);	/* There is something that had been
 				   added to the Go To Atom window that
@@ -1404,7 +1443,6 @@ on_go_to_atom_cancel_button_clicked    (GtkButton       *button,
 				   I don't think that it is the dialog
 				   itself.  The problem does not
 				   happen in the GTK1 path.  */
-/*    printf("done destroy go to atom window\n"); */
 }
 
 
@@ -1671,14 +1709,13 @@ on_display_control_ok_button_clicked   (GtkButton       *button,
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_display_control_window_glade_destroy (GtkObject       *object,
 					 gpointer         user_data)
 {
   reset_graphics_display_control_window(); /* (also resets the scroll group) */
 }
-#endif
+
 
 void
 on_rotation_centre_size_ok_button_clicked (GtkButton       *button,
@@ -1750,7 +1787,7 @@ on_phs_cell_choice_ok_button_clicked   (GtkButton       *button,
 	 tmp_name = widget_name + strlen(widget_name); 
 	 snprintf(tmp_name, 3, "%-d", i); 
 
-	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), widget_name)))) { 
+	 if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), widget_name))->active) { 
 	    printf("proceeding with phs reading using cell from molecule %d.\n", i);
 	
 	    read_phs_and_make_map_using_cell_symm_from_mol_using_implicit_phs_filename(i); 
@@ -1760,8 +1797,8 @@ on_phs_cell_choice_ok_button_clicked   (GtkButton       *button,
    }
    free(widget_name);
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), 
-								    "phs_cell_none_radiobutton")))) { 
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), 
+				       "phs_cell_none_radiobutton"))->active) { 
       printf("special value for none for phs_cell radiobuton active\n");
       info_window = create_phs_info_box();
       gtk_widget_show(info_window); 
@@ -1830,7 +1867,7 @@ on_get_pdb_using_code1_activate        (GtkMenuItem     *menuitem,
 
   *n = 1;
   window = create_accession_code_window(); 
-  g_object_set_data(G_OBJECT(window), "mode", (char *) n); 
+  gtk_object_set_user_data(GTK_OBJECT(window), (char *) n); 
   
   gtk_widget_show(window); 
 
@@ -1847,7 +1884,7 @@ on_get_pdb_and_sf_using_code1_activate (GtkMenuItem     *menuitem,
   *n = 2; 
 
   window = create_accession_code_window(); 
-  g_object_set_data(G_OBJECT(window), "mode", n); 
+  gtk_object_set_user_data(GTK_OBJECT(window), n); 
   gtk_widget_show(window); 
 
 }
@@ -1860,11 +1897,11 @@ on_fetch_pdb_and_map_using_pdbredo1_activate
   GtkWidget *window; 
   int *n; 
   n = (int *) g_malloc(sizeof(int)); 
-  *n = 3;
+  *n = 3; 
 
   window = create_accession_code_window(); 
-  g_object_set_user_data(G_OBJECT(window), "mode", n);
-  gtk_widget_show(window);
+  gtk_object_set_user_data(GTK_OBJECT(window), n); 
+  gtk_widget_show(window); 
 
 }
 
@@ -1876,9 +1913,9 @@ gboolean on_accession_code_entry_key_press_event (GtkWidget       *widget,
 
  /* go somewhere if keypress was a carriage return  */
 
-  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
+  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) { 
     handle_get_accession_code(widget); 
-  }
+  } 
 
   return FALSE;
 }
@@ -1947,7 +1984,6 @@ on_dynarama_cancel_button_clicked      (GtkButton       *button,
 
 }
 
-#if 0				/* GtkObject problem */
 void
 on_dynarama_window_destroy             (GtkObject       *object,
                                         gpointer         user_data)
@@ -1966,7 +2002,6 @@ on_dynarama_window_destroy             (GtkObject       *object,
 			      	          // memory of the user data.
    }
 }
-#endif
 
 
 
@@ -2027,15 +2062,13 @@ on_find_ligand_many_atoms_continue_button_clicked (GtkButton       *button,
 
    GtkWidget *window = lookup_widget(GTK_WIDGET(button), 
 				     "find_ligand_many_atoms_dialog");
-   GtkWidget *find_ligand_dialog = (GtkWidget *) g_object_get_data(GTK_OBJECT(window), "find_ligand_dialog");
+   GtkWidget *find_ligand_dialog = (GtkWidget *) gtk_object_get_user_data(GTK_OBJECT(window));
 
 /* Needed at all, the if? */
 #if defined USE_GUILE && defined USE_PYTHON
    execute_ligand_search();
 #endif 
    gtk_widget_destroy(window);
-   printf("GTK-FIXME on_find_ligand_many_atoms_continue_button_clicked() find_ligand_dialog 0%d\n",
-	  find_ligand_dialog);
    gtk_widget_destroy(find_ligand_dialog); 
 }
 
@@ -2102,10 +2135,9 @@ void
 on_save_coordinates1_activate          (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-#if 0
   GtkWidget *widget;
-  GtkWidget *option_menu; 
-  GCallback callback_func = G_CALLBACK(save_molecule_coords_button_select);
+  GtkWidget *combobox; 
+  GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(save_molecule_coords_button_select);
   int imol = first_coords_imol();
   int imol_unsaved = first_unsaved_coords_imol();
   if (imol_unsaved != -1) 
@@ -2114,13 +2146,18 @@ on_save_coordinates1_activate          (GtkMenuItem     *menuitem,
 
   widget = create_save_coords_dialog(); 
 
-  option_menu = lookup_widget(GTK_WIDGET(widget), "save_coords_optionmenu");
+  combobox = lookup_widget(GTK_WIDGET(widget), "save_coordinates_combobox");
 
-  fill_option_menu_with_coordinates_options_unsaved_first(option_menu, callback_func, imol);
-  set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
-  gtk_widget_show(widget);
-  gtk_window_present(GTK_WINDOW(widget));
-#endif
+  if (combobox) {
+
+/*     fill_option_menu_with_coordinates_options_unsaved_first(option_menu, callback_func, imol); */
+    fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+    set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
+    gtk_widget_show(widget);
+    gtk_window_present(GTK_WINDOW(widget));
+  } else {
+    printf("bad combobox!\n");
+  }
 }
 
 
@@ -2128,60 +2165,20 @@ void
 on_save_coords_dialog_save_button_clicked (GtkButton       *button,
 					   gpointer         user_data)
 {
-  GtkWidget *dialog;
-  GtkWidget *widget;
-  GtkWidget *menu;
-  GtkWidget *option_menu;
-  char *imol_str;
-  int imol_of_save_active_menu_item = 0; 
-  int *itmp_p;
-
-  dialog = lookup_widget(GTK_WIDGET(button), "save_coords_dialog");
-
-  option_menu = lookup_widget(GTK_WIDGET(button),
-			      "save_coords_optionmenu");
-
-  menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
-  gtk_menu_get_active(GTK_MENU(menu));
-
-  /* we need to know the molecule number of the active menu item.  Now
-     that the save molecule options use the standard coordinate option
-     menu mechanism, the way to get to the active molecule is by a
-     graphics_info_t static.  We provide a c-interface access to that
-     varible in the case (where we need access to it from the C
-     interface) */
-
-  imol_of_save_active_menu_item = save_molecule_number_from_option_menu();
-  if (imol_of_save_active_menu_item == -1) { 
-     info_dialog("No molecules available to save.");
-  } else { 
-     itmp_p = (int *) malloc(sizeof(int));
-     *itmp_p = imol_of_save_active_menu_item; 
-     imol_str = (char *) itmp_p;
-     widget = coot_save_coords_chooser();
-  
-     /* we transfer the pointer to imol to the save coordinates fileselection */
-
-     printf("bleugh - needs a fixup here\n");
-     g_object_set_user_data(G_OBJECT(widget), "imol", imol_str);
-
-     add_file_dialog_action_area_vbox(widget);
-     add_save_coordinates_include_hydrogens_and_aniso_checkbutton(widget);
-
-     add_sort_button_fileselection(widget); 
-     /*   set_directory_for_fileselection(widget); */
-     set_file_for_save_fileselection(widget);
-     add_ccp4i_project_optionmenu(widget, COOT_SAVE_COORDS_FILE_SELECTION);
-     /*   add_filename_filter(widget); */
-     add_filename_filter_button(widget, COOT_SAVE_COORDS_FILE_SELECTION);
-
-     set_file_selection_dialog_size(widget);
-
-     set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
-
-     gtk_widget_show(widget);
-     gtk_widget_destroy(dialog);
+  GtkWidget *combobox = lookup_widget(GTK_WIDGET(button), "save_coordinates_combobox");
+  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "save_coords_dialog");
+  GtkWidget *chooser;
+  int imol;
+  if (! combobox) {
+    printf("on_save_coords_dialog_save_button_clicked: bad combobox\n");
+  } else {
+    imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+    chooser = coot_save_coords_chooser();
+    g_object_set_data(G_OBJECT(chooser), "imol", GINT_TO_POINTER(imol));
+    gtk_widget_show(chooser);
   }
+  gtk_widget_destroy(dialog);
+
 }
 
 
@@ -2195,8 +2192,7 @@ on_save_coord_ok_button_clicked        (GtkButton       *button,
 
   widget = lookup_widget(GTK_WIDGET(button), "save_coords_fileselection1");
   save_directory_for_saving_from_fileselection(fileselection);
-  printf("needs a fixup B\n");
-  stuff = g_object_get_data(G_OBJECT(widget), "unknown-data-name");
+  stuff = gtk_object_get_user_data(GTK_OBJECT(widget));
   save_coordinates_using_widget(widget);
   free(stuff);
   gtk_widget_destroy(widget);
@@ -2210,7 +2206,8 @@ on_save_coords_cancel_button_clicked   (GtkButton       *button,
   GtkWidget *widget;
   char *stuff;
 
-  widget = lookup_widget(GTK_WIDGET(button), "save_coords_fileselection1");
+  widget = lookup_widget(GTK_WIDGET(button),
+			 "save_coords_fileselection1");
   stuff = gtk_object_get_user_data(GTK_OBJECT(widget));
   free(stuff);
   gtk_widget_destroy(widget);
@@ -2224,7 +2221,7 @@ on_model_refine_dialog_refine_togglebutton_toggled
                                         gpointer         user_data)
 {
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
+  if (GTK_TOGGLE_BUTTON(button)->active)
     do_refine(1);
   else 
     do_refine(0);		/* unclick button */
@@ -2237,7 +2234,7 @@ on_model_refine_dialog_regularize_togglebutton_toggled
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
+  if (GTK_TOGGLE_BUTTON(button)->active)
     do_regularize(1);
   else 
     do_regularize(0);		/* unclick button */
@@ -2261,7 +2258,7 @@ on_model_refine_dialog_rigid_body_togglebutton_toggled
                                         gpointer         user_data)
 {
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) { 
+  if (GTK_TOGGLE_BUTTON(button)->active) { 
     printf("Rigid Body:\n");
     do_rigid_body_refine(1);
   } else {
@@ -2298,7 +2295,6 @@ on_refine_params_dialog_ok_button_clicked
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_goto_atom_window_destroy            (GtkObject       *object,
                                         gpointer         user_data)
@@ -2309,7 +2305,7 @@ on_goto_atom_window_destroy            (GtkObject       *object,
    "Cancel" button callback. Fixes July 12 bug? */
   unset_go_to_atom_widget(); 
 }
-#endif
+
 
 void
 on_distance1_activate                  (GtkMenuItem     *menuitem,
@@ -2334,7 +2330,7 @@ on_model_refine_dialog_pepflip_togglebutton_toggled (GtkButton       *button,
 					       gpointer         user_data)
 {
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
+  if (GTK_TOGGLE_BUTTON(button)->active)
     do_pepflip(1);
   else 
      do_pepflip(0);
@@ -2349,7 +2345,11 @@ on_accept_reject_refinement_accept_button_clicked (GtkButton       *button,
 {
   GtkWidget *window = lookup_widget(GTK_WIDGET(button),
 				    "accept_reject_refinement_dialog");
-  accept_regularizement();
+
+  /* Pressing Return while focus is on the Accept/Reject dialog brings us here. */
+
+  stop_refinement_internal();
+  accept_moving_atoms();
   save_accept_reject_dialog_window_position(window);
   set_accept_reject_dialog(NULL);
   gtk_widget_destroy(window);
@@ -2364,26 +2364,32 @@ on_accept_reject_refinement_reject_button_clicked (GtkButton       *button,
 				    "accept_reject_refinement_dialog");
   save_accept_reject_dialog_window_position(window);
   /*   clear_up_moving_atoms(); done in destroy of the window */
+
+  stop_refinement_internal();
   gtk_widget_destroy(window);
 }
 
-
-#if 0				/* GtkObject problem */
 void
 on_accept_reject_refinement_dialog_destroy
                                         (GtkObject       *object,
                                         gpointer         user_data)
 {
 
+  /* Pressing Esc while focus is on the Accept/Reject dialog brings us here. */
+
   /* 20070801 To Fix a crash reported by "Gajiwala, Ketan", we need to
      reset the value for graphics_info_t::accept_reject_dialog (it's
      gone now).  And I suppose that we should clean up (and undisplay)
      the intermediate atoms too.
  */
+
   set_accept_reject_dialog(NULL);
+  stop_refinement_internal();
+  /* I want to merely clear the stick restraint, not refine again after I did that */
+  clear_atom_pull_restraint_on_accept_reject_destroy();
   clear_up_moving_atoms();
 }
-#endif
+
 
 /* accept_reject_refinement_docked_accept_button */
 
@@ -2525,19 +2531,19 @@ on_fast_sss_dialog_ok_button_clicked   (GtkButton       *button,
   radius_checkbutton   = lookup_widget(dialog, "fast_sss_dialog_local_checkbutton");
   radius_combobox = lookup_widget(dialog, "fast_sss_dialog_radius_combobox");
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(helix_checkbutton))) {
+  if (GTK_TOGGLE_BUTTON(helix_checkbutton)->active) {
     use_helix = 1;
   }
   helix_length = gtk_combo_box_get_active(GTK_COMBO_BOX(helix_noaa_combobox)) *2 + 5;
   helix_target = gtk_combo_box_get_active(GTK_COMBO_BOX(helix_temp_combobox));
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(strand_checkbutton))) {
+  if (GTK_TOGGLE_BUTTON(strand_checkbutton)->active) {
     use_strand = 1;
   }
   strand_length = gtk_combo_box_get_active(GTK_COMBO_BOX(strand_noaa_combobox)) *2 + 5;
   strand_target = gtk_combo_box_get_active(GTK_COMBO_BOX(strand_temp_combobox));
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radius_checkbutton))) {
+  if (GTK_TOGGLE_BUTTON(radius_checkbutton)->active) {
     radius = (gtk_combo_box_get_active(GTK_COMBO_BOX(radius_combobox)) + 1. ) * 10.;
   }
 
@@ -2621,7 +2627,7 @@ on_refine_params_use_torsions_checkbutton_toggled (GtkToggleButton *togglebutton
    do_torsions_toggle(GTK_WIDGET(togglebutton));
 
    /* We don't see these widgets, currently */
-   if (gtk_toggle_button_get_active(togglebutton)) {
+   if (togglebutton->active) {
       gtk_widget_set_sensitive(omega_checkbutton,       TRUE);
    } else {
       gtk_widget_set_sensitive(omega_checkbutton,       FALSE);
@@ -2635,7 +2641,7 @@ on_refine_params_use_planar_peptides_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     add_planar_peptide_restraints();
   } else {
     remove_planar_peptide_restraints();
@@ -2649,7 +2655,7 @@ on_refine_params_use_trans_peptide_restraints_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     set_use_trans_peptide_restraints(1);
   } else { 
     set_use_trans_peptide_restraints(0);
@@ -2689,7 +2695,7 @@ on_refine_params_use_peptide_torsions_checkbutton_toggled (GtkToggleButton *togg
 
    GtkWidget *frame = lookup_widget(GTK_WIDGET(togglebutton), 
 				    "peptide_torsions_restraints_vbox");
-   if (gtk_toggle_button_get_active(togglebutton)) {
+   if (togglebutton->active) {
       gtk_widget_set_sensitive(frame, TRUE);
    } else { 
       gtk_widget_set_sensitive(frame, FALSE);
@@ -2720,7 +2726,7 @@ on_cif_dictionary_fileselection_ok_button_clicked (GtkButton       *button,
   short int new_molecule_checkbutton_state = 0;
 
    if (checkbutton)
-     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
+    if (GTK_TOGGLE_BUTTON(checkbutton)->active)
       new_molecule_checkbutton_state = 1;
 
   fileselection = lookup_widget(GTK_WIDGET(button), "cif_dictionary_fileselection");
@@ -2769,7 +2775,7 @@ on_model_refine_dialog_fit_terminal_residue_togglebutton_toggled
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
+  if (GTK_TOGGLE_BUTTON(button)->active)
     do_add_terminal_residue(1);
   else 
     do_add_terminal_residue(0);
@@ -2786,7 +2792,7 @@ on_residue_type_chooser_ALA_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    
    gtk_widget_destroy(window);
@@ -2803,7 +2809,7 @@ on_residue_type_chooser_ARG_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    gtk_widget_destroy(window);
    do_mutation("ARG", istate);
@@ -2820,7 +2826,7 @@ on_residue_type_chooser_ASN_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    gtk_widget_destroy(window);
    do_mutation("ASN", istate);
@@ -2837,7 +2843,7 @@ on_residue_type_chooser_ASP_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    gtk_widget_destroy(window);
    do_mutation("ASP", istate);
@@ -2854,7 +2860,7 @@ on_residue_type_chooser_CYS_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    gtk_widget_destroy(window);
    do_mutation("CYS", istate);
@@ -2871,7 +2877,7 @@ on_residue_type_chooser_GLN_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    gtk_widget_destroy(window);
    do_mutation("GLN", istate);
@@ -2888,7 +2894,7 @@ on_residue_type_chooser_GLU_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    gtk_widget_destroy(window);
    do_mutation("GLU", istate);
@@ -2905,7 +2911,7 @@ on_residue_type_chooser_GLY_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    gtk_widget_destroy(window);
    do_mutation("GLY", istate);
@@ -2922,7 +2928,7 @@ on_residue_type_chooser_HIS_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    gtk_widget_destroy(window);
    do_mutation("HIS", istate);
@@ -2939,7 +2945,7 @@ on_residue_type_chooser_ILE_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    gtk_widget_destroy(window);
    do_mutation("ILE", istate);
@@ -2956,7 +2962,7 @@ on_residue_type_chooser_LEU_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    gtk_widget_destroy(window);
    do_mutation("LEU", istate);
@@ -2973,7 +2979,7 @@ on_residue_type_chooser_LYS_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    gtk_widget_destroy(window);
    do_mutation("LYS", istate);
@@ -2990,7 +2996,7 @@ on_residue_type_chooser_MET_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    gtk_widget_destroy(window);
    do_mutation("MET", istate);
@@ -3006,7 +3012,7 @@ on_residue_type_chooser_MSE_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    gtk_widget_destroy(window);
    do_mutation("MSE", istate);
@@ -3025,7 +3031,7 @@ on_residue_type_chooser_PHE_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    gtk_widget_destroy(window);
    do_mutation("PHE", istate);
@@ -3042,7 +3048,7 @@ on_residue_type_chooser_PRO_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    gtk_widget_destroy(window);
    do_mutation("PRO", istate);
@@ -3059,7 +3065,7 @@ on_residue_type_chooser_SER_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    gtk_widget_destroy(window);
    do_mutation("SER", istate);
@@ -3076,7 +3082,7 @@ on_residue_type_chooser_THR_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    gtk_widget_destroy(window);
    do_mutation("THR", istate);
@@ -3093,7 +3099,7 @@ on_residue_type_chooser_TRP_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    gtk_widget_destroy(window);
    do_mutation("TRP", istate);
@@ -3110,7 +3116,7 @@ on_residue_type_chooser_TYR_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    gtk_widget_destroy(window);
    do_mutation("TYR", istate);
@@ -3128,7 +3134,7 @@ on_residue_type_chooser_VAL_clicked    (GtkButton       *button,
    GtkWidget *stub_button = 
      lookup_widget(window, "residue_type_chooser_stub_checkbutton");
    short int istate = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
+   if (GTK_TOGGLE_BUTTON(stub_button)->active)
      istate = 1;
    gtk_widget_destroy(window);
    do_mutation("VAL", istate);
@@ -3140,7 +3146,7 @@ void
 on_model_refine_dialog_rot_trans_togglebutton_toggled (GtkButton       *button,
 						 gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) { 
+  if (GTK_TOGGLE_BUTTON(button)->active) { 
     do_rot_trans_setup(1);
   } else {
     do_rot_trans_setup(0);
@@ -3154,7 +3160,7 @@ on_model_refine_dialog_rot_trans_by_residue_range_activate
                                         (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
+  if (GTK_CHECK_MENU_ITEM(menuitem)->active) {
     set_model_fit_refine_rotate_translate_zone_label("Rotate/Translate Zone");
     set_rot_trans_object_type(12);
   }
@@ -3167,7 +3173,7 @@ on_model_refine_dialog_rot_trans_by_chain_activate
                                         (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
+  if (GTK_CHECK_MENU_ITEM(menuitem)->active) {
     set_model_fit_refine_rotate_translate_zone_label("Rotate/Translate Chain");
     set_rot_trans_object_type(13);
   }
@@ -3180,7 +3186,7 @@ on_model_refine_dialog_rot_trans_by_molecule_activate
                                         (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
+  if (GTK_CHECK_MENU_ITEM(menuitem)->active) {
     set_model_fit_refine_rotate_translate_zone_label("Rotate/Translate Molecule");
     set_rot_trans_object_type(14);
   }
@@ -3260,7 +3266,7 @@ void
 on_model_refine_dialog_db_main_togglebutton_toggled (GtkButton       *button,
 					       gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
+  if (GTK_TOGGLE_BUTTON(button)->active)
      do_db_main(1);
   else 
      do_db_main(0);
@@ -3280,8 +3286,8 @@ void
 on_delete_item_residue_radiobutton_toggled (GtkToggleButton *togglebutton,
 					    gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(togglebutton),
-								   "delete_item_residue_radiobutton"))))
+  if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(togglebutton),
+				      "delete_item_residue_radiobutton"))->active)
     set_delete_residue_mode();
 
 }
@@ -3291,8 +3297,8 @@ void
 on_delete_item_atom_radiobutton_toggled (GtkToggleButton *togglebutton, 
 					 gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(togglebutton),
-								   "delete_item_atom_radiobutton"))))
+  if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(togglebutton),
+				      "delete_item_atom_radiobutton"))->active)
     set_delete_atom_mode();
 }
 
@@ -3303,8 +3309,8 @@ on_delete_item_sidechain_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(togglebutton),
-								   "delete_item_sidechain_radiobutton"))))
+  if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(togglebutton),
+				      "delete_item_sidechain_radiobutton"))->active)
     set_delete_sidechain_mode();
 }
 
@@ -3313,8 +3319,8 @@ on_delete_item_sidechain_range_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
 					 gpointer         user_data) {
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(togglebutton),
-								   "delete_item_sidechain_range_radiobutton"))))
+  if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(togglebutton),
+				      "delete_item_sidechain_range_radiobutton"))->active)
     set_delete_sidechain_range_mode();
 }
 
@@ -3326,8 +3332,8 @@ on_delete_item_chain_radiobutton_toggled
                                         gpointer         user_data)
 {
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(togglebutton),
-								   "delete_item_chain_radiobutton"))))
+  if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(togglebutton),
+				      "delete_item_chain_radiobutton"))->active)
     set_delete_chain_mode();
 }
 
@@ -3340,8 +3346,8 @@ on_delete_item_residue_hydrogens_radiobutton_toggled
                                         gpointer         user_data)
 {
   /* surely we don't need to look it up? */
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(togglebutton),
-								   "delete_item_residue_hydrogens_radiobutton"))))
+  if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(togglebutton),
+				      "delete_item_residue_hydrogens_radiobutton"))->active)
     set_delete_residue_hydrogens_mode();
 
 }
@@ -3352,7 +3358,7 @@ on_delete_item_water_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton))
+   if (togglebutton->active)
       set_delete_water_mode();
 }
 
@@ -3446,7 +3452,6 @@ on_residue_info_cancel_button_clicked  (GtkButton       *button,
 
 }
 
-#if 0				/* GtkObject problem */
 void
 on_residue_info_dialog_destroy         (GtkObject       *object,
                                         gpointer         user_data)
@@ -3457,7 +3462,6 @@ on_residue_info_dialog_destroy         (GtkObject       *object,
    unset_residue_info_widget();
 
 }
-#endif
 
 
 
@@ -3527,7 +3531,7 @@ on_model_refine_dialog_rotamer_togglebutton_toggled
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
+   if (GTK_TOGGLE_BUTTON(button)->active)
       setup_rotamers(1);
    else 
       setup_rotamers(0);
@@ -3539,7 +3543,7 @@ on_model_refine_dialog_mutate_togglebutton_toggled
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
+   if (GTK_TOGGLE_BUTTON(button)->active)
       setup_mutate(1);
    else 
       setup_mutate(0);
@@ -3552,7 +3556,7 @@ on_go_to_atom_chain_entry_key_press_event
                                         GdkEventKey     *event,
                                         gpointer         user_data)
 {
-  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) { 
+  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) { 
     apply_go_to_atom_values(lookup_widget(widget, "goto_atom_window"));
   } 
   return FALSE;
@@ -3566,7 +3570,7 @@ on_go_to_atom_residue_entry_key_press_event (GtkWidget       *widget,
 {
 
 
-  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) { 
+  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) { 
     apply_go_to_atom_values(lookup_widget(widget, "goto_atom_window"));
   } 
   return FALSE;
@@ -3579,7 +3583,7 @@ on_go_to_atom_atom_name_entry_key_press_event (GtkWidget       *widget,
 					       gpointer         user_data)
 {
 
-  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) { 
+  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) { 
     apply_go_to_atom_values(lookup_widget(widget, "goto_atom_window"));
   } 
 
@@ -3626,7 +3630,7 @@ on_environment_distance_label_atom_checkbutton_toggled
                                         gpointer         user_data)
 {
 
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     set_environment_distances_label_atom(1);
   } else {
     set_environment_distances_label_atom(0);
@@ -3711,7 +3715,7 @@ on_use_weights_checkbutton_toggled     (GtkToggleButton *togglebutton,
 {
   GtkWidget *hbox = lookup_widget(GTK_WIDGET(togglebutton),
 				  "column_label_window_weights_hbox");
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) { 
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active == 1) { 
     gtk_widget_set_sensitive(GTK_WIDGET(hbox), TRUE);
   } else { 
     gtk_widget_set_sensitive(GTK_WIDGET(hbox), FALSE);
@@ -3746,7 +3750,7 @@ void
 on_show_symmetry_as_calphas_checkbutton_toggled (GtkToggleButton *togglebutton,
 						 gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) { 
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) { 
     symmetry_as_calphas(0, 1);
   } else {
     symmetry_as_calphas(0, 0);
@@ -3787,7 +3791,7 @@ on_read_pdb_recentre_yes_radiobutton_toggled
                                         gpointer         user_data)
 {
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) { 
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active == 1) { 
     set_recentre_on_read_pdb(1);
    } else { 
     set_recentre_on_read_pdb(0);
@@ -3800,7 +3804,7 @@ on_read_pdb_recentre_no_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) { 
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active == 1) { 
     set_recentre_on_read_pdb(0);
    } else { 
     set_recentre_on_read_pdb(1);
@@ -3853,21 +3857,21 @@ on_pointer_atom_type_ok_button_clicked (GtkButton       *button,
     /* Adding something here? 
        Remember to change also molecule_class_info_t::add_typed_pointer_atom(). */
     tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_water"));
-    if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("Water");
+    if (tbut->active) place_typed_atom_at_pointer("Water");
     tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_ca"));
-    if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("Ca");
+    if (tbut->active) place_typed_atom_at_pointer("Ca");
     tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_mg"));
-    if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("Mg");
+    if (tbut->active) place_typed_atom_at_pointer("Mg");
     tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_na"));
-    if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("Na");
+    if (tbut->active) place_typed_atom_at_pointer("Na");
     tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_cl"));
-    if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("Cl");
+    if (tbut->active) place_typed_atom_at_pointer("Cl");
     tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_br"));
-    if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("Br");
+    if (tbut->active) place_typed_atom_at_pointer("Br");
     tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_so4"));
-    if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("SO4");
+    if (tbut->active) place_typed_atom_at_pointer("SO4");
     tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_po4"));
-    if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("PO4");
+    if (tbut->active) place_typed_atom_at_pointer("PO4");
   }
   /* Recall that the molecule is set by the callback from menu item "activate" */
 
@@ -3882,7 +3886,7 @@ on_refmac_column_labels_checkbutton_toggled
 {
   GtkWidget *frame = lookup_widget(GTK_WIDGET(togglebutton),
 				   "column_label_refmac_frame");
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     gtk_widget_set_sensitive(frame, TRUE);
   } else { 
     gtk_widget_set_sensitive(frame, FALSE);
@@ -3969,10 +3973,7 @@ void
 on_single_map_properties_colour_button_clicked (GtkButton       *button,
 						gpointer         user_data)
 {
-
-  printf("GDK-FIXME on_single_map_properties_colour_button_clicked");
-
-#if 0
+  
   GtkWidget *window = lookup_widget(GTK_WIDGET(button),
 				    "single_map_properties_dialog");
   struct map_colour_data_type *map_colour_data; 
@@ -3980,7 +3981,7 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
   GtkWidget  *colorseldlg;
   GtkColorSelection *colorsel;
   gdouble *colour;
-  int imol = GPOINTER_TO_INT(g_object_get_user_data(G_OBJECT(window), "imol"));
+  int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(window)));
 
   if (is_valid_map_molecule(imol)) { 
       if (1) { 
@@ -4003,10 +4004,8 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
 	printf("no imol for the colour chooser for map:\n"); 
       }
     }
-#endif
 }
 
-#if 0
 void
 on_run_refmac_phase_input_optionmenu_changed
                                         (GtkOptionMenu   *optionmenu,
@@ -4071,14 +4070,14 @@ on_run_refmac_phase_input_optionmenu_changed
     }
 
   }
+    
 }
-#endif
 
 void
 on_run_refmac_tls_checkbutton_toggled  (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     set_refmac_use_tls(1);
   } else {
     set_refmac_use_tls(0);
@@ -4097,7 +4096,7 @@ on_run_refmac_twin_checkbutton_toggled (GtkToggleButton *togglebutton,
   GtkWidget *mtz_file_radiobutton = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_mtz_file_radiobutton");
   GtkWidget *fobs_hbox       = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fobs_hbox");
   GtkWidget *fiobs_hbox      = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fiobs_hbox");
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     set_refmac_use_twin(1);
     /* update the column labels */
     fill_option_menu_with_refmac_labels_options(map_optionmenu);
@@ -4133,7 +4132,7 @@ on_run_refmac_sad_checkbutton_toggled  (GtkToggleButton *togglebutton,
   GtkWidget *sad_extras = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_sad_extra_hbox");
   GtkWidget *fobs_hbox  = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fobs_hbox");
   GtkWidget *fpm_hbox = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fpm_hbox");
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     set_refmac_use_sad(1);
     /* de-sensitise the TWIN button, no need to switch off use_twin as done in use_sad */
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_checkbutton), FALSE);
@@ -4163,7 +4162,7 @@ on_run_refmac_map_mtz_radiobutton_toggled
 {
   GtkWidget *map_optionmenu  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_optionmenu");
   GtkWidget *active_menu_item;
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     /* update the map column labels */
     fill_option_menu_with_refmac_labels_options(map_optionmenu);
     active_menu_item = gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(map_optionmenu))));
@@ -4181,7 +4180,7 @@ on_run_refmac_mtz_file_radiobutton_toggled
                                         gpointer         user_data)
 {
   GtkWidget *map_optionmenu  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_optionmenu");
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     fill_option_menu_with_refmac_file_labels_options(map_optionmenu);
   }
 }
@@ -4215,7 +4214,7 @@ on_run_refmac_mtz_filechooserdialog_response
   gtk_widget_destroy(mtz_fileselection);
 }
 
-#if 0				/* GtkObject problem */
+
 void
 on_run_refmac_mtz_filechooserdialog_destroy
                                         (GtkObject       *object,
@@ -4228,13 +4227,13 @@ on_run_refmac_mtz_filechooserdialog_destroy
   gtk_widget_destroy(mtz_fileselection);
 
 }
-#endif
 
 
 void
 on_run_refmac_mtz_filechooser_button_clicked
                                         (GtkButton       *button,
-                                        gpointer         user_data) {
+                                        gpointer         user_data)
+{
 
   GtkWidget *mtz_file_chooser;
   mtz_file_chooser = create_run_refmac_mtz_filechooserdialog();
@@ -4252,6 +4251,7 @@ on_run_refmac_file_help_button_clicked (GtkButton       *button,
 {
   GtkWidget *widget = create_run_refmac_file_help_dialog();
   gtk_widget_show(widget);
+
 
 }
 
@@ -4292,7 +4292,7 @@ on_run_refmac_nolabels_checkbutton_toggled (GtkToggleButton *togglebutton,
                                             gpointer         user_data)
 {
   GtkWidget *labels = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_column_labels_frame");
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) {
     gtk_widget_hide(labels);
   } else {
     gtk_widget_show(labels);
@@ -4300,7 +4300,6 @@ on_run_refmac_nolabels_checkbutton_toggled (GtkToggleButton *togglebutton,
 }
 
 
-#if 0
 /* we want to update the phases/hl boxes if the mtz changes */
 void
 on_run_refmac_map_optionmenu_changed   (GtkOptionMenu   *optionmenu,
@@ -4309,7 +4308,6 @@ on_run_refmac_map_optionmenu_changed   (GtkOptionMenu   *optionmenu,
   //update_refmac_column_labels_frame(optionmenu);
 
 }
-#endif
 
 /* Actually, we only are interested in the state of this when the
    "Run" button is pressed */
@@ -4327,7 +4325,7 @@ void
 on_run_refmac_ncs_checkbutton_toggled  (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     set_refmac_use_ncs(1);
   } else {
     set_refmac_use_ncs(0);
@@ -4359,7 +4357,7 @@ on_run_refmac_phase_combine_checkbutton_toggled (GtkToggleButton *togglebutton,
   hl_menu     = gtk_option_menu_get_menu(GTK_OPTION_MENU(hl_optionmenu));
   phases_button = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_phases_radiobutton");
   hl_button     = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_hl_radiobutton");
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     gtk_widget_show(phases_hbox);
     gtk_widget_show(hl_hbox);
     active_item = gtk_menu_get_active(GTK_MENU(phases_menu));
@@ -4498,7 +4496,7 @@ void
 on_model_refine_dialog_auto_fit_rotamer_togglebutton_toggled (GtkButton *button,
 							gpointer user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
+  if (GTK_TOGGLE_BUTTON(button)->active)
      setup_auto_fit_rotamer(1);
   else 
      setup_auto_fit_rotamer(0);
@@ -4523,14 +4521,13 @@ on_import_all_dictionary_cifs1_activate (GtkMenuItem     *menuitem,
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_model_refine_dialog_destroy         (GtkObject       *object,
                                         gpointer         user_data)
 {
    unset_model_fit_refine_dialog();
 }
-#endif
+
 
 void
 on_residue_info_apply_all_checkbutton_toggled
@@ -4569,7 +4566,7 @@ void
 on_crosshairs_on_radiobutton_toggled   (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) { 
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) { 
     set_draw_crosshairs(1);
   } 
 }
@@ -4579,7 +4576,7 @@ void
 on_crosshairs_off_radiobutton_toggled  (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) { 
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) { 
     set_draw_crosshairs(0);
   } 
 }
@@ -4601,7 +4598,7 @@ on_model_refine_dialog_mutate_auto_fit_togglebutton_toggled
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
+  if (GTK_TOGGLE_BUTTON(button)->active)
     setup_mutate_auto_fit(1);
   else 
      setup_mutate_auto_fit(0);
@@ -4613,7 +4610,7 @@ void
 on_add_alt_conf_ca_radiobutton_toggled (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) { 
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) { 
       set_add_alt_conf_split_type_number(0);
   }
 }
@@ -4622,7 +4619,7 @@ void
 on_add_alt_conf_whole_single_residue_radiobutton_toggled (GtkToggleButton *togglebutton,
 							  gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) { 
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) { 
       set_add_alt_conf_split_type_number(1);
   }
 }
@@ -4631,7 +4628,7 @@ void
 on_add_alt_conf_residue_range_radiobutton_toggled (GtkToggleButton *togglebutton,
 						   gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) { 
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) { 
       set_add_alt_conf_split_type_number(2);
   }
 }
@@ -4680,7 +4677,7 @@ on_model_refine_dialog_edit_phi_psi_togglebutton_toggled (GtkToggleButton *toggl
 							  gpointer         user_data)
 {
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) { 
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) { 
     setup_edit_phi_psi(1);
   } else { 
     setup_edit_phi_psi(0);
@@ -4700,7 +4697,7 @@ on_model_refine_dialog_redo_button_clicked (GtkButton       *button,
 void
 on_model_refine_dialog_edit_chi_angles_togglebutton_toggled (GtkToggleButton *togglebutton,
 							     gpointer         user_data) {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     setup_edit_chi_angles(1);
   } else { 
     setup_edit_chi_angles(0);
@@ -4714,7 +4711,7 @@ on_edit_chi_angles_reverse_fragment_togglebutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
     set_edit_chi_angles_reverse_fragment_state(1);
   else
     set_edit_chi_angles_reverse_fragment_state(0);
@@ -4730,11 +4727,8 @@ on_window1_configure_event             (GtkWidget       *widget,
                                         gpointer         user_data)
 {
   gint upositionx, upositiony;
-  printf("GTK3-FIXME on_window1_configure_event\n");
-  /*
   gdk_window_get_root_origin (widget->window, &upositionx, &upositiony);
   store_graphics_window_position(upositionx, upositiony);
-  */
   return FALSE;
 }
 
@@ -4758,7 +4752,6 @@ on_run_state_file_cancel_button_clicked (GtkButton       *button,
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_edit_backbone_torsions_dialog_destroy
                                         (GtkObject       *object,
@@ -4768,7 +4761,6 @@ on_edit_backbone_torsions_dialog_destroy
   /* FIXME: also clear out the edib backbone ramaplot, if it exists. */
 /*   destroy_edit_backbone_rama_plot(); */
 }
-#endif
 
 
 void
@@ -4778,8 +4770,8 @@ on_edit_backbone_torsion_rotate_peptide_button_pressed
 {
   int ix, iy;
   GdkModifierType state;
-  GtkWidget *window = gtk_widget_get_window(GTK_WIDGET(button));
-  gdk_window_get_pointer(GTK_WIDGET(window), &ix, &iy, &state);
+  gdk_window_get_pointer(GTK_WIDGET(button)->window, &ix, &iy, &state);
+/*   printf("button press at %d %d \n", ix, iy); */
   set_backbone_torsion_peptide_button_start_pos(ix, iy);
 }
 
@@ -4801,8 +4793,8 @@ on_edit_backbone_torsion_rotate_peptide_button_motion_notify_event
 {
   int ix, iy;
   GdkModifierType state;
-  GtkWidget *window = gtk_widget_get_window(GTK_WIDGET(widget));
-  gdk_window_get_pointer(window, &ix, &iy, &state);
+  gdk_window_get_pointer(widget->window, &ix, &iy, &state);
+/*   printf("button moved to %d %d \n", ix, iy); */
 
   change_peptide_peptide_by_current_button_pos(ix, iy);
   return FALSE;
@@ -4816,8 +4808,8 @@ on_edit_backbone_torsion_rotate_peptide_carbonyl_button_pressed
 {
   int ix, iy;
   GdkModifierType state;
-  GtkWidget *window = gtk_widget_get_window(GTK_WIDGET(button));
-  gdk_window_get_pointer(GTK_WIDGET(window), &ix, &iy, &state);
+  gdk_window_get_pointer(GTK_WIDGET(button)->window, &ix, &iy, &state);
+/*   printf("button press at %d %d \n", ix, iy); */
   set_backbone_torsion_carbonyl_button_start_pos(ix, iy);
 
 }
@@ -4841,8 +4833,9 @@ on_edit_backbone_torsion_rotate_peptide_carbonyl_button_motion_notify_event
 
   int ix, iy;
   GdkModifierType state;
-  GtkWidget *window = gtk_widget_get_window(widget);
-  gdk_window_get_pointer(window, &ix, &iy, &state);
+  gdk_window_get_pointer(widget->window, &ix, &iy, &state);
+/*   printf("button moved to %d %d \n", ix, iy); */
+
   change_peptide_carbonyl_by_current_button_pos(ix, iy);
   return FALSE;
 }
@@ -4853,7 +4846,7 @@ on_model_refine_dialog_edit_backbone_torsions_button_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) { 
+  if (togglebutton->active) { 
     setup_backbone_torsion_edit(1);
   } else {
     setup_backbone_torsion_edit(0);
@@ -5002,7 +4995,6 @@ on_model_refine_dialog_add_alt_conf_button_clicked (GtkButton       *button,
   altconf();
 }
 
-#if 0				/* GtkObject problem */
 void
 on_add_alt_conf_dialog_destroy         (GtkObject       *object,
                                         gpointer         user_data)
@@ -5011,7 +5003,7 @@ on_add_alt_conf_dialog_destroy         (GtkObject       *object,
   unset_add_alt_conf_define();
   unset_add_alt_conf_dialog();
 }
-#endif
+
 
 void
 on_run_refmac_help_button_clicked      (GtkButton       *button,
@@ -5175,7 +5167,7 @@ on_geometry_distance_togglebutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
     do_distance_define();
 
 }
@@ -5232,7 +5224,7 @@ void
 on_geometry_angle_togglebutton_toggled (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
     do_angle_define();
 
 }
@@ -5256,7 +5248,6 @@ on_distances_and_angles1_activate      (GtkMenuItem     *menuitem,
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_geometry_dialog_destroy             (GtkObject       *object,
                                         gpointer         user_data)
@@ -5273,7 +5264,6 @@ on_geometry_dialog_destroy             (GtkObject       *object,
   store_geometry_dialog(NULL);
 
 }
-#endif
 
 
 void
@@ -5316,7 +5306,6 @@ on_zoom_dialog_ok_button_clicked       (GtkButton       *button,
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_edit_chi_angles_dialog_destroy      (GtkObject       *object,
                                         gpointer         user_data)
@@ -5326,7 +5315,7 @@ on_edit_chi_angles_dialog_destroy      (GtkObject       *object,
   unset_moving_atom_move_chis();
   set_show_chi_angle_bond(0);
 }
-#endif
+
 
 void
 on_check_waters_low_occ_dist_checkbutton_toggled
@@ -5381,7 +5370,7 @@ on_libcheck_monomer_entry_key_press_event (GtkWidget       *widget,
 					   GdkEventKey     *event,
 					   gpointer         user_data)
 {
-  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) { 
+  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) { 
     handle_get_libcheck_monomer_code(widget); 
   } 
 
@@ -5444,7 +5433,7 @@ on_centre_atom_label_ok_button_clicked (GtkButton       *button,
   GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "centre_atom_label_dialog");
   GtkWidget *on  = lookup_widget(dialog, "centre_atom_label_radiobutton_on");
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(on))) {
+  if (GTK_TOGGLE_BUTTON(on)->active) {
     set_label_on_recentre_flag(1);
   } else { 
     set_label_on_recentre_flag(0);
@@ -5471,7 +5460,6 @@ on_help_chi_angles_dismiss_button_clicked (GtkButton       *button,
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_rotate_translate_obj_dialog_destroy (GtkObject       *object,
                                         gpointer         user_data)
@@ -5479,7 +5467,6 @@ on_rotate_translate_obj_dialog_destroy (GtkObject       *object,
    /* need to save the position coordinates of dialog */
    rot_trans_reset_previous();
 }
-#endif
 
 
 void
@@ -5577,7 +5564,7 @@ on_single_map_sigma_checkbutton_toggled (GtkToggleButton *togglebutton,
   const char *text = gtk_entry_get_text(GTK_ENTRY(entry));
   float v;
 
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     if (text) { 
       v = atof(text);
       set_contour_by_sigma_step_by_mol(v, 1, imol);
@@ -5627,7 +5614,7 @@ on_find_bad_chiral_atoms1_activate     (GtkMenuItem     *menuitem,
 {
 
   GtkWidget *w = create_check_chiral_volumes_dialog();
-  fill_chiral_volume_molecule_option_menu(w);
+  fill_chiral_volume_molecule_combobox(w);
   gtk_widget_show(w);
 }
 
@@ -5707,7 +5694,7 @@ on_column_labels_use_resolution_limits_checkbutton_toggled
 {
   GtkWidget *frame = lookup_widget(GTK_WIDGET(togglebutton),
 				   "resolution_limits_hbox");
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
      gtk_widget_set_sensitive(frame, TRUE);
   else
      gtk_widget_set_sensitive(frame, FALSE);
@@ -5818,7 +5805,7 @@ on_renumber_residue_range_radiobutton_1_toggled
 {
 
   GtkWidget *entry_1 = lookup_widget(GTK_WIDGET(togglebutton), "renumber_residue_range_resno_1_entry");
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) {
     gtk_widget_set_sensitive(GTK_WIDGET(entry_1), FALSE);
   } else {
     gtk_widget_set_sensitive(GTK_WIDGET(entry_1), TRUE);
@@ -5832,7 +5819,7 @@ on_renumber_residue_range_radiobutton_3_toggled
 {
 
   GtkWidget *entry_2 = lookup_widget(GTK_WIDGET(togglebutton), "renumber_residue_range_resno_2_entry");
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) {
     gtk_widget_set_sensitive(GTK_WIDGET(entry_2), TRUE);
   } else {
     gtk_widget_set_sensitive(GTK_WIDGET(entry_2), FALSE);
@@ -6026,7 +6013,7 @@ on_incorrect_chiral_volumes1_activate  (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   GtkWidget *w = create_check_chiral_volumes_dialog();
-  fill_chiral_volume_molecule_option_menu(w);
+  fill_chiral_volume_molecule_combobox(w);
   gtk_widget_show(w);
 
 }
@@ -6169,7 +6156,7 @@ on_antialias_dialog_yes_radiobutton_toggled
                                         gpointer         user_data)
 {
 
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
     set_do_anti_aliasing(1);
   else 
     set_do_anti_aliasing(0);
@@ -6182,7 +6169,7 @@ on_antialias_dialog_no_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
     set_do_anti_aliasing(0);
   else 
     set_do_anti_aliasing(1);
@@ -6215,7 +6202,6 @@ on_geometry_graphs_ok_button_clicked   (GtkButton       *button,
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_geometry_graphs_dialog_destroy      (GtkObject       *object,
                                         gpointer         user_data)
@@ -6233,7 +6219,7 @@ on_geometry_graphs_dialog_destroy      (GtkObject       *object,
    }
 
 }
-#endif
+
 
 void
 on_save_symmetry_coords_fileselection_ok_button_clicked
@@ -6423,7 +6409,7 @@ on_stereo_dialog_mono_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
     mono_mode();
 }
 
@@ -6437,7 +6423,7 @@ on_stereo_dialog_hardware_stereo_radiobutton_toggled
   GtkWidget *label_widget;
   GtkWidget *mono_togglebutton;
 
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     hardware_stereo_mode();
 
     if (stereo_mode_state() != 1) { /* coot::HARDWARE_STEREO_MODE */
@@ -6457,7 +6443,7 @@ on_stereo_dialog_side_by_side_stereo_crosseyed_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
     side_by_side_stereo_mode(0); /* passed used_wall_eye flag */
 }
 
@@ -6467,7 +6453,7 @@ on_stereo_dialog_side_by_side_stereo_walleyed_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     side_by_side_stereo_mode(1); /* passed used_wall_eye flag */
   }
 }
@@ -6477,7 +6463,7 @@ on_stereo_dialog_zalman_stereo_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     zalman_stereo_mode();
   }
 
@@ -6569,21 +6555,19 @@ on_preferences_reset_button_clicked    (GtkButton       *button,
 
 }
 
-#if 0				/* GtkObject problem */
 void
 on_preferences_destroy                 (GtkObject       *object,
                                         gpointer         user_data)
 {
   clear_preferences();
 }
-#endif
 
 void
 on_preferences_geometry_cis_peptide_bad_yes_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_MARK_CIS_BAD, 1);
     set_mark_cis_peptides_as_bad(1);
   }
@@ -6594,7 +6578,7 @@ on_preferences_geometry_cis_peptide_bad_no_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_MARK_CIS_BAD, 0);
     set_mark_cis_peptides_as_bad(0);
   }
@@ -6618,7 +6602,7 @@ on_preferences_bond_colours_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_BOND_COLOUR_ROTATION_C_ONLY, 1);
     set_colour_map_rotation_on_read_pdb_c_only_flag(1);
   } else {
@@ -6634,7 +6618,7 @@ on_preferences_bg_colour_black_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_float3(PREFERENCES_BG_COLOUR, 0, 0, 0);
     set_background_colour(0, 0, 0);
   }
@@ -6646,7 +6630,7 @@ on_preferences_bg_colour_white_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_float3(PREFERENCES_BG_COLOUR, 1, 1, 1);
     set_background_colour(1, 1, 1);
   }
@@ -6659,6 +6643,7 @@ on_preferences_bg_colour_own_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
+#if (GTK_MAJOR_VERSION > 1)
   GtkWidget *w;
   GdkColor bg_colour;
   float fval1;
@@ -6672,6 +6657,7 @@ on_preferences_bg_colour_own_radiobutton_toggled
     
   preferences_internal_change_value_float3(PREFERENCES_BG_COLOUR, fval1, fval2, fval3);
   set_background_colour(fval1, fval2, fval3);
+#endif
 
 }
 
@@ -6853,7 +6839,7 @@ on_preferences_map_dynamic_sampling_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_DYNAMIC_MAP_SAMPLING, 1);
     set_dynamic_map_sampling_on();
   } else {
@@ -6869,7 +6855,7 @@ on_preferences_map_dynamic_size_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_DYNAMIC_MAP_SIZE_DISPLAY, 1);
     set_dynamic_map_size_display_on();
   } else {
@@ -6885,7 +6871,7 @@ on_preferences_diff_map_colours_coot_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_SWAP_DIFF_MAP_COLOURS, 0);
     set_swap_difference_map_colours(0);
   }
@@ -6925,7 +6911,7 @@ on_preferences_smooth_scroll_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
 					 gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_SMOOTH_SCROLL, 1);
     set_smooth_scroll_flag(1);
   }
@@ -6938,7 +6924,7 @@ on_preferences_smooth_scroll_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_SMOOTH_SCROLL, 0);
     set_smooth_scroll_flag(0);
   }
@@ -7019,7 +7005,7 @@ on_preferences_map_drag_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_MAP_DRAG, 1);
     set_active_map_drag_flag(1);
   }
@@ -7032,7 +7018,7 @@ on_preferences_map_drag_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_MAP_DRAG, 0);
     set_active_map_drag_flag(0);
   }
@@ -7045,7 +7031,7 @@ on_preferences_antialias_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_ANTIALIAS, 1);
     set_do_anti_aliasing(1);
   }
@@ -7058,7 +7044,7 @@ on_preferences_antialias_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_ANTIALIAS, 0);
     set_do_anti_aliasing(0);
   }
@@ -7071,7 +7057,7 @@ on_preferences_hid_spherical_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_VT_SURFACE, 2);
     vt_surface(2);
   }
@@ -7084,7 +7070,7 @@ on_preferences_hid_flat_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_VT_SURFACE, 1);
     vt_surface(1);
   }
@@ -7097,10 +7083,12 @@ on_preferences_filechooser_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+#if (GTK_MAJOR_VERSION > 1)
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FILE_CHOOSER, 0);
     set_file_chooser_selector(0);
   }
+#endif
 
 }
 
@@ -7110,10 +7098,12 @@ on_preferences_filechooser_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+#if (GTK_MAJOR_VERSION > 1)
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FILE_CHOOSER, 1);
     set_file_chooser_selector(1);
   }
+#endif
 
 }
 
@@ -7123,11 +7113,12 @@ on_preferences_file_overwrite_yes_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+#if (GTK_MAJOR_VERSION > 1)
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FILE_OVERWRITE, 1);
     set_file_chooser_overwrite(1);
   }
-
+#endif
 
 }
 
@@ -7137,10 +7128,12 @@ on_preferences_file_overwrite_no_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+#if (GTK_MAJOR_VERSION > 1)
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FILE_OVERWRITE, 0);
     set_file_chooser_overwrite(0);
   }
+#endif
 
 }
 
@@ -7149,7 +7142,7 @@ on_preferences_file_filter_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FILE_FILTER, 1);
     set_filter_fileselection_filenames(1);
   }
@@ -7162,7 +7155,7 @@ on_preferences_file_filter_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FILE_FILTER, 0);
     set_filter_fileselection_filenames(0);
   }
@@ -7174,7 +7167,7 @@ on_preferences_file_sort_by_date_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FILE_SORT_DATE, 1);
     set_sticky_sort_by_date();
   }
@@ -7187,7 +7180,7 @@ on_preferences_file_sort_by_date_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FILE_SORT_DATE, 0);
     unset_sticky_sort_by_date();
   }
@@ -7205,7 +7198,7 @@ on_preferences_dialog_accept_docked_radiobutton_toggled
   hbox             = lookup_widget(GTK_WIDGET(togglebutton), "preferences_dialog_accept_docked_hbox");
   show_checkbutton = lookup_widget(GTK_WIDGET(togglebutton), "preferences_dialog_accept_docked_show_radiobutton");
   hide_checkbutton = lookup_widget(GTK_WIDGET(togglebutton), "preferences_dialog_accept_docked_hide_radiobutton");
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_ACCEPT_DIALOG_DOCKED, 1);
     set_accept_reject_dialog_docked(1);
     /* shall update the hbox */
@@ -7227,7 +7220,7 @@ on_preferences_dialog_accept_detouched_radiobutton_toggled
 {
   GtkWidget *hbox;
   hbox             = lookup_widget(GTK_WIDGET(togglebutton), "preferences_dialog_accept_docked_hbox");
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_ACCEPT_DIALOG_DOCKED, 0);
     set_accept_reject_dialog_docked(0);
     /* shall update the hbox */
@@ -7244,7 +7237,7 @@ on_preferences_dialog_accept_docked_show_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_ACCEPT_DIALOG_DOCKED_SHOW, 1);
     set_accept_reject_dialog_docked_show(1);
   }
@@ -7257,7 +7250,7 @@ on_preferences_dialog_accept_docked_hide_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_ACCEPT_DIALOG_DOCKED_SHOW, 0);
     set_accept_reject_dialog_docked_show(0);
   }
@@ -7270,7 +7263,7 @@ on_preferences_dialog_accept_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_IMMEDIATE_REPLACEMENT, 0);
     set_refinement_immediate_replacement(0);
   }
@@ -7283,7 +7276,7 @@ on_preferences_dialog_accept_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_IMMEDIATE_REPLACEMENT, 1);
     set_refinement_immediate_replacement(1);
   }
@@ -7296,7 +7289,7 @@ on_preferences_recentre_pdb_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_RECENTRE_PDB, 1);
     set_recentre_on_read_pdb(1);
   }
@@ -7309,7 +7302,7 @@ on_preferences_recentre_pdb_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_RECENTRE_PDB, 0);
     set_recentre_on_read_pdb(0);
   }
@@ -7322,7 +7315,7 @@ on_preferences_console_info_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_CONSOLE_COMMANDS, 1);
     set_console_display_commands_state(1);
   }
@@ -7335,7 +7328,7 @@ on_preferences_console_info_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_CONSOLE_COMMANDS, 0);
     set_console_display_commands_state(0);
   }
@@ -7348,7 +7341,7 @@ on_preferences_tips_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_TIPS, 1);
     set_tip_of_the_day_flag(1);
   }
@@ -7361,7 +7354,7 @@ on_preferences_tips_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_TIPS, 0);
     set_tip_of_the_day_flag(0);
   }
@@ -7374,7 +7367,7 @@ on_preferences_refinement_speed_molasses_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_REFINEMENT_SPEED, 4);
     set_dragged_refinement_steps_per_frame(4);
   }
@@ -7387,7 +7380,7 @@ on_preferences_refinement_speed_crock_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_REFINEMENT_SPEED, 120);
     set_dragged_refinement_steps_per_frame(120);
   }
@@ -7400,7 +7393,7 @@ on_preferences_refinement_speed_default_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_REFINEMENT_SPEED, 80);
     set_dragged_refinement_steps_per_frame(80);
   }
@@ -7415,7 +7408,7 @@ on_preferences_refinement_speed_own_radiobutton_toggled
 {
   GtkWidget *w;
   w = lookup_widget(GTK_WIDGET(togglebutton), "preferences_refinement_speed_entry");
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     const gchar* entry_text = gtk_entry_get_text(GTK_ENTRY(w));
     int val;
     val = atoi(entry_text);
@@ -7522,7 +7515,7 @@ on_preferences_font_size_small_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FONT_SIZE, 1);
     set_font_size(1);
   }
@@ -7535,7 +7528,7 @@ on_preferences_font_size_medium_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FONT_SIZE, 2);
     set_font_size(2);
   }
@@ -7548,7 +7541,7 @@ on_preferences_font_size_large_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_FONT_SIZE, 3);
     set_font_size(3);
   }
@@ -7561,7 +7554,7 @@ on_preferences_font_size_others_radiobutton_toggled
                                         gpointer         user_data)
 {
 
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     GtkWidget *w;
     w = lookup_widget(GTK_WIDGET(togglebutton), "preferences_font_size_combobox");
     gint ival = gtk_combo_box_get_active(GTK_COMBO_BOX(w));
@@ -7591,7 +7584,7 @@ on_preferences_font_colour_default_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+   if (togglebutton->active) {
       preferences_internal_change_value_float3(PREFERENCES_FONT_COLOUR, 1.0, 0.8, 0.8);
       set_font_colour(1.0, 0.8, 0.8);
    }
@@ -7610,7 +7603,7 @@ on_preferences_font_colour_own_radiobutton_toggled
   float fval3;
   int previous_state;
 
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
 
     previous_state = preferences_internal_font_own_colour_flag();
 
@@ -7728,7 +7721,7 @@ on_preferences_model_toolbar_show_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     show_modelling_toolbar();
     preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_SHOW, 1);
   }
@@ -7741,7 +7734,7 @@ on_preferences_model_toolbar_right_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     set_model_toolbar_docked_position(0);
     preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_POSITION, 0);
   }
@@ -7754,7 +7747,7 @@ on_preferences_model_toolbar_left_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     set_model_toolbar_docked_position(1);
     preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_POSITION, 1);
   }
@@ -7767,7 +7760,7 @@ on_preferences_model_toolbar_top_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     set_model_toolbar_docked_position(2);
     preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_POSITION, 2);
   }
@@ -7779,7 +7772,7 @@ on_preferences_model_toolbar_bottom_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     set_model_toolbar_docked_position(3);
     preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_POSITION, 3);
   }
@@ -7791,7 +7784,7 @@ on_preferences_model_toolbar_hide_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     hide_modelling_toolbar();
     preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_SHOW, 0);
   }
@@ -7822,7 +7815,7 @@ on_preferences_model_toolbar_style_icons_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_STYLE, 1);
     set_model_toolbar_style(1);
   }
@@ -7835,7 +7828,7 @@ on_preferences_model_toolbar_style_both_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_STYLE, 2);
     set_model_toolbar_style(2);
   }
@@ -7848,7 +7841,7 @@ on_preferences_model_toolbar_style_text_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_STYLE, 3);
     set_model_toolbar_style(3);
   }
@@ -7880,7 +7873,7 @@ on_preferences_main_toolbar_show_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     show_main_toolbar();
     preferences_internal_change_value_int(PREFERENCES_MAIN_TOOLBAR_SHOW, 1);
   }
@@ -7893,7 +7886,7 @@ on_preferences_main_toolbar_hide_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     hide_main_toolbar();
     preferences_internal_change_value_int(PREFERENCES_MAIN_TOOLBAR_SHOW, 0);
   }
@@ -7943,7 +7936,7 @@ on_preferences_main_toolbar_style_icons_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_MAIN_TOOLBAR_STYLE, 1);
     set_main_toolbar_style(1);
   }
@@ -7956,7 +7949,7 @@ on_preferences_main_toolbar_style_both_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_MAIN_TOOLBAR_STYLE, 2);
     set_main_toolbar_style(2);
   }
@@ -7969,7 +7962,7 @@ on_preferences_main_toolbar_style_text_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     preferences_internal_change_value_int(PREFERENCES_MAIN_TOOLBAR_STYLE, 3);
     set_main_toolbar_style(3);
   }
@@ -8024,19 +8017,21 @@ on_difference_map_peaks1_activate      (GtkMenuItem     *menuitem,
 
 
 void
-on_superpose_reference_chain_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_superpose_reference_chain_checkbutton_toggled(GtkToggleButton *togglebutton,
+						 gpointer         user_data) {
 
-  GtkWidget *optionmenu = lookup_widget(GTK_WIDGET(togglebutton), 
-					"superpose_reference_chain_optionmenu");
+  GtkWidget *combobox = lookup_widget(GTK_WIDGET(togglebutton), 
+					"superpose_dialog_reference_chain_combobox");
   if (gtk_toggle_button_get_active(togglebutton)) {
-    gtk_widget_set_sensitive(GTK_WIDGET(optionmenu), TRUE);
-    fill_superpose_option_menu_with_chain_options(optionmenu, 1);
+    gtk_widget_set_sensitive(GTK_WIDGET(combobox), TRUE);
+    printf("calling fill_superpose_combobox_with_chain_options()\n");
+    fill_superpose_combobox_with_chain_options(combobox, 1);
+    printf("done fill_superpose_combobox_with_chain_options()\n");
   } else {
-    gtk_widget_set_sensitive(GTK_WIDGET(optionmenu), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(combobox), FALSE);
   }
+
+  printf("done on_superpose_reference_chain_checkbutton_toggled()\n");
     
 }
 
@@ -8046,14 +8041,14 @@ on_superpose_moving_chain_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *optionmenu = lookup_widget(GTK_WIDGET(togglebutton), 
-					"superpose_moving_chain_optionmenu");
+  GtkWidget *combobox = lookup_widget(GTK_WIDGET(togglebutton), 
+				      "superpose_dialog_moving_chain_combobox");
 
   if (gtk_toggle_button_get_active(togglebutton)) {
-    fill_superpose_option_menu_with_chain_options(optionmenu, 0);
-    gtk_widget_set_sensitive(GTK_WIDGET(optionmenu), TRUE);
+    fill_superpose_combobox_with_chain_options(combobox, 0);
+    gtk_widget_set_sensitive(GTK_WIDGET(combobox), TRUE);
   } else {
-    gtk_widget_set_sensitive(GTK_WIDGET(optionmenu), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(combobox), FALSE);
   }
 }
 
@@ -8066,7 +8061,7 @@ on_draw_ncs_ghosts_yes_radiobutton_toggled
 /* Function no longer used.  Kept in glade (not visible) for historical reasons
 
    GtkWidget *w = lookup_widget(GTK_WIDGET(togglebutton), "bond_parameters_dialog");
-   if (gtk_toggle_button_get_active(togglebutton)) { 
+   if (togglebutton->active) { 
       printf("yes radiobutton toggled on.\n");
       make_ncs_ghosts_maybe(w);
    }
@@ -8111,7 +8106,6 @@ on_ncs_maps1_activate                  (GtkMenuItem     *menuitem,
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_rotamer_selection_dialog_destroy    (GtkObject       *object,
                                         gpointer         user_data)
@@ -8120,14 +8114,14 @@ on_rotamer_selection_dialog_destroy    (GtkObject       *object,
       store_window_position(COOT_ROTAMER_SELECTION_DIALOG, dialog); */
    set_graphics_rotamer_dialog(NULL);
 }
-#endif
+
 
 void
 on_pointer_distances_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) { 
+   if (togglebutton->active) { 
       printf("pointer distances toggle button toggled on\n");
    } else { 
       printf("pointer distances toggle button toggled off\n");
@@ -8219,14 +8213,13 @@ on_ramachandran_plot_differences_first_chain_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-   GtkWidget *optionmenu = 
-      lookup_widget(GTK_WIDGET(togglebutton), 
-		    "ramachandran_plot_differences_first_chain_optionmenu");
+   GtkWidget *combobox = lookup_widget(GTK_WIDGET(togglebutton), 
+				       "ramachandran_plot_differences_first_chain_combobox");
    if (gtk_toggle_button_get_active(togglebutton)) {
-      gtk_widget_set_sensitive(GTK_WIDGET(optionmenu), TRUE);
-      fill_ramachandran_plot_differences_option_menu_with_chain_options(optionmenu, 1);
+      gtk_widget_set_sensitive(GTK_WIDGET(combobox), TRUE);
+      fill_ramachandran_plot_differences_combobox_with_chain_options(combobox, 1);
    } else {
-      gtk_widget_set_sensitive(GTK_WIDGET(optionmenu), FALSE);
+      gtk_widget_set_sensitive(GTK_WIDGET(combobox), FALSE);
    }
 
 }
@@ -8237,15 +8230,14 @@ on_ramachandran_plot_differences_second_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-   GtkWidget *optionmenu = 
-      lookup_widget(GTK_WIDGET(togglebutton), 
-		    "ramachandran_plot_differences_second_chain_optionmenu");
+   GtkWidget *combobox = lookup_widget(GTK_WIDGET(togglebutton), 
+				       "ramachandran_plot_differences_second_chain_combobox");
 
    if (gtk_toggle_button_get_active(togglebutton)) {
-      gtk_widget_set_sensitive(GTK_WIDGET(optionmenu), TRUE);
-      fill_ramachandran_plot_differences_option_menu_with_chain_options(optionmenu, 0);
+      gtk_widget_set_sensitive(GTK_WIDGET(combobox), TRUE);
+      fill_ramachandran_plot_differences_combobox_with_chain_options(combobox, 0);
    } else {
-      gtk_widget_set_sensitive(GTK_WIDGET(optionmenu), FALSE);
+      gtk_widget_set_sensitive(GTK_WIDGET(combobox), FALSE);
    }
 
 }
@@ -8280,7 +8272,7 @@ on_checked_waters_baddies_cancel_button_clicked
 
 
 void
-on_align___mutate1_activate            (GtkMenuItem     *menuitem,
+on_align_and_mutate1_activate            (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 
@@ -8306,7 +8298,6 @@ on_delete_item_keep_active_checkbutton_toggled
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_delete_item_dialog_destroy          (GtkObject       *object,
                                         gpointer         user_data)
@@ -8317,7 +8308,6 @@ on_delete_item_dialog_destroy          (GtkObject       *object,
    normal_cursor();
    store_delete_item_widget(NULL);
 }
-#endif
 
 
 void
@@ -8345,7 +8335,7 @@ on_geometry_torsion_togglebutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
     do_torsion_define();
 }
 
@@ -8482,7 +8472,7 @@ on_base_chooser_cancel_button_clicked  (GtkButton       *button,
    gtk_widget_destroy(w);
 }
 
-#if 0				/* GtkObject problem */
+
 void
 on_nucleic_acid_base_chooser_dialog_destroy
                                         (GtkObject       *object,
@@ -8490,7 +8480,7 @@ on_nucleic_acid_base_chooser_dialog_destroy
 {
    clear_pending_picks();
 }
-#endif
+
 
 void
 on_change_chain_ids2_activate          (GtkMenuItem     *menuitem,
@@ -8529,7 +8519,7 @@ on_delete_item_residue_range_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton))
+   if (togglebutton->active)
       set_delete_residue_zone_mode();
 
 }
@@ -8601,7 +8591,7 @@ on_change_chain_residue_range_yes_radiobutton_toggled
 
    GtkWidget *hbox = lookup_widget(GTK_WIDGET(togglebutton), 
 				   "change_chain_id_residue_range_hbox");
-   if (gtk_toggle_button_get_active(togglebutton))
+   if (togglebutton->active)
       gtk_widget_set_sensitive(hbox, TRUE);
    else 
       gtk_widget_set_sensitive(hbox, FALSE);
@@ -8615,7 +8605,7 @@ on_mutate_sequence_do_autofit_checkbutton_toggled
 {
    int imol_map = -1;
 
-   if (gtk_toggle_button_get_active(togglebutton)) { 
+   if (togglebutton->active) { 
       imol_map = imol_refinement_map();
       if (imol_map == -1) { 
 	 gtk_toggle_button_set_active(togglebutton, FALSE);
@@ -8640,7 +8630,7 @@ on_check_waters_b_factor_entry_active_checkbutton_toggled
 {
    GtkWidget *hbox = lookup_widget(GTK_WIDGET(togglebutton), 
 				   "check_waters_b_factor_hbox");
-   if (gtk_toggle_button_get_active(togglebutton))
+   if (togglebutton->active)
       gtk_widget_set_sensitive(hbox, TRUE);
    else
       gtk_widget_set_sensitive(hbox, FALSE);
@@ -8656,7 +8646,7 @@ on_check_waters_min_dist_entry_active_checkbutton_toggled
 {
    GtkWidget *hbox = lookup_widget(GTK_WIDGET(togglebutton), 
 				   "check_waters_min_dist_hbox");
-   if (gtk_toggle_button_get_active(togglebutton))
+   if (togglebutton->active)
       gtk_widget_set_sensitive(hbox, TRUE);
    else
       gtk_widget_set_sensitive(hbox, FALSE);
@@ -8671,7 +8661,7 @@ on_check_waters_max_dist_entry_active_checkbutton_toggled
 {
    GtkWidget *hbox = lookup_widget(GTK_WIDGET(togglebutton), 
 				   "check_waters_max_dist_hbox");
-   if (gtk_toggle_button_get_active(togglebutton))
+   if (togglebutton->active)
       gtk_widget_set_sensitive(hbox, TRUE);
    else
       gtk_widget_set_sensitive(hbox, FALSE);
@@ -8686,7 +8676,7 @@ on_check_waters_map_sigma_entry_active_checkbutton_toggled
 {
    GtkWidget *hbox = lookup_widget(GTK_WIDGET(togglebutton), 
 				   "check_waters_sigma_level_hbox");
-   if (gtk_toggle_button_get_active(togglebutton))
+   if (togglebutton->active)
       gtk_widget_set_sensitive(hbox, TRUE);
    else
       gtk_widget_set_sensitive(hbox, FALSE);
@@ -8721,10 +8711,10 @@ on_residue_info_occ_apply_all_checkbutton_toggled
   GtkWidget *alt_conf_checkbutton = lookup_widget(GTK_WIDGET(togglebutton),
 						  "residue_info_occ_apply_to_altconf_checkbutton");
   
-  if (gtk_toggle_button_get_active(togglebutton)) { 
+  if (togglebutton->active) { 
     gtk_widget_set_sensitive(entry, TRUE);
   } else { 
-    if (! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(alt_conf_checkbutton)))
+    if (! GTK_TOGGLE_BUTTON(alt_conf_checkbutton)->active)
       gtk_widget_set_sensitive(entry, FALSE);
   } 
 }
@@ -8740,7 +8730,7 @@ on_residue_info_occ_apply_to_altconf_checkbutton_toggled
 				       "residue_info_master_atom_occ_entry");
   GtkWidget *alt_conf_entry = lookup_widget(GTK_WIDGET(togglebutton), 
 					    "residue_info_occ_apply_to_alt_conf_entry");
-  if (gtk_toggle_button_get_active(togglebutton)) { 
+  if (togglebutton->active) { 
     gtk_widget_set_sensitive(occ_entry,      TRUE);
     gtk_widget_set_sensitive(alt_conf_entry, TRUE);
   } else {
@@ -8762,7 +8752,7 @@ on_residue_info_b_factor_apply_all_checkbutton_toggled
   GtkWidget *entry = lookup_widget(GTK_WIDGET(togglebutton), 
 				   "residue_info_master_atom_b_factor_entry");
   
-  if (gtk_toggle_button_get_active(togglebutton)) 
+  if (togglebutton->active) 
     gtk_widget_set_sensitive(entry, TRUE);
   else 
     gtk_widget_set_sensitive(entry, FALSE);
@@ -8797,7 +8787,7 @@ on_cis_trans_conversion_toggle_button_toggled
                                         gpointer         user_data)
 {
 
-  if (gtk_toggle_button_get_active(togglebutton)) 
+   if (togglebutton->active) 
       do_cis_trans_conversion_setup(1);
    else 
       do_cis_trans_conversion_setup(0);
@@ -8805,7 +8795,6 @@ on_cis_trans_conversion_toggle_button_toggled
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_other_model_tools_dialog_destroy    (GtkObject       *object,
                                         gpointer         user_data)
@@ -8813,7 +8802,6 @@ on_other_model_tools_dialog_destroy    (GtkObject       *object,
    do_cis_trans_conversion_setup(0);
    unset_other_modelling_tools_dialog();
 }
-#endif
 
 
 void
@@ -8841,21 +8829,20 @@ on_get_pdb_and_map_using_eds1_activate (GtkMenuItem     *menuitem,
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_ligand_big_blob_dialog_destroy      (GtkObject       *object,
                                         gpointer         user_data)
 {
   free_blob_dialog_memory(GTK_WIDGET(object));
 }
-#endif
+
 
 void
 on_model_refine_dialog_do_180_degree_sidechain_flip_togglebutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
     setup_180_degree_flip(1);
   else 
     setup_180_degree_flip(0);
@@ -8957,7 +8944,7 @@ on_reverse_fragment_direction_togglebutton_toggled
                                         gpointer         user_data)
 {
 
-  if (gtk_toggle_button_get_active(togglebutton))
+   if (togglebutton->active)
       setup_reverse_direction(1);
    else 
       setup_reverse_direction(0);
@@ -8978,14 +8965,13 @@ on_other_tools_place_strand_here_button_clicked     (GtkButton       *button,
   place_strand_here_dialog(); 	/* choose the python version in there, if needed. */
 } 
 
-#if 0				/* GtkObject problem */
 void
 on_diff_map_peaks_dialog_destroy       (GtkObject       *object,
                                         gpointer         user_data)
 {
   set_difference_map_peaks_widget(0); /* a null pointer */
 }
-#endif
+
 
 void
 on_symmetry_controller_ok_button_clicked
@@ -9005,7 +8991,7 @@ on_molecule_0_checkbutton_toggled      (GtkToggleButton *togglebutton,
 {
 
   int imol = GPOINTER_TO_INT(user_data);
-  if (gtk_toggle_button_get_active(togglebutton)) 
+  if (togglebutton->active) 
     set_show_symmetry_molecule(imol, 1);
   else 
     set_show_symmetry_molecule(imol, 0);
@@ -9020,7 +9006,7 @@ on_display_sphere_radiobutton_molecule_0_toggled
 {
 
   int imol = GPOINTER_TO_INT(user_data);
-  if (gtk_toggle_button_get_active(togglebutton)) { 
+  if (togglebutton->active) { 
     set_symmetry_whole_chain(imol, 0);
     symmetry_as_calphas(imol, 0); /* does an update_symmetry() */
   }
@@ -9034,7 +9020,7 @@ on_display_all_radiobutton_molecule_0_toggled
 {
 
   int imol = GPOINTER_TO_INT(user_data);
-  if (gtk_toggle_button_get_active(togglebutton)) { 
+  if (togglebutton->active) { 
     symmetry_as_calphas(imol, 0);
     set_symmetry_whole_chain(imol, 1);
 /*   } else { */
@@ -9051,7 +9037,7 @@ on_display_CA_radiobutton_molecule_0_toggled
 {
   
   int imol = GPOINTER_TO_INT(user_data);
-  if (gtk_toggle_button_get_active(togglebutton)) { 
+  if (togglebutton->active) { 
      symmetry_as_calphas(imol, 1);
 /*  } else { */
 /*     printf("DEBUG:: CA for molecule %d CA state 0\n", imol); */
@@ -9067,7 +9053,7 @@ on_colour_symm_std_molecule_0_toggled  (GtkToggleButton *togglebutton,
 {
 
   int imol = GPOINTER_TO_INT(user_data);
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     set_symmetry_colour_by_symop(imol, 0);
     set_symmetry_molecule_rotate_colour_map(imol, 0);
   }
@@ -9081,7 +9067,7 @@ on_colour_symm_by_symop_molecule_0_toggled
 {
 
   int imol = GPOINTER_TO_INT(user_data);
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     set_symmetry_molecule_rotate_colour_map(imol, 1); /* yes, I mean this */
     set_symmetry_colour_by_symop(imol, 1);
   }
@@ -9095,7 +9081,7 @@ on_colour_symm_by_molecule_molecule_0_toggled
 {
 
   int imol = GPOINTER_TO_INT(user_data);
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     set_symmetry_colour_by_symop(imol, 0);
     set_symmetry_molecule_rotate_colour_map(imol, 1);
   }
@@ -9121,7 +9107,7 @@ on_ncs_controller_molecule_n_display_ncs_checkbutton_toggled
 
   int imol = GPOINTER_TO_INT(user_data);
   int state = 0;
-  if (gtk_toggle_button_get_active(togglebutton)) { 
+  if (togglebutton->active) { 
     state = 1;
     make_ncs_ghosts_maybe(imol);
   }
@@ -9139,7 +9125,7 @@ on_ncs_controller_molecule_n_display_chain_ich_checkbutton_toggled
    int imol = imol_chain/1000;
    int ich = imol_chain - imol*1000;
    int state = 0;
-   if (gtk_toggle_button_get_active(togglebutton)) { 
+   if (togglebutton->active) { 
      state = 1;
    }
    printf("\nNCS_controller display chain toggled for imol %d chain %d state %d\n",  
@@ -9159,7 +9145,7 @@ on_ncs_controller_ncs_master_chain_ich_radiobutton_toggled
    int ich = imol_chain - imol*1000;
 /*    printf("==== DEBUG:: chain raiobutton toggled: imol %d ich %d active-state: %d \n",  */
 /* 	  imol, ich, togglebutton->active); */
-   if (gtk_toggle_button_get_active(togglebutton)) { 
+   if (togglebutton->active) { 
 /*      printf("NCS_controller_ncs_master_chain_ich_radiobutton_toggled on for imol %d %d %d\n",  */
 /* 	    imol_chain, imol, ich); */
 
@@ -9184,7 +9170,7 @@ on_lsq_plane_add_atom_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) { 
+   if (togglebutton->active) { 
       setup_lsq_deviation(0);
       setup_lsq_plane_define(1);
    } else { 
@@ -9199,7 +9185,7 @@ on_lsq_plane_deviant_atom_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) { 
+   if (togglebutton->active) { 
       setup_lsq_deviation(1);
       setup_lsq_plane_define(0);
    } else { 
@@ -9219,7 +9205,6 @@ on_lsq_plane_ok_button_clicked         (GtkButton       *button,
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_lsq_plane_dialog_destroy            (GtkObject       *object,
                                         gpointer         user_data)
@@ -9227,7 +9212,7 @@ on_lsq_plane_dialog_destroy            (GtkObject       *object,
   unset_lsq_plane_dialog();	/* which clears the plane points too */
   normal_cursor();
 }
-#endif
+
 
 void
 on_plane_distances1_activate           (GtkMenuItem     *menuitem,
@@ -9258,7 +9243,6 @@ on_ncs_ghost_control1_activate         (GtkMenuItem     *menuitem,
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_coords_colour_control_dialog_destroy
                                         (GtkObject       *object,
@@ -9266,7 +9250,6 @@ on_coords_colour_control_dialog_destroy
 {
 
 }
-#endif
 
 
 void
@@ -9322,7 +9305,7 @@ on_coot_online_doc_search_entry_key_press_event
 
   const char *text;
 
-  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
+  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) {
     text = gtk_entry_get_text(GTK_ENTRY(widget));
     handle_online_coot_search_request(text);
   }
@@ -9358,7 +9341,7 @@ on_bond_parameters_rotate_colour_map_c_only_checkbutton_toggled
 {
 
   short int i=0;
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
     i=1;
   set_colour_map_rotation_on_read_pdb_c_only_flag(i);
 }
@@ -9381,7 +9364,7 @@ on_entry1_key_press_event              (GtkWidget       *widget,
 {
   GtkEntry *entry = (GTK_ENTRY(lookup_widget(widget, "entry1")));
   const char *text = gtk_entry_get_text(entry);
-  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) { 
+  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) { 
     set_density_size_from_widget(text);
   }
   return FALSE;
@@ -9428,7 +9411,7 @@ on_refine_params_use_ramachandran_goodness_torsions_radiobutton_toggled
 {
 
   int state = 0;
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     state = 1;
   }
   set_refine_ramachandran_angles(state);
@@ -9440,7 +9423,7 @@ on_refine_params_use_peptide_omegas_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (togglebutton->active) {
     add_omega_torsion_restriants();
   } else {
     remove_omega_torsion_restriants();
@@ -9507,7 +9490,7 @@ on_other_tools_RNA_button_clicked      (GtkButton       *button,
 void
 on_other_tools_base_pair_toggle_button_toggled      (GtkToggleButton       *button,
                                         gpointer         user_data) { 
-  if (gtk_toggle_button_get_active(button))
+  if (button->active)
     setup_base_pairing(1);
   else
     setup_base_pairing(0);
@@ -9538,7 +9521,7 @@ void
 on_unit_cell_yes_radiobutton_toggled   (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
       set_show_unit_cells_all(1);
   else 
       set_show_unit_cells_all(0);
@@ -9549,7 +9532,7 @@ void
 on_unit_cell_no_radiobutton_toggled    (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
       set_show_unit_cells_all(0);
   else 
       set_show_unit_cells_all(1);
@@ -9654,7 +9637,7 @@ on_monomer_search_entry_key_press_event
 				   "monomer_search_results_viewport");
 
   if (entry) { 
-    if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) { 
+    if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) { 
       text = gtk_entry_get_text(GTK_ENTRY(entry));
       if (text) {
 	handle_make_monomer_search(text, viewport);
@@ -9815,35 +9798,30 @@ on_dynarama_window_configure_event     (GtkWidget       *widget,
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_coords_fileselection1_destroy       (GtkObject       *object,
                                         gpointer         user_data)
 {
    store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
 }
-#endif
 
-#if 0				/* GtkObject problem */
+
 void
 on_dataset_fileselection1_destroy      (GtkObject       *object,
                                         gpointer         user_data)
 {
    store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
 }
-#endif
 
 
-#if 0				/* GtkObject problem */
 void
 on_map_name_fileselection1_destroy     (GtkObject       *object,
                                         gpointer         user_data)
 {
    store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
 }
-#endif
 
-#if 0				/* GtkObject problem */
+
 void
 on_phs_coordinates_fileselection_destroy
                                         (GtkObject       *object,
@@ -9851,18 +9829,16 @@ on_phs_coordinates_fileselection_destroy
 {
    store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
 }
-#endif
 
-#if 0				/* GtkObject problem */
+
 void
 on_save_coords_fileselection1_destroy  (GtkObject       *object,
                                         gpointer         user_data)
 {
    store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
 }
-#endif
 
-#if 0				/* GtkObject problem */
+
 void
 on_save_symmetry_coords_fileselection_destroy
                                         (GtkObject       *object,
@@ -9870,32 +9846,29 @@ on_save_symmetry_coords_fileselection_destroy
 {
    store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
 }
-#endif
 
-#if 0				/* GtkObject problem */
+
 void
 on_save_state_fileselection_destroy    (GtkObject       *object,
                                         gpointer         user_data)
 {
    store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
 }
-#endif
 
-#if 0				/* GtkObject problem */
+
 void
 on_screendump_fileselection_destroy    (GtkObject       *object,
                                         gpointer         user_data)
 {
    store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
 }
-#endif
 
 void
 on_residue_type_chooser_stub_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton)))
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active)
     set_residue_type_chooser_stub_state(1);
   else
     set_residue_type_chooser_stub_state(0);
@@ -9933,7 +9906,7 @@ on_sec_str_rest_no_rest_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
     set_secondary_structure_restraints_type(0);
 }
 
@@ -9943,7 +9916,7 @@ on_sec_str_rest_helix_rest_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
     set_secondary_structure_restraints_type(1);
 }
 
@@ -9953,20 +9926,19 @@ on_sec_str_rest_strand_rest_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
     set_secondary_structure_restraints_type(2);
 }
 
 
 
-#if 0				/* GtkObject problem */
 void
 on_refine_params_dialog_destroy        (GtkObject       *object,
                                         gpointer         user_data)
 {
   unset_refine_params_dialog();
 }
-#endif
+
 
 void
 on_update_go_to_atom_from_current_position_button_clicked
@@ -10045,7 +10017,7 @@ on_display_control_all_maps_togglebutton_toggled
                                         gpointer         user_data)
 {
 
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
     set_all_maps_displayed(1);
   else
     set_all_maps_displayed(0);
@@ -10058,7 +10030,7 @@ on_display_control_all_models_togglebutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
     set_all_models_displayed_and_active(1);
   else 
     set_all_models_displayed_and_active(0);
@@ -10081,7 +10053,6 @@ on_single_map_properties_contour_level_apply_button_clicked
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_checked_waters_baddies_dialog_destroy
                                         (GtkObject       *object,
@@ -10089,7 +10060,7 @@ on_checked_waters_baddies_dialog_destroy
 {
   store_checked_waters_baddies_dialog(NULL);
 }
-#endif
+
 
 void
 on_model_toolbar_style_changed         (GtkToolbar      *toolbar,
@@ -10422,7 +10393,7 @@ on_model_toolbar_icons_and_text1_activate
                                         gpointer         user_data)
 {
   GtkWidget *toolbar = lookup_widget(GTK_WIDGET(menuitem), "model_toolbar");
-  if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
+  if (GTK_CHECK_MENU_ITEM(menuitem)->active){
       gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
       /* change the labels for R/RC and Map too */
       GtkWidget *button;
@@ -10439,7 +10410,7 @@ on_model_toolbar_icons1_activate       (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   GtkWidget *toolbar = lookup_widget(GTK_WIDGET(menuitem), "model_toolbar");
-  if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
+  if (GTK_CHECK_MENU_ITEM(menuitem)->active){
     gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_ICONS); 
     /* change the labels for R/RC and Map too */
     GtkWidget *button;
@@ -10456,7 +10427,7 @@ on_model_toolbar_text1_activate        (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   GtkWidget *toolbar = lookup_widget(GTK_WIDGET(menuitem), "model_toolbar");
-  if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
+  if (GTK_CHECK_MENU_ITEM(menuitem)->active){
     gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_TEXT); 
     /* change the labels for R/RC and Map too */
     GtkWidget *button;
@@ -10472,7 +10443,7 @@ void
 on_model_toolbar_main_icons_activate   (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
+  if (GTK_CHECK_MENU_ITEM(menuitem)->active){
     show_model_toolbar_main_icons();
   }
 }
@@ -10482,7 +10453,7 @@ void
 on_model_toolbar_all_icons_activate    (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
+  if (GTK_CHECK_MENU_ITEM(menuitem)->active){
     show_model_toolbar_all_icons();
   } //else {
     //show_model_toolbar_main_icons();
@@ -10664,7 +10635,6 @@ on_coords_filechooserdialog1_response  (GtkDialog       *dialog,
  }
 }
 
-#if 0				/* GtkObject problem */
 void
 on_coords_filechooserdialog1_destroy  (GtkObject       *object,
                                         gpointer         user_data)
@@ -10676,7 +10646,7 @@ on_coords_filechooserdialog1_destroy  (GtkObject       *object,
 
   gtk_widget_destroy(coords_fileselection1);
 }
-#endif
+
 
 void
 on_coords_filechooserdialog1_recentre_checkbutton_toggled
@@ -10684,7 +10654,7 @@ on_coords_filechooserdialog1_recentre_checkbutton_toggled
                                         gpointer         user_data)
 {
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) { 
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active == 1) { 
     set_recentre_on_read_pdb(1);
    } else { 
     set_recentre_on_read_pdb(0);
@@ -10752,7 +10722,6 @@ on_dataset_filechooserdialog1_response (GtkDialog       *dialog,
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_dataset_filechooserdialog1_destroy (GtkObject       *object,
                                         gpointer         user_data)
@@ -10764,7 +10733,7 @@ on_dataset_filechooserdialog1_destroy (GtkObject       *object,
 
   gtk_widget_destroy(dataset_fileselection1);
 }
-#endif
+
 
 void
 on_map_name_filechooserdialog1_response
@@ -10790,7 +10759,7 @@ on_map_name_filechooserdialog1_response
 				  "map_filechooser_is_difference_map_button");
 
       if (checkbutton)
-	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) 
+	 if (GTK_TOGGLE_BUTTON(checkbutton)->active) 
 	    is_diff_map_flag = 1;
 
       filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(map_name_fileselection1)); 
@@ -10826,7 +10795,6 @@ on_map_filechooser_is_difference_map_button_toggled
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_map_name_filechooserdialog1_destroy (GtkObject       *object,
                                         gpointer         user_data)
@@ -10838,7 +10806,7 @@ on_map_name_filechooserdialog1_destroy (GtkObject       *object,
 
   gtk_widget_destroy(map_name_fileselection1);
 }
-#endif
+
 
 void
 on_phs_coordinates_filechooserdialog1_response
@@ -10846,7 +10814,7 @@ on_phs_coordinates_filechooserdialog1_response
                                         gint             response_id,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
+
    GtkWidget *phs_fileselection; 
    phs_fileselection = lookup_widget(GTK_WIDGET(dialog), 
                                      "phs_coordinates_filechooserdialog1");
@@ -10860,11 +10828,10 @@ on_phs_coordinates_filechooserdialog1_response
      read_phs_and_coords_and_make_map(filename); 
    } 
    gtk_widget_destroy(phs_fileselection);
-#endif /* GTK_MAJOR_VERSION  */
+
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_phs_coordinates_filechooserdialog1_destroy
                                         (GtkObject       *object,
@@ -10877,7 +10844,7 @@ on_phs_coordinates_filechooserdialog1_destroy
 
   gtk_widget_destroy(phs_fileselection1);
 }
-#endif
+
 
 GtkFileChooserConfirmation
 on_save_coords_filechooserdialog1_confirm_overwrite
@@ -10886,13 +10853,9 @@ on_save_coords_filechooserdialog1_confirm_overwrite
 {
 
   if (file_chooser_overwrite_state() == 1) {
-
     return GTK_FILE_CHOOSER_CONFIRMATION_CONFIRM;
-
   } else {
-
     return GTK_FILE_CHOOSER_CONFIRMATION_ACCEPT_FILENAME;
-
   }
 
 }
@@ -10921,7 +10884,7 @@ on_save_coords_filechooserdialog1_response
   }
 }
 
-#if 0				/* GtkObject problem */
+
 void
 on_save_coords_filechooserdialog1_destroy
 					(GtkObject * object, 
@@ -10934,14 +10897,13 @@ on_save_coords_filechooserdialog1_destroy
 
   gtk_widget_destroy(fileselection);
 }
-#endif
+
 
 void
-on_cif_dictionary_filechooserdialog1_response(GtkDialog * dialog, 
-					      gint response_id, 
+on_cif_dictionary_filechooserdialog1_response(GtkDialog * dialog,
+					      gint response_id,
 					      gpointer user_data) {
 
-  int new_compid_idx;
   int imol_enc = -999997;	/* unset */
   const char *filename;
   GtkWidget *fileselection;
@@ -10951,7 +10913,7 @@ on_cif_dictionary_filechooserdialog1_response(GtkDialog * dialog,
   GtkWidget *checkbutton = lookup_widget(GTK_WIDGET(dialog),
 					 "cif_dictionary_file_selector_create_molecule_checkbutton");
   short int new_molecule_checkbutton_state = 0;
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
+  if (GTK_TOGGLE_BUTTON(checkbutton)->active)
      new_molecule_checkbutton_state = 1;
 
   if (response_id == GTK_RESPONSE_OK) {
@@ -10976,8 +10938,8 @@ on_cif_dictionary_filechooserdialog1_response(GtkDialog * dialog,
 	printf("-------- missing dictionary_molecule_selector_option_menu ---\n");
      }
 
-     new_compid_idx = handle_cif_dictionary_for_molecule(filename, imol_enc, 
-							 new_molecule_checkbutton_state);
+     handle_cif_dictionary_for_molecule(filename, imol_enc,
+					new_molecule_checkbutton_state);
 
      gtk_widget_destroy(fileselection);
 } else {
@@ -10990,7 +10952,6 @@ on_cif_dictionary_filechooserdialog1_response(GtkDialog * dialog,
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_cif_dictionary_filechooserdialog1_destroy
 					(GtkObject * object, 
@@ -11003,7 +10964,7 @@ on_cif_dictionary_filechooserdialog1_destroy
 
   gtk_widget_destroy(fileselection);
 }
-#endif
+
 
 void
 on_run_script_filechooserdialog1_response
@@ -11030,7 +10991,6 @@ on_run_script_filechooserdialog1_response
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_run_script_filechooserdialog1_destroy
 					(GtkObject * object, 
@@ -11043,9 +11003,9 @@ on_run_script_filechooserdialog1_destroy
 
   gtk_widget_destroy(fileselection);
 }
-#endif
 
 
+#if (GTK_MAJOR_VERSION > 1) && (GTK_MINOR_VERSION > 9)
 GtkFileChooserConfirmation
 on_save_symmetry_coords_filechooserdialog1_confirm_overwrite
 					(GtkFileChooser * filechooser, 
@@ -11063,6 +11023,7 @@ on_save_symmetry_coords_filechooserdialog1_confirm_overwrite
   }
 
 }
+#endif /* GTK_MAJOR_VERSION */
 
 
 void
@@ -11085,7 +11046,6 @@ on_save_symmetry_coords_filechooserdialog1_response
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_save_symmetry_coords_filechooserdialog1_destroy
 					(GtkObject * object, 
@@ -11098,7 +11058,7 @@ on_save_symmetry_coords_filechooserdialog1_destroy
 
   gtk_widget_destroy(coords_fileselection1);
 }
-#endif
+
 
 GtkFileChooserConfirmation
 on_save_state_filechooserdialog1_confirm_overwrite 
@@ -11143,7 +11103,6 @@ on_save_state_filechooserdialog1_response (GtkDialog * dialog,
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_save_state_filechooserdialog1_destroy (GtkObject * object, 
 					gpointer user_data)
@@ -11155,8 +11114,9 @@ on_save_state_filechooserdialog1_destroy (GtkObject * object,
 
   gtk_widget_destroy(coords_fileselection1);
 }
-#endif
 
+
+#if (GTK_MAJOR_VERSION > 1) && (GTK_MINOR_VERSION > 9)
 GtkFileChooserConfirmation
 on_screendump_filechooserdialog1_confirm_overwrite 
 					(GtkFileChooser * filechooser, 
@@ -11174,6 +11134,7 @@ on_screendump_filechooserdialog1_confirm_overwrite
   }
 
 }
+#endif /* GTK_MAJOR_VERSION */
 
 
 void
@@ -11210,7 +11171,6 @@ on_screendump_filechooserdialog1_response (GtkDialog * dialog,
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_screendump_filechooserdialog1_destroy (GtkObject * object, 
 					gpointer user_data)
@@ -11223,7 +11183,7 @@ on_screendump_filechooserdialog1_destroy (GtkObject * object,
   gtk_widget_destroy(fileselection);
 }
 /* end of chooser insert */
-#endif
+
 
 void
 on_model_refine_dialog_torsion_general_togglebutton_toggled
@@ -11231,7 +11191,7 @@ on_model_refine_dialog_torsion_general_togglebutton_toggled
                                         gpointer         user_data)
 {
 
-  if (gtk_toggle_button_get_active(togglebutton)) 
+  if (togglebutton->active) 
     setup_torsion_general(1);
   else 
     setup_torsion_general(0);
@@ -11246,13 +11206,35 @@ on_accept_reject_reverse_button_clicked
   toggle_torsion_general_reverse();
 }
 
+void
+on_accept_reject_refinement_atom_pull_autoclear_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data) { 
+
+   int state = get_auto_clear_atom_pull_restraint_state();
+   if (state) {
+     set_auto_clear_atom_pull_restraint(0);
+   } else { 
+     set_auto_clear_atom_pull_restraint(1);
+   }
+
+}
+
+void
+on_accept_reject_atom_pull_clear_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data) { 
+   clear_all_atom_pull_restraints();
+}
+
+
 
 void
 on_geometry_dynamic_distance_togglebutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) 
+  if (togglebutton->active) 
     setup_dynamic_distances(1);
   else 
     setup_dynamic_distances(0);
@@ -11264,7 +11246,7 @@ void
 on_fix_atom_togglebutton_toggled       (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) { 
+  if (togglebutton->active) { 
     setup_fixed_atom_pick(1, 0);
   } else {
     setup_fixed_atom_pick(0, 0);
@@ -11276,7 +11258,7 @@ void
 on_unfix_atom_togglebutton_toggled     (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) { 
+  if (togglebutton->active) { 
     setup_fixed_atom_pick(1, 1);
   } else {
     setup_fixed_atom_pick(0, 1);
@@ -11303,14 +11285,12 @@ on_fixed_atom_close_button_clicked     (GtkButton       *button,
 }
 
 
-#if 0				/* GtkObject problem */
 void
 on_fixed_atom_dialog_destroy           (GtkObject       *object,
                                         gpointer         user_data)
 {
   store_fixed_atom_dialog(0);
 }
-#endif
 
 void
 on_add_rep_add_rep_button_clicked      (GtkButton       *button,
@@ -11361,7 +11341,6 @@ on_all2_activate                       (GtkMenuItem     *menuitem,
 
 }
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_residue_editor_select_monomer_type_ok_button_clicked (GtkButton       *button,
 						    gpointer         user_data) { 
@@ -11375,10 +11354,8 @@ on_residue_editor_select_monomer_type_ok_button_clicked (GtkButton       *button
   show_restraints_editor(t);
   gtk_widget_destroy(dialog);
 }
-#endif	/* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_residue_editor_select_monomer_type_cancel_button_clicked (GtkButton       *button,
 							gpointer         user_data) {
@@ -11386,10 +11363,8 @@ on_residue_editor_select_monomer_type_cancel_button_clicked (GtkButton       *bu
   GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "residue_editor_select_monomer_type_dialog");
   gtk_widget_destroy(dialog);
 }
-#endif	/* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_restraints1_activate                (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
@@ -11398,7 +11373,6 @@ on_restraints1_activate                (GtkMenuItem     *menuitem,
   GtkWidget *w = wrapped_create_residue_editor_select_monomer_type_dialog();
   gtk_widget_show(w);
 }
-#endif	/* GTK_MAJOR_VERSION */
 
 
 void
@@ -11720,7 +11694,7 @@ on_refine_params_use_ramachandran_goodness_torsions_checkbutton_toggled
                                         gpointer         user_data)
 {
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton)))
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active)
     set_refine_ramachandran_angles(1);
   else
     set_refine_ramachandran_angles(0);
@@ -11735,7 +11709,7 @@ on_edit_chi_angles_add_hydrogen_torsions_checkbutton_toggled
 {
    GtkWidget *vbox = lookup_widget(GTK_WIDGET(togglebutton),"edit_chi_angles_vbox");
 
-   if (gtk_toggle_button_get_active(togglebutton)) { 
+   if (togglebutton->active) { 
       set_find_hydrogen_torsions(1);
    } else { 
       set_find_hydrogen_torsions(0);
@@ -11799,14 +11773,13 @@ on_find_ligands_search_here_radiobutton_toggled
 
 }
 
-#if 0				/* GtkObject problem */
 void
 on_symmetry_controller_dialog_destroy  (GtkObject       *object,
                                         gpointer         user_data)
 {
   set_symmetry_controller_dialog_widget(0);
 }
-#endif
+
 
 void
 on_toolbar_multi_refine_continue_button_clicked
@@ -11869,7 +11842,7 @@ on_map_sharpening_reset_button_clicked (GtkButton       *button,
 {
     // reset to zero!?
     GtkWidget *h_scale = lookup_widget(GTK_WIDGET(button), "map_sharpening_hscale");
-    GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(h_scale));
+    GtkAdjustment *adj = GTK_RANGE(h_scale)->adjustment;
     gtk_adjustment_set_value(adj, 0.);
 
 }
@@ -11969,7 +11942,7 @@ on_environment_distances_h_bonds_checkbutton_toggled
                                         gpointer         user_data)
 {
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) 
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) 
     set_show_environment_distances_h_bonds(1);
   else
     set_show_environment_distances_h_bonds(0);
@@ -11981,7 +11954,7 @@ on_environment_distances_bumps_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) 
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) 
     set_show_environment_distances_bumps(1);
   else
     set_show_environment_distances_bumps(0);
@@ -11995,7 +11968,7 @@ on_environment_distance_max_entry_key_press_event
                                         gpointer         user_data)
 {
 
-  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
+  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) {
        execute_environment_settings(widget);
   }
   return FALSE;
@@ -12008,7 +11981,7 @@ on_environment_distance_min_entry_key_press_event
                                         gpointer         user_data)
 {
 
-  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
+  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) {
        execute_environment_settings(widget);
   }
   return FALSE;
@@ -12032,13 +12005,14 @@ on_displayed_map_style_as_lines_radiobutton_toggled
   GtkWidget *window = lookup_widget(GTK_WIDGET(togglebutton),
 				    "single_map_properties_dialog");
   int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(window)));
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) { 
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) { 
     set_draw_map_standard_lines(imol, 1);
     set_draw_solid_density_surface(imol, 0);
   }
 
 } 
 
+/* we should call this "third-map-mode" or something */
 void
 on_displayed_map_style_as_cut_glass_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
@@ -12047,12 +12021,9 @@ on_displayed_map_style_as_cut_glass_radiobutton_toggled
   GtkWidget *window = lookup_widget(GTK_WIDGET(togglebutton),
 				    "single_map_properties_dialog");
   int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(window)));
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) { 
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) { 
 
-    set_draw_map_standard_lines(imol, 1);
-    set_draw_solid_density_surface(imol, 0);
-
-    set_draw_map_standard_lines(imol, 1);
+    set_draw_map_standard_lines(imol, 0);
     set_draw_solid_density_surface(imol, 1);
     set_flat_shading_for_solid_density_surface(1);
   }
@@ -12066,7 +12037,7 @@ on_displayed_map_style_as_transparent_radiobutton_toggled
   GtkWidget *window = lookup_widget(GTK_WIDGET(togglebutton),
 				    "single_map_properties_dialog");
   int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(window)));
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) { 
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) { 
     set_draw_map_standard_lines(imol, 0);
     set_draw_solid_density_surface(imol, 1);
     set_flat_shading_for_solid_density_surface(0);
@@ -12199,7 +12170,7 @@ on_multi_residue_torsion_reverse_checkbutton_toggled
                                         gpointer         user_data)
 {
 
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
     set_multi_residue_torsion_reverse_mode(1);
   else 
     set_multi_residue_torsion_reverse_mode(0);
@@ -12276,12 +12247,12 @@ on_keyboard_go_to_residue_entry_key_press_event
 
   GtkWidget *w = lookup_widget(widget, "keyboard_goto_residue_window");
   const gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
-  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
+  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) {
     handle_go_to_residue_keyboarding_mode(text);
     gtk_widget_destroy(w);
     return TRUE;
   }
-  if (event->keyval == GDK_KEY_Escape) {
+  if (event->keyval == GDK_Escape) {
     gtk_widget_destroy(w);
     return TRUE;
   }
@@ -12331,16 +12302,13 @@ on_generic_objects_dialog_close        (GtkDialog       *dialog,
 
 }
 
-#if 0
-// generated interface - how does the new one work?
 void
 on_generic_objects_dialog_destroy      (GtkObject       *object,
                                         gpointer         user_data) { 
 
   clear_generic_objects_dialog_pointer();
 
-}
-#endif
+} 
 
 
 void
@@ -12350,7 +12318,7 @@ on_generic_objects_display_all_togglebutton_toggled
 {
 
   int state = 0;
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
     state = 1;
   set_display_all_generic_objects(state);
 
@@ -12486,7 +12454,7 @@ on_dynarama_outliers_only_togglebutton_toggled (GtkToggleButton *togglebutton,
 						gpointer         user_data)
 {
    GtkWidget *window = lookup_widget(GTK_WIDGET(togglebutton), "dynarama_window");
-   toggle_dynarama_outliers(window, gtk_toggle_button_get_active(togglebutton)); /* get the imol from window */
+   toggle_dynarama_outliers(window, togglebutton->active); /* get the imol from window */
 }
 
 
@@ -12498,7 +12466,7 @@ on_find_ligand_real_space_refine_solutions_checkbutton_toggled
 {
 
   printf("toggled\n");
-  if (gtk_toggle_button_get_active(togglebutton))
+  if (togglebutton->active)
     set_find_ligand_do_real_space_refinement(1);
   else
     set_find_ligand_do_real_space_refinement(0);
@@ -12714,6 +12682,205 @@ on_curlew_dialog_response              (GtkDialog       *dialog,
 
   if (response_id == GTK_RESPONSE_CLOSE)
     gtk_widget_destroy(GTK_WIDGET(dialog));
+
+}
+
+
+void
+on_modelling_activate                  (GtkMenuItem     *menuitem,
+                                        gpointer         user_data) {
+
+}
+
+
+void
+on_edit_settings_activate              (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+void
+on_calculate_all_molecule_activate     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_calculate_dock_sequence_activate    (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_calculate_map_tools_activate        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_calculate_modules_activate          (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_calculate_ncs_tools_activate        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_calculate_pisa_activate             (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_draw_representation_tools_activate  (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_calculate_views_activate            (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_calculate_load_tutorial_model_and_data1_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  load_tutorial_model_and_data();
+}
+
+
+void
+on_refine_params_geman_mcclure_alpha_combobox_changed
+                                        (GtkComboBox     *combobox,
+                                        gpointer         user_data)
+{
+
+   const char *t = gtk_combo_box_get_active_text(GTK_COMBO_BOX(combobox));
+   int active_item_idx = gtk_combo_box_get_active(combobox);
+   set_refinement_geman_mcclure_alpha_from_text(active_item_idx, t);
+}
+
+
+void
+on_refine_params_lennard_jones_epsilon_combobox_changed
+                                        (GtkComboBox     *combobox,
+                                        gpointer         user_data)
+{
+   const char *t = gtk_combo_box_get_active_text(GTK_COMBO_BOX(combobox));
+   int active_item_idx = gtk_combo_box_get_active(combobox);
+   set_refinement_lennard_jones_epsilon_from_text(active_item_idx, t);
+}
+
+
+void
+on_refine_params_rama_restraints_weight_combobox_changed
+                                        (GtkComboBox     *combobox,
+                                        gpointer         user_data)
+{
+   const char *t = gtk_combo_box_get_active_text(GTK_COMBO_BOX(combobox));
+   int active_item_idx = gtk_combo_box_get_active(combobox);
+   set_refinement_ramachandran_restraints_weight_from_text(active_item_idx, t);
+}
+
+
+void
+on_refine_params_more_control_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+   if (togglebutton) {
+      GtkWidget *frame = lookup_widget(GTK_WIDGET(togglebutton), "refine_params_more_control_frame");
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
+         gtk_widget_show(frame);
+         set_refine_params_dialog_more_control_frame_is_active(1);
+      } else {
+         gtk_widget_hide(frame);
+         set_refine_params_dialog_more_control_frame_is_active(0);
+      }
+   }
+}
+
+
+void
+on_accept_reject_flip_this_peptide_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  pepflip_intermediate_atoms();
+}
+
+
+void
+on_accept_reject_flip_next_peptide_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  pepflip_intermediate_atoms_other_peptide();
+}
+
+
+void
+on_accept_reject_crankshaft_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  crankshaft_peptide_rotation_optimization_intermediate_atoms();
+}
+
+
+void
+on_accept_reject_backrub_rotamer_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  backrub_rotamer_intermediate_atoms();
+}
+
+void
+on_symmetry_always_on_checkbutton_toggled (GtkToggleButton *togglebutton,
+					   gpointer         user_data) {
+
+   GtkWidget *symmetry_on_radio_button = NULL;
+   if (togglebutton->active) {
+      add_symmetry_on_to_preferences_and_apply();
+      symmetry_on_radio_button = lookup_widget(GTK_WIDGET(togglebutton), "show_symmetry_yes_radiobutton");
+      if (! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(symmetry_on_radio_button)))
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(symmetry_on_radio_button), TRUE);
+   }
+
+}
+
+
+void
+on_curlew1_activate              (GtkMenuItem     *menuitem,
+                                  gpointer         user_data) {
+
+  curlew();
 
 }
 

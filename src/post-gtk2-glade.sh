@@ -65,8 +65,8 @@ $SED -e 's/#include "callbacks.h.gtk2"/#include "callbacks.h"/' \
     -e 's/tmp_image = .*rtz.svg/#ifdef GTK_TYPE_MENU_TOOL_BUTTON\n  &/' \
     -e 's/set_tooltip .*model_toolbar_rot_trans_toolbutton.*;/&\n#endif\n/' \
     -e 's/ *GLADE_HOOKUP_OBJECT .*model_toolbar_rot_trans_toolbutton.*/#ifdef GTK_TYPE_MENU_TOOL_BUTTON\n  &\n#endif/' \
-    gtk2-interface.c > gtk2-interface.tmp
+    gtk2-interface.c > gtk2-interface.post-sed
 
-mv gtk2-interface.tmp gtk2-interface.c
+cp gtk2-interface.post-sed gtk2-interface.c
 sh fixup-gtk2-interface.sh
-
+bash fixup-interface.h.sh

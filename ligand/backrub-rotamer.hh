@@ -46,7 +46,8 @@ namespace coot {
       minimol::fragment make_test_fragment(mmdb::Residue *r, double rotation_angle) const;
       std::string chain_id;
       float score_fragment(minimol::fragment &frag) const;
-      clipper::Xmap<float> xmap;
+      // clipper::Xmap<float> xmap;
+      const clipper::Xmap<float> *xmap_p;
       mmdb::Manager *stored_mol;
       minimol::residue
       make_residue_include_only(mmdb::Residue *orig_prev_residue,
@@ -79,8 +80,7 @@ namespace coot {
       void apply_back_rotation(minimol::fragment *f,				   
 			       bool is_leading_peptide_flag,
 			       double best_back_rotation_angle) const;
-      
-      
+
    public:
 
       // Throw an exception on failure to construct the backrub internals.
@@ -91,13 +91,13 @@ namespace coot {
 	      mmdb::Residue *next_r,
 	      const std::string &alt_conf_in,
 	      mmdb::Manager *mol_in,
-	      const clipper::Xmap<float> &xmap_in) {
+	      const clipper::Xmap<float> *xmap_in_p) {
 	 orig_this_residue = this_r;
 	 orig_prev_residue = prev_r;
 	 orig_next_residue = next_r;
 	 setup_this_and_prev_next_ca_positions();
 	 chain_id = chain_id_in;
-	 xmap = xmap_in;
+	 xmap_p = xmap_in_p;
 	 alt_conf = alt_conf_in;
 	 stored_mol = mol_in;
       }

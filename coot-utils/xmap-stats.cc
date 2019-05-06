@@ -38,15 +38,15 @@ map_density_distribution(const clipper::Xmap<T> &map,
    double v; // optimised?
    double n_point = 0.0;
    T rho;
-   
+
    clipper::Xmap_base::Map_reference_index ix;
    for (ix=map.first(); !ix.last(); ix.next()) {
 
       n_point += 1.0;
       rho = map[ix];
-      if (! clipper::Util::is_nan(rho)) { 
-	 v = double (rho); 
-	 if (v < min) min = v; 
+      if (! clipper::Util::is_nan(rho)) {
+	 v = double (rho);
+	 if (v < min) min = v;
 	 if (v > max) max = v;
 
 	 sum += v;
@@ -59,7 +59,6 @@ map_density_distribution(const clipper::Xmap<T> &map,
    float var = float( (n_point*sum_sq - sum*sum) / (n_point*n_point) );
    float range = float( max - min );
    float inv_range = (range>0.0) ? (1.0/range) : (1.0);
-
 
    mv.mean = mean;
    mv.variance = var; 
@@ -106,9 +105,9 @@ map_density_distribution(const clipper::Xmap<T> &map,
 
       for (ix=map.first(); !ix.last(); ix.next()) {
 	 rho = map[ix];
-	 if (! clipper::Util::is_nan(rho)) { 
+	 if (! clipper::Util::is_nan(rho)) {
 	    bin_no = int (nbins_filter*(rho - min)*inv_range);
-	    bin[bin_no]++; 
+	    bin[bin_no]++;
 	    n++;
 	 }
       }

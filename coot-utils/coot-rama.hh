@@ -51,14 +51,15 @@ namespace coot {
     bool is_pre_pro_;
       
       public:
-	 phi_psi_t(double a, double b,
+	 // torsion angles in degrees
+	 phi_psi_t(double phi_in, double psi_in,
 		   const std::string &res_name,
 		   const std::string &residue_label,
 		   int resno,
 		   const std::string ins_code_in,
 		   std::string chainid) {
-	    phi_ = a;
-	    psi_ = b;
+	    phi_ = phi_in;
+	    psi_ = psi_in;
 	    lab = residue_label;
 	    residue_name_ = res_name;
 	    residue_number = resno;

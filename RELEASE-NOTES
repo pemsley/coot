@@ -1,5 +1,7 @@
 
-  Pre-Release 0.8.9.2
+-----
+
+  Release 0.8.9.2
 
   o FEATURE: LINK info added to header browser
 
@@ -179,6 +181,21 @@
 
   Release 0.8.8
 
+  o FEATURE: intermediate-atoms movement works with stick for atom positional 
+             restraint rather than scaled all-atom movement
+
+  o FEATURE: CPK atom colouring
+
+  o FEATURE: Ball & stick mode by default
+
+  o FEATURE: intermediate-atoms movement works with stick for atom positional
+             restraint rather than scaled all-atom movement
+
+  o FEATURE: intermediate-atoms pepflip enabled
+
+  o CHANGE: Jiggle fit now works by masking the out the map for neighbouring 
+            residues
+  
   o FEATURE: C++11 compilers will multi-thread multiple map contouring
 
   o FEATURE: SMILES -> simple 3D menu item added
@@ -223,6 +240,8 @@
 
   Release 0.8.7
 
+  o FEATURE: intermediate-atoms pepflip enabled
+
   o FEATURE: Lidia now has canvas scaling
 
   o FEATURE: Lidia now has CH3 superatoms, atom name and index display modes
@@ -258,6 +277,7 @@
 
   o BUG-FIX: Fix typo in findligand shell script
 
+----
 
   Release 0.8.6
 
@@ -267,11 +287,13 @@
 
   o CHANGE:  no backups for each residue in fill_partial residues() function.
 
-  o CHANGE:  User control over max and min distance to the protein in findwaters
+  o CHANGE:  User control over max and min distance to the protein in 
+             findwaters
 
   o CHANGE:  Go-To-Ligand function now has better animation
 
-  o CHANGE:  Included a speed-up for the non-bonded contact restraints generation
+  o CHANGE:  Included a speed-up for the non-bonded contact restraints 
+             generation
 
 -----
 
@@ -296,6 +318,8 @@
              to the centre of the screen (without CA subsitution)
 
   o FEATURE: chemical feature clustering (import cfc_ligand_sites)
+
+  o FEATURE: user-define colour scheme
 
   o FEATURE: Ramachandran plot now has a "Outliers Only" mode
 

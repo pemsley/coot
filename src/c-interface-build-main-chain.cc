@@ -162,7 +162,7 @@ set_add_terminal_residue_add_other_residue_flag(int i) {
 void set_add_terminal_residue_do_rigid_body_refine(short int v) { 
 
    graphics_info_t g;
-   g.terminal_residue_do_rigid_body_refine = v;
+   g.add_terminal_residue_do_rigid_body_refine = v;
    std::vector<std::string> command_strings;
    command_strings.push_back("set-terminal-residue-do-rigid-body-refine");
    command_strings.push_back(graphics_info_t::int_to_string(v));
@@ -176,6 +176,18 @@ void set_add_terminal_residue_do_rigid_body_refine(short int v) {
 void set_terminal_residue_do_rigid_body_refine(short int v) { 
    set_add_terminal_residue_do_rigid_body_refine(v);
 }
+
+void set_add_terminal_residue_debug_trials(short int debug_state) {
+
+   graphics_info_t g;
+   g.add_terminal_residue_debug_trials = debug_state;
+   std::vector<std::string> command_strings;
+   command_strings.push_back("set-terminal-residue-debug-trials");
+   command_strings.push_back(graphics_info_t::int_to_string(debug_state));
+   add_to_history(command_strings);
+
+}
+
 
 void set_add_terminal_residue_do_post_refine(short int istat) {
    graphics_info_t::add_terminal_residue_do_post_refine = istat;
@@ -233,10 +245,9 @@ int add_terminal_residue(int imol,
 	       g.molecules[imol].get_residue(chain_id, residue_number, inscode);
 
 	    if (res_p)
-	       g.execute_add_terminal_residue(imol, term_type, res_p, chain_id,
-					      residue_type_string, immediate_add);
+	       istate = g.execute_add_terminal_residue(imol, term_type, res_p, chain_id,
+						       residue_type_string, immediate_add);
 	    
-	    istate = 1;
 	 } else {
 	    std::cout << "WARNING:: in add_terminal_residue: "
 		      << " Can't find atom index for CA in residue "
@@ -244,6 +255,7 @@ int add_terminal_residue(int imol,
 	 }
       }
    }
+
    std::vector<std::string> command_strings;
    command_strings.push_back("add-terminal-residue");
    command_strings.push_back(graphics_info_t::int_to_string(imol));
@@ -482,22 +494,42 @@ void pepflip(int imol, const char *chain_id, int resno,
    } 
 } 
 
+int pepflip_intermediate_atoms() {
+
+   graphics_info_t g;
+   return g.pepflip_intermediate_atoms();
+} 
+
+int pepflip_intermediate_atoms_other_peptide() {
+
+   graphics_info_t g;
+   return g.pepflip_intermediate_atoms_other_peptide();
+}
+
 									 
 /*  ----------------------------------------------------------------------- */
 /*                         Planar Peptide Restraints                        */
 /*  ----------------------------------------------------------------------- */
 
 void add_planar_peptide_restraints() {
-
    graphics_info_t g;
    g.Geom_p()->add_planar_peptide_restraint();
 } 
 
 void remove_planar_peptide_restraints() {
-
    graphics_info_t g;
    g.Geom_p()->remove_planar_peptide_restraint();
 }
+
+
+/*! \brief make the planar peptide restraints tight
+
+Useful when refining models with cryo-EM maps */
+void make_tight_planar_peptide_restraints() {
+   graphics_info_t g;
+   g.Geom_p()->make_tight_planar_peptide_restraint();
+}
+
 
 /* return 1 if planar peptide restraints are on, 0 if off */
 int planar_peptide_restraints_state() {

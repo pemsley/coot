@@ -110,6 +110,7 @@ parse_command_line(int argc, char ** argv ) {
       {"hklin",  1, 0, 0},
       {"auto",   1, 0, 0},
       {"script", 1, 0, 0},
+      {"command", 1, 0, 0},
       {"ccp4-project", 1, 0, 0},
       {"dictionary", 1, 0, 0},
       {"code",       1, 0, 0},
@@ -174,7 +175,10 @@ parse_command_line(int argc, char ** argv ) {
 	    }
 	    if (arg_str == "script") {
 	       cld.script.push_back(optarg);
-	    } 
+	    }
+	    if (arg_str == "command") {
+	       cld.command.push_back(optarg);
+	    }
 	    if (arg_str == "port") {
 	       cld.port = atoi(optarg);
 	    } 
@@ -235,6 +239,7 @@ parse_command_line(int argc, char ** argv ) {
 			       << "            [--script script-file-name]\n"
 			       << "            [--em]\n"
 			       << "            [--title some-title]\n"
+			       << "            [--command command-script]\n"
 			       << "            [--small-screen]\n"
 			       << "            [--splash-screen]\n"
 			       << "            [--stereo]\n"
@@ -271,6 +276,9 @@ parse_command_line(int argc, char ** argv ) {
 #endif
 #ifdef HAVE_CXX_THREAD
 			   enableds.push_back("Threads");
+#endif
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+			   enableds.push_back("Boost-based-thread-pool");
 #endif
 #ifdef USE_MOLECULES_TO_TRIANGLES
 			   enableds.push_back("Molecular-triangles");

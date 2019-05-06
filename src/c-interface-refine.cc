@@ -53,7 +53,7 @@
 #include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
 #include "c-interface-scm.hh" // for display_scm
-
+#include "c-interface-refine.h" // for crankshaft_peptide_rotation_optimization_intermediate_atoms()
 
 
 /*  ----------------------------------------------------------------------- */
@@ -100,6 +100,7 @@ void refine_zone_atom_index_define(int imol, int ind1, int ind2) {
       std::cout << "WARNING: no molecule " << imol << " in "
 		<< "refine_zone_atom_index_define\n";
    }
+   g.conditionally_wait_for_refinement_to_finish();
 }
 
 void refine_zone(int imol, const char *chain_id,
@@ -119,6 +120,7 @@ void refine_zone(int imol, const char *chain_id,
 				is_water_like_flag);
       }
    }
+   g.conditionally_wait_for_refinement_to_finish();
 }
 
 /* use stored atom indices to re-run the refinement using the same atoms as previous */
@@ -126,7 +128,7 @@ void repeat_refine_zone() {
 
    graphics_info_t g;
    g.repeat_refine_zone();
-
+   g.conditionally_wait_for_refinement_to_finish();
 }
 
 
@@ -144,6 +146,7 @@ void refine_auto_range(int imol, const char *chain_id, int resno1, const char *a
 	 std::cout << "WARNING:: refine_auto_range: Can't get index for resno1: "
 		   << resno1 << std::endl;
       }
+      g.conditionally_wait_for_refinement_to_finish();
    }
 }
 
@@ -161,11 +164,12 @@ int regularize_zone(int imol, const char *chain_id, int resno1, int resno2, cons
 	 if (index2 >= 0) { 
 	    coot::refinement_results_t rr = g.regularize(imol, auto_range, index1, index2);
 	    std::cout << "debug:: restraints results " << rr.found_restraints_flag << " "
-		      << rr.lights.size() << " " << rr.info << std::endl;
+		      << rr.lights.size() << " " << rr.info_text << std::endl;
 	    if (rr.lights.size() > 0)
 	       status = 1;
 	    if (rr.found_restraints_flag)
 	       status = 1;
+            g.conditionally_wait_for_refinement_to_finish();
 	    
 	 } else {
 	    std::cout << "WARNING:: regularize_zone: Can't get index for resno2: "
@@ -183,7 +187,7 @@ int regularize_zone(int imol, const char *chain_id, int resno1, int resno2, cons
 
 
 // This does not control if the atoms are accepted immediately, just
-// whether the Accept Refinemnt gui is shown.
+// whether the Accept Refinement gui is shown.
 // 
 void set_refinement_immediate_replacement(int istate) {
    graphics_info_t::refinement_immediate_replacement_flag = istate;
@@ -418,13 +422,14 @@ PyObject *residues_distortions_py(int imol, PyObject *residue_specs_list_py) {
 	       std::vector<mmdb::Link> links;
 	       coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
 
-	       coot::restraints_container_t restraints(local_residues, links, geom, mol, fixed_atom_specs, xmap);
+	       coot::restraints_container_t restraints(local_residues, links, geom, mol, fixed_atom_specs, &xmap);
 	       int nrestraints =
 		  restraints.make_restraints(imol, geom, flags,
 					     do_residue_internal_torsions,
 					     do_trans_peptide_restraints,
 					     rama_plot_restraint_weight,
 					     do_rama_restraints,
+					     false, false,
 					     pseudo_bonds_type);
 	       coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions();
 	       // std::cout << "Found " << gd.size() << " geometry distortions" << std::endl;
@@ -467,6 +472,71 @@ PyObject *get_intermediate_atoms_distortions_py() {
    return r;
 }
 #endif
+
+#ifdef USE_GUILE
+SCM residues_distortions_scm(int imol, SCM residue_specs_scm) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      std::vector<coot::residue_spec_t> residue_specs = scm_to_residue_specs(residue_specs_scm);
+      if (! residue_specs.empty()) {
+	 std::vector<mmdb::Residue *> residues;
+	 for (std::size_t i=0; i<residue_specs.size(); i++) {
+	    const coot::residue_spec_t &rs = residue_specs[i];
+	    mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(rs);
+	    if (r) {
+	       residues.push_back(r);
+	    }
+	 }
+	 if (! residues.empty()) {
+	    graphics_info_t g;
+	    int imol_map = g.Imol_Refinement_Map();
+	    if (! is_valid_map_molecule(imol_map)) {
+	       add_status_bar_text("Refinement map not set");
+	    } else {
+	       // Happy Path
+	       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+
+	       std::vector<std::pair<bool,mmdb::Residue *> > local_residues;  // not fixed.
+	       for (unsigned int i=0; i<residues.size(); i++)
+		  local_residues.push_back(std::pair<bool, mmdb::Residue *>(false, residues[i]));
+	       const coot::protein_geometry &geom = *g.Geom_p();
+	       bool do_residue_internal_torsions = false;
+	       bool do_trans_peptide_restraints = false;
+	       bool do_rama_restraints = false;
+	       float rama_plot_restraint_weight = 1.0;
+	       coot::pseudo_restraint_bond_type pseudo_bonds_type = coot::NO_PSEUDO_BONDS;
+	       const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+	       std::vector<coot::atom_spec_t> fixed_atom_specs;
+	       std::vector<mmdb::Link> links;
+	       coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
+
+	       coot::restraints_container_t restraints(local_residues, links, geom, mol,
+						       fixed_atom_specs, &xmap);
+	       // don't do auto-secondary structure restraints
+	       int nrestraints =
+		  restraints.make_restraints(imol, geom, flags,
+					     do_residue_internal_torsions,
+					     do_trans_peptide_restraints,
+					     rama_plot_restraint_weight,
+					     do_rama_restraints, false, false,
+					     pseudo_bonds_type);
+	       coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions();
+	       if (gd.size() > 0) {
+		  r = SCM_EOL;
+		  for (std::size_t i=0; i<gd.geometry_distortion.size(); i++) {
+		     SCM gd_scm = g.geometry_distortion_to_scm(gd.geometry_distortion[i]);
+		     r = scm_cons(gd_scm, r);
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return r;
+}
+
+#endif // USE_GUILE
 
 
 /*! read in prosmart (typically) extra restraints */
@@ -536,6 +606,33 @@ void write_interpolated_models_and_extra_restraints(int imol_1, int imol_2, int 
       std::cout << "WARNING:: " << imol_1 << " is not a valid model molecule " << std::endl;
    }
 }
+
+void clear_atom_pull_restraint_on_accept_reject_destroy() {
+
+   graphics_info_t g;
+   g.clear_all_atom_pull_restraints(false);
+   graphics_draw();
+}
+
+void clear_all_atom_pull_restraints() {
+
+   graphics_info_t g;
+   g.clear_all_atom_pull_restraints(true);
+   graphics_draw();
+}
+
+void set_auto_clear_atom_pull_restraint(int state) {
+   graphics_info_t g;
+   g.auto_clear_atom_pull_restraint_flag = state;
+   std::cout << "------------------ set_auto_clear_atom_pull_restraint_state ";
+   std::cout << "------------------ update the accept_reject_refinement_dialog here. " << std::endl;
+} 
+
+int  get_auto_clear_atom_pull_restraint_state() {
+   graphics_info_t g;
+   return g.auto_clear_atom_pull_restraint_flag;
+}
+
 
 
 
@@ -658,7 +755,7 @@ int delete_restraints(const char *comp_id) {
    graphics_info_t g;
    return g.Geom_p()->delete_mon_lib(comp_id, imol);
    
-} 
+}
 
 
 /*! \brief add a user-define bond restraint
@@ -756,6 +853,25 @@ int add_extra_torsion_restraint(int imol,
    }
    return r;
 }
+
+int add_extra_target_position_restraint(int imol,
+					const char *chain_id,
+					int res_no,
+					const char *ins_code,
+					const char *atom_name,
+ 					const char *alt_conf, float x, float y, float z,
+					float weight) {
+
+   int r = -1;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_spec_t as(chain_id, res_no, ins_code, atom_name, alt_conf);
+      clipper::Coord_orth pos(x,y,z);
+      graphics_info_t g;
+      r = g.molecules[imol].add_extra_target_position_restraint(as, pos, weight);
+   }
+   return r;
+}
+
 
 
 #ifdef USE_GUILE
@@ -1140,6 +1256,28 @@ remove_initial_position_restraints(int imol, const std::vector<coot::residue_spe
    delete_all_extra_restraints(imol);
 }
 
+
+
+void set_show_intermediate_atoms_rota_markup(short int state) {
+   graphics_info_t::do_intermediate_atoms_rota_markup = state;
+}
+
+
+void set_show_intermediate_atoms_rama_markup(short int state) {
+   graphics_info_t::do_intermediate_atoms_rama_markup = state;
+
+}
+
+#ifdef USE_PYTHON
+void register_post_intermediate_atoms_moved_hook(PyObject *function) {
+
+   graphics_info_t g;
+   g.register_post_intermediate_atoms_moved_hook(function);
+
+}
+#endif
+
+
 // trash the multimodal (sp3) ring torsions and use
 // only unimodal restraints
 void use_unimodal_ring_torsion_restraints(const std::string &res_name) {
@@ -1208,9 +1346,25 @@ void use_unimodal_ring_torsion_restraints_for_residue(const std::string &res_nam
 
 void set_refinement_geman_mcclure_alpha(float alpha) {
 
-   graphics_info_t::geman_mcclure_alpha = alpha;
+   graphics_info_t g;
+   g.set_geman_mcclure_alpha(alpha);
 
 }
+
+//! \brief set the Lennard Jones epsilon parameter
+void set_refinement_lennard_jones_epsilon(float epsilon) {
+
+   graphics_info_t g;
+   g.set_lennard_jones_epsilon(epsilon);
+
+}
+
+//! \brief set the log cosh scale factor for target position restraints
+void set_log_cosh_target_distance_scale_factor(float sf) {
+   graphics_info_t::log_cosh_target_distance_scale_factor = sf;
+}
+
+
 
 #ifdef USE_GUILE
 void crankshaft_peptide_rotation_optimization_scm(int imol, SCM residue_spec_scm) {
@@ -1218,7 +1372,7 @@ void crankshaft_peptide_rotation_optimization_scm(int imol, SCM residue_spec_scm
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       coot::residue_spec_t rs = residue_spec_from_scm(residue_spec_scm);
-      unsigned int n_peptides = 5;
+      unsigned int n_peptides = 3;
       int n_samples = -1; // auto
 
       int imol_map = g.Imol_Refinement_Map();
@@ -1240,7 +1394,7 @@ void crankshaft_peptide_rotation_optimization_py(int imol, PyObject *residue_spe
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       coot::residue_spec_t rs = residue_spec_from_py(residue_spec_py);
-      unsigned int n_peptides = 5;
+      unsigned int n_peptides = 3;
       int n_samples = -1; // auto
 
       int imol_map = g.Imol_Refinement_Map();
@@ -1254,3 +1408,11 @@ void crankshaft_peptide_rotation_optimization_py(int imol, PyObject *residue_spe
    }
 }
 #endif
+
+
+int crankshaft_peptide_rotation_optimization_intermediate_atoms() {
+
+   graphics_info_t g;
+   return g.crankshaft_peptide_rotation_optimization_intermediate_atoms();
+
+}

@@ -426,8 +426,10 @@ int test_all_atom_overlaps() {
 
    if (read_status == mmdb::Error_NoError) {
       // spike length and probe radius (which are not used in overlaps)
-      bool waters = true; // include waters
-      coot::atom_overlaps_container_t overlaps(mol, &geom, waters, 0.5, 0.25);
+
+      bool ignore_water = false;
+      coot::atom_overlaps_container_t overlaps(mol, &geom, ignore_water, 0.5, 0.25);
+
       overlaps.make_all_atom_overlaps();
       std::vector<coot::atom_overlap_t> olv = overlaps.overlaps;
       std::cout << "Found " << olv.size() << " atom overlaps" << std::endl;
@@ -523,8 +525,394 @@ int test_glyco_link_by_geometry() {
 
 }
 
+#include <clipper/ccp4/ccp4_map_io.h>
+#include "coot-map-utils.hh"
 
-int main(int argv, char **argc) {
+int test_soi(int argc, char **argv) {
+
+   std::string file_name = "test.map";
+   if (argc == 2)
+      file_name = argv[1];
+
+   try {
+      clipper::CCP4MAPfile file;
+      clipper::Xmap<float> xmap;
+      file.open_read(file_name);
+      file.import_xmap(xmap);
+
+      coot::util::soi_variance sv(xmap);
+
+      /* we can't do this yet
+      clipper::Xmap<float> outmap = sv.proc(0.66);
+      clipper::CCP4MAPfile outmapfile;
+      outmapfile.open_write("soi.map");
+      outmapfile.export_xmap(outmap);
+      outmapfile.close_write();
+      */
+      sv.proc(0.66);
+
+   }
+   catch (const clipper::Message_base &exc) {
+      std::cout << "WARNING:: failed to open " << file_name << std::endl;
+   }
+
+   return 1;
+}
+
+#include <iomanip>
+#include "coot-map-heavy.hh"
+
+#define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+#include "utils/split-indices.hh"
+#include "utils/ctpl.h"
+
+void density_for_atoms_multithread(int thread_index,
+				   const atom_selection_container_t &asc,
+				   const clipper::RTop<> &rtop_og,
+				   const std::pair<unsigned int, unsigned int> &atom_index_range,
+				   const clipper::NXmap<float> &nxmap,
+				   float *dv,
+				   std::atomic<unsigned int> &done_count_for_threads) {
+
+   for (unsigned int i=atom_index_range.first; i<atom_index_range.second; i++) {
+      mmdb::Atom *at = asc.atom_selection[i];
+      clipper::Coord_orth pt = coot::co(at);
+      clipper::Coord_map cm_try_2(rtop_og * pt);
+      float dn = coot::util::density_at_point_by_cubic_interp(nxmap, cm_try_2);
+      *dv += dn;
+   }
+
+   done_count_for_threads++;
+}
+
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+
+int test_nxmap(int argc, char **argv) {
+
+   int status = 0;
+
+   if (argc <= 2) {
+      std::cout << "Usage: " << argv[0] << " map_file_name pdb_file_name" << std::endl;
+   } else {
+      // Happy path
+      std::string map_file_name = argv[1];
+      std::string pdb_file_name = argv[2];
+      clipper::CCP4MAPfile file;
+      clipper::Xmap<float> xmap;
+      file.open_read(map_file_name);
+      file.import_xmap(xmap);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
+
+      clipper::NXmap<float> nxmap = coot::util::make_nxmap(xmap, asc);
+      int n_atoms_max = asc.n_selected_atoms;
+
+      std::cout << "debug: xmap  grid " <<  xmap.grid_sampling().format() << std::endl;
+      std::cout << "debug: nxmap grid " << nxmap.grid().format() << std::endl;
+      clipper::RTop<> rtop_og = nxmap.operator_orth_grid();
+      clipper::RTop<> rtop_go = nxmap.operator_grid_orth();
+      std::cout << "operators\n" << rtop_og.format() << std::endl;
+      std::cout << rtop_go.format() << std::endl;
+
+      float min_x =  999;
+      float max_x = -999;
+      float min_y =  999;
+      float max_y = -999;
+      float min_z =  999;
+      float max_z = -999;
+
+      clipper::NXmap_base::Map_reference_index ix;
+      for (ix = nxmap.first(); !ix.last(); ix.next() )  { // iterator index.
+	 clipper::Coord_grid cg = ix.coord();
+	 clipper::Coord_map  cm = cg.coord_map();
+	 clipper::Coord_orth pt = nxmap.coord_orth(cm);
+	 // std::cout << "    " << pt.format() << std::endl;
+	 if (pt.x() < min_x) min_x = pt.x();
+	 if (pt.x() > max_x) max_x = pt.x();
+	 if (pt.y() < min_y) min_y = pt.y();
+	 if (pt.y() > max_y) max_y = pt.y();
+	 if (pt.z() < min_z) min_z = pt.z();
+	 if (pt.z() > max_z) max_z = pt.z();
+      }
+
+      std::cout << "nx grid extents: x " << min_x << " " << max_x << std::endl;
+      std::cout << "nx grid extents: y " << min_y << " " << max_y << std::endl;
+      std::cout << "nx grid extents: z " << min_z << " " << max_z << std::endl;
+
+      auto tp_0 = std::chrono::high_resolution_clock::now();
+      for(int i=0; i<n_atoms_max; i++) {
+	 mmdb::Atom *at = asc.atom_selection[i];
+	 clipper::Coord_orth pt = coot::co(at);
+	 float dx = coot::util::density_at_point(xmap, pt);
+      }
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+
+      for(int i=0; i<n_atoms_max; i++) {
+	 // std::cout << "atom i " << i << std::endl;
+	 mmdb::Atom *at = asc.atom_selection[i];
+	 clipper::Coord_orth pt = coot::co(at);
+
+	 clipper::Coord_map cm_try_2(rtop_og * pt);
+	 float dn = coot::util::density_at_point_by_cubic_interp(nxmap, cm_try_2);
+      }
+      auto tp_2 = std::chrono::high_resolution_clock::now();
+
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+      // let's do that with the thread pool
+
+      unsigned int n_threads = 3; // 3 is faster than 4.
+      ctpl::thread_pool thread_pool(n_threads);
+      std::atomic<unsigned int> done_count_for_threads(0);
+      std::vector<float> dv(n_threads, 0.0);
+      std::vector<std::pair<unsigned int, unsigned int> > ranges =
+	 coot::atom_index_ranges(n_atoms_max, n_threads);
+      auto tp_3 = std::chrono::high_resolution_clock::now();
+      for (std::size_t i=0; i<ranges.size(); i++) {
+	 thread_pool.push(density_for_atoms_multithread,
+			  std::cref(asc),
+			  std::cref(rtop_og),
+			  std::cref(ranges[i]),
+			  std::cref(nxmap),
+			  &dv[i],
+			  std::ref(done_count_for_threads));
+      }
+      auto tp_4 = std::chrono::high_resolution_clock::now();
+      while (done_count_for_threads < ranges.size()) {
+	 std::this_thread::sleep_for(std::chrono::microseconds(1));
+      }
+      auto tp_5 = std::chrono::high_resolution_clock::now();
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+
+      auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+      auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
+      std::cout << "Timings:: d10  " << std::setw(4) << d10 << " microseconds" << std::endl;
+      std::cout << "Timings:: d21  " << std::setw(4) << d21 << " microseconds" << std::endl;
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+      auto d43 = std::chrono::duration_cast<std::chrono::microseconds>(tp_4 - tp_3).count();
+      auto d54 = std::chrono::duration_cast<std::chrono::microseconds>(tp_5 - tp_4).count();
+      std::cout << "Timings:: d43  " << std::setw(4) << d43 << " microseconds" << std::endl;
+      std::cout << "Timings:: d54  " << std::setw(4) << d54 << " microseconds" << std::endl;
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+   }
+
+   return status;
+
+}
+
+int
+test_nxmap_edcalc(int argc, char **argv) {
+
+   if (argc <= 2) {
+      std::cout << "Usage: " << argv[0] << " map_file_name pdb_file_name" << std::endl;
+   } else {
+      std::string map_file_name = argv[1];
+      std::string pdb_file_name = argv[2];
+      clipper::CCP4MAPfile file;
+      clipper::Xmap<float> xmap;
+      file.open_read(map_file_name);
+      file.import_xmap(xmap);
+      std::cout << "Getting atoms... " << std::endl;
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
+
+      // now a few residues
+      coot::residue_spec_t spec_1("A", 10, "");
+      coot::residue_spec_t spec_2("A", 11, "");
+      coot::residue_spec_t spec_3("A", 12, "");
+      coot::residue_spec_t spec_4("A", 13, "");
+      coot::residue_spec_t spec_5("A", 14, "");
+
+      int few_residues_selection_handle = asc.mol->NewSelection();
+
+      spec_1.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_NEW);
+      spec_2.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+      spec_3.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+      spec_4.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+      spec_5.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+
+      std::cout << "Making nxmap... " << std::endl;
+      clipper::NXmap<float> nxmap_ref = coot::util::make_nxmap(xmap, asc.mol, few_residues_selection_handle);
+      std::cout << "ED calc..." << std::endl;
+      clipper::NXmap<float> nxmap_edcalc = coot::util::make_edcalc_map(nxmap_ref,  // for metrics
+								       asc.mol, few_residues_selection_handle);
+
+      asc.mol->DeleteSelection(few_residues_selection_handle);
+
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write("edcalc.map");
+      mapout.set_cell(xmap.cell());
+      mapout.export_nxmap(nxmap_edcalc);
+      mapout.close_write();
+
+      clipper::CCP4MAPfile mapout_ref;
+      mapout.open_write("edcalc_ref.map");
+      mapout.set_cell(xmap.cell());
+      mapout.export_nxmap(nxmap_ref);
+      mapout.close_write();
+
+      // bricks
+
+      std::cout << "---------- testing bricks " << std::endl;
+      int t1 = coot::get_brick_id_inner(0,0,0, 2,2,2);
+      int t2 = coot::get_brick_id_inner(1,0,0, 6,4,8);
+      int t3 = coot::get_brick_id_inner(0,1,0, 6,4,8);
+      int t4 = coot::get_brick_id_inner(1,1,0, 6,4,8);
+      int t5 = coot::get_brick_id_inner(3,2,2, 6,4,8);
+
+      std::cout << "test: t1, t2, t3, t4 t5 "
+		<< t1 << " " << t2 << " " << t3 << " " << t4 << " " << t5
+		<< std::endl;
+
+
+      float atom_max_radius = 3.0;
+      std::vector<std::vector<int> > bricks =
+	 coot::molecule_to_bricks(asc.mol, asc.SelectionHandle, atom_max_radius);
+
+      std::cout << "found " << bricks.size() << " bricks for "
+		<< asc.n_selected_atoms << " atoms " << std::endl;
+
+      // this looks fine
+      if (false) {
+	 for (std::size_t ii=0; ii<bricks.size(); ii++) {
+	    std::cout << "--- brick " << ii << std::endl;
+	    for (std::size_t jj=0; jj<bricks[ii].size(); jj++) {
+	       std::cout << "   " << bricks[ii][jj] << " "
+			 << coot::atom_spec_t(asc.atom_selection[bricks[ii][jj]]) << "\n";
+	    }
+	 }
+      }
+   }
+   return 1;
+}
+
+int
+test_string_split() {
+
+   int status = 1;
+
+   std::cout << "test_string_split()" << std::endl;
+
+   std::string s = "All Loop candidates ";
+   std::vector<std::string> v = coot::util::split_string(s, " ");
+   std::cout << "0: \"" << v[0] << "\"" << std::endl;
+   std::cout << "1: \"" << v[1] << "\"" << std::endl;
+   std::cout << "2: \"" << v[2] << "\"" << std::endl;
+
+   return status;
+
+}
+
+#include "bonded-atoms.hh"
+
+int test_bonded_atoms(int argc, char **argv) {
+
+   int status = 1;
+   if (argc > 2) {
+      std::string pdb_file_name = argv[2];
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
+
+      auto tp_0 = std::chrono::high_resolution_clock::now();
+      std::vector<std::vector<unsigned int> > b = coot::make_bonds(asc.mol,
+								   asc.n_selected_atoms,
+								   asc.UDDAtomIndexHandle);
+
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+
+      // Timings: 2844 us make_bonds()
+      //           193 us find_1_4_connections()
+      //
+      std::vector<std::vector<unsigned int> > connections_1_4 = coot::find_1_4_connections(b);
+
+      for (std::size_t i=0; i<connections_1_4.size(); i++) {
+	 const std::vector<unsigned int> &v1 = connections_1_4[i];
+	 mmdb::Atom *at_i = asc.atom_selection[i];
+	 for (std::size_t j=0; j<v1.size(); j++) {
+	    mmdb::Atom *at_j = asc.atom_selection[v1[j]];
+	    if (false)
+	       std::cout << " 1-4: " << coot::atom_spec_t(at_i) << " "
+			 << coot::atom_spec_t(at_j) << std::endl;
+	 }
+      }
+      auto tp_2 = std::chrono::high_resolution_clock::now();
+      auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+      auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
+      std::cout << "Timings:: d10  " << std::setw(4) << d10 << " microseconds" << std::endl;
+      std::cout << "Timings:: d21  " << std::setw(4) << d21 << " microseconds" << std::endl;
+   }
+
+
+   return status;
+}
+
+#include "helix-like.hh"
+
+int test_helix_like(int argc, char **argv) {
+
+    if (argc == 2) {
+       std::string file_name = argv[1];
+       atom_selection_container_t asc = get_atom_selection(file_name, true, true);
+       if (asc.read_success) {
+          std::vector<std::string> ch_ids;
+          int imod = 1;
+          mmdb::Model *model_p = asc.mol->GetModel(imod);
+          if (model_p) {
+             int n_chains = model_p->GetNumberOfChains();
+             for (int ichain=0; ichain<n_chains; ichain++) {
+                mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                ch_ids.push_back(chain_p->GetChainID());
+             }
+          }
+
+          for (unsigned int ich=0; ich<ch_ids.size(); ich++) {
+             int residue_selection_handle = asc.mol->NewSelection();
+             asc.mol->Select (residue_selection_handle, mmdb::STYPE_RESIDUE, 0,
+                    ch_ids[ich].c_str(),
+                    mmdb::ANY_RES, "*",  // starting res
+                    mmdb::ANY_RES, "*",  // ending res
+                    "*",  // residue name
+                    "*",  // Residue must contain this atom name?
+                    "*",  // Residue must contain this Element?
+                    "*",  // altLocs
+                    mmdb::SKEY_NEW // selection key
+                    );
+             std::cout << "test like_a_helix()" << std::endl;
+             coot::like_a_helix(asc.mol, residue_selection_handle);
+             asc.mol->DeleteSelection(residue_selection_handle);
+          }
+       }
+    }
+    return 0;
+}
+
+
+#include "merge-atom-selections.hh"
+
+int
+test_merge_fragments(int argc, char **argv) {
+
+   if (argc == 2) {
+      std::string file_name = argv[1];
+      atom_selection_container_t asc = get_atom_selection(file_name, true, true);
+      if (asc.read_success) {
+         std::vector<std::string> ch_ids;
+         int imod = 1;
+         mmdb::Model *model_p = asc.mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               ch_ids.push_back(chain_p->GetChainID());
+            }
+         }
+         coot::merge_atom_selections(asc.mol);
+         asc.mol->WritePDBASCII("merged.pdb");
+      }
+   }
+   return 1;
+}
+
+
+int main(int argc, char **argv) {
 
    if (1)
       test_all_atom_overlaps();
@@ -569,7 +957,28 @@ int main(int argv, char **argc) {
 
 //    if (true)
 //       test_cp();
+
+   if (false)
+      test_soi(argc, argv);
+
+   if (false)
+      test_nxmap(argc, argv);
+
+   if (false)
+      test_bonded_atoms(argc, argv);
+
+   if (false)
+      test_string_split();
    
+   if (false)
+      test_nxmap_edcalc(argc, argv);
+
+   if (false)
+      test_helix_like(argc, argv);
+
+   if (true)
+      test_merge_fragments(argc, argv);
+
    return 0;
 }
 

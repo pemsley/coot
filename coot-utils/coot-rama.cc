@@ -141,8 +141,8 @@ coot::util::get_phi_psi(mmdb::Residue *residue_0, mmdb::Residue *residue_1, mmdb
       label += " ";
       label += residue_1->name;
       
-      double phi = clipper::Util::rad2d(ca_this.torsion(c_prev, n_this, ca_this, c_this));
-      double psi = clipper::Util::rad2d(ca_this.torsion(n_this, ca_this, c_this, n_next));
+      double phi   = clipper::Util::rad2d(ca_this.torsion(c_prev, n_this, ca_this, c_this));
+      double psi   = clipper::Util::rad2d(ca_this.torsion(n_this, ca_this, c_this, n_next));
       
       phi_psi = coot::util::phi_psi_t(phi, psi,
 				      residue_1->name,

@@ -5,6 +5,9 @@ EXTRA_DIST = hicolor_apps_48x48_coot.png   \
 	     hicolor_apps_256x256_coot.png \
 	     hicolor_apps_scalable_coot.svg
 
+# is this install-data-local thing needed now? Check with other software that install
+# desktop icons.
+#
 install-data-local:
 	for icon in $(EXTRA_DIST); do \
 		THEME=`   echo $$icon | cut -d_ -f1`; \

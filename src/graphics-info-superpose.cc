@@ -40,61 +40,46 @@
 // superpose_optionmenu_activate_mol1 were here (I don't recall why now...)
 // 
 
-// superposing:
-// static 
-void 
-graphics_info_t::superpose_optionmenu_activate_mol1(GtkWidget *item, GtkPositionType pos) { 
-   //    std::cout << "DEBUG:: superpose imol1 now " <<  pos << std::endl;
-   graphics_info_t::superpose_imol1 = pos;
-   GtkWidget *chain_optionmenu = lookup_widget(GTK_WIDGET(item), 
-					       "superpose_reference_chain_optionmenu");
-   GtkWidget *checkbutton = lookup_widget(GTK_WIDGET(item),
-					  "superpose_reference_chain_checkbutton");
-   if (GTK_TOGGLE_BUTTON(checkbutton)->active)
-      graphics_info_t::fill_superpose_option_menu_with_chain_options(chain_optionmenu, 1);
-} 
 
-// static 
 void
-graphics_info_t::superpose_optionmenu_activate_mol2(GtkWidget *item, GtkPositionType pos) { 
-   //    std::cout << "DEBUG:: superpose imol2 now " <<  pos << std::endl;
-   graphics_info_t::superpose_imol2 = pos;
-   GtkWidget *chain_optionmenu = lookup_widget(GTK_WIDGET(item), 
-					       "superpose_moving_chain_optionmenu");
-   GtkWidget *checkbutton = lookup_widget(GTK_WIDGET(item),
-					  "superpose_moving_chain_checkbutton");
-   if (GTK_TOGGLE_BUTTON(checkbutton)->active)
-      graphics_info_t::fill_superpose_option_menu_with_chain_options(chain_optionmenu, 0);
-} 
- 
+graphics_info_t::superpose_combobox_changed_mol1(GtkWidget *combobox, gpointer data) {
+
+   graphics_info_t g;
+   int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t::superpose_imol1 = imol;
+}
+
+void
+graphics_info_t::superpose_combobox_changed_mol2(GtkWidget *combobox, gpointer data) {
+
+   graphics_info_t g;
+   int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t::superpose_imol2 = imol;
+}
 
 // static
-void graphics_info_t::fill_superpose_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
-								    int is_reference_structure_flag) {
-   GtkWidget *mol_optionmenu = NULL;
+void graphics_info_t::fill_superpose_combobox_with_chain_options(GtkWidget *button,
+								 int is_reference_structure_flag) {
+   GtkWidget *chain_combobox = NULL;
 
    if (is_reference_structure_flag)
-      mol_optionmenu = lookup_widget(chain_optionmenu,
-				     "superpose_dialog_reference_mol_optionmenu");
+      chain_combobox = lookup_widget(button, "superpose_dialog_reference_chain_combobox");
    else 
-      mol_optionmenu = lookup_widget(chain_optionmenu,
-				     "superpose_dialog_moving_mol_optionmenu");
+      chain_combobox = lookup_widget(button, "superpose_dialog_moving_chain_combobox");
 
-   GtkSignalFunc callback_func;
+   GCallback callback_func = 0;
    int imol;
    if (is_reference_structure_flag) { 
       imol = graphics_info_t::superpose_imol1;
-      callback_func =
-	 GTK_SIGNAL_FUNC(graphics_info_t::superpose_reference_chain_option_menu_item_activate);
+      callback_func = G_CALLBACK(superpose_reference_chain_combobox_changed);
    } else {
       imol = graphics_info_t::superpose_imol2;
-       callback_func =
-	 GTK_SIGNAL_FUNC(graphics_info_t::superpose_moving_chain_option_menu_item_activate);
+       callback_func = G_CALLBACK(superpose_moving_chain_combobox_changed);
    }
-   
-   if (imol >=0 && imol < n_molecules()) { 
-      std::string set_chain = graphics_info_t::fill_option_menu_with_chain_options(chain_optionmenu,
-										   imol, callback_func);
+
+   if (is_valid_model_molecule(imol)) {
+
+      std::string set_chain = fill_combobox_with_chain_options(chain_combobox, imol, callback_func, "");
       if (is_reference_structure_flag) {
 	 graphics_info_t::superpose_imol1_chain = set_chain;
       } else {
@@ -109,24 +94,21 @@ void graphics_info_t::fill_superpose_option_menu_with_chain_options(GtkWidget *c
 
 // static
 void
-graphics_info_t::superpose_reference_chain_option_menu_item_activate (GtkWidget *item,
-								      GtkPositionType pos) {
-   std::string s = graphics_info_t::menu_item_label(item);
-   graphics_info_t::superpose_imol1_chain = s;
+graphics_info_t::superpose_reference_chain_combobox_changed(GtkWidget *combobox,
+							 gpointer data) { 
+
+   graphics_info_t g;
+   graphics_info_t::superpose_imol1_chain = g.get_active_label_in_combobox(GTK_COMBO_BOX(combobox));
 }
 
-
-
-// This does a redraw
-// 
 // static
 void
-graphics_info_t::superpose_moving_chain_option_menu_item_activate (GtkWidget *item,
-								   GtkPositionType pos) { 
+graphics_info_t::superpose_moving_chain_combobox_changed(GtkWidget *combobox,
+							 gpointer data) { 
 
-   graphics_info_t::superpose_imol2_chain = menu_item_label(item);
+   graphics_info_t g;
+   graphics_info_t::superpose_imol2_chain = g.get_active_label_in_combobox(GTK_COMBO_BOX(combobox));
 }
-
 
 // Note that the 1 and 2 meanings get swapped.  Here they mean: 1 for
 // moving and 2 for reference (except imol2 (which is the number of the

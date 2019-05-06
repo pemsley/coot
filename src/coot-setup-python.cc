@@ -29,6 +29,7 @@
 #include "compat/coot-sysdep.h"
 #include <gtk/gtk.h>
 #include "coot-setup-python.hh"
+#include "python-classes.hh"
 #include "coot-glue.hh"
 #include "c-interface.h"
 #include "c-interface-preferences.h"
@@ -162,6 +163,16 @@ void setup_python(int argc, char **argv) {
 #endif // USE_PYTHON  
 
 }
+
+void
+setup_python_classes() {
+#ifdef USE_PYTHON
+
+      init_pathology_data();
+
+#endif
+
+} 
 
 void try_load_dot_coot_py_and_preferences(const std::string &home_directory) {
 

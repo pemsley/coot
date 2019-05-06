@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef CXXAlloc_included
-#define CXXAlloc_included
+#ifndef CXX_mot_CXXAlloc_included
+#define CXX_mot_CXXAlloc_included
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -27,7 +27,7 @@
 #endif
 
 
-namespace CXX {
+namespace CXX_old {
 	inline void destruct(char*) {}
 	inline void destruct(wchar_t*) {}
 	template <typename T> inline void destruct(T* t) { t->~T(); }
@@ -83,7 +83,7 @@ namespace CXX {
 			::new(static_cast<void*>(p)) T(val);
 		}
 		void destroy(pointer p) {
-			CXX::destruct(p);
+			CXX_old::destruct(p);
 		};
     };
 

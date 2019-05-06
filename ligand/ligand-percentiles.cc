@@ -81,7 +81,7 @@ void ranks(const std::string &database_name) {
 
    std::vector<std::string> primary_keys = lm.get_primary_keys();
 
-   std::cout << "Found " << primary_keys.size() << " primary keys" << std::endl;
+   std::cout << "# Found " << primary_keys.size() << " primary keys" << std::endl;
 
    std::vector<std::pair<std::string, ligand_index_score_t> > tri_ranks;
    std::map<std::string, std::vector<double> > values_store;
@@ -139,6 +139,8 @@ void ranks(const std::string &database_name) {
 
    std::sort(tri_ranks.begin(), tri_ranks.end(), ligand_index_score_t::sort_compare_fn);
 
+   std::cout << "code rank direct-map-correl diff-map-correl bumps mogul_z_worst ";
+   std::cout << "comp_id chain_id res_no\n";
    int n = primary_keys.size();
    double m = metric_names.size() * n * n;
    double rm = 1.0/m;
@@ -153,7 +155,7 @@ void ranks(const std::string &database_name) {
 		<< std::setw(5) << it->second.idx_4 << " "
 		<< residue_spec_and_type.second << " "
 		<< residue_spec_and_type.first.chain_id << " "
-		<< residue_spec_and_type.first.res_no << std::endl;
+		<< residue_spec_and_type.first.res_no << "\n";
    }
    
 }
@@ -188,7 +190,7 @@ int main(int argc, char **argv) {
       int ch;
       int option_index = 0;
       while ( -1 != 
-	      (ch = getopt_long(argc, argv, optstr, long_options, &option_index))) {
+	      (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index))) {
 
 	 switch(ch) {
 	    

@@ -35,20 +35,67 @@
 
 namespace coot {
 
-   namespace util { 
+   namespace util {
+
+      class amplitude_vs_resolution_point {
+      public:
+	 amplitude_vs_resolution_point() {
+	    sum = 0.0; count = 0; resolution_recip_sum = 0.0; finished = false; }
+	 double sum;
+	 double average;
+	 unsigned int count;
+	 double resolution_recip_sum;
+	 double resolution_recip;
+	 bool finished;
+	 void add(const float &f_in, const float &inv_res_sq_in) {
+	    sum += f_in;
+	    resolution_recip_sum += inv_res_sq_in;
+	    count += 1;
+	 }
+	 void finish() {
+	    if (count > 0) {
+	       average = sum/static_cast<float>(count);
+	       resolution_recip = resolution_recip_sum/static_cast<float>(count);
+	    }
+	    finished = true;
+	 }
+	 double get_average_f() const {
+	    if (finished) {
+	       return average;
+	    } else {
+	       std::cout << "amplitude_vs_resolution_point() Not finihsed " << std::endl;
+	       return 0.0;
+	    }
+	 }
+	 double get_invresolsq() const {
+	    if (finished) {
+	       return resolution_recip;
+	    } else {
+	       std::cout << "amplitude_vs_resolution_point() Not finihsed " << std::endl;
+	       return 0.0;
+	    }
+	 }
+      };
 
       clipper::RTop_orth make_rtop_orth_from(mmdb::mat44 mat);
 
       // cubic interpolation
       float density_at_point(const clipper::Xmap<float> &map_in,
 			     const clipper::Coord_orth &co);
+      float density_at_point_by_cubic_interp(const clipper::NXmap<float> &map_in,
+					     const clipper::Coord_map &cm);
       // linear interpolation (faster) use for jiggle-fit of chains and the like
       float density_at_point_by_linear_interpolation(const clipper::Xmap<float> &map_in,
 						     const clipper::Coord_orth &co);
+      // nearest grid point - faster yet
+      float density_at_point_by_nearest_grid(const clipper::Xmap<float> &map_in,
+					     const clipper::Coord_orth &co);
 
       float density_at_map_point(const clipper::Xmap<float> &map_in,
 				 const clipper::Coord_map &cg);
 
+      clipper::Grad_orth<double> gradient_at_point(const clipper::Xmap<float> &map_in,
+						   const clipper::Coord_orth &co);
 
       // return a variance of -1 on error.
       std::pair<float, float> mean_and_variance(const clipper::Xmap<float> &xmap);
@@ -115,8 +162,23 @@ namespace coot {
 				       const clipper::Xmap<float> &xmap,
 				       bool main_chain_only_flag = false);
 
+      clipper::Xmap<float> sharpen_blur_map(const clipper::Xmap<float> &xmap_in, float b_factor);
+
+      // pass a pointer to a vector of maps that has the same size as the number of B-factors
+      //
+      void multi_sharpen_blur_map(const clipper::Xmap<float> &xmap_in,
+			    const std::vector<float> &b_factors,
+			    std::vector<clipper::Xmap<float> > *maps_p);
+
+      // not sure if this works ATM
       clipper::Xmap<float> sharpen_map(const clipper::Xmap<float> &xmap_in,
 				       float sharpen_factor);
+
+      // if n_bins is -1, let the function decide how many bins
+      //
+      std::vector<amplitude_vs_resolution_point>
+      amplitude_vs_resolution(const clipper::Xmap<float> &xmap_in,
+			      int n_bins = -1);
       
       clipper::Xmap<float> transform_map(const clipper::Xmap<float> &xmap_in,
 					 const clipper::Spacegroup &new_space_group,
@@ -143,6 +205,9 @@ namespace coot {
 					 const clipper::Spacegroup &space_group,
 					 const clipper::Grid_sampling &sampling);
 
+      clipper::Xmap<float> mask_map(const clipper::Xmap<float> &xmap_in,
+				    const std::vector<mmdb::Residue *> &neighbs);
+
       // return a number less than -1 on badness
       // (perhaps this should return the atom map and the mask map)
       //
@@ -155,7 +220,7 @@ namespace coot {
 				     const std::vector<residue_spec_t> &specs_for_correl,
 				     const std::vector<residue_spec_t> &specs_for_masking_neighbs,
 				     unsigned short int atom_mask_mode,
-				     float atom_radius, // for masking 
+				     float atom_radius, // for masking
 				     const clipper::Xmap<float> &xmap_from_sfs);
 
       density_correlation_stats_info_t
@@ -163,7 +228,7 @@ namespace coot {
 				     const std::vector<residue_spec_t> &specs_for_correl,
 				     const std::vector<residue_spec_t> &specs_for_masking_neighbs,
 				     unsigned short int atom_mask_mode,
-				     float atom_radius, // for masking 
+				     float atom_radius, // for masking
 				     const clipper::Xmap<float> &xmap_from_sfs,
 				     map_stats_t map_stats_flag);
 
@@ -175,6 +240,13 @@ namespace coot {
 					   unsigned short int atom_mask_mode,
 					   float atom_radius, // for masking 
 					   const clipper::Xmap<float> &xmap_from_sfs);
+
+      std::map<coot::residue_spec_t, density_stats_info_t>
+      map_to_model_correlation_stats_per_residue(mmdb::Manager *mol,
+						 const std::vector<residue_spec_t> &specs,
+						 unsigned short int atom_mask_mode,
+						 float atom_radius, // for masking 
+						 const clipper::Xmap<float> &xmap);
 
       // helper
       std::pair<clipper::Coord_frac, clipper::Coord_frac>
@@ -238,7 +310,7 @@ namespace coot {
       // the highest density.
       // 
       // return a torsion
-      float spin_search(const clipper::Xmap<float> &xmap, mmdb::Residue *res, coot::torsion tors);
+      std::pair<float, float> spin_search(const clipper::Xmap<float> &xmap, mmdb::Residue *res, coot::torsion tors);
 
       // Return a map that is a copy of the given map with interpolation,
       // with grid spacing at most 0.5A (by generated by integer scaling
@@ -361,8 +433,6 @@ namespace coot {
       };
 
 
-
-
       class segment_map {
 	 enum {UNASSIGNED = -1, TOO_LOW = -2 };
 	 // sorting function used by above
@@ -414,6 +484,22 @@ namespace coot {
 						     float low_level,
 						     float b_factor_increment, // per round
 						     int n_rounds);
+      };
+
+      class soi_variance {
+	 const clipper::Xmap<float> &xmap;
+	 clipper::Xmap<float> make_variance_map() const;
+	 clipper::Xmap<float> solvent_treatment_map() const;
+	 clipper::Xmap<float> protein_treatment_map() const;
+	 static void apply_variance_values(clipper::Xmap<float> &variance_map,
+					   const clipper::Xmap<float> &xmap,
+					   const std::vector<clipper::Coord_grid> &soi_gps,
+					   const std::vector<clipper::Xmap_base::Map_reference_index> &grid_indices);
+      public:
+	 soi_variance(const clipper::Xmap<float> &xmap_in) : xmap(xmap_in) { }
+	 void proc(float solvent_content_frac);
+	 static bool mri_var_pair_sorter(const std::pair<clipper::Xmap_base::Map_reference_index, float> &p1,
+					 const std::pair<clipper::Xmap_base::Map_reference_index, float> &p2);
       };
 
       bool is_EM_map(const clipper::Xmap<float> &xmap);

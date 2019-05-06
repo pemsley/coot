@@ -6,8 +6,8 @@
  *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
-#ifndef CXXTriangle_included
-#define CXXTriangle_included
+#ifndef CXX_mot_CXXTriangle_included
+#define CXX_mot_CXXTriangle_included
 
 #include "CXXSurfaceVertex.h"
 

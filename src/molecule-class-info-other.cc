@@ -76,6 +76,7 @@
 #include "ligand/richardson-rotamer.hh"
 #endif 
 
+#include "geometry/mol-utils.hh"
 #include "ligand/ligand.hh"
 #include "utils/coot-utils.hh"
 #include "coot-utils/lsq-improve.hh"
@@ -392,7 +393,8 @@ molecule_class_info_t::molecule_is_all_c_alphas() const {
 
 void
 molecule_class_info_t::bond_representation(const coot::protein_geometry *geom_p) {
-   makebonds(geom_p);
+   std::set<int> dummy;
+   makebonds(geom_p, dummy);
 }
 
 void
@@ -2113,8 +2115,8 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 			   // need to be
 			   // exported to the
 			   // user interface
-			   if (score_card.atom_point_score > best_score) {
-			      best_score = score_card.atom_point_score;
+			   if (score_card.get_score() > best_score) {
+			      best_score = score_card.get_score();
 			      // 20081120 best_rotamer_mol loses the insertion
 			      // code for the residue.  Must fix.
 			      best_rotamer_mol = moved_mol;
@@ -2327,7 +2329,7 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
 		     mmdb::Residue *next_res = coot::util::next_residue(res);
 		     mmdb::Manager *mol = atom_sel.mol;
 		     coot::backrub br(chain_id, res, prev_res, next_res, alt_conf, mol,
-				      g.molecules[imol_map].xmap);
+				      &g.molecules[imol_map].xmap); // use a pointer for the map
 		     std::pair<coot::minimol::molecule,float> m = br.search(rest);
 		     score = m.second;
 		     status = 1;
@@ -2627,8 +2629,17 @@ molecule_class_info_t::get_atom(const coot::atom_spec_t &atom_spec) const {
       } 
    } 
    return at;
+}
 
-} 
+mmdb::Atom *
+molecule_class_info_t::get_atom(int idx) const {
+
+   mmdb::Atom *r = NULL;
+   if (idx < atom_sel.n_selected_atoms)
+      r = atom_sel.atom_selection[idx];
+   return r;
+}
+
 
 // This should check that if "a" is typed, then set "a" as the
 // chain_id if it exists, else convert to "A" (if that exists).
@@ -2908,7 +2919,8 @@ molecule_class_info_t::add_OXT_to_residue(mmdb::Residue *residue,
 	    
 	    atom_sel = make_asc(atom_sel.mol);
 	    have_unsaved_changes_flag = 1;
-	    makebonds(geom_p); // not type checked, so that we can see the atom.
+	    std::set<int> dummy;
+	    makebonds(geom_p, dummy); // not type checked, so that we can see the atom.
 	    istatus = 1;
 	    std::cout << "Added OXT at " << new_oxt_atom << std::endl;
 	 } 
@@ -4265,7 +4277,8 @@ molecule_class_info_t::fill_raster_model_info(bool against_a_dark_background) {
 	 // restore bond_box_type
 	 if (restore_bonds) {
 	    bonds_box_type = coot::NORMAL_BONDS;
-	    makebonds(geom_p);
+	    std::set<int> dummy;
+	    makebonds(geom_p, dummy);
 	 }
 
 	 std::cout << " There are " << bonds_box.n_atom_centres_
@@ -4316,15 +4329,19 @@ molecule_class_info_t::fill_raster_map_info(short int lev) const {
                                                 // at least, if we are displaying a volume surface....
 	 if (1) { 
 	    if (lev == 1) {
-	       if (n_draw_vectors>0) { 
+	       if (! draw_vector_sets.empty()) {
 
 		  rtmi.density_colour.col.resize(3);
 		  rtmi.density_colour.col[0] = map_colour[0][0];
 		  rtmi.density_colour.col[1] = map_colour[0][1];
 		  rtmi.density_colour.col[2] = map_colour[0][2];
 
-		  for(int i=0; i<n_draw_vectors; i++) {
-		     rtmi.density_lines.push_back(std::pair<coot::Cartesian, coot::Cartesian>(draw_vectors[i].getStart(), draw_vectors[i].getFinish()));
+		  for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
+		     for (int j=0; j<draw_vector_sets[i].size; j++) {
+			std::pair<coot::Cartesian, coot::Cartesian> p(draw_vector_sets[i].data[j].getStart(),
+								      draw_vector_sets[i].data[j].getFinish());
+			rtmi.density_lines.push_back(p);
+		     }
 		  }
 	       }
 	    } else {
@@ -5402,7 +5419,9 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
    }
 
    std::cout << "------- resulting_merge_info has size " << resulting_merge_info.size() << std::endl;
-   std::cout << "-------- resulting_merge_info[0] " << resulting_merge_info[0].spec << std::endl;
+   if (!resulting_merge_info.empty())
+      std::cout << "-------- resulting_merge_info[0] " << resulting_merge_info[0].spec << std::endl;
+
    return std::pair<int, std::vector<merge_molecule_results_info_t> > (istat, resulting_merge_info);
 }
 
@@ -6237,10 +6256,10 @@ molecule_class_info_t::change_residue_number(const std::string &chain_id,
 
 
 // for add OXT
-std::pair<short int, int>
+std::pair<bool, int>
 molecule_class_info_t::last_residue_in_chain(const std::string &chain_id) const {
 
-   std::pair<short int, int> p(0,0);
+   std::pair<short int, int> p(false,0);
    int biggest_resno = -99999;
 
    if (atom_sel.n_selected_atoms > 0) {
@@ -6257,7 +6276,7 @@ molecule_class_info_t::last_residue_in_chain(const std::string &chain_id) const 
 	       residue_p = chain_p->GetResidue(ires);
 	       if (residue_p->GetSeqNum() > biggest_resno) {
 		  biggest_resno = residue_p->GetSeqNum();
-		  p.first = 1;
+		  p.first = true;
 	       }
 	    }
 	 }
@@ -6268,10 +6287,10 @@ molecule_class_info_t::last_residue_in_chain(const std::string &chain_id) const 
 }
 
 
-std::pair<short int, int> 
-molecule_class_info_t::first_residue_in_chain(const std::string &chain_id) const { 
+std::pair<bool, int> 
+molecule_class_info_t::first_residue_in_chain(const std::string &chain_id) const {
 
-   std::pair<short int, int> p(0,0);
+   std::pair<bool, int> p(false,0);
    int smallest_resno = 999999;
 
    if (atom_sel.n_selected_atoms > 0) {
@@ -6288,7 +6307,7 @@ molecule_class_info_t::first_residue_in_chain(const std::string &chain_id) const
 	       residue_p = chain_p->GetResidue(ires);
 	       if (residue_p->GetSeqNum() < smallest_resno) {
 		  smallest_resno = residue_p->GetSeqNum();
-		  p.first = 1;
+		  p.first = true;
 	       }
 	    }
 	 }
@@ -6402,7 +6421,7 @@ molecule_class_info_t::find_deviant_geometry(float strictness) {
 			     (char *) mol_chain.c_str(),
 			     residues_mol,
 			     fixed_atom_specs,
-			     dummy_xmap);
+			     &dummy_xmap);
 	    }
 	 }
       }
@@ -6966,6 +6985,8 @@ molecule_class_info_t::draw_display_list_objects(int GL_context) {
    GLfloat  diffuseLight[] = { 0.4f, 0.4f, 0.4f, 0.f };
    GLfloat specularLight[] = { 0.4f, 0.4f, 0.4f, 0.f };
 
+   // set light0 here too? // FIXME-lighting
+
    // Assign created components to GL_LIGHT1
    glLightfv(GL_LIGHT1, GL_AMBIENT,  ambientLight);
    glLightfv(GL_LIGHT1, GL_DIFFUSE,  diffuseLight);
@@ -6974,11 +6995,12 @@ molecule_class_info_t::draw_display_list_objects(int GL_context) {
    int n_objects = 0;
    if (draw_it) { 
       if (display_list_tags.size() > 0) { 
-	 glEnable(GL_LIGHTING);
+	 // glEnable(GL_LIGHTING);
+	 
+	 // glEnable(GL_LIGHT0); // bright.
+	 // glEnable(GL_LIGHT1); // dim, off axis
 
-	 glEnable(GL_LIGHT0); // bright.
-	 glEnable(GL_LIGHT1); // dim, off axis
-	 glEnable(GL_LIGHT2); // very dark
+	 // glEnable(GL_LIGHT2); // very dark
 
 	 // glDisable(GL_LIGHT0);
 	 // glDisable(GL_LIGHT1);
@@ -7597,7 +7619,7 @@ molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
 	    }
 
 	    if (! done_merge) {
-	       std::cout << "WARNING:: CONFLICT: target chain id already exists "
+	       std::cout << "WARNING:: CONFLICT: target chain id " << to_chain_id << " already exists "
 			 << "in this molecule" << std::endl;
 	       message = "WARNING:: CONFLICT: target chain id (";
 	       message += to_chain_id;
@@ -7921,7 +7943,8 @@ molecule_class_info_t::list_nomenclature_errors(coot::protein_geometry *geom_p) 
 }
 
 int
-molecule_class_info_t::cis_trans_conversion(const std::string &chain_id, int resno, const std::string &inscode) {
+molecule_class_info_t::cis_trans_conversion(const std::string &chain_id, int resno, const std::string &inscode,
+					    mmdb::Manager *standard_residues_mol) {
 
    int imod = 1;
 
@@ -7949,7 +7972,9 @@ molecule_class_info_t::cis_trans_conversion(const std::string &chain_id, int res
 		     if (std::string(at->name) != " N  ") {
 
 			found = 1;
-			r = cis_trans_conversion(at, 0);
+			r = cis_trans_conversion(at, false, standard_residues_mol);
+			if (r)
+			   make_bonds_type_checked();
 		     }
 		     if (found)
 			break;
@@ -7972,385 +7997,16 @@ molecule_class_info_t::cis_trans_conversion(const std::string &chain_id, int res
 
 // ---- cis <-> trans conversion
 int
-molecule_class_info_t::cis_trans_conversion(mmdb::Atom *at, short int is_N_flag) {
+molecule_class_info_t::cis_trans_conversion(mmdb::Atom *at, short int is_N_flag, mmdb::Manager *standard_residues_mol) {
 
-   // These 3 are pointers, each of which are of size 2
-   mmdb::PResidue *trans_residues = NULL;
-   mmdb::PResidue *cis_residues = NULL;
-   mmdb::PResidue *mol_residues = NULL;
-
-   int offset = 0;
-   if (is_N_flag)
-      offset = -1;
-
-   int resno_1 = at->GetSeqNum() + offset;
-   int resno_2 = resno_1 + 1; // i.e. *this* residue, if N clicked.
-   char *chain_id = at->GetChainID();
-
-   int selHnd = atom_sel.mol->NewSelection(); //
-   int nSelResidues;
-   
-   atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
-			chain_id,
-			resno_1, "*",
-			resno_2, "*",
-			"*",  // residue name
-			"*",  // Residue must contain this atom name?
-			"*",  // Residue must contain this Element?
-			"*",  // altLocs
-			mmdb::SKEY_NEW // selection key
-			);
-   atom_sel.mol->GetSelIndex(selHnd, mol_residues, nSelResidues);
-
-   graphics_info_t g;
-   int istat = 0;
-   if (nSelResidues >= 2) {
-
-      if (g.standard_residues_asc.mol) { 
-	 int selHnd_trans = g.standard_residues_asc.mol->NewSelection();
-	 int ntrans_residues; 
-	 g.standard_residues_asc.mol->Select(selHnd_trans, mmdb::STYPE_RESIDUE, 0,
-					     "*",
-					     mmdb::ANY_RES, "*",
-					     mmdb::ANY_RES, "*",
-					     "TNS", // residue name
-					     "*",   // Residue must contain this atom name?
-					     "*",   // Residue must contain this Element?
-					     "*",   // altLocs
-					     mmdb::SKEY_NEW // selection key
-					     );
-	 g.standard_residues_asc.mol->GetSelIndex(selHnd_trans,
-						  trans_residues, ntrans_residues);
-	 if (ntrans_residues >= 2) {
-
-	    int selHnd_cis = g.standard_residues_asc.mol->NewSelection(); // d
-	    int ncis_residues; 
-	    g.standard_residues_asc.mol->Select(selHnd_cis, mmdb::STYPE_RESIDUE, 0,
-						"*",
-						mmdb::ANY_RES, "*",
-						mmdb::ANY_RES, "*",
-						"CIS", // residue name
-						"*",   // Residue must contain this atom name?
-						"*",   // Residue must contain this Element?
-						"*",   // altLocs
-						mmdb::SKEY_NEW // selection key
-						);
-	    g.standard_residues_asc.mol->GetSelIndex(selHnd_cis, cis_residues, ncis_residues);
-
-	    if (ncis_residues >= 2) { 
-
-	       mmdb::PPAtom residue_atoms = NULL;
-	       int n_residue_atoms;
-	       trans_residues[0]->GetAtomTable(residue_atoms, n_residue_atoms);
-	       trans_residues[1]->GetAtomTable(residue_atoms, n_residue_atoms);
-	    
-	       istat = cis_trans_convert(mol_residues, trans_residues, cis_residues);
-	       if (istat) {
-		  // backup made in cis_trans_convert()
-		  have_unsaved_changes_flag = 1;
-		  make_bonds_type_checked();
-	       }
-	    } else {
-	       std::cout << "ERROR:: failed to get cis residues in cis_trans_convert "
-			 << ncis_residues << std::endl;
-	    }
-	    g.standard_residues_asc.mol->DeleteSelection(selHnd_cis);
-	 } else {
-	    std::cout << "ERROR:: failed to get trans residues in cis_trans_convert "
-		      << ntrans_residues << std::endl;
-	 }
-	 g.standard_residues_asc.mol->DeleteSelection(selHnd_trans);
-      } else {
-	 std::cout << "ERROR:: NULL standard residues molecule" << std::endl;
-      } 
-   } else {
-      std::cout << "ERROR:: failed to get mol residues in cis_trans_convert" << std::endl;
-   }
-   atom_sel.mol->DeleteSelection(selHnd);
-
-
-   return istat;
+   make_backup();
+   mmdb::Manager *mol = atom_sel.mol;
+   int status = coot::util::cis_trans_conversion(at, is_N_flag, mol, standard_residues_mol);
+   if (status)
+      have_unsaved_changes_flag = true; // draw bonds in caller
+   return status;
 }
 
-
-// mol_residues, trans_residues, cis_residues must be at least of length 2.
-int
-molecule_class_info_t::cis_trans_convert(mmdb::PResidue *mol_residues,
-					 mmdb::PResidue *trans_residues,
-					 mmdb::PResidue *cis_residues) {
-
-   // First of all, are we cis or trans?
-   // 
-   // mol_residues is guaranteed to have at least 2 residues.
-   //
-   int istatus = 0;
-   std::string altconf("");
-   std::pair<short int, double> omega =
-      coot::util::omega_torsion(mol_residues[0], mol_residues[1], altconf);
-
-   std::cout << "omega: " << omega.first << " " << omega.second*180.0/3.14159
-	     << " degrees " << std::endl;
-   if (omega.first) {
-      short int is_cis_flag = 0;
-      mmdb::PResidue *cis_trans_init_match = trans_residues;
-      mmdb::PResidue *converted_residues   = cis_residues;
-      if ((omega.second < 1.57) && (omega.second > -1.57)) {
-	 std::cout << "INFO This is a CIS peptide - making it TRANS" << std::endl;
-	 is_cis_flag = 1;
-	 cis_trans_init_match = cis_residues;
-	 converted_residues = trans_residues;
-      } else { 
-	 std::cout << "INFO This is a TRANS peptide - making it CIS" << std::endl;
-      }
-	 
-      // Now match cis_trans_init_match petide atoms onto the peptide
-      // atoms of mol_residues and give us a transformation matrix.
-      // That matrix will be applied to the converted_residues to give
-      // new position of peptide atoms of the mol_residues.
-
-      // we need to set these:
-      mmdb::Atom *mol_residue_CA_1 = NULL;
-      mmdb::Atom *mol_residue_C_1  = NULL;
-      mmdb::Atom *mol_residue_O_1  = NULL;
-      mmdb::Atom *mol_residue_CA_2 = NULL;
-      mmdb::Atom *mol_residue_N_2  = NULL;
-      mmdb::Atom *mol_residue_H_2  = NULL;
-      
-      mmdb::PPAtom mol_residue_atoms = NULL;
-      int n_residue_atoms;
-      mol_residues[0]->GetAtomTable(mol_residue_atoms, n_residue_atoms);
-      for (int i=0; i<n_residue_atoms; i++) {
-	 std::string atom_name = mol_residue_atoms[i]->name;
-	 if (atom_name == " CA ") {
-	    mol_residue_CA_1 = mol_residue_atoms[i];
-	 }
-	 if (atom_name == " C  ") {
-	    mol_residue_C_1 = mol_residue_atoms[i];
-	 }
-	 if (atom_name == " O  ") {
-	    mol_residue_O_1 = mol_residue_atoms[i];
-	 }
-      }
-      mol_residue_atoms = NULL;
-      mol_residues[1]->GetAtomTable(mol_residue_atoms, n_residue_atoms);
-      for (int i=0; i<n_residue_atoms; i++) {
-	 std::string atom_name = mol_residue_atoms[i]->name;
-	 if (atom_name == " CA ") {
-	    mol_residue_CA_2 = mol_residue_atoms[i];
-	 }
-	 if (atom_name == " N  ") {
-	    mol_residue_N_2 = mol_residue_atoms[i];
-	 }
-	 if (atom_name == " H  ") {
-	    mol_residue_H_2 = mol_residue_atoms[i];
-	 }
-      }
-
-      if (mol_residue_CA_1 && mol_residue_C_1 && mol_residue_O_1 &&
-	  mol_residue_CA_2 && mol_residue_N_2) {
-
-	 // So we have this molecules atoms.
-	 // Now do something similar to get the atoms of cis_trans_init_match
-
-	 // we need to set these:
-	 mmdb::Atom *cis_trans_init_match_residue_CA_1 = NULL;
-	 mmdb::Atom *cis_trans_init_match_residue_C_1  = NULL;
-	 mmdb::Atom *cis_trans_init_match_residue_O_1  = NULL;
-	 mmdb::Atom *cis_trans_init_match_residue_CA_2 = NULL;
-	 mmdb::Atom *cis_trans_init_match_residue_N_2  = NULL;
-      
-	 mmdb::PPAtom cis_trans_init_match_residue_atoms = NULL;
-	 cis_trans_init_match[0]->GetAtomTable(cis_trans_init_match_residue_atoms,
-					       n_residue_atoms);
-	 for (int i=0; i<n_residue_atoms; i++) {
-	    std::string atom_name = cis_trans_init_match_residue_atoms[i]->name;
-	    if (atom_name == " CA ") {
-	       cis_trans_init_match_residue_CA_1 = cis_trans_init_match_residue_atoms[i];
-	    }
-	    if (atom_name == " C  ") {
-	       cis_trans_init_match_residue_C_1 = cis_trans_init_match_residue_atoms[i];
-	    }
-	    if (atom_name == " O  ") {
-	       cis_trans_init_match_residue_O_1 = cis_trans_init_match_residue_atoms[i];
-	    }
-	 }
-	 cis_trans_init_match_residue_atoms = NULL;
-	 cis_trans_init_match[1]->GetAtomTable(cis_trans_init_match_residue_atoms,
-					       n_residue_atoms);
-	 for (int i=0; i<n_residue_atoms; i++) {
-	    std::string atom_name = cis_trans_init_match_residue_atoms[i]->name;
-	    if (atom_name == " CA ") {
-	       cis_trans_init_match_residue_CA_2 = cis_trans_init_match_residue_atoms[i];
-	    }
-	    if (atom_name == " N  ") {
-	       cis_trans_init_match_residue_N_2 = cis_trans_init_match_residue_atoms[i];
-	    }
-	 }
-
-	 if (cis_trans_init_match_residue_CA_1 &&
-	     cis_trans_init_match_residue_C_1 &&
-	     cis_trans_init_match_residue_O_1 &&
-	     cis_trans_init_match_residue_CA_2 &&
-	     cis_trans_init_match_residue_N_2) {
-
-	    // Now do the same other:
-
-	    // we need to set these:
-	    mmdb::Atom *converted_residues_residue_CA_1 = NULL;
-	    mmdb::Atom *converted_residues_residue_C_1  = NULL;
-	    mmdb::Atom *converted_residues_residue_O_1  = NULL;
-	    mmdb::Atom *converted_residues_residue_CA_2 = NULL;
-	    mmdb::Atom *converted_residues_residue_N_2  = NULL;
-      
-	    mmdb::PPAtom converted_residues_residue_atoms = NULL;
-	    int n_residue_atoms_converted;
-	    converted_residues[0]->GetAtomTable(converted_residues_residue_atoms,
-						n_residue_atoms_converted);
-	    for (int i=0; i<n_residue_atoms_converted; i++) {
-	       std::string atom_name = converted_residues_residue_atoms[i]->name;
-	       if (atom_name == " CA ") {
-		  converted_residues_residue_CA_1 = converted_residues_residue_atoms[i];
-	       }
-	       if (atom_name == " C  ") {
-		  converted_residues_residue_C_1 = converted_residues_residue_atoms[i];
-	       }
-	       if (atom_name == " O  ") {
-		  converted_residues_residue_O_1 = converted_residues_residue_atoms[i];
-	       }
-	    }
-
-	    converted_residues_residue_atoms = NULL;
-	    converted_residues[1]->GetAtomTable(converted_residues_residue_atoms,
-						n_residue_atoms_converted);
-	    for (int i=0; i<n_residue_atoms_converted; i++) {
-	       std::string atom_name = converted_residues_residue_atoms[i]->name;
-	       if (atom_name == " CA ") {
-		  converted_residues_residue_CA_2 = converted_residues_residue_atoms[i];
-	       }
-	       if (atom_name == " N  ") {
-		  converted_residues_residue_N_2 = converted_residues_residue_atoms[i];
-	       }
-	    }
-
-	    if (converted_residues_residue_CA_1 &&
-		converted_residues_residue_C_1 &&
-		converted_residues_residue_O_1 &&
-		converted_residues_residue_CA_2 &&
-		converted_residues_residue_N_2) {
-
-	       std::vector<clipper::Coord_orth> current;
-	       std::vector<clipper::Coord_orth> cis_trans_init;
-	       std::vector<clipper::Coord_orth> converted;
-
-	       current.push_back(clipper::Coord_orth(mol_residue_CA_1->x,
-						     mol_residue_CA_1->y,
-						     mol_residue_CA_1->z));
-	       current.push_back(clipper::Coord_orth(mol_residue_C_1->x,
-						     mol_residue_C_1->y,
-						     mol_residue_C_1->z));
-	       current.push_back(clipper::Coord_orth(mol_residue_O_1->x,
-						     mol_residue_O_1->y,
-						     mol_residue_O_1->z));
-	       current.push_back(clipper::Coord_orth(mol_residue_CA_2->x,
-						     mol_residue_CA_2->y,
-						     mol_residue_CA_2->z));
-	       current.push_back(clipper::Coord_orth(mol_residue_N_2->x,
-						     mol_residue_N_2->y,
-						     mol_residue_N_2->z));
-	    
-	       cis_trans_init.push_back(clipper::Coord_orth(cis_trans_init_match_residue_CA_1->x,
-							    cis_trans_init_match_residue_CA_1->y,
-							    cis_trans_init_match_residue_CA_1->z));
-	    
-	       cis_trans_init.push_back(clipper::Coord_orth(cis_trans_init_match_residue_C_1->x,
-							    cis_trans_init_match_residue_C_1->y,
-							    cis_trans_init_match_residue_C_1->z));
-	    
-	       cis_trans_init.push_back(clipper::Coord_orth(cis_trans_init_match_residue_O_1->x,
-							    cis_trans_init_match_residue_O_1->y,
-							    cis_trans_init_match_residue_O_1->z));
-	    
-	       cis_trans_init.push_back(clipper::Coord_orth(cis_trans_init_match_residue_CA_2->x,
-							    cis_trans_init_match_residue_CA_2->y,
-							    cis_trans_init_match_residue_CA_2->z));
-	    
-	       cis_trans_init.push_back(clipper::Coord_orth(cis_trans_init_match_residue_N_2->x,
-							    cis_trans_init_match_residue_N_2->y,
-							    cis_trans_init_match_residue_N_2->z));
-	       
-	       converted.push_back(clipper::Coord_orth(converted_residues_residue_CA_1->x,
-						       converted_residues_residue_CA_1->y,
-						       converted_residues_residue_CA_1->z));
-	    
-	       converted.push_back(clipper::Coord_orth(converted_residues_residue_C_1->x,
-						       converted_residues_residue_C_1->y,
-						       converted_residues_residue_C_1->z));
-	    
-	       converted.push_back(clipper::Coord_orth(converted_residues_residue_O_1->x,
-						       converted_residues_residue_O_1->y,
-						       converted_residues_residue_O_1->z));
-	    
-	       converted.push_back(clipper::Coord_orth(converted_residues_residue_CA_2->x,
-						       converted_residues_residue_CA_2->y,
-						       converted_residues_residue_CA_2->z));
-	    
-	       converted.push_back(clipper::Coord_orth(converted_residues_residue_N_2->x,
-						       converted_residues_residue_N_2->y,
-						       converted_residues_residue_N_2->z));
-
-	       make_backup();
-	       clipper::RTop_orth lsq_mat(cis_trans_init, current);
-
-	       // now move the current atoms in mol_residues to the
-	       // positions of converted (after converted atoms have
-	       // been shifted by lsq_mat)
-
-	       clipper::Coord_orth newpos;
-
-	       newpos = converted[0].transform(lsq_mat);
-	       mol_residue_CA_1->x = newpos.x();
-	       mol_residue_CA_1->y = newpos.y();
-	       mol_residue_CA_1->z = newpos.z();
-	       
-	       newpos = converted[1].transform(lsq_mat);
-	       mol_residue_C_1->x = newpos.x();
-	       mol_residue_C_1->y = newpos.y();
-	       mol_residue_C_1->z = newpos.z();
-
-	       newpos = converted[2].transform(lsq_mat);
-	       mol_residue_O_1->x = newpos.x();
-	       mol_residue_O_1->y = newpos.y();
-	       mol_residue_O_1->z = newpos.z();
-
-	       newpos = converted[3].transform(lsq_mat);
-	       mol_residue_CA_2->x = newpos.x();
-	       mol_residue_CA_2->y = newpos.y();
-	       mol_residue_CA_2->z = newpos.z();
-
-	       newpos = converted[4].transform(lsq_mat);
-	       mol_residue_N_2->x = newpos.x();
-	       mol_residue_N_2->y = newpos.y();
-	       mol_residue_N_2->z = newpos.z();
-
-	       if (mol_residue_H_2) {
-		  // 20180510 place H on N as a riding atom, not using transformation
-		  clipper::Coord_orth at_c_pos  = coot::co(mol_residue_C_1);
-		  clipper::Coord_orth at_n_pos  = coot::co(mol_residue_N_2);
-		  clipper::Coord_orth at_ca_pos = coot::co(mol_residue_CA_1);
-		  double bl = 0.86;
-		  double angle = clipper::Util::d2rad(125.0);
-		  clipper::Coord_orth H_pos(at_ca_pos, at_c_pos, at_n_pos, bl, angle, M_PI);
-		  mol_residue_H_2->x = H_pos.x();
-		  mol_residue_H_2->y = H_pos.y();
-		  mol_residue_H_2->z = H_pos.z();
-	       }
-	       istatus = 1;
-	    }
-	 }
-      }
-   }
-   return istatus;
-}
 
 
 
@@ -8789,12 +8445,18 @@ molecule_class_info_t::fill_partial_residues(coot::protein_geometry *geom_p,
       info = missing_atoms(0, geom_p);
 
       if (info.residues_with_missing_atoms.size() > 0) {
-	 std::cout << " Residues with missing atoms:" << "\n";
-	 for (unsigned int i=0; i<info.residues_with_missing_atoms.size(); i++)
-	    std::cout << info.residues_with_missing_atoms[i]->GetResName() << " "
-		      << info.residues_with_missing_atoms[i]->GetSeqNum()  << " "
-		      << info.residues_with_missing_atoms[i]->GetChainID() << " "
-		      << "\n";
+	 std::cout << "INFO:: Residues with missing atoms:" << "\n";
+	 unsigned int n_per_line = 10;
+	 for (unsigned int i=0; i<info.residues_with_missing_atoms.size(); i+=n_per_line) {
+	    for (unsigned int ip=0; ip<n_per_line; ip++) {
+	       if ((i+ip) < info.residues_with_missing_atoms.size()) {
+		  std::cout << info.residues_with_missing_atoms[i+ip]->GetResName() << " "
+			    << info.residues_with_missing_atoms[i+ip]->GetSeqNum()  << " "
+			    << info.residues_with_missing_atoms[i+ip]->GetChainID() << "  ";
+	       }
+	    }
+	    std::cout << "\n";
+	 }
 
 	 for (unsigned int i=0; i<info.residues_with_missing_atoms.size(); i++) {
 	    int resno =  info.residues_with_missing_atoms[i]->GetSeqNum();
@@ -8804,10 +8466,11 @@ molecule_class_info_t::fill_partial_residues(coot::protein_geometry *geom_p,
 	    std::string altloc("");
 	    float lowest_probability = 0.8;
 	    int clash_flag = 1;
-	    
+
 	    mutate(resno, inscode, chain_id, residue_type); // fill missing atoms
 	    if (refinement_map_number >= 0)
-	       auto_fit_best_rotamer(resno, altloc, inscode, chain_id,
+	       auto_fit_best_rotamer(ROTAMERSEARCHLOWRES, // backrub rotamers
+				     resno, altloc, inscode, chain_id,
 				     refinement_map_number, clash_flag,
 				     lowest_probability, *geom_p);
 
@@ -9061,7 +8724,7 @@ molecule_class_info_t::make_map_from_cns_data(const clipper::Spacegroup &sg,
 
    std::string mol_name = cns_data_filename;
 
-   initialize_map_things_on_read_molecule(mol_name, 0, 0); // not diff map
+   initialize_map_things_on_read_molecule(mol_name, false, false, false); // not diff map
 
    cout << "initializing map..."; 
    xmap.init(mydata.spacegroup(), 

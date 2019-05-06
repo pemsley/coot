@@ -25,7 +25,8 @@ dnl implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 dnl
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(coot, 0.8.9.2-pre)
+
+AC_INIT(coot, 0.9-pre)
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -54,8 +55,8 @@ m4_ifset([LT_INIT],
 GNOME_COMPILE_WARNINGS
 GNOME_CXX_WARNINGS
 
-
 m4_define([v_git_revision_count], m4_esyscmd([(git rev-list --count HEAD 2>/dev/null || echo 0) | tr -d '\n']))
+#dnl m4_define([vxx_git_revision_count], m4_esyscmd([git rev-list --count HEAD]))
 # old gits can't use count with HEAD.
 # we need to make the src and pyrogen directories if they do not exist
 if test ! -d src     ; then mkdir src     ; fi
@@ -73,15 +74,25 @@ AC_ARG_WITH(modern-language-tools, [  --with-modern-language-tools with optional
  coot_modern_language_tools="true",
  coot_modern_language_tools="false")
 
+# Note to self: must make these compulsory - not optional
+#
 if $coot_modern_language_tools = true ; then
    AX_CXX_COMPILE_STDCXX_11
    AX_CXX_HAVE_THREAD
 fi
 
+AC_ARG_WITH(glsl, [ --with-glsl use OpenLG Shader Language for molecule display - experimental ],
+  coot_with_glsl=true,
+  coot_with_glsl=false)
+
+if $coot_with_glsl = true ; then
+   COOT_USE_GLSL=-DUSE_GLSL
+   AC_SUBST(COOT_USE_GLSL)
+fi
+
 AC_LIB_PREPARE_MULTILIB
 
 AC_SUBST(COOT_STDTYPES)
-
 
 eval EXPORT_DYNAMIC_FLAG_SPEC=$export_dynamic_flag_spec
 AC_SUBST(EXPORT_DYNAMIC_FLAG_SPEC)
@@ -105,7 +116,14 @@ if test "$have_windows_mingw" = yes; then
   AC_CONFIG_FILES(pyrogen/pyrogen.bat)
 fi
 
-AM_PATH_LIBPNG
+# This seems not to be returning the correct value
+# AM_PATH_LIBPNG
+# so try this:
+PKG_CHECK_MODULES([LIBPNG], [libpng >= 1.5])
+
+# and while we are thinking about images, let's check for Cairo also
+PKG_CHECK_MODULES([CAIRO], [cairo >= 1.14])
+
 
 AM_PATH_SQLITE3
 
@@ -179,6 +197,7 @@ dnl =========================== GTK, GNOMECANVAS ===========================
 
 coot_gtk2=TRUE
 
+
 # AM_PATH_GTK(2.4.14)
 PKG_CHECK_MODULES(GTK, gtk+-3.0 >= 3.20)
 
@@ -226,7 +245,13 @@ AM_PATH_PYTHON
 AM_WITH_GUILE_GTK
 AM_PATH_GUILE_GTK
 
-AX_BOOST_BASE
+AX_BOOST_BASE(,,[AC_MSG_ERROR([No boost found])])
+
+# Boost-Python is needed for RDKit interface.
+# Actually, this should only be tested if enhanced-ligand-tools was passed - not all the time as
+# we currently have. And in that case, it should be
+# AX_BOOST_PYTHON(,,[AC_MSG_ERROR([No boost-python found])]) because it is required.
+# FIXME Later.
 AX_BOOST_PYTHON
 
 # So now BOOST_PYTHON_LIB is set (and that is typically "boost_python").
@@ -247,13 +272,21 @@ else
 fi
 AC_SUBST(L_BOOST_PYTHON)
 
-dnl =========================== GLADE ================================
+# this can go away in 2020 - no one will try to use that old RDKit.
+#
+# was RDKIT used and if it was does it have Cairo support (if it does
+# have cairo support, we can use it to generate molecular (chemical)
+# depictions.
+#
+if test -n "$RDKIT_LIBS" ; then
 
-# libglade:
+   case "$RDKIT_LIBS" in
 
-# AM_PATH_LIBGLADE, problems in glade-3 include files not including
-# declaration of GladeXML and other things.
-AM_PATH_LIBGLADE
+     *MolDraw2D*)
+          RDKIT_CXXFLAGS="$RDKIT_CXXFLAGS -DRDKIT_HAS_CAIRO_SUPPORT"
+          ;;
+   esac
+fi
 
 dnl =========================== GooCanvas ================================
 
@@ -263,7 +296,7 @@ if test "$GOOCANVAS_CFLAGS" != "" ; then
    GOOCANVAS_CFLAGS="-DHAVE_GOOCANVAS $GOOCANVAS_CFLAGS"
 fi
 
-AC_ARG_WITH(enhanced-ligand-tools, [  --with-enhanced-ligand-tools with optional complicated/experimental ligand-related dependencies ],
+AC_ARG_WITH(enhanced-ligand-tools, [  --with-enhanced-ligand-tools with optional ligand-related dependencies ],
  coot_enhanced_ligand_additions="true",
  coot_enhanced_ligand_additions="false")
 
@@ -291,6 +324,9 @@ AC_SUBST(ENHANCED_LIGAND_TOOLS_CFLAGS)
 
 AC_SUBST(RDKIT_CXXFLAGS)
 AC_SUBST(RDKIT_LIBS)
+
+AC_SUBST(MOLTRIANGLES_CPPFLAGS)
+AC_SUBST(MOLTRIANGLES_LIBS)
 
 AC_SUBST(COOT_BUILD_INFO_STRING)
 
@@ -406,6 +442,7 @@ pixmaps/icons/Makefile
 rama-data/Makefile
 man/Makefile
 pli/Makefile
+fonts/Makefile
 pyrogen/Makefile
 pyrogen/pyrogen
 auxil/Makefile

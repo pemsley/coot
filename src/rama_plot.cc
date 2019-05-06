@@ -307,6 +307,7 @@ coot::rama_plot::create_dynarama_window() {
                gtk_builder_connect_signals (builder, dynawin);
                g_object_unref (G_OBJECT (builder));
                status = add_from_file_status;
+	       gtk_widget_hide(rama_stats_label2);
          }
       }
    }
@@ -542,7 +543,7 @@ coot::rama_plot::setup_internal(float level_prefered, float level_allowed) {
    displayed_rama_type = clipper::Ramachandran::All5;
 #endif
 
-   // cliper defaults: 
+   // clipper defaults:
    rama_threshold_preferred = 0.01; 
    rama_threshold_allowed = 0.0005; 
 
@@ -717,13 +718,21 @@ coot::rama_plot::setup_background(bool blocks, bool isolines) {
                                                   bg_non_gly_pro_pre_pro_ileval,
                                                   "rama2_non_gly_pro_pre_pro_ileval.png");
 #else
-      take_bg_image = make_background_from_image(rama, bg_all, "rama_all.png");
+      take_bg_image  = make_background_from_image(rama, bg_all, "rama_all.png");
       take_bg_image += make_background_from_image(r_gly, bg_gly, "rama_gly.png");
       take_bg_image += make_background_from_image(r_pro, bg_pro, "rama_pro.png");
       take_bg_image += make_background_from_image(r_non_gly_pro, bg_non_gly_pro,
                                  "rama_non_gly_pro.png");
 #endif
+   } else {
+#ifdef CLIPPER_HAS_TOP8000
+      bg_ileval = goo_canvas_group_new(root, NULL);
+      bg_pre_pro = goo_canvas_group_new(root, NULL);
+      bg_non_gly_pro_pre_pro_ileval = goo_canvas_group_new(root, NULL);
+#endif
    }
+
+   std::cout << "---      here with take_bg_image " << take_bg_image << std::endl;
 
    // no bg done, so lets make the "classic" way
    if (take_bg_image) {
@@ -753,7 +762,14 @@ coot::rama_plot::setup_background(bool blocks, bool isolines) {
          make_isolines(r_non_gly_pro_pre_pro_ileval, bg_non_gly_pro_pre_pro_ileval);
 #endif
       }
+   } else {
+#ifdef CLIPPER_HAS_TOP8000
+      make_background(r_ileval, bg_ileval);
+      make_background(r_pre_pro, bg_pre_pro);
+      make_background(r_non_gly_pro_pre_pro_ileval, bg_non_gly_pro_pre_pro_ileval);
+#endif
    }
+
 
    hide_all_background();
    // upon init show all
@@ -2458,17 +2474,17 @@ coot::rama_plot::counts_to_stats_frame(const coot::rama_stats_container_t &sc) {
       int n_outliers = sc.n_ramas - sc.n_preferred - sc.n_allowed;
       float outlr_frac = float(n_outliers)/float(sc.n_ramas);
 
-      std::string pref_str = "In Preferred Regions:  ";
+      std::string pref_str = "In Favoured Regions:  ";
       pref_str += coot::util::int_to_string(sc.n_preferred);
       pref_str += "  (";
       pref_str += coot::util::float_to_string(100.0*pref_frac);
       pref_str += "%)";
-	 
-      std::string allow_str = "In Allowed Regions:  ";
-      allow_str += coot::util::int_to_string(sc.n_allowed);
-      allow_str += "  (";
-      allow_str += coot::util::float_to_string(100.0*allow_frac);
-      allow_str += "%)";
+
+//       std::string allow_str = "In Allowed Regions:  ";
+//       allow_str += coot::util::int_to_string(sc.n_allowed);
+//       allow_str += "  (";
+//       allow_str += coot::util::float_to_string(100.0*allow_frac);
+//       allow_str += "%)";
 	 
       std::string outlr_str = "Outliers:  ";
       outlr_str += coot::util::int_to_string(n_outliers);
@@ -2477,8 +2493,8 @@ coot::rama_plot::counts_to_stats_frame(const coot::rama_stats_container_t &sc) {
       outlr_str += "%)";
 
       gtk_label_set_text(GTK_LABEL(rama_stats_label1),  pref_str.c_str());
-      gtk_label_set_text(GTK_LABEL(rama_stats_label2), allow_str.c_str());
       gtk_label_set_text(GTK_LABEL(rama_stats_label3), outlr_str.c_str());
+      // gtk_label_set_text(GTK_LABEL(rama_stats_label2), allow_str.c_str());
 
       gtk_widget_show(rama_stats_frame);
 	 
@@ -3594,7 +3610,7 @@ coot::rama_plot::plot_type_changed() {
          set_kleywegt_plot_state(1);
          std::vector<std::string> chains = coot::util::chains_in_molecule(mols().first);
          std::vector<std::string> chains2 = coot::util::chains_in_molecule(mols().second);
-         int i_chain_id2 = 0;
+         unsigned int i_chain_id2 = 0;
          if (chains2.size() > 0)
             i_chain_id2 = 1;
 	 if (chains.size() > 0) {

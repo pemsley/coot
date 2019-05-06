@@ -34,7 +34,10 @@ pyexec_LTLIBRARIES =
 AM_CPPFLAGS = $(CCP4SRS_CXXFLAGS) $(BOOST_CPPFLAGS) $(RDKIT_CXXFLAGS) $(PYTHON_CFLAGS) \
                       $(ENHANCED_LIGAND_TOOLS_CFLAGS) -I$(top_srcdir)
 
-AM_CXXFLAGS = -DPKGDATADIR='"$(pkgdatadir)"' $(COOT_WINDOWS_CFLAGS)
+SWIG_CPPFLAGS = $(CCP4SRS_CXXFLAGS) $(BOOST_CPPFLAGS) $(RDKIT_CXXFLAGS) $(PYTHON_CXXFLAGS) \
+                    $(ENHANCED_LIGAND_TOOLS_CFLAGS) -I$(top_srcdir)
+
+AM_CXXFLAGS = -DPKGDATADIR='"$(pkgdatadir)"' $(CAIRO_CFLAGS) $(COOT_WINDOWS_CFLAGS)
 
 pyrogen_swig.py: pyrogen-swig.cc
 
@@ -49,8 +52,11 @@ mmdb2.py: mmdb2.cc
 # EXTRA_DIST = pyrogen-swig.i mmdb2.i mmdb-typemaps.i pointers.i mmdb2-interface.cc
 EXTRA_DIST = pyrogen-swig.i
 
+# we can't use AM_CPPFLAGS because that uses PYTHON_CFLAGS which in turn adds
+# -iwithsysroot /System/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7
+# and swig barfs on that. So instead of AM_CPPFLAGS let's make a variable for just swig
 pyrogen-swig.cc: $(top_srcdir)/pyrogen/pyrogen-swig.i $(top_srcdir)/pyrogen/restraints.hh
-	swig $(AM_CPPFLAGS) -o $@ -python -shadow -c++ $<
+	swig $(SWIG_CPPFLAGS) -o $@ -python -shadow -c++ $<
 
 # weird:
 # mmdb2-interface.cc doesn't have its own object code - it is compiled at the end
@@ -78,7 +84,7 @@ _pyrogen_swig_la_LIBADD = libcoot_py_restraints.la \
 			  $(top_builddir)/analysis/libcoot-analysis.la       \
 			  $(top_builddir)/geometry/libcoot-geometry.la       \
                           $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(CLIPPER_LIBS) $(MMDB_LIBS) \
-			  $(PYTHON_LIBS)
+			  $(PYTHON_LIBS) $(CAIRO_LIBS)
 
 # What does this do? If we add it, we don't get this message:
 #  `_pyrogen_swig.la' is not a standard libtool library name
@@ -99,7 +105,8 @@ lib_LTLIBRARIES=libcoot_py_restraints.la
 # this is a bona fide library
 #
 libcoot_py_restraints_la_SOURCES = mmff-restraints.cc mmff-restraints.hh \
-	py-restraints.cc py-restraints.hh restraints-private.hh
+	py-restraints.cc py-restraints.hh restraints-private.hh cairo-molecule.hh \
+	cairo-molecule.cc
 
 # 20141014 Add $RDKIT_LIBS for Bill
 libcoot_py_restraints_la_LIBADD =  \

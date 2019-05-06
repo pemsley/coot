@@ -44,14 +44,14 @@ coot::model_bond_deltas::resolve() {
 					   altloc,
 					   chain_id,
 					   mol,
-					   fixed_atom_specs, dummy_xmap);
+					   fixed_atom_specs, &dummy_xmap);
  
 
 	 restraint_usage_Flags flags = coot::BONDS;
 	 pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 	 bool do_trans_peptide_restraints = false;
 	 restraints.make_restraints(imol, *geom_p, flags, 1, do_trans_peptide_restraints,
-				    0.0, 0, pseudos,
+				    0.0, 0, false, false, pseudos,
 				    do_link_restraints,
 				    do_flank_restraints);
 	 model_bond_deltas resultant = restraints.resolve_bonds();

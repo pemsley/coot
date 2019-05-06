@@ -40,7 +40,7 @@ unsigned int coot::get_max_number_of_threads() {
 	 try {
 	    // can throw an runtime_error exception on unable to convert
 	    unsigned int t = util::string_to_int(e);
-	    if (t > 1024) t = n_threads_default;
+	    if (t >= 1024) t = n_threads_default;
 	    coot_n_threads = t;
 	 }
 	 catch (const std::runtime_error &e) {

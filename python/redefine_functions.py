@@ -58,6 +58,7 @@ regularize_residues    = regularize_residues_py
 regularize_residues_with_alt_conf  = regularize_residues_with_alt_conf_py
 refine_zone_with_score = refine_zone_with_score_py
 regularize_zone_with_score = regularize_zone_with_score_py
+
 chiral_volume_errors = chiral_volume_errors_py
 add_extra_bond_restraints = add_extra_bond_restraints_py
 delete_extra_restraints_for_residue_spec = delete_extra_restraints_for_residue_spec_py
@@ -169,7 +170,9 @@ add_molecule           = add_molecule_py
 active_residue         = active_residue_py
 closest_atom_simple    = closest_atom_simple_py
 closest_atom           = closest_atom_py
+closest_atom_raw       = closest_atom_raw_py
 residues_near_residue  = residues_near_residue_py
+residues_near_residues = residues_near_residues_py
 residues_near_position = residues_near_position_py
 get_environment_distances_representation = get_environment_distances_representation_py
 refine_zone_with_full_residue_spec = refine_zone_with_full_residue_spec_py
@@ -219,6 +222,10 @@ residues_torsions_match = residues_torsions_match_py
 kolmogorov_smirnov     = kolmogorov_smirnov_py
 kolmogorov_smirnov_vs_normal = kolmogorov_smirnov_vs_normal_py
 kullback_liebler       = kullback_liebler_py
+linked_residues        = linked_residues_py
+add_target_position_restraint_for_intermediate_atom = add_target_position_restraint_for_intermediate_atom_py
+add_target_position_restraints_for_intermediate_atoms = add_target_position_restraints_for_intermediate_atoms_py
+
 coot_contact_dots_for_ligand = coot_contact_dots_for_ligand_py
 switch_HIS_protonation = switch_HIS_protonation_py
 
