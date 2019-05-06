@@ -12974,13 +12974,9 @@ create_undo_molecule_chooser_dialog (void)
   GtkWidget *vbox83;
   GtkWidget *label116;
   GtkWidget *frame70;
-  GtkWidget *undo_molecule_chooser_option_menu;
   GtkWidget *undo_molecule_chooser_combobox;
   GtkWidget *dialog_action_area24;
   GtkWidget *undo_molecule_chooser_ok_button;
-  GtkTooltips *tooltips;
-
-  tooltips = gtk_tooltips_new ();
 
   undo_molecule_chooser_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (undo_molecule_chooser_dialog), "Choose molecule to Undo:");
@@ -13003,11 +12999,6 @@ create_undo_molecule_chooser_dialog (void)
   gtk_widget_show (frame70);
   gtk_box_pack_start (GTK_BOX (vbox83), frame70, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame70), 2);
-
-  undo_molecule_chooser_option_menu = gtk_option_menu_new ();
-  gtk_widget_show (undo_molecule_chooser_option_menu);
-  gtk_container_add (GTK_CONTAINER (frame70), undo_molecule_chooser_option_menu);
-  gtk_tooltips_set_tip (tooltips, undo_molecule_chooser_option_menu, "You want to undo a modification.  There are 2 or more molecules that have been modified.  To which molecule should the undo apply?", NULL);
 
   undo_molecule_chooser_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (undo_molecule_chooser_combobox);
@@ -13032,11 +13023,9 @@ create_undo_molecule_chooser_dialog (void)
   GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, vbox83, "vbox83");
   GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, label116, "label116");
   GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, frame70, "frame70");
-  GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, undo_molecule_chooser_option_menu, "undo_molecule_chooser_option_menu");
   GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, undo_molecule_chooser_combobox, "undo_molecule_chooser_combobox");
   GLADE_HOOKUP_OBJECT_NO_REF (undo_molecule_chooser_dialog, dialog_action_area24, "dialog_action_area24");
   GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, undo_molecule_chooser_ok_button, "undo_molecule_chooser_ok_button");
-  GLADE_HOOKUP_OBJECT_NO_REF (undo_molecule_chooser_dialog, tooltips, "tooltips");
 
   gtk_widget_grab_default (undo_molecule_chooser_ok_button);
   return undo_molecule_chooser_dialog;
@@ -16162,7 +16151,6 @@ create_check_chiral_volumes_dialog (void)
   GtkWidget *frame106;
   GtkWidget *vbox111;
   GtkWidget *label171;
-  GtkWidget *check_chiral_volumes_molecule_optionmenu;
   GtkWidget *check_chiral_volumes_molecule_combobox;
   GtkWidget *dialog_action_area53;
   GtkWidget *hbox85;
@@ -16190,10 +16178,6 @@ create_check_chiral_volumes_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox111), label171, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label171), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label171), 2, 9);
-
-  check_chiral_volumes_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (check_chiral_volumes_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox111), check_chiral_volumes_molecule_optionmenu, FALSE, FALSE, 0);
 
   check_chiral_volumes_molecule_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (check_chiral_volumes_molecule_combobox);
@@ -16232,7 +16216,6 @@ create_check_chiral_volumes_dialog (void)
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, frame106, "frame106");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, vbox111, "vbox111");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, label171, "label171");
-  GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, check_chiral_volumes_molecule_optionmenu, "check_chiral_volumes_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, check_chiral_volumes_molecule_combobox, "check_chiral_volumes_molecule_combobox");
   GLADE_HOOKUP_OBJECT_NO_REF (check_chiral_volumes_dialog, dialog_action_area53, "dialog_action_area53");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, hbox85, "hbox85");

@@ -5614,7 +5614,7 @@ on_find_bad_chiral_atoms1_activate     (GtkMenuItem     *menuitem,
 {
 
   GtkWidget *w = create_check_chiral_volumes_dialog();
-  fill_chiral_volume_molecule_option_menu(w);
+  fill_chiral_volume_molecule_combobox(w);
   gtk_widget_show(w);
 }
 
@@ -6013,7 +6013,7 @@ on_incorrect_chiral_volumes1_activate  (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   GtkWidget *w = create_check_chiral_volumes_dialog();
-  fill_chiral_volume_molecule_option_menu(w);
+  fill_chiral_volume_molecule_combobox(w);
   gtk_widget_show(w);
 
 }

@@ -1789,22 +1789,10 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal(GtkWidget *o
 
 }
 
-// we need this
-// void
-// graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
-// 							GCallback callback_func,
-// 							int imol_active) {
-// }
-
-
-
-// The callback_func pass here is connected to the combobox, not the menu items.
-//
 void
 graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
 							GCallback callback_func,
-							bool set_last_active_flag) {
-
+							int imol_active) {
    std::vector<int> fill_with_these_molecules;
    for (int imol=0; imol<n_molecules(); imol++) {
       if (molecules[imol].has_model()) {
@@ -1812,13 +1800,12 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
       }
    }
 
-   std::cout << "--- in fill_combobox_with_coordinates_options " << fill_with_these_molecules.size()
-	     << std::endl;
+   std::cout << "debug:: --- in fill_combobox_with_coordinates_options() n_molecules: "
+	     << fill_with_these_molecules.size() << std::endl;
 
    GtkListStore *store = gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
    GtkTreeIter iter;
-   int last_idx = fill_with_these_molecules.size() -1;
-   int active_idx = 0; // overridden by last_idx maybe
+   int active_idx = 0;
    int n_mol = fill_with_these_molecules.size();
 
    for (int idx=0; idx<n_mol; idx++) {
@@ -1836,7 +1823,7 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
       gtk_list_store_append(store, &iter);
       gtk_list_store_set(store, &iter, 0, imol, 1, ss.c_str(), -1);
 
-      if (imol == go_to_atom_molecule())
+      if (imol == imol_active)
 	 active_idx = idx;
 
    }
@@ -1849,14 +1836,36 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
    gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(combobox), renderer, "text", 1, NULL);
    gtk_combo_box_set_model(GTK_COMBO_BOX(combobox), model);
 
-   if (fill_with_these_molecules.size() > 0) {
-      if (set_last_active_flag) {
-	 active_idx = last_idx;
-      }
-      // active_idx = 0; // testing
+   // maybe this can go into the above loop?
+   if (fill_with_these_molecules.size() > 0)
       gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), active_idx);
+
+}
+
+
+
+// The callback_func pass here is connected to the combobox, not the menu items.
+//
+void
+graphics_info_t::fill_combobox_with_coordinates_options_with_set_last(GtkWidget *combobox,
+								      GCallback callback_func,
+								      bool set_last_active_flag) {
+
+   int imol_active = -1;
+   std::vector<int> fill_with_these_molecules;
+   for (int imol=0; imol<n_molecules(); imol++) {
+      if (molecules[imol].has_model()) {
+	 fill_with_these_molecules.push_back(imol);
+      }
+   }
+   if (fill_with_these_molecules.size() > 0) {
+      imol_active = fill_with_these_molecules[0];
+
+      if (set_last_active_flag)
+	 imol_active = fill_with_these_molecules.back();
    }
 
+   fill_combobox_with_coordinates_options(combobox, callback_func, imol_active);
 
 }
 
@@ -2066,8 +2075,21 @@ graphics_info_t::fill_option_menu_with_undo_options(GtkWidget *option_menu) {
 void
 graphics_info_t::fill_combobox_with_undo_options(GtkWidget *combobox) {
 
-   // make the first undo molecule be the active one.
-   fill_combobox_with_coordinates_options(combobox, NULL, false);
+   // make the first undo molecule (a molecule with changes) be the active one.
+   int imol_active = -1;
+   for (int i=0; i<n_molecules(); i++) {
+      if (molecules[i].has_model()) { 
+	 if (molecules[i].atom_sel.mol) { 
+	    if (molecules[i].Have_modifications_p()) {
+	       imol_active = i;
+	       break;
+	    }
+	 }
+      }
+   }
+
+   GCallback callback = G_CALLBACK(undo_molecule_combobox_changed);
+   fill_combobox_with_coordinates_options(combobox, callback, imol_active);
 }
 
 
@@ -2075,10 +2097,11 @@ graphics_info_t::fill_combobox_with_undo_options(GtkWidget *combobox) {
 
 // a static function
 void
-graphics_info_t::undo_molecule_select(GtkWidget *item, GtkPositionType pos) {
+graphics_info_t::undo_molecule_combobox_changed(GtkWidget *combobox, gpointer data) {
    graphics_info_t g;
-   g.set_undo_molecule_number(pos);
-   std::cout << "undo molecule number set to " << pos << std::endl;
+   int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
+   g.set_undo_molecule_number(imol);
+   std::cout << "INFO:: undo molecule number set to " << imol << std::endl;
 }
 
 void
@@ -3345,7 +3368,7 @@ void
 graphics_info_t::on_generic_atom_spec_button_clicked (GtkButton *button,
 						      gpointer user_data) {
 
-   if (GTK_TOGGLE_BUTTON(button)->active) { 
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
 
       graphics_info_t g;
       coot::atom_spec_t *atom_spec = (coot::atom_spec_t *) user_data;
@@ -3419,9 +3442,9 @@ graphics_info_t::wrapped_check_chiral_volumes_dialog(const std::vector <coot::at
 	 atom_spec = new coot::atom_spec_t(v[i]);
 	 atom_spec->int_user_data = imol;
       
-	 gtk_signal_connect(GTK_OBJECT(button), "clicked",
-			    GTK_SIGNAL_FUNC (on_inverted_chiral_volume_button_clicked),
-			    atom_spec);
+	 g_signal_connect(G_OBJECT(button), "clicked",
+			  G_CALLBACK(on_inverted_chiral_volume_button_clicked),
+			  atom_spec);
 
 	 gtk_box_pack_start(GTK_BOX(bad_chiral_volume_atom_vbox),
 			    button, FALSE, FALSE, 0);
@@ -3429,7 +3452,7 @@ graphics_info_t::wrapped_check_chiral_volumes_dialog(const std::vector <coot::at
 	 gtk_widget_show(button);
       }
 
-   } else { 
+   } else {
       std::cout << "Congratulations: there are no bad chiral volumes in this molecule.\n";
       w = create_no_bad_chiral_volumes_dialog();
    } 
@@ -3463,8 +3486,17 @@ graphics_info_t::on_inverted_chiral_volume_button_clicked (GtkButton       *butt
    g.try_centre_from_new_go_to_atom();
    g.update_things_on_move_and_redraw();
 
-
 }
+
+// static
+void
+graphics_info_t::check_chiral_volume_molecule_combobox_changed(GtkWidget *w, gpointer data) {
+
+   graphics_info_t g;
+   int imol = g.combobox_get_imol(GTK_COMBO_BOX(w));
+   check_chiral_volume_molecule = imol;
+}
+
 
 // static
 //

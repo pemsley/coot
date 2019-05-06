@@ -26027,12 +26027,7 @@ programs to which you may be more accustomed.
 	      <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="undo_molecule_chooser_option_menu">
-		  <property name="visible">True</property>
-		  <property name="tooltip" translatable="yes">You want to undo a modification.  There are 2 or more molecules that have been modified.  To which molecule should the undo apply?</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
+		<placeholder/>
 	      </child>
 	    </widget>
 	    <packing>
@@ -32538,16 +32533,7 @@ in this molecule.</property>
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="check_chiral_volumes_molecule_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
+		<placeholder/>
 	      </child>
 
 	      <child>

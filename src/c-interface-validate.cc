@@ -584,7 +584,7 @@ void set_fix_chiral_volumes_before_refinement(int istate) {
 
 void check_chiral_volumes_from_widget(GtkWidget *window) { 
    
-   check_chiral_volumes(graphics_info_t::chiral_volume_molecule_option_menu_item_select_molecule);
+   check_chiral_volumes(graphics_info_t::check_chiral_volume_molecule);
 }
 
 

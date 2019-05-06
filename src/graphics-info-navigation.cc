@@ -754,9 +754,8 @@ graphics_info_t::update_go_to_atom_window_on_new_mol() {
       // set last active (1)
       // fill_option_menu_with_coordinates_options_internal(option_menu, callback_func, 0);
 
-      short int set_last_active_flag = 0;
-
-      fill_combobox_with_coordinates_options(combobox, callback_func, set_last_active_flag);
+      bool set_last_active_flag = 0;
+      fill_combobox_with_coordinates_options_with_set_last(combobox, callback_func, set_last_active_flag);
 
       // If there was no molecule already, we need to update the atom
       // lists too.

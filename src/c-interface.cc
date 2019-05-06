@@ -5739,14 +5739,6 @@ void set_refine_params_dialog_more_control_frame_is_active(int state) {
 }
 
 
-
-void chiral_volume_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos) { 
-
-   graphics_info_t::chiral_volume_molecule_option_menu_item_select_molecule = pos;
-
-}
-
-
 void set_dragged_refinement_steps_per_frame(int v) {
 
    graphics_info_t g;

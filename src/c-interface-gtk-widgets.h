@@ -496,8 +496,9 @@ void estimate_map_weight(GtkWidget *entry);
 
 
 void check_chiral_volumes_from_widget(GtkWidget *window); 
-void fill_chiral_volume_molecule_option_menu(GtkWidget *w);
-void chiral_volume_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos);
+/* void fill_chiral_volume_molecule_option_menu(GtkWidget *w); */
+void fill_chiral_volume_molecule_combobox(GtkWidget *w);
+/* void chiral_volume_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos); */
 
 
 /*  ----------------------------------------------------------------------- */

@@ -1601,11 +1601,13 @@ public:
 								 int imol,
 								 bool fill_with_small_molecule_only_flag);
 
-
-
    void fill_combobox_with_coordinates_options(GtkWidget *combobox,
 					       GCallback callback_func,
-					       bool set_last_active_flag);
+					       int imol_active);
+
+   void fill_combobox_with_coordinates_options_with_set_last(GtkWidget *combobox,
+							     GCallback callback_func,
+							     bool set_last_active_flag);
    
    // and the counterpart:
    int combobox_get_imol(GtkComboBox *combobox) const;
@@ -2708,7 +2710,12 @@ public:
    // used by option menu item callback which sets the molecule for undoing
    void set_undo_molecule_number(int i) { undo_molecule = i; }
    // undo_molecule_select uses set_undo_molecule_number()
-   static void undo_molecule_select(GtkWidget *item, GtkPositionType pos);
+
+   // who calls this?
+   //   static void undo_molecule_select(GtkWidget *item, GtkPositionType pos);
+
+   static void undo_molecule_combobox_changed(GtkWidget *c, gpointer data);
+
    // void fill_option_menu_with_undo_options(GtkWidget *option_menu); // not const
    void fill_combobox_with_undo_options(GtkWidget *option_menu); // not const
    int Undo_molecule(coot::undo_type) const; // return -2 on ambiguity, -1 on unset
@@ -3218,16 +3225,17 @@ public:
    static void on_generic_atom_spec_button_clicked (GtkButton *button,
 						    gpointer user_data);
 
+   // ----- chiral volumes: ----
 
    void check_chiral_volumes(int imol);
    GtkWidget *wrapped_check_chiral_volumes_dialog(const std::vector <coot::atom_spec_t> &v,
 						  int imol);
-   static int chiral_volume_molecule_option_menu_item_select_molecule; // option menu 
+   static int check_chiral_volume_molecule;
    static void on_inverted_chiral_volume_button_clicked(GtkButton *button,
 							gpointer user_data);
    // Tell us which residue types for chiral volumes restraints were missing:
    GtkWidget *wrapped_create_chiral_restraints_problem_dialog(const std::vector<std::string> &sv) const; 
-
+   static void check_chiral_volume_molecule_combobox_changed(GtkWidget *w, gpointer data);
 
 
    // unbonded star size - actually too messy to fix properly - so not used.
