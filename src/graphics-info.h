@@ -2476,7 +2476,7 @@ public:
 						   int imol_active_position);
 
    void fill_combobox_with_difference_map_options(GtkWidget *combobox, 
-						  GtkSignalFunc signal_func,
+						  GCallback signal_func,
 						  int imol_active_position);
 
    GtkWidget *wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_label);

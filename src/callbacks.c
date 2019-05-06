@@ -8691,7 +8691,7 @@ on_check_waters_by_difference_map_active_checkbutton_toggled
 {
    GtkWidget *hbox = lookup_widget(GTK_WIDGET(togglebutton), 
 				   "check_waters_by_difference_map_hbox");
-   if (togglebutton->active)
+   if (gtk_toggle_button_get_active(togglebutton))
       gtk_widget_set_sensitive(hbox, TRUE);
    else
       gtk_widget_set_sensitive(hbox, FALSE);

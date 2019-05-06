@@ -28908,16 +28908,7 @@ density (too big to be waters):
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="check_waters_molecule_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
+		<placeholder/>
 	      </child>
 
 	      <child>
@@ -28973,68 +28964,15 @@ density (too big to be waters):
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="check_waters_action_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">0</property>
-
-		  <child>
-		    <widget class="GtkMenu" id="menu1">
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="check_waters_check1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Check</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_check_waters_check1_activate" last_modification_time="Wed, 12 Dec 2007 13:32:31 GMT"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6016">
-			      <property name="visible">True</property>
-			      <property name="stock">gtk-apply</property>
-			      <property name="icon_size">1</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="check_waters_delete1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Delete</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_check_waters_delete1_activate" last_modification_time="Wed, 12 Dec 2007 13:32:31 GMT"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6017">
-			      <property name="visible">True</property>
-			      <property name="stock">gtk-delete</property>
-			      <property name="icon_size">1</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-		    </widget>
-		  </child>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
+		<placeholder/>
 	      </child>
 
 	      <child>
 		<widget class="GtkComboBox" id="check_waters_action_combobox">
 		  <property name="visible">True</property>
+		  <property name="items" translatable="yes">Check
+Delete
+</property>
 		  <property name="add_tearoffs">False</property>
 		  <property name="focus_on_click">True</property>
 		</widget>
@@ -29666,16 +29604,7 @@ density (too big to be waters):
 				  </child>
 
 				  <child>
-				    <widget class="GtkOptionMenu" id="check_water_by_difference_map_optionmenu">
-				      <property name="visible">True</property>
-				      <property name="can_focus">True</property>
-				      <property name="history">-1</property>
-				    </widget>
-				    <packing>
-				      <property name="padding">0</property>
-				      <property name="expand">False</property>
-				      <property name="fill">False</property>
-				    </packing>
+				    <placeholder/>
 				  </child>
 
 				  <child>

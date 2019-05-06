@@ -134,12 +134,13 @@ GtkWidget *wrapped_create_check_waters_dialog() {
 
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_waters_OR_radiobutton), TRUE);
 
-   GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(check_waters_molecule_menu_item_activate);
+   GtkWidget *check_waters_action_combobox = lookup_widget(dialog, "check_waters_action_combobox");
+
+   gtk_combo_box_set_active(GTK_COMBO_BOX(check_waters_action_combobox), 0); // "Check"
+
+   GCallback callback_func = G_CALLBACK(check_waters_molecule_combobox_changed);
 
    GtkWidget *combobox = lookup_widget(dialog, "check_waters_molecule_combobox");
-//    std::cout << "optionmenu: " << optionmenu << std::endl;
-//    std::cout << "optionmenu is widget: " << GTK_IS_WIDGET(optionmenu) << std::endl;
-//    std::cout << "optionmenu is option menu: " << GTK_IS_OPTION_MENU(optionmenu) << std::endl;
 
    // now fill that dialog's optionmenu with coordinate options.
    for (int imol=0; imol<graphics_n_molecules(); imol++) {
@@ -184,7 +185,9 @@ GtkWidget *wrapped_create_check_waters_dialog() {
    //GtkWidget *diff_map_option_menu =
    // lookup_widget(dialog, "check_water_by_difference_map_optionmenu");
 
-   GtkWidget *diff_map_combobox = lookup_widget(dialog, "check_water_by_difference_map_combobox");
+   GtkWidget *diff_map_combobox = lookup_widget(dialog, "check_waters_by_difference_map_combobox");
+
+   std::cout << "debug:: diff_map_combobox " << diff_map_combobox << std::endl;
 
    if (diff_map_combobox) {
       // set imol_active to the first difference map.
@@ -198,11 +201,12 @@ GtkWidget *wrapped_create_check_waters_dialog() {
 	 }
       }
 
+      std::cout << "debug:: diff_map imol_active " << imol_active << std::endl;
+
       if (imol_active != -1) {
 	 graphics_info_t::check_waters_by_difference_map_map_number = imol_active;
-	 GCallback signal_func = G_CALLBACK(check_water_by_difference_maps_combobox_item_select);
-	 g.fill_combobox_with_difference_map_options(diff_map_combobox,
-						     signal_func, imol_active);
+	 GCallback signal_func = G_CALLBACK(check_water_by_difference_maps_combobox_changed);
+	 g.fill_combobox_with_difference_map_options(diff_map_combobox, signal_func, imol_active);
       }
    }
 
@@ -210,20 +214,14 @@ GtkWidget *wrapped_create_check_waters_dialog() {
 
 }
 
-#if 0
 void
-check_water_by_difference_maps_option_menu_item_select(GtkWidget *item, GtkPositionType pos) {
+check_water_by_difference_maps_combobox_changed(GtkWidget *combobox, gpointer data) {
 
-   graphics_info_t::check_waters_by_difference_map_map_number = pos;
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t::check_waters_by_difference_map_map_number = imol;
+   
 }
-#endif
 
-// Hmmmmmmmmmmm... is this the way to do it?
-void
-check_water_by_difference_maps_combobox_item_select(GtkWidget *item, GtkPositionType pos) {
-
-   graphics_info_t::check_waters_by_difference_map_map_number = pos;
-}
 
 // The OK button was pressed on the dialog, so read the dialog and do
 // the check.
@@ -234,8 +232,9 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
 
 
    // GtkWidget *optionmenu = lookup_widget(dialog, "check_waters_molecule_optionmenu");
-   GtkWidget *action_optionmenu = lookup_widget(dialog, "check_waters_action_optionmenu");
+   // GtkWidget *action_optionmenu = lookup_widget(dialog, "check_waters_action_optionmenu");
    // GtkWidget *checklogic_AND_radiobutton = lookup_widget(dialog, "check_waters_AND_radiobutton");
+
    GtkWidget *checklogic_OR_radiobutton  = lookup_widget(dialog, "check_waters_OR_radiobutton");
 
    GtkWidget *entry1, *entry2, *entry3, *entry4;
@@ -277,16 +276,16 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
    GtkToggleButton *checkbutton5 =
       GTK_TOGGLE_BUTTON(lookup_widget(dialog, "check_waters_by_difference_map_active_checkbutton"));
 
-   if (! checkbutton1->active)
+   if (! gtk_toggle_button_get_active(checkbutton1))
       use_b_factor_limit_test = 0; 
-   if (! checkbutton2->active)
+   if (! gtk_toggle_button_get_active(checkbutton2))
       use_map_sigma_limit_test = 0; 
-   if (! checkbutton3->active)
+   if (! gtk_toggle_button_get_active(checkbutton3))
       use_min_dist_test = 0; 
-   if (! checkbutton4->active)
+   if (! gtk_toggle_button_get_active(checkbutton4))
       use_max_dist_test = 0;
    if (checkbutton5) 
-      if (! checkbutton5->active)
+      if (! gtk_toggle_button_get_active(checkbutton5))
 	 use_difference_map_test = 0;
       
    GtkWidget *zero_occ_checkbutton = lookup_widget(dialog, "check_waters_zero_occ_checkbutton");
@@ -295,20 +294,24 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
 
    short int zero_occ_flag = 0;
    short int part_occ_dist_flag = 0;
-   if (GTK_TOGGLE_BUTTON(zero_occ_checkbutton)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(zero_occ_checkbutton)))
       zero_occ_flag = 1;
-   if (GTK_TOGGLE_BUTTON(partial_occ_close_contact_checkbutton)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(partial_occ_close_contact_checkbutton)))
       part_occ_dist_flag = 1;
    
    //
    short int logical_operator_and_or_flag = 0; // logical AND
-   if (GTK_TOGGLE_BUTTON(checklogic_OR_radiobutton)->active) {
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checklogic_OR_radiobutton))) {
       logical_operator_and_or_flag = 1;
    }
 
-   GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(action_optionmenu));
-   GtkWidget *active_item = gtk_menu_get_active(GTK_MENU(menu));
-   int active_index = g_list_index(GTK_MENU_SHELL(menu)->children, active_item);
+   // GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(action_optionmenu));
+   // GtkWidget *active_item = gtk_menu_get_active(GTK_MENU(menu));
+   // int active_index = g_list_index(GTK_MENU_SHELL(menu)->children, active_item);
+
+   // Check or Delete?
+   GtkWidget *action_combobox = lookup_widget(dialog, "check_waters_molecule_combobox");
+   int active_index = gtk_combo_box_get_active(GTK_COMBO_BOX(action_combobox));
 
    // This will give us another dialog
    // 
@@ -357,10 +360,11 @@ void store_checked_waters_baddies_dialog(GtkWidget *w) {
 
 
 
-void check_waters_molecule_menu_item_activate(GtkWidget *item, 
-					      GtkPositionType pos) {
+void check_waters_molecule_combobox_changed(GtkWidget *combobox, 
+					  gpointer data) {
 
-   graphics_info_t::check_waters_molecule = pos;
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t::check_waters_molecule = imol;
 }
 
 

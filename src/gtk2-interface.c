@@ -14442,16 +14442,9 @@ create_check_waters_dialog (void)
   GtkWidget *vbox100;
   GtkWidget *hbox73;
   GtkWidget *label136;
-  GtkWidget *check_waters_molecule_optionmenu;
   GtkWidget *check_waters_molecule_combobox;
   GtkWidget *hbox72;
   GtkWidget *label135;
-  GtkWidget *check_waters_action_optionmenu;
-  GtkWidget *menu1;
-  GtkWidget *check_waters_check1;
-  GtkWidget *image6016;
-  GtkWidget *check_waters_delete1;
-  GtkWidget *image6017;
   GtkWidget *check_waters_action_combobox;
   GtkWidget *frame84;
   GtkWidget *vbox101;
@@ -14485,7 +14478,6 @@ create_check_waters_dialog (void)
   GtkWidget *label745;
   GtkWidget *hbox415;
   GtkWidget *label753;
-  GtkWidget *check_water_by_difference_map_optionmenu;
   GtkWidget *check_waters_by_difference_map_combobox;
   GtkWidget *label754;
   GtkWidget *check_waters_by_difference_map_active_checkbutton;
@@ -14526,10 +14518,6 @@ create_check_waters_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox73), label136, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label136), GTK_JUSTIFY_CENTER);
 
-  check_waters_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (check_waters_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox73), check_waters_molecule_optionmenu, FALSE, FALSE, 0);
-
   check_waters_molecule_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (check_waters_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (hbox73), check_waters_molecule_combobox, TRUE, TRUE, 0);
@@ -14544,33 +14532,11 @@ create_check_waters_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox72), label135, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label135), GTK_JUSTIFY_CENTER);
 
-  check_waters_action_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (check_waters_action_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox72), check_waters_action_optionmenu, FALSE, FALSE, 0);
-
-  menu1 = gtk_menu_new ();
-
-  check_waters_check1 = gtk_image_menu_item_new_with_mnemonic ("Check");
-  gtk_widget_show (check_waters_check1);
-  gtk_container_add (GTK_CONTAINER (menu1), check_waters_check1);
-
-  image6016 = gtk_image_new_from_stock ("gtk-apply", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image6016);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (check_waters_check1), image6016);
-
-  check_waters_delete1 = gtk_image_menu_item_new_with_mnemonic ("Delete");
-  gtk_widget_show (check_waters_delete1);
-  gtk_container_add (GTK_CONTAINER (menu1), check_waters_delete1);
-
-  image6017 = gtk_image_new_from_stock ("gtk-delete", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image6017);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (check_waters_delete1), image6017);
-
-  gtk_option_menu_set_menu (GTK_OPTION_MENU (check_waters_action_optionmenu), menu1);
-
   check_waters_action_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (check_waters_action_combobox);
   gtk_box_pack_start (GTK_BOX (hbox72), check_waters_action_combobox, TRUE, TRUE, 0);
+  gtk_combo_box_append_text (GTK_COMBO_BOX (check_waters_action_combobox), "Check");
+  gtk_combo_box_append_text (GTK_COMBO_BOX (check_waters_action_combobox), "Delete");
 
   frame84 = gtk_frame_new (NULL);
   gtk_widget_show (frame84);
@@ -14723,10 +14689,6 @@ create_check_waters_dialog (void)
   gtk_widget_show (label753);
   gtk_box_pack_start (GTK_BOX (hbox415), label753, FALSE, FALSE, 0);
 
-  check_water_by_difference_map_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (check_water_by_difference_map_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox415), check_water_by_difference_map_optionmenu, FALSE, FALSE, 0);
-
   check_waters_by_difference_map_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (check_waters_by_difference_map_combobox);
   gtk_box_pack_start (GTK_BOX (hbox415), check_waters_by_difference_map_combobox, TRUE, TRUE, 0);
@@ -14796,12 +14758,6 @@ create_check_waters_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox78), check_waters_cancel_button, TRUE, TRUE, 6);
   gtk_container_set_border_width (GTK_CONTAINER (check_waters_cancel_button), 4);
 
-  g_signal_connect ((gpointer) check_waters_check1, "activate",
-                    G_CALLBACK (on_check_waters_check1_activate),
-                    NULL);
-  g_signal_connect ((gpointer) check_waters_delete1, "activate",
-                    G_CALLBACK (on_check_waters_delete1_activate),
-                    NULL);
   g_signal_connect ((gpointer) check_waters_b_factor_entry_active_checkbutton, "toggled",
                     G_CALLBACK (on_check_waters_b_factor_entry_active_checkbutton_toggled),
                     NULL);
@@ -14836,16 +14792,9 @@ create_check_waters_dialog (void)
   GLADE_HOOKUP_OBJECT (check_waters_dialog, vbox100, "vbox100");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, hbox73, "hbox73");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, label136, "label136");
-  GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_molecule_optionmenu, "check_waters_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_molecule_combobox, "check_waters_molecule_combobox");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, hbox72, "hbox72");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, label135, "label135");
-  GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_action_optionmenu, "check_waters_action_optionmenu");
-  GLADE_HOOKUP_OBJECT (check_waters_dialog, menu1, "menu1");
-  GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_check1, "check_waters_check1");
-  GLADE_HOOKUP_OBJECT (check_waters_dialog, image6016, "image6016");
-  GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_delete1, "check_waters_delete1");
-  GLADE_HOOKUP_OBJECT (check_waters_dialog, image6017, "image6017");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_action_combobox, "check_waters_action_combobox");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, frame84, "frame84");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, vbox101, "vbox101");
@@ -14879,7 +14828,6 @@ create_check_waters_dialog (void)
   GLADE_HOOKUP_OBJECT (check_waters_dialog, label745, "label745");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, hbox415, "hbox415");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, label753, "label753");
-  GLADE_HOOKUP_OBJECT (check_waters_dialog, check_water_by_difference_map_optionmenu, "check_water_by_difference_map_optionmenu");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_by_difference_map_combobox, "check_waters_by_difference_map_combobox");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, label754, "label754");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_by_difference_map_active_checkbutton, "check_waters_by_difference_map_active_checkbutton");

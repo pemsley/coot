@@ -726,12 +726,12 @@ void apply_add_OXT_from_widget(GtkWidget *w);
    and calls the graphics_info_t function. */
 void fill_chi_angles_vbox(GtkWidget *vbox);
 GtkWidget *wrapped_create_check_waters_dialog();
-void check_waters_molecule_menu_item_activate(GtkWidget *item, 
-					      GtkPositionType pos);
+void check_waters_molecule_combobox_changed(GtkWidget *combobox, 
+					    gpointer data);
 // void check_water_by_difference_maps_option_menu_item_select(GtkWidget *item, 
 // 							    GtkPositionType pos);
-void check_water_by_difference_maps_combobox_item_select(GtkWidget *item, 
-							 GtkPositionType pos);
+void check_water_by_difference_maps_combobox_changed(GtkWidget *combobox,
+						     gpointer data);
 void do_check_waters_by_widget(GtkWidget *dialog);
 void store_checked_waters_baddies_dialog(GtkWidget *dialog);
 
