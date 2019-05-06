@@ -4450,7 +4450,7 @@ void set_scroll_wheel_map(int imap) {
 }
 
 
-void add_on_map_scroll_whell_choices(GtkWidget *menu) {
+void add_on_map_scroll_wheel_choices(GtkWidget *menu) {
 
    GtkSignalFunc callback =
       GTK_SIGNAL_FUNC(map_scroll_wheel_mol_selector_activate);

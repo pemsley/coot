@@ -3130,6 +3130,8 @@ public:
    static int superpose_imol2;
    static std::string superpose_imol1_chain;
    static std::string superpose_imol2_chain;
+
+   /*
    static void superpose_optionmenu_activate_mol1(GtkWidget *item, GtkPositionType pos);
    static void superpose_optionmenu_activate_mol2(GtkWidget *item, GtkPositionType pos);
    static void superpose_moving_chain_option_menu_item_activate (GtkWidget *item,
@@ -3138,6 +3140,16 @@ public:
 								    GtkPositionType pos);
    static void fill_superpose_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
 							     int is_reference_structure_flag);
+   */
+
+   static void superpose_reference_chain_combobox_changed(GtkWidget *combobox, gpointer data);
+   static void superpose_moving_chain_combobox_changed(GtkWidget *combobox, gpointer data);
+
+   static void superpose_combobox_changed_mol1(GtkWidget *c, gpointer data);
+   static void superpose_combobox_changed_mol2(GtkWidget *c, gpointer data);
+   static void fill_superpose_combobox_with_chain_options(GtkWidget *combobox,
+							  int is_reference_structure_flag);
+
    static int         ramachandran_plot_differences_imol1;
    static int         ramachandran_plot_differences_imol2;
    static std::string ramachandran_plot_differences_imol1_chain;

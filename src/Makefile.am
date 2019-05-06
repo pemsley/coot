@@ -456,7 +456,6 @@ coot_bin_SOURCES = \
 	guile-fixups.h		 \
 	history_list.hh		 \
         idles.hh                 \
-	interface.c	 	 \
 	interface.h              \
         manipulation-modes.hh    \
 	lsq-dialog-values.hh     \

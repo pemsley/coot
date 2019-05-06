@@ -258,13 +258,15 @@ void execute_superpose(GtkWidget *w) {
    int imol1 = graphics_info_t::superpose_imol1;
    int imol2 = graphics_info_t::superpose_imol2;
 
-//    std::cout << "DEBUG:: superpose_imol1: " << graphics_info_t::superpose_imol1 << std::endl;
-//    std::cout << "DEBUG:: superpose_imol2: " << graphics_info_t::superpose_imol2 << std::endl;
-
+   std::cout << "DEBUG:: superpose_imol1: " << graphics_info_t::superpose_imol1 << std::endl;
+   std::cout << "DEBUG:: superpose_imol2: " << graphics_info_t::superpose_imol2 << std::endl;
 
    GtkWidget *checkbutton = lookup_widget(w, "superpose_dialog_move_copy_checkbutton");
    GtkWidget *chain_mol1_checkbutton =  lookup_widget(w, "superpose_reference_chain_checkbutton");
    GtkWidget *chain_mol2_checkbutton =  lookup_widget(w, "superpose_moving_chain_checkbutton");
+
+   if (!chain_mol1_checkbutton) std::cout << "----------- bad chain_mol1_checkbutton" << std::endl;
+   if (!chain_mol2_checkbutton) std::cout << "----------- bad chain_mol2n_checkbutton" << std::endl;
 
    bool make_copy = false;
    if (GTK_TOGGLE_BUTTON(checkbutton)->active)
@@ -283,11 +285,11 @@ void execute_superpose(GtkWidget *w) {
 	 // These chain_mol1/2 need checking to see if they are set
 	 // properly when the use-chain check_button is toggled.
 	 // 
-	 if (GTK_TOGGLE_BUTTON(chain_mol1_checkbutton)->active) {
+	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(chain_mol1_checkbutton))) {
 	    chain_used_flag_imol1 = 1;
 	    chain_mol1 = graphics_info_t::superpose_imol1_chain;
 	 }
-	 if (GTK_TOGGLE_BUTTON(chain_mol2_checkbutton)->active) {
+	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(chain_mol2_checkbutton))) {
 	    chain_used_flag_imol2 = 1;
 	    chain_mol2 = graphics_info_t::superpose_imol2_chain;
 	 }
@@ -323,8 +325,8 @@ void execute_superpose(GtkWidget *w) {
 	 }
 	 
 	 std::cout << "INFO:: matching molecule number " << imol2 << mol2chain_info
-		   << " onto molecule number "
-		   << imol1 << mol1chain_info << std::endl;
+		   << " onto molecule number " << imol1 << mol1chain_info << std::endl;
+
 	 superpose_with_chain_selection(imol1, imol2, chain_mol1.c_str(), chain_mol2.c_str(),
 					chain_used_flag_imol1, chain_used_flag_imol2,
 					make_copy);
@@ -352,8 +354,8 @@ GtkWidget *wrapped_create_superpose_dialog() {
    GtkWidget *combobox1 = lookup_widget(w, "superpose_dialog_reference_mol_combobox");
    GtkWidget *combobox2 = lookup_widget(w, "superpose_dialog_moving_mol_combobox");
 
-   GCallback signal_func1 = G_CALLBACK(g.superpose_optionmenu_activate_mol1);
-   GCallback signal_func2 = G_CALLBACK(g.superpose_optionmenu_activate_mol2);
+   GCallback signal_func1 = G_CALLBACK(g.superpose_combobox_changed_mol1);
+   GCallback signal_func2 = G_CALLBACK(g.superpose_combobox_changed_mol2);
 
    graphics_info_t::superpose_imol1 = -1;
    graphics_info_t::superpose_imol2 = -1;
@@ -370,8 +372,8 @@ GtkWidget *wrapped_create_superpose_dialog() {
    g.fill_combobox_with_coordinates_options(combobox1, signal_func1, g.superpose_imol1);
    g.fill_combobox_with_coordinates_options(combobox2, signal_func2, g.superpose_imol2);
 
-   GtkWidget *chain_ref_cb = lookup_widget(w, "superpose_reference_chain_combobox");
-   GtkWidget *chain_mov_cb = lookup_widget(w, "superpose_moving_chain_combobox");
+   GtkWidget *chain_ref_cb = lookup_widget(w, "superpose_dialog_reference_chain_combobox");
+   GtkWidget *chain_mov_cb = lookup_widget(w, "superpose_dialog_moving_chain_combobox");
 
    GtkWidget *chain_ref_menu = gtk_menu_new();
    GtkWidget *chain_mov_menu = gtk_menu_new();
@@ -388,13 +390,18 @@ GtkWidget *wrapped_create_superpose_dialog() {
 
 // The callbacks.c callback:
 // 
-void fill_superpose_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
- 						   int is_reference_structure_flag) {
+void fill_superpose_combobox_with_chain_options(GtkWidget *chain_combobox, 
+						int is_reference_structure_flag) {
+
+   std::cout << "------- in fill_superpose_combobox_with_chain_options with chain_combobox " << chain_combobox
+	     << std::endl;
 #ifdef HAVE_SSMLIB
 
-    graphics_info_t::fill_superpose_option_menu_with_chain_options(chain_optionmenu,
-								   is_reference_structure_flag);
+   graphics_info_t::fill_superpose_combobox_with_chain_options(chain_combobox,
+							       is_reference_structure_flag);
 #endif // HAVE_SSMLIB    
+   std::cout << "------- done fill_superpose_combobox_with_chain_options with chain_combobox "
+	     << std::endl;
 }
 
 

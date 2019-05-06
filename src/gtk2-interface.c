@@ -15792,20 +15792,20 @@ create_superpose_dialog (void)
   GtkWidget *label159;
   GtkWidget *frame98;
   GtkWidget *vbox142;
-  GtkWidget *superpose_dialog_reference_mol_optionmenu;
+  GtkWidget *superpose_dialog_reference_mol_combobox;
   GtkWidget *superpose_reference_structure_frame;
   GtkWidget *vbox144;
   GtkWidget *superpose_reference_chain_checkbutton;
-  GtkWidget *superpose_reference_chain_optionmenu;
+  GtkWidget *superpose_dialog_reference_chain_combobox;
   GtkWidget *label304;
   GtkWidget *label160;
   GtkWidget *frame99;
   GtkWidget *vbox143;
-  GtkWidget *superpose_dialog_moving_mol_optionmenu;
+  GtkWidget *superpose_dialog_moving_mol_combobox;
   GtkWidget *superpose_moving_structure_frame;
   GtkWidget *vbox145;
   GtkWidget *superpose_moving_chain_checkbutton;
-  GtkWidget *superpose_moving_chain_optionmenu;
+  GtkWidget *superpose_dialog_moving_chain_combobox;
   GtkWidget *label305;
   GtkWidget *superpose_dialog_move_copy_checkbutton;
   GtkWidget *dialog_action_area49;
@@ -15839,9 +15839,9 @@ create_superpose_dialog (void)
   gtk_widget_show (vbox142);
   gtk_container_add (GTK_CONTAINER (frame98), vbox142);
 
-  superpose_dialog_reference_mol_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (superpose_dialog_reference_mol_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox142), superpose_dialog_reference_mol_optionmenu, FALSE, FALSE, 0);
+  superpose_dialog_reference_mol_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (superpose_dialog_reference_mol_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox142), superpose_dialog_reference_mol_combobox, FALSE, FALSE, 0);
 
   superpose_reference_structure_frame = gtk_frame_new (NULL);
   gtk_widget_show (superpose_reference_structure_frame);
@@ -15855,9 +15855,9 @@ create_superpose_dialog (void)
   gtk_widget_show (superpose_reference_chain_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox144), superpose_reference_chain_checkbutton, FALSE, FALSE, 0);
 
-  superpose_reference_chain_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (superpose_reference_chain_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox144), superpose_reference_chain_optionmenu, FALSE, FALSE, 0);
+  superpose_dialog_reference_chain_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (superpose_dialog_reference_chain_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox142), superpose_dialog_reference_chain_combobox, TRUE, TRUE, 0);
 
   label304 = gtk_label_new ("Reference Structure");
   gtk_widget_show (label304);
@@ -15877,9 +15877,9 @@ create_superpose_dialog (void)
   gtk_widget_show (vbox143);
   gtk_container_add (GTK_CONTAINER (frame99), vbox143);
 
-  superpose_dialog_moving_mol_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (superpose_dialog_moving_mol_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox143), superpose_dialog_moving_mol_optionmenu, FALSE, FALSE, 0);
+  superpose_dialog_moving_mol_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (superpose_dialog_moving_mol_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox143), superpose_dialog_moving_mol_combobox, FALSE, FALSE, 0);
 
   superpose_moving_structure_frame = gtk_frame_new (NULL);
   gtk_widget_show (superpose_moving_structure_frame);
@@ -15893,9 +15893,9 @@ create_superpose_dialog (void)
   gtk_widget_show (superpose_moving_chain_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox145), superpose_moving_chain_checkbutton, FALSE, FALSE, 0);
 
-  superpose_moving_chain_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (superpose_moving_chain_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox145), superpose_moving_chain_optionmenu, FALSE, FALSE, 0);
+  superpose_dialog_moving_chain_combobox = gtk_combo_box_new_text ();
+  gtk_widget_show (superpose_dialog_moving_chain_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox145), superpose_dialog_moving_chain_combobox, TRUE, TRUE, 0);
 
   label305 = gtk_label_new ("Moving Structure");
   gtk_widget_show (label305);
@@ -15946,20 +15946,20 @@ create_superpose_dialog (void)
   GLADE_HOOKUP_OBJECT (superpose_dialog, label159, "label159");
   GLADE_HOOKUP_OBJECT (superpose_dialog, frame98, "frame98");
   GLADE_HOOKUP_OBJECT (superpose_dialog, vbox142, "vbox142");
-  GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_dialog_reference_mol_optionmenu, "superpose_dialog_reference_mol_optionmenu");
+  GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_dialog_reference_mol_combobox, "superpose_dialog_reference_mol_combobox");
   GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_reference_structure_frame, "superpose_reference_structure_frame");
   GLADE_HOOKUP_OBJECT (superpose_dialog, vbox144, "vbox144");
   GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_reference_chain_checkbutton, "superpose_reference_chain_checkbutton");
-  GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_reference_chain_optionmenu, "superpose_reference_chain_optionmenu");
+  GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_dialog_reference_chain_combobox, "superpose_dialog_reference_chain_combobox");
   GLADE_HOOKUP_OBJECT (superpose_dialog, label304, "label304");
   GLADE_HOOKUP_OBJECT (superpose_dialog, label160, "label160");
   GLADE_HOOKUP_OBJECT (superpose_dialog, frame99, "frame99");
   GLADE_HOOKUP_OBJECT (superpose_dialog, vbox143, "vbox143");
-  GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_dialog_moving_mol_optionmenu, "superpose_dialog_moving_mol_optionmenu");
+  GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_dialog_moving_mol_combobox, "superpose_dialog_moving_mol_combobox");
   GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_moving_structure_frame, "superpose_moving_structure_frame");
   GLADE_HOOKUP_OBJECT (superpose_dialog, vbox145, "vbox145");
   GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_moving_chain_checkbutton, "superpose_moving_chain_checkbutton");
-  GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_moving_chain_optionmenu, "superpose_moving_chain_optionmenu");
+  GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_dialog_moving_chain_combobox, "superpose_dialog_moving_chain_combobox");
   GLADE_HOOKUP_OBJECT (superpose_dialog, label305, "label305");
   GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_dialog_move_copy_checkbutton, "superpose_dialog_move_copy_checkbutton");
   GLADE_HOOKUP_OBJECT_NO_REF (superpose_dialog, dialog_action_area49, "dialog_action_area49");

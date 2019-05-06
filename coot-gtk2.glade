@@ -31835,10 +31835,10 @@ Secondary Structure Matching</property>
 		  <property name="spacing">0</property>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="superpose_dialog_reference_mol_optionmenu">
+		    <widget class="GtkComboBox" id="superpose_dialog_reference_mol_combobox">
 		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
+		      <property name="add_tearoffs">False</property>
+		      <property name="focus_on_click">True</property>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -31881,16 +31881,7 @@ Secondary Structure Matching</property>
 			  </child>
 
 			  <child>
-			    <widget class="GtkOptionMenu" id="superpose_reference_chain_optionmenu">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="history">-1</property>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
-			    </packing>
+			    <placeholder/>
 			  </child>
 			</widget>
 		      </child>
@@ -31903,7 +31894,16 @@ Secondary Structure Matching</property>
 		  </child>
 
 		  <child>
-		    <placeholder/>
+		    <widget class="GtkComboBox" id="superpose_dialog_reference_chain_combobox">
+		      <property name="visible">True</property>
+		      <property name="add_tearoffs">False</property>
+		      <property name="focus_on_click">True</property>
+		    </widget>
+		    <packing>
+		      <property name="padding">0</property>
+		      <property name="expand">True</property>
+		      <property name="fill">True</property>
+		    </packing>
 		  </child>
 
 		  <child>
@@ -31982,10 +31982,10 @@ Secondary Structure Matching</property>
 		  <property name="spacing">0</property>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="superpose_dialog_moving_mol_optionmenu">
+		    <widget class="GtkComboBox" id="superpose_dialog_moving_mol_combobox">
 		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
+		      <property name="add_tearoffs">False</property>
+		      <property name="focus_on_click">True</property>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -32028,15 +32028,19 @@ Secondary Structure Matching</property>
 			  </child>
 
 			  <child>
-			    <widget class="GtkOptionMenu" id="superpose_moving_chain_optionmenu">
+			    <placeholder/>
+			  </child>
+
+			  <child>
+			    <widget class="GtkComboBox" id="superpose_dialog_moving_chain_combobox">
 			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="history">-1</property>
+			      <property name="add_tearoffs">False</property>
+			      <property name="focus_on_click">True</property>
 			    </widget>
 			    <packing>
 			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
+			      <property name="expand">True</property>
+			      <property name="fill">True</property>
 			    </packing>
 			  </child>
 			</widget>

@@ -249,7 +249,7 @@ void map_colour_mol_selector_activate (GtkMenuItem     *menuitem,
 void my_delete_menu_items(GtkWidget *widget, void *data);
 
 /* similarly for the scrollwheel */
-void add_on_map_scroll_whell_choices(GtkWidget *menu);
+void add_on_map_scroll_wheel_choices(GtkWidget *menu);
 void map_scroll_wheel_mol_selector_activate (GtkMenuItem     *menuitem,
 					     gpointer         user_data);
 
@@ -756,8 +756,9 @@ void fill_lsq_option_menu_with_chain_options(GtkWidget *chain_optionmenu,
 
 void execute_superpose(GtkWidget *w);
 GtkWidget *wrapped_create_superpose_dialog(); /* used by callback */
-void fill_superpose_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
- 						   int is_reference_structure_flag);
+/*void fill_superpose_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
+  int is_reference_structure_flag); */
+void fill_superpose_combobox_with_chain_options(GtkWidget *combobox, int is_ref_flag);
 void update_lsq_dialog_store_values(GtkWidget *w);
 
  

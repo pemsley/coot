@@ -1166,7 +1166,7 @@ on_attach_scroll_wheel_to_which_map_1_activate (GtkMenuItem     *menuitem,
      submenu */
   GtkWidget *menu = lookup_widget(GTK_WIDGET(menuitem), "attach_scroll_wheel_to_which_map_1");
   if (menu) { 
-    add_on_map_scroll_whell_choices(menu);
+    add_on_map_scroll_wheel_choices(menu);
   } else { 
     printf("ERROR:: failed to get menu in on_attach_scroll_wheel_to_which_map_1_activate\n");
   }
@@ -8017,19 +8017,21 @@ on_difference_map_peaks1_activate      (GtkMenuItem     *menuitem,
 
 
 void
-on_superpose_reference_chain_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_superpose_reference_chain_checkbutton_toggled(GtkToggleButton *togglebutton,
+						 gpointer         user_data) {
 
-  GtkWidget *optionmenu = lookup_widget(GTK_WIDGET(togglebutton), 
-					"superpose_reference_chain_optionmenu");
-  if (togglebutton->active) {
-    gtk_widget_set_sensitive(GTK_WIDGET(optionmenu), TRUE);
-    fill_superpose_option_menu_with_chain_options(optionmenu, 1);
+  GtkWidget *combobox = lookup_widget(GTK_WIDGET(togglebutton), 
+					"superpose_dialog_reference_chain_combobox");
+  if (gtk_toggle_button_get_active(togglebutton)) {
+    gtk_widget_set_sensitive(GTK_WIDGET(combobox), TRUE);
+    printf("calling fill_superpose_combobox_with_chain_options()\n");
+    fill_superpose_combobox_with_chain_options(combobox, 1);
+    printf("done fill_superpose_combobox_with_chain_options()\n");
   } else {
-    gtk_widget_set_sensitive(GTK_WIDGET(optionmenu), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(combobox), FALSE);
   }
+
+  printf("done on_superpose_reference_chain_checkbutton_toggled()\n");
     
 }
 
@@ -8039,14 +8041,14 @@ on_superpose_moving_chain_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *optionmenu = lookup_widget(GTK_WIDGET(togglebutton), 
-					"superpose_moving_chain_optionmenu");
+  GtkWidget *combobox = lookup_widget(GTK_WIDGET(togglebutton), 
+				      "superpose_dialog_moving_chain_combobox");
 
-  if (togglebutton->active) {
-    fill_superpose_option_menu_with_chain_options(optionmenu, 0);
-    gtk_widget_set_sensitive(GTK_WIDGET(optionmenu), TRUE);
+  if (gtk_toggle_button_get_active(togglebutton)) {
+    fill_superpose_combobox_with_chain_options(combobox, 0);
+    gtk_widget_set_sensitive(GTK_WIDGET(combobox), TRUE);
   } else {
-    gtk_widget_set_sensitive(GTK_WIDGET(optionmenu), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(combobox), FALSE);
   }
 }
 
