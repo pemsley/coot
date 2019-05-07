@@ -43,9 +43,12 @@
 #   include <GL/gl.h>
 #endif
 
-#include <gdk/gdkglconfig.h>
-#include <gdk/gdkgldrawable.h>
-#include <gtk/gtkgl.h>
+// Yesterday's OpenGL interface
+// #include <gdk/gdkglconfig.h>
+// #include <gdk/gdkgldrawable.h>
+// #include <gtk/gtkgl.h>
+
+#include <gtk/gtkglarea.h> // Shiny new OpenGL interface
 
 #ifdef HAVE_CXX_THREAD
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
@@ -993,10 +996,13 @@ public:
 
    /* OpenGL functions can be called only if make_current returns true */
    static int make_current_gl_context(GtkWidget *widget) {
-   
+
+#if 0   // Old GTK-GL interface
      GdkGLContext *glcontext = gtk_widget_get_gl_context (widget);
      GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
      return gdk_gl_drawable_gl_begin (gldrawable, glcontext);
+#endif
+     return 0;
    }
 
 
@@ -1347,9 +1353,11 @@ public:
    void update_ramachandran_plot_point_maybe(int imol, mmdb::Atom *atom);
    void update_ramachandran_plot_point_maybe(int imol, const coot::residue_spec_t &res_spec);
    void update_ramachandran_plot_point_maybe(int imol, atom_selection_container_t moving_atoms);
+
+#ifdef HAVE_GOOCANVAS
    void update_ramachandran_plot_background_from_res_spec(coot::rama_plot *plot, int imol,
                                                           const coot::residue_spec_t &res_spec);
-
+#endif
 
    float X() { return rotation_centre_x; };
    float Y() { return rotation_centre_y; };
@@ -1577,27 +1585,27 @@ public:
    // goodbye my friends.
 
     void fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
- 						  GtkSignalFunc callback_func);
+ 						  GCallback callback_func);
    void fill_option_menu_with_coordinates_options(GtkWidget *option_menu, 
-						  GtkSignalFunc signal_func,
+						  GCallback signal_func,
 						  int imol_active_position);
    void fill_option_menu_with_coordinates_options_internal(GtkWidget *option_menu,
-							   GtkSignalFunc callback_func,
+							   GCallback callback_func,
 							   short int set_last_active_flag);
    void fill_option_menu_with_coordinates_options_internal_2(GtkWidget *option_menu,
-							     GtkSignalFunc callback_func, 
+							     GCallback callback_func, 
 							     short int set_last_active_flag,
 							     int imol_active);
    void fill_option_menu_with_coordinates_options_internal_3(GtkWidget *option_menu,
-							     GtkSignalFunc callback_func, 
+							     GCallback callback_func, 
 							     std::vector<int> fill_with_these_molecules,
 							     short int set_last_active_flag,
 							     int imol_active);
    void fill_option_menu_with_coordinates_options_internal_with_active_mol(GtkWidget *option_menu,
-									   GtkSignalFunc callback_func, 
+									   GCallback callback_func, 
 									   int imol_active);
    void fill_option_menu_with_coordinates_options_possibly_small(GtkWidget *option_menu, 
-								 GtkSignalFunc callback_func, 
+								 GCallback callback_func, 
 								 int imol,
 								 bool fill_with_small_molecule_only_flag);
 
@@ -1609,17 +1617,17 @@ public:
 							     GCallback callback_func,
 							     bool set_last_active_flag);
    
-   // and the counterpart:
    int combobox_get_imol(GtkComboBox *combobox) const;
-   // static void go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionType pos); // delete this
+
    static void go_to_atom_mol_combobox_changed(GtkWidget *combobox, gpointer data);
 
+#if 0
+
+   // where is this used? If anywhere...
    static void on_go_to_atom_residue_list_selection_changed (GtkList *gtklist,
 							     gpointer user_data);
+#endif
 
-   static void on_go_to_atom_residue_tree_selection_changed_gtk1(GtkList *gtklist,
-								 gpointer user_data);
-   // -------------------- Gtk2 code -----------------------------
    static void on_go_to_atom_residue_tree_selection_changed (GtkTreeView *gtklist,
 							     gpointer user_data);
    static void
@@ -2461,17 +2469,17 @@ public:
 								 gpointer         user_data);
    // Return the molecule number of the selected map (I mean, top of
    // the list, in the option menu)
-   int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signal_func); 
-   void fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signal_func,
+   int fill_option_menu_with_map_options(GtkWidget *option_menu, GCallback signal_func); 
+   void fill_option_menu_with_map_options(GtkWidget *option_menu, GCallback signal_func,
 					  int imol_active_position);
-   int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signal_func); 
-   int fill_combobox_with_map_mtz_options(GtkWidget *combobox, GtkSignalFunc signal_func); 
-   int fill_option_menu_with_map_options_generic(GtkWidget *option_menu, GtkSignalFunc signal_func, int mtz_only=0); 
+   int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GCallback signal_func); 
+   int fill_combobox_with_map_mtz_options(GtkWidget *combobox, GCallback signal_func); 
+   int fill_option_menu_with_map_options_generic(GtkWidget *option_menu, GCallback signal_func, int mtz_only=0); 
    void fill_option_menu_with_difference_map_options(GtkWidget *option_menu, 
-						     GtkSignalFunc signal_func,
+						     GCallback signal_func,
 						     int imol_active_position);
    void fill_option_menu_with_map_options_internal(GtkWidget *option_menu, 
-						   GtkSignalFunc signal_func,
+						   GCallback signal_func,
 						   std::vector<int> map_molecule_numbers,
 						   int imol_active_position);
 
@@ -3296,7 +3304,7 @@ public:
 
    static std::string fill_option_menu_with_chain_options(GtkWidget *option_menu,
 							  int imol,
-							  GtkSignalFunc signal_func);
+							  GCallback signal_func);
 
    static std::string fill_combobox_with_chain_options(GtkWidget *combobox,
 						       int imol,
@@ -3310,7 +3318,7 @@ public:
    // then set the active menu item to that.
    static std::string fill_option_menu_with_chain_options(GtkWidget *option_menu,
 							  int imol,
-							  GtkSignalFunc signal_func, 
+							  GCallback signal_func, 
 							  const std::string &active_chain_id);
    static std::string add_OXT_chain;
    // static void add_OXT_chain_menu_item_activate (GtkWidget *item,

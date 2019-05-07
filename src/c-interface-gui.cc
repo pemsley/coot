@@ -1857,12 +1857,13 @@ void guile_window_enter_callback( GtkWidget *widget,
 }
 #endif //  USE_GUILE
 
+// Old interface
 // This is for maps which come from mtz (i.e. have SFs)
-int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signalfunc) {
-
-   graphics_info_t g;
-   return g.fill_combobox_with_map_mtz_options(option_menu, signalfunc);
-}
+// int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signalfunc) {
+//
+//   graphics_info_t g;
+//   return g.fill_combobox_with_map_mtz_options(option_menu, signalfunc);
+// }
 
 // Similar to fill_option_menu_with_coordinates_options, but I moved
 // it to graphics_info_t because it is also used when there is an
@@ -2019,13 +2020,14 @@ GtkWidget *coot_save_state_chooser() {
 GtkWidget *coot_save_symmetry_chooser() {
 
    GtkWidget *w = create_save_symmetry_coords_filechooserdialog1();
-   gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
+   gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER (w), TRUE);
    return w;
 }
 
 GtkWidget *coot_screendump_chooser() {
 
-   gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
+   GtkWidget *w = create_screendump_filechooserdialog1();
+   gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER (w), TRUE);
    return w;
 }
 
@@ -2061,8 +2063,10 @@ void handle_get_accession_code(GtkWidget *widget) {
       std::string text_s = std::string(text_c);
       text = coot::util::remove_trailing_whitespace(text_s);
       std::cout << "PDB Accession Code: " << text << std::endl;
-      int *n_p = (int *) g_object_get_data(G_OBJECT(w), "accession_code");
-      int n = *n_p;
+
+      // is this the correct widget from which to extract data?
+      int n = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "accession_code"));
+
       std::cout << "DEBUG:: extracted accession code handle mode n " << n << std::endl;
 
 
@@ -4267,7 +4271,7 @@ GtkWidget *wrapped_create_bond_parameters_dialog() {
 
    GtkWidget *combobox = lookup_widget(widget, "bond_parameters_molecule_combobox");
 
-   GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(g.bond_parameters_molecule_menu_item_select);
+   GCallback callback_func = NULL; // GTK_SIGNAL_FUNC(g.bond_parameters_molecule_menu_item_select);
 
    // fill the colour map rotation entry
 
@@ -4550,7 +4554,6 @@ void fill_go_to_atom_window(GtkWidget *widget) {
      g.fill_option_menu_with_coordinates_options(option_menu,
 						 callback_func,
 						 gimol);
-#endif
 
      /* The chain entry */
 
@@ -4577,7 +4580,10 @@ void fill_go_to_atom_window(GtkWidget *widget) {
 
      scrolled_window = lookup_widget(GTK_WIDGET(widget),
 				     "go_to_atom_residue_scrolledwindow");
-     residue_gtklist=gtk_list_new();
+
+     std::cout << "GTK-FIXME filling the residue list " << std::endl;
+
+     // residue_gtklist=gtk_list_new();
 
      GtkWidget *atom_list_scrolled_window =
 	lookup_widget(GTK_WIDGET(widget), "go_to_atom_atom_scrolledwindow");

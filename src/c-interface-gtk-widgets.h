@@ -398,8 +398,12 @@ GtkWidget *wrapped_create_merge_molecules_dialog();
 void do_merge_molecules_gui();
 void do_merge_molecules(GtkWidget *dialog);
 
+/* void fill_vbox_with_coordinates_options(GtkWidget *vbox,
+GtkSignalFunc checkbox_callback_func); */
+
 void fill_vbox_with_coordinates_options(GtkWidget *vbox,
-					GtkSignalFunc checkbox_callback_func);
+					GCallback checkbox_callback_func);
+
 void merge_molecules_master_molecule_combobox_changed(GtkWidget *w, gpointer data);
 
 
@@ -849,5 +853,6 @@ void mutate_molecule_dialog_check_counts(GtkWidget *res_no_1_widget, GtkWidget *
 					 GtkWidget *text_widget, GtkWidget *label_widget);
 
 #endif /* C_INTERFACE_GTK_WIDGETS_H */
+
 END_C_DECLS
 

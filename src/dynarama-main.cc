@@ -538,6 +538,8 @@ extern "C" {
    void clear_moving_atoms_object() {}
 }
 
+#include <iostream>
+
 int
 main(int argc, char *argv[]) {
 

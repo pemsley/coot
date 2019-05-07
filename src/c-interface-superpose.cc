@@ -269,7 +269,7 @@ void execute_superpose(GtkWidget *w) {
    if (!chain_mol2_checkbutton) std::cout << "----------- bad chain_mol2n_checkbutton" << std::endl;
 
    bool make_copy = false;
-   if (GTK_TOGGLE_BUTTON(checkbutton)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
       make_copy = true;
    
    if (imol1 >= 0 && imol1 < graphics_info_t::n_molecules()) { 
@@ -646,8 +646,8 @@ GtkWidget *wrapped_create_least_squares_dialog() {
    GtkWidget *mov_mol_chain_id_option_menu = lookup_widget(lsq_dialog, "least_squares_moving_chain_id");
    
    graphics_info_t g;
-   GtkSignalFunc callback_func1 = GTK_SIGNAL_FUNC(lsq_ref_mol_option_menu_changed);
-   GtkSignalFunc callback_func2 = GTK_SIGNAL_FUNC(lsq_mov_mol_option_menu_changed);
+   GCallback callback_func1 = NULL; // GTK_SIGNAL_FUNC(lsq_ref_mol_option_menu_changed);
+   GCallback callback_func2 = NULL; // GTK_SIGNAL_FUNC(lsq_mov_mol_option_menu_changed);
    
    int imol_1 = first_coords_imol();
    int imol_2 = first_coords_imol();
@@ -745,7 +745,7 @@ int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
 
    GtkWidget *copy_checkbutton = lookup_widget(lsq_dialog, "least_squares_move_copy_checkbutton");
    if (copy_checkbutton) { 
-      if (GTK_TOGGLE_BUTTON(copy_checkbutton)->active) {
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(copy_checkbutton))) {
 	 int new_imol_moving = copy_molecule(imol_moving);
 	 imol_moving = new_imol_moving;
 	 graphics_info_t::lsq_mov_imol = imol_moving;
@@ -767,11 +767,11 @@ int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
    std::string ref_chain_id_str = graphics_info_t::lsq_match_chain_id_ref;
    std::string mov_chain_id_str = graphics_info_t::lsq_match_chain_id_mov;
 
-   if (GTK_TOGGLE_BUTTON(match_type_all_check_button)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(match_type_all_check_button)))
       match_type = 0;
-   if (GTK_TOGGLE_BUTTON(match_type_main_check_button)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(match_type_main_check_button)))
       match_type = 1;
-   if (GTK_TOGGLE_BUTTON(match_type_calpha_check_button)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(match_type_calpha_check_button)))
       match_type = 2;
    
    std::cout << "INFO:: reference from " << ref_start_resno << " to " <<  ref_end_resno << " chain "
@@ -788,7 +788,7 @@ int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
 } 
 
 
-
+#if 0
 // 
 void
 fill_lsq_option_menu_with_chain_options(GtkWidget *chain_optionmenu,
@@ -835,7 +835,7 @@ fill_lsq_option_menu_with_chain_options(GtkWidget *chain_optionmenu,
                 << std::endl;
    }
 }
-
+#endif
 
 // note that active_chain_id can be NULL.
 // 
@@ -886,15 +886,17 @@ fill_lsq_combobox_with_chain_options(GtkWidget *chain_combobox,
 }
 
 
-void lsq_reference_chain_option_menu_item_activate(GtkWidget *item,
-						   GtkPositionType pos) {
-   graphics_info_t::lsq_match_chain_id_ref = menu_item_label(item);
-}
 
-void lsq_moving_chain_option_menu_item_activate(GtkWidget *item,
-						GtkPositionType pos) {
-   graphics_info_t::lsq_match_chain_id_mov = menu_item_label(item);
-} 
+// void lsq_reference_chain_option_menu_item_activate(GtkWidget *item,
+// 						   GtkPositionType pos) {
+//    graphics_info_t::lsq_match_chain_id_ref = menu_item_label(item);
+// }
+
+// void lsq_moving_chain_option_menu_item_activate(GtkWidget *item,
+// 						GtkPositionType pos) {
+//    graphics_info_t::lsq_match_chain_id_mov = menu_item_label(item);
+// }
+
 
 /*  ----------------------------------------------------------------------- */
 /*               LSQ-improve               */
