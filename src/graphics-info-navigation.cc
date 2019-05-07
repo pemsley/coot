@@ -834,7 +834,7 @@ graphics_info_t::update_go_to_atom_molecule_on_go_to_atom_molecule_deleted() {
 void
 graphics_info_t::clear_atom_list(GtkWidget *atom_gtklist) {
 
-   gtk_list_clear_items(GTK_LIST(atom_gtklist), 0, -1);
+   // gtk_list_clear_items(GTK_LIST(atom_gtklist), 0, -1);
 
 }
 

@@ -3961,7 +3961,8 @@ string   static std::string sessionid;
    static int  threaded_refinement_redraw_timeout_fn_id; // -1 initially
 #endif // HAVE_CXX_THREAD
    static int regenerate_intermediate_atoms_bonds_timeout_function();
-   static int regenerate_intermediate_atoms_bonds_timeout_function_and_draw();
+   // static int regenerate_intermediate_atoms_bonds_timeout_function_and_draw(); old timeout style
+   static gint regenerate_intermediate_atoms_bonds_timeout_function_and_draw(gpointer data);
    // we need to wait for the refinement to finish when we are in
    // immediate accept mode or no-gui.  In scripted (e.g. sphere-refine)
    // we should not wait

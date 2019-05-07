@@ -57,10 +57,10 @@ graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(residue_tree_scrolled_window),
 					 residue_tree);
 
-   gtk_widget_ref(residue_tree);
-   gtk_object_set_data_full(GTK_OBJECT(go_to_atom_window),
- 			    "go_to_atom_residue_tree",
- 			    residue_tree, go_to_atom_residue_tree_destroy
+   // gtk_widget_ref(residue_tree);
+   g_object_set_data_full(G_OBJECT(go_to_atom_window),
+ 			  "go_to_atom_residue_tree",
+ 			  residue_tree, go_to_atom_residue_tree_destroy
  			    );
    int imol = g.go_to_atom_molecule();
    
@@ -86,7 +86,7 @@ graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
    // something).
 
    
-    gtk_object_set_data_full(GTK_OBJECT(go_to_atom_window), "go_to_atom_atom_list",
+    g_object_set_data_full(G_OBJECT(go_to_atom_window), "go_to_atom_atom_list",
  			    atom_list, go_to_atom_list_destroy);
 
    
@@ -109,7 +109,7 @@ graphics_info_t::go_to_atom_residue_tree_destroy(gpointer data) {
    // std::cout << "go_to_atom_residue_tree_destroy called " << data << std::endl;
    // the residue_tree is a GtkTreeView (that's what gtk_tree_view_new() returns).
    GtkTreeView *residue_tree = static_cast<GtkTreeView *>(data);
-   gtk_widget_unref(GTK_WIDGET(residue_tree));
+   // gtk_widget_unref(GTK_WIDGET(residue_tree));
 } 
 
 

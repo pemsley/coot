@@ -1055,8 +1055,10 @@ int graphics_info_t::move_reference_chain_to_symm_chain_position() {
 
    int r = 0;
    if (use_graphics_interface_flag) { 
-      int iw = graphics_info_t::glarea->allocation.width;
-      int ih = graphics_info_t::glarea->allocation.height;
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
+      int iw = allocation.width;
+      int ih = allocation.height;
       coot::Cartesian front = unproject_xyz(iw/2, ih/2, 0);
       coot::Cartesian back  = unproject_xyz(iw/2, ih/2, 1);
       coot::Symm_Atom_Pick_Info_t naii = symmetry_atom_pick(front, back);

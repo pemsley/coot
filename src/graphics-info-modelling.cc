@@ -450,9 +450,9 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
             // if there's not a refinement redraw function already running start up a new one.
             if (graphics_info_t::threaded_refinement_redraw_timeout_fn_id == -1) {
 
-	       int id = gtk_timeout_add(15,
-			       (GtkFunction)(regenerate_intermediate_atoms_bonds_timeout_function_and_draw),
-                               NULL);
+            int id = g_timeout_add(15,
+                                  (regenerate_intermediate_atoms_bonds_timeout_function_and_draw),
+                                  NULL);
                graphics_info_t::threaded_refinement_redraw_timeout_fn_id = id;
             }
          }
@@ -599,8 +599,8 @@ graphics_info_t::update_restraints_with_atom_pull_restraints() {
 }
 
 // static
-int
-graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function_and_draw() {
+gint
+graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function_and_draw(gpointer data) {
 
    int continue_status = regenerate_intermediate_atoms_bonds_timeout_function();
    graphics_draw();
@@ -3154,11 +3154,13 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 
       do_rot_trans_adjustments(widget);
 
-      // set its position if it was shown before
+      // set its position if it was  shown before
       if (rotate_translate_x_position > -100) {
+         /*
 	 gtk_widget_set_uposition(widget,
 				  rotate_translate_x_position,
 				  rotate_translate_y_position);
+         */
       }
       gtk_widget_show(widget);
 
@@ -3377,9 +3379,9 @@ graphics_info_t::do_rot_trans_adjustments(GtkWidget *dialog) {
       GtkWidget *hscale = lookup_widget(dialog, hscale_lab[i].c_str());
       GtkAdjustment *adj = GTK_ADJUSTMENT(gtk_adjustment_new(0.0, -180.0, 360.0, 0.1, 1.0, 0));
       gtk_range_set_adjustment(GTK_RANGE(hscale), GTK_ADJUSTMENT(adj));
-      gtk_signal_connect(GTK_OBJECT(adj), 
+      g_signal_connect(G_OBJECT(adj), 
 			 "value_changed",
-			 GTK_SIGNAL_FUNC(graphics_info_t::rot_trans_adjustment_changed), 
+			 G_CALLBACK(graphics_info_t::rot_trans_adjustment_changed), 
 			 GINT_TO_POINTER(i));
    }
 }
@@ -3409,7 +3411,7 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
 
    graphics_info_t g;  // because rotate_round_vector is not static - it should be.  
                        // FIXME at some stage.
-   double v = adj->value;
+   double v = gtk_adjustment_get_value(adj);
    
    int i_hscale = GPOINTER_TO_INT(user_data);
    short int do_rotation;
@@ -3548,25 +3550,25 @@ graphics_info_t::nudge_active_residue(guint direction) {
       double shift_scale_factor = 0.01 * zoom; // needs to be 0.04 for funny mode?
       coot::ScreenVectors screen_vectors;
 
-      if (direction == GDK_Left) { 
+      if (direction == GDK_KEY_Left) { 
 	 // std::cout << "Left nudge residue" << std::endl;
 	 shift = clipper::Coord_orth(-shift_scale_factor * screen_vectors.screen_x.x(),
 				     -shift_scale_factor * screen_vectors.screen_x.y(),
 				     -shift_scale_factor * screen_vectors.screen_x.z());
       } 
-      if (direction == GDK_Right) { 
+      if (direction == GDK_KEY_Right) { 
 	 // std::cout << "Right nudge residue" << std::endl;
 	 shift = clipper::Coord_orth(shift_scale_factor * screen_vectors.screen_x.x(),
 				     shift_scale_factor * screen_vectors.screen_x.y(),
 				     shift_scale_factor * screen_vectors.screen_x.z());
       } 
-      if (direction == GDK_Up) { 
+      if (direction == GDK_KEY_Up) { 
 	 // std::cout << "Up nudge residue" << std::endl;
 	 shift = clipper::Coord_orth(-shift_scale_factor * screen_vectors.screen_y.x(),
 				     -shift_scale_factor * screen_vectors.screen_y.y(),
 				     -shift_scale_factor * screen_vectors.screen_y.z());
       } 
-      if (direction == GDK_Down) { 
+      if (direction == GDK_KEY_Down) { 
 	 // std::cout << "Down nudge residue" << std::endl;
 	 shift = clipper::Coord_orth(shift_scale_factor * screen_vectors.screen_y.x(),
 				     shift_scale_factor * screen_vectors.screen_y.y(),
@@ -3604,11 +3606,11 @@ graphics_info_t::nudge_active_residue_by_rotate(guint direction) {
       graphics_info_t g;
       int imol = active_atom.second.first;
       double angle = M_PI/20;
-      if (direction == GDK_Left)
+      if (direction == GDK_KEY_Left)
 	 angle = -angle;
-      if (direction == GDK_Up)
+      if (direction == GDK_KEY_Up)
 	 angle *=5;
-      if (direction == GDK_Down)
+      if (direction == GDK_KEY_Down)
 	 angle *= -5;
       coot::Cartesian rc = g.RotationCentre();
       clipper::Coord_orth origin_offset(rc.x(), rc.y(), rc.z());
@@ -3878,9 +3880,9 @@ graphics_info_t::do_rotamers(int atom_index, int imol) {
 	 // The max value is 3rd arg - 6th arg (here 2 and 1 is the same as 1 and 0)
 	 GtkAdjustment *adj = GTK_ADJUSTMENT(gtk_adjustment_new(v, 0.0, 2.0, 0.01, 0.1, 1.0));
 	 gtk_range_set_adjustment(GTK_RANGE(hscale), GTK_ADJUSTMENT(adj));
-	 gtk_signal_connect(GTK_OBJECT(adj), 
+	 g_signal_connect(G_OBJECT(adj), 
 			    "value_changed",
-			    GTK_SIGNAL_FUNC(graphics_info_t::new_alt_conf_occ_adjustment_changed), 
+			    G_CALLBACK(graphics_info_t::new_alt_conf_occ_adjustment_changed), 
 			    NULL);
 	 g_object_set_data(G_OBJECT(dialog), "type", GINT_TO_POINTER(1));
       
@@ -3899,7 +3901,8 @@ graphics_info_t::do_rotamers(int atom_index, int imol) {
       //    gtk_signal_connect(GTK_OBJECT(window), "key_press_event",
       // 		      GTK_SIGNAL_FUNC(rotamer_key_press_event), NULL);
       /* set focus to glarea widget - we need this to get key presses. */
-      GTK_WIDGET_SET_FLAGS(dialog, GTK_CAN_FOCUS);
+      std::cout << "Focus on the table " << std::endl;
+      // GTK_WIDGET_SET_FLAGS(dialog, GTK_CAN_FOCUS);
       gtk_widget_grab_focus(GTK_WIDGET(glarea)); // but set focus to the graphics.
    
       fill_rotamer_selection_buttons(dialog, atom_index, imol);
@@ -3918,7 +3921,7 @@ void graphics_info_t::new_alt_conf_occ_adjustment_changed(GtkAdjustment *adj,
 							  gpointer user_data) {
 
    graphics_info_t g;
-   g.add_alt_conf_new_atoms_occupancy = adj->value;
+   g.add_alt_conf_new_atoms_occupancy = gtk_adjustment_get_value(adj);
 
    // Change the occupancies of the intermediate atoms:
    //
@@ -3927,7 +3930,7 @@ void graphics_info_t::new_alt_conf_occ_adjustment_changed(GtkAdjustment *adj,
 	 // this if test is a kludge!
 	 // Don't change the alt conf for fully occupied atoms.
 	 if (moving_atoms_asc->atom_selection[i]->occupancy < 0.99) 
-	    moving_atoms_asc->atom_selection[i]->occupancy = adj->value;
+	    moving_atoms_asc->atom_selection[i]->occupancy = gtk_adjustment_get_value(adj);
       }
    }
 }
@@ -4028,7 +4031,7 @@ graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *window, int atom_inde
    // Attach the number of residues to the dialog so that we can get
    // that data item when we make a synthetic key press due to
    // keyboard (arrow?) key press:
-   gtk_object_set_user_data(GTK_OBJECT(window), GINT_TO_POINTER(probabilities.size()));
+   g_object_set_data(G_OBJECT(window), "probabilities_size", GINT_TO_POINTER(probabilities.size()));
 
    GtkWidget *frame;
    for (unsigned int i=0; i<probabilities.size(); i++) {
@@ -4044,16 +4047,16 @@ graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *window, int atom_inde
    
       rotamer_selection_radio_button =
 	 gtk_radio_button_new_with_label (gr_group, button_label.c_str());
-      gr_group = gtk_radio_button_group (GTK_RADIO_BUTTON (rotamer_selection_radio_button));
-      gtk_widget_ref (rotamer_selection_radio_button);
-      gtk_object_set_data_full (GTK_OBJECT (rotamer_selection_dialog),
+      gr_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rotamer_selection_radio_button));
+      // gtk_widget_ref (rotamer_selection_radio_button);
+      g_object_set_data_full(G_OBJECT (rotamer_selection_dialog),
 				button_name.c_str(), rotamer_selection_radio_button,
-				(GtkDestroyNotify) gtk_widget_unref);
+			     NULL);
       
       int *iuser_data = new int;
       *iuser_data = i;
-      gtk_signal_connect (GTK_OBJECT (rotamer_selection_radio_button), "toggled",
-			  GTK_SIGNAL_FUNC (on_rotamer_selection_button_toggled),
+      g_signal_connect (G_OBJECT(rotamer_selection_radio_button), "toggled",
+			  G_CALLBACK(on_rotamer_selection_button_toggled),
 			  iuser_data);
        
        gtk_widget_show (rotamer_selection_radio_button);
@@ -4703,11 +4706,12 @@ graphics_info_t::delete_residue_range(int imol,
       if (delete_item_widget) {
 	 GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget,
 						"delete_item_keep_active_checkbutton");
-	 if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
+	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) {
 	    // don't destroy it.
 	 } else {
 	    gint upositionx, upositiony;
-	    gdk_window_get_root_origin (delete_item_widget->window, &upositionx, &upositiony);
+            std::cout << "GTK-FIXME gdk_window_get_root_origin A " << std::endl;
+	    // gdk_window_get_root_origin (delete_item_widget->window, &upositionx, &upositiony);
 	    delete_item_widget_x_position = upositionx;
 	    delete_item_widget_y_position = upositiony;
 	    gtk_widget_destroy(delete_item_widget);
@@ -4740,7 +4744,7 @@ graphics_info_t::delete_sidechain_range(int imol,
       if (delete_item_widget) {
 	 GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget,
 						"delete_item_keep_active_checkbutton");
-	 if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
+	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) {
 	    // don't destroy it.
 	 } else {
 	    gtk_widget_destroy(delete_item_widget);
