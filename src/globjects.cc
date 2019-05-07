@@ -41,8 +41,10 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h> // for keyboarding.
 
+#if 0 // old OpenGL interface
 #include <gdk/gdkglconfig.h>
 #include <gtk/gtkgl.h>
+#endif
 
 #if __APPLE__
 #   include <OpenGL/gl.h>
@@ -550,8 +552,10 @@ double graphics_info_t::idle_function_rock_amplitude_scale_factor = 1.0;
 double graphics_info_t::idle_function_rock_freq_scale_factor = 1.0;
 double graphics_info_t::idle_function_rock_angle_previous = 0;
 
+#ifdef USE_PYTHON
 // Hamish python
 std::string graphics_info_t::python_draw_function_string;
+#endif
 
 // new style (20110505 ligand interactions)
 // 
@@ -1091,7 +1095,9 @@ coot::rama_plot  *graphics_info_t::edit_phi_psi_plot = NULL;
 float graphics_info_t::rama_level_prefered = 0.02;
 float graphics_info_t::rama_level_allowed = 0.002;
 float graphics_info_t::rama_plot_background_block_size = 2; // divisible into 360 preferably.
+#ifdef HAVE_GOOCANVAS
 int graphics_info_t::rama_psi_axis_mode = coot::rama_plot::PSI_CLASSIC;
+#endif // HAVE_GOOCANVAS
 coot::ramachandran_points_container_t graphics_info_t::rama_points = coot::ramachandran_points_container_t();
 
 ramachandrans_container_t graphics_info_t::ramachandrans_container = ramachandrans_container_t();
@@ -1344,9 +1350,9 @@ std::string graphics_info_t::mysql_passwd = "password";
 #endif // USE_MYSQL_DATABASE
 
 //
-int graphics_info_t::ncs_next_chain_skip_key = GDK_o;
-int graphics_info_t::ncs_prev_chain_skip_key = GDK_O;
-int graphics_info_t::update_go_to_atom_from_current_residue_key = GDK_p;
+int graphics_info_t::ncs_next_chain_skip_key = GDK_KEY_o;
+int graphics_info_t::ncs_prev_chain_skip_key = GDK_KEY_O;
+int graphics_info_t::update_go_to_atom_from_current_residue_key = GDK_KEY_p;
 
 //
 GdkCursorType graphics_info_t::pick_cursor_index = GDK_CROSSHAIR;
@@ -1421,8 +1427,9 @@ std::shared_ptr<SceneSetup> graphics_info_t::mol_tri_scene_setup = 0;
 // if try_stereo_flag is 2, the side-by-side stereo
 // 
 GtkWidget *
-gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
+gl_extras(GtkWidget* vbox1, short int try_stereo_flag) { // rename gl_extras_gtk2
 
+#if 0   
    graphics_info_t g;
    GdkGLConfig *glconfig = 0;
    bool got_hardware_stereo_flag = 0; 
@@ -1613,38 +1620,37 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 
 	/* Connect signal handlers */
 	/* Redraw image when exposed. */
-	gtk_signal_connect(GTK_OBJECT(drawing_area_tmp), "expose_event",
-			   GTK_SIGNAL_FUNC(expose), NULL);
+	g_signal_connect(G_OBJECT(drawing_area_tmp), "expose_event",
+			 G_CALLBACK(expose), NULL);
 	/* When window is resized viewport needs to be resized also. */
-	gtk_signal_connect(GTK_OBJECT(drawing_area_tmp), "configure_event",
-			   GTK_SIGNAL_FUNC(reshape), NULL);
+	g_signal_connect(G_OBJECT(drawing_area_tmp), "configure_event",
+			 G_CALLBACK(reshape), NULL);
 	/* Do initialization when widget has been realized. */
-	gtk_signal_connect(GTK_OBJECT(drawing_area_tmp), "realize",
-			   GTK_SIGNAL_FUNC(init), NULL);
+	g_signal_connect(G_OBJECT(drawing_area_tmp), "realize",
+			 G_CALLBACK(init), NULL);
 
 	/* pressed a button? */
-	gtk_signal_connect (GTK_OBJECT(drawing_area_tmp), "button_press_event",
-			    GTK_SIGNAL_FUNC(glarea_button_press), NULL);
-	gtk_signal_connect (GTK_OBJECT(drawing_area_tmp), "button_release_event",
-			    GTK_SIGNAL_FUNC(glarea_button_release), NULL);
+	g_signal_connect (G_OBJECT(drawing_area_tmp), "button_press_event",
+			    G_CALLBACK(glarea_button_press), NULL);
+	g_signal_connect (G_OBJECT(drawing_area_tmp), "button_release_event",
+			  G_CALLBACK(glarea_button_release), NULL);
 	/* mouse in motion! */
-	gtk_signal_connect (GTK_OBJECT(drawing_area_tmp), "motion_notify_event",
-			    GTK_SIGNAL_FUNC(glarea_motion_notify), NULL);
+	g_signal_connect (G_OBJECT(drawing_area_tmp), "motion_notify_event",
+			  G_CALLBACK(glarea_motion_notify), NULL);
 	// mouse wheel scrolled:
-	gtk_signal_connect (GTK_OBJECT(drawing_area_tmp), "scroll_event",
-			    GTK_SIGNAL_FUNC(glarea_scroll_event), NULL);
+	g_signal_connect (G_OBJECT(drawing_area_tmp), "scroll_event",
+			  G_CALLBACK(glarea_scroll_event), NULL);
 
 	/* put glarea into vbox */
 	GtkWidget *main_window_graphics_hbox =
 	   lookup_widget(vbox1, "main_window_graphics_hbox");
-	gtk_container_add(GTK_CONTAINER(main_window_graphics_hbox),
-			  GTK_WIDGET(drawing_area_tmp));
+	gtk_container_add(GTK_CONTAINER(main_window_graphics_hbox), GTK_WIDGET(drawing_area_tmp));
   
 	/* Capture keypress events */
-	gtk_signal_connect(GTK_OBJECT(drawing_area_tmp), "key_press_event",
-			   GTK_SIGNAL_FUNC(key_press_event), NULL);
-	gtk_signal_connect(GTK_OBJECT(drawing_area_tmp), "key_release_event",
-			   GTK_SIGNAL_FUNC(key_release_event), NULL);
+	g_signal_connect(G_OBJECT(drawing_area_tmp), "key_press_event",
+			 G_CALLBACK(key_press_event), NULL);
+	g_signal_connect(G_OBJECT(drawing_area_tmp), "key_release_event",
+			 G_CALLBACK(key_release_event), NULL);
 
 	// setup drag and drop
 	int n_dnd_targets = 4;
@@ -1663,12 +1669,12 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 			  n_dnd_targets,          
 			  GDK_ACTION_COPY);       /* what to do with data after dropped */
 
-#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 4) ) || GTK_MAJOR_VERSION > 2)
+
 	// 2.6? - but... what does it give us?  Something useful?
 	// More documenation-reading required...
 	// 
 	gtk_drag_dest_add_uri_targets(GTK_WIDGET(drawing_area_tmp));
-#endif	
+
 
 	// if something was dropped
         g_signal_connect (GTK_WIDGET(drawing_area_tmp), "drag-drop",
@@ -1688,7 +1694,9 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
   } // end while
   //   std::cout << "DEBUG:: gl_extras returns " << drawing_area << std::endl;
   return drawing_area;
-   
+#endif
+
+  return 0; // for now
 }
 
 
@@ -1727,7 +1735,9 @@ init(GtkWidget *widget)
 gint
 init_gl_widget(GtkWidget *widget) { 
 
-   glViewport(0,0, widget->allocation.width, widget->allocation.height);
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(widget, &allocation);
+   glViewport(0,0, allocation.width, allocation.height);
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
    glOrtho(-10,30, 10,-20, -20,20); // change clipping
@@ -1930,12 +1940,14 @@ void show_lighting() {
 gint reshape(GtkWidget *widget, GdkEventConfigure *event) {
 
    if (graphics_info_t::make_current_gl_context(widget)) {
-      glViewport(0,0, widget->allocation.width, widget->allocation.height);
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(widget, &allocation);
+      glViewport(0,0, allocation.width, allocation.height);
       graphics_info_t g;
-      // BL says:: shouldnt widget be window1?!
-      GtkWidget *win = lookup_widget(widget, "window1");
-      g.graphics_x_size = win->allocation.width;
-      g.graphics_y_size = win->allocation.height;
+      GtkWidget *window = lookup_widget(widget, "window1");
+      gtk_widget_get_allocation(window, &allocation);
+      g.graphics_x_size = allocation.width;
+      g.graphics_y_size = allocation.height;
    } 
    graphics_info_t::graphics_draw(); // Added 20080408, needed?
    return TRUE;
@@ -2067,8 +2079,9 @@ draw_crosshairs_maybe() {
       // screen x axis
       // 
       // adjust for the width being strange
-      float adjustment = float(graphics_info_t::glarea->allocation.height) /
-          	         float(graphics_info_t::glarea->allocation.width);
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
+      float adjustment = float(allocation.height) / float(allocation.width);
       s *= adjustment;
       
       val = 3.8;
@@ -2327,11 +2340,13 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 	    // (0,0). 
 	    // 
 	    // modify spin_quat:
+	    GtkAllocation allocation;
+	    gtk_widget_get_allocation(widget, &allocation);
 	    trackball(spin_quat,
-		      (2.0*info.GetMouseBeginX() - widget->allocation.width) /widget->allocation.width,
-		      (widget->allocation.height - 2.0*info.GetMouseBeginY())/widget->allocation.height,
-		      (2.0*info.mouse_current_x - widget->allocation.width)  /widget->allocation.width,
-		      (widget->allocation.height -  2.0*info.mouse_current_y)/widget->allocation.height,
+		      (2.0*info.GetMouseBeginX() - allocation.width)/allocation.width,
+		      (allocation.height - 2.0*info.GetMouseBeginY())/allocation.height,
+		      (2.0*info.mouse_current_x - allocation.width)  /allocation.width,
+		      (allocation.height -  2.0*info.mouse_current_y)/allocation.height,
 		      info.get_trackball_size() );
 
 	    // 	 cout << (2.0*info.GetMouseBeginX() - widget->allocation.width) /widget->allocation.width
@@ -2615,8 +2630,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    // std::cout << "keyval: " << event->keyval << " " << std::hex << event->keyval << std::endl;
 
    switch (event->keyval) {
-   case GDK_Control_L:
-   case GDK_Control_R:
+   case GDK_KEY_Control_L:
+   case GDK_KEY_Control_R:
 
 //       std::cout << "DEBUG ctrl key press  : graphics_info_t::control_is_pressed "
 // 		<< graphics_info_t::control_is_pressed
@@ -2642,21 +2657,21 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       handled = TRUE; 
       break;
       
-   case GDK_Alt_L:
-   case GDK_Alt_R:
-   case GDK_Meta_L:
-   case GDK_Meta_R:
+   case GDK_KEY_Alt_L:
+   case GDK_KEY_Alt_R:
+   case GDK_KEY_Meta_L:
+   case GDK_KEY_Meta_R:
 
       handled = TRUE; // stops ALT key getting through to key-press-hook
       break;
 
-   case GDK_Shift_L: // stops Shift key getting through to key-press-hook
-   case GDK_Shift_R:
+   case GDK_KEY_Shift_L: // stops Shift key getting through to key-press-hook
+   case GDK_KEY_Shift_R:
       graphics_info_t::shift_is_pressed = 1;
       handled = TRUE;
       break;
       
-   case GDK_Return:
+   case GDK_KEY_Return:
 
       if (graphics_info_t::accept_reject_dialog) {
 
@@ -2692,7 +2707,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       handled = TRUE;
       break;
 
-   case GDK_Escape:
+   case GDK_KEY_Escape:
 
       graphics_info_t::rebond_molecule_corresponding_to_moving_atoms();
 
@@ -2724,11 +2739,11 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       handled = TRUE;
       break;
 
-   case GDK_space:
+   case GDK_KEY_space:
       handled = TRUE; 
       break; // stops Space key getting through to key-press-hook
       
-   case GDK_g:
+   case GDK_KEY_g:
       // say I want to go to residue 1G: first time Ctrl-G (second if)
       // and then the first if.
       if (graphics_info_t::control_is_pressed) {
@@ -2737,12 +2752,12 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       }
       break;
       
-   case GDK_i:
+   case GDK_KEY_i:
       // throw away i key pressed (we act on i key released).
       handled = TRUE; 
       break;
 
-   case GDK_a:
+   case GDK_KEY_a:
 
       if (graphics_info_t::in_range_define_for_refine == 2) {
 	    
@@ -2766,18 +2781,18 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       }
       break;
 
-   case GDK_b:
+   case GDK_KEY_b:
       break;
       
-   case GDK_c:
+   case GDK_KEY_c:
       break; // stops C key getting through to key-press-hook
 
-   case GDK_u:
+   case GDK_KEY_u:
       undo_last_move();
       handled = TRUE; 
       break;
 
-   case GDK_r:
+   case GDK_KEY_r:
       if (graphics_info_t::control_is_pressed) {
 	 toggle_idle_rock_function();
 	 handled = TRUE;
@@ -2785,14 +2800,14 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       break;
 
       
-   case GDK_s:
+   case GDK_KEY_s:
       if (graphics_info_t::control_is_pressed) {
 	 quick_save();
 	 handled = TRUE;
       }
       break;
 
-   case GDK_d:
+   case GDK_KEY_d:
       
       if (graphics_info_t::clipping_back < 15.0) { 
 	 set_clipping_front(graphics_info_t::clipping_front + 0.4);
@@ -2803,16 +2818,16 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       handled = TRUE; 
       break;
 
-   case GDK_e:
+   case GDK_KEY_e:
       if (graphics_info_t::control_is_pressed) {
 	 
       }
       break;
 
-   case GDK_E:
+   case GDK_KEY_E:
       break;
       
-   case GDK_f:
+   case GDK_KEY_f:
       
       if (graphics_info_t::clipping_back > -15.2) { 
 	 set_clipping_front(graphics_info_t::clipping_front - 0.4);
@@ -2823,7 +2838,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       handled = TRUE; 
       break;
 
-   case GDK_n:
+   case GDK_KEY_n:
       
       for (int i=0; i<5; i++) {
 	 graphics_info_t::zoom *= 1.01;
@@ -2832,7 +2847,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       handled = TRUE; 
       break;
 
-   case GDK_m:
+   case GDK_KEY_m:
 
       for (int i=0; i<5; i++) {
 	 graphics_info_t::zoom *= 0.99;
@@ -2841,8 +2856,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       handled = TRUE; 
       break;
 
-   case GDK_1:
-   case GDK_KP_1:
+   case GDK_KEY_1:
+   case GDK_KEY_KP_1:
       if (graphics_info_t::moving_atoms_move_chis_flag) { 
          graphics_info_t g;
          g.setup_flash_bond_using_moving_atom_internal(0);
@@ -2851,8 +2866,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       }
       handled = TRUE; 
       break;
-   case GDK_2:
-   case GDK_KP_2:
+   case GDK_KEY_2:
+   case GDK_KEY_KP_2:
       if (graphics_info_t::moving_atoms_move_chis_flag) { 
          graphics_info_t g;
          g.setup_flash_bond_using_moving_atom_internal(1);
@@ -2861,8 +2876,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       }
       handled = TRUE; 
       break;
-   case GDK_3:
-   case GDK_KP_3:
+   case GDK_KEY_3:
+   case GDK_KEY_KP_3:
       if (graphics_info_t::moving_atoms_move_chis_flag) { 
          graphics_info_t g;
          g.setup_flash_bond_using_moving_atom_internal(2);
@@ -2873,8 +2888,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       }
       handled = TRUE; 
       break;
-   case GDK_4:
-   case GDK_KP_4:
+   case GDK_KEY_4:
+   case GDK_KEY_KP_4:
       if (graphics_info_t::moving_atoms_move_chis_flag) { 
          graphics_info_t g;
          g.setup_flash_bond_using_moving_atom_internal(3);
@@ -2883,8 +2898,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       }
       handled = TRUE; 
       break;
-   case GDK_5:
-   case GDK_KP_5:
+   case GDK_KEY_5:
+   case GDK_KEY_KP_5:
       if (graphics_info_t::moving_atoms_move_chis_flag) { 
          graphics_info_t g;
          g.setup_flash_bond_using_moving_atom_internal(4);
@@ -2893,8 +2908,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       }
       handled = TRUE; 
       break;
-   case GDK_6:
-   case GDK_KP_6:
+   case GDK_KEY_6:
+   case GDK_KEY_KP_6:
       if (graphics_info_t::moving_atoms_move_chis_flag) { 
          graphics_info_t g;
          g.setup_flash_bond_using_moving_atom_internal(5);
@@ -2904,29 +2919,29 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       handled = TRUE; 
       break;
 
-   case GDK_7:
-   case GDK_KP_7:
+   case GDK_KEY_7:
+   case GDK_KEY_KP_7:
       handled = TRUE;
       break;
       
-   case GDK_8:
-   case GDK_KP_8:
+   case GDK_KEY_8:
+   case GDK_KEY_KP_8:
       handled = TRUE;
       break;
       
-   case GDK_9:
-   case GDK_KP_9:
+   case GDK_KEY_9:
+   case GDK_KEY_KP_9:
       handled = TRUE;
       break;
       
-   case GDK_0:
-   case GDK_KP_0:
+   case GDK_KEY_0:
+   case GDK_KEY_KP_0:
       graphics_info_t::edit_chi_current_chi = 0;
       graphics_info_t::in_edit_chi_mode_flag = 0; // off
       handled = TRUE; 
       break;
       
-   case GDK_l:
+   case GDK_KEY_l:
       {
 	 graphics_info_t g;
 
@@ -2952,7 +2967,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       handled = TRUE; 
       break;
 
-   case GDK_x: // delete active residue
+   case GDK_KEY_x: // delete active residue
 
       if (graphics_info_t::control_is_pressed) {
 	 std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
@@ -2965,7 +2980,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       }
       break;
 
-   case GDK_z:
+   case GDK_KEY_z:
       graphics_info_t::z_is_pressed = 1;
       if (graphics_info_t::control_is_pressed) { 
 	 if (graphics_info_t::draw_baton_flag)
@@ -2976,7 +2991,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       }
       break;
 
-   case GDK_y:
+   case GDK_KEY_y:
       graphics_info_t::y_is_pressed = 1;
       if (graphics_info_t::control_is_pressed) { 
 	 apply_redo();
@@ -2984,40 +2999,40 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       }
       break;
 
-   case GDK_F5:
+   case GDK_KEY_F5:
       post_model_fit_refine_dialog();
       handled = TRUE; 
       break;
-   case GDK_F6:
+   case GDK_KEY_F6:
       post_go_to_atom_window();
       handled = TRUE; 
       break;
-   case GDK_F7:
+   case GDK_KEY_F7:
       post_display_control_window();
       handled = TRUE; 
       break;
-   case GDK_F8:
+   case GDK_KEY_F8:
       // case GDK_3270_PrintScreen: // that the gnome screenshot 
       raster_screen_shot();
       handled = TRUE; 
       break;
-   case GDK_KP_Down:
-   case GDK_KP_Page_Down:
+   case GDK_KEY_KP_Down:
+   case GDK_KEY_KP_Page_Down:
       keypad_translate_xyz(3, -1);
       handled = TRUE; 
       break;
-   case GDK_KP_Up:
-   case GDK_KP_Page_Up:
+   case GDK_KEY_KP_Up:
+   case GDK_KEY_KP_Page_Up:
       keypad_translate_xyz(3, 1);
       handled = TRUE; 
       break;
-   case GDK_KP_Decimal:
-   case GDK_KP_Delete:
+   case GDK_KEY_KP_Decimal:
+   case GDK_KEY_KP_Delete:
       keypad_translate_xyz(3, -1);
       handled = TRUE; 
       break;
 
-   case GDK_period:
+   case GDK_KEY_period:
       // std::cout << "Got a .\n";
       if (graphics_info_t::rotamer_dialog) {
 	 // We have to make a synthetic keypress on the "next" rotamer.
@@ -3044,7 +3059,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       handled = TRUE; 
       break;
       
-   case GDK_comma:
+   case GDK_KEY_comma:
       //       std::cout << "Got an ,\n";
       if (graphics_info_t::rotamer_dialog) {
 	 graphics_info_t::rotamer_dialog_previous_rotamer();
@@ -3069,55 +3084,55 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       handled = TRUE; 
       break;
       
-   case GDK_minus:
+   case GDK_KEY_minus:
       handled = TRUE; 
       break;
-   case GDK_plus:
+   case GDK_KEY_plus:
       handled = TRUE; 
       break;
-   case GDK_equal:
+   case GDK_KEY_equal:
       handled = TRUE; 
       break;
 
-   case GDK_Left:
+   case GDK_KEY_Left:
       if (graphics_info_t::control_is_pressed) {
          if (graphics_info_t::shift_is_pressed) 
-            graphics_info_t::nudge_active_residue_by_rotate(GDK_Left);
+            graphics_info_t::nudge_active_residue_by_rotate(GDK_KEY_Left);
          else 
-            graphics_info_t::nudge_active_residue(GDK_Left);
+            graphics_info_t::nudge_active_residue(GDK_KEY_Left);
       } else {
          keypad_translate_xyz(1, 1);
       }
       handled = TRUE;
       break;
-   case GDK_Right:
+   case GDK_KEY_Right:
       if (graphics_info_t::control_is_pressed) {
          if (graphics_info_t::shift_is_pressed)
-            graphics_info_t::nudge_active_residue_by_rotate(GDK_Right);
+            graphics_info_t::nudge_active_residue_by_rotate(GDK_KEY_Right);
          else
-            graphics_info_t::nudge_active_residue(GDK_Right);
+            graphics_info_t::nudge_active_residue(GDK_KEY_Right);
       } else {
          keypad_translate_xyz(1, -1);
       }
       handled = TRUE;
       break;
-   case GDK_Up:
+   case GDK_KEY_Up:
       if (graphics_info_t::control_is_pressed) {
 	 if (graphics_info_t::shift_is_pressed)
-	    graphics_info_t::nudge_active_residue_by_rotate(GDK_Up);
+	    graphics_info_t::nudge_active_residue_by_rotate(GDK_KEY_Up);
 	 else
-	    graphics_info_t::nudge_active_residue(GDK_Up);
+	    graphics_info_t::nudge_active_residue(GDK_KEY_Up);
       } else {
          keypad_translate_xyz(2, 1);
       }
       handled = TRUE;
       break;
-   case GDK_Down:
+   case GDK_KEY_Down:
       if (graphics_info_t::control_is_pressed) {
 	 if (graphics_info_t::shift_is_pressed)
-	    graphics_info_t::nudge_active_residue_by_rotate(GDK_Down);
+	    graphics_info_t::nudge_active_residue_by_rotate(GDK_KEY_Down);
 	 else
-	    graphics_info_t::nudge_active_residue(GDK_Down);
+	    graphics_info_t::nudge_active_residue(GDK_KEY_Down);
       } else {
          keypad_translate_xyz(2, -1);
       }
@@ -3168,7 +3183,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       }
 
       if (handled == 0) { 
-	 if (event->keyval != GDK_backslash) {
+	 if (event->keyval != GDK_KEY_backslash) {
 	    int ikey = event->keyval;
 
 	    if (graphics_info_t::prefer_python) {
@@ -3279,8 +3294,8 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
    short int istate = 0;
    
    switch (event->keyval) {
-   case GDK_Control_L:
-   case GDK_Control_R:
+   case GDK_KEY_Control_L:
+   case GDK_KEY_Control_R:
 
 //       std::cout << "DEBUG ctrl key release: graphics_info_t::control_is_pressed "
 // 		<< graphics_info_t::control_is_pressed
@@ -3321,7 +3336,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       g.make_pointer_distance_objects();
       g.graphics_draw();
       break;
-   case GDK_minus:
+   case GDK_KEY_minus:
       //
       // let the object decide which level change it needs (and if it needs it)
       // using graphics_info_t static members
@@ -3330,7 +3345,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 	 // std::cout << "here in key_release_event for -" << std::endl;
 	 // istate = graphics_info_t::molecules[s].change_contour(-1); // no longer needed
 	 graphics_info_t::molecules[s].pending_contour_level_change_count--;
-	 int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, g.glarea);
+	 int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
 	 g.set_density_level_string(s, g.molecules[s].contour_level);
 	 g.display_density_level_this_image = 1;
 
@@ -3339,8 +3354,8 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 	 std::cout << "WARNING: No map - Can't change contour level.\n";
       }
       break;
-   case GDK_plus:
-   case GDK_equal:  // unshifted plus, usually.
+   case GDK_KEY_plus:
+   case GDK_KEY_equal:  // unshifted plus, usually.
       //
 
       // let the object decide which level change it needs:
@@ -3348,7 +3363,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       if (s >= 0) {
 
 	 graphics_info_t::molecules[s].pending_contour_level_change_count++;
-	 int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, g.glarea);
+	 int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
 
 	 // graphics_info_t::molecules[s].change_contour(1); // positive change
 	 // graphics_info_t::molecules[s].update_map();
@@ -3362,20 +3377,20 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       }
       break;
       
-   case GDK_A:
-   case GDK_a:
+   case GDK_KEY_A:
+   case GDK_KEY_a:
       graphics_info_t::a_is_pressed = 0;
       break;
 
-   case GDK_B:
-   case GDK_b:
+   case GDK_KEY_B:
+   case GDK_KEY_b:
       // Only toggle baton mode if we are showing a baton!
       // (Otherwise confusion reigns!)
       if (g.draw_baton_flag)
 	 g.toggle_baton_mode();
       break;
       
-   case GDK_c:
+   case GDK_KEY_c:
       if (graphics_info_t::control_is_pressed) {
 	 g.copy_active_atom_molecule();
       } else {
@@ -3387,7 +3402,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       g.graphics_draw();
       break;
 
-   case GDK_e:
+   case GDK_KEY_e:
       if (graphics_info_t::control_is_pressed) {
 	 std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
 	 if (active_atom.first) {
@@ -3402,8 +3417,8 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       }
       break;
 
-   case GDK_s:
-   case GDK_S:
+   case GDK_KEY_s:
+   case GDK_KEY_S:
       if (graphics_info_t::control_is_pressed) {
 	 // quick_save() is on button-press
       } else {
@@ -3414,8 +3429,8 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       }
       break;
       
-   case GDK_i:
-   case GDK_I:
+   case GDK_KEY_i:
+   case GDK_KEY_I:
       if (! graphics_info_t::control_is_pressed) { 
 	 toggle_idle_spin_function();
       } else {
@@ -3428,27 +3443,27 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       } 
       break; 
       
-   case GDK_l:
-   case GDK_L:
+   case GDK_KEY_l:
+   case GDK_KEY_L:
       // something here, L is released.
       break;
       
-   case GDK_Shift_L:
-   case GDK_Shift_R:
+   case GDK_KEY_Shift_L:
+   case GDK_KEY_Shift_R:
       graphics_info_t::shift_is_pressed = 0;
       break;
 
-   case GDK_z:
-   case GDK_Z:
+   case GDK_KEY_z:
+   case GDK_KEY_Z:
       graphics_info_t::z_is_pressed = 0;
       break;
 
-   case GDK_y:
-   case GDK_Y:
+   case GDK_KEY_y:
+   case GDK_KEY_Y:
       graphics_info_t::y_is_pressed = 0;
       break;
 
-   case GDK_space:
+   case GDK_KEY_space:
       // go to next residue
 //       int next = 1;
 //       if (graphics_info_t::shift_is_pressed == 1) 
@@ -3482,7 +3497,10 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
    }
    
    /* prevent the default handler from being run */
-   gtk_signal_emit_stop_by_name(GTK_OBJECT(widget),"key_release_event");
+   // gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), "key_release_event");
+
+   std::cout << "---------- GTK-FIXME gtk_signal_emit_stop_by_name() " << std::endl;
+   g_signal_emit_by_name(G_OBJECT(widget), "stop", "key_release_event");
    return TRUE;
 
   return TRUE;
@@ -3490,8 +3508,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 
 // widget is the glarea.
 // 
-gint
-idle_contour_function(GtkWidget *widget) {
+gint idle_contour_function(gpointer data) {
 
    gint continue_status = 0;
    bool something_changed = false;
@@ -3557,7 +3574,7 @@ animate_idle_spin(GtkWidget *widget) {
 
 // widget is the glarea.
 // 
-bool
+gboolean
 animate_idle_rock(gpointer user_data) {
 
    graphics_info_t g; 
@@ -3777,7 +3794,16 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 
    int x_as_int, y_as_int;
    GdkModifierType state;
-   gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
+   GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(widget));
+
+   // gdk_window_get_pointer(window, &x_as_int, &y_as_int, &state);
+
+   // GdkWindow *window = gtk_widget_get_window(widget);
+   // GdkDeviceManager *device_manager = gdk_display_get_default_seat(gtk_widget_get_display(widget));
+   // GdkDevice *device = gdk_device_manager_get_client_pointer(device_manager);
+   // gdk_window_get_device_position(window, device, &x_as_int, &y_as_int, &state);
+
+   std::cout << "FIX button press (frustrated) " << std::endl;
 
    info.SetMouseBegin(event->x, event->y);
    info.SetMouseClicked(event->x, event->y);
@@ -3921,7 +3947,13 @@ gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 
       int x_as_int, y_as_int;
       GdkModifierType state;
-      gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
+      GdkWindow *window = gtk_widget_get_window(widget);
+
+      std::cout << "FIX button release (frustrated) " << std::endl;
+      // GdkDeviceManager *device_manager = gdk_display_get_default_seat(gtk_widget_get_display(widget));
+      // GdkDevice *device = gdk_device_manager_get_client_pointer(device_manager);
+      // gdk_window_get_device_position(window, device, &x_as_int, &y_as_int, &state);
+
       GdkModifierType my_button2_mask = g.gdk_button2_mask();
 
       if (event->button == 2) {
@@ -4074,7 +4106,8 @@ void handle_scroll_density_level_event(int scroll_up_down_flag) {
 	 if (s>=0) {
 	    // short int istate = info.molecules[s].change_contour(1);
 	    info.molecules[s].pending_contour_level_change_count++;
-	    int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, info.glarea);
+	    GSourceFunc f = idle_contour_function;
+	    // int contour_idle_token = g_idle_add(f, info.glarea);
 	    info.set_density_level_string(s, info.molecules[s].contour_level);
 	    info.display_density_level_this_image = 1;
 	 } else {
@@ -4082,21 +4115,23 @@ void handle_scroll_density_level_event(int scroll_up_down_flag) {
 	 }
       }
    }
-   
+
+   /*
    if (scroll_up_down_flag == 0) {
-      if (graphics_info_t::do_scroll_by_wheel_mouse_flag) { 
+      if (graphics_info_t::do_scroll_by_wheel_mouse_flag) {
 	 int s = info.scroll_wheel_map;
 	 if (s>=0) {
 	    // short int istate = info.molecules[s].change_contour(-1);
 	    info.molecules[s].pending_contour_level_change_count--;
-	    int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, info.glarea);
+	    int contour_idle_token = g_idle_add(idle_contour_function, info.glarea);
 	    info.set_density_level_string(s, info.molecules[s].contour_level);
 	    info.display_density_level_this_image = 1;
 	 } else {
 	    std::cout << "WARNING: No map - Can't change contour level.\n";
+	    }
 	 }
       }
-   }
+   */
 } 
 
 
