@@ -106,8 +106,10 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
    /* OpenGL functions can be called only if make_current returns true */
    if (graphics_info_t::make_current_gl_context(widget)) {
 
-      float aspect_ratio = float (widget->allocation.width)/
-	 float (widget->allocation.height);
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(widget, &allocation);
+      float aspect_ratio = allocation.width/allocation.height;
+
 
       if (graphics_info_t::display_mode == coot::DTI_SIDE_BY_SIDE_STEREO) {
 	 aspect_ratio *= 2.0; // DTI side by side stereo mode
@@ -509,7 +511,10 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       // BL says:: not sure if we dont need to do this for 2nd Zalman view
       if (in_stereo_flag != IN_STEREO_HARDWARE_STEREO && in_stereo_flag != IN_STEREO_ZALMAN_RIGHT) {
-         /* Swap backbuffer to front */
+
+#if 0 // OpenGL interface
+
+	 /* Swap backbuffer to front */
          GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
          if (gdk_gl_drawable_is_double_buffered (gldrawable)) {
             gdk_gl_drawable_swap_buffers (gldrawable);
@@ -517,6 +522,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
             glFlush ();
          }
          graphics_info_t::Increment_Frames();
+#endif
+
       }
 
 
@@ -588,9 +595,11 @@ void draw_molecular_triangles(GtkWidget *widget) {
 
 void gdkglext_finish_frame(GtkWidget *widget) {
 
+#if 0   
    // should not even be called by GTK.
-  GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
-  gdk_gl_drawable_gl_end (gldrawable);
+   GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
+   gdk_gl_drawable_gl_end (gldrawable);
+#endif
 
 }
 
@@ -665,11 +674,12 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
 //    if (i == 0)
 //       return TRUE;
 
+#ifdef USE_PYTHON   
    // Hamish function
    if (! graphics_info_t::python_draw_function_string.empty()) {
       PyRun_SimpleString(graphics_info_t::python_draw_function_string.c_str());
    }
- 
+#endif 
    if (graphics_info_t::display_mode == coot::HARDWARE_STEREO_MODE) {
       draw_hardware_stereo(widget, event);
    } else {
@@ -721,8 +731,10 @@ gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event) {
       graphics_info_t::which_eye = graphics_info_t::FRONT_EYE;
 
       // show it
+#if 0 // OpenGL interface
       GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable(widget);
       gdk_gl_drawable_swap_buffers(gldrawable);
+#endif
    } else {
 
       // do the skew thing in draw_mono() depending on which stereo eye.
@@ -740,9 +752,11 @@ gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event) {
       // reset the viewing angle:
       graphics_info_t::which_eye = graphics_info_t::FRONT_EYE;
 
+#if 0 // OpenGL interface
       // show it
       GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable(widget);
       gdk_gl_drawable_swap_buffers(gldrawable);
+#endif
    }
    return TRUE;
 }
