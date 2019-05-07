@@ -829,7 +829,7 @@ void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in) {
       sub_menu_name = "rotamer_submenu";
    }
    if (validation_type == "density-fit") {
-      callback = GTK_SIGNAL_FUNC(validation_graph_density_fit_mol_selector_activate);
+      callback = G_CALLBACK(validation_graph_density_fit_mol_selector_activate);
       found_validation_type = 1;
       sub_menu_name = "density_fit_submenu";
    }
@@ -1070,11 +1070,10 @@ create_initial_validation_graph_submenu_generic(GtkWidget *widget,
 
    GtkWidget *b_factor_menu_item = lookup_widget(widget, menu_name.c_str());
    GtkWidget *b_factor_sub_menu = gtk_menu_new();
-   gtk_widget_ref(b_factor_sub_menu);
-   gtk_object_set_data_full(GTK_OBJECT(widget),
-			    sub_menu_name.c_str(),
-			    b_factor_sub_menu,
-			    (GtkDestroyNotify) gtk_widget_unref);
+   // gtk_widget_ref(b_factor_sub_menu);
+   g_object_set_data_full(G_OBJECT(widget),
+			  sub_menu_name.c_str(),
+			  b_factor_sub_menu, NULL);
 
    gtk_menu_item_set_submenu(GTK_MENU_ITEM(b_factor_menu_item),
 			     b_factor_sub_menu);
@@ -1235,7 +1234,7 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
 	    map_str += graphics_info_t::int_to_string(imol);
 	    map_button = lookup_widget(dialog, map_str.c_str());
 	    if (map_button) {
-	       if (GTK_TOGGLE_BUTTON(map_button)->active) {
+	       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(map_button))) {
 		  imol_diff_map = imol;
 		  found_active_button_for_map = 1;
 	       }
@@ -1255,7 +1254,7 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
 	 coords_str += graphics_info_t::int_to_string(imol);
 	 coords_button = lookup_widget(dialog, coords_str.c_str());
 	 if (coords_button) {
-	    if (GTK_TOGGLE_BUTTON(coords_button)->active) {
+	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(coords_button))) {
 	       imol_coords = imol;
 	       found_active_button_for_map = 1;
 	    }
@@ -1290,10 +1289,10 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
    GtkWidget *checkbutton_positive =
       lookup_widget(dialog, "generate_diff_map_peaks_positive_level_checkbutton");
 
-   if (GTK_TOGGLE_BUTTON(checkbutton_negative)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton_negative)))
       do_negative_level = 1;
 
-   if (GTK_TOGGLE_BUTTON(checkbutton_positive)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton_positive)))
       do_positive_level = 1;
 
    if (found_active_button_for_map) {
@@ -2032,11 +2031,13 @@ void toggle_dynarama_outliers(GtkWidget *window, int state) {
 
 void set_ramachandran_psi_axis_mode(int mode) {
 
+#if HAVE_GOOCANVAS
    graphics_info_t g;
    if (mode == 1)
       g.rama_psi_axis_mode = coot::rama_plot::PSI_MINUS_120;
    else
       g.rama_psi_axis_mode = coot::rama_plot::PSI_CLASSIC;
+#endif
 }
 
 int
