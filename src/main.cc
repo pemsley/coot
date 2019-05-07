@@ -407,7 +407,9 @@ main (int argc, char *argv[]) {
 
 
    setup_python(argc, argv);
+#ifdef USE_PYTHON
    setup_python_classes();
+#endif
      
 #ifdef USE_GUILE
      

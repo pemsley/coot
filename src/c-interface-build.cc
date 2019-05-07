@@ -3502,6 +3502,7 @@ PyObject *add_target_position_restraint_for_intermediate_atom_py(PyObject *atom_
 #endif
 
 // and the multiple-atom version of that (so that they can be applied at the same time)
+#ifdef USE_PYTHON
 PyObject *add_target_position_restraints_for_intermediate_atoms_py(PyObject *atom_spec_position_list) {
 
    PyObject *ret_val = Py_False; // not changed by function at the moment
@@ -3551,6 +3552,7 @@ PyObject *add_target_position_restraints_for_intermediate_atoms_py(PyObject *ato
    Py_INCREF(ret_val);
    return ret_val;
 }
+#endif // USE_PYTHON
 
 
 

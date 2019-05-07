@@ -4960,7 +4960,9 @@ PyObject *find_terminal_residue_type_py(int imol, const char *chain_id, int resn
 
   @return the number of atoms added
 */
+#ifdef USE_PYTHON
 int add_residue_with_atoms_py(int imol, PyObject *residue_spec, const std::string &res_name, PyObject *list_of_atoms);
+#endif
 #endif /* c++ */
 
 /* \} */
