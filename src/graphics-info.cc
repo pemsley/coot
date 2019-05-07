@@ -776,8 +776,7 @@ graphics_info_t::update_ramachandran_plot_point_maybe(int imol, const coot::resi
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
    if (w) {
-      coot::rama_plot *plot = static_cast<coot::rama_plot *>
-	 (gtk_object_get_user_data(GTK_OBJECT(w)));
+      coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(GTK_OBJECT(w), "rama_plot"));
 
       plot->big_square(res_spec.chain_id, res_spec.res_no, res_spec.ins_code);
       // need to put show appropriate background here. Make a function to show
@@ -788,12 +787,12 @@ graphics_info_t::update_ramachandran_plot_point_maybe(int imol, const coot::resi
 
 }
 
+#ifdef HAVE_GOOCANVAS
 void
 graphics_info_t::update_ramachandran_plot_background_from_res_spec(coot::rama_plot *plot, int imol,
                                                                    const coot::residue_spec_t &res_spec) {
 
 # if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-#ifdef HAVE_GOOCANVAS
 
    std::string res_name = residue_name(imol, res_spec.chain_id, res_spec.res_no,
                                        res_spec.ins_code);
@@ -840,10 +839,9 @@ graphics_info_t::update_ramachandran_plot_background_from_res_spec(coot::rama_pl
    }
 #endif // CLIPPER_HAS_TOP8000
 
-#endif // HAVE_GOOCANVAS
 #endif // HAVE_GTK_CANVAS
-
 }
+#endif // HAVE_GOOCANVAS
 
 // called from accept_moving_atoms()
 void 
@@ -1570,8 +1568,7 @@ graphics_info_t::accept_moving_atoms() {
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    GtkWidget *w = coot::get_validation_graph(imol_moving_atoms, coot::RAMACHANDRAN_PLOT);
    if (w) {
-      coot::rama_plot *plot = (coot::rama_plot *)
-	 gtk_object_get_user_data(GTK_OBJECT(w));
+      coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
       // std::cout << "updating rama plot for " << imol_moving_atoms << std::endl;
       handle_rama_plot_update(plot);
       update_ramachandran_plot_point_maybe(imol_moving_atoms, *moving_atoms_asc);
@@ -1885,8 +1882,7 @@ graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
       // Clear out the old one if it was there.
       GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
       if (w) {
-         coot::rama_plot *plot =
-               (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(w));
+         coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
          // g_print("BL DEBUG:: deleting rama plot!!!\n");
          delete plot;
       }
@@ -3729,9 +3725,7 @@ graphics_info_t::start_baton_here() {
 	 // 20091218 It is as it was - No map.
 	 // 
 	 GtkWidget *w = create_baton_mode_make_skeleton_dialog();
-	 int *imol_copy = new int;
-	 *imol_copy = imol_for_skel;
-	 gtk_object_set_user_data(GTK_OBJECT(w), (char *)imol_copy);
+	 g_object_set_data(G_OBJECT(w), "imol", GINT_TO_POINTER(imol_for_skel));
 	 gtk_widget_show(w);
 	 return 0;
       }
@@ -4346,8 +4340,7 @@ graphics_info_t::apply_undo() {
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 		  GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
 		  if (w) {
-		     coot::rama_plot *plot = (coot::rama_plot *)
-			gtk_object_get_user_data(GTK_OBJECT(w));
+		     coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
 		     handle_rama_plot_update(plot);
 		  }
 		  // now update the geometry graphs, so get the asc
@@ -4414,8 +4407,7 @@ graphics_info_t::apply_redo() {
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
        GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
        if (w) {
-          coot::rama_plot *plot = (coot::rama_plot *)
-        gtk_object_get_user_data(GTK_OBJECT(w));
+          coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
           handle_rama_plot_update(plot);
        }
        // now update the geometry graphs, so get the asc
@@ -4539,8 +4531,9 @@ graphics_info_t::pick_cursor_real() {
       GdkCursorType c = pick_cursor_index;
       GdkCursor *cursor;
       cursor = gdk_cursor_new (c);
-      gdk_window_set_cursor (glarea->window, cursor);
-      gdk_cursor_destroy (cursor);
+      GdkWindow *window = gtk_widget_get_window(glarea);
+      gdk_window_set_cursor(window, cursor);
+      // gdk_cursor_destroy(cursor);
    }
 }
 
@@ -4553,8 +4546,9 @@ graphics_info_t::normal_cursor() {
 	 GdkCursorType c = GDK_LEFT_PTR;
 	 GdkCursor *cursor;
 	 cursor = gdk_cursor_new (c);
-	 gdk_window_set_cursor (glarea->window, cursor);
-	 gdk_cursor_destroy (cursor);
+	 GdkWindow *window = gtk_widget_get_window(glarea);
+	 gdk_window_set_cursor(window, cursor);
+	 // gdk_cursor_destroy (cursor);
       }
    }
 }
@@ -4567,8 +4561,9 @@ graphics_info_t::watch_cursor() {
       GdkCursorType c = GDK_WATCH;
       GdkCursor *cursor;
       cursor = gdk_cursor_new (c);
-      gdk_window_set_cursor (glarea->window, cursor);
-      gdk_cursor_destroy (cursor);
+      GdkWindow *window = gtk_widget_get_window(glarea);
+      gdk_window_set_cursor(window, cursor);
+      // gdk_cursor_destroy(cursor);
       while (gtk_events_pending()) {
 	 gtk_main_iteration();
       }
@@ -4583,8 +4578,9 @@ graphics_info_t::fleur_cursor() {
       GdkCursorType c = GDK_FLEUR;
       GdkCursor *cursor;
       cursor = gdk_cursor_new (c);
-      gdk_window_set_cursor (glarea->window, cursor);
-      gdk_cursor_destroy (cursor);
+      GdkWindow *window = gtk_widget_get_window(glarea);
+      gdk_window_set_cursor(window, cursor);
+      // gdk_cursor_destroy (cursor);
    }
 }
 
@@ -5876,7 +5872,7 @@ graphics_info_t::rotamer_dialog_neighbour_rotamer(int istep) {
    if (g.rotamer_dialog) {
       // void *t  = (void *) (gtk_object_get_user_data(GTK_OBJECT(g.rotamer_dialog)));
       // std::cout << "user data: " << t << std::endl;
-      int n_rotamers = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(g.rotamer_dialog)));
+      int n_rotamers = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(g.rotamer_dialog), "n_rotamers"));
       // std::cout << "We find " << n_rotamers << " rotamers in the widget\n";
       GtkWidget *button;
       short int ifound_active_button = 0;
@@ -5887,7 +5883,7 @@ graphics_info_t::rotamer_dialog_neighbour_rotamer(int istep) {
 	 button_name += int_to_string(i);
 	 button = lookup_widget(g.rotamer_dialog, button_name.c_str());
 	 if (button) { 
-	    if (GTK_TOGGLE_BUTTON(button)->active) {
+	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
 	       ifound_active_button = 1;
 	       active_button_number = i;
 	       break;
@@ -5911,7 +5907,9 @@ graphics_info_t::rotamer_dialog_neighbour_rotamer(int istep) {
 	 std::string button_name = "rotamer_selection_button_rot_";
 	 button_name += int_to_string(new_active_button_number);
 	 GtkWidget *new_button = lookup_widget(g.rotamer_dialog, button_name.c_str());
-	 gtk_signal_emit_by_name(GTK_OBJECT(new_button), "clicked");
+
+	 std::cout << "GTK-FIXME rotamer_dialog_neighbour_rotamer() gtk_signal_emit_by_name()" << std::endl;
+	 //gtk_signal_emit_by_name(GTK_OBJECT(new_button), "clicked");
       
       } else {
 	 std::cout << "ERROR:: not active rotamer button found " << std::endl;
@@ -5951,7 +5949,7 @@ void graphics_info_t::difference_map_peaks_neighbour_peak(int istep) { // could 
 
    graphics_info_t g;
    if (g.difference_map_peaks_dialog) {
-      int n_peaks = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(g.difference_map_peaks_dialog)));
+      int n_peaks = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(g.difference_map_peaks_dialog), "n_peaks"));
       GtkWidget *button;
       short int ifound_active_button = 0;
       int active_button_number = -99;     // set later
@@ -5961,7 +5959,7 @@ void graphics_info_t::difference_map_peaks_neighbour_peak(int istep) { // could 
 	 button_name +=  int_to_string(i);
 	 button = lookup_widget(g.difference_map_peaks_dialog, button_name.c_str());
 	 if (button) {
-	    if (GTK_TOGGLE_BUTTON(button)->active) {
+	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
 	       ifound_active_button = 1;
 	       active_button_number = i;
 	    }
@@ -5984,7 +5982,8 @@ void graphics_info_t::difference_map_peaks_neighbour_peak(int istep) { // could 
       button_name += int_to_string(new_active_button_number);
       GtkWidget *new_button = lookup_widget(g.difference_map_peaks_dialog,
 					    button_name.c_str());
-      gtk_signal_emit_by_name(GTK_OBJECT(new_button), "clicked");
+      std::cout << "GTK-FIXME difference_map_peaks_neighbour_peak() gtk_signal_emit_by_name() " << std::endl;
+      // gtk_signal_emit_by_name(GTK_OBJECT(new_button), "clicked");
       
    } else {
       std::cout << "ERROR:: difference_map_peaks_neighbour_peak called in error\n";
@@ -5998,7 +5997,7 @@ graphics_info_t::checked_waters_next_baddie(int dir) {
    graphics_info_t g;
    GtkWidget *dialog = g.checked_waters_baddies_dialog;
    if (dialog) {
-      int n_baddies = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(dialog)));
+      int n_baddies = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "n_baddies"));
       GtkWidget *button;
       bool ifound_active_button = 0;
       int active_button_number = -99; // set later
@@ -6009,7 +6008,7 @@ graphics_info_t::checked_waters_next_baddie(int dir) {
 	 button_name += int_to_string(i);
 	 button = lookup_widget(dialog, button_name.c_str());
 	 if (button) {
-	    if (GTK_TOGGLE_BUTTON(button)->active) {
+	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
 	       ifound_active_button = 1;
 	       active_button_number = i;
 	    }
@@ -6031,9 +6030,9 @@ graphics_info_t::checked_waters_next_baddie(int dir) {
 	 }
 	 std::string active_button_name = "checked_waters_baddie_button_";
 	 active_button_name += int_to_string(new_active_button_number);
-	 GtkWidget *new_active_button =
-	    lookup_widget(dialog, active_button_name.c_str());
-	 gtk_signal_emit_by_name(GTK_OBJECT(new_active_button), "clicked");
+	 GtkWidget *new_active_button = lookup_widget(dialog, active_button_name.c_str());
+	 std::cout << "----- GTK-FIXME checked_waters_next_baddie() gtk_signal_emit_by_name()" << std::endl;
+	 // gtk_signal_emit_by_name(GTK_OBJECT(new_active_button), "clicked");
       } else {
 	 std::cout << "active button not found" << std::endl;
       }

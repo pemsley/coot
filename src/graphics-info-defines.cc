@@ -1719,7 +1719,7 @@ graphics_info_t::check_if_in_save_symmetry_define(GdkEventButton *event) {
 	 coot::Symm_Atom_Pick_Info_t *save_pick_info = new coot::Symm_Atom_Pick_Info_t;
 	 *save_pick_info = naii;
 
-	 gtk_object_set_user_data(GTK_OBJECT(w), save_pick_info);
+	 g_object_set_data(G_OBJECT(w), "save_pick_info", save_pick_info);
 
 // 	 std::string filename = "molecule-";
 // 	 filename += int_to_string(naii.imol);
@@ -1756,13 +1756,7 @@ graphics_info_t::check_if_in_save_symmetry_define(GdkEventButton *event) {
 	 // 
 	 filename += ".pdb";
 
-	 if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
-		gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(w),
-                                         filename.c_str());
-	 } else {
-	 	gtk_file_selection_set_filename(GTK_FILE_SELECTION(w),
-					 filename.c_str());
-	 }
+	 gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(w), filename.c_str());
 
 	 add_ccp4i_project_optionmenu(w, COOT_COORDS_FILE_SELECTION);
          
