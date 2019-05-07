@@ -4766,14 +4766,31 @@ graphics_info_t::delete_sidechain_range(int imol,
 
 
 
+// // static
+// void
+// graphics_info_t::move_molecule_here_item_select(GtkWidget *item,
+// 						GtkPositionType pos) {
+//    std::cout << "----------------- move_molecule_here_item_select! " << pos << std::endl;
+//    graphics_info_t::move_molecule_here_molecule_number = pos;
+// }
+
 // static
-void
-graphics_info_t::move_molecule_here_item_select(GtkWidget *item,
-						GtkPositionType pos) {
+void graphics_info_t::move_molecule_here_combobox_changed(GtkWidget *combobox, gpointer data) {
 
-   graphics_info_t::move_molecule_here_molecule_number = pos;
+   GtkTreeIter iter;
+   gboolean state = gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &iter);
+   if (state) {
+      GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox));
+      GValue label_as_value = { 0, };
+      gtk_tree_model_get_value(model, &iter, 0, &label_as_value);
+      int imol = g_value_get_int(&label_as_value);
+      std::cout << "move_molecule_here_combobox_changed() imol: " << imol << std::endl;
+      graphics_info_t::move_molecule_here_molecule_number = imol;
+   } else {
+      std::cout << "bad state" << std::endl;
+   }
+}
 
-} 
 
 
 void

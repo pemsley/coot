@@ -3731,8 +3731,7 @@ new_close_molecules(GtkWidget *window) {
 					       "go_to_atom_molecule_combobox");
 	 int gimol = g.go_to_atom_molecule();
 
-	 GtkSignalFunc callback_func =
-	    GTK_SIGNAL_FUNC(graphics_info_t::go_to_atom_mol_menu_item_select);
+	 GCallback callback_func = G_CALLBACK(graphics_info_t::go_to_atom_mol_combobox_changed);
 	 g.fill_combobox_with_coordinates_options(combobox, callback_func, gimol);
       }
       graphics_draw();
@@ -4799,7 +4798,8 @@ void fill_go_to_atom_window(GtkWidget *widget) {
 				 "go_to_atom_molecule_optionmenu");
 #endif
 
-     GCallback callback_func = G_CALLBACK(graphics_info_t::go_to_atom_mol_combobox_item_select);
+     // GCallback callback_func = G_CALLBACK(graphics_info_t::go_to_atom_mol_combobox_item_select);
+     GCallback callback_func = G_CALLBACK(graphics_info_t::go_to_atom_mol_combobox_changed);
      GtkWidget *combobox = lookup_widget(widget, "go_to_atom_molecule_combobox");
      g.fill_combobox_with_coordinates_options(combobox, callback_func, gimol);
 

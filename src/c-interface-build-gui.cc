@@ -268,8 +268,11 @@ fill_move_molecule_here_dialog(GtkWidget *w) {
 
    GtkWidget *combobox  = lookup_widget(w, "move_molecule_here_combobox");
    GtkWidget *check_button = lookup_widget(w, "move_molecule_here_big_molecules_checkbutton");
+   gtk_widget_hide(check_button);
 
-   GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(graphics_info_t::move_molecule_here_item_select);
+   // GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(graphics_info_t::move_molecule_here_item_select);
+
+   GCallback callback_func = G_CALLBACK(graphics_info_t::move_molecule_here_combobox_changed);
 
    bool fill_with_small_molecule_only_flag = false;
    int imol_active = first_coords_imol();
@@ -277,7 +280,7 @@ fill_move_molecule_here_dialog(GtkWidget *w) {
    g.move_molecule_here_molecule_number = imol_active;
    g.fill_combobox_with_coordinates_options(combobox, callback_func, imol_active);
 
-} 
+}
 
 
 void move_molecule_here_by_widget(GtkWidget *w) {

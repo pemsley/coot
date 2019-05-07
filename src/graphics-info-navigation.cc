@@ -749,8 +749,7 @@ graphics_info_t::update_go_to_atom_window_on_new_mol() {
 		<< std::endl;
 
       // this may not be the write function for a combobox item
-      GCallback callback_func = 
-	 G_CALLBACK(graphics_info_t::go_to_atom_mol_menu_item_select);
+      GCallback callback_func = G_CALLBACK(graphics_info_t::go_to_atom_mol_combobox_changed);
 
       // set last active (1)
       // fill_option_menu_with_coordinates_options_internal(option_menu, callback_func, 0);
@@ -790,7 +789,7 @@ graphics_info_t::update_go_to_atom_window_on_new_mol() {
 	 }
       }
       if (mol_no != -1)
-	 if (imols_existing.size() == 1) 
+	 if (imols_existing.size() == 1)
 	    update_go_to_atom_window_on_changed_mol(mol_no);
    }
 }
@@ -804,9 +803,9 @@ graphics_info_t::update_go_to_atom_window_on_other_molecule_chosen(int imol) {
    if (go_to_atom_window) {
       GtkWidget *combobox = lookup_widget(GTK_WIDGET(go_to_atom_window), 
 					     "go_to_atom_molecule_combobox");
-      GCallback callback_func = G_CALLBACK(go_to_atom_mol_menu_item_select);
-      fill_combobox_with_coordinates_options(combobox, callback_func, imol);
 
+      GCallback callback_func = G_CALLBACK(go_to_atom_mol_combobox_changed);
+      fill_combobox_with_coordinates_options(combobox, callback_func, imol);
       update_go_to_atom_window_on_changed_mol(imol);
    }
 }
@@ -854,30 +853,32 @@ graphics_info_t::clear_atom_list(GtkWidget *atom_gtklist) {
 // }
 
 
-// a static
+// // a static
+// void
+// graphics_info_t::go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionType pos) { 
+
+//    std::cout << "DEBUG:: (menu item select) Go To Atom molecule now: " << pos << std::endl;
+//    graphics_info_t g;
+//    int old_go_to_molecule = g.go_to_atom_molecule();
+//    g.set_go_to_atom_molecule(pos);
+
+//    if (pos != old_go_to_molecule) {
+
+//       GtkWidget *residue_tree = lookup_widget(GTK_WIDGET(item),
+// 						 "go_to_atom_residue_tree");
+//       GtkWidget *atom_list = lookup_widget(GTK_WIDGET(item),
+// 					   "go_to_atom_atom_list");
+
+//       std::cout << "Debug:: fill_go_to_atom_residue_tree_gtk2 " << pos << std::endl;
+//       fill_go_to_atom_residue_tree_and_atom_list_gtk2(pos, residue_tree, atom_list);
+
+//    }
+// }
+
 void
-graphics_info_t::go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionType pos) { 
+graphics_info_t::go_to_atom_mol_combobox_changed(GtkWidget *combobox, gpointer data) {
 
-   std::cout << "DEBUG:: (menu item select) Go To Atom molecule now: " << pos << std::endl;
-   graphics_info_t g;
-   int old_go_to_molecule = g.go_to_atom_molecule();
-   g.set_go_to_atom_molecule(pos);
-
-   if (pos != old_go_to_molecule) {
-
-      GtkWidget *residue_tree = lookup_widget(GTK_WIDGET(item),
-						 "go_to_atom_residue_tree");
-      GtkWidget *atom_list = lookup_widget(GTK_WIDGET(item),
-					   "go_to_atom_atom_list");
-
-      std::cout << "Debug:: fill_go_to_atom_residue_tree_gtk2 " << pos << std::endl;
-      fill_go_to_atom_residue_tree_and_atom_list_gtk2(pos, residue_tree, atom_list);
-
-   }
-}
-
-void
-graphics_info_t::go_to_atom_mol_combobox_item_select(GtkWidget *combobox, gpointer data) {
+   std::cout << "-------- go_to_atom_mol_combobox_changed " << combobox << " " << data << std::endl;
 
    GtkTreeIter iter;
    gboolean state = gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &iter);
