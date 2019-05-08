@@ -89,8 +89,8 @@
 
 #include "coot-nomenclature.hh"
 
-#include "GL/glu.h"
-#include "GL/glut.h"
+// #include "GL/glu.h"
+// #include "GL/glut.h"
 
 #include "rotamer-search-modes.hh"
 
@@ -7066,6 +7066,8 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 }
 
 
+// rename/delete the function
+
 // return the display list info
 coot::display_list_object_info
 molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str,
@@ -7073,6 +7075,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 					   bool do_spheres_flag, bool is_second_context,
 					   coot::display_list_object_info dloi,
 					   const coot::protein_geometry *geom) {
+#if 0
 
    // hack
    bool against_a_dark_background = true;
@@ -7280,6 +7283,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       bonds_box_local.clear_up();
       atom_sel.mol->DeleteSelection(SelHnd);
    }
+#endif   
    return dloi;
 }
 

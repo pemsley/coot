@@ -3,7 +3,7 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
-#include <GL/glu.h>
+// #include <GL/glu.h> OpenGLv1
 
 #include "generic-display-object.hh"
 #include "graphics-info.h"
@@ -181,6 +181,7 @@ graphics_info_t::draw_generic_objects_simple() {
 void
 graphics_info_t::draw_generic_objects_solid() {
 
+#if 0
    graphics_info_t g;
    double radius = 0.02;
 
@@ -457,6 +458,7 @@ graphics_info_t::draw_generic_objects_solid() {
       }
       glDisable(GL_LIGHTING);
    }
+#endif
 }
 
 
