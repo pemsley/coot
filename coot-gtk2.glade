@@ -20363,14 +20363,6 @@ that you wish to delete.               </property>
 	      <property name="label_xalign">0</property>
 	      <property name="label_yalign">0.5</property>
 	      <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
-
-	      <child>
-		<widget class="GtkOptionMenu" id="close_molecule_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-	      </child>
 	    </widget>
 	    <packing>
 	      <property name="padding">0</property>
@@ -22864,19 +22856,6 @@ programs to which you may be more accustomed.
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="run_refmac_method_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
-	      </child>
-
-	      <child>
 		<widget class="GtkComboBox" id="run_refmac_method_combobox">
 		  <property name="visible">True</property>
 		  <property name="add_tearoffs">False</property>
@@ -22906,20 +22885,6 @@ programs to which you may be more accustomed.
 		  <property name="width_chars">-1</property>
 		  <property name="single_line_mode">False</property>
 		  <property name="angle">0</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkOptionMenu" id="run_refmac_phase_input_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		  <signal name="changed" handler="on_run_refmac_phase_input_optionmenu_changed" last_modification_time="Thu, 08 May 2008 17:27:47 GMT"/>
 		</widget>
 		<packing>
 		  <property name="padding">0</property>
@@ -23482,21 +23447,6 @@ programs to which you may be more accustomed.
 			      <property name="spacing">0</property>
 
 			      <child>
-				<widget class="GtkOptionMenu" id="run_refmac_map_optionmenu">
-				  <property name="border_width">1</property>
-				  <property name="visible">True</property>
-				  <property name="can_focus">True</property>
-				  <property name="history">-1</property>
-				  <signal name="changed" handler="on_run_refmac_map_optionmenu_changed" last_modification_time="Thu, 08 May 2008 11:27:02 GMT"/>
-				</widget>
-				<packing>
-				  <property name="padding">0</property>
-				  <property name="expand">False</property>
-				  <property name="fill">False</property>
-				</packing>
-			      </child>
-
-			      <child>
 				<widget class="GtkLabel" id="label686">
 				  <property name="visible">True</property>
 				  <property name="label" translatable="yes">    </property>
@@ -23825,19 +23775,6 @@ programs to which you may be more accustomed.
 		      </child>
 
 		      <child>
-			<widget class="GtkOptionMenu" id="refmac_dialog_fobs_optionmenu">
-			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="history">-1</property>
-			</widget>
-			<packing>
-			  <property name="padding">0</property>
-			  <property name="expand">False</property>
-			  <property name="fill">False</property>
-			</packing>
-		      </child>
-
-		      <child>
 			<widget class="GtkComboBox" id="refmac_dialog_fobs_combobox">
 			  <property name="visible">True</property>
 			  <property name="add_tearoffs">False</property>
@@ -23879,19 +23816,6 @@ programs to which you may be more accustomed.
 			  <property name="width_chars">-1</property>
 			  <property name="single_line_mode">False</property>
 			  <property name="angle">0</property>
-			</widget>
-			<packing>
-			  <property name="padding">0</property>
-			  <property name="expand">False</property>
-			  <property name="fill">False</property>
-			</packing>
-		      </child>
-
-		      <child>
-			<widget class="GtkOptionMenu" id="refmac_dialog_fpm_optionmenu">
-			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="history">-1</property>
 			</widget>
 			<packing>
 			  <property name="padding">0</property>
@@ -23951,19 +23875,6 @@ programs to which you may be more accustomed.
 		      </child>
 
 		      <child>
-			<widget class="GtkOptionMenu" id="refmac_dialog_fiobs_optionmenu">
-			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="history">-1</property>
-			</widget>
-			<packing>
-			  <property name="padding">0</property>
-			  <property name="expand">False</property>
-			  <property name="fill">False</property>
-			</packing>
-		      </child>
-
-		      <child>
 			<widget class="GtkComboBox" id="refmac_dlalog_fiobs_combobox">
 			  <property name="visible">True</property>
 			  <property name="add_tearoffs">False</property>
@@ -24005,19 +23916,6 @@ programs to which you may be more accustomed.
 			  <property name="width_chars">-1</property>
 			  <property name="single_line_mode">False</property>
 			  <property name="angle">0</property>
-			</widget>
-			<packing>
-			  <property name="padding">0</property>
-			  <property name="expand">False</property>
-			  <property name="fill">False</property>
-			</packing>
-		      </child>
-
-		      <child>
-			<widget class="GtkOptionMenu" id="refmac_dialog_ipm_optionmenu">
-			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="history">-1</property>
 			</widget>
 			<packing>
 			  <property name="padding">0</property>
@@ -24078,19 +23976,6 @@ programs to which you may be more accustomed.
 		      </child>
 
 		      <child>
-			<widget class="GtkOptionMenu" id="refmac_dialog_rfree_optionmenu">
-			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="history">-1</property>
-			</widget>
-			<packing>
-			  <property name="padding">0</property>
-			  <property name="expand">False</property>
-			  <property name="fill">False</property>
-			</packing>
-		      </child>
-
-		      <child>
 			<widget class="GtkComboBox" id="refmac_dialog_rfree_combobox">
 			  <property name="visible">True</property>
 			  <property name="add_tearoffs">False</property>
@@ -24141,19 +24026,6 @@ programs to which you may be more accustomed.
 		      </child>
 
 		      <child>
-			<widget class="GtkOptionMenu" id="refmac_dialog_phases_optionmenu">
-			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="history">-1</property>
-			</widget>
-			<packing>
-			  <property name="padding">0</property>
-			  <property name="expand">False</property>
-			  <property name="fill">False</property>
-			</packing>
-		      </child>
-
-		      <child>
 			<widget class="GtkLabel" id="label648">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">FOM</property>
@@ -24170,19 +24042,6 @@ programs to which you may be more accustomed.
 			  <property name="width_chars">-1</property>
 			  <property name="single_line_mode">False</property>
 			  <property name="angle">0</property>
-			</widget>
-			<packing>
-			  <property name="padding">0</property>
-			  <property name="expand">False</property>
-			  <property name="fill">False</property>
-			</packing>
-		      </child>
-
-		      <child>
-			<widget class="GtkOptionMenu" id="refmac_dialog_fom_optionmenu">
-			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="history">-1</property>
 			</widget>
 			<packing>
 			  <property name="padding">0</property>
@@ -24255,19 +24114,6 @@ programs to which you may be more accustomed.
 		      </child>
 
 		      <child>
-			<widget class="GtkOptionMenu" id="refmac_dialog_hl_optionmenu">
-			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="history">-1</property>
-			</widget>
-			<packing>
-			  <property name="padding">0</property>
-			  <property name="expand">False</property>
-			  <property name="fill">False</property>
-			</packing>
-		      </child>
-
-		      <child>
 			<widget class="GtkComboBox" id="refmac_dialog_hl_combobox">
 			  <property name="visible">True</property>
 			  <property name="add_tearoffs">False</property>
@@ -24327,19 +24173,6 @@ programs to which you may be more accustomed.
 		      <property name="width_chars">-1</property>
 		      <property name="single_line_mode">False</property>
 		      <property name="angle">0</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
-		  </child>
-
-		  <child>
-		    <widget class="GtkOptionMenu" id="run_refmac_ncycle_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -25911,14 +25744,6 @@ programs to which you may be more accustomed.
 	      <property name="label_xalign">0</property>
 	      <property name="label_yalign">0.5</property>
 	      <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
-
-	      <child>
-		<widget class="GtkOptionMenu" id="skeleton_map_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-	      </child>
 	    </widget>
 	    <packing>
 	      <property name="padding">0</property>
@@ -27578,19 +27403,6 @@ programs to which you may be more accustomed.
 		  <property name="width_chars">-1</property>
 		  <property name="single_line_mode">False</property>
 		  <property name="angle">0</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkOptionMenu" id="select_map_for_fitting_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
 		</widget>
 		<packing>
 		  <property name="padding">0</property>
@@ -33263,20 +33075,6 @@ into Molecule:
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="mutate_molecule_optionmenu">
-		  <property name="border_width">2</property>
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
-	      </child>
-
-	      <child>
 		<widget class="GtkComboBox" id="mutate_molecule_combobox">
 		  <property name="visible">True</property>
 		  <property name="add_tearoffs">False</property>
@@ -33313,19 +33111,6 @@ into Molecule:
 		      <property name="width_chars">-1</property>
 		      <property name="single_line_mode">False</property>
 		      <property name="angle">0</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
-		  </child>
-
-		  <child>
-		    <widget class="GtkOptionMenu" id="mutate_molecule_chain_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -34129,19 +33914,6 @@ search (this may not work well)</property>
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="bond_parameters_molecule_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
-	      </child>
-
-	      <child>
 		<widget class="GtkLabel" id="label190">
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">   </property>
@@ -34192,19 +33964,6 @@ search (this may not work well)</property>
 		      <property name="visible">True</property>
 		      <property name="homogeneous">False</property>
 		      <property name="spacing">0</property>
-
-		      <child>
-			<widget class="GtkOptionMenu" id="bond_parameters_bond_width_optionmenu">
-			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="history">-1</property>
-			</widget>
-			<packing>
-			  <property name="padding">0</property>
-			  <property name="expand">False</property>
-			  <property name="fill">False</property>
-			</packing>
-		      </child>
 
 		      <child>
 			<widget class="GtkComboBox" id="bond_parameters_bond_width_combobox">
@@ -34586,20 +34345,6 @@ search (this may not work well)</property>
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="renumber_residue_range_molecule_optionmenu">
-		  <property name="border_width">2</property>
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
-	      </child>
-
-	      <child>
 		<widget class="GtkComboBox" id="renumber_residue_range_combobox">
 		  <property name="visible">True</property>
 		  <property name="add_tearoffs">False</property>
@@ -34635,19 +34380,6 @@ search (this may not work well)</property>
 		      <property name="width_chars">-1</property>
 		      <property name="single_line_mode">False</property>
 		      <property name="angle">0</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
-		  </child>
-
-		  <child>
-		    <widget class="GtkOptionMenu" id="renumber_residue_range_chain_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -37351,20 +37083,6 @@ Which map do you want to skeletonize?
 		  <property name="width_chars">-1</property>
 		  <property name="single_line_mode">False</property>
 		  <property name="angle">0</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkOptionMenu" id="skeletonize_map_optionmenu">
-		  <property name="border_width">2</property>
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
 		</widget>
 		<packing>
 		  <property name="padding">0</property>
@@ -45299,19 +45017,6 @@ distances more than:</property>
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="align_and_mutate_molecule_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
-	      </child>
-
-	      <child>
 		<widget class="GtkComboBox" id="align_and_mutate_molecule_combobox">
 		  <property name="visible">True</property>
 		  <property name="add_tearoffs">False</property>
@@ -45348,19 +45053,6 @@ distances more than:</property>
 		      <property name="width_chars">-1</property>
 		      <property name="single_line_mode">False</property>
 		      <property name="angle">0</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
-		  </child>
-
-		  <child>
-		    <widget class="GtkOptionMenu" id="align_and_mutate_chain_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -49745,37 +49437,7 @@ Nucleotide Builder
 		  </child>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="nucleotide_builder_type_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">0</property>
-
-		      <child>
-			<widget class="GtkMenu" id="menu2">
-
-			  <child>
-			    <widget class="GtkMenuItem" id="rna1">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">RNA</property>
-			      <property name="use_underline">True</property>
-			    </widget>
-			  </child>
-
-			  <child>
-			    <widget class="GtkMenuItem" id="dna1">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">DNA</property>
-			      <property name="use_underline">True</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>
@@ -49839,37 +49501,7 @@ Nucleotide Builder
 		  </child>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="nucleotide_builder_form_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">0</property>
-
-		      <child>
-			<widget class="GtkMenu" id="menu3">
-
-			  <child>
-			    <widget class="GtkMenuItem" id="a1">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">A</property>
-			      <property name="use_underline">True</property>
-			    </widget>
-			  </child>
-
-			  <child>
-			    <widget class="GtkMenuItem" id="b1">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">B</property>
-			      <property name="use_underline">True</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>
@@ -49933,37 +49565,7 @@ Nucleotide Builder
 		  </child>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="nucleotide_builder_strand_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">0</property>
-
-		      <child>
-			<widget class="GtkMenu" id="menu4">
-
-			  <child>
-			    <widget class="GtkMenuItem" id="double_stranded1">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">Double Stranded</property>
-			      <property name="use_underline">True</property>
-			    </widget>
-			  </child>
-
-			  <child>
-			    <widget class="GtkMenuItem" id="single_stranded1">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">Single Stranded</property>
-			      <property name="use_underline">True</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>
@@ -51124,19 +50726,6 @@ Move Molecule Here:</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="least_squares_reference_molecule_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
-		  </child>
-
-		  <child>
 		    <widget class="GtkComboBox" id="least_squares_reference_molecule_combobox">
 		      <property name="visible">True</property>
 		      <property name="add_tearoffs">False</property>
@@ -51166,19 +50755,6 @@ Move Molecule Here:</property>
 		      <property name="width_chars">-1</property>
 		      <property name="single_line_mode">False</property>
 		      <property name="angle">0</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
-		  </child>
-
-		  <child>
-		    <widget class="GtkOptionMenu" id="least_squares_moving_molecule_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -51341,19 +50917,6 @@ Move Molecule Here:</property>
 			  <property name="fill">False</property>
 			</packing>
 		      </child>
-
-		      <child>
-			<widget class="GtkOptionMenu" id="least_squares_reference_chain_id">
-			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="history">-1</property>
-			</widget>
-			<packing>
-			  <property name="padding">0</property>
-			  <property name="expand">False</property>
-			  <property name="fill">False</property>
-			</packing>
-		      </child>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -51473,19 +51036,6 @@ Move Molecule Here:</property>
 			  <property name="width_chars">-1</property>
 			  <property name="single_line_mode">False</property>
 			  <property name="angle">0</property>
-			</widget>
-			<packing>
-			  <property name="padding">0</property>
-			  <property name="expand">False</property>
-			  <property name="fill">False</property>
-			</packing>
-		      </child>
-
-		      <child>
-			<widget class="GtkOptionMenu" id="least_squares_moving_chain_id">
-			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="history">-1</property>
 			</widget>
 			<packing>
 			  <property name="padding">0</property>
@@ -54557,19 +54107,6 @@ have a Spanish Coot because of Miguel's work.
 	      <property name="width_chars">-1</property>
 	      <property name="single_line_mode">False</property>
 	      <property name="angle">0</property>
-	    </widget>
-	    <packing>
-	      <property name="padding">0</property>
-	      <property name="expand">False</property>
-	      <property name="fill">False</property>
-	    </packing>
-	  </child>
-
-	  <child>
-	    <widget class="GtkOptionMenu" id="add_rep_molecule_optionmenu">
-	      <property name="visible">True</property>
-	      <property name="can_focus">True</property>
-	      <property name="history">-1</property>
 	    </widget>
 	    <packing>
 	      <property name="padding">0</property>
@@ -58419,19 +57956,6 @@ Map to Sharpen/Blur:
 	  </child>
 
 	  <child>
-	    <widget class="GtkOptionMenu" id="map_sharpening_optionmenu">
-	      <property name="visible">True</property>
-	      <property name="can_focus">True</property>
-	      <property name="history">-1</property>
-	    </widget>
-	    <packing>
-	      <property name="padding">0</property>
-	      <property name="expand">False</property>
-	      <property name="fill">False</property>
-	    </packing>
-	  </child>
-
-	  <child>
 	    <widget class="GtkComboBox" id="map_sharpending_combobox">
 	      <property name="visible">True</property>
 	      <property name="add_tearoffs">False</property>
@@ -59195,15 +58719,6 @@ Look out for information in the console output.</property>
 	      <property name="bottom_padding">0</property>
 	      <property name="left_padding">12</property>
 	      <property name="right_padding">0</property>
-
-	      <child>
-		<widget class="GtkOptionMenu" id="remarks_browser_molecule_chooser_optionmenu">
-		  <property name="border_width">3</property>
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-	      </child>
 	    </widget>
 	  </child>
 
@@ -60939,20 +60454,6 @@ Bumps</property>
 	  <property name="visible">True</property>
 	  <property name="homogeneous">False</property>
 	  <property name="spacing">0</property>
-
-	  <child>
-	    <widget class="GtkOptionMenu" id="export_map_map_optionmenu">
-	      <property name="border_width">6</property>
-	      <property name="visible">True</property>
-	      <property name="can_focus">True</property>
-	      <property name="history">-1</property>
-	    </widget>
-	    <packing>
-	      <property name="padding">6</property>
-	      <property name="expand">False</property>
-	      <property name="fill">False</property>
-	    </packing>
-	  </child>
 
 	  <child>
 	    <widget class="GtkComboBox" id="export_map_map_combobox">

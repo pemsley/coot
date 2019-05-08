@@ -23,7 +23,7 @@
 
 #define GLADE_HOOKUP_OBJECT(component,widget,name) \
   g_object_set_data_full (G_OBJECT (component), name, \
-    gtk_widget_ref (widget), (GDestroyNotify) gtk_widget_unref)
+    g_object_ref (widget), (GDestroyNotify) g_object_unref)
 
 #define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name) \
   g_object_set_data (G_OBJECT (component), name, widget)
@@ -396,9 +396,9 @@ create_window1 (void)
   GtkWidget *model_toolbar_user_defined1;
   GtkWidget *gtkhtml_frame;
   GtkAccelGroup *accel_group;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   accel_group = gtk_accel_group_new ();
 
@@ -430,7 +430,7 @@ create_window1 (void)
   open_coordinates1 = gtk_image_menu_item_new_with_mnemonic ("Open Coordinates...");
   gtk_widget_show (open_coordinates1);
   gtk_container_add (GTK_CONTAINER (file1_menu), open_coordinates1);
-  gtk_tooltips_set_tip (tooltips, open_coordinates1, "pdb, cif or shelx res format", NULL);
+  // gtk_tooltips_set_tip (tooltips, open_coordinates1, "pdb, cif or shelx res format", NULL);
 
   image13943 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_MENU);
   gtk_widget_show (image13943);
@@ -447,7 +447,7 @@ create_window1 (void)
   open_dataset1 = gtk_image_menu_item_new_with_mnemonic ("Open MTZ, mmCIF, fcf or phs...");
   gtk_widget_show (open_dataset1);
   gtk_container_add (GTK_CONTAINER (file1_menu), open_dataset1);
-  gtk_tooltips_set_tip (tooltips, open_dataset1, "Create a map \"on the fly\" from mtz, phs or mmCIF data", NULL);
+  // gtk_tooltips_set_tip (tooltips, open_dataset1, "Create a map \"on the fly\" from mtz, phs or mmCIF data", NULL);
 
   image13945 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_MENU);
   gtk_widget_show (image13945);
@@ -456,7 +456,7 @@ create_window1 (void)
   open_map1 = gtk_image_menu_item_new_with_mnemonic ("Open Map...");
   gtk_widget_show (open_map1);
   gtk_container_add (GTK_CONTAINER (file1_menu), open_map1);
-  gtk_tooltips_set_tip (tooltips, open_map1, "Open a pre-calculated CCP4 map", NULL);
+  // gtk_tooltips_set_tip (tooltips, open_map1, "Open a pre-calculated CCP4 map", NULL);
 
   image13946 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_MENU);
   gtk_widget_show (image13946);
@@ -478,7 +478,7 @@ create_window1 (void)
   get_monomer1 = gtk_image_menu_item_new_with_mnemonic ("Get Monomer...");
   gtk_widget_show (get_monomer1);
   gtk_container_add (GTK_CONTAINER (file1_menu), get_monomer1);
-  gtk_tooltips_set_tip (tooltips, get_monomer1, "Give a 3-letter code and use libcheck to generate coordinates from REFMAC monomer library", NULL);
+  // gtk_tooltips_set_tip (tooltips, get_monomer1, "Give a 3-letter code and use libcheck to generate coordinates from REFMAC monomer library", NULL);
 
   image13948 = gtk_image_new_from_stock ("connect-to-ccp4.svg", GTK_ICON_SIZE_MENU);
   gtk_widget_show (image13948);
@@ -487,7 +487,7 @@ create_window1 (void)
   search_monomer_library1 = gtk_image_menu_item_new_with_mnemonic ("Search Monomer Library...");
   gtk_widget_show (search_monomer_library1);
   gtk_container_add (GTK_CONTAINER (file1_menu), search_monomer_library1);
-  gtk_tooltips_set_tip (tooltips, search_monomer_library1, "Search monomer names to find 3-letter code", NULL);
+  // gtk_tooltips_set_tip (tooltips, search_monomer_library1, "Search monomer names to find 3-letter code", NULL);
 
   image13949 = gtk_image_new_from_stock ("gtk-index", GTK_ICON_SIZE_MENU);
   gtk_widget_show (image13949);
@@ -496,7 +496,7 @@ create_window1 (void)
   get_pdb_using_code1 = gtk_image_menu_item_new_with_mnemonic ("Fetch PDB using Accession Code...");
   gtk_widget_show (get_pdb_using_code1);
   gtk_container_add (GTK_CONTAINER (file1_menu), get_pdb_using_code1);
-  gtk_tooltips_set_tip (tooltips, get_pdb_using_code1, "Get PDB Coordinates file from server using accession code", NULL);
+  // gtk_tooltips_set_tip (tooltips, get_pdb_using_code1, "Get PDB Coordinates file from server using accession code", NULL);
 
   image13950 = gtk_image_new_from_stock ("connect-to-oca.svg", GTK_ICON_SIZE_MENU);
   gtk_widget_show (image13950);
@@ -505,7 +505,7 @@ create_window1 (void)
   get_pdb_and_map_using_eds1 = gtk_image_menu_item_new_with_mnemonic ("Fetch PDB & Map using EDS...");
   gtk_widget_show (get_pdb_and_map_using_eds1);
   gtk_container_add (GTK_CONTAINER (file1_menu), get_pdb_and_map_using_eds1);
-  gtk_tooltips_set_tip (tooltips, get_pdb_and_map_using_eds1, "Use the Electron Density Server at the EBI to get coords and map... (Long live the EDS!)", NULL);
+  // gtk_tooltips_set_tip (tooltips, get_pdb_and_map_using_eds1, "Use the Electron Density Server at the EBI to get coords and map... (Long live the EDS!)", NULL);
 
   image13951 = gtk_image_new_from_stock ("connect-to-usf.svg", GTK_ICON_SIZE_MENU);
   gtk_widget_show (image13951);
@@ -586,7 +586,7 @@ create_window1 (void)
   curlew1 = gtk_image_menu_item_new_with_mnemonic ("Curlew");
   gtk_widget_show (curlew1);
   gtk_container_add (GTK_CONTAINER (file1_menu), curlew1);
-  gtk_tooltips_set_tip (tooltips, curlew1, "Coot's Extension Wrangler", NULL);
+  // gtk_tooltips_set_tip (tooltips, curlew1, "Coot's Extension Wrangler", NULL);
 
   separator9 = gtk_separator_menu_item_new ();
   gtk_widget_show (separator9);
@@ -596,7 +596,7 @@ create_window1 (void)
   exit1 = gtk_image_menu_item_new_with_mnemonic ("Exit");
   gtk_widget_show (exit1);
   gtk_container_add (GTK_CONTAINER (file1_menu), exit1);
-  gtk_tooltips_set_tip (tooltips, exit1, "bye", NULL);
+  // gtk_tooltips_set_tip (tooltips, exit1, "bye", NULL);
 
   image13958 = gtk_image_new_from_stock ("gtk-quit", GTK_ICON_SIZE_MENU);
   gtk_widget_show (image13958);
@@ -856,7 +856,7 @@ create_window1 (void)
   lsq_superpose1 = gtk_menu_item_new_with_mnemonic ("LSQ Superpose...");
   gtk_widget_show (lsq_superpose1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), lsq_superpose1);
-  gtk_tooltips_set_tip (tooltips, lsq_superpose1, "Least squares fit structures using residue range", NULL);
+  // gtk_tooltips_set_tip (tooltips, lsq_superpose1, "Least squares fit structures using residue range", NULL);
 
   calculate_map_tools = gtk_menu_item_new_with_mnemonic ("Map Tools...");
   gtk_widget_show (calculate_map_tools);
@@ -929,7 +929,7 @@ create_window1 (void)
   ssm_superposition1 = gtk_menu_item_new_with_mnemonic ("SSM Superpose...");
   gtk_widget_show (ssm_superposition1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), ssm_superposition1);
-  gtk_tooltips_set_tip (tooltips, ssm_superposition1, "Overlay protein structures using Secondary Structure", NULL);
+  // gtk_tooltips_set_tip (tooltips, ssm_superposition1, "Overlay protein structures using Secondary Structure", NULL);
 
   scripting_testing1 = gtk_image_menu_item_new_with_mnemonic ("Scripting...");
   gtk_widget_show (scripting_testing1);
@@ -1003,9 +1003,9 @@ create_window1 (void)
   map_and_mol_control1 = gtk_image_menu_item_new_with_mnemonic ("Display Manager...");
   gtk_widget_show (map_and_mol_control1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), map_and_mol_control1);
-  gtk_tooltips_set_tip (tooltips, map_and_mol_control1, "Control display and activity of maps and molecules", NULL);
+  // gtk_tooltips_set_tip (tooltips, map_and_mol_control1, "Control display and activity of maps and molecules", NULL);
   gtk_widget_add_accelerator (map_and_mol_control1, "activate", accel_group,
-                              GDK_F7, (GdkModifierType) 0,
+                              GDK_KEY_F7, (GdkModifierType) 0,
                               GTK_ACCEL_VISIBLE);
 
   image13989 = gtk_image_new_from_stock ("display-manager.svg", GTK_ICON_SIZE_MENU);
@@ -1016,7 +1016,7 @@ create_window1 (void)
   gtk_widget_show (display_only_active1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), display_only_active1);
   gtk_widget_add_accelerator (display_only_active1, "activate", accel_group,
-                              GDK_D, (GdkModifierType) GDK_SHIFT_MASK,
+                              GDK_KEY_D, (GdkModifierType) GDK_SHIFT_MASK,
                               GTK_ACCEL_VISIBLE);
 
   dragged_map1 = gtk_menu_item_new_with_mnemonic ("Dragged Map...");
@@ -1034,7 +1034,7 @@ create_window1 (void)
   gtk_widget_show (go_to_atom1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), go_to_atom1);
   gtk_widget_add_accelerator (go_to_atom1, "activate", accel_group,
-                              GDK_F6, (GdkModifierType) 0,
+                              GDK_KEY_F6, (GdkModifierType) 0,
                               GTK_ACCEL_VISIBLE);
 
   image13991 = gtk_image_new_from_stock ("go-to-atom.svg", GTK_ICON_SIZE_MENU);
@@ -1044,7 +1044,7 @@ create_window1 (void)
   ncs_ghost_control1 = gtk_image_menu_item_new_with_mnemonic ("NCS Ghost Control...");
   gtk_widget_show (ncs_ghost_control1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), ncs_ghost_control1);
-  gtk_tooltips_set_tip (tooltips, ncs_ghost_control1, "Non-crystallographic Ghost Controller", NULL);
+  // gtk_tooltips_set_tip (tooltips, ncs_ghost_control1, "Non-crystallographic Ghost Controller", NULL);
 
   image13992 = gtk_image_new_from_stock ("ghosts.svg", GTK_ICON_SIZE_MENU);
   gtk_widget_show (image13992);
@@ -1112,7 +1112,7 @@ create_window1 (void)
   gtk_widget_show (undo_last_navigation1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), undo_last_navigation1);
   gtk_widget_add_accelerator (undo_last_navigation1, "activate", accel_group,
-                              GDK_U, (GdkModifierType) 0,
+                              GDK_KEY_U, (GdkModifierType) 0,
                               GTK_ACCEL_VISIBLE);
 
   image13997 = gtk_image_new_from_stock ("gtk-undo", GTK_ICON_SIZE_MENU);
@@ -1136,7 +1136,7 @@ create_window1 (void)
   residue_info1 = gtk_image_menu_item_new_with_mnemonic ("Residue Info...");
   gtk_widget_show (residue_info1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), residue_info1);
-  gtk_tooltips_set_tip (tooltips, residue_info1, "Display atom names, temperature factors and occupances of all atoms in the residue", NULL);
+  // gtk_tooltips_set_tip (tooltips, residue_info1, "Display atom names, temperature factors and occupances of all atoms in the residue", NULL);
 
   image13999 = gtk_image_new_from_stock ("residue-info.svg", GTK_ICON_SIZE_MENU);
   gtk_widget_show (image13999);
@@ -1200,7 +1200,7 @@ create_window1 (void)
   ramachandran_differences_plot1 = gtk_image_menu_item_new_with_mnemonic ("Kleywegt Plot...");
   gtk_widget_show (ramachandran_differences_plot1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), ramachandran_differences_plot1);
-  gtk_tooltips_set_tip (tooltips, ramachandran_differences_plot1, "Ramachandran Difference Plot", NULL);
+  // gtk_tooltips_set_tip (tooltips, ramachandran_differences_plot1, "Ramachandran Difference Plot", NULL);
 
   image14006 = gtk_image_new_from_stock ("kleywegt.svg", GTK_ICON_SIZE_MENU);
   gtk_widget_show (image14006);
@@ -1241,7 +1241,7 @@ create_window1 (void)
   geometry_analysis1 = gtk_image_menu_item_new_with_mnemonic ("Geometry analysis");
   gtk_widget_show (geometry_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), geometry_analysis1);
-  gtk_tooltips_set_tip (tooltips, geometry_analysis1, "Flags distortions in Bond, Angles and Planes", NULL);
+  // gtk_tooltips_set_tip (tooltips, geometry_analysis1, "Flags distortions in Bond, Angles and Planes", NULL);
 
   image14011 = gtk_image_new_from_stock ("geom.svg", GTK_ICON_SIZE_MENU);
   gtk_widget_show (image14011);
@@ -1250,7 +1250,7 @@ create_window1 (void)
   peptide_omega_analysis1 = gtk_image_menu_item_new_with_mnemonic ("Peptide omega analysis");
   gtk_widget_show (peptide_omega_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), peptide_omega_analysis1);
-  gtk_tooltips_set_tip (tooltips, peptide_omega_analysis1, "Flags deviations from Trans Peptide", NULL);
+  // gtk_tooltips_set_tip (tooltips, peptide_omega_analysis1, "Flags deviations from Trans Peptide", NULL);
 
   image14012 = gtk_image_new_from_stock ("peptide-omega.svg", GTK_ICON_SIZE_MENU);
   gtk_widget_show (image14012);
@@ -1259,7 +1259,7 @@ create_window1 (void)
   temp_fact_variance_analysis1 = gtk_image_menu_item_new_with_mnemonic ("Temp. fact. variance analysis");
   gtk_widget_show (temp_fact_variance_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), temp_fact_variance_analysis1);
-  gtk_tooltips_set_tip (tooltips, temp_fact_variance_analysis1, "Flags Residues with Large Variance in Atom B factors", NULL);
+  // gtk_tooltips_set_tip (tooltips, temp_fact_variance_analysis1, "Flags Residues with Large Variance in Atom B factors", NULL);
 
   image14013 = gtk_image_new_from_stock ("temperature.svg", GTK_ICON_SIZE_MENU);
   gtk_widget_show (image14013);
@@ -1268,7 +1268,7 @@ create_window1 (void)
   temp_fact_analysis1 = gtk_image_menu_item_new_with_mnemonic ("Average Temp. fact. analysis");
   gtk_widget_show (temp_fact_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), temp_fact_analysis1);
-  gtk_tooltips_set_tip (tooltips, temp_fact_analysis1, "Flags Residues with severe discontinuities in Atom B factors", NULL);
+  // gtk_tooltips_set_tip (tooltips, temp_fact_analysis1, "Flags Residues with severe discontinuities in Atom B factors", NULL);
 
   image14014 = gtk_image_new_from_stock ("temperature.svg", GTK_ICON_SIZE_MENU);
   gtk_widget_show (image14014);
@@ -1277,7 +1277,7 @@ create_window1 (void)
   gln_and_asn_b_factor_outliers1 = gtk_image_menu_item_new_with_mnemonic ("GLN and ASN B-factor Outliers");
   gtk_widget_show (gln_and_asn_b_factor_outliers1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), gln_and_asn_b_factor_outliers1);
-  gtk_tooltips_set_tip (tooltips, gln_and_asn_b_factor_outliers1, "Nakagawa's Bees (probable flips):  identify OE1 and NE2 B-factor outliers in GLNs (similarly ASNs are analysed)", NULL);
+  // gtk_tooltips_set_tip (tooltips, gln_and_asn_b_factor_outliers1, "Nakagawa's Bees (probable flips):  identify OE1 and NE2 B-factor outliers in GLNs (similarly ASNs are analysed)", NULL);
 
   image14015 = gtk_image_new_from_stock ("gln-asn-b-factors.svg", GTK_ICON_SIZE_MENU);
   gtk_widget_show (image14015);
@@ -1286,7 +1286,7 @@ create_window1 (void)
   rotamer_analysis1 = gtk_image_menu_item_new_with_mnemonic ("Rotamer analysis");
   gtk_widget_show (rotamer_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), rotamer_analysis1);
-  gtk_tooltips_set_tip (tooltips, rotamer_analysis1, "Flags Unusual Rotamers, Missing Atoms and Nomenclature Errors", NULL);
+  // gtk_tooltips_set_tip (tooltips, rotamer_analysis1, "Flags Unusual Rotamers, Missing Atoms and Nomenclature Errors", NULL);
 
   image14016 = gtk_image_new_from_stock ("rotamers.svg", GTK_ICON_SIZE_MENU);
   gtk_widget_show (image14016);
@@ -1322,7 +1322,7 @@ create_window1 (void)
   remarks_browser1 = gtk_menu_item_new_with_mnemonic ("Header/Remarks Browser...");
   gtk_widget_show (remarks_browser1);
   gtk_container_add (GTK_CONTAINER (help1_menu), remarks_browser1);
-  gtk_tooltips_set_tip (tooltips, remarks_browser1, "View the REMARK cards from the PDB file in a dialog", NULL);
+  // gtk_tooltips_set_tip (tooltips, remarks_browser1, "View the REMARK cards from the PDB file in a dialog", NULL);
 
   on_line_docs_url1 = gtk_image_menu_item_new_with_mnemonic ("On-line Documentation...");
   gtk_widget_show (on_line_docs_url1);
@@ -1359,14 +1359,14 @@ create_window1 (void)
   coords_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, "Open Coords...");
   gtk_widget_show (coords_toolbutton);
   gtk_container_add (GTK_CONTAINER (main_toolbar), coords_toolbutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (coords_toolbutton), tooltips, "Open Coordinates File...", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (coords_toolbutton), tooltips, "Open Coordinates File...", NULL);
 
   tmp_image = gtk_image_new_from_stock ("gtk-zoom-fit", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   reset_view_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, " Reset View");
   gtk_widget_show (reset_view_toolbutton);
   gtk_container_add (GTK_CONTAINER (main_toolbar), reset_view_toolbutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (reset_view_toolbutton), tooltips, "Usage Note: click again to centre on a different molecule", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (reset_view_toolbutton), tooltips, "Usage Note: click again to centre on a different molecule", NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (reset_view_toolbutton), TRUE);
 
   tmp_image = gtk_image_new_from_stock ("display-manager.svg", tmp_toolbar_icon_size);
@@ -1374,7 +1374,7 @@ create_window1 (void)
   display_manager_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, " Display Manager");
   gtk_widget_show (display_manager_toolbutton);
   gtk_container_add (GTK_CONTAINER (main_toolbar), display_manager_toolbutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (display_manager_toolbutton), tooltips, "Display the dialog for displaying and undisplaying molecules and changing their representation (F7)", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (display_manager_toolbutton), tooltips, "Display the dialog for displaying and undisplaying molecules and changing their representation (F7)", NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (display_manager_toolbutton), TRUE);
 
   tmp_image = gtk_image_new_from_stock ("go-to-atom.svg", tmp_toolbar_icon_size);
@@ -1382,9 +1382,9 @@ create_window1 (void)
   go_to_atom_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, "Go To Atom...");
   gtk_widget_show (go_to_atom_toolbutton);
   gtk_container_add (GTK_CONTAINER (main_toolbar), go_to_atom_toolbutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (go_to_atom_toolbutton), tooltips, "Go To Atom... (F6)", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (go_to_atom_toolbutton), tooltips, "Go To Atom... (F6)", NULL);
   gtk_widget_add_accelerator (go_to_atom_toolbutton, "clicked", accel_group,
-                              GDK_F6, (GdkModifierType) 0,
+                              GDK_KEY_F6, (GdkModifierType) 0,
                               GTK_ACCEL_VISIBLE);
 
   tmp_image = gtk_image_new_from_stock ("go-to-ligand.svg", tmp_toolbar_icon_size);
@@ -1392,7 +1392,7 @@ create_window1 (void)
   go_to_ligand_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, "Go To Ligand");
   gtk_widget_show (go_to_ligand_toolbutton);
   gtk_container_add (GTK_CONTAINER (main_toolbar), go_to_ligand_toolbutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (go_to_ligand_toolbutton), tooltips, "Go To (Next) Ligand", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (go_to_ligand_toolbutton), tooltips, "Go To (Next) Ligand", NULL);
 
   separatortoolitem1 = (GtkWidget*) gtk_separator_tool_item_new ();
   gtk_widget_show (separatortoolitem1);
@@ -1538,7 +1538,7 @@ create_window1 (void)
   chirals_eventbox_docked = gtk_event_box_new ();
   gtk_widget_show (chirals_eventbox_docked);
   gtk_container_add (GTK_CONTAINER (frame191), chirals_eventbox_docked);
-  gtk_tooltips_set_tip (tooltips, chirals_eventbox_docked, "Chirals", NULL);
+  // gtk_tooltips_set_tip (tooltips, chirals_eventbox_docked, "Chirals", NULL);
 
   frame186 = gtk_frame_new (NULL);
   gtk_table_attach (GTK_TABLE (refinement_lights_table_docked), frame186, 0, 1, 0, 1,
@@ -1551,7 +1551,7 @@ create_window1 (void)
   bonds_eventbox_docked = gtk_event_box_new ();
   gtk_widget_show (bonds_eventbox_docked);
   gtk_container_add (GTK_CONTAINER (frame186), bonds_eventbox_docked);
-  gtk_tooltips_set_tip (tooltips, bonds_eventbox_docked, "Bonds", NULL);
+  // gtk_tooltips_set_tip (tooltips, bonds_eventbox_docked, "Bonds", NULL);
 
   frame187 = gtk_frame_new (NULL);
   gtk_table_attach (GTK_TABLE (refinement_lights_table_docked), frame187, 1, 2, 0, 1,
@@ -1564,7 +1564,7 @@ create_window1 (void)
   angles_eventbox_docked = gtk_event_box_new ();
   gtk_widget_show (angles_eventbox_docked);
   gtk_container_add (GTK_CONTAINER (frame187), angles_eventbox_docked);
-  gtk_tooltips_set_tip (tooltips, angles_eventbox_docked, "Angles", NULL);
+  // gtk_tooltips_set_tip (tooltips, angles_eventbox_docked, "Angles", NULL);
 
   frame188 = gtk_frame_new (NULL);
   gtk_table_attach (GTK_TABLE (refinement_lights_table_docked), frame188, 2, 3, 0, 1,
@@ -1578,7 +1578,7 @@ create_window1 (void)
   torsions_eventbox_docked = gtk_event_box_new ();
   gtk_widget_show (torsions_eventbox_docked);
   gtk_container_add (GTK_CONTAINER (frame188), torsions_eventbox_docked);
-  gtk_tooltips_set_tip (tooltips, torsions_eventbox_docked, "Torsions", NULL);
+  // gtk_tooltips_set_tip (tooltips, torsions_eventbox_docked, "Torsions", NULL);
 
   frame189 = gtk_frame_new (NULL);
   gtk_table_attach (GTK_TABLE (refinement_lights_table_docked), frame189, 3, 4, 0, 1,
@@ -1591,7 +1591,7 @@ create_window1 (void)
   planes_eventbox_docked = gtk_event_box_new ();
   gtk_widget_show (planes_eventbox_docked);
   gtk_container_add (GTK_CONTAINER (frame189), planes_eventbox_docked);
-  gtk_tooltips_set_tip (tooltips, planes_eventbox_docked, "Planes", NULL);
+  // gtk_tooltips_set_tip (tooltips, planes_eventbox_docked, "Planes", NULL);
 
   frame193 = gtk_frame_new (NULL);
   gtk_table_attach (GTK_TABLE (refinement_lights_table_docked), frame193, 7, 8, 0, 1,
@@ -1604,7 +1604,7 @@ create_window1 (void)
   cis_peptides_eventbox_docked = gtk_event_box_new ();
   gtk_widget_show (cis_peptides_eventbox_docked);
   gtk_container_add (GTK_CONTAINER (frame193), cis_peptides_eventbox_docked);
-  gtk_tooltips_set_tip (tooltips, cis_peptides_eventbox_docked, "WARNING:: CIS peptides", NULL);
+  // gtk_tooltips_set_tip (tooltips, cis_peptides_eventbox_docked, "WARNING:: CIS peptides", NULL);
 
   frame192 = gtk_frame_new (NULL);
   gtk_table_attach (GTK_TABLE (refinement_lights_table_docked), frame192, 5, 6, 0, 1,
@@ -1617,7 +1617,7 @@ create_window1 (void)
   non_bonded_contacts_eventbox_docked = gtk_event_box_new ();
   gtk_widget_show (non_bonded_contacts_eventbox_docked);
   gtk_container_add (GTK_CONTAINER (frame192), non_bonded_contacts_eventbox_docked);
-  gtk_tooltips_set_tip (tooltips, non_bonded_contacts_eventbox_docked, "Non-bonded Contacts", NULL);
+  // gtk_tooltips_set_tip (tooltips, non_bonded_contacts_eventbox_docked, "Non-bonded Contacts", NULL);
 
   frame190 = gtk_frame_new (NULL);
   gtk_table_attach (GTK_TABLE (refinement_lights_table_docked), frame190, 6, 7, 0, 1,
@@ -1630,12 +1630,12 @@ create_window1 (void)
   rama_eventbox_docked = gtk_event_box_new ();
   gtk_widget_show (rama_eventbox_docked);
   gtk_container_add (GTK_CONTAINER (frame190), rama_eventbox_docked);
-  gtk_tooltips_set_tip (tooltips, rama_eventbox_docked, "Ramachandran Plot deviance", NULL);
+  // gtk_tooltips_set_tip (tooltips, rama_eventbox_docked, "Ramachandran Plot deviance", NULL);
 
   accept_reject_docked_reverse_button = gtk_button_new ();
   gtk_box_pack_start (GTK_BOX (hbox274), accept_reject_docked_reverse_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (accept_reject_docked_reverse_button), 1);
-  GTK_WIDGET_UNSET_FLAGS (accept_reject_docked_reverse_button, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (accept_reject_docked_reverse_button, GTK_CAN_FOCUS);
 
   alignment135 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment135);
@@ -1666,7 +1666,7 @@ create_window1 (void)
   button25 = gtk_button_new ();
   gtk_widget_show (button25);
   gtk_box_pack_start (GTK_BOX (hbox275), button25, TRUE, TRUE, 2);
-  GTK_WIDGET_SET_FLAGS (button25, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button25, GTK_CAN_DEFAULT);
 
   alignment108 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment108);
@@ -1687,7 +1687,7 @@ create_window1 (void)
   button26 = gtk_button_new ();
   gtk_widget_show (button26);
   gtk_box_pack_start (GTK_BOX (hbox275), button26, TRUE, TRUE, 2);
-  GTK_WIDGET_SET_FLAGS (button26, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button26, GTK_CAN_DEFAULT);
 
   alignment109 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment109);
@@ -1735,7 +1735,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (model_fit_refine_toolbar_handlebox), model_toolbar);
   gtk_container_set_border_width (GTK_CONTAINER (model_toolbar), 3);
   gtk_toolbar_set_style (GTK_TOOLBAR (model_toolbar), GTK_TOOLBAR_ICONS);
-  gtk_toolbar_set_orientation (GTK_TOOLBAR (model_toolbar), GTK_ORIENTATION_VERTICAL);
+  gtk_orientable_set_orientation (GTK_ORIENTABLE (model_toolbar), GTK_ORIENTATION_VERTICAL);
   tmp_toolbar_icon_size = gtk_toolbar_get_icon_size (GTK_TOOLBAR (model_toolbar));
 
   toolitem4 = (GtkWidget*) gtk_tool_item_new ();
@@ -1745,7 +1745,7 @@ create_window1 (void)
   model_toolbar_refine_control_button = gtk_button_new_with_mnemonic ("R/RC");
   gtk_widget_show (model_toolbar_refine_control_button);
   gtk_container_add (GTK_CONTAINER (toolitem4), model_toolbar_refine_control_button);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_refine_control_button, "Refine/Regularize Control...", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_toolbar_refine_control_button, "Refine/Regularize Control...", NULL);
   gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_refine_control_button), FALSE);
 
   toolitem5 = (GtkWidget*) gtk_tool_item_new ();
@@ -1755,7 +1755,7 @@ create_window1 (void)
   model_toolbar_select_map_button = gtk_button_new_with_mnemonic ("Map");
   gtk_widget_show (model_toolbar_select_map_button);
   gtk_container_add (GTK_CONTAINER (toolitem5), model_toolbar_select_map_button);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_select_map_button, "Select Map...", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_toolbar_select_map_button, "Select Map...", NULL);
   gtk_button_set_focus_on_click (GTK_BUTTON (model_toolbar_select_map_button), FALSE);
 
   model_toolbar_refine_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
@@ -1765,7 +1765,7 @@ create_window1 (void)
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_refine_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_refine_togglebutton);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_refine_togglebutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_refine_togglebutton), tooltips, "Real Space Refine Zone", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_refine_togglebutton), tooltips, "Real Space Refine Zone", NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (model_toolbar_refine_togglebutton), TRUE);
 
   model_toolbar_regularize_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
@@ -1775,7 +1775,7 @@ create_window1 (void)
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_regularize_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_regularize_togglebutton);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_regularize_togglebutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_regularize_togglebutton), tooltips, "Send in the Bond Angels!    Ahem, I mean \"Regularize Zone (click 2 atoms)\"", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_regularize_togglebutton), tooltips, "Send in the Bond Angels!    Ahem, I mean \"Regularize Zone (click 2 atoms)\"", NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (model_toolbar_regularize_togglebutton), TRUE);
 
   tmp_image = gtk_image_new_from_stock ("anchor.svg", tmp_toolbar_icon_size);
@@ -1783,7 +1783,7 @@ create_window1 (void)
   model_toolbar_fixed_atoms_button = (GtkWidget*) gtk_tool_button_new (tmp_image, "Fixed Atoms...");
   gtk_widget_show (model_toolbar_fixed_atoms_button);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_fixed_atoms_button);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_fixed_atoms_button), tooltips, "Fix Atoms in Refinement and Regularization...", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_fixed_atoms_button), tooltips, "Fix Atoms in Refinement and Regularization...", NULL);
 
   model_toolbar_rigid_body_fit_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_rigid_body_fit_togglebutton), "Rigid Body Fit Zone");
@@ -1792,7 +1792,7 @@ create_window1 (void)
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_rigid_body_fit_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_rigid_body_fit_togglebutton);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rigid_body_fit_togglebutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rigid_body_fit_togglebutton), tooltips, "Rigid Body Fit Zone (click on 2 atoms)", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rigid_body_fit_togglebutton), tooltips, "Rigid Body Fit Zone (click on 2 atoms)", NULL);
 
   #ifdef GTK_TYPE_MENU_TOOL_BUTTON
   tmp_image = gtk_image_new_from_stock ("rtz.svg", tmp_toolbar_icon_size);
@@ -1801,7 +1801,7 @@ create_window1 (void)
   gtk_widget_show (model_toolbar_rot_trans_toolbutton);
   gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_rot_trans_toolbutton), FALSE);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rot_trans_toolbutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rot_trans_toolbutton), tooltips, "Rotate Translate Zone/Chain/Molecule", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rot_trans_toolbutton), tooltips, "Rotate Translate Zone/Chain/Molecule", NULL);
 #endif
 
 
@@ -1812,7 +1812,7 @@ create_window1 (void)
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_auto_fit_rotamer_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_auto_fit_rotamer_togglebutton);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_auto_fit_rotamer_togglebutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_auto_fit_rotamer_togglebutton), tooltips, "Auto Fit Rotamer (click on an atom)", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_auto_fit_rotamer_togglebutton), tooltips, "Auto Fit Rotamer (click on an atom)", NULL);
 
   model_toolbar_rotamers_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_rotamers_togglebutton), "Rotamers...");
@@ -1821,7 +1821,7 @@ create_window1 (void)
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_rotamers_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_rotamers_togglebutton);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rotamers_togglebutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rotamers_togglebutton), tooltips, "Rotamers... (click on an atom)", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rotamers_togglebutton), tooltips, "Rotamers... (click on an atom)", NULL);
 
   model_toolbar_edit_chi_angles_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_edit_chi_angles_togglebutton), "Edit Chi Angles");
@@ -1830,7 +1830,7 @@ create_window1 (void)
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_edit_chi_angles_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_edit_chi_angles_togglebutton);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_edit_chi_angles_togglebutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_edit_chi_angles_togglebutton), tooltips, "Edit Chi Angles (click on an atom)", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_edit_chi_angles_togglebutton), tooltips, "Edit Chi Angles (click on an atom)", NULL);
 
   model_toolbar_torsion_general_toggletoolbutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_torsion_general_toggletoolbutton), "Torsion General");
@@ -1839,7 +1839,7 @@ create_window1 (void)
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_torsion_general_toggletoolbutton), tmp_image);
   gtk_widget_show (model_toolbar_torsion_general_toggletoolbutton);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_torsion_general_toggletoolbutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_torsion_general_toggletoolbutton), tooltips, "Torsion General", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_torsion_general_toggletoolbutton), tooltips, "Torsion General", NULL);
 
   model_toolbar_flip_peptide_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_flip_peptide_togglebutton), "Flip Peptide");
@@ -1848,7 +1848,7 @@ create_window1 (void)
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_flip_peptide_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_flip_peptide_togglebutton);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_flip_peptide_togglebutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_flip_peptide_togglebutton), tooltips, "Flip peptide... (click on an atom)", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_flip_peptide_togglebutton), tooltips, "Flip peptide... (click on an atom)", NULL);
 
   model_toolbar_sidechain_180_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_sidechain_180_togglebutton), " Sidechain 180\302\260 Flip");
@@ -1857,7 +1857,7 @@ create_window1 (void)
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_sidechain_180_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_sidechain_180_togglebutton);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_sidechain_180_togglebutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_sidechain_180_togglebutton), tooltips, "Flip sidechain 180\302\260 (click on an atom)", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_sidechain_180_togglebutton), tooltips, "Flip sidechain 180\302\260 (click on an atom)", NULL);
 
   model_toolbar_edit_backbone_torsions_toggletoolbutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_edit_backbone_torsions_toggletoolbutton), "Edit Backbone Torsions");
@@ -1866,7 +1866,7 @@ create_window1 (void)
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_edit_backbone_torsions_toggletoolbutton), tmp_image);
   gtk_widget_show (model_toolbar_edit_backbone_torsions_toggletoolbutton);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_edit_backbone_torsions_toggletoolbutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_edit_backbone_torsions_toggletoolbutton), tooltips, "Change Residue's Phi and Psi", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_edit_backbone_torsions_toggletoolbutton), tooltips, "Change Residue's Phi and Psi", NULL);
 
   model_toolbar_hsep_toolitem = (GtkWidget*) gtk_tool_item_new ();
   gtk_widget_show (model_toolbar_hsep_toolitem);
@@ -1891,7 +1891,7 @@ create_window1 (void)
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_mutate_and_autofit_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_mutate_and_autofit_togglebutton);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_mutate_and_autofit_togglebutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_mutate_and_autofit_togglebutton), tooltips, "Mutate & AutoFit... (click on an atom)", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_mutate_and_autofit_togglebutton), tooltips, "Mutate & AutoFit... (click on an atom)", NULL);
 
   model_toolbar_simple_mutate_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_simple_mutate_togglebutton), "Simple Mutate...");
@@ -1900,13 +1900,13 @@ create_window1 (void)
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_simple_mutate_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_simple_mutate_togglebutton);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_simple_mutate_togglebutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_simple_mutate_togglebutton), tooltips, "Simple Mutate (mutates amino acid residues and nucleic acids) A simple modelling tool - no map fitting happens", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_simple_mutate_togglebutton), tooltips, "Simple Mutate (mutates amino acid residues and nucleic acids) A simple modelling tool - no map fitting happens", NULL);
 
   tmp_image = gtk_image_new_from_stock ("add-water.svg", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_find_water_button = (GtkWidget*) gtk_tool_button_new (tmp_image, "Find Waters...");
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_find_water_button);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_find_water_button), tooltips, "Solvate...", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_find_water_button), tooltips, "Solvate...", NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (model_toolbar_find_water_button), TRUE);
 
   model_toolbar_add_terminal_residue_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
@@ -1916,14 +1916,14 @@ create_window1 (void)
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_add_terminal_residue_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_add_terminal_residue_togglebutton);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_add_terminal_residue_togglebutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_add_terminal_residue_togglebutton), tooltips, "Add Residue...", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_add_terminal_residue_togglebutton), tooltips, "Add Residue...", NULL);
 
   tmp_image = gtk_image_new_from_stock ("add-alt-conf.svg", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_add_alt_conf_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, "Add Alt Conf...");
   gtk_widget_show (model_toolbar_add_alt_conf_toolbutton);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_add_alt_conf_toolbutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_add_alt_conf_toolbutton), tooltips, "Add Alternate (Alternative) Conformation to a Residue", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_add_alt_conf_toolbutton), tooltips, "Add Alternate (Alternative) Conformation to a Residue", NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (model_toolbar_add_alt_conf_toolbutton), TRUE);
 
   tmp_image = gtk_image_new_from_stock ("atom-at-pointer.svg", tmp_toolbar_icon_size);
@@ -1931,35 +1931,35 @@ create_window1 (void)
   model_toolbar_add_atom_button = (GtkWidget*) gtk_tool_button_new (tmp_image, "Place Atom At Pointer");
   gtk_widget_show (model_toolbar_add_atom_button);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_add_atom_button);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_add_atom_button), tooltips, "Place Atom at Pointer...", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_add_atom_button), tooltips, "Place Atom at Pointer...", NULL);
 
   tmp_image = gtk_image_new_from_stock ("gtk-clear", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_clear_pending_picks_button = (GtkWidget*) gtk_tool_button_new (tmp_image, "Clear Pending Picks");
   gtk_widget_show (model_toolbar_clear_pending_picks_button);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_clear_pending_picks_button);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_clear_pending_picks_button), tooltips, "Clear Pending Picks", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_clear_pending_picks_button), tooltips, "Clear Pending Picks", NULL);
 
   tmp_image = gtk_image_new_from_stock ("gtk-delete", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_delete_button = (GtkWidget*) gtk_tool_button_new (tmp_image, "Delete...");
   gtk_widget_show (model_toolbar_delete_button);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_delete_button);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_delete_button), tooltips, "Delete Item...", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_delete_button), tooltips, "Delete Item...", NULL);
 
   tmp_image = gtk_image_new_from_stock ("gtk-undo", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_undo_button = (GtkWidget*) gtk_tool_button_new (tmp_image, "Undo");
   gtk_widget_show (model_toolbar_undo_button);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_undo_button);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_undo_button), tooltips, "Undo", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_undo_button), tooltips, "Undo", NULL);
 
   tmp_image = gtk_image_new_from_stock ("gtk-redo", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_redo_button = (GtkWidget*) gtk_tool_button_new (tmp_image, "Redo");
   gtk_widget_show (model_toolbar_redo_button);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_redo_button);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_redo_button), tooltips, "Redo", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_redo_button), tooltips, "Redo", NULL);
 
   model_toolbar_hsep_toolitem2 = (GtkWidget*) gtk_tool_item_new ();
   gtk_widget_show (model_toolbar_hsep_toolitem2);
@@ -1982,7 +1982,7 @@ create_window1 (void)
   model_toolbar_refmac_button = (GtkWidget*) gtk_tool_button_new (tmp_image, "Run Refmac...");
   gtk_widget_show (model_toolbar_refmac_button);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_refmac_button);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_refmac_button), tooltips, "Press to run Refmac", NULL);
+  // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_refmac_button), tooltips, "Press to run Refmac", NULL);
 
   toolitem29 = (GtkWidget*) gtk_tool_item_new ();
   gtk_widget_show (toolitem29);
@@ -2004,7 +2004,7 @@ create_window1 (void)
   model_toolbar_menubar1 = gtk_menu_bar_new ();
   gtk_widget_show (model_toolbar_menubar1);
   gtk_container_add (GTK_CONTAINER (alignment130), model_toolbar_menubar1);
-  gtk_tooltips_set_tip (tooltips, model_toolbar_menubar1, "Use this to change between text, icons or both", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_toolbar_menubar1, "Use this to change between text, icons or both", NULL);
 
   model_toolbar_setting1 = gtk_image_menu_item_new_with_mnemonic (" ");
   gtk_widget_show (model_toolbar_setting1);
@@ -2579,7 +2579,7 @@ create_window1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (window1, window1, "window1");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(window1, window1, "window1");
   GLADE_HOOKUP_OBJECT (window1, main_window_hbox, "main_window_hbox");
   GLADE_HOOKUP_OBJECT (window1, main_window_model_fit_dialog_frame_left, "main_window_model_fit_dialog_frame_left");
   GLADE_HOOKUP_OBJECT (window1, vbox1, "vbox1");
@@ -2940,7 +2940,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_all_icons, "model_toolbar_all_icons");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_user_defined1, "model_toolbar_user_defined1");
   GLADE_HOOKUP_OBJECT (window1, gtkhtml_frame, "gtkhtml_frame");
-  GLADE_HOOKUP_OBJECT_NO_REF (window1, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(window1, tooltips, "tooltips");
 
   gtk_widget_grab_default (button25);
   gtk_window_add_accel_group (GTK_WINDOW (window1), accel_group);
@@ -3010,9 +3010,9 @@ create_column_label_window (void)
   GtkWidget *image1505;
   GtkWidget *label361;
   GtkWidget *label8;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   column_label_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title (GTK_WINDOW (column_label_window), "Column Label Assignment");
@@ -3034,7 +3034,7 @@ create_column_label_window (void)
   column_label_expert_mode_button = gtk_button_new_with_mnemonic ("Expert Mode?");
   gtk_widget_show (column_label_expert_mode_button);
   gtk_box_pack_start (GTK_BOX (hbox88), column_label_expert_mode_button, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, column_label_expert_mode_button, "When clicked, add anomalous and resolution limit options (generally not needed)", NULL);
+  // gtk_tooltips_set_tip (tooltips, column_label_expert_mode_button, "When clicked, add anomalous and resolution limit options (generally not needed)", NULL);
 
   label1 = gtk_label_new ("Column Labels for Map Synthesis:");
   gtk_widget_show (label1);
@@ -3102,7 +3102,7 @@ create_column_label_window (void)
   gtk_widget_show (use_weights_checkbutton);
   gtk_box_pack_start (GTK_BOX (hbox15), use_weights_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (use_weights_checkbutton), 4);
-  gtk_tooltips_set_tip (tooltips, use_weights_checkbutton, "Weights are usually used for experimental phasing.  When making a map from REFMAC output one (almost) never needs Weights.", NULL);
+  // gtk_tooltips_set_tip (tooltips, use_weights_checkbutton, "Weights are usually used for experimental phasing.  When making a map from REFMAC output one (almost) never needs Weights.", NULL);
 
   column_label_window_weights_hbox = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (column_label_window_weights_hbox);
@@ -3167,7 +3167,7 @@ create_column_label_window (void)
   difference_map_checkbutton = gtk_check_button_new_with_mnemonic ("Is a Difference Map");
   gtk_widget_show (difference_map_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox3), difference_map_checkbutton, FALSE, FALSE, 7);
-  gtk_tooltips_set_tip (tooltips, difference_map_checkbutton, "See Section 6.5 of the User Manual for default Diference Map colouring.", NULL);
+  // gtk_tooltips_set_tip (tooltips, difference_map_checkbutton, "See Section 6.5 of the User Manual for default Diference Map colouring.", NULL);
 
   hseparator9 = gtk_hseparator_new ();
   gtk_widget_show (hseparator9);
@@ -3176,7 +3176,7 @@ create_column_label_window (void)
   refmac_column_labels_checkbutton = gtk_check_button_new_with_mnemonic ("Assign Labels for Refmac?");
   gtk_widget_show (refmac_column_labels_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox3), refmac_column_labels_checkbutton, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, refmac_column_labels_checkbutton, "If you want to use these data to run refmac, you will need to assign the columns for the observations, the sigmas thereof and the R free...", NULL);
+  // gtk_tooltips_set_tip (tooltips, refmac_column_labels_checkbutton, "If you want to use these data to run refmac, you will need to assign the columns for the observations, the sigmas thereof and the R free...", NULL);
 
   column_label_refmac_frame = gtk_frame_new (NULL);
   gtk_widget_show (column_label_refmac_frame);
@@ -3237,7 +3237,7 @@ create_column_label_window (void)
   column_label_ok_button = gtk_button_new ();
   gtk_widget_show (column_label_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox3), column_label_ok_button, TRUE, TRUE, 6);
-  GTK_WIDGET_SET_FLAGS (column_label_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (column_label_ok_button, GTK_CAN_DEFAULT);
 
   alignment35 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment35);
@@ -3258,7 +3258,7 @@ create_column_label_window (void)
   column_label_cancel_button = gtk_button_new ();
   gtk_widget_show (column_label_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox3), column_label_cancel_button, TRUE, TRUE, 6);
-  GTK_WIDGET_SET_FLAGS (column_label_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (column_label_cancel_button, GTK_CAN_DEFAULT);
 
   alignment36 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment36);
@@ -3300,7 +3300,7 @@ create_column_label_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (column_label_window, column_label_window, "column_label_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(column_label_window, column_label_window, "column_label_window");
   GLADE_HOOKUP_OBJECT (column_label_window, vbox2, "vbox2");
   GLADE_HOOKUP_OBJECT (column_label_window, hbox88, "hbox88");
   GLADE_HOOKUP_OBJECT (column_label_window, label177, "label177");
@@ -3359,7 +3359,7 @@ create_column_label_window (void)
   GLADE_HOOKUP_OBJECT (column_label_window, image1505, "image1505");
   GLADE_HOOKUP_OBJECT (column_label_window, label361, "label361");
   GLADE_HOOKUP_OBJECT (column_label_window, label8, "label8");
-  GLADE_HOOKUP_OBJECT_NO_REF (column_label_window, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(column_label_window, tooltips, "tooltips");
 
   gtk_widget_grab_focus (column_label_ok_button);
   gtk_widget_grab_default (column_label_ok_button);
@@ -3407,7 +3407,7 @@ create_clipping_window (void)
   gtk_widget_show (clipping_button);
   gtk_box_pack_start (GTK_BOX (vbox4), clipping_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (clipping_button), 6);
-  GTK_WIDGET_SET_FLAGS (clipping_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (clipping_button, GTK_CAN_DEFAULT);
 
   alignment24 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment24);
@@ -3430,7 +3430,7 @@ create_clipping_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (clipping_window, clipping_window, "clipping_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(clipping_window, clipping_window, "clipping_window");
   GLADE_HOOKUP_OBJECT (clipping_window, vbox4, "vbox4");
   GLADE_HOOKUP_OBJECT (clipping_window, label4, "label4");
   GLADE_HOOKUP_OBJECT (clipping_window, frame3, "frame3");
@@ -3488,9 +3488,9 @@ create_global_map_properties_window (void)
   GtkWidget *hbox177;
   GtkWidget *image1495;
   GtkWidget *label351;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   global_map_properties_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title (GTK_WINDOW (global_map_properties_window), "Global map properties window");
@@ -3597,7 +3597,7 @@ create_global_map_properties_window (void)
   map_sampling_rate_entry = gtk_entry_new ();
   gtk_widget_show (map_sampling_rate_entry);
   gtk_box_pack_start (GTK_BOX (hbox42), map_sampling_rate_entry, FALSE, TRUE, 0);
-  gtk_tooltips_set_tip (tooltips, map_sampling_rate_entry, "Shannon Sampling multiplier. 1.5 is the standard value. Use larger numbers for smoother maps", NULL);
+  // gtk_tooltips_set_tip (tooltips, map_sampling_rate_entry, "Shannon Sampling multiplier. 1.5 is the standard value. Use larger numbers for smoother maps", NULL);
 
   frame49 = gtk_frame_new (NULL);
   gtk_widget_show (frame49);
@@ -3629,7 +3629,7 @@ create_global_map_properties_window (void)
   density_ok_button = gtk_button_new ();
   gtk_widget_show (density_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox6), density_ok_button, TRUE, TRUE, 10);
-  GTK_WIDGET_SET_FLAGS (density_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (density_ok_button, GTK_CAN_DEFAULT);
 
   alignment25 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment25);
@@ -3650,7 +3650,7 @@ create_global_map_properties_window (void)
   density_cancel = gtk_button_new ();
   gtk_widget_show (density_cancel);
   gtk_box_pack_start (GTK_BOX (hbox6), density_cancel, TRUE, TRUE, 10);
-  GTK_WIDGET_SET_FLAGS (density_cancel, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (density_cancel, GTK_CAN_DEFAULT);
 
   alignment26 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment26);
@@ -3688,7 +3688,7 @@ create_global_map_properties_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (global_map_properties_window, global_map_properties_window, "global_map_properties_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(global_map_properties_window, global_map_properties_window, "global_map_properties_window");
   GLADE_HOOKUP_OBJECT (global_map_properties_window, map_properties_vbox, "map_properties_vbox");
   GLADE_HOOKUP_OBJECT (global_map_properties_window, label5, "label5");
   GLADE_HOOKUP_OBJECT (global_map_properties_window, frame4, "frame4");
@@ -3728,7 +3728,7 @@ create_global_map_properties_window (void)
   GLADE_HOOKUP_OBJECT (global_map_properties_window, hbox177, "hbox177");
   GLADE_HOOKUP_OBJECT (global_map_properties_window, image1495, "image1495");
   GLADE_HOOKUP_OBJECT (global_map_properties_window, label351, "label351");
-  GLADE_HOOKUP_OBJECT_NO_REF (global_map_properties_window, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(global_map_properties_window, tooltips, "tooltips");
 
   gtk_widget_grab_focus (density_ok_button);
   gtk_widget_grab_default (density_ok_button);
@@ -3791,7 +3791,7 @@ create_fps_window (void)
   gtk_widget_show (fps_window_ok_button);
   gtk_box_pack_start (GTK_BOX (vbox6), fps_window_ok_button, FALSE, FALSE, 6);
   gtk_container_set_border_width (GTK_CONTAINER (fps_window_ok_button), 8);
-  GTK_WIDGET_SET_FLAGS (fps_window_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (fps_window_ok_button, GTK_CAN_DEFAULT);
 
   alignment27 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment27);
@@ -3814,7 +3814,7 @@ create_fps_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (fps_window, fps_window, "fps_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(fps_window, fps_window, "fps_window");
   GLADE_HOOKUP_OBJECT (fps_window, vbox6, "vbox6");
   GLADE_HOOKUP_OBJECT (fps_window, label9, "label9");
   GLADE_HOOKUP_OBJECT (fps_window, frame5, "frame5");
@@ -3887,7 +3887,7 @@ create_active_map_window (void)
   gtk_widget_show (active_map_ok_button);
   gtk_box_pack_start (GTK_BOX (vbox8), active_map_ok_button, FALSE, FALSE, 9);
   gtk_container_set_border_width (GTK_CONTAINER (active_map_ok_button), 10);
-  GTK_WIDGET_SET_FLAGS (active_map_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (active_map_ok_button, GTK_CAN_DEFAULT);
 
   alignment28 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment28);
@@ -3910,7 +3910,7 @@ create_active_map_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (active_map_window, active_map_window, "active_map_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(active_map_window, active_map_window, "active_map_window");
   GLADE_HOOKUP_OBJECT (active_map_window, vbox8, "vbox8");
   GLADE_HOOKUP_OBJECT (active_map_window, label10, "label10");
   GLADE_HOOKUP_OBJECT (active_map_window, frame6, "frame6");
@@ -4167,7 +4167,7 @@ create_show_symmetry_window (void)
   show_symmetry_apply_button = gtk_button_new ();
   gtk_widget_show (show_symmetry_apply_button);
   gtk_box_pack_start (GTK_BOX (hbox133), show_symmetry_apply_button, TRUE, TRUE, 4);
-  GTK_WIDGET_SET_FLAGS (show_symmetry_apply_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (show_symmetry_apply_button, GTK_CAN_DEFAULT);
 
   alignment21 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment21);
@@ -4188,7 +4188,7 @@ create_show_symmetry_window (void)
   show_symmetry_ok_button = gtk_button_new ();
   gtk_widget_show (show_symmetry_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox133), show_symmetry_ok_button, TRUE, TRUE, 4);
-  GTK_WIDGET_SET_FLAGS (show_symmetry_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (show_symmetry_ok_button, GTK_CAN_DEFAULT);
 
   alignment22 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment22);
@@ -4229,7 +4229,7 @@ create_show_symmetry_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (show_symmetry_window, show_symmetry_window, "show_symmetry_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(show_symmetry_window, show_symmetry_window, "show_symmetry_window");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, vbox10, "vbox10");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, label11, "label11");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, frame163, "frame163");
@@ -4309,7 +4309,7 @@ create_about_window (void)
   gtk_widget_show (scrolledwindow1);
   gtk_box_pack_start (GTK_BOX (vbox14), scrolledwindow1, TRUE, TRUE, 0);
   gtk_widget_set_size_request (scrolledwindow1, 220, 174);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow1, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow1, GTK_CAN_FOCUS);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow1), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow1), GTK_SHADOW_IN);
 
@@ -4327,7 +4327,7 @@ create_about_window (void)
   gtk_widget_show (about_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox123), about_ok_button, TRUE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (about_ok_button), 8);
-  GTK_WIDGET_SET_FLAGS (about_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (about_ok_button, GTK_CAN_DEFAULT);
 
   alignment23 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment23);
@@ -4348,7 +4348,7 @@ create_about_window (void)
   about_other_button = gtk_button_new_with_mnemonic ("  Other...   ");
   gtk_box_pack_start (GTK_BOX (hbox123), about_other_button, TRUE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (about_other_button), 8);
-  GTK_WIDGET_SET_FLAGS (about_other_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (about_other_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) about_ok_button, "clicked",
                     G_CALLBACK (on_about_ok_button_clicked),
@@ -4358,7 +4358,7 @@ create_about_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (about_window, about_window, "about_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(about_window, about_window, "about_window");
   GLADE_HOOKUP_OBJECT (about_window, vbox14, "vbox14");
   GLADE_HOOKUP_OBJECT (about_window, scrolledwindow1, "scrolledwindow1");
   GLADE_HOOKUP_OBJECT (about_window, about_window_text, "about_window_text");
@@ -4562,7 +4562,7 @@ create_aniso_window (void)
   gtk_widget_show (show_aniso_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox151), show_aniso_ok_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (show_aniso_ok_button), 4);
-  GTK_WIDGET_SET_FLAGS (show_aniso_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (show_aniso_ok_button, GTK_CAN_DEFAULT);
 
   alignment29 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment29);
@@ -4584,7 +4584,7 @@ create_aniso_window (void)
   gtk_widget_show (show_aniso_close_button);
   gtk_box_pack_start (GTK_BOX (hbox151), show_aniso_close_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (show_aniso_close_button), 4);
-  GTK_WIDGET_SET_FLAGS (show_aniso_close_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (show_aniso_close_button, GTK_CAN_DEFAULT);
 
   alignment30 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment30);
@@ -4610,7 +4610,7 @@ create_aniso_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (aniso_window, aniso_window, "aniso_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(aniso_window, aniso_window, "aniso_window");
   GLADE_HOOKUP_OBJECT (aniso_window, vbox16, "vbox16");
   GLADE_HOOKUP_OBJECT (aniso_window, frame12, "frame12");
   GLADE_HOOKUP_OBJECT (aniso_window, vbox17, "vbox17");
@@ -4766,7 +4766,7 @@ create_smooth_scroll_window (void)
   gtk_widget_show (smooth_scrolling_window_ok_button);
   gtk_box_pack_start (GTK_BOX (vbox23), smooth_scrolling_window_ok_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (smooth_scrolling_window_ok_button), 5);
-  GTK_WIDGET_SET_FLAGS (smooth_scrolling_window_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (smooth_scrolling_window_ok_button, GTK_CAN_DEFAULT);
 
   alignment31 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment31);
@@ -4789,7 +4789,7 @@ create_smooth_scroll_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (smooth_scroll_window, smooth_scroll_window, "smooth_scroll_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(smooth_scroll_window, smooth_scroll_window, "smooth_scroll_window");
   GLADE_HOOKUP_OBJECT (smooth_scroll_window, vbox23, "vbox23");
   GLADE_HOOKUP_OBJECT (smooth_scroll_window, label25, "label25");
   GLADE_HOOKUP_OBJECT (smooth_scroll_window, vbox24, "vbox24");
@@ -4884,7 +4884,7 @@ create_font_size_window (void)
   font_size_ok_button = gtk_button_new ();
   gtk_widget_show (font_size_ok_button);
   gtk_container_add (GTK_CONTAINER (frame21), font_size_ok_button);
-  GTK_WIDGET_SET_FLAGS (font_size_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (font_size_ok_button, GTK_CAN_DEFAULT);
 
   alignment32 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment32);
@@ -4907,7 +4907,7 @@ create_font_size_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (font_size_window, font_size_window, "font_size_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(font_size_window, font_size_window, "font_size_window");
   GLADE_HOOKUP_OBJECT (font_size_window, vbox26, "vbox26");
   GLADE_HOOKUP_OBJECT (font_size_window, label29, "label29");
   GLADE_HOOKUP_OBJECT (font_size_window, frame22, "frame22");
@@ -4977,7 +4977,7 @@ create_phs_info_box (void)
   gtk_widget_show (phs_info_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox19), phs_info_ok_button, TRUE, TRUE, 5);
   gtk_container_set_border_width (GTK_CONTAINER (phs_info_ok_button), 6);
-  GTK_WIDGET_SET_FLAGS (phs_info_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (phs_info_ok_button, GTK_CAN_DEFAULT);
 
   alignment33 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment33);
@@ -5024,7 +5024,7 @@ create_phs_info_box (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (phs_info_box, phs_info_box, "phs_info_box");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(phs_info_box, phs_info_box, "phs_info_box");
   GLADE_HOOKUP_OBJECT (phs_info_box, vbox29, "vbox29");
   GLADE_HOOKUP_OBJECT (phs_info_box, frame26, "frame26");
   GLADE_HOOKUP_OBJECT (phs_info_box, label36, "label36");
@@ -5110,7 +5110,7 @@ create_display_control_window_glade (void)
   scrolledwindow21 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow21);
   gtk_box_pack_start (GTK_BOX (paned_maps_vbox), scrolledwindow21, TRUE, TRUE, 0);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow21, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow21, GTK_CAN_FOCUS);
 
   viewport13 = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (viewport13);
@@ -5149,7 +5149,7 @@ create_display_control_window_glade (void)
   scrolledwindow22 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow22);
   gtk_box_pack_start (GTK_BOX (paned_molecules_vbox), scrolledwindow22, TRUE, TRUE, 0);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow22, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow22, GTK_CAN_FOCUS);
 
   viewport14 = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (viewport14);
@@ -5163,8 +5163,8 @@ create_display_control_window_glade (void)
   gtk_widget_show (frame32);
   gtk_box_pack_start (GTK_BOX (vbox30), frame32, FALSE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (frame32), 2);
-  GTK_WIDGET_SET_FLAGS (frame32, GTK_CAN_FOCUS);
-  GTK_WIDGET_SET_FLAGS (frame32, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (frame32, GTK_CAN_FOCUS);
+  // GTK_WIDGET_SET_FLAGS (frame32, GTK_CAN_DEFAULT);
 
   display_control_ok_button = gtk_button_new ();
   gtk_widget_show (display_control_ok_button);
@@ -5209,7 +5209,7 @@ create_display_control_window_glade (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (display_control_window_glade, display_control_window_glade, "display_control_window_glade");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(display_control_window_glade, display_control_window_glade, "display_control_window_glade");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, vbox30, "vbox30");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, display_control_vpaned, "display_control_vpaned");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, paned_maps_vbox, "paned_maps_vbox");
@@ -5376,7 +5376,7 @@ create_goto_atom_window (void)
   gtk_table_attach (GTK_TABLE (table5), update_go_to_atom_from_current_position_button, 2, 3, 0, 1,
                     (GtkAttachOptions) (GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
-  GTK_WIDGET_UNSET_FLAGS (update_go_to_atom_from_current_position_button, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (update_go_to_atom_from_current_position_button, GTK_CAN_FOCUS);
 
   label42 = gtk_label_new ("Residue Number");
   gtk_widget_show (label42);
@@ -5459,12 +5459,12 @@ create_goto_atom_window (void)
   go_to_atom_residue_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (go_to_atom_residue_scrolledwindow);
   gtk_box_pack_start (GTK_BOX (go_to_atom_model_view_hbox), go_to_atom_residue_scrolledwindow, TRUE, TRUE, 0);
-  GTK_WIDGET_UNSET_FLAGS (go_to_atom_residue_scrolledwindow, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (go_to_atom_residue_scrolledwindow, GTK_CAN_FOCUS);
 
   go_to_atom_atom_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (go_to_atom_atom_scrolledwindow);
   gtk_box_pack_start (GTK_BOX (go_to_atom_model_view_hbox), go_to_atom_atom_scrolledwindow, TRUE, TRUE, 0);
-  GTK_WIDGET_UNSET_FLAGS (go_to_atom_atom_scrolledwindow, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (go_to_atom_atom_scrolledwindow, GTK_CAN_FOCUS);
 
   hbox22 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox22);
@@ -5474,7 +5474,7 @@ create_goto_atom_window (void)
   gtk_widget_show (go_to_atom_apply_button);
   gtk_box_pack_start (GTK_BOX (hbox22), go_to_atom_apply_button, TRUE, TRUE, 5);
   gtk_container_set_border_width (GTK_CONTAINER (go_to_atom_apply_button), 3);
-  GTK_WIDGET_SET_FLAGS (go_to_atom_apply_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (go_to_atom_apply_button, GTK_CAN_DEFAULT);
 
   alignment18 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment18);
@@ -5496,7 +5496,7 @@ create_goto_atom_window (void)
   gtk_widget_show (go_to_atom_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox22), go_to_atom_cancel_button, TRUE, TRUE, 6);
   gtk_container_set_border_width (GTK_CONTAINER (go_to_atom_cancel_button), 3);
-  GTK_WIDGET_SET_FLAGS (go_to_atom_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (go_to_atom_cancel_button, GTK_CAN_DEFAULT);
 
   alignment19 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment19);
@@ -5546,7 +5546,7 @@ create_goto_atom_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (goto_atom_window, goto_atom_window, "goto_atom_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(goto_atom_window, goto_atom_window, "goto_atom_window");
   GLADE_HOOKUP_OBJECT (goto_atom_window, vbox33, "vbox33");
   GLADE_HOOKUP_OBJECT (goto_atom_window, frame30, "frame30");
   GLADE_HOOKUP_OBJECT (goto_atom_window, vbox34, "vbox34");
@@ -5656,13 +5656,13 @@ create_skeletonization_box_radius_window (void)
   gtk_widget_show (skel_box_radius_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox27), skel_box_radius_ok_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (skel_box_radius_ok_button), 4);
-  GTK_WIDGET_SET_FLAGS (skel_box_radius_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (skel_box_radius_ok_button, GTK_CAN_DEFAULT);
 
   skel_box_radius_cancel_button = gtk_button_new_with_mnemonic ("Cancel");
   gtk_widget_show (skel_box_radius_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox27), skel_box_radius_cancel_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (skel_box_radius_cancel_button), 4);
-  GTK_WIDGET_SET_FLAGS (skel_box_radius_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (skel_box_radius_cancel_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) skel_box_radius_ok_button, "clicked",
                     G_CALLBACK (on_skel_box_radius_ok_button_clicked),
@@ -5672,7 +5672,7 @@ create_skeletonization_box_radius_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (skeletonization_box_radius_window, skeletonization_box_radius_window, "skeletonization_box_radius_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(skeletonization_box_radius_window, skeletonization_box_radius_window, "skeletonization_box_radius_window");
   GLADE_HOOKUP_OBJECT (skeletonization_box_radius_window, vbox36, "vbox36");
   GLADE_HOOKUP_OBJECT (skeletonization_box_radius_window, label46, "label46");
   GLADE_HOOKUP_OBJECT (skeletonization_box_radius_window, hbox28, "hbox28");
@@ -5741,17 +5741,17 @@ create_skeletonization_level_window (void)
   skeletonization_level_ok_button = gtk_button_new_with_mnemonic ("OK");
   gtk_widget_show (skeletonization_level_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox30), skeletonization_level_ok_button, TRUE, TRUE, 0);
-  GTK_WIDGET_SET_FLAGS (skeletonization_level_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (skeletonization_level_ok_button, GTK_CAN_DEFAULT);
 
   skeletonization_level_apply_button = gtk_button_new_with_mnemonic ("Apply");
   gtk_widget_show (skeletonization_level_apply_button);
   gtk_box_pack_start (GTK_BOX (hbox30), skeletonization_level_apply_button, TRUE, TRUE, 0);
-  GTK_WIDGET_SET_FLAGS (skeletonization_level_apply_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (skeletonization_level_apply_button, GTK_CAN_DEFAULT);
 
   skeletonization_level_cancel_button = gtk_button_new_with_mnemonic ("Cancel");
   gtk_widget_show (skeletonization_level_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox30), skeletonization_level_cancel_button, TRUE, TRUE, 0);
-  GTK_WIDGET_SET_FLAGS (skeletonization_level_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (skeletonization_level_cancel_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) skeletonization_level_ok_button, "clicked",
                     G_CALLBACK (on_skeletonization_level_ok_button_clicked),
@@ -5764,7 +5764,7 @@ create_skeletonization_level_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (skeletonization_level_window, skeletonization_level_window, "skeletonization_level_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(skeletonization_level_window, skeletonization_level_window, "skeletonization_level_window");
   GLADE_HOOKUP_OBJECT (skeletonization_level_window, vbox37, "vbox37");
   GLADE_HOOKUP_OBJECT (skeletonization_level_window, label47, "label47");
   GLADE_HOOKUP_OBJECT (skeletonization_level_window, hbox29, "hbox29");
@@ -5826,14 +5826,14 @@ create_rotation_centre_cube_size_window (void)
   gtk_widget_show (rotation_centre_size_ok_button);
   gtk_box_pack_start (GTK_BOX (vbox38), rotation_centre_size_ok_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (rotation_centre_size_ok_button), 6);
-  GTK_WIDGET_SET_FLAGS (rotation_centre_size_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (rotation_centre_size_ok_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) rotation_centre_size_ok_button, "clicked",
                     G_CALLBACK (on_rotation_centre_size_ok_button_clicked),
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (rotation_centre_cube_size_window, rotation_centre_cube_size_window, "rotation_centre_cube_size_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(rotation_centre_cube_size_window, rotation_centre_cube_size_window, "rotation_centre_cube_size_window");
   GLADE_HOOKUP_OBJECT (rotation_centre_cube_size_window, vbox38, "vbox38");
   GLADE_HOOKUP_OBJECT (rotation_centre_cube_size_window, label50, "label50");
   GLADE_HOOKUP_OBJECT (rotation_centre_cube_size_window, hbox31, "hbox31");
@@ -5883,12 +5883,12 @@ create_phs_cell_choice_window (void)
   phs_cell_choice_ok_button = gtk_button_new_with_mnemonic ("OK");
   gtk_widget_show (phs_cell_choice_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox32), phs_cell_choice_ok_button, TRUE, TRUE, 0);
-  GTK_WIDGET_SET_FLAGS (phs_cell_choice_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (phs_cell_choice_ok_button, GTK_CAN_DEFAULT);
 
   phs_cell_choice_cancel_button = gtk_button_new_with_mnemonic ("Cancel");
   gtk_widget_show (phs_cell_choice_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox32), phs_cell_choice_cancel_button, TRUE, TRUE, 0);
-  GTK_WIDGET_SET_FLAGS (phs_cell_choice_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (phs_cell_choice_cancel_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) phs_cell_choice_ok_button, "clicked",
                     G_CALLBACK (on_phs_cell_choice_ok_button_clicked),
@@ -5898,7 +5898,7 @@ create_phs_cell_choice_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (phs_cell_choice_window, phs_cell_choice_window, "phs_cell_choice_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(phs_cell_choice_window, phs_cell_choice_window, "phs_cell_choice_window");
   GLADE_HOOKUP_OBJECT (phs_cell_choice_window, vbox39, "vbox39");
   GLADE_HOOKUP_OBJECT (phs_cell_choice_window, label67, "label67");
   GLADE_HOOKUP_OBJECT (phs_cell_choice_window, phs_cell_chooser_vbox, "phs_cell_chooser_vbox");
@@ -5959,7 +5959,7 @@ create_accession_code_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (accession_code_window, accession_code_window, "accession_code_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(accession_code_window, accession_code_window, "accession_code_window");
   GLADE_HOOKUP_OBJECT (accession_code_window, frame34, "frame34");
   GLADE_HOOKUP_OBJECT (accession_code_window, vbox40, "vbox40");
   GLADE_HOOKUP_OBJECT (accession_code_window, label69, "label69");
@@ -6058,7 +6058,7 @@ create_dynarama_window (void)
   dynarama_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (dynarama_scrolledwindow);
   gtk_box_pack_start (GTK_BOX (dynarama_vbox), dynarama_scrolledwindow, TRUE, TRUE, 0);
-  GTK_WIDGET_UNSET_FLAGS (dynarama_scrolledwindow, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (dynarama_scrolledwindow, GTK_CAN_FOCUS);
 
   dynarama_viewport = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (dynarama_viewport);
@@ -6111,7 +6111,7 @@ create_dynarama_window (void)
   gtk_widget_show (dynarama_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox65), dynarama_ok_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (dynarama_ok_button), 6);
-  GTK_WIDGET_SET_FLAGS (dynarama_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (dynarama_ok_button, GTK_CAN_DEFAULT);
 
   alignment37 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment37);
@@ -6133,7 +6133,7 @@ create_dynarama_window (void)
   gtk_widget_show (dynarama_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox65), dynarama_cancel_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (dynarama_cancel_button), 6);
-  GTK_WIDGET_SET_FLAGS (dynarama_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (dynarama_cancel_button, GTK_CAN_DEFAULT);
 
   alignment38 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment38);
@@ -6168,7 +6168,7 @@ create_dynarama_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (dynarama_window, dynarama_window, "dynarama_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(dynarama_window, dynarama_window, "dynarama_window");
   GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_vbox, "dynarama_vbox");
   GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_label, "dynarama_label");
   GLADE_HOOKUP_OBJECT (dynarama_window, frame307, "frame307");
@@ -6254,10 +6254,10 @@ create_dynarama_properties_window (void)
   dynarama_properties_ok_button = gtk_button_new_with_mnemonic ("OK");
   gtk_widget_show (dynarama_properties_ok_button);
   gtk_box_pack_start (GTK_BOX (vbox2), dynarama_properties_ok_button, FALSE, FALSE, 0);
-  GTK_WIDGET_SET_FLAGS (dynarama_properties_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (dynarama_properties_ok_button, GTK_CAN_DEFAULT);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (dynarama_properties_window, dynarama_properties_window, "dynarama_properties_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(dynarama_properties_window, dynarama_properties_window, "dynarama_properties_window");
   GLADE_HOOKUP_OBJECT (dynarama_properties_window, vbox2, "vbox2");
   GLADE_HOOKUP_OBJECT (dynarama_properties_window, notebook2, "notebook2");
   GLADE_HOOKUP_OBJECT (dynarama_properties_window, vbox3, "vbox3");
@@ -6291,7 +6291,7 @@ create_python_window (void)
   scrolledwindow4 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow4);
   gtk_box_pack_start (GTK_BOX (vbox41), scrolledwindow4, TRUE, TRUE, 0);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow4, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow4, GTK_CAN_FOCUS);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow4), GTK_SHADOW_IN);
 
   python_window_text = gtk_text_view_new ();
@@ -6305,7 +6305,7 @@ create_python_window (void)
   gtk_box_pack_start (GTK_BOX (vbox41), python_window_entry, FALSE, FALSE, 5);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (python_window, python_window, "python_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(python_window, python_window, "python_window");
   GLADE_HOOKUP_OBJECT (python_window, vbox41, "vbox41");
   GLADE_HOOKUP_OBJECT (python_window, scrolledwindow4, "scrolledwindow4");
   GLADE_HOOKUP_OBJECT (python_window, python_window_text, "python_window_text");
@@ -6408,7 +6408,7 @@ create_find_ligand_dialog (void)
   gtk_window_set_title (GTK_WINDOW (find_ligand_dialog), "Find Ligands");
   gtk_window_set_type_hint (GTK_WINDOW (find_ligand_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox2 = GTK_DIALOG (find_ligand_dialog)->vbox;
+  dialog_vbox2 = gtk_dialog_get_content_area( find_ligand_dialog );
   gtk_widget_show (dialog_vbox2);
 
   scrolledwindow41 = gtk_scrolled_window_new (NULL, NULL);
@@ -6444,7 +6444,7 @@ create_find_ligand_dialog (void)
   find_ligands_ligands_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (find_ligands_ligands_scrolledwindow);
   gtk_container_add (GTK_CONTAINER (frame37), find_ligands_ligands_scrolledwindow);
-  GTK_WIDGET_UNSET_FLAGS (find_ligands_ligands_scrolledwindow, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (find_ligands_ligands_scrolledwindow, GTK_CAN_FOCUS);
 
   viewport16 = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (viewport16);
@@ -6473,7 +6473,7 @@ create_find_ligand_dialog (void)
   find_ligands_map_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (find_ligands_map_scrolledwindow);
   gtk_container_add (GTK_CONTAINER (frame35), find_ligands_map_scrolledwindow);
-  GTK_WIDGET_UNSET_FLAGS (find_ligands_map_scrolledwindow, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (find_ligands_map_scrolledwindow, GTK_CAN_FOCUS);
 
   viewport17 = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (viewport17);
@@ -6503,7 +6503,7 @@ create_find_ligand_dialog (void)
   find_ligands_coords_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (find_ligands_coords_scrolledwindow);
   gtk_container_add (GTK_CONTAINER (frame36), find_ligands_coords_scrolledwindow);
-  GTK_WIDGET_UNSET_FLAGS (find_ligands_coords_scrolledwindow, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (find_ligands_coords_scrolledwindow, GTK_CAN_FOCUS);
 
   viewport15 = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (viewport15);
@@ -6741,7 +6741,7 @@ create_find_ligand_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (frame303), label797);
   gtk_label_set_use_markup (GTK_LABEL (label797), TRUE);
 
-  dialog_action_area2 = GTK_DIALOG (find_ligand_dialog)->action_area;
+  dialog_action_area2 = gtk_dialog_get_content_area( find_ligand_dialog );
   gtk_widget_show (dialog_action_area2);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area2), GTK_BUTTONBOX_END);
 
@@ -6757,7 +6757,7 @@ create_find_ligand_dialog (void)
   find_ligand_ok_button = gtk_button_new ();
   gtk_widget_show (find_ligand_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox36), find_ligand_ok_button, TRUE, TRUE, 2);
-  GTK_WIDGET_SET_FLAGS (find_ligand_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (find_ligand_ok_button, GTK_CAN_DEFAULT);
 
   alignment39 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment39);
@@ -6778,7 +6778,7 @@ create_find_ligand_dialog (void)
   button4 = gtk_button_new ();
   gtk_widget_show (button4);
   gtk_box_pack_start (GTK_BOX (hbox36), button4, TRUE, TRUE, 2);
-  GTK_WIDGET_SET_FLAGS (button4, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button4, GTK_CAN_DEFAULT);
 
   alignment40 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment40);
@@ -6813,8 +6813,8 @@ create_find_ligand_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (find_ligand_dialog, find_ligand_dialog, "find_ligand_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (find_ligand_dialog, dialog_vbox2, "dialog_vbox2");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(find_ligand_dialog, find_ligand_dialog, "find_ligand_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(find_ligand_dialog, dialog_vbox2, "dialog_vbox2");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, scrolledwindow41, "scrolledwindow41");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, viewport28, "viewport28");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, vbox44, "vbox44");
@@ -6882,7 +6882,7 @@ create_find_ligand_dialog (void)
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, label798, "label798");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligand_real_space_refine_solutions_checkbutton, "find_ligand_real_space_refine_solutions_checkbutton");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, label797, "label797");
-  GLADE_HOOKUP_OBJECT_NO_REF (find_ligand_dialog, dialog_action_area2, "dialog_action_area2");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(find_ligand_dialog, dialog_action_area2, "dialog_action_area2");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, hbox35, "hbox35");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, hbox36, "hbox36");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligand_ok_button, "find_ligand_ok_button");
@@ -6917,7 +6917,7 @@ create_find_ligand_many_atoms_dialog (void)
   gtk_window_set_title (GTK_WINDOW (find_ligand_many_atoms_dialog), "Many Atoms in Ligand Check");
   gtk_window_set_type_hint (GTK_WINDOW (find_ligand_many_atoms_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox3 = GTK_DIALOG (find_ligand_many_atoms_dialog)->vbox;
+  dialog_vbox3 = gtk_dialog_get_content_area( find_ligand_many_atoms_dialog );
   gtk_widget_show (dialog_vbox3);
 
   frame38 = gtk_frame_new (NULL);
@@ -6930,7 +6930,7 @@ create_find_ligand_many_atoms_dialog (void)
   gtk_container_add (GTK_CONTAINER (frame38), label76);
   gtk_label_set_justify (GTK_LABEL (label76), GTK_JUSTIFY_CENTER);
 
-  dialog_action_area3 = GTK_DIALOG (find_ligand_many_atoms_dialog)->action_area;
+  dialog_action_area3 = gtk_dialog_get_content_area( find_ligand_many_atoms_dialog );
   gtk_widget_show (dialog_action_area3);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area3), GTK_BUTTONBOX_END);
 
@@ -6956,11 +6956,11 @@ create_find_ligand_many_atoms_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (find_ligand_many_atoms_dialog, find_ligand_many_atoms_dialog, "find_ligand_many_atoms_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (find_ligand_many_atoms_dialog, dialog_vbox3, "dialog_vbox3");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(find_ligand_many_atoms_dialog, find_ligand_many_atoms_dialog, "find_ligand_many_atoms_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(find_ligand_many_atoms_dialog, dialog_vbox3, "dialog_vbox3");
   GLADE_HOOKUP_OBJECT (find_ligand_many_atoms_dialog, frame38, "frame38");
   GLADE_HOOKUP_OBJECT (find_ligand_many_atoms_dialog, label76, "label76");
-  GLADE_HOOKUP_OBJECT_NO_REF (find_ligand_many_atoms_dialog, dialog_action_area3, "dialog_action_area3");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(find_ligand_many_atoms_dialog, dialog_action_area3, "dialog_action_area3");
   GLADE_HOOKUP_OBJECT (find_ligand_many_atoms_dialog, hbox37, "hbox37");
   GLADE_HOOKUP_OBJECT (find_ligand_many_atoms_dialog, find_ligand_many_atoms_continue_button, "find_ligand_many_atoms_continue_button");
   GLADE_HOOKUP_OBJECT (find_ligand_many_atoms_dialog, find_ligand_many_atoms_cancel_button, "find_ligand_many_atoms_cancel_button");
@@ -7085,15 +7085,15 @@ create_model_refine_dialog (void)
   GtkWidget *label694;
   GtkWidget *dialog_action_area4;
   GtkWidget *model_refine_dialog_dismiss_button;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   model_refine_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (model_refine_dialog), "Model/Fit/Refine");
   gtk_window_set_type_hint (GTK_WINDOW (model_refine_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  model_fit_refine_dialog_vbox = GTK_DIALOG (model_refine_dialog)->vbox;
+  model_fit_refine_dialog_vbox = gtk_dialog_get_content_area( model_refine_dialog );
   gtk_widget_show (model_fit_refine_dialog_vbox);
 
   frame39 = gtk_frame_new (NULL);
@@ -7109,13 +7109,13 @@ create_model_refine_dialog (void)
   gtk_widget_show (model_refine_dialog_refine_params_button);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_refine_params_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_refine_params_button), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_refine_params_button, "Set Parameters for fitting, refinement, regularization, etc.", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_refine_params_button, "Set Parameters for fitting, refinement, regularization, etc.", NULL);
 
   model_refine_dialog_map_select_button = gtk_button_new_with_mnemonic (" Select Map...");
   gtk_widget_show (model_refine_dialog_map_select_button);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_map_select_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_map_select_button), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_map_select_button, "Select the map that will be used for refinement, rigid body refinement, terminal residue fit and autofitting", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_map_select_button, "Select the map that will be used for refinement, rigid body refinement, terminal residue fit and autofitting", NULL);
 
   hseparator5 = gtk_hseparator_new ();
   gtk_widget_show (hseparator5);
@@ -7125,7 +7125,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (model_refine_dialog_refine_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_refine_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_refine_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_refine_togglebutton, "Real Space Refinement: Improve geometry and fit to map", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_refine_togglebutton, "Real Space Refinement: Improve geometry and fit to map", NULL);
 
   hbox154 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox154);
@@ -7144,7 +7144,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (model_refine_dialog_regularize_zone_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_regularize_zone_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_regularize_zone_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_regularize_zone_togglebutton, "Idealize model geometry", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_regularize_zone_togglebutton, "Idealize model geometry", NULL);
 
   hbox155 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox155);
@@ -7162,7 +7162,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (model_refine_dialog_fixed_atoms_button);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_fixed_atoms_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_fixed_atoms_button), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_fixed_atoms_button, "Fix Atoms in Refinement and Regularization...", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_fixed_atoms_button, "Fix Atoms in Refinement and Regularization...", NULL);
 
   hbox378 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox378);
@@ -7180,7 +7180,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (model_refine_dialog_rigid_body_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_rigid_body_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_rigid_body_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_rigid_body_togglebutton, "Rearrange to find the name of a popular health club", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_rigid_body_togglebutton, "Rearrange to find the name of a popular health club", NULL);
 
   hbox216 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox216);
@@ -7202,7 +7202,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (model_refine_dialog_rot_trans_togglebutton);
   gtk_box_pack_start (GTK_BOX (hbox384), model_refine_dialog_rot_trans_togglebutton, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_rot_trans_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_rot_trans_togglebutton, "Click and Drag across the rotation/translation buttons.  Use Ctrl-click to move a single atom [but make sure that you have graphics window focus!]", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_rot_trans_togglebutton, "Click and Drag across the rotation/translation buttons.  Use Ctrl-click to move a single atom [but make sure that you have graphics window focus!]", NULL);
 
   hbox385 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox385);
@@ -7250,7 +7250,7 @@ create_model_refine_dialog (void)
   model_refine_dialog_rot_trans_togglebutton1 = gtk_toggle_button_new ();
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_rot_trans_togglebutton1, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_rot_trans_togglebutton1), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_rot_trans_togglebutton1, "Click and Drag across the rotation/translation buttons.  Use Ctrl-click to move a single atom [but make sure that you have graphics window focus!]", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_rot_trans_togglebutton1, "Click and Drag across the rotation/translation buttons.  Use Ctrl-click to move a single atom [but make sure that you have graphics window focus!]", NULL);
 
   hbox156 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox156);
@@ -7268,7 +7268,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (model_refine_dialog_auto_fit_rotamer_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_auto_fit_rotamer_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_auto_fit_rotamer_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_auto_fit_rotamer_togglebutton, "Click on an atom in a residue to find the best fit rotamer", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_auto_fit_rotamer_togglebutton, "Click on an atom in a residue to find the best fit rotamer", NULL);
 
   hbox157 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox157);
@@ -7286,7 +7286,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (model_refine_dialog_rotamer_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_rotamer_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_rotamer_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_rotamer_togglebutton, "Select Different Conformations for a Residue Sidechan", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_rotamer_togglebutton, "Select Different Conformations for a Residue Sidechan", NULL);
 
   hbox217 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox217);
@@ -7304,7 +7304,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (model_refine_dialog_edit_chi_angles_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_edit_chi_angles_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_edit_chi_angles_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_edit_chi_angles_togglebutton, "Edit the Chi angles (torsions) of an amino acid residue \"by hand\"  (by mouse, that is)", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_edit_chi_angles_togglebutton, "Edit the Chi angles (torsions) of an amino acid residue \"by hand\"  (by mouse, that is)", NULL);
 
   hbox158 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox158);
@@ -7322,8 +7322,8 @@ create_model_refine_dialog (void)
   gtk_widget_show (model_refine_dialog_torsion_general_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_torsion_general_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_torsion_general_togglebutton), 1);
-  GTK_WIDGET_UNSET_FLAGS (model_refine_dialog_torsion_general_togglebutton, GTK_CAN_FOCUS);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_torsion_general_togglebutton, "Named after the famous function in O that Coot users have been having to do without for years (and quite happily too, if (only?) they have had proper dictionaries for their ligands).     But it turns out that some users don't have proper dictionaries and they shout loud and often (and at *me* rather than the author of the dictionary generating program would you believe!)   So my arm has been twisted eventually (but I resisted for quite a good while, I think)...  Enjoy.... (if you must).", NULL);
+  // GTK_WIDGET_UNSET_FLAGS (model_refine_dialog_torsion_general_togglebutton, GTK_CAN_FOCUS);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_torsion_general_togglebutton, "Named after the famous function in O that Coot users have been having to do without for years (and quite happily too, if (only?) they have had proper dictionaries for their ligands).     But it turns out that some users don't have proper dictionaries and they shout loud and often (and at *me* rather than the author of the dictionary generating program would you believe!)   So my arm has been twisted eventually (but I resisted for quite a good while, I think)...  Enjoy.... (if you must).", NULL);
 
   hbox271 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox271);
@@ -7341,7 +7341,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (model_refine_dialog_pepflip_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_pepflip_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_pepflip_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_pepflip_togglebutton, "Peptide flip", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_pepflip_togglebutton, "Peptide flip", NULL);
 
   hbox159 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox159);
@@ -7359,7 +7359,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (model_refine_dialog_do_180_degree_sidechain_flip_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_do_180_degree_sidechain_flip_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_do_180_degree_sidechain_flip_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_do_180_degree_sidechain_flip_togglebutton, "Flip the last chi angle of the sidechain by 180 degrees", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_do_180_degree_sidechain_flip_togglebutton, "Flip the last chi angle of the sidechain by 180 degrees", NULL);
 
   hbox160 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox160);
@@ -7381,7 +7381,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (model_refine_dialog_edit_backbone_torsions_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_edit_backbone_torsions_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_edit_backbone_torsions_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_edit_backbone_torsions_togglebutton, "Change Residue's Phi and Psi", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_edit_backbone_torsions_togglebutton, "Change Residue's Phi and Psi", NULL);
 
   hbox373 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox373);
@@ -7403,7 +7403,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (model_refine_dialog_mutate_auto_fit_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_mutate_auto_fit_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_mutate_auto_fit_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_mutate_auto_fit_togglebutton, "Where \"Fit\" means fit to the Selected Map", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_mutate_auto_fit_togglebutton, "Where \"Fit\" means fit to the Selected Map", NULL);
 
   hbox374 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox374);
@@ -7421,7 +7421,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (model_refine_dialog_mutate_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_mutate_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_mutate_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_mutate_togglebutton, "Mutate amino acid residues or nucleotides [no crystallographic map fitting is happens]", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_mutate_togglebutton, "Mutate amino acid residues or nucleotides [no crystallographic map fitting is happens]", NULL);
 
   hbox375 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox375);
@@ -7439,7 +7439,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (model_refine_dialog_fit_terminal_residue_togglebutton);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_fit_terminal_residue_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_fit_terminal_residue_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_fit_terminal_residue_togglebutton, "[You need a map to do this] Create a new residue at the C or N terminus. The angles are selected at random sample from the phi/psi probability distribution (then fitted to the map), so if at first you don't succeed, give it another bash...", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_fit_terminal_residue_togglebutton, "[You need a map to do this] Create a new residue at the C or N terminus. The angles are selected at random sample from the phi/psi probability distribution (then fitted to the map), so if at first you don't succeed, give it another bash...", NULL);
 
   hbox161 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox161);
@@ -7457,7 +7457,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (model_refine_dialog_add_alt_conf_button);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_add_alt_conf_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_add_alt_conf_button), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_add_alt_conf_button, "Add Alternate (Alternative) Conformation to a Residue", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_add_alt_conf_button, "Add Alternate (Alternative) Conformation to a Residue", NULL);
 
   hbox171 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox171);
@@ -7475,7 +7475,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (model_refine_dialog_pointer_atom_button);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_pointer_atom_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_pointer_atom_button), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_pointer_atom_button, "Put an atom at current pink pointer position", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_pointer_atom_button, "Put an atom at current pink pointer position", NULL);
 
   hbox162 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox162);
@@ -7514,7 +7514,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (model_refine_dialog_delete_button);
   gtk_box_pack_start (GTK_BOX (model_fit_refine_vbox), model_refine_dialog_delete_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_delete_button), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_delete_button, "Delete Residue or Atom", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_delete_button, "Delete Residue or Atom", NULL);
 
   hbox164 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox164);
@@ -7584,14 +7584,14 @@ create_model_refine_dialog (void)
   gtk_widget_show (label694);
   gtk_box_pack_start (GTK_BOX (hbox377), label694, TRUE, TRUE, 0);
 
-  dialog_action_area4 = GTK_DIALOG (model_refine_dialog)->action_area;
+  dialog_action_area4 = gtk_dialog_get_content_area( model_refine_dialog );
   gtk_widget_show (dialog_action_area4);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area4), GTK_BUTTONBOX_END);
 
   model_refine_dialog_dismiss_button = gtk_button_new_with_mnemonic ("   Close   ");
   gtk_widget_show (model_refine_dialog_dismiss_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (model_refine_dialog), model_refine_dialog_dismiss_button, 0);
-  GTK_WIDGET_SET_FLAGS (model_refine_dialog_dismiss_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (model_refine_dialog_dismiss_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) model_refine_dialog, "configure_event",
                     G_CALLBACK (on_model_refine_dialog_configure_event),
@@ -7694,8 +7694,8 @@ create_model_refine_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (model_refine_dialog, model_refine_dialog, "model_refine_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (model_refine_dialog, model_fit_refine_dialog_vbox, "model_fit_refine_dialog_vbox");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(model_refine_dialog, model_refine_dialog, "model_refine_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(model_refine_dialog, model_fit_refine_dialog_vbox, "model_fit_refine_dialog_vbox");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, frame39, "frame39");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_fit_refine_vbox, "model_fit_refine_vbox");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_refine_params_button, "model_refine_dialog_refine_params_button");
@@ -7805,9 +7805,9 @@ create_model_refine_dialog (void)
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox377, "hbox377");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image6804, "image6804");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label694, "label694");
-  GLADE_HOOKUP_OBJECT_NO_REF (model_refine_dialog, dialog_action_area4, "dialog_action_area4");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(model_refine_dialog, dialog_action_area4, "dialog_action_area4");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_dismiss_button, "model_refine_dialog_dismiss_button");
-  GLADE_HOOKUP_OBJECT_NO_REF (model_refine_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(model_refine_dialog, tooltips, "tooltips");
 
   gtk_widget_grab_focus (model_refine_dialog_dismiss_button);
   gtk_widget_grab_default (model_refine_dialog_dismiss_button);
@@ -7856,7 +7856,7 @@ create_rotate_translate_obj_dialog (void)
   gtk_window_set_title (GTK_WINDOW (rotate_translate_obj_dialog), "Rotation & Translation");
   gtk_window_set_type_hint (GTK_WINDOW (rotate_translate_obj_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox6 = GTK_DIALOG (rotate_translate_obj_dialog)->vbox;
+  dialog_vbox6 = gtk_dialog_get_content_area( rotate_translate_obj_dialog );
   gtk_widget_show (dialog_vbox6);
 
   frame40 = gtk_frame_new (NULL);
@@ -7946,7 +7946,7 @@ create_rotate_translate_obj_dialog (void)
   gtk_widget_show (label287);
   gtk_frame_set_label_widget (GTK_FRAME (frame95), label287);
 
-  dialog_action_area6 = GTK_DIALOG (rotate_translate_obj_dialog)->action_area;
+  dialog_action_area6 = gtk_dialog_get_content_area( rotate_translate_obj_dialog );
   gtk_widget_show (dialog_action_area6);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area6), GTK_BUTTONBOX_END);
 
@@ -7958,7 +7958,7 @@ create_rotate_translate_obj_dialog (void)
   gtk_widget_show (rotate_translate_obj_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox40), rotate_translate_obj_ok_button, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (rotate_translate_obj_ok_button), 2);
-  GTK_WIDGET_SET_FLAGS (rotate_translate_obj_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (rotate_translate_obj_ok_button, GTK_CAN_DEFAULT);
 
   alignment41 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment41);
@@ -7979,7 +7979,7 @@ create_rotate_translate_obj_dialog (void)
   rotate_translate_obj_cancel_button = gtk_button_new ();
   gtk_widget_show (rotate_translate_obj_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox40), rotate_translate_obj_cancel_button, TRUE, TRUE, 0);
-  GTK_WIDGET_SET_FLAGS (rotate_translate_obj_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (rotate_translate_obj_cancel_button, GTK_CAN_DEFAULT);
 
   alignment42 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment42);
@@ -8011,8 +8011,8 @@ create_rotate_translate_obj_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (rotate_translate_obj_dialog, rotate_translate_obj_dialog, "rotate_translate_obj_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (rotate_translate_obj_dialog, dialog_vbox6, "dialog_vbox6");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(rotate_translate_obj_dialog, rotate_translate_obj_dialog, "rotate_translate_obj_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(rotate_translate_obj_dialog, dialog_vbox6, "dialog_vbox6");
   GLADE_HOOKUP_OBJECT (rotate_translate_obj_dialog, frame40, "frame40");
   GLADE_HOOKUP_OBJECT (rotate_translate_obj_dialog, vbox49, "vbox49");
   GLADE_HOOKUP_OBJECT (rotate_translate_obj_dialog, frame90, "frame90");
@@ -8033,7 +8033,7 @@ create_rotate_translate_obj_dialog (void)
   GLADE_HOOKUP_OBJECT (rotate_translate_obj_dialog, frame95, "frame95");
   GLADE_HOOKUP_OBJECT (rotate_translate_obj_dialog, rotate_translate_obj_zrot_hscale, "rotate_translate_obj_zrot_hscale");
   GLADE_HOOKUP_OBJECT (rotate_translate_obj_dialog, label287, "label287");
-  GLADE_HOOKUP_OBJECT_NO_REF (rotate_translate_obj_dialog, dialog_action_area6, "dialog_action_area6");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(rotate_translate_obj_dialog, dialog_action_area6, "dialog_action_area6");
   GLADE_HOOKUP_OBJECT (rotate_translate_obj_dialog, hbox40, "hbox40");
   GLADE_HOOKUP_OBJECT (rotate_translate_obj_dialog, rotate_translate_obj_ok_button, "rotate_translate_obj_ok_button");
   GLADE_HOOKUP_OBJECT (rotate_translate_obj_dialog, alignment41, "alignment41");
@@ -8071,7 +8071,7 @@ create_save_coords_dialog (void)
   gtk_window_set_title (GTK_WINDOW (save_coords_dialog), "Save Coordinates Molecule Selector");
   gtk_window_set_type_hint (GTK_WINDOW (save_coords_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox7 = GTK_DIALOG (save_coords_dialog)->vbox;
+  dialog_vbox7 = gtk_dialog_get_content_area( save_coords_dialog );
   gtk_widget_show (dialog_vbox7);
 
   frame41 = gtk_frame_new (NULL);
@@ -8093,7 +8093,7 @@ create_save_coords_dialog (void)
   gtk_widget_show (save_coordinates_combobox);
   gtk_box_pack_start (GTK_BOX (vbox50), save_coordinates_combobox, TRUE, TRUE, 0);
 
-  dialog_action_area7 = GTK_DIALOG (save_coords_dialog)->action_area;
+  dialog_action_area7 = gtk_dialog_get_content_area( save_coords_dialog );
   gtk_widget_show (dialog_action_area7);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area7), GTK_BUTTONBOX_END);
 
@@ -8101,7 +8101,7 @@ create_save_coords_dialog (void)
   gtk_widget_show (save_coords_dialog_save_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (save_coords_dialog), save_coords_dialog_save_button, 0);
   gtk_container_set_border_width (GTK_CONTAINER (save_coords_dialog_save_button), 6);
-  GTK_WIDGET_SET_FLAGS (save_coords_dialog_save_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (save_coords_dialog_save_button, GTK_CAN_DEFAULT);
 
   alignment43 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment43);
@@ -8124,13 +8124,13 @@ create_save_coords_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (save_coords_dialog, save_coords_dialog, "save_coords_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (save_coords_dialog, dialog_vbox7, "dialog_vbox7");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_coords_dialog, save_coords_dialog, "save_coords_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_coords_dialog, dialog_vbox7, "dialog_vbox7");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, frame41, "frame41");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, vbox50, "vbox50");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, label78, "label78");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, save_coordinates_combobox, "save_coordinates_combobox");
-  GLADE_HOOKUP_OBJECT_NO_REF (save_coords_dialog, dialog_action_area7, "dialog_action_area7");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_coords_dialog, dialog_action_area7, "dialog_action_area7");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, save_coords_dialog_save_button, "save_coords_dialog_save_button");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, alignment43, "alignment43");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, hbox194, "hbox194");
@@ -8214,15 +8214,15 @@ create_refine_params_dialog (void)
   GtkWidget *hbox195;
   GtkWidget *image1513;
   GtkWidget *label369;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   refine_params_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (refine_params_dialog), "Refinement and Regularization Parameters");
   gtk_window_set_type_hint (GTK_WINDOW (refine_params_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox8 = GTK_DIALOG (refine_params_dialog)->vbox;
+  dialog_vbox8 = gtk_dialog_get_content_area( refine_params_dialog );
   gtk_widget_show (dialog_vbox8);
 
   frame42 = gtk_frame_new (NULL);
@@ -8252,7 +8252,7 @@ create_refine_params_dialog (void)
   refine_params_use_torsions_checkbutton = gtk_check_button_new_with_mnemonic ("Use Torsion Restraints");
   gtk_widget_show (refine_params_use_torsions_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox60), refine_params_use_torsions_checkbutton, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, refine_params_use_torsions_checkbutton, "Optimize torsion angles too", NULL);
+  // gtk_tooltips_set_tip (tooltips, refine_params_use_torsions_checkbutton, "Optimize torsion angles too", NULL);
 
   phi_psi_restraints_vbox = gtk_vbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (vbox60), phi_psi_restraints_vbox, TRUE, TRUE, 0);
@@ -8325,29 +8325,29 @@ create_refine_params_dialog (void)
   gtk_widget_show (refine_params_use_peptide_omegas_checkbutton);
   gtk_box_pack_start (GTK_BOX (hbox329), refine_params_use_peptide_omegas_checkbutton, FALSE, FALSE, 0);
   gtk_widget_set_sensitive (refine_params_use_peptide_omegas_checkbutton, FALSE);
-  gtk_tooltips_set_tip (tooltips, refine_params_use_peptide_omegas_checkbutton, "Use omega restraints too", NULL);
+  // gtk_tooltips_set_tip (tooltips, refine_params_use_peptide_omegas_checkbutton, "Use omega restraints too", NULL);
 
   refine_params_use_planar_peptides_checkbutton = gtk_check_button_new_with_mnemonic ("Use Planar Peptide Restraints");
   gtk_widget_show (refine_params_use_planar_peptides_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox60), refine_params_use_planar_peptides_checkbutton, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, refine_params_use_planar_peptides_checkbutton, "Use planar peptide restraints (these are CA-N-C-O-CA plane restraints) and are used to keep peptides flat.", NULL);
+  // gtk_tooltips_set_tip (tooltips, refine_params_use_planar_peptides_checkbutton, "Use planar peptide restraints (these are CA-N-C-O-CA plane restraints) and are used to keep peptides flat.", NULL);
 
   refine_params_use_trans_peptide_restraints_checkbutton = gtk_check_button_new_with_mnemonic ("Use Trans Peptide Restraints");
   gtk_widget_show (refine_params_use_trans_peptide_restraints_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox60), refine_params_use_trans_peptide_restraints_checkbutton, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, refine_params_use_trans_peptide_restraints_checkbutton, "If checked, then Coot will add a restraint on omega (the torsion around the C-N peptide bond) with a target angle of 180 degrees.  This is not applied to cis peptide bonds.  Keep this checked to prevent inadvertent cis-peptides.", NULL);
+  // gtk_tooltips_set_tip (tooltips, refine_params_use_trans_peptide_restraints_checkbutton, "If checked, then Coot will add a restraint on omega (the torsion around the C-N peptide bond) with a target angle of 180 degrees.  This is not applied to cis peptide bonds.  Keep this checked to prevent inadvertent cis-peptides.", NULL);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (refine_params_use_trans_peptide_restraints_checkbutton), TRUE);
 
   refine_params_use_ramachandran_goodness_torsions_checkbutton = gtk_check_button_new_with_mnemonic ("Ramachandran Restraints");
   gtk_widget_show (refine_params_use_ramachandran_goodness_torsions_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox60), refine_params_use_ramachandran_goodness_torsions_checkbutton, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, refine_params_use_ramachandran_goodness_torsions_checkbutton, "Turn on restraints on prefered values of (phi, psi).  Use with caution - not advised for global modifications.", NULL);
+  // gtk_tooltips_set_tip (tooltips, refine_params_use_ramachandran_goodness_torsions_checkbutton, "Turn on restraints on prefered values of (phi, psi).  Use with caution - not advised for global modifications.", NULL);
 
   refine_params_use_initial_pos_checkbutton = gtk_check_button_new_with_mnemonic ("Use Initial Position Restraints");
   gtk_box_pack_start (GTK_BOX (vbox60), refine_params_use_initial_pos_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (refine_params_use_initial_pos_checkbutton), 2);
   gtk_widget_set_sensitive (refine_params_use_initial_pos_checkbutton, FALSE);
-  gtk_tooltips_set_tip (tooltips, refine_params_use_initial_pos_checkbutton, "Stops regularization wandering off [non-active]", NULL);
+  // gtk_tooltips_set_tip (tooltips, refine_params_use_initial_pos_checkbutton, "Stops regularization wandering off [non-active]", NULL);
 
   frame292 = gtk_frame_new (NULL);
   gtk_widget_show (frame292);
@@ -8395,7 +8395,7 @@ create_refine_params_dialog (void)
   refine_params_reset_b_value_checkbutton = gtk_check_button_new_with_mnemonic ("Reset B-factors after modification?");
   gtk_widget_show (refine_params_reset_b_value_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox291), refine_params_reset_b_value_checkbutton, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, refine_params_reset_b_value_checkbutton, "Tick box to reset the B-factors of all atoms which have been modified within Coot to the given value.", NULL);
+  // gtk_tooltips_set_tip (tooltips, refine_params_reset_b_value_checkbutton, "Tick box to reset the B-factors of all atoms which have been modified within Coot to the given value.", NULL);
 
   vbox292 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox292);
@@ -8546,14 +8546,14 @@ create_refine_params_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (refine_params_more_control_frame), label819);
   gtk_label_set_use_markup (GTK_LABEL (label819), TRUE);
 
-  dialog_action_area8 = GTK_DIALOG (refine_params_dialog)->action_area;
+  dialog_action_area8 = gtk_dialog_get_content_area( refine_params_dialog );
   gtk_widget_show (dialog_action_area8);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area8), GTK_BUTTONBOX_END);
 
   refine_params_dialog_ok_button = gtk_button_new ();
   gtk_widget_show (refine_params_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (refine_params_dialog), refine_params_dialog_ok_button, 0);
-  GTK_WIDGET_SET_FLAGS (refine_params_dialog_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (refine_params_dialog_ok_button, GTK_CAN_DEFAULT);
 
   alignment44 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment44);
@@ -8633,8 +8633,8 @@ create_refine_params_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (refine_params_dialog, refine_params_dialog, "refine_params_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (refine_params_dialog, dialog_vbox8, "dialog_vbox8");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(refine_params_dialog, refine_params_dialog, "refine_params_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(refine_params_dialog, dialog_vbox8, "dialog_vbox8");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, frame42, "frame42");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, vbox51, "vbox51");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, vbox52, "vbox52");
@@ -8695,13 +8695,13 @@ create_refine_params_dialog (void)
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_lennard_jones_epsilon_combobox, "refine_params_lennard_jones_epsilon_combobox");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_rama_restraints_weight_combobox, "refine_params_rama_restraints_weight_combobox");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, label819, "label819");
-  GLADE_HOOKUP_OBJECT_NO_REF (refine_params_dialog, dialog_action_area8, "dialog_action_area8");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(refine_params_dialog, dialog_action_area8, "dialog_action_area8");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_dialog_ok_button, "refine_params_dialog_ok_button");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, alignment44, "alignment44");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, hbox195, "hbox195");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, image1513, "image1513");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, label369, "label369");
-  GLADE_HOOKUP_OBJECT_NO_REF (refine_params_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(refine_params_dialog, tooltips, "tooltips");
 
   gtk_widget_grab_focus (refine_params_dialog_ok_button);
   gtk_widget_grab_default (refine_params_dialog_ok_button);
@@ -8778,16 +8778,16 @@ create_accept_reject_refinement_dialog (void)
   GtkWidget *hbox197;
   GtkWidget *image1515;
   GtkWidget *label371;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   accept_reject_refinement_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (accept_reject_refinement_dialog), "Accept Refinement?");
   gtk_window_set_type_hint (GTK_WINDOW (accept_reject_refinement_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
   gtk_window_set_focus_on_map (GTK_WINDOW (accept_reject_refinement_dialog), FALSE);
 
-  dialog_vbox9 = GTK_DIALOG (accept_reject_refinement_dialog)->vbox;
+  dialog_vbox9 = gtk_dialog_get_content_area( accept_reject_refinement_dialog );
   gtk_widget_show (dialog_vbox9);
 
   frame129 = gtk_frame_new (NULL);
@@ -8885,7 +8885,7 @@ create_accept_reject_refinement_dialog (void)
   bonds_eventbox = gtk_event_box_new ();
   gtk_widget_show (bonds_eventbox);
   gtk_container_add (GTK_CONTAINER (frame178), bonds_eventbox);
-  gtk_tooltips_set_tip (tooltips, bonds_eventbox, "Bonds", NULL);
+  // gtk_tooltips_set_tip (tooltips, bonds_eventbox, "Bonds", NULL);
 
   label448 = gtk_label_new ("");
   gtk_widget_show (label448);
@@ -8903,7 +8903,7 @@ create_accept_reject_refinement_dialog (void)
   angles_eventbox = gtk_event_box_new ();
   gtk_widget_show (angles_eventbox);
   gtk_container_add (GTK_CONTAINER (frame179), angles_eventbox);
-  gtk_tooltips_set_tip (tooltips, angles_eventbox, "Angles", NULL);
+  // gtk_tooltips_set_tip (tooltips, angles_eventbox, "Angles", NULL);
 
   label449 = gtk_label_new ("");
   gtk_widget_show (label449);
@@ -8922,7 +8922,7 @@ create_accept_reject_refinement_dialog (void)
   torsions_eventbox = gtk_event_box_new ();
   gtk_widget_show (torsions_eventbox);
   gtk_container_add (GTK_CONTAINER (frame180), torsions_eventbox);
-  gtk_tooltips_set_tip (tooltips, torsions_eventbox, "Torsions", NULL);
+  // gtk_tooltips_set_tip (tooltips, torsions_eventbox, "Torsions", NULL);
 
   label450 = gtk_label_new ("");
   gtk_widget_show (label450);
@@ -8940,7 +8940,7 @@ create_accept_reject_refinement_dialog (void)
   planes_eventbox = gtk_event_box_new ();
   gtk_widget_show (planes_eventbox);
   gtk_container_add (GTK_CONTAINER (frame181), planes_eventbox);
-  gtk_tooltips_set_tip (tooltips, planes_eventbox, "Planes", NULL);
+  // gtk_tooltips_set_tip (tooltips, planes_eventbox, "Planes", NULL);
 
   label451 = gtk_label_new ("");
   gtk_widget_show (label451);
@@ -8958,7 +8958,7 @@ create_accept_reject_refinement_dialog (void)
   rama_eventbox = gtk_event_box_new ();
   gtk_widget_show (rama_eventbox);
   gtk_container_add (GTK_CONTAINER (frame184), rama_eventbox);
-  gtk_tooltips_set_tip (tooltips, rama_eventbox, "Ramachandran Plot deviance", NULL);
+  // gtk_tooltips_set_tip (tooltips, rama_eventbox, "Ramachandran Plot deviance", NULL);
 
   label454 = gtk_label_new ("");
   gtk_widget_show (label454);
@@ -8982,7 +8982,7 @@ create_accept_reject_refinement_dialog (void)
   chirals_eventbox = gtk_event_box_new ();
   gtk_widget_show (chirals_eventbox);
   gtk_container_add (GTK_CONTAINER (frame183), chirals_eventbox);
-  gtk_tooltips_set_tip (tooltips, chirals_eventbox, "Chirals", NULL);
+  // gtk_tooltips_set_tip (tooltips, chirals_eventbox, "Chirals", NULL);
 
   label453 = gtk_label_new ("");
   gtk_widget_show (label453);
@@ -9006,7 +9006,7 @@ create_accept_reject_refinement_dialog (void)
   non_bonded_contacts_eventbox = gtk_event_box_new ();
   gtk_widget_show (non_bonded_contacts_eventbox);
   gtk_container_add (GTK_CONTAINER (frame182), non_bonded_contacts_eventbox);
-  gtk_tooltips_set_tip (tooltips, non_bonded_contacts_eventbox, "Non-bonded Contacts", NULL);
+  // gtk_tooltips_set_tip (tooltips, non_bonded_contacts_eventbox, "Non-bonded Contacts", NULL);
 
   label452 = gtk_label_new ("");
   gtk_widget_show (label452);
@@ -9078,7 +9078,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (frame308), label824);
   gtk_label_set_use_markup (GTK_LABEL (label824), TRUE);
 
-  dialog_action_area9 = GTK_DIALOG (accept_reject_refinement_dialog)->action_area;
+  dialog_action_area9 = gtk_dialog_get_content_area( accept_reject_refinement_dialog );
   gtk_widget_show (dialog_action_area9);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area9), GTK_BUTTONBOX_END);
 
@@ -9089,7 +9089,7 @@ create_accept_reject_refinement_dialog (void)
   accept_reject_refinement_accept_button = gtk_button_new ();
   gtk_widget_show (accept_reject_refinement_accept_button);
   gtk_box_pack_start (GTK_BOX (hbox41), accept_reject_refinement_accept_button, TRUE, TRUE, 6);
-  GTK_WIDGET_SET_FLAGS (accept_reject_refinement_accept_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (accept_reject_refinement_accept_button, GTK_CAN_DEFAULT);
 
   alignment45 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment45);
@@ -9110,7 +9110,7 @@ create_accept_reject_refinement_dialog (void)
   accept_reject_refinement_reject_button = gtk_button_new ();
   gtk_widget_show (accept_reject_refinement_reject_button);
   gtk_box_pack_start (GTK_BOX (hbox41), accept_reject_refinement_reject_button, TRUE, TRUE, 6);
-  GTK_WIDGET_SET_FLAGS (accept_reject_refinement_reject_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (accept_reject_refinement_reject_button, GTK_CAN_DEFAULT);
 
   alignment46 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment46);
@@ -9160,8 +9160,8 @@ create_accept_reject_refinement_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (accept_reject_refinement_dialog, accept_reject_refinement_dialog, "accept_reject_refinement_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (accept_reject_refinement_dialog, dialog_vbox9, "dialog_vbox9");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(accept_reject_refinement_dialog, accept_reject_refinement_dialog, "accept_reject_refinement_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(accept_reject_refinement_dialog, dialog_vbox9, "dialog_vbox9");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame129, "frame129");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, vbox195, "vbox195");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, chiral_centre_text_label, "chiral_centre_text_label");
@@ -9215,7 +9215,7 @@ create_accept_reject_refinement_dialog (void)
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_crankshaft_button, "accept_reject_crankshaft_button");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_backrub_rotamer_button, "accept_reject_backrub_rotamer_button");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label824, "label824");
-  GLADE_HOOKUP_OBJECT_NO_REF (accept_reject_refinement_dialog, dialog_action_area9, "dialog_action_area9");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(accept_reject_refinement_dialog, dialog_action_area9, "dialog_action_area9");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, hbox41, "hbox41");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_refinement_accept_button, "accept_reject_refinement_accept_button");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, alignment45, "alignment45");
@@ -9227,7 +9227,7 @@ create_accept_reject_refinement_dialog (void)
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, hbox197, "hbox197");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, image1515, "image1515");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label371, "label371");
-  GLADE_HOOKUP_OBJECT_NO_REF (accept_reject_refinement_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(accept_reject_refinement_dialog, tooltips, "tooltips");
 
   gtk_widget_grab_default (accept_reject_refinement_accept_button);
   return accept_reject_refinement_dialog;
@@ -9277,15 +9277,15 @@ create_find_waters_dialog (void)
   GtkWidget *hbox199;
   GtkWidget *image1517;
   GtkWidget *label373;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   find_waters_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (find_waters_dialog), "find waters dialog");
   gtk_window_set_type_hint (GTK_WINDOW (find_waters_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox10 = GTK_DIALOG (find_waters_dialog)->vbox;
+  dialog_vbox10 = gtk_dialog_get_content_area( find_waters_dialog );
   gtk_widget_show (dialog_vbox10);
 
   vbox54 = gtk_vbox_new (FALSE, 0);
@@ -9343,7 +9343,7 @@ create_find_waters_dialog (void)
   gtk_widget_show (find_waters_peak_level_entry);
   gtk_box_pack_start (GTK_BOX (hbox44), find_waters_peak_level_entry, FALSE, TRUE, 6);
   gtk_widget_set_size_request (find_waters_peak_level_entry, 78, -1);
-  gtk_tooltips_set_tip (tooltips, find_waters_peak_level_entry, "Note that this is r.m.s.d. of the map after it has been masked by the protein.  1.8 r.m.s.d seems good for a 2Fo-Fc style map and about 3.0 for a difference map.", NULL);
+  // gtk_tooltips_set_tip (tooltips, find_waters_peak_level_entry, "Note that this is r.m.s.d. of the map after it has been masked by the protein.  1.8 r.m.s.d seems good for a 2Fo-Fc style map and about 3.0 for a difference map.", NULL);
 
   label88 = gtk_label_new (" rmsd ");
   gtk_widget_show (label88);
@@ -9425,7 +9425,7 @@ create_find_waters_dialog (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (water_mol_new_mol_radiobutton), water_mol_protein_mask_radiobutton_group);
   water_mol_protein_mask_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (water_mol_new_mol_radiobutton));
 
-  dialog_action_area10 = GTK_DIALOG (find_waters_dialog)->action_area;
+  dialog_action_area10 = gtk_dialog_get_content_area( find_waters_dialog );
   gtk_widget_show (dialog_action_area10);
 
   hbox43 = gtk_hbox_new (FALSE, 0);
@@ -9436,7 +9436,7 @@ create_find_waters_dialog (void)
   gtk_widget_show (find_waters_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox43), find_waters_ok_button, TRUE, TRUE, 10);
   gtk_container_set_border_width (GTK_CONTAINER (find_waters_ok_button), 2);
-  GTK_WIDGET_SET_FLAGS (find_waters_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (find_waters_ok_button, GTK_CAN_DEFAULT);
 
   alignment47 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment47);
@@ -9458,7 +9458,7 @@ create_find_waters_dialog (void)
   gtk_widget_show (find_waters_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox43), find_waters_cancel_button, TRUE, TRUE, 10);
   gtk_container_set_border_width (GTK_CONTAINER (find_waters_cancel_button), 2);
-  GTK_WIDGET_SET_FLAGS (find_waters_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (find_waters_cancel_button, GTK_CAN_DEFAULT);
 
   alignment48 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment48);
@@ -9484,8 +9484,8 @@ create_find_waters_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (find_waters_dialog, find_waters_dialog, "find_waters_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (find_waters_dialog, dialog_vbox10, "dialog_vbox10");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(find_waters_dialog, find_waters_dialog, "find_waters_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(find_waters_dialog, dialog_vbox10, "dialog_vbox10");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, vbox54, "vbox54");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, frame44, "frame44");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, find_waters_map_vbox, "find_waters_map_vbox");
@@ -9512,7 +9512,7 @@ create_find_waters_dialog (void)
   GLADE_HOOKUP_OBJECT (find_waters_dialog, label108, "label108");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, water_mol_protein_mask_radiobutton, "water_mol_protein_mask_radiobutton");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, water_mol_new_mol_radiobutton, "water_mol_new_mol_radiobutton");
-  GLADE_HOOKUP_OBJECT_NO_REF (find_waters_dialog, dialog_action_area10, "dialog_action_area10");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(find_waters_dialog, dialog_action_area10, "dialog_action_area10");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, hbox43, "hbox43");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, find_waters_ok_button, "find_waters_ok_button");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, alignment47, "alignment47");
@@ -9524,7 +9524,7 @@ create_find_waters_dialog (void)
   GLADE_HOOKUP_OBJECT (find_waters_dialog, hbox199, "hbox199");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, image1517, "image1517");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, label373, "label373");
-  GLADE_HOOKUP_OBJECT_NO_REF (find_waters_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(find_waters_dialog, tooltips, "tooltips");
 
   gtk_widget_grab_focus (find_waters_ok_button);
   gtk_widget_grab_default (find_waters_ok_button);
@@ -9570,7 +9570,7 @@ create_environment_distance_dialog (void)
   gtk_window_set_title (GTK_WINDOW (environment_distance_dialog), "Environment Distances");
   gtk_window_set_type_hint (GTK_WINDOW (environment_distance_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox11 = GTK_DIALOG (environment_distance_dialog)->vbox;
+  dialog_vbox11 = gtk_dialog_get_content_area( environment_distance_dialog );
   gtk_widget_show (dialog_vbox11);
 
   vbox58 = gtk_vbox_new (FALSE, 0);
@@ -9677,14 +9677,14 @@ create_environment_distance_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox58), environment_distance_label_atom_checkbutton, FALSE, FALSE, 4);
   gtk_widget_set_sensitive (environment_distance_label_atom_checkbutton, FALSE);
 
-  dialog_action_area11 = GTK_DIALOG (environment_distance_dialog)->action_area;
+  dialog_action_area11 = gtk_dialog_get_content_area( environment_distance_dialog );
   gtk_widget_show (dialog_action_area11);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area11), GTK_BUTTONBOX_END);
 
   environment_distance_dialog_ok_button = gtk_button_new ();
   gtk_widget_show (environment_distance_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (environment_distance_dialog), environment_distance_dialog_ok_button, 0);
-  GTK_WIDGET_SET_FLAGS (environment_distance_dialog_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (environment_distance_dialog_ok_button, GTK_CAN_DEFAULT);
 
   alignment49 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment49);
@@ -9725,8 +9725,8 @@ create_environment_distance_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (environment_distance_dialog, environment_distance_dialog, "environment_distance_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (environment_distance_dialog, dialog_vbox11, "dialog_vbox11");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(environment_distance_dialog, environment_distance_dialog, "environment_distance_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(environment_distance_dialog, dialog_vbox11, "dialog_vbox11");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, vbox58, "vbox58");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, frame48, "frame48");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, environment_distance_checkbutton, "environment_distance_checkbutton");
@@ -9749,7 +9749,7 @@ create_environment_distance_dialog (void)
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, label93, "label93");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, label744, "label744");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, environment_distance_label_atom_checkbutton, "environment_distance_label_atom_checkbutton");
-  GLADE_HOOKUP_OBJECT_NO_REF (environment_distance_dialog, dialog_action_area11, "dialog_action_area11");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(environment_distance_dialog, dialog_action_area11, "dialog_action_area11");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, environment_distance_dialog_ok_button, "environment_distance_dialog_ok_button");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, alignment49, "alignment49");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, hbox200, "hbox200");
@@ -9789,9 +9789,9 @@ create_residue_type_chooser_window (void)
   GtkWidget *residue_type_chooser_TRP;
   GtkWidget *residue_type_chooser_TYR;
   GtkWidget *residue_type_chooser_VAL;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   residue_type_chooser_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title (GTK_WINDOW (residue_type_chooser_window), "Residu Type");
@@ -9809,7 +9809,7 @@ create_residue_type_chooser_window (void)
   residue_type_chooser_stub_checkbutton = gtk_check_button_new_with_mnemonic ("Stub");
   gtk_widget_show (residue_type_chooser_stub_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_stub_checkbutton, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, residue_type_chooser_stub_checkbutton, "Change the residue type, but only put in the main-chain atoms and the CB", NULL);
+  // gtk_tooltips_set_tip (tooltips, residue_type_chooser_stub_checkbutton, "Change the residue type, but only put in the main-chain atoms and the CB", NULL);
 
   residue_type_chooser_ALA = gtk_button_new_with_mnemonic ("  ALA (A)  ");
   gtk_widget_show (residue_type_chooser_ALA);
@@ -9850,7 +9850,7 @@ create_residue_type_chooser_window (void)
   residue_type_chooser_ILE = gtk_button_new_with_mnemonic ("  ILE (I)");
   gtk_widget_show (residue_type_chooser_ILE);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_ILE, FALSE, FALSE, 2);
-  gtk_tooltips_set_tip (tooltips, residue_type_chooser_ILE, "Selino-MET", NULL);
+  // gtk_tooltips_set_tip (tooltips, residue_type_chooser_ILE, "Selino-MET", NULL);
 
   residue_type_chooser_LEU = gtk_button_new_with_mnemonic ("  LEU (L)  ");
   gtk_widget_show (residue_type_chooser_LEU);
@@ -9964,7 +9964,7 @@ create_residue_type_chooser_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (residue_type_chooser_window, residue_type_chooser_window, "residue_type_chooser_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(residue_type_chooser_window, residue_type_chooser_window, "residue_type_chooser_window");
   GLADE_HOOKUP_OBJECT (residue_type_chooser_window, frame50, "frame50");
   GLADE_HOOKUP_OBJECT (residue_type_chooser_window, vbox62, "vbox62");
   GLADE_HOOKUP_OBJECT (residue_type_chooser_window, residue_type_chooser_stub_checkbutton, "residue_type_chooser_stub_checkbutton");
@@ -9989,7 +9989,7 @@ create_residue_type_chooser_window (void)
   GLADE_HOOKUP_OBJECT (residue_type_chooser_window, residue_type_chooser_TRP, "residue_type_chooser_TRP");
   GLADE_HOOKUP_OBJECT (residue_type_chooser_window, residue_type_chooser_TYR, "residue_type_chooser_TYR");
   GLADE_HOOKUP_OBJECT (residue_type_chooser_window, residue_type_chooser_VAL, "residue_type_chooser_VAL");
-  GLADE_HOOKUP_OBJECT_NO_REF (residue_type_chooser_window, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(residue_type_chooser_window, tooltips, "tooltips");
 
   return residue_type_chooser_window;
 }
@@ -10019,16 +10019,16 @@ create_delete_item_dialog (void)
   GtkWidget *hbox201;
   GtkWidget *image1519;
   GtkWidget *label375;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   delete_item_dialog = gtk_dialog_new ();
-  gtk_tooltips_set_tip (tooltips, delete_item_dialog, "Delete a Residue/Monomer.  Note that if an atom with an alternative conformation specifier is picked, then only those atoms in the residue with the same alternative conformation as the picked atom are deleted.", NULL);
+  // gtk_tooltips_set_tip (tooltips, delete_item_dialog, "Delete a Residue/Monomer.  Note that if an atom with an alternative conformation specifier is picked, then only those atoms in the residue with the same alternative conformation as the picked atom are deleted.", NULL);
   gtk_window_set_title (GTK_WINDOW (delete_item_dialog), "Delete item");
   gtk_window_set_type_hint (GTK_WINDOW (delete_item_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox12 = GTK_DIALOG (delete_item_dialog)->vbox;
+  dialog_vbox12 = gtk_dialog_get_content_area( delete_item_dialog );
   gtk_widget_show (dialog_vbox12);
 
   frame51 = gtk_frame_new (NULL);
@@ -10107,7 +10107,7 @@ create_delete_item_dialog (void)
   gtk_widget_show (delete_item_keep_active_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox63), delete_item_keep_active_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (delete_item_keep_active_checkbutton), 8);
-  gtk_tooltips_set_tip (tooltips, delete_item_keep_active_checkbutton, "For use with Multiple Deletes. When activated, deleting an item does not dismiss this dialog.  (Has the same action as using Ctrl-Left Click)", NULL);
+  // gtk_tooltips_set_tip (tooltips, delete_item_keep_active_checkbutton, "For use with Multiple Deletes. When activated, deleting an item does not dismiss this dialog.  (Has the same action as using Ctrl-Left Click)", NULL);
 
   label126 = gtk_label_new ("\n Now click on an atom (of the residue) \nthat you wish to delete.               ");
   gtk_widget_show (label126);
@@ -10115,7 +10115,7 @@ create_delete_item_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label126), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label126), 0, 0);
 
-  dialog_action_area12 = GTK_DIALOG (delete_item_dialog)->action_area;
+  dialog_action_area12 = gtk_dialog_get_content_area( delete_item_dialog );
   gtk_widget_show (dialog_action_area12);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area12), GTK_BUTTONBOX_END);
 
@@ -10177,8 +10177,8 @@ create_delete_item_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (delete_item_dialog, delete_item_dialog, "delete_item_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (delete_item_dialog, dialog_vbox12, "dialog_vbox12");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(delete_item_dialog, delete_item_dialog, "delete_item_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(delete_item_dialog, dialog_vbox12, "dialog_vbox12");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, frame51, "frame51");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, vbox63, "vbox63");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, label95, "label95");
@@ -10192,13 +10192,13 @@ create_delete_item_dialog (void)
   GLADE_HOOKUP_OBJECT (delete_item_dialog, delete_item_residue_range_radiobutton, "delete_item_residue_range_radiobutton");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, delete_item_keep_active_checkbutton, "delete_item_keep_active_checkbutton");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, label126, "label126");
-  GLADE_HOOKUP_OBJECT_NO_REF (delete_item_dialog, dialog_action_area12, "dialog_action_area12");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(delete_item_dialog, dialog_action_area12, "dialog_action_area12");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, delete_item_cancel_button, "delete_item_cancel_button");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, alignment50, "alignment50");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, hbox201, "hbox201");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, image1519, "image1519");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, label375, "label375");
-  GLADE_HOOKUP_OBJECT_NO_REF (delete_item_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(delete_item_dialog, tooltips, "tooltips");
 
   return delete_item_dialog;
 }
@@ -10211,7 +10211,6 @@ create_close_molecule_dialog (void)
   GtkWidget *vbox64;
   GtkWidget *label96;
   GtkWidget *frame52;
-  GtkWidget *close_molecule_optionmenu;
   GtkWidget *close_molecule_combobox;
   GtkWidget *dialog_action_area13;
   GtkWidget *hbox48;
@@ -10230,7 +10229,7 @@ create_close_molecule_dialog (void)
   gtk_window_set_title (GTK_WINDOW (close_molecule_dialog), "Choose Molecule to Close:");
   gtk_window_set_type_hint (GTK_WINDOW (close_molecule_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox13 = GTK_DIALOG (close_molecule_dialog)->vbox;
+  dialog_vbox13 = gtk_dialog_get_content_area( close_molecule_dialog );
   gtk_widget_show (dialog_vbox13);
 
   vbox64 = gtk_vbox_new (FALSE, 0);
@@ -10248,15 +10247,11 @@ create_close_molecule_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox64), frame52, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame52), 6);
 
-  close_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (close_molecule_optionmenu);
-  gtk_container_add (GTK_CONTAINER (frame52), close_molecule_optionmenu);
-
   close_molecule_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (close_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox64), close_molecule_combobox, TRUE, TRUE, 0);
 
-  dialog_action_area13 = GTK_DIALOG (close_molecule_dialog)->action_area;
+  dialog_action_area13 = gtk_dialog_get_content_area( close_molecule_dialog );
   gtk_widget_show (dialog_action_area13);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area13), GTK_BUTTONBOX_END);
 
@@ -10267,7 +10262,7 @@ create_close_molecule_dialog (void)
   close_molecule_close_button = gtk_button_new ();
   gtk_widget_show (close_molecule_close_button);
   gtk_box_pack_start (GTK_BOX (hbox48), close_molecule_close_button, TRUE, TRUE, 2);
-  GTK_WIDGET_SET_FLAGS (close_molecule_close_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (close_molecule_close_button, GTK_CAN_DEFAULT);
 
   alignment51 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment51);
@@ -10288,7 +10283,7 @@ create_close_molecule_dialog (void)
   close_molecule_cancel_button = gtk_button_new ();
   gtk_widget_show (close_molecule_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox48), close_molecule_cancel_button, TRUE, TRUE, 2);
-  GTK_WIDGET_SET_FLAGS (close_molecule_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (close_molecule_cancel_button, GTK_CAN_DEFAULT);
 
   alignment52 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment52);
@@ -10314,14 +10309,13 @@ create_close_molecule_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (close_molecule_dialog, close_molecule_dialog, "close_molecule_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (close_molecule_dialog, dialog_vbox13, "dialog_vbox13");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(close_molecule_dialog, close_molecule_dialog, "close_molecule_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(close_molecule_dialog, dialog_vbox13, "dialog_vbox13");
   GLADE_HOOKUP_OBJECT (close_molecule_dialog, vbox64, "vbox64");
   GLADE_HOOKUP_OBJECT (close_molecule_dialog, label96, "label96");
   GLADE_HOOKUP_OBJECT (close_molecule_dialog, frame52, "frame52");
-  GLADE_HOOKUP_OBJECT (close_molecule_dialog, close_molecule_optionmenu, "close_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (close_molecule_dialog, close_molecule_combobox, "close_molecule_combobox");
-  GLADE_HOOKUP_OBJECT_NO_REF (close_molecule_dialog, dialog_action_area13, "dialog_action_area13");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(close_molecule_dialog, dialog_action_area13, "dialog_action_area13");
   GLADE_HOOKUP_OBJECT (close_molecule_dialog, hbox48, "hbox48");
   GLADE_HOOKUP_OBJECT (close_molecule_dialog, close_molecule_close_button, "close_molecule_close_button");
   GLADE_HOOKUP_OBJECT (close_molecule_dialog, alignment51, "alignment51");
@@ -10392,7 +10386,7 @@ create_residue_info_dialog (void)
   gtk_window_set_title (GTK_WINDOW (residue_info_dialog), "Residue Info");
   gtk_window_set_type_hint (GTK_WINDOW (residue_info_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox14 = GTK_DIALOG (residue_info_dialog)->vbox;
+  dialog_vbox14 = gtk_dialog_get_content_area( residue_info_dialog );
   gtk_widget_show (dialog_vbox14);
 
   vbox65 = gtk_vbox_new (FALSE, 0);
@@ -10475,7 +10469,7 @@ create_residue_info_dialog (void)
   gtk_widget_show (scrolledwindow23);
   gtk_box_pack_start (GTK_BOX (vbox65), scrolledwindow23, TRUE, TRUE, 0);
   gtk_widget_set_size_request (scrolledwindow23, -1, 176);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow23, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow23, GTK_CAN_FOCUS);
 
   viewport18 = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (viewport18);
@@ -10537,7 +10531,7 @@ create_residue_info_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (chi_angles_frame), label443);
   gtk_label_set_use_markup (GTK_LABEL (label443), TRUE);
 
-  dialog_action_area14 = GTK_DIALOG (residue_info_dialog)->action_area;
+  dialog_action_area14 = gtk_dialog_get_content_area( residue_info_dialog );
   gtk_widget_show (dialog_action_area14);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area14), GTK_BUTTONBOX_END);
 
@@ -10549,7 +10543,7 @@ create_residue_info_dialog (void)
   gtk_widget_show (residue_info_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox49), residue_info_ok_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (residue_info_ok_button), 2);
-  GTK_WIDGET_SET_FLAGS (residue_info_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (residue_info_ok_button, GTK_CAN_DEFAULT);
 
   alignment53 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment53);
@@ -10571,7 +10565,7 @@ create_residue_info_dialog (void)
   gtk_widget_show (residue_info_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox49), residue_info_cancel_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (residue_info_cancel_button), 4);
-  GTK_WIDGET_SET_FLAGS (residue_info_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (residue_info_cancel_button, GTK_CAN_DEFAULT);
 
   alignment54 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment54);
@@ -10609,8 +10603,8 @@ create_residue_info_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (residue_info_dialog, residue_info_dialog, "residue_info_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (residue_info_dialog, dialog_vbox14, "dialog_vbox14");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(residue_info_dialog, residue_info_dialog, "residue_info_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(residue_info_dialog, dialog_vbox14, "dialog_vbox14");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, vbox65, "vbox65");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_residue_label, "residue_info_residue_label");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_residue_name_label, "residue_info_residue_name_label");
@@ -10642,7 +10636,7 @@ create_residue_info_dialog (void)
   GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_chi_4_label, "residue_info_chi_4_label");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_chi_5_label, "residue_info_chi_5_label");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, label443, "label443");
-  GLADE_HOOKUP_OBJECT_NO_REF (residue_info_dialog, dialog_action_area14, "dialog_action_area14");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(residue_info_dialog, dialog_action_area14, "dialog_action_area14");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, hbox49, "hbox49");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_ok_button, "residue_info_ok_button");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, alignment53, "alignment53");
@@ -10673,14 +10667,14 @@ create_hints_dialog (void)
   gtk_window_set_title (GTK_WINDOW (hints_dialog), "Hints");
   gtk_window_set_type_hint (GTK_WINDOW (hints_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox15 = GTK_DIALOG (hints_dialog)->vbox;
+  dialog_vbox15 = gtk_dialog_get_content_area( hints_dialog );
   gtk_widget_show (dialog_vbox15);
 
   scrolledwindow5 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow5);
   gtk_box_pack_start (GTK_BOX (dialog_vbox15), scrolledwindow5, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow5), 6);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow5, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow5, GTK_CAN_FOCUS);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow5), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow5), GTK_SHADOW_IN);
 
@@ -10692,7 +10686,7 @@ create_hints_dialog (void)
   gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (hints_text), GTK_WRAP_WORD);
   gtk_text_buffer_set_text (gtk_text_view_get_buffer (GTK_TEXT_VIEW (hints_text)), "\nLeft-Mouse: Rotate View\nCtrl Left-Mouse Drag:  Moves around view\nShift Left-Mouse:  Label Atom\nRight-Mouse Drag: Zoom in and out\nMiddle-mouse: Centre on Atom\n\nKeyboard +/- changes contour level\n\nCtrl Left-mouse drag is how you \"Move the Pointer\" in Coot.\n\nNote that left-mouse does atom picking and rotating view, so try\nnot to click over an atom when trying to rotate the view when in\natom selection mode.\n\nIf you get stuck in \"translate\" mode, simply press and release\nthe Ctrl key to return to \"rotate\" mode.\n\nTo change the map to which the scrollwheel is attached, use\nHID->Scrollwhell->Attach Scrollwheel to which map?\n\nTo Use the \"Rotation/Translation\" column of buttons, simply \nclick on the button and drag (with the button still \"down\").\n\nUse the function \"(quanta-buttons)\" (or \"quanta_buttons()\") to \nmake the mouse functions more like other molecular graphics\nprograms to which you may be more accustomed.\n", -1);
 
-  dialog_action_area15 = GTK_DIALOG (hints_dialog)->action_area;
+  dialog_action_area15 = gtk_dialog_get_content_area( hints_dialog );
   gtk_widget_show (dialog_action_area15);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area15), GTK_BUTTONBOX_END);
 
@@ -10705,11 +10699,11 @@ create_hints_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (hints_dialog, hints_dialog, "hints_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (hints_dialog, dialog_vbox15, "dialog_vbox15");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(hints_dialog, hints_dialog, "hints_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(hints_dialog, dialog_vbox15, "dialog_vbox15");
   GLADE_HOOKUP_OBJECT (hints_dialog, scrolledwindow5, "scrolledwindow5");
   GLADE_HOOKUP_OBJECT (hints_dialog, hints_text, "hints_text");
-  GLADE_HOOKUP_OBJECT_NO_REF (hints_dialog, dialog_action_area15, "dialog_action_area15");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(hints_dialog, dialog_action_area15, "dialog_action_area15");
   GLADE_HOOKUP_OBJECT (hints_dialog, hints_dialog_ok_button, "hints_dialog_ok_button");
 
   return hints_dialog;
@@ -10737,7 +10731,7 @@ create_rotamer_selection_dialog (void)
   gtk_window_set_title (GTK_WINDOW (rotamer_selection_dialog), "Select Rotamer");
   gtk_window_set_type_hint (GTK_WINDOW (rotamer_selection_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox16 = GTK_DIALOG (rotamer_selection_dialog)->vbox;
+  dialog_vbox16 = gtk_dialog_get_content_area( rotamer_selection_dialog );
   gtk_widget_show (dialog_vbox16);
 
   vbox158 = gtk_vbox_new (FALSE, 0);
@@ -10748,7 +10742,7 @@ create_rotamer_selection_dialog (void)
   gtk_widget_show (scrolledwindow6);
   gtk_box_pack_start (GTK_BOX (vbox158), scrolledwindow6, TRUE, TRUE, 0);
   gtk_widget_set_size_request (scrolledwindow6, -1, 112);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow6, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow6, GTK_CAN_FOCUS);
 
   viewport3 = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (viewport3);
@@ -10772,7 +10766,7 @@ create_rotamer_selection_dialog (void)
   gtk_widget_show (label289);
   gtk_frame_set_label_widget (GTK_FRAME (new_alt_conf_occ_frame), label289);
 
-  dialog_action_area16 = GTK_DIALOG (rotamer_selection_dialog)->action_area;
+  dialog_action_area16 = gtk_dialog_get_content_area( rotamer_selection_dialog );
   gtk_widget_show (dialog_action_area16);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area16), GTK_BUTTONBOX_END);
 
@@ -10783,12 +10777,12 @@ create_rotamer_selection_dialog (void)
   rotamer_selection_ok_button = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (rotamer_selection_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox50), rotamer_selection_ok_button, TRUE, TRUE, 6);
-  GTK_WIDGET_SET_FLAGS (rotamer_selection_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (rotamer_selection_ok_button, GTK_CAN_DEFAULT);
 
   rotamer_selection_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (rotamer_selection_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox50), rotamer_selection_cancel_button, TRUE, TRUE, 6);
-  GTK_WIDGET_SET_FLAGS (rotamer_selection_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (rotamer_selection_cancel_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) rotamer_selection_dialog, "destroy",
                     G_CALLBACK (on_rotamer_selection_dialog_destroy),
@@ -10801,8 +10795,8 @@ create_rotamer_selection_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (rotamer_selection_dialog, rotamer_selection_dialog, "rotamer_selection_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (rotamer_selection_dialog, dialog_vbox16, "dialog_vbox16");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(rotamer_selection_dialog, rotamer_selection_dialog, "rotamer_selection_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(rotamer_selection_dialog, dialog_vbox16, "dialog_vbox16");
   GLADE_HOOKUP_OBJECT (rotamer_selection_dialog, vbox158, "vbox158");
   GLADE_HOOKUP_OBJECT (rotamer_selection_dialog, scrolledwindow6, "scrolledwindow6");
   GLADE_HOOKUP_OBJECT (rotamer_selection_dialog, viewport3, "viewport3");
@@ -10810,7 +10804,7 @@ create_rotamer_selection_dialog (void)
   GLADE_HOOKUP_OBJECT (rotamer_selection_dialog, new_alt_conf_occ_frame, "new_alt_conf_occ_frame");
   GLADE_HOOKUP_OBJECT (rotamer_selection_dialog, new_alt_conf_occ_hscale, "new_alt_conf_occ_hscale");
   GLADE_HOOKUP_OBJECT (rotamer_selection_dialog, label289, "label289");
-  GLADE_HOOKUP_OBJECT_NO_REF (rotamer_selection_dialog, dialog_action_area16, "dialog_action_area16");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(rotamer_selection_dialog, dialog_action_area16, "dialog_action_area16");
   GLADE_HOOKUP_OBJECT (rotamer_selection_dialog, hbox50, "hbox50");
   GLADE_HOOKUP_OBJECT (rotamer_selection_dialog, rotamer_selection_ok_button, "rotamer_selection_ok_button");
   GLADE_HOOKUP_OBJECT (rotamer_selection_dialog, rotamer_selection_cancel_button, "rotamer_selection_cancel_button");
@@ -10847,7 +10841,7 @@ create_unsaved_changes_dialog (void)
   gtk_window_set_title (GTK_WINDOW (unsaved_changes_dialog), "Unsaved Changes");
   gtk_window_set_type_hint (GTK_WINDOW (unsaved_changes_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox17 = GTK_DIALOG (unsaved_changes_dialog)->vbox;
+  dialog_vbox17 = gtk_dialog_get_content_area( unsaved_changes_dialog );
   gtk_widget_show (dialog_vbox17);
 
   frame54 = gtk_frame_new (NULL);
@@ -10876,7 +10870,7 @@ create_unsaved_changes_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label99), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label99), 6, 6);
 
-  dialog_action_area17 = GTK_DIALOG (unsaved_changes_dialog)->action_area;
+  dialog_action_area17 = gtk_dialog_get_content_area( unsaved_changes_dialog );
   gtk_widget_show (dialog_action_area17);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area17), GTK_BUTTONBOX_END);
 
@@ -10888,7 +10882,7 @@ create_unsaved_changes_dialog (void)
   gtk_widget_show (unsaved_changes_continue_button);
   gtk_box_pack_start (GTK_BOX (hbox51), unsaved_changes_continue_button, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (unsaved_changes_continue_button), 2);
-  GTK_WIDGET_SET_FLAGS (unsaved_changes_continue_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (unsaved_changes_continue_button, GTK_CAN_DEFAULT);
 
   alignment67 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment67);
@@ -10910,7 +10904,7 @@ create_unsaved_changes_dialog (void)
   gtk_widget_show (unsaved_changes_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox51), unsaved_changes_cancel_button, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (unsaved_changes_cancel_button), 2);
-  GTK_WIDGET_SET_FLAGS (unsaved_changes_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (unsaved_changes_cancel_button, GTK_CAN_DEFAULT);
 
   alignment68 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment68);
@@ -10936,14 +10930,14 @@ create_unsaved_changes_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (unsaved_changes_dialog, unsaved_changes_dialog, "unsaved_changes_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (unsaved_changes_dialog, dialog_vbox17, "dialog_vbox17");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(unsaved_changes_dialog, unsaved_changes_dialog, "unsaved_changes_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(unsaved_changes_dialog, dialog_vbox17, "dialog_vbox17");
   GLADE_HOOKUP_OBJECT (unsaved_changes_dialog, frame54, "frame54");
   GLADE_HOOKUP_OBJECT (unsaved_changes_dialog, vbox66, "vbox66");
   GLADE_HOOKUP_OBJECT (unsaved_changes_dialog, label98, "label98");
   GLADE_HOOKUP_OBJECT (unsaved_changes_dialog, unsaved_changes_molecule_vbox, "unsaved_changes_molecule_vbox");
   GLADE_HOOKUP_OBJECT (unsaved_changes_dialog, label99, "label99");
-  GLADE_HOOKUP_OBJECT_NO_REF (unsaved_changes_dialog, dialog_action_area17, "dialog_action_area17");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(unsaved_changes_dialog, dialog_action_area17, "dialog_action_area17");
   GLADE_HOOKUP_OBJECT (unsaved_changes_dialog, hbox51, "hbox51");
   GLADE_HOOKUP_OBJECT (unsaved_changes_dialog, unsaved_changes_continue_button, "unsaved_changes_continue_button");
   GLADE_HOOKUP_OBJECT (unsaved_changes_dialog, alignment67, "alignment67");
@@ -10988,15 +10982,15 @@ create_baton_dialog (void)
   GtkWidget *label734;
   GtkWidget *dialog_action_area18;
   GtkWidget *baton_dialog_ok_button;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   baton_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (baton_dialog), "Baton");
   gtk_window_set_type_hint (GTK_WINDOW (baton_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox18 = GTK_DIALOG (baton_dialog)->vbox;
+  dialog_vbox18 = gtk_dialog_get_content_area( baton_dialog );
   gtk_widget_show (dialog_vbox18);
 
   vbox69 = gtk_vbox_new (FALSE, 0);
@@ -11022,13 +11016,13 @@ create_baton_dialog (void)
   gtk_widget_show (baton_accept_button);
   gtk_box_pack_start (GTK_BOX (vbox72), baton_accept_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (baton_accept_button), 4);
-  gtk_tooltips_set_tip (tooltips, baton_accept_button, "Accept this baton tip position, place atom and try new one...", NULL);
+  // gtk_tooltips_set_tip (tooltips, baton_accept_button, "Accept this baton tip position, place atom and try new one...", NULL);
 
   baton_try_again_button = gtk_button_new_with_mnemonic ("Try Another");
   gtk_widget_show (baton_try_again_button);
   gtk_box_pack_start (GTK_BOX (vbox72), baton_try_again_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (baton_try_again_button), 4);
-  gtk_tooltips_set_tip (tooltips, baton_try_again_button, "Try Another Autoplacement Baton Position.  Cycles back to beginning", NULL);
+  // gtk_tooltips_set_tip (tooltips, baton_try_again_button, "Try Another Autoplacement Baton Position.  Cycles back to beginning", NULL);
 
   baton_tip_previous_button = gtk_button_new_with_mnemonic ("Previous Tip Position");
   gtk_widget_show (baton_tip_previous_button);
@@ -11098,14 +11092,14 @@ create_baton_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (frame291), label734);
   gtk_label_set_use_markup (GTK_LABEL (label734), TRUE);
 
-  dialog_action_area18 = GTK_DIALOG (baton_dialog)->action_area;
+  dialog_action_area18 = gtk_dialog_get_content_area( baton_dialog );
   gtk_widget_show (dialog_action_area18);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area18), GTK_BUTTONBOX_END);
 
   baton_dialog_ok_button = gtk_button_new_with_mnemonic ("  Dismiss  ");
   gtk_widget_show (baton_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (baton_dialog), baton_dialog_ok_button, 0);
-  gtk_tooltips_set_tip (tooltips, baton_dialog_ok_button, "Exits Baton Mode", NULL);
+  // gtk_tooltips_set_tip (tooltips, baton_dialog_ok_button, "Exits Baton Mode", NULL);
 
   g_signal_connect ((gpointer) baton_accept_button, "clicked",
                     G_CALLBACK (on_baton_accept_button_clicked),
@@ -11133,8 +11127,8 @@ create_baton_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (baton_dialog, baton_dialog, "baton_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (baton_dialog, dialog_vbox18, "dialog_vbox18");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_dialog, baton_dialog, "baton_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_dialog, dialog_vbox18, "dialog_vbox18");
   GLADE_HOOKUP_OBJECT (baton_dialog, vbox69, "vbox69");
   GLADE_HOOKUP_OBJECT (baton_dialog, frame289, "frame289");
   GLADE_HOOKUP_OBJECT (baton_dialog, alignment143, "alignment143");
@@ -11155,9 +11149,9 @@ create_baton_dialog (void)
   GLADE_HOOKUP_OBJECT (baton_dialog, vbox303, "vbox303");
   GLADE_HOOKUP_OBJECT (baton_dialog, baton_build_set_params_button, "baton_build_set_params_button");
   GLADE_HOOKUP_OBJECT (baton_dialog, label734, "label734");
-  GLADE_HOOKUP_OBJECT_NO_REF (baton_dialog, dialog_action_area18, "dialog_action_area18");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_dialog, dialog_action_area18, "dialog_action_area18");
   GLADE_HOOKUP_OBJECT (baton_dialog, baton_dialog_ok_button, "baton_dialog_ok_button");
-  GLADE_HOOKUP_OBJECT_NO_REF (baton_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_dialog, tooltips, "tooltips");
 
   return baton_dialog;
 }
@@ -11181,7 +11175,7 @@ create_read_pdb_recentre_dialog (void)
   gtk_window_set_title (GTK_WINDOW (read_pdb_recentre_dialog), "Recentre Dialog");
   gtk_window_set_type_hint (GTK_WINDOW (read_pdb_recentre_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox20 = GTK_DIALOG (read_pdb_recentre_dialog)->vbox;
+  dialog_vbox20 = gtk_dialog_get_content_area( read_pdb_recentre_dialog );
   gtk_widget_show (dialog_vbox20);
 
   vbox75 = gtk_vbox_new (FALSE, 0);
@@ -11215,7 +11209,7 @@ create_read_pdb_recentre_dialog (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (read_pdb_recentre_no_radiobutton), read_pdb_recentre_yes_radiobutton_group);
   read_pdb_recentre_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (read_pdb_recentre_no_radiobutton));
 
-  dialog_action_area20 = GTK_DIALOG (read_pdb_recentre_dialog)->action_area;
+  dialog_action_area20 = gtk_dialog_get_content_area( read_pdb_recentre_dialog );
   gtk_widget_show (dialog_action_area20);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area20), GTK_BUTTONBOX_END);
 
@@ -11234,15 +11228,15 @@ create_read_pdb_recentre_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (read_pdb_recentre_dialog, read_pdb_recentre_dialog, "read_pdb_recentre_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (read_pdb_recentre_dialog, dialog_vbox20, "dialog_vbox20");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(read_pdb_recentre_dialog, read_pdb_recentre_dialog, "read_pdb_recentre_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(read_pdb_recentre_dialog, dialog_vbox20, "dialog_vbox20");
   GLADE_HOOKUP_OBJECT (read_pdb_recentre_dialog, vbox75, "vbox75");
   GLADE_HOOKUP_OBJECT (read_pdb_recentre_dialog, label103, "label103");
   GLADE_HOOKUP_OBJECT (read_pdb_recentre_dialog, frame60, "frame60");
   GLADE_HOOKUP_OBJECT (read_pdb_recentre_dialog, vbox76, "vbox76");
   GLADE_HOOKUP_OBJECT (read_pdb_recentre_dialog, read_pdb_recentre_yes_radiobutton, "read_pdb_recentre_yes_radiobutton");
   GLADE_HOOKUP_OBJECT (read_pdb_recentre_dialog, read_pdb_recentre_no_radiobutton, "read_pdb_recentre_no_radiobutton");
-  GLADE_HOOKUP_OBJECT_NO_REF (read_pdb_recentre_dialog, dialog_action_area20, "dialog_action_area20");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(read_pdb_recentre_dialog, dialog_action_area20, "dialog_action_area20");
   GLADE_HOOKUP_OBJECT (read_pdb_recentre_dialog, read_pdb_recentre_dialog_ok_button, "read_pdb_recentre_dialog_ok_button");
 
   return read_pdb_recentre_dialog;
@@ -11282,7 +11276,7 @@ create_pointer_atom_type_dialog (void)
   gtk_window_set_title (GTK_WINDOW (pointer_atom_type_dialog), "Pointer atom type");
   gtk_window_set_type_hint (GTK_WINDOW (pointer_atom_type_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox21 = GTK_DIALOG (pointer_atom_type_dialog)->vbox;
+  dialog_vbox21 = gtk_dialog_get_content_area( pointer_atom_type_dialog );
   gtk_widget_show (dialog_vbox21);
 
   vbox77 = gtk_vbox_new (FALSE, 0);
@@ -11384,7 +11378,7 @@ create_pointer_atom_type_dialog (void)
   gtk_widget_show (label290);
   gtk_frame_set_label_widget (GTK_FRAME (frame80), label290);
 
-  dialog_action_area21 = GTK_DIALOG (pointer_atom_type_dialog)->action_area;
+  dialog_action_area21 = gtk_dialog_get_content_area( pointer_atom_type_dialog );
   gtk_widget_show (dialog_action_area21);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area21), GTK_BUTTONBOX_END);
 
@@ -11413,8 +11407,8 @@ create_pointer_atom_type_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (pointer_atom_type_dialog, pointer_atom_type_dialog, "pointer_atom_type_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (pointer_atom_type_dialog, dialog_vbox21, "dialog_vbox21");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(pointer_atom_type_dialog, pointer_atom_type_dialog, "pointer_atom_type_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(pointer_atom_type_dialog, dialog_vbox21, "dialog_vbox21");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, vbox77, "vbox77");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, label104, "label104");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, frame61, "frame61");
@@ -11434,7 +11428,7 @@ create_pointer_atom_type_dialog (void)
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, frame80, "frame80");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_molecule_combobox, "pointer_atom_molecule_combobox");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, label290, "label290");
-  GLADE_HOOKUP_OBJECT_NO_REF (pointer_atom_type_dialog, dialog_action_area21, "dialog_action_area21");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(pointer_atom_type_dialog, dialog_action_area21, "dialog_action_area21");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, hbox52, "hbox52");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_type_ok_button, "pointer_atom_type_ok_button");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_type_cancel_button, "pointer_atom_type_cancel_button");
@@ -11450,10 +11444,8 @@ create_run_refmac_dialog (void)
   GtkWidget *vbox81;
   GtkWidget *hbox347;
   GtkWidget *label645;
-  GtkWidget *run_refmac_method_optionmenu;
   GtkWidget *run_refmac_method_combobox;
   GtkWidget *label646;
-  GtkWidget *run_refmac_phase_input_optionmenu;
   GtkWidget *run_refmac_phase_input_combobox;
   GtkWidget *label647;
   GtkWidget *run_refmac_extra_refinement_options_frame;
@@ -11488,7 +11480,6 @@ create_run_refmac_dialog (void)
   GtkWidget *label688;
   GtkWidget *frame282;
   GtkWidget *hbox370;
-  GtkWidget *run_refmac_map_optionmenu;
   GtkWidget *label686;
   GtkWidget *run_refmac_help_button;
   GtkWidget *run_refmac_map_combobox;
@@ -11508,39 +11499,30 @@ create_run_refmac_dialog (void)
   GtkWidget *vbox278;
   GtkWidget *refmac_dialog_fobs_hbox;
   GtkWidget *label640;
-  GtkWidget *refmac_dialog_fobs_optionmenu;
   GtkWidget *refmac_dialog_fobs_combobox;
   GtkWidget *refmac_dialog_fpm_hbox;
   GtkWidget *label655;
-  GtkWidget *refmac_dialog_fpm_optionmenu;
   GtkWidget *refmac_dialog_fpm_combobox;
   GtkWidget *refmac_dialog_fiobs_hbox;
   GtkWidget *label656;
-  GtkWidget *refmac_dialog_fiobs_optionmenu;
   GtkWidget *refmac_dlalog_fiobs_combobox;
   GtkWidget *refmac_dialog_ipm_hbox;
   GtkWidget *label657;
-  GtkWidget *refmac_dialog_ipm_optionmenu;
   GtkWidget *refmac_dialog_ipm_combobox;
   GtkWidget *hbox344;
   GtkWidget *label642;
-  GtkWidget *refmac_dialog_rfree_optionmenu;
   GtkWidget *refmac_dialog_rfree_combobox;
   GtkWidget *refmac_dialog_phases_hbox;
   GtkWidget *label649;
-  GtkWidget *refmac_dialog_phases_optionmenu;
   GtkWidget *label648;
-  GtkWidget *refmac_dialog_fom_optionmenu;
   GtkWidget *refmac_dialog_phases_combobox;
   GtkWidget *refmac_dialog_fom_combobox;
   GtkWidget *refmac_dialog_hl_hbox;
   GtkWidget *label650;
-  GtkWidget *refmac_dialog_hl_optionmenu;
   GtkWidget *refmac_dialog_hl_combobox;
   GtkWidget *frame276;
   GtkWidget *hbox346;
   GtkWidget *label644;
-  GtkWidget *run_refmac_ncycle_optionmenu;
   GtkWidget *run_refmac_ncycle_combobox;
   GtkWidget *frame275;
   GtkWidget *run_refmac_ncs_checkbutton;
@@ -11553,15 +11535,15 @@ create_run_refmac_dialog (void)
   GtkWidget *hbox56;
   GtkWidget *run_refmac_run_button;
   GtkWidget *run_refmac_cancel_button;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   run_refmac_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (run_refmac_dialog), "Run Refmac");
   gtk_window_set_type_hint (GTK_WINDOW (run_refmac_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox22 = GTK_DIALOG (run_refmac_dialog)->vbox;
+  dialog_vbox22 = gtk_dialog_get_content_area( run_refmac_dialog );
   gtk_widget_show (dialog_vbox22);
 
   vbox81 = gtk_vbox_new (FALSE, 0);
@@ -11579,10 +11561,6 @@ create_run_refmac_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label645), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label645), 6, 0);
 
-  run_refmac_method_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (run_refmac_method_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox347), run_refmac_method_optionmenu, FALSE, FALSE, 0);
-
   run_refmac_method_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (run_refmac_method_combobox);
   gtk_box_pack_start (GTK_BOX (hbox347), run_refmac_method_combobox, TRUE, TRUE, 0);
@@ -11592,10 +11570,6 @@ create_run_refmac_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox347), label646, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label646), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label646), 6, 0);
-
-  run_refmac_phase_input_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (run_refmac_phase_input_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox347), run_refmac_phase_input_optionmenu, FALSE, FALSE, 0);
 
   run_refmac_phase_input_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (run_refmac_phase_input_combobox);
@@ -11618,18 +11592,18 @@ create_run_refmac_dialog (void)
   run_refmac_tls_checkbutton = gtk_check_button_new_with_mnemonic ("Use TLS?");
   gtk_box_pack_start (GTK_BOX (vbox279), run_refmac_tls_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (run_refmac_tls_checkbutton), 3);
-  gtk_tooltips_set_tip (tooltips, run_refmac_tls_checkbutton, "Refmac will use each chain as an TLS group (run 5 cycles of TLS)", NULL);
+  // gtk_tooltips_set_tip (tooltips, run_refmac_tls_checkbutton, "Refmac will use each chain as an TLS group (run 5 cycles of TLS)", NULL);
 
   run_refmac_twin_checkbutton = gtk_check_button_new_with_mnemonic ("Twin?");
   gtk_widget_show (run_refmac_twin_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox279), run_refmac_twin_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (run_refmac_twin_checkbutton), 3);
-  gtk_tooltips_set_tip (tooltips, run_refmac_twin_checkbutton, "Use twin refinement (you need to input an extra mtz file for intensities)", NULL);
+  // gtk_tooltips_set_tip (tooltips, run_refmac_twin_checkbutton, "Use twin refinement (you need to input an extra mtz file for intensities)", NULL);
 
   run_refmac_sad_checkbutton = gtk_check_button_new_with_mnemonic ("SAD refinement?");
   gtk_box_pack_start (GTK_BOX (vbox279), run_refmac_sad_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (run_refmac_sad_checkbutton), 3);
-  gtk_tooltips_set_tip (tooltips, run_refmac_sad_checkbutton, "Use anomalous data to refine your structure (input F+/F-)", NULL);
+  // gtk_tooltips_set_tip (tooltips, run_refmac_sad_checkbutton, "Use anomalous data to refine your structure (input F+/F-)", NULL);
 
   run_refmac_sad_extra_hbox = gtk_hbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (vbox279), run_refmac_sad_extra_hbox, TRUE, TRUE, 0);
@@ -11757,11 +11731,6 @@ create_run_refmac_dialog (void)
   gtk_widget_show (hbox370);
   gtk_container_add (GTK_CONTAINER (frame282), hbox370);
 
-  run_refmac_map_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (run_refmac_map_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox370), run_refmac_map_optionmenu, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (run_refmac_map_optionmenu), 1);
-
   label686 = gtk_label_new ("    ");
   gtk_widget_show (label686);
   gtk_box_pack_start (GTK_BOX (hbox370), label686, FALSE, FALSE, 0);
@@ -11804,7 +11773,7 @@ create_run_refmac_dialog (void)
   gtk_widget_show (run_refmac_mtz_filechooser_button);
   gtk_box_pack_start (GTK_BOX (hbox371), run_refmac_mtz_filechooser_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (run_refmac_mtz_filechooser_button), 1);
-  gtk_tooltips_set_tip (tooltips, run_refmac_mtz_filechooser_button, "Press to open an mtz file for refmac refinement", NULL);
+  // gtk_tooltips_set_tip (tooltips, run_refmac_mtz_filechooser_button, "Press to open an mtz file for refmac refinement", NULL);
 
   alignment129 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment129);
@@ -11830,7 +11799,7 @@ create_run_refmac_dialog (void)
   run_refmac_nolabels_checkbutton = gtk_check_button_new_with_mnemonic ("Let Refmac decide on the column labels");
   gtk_box_pack_start (GTK_BOX (vbox81), run_refmac_nolabels_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (run_refmac_nolabels_checkbutton), 3);
-  gtk_tooltips_set_tip (tooltips, run_refmac_nolabels_checkbutton, "Refmac will decide on the column labels to use from the given mtz file", NULL);
+  // gtk_tooltips_set_tip (tooltips, run_refmac_nolabels_checkbutton, "Refmac will decide on the column labels to use from the given mtz file", NULL);
 
   run_refmac_column_labels_frame = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (vbox81), run_refmac_column_labels_frame, TRUE, TRUE, 0);
@@ -11850,10 +11819,6 @@ create_run_refmac_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label640), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label640), 6, 0);
 
-  refmac_dialog_fobs_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_fobs_optionmenu);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_fobs_hbox), refmac_dialog_fobs_optionmenu, FALSE, FALSE, 0);
-
   refmac_dialog_fobs_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (refmac_dialog_fobs_combobox);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_fobs_hbox), refmac_dialog_fobs_combobox, TRUE, TRUE, 0);
@@ -11866,10 +11831,6 @@ create_run_refmac_dialog (void)
   gtk_box_pack_start (GTK_BOX (refmac_dialog_fpm_hbox), label655, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label655), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label655), 6, 0);
-
-  refmac_dialog_fpm_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_fpm_optionmenu);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_fpm_hbox), refmac_dialog_fpm_optionmenu, FALSE, FALSE, 0);
 
   refmac_dialog_fpm_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (refmac_dialog_fpm_combobox);
@@ -11884,10 +11845,6 @@ create_run_refmac_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label656), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label656), 6, 0);
 
-  refmac_dialog_fiobs_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_fiobs_optionmenu);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_fiobs_hbox), refmac_dialog_fiobs_optionmenu, FALSE, FALSE, 0);
-
   refmac_dlalog_fiobs_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (refmac_dlalog_fiobs_combobox);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_fiobs_hbox), refmac_dlalog_fiobs_combobox, TRUE, TRUE, 0);
@@ -11900,10 +11857,6 @@ create_run_refmac_dialog (void)
   gtk_box_pack_start (GTK_BOX (refmac_dialog_ipm_hbox), label657, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label657), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label657), 6, 0);
-
-  refmac_dialog_ipm_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_ipm_optionmenu);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_ipm_hbox), refmac_dialog_ipm_optionmenu, FALSE, FALSE, 0);
 
   refmac_dialog_ipm_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (refmac_dialog_ipm_combobox);
@@ -11919,10 +11872,6 @@ create_run_refmac_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label642), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label642), 6, 0);
 
-  refmac_dialog_rfree_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_rfree_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox344), refmac_dialog_rfree_optionmenu, FALSE, FALSE, 0);
-
   refmac_dialog_rfree_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (refmac_dialog_rfree_combobox);
   gtk_box_pack_start (GTK_BOX (hbox344), refmac_dialog_rfree_combobox, TRUE, TRUE, 0);
@@ -11936,17 +11885,9 @@ create_run_refmac_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label649), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label649), 6, 0);
 
-  refmac_dialog_phases_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_phases_optionmenu);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_phases_hbox), refmac_dialog_phases_optionmenu, FALSE, FALSE, 0);
-
   label648 = gtk_label_new ("FOM");
   gtk_widget_show (label648);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_phases_hbox), label648, FALSE, FALSE, 0);
-
-  refmac_dialog_fom_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_fom_optionmenu);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_phases_hbox), refmac_dialog_fom_optionmenu, FALSE, FALSE, 0);
 
   refmac_dialog_phases_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (refmac_dialog_phases_combobox);
@@ -11964,10 +11905,6 @@ create_run_refmac_dialog (void)
   gtk_box_pack_start (GTK_BOX (refmac_dialog_hl_hbox), label650, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label650), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label650), 6, 0);
-
-  refmac_dialog_hl_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_hl_optionmenu);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_hl_hbox), refmac_dialog_hl_optionmenu, FALSE, FALSE, 0);
 
   refmac_dialog_hl_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (refmac_dialog_hl_combobox);
@@ -11988,10 +11925,6 @@ create_run_refmac_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label644), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label644), 6, 0);
 
-  run_refmac_ncycle_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (run_refmac_ncycle_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox346), run_refmac_ncycle_optionmenu, FALSE, FALSE, 0);
-
   run_refmac_ncycle_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (run_refmac_ncycle_combobox);
   gtk_box_pack_start (GTK_BOX (hbox346), run_refmac_ncycle_combobox, TRUE, TRUE, 0);
@@ -12005,7 +11938,7 @@ create_run_refmac_dialog (void)
   gtk_widget_show (run_refmac_ncs_checkbutton);
   gtk_container_add (GTK_CONTAINER (frame275), run_refmac_ncs_checkbutton);
   gtk_container_set_border_width (GTK_CONTAINER (run_refmac_ncs_checkbutton), 3);
-  gtk_tooltips_set_tip (tooltips, run_refmac_ncs_checkbutton, "Refmac will use NCS with default weight. NCS groups are NCS chains detected by Coot.", NULL);
+  // gtk_tooltips_set_tip (tooltips, run_refmac_ncs_checkbutton, "Refmac will use NCS with default weight. NCS groups are NCS chains detected by Coot.", NULL);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (run_refmac_ncs_checkbutton), TRUE);
 
   frame68 = gtk_frame_new (NULL);
@@ -12031,7 +11964,7 @@ create_run_refmac_dialog (void)
   gtk_widget_show (label291);
   gtk_frame_set_label_widget (GTK_FRAME (frame87), label291);
 
-  dialog_action_area22 = GTK_DIALOG (run_refmac_dialog)->action_area;
+  dialog_action_area22 = gtk_dialog_get_content_area( run_refmac_dialog );
   gtk_widget_show (dialog_action_area22);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area22), GTK_BUTTONBOX_END);
 
@@ -12042,15 +11975,12 @@ create_run_refmac_dialog (void)
   run_refmac_run_button = gtk_button_new_with_mnemonic ("  Run Refmac  ");
   gtk_widget_show (run_refmac_run_button);
   gtk_box_pack_start (GTK_BOX (hbox56), run_refmac_run_button, TRUE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, run_refmac_run_button, "Please be patient (sit back and wait...)", NULL);
+  // gtk_tooltips_set_tip (tooltips, run_refmac_run_button, "Please be patient (sit back and wait...)", NULL);
 
   run_refmac_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (run_refmac_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox56), run_refmac_cancel_button, TRUE, FALSE, 0);
 
-  g_signal_connect ((gpointer) run_refmac_phase_input_optionmenu, "changed",
-                    G_CALLBACK (on_run_refmac_phase_input_optionmenu_changed),
-                    NULL);
   g_signal_connect ((gpointer) run_refmac_tls_checkbutton, "toggled",
                     G_CALLBACK (on_run_refmac_tls_checkbutton_toggled),
                     NULL);
@@ -12065,9 +11995,6 @@ create_run_refmac_dialog (void)
                     NULL);
   g_signal_connect ((gpointer) run_refmac_map_mtz_radiobutton, "toggled",
                     G_CALLBACK (on_run_refmac_map_mtz_radiobutton_toggled),
-                    NULL);
-  g_signal_connect ((gpointer) run_refmac_map_optionmenu, "changed",
-                    G_CALLBACK (on_run_refmac_map_optionmenu_changed),
                     NULL);
   g_signal_connect ((gpointer) run_refmac_help_button, "clicked",
                     G_CALLBACK (on_run_refmac_help_button_clicked),
@@ -12098,15 +12025,13 @@ create_run_refmac_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_dialog, run_refmac_dialog, "run_refmac_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_dialog, dialog_vbox22, "dialog_vbox22");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_dialog, run_refmac_dialog, "run_refmac_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_dialog, dialog_vbox22, "dialog_vbox22");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, vbox81, "vbox81");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, hbox347, "hbox347");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label645, "label645");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_method_optionmenu, "run_refmac_method_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_method_combobox, "run_refmac_method_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label646, "label646");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_phase_input_optionmenu, "run_refmac_phase_input_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_phase_input_combobox, "run_refmac_phase_input_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label647, "label647");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_extra_refinement_options_frame, "run_refmac_extra_refinement_options_frame");
@@ -12140,7 +12065,6 @@ create_run_refmac_dialog (void)
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label688, "label688");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, frame282, "frame282");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, hbox370, "hbox370");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_map_optionmenu, "run_refmac_map_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label686, "label686");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_help_button, "run_refmac_help_button");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_map_combobox, "run_refmac_map_combobox");
@@ -12160,39 +12084,30 @@ create_run_refmac_dialog (void)
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, vbox278, "vbox278");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fobs_hbox, "refmac_dialog_fobs_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label640, "label640");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fobs_optionmenu, "refmac_dialog_fobs_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fobs_combobox, "refmac_dialog_fobs_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fpm_hbox, "refmac_dialog_fpm_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label655, "label655");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fpm_optionmenu, "refmac_dialog_fpm_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fpm_combobox, "refmac_dialog_fpm_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fiobs_hbox, "refmac_dialog_fiobs_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label656, "label656");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fiobs_optionmenu, "refmac_dialog_fiobs_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dlalog_fiobs_combobox, "refmac_dlalog_fiobs_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_ipm_hbox, "refmac_dialog_ipm_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label657, "label657");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_ipm_optionmenu, "refmac_dialog_ipm_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_ipm_combobox, "refmac_dialog_ipm_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, hbox344, "hbox344");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label642, "label642");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_rfree_optionmenu, "refmac_dialog_rfree_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_rfree_combobox, "refmac_dialog_rfree_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_phases_hbox, "refmac_dialog_phases_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label649, "label649");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_phases_optionmenu, "refmac_dialog_phases_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label648, "label648");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fom_optionmenu, "refmac_dialog_fom_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_phases_combobox, "refmac_dialog_phases_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fom_combobox, "refmac_dialog_fom_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_hl_hbox, "refmac_dialog_hl_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label650, "label650");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_hl_optionmenu, "refmac_dialog_hl_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_hl_combobox, "refmac_dialog_hl_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, frame276, "frame276");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, hbox346, "hbox346");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label644, "label644");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_ncycle_optionmenu, "run_refmac_ncycle_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_ncycle_combobox, "run_refmac_ncycle_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, frame275, "frame275");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_ncs_checkbutton, "run_refmac_ncs_checkbutton");
@@ -12201,11 +12116,11 @@ create_run_refmac_dialog (void)
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, frame87, "frame87");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_ccp4i_combobox, "run_refmac_ccp4i_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label291, "label291");
-  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_dialog, dialog_action_area22, "dialog_action_area22");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_dialog, dialog_action_area22, "dialog_action_area22");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, hbox56, "hbox56");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_run_button, "run_refmac_run_button");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_cancel_button, "run_refmac_cancel_button");
-  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_dialog, tooltips, "tooltips");
 
   return run_refmac_dialog;
 }
@@ -12280,15 +12195,15 @@ create_single_map_properties_dialog (void)
   GtkWidget *dialog_action_area23;
   GtkWidget *hbox58;
   GtkWidget *single_map_properties_ok_button;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   single_map_properties_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (single_map_properties_dialog), "Individual Map Properties");
   gtk_window_set_type_hint (GTK_WINDOW (single_map_properties_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox23 = GTK_DIALOG (single_map_properties_dialog)->vbox;
+  dialog_vbox23 = gtk_dialog_get_content_area( single_map_properties_dialog );
   gtk_widget_show (dialog_vbox23);
 
   vbox82 = gtk_vbox_new (FALSE, 0);
@@ -12511,7 +12426,7 @@ create_single_map_properties_dialog (void)
   gtk_table_attach (GTK_TABLE (table1), single_map_sigma_checkbutton, 0, 1, 1, 2,
                     (GtkAttachOptions) (0),
                     (GtkAttachOptions) (0), 0, 0);
-  gtk_tooltips_set_tip (tooltips, single_map_sigma_checkbutton, "By default, maps are contoured by fixed e/A3 units.  Setting this allows you to contour using r.m.s.d. step instead.  This is useful for unusual maps - such as E-maps and maps synthesised from structure factors far off the absolute scale.", NULL);
+  // gtk_tooltips_set_tip (tooltips, single_map_sigma_checkbutton, "By default, maps are contoured by fixed e/A3 units.  Setting this allows you to contour using r.m.s.d. step instead.  This is useful for unusual maps - such as E-maps and maps synthesised from structure factors far off the absolute scale.", NULL);
 
   label168 = gtk_label_new ("  r.m.s.d. step  ");
   gtk_widget_show (label168);
@@ -12558,7 +12473,7 @@ create_single_map_properties_dialog (void)
   single_map_properties_colour_button = gtk_button_new ();
   gtk_widget_show (single_map_properties_colour_button);
   gtk_box_pack_start (GTK_BOX (hbox84), single_map_properties_colour_button, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, single_map_properties_colour_button, "See Section 6.5 of the User Manual for default Difference Map colouring.", NULL);
+  // gtk_tooltips_set_tip (tooltips, single_map_properties_colour_button, "See Section 6.5 of the User Manual for default Difference Map colouring.", NULL);
 
   single_map_colour_button_frame = gtk_frame_new (NULL);
   gtk_widget_show (single_map_colour_button_frame);
@@ -12597,7 +12512,7 @@ create_single_map_properties_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (single_map_skeleton_frame), label749);
   gtk_label_set_use_markup (GTK_LABEL (label749), TRUE);
 
-  dialog_action_area23 = GTK_DIALOG (single_map_properties_dialog)->action_area;
+  dialog_action_area23 = gtk_dialog_get_content_area( single_map_properties_dialog );
   gtk_widget_show (dialog_action_area23);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area23), GTK_BUTTONBOX_END);
 
@@ -12609,7 +12524,7 @@ create_single_map_properties_dialog (void)
   gtk_widget_show (single_map_properties_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox58), single_map_properties_ok_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (single_map_properties_ok_button), 6);
-  GTK_WIDGET_SET_FLAGS (single_map_properties_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (single_map_properties_ok_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) displayed_map_style_as_lines_radiobutton, "toggled",
                     G_CALLBACK (on_displayed_map_style_as_lines_radiobutton_toggled),
@@ -12637,8 +12552,8 @@ create_single_map_properties_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (single_map_properties_dialog, single_map_properties_dialog, "single_map_properties_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (single_map_properties_dialog, dialog_vbox23, "dialog_vbox23");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(single_map_properties_dialog, single_map_properties_dialog, "single_map_properties_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(single_map_properties_dialog, dialog_vbox23, "dialog_vbox23");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, vbox82, "vbox82");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label752, "label752");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, frame102, "frame102");
@@ -12698,10 +12613,10 @@ create_single_map_properties_dialog (void)
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_skeleton_on_radiobutton, "single_map_skeleton_on_radiobutton");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_skeleton_off_radiobutton, "single_map_skeleton_off_radiobutton");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label749, "label749");
-  GLADE_HOOKUP_OBJECT_NO_REF (single_map_properties_dialog, dialog_action_area23, "dialog_action_area23");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(single_map_properties_dialog, dialog_action_area23, "dialog_action_area23");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, hbox58, "hbox58");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_properties_ok_button, "single_map_properties_ok_button");
-  GLADE_HOOKUP_OBJECT_NO_REF (single_map_properties_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(single_map_properties_dialog, tooltips, "tooltips");
 
   gtk_widget_grab_focus (single_map_properties_ok_button);
   gtk_widget_grab_default (single_map_properties_ok_button);
@@ -12724,7 +12639,7 @@ create_undo_molecule_chooser_dialog (void)
   gtk_window_set_title (GTK_WINDOW (undo_molecule_chooser_dialog), "Choose molecule to Undo:");
   gtk_window_set_type_hint (GTK_WINDOW (undo_molecule_chooser_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox24 = GTK_DIALOG (undo_molecule_chooser_dialog)->vbox;
+  dialog_vbox24 = gtk_dialog_get_content_area( undo_molecule_chooser_dialog );
   gtk_widget_show (dialog_vbox24);
 
   vbox83 = gtk_vbox_new (FALSE, 0);
@@ -12746,27 +12661,27 @@ create_undo_molecule_chooser_dialog (void)
   gtk_widget_show (undo_molecule_chooser_combobox);
   gtk_box_pack_start (GTK_BOX (vbox83), undo_molecule_chooser_combobox, TRUE, TRUE, 0);
 
-  dialog_action_area24 = GTK_DIALOG (undo_molecule_chooser_dialog)->action_area;
+  dialog_action_area24 = gtk_dialog_get_content_area( undo_molecule_chooser_dialog );
   gtk_widget_show (dialog_action_area24);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area24), GTK_BUTTONBOX_END);
 
   undo_molecule_chooser_ok_button = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (undo_molecule_chooser_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (undo_molecule_chooser_dialog), undo_molecule_chooser_ok_button, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (undo_molecule_chooser_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (undo_molecule_chooser_ok_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) undo_molecule_chooser_ok_button, "clicked",
                     G_CALLBACK (on_undo_molecule_chooser_ok_button_clicked),
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (undo_molecule_chooser_dialog, undo_molecule_chooser_dialog, "undo_molecule_chooser_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (undo_molecule_chooser_dialog, dialog_vbox24, "dialog_vbox24");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(undo_molecule_chooser_dialog, undo_molecule_chooser_dialog, "undo_molecule_chooser_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(undo_molecule_chooser_dialog, dialog_vbox24, "dialog_vbox24");
   GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, vbox83, "vbox83");
   GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, label116, "label116");
   GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, frame70, "frame70");
   GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, undo_molecule_chooser_combobox, "undo_molecule_chooser_combobox");
-  GLADE_HOOKUP_OBJECT_NO_REF (undo_molecule_chooser_dialog, dialog_action_area24, "dialog_action_area24");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(undo_molecule_chooser_dialog, dialog_action_area24, "dialog_action_area24");
   GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, undo_molecule_chooser_ok_button, "undo_molecule_chooser_ok_button");
 
   gtk_widget_grab_default (undo_molecule_chooser_ok_button);
@@ -12782,7 +12697,6 @@ create_skeleton_dialog (void)
   GtkWidget *ca_baton_mode_needs_skel_label;
   GtkWidget *label117;
   GtkWidget *frame71;
-  GtkWidget *skeleton_map_optionmenu;
   GtkWidget *skeleton_map_combobox;
   GtkWidget *skeleton_dialog_on_off_frame;
   GtkWidget *vbox85;
@@ -12794,15 +12708,15 @@ create_skeleton_dialog (void)
   GtkWidget *hbox59;
   GtkWidget *skeleton_ok_button;
   GtkWidget *skeleton_cancel_button;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   skeleton_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (skeleton_dialog), "Skeleton Dialog");
   gtk_window_set_type_hint (GTK_WINDOW (skeleton_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox25 = GTK_DIALOG (skeleton_dialog)->vbox;
+  dialog_vbox25 = gtk_dialog_get_content_area( skeleton_dialog );
   gtk_widget_show (dialog_vbox25);
 
   vbox84 = gtk_vbox_new (FALSE, 0);
@@ -12823,10 +12737,6 @@ create_skeleton_dialog (void)
   gtk_widget_show (frame71);
   gtk_box_pack_start (GTK_BOX (vbox84), frame71, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame71), 2);
-
-  skeleton_map_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (skeleton_map_optionmenu);
-  gtk_container_add (GTK_CONTAINER (frame71), skeleton_map_optionmenu);
 
   skeleton_map_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (skeleton_map_combobox);
@@ -12860,9 +12770,9 @@ create_skeleton_dialog (void)
   gtk_widget_show (skeleton_prune_and_colour_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox84), skeleton_prune_and_colour_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (skeleton_prune_and_colour_checkbutton), 4);
-  gtk_tooltips_set_tip (tooltips, skeleton_prune_and_colour_checkbutton, "Remove sidechains from the skeleton", NULL);
+  // gtk_tooltips_set_tip (tooltips, skeleton_prune_and_colour_checkbutton, "Remove sidechains from the skeleton", NULL);
 
-  dialog_action_area25 = GTK_DIALOG (skeleton_dialog)->action_area;
+  dialog_action_area25 = gtk_dialog_get_content_area( skeleton_dialog );
   gtk_widget_show (dialog_action_area25);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area25), GTK_BUTTONBOX_END);
 
@@ -12886,24 +12796,23 @@ create_skeleton_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (skeleton_dialog, skeleton_dialog, "skeleton_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (skeleton_dialog, dialog_vbox25, "dialog_vbox25");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(skeleton_dialog, skeleton_dialog, "skeleton_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(skeleton_dialog, dialog_vbox25, "dialog_vbox25");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, vbox84, "vbox84");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, ca_baton_mode_needs_skel_label, "ca_baton_mode_needs_skel_label");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, label117, "label117");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, frame71, "frame71");
-  GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_map_optionmenu, "skeleton_map_optionmenu");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_map_combobox, "skeleton_map_combobox");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_dialog_on_off_frame, "skeleton_dialog_on_off_frame");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, vbox85, "vbox85");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_on_radiobutton, "skeleton_on_radiobutton");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_off_radiobutton, "skeleton_off_radiobutton");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_prune_and_colour_checkbutton, "skeleton_prune_and_colour_checkbutton");
-  GLADE_HOOKUP_OBJECT_NO_REF (skeleton_dialog, dialog_action_area25, "dialog_action_area25");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(skeleton_dialog, dialog_action_area25, "dialog_action_area25");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, hbox59, "hbox59");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_ok_button, "skeleton_ok_button");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_cancel_button, "skeleton_cancel_button");
-  GLADE_HOOKUP_OBJECT_NO_REF (skeleton_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(skeleton_dialog, tooltips, "tooltips");
 
   return skeleton_dialog;
 }
@@ -12924,7 +12833,7 @@ create_splash_screen_window (void)
   gtk_container_add (GTK_CONTAINER (splash_screen_window), image10854);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (splash_screen_window, splash_screen_window, "splash_screen_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(splash_screen_window, splash_screen_window, "splash_screen_window");
   GLADE_HOOKUP_OBJECT (splash_screen_window, image10854, "image10854");
 
   return splash_screen_window;
@@ -12949,7 +12858,7 @@ create_crosshairs_dialog (void)
   gtk_window_set_title (GTK_WINDOW (crosshairs_dialog), "Crosshairs");
   gtk_window_set_type_hint (GTK_WINDOW (crosshairs_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox26 = GTK_DIALOG (crosshairs_dialog)->vbox;
+  dialog_vbox26 = gtk_dialog_get_content_area( crosshairs_dialog );
   gtk_widget_show (dialog_vbox26);
 
   vbox87 = gtk_vbox_new (FALSE, 0);
@@ -12985,7 +12894,7 @@ create_crosshairs_dialog (void)
   crosshairs_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (crosshairs_off_radiobutton));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (crosshairs_off_radiobutton), TRUE);
 
-  dialog_action_area26 = GTK_DIALOG (crosshairs_dialog)->action_area;
+  dialog_action_area26 = gtk_dialog_get_content_area( crosshairs_dialog );
   gtk_widget_show (dialog_action_area26);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area26), GTK_BUTTONBOX_END);
 
@@ -13004,15 +12913,15 @@ create_crosshairs_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (crosshairs_dialog, crosshairs_dialog, "crosshairs_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (crosshairs_dialog, dialog_vbox26, "dialog_vbox26");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(crosshairs_dialog, crosshairs_dialog, "crosshairs_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(crosshairs_dialog, dialog_vbox26, "dialog_vbox26");
   GLADE_HOOKUP_OBJECT (crosshairs_dialog, vbox87, "vbox87");
   GLADE_HOOKUP_OBJECT (crosshairs_dialog, label119, "label119");
   GLADE_HOOKUP_OBJECT (crosshairs_dialog, frame72, "frame72");
   GLADE_HOOKUP_OBJECT (crosshairs_dialog, vbox88, "vbox88");
   GLADE_HOOKUP_OBJECT (crosshairs_dialog, crosshairs_on_radiobutton, "crosshairs_on_radiobutton");
   GLADE_HOOKUP_OBJECT (crosshairs_dialog, crosshairs_off_radiobutton, "crosshairs_off_radiobutton");
-  GLADE_HOOKUP_OBJECT_NO_REF (crosshairs_dialog, dialog_action_area26, "dialog_action_area26");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(crosshairs_dialog, dialog_action_area26, "dialog_action_area26");
   GLADE_HOOKUP_OBJECT (crosshairs_dialog, display_crosshairs_ok_button, "display_crosshairs_ok_button");
 
   return crosshairs_dialog;
@@ -13039,7 +12948,7 @@ create_add_alt_conf_dialog (void)
   gtk_window_set_title (GTK_WINDOW (add_alt_conf_dialog), "Add Alternate Conformation");
   gtk_window_set_type_hint (GTK_WINDOW (add_alt_conf_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox27 = GTK_DIALOG (add_alt_conf_dialog)->vbox;
+  dialog_vbox27 = gtk_dialog_get_content_area( add_alt_conf_dialog );
   gtk_widget_show (dialog_vbox27);
 
   vbox89 = gtk_vbox_new (FALSE, 0);
@@ -13082,7 +12991,7 @@ create_add_alt_conf_dialog (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (add_alt_conf_residue_range_radiobutton), add_alt_conf_ca_radiobutton_group);
   add_alt_conf_ca_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (add_alt_conf_residue_range_radiobutton));
 
-  dialog_action_area27 = GTK_DIALOG (add_alt_conf_dialog)->action_area;
+  dialog_action_area27 = gtk_dialog_get_content_area( add_alt_conf_dialog );
   gtk_widget_show (dialog_action_area27);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area27), GTK_BUTTONBOX_END);
 
@@ -13111,8 +13020,8 @@ create_add_alt_conf_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (add_alt_conf_dialog, add_alt_conf_dialog, "add_alt_conf_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (add_alt_conf_dialog, dialog_vbox27, "dialog_vbox27");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_alt_conf_dialog, add_alt_conf_dialog, "add_alt_conf_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_alt_conf_dialog, dialog_vbox27, "dialog_vbox27");
   GLADE_HOOKUP_OBJECT (add_alt_conf_dialog, vbox89, "vbox89");
   GLADE_HOOKUP_OBJECT (add_alt_conf_dialog, label120, "label120");
   GLADE_HOOKUP_OBJECT (add_alt_conf_dialog, frame73, "frame73");
@@ -13120,7 +13029,7 @@ create_add_alt_conf_dialog (void)
   GLADE_HOOKUP_OBJECT (add_alt_conf_dialog, add_alt_conf_ca_radiobutton, "add_alt_conf_ca_radiobutton");
   GLADE_HOOKUP_OBJECT (add_alt_conf_dialog, add_alt_conf_whole_single_residue_radiobutton, "add_alt_conf_whole_single_residue_radiobutton");
   GLADE_HOOKUP_OBJECT (add_alt_conf_dialog, add_alt_conf_residue_range_radiobutton, "add_alt_conf_residue_range_radiobutton");
-  GLADE_HOOKUP_OBJECT_NO_REF (add_alt_conf_dialog, dialog_action_area27, "dialog_action_area27");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_alt_conf_dialog, dialog_action_area27, "dialog_action_area27");
   GLADE_HOOKUP_OBJECT (add_alt_conf_dialog, hbox60, "hbox60");
   GLADE_HOOKUP_OBJECT (add_alt_conf_dialog, add_alt_conf_cancel_button, "add_alt_conf_cancel_button");
 
@@ -13155,7 +13064,7 @@ create_validation_dialog (void)
   gtk_window_set_title (GTK_WINDOW (validation_dialog), "validation dialog");
   gtk_window_set_type_hint (GTK_WINDOW (validation_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox28 = GTK_DIALOG (validation_dialog)->vbox;
+  dialog_vbox28 = gtk_dialog_get_content_area( validation_dialog );
   gtk_widget_show (dialog_vbox28);
 
   frame74 = gtk_frame_new (NULL);
@@ -13176,7 +13085,7 @@ create_validation_dialog (void)
   scrolledwindow7 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow7);
   gtk_box_pack_start (GTK_BOX (vbox91), scrolledwindow7, TRUE, TRUE, 0);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow7, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow7, GTK_CAN_FOCUS);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow7), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow7), GTK_SHADOW_IN);
 
@@ -13226,7 +13135,7 @@ create_validation_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox64), label125, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label125), GTK_JUSTIFY_CENTER);
 
-  dialog_action_area28 = GTK_DIALOG (validation_dialog)->action_area;
+  dialog_action_area28 = gtk_dialog_get_content_area( validation_dialog );
   gtk_widget_show (dialog_action_area28);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area28), GTK_BUTTONBOX_END);
 
@@ -13260,8 +13169,8 @@ create_validation_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (validation_dialog, validation_dialog, "validation_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (validation_dialog, dialog_vbox28, "dialog_vbox28");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(validation_dialog, validation_dialog, "validation_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(validation_dialog, dialog_vbox28, "dialog_vbox28");
   GLADE_HOOKUP_OBJECT (validation_dialog, frame74, "frame74");
   GLADE_HOOKUP_OBJECT (validation_dialog, vbox91, "vbox91");
   GLADE_HOOKUP_OBJECT (validation_dialog, label121, "label121");
@@ -13275,7 +13184,7 @@ create_validation_dialog (void)
   GLADE_HOOKUP_OBJECT (validation_dialog, label124, "label124");
   GLADE_HOOKUP_OBJECT (validation_dialog, validation_dialog_baddie_number_entry, "validation_dialog_baddie_number_entry");
   GLADE_HOOKUP_OBJECT (validation_dialog, label125, "label125");
-  GLADE_HOOKUP_OBJECT_NO_REF (validation_dialog, dialog_action_area28, "dialog_action_area28");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(validation_dialog, dialog_action_area28, "dialog_action_area28");
   GLADE_HOOKUP_OBJECT (validation_dialog, hbox61, "hbox61");
   GLADE_HOOKUP_OBJECT (validation_dialog, validation_dialog_next_button, "validation_dialog_next_button");
   GLADE_HOOKUP_OBJECT (validation_dialog, validation_dialog_prev_button, "validation_dialog_prev_button");
@@ -13310,7 +13219,7 @@ create_run_state_file_dialog (void)
   gtk_window_set_title (GTK_WINDOW (run_state_file_dialog), "saved state dialog");
   gtk_window_set_type_hint (GTK_WINDOW (run_state_file_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox29 = GTK_DIALOG (run_state_file_dialog)->vbox;
+  dialog_vbox29 = gtk_dialog_get_content_area( run_state_file_dialog );
   gtk_widget_show (dialog_vbox29);
 
   vbox191 = gtk_vbox_new (FALSE, 0);
@@ -13333,7 +13242,7 @@ create_run_state_file_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label300), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label300), 30, 15);
 
-  dialog_action_area29 = GTK_DIALOG (run_state_file_dialog)->action_area;
+  dialog_action_area29 = gtk_dialog_get_content_area( run_state_file_dialog );
   gtk_widget_show (dialog_action_area29);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area29), GTK_BUTTONBOX_END);
 
@@ -13345,7 +13254,7 @@ create_run_state_file_dialog (void)
   gtk_widget_show (run_state_file_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox66), run_state_file_ok_button, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (run_state_file_ok_button), 2);
-  GTK_WIDGET_SET_FLAGS (run_state_file_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (run_state_file_ok_button, GTK_CAN_DEFAULT);
 
   alignment63 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment63);
@@ -13367,7 +13276,7 @@ create_run_state_file_dialog (void)
   gtk_widget_show (run_state_file_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox66), run_state_file_cancel_button, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (run_state_file_cancel_button), 2);
-  GTK_WIDGET_SET_FLAGS (run_state_file_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (run_state_file_cancel_button, GTK_CAN_DEFAULT);
 
   alignment64 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment64);
@@ -13393,13 +13302,13 @@ create_run_state_file_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (run_state_file_dialog, run_state_file_dialog, "run_state_file_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (run_state_file_dialog, dialog_vbox29, "dialog_vbox29");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_state_file_dialog, run_state_file_dialog, "run_state_file_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_state_file_dialog, dialog_vbox29, "dialog_vbox29");
   GLADE_HOOKUP_OBJECT (run_state_file_dialog, vbox191, "vbox191");
   GLADE_HOOKUP_OBJECT (run_state_file_dialog, label127, "label127");
   GLADE_HOOKUP_OBJECT (run_state_file_dialog, mols_vbox, "mols_vbox");
   GLADE_HOOKUP_OBJECT (run_state_file_dialog, label300, "label300");
-  GLADE_HOOKUP_OBJECT_NO_REF (run_state_file_dialog, dialog_action_area29, "dialog_action_area29");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_state_file_dialog, dialog_action_area29, "dialog_action_area29");
   GLADE_HOOKUP_OBJECT (run_state_file_dialog, hbox66, "hbox66");
   GLADE_HOOKUP_OBJECT (run_state_file_dialog, run_state_file_ok_button, "run_state_file_ok_button");
   GLADE_HOOKUP_OBJECT (run_state_file_dialog, alignment63, "alignment63");
@@ -13439,7 +13348,7 @@ create_edit_backbone_torsions_dialog (void)
   gtk_window_set_title (GTK_WINDOW (edit_backbone_torsions_dialog), "Edit Backbone Torsions");
   gtk_window_set_type_hint (GTK_WINDOW (edit_backbone_torsions_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox30 = GTK_DIALOG (edit_backbone_torsions_dialog)->vbox;
+  dialog_vbox30 = gtk_dialog_get_content_area( edit_backbone_torsions_dialog );
   gtk_widget_show (dialog_vbox30);
 
   frame75 = gtk_frame_new (NULL);
@@ -13477,7 +13386,7 @@ create_edit_backbone_torsions_dialog (void)
   gtk_widget_show (label302);
   gtk_frame_set_label_widget (GTK_FRAME (frame83), label302);
 
-  dialog_action_area30 = GTK_DIALOG (edit_backbone_torsions_dialog)->action_area;
+  dialog_action_area30 = gtk_dialog_get_content_area( edit_backbone_torsions_dialog );
   gtk_widget_show (dialog_action_area30);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area30), GTK_BUTTONBOX_END);
 
@@ -13489,13 +13398,13 @@ create_edit_backbone_torsions_dialog (void)
   gtk_widget_show (edit_backbone_torsion_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox67), edit_backbone_torsion_ok_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (edit_backbone_torsion_ok_button), 2);
-  GTK_WIDGET_SET_FLAGS (edit_backbone_torsion_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (edit_backbone_torsion_ok_button, GTK_CAN_DEFAULT);
 
   edit_backbone_torsion_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (edit_backbone_torsion_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox67), edit_backbone_torsion_cancel_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (edit_backbone_torsion_cancel_button), 2);
-  GTK_WIDGET_SET_FLAGS (edit_backbone_torsion_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (edit_backbone_torsion_cancel_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) edit_backbone_torsions_dialog, "destroy",
                     G_CALLBACK (on_edit_backbone_torsions_dialog_destroy),
@@ -13508,8 +13417,8 @@ create_edit_backbone_torsions_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (edit_backbone_torsions_dialog, edit_backbone_torsions_dialog, "edit_backbone_torsions_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (edit_backbone_torsions_dialog, dialog_vbox30, "dialog_vbox30");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(edit_backbone_torsions_dialog, edit_backbone_torsions_dialog, "edit_backbone_torsions_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(edit_backbone_torsions_dialog, dialog_vbox30, "dialog_vbox30");
   GLADE_HOOKUP_OBJECT (edit_backbone_torsions_dialog, frame75, "frame75");
   GLADE_HOOKUP_OBJECT (edit_backbone_torsions_dialog, vbox93, "vbox93");
   GLADE_HOOKUP_OBJECT (edit_backbone_torsions_dialog, frame82, "frame82");
@@ -13518,7 +13427,7 @@ create_edit_backbone_torsions_dialog (void)
   GLADE_HOOKUP_OBJECT (edit_backbone_torsions_dialog, frame83, "frame83");
   GLADE_HOOKUP_OBJECT (edit_backbone_torsions_dialog, edit_backbone_torsions_rotate_carbonyl_hscale, "edit_backbone_torsions_rotate_carbonyl_hscale");
   GLADE_HOOKUP_OBJECT (edit_backbone_torsions_dialog, label302, "label302");
-  GLADE_HOOKUP_OBJECT_NO_REF (edit_backbone_torsions_dialog, dialog_action_area30, "dialog_action_area30");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(edit_backbone_torsions_dialog, dialog_action_area30, "dialog_action_area30");
   GLADE_HOOKUP_OBJECT (edit_backbone_torsions_dialog, hbox67, "hbox67");
   GLADE_HOOKUP_OBJECT (edit_backbone_torsions_dialog, edit_backbone_torsion_ok_button, "edit_backbone_torsion_ok_button");
   GLADE_HOOKUP_OBJECT (edit_backbone_torsions_dialog, edit_backbone_torsion_cancel_button, "edit_backbone_torsion_cancel_button");
@@ -13545,15 +13454,15 @@ create_start_workflow_dialog (void)
   GtkWidget *hbox68;
   GtkWidget *workflow_ok_button;
   GtkWidget *workflow_cancel_button;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   start_workflow_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (start_workflow_dialog), "What do you want to do?");
   gtk_window_set_type_hint (GTK_WINDOW (start_workflow_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox31 = GTK_DIALOG (start_workflow_dialog)->vbox;
+  dialog_vbox31 = gtk_dialog_get_content_area( start_workflow_dialog );
   gtk_widget_show (dialog_vbox31);
 
   frame76 = gtk_frame_new (NULL);
@@ -13568,39 +13477,39 @@ create_start_workflow_dialog (void)
   workflow_radiobutton_coords_only = gtk_radio_button_new_with_mnemonic (NULL, " Display just Coordinates");
   gtk_widget_show (workflow_radiobutton_coords_only);
   gtk_box_pack_start (GTK_BOX (vbox94), workflow_radiobutton_coords_only, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, workflow_radiobutton_coords_only, "Only Coordinates - no map", NULL);
+  // gtk_tooltips_set_tip (tooltips, workflow_radiobutton_coords_only, "Only Coordinates - no map", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (workflow_radiobutton_coords_only), workflow_radiobutton_coords_only_group);
   workflow_radiobutton_coords_only_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (workflow_radiobutton_coords_only));
 
   workflow_radiobutton_coords_and_dataset = gtk_radio_button_new_with_mnemonic (NULL, " Display Coordinates and calculate a Map from a Dataset");
   gtk_widget_show (workflow_radiobutton_coords_and_dataset);
   gtk_box_pack_start (GTK_BOX (vbox94), workflow_radiobutton_coords_and_dataset, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, workflow_radiobutton_coords_and_dataset, "Here, \"Dataset\" means an mtz, phs or mmcif file", NULL);
+  // gtk_tooltips_set_tip (tooltips, workflow_radiobutton_coords_and_dataset, "Here, \"Dataset\" means an mtz, phs or mmcif file", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (workflow_radiobutton_coords_and_dataset), workflow_radiobutton_coords_only_group);
   workflow_radiobutton_coords_only_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (workflow_radiobutton_coords_and_dataset));
 
   workflow_radiobutton_coords_and_map = gtk_radio_button_new_with_mnemonic (NULL, " Display Coordinates and a pre-calculated CCP4 Map");
   gtk_widget_show (workflow_radiobutton_coords_and_map);
   gtk_box_pack_start (GTK_BOX (vbox94), workflow_radiobutton_coords_and_map, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, workflow_radiobutton_coords_and_map, "Coordinates and a CCP4 Map", NULL);
+  // gtk_tooltips_set_tip (tooltips, workflow_radiobutton_coords_and_map, "Coordinates and a CCP4 Map", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (workflow_radiobutton_coords_and_map), workflow_radiobutton_coords_only_group);
   workflow_radiobutton_coords_only_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (workflow_radiobutton_coords_and_map));
 
   workflow_radiobutton_map_from_dataset = gtk_radio_button_new_with_mnemonic (NULL, " Calculate a Map from a Dataset");
   gtk_widget_show (workflow_radiobutton_map_from_dataset);
   gtk_box_pack_start (GTK_BOX (vbox94), workflow_radiobutton_map_from_dataset, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, workflow_radiobutton_map_from_dataset, "Here, \"Dataset\" means an mtz, phs or mmcif file", NULL);
+  // gtk_tooltips_set_tip (tooltips, workflow_radiobutton_map_from_dataset, "Here, \"Dataset\" means an mtz, phs or mmcif file", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (workflow_radiobutton_map_from_dataset), workflow_radiobutton_coords_only_group);
   workflow_radiobutton_coords_only_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (workflow_radiobutton_map_from_dataset));
 
   workstate_radiobutton_clean_slate = gtk_radio_button_new_with_mnemonic (NULL, " Start from a \"Clean Slate\"");
   gtk_widget_show (workstate_radiobutton_clean_slate);
   gtk_box_pack_start (GTK_BOX (vbox94), workstate_radiobutton_clean_slate, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, workstate_radiobutton_clean_slate, "Nothing special", NULL);
+  // gtk_tooltips_set_tip (tooltips, workstate_radiobutton_clean_slate, "Nothing special", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (workstate_radiobutton_clean_slate), workflow_radiobutton_coords_only_group);
   workflow_radiobutton_coords_only_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (workstate_radiobutton_clean_slate));
 
-  dialog_action_area31 = GTK_DIALOG (start_workflow_dialog)->action_area;
+  dialog_action_area31 = gtk_dialog_get_content_area( start_workflow_dialog );
   gtk_widget_show (dialog_action_area31);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area31), GTK_BUTTONBOX_END);
 
@@ -13611,12 +13520,12 @@ create_start_workflow_dialog (void)
   workflow_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (workflow_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox68), workflow_ok_button, TRUE, TRUE, 4);
-  GTK_WIDGET_SET_FLAGS (workflow_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (workflow_ok_button, GTK_CAN_DEFAULT);
 
   workflow_cancel_button = gtk_button_new_with_mnemonic ("  Cancel  ");
   gtk_widget_show (workflow_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox68), workflow_cancel_button, TRUE, TRUE, 4);
-  GTK_WIDGET_SET_FLAGS (workflow_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (workflow_cancel_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) workflow_radiobutton_coords_only, "toggled",
                     G_CALLBACK (on_workflow_radiobutton_coords_only_toggled),
@@ -13641,8 +13550,8 @@ create_start_workflow_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (start_workflow_dialog, start_workflow_dialog, "start_workflow_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (start_workflow_dialog, dialog_vbox31, "dialog_vbox31");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(start_workflow_dialog, start_workflow_dialog, "start_workflow_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(start_workflow_dialog, dialog_vbox31, "dialog_vbox31");
   GLADE_HOOKUP_OBJECT (start_workflow_dialog, frame76, "frame76");
   GLADE_HOOKUP_OBJECT (start_workflow_dialog, vbox94, "vbox94");
   GLADE_HOOKUP_OBJECT (start_workflow_dialog, workflow_radiobutton_coords_only, "workflow_radiobutton_coords_only");
@@ -13650,11 +13559,11 @@ create_start_workflow_dialog (void)
   GLADE_HOOKUP_OBJECT (start_workflow_dialog, workflow_radiobutton_coords_and_map, "workflow_radiobutton_coords_and_map");
   GLADE_HOOKUP_OBJECT (start_workflow_dialog, workflow_radiobutton_map_from_dataset, "workflow_radiobutton_map_from_dataset");
   GLADE_HOOKUP_OBJECT (start_workflow_dialog, workstate_radiobutton_clean_slate, "workstate_radiobutton_clean_slate");
-  GLADE_HOOKUP_OBJECT_NO_REF (start_workflow_dialog, dialog_action_area31, "dialog_action_area31");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(start_workflow_dialog, dialog_action_area31, "dialog_action_area31");
   GLADE_HOOKUP_OBJECT (start_workflow_dialog, hbox68, "hbox68");
   GLADE_HOOKUP_OBJECT (start_workflow_dialog, workflow_ok_button, "workflow_ok_button");
   GLADE_HOOKUP_OBJECT (start_workflow_dialog, workflow_cancel_button, "workflow_cancel_button");
-  GLADE_HOOKUP_OBJECT_NO_REF (start_workflow_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(start_workflow_dialog, tooltips, "tooltips");
 
   gtk_widget_grab_focus (workflow_ok_button);
   gtk_widget_grab_default (workflow_ok_button);
@@ -13669,7 +13578,6 @@ create_select_fitting_map_dialog (void)
   GtkWidget *frame77;
   GtkWidget *vbox95;
   GtkWidget *label128;
-  GtkWidget *select_map_for_fitting_optionmenu;
   GtkWidget *select_map_for_fitting_combobox;
   GtkWidget *dialog_action_area32;
   GtkWidget *select_map_for_fitting_button;
@@ -13678,7 +13586,7 @@ create_select_fitting_map_dialog (void)
   gtk_window_set_title (GTK_WINDOW (select_fitting_map_dialog), "Select Map for Fitting");
   gtk_window_set_type_hint (GTK_WINDOW (select_fitting_map_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox32 = GTK_DIALOG (select_fitting_map_dialog)->vbox;
+  dialog_vbox32 = gtk_dialog_get_content_area( select_fitting_map_dialog );
   gtk_widget_show (dialog_vbox32);
 
   frame77 = gtk_frame_new (NULL);
@@ -13695,36 +13603,31 @@ create_select_fitting_map_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox95), label128, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label128), GTK_JUSTIFY_CENTER);
 
-  select_map_for_fitting_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (select_map_for_fitting_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox95), select_map_for_fitting_optionmenu, FALSE, FALSE, 0);
-
   select_map_for_fitting_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (select_map_for_fitting_combobox);
   gtk_box_pack_start (GTK_BOX (vbox95), select_map_for_fitting_combobox, TRUE, TRUE, 0);
 
-  dialog_action_area32 = GTK_DIALOG (select_fitting_map_dialog)->action_area;
+  dialog_action_area32 = gtk_dialog_get_content_area( select_fitting_map_dialog );
   gtk_widget_show (dialog_action_area32);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area32), GTK_BUTTONBOX_END);
 
   select_map_for_fitting_button = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (select_map_for_fitting_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (select_fitting_map_dialog), select_map_for_fitting_button, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (select_map_for_fitting_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (select_map_for_fitting_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) select_map_for_fitting_button, "clicked",
                     G_CALLBACK (on_select_map_for_fitting_button_clicked),
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (select_fitting_map_dialog, select_fitting_map_dialog, "select_fitting_map_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (select_fitting_map_dialog, dialog_vbox32, "dialog_vbox32");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(select_fitting_map_dialog, select_fitting_map_dialog, "select_fitting_map_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(select_fitting_map_dialog, dialog_vbox32, "dialog_vbox32");
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, frame77, "frame77");
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, vbox95, "vbox95");
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, label128, "label128");
-  GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, select_map_for_fitting_optionmenu, "select_map_for_fitting_optionmenu");
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, select_map_for_fitting_combobox, "select_map_for_fitting_combobox");
-  GLADE_HOOKUP_OBJECT_NO_REF (select_fitting_map_dialog, dialog_action_area32, "dialog_action_area32");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(select_fitting_map_dialog, dialog_action_area32, "dialog_action_area32");
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, select_map_for_fitting_button, "select_map_for_fitting_button");
 
   gtk_widget_grab_focus (select_map_for_fitting_button);
@@ -13745,7 +13648,7 @@ create_run_refmac_help_dialog (void)
   gtk_window_set_title (GTK_WINDOW (run_refmac_help_dialog), "Help on Running Refmac:");
   gtk_window_set_type_hint (GTK_WINDOW (run_refmac_help_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox33 = GTK_DIALOG (run_refmac_help_dialog)->vbox;
+  dialog_vbox33 = gtk_dialog_get_content_area( run_refmac_help_dialog );
   gtk_widget_show (dialog_vbox33);
 
   label129 = gtk_label_new ("\n\nWhen you read in an MTZ file, you can assign the column labels \nneeded to run Refmac. \n\nIf this option menu is empty it means that you  have not assigned \nRefmac labels from any MTZ file.  To fix, Cancel the \"Run Refmac\" \ndialog, Use File -> Open MTZ and assign Refmac column labels. \nThen use \"Run Refmac...\" from the \"Model/Fit/Refine\" dialog.\n");
@@ -13755,7 +13658,7 @@ create_run_refmac_help_dialog (void)
   gtk_misc_set_alignment (GTK_MISC (label129), 0, 0);
   gtk_misc_set_padding (GTK_MISC (label129), 6, 5);
 
-  dialog_action_area33 = GTK_DIALOG (run_refmac_help_dialog)->action_area;
+  dialog_action_area33 = gtk_dialog_get_content_area( run_refmac_help_dialog );
   gtk_widget_show (dialog_action_area33);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area33), GTK_BUTTONBOX_END);
 
@@ -13768,10 +13671,10 @@ create_run_refmac_help_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_help_dialog, run_refmac_help_dialog, "run_refmac_help_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_help_dialog, dialog_vbox33, "dialog_vbox33");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_help_dialog, run_refmac_help_dialog, "run_refmac_help_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_help_dialog, dialog_vbox33, "dialog_vbox33");
   GLADE_HOOKUP_OBJECT (run_refmac_help_dialog, label129, "label129");
-  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_help_dialog, dialog_action_area33, "dialog_action_area33");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_help_dialog, dialog_action_area33, "dialog_action_area33");
   GLADE_HOOKUP_OBJECT (run_refmac_help_dialog, run_refmac_help_dialog_ok_button, "run_refmac_help_dialog_ok_button");
 
   return run_refmac_help_dialog;
@@ -13793,7 +13696,7 @@ create_no_restraints_info_dialog (void)
   gtk_window_set_title (GTK_WINDOW (no_restraints_info_dialog), "No Restraints!");
   gtk_window_set_type_hint (GTK_WINDOW (no_restraints_info_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox34 = GTK_DIALOG (no_restraints_info_dialog)->vbox;
+  dialog_vbox34 = gtk_dialog_get_content_area( no_restraints_info_dialog );
   gtk_widget_show (dialog_vbox34);
 
   frame78 = gtk_frame_new (NULL);
@@ -13816,7 +13719,7 @@ create_no_restraints_info_dialog (void)
   gtk_widget_show (no_restraints_extra_label);
   gtk_box_pack_start (GTK_BOX (vbox299), no_restraints_extra_label, FALSE, FALSE, 0);
 
-  dialog_action_area34 = GTK_DIALOG (no_restraints_info_dialog)->action_area;
+  dialog_action_area34 = gtk_dialog_get_content_area( no_restraints_info_dialog );
   gtk_widget_show (dialog_action_area34);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area34), GTK_BUTTONBOX_END);
 
@@ -13829,13 +13732,13 @@ create_no_restraints_info_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (no_restraints_info_dialog, no_restraints_info_dialog, "no_restraints_info_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (no_restraints_info_dialog, dialog_vbox34, "dialog_vbox34");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_restraints_info_dialog, no_restraints_info_dialog, "no_restraints_info_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_restraints_info_dialog, dialog_vbox34, "dialog_vbox34");
   GLADE_HOOKUP_OBJECT (no_restraints_info_dialog, frame78, "frame78");
   GLADE_HOOKUP_OBJECT (no_restraints_info_dialog, vbox299, "vbox299");
   GLADE_HOOKUP_OBJECT (no_restraints_info_dialog, label131, "label131");
   GLADE_HOOKUP_OBJECT (no_restraints_info_dialog, no_restraints_extra_label, "no_restraints_extra_label");
-  GLADE_HOOKUP_OBJECT_NO_REF (no_restraints_info_dialog, dialog_action_area34, "dialog_action_area34");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_restraints_info_dialog, dialog_action_area34, "dialog_action_area34");
   GLADE_HOOKUP_OBJECT (no_restraints_info_dialog, no_restraints_info_dialog_button, "no_restraints_info_dialog_button");
 
   return no_restraints_info_dialog;
@@ -13855,7 +13758,7 @@ create_no_cif_dictionary_bonds_dialog (void)
   gtk_window_set_title (GTK_WINDOW (no_cif_dictionary_bonds_dialog), "No Restraints in Dictionary!");
   gtk_window_set_type_hint (GTK_WINDOW (no_cif_dictionary_bonds_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox35 = GTK_DIALOG (no_cif_dictionary_bonds_dialog)->vbox;
+  dialog_vbox35 = gtk_dialog_get_content_area( no_cif_dictionary_bonds_dialog );
   gtk_widget_show (dialog_vbox35);
 
   frame79 = gtk_frame_new (NULL);
@@ -13869,7 +13772,7 @@ create_no_cif_dictionary_bonds_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label132), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label132), 8, 16);
 
-  dialog_action_area35 = GTK_DIALOG (no_cif_dictionary_bonds_dialog)->action_area;
+  dialog_action_area35 = gtk_dialog_get_content_area( no_cif_dictionary_bonds_dialog );
   gtk_widget_show (dialog_action_area35);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area35), GTK_BUTTONBOX_END);
 
@@ -13882,11 +13785,11 @@ create_no_cif_dictionary_bonds_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (no_cif_dictionary_bonds_dialog, no_cif_dictionary_bonds_dialog, "no_cif_dictionary_bonds_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (no_cif_dictionary_bonds_dialog, dialog_vbox35, "dialog_vbox35");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_cif_dictionary_bonds_dialog, no_cif_dictionary_bonds_dialog, "no_cif_dictionary_bonds_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_cif_dictionary_bonds_dialog, dialog_vbox35, "dialog_vbox35");
   GLADE_HOOKUP_OBJECT (no_cif_dictionary_bonds_dialog, frame79, "frame79");
   GLADE_HOOKUP_OBJECT (no_cif_dictionary_bonds_dialog, label132, "label132");
-  GLADE_HOOKUP_OBJECT_NO_REF (no_cif_dictionary_bonds_dialog, dialog_action_area35, "dialog_action_area35");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_cif_dictionary_bonds_dialog, dialog_action_area35, "dialog_action_area35");
   GLADE_HOOKUP_OBJECT (no_cif_dictionary_bonds_dialog, no_cif_dictionary_bonds_ok_button, "no_cif_dictionary_bonds_ok_button");
 
   return no_cif_dictionary_bonds_dialog;
@@ -13909,7 +13812,7 @@ create_ligand_big_blob_dialog (void)
   gtk_window_set_title (GTK_WINDOW (ligand_big_blob_dialog), "Unmodelled blobs of density:");
   gtk_window_set_type_hint (GTK_WINDOW (ligand_big_blob_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox36 = GTK_DIALOG (ligand_big_blob_dialog)->vbox;
+  dialog_vbox36 = gtk_dialog_get_content_area( ligand_big_blob_dialog );
   gtk_widget_show (dialog_vbox36);
 
   vbox97 = gtk_vbox_new (FALSE, 0);
@@ -13926,7 +13829,7 @@ create_ligand_big_blob_dialog (void)
   gtk_widget_show (scrolledwindow8);
   gtk_box_pack_start (GTK_BOX (vbox97), scrolledwindow8, TRUE, TRUE, 0);
   gtk_widget_set_size_request (scrolledwindow8, -1, 150);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow8, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow8, GTK_CAN_FOCUS);
 
   viewport4 = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (viewport4);
@@ -13936,7 +13839,7 @@ create_ligand_big_blob_dialog (void)
   gtk_widget_show (ligand_big_blob_vbox);
   gtk_container_add (GTK_CONTAINER (viewport4), ligand_big_blob_vbox);
 
-  dialog_action_area36 = GTK_DIALOG (ligand_big_blob_dialog)->action_area;
+  dialog_action_area36 = gtk_dialog_get_content_area( ligand_big_blob_dialog );
   gtk_widget_show (dialog_action_area36);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area36), GTK_BUTTONBOX_END);
 
@@ -13952,14 +13855,14 @@ create_ligand_big_blob_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (ligand_big_blob_dialog, ligand_big_blob_dialog, "ligand_big_blob_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (ligand_big_blob_dialog, dialog_vbox36, "dialog_vbox36");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ligand_big_blob_dialog, ligand_big_blob_dialog, "ligand_big_blob_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ligand_big_blob_dialog, dialog_vbox36, "dialog_vbox36");
   GLADE_HOOKUP_OBJECT (ligand_big_blob_dialog, vbox97, "vbox97");
   GLADE_HOOKUP_OBJECT (ligand_big_blob_dialog, label133, "label133");
   GLADE_HOOKUP_OBJECT (ligand_big_blob_dialog, scrolledwindow8, "scrolledwindow8");
   GLADE_HOOKUP_OBJECT (ligand_big_blob_dialog, viewport4, "viewport4");
   GLADE_HOOKUP_OBJECT (ligand_big_blob_dialog, ligand_big_blob_vbox, "ligand_big_blob_vbox");
-  GLADE_HOOKUP_OBJECT_NO_REF (ligand_big_blob_dialog, dialog_action_area36, "dialog_action_area36");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ligand_big_blob_dialog, dialog_action_area36, "dialog_action_area36");
   GLADE_HOOKUP_OBJECT (ligand_big_blob_dialog, ligand_big_blob_dismiss_button, "ligand_big_blob_dismiss_button");
 
   return ligand_big_blob_dialog;
@@ -13995,15 +13898,15 @@ create_edit_chi_angles_dialog (void)
   GtkWidget *hbox71;
   GtkWidget *edit_chi_angles_dialog_ok_button;
   GtkWidget *edit_chi_angles_cancel_button;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   edit_chi_angles_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (edit_chi_angles_dialog), "Edit Chi Angles");
   gtk_window_set_type_hint (GTK_WINDOW (edit_chi_angles_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox37 = GTK_DIALOG (edit_chi_angles_dialog)->vbox;
+  dialog_vbox37 = gtk_dialog_get_content_area( edit_chi_angles_dialog );
   gtk_widget_show (dialog_vbox37);
 
   vbox98 = gtk_vbox_new (FALSE, 0);
@@ -14021,7 +13924,7 @@ create_edit_chi_angles_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox98), scrolledwindow9, TRUE, TRUE, 0);
   gtk_widget_set_size_request (scrolledwindow9, 256, 160);
   gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow9), 4);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow9, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow9, GTK_CAN_FOCUS);
 
   viewport5 = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (viewport5);
@@ -14035,13 +13938,13 @@ create_edit_chi_angles_dialog (void)
   gtk_widget_show (edit_chi_angles_add_hydrogen_torsions_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox98), edit_chi_angles_add_hydrogen_torsions_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (edit_chi_angles_add_hydrogen_torsions_checkbutton), 5);
-  gtk_tooltips_set_tip (tooltips, edit_chi_angles_add_hydrogen_torsions_checkbutton, "In the above list, include rotatable bonds that rotate (only) the hydrogens, e.g. CB-CG2 for a VAL (i.e. not particularly useful most of the time)", NULL);
+  // gtk_tooltips_set_tip (tooltips, edit_chi_angles_add_hydrogen_torsions_checkbutton, "In the above list, include rotatable bonds that rotate (only) the hydrogens, e.g. CB-CG2 for a VAL (i.e. not particularly useful most of the time)", NULL);
 
   edit_chi_angles_reverse_fragment_togglebutton = gtk_toggle_button_new ();
   gtk_widget_show (edit_chi_angles_reverse_fragment_togglebutton);
   gtk_box_pack_start (GTK_BOX (vbox98), edit_chi_angles_reverse_fragment_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (edit_chi_angles_reverse_fragment_togglebutton), 6);
-  gtk_tooltips_set_tip (tooltips, edit_chi_angles_reverse_fragment_togglebutton, "Reverse the moving and static parts of the residue/ligand", NULL);
+  // gtk_tooltips_set_tip (tooltips, edit_chi_angles_reverse_fragment_togglebutton, "Reverse the moving and static parts of the residue/ligand", NULL);
 
   alignment147 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment147);
@@ -14101,7 +14004,7 @@ create_edit_chi_angles_dialog (void)
   gtk_widget_show (label740);
   gtk_box_pack_start (GTK_BOX (hbox409), label740, FALSE, FALSE, 0);
 
-  dialog_action_area37 = GTK_DIALOG (edit_chi_angles_dialog)->action_area;
+  dialog_action_area37 = gtk_dialog_get_content_area( edit_chi_angles_dialog );
   gtk_widget_show (dialog_action_area37);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area37), GTK_BUTTONBOX_END);
 
@@ -14112,12 +14015,12 @@ create_edit_chi_angles_dialog (void)
   edit_chi_angles_dialog_ok_button = gtk_button_new_from_stock ("gtk-apply");
   gtk_widget_show (edit_chi_angles_dialog_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox71), edit_chi_angles_dialog_ok_button, TRUE, TRUE, 3);
-  GTK_WIDGET_SET_FLAGS (edit_chi_angles_dialog_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (edit_chi_angles_dialog_ok_button, GTK_CAN_DEFAULT);
 
   edit_chi_angles_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (edit_chi_angles_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox71), edit_chi_angles_cancel_button, TRUE, TRUE, 3);
-  GTK_WIDGET_SET_FLAGS (edit_chi_angles_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (edit_chi_angles_cancel_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) edit_chi_angles_dialog, "destroy",
                     G_CALLBACK (on_edit_chi_angles_dialog_destroy),
@@ -14142,8 +14045,8 @@ create_edit_chi_angles_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (edit_chi_angles_dialog, edit_chi_angles_dialog, "edit_chi_angles_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (edit_chi_angles_dialog, dialog_vbox37, "dialog_vbox37");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(edit_chi_angles_dialog, edit_chi_angles_dialog, "edit_chi_angles_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(edit_chi_angles_dialog, dialog_vbox37, "dialog_vbox37");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, vbox98, "vbox98");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, edit_chi_angles_dialog_edit_mode_label, "edit_chi_angles_dialog_edit_mode_label");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, scrolledwindow9, "scrolledwindow9");
@@ -14165,11 +14068,11 @@ create_edit_chi_angles_dialog (void)
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, hbox409, "hbox409");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, image6897, "image6897");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, label740, "label740");
-  GLADE_HOOKUP_OBJECT_NO_REF (edit_chi_angles_dialog, dialog_action_area37, "dialog_action_area37");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(edit_chi_angles_dialog, dialog_action_area37, "dialog_action_area37");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, hbox71, "hbox71");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, edit_chi_angles_dialog_ok_button, "edit_chi_angles_dialog_ok_button");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, edit_chi_angles_cancel_button, "edit_chi_angles_cancel_button");
-  GLADE_HOOKUP_OBJECT_NO_REF (edit_chi_angles_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(edit_chi_angles_dialog, tooltips, "tooltips");
 
   gtk_widget_grab_focus (edit_chi_angles_dialog_ok_button);
   gtk_widget_grab_default (edit_chi_angles_dialog_ok_button);
@@ -14235,15 +14138,15 @@ create_check_waters_dialog (void)
   GtkWidget *hbox78;
   GtkWidget *check_waters_ok_button;
   GtkWidget *check_waters_cancel_button;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   check_waters_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (check_waters_dialog), "Checking Waters:");
   gtk_window_set_type_hint (GTK_WINDOW (check_waters_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox38 = GTK_DIALOG (check_waters_dialog)->vbox;
+  dialog_vbox38 = gtk_dialog_get_content_area( check_waters_dialog );
   gtk_widget_show (dialog_vbox38);
 
   vbox100 = gtk_vbox_new (FALSE, 0);
@@ -14478,11 +14381,11 @@ create_check_waters_dialog (void)
   gtk_widget_show (check_waters_AND_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox157), check_waters_AND_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (check_waters_AND_radiobutton), 3);
-  gtk_tooltips_set_tip (tooltips, check_waters_AND_radiobutton, "All criteria except the distance criteria (can be either)", NULL);
+  // gtk_tooltips_set_tip (tooltips, check_waters_AND_radiobutton, "All criteria except the distance criteria (can be either)", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (check_waters_AND_radiobutton), check_waters_OR_radiobutton_group);
   check_waters_OR_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (check_waters_AND_radiobutton));
 
-  dialog_action_area38 = GTK_DIALOG (check_waters_dialog)->action_area;
+  dialog_action_area38 = gtk_dialog_get_content_area( check_waters_dialog );
   gtk_widget_show (dialog_action_area38);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area38), GTK_BUTTONBOX_END);
 
@@ -14529,8 +14432,8 @@ create_check_waters_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (check_waters_dialog, check_waters_dialog, "check_waters_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (check_waters_dialog, dialog_vbox38, "dialog_vbox38");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(check_waters_dialog, check_waters_dialog, "check_waters_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(check_waters_dialog, dialog_vbox38, "dialog_vbox38");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, vbox100, "vbox100");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, hbox73, "hbox73");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, label136, "label136");
@@ -14580,11 +14483,11 @@ create_check_waters_dialog (void)
   GLADE_HOOKUP_OBJECT (check_waters_dialog, label244, "label244");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_OR_radiobutton, "check_waters_OR_radiobutton");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_AND_radiobutton, "check_waters_AND_radiobutton");
-  GLADE_HOOKUP_OBJECT_NO_REF (check_waters_dialog, dialog_action_area38, "dialog_action_area38");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(check_waters_dialog, dialog_action_area38, "dialog_action_area38");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, hbox78, "hbox78");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_ok_button, "check_waters_ok_button");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_cancel_button, "check_waters_cancel_button");
-  GLADE_HOOKUP_OBJECT_NO_REF (check_waters_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(check_waters_dialog, tooltips, "tooltips");
 
   return check_waters_dialog;
 }
@@ -14605,16 +14508,16 @@ create_geometry_dialog (void)
   GtkWidget *geometry_clear_atom_labels_button;
   GtkWidget *dialog_action_area39;
   GtkWidget *geometry_dialog_close_button;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   geometry_dialog = gtk_dialog_new ();
   gtk_container_set_border_width (GTK_CONTAINER (geometry_dialog), 6);
   gtk_window_set_title (GTK_WINDOW (geometry_dialog), "Geometry");
   gtk_window_set_type_hint (GTK_WINDOW (geometry_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox39 = GTK_DIALOG (geometry_dialog)->vbox;
+  dialog_vbox39 = gtk_dialog_get_content_area( geometry_dialog );
   gtk_widget_show (dialog_vbox39);
 
   vbox102 = gtk_vbox_new (FALSE, 0);
@@ -14625,7 +14528,7 @@ create_geometry_dialog (void)
   gtk_widget_show (geometry_distance_togglebutton);
   gtk_box_pack_start (GTK_BOX (vbox102), geometry_distance_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (geometry_distance_togglebutton), 2);
-  gtk_tooltips_set_tip (tooltips, geometry_distance_togglebutton, "The distance between static (molecule) atoms", NULL);
+  // gtk_tooltips_set_tip (tooltips, geometry_distance_togglebutton, "The distance between static (molecule) atoms", NULL);
 
   geometry_angle_togglebutton = gtk_toggle_button_new_with_mnemonic ("  Angle  ");
   gtk_widget_show (geometry_angle_togglebutton);
@@ -14636,13 +14539,13 @@ create_geometry_dialog (void)
   gtk_widget_show (geometry_torsion_togglebutton);
   gtk_box_pack_start (GTK_BOX (vbox102), geometry_torsion_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (geometry_torsion_togglebutton), 2);
-  gtk_tooltips_set_tip (tooltips, geometry_torsion_togglebutton, "Or dihedral, if you prefer", NULL);
+  // gtk_tooltips_set_tip (tooltips, geometry_torsion_togglebutton, "Or dihedral, if you prefer", NULL);
 
   geometry_dynamic_distance_togglebutton = gtk_toggle_button_new_with_mnemonic ("Dynamic Distance");
   gtk_widget_show (geometry_dynamic_distance_togglebutton);
   gtk_box_pack_start (GTK_BOX (vbox102), geometry_dynamic_distance_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (geometry_dynamic_distance_togglebutton), 2);
-  gtk_tooltips_set_tip (tooltips, geometry_dynamic_distance_togglebutton, "The distance between an intermediate (white) atom and a static (molecule) atom", NULL);
+  // gtk_tooltips_set_tip (tooltips, geometry_dynamic_distance_togglebutton, "The distance between an intermediate (white) atom and a static (molecule) atom", NULL);
 
   hseparator10 = gtk_hseparator_new ();
   gtk_widget_show (hseparator10);
@@ -14663,7 +14566,7 @@ create_geometry_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox102), geometry_clear_atom_labels_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (geometry_clear_atom_labels_button), 2);
 
-  dialog_action_area39 = GTK_DIALOG (geometry_dialog)->action_area;
+  dialog_action_area39 = gtk_dialog_get_content_area( geometry_dialog );
   gtk_widget_show (dialog_action_area39);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area39), GTK_BUTTONBOX_END);
 
@@ -14700,8 +14603,8 @@ create_geometry_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (geometry_dialog, geometry_dialog, "geometry_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (geometry_dialog, dialog_vbox39, "dialog_vbox39");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(geometry_dialog, geometry_dialog, "geometry_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(geometry_dialog, dialog_vbox39, "dialog_vbox39");
   GLADE_HOOKUP_OBJECT (geometry_dialog, vbox102, "vbox102");
   GLADE_HOOKUP_OBJECT (geometry_dialog, geometry_distance_togglebutton, "geometry_distance_togglebutton");
   GLADE_HOOKUP_OBJECT (geometry_dialog, geometry_angle_togglebutton, "geometry_angle_togglebutton");
@@ -14711,9 +14614,9 @@ create_geometry_dialog (void)
   GLADE_HOOKUP_OBJECT (geometry_dialog, geometry_clear_last_distance_button, "geometry_clear_last_distance_button");
   GLADE_HOOKUP_OBJECT (geometry_dialog, geometry_clear_all_distances_button, "geometry_clear_all_distances_button");
   GLADE_HOOKUP_OBJECT (geometry_dialog, geometry_clear_atom_labels_button, "geometry_clear_atom_labels_button");
-  GLADE_HOOKUP_OBJECT_NO_REF (geometry_dialog, dialog_action_area39, "dialog_action_area39");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(geometry_dialog, dialog_action_area39, "dialog_action_area39");
   GLADE_HOOKUP_OBJECT (geometry_dialog, geometry_dialog_close_button, "geometry_dialog_close_button");
-  GLADE_HOOKUP_OBJECT_NO_REF (geometry_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(geometry_dialog, tooltips, "tooltips");
 
   return geometry_dialog;
 }
@@ -14733,7 +14636,7 @@ create_new_ligands_info_dialog (void)
   gtk_window_set_title (GTK_WINDOW (new_ligands_info_dialog), "New Ligands");
   gtk_window_set_type_hint (GTK_WINDOW (new_ligands_info_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox40 = GTK_DIALOG (new_ligands_info_dialog)->vbox;
+  dialog_vbox40 = gtk_dialog_get_content_area( new_ligands_info_dialog );
   gtk_widget_show (dialog_vbox40);
 
   vbox103 = gtk_vbox_new (FALSE, 0);
@@ -14751,26 +14654,26 @@ create_new_ligands_info_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label148), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label148), 7, 0);
 
-  dialog_action_area40 = GTK_DIALOG (new_ligands_info_dialog)->action_area;
+  dialog_action_area40 = gtk_dialog_get_content_area( new_ligands_info_dialog );
   gtk_widget_show (dialog_action_area40);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area40), GTK_BUTTONBOX_END);
 
   new_ligands_info_dialog_ok_button = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (new_ligands_info_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (new_ligands_info_dialog), new_ligands_info_dialog_ok_button, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (new_ligands_info_dialog_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (new_ligands_info_dialog_ok_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) new_ligands_info_dialog_ok_button, "clicked",
                     G_CALLBACK (on_new_ligands_info_dialog_ok_button_clicked),
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (new_ligands_info_dialog, new_ligands_info_dialog, "new_ligands_info_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (new_ligands_info_dialog, dialog_vbox40, "dialog_vbox40");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(new_ligands_info_dialog, new_ligands_info_dialog, "new_ligands_info_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(new_ligands_info_dialog, dialog_vbox40, "dialog_vbox40");
   GLADE_HOOKUP_OBJECT (new_ligands_info_dialog, vbox103, "vbox103");
   GLADE_HOOKUP_OBJECT (new_ligands_info_dialog, new_ligands_info_dialog_label, "new_ligands_info_dialog_label");
   GLADE_HOOKUP_OBJECT (new_ligands_info_dialog, label148, "label148");
-  GLADE_HOOKUP_OBJECT_NO_REF (new_ligands_info_dialog, dialog_action_area40, "dialog_action_area40");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(new_ligands_info_dialog, dialog_action_area40, "dialog_action_area40");
   GLADE_HOOKUP_OBJECT (new_ligands_info_dialog, new_ligands_info_dialog_ok_button, "new_ligands_info_dialog_ok_button");
 
   gtk_widget_grab_default (new_ligands_info_dialog_ok_button);
@@ -14790,7 +14693,7 @@ create_no_new_ligands_info_dialog (void)
   gtk_window_set_title (GTK_WINDOW (no_new_ligands_info_dialog), "No New Ligands");
   gtk_window_set_type_hint (GTK_WINDOW (no_new_ligands_info_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox41 = GTK_DIALOG (no_new_ligands_info_dialog)->vbox;
+  dialog_vbox41 = gtk_dialog_get_content_area( no_new_ligands_info_dialog );
   gtk_widget_show (dialog_vbox41);
 
   label149 = gtk_label_new ("Sadly no ligands were found.\n\nPerhaps there were no ligands to be found?\n\nAlternatively you could try to reduce the search \nr.m.s.d. level or the acceptable fit fraction.");
@@ -14799,24 +14702,24 @@ create_no_new_ligands_info_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label149), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label149), 1, 6);
 
-  dialog_action_area41 = GTK_DIALOG (no_new_ligands_info_dialog)->action_area;
+  dialog_action_area41 = gtk_dialog_get_content_area( no_new_ligands_info_dialog );
   gtk_widget_show (dialog_action_area41);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area41), GTK_BUTTONBOX_END);
 
   no_new_ligands_info_dialog_ok_button = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (no_new_ligands_info_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (no_new_ligands_info_dialog), no_new_ligands_info_dialog_ok_button, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (no_new_ligands_info_dialog_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (no_new_ligands_info_dialog_ok_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) no_new_ligands_info_dialog_ok_button, "clicked",
                     G_CALLBACK (on_no_new_ligands_info_dialog_ok_button_clicked),
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (no_new_ligands_info_dialog, no_new_ligands_info_dialog, "no_new_ligands_info_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (no_new_ligands_info_dialog, dialog_vbox41, "dialog_vbox41");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_new_ligands_info_dialog, no_new_ligands_info_dialog, "no_new_ligands_info_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_new_ligands_info_dialog, dialog_vbox41, "dialog_vbox41");
   GLADE_HOOKUP_OBJECT (no_new_ligands_info_dialog, label149, "label149");
-  GLADE_HOOKUP_OBJECT_NO_REF (no_new_ligands_info_dialog, dialog_action_area41, "dialog_action_area41");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_new_ligands_info_dialog, dialog_action_area41, "dialog_action_area41");
   GLADE_HOOKUP_OBJECT (no_new_ligands_info_dialog, no_new_ligands_info_dialog_ok_button, "no_new_ligands_info_dialog_ok_button");
 
   gtk_widget_grab_default (no_new_ligands_info_dialog_ok_button);
@@ -14840,7 +14743,7 @@ create_zoom_dialog (void)
   gtk_window_set_title (GTK_WINDOW (zoom_dialog), "Zoom Control");
   gtk_window_set_type_hint (GTK_WINDOW (zoom_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox42 = GTK_DIALOG (zoom_dialog)->vbox;
+  dialog_vbox42 = gtk_dialog_get_content_area( zoom_dialog );
   gtk_widget_show (dialog_vbox42);
 
   vbox104 = gtk_vbox_new (FALSE, 0);
@@ -14865,7 +14768,7 @@ create_zoom_dialog (void)
   gtk_widget_show (label303);
   gtk_frame_set_label_widget (GTK_FRAME (frame86), label303);
 
-  dialog_action_area42 = GTK_DIALOG (zoom_dialog)->action_area;
+  dialog_action_area42 = gtk_dialog_get_content_area( zoom_dialog );
   gtk_widget_show (dialog_action_area42);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area42), GTK_BUTTONBOX_END);
 
@@ -14878,14 +14781,14 @@ create_zoom_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (zoom_dialog, zoom_dialog, "zoom_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (zoom_dialog, dialog_vbox42, "dialog_vbox42");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(zoom_dialog, zoom_dialog, "zoom_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(zoom_dialog, dialog_vbox42, "dialog_vbox42");
   GLADE_HOOKUP_OBJECT (zoom_dialog, vbox104, "vbox104");
   GLADE_HOOKUP_OBJECT (zoom_dialog, label150, "label150");
   GLADE_HOOKUP_OBJECT (zoom_dialog, frame86, "frame86");
   GLADE_HOOKUP_OBJECT (zoom_dialog, zoom_hscale, "zoom_hscale");
   GLADE_HOOKUP_OBJECT (zoom_dialog, label303, "label303");
-  GLADE_HOOKUP_OBJECT_NO_REF (zoom_dialog, dialog_action_area42, "dialog_action_area42");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(zoom_dialog, dialog_action_area42, "dialog_action_area42");
   GLADE_HOOKUP_OBJECT (zoom_dialog, zoom_dialog_ok_button, "zoom_dialog_ok_button");
 
   return zoom_dialog;
@@ -14918,7 +14821,7 @@ create_libcheck_monomer_dialog (void)
   gtk_window_set_title (GTK_WINDOW (libcheck_monomer_dialog), "Get monomer molecule");
   gtk_window_set_type_hint (GTK_WINDOW (libcheck_monomer_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox43 = GTK_DIALOG (libcheck_monomer_dialog)->vbox;
+  dialog_vbox43 = gtk_dialog_get_content_area( libcheck_monomer_dialog );
   gtk_widget_show (dialog_vbox43);
 
   vbox105 = gtk_vbox_new (FALSE, 0);
@@ -14982,7 +14885,7 @@ create_libcheck_monomer_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (get_monomer_no_entry_frame), label784);
   gtk_label_set_use_markup (GTK_LABEL (label784), TRUE);
 
-  dialog_action_area43 = GTK_DIALOG (libcheck_monomer_dialog)->action_area;
+  dialog_action_area43 = gtk_dialog_get_content_area( libcheck_monomer_dialog );
   gtk_widget_show (dialog_action_area43);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area43), GTK_BUTTONBOX_END);
 
@@ -14993,12 +14896,12 @@ create_libcheck_monomer_dialog (void)
   libcheck_monomer_ok_button = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (libcheck_monomer_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox81), libcheck_monomer_ok_button, TRUE, TRUE, 4);
-  GTK_WIDGET_SET_FLAGS (libcheck_monomer_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (libcheck_monomer_ok_button, GTK_CAN_DEFAULT);
 
   libcheck_monomer_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (libcheck_monomer_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox81), libcheck_monomer_cancel_button, TRUE, TRUE, 4);
-  GTK_WIDGET_SET_FLAGS (libcheck_monomer_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (libcheck_monomer_cancel_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) libcheck_monomer_entry, "key_press_event",
                     G_CALLBACK (on_libcheck_monomer_entry_key_press_event),
@@ -15011,8 +14914,8 @@ create_libcheck_monomer_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (libcheck_monomer_dialog, libcheck_monomer_dialog, "libcheck_monomer_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (libcheck_monomer_dialog, dialog_vbox43, "dialog_vbox43");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(libcheck_monomer_dialog, libcheck_monomer_dialog, "libcheck_monomer_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(libcheck_monomer_dialog, dialog_vbox43, "dialog_vbox43");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, vbox105, "vbox105");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, no_libcheck_frame, "no_libcheck_frame");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, alignment132, "alignment132");
@@ -15026,7 +14929,7 @@ create_libcheck_monomer_dialog (void)
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, alignment160, "alignment160");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, label785, "label785");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, label784, "label784");
-  GLADE_HOOKUP_OBJECT_NO_REF (libcheck_monomer_dialog, dialog_action_area43, "dialog_action_area43");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(libcheck_monomer_dialog, dialog_action_area43, "dialog_action_area43");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, hbox81, "hbox81");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, libcheck_monomer_ok_button, "libcheck_monomer_ok_button");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, libcheck_monomer_cancel_button, "libcheck_monomer_cancel_button");
@@ -15060,7 +14963,7 @@ create_recover_coordinates_dialog (void)
   gtk_window_set_title (GTK_WINDOW (recover_coordinates_dialog), "Recover Coordinates");
   gtk_window_set_type_hint (GTK_WINDOW (recover_coordinates_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox44 = GTK_DIALOG (recover_coordinates_dialog)->vbox;
+  dialog_vbox44 = gtk_dialog_get_content_area( recover_coordinates_dialog );
   gtk_widget_show (dialog_vbox44);
 
   frame88 = gtk_frame_new (NULL);
@@ -15100,7 +15003,7 @@ create_recover_coordinates_dialog (void)
   gtk_misc_set_alignment (GTK_MISC (recover_coordinates_backup_coordinates_label), 7.45058e-09, 0.5);
   gtk_misc_set_padding (GTK_MISC (recover_coordinates_backup_coordinates_label), 0, 4);
 
-  dialog_action_area44 = GTK_DIALOG (recover_coordinates_dialog)->action_area;
+  dialog_action_area44 = gtk_dialog_get_content_area( recover_coordinates_dialog );
   gtk_widget_show (dialog_action_area44);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area44), GTK_BUTTONBOX_END);
 
@@ -15111,7 +15014,7 @@ create_recover_coordinates_dialog (void)
   recover_coordinates_ok_button = gtk_button_new ();
   gtk_widget_show (recover_coordinates_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox82), recover_coordinates_ok_button, TRUE, FALSE, 4);
-  GTK_WIDGET_SET_FLAGS (recover_coordinates_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (recover_coordinates_ok_button, GTK_CAN_DEFAULT);
 
   alignment72 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment72);
@@ -15132,7 +15035,7 @@ create_recover_coordinates_dialog (void)
   recover_coordinates_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (recover_coordinates_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox82), recover_coordinates_cancel_button, TRUE, FALSE, 4);
-  GTK_WIDGET_SET_FLAGS (recover_coordinates_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (recover_coordinates_cancel_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) recover_coordinates_ok_button, "clicked",
                     G_CALLBACK (on_recover_coordinates_ok_button_clicked),
@@ -15142,15 +15045,15 @@ create_recover_coordinates_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (recover_coordinates_dialog, recover_coordinates_dialog, "recover_coordinates_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (recover_coordinates_dialog, dialog_vbox44, "dialog_vbox44");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(recover_coordinates_dialog, recover_coordinates_dialog, "recover_coordinates_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(recover_coordinates_dialog, dialog_vbox44, "dialog_vbox44");
   GLADE_HOOKUP_OBJECT (recover_coordinates_dialog, frame88, "frame88");
   GLADE_HOOKUP_OBJECT (recover_coordinates_dialog, vbox107, "vbox107");
   GLADE_HOOKUP_OBJECT (recover_coordinates_dialog, label153, "label153");
   GLADE_HOOKUP_OBJECT (recover_coordinates_dialog, recover_coordinates_read_coords_label, "recover_coordinates_read_coords_label");
   GLADE_HOOKUP_OBJECT (recover_coordinates_dialog, label154, "label154");
   GLADE_HOOKUP_OBJECT (recover_coordinates_dialog, recover_coordinates_backup_coordinates_label, "recover_coordinates_backup_coordinates_label");
-  GLADE_HOOKUP_OBJECT_NO_REF (recover_coordinates_dialog, dialog_action_area44, "dialog_action_area44");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(recover_coordinates_dialog, dialog_action_area44, "dialog_action_area44");
   GLADE_HOOKUP_OBJECT (recover_coordinates_dialog, hbox82, "hbox82");
   GLADE_HOOKUP_OBJECT (recover_coordinates_dialog, recover_coordinates_ok_button, "recover_coordinates_ok_button");
   GLADE_HOOKUP_OBJECT (recover_coordinates_dialog, alignment72, "alignment72");
@@ -15186,7 +15089,7 @@ create_centre_atom_label_dialog (void)
   gtk_window_set_title (GTK_WINDOW (centre_atom_label_dialog), "Centre Atom Label");
   gtk_window_set_type_hint (GTK_WINDOW (centre_atom_label_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox45 = GTK_DIALOG (centre_atom_label_dialog)->vbox;
+  dialog_vbox45 = gtk_dialog_get_content_area( centre_atom_label_dialog );
   gtk_widget_show (dialog_vbox45);
 
   frame89 = gtk_frame_new (NULL);
@@ -15222,14 +15125,14 @@ create_centre_atom_label_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label166), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label166), 0, 5);
 
-  dialog_action_area45 = GTK_DIALOG (centre_atom_label_dialog)->action_area;
+  dialog_action_area45 = gtk_dialog_get_content_area( centre_atom_label_dialog );
   gtk_widget_show (dialog_action_area45);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area45), GTK_BUTTONBOX_END);
 
   centre_atom_label_ok_button = gtk_button_new ();
   gtk_widget_show (centre_atom_label_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (centre_atom_label_dialog), centre_atom_label_ok_button, 0);
-  GTK_WIDGET_SET_FLAGS (centre_atom_label_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (centre_atom_label_ok_button, GTK_CAN_DEFAULT);
 
   alignment73 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment73);
@@ -15252,15 +15155,15 @@ create_centre_atom_label_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (centre_atom_label_dialog, centre_atom_label_dialog, "centre_atom_label_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (centre_atom_label_dialog, dialog_vbox45, "dialog_vbox45");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(centre_atom_label_dialog, centre_atom_label_dialog, "centre_atom_label_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(centre_atom_label_dialog, dialog_vbox45, "dialog_vbox45");
   GLADE_HOOKUP_OBJECT (centre_atom_label_dialog, frame89, "frame89");
   GLADE_HOOKUP_OBJECT (centre_atom_label_dialog, vbox108, "vbox108");
   GLADE_HOOKUP_OBJECT (centre_atom_label_dialog, label155, "label155");
   GLADE_HOOKUP_OBJECT (centre_atom_label_dialog, centre_atom_label_radiobutton_on, "centre_atom_label_radiobutton_on");
   GLADE_HOOKUP_OBJECT (centre_atom_label_dialog, centre_atom_label_radiobutton_off, "centre_atom_label_radiobutton_off");
   GLADE_HOOKUP_OBJECT (centre_atom_label_dialog, label166, "label166");
-  GLADE_HOOKUP_OBJECT_NO_REF (centre_atom_label_dialog, dialog_action_area45, "dialog_action_area45");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(centre_atom_label_dialog, dialog_action_area45, "dialog_action_area45");
   GLADE_HOOKUP_OBJECT (centre_atom_label_dialog, centre_atom_label_ok_button, "centre_atom_label_ok_button");
   GLADE_HOOKUP_OBJECT (centre_atom_label_dialog, alignment73, "alignment73");
   GLADE_HOOKUP_OBJECT (centre_atom_label_dialog, hbox240, "hbox240");
@@ -15290,7 +15193,7 @@ create_chi_angle_help_dialog (void)
   gtk_window_set_title (GTK_WINDOW (chi_angle_help_dialog), "Chi Angle Help");
   gtk_window_set_type_hint (GTK_WINDOW (chi_angle_help_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox46 = GTK_DIALOG (chi_angle_help_dialog)->vbox;
+  dialog_vbox46 = gtk_dialog_get_content_area( chi_angle_help_dialog );
   gtk_widget_show (dialog_vbox46);
 
   frame96 = gtk_frame_new (NULL);
@@ -15305,7 +15208,7 @@ create_chi_angle_help_dialog (void)
   gtk_misc_set_alignment (GTK_MISC (label156), 0, 0.5);
   gtk_misc_set_padding (GTK_MISC (label156), 2, 8);
 
-  dialog_action_area46 = GTK_DIALOG (chi_angle_help_dialog)->action_area;
+  dialog_action_area46 = gtk_dialog_get_content_area( chi_angle_help_dialog );
   gtk_widget_show (dialog_action_area46);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area46), GTK_BUTTONBOX_END);
 
@@ -15334,11 +15237,11 @@ create_chi_angle_help_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (chi_angle_help_dialog, chi_angle_help_dialog, "chi_angle_help_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (chi_angle_help_dialog, dialog_vbox46, "dialog_vbox46");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(chi_angle_help_dialog, chi_angle_help_dialog, "chi_angle_help_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(chi_angle_help_dialog, dialog_vbox46, "dialog_vbox46");
   GLADE_HOOKUP_OBJECT (chi_angle_help_dialog, frame96, "frame96");
   GLADE_HOOKUP_OBJECT (chi_angle_help_dialog, label156, "label156");
-  GLADE_HOOKUP_OBJECT_NO_REF (chi_angle_help_dialog, dialog_action_area46, "dialog_action_area46");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(chi_angle_help_dialog, dialog_action_area46, "dialog_action_area46");
   GLADE_HOOKUP_OBJECT (chi_angle_help_dialog, help_chi_angles_dismiss_button, "help_chi_angles_dismiss_button");
   GLADE_HOOKUP_OBJECT (chi_angle_help_dialog, alignment74, "alignment74");
   GLADE_HOOKUP_OBJECT (chi_angle_help_dialog, hbox241, "hbox241");
@@ -15365,7 +15268,7 @@ create_no_symmetry_warning_dialog (void)
   gtk_window_set_title (GTK_WINDOW (no_symmetry_warning_dialog), "No Symmetry!");
   gtk_window_set_type_hint (GTK_WINDOW (no_symmetry_warning_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox47 = GTK_DIALOG (no_symmetry_warning_dialog)->vbox;
+  dialog_vbox47 = gtk_dialog_get_content_area( no_symmetry_warning_dialog );
   gtk_widget_show (dialog_vbox47);
 
   label157 = gtk_label_new ("\n\nWARNING!\n\nSymmetry Library not found\n\nIf you need symmetry, setup ccp4 before starting coot\n\n\n");
@@ -15374,14 +15277,14 @@ create_no_symmetry_warning_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label157), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label157), 15, 0);
 
-  dialog_action_area47 = GTK_DIALOG (no_symmetry_warning_dialog)->action_area;
+  dialog_action_area47 = gtk_dialog_get_content_area( no_symmetry_warning_dialog );
   gtk_widget_show (dialog_action_area47);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area47), GTK_BUTTONBOX_END);
 
   no_symmetry_warning_ok_button = gtk_button_new ();
   gtk_widget_show (no_symmetry_warning_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (no_symmetry_warning_dialog), no_symmetry_warning_ok_button, 0);
-  GTK_WIDGET_SET_FLAGS (no_symmetry_warning_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (no_symmetry_warning_ok_button, GTK_CAN_DEFAULT);
 
   alignment75 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment75);
@@ -15404,10 +15307,10 @@ create_no_symmetry_warning_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (no_symmetry_warning_dialog, no_symmetry_warning_dialog, "no_symmetry_warning_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (no_symmetry_warning_dialog, dialog_vbox47, "dialog_vbox47");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_symmetry_warning_dialog, no_symmetry_warning_dialog, "no_symmetry_warning_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_symmetry_warning_dialog, dialog_vbox47, "dialog_vbox47");
   GLADE_HOOKUP_OBJECT (no_symmetry_warning_dialog, label157, "label157");
-  GLADE_HOOKUP_OBJECT_NO_REF (no_symmetry_warning_dialog, dialog_action_area47, "dialog_action_area47");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_symmetry_warning_dialog, dialog_action_area47, "dialog_action_area47");
   GLADE_HOOKUP_OBJECT (no_symmetry_warning_dialog, no_symmetry_warning_ok_button, "no_symmetry_warning_ok_button");
   GLADE_HOOKUP_OBJECT (no_symmetry_warning_dialog, alignment75, "alignment75");
   GLADE_HOOKUP_OBJECT (no_symmetry_warning_dialog, hbox242, "hbox242");
@@ -15433,7 +15336,7 @@ create_nothing_to_recover_dialog (void)
   gtk_window_set_title (GTK_WINDOW (nothing_to_recover_dialog), "Nothing to Recover");
   gtk_window_set_type_hint (GTK_WINDOW (nothing_to_recover_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox48 = GTK_DIALOG (nothing_to_recover_dialog)->vbox;
+  dialog_vbox48 = gtk_dialog_get_content_area( nothing_to_recover_dialog );
   gtk_widget_show (dialog_vbox48);
 
   frame97 = gtk_frame_new (NULL);
@@ -15447,25 +15350,25 @@ create_nothing_to_recover_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label158), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label158), 50, 20);
 
-  dialog_action_area48 = GTK_DIALOG (nothing_to_recover_dialog)->action_area;
+  dialog_action_area48 = gtk_dialog_get_content_area( nothing_to_recover_dialog );
   gtk_widget_show (dialog_action_area48);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area48), GTK_BUTTONBOX_END);
 
   nothing_to_recover_ok_button = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (nothing_to_recover_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (nothing_to_recover_dialog), nothing_to_recover_ok_button, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (nothing_to_recover_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (nothing_to_recover_ok_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) nothing_to_recover_ok_button, "clicked",
                     G_CALLBACK (on_nothing_to_recover_ok_button_clicked),
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (nothing_to_recover_dialog, nothing_to_recover_dialog, "nothing_to_recover_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (nothing_to_recover_dialog, dialog_vbox48, "dialog_vbox48");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nothing_to_recover_dialog, nothing_to_recover_dialog, "nothing_to_recover_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nothing_to_recover_dialog, dialog_vbox48, "dialog_vbox48");
   GLADE_HOOKUP_OBJECT (nothing_to_recover_dialog, frame97, "frame97");
   GLADE_HOOKUP_OBJECT (nothing_to_recover_dialog, label158, "label158");
-  GLADE_HOOKUP_OBJECT_NO_REF (nothing_to_recover_dialog, dialog_action_area48, "dialog_action_area48");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nothing_to_recover_dialog, dialog_action_area48, "dialog_action_area48");
   GLADE_HOOKUP_OBJECT (nothing_to_recover_dialog, nothing_to_recover_ok_button, "nothing_to_recover_ok_button");
 
   gtk_widget_grab_focus (nothing_to_recover_ok_button);
@@ -15507,7 +15410,7 @@ create_superpose_dialog (void)
   gtk_window_set_title (GTK_WINDOW (superpose_dialog), "SSM Superpose");
   gtk_window_set_type_hint (GTK_WINDOW (superpose_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox49 = GTK_DIALOG (superpose_dialog)->vbox;
+  dialog_vbox49 = gtk_dialog_get_content_area( superpose_dialog );
   gtk_widget_show (dialog_vbox49);
 
   vbox109 = gtk_vbox_new (FALSE, 0);
@@ -15596,7 +15499,7 @@ create_superpose_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox109), superpose_dialog_move_copy_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (superpose_dialog_move_copy_checkbutton), 4);
 
-  dialog_action_area49 = GTK_DIALOG (superpose_dialog)->action_area;
+  dialog_action_area49 = gtk_dialog_get_content_area( superpose_dialog );
   gtk_widget_show (dialog_action_area49);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area49), GTK_BUTTONBOX_END);
 
@@ -15608,13 +15511,13 @@ create_superpose_dialog (void)
   gtk_widget_show (superpose_dialog_superpose_button);
   gtk_box_pack_start (GTK_BOX (hbox83), superpose_dialog_superpose_button, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (superpose_dialog_superpose_button), 2);
-  GTK_WIDGET_SET_FLAGS (superpose_dialog_superpose_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (superpose_dialog_superpose_button, GTK_CAN_DEFAULT);
 
   superpose_dialog_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (superpose_dialog_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox83), superpose_dialog_cancel_button, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (superpose_dialog_cancel_button), 2);
-  GTK_WIDGET_SET_FLAGS (superpose_dialog_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (superpose_dialog_cancel_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) superpose_reference_chain_checkbutton, "toggled",
                     G_CALLBACK (on_superpose_reference_chain_checkbutton_toggled),
@@ -15630,8 +15533,8 @@ create_superpose_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (superpose_dialog, superpose_dialog, "superpose_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (superpose_dialog, dialog_vbox49, "dialog_vbox49");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(superpose_dialog, superpose_dialog, "superpose_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(superpose_dialog, dialog_vbox49, "dialog_vbox49");
   GLADE_HOOKUP_OBJECT (superpose_dialog, vbox109, "vbox109");
   GLADE_HOOKUP_OBJECT (superpose_dialog, label159, "label159");
   GLADE_HOOKUP_OBJECT (superpose_dialog, frame98, "frame98");
@@ -15652,7 +15555,7 @@ create_superpose_dialog (void)
   GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_dialog_moving_chain_combobox, "superpose_dialog_moving_chain_combobox");
   GLADE_HOOKUP_OBJECT (superpose_dialog, label305, "label305");
   GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_dialog_move_copy_checkbutton, "superpose_dialog_move_copy_checkbutton");
-  GLADE_HOOKUP_OBJECT_NO_REF (superpose_dialog, dialog_action_area49, "dialog_action_area49");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(superpose_dialog, dialog_action_area49, "dialog_action_area49");
   GLADE_HOOKUP_OBJECT (superpose_dialog, hbox83, "hbox83");
   GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_dialog_superpose_button, "superpose_dialog_superpose_button");
   GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_dialog_cancel_button, "superpose_dialog_cancel_button");
@@ -15678,7 +15581,7 @@ create_superpose_nonsense_dialog (void)
   gtk_window_set_title (GTK_WINDOW (superpose_nonsense_dialog), "Nonsense!");
   gtk_window_set_type_hint (GTK_WINDOW (superpose_nonsense_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox50 = GTK_DIALOG (superpose_nonsense_dialog)->vbox;
+  dialog_vbox50 = gtk_dialog_get_content_area( superpose_nonsense_dialog );
   gtk_widget_show (dialog_vbox50);
 
   frame100 = gtk_frame_new (NULL);
@@ -15691,7 +15594,7 @@ create_superpose_nonsense_dialog (void)
   gtk_container_add (GTK_CONTAINER (frame100), label161);
   gtk_misc_set_padding (GTK_MISC (label161), 10, 20);
 
-  dialog_action_area50 = GTK_DIALOG (superpose_nonsense_dialog)->action_area;
+  dialog_action_area50 = gtk_dialog_get_content_area( superpose_nonsense_dialog );
   gtk_widget_show (dialog_action_area50);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area50), GTK_BUTTONBOX_END);
 
@@ -15702,7 +15605,7 @@ create_superpose_nonsense_dialog (void)
   superpose_nonsense_ok_button = gtk_button_new_with_mnemonic ("   OK   ");
   gtk_widget_show (superpose_nonsense_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox149), superpose_nonsense_ok_button, TRUE, TRUE, 0);
-  GTK_WIDGET_SET_FLAGS (superpose_nonsense_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (superpose_nonsense_ok_button, GTK_CAN_DEFAULT);
 
   superpose_nonsense_cancel_button = gtk_button_new_with_mnemonic ("   Cancel   ");
   gtk_widget_show (superpose_nonsense_cancel_button);
@@ -15716,11 +15619,11 @@ create_superpose_nonsense_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (superpose_nonsense_dialog, superpose_nonsense_dialog, "superpose_nonsense_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (superpose_nonsense_dialog, dialog_vbox50, "dialog_vbox50");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(superpose_nonsense_dialog, superpose_nonsense_dialog, "superpose_nonsense_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(superpose_nonsense_dialog, dialog_vbox50, "dialog_vbox50");
   GLADE_HOOKUP_OBJECT (superpose_nonsense_dialog, frame100, "frame100");
   GLADE_HOOKUP_OBJECT (superpose_nonsense_dialog, label161, "label161");
-  GLADE_HOOKUP_OBJECT_NO_REF (superpose_nonsense_dialog, dialog_action_area50, "dialog_action_area50");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(superpose_nonsense_dialog, dialog_action_area50, "dialog_action_area50");
   GLADE_HOOKUP_OBJECT (superpose_nonsense_dialog, hbox149, "hbox149");
   GLADE_HOOKUP_OBJECT (superpose_nonsense_dialog, superpose_nonsense_ok_button, "superpose_nonsense_ok_button");
   GLADE_HOOKUP_OBJECT (superpose_nonsense_dialog, superpose_nonsense_cancel_button, "superpose_nonsense_cancel_button");
@@ -15744,7 +15647,7 @@ create_add_terminal_residue_finds_none_dialog (void)
   gtk_window_set_title (GTK_WINDOW (add_terminal_residue_finds_none_dialog), "No Acceptable Terminal Residue ");
   gtk_window_set_type_hint (GTK_WINDOW (add_terminal_residue_finds_none_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox51 = GTK_DIALOG (add_terminal_residue_finds_none_dialog)->vbox;
+  dialog_vbox51 = gtk_dialog_get_content_area( add_terminal_residue_finds_none_dialog );
   gtk_widget_show (dialog_vbox51);
 
   frame101 = gtk_frame_new (NULL);
@@ -15758,7 +15661,7 @@ create_add_terminal_residue_finds_none_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label162), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label162), 33, 42);
 
-  dialog_action_area51 = GTK_DIALOG (add_terminal_residue_finds_none_dialog)->action_area;
+  dialog_action_area51 = gtk_dialog_get_content_area( add_terminal_residue_finds_none_dialog );
   gtk_widget_show (dialog_action_area51);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area51), GTK_BUTTONBOX_END);
 
@@ -15771,11 +15674,11 @@ create_add_terminal_residue_finds_none_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (add_terminal_residue_finds_none_dialog, add_terminal_residue_finds_none_dialog, "add_terminal_residue_finds_none_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (add_terminal_residue_finds_none_dialog, dialog_vbox51, "dialog_vbox51");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_terminal_residue_finds_none_dialog, add_terminal_residue_finds_none_dialog, "add_terminal_residue_finds_none_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_terminal_residue_finds_none_dialog, dialog_vbox51, "dialog_vbox51");
   GLADE_HOOKUP_OBJECT (add_terminal_residue_finds_none_dialog, frame101, "frame101");
   GLADE_HOOKUP_OBJECT (add_terminal_residue_finds_none_dialog, label162, "label162");
-  GLADE_HOOKUP_OBJECT_NO_REF (add_terminal_residue_finds_none_dialog, dialog_action_area51, "dialog_action_area51");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_terminal_residue_finds_none_dialog, dialog_action_area51, "dialog_action_area51");
   GLADE_HOOKUP_OBJECT (add_terminal_residue_finds_none_dialog, add_terminal_residue_finds_none_ok_button, "add_terminal_residue_finds_none_ok_button");
 
   return add_terminal_residue_finds_none_dialog;
@@ -15796,7 +15699,7 @@ create_no_bad_chiral_volumes_dialog (void)
   gtk_window_set_title (GTK_WINDOW (no_bad_chiral_volumes_dialog), "Clean!");
   gtk_window_set_type_hint (GTK_WINDOW (no_bad_chiral_volumes_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox52 = GTK_DIALOG (no_bad_chiral_volumes_dialog)->vbox;
+  dialog_vbox52 = gtk_dialog_get_content_area( no_bad_chiral_volumes_dialog );
   gtk_widget_show (dialog_vbox52);
 
   frame105 = gtk_frame_new (NULL);
@@ -15810,7 +15713,7 @@ create_no_bad_chiral_volumes_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label170), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label170), 24, 31);
 
-  dialog_action_area52 = GTK_DIALOG (no_bad_chiral_volumes_dialog)->action_area;
+  dialog_action_area52 = gtk_dialog_get_content_area( no_bad_chiral_volumes_dialog );
   gtk_widget_show (dialog_action_area52);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area52), GTK_BUTTONBOX_END);
 
@@ -15823,11 +15726,11 @@ create_no_bad_chiral_volumes_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (no_bad_chiral_volumes_dialog, no_bad_chiral_volumes_dialog, "no_bad_chiral_volumes_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (no_bad_chiral_volumes_dialog, dialog_vbox52, "dialog_vbox52");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_bad_chiral_volumes_dialog, no_bad_chiral_volumes_dialog, "no_bad_chiral_volumes_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_bad_chiral_volumes_dialog, dialog_vbox52, "dialog_vbox52");
   GLADE_HOOKUP_OBJECT (no_bad_chiral_volumes_dialog, frame105, "frame105");
   GLADE_HOOKUP_OBJECT (no_bad_chiral_volumes_dialog, label170, "label170");
-  GLADE_HOOKUP_OBJECT_NO_REF (no_bad_chiral_volumes_dialog, dialog_action_area52, "dialog_action_area52");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_bad_chiral_volumes_dialog, dialog_action_area52, "dialog_action_area52");
   GLADE_HOOKUP_OBJECT (no_bad_chiral_volumes_dialog, no_bad_chiral_volumes_dialog_ok_button, "no_bad_chiral_volumes_dialog_ok_button");
 
   return no_bad_chiral_volumes_dialog;
@@ -15851,7 +15754,7 @@ create_check_chiral_volumes_dialog (void)
   gtk_window_set_title (GTK_WINDOW (check_chiral_volumes_dialog), "Check Chiral Volumes molecule chooser:");
   gtk_window_set_type_hint (GTK_WINDOW (check_chiral_volumes_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox53 = GTK_DIALOG (check_chiral_volumes_dialog)->vbox;
+  dialog_vbox53 = gtk_dialog_get_content_area( check_chiral_volumes_dialog );
   gtk_widget_show (dialog_vbox53);
 
   frame106 = gtk_frame_new (NULL);
@@ -15873,7 +15776,7 @@ create_check_chiral_volumes_dialog (void)
   gtk_widget_show (check_chiral_volumes_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox111), check_chiral_volumes_molecule_combobox, TRUE, TRUE, 0);
 
-  dialog_action_area53 = GTK_DIALOG (check_chiral_volumes_dialog)->action_area;
+  dialog_action_area53 = gtk_dialog_get_content_area( check_chiral_volumes_dialog );
   gtk_widget_show (dialog_action_area53);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area53), GTK_BUTTONBOX_END);
 
@@ -15885,13 +15788,13 @@ create_check_chiral_volumes_dialog (void)
   gtk_widget_show (check_chiral_volumes_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox85), check_chiral_volumes_ok_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (check_chiral_volumes_ok_button), 4);
-  GTK_WIDGET_SET_FLAGS (check_chiral_volumes_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (check_chiral_volumes_ok_button, GTK_CAN_DEFAULT);
 
   check_chiral_volumes_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (check_chiral_volumes_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox85), check_chiral_volumes_cancel_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (check_chiral_volumes_cancel_button), 4);
-  GTK_WIDGET_SET_FLAGS (check_chiral_volumes_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (check_chiral_volumes_cancel_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) check_chiral_volumes_ok_button, "clicked",
                     G_CALLBACK (on_check_chiral_volumes_ok_button_clicked),
@@ -15901,13 +15804,13 @@ create_check_chiral_volumes_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (check_chiral_volumes_dialog, check_chiral_volumes_dialog, "check_chiral_volumes_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (check_chiral_volumes_dialog, dialog_vbox53, "dialog_vbox53");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(check_chiral_volumes_dialog, check_chiral_volumes_dialog, "check_chiral_volumes_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(check_chiral_volumes_dialog, dialog_vbox53, "dialog_vbox53");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, frame106, "frame106");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, vbox111, "vbox111");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, label171, "label171");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, check_chiral_volumes_molecule_combobox, "check_chiral_volumes_molecule_combobox");
-  GLADE_HOOKUP_OBJECT_NO_REF (check_chiral_volumes_dialog, dialog_action_area53, "dialog_action_area53");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(check_chiral_volumes_dialog, dialog_action_area53, "dialog_action_area53");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, hbox85, "hbox85");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, check_chiral_volumes_ok_button, "check_chiral_volumes_ok_button");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, check_chiral_volumes_cancel_button, "check_chiral_volumes_cancel_button");
@@ -15936,13 +15839,13 @@ create_bad_chiral_volumes_dialog (void)
   gtk_window_set_title (GTK_WINDOW (bad_chiral_volumes_dialog), "Chiral Volume Baddies:");
   gtk_window_set_type_hint (GTK_WINDOW (bad_chiral_volumes_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox54 = GTK_DIALOG (bad_chiral_volumes_dialog)->vbox;
+  dialog_vbox54 = gtk_dialog_get_content_area( bad_chiral_volumes_dialog );
   gtk_widget_show (dialog_vbox54);
 
   scrolledwindow10 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow10);
   gtk_box_pack_start (GTK_BOX (dialog_vbox54), scrolledwindow10, TRUE, TRUE, 0);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow10, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow10, GTK_CAN_FOCUS);
 
   viewport6 = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (viewport6);
@@ -15952,14 +15855,14 @@ create_bad_chiral_volumes_dialog (void)
   gtk_widget_show (chiral_volume_baddies_vbox);
   gtk_container_add (GTK_CONTAINER (viewport6), chiral_volume_baddies_vbox);
 
-  dialog_action_area54 = GTK_DIALOG (bad_chiral_volumes_dialog)->action_area;
+  dialog_action_area54 = gtk_dialog_get_content_area( bad_chiral_volumes_dialog );
   gtk_widget_show (dialog_action_area54);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area54), GTK_BUTTONBOX_END);
 
   chiral_volume_baddies_dialog_cancel_button = gtk_button_new ();
   gtk_widget_show (chiral_volume_baddies_dialog_cancel_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (bad_chiral_volumes_dialog), chiral_volume_baddies_dialog_cancel_button, 0);
-  GTK_WIDGET_SET_FLAGS (chiral_volume_baddies_dialog_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (chiral_volume_baddies_dialog_cancel_button, GTK_CAN_DEFAULT);
 
   alignment76 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment76);
@@ -15982,12 +15885,12 @@ create_bad_chiral_volumes_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (bad_chiral_volumes_dialog, bad_chiral_volumes_dialog, "bad_chiral_volumes_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (bad_chiral_volumes_dialog, dialog_vbox54, "dialog_vbox54");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(bad_chiral_volumes_dialog, bad_chiral_volumes_dialog, "bad_chiral_volumes_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(bad_chiral_volumes_dialog, dialog_vbox54, "dialog_vbox54");
   GLADE_HOOKUP_OBJECT (bad_chiral_volumes_dialog, scrolledwindow10, "scrolledwindow10");
   GLADE_HOOKUP_OBJECT (bad_chiral_volumes_dialog, viewport6, "viewport6");
   GLADE_HOOKUP_OBJECT (bad_chiral_volumes_dialog, chiral_volume_baddies_vbox, "chiral_volume_baddies_vbox");
-  GLADE_HOOKUP_OBJECT_NO_REF (bad_chiral_volumes_dialog, dialog_action_area54, "dialog_action_area54");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(bad_chiral_volumes_dialog, dialog_action_area54, "dialog_action_area54");
   GLADE_HOOKUP_OBJECT (bad_chiral_volumes_dialog, chiral_volume_baddies_dialog_cancel_button, "chiral_volume_baddies_dialog_cancel_button");
   GLADE_HOOKUP_OBJECT (bad_chiral_volumes_dialog, alignment76, "alignment76");
   GLADE_HOOKUP_OBJECT (bad_chiral_volumes_dialog, hbox243, "hbox243");
@@ -16014,7 +15917,7 @@ create_rigid_body_refinement_failed_dialog (void)
   gtk_window_set_title (GTK_WINDOW (rigid_body_refinement_failed_dialog), "Rigid Body Refine Failed!");
   gtk_window_set_type_hint (GTK_WINDOW (rigid_body_refinement_failed_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox55 = GTK_DIALOG (rigid_body_refinement_failed_dialog)->vbox;
+  dialog_vbox55 = gtk_dialog_get_content_area( rigid_body_refinement_failed_dialog );
   gtk_widget_show (dialog_vbox55);
 
   frame107 = gtk_frame_new (NULL);
@@ -16027,7 +15930,7 @@ create_rigid_body_refinement_failed_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label172), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label172), 13, 18);
 
-  dialog_action_area55 = GTK_DIALOG (rigid_body_refinement_failed_dialog)->action_area;
+  dialog_action_area55 = gtk_dialog_get_content_area( rigid_body_refinement_failed_dialog );
   gtk_widget_show (dialog_action_area55);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area55), GTK_BUTTONBOX_END);
 
@@ -16040,11 +15943,11 @@ create_rigid_body_refinement_failed_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (rigid_body_refinement_failed_dialog, rigid_body_refinement_failed_dialog, "rigid_body_refinement_failed_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (rigid_body_refinement_failed_dialog, dialog_vbox55, "dialog_vbox55");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(rigid_body_refinement_failed_dialog, rigid_body_refinement_failed_dialog, "rigid_body_refinement_failed_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(rigid_body_refinement_failed_dialog, dialog_vbox55, "dialog_vbox55");
   GLADE_HOOKUP_OBJECT (rigid_body_refinement_failed_dialog, frame107, "frame107");
   GLADE_HOOKUP_OBJECT (rigid_body_refinement_failed_dialog, label172, "label172");
-  GLADE_HOOKUP_OBJECT_NO_REF (rigid_body_refinement_failed_dialog, dialog_action_area55, "dialog_action_area55");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(rigid_body_refinement_failed_dialog, dialog_action_area55, "dialog_action_area55");
   GLADE_HOOKUP_OBJECT (rigid_body_refinement_failed_dialog, rigid_body_refinement_failed_dialog_ok_button, "rigid_body_refinement_failed_dialog_ok_button");
 
   return rigid_body_refinement_failed_dialog;
@@ -16065,7 +15968,7 @@ create_baton_mode_make_skeleton_dialog (void)
   gtk_window_set_title (GTK_WINDOW (baton_mode_make_skeleton_dialog), "Make Skeleton?");
   gtk_window_set_type_hint (GTK_WINDOW (baton_mode_make_skeleton_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox56 = GTK_DIALOG (baton_mode_make_skeleton_dialog)->vbox;
+  dialog_vbox56 = gtk_dialog_get_content_area( baton_mode_make_skeleton_dialog );
   gtk_widget_show (dialog_vbox56);
 
   label173 = gtk_label_new ("\n\nThere is no skeleton for this map.\n\nCalculate a skeleton now?\n\n");
@@ -16074,7 +15977,7 @@ create_baton_mode_make_skeleton_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label173), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label173), 16, 3);
 
-  dialog_action_area56 = GTK_DIALOG (baton_mode_make_skeleton_dialog)->action_area;
+  dialog_action_area56 = gtk_dialog_get_content_area( baton_mode_make_skeleton_dialog );
   gtk_widget_show (dialog_action_area56);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area56), GTK_BUTTONBOX_END);
 
@@ -16086,13 +15989,13 @@ create_baton_mode_make_skeleton_dialog (void)
   gtk_widget_show (baton_mode_calculate_skeleton_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox86), baton_mode_calculate_skeleton_ok_button, TRUE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (baton_mode_calculate_skeleton_ok_button), 2);
-  GTK_WIDGET_SET_FLAGS (baton_mode_calculate_skeleton_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (baton_mode_calculate_skeleton_ok_button, GTK_CAN_DEFAULT);
 
   baton_mode_calculate_skeleton_cancel_button = gtk_button_new_with_mnemonic ("   Cancel   ");
   gtk_widget_show (baton_mode_calculate_skeleton_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox86), baton_mode_calculate_skeleton_cancel_button, TRUE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (baton_mode_calculate_skeleton_cancel_button), 2);
-  GTK_WIDGET_SET_FLAGS (baton_mode_calculate_skeleton_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (baton_mode_calculate_skeleton_cancel_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) baton_mode_calculate_skeleton_ok_button, "clicked",
                     G_CALLBACK (on_baton_mode_calculate_skeleton_ok_button_clicked),
@@ -16102,10 +16005,10 @@ create_baton_mode_make_skeleton_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (baton_mode_make_skeleton_dialog, baton_mode_make_skeleton_dialog, "baton_mode_make_skeleton_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (baton_mode_make_skeleton_dialog, dialog_vbox56, "dialog_vbox56");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_mode_make_skeleton_dialog, baton_mode_make_skeleton_dialog, "baton_mode_make_skeleton_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_mode_make_skeleton_dialog, dialog_vbox56, "dialog_vbox56");
   GLADE_HOOKUP_OBJECT (baton_mode_make_skeleton_dialog, label173, "label173");
-  GLADE_HOOKUP_OBJECT_NO_REF (baton_mode_make_skeleton_dialog, dialog_action_area56, "dialog_action_area56");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_mode_make_skeleton_dialog, dialog_action_area56, "dialog_action_area56");
   GLADE_HOOKUP_OBJECT (baton_mode_make_skeleton_dialog, hbox86, "hbox86");
   GLADE_HOOKUP_OBJECT (baton_mode_make_skeleton_dialog, baton_mode_calculate_skeleton_ok_button, "baton_mode_calculate_skeleton_ok_button");
   GLADE_HOOKUP_OBJECT (baton_mode_make_skeleton_dialog, baton_mode_calculate_skeleton_cancel_button, "baton_mode_calculate_skeleton_cancel_button");
@@ -16146,7 +16049,7 @@ create_merge_molecules_dialog (void)
   gtk_window_set_title (GTK_WINDOW (merge_molecules_dialog), "Merge Molecules");
   gtk_window_set_type_hint (GTK_WINDOW (merge_molecules_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox57 = GTK_DIALOG (merge_molecules_dialog)->vbox;
+  dialog_vbox57 = gtk_dialog_get_content_area( merge_molecules_dialog );
   gtk_widget_show (dialog_vbox57);
 
   frame109 = gtk_frame_new (NULL);
@@ -16167,7 +16070,7 @@ create_merge_molecules_dialog (void)
   gtk_widget_show (merge_molecuoes_scrolledwindow);
   gtk_box_pack_start (GTK_BOX (vbox114), merge_molecuoes_scrolledwindow, TRUE, TRUE, 0);
   gtk_widget_set_size_request (merge_molecuoes_scrolledwindow, 300, 300);
-  GTK_WIDGET_UNSET_FLAGS (merge_molecuoes_scrolledwindow, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (merge_molecuoes_scrolledwindow, GTK_CAN_FOCUS);
 
   viewport7 = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (viewport7);
@@ -16191,7 +16094,7 @@ create_merge_molecules_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox114), label180, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label180), GTK_JUSTIFY_CENTER);
 
-  dialog_action_area57 = GTK_DIALOG (merge_molecules_dialog)->action_area;
+  dialog_action_area57 = gtk_dialog_get_content_area( merge_molecules_dialog );
   gtk_widget_show (dialog_action_area57);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area57), GTK_BUTTONBOX_END);
 
@@ -16247,8 +16150,8 @@ create_merge_molecules_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (merge_molecules_dialog, merge_molecules_dialog, "merge_molecules_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (merge_molecules_dialog, dialog_vbox57, "dialog_vbox57");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(merge_molecules_dialog, merge_molecules_dialog, "merge_molecules_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(merge_molecules_dialog, dialog_vbox57, "dialog_vbox57");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, frame109, "frame109");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, vbox114, "vbox114");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, label178, "label178");
@@ -16258,7 +16161,7 @@ create_merge_molecules_dialog (void)
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, label179, "label179");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, merge_molecules_combobox, "merge_molecules_combobox");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, label180, "label180");
-  GLADE_HOOKUP_OBJECT_NO_REF (merge_molecules_dialog, dialog_action_area57, "dialog_action_area57");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(merge_molecules_dialog, dialog_action_area57, "dialog_action_area57");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, hbox89, "hbox89");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, merge_molecules_ok_button, "merge_molecules_ok_button");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, alignment77, "alignment77");
@@ -16282,11 +16185,9 @@ create_mutate_sequence_dialog (void)
   GtkWidget *frame110;
   GtkWidget *vbox116;
   GtkWidget *function_for_molecule_label;
-  GtkWidget *mutate_molecule_optionmenu;
   GtkWidget *mutate_molecule_combobox;
   GtkWidget *hbox90;
   GtkWidget *label182;
-  GtkWidget *mutate_molecule_chain_optionmenu;
   GtkWidget *mutate_molecule_chain_combobox;
   GtkWidget *hbox91;
   GtkWidget *label183;
@@ -16331,7 +16232,7 @@ create_mutate_sequence_dialog (void)
   gtk_window_set_title (GTK_WINDOW (mutate_sequence_dialog), "Mutate Residue Range");
   gtk_window_set_type_hint (GTK_WINDOW (mutate_sequence_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox58 = GTK_DIALOG (mutate_sequence_dialog)->vbox;
+  dialog_vbox58 = gtk_dialog_get_content_area( mutate_sequence_dialog );
   gtk_widget_show (dialog_vbox58);
 
   frame110 = gtk_frame_new (NULL);
@@ -16349,11 +16250,6 @@ create_mutate_sequence_dialog (void)
   gtk_label_set_justify (GTK_LABEL (function_for_molecule_label), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (function_for_molecule_label), 7.45058e-09, 0.5);
 
-  mutate_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (mutate_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox116), mutate_molecule_optionmenu, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (mutate_molecule_optionmenu), 2);
-
   mutate_molecule_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (mutate_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox116), mutate_molecule_combobox, TRUE, TRUE, 0);
@@ -16367,10 +16263,6 @@ create_mutate_sequence_dialog (void)
   gtk_widget_show (label182);
   gtk_box_pack_start (GTK_BOX (hbox90), label182, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label182), GTK_JUSTIFY_CENTER);
-
-  mutate_molecule_chain_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (mutate_molecule_chain_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox90), mutate_molecule_chain_optionmenu, FALSE, FALSE, 0);
 
   mutate_molecule_chain_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (mutate_molecule_chain_combobox);
@@ -16432,7 +16324,7 @@ create_mutate_sequence_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox116), scrolledwindow12, TRUE, TRUE, 0);
   gtk_widget_set_size_request (scrolledwindow12, -1, 70);
   gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow12), 6);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow12, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow12, GTK_CAN_FOCUS);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow12), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow12), GTK_SHADOW_IN);
 
@@ -16479,7 +16371,7 @@ create_mutate_sequence_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (mutate_sequence_use_ramachandran_restraints_checkbutton), 4);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mutate_sequence_use_ramachandran_restraints_checkbutton), TRUE);
 
-  dialog_action_area58 = GTK_DIALOG (mutate_sequence_dialog)->action_area;
+  dialog_action_area58 = gtk_dialog_get_content_area( mutate_sequence_dialog );
   gtk_widget_show (dialog_action_area58);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area58), GTK_BUTTONBOX_END);
 
@@ -16581,16 +16473,14 @@ create_mutate_sequence_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (mutate_sequence_dialog, mutate_sequence_dialog, "mutate_sequence_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (mutate_sequence_dialog, dialog_vbox58, "dialog_vbox58");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(mutate_sequence_dialog, mutate_sequence_dialog, "mutate_sequence_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(mutate_sequence_dialog, dialog_vbox58, "dialog_vbox58");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, frame110, "frame110");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, vbox116, "vbox116");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, function_for_molecule_label, "function_for_molecule_label");
-  GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_molecule_optionmenu, "mutate_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_molecule_combobox, "mutate_molecule_combobox");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, hbox90, "hbox90");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, label182, "label182");
-  GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_molecule_chain_optionmenu, "mutate_molecule_chain_optionmenu");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_molecule_chain_combobox, "mutate_molecule_chain_combobox");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, hbox91, "hbox91");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, label183, "label183");
@@ -16613,7 +16503,7 @@ create_mutate_sequence_dialog (void)
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, label187, "label187");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_sequence_do_autofit_checkbutton, "mutate_sequence_do_autofit_checkbutton");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_sequence_use_ramachandran_restraints_checkbutton, "mutate_sequence_use_ramachandran_restraints_checkbutton");
-  GLADE_HOOKUP_OBJECT_NO_REF (mutate_sequence_dialog, dialog_action_area58, "dialog_action_area58");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(mutate_sequence_dialog, dialog_action_area58, "dialog_action_area58");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, hbox92, "hbox92");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_sequence_ok_button, "mutate_sequence_ok_button");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, alignment79, "alignment79");
@@ -16642,12 +16532,10 @@ create_bond_parameters_dialog (void)
   GtkWidget *vbox117;
   GtkWidget *hbox93;
   GtkWidget *label189;
-  GtkWidget *bond_parameters_molecule_optionmenu;
   GtkWidget *label190;
   GtkWidget *frame111;
   GtkWidget *vbox118;
   GtkWidget *hbox94;
-  GtkWidget *bond_parameters_bond_width_optionmenu;
   GtkWidget *bond_parameters_bond_width_combobox;
   GtkWidget *label191;
   GtkWidget *label307;
@@ -16680,15 +16568,15 @@ create_bond_parameters_dialog (void)
   GtkWidget *hbox251;
   GtkWidget *image6000;
   GtkWidget *label420;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   bond_parameters_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (bond_parameters_dialog), "Bond Parameters");
   gtk_window_set_type_hint (GTK_WINDOW (bond_parameters_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox59 = GTK_DIALOG (bond_parameters_dialog)->vbox;
+  dialog_vbox59 = gtk_dialog_get_content_area( bond_parameters_dialog );
   gtk_widget_show (dialog_vbox59);
 
   vbox117 = gtk_vbox_new (FALSE, 0);
@@ -16704,10 +16592,6 @@ create_bond_parameters_dialog (void)
   gtk_widget_show (label189);
   gtk_box_pack_start (GTK_BOX (hbox93), label189, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label189), GTK_JUSTIFY_CENTER);
-
-  bond_parameters_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (bond_parameters_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox93), bond_parameters_molecule_optionmenu, FALSE, FALSE, 0);
 
   label190 = gtk_label_new ("   ");
   gtk_widget_show (label190);
@@ -16726,10 +16610,6 @@ create_bond_parameters_dialog (void)
   hbox94 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox94);
   gtk_box_pack_start (GTK_BOX (vbox118), hbox94, TRUE, TRUE, 0);
-
-  bond_parameters_bond_width_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (bond_parameters_bond_width_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox94), bond_parameters_bond_width_optionmenu, FALSE, FALSE, 0);
 
   bond_parameters_bond_width_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (bond_parameters_bond_width_combobox);
@@ -16781,7 +16661,7 @@ create_bond_parameters_dialog (void)
   draw_ncs_ghosts_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Yes");
   gtk_widget_show (draw_ncs_ghosts_yes_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox146), draw_ncs_ghosts_yes_radiobutton, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, draw_ncs_ghosts_yes_radiobutton, "Note that the sequences must match exactly for NCS ghosts to be generated", NULL);
+  // gtk_tooltips_set_tip (tooltips, draw_ncs_ghosts_yes_radiobutton, "Note that the sequences must match exactly for NCS ghosts to be generated", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (draw_ncs_ghosts_yes_radiobutton), draw_ncs_ghosts_yes_radiobutton_group);
   draw_ncs_ghosts_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (draw_ncs_ghosts_yes_radiobutton));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (draw_ncs_ghosts_yes_radiobutton), TRUE);
@@ -16796,7 +16676,7 @@ create_bond_parameters_dialog (void)
   gtk_widget_show (label309);
   gtk_frame_set_label_widget (GTK_FRAME (ncs_frame), label309);
 
-  dialog_action_area59 = GTK_DIALOG (bond_parameters_dialog)->action_area;
+  dialog_action_area59 = gtk_dialog_get_content_area( bond_parameters_dialog );
   gtk_widget_show (dialog_action_area59);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area59), GTK_BUTTONBOX_END);
 
@@ -16888,17 +16768,15 @@ create_bond_parameters_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (bond_parameters_dialog, bond_parameters_dialog, "bond_parameters_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (bond_parameters_dialog, dialog_vbox59, "dialog_vbox59");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(bond_parameters_dialog, bond_parameters_dialog, "bond_parameters_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(bond_parameters_dialog, dialog_vbox59, "dialog_vbox59");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, vbox117, "vbox117");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, hbox93, "hbox93");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, label189, "label189");
-  GLADE_HOOKUP_OBJECT (bond_parameters_dialog, bond_parameters_molecule_optionmenu, "bond_parameters_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, label190, "label190");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, frame111, "frame111");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, vbox118, "vbox118");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, hbox94, "hbox94");
-  GLADE_HOOKUP_OBJECT (bond_parameters_dialog, bond_parameters_bond_width_optionmenu, "bond_parameters_bond_width_optionmenu");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, bond_parameters_bond_width_combobox, "bond_parameters_bond_width_combobox");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, label191, "label191");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, label307, "label307");
@@ -16912,7 +16790,7 @@ create_bond_parameters_dialog (void)
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, draw_ncs_ghosts_yes_radiobutton, "draw_ncs_ghosts_yes_radiobutton");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, draw_ncs_ghosts_no_radiobutton, "draw_ncs_ghosts_no_radiobutton");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, label309, "label309");
-  GLADE_HOOKUP_OBJECT_NO_REF (bond_parameters_dialog, dialog_action_area59, "dialog_action_area59");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(bond_parameters_dialog, dialog_action_area59, "dialog_action_area59");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, hbox105, "hbox105");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, bond_parameters_apply_button, "bond_parameters_apply_button");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, alignment82, "alignment82");
@@ -16929,7 +16807,7 @@ create_bond_parameters_dialog (void)
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, hbox251, "hbox251");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, image6000, "image6000");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, label420, "label420");
-  GLADE_HOOKUP_OBJECT_NO_REF (bond_parameters_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(bond_parameters_dialog, tooltips, "tooltips");
 
   return bond_parameters_dialog;
 }
@@ -16942,11 +16820,9 @@ create_renumber_residue_range_dialog (void)
   GtkWidget *frame113;
   GtkWidget *vbox120;
   GtkWidget *label192;
-  GtkWidget *renumber_residue_range_molecule_optionmenu;
   GtkWidget *renumber_residue_range_combobox;
   GtkWidget *hbox95;
   GtkWidget *label193;
-  GtkWidget *renumber_residue_range_chain_optionmenu;
   GtkWidget *hbox96;
   GtkWidget *label194;
   GtkWidget *frame305;
@@ -16976,15 +16852,15 @@ create_renumber_residue_range_dialog (void)
   GtkWidget *hbox98;
   GtkWidget *renumber_residue_range_ok_button;
   GtkWidget *renumber_residue_range_cancel_button;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   renumber_residue_range_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (renumber_residue_range_dialog), "Renumber Residue Range");
   gtk_window_set_type_hint (GTK_WINDOW (renumber_residue_range_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox60 = GTK_DIALOG (renumber_residue_range_dialog)->vbox;
+  dialog_vbox60 = gtk_dialog_get_content_area( renumber_residue_range_dialog );
   gtk_widget_show (dialog_vbox60);
 
   frame113 = gtk_frame_new (NULL);
@@ -17003,11 +16879,6 @@ create_renumber_residue_range_dialog (void)
   gtk_misc_set_alignment (GTK_MISC (label192), 0.04, 0.5);
   gtk_misc_set_padding (GTK_MISC (label192), 3, 5);
 
-  renumber_residue_range_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (renumber_residue_range_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox120), renumber_residue_range_molecule_optionmenu, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (renumber_residue_range_molecule_optionmenu), 2);
-
   renumber_residue_range_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (renumber_residue_range_combobox);
   gtk_box_pack_start (GTK_BOX (vbox120), renumber_residue_range_combobox, TRUE, TRUE, 0);
@@ -17020,10 +16891,6 @@ create_renumber_residue_range_dialog (void)
   gtk_widget_show (label193);
   gtk_box_pack_start (GTK_BOX (hbox95), label193, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label193), GTK_JUSTIFY_CENTER);
-
-  renumber_residue_range_chain_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (renumber_residue_range_chain_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox95), renumber_residue_range_chain_optionmenu, FALSE, FALSE, 0);
 
   hbox96 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox96);
@@ -17136,9 +17003,9 @@ create_renumber_residue_range_dialog (void)
   gtk_widget_show (renumber_residue_range_offset_entry);
   gtk_box_pack_start (GTK_BOX (hbox97), renumber_residue_range_offset_entry, FALSE, TRUE, 0);
   gtk_widget_set_size_request (renumber_residue_range_offset_entry, 50, -1);
-  gtk_tooltips_set_tip (tooltips, renumber_residue_range_offset_entry, "e.g. an offset of -10 will renumber residues 33 to 36 as 23 to 36", NULL);
+  // gtk_tooltips_set_tip (tooltips, renumber_residue_range_offset_entry, "e.g. an offset of -10 will renumber residues 33 to 36 as 23 to 36", NULL);
 
-  dialog_action_area60 = GTK_DIALOG (renumber_residue_range_dialog)->action_area;
+  dialog_action_area60 = gtk_dialog_get_content_area( renumber_residue_range_dialog );
   gtk_widget_show (dialog_action_area60);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area60), GTK_BUTTONBOX_END);
 
@@ -17168,16 +17035,14 @@ create_renumber_residue_range_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (renumber_residue_range_dialog, renumber_residue_range_dialog, "renumber_residue_range_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (renumber_residue_range_dialog, dialog_vbox60, "dialog_vbox60");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(renumber_residue_range_dialog, renumber_residue_range_dialog, "renumber_residue_range_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(renumber_residue_range_dialog, dialog_vbox60, "dialog_vbox60");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, frame113, "frame113");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, vbox120, "vbox120");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, label192, "label192");
-  GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_molecule_optionmenu, "renumber_residue_range_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_combobox, "renumber_residue_range_combobox");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, hbox95, "hbox95");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, label193, "label193");
-  GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_chain_optionmenu, "renumber_residue_range_chain_optionmenu");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, hbox96, "hbox96");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, label194, "label194");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, frame305, "frame305");
@@ -17201,11 +17066,11 @@ create_renumber_residue_range_dialog (void)
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, hbox97, "hbox97");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, label197, "label197");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_offset_entry, "renumber_residue_range_offset_entry");
-  GLADE_HOOKUP_OBJECT_NO_REF (renumber_residue_range_dialog, dialog_action_area60, "dialog_action_area60");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(renumber_residue_range_dialog, dialog_action_area60, "dialog_action_area60");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, hbox98, "hbox98");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_ok_button, "renumber_residue_range_ok_button");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_cancel_button, "renumber_residue_range_cancel_button");
-  GLADE_HOOKUP_OBJECT_NO_REF (renumber_residue_range_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(renumber_residue_range_dialog, tooltips, "tooltips");
 
   return renumber_residue_range_dialog;
 }
@@ -17249,7 +17114,7 @@ create_add_OXT_dialog (void)
   gtk_window_set_title (GTK_WINDOW (add_OXT_dialog), "add OXT to chain");
   gtk_window_set_type_hint (GTK_WINDOW (add_OXT_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox61 = GTK_DIALOG (add_OXT_dialog)->vbox;
+  dialog_vbox61 = gtk_dialog_get_content_area( add_OXT_dialog );
   gtk_widget_show (dialog_vbox61);
 
   frame114 = gtk_frame_new (NULL);
@@ -17326,7 +17191,7 @@ create_add_OXT_dialog (void)
   gtk_widget_show (add_OXT_residue_entry);
   gtk_box_pack_start (GTK_BOX (add_OXT_residue_hbox), add_OXT_residue_entry, FALSE, TRUE, 0);
 
-  dialog_action_area61 = GTK_DIALOG (add_OXT_dialog)->action_area;
+  dialog_action_area61 = gtk_dialog_get_content_area( add_OXT_dialog );
   gtk_widget_show (dialog_action_area61);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area61), GTK_BUTTONBOX_END);
 
@@ -17388,8 +17253,8 @@ create_add_OXT_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (add_OXT_dialog, add_OXT_dialog, "add_OXT_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (add_OXT_dialog, dialog_vbox61, "dialog_vbox61");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_OXT_dialog, add_OXT_dialog, "add_OXT_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_OXT_dialog, dialog_vbox61, "dialog_vbox61");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, frame114, "frame114");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, vbox121, "vbox121");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, label198, "label198");
@@ -17406,7 +17271,7 @@ create_add_OXT_dialog (void)
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, add_OXT_residue_hbox, "add_OXT_residue_hbox");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, add_OXT_residue_radiobutton, "add_OXT_residue_radiobutton");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, add_OXT_residue_entry, "add_OXT_residue_entry");
-  GLADE_HOOKUP_OBJECT_NO_REF (add_OXT_dialog, dialog_action_area61, "dialog_action_area61");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_OXT_dialog, dialog_action_area61, "dialog_action_area61");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, hbox99, "hbox99");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, add_OXT_ok_button, "add_OXT_ok_button");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, alignment85, "alignment85");
@@ -17441,7 +17306,7 @@ create_ligand_no_blobs_dialog (void)
   gtk_window_set_title (GTK_WINDOW (ligand_no_blobs_dialog), "Coot: No Blobs");
   gtk_window_set_type_hint (GTK_WINDOW (ligand_no_blobs_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox62 = GTK_DIALOG (ligand_no_blobs_dialog)->vbox;
+  dialog_vbox62 = gtk_dialog_get_content_area( ligand_no_blobs_dialog );
   gtk_widget_show (dialog_vbox62);
 
   frame117 = gtk_frame_new (NULL);
@@ -17453,7 +17318,7 @@ create_ligand_no_blobs_dialog (void)
   gtk_container_add (GTK_CONTAINER (frame117), label203);
   gtk_label_set_justify (GTK_LABEL (label203), GTK_JUSTIFY_CENTER);
 
-  dialog_action_area62 = GTK_DIALOG (ligand_no_blobs_dialog)->action_area;
+  dialog_action_area62 = gtk_dialog_get_content_area( ligand_no_blobs_dialog );
   gtk_widget_show (dialog_action_area62);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area62), GTK_BUTTONBOX_END);
 
@@ -17464,7 +17329,7 @@ create_ligand_no_blobs_dialog (void)
   ligand_no_blobs_OK_button = gtk_button_new ();
   gtk_widget_show (ligand_no_blobs_OK_button);
   gtk_box_pack_start (GTK_BOX (hbox106), ligand_no_blobs_OK_button, TRUE, TRUE, 0);
-  GTK_WIDGET_SET_FLAGS (ligand_no_blobs_OK_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (ligand_no_blobs_OK_button, GTK_CAN_DEFAULT);
 
   alignment87 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment87);
@@ -17487,11 +17352,11 @@ create_ligand_no_blobs_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (ligand_no_blobs_dialog, ligand_no_blobs_dialog, "ligand_no_blobs_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (ligand_no_blobs_dialog, dialog_vbox62, "dialog_vbox62");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ligand_no_blobs_dialog, ligand_no_blobs_dialog, "ligand_no_blobs_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ligand_no_blobs_dialog, dialog_vbox62, "dialog_vbox62");
   GLADE_HOOKUP_OBJECT (ligand_no_blobs_dialog, frame117, "frame117");
   GLADE_HOOKUP_OBJECT (ligand_no_blobs_dialog, label203, "label203");
-  GLADE_HOOKUP_OBJECT_NO_REF (ligand_no_blobs_dialog, dialog_action_area62, "dialog_action_area62");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ligand_no_blobs_dialog, dialog_action_area62, "dialog_action_area62");
   GLADE_HOOKUP_OBJECT (ligand_no_blobs_dialog, hbox106, "hbox106");
   GLADE_HOOKUP_OBJECT (ligand_no_blobs_dialog, ligand_no_blobs_OK_button, "ligand_no_blobs_OK_button");
   GLADE_HOOKUP_OBJECT (ligand_no_blobs_dialog, alignment87, "alignment87");
@@ -17532,7 +17397,7 @@ create_new_close_molecules_dialog (void)
   gtk_window_set_title (GTK_WINDOW (new_close_molecules_dialog), "Delete Molecules:");
   gtk_window_set_type_hint (GTK_WINDOW (new_close_molecules_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox67 = GTK_DIALOG (new_close_molecules_dialog)->vbox;
+  dialog_vbox67 = gtk_dialog_get_content_area( new_close_molecules_dialog );
   gtk_widget_show (dialog_vbox67);
 
   frame121 = gtk_frame_new (NULL);
@@ -17561,7 +17426,7 @@ create_new_close_molecules_dialog (void)
   scrolledwindow16 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow16);
   gtk_box_pack_start (GTK_BOX (vbox126), scrolledwindow16, TRUE, TRUE, 0);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow16, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow16, GTK_CAN_FOCUS);
 
   viewport9 = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (viewport9);
@@ -17571,7 +17436,7 @@ create_new_close_molecules_dialog (void)
   gtk_widget_show (new_delete_molecules_vbox);
   gtk_container_add (GTK_CONTAINER (viewport9), new_delete_molecules_vbox);
 
-  dialog_action_area67 = GTK_DIALOG (new_close_molecules_dialog)->action_area;
+  dialog_action_area67 = gtk_dialog_get_content_area( new_close_molecules_dialog );
   gtk_widget_show (dialog_action_area67);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area67), GTK_BUTTONBOX_END);
 
@@ -17613,8 +17478,8 @@ create_new_close_molecules_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (new_close_molecules_dialog, new_close_molecules_dialog, "new_close_molecules_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (new_close_molecules_dialog, dialog_vbox67, "dialog_vbox67");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(new_close_molecules_dialog, new_close_molecules_dialog, "new_close_molecules_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(new_close_molecules_dialog, dialog_vbox67, "dialog_vbox67");
   GLADE_HOOKUP_OBJECT (new_close_molecules_dialog, frame121, "frame121");
   GLADE_HOOKUP_OBJECT (new_close_molecules_dialog, vbox126, "vbox126");
   GLADE_HOOKUP_OBJECT (new_close_molecules_dialog, hbox107, "hbox107");
@@ -17623,7 +17488,7 @@ create_new_close_molecules_dialog (void)
   GLADE_HOOKUP_OBJECT (new_close_molecules_dialog, scrolledwindow16, "scrolledwindow16");
   GLADE_HOOKUP_OBJECT (new_close_molecules_dialog, viewport9, "viewport9");
   GLADE_HOOKUP_OBJECT (new_close_molecules_dialog, new_delete_molecules_vbox, "new_delete_molecules_vbox");
-  GLADE_HOOKUP_OBJECT_NO_REF (new_close_molecules_dialog, dialog_action_area67, "dialog_action_area67");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(new_close_molecules_dialog, dialog_action_area67, "dialog_action_area67");
   GLADE_HOOKUP_OBJECT (new_close_molecules_dialog, hbox108, "hbox108");
   GLADE_HOOKUP_OBJECT (new_close_molecules_dialog, new_delete_molecules_ok_button, "new_delete_molecules_ok_button");
   GLADE_HOOKUP_OBJECT (new_close_molecules_dialog, alignment88, "alignment88");
@@ -17662,15 +17527,15 @@ create_unmodelled_blobs_dialog (void)
   GtkWidget *image6005;
   GtkWidget *label425;
   GtkWidget *find_blobs_cancel_button;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   unmodelled_blobs_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (unmodelled_blobs_dialog), "Find Unmodelled Blobs of density");
   gtk_window_set_type_hint (GTK_WINDOW (unmodelled_blobs_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox68 = GTK_DIALOG (unmodelled_blobs_dialog)->vbox;
+  dialog_vbox68 = gtk_dialog_get_content_area( unmodelled_blobs_dialog );
   gtk_widget_show (dialog_vbox68);
 
   vbox127 = gtk_vbox_new (FALSE, 0);
@@ -17731,14 +17596,14 @@ create_unmodelled_blobs_dialog (void)
   find_blobs_peak_level_entry = gtk_entry_new ();
   gtk_widget_show (find_blobs_peak_level_entry);
   gtk_box_pack_start (GTK_BOX (hbox111), find_blobs_peak_level_entry, FALSE, TRUE, 6);
-  gtk_tooltips_set_tip (tooltips, find_blobs_peak_level_entry, "Note that this is r.m.s.d. of the map after it has been masked by the protein.  1.8 r.m.s.d. seems good for a 2Fo-Fc style map and about 3.0 for a difference map.", NULL);
+  // gtk_tooltips_set_tip (tooltips, find_blobs_peak_level_entry, "Note that this is r.m.s.d. of the map after it has been masked by the protein.  1.8 r.m.s.d. seems good for a 2Fo-Fc style map and about 3.0 for a difference map.", NULL);
 
   label214 = gtk_label_new (" r.m.s.d. ");
   gtk_widget_show (label214);
   gtk_box_pack_start (GTK_BOX (hbox111), label214, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label214), GTK_JUSTIFY_CENTER);
 
-  hbox109 = GTK_DIALOG (unmodelled_blobs_dialog)->action_area;
+  hbox109 = gtk_dialog_get_content_area( unmodelled_blobs_dialog );
   gtk_widget_show (hbox109);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbox109), GTK_BUTTONBOX_END);
 
@@ -17751,7 +17616,7 @@ create_unmodelled_blobs_dialog (void)
   gtk_widget_show (find_blobs_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox110), find_blobs_ok_button, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (find_blobs_ok_button), 2);
-  GTK_WIDGET_SET_FLAGS (find_blobs_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (find_blobs_ok_button, GTK_CAN_DEFAULT);
 
   alignment89 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment89);
@@ -17773,7 +17638,7 @@ create_unmodelled_blobs_dialog (void)
   gtk_widget_show (find_blobs_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox110), find_blobs_cancel_button, TRUE, TRUE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (find_blobs_cancel_button), 2);
-  GTK_WIDGET_SET_FLAGS (find_blobs_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (find_blobs_cancel_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) find_blobs_ok_button, "clicked",
                     G_CALLBACK (on_find_blobs_ok_button_clicked),
@@ -17783,8 +17648,8 @@ create_unmodelled_blobs_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (unmodelled_blobs_dialog, unmodelled_blobs_dialog, "unmodelled_blobs_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (unmodelled_blobs_dialog, dialog_vbox68, "dialog_vbox68");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(unmodelled_blobs_dialog, unmodelled_blobs_dialog, "unmodelled_blobs_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(unmodelled_blobs_dialog, dialog_vbox68, "dialog_vbox68");
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, vbox127, "vbox127");
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, vbox128, "vbox128");
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, frame122, "frame122");
@@ -17799,7 +17664,7 @@ create_unmodelled_blobs_dialog (void)
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, hbox111, "hbox111");
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, find_blobs_peak_level_entry, "find_blobs_peak_level_entry");
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, label214, "label214");
-  GLADE_HOOKUP_OBJECT_NO_REF (unmodelled_blobs_dialog, hbox109, "hbox109");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(unmodelled_blobs_dialog, hbox109, "hbox109");
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, hbox110, "hbox110");
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, find_blobs_ok_button, "find_blobs_ok_button");
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, alignment89, "alignment89");
@@ -17807,7 +17672,7 @@ create_unmodelled_blobs_dialog (void)
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, image6005, "image6005");
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, label425, "label425");
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, find_blobs_cancel_button, "find_blobs_cancel_button");
-  GLADE_HOOKUP_OBJECT_NO_REF (unmodelled_blobs_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(unmodelled_blobs_dialog, tooltips, "tooltips");
 
   gtk_widget_grab_focus (find_blobs_ok_button);
   gtk_widget_grab_default (find_blobs_ok_button);
@@ -17828,7 +17693,7 @@ create_chiral_restraints_problem_dialog (void)
   gtk_window_set_title (GTK_WINDOW (chiral_restraints_problem_dialog), "Problem with restraints...");
   gtk_window_set_type_hint (GTK_WINDOW (chiral_restraints_problem_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox69 = GTK_DIALOG (chiral_restraints_problem_dialog)->vbox;
+  dialog_vbox69 = gtk_dialog_get_content_area( chiral_restraints_problem_dialog );
   gtk_widget_show (dialog_vbox69);
 
   frame125 = gtk_frame_new (NULL);
@@ -17840,7 +17705,7 @@ create_chiral_restraints_problem_dialog (void)
   gtk_container_add (GTK_CONTAINER (frame125), chiral_volume_restraints_problem_label);
   gtk_label_set_justify (GTK_LABEL (chiral_volume_restraints_problem_label), GTK_JUSTIFY_CENTER);
 
-  dialog_action_area68 = GTK_DIALOG (chiral_restraints_problem_dialog)->action_area;
+  dialog_action_area68 = gtk_dialog_get_content_area( chiral_restraints_problem_dialog );
   gtk_widget_show (dialog_action_area68);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area68), GTK_BUTTONBOX_END);
 
@@ -17853,11 +17718,11 @@ create_chiral_restraints_problem_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (chiral_restraints_problem_dialog, chiral_restraints_problem_dialog, "chiral_restraints_problem_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (chiral_restraints_problem_dialog, dialog_vbox69, "dialog_vbox69");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(chiral_restraints_problem_dialog, chiral_restraints_problem_dialog, "chiral_restraints_problem_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(chiral_restraints_problem_dialog, dialog_vbox69, "dialog_vbox69");
   GLADE_HOOKUP_OBJECT (chiral_restraints_problem_dialog, frame125, "frame125");
   GLADE_HOOKUP_OBJECT (chiral_restraints_problem_dialog, chiral_volume_restraints_problem_label, "chiral_volume_restraints_problem_label");
-  GLADE_HOOKUP_OBJECT_NO_REF (chiral_restraints_problem_dialog, dialog_action_area68, "dialog_action_area68");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(chiral_restraints_problem_dialog, dialog_action_area68, "dialog_action_area68");
   GLADE_HOOKUP_OBJECT (chiral_restraints_problem_dialog, chiral_restraints_problem_ok_button, "chiral_restraints_problem_ok_button");
 
   return chiral_restraints_problem_dialog;
@@ -17897,7 +17762,7 @@ create_check_waters_diff_map_dialog (void)
   gtk_window_set_title (GTK_WINDOW (check_waters_diff_map_dialog), "Check waters by difference map");
   gtk_window_set_type_hint (GTK_WINDOW (check_waters_diff_map_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox70 = GTK_DIALOG (check_waters_diff_map_dialog)->vbox;
+  dialog_vbox70 = gtk_dialog_get_content_area( check_waters_diff_map_dialog );
   gtk_widget_show (dialog_vbox70);
 
   vbox132 = gtk_vbox_new (FALSE, 0);
@@ -17954,7 +17819,7 @@ create_check_waters_diff_map_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label221), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label221), 4, 0);
 
-  dialog_action_area69 = GTK_DIALOG (check_waters_diff_map_dialog)->action_area;
+  dialog_action_area69 = gtk_dialog_get_content_area( check_waters_diff_map_dialog );
   gtk_widget_show (dialog_action_area69);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area69), GTK_BUTTONBOX_END);
 
@@ -17966,7 +17831,7 @@ create_check_waters_diff_map_dialog (void)
   gtk_widget_show (check_waters_diff_map_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox112), check_waters_diff_map_ok_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (check_waters_diff_map_ok_button), 4);
-  GTK_WIDGET_SET_FLAGS (check_waters_diff_map_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (check_waters_diff_map_ok_button, GTK_CAN_DEFAULT);
 
   alignment90 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment90);
@@ -17988,7 +17853,7 @@ create_check_waters_diff_map_dialog (void)
   gtk_widget_show (check_waters_diff_map_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox112), check_waters_diff_map_cancel_button, TRUE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (check_waters_diff_map_cancel_button), 4);
-  GTK_WIDGET_SET_FLAGS (check_waters_diff_map_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (check_waters_diff_map_cancel_button, GTK_CAN_DEFAULT);
 
   alignment91 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment91);
@@ -18014,8 +17879,8 @@ create_check_waters_diff_map_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (check_waters_diff_map_dialog, check_waters_diff_map_dialog, "check_waters_diff_map_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (check_waters_diff_map_dialog, dialog_vbox70, "dialog_vbox70");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(check_waters_diff_map_dialog, check_waters_diff_map_dialog, "check_waters_diff_map_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(check_waters_diff_map_dialog, dialog_vbox70, "dialog_vbox70");
   GLADE_HOOKUP_OBJECT (check_waters_diff_map_dialog, vbox132, "vbox132");
   GLADE_HOOKUP_OBJECT (check_waters_diff_map_dialog, vbox133, "vbox133");
   GLADE_HOOKUP_OBJECT (check_waters_diff_map_dialog, frame126, "frame126");
@@ -18028,7 +17893,7 @@ create_check_waters_diff_map_dialog (void)
   GLADE_HOOKUP_OBJECT (check_waters_diff_map_dialog, label217, "label217");
   GLADE_HOOKUP_OBJECT (check_waters_diff_map_dialog, no_models_with_waters_frame, "no_models_with_waters_frame");
   GLADE_HOOKUP_OBJECT (check_waters_diff_map_dialog, label221, "label221");
-  GLADE_HOOKUP_OBJECT_NO_REF (check_waters_diff_map_dialog, dialog_action_area69, "dialog_action_area69");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(check_waters_diff_map_dialog, dialog_action_area69, "dialog_action_area69");
   GLADE_HOOKUP_OBJECT (check_waters_diff_map_dialog, hbox112, "hbox112");
   GLADE_HOOKUP_OBJECT (check_waters_diff_map_dialog, check_waters_diff_map_ok_button, "check_waters_diff_map_ok_button");
   GLADE_HOOKUP_OBJECT (check_waters_diff_map_dialog, alignment90, "alignment90");
@@ -18066,14 +17931,14 @@ create_interesting_waters_by_difference_map_check_dialog (void)
   gtk_window_set_title (GTK_WINDOW (interesting_waters_by_difference_map_check_dialog), "Diff Map Analysis Results: Interesting/Strange Waters:");
   gtk_window_set_type_hint (GTK_WINDOW (interesting_waters_by_difference_map_check_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox71 = GTK_DIALOG (interesting_waters_by_difference_map_check_dialog)->vbox;
+  dialog_vbox71 = gtk_dialog_get_content_area( interesting_waters_by_difference_map_check_dialog );
   gtk_widget_show (dialog_vbox71);
 
   scrolledwindow17 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow17);
   gtk_box_pack_start (GTK_BOX (dialog_vbox71), scrolledwindow17, TRUE, TRUE, 0);
   gtk_widget_set_size_request (scrolledwindow17, 275, 80);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow17, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow17, GTK_CAN_FOCUS);
 
   viewport10 = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (viewport10);
@@ -18083,7 +17948,7 @@ create_interesting_waters_by_difference_map_check_dialog (void)
   gtk_widget_show (interesting_waters_by_difference_map_check_vbox);
   gtk_container_add (GTK_CONTAINER (viewport10), interesting_waters_by_difference_map_check_vbox);
 
-  dialog_action_area70 = GTK_DIALOG (interesting_waters_by_difference_map_check_dialog)->action_area;
+  dialog_action_area70 = gtk_dialog_get_content_area( interesting_waters_by_difference_map_check_dialog );
   gtk_widget_show (dialog_action_area70);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area70), GTK_BUTTONBOX_END);
 
@@ -18112,12 +17977,12 @@ create_interesting_waters_by_difference_map_check_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (interesting_waters_by_difference_map_check_dialog, interesting_waters_by_difference_map_check_dialog, "interesting_waters_by_difference_map_check_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (interesting_waters_by_difference_map_check_dialog, dialog_vbox71, "dialog_vbox71");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(interesting_waters_by_difference_map_check_dialog, interesting_waters_by_difference_map_check_dialog, "interesting_waters_by_difference_map_check_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(interesting_waters_by_difference_map_check_dialog, dialog_vbox71, "dialog_vbox71");
   GLADE_HOOKUP_OBJECT (interesting_waters_by_difference_map_check_dialog, scrolledwindow17, "scrolledwindow17");
   GLADE_HOOKUP_OBJECT (interesting_waters_by_difference_map_check_dialog, viewport10, "viewport10");
   GLADE_HOOKUP_OBJECT (interesting_waters_by_difference_map_check_dialog, interesting_waters_by_difference_map_check_vbox, "interesting_waters_by_difference_map_check_vbox");
-  GLADE_HOOKUP_OBJECT_NO_REF (interesting_waters_by_difference_map_check_dialog, dialog_action_area70, "dialog_action_area70");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(interesting_waters_by_difference_map_check_dialog, dialog_action_area70, "dialog_action_area70");
   GLADE_HOOKUP_OBJECT (interesting_waters_by_difference_map_check_dialog, interesting_waters_by_difference_map_check_ok_button, "interesting_waters_by_difference_map_check_ok_button");
   GLADE_HOOKUP_OBJECT (interesting_waters_by_difference_map_check_dialog, alignment102, "alignment102");
   GLADE_HOOKUP_OBJECT (interesting_waters_by_difference_map_check_dialog, hbox269, "hbox269");
@@ -18144,7 +18009,7 @@ create_nothing_bad_dialog (void)
   gtk_window_set_title (GTK_WINDOW (nothing_bad_dialog), "Info:");
   gtk_window_set_type_hint (GTK_WINDOW (nothing_bad_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox72 = GTK_DIALOG (nothing_bad_dialog)->vbox;
+  dialog_vbox72 = gtk_dialog_get_content_area( nothing_bad_dialog );
   gtk_widget_show (dialog_vbox72);
 
   frame128 = gtk_frame_new (NULL);
@@ -18169,28 +18034,28 @@ create_nothing_bad_dialog (void)
   gtk_label_set_use_markup (GTK_LABEL (nothing_bad_label), TRUE);
   gtk_misc_set_padding (GTK_MISC (nothing_bad_label), 50, 24);
 
-  dialog_action_area71 = GTK_DIALOG (nothing_bad_dialog)->action_area;
+  dialog_action_area71 = gtk_dialog_get_content_area( nothing_bad_dialog );
   gtk_widget_show (dialog_action_area71);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area71), GTK_BUTTONBOX_END);
 
   nothing_bad_ok_button = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (nothing_bad_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (nothing_bad_dialog), nothing_bad_ok_button, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (nothing_bad_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (nothing_bad_ok_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) nothing_bad_ok_button, "clicked",
                     G_CALLBACK (on_nothing_bad_ok_button_clicked),
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (nothing_bad_dialog, nothing_bad_dialog, "nothing_bad_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (nothing_bad_dialog, dialog_vbox72, "dialog_vbox72");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nothing_bad_dialog, nothing_bad_dialog, "nothing_bad_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nothing_bad_dialog, dialog_vbox72, "dialog_vbox72");
   GLADE_HOOKUP_OBJECT (nothing_bad_dialog, frame128, "frame128");
   GLADE_HOOKUP_OBJECT (nothing_bad_dialog, hbox443, "hbox443");
   GLADE_HOOKUP_OBJECT (nothing_bad_dialog, info_dialog_info_image, "info_dialog_info_image");
   GLADE_HOOKUP_OBJECT (nothing_bad_dialog, info_dialog_warning_image, "info_dialog_warning_image");
   GLADE_HOOKUP_OBJECT (nothing_bad_dialog, nothing_bad_label, "nothing_bad_label");
-  GLADE_HOOKUP_OBJECT_NO_REF (nothing_bad_dialog, dialog_action_area71, "dialog_action_area71");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nothing_bad_dialog, dialog_action_area71, "dialog_action_area71");
   GLADE_HOOKUP_OBJECT (nothing_bad_dialog, nothing_bad_ok_button, "nothing_bad_ok_button");
 
   gtk_widget_grab_focus (nothing_bad_ok_button);
@@ -18206,7 +18071,6 @@ create_skeletonize_map_dialog (void)
   GtkWidget *frame130;
   GtkWidget *vbox134;
   GtkWidget *label218;
-  GtkWidget *skeletonize_map_optionmenu;
   GtkWidget *skeletonize_map_combobox;
   GtkWidget *dialog_action_area72;
   GtkWidget *hbox113;
@@ -18217,7 +18081,7 @@ create_skeletonize_map_dialog (void)
   gtk_window_set_title (GTK_WINDOW (skeletonize_map_dialog), "Skeletonize Map");
   gtk_window_set_type_hint (GTK_WINDOW (skeletonize_map_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox73 = GTK_DIALOG (skeletonize_map_dialog)->vbox;
+  dialog_vbox73 = gtk_dialog_get_content_area( skeletonize_map_dialog );
   gtk_widget_show (dialog_vbox73);
 
   frame130 = gtk_frame_new (NULL);
@@ -18234,16 +18098,11 @@ create_skeletonize_map_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox134), label218, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label218), GTK_JUSTIFY_CENTER);
 
-  skeletonize_map_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (skeletonize_map_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox134), skeletonize_map_optionmenu, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (skeletonize_map_optionmenu), 2);
-
   skeletonize_map_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (skeletonize_map_combobox);
   gtk_box_pack_start (GTK_BOX (vbox134), skeletonize_map_combobox, TRUE, TRUE, 0);
 
-  dialog_action_area72 = GTK_DIALOG (skeletonize_map_dialog)->action_area;
+  dialog_action_area72 = gtk_dialog_get_content_area( skeletonize_map_dialog );
   gtk_widget_show (dialog_action_area72);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area72), GTK_BUTTONBOX_END);
 
@@ -18267,14 +18126,13 @@ create_skeletonize_map_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (skeletonize_map_dialog, skeletonize_map_dialog, "skeletonize_map_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (skeletonize_map_dialog, dialog_vbox73, "dialog_vbox73");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(skeletonize_map_dialog, skeletonize_map_dialog, "skeletonize_map_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(skeletonize_map_dialog, dialog_vbox73, "dialog_vbox73");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, frame130, "frame130");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, vbox134, "vbox134");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, label218, "label218");
-  GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, skeletonize_map_optionmenu, "skeletonize_map_optionmenu");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, skeletonize_map_combobox, "skeletonize_map_combobox");
-  GLADE_HOOKUP_OBJECT_NO_REF (skeletonize_map_dialog, dialog_action_area72, "dialog_action_area72");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(skeletonize_map_dialog, dialog_action_area72, "dialog_action_area72");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, hbox113, "hbox113");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, skeletonize_map_dialog_ok_button, "skeletonize_map_dialog_ok_button");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, skeletonize_map_dialog_cancel_button, "skeletonize_map_dialog_cancel_button");
@@ -18302,7 +18160,7 @@ create_antialiasing_dialog (void)
   gtk_window_set_title (GTK_WINDOW (antialiasing_dialog), "Antialiasing");
   gtk_window_set_type_hint (GTK_WINDOW (antialiasing_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox74 = GTK_DIALOG (antialiasing_dialog)->vbox;
+  dialog_vbox74 = gtk_dialog_get_content_area( antialiasing_dialog );
   gtk_widget_show (dialog_vbox74);
 
   frame131 = gtk_frame_new (NULL);
@@ -18342,14 +18200,14 @@ create_antialiasing_dialog (void)
   antialias_dialog_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (antialias_dialog_no_radiobutton));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (antialias_dialog_no_radiobutton), TRUE);
 
-  dialog_action_area73 = GTK_DIALOG (antialiasing_dialog)->action_area;
+  dialog_action_area73 = gtk_dialog_get_content_area( antialiasing_dialog );
   gtk_widget_show (dialog_action_area73);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area73), GTK_BUTTONBOX_END);
 
   antialiasing_dialog_ok_button = gtk_button_new_with_mnemonic ("   OK   ");
   gtk_widget_show (antialiasing_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (antialiasing_dialog), antialiasing_dialog_ok_button, 0);
-  GTK_WIDGET_SET_FLAGS (antialiasing_dialog_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (antialiasing_dialog_ok_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) antialias_dialog_yes_radiobutton, "toggled",
                     G_CALLBACK (on_antialias_dialog_yes_radiobutton_toggled),
@@ -18362,8 +18220,8 @@ create_antialiasing_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (antialiasing_dialog, antialiasing_dialog, "antialiasing_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (antialiasing_dialog, dialog_vbox74, "dialog_vbox74");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(antialiasing_dialog, antialiasing_dialog, "antialiasing_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(antialiasing_dialog, dialog_vbox74, "dialog_vbox74");
   GLADE_HOOKUP_OBJECT (antialiasing_dialog, frame131, "frame131");
   GLADE_HOOKUP_OBJECT (antialiasing_dialog, vbox135, "vbox135");
   GLADE_HOOKUP_OBJECT (antialiasing_dialog, label219, "label219");
@@ -18371,7 +18229,7 @@ create_antialiasing_dialog (void)
   GLADE_HOOKUP_OBJECT (antialiasing_dialog, vbox136, "vbox136");
   GLADE_HOOKUP_OBJECT (antialiasing_dialog, antialias_dialog_yes_radiobutton, "antialias_dialog_yes_radiobutton");
   GLADE_HOOKUP_OBJECT (antialiasing_dialog, antialias_dialog_no_radiobutton, "antialias_dialog_no_radiobutton");
-  GLADE_HOOKUP_OBJECT_NO_REF (antialiasing_dialog, dialog_action_area73, "dialog_action_area73");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(antialiasing_dialog, dialog_action_area73, "dialog_action_area73");
   GLADE_HOOKUP_OBJECT (antialiasing_dialog, antialiasing_dialog_ok_button, "antialiasing_dialog_ok_button");
 
   gtk_widget_grab_focus (antialiasing_dialog_ok_button);
@@ -18399,7 +18257,7 @@ create_geometry_graphs_dialog (void)
   gtk_window_set_title (GTK_WINDOW (geometry_graphs_dialog), "Geometry Graphs");
   gtk_window_set_type_hint (GTK_WINDOW (geometry_graphs_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox75 = GTK_DIALOG (geometry_graphs_dialog)->vbox;
+  dialog_vbox75 = gtk_dialog_get_content_area( geometry_graphs_dialog );
   gtk_widget_show (dialog_vbox75);
 
   vbox199 = gtk_vbox_new (FALSE, 0);
@@ -18414,20 +18272,20 @@ create_geometry_graphs_dialog (void)
   geometry_graphs_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (geometry_graphs_scrolledwindow);
   gtk_box_pack_start (GTK_BOX (vbox199), geometry_graphs_scrolledwindow, TRUE, TRUE, 0);
-  GTK_WIDGET_UNSET_FLAGS (geometry_graphs_scrolledwindow, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (geometry_graphs_scrolledwindow, GTK_CAN_FOCUS);
 
   geometry_graphs_viewport = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (geometry_graphs_viewport);
   gtk_container_add (GTK_CONTAINER (geometry_graphs_scrolledwindow), geometry_graphs_viewport);
 
-  dialog_action_area74 = GTK_DIALOG (geometry_graphs_dialog)->action_area;
+  dialog_action_area74 = gtk_dialog_get_content_area( geometry_graphs_dialog );
   gtk_widget_show (dialog_action_area74);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area74), GTK_BUTTONBOX_END);
 
   geometry_graphs_ok_button = gtk_button_new ();
   gtk_widget_show (geometry_graphs_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (geometry_graphs_dialog), geometry_graphs_ok_button, 0);
-  GTK_WIDGET_SET_FLAGS (geometry_graphs_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (geometry_graphs_ok_button, GTK_CAN_DEFAULT);
 
   alignment92 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment92);
@@ -18453,13 +18311,13 @@ create_geometry_graphs_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (geometry_graphs_dialog, geometry_graphs_dialog, "geometry_graphs_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (geometry_graphs_dialog, dialog_vbox75, "dialog_vbox75");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(geometry_graphs_dialog, geometry_graphs_dialog, "geometry_graphs_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(geometry_graphs_dialog, dialog_vbox75, "dialog_vbox75");
   GLADE_HOOKUP_OBJECT (geometry_graphs_dialog, vbox199, "vbox199");
   GLADE_HOOKUP_OBJECT (geometry_graphs_dialog, geometry_graphs_label, "geometry_graphs_label");
   GLADE_HOOKUP_OBJECT (geometry_graphs_dialog, geometry_graphs_scrolledwindow, "geometry_graphs_scrolledwindow");
   GLADE_HOOKUP_OBJECT (geometry_graphs_dialog, geometry_graphs_viewport, "geometry_graphs_viewport");
-  GLADE_HOOKUP_OBJECT_NO_REF (geometry_graphs_dialog, dialog_action_area74, "dialog_action_area74");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(geometry_graphs_dialog, dialog_action_area74, "dialog_action_area74");
   GLADE_HOOKUP_OBJECT (geometry_graphs_dialog, geometry_graphs_ok_button, "geometry_graphs_ok_button");
   GLADE_HOOKUP_OBJECT (geometry_graphs_dialog, alignment92, "alignment92");
   GLADE_HOOKUP_OBJECT (geometry_graphs_dialog, hbox259, "hbox259");
@@ -18494,7 +18352,7 @@ create_stereo_dialog (void)
   gtk_window_set_title (GTK_WINDOW (stereo_dialog), "Stereo/Mono");
   gtk_window_set_type_hint (GTK_WINDOW (stereo_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox76 = GTK_DIALOG (stereo_dialog)->vbox;
+  dialog_vbox76 = gtk_dialog_get_content_area( stereo_dialog );
   gtk_widget_show (dialog_vbox76);
 
   frame133 = gtk_frame_new (NULL);
@@ -18551,14 +18409,14 @@ create_stereo_dialog (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (stereo_dialog_zalman_stereo_radiobutton), stereo_dialog_mono_radiobutton_group);
   stereo_dialog_mono_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (stereo_dialog_zalman_stereo_radiobutton));
 
-  dialog_action_area75 = GTK_DIALOG (stereo_dialog)->action_area;
+  dialog_action_area75 = gtk_dialog_get_content_area( stereo_dialog );
   gtk_widget_show (dialog_action_area75);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area75), GTK_BUTTONBOX_END);
 
   stereo_dialog_ok_button = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (stereo_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (stereo_dialog), stereo_dialog_ok_button, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (stereo_dialog_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (stereo_dialog_ok_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) stereo_dialog_mono_radiobutton, "toggled",
                     G_CALLBACK (on_stereo_dialog_mono_radiobutton_toggled),
@@ -18580,8 +18438,8 @@ create_stereo_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (stereo_dialog, stereo_dialog, "stereo_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (stereo_dialog, dialog_vbox76, "dialog_vbox76");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(stereo_dialog, stereo_dialog, "stereo_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(stereo_dialog, dialog_vbox76, "dialog_vbox76");
   GLADE_HOOKUP_OBJECT (stereo_dialog, frame133, "frame133");
   GLADE_HOOKUP_OBJECT (stereo_dialog, vbox137, "vbox137");
   GLADE_HOOKUP_OBJECT (stereo_dialog, label222, "label222");
@@ -18592,7 +18450,7 @@ create_stereo_dialog (void)
   GLADE_HOOKUP_OBJECT (stereo_dialog, stereo_dialog_side_by_side_stereo_crosseyed_radiobutton, "stereo_dialog_side_by_side_stereo_crosseyed_radiobutton");
   GLADE_HOOKUP_OBJECT (stereo_dialog, stereo_dialog_side_by_side_stereo_walleyed_radiobutton, "stereo_dialog_side_by_side_stereo_walleyed_radiobutton");
   GLADE_HOOKUP_OBJECT (stereo_dialog, stereo_dialog_zalman_stereo_radiobutton, "stereo_dialog_zalman_stereo_radiobutton");
-  GLADE_HOOKUP_OBJECT_NO_REF (stereo_dialog, dialog_action_area75, "dialog_action_area75");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(stereo_dialog, dialog_action_area75, "dialog_action_area75");
   GLADE_HOOKUP_OBJECT (stereo_dialog, stereo_dialog_ok_button, "stereo_dialog_ok_button");
 
   gtk_widget_grab_focus (stereo_dialog_ok_button);
@@ -18968,16 +18826,16 @@ create_preferences (void)
   GtkWidget *image6181;
   GtkWidget *label590;
   GtkWidget *preferences_ok_button;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   preferences = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (preferences), "Preferences");
   gtk_window_set_default_size (GTK_WINDOW (preferences), 780, 480);
   gtk_window_set_type_hint (GTK_WINDOW (preferences), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox77 = GTK_DIALOG (preferences)->vbox;
+  dialog_vbox77 = gtk_dialog_get_content_area( preferences );
   gtk_widget_show (dialog_vbox77);
 
   hbox114 = gtk_hbox_new (FALSE, 0);
@@ -18993,7 +18851,7 @@ create_preferences (void)
   gtk_widget_show (preferences_toolbar);
   gtk_container_add (GTK_CONTAINER (frame137), preferences_toolbar);
   gtk_toolbar_set_style (GTK_TOOLBAR (preferences_toolbar), GTK_TOOLBAR_BOTH);
-  gtk_toolbar_set_orientation (GTK_TOOLBAR (preferences_toolbar), GTK_ORIENTATION_VERTICAL);
+  gtk_orientable_set_orientation (GTK_ORIENTABLE (preferences_toolbar), GTK_ORIENTATION_VERTICAL);
   gtk_toolbar_set_show_arrow (GTK_TOOLBAR (preferences_toolbar), FALSE);
   tmp_toolbar_icon_size = gtk_toolbar_get_icon_size (GTK_TOOLBAR (preferences_toolbar));
 
@@ -20031,7 +19889,7 @@ create_preferences (void)
   preferences_map_sampling_entry = gtk_entry_new ();
   gtk_widget_show (preferences_map_sampling_entry);
   gtk_box_pack_start (GTK_BOX (hbox319), preferences_map_sampling_entry, FALSE, TRUE, 0);
-  gtk_tooltips_set_tip (tooltips, preferences_map_sampling_entry, "Shannon Sampling multiplier. 1.5 is the standard value. Use larger numbers for smoother maps", NULL);
+  // gtk_tooltips_set_tip (tooltips, preferences_map_sampling_entry, "Shannon Sampling multiplier. 1.5 is the standard value. Use larger numbers for smoother maps", NULL);
 
   frame227 = gtk_frame_new (NULL);
   gtk_widget_show (frame227);
@@ -20075,7 +19933,7 @@ create_preferences (void)
   gtk_widget_show (preferences_diff_map_colours_coot_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox237), preferences_diff_map_colours_coot_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (preferences_diff_map_colours_coot_radiobutton), 5);
-  gtk_tooltips_set_tip (tooltips, preferences_diff_map_colours_coot_radiobutton, "positive - green; negative - red", NULL);
+  // gtk_tooltips_set_tip (tooltips, preferences_diff_map_colours_coot_radiobutton, "positive - green; negative - red", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_diff_map_colours_coot_radiobutton), preferences_diff_map_colours_coot_radiobutton_group);
   preferences_diff_map_colours_coot_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_diff_map_colours_coot_radiobutton));
 
@@ -20083,7 +19941,7 @@ create_preferences (void)
   gtk_widget_show (preferences_diff_map_colours_o_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox237), preferences_diff_map_colours_o_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (preferences_diff_map_colours_o_radiobutton), 5);
-  gtk_tooltips_set_tip (tooltips, preferences_diff_map_colours_o_radiobutton, "positive - red; negative - green", NULL);
+  // gtk_tooltips_set_tip (tooltips, preferences_diff_map_colours_o_radiobutton, "positive - red; negative - green", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_diff_map_colours_o_radiobutton), preferences_diff_map_colours_coot_radiobutton_group);
   preferences_diff_map_colours_coot_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_diff_map_colours_o_radiobutton));
 
@@ -20253,14 +20111,14 @@ create_preferences (void)
   gtk_widget_show (preferences_bg_colour_own_radiobutton);
   gtk_box_pack_start (GTK_BOX (hbox322), preferences_bg_colour_own_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (preferences_bg_colour_own_radiobutton), 5);
-  gtk_tooltips_set_tip (tooltips, preferences_bg_colour_own_radiobutton, "Select to choose you own colour", NULL);
+  // gtk_tooltips_set_tip (tooltips, preferences_bg_colour_own_radiobutton, "Select to choose you own colour", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_bg_colour_own_radiobutton), preferences_bg_colour_black_radiobutton_group);
   preferences_bg_colour_black_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_bg_colour_own_radiobutton));
 
   preferences_bg_colour_colorbutton = gtk_color_button_new ();
   gtk_widget_show (preferences_bg_colour_colorbutton);
   gtk_box_pack_start (GTK_BOX (hbox322), preferences_bg_colour_colorbutton, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, preferences_bg_colour_colorbutton, "Press here to choose your own colour", NULL);
+  // gtk_tooltips_set_tip (tooltips, preferences_bg_colour_colorbutton, "Press here to choose your own colour", NULL);
   gtk_color_button_set_title (GTK_COLOR_BUTTON (preferences_bg_colour_colorbutton), "Pick a Background Colour");
 
   label477 = gtk_label_new ("Background colour");
@@ -20388,7 +20246,7 @@ create_preferences (void)
   gtk_widget_show (preferences_font_colour_own_radiobutton);
   gtk_box_pack_start (GTK_BOX (hbox382), preferences_font_colour_own_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (preferences_font_colour_own_radiobutton), 5);
-  gtk_tooltips_set_tip (tooltips, preferences_font_colour_own_radiobutton, "Select to choose you own colour", NULL);
+  // gtk_tooltips_set_tip (tooltips, preferences_font_colour_own_radiobutton, "Select to choose you own colour", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_font_colour_own_radiobutton), preferences_font_colour_default_radiobutton_group);
   preferences_font_colour_default_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_font_colour_own_radiobutton));
 
@@ -20396,7 +20254,7 @@ create_preferences (void)
   gtk_widget_show (preferences_font_colorbutton);
   gtk_box_pack_start (GTK_BOX (hbox382), preferences_font_colorbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (preferences_font_colorbutton), 5);
-  gtk_tooltips_set_tip (tooltips, preferences_font_colorbutton, "click here to change font colours", NULL);
+  // gtk_tooltips_set_tip (tooltips, preferences_font_colorbutton, "click here to change font colours", NULL);
   gtk_color_button_set_title (GTK_COLOR_BUTTON (preferences_font_colorbutton), "Pick a Font Colour");
 
   label700 = gtk_label_new ("Atom Label Colour");
@@ -20550,7 +20408,7 @@ create_preferences (void)
   gtk_widget_show (preferences_refinement_speed_molasses_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox251), preferences_refinement_speed_molasses_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (preferences_refinement_speed_molasses_radiobutton), 5);
-  gtk_tooltips_set_tip (tooltips, preferences_refinement_speed_molasses_radiobutton, "0.08 Emsley", NULL);
+  // gtk_tooltips_set_tip (tooltips, preferences_refinement_speed_molasses_radiobutton, "0.08 Emsley", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_refinement_speed_molasses_radiobutton), preferences_refinement_speed_molasses_radiobutton_group);
   preferences_refinement_speed_molasses_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_refinement_speed_molasses_radiobutton));
 
@@ -20558,7 +20416,7 @@ create_preferences (void)
   gtk_widget_show (preferences_refinement_speed_crock_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox251), preferences_refinement_speed_crock_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (preferences_refinement_speed_crock_radiobutton), 5);
-  gtk_tooltips_set_tip (tooltips, preferences_refinement_speed_crock_radiobutton, "2.4 Emsley", NULL);
+  // gtk_tooltips_set_tip (tooltips, preferences_refinement_speed_crock_radiobutton, "2.4 Emsley", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_refinement_speed_crock_radiobutton), preferences_refinement_speed_molasses_radiobutton_group);
   preferences_refinement_speed_molasses_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_refinement_speed_crock_radiobutton));
 
@@ -20566,7 +20424,7 @@ create_preferences (void)
   gtk_widget_show (preferences_refinement_speed_default_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox251), preferences_refinement_speed_default_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (preferences_refinement_speed_default_radiobutton), 5);
-  gtk_tooltips_set_tip (tooltips, preferences_refinement_speed_default_radiobutton, "1 Emsley", NULL);
+  // gtk_tooltips_set_tip (tooltips, preferences_refinement_speed_default_radiobutton, "1 Emsley", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_refinement_speed_default_radiobutton), preferences_refinement_speed_molasses_radiobutton_group);
   preferences_refinement_speed_molasses_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_refinement_speed_default_radiobutton));
 
@@ -20612,7 +20470,7 @@ create_preferences (void)
   preferences_spin_speed_entry = gtk_entry_new ();
   gtk_widget_show (preferences_spin_speed_entry);
   gtk_box_pack_start (GTK_BOX (hbox321), preferences_spin_speed_entry, FALSE, FALSE, 6);
-  gtk_tooltips_set_tip (tooltips, preferences_spin_speed_entry, "This is actually the angle it rotates (smaller is slower)", NULL);
+  // gtk_tooltips_set_tip (tooltips, preferences_spin_speed_entry, "This is actually the angle it rotates (smaller is slower)", NULL);
   gtk_entry_set_invisible_char (GTK_ENTRY (preferences_spin_speed_entry), 8226);
 
   label573 = gtk_label_new ("Spin Speed?");
@@ -20624,7 +20482,7 @@ create_preferences (void)
   gtk_widget_show (label592);
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (preferences_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (preferences_notebook), 19), label592);
 
-  hbuttonbox5 = GTK_DIALOG (preferences)->action_area;
+  hbuttonbox5 = gtk_dialog_get_content_area( preferences );
   gtk_widget_show (hbuttonbox5);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox5), GTK_BUTTONBOX_END);
 
@@ -20988,8 +20846,8 @@ create_preferences (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (preferences, preferences, "preferences");
-  GLADE_HOOKUP_OBJECT_NO_REF (preferences, dialog_vbox77, "dialog_vbox77");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(preferences, preferences, "preferences");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(preferences, dialog_vbox77, "dialog_vbox77");
   GLADE_HOOKUP_OBJECT (preferences, hbox114, "hbox114");
   GLADE_HOOKUP_OBJECT (preferences, frame137, "frame137");
   GLADE_HOOKUP_OBJECT (preferences, preferences_toolbar, "preferences_toolbar");
@@ -21314,7 +21172,7 @@ create_preferences (void)
   GLADE_HOOKUP_OBJECT (preferences, preferences_spin_speed_entry, "preferences_spin_speed_entry");
   GLADE_HOOKUP_OBJECT (preferences, label573, "label573");
   GLADE_HOOKUP_OBJECT (preferences, label592, "label592");
-  GLADE_HOOKUP_OBJECT_NO_REF (preferences, hbuttonbox5, "hbuttonbox5");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(preferences, hbuttonbox5, "hbuttonbox5");
   GLADE_HOOKUP_OBJECT (preferences, hbox115, "hbox115");
   GLADE_HOOKUP_OBJECT (preferences, preferences_reset_button, "preferences_reset_button");
   GLADE_HOOKUP_OBJECT (preferences, alignment110, "alignment110");
@@ -21322,7 +21180,7 @@ create_preferences (void)
   GLADE_HOOKUP_OBJECT (preferences, image6181, "image6181");
   GLADE_HOOKUP_OBJECT (preferences, label590, "label590");
   GLADE_HOOKUP_OBJECT (preferences, preferences_ok_button, "preferences_ok_button");
-  GLADE_HOOKUP_OBJECT_NO_REF (preferences, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(preferences, tooltips, "tooltips");
 
   return preferences;
 }
@@ -21346,14 +21204,14 @@ create_diff_map_peaks_dialog (void)
   gtk_window_set_title (GTK_WINDOW (diff_map_peaks_dialog), "Difference Map Peaks");
   gtk_window_set_type_hint (GTK_WINDOW (diff_map_peaks_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox78 = GTK_DIALOG (diff_map_peaks_dialog)->vbox;
+  dialog_vbox78 = gtk_dialog_get_content_area( diff_map_peaks_dialog );
   gtk_widget_show (dialog_vbox78);
 
   scrolledwindow18 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow18);
   gtk_box_pack_start (GTK_BOX (dialog_vbox78), scrolledwindow18, TRUE, TRUE, 0);
   gtk_widget_set_size_request (scrolledwindow18, 440, 220);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow18, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow18, GTK_CAN_FOCUS);
 
   viewport11 = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (viewport11);
@@ -21364,7 +21222,7 @@ create_diff_map_peaks_dialog (void)
   gtk_container_add (GTK_CONTAINER (viewport11), diff_map_peaks_vbox);
   gtk_container_set_border_width (GTK_CONTAINER (diff_map_peaks_vbox), 2);
 
-  dialog_action_area77 = GTK_DIALOG (diff_map_peaks_dialog)->action_area;
+  dialog_action_area77 = gtk_dialog_get_content_area( diff_map_peaks_dialog );
   gtk_widget_show (dialog_action_area77);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area77), GTK_BUTTONBOX_END);
 
@@ -21396,12 +21254,12 @@ create_diff_map_peaks_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (diff_map_peaks_dialog, diff_map_peaks_dialog, "diff_map_peaks_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (diff_map_peaks_dialog, dialog_vbox78, "dialog_vbox78");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(diff_map_peaks_dialog, diff_map_peaks_dialog, "diff_map_peaks_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(diff_map_peaks_dialog, dialog_vbox78, "dialog_vbox78");
   GLADE_HOOKUP_OBJECT (diff_map_peaks_dialog, scrolledwindow18, "scrolledwindow18");
   GLADE_HOOKUP_OBJECT (diff_map_peaks_dialog, viewport11, "viewport11");
   GLADE_HOOKUP_OBJECT (diff_map_peaks_dialog, diff_map_peaks_vbox, "diff_map_peaks_vbox");
-  GLADE_HOOKUP_OBJECT_NO_REF (diff_map_peaks_dialog, dialog_action_area77, "dialog_action_area77");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(diff_map_peaks_dialog, dialog_action_area77, "dialog_action_area77");
   GLADE_HOOKUP_OBJECT (diff_map_peaks_dialog, diff_map_peaks_dialog_ok_button, "diff_map_peaks_dialog_ok_button");
   GLADE_HOOKUP_OBJECT (diff_map_peaks_dialog, alignment99, "alignment99");
   GLADE_HOOKUP_OBJECT (diff_map_peaks_dialog, hbox266, "hbox266");
@@ -21456,7 +21314,7 @@ create_generate_diff_map_peaks_dialog (void)
   gtk_window_set_title (GTK_WINDOW (generate_diff_map_peaks_dialog), "Difference Map Peak Analysis");
   gtk_window_set_type_hint (GTK_WINDOW (generate_diff_map_peaks_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox79 = GTK_DIALOG (generate_diff_map_peaks_dialog)->vbox;
+  dialog_vbox79 = gtk_dialog_get_content_area( generate_diff_map_peaks_dialog );
   gtk_widget_show (dialog_vbox79);
 
   frame138 = gtk_frame_new (NULL);
@@ -21562,7 +21420,7 @@ create_generate_diff_map_peaks_dialog (void)
   gtk_widget_show (label313);
   gtk_frame_set_label_widget (GTK_FRAME (negative_level_frame), label313);
 
-  dialog_action_area78 = GTK_DIALOG (generate_diff_map_peaks_dialog)->action_area;
+  dialog_action_area78 = gtk_dialog_get_content_area( generate_diff_map_peaks_dialog );
   gtk_widget_show (dialog_action_area78);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area78), GTK_BUTTONBOX_END);
 
@@ -21573,7 +21431,7 @@ create_generate_diff_map_peaks_dialog (void)
   generate_diff_map_peaks_ok_button = gtk_button_new ();
   gtk_widget_show (generate_diff_map_peaks_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox116), generate_diff_map_peaks_ok_button, TRUE, TRUE, 6);
-  GTK_WIDGET_SET_FLAGS (generate_diff_map_peaks_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (generate_diff_map_peaks_ok_button, GTK_CAN_DEFAULT);
 
   alignment100 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment100);
@@ -21594,7 +21452,7 @@ create_generate_diff_map_peaks_dialog (void)
   generate_diff_map_peaks_cancel_button = gtk_button_new ();
   gtk_widget_show (generate_diff_map_peaks_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox116), generate_diff_map_peaks_cancel_button, TRUE, TRUE, 6);
-  GTK_WIDGET_SET_FLAGS (generate_diff_map_peaks_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (generate_diff_map_peaks_cancel_button, GTK_CAN_DEFAULT);
 
   alignment101 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment101);
@@ -21620,8 +21478,8 @@ create_generate_diff_map_peaks_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (generate_diff_map_peaks_dialog, generate_diff_map_peaks_dialog, "generate_diff_map_peaks_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (generate_diff_map_peaks_dialog, dialog_vbox79, "dialog_vbox79");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(generate_diff_map_peaks_dialog, generate_diff_map_peaks_dialog, "generate_diff_map_peaks_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(generate_diff_map_peaks_dialog, dialog_vbox79, "dialog_vbox79");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, frame138, "frame138");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, vbox141, "vbox141");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, frame139, "frame139");
@@ -21645,7 +21503,7 @@ create_generate_diff_map_peaks_dialog (void)
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, generate_diff_map_peaks_positive_level_checkbutton, "generate_diff_map_peaks_positive_level_checkbutton");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, generate_diff_map_peaks_negative_level_checkbutton, "generate_diff_map_peaks_negative_level_checkbutton");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, label313, "label313");
-  GLADE_HOOKUP_OBJECT_NO_REF (generate_diff_map_peaks_dialog, dialog_action_area78, "dialog_action_area78");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(generate_diff_map_peaks_dialog, dialog_action_area78, "dialog_action_area78");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, hbox116, "hbox116");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, generate_diff_map_peaks_ok_button, "generate_diff_map_peaks_ok_button");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, alignment100, "alignment100");
@@ -21691,7 +21549,7 @@ create_ncs_maps_dialog (void)
   gtk_window_set_title (GTK_WINDOW (ncs_maps_dialog), "dialog1");
   gtk_window_set_type_hint (GTK_WINDOW (ncs_maps_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox80 = GTK_DIALOG (ncs_maps_dialog)->vbox;
+  dialog_vbox80 = gtk_dialog_get_content_area( ncs_maps_dialog );
   gtk_widget_show (dialog_vbox80);
 
   frame143 = gtk_frame_new (NULL);
@@ -21755,7 +21613,7 @@ create_ncs_maps_dialog (void)
   gtk_widget_show (label315);
   gtk_frame_set_label_widget (GTK_FRAME (frame144), label315);
 
-  dialog_action_area79 = GTK_DIALOG (ncs_maps_dialog)->action_area;
+  dialog_action_area79 = gtk_dialog_get_content_area( ncs_maps_dialog );
   gtk_widget_show (dialog_action_area79);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area79), GTK_BUTTONBOX_END);
 
@@ -21779,8 +21637,8 @@ create_ncs_maps_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (ncs_maps_dialog, ncs_maps_dialog, "ncs_maps_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (ncs_maps_dialog, dialog_vbox80, "dialog_vbox80");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ncs_maps_dialog, ncs_maps_dialog, "ncs_maps_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ncs_maps_dialog, dialog_vbox80, "dialog_vbox80");
   GLADE_HOOKUP_OBJECT (ncs_maps_dialog, frame143, "frame143");
   GLADE_HOOKUP_OBJECT (ncs_maps_dialog, vbox147, "vbox147");
   GLADE_HOOKUP_OBJECT (ncs_maps_dialog, frame146, "frame146");
@@ -21795,7 +21653,7 @@ create_ncs_maps_dialog (void)
   GLADE_HOOKUP_OBJECT (ncs_maps_dialog, label231, "label231");
   GLADE_HOOKUP_OBJECT (ncs_maps_dialog, ncs_maps_maps_vbox, "ncs_maps_maps_vbox");
   GLADE_HOOKUP_OBJECT (ncs_maps_dialog, label315, "label315");
-  GLADE_HOOKUP_OBJECT_NO_REF (ncs_maps_dialog, dialog_action_area79, "dialog_action_area79");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ncs_maps_dialog, dialog_action_area79, "dialog_action_area79");
   GLADE_HOOKUP_OBJECT (ncs_maps_dialog, hbox118, "hbox118");
   GLADE_HOOKUP_OBJECT (ncs_maps_dialog, ncs_maps_ok_button, "ncs_maps_ok_button");
   GLADE_HOOKUP_OBJECT (ncs_maps_dialog, ncs_maps_cancel_button, "ncs_maps_cancel_button");
@@ -21825,7 +21683,7 @@ create_popup_info_window (void)
   gtk_misc_set_padding (GTK_MISC (info_label), 10, 10);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (popup_info_window, popup_info_window, "popup_info_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(popup_info_window, popup_info_window, "popup_info_window");
   GLADE_HOOKUP_OBJECT (popup_info_window, frame147, "frame147");
   GLADE_HOOKUP_OBJECT (popup_info_window, info_label, "info_label");
 
@@ -21855,7 +21713,7 @@ create_pointer_distances_dialog (void)
   gtk_window_set_title (GTK_WINDOW (pointer_distances_dialog), "Pointer Distances");
   gtk_window_set_type_hint (GTK_WINDOW (pointer_distances_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox81 = GTK_DIALOG (pointer_distances_dialog)->vbox;
+  dialog_vbox81 = gtk_dialog_get_content_area( pointer_distances_dialog );
   gtk_widget_show (dialog_vbox81);
 
   frame148 = gtk_frame_new (NULL);
@@ -21925,7 +21783,7 @@ create_pointer_distances_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label233), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label233), 0, 0.5);
 
-  dialog_action_area80 = GTK_DIALOG (pointer_distances_dialog)->action_area;
+  dialog_action_area80 = gtk_dialog_get_content_area( pointer_distances_dialog );
   gtk_widget_show (dialog_action_area80);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area80), GTK_BUTTONBOX_END);
 
@@ -21941,8 +21799,8 @@ create_pointer_distances_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (pointer_distances_dialog, pointer_distances_dialog, "pointer_distances_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (pointer_distances_dialog, dialog_vbox81, "dialog_vbox81");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(pointer_distances_dialog, pointer_distances_dialog, "pointer_distances_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(pointer_distances_dialog, dialog_vbox81, "dialog_vbox81");
   GLADE_HOOKUP_OBJECT (pointer_distances_dialog, frame148, "frame148");
   GLADE_HOOKUP_OBJECT (pointer_distances_dialog, vbox150, "vbox150");
   GLADE_HOOKUP_OBJECT (pointer_distances_dialog, pointer_distances_checkbutton, "pointer_distances_checkbutton");
@@ -21954,7 +21812,7 @@ create_pointer_distances_dialog (void)
   GLADE_HOOKUP_OBJECT (pointer_distances_dialog, label235, "label235");
   GLADE_HOOKUP_OBJECT (pointer_distances_dialog, label234, "label234");
   GLADE_HOOKUP_OBJECT (pointer_distances_dialog, label233, "label233");
-  GLADE_HOOKUP_OBJECT_NO_REF (pointer_distances_dialog, dialog_action_area80, "dialog_action_area80");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(pointer_distances_dialog, dialog_action_area80, "dialog_action_area80");
   GLADE_HOOKUP_OBJECT (pointer_distances_dialog, pointer_distances_ok_button, "pointer_distances_ok_button");
 
   return pointer_distances_dialog;
@@ -21968,11 +21826,9 @@ create_align_and_mutate_dialog (void)
   GtkWidget *frame149;
   GtkWidget *vbox151;
   GtkWidget *label239;
-  GtkWidget *align_and_mutate_molecule_optionmenu;
   GtkWidget *align_and_mutate_molecule_combobox;
   GtkWidget *hbox121;
   GtkWidget *label240;
-  GtkWidget *align_and_mutate_chain_optionmenu;
   GtkWidget *align_and_mutate_chain_combobox;
   GtkWidget *label241;
   GtkWidget *scrolledwindow19;
@@ -21987,7 +21843,7 @@ create_align_and_mutate_dialog (void)
   gtk_window_set_title (GTK_WINDOW (align_and_mutate_dialog), "Align and Mutate");
   gtk_window_set_type_hint (GTK_WINDOW (align_and_mutate_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox82 = GTK_DIALOG (align_and_mutate_dialog)->vbox;
+  dialog_vbox82 = gtk_dialog_get_content_area( align_and_mutate_dialog );
   gtk_widget_show (dialog_vbox82);
 
   frame149 = gtk_frame_new (NULL);
@@ -22005,10 +21861,6 @@ create_align_and_mutate_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label239), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label239), 0, 0.5);
 
-  align_and_mutate_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (align_and_mutate_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox151), align_and_mutate_molecule_optionmenu, FALSE, FALSE, 0);
-
   align_and_mutate_molecule_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (align_and_mutate_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox151), align_and_mutate_molecule_combobox, TRUE, TRUE, 0);
@@ -22023,10 +21875,6 @@ create_align_and_mutate_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox121), label240, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label240), GTK_JUSTIFY_CENTER);
 
-  align_and_mutate_chain_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (align_and_mutate_chain_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox121), align_and_mutate_chain_optionmenu, FALSE, FALSE, 0);
-
   align_and_mutate_chain_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (align_and_mutate_chain_combobox);
   gtk_box_pack_start (GTK_BOX (hbox121), align_and_mutate_chain_combobox, TRUE, TRUE, 0);
@@ -22040,7 +21888,7 @@ create_align_and_mutate_dialog (void)
   scrolledwindow19 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow19);
   gtk_box_pack_start (GTK_BOX (vbox151), scrolledwindow19, TRUE, TRUE, 0);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow19, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow19, GTK_CAN_FOCUS);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow19), GTK_SHADOW_IN);
 
   align_and_mutate_sequence_text = gtk_text_view_new ();
@@ -22053,7 +21901,7 @@ create_align_and_mutate_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox151), align_and_mutate_autofit_checkbutton, FALSE, FALSE, 4);
   gtk_container_set_border_width (GTK_CONTAINER (align_and_mutate_autofit_checkbutton), 4);
 
-  dialog_action_area81 = GTK_DIALOG (align_and_mutate_dialog)->action_area;
+  dialog_action_area81 = gtk_dialog_get_content_area( align_and_mutate_dialog );
   gtk_widget_show (dialog_action_area81);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area81), GTK_BUTTONBOX_END);
 
@@ -22077,22 +21925,20 @@ create_align_and_mutate_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (align_and_mutate_dialog, align_and_mutate_dialog, "align_and_mutate_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (align_and_mutate_dialog, dialog_vbox82, "dialog_vbox82");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(align_and_mutate_dialog, align_and_mutate_dialog, "align_and_mutate_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(align_and_mutate_dialog, dialog_vbox82, "dialog_vbox82");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, frame149, "frame149");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, vbox151, "vbox151");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, label239, "label239");
-  GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_molecule_optionmenu, "align_and_mutate_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_molecule_combobox, "align_and_mutate_molecule_combobox");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, hbox121, "hbox121");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, label240, "label240");
-  GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_chain_optionmenu, "align_and_mutate_chain_optionmenu");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_chain_combobox, "align_and_mutate_chain_combobox");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, label241, "label241");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, scrolledwindow19, "scrolledwindow19");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_sequence_text, "align_and_mutate_sequence_text");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_autofit_checkbutton, "align_and_mutate_autofit_checkbutton");
-  GLADE_HOOKUP_OBJECT_NO_REF (align_and_mutate_dialog, dialog_action_area81, "dialog_action_area81");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(align_and_mutate_dialog, dialog_action_area81, "dialog_action_area81");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, hbox120, "hbox120");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_ok_button, "align_and_mutate_ok_button");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_cancel_button, "align_and_mutate_cancel_button");
@@ -22133,7 +21979,7 @@ create_ramachandran_plot_differences_dialog (void)
   gtk_window_set_title (GTK_WINDOW (ramachandran_plot_differences_dialog), "Ramachandran Plot Differences");
   gtk_window_set_type_hint (GTK_WINDOW (ramachandran_plot_differences_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox83 = GTK_DIALOG (ramachandran_plot_differences_dialog)->vbox;
+  dialog_vbox83 = gtk_dialog_get_content_area( ramachandran_plot_differences_dialog );
   gtk_widget_show (dialog_vbox83);
 
   vbox152 = gtk_vbox_new (FALSE, 0);
@@ -22217,7 +22063,7 @@ create_ramachandran_plot_differences_dialog (void)
   gtk_widget_show (label317);
   gtk_frame_set_label_widget (GTK_FRAME (frame152), label317);
 
-  dialog_action_area82 = GTK_DIALOG (ramachandran_plot_differences_dialog)->action_area;
+  dialog_action_area82 = gtk_dialog_get_content_area( ramachandran_plot_differences_dialog );
   gtk_widget_show (dialog_action_area82);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area82), GTK_BUTTONBOX_END);
 
@@ -22229,13 +22075,13 @@ create_ramachandran_plot_differences_dialog (void)
   gtk_widget_show (ramachandran_plot_differences_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox122), ramachandran_plot_differences_ok_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (ramachandran_plot_differences_ok_button), 6);
-  GTK_WIDGET_SET_FLAGS (ramachandran_plot_differences_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (ramachandran_plot_differences_ok_button, GTK_CAN_DEFAULT);
 
   ramachandran_plot_differences_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (ramachandran_plot_differences_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox122), ramachandran_plot_differences_cancel_button, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (ramachandran_plot_differences_cancel_button), 6);
-  GTK_WIDGET_SET_FLAGS (ramachandran_plot_differences_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (ramachandran_plot_differences_cancel_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) ramachandran_plot_differences_first_chain_checkbutton, "toggled",
                     G_CALLBACK (on_ramachandran_plot_differences_first_chain_checkbutton_toggled),
@@ -22251,8 +22097,8 @@ create_ramachandran_plot_differences_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (ramachandran_plot_differences_dialog, ramachandran_plot_differences_dialog, "ramachandran_plot_differences_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (ramachandran_plot_differences_dialog, dialog_vbox83, "dialog_vbox83");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ramachandran_plot_differences_dialog, ramachandran_plot_differences_dialog, "ramachandran_plot_differences_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ramachandran_plot_differences_dialog, dialog_vbox83, "dialog_vbox83");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, vbox152, "vbox152");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, label242, "label242");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, frame150, "frame150");
@@ -22272,7 +22118,7 @@ create_ramachandran_plot_differences_dialog (void)
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_second_chain_checkbutton, "ramachandran_plot_differences_second_chain_checkbutton");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_second_chain_combobox, "ramachandran_plot_differences_second_chain_combobox");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, label317, "label317");
-  GLADE_HOOKUP_OBJECT_NO_REF (ramachandran_plot_differences_dialog, dialog_action_area82, "dialog_action_area82");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ramachandran_plot_differences_dialog, dialog_action_area82, "dialog_action_area82");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, hbox122, "hbox122");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_ok_button, "ramachandran_plot_differences_ok_button");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_cancel_button, "ramachandran_plot_differences_cancel_button");
@@ -22300,14 +22146,14 @@ create_checked_waters_baddies_dialog (void)
   gtk_window_set_title (GTK_WINDOW (checked_waters_baddies_dialog), "Questionable Waters");
   gtk_window_set_type_hint (GTK_WINDOW (checked_waters_baddies_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox84 = GTK_DIALOG (checked_waters_baddies_dialog)->vbox;
+  dialog_vbox84 = gtk_dialog_get_content_area( checked_waters_baddies_dialog );
   gtk_widget_show (dialog_vbox84);
 
   scrolledwindow20 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow20);
   gtk_box_pack_start (GTK_BOX (dialog_vbox84), scrolledwindow20, TRUE, TRUE, 0);
   gtk_widget_set_size_request (scrolledwindow20, 287, 180);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow20, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow20, GTK_CAN_FOCUS);
 
   viewport12 = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (viewport12);
@@ -22317,14 +22163,14 @@ create_checked_waters_baddies_dialog (void)
   gtk_widget_show (checked_waters_baddies_vbox);
   gtk_container_add (GTK_CONTAINER (viewport12), checked_waters_baddies_vbox);
 
-  dialog_action_area83 = GTK_DIALOG (checked_waters_baddies_dialog)->action_area;
+  dialog_action_area83 = gtk_dialog_get_content_area( checked_waters_baddies_dialog );
   gtk_widget_show (dialog_action_area83);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area83), GTK_BUTTONBOX_END);
 
   checked_waters_baddies_cancel_button = gtk_button_new ();
   gtk_widget_show (checked_waters_baddies_cancel_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (checked_waters_baddies_dialog), checked_waters_baddies_cancel_button, 0);
-  GTK_WIDGET_UNSET_FLAGS (checked_waters_baddies_cancel_button, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (checked_waters_baddies_cancel_button, GTK_CAN_FOCUS);
 
   alignment93 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment93);
@@ -22347,12 +22193,12 @@ create_checked_waters_baddies_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (checked_waters_baddies_dialog, checked_waters_baddies_dialog, "checked_waters_baddies_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (checked_waters_baddies_dialog, dialog_vbox84, "dialog_vbox84");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(checked_waters_baddies_dialog, checked_waters_baddies_dialog, "checked_waters_baddies_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(checked_waters_baddies_dialog, dialog_vbox84, "dialog_vbox84");
   GLADE_HOOKUP_OBJECT (checked_waters_baddies_dialog, scrolledwindow20, "scrolledwindow20");
   GLADE_HOOKUP_OBJECT (checked_waters_baddies_dialog, viewport12, "viewport12");
   GLADE_HOOKUP_OBJECT (checked_waters_baddies_dialog, checked_waters_baddies_vbox, "checked_waters_baddies_vbox");
-  GLADE_HOOKUP_OBJECT_NO_REF (checked_waters_baddies_dialog, dialog_action_area83, "dialog_action_area83");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(checked_waters_baddies_dialog, dialog_action_area83, "dialog_action_area83");
   GLADE_HOOKUP_OBJECT (checked_waters_baddies_dialog, checked_waters_baddies_cancel_button, "checked_waters_baddies_cancel_button");
   GLADE_HOOKUP_OBJECT (checked_waters_baddies_dialog, alignment93, "alignment93");
   GLADE_HOOKUP_OBJECT (checked_waters_baddies_dialog, hbox260, "hbox260");
@@ -22386,7 +22232,7 @@ create_nucleic_acid_base_chooser_dialog (void)
   gtk_window_set_title (GTK_WINDOW (nucleic_acid_base_chooser_dialog), "Base");
   gtk_window_set_type_hint (GTK_WINDOW (nucleic_acid_base_chooser_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox85 = GTK_DIALOG (nucleic_acid_base_chooser_dialog)->vbox;
+  dialog_vbox85 = gtk_dialog_get_content_area( nucleic_acid_base_chooser_dialog );
   gtk_widget_show (dialog_vbox85);
 
   frame155 = gtk_frame_new (NULL);
@@ -22423,7 +22269,7 @@ create_nucleic_acid_base_chooser_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox160), base_chooser_U_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (base_chooser_U_button), 2);
 
-  dialog_action_area84 = GTK_DIALOG (nucleic_acid_base_chooser_dialog)->action_area;
+  dialog_action_area84 = gtk_dialog_get_content_area( nucleic_acid_base_chooser_dialog );
   gtk_widget_show (dialog_action_area84);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area84), GTK_BUTTONBOX_END);
 
@@ -22470,8 +22316,8 @@ create_nucleic_acid_base_chooser_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (nucleic_acid_base_chooser_dialog, nucleic_acid_base_chooser_dialog, "nucleic_acid_base_chooser_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (nucleic_acid_base_chooser_dialog, dialog_vbox85, "dialog_vbox85");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nucleic_acid_base_chooser_dialog, nucleic_acid_base_chooser_dialog, "nucleic_acid_base_chooser_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nucleic_acid_base_chooser_dialog, dialog_vbox85, "dialog_vbox85");
   GLADE_HOOKUP_OBJECT (nucleic_acid_base_chooser_dialog, frame155, "frame155");
   GLADE_HOOKUP_OBJECT (nucleic_acid_base_chooser_dialog, vbox160, "vbox160");
   GLADE_HOOKUP_OBJECT (nucleic_acid_base_chooser_dialog, base_chooser_A_button, "base_chooser_A_button");
@@ -22479,7 +22325,7 @@ create_nucleic_acid_base_chooser_dialog (void)
   GLADE_HOOKUP_OBJECT (nucleic_acid_base_chooser_dialog, base_chooser_G_button, "base_chooser_G_button");
   GLADE_HOOKUP_OBJECT (nucleic_acid_base_chooser_dialog, base_chooser_T_button, "base_chooser_T_button");
   GLADE_HOOKUP_OBJECT (nucleic_acid_base_chooser_dialog, base_chooser_U_button, "base_chooser_U_button");
-  GLADE_HOOKUP_OBJECT_NO_REF (nucleic_acid_base_chooser_dialog, dialog_action_area84, "dialog_action_area84");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nucleic_acid_base_chooser_dialog, dialog_action_area84, "dialog_action_area84");
   GLADE_HOOKUP_OBJECT (nucleic_acid_base_chooser_dialog, base_chooser_cancel_button, "base_chooser_cancel_button");
   GLADE_HOOKUP_OBJECT (nucleic_acid_base_chooser_dialog, alignment94, "alignment94");
   GLADE_HOOKUP_OBJECT (nucleic_acid_base_chooser_dialog, hbox261, "hbox261");
@@ -22537,7 +22383,7 @@ create_change_chain_id_dialog (void)
   gtk_window_set_title (GTK_WINDOW (change_chain_id_dialog), "Change Chain ID");
   gtk_window_set_type_hint (GTK_WINDOW (change_chain_id_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox86 = GTK_DIALOG (change_chain_id_dialog)->vbox;
+  dialog_vbox86 = gtk_dialog_get_content_area( change_chain_id_dialog );
   gtk_widget_show (dialog_vbox86);
 
   frame156 = gtk_frame_new (NULL);
@@ -22659,7 +22505,7 @@ create_change_chain_id_dialog (void)
   gtk_widget_show (change_chains_new_chain_id);
   gtk_box_pack_start (GTK_BOX (hbox129), change_chains_new_chain_id, FALSE, TRUE, 0);
 
-  dialog_action_area85 = GTK_DIALOG (change_chain_id_dialog)->action_area;
+  dialog_action_area85 = gtk_dialog_get_content_area( change_chain_id_dialog );
   gtk_widget_show (dialog_action_area85);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area85), GTK_BUTTONBOX_END);
 
@@ -22721,8 +22567,8 @@ create_change_chain_id_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (change_chain_id_dialog, change_chain_id_dialog, "change_chain_id_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (change_chain_id_dialog, dialog_vbox86, "dialog_vbox86");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(change_chain_id_dialog, change_chain_id_dialog, "change_chain_id_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(change_chain_id_dialog, dialog_vbox86, "dialog_vbox86");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, frame156, "frame156");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, vbox161, "vbox161");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, label246, "label246");
@@ -22748,7 +22594,7 @@ create_change_chain_id_dialog (void)
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, hbox129, "hbox129");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, label252, "label252");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, change_chains_new_chain_id, "change_chains_new_chain_id");
-  GLADE_HOOKUP_OBJECT_NO_REF (change_chain_id_dialog, dialog_action_area85, "dialog_action_area85");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(change_chain_id_dialog, dialog_action_area85, "dialog_action_area85");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, hbox124, "hbox124");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, change_chains_rechain_button, "change_chains_rechain_button");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, alignment95, "alignment95");
@@ -22785,15 +22631,15 @@ create_doc_urls_dialog (void)
   GtkWidget *label254;
   GtkWidget *dialog_action_area86;
   GtkWidget *on_line_documentation_ok_button;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   doc_urls_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (doc_urls_dialog), "On Line Documentation");
   gtk_window_set_type_hint (GTK_WINDOW (doc_urls_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox87 = GTK_DIALOG (doc_urls_dialog)->vbox;
+  dialog_vbox87 = gtk_dialog_get_content_area( doc_urls_dialog );
   gtk_widget_show (dialog_vbox87);
 
   frame158 = gtk_frame_new (NULL);
@@ -22818,7 +22664,7 @@ create_doc_urls_dialog (void)
   gtk_table_attach (GTK_TABLE (table3), coot_online_doc_search_button, 2, 3, 3, 4,
                     (GtkAttachOptions) (0),
                     (GtkAttachOptions) (0), 0, 0);
-  gtk_tooltips_set_tip (tooltips, coot_online_doc_search_button, "Do a Google search", NULL);
+  // gtk_tooltips_set_tip (tooltips, coot_online_doc_search_button, "Do a Google search", NULL);
 
   label273 = gtk_label_new ("");
   gtk_widget_show (label273);
@@ -22852,14 +22698,14 @@ create_doc_urls_dialog (void)
   gtk_table_attach (GTK_TABLE (table3), coot_doc_url_sectioned_button, 2, 3, 1, 2,
                     (GtkAttachOptions) (0),
                     (GtkAttachOptions) (0), 0, 0);
-  gtk_tooltips_set_tip (tooltips, coot_doc_url_sectioned_button, "Open URL in Web Browser", NULL);
+  // gtk_tooltips_set_tip (tooltips, coot_doc_url_sectioned_button, "Open URL in Web Browser", NULL);
 
   coot_doc_url_monolithic_button = gtk_button_new_with_mnemonic ("  Open  ");
   gtk_widget_show (coot_doc_url_monolithic_button);
   gtk_table_attach (GTK_TABLE (table3), coot_doc_url_monolithic_button, 2, 3, 0, 1,
                     (GtkAttachOptions) (0),
                     (GtkAttachOptions) (0), 0, 0);
-  gtk_tooltips_set_tip (tooltips, coot_doc_url_monolithic_button, "Open URL in web browser", NULL);
+  // gtk_tooltips_set_tip (tooltips, coot_doc_url_monolithic_button, "Open URL in web browser", NULL);
 
   doc_2_entry = gtk_entry_new ();
   gtk_table_attach (GTK_TABLE (table3), doc_2_entry, 1, 2, 1, 2,
@@ -22890,7 +22736,7 @@ create_doc_urls_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label254), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label254), 0, 0.5);
 
-  dialog_action_area86 = GTK_DIALOG (doc_urls_dialog)->action_area;
+  dialog_action_area86 = gtk_dialog_get_content_area( doc_urls_dialog );
   gtk_widget_show (dialog_action_area86);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area86), GTK_BUTTONBOX_END);
 
@@ -22915,8 +22761,8 @@ create_doc_urls_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (doc_urls_dialog, doc_urls_dialog, "doc_urls_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (doc_urls_dialog, dialog_vbox87, "dialog_vbox87");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(doc_urls_dialog, doc_urls_dialog, "doc_urls_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(doc_urls_dialog, dialog_vbox87, "dialog_vbox87");
   GLADE_HOOKUP_OBJECT (doc_urls_dialog, frame158, "frame158");
   GLADE_HOOKUP_OBJECT (doc_urls_dialog, table3, "table3");
   GLADE_HOOKUP_OBJECT (doc_urls_dialog, label274, "label274");
@@ -22931,9 +22777,9 @@ create_doc_urls_dialog (void)
   GLADE_HOOKUP_OBJECT (doc_urls_dialog, doc_1_entry, "doc_1_entry");
   GLADE_HOOKUP_OBJECT (doc_urls_dialog, label255, "label255");
   GLADE_HOOKUP_OBJECT (doc_urls_dialog, label254, "label254");
-  GLADE_HOOKUP_OBJECT_NO_REF (doc_urls_dialog, dialog_action_area86, "dialog_action_area86");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(doc_urls_dialog, dialog_action_area86, "dialog_action_area86");
   GLADE_HOOKUP_OBJECT (doc_urls_dialog, on_line_documentation_ok_button, "on_line_documentation_ok_button");
-  GLADE_HOOKUP_OBJECT_NO_REF (doc_urls_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(doc_urls_dialog, tooltips, "tooltips");
 
   return doc_urls_dialog;
 }
@@ -22979,15 +22825,15 @@ create_other_model_tools_dialog (void)
   GtkWidget *hbox264;
   GtkWidget *image6013;
   GtkWidget *label433;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   other_model_tools_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (other_model_tools_dialog), "Other Modelling Tools");
   gtk_window_set_type_hint (GTK_WINDOW (other_model_tools_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox89 = GTK_DIALOG (other_model_tools_dialog)->vbox;
+  dialog_vbox89 = gtk_dialog_get_content_area( other_model_tools_dialog );
   gtk_widget_show (dialog_vbox89);
 
   frame160 = gtk_frame_new (NULL);
@@ -23003,7 +22849,7 @@ create_other_model_tools_dialog (void)
   gtk_widget_show (model_refine_dialog_find_waters_button);
   gtk_box_pack_start (GTK_BOX (vbox163), model_refine_dialog_find_waters_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_find_waters_button), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_find_waters_button, "Solvate...", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_find_waters_button, "Solvate...", NULL);
 
   hbox376 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox376);
@@ -23042,7 +22888,7 @@ create_other_model_tools_dialog (void)
   gtk_widget_show (model_refine_dialog_fast_sss_button);
   gtk_box_pack_start (GTK_BOX (vbox163), model_refine_dialog_fast_sss_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_fast_sss_button), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_fast_sss_button, "Quickly find secondary structure elements...", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_fast_sss_button, "Quickly find secondary structure elements...", NULL);
 
   hbox395 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox395);
@@ -23060,7 +22906,7 @@ create_other_model_tools_dialog (void)
   gtk_widget_show (other_tools_build_na_button);
   gtk_box_pack_start (GTK_BOX (vbox163), other_tools_build_na_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (other_tools_build_na_button), 1);
-  gtk_tooltips_set_tip (tooltips, other_tools_build_na_button, "Quickly build poly nucleic acid around here.", NULL);
+  // gtk_tooltips_set_tip (tooltips, other_tools_build_na_button, "Quickly build poly nucleic acid around here.", NULL);
 
   hbox427 = gtk_hbox_new (FALSE, 2);
   gtk_widget_show (hbox427);
@@ -23078,19 +22924,19 @@ create_other_model_tools_dialog (void)
   gtk_widget_show (cis_trans_conversion_toggle_button);
   gtk_box_pack_start (GTK_BOX (vbox163), cis_trans_conversion_toggle_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (cis_trans_conversion_toggle_button), 1);
-  gtk_tooltips_set_tip (tooltips, cis_trans_conversion_toggle_button, "Convert peptide: CIS -> TRANS or TRANS -> CIS... It depends on what you have currently", NULL);
+  // gtk_tooltips_set_tip (tooltips, cis_trans_conversion_toggle_button, "Convert peptide: CIS -> TRANS or TRANS -> CIS... It depends on what you have currently", NULL);
 
   model_refine_dialog_baton_button = gtk_button_new_with_mnemonic ("C-alpha Baton Mode...");
   gtk_widget_show (model_refine_dialog_baton_button);
   gtk_box_pack_start (GTK_BOX (vbox163), model_refine_dialog_baton_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_baton_button), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_baton_button, "Make sure that you are about 3.8A away from where you wish to put your first atom before you start Baton Mode.", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_baton_button, "Make sure that you are about 3.8A away from where you wish to put your first atom before you start Baton Mode.", NULL);
 
   model_refine_dialog_db_main_togglebutton = gtk_toggle_button_new_with_mnemonic ("Ca Zone -> Mainchain");
   gtk_widget_show (model_refine_dialog_db_main_togglebutton);
   gtk_box_pack_start (GTK_BOX (vbox163), model_refine_dialog_db_main_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_db_main_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, model_refine_dialog_db_main_togglebutton, "Use database of fragments to convert a set of C-alphas to mainchain atoms", NULL);
+  // gtk_tooltips_set_tip (tooltips, model_refine_dialog_db_main_togglebutton, "Use database of fragments to convert a set of C-alphas to mainchain atoms", NULL);
 
   model_refine_dialog_add_OXT_button = gtk_button_new_with_mnemonic ("Add OXT to Residue...");
   gtk_widget_show (model_refine_dialog_add_OXT_button);
@@ -23106,13 +22952,13 @@ create_other_model_tools_dialog (void)
   gtk_widget_show (reverse_fragment_direction_togglebutton);
   gtk_box_pack_start (GTK_BOX (vbox163), reverse_fragment_direction_togglebutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (reverse_fragment_direction_togglebutton), 1);
-  gtk_tooltips_set_tip (tooltips, reverse_fragment_direction_togglebutton, "Reverse direction of fragment, leaving only CAs", NULL);
+  // gtk_tooltips_set_tip (tooltips, reverse_fragment_direction_togglebutton, "Reverse direction of fragment, leaving only CAs", NULL);
 
   place_helix_here_button = gtk_button_new_with_mnemonic ("Place Helix Here");
   gtk_widget_show (place_helix_here_button);
   gtk_box_pack_start (GTK_BOX (vbox163), place_helix_here_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (place_helix_here_button), 1);
-  gtk_tooltips_set_tip (tooltips, place_helix_here_button, "Place an ideal alpha helix about here and try to optimize position and orientation.  Must have a map set for fitting.", NULL);
+  // gtk_tooltips_set_tip (tooltips, place_helix_here_button, "Place an ideal alpha helix about here and try to optimize position and orientation.  Must have a map set for fitting.", NULL);
 
   other_tools_place_strand_here_button = gtk_button_new_with_mnemonic ("Place Strand Here");
   gtk_widget_show (other_tools_place_strand_here_button);
@@ -23128,15 +22974,15 @@ create_other_model_tools_dialog (void)
   gtk_widget_show (other_tools_base_pair_toggle_button);
   gtk_box_pack_start (GTK_BOX (vbox163), other_tools_base_pair_toggle_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (other_tools_base_pair_toggle_button), 1);
-  gtk_tooltips_set_tip (tooltips, other_tools_base_pair_toggle_button, "Click on an atom in a base to generate the base pairing partner", NULL);
+  // gtk_tooltips_set_tip (tooltips, other_tools_base_pair_toggle_button, "Click on an atom in a base to generate the base pairing partner", NULL);
 
   set_undo_molecule_button = gtk_button_new_with_mnemonic (" Choose \"Undo\" Molecule... ");
   gtk_widget_show (set_undo_molecule_button);
   gtk_box_pack_start (GTK_BOX (vbox163), set_undo_molecule_button, FALSE, FALSE, 1);
   gtk_container_set_border_width (GTK_CONTAINER (set_undo_molecule_button), 1);
-  gtk_tooltips_set_tip (tooltips, set_undo_molecule_button, "Choose the molecule number to which \"Undo\" actions occur.", NULL);
+  // gtk_tooltips_set_tip (tooltips, set_undo_molecule_button, "Choose the molecule number to which \"Undo\" actions occur.", NULL);
 
-  dialog_action_area88 = GTK_DIALOG (other_model_tools_dialog)->action_area;
+  dialog_action_area88 = gtk_dialog_get_content_area( other_model_tools_dialog );
   gtk_widget_show (dialog_action_area88);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area88), GTK_BUTTONBOX_END);
 
@@ -23213,8 +23059,8 @@ create_other_model_tools_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (other_model_tools_dialog, other_model_tools_dialog, "other_model_tools_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (other_model_tools_dialog, dialog_vbox89, "dialog_vbox89");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(other_model_tools_dialog, other_model_tools_dialog, "other_model_tools_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(other_model_tools_dialog, dialog_vbox89, "dialog_vbox89");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, frame160, "frame160");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, vbox163, "vbox163");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, model_refine_dialog_find_waters_button, "model_refine_dialog_find_waters_button");
@@ -23245,13 +23091,13 @@ create_other_model_tools_dialog (void)
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, other_tools_RNA_button, "other_tools_RNA_button");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, other_tools_base_pair_toggle_button, "other_tools_base_pair_toggle_button");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, set_undo_molecule_button, "set_undo_molecule_button");
-  GLADE_HOOKUP_OBJECT_NO_REF (other_model_tools_dialog, dialog_action_area88, "dialog_action_area88");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(other_model_tools_dialog, dialog_action_area88, "dialog_action_area88");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, other_modelling_tools_close_button, "other_modelling_tools_close_button");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, alignment97, "alignment97");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, hbox264, "hbox264");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, image6013, "image6013");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, label433, "label433");
-  GLADE_HOOKUP_OBJECT_NO_REF (other_model_tools_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(other_model_tools_dialog, tooltips, "tooltips");
 
   return other_model_tools_dialog;
 }
@@ -23291,7 +23137,7 @@ create_symmetry_controller_dialog (void)
   gtk_window_set_title (GTK_WINDOW (symmetry_controller_dialog), "Symmetry Controller");
   gtk_window_set_type_hint (GTK_WINDOW (symmetry_controller_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox90 = GTK_DIALOG (symmetry_controller_dialog)->vbox;
+  dialog_vbox90 = gtk_dialog_get_content_area( symmetry_controller_dialog );
   gtk_widget_show (dialog_vbox90);
 
   vbox167 = gtk_vbox_new (FALSE, 0);
@@ -23302,7 +23148,7 @@ create_symmetry_controller_dialog (void)
   gtk_widget_show (scrolledwindow24);
   gtk_box_pack_start (GTK_BOX (vbox167), scrolledwindow24, TRUE, TRUE, 0);
   gtk_widget_set_size_request (scrolledwindow24, 331, 186);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow24, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow24, GTK_CAN_FOCUS);
 
   symmetry_control_viewport = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (symmetry_control_viewport);
@@ -23389,7 +23235,7 @@ create_symmetry_controller_dialog (void)
   gtk_widget_show (label319);
   gtk_frame_set_label_widget (GTK_FRAME (molecule_0_frame), label319);
 
-  dialog_action_area89 = GTK_DIALOG (symmetry_controller_dialog)->action_area;
+  dialog_action_area89 = gtk_dialog_get_content_area( symmetry_controller_dialog );
   gtk_widget_show (dialog_action_area89);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area89), GTK_BUTTONBOX_END);
 
@@ -23426,8 +23272,8 @@ create_symmetry_controller_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (symmetry_controller_dialog, symmetry_controller_dialog, "symmetry_controller_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (symmetry_controller_dialog, dialog_vbox90, "dialog_vbox90");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(symmetry_controller_dialog, symmetry_controller_dialog, "symmetry_controller_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(symmetry_controller_dialog, dialog_vbox90, "dialog_vbox90");
   GLADE_HOOKUP_OBJECT (symmetry_controller_dialog, vbox167, "vbox167");
   GLADE_HOOKUP_OBJECT (symmetry_controller_dialog, scrolledwindow24, "scrolledwindow24");
   GLADE_HOOKUP_OBJECT (symmetry_controller_dialog, symmetry_control_viewport, "symmetry_control_viewport");
@@ -23445,7 +23291,7 @@ create_symmetry_controller_dialog (void)
   GLADE_HOOKUP_OBJECT (symmetry_controller_dialog, display_sphere_radiobutton_molecule_0, "display_sphere_radiobutton_molecule_0");
   GLADE_HOOKUP_OBJECT (symmetry_controller_dialog, label320, "label320");
   GLADE_HOOKUP_OBJECT (symmetry_controller_dialog, label319, "label319");
-  GLADE_HOOKUP_OBJECT_NO_REF (symmetry_controller_dialog, dialog_action_area89, "dialog_action_area89");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(symmetry_controller_dialog, dialog_action_area89, "dialog_action_area89");
   GLADE_HOOKUP_OBJECT (symmetry_controller_dialog, symmetry_controller_ok_button, "symmetry_controller_ok_button");
 
   return symmetry_controller_dialog;
@@ -23486,15 +23332,15 @@ create_ncs_control_dialog (void)
   GtkWidget *hbox265;
   GtkWidget *image6014;
   GtkWidget *label434;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   ncs_control_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (ncs_control_dialog), "NCS Control");
   gtk_window_set_type_hint (GTK_WINDOW (ncs_control_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox91 = GTK_DIALOG (ncs_control_dialog)->vbox;
+  dialog_vbox91 = gtk_dialog_get_content_area( ncs_control_dialog );
   gtk_widget_show (dialog_vbox91);
 
   vbox170 = gtk_vbox_new (FALSE, 0);
@@ -23511,7 +23357,7 @@ create_ncs_control_dialog (void)
   gtk_widget_show (scrolledwindow25);
   gtk_box_pack_start (GTK_BOX (vbox170), scrolledwindow25, TRUE, TRUE, 0);
   gtk_widget_set_size_request (scrolledwindow25, 281, 177);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow25, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow25, GTK_CAN_FOCUS);
 
   viewport19 = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (viewport19);
@@ -23558,7 +23404,7 @@ create_ncs_control_dialog (void)
   ncs_controller_molecule_n_display_chain_ich_checkbutton = gtk_check_button_new_with_mnemonic ("Chain A");
   gtk_widget_show (ncs_controller_molecule_n_display_chain_ich_checkbutton);
   gtk_box_pack_start (GTK_BOX (ncs_controller_molecule_n_display_chain_vbox), ncs_controller_molecule_n_display_chain_ich_checkbutton, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, ncs_controller_molecule_n_display_chain_ich_checkbutton, "Show this chain as a ghost chain?", NULL);
+  // gtk_tooltips_set_tip (tooltips, ncs_controller_molecule_n_display_chain_ich_checkbutton, "Show this chain as a ghost chain?", NULL);
 
   checkbutton4 = gtk_check_button_new_with_mnemonic ("checkbutton4");
   gtk_widget_show (checkbutton4);
@@ -23585,7 +23431,7 @@ create_ncs_control_dialog (void)
   ncs_controller_ncs_master_chain_ich_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Chain A");
   gtk_widget_show (ncs_controller_ncs_master_chain_ich_radiobutton);
   gtk_box_pack_start (GTK_BOX (ncs_controller_molecule_n_vbox), ncs_controller_ncs_master_chain_ich_radiobutton, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, ncs_controller_ncs_master_chain_ich_radiobutton, "The chain to which operators and ghosts are generated from other chains", NULL);
+  // gtk_tooltips_set_tip (tooltips, ncs_controller_ncs_master_chain_ich_radiobutton, "The chain to which operators and ghosts are generated from other chains", NULL);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (ncs_controller_ncs_master_chain_ich_radiobutton), ncs_controller_ncs_master_chain_ich_radiobutton_group);
   ncs_controller_ncs_master_chain_ich_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (ncs_controller_ncs_master_chain_ich_radiobutton));
 
@@ -23605,7 +23451,7 @@ create_ncs_control_dialog (void)
   gtk_widget_show (label321);
   gtk_frame_set_label_widget (GTK_FRAME (frame_molecule_N), label321);
 
-  dialog_action_area90 = GTK_DIALOG (ncs_control_dialog)->action_area;
+  dialog_action_area90 = gtk_dialog_get_content_area( ncs_control_dialog );
   gtk_widget_show (dialog_action_area90);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area90), GTK_BUTTONBOX_END);
 
@@ -23643,8 +23489,8 @@ create_ncs_control_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (ncs_control_dialog, ncs_control_dialog, "ncs_control_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (ncs_control_dialog, dialog_vbox91, "dialog_vbox91");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ncs_control_dialog, ncs_control_dialog, "ncs_control_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ncs_control_dialog, dialog_vbox91, "dialog_vbox91");
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, vbox170, "vbox170");
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, label263, "label263");
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, scrolledwindow25, "scrolledwindow25");
@@ -23668,13 +23514,13 @@ create_ncs_control_dialog (void)
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, radiobutton4, "radiobutton4");
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, radiobutton5, "radiobutton5");
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, label321, "label321");
-  GLADE_HOOKUP_OBJECT_NO_REF (ncs_control_dialog, dialog_action_area90, "dialog_action_area90");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ncs_control_dialog, dialog_action_area90, "dialog_action_area90");
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, ncs_control_ok_button, "ncs_control_ok_button");
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, alignment98, "alignment98");
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, hbox265, "hbox265");
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, image6014, "image6014");
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, label434, "label434");
-  GLADE_HOOKUP_OBJECT_NO_REF (ncs_control_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ncs_control_dialog, tooltips, "tooltips");
 
   return ncs_control_dialog;
 }
@@ -23701,7 +23547,7 @@ create_lsq_plane_dialog (void)
   gtk_window_set_title (GTK_WINDOW (lsq_plane_dialog), "LSQ Plane ");
   gtk_window_set_type_hint (GTK_WINDOW (lsq_plane_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox92 = GTK_DIALOG (lsq_plane_dialog)->vbox;
+  dialog_vbox92 = gtk_dialog_get_content_area( lsq_plane_dialog );
   gtk_widget_show (dialog_vbox92);
 
   lsq_plane_frame = gtk_frame_new (NULL);
@@ -23749,7 +23595,7 @@ create_lsq_plane_dialog (void)
   gtk_widget_show (label322);
   gtk_frame_set_label_widget (GTK_FRAME (lsq_plane_frame), label322);
 
-  dialog_action_area91 = GTK_DIALOG (lsq_plane_dialog)->action_area;
+  dialog_action_area91 = gtk_dialog_get_content_area( lsq_plane_dialog );
   gtk_widget_show (dialog_action_area91);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area91), GTK_BUTTONBOX_END);
 
@@ -23774,8 +23620,8 @@ create_lsq_plane_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (lsq_plane_dialog, lsq_plane_dialog, "lsq_plane_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (lsq_plane_dialog, dialog_vbox92, "dialog_vbox92");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(lsq_plane_dialog, lsq_plane_dialog, "lsq_plane_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(lsq_plane_dialog, dialog_vbox92, "dialog_vbox92");
   GLADE_HOOKUP_OBJECT (lsq_plane_dialog, lsq_plane_frame, "lsq_plane_frame");
   GLADE_HOOKUP_OBJECT (lsq_plane_dialog, vbox177, "vbox177");
   GLADE_HOOKUP_OBJECT (lsq_plane_dialog, lsq_plane_add_atom_radiobutton, "lsq_plane_add_atom_radiobutton");
@@ -23785,7 +23631,7 @@ create_lsq_plane_dialog (void)
   GLADE_HOOKUP_OBJECT (lsq_plane_dialog, label267, "label267");
   GLADE_HOOKUP_OBJECT (lsq_plane_dialog, lsq_plane_deviant_atom_radiobutton, "lsq_plane_deviant_atom_radiobutton");
   GLADE_HOOKUP_OBJECT (lsq_plane_dialog, label322, "label322");
-  GLADE_HOOKUP_OBJECT_NO_REF (lsq_plane_dialog, dialog_action_area91, "dialog_action_area91");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(lsq_plane_dialog, dialog_action_area91, "dialog_action_area91");
   GLADE_HOOKUP_OBJECT (lsq_plane_dialog, lsq_plane_ok_button, "lsq_plane_ok_button");
 
   return lsq_plane_dialog;
@@ -23827,7 +23673,7 @@ create_coords_colour_control_dialog (void)
   gtk_window_set_title (GTK_WINDOW (coords_colour_control_dialog), "Molecule Colours");
   gtk_window_set_type_hint (GTK_WINDOW (coords_colour_control_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox93 = GTK_DIALOG (coords_colour_control_dialog)->vbox;
+  dialog_vbox93 = gtk_dialog_get_content_area( coords_colour_control_dialog );
   gtk_widget_show (dialog_vbox93);
 
   vbox178 = gtk_vbox_new (FALSE, 0);
@@ -23844,7 +23690,7 @@ create_coords_colour_control_dialog (void)
   gtk_widget_show (scrolledwindow26);
   gtk_box_pack_start (GTK_BOX (vbox178), scrolledwindow26, TRUE, TRUE, 0);
   gtk_widget_set_size_request (scrolledwindow26, 300, 300);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow26, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow26, GTK_CAN_FOCUS);
 
   viewport20 = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (viewport20);
@@ -23941,14 +23787,14 @@ create_coords_colour_control_dialog (void)
   label324 = gtk_label_new ("Colour Map Rotation [Molecule Independent] ");
   gtk_frame_set_label_widget (GTK_FRAME (frame116), label324);
 
-  dialog_action_area92 = GTK_DIALOG (coords_colour_control_dialog)->action_area;
+  dialog_action_area92 = gtk_dialog_get_content_area( coords_colour_control_dialog );
   gtk_widget_show (dialog_action_area92);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area92), GTK_BUTTONBOX_END);
 
   coord_colour_control_ok_button = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (coord_colour_control_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (coords_colour_control_dialog), coord_colour_control_ok_button, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (coord_colour_control_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (coord_colour_control_ok_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) coords_colour_control_dialog, "destroy",
                     G_CALLBACK (on_coords_colour_control_dialog_destroy),
@@ -23961,8 +23807,8 @@ create_coords_colour_control_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (coords_colour_control_dialog, coords_colour_control_dialog, "coords_colour_control_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (coords_colour_control_dialog, dialog_vbox93, "dialog_vbox93");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(coords_colour_control_dialog, coords_colour_control_dialog, "coords_colour_control_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(coords_colour_control_dialog, dialog_vbox93, "dialog_vbox93");
   GLADE_HOOKUP_OBJECT (coords_colour_control_dialog, vbox178, "vbox178");
   GLADE_HOOKUP_OBJECT (coords_colour_control_dialog, label268, "label268");
   GLADE_HOOKUP_OBJECT (coords_colour_control_dialog, scrolledwindow26, "scrolledwindow26");
@@ -23987,7 +23833,7 @@ create_coords_colour_control_dialog (void)
   GLADE_HOOKUP_OBJECT (coords_colour_control_dialog, frame172, "frame172");
   GLADE_HOOKUP_OBJECT (coords_colour_control_dialog, bond_parameters_rotate_colour_map_c_only_checkbutton, "bond_parameters_rotate_colour_map_c_only_checkbutton");
   GLADE_HOOKUP_OBJECT (coords_colour_control_dialog, label324, "label324");
-  GLADE_HOOKUP_OBJECT_NO_REF (coords_colour_control_dialog, dialog_action_area92, "dialog_action_area92");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(coords_colour_control_dialog, dialog_action_area92, "dialog_action_area92");
   GLADE_HOOKUP_OBJECT (coords_colour_control_dialog, coord_colour_control_ok_button, "coord_colour_control_ok_button");
 
   gtk_widget_grab_default (coord_colour_control_ok_button);
@@ -24004,26 +23850,14 @@ create_nucleotide_builder_dialog (void)
   GtkWidget *frame164;
   GtkWidget *vbox180;
   GtkWidget *label283;
-  GtkWidget *nucleotide_builder_type_optionmenu;
-  GtkWidget *menu2;
-  GtkWidget *rna1;
-  GtkWidget *dna1;
   GtkWidget *nucleotide_builder_type_combobox;
   GtkWidget *frame165;
   GtkWidget *vbox181;
   GtkWidget *label284;
-  GtkWidget *nucleotide_builder_form_optionmenu;
-  GtkWidget *menu3;
-  GtkWidget *a1;
-  GtkWidget *b1;
   GtkWidget *nucleotide_builder_form_combobox;
   GtkWidget *frame166;
   GtkWidget *vbox182;
   GtkWidget *label285;
-  GtkWidget *nucleotide_builder_strand_optionmenu;
-  GtkWidget *menu4;
-  GtkWidget *double_stranded1;
-  GtkWidget *single_stranded1;
   GtkWidget *nucleotide_builder_strand_combobox;
   GtkWidget *frame167;
   GtkWidget *vbox183;
@@ -24046,7 +23880,7 @@ create_nucleotide_builder_dialog (void)
   gtk_window_set_title (GTK_WINDOW (nucleotide_builder_dialog), "Nucleotide Builder");
   gtk_window_set_type_hint (GTK_WINDOW (nucleotide_builder_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox94 = GTK_DIALOG (nucleotide_builder_dialog)->vbox;
+  dialog_vbox94 = gtk_dialog_get_content_area( nucleotide_builder_dialog );
   gtk_widget_show (dialog_vbox94);
 
   vbox179 = gtk_vbox_new (FALSE, 0);
@@ -24072,22 +23906,6 @@ create_nucleotide_builder_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label283), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label283), 0, 0.5);
 
-  nucleotide_builder_type_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (nucleotide_builder_type_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox180), nucleotide_builder_type_optionmenu, FALSE, FALSE, 0);
-
-  menu2 = gtk_menu_new ();
-
-  rna1 = gtk_menu_item_new_with_mnemonic ("RNA");
-  gtk_widget_show (rna1);
-  gtk_container_add (GTK_CONTAINER (menu2), rna1);
-
-  dna1 = gtk_menu_item_new_with_mnemonic ("DNA");
-  gtk_widget_show (dna1);
-  gtk_container_add (GTK_CONTAINER (menu2), dna1);
-
-  gtk_option_menu_set_menu (GTK_OPTION_MENU (nucleotide_builder_type_optionmenu), menu2);
-
   nucleotide_builder_type_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (nucleotide_builder_type_combobox);
   gtk_box_pack_start (GTK_BOX (vbox180), nucleotide_builder_type_combobox, TRUE, TRUE, 0);
@@ -24106,22 +23924,6 @@ create_nucleotide_builder_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label284), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label284), 0, 0.5);
 
-  nucleotide_builder_form_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (nucleotide_builder_form_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox181), nucleotide_builder_form_optionmenu, FALSE, FALSE, 0);
-
-  menu3 = gtk_menu_new ();
-
-  a1 = gtk_menu_item_new_with_mnemonic ("A");
-  gtk_widget_show (a1);
-  gtk_container_add (GTK_CONTAINER (menu3), a1);
-
-  b1 = gtk_menu_item_new_with_mnemonic ("B");
-  gtk_widget_show (b1);
-  gtk_container_add (GTK_CONTAINER (menu3), b1);
-
-  gtk_option_menu_set_menu (GTK_OPTION_MENU (nucleotide_builder_form_optionmenu), menu3);
-
   nucleotide_builder_form_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (nucleotide_builder_form_combobox);
   gtk_box_pack_start (GTK_BOX (vbox181), nucleotide_builder_form_combobox, TRUE, TRUE, 0);
@@ -24139,22 +23941,6 @@ create_nucleotide_builder_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox182), label285, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label285), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label285), 0, 0.5);
-
-  nucleotide_builder_strand_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (nucleotide_builder_strand_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox182), nucleotide_builder_strand_optionmenu, FALSE, FALSE, 0);
-
-  menu4 = gtk_menu_new ();
-
-  double_stranded1 = gtk_menu_item_new_with_mnemonic ("Double Stranded");
-  gtk_widget_show (double_stranded1);
-  gtk_container_add (GTK_CONTAINER (menu4), double_stranded1);
-
-  single_stranded1 = gtk_menu_item_new_with_mnemonic ("Single Stranded");
-  gtk_widget_show (single_stranded1);
-  gtk_container_add (GTK_CONTAINER (menu4), single_stranded1);
-
-  gtk_option_menu_set_menu (GTK_OPTION_MENU (nucleotide_builder_strand_optionmenu), menu4);
 
   nucleotide_builder_strand_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (nucleotide_builder_strand_combobox);
@@ -24178,7 +23964,7 @@ create_nucleotide_builder_dialog (void)
   gtk_widget_show (nucleotide_sequence);
   gtk_box_pack_start (GTK_BOX (vbox183), nucleotide_sequence, FALSE, FALSE, 0);
 
-  dialog_action_area93 = GTK_DIALOG (nucleotide_builder_dialog)->action_area;
+  dialog_action_area93 = gtk_dialog_get_content_area( nucleotide_builder_dialog );
   gtk_widget_show (dialog_action_area93);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area93), GTK_BUTTONBOX_END);
 
@@ -24234,39 +24020,27 @@ create_nucleotide_builder_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (nucleotide_builder_dialog, nucleotide_builder_dialog, "nucleotide_builder_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (nucleotide_builder_dialog, dialog_vbox94, "dialog_vbox94");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nucleotide_builder_dialog, nucleotide_builder_dialog, "nucleotide_builder_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nucleotide_builder_dialog, dialog_vbox94, "dialog_vbox94");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, vbox179, "vbox179");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, label282, "label282");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, frame164, "frame164");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, vbox180, "vbox180");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, label283, "label283");
-  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, nucleotide_builder_type_optionmenu, "nucleotide_builder_type_optionmenu");
-  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, menu2, "menu2");
-  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, rna1, "rna1");
-  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, dna1, "dna1");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, nucleotide_builder_type_combobox, "nucleotide_builder_type_combobox");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, frame165, "frame165");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, vbox181, "vbox181");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, label284, "label284");
-  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, nucleotide_builder_form_optionmenu, "nucleotide_builder_form_optionmenu");
-  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, menu3, "menu3");
-  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, a1, "a1");
-  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, b1, "b1");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, nucleotide_builder_form_combobox, "nucleotide_builder_form_combobox");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, frame166, "frame166");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, vbox182, "vbox182");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, label285, "label285");
-  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, nucleotide_builder_strand_optionmenu, "nucleotide_builder_strand_optionmenu");
-  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, menu4, "menu4");
-  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, double_stranded1, "double_stranded1");
-  GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, single_stranded1, "single_stranded1");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, nucleotide_builder_strand_combobox, "nucleotide_builder_strand_combobox");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, frame167, "frame167");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, vbox183, "vbox183");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, label286, "label286");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, nucleotide_sequence, "nucleotide_sequence");
-  GLADE_HOOKUP_OBJECT_NO_REF (nucleotide_builder_dialog, dialog_action_area93, "dialog_action_area93");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nucleotide_builder_dialog, dialog_action_area93, "dialog_action_area93");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, hbox142, "hbox142");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, ideal_rna_ok_button, "ideal_rna_ok_button");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, alignment61, "alignment61");
@@ -24303,15 +24077,15 @@ create_move_molecule_here_dialog (void)
   GtkWidget *hbox211;
   GtkWidget *image1529;
   GtkWidget *label385;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   move_molecule_here_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (move_molecule_here_dialog), "Move Molecule Here");
   gtk_window_set_type_hint (GTK_WINDOW (move_molecule_here_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox95 = GTK_DIALOG (move_molecule_here_dialog)->vbox;
+  dialog_vbox95 = gtk_dialog_get_content_area( move_molecule_here_dialog );
   gtk_widget_show (dialog_vbox95);
 
   vbox184 = gtk_vbox_new (FALSE, 0);
@@ -24326,13 +24100,13 @@ create_move_molecule_here_dialog (void)
   move_molecule_here_big_molecules_checkbutton = gtk_check_button_new_with_mnemonic ("Allow big molecules to move");
   gtk_widget_show (move_molecule_here_big_molecules_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox184), move_molecule_here_big_molecules_checkbutton, FALSE, FALSE, 5);
-  gtk_tooltips_set_tip (tooltips, move_molecule_here_big_molecules_checkbutton, "\"Big\" means more than 400 atoms", NULL);
+  // gtk_tooltips_set_tip (tooltips, move_molecule_here_big_molecules_checkbutton, "\"Big\" means more than 400 atoms", NULL);
 
   move_molecule_here_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (move_molecule_here_combobox);
   gtk_box_pack_start (GTK_BOX (vbox184), move_molecule_here_combobox, TRUE, TRUE, 0);
 
-  dialog_action_area94 = GTK_DIALOG (move_molecule_here_dialog)->action_area;
+  dialog_action_area94 = gtk_dialog_get_content_area( move_molecule_here_dialog );
   gtk_widget_show (dialog_action_area94);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area94), GTK_BUTTONBOX_END);
 
@@ -24343,7 +24117,7 @@ create_move_molecule_here_dialog (void)
   move_molecule_here_ok_button = gtk_button_new ();
   gtk_widget_show (move_molecule_here_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox143), move_molecule_here_ok_button, FALSE, FALSE, 6);
-  gtk_tooltips_set_tip (tooltips, move_molecule_here_ok_button, "(You've got to move it) move it...", NULL);
+  // gtk_tooltips_set_tip (tooltips, move_molecule_here_ok_button, "(You've got to move it) move it...", NULL);
 
   alignment59 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment59);
@@ -24392,13 +24166,13 @@ create_move_molecule_here_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (move_molecule_here_dialog, move_molecule_here_dialog, "move_molecule_here_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (move_molecule_here_dialog, dialog_vbox95, "dialog_vbox95");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(move_molecule_here_dialog, move_molecule_here_dialog, "move_molecule_here_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(move_molecule_here_dialog, dialog_vbox95, "dialog_vbox95");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, vbox184, "vbox184");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, label287, "label287");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, move_molecule_here_big_molecules_checkbutton, "move_molecule_here_big_molecules_checkbutton");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, move_molecule_here_combobox, "move_molecule_here_combobox");
-  GLADE_HOOKUP_OBJECT_NO_REF (move_molecule_here_dialog, dialog_action_area94, "dialog_action_area94");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(move_molecule_here_dialog, dialog_action_area94, "dialog_action_area94");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, hbox143, "hbox143");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, move_molecule_here_ok_button, "move_molecule_here_ok_button");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, alignment59, "alignment59");
@@ -24410,7 +24184,7 @@ create_move_molecule_here_dialog (void)
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, hbox211, "hbox211");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, image1529, "image1529");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, label385, "label385");
-  GLADE_HOOKUP_OBJECT_NO_REF (move_molecule_here_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(move_molecule_here_dialog, tooltips, "tooltips");
 
   return move_molecule_here_dialog;
 }
@@ -24451,7 +24225,7 @@ create_monomer_search_dialog (void)
   gtk_window_set_title (GTK_WINDOW (monomer_search_dialog), "Search Monomer Library");
   gtk_window_set_type_hint (GTK_WINDOW (monomer_search_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox96 = GTK_DIALOG (monomer_search_dialog)->vbox;
+  dialog_vbox96 = gtk_dialog_get_content_area( monomer_search_dialog );
   gtk_widget_show (dialog_vbox96);
 
   vbox185 = gtk_vbox_new (FALSE, 0);
@@ -24528,7 +24302,7 @@ create_monomer_search_dialog (void)
   gtk_widget_show (scrolledwindow27);
   gtk_box_pack_start (GTK_BOX (vbox185), scrolledwindow27, TRUE, TRUE, 0);
   gtk_widget_set_size_request (scrolledwindow27, -1, 120);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow27, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow27, GTK_CAN_FOCUS);
 
   monomer_search_results_viewport = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (monomer_search_results_viewport);
@@ -24538,7 +24312,7 @@ create_monomer_search_dialog (void)
   gtk_widget_show (monomer_search_results_vbox);
   gtk_container_add (GTK_CONTAINER (monomer_search_results_viewport), monomer_search_results_vbox);
 
-  dialog_action_area95 = GTK_DIALOG (monomer_search_dialog)->action_area;
+  dialog_action_area95 = gtk_dialog_get_content_area( monomer_search_dialog );
   gtk_widget_show (dialog_action_area95);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area95), GTK_BUTTONBOX_END);
 
@@ -24577,8 +24351,8 @@ create_monomer_search_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (monomer_search_dialog, monomer_search_dialog, "monomer_search_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (monomer_search_dialog, dialog_vbox96, "dialog_vbox96");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(monomer_search_dialog, monomer_search_dialog, "monomer_search_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(monomer_search_dialog, dialog_vbox96, "dialog_vbox96");
   GLADE_HOOKUP_OBJECT (monomer_search_dialog, vbox185, "vbox185");
   GLADE_HOOKUP_OBJECT (monomer_search_dialog, frame168, "frame168");
   GLADE_HOOKUP_OBJECT (monomer_search_dialog, vbox186, "vbox186");
@@ -24598,7 +24372,7 @@ create_monomer_search_dialog (void)
   GLADE_HOOKUP_OBJECT (monomer_search_dialog, scrolledwindow27, "scrolledwindow27");
   GLADE_HOOKUP_OBJECT (monomer_search_dialog, monomer_search_results_viewport, "monomer_search_results_viewport");
   GLADE_HOOKUP_OBJECT (monomer_search_dialog, monomer_search_results_vbox, "monomer_search_results_vbox");
-  GLADE_HOOKUP_OBJECT_NO_REF (monomer_search_dialog, dialog_action_area95, "dialog_action_area95");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(monomer_search_dialog, dialog_action_area95, "dialog_action_area95");
   GLADE_HOOKUP_OBJECT (monomer_search_dialog, hbox144, "hbox144");
   GLADE_HOOKUP_OBJECT (monomer_search_dialog, monomer_library_search_dialog_cancel_button, "monomer_library_search_dialog_cancel_button");
   GLADE_HOOKUP_OBJECT (monomer_search_dialog, alignment128, "alignment128");
@@ -24618,10 +24392,8 @@ create_least_squares_dialog (void)
   GtkWidget *frame170;
   GtkWidget *vbox189;
   GtkWidget *label292;
-  GtkWidget *least_squares_reference_molecule_optionmenu;
   GtkWidget *least_squares_reference_molecule_combobox;
   GtkWidget *label293;
-  GtkWidget *least_squares_moving_molecule_optionmenu;
   GtkWidget *least_squares_moving_molecule_combobox;
   GtkWidget *frame171;
   GtkWidget *vbox190;
@@ -24631,14 +24403,12 @@ create_least_squares_dialog (void)
   GtkWidget *label295;
   GtkWidget *least_squares_reference_range_2_entry;
   GtkWidget *label296;
-  GtkWidget *least_squares_reference_chain_id;
   GtkWidget *hbox148;
   GtkWidget *label297;
   GtkWidget *least_squares_moving_range_1_entry;
   GtkWidget *label298;
   GtkWidget *least_squares_moving_range_2_entry;
   GtkWidget *label299;
-  GtkWidget *least_squares_moving_chain_id;
   GtkWidget *frame169;
   GtkWidget *vbox188;
   GtkWidget *least_squares_match_type_all_radiobutton;
@@ -24669,7 +24439,7 @@ create_least_squares_dialog (void)
   gtk_window_set_title (GTK_WINDOW (least_squares_dialog), "Least Squares Fit");
   gtk_window_set_type_hint (GTK_WINDOW (least_squares_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox97 = GTK_DIALOG (least_squares_dialog)->vbox;
+  dialog_vbox97 = gtk_dialog_get_content_area( least_squares_dialog );
   gtk_widget_show (dialog_vbox97);
 
   vbox187 = gtk_vbox_new (FALSE, 0);
@@ -24691,10 +24461,6 @@ create_least_squares_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label292), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label292), 0, 0.5);
 
-  least_squares_reference_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (least_squares_reference_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox189), least_squares_reference_molecule_optionmenu, FALSE, FALSE, 0);
-
   least_squares_reference_molecule_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (least_squares_reference_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox189), least_squares_reference_molecule_combobox, TRUE, TRUE, 0);
@@ -24704,10 +24470,6 @@ create_least_squares_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox189), label293, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label293), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label293), 0, 0.5);
-
-  least_squares_moving_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (least_squares_moving_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox189), least_squares_moving_molecule_optionmenu, FALSE, FALSE, 0);
 
   least_squares_moving_molecule_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (least_squares_moving_molecule_combobox);
@@ -24749,10 +24511,6 @@ create_least_squares_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox147), label296, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label296), GTK_JUSTIFY_CENTER);
 
-  least_squares_reference_chain_id = gtk_option_menu_new ();
-  gtk_widget_show (least_squares_reference_chain_id);
-  gtk_box_pack_start (GTK_BOX (hbox147), least_squares_reference_chain_id, FALSE, FALSE, 0);
-
   hbox148 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox148);
   gtk_box_pack_start (GTK_BOX (vbox190), hbox148, TRUE, TRUE, 0);
@@ -24779,10 +24537,6 @@ create_least_squares_dialog (void)
   gtk_widget_show (label299);
   gtk_box_pack_start (GTK_BOX (hbox148), label299, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label299), GTK_JUSTIFY_CENTER);
-
-  least_squares_moving_chain_id = gtk_option_menu_new ();
-  gtk_widget_show (least_squares_moving_chain_id);
-  gtk_box_pack_start (GTK_BOX (hbox148), least_squares_moving_chain_id, FALSE, FALSE, 0);
 
   frame169 = gtk_frame_new (NULL);
   gtk_widget_show (frame169);
@@ -24821,7 +24575,7 @@ create_least_squares_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox187), least_squares_move_copy_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (least_squares_move_copy_checkbutton), 4);
 
-  dialog_action_area96 = GTK_DIALOG (least_squares_dialog)->action_area;
+  dialog_action_area96 = gtk_dialog_get_content_area( least_squares_dialog );
   gtk_widget_show (dialog_action_area96);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area96), GTK_BUTTONBOX_END);
 
@@ -24912,16 +24666,14 @@ create_least_squares_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (least_squares_dialog, least_squares_dialog, "least_squares_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (least_squares_dialog, dialog_vbox97, "dialog_vbox97");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(least_squares_dialog, least_squares_dialog, "least_squares_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(least_squares_dialog, dialog_vbox97, "dialog_vbox97");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, vbox187, "vbox187");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, frame170, "frame170");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, vbox189, "vbox189");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label292, "label292");
-  GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_reference_molecule_optionmenu, "least_squares_reference_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_reference_molecule_combobox, "least_squares_reference_molecule_combobox");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label293, "label293");
-  GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_moving_molecule_optionmenu, "least_squares_moving_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_moving_molecule_combobox, "least_squares_moving_molecule_combobox");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, frame171, "frame171");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, vbox190, "vbox190");
@@ -24931,14 +24683,12 @@ create_least_squares_dialog (void)
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label295, "label295");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_reference_range_2_entry, "least_squares_reference_range_2_entry");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label296, "label296");
-  GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_reference_chain_id, "least_squares_reference_chain_id");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, hbox148, "hbox148");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label297, "label297");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_moving_range_1_entry, "least_squares_moving_range_1_entry");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label298, "label298");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_moving_range_2_entry, "least_squares_moving_range_2_entry");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label299, "label299");
-  GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_moving_chain_id, "least_squares_moving_chain_id");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, frame169, "frame169");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, vbox188, "vbox188");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_match_type_all_radiobutton, "least_squares_match_type_all_radiobutton");
@@ -24946,7 +24696,7 @@ create_least_squares_dialog (void)
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_match_type_calpha_radiobutton, "least_squares_match_type_calpha_radiobutton");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label325, "label325");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_move_copy_checkbutton, "least_squares_move_copy_checkbutton");
-  GLADE_HOOKUP_OBJECT_NO_REF (least_squares_dialog, dialog_action_area96, "dialog_action_area96");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(least_squares_dialog, dialog_action_area96, "dialog_action_area96");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, hbox146, "hbox146");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_ok_button, "least_squares_ok_button");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, alignment55, "alignment55");
@@ -25009,7 +24759,7 @@ create_sft_dialog (void)
   gtk_window_set_title (GTK_WINDOW (sft_dialog), "Structure Factor Tutorial");
   gtk_window_set_type_hint (GTK_WINDOW (sft_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox98 = GTK_DIALOG (sft_dialog)->vbox;
+  dialog_vbox98 = gtk_dialog_get_content_area( sft_dialog );
   gtk_widget_show (dialog_vbox98);
 
   vbox193 = gtk_vbox_new (FALSE, 0);
@@ -25136,23 +24886,23 @@ create_sft_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (frame175), label394);
   gtk_label_set_use_markup (GTK_LABEL (label394), TRUE);
 
-  dialog_action_area97 = GTK_DIALOG (sft_dialog)->action_area;
+  dialog_action_area97 = gtk_dialog_get_content_area( sft_dialog );
   gtk_widget_show (dialog_action_area97);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area97), GTK_BUTTONBOX_END);
 
   cancelbutton1 = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (cancelbutton1);
   gtk_dialog_add_action_widget (GTK_DIALOG (sft_dialog), cancelbutton1, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (cancelbutton1, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (cancelbutton1, GTK_CAN_DEFAULT);
 
   okbutton1 = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (okbutton1);
   gtk_dialog_add_action_widget (GTK_DIALOG (sft_dialog), okbutton1, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (okbutton1, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (okbutton1, GTK_CAN_DEFAULT);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (sft_dialog, sft_dialog, "sft_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (sft_dialog, dialog_vbox98, "dialog_vbox98");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(sft_dialog, sft_dialog, "sft_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(sft_dialog, dialog_vbox98, "dialog_vbox98");
   GLADE_HOOKUP_OBJECT (sft_dialog, vbox193, "vbox193");
   GLADE_HOOKUP_OBJECT (sft_dialog, frame175, "frame175");
   GLADE_HOOKUP_OBJECT (sft_dialog, alignment69, "alignment69");
@@ -25180,7 +24930,7 @@ create_sft_dialog (void)
   GLADE_HOOKUP_OBJECT (sft_dialog, radiobutton7, "radiobutton7");
   GLADE_HOOKUP_OBJECT (sft_dialog, radiobutton8, "radiobutton8");
   GLADE_HOOKUP_OBJECT (sft_dialog, label394, "label394");
-  GLADE_HOOKUP_OBJECT_NO_REF (sft_dialog, dialog_action_area97, "dialog_action_area97");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(sft_dialog, dialog_action_area97, "dialog_action_area97");
   GLADE_HOOKUP_OBJECT (sft_dialog, cancelbutton1, "cancelbutton1");
   GLADE_HOOKUP_OBJECT (sft_dialog, okbutton1, "okbutton1");
 
@@ -25233,7 +24983,7 @@ create_aboutdialog (void)
   aboutdialog = gtk_about_dialog_new ();
   gtk_container_set_border_width (GTK_CONTAINER (aboutdialog), 4);
   gtk_about_dialog_set_version (GTK_ABOUT_DIALOG (aboutdialog), VERSION);
-  gtk_about_dialog_set_name (GTK_ABOUT_DIALOG (aboutdialog), "Coot");
+  gtk_about_dialog_set_program_name (GTK_ABOUT_DIALOG (aboutdialog), "Coot");
   gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (aboutdialog), "Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 by The University of York\nCopyright 2007, 2008, 2009, 2010, 2011, 2012 by The University of Oxford\nCopyright 2001, 2007 by Paul Emsley");
   gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG (aboutdialog), "Turtle Bay\n");
   gtk_about_dialog_set_license (GTK_ABOUT_DIALOG (aboutdialog), "                    GNU GENERAL PUBLIC LICENSE\n                       Version 3, 29 June 2007\n\n Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>\n Everyone is permitted to copy and distribute verbatim copies\n of this license document, but changing it is not allowed.\n\n                            Preamble\n\n  The GNU General Public License is a free, copyleft license for\nsoftware and other kinds of works.\n\n  The licenses for most software and other practical works are designed\nto take away your freedom to share and change the works.  By contrast,\nthe GNU General Public License is intended to guarantee your freedom to\nshare and change all versions of a program--to make sure it remains free\nsoftware for all its users.  We, the Free Software Foundation, use the\nGNU General Public License for most of our software; it applies also to\nany other work released this way by its authors.  You can apply it to\nyour programs, too.\n\n  When we speak of free software, we are referring to freedom, not\nprice.  Our General Public Licenses are designed to make sure that you\nhave the freedom to distribute copies of free software (and charge for\nthem if you wish), that you receive source code or can get it if you\nwant it, that you can change the software or use pieces of it in new\nfree programs, and that you know you can do these things.\n\n  To protect your rights, we need to prevent others from denying you\nthese rights or asking you to surrender the rights.  Therefore, you have\ncertain responsibilities if you distribute copies of the software, or if\nyou modify it: responsibilities to respect the freedom of others.\n\n  For example, if you distribute copies of such a program, whether\ngratis or for a fee, you must pass on to the recipients the same\nfreedoms that you received.  You must make sure that they, too, receive\nor can get the source code.  And you must show them these terms so they\nknow their rights.\n\n  Developers that use the GNU GPL protect your rights with two steps:\n(1) assert copyright on the software, and (2) offer you this License\ngiving you legal permission to copy, distribute and/or modify it.\n\n  For the developers' and authors' protection, the GPL clearly explains\nthat there is no warranty for this free software.  For both users' and\nauthors' sake, the GPL requires that modified versions be marked as\nchanged, so that their problems will not be attributed erroneously to\nauthors of previous versions.\n\n  Some devices are designed to deny users access to install or run\nmodified versions of the software inside them, although the manufacturer\ncan do so.  This is fundamentally incompatible with the aim of\nprotecting users' freedom to change the software.  The systematic\npattern of such abuse occurs in the area of products for individuals to\nuse, which is precisely where it is most unacceptable.  Therefore, we\nhave designed this version of the GPL to prohibit the practice for those\nproducts.  If such problems arise substantially in other domains, we\nstand ready to extend this provision to those domains in future versions\nof the GPL, as needed to protect the freedom of users.\n\n  Finally, every program is threatened constantly by software patents.\nStates should not allow patents to restrict development and use of\nsoftware on general-purpose computers, but in those that do, we wish to\navoid the special danger that patents applied to a free program could\nmake it effectively proprietary.  To prevent this, the GPL assures that\npatents cannot be used to render the program non-free.\n\n  The precise terms and conditions for copying, distribution and\nmodification follow.\n\n                       TERMS AND CONDITIONS\n\n  0. Definitions.\n\n  \"This License\" refers to version 3 of the GNU General Public License.\n\n  \"Copyright\" also means copyright-like laws that apply to other kinds of\nworks, such as semiconductor masks.\n\n  \"The Program\" refers to any copyrightable work licensed under this\nLicense.  Each licensee is addressed as \"you\".  \"Licensees\" and\n\"recipients\" may be individuals or organizations.\n\n  To \"modify\" a work means to copy from or adapt all or part of the work\nin a fashion requiring copyright permission, other than the making of an\nexact copy.  The resulting work is called a \"modified version\" of the\nearlier work or a work \"based on\" the earlier work.\n\n  A \"covered work\" means either the unmodified Program or a work based\non the Program.\n\n  To \"propagate\" a work means to do anything with it that, without\npermission, would make you directly or secondarily liable for\ninfringement under applicable copyright law, except executing it on a\ncomputer or modifying a private copy.  Propagation includes copying,\ndistribution (with or without modification), making available to the\npublic, and in some countries other activities as well.\n\n  To \"convey\" a work means any kind of propagation that enables other\nparties to make or receive copies.  Mere interaction with a user through\na computer network, with no transfer of a copy, is not conveying.\n\n  An interactive user interface displays \"Appropriate Legal Notices\"\nto the extent that it includes a convenient and prominently visible\nfeature that (1) displays an appropriate copyright notice, and (2)\ntells the user that there is no warranty for the work (except to the\nextent that warranties are provided), that licensees may convey the\nwork under this License, and how to view a copy of this License.  If\nthe interface presents a list of user commands or options, such as a\nmenu, a prominent item in the list meets this criterion.\n\n  1. Source Code.\n\n  The \"source code\" for a work means the preferred form of the work\nfor making modifications to it.  \"Object code\" means any non-source\nform of a work.\n\n  A \"Standard Interface\" means an interface that either is an official\nstandard defined by a recognized standards body, or, in the case of\ninterfaces specified for a particular programming language, one that\nis widely used among developers working in that language.\n\n  The \"System Libraries\" of an executable work include anything, other\nthan the work as a whole, that (a) is included in the normal form of\npackaging a Major Component, but which is not part of that Major\nComponent, and (b) serves only to enable use of the work with that\nMajor Component, or to implement a Standard Interface for which an\nimplementation is available to the public in source code form.  A\n\"Major Component\", in this context, means a major essential component\n(kernel, window system, and so on) of the specific operating system\n(if any) on which the executable work runs, or a compiler used to\nproduce the work, or an object code interpreter used to run it.\n\n  The \"Corresponding Source\" for a work in object code form means all\nthe source code needed to generate, install, and (for an executable\nwork) run the object code and to modify the work, including scripts to\ncontrol those activities.  However, it does not include the work's\nSystem Libraries, or general-purpose tools or generally available free\nprograms which are used unmodified in performing those activities but\nwhich are not part of the work.  For example, Corresponding Source\nincludes interface definition files associated with source files for\nthe work, and the source code for shared libraries and dynamically\nlinked subprograms that the work is specifically designed to require,\nsuch as by intimate data communication or control flow between those\nsubprograms and other parts of the work.\n\n  The Corresponding Source need not include anything that users\ncan regenerate automatically from other parts of the Corresponding\nSource.\n\n  The Corresponding Source for a work in source code form is that\nsame work.\n\n  2. Basic Permissions.\n\n  All rights granted under this License are granted for the term of\ncopyright on the Program, and are irrevocable provided the stated\nconditions are met.  This License explicitly affirms your unlimited\npermission to run the unmodified Program.  The output from running a\ncovered work is covered by this License only if the output, given its\ncontent, constitutes a covered work.  This License acknowledges your\nrights of fair use or other equivalent, as provided by copyright law.\n\n  You may make, run and propagate covered works that you do not\nconvey, without conditions so long as your license otherwise remains\nin force.  You may convey covered works to others for the sole purpose\nof having them make modifications exclusively for you, or provide you\nwith facilities for running those works, provided that you comply with\nthe terms of this License in conveying all material for which you do\nnot control copyright.  Those thus making or running the covered works\nfor you must do so exclusively on your behalf, under your direction\nand control, on terms that prohibit them from making any copies of\nyour copyrighted material outside their relationship with you.\n\n  Conveying under any other circumstances is permitted solely under\nthe conditions stated below.  Sublicensing is not allowed; section 10\nmakes it unnecessary.\n\n  3. Protecting Users' Legal Rights From Anti-Circumvention Law.\n\n  No covered work shall be deemed part of an effective technological\nmeasure under any applicable law fulfilling obligations under article\n11 of the WIPO copyright treaty adopted on 20 December 1996, or\nsimilar laws prohibiting or restricting circumvention of such\nmeasures.\n\n  When you convey a covered work, you waive any legal power to forbid\ncircumvention of technological measures to the extent such circumvention\nis effected by exercising rights under this License with respect to\nthe covered work, and you disclaim any intention to limit operation or\nmodification of the work as a means of enforcing, against the work's\nusers, your or third parties' legal rights to forbid circumvention of\ntechnological measures.\n\n  4. Conveying Verbatim Copies.\n\n  You may convey verbatim copies of the Program's source code as you\nreceive it, in any medium, provided that you conspicuously and\nappropriately publish on each copy an appropriate copyright notice;\nkeep intact all notices stating that this License and any\nnon-permissive terms added in accord with section 7 apply to the code;\nkeep intact all notices of the absence of any warranty; and give all\nrecipients a copy of this License along with the Program.\n\n  You may charge any price or no price for each copy that you convey,\nand you may offer support or warranty protection for a fee.\n\n  5. Conveying Modified Source Versions.\n\n  You may convey a work based on the Program, or the modifications to\nproduce it from the Program, in the form of source code under the\nterms of section 4, provided that you also meet all of these conditions:\n\n    a) The work must carry prominent notices stating that you modified\n    it, and giving a relevant date.\n\n    b) The work must carry prominent notices stating that it is\n    released under this License and any conditions added under section\n    7.  This requirement modifies the requirement in section 4 to\n    \"keep intact all notices\".\n\n    c) You must license the entire work, as a whole, under this\n    License to anyone who comes into possession of a copy.  This\n    License will therefore apply, along with any applicable section 7\n    additional terms, to the whole of the work, and all its parts,\n    regardless of how they are packaged.  This License gives no\n    permission to license the work in any other way, but it does not\n    invalidate such permission if you have separately received it.\n\n    d) If the work has interactive user interfaces, each must display\n    Appropriate Legal Notices; however, if the Program has interactive\n    interfaces that do not display Appropriate Legal Notices, your\n    work need not make them do so.\n\n  A compilation of a covered work with other separate and independent\nworks, which are not by their nature extensions of the covered work,\nand which are not combined with it such as to form a larger program,\nin or on a volume of a storage or distribution medium, is called an\n\"aggregate\" if the compilation and its resulting copyright are not\nused to limit the access or legal rights of the compilation's users\nbeyond what the individual works permit.  Inclusion of a covered work\nin an aggregate does not cause this License to apply to the other\nparts of the aggregate.\n\n  6. Conveying Non-Source Forms.\n\n  You may convey a covered work in object code form under the terms\nof sections 4 and 5, provided that you also convey the\nmachine-readable Corresponding Source under the terms of this License,\nin one of these ways:\n\n    a) Convey the object code in, or embodied in, a physical product\n    (including a physical distribution medium), accompanied by the\n    Corresponding Source fixed on a durable physical medium\n    customarily used for software interchange.\n\n    b) Convey the object code in, or embodied in, a physical product\n    (including a physical distribution medium), accompanied by a\n    written offer, valid for at least three years and valid for as\n    long as you offer spare parts or customer support for that product\n    model, to give anyone who possesses the object code either (1) a\n    copy of the Corresponding Source for all the software in the\n    product that is covered by this License, on a durable physical\n    medium customarily used for software interchange, for a price no\n    more than your reasonable cost of physically performing this\n    conveying of source, or (2) access to copy the\n    Corresponding Source from a network server at no charge.\n\n    c) Convey individual copies of the object code with a copy of the\n    written offer to provide the Corresponding Source.  This\n    alternative is allowed only occasionally and noncommercially, and\n    only if you received the object code with such an offer, in accord\n    with subsection 6b.\n\n    d) Convey the object code by offering access from a designated\n    place (gratis or for a charge), and offer equivalent access to the\n    Corresponding Source in the same way through the same place at no\n    further charge.  You need not require recipients to copy the\n    Corresponding Source along with the object code.  If the place to\n    copy the object code is a network server, the Corresponding Source\n    may be on a different server (operated by you or a third party)\n    that supports equivalent copying facilities, provided you maintain\n    clear directions next to the object code saying where to find the\n    Corresponding Source.  Regardless of what server hosts the\n    Corresponding Source, you remain obligated to ensure that it is\n    available for as long as needed to satisfy these requirements.\n\n    e) Convey the object code using peer-to-peer transmission, provided\n    you inform other peers where the object code and Corresponding\n    Source of the work are being offered to the general public at no\n    charge under subsection 6d.\n\n  A separable portion of the object code, whose source code is excluded\nfrom the Corresponding Source as a System Library, need not be\nincluded in conveying the object code work.\n\n  A \"User Product\" is either (1) a \"consumer product\", which means any\ntangible personal property which is normally used for personal, family,\nor household purposes, or (2) anything designed or sold for incorporation\ninto a dwelling.  In determining whether a product is a consumer product,\ndoubtful cases shall be resolved in favor of coverage.  For a particular\nproduct received by a particular user, \"normally used\" refers to a\ntypical or common use of that class of product, regardless of the status\nof the particular user or of the way in which the particular user\nactually uses, or expects or is expected to use, the product.  A product\nis a consumer product regardless of whether the product has substantial\ncommercial, industrial or non-consumer uses, unless such uses represent\nthe only significant mode of use of the product.\n\n  \"Installation Information\" for a User Product means any methods,\nprocedures, authorization keys, or other information required to install\nand execute modified versions of a covered work in that User Product from\na modified version of its Corresponding Source.  The information must\nsuffice to ensure that the continued functioning of the modified object\ncode is in no case prevented or interfered with solely because\nmodification has been made.\n\n  If you convey an object code work under this section in, or with, or\nspecifically for use in, a User Product, and the conveying occurs as\npart of a transaction in which the right of possession and use of the\nUser Product is transferred to the recipient in perpetuity or for a\nfixed term (regardless of how the transaction is characterized), the\nCorresponding Source conveyed under this section must be accompanied\nby the Installation Information.  But this requirement does not apply\nif neither you nor any third party retains the ability to install\nmodified object code on the User Product (for example, the work has\nbeen installed in ROM).\n\n  The requirement to provide Installation Information does not include a\nrequirement to continue to provide support service, warranty, or updates\nfor a work that has been modified or installed by the recipient, or for\nthe User Product in which it has been modified or installed.  Access to a\nnetwork may be denied when the modification itself materially and\nadversely affects the operation of the network or violates the rules and\nprotocols for communication across the network.\n\n  Corresponding Source conveyed, and Installation Information provided,\nin accord with this section must be in a format that is publicly\ndocumented (and with an implementation available to the public in\nsource code form), and must require no special password or key for\nunpacking, reading or copying.\n\n  7. Additional Terms.\n\n  \"Additional permissions\" are terms that supplement the terms of this\nLicense by making exceptions from one or more of its conditions.\nAdditional permissions that are applicable to the entire Program shall\nbe treated as though they were included in this License, to the extent\nthat they are valid under applicable law.  If additional permissions\napply only to part of the Program, that part may be used separately\nunder those permissions, but the entire Program remains governed by\nthis License without regard to the additional permissions.\n\n  When you convey a copy of a covered work, you may at your option\nremove any additional permissions from that copy, or from any part of\nit.  (Additional permissions may be written to require their own\nremoval in certain cases when you modify the work.)  You may place\nadditional permissions on material, added by you to a covered work,\nfor which you have or can give appropriate copyright permission.\n\n  Notwithstanding any other provision of this License, for material you\nadd to a covered work, you may (if authorized by the copyright holders of\nthat material) supplement the terms of this License with terms:\n\n    a) Disclaiming warranty or limiting liability differently from the\n    terms of sections 15 and 16 of this License; or\n\n    b) Requiring preservation of specified reasonable legal notices or\n    author attributions in that material or in the Appropriate Legal\n    Notices displayed by works containing it; or\n\n    c) Prohibiting misrepresentation of the origin of that material, or\n    requiring that modified versions of such material be marked in\n    reasonable ways as different from the original version; or\n\n    d) Limiting the use for publicity purposes of names of licensors or\n    authors of the material; or\n\n    e) Declining to grant rights under trademark law for use of some\n    trade names, trademarks, or service marks; or\n\n    f) Requiring indemnification of licensors and authors of that\n    material by anyone who conveys the material (or modified versions of\n    it) with contractual assumptions of liability to the recipient, for\n    any liability that these contractual assumptions directly impose on\n    those licensors and authors.\n\n  All other non-permissive additional terms are considered \"further\nrestrictions\" within the meaning of section 10.  If the Program as you\nreceived it, or any part of it, contains a notice stating that it is\ngoverned by this License along with a term that is a further\nrestriction, you may remove that term.  If a license document contains\na further restriction but permits relicensing or conveying under this\nLicense, you may add to a covered work material governed by the terms\nof that license document, provided that the further restriction does\nnot survive such relicensing or conveying.\n\n  If you add terms to a covered work in accord with this section, you\nmust place, in the relevant source files, a statement of the\nadditional terms that apply to those files, or a notice indicating\nwhere to find the applicable terms.\n\n  Additional terms, permissive or non-permissive, may be stated in the\nform of a separately written license, or stated as exceptions;\nthe above requirements apply either way.\n\n  8. Termination.\n\n  You may not propagate or modify a covered work except as expressly\nprovided under this License.  Any attempt otherwise to propagate or\nmodify it is void, and will automatically terminate your rights under\nthis License (including any patent licenses granted under the third\nparagraph of section 11).\n\n  However, if you cease all violation of this License, then your\nlicense from a particular copyright holder is reinstated (a)\nprovisionally, unless and until the copyright holder explicitly and\nfinally terminates your license, and (b) permanently, if the copyright\nholder fails to notify you of the violation by some reasonable means\nprior to 60 days after the cessation.\n\n  Moreover, your license from a particular copyright holder is\nreinstated permanently if the copyright holder notifies you of the\nviolation by some reasonable means, this is the first time you have\nreceived notice of violation of this License (for any work) from that\ncopyright holder, and you cure the violation prior to 30 days after\nyour receipt of the notice.\n\n  Termination of your rights under this section does not terminate the\nlicenses of parties who have received copies or rights from you under\nthis License.  If your rights have been terminated and not permanently\nreinstated, you do not qualify to receive new licenses for the same\nmaterial under section 10.\n\n  9. Acceptance Not Required for Having Copies.\n\n  You are not required to accept this License in order to receive or\nrun a copy of the Program.  Ancillary propagation of a covered work\noccurring solely as a consequence of using peer-to-peer transmission\nto receive a copy likewise does not require acceptance.  However,\nnothing other than this License grants you permission to propagate or\nmodify any covered work.  These actions infringe copyright if you do\nnot accept this License.  Therefore, by modifying or propagating a\ncovered work, you indicate your acceptance of this License to do so.\n\n  10. Automatic Licensing of Downstream Recipients.\n\n  Each time you convey a covered work, the recipient automatically\nreceives a license from the original licensors, to run, modify and\npropagate that work, subject to this License.  You are not responsible\nfor enforcing compliance by third parties with this License.\n\n  An \"entity transaction\" is a transaction transferring control of an\norganization, or substantially all assets of one, or subdividing an\norganization, or merging organizations.  If propagation of a covered\nwork results from an entity transaction, each party to that\ntransaction who receives a copy of the work also receives whatever\nlicenses to the work the party's predecessor in interest had or could\ngive under the previous paragraph, plus a right to possession of the\nCorresponding Source of the work from the predecessor in interest, if\nthe predecessor has it or can get it with reasonable efforts.\n\n  You may not impose any further restrictions on the exercise of the\nrights granted or affirmed under this License.  For example, you may\nnot impose a license fee, royalty, or other charge for exercise of\nrights granted under this License, and you may not initiate litigation\n(including a cross-claim or counterclaim in a lawsuit) alleging that\nany patent claim is infringed by making, using, selling, offering for\nsale, or importing the Program or any portion of it.\n\n  11. Patents.\n\n  A \"contributor\" is a copyright holder who authorizes use under this\nLicense of the Program or a work on which the Program is based.  The\nwork thus licensed is called the contributor's \"contributor version\".\n\n  A contributor's \"essential patent claims\" are all patent claims\nowned or controlled by the contributor, whether already acquired or\nhereafter acquired, that would be infringed by some manner, permitted\nby this License, of making, using, or selling its contributor version,\nbut do not include claims that would be infringed only as a\nconsequence of further modification of the contributor version.  For\npurposes of this definition, \"control\" includes the right to grant\npatent sublicenses in a manner consistent with the requirements of\nthis License.\n\n  Each contributor grants you a non-exclusive, worldwide, royalty-free\npatent license under the contributor's essential patent claims, to\nmake, use, sell, offer for sale, import and otherwise run, modify and\npropagate the contents of its contributor version.\n\n  In the following three paragraphs, a \"patent license\" is any express\nagreement or commitment, however denominated, not to enforce a patent\n(such as an express permission to practice a patent or covenant not to\nsue for patent infringement).  To \"grant\" such a patent license to a\nparty means to make such an agreement or commitment not to enforce a\npatent against the party.\n\n  If you convey a covered work, knowingly relying on a patent license,\nand the Corresponding Source of the work is not available for anyone\nto copy, free of charge and under the terms of this License, through a\npublicly available network server or other readily accessible means,\nthen you must either (1) cause the Corresponding Source to be so\navailable, or (2) arrange to deprive yourself of the benefit of the\npatent license for this particular work, or (3) arrange, in a manner\nconsistent with the requirements of this License, to extend the patent\nlicense to downstream recipients.  \"Knowingly relying\" means you have\nactual knowledge that, but for the patent license, your conveying the\ncovered work in a country, or your recipient's use of the covered work\nin a country, would infringe one or more identifiable patents in that\ncountry that you have reason to believe are valid.\n\n  If, pursuant to or in connection with a single transaction or\narrangement, you convey, or propagate by procuring conveyance of, a\ncovered work, and grant a patent license to some of the parties\nreceiving the covered work authorizing them to use, propagate, modify\nor convey a specific copy of the covered work, then the patent license\nyou grant is automatically extended to all recipients of the covered\nwork and works based on it.\n\n  A patent license is \"discriminatory\" if it does not include within\nthe scope of its coverage, prohibits the exercise of, or is\nconditioned on the non-exercise of one or more of the rights that are\nspecifically granted under this License.  You may not convey a covered\nwork if you are a party to an arrangement with a third party that is\nin the business of distributing software, under which you make payment\nto the third party based on the extent of your activity of conveying\nthe work, and under which the third party grants, to any of the\nparties who would receive the covered work from you, a discriminatory\npatent license (a) in connection with copies of the covered work\nconveyed by you (or copies made from those copies), or (b) primarily\nfor and in connection with specific products or compilations that\ncontain the covered work, unless you entered into that arrangement,\nor that patent license was granted, prior to 28 March 2007.\n\n  Nothing in this License shall be construed as excluding or limiting\nany implied license or other defenses to infringement that may\notherwise be available to you under applicable patent law.\n\n  12. No Surrender of Others' Freedom.\n\n  If conditions are imposed on you (whether by court order, agreement or\notherwise) that contradict the conditions of this License, they do not\nexcuse you from the conditions of this License.  If you cannot convey a\ncovered work so as to satisfy simultaneously your obligations under this\nLicense and any other pertinent obligations, then as a consequence you may\nnot convey it at all.  For example, if you agree to terms that obligate you\nto collect a royalty for further conveying from those to whom you convey\nthe Program, the only way you could satisfy both those terms and this\nLicense would be to refrain entirely from conveying the Program.\n\n  13. Use with the GNU Affero General Public License.\n\n  Notwithstanding any other provision of this License, you have\npermission to link or combine any covered work with a work licensed\nunder version 3 of the GNU Affero General Public License into a single\ncombined work, and to convey the resulting work.  The terms of this\nLicense will continue to apply to the part which is the covered work,\nbut the special requirements of the GNU Affero General Public License,\nsection 13, concerning interaction through a network will apply to the\ncombination as such.\n\n  14. Revised Versions of this License.\n\n  The Free Software Foundation may publish revised and/or new versions of\nthe GNU General Public License from time to time.  Such new versions will\nbe similar in spirit to the present version, but may differ in detail to\naddress new problems or concerns.\n\n  Each version is given a distinguishing version number.  If the\nProgram specifies that a certain numbered version of the GNU General\nPublic License \"or any later version\" applies to it, you have the\noption of following the terms and conditions either of that numbered\nversion or of any later version published by the Free Software\nFoundation.  If the Program does not specify a version number of the\nGNU General Public License, you may choose any version ever published\nby the Free Software Foundation.\n\n  If the Program specifies that a proxy can decide which future\nversions of the GNU General Public License can be used, that proxy's\npublic statement of acceptance of a version permanently authorizes you\nto choose that version for the Program.\n\n  Later license versions may give you additional or different\npermissions.  However, no additional obligations are imposed on any\nauthor or copyright holder as a result of your choosing to follow a\nlater version.\n\n  15. Disclaimer of Warranty.\n\n  THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY\nAPPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT\nHOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM \"AS IS\" WITHOUT WARRANTY\nOF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,\nTHE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR\nPURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM\nIS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF\nALL NECESSARY SERVICING, REPAIR OR CORRECTION.\n\n  16. Limitation of Liability.\n\n  IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING\nWILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MODIFIES AND/OR CONVEYS\nTHE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY\nGENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE\nUSE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF\nDATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD\nPARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),\nEVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF\nSUCH DAMAGES.\n\n  17. Interpretation of Sections 15 and 16.\n\n  If the disclaimer of warranty and limitation of liability provided\nabove cannot be given local legal effect according to their terms,\nreviewing courts shall apply local law that most closely approximates\nan absolute waiver of all civil liability in connection with the\nProgram, unless a warranty or assumption of liability accompanies a\ncopy of the Program in return for a fee.\n\n                     END OF TERMS AND CONDITIONS\n\n            How to Apply These Terms to Your New Programs\n\n  If you develop a new program, and you want it to be of the greatest\npossible use to the public, the best way to achieve this is to make it\nfree software which everyone can redistribute and change under these terms.\n\n  To do so, attach the following notices to the program.  It is safest\nto attach them to the start of each source file to most effectively\nstate the exclusion of warranty; and each file should have at least\nthe \"copyright\" line and a pointer to where the full notice is found.\n\n    <one line to give the program's name and a brief idea of what it does.>\n    Copyright (C) <year>  <name of author>\n\n    This program is free software: you can redistribute it and/or modify\n    it under the terms of the GNU General Public License as published by\n    the Free Software Foundation, either version 3 of the License, or\n    (at your option) any later version.\n\n    This program is distributed in the hope that it will be useful,\n    but WITHOUT ANY WARRANTY; without even the implied warranty of\n    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n    GNU General Public License for more details.\n\n    You should have received a copy of the GNU General Public License\n    along with this program.  If not, see <http://www.gnu.org/licenses/>.\n\nAlso add information on how to contact you by electronic and paper mail.\n\n  If the program does terminal interaction, make it output a short\nnotice like this when it starts in an interactive mode:\n\n    <program>  Copyright (C) <year>  <name of author>\n    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.\n    This is free software, and you are welcome to redistribute it\n    under certain conditions; type `show c' for details.\n\nThe hypothetical commands `show w' and `show c' should show the appropriate\nparts of the General Public License.  Of course, your program's commands\nmight be different; for a GUI interface, you would use an \"about box\".\n\n  You should also get your employer (if you work as a programmer) or school,\nif any, to sign a \"copyright disclaimer\" for the program, if necessary.\nFor more information on this, and how to apply and follow the GNU GPL, see\n<http://www.gnu.org/licenses/>.\n\n  The GNU General Public License does not permit incorporating your program\ninto proprietary programs.  If your program is a subroutine library, you\nmay consider it more useful to permit linking proprietary applications with\nthe library.  If this is what you want to do, use the GNU Lesser General\nPublic License instead of this License.  But first, please read\n<http://www.gnu.org/philosophy/why-not-lgpl.html>.\n");
@@ -25254,7 +25004,7 @@ create_aboutdialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (aboutdialog, aboutdialog, "aboutdialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(aboutdialog, aboutdialog, "aboutdialog");
 
   return aboutdialog;
 }
@@ -25288,7 +25038,7 @@ create_globularize_dialog (void)
   gtk_window_set_title (GTK_WINDOW (globularize_dialog), "Globularize");
   gtk_window_set_type_hint (GTK_WINDOW (globularize_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox99 = GTK_DIALOG (globularize_dialog)->vbox;
+  dialog_vbox99 = gtk_dialog_get_content_area( globularize_dialog );
   gtk_widget_show (dialog_vbox99);
 
   vbox200 = gtk_vbox_new (FALSE, 0);
@@ -25364,23 +25114,23 @@ create_globularize_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (frame176), label440);
   gtk_label_set_use_markup (GTK_LABEL (label440), TRUE);
 
-  dialog_action_area98 = GTK_DIALOG (globularize_dialog)->action_area;
+  dialog_action_area98 = gtk_dialog_get_content_area( globularize_dialog );
   gtk_widget_show (dialog_action_area98);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area98), GTK_BUTTONBOX_END);
 
   globularize_ok_button = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (globularize_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (globularize_dialog), globularize_ok_button, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (globularize_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (globularize_ok_button, GTK_CAN_DEFAULT);
 
   globularize_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (globularize_cancel_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (globularize_dialog), globularize_cancel_button, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (globularize_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (globularize_cancel_button, GTK_CAN_DEFAULT);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (globularize_dialog, globularize_dialog, "globularize_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (globularize_dialog, dialog_vbox99, "dialog_vbox99");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(globularize_dialog, globularize_dialog, "globularize_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(globularize_dialog, dialog_vbox99, "dialog_vbox99");
   GLADE_HOOKUP_OBJECT (globularize_dialog, vbox200, "vbox200");
   GLADE_HOOKUP_OBJECT (globularize_dialog, label439, "label439");
   GLADE_HOOKUP_OBJECT (globularize_dialog, globularize_molecule_molecule_chooser_combobox, "globularize_molecule_molecule_chooser_combobox");
@@ -25395,7 +25145,7 @@ create_globularize_dialog (void)
   GLADE_HOOKUP_OBJECT (globularize_dialog, globularize_centre_y_entry, "globularize_centre_y_entry");
   GLADE_HOOKUP_OBJECT (globularize_dialog, globularize_centre_z_entry, "globularize_centre_z_entry");
   GLADE_HOOKUP_OBJECT (globularize_dialog, label440, "label440");
-  GLADE_HOOKUP_OBJECT_NO_REF (globularize_dialog, dialog_action_area98, "dialog_action_area98");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(globularize_dialog, dialog_action_area98, "dialog_action_area98");
   GLADE_HOOKUP_OBJECT (globularize_dialog, globularize_ok_button, "globularize_ok_button");
   GLADE_HOOKUP_OBJECT (globularize_dialog, globularize_cancel_button, "globularize_cancel_button");
 
@@ -25417,7 +25167,7 @@ create_splash_screen_alternate_1_window (void)
   gtk_container_add (GTK_CONTAINER (splash_screen_alternate_1_window), image6024);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (splash_screen_alternate_1_window, splash_screen_alternate_1_window, "splash_screen_alternate_1_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(splash_screen_alternate_1_window, splash_screen_alternate_1_window, "splash_screen_alternate_1_window");
   GLADE_HOOKUP_OBJECT (splash_screen_alternate_1_window, image6024, "image6024");
 
   return splash_screen_alternate_1_window;
@@ -25446,7 +25196,7 @@ create_coords_filechooserdialog1 (void)
   gtk_window_set_role (GTK_WINDOW (coords_filechooserdialog1), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (coords_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox100 = GTK_DIALOG (coords_filechooserdialog1)->vbox;
+  dialog_vbox100 = gtk_dialog_get_content_area( coords_filechooserdialog1 );
   gtk_widget_show (dialog_vbox100);
 
   hbox383 = gtk_hbox_new (FALSE, 0);
@@ -25471,19 +25221,19 @@ create_coords_filechooserdialog1 (void)
   gtk_frame_set_label_widget (GTK_FRAME (frame177), label441);
   gtk_label_set_use_markup (GTK_LABEL (label441), TRUE);
 
-  dialog_action_area99 = GTK_DIALOG (coords_filechooserdialog1)->action_area;
+  dialog_action_area99 = gtk_dialog_get_content_area( coords_filechooserdialog1 );
   gtk_widget_show (dialog_action_area99);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area99), GTK_BUTTONBOX_END);
 
   button5 = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (button5);
   gtk_dialog_add_action_widget (GTK_DIALOG (coords_filechooserdialog1), button5, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (button5, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button5, GTK_CAN_DEFAULT);
 
   button6 = gtk_button_new_from_stock ("gtk-open");
   gtk_widget_show (button6);
   gtk_dialog_add_action_widget (GTK_DIALOG (coords_filechooserdialog1), button6, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (button6, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button6, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) coords_filechooserdialog1, "response",
                     G_CALLBACK (on_coords_filechooserdialog1_response),
@@ -25493,14 +25243,14 @@ create_coords_filechooserdialog1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (coords_filechooserdialog1, coords_filechooserdialog1, "coords_filechooserdialog1");
-  GLADE_HOOKUP_OBJECT_NO_REF (coords_filechooserdialog1, dialog_vbox100, "dialog_vbox100");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(coords_filechooserdialog1, coords_filechooserdialog1, "coords_filechooserdialog1");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(coords_filechooserdialog1, dialog_vbox100, "dialog_vbox100");
   GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, hbox383, "hbox383");
   GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, frame177, "frame177");
   GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, alignment104, "alignment104");
   GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, coords_filechooserdialog1_recentre_combobox, "coords_filechooserdialog1_recentre_combobox");
   GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, label441, "label441");
-  GLADE_HOOKUP_OBJECT_NO_REF (coords_filechooserdialog1, dialog_action_area99, "dialog_action_area99");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(coords_filechooserdialog1, dialog_action_area99, "dialog_action_area99");
   GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, button5, "button5");
   GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, button6, "button6");
 
@@ -25523,22 +25273,22 @@ create_dataset_filechooserdialog1 (void)
   gtk_window_set_role (GTK_WINDOW (dataset_filechooserdialog1), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (dataset_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox101 = GTK_DIALOG (dataset_filechooserdialog1)->vbox;
+  dialog_vbox101 = gtk_dialog_get_content_area( dataset_filechooserdialog1 );
   gtk_widget_show (dialog_vbox101);
 
-  dialog_action_area100 = GTK_DIALOG (dataset_filechooserdialog1)->action_area;
+  dialog_action_area100 = gtk_dialog_get_content_area( dataset_filechooserdialog1 );
   gtk_widget_show (dialog_action_area100);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area100), GTK_BUTTONBOX_END);
 
   button7 = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (button7);
   gtk_dialog_add_action_widget (GTK_DIALOG (dataset_filechooserdialog1), button7, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (button7, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button7, GTK_CAN_DEFAULT);
 
   button8 = gtk_button_new_from_stock ("gtk-open");
   gtk_widget_show (button8);
   gtk_dialog_add_action_widget (GTK_DIALOG (dataset_filechooserdialog1), button8, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (button8, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button8, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) dataset_filechooserdialog1, "response",
                     G_CALLBACK (on_dataset_filechooserdialog1_response),
@@ -25548,9 +25298,9 @@ create_dataset_filechooserdialog1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (dataset_filechooserdialog1, dataset_filechooserdialog1, "dataset_filechooserdialog1");
-  GLADE_HOOKUP_OBJECT_NO_REF (dataset_filechooserdialog1, dialog_vbox101, "dialog_vbox101");
-  GLADE_HOOKUP_OBJECT_NO_REF (dataset_filechooserdialog1, dialog_action_area100, "dialog_action_area100");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(dataset_filechooserdialog1, dataset_filechooserdialog1, "dataset_filechooserdialog1");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(dataset_filechooserdialog1, dialog_vbox101, "dialog_vbox101");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(dataset_filechooserdialog1, dialog_action_area100, "dialog_action_area100");
   GLADE_HOOKUP_OBJECT (dataset_filechooserdialog1, button7, "button7");
   GLADE_HOOKUP_OBJECT (dataset_filechooserdialog1, button8, "button8");
 
@@ -25577,7 +25327,7 @@ create_map_name_filechooserdialog1 (void)
   gtk_window_set_role (GTK_WINDOW (map_name_filechooserdialog1), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (map_name_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox102 = GTK_DIALOG (map_name_filechooserdialog1)->vbox;
+  dialog_vbox102 = gtk_dialog_get_content_area( map_name_filechooserdialog1 );
   gtk_widget_show (dialog_vbox102);
 
   frame178 = gtk_frame_new (NULL);
@@ -25598,19 +25348,19 @@ create_map_name_filechooserdialog1 (void)
   gtk_frame_set_label_widget (GTK_FRAME (frame178), label442);
   gtk_label_set_use_markup (GTK_LABEL (label442), TRUE);
 
-  dialog_action_area101 = GTK_DIALOG (map_name_filechooserdialog1)->action_area;
+  dialog_action_area101 = gtk_dialog_get_content_area( map_name_filechooserdialog1 );
   gtk_widget_show (dialog_action_area101);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area101), GTK_BUTTONBOX_END);
 
   button9 = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (button9);
   gtk_dialog_add_action_widget (GTK_DIALOG (map_name_filechooserdialog1), button9, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (button9, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button9, GTK_CAN_DEFAULT);
 
   button10 = gtk_button_new_from_stock ("gtk-open");
   gtk_widget_show (button10);
   gtk_dialog_add_action_widget (GTK_DIALOG (map_name_filechooserdialog1), button10, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (button10, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button10, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) map_name_filechooserdialog1, "response",
                     G_CALLBACK (on_map_name_filechooserdialog1_response),
@@ -25623,13 +25373,13 @@ create_map_name_filechooserdialog1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (map_name_filechooserdialog1, map_name_filechooserdialog1, "map_name_filechooserdialog1");
-  GLADE_HOOKUP_OBJECT_NO_REF (map_name_filechooserdialog1, dialog_vbox102, "dialog_vbox102");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(map_name_filechooserdialog1, map_name_filechooserdialog1, "map_name_filechooserdialog1");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(map_name_filechooserdialog1, dialog_vbox102, "dialog_vbox102");
   GLADE_HOOKUP_OBJECT (map_name_filechooserdialog1, frame178, "frame178");
   GLADE_HOOKUP_OBJECT (map_name_filechooserdialog1, alignment105, "alignment105");
   GLADE_HOOKUP_OBJECT (map_name_filechooserdialog1, map_filechooser_is_difference_map_button, "map_filechooser_is_difference_map_button");
   GLADE_HOOKUP_OBJECT (map_name_filechooserdialog1, label442, "label442");
-  GLADE_HOOKUP_OBJECT_NO_REF (map_name_filechooserdialog1, dialog_action_area101, "dialog_action_area101");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(map_name_filechooserdialog1, dialog_action_area101, "dialog_action_area101");
   GLADE_HOOKUP_OBJECT (map_name_filechooserdialog1, button9, "button9");
   GLADE_HOOKUP_OBJECT (map_name_filechooserdialog1, button10, "button10");
 
@@ -25652,22 +25402,22 @@ create_phs_coordinates_filechooserdialog1 (void)
   gtk_window_set_role (GTK_WINDOW (phs_coordinates_filechooserdialog1), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (phs_coordinates_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox103 = GTK_DIALOG (phs_coordinates_filechooserdialog1)->vbox;
+  dialog_vbox103 = gtk_dialog_get_content_area( phs_coordinates_filechooserdialog1 );
   gtk_widget_show (dialog_vbox103);
 
-  dialog_action_area102 = GTK_DIALOG (phs_coordinates_filechooserdialog1)->action_area;
+  dialog_action_area102 = gtk_dialog_get_content_area( phs_coordinates_filechooserdialog1 );
   gtk_widget_show (dialog_action_area102);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area102), GTK_BUTTONBOX_END);
 
   button11 = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (button11);
   gtk_dialog_add_action_widget (GTK_DIALOG (phs_coordinates_filechooserdialog1), button11, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (button11, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button11, GTK_CAN_DEFAULT);
 
   button12 = gtk_button_new_from_stock ("gtk-open");
   gtk_widget_show (button12);
   gtk_dialog_add_action_widget (GTK_DIALOG (phs_coordinates_filechooserdialog1), button12, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (button12, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button12, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) phs_coordinates_filechooserdialog1, "response",
                     G_CALLBACK (on_phs_coordinates_filechooserdialog1_response),
@@ -25677,9 +25427,9 @@ create_phs_coordinates_filechooserdialog1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (phs_coordinates_filechooserdialog1, phs_coordinates_filechooserdialog1, "phs_coordinates_filechooserdialog1");
-  GLADE_HOOKUP_OBJECT_NO_REF (phs_coordinates_filechooserdialog1, dialog_vbox103, "dialog_vbox103");
-  GLADE_HOOKUP_OBJECT_NO_REF (phs_coordinates_filechooserdialog1, dialog_action_area102, "dialog_action_area102");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(phs_coordinates_filechooserdialog1, phs_coordinates_filechooserdialog1, "phs_coordinates_filechooserdialog1");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(phs_coordinates_filechooserdialog1, dialog_vbox103, "dialog_vbox103");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(phs_coordinates_filechooserdialog1, dialog_action_area102, "dialog_action_area102");
   GLADE_HOOKUP_OBJECT (phs_coordinates_filechooserdialog1, button11, "button11");
   GLADE_HOOKUP_OBJECT (phs_coordinates_filechooserdialog1, button12, "button12");
 
@@ -25698,18 +25448,18 @@ create_save_coords_filechooserdialog1 (void)
   GtkWidget *dialog_action_area103;
   GtkWidget *button13;
   GtkWidget *button14;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   save_coords_filechooserdialog1 = gtk_file_chooser_dialog_new ("Select Filename for Saved Coordinates ", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (save_coords_filechooserdialog1), 10);
-  gtk_tooltips_set_tip (tooltips, save_coords_filechooserdialog1, "Saved File type: By extension", NULL);
+  // gtk_tooltips_set_tip (tooltips, save_coords_filechooserdialog1, "Saved File type: By extension", NULL);
   gtk_window_set_modal (GTK_WINDOW (save_coords_filechooserdialog1), TRUE);
   gtk_window_set_role (GTK_WINDOW (save_coords_filechooserdialog1), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (save_coords_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox104 = GTK_DIALOG (save_coords_filechooserdialog1)->vbox;
+  dialog_vbox104 = gtk_dialog_get_content_area( save_coords_filechooserdialog1 );
   gtk_widget_show (dialog_vbox104);
 
   hbox413 = gtk_hbox_new (FALSE, 0);
@@ -25726,19 +25476,19 @@ create_save_coords_filechooserdialog1 (void)
   gtk_box_pack_end (GTK_BOX (hbox413), checkbutton_hydrogens, FALSE, FALSE, 0);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton_hydrogens), TRUE);
 
-  dialog_action_area103 = GTK_DIALOG (save_coords_filechooserdialog1)->action_area;
+  dialog_action_area103 = gtk_dialog_get_content_area( save_coords_filechooserdialog1 );
   gtk_widget_show (dialog_action_area103);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area103), GTK_BUTTONBOX_END);
 
   button13 = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (button13);
   gtk_dialog_add_action_widget (GTK_DIALOG (save_coords_filechooserdialog1), button13, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (button13, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button13, GTK_CAN_DEFAULT);
 
   button14 = gtk_button_new_from_stock ("gtk-save");
   gtk_widget_show (button14);
   gtk_dialog_add_action_widget (GTK_DIALOG (save_coords_filechooserdialog1), button14, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (button14, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button14, GTK_CAN_DEFAULT);
 
 #if (GTK_MINOR_VERSION > 9)
   g_signal_connect ((gpointer) save_coords_filechooserdialog1, "confirm_overwrite",
@@ -25754,15 +25504,15 @@ create_save_coords_filechooserdialog1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (save_coords_filechooserdialog1, save_coords_filechooserdialog1, "save_coords_filechooserdialog1");
-  GLADE_HOOKUP_OBJECT_NO_REF (save_coords_filechooserdialog1, dialog_vbox104, "dialog_vbox104");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_coords_filechooserdialog1, save_coords_filechooserdialog1, "save_coords_filechooserdialog1");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_coords_filechooserdialog1, dialog_vbox104, "dialog_vbox104");
   GLADE_HOOKUP_OBJECT (save_coords_filechooserdialog1, hbox413, "hbox413");
   GLADE_HOOKUP_OBJECT (save_coords_filechooserdialog1, checkbutton_aniso, "checkbutton_aniso");
   GLADE_HOOKUP_OBJECT (save_coords_filechooserdialog1, checkbutton_hydrogens, "checkbutton_hydrogens");
-  GLADE_HOOKUP_OBJECT_NO_REF (save_coords_filechooserdialog1, dialog_action_area103, "dialog_action_area103");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_coords_filechooserdialog1, dialog_action_area103, "dialog_action_area103");
   GLADE_HOOKUP_OBJECT (save_coords_filechooserdialog1, button13, "button13");
   GLADE_HOOKUP_OBJECT (save_coords_filechooserdialog1, button14, "button14");
-  GLADE_HOOKUP_OBJECT_NO_REF (save_coords_filechooserdialog1, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_coords_filechooserdialog1, tooltips, "tooltips");
 
   gtk_widget_grab_default (button14);
   return save_coords_filechooserdialog1;
@@ -25783,22 +25533,22 @@ create_cif_dictionary_filechooserdialog1 (void)
   gtk_window_set_role (GTK_WINDOW (cif_dictionary_filechooserdialog1), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (cif_dictionary_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox105 = GTK_DIALOG (cif_dictionary_filechooserdialog1)->vbox;
+  dialog_vbox105 = gtk_dialog_get_content_area( cif_dictionary_filechooserdialog1 );
   gtk_widget_show (dialog_vbox105);
 
-  dialog_action_area104 = GTK_DIALOG (cif_dictionary_filechooserdialog1)->action_area;
+  dialog_action_area104 = gtk_dialog_get_content_area( cif_dictionary_filechooserdialog1 );
   gtk_widget_show (dialog_action_area104);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area104), GTK_BUTTONBOX_END);
 
   button15 = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (button15);
   gtk_dialog_add_action_widget (GTK_DIALOG (cif_dictionary_filechooserdialog1), button15, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (button15, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button15, GTK_CAN_DEFAULT);
 
   button16 = gtk_button_new_from_stock ("gtk-open");
   gtk_widget_show (button16);
   gtk_dialog_add_action_widget (GTK_DIALOG (cif_dictionary_filechooserdialog1), button16, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (button16, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button16, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) cif_dictionary_filechooserdialog1, "response",
                     G_CALLBACK (on_cif_dictionary_filechooserdialog1_response),
@@ -25808,9 +25558,9 @@ create_cif_dictionary_filechooserdialog1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (cif_dictionary_filechooserdialog1, cif_dictionary_filechooserdialog1, "cif_dictionary_filechooserdialog1");
-  GLADE_HOOKUP_OBJECT_NO_REF (cif_dictionary_filechooserdialog1, dialog_vbox105, "dialog_vbox105");
-  GLADE_HOOKUP_OBJECT_NO_REF (cif_dictionary_filechooserdialog1, dialog_action_area104, "dialog_action_area104");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(cif_dictionary_filechooserdialog1, cif_dictionary_filechooserdialog1, "cif_dictionary_filechooserdialog1");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(cif_dictionary_filechooserdialog1, dialog_vbox105, "dialog_vbox105");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(cif_dictionary_filechooserdialog1, dialog_action_area104, "dialog_action_area104");
   GLADE_HOOKUP_OBJECT (cif_dictionary_filechooserdialog1, button15, "button15");
   GLADE_HOOKUP_OBJECT (cif_dictionary_filechooserdialog1, button16, "button16");
 
@@ -25836,22 +25586,22 @@ create_run_script_filechooserdialog1 (void)
   gtk_window_set_role (GTK_WINDOW (run_script_filechooserdialog1), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (run_script_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox106 = GTK_DIALOG (run_script_filechooserdialog1)->vbox;
+  dialog_vbox106 = gtk_dialog_get_content_area( run_script_filechooserdialog1 );
   gtk_widget_show (dialog_vbox106);
 
-  dialog_action_area105 = GTK_DIALOG (run_script_filechooserdialog1)->action_area;
+  dialog_action_area105 = gtk_dialog_get_content_area( run_script_filechooserdialog1 );
   gtk_widget_show (dialog_action_area105);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area105), GTK_BUTTONBOX_END);
 
   button17 = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (button17);
   gtk_dialog_add_action_widget (GTK_DIALOG (run_script_filechooserdialog1), button17, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (button17, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button17, GTK_CAN_DEFAULT);
 
   button18 = gtk_button_new_from_stock ("gtk-open");
   gtk_widget_show (button18);
   gtk_dialog_add_action_widget (GTK_DIALOG (run_script_filechooserdialog1), button18, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (button18, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button18, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) run_script_filechooserdialog1, "response",
                     G_CALLBACK (on_run_script_filechooserdialog1_response),
@@ -25861,9 +25611,9 @@ create_run_script_filechooserdialog1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (run_script_filechooserdialog1, run_script_filechooserdialog1, "run_script_filechooserdialog1");
-  GLADE_HOOKUP_OBJECT_NO_REF (run_script_filechooserdialog1, dialog_vbox106, "dialog_vbox106");
-  GLADE_HOOKUP_OBJECT_NO_REF (run_script_filechooserdialog1, dialog_action_area105, "dialog_action_area105");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_script_filechooserdialog1, run_script_filechooserdialog1, "run_script_filechooserdialog1");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_script_filechooserdialog1, dialog_vbox106, "dialog_vbox106");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_script_filechooserdialog1, dialog_action_area105, "dialog_action_area105");
   GLADE_HOOKUP_OBJECT (run_script_filechooserdialog1, button17, "button17");
   GLADE_HOOKUP_OBJECT (run_script_filechooserdialog1, button18, "button18");
 
@@ -25889,22 +25639,22 @@ create_save_symmetry_coords_filechooserdialog1 (void)
   gtk_window_set_role (GTK_WINDOW (save_symmetry_coords_filechooserdialog1), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (save_symmetry_coords_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox107 = GTK_DIALOG (save_symmetry_coords_filechooserdialog1)->vbox;
+  dialog_vbox107 = gtk_dialog_get_content_area( save_symmetry_coords_filechooserdialog1 );
   gtk_widget_show (dialog_vbox107);
 
-  dialog_action_area106 = GTK_DIALOG (save_symmetry_coords_filechooserdialog1)->action_area;
+  dialog_action_area106 = gtk_dialog_get_content_area( save_symmetry_coords_filechooserdialog1 );
   gtk_widget_show (dialog_action_area106);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area106), GTK_BUTTONBOX_END);
 
   button19 = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (button19);
   gtk_dialog_add_action_widget (GTK_DIALOG (save_symmetry_coords_filechooserdialog1), button19, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (button19, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button19, GTK_CAN_DEFAULT);
 
   button20 = gtk_button_new_from_stock ("gtk-save");
   gtk_widget_show (button20);
   gtk_dialog_add_action_widget (GTK_DIALOG (save_symmetry_coords_filechooserdialog1), button20, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (button20, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button20, GTK_CAN_DEFAULT);
 
 #if (GTK_MINOR_VERSION > 9)
   g_signal_connect ((gpointer) save_symmetry_coords_filechooserdialog1, "confirm_overwrite",
@@ -25920,9 +25670,9 @@ create_save_symmetry_coords_filechooserdialog1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (save_symmetry_coords_filechooserdialog1, save_symmetry_coords_filechooserdialog1, "save_symmetry_coords_filechooserdialog1");
-  GLADE_HOOKUP_OBJECT_NO_REF (save_symmetry_coords_filechooserdialog1, dialog_vbox107, "dialog_vbox107");
-  GLADE_HOOKUP_OBJECT_NO_REF (save_symmetry_coords_filechooserdialog1, dialog_action_area106, "dialog_action_area106");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_symmetry_coords_filechooserdialog1, save_symmetry_coords_filechooserdialog1, "save_symmetry_coords_filechooserdialog1");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_symmetry_coords_filechooserdialog1, dialog_vbox107, "dialog_vbox107");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_symmetry_coords_filechooserdialog1, dialog_action_area106, "dialog_action_area106");
   GLADE_HOOKUP_OBJECT (save_symmetry_coords_filechooserdialog1, button19, "button19");
   GLADE_HOOKUP_OBJECT (save_symmetry_coords_filechooserdialog1, button20, "button20");
 
@@ -25948,22 +25698,22 @@ create_save_state_filechooserdialog1 (void)
   gtk_window_set_role (GTK_WINDOW (save_state_filechooserdialog1), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (save_state_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox108 = GTK_DIALOG (save_state_filechooserdialog1)->vbox;
+  dialog_vbox108 = gtk_dialog_get_content_area( save_state_filechooserdialog1 );
   gtk_widget_show (dialog_vbox108);
 
-  dialog_action_area107 = GTK_DIALOG (save_state_filechooserdialog1)->action_area;
+  dialog_action_area107 = gtk_dialog_get_content_area( save_state_filechooserdialog1 );
   gtk_widget_show (dialog_action_area107);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area107), GTK_BUTTONBOX_END);
 
   button21 = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (button21);
   gtk_dialog_add_action_widget (GTK_DIALOG (save_state_filechooserdialog1), button21, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (button21, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button21, GTK_CAN_DEFAULT);
 
   button22 = gtk_button_new_from_stock ("gtk-save");
   gtk_widget_show (button22);
   gtk_dialog_add_action_widget (GTK_DIALOG (save_state_filechooserdialog1), button22, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (button22, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button22, GTK_CAN_DEFAULT);
 
 #if (GTK_MINOR_VERSION > 9)
   g_signal_connect ((gpointer) save_state_filechooserdialog1, "confirm_overwrite",
@@ -25979,9 +25729,9 @@ create_save_state_filechooserdialog1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (save_state_filechooserdialog1, save_state_filechooserdialog1, "save_state_filechooserdialog1");
-  GLADE_HOOKUP_OBJECT_NO_REF (save_state_filechooserdialog1, dialog_vbox108, "dialog_vbox108");
-  GLADE_HOOKUP_OBJECT_NO_REF (save_state_filechooserdialog1, dialog_action_area107, "dialog_action_area107");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_state_filechooserdialog1, save_state_filechooserdialog1, "save_state_filechooserdialog1");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_state_filechooserdialog1, dialog_vbox108, "dialog_vbox108");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_state_filechooserdialog1, dialog_action_area107, "dialog_action_area107");
   GLADE_HOOKUP_OBJECT (save_state_filechooserdialog1, button21, "button21");
   GLADE_HOOKUP_OBJECT (save_state_filechooserdialog1, button22, "button22");
 
@@ -26004,22 +25754,22 @@ create_screendump_filechooserdialog1 (void)
   gtk_window_set_role (GTK_WINDOW (screendump_filechooserdialog1), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (screendump_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox109 = GTK_DIALOG (screendump_filechooserdialog1)->vbox;
+  dialog_vbox109 = gtk_dialog_get_content_area( screendump_filechooserdialog1 );
   gtk_widget_show (dialog_vbox109);
 
-  dialog_action_area108 = GTK_DIALOG (screendump_filechooserdialog1)->action_area;
+  dialog_action_area108 = gtk_dialog_get_content_area( screendump_filechooserdialog1 );
   gtk_widget_show (dialog_action_area108);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area108), GTK_BUTTONBOX_END);
 
   button23 = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (button23);
   gtk_dialog_add_action_widget (GTK_DIALOG (screendump_filechooserdialog1), button23, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (button23, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button23, GTK_CAN_DEFAULT);
 
   button24 = gtk_button_new_from_stock ("gtk-save");
   gtk_widget_show (button24);
   gtk_dialog_add_action_widget (GTK_DIALOG (screendump_filechooserdialog1), button24, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (button24, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button24, GTK_CAN_DEFAULT);
 
 #if (GTK_MINOR_VERSION > 9)
   g_signal_connect ((gpointer) screendump_filechooserdialog1, "confirm_overwrite",
@@ -26035,9 +25785,9 @@ create_screendump_filechooserdialog1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (screendump_filechooserdialog1, screendump_filechooserdialog1, "screendump_filechooserdialog1");
-  GLADE_HOOKUP_OBJECT_NO_REF (screendump_filechooserdialog1, dialog_vbox109, "dialog_vbox109");
-  GLADE_HOOKUP_OBJECT_NO_REF (screendump_filechooserdialog1, dialog_action_area108, "dialog_action_area108");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(screendump_filechooserdialog1, screendump_filechooserdialog1, "screendump_filechooserdialog1");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(screendump_filechooserdialog1, dialog_vbox109, "dialog_vbox109");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(screendump_filechooserdialog1, dialog_action_area108, "dialog_action_area108");
   GLADE_HOOKUP_OBJECT (screendump_filechooserdialog1, button23, "button23");
   GLADE_HOOKUP_OBJECT (screendump_filechooserdialog1, button24, "button24");
 
@@ -26062,7 +25812,7 @@ create_fixed_atom_dialog (void)
   gtk_window_set_title (GTK_WINDOW (fixed_atom_dialog), "Fixed Atoms for Refinement");
   gtk_window_set_type_hint (GTK_WINDOW (fixed_atom_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox110 = GTK_DIALOG (fixed_atom_dialog)->vbox;
+  dialog_vbox110 = gtk_dialog_get_content_area( fixed_atom_dialog );
   gtk_widget_show (dialog_vbox110);
 
   vbox204 = gtk_vbox_new (FALSE, 2);
@@ -26082,14 +25832,14 @@ create_fixed_atom_dialog (void)
   gtk_widget_show (clear_fixed_atoms_button);
   gtk_box_pack_start (GTK_BOX (vbox204), clear_fixed_atoms_button, FALSE, FALSE, 0);
 
-  dialog_action_area109 = GTK_DIALOG (fixed_atom_dialog)->action_area;
+  dialog_action_area109 = gtk_dialog_get_content_area( fixed_atom_dialog );
   gtk_widget_show (dialog_action_area109);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area109), GTK_BUTTONBOX_END);
 
   fixed_atom_close_button = gtk_button_new_from_stock ("gtk-close");
   gtk_widget_show (fixed_atom_close_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (fixed_atom_dialog), fixed_atom_close_button, GTK_RESPONSE_CLOSE);
-  GTK_WIDGET_SET_FLAGS (fixed_atom_close_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (fixed_atom_close_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) fixed_atom_dialog, "destroy",
                     G_CALLBACK (on_fixed_atom_dialog_destroy),
@@ -26108,13 +25858,13 @@ create_fixed_atom_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (fixed_atom_dialog, fixed_atom_dialog, "fixed_atom_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (fixed_atom_dialog, dialog_vbox110, "dialog_vbox110");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(fixed_atom_dialog, fixed_atom_dialog, "fixed_atom_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(fixed_atom_dialog, dialog_vbox110, "dialog_vbox110");
   GLADE_HOOKUP_OBJECT (fixed_atom_dialog, vbox204, "vbox204");
   GLADE_HOOKUP_OBJECT (fixed_atom_dialog, fix_atom_togglebutton, "fix_atom_togglebutton");
   GLADE_HOOKUP_OBJECT (fixed_atom_dialog, unfix_atom_togglebutton, "unfix_atom_togglebutton");
   GLADE_HOOKUP_OBJECT (fixed_atom_dialog, clear_fixed_atoms_button, "clear_fixed_atoms_button");
-  GLADE_HOOKUP_OBJECT_NO_REF (fixed_atom_dialog, dialog_action_area109, "dialog_action_area109");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(fixed_atom_dialog, dialog_action_area109, "dialog_action_area109");
   GLADE_HOOKUP_OBJECT (fixed_atom_dialog, fixed_atom_close_button, "fixed_atom_close_button");
 
   return fixed_atom_dialog;
@@ -26127,7 +25877,6 @@ create_add_reps_dialog (void)
   GtkWidget *dialog_vbox111;
   GtkWidget *vbox267;
   GtkWidget *label608;
-  GtkWidget *add_rep_molecule_optionmenu;
   GtkWidget *add_reps_molecule_combobox;
   GtkWidget *frame271;
   GtkWidget *alignment117;
@@ -26200,7 +25949,7 @@ create_add_reps_dialog (void)
   gtk_window_set_title (GTK_WINDOW (add_reps_dialog), "Add Reps");
   gtk_window_set_type_hint (GTK_WINDOW (add_reps_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox111 = GTK_DIALOG (add_reps_dialog)->vbox;
+  dialog_vbox111 = gtk_dialog_get_content_area( add_reps_dialog );
   gtk_widget_show (dialog_vbox111);
 
   vbox267 = gtk_vbox_new (FALSE, 0);
@@ -26211,10 +25960,6 @@ create_add_reps_dialog (void)
   gtk_widget_show (label608);
   gtk_box_pack_start (GTK_BOX (vbox267), label608, FALSE, FALSE, 0);
   gtk_misc_set_padding (GTK_MISC (label608), 3, 4);
-
-  add_rep_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (add_rep_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox267), add_rep_molecule_optionmenu, FALSE, FALSE, 0);
 
   add_reps_molecule_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (add_reps_molecule_combobox);
@@ -26497,14 +26242,14 @@ create_add_reps_dialog (void)
   gtk_widget_show (hseparator19);
   gtk_box_pack_start (GTK_BOX (vbox267), hseparator19, TRUE, TRUE, 2);
 
-  dialog_action_area110 = GTK_DIALOG (add_reps_dialog)->action_area;
+  dialog_action_area110 = gtk_dialog_get_content_area( add_reps_dialog );
   gtk_widget_show (dialog_action_area110);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area110), GTK_BUTTONBOX_END);
 
   add_rep_add_rep_button = gtk_button_new ();
   gtk_widget_show (add_rep_add_rep_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (add_reps_dialog), add_rep_add_rep_button, 0);
-  GTK_WIDGET_SET_FLAGS (add_rep_add_rep_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (add_rep_add_rep_button, GTK_CAN_DEFAULT);
 
   alignment118 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment118);
@@ -26525,7 +26270,7 @@ create_add_reps_dialog (void)
   add_rep_cancel_button = gtk_button_new ();
   gtk_widget_show (add_rep_cancel_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (add_reps_dialog), add_rep_cancel_button, 0);
-  GTK_WIDGET_SET_FLAGS (add_rep_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (add_rep_cancel_button, GTK_CAN_DEFAULT);
 
   alignment119 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment119);
@@ -26551,11 +26296,10 @@ create_add_reps_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (add_reps_dialog, add_reps_dialog, "add_reps_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (add_reps_dialog, dialog_vbox111, "dialog_vbox111");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_reps_dialog, add_reps_dialog, "add_reps_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_reps_dialog, dialog_vbox111, "dialog_vbox111");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, vbox267, "vbox267");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, label608, "label608");
-  GLADE_HOOKUP_OBJECT (add_reps_dialog, add_rep_molecule_optionmenu, "add_rep_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, add_reps_molecule_combobox, "add_reps_molecule_combobox");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, frame271, "frame271");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, alignment117, "alignment117");
@@ -26610,7 +26354,7 @@ create_add_reps_dialog (void)
   GLADE_HOOKUP_OBJECT (add_reps_dialog, label619, "label619");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, label809, "label809");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, hseparator19, "hseparator19");
-  GLADE_HOOKUP_OBJECT_NO_REF (add_reps_dialog, dialog_action_area110, "dialog_action_area110");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_reps_dialog, dialog_action_area110, "dialog_action_area110");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, add_rep_add_rep_button, "add_rep_add_rep_button");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, alignment118, "alignment118");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, hbox335, "hbox335");
@@ -26648,7 +26392,7 @@ create_display_additional_representations_dialog (void)
   gtk_window_set_title (GTK_WINDOW (display_additional_representations_dialog), "Display of Additional Representations");
   gtk_window_set_type_hint (GTK_WINDOW (display_additional_representations_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox112 = GTK_DIALOG (display_additional_representations_dialog)->vbox;
+  dialog_vbox112 = gtk_dialog_get_content_area( display_additional_representations_dialog );
   gtk_widget_show (dialog_vbox112);
 
   vbox273 = gtk_vbox_new (FALSE, 0);
@@ -26699,22 +26443,22 @@ create_display_additional_representations_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (display_add_rep_mol_n_frame), label627);
   gtk_label_set_use_markup (GTK_LABEL (label627), TRUE);
 
-  dialog_action_area111 = GTK_DIALOG (display_additional_representations_dialog)->action_area;
+  dialog_action_area111 = gtk_dialog_get_content_area( display_additional_representations_dialog );
   gtk_widget_show (dialog_action_area111);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area111), GTK_BUTTONBOX_END);
 
   display_additional_representations_close_button = gtk_button_new_with_mnemonic ("  Close  ");
   gtk_widget_show (display_additional_representations_close_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (display_additional_representations_dialog), display_additional_representations_close_button, 0);
-  GTK_WIDGET_SET_FLAGS (display_additional_representations_close_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (display_additional_representations_close_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) display_additional_representations_close_button, "clicked",
                     G_CALLBACK (on_display_additional_representations_close_button_clicked),
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (display_additional_representations_dialog, display_additional_representations_dialog, "display_additional_representations_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (display_additional_representations_dialog, dialog_vbox112, "dialog_vbox112");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(display_additional_representations_dialog, display_additional_representations_dialog, "display_additional_representations_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(display_additional_representations_dialog, dialog_vbox112, "dialog_vbox112");
   GLADE_HOOKUP_OBJECT (display_additional_representations_dialog, vbox273, "vbox273");
   GLADE_HOOKUP_OBJECT (display_additional_representations_dialog, label626, "label626");
   GLADE_HOOKUP_OBJECT (display_additional_representations_dialog, scrolledwindow28, "scrolledwindow28");
@@ -26726,7 +26470,7 @@ create_display_additional_representations_dialog (void)
   GLADE_HOOKUP_OBJECT (display_additional_representations_dialog, checkbutton10, "checkbutton10");
   GLADE_HOOKUP_OBJECT (display_additional_representations_dialog, checkbutton11, "checkbutton11");
   GLADE_HOOKUP_OBJECT (display_additional_representations_dialog, label627, "label627");
-  GLADE_HOOKUP_OBJECT_NO_REF (display_additional_representations_dialog, dialog_action_area111, "dialog_action_area111");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(display_additional_representations_dialog, dialog_action_area111, "dialog_action_area111");
   GLADE_HOOKUP_OBJECT (display_additional_representations_dialog, display_additional_representations_close_button, "display_additional_representations_close_button");
 
   return display_additional_representations_dialog;
@@ -26793,7 +26537,7 @@ create_restraints_editor_dialog (void)
   gtk_window_set_title (GTK_WINDOW (restraints_editor_dialog), "Restraints Editor");
   gtk_window_set_type_hint (GTK_WINDOW (restraints_editor_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox1 = GTK_DIALOG (restraints_editor_dialog)->vbox;
+  dialog_vbox1 = gtk_dialog_get_content_area( restraints_editor_dialog );
   gtk_widget_show (dialog_vbox1);
 
   vbox1 = gtk_vbox_new (FALSE, 0);
@@ -26939,14 +26683,14 @@ create_restraints_editor_dialog (void)
   gtk_widget_show (label28);
   gtk_box_pack_start (GTK_BOX (hbox2), label28, FALSE, FALSE, 0);
 
-  dialog_action_area1 = GTK_DIALOG (restraints_editor_dialog)->action_area;
+  dialog_action_area1 = gtk_dialog_get_content_area( restraints_editor_dialog );
   gtk_widget_show (dialog_action_area1);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area1), GTK_BUTTONBOX_END);
 
   restraints_editor_close_button = gtk_button_new ();
   gtk_widget_show (restraints_editor_close_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (restraints_editor_dialog), restraints_editor_close_button, 0);
-  GTK_WIDGET_SET_FLAGS (restraints_editor_close_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (restraints_editor_close_button, GTK_CAN_DEFAULT);
 
   alignment3 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment3);
@@ -26967,7 +26711,7 @@ create_restraints_editor_dialog (void)
   restraints_editor_save_button = gtk_button_new ();
   gtk_widget_show (restraints_editor_save_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (restraints_editor_dialog), restraints_editor_save_button, 0);
-  GTK_WIDGET_SET_FLAGS (restraints_editor_save_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (restraints_editor_save_button, GTK_CAN_DEFAULT);
 
   alignment123 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment123);
@@ -26988,7 +26732,7 @@ create_restraints_editor_dialog (void)
   restraints_editor_apply_button = gtk_button_new ();
   gtk_widget_show (restraints_editor_apply_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (restraints_editor_dialog), restraints_editor_apply_button, 0);
-  GTK_WIDGET_SET_FLAGS (restraints_editor_apply_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (restraints_editor_apply_button, GTK_CAN_DEFAULT);
 
   alignment124 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment124);
@@ -27023,8 +26767,8 @@ create_restraints_editor_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (restraints_editor_dialog, restraints_editor_dialog, "restraints_editor_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (restraints_editor_dialog, dialog_vbox1, "dialog_vbox1");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(restraints_editor_dialog, restraints_editor_dialog, "restraints_editor_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(restraints_editor_dialog, dialog_vbox1, "dialog_vbox1");
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, vbox1, "vbox1");
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, restraints_editor_notebook, "restraints_editor_notebook");
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, scrolledwindow4, "scrolledwindow4");
@@ -27059,7 +26803,7 @@ create_restraints_editor_dialog (void)
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, hbox2, "hbox2");
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, image1, "image1");
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, label28, "label28");
-  GLADE_HOOKUP_OBJECT_NO_REF (restraints_editor_dialog, dialog_action_area1, "dialog_action_area1");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(restraints_editor_dialog, dialog_action_area1, "dialog_action_area1");
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, restraints_editor_close_button, "restraints_editor_close_button");
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, alignment3, "alignment3");
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, hbox4, "hbox4");
@@ -27104,7 +26848,7 @@ create_residue_editor_select_monomer_type_dialog (void)
   gtk_window_set_title (GTK_WINDOW (residue_editor_select_monomer_type_dialog), "Choose Monomer Type");
   gtk_window_set_type_hint (GTK_WINDOW (residue_editor_select_monomer_type_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox113 = GTK_DIALOG (residue_editor_select_monomer_type_dialog)->vbox;
+  dialog_vbox113 = gtk_dialog_get_content_area( residue_editor_select_monomer_type_dialog );
   gtk_widget_show (dialog_vbox113);
 
   vbox276 = gtk_vbox_new (FALSE, 0);
@@ -27127,14 +26871,14 @@ create_residue_editor_select_monomer_type_dialog (void)
   gtk_widget_show (label634);
   gtk_box_pack_start (GTK_BOX (vbox276), label634, FALSE, FALSE, 0);
 
-  dialog_action_area112 = GTK_DIALOG (residue_editor_select_monomer_type_dialog)->action_area;
+  dialog_action_area112 = gtk_dialog_get_content_area( residue_editor_select_monomer_type_dialog );
   gtk_widget_show (dialog_action_area112);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area112), GTK_BUTTONBOX_END);
 
   residue_editor_select_monomer_type_ok_button = gtk_button_new ();
   gtk_widget_show (residue_editor_select_monomer_type_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (residue_editor_select_monomer_type_dialog), residue_editor_select_monomer_type_ok_button, 0);
-  GTK_WIDGET_SET_FLAGS (residue_editor_select_monomer_type_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (residue_editor_select_monomer_type_ok_button, GTK_CAN_DEFAULT);
 
   alignment121 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment121);
@@ -27155,7 +26899,7 @@ create_residue_editor_select_monomer_type_dialog (void)
   residue_editor_select_monomer_type_cancel_button = gtk_button_new ();
   gtk_widget_show (residue_editor_select_monomer_type_cancel_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (residue_editor_select_monomer_type_dialog), residue_editor_select_monomer_type_cancel_button, 0);
-  GTK_WIDGET_SET_FLAGS (residue_editor_select_monomer_type_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (residue_editor_select_monomer_type_cancel_button, GTK_CAN_DEFAULT);
 
   alignment122 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment122);
@@ -27181,13 +26925,13 @@ create_residue_editor_select_monomer_type_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (residue_editor_select_monomer_type_dialog, residue_editor_select_monomer_type_dialog, "residue_editor_select_monomer_type_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (residue_editor_select_monomer_type_dialog, dialog_vbox113, "dialog_vbox113");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(residue_editor_select_monomer_type_dialog, residue_editor_select_monomer_type_dialog, "residue_editor_select_monomer_type_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(residue_editor_select_monomer_type_dialog, dialog_vbox113, "dialog_vbox113");
   GLADE_HOOKUP_OBJECT (residue_editor_select_monomer_type_dialog, vbox276, "vbox276");
   GLADE_HOOKUP_OBJECT (residue_editor_select_monomer_type_dialog, label633, "label633");
   GLADE_HOOKUP_OBJECT (residue_editor_select_monomer_type_dialog, residue_editor_select_monomer_type_combobox, "residue_editor_select_monomer_type_combobox");
   GLADE_HOOKUP_OBJECT (residue_editor_select_monomer_type_dialog, label634, "label634");
-  GLADE_HOOKUP_OBJECT_NO_REF (residue_editor_select_monomer_type_dialog, dialog_action_area112, "dialog_action_area112");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(residue_editor_select_monomer_type_dialog, dialog_action_area112, "dialog_action_area112");
   GLADE_HOOKUP_OBJECT (residue_editor_select_monomer_type_dialog, residue_editor_select_monomer_type_ok_button, "residue_editor_select_monomer_type_ok_button");
   GLADE_HOOKUP_OBJECT (residue_editor_select_monomer_type_dialog, alignment121, "alignment121");
   GLADE_HOOKUP_OBJECT (residue_editor_select_monomer_type_dialog, hbox337, "hbox337");
@@ -27220,22 +26964,22 @@ create_save_restraint_chooserdialog (void)
   gtk_window_set_role (GTK_WINDOW (save_restraint_chooserdialog), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (save_restraint_chooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox114 = GTK_DIALOG (save_restraint_chooserdialog)->vbox;
+  dialog_vbox114 = gtk_dialog_get_content_area( save_restraint_chooserdialog );
   gtk_widget_show (dialog_vbox114);
 
-  dialog_action_area113 = GTK_DIALOG (save_restraint_chooserdialog)->action_area;
+  dialog_action_area113 = gtk_dialog_get_content_area( save_restraint_chooserdialog );
   gtk_widget_show (dialog_action_area113);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area113), GTK_BUTTONBOX_END);
 
   button27 = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (button27);
   gtk_dialog_add_action_widget (GTK_DIALOG (save_restraint_chooserdialog), button27, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (button27, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button27, GTK_CAN_DEFAULT);
 
   button28 = gtk_button_new_from_stock ("gtk-save");
   gtk_widget_show (button28);
   gtk_dialog_add_action_widget (GTK_DIALOG (save_restraint_chooserdialog), button28, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (button28, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button28, GTK_CAN_DEFAULT);
 
 #if (GTK_MINOR_VERSION > 9)
   g_signal_connect ((gpointer) save_restraint_chooserdialog, "confirm_overwrite",
@@ -27251,9 +26995,9 @@ create_save_restraint_chooserdialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (save_restraint_chooserdialog, save_restraint_chooserdialog, "save_restraint_chooserdialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (save_restraint_chooserdialog, dialog_vbox114, "dialog_vbox114");
-  GLADE_HOOKUP_OBJECT_NO_REF (save_restraint_chooserdialog, dialog_action_area113, "dialog_action_area113");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_restraint_chooserdialog, save_restraint_chooserdialog, "save_restraint_chooserdialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_restraint_chooserdialog, dialog_vbox114, "dialog_vbox114");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_restraint_chooserdialog, dialog_action_area113, "dialog_action_area113");
   GLADE_HOOKUP_OBJECT (save_restraint_chooserdialog, button27, "button27");
   GLADE_HOOKUP_OBJECT (save_restraint_chooserdialog, button28, "button28");
 
@@ -27274,7 +27018,7 @@ create_run_refmac_nolabels_help_dialog (void)
   gtk_window_set_title (GTK_WINDOW (run_refmac_nolabels_help_dialog), "Help on Running Refmac without setting labels:");
   gtk_window_set_type_hint (GTK_WINDOW (run_refmac_nolabels_help_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  vbox277 = GTK_DIALOG (run_refmac_nolabels_help_dialog)->vbox;
+  vbox277 = gtk_dialog_get_content_area( run_refmac_nolabels_help_dialog );
   gtk_widget_show (vbox277);
 
   label639 = gtk_label_new ("\n\nPlease specify the column labels to be used in Refmac.\nOtherwise Coot will use the first ones or previously\n assigned ones (if they exist).\n\nIf no labels are specified below you may have an mtz file\nwith no Fobs and associated Sig Fobs. Please check!\n\nIf you have a recent version of Refmac (>5.3) you can\nlet Refmac decide on the labels. To use this option:\ntick the box below.\n");
@@ -27284,7 +27028,7 @@ create_run_refmac_nolabels_help_dialog (void)
   gtk_misc_set_alignment (GTK_MISC (label639), 0, 0);
   gtk_misc_set_padding (GTK_MISC (label639), 6, 5);
 
-  hbuttonbox6 = GTK_DIALOG (run_refmac_nolabels_help_dialog)->action_area;
+  hbuttonbox6 = gtk_dialog_get_content_area( run_refmac_nolabels_help_dialog );
   gtk_widget_show (hbuttonbox6);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox6), GTK_BUTTONBOX_END);
 
@@ -27297,10 +27041,10 @@ create_run_refmac_nolabels_help_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_nolabels_help_dialog, run_refmac_nolabels_help_dialog, "run_refmac_nolabels_help_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_nolabels_help_dialog, vbox277, "vbox277");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_nolabels_help_dialog, run_refmac_nolabels_help_dialog, "run_refmac_nolabels_help_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_nolabels_help_dialog, vbox277, "vbox277");
   GLADE_HOOKUP_OBJECT (run_refmac_nolabels_help_dialog, label639, "label639");
-  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_nolabels_help_dialog, hbuttonbox6, "hbuttonbox6");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_nolabels_help_dialog, hbuttonbox6, "hbuttonbox6");
   GLADE_HOOKUP_OBJECT (run_refmac_nolabels_help_dialog, run_refmac_nolabels_help_dialog_ok_button, "run_refmac_nolabels_help_dialog_ok_button");
 
   return run_refmac_nolabels_help_dialog;
@@ -27342,7 +27086,7 @@ create_coot_references_dialog (void)
   gtk_window_set_title (GTK_WINDOW (coot_references_dialog), "References");
   gtk_window_set_type_hint (GTK_WINDOW (coot_references_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox115 = GTK_DIALOG (coot_references_dialog)->vbox;
+  dialog_vbox115 = gtk_dialog_get_content_area( coot_references_dialog );
   gtk_widget_show (dialog_vbox115);
 
   hbox348 = gtk_hbox_new (FALSE, 0);
@@ -27353,7 +27097,7 @@ create_coot_references_dialog (void)
   gtk_widget_show (toolbar2);
   gtk_box_pack_start (GTK_BOX (hbox348), toolbar2, FALSE, FALSE, 4);
   gtk_toolbar_set_style (GTK_TOOLBAR (toolbar2), GTK_TOOLBAR_TEXT);
-  gtk_toolbar_set_orientation (GTK_TOOLBAR (toolbar2), GTK_ORIENTATION_VERTICAL);
+  gtk_orientable_set_orientation (GTK_ORIENTABLE (toolbar2), GTK_ORIENTATION_VERTICAL);
   tmp_toolbar_icon_size = gtk_toolbar_get_icon_size (GTK_TOOLBAR (toolbar2));
 
   tmp_image = create_pixmap (coot_references_dialog, "coot-icon.png");
@@ -27439,14 +27183,14 @@ create_coot_references_dialog (void)
   gtk_widget_show (label652);
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (coot_references_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (coot_references_notebook), 1), label652);
 
-  dialog_action_area114 = GTK_DIALOG (coot_references_dialog)->action_area;
+  dialog_action_area114 = gtk_dialog_get_content_area( coot_references_dialog );
   gtk_widget_show (dialog_action_area114);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area114), GTK_BUTTONBOX_END);
 
   coot_references_closebutton = gtk_button_new_from_stock ("gtk-close");
   gtk_widget_show (coot_references_closebutton);
   gtk_dialog_add_action_widget (GTK_DIALOG (coot_references_dialog), coot_references_closebutton, GTK_RESPONSE_CLOSE);
-  GTK_WIDGET_SET_FLAGS (coot_references_closebutton, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (coot_references_closebutton, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) coot_references_coot_toolbutton, "clicked",
                     G_CALLBACK (on_coot_references_coot_toolbutton_clicked),
@@ -27489,8 +27233,8 @@ create_coot_references_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (coot_references_dialog, coot_references_dialog, "coot_references_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (coot_references_dialog, dialog_vbox115, "dialog_vbox115");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(coot_references_dialog, coot_references_dialog, "coot_references_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(coot_references_dialog, dialog_vbox115, "dialog_vbox115");
   GLADE_HOOKUP_OBJECT (coot_references_dialog, hbox348, "hbox348");
   GLADE_HOOKUP_OBJECT (coot_references_dialog, toolbar2, "toolbar2");
   GLADE_HOOKUP_OBJECT (coot_references_dialog, coot_references_coot_toolbutton, "coot_references_coot_toolbutton");
@@ -27512,7 +27256,7 @@ create_coot_references_dialog (void)
   GLADE_HOOKUP_OBJECT (coot_references_dialog, scrolledwindow30, "scrolledwindow30");
   GLADE_HOOKUP_OBJECT (coot_references_dialog, coot_bibtext_textview, "coot_bibtext_textview");
   GLADE_HOOKUP_OBJECT (coot_references_dialog, label652, "label652");
-  GLADE_HOOKUP_OBJECT_NO_REF (coot_references_dialog, dialog_action_area114, "dialog_action_area114");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(coot_references_dialog, dialog_action_area114, "dialog_action_area114");
   GLADE_HOOKUP_OBJECT (coot_references_dialog, coot_references_closebutton, "coot_references_closebutton");
 
   return coot_references_dialog;
@@ -27531,7 +27275,7 @@ create_run_refmac_file_help_dialog (void)
   gtk_window_set_title (GTK_WINDOW (run_refmac_file_help_dialog), "Help on running refmac with mtz file (twinned 'crystals')");
   gtk_window_set_type_hint (GTK_WINDOW (run_refmac_file_help_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox116 = GTK_DIALOG (run_refmac_file_help_dialog)->vbox;
+  dialog_vbox116 = gtk_dialog_get_content_area( run_refmac_file_help_dialog );
   gtk_widget_show (dialog_vbox116);
 
   label654 = gtk_label_new ("\n\nYou shall always run refmac with structure factors from your initial mtz file.\n\nThis is absolutely necessary if you run refmac with twinned data you shall input\n your original mtz file for calculations. The mtz file to calculate your maps\ndoes not contain the relevant information. So please upload your original mtz file.\n\n");
@@ -27541,24 +27285,24 @@ create_run_refmac_file_help_dialog (void)
   gtk_misc_set_alignment (GTK_MISC (label654), 0, 0);
   gtk_misc_set_padding (GTK_MISC (label654), 6, 5);
 
-  dialog_action_area115 = GTK_DIALOG (run_refmac_file_help_dialog)->action_area;
+  dialog_action_area115 = gtk_dialog_get_content_area( run_refmac_file_help_dialog );
   gtk_widget_show (dialog_action_area115);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area115), GTK_BUTTONBOX_END);
 
   run_refmac_file_help_dialog_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (run_refmac_file_help_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (run_refmac_file_help_dialog), run_refmac_file_help_dialog_ok_button, 0);
-  GTK_WIDGET_SET_FLAGS (run_refmac_file_help_dialog_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (run_refmac_file_help_dialog_ok_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) run_refmac_file_help_dialog_ok_button, "clicked",
                     G_CALLBACK (on_run_refmac_file_help_dialog_ok_button_clicked),
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_file_help_dialog, run_refmac_file_help_dialog, "run_refmac_file_help_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_file_help_dialog, dialog_vbox116, "dialog_vbox116");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_file_help_dialog, run_refmac_file_help_dialog, "run_refmac_file_help_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_file_help_dialog, dialog_vbox116, "dialog_vbox116");
   GLADE_HOOKUP_OBJECT (run_refmac_file_help_dialog, label654, "label654");
-  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_file_help_dialog, dialog_action_area115, "dialog_action_area115");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_file_help_dialog, dialog_action_area115, "dialog_action_area115");
   GLADE_HOOKUP_OBJECT (run_refmac_file_help_dialog, run_refmac_file_help_dialog_ok_button, "run_refmac_file_help_dialog_ok_button");
 
   return run_refmac_file_help_dialog;
@@ -27577,7 +27321,7 @@ create_run_refmac_sad_help_dialog (void)
   gtk_window_set_title (GTK_WINDOW (run_refmac_sad_help_dialog), "Help on running refmac with SAD option");
   gtk_window_set_type_hint (GTK_WINDOW (run_refmac_sad_help_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox117 = GTK_DIALOG (run_refmac_sad_help_dialog)->vbox;
+  dialog_vbox117 = gtk_dialog_get_content_area( run_refmac_sad_help_dialog );
   gtk_widget_show (dialog_vbox117);
 
   label661 = gtk_label_new ("\n\nYou should specify an anomalous atom name.\n\nAdditionally you can give f' and f'' or the\nanomalous wavelength. If there is a\nwavelength specified in the used mtz file\nthis can be used instead of the above to\ncalculate f' and f''.\n\nTo add more anomalous atoms use the\nscripting function add_refmac_sad_atom_fp or \nadd_refmac_sad_atom_lambda.\n\n");
@@ -27585,24 +27329,24 @@ create_run_refmac_sad_help_dialog (void)
   gtk_box_pack_start (GTK_BOX (dialog_vbox117), label661, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label661), GTK_JUSTIFY_CENTER);
 
-  dialog_action_area116 = GTK_DIALOG (run_refmac_sad_help_dialog)->action_area;
+  dialog_action_area116 = gtk_dialog_get_content_area( run_refmac_sad_help_dialog );
   gtk_widget_show (dialog_action_area116);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area116), GTK_BUTTONBOX_END);
 
   run_refmac_sad_help_dialog_ok_button = gtk_button_new_with_mnemonic ("  OK  ");
   gtk_widget_show (run_refmac_sad_help_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (run_refmac_sad_help_dialog), run_refmac_sad_help_dialog_ok_button, 0);
-  GTK_WIDGET_SET_FLAGS (run_refmac_sad_help_dialog_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (run_refmac_sad_help_dialog_ok_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) run_refmac_sad_help_dialog_ok_button, "clicked",
                     G_CALLBACK (on_run_refmac_sad_help_dialog_ok_button_clicked),
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_sad_help_dialog, run_refmac_sad_help_dialog, "run_refmac_sad_help_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_sad_help_dialog, dialog_vbox117, "dialog_vbox117");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_sad_help_dialog, run_refmac_sad_help_dialog, "run_refmac_sad_help_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_sad_help_dialog, dialog_vbox117, "dialog_vbox117");
   GLADE_HOOKUP_OBJECT (run_refmac_sad_help_dialog, label661, "label661");
-  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_sad_help_dialog, dialog_action_area116, "dialog_action_area116");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_sad_help_dialog, dialog_action_area116, "dialog_action_area116");
   GLADE_HOOKUP_OBJECT (run_refmac_sad_help_dialog, run_refmac_sad_help_dialog_ok_button, "run_refmac_sad_help_dialog_ok_button");
 
   return run_refmac_sad_help_dialog;
@@ -27626,22 +27370,22 @@ create_run_refmac_mtz_filechooserdialog (void)
   gtk_window_set_role (GTK_WINDOW (run_refmac_mtz_filechooserdialog), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (run_refmac_mtz_filechooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox118 = GTK_DIALOG (run_refmac_mtz_filechooserdialog)->vbox;
+  dialog_vbox118 = gtk_dialog_get_content_area( run_refmac_mtz_filechooserdialog );
   gtk_widget_show (dialog_vbox118);
 
-  dialog_action_area117 = GTK_DIALOG (run_refmac_mtz_filechooserdialog)->action_area;
+  dialog_action_area117 = gtk_dialog_get_content_area( run_refmac_mtz_filechooserdialog );
   gtk_widget_show (dialog_action_area117);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area117), GTK_BUTTONBOX_END);
 
   button30 = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (button30);
   gtk_dialog_add_action_widget (GTK_DIALOG (run_refmac_mtz_filechooserdialog), button30, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (button30, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button30, GTK_CAN_DEFAULT);
 
   button31 = gtk_button_new_from_stock ("gtk-open");
   gtk_widget_show (button31);
   gtk_dialog_add_action_widget (GTK_DIALOG (run_refmac_mtz_filechooserdialog), button31, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (button31, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button31, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) run_refmac_mtz_filechooserdialog, "response",
                     G_CALLBACK (on_run_refmac_mtz_filechooserdialog_response),
@@ -27651,9 +27395,9 @@ create_run_refmac_mtz_filechooserdialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_mtz_filechooserdialog, run_refmac_mtz_filechooserdialog, "run_refmac_mtz_filechooserdialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_mtz_filechooserdialog, dialog_vbox118, "dialog_vbox118");
-  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_mtz_filechooserdialog, dialog_action_area117, "dialog_action_area117");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_mtz_filechooserdialog, run_refmac_mtz_filechooserdialog, "run_refmac_mtz_filechooserdialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_mtz_filechooserdialog, dialog_vbox118, "dialog_vbox118");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_mtz_filechooserdialog, dialog_action_area117, "dialog_action_area117");
   GLADE_HOOKUP_OBJECT (run_refmac_mtz_filechooserdialog, button30, "button30");
   GLADE_HOOKUP_OBJECT (run_refmac_mtz_filechooserdialog, button31, "button31");
 
@@ -27696,7 +27440,7 @@ create_fast_ss_search_dialog (void)
   gtk_window_set_title (GTK_WINDOW (fast_ss_search_dialog), "Fast Secondary Structure Search");
   gtk_window_set_type_hint (GTK_WINDOW (fast_ss_search_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox120 = GTK_DIALOG (fast_ss_search_dialog)->vbox;
+  dialog_vbox120 = gtk_dialog_get_content_area( fast_ss_search_dialog );
   gtk_widget_show (dialog_vbox120);
 
   vbox301 = gtk_vbox_new (FALSE, 0);
@@ -27793,14 +27537,14 @@ create_fast_ss_search_dialog (void)
   gtk_widget_show (label713);
   gtk_box_pack_start (GTK_BOX (hbox389), label713, FALSE, FALSE, 0);
 
-  dialog_action_area119 = GTK_DIALOG (fast_ss_search_dialog)->action_area;
+  dialog_action_area119 = gtk_dialog_get_content_area( fast_ss_search_dialog );
   gtk_widget_show (dialog_action_area119);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area119), GTK_BUTTONBOX_END);
 
   fast_sss_dialog_citation_button = gtk_button_new ();
   gtk_widget_show (fast_sss_dialog_citation_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (fast_ss_search_dialog), fast_sss_dialog_citation_button, 0);
-  GTK_WIDGET_SET_FLAGS (fast_sss_dialog_citation_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (fast_sss_dialog_citation_button, GTK_CAN_DEFAULT);
 
   alignment134 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment134);
@@ -27821,12 +27565,12 @@ create_fast_ss_search_dialog (void)
   fast_sss_dialog_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (fast_sss_dialog_cancel_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (fast_ss_search_dialog), fast_sss_dialog_cancel_button, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (fast_sss_dialog_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (fast_sss_dialog_cancel_button, GTK_CAN_DEFAULT);
 
   fast_sss_dialog_ok_button = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (fast_sss_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (fast_ss_search_dialog), fast_sss_dialog_ok_button, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (fast_sss_dialog_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (fast_sss_dialog_ok_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) fast_sss_dialog_citation_button, "clicked",
                     G_CALLBACK (on_fast_sss_dialog_citation_button_clicked),
@@ -27839,8 +27583,8 @@ create_fast_ss_search_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (fast_ss_search_dialog, fast_ss_search_dialog, "fast_ss_search_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (fast_ss_search_dialog, dialog_vbox120, "dialog_vbox120");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(fast_ss_search_dialog, fast_ss_search_dialog, "fast_ss_search_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(fast_ss_search_dialog, dialog_vbox120, "dialog_vbox120");
   GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, vbox301, "vbox301");
   GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, hbox387, "hbox387");
   GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, fast_sss_dialog_helix_checkbutton, "fast_sss_dialog_helix_checkbutton");
@@ -27858,7 +27602,7 @@ create_fast_ss_search_dialog (void)
   GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, fast_sss_dialog_local_checkbutton, "fast_sss_dialog_local_checkbutton");
   GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, fast_sss_dialog_radius_combobox, "fast_sss_dialog_radius_combobox");
   GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, label713, "label713");
-  GLADE_HOOKUP_OBJECT_NO_REF (fast_ss_search_dialog, dialog_action_area119, "dialog_action_area119");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(fast_ss_search_dialog, dialog_action_area119, "dialog_action_area119");
   GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, fast_sss_dialog_citation_button, "fast_sss_dialog_citation_button");
   GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, alignment134, "alignment134");
   GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, hbox396, "hbox396");
@@ -27877,7 +27621,6 @@ create_map_sharpening_dialog (void)
   GtkWidget *dialog_vbox121;
   GtkWidget *vbox302;
   GtkWidget *label728;
-  GtkWidget *map_sharpening_optionmenu;
   GtkWidget *map_sharpending_combobox;
   GtkWidget *alignment141;
   GtkWidget *map_sharpening_hscale;
@@ -27903,16 +27646,16 @@ create_map_sharpening_dialog (void)
   GtkWidget *hbox403;
   GtkWidget *image6894;
   GtkWidget *label730;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   map_sharpening_dialog = gtk_dialog_new ();
   gtk_widget_set_size_request (map_sharpening_dialog, 385, -1);
   gtk_window_set_title (GTK_WINDOW (map_sharpening_dialog), "Map Sharpening/Blurring...");
   gtk_window_set_type_hint (GTK_WINDOW (map_sharpening_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox121 = GTK_DIALOG (map_sharpening_dialog)->vbox;
+  dialog_vbox121 = gtk_dialog_get_content_area( map_sharpening_dialog );
   gtk_widget_show (dialog_vbox121);
 
   vbox302 = gtk_vbox_new (FALSE, 0);
@@ -27922,10 +27665,6 @@ create_map_sharpening_dialog (void)
   label728 = gtk_label_new ("\nMap to Sharpen/Blur:\n");
   gtk_widget_show (label728);
   gtk_box_pack_start (GTK_BOX (vbox302), label728, FALSE, FALSE, 0);
-
-  map_sharpening_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (map_sharpening_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox302), map_sharpening_optionmenu, FALSE, FALSE, 0);
 
   map_sharpending_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (map_sharpending_combobox);
@@ -27948,8 +27687,8 @@ create_map_sharpening_dialog (void)
   map_sharpening_optimize_button = gtk_button_new ();
   gtk_widget_show (map_sharpening_optimize_button);
   gtk_container_add (GTK_CONTAINER (hbuttonbox7), map_sharpening_optimize_button);
-  GTK_WIDGET_SET_FLAGS (map_sharpening_optimize_button, GTK_CAN_DEFAULT);
-  gtk_tooltips_set_tip (tooltips, map_sharpening_optimize_button, "Optimize the sharpening B-factor based on map kurtosis.", NULL);
+  // GTK_WIDGET_SET_FLAGS (map_sharpening_optimize_button, GTK_CAN_DEFAULT);
+  // gtk_tooltips_set_tip (tooltips, map_sharpening_optimize_button, "Optimize the sharpening B-factor based on map kurtosis.", NULL);
 
   alignment161 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment161);
@@ -27970,8 +27709,8 @@ create_map_sharpening_dialog (void)
   map_sharpening_reset_button = gtk_button_new ();
   gtk_widget_show (map_sharpening_reset_button);
   gtk_container_add (GTK_CONTAINER (hbuttonbox7), map_sharpening_reset_button);
-  GTK_WIDGET_SET_FLAGS (map_sharpening_reset_button, GTK_CAN_DEFAULT);
-  gtk_tooltips_set_tip (tooltips, map_sharpening_reset_button, "Set back to zero.", NULL);
+  // GTK_WIDGET_SET_FLAGS (map_sharpening_reset_button, GTK_CAN_DEFAULT);
+  // gtk_tooltips_set_tip (tooltips, map_sharpening_reset_button, "Set back to zero.", NULL);
 
   alignment162 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment162);
@@ -27989,14 +27728,14 @@ create_map_sharpening_dialog (void)
   gtk_widget_show (label789);
   gtk_box_pack_start (GTK_BOX (hbox436), label789, FALSE, FALSE, 0);
 
-  dialog_action_area120 = GTK_DIALOG (map_sharpening_dialog)->action_area;
+  dialog_action_area120 = gtk_dialog_get_content_area( map_sharpening_dialog );
   gtk_widget_show (dialog_action_area120);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area120), GTK_BUTTONBOX_END);
 
   map_sharpening_ok_button = gtk_button_new ();
   gtk_widget_show (map_sharpening_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (map_sharpening_dialog), map_sharpening_ok_button, 0);
-  GTK_WIDGET_SET_FLAGS (map_sharpening_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (map_sharpening_ok_button, GTK_CAN_DEFAULT);
 
   alignment139 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment139);
@@ -28017,7 +27756,7 @@ create_map_sharpening_dialog (void)
   map_sharpening_cancel_button = gtk_button_new ();
   gtk_widget_show (map_sharpening_cancel_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (map_sharpening_dialog), map_sharpening_cancel_button, 0);
-  GTK_WIDGET_SET_FLAGS (map_sharpening_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (map_sharpening_cancel_button, GTK_CAN_DEFAULT);
 
   alignment140 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment140);
@@ -28049,11 +27788,10 @@ create_map_sharpening_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (map_sharpening_dialog, map_sharpening_dialog, "map_sharpening_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (map_sharpening_dialog, dialog_vbox121, "dialog_vbox121");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(map_sharpening_dialog, map_sharpening_dialog, "map_sharpening_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(map_sharpening_dialog, dialog_vbox121, "dialog_vbox121");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, vbox302, "vbox302");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, label728, "label728");
-  GLADE_HOOKUP_OBJECT (map_sharpening_dialog, map_sharpening_optionmenu, "map_sharpening_optionmenu");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, map_sharpending_combobox, "map_sharpending_combobox");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, alignment141, "alignment141");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, map_sharpening_hscale, "map_sharpening_hscale");
@@ -28068,7 +27806,7 @@ create_map_sharpening_dialog (void)
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, hbox436, "hbox436");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, image10853, "image10853");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, label789, "label789");
-  GLADE_HOOKUP_OBJECT_NO_REF (map_sharpening_dialog, dialog_action_area120, "dialog_action_area120");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(map_sharpening_dialog, dialog_action_area120, "dialog_action_area120");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, map_sharpening_ok_button, "map_sharpening_ok_button");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, alignment139, "alignment139");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, hbox402, "hbox402");
@@ -28079,7 +27817,7 @@ create_map_sharpening_dialog (void)
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, hbox403, "hbox403");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, image6894, "image6894");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, label730, "label730");
-  GLADE_HOOKUP_OBJECT_NO_REF (map_sharpening_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(map_sharpening_dialog, tooltips, "tooltips");
 
   return map_sharpening_dialog;
 }
@@ -28100,15 +27838,15 @@ create_baton_build_params_dialog (void)
   GtkWidget *dialog_action_area121;
   GtkWidget *baton_build_params_ok_button;
   GtkWidget *baton_build_params_cancel_button;
-  GtkTooltips *tooltips;
+  // GtkTooltips *tooltips;
 
-  tooltips = gtk_tooltips_new ();
+  // tooltips = gtk_tooltips_new ();
 
   baton_build_params_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (baton_build_params_dialog), "Baton-Build Parameters");
   gtk_window_set_type_hint (GTK_WINDOW (baton_build_params_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox122 = GTK_DIALOG (baton_build_params_dialog)->vbox;
+  dialog_vbox122 = gtk_dialog_get_content_area( baton_build_params_dialog );
   gtk_widget_show (dialog_vbox122);
 
   vbox304 = gtk_vbox_new (FALSE, 0);
@@ -28150,21 +27888,21 @@ create_baton_build_params_dialog (void)
   gtk_widget_show (baton_build_params_backwards_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox304), baton_build_params_backwards_checkbutton, FALSE, FALSE, 4);
   gtk_container_set_border_width (GTK_CONTAINER (baton_build_params_backwards_checkbutton), 2);
-  gtk_tooltips_set_tip (tooltips, baton_build_params_backwards_checkbutton, "i.e. the residue number of the newly added residues decrease as the new residues get added", NULL);
+  // gtk_tooltips_set_tip (tooltips, baton_build_params_backwards_checkbutton, "i.e. the residue number of the newly added residues decrease as the new residues get added", NULL);
 
-  dialog_action_area121 = GTK_DIALOG (baton_build_params_dialog)->action_area;
+  dialog_action_area121 = gtk_dialog_get_content_area( baton_build_params_dialog );
   gtk_widget_show (dialog_action_area121);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area121), GTK_BUTTONBOX_END);
 
   baton_build_params_ok_button = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (baton_build_params_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (baton_build_params_dialog), baton_build_params_ok_button, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (baton_build_params_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (baton_build_params_ok_button, GTK_CAN_DEFAULT);
 
   baton_build_params_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (baton_build_params_cancel_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (baton_build_params_dialog), baton_build_params_cancel_button, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (baton_build_params_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (baton_build_params_cancel_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) baton_build_params_ok_button, "clicked",
                     G_CALLBACK (on_baton_build_params_ok_button_clicked),
@@ -28174,8 +27912,8 @@ create_baton_build_params_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (baton_build_params_dialog, baton_build_params_dialog, "baton_build_params_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (baton_build_params_dialog, dialog_vbox122, "dialog_vbox122");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_build_params_dialog, baton_build_params_dialog, "baton_build_params_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_build_params_dialog, dialog_vbox122, "dialog_vbox122");
   GLADE_HOOKUP_OBJECT (baton_build_params_dialog, vbox304, "vbox304");
   GLADE_HOOKUP_OBJECT (baton_build_params_dialog, hbox405, "hbox405");
   GLADE_HOOKUP_OBJECT (baton_build_params_dialog, label735, "label735");
@@ -28184,10 +27922,10 @@ create_baton_build_params_dialog (void)
   GLADE_HOOKUP_OBJECT (baton_build_params_dialog, label736, "label736");
   GLADE_HOOKUP_OBJECT (baton_build_params_dialog, baton_build_params_chain_id_entry, "baton_build_params_chain_id_entry");
   GLADE_HOOKUP_OBJECT (baton_build_params_dialog, baton_build_params_backwards_checkbutton, "baton_build_params_backwards_checkbutton");
-  GLADE_HOOKUP_OBJECT_NO_REF (baton_build_params_dialog, dialog_action_area121, "dialog_action_area121");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_build_params_dialog, dialog_action_area121, "dialog_action_area121");
   GLADE_HOOKUP_OBJECT (baton_build_params_dialog, baton_build_params_ok_button, "baton_build_params_ok_button");
   GLADE_HOOKUP_OBJECT (baton_build_params_dialog, baton_build_params_cancel_button, "baton_build_params_cancel_button");
-  GLADE_HOOKUP_OBJECT_NO_REF (baton_build_params_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_build_params_dialog, tooltips, "tooltips");
 
   return baton_build_params_dialog;
 }
@@ -28208,7 +27946,7 @@ create_pisa_interfaces_dialog (void)
   gtk_window_set_title (GTK_WINDOW (pisa_interfaces_dialog), "PISA interfaces");
   gtk_window_set_type_hint (GTK_WINDOW (pisa_interfaces_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox123 = GTK_DIALOG (pisa_interfaces_dialog)->vbox;
+  dialog_vbox123 = gtk_dialog_get_content_area( pisa_interfaces_dialog );
   gtk_widget_show (dialog_vbox123);
 
   scrolledwindow31 = gtk_scrolled_window_new (NULL, NULL);
@@ -28220,29 +27958,29 @@ create_pisa_interfaces_dialog (void)
   gtk_widget_show (pisa_interfaces_treeview);
   gtk_container_add (GTK_CONTAINER (scrolledwindow31), pisa_interfaces_treeview);
 
-  dialog_action_area122 = GTK_DIALOG (pisa_interfaces_dialog)->action_area;
+  dialog_action_area122 = gtk_dialog_get_content_area( pisa_interfaces_dialog );
   gtk_widget_show (dialog_action_area122);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area122), GTK_BUTTONBOX_END);
 
   button32 = gtk_button_new_with_mnemonic ("button32");
   gtk_dialog_add_action_widget (GTK_DIALOG (pisa_interfaces_dialog), button32, 0);
-  GTK_WIDGET_SET_FLAGS (button32, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button32, GTK_CAN_DEFAULT);
 
   pisa_interfces_close_button = gtk_button_new_from_stock ("gtk-close");
   gtk_widget_show (pisa_interfces_close_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (pisa_interfaces_dialog), pisa_interfces_close_button, GTK_RESPONSE_CLOSE);
-  GTK_WIDGET_SET_FLAGS (pisa_interfces_close_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (pisa_interfces_close_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) pisa_interfces_close_button, "clicked",
                     G_CALLBACK (on_pisa_interfces_close_button_clicked),
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (pisa_interfaces_dialog, pisa_interfaces_dialog, "pisa_interfaces_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (pisa_interfaces_dialog, dialog_vbox123, "dialog_vbox123");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(pisa_interfaces_dialog, pisa_interfaces_dialog, "pisa_interfaces_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(pisa_interfaces_dialog, dialog_vbox123, "dialog_vbox123");
   GLADE_HOOKUP_OBJECT (pisa_interfaces_dialog, scrolledwindow31, "scrolledwindow31");
   GLADE_HOOKUP_OBJECT (pisa_interfaces_dialog, pisa_interfaces_treeview, "pisa_interfaces_treeview");
-  GLADE_HOOKUP_OBJECT_NO_REF (pisa_interfaces_dialog, dialog_action_area122, "dialog_action_area122");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(pisa_interfaces_dialog, dialog_action_area122, "dialog_action_area122");
   GLADE_HOOKUP_OBJECT (pisa_interfaces_dialog, button32, "button32");
   GLADE_HOOKUP_OBJECT (pisa_interfaces_dialog, pisa_interfces_close_button, "pisa_interfces_close_button");
 
@@ -28287,7 +28025,7 @@ create_scheme_window (void)
   gtk_widget_show (scrolledwindow32);
   gtk_box_pack_start (GTK_BOX (vbox306), scrolledwindow32, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow32), 4);
-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow32, GTK_CAN_FOCUS);
+  // GTK_WIDGET_UNSET_FLAGS (scrolledwindow32, GTK_CAN_FOCUS);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow32), GTK_SHADOW_IN);
 
   scheme_window_text = gtk_text_view_new ();
@@ -28309,7 +28047,7 @@ create_scheme_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (scheme_window, scheme_window, "scheme_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(scheme_window, scheme_window, "scheme_window");
   GLADE_HOOKUP_OBJECT (scheme_window, vbox306, "vbox306");
   GLADE_HOOKUP_OBJECT (scheme_window, hbox412, "hbox412");
   GLADE_HOOKUP_OBJECT (scheme_window, label746, "label746");
@@ -28328,7 +28066,6 @@ create_remarks_browser_molecule_chooser_dialog (void)
   GtkWidget *dialog_vbox124;
   GtkWidget *frame296;
   GtkWidget *alignment154;
-  GtkWidget *remarks_browser_molecule_chooser_optionmenu;
   GtkWidget *label760;
   GtkWidget *dialog_action_area123;
   GtkWidget *remarks_browser_molecule_chooser_cancel_button;
@@ -28337,9 +28074,9 @@ create_remarks_browser_molecule_chooser_dialog (void)
   remarks_browser_molecule_chooser_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (remarks_browser_molecule_chooser_dialog), "View REMARKs in Molecule");
   gtk_window_set_type_hint (GTK_WINDOW (remarks_browser_molecule_chooser_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
-  gtk_dialog_set_has_separator (GTK_DIALOG (remarks_browser_molecule_chooser_dialog), FALSE);
+  // gtk_dialog_set_has_separator (GTK_DIALOG (remarks_browser_molecule_chooser_dialog), FALSE);
 
-  dialog_vbox124 = GTK_DIALOG (remarks_browser_molecule_chooser_dialog)->vbox;
+  dialog_vbox124 = gtk_dialog_get_content_area( remarks_browser_molecule_chooser_dialog );
   gtk_widget_show (dialog_vbox124);
 
   frame296 = gtk_frame_new (NULL);
@@ -28353,29 +28090,24 @@ create_remarks_browser_molecule_chooser_dialog (void)
   gtk_container_add (GTK_CONTAINER (frame296), alignment154);
   gtk_alignment_set_padding (GTK_ALIGNMENT (alignment154), 0, 0, 12, 0);
 
-  remarks_browser_molecule_chooser_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (remarks_browser_molecule_chooser_optionmenu);
-  gtk_container_add (GTK_CONTAINER (alignment154), remarks_browser_molecule_chooser_optionmenu);
-  gtk_container_set_border_width (GTK_CONTAINER (remarks_browser_molecule_chooser_optionmenu), 3);
-
   label760 = gtk_label_new ("");
   gtk_widget_show (label760);
   gtk_frame_set_label_widget (GTK_FRAME (frame296), label760);
   gtk_label_set_use_markup (GTK_LABEL (label760), TRUE);
 
-  dialog_action_area123 = GTK_DIALOG (remarks_browser_molecule_chooser_dialog)->action_area;
+  dialog_action_area123 = gtk_dialog_get_content_area( remarks_browser_molecule_chooser_dialog );
   gtk_widget_show (dialog_action_area123);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area123), GTK_BUTTONBOX_END);
 
   remarks_browser_molecule_chooser_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (remarks_browser_molecule_chooser_cancel_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (remarks_browser_molecule_chooser_dialog), remarks_browser_molecule_chooser_cancel_button, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (remarks_browser_molecule_chooser_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (remarks_browser_molecule_chooser_cancel_button, GTK_CAN_DEFAULT);
 
   remarks_browser_molecule_chooser_ok_button = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (remarks_browser_molecule_chooser_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (remarks_browser_molecule_chooser_dialog), remarks_browser_molecule_chooser_ok_button, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (remarks_browser_molecule_chooser_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (remarks_browser_molecule_chooser_ok_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) remarks_browser_molecule_chooser_cancel_button, "clicked",
                     G_CALLBACK (on_remarks_browser_molecule_chooser_cancel_button_clicked),
@@ -28385,13 +28117,12 @@ create_remarks_browser_molecule_chooser_dialog (void)
                           NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (remarks_browser_molecule_chooser_dialog, remarks_browser_molecule_chooser_dialog, "remarks_browser_molecule_chooser_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (remarks_browser_molecule_chooser_dialog, dialog_vbox124, "dialog_vbox124");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(remarks_browser_molecule_chooser_dialog, remarks_browser_molecule_chooser_dialog, "remarks_browser_molecule_chooser_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(remarks_browser_molecule_chooser_dialog, dialog_vbox124, "dialog_vbox124");
   GLADE_HOOKUP_OBJECT (remarks_browser_molecule_chooser_dialog, frame296, "frame296");
   GLADE_HOOKUP_OBJECT (remarks_browser_molecule_chooser_dialog, alignment154, "alignment154");
-  GLADE_HOOKUP_OBJECT (remarks_browser_molecule_chooser_dialog, remarks_browser_molecule_chooser_optionmenu, "remarks_browser_molecule_chooser_optionmenu");
   GLADE_HOOKUP_OBJECT (remarks_browser_molecule_chooser_dialog, label760, "label760");
-  GLADE_HOOKUP_OBJECT_NO_REF (remarks_browser_molecule_chooser_dialog, dialog_action_area123, "dialog_action_area123");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(remarks_browser_molecule_chooser_dialog, dialog_action_area123, "dialog_action_area123");
   GLADE_HOOKUP_OBJECT (remarks_browser_molecule_chooser_dialog, remarks_browser_molecule_chooser_cancel_button, "remarks_browser_molecule_chooser_cancel_button");
   GLADE_HOOKUP_OBJECT (remarks_browser_molecule_chooser_dialog, remarks_browser_molecule_chooser_ok_button, "remarks_browser_molecule_chooser_ok_button");
 
@@ -28418,7 +28149,7 @@ create_fix_nomenclature_errors_dialog (void)
   gtk_window_set_title (GTK_WINDOW (fix_nomenclature_errors_dialog), "Fix Nomenclature Errors");
   gtk_window_set_type_hint (GTK_WINDOW (fix_nomenclature_errors_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox125 = GTK_DIALOG (fix_nomenclature_errors_dialog)->vbox;
+  dialog_vbox125 = gtk_dialog_get_content_area( fix_nomenclature_errors_dialog );
   gtk_widget_show (dialog_vbox125);
 
   vbox311 = gtk_vbox_new (FALSE, 0);
@@ -28452,19 +28183,19 @@ create_fix_nomenclature_errors_dialog (void)
   gtk_container_add (GTK_CONTAINER (viewport21), nomenclature_errors_vbox);
   gtk_container_set_border_width (GTK_CONTAINER (nomenclature_errors_vbox), 2);
 
-  dialog_action_area124 = GTK_DIALOG (fix_nomenclature_errors_dialog)->action_area;
+  dialog_action_area124 = gtk_dialog_get_content_area( fix_nomenclature_errors_dialog );
   gtk_widget_show (dialog_action_area124);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area124), GTK_BUTTONBOX_END);
 
   fix_nomenclature_errors_ok_button = gtk_button_new_from_stock ("gtk-yes");
   gtk_widget_show (fix_nomenclature_errors_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (fix_nomenclature_errors_dialog), fix_nomenclature_errors_ok_button, GTK_RESPONSE_YES);
-  GTK_WIDGET_SET_FLAGS (fix_nomenclature_errors_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (fix_nomenclature_errors_ok_button, GTK_CAN_DEFAULT);
 
   fix_nomenclature_errors_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (fix_nomenclature_errors_cancel_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (fix_nomenclature_errors_dialog), fix_nomenclature_errors_cancel_button, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (fix_nomenclature_errors_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (fix_nomenclature_errors_cancel_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) fix_nomenclature_errors_ok_button, "clicked",
                     G_CALLBACK (on_fix_nomenclature_errors_ok_button_clicked),
@@ -28474,8 +28205,8 @@ create_fix_nomenclature_errors_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (fix_nomenclature_errors_dialog, fix_nomenclature_errors_dialog, "fix_nomenclature_errors_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (fix_nomenclature_errors_dialog, dialog_vbox125, "dialog_vbox125");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(fix_nomenclature_errors_dialog, fix_nomenclature_errors_dialog, "fix_nomenclature_errors_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(fix_nomenclature_errors_dialog, dialog_vbox125, "dialog_vbox125");
   GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, vbox311, "vbox311");
   GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, hbox417, "hbox417");
   GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, image9619, "image9619");
@@ -28483,7 +28214,7 @@ create_fix_nomenclature_errors_dialog (void)
   GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, scrolledwindow33, "scrolledwindow33");
   GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, viewport21, "viewport21");
   GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, nomenclature_errors_vbox, "nomenclature_errors_vbox");
-  GLADE_HOOKUP_OBJECT_NO_REF (fix_nomenclature_errors_dialog, dialog_action_area124, "dialog_action_area124");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(fix_nomenclature_errors_dialog, dialog_action_area124, "dialog_action_area124");
   GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, fix_nomenclature_errors_ok_button, "fix_nomenclature_errors_ok_button");
   GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, fix_nomenclature_errors_cancel_button, "fix_nomenclature_errors_cancel_button");
 
@@ -28523,9 +28254,9 @@ create_multi_residue_torsion_dialog (void)
       gdk_pixbuf_unref (multi_residue_torsion_dialog_icon_pixbuf);
     }
   gtk_window_set_type_hint (GTK_WINDOW (multi_residue_torsion_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
-  gtk_dialog_set_has_separator (GTK_DIALOG (multi_residue_torsion_dialog), FALSE);
+  // gtk_dialog_set_has_separator (GTK_DIALOG (multi_residue_torsion_dialog), FALSE);
 
-  dialog_vbox127 = GTK_DIALOG (multi_residue_torsion_dialog)->vbox;
+  dialog_vbox127 = gtk_dialog_get_content_area( multi_residue_torsion_dialog );
   gtk_widget_show (dialog_vbox127);
   gtk_widget_set_size_request (dialog_vbox127, -1, 220);
 
@@ -28578,19 +28309,19 @@ create_multi_residue_torsion_dialog (void)
   gtk_widget_show (hseparator17);
   gtk_box_pack_start (GTK_BOX (vbox321), hseparator17, FALSE, FALSE, 0);
 
-  dialog_action_area126 = GTK_DIALOG (multi_residue_torsion_dialog)->action_area;
+  dialog_action_area126 = gtk_dialog_get_content_area( multi_residue_torsion_dialog );
   gtk_widget_show (dialog_action_area126);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area126), GTK_BUTTONBOX_END);
 
   multi_residue_torsion_OK_button = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (multi_residue_torsion_OK_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (multi_residue_torsion_dialog), multi_residue_torsion_OK_button, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (multi_residue_torsion_OK_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (multi_residue_torsion_OK_button, GTK_CAN_DEFAULT);
 
   multi_residue_torsion_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (multi_residue_torsion_cancel_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (multi_residue_torsion_dialog), multi_residue_torsion_cancel_button, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (multi_residue_torsion_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (multi_residue_torsion_cancel_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) multi_residue_torsion_reverse_checkbutton, "toggled",
                     G_CALLBACK (on_multi_residue_torsion_reverse_checkbutton_toggled),
@@ -28603,8 +28334,8 @@ create_multi_residue_torsion_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (multi_residue_torsion_dialog, multi_residue_torsion_dialog, "multi_residue_torsion_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (multi_residue_torsion_dialog, dialog_vbox127, "dialog_vbox127");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(multi_residue_torsion_dialog, multi_residue_torsion_dialog, "multi_residue_torsion_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(multi_residue_torsion_dialog, dialog_vbox127, "dialog_vbox127");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, vbox321, "vbox321");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, label769, "label769");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, scrolledwindow35, "scrolledwindow35");
@@ -28617,7 +28348,7 @@ create_multi_residue_torsion_dialog (void)
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, image9926, "image9926");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, label771, "label771");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, hseparator17, "hseparator17");
-  GLADE_HOOKUP_OBJECT_NO_REF (multi_residue_torsion_dialog, dialog_action_area126, "dialog_action_area126");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(multi_residue_torsion_dialog, dialog_action_area126, "dialog_action_area126");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, multi_residue_torsion_OK_button, "multi_residue_torsion_OK_button");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, multi_residue_torsion_cancel_button, "multi_residue_torsion_cancel_button");
 
@@ -28641,9 +28372,9 @@ create_multi_residue_torsion_pick_dialog (void)
   multi_residue_torsion_pick_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (multi_residue_torsion_pick_dialog), "Pick Residues");
   gtk_window_set_type_hint (GTK_WINDOW (multi_residue_torsion_pick_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
-  gtk_dialog_set_has_separator (GTK_DIALOG (multi_residue_torsion_pick_dialog), FALSE);
+  // gtk_dialog_set_has_separator (GTK_DIALOG (multi_residue_torsion_pick_dialog), FALSE);
 
-  dialog_vbox128 = GTK_DIALOG (multi_residue_torsion_pick_dialog)->vbox;
+  dialog_vbox128 = gtk_dialog_get_content_area( multi_residue_torsion_pick_dialog );
   gtk_widget_show (dialog_vbox128);
 
   vbox322 = gtk_vbox_new (FALSE, 0);
@@ -28664,19 +28395,19 @@ create_multi_residue_torsion_pick_dialog (void)
   gtk_widget_show (hseparator18);
   gtk_box_pack_start (GTK_BOX (vbox322), hseparator18, FALSE, FALSE, 0);
 
-  dialog_action_area127 = GTK_DIALOG (multi_residue_torsion_pick_dialog)->action_area;
+  dialog_action_area127 = gtk_dialog_get_content_area( multi_residue_torsion_pick_dialog );
   gtk_widget_show (dialog_action_area127);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area127), GTK_BUTTONBOX_END);
 
   multi_residue_torsion_pick_apply_button = gtk_button_new_from_stock ("gtk-apply");
   gtk_widget_show (multi_residue_torsion_pick_apply_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (multi_residue_torsion_pick_dialog), multi_residue_torsion_pick_apply_button, GTK_RESPONSE_APPLY);
-  GTK_WIDGET_SET_FLAGS (multi_residue_torsion_pick_apply_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (multi_residue_torsion_pick_apply_button, GTK_CAN_DEFAULT);
 
   multi_residue_torsion_pick_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (multi_residue_torsion_pick_cancel_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (multi_residue_torsion_pick_dialog), multi_residue_torsion_pick_cancel_button, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (multi_residue_torsion_pick_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (multi_residue_torsion_pick_cancel_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) multi_residue_torsion_pick_apply_button, "clicked",
                     G_CALLBACK (on_multi_residue_torsion_pick_apply_button_clicked),
@@ -28689,14 +28420,14 @@ create_multi_residue_torsion_pick_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (multi_residue_torsion_pick_dialog, multi_residue_torsion_pick_dialog, "multi_residue_torsion_pick_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (multi_residue_torsion_pick_dialog, dialog_vbox128, "dialog_vbox128");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(multi_residue_torsion_pick_dialog, multi_residue_torsion_pick_dialog, "multi_residue_torsion_pick_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(multi_residue_torsion_pick_dialog, dialog_vbox128, "dialog_vbox128");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, vbox322, "vbox322");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, label772, "label772");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, multi_residue_torsion_pick_auto_select_checkbutton, "multi_residue_torsion_pick_auto_select_checkbutton");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, multi_residue_torsion_pick_auto_refine_checkbutton, "multi_residue_torsion_pick_auto_refine_checkbutton");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, hseparator18, "hseparator18");
-  GLADE_HOOKUP_OBJECT_NO_REF (multi_residue_torsion_pick_dialog, dialog_action_area127, "dialog_action_area127");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(multi_residue_torsion_pick_dialog, dialog_action_area127, "dialog_action_area127");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, multi_residue_torsion_pick_apply_button, "multi_residue_torsion_pick_apply_button");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, multi_residue_torsion_pick_cancel_button, "multi_residue_torsion_pick_cancel_button");
 
@@ -28718,7 +28449,7 @@ create_keyboard_goto_residue_window (void)
   keyboard_go_to_residue_entry = gtk_entry_new ();
   gtk_widget_show (keyboard_go_to_residue_entry);
   gtk_container_add (GTK_CONTAINER (keyboard_goto_residue_window), keyboard_go_to_residue_entry);
-  GTK_WIDGET_SET_FLAGS (keyboard_go_to_residue_entry, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (keyboard_go_to_residue_entry, GTK_CAN_DEFAULT);
   gtk_entry_set_invisible_char (GTK_ENTRY (keyboard_go_to_residue_entry), 8226);
 
   g_signal_connect ((gpointer) keyboard_go_to_residue_entry, "changed",
@@ -28729,7 +28460,7 @@ create_keyboard_goto_residue_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (keyboard_goto_residue_window, keyboard_goto_residue_window, "keyboard_goto_residue_window");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(keyboard_goto_residue_window, keyboard_goto_residue_window, "keyboard_goto_residue_window");
   GLADE_HOOKUP_OBJECT (keyboard_goto_residue_window, keyboard_go_to_residue_entry, "keyboard_go_to_residue_entry");
 
   gtk_widget_grab_focus (keyboard_go_to_residue_entry);
@@ -28759,9 +28490,9 @@ create_mogul_geometry_results_table_dialog (void)
   gtk_widget_set_size_request (mogul_geometry_results_table_dialog, 600, 400);
   gtk_window_set_title (GTK_WINDOW (mogul_geometry_results_table_dialog), "Mogul Results");
   gtk_window_set_type_hint (GTK_WINDOW (mogul_geometry_results_table_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
-  gtk_dialog_set_has_separator (GTK_DIALOG (mogul_geometry_results_table_dialog), FALSE);
+  // gtk_dialog_set_has_separator (GTK_DIALOG (mogul_geometry_results_table_dialog), FALSE);
 
-  dialog_vbox129 = GTK_DIALOG (mogul_geometry_results_table_dialog)->vbox;
+  dialog_vbox129 = gtk_dialog_get_content_area( mogul_geometry_results_table_dialog );
   gtk_widget_show (dialog_vbox129);
 
   mogul_notebook = gtk_notebook_new ();
@@ -28807,22 +28538,22 @@ create_mogul_geometry_results_table_dialog (void)
   gtk_widget_show (label776);
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (mogul_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (mogul_notebook), 2), label776);
 
-  dialog_action_area128 = GTK_DIALOG (mogul_geometry_results_table_dialog)->action_area;
+  dialog_action_area128 = gtk_dialog_get_content_area( mogul_geometry_results_table_dialog );
   gtk_widget_show (dialog_action_area128);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area128), GTK_BUTTONBOX_END);
 
   mogul_geometry_dialog_close_button = gtk_button_new_from_stock ("gtk-close");
   gtk_widget_show (mogul_geometry_dialog_close_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (mogul_geometry_results_table_dialog), mogul_geometry_dialog_close_button, GTK_RESPONSE_CLOSE);
-  GTK_WIDGET_SET_FLAGS (mogul_geometry_dialog_close_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (mogul_geometry_dialog_close_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) mogul_geometry_dialog_close_button, "clicked",
                     G_CALLBACK (on_mogul_geometry_dialog_close_button_clicked),
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (mogul_geometry_results_table_dialog, mogul_geometry_results_table_dialog, "mogul_geometry_results_table_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (mogul_geometry_results_table_dialog, dialog_vbox129, "dialog_vbox129");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(mogul_geometry_results_table_dialog, mogul_geometry_results_table_dialog, "mogul_geometry_results_table_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(mogul_geometry_results_table_dialog, dialog_vbox129, "dialog_vbox129");
   GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, mogul_notebook, "mogul_notebook");
   GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, scrolledwindow36, "scrolledwindow36");
   GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, mogul_bonds_treeview, "mogul_bonds_treeview");
@@ -28833,7 +28564,7 @@ create_mogul_geometry_results_table_dialog (void)
   GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, scrolledwindow38, "scrolledwindow38");
   GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, mogul_torsions_treeview, "mogul_torsions_treeview");
   GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, label776, "label776");
-  GLADE_HOOKUP_OBJECT_NO_REF (mogul_geometry_results_table_dialog, dialog_action_area128, "dialog_action_area128");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(mogul_geometry_results_table_dialog, dialog_action_area128, "dialog_action_area128");
   GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, mogul_geometry_dialog_close_button, "mogul_geometry_dialog_close_button");
 
   return mogul_geometry_results_table_dialog;
@@ -28856,9 +28587,9 @@ create_build_na_dialog (void)
   gtk_window_set_modal (GTK_WINDOW (build_na_dialog), TRUE);
   gtk_window_set_default_size (GTK_WINDOW (build_na_dialog), 400, 80);
   gtk_window_set_type_hint (GTK_WINDOW (build_na_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
-  gtk_dialog_set_has_separator (GTK_DIALOG (build_na_dialog), FALSE);
+  // gtk_dialog_set_has_separator (GTK_DIALOG (build_na_dialog), FALSE);
 
-  dialog_vbox130 = GTK_DIALOG (build_na_dialog)->vbox;
+  dialog_vbox130 = gtk_dialog_get_content_area( build_na_dialog );
   gtk_widget_show (dialog_vbox130);
 
   hbox428 = gtk_hbox_new (FALSE, 0);
@@ -28875,19 +28606,19 @@ create_build_na_dialog (void)
   gtk_entry_set_text (GTK_ENTRY (build_na_dialog_radius_entry), "6.0");
   gtk_entry_set_invisible_char (GTK_ENTRY (build_na_dialog_radius_entry), 8226);
 
-  dialog_action_area129 = GTK_DIALOG (build_na_dialog)->action_area;
+  dialog_action_area129 = gtk_dialog_get_content_area( build_na_dialog );
   gtk_widget_show (dialog_action_area129);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area129), GTK_BUTTONBOX_END);
 
   build_na_dialog_cancelbutton = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (build_na_dialog_cancelbutton);
   gtk_dialog_add_action_widget (GTK_DIALOG (build_na_dialog), build_na_dialog_cancelbutton, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (build_na_dialog_cancelbutton, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (build_na_dialog_cancelbutton, GTK_CAN_DEFAULT);
 
   build_na_dialog_okbutton = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (build_na_dialog_okbutton);
   gtk_dialog_add_action_widget (GTK_DIALOG (build_na_dialog), build_na_dialog_okbutton, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (build_na_dialog_okbutton, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (build_na_dialog_okbutton, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) build_na_dialog_radius_entry, "activate",
                     G_CALLBACK (on_build_na_dialog_radius_entry_activate),
@@ -28900,12 +28631,12 @@ create_build_na_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (build_na_dialog, build_na_dialog, "build_na_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (build_na_dialog, dialog_vbox130, "dialog_vbox130");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(build_na_dialog, build_na_dialog, "build_na_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(build_na_dialog, dialog_vbox130, "dialog_vbox130");
   GLADE_HOOKUP_OBJECT (build_na_dialog, hbox428, "hbox428");
   GLADE_HOOKUP_OBJECT (build_na_dialog, label778, "label778");
   GLADE_HOOKUP_OBJECT (build_na_dialog, build_na_dialog_radius_entry, "build_na_dialog_radius_entry");
-  GLADE_HOOKUP_OBJECT_NO_REF (build_na_dialog, dialog_action_area129, "dialog_action_area129");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(build_na_dialog, dialog_action_area129, "dialog_action_area129");
   GLADE_HOOKUP_OBJECT (build_na_dialog, build_na_dialog_cancelbutton, "build_na_dialog_cancelbutton");
   GLADE_HOOKUP_OBJECT (build_na_dialog, build_na_dialog_okbutton, "build_na_dialog_okbutton");
 
@@ -28945,7 +28676,7 @@ create_ligand_check_dialog (void)
   gtk_window_set_title (GTK_WINDOW (ligand_check_dialog), "Ligand Check");
   gtk_window_set_type_hint (GTK_WINDOW (ligand_check_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox130 = GTK_DIALOG (ligand_check_dialog)->vbox;
+  dialog_vbox130 = gtk_dialog_get_content_area( ligand_check_dialog );
   gtk_widget_show (dialog_vbox130);
 
   vbox323 = gtk_vbox_new (FALSE, 0);
@@ -29048,27 +28779,27 @@ create_ligand_check_dialog (void)
   gtk_label_set_justify (GTK_LABEL (ligand_check_db_label), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (ligand_check_db_label), 0, 3);
 
-  dialog_action_area129 = GTK_DIALOG (ligand_check_dialog)->action_area;
+  dialog_action_area129 = gtk_dialog_get_content_area( ligand_check_dialog );
   gtk_widget_show (dialog_action_area129);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area129), GTK_BUTTONBOX_END);
 
   ligand_check_cancelbutton = gtk_button_new_from_stock ("gtk-cancel");
   gtk_dialog_add_action_widget (GTK_DIALOG (ligand_check_dialog), ligand_check_cancelbutton, GTK_RESPONSE_CANCEL);
   gtk_widget_set_sensitive (ligand_check_cancelbutton, FALSE);
-  GTK_WIDGET_SET_FLAGS (ligand_check_cancelbutton, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (ligand_check_cancelbutton, GTK_CAN_DEFAULT);
 
   ligand_check_okbutton = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (ligand_check_okbutton);
   gtk_dialog_add_action_widget (GTK_DIALOG (ligand_check_dialog), ligand_check_okbutton, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (ligand_check_okbutton, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (ligand_check_okbutton, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) ligand_check_okbutton, "clicked",
                     G_CALLBACK (on_ligand_check_okbutton_clicked),
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (ligand_check_dialog, ligand_check_dialog, "ligand_check_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (ligand_check_dialog, dialog_vbox130, "dialog_vbox130");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ligand_check_dialog, ligand_check_dialog, "ligand_check_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ligand_check_dialog, dialog_vbox130, "dialog_vbox130");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, vbox323, "vbox323");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, ligand_check_ligand_spec_label, "ligand_check_ligand_spec_label");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, table7, "table7");
@@ -29088,7 +28819,7 @@ create_ligand_check_dialog (void)
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, label780, "label780");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, label781, "label781");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, ligand_check_db_label, "ligand_check_db_label");
-  GLADE_HOOKUP_OBJECT_NO_REF (ligand_check_dialog, dialog_action_area129, "dialog_action_area129");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ligand_check_dialog, dialog_action_area129, "dialog_action_area129");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, ligand_check_cancelbutton, "ligand_check_cancelbutton");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, ligand_check_okbutton, "ligand_check_okbutton");
 
@@ -29118,9 +28849,9 @@ create_generic_objects_dialog (void)
   gtk_window_set_title (GTK_WINDOW (generic_objects_dialog), "Generic Objects");
   gtk_window_set_default_size (GTK_WINDOW (generic_objects_dialog), 330, 360);
   gtk_window_set_type_hint (GTK_WINDOW (generic_objects_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
-  gtk_dialog_set_has_separator (GTK_DIALOG (generic_objects_dialog), FALSE);
+  // gtk_dialog_set_has_separator (GTK_DIALOG (generic_objects_dialog), FALSE);
 
-  dialog_vbox131 = GTK_DIALOG (generic_objects_dialog)->vbox;
+  dialog_vbox131 = gtk_dialog_get_content_area( generic_objects_dialog );
   gtk_widget_show (dialog_vbox131);
 
   hbox433 = gtk_hbox_new (FALSE, 0);
@@ -29167,14 +28898,14 @@ create_generic_objects_dialog (void)
   gtk_widget_show (label782);
   gtk_box_pack_start (GTK_BOX (hbox432), label782, FALSE, FALSE, 0);
 
-  dialog_action_area130 = GTK_DIALOG (generic_objects_dialog)->action_area;
+  dialog_action_area130 = gtk_dialog_get_content_area( generic_objects_dialog );
   gtk_widget_show (dialog_action_area130);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area130), GTK_BUTTONBOX_END);
 
   generic_objects_dialog_closebutton = gtk_button_new_from_stock ("gtk-close");
   gtk_widget_show (generic_objects_dialog_closebutton);
   gtk_dialog_add_action_widget (GTK_DIALOG (generic_objects_dialog), generic_objects_dialog_closebutton, GTK_RESPONSE_CLOSE);
-  GTK_WIDGET_SET_FLAGS (generic_objects_dialog_closebutton, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (generic_objects_dialog_closebutton, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) generic_objects_dialog, "close",
                     G_CALLBACK (on_generic_objects_dialog_close),
@@ -29193,8 +28924,8 @@ create_generic_objects_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (generic_objects_dialog, generic_objects_dialog, "generic_objects_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (generic_objects_dialog, dialog_vbox131, "dialog_vbox131");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(generic_objects_dialog, generic_objects_dialog, "generic_objects_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(generic_objects_dialog, dialog_vbox131, "dialog_vbox131");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, hbox433, "hbox433");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_display_all_togglebutton, "generic_objects_display_all_togglebutton");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_scrolledwindow, "generic_objects_scrolledwindow");
@@ -29206,7 +28937,7 @@ create_generic_objects_dialog (void)
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, hbox432, "hbox432");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, image10618, "image10618");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, label782, "label782");
-  GLADE_HOOKUP_OBJECT_NO_REF (generic_objects_dialog, dialog_action_area130, "dialog_action_area130");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(generic_objects_dialog, dialog_action_area130, "dialog_action_area130");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_dialog_closebutton, "generic_objects_dialog_closebutton");
 
   return generic_objects_dialog;
@@ -29218,7 +28949,6 @@ create_export_map_dialog (void)
   GtkWidget *export_map_dialog;
   GtkWidget *dialog_vbox132;
   GtkWidget *vbox324;
-  GtkWidget *export_map_map_optionmenu;
   GtkWidget *export_map_map_combobox;
   GtkWidget *export_map_fragment_hbox;
   GtkWidget *label786;
@@ -29232,17 +28962,12 @@ create_export_map_dialog (void)
   gtk_window_set_title (GTK_WINDOW (export_map_dialog), "Export Map");
   gtk_window_set_type_hint (GTK_WINDOW (export_map_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox132 = GTK_DIALOG (export_map_dialog)->vbox;
+  dialog_vbox132 = gtk_dialog_get_content_area( export_map_dialog );
   gtk_widget_show (dialog_vbox132);
 
   vbox324 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox324);
   gtk_box_pack_start (GTK_BOX (dialog_vbox132), vbox324, TRUE, TRUE, 0);
-
-  export_map_map_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (export_map_map_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox324), export_map_map_optionmenu, FALSE, FALSE, 6);
-  gtk_container_set_border_width (GTK_CONTAINER (export_map_map_optionmenu), 6);
 
   export_map_map_combobox = gtk_combo_box_new_text ();
   gtk_widget_show (export_map_map_combobox);
@@ -29270,19 +28995,19 @@ create_export_map_dialog (void)
   gtk_widget_show (label787);
   gtk_box_pack_start (GTK_BOX (export_map_fragment_hbox), label787, FALSE, FALSE, 2);
 
-  dialog_action_area131 = GTK_DIALOG (export_map_dialog)->action_area;
+  dialog_action_area131 = gtk_dialog_get_content_area( export_map_dialog );
   gtk_widget_show (dialog_action_area131);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area131), GTK_BUTTONBOX_END);
 
   export_map_dialog_ok_button = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (export_map_dialog_ok_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (export_map_dialog), export_map_dialog_ok_button, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (export_map_dialog_ok_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (export_map_dialog_ok_button, GTK_CAN_DEFAULT);
 
   export_map_dialog_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (export_map_dialog_cancel_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (export_map_dialog), export_map_dialog_cancel_button, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (export_map_dialog_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (export_map_dialog_cancel_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) export_map_dialog_ok_button, "clicked",
                     G_CALLBACK (on_export_map_dialog_ok_button_clicked),
@@ -29292,16 +29017,15 @@ create_export_map_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (export_map_dialog, export_map_dialog, "export_map_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (export_map_dialog, dialog_vbox132, "dialog_vbox132");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(export_map_dialog, export_map_dialog, "export_map_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(export_map_dialog, dialog_vbox132, "dialog_vbox132");
   GLADE_HOOKUP_OBJECT (export_map_dialog, vbox324, "vbox324");
-  GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_map_optionmenu, "export_map_map_optionmenu");
   GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_map_combobox, "export_map_map_combobox");
   GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_fragment_hbox, "export_map_fragment_hbox");
   GLADE_HOOKUP_OBJECT (export_map_dialog, label786, "label786");
   GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_radius_entry, "export_map_radius_entry");
   GLADE_HOOKUP_OBJECT (export_map_dialog, label787, "label787");
-  GLADE_HOOKUP_OBJECT_NO_REF (export_map_dialog, dialog_action_area131, "dialog_action_area131");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(export_map_dialog, dialog_action_area131, "dialog_action_area131");
   GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_dialog_ok_button, "export_map_dialog_ok_button");
   GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_dialog_cancel_button, "export_map_dialog_cancel_button");
 
@@ -29325,31 +29049,31 @@ create_export_map_filechooserdialog (void)
   gtk_window_set_role (GTK_WINDOW (export_map_filechooserdialog), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (export_map_filechooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox133 = GTK_DIALOG (export_map_filechooserdialog)->vbox;
+  dialog_vbox133 = gtk_dialog_get_content_area( export_map_filechooserdialog );
   gtk_widget_show (dialog_vbox133);
 
-  dialog_action_area132 = GTK_DIALOG (export_map_filechooserdialog)->action_area;
+  dialog_action_area132 = gtk_dialog_get_content_area( export_map_filechooserdialog );
   gtk_widget_show (dialog_action_area132);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area132), GTK_BUTTONBOX_END);
 
   export_map_filechooserdialog_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (export_map_filechooserdialog_cancel_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (export_map_filechooserdialog), export_map_filechooserdialog_cancel_button, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (export_map_filechooserdialog_cancel_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (export_map_filechooserdialog_cancel_button, GTK_CAN_DEFAULT);
 
   export_map_filechooserdialog_save_button = gtk_button_new_from_stock ("gtk-save");
   gtk_widget_show (export_map_filechooserdialog_save_button);
   gtk_dialog_add_action_widget (GTK_DIALOG (export_map_filechooserdialog), export_map_filechooserdialog_save_button, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (export_map_filechooserdialog_save_button, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (export_map_filechooserdialog_save_button, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) export_map_filechooserdialog, "response",
                     G_CALLBACK (on_export_map_filechooserdialog_response),
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (export_map_filechooserdialog, export_map_filechooserdialog, "export_map_filechooserdialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (export_map_filechooserdialog, dialog_vbox133, "dialog_vbox133");
-  GLADE_HOOKUP_OBJECT_NO_REF (export_map_filechooserdialog, dialog_action_area132, "dialog_action_area132");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(export_map_filechooserdialog, export_map_filechooserdialog, "export_map_filechooserdialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(export_map_filechooserdialog, dialog_vbox133, "dialog_vbox133");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(export_map_filechooserdialog, dialog_action_area132, "dialog_action_area132");
   GLADE_HOOKUP_OBJECT (export_map_filechooserdialog, export_map_filechooserdialog_cancel_button, "export_map_filechooserdialog_cancel_button");
   GLADE_HOOKUP_OBJECT (export_map_filechooserdialog, export_map_filechooserdialog_save_button, "export_map_filechooserdialog_save_button");
 
@@ -29385,7 +29109,7 @@ create_cfc_dialog (void)
   gtk_window_set_title (GTK_WINDOW (cfc_dialog), "Chemical Feature Clusters");
   gtk_window_set_type_hint (GTK_WINDOW (cfc_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox134 = GTK_DIALOG (cfc_dialog)->vbox;
+  dialog_vbox134 = gtk_dialog_get_content_area( cfc_dialog );
   gtk_widget_show (dialog_vbox134);
 
   cfc_notebook = gtk_notebook_new ();
@@ -29449,22 +29173,22 @@ create_cfc_dialog (void)
   gtk_widget_show (label793);
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (cfc_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (cfc_notebook), 3), label793);
 
-  dialog_action_area133 = GTK_DIALOG (cfc_dialog)->action_area;
+  dialog_action_area133 = gtk_dialog_get_content_area( cfc_dialog );
   gtk_widget_show (dialog_action_area133);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area133), GTK_BUTTONBOX_END);
 
   cfc_dialog_closebutton = gtk_button_new_from_stock ("gtk-close");
   gtk_widget_show (cfc_dialog_closebutton);
   gtk_dialog_add_action_widget (GTK_DIALOG (cfc_dialog), cfc_dialog_closebutton, GTK_RESPONSE_CLOSE);
-  GTK_WIDGET_SET_FLAGS (cfc_dialog_closebutton, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (cfc_dialog_closebutton, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) cfc_dialog, "response",
                     G_CALLBACK (on_cfc_dialog_response),
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (cfc_dialog, cfc_dialog, "cfc_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (cfc_dialog, dialog_vbox134, "dialog_vbox134");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(cfc_dialog, cfc_dialog, "cfc_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(cfc_dialog, dialog_vbox134, "dialog_vbox134");
   GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_notebook, "cfc_notebook");
   GLADE_HOOKUP_OBJECT (cfc_dialog, scrolledwindow40, "scrolledwindow40");
   GLADE_HOOKUP_OBJECT (cfc_dialog, viewport27, "viewport27");
@@ -29480,7 +29204,7 @@ create_cfc_dialog (void)
   GLADE_HOOKUP_OBJECT (cfc_dialog, viewport25, "viewport25");
   GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_waters_vbox, "cfc_waters_vbox");
   GLADE_HOOKUP_OBJECT (cfc_dialog, label793, "label793");
-  GLADE_HOOKUP_OBJECT_NO_REF (cfc_dialog, dialog_action_area133, "dialog_action_area133");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(cfc_dialog, dialog_action_area133, "dialog_action_area133");
   GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_dialog_closebutton, "cfc_dialog_closebutton");
 
   return cfc_dialog;
@@ -29519,9 +29243,9 @@ create_curlew_dialog (void)
   gtk_window_set_title (GTK_WINDOW (curlew_dialog), "Coot Curlew");
   gtk_window_set_default_size (GTK_WINDOW (curlew_dialog), 805, 400);
   gtk_window_set_type_hint (GTK_WINDOW (curlew_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
-  gtk_dialog_set_has_separator (GTK_DIALOG (curlew_dialog), FALSE);
+  // gtk_dialog_set_has_separator (GTK_DIALOG (curlew_dialog), FALSE);
 
-  dialog_vbox135 = GTK_DIALOG (curlew_dialog)->vbox;
+  dialog_vbox135 = gtk_dialog_get_content_area( curlew_dialog );
   gtk_widget_show (dialog_vbox135);
 
   hbox450 = gtk_hbox_new (FALSE, 0);
@@ -29613,14 +29337,14 @@ create_curlew_dialog (void)
   gtk_widget_show (label816);
   gtk_box_pack_start (GTK_BOX (hbox449), label816, FALSE, FALSE, 0);
 
-  dialog_action_area134 = GTK_DIALOG (curlew_dialog)->action_area;
+  dialog_action_area134 = gtk_dialog_get_content_area( curlew_dialog );
   gtk_widget_show (dialog_action_area134);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area134), GTK_BUTTONBOX_END);
 
   curlew_dialog_closebutton = gtk_button_new_from_stock ("gtk-close");
   gtk_widget_show (curlew_dialog_closebutton);
   gtk_dialog_add_action_widget (GTK_DIALOG (curlew_dialog), curlew_dialog_closebutton, GTK_RESPONSE_CLOSE);
-  GTK_WIDGET_SET_FLAGS (curlew_dialog_closebutton, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (curlew_dialog_closebutton, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) curlew_dialog, "close",
                     G_CALLBACK (on_curlew_dialog_close),
@@ -29633,8 +29357,8 @@ create_curlew_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (curlew_dialog, curlew_dialog, "curlew_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (curlew_dialog, dialog_vbox135, "dialog_vbox135");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(curlew_dialog, curlew_dialog, "curlew_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(curlew_dialog, dialog_vbox135, "dialog_vbox135");
   GLADE_HOOKUP_OBJECT (curlew_dialog, hbox450, "hbox450");
   GLADE_HOOKUP_OBJECT (curlew_dialog, image12118, "image12118");
   GLADE_HOOKUP_OBJECT (curlew_dialog, hbox445, "hbox445");
@@ -29656,7 +29380,7 @@ create_curlew_dialog (void)
   GLADE_HOOKUP_OBJECT (curlew_dialog, hbox449, "hbox449");
   GLADE_HOOKUP_OBJECT (curlew_dialog, image12117, "image12117");
   GLADE_HOOKUP_OBJECT (curlew_dialog, label816, "label816");
-  GLADE_HOOKUP_OBJECT_NO_REF (curlew_dialog, dialog_action_area134, "dialog_action_area134");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(curlew_dialog, dialog_action_area134, "dialog_action_area134");
   GLADE_HOOKUP_OBJECT (curlew_dialog, curlew_dialog_closebutton, "curlew_dialog_closebutton");
 
   return curlew_dialog;
@@ -29687,9 +29411,9 @@ create_refinement_restraints_sliders_dialog (void)
   refinement_restraints_sliders_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (refinement_restraints_sliders_dialog), "Restraints Sliders");
   gtk_window_set_type_hint (GTK_WINDOW (refinement_restraints_sliders_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
-  gtk_dialog_set_has_separator (GTK_DIALOG (refinement_restraints_sliders_dialog), FALSE);
+  // gtk_dialog_set_has_separator (GTK_DIALOG (refinement_restraints_sliders_dialog), FALSE);
 
-  dialog_vbox136 = GTK_DIALOG (refinement_restraints_sliders_dialog)->vbox;
+  dialog_vbox136 = gtk_dialog_get_content_area( refinement_restraints_sliders_dialog );
   gtk_widget_show (dialog_vbox136);
 
   vbox331 = gtk_vbox_new (FALSE, 0);
@@ -29744,23 +29468,23 @@ create_refinement_restraints_sliders_dialog (void)
   gtk_widget_show (hscale7);
   gtk_box_pack_start (GTK_BOX (vbox331), hscale7, TRUE, TRUE, 0);
 
-  dialog_action_area135 = GTK_DIALOG (refinement_restraints_sliders_dialog)->action_area;
+  dialog_action_area135 = gtk_dialog_get_content_area( refinement_restraints_sliders_dialog );
   gtk_widget_show (dialog_action_area135);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area135), GTK_BUTTONBOX_END);
 
   cancelbutton2 = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (cancelbutton2);
   gtk_dialog_add_action_widget (GTK_DIALOG (refinement_restraints_sliders_dialog), cancelbutton2, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (cancelbutton2, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (cancelbutton2, GTK_CAN_DEFAULT);
 
   okbutton2 = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (okbutton2);
   gtk_dialog_add_action_widget (GTK_DIALOG (refinement_restraints_sliders_dialog), okbutton2, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (okbutton2, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (okbutton2, GTK_CAN_DEFAULT);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (refinement_restraints_sliders_dialog, refinement_restraints_sliders_dialog, "refinement_restraints_sliders_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (refinement_restraints_sliders_dialog, dialog_vbox136, "dialog_vbox136");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(refinement_restraints_sliders_dialog, refinement_restraints_sliders_dialog, "refinement_restraints_sliders_dialog");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(refinement_restraints_sliders_dialog, dialog_vbox136, "dialog_vbox136");
   GLADE_HOOKUP_OBJECT (refinement_restraints_sliders_dialog, vbox331, "vbox331");
   GLADE_HOOKUP_OBJECT (refinement_restraints_sliders_dialog, hbox452, "hbox452");
   GLADE_HOOKUP_OBJECT (refinement_restraints_sliders_dialog, label825, "label825");
@@ -29774,7 +29498,7 @@ create_refinement_restraints_sliders_dialog (void)
   GLADE_HOOKUP_OBJECT (refinement_restraints_sliders_dialog, hscale6, "hscale6");
   GLADE_HOOKUP_OBJECT (refinement_restraints_sliders_dialog, label831, "label831");
   GLADE_HOOKUP_OBJECT (refinement_restraints_sliders_dialog, hscale7, "hscale7");
-  GLADE_HOOKUP_OBJECT_NO_REF (refinement_restraints_sliders_dialog, dialog_action_area135, "dialog_action_area135");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(refinement_restraints_sliders_dialog, dialog_action_area135, "dialog_action_area135");
   GLADE_HOOKUP_OBJECT (refinement_restraints_sliders_dialog, cancelbutton2, "cancelbutton2");
   GLADE_HOOKUP_OBJECT (refinement_restraints_sliders_dialog, okbutton2, "okbutton2");
 
