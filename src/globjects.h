@@ -34,7 +34,11 @@
 #define GRAPHICS_WINDOW_X_START_SIZE 500
 #define GRAPHICS_WINDOW_Y_START_SIZE 500
 
-GtkWidget* gl_extras(GtkWidget* window, short int try_hardware_stero); 
+
+// Gtk2
+GtkWidget* gl_extras(GtkWidget* window, short int try_hardware_stero);
+// Gtk3
+GtkWidget* gl_gtk3_widget(GtkWidget* window, short int try_hardware_stero);
 
 enum { IN_STEREO_MONO = 0, 
        IN_STEREO_HARDWARE_STEREO=1, 

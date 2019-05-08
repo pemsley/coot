@@ -283,10 +283,16 @@ main (int argc, char *argv[]) {
 #endif
 
       gtk_window_set_title(GTK_WINDOW (window1), main_title.c_str());
+      GtkWidget *vbox = lookup_widget(window1, "vbox1");
 
-      glarea = gl_extras(lookup_widget(window1, "vbox1"),
-			 cld.hardware_stereo_flag);
-      if (glarea) {
+      // Gtk2
+//       glarea = gl_extras(lookup_widget(window1, "vbox1"),
+// 			 cld.hardware_stereo_flag);
+
+      // GTK3
+      glarea = gl_gtk3_widget(vbox, 0);
+
+      if (true) {
 	 // application icon:
 	 setup_application_icon(GTK_WINDOW(window1));
 	 // adjust screen size settings

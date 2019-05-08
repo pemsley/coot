@@ -11038,7 +11038,8 @@ on_residue_editor_select_monomer_type_ok_button_clicked (GtkButton       *button
   GtkWidget *combo_box = lookup_widget(GTK_WIDGET(button), "residue_editor_select_monomer_type_combobox");
   gchar *t = 0;
 
-  t = gtk_combo_box_get_active_text(GTK_COMBO_BOX(combo_box));
+  // naughty?
+  t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX(combo_box));
   show_restraints_editor(t);
   gtk_widget_destroy(dialog);
 }
@@ -12446,9 +12447,11 @@ on_refine_params_geman_mcclure_alpha_combobox_changed
                                         gpointer         user_data)
 {
 
-   const char *t = gtk_combo_box_get_active_text(GTK_COMBO_BOX(combobox));
-   int active_item_idx = gtk_combo_box_get_active(combobox);
-   set_refinement_geman_mcclure_alpha_from_text(active_item_idx, t);
+   const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
+
+   printf("GTK3 FIXME on_refine_params_geman_mcclure_alpha_combobox_changed\n");
+   // int active_item_idx = gtk_combo_box_text_get_active(combobox);
+   // set_refinement_geman_mcclure_alpha_from_text(active_item_idx, t);
 }
 
 
@@ -12457,9 +12460,10 @@ on_refine_params_lennard_jones_epsilon_combobox_changed
                                         (GtkComboBox     *combobox,
                                         gpointer         user_data)
 {
-   const char *t = gtk_combo_box_get_active_text(GTK_COMBO_BOX(combobox));
-   int active_item_idx = gtk_combo_box_get_active(combobox);
-   set_refinement_lennard_jones_epsilon_from_text(active_item_idx, t);
+   const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
+   printf("GTK3 FIXME on_refine_params_lennard_jones_epsilon_combobox_changed\n");
+   // int active_item_idx = gtk_combo_box_text_get_active(combobox);
+   // set_refinement_lennard_jones_epsilon_from_text(active_item_idx, t);
 }
 
 
@@ -12468,9 +12472,10 @@ on_refine_params_rama_restraints_weight_combobox_changed
                                         (GtkComboBox     *combobox,
                                         gpointer         user_data)
 {
-   const char *t = gtk_combo_box_get_active_text(GTK_COMBO_BOX(combobox));
-   int active_item_idx = gtk_combo_box_get_active(combobox);
-   set_refinement_ramachandran_restraints_weight_from_text(active_item_idx, t);
+   const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
+   printf("GTK3 FIXME on_refine_params_rama_restraints_weight_combobox_changed\n");
+   // nint active_item_idx = gtk_combo_box_text_get_active(combobox);
+   // set_refinement_ramachandran_restraints_weight_from_text(active_item_idx, t);
 }
 
 

@@ -1421,6 +1421,14 @@ std::shared_ptr<SceneSetup> graphics_info_t::mol_tri_scene_setup = 0;
 #endif
 #endif // USE_MOLECULES_TO_TRIANGLES
 
+GtkWidget *
+gl_gtk3_widget(GtkWidget *vbox, short int try_stereo_flag) {
+
+      GtkWidget *drawing_area = NULL; // the returned thing
+
+      return drawing_area;
+}
+
 // GTK2 code
 // 
 // if try_stereo_flag is 1, then hardware stereo.
