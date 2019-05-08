@@ -780,7 +780,6 @@ graphics_info_t::set_directory_for_filechooser(GtkWidget *fileselection) const {
                                           cwd.c_str());
       // std::cout << "not setting directory_for_fileselection" << std::endl;
    }
-
 }
 
 void
@@ -882,9 +881,11 @@ graphics_info_t::show_select_map_dialog() {
    if (use_graphics_interface_flag) {
 
       GtkWidget *widget = create_select_fitting_map_dialog();
-      GtkWidget *optionmenu = lookup_widget(GTK_WIDGET(widget),
-					    "select_map_for_fitting_optionmenu");
-      
+      // GtkWidget *optionmenu = lookup_widget(GTK_WIDGET(widget),
+      // "select_map_for_fitting_optionmenu");
+      GtkWidget *combobox = lookup_widget(GTK_WIDGET(widget),
+					    "select_map_for_fitting_combobox");
+
       int imol_map = Imol_Refinement_Map();
       
       // If no map has been set before, set the map to the top of the
@@ -899,10 +900,13 @@ graphics_info_t::show_select_map_dialog() {
 	 }
       }
       // note that this uses one of 2 similarly named function:
-      fill_option_menu_with_map_options(optionmenu,
-					G_CALLBACK(graphics_info_t::refinement_map_select),
-					imol_refinement_map);
-      
+      // fill_option_menu_with_map_options(optionmenu,
+      // G_CALLBACK(refinement_map_select),
+      // imol_refinement_map);
+
+      fill_combobox_with_map_mtz_options(combobox,
+					 G_CALLBACK(refinement_map_combobox_changed),
+					 imol_refinement_map);
       
       // Old notes:
       // now activate the first menu item, i.e. creating this menu is as
@@ -967,7 +971,8 @@ graphics_info_t::wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_lab
       gtk_widget_show(label);
    } 
    set_initial_map_for_skeletonize();
-   fill_option_menu_with_skeleton_options(option_menu);
+   std::cout << "GTK3 FIXME skeleton " << std::endl;
+   // fill_option_menu_with_skeleton_options(option_menu);
    set_on_off_skeleton_radio_buttons(frame);
    return w;
 }
@@ -1048,41 +1053,42 @@ graphics_info_t::try_set_draw_baton(short int i) {
 
 
 
-void
-graphics_info_t::fill_option_menu_with_skeleton_options(GtkWidget *option_menu) {  /* a wrapper */
+// void
+// graphics_info_t::fill_option_menu_with_skeleton_options(GtkWidget *option_menu) {  /* a wrapper */
 
-   graphics_info_t g;
-   GCallback signalfunc = G_CALLBACK(graphics_info_t::skeleton_map_select);
-   g.fill_option_menu_with_map_options(option_menu, signalfunc,
-				       graphics_info_t::map_for_skeletonize);
+//    graphics_info_t g;
+//    GCallback signalfunc = G_CALLBACK(graphics_info_t::skeleton_map_select);
+//    g.fill_option_menu_with_map_options(option_menu, signalfunc,
+// 				       graphics_info_t::map_for_skeletonize);
 
-}
+// }
 
-// static
-void
-graphics_info_t::skeleton_map_select(GtkWidget *item, GtkPositionType pos) { 
 
-   graphics_info_t g;
-   g.map_for_skeletonize = pos;
+// // static
+// void
+// graphics_info_t::skeleton_map_select(GtkWidget *item, GtkPositionType pos) { 
 
-   // So now we have changed the map to skeletonize (or that has been
-   // skeletonized).  We need to look up the radio buttons and set
-   // them according to whether this map has a skeleton or not.
-   //
-   // Recall that for radio buttons, you have to set them on, setting
-   // them off doesn't work.
-   //
-   GtkWidget *on_button  = lookup_widget(item, "skeleton_on_radiobutton");
-   GtkWidget *off_button = lookup_widget(item, "skeleton_off_radiobutton");
-   if (graphics_info_t::molecules[g.map_for_skeletonize].has_xmap()) {
-      if (graphics_info_t::molecules[g.map_for_skeletonize].fc_skeleton_draw_on) {
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(on_button), TRUE);
-      } else {
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(off_button), TRUE);
-      }
-   }
+//    graphics_info_t g;
+//    g.map_for_skeletonize = pos;
 
-}
+//    // So now we have changed the map to skeletonize (or that has been
+//    // skeletonized).  We need to look up the radio buttons and set
+//    // them according to whether this map has a skeleton or not.
+//    //
+//    // Recall that for radio buttons, you have to set them on, setting
+//    // them off doesn't work.
+//    //
+//    GtkWidget *on_button  = lookup_widget(item, "skeleton_on_radiobutton");
+//    GtkWidget *off_button = lookup_widget(item, "skeleton_off_radiobutton");
+//    if (graphics_info_t::molecules[g.map_for_skeletonize].has_xmap()) {
+//       if (graphics_info_t::molecules[g.map_for_skeletonize].fc_skeleton_draw_on) {
+// 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(on_button), TRUE);
+//       } else {
+// 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(off_button), TRUE);
+//       }
+//    }
+
+// }
 
 
 #if 0
@@ -1817,6 +1823,52 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal(GtkWidget *o
 }
 #endif
 
+
+// this is not a refmac thing
+void
+graphics_info_t::fill_combobox_with_molecule_options(GtkWidget *combobox,
+						     GCallback signal_func,
+						     int imol_active_position,
+						     const std::vector<int> &molecules_index_vec) {
+
+   GtkListStore *store = gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
+   GtkTreeIter iter;
+   int active_idx = 0;
+   int n_mol = molecules_index_vec.size();
+   for (unsigned int imap=0; imap<molecules_index_vec.size(); imap++) {
+      int imol = molecules_index_vec[imap];
+      std::string ss; // = int_to_string(imol); done in renderer now.
+      ss += " " ;
+      int ilen = molecules[imol].name_.length();
+      int left_size = ilen-go_to_atom_menu_label_n_chars_max;
+      if (left_size <= 0)
+	 left_size = 0;
+      else
+	 ss += "...";
+      ss += molecules[imol].name_.substr(left_size, ilen);
+
+      gtk_list_store_append(store, &iter);
+      gtk_list_store_set(store, &iter, 0, imol, 1, ss.c_str(), -1);
+
+      if (imol == imol_active_position)
+	 active_idx = imap;
+
+   }
+
+   if (signal_func)
+      g_signal_connect(combobox, "changed", signal_func, NULL);
+   GtkTreeModel *model = GTK_TREE_MODEL(store);
+   GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
+   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox), renderer, TRUE);
+   gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(combobox), renderer, "text", 1, NULL);
+   gtk_combo_box_set_model(GTK_COMBO_BOX(combobox), model);
+
+   // maybe this can go into the above loop?
+   if (molecules_index_vec.size() > 0)
+      gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), active_idx);
+
+}
+
 void
 graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
 							GCallback callback_func,
@@ -2124,6 +2176,16 @@ graphics_info_t::fill_combobox_with_undo_options(GtkWidget *combobox) {
    fill_combobox_with_coordinates_options(combobox, callback, imol_active);
 }
 
+
+ 
+// static
+void
+graphics_info_t::refinement_map_combobox_changed(GtkWidget *c, gpointer data) {
+
+   graphics_info_t g;
+   int imol = g.combobox_get_imol(GTK_COMBO_BOX(c));
+   // now what?
+}
 
 
 

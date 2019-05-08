@@ -123,17 +123,19 @@ on_open_dataset1_activate              (GtkMenuItem     *menuitem,
   GtkWidget *file_filter_button;
   GtkWidget *sort_button;
   GtkWidget *dataset_fileselection1 = coot_dataset_chooser();
-  add_ccp4i_project_optionmenu(dataset_fileselection1, COOT_DATASET_FILE_SELECTION);
+
+  //   add_ccp4i_project_optionmenu(dataset_fileselection1, COOT_DATASET_FILE_SELECTION);
   file_filter_button = add_filename_filter_button(dataset_fileselection1, 
 						  COOT_DATASET_FILE_SELECTION);
   sort_button = add_sort_button_fileselection(dataset_fileselection1); 
   /* add_filename_filter_button needs the sort button to be in place (for now) */
-  set_directory_for_fileselection(dataset_fileselection1);
+  /*   set_directory_for_fileselection(dataset_fileselection1); */
 
   /* stuff in user data saying if this is autoread or not... */
   is = is_auto_read_fileselection;
   g_object_set_data(G_OBJECT(dataset_fileselection1), "imol", GINT_TO_POINTER(is));
-  set_file_selection_dialog_size(dataset_fileselection1);
+  
+  /* set_file_selection_dialog_size(dataset_fileselection1); */
 
   set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_fileselection1);
   gtk_widget_show (dataset_fileselection1);
@@ -156,7 +158,7 @@ on_auto_open_mtz_activate              (GtkMenuItem     *menuitem,
   file_filter_button = add_filename_filter_button(dataset_fileselection1, 
 						  COOT_DATASET_FILE_SELECTION);
   sort_button = add_sort_button_fileselection(dataset_fileselection1); 
-  set_directory_for_fileselection(dataset_fileselection1);
+  /*   set_directory_for_fileselection(dataset_fileselection1); */
 
   /* stuff in user data saying if this is autoread or not... */
   is = is_auto_read_fileselection;
@@ -1102,7 +1104,7 @@ on_open_map1_activate                  (GtkMenuItem     *menuitem,
    filter_button = add_filename_filter_button(map_name_fileselection1,
 					      COOT_MAP_FILE_SELECTION);
    sort_button = add_sort_button_fileselection(map_name_fileselection1); 
-   set_directory_for_fileselection(map_name_fileselection1);
+   /*    set_directory_for_fileselection(map_name_fileselection1); */
 
    push_the_buttons_on_fileselection(filter_button, sort_button, 
 				     map_name_fileselection1);
@@ -1980,11 +1982,12 @@ on_save_coords_dialog_save_button_clicked (GtkButton       *button,
 
 }
 
-
+/*                   do we need this function?                  */
 void
 on_save_coord_ok_button_clicked        (GtkButton       *button,
                                         gpointer         user_data)
 {
+#if 0
   GtkWidget *widget;
   char *stuff;
   GtkWidget *fileselection = lookup_widget(GTK_WIDGET(button), "save_coords_fileselection1");
@@ -1995,6 +1998,7 @@ on_save_coord_ok_button_clicked        (GtkButton       *button,
   save_coordinates_using_widget(widget);
   free(stuff);
   gtk_widget_destroy(widget);
+#endif
 }
 
 
@@ -2005,8 +2009,7 @@ on_save_coords_cancel_button_clicked   (GtkButton       *button,
   GtkWidget *widget;
   char *stuff;
 
-  widget = lookup_widget(GTK_WIDGET(button),
-			 "save_coords_fileselection1");
+  widget = lookup_widget(GTK_WIDGET(button), "save_coords_fileselection1");
   stuff = g_object_get_data(G_OBJECT(widget), "stuff");
   free(stuff);
   gtk_widget_destroy(widget);
@@ -3816,6 +3819,9 @@ void
 on_run_refmac_twin_checkbutton_toggled (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
+
+
+#if 0
   GtkWidget *map_optionmenu  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_optionmenu");
   GtkWidget *sad_extras      = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_sad_extra_hbox");
   GtkWidget *mtz_button      = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_mtz_radiobutton");
@@ -3848,6 +3854,7 @@ on_run_refmac_twin_checkbutton_toggled (GtkToggleButton *togglebutton,
     gtk_widget_show(fobs_hbox);
   }
 
+#endif
 }
 
 
@@ -3887,12 +3894,13 @@ on_run_refmac_map_mtz_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
+#if 0				/* Need comboboxes */
   GtkWidget *map_optionmenu  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_optionmenu");
   GtkWidget *active_menu_item;
   if (gtk_toggle_button_get_active(togglebutton)) {
     printf("GTK3 FIXME\n");
   }
-
+#endif
 }
 
 
@@ -3901,10 +3909,13 @@ on_run_refmac_mtz_file_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
+
+#if 0				/* Need comboboxes */
   GtkWidget *map_optionmenu  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_optionmenu");
   if (gtk_toggle_button_get_active(togglebutton)) {
     fill_option_menu_with_refmac_file_labels_options(map_optionmenu);
   }
+#endif
 }
 
 
@@ -8558,9 +8569,9 @@ on_simple1_activate                    (GtkMenuItem     *menuitem,
 {
    GtkWidget *fileselection = coot_screendump_chooser();
    g_object_set_data(G_OBJECT(fileselection), "mode", GINT_TO_POINTER(COOT_SCREENDUMP_SIMPLE));
-   set_directory_for_fileselection(fileselection);
-   set_filename_for_filechooserselection(fileselection, "coot.png");
-   set_file_selection_dialog_size(fileselection);
+   /*    set_directory_for_fileselection(fileselection); */
+   /*    set_filename_for_filechooserselection(fileselection, "coot.png"); */
+   /*    set_file_selection_dialog_size(fileselection); */
    add_ccp4i_project_optionmenu(fileselection, COOT_IMAGE_FILE_SELECTION);
    gtk_widget_show(fileselection);
 
@@ -8576,12 +8587,10 @@ on_povray1_activate                    (GtkMenuItem     *menuitem,
 
    GtkWidget *fileselection = coot_screendump_chooser();
    g_object_set_data(G_OBJECT(fileselection), "mode", GINT_TO_POINTER(COOT_SCREENDUMP_POVRAY));
-   set_directory_for_fileselection(fileselection);
-   set_filename_for_filechooserselection(fileselection,
-				   "coot-povray");
-   set_file_selection_dialog_size(fileselection);
-   add_ccp4i_project_optionmenu(fileselection, 
-                                COOT_IMAGE_FILE_SELECTION);
+   /*    set_directory_for_fileselection(fileselection); */
+   /*    set_filename_for_filechooserselection(fileselection, "coot-povray"); */
+   /*    set_file_selection_dialog_size(fileselection); */
+   add_ccp4i_project_optionmenu(fileselection, COOT_IMAGE_FILE_SELECTION);
    gtk_widget_show(fileselection);
 }
 
@@ -8593,9 +8602,8 @@ on_raster3d1_activate                  (GtkMenuItem     *menuitem,
 
    GtkWidget *fileselection = coot_screendump_chooser();
    g_object_set_data(G_OBJECT(fileselection), "mode", GINT_TO_POINTER(COOT_SCREENDUMP_RASTER3D));
-   set_directory_for_fileselection(fileselection);
-   set_filename_for_filechooserselection(fileselection, 
-				   "coot.png");
+   /*    set_directory_for_fileselection(fileselection); */
+   /*    set_filename_for_filechooserselection(fileselection, "coot.png"); */
    set_file_selection_dialog_size(fileselection);
    add_ccp4i_project_optionmenu(fileselection, 
                                 COOT_IMAGE_FILE_SELECTION);

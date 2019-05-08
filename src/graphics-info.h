@@ -2467,22 +2467,35 @@ public:
    static gboolean on_residue_info_master_atom_b_factor_changed (GtkWidget       *widget,
 								 GdkEventKey     *event,
 								 gpointer         user_data);
+
    // Return the molecule number of the selected map (I mean, top of
    // the list, in the option menu)
-   int fill_option_menu_with_map_options(GtkWidget *option_menu, GCallback signal_func); 
-   void fill_option_menu_with_map_options(GtkWidget *option_menu, GCallback signal_func,
-					  int imol_active_position);
-   int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GCallback signal_func); 
-   int fill_combobox_with_map_mtz_options(GtkWidget *combobox, GCallback signal_func); 
-   int fill_option_menu_with_map_options_generic(GtkWidget *option_menu, GCallback signal_func, int mtz_only=0); 
-   void fill_option_menu_with_difference_map_options(GtkWidget *option_menu, 
-						     GCallback signal_func,
-						     int imol_active_position);
-   void fill_option_menu_with_map_options_internal(GtkWidget *option_menu, 
-						   GCallback signal_func,
-						   std::vector<int> map_molecule_numbers,
-						   int imol_active_position);
+   // int fill_option_menu_with_map_options(GtkWidget *option_menu, GCallback signal_func); 
+   // void fill_option_menu_with_map_options(GtkWidget *option_menu, GCallback signal_func,
+   // int imol_active_position);
+   // int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GCallback signal_func); 
 
+   // int fill_option_menu_with_map_options_generic(GtkWidget *option_menu, GCallback signal_func, int mtz_only=0); 
+   // void fill_option_menu_with_difference_map_options(GtkWidget *option_menu, 
+   // GCallback signal_func,
+   // int imol_active_position);
+   // void fill_option_menu_with_map_options_internal(GtkWidget *option_menu, 
+   // GCallback signal_func,
+   // std::vector<int> map_molecule_numbers,
+   // int imol_active_position);
+   // void fill_option_menu_with_skeleton_options(GtkWidget *option_menu);  /* a wrapper */
+
+   static void refinement_map_combobox_changed(GtkWidget *c, gpointer data);
+   int fill_combobox_with_map_mtz_options(GtkWidget *combobox, GCallback signal_func, int imol);
+
+   void fill_combobox_with_molecule_options(GtkWidget *combobox,
+					    GCallback signal_func,
+					    int imol_active_position,
+					    const std::vector<int> &molecules_index_vec);
+
+   void fill_combobox_with_map_options(GtkWidget *combobox, 
+				       GCallback signal_func,
+				       int imol_active_position);
    void fill_combobox_with_difference_map_options(GtkWidget *combobox, 
 						  GCallback signal_func,
 						  int imol_active_position);
@@ -2495,18 +2508,20 @@ public:
    int try_set_draw_baton(short int i);
 
 
-   void fill_option_menu_with_skeleton_options(GtkWidget *option_menu);  /* a wrapper */
    void set_on_off_skeleton_radio_buttons(GtkWidget *skeleton_frame); 
    void set_on_off_single_map_skeleton_radio_buttons(GtkWidget *skeleton_frame, 
 						     int i); 
    void set_contour_sigma_button_and_entry(GtkWidget *window, int imol);
-      
-   void fill_option_menu_with_refmac_options(GtkWidget *option_menu); 
-   void fill_option_menu_with_refmac_methods_options(GtkWidget *option_menu); 
-   void fill_option_menu_with_refmac_phase_input_options(GtkWidget *option_menu); 
-   void fill_option_menu_with_refmac_labels_options(GtkWidget *option_menu); 
-   void fill_option_menu_with_refmac_file_labels_options(GtkWidget *option_menu); 
-   void fill_option_menu_with_refmac_ncycle_options(GtkWidget *option_menu); 
+
+   /*
+   void fill_option_menu_with_refmac_options(GtkWidget *option_menu);
+   void fill_option_menu_with_refmac_methods_options(GtkWidget *option_menu);
+   void fill_option_menu_with_refmac_phase_input_options(GtkWidget *option_menu);
+   void fill_option_menu_with_refmac_labels_options(GtkWidget *option_menu);
+   void fill_option_menu_with_refmac_file_labels_options(GtkWidget *option_menu);
+   void fill_option_menu_with_refmac_ncycle_options(GtkWidget *option_menu);
+   */
+
    void update_refmac_column_labels_frame(GtkWidget *optionmenu, 
 					  GtkWidget *fobs_menu, GtkWidget *fiobs_menu, GtkWidget *fpm_menu,
 					  GtkWidget *r_free_menu,

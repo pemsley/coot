@@ -828,15 +828,14 @@ fill_lsq_combobox_with_chain_options(GtkWidget *chain_combobox,
    // graphics_info_t::fill_superpose_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
    // int is_reference_structure_flag) {
 
-   GCallback callback_func;
+   GCallback callback_func = 0;
    int imol = -1;
    if (is_reference_structure_flag) {  
       imol = graphics_info_t::lsq_ref_imol;
-      callback_func = G_CALLBACK(lsq_reference_chain_option_menu_item_activate);
+      // callback_func = G_CALLBACK(lsq_reference_chain_option_menu_item_activate);
    } else {
       imol = graphics_info_t::lsq_mov_imol;
-       callback_func =
-	 G_CALLBACK(lsq_moving_chain_option_menu_item_activate);
+      // callback_func = G_CALLBACK(lsq_moving_chain_option_menu_item_activate);
    }
 
    if (false) { // debug

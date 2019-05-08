@@ -781,7 +781,7 @@ void ncs_control_change_ncs_master_to_chain_update_widget(GtkWidget *w, int imol
 GtkWidget *wrapped_nucleotide_builder_dialog();
 void ideal_nucleic_acid_by_widget(GtkWidget *builder_dialog);
 
-gboolean coot_socket_listener_idle_func(gpointer data);
+gint coot_socket_listener_idle_func(gpointer data);
 
 GtkWidget *wrapped_create_map_sharpening_dialog();
 void map_sharpening_map_select(GtkWidget *item, GtkPositionType pos);

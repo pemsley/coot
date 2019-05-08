@@ -821,6 +821,8 @@ coot::animated_ligand_interactions_t::draw(mmdb::Manager *mol,
 					   const gl_context_info_t &gl_info,
 					   const long &start_time) const {
 
+#if 0 // I wonder when I will get this working again... many months 8 May 2019.
+
    mmdb::Atom *at_1 = coot::util::get_atom(ligand_atom_spec, mol);
    mmdb::Atom *at_2 = coot::util::get_atom(interacting_residue_atom_spec, mol);
 
@@ -935,7 +937,8 @@ coot::animated_ligand_interactions_t::draw(mmdb::Manager *mol,
 	    }
 	 }
       }
-   } 
+   }
+#endif   
 }
 
 // add more variables :-)

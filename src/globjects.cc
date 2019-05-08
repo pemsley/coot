@@ -3557,7 +3557,7 @@ gint idle_contour_function(gpointer data) {
 // widget is the glarea.
 // 
 gint
-animate_idle_spin(GtkWidget *widget) {
+animate_idle_spin(gpointer data) {
 
    float spin_quat[4];
    graphics_info_t g;
@@ -3574,7 +3574,7 @@ animate_idle_spin(GtkWidget *widget) {
 
 // widget is the glarea.
 // 
-gboolean
+gint
 animate_idle_rock(gpointer user_data) {
 
    graphics_info_t g; 

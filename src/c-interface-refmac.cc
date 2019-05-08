@@ -659,59 +659,59 @@ void set_refmac_use_sad(int state) {
 }
 
 
-void fill_option_menu_with_refmac_options(GtkWidget *optionmenu) {
+// void fill_option_menu_with_refmac_options(GtkWidget *optionmenu) {
 
-   graphics_info_t g;
-   g.fill_option_menu_with_refmac_options(optionmenu);
+//    graphics_info_t g;
+//    g.fill_option_menu_with_refmac_options(optionmenu);
 
-} 
+// } 
 
-void fill_option_menu_with_refmac_methods_options(GtkWidget *optionmenu) {
+// void fill_option_menu_with_refmac_methods_options(GtkWidget *optionmenu) {
 
-   graphics_info_t g;
-   g.fill_option_menu_with_refmac_methods_options(optionmenu);
+//    graphics_info_t g;
+//    g.fill_option_menu_with_refmac_methods_options(optionmenu);
 
-} 
+// } 
 
-void fill_option_menu_with_refmac_phase_input_options(GtkWidget *optionmenu) {
+// void fill_option_menu_with_refmac_phase_input_options(GtkWidget *optionmenu) {
 
-   graphics_info_t g;
-   g.fill_option_menu_with_refmac_phase_input_options(optionmenu);
+//    graphics_info_t g;
+//    g.fill_option_menu_with_refmac_phase_input_options(optionmenu);
 
-} 
+// } 
 
-void fill_option_menu_with_refmac_labels_options(GtkWidget *optionmenu) {
+// void fill_option_menu_with_refmac_labels_options(GtkWidget *optionmenu) {
 
-   graphics_info_t g;
-   g.fill_option_menu_with_refmac_labels_options(optionmenu);
+//    graphics_info_t g;
+//    g.fill_option_menu_with_refmac_labels_options(optionmenu);
 
-}
+// }
 
-void fill_option_menu_with_refmac_file_labels_options(GtkWidget *optionmenu) {
+// void fill_option_menu_with_refmac_file_labels_options(GtkWidget *optionmenu) {
 
-   graphics_info_t g;
-   g.fill_option_menu_with_refmac_file_labels_options(optionmenu);
+//    graphics_info_t g;
+//    g.fill_option_menu_with_refmac_file_labels_options(optionmenu);
 
-} 
+// } 
 
-void fill_option_menu_with_refmac_ncycle_options(GtkWidget *optionmenu) {
+// void fill_option_menu_with_refmac_ncycle_options(GtkWidget *optionmenu) {
 
-   graphics_info_t g;
-   g.fill_option_menu_with_refmac_ncycle_options(optionmenu);
+//    graphics_info_t g;
+//    g.fill_option_menu_with_refmac_ncycle_options(optionmenu);
 
-}
+// }
 
-void update_refmac_column_labels_frame(GtkWidget *optionmenu, 
-				       GtkWidget *fobs_menu, GtkWidget *fiobs_menu, GtkWidget *fpm_menu,
-				       GtkWidget *r_free_menu,
-				       GtkWidget *phases_menu, GtkWidget *fom_menu, GtkWidget *hl_menu) {
-  graphics_info_t g;
-  g.update_refmac_column_labels_frame(optionmenu,
-				      fobs_menu, fiobs_menu, fpm_menu,
-				      r_free_menu,
-				      phases_menu, fom_menu, hl_menu);
+// void update_refmac_column_labels_frame(GtkWidget *optionmenu, 
+// 				       GtkWidget *fobs_menu, GtkWidget *fiobs_menu, GtkWidget *fpm_menu,
+// 				       GtkWidget *r_free_menu,
+// 				       GtkWidget *phases_menu, GtkWidget *fom_menu, GtkWidget *hl_menu) {
+//   graphics_info_t g;
+//   g.update_refmac_column_labels_frame(optionmenu,
+// 				      fobs_menu, fiobs_menu, fpm_menu,
+// 				      r_free_menu,
+// 				      phases_menu, fom_menu, hl_menu);
 
-}
+// }
 
 void
 fill_refmac_sad_atom_entry(GtkWidget *w) {
@@ -747,6 +747,7 @@ fill_refmac_sad_atom_entry(GtkWidget *w) {
 void
 wrapped_create_run_refmac_dialog() {
    
+#if 0
    GtkWidget *window = create_run_refmac_dialog();
    GCallback callback_func = G_CALLBACK(refmac_molecule_button_select);
    GtkWidget *diff_map_button = lookup_widget(window, "run_refmac_diff_map_checkbutton");
@@ -777,7 +778,7 @@ wrapped_create_run_refmac_dialog() {
 
    /* to set the labels set the active item; only if not twin and
       if we really want the labels from map mtz*/
-#if 0
+
    if (refmac_use_twin_state() == 0 && have_file == 0) {
       GtkWidget *active_menu_item =
 	 gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu))));
@@ -785,7 +786,7 @@ wrapped_create_run_refmac_dialog() {
 	 gtk_menu_item_activate(GTK_MENU_ITEM(active_menu_item));
       }
    }
-#endif
+
    if (refmac_runs_with_nolabels()) {
       GtkWidget *checkbutton = lookup_widget(window, "run_refmac_nolabels_checkbutton");
       gtk_widget_show(checkbutton);
@@ -854,6 +855,7 @@ wrapped_create_run_refmac_dialog() {
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(diff_map_button), TRUE);
 
    gtk_widget_show(window);
+#endif
 }
 
 

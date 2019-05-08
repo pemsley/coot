@@ -4712,8 +4712,8 @@ graphics_info_t::delete_residue_range(int imol,
 	    gint upositionx, upositiony;
             std::cout << "GTK-FIXME gdk_window_get_root_origin A " << std::endl;
 	    // gdk_window_get_root_origin (delete_item_widget->window, &upositionx, &upositiony);
-	    delete_item_widget_x_position = upositionx;
-	    delete_item_widget_y_position = upositiony;
+	    // delete_item_widget_x_position = upositionx;
+	    // delete_item_widget_y_position = upositiony;
 	    gtk_widget_destroy(delete_item_widget);
 	    delete_item_widget = 0;
 	    normal_cursor();

@@ -1467,22 +1467,22 @@ GtkWidget *main_hbox() {
 /*                         file selection                                    */
 /*  ------------------------------------------------------------------------ */
 
-void
-set_directory_for_fileselection(GtkWidget *fileselection1) { 
-   graphics_info_t g;
-   g.set_directory_for_fileselection(fileselection1);
-}
+// void
+// set_directory_for_fileselection(GtkWidget *fileselection1) { 
+//    graphics_info_t g;
+//    g.set_directory_for_fileselection(fileselection1);
+// }
 
-void
-save_directory_from_fileselection(const GtkWidget *fileselection) {
-   graphics_info_t g;
-   g.save_directory_from_fileselection(fileselection);
-}
+// void
+// save_directory_from_fileselection(const GtkWidget *fileselection) {
+//    graphics_info_t g;
+//    g.save_directory_from_fileselection(fileselection);
+// }
 
-void save_directory_for_saving_from_fileselection(const GtkWidget *fileselection) {
-   graphics_info_t g;
-   g.save_directory_for_saving_from_fileselection(fileselection);
-} 
+// void save_directory_for_saving_from_fileselection(const GtkWidget *fileselection) {
+//    graphics_info_t g;
+//    g.save_directory_for_saving_from_fileselection(fileselection);
+// } 
 
 /* and the gtk2 equivalents, we dont use most of them any more but keep
    them for gtk2 move maybe  */
@@ -7840,7 +7840,6 @@ void handle_online_coot_search_request(const char *entry_text) {
 // called by c_inner_main() if we have guile
 void make_socket_listener_maybe() {
 
-
    std::vector<std::string> cmd;
 
    if (graphics_info_t::try_port_listener) { 
@@ -7884,7 +7883,7 @@ int get_remote_control_port_number() {
 }
 
 
-bool coot_socket_listener_idle_func() { 
+gint coot_socket_listener_idle_func(gpointer data) {
 
 #ifdef USE_GUILE
    std::cout << "DEBUG:: running socket idle function" << std::endl;

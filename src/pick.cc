@@ -378,8 +378,14 @@ coot::Cartesian unproject_xyz(int x, int y, float screen_z) {
    double realy_as_double = realy;
    /*  note viewport[3] is height of window in pixels  */
    //printf ("Coordinates at cursor are (%4d, %4d)\n", x, realy);
-   gluUnProject (x_as_double, realy_as_double, screen_z, 
-		 mvmatrix, projmatrix, viewport, &wx, &wy, &wz); 
+
+
+   // we need a non-GLU unproject
+
+   // gluUnProject (x_as_double, realy_as_double, screen_z, 
+   // mvmatrix, projmatrix, viewport, &wx, &wy, &wz); 
+
+
    // printf ("World coords at z=%f are (%f, %f, %f)\n", 
    // screen_z, wx, wy, wz);
 

@@ -127,7 +127,7 @@ void graphics_ligand_view();
 
 void draw_crosshairs_maybe();
 
-gboolean  animate_idle_spin(gpointer user_data);
+gint animate_idle_spin(gpointer user_data);
 gboolean animate_idle_rock(gpointer user_data);
 // gint animate_idle_ligand_interactions(GtkWidget *widget);
 gboolean animate_idle_ligand_interactions(gpointer data);

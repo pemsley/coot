@@ -137,11 +137,12 @@ open_cif_dictionary_file_selector_dialog() {
    if (graphics_info_t::use_graphics_interface_flag) {
 
       GtkWidget *fileselection = coot_cif_dictionary_chooser(); // a chooser or a fileselection
-      add_ccp4i_project_optionmenu(fileselection, COOT_CIF_DICTIONARY_FILE_SELECTION);
-      add_filename_filter_button(fileselection, COOT_CIF_DICTIONARY_FILE_SELECTION);
-      add_sort_button_fileselection(fileselection); 
-      set_directory_for_fileselection(fileselection);
-      set_file_selection_dialog_size(fileselection);
+
+      // add_ccp4i_project_optionmenu(fileselection, COOT_CIF_DICTIONARY_FILE_SELECTION);
+      // add_filename_filter_button(fileselection, COOT_CIF_DICTIONARY_FILE_SELECTION);
+      // add_sort_button_fileselection(fileselection); 
+      // set_directory_for_fileselection(fileselection);
+      // set_file_selection_dialog_size(fileselection);
 
       if (true) {
 
@@ -1872,13 +1873,17 @@ void guile_window_enter_callback( GtkWidget *widget,
 int fill_combobox_with_map_options(GtkWidget *combobox, GCallback signalfunc) {
 
    graphics_info_t g;
-   return g.fill_option_menu_with_map_options(combobox, signalfunc);
+   // return g.fill_option_menu_with_map_options(combobox, signalfunc);
+   g.fill_combobox_with_map_options(combobox, signalfunc, 0);
+
+   return -1;
 }
+
 
 // This is for maps which come from mtz (i.e. have SFs)
 int fill_combobox_with_map_mtz_options(GtkWidget *combobox, GCallback signalfunc) {
    graphics_info_t g;
-   return g.fill_combobox_with_map_mtz_options(combobox, signalfunc);
+   return g.fill_combobox_with_map_mtz_options(combobox, signalfunc, 0);
 }
 
 
@@ -3781,6 +3786,7 @@ void add_ccp4i_projects_to_optionmenu(GtkWidget *optionmenu,
    gtk_widget_show(menu);
 }
 
+#if 0
 // This happens when someone actives the option menu of the CCP4i
 // project in file selectors.
 void
@@ -3826,7 +3832,9 @@ option_menu_refmac_ccp4i_project_signal_func(GtkWidget *item, GtkPositionType po
 		<< std::endl;
    }
 }
+#endif
 
+#if 0
 void
 run_refmac_ccp4i_option_menu_signal_func(GtkWidget *item, GtkPositionType pos) {
 
@@ -3845,6 +3853,7 @@ run_refmac_ccp4i_option_menu_signal_func(GtkWidget *item, GtkPositionType pos) {
 		<< std::endl;
    }
 }
+#endif
 
 void clear_refmac_ccp4i_project() { 
 
@@ -4373,6 +4382,7 @@ skeletonize_map_single_map_maybe(GtkWidget *window, int imol) {
    } 
 }
 
+#if 0
 void set_file_for_save_fileselection(GtkWidget *fileselection) { 
 
    graphics_info_t g;
@@ -4384,8 +4394,8 @@ void set_file_for_save_fileselection(GtkWidget *fileselection) {
    if (g.gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
       g.set_file_for_save_fileselection(fileselection);
    }
-   
 }
+#endif
 
 
 
@@ -4872,9 +4882,9 @@ void export_map_gui(short int export_map_fragment) {
       gtk_widget_hide(hbox);
    }
 
-   GtkWidget *option_menu = lookup_widget(w, "export_map_map_optionmenu");
+   GtkWidget *combobox = lookup_widget(w, "export_map_map_combobox");
    graphics_info_t g;
-   g.fill_option_menu_with_map_options(option_menu, NULL); // we don't want to do anything when the menu is
+   g.fill_combobox_with_map_options(combobox, NULL, 0); // we don't want to do anything when the menu is
                                                         // pressed. We do want to know what the active
                                                         // item was.
 
@@ -5581,19 +5591,16 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
    GtkWidget *w = create_map_sharpening_dialog();
    GCallback signal_func = G_CALLBACK(map_sharpening_map_select);
 
-   GtkWidget *option_menu = lookup_widget(w, "map_sharpening_optionmenu");
-
-   int imol = fill_option_menu_with_map_mtz_options(option_menu, signal_func);
+   // GtkWidget *option_menu = lookup_widget(w, "map_sharpening_optionmenu");
+   // int imol = fill_option_menu_with_map_mtz_options(option_menu, signal_func);
+   int imol = -1;
+   std::cout << "GTK3 FIXME menus in wrapped_create_map_sharpening_dialog() " << std::endl;
 
    if (is_valid_map_molecule(imol)) {
       graphics_info_t::imol_map_sharpening = imol;
 
-      std::cout << "DEBUG:: imol from fill_option_menu_with_map_options() "
-		<< imol << std::endl;
-
       GtkWidget *h_scale = lookup_widget(w, "map_sharpening_hscale");
-      //GtkObject *adj = gtk_adjustment_new(0.0, -sharpening_limit, 2*sharpening_limit,
-      // 0.05, 2, 30.1);
+
       GtkAdjustment *adj = gtk_adjustment_new(0.0, -sharpening_limit, 2*sharpening_limit,
 					      0.05, 0.2, (sharpening_limit+0.1));
       gtk_range_set_adjustment(GTK_RANGE(h_scale), GTK_ADJUSTMENT(adj));
@@ -5606,8 +5613,7 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
    
       // set to sharpening value
       gtk_adjustment_set_value(GTK_ADJUSTMENT(adj), graphics_info_t::molecules[imol].sharpen_b_factor());
-   
-#if (GTK_MAJOR_VERSION > 2) || (GTK_MINOR_VERSION > 14)
+
       int ticks = 3;  // number of ticks on the (one) side (not including centre tick)
       for (int i=0; i<=2*ticks; i++) {
 	 float p = float (i-ticks) * (1.0/float(ticks)) * sharpening_limit;
@@ -5618,7 +5624,6 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
       }
       gtk_scale_add_mark(GTK_SCALE(h_scale), -sharpening_limit, GTK_POS_BOTTOM, "\nSharpen");
       gtk_scale_add_mark(GTK_SCALE(h_scale),  sharpening_limit, GTK_POS_BOTTOM, "\nBlur");
-#endif   
 
       // Don't display the cancel button.
       GtkWidget *c = lookup_widget(w, "map_sharpening_cancel_button");

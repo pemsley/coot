@@ -870,18 +870,17 @@ void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in) {
 #endif // HAVE_GSL
 }
 
-// void
-// add_validation_mol_menu_item(int imol,
-// 			     const std::string &name,
-// 			     GtkWidget *menu,
-// 			     GtkSignalFunc callback) {
+void
+add_validation_mol_menu_item(int imol,
+			     const std::string &name,
+			     GtkWidget *menu,
+ 			     GCallback callback) {
 
-//    GtkWidget *menu_item = gtk_menu_item_new_with_label(name.c_str());
-//    gtk_container_add(GTK_CONTAINER(menu), menu_item);
-//    gtk_signal_connect(GTK_OBJECT(menu_item), "activate",
-// 		      callback, GINT_TO_POINTER(imol));
-//    gtk_widget_show(menu_item);
-// }
+    GtkWidget *menu_item = gtk_menu_item_new_with_label(name.c_str());
+    gtk_container_add(GTK_CONTAINER(menu), menu_item);
+    g_signal_connect(G_OBJECT(menu_item), "activate", callback, GINT_TO_POINTER(imol));
+    gtk_widget_show(menu_item);
+}
 
 
 void
@@ -2044,7 +2043,11 @@ int
 ramachandran_psi_axis_mode() {
 
    graphics_info_t g;
+#ifdef HAVE_GOOCANVAS
    return g.rama_psi_axis_mode;
+#else
+   return 0;
+#endif
 }
 
 // ----------------------------------------------------------------------------------
