@@ -197,12 +197,15 @@ graphics_info_t::graphics_ligand_view() {
       try {
 	 
 	 graphics_info_t g;
+         GtkAllocation allocation;
+         gtk_widget_get_allocation(glarea, &allocation);
+
 	 std::pair<lig_build::pos_t, lig_build::pos_t> ext = 
 	    g.graphics_ligand_mol.ligand_extents();
 
 	 float sc = 28;
-	 float h = float(glarea->allocation.height);
-	 float w = float(glarea->allocation.width);
+	 float h = float(allocation.height);
+	 float w = float(allocation.width);
 	 float ar = h/w;
 	 glPushMatrix();
 	 glLoadIdentity();

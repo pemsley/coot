@@ -28,6 +28,7 @@
 //						   int imol_active_position).
 //
 
+// There is very little here worth saving.
 
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
@@ -96,22 +97,26 @@
 
 #include "guile-fixups.h"
 
+#if 0
 int
 graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu, 
 						   GtkSignalFunc signal_func) {
 
    return fill_option_menu_with_map_options_generic(option_menu, signal_func);
 }
+#endif
 
+#if 0
 int
 graphics_info_t::fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, 
 						       GtkSignalFunc signal_func) {
 
    return fill_option_menu_with_map_options_generic(option_menu, signal_func, 1);
 }
+#endif
 
 int
-graphics_info_t::fill_combobox_with_map_mtz_options(GtkWidget *combobox, GtkSignalFunc signal_func) {
+graphics_info_t::fill_combobox_with_map_mtz_options(GtkWidget *combobox, GCallback signal_func) {
 
    std::cout << "fill fill_combobox_with_map_mtz_options" << combobox << std::endl;
 
@@ -119,6 +124,7 @@ graphics_info_t::fill_combobox_with_map_mtz_options(GtkWidget *combobox, GtkSign
 }
 
 
+#if 0
 int
 graphics_info_t::fill_option_menu_with_map_options_generic(GtkWidget *option_menu, 
                                                            GtkSignalFunc signal_func,
@@ -161,7 +167,10 @@ graphics_info_t::fill_option_menu_with_map_options_generic(GtkWidget *option_men
    gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
    return active_map_mol_no;
 }
+#endif
 
+
+#if 0
 // c.f. the other function:
 // graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu, 
 // 						   GtkSignalFunc signal_func)
@@ -199,8 +208,10 @@ graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
    }
    gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
 }
+#endif
 
 
+#if 0
 void
 graphics_info_t::fill_option_menu_with_difference_map_options(GtkWidget *option_menu, 
 							      GtkSignalFunc signal_func,
@@ -216,8 +227,10 @@ graphics_info_t::fill_option_menu_with_difference_map_options(GtkWidget *option_
 					      imol_active_position);
    
 }
+#endif
 
 
+#if 0
 void
 graphics_info_t::fill_option_menu_with_map_options_internal(GtkWidget *option_menu, 
 							    GtkSignalFunc signal_func,
@@ -254,6 +267,7 @@ graphics_info_t::fill_option_menu_with_map_options_internal(GtkWidget *option_me
    }
    gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
 }
+#endif
 
 void
 graphics_info_t::fill_combobox_with_difference_map_options(GtkWidget *combobox, 
@@ -308,6 +322,7 @@ graphics_info_t::fill_combobox_with_difference_map_options(GtkWidget *combobox,
 }
 
 
+#if 0
 // These are of course *maps*.
 void
 graphics_info_t::fill_option_menu_with_refmac_options(GtkWidget *option_menu) {
@@ -355,7 +370,9 @@ graphics_info_t::fill_option_menu_with_refmac_options(GtkWidget *option_menu) {
 			    menu);
 
 }
+#endif
 
+#if 0
 void
 graphics_info_t::fill_option_menu_with_refmac_methods_options(GtkWidget *option_menu) {
 
@@ -386,7 +403,9 @@ graphics_info_t::fill_option_menu_with_refmac_methods_options(GtkWidget *option_
   gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
 
 }
+#endif
 
+#if 0
 void
 graphics_info_t::fill_option_menu_with_refmac_phase_input_options(GtkWidget *option_menu) {
 
@@ -418,7 +437,10 @@ graphics_info_t::fill_option_menu_with_refmac_phase_input_options(GtkWidget *opt
   gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
 
 }
+#endif
 
+
+#if 0
 // These are mtz files actually.  Change the name of this function
 void
 graphics_info_t::fill_option_menu_with_refmac_labels_options(GtkWidget *option_menu) {
@@ -488,7 +510,10 @@ graphics_info_t::fill_option_menu_with_refmac_labels_options(GtkWidget *option_m
    gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
 
 }
+#endif
 
+
+#if 0
 // to fill the labels directly from a from an mtz file (used in TWIN refinement)
 void
 graphics_info_t::fill_option_menu_with_refmac_file_labels_options(GtkWidget *option_menu) {
@@ -581,7 +606,9 @@ graphics_info_t::fill_option_menu_with_refmac_file_labels_options(GtkWidget *opt
     }
   }
 }
+#endif
 
+#if 0
 void
 graphics_info_t::fill_option_menu_with_refmac_ncycle_options(GtkWidget *option_menu) {
 
@@ -620,8 +647,8 @@ graphics_info_t::fill_option_menu_with_refmac_ncycle_options(GtkWidget *option_m
   }
 
   gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
-
 }
+#endif
 
 void
 graphics_info_t::add_refmac_ncycle_no(int &cycle) {
@@ -917,7 +944,7 @@ graphics_info_t::store_refmac_params(const std::string &mtz_filename,
     std::cout << " the r-free-flag is not sensible" << std::endl;
 }
 
-
+#if 0
 void
 graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
 						   GtkWidget *fobs_menu, GtkWidget *fiobs_menu, GtkWidget *fpm_menu,
@@ -1099,3 +1126,4 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
     }
   } 
 }
+#endif

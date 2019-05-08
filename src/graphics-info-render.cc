@@ -51,11 +51,13 @@ graphics_info_t::raster3d(std::string filename) {
    background.col[0] = background_colour[0];
    background.col[1] = background_colour[1];
    background.col[2] = background_colour[2];
-   int width = 600;
+   int width  = 600;
    int height = 600;
    if (glarea) {
-      width = glarea->allocation.width;
-      height = glarea->allocation.height;
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(glarea, &allocation);
+      width  = allocation.width;
+      height = allocation.height;
    } 
    coot::raytrace_info_t rt(RotationCentre(), zoom, background,
 			    width, height,
@@ -124,9 +126,11 @@ graphics_info_t::povray(std::string filename) {
    background.col[0] = background_colour[0];
    background.col[1] = background_colour[1];
    background.col[2] = background_colour[2];
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(glarea, &allocation);
    coot::raytrace_info_t rt(RotationCentre(), zoom, background,
-			    glarea->allocation.width,
-			    glarea->allocation.height, 
+			    allocation.width,
+			    allocation.height, 
 			    clipping_front,
 			    raster3d_bond_thickness,
 			    raster3d_bone_thickness,
@@ -139,8 +143,8 @@ graphics_info_t::povray(std::string filename) {
    rt.add_display_objects(*generic_objects_p);
 
    // So where is the "eye"? We have to do an unproject:
-   int x0 = glarea->allocation.width/2;
-   int y0 = glarea->allocation.height/2;
+   int x0 = allocation.width/2;
+   int y0 = allocation.height/2;
    coot::Cartesian eye = unproject_xyz(x0, y0, 0);
 
    // It seems that for raster3d, this eye position is good, but for
@@ -202,9 +206,11 @@ graphics_info_t::renderman(std::string filename) {
    background.col[2] = background_colour[2];
    int width = 600;
    int height = 600;
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(glarea, &allocation);
    if (glarea) {
-      width = glarea->allocation.width;
-      height = glarea->allocation.height;
+      width  = allocation.width;
+      height = allocation.height;
    }
    bool is_bb = background_is_black_p(); 
 
@@ -222,7 +228,7 @@ graphics_info_t::renderman(std::string filename) {
 
    float aspect_ratio = 1.3;
    if (use_graphics_interface_flag) { 
-      aspect_ratio = float (glarea->allocation.width)/float (glarea->allocation.height);
+      aspect_ratio = float (allocation.width)/float (allocation.height);
    }
    
    rt.set_ortho_params(-0.3*zoom*aspect_ratio,
@@ -787,8 +793,10 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
       clipper::Polar_ccp4 polar = clipper::Rotation(view_matrix_cl).polar_ccp4();
       std::cout << "kappa: " << polar.kappa() << std::endl;
 
-      int x0 = graphics_info_t::glarea->allocation.width/2;
-      int y0 = graphics_info_t::glarea->allocation.height/2;
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
+      int x0 = allocation.width/2;
+      int y0 = allocation.height/2;
       coot::Cartesian screen_edge1 = unproject_xyz(0, 0, 0);
       coot::Cartesian screen_edge2 = unproject_xyz(x0*2, 0, 0);
 
