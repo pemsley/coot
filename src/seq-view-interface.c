@@ -72,30 +72,30 @@ create_sequence_view_dialog (void)
 
   sequence_view_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_ref (sequence_view_scrolledwindow);
-  g_object_set_data_full (G_OBJECT (sequence_view_dialog), "sequence_view_scrolledwindow", sequence_view_scrolledwindow,
-                          NULL);
+  g_object_set_data_full(G_OBJECT (sequence_view_dialog),
+			 "sequence_view_scrolledwindow",
+			 sequence_view_scrolledwindow,
+			 NULL);
   gtk_widget_show (sequence_view_scrolledwindow);
   gtk_box_pack_start (GTK_BOX (dialog_vbox1), sequence_view_scrolledwindow, TRUE, TRUE, 0);
-
 
   // dialog_action_area1 = GTK_DIALOG (sequence_view_dialog)->action_area;
   dialog_action_area1 = gtk_dialog_get_action_area(GTK_DIALOG(sequence_view_dialog));
 
-  gtk_object_set_data (GTK_OBJECT (sequence_view_dialog), "dialog_action_area1", 
-		       dialog_action_area1);
+  g_object_set_data(G_OBJECT(sequence_view_dialog), "dialog_action_area1", dialog_action_area1);
   gtk_widget_show (dialog_action_area1);
   gtk_container_set_border_width (GTK_CONTAINER (dialog_action_area1), 10);
 
   hbox1 = gtk_hbox_new (FALSE, 0);
-  // gtk_widget_ref (hbox1);
+  g_object_ref (hbox1);
   g_object_set_data_full (G_OBJECT (sequence_view_dialog), "hbox1", hbox1, NULL);
   gtk_widget_show (hbox1);
   gtk_box_pack_start (GTK_BOX (dialog_action_area1), hbox1, TRUE, TRUE, 0);
 
   sequence_view_close_button = gtk_button_new_with_label ("  Close ");
-  // gtk_widget_ref (sequence_view_close_button);
+  g_object_ref(sequence_view_close_button);
   g_object_set_data_full (G_OBJECT (sequence_view_dialog), 
-			    "sequence_view_close_button", sequence_view_close_button, NULL);
+			  "sequence_view_close_button", sequence_view_close_button, NULL);
 
   g_signal_connect (G_OBJECT(sequence_view_close_button), "clicked",
 		      G_CALLBACK(on_sequence_view_close_button_clicked),
@@ -125,7 +125,7 @@ on_sequence_view_dialog_destroy            (GtkWidget       *object,
                                             gpointer         user_data)
 {
    GtkWidget *dialog = (GtkWidget *) user_data;
-   int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(dialog)));
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "imol"));
 /*    printf("debug:: on_sequence_view_dialog_destroy unsetting sequence view for molecule %d using widget %ld\n", imol, dialog); */
    set_sequence_view_is_displayed(0, imol);
 }
