@@ -2243,6 +2243,7 @@ graphics_info_t::draw_moving_atoms_peptide_markup() {
 void 
 graphics_info_t::draw_ramachandran_goodness_spots() {
 
+#if 0   
    if (graphics_info_t::regularize_object_bonds_box.num_colours > 0) {
       if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
 
@@ -2316,6 +2317,7 @@ graphics_info_t::draw_ramachandran_goodness_spots() {
 	 }
       } 
    }
+#endif
 }
 
 #include "utils/dodec.hh"
@@ -2717,7 +2719,7 @@ graphics_info_t::graphics_object_internal_single_tube(const coot::Cartesian &bas
 						      const double &radius,
 						      const coot::tube_end_t &end_type) const {
    
-
+#if 0 // Old OpenGL
    double top =  radius;
    double base = radius;
    int slices  = 12;
@@ -2784,6 +2786,7 @@ graphics_info_t::graphics_object_internal_single_tube(const coot::Cartesian &bas
    
    gluDeleteQuadric(quad);
    glPopMatrix();
+#endif
 }
 
 void
@@ -2792,6 +2795,7 @@ graphics_info_t::graphics_object_internal_arrow(const coot::Cartesian &base_poin
 						float fraction_head_size,
 						const double &radius) const {
 
+#if 0   
    double top =  radius;
    double base = radius;
    int slices  = 12;
@@ -2851,6 +2855,7 @@ graphics_info_t::graphics_object_internal_arrow(const coot::Cartesian &base_poin
    gluDeleteQuadric(quad_2);
    gluDeleteQuadric(quad_3);
    glPopMatrix();
+#endif
 }
 
 void
@@ -2859,7 +2864,7 @@ graphics_info_t::graphics_object_internal_torus(const coot::Cartesian &base_poin
 						const double &radius_1,
 						const double &radius_2,
 						int n_ring_atoms) const {
-
+#if 0
    double top =  0.2;
    double base = 0.2;
    double fraction_head_size = 0.3;
@@ -2901,6 +2906,7 @@ graphics_info_t::graphics_object_internal_torus(const coot::Cartesian &base_poin
       glutSolidTorus(radius_1, radius_2, 20, 32);
       glPopMatrix();
    }
+#endif   
 }
 
 void
@@ -2911,6 +2917,7 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
 					      const coot::Cartesian &normal,
 					      float r, float radius_inner) {
 
+#if 0   
    glPushMatrix();
    
    double cos_theta_y = normal.z();
@@ -3045,11 +3052,13 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
    glEnd();
    
    glPopMatrix();
+#endif   
 }
 
 void
 graphics_info_t::graphics_object_internal_dodec(const coot::generic_display_object_t::dodec_t &dodec) {
 
+#if 0   
    glPushMatrix();
 	       
    glTranslated(dodec.position.x(), dodec.position.y(), dodec.position.z());
@@ -3149,6 +3158,7 @@ graphics_info_t::graphics_object_internal_pentakis_dodec(const coot::generic_dis
       }
    }
    glPopMatrix();
+#endif
 }
 
 
@@ -4970,6 +4980,7 @@ graphics_info_t::draw_atom_pull_restraint() {
 
    // don't draw this if there are not intermediate atoms shown.
 
+#if 0   
    if (! regularize_object_bonds_box.empty()) {
       if (moving_atoms_asc->n_selected_atoms) {
 	 for (std::size_t i=0; i<atom_pulls.size(); i++) {
@@ -5099,6 +5110,7 @@ graphics_info_t::draw_atom_pull_restraint() {
 	 }
       }
    }
+#endif
 }
 
 // Question to self? Have I locked the restraints before I call this?

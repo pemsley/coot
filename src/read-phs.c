@@ -238,20 +238,17 @@ int phs_pdb_cell_symm() {
 
    GtkWidget *widget; 
 
-   if (file_chooser_selector_state()) {
+   if (1) {
      GtkWidget *file_filter_button;
      GtkWidget *sort_button;
      widget = create_phs_coordinates_filechooserdialog1();
      // we use th coords filter button, that should be ok
-     add_ccp4i_project_optionmenu(widget, COOT_COORDS_FILE_SELECTION);
+     // add_ccp4i_project_optionmenu(widget, COOT_COORDS_FILE_SELECTION);
      file_filter_button = add_filename_filter_button(widget, 
                                                      COOT_COORDS_FILE_SELECTION);
      sort_button = add_sort_button_fileselection(widget);
      push_the_buttons_on_fileselection(file_filter_button, sort_button, 
                                        widget);
-   } else {
-     widget = create_phs_coordinates_fileselection(); 
-     set_directory_for_fileselection(widget);
    }
 
    gtk_widget_show(widget); 

@@ -63,15 +63,17 @@ create_sequence_view_dialog (void)
   sequence_view_dialog = gtk_dialog_new ();
   g_object_set_data (G_OBJECT (sequence_view_dialog), "sequence_view_dialog", sequence_view_dialog);
   gtk_window_set_title (GTK_WINDOW (sequence_view_dialog), "Sequence View");
-  gtk_window_set_policy (GTK_WINDOW (sequence_view_dialog), TRUE, TRUE, FALSE);
+  // gtk_window_set_policy (GTK_WINDOW (sequence_view_dialog), TRUE, TRUE, FALSE);
+  gtk_window_set_resizable (GTK_WINDOW (sequence_view_dialog), TRUE);
 
   // dialog_vbox1 = GTK_DIALOG (sequence_view_dialog)->vbox;
-  dialog_vbox1 = gtk_dialog_get_content_bar(GTK_DIALOG(sequence_view_dialog));
+  // maybe I want gtk_dialog_get_header_bar()?
+  dialog_vbox1 = gtk_dialog_get_content_area(GTK_DIALOG(sequence_view_dialog));
   g_object_set_data (G_OBJECT (sequence_view_dialog), "dialog_vbox1", dialog_vbox1);
   gtk_widget_show (dialog_vbox1);
 
   sequence_view_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
-  gtk_widget_ref (sequence_view_scrolledwindow);
+  g_object_ref (sequence_view_scrolledwindow);
   g_object_set_data_full(G_OBJECT (sequence_view_dialog),
 			 "sequence_view_scrolledwindow",
 			 sequence_view_scrolledwindow,
@@ -80,6 +82,7 @@ create_sequence_view_dialog (void)
   gtk_box_pack_start (GTK_BOX (dialog_vbox1), sequence_view_scrolledwindow, TRUE, TRUE, 0);
 
   // dialog_action_area1 = GTK_DIALOG (sequence_view_dialog)->action_area;
+  // use gtk_dialog_add_button (), no need to extract the action area first
   dialog_action_area1 = gtk_dialog_get_action_area(GTK_DIALOG(sequence_view_dialog));
 
   g_object_set_data(G_OBJECT(sequence_view_dialog), "dialog_action_area1", dialog_action_area1);

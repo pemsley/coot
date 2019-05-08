@@ -673,32 +673,12 @@ GtkWidget *wrapped_create_least_squares_dialog() {
    std::string chain_id_ref = g.lsq_dialog_values.chain_id_ref.c_str();
    std::string chain_id_mov = g.lsq_dialog_values.chain_id_mov.c_str();
 
-   fill_lsq_option_menu_with_chain_options(ref_mol_chain_id_option_menu, 1, chain_id_ref.c_str());
-   fill_lsq_option_menu_with_chain_options(mov_mol_chain_id_option_menu, 0, chain_id_mov.c_str());
+   std::cout << "GTK3 FIXME comboxboxes for chains" << std::endl;
+   // fill_lsq_option_menu_with_chain_options(ref_mol_chain_id_option_menu, 1, chain_id_ref.c_str());
+   // fill_lsq_option_menu_with_chain_options(mov_mol_chain_id_option_menu, 0, chain_id_mov.c_str());
 
    return lsq_dialog;
 
-}
-
-void
-lsq_ref_mol_option_menu_changed(GtkWidget *item, GtkPositionType pos) {
-
-   graphics_info_t::lsq_ref_imol = pos;
-
-   // now change the chain optionmenu for the reference structure:
-   GtkWidget *ref_mol_chain_id_option_menu = lookup_widget(item, "least_squares_reference_chain_id");
-   fill_lsq_option_menu_with_chain_options(ref_mol_chain_id_option_menu, 1, "");
-   
-}
-
-void
-lsq_mov_mol_option_menu_changed(GtkWidget *item, GtkPositionType pos) {
-
-   graphics_info_t::lsq_mov_imol = pos;
-
-   // now change the chain optionmenu for the moving structure:
-   GtkWidget *mov_mol_chain_id_option_menu = lookup_widget(item, "least_squares_moving_chain_id");
-   fill_lsq_option_menu_with_chain_options(mov_mol_chain_id_option_menu, 0, "");
 }
 
 
