@@ -61,13 +61,13 @@ create_sequence_view_dialog (void)
   GtkWidget *aa;
 
   sequence_view_dialog = gtk_dialog_new ();
-  gtk_object_set_data (GTK_OBJECT (sequence_view_dialog), "sequence_view_dialog", sequence_view_dialog);
+  g_object_set_data (G_OBJECT (sequence_view_dialog), "sequence_view_dialog", sequence_view_dialog);
   gtk_window_set_title (GTK_WINDOW (sequence_view_dialog), "Sequence View");
   gtk_window_set_policy (GTK_WINDOW (sequence_view_dialog), TRUE, TRUE, FALSE);
 
   // dialog_vbox1 = GTK_DIALOG (sequence_view_dialog)->vbox;
   dialog_vbox1 = gtk_dialog_get_content_bar(GTK_DIALOG(sequence_view_dialog));
-  gtk_object_set_data (GTK_OBJECT (sequence_view_dialog), "dialog_vbox1", dialog_vbox1);
+  g_object_set_data (G_OBJECT (sequence_view_dialog), "dialog_vbox1", dialog_vbox1);
   gtk_widget_show (dialog_vbox1);
 
   sequence_view_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
