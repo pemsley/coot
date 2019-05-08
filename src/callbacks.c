@@ -197,125 +197,7 @@ on_clipping1_activate                  (GtkMenuItem     *menuitem,
 }
 
 
-void
-on_ok_button_coordinates_clicked       (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  GtkWidget *coords_fileselection1;
-  GtkWidget *checkbutton;
-  int recentre_on_read_pdb_flag = 0;
-  /* new option menu variables */
-  GtkWidget *option_menu;
-  GtkWidget *menu;
-  GtkWidget *active_item;
-  int active_index;
-  short int move_molecule_here_flag = 0;
-  char **files_arr;
 
-  coords_fileselection1 = lookup_widget(GTK_WIDGET(button),
-					"coords_fileselection1");
-  
-  if (0) {			/* old style */
-    checkbutton = lookup_widget(GTK_WIDGET(button), 
-			      "coords_fileselection1_recentre_checkbutton");
-    if (checkbutton)
-      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
-	recentre_on_read_pdb_flag = 1;
-  } else {
-    /* new style 20081214 */
-    option_menu = lookup_widget(GTK_WIDGET(button), 
-				"coords_fileselection1_recentre_optionmenu");
-    if (option_menu) { 
-      // menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
-      // active_item = gtk_menu_get_active(GTK_MENU(menu));
-      // active_index = g_list_index(GTK_MENU_SHELL(menu)->children, active_item);
-
-      active_index = 0;		/* GTK-FIXME */
-      /* active items: 0: recentre view on new molecule
-	               1: don't recentre new molecule
-	               2: recentre new molecule on view
-      */
-      if (active_index == 0) 
-	recentre_on_read_pdb_flag = 1;
-      if (active_index == 1) 
-	recentre_on_read_pdb_flag = 0;
-      if (active_index == 2) 
-	move_molecule_here_flag = 1;
-    }
-  }
-
-  save_directory_from_fileselection(coords_fileselection1);
-
-  files_arr = gtk_file_selection_get_selections(GTK_FILE_SELECTION(coords_fileselection1));
-  while (*files_arr) {
-   
-/*     From here, we go into c++ (that's why the c++ function
-       handle_read_draw needs to be declared external) and read the
-       molecule and display it. */
-    
-    if (move_molecule_here_flag) { 
-      handle_read_draw_molecule_and_move_molecule_here(*files_arr);
-    } else { 
-      if (recentre_on_read_pdb_flag)
-	handle_read_draw_molecule_with_recentre(*files_arr, 1);
-      else 
-	handle_read_draw_molecule_with_recentre(*files_arr, 0); // no recentre
-    }
-    files_arr++;
-  }
-  gtk_widget_destroy(coords_fileselection1); 
-
-}
-
-
-void
-on_ok_button_dataset_clicked           (GtkButton       *button,
-                                        gpointer         user_data)
-{
-   const gchar *filename; 
-   gchar *copied_filename;
-   int auto_read_flag = 0, ismtz = 0, ismtzauto = 0, iscnsauto = 0;
-
-   GtkWidget *dataset_fileselection1;
-
-   dataset_fileselection1 = lookup_widget(GTK_WIDGET(button),
-					  "dataset_fileselection1");
-
-   save_directory_from_fileselection(dataset_fileselection1);
-   filename = gtk_file_selection_get_filename 
-      (GTK_FILE_SELECTION(dataset_fileselection1));
-   
-   copied_filename = (char *) malloc(strlen(filename) + 1);
-   strcpy(copied_filename, filename);
-
-   auto_read_flag = GPOINTER_TO_INT(g_object_get_data(GTK_OBJECT(dataset_fileselection1), "auto_read_flag"));
-   ismtz = is_mtz_file_p(filename);
-   if (ismtz) ismtzauto = mtz_file_has_phases_p(filename);
-   else       iscnsauto = cns_file_has_phases_p(filename);
-
-   if (ismtzauto || iscnsauto) {
-
-      if (auto_read_flag) { 
-	 wrapped_auto_read_make_and_draw_maps(filename);
-      } else {
-	 /* this does a create_column_label_window, fills and displays it. */
-	 manage_column_selector(copied_filename);
-      }
-
-   } else { 
-
-      /* no phases path */
-      if (auto_read_flag) printf ("INFO:: This file is not a map coefficient file. Coot can auto-read\nINFO::  - MTZ files from refmac, phenix.refine, phaser, parrot, dm.\nINFO::  - CNS files (new 2009 format only) with cell, symops, F1, F2.\n");
-      if (ismtz) { 
-	 calc_phases_generic(filename);
-      } else { 
-	 /* try to read as a phs, cif, fcf etc... */
-	 manage_column_selector(copied_filename);
-      }
-   }
-   free(copied_filename);
-   gtk_widget_destroy(dataset_fileselection1); 
-}
 
 void
 on_cancel_coords_button1_clicked       (GtkButton       *button,
@@ -1221,56 +1103,19 @@ on_open_map1_activate                  (GtkMenuItem     *menuitem,
 					      COOT_MAP_FILE_SELECTION);
    sort_button = add_sort_button_fileselection(map_name_fileselection1); 
    set_directory_for_fileselection(map_name_fileselection1);
-#if (GTK_MAJOR_VERSION == 1)
+
    push_the_buttons_on_fileselection(filter_button, sort_button, 
 				     map_name_fileselection1);
-#endif
+
    set_file_selection_dialog_size(map_name_fileselection1);
    gtk_widget_show (map_name_fileselection1);
-#if (GTK_MAJOR_VERSION > 1)
+
    push_the_buttons_on_fileselection(filter_button, sort_button, 
 				     map_name_fileselection1);
-#endif
+
 }
 
 
-void
-on_ok_button_map_name_clicked          (GtkButton       *button,
-                                        gpointer         user_data)
-{
-   const char* filename; 
-   char *sfile; 
-   GtkWidget* map_name_fileselection1; 
-   GtkWidget *checkbutton;
-   short int is_diff_map_flag = 0;
-   
-   map_name_fileselection1 = GTK_WIDGET(lookup_widget(GTK_WIDGET(button), 
-						      "map_name_fileselection1"));
-   save_directory_from_fileselection(map_name_fileselection1);
-
-   /* I don't think that we need to malloc this. */
-
-   checkbutton = lookup_widget(GTK_WIDGET(button), 
-			       "map_fileselection_is_difference_map_button");
-
-   if (checkbutton)
-     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) 
-       is_diff_map_flag = 1;
-
-   filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(map_name_fileselection1)); 
-   
-
-   printf("CCP4 map filename: %s\n", filename); 
-   sfile = (char *) malloc (1001); 
-   strncpy(sfile, filename, 1000); 
-
-   gtk_widget_destroy(map_name_fileselection1); /* the file browser,
-						   when destroyed,
-						   scribbles over
-						   filename. */
-   handle_read_ccp4_map(sfile, is_diff_map_flag); 
-   free(sfile);
-}
 
 
 void
@@ -1339,27 +1184,6 @@ on_phs_info_cancel_button_clicked      (GtkButton       *button,
    gtk_widget_destroy(lookup_widget(GTK_WIDGET(button), 
 				    "phs_info_box"));
 
-}
-
-
-void
-on_ok_phs_coord_button_clicked         (GtkButton       *button,
-                                        gpointer         user_data)
-{
-
-  const char *filename;
-  GtkWidget *phs_fileselection; 
-
-   phs_fileselection = lookup_widget(GTK_WIDGET(button), 
-				     "phs_coordinates_fileselection");
-
-   filename = gtk_file_selection_get_filename
-     (GTK_FILE_SELECTION(phs_fileselection));
-
-   save_directory_from_fileselection(phs_fileselection);
-   read_phs_and_coords_and_make_map(filename); 
-
-   gtk_widget_destroy(phs_fileselection); /* destroy *after* we use filename */
 }
 
 
@@ -1823,9 +1647,12 @@ on_scripting_window_activate           (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 
+  /* What does this function do!? */
+
 #if (GTK_MAJOR_VERSION == 1) 
   post_scheme_scripting_window();
 #endif
+
 }
 
 
@@ -1860,7 +1687,7 @@ on_get_pdb_and_sf_using_code1_activate (GtkMenuItem     *menuitem,
   GtkWidget *window; 
   int n = 2;
   window = create_accession_code_window(); 
-  gtk_object_set_user_data(GTK_OBJECT(window), "mode", GINT_TO_POINTER(n));
+  g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
   gtk_widget_show(window); 
 }
 
@@ -1872,7 +1699,7 @@ on_fetch_pdb_and_map_using_pdbredo1_activate
   GtkWidget *window; 
   int n = 3;
   window = create_accession_code_window(); 
-  gtk_object_set_user_data(GTK_OBJECT(window), "mode", GINT_TO_POINTER(n));
+  g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
   gtk_widget_show(window); 
 
 }
@@ -2164,7 +1991,7 @@ on_save_coord_ok_button_clicked        (GtkButton       *button,
 
   widget = lookup_widget(GTK_WIDGET(button), "save_coords_fileselection1");
   save_directory_for_saving_from_fileselection(fileselection);
-  stuff = g_object_get_data(GTK_OBJECT(widget), "stuff"); /* probably needs fixing GTK-FIXME */
+  stuff = g_object_get_data(G_OBJECT(widget), "stuff"); /* probably needs fixing GTK-FIXME */
   save_coordinates_using_widget(widget);
   free(stuff);
   gtk_widget_destroy(widget);
@@ -2180,7 +2007,7 @@ on_save_coords_cancel_button_clicked   (GtkButton       *button,
 
   widget = lookup_widget(GTK_WIDGET(button),
 			 "save_coords_fileselection1");
-  stuff = g_object_get_data(GTK_OBJECT(widget), "stuff");
+  stuff = g_object_get_data(G_OBJECT(widget), "stuff");
   free(stuff);
   gtk_widget_destroy(widget);
 
@@ -2683,52 +2510,6 @@ void on_import_cif_dictionary1_activate     (GtkMenuItem     *menuitem,
 
 
 
-void 
-on_cif_dictionary_fileselection_ok_button_clicked (GtkButton       *button,
-						   gpointer         user_data)
-{
-  const char *filename;
-  GtkWidget *fileselection;
-  GtkWidget *dictionary_molecule_selector_option_menu = NULL;
-  GtkWidget *active_menu_item;
-  GtkWidget *menu;
-  int imol_enc = -999997;	/* unset value */
-  GtkWidget *checkbutton = lookup_widget(GTK_WIDGET(button), 
-					 "cif_dictionary_file_selector_create_molecule_checkbutton");
-  short int new_molecule_checkbutton_state = 0;
-
-   if (checkbutton)
-     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
-      new_molecule_checkbutton_state = 1;
-
-  fileselection = lookup_widget(GTK_WIDGET(button), "cif_dictionary_fileselection");
-
-  if (fileselection) { 		/* it might be a file chooser */
-    save_directory_from_fileselection(fileselection);
-    filename = gtk_file_selection_get_filename 
-      (GTK_FILE_SELECTION(fileselection));
-
-    dictionary_molecule_selector_option_menu = 
-      lookup_widget(GTK_WIDGET(button),
-		    "cif_dictionary_file_selector_molecule_select_option_menu");
-    if (dictionary_molecule_selector_option_menu) {
-      menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(dictionary_molecule_selector_option_menu));
-      if (menu) {
-	active_menu_item = gtk_menu_get_active(GTK_MENU(menu));
-	if (active_menu_item) {
-	  imol_enc = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(active_menu_item), 
-						       "select_molecule_number"));
-	}
-      }
-    }
-    /* handle_cif_dictionary_for_molecule() returns new_compid_idx, but we don't do anything
-       with it, so remove it. */
-    handle_cif_dictionary_for_molecule(filename, imol_enc, new_molecule_checkbutton_state);
-    gtk_widget_destroy(fileselection);
-  }
-}
-
-
 void
 on_cif_dictionary_fileselection_cancel_button_clicked
                                         (GtkButton       *button,
@@ -3208,30 +2989,6 @@ on_run_script1_activate                (GtkMenuItem     *menuitem,
   gtk_widget_show(widget);
 }
 
-
-void
-on_run_script_fileselection_ok_button_clicked (GtkButton       *button,
-					       gpointer         user_data)
-{
-  GtkWidget *fileselection = lookup_widget(GTK_WIDGET(button),
-					   "run_script_fileselection");
-
-  const char *script_filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(fileselection));
-  run_script(script_filename);
-  gtk_widget_destroy(fileselection);
-}
-
-
-void
-on_run_script_fileselection_cancel_button_clicked (GtkButton       *button,
-						   gpointer         user_data)
-{
-  GtkWidget *fileselection = lookup_widget(GTK_WIDGET(button),
-					   "run_script_fileselection");
-
-  gtk_widget_destroy(fileselection);
-
-}
 
 
 void
@@ -3947,7 +3704,7 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
   GtkWidget  *colorseldlg;
   GtkColorSelection *colorsel;
   gdouble *colour;
-  int imol = GPOINTER_TO_INT(g_object_get_data(GTK_OBJECT(window), "imol"));
+  int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "imol"));
 
   if (is_valid_map_molecule(imol)) {
 
@@ -4133,12 +3890,7 @@ on_run_refmac_map_mtz_radiobutton_toggled
   GtkWidget *map_optionmenu  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_optionmenu");
   GtkWidget *active_menu_item;
   if (gtk_toggle_button_get_active(togglebutton)) {
-    /* update the map column labels */
-    fill_option_menu_with_refmac_labels_options(map_optionmenu);
-    active_menu_item = gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(map_optionmenu))));
-    if (active_menu_item) {
-      gtk_menu_item_activate(GTK_MENU_ITEM(active_menu_item));
-    }
+    printf("GTK3 FIXME\n");
   }
 
 }
@@ -4312,6 +4064,8 @@ void
 on_run_refmac_phase_combine_checkbutton_toggled (GtkToggleButton *togglebutton,
 						 gpointer         user_data)
 {
+
+#if 0				/* complete rewrite */
   GtkWidget *phases_hbox;
   GtkWidget *hl_hbox;
   GtkWidget *phases_optionmenu;
@@ -4352,6 +4106,7 @@ on_run_refmac_phase_combine_checkbutton_toggled (GtkToggleButton *togglebutton,
     gtk_widget_hide(hl_hbox);
   }
 
+#endif
 }
 
 
@@ -5533,7 +5288,7 @@ on_single_map_sigma_checkbutton_toggled (GtkToggleButton *togglebutton,
   GtkWidget *window = lookup_widget(GTK_WIDGET(togglebutton),
 				    "single_map_properties_dialog");
   GtkWidget *entry  = lookup_widget(window, "single_map_sigma_step_entry");
-  int imol = GPOINTER_TO_INT(g_object_get_user_data(G_OBJECT(window), "imol"));
+  int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "imol"));
   const char *text = gtk_entry_get_text(GTK_ENTRY(entry));
   float v;
 
@@ -5649,7 +5404,7 @@ on_column_label_expert_mode_button_clicked
   /* we also need to redo the F column label chooser to include anomalous option  */
 
 
-   if (GTK_WIDGET_VISIBLE(frame)) {
+   if (gtk_widget_get_visible(frame)) {
     gtk_widget_hide(frame);
    } else {
      gtk_widget_show(frame);
@@ -8513,20 +8268,6 @@ on_on_line_documentation_ok_button_clicked
 }
 
 
-void
-on_save_state_ok_button1_clicked       (GtkButton       *button,
-                                        gpointer         user_data)
-{
-   GtkWidget *w = lookup_widget(GTK_WIDGET(button),
-				"save_state_fileselection");
-
-   const char *filename = gtk_file_selection_get_filename 
-     (GTK_FILE_SELECTION(w));
-
-   save_state_file(filename);    /* write the file */
-   set_save_state_file_name(filename); /* save as a static in graphics_info_t */
-   gtk_widget_destroy(w);
-}
 
 
 void
@@ -8535,7 +8276,6 @@ on_save_state_cancel_button1_clicked   (GtkButton       *button,
 {
    GtkWidget *w = lookup_widget(GTK_WIDGET(button),
 				"save_state_fileselection");
-
    gtk_widget_destroy(w);
 }
 
@@ -8862,28 +8602,6 @@ on_raster3d1_activate                  (GtkMenuItem     *menuitem,
    gtk_widget_show(fileselection);
 }
 
-
-void
-on_screendump_image_ok_button_clicked  (GtkButton       *button,
-                                        gpointer         user_data)
-{
-
-   GtkWidget *fileselection = lookup_widget(GTK_WIDGET(button), 
-					    "screendump_fileselection");
-   int image_type = GPOINTER_TO_INT(g_object_get_user_data(G_OBJECT(fileselection), "mode"));
-   const char *filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(fileselection));
-
-   if (image_type == COOT_SCREENDUMP_SIMPLE) { 
-      screendump_image(filename);
-   } 
-   if (image_type == COOT_SCREENDUMP_POVRAY) { 
-      make_image_povray(filename);
-   } 
-   if (image_type == COOT_SCREENDUMP_RASTER3D) { 
-      make_image_raster3d(filename);
-   } 
-   gtk_widget_destroy(fileselection);
-}
 
 
 void
@@ -10884,6 +10602,8 @@ on_cif_dictionary_filechooserdialog1_response(GtkDialog * dialog,
      dictionary_molecule_selector_option_menu =
 	lookup_widget(GTK_WIDGET(dialog),
 		      "cif_dictionary_file_selector_molecule_select_option_menu");
+
+     /* GTK3 FIXME
      if (dictionary_molecule_selector_option_menu) {
 	menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(dictionary_molecule_selector_option_menu));
 	if (menu) {
@@ -10896,6 +10616,7 @@ on_cif_dictionary_filechooserdialog1_response(GtkDialog * dialog,
      } else {
 	printf("-------- missing dictionary_molecule_selector_option_menu ---\n");
      }
+     */
 
      handle_cif_dictionary_for_molecule(filename, imol_enc,
 					new_molecule_checkbutton_state);
@@ -11387,7 +11108,6 @@ on_restraint_editor_delete_restraint_button_clicked
 
 
 
-#if ((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 9))
 GtkFileChooserConfirmation
 on_save_restraint_chooserdialog_confirm_overwrite
                                         (GtkFileChooser  *filechooser,
@@ -11399,7 +11119,6 @@ on_save_restraint_chooserdialog_confirm_overwrite
     return GTK_FILE_CHOOSER_CONFIRMATION_ACCEPT_FILENAME;
   }
 }
-#endif
 
 void
 on_save_restraint_chooserdialog_response(GtkDialog       *dialog,
@@ -11587,7 +11306,6 @@ on_coot_references_molprobity_toolbutton_clicked
 }
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_calpha_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11596,10 +11314,8 @@ on_coot_references_calpha_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_CALPHA);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_xligand_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11608,9 +11324,7 @@ on_coot_references_xligand_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_XLIGAND);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_eds_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11619,10 +11333,8 @@ on_coot_references_eds_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_EDS);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_others_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11632,7 +11344,6 @@ on_coot_references_others_toolbutton_clicked
 
 }
 
-#endif /* GTK_MAJOR_VERSION */
 
 void
 on_coot_references_closebutton_clicked (GtkButton       *button,
@@ -11702,7 +11413,7 @@ on_model_toolbar_rot_trans_toolbutton_show_menu
   gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), TRUE);
   
 }
-#endif	/* GTK_MAJOR_VERSION */
+#endif
 
 #ifdef GTK_TYPE_MENU_TOOL_BUTTON
 void
@@ -11713,7 +11424,7 @@ on_model_toolbar_rot_trans_toolbutton_clicked
   printf("clicked!\n");
   do_rot_trans_setup(1);
 } 
-#endif	/* GTK_MAJOR_VERSION */
+#endif
 
 
 void
@@ -11841,7 +11552,6 @@ on_baton_build_params_cancel_button_clicked
 
 
 /* BL says:: comment out whole function for GTK1 as we dont have the dialog */
-#if (GTK_MAJOR_VERSION >1)
 void
 on_baton_build_set_params_button_clicked
                                         (GtkButton       *button,
@@ -11851,20 +11561,15 @@ on_baton_build_set_params_button_clicked
   gtk_widget_show(w);
 
 } 
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coords_toolbutton_clicked           (GtkToolButton   *toolbutton,
                                         gpointer         user_data)
 {
   open_coords_dialog();
 }
-#endif /* GTK_MAJOR_VERSION */
 
-
-#if (GTK_MAJOR_VERSION >1)
 void
 on_go_to_atom_toolbutton_clicked       (GtkToolButton   *toolbutton,
                                         gpointer         user_data) { 
@@ -11872,16 +11577,12 @@ on_go_to_atom_toolbutton_clicked       (GtkToolButton   *toolbutton,
   GtkWidget *widget = wrapped_create_goto_atom_window(); 
   gtk_widget_show(widget); 
 }
-#endif /* GTK_MAJOR_VERSION */
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_go_to_ligand_toolbutton_clicked     (GtkToolButton   *toolbutton,
                                         gpointer         user_data) { 
   go_to_ligand();
 } 
-
-#endif /* GTK_MAJOR_VERSION */
 
 
 void
@@ -11979,7 +11680,7 @@ on_displayed_map_style_as_cut_glass_radiobutton_toggled
 
   GtkWidget *window = lookup_widget(GTK_WIDGET(togglebutton),
 				    "single_map_properties_dialog");
-  int imol = GPOINTER_TO_INT(g_object_get_user_data(G_OBJECT(window), "imol"));
+  int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "imol"));
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
     set_draw_map_standard_lines(imol, 0);
     set_draw_solid_density_surface(imol, 1);
@@ -11994,7 +11695,7 @@ on_displayed_map_style_as_transparent_radiobutton_toggled
 					 gpointer         user_data) { 
   GtkWidget *window = lookup_widget(GTK_WIDGET(togglebutton),
 				    "single_map_properties_dialog");
-  int imol = GPOINTER_TO_INT(g_object_get_user_data(G_OBJECT(window), "imol"));
+  int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "imol"));
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) { 
     set_draw_map_standard_lines(imol, 0);
     set_draw_solid_density_surface(imol, 1);
@@ -12011,7 +11712,7 @@ on_map_opacity_hscale_value_changed    (GtkRange        *range,
   float fvalue;
   GtkWidget *window = lookup_widget(GTK_WIDGET(range),
 				    "single_map_properties_dialog");
-  int imol = GPOINTER_TO_INT(g_object_get_user_data(G_OBJECT(window), "imol"));
+  int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "imol"));
 
   adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
   fvalue = 0.01 * gtk_adjustment_get_value(adjustment);
