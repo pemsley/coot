@@ -69,6 +69,8 @@ static char *dummy_pixmap_xpm[] = {
 static GtkWidget*
 create_dummy_pixmap                    (GtkWidget       *widget)
 {
+
+#if 0
   GdkColormap *colormap;
   GdkPixmap *gdkpixmap;
   GdkBitmap *mask;
@@ -83,6 +85,8 @@ create_dummy_pixmap                    (GtkWidget       *widget)
   gdk_pixmap_unref (gdkpixmap);
   gdk_bitmap_unref (mask);
   return pixmap;
+#endif
+  return 0;
 }
 
 /* Use this function to set the directory containing installed pixmaps. */
@@ -98,6 +102,8 @@ GtkWidget*
 create_pixmap                          (GtkWidget       *widget,
                                         const gchar     *filename)
 {
+
+#if 0
   gchar *found_filename = NULL;
   GdkColormap *colormap;
   GdkPixmap *gdkpixmap;
@@ -147,6 +153,8 @@ create_pixmap                          (GtkWidget       *widget,
   gdk_pixmap_unref (gdkpixmap);
   gdk_bitmap_unref (mask);
   return pixmap;
+#endif
+  return 0;
 }
 
 /* This is an internally used function to check if a pixmap file exists. */
