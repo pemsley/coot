@@ -2591,7 +2591,6 @@ on_preferences_font_size_others_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_preferences_font_size_combobox_changed
                                         (GtkComboBox     *combobox,
@@ -2611,7 +2610,6 @@ void
 on_preferences_font_colorbutton_color_set
                                         (GtkColorButton  *colorbutton,
                                         gpointer         user_data);
-#endif
 
 void
 on_preferences_font_colorbutton_clicked
@@ -2628,12 +2626,10 @@ on_preferences_pink_pointer_entry_changed
                                         (GtkEditable     *editable,
                                         gpointer         user_data);
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_preferences_bond_width_combobox_changed
                                         (GtkComboBox     *combobox,
                                         gpointer         user_data);
-#endif
 
 void
 on_preferences_model_toolbar_show_radiobutton_toggled
@@ -3632,7 +3628,6 @@ void
 on_display_manager_button_clicked      (GtkButton       *button,
                                         gpointer         user_data);
 
-#if (GTK_MAJOR_VERSION == 2)
 
 void
 on_display_manager_toolbutton_clicked  (GtkToolButton   *toolbutton,
@@ -3725,7 +3720,6 @@ on_run_script_filechooserdialog1_destroy
 					(GtkWidget * object, 
 					gpointer user_data);
 
-#if ((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 9))
 GtkFileChooserConfirmation
 on_save_coords_filechooserdialog1_confirm_overwrite
 					(GtkFileChooser * filechooser, 
@@ -3745,7 +3739,6 @@ GtkFileChooserConfirmation
 on_screendump_filechooserdialog1_confirm_overwrite
 					(GtkFileChooser * filechooser, 
 					gpointer user_data);
-#endif	/* GTK_MINOR_VERSION */
 
 void
 on_save_symmetry_coords_filechooserdialog1_response
@@ -3782,7 +3775,6 @@ on_screendump_filechooserdialog1_destroy
 					(GtkWidget * object, 
 					gpointer user_data);
 
-#endif 
 
 
 void
@@ -3825,7 +3817,6 @@ on_model_toolbar_select_map_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_model_toolbar_refine_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -3848,19 +3839,15 @@ on_model_toolbar_rigid_body_fit_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);
 
-#ifdef GTK_TYPE_MENU_TOOL_BUTTON
 void
 on_model_toolbar_rot_trans_toolbutton_show_menu
                                         (GtkMenuToolButton *menutoolbutton,
                                         gpointer         user_data);
-#endif
 
-#ifdef GTK_TYPE_MENU_TOOL_BUTTON
 void
 on_model_toolbar_rot_trans_toolbutton_clicked
                                         (GtkMenuToolButton *menutoolbutton,
                                         gpointer         user_data);
-#endif
 
 void
 on_model_toolbar_rot_trans_togglebutton_toggled
@@ -3931,7 +3918,6 @@ on_model_toolbar_display_manager_togglebutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);
 
-#endif /* GTK_MAJOR_VERSION */
 
 void
 on_model_toolbar_find_water_button_clicked
@@ -4142,12 +4128,10 @@ on_restraint_editor_delete_restraint_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
 
-#if ((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 9))
 GtkFileChooserConfirmation
 on_save_restraint_chooserdialog_confirm_overwrite
                                         (GtkFileChooser  *filechooser,
                                         gpointer         user_data);
-#endif
 
 void
 on_save_restraint_chooserdialog_response
@@ -4197,7 +4181,6 @@ on_fast_sss_dialog_citation_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_coot_references_coot_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -4285,7 +4268,6 @@ on_go_to_ligand_toolbutton_clicked     (GtkToolButton   *toolbutton,
                                         gpointer         user_data);
 
 
-#endif /* GTK_MAJOR_VERSION */
 
 void
 on_coot_references_closebutton_clicked (GtkButton       *button,
