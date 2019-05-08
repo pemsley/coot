@@ -29663,34 +29663,6 @@ create_curlew_dialog (void)
 }
 
 GtkWidget*
-create_inputdialog1 (void)
-{
-  GtkWidget *inputdialog1;
-  GtkWidget *save_button1;
-  GtkWidget *close_button1;
-
-  inputdialog1 = gtk_input_dialog_new ();
-  gtk_container_set_border_width (GTK_CONTAINER (inputdialog1), 5);
-  gtk_window_set_title (GTK_WINDOW (inputdialog1), "Input");
-  gtk_window_set_type_hint (GTK_WINDOW (inputdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
-
-  save_button1 = GTK_INPUT_DIALOG (inputdialog1)->save_button;
-  gtk_widget_show (save_button1);
-  GTK_WIDGET_SET_FLAGS (save_button1, GTK_CAN_DEFAULT);
-
-  close_button1 = GTK_INPUT_DIALOG (inputdialog1)->close_button;
-  gtk_widget_show (close_button1);
-  GTK_WIDGET_SET_FLAGS (close_button1, GTK_CAN_DEFAULT);
-
-  /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (inputdialog1, inputdialog1, "inputdialog1");
-  GLADE_HOOKUP_OBJECT_NO_REF (inputdialog1, save_button1, "save_button1");
-  GLADE_HOOKUP_OBJECT_NO_REF (inputdialog1, close_button1, "close_button1");
-
-  return inputdialog1;
-}
-
-GtkWidget*
 create_refinement_restraints_sliders_dialog (void)
 {
   GtkWidget *refinement_restraints_sliders_dialog;
