@@ -170,6 +170,5 @@ GtkWidget* create_export_map_dialog (void);
 GtkWidget* create_export_map_filechooserdialog (void);
 GtkWidget* create_cfc_dialog (void);
 GtkWidget* create_curlew_dialog (void);
-GtkWidget* create_inputdialog1 (void);
 GtkWidget* create_refinement_restraints_sliders_dialog (void);
 END_C_DECLS
