@@ -20,7 +20,7 @@ GtkWidget* create_sequence_view_dialog (void);
 void on_sequence_view_close_button_clicked (GtkButton *button,
 					    gpointer         user_data);
 void
-on_sequence_view_dialog_destroy            (GtkObject       *object,
+on_sequence_view_dialog_destroy            (GtkWidget       *widget,
                                             gpointer         user_data);
 
 END_C_DECLS

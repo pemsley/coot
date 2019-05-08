@@ -36,12 +36,13 @@ seq_lookup_widget(GtkWidget       *widget,
 	if (GTK_IS_MENU (widget))
 	  parent = gtk_menu_get_attach_widget (GTK_MENU (widget));
 	else
-	  parent = widget->parent;
+	  // parent = widget->parent;
+	  parent = gtk_widget_get_parent(widget);
 	if (parent == NULL)
 	  break;
 	widget = parent;
       }
-    found_widget = (GtkWidget*) gtk_object_get_data (GTK_OBJECT (widget), widget_name);
+    found_widget = (GtkWidget*) g_object_get_data (G_OBJECT (widget), widget_name);
     if (!found_widget)
       g_warning ("Widget not found: %s", widget_name);
   }
@@ -57,48 +58,51 @@ create_sequence_view_dialog (void)
   GtkWidget *dialog_action_area1;
   GtkWidget *hbox1;
   GtkWidget *sequence_view_close_button;
+  GtkWidget *aa;
 
   sequence_view_dialog = gtk_dialog_new ();
   gtk_object_set_data (GTK_OBJECT (sequence_view_dialog), "sequence_view_dialog", sequence_view_dialog);
   gtk_window_set_title (GTK_WINDOW (sequence_view_dialog), "Sequence View");
   gtk_window_set_policy (GTK_WINDOW (sequence_view_dialog), TRUE, TRUE, FALSE);
 
-  dialog_vbox1 = GTK_DIALOG (sequence_view_dialog)->vbox;
+  // dialog_vbox1 = GTK_DIALOG (sequence_view_dialog)->vbox;
+  dialog_vbox1 = gtk_dialog_get_content_bar(GTK_DIALOG(sequence_view_dialog));
   gtk_object_set_data (GTK_OBJECT (sequence_view_dialog), "dialog_vbox1", dialog_vbox1);
   gtk_widget_show (dialog_vbox1);
 
   sequence_view_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_ref (sequence_view_scrolledwindow);
-  gtk_object_set_data_full (GTK_OBJECT (sequence_view_dialog), "sequence_view_scrolledwindow", sequence_view_scrolledwindow,
-                            (GtkDestroyNotify) gtk_widget_unref);
+  g_object_set_data_full (G_OBJECT (sequence_view_dialog), "sequence_view_scrolledwindow", sequence_view_scrolledwindow,
+                          NULL);
   gtk_widget_show (sequence_view_scrolledwindow);
   gtk_box_pack_start (GTK_BOX (dialog_vbox1), sequence_view_scrolledwindow, TRUE, TRUE, 0);
 
-  dialog_action_area1 = GTK_DIALOG (sequence_view_dialog)->action_area;
+
+  // dialog_action_area1 = GTK_DIALOG (sequence_view_dialog)->action_area;
+  dialog_action_area1 = gtk_dialog_get_action_area(GTK_DIALOG(sequence_view_dialog));
+
   gtk_object_set_data (GTK_OBJECT (sequence_view_dialog), "dialog_action_area1", 
 		       dialog_action_area1);
   gtk_widget_show (dialog_action_area1);
   gtk_container_set_border_width (GTK_CONTAINER (dialog_action_area1), 10);
 
   hbox1 = gtk_hbox_new (FALSE, 0);
-  gtk_widget_ref (hbox1);
-  gtk_object_set_data_full (GTK_OBJECT (sequence_view_dialog), "hbox1", hbox1,
-                            (GtkDestroyNotify) gtk_widget_unref);
+  // gtk_widget_ref (hbox1);
+  g_object_set_data_full (G_OBJECT (sequence_view_dialog), "hbox1", hbox1, NULL);
   gtk_widget_show (hbox1);
   gtk_box_pack_start (GTK_BOX (dialog_action_area1), hbox1, TRUE, TRUE, 0);
 
   sequence_view_close_button = gtk_button_new_with_label ("  Close ");
-  gtk_widget_ref (sequence_view_close_button);
-  gtk_object_set_data_full (GTK_OBJECT (sequence_view_dialog), 
-			    "sequence_view_close_button", sequence_view_close_button,
-                            (GtkDestroyNotify) gtk_widget_unref);
+  // gtk_widget_ref (sequence_view_close_button);
+  g_object_set_data_full (G_OBJECT (sequence_view_dialog), 
+			    "sequence_view_close_button", sequence_view_close_button, NULL);
 
-  gtk_signal_connect (GTK_OBJECT(sequence_view_close_button), "clicked",
-		      GTK_SIGNAL_FUNC(on_sequence_view_close_button_clicked),
+  g_signal_connect (G_OBJECT(sequence_view_close_button), "clicked",
+		      G_CALLBACK(on_sequence_view_close_button_clicked),
 		      NULL);
 
-  gtk_signal_connect (GTK_OBJECT (sequence_view_dialog), "destroy",
-                      GTK_SIGNAL_FUNC (on_sequence_view_dialog_destroy),
+  g_signal_connect (G_OBJECT (sequence_view_dialog), "destroy",
+                      G_CALLBACK (on_sequence_view_dialog_destroy),
                       sequence_view_dialog);
 
   gtk_widget_show (sequence_view_close_button);
@@ -117,7 +121,7 @@ on_sequence_view_close_button_clicked     (GtkButton *button,
 
 
 void
-on_sequence_view_dialog_destroy            (GtkObject       *object,
+on_sequence_view_dialog_destroy            (GtkWidget       *object,
                                             gpointer         user_data)
 {
    GtkWidget *dialog = (GtkWidget *) user_data;

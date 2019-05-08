@@ -402,8 +402,10 @@ coot::Cartesian unproject_xyz(int x, int y, float screen_z) {
 coot::CartesianPair
 screen_x_to_real_space_vector(GtkWidget *widget) {
 
-   int x0 = widget->allocation.width/2;
-   int y0 = widget->allocation.height/2;
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(widget, &allocation);
+   int x0 = allocation.width/2;
+   int y0 = allocation.height/2;
 
    int x1 = x0 + 20;
    int y1 = y0 + 20;
@@ -438,8 +440,10 @@ screen_x_to_real_space_vector(GtkWidget *widget) {
 coot::Cartesian
 screen_z_to_real_space_vector(GtkWidget *widget) { 
 
-   int x0 = widget->allocation.width/2;
-   int y0 = widget->allocation.height/2;
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(widget, &allocation);
+   int x0 = allocation.width/2;
+   int y0 = allocation.height/2;
 
    coot::Cartesian front_0 = unproject_xyz(x0, y0, 0.0);
    coot::Cartesian back_0 =  unproject_xyz(x0, y0, 1.0);
