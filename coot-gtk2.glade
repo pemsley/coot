@@ -4158,90 +4158,6 @@
   </child>
 </widget>
 
-<widget class="GtkFileSelection" id="coords_fileselection1">
-  <property name="border_width">10</property>
-  <property name="visible">True</property>
-  <property name="title" translatable="yes">Select Coordinates File</property>
-  <property name="type">GTK_WINDOW_TOPLEVEL</property>
-  <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
-  <property name="resizable">True</property>
-  <property name="destroy_with_parent">False</property>
-  <property name="decorated">True</property>
-  <property name="skip_taskbar_hint">False</property>
-  <property name="skip_pager_hint">False</property>
-  <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
-  <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
-  <property name="focus_on_map">True</property>
-  <property name="urgency_hint">False</property>
-  <property name="show_fileops">True</property>
-  <signal name="destroy" handler="on_coords_fileselection1_destroy"/>
-
-  <child internal-child="cancel_button">
-    <widget class="GtkButton" id="cancel_coords_button1">
-      <property name="visible">True</property>
-      <property name="can_default">True</property>
-      <property name="can_focus">True</property>
-      <property name="relief">GTK_RELIEF_NORMAL</property>
-      <property name="focus_on_click">True</property>
-      <signal name="clicked" handler="on_cancel_coords_button1_clicked"/>
-    </widget>
-  </child>
-
-  <child internal-child="ok_button">
-    <widget class="GtkButton" id="ok_button_coordinates">
-      <property name="visible">True</property>
-      <property name="can_default">True</property>
-      <property name="can_focus">True</property>
-      <property name="relief">GTK_RELIEF_NORMAL</property>
-      <property name="focus_on_click">True</property>
-      <signal name="clicked" handler="on_ok_button_coordinates_clicked"/>
-    </widget>
-  </child>
-</widget>
-
-<widget class="GtkFileSelection" id="dataset_fileselection1">
-  <property name="border_width">10</property>
-  <property name="visible">True</property>
-  <property name="title" translatable="yes">Select Dataset File</property>
-  <property name="type">GTK_WINDOW_TOPLEVEL</property>
-  <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
-  <property name="resizable">True</property>
-  <property name="destroy_with_parent">False</property>
-  <property name="decorated">True</property>
-  <property name="skip_taskbar_hint">False</property>
-  <property name="skip_pager_hint">False</property>
-  <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
-  <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
-  <property name="focus_on_map">True</property>
-  <property name="urgency_hint">False</property>
-  <property name="show_fileops">True</property>
-  <signal name="destroy" handler="on_dataset_fileselection1_destroy"/>
-
-  <child internal-child="cancel_button">
-    <widget class="GtkButton" id="cancel_dataset_button1">
-      <property name="visible">True</property>
-      <property name="can_default">True</property>
-      <property name="can_focus">True</property>
-      <property name="relief">GTK_RELIEF_NORMAL</property>
-      <property name="focus_on_click">True</property>
-      <signal name="clicked" handler="on_cancel_dataset_button1_clicked"/>
-    </widget>
-  </child>
-
-  <child internal-child="ok_button">
-    <widget class="GtkButton" id="ok_button_dataset">
-      <property name="visible">True</property>
-      <property name="can_default">True</property>
-      <property name="can_focus">True</property>
-      <property name="relief">GTK_RELIEF_NORMAL</property>
-      <property name="focus_on_click">True</property>
-      <signal name="clicked" handler="on_ok_button_dataset_clicked"/>
-    </widget>
-  </child>
-</widget>
-
 <widget class="GtkWindow" id="column_label_window">
   <property name="visible">True</property>
   <property name="title" translatable="yes">Column Label Assignment</property>
@@ -8727,48 +8643,6 @@ distances more than:</property>
   </child>
 </widget>
 
-<widget class="GtkFileSelection" id="map_name_fileselection1">
-  <property name="border_width">10</property>
-  <property name="visible">True</property>
-  <property name="title" translatable="yes">Select Map...</property>
-  <property name="type">GTK_WINDOW_TOPLEVEL</property>
-  <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
-  <property name="resizable">True</property>
-  <property name="destroy_with_parent">False</property>
-  <property name="decorated">True</property>
-  <property name="skip_taskbar_hint">False</property>
-  <property name="skip_pager_hint">False</property>
-  <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
-  <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
-  <property name="focus_on_map">True</property>
-  <property name="urgency_hint">False</property>
-  <property name="show_fileops">True</property>
-  <signal name="destroy" handler="on_map_name_fileselection1_destroy"/>
-
-  <child internal-child="cancel_button">
-    <widget class="GtkButton" id="cancel_button_map_name">
-      <property name="visible">True</property>
-      <property name="can_default">True</property>
-      <property name="can_focus">True</property>
-      <property name="relief">GTK_RELIEF_NORMAL</property>
-      <property name="focus_on_click">True</property>
-      <signal name="clicked" handler="on_cancel_button_map_name_clicked"/>
-    </widget>
-  </child>
-
-  <child internal-child="ok_button">
-    <widget class="GtkButton" id="ok_button_map_name">
-      <property name="visible">True</property>
-      <property name="can_default">True</property>
-      <property name="can_focus">True</property>
-      <property name="relief">GTK_RELIEF_NORMAL</property>
-      <property name="focus_on_click">True</property>
-      <signal name="clicked" handler="on_ok_button_map_name_clicked"/>
-    </widget>
-  </child>
-</widget>
-
 <widget class="GtkWindow" id="phs_info_box">
   <property name="visible">True</property>
   <property name="title" translatable="yes">.phs Info</property>
@@ -9015,48 +8889,6 @@ just the cell and symmetry)
 	  <property name="fill">True</property>
 	</packing>
       </child>
-    </widget>
-  </child>
-</widget>
-
-<widget class="GtkFileSelection" id="phs_coordinates_fileselection">
-  <property name="border_width">10</property>
-  <property name="visible">True</property>
-  <property name="title" translatable="yes">Select Coordinates File for .phs symm/cell</property>
-  <property name="type">GTK_WINDOW_TOPLEVEL</property>
-  <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
-  <property name="resizable">True</property>
-  <property name="destroy_with_parent">False</property>
-  <property name="decorated">True</property>
-  <property name="skip_taskbar_hint">False</property>
-  <property name="skip_pager_hint">False</property>
-  <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
-  <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
-  <property name="focus_on_map">True</property>
-  <property name="urgency_hint">False</property>
-  <property name="show_fileops">True</property>
-  <signal name="destroy" handler="on_phs_coordinates_fileselection_destroy"/>
-
-  <child internal-child="cancel_button">
-    <widget class="GtkButton" id="cancel_phs_coord_button">
-      <property name="visible">True</property>
-      <property name="can_default">True</property>
-      <property name="can_focus">True</property>
-      <property name="relief">GTK_RELIEF_NORMAL</property>
-      <property name="focus_on_click">True</property>
-      <signal name="clicked" handler="on_cancel_phs_coord_button_clicked"/>
-    </widget>
-  </child>
-
-  <child internal-child="ok_button">
-    <widget class="GtkButton" id="ok_phs_coord_button">
-      <property name="visible">True</property>
-      <property name="can_default">True</property>
-      <property name="can_focus">True</property>
-      <property name="relief">GTK_RELIEF_NORMAL</property>
-      <property name="focus_on_click">True</property>
-      <signal name="clicked" handler="on_ok_phs_coord_button_clicked"/>
     </widget>
   </child>
 </widget>
@@ -15785,49 +15617,6 @@ Do you want to continue?
   </child>
 </widget>
 
-<widget class="GtkFileSelection" id="save_coords_fileselection1">
-  <property name="border_width">10</property>
-  <property name="visible">True</property>
-  <property name="tooltip" translatable="yes">Saved File type: By extension</property>
-  <property name="title" translatable="yes">Select Filename for Saved Coordinates </property>
-  <property name="type">GTK_WINDOW_TOPLEVEL</property>
-  <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
-  <property name="resizable">True</property>
-  <property name="destroy_with_parent">False</property>
-  <property name="decorated">True</property>
-  <property name="skip_taskbar_hint">False</property>
-  <property name="skip_pager_hint">False</property>
-  <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
-  <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
-  <property name="focus_on_map">True</property>
-  <property name="urgency_hint">False</property>
-  <property name="show_fileops">True</property>
-  <signal name="destroy" handler="on_save_coords_fileselection1_destroy"/>
-
-  <child internal-child="cancel_button">
-    <widget class="GtkButton" id="save_coords_cancel_button">
-      <property name="visible">True</property>
-      <property name="can_default">True</property>
-      <property name="can_focus">True</property>
-      <property name="relief">GTK_RELIEF_NORMAL</property>
-      <property name="focus_on_click">True</property>
-      <signal name="clicked" handler="on_save_coords_cancel_button_clicked"/>
-    </widget>
-  </child>
-
-  <child internal-child="ok_button">
-    <widget class="GtkButton" id="save_coord_ok_button">
-      <property name="visible">True</property>
-      <property name="can_default">True</property>
-      <property name="can_focus">True</property>
-      <property name="relief">GTK_RELIEF_NORMAL</property>
-      <property name="focus_on_click">True</property>
-      <signal name="clicked" handler="on_save_coord_ok_button_clicked"/>
-    </widget>
-  </child>
-</widget>
-
 <widget class="GtkDialog" id="refine_params_dialog">
   <property name="visible">True</property>
   <property name="title" translatable="yes">Refinement and Regularization Parameters</property>
@@ -19526,47 +19315,6 @@ checks the value of this checkbutton</property>
   </child>
 </widget>
 
-<widget class="GtkFileSelection" id="cif_dictionary_fileselection">
-  <property name="border_width">10</property>
-  <property name="visible">True</property>
-  <property name="title" translatable="yes">Select File</property>
-  <property name="type">GTK_WINDOW_TOPLEVEL</property>
-  <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
-  <property name="resizable">True</property>
-  <property name="destroy_with_parent">False</property>
-  <property name="decorated">True</property>
-  <property name="skip_taskbar_hint">False</property>
-  <property name="skip_pager_hint">False</property>
-  <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
-  <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
-  <property name="focus_on_map">True</property>
-  <property name="urgency_hint">False</property>
-  <property name="show_fileops">True</property>
-
-  <child internal-child="cancel_button">
-    <widget class="GtkButton" id="cif_dictionary_fileselection_cancel_button">
-      <property name="visible">True</property>
-      <property name="can_default">True</property>
-      <property name="can_focus">True</property>
-      <property name="relief">GTK_RELIEF_NORMAL</property>
-      <property name="focus_on_click">True</property>
-      <signal name="clicked" handler="on_cif_dictionary_fileselection_cancel_button_clicked"/>
-    </widget>
-  </child>
-
-  <child internal-child="ok_button">
-    <widget class="GtkButton" id="cif_dictionary_fileselection_ok_button">
-      <property name="visible">True</property>
-      <property name="can_default">True</property>
-      <property name="can_focus">True</property>
-      <property name="relief">GTK_RELIEF_NORMAL</property>
-      <property name="focus_on_click">True</property>
-      <signal name="clicked" handler="on_cif_dictionary_fileselection_ok_button_clicked"/>
-    </widget>
-  </child>
-</widget>
-
 <widget class="GtkWindow" id="residue_type_chooser_window">
   <property name="visible">True</property>
   <property name="title" translatable="yes">Residu Type</property>
@@ -19978,47 +19726,6 @@ checks the value of this checkbutton</property>
 	  </child>
 	</widget>
       </child>
-    </widget>
-  </child>
-</widget>
-
-<widget class="GtkFileSelection" id="run_script_fileselection">
-  <property name="border_width">10</property>
-  <property name="visible">True</property>
-  <property name="title" translatable="yes">Select File</property>
-  <property name="type">GTK_WINDOW_TOPLEVEL</property>
-  <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
-  <property name="resizable">True</property>
-  <property name="destroy_with_parent">False</property>
-  <property name="decorated">True</property>
-  <property name="skip_taskbar_hint">False</property>
-  <property name="skip_pager_hint">False</property>
-  <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
-  <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
-  <property name="focus_on_map">True</property>
-  <property name="urgency_hint">False</property>
-  <property name="show_fileops">True</property>
-
-  <child internal-child="cancel_button">
-    <widget class="GtkButton" id="run_script_fileselection_cancel_button">
-      <property name="visible">True</property>
-      <property name="can_default">True</property>
-      <property name="can_focus">True</property>
-      <property name="relief">GTK_RELIEF_NORMAL</property>
-      <property name="focus_on_click">True</property>
-      <signal name="clicked" handler="on_run_script_fileselection_cancel_button_clicked"/>
-    </widget>
-  </child>
-
-  <child internal-child="ok_button">
-    <widget class="GtkButton" id="run_script_fileselection_ok_button">
-      <property name="visible">True</property>
-      <property name="can_default">True</property>
-      <property name="can_focus">True</property>
-      <property name="relief">GTK_RELIEF_NORMAL</property>
-      <property name="focus_on_click">True</property>
-      <signal name="clicked" handler="on_run_script_fileselection_ok_button_clicked"/>
     </widget>
   </child>
 </widget>
@@ -38040,48 +37747,6 @@ Which map do you want to skeletonize?
   </child>
 </widget>
 
-<widget class="GtkFileSelection" id="save_symmetry_coords_fileselection">
-  <property name="border_width">10</property>
-  <property name="visible">True</property>
-  <property name="title" translatable="yes">Select  Symmetry Coordinates Filename</property>
-  <property name="type">GTK_WINDOW_TOPLEVEL</property>
-  <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
-  <property name="resizable">True</property>
-  <property name="destroy_with_parent">False</property>
-  <property name="decorated">True</property>
-  <property name="skip_taskbar_hint">False</property>
-  <property name="skip_pager_hint">False</property>
-  <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
-  <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
-  <property name="focus_on_map">True</property>
-  <property name="urgency_hint">False</property>
-  <property name="show_fileops">True</property>
-  <signal name="destroy" handler="on_save_symmetry_coords_fileselection_destroy"/>
-
-  <child internal-child="cancel_button">
-    <widget class="GtkButton" id="save_symmetry_coords_fileselection_cancel_button">
-      <property name="visible">True</property>
-      <property name="can_default">True</property>
-      <property name="can_focus">True</property>
-      <property name="relief">GTK_RELIEF_NORMAL</property>
-      <property name="focus_on_click">True</property>
-      <signal name="clicked" handler="on_save_symmetry_coords_fileselection_cancel_button_clicked"/>
-    </widget>
-  </child>
-
-  <child internal-child="ok_button">
-    <widget class="GtkButton" id="save_symmetry_coords_fileselection_ok_button">
-      <property name="visible">True</property>
-      <property name="can_default">True</property>
-      <property name="can_focus">True</property>
-      <property name="relief">GTK_RELIEF_NORMAL</property>
-      <property name="focus_on_click">True</property>
-      <signal name="clicked" handler="on_save_symmetry_coords_fileselection_ok_button_clicked"/>
-    </widget>
-  </child>
-</widget>
-
 <widget class="GtkDialog" id="stereo_dialog">
   <property name="visible">True</property>
   <property name="title" translatable="yes">Stereo/Mono</property>
@@ -47624,48 +47289,6 @@ distances more than:</property>
   </child>
 </widget>
 
-<widget class="GtkFileSelection" id="save_state_fileselection">
-  <property name="border_width">10</property>
-  <property name="visible">True</property>
-  <property name="title" translatable="yes">Select File-name for State File</property>
-  <property name="type">GTK_WINDOW_TOPLEVEL</property>
-  <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
-  <property name="resizable">True</property>
-  <property name="destroy_with_parent">False</property>
-  <property name="decorated">True</property>
-  <property name="skip_taskbar_hint">False</property>
-  <property name="skip_pager_hint">False</property>
-  <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
-  <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
-  <property name="focus_on_map">True</property>
-  <property name="urgency_hint">False</property>
-  <property name="show_fileops">True</property>
-  <signal name="destroy" handler="on_save_state_fileselection_destroy"/>
-
-  <child internal-child="cancel_button">
-    <widget class="GtkButton" id="save_state_cancel_button1">
-      <property name="visible">True</property>
-      <property name="can_default">True</property>
-      <property name="can_focus">True</property>
-      <property name="relief">GTK_RELIEF_NORMAL</property>
-      <property name="focus_on_click">True</property>
-      <signal name="clicked" handler="on_save_state_cancel_button1_clicked"/>
-    </widget>
-  </child>
-
-  <child internal-child="ok_button">
-    <widget class="GtkButton" id="save_state_ok_button1">
-      <property name="visible">True</property>
-      <property name="can_default">True</property>
-      <property name="can_focus">True</property>
-      <property name="relief">GTK_RELIEF_NORMAL</property>
-      <property name="focus_on_click">True</property>
-      <signal name="clicked" handler="on_save_state_ok_button1_clicked"/>
-    </widget>
-  </child>
-</widget>
-
 <widget class="GtkDialog" id="other_model_tools_dialog">
   <property name="visible">True</property>
   <property name="title" translatable="yes">Other Modelling Tools</property>
@@ -48290,48 +47913,6 @@ distances more than:</property>
 	  <property name="fill">True</property>
 	</packing>
       </child>
-    </widget>
-  </child>
-</widget>
-
-<widget class="GtkFileSelection" id="screendump_fileselection">
-  <property name="border_width">10</property>
-  <property name="visible">True</property>
-  <property name="title" translatable="yes">Select File</property>
-  <property name="type">GTK_WINDOW_TOPLEVEL</property>
-  <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
-  <property name="resizable">True</property>
-  <property name="destroy_with_parent">False</property>
-  <property name="decorated">True</property>
-  <property name="skip_taskbar_hint">False</property>
-  <property name="skip_pager_hint">False</property>
-  <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
-  <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
-  <property name="focus_on_map">True</property>
-  <property name="urgency_hint">False</property>
-  <property name="show_fileops">True</property>
-  <signal name="destroy" handler="on_screendump_fileselection_destroy"/>
-
-  <child internal-child="cancel_button">
-    <widget class="GtkButton" id="screendump_image_cancel_button">
-      <property name="visible">True</property>
-      <property name="can_default">True</property>
-      <property name="can_focus">True</property>
-      <property name="relief">GTK_RELIEF_NORMAL</property>
-      <property name="focus_on_click">True</property>
-      <signal name="clicked" handler="on_screendump_image_cancel_button_clicked"/>
-    </widget>
-  </child>
-
-  <child internal-child="ok_button">
-    <widget class="GtkButton" id="screendump_image_ok_button">
-      <property name="visible">True</property>
-      <property name="can_default">True</property>
-      <property name="can_focus">True</property>
-      <property name="relief">GTK_RELIEF_NORMAL</property>
-      <property name="focus_on_click">True</property>
-      <signal name="clicked" handler="on_screendump_image_ok_button_clicked"/>
     </widget>
   </child>
 </widget>
