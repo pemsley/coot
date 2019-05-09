@@ -252,9 +252,7 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
       icon_widget = gtk_label_new("  ----");
    }
 
-
-   std::cout << "GTK-FIXME" << std::endl;
-   // gtk_widget_set_usize(icon_widget, 50, -1);
+   gtk_widget_set_size_request(icon_widget, 50, -1);
 
    // --------------- Description -----------------
    std::string rr = "<b>";
@@ -265,8 +263,7 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
    gtk_label_set_use_markup(GTK_LABEL(description_label), TRUE);
    gtk_misc_set_alignment (GTK_MISC(description_label), 0, 0.5);
 
-   std::cout << "GTK-FIXME gtk_widget_set_usize" << std::endl;
-   // gtk_widget_set_usize(description_label, 320, -1);
+   gtk_widget_set_size_request(description_label, 320, -1);
 
    // --------------- Version -----------------
    GtkWidget *version_label = gtk_label_new(version.c_str());

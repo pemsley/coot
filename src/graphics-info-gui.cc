@@ -1421,8 +1421,7 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol
    gtk_widget_show (residue_info_b_factor_entry);
    gtk_entry_set_text(GTK_ENTRY(residue_info_b_factor_entry),
 		      graphics_info_t::float_to_string(atom->tempFactor).c_str());
-   std::cout << "GTK-FIXME no gtk_widget_set_usize() " << std::endl;
-   // gtk_widget_set_usize(residue_info_b_factor_entry, 40, -2);
+   gtk_widget_set_size_request(residue_info_b_factor_entry, 40, -2);
    g_object_set_data(G_OBJECT(residue_info_b_factor_entry), "select_atom_info", ai);
    gtk_widget_set_events(residue_info_b_factor_entry, 
 			 GDK_KEY_PRESS_MASK     |
@@ -3771,8 +3770,7 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 				NULL);
 	 gtk_box_pack_start (GTK_BOX (coords_colours_vbox), frame_molecule_N, TRUE, TRUE, 0);
 
-	 std::cout << "GTK-FIXME fill_bond_colours_dialog_internal() no gtk_widget_set_usize() " << std::endl;
-	 // gtk_widget_set_usize (frame_molecule_N, 171, -2);
+	 gtk_widget_set_size_request(frame_molecule_N, 171, -2);
 	 gtk_container_set_border_width (GTK_CONTAINER (frame_molecule_N), 6);
 
 	 hbox136 = gtk_hbox_new (FALSE, 0);

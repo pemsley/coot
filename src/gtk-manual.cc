@@ -1545,7 +1545,6 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   gtk_widget_show (phs_cell_symm_entry_1);
   gtk_box_pack_start (GTK_BOX (hbox33), phs_cell_symm_entry_1, TRUE, TRUE, 0);
 
-  // gtk_widget_set_usize (phs_cell_symm_entry_1, 80, -2);
   gtk_widget_set_size_request(GTK_WIDGET(phs_cell_symm_entry_1), 80, -2);
 
   label54 = gtk_label_new (_("a"));
@@ -1568,7 +1567,6 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 
   gtk_widget_show (phs_cell_a_entry_1);
   gtk_box_pack_start (GTK_BOX (hbox33), phs_cell_a_entry_1, TRUE, TRUE, 0);
-  // gtk_widget_set_usize (phs_cell_a_entry_1, 65, -2);
   gtk_widget_set_size_request (phs_cell_a_entry_1, 65, -2);
 
   label55 = gtk_label_new (_("b"));
@@ -1590,7 +1588,6 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 			  phs_cell_b_entry_1, NULL);
   gtk_widget_show (phs_cell_b_entry_1);
   gtk_box_pack_start (GTK_BOX (hbox33), phs_cell_b_entry_1, TRUE, TRUE, 0);
-  // gtk_widget_set_usize (phs_cell_b_entry_1, 65, -2);
   gtk_widget_set_size_request (phs_cell_b_entry_1, 65, -2);
 
   label56 = gtk_label_new (_("c"));
@@ -1612,7 +1609,6 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 			  phs_cell_c_entry_1, NULL);
   gtk_widget_show (phs_cell_c_entry_1);
   gtk_box_pack_start (GTK_BOX (hbox33), phs_cell_c_entry_1, TRUE, TRUE, 0);
-  // gtk_widget_set_usize (phs_cell_c_entry_1, 65, -2);
   gtk_widget_set_size_request (phs_cell_c_entry_1, 65, -2);
 
   label57 = gtk_label_new (_("alpha"));
@@ -1635,7 +1631,6 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 			  NULL);
   gtk_widget_show (phs_cell_alpha_entry_1);
   gtk_box_pack_start (GTK_BOX (hbox33), phs_cell_alpha_entry_1, TRUE, TRUE, 0);
-  // gtk_widget_set_usize (phs_cell_alpha_entry_1, 60, -2);
   gtk_widget_set_size_request (phs_cell_alpha_entry_1, 60, -2);
 
   label58 = gtk_label_new (_("beta"));
@@ -1657,7 +1652,6 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 			  phs_cell_beta_entry_1, NULL);
   gtk_widget_show (phs_cell_beta_entry_1);
   gtk_box_pack_start (GTK_BOX (hbox33), phs_cell_beta_entry_1, TRUE, TRUE, 0);
-  // gtk_widget_set_usize (phs_cell_beta_entry_1, 60, -2);
   gtk_widget_set_size_request (phs_cell_beta_entry_1, 60, -2);
 
   label59 = gtk_label_new (_("gamma"));
@@ -1679,7 +1673,6 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 			  phs_cell_gamma_entry_1, NULL);
   gtk_widget_show (phs_cell_gamma_entry_1);
   gtk_box_pack_start (GTK_BOX (hbox33), phs_cell_gamma_entry_1, TRUE, TRUE, 0);
-  // gtk_widget_set_usize (phs_cell_gamma_entry_1, 60, -2);
   gtk_widget_set_size_request (phs_cell_gamma_entry_1, 60, -2);
 
   return phs_cell_group; 

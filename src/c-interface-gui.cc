@@ -1094,8 +1094,7 @@ void set_graphics_window_position(int x_pos, int y_pos) {
       graphics_info_t g;
       GtkWidget *main = lookup_widget(g.glarea, "window1");
       if (main) { 
-	 // gtk_widget_set_uposition(main, x_pos, y_pos);
-	 std::cout << "GTK-FIXME no gtk_widget_set_usize A" << std::endl;
+	 gtk_widget_set_size_request(main, x_pos, y_pos);
 	 while (gtk_events_pending())
 	    gtk_main_iteration();
       }

@@ -72,7 +72,7 @@ coot::sequence_view *coot::sequence_view_object_t::seq_view = NULL;
 coot::sequence_view::sequence_view(mmdb::Manager *mol_in, std::string name, int coot_mol_no_in) {
 
    GtkWidget *top_lev = create_sequence_view_dialog();
-   gtk_widget_set_usize(GTK_WIDGET(top_lev), 500, 160);
+   gtk_widget_set_size_request(GTK_WIDGET(top_lev), 500, 160);
    molecule_names.push_back(name);
    setup_internal(mol_in);
    mol.push_back(mol_in);
@@ -192,7 +192,7 @@ coot::sequence_view::setup_canvas(int max_n_res, int n_chains) {
 				 // label, but for now it isn't.
    scroll_height = usize_y;
 
-   gtk_widget_set_usize(GTK_WIDGET(canvas), usize_x, usize_y);
+   gtk_widget_set_size_request(GTK_WIDGET(canvas), usize_x, usize_y);
    gtk_widget_show(GTK_WIDGET(canvas));
 
    gtk_widget_set_events(GTK_WIDGET(canvas),

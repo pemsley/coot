@@ -1470,11 +1470,10 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    int new_box_size = v.size() * 28 + 120; // plus extra for static parts.
    if (new_box_size > 520)
       new_box_size = 520;
-   
-   // we need to set widget size to new_box_size.  On the dialog?
 
-   std::cout << "GTK-FIXME no gtk_widget_set_usize c" << std::endl;
-   // gtk_widget_set_usize(dialog, dialog->allocation.width, new_box_size);
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(dialog, &allocation);
+   gtk_widget_set_size_request(dialog, allocation.width, new_box_size);
       
    // a box of 14 is 400 pixels.  400 is about max size, I'd say 
    g_signal_emit_by_name(G_OBJECT(vbox), "check_resize");

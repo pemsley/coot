@@ -173,8 +173,6 @@ void remarks_dialog(int imol) {
 		  gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
 						       GTK_TEXT_WINDOW_RIGHT, 10);
 
-
-		  // gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
 		  gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
 
 		  gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
@@ -202,7 +200,6 @@ void remarks_dialog(int imol) {
 	       g_signal_connect(G_OBJECT(close_button), "clicked",
 				G_CALLBACK(on_remarks_dialog_close_button_clicked), NULL);
 	       gtk_widget_show(close_button);
-	       // gtk_widget_set_usize(d, 500, 400);
 	       gtk_widget_set_size_request(d, 500, 400);
 	       gtk_widget_show(d);
 	    }
@@ -241,7 +238,6 @@ void remarks_browser_fill_compound_info(mmdb::Manager *mol, GtkWidget *vbox) {
       GtkWidget *text_view = gtk_text_view_new();
       gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
 					   GTK_TEXT_WINDOW_RIGHT, 10);
-      // gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
       gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
       gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
       gtk_widget_show(GTK_WIDGET(text_view));
@@ -293,7 +289,6 @@ void remarks_browser_fill_author_info(mmdb::Manager *mol, GtkWidget *vbox) {
       GtkWidget *text_view = gtk_text_view_new();
       gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
 					   GTK_TEXT_WINDOW_RIGHT, 10);
-      // gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
       gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
       gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
       gtk_widget_show(GTK_WIDGET(text_view));
@@ -346,7 +341,6 @@ void remarks_browser_fill_journal_info(mmdb::Manager *mol, GtkWidget *vbox) {
       GtkWidget *text_view = gtk_text_view_new();
       gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
 					   GTK_TEXT_WINDOW_RIGHT, 10);
-      // gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
       gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
       gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
       gtk_widget_show(GTK_WIDGET(text_view));
@@ -392,7 +386,6 @@ void remarks_browser_fill_link_info(mmdb::Manager *mol, GtkWidget *vbox) {
 
 	 gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
 					      GTK_TEXT_WINDOW_RIGHT, 10);
-	 // gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
 	 gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
 	 gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
 	 gtk_widget_show(GTK_WIDGET(text_view));

@@ -230,7 +230,7 @@ exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 	 int canvas_y_size = 65 + n_limited_chains * 20; 
 
 	 // the size of the widget on the screens
-	 gtk_widget_set_usize(GTK_WIDGET(scrolled_window), 700, 20*(3+n_limited_chains));
+	 gtk_widget_set_size_request(GTK_WIDGET(scrolled_window), 700, 20*(3+n_limited_chains));
 	 // the size of the canvas (e.g. long chain, we see only part
 	 // of it at one time).
 
@@ -240,7 +240,7 @@ exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 		      << canvas_y_size << std::endl;
 	    std::cout << "DEBUG:: n_limited_chains: " << n_limited_chains << std::endl;
 	 }
-	 gtk_widget_set_usize(GTK_WIDGET(canvas), canvas_x_size, canvas_y_size);
+	 gtk_widget_set_size_request(GTK_WIDGET(canvas), canvas_x_size, canvas_y_size);
 
 	 double left_limit = 0.0;
 	 double upper_limit = 0.0;
