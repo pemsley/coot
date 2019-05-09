@@ -1161,7 +1161,7 @@ coot::ligand_check_percentiles_dialog(coot::residue_spec_t spec,
 ligand_wiggly_ligand_data_t
 setup_ligands_progress_bar() {
 
-   GtkWidget *vbox = gtk_vbox_new (FALSE, 5);
+   GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
    GtkWidget *progress_bar = gtk_progress_bar_new();
    GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
    GtkWidget *label = gtk_label_new("  Installing Ligand Conformers  ");
