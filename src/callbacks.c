@@ -5651,7 +5651,7 @@ on_column_label_expert_mode_button_clicked
   /* we also need to redo the F column label chooser to include anomalous option  */
 
 
-   if (GTK_WIDGET_VISIBLE(frame)) {
+   if (gtk_widget_get_visible(frame)) {
     gtk_widget_hide(frame);
    } else {
      gtk_widget_show(frame);
