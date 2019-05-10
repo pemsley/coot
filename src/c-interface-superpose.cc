@@ -378,11 +378,6 @@ GtkWidget *wrapped_create_superpose_dialog() {
    GtkWidget *chain_ref_menu = gtk_menu_new();
    GtkWidget *chain_mov_menu = gtk_menu_new();
 
-   std::cout << "----------------- FIXME"<< std::endl;                           
-
-   // gtk_option_menu_set_menu(GTK_OPTION_MENU(chain_ref_om), chain_ref_menu);
-   // gtk_option_menu_set_menu(GTK_OPTION_MENU(chain_mov_om), chain_mov_menu);
-   
 #endif // HAVE_SSMLIB
    return w;
 } 

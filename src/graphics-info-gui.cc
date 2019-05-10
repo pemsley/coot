@@ -3798,7 +3798,7 @@ graphics_info_t::get_active_label_in_combobox(GtkComboBox *combobox) const {
       const char *f_label_cstr = g_value_get_string(&f_label_as_value);
       f_label = f_label_cstr;
    } else {
-      std::cout << "Bad state" << std::endl;
+      std::cout << "in get_active_label_in_combobox(): Bad state" << std::endl;
    }
    return f_label;
 }
@@ -3872,51 +3872,40 @@ graphics_info_t::fill_combobox_with_chain_options(GtkWidget *combobox,
 						  GCallback f,
 						  const std::string &acid) {
 
-   // This function is bad.
-
-   std::cout << "----- fill_combobox_with_chain_options() " << imol << " " << acid
-	     << std::endl;
+   // Note to self: Glade-2 generates comboboxes with gtk_combo_box_new_text()
+   // This does not exist in gtk3.
+   // gtk_combo_box_text_new() exists in gtk3, that creates a GtkComboBoxText, not a GtkComboBox
+   //
+   // All the GtkComboBoxes that I created with glade can be used as GtkComboBoxTexts.
+   // Which will mean post-processing gtk2-interface.c to change
+   // GtkComboBox to GtkComboBoxText
+   //
+   // So let treat the combobox that is passed to this function as a GtkComboBoxText.
 
    std::string r("no-chain");
-   GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox));
-   gtk_list_store_clear(GTK_LIST_STORE(model));
-   gtk_combo_box_set_model(GTK_COMBO_BOX(combobox),NULL);
 
-   // std::cout << "--------- chain model and store " << model << " " << store << std::endl;
+   GtkComboBoxText *cb_as_text = GTK_COMBO_BOX_TEXT(combobox);
 
-   GtkListStore *store = gtk_list_store_new(1, G_TYPE_STRING);
-   // gtk_list_store_clear(store);
-   model = GTK_TREE_MODEL(store);
+#if (GTK_MAJOR_VERSION > 2)
+   gtk_combo_box_text_remove_all(cb_as_text);
+#else
+   GtkTreeModel *model_from_combobox = gtk_combo_box_get_model(GTK_COMBO_BOX (combobox));
+   GtkListStore *store = GTK_LIST_STORE(model_from_combobox);
+   gtk_list_store_clear(store);
+#endif
 
-   GtkTreeIter iter;
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = molecules[imol].atom_sel.mol;
       std::vector<std::string> chains = coot::util::chains_in_molecule(mol);
       for (std::size_t i=0; i<chains.size(); i++) {
-	 std::cout << "fill_combobox_with_chain_options() " << imol << " "
-		   << chains[i] << std::endl;
-	 gtk_list_store_append(store, &iter);
-	 gtk_list_store_set(store, &iter, 0, chains[i].c_str(), -1);
-	 if (i == 0) {
-	    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
-	    r = chains[i];
-	 }
-	 if (chains[i] == acid) {
+	 const std::string &ch_id = chains[i];
+	 gtk_combo_box_text_append_text(cb_as_text, ch_id.c_str());
+	 if ((i==0) || (ch_id == acid)) {
 	    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), i);
-	    r = chains[i];
+	    r = ch_id;
 	 }
       }
    }
-
-   if (f)
-      g_signal_connect(combobox, "changed", f, NULL);
-   GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
-   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox), renderer, TRUE);
-   gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(combobox), renderer, "text", 0, NULL);
-
-   // Do I want to do this?
-   gtk_combo_box_set_model(GTK_COMBO_BOX(combobox), model);
-
    return r;
 }
 

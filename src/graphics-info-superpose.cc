@@ -46,7 +46,9 @@ graphics_info_t::superpose_combobox_changed_mol1(GtkWidget *combobox, gpointer d
 
    graphics_info_t g;
    int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
-   graphics_info_t::superpose_imol1 = imol;
+   superpose_imol1 = imol;
+   GtkWidget *chain_combobox = lookup_widget(combobox, "superpose_dialog_reference_chain_combobox");
+   fill_combobox_with_chain_options(chain_combobox, imol, 0);
 }
 
 void
@@ -54,7 +56,9 @@ graphics_info_t::superpose_combobox_changed_mol2(GtkWidget *combobox, gpointer d
 
    graphics_info_t g;
    int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
-   graphics_info_t::superpose_imol2 = imol;
+   superpose_imol2 = imol;
+   GtkWidget *chain_combobox = lookup_widget(combobox, "superpose_dialog_moving_chain_combobox");
+   fill_combobox_with_chain_options(chain_combobox, imol, 0);
 }
 
 // static
@@ -95,7 +99,7 @@ void graphics_info_t::fill_superpose_combobox_with_chain_options(GtkWidget *butt
 // static
 void
 graphics_info_t::superpose_reference_chain_combobox_changed(GtkWidget *combobox,
-							 gpointer data) { 
+							    gpointer data) {
 
    graphics_info_t g;
    graphics_info_t::superpose_imol1_chain = g.get_active_label_in_combobox(GTK_COMBO_BOX(combobox));

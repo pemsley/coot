@@ -886,7 +886,7 @@ graphics_info_t::go_to_atom_mol_combobox_changed(GtkWidget *combobox, gpointer d
       GValue label_as_value = { 0, };
       gtk_tree_model_get_value(model, &iter, 0, &label_as_value);
       int imol = g_value_get_int(&label_as_value);
-      std::cout << "imol: " << imol << std::endl;
+      // std::cout << "imol: " << imol << std::endl;
       graphics_info_t g;
       int old_go_to_molecule = g.go_to_atom_molecule();
       g.set_go_to_atom_molecule(imol);
@@ -919,7 +919,7 @@ graphics_info_t::combobox_get_imol(GtkComboBox *combobox) const {
 	 GValue label_as_value = { 0, };
 	 gtk_tree_model_get_value(model, &iter, 0, &label_as_value);
 	 imol = g_value_get_int(&label_as_value);
-	 std::cout << "imol: " << imol << std::endl;
+	 std::cout << "combobox_get_imol() imol: " << imol << std::endl;
       } else {
 	 std::cout << "combobox_get_imol(): bad state" << std::endl;
       }
