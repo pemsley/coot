@@ -230,11 +230,6 @@ check_water_by_difference_maps_combobox_changed(GtkWidget *combobox, gpointer da
 // 
 void do_check_waters_by_widget(GtkWidget *dialog) {
 
-
-   // GtkWidget *optionmenu = lookup_widget(dialog, "check_waters_molecule_optionmenu");
-   // GtkWidget *action_optionmenu = lookup_widget(dialog, "check_waters_action_optionmenu");
-   // GtkWidget *checklogic_AND_radiobutton = lookup_widget(dialog, "check_waters_AND_radiobutton");
-
    GtkWidget *checklogic_OR_radiobutton  = lookup_widget(dialog, "check_waters_OR_radiobutton");
 
    GtkWidget *entry1, *entry2, *entry3, *entry4;
@@ -305,13 +300,12 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
       logical_operator_and_or_flag = 1;
    }
 
-   // GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(action_optionmenu));
-   // GtkWidget *active_item = gtk_menu_get_active(GTK_MENU(menu));
-   // int active_index = g_list_index(GTK_MENU_SHELL(menu)->children, active_item);
-
    // Check or Delete?
-   GtkWidget *action_combobox = lookup_widget(dialog, "check_waters_molecule_combobox");
-   int active_index = gtk_combo_box_get_active(GTK_COMBO_BOX(action_combobox));
+   GtkWidget *action_combobox = lookup_widget(dialog, "check_waters_action_combobox");
+   std::string action_string;
+   gchar *at = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(action_combobox));
+   if (at) action_string = at;
+   if (!at) std::cout << "ERROR: null from action combobox " << gtk_combo_box_text_get_active_text << std::endl;
 
    // This will give us another dialog
    // 
@@ -328,7 +322,7 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
       min_dist = -100.0;
    if (use_max_dist_test == 0)
       max_dist = -100.0;  // sets a flag in find_water_baddies_OR
-   if (active_index == 0) {
+   if (action_string == "Check") {
       GtkWidget *w = wrapped_checked_waters_baddies_dialog(graphics_info_t::check_waters_molecule,
 							   b_factor_lim,
 							   map_sigma_lim,
@@ -338,8 +332,10 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
 							   zero_occ_flag,
 							   logical_operator_and_or_flag);
       gtk_widget_show(w);
+   }
+   
 
-   } else {
+   if (action_string == "Delete") {
 
       // delete those baddies:
       delete_checked_waters_baddies(graphics_info_t::check_waters_molecule,
