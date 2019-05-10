@@ -3822,60 +3822,6 @@ graphics_info_t::get_active_label_in_combobox(GtkComboBox *combobox) const {
    return f_label;
 }
 
-// -------------------------- is this function used? -----------------
-//
-// a copy of the c-interface function which does not pass the signal
-// function.  We also return the string at the top of the list:
-// (return "no-chain" if it was not assigned (nothing in the list)).
-//
-// static
-// 
-std::string 
-graphics_info_t::fill_option_menu_with_chain_options(GtkWidget *chain_option_menu,
-						     int imol,
-						     GtkSignalFunc signal_func) {
-
-   std::string r("no-chain");
-
-   if (imol<graphics_info_t::n_molecules()) {
-      if (imol >= 0) { 
-	 if (graphics_info_t::molecules[imol].has_model()) {
-	    mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-	    std::vector<std::string> chains = coot::util::chains_in_molecule(mol);
-	    GtkWidget *menu_item;
-	    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(chain_option_menu));
-	    if (menu)
-	       gtk_widget_destroy(menu);
-	    menu = gtk_menu_new();
-	    bool first_chain_set_flag = false;
-	    std::string first_chain;
-	    for (unsigned int i=0; i<chains.size(); i++) {
-	       if (! first_chain_set_flag) {
-		  first_chain_set_flag = true;
-		  first_chain = chains[i];
-	       }
-	       menu_item = gtk_menu_item_new_with_label(chains[i].c_str());
-	       int l = chains[i].length();
-	       char *v = new char[ l + 1];
-	       for (int ii=0; ii<=l; ii++)
-		 v[ii] = 0;
-	       strncpy(v, chains[i].c_str(), l+1);
-	       gtk_signal_connect(GTK_OBJECT(menu_item), "activate", signal_func, v);
-	       gtk_menu_append(GTK_MENU(menu), menu_item);
-	       g_object_set_data(G_OBJECT(menu_item), "chain-id", v);
-	       gtk_widget_show(menu_item);
-	    }
-	    /* Link the new menu to the optionmenu widget */
-	    gtk_option_menu_set_menu(GTK_OPTION_MENU(chain_option_menu), menu);
-
-	    if (first_chain_set_flag) {
-	       r = first_chain;
-	    }
-	 }
-      }
-   }
-   return r;
-}
 
 // static
 std::string
