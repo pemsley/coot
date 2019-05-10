@@ -305,7 +305,7 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
    std::string action_string;
    gchar *at = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(action_combobox));
    if (at) action_string = at;
-   if (!at) std::cout << "ERROR: null from action combobox " << gtk_combo_box_text_get_active_text << std::endl;
+   if (!at) std::cout << "ERROR: null from action combobox " << action_combobox << std::endl;
 
    // This will give us another dialog
    // 
