@@ -68,5 +68,17 @@ $SED -e 's/#include "callbacks.h.gtk2"/#include "callbacks.h"/' \
     gtk2-interface.c > gtk2-interface.post-sed
 
 cp gtk2-interface.post-sed gtk2-interface.c
+cp gtk2-interface.post-sed gtk2-interface.c-old-comboboxes
 sh fixup-gtk2-interface.sh
 bash fixup-interface.h.sh
+
+orig=gtk2-interface.c-old-comboboxes
+out=gtk2-interface.c
+
+# comboboxes from glade-2 area actually gtkcomboboxtexts
+sed \
+    -e 's/ gtk_combo_box_append_text .GTK_COMBO_BOX / gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT /' \
+    -e 's/ gtk_combo_box_new_text / gtk_combo_box_text_new /' \
+    $orig > $out
+
+

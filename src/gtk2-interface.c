@@ -3133,7 +3133,7 @@ create_column_label_window (void)
   gtk_box_pack_start (GTK_BOX (hbox1), label2, FALSE, FALSE, 3);
   gtk_label_set_justify (GTK_LABEL (label2), GTK_JUSTIFY_CENTER);
 
-  column_selector_amplitudes_combobox = gtk_combo_box_new_text ();
+  column_selector_amplitudes_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (column_selector_amplitudes_combobox);
   gtk_box_pack_start (GTK_BOX (hbox1), column_selector_amplitudes_combobox, TRUE, TRUE, 0);
 
@@ -3151,7 +3151,7 @@ create_column_label_window (void)
   gtk_box_pack_start (GTK_BOX (hbox4), label3, FALSE, FALSE, 3);
   gtk_label_set_justify (GTK_LABEL (label3), GTK_JUSTIFY_CENTER);
 
-  column_selector_phases_combobox = gtk_combo_box_new_text ();
+  column_selector_phases_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (column_selector_phases_combobox);
   gtk_box_pack_start (GTK_BOX (hbox4), column_selector_phases_combobox, TRUE, TRUE, 0);
 
@@ -3189,7 +3189,7 @@ create_column_label_window (void)
   gtk_box_pack_start (GTK_BOX (column_label_window_weights_hbox), label31, FALSE, FALSE, 3);
   gtk_label_set_justify (GTK_LABEL (label31), GTK_JUSTIFY_CENTER);
 
-  column_selector_weights_combobox = gtk_combo_box_new_text ();
+  column_selector_weights_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (column_selector_weights_combobox);
   gtk_box_pack_start (GTK_BOX (column_label_window_weights_hbox), column_selector_weights_combobox, TRUE, TRUE, 0);
 
@@ -3271,7 +3271,7 @@ create_column_label_window (void)
   gtk_label_set_justify (GTK_LABEL (label105), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label105), 6, 0);
 
-  column_label_selector_refmac_fobs_combobox = gtk_combo_box_new_text ();
+  column_label_selector_refmac_fobs_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (column_label_selector_refmac_fobs_combobox);
   gtk_box_pack_start (GTK_BOX (hbox53), column_label_selector_refmac_fobs_combobox, TRUE, TRUE, 0);
 
@@ -3285,7 +3285,7 @@ create_column_label_window (void)
   gtk_label_set_justify (GTK_LABEL (label106), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label106), 6, 0);
 
-  column_label_selector_refmac_sigfobs_combobox = gtk_combo_box_new_text ();
+  column_label_selector_refmac_sigfobs_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (column_label_selector_refmac_sigfobs_combobox);
   gtk_box_pack_start (GTK_BOX (hbox54), column_label_selector_refmac_sigfobs_combobox, TRUE, TRUE, 0);
 
@@ -3299,7 +3299,7 @@ create_column_label_window (void)
   gtk_label_set_justify (GTK_LABEL (label107), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label107), 6, 0);
 
-  column_label_selector_refmac_rfree_combobox = gtk_combo_box_new_text ();
+  column_label_selector_refmac_rfree_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (column_label_selector_refmac_rfree_combobox);
   gtk_box_pack_start (GTK_BOX (hbox55), column_label_selector_refmac_rfree_combobox, TRUE, TRUE, 0);
 
@@ -5469,7 +5469,7 @@ create_goto_atom_window (void)
   gtk_box_pack_start (GTK_BOX (vbox35), hbox23, FALSE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox23), 3);
 
-  go_to_atom_molecule_combobox = gtk_combo_box_new_text ();
+  go_to_atom_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (go_to_atom_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (hbox23), go_to_atom_molecule_combobox, TRUE, TRUE, 0);
 
@@ -8237,7 +8237,7 @@ create_save_coords_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label78), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label78), 60, 9);
 
-  save_coordinates_combobox = gtk_combo_box_new_text ();
+  save_coordinates_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (save_coordinates_combobox);
   gtk_box_pack_start (GTK_BOX (vbox50), save_coordinates_combobox, TRUE, TRUE, 0);
 
@@ -8686,50 +8686,50 @@ create_refine_params_dialog (void)
                     (GtkAttachOptions) (0), 0, 0);
   gtk_misc_set_alignment (GTK_MISC (label822), 0, 0.5);
 
-  refine_params_geman_mcclure_alpha_combobox = gtk_combo_box_new_text ();
+  refine_params_geman_mcclure_alpha_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refine_params_geman_mcclure_alpha_combobox);
   gtk_table_attach (GTK_TABLE (table9), refine_params_geman_mcclure_alpha_combobox, 1, 2, 0, 1,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_FILL), 0, 0);
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "0.0");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "0.001");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "0.003");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "0.01");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "0.03");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "0.1");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "0.3");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "1.0");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "3.0");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_geman_mcclure_alpha_combobox), "10.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_geman_mcclure_alpha_combobox), "0.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_geman_mcclure_alpha_combobox), "0.001");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_geman_mcclure_alpha_combobox), "0.003");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_geman_mcclure_alpha_combobox), "0.01");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_geman_mcclure_alpha_combobox), "0.03");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_geman_mcclure_alpha_combobox), "0.1");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_geman_mcclure_alpha_combobox), "0.3");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_geman_mcclure_alpha_combobox), "1.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_geman_mcclure_alpha_combobox), "3.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_geman_mcclure_alpha_combobox), "10.0");
 
-  refine_params_lennard_jones_epsilon_combobox = gtk_combo_box_new_text ();
+  refine_params_lennard_jones_epsilon_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refine_params_lennard_jones_epsilon_combobox);
   gtk_table_attach (GTK_TABLE (table9), refine_params_lennard_jones_epsilon_combobox, 1, 2, 1, 2,
                     (GtkAttachOptions) (GTK_FILL),
                     (GtkAttachOptions) (GTK_FILL), 0, 0);
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_lennard_jones_epsilon_combobox), "0.1");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_lennard_jones_epsilon_combobox), "0.2");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_lennard_jones_epsilon_combobox), "0.5");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_lennard_jones_epsilon_combobox), "1.0");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_lennard_jones_epsilon_combobox), "2.0");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_lennard_jones_epsilon_combobox), "5.0");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_lennard_jones_epsilon_combobox), "10.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_lennard_jones_epsilon_combobox), "0.1");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_lennard_jones_epsilon_combobox), "0.2");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_lennard_jones_epsilon_combobox), "0.5");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_lennard_jones_epsilon_combobox), "1.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_lennard_jones_epsilon_combobox), "2.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_lennard_jones_epsilon_combobox), "5.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_lennard_jones_epsilon_combobox), "10.0");
 
-  refine_params_rama_restraints_weight_combobox = gtk_combo_box_new_text ();
+  refine_params_rama_restraints_weight_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refine_params_rama_restraints_weight_combobox);
   gtk_table_attach (GTK_TABLE (table9), refine_params_rama_restraints_weight_combobox, 1, 2, 2, 3,
                     (GtkAttachOptions) (GTK_FILL),
                     (GtkAttachOptions) (GTK_FILL), 0, 0);
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_rama_restraints_weight_combobox), "0.1");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_rama_restraints_weight_combobox), "0.2");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_rama_restraints_weight_combobox), "0.5");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_rama_restraints_weight_combobox), "1.0");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_rama_restraints_weight_combobox), "2.0");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_rama_restraints_weight_combobox), "5.0");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_rama_restraints_weight_combobox), "10.0");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_rama_restraints_weight_combobox), "20.0");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_rama_restraints_weight_combobox), "50.0");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (refine_params_rama_restraints_weight_combobox), "100.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_rama_restraints_weight_combobox), "0.1");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_rama_restraints_weight_combobox), "0.2");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_rama_restraints_weight_combobox), "0.5");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_rama_restraints_weight_combobox), "1.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_rama_restraints_weight_combobox), "2.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_rama_restraints_weight_combobox), "5.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_rama_restraints_weight_combobox), "10.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_rama_restraints_weight_combobox), "20.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_rama_restraints_weight_combobox), "50.0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (refine_params_rama_restraints_weight_combobox), "100.0");
 
   label819 = gtk_label_new ("");
   gtk_widget_show (label819);
@@ -10510,7 +10510,7 @@ create_close_molecule_dialog (void)
   gtk_widget_show (close_molecule_optionmenu);
   gtk_container_add (GTK_CONTAINER (frame52), close_molecule_optionmenu);
 
-  close_molecule_combobox = gtk_combo_box_new_text ();
+  close_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (close_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox64), close_molecule_combobox, TRUE, TRUE, 0);
 
@@ -11634,7 +11634,7 @@ create_pointer_atom_type_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox77), frame80, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame80), 6);
 
-  pointer_atom_molecule_combobox = gtk_combo_box_new_text ();
+  pointer_atom_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (pointer_atom_molecule_combobox);
   gtk_container_add (GTK_CONTAINER (frame80), pointer_atom_molecule_combobox);
 
@@ -11841,7 +11841,7 @@ create_run_refmac_dialog (void)
   gtk_widget_show (run_refmac_method_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox347), run_refmac_method_optionmenu, FALSE, FALSE, 0);
 
-  run_refmac_method_combobox = gtk_combo_box_new_text ();
+  run_refmac_method_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (run_refmac_method_combobox);
   gtk_box_pack_start (GTK_BOX (hbox347), run_refmac_method_combobox, TRUE, TRUE, 0);
 
@@ -11855,7 +11855,7 @@ create_run_refmac_dialog (void)
   gtk_widget_show (run_refmac_phase_input_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox347), run_refmac_phase_input_optionmenu, FALSE, FALSE, 0);
 
-  run_refmac_phase_input_combobox = gtk_combo_box_new_text ();
+  run_refmac_phase_input_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (run_refmac_phase_input_combobox);
   gtk_box_pack_start (GTK_BOX (hbox347), run_refmac_phase_input_combobox, TRUE, TRUE, 0);
 
@@ -11976,7 +11976,7 @@ create_run_refmac_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox81), frame64, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame64), 2);
 
-  run_refmac_coords_combobox = gtk_combo_box_new_text ();
+  run_refmac_coords_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (run_refmac_coords_combobox);
   gtk_container_add (GTK_CONTAINER (frame64), run_refmac_coords_combobox);
 
@@ -12030,7 +12030,7 @@ create_run_refmac_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox370), run_refmac_help_button, FALSE, FALSE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (run_refmac_help_button), 1);
 
-  run_refmac_map_combobox = gtk_combo_box_new_text ();
+  run_refmac_map_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (run_refmac_map_combobox);
   gtk_box_pack_start (GTK_BOX (hbox370), run_refmac_map_combobox, TRUE, TRUE, 0);
 
@@ -12112,7 +12112,7 @@ create_run_refmac_dialog (void)
   gtk_widget_show (refmac_dialog_fobs_optionmenu);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_fobs_hbox), refmac_dialog_fobs_optionmenu, FALSE, FALSE, 0);
 
-  refmac_dialog_fobs_combobox = gtk_combo_box_new_text ();
+  refmac_dialog_fobs_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refmac_dialog_fobs_combobox);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_fobs_hbox), refmac_dialog_fobs_combobox, TRUE, TRUE, 0);
 
@@ -12129,7 +12129,7 @@ create_run_refmac_dialog (void)
   gtk_widget_show (refmac_dialog_fpm_optionmenu);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_fpm_hbox), refmac_dialog_fpm_optionmenu, FALSE, FALSE, 0);
 
-  refmac_dialog_fpm_combobox = gtk_combo_box_new_text ();
+  refmac_dialog_fpm_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refmac_dialog_fpm_combobox);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_fpm_hbox), refmac_dialog_fpm_combobox, TRUE, TRUE, 0);
 
@@ -12146,7 +12146,7 @@ create_run_refmac_dialog (void)
   gtk_widget_show (refmac_dialog_fiobs_optionmenu);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_fiobs_hbox), refmac_dialog_fiobs_optionmenu, FALSE, FALSE, 0);
 
-  refmac_dlalog_fiobs_combobox = gtk_combo_box_new_text ();
+  refmac_dlalog_fiobs_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refmac_dlalog_fiobs_combobox);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_fiobs_hbox), refmac_dlalog_fiobs_combobox, TRUE, TRUE, 0);
 
@@ -12163,7 +12163,7 @@ create_run_refmac_dialog (void)
   gtk_widget_show (refmac_dialog_ipm_optionmenu);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_ipm_hbox), refmac_dialog_ipm_optionmenu, FALSE, FALSE, 0);
 
-  refmac_dialog_ipm_combobox = gtk_combo_box_new_text ();
+  refmac_dialog_ipm_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refmac_dialog_ipm_combobox);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_ipm_hbox), refmac_dialog_ipm_combobox, TRUE, TRUE, 0);
 
@@ -12181,7 +12181,7 @@ create_run_refmac_dialog (void)
   gtk_widget_show (refmac_dialog_rfree_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox344), refmac_dialog_rfree_optionmenu, FALSE, FALSE, 0);
 
-  refmac_dialog_rfree_combobox = gtk_combo_box_new_text ();
+  refmac_dialog_rfree_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refmac_dialog_rfree_combobox);
   gtk_box_pack_start (GTK_BOX (hbox344), refmac_dialog_rfree_combobox, TRUE, TRUE, 0);
 
@@ -12206,11 +12206,11 @@ create_run_refmac_dialog (void)
   gtk_widget_show (refmac_dialog_fom_optionmenu);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_phases_hbox), refmac_dialog_fom_optionmenu, FALSE, FALSE, 0);
 
-  refmac_dialog_phases_combobox = gtk_combo_box_new_text ();
+  refmac_dialog_phases_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refmac_dialog_phases_combobox);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_phases_hbox), refmac_dialog_phases_combobox, TRUE, TRUE, 0);
 
-  refmac_dialog_fom_combobox = gtk_combo_box_new_text ();
+  refmac_dialog_fom_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refmac_dialog_fom_combobox);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_phases_hbox), refmac_dialog_fom_combobox, TRUE, TRUE, 0);
 
@@ -12227,7 +12227,7 @@ create_run_refmac_dialog (void)
   gtk_widget_show (refmac_dialog_hl_optionmenu);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_hl_hbox), refmac_dialog_hl_optionmenu, FALSE, FALSE, 0);
 
-  refmac_dialog_hl_combobox = gtk_combo_box_new_text ();
+  refmac_dialog_hl_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refmac_dialog_hl_combobox);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_hl_hbox), refmac_dialog_hl_combobox, TRUE, TRUE, 0);
 
@@ -12250,7 +12250,7 @@ create_run_refmac_dialog (void)
   gtk_widget_show (run_refmac_ncycle_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox346), run_refmac_ncycle_optionmenu, FALSE, FALSE, 0);
 
-  run_refmac_ncycle_combobox = gtk_combo_box_new_text ();
+  run_refmac_ncycle_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (run_refmac_ncycle_combobox);
   gtk_box_pack_start (GTK_BOX (hbox346), run_refmac_ncycle_combobox, TRUE, TRUE, 0);
 
@@ -12281,7 +12281,7 @@ create_run_refmac_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox81), frame87, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame87), 4);
 
-  run_refmac_ccp4i_combobox = gtk_combo_box_new_text ();
+  run_refmac_ccp4i_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (run_refmac_ccp4i_combobox);
   gtk_container_add (GTK_CONTAINER (frame87), run_refmac_ccp4i_combobox);
 
@@ -13000,7 +13000,7 @@ create_undo_molecule_chooser_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox83), frame70, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame70), 2);
 
-  undo_molecule_chooser_combobox = gtk_combo_box_new_text ();
+  undo_molecule_chooser_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (undo_molecule_chooser_combobox);
   gtk_box_pack_start (GTK_BOX (vbox83), undo_molecule_chooser_combobox, TRUE, TRUE, 0);
 
@@ -13086,7 +13086,7 @@ create_skeleton_dialog (void)
   gtk_widget_show (skeleton_map_optionmenu);
   gtk_container_add (GTK_CONTAINER (frame71), skeleton_map_optionmenu);
 
-  skeleton_map_combobox = gtk_combo_box_new_text ();
+  skeleton_map_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (skeleton_map_combobox);
   gtk_box_pack_start (GTK_BOX (vbox84), skeleton_map_combobox, TRUE, TRUE, 0);
 
@@ -13957,7 +13957,7 @@ create_select_fitting_map_dialog (void)
   gtk_widget_show (select_map_for_fitting_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox95), select_map_for_fitting_optionmenu, FALSE, FALSE, 0);
 
-  select_map_for_fitting_combobox = gtk_combo_box_new_text ();
+  select_map_for_fitting_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (select_map_for_fitting_combobox);
   gtk_box_pack_start (GTK_BOX (vbox95), select_map_for_fitting_combobox, TRUE, TRUE, 0);
 
@@ -14518,7 +14518,7 @@ create_check_waters_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox73), label136, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label136), GTK_JUSTIFY_CENTER);
 
-  check_waters_molecule_combobox = gtk_combo_box_new_text ();
+  check_waters_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (check_waters_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (hbox73), check_waters_molecule_combobox, TRUE, TRUE, 0);
 
@@ -14532,11 +14532,11 @@ create_check_waters_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox72), label135, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label135), GTK_JUSTIFY_CENTER);
 
-  check_waters_action_combobox = gtk_combo_box_new_text ();
+  check_waters_action_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (check_waters_action_combobox);
   gtk_box_pack_start (GTK_BOX (hbox72), check_waters_action_combobox, TRUE, TRUE, 0);
-  gtk_combo_box_append_text (GTK_COMBO_BOX (check_waters_action_combobox), "Check");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (check_waters_action_combobox), "Delete");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (check_waters_action_combobox), "Check");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (check_waters_action_combobox), "Delete");
 
   frame84 = gtk_frame_new (NULL);
   gtk_widget_show (frame84);
@@ -14689,7 +14689,7 @@ create_check_waters_dialog (void)
   gtk_widget_show (label753);
   gtk_box_pack_start (GTK_BOX (hbox415), label753, FALSE, FALSE, 0);
 
-  check_waters_by_difference_map_combobox = gtk_combo_box_new_text ();
+  check_waters_by_difference_map_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (check_waters_by_difference_map_combobox);
   gtk_box_pack_start (GTK_BOX (hbox415), check_waters_by_difference_map_combobox, TRUE, TRUE, 0);
 
@@ -15787,7 +15787,7 @@ create_superpose_dialog (void)
   gtk_widget_show (vbox142);
   gtk_container_add (GTK_CONTAINER (frame98), vbox142);
 
-  superpose_dialog_reference_mol_combobox = gtk_combo_box_new_text ();
+  superpose_dialog_reference_mol_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (superpose_dialog_reference_mol_combobox);
   gtk_box_pack_start (GTK_BOX (vbox142), superpose_dialog_reference_mol_combobox, FALSE, FALSE, 0);
 
@@ -15803,7 +15803,7 @@ create_superpose_dialog (void)
   gtk_widget_show (superpose_reference_chain_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox144), superpose_reference_chain_checkbutton, FALSE, FALSE, 0);
 
-  superpose_dialog_reference_chain_combobox = gtk_combo_box_new_text ();
+  superpose_dialog_reference_chain_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (superpose_dialog_reference_chain_combobox);
   gtk_box_pack_start (GTK_BOX (vbox142), superpose_dialog_reference_chain_combobox, TRUE, TRUE, 0);
 
@@ -15825,7 +15825,7 @@ create_superpose_dialog (void)
   gtk_widget_show (vbox143);
   gtk_container_add (GTK_CONTAINER (frame99), vbox143);
 
-  superpose_dialog_moving_mol_combobox = gtk_combo_box_new_text ();
+  superpose_dialog_moving_mol_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (superpose_dialog_moving_mol_combobox);
   gtk_box_pack_start (GTK_BOX (vbox143), superpose_dialog_moving_mol_combobox, FALSE, FALSE, 0);
 
@@ -15841,7 +15841,7 @@ create_superpose_dialog (void)
   gtk_widget_show (superpose_moving_chain_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox145), superpose_moving_chain_checkbutton, FALSE, FALSE, 0);
 
-  superpose_dialog_moving_chain_combobox = gtk_combo_box_new_text ();
+  superpose_dialog_moving_chain_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (superpose_dialog_moving_chain_combobox);
   gtk_box_pack_start (GTK_BOX (vbox145), superpose_dialog_moving_chain_combobox, TRUE, TRUE, 0);
 
@@ -16127,7 +16127,7 @@ create_check_chiral_volumes_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label171), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label171), 2, 9);
 
-  check_chiral_volumes_molecule_combobox = gtk_combo_box_new_text ();
+  check_chiral_volumes_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (check_chiral_volumes_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox111), check_chiral_volumes_molecule_combobox, TRUE, TRUE, 0);
 
@@ -16440,7 +16440,7 @@ create_merge_molecules_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox114), label179, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label179), GTK_JUSTIFY_CENTER);
 
-  merge_molecules_combobox = gtk_combo_box_new_text ();
+  merge_molecules_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (merge_molecules_combobox);
   gtk_box_pack_start (GTK_BOX (vbox114), merge_molecules_combobox, TRUE, TRUE, 0);
 
@@ -16612,7 +16612,7 @@ create_mutate_sequence_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox116), mutate_molecule_optionmenu, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (mutate_molecule_optionmenu), 2);
 
-  mutate_molecule_combobox = gtk_combo_box_new_text ();
+  mutate_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (mutate_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox116), mutate_molecule_combobox, TRUE, TRUE, 0);
 
@@ -16630,7 +16630,7 @@ create_mutate_sequence_dialog (void)
   gtk_widget_show (mutate_molecule_chain_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox90), mutate_molecule_chain_optionmenu, FALSE, FALSE, 0);
 
-  mutate_molecule_chain_combobox = gtk_combo_box_new_text ();
+  mutate_molecule_chain_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (mutate_molecule_chain_combobox);
   gtk_box_pack_start (GTK_BOX (hbox90), mutate_molecule_chain_combobox, TRUE, TRUE, 0);
 
@@ -16989,7 +16989,7 @@ create_bond_parameters_dialog (void)
   gtk_widget_show (bond_parameters_bond_width_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox94), bond_parameters_bond_width_optionmenu, FALSE, FALSE, 0);
 
-  bond_parameters_bond_width_combobox = gtk_combo_box_new_text ();
+  bond_parameters_bond_width_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (bond_parameters_bond_width_combobox);
   gtk_box_pack_start (GTK_BOX (hbox94), bond_parameters_bond_width_combobox, TRUE, TRUE, 0);
 
@@ -17266,7 +17266,7 @@ create_renumber_residue_range_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox120), renumber_residue_range_molecule_optionmenu, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (renumber_residue_range_molecule_optionmenu), 2);
 
-  renumber_residue_range_combobox = gtk_combo_box_new_text ();
+  renumber_residue_range_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (renumber_residue_range_combobox);
   gtk_box_pack_start (GTK_BOX (vbox120), renumber_residue_range_combobox, TRUE, TRUE, 0);
 
@@ -17534,7 +17534,7 @@ create_add_OXT_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox101), label199, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label199), GTK_JUSTIFY_CENTER);
 
-  add_OXT_molecule_combobox = gtk_combo_box_new_text ();
+  add_OXT_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (add_OXT_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (hbox101), add_OXT_molecule_combobox, TRUE, TRUE, 0);
 
@@ -17547,7 +17547,7 @@ create_add_OXT_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox102), label200, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label200), GTK_JUSTIFY_CENTER);
 
-  add_OXT_chain_combobox = gtk_combo_box_new_text ();
+  add_OXT_chain_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (add_OXT_chain_combobox);
   gtk_box_pack_start (GTK_BOX (hbox102), add_OXT_chain_combobox, TRUE, TRUE, 0);
 
@@ -18497,7 +18497,7 @@ create_skeletonize_map_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox134), skeletonize_map_optionmenu, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (skeletonize_map_optionmenu), 2);
 
-  skeletonize_map_combobox = gtk_combo_box_new_text ();
+  skeletonize_map_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (skeletonize_map_combobox);
   gtk_box_pack_start (GTK_BOX (vbox134), skeletonize_map_combobox, TRUE, TRUE, 0);
 
@@ -20145,7 +20145,7 @@ create_preferences (void)
   gtk_widget_show (hbox304);
   gtk_box_pack_start (GTK_BOX (vbox224), hbox304, TRUE, TRUE, 0);
 
-  preferences_bond_width_combobox = gtk_combo_box_new_text ();
+  preferences_bond_width_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (preferences_bond_width_combobox);
   gtk_box_pack_start (GTK_BOX (hbox304), preferences_bond_width_combobox, FALSE, FALSE, 0);
 
@@ -20651,7 +20651,7 @@ create_preferences (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_font_size_others_radiobutton), preferences_font_size_small_radiobutton_group);
   preferences_font_size_small_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_font_size_others_radiobutton));
 
-  preferences_font_size_combobox = gtk_combo_box_new_text ();
+  preferences_font_size_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (preferences_font_size_combobox);
   gtk_box_pack_start (GTK_BOX (hbox323), preferences_font_size_combobox, FALSE, TRUE, 0);
 
@@ -22304,7 +22304,7 @@ create_align_and_mutate_dialog (void)
   gtk_widget_show (align_and_mutate_molecule_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox151), align_and_mutate_molecule_optionmenu, FALSE, FALSE, 0);
 
-  align_and_mutate_molecule_combobox = gtk_combo_box_new_text ();
+  align_and_mutate_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (align_and_mutate_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox151), align_and_mutate_molecule_combobox, TRUE, TRUE, 0);
 
@@ -22322,7 +22322,7 @@ create_align_and_mutate_dialog (void)
   gtk_widget_show (align_and_mutate_chain_optionmenu);
   gtk_box_pack_start (GTK_BOX (hbox121), align_and_mutate_chain_optionmenu, FALSE, FALSE, 0);
 
-  align_and_mutate_chain_combobox = gtk_combo_box_new_text ();
+  align_and_mutate_chain_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (align_and_mutate_chain_combobox);
   gtk_box_pack_start (GTK_BOX (hbox121), align_and_mutate_chain_combobox, TRUE, TRUE, 0);
 
@@ -22450,7 +22450,7 @@ create_ramachandran_plot_differences_dialog (void)
   gtk_widget_show (vbox153);
   gtk_container_add (GTK_CONTAINER (frame150), vbox153);
 
-  ramachandran_plot_differences_first_mol_combobox = gtk_combo_box_new_text ();
+  ramachandran_plot_differences_first_mol_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (ramachandran_plot_differences_first_mol_combobox);
   gtk_box_pack_start (GTK_BOX (vbox153), ramachandran_plot_differences_first_mol_combobox, TRUE, TRUE, 0);
 
@@ -22466,7 +22466,7 @@ create_ramachandran_plot_differences_dialog (void)
   gtk_widget_show (ramachandran_plot_differences_first_chain_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox154), ramachandran_plot_differences_first_chain_checkbutton, FALSE, FALSE, 0);
 
-  ramachandran_plot_differences_first_chain_combobox = gtk_combo_box_new_text ();
+  ramachandran_plot_differences_first_chain_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (ramachandran_plot_differences_first_chain_combobox);
   gtk_box_pack_start (GTK_BOX (vbox154), ramachandran_plot_differences_first_chain_combobox, TRUE, TRUE, 0);
 
@@ -22488,7 +22488,7 @@ create_ramachandran_plot_differences_dialog (void)
   gtk_widget_show (vbox155);
   gtk_container_add (GTK_CONTAINER (frame152), vbox155);
 
-  ramachandran_plot_differences_second_mol_combobox = gtk_combo_box_new_text ();
+  ramachandran_plot_differences_second_mol_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (ramachandran_plot_differences_second_mol_combobox);
   gtk_box_pack_start (GTK_BOX (vbox155), ramachandran_plot_differences_second_mol_combobox, TRUE, TRUE, 0);
 
@@ -22504,7 +22504,7 @@ create_ramachandran_plot_differences_dialog (void)
   gtk_widget_show (ramachandran_plot_differences_second_chain_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox156), ramachandran_plot_differences_second_chain_checkbutton, FALSE, FALSE, 0);
 
-  ramachandran_plot_differences_second_chain_combobox = gtk_combo_box_new_text ();
+  ramachandran_plot_differences_second_chain_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (ramachandran_plot_differences_second_chain_combobox);
   gtk_box_pack_start (GTK_BOX (vbox156), ramachandran_plot_differences_second_chain_combobox, TRUE, TRUE, 0);
 
@@ -22851,7 +22851,7 @@ create_change_chain_id_dialog (void)
   gtk_misc_set_alignment (GTK_MISC (label246), 0, 0.5);
   gtk_misc_set_padding (GTK_MISC (label246), 0, 4);
 
-  change_chain_id_molecule_combobox = gtk_combo_box_new_text ();
+  change_chain_id_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (change_chain_id_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox161), change_chain_id_molecule_combobox, TRUE, TRUE, 0);
 
@@ -22870,7 +22870,7 @@ create_change_chain_id_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox125), label247, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label247), GTK_JUSTIFY_CENTER);
 
-  change_chain_id_chain_combobox = gtk_combo_box_new_text ();
+  change_chain_id_chain_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (change_chain_id_chain_combobox);
   gtk_box_pack_start (GTK_BOX (hbox125), change_chain_id_chain_combobox, TRUE, TRUE, 0);
   gtk_widget_set_size_request (change_chain_id_chain_combobox, 44, -1);
@@ -24457,7 +24457,7 @@ create_nucleotide_builder_dialog (void)
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (nucleotide_builder_type_optionmenu), menu2);
 
-  nucleotide_builder_type_combobox = gtk_combo_box_new_text ();
+  nucleotide_builder_type_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (nucleotide_builder_type_combobox);
   gtk_box_pack_start (GTK_BOX (vbox180), nucleotide_builder_type_combobox, TRUE, TRUE, 0);
 
@@ -24491,7 +24491,7 @@ create_nucleotide_builder_dialog (void)
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (nucleotide_builder_form_optionmenu), menu3);
 
-  nucleotide_builder_form_combobox = gtk_combo_box_new_text ();
+  nucleotide_builder_form_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (nucleotide_builder_form_combobox);
   gtk_box_pack_start (GTK_BOX (vbox181), nucleotide_builder_form_combobox, TRUE, TRUE, 0);
 
@@ -24525,7 +24525,7 @@ create_nucleotide_builder_dialog (void)
 
   gtk_option_menu_set_menu (GTK_OPTION_MENU (nucleotide_builder_strand_optionmenu), menu4);
 
-  nucleotide_builder_strand_combobox = gtk_combo_box_new_text ();
+  nucleotide_builder_strand_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (nucleotide_builder_strand_combobox);
   gtk_box_pack_start (GTK_BOX (vbox182), nucleotide_builder_strand_combobox, TRUE, TRUE, 0);
 
@@ -24697,7 +24697,7 @@ create_move_molecule_here_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox184), move_molecule_here_big_molecules_checkbutton, FALSE, FALSE, 5);
   gtk_tooltips_set_tip (tooltips, move_molecule_here_big_molecules_checkbutton, "\"Big\" means more than 400 atoms", NULL);
 
-  move_molecule_here_combobox = gtk_combo_box_new_text ();
+  move_molecule_here_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (move_molecule_here_combobox);
   gtk_box_pack_start (GTK_BOX (vbox184), move_molecule_here_combobox, TRUE, TRUE, 0);
 
@@ -25064,7 +25064,7 @@ create_least_squares_dialog (void)
   gtk_widget_show (least_squares_reference_molecule_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox189), least_squares_reference_molecule_optionmenu, FALSE, FALSE, 0);
 
-  least_squares_reference_molecule_combobox = gtk_combo_box_new_text ();
+  least_squares_reference_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (least_squares_reference_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox189), least_squares_reference_molecule_combobox, TRUE, TRUE, 0);
 
@@ -25078,7 +25078,7 @@ create_least_squares_dialog (void)
   gtk_widget_show (least_squares_moving_molecule_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox189), least_squares_moving_molecule_optionmenu, FALSE, FALSE, 0);
 
-  least_squares_moving_molecule_combobox = gtk_combo_box_new_text ();
+  least_squares_moving_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (least_squares_moving_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox189), least_squares_moving_molecule_combobox, TRUE, TRUE, 0);
 
@@ -25415,12 +25415,12 @@ create_sft_dialog (void)
   gtk_widget_show (label400);
   gtk_box_pack_start (GTK_BOX (hbox228), label400, FALSE, FALSE, 0);
 
-  combobox3 = gtk_combo_box_new_text ();
+  combobox3 = gtk_combo_box_text_new ();
   gtk_widget_show (combobox3);
   gtk_box_pack_start (GTK_BOX (hbox228), combobox3, FALSE, FALSE, 0);
-  gtk_combo_box_append_text (GTK_COMBO_BOX (combobox3), "-1");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (combobox3), "-");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (combobox3), "1");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combobox3), "-1");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combobox3), "-");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combobox3), "1");
 
   hbox229 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox229);
@@ -25430,12 +25430,12 @@ create_sft_dialog (void)
   gtk_widget_show (label401);
   gtk_box_pack_start (GTK_BOX (hbox229), label401, FALSE, FALSE, 0);
 
-  combobox4 = gtk_combo_box_new_text ();
+  combobox4 = gtk_combo_box_text_new ();
   gtk_widget_show (combobox4);
   gtk_box_pack_start (GTK_BOX (hbox229), combobox4, FALSE, FALSE, 0);
-  gtk_combo_box_append_text (GTK_COMBO_BOX (combobox4), "-1");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (combobox4), "0");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (combobox4), "1");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combobox4), "-1");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combobox4), "0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combobox4), "1");
 
   hbox230 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox230);
@@ -25445,12 +25445,12 @@ create_sft_dialog (void)
   gtk_widget_show (label402);
   gtk_box_pack_start (GTK_BOX (hbox230), label402, FALSE, FALSE, 0);
 
-  combobox5 = gtk_combo_box_new_text ();
+  combobox5 = gtk_combo_box_text_new ();
   gtk_widget_show (combobox5);
   gtk_box_pack_start (GTK_BOX (hbox230), combobox5, FALSE, FALSE, 0);
-  gtk_combo_box_append_text (GTK_COMBO_BOX (combobox5), "-1");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (combobox5), "0");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (combobox5), "1");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combobox5), "-1");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combobox5), "0");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combobox5), "1");
 
   hbox231 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox231);
@@ -25669,7 +25669,7 @@ create_globularize_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox200), label439, FALSE, FALSE, 0);
   gtk_misc_set_padding (GTK_MISC (label439), 0, 4);
 
-  globularize_molecule_molecule_chooser_combobox = gtk_combo_box_new_text ();
+  globularize_molecule_molecule_chooser_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (globularize_molecule_molecule_chooser_combobox);
   gtk_box_pack_start (GTK_BOX (vbox200), globularize_molecule_molecule_chooser_combobox, TRUE, TRUE, 0);
 
@@ -25831,7 +25831,7 @@ create_coords_filechooserdialog1 (void)
   gtk_container_add (GTK_CONTAINER (frame177), alignment104);
   gtk_alignment_set_padding (GTK_ALIGNMENT (alignment104), 3, 3, 5, 5);
 
-  coords_filechooserdialog1_recentre_combobox = gtk_combo_box_new_text ();
+  coords_filechooserdialog1_recentre_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (coords_filechooserdialog1_recentre_combobox);
   gtk_container_add (GTK_CONTAINER (alignment104), coords_filechooserdialog1_recentre_combobox);
 
@@ -26585,7 +26585,7 @@ create_add_reps_dialog (void)
   gtk_widget_show (add_rep_molecule_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox267), add_rep_molecule_optionmenu, FALSE, FALSE, 0);
 
-  add_reps_molecule_combobox = gtk_combo_box_new_text ();
+  add_reps_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (add_reps_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox267), add_reps_molecule_combobox, TRUE, TRUE, 0);
 
@@ -26798,31 +26798,31 @@ create_add_reps_dialog (void)
   gtk_widget_show (label622);
   gtk_box_pack_start (GTK_BOX (hbox334), label622, FALSE, FALSE, 0);
 
-  add_rep_bond_width_combobox = gtk_combo_box_new_text ();
+  add_rep_bond_width_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (add_rep_bond_width_combobox);
   gtk_box_pack_start (GTK_BOX (hbox334), add_rep_bond_width_combobox, FALSE, TRUE, 0);
-  gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "1");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "2");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "3");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "4");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "5");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "6");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "7");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "8");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "9");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "10");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "11");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "12");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "13");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "14");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "15");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "16");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "17");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "18");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "19");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (add_rep_bond_width_combobox), "20");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "1");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "2");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "3");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "4");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "5");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "6");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "7");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "8");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "9");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "10");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "11");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "12");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "13");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "14");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "15");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "16");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "17");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "18");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "19");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "20");
 
-  add_reps_bond_width_combobox = gtk_combo_box_new_text ();
+  add_reps_bond_width_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (add_reps_bond_width_combobox);
   gtk_box_pack_start (GTK_BOX (hbox334), add_reps_bond_width_combobox, TRUE, TRUE, 0);
 
@@ -27486,11 +27486,11 @@ create_residue_editor_select_monomer_type_dialog (void)
   gtk_misc_set_alignment (GTK_MISC (label633), 0.16, 0.5);
   gtk_misc_set_padding (GTK_MISC (label633), 0, 6);
 
-  residue_editor_select_monomer_type_combobox = gtk_combo_box_new_text ();
+  residue_editor_select_monomer_type_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (residue_editor_select_monomer_type_combobox);
   gtk_box_pack_start (GTK_BOX (vbox276), residue_editor_select_monomer_type_combobox, FALSE, FALSE, 0);
-  gtk_combo_box_append_text (GTK_COMBO_BOX (residue_editor_select_monomer_type_combobox), "ALA");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (residue_editor_select_monomer_type_combobox), "ARG");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (residue_editor_select_monomer_type_combobox), "ALA");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (residue_editor_select_monomer_type_combobox), "ARG");
 
   label634 = gtk_label_new ("  ");
   gtk_widget_show (label634);
@@ -28082,25 +28082,25 @@ create_fast_ss_search_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox387), fast_sss_dialog_helix_checkbutton, FALSE, FALSE, 0);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (fast_sss_dialog_helix_checkbutton), TRUE);
 
-  fast_sss_dialog_helix_template_combobox = gtk_combo_box_new_text ();
+  fast_sss_dialog_helix_template_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (fast_sss_dialog_helix_template_combobox);
   gtk_box_pack_start (GTK_BOX (hbox387), fast_sss_dialog_helix_template_combobox, TRUE, TRUE, 0);
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_helix_template_combobox), "normal");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_helix_template_combobox), "strict");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_helix_template_combobox), "high resolution");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_helix_template_combobox), "low resolution");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_helix_template_combobox), "normal");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_helix_template_combobox), "strict");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_helix_template_combobox), "high resolution");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_helix_template_combobox), "low resolution");
 
   label709 = gtk_label_new (" template of ");
   gtk_widget_show (label709);
   gtk_box_pack_start (GTK_BOX (hbox387), label709, FALSE, FALSE, 0);
 
-  fast_sss_dialog_helix_no_aa_combobox = gtk_combo_box_new_text ();
+  fast_sss_dialog_helix_no_aa_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (fast_sss_dialog_helix_no_aa_combobox);
   gtk_box_pack_start (GTK_BOX (hbox387), fast_sss_dialog_helix_no_aa_combobox, TRUE, TRUE, 0);
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_helix_no_aa_combobox), "5");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_helix_no_aa_combobox), "7");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_helix_no_aa_combobox), "9");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_helix_no_aa_combobox), "11");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_helix_no_aa_combobox), "5");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_helix_no_aa_combobox), "7");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_helix_no_aa_combobox), "9");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_helix_no_aa_combobox), "11");
 
   label710 = gtk_label_new (" amino acids.");
   gtk_widget_show (label710);
@@ -28116,25 +28116,25 @@ create_fast_ss_search_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox390), fast_sss_dialog_strand_checkbutton, FALSE, FALSE, 0);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (fast_sss_dialog_strand_checkbutton), TRUE);
 
-  fast_sss_dialog_strand_template_combobox = gtk_combo_box_new_text ();
+  fast_sss_dialog_strand_template_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (fast_sss_dialog_strand_template_combobox);
   gtk_box_pack_start (GTK_BOX (hbox390), fast_sss_dialog_strand_template_combobox, TRUE, TRUE, 0);
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_strand_template_combobox), "normal");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_strand_template_combobox), "strict");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_strand_template_combobox), "high resolution");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_strand_template_combobox), "low resolution");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_strand_template_combobox), "normal");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_strand_template_combobox), "strict");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_strand_template_combobox), "high resolution");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_strand_template_combobox), "low resolution");
 
   label714 = gtk_label_new (" template of ");
   gtk_widget_show (label714);
   gtk_box_pack_start (GTK_BOX (hbox390), label714, FALSE, FALSE, 0);
 
-  fast_sss_dialog_strand_no_aa_combobox = gtk_combo_box_new_text ();
+  fast_sss_dialog_strand_no_aa_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (fast_sss_dialog_strand_no_aa_combobox);
   gtk_box_pack_start (GTK_BOX (hbox390), fast_sss_dialog_strand_no_aa_combobox, TRUE, TRUE, 0);
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_strand_no_aa_combobox), "5");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_strand_no_aa_combobox), "7");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_strand_no_aa_combobox), "9");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_strand_no_aa_combobox), "11");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_strand_no_aa_combobox), "5");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_strand_no_aa_combobox), "7");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_strand_no_aa_combobox), "9");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_strand_no_aa_combobox), "11");
 
   label715 = gtk_label_new (" amino acids.");
   gtk_widget_show (label715);
@@ -28149,14 +28149,14 @@ create_fast_ss_search_dialog (void)
   gtk_widget_show (fast_sss_dialog_local_checkbutton);
   gtk_box_pack_start (GTK_BOX (hbox389), fast_sss_dialog_local_checkbutton, FALSE, FALSE, 0);
 
-  fast_sss_dialog_radius_combobox = gtk_combo_box_new_text ();
+  fast_sss_dialog_radius_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (fast_sss_dialog_radius_combobox);
   gtk_box_pack_start (GTK_BOX (hbox389), fast_sss_dialog_radius_combobox, FALSE, TRUE, 0);
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_radius_combobox), "10");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_radius_combobox), "20");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_radius_combobox), "30");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_radius_combobox), "40");
-  gtk_combo_box_append_text (GTK_COMBO_BOX (fast_sss_dialog_radius_combobox), "50");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_radius_combobox), "10");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_radius_combobox), "20");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_radius_combobox), "30");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_radius_combobox), "40");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (fast_sss_dialog_radius_combobox), "50");
 
   label713 = gtk_label_new (" A sphere about the cursor.");
   gtk_widget_show (label713);
@@ -28296,7 +28296,7 @@ create_map_sharpening_dialog (void)
   gtk_widget_show (map_sharpening_optionmenu);
   gtk_box_pack_start (GTK_BOX (vbox302), map_sharpening_optionmenu, FALSE, FALSE, 0);
 
-  map_sharpending_combobox = gtk_combo_box_new_text ();
+  map_sharpending_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (map_sharpending_combobox);
   gtk_box_pack_start (GTK_BOX (vbox302), map_sharpending_combobox, TRUE, TRUE, 0);
 
@@ -29613,7 +29613,7 @@ create_export_map_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox324), export_map_map_optionmenu, FALSE, FALSE, 6);
   gtk_container_set_border_width (GTK_CONTAINER (export_map_map_optionmenu), 6);
 
-  export_map_map_combobox = gtk_combo_box_new_text ();
+  export_map_map_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (export_map_map_combobox);
   gtk_box_pack_start (GTK_BOX (vbox324), export_map_map_combobox, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (export_map_map_combobox), 6);
