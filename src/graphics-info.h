@@ -3283,14 +3283,16 @@ public:
    static int refmac_molecule;
 
    // ------ new style combobox usage -------
+
+   // the top one of this is probably what you want.
+   std::string get_active_label_in_comboboxtext(GtkComboBoxText *combobox);
    std::string get_active_label_in_combobox(GtkComboBox *combobox) const;
 
    // ------ add OXT -------
    void fill_add_OXT_dialog_internal(GtkWidget *w);
    static int add_OXT_molecule;
-   static void add_OXT_molecule_item_select(GtkWidget *item,
-					    GtkPositionType pos);
    void fill_add_OXT_dialog_internal(GtkWidget *widget, int imol);
+   static void add_OXT_molecule_combobox_changed(GtkWidget *widget, gpointer data);
    // return the default chain string (top of the list).
    // (return "no-chain" if it was not assigned (nothing in the list)).
 
