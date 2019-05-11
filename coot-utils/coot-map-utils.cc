@@ -552,14 +552,60 @@ coot::util::multi_sharpen_blur_map(const clipper::Xmap<float> &xmap_in,
    }
 }
 
+#include <gsl/gsl_fit.h>
+
+
+float
+coot::util::b_factor(const std::vector<coot::amplitude_vs_resolution_point> &fsqrd_data,
+		     std::pair<bool, float> reso_low_invresolsq,
+		     std::pair<bool, float> reso_high_invresolsq) {
+
+   float b = 0.0f;
+   std::vector<std::pair<double, double> > data;
+   data.reserve(fsqrd_data.size());
+   for (std::size_t i=0; i<fsqrd_data.size(); i++) {
+      const amplitude_vs_resolution_point &d = fsqrd_data[i];
+      if (d.count > 0) {
+	 float reso = d.get_invresolsq();
+	 if (!reso_low_invresolsq.first  || reso >= reso_low_invresolsq.second) {
+	    if (!reso_high_invresolsq.first || reso <= reso_high_invresolsq.second) {
+	       std::pair<double, double> p(2.0 * reso, log10(d.get_average_fsqrd()));
+	       data.push_back(p);
+	    }
+	 }
+      }
+   }
+
+   if (data.size() > 1) {
+      unsigned int n = data.size();
+      double *x_p = new double[n];
+      double *y_p = new double[n];
+      for (std::size_t i=0; i<data.size(); i++) {
+	 x_p[i] = data[i].first;
+	 y_p[i] = data[i].second;
+	 std::cout << "adding data " << data[i].first << " " << data[i].second << std::endl;
+      }
+      double cov00, cov01, cov11, sum_sq;
+      double c_0, c_1; // c and m
+      gsl_fit_linear(x_p, 1, y_p, 1, n, &c_0, &c_1, &cov00, &cov01, &cov11, &sum_sq);
+      b = -8.0 * M_PI * M_PI * c_1;
+      delete [] x_p;
+      delete [] y_p;
+   }
+
+   return b;
+}
+
 
 // if n_bins is -1, let the function decide how many bins
 //
-std::vector<coot::util::amplitude_vs_resolution_point>
+// actually, we return bins of amplitude squares
+//
+std::vector<coot::amplitude_vs_resolution_point>
 coot::util::amplitude_vs_resolution(const clipper::Xmap<float> &xmap_in,
 				    int n_bins_in) {
 
-   std::vector<coot::util::amplitude_vs_resolution_point> v;
+   std::vector<coot::amplitude_vs_resolution_point> v;
    int n_bins = n_bins_in;
    if (n_bins_in == -1)
       n_bins = 60;
@@ -594,7 +640,7 @@ coot::util::amplitude_vs_resolution(const clipper::Xmap<float> &xmap_in,
 	 if (bin == n_bins) {
 	    bin = n_bins-1;
 	 }
-	 v[bin].add(fphis[hri].f(), irs);
+	 v[bin].add(f*f, irs);
       }
    }
 
@@ -603,7 +649,6 @@ coot::util::amplitude_vs_resolution(const clipper::Xmap<float> &xmap_in,
 
    return v;
 }
-
 
 
 clipper::Xmap<float>

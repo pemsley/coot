@@ -2337,14 +2337,18 @@ SCM amplitude_vs_resolution_scm(int imol_map) {
       graphics_info_t g;
       clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
       // amplitude_vs_resolution decides the number of bins
-      std::vector<coot::util::amplitude_vs_resolution_point> data = coot::util::amplitude_vs_resolution(xmap);
+      std::vector<coot::amplitude_vs_resolution_point> data = coot::util::amplitude_vs_resolution(xmap);
       std::cout << "amplitude_vs_resolution_scm() with data.size() " << data.size() << std::endl;
       for (std::size_t i=0; i<data.size(); i++) {
-	 SCM n = scm_list_3(scm_double2num(data[i].get_average_f()),
+	 SCM n = scm_list_3(scm_double2num(data[i].get_average_fsqrd()),
 			    SCM_MAKINUM(data[i].count),
 			    scm_double2num(data[i].get_invresolsq()));
 	 r = scm_cons(n, r);
       }
+
+      std::pair<bool, float> l1(true, 0.12);
+      float b = coot::util::b_factor(data, l1);
+      std::cout << "............ b-factor: " << b << std::endl;
    }
    r = scm_reverse(r);
    return r;
@@ -2354,15 +2358,20 @@ SCM amplitude_vs_resolution_scm(int imol_map) {
 #ifdef USE_PYTHON
 PyObject *amplitude_vs_resolution_py(int imol_map) {
 
-   // return a list of [sum count reso_average_recip]
+   // return a list of [sum_fsqrd count reso_average_recip]
 
    PyObject *r = Py_False;
 
    if (is_valid_map_molecule(imol_map)) {
       graphics_info_t g;
       clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
-      std::vector<coot::util::amplitude_vs_resolution_point> data = coot::util::amplitude_vs_resolution(xmap);
+      std::vector<coot::amplitude_vs_resolution_point> data = coot::util::amplitude_vs_resolution(xmap);
+      r = PyList_New(data.size());
       for (std::size_t i=0; i<data.size(); i++) {
+	 PyObject *o = PyList_New(3);
+	 PyList_SetItem(o, 0, PyFloat_FromDouble(data[i].get_average_fsqrd()));
+	 PyList_SetItem(o, 1, PyInt_FromLong(data[i].count));
+	 PyList_SetItem(o, 2, PyFloat_FromDouble(data[i].get_invresolsq()));
       }
    }
 
