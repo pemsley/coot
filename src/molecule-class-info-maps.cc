@@ -633,6 +633,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 
 	 std::vector<std::thread> threads;
 	 int n_reams = coot::get_max_number_of_threads();
+	 n_reams = 1; // does this stop the crashing? Hmm! Looks good.
 
 	 for (int ii=0; ii<n_reams; ii++) {
 	    int iream_start = ii;
