@@ -2347,7 +2347,8 @@ SCM amplitude_vs_resolution_scm(int imol_map) {
       }
 
       std::pair<bool, float> l1(true, 0.12);
-      float b = coot::util::b_factor(data, l1);
+      std::pair<bool, float> l2(true, 0.29);
+      float b = coot::util::b_factor(data, l1, l2);
       std::cout << "............ b-factor: " << b << std::endl;
    }
    r = scm_reverse(r);

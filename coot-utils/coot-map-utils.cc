@@ -613,7 +613,8 @@ coot::util::amplitude_vs_resolution(const clipper::Xmap<float> &xmap_in,
    if (n_bins < 1) return v;
 
    float mg = coot::util::max_gridding(xmap_in);
-   clipper::Resolution reso(2.0 * mg);
+   clipper::Resolution reso(3.0 * mg); // tricky number - crystallographic maps are oversampled
+                                       // by at least this: 2.0 x 1.5
    clipper::HKL_info myhkl(xmap_in.spacegroup(), xmap_in.cell(), reso, true);
    clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
    clipper::Xmap<float> xmap_out(xmap_in.spacegroup(), xmap_in.cell(), xmap_in.grid_sampling());
