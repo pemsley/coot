@@ -273,11 +273,6 @@ molecule_class_info_t::clear_draw_vecs() {
    draw_vector_sets_lock = false; // unlock
 
 }
-
-void
-molecule_class_info_t::add_draw_vecs_to_set(const coot::CartesianPairInfo &cpi) {
-   draw_vector_sets.push_back(cpi);
-}
    
 // for negative the other map.
 // 
@@ -507,8 +502,10 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
       
 	       glBegin(GL_LINES);
 	       for (unsigned int iset=0; iset<draw_vector_sets.size(); iset++) {
-		  for (int i=0; i<draw_vector_sets[iset].size; i++) {
-		     const coot::CartesianPair &cp = draw_vector_sets[iset].data[i];
+		  int n = draw_vector_sets[iset].size;
+		  const coot::CartesianPairInfo &cpi = draw_vector_sets[iset];
+		  for (int i=0; i<n; i++) {
+		     const coot::CartesianPair &cp = cpi.data[i];
 		     glVertex3f(cp.getStart().x(),
 				cp.getStart().y(),
 				cp.getStart().z());
