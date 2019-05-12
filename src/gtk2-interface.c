@@ -13927,7 +13927,6 @@ create_select_fitting_map_dialog (void)
   GtkWidget *frame77;
   GtkWidget *vbox95;
   GtkWidget *label128;
-  GtkWidget *select_map_for_fitting_optionmenu;
   GtkWidget *select_map_for_fitting_combobox;
   GtkWidget *dialog_action_area32;
   GtkWidget *select_map_for_fitting_button;
@@ -13953,13 +13952,9 @@ create_select_fitting_map_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox95), label128, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label128), GTK_JUSTIFY_CENTER);
 
-  select_map_for_fitting_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (select_map_for_fitting_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox95), select_map_for_fitting_optionmenu, FALSE, FALSE, 0);
-
   select_map_for_fitting_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (select_map_for_fitting_combobox);
-  gtk_box_pack_start (GTK_BOX (vbox95), select_map_for_fitting_combobox, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox95), select_map_for_fitting_combobox, FALSE, FALSE, 0);
 
   dialog_action_area32 = GTK_DIALOG (select_fitting_map_dialog)->action_area;
   gtk_widget_show (dialog_action_area32);
@@ -13980,7 +13975,6 @@ create_select_fitting_map_dialog (void)
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, frame77, "frame77");
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, vbox95, "vbox95");
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, label128, "label128");
-  GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, select_map_for_fitting_optionmenu, "select_map_for_fitting_optionmenu");
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, select_map_for_fitting_combobox, "select_map_for_fitting_combobox");
   GLADE_HOOKUP_OBJECT_NO_REF (select_fitting_map_dialog, dialog_action_area32, "dialog_action_area32");
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, select_map_for_fitting_button, "select_map_for_fitting_button");

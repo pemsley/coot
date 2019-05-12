@@ -2475,6 +2475,10 @@ public:
 						   std::vector<int> map_molecule_numbers,
 						   int imol_active_position);
 
+   void fill_combobox_with_map_options(GtkWidget *combobox, 
+				       GCallback signal_func,
+				       int imol_active_position);
+
    void fill_combobox_with_difference_map_options(GtkWidget *combobox, 
 						  GCallback signal_func,
 						  int imol_active_position);
@@ -2505,6 +2509,7 @@ public:
 					  GtkWidget *phases_menu, GtkWidget *fom_menu, GtkWidget *hl_menu);
    static void refinement_map_select(GtkWidget *item, GtkPositionType pos);
    static void refinement_map_select_add_columns(GtkWidget *item, GtkPositionType pos);
+   static void select_refinement_map_combobox_changed(GtkWidget *combobox, gpointer data);
    static void   skeleton_map_select(GtkWidget *item, GtkPositionType pos);
    static int map_for_skeletonize; // used by skeletonize_map; 
    static void   skeletonize_map(int imol, short int prune_flag);
