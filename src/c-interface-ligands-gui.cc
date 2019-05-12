@@ -448,7 +448,8 @@ int fill_ligands_dialog_ligands_bits(GtkWidget *find_ligand_dialog) {
 	    ifound = 1; // there was a ligand
 
 	    // create an hbox:
-	    hbox = gtk_hbox_new (FALSE, 0);
+	    // hbox = gtk_hbox_new (FALSE, 0);
+	    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 	    
 	    std::string ligands_str("find_ligand_ligand_checkbutton_");
 	    ligands_str += g.int_to_string(imol);

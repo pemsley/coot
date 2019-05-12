@@ -199,8 +199,6 @@ on_clipping1_activate                  (GtkMenuItem     *menuitem,
 }
 
 
-
-
 void
 on_cancel_coords_button1_clicked       (GtkButton       *button,
                                         gpointer         user_data)
@@ -1115,9 +1113,8 @@ on_open_map1_activate                  (GtkMenuItem     *menuitem,
    push_the_buttons_on_fileselection(filter_button, sort_button, 
 				     map_name_fileselection1);
 
+
 }
-
-
 
 
 void
@@ -3898,7 +3895,9 @@ on_run_refmac_map_mtz_radiobutton_toggled
   GtkWidget *map_optionmenu  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_optionmenu");
   GtkWidget *active_menu_item;
   if (gtk_toggle_button_get_active(togglebutton)) {
+
     printf("GTK3 FIXME\n");
+
   }
 #endif
 }
@@ -11673,6 +11672,7 @@ on_displayed_map_style_as_lines_radiobutton_toggled
 
   GtkWidget *window = lookup_widget(GTK_WIDGET(togglebutton),
 				    "single_map_properties_dialog");
+
   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "imol"));
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) { 
     set_draw_map_standard_lines(imol, 1);
@@ -11689,6 +11689,7 @@ on_displayed_map_style_as_cut_glass_radiobutton_toggled
 
   GtkWidget *window = lookup_widget(GTK_WIDGET(togglebutton),
 				    "single_map_properties_dialog");
+
   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "imol"));
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
     set_draw_map_standard_lines(imol, 0);
@@ -11704,6 +11705,7 @@ on_displayed_map_style_as_transparent_radiobutton_toggled
 					 gpointer         user_data) { 
   GtkWidget *window = lookup_widget(GTK_WIDGET(togglebutton),
 				    "single_map_properties_dialog");
+
   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "imol"));
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) { 
     set_draw_map_standard_lines(imol, 0);

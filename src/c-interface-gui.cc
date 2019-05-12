@@ -449,7 +449,6 @@ void save_refmac_phase_params_to_map(int imol_map,
 
 }
 
-
 // get string for column 0 (which are strings)
 std::string
 get_active_label_in_combobox(GtkComboBox *combobox) {
@@ -1857,14 +1856,6 @@ void guile_window_enter_callback( GtkWidget *widget,
 }
 #endif //  USE_GUILE
 
-// Old interface
-// This is for maps which come from mtz (i.e. have SFs)
-// int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signalfunc) {
-//
-//   graphics_info_t g;
-//   return g.fill_combobox_with_map_mtz_options(option_menu, signalfunc);
-// }
-
 // Similar to fill_option_menu_with_coordinates_options, but I moved
 // it to graphics_info_t because it is also used when there is an
 // ambiguity in the map for refinement (graphics_info_t::refine)
@@ -1872,9 +1863,7 @@ void guile_window_enter_callback( GtkWidget *widget,
 int fill_combobox_with_map_options(GtkWidget *combobox, GCallback signalfunc) {
 
    graphics_info_t g;
-   // return g.fill_option_menu_with_map_options(combobox, signalfunc);
-   g.fill_combobox_with_map_options(combobox, signalfunc, 0);
-
+   g.fill_combobox_with_map_options(combobox, signalfunc, -1);
    return -1;
 }
 

@@ -416,7 +416,7 @@ main (int argc, char *argv[]) {
 #ifdef USE_PYTHON
    setup_python_classes();
 #endif
-   
+
 #ifdef USE_GUILE
      
    // Must be the last thing in this function, code after it does not get 

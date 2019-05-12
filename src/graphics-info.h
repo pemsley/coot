@@ -2470,20 +2470,6 @@ public:
 
    // Return the molecule number of the selected map (I mean, top of
    // the list, in the option menu)
-   // int fill_option_menu_with_map_options(GtkWidget *option_menu, GCallback signal_func); 
-   // void fill_option_menu_with_map_options(GtkWidget *option_menu, GCallback signal_func,
-   // int imol_active_position);
-   // int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GCallback signal_func); 
-
-   // int fill_option_menu_with_map_options_generic(GtkWidget *option_menu, GCallback signal_func, int mtz_only=0); 
-   // void fill_option_menu_with_difference_map_options(GtkWidget *option_menu, 
-   // GCallback signal_func,
-   // int imol_active_position);
-   // void fill_option_menu_with_map_options_internal(GtkWidget *option_menu, 
-   // GCallback signal_func,
-   // std::vector<int> map_molecule_numbers,
-   // int imol_active_position);
-   // void fill_option_menu_with_skeleton_options(GtkWidget *option_menu);  /* a wrapper */
 
    static void refinement_map_combobox_changed(GtkWidget *c, gpointer data);
    int fill_combobox_with_map_mtz_options(GtkWidget *combobox, GCallback signal_func, int imol);
@@ -2496,6 +2482,7 @@ public:
    void fill_combobox_with_map_options(GtkWidget *combobox, 
 				       GCallback signal_func,
 				       int imol_active_position);
+
    void fill_combobox_with_difference_map_options(GtkWidget *combobox, 
 						  GCallback signal_func,
 						  int imol_active_position);
@@ -2528,6 +2515,7 @@ public:
 					  GtkWidget *phases_menu, GtkWidget *fom_menu, GtkWidget *hl_menu);
    static void refinement_map_select(GtkWidget *item, GtkPositionType pos);
    static void refinement_map_select_add_columns(GtkWidget *item, GtkPositionType pos);
+   static void select_refinement_map_combobox_changed(GtkWidget *combobox, gpointer data);
    static void   skeleton_map_select(GtkWidget *item, GtkPositionType pos);
    static int map_for_skeletonize; // used by skeletonize_map; 
    static void   skeletonize_map(int imol, short int prune_flag);
@@ -3306,14 +3294,16 @@ public:
    static int refmac_molecule;
 
    // ------ new style combobox usage -------
+
+   // the top one of this is probably what you want.
+   std::string get_active_label_in_comboboxtext(GtkComboBoxText *combobox);
    std::string get_active_label_in_combobox(GtkComboBox *combobox) const;
 
    // ------ add OXT -------
    void fill_add_OXT_dialog_internal(GtkWidget *w);
    static int add_OXT_molecule;
-   static void add_OXT_molecule_item_select(GtkWidget *item,
-					    GtkPositionType pos);
    void fill_add_OXT_dialog_internal(GtkWidget *widget, int imol);
+   static void add_OXT_molecule_combobox_changed(GtkWidget *widget, gpointer data);
    // return the default chain string (top of the list).
    // (return "no-chain" if it was not assigned (nothing in the list)).
 

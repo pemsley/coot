@@ -1431,7 +1431,8 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
       GtkWidget *button = gtk_button_new();
       GtkWidget *label  = gtk_label_new(l.c_str());
 
-      GtkWidget *button_hbox = gtk_hbox_new(FALSE, 0);
+      // GtkWidget *button_hbox = gtk_hbox_new(FALSE, 0);
+      GtkWidget *button_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
       gtk_container_add(GTK_CONTAINER(button), button_hbox);
 
       int imol = 0; // dummy

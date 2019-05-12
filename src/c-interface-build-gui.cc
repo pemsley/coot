@@ -567,7 +567,7 @@ void apply_add_OXT_from_widget(GtkWidget *ok_button) {
       std::cout << "DEBUG:: auto determine C terminus for imol " << imol << std::endl;
       // we need to determine the last residue in this chain:
       if (is_valid_model_molecule(imol)) {
-	 std::cout << "here A with chain_id :" << chain_id <<  ":" << std::endl;
+	 std::cout << "in apply_add_OXT_from_widget() here with chain_id :" << chain_id <<  ":" << std::endl;
 	 graphics_info_t g;
 	 std::pair<bool, int> p = g.molecules[imol].last_residue_in_chain(chain_id);
 	 std::cout << "here with last_residue_in_chain " << p.first << " " << p.second << std::endl;
@@ -605,11 +605,8 @@ GtkWidget *wrapped_create_add_OXT_dialog() {
 
    GtkWidget *w = create_add_OXT_dialog();
 
-   // GtkWidget *option_menu = lookup_widget(w, "add_OXT_molecule_optionmenu");
    GtkWidget *combobox = lookup_widget(w, "add_OXT_molecule_combobox");
-
-   // GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(g.add_OXT_molecule_item_select);
-   GCallback callback_func = NULL; // G_CALLBACK(g.add_OXT_molecule_combobox_changed);
+   GCallback callback_func = G_CALLBACK(g.add_OXT_molecule_combobox_changed);
 
    int imol = first_coords_imol();
    g.add_OXT_molecule = imol;

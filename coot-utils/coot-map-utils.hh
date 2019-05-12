@@ -32,50 +32,11 @@
 #include "coot-coord-utils.hh"
 #include "coot-density-stats.hh"
 #include <mmdb2/mmdb_manager.h>
+#include "amp-reso.hh"
 
 namespace coot {
 
    namespace util {
-
-      class amplitude_vs_resolution_point {
-      public:
-	 amplitude_vs_resolution_point() {
-	    sum = 0.0; count = 0; resolution_recip_sum = 0.0; finished = false; }
-	 double sum;
-	 double average;
-	 unsigned int count;
-	 double resolution_recip_sum;
-	 double resolution_recip;
-	 bool finished;
-	 void add(const float &f_in, const float &inv_res_sq_in) {
-	    sum += f_in;
-	    resolution_recip_sum += inv_res_sq_in;
-	    count += 1;
-	 }
-	 void finish() {
-	    if (count > 0) {
-	       average = sum/static_cast<float>(count);
-	       resolution_recip = resolution_recip_sum/static_cast<float>(count);
-	    }
-	    finished = true;
-	 }
-	 double get_average_f() const {
-	    if (finished) {
-	       return average;
-	    } else {
-	       std::cout << "amplitude_vs_resolution_point() Not finihsed " << std::endl;
-	       return 0.0;
-	    }
-	 }
-	 double get_invresolsq() const {
-	    if (finished) {
-	       return resolution_recip;
-	    } else {
-	       std::cout << "amplitude_vs_resolution_point() Not finihsed " << std::endl;
-	       return 0.0;
-	    }
-	 }
-      };
 
       clipper::RTop_orth make_rtop_orth_from(mmdb::mat44 mat);
 
@@ -176,10 +137,17 @@ namespace coot {
 
       // if n_bins is -1, let the function decide how many bins
       //
+      // actually, we return bins of amplitude squares.
       std::vector<amplitude_vs_resolution_point>
       amplitude_vs_resolution(const clipper::Xmap<float> &xmap_in,
 			      int n_bins = -1);
-      
+
+      // pass a flag for the resolution limit saying if this limit should be used.
+      // rule of thumb: low resolution limit 0.12
+      float b_factor(const std::vector<amplitude_vs_resolution_point> &fsqrd_data,
+		     std::pair<bool, float> reso_low_invresolsq  = std::pair<bool, float>(false, -1),
+		     std::pair<bool, float> reso_higy_invresolsq = std::pair<bool, float>(false, -1));
+
       clipper::Xmap<float> transform_map(const clipper::Xmap<float> &xmap_in,
 					 const clipper::Spacegroup &new_space_group,
 					 const clipper::Cell &new_cell,
