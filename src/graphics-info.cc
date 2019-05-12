@@ -2171,7 +2171,7 @@ graphics_info_t::draw_moving_atoms_atoms(bool against_a_dark_background) {
       // glPointSize(2);
 
       float zsc = graphics_info_t::zoom;
-      glPointSize(560.0/zsc);
+      glPointSize(960.0/zsc);
 
       // GLdouble point_size_data[2];
       // glGetDoublev(GL_POINT_SIZE_RANGE, point_size_data);
