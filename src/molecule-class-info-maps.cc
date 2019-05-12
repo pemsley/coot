@@ -501,10 +501,20 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 	       glLineWidth(graphics_info_t::map_line_width);
       
 	       glBegin(GL_LINES);
-	       for (unsigned int iset=0; iset<draw_vector_sets.size(); iset++) {
+	       unsigned int n_sets = draw_vector_sets.size();
+	       for (unsigned int iset=0; iset<n_sets; iset++) {
+		  if (draw_vector_sets.size() != n_sets) {
+		     std::cout << "Error:: the ground shifted! " << n_sets << " " << draw_vector_sets.size() << std::endl;
+		     break;
+		  }
 		  int n = draw_vector_sets[iset].size;
 		  const coot::CartesianPairInfo &cpi = draw_vector_sets[iset];
 		  for (int i=0; i<n; i++) {
+		     if (n != draw_vector_sets[iset].size) {
+			std::cout << "Error:: the innner ground shifted! "
+				  << n << " " << draw_vector_sets[iset].size << std::endl;
+			break;
+		     }
 		     const coot::CartesianPair &cp = cpi.data[i];
 		     glVertex3f(cp.getStart().x(),
 				cp.getStart().y(),
