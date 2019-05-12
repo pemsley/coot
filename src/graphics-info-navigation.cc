@@ -910,7 +910,6 @@ graphics_info_t::combobox_get_imol(GtkComboBox *combobox) const {
 
    int imol = -1;
 
-   std::cout << "----- combobox_get_imol " << combobox<< std::endl;
    if (combobox) {
       GtkTreeIter iter;
       gboolean state = gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &iter);
@@ -919,9 +918,9 @@ graphics_info_t::combobox_get_imol(GtkComboBox *combobox) const {
 	 GValue label_as_value = { 0, };
 	 gtk_tree_model_get_value(model, &iter, 0, &label_as_value);
 	 imol = g_value_get_int(&label_as_value);
-	 std::cout << "combobox_get_imol() imol: " << imol << std::endl;
+	 std::cout << "DEBUG:: combobox_get_imol() imol: " << imol << std::endl;
       } else {
-	 std::cout << "combobox_get_imol(): bad state" << std::endl;
+	 std::cout << "DEBUG:: combobox_get_imol(): bad state (no active itier)" << std::endl;
       }
    }
    return imol;
