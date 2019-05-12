@@ -77,8 +77,12 @@ cp gtk2-interface.c gtk2-interface.c-orig
 orig=gtk2-interface.c-orig
 out=gtk2-interface.c
 
+SED=sed
+if [ $OS = Darwin ] ; then
+   SED=gsed
+fi
 
-sed -e 's?  GtkTooltips *?  // GtkTooltips ?' \
+$SED -e 's?  GtkTooltips *?  // GtkTooltips ?' \
     -e 's? tooltips = gtk_tooltips_new ? // tooltips = gtk_tooltips_new ?' \
     -e 's? gtk_tooltips_set_tip ? // gtk_tooltips_set_tip ?' \
     -e 's? gtk_tool_item_set_tooltip ? // gtk_tool_item_set_tooltip ?' \
@@ -95,6 +99,10 @@ sed -e 's?  GtkTooltips *?  // GtkTooltips ?' \
     -e 's/GDK_F6/GDK_KEY_F6/' \
     -e 's/GDK_D/GDK_KEY_D/'   \
     -e 's/GDK_U/GDK_KEY_U/'   \
+    -e 's/ gtk_vbox_new .FALSE/ gtk_box_new (GTK_ORIENTATION_VERTICAL/'   \
+    -e 's/ gtk_vbox_new .TRUE/  gtk_box_new (GTK_ORIENTATION_VERTICAL/'   \
+    -e 's/ gtk_hbox_new .FALSE/ gtk_box_new (GTK_ORIENTATION_HORIZONTAL/' \
+    -e 's/ gtk_hbox_new .TRUE/  gtk_box_new (GTK_ORIENTATION_HORIZONTAL/' \
     $orig \
     | awk '
 / = GTK_DIALOG/ {f=$4; gsub("[(]", "", f); gsub("[)].*", "", f); print(" ", $1, "=", "gtk_dialog_get_content_area(", f, ");")}
