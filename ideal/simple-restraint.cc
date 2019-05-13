@@ -2033,8 +2033,9 @@ double
 coot::electron_density_score_from_restraints_simple(const gsl_vector *v,
 					     coot::restraints_container_t *restraints_p) {
 
+#ifdef HAVE_CXX_THREAD
    auto tp_1 = std::chrono::high_resolution_clock::now();
-
+#endif
    // We weight and sum to get the score and negate.
    // 
    double score = 0;
@@ -2057,9 +2058,11 @@ coot::electron_density_score_from_restraints_simple(const gsl_vector *v,
 	 }
       }
    }
+#ifdef HAVE_CXX_THREAD
    auto tp_2 = std::chrono::high_resolution_clock::now();
    auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
    // std::cout << "info:: f electron_density: " << d21 << " microseconds\n";
+#endif // HAVE_CXX_THREAD
 
    return -score;
 }
@@ -2107,6 +2110,7 @@ coot::electron_density_score_from_restraints(const gsl_vector *v,
    return score;
 }
 
+#ifdef HAVE_CXX_THREAD
 // atom_index_range works "as expected"
 // so given atom_index_range of 0,10 we start at the first value (0) and check that the
 // current value is less than the atom_index_range.second (10):
@@ -2150,15 +2154,16 @@ coot::electron_density_score_from_restraints_using_atom_index_range(int thread_i
 	 }
       }
    }
+
    auto tp_2 = std::chrono::high_resolution_clock::now();
    auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
    // std::cout << "info:: f electron_density: " << d21 << " microseconds\n";
-
    // return -score;
 
    *result = -score;
    done_count_for_threads++; // atomic
 }
+#endif
 
 
 
@@ -2517,6 +2522,7 @@ coot::restraints_container_t::make_restraints(int imol,
    return restraints_vec.size();
 }
 
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 void coot::restraints_container_t::make_distortion_electron_density_ranges() {
 
    // std::vector<std::pair<unsigned int, unsigned int> > ranges =
@@ -2527,6 +2533,7 @@ void coot::restraints_container_t::make_distortion_electron_density_ranges() {
    m_atom_index_ranges = atom_index_ranges(n_atoms, nt);
 
 }
+#endif
 
 
 
@@ -2874,8 +2881,9 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
    float pseudo_bond_esd = 0.05;
    unsigned int n_helical_restraints = 0;
 
+#ifdef HAVE_CXX_THREAD
    auto tp_0 = std::chrono::high_resolution_clock::now();
-
+#endif
    // somehow sometimes the residues of residue_vec can be null here
 
    std::vector<mmdb::Residue *> sorted_residues;
@@ -3035,9 +3043,11 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
 
    }
    std::cout << "INFO:: added " << n_helical_restraints << " helical restraints" << std::endl;
+#ifdef HAVE_CXX_THREAD
    auto tp_1 = std::chrono::high_resolution_clock::now();
    auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
    std::cout << "INFO:: Timing for auto-helix " << d10 << " microseconds" << std::endl;
+#endif // HAVE_CXX_THREAD
 }
 
 
@@ -4125,6 +4135,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 								 const coot::protein_geometry &geom) {
 
 
+#ifdef HAVE_CXX_THREAD
+
    std::cout << "------------------- timing" << std::endl;
    std::set<unsigned int> fixed_atom_flags_set; // fill this properly!
    auto tp_0 = std::chrono::high_resolution_clock::now();
@@ -4145,6 +4157,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
    auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
    std::cout << "------------------- timing: " << d10 << " " << d21 << " " << d32
 	     << " milliseconds for " << n_nbc << " nbcs " << std::endl;
+
+#endif // HAVE_CXX_THREAD
 
    std::map<std::string, std::pair<bool, std::vector<std::list<std::string> > > > residue_ring_map_cache;
    construct_non_bonded_contact_list(bpc, geom);
@@ -6445,8 +6459,9 @@ coot::restraints_container_t::post_add_new_restraints() {
 
    // regenerate them all
 
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
    make_df_restraints_indices();
-
+#endif
 }
 
 
@@ -6723,8 +6738,11 @@ coot::restraints_container_t::copy_from(const coot::restraints_container_t &rest
    
 }
 
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 unsigned int 
-coot::restraints_container_t::df_by_thread_results_size() const { return df_by_thread_results.size(); }
-
+coot::restraints_container_t::df_by_thread_results_size() const {
+   return df_by_thread_results.size();
+}
+#endif
 
 #endif // HAVE_GSL

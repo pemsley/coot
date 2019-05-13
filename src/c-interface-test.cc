@@ -729,7 +729,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	       delete moving_mol;
 	       graphics_draw();
 	    }
-	 } 
+	 }
       }
    }
 
@@ -745,7 +745,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       }
    }
 
-   if (true) {
+   if (false) {
       int i = scm_to_int(i_scm); // map molecule
       int j = scm_to_int(j_scm);
 
@@ -780,6 +780,51 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	 }
       }
    }
+
+      
+   if (false) {
+      int imol_map   = scm_to_int(i_scm);
+      float b_factor = scm_to_double(j_scm);
+      graphics_info_t g;
+      int imol_new = graphics_info_t::create_molecule();
+      const clipper::Xmap<float> &xmap_orig = g.molecules[imol_map].xmap;
+      clipper::Xmap<float> xmap_new = coot::util::sharpen_blur_map(xmap_orig, b_factor);
+      g.molecules[imol_new].new_map(xmap_new, "Blur map map");
+      float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
+      graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
+      graphics_draw();
+   }
+
+
+   if (true) {
+
+      try {
+	 int imol_map   = scm_to_int(i_scm);
+	 graphics_info_t g;
+	 const clipper::Xmap<float> &xmap_orig = g.molecules[imol_map].xmap;
+	 std::vector<float> b_factors = {-100, -50, 5, 50, 100, 160};
+	 std::vector<clipper::Xmap<float> > xmaps(b_factors.size());
+	 coot::util::multi_sharpen_blur_map(xmap_orig, b_factors, &xmaps);
+	 float contour_level = g.molecules[imol_map].get_contour_level();
+	 for (std::size_t i=0; i<b_factors.size(); i++) {
+	    const clipper::Xmap<float> &xmap_new = xmaps[i];
+	    float b_factor = b_factors[i];
+	    int imol_new = graphics_info_t::create_molecule();
+	    std::string map_name = "Map";
+	    if (b_factor < 0)
+	       map_name += " Sharpen ";
+	    else
+	       map_name += " Blur ";
+	    map_name += coot::util::float_to_string(b_factor);
+	    g.molecules[imol_new].new_map(xmap_new, map_name);
+	    graphics_info_t::molecules[imol_new].set_contour_level(contour_level*exp(-0.01*b_factor));
+	 }
+      }
+      catch (const std::runtime_error &rte) {
+	 std::cout << "ERROR:: " << rte.what() << std::endl;
+      }
+   }
+
    return r;
 }
 

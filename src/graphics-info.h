@@ -1601,12 +1601,16 @@ public:
 								 int imol,
 								 bool fill_with_small_molecule_only_flag);
 
-
-
    void fill_combobox_with_coordinates_options(GtkWidget *combobox,
 					       GCallback callback_func,
-					       bool set_last_active_flag);
+					       int imol_active);
+
+   void fill_combobox_with_coordinates_options_with_set_last(GtkWidget *combobox,
+							     GCallback callback_func,
+							     bool set_last_active_flag);
    
+   // and the counterpart:
+   int combobox_get_imol(GtkComboBox *combobox) const;
    // static void go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionType pos); // delete this
    static void go_to_atom_mol_combobox_changed(GtkWidget *combobox, gpointer data);
 
@@ -2471,8 +2475,12 @@ public:
 						   std::vector<int> map_molecule_numbers,
 						   int imol_active_position);
 
+   void fill_combobox_with_map_options(GtkWidget *combobox, 
+				       GCallback signal_func,
+				       int imol_active_position);
+
    void fill_combobox_with_difference_map_options(GtkWidget *combobox, 
-						  GtkSignalFunc signal_func,
+						  GCallback signal_func,
 						  int imol_active_position);
 
    GtkWidget *wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_label);
@@ -2501,6 +2509,7 @@ public:
 					  GtkWidget *phases_menu, GtkWidget *fom_menu, GtkWidget *hl_menu);
    static void refinement_map_select(GtkWidget *item, GtkPositionType pos);
    static void refinement_map_select_add_columns(GtkWidget *item, GtkPositionType pos);
+   static void select_refinement_map_combobox_changed(GtkWidget *combobox, gpointer data);
    static void   skeleton_map_select(GtkWidget *item, GtkPositionType pos);
    static int map_for_skeletonize; // used by skeletonize_map; 
    static void   skeletonize_map(int imol, short int prune_flag);
@@ -2706,7 +2715,12 @@ public:
    // used by option menu item callback which sets the molecule for undoing
    void set_undo_molecule_number(int i) { undo_molecule = i; }
    // undo_molecule_select uses set_undo_molecule_number()
-   static void undo_molecule_select(GtkWidget *item, GtkPositionType pos);
+
+   // who calls this?
+   //   static void undo_molecule_select(GtkWidget *item, GtkPositionType pos);
+
+   static void undo_molecule_combobox_changed(GtkWidget *c, gpointer data);
+
    // void fill_option_menu_with_undo_options(GtkWidget *option_menu); // not const
    void fill_combobox_with_undo_options(GtkWidget *option_menu); // not const
    int Undo_molecule(coot::undo_type) const; // return -2 on ambiguity, -1 on unset
@@ -3121,6 +3135,8 @@ public:
    static int superpose_imol2;
    static std::string superpose_imol1_chain;
    static std::string superpose_imol2_chain;
+
+   /*
    static void superpose_optionmenu_activate_mol1(GtkWidget *item, GtkPositionType pos);
    static void superpose_optionmenu_activate_mol2(GtkWidget *item, GtkPositionType pos);
    static void superpose_moving_chain_option_menu_item_activate (GtkWidget *item,
@@ -3129,6 +3145,16 @@ public:
 								    GtkPositionType pos);
    static void fill_superpose_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
 							     int is_reference_structure_flag);
+   */
+
+   static void superpose_reference_chain_combobox_changed(GtkWidget *combobox, gpointer data);
+   static void superpose_moving_chain_combobox_changed(GtkWidget *combobox, gpointer data);
+
+   static void superpose_combobox_changed_mol1(GtkWidget *c, gpointer data);
+   static void superpose_combobox_changed_mol2(GtkWidget *c, gpointer data);
+   static void fill_superpose_combobox_with_chain_options(GtkWidget *combobox,
+							  int is_reference_structure_flag);
+
    static int         ramachandran_plot_differences_imol1;
    static int         ramachandran_plot_differences_imol2;
    static std::string ramachandran_plot_differences_imol1_chain;
@@ -3216,16 +3242,17 @@ public:
    static void on_generic_atom_spec_button_clicked (GtkButton *button,
 						    gpointer user_data);
 
+   // ----- chiral volumes: ----
 
    void check_chiral_volumes(int imol);
    GtkWidget *wrapped_check_chiral_volumes_dialog(const std::vector <coot::atom_spec_t> &v,
 						  int imol);
-   static int chiral_volume_molecule_option_menu_item_select_molecule; // option menu 
+   static int check_chiral_volume_molecule;
    static void on_inverted_chiral_volume_button_clicked(GtkButton *button,
 							gpointer user_data);
    // Tell us which residue types for chiral volumes restraints were missing:
    GtkWidget *wrapped_create_chiral_restraints_problem_dialog(const std::vector<std::string> &sv) const; 
-
+   static void check_chiral_volume_molecule_combobox_changed(GtkWidget *w, gpointer data);
 
 
    // unbonded star size - actually too messy to fix properly - so not used.
@@ -3258,14 +3285,19 @@ public:
    static int auto_read_do_difference_map_too_flag;
 
    // ------- refmac molecules option menu  -----
-   static int refmac_molecule; 
+   static int refmac_molecule;
+
+   // ------ new style combobox usage -------
+
+   // the top one of this is probably what you want.
+   std::string get_active_label_in_comboboxtext(GtkComboBoxText *combobox);
+   std::string get_active_label_in_combobox(GtkComboBox *combobox) const;
 
    // ------ add OXT -------
    void fill_add_OXT_dialog_internal(GtkWidget *w);
    static int add_OXT_molecule;
-   static void add_OXT_molecule_item_select(GtkWidget *item,
-					    GtkPositionType pos);
    void fill_add_OXT_dialog_internal(GtkWidget *widget, int imol);
+   static void add_OXT_molecule_combobox_changed(GtkWidget *widget, gpointer data);
    // return the default chain string (top of the list).
    // (return "no-chain" if it was not assigned (nothing in the list)).
 
@@ -3288,8 +3320,9 @@ public:
 							  GtkSignalFunc signal_func, 
 							  const std::string &active_chain_id);
    static std::string add_OXT_chain;
-   static void add_OXT_chain_menu_item_activate (GtkWidget *item,
-						 GtkPositionType pos);
+   // static void add_OXT_chain_menu_item_activate (GtkWidget *item,
+   //GtkPositionType pos);
+   static void add_OXT_chain_combobox_changed(GtkWidget *combobox, gpointer data);
 
    // 
    static GtkWidget *wrapped_nothing_bad_dialog(const std::string &label);

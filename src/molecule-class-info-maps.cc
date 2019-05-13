@@ -259,25 +259,19 @@ molecule_class_info_t::clear_draw_vecs() {
    // crash on double free of the draw vectors. Not sure why. Let's add a lock
 
    bool unlocked = false;
-   while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true) &&
-	  !unlocked) {
+   while (!draw_vector_sets_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
       std::this_thread::sleep_for(std::chrono::microseconds(10));
       unlocked = false;
    }
    for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
       // std::cout << "deleting set " << i << " " << draw_vector_sets[i].data << std::endl;
-      delete draw_vector_sets[i].data;
+      delete [] draw_vector_sets[i].data;
       draw_vector_sets[i].data = 0;
    }
    draw_vector_sets.clear();
    draw_vector_sets.reserve(12);
-   molecule_class_info_t::draw_vector_sets_lock = false; // unlock
+   draw_vector_sets_lock = false; // unlock
 
-}
-
-void
-molecule_class_info_t::add_draw_vecs_to_set(const coot::CartesianPairInfo &cpi) {
-   draw_vector_sets.push_back(cpi);
 }
    
 // for negative the other map.
@@ -507,9 +501,21 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 	       glLineWidth(graphics_info_t::map_line_width);
       
 	       glBegin(GL_LINES);
-	       for (unsigned int iset=0; iset<draw_vector_sets.size(); iset++) {
-		  for (int i=0; i<draw_vector_sets[iset].size; i++) {
-		     const coot::CartesianPair &cp = draw_vector_sets[iset].data[i];
+	       unsigned int n_sets = draw_vector_sets.size();
+	       for (unsigned int iset=0; iset<n_sets; iset++) {
+		  if (draw_vector_sets.size() != n_sets) {
+		     std::cout << "Error:: the ground shifted! " << n_sets << " " << draw_vector_sets.size() << std::endl;
+		     break;
+		  }
+		  int n = draw_vector_sets[iset].size;
+		  const coot::CartesianPairInfo &cpi = draw_vector_sets[iset];
+		  for (int i=0; i<n; i++) {
+		     if (n != draw_vector_sets[iset].size) {
+			std::cout << "Error:: the innner ground shifted! "
+				  << n << " " << draw_vector_sets[iset].size << std::endl;
+			break;
+		     }
+		     const coot::CartesianPair &cp = cpi.data[i];
 		     glVertex3f(cp.getStart().x(),
 				cp.getStart().y(),
 				cp.getStart().z());
@@ -627,6 +633,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 
 	 std::vector<std::thread> threads;
 	 int n_reams = coot::get_max_number_of_threads();
+	 n_reams = 1; // does this stop the crashing? Hmm! Looks good.
 
 	 for (int ii=0; ii<n_reams; ii++) {
 	    int iream_start = ii;

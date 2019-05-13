@@ -754,9 +754,8 @@ graphics_info_t::update_go_to_atom_window_on_new_mol() {
       // set last active (1)
       // fill_option_menu_with_coordinates_options_internal(option_menu, callback_func, 0);
 
-      short int set_last_active_flag = 0;
-
-      fill_combobox_with_coordinates_options(combobox, callback_func, set_last_active_flag);
+      bool set_last_active_flag = 0;
+      fill_combobox_with_coordinates_options_with_set_last(combobox, callback_func, set_last_active_flag);
 
       // If there was no molecule already, we need to update the atom
       // lists too.
@@ -887,7 +886,7 @@ graphics_info_t::go_to_atom_mol_combobox_changed(GtkWidget *combobox, gpointer d
       GValue label_as_value = { 0, };
       gtk_tree_model_get_value(model, &iter, 0, &label_as_value);
       int imol = g_value_get_int(&label_as_value);
-      std::cout << "imol: " << imol << std::endl;
+      // std::cout << "imol: " << imol << std::endl;
       graphics_info_t g;
       int old_go_to_molecule = g.go_to_atom_molecule();
       g.set_go_to_atom_molecule(imol);
@@ -903,7 +902,28 @@ graphics_info_t::go_to_atom_mol_combobox_changed(GtkWidget *combobox, gpointer d
    } else {
       std::cout << "bad state" << std::endl;
    }
-   
+
+}
+
+int
+graphics_info_t::combobox_get_imol(GtkComboBox *combobox) const {
+
+   int imol = -1;
+
+   if (combobox) {
+      GtkTreeIter iter;
+      gboolean state = gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &iter);
+      if (state) {
+	 GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox));
+	 GValue label_as_value = { 0, };
+	 gtk_tree_model_get_value(model, &iter, 0, &label_as_value);
+	 imol = g_value_get_int(&label_as_value);
+	 std::cout << "DEBUG:: combobox_get_imol() imol: " << imol << std::endl;
+      } else {
+	 std::cout << "DEBUG:: combobox_get_imol(): bad state (no active itier)" << std::endl;
+      }
+   }
+   return imol;
 }
 
 

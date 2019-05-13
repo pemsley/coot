@@ -241,6 +241,12 @@ on_add_rep_all_on_check_button_toggled   (GtkToggleButton       *button,
 GtkWidget* create_splash_screen_window_for_file(const char *file_name);
    
 
+/* ------------------------------------------------------------------------------ */
+/*  get the imol from a combobox.                                                 */
+/* ------------------------------------------------------------------------------ */
+
+// maybe this needs its own header?
+int my_combobox_get_imol(GtkComboBox *combobox);
 
 
 

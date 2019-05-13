@@ -373,10 +373,10 @@ void show_set_undo_molecule_chooser() {
 GtkWidget *wrapped_create_undo_molecule_chooser_dialog() {
 
    GtkWidget *w = create_undo_molecule_chooser_dialog();
-   GtkWidget *option_menu = lookup_widget(w, "undo_molecule_chooser_option_menu");
+   GtkWidget *combobox = lookup_widget(w, "undo_molecule_chooser_combobox");
    graphics_info_t g;
    
-   g.fill_combobox_with_undo_options(option_menu);
+   g.fill_combobox_with_undo_options(combobox);
    return w;
 } 
 
@@ -467,25 +467,12 @@ void save_refmac_phase_params_to_map(int imol_map,
 
 }
 
-
 // get string for column 0 (which are strings)
 std::string
 get_active_label_in_combobox(GtkComboBox *combobox) {
 
-   std::string f_label;
-   GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox));
-   GtkTreeIter iter;
-   gboolean state = gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &iter);
-   if (state) {
-      GValue f_label_as_value = { 0, };
-      // g_value_init (&f_label_as_value, G_TYPE_STRING); init is done in the get below
-      gtk_tree_model_get_value(model, &iter, 0, &f_label_as_value);
-      const char *f_label_cstr = g_value_get_string(&f_label_as_value);
-      f_label = f_label_cstr;
-   } else {
-      std::cout << "Bad state" << std::endl;
-   }
-   return f_label;
+   graphics_info_t g;
+   return g.get_active_label_in_combobox(combobox);
 }
 
 void handle_column_label_make_fourier(GtkWidget *column_label_window) {
@@ -2041,8 +2028,8 @@ void guile_window_enter_callback( GtkWidget *widget,
 // This is for maps which come from mtz (i.e. have SFs)
 int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signalfunc) {
 
-   graphics_info_t g;
-   return g.fill_combobox_with_map_mtz_options(option_menu, signalfunc);
+   // graphics_info_t g;
+   // return g.fill_combobox_with_map_mtz_options(option_menu, signalfunc);
 }
 
 // Similar to fill_option_menu_with_coordinates_options, but I moved
@@ -2052,8 +2039,8 @@ int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc 
 int fill_combobox_with_map_options(GtkWidget *combobox, GtkSignalFunc signalfunc) {
 
    graphics_info_t g;
-
-   return g.fill_option_menu_with_map_options(combobox, signalfunc);
+   g.fill_combobox_with_map_options(combobox, signalfunc, -1);
+   return -1;
 }
 
 // This is for maps which come from mtz (i.e. have SFs)
@@ -2510,25 +2497,26 @@ void set_refine_params_toggle_buttons(GtkWidget *button) {
    } 
 } 
 
-void fill_chiral_volume_molecule_option_menu(GtkWidget *w) { 
+// void fill_chiral_volume_molecule_option_menu(GtkWidget *w) { 
+// }
 
-   // GtkWidget *optionmenu = lookup_widget(w, "check_chiral_volumes_molecule_optionmenu");
-   GtkWidget *combobox = lookup_widget(w, "check_chiral_volumes_molecule_combobox");
+
+void fill_chiral_volume_molecule_combobox(GtkWidget *dialog) {
+
+   GtkWidget *combobox = lookup_widget(dialog, "check_chiral_volumes_molecule_combobox");
 
    // now set chiral_volume_molecule_option_menu_item_select_molecule to the top of the list
    for (int i=0; i<graphics_info_t::n_molecules(); i++) { 
       if (graphics_info_t::molecules[i].has_model()) {
-	 graphics_info_t::chiral_volume_molecule_option_menu_item_select_molecule = i;
+	 graphics_info_t::check_chiral_volume_molecule = i;
 	 break;
       } 
    }
-   int imol = graphics_info_t::chiral_volume_molecule_option_menu_item_select_molecule;
-   GtkSignalFunc callback_func =
-      GTK_SIGNAL_FUNC(chiral_volume_molecule_option_menu_item_select);
-
    graphics_info_t g;
-   g.fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+   int imol = graphics_info_t::check_chiral_volume_molecule;
+   GCallback callback_func = G_CALLBACK(g.check_chiral_volume_molecule_combobox_changed);
 
+   g.fill_combobox_with_coordinates_options(combobox, callback_func, imol);
 }
 
 
@@ -4461,7 +4449,7 @@ void set_scroll_wheel_map(int imap) {
 }
 
 
-void add_on_map_scroll_whell_choices(GtkWidget *menu) {
+void add_on_map_scroll_wheel_choices(GtkWidget *menu) {
 
    GtkSignalFunc callback =
       GTK_SIGNAL_FUNC(map_scroll_wheel_mol_selector_activate);

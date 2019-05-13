@@ -381,15 +381,15 @@ STABLE_DEST_DIR=${STABLE_DEST_DIR:=${HOME}/public_html/software/binaries/stable}
 #
 fallback_coot_version=coot-0.8
 
-# For windows shared and Ligand enhanced compilation
+# For windows shared and enhanced Ligand compilation
 #
-# set this to "yes", i.e. 1 if you want to compile ligand enhanced.
+# set this to "yes", i.e. 1 if you want to compile wth enhanced ligand 
 #
-build_ligand_enhanced=${build_ligand_enhanced:=0}
+build_enhanced_ligand=${build_enhanced_ligand:=0}
 build_shared=${build_shared:=0}
 
 # LE needs shared, so set this too then
-if [ $build_ligand_enhanced = 1 ]  ; then
+if [ $build_enhanced_ligand = 1 ]  ; then
     build_shared=1
     build_boost=1
     build_rdkit=1
@@ -732,6 +732,7 @@ fi
 mkdir -p $LOGS
 
 systype=unknown
+update_libtool=0
 
 # malloc.h business, Darwin does not have malloc.h
 # used in the gtk_canvas build
@@ -1376,6 +1377,8 @@ build_guile_lib=0
 build_gettext=0
 build_gtk=0
 #gnome_canvas????
+# for windows
+build_glob=
 
 
 # In Gtk2, we presume that glib, gtk2 and gnomecanvas are available.  
@@ -1693,8 +1696,10 @@ if test $? != 0 ; then
    build_pygtk=1
    build_pycairo=1
    build_pygobject=1
-   if [ $build_ligand_enhanced = 1 ] ; then
+   if [ $build_enhanced_ligand = 1 ] ; then
        build_numpy=1
+       build_six=1
+       build_qed=1
    fi
 else
    python_version_installed=`python -V 2>&1`
@@ -1722,8 +1727,10 @@ else
          build_pygobject=1
          build_pycairo=1
          build_pygtk=1
-         if [ $build_ligand_enhanced = 1 ] ; then
+         if [ $build_enhanced_ligand = 1 ] ; then
              build_numpy=1
+             build_six=1
+             build_qed=1
          fi
          ;;
    esac
@@ -1769,9 +1776,33 @@ fi
 if test -z "$build_numpy" ; then
    if test -e $install_top_dir/$python_version/Lib/site-packages/numpy/version.py ; then
       echo numpy version exists, not build numpy
+      build_numpy=
    else
       echo numpy version NOT exists, numpy should be built
       build_numpy=1
+   fi
+fi
+
+# test for six
+if test -z "$build_six" ; then
+   if test -e $install_top_dir/$python_version/Lib/site-packages/six.py ; then
+      echo six version exists, not build six
+      build_six=
+   else
+      echo six version NOT exists, six should be built
+      build_six=1
+   fi
+fi
+
+# test for qed
+# test for qed
+if test -z "$build_qed" ; then
+   if test -e $install_top_dir/$python_version/Lib/site-packages/silicos_it/qed.py ; then
+      echo qed version exists, not build qed
+      build_qed=
+   else
+      echo qed version NOT exists, qed should be built
+      build_qed=1
    fi
 fi
 
@@ -1999,9 +2030,25 @@ else
     build_ccp4c=1
 fi
 
-# for boost and rdkit
-if [ $build_ligand_enhanced = 1 ]  ; then
-    if [ -z "$build_boost" ] ; then
+# test for glob
+if [ -e $install_top_dir/include/glob.h ] ; then
+   # have glob, but do we need shared installation?
+   build_glob=
+   if [ $build_shared = 1 ] ; then
+     if [ -e $install_top_dir/bin/libglob.dll ] ; then
+       build_glob=
+     else
+       build_glob=1
+     fi
+   fi
+else
+   build_glob=1
+fi
+
+
+# test for boost and rdkit
+if [ $build_enhanced_ligand = 1 ]  ; then
+    if [ -n "$build_boost" ] ; then
         if [ -e $install_top_dir/include/boost/version.hpp ] ; then
           echo $install_top_dir/include/boost/version.hpp exists not building boost
 	      build_boost=
@@ -2010,7 +2057,7 @@ if [ $build_ligand_enhanced = 1 ]  ; then
   	        build_boost=1
         fi
     fi
-    if [ -z "$build_rdkit" ] ; then
+    if [ -n "$build_rdkit" ] ; then
         if [ -e $install_top_dir/include/rdkit/RDGeneral/versions.h ] ; then
           echo $install_top_dir/include/rdkit/RDGeneral/versions.h exists not building rdkit
 	      build_rdkit=
@@ -2153,14 +2200,14 @@ gzip -dc ${AUTOBUILD_SOURCES}/fftw-2.1.5.tar.gz | tar xf -
 #gzip -dc ${AUTOBUILD_SOURCES}/fftw-configure-stuff.tar.gz | tar xf -
 # FIXME:: needs some post-processing for dlls
 cd fftw-2.1.5
-if [ $build_ligand_enhanced = 1 ] ; then
+if [ $build_shared = 1 ] ; then
   ./bootstrap.sh
   libtoolize -c -f
 fi
 ./configure $generic_prefix $shared_static_flag --enable-float
 if [ $build_shared = 1 ] ; then
-  ${AUTOBUIILD_SOURCES}/fix_shared_makefiles.sh
-  patch -p0 <${AUTOBUIILD_SOURCES}/fftw-2.1.5_shared.patch
+  ${AUTOBUILD_SOURCES}/fix_shared_makefiles.sh
+  patch -p0 <${AUTOBUILD_SOURCES}/fftw-2.1.5_shared.patch
 fi
 $MAKE
 $MAKE install
@@ -2894,6 +2941,18 @@ fi
 # to uninstall use:
 # msiexec //uninstall python-$pver.msi //qb
 
+# now lets check for pip, if not there install
+which pip > /dev/null
+have_pip=$?
+if [ $have_pip = 0 ] ; then
+  echo have pip, we are happy and continue
+else
+  echo no pip found, so lets see that we can get it
+  ${WGET} https://bootstrap.pypa.io/get-pip.py
+  python ${AUTOBUILD_SOURCES}/get-pip.py
+  # now we shoudl have pip
+fi
+
 # We need these otherwise python moans about not finding the libraries.
 #
 echo setting PYTHONHOME
@@ -3017,6 +3076,10 @@ fi
 
 if test -n "$build_numpy" ; then
    echo BUILDING numpy:
+   (
+   date
+   # before using pip we should see that it is installed, otherwise
+   # do so. Maybe not the right place here and rather during pythons
    pip install numpy
    # maybe other python things can be installed using pip too?
    status=$?
@@ -3025,7 +3088,28 @@ if test -n "$build_numpy" ; then
    else
        echo issues installing numpy!?
    fi
+   ) > $HOSTLOGDIR/07-numpy.txt 2>&1
+else
+   echo not building numpy
 fi
+
+if test -n "$build_six" ; then
+   echo BUILDING six:
+   (
+   date
+   pip install six
+   status=$?
+   if [ $status = 0 ] ; then
+       echo six seems to have installed ok
+   else
+       echo issues installing six!?
+   fi
+   ) > $HOSTLOGDIR/07-six.txt 2>&1
+else
+   echo not building six
+fi
+
+# build qed too but later to be in the right directory
 
 # finally we shall cp (or move?) Lib and DLL directories to bin
 # as well as the pkgconfig and include files (..since...)
@@ -3054,6 +3138,28 @@ cd ${build_dir}
 #  * goosh
 #  * gsl
 
+
+if test -n "$build_qed" ; then
+   echo BUILDING qed:
+   ${WGET} http://silicos-it.be.s3-website-eu-west-1.amazonaws.com/_downloads/qed-1.0.1.tar.gz
+   (
+   date
+   pwd
+   gzip -cd ${AUTOBUILD_SOURCES}/qed-1.0.1.tar.gz | tar xf -
+   cd qed-1.0.1
+   python setup.py install
+   # maybe other python things can be installed using pip too?
+   status=$?
+   if [ $status = 0 ] ; then
+       echo qed seems to have installed ok
+   else
+       echo issues installing qed!?
+   fi
+   cd -
+   ) > $HOSTLOGDIR/07-qed.txt 2>&1
+else
+   echo not building qed
+fi
 
 
 ###############################################################################
@@ -3420,6 +3526,100 @@ else
     echo not building gsl:
 fi
 
+#########
+## build BOOST and rdkit
+#########
+if [ $build_enhanced_ligand = 1 ] ; then
+    if test -n "$build_boost" ; then
+        echo BUILDING Boost:
+        boost_version=1.60.0
+        # old wget cant get from sourceforge but new one can. Make sure there 
+        # is a new one! e.g. https://eternallybored.org/misc/wget/
+        ${WGET} --no-check-certificate http://sourceforge.net/projects/boost/files/boost/${boost_version}/boost_${boost_version//./_}.7z
+        ${WGET} $win_extras_place/boost_1_60_0.patch
+        ${WGET} $win_extras_place/make_boost.bat
+        (
+            date
+            pwd
+            7z x -y ${AUTOBUILD_SOURCES}/boost_${boost_version//./_}.7z
+            cd boost_${boost_version//./_}
+            patch -p0 < ${AUTOBUILD_SOURCES}/boost_1_60_0.patch
+            cmd /c < ${AUTOBUILD_SOURCES}/make_boost.bat
+            cd -
+            ) > $HOSTLOGDIR/21-boost.txt 2>&1
+    else
+        echo not building Boost
+    fi
+
+    if test -n "$build_rdkit" ; then
+        echo BUILDING rdkit:
+        rdkit_version=2017_09_3
+        ${WGET} https://github.com/rdkit/rdkit/archive/Release_${rdkit_version}.tar.gz
+        ${WGET} ${win_extras_place}/rdkit_strtok.patch
+        (
+            date
+            pwd
+            tmpdir=`pwd`
+            gzip -cd ${AUTOBUILD_SOURCES}/Release_${rdkit_version}.tar.gz | tar xf -
+            cd rdkit-Release_${rdkit_version}
+            patch -p0 < ${AUTOBUILD_SOURCES}/rdkit_strtok.patch
+            export RDBASE=`pwd`
+            export PYTHONPATH=$RDBASE
+            export PATH=$PATH:$RDBASE/lib
+            export PATH=$PATH:$install_top_dir/lib
+            mkdir build
+            cd build
+            cmake -G "MSYS Makefiles" \
+                  -DRDK_BUILD_PYTHON_WRAPPERS=ON \
+                  -DBOOST_ROOT=$install_top_dir  \
+                  -DRDK_BUILD_SLN_SUPPORT=OFF \
+                  -DRDK_TEST_MMFF_COMPLIANCE=OFF \
+                  -DRDK_BUILD_CPP_TESTS=OFF \
+                  -DRDK_BUILD_THREADSAFE_SSS=OFF \
+                  -DRDK_USE_BOOST_SERIALIZATION=OFF \
+                  -DBoost_USE_DEBUG_LIBS=OFF \
+                  -DBoost_USE_RELEASE_LIBS=ON \
+                  -DRDK_INSTALL_INTREE=OFF \
+                  -DBUILD_SHARED_LIBS=ON \
+                  -DRDK_INSTALL_STATIC_LIBS=OFF \
+                  -DPYTHON_INSTDIR=$install_top_dir/${python_version}/lib/site-packages \
+                  -DCMAKE_INSTALL_PREFIX=$install_top_dir ..
+#                   -DCMAKE_CXX_FLAGS="-g -O -std=gnu++11 -Wno-deprecated -Wno-unused-function -fno-strict-aliasing -Wall -Wextra -DWIN32" \
+            $MAKE
+            $MAKE install
+            cd $tmpdir
+            ) > $HOSTLOGDIR/22-rdkit.txt 2>&1
+    else
+        echo not building rdkit
+    fi
+    # check build necessary!!
+fi  # ligand enhanced
+
+#######################
+#### build glob
+######################
+if test -n "$build_glob" ; then
+  echo BUILDING glob:
+  ${WGET} $win_extras_place/glob-1.0.tar.bz2
+  (
+   date
+   pwd
+   bzip2 -cd glob-1.0.tar.bz2 | tar xf -
+   cd glob-1.0
+   ./configure $generic_prefix
+   make
+   cp glob.h $install_top_dir/include
+   cp libglob.a $install_top_dir/lib
+   if [ $build_shared = 1 ] ; then
+     g++ -shared -o libglob.dll glob.o fnmatch.o -Wl,--out-implib,libglob.dll.a
+     cp libglob.dll $install_top_dir/bin
+     cp libglob.dll.a $install_top_dir/lib
+   fi
+   cd -
+  ) > $HOSTLOGDIR/23-glob.log
+else
+  echo not building glob
+fi
 
 ###############################################################################
 ##########         get Coot                                       #############
@@ -3531,75 +3731,6 @@ fi
 # fi
 
 
-#########
-## build BOOST and rdkit
-#########
-if [ $build_ligand_enhanced = 1 ] ; then
-    if test -n "$build_boost" ; then
-        echo BUILDING Boost:
-        boost_version=1.60.0
-        # old wget cant get from sourceforge but new one can. Make sure there 
-        # is a new one! e.g. https://eternallybored.org/misc/wget/
-        ${WGET} http://sourceforge.net/projects/boost/files/boost/${boost_version}/boost_${boost_version//./_}.7z
-        ${WGET} $win_extras_place/boost_1_60_0.patch
-        ${WGET} $win_extras_place/make_boost.bat
-        (
-            date
-            pwd
-            7z x -y ${AUTOBUILD_SOURCES}/boost_${boost_version//./_}.7z
-            cd boost_${boost_version//./_}
-            patch -p0 < ${AUTOBUILD_SOURCES}/boost_1_60_0.patch
-            cmd /c < ${AUTOBUILD_SOURCES}/make_boost.bat
-            cd -
-            ) > $HOSTLOGDIR/21-boost.txt 2>&1
-    else
-        echo not building Boost
-    fi
-
-    if test -n "$build_rdkit" ; then
-        echo BUILDING rdkit:
-        rdkit_version=2017_09_3
-        ${WGET} https://github.com/rdkit/rdkit/archive/Release_${rdkit_version}.tar.gz
-        ${WGET} ${win_extras_place}/rdkit_strtok.patch
-        ${WGET} ${win_extras_place}/rdkit_cmake.patch
-        (
-            date
-            pwd
-            gzip -cd ${AUTOBUILD_SOURCES}/Release_${rdkit_version}.tar.gz | xf -
-            cd rdkit-Release_${rdkit_version}
-            patch -p0 < ${AUTOBUILD_SOURCES}/rdkit_strtok.patch
-            # patch -p0 < ${AUTOBUILD_SOURCES}/rdkit_cmake.patch
-            export RDBASE=`pwd`
-            export PYTHONPATH=$RDBASE
-            export PATH=$PATH:$RDBASE/lib
-            export PATH=$PATH:$install_top_dir/lib
-            mkdir build
-            cd build
-            cmake -G "MSYS Makefiles" \
-                  -DRDK_BUILD_PYTHON_WRAPPERS=ON \
-                  -DBOOST_ROOT=$install_top_dir  \
-                  -DRDK_BUILD_SLN_SUPPORT=OFF \
-                  -DRDK_TEST_MMFF_COMPLIANCE=OFF \
-                  -DRDK_BUILD_CPP_TESTS=OFF \
-                  -DRDK_BUILD_THREADSAFE_SSS=OFF \
-                  -DRDK_USE_BOOST_SERIALIZATION=OFF \
-                  -DBoost_USE_DEBUG_LIBS=OFF \
-                  -DBoost_USE_RELEASE_LIBS=ON \
-                  -DRDK_INSTALL_INTREE=OFF \
-                  -DBUILD_SHARED_LIBS=ON \
-                  -DRDK_INSTALL_STATIC_LIBS=OFF \
-                  -DPYTHON_INSTDIR=$install_top_dir/${python_version}/lib/site-packages \
-                  -DCMAKE_INSTALL_PREFIX=$install_top_dir ..
-#                   -DCMAKE_CXX_FLAGS="-g -O -std=gnu++11 -Wno-deprecated -Wno-unused-function -fno-strict-aliasing -Wall -Wextra -DWIN32" \
-            $MAKE
-            $MAKE install
-            ) > $HOSTLOGDIR/22-rdkit.txt 2>&1
-    else
-        echo not building rdkit
-    fi
-    check build necessary!!
-fi  # ligand enhanced
-
 
 
 
@@ -3644,11 +3775,18 @@ date
 #
 # dont use -static-libgcc on windows otherwise we cannot throw exceptions.
 # means we need to supply libgcc_s_dw2-1.dll
-export CXXFLAGS="-g -O -static-libstdc++"
+if [ $build_shared = 1 ]  ; then
+  export CXXFLAGS="-g -O"
+else
+  export CXXFLAGS="-g -O -static-libstdc++"
+fi
 
 # for boost and rdkit:
-if [ $build_ligand_enhanced = 1 ]  ; then
-    coot_extra_args+=" --with-enhanced-ligand-tools RDKIT_CXXFLAGS=-I${install_top_dir}/include/rdkit RDKIT_LIBS='-lRDKitDescriptors -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitForceFieldHelpers -lRDKitForceField -lRDKitMolChemicalFeatures -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDepictor -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitSmilesParse -lRDKitDistGeomHelpers -lRDKitDataStructs -lRDKitRDGeneral' --with-boost=${install_top_dir} --with-boost-python=yes"
+if [ $build_enhanced_ligand = 1 ]  ; then
+    coot_extra_args+=" --with-enhanced-ligand-tools  --with-boost=${install_top_dir} --with-boost-python=yes"
+    # I think we have to export this otherwise there is some configure issue
+    export RDKIT_CXXFLAGS="-I${install_top_dir}/include/rdkit"
+    export RDKIT_LIBS="-L${install_top_dir}/lib -lRDKitDescriptors -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitForceFieldHelpers -lRDKitForceField -lRDKitMolChemicalFeatures -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDepictor -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitSmilesParse -lRDKitDistGeomHelpers -lRDKitDataStructs -lRDKitRDGeneral"
 fi
 
 if [ $architecture = x86_64 ] ; then 
@@ -3672,7 +3810,7 @@ cbis_d=$(date +'%a %d %b %H%M.%S %Z %Y')
 coot_build_info_string="built by: $cbis_n build-host: $HOST on: $cbis_d"
 
 # this is a quick fix, and should be done properly at some point
-coot_optim_args="-build=i686-pc-mingw32 --with-glob-prefix=/usr"
+coot_optim_args="-build=i686-pc-mingw32 --with-glob-prefix=${install_top_dir}"
 
 # should rm libtool to make sure we use OS one
 if [ -e libtool ] ; then
@@ -3717,10 +3855,8 @@ else
    echo NO need to update libtool $PWD
 fi
 
-rm src/coot_wrap_guile_pre_gtk1.cc
-rm src/coot_wrap_guile_pre_gtk2.cc
-rm src/coot_wrap_python_pre_gtk1.cc
-rm src/coot_wrap_python_pre_gtk2.cc
+#rm src/coot_wrap_guile_pre_gtk2.cc
+#rm src/coot_wrap_python_pre_gtk2.cc
 
 # make a clean version?!
 if [ "$make_clean_coot" = "yes" ] ; then

@@ -26027,12 +26027,7 @@ programs to which you may be more accustomed.
 	      <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="undo_molecule_chooser_option_menu">
-		  <property name="visible">True</property>
-		  <property name="tooltip" translatable="yes">You want to undo a modification.  There are 2 or more molecules that have been modified.  To which molecule should the undo apply?</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
+		<placeholder/>
 	      </child>
 	    </widget>
 	    <packing>
@@ -27885,16 +27880,7 @@ programs to which you may be more accustomed.
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="select_map_for_fitting_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
+		<placeholder/>
 	      </child>
 
 	      <child>
@@ -27905,8 +27891,8 @@ programs to which you may be more accustomed.
 		</widget>
 		<packing>
 		  <property name="padding">0</property>
-		  <property name="expand">True</property>
-		  <property name="fill">True</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
 		</packing>
 	      </child>
 	    </widget>
@@ -28913,16 +28899,7 @@ density (too big to be waters):
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="check_waters_molecule_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
+		<placeholder/>
 	      </child>
 
 	      <child>
@@ -28978,68 +28955,15 @@ density (too big to be waters):
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="check_waters_action_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">0</property>
-
-		  <child>
-		    <widget class="GtkMenu" id="menu1">
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="check_waters_check1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Check</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_check_waters_check1_activate" last_modification_time="Wed, 12 Dec 2007 13:32:31 GMT"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6016">
-			      <property name="visible">True</property>
-			      <property name="stock">gtk-apply</property>
-			      <property name="icon_size">1</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="check_waters_delete1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Delete</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_check_waters_delete1_activate" last_modification_time="Wed, 12 Dec 2007 13:32:31 GMT"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image6017">
-			      <property name="visible">True</property>
-			      <property name="stock">gtk-delete</property>
-			      <property name="icon_size">1</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-		    </widget>
-		  </child>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
+		<placeholder/>
 	      </child>
 
 	      <child>
 		<widget class="GtkComboBox" id="check_waters_action_combobox">
 		  <property name="visible">True</property>
+		  <property name="items" translatable="yes">Check
+Delete
+</property>
 		  <property name="add_tearoffs">False</property>
 		  <property name="focus_on_click">True</property>
 		</widget>
@@ -29671,16 +29595,7 @@ density (too big to be waters):
 				  </child>
 
 				  <child>
-				    <widget class="GtkOptionMenu" id="check_water_by_difference_map_optionmenu">
-				      <property name="visible">True</property>
-				      <property name="can_focus">True</property>
-				      <property name="history">-1</property>
-				    </widget>
-				    <packing>
-				      <property name="padding">0</property>
-				      <property name="expand">False</property>
-				      <property name="fill">False</property>
-				    </packing>
+				    <placeholder/>
 				  </child>
 
 				  <child>
@@ -31840,10 +31755,10 @@ Secondary Structure Matching</property>
 		  <property name="spacing">0</property>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="superpose_dialog_reference_mol_optionmenu">
+		    <widget class="GtkComboBox" id="superpose_dialog_reference_mol_combobox">
 		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
+		      <property name="add_tearoffs">False</property>
+		      <property name="focus_on_click">True</property>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -31886,16 +31801,7 @@ Secondary Structure Matching</property>
 			  </child>
 
 			  <child>
-			    <widget class="GtkOptionMenu" id="superpose_reference_chain_optionmenu">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="history">-1</property>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
-			    </packing>
+			    <placeholder/>
 			  </child>
 			</widget>
 		      </child>
@@ -31908,7 +31814,16 @@ Secondary Structure Matching</property>
 		  </child>
 
 		  <child>
-		    <placeholder/>
+		    <widget class="GtkComboBox" id="superpose_dialog_reference_chain_combobox">
+		      <property name="visible">True</property>
+		      <property name="add_tearoffs">False</property>
+		      <property name="focus_on_click">True</property>
+		    </widget>
+		    <packing>
+		      <property name="padding">0</property>
+		      <property name="expand">True</property>
+		      <property name="fill">True</property>
+		    </packing>
 		  </child>
 
 		  <child>
@@ -31987,10 +31902,10 @@ Secondary Structure Matching</property>
 		  <property name="spacing">0</property>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="superpose_dialog_moving_mol_optionmenu">
+		    <widget class="GtkComboBox" id="superpose_dialog_moving_mol_combobox">
 		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
+		      <property name="add_tearoffs">False</property>
+		      <property name="focus_on_click">True</property>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -32033,15 +31948,19 @@ Secondary Structure Matching</property>
 			  </child>
 
 			  <child>
-			    <widget class="GtkOptionMenu" id="superpose_moving_chain_optionmenu">
+			    <placeholder/>
+			  </child>
+
+			  <child>
+			    <widget class="GtkComboBox" id="superpose_dialog_moving_chain_combobox">
 			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="history">-1</property>
+			      <property name="add_tearoffs">False</property>
+			      <property name="focus_on_click">True</property>
 			    </widget>
 			    <packing>
 			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
+			      <property name="expand">True</property>
+			      <property name="fill">True</property>
 			    </packing>
 			  </child>
 			</widget>
@@ -32538,16 +32457,7 @@ in this molecule.</property>
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="check_chiral_volumes_molecule_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
+		<placeholder/>
 	      </child>
 
 	      <child>
@@ -33259,16 +33169,7 @@ into Molecule:
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="merge_molecules_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
+		<placeholder/>
 	      </child>
 
 	      <child>
@@ -35766,16 +35667,7 @@ search (this may not work well)</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="add_OXT_molecule_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>
@@ -35830,16 +35722,7 @@ search (this may not work well)</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="add_OXT_chain_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>
@@ -46055,16 +45938,7 @@ distances more than:</property>
 		  <property name="spacing">0</property>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="ramachandran_plot_differences_first_mol_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>
@@ -46114,16 +45988,7 @@ distances more than:</property>
 			  </child>
 
 			  <child>
-			    <widget class="GtkOptionMenu" id="ramachandran_plot_differences_first_chain_optionmenu">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="history">-1</property>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
-			    </packing>
+			    <placeholder/>
 			  </child>
 
 			  <child>
@@ -46220,7 +46085,7 @@ distances more than:</property>
 		  <property name="spacing">0</property>
 
 		  <child>
-		    <widget class="GtkComboBox" id="ramachran_plot_differences_second_mol_combobox">
+		    <widget class="GtkComboBox" id="ramachandran_plot_differences_second_mol_combobox">
 		      <property name="visible">True</property>
 		      <property name="add_tearoffs">False</property>
 		      <property name="focus_on_click">True</property>
@@ -46233,16 +46098,7 @@ distances more than:</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="ramachandran_plot_differences_second_mol_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>
@@ -46279,16 +46135,7 @@ distances more than:</property>
 			  </child>
 
 			  <child>
-			    <widget class="GtkOptionMenu" id="ramachandran_plot_differences_second_chain_optionmenu">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="history">-1</property>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
-			    </packing>
+			    <placeholder/>
 			  </child>
 
 			  <child>
@@ -46979,16 +46826,7 @@ distances more than:</property>
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="change_chain_id_molecule_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
+		<placeholder/>
 	      </child>
 
 	      <child>
@@ -47061,20 +46899,12 @@ distances more than:</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="change_chain_id_chain_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>
 		    <widget class="GtkComboBox" id="change_chain_id_chain_combobox">
+		      <property name="width_request">44</property>
 		      <property name="visible">True</property>
 		      <property name="add_tearoffs">False</property>
 		      <property name="focus_on_click">True</property>
