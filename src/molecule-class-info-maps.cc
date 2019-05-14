@@ -263,13 +263,15 @@ molecule_class_info_t::clear_draw_vecs() {
       std::this_thread::sleep_for(std::chrono::microseconds(10));
       unlocked = false;
    }
+   // std::cout << "debug:: in clear_draw_vecs() draw_vector_sets size " << draw_vector_sets.size()
+   // << std::endl;
    for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
-      // std::cout << "deleting set " << i << " " << draw_vector_sets[i].data << std::endl;
+      // std::cout << "clear_draw_vecs(): set " << i << " " << draw_vector_sets[i].data << std::endl;
+      draw_vector_sets[i].size = 0;
       delete [] draw_vector_sets[i].data;
       draw_vector_sets[i].data = 0;
    }
-   draw_vector_sets.clear();
-   draw_vector_sets.reserve(12);
+   // draw_vector_sets.clear();
    draw_vector_sets_lock = false; // unlock
 
 }
@@ -633,7 +635,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 
 	 std::vector<std::thread> threads;
 	 int n_reams = coot::get_max_number_of_threads();
-	 n_reams = 1; // does this stop the crashing? Hmm! Looks good.
+	 // n_reams = 1; // does this stop the crashing? Hmm! Looks good.
 
 	 for (int ii=0; ii<n_reams; ii++) {
 	    int iream_start = ii;
@@ -648,6 +650,9 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 	 }
 	 for (int ii=0; ii<n_reams; ii++)
 	    threads[ii].join();
+
+	 // std::cout << "Threads joinned, now draw_vector_sets size " << draw_vector_sets.size()
+	 // << std::endl;
 
       }
 
@@ -709,7 +714,34 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
 	 std::this_thread::sleep_for(std::chrono::microseconds(10));
 	 unlocked = false;
       }
-      draw_vector_sets_p->push_back(v);
+      // no longer dynamically change the size of draw_vector_sets
+      // clear_draw_vecs will set the size to zero. If we find a element with size 0,
+      // replace that one, rather than adding to draw_vector_sets
+      //
+      // draw_vector_sets_p->push_back(v);
+      //
+      bool done = false;
+      for (unsigned int i=0; i<draw_vector_sets_p->size(); i++) {
+	 // std::cout << "gensurf_and_add_vecs_threaded_workpackage() checking i " << i << " data "
+	 // << draw_vector_sets_p->at(i).data << " size " << draw_vector_sets_p->at(i).size
+	 // << std::endl;
+	 if (draw_vector_sets_p->at(i).size == 0) {
+	    // std::cout << "   replacing set at " << i << " data" << v.data << " size " << v.size
+	    // << std::endl;
+	    draw_vector_sets_p->at(i).data = v.data;
+	    draw_vector_sets_p->at(i).size = v.size;
+	    done = true;
+	    break;
+	 }
+      }
+      if (! done) {
+	 // OK, let's push this one back then
+	 // std::cout << "gensurf_and_draw_vecs_threaded_workpackage() adding another draw vector set, "
+	 // << "current size " << draw_vector_sets_p->size() << " with " << v.data << " " << v.size
+	 // << std::endl;
+	 draw_vector_sets_p->push_back(v);
+      }
+
       molecule_class_info_t::draw_vector_sets_lock = false; // unlock
    }
    catch (const std::out_of_range &oor) {
