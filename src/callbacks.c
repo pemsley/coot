@@ -1491,8 +1491,7 @@ void
 on_display_control_ok_button_clicked   (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *w = lookup_widget(GTK_WIDGET(button), 
-				"display_control_window_glade");
+   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "display_control_window_glade");
    GtkWidget *maps_vbox = 0;
    GtkWidget *molecules_vbox = 0;
    GtkWidget *pane = 0;
@@ -1513,6 +1512,8 @@ on_display_control_ok_button_clicked   (GtkButton       *button,
 	store_window_position(COOT_DISPLAY_CONTROL_PANE, pane);
 
      gtk_widget_destroy(w);
+  } else {
+    printf("Error:: in on_display_control_ok_button_clicked() failed to lookup display_control_window_glade\n");
   }
 }
 
@@ -4463,10 +4464,15 @@ on_window1_configure_event             (GtkWidget       *widget,
                                         GdkEventConfigure *event,
                                         gpointer         user_data)
 {
+  /*
+  printf("on_window1_configure_event start\n");
   gint upositionx, upositiony;
   GtkWindow *window = gtk_widget_get_window(widget);
-  gtk_window_get_position(window, &upositionx, &upositiony);	    
+  printf("on_window1_configure_event with window: 0x%d\n", window);
+  gtk_window_get_position(window, &upositionx, &upositiony); // not a window strangely.
   store_graphics_window_position(upositionx, upositiony);
+  printf("on_window1_configure_event done\n");
+  */
   return FALSE;
 }
 

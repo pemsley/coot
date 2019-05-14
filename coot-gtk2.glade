@@ -576,27 +576,6 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkImageMenuItem" id="map_colour1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Map Colour...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_map_colour1_activate"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image13964">
-			      <property name="visible">True</property>
-			      <property name="stock">gtk-select-color</property>
-			      <property name="icon_size">1</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
 			<widget class="GtkImageMenuItem" id="density_size1">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Map Parameters...</property>
@@ -3407,7 +3386,6 @@
 
 	      <child>
 		<widget class="GtkToolbar" id="model_toolbar">
-		  <property name="border_width">3</property>
 		  <property name="visible">True</property>
 		  <property name="orientation">GTK_ORIENTATION_VERTICAL</property>
 		  <property name="toolbar_style">GTK_TOOLBAR_ICONS</property>
@@ -4133,13 +4111,14 @@
 	</widget>
 	<packing>
 	  <property name="padding">0</property>
-	  <property name="expand">False</property>
-	  <property name="fill">False</property>
+	  <property name="expand">True</property>
+	  <property name="fill">True</property>
 	</packing>
       </child>
 
       <child>
 	<widget class="GtkFrame" id="gtkhtml_frame">
+	  <property name="visible">True</property>
 	  <property name="label_xalign">0</property>
 	  <property name="label_yalign">0.5</property>
 	  <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
@@ -6791,7 +6770,6 @@
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
 			      <property name="use_alpha">False</property>
-			      <property name="title" translatable="yes">Pick a Colour</property>
 			      <property name="focus_on_click">True</property>
 			      <signal name="color_set" handler="on_symmetry_colorbutton_color_set" last_modification_time="Tue, 01 May 2018 15:56:08 GMT"/>
 			    </widget>

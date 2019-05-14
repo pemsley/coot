@@ -264,7 +264,7 @@ main (int argc, char *argv[]) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
 
-      window1 = create_window1 ();
+      window1 = create_window1();
 
       std::string version_string = VERSION;
       std::string main_title = "Coot " + version_string;
@@ -282,6 +282,10 @@ main (int argc, char *argv[]) {
       main_title = "Win" + main_title;
 #endif
 
+      GtkWidget *model_toolbar = lookup_widget(window1, "model_toolbar");
+      std::cout << "here wiith model_toolbar " << model_toolbar << std::endl;
+      gtk_widget_show(model_toolbar);
+      
       gtk_window_set_title(GTK_WINDOW (window1), main_title.c_str());
       GtkWidget *vbox = lookup_widget(window1, "vbox1");
 

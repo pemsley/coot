@@ -1424,15 +1424,12 @@ std::shared_ptr<SceneSetup> graphics_info_t::mol_tri_scene_setup = 0;
 GtkWidget *
 gl_gtk3_widget(GtkWidget *vbox, short int try_stereo_flag) {
 
-   GtkWidget *drawing_area = NULL; // the returned thing
-
-   drawing_area = gtk_gl_area_new();
-   gtk_gl_area_make_current(GTK_GL_AREA(drawing_area));
-   gtk_widget_set_size_request(drawing_area, 500, 500);
-   GtkWidget *main_window_graphics_hbox =
-      lookup_widget(vbox, "main_window_graphics_hbox");
+   GtkWidget *drawing_area = gtk_gl_area_new();
+   GtkWidget *main_window_graphics_hbox = lookup_widget(vbox, "main_window_graphics_hbox");
    gtk_container_add(GTK_CONTAINER(main_window_graphics_hbox), drawing_area);
+   gtk_widget_set_size_request(drawing_area, 500, 500);
    gtk_widget_show(drawing_area);
+   gtk_gl_area_make_current(GTK_GL_AREA(drawing_area));
 
    return drawing_area;
 }
