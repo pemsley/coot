@@ -75,7 +75,6 @@ $SED -e 's/#include "callbacks.h.gtk2"/#include "callbacks.h"/' \
     -e 's? gtk_toolbar_set_orientation (GTK_TOOLBAR ? gtk_orientable_set_orientation (GTK_ORIENTABLE ?' \
     -e 's/gtk_widget_ref (widget), (GDestroyNotify) gtk_widget_unref)/g_object_ref (widget), (GDestroyNotify) g_object_unref)/' \
     -e 's/ gtk_about_dialog_set_name / gtk_about_dialog_set_program_name /' \
-    -e 's? GLADE_HOOKUP_OBJECT_NO_REF ? // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing?' \
     -e 's/GDK_F7/GDK_KEY_F7/' \
     -e 's/GDK_F6/GDK_KEY_F6/' \
     -e 's/GDK_D/GDK_KEY_D/'   \
@@ -84,6 +83,7 @@ $SED -e 's/#include "callbacks.h.gtk2"/#include "callbacks.h"/' \
     -e 's/ gtk_vbox_new .TRUE/  gtk_box_new (GTK_ORIENTATION_VERTICAL/'   \
     -e 's/ gtk_hbox_new .FALSE/ gtk_box_new (GTK_ORIENTATION_HORIZONTAL/' \
     -e 's/ gtk_hbox_new .TRUE/  gtk_box_new (GTK_ORIENTATION_HORIZONTAL/' \
+    -e 's? GLADE_HOOKUP_OBJECT_NO_REF .*tooltip? // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing?' \
     gtk2-interface.c \
     | awk '
 / = GTK_DIALOG/ {f=$4; gsub("[(]", "", f); gsub("[)].*", "", f); print(" ", $1, "=", "gtk_dialog_get_content_area(", f, ");")}
@@ -102,3 +102,5 @@ bash fixup-interface.h.sh
 #    -e 's? GTK_WIDGET_SET_FLAGS ? gtk_widget_set_can_default ?' \
  
 # / GTK_WIDGET_SET_FLAGS .* GTK_CAN_DEFAULT / {print "  gtk_widget_set_can_default " $2, "1);" }
+
+#    -e 's? GLADE_HOOKUP_OBJECT_NO_REF ? // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing?'
