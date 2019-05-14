@@ -789,6 +789,9 @@ public:        //                      public
       n_vertices_for_VertexArray = 0;
       m_VertexArrayID =  0;
 
+      // draw vectors
+      draw_vector_sets.reserve(120);
+
       // don't show strict ncs unless it's turned on.
       show_strict_ncs_flag = 1;
 

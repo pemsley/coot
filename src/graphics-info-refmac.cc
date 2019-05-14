@@ -271,8 +271,8 @@ graphics_info_t::fill_option_menu_with_map_options_internal(GtkWidget *option_me
 #endif
 
 
-void
-graphics_info_t::fill_combobox_with_map_options(GtkWidget *combobox,
+int
+graphics_info_t::fill_combobox_with_map_options(GtkWidget *combobox, 
 						GCallback signal_func,
 						int imol_active_position) {
    std::vector<int> maps_vec;

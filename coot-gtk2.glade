@@ -57956,7 +57956,7 @@ Map to Sharpen/Blur:
 	  </child>
 
 	  <child>
-	    <widget class="GtkComboBox" id="map_sharpending_combobox">
+	    <widget class="GtkComboBox" id="map_sharpening_molecule_combobox">
 	      <property name="visible">True</property>
 	      <property name="add_tearoffs">False</property>
 	      <property name="focus_on_click">True</property>

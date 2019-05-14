@@ -219,9 +219,12 @@ namespace coot {
 
    public:
 
+      CartesianPairInfo() {
+	 data = 0;
+	 size = 0;
+      }
       CartesianPair *data;
       int size;
-      
    };
 
 

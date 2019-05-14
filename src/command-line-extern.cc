@@ -107,7 +107,7 @@ handle_command_line_data(command_line_data cld) {
 
 
    if (cld.em_mode) {
-      graphics_info_t::box_radius = graphics_info_t::box_radius_em;
+      graphics_info_t::box_radius_xray = graphics_info_t::box_radius_em;
       // what else?
    } 
 

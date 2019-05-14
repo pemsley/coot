@@ -164,7 +164,6 @@ coot::setup_refmac_parameters(GtkWidget *window,
 			      const coot::mtz_column_types_info_t &col_labs) {
 
 #if 0
-  
   unsigned int i;
   GtkWidget *fobs_option_menu    = lookup_widget(window, "refmac_fobs_optionmenu");
   GtkWidget *sigfobs_option_menu = lookup_widget(window, "refmac_sigfobs_optionmenu");
@@ -1055,7 +1054,6 @@ coot::column_selector_using_cmtz(const std::string &filename) {
 						  "use_weights_checkbutton"));
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_weights), FALSE);
 
-   /* New addition: the refmac buttons  */
    coot::setup_refmac_parameters(column_label_window, *f_phi_columns);
    return column_label_window;
 }

@@ -27621,7 +27621,7 @@ create_map_sharpening_dialog (void)
   GtkWidget *dialog_vbox121;
   GtkWidget *vbox302;
   GtkWidget *label728;
-  GtkWidget *map_sharpending_combobox;
+  GtkWidget *map_sharpening_molecule_combobox;
   GtkWidget *alignment141;
   GtkWidget *map_sharpening_hscale;
   GtkWidget *hbuttonbox7;
@@ -27666,9 +27666,9 @@ create_map_sharpening_dialog (void)
   gtk_widget_show (label728);
   gtk_box_pack_start (GTK_BOX (vbox302), label728, FALSE, FALSE, 0);
 
-  map_sharpending_combobox = gtk_combo_box_text_new ();
-  gtk_widget_show (map_sharpending_combobox);
-  gtk_box_pack_start (GTK_BOX (vbox302), map_sharpending_combobox, TRUE, TRUE, 0);
+  map_sharpening_molecule_combobox = gtk_combo_box_text_new ();
+  gtk_widget_show (map_sharpening_molecule_combobox);
+  gtk_box_pack_start (GTK_BOX (vbox302), map_sharpening_molecule_combobox, TRUE, TRUE, 0);
 
   alignment141 = gtk_alignment_new (0.5, 0.5, 1, 1);
   gtk_widget_show (alignment141);
@@ -27792,7 +27792,7 @@ create_map_sharpening_dialog (void)
   // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(map_sharpening_dialog, dialog_vbox121, "dialog_vbox121");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, vbox302, "vbox302");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, label728, "label728");
-  GLADE_HOOKUP_OBJECT (map_sharpening_dialog, map_sharpending_combobox, "map_sharpending_combobox");
+  GLADE_HOOKUP_OBJECT (map_sharpening_dialog, map_sharpening_molecule_combobox, "map_sharpening_molecule_combobox");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, alignment141, "alignment141");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, map_sharpening_hscale, "map_sharpening_hscale");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, hbuttonbox7, "hbuttonbox7");

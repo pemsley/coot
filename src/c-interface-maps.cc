@@ -2188,7 +2188,7 @@ PyObject *map_contours(int imol, float contour_level) {
    if (is_valid_map_molecule(imol)) {
       graphics_info_t g;
       coot::Cartesian centre = g.RotationCentre();
-      float radius = graphics_info_t::box_radius;
+      float radius = graphics_info_t::box_radius_xray;
       std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > contours =
 	 graphics_info_t::molecules[imol].get_contours(contour_level, radius, centre);
 
