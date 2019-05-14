@@ -5566,7 +5566,8 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
    graphics_info_t g;
    GCallback signal_func = G_CALLBACK(map_sharpening_map_select_combobox_changed);
    GtkWidget *combobx = lookup_widget(w, "map_sharpening_molecule_combobox");
-   int imol = g.fill_combobox_with_map_mtz_options(combobx, signal_func);
+   int imol_prefered = imol_refinement_map();
+   int imol = g.fill_combobox_with_map_mtz_options(combobx, signal_func, imol_prefered);
 
    if (is_valid_map_molecule(imol)) {
       graphics_info_t::imol_map_sharpening = imol;
