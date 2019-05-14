@@ -597,36 +597,6 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
 
 	 have_refmac_params = 1; 
 
-#if 0
-	 /* find the refmac option menu */
-	 fobs_option_menu    = lookup_widget(column_label_window, "refmac_fobs_optionmenu");
-	 sigfobs_option_menu = lookup_widget(column_label_window, "refmac_sigfobs_optionmenu");
-	 r_free_option_menu  = lookup_widget(column_label_window, "refmac_rfree_optionmenu");
-  
-	 /* find the refmac menus */
-	 fobs_menu    = gtk_option_menu_get_menu(GTK_OPTION_MENU(fobs_option_menu));
-	 sigfobs_menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(sigfobs_option_menu));
-	 r_free_menu  = gtk_option_menu_get_menu(GTK_OPTION_MENU(r_free_option_menu));
-
-	 /* now assign the columns */
-	 icol = saved_f_phi_columns->selected_refmac_fobs_col;
-	 fobs_col = saved_f_phi_columns->f_cols[icol].column_label;
-
-	 icol = saved_f_phi_columns->selected_refmac_sigfobs_col;
-	 sigfobs_col = saved_f_phi_columns->sigf_cols[icol].column_label;
-
-	 icol = saved_f_phi_columns->selected_refmac_r_free_col; /* magic -1 if not set */
-	 if (icol >= 0) { 
-	    // 
-	    sensible_r_free_col = 1;
-	    r_free_col = saved_f_phi_columns->r_free_cols[icol].column_label;
-	 } else { 
-	    sensible_r_free_col = 0;
-	    r_free_col = "";
-	 }
-
-#endif
-
 	 GtkWidget *fobs_combobox    = lookup_widget(column_label_window,
 						     "column_label_selector_refmac_fobs_combobox");
 	 GtkWidget *sigfobs_combobox = lookup_widget(column_label_window,
@@ -637,23 +607,25 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
 	 fobs_col    = get_active_label_in_combobox(GTK_COMBO_BOX(fobs_combobox));
 	 sigfobs_col = get_active_label_in_combobox(GTK_COMBO_BOX(fobs_combobox));
 	 r_free_col  = get_active_label_in_combobox(GTK_COMBO_BOX(fobs_combobox));
-
-	 /* And proceed with the actual map-making. 
-	    If use_weights is 1, then weights should be used.*/
-	 make_and_draw_map_with_reso_with_refmac_params(object_mtz_filename,
-							f_label.c_str(),
-							phi_label.c_str(), 
-							w_label.c_str(),
-							use_weights, is_diff_map, 
-							have_refmac_params,
-							fobs_col.c_str(),
-							sigfobs_col.c_str(),
-							r_free_col.c_str(), 
-							sensible_r_free_col, 
-							is_anomalous_flag,
-							use_resolution_limits_flag,
-							low_reso_lim, high_reso_lim);
       }
+
+      std::cout << "---------------------- Here" << std::endl;
+
+      /* And proceed with the actual map-making. 
+	 If use_weights is 1, then weights should be used.*/
+      make_and_draw_map_with_reso_with_refmac_params(object_mtz_filename,
+						     f_label.c_str(),
+						     phi_label.c_str(), 
+						     w_label.c_str(),
+						     use_weights, is_diff_map, 
+						     have_refmac_params,
+						     fobs_col.c_str(),
+						     sigfobs_col.c_str(),
+						     r_free_col.c_str(), 
+						     sensible_r_free_col, 
+						     is_anomalous_flag,
+						     use_resolution_limits_flag,
+						     low_reso_lim, high_reso_lim);
    }
    /* We can destroy the column_label_window top level widget now. */
    gtk_widget_destroy(column_label_window);
@@ -2030,6 +2002,9 @@ int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc 
 
    // graphics_info_t g;
    // return g.fill_combobox_with_map_mtz_options(option_menu, signalfunc);
+
+   std::cout << "option menu cruft" << std::endl;
+   return -1;
 }
 
 // Similar to fill_option_menu_with_coordinates_options, but I moved
