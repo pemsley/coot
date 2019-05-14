@@ -295,12 +295,17 @@ molecule_class_info_t::update_map() {
 void
 molecule_class_info_t::update_map_internal() {
 
+   float radius = graphics_info_t::box_radius_xray;
+
    if (has_xmap()) {
+      if (is_EM_map())
+	 radius = graphics_info_t::box_radius_em;
+
       coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
 			 graphics_info_t::RotationCentre_y(),
 			 graphics_info_t::RotationCentre_z());
 
-      update_map_triangles(graphics_info_t::box_radius, rc);  // NXMAP-FIXME
+      update_map_triangles(radius, rc);  // NXMAP-FIXME
       if (graphics_info_t::use_graphics_interface_flag) {
 	 if (graphics_info_t::display_lists_for_maps_flag) {
 	    graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);

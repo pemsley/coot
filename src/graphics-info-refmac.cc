@@ -255,7 +255,7 @@ graphics_info_t::fill_option_menu_with_map_options_internal(GtkWidget *option_me
    gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
 }
 
-void
+int
 graphics_info_t::fill_combobox_with_map_options(GtkWidget *combobox, 
 						GCallback signal_func,
 						int imol_active_position) {
@@ -271,6 +271,7 @@ graphics_info_t::fill_combobox_with_map_options(GtkWidget *combobox,
    GtkTreeIter iter;
    int active_idx = 0;
    int n_mol = maps_vec.size();
+   int imol_set = -1; // the imol of the active item. Start as unset
    for (unsigned int imap=0; imap<maps_vec.size(); imap++) {
       int imol = maps_vec[imap];
       std::string ss; // = int_to_string(imol); done in renderer now.
@@ -286,9 +287,14 @@ graphics_info_t::fill_combobox_with_map_options(GtkWidget *combobox,
       gtk_list_store_append(store, &iter);
       gtk_list_store_set(store, &iter, 0, imol, 1, ss.c_str(), -1);
 
-      if (imol == imol_active_position)
+      if (imol == imol_active_position) {
 	 active_idx = imap;
-
+	 imol_set = imol;
+      } else {
+	 if (imap == 0) {
+	    imol_set = imol;
+	 }
+      }
    }
 
    if (signal_func)
@@ -303,6 +309,7 @@ graphics_info_t::fill_combobox_with_map_options(GtkWidget *combobox,
    if (maps_vec.size() > 0)
       gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), active_idx);
 
+   return imol_set;
 
 }
 

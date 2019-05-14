@@ -779,6 +779,8 @@ void map_sharpening_value_changed (GtkAdjustment *adj, GtkWidget *window);
 int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signalfunc);
 int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signalfunc);
 
+void map_sharpening_map_select_combobox_changed(GtkWidget *combobox, gpointer data);
+
 void calc_and_set_optimal_b_factor ( GtkWidget *w ) ;
 
 void store_fixed_atom_dialog(GtkWidget *w);

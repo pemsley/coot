@@ -152,7 +152,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    commands.push_back(state_command("set-clipping-front", clipping_front, il));
    commands.push_back(state_command("set-clipping-back",  clipping_back, il));
 
-   commands.push_back(state_command("set-map-radius", box_radius, il));
+   commands.push_back(state_command("set-map-radius", box_radius_xray, il));
 
    unsigned short int v = 4; // 4 dec pl. if float_to_string_using_dec_pl is fixed.
    // a "flag" to use a different function to generate the string from the float
