@@ -90,8 +90,6 @@ create_window1 (void)
   GtkWidget *image13962;
   GtkWidget *edit_copy_fragment1;
   GtkWidget *image13963;
-  GtkWidget *map_colour1;
-  GtkWidget *image13964;
   GtkWidget *density_size1;
   GtkWidget *image13965;
   GtkWidget *edit_merge_molecules1;
@@ -648,14 +646,6 @@ create_window1 (void)
   image13963 = gtk_image_new_from_stock ("gtk-copy", GTK_ICON_SIZE_MENU);
   gtk_widget_show (image13963);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_copy_fragment1), image13963);
-
-  map_colour1 = gtk_image_menu_item_new_with_mnemonic ("Map Colour...");
-  gtk_widget_show (map_colour1);
-  gtk_container_add (GTK_CONTAINER (edit1_menu), map_colour1);
-
-  image13964 = gtk_image_new_from_stock ("gtk-select-color", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image13964);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (map_colour1), image13964);
 
   density_size1 = gtk_image_menu_item_new_with_mnemonic ("Map Parameters...");
   gtk_widget_show (density_size1);
@@ -1721,7 +1711,7 @@ create_window1 (void)
 
   main_window_model_fit_dialog_frame = gtk_frame_new (NULL);
   gtk_widget_show (main_window_model_fit_dialog_frame);
-  gtk_box_pack_start (GTK_BOX (main_window_hbox), main_window_model_fit_dialog_frame, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (main_window_hbox), main_window_model_fit_dialog_frame, TRUE, TRUE, 0);
 
   model_fit_refine_toolbar_handlebox = gtk_handle_box_new ();
   gtk_widget_show (model_fit_refine_toolbar_handlebox);
@@ -1733,7 +1723,6 @@ create_window1 (void)
   model_toolbar = gtk_toolbar_new ();
   gtk_widget_show (model_toolbar);
   gtk_container_add (GTK_CONTAINER (model_fit_refine_toolbar_handlebox), model_toolbar);
-  gtk_container_set_border_width (GTK_CONTAINER (model_toolbar), 3);
   gtk_toolbar_set_style (GTK_TOOLBAR (model_toolbar), GTK_TOOLBAR_ICONS);
   gtk_orientable_set_orientation (GTK_ORIENTABLE (model_toolbar), GTK_ORIENTATION_VERTICAL);
   tmp_toolbar_icon_size = gtk_toolbar_get_icon_size (GTK_TOOLBAR (model_toolbar));
@@ -1794,7 +1783,6 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rigid_body_fit_togglebutton);
   // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rigid_body_fit_togglebutton), tooltips, "Rigid Body Fit Zone (click on 2 atoms)", NULL);
 
-  #ifdef GTK_TYPE_MENU_TOOL_BUTTON
   tmp_image = gtk_image_new_from_stock ("rtz.svg", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_rot_trans_toolbutton = (GtkWidget*) gtk_menu_tool_button_new (tmp_image, "Rotate Translate");
@@ -1802,8 +1790,6 @@ create_window1 (void)
   gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_rot_trans_toolbutton), FALSE);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rot_trans_toolbutton);
   // gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rot_trans_toolbutton), tooltips, "Rotate Translate Zone/Chain/Molecule", NULL);
-#endif
-
 
   model_toolbar_auto_fit_rotamer_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_auto_fit_rotamer_togglebutton), "Auto Fit Rotamer");
@@ -2055,6 +2041,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (model_toolbar_setting1_menu), model_toolbar_user_defined1);
 
   gtkhtml_frame = gtk_frame_new (NULL);
+  gtk_widget_show (gtkhtml_frame);
   gtk_box_pack_start (GTK_BOX (main_window_hbox), gtkhtml_frame, TRUE, TRUE, 0);
 
   g_signal_connect ((gpointer) window1, "configure_event",
@@ -2140,9 +2127,6 @@ create_window1 (void)
                     NULL);
   g_signal_connect ((gpointer) edit_copy_fragment1, "activate",
                     G_CALLBACK (on_edit_copy_fragment1_activate),
-                    NULL);
-  g_signal_connect ((gpointer) map_colour1, "activate",
-                    G_CALLBACK (on_map_colour1_activate),
                     NULL);
   g_signal_connect ((gpointer) density_size1, "activate",
                     G_CALLBACK (on_density_size1_activate),
@@ -2579,7 +2563,7 @@ create_window1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(window1, window1, "window1");
+  GLADE_HOOKUP_OBJECT_NO_REF (window1, window1, "window1");
   GLADE_HOOKUP_OBJECT (window1, main_window_hbox, "main_window_hbox");
   GLADE_HOOKUP_OBJECT (window1, main_window_model_fit_dialog_frame_left, "main_window_model_fit_dialog_frame_left");
   GLADE_HOOKUP_OBJECT (window1, vbox1, "vbox1");
@@ -2638,8 +2622,6 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, image13962, "image13962");
   GLADE_HOOKUP_OBJECT (window1, edit_copy_fragment1, "edit_copy_fragment1");
   GLADE_HOOKUP_OBJECT (window1, image13963, "image13963");
-  GLADE_HOOKUP_OBJECT (window1, map_colour1, "map_colour1");
-  GLADE_HOOKUP_OBJECT (window1, image13964, "image13964");
   GLADE_HOOKUP_OBJECT (window1, density_size1, "density_size1");
   GLADE_HOOKUP_OBJECT (window1, image13965, "image13965");
   GLADE_HOOKUP_OBJECT (window1, edit_merge_molecules1, "edit_merge_molecules1");
@@ -2895,9 +2877,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_regularize_togglebutton, "model_toolbar_regularize_togglebutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_fixed_atoms_button, "model_toolbar_fixed_atoms_button");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_rigid_body_fit_togglebutton, "model_toolbar_rigid_body_fit_togglebutton");
-#ifdef GTK_TYPE_MENU_TOOL_BUTTON
-    GLADE_HOOKUP_OBJECT (window1, model_toolbar_rot_trans_toolbutton, "model_toolbar_rot_trans_toolbutton");
-#endif
+  GLADE_HOOKUP_OBJECT (window1, model_toolbar_rot_trans_toolbutton, "model_toolbar_rot_trans_toolbutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_auto_fit_rotamer_togglebutton, "model_toolbar_auto_fit_rotamer_togglebutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_rotamers_togglebutton, "model_toolbar_rotamers_togglebutton");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_edit_chi_angles_togglebutton, "model_toolbar_edit_chi_angles_togglebutton");
@@ -2940,7 +2920,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_all_icons, "model_toolbar_all_icons");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_user_defined1, "model_toolbar_user_defined1");
   GLADE_HOOKUP_OBJECT (window1, gtkhtml_frame, "gtkhtml_frame");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(window1, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   gtk_widget_grab_default (button25);
   gtk_window_add_accel_group (GTK_WINDOW (window1), accel_group);
@@ -3300,7 +3280,7 @@ create_column_label_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(column_label_window, column_label_window, "column_label_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (column_label_window, column_label_window, "column_label_window");
   GLADE_HOOKUP_OBJECT (column_label_window, vbox2, "vbox2");
   GLADE_HOOKUP_OBJECT (column_label_window, hbox88, "hbox88");
   GLADE_HOOKUP_OBJECT (column_label_window, label177, "label177");
@@ -3359,7 +3339,7 @@ create_column_label_window (void)
   GLADE_HOOKUP_OBJECT (column_label_window, image1505, "image1505");
   GLADE_HOOKUP_OBJECT (column_label_window, label361, "label361");
   GLADE_HOOKUP_OBJECT (column_label_window, label8, "label8");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(column_label_window, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   gtk_widget_grab_focus (column_label_ok_button);
   gtk_widget_grab_default (column_label_ok_button);
@@ -3430,7 +3410,7 @@ create_clipping_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(clipping_window, clipping_window, "clipping_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (clipping_window, clipping_window, "clipping_window");
   GLADE_HOOKUP_OBJECT (clipping_window, vbox4, "vbox4");
   GLADE_HOOKUP_OBJECT (clipping_window, label4, "label4");
   GLADE_HOOKUP_OBJECT (clipping_window, frame3, "frame3");
@@ -3688,7 +3668,7 @@ create_global_map_properties_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(global_map_properties_window, global_map_properties_window, "global_map_properties_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (global_map_properties_window, global_map_properties_window, "global_map_properties_window");
   GLADE_HOOKUP_OBJECT (global_map_properties_window, map_properties_vbox, "map_properties_vbox");
   GLADE_HOOKUP_OBJECT (global_map_properties_window, label5, "label5");
   GLADE_HOOKUP_OBJECT (global_map_properties_window, frame4, "frame4");
@@ -3728,7 +3708,7 @@ create_global_map_properties_window (void)
   GLADE_HOOKUP_OBJECT (global_map_properties_window, hbox177, "hbox177");
   GLADE_HOOKUP_OBJECT (global_map_properties_window, image1495, "image1495");
   GLADE_HOOKUP_OBJECT (global_map_properties_window, label351, "label351");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(global_map_properties_window, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   gtk_widget_grab_focus (density_ok_button);
   gtk_widget_grab_default (density_ok_button);
@@ -3814,7 +3794,7 @@ create_fps_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(fps_window, fps_window, "fps_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (fps_window, fps_window, "fps_window");
   GLADE_HOOKUP_OBJECT (fps_window, vbox6, "vbox6");
   GLADE_HOOKUP_OBJECT (fps_window, label9, "label9");
   GLADE_HOOKUP_OBJECT (fps_window, frame5, "frame5");
@@ -3910,7 +3890,7 @@ create_active_map_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(active_map_window, active_map_window, "active_map_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (active_map_window, active_map_window, "active_map_window");
   GLADE_HOOKUP_OBJECT (active_map_window, vbox8, "vbox8");
   GLADE_HOOKUP_OBJECT (active_map_window, label10, "label10");
   GLADE_HOOKUP_OBJECT (active_map_window, frame6, "frame6");
@@ -4228,7 +4208,7 @@ create_show_symmetry_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(show_symmetry_window, show_symmetry_window, "show_symmetry_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (show_symmetry_window, show_symmetry_window, "show_symmetry_window");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, vbox10, "vbox10");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, label11, "label11");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, frame163, "frame163");
@@ -4357,7 +4337,7 @@ create_about_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(about_window, about_window, "about_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (about_window, about_window, "about_window");
   GLADE_HOOKUP_OBJECT (about_window, vbox14, "vbox14");
   GLADE_HOOKUP_OBJECT (about_window, scrolledwindow1, "scrolledwindow1");
   GLADE_HOOKUP_OBJECT (about_window, about_window_text, "about_window_text");
@@ -4609,7 +4589,7 @@ create_aniso_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(aniso_window, aniso_window, "aniso_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (aniso_window, aniso_window, "aniso_window");
   GLADE_HOOKUP_OBJECT (aniso_window, vbox16, "vbox16");
   GLADE_HOOKUP_OBJECT (aniso_window, frame12, "frame12");
   GLADE_HOOKUP_OBJECT (aniso_window, vbox17, "vbox17");
@@ -4788,7 +4768,7 @@ create_smooth_scroll_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(smooth_scroll_window, smooth_scroll_window, "smooth_scroll_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (smooth_scroll_window, smooth_scroll_window, "smooth_scroll_window");
   GLADE_HOOKUP_OBJECT (smooth_scroll_window, vbox23, "vbox23");
   GLADE_HOOKUP_OBJECT (smooth_scroll_window, label25, "label25");
   GLADE_HOOKUP_OBJECT (smooth_scroll_window, vbox24, "vbox24");
@@ -4906,7 +4886,7 @@ create_font_size_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(font_size_window, font_size_window, "font_size_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (font_size_window, font_size_window, "font_size_window");
   GLADE_HOOKUP_OBJECT (font_size_window, vbox26, "vbox26");
   GLADE_HOOKUP_OBJECT (font_size_window, label29, "label29");
   GLADE_HOOKUP_OBJECT (font_size_window, frame22, "frame22");
@@ -5023,7 +5003,7 @@ create_phs_info_box (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(phs_info_box, phs_info_box, "phs_info_box");
+  GLADE_HOOKUP_OBJECT_NO_REF (phs_info_box, phs_info_box, "phs_info_box");
   GLADE_HOOKUP_OBJECT (phs_info_box, vbox29, "vbox29");
   GLADE_HOOKUP_OBJECT (phs_info_box, frame26, "frame26");
   GLADE_HOOKUP_OBJECT (phs_info_box, label36, "label36");
@@ -5208,7 +5188,7 @@ create_display_control_window_glade (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(display_control_window_glade, display_control_window_glade, "display_control_window_glade");
+  GLADE_HOOKUP_OBJECT_NO_REF (display_control_window_glade, display_control_window_glade, "display_control_window_glade");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, vbox30, "vbox30");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, display_control_vpaned, "display_control_vpaned");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, paned_maps_vbox, "paned_maps_vbox");
@@ -5545,7 +5525,7 @@ create_goto_atom_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(goto_atom_window, goto_atom_window, "goto_atom_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (goto_atom_window, goto_atom_window, "goto_atom_window");
   GLADE_HOOKUP_OBJECT (goto_atom_window, vbox33, "vbox33");
   GLADE_HOOKUP_OBJECT (goto_atom_window, frame30, "frame30");
   GLADE_HOOKUP_OBJECT (goto_atom_window, vbox34, "vbox34");
@@ -5671,7 +5651,7 @@ create_skeletonization_box_radius_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(skeletonization_box_radius_window, skeletonization_box_radius_window, "skeletonization_box_radius_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (skeletonization_box_radius_window, skeletonization_box_radius_window, "skeletonization_box_radius_window");
   GLADE_HOOKUP_OBJECT (skeletonization_box_radius_window, vbox36, "vbox36");
   GLADE_HOOKUP_OBJECT (skeletonization_box_radius_window, label46, "label46");
   GLADE_HOOKUP_OBJECT (skeletonization_box_radius_window, hbox28, "hbox28");
@@ -5763,7 +5743,7 @@ create_skeletonization_level_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(skeletonization_level_window, skeletonization_level_window, "skeletonization_level_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (skeletonization_level_window, skeletonization_level_window, "skeletonization_level_window");
   GLADE_HOOKUP_OBJECT (skeletonization_level_window, vbox37, "vbox37");
   GLADE_HOOKUP_OBJECT (skeletonization_level_window, label47, "label47");
   GLADE_HOOKUP_OBJECT (skeletonization_level_window, hbox29, "hbox29");
@@ -5832,7 +5812,7 @@ create_rotation_centre_cube_size_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(rotation_centre_cube_size_window, rotation_centre_cube_size_window, "rotation_centre_cube_size_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (rotation_centre_cube_size_window, rotation_centre_cube_size_window, "rotation_centre_cube_size_window");
   GLADE_HOOKUP_OBJECT (rotation_centre_cube_size_window, vbox38, "vbox38");
   GLADE_HOOKUP_OBJECT (rotation_centre_cube_size_window, label50, "label50");
   GLADE_HOOKUP_OBJECT (rotation_centre_cube_size_window, hbox31, "hbox31");
@@ -5897,7 +5877,7 @@ create_phs_cell_choice_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(phs_cell_choice_window, phs_cell_choice_window, "phs_cell_choice_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (phs_cell_choice_window, phs_cell_choice_window, "phs_cell_choice_window");
   GLADE_HOOKUP_OBJECT (phs_cell_choice_window, vbox39, "vbox39");
   GLADE_HOOKUP_OBJECT (phs_cell_choice_window, label67, "label67");
   GLADE_HOOKUP_OBJECT (phs_cell_choice_window, phs_cell_chooser_vbox, "phs_cell_chooser_vbox");
@@ -5958,7 +5938,7 @@ create_accession_code_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(accession_code_window, accession_code_window, "accession_code_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (accession_code_window, accession_code_window, "accession_code_window");
   GLADE_HOOKUP_OBJECT (accession_code_window, frame34, "frame34");
   GLADE_HOOKUP_OBJECT (accession_code_window, vbox40, "vbox40");
   GLADE_HOOKUP_OBJECT (accession_code_window, label69, "label69");
@@ -6167,7 +6147,7 @@ create_dynarama_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(dynarama_window, dynarama_window, "dynarama_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (dynarama_window, dynarama_window, "dynarama_window");
   GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_vbox, "dynarama_vbox");
   GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_label, "dynarama_label");
   GLADE_HOOKUP_OBJECT (dynarama_window, frame307, "frame307");
@@ -6256,7 +6236,7 @@ create_dynarama_properties_window (void)
   gtk_widget_set_can_default (dynarama_properties_ok_button, 1);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(dynarama_properties_window, dynarama_properties_window, "dynarama_properties_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (dynarama_properties_window, dynarama_properties_window, "dynarama_properties_window");
   GLADE_HOOKUP_OBJECT (dynarama_properties_window, vbox2, "vbox2");
   GLADE_HOOKUP_OBJECT (dynarama_properties_window, notebook2, "notebook2");
   GLADE_HOOKUP_OBJECT (dynarama_properties_window, vbox3, "vbox3");
@@ -6304,7 +6284,7 @@ create_python_window (void)
   gtk_box_pack_start (GTK_BOX (vbox41), python_window_entry, FALSE, FALSE, 5);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(python_window, python_window, "python_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (python_window, python_window, "python_window");
   GLADE_HOOKUP_OBJECT (python_window, vbox41, "vbox41");
   GLADE_HOOKUP_OBJECT (python_window, scrolledwindow4, "scrolledwindow4");
   GLADE_HOOKUP_OBJECT (python_window, python_window_text, "python_window_text");
@@ -6812,8 +6792,8 @@ create_find_ligand_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(find_ligand_dialog, find_ligand_dialog, "find_ligand_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(find_ligand_dialog, dialog_vbox2, "dialog_vbox2");
+  GLADE_HOOKUP_OBJECT_NO_REF (find_ligand_dialog, find_ligand_dialog, "find_ligand_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (find_ligand_dialog, dialog_vbox2, "dialog_vbox2");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, scrolledwindow41, "scrolledwindow41");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, viewport28, "viewport28");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, vbox44, "vbox44");
@@ -6881,7 +6861,7 @@ create_find_ligand_dialog (void)
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, label798, "label798");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligand_real_space_refine_solutions_checkbutton, "find_ligand_real_space_refine_solutions_checkbutton");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, label797, "label797");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(find_ligand_dialog, dialog_action_area2, "dialog_action_area2");
+  GLADE_HOOKUP_OBJECT_NO_REF (find_ligand_dialog, dialog_action_area2, "dialog_action_area2");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, hbox35, "hbox35");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, hbox36, "hbox36");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligand_ok_button, "find_ligand_ok_button");
@@ -6955,11 +6935,11 @@ create_find_ligand_many_atoms_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(find_ligand_many_atoms_dialog, find_ligand_many_atoms_dialog, "find_ligand_many_atoms_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(find_ligand_many_atoms_dialog, dialog_vbox3, "dialog_vbox3");
+  GLADE_HOOKUP_OBJECT_NO_REF (find_ligand_many_atoms_dialog, find_ligand_many_atoms_dialog, "find_ligand_many_atoms_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (find_ligand_many_atoms_dialog, dialog_vbox3, "dialog_vbox3");
   GLADE_HOOKUP_OBJECT (find_ligand_many_atoms_dialog, frame38, "frame38");
   GLADE_HOOKUP_OBJECT (find_ligand_many_atoms_dialog, label76, "label76");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(find_ligand_many_atoms_dialog, dialog_action_area3, "dialog_action_area3");
+  GLADE_HOOKUP_OBJECT_NO_REF (find_ligand_many_atoms_dialog, dialog_action_area3, "dialog_action_area3");
   GLADE_HOOKUP_OBJECT (find_ligand_many_atoms_dialog, hbox37, "hbox37");
   GLADE_HOOKUP_OBJECT (find_ligand_many_atoms_dialog, find_ligand_many_atoms_continue_button, "find_ligand_many_atoms_continue_button");
   GLADE_HOOKUP_OBJECT (find_ligand_many_atoms_dialog, find_ligand_many_atoms_cancel_button, "find_ligand_many_atoms_cancel_button");
@@ -7693,8 +7673,8 @@ create_model_refine_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(model_refine_dialog, model_refine_dialog, "model_refine_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(model_refine_dialog, model_fit_refine_dialog_vbox, "model_fit_refine_dialog_vbox");
+  GLADE_HOOKUP_OBJECT_NO_REF (model_refine_dialog, model_refine_dialog, "model_refine_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (model_refine_dialog, model_fit_refine_dialog_vbox, "model_fit_refine_dialog_vbox");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, frame39, "frame39");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_fit_refine_vbox, "model_fit_refine_vbox");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_refine_params_button, "model_refine_dialog_refine_params_button");
@@ -7804,9 +7784,9 @@ create_model_refine_dialog (void)
   GLADE_HOOKUP_OBJECT (model_refine_dialog, hbox377, "hbox377");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, image6804, "image6804");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, label694, "label694");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(model_refine_dialog, dialog_action_area4, "dialog_action_area4");
+  GLADE_HOOKUP_OBJECT_NO_REF (model_refine_dialog, dialog_action_area4, "dialog_action_area4");
   GLADE_HOOKUP_OBJECT (model_refine_dialog, model_refine_dialog_dismiss_button, "model_refine_dialog_dismiss_button");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(model_refine_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   gtk_widget_grab_focus (model_refine_dialog_dismiss_button);
   gtk_widget_grab_default (model_refine_dialog_dismiss_button);
@@ -8010,8 +7990,8 @@ create_rotate_translate_obj_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(rotate_translate_obj_dialog, rotate_translate_obj_dialog, "rotate_translate_obj_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(rotate_translate_obj_dialog, dialog_vbox6, "dialog_vbox6");
+  GLADE_HOOKUP_OBJECT_NO_REF (rotate_translate_obj_dialog, rotate_translate_obj_dialog, "rotate_translate_obj_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (rotate_translate_obj_dialog, dialog_vbox6, "dialog_vbox6");
   GLADE_HOOKUP_OBJECT (rotate_translate_obj_dialog, frame40, "frame40");
   GLADE_HOOKUP_OBJECT (rotate_translate_obj_dialog, vbox49, "vbox49");
   GLADE_HOOKUP_OBJECT (rotate_translate_obj_dialog, frame90, "frame90");
@@ -8032,7 +8012,7 @@ create_rotate_translate_obj_dialog (void)
   GLADE_HOOKUP_OBJECT (rotate_translate_obj_dialog, frame95, "frame95");
   GLADE_HOOKUP_OBJECT (rotate_translate_obj_dialog, rotate_translate_obj_zrot_hscale, "rotate_translate_obj_zrot_hscale");
   GLADE_HOOKUP_OBJECT (rotate_translate_obj_dialog, label287, "label287");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(rotate_translate_obj_dialog, dialog_action_area6, "dialog_action_area6");
+  GLADE_HOOKUP_OBJECT_NO_REF (rotate_translate_obj_dialog, dialog_action_area6, "dialog_action_area6");
   GLADE_HOOKUP_OBJECT (rotate_translate_obj_dialog, hbox40, "hbox40");
   GLADE_HOOKUP_OBJECT (rotate_translate_obj_dialog, rotate_translate_obj_ok_button, "rotate_translate_obj_ok_button");
   GLADE_HOOKUP_OBJECT (rotate_translate_obj_dialog, alignment41, "alignment41");
@@ -8123,13 +8103,13 @@ create_save_coords_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_coords_dialog, save_coords_dialog, "save_coords_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_coords_dialog, dialog_vbox7, "dialog_vbox7");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_coords_dialog, save_coords_dialog, "save_coords_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_coords_dialog, dialog_vbox7, "dialog_vbox7");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, frame41, "frame41");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, vbox50, "vbox50");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, label78, "label78");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, save_coordinates_combobox, "save_coordinates_combobox");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_coords_dialog, dialog_action_area7, "dialog_action_area7");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_coords_dialog, dialog_action_area7, "dialog_action_area7");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, save_coords_dialog_save_button, "save_coords_dialog_save_button");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, alignment43, "alignment43");
   GLADE_HOOKUP_OBJECT (save_coords_dialog, hbox194, "hbox194");
@@ -8632,8 +8612,8 @@ create_refine_params_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(refine_params_dialog, refine_params_dialog, "refine_params_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(refine_params_dialog, dialog_vbox8, "dialog_vbox8");
+  GLADE_HOOKUP_OBJECT_NO_REF (refine_params_dialog, refine_params_dialog, "refine_params_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (refine_params_dialog, dialog_vbox8, "dialog_vbox8");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, frame42, "frame42");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, vbox51, "vbox51");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, vbox52, "vbox52");
@@ -8694,13 +8674,13 @@ create_refine_params_dialog (void)
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_lennard_jones_epsilon_combobox, "refine_params_lennard_jones_epsilon_combobox");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_rama_restraints_weight_combobox, "refine_params_rama_restraints_weight_combobox");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, label819, "label819");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(refine_params_dialog, dialog_action_area8, "dialog_action_area8");
+  GLADE_HOOKUP_OBJECT_NO_REF (refine_params_dialog, dialog_action_area8, "dialog_action_area8");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_dialog_ok_button, "refine_params_dialog_ok_button");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, alignment44, "alignment44");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, hbox195, "hbox195");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, image1513, "image1513");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, label369, "label369");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(refine_params_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   gtk_widget_grab_focus (refine_params_dialog_ok_button);
   gtk_widget_grab_default (refine_params_dialog_ok_button);
@@ -9159,8 +9139,8 @@ create_accept_reject_refinement_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(accept_reject_refinement_dialog, accept_reject_refinement_dialog, "accept_reject_refinement_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(accept_reject_refinement_dialog, dialog_vbox9, "dialog_vbox9");
+  GLADE_HOOKUP_OBJECT_NO_REF (accept_reject_refinement_dialog, accept_reject_refinement_dialog, "accept_reject_refinement_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (accept_reject_refinement_dialog, dialog_vbox9, "dialog_vbox9");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame129, "frame129");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, vbox195, "vbox195");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, chiral_centre_text_label, "chiral_centre_text_label");
@@ -9214,7 +9194,7 @@ create_accept_reject_refinement_dialog (void)
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_crankshaft_button, "accept_reject_crankshaft_button");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_backrub_rotamer_button, "accept_reject_backrub_rotamer_button");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label824, "label824");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(accept_reject_refinement_dialog, dialog_action_area9, "dialog_action_area9");
+  GLADE_HOOKUP_OBJECT_NO_REF (accept_reject_refinement_dialog, dialog_action_area9, "dialog_action_area9");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, hbox41, "hbox41");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_refinement_accept_button, "accept_reject_refinement_accept_button");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, alignment45, "alignment45");
@@ -9226,7 +9206,7 @@ create_accept_reject_refinement_dialog (void)
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, hbox197, "hbox197");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, image1515, "image1515");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label371, "label371");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(accept_reject_refinement_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   gtk_widget_grab_default (accept_reject_refinement_accept_button);
   return accept_reject_refinement_dialog;
@@ -9483,8 +9463,8 @@ create_find_waters_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(find_waters_dialog, find_waters_dialog, "find_waters_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(find_waters_dialog, dialog_vbox10, "dialog_vbox10");
+  GLADE_HOOKUP_OBJECT_NO_REF (find_waters_dialog, find_waters_dialog, "find_waters_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (find_waters_dialog, dialog_vbox10, "dialog_vbox10");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, vbox54, "vbox54");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, frame44, "frame44");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, find_waters_map_vbox, "find_waters_map_vbox");
@@ -9511,7 +9491,7 @@ create_find_waters_dialog (void)
   GLADE_HOOKUP_OBJECT (find_waters_dialog, label108, "label108");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, water_mol_protein_mask_radiobutton, "water_mol_protein_mask_radiobutton");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, water_mol_new_mol_radiobutton, "water_mol_new_mol_radiobutton");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(find_waters_dialog, dialog_action_area10, "dialog_action_area10");
+  GLADE_HOOKUP_OBJECT_NO_REF (find_waters_dialog, dialog_action_area10, "dialog_action_area10");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, hbox43, "hbox43");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, find_waters_ok_button, "find_waters_ok_button");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, alignment47, "alignment47");
@@ -9523,7 +9503,7 @@ create_find_waters_dialog (void)
   GLADE_HOOKUP_OBJECT (find_waters_dialog, hbox199, "hbox199");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, image1517, "image1517");
   GLADE_HOOKUP_OBJECT (find_waters_dialog, label373, "label373");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(find_waters_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   gtk_widget_grab_focus (find_waters_ok_button);
   gtk_widget_grab_default (find_waters_ok_button);
@@ -9724,8 +9704,8 @@ create_environment_distance_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(environment_distance_dialog, environment_distance_dialog, "environment_distance_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(environment_distance_dialog, dialog_vbox11, "dialog_vbox11");
+  GLADE_HOOKUP_OBJECT_NO_REF (environment_distance_dialog, environment_distance_dialog, "environment_distance_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (environment_distance_dialog, dialog_vbox11, "dialog_vbox11");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, vbox58, "vbox58");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, frame48, "frame48");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, environment_distance_checkbutton, "environment_distance_checkbutton");
@@ -9748,7 +9728,7 @@ create_environment_distance_dialog (void)
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, label93, "label93");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, label744, "label744");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, environment_distance_label_atom_checkbutton, "environment_distance_label_atom_checkbutton");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(environment_distance_dialog, dialog_action_area11, "dialog_action_area11");
+  GLADE_HOOKUP_OBJECT_NO_REF (environment_distance_dialog, dialog_action_area11, "dialog_action_area11");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, environment_distance_dialog_ok_button, "environment_distance_dialog_ok_button");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, alignment49, "alignment49");
   GLADE_HOOKUP_OBJECT (environment_distance_dialog, hbox200, "hbox200");
@@ -9963,7 +9943,7 @@ create_residue_type_chooser_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(residue_type_chooser_window, residue_type_chooser_window, "residue_type_chooser_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (residue_type_chooser_window, residue_type_chooser_window, "residue_type_chooser_window");
   GLADE_HOOKUP_OBJECT (residue_type_chooser_window, frame50, "frame50");
   GLADE_HOOKUP_OBJECT (residue_type_chooser_window, vbox62, "vbox62");
   GLADE_HOOKUP_OBJECT (residue_type_chooser_window, residue_type_chooser_stub_checkbutton, "residue_type_chooser_stub_checkbutton");
@@ -9988,7 +9968,7 @@ create_residue_type_chooser_window (void)
   GLADE_HOOKUP_OBJECT (residue_type_chooser_window, residue_type_chooser_TRP, "residue_type_chooser_TRP");
   GLADE_HOOKUP_OBJECT (residue_type_chooser_window, residue_type_chooser_TYR, "residue_type_chooser_TYR");
   GLADE_HOOKUP_OBJECT (residue_type_chooser_window, residue_type_chooser_VAL, "residue_type_chooser_VAL");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(residue_type_chooser_window, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   return residue_type_chooser_window;
 }
@@ -10176,8 +10156,8 @@ create_delete_item_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(delete_item_dialog, delete_item_dialog, "delete_item_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(delete_item_dialog, dialog_vbox12, "dialog_vbox12");
+  GLADE_HOOKUP_OBJECT_NO_REF (delete_item_dialog, delete_item_dialog, "delete_item_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (delete_item_dialog, dialog_vbox12, "dialog_vbox12");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, frame51, "frame51");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, vbox63, "vbox63");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, label95, "label95");
@@ -10191,13 +10171,13 @@ create_delete_item_dialog (void)
   GLADE_HOOKUP_OBJECT (delete_item_dialog, delete_item_residue_range_radiobutton, "delete_item_residue_range_radiobutton");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, delete_item_keep_active_checkbutton, "delete_item_keep_active_checkbutton");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, label126, "label126");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(delete_item_dialog, dialog_action_area12, "dialog_action_area12");
+  GLADE_HOOKUP_OBJECT_NO_REF (delete_item_dialog, dialog_action_area12, "dialog_action_area12");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, delete_item_cancel_button, "delete_item_cancel_button");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, alignment50, "alignment50");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, hbox201, "hbox201");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, image1519, "image1519");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, label375, "label375");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(delete_item_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   return delete_item_dialog;
 }
@@ -10308,13 +10288,13 @@ create_close_molecule_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(close_molecule_dialog, close_molecule_dialog, "close_molecule_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(close_molecule_dialog, dialog_vbox13, "dialog_vbox13");
+  GLADE_HOOKUP_OBJECT_NO_REF (close_molecule_dialog, close_molecule_dialog, "close_molecule_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (close_molecule_dialog, dialog_vbox13, "dialog_vbox13");
   GLADE_HOOKUP_OBJECT (close_molecule_dialog, vbox64, "vbox64");
   GLADE_HOOKUP_OBJECT (close_molecule_dialog, label96, "label96");
   GLADE_HOOKUP_OBJECT (close_molecule_dialog, frame52, "frame52");
   GLADE_HOOKUP_OBJECT (close_molecule_dialog, close_molecule_combobox, "close_molecule_combobox");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(close_molecule_dialog, dialog_action_area13, "dialog_action_area13");
+  GLADE_HOOKUP_OBJECT_NO_REF (close_molecule_dialog, dialog_action_area13, "dialog_action_area13");
   GLADE_HOOKUP_OBJECT (close_molecule_dialog, hbox48, "hbox48");
   GLADE_HOOKUP_OBJECT (close_molecule_dialog, close_molecule_close_button, "close_molecule_close_button");
   GLADE_HOOKUP_OBJECT (close_molecule_dialog, alignment51, "alignment51");
@@ -10602,8 +10582,8 @@ create_residue_info_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(residue_info_dialog, residue_info_dialog, "residue_info_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(residue_info_dialog, dialog_vbox14, "dialog_vbox14");
+  GLADE_HOOKUP_OBJECT_NO_REF (residue_info_dialog, residue_info_dialog, "residue_info_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (residue_info_dialog, dialog_vbox14, "dialog_vbox14");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, vbox65, "vbox65");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_residue_label, "residue_info_residue_label");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_residue_name_label, "residue_info_residue_name_label");
@@ -10635,7 +10615,7 @@ create_residue_info_dialog (void)
   GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_chi_4_label, "residue_info_chi_4_label");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_chi_5_label, "residue_info_chi_5_label");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, label443, "label443");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(residue_info_dialog, dialog_action_area14, "dialog_action_area14");
+  GLADE_HOOKUP_OBJECT_NO_REF (residue_info_dialog, dialog_action_area14, "dialog_action_area14");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, hbox49, "hbox49");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, residue_info_ok_button, "residue_info_ok_button");
   GLADE_HOOKUP_OBJECT (residue_info_dialog, alignment53, "alignment53");
@@ -10698,11 +10678,11 @@ create_hints_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(hints_dialog, hints_dialog, "hints_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(hints_dialog, dialog_vbox15, "dialog_vbox15");
+  GLADE_HOOKUP_OBJECT_NO_REF (hints_dialog, hints_dialog, "hints_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (hints_dialog, dialog_vbox15, "dialog_vbox15");
   GLADE_HOOKUP_OBJECT (hints_dialog, scrolledwindow5, "scrolledwindow5");
   GLADE_HOOKUP_OBJECT (hints_dialog, hints_text, "hints_text");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(hints_dialog, dialog_action_area15, "dialog_action_area15");
+  GLADE_HOOKUP_OBJECT_NO_REF (hints_dialog, dialog_action_area15, "dialog_action_area15");
   GLADE_HOOKUP_OBJECT (hints_dialog, hints_dialog_ok_button, "hints_dialog_ok_button");
 
   return hints_dialog;
@@ -10794,8 +10774,8 @@ create_rotamer_selection_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(rotamer_selection_dialog, rotamer_selection_dialog, "rotamer_selection_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(rotamer_selection_dialog, dialog_vbox16, "dialog_vbox16");
+  GLADE_HOOKUP_OBJECT_NO_REF (rotamer_selection_dialog, rotamer_selection_dialog, "rotamer_selection_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (rotamer_selection_dialog, dialog_vbox16, "dialog_vbox16");
   GLADE_HOOKUP_OBJECT (rotamer_selection_dialog, vbox158, "vbox158");
   GLADE_HOOKUP_OBJECT (rotamer_selection_dialog, scrolledwindow6, "scrolledwindow6");
   GLADE_HOOKUP_OBJECT (rotamer_selection_dialog, viewport3, "viewport3");
@@ -10803,7 +10783,7 @@ create_rotamer_selection_dialog (void)
   GLADE_HOOKUP_OBJECT (rotamer_selection_dialog, new_alt_conf_occ_frame, "new_alt_conf_occ_frame");
   GLADE_HOOKUP_OBJECT (rotamer_selection_dialog, new_alt_conf_occ_hscale, "new_alt_conf_occ_hscale");
   GLADE_HOOKUP_OBJECT (rotamer_selection_dialog, label289, "label289");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(rotamer_selection_dialog, dialog_action_area16, "dialog_action_area16");
+  GLADE_HOOKUP_OBJECT_NO_REF (rotamer_selection_dialog, dialog_action_area16, "dialog_action_area16");
   GLADE_HOOKUP_OBJECT (rotamer_selection_dialog, hbox50, "hbox50");
   GLADE_HOOKUP_OBJECT (rotamer_selection_dialog, rotamer_selection_ok_button, "rotamer_selection_ok_button");
   GLADE_HOOKUP_OBJECT (rotamer_selection_dialog, rotamer_selection_cancel_button, "rotamer_selection_cancel_button");
@@ -10929,14 +10909,14 @@ create_unsaved_changes_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(unsaved_changes_dialog, unsaved_changes_dialog, "unsaved_changes_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(unsaved_changes_dialog, dialog_vbox17, "dialog_vbox17");
+  GLADE_HOOKUP_OBJECT_NO_REF (unsaved_changes_dialog, unsaved_changes_dialog, "unsaved_changes_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (unsaved_changes_dialog, dialog_vbox17, "dialog_vbox17");
   GLADE_HOOKUP_OBJECT (unsaved_changes_dialog, frame54, "frame54");
   GLADE_HOOKUP_OBJECT (unsaved_changes_dialog, vbox66, "vbox66");
   GLADE_HOOKUP_OBJECT (unsaved_changes_dialog, label98, "label98");
   GLADE_HOOKUP_OBJECT (unsaved_changes_dialog, unsaved_changes_molecule_vbox, "unsaved_changes_molecule_vbox");
   GLADE_HOOKUP_OBJECT (unsaved_changes_dialog, label99, "label99");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(unsaved_changes_dialog, dialog_action_area17, "dialog_action_area17");
+  GLADE_HOOKUP_OBJECT_NO_REF (unsaved_changes_dialog, dialog_action_area17, "dialog_action_area17");
   GLADE_HOOKUP_OBJECT (unsaved_changes_dialog, hbox51, "hbox51");
   GLADE_HOOKUP_OBJECT (unsaved_changes_dialog, unsaved_changes_continue_button, "unsaved_changes_continue_button");
   GLADE_HOOKUP_OBJECT (unsaved_changes_dialog, alignment67, "alignment67");
@@ -11126,8 +11106,8 @@ create_baton_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_dialog, baton_dialog, "baton_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_dialog, dialog_vbox18, "dialog_vbox18");
+  GLADE_HOOKUP_OBJECT_NO_REF (baton_dialog, baton_dialog, "baton_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (baton_dialog, dialog_vbox18, "dialog_vbox18");
   GLADE_HOOKUP_OBJECT (baton_dialog, vbox69, "vbox69");
   GLADE_HOOKUP_OBJECT (baton_dialog, frame289, "frame289");
   GLADE_HOOKUP_OBJECT (baton_dialog, alignment143, "alignment143");
@@ -11148,9 +11128,9 @@ create_baton_dialog (void)
   GLADE_HOOKUP_OBJECT (baton_dialog, vbox303, "vbox303");
   GLADE_HOOKUP_OBJECT (baton_dialog, baton_build_set_params_button, "baton_build_set_params_button");
   GLADE_HOOKUP_OBJECT (baton_dialog, label734, "label734");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_dialog, dialog_action_area18, "dialog_action_area18");
+  GLADE_HOOKUP_OBJECT_NO_REF (baton_dialog, dialog_action_area18, "dialog_action_area18");
   GLADE_HOOKUP_OBJECT (baton_dialog, baton_dialog_ok_button, "baton_dialog_ok_button");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   return baton_dialog;
 }
@@ -11227,15 +11207,15 @@ create_read_pdb_recentre_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(read_pdb_recentre_dialog, read_pdb_recentre_dialog, "read_pdb_recentre_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(read_pdb_recentre_dialog, dialog_vbox20, "dialog_vbox20");
+  GLADE_HOOKUP_OBJECT_NO_REF (read_pdb_recentre_dialog, read_pdb_recentre_dialog, "read_pdb_recentre_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (read_pdb_recentre_dialog, dialog_vbox20, "dialog_vbox20");
   GLADE_HOOKUP_OBJECT (read_pdb_recentre_dialog, vbox75, "vbox75");
   GLADE_HOOKUP_OBJECT (read_pdb_recentre_dialog, label103, "label103");
   GLADE_HOOKUP_OBJECT (read_pdb_recentre_dialog, frame60, "frame60");
   GLADE_HOOKUP_OBJECT (read_pdb_recentre_dialog, vbox76, "vbox76");
   GLADE_HOOKUP_OBJECT (read_pdb_recentre_dialog, read_pdb_recentre_yes_radiobutton, "read_pdb_recentre_yes_radiobutton");
   GLADE_HOOKUP_OBJECT (read_pdb_recentre_dialog, read_pdb_recentre_no_radiobutton, "read_pdb_recentre_no_radiobutton");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(read_pdb_recentre_dialog, dialog_action_area20, "dialog_action_area20");
+  GLADE_HOOKUP_OBJECT_NO_REF (read_pdb_recentre_dialog, dialog_action_area20, "dialog_action_area20");
   GLADE_HOOKUP_OBJECT (read_pdb_recentre_dialog, read_pdb_recentre_dialog_ok_button, "read_pdb_recentre_dialog_ok_button");
 
   return read_pdb_recentre_dialog;
@@ -11406,8 +11386,8 @@ create_pointer_atom_type_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(pointer_atom_type_dialog, pointer_atom_type_dialog, "pointer_atom_type_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(pointer_atom_type_dialog, dialog_vbox21, "dialog_vbox21");
+  GLADE_HOOKUP_OBJECT_NO_REF (pointer_atom_type_dialog, pointer_atom_type_dialog, "pointer_atom_type_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (pointer_atom_type_dialog, dialog_vbox21, "dialog_vbox21");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, vbox77, "vbox77");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, label104, "label104");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, frame61, "frame61");
@@ -11427,7 +11407,7 @@ create_pointer_atom_type_dialog (void)
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, frame80, "frame80");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_molecule_combobox, "pointer_atom_molecule_combobox");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, label290, "label290");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(pointer_atom_type_dialog, dialog_action_area21, "dialog_action_area21");
+  GLADE_HOOKUP_OBJECT_NO_REF (pointer_atom_type_dialog, dialog_action_area21, "dialog_action_area21");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, hbox52, "hbox52");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_type_ok_button, "pointer_atom_type_ok_button");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_type_cancel_button, "pointer_atom_type_cancel_button");
@@ -12024,8 +12004,8 @@ create_run_refmac_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_dialog, run_refmac_dialog, "run_refmac_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_dialog, dialog_vbox22, "dialog_vbox22");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_dialog, run_refmac_dialog, "run_refmac_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_dialog, dialog_vbox22, "dialog_vbox22");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, vbox81, "vbox81");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, hbox347, "hbox347");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label645, "label645");
@@ -12115,11 +12095,11 @@ create_run_refmac_dialog (void)
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, frame87, "frame87");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_ccp4i_combobox, "run_refmac_ccp4i_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label291, "label291");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_dialog, dialog_action_area22, "dialog_action_area22");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_dialog, dialog_action_area22, "dialog_action_area22");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, hbox56, "hbox56");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_run_button, "run_refmac_run_button");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_cancel_button, "run_refmac_cancel_button");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   return run_refmac_dialog;
 }
@@ -12551,8 +12531,8 @@ create_single_map_properties_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(single_map_properties_dialog, single_map_properties_dialog, "single_map_properties_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(single_map_properties_dialog, dialog_vbox23, "dialog_vbox23");
+  GLADE_HOOKUP_OBJECT_NO_REF (single_map_properties_dialog, single_map_properties_dialog, "single_map_properties_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (single_map_properties_dialog, dialog_vbox23, "dialog_vbox23");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, vbox82, "vbox82");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label752, "label752");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, frame102, "frame102");
@@ -12612,10 +12592,10 @@ create_single_map_properties_dialog (void)
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_skeleton_on_radiobutton, "single_map_skeleton_on_radiobutton");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_skeleton_off_radiobutton, "single_map_skeleton_off_radiobutton");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label749, "label749");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(single_map_properties_dialog, dialog_action_area23, "dialog_action_area23");
+  GLADE_HOOKUP_OBJECT_NO_REF (single_map_properties_dialog, dialog_action_area23, "dialog_action_area23");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, hbox58, "hbox58");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_properties_ok_button, "single_map_properties_ok_button");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(single_map_properties_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   gtk_widget_grab_focus (single_map_properties_ok_button);
   gtk_widget_grab_default (single_map_properties_ok_button);
@@ -12674,13 +12654,13 @@ create_undo_molecule_chooser_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(undo_molecule_chooser_dialog, undo_molecule_chooser_dialog, "undo_molecule_chooser_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(undo_molecule_chooser_dialog, dialog_vbox24, "dialog_vbox24");
+  GLADE_HOOKUP_OBJECT_NO_REF (undo_molecule_chooser_dialog, undo_molecule_chooser_dialog, "undo_molecule_chooser_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (undo_molecule_chooser_dialog, dialog_vbox24, "dialog_vbox24");
   GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, vbox83, "vbox83");
   GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, label116, "label116");
   GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, frame70, "frame70");
   GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, undo_molecule_chooser_combobox, "undo_molecule_chooser_combobox");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(undo_molecule_chooser_dialog, dialog_action_area24, "dialog_action_area24");
+  GLADE_HOOKUP_OBJECT_NO_REF (undo_molecule_chooser_dialog, dialog_action_area24, "dialog_action_area24");
   GLADE_HOOKUP_OBJECT (undo_molecule_chooser_dialog, undo_molecule_chooser_ok_button, "undo_molecule_chooser_ok_button");
 
   gtk_widget_grab_default (undo_molecule_chooser_ok_button);
@@ -12795,8 +12775,8 @@ create_skeleton_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(skeleton_dialog, skeleton_dialog, "skeleton_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(skeleton_dialog, dialog_vbox25, "dialog_vbox25");
+  GLADE_HOOKUP_OBJECT_NO_REF (skeleton_dialog, skeleton_dialog, "skeleton_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (skeleton_dialog, dialog_vbox25, "dialog_vbox25");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, vbox84, "vbox84");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, ca_baton_mode_needs_skel_label, "ca_baton_mode_needs_skel_label");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, label117, "label117");
@@ -12807,11 +12787,11 @@ create_skeleton_dialog (void)
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_on_radiobutton, "skeleton_on_radiobutton");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_off_radiobutton, "skeleton_off_radiobutton");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_prune_and_colour_checkbutton, "skeleton_prune_and_colour_checkbutton");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(skeleton_dialog, dialog_action_area25, "dialog_action_area25");
+  GLADE_HOOKUP_OBJECT_NO_REF (skeleton_dialog, dialog_action_area25, "dialog_action_area25");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, hbox59, "hbox59");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_ok_button, "skeleton_ok_button");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_cancel_button, "skeleton_cancel_button");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(skeleton_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   return skeleton_dialog;
 }
@@ -12832,7 +12812,7 @@ create_splash_screen_window (void)
   gtk_container_add (GTK_CONTAINER (splash_screen_window), image10854);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(splash_screen_window, splash_screen_window, "splash_screen_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (splash_screen_window, splash_screen_window, "splash_screen_window");
   GLADE_HOOKUP_OBJECT (splash_screen_window, image10854, "image10854");
 
   return splash_screen_window;
@@ -12912,15 +12892,15 @@ create_crosshairs_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(crosshairs_dialog, crosshairs_dialog, "crosshairs_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(crosshairs_dialog, dialog_vbox26, "dialog_vbox26");
+  GLADE_HOOKUP_OBJECT_NO_REF (crosshairs_dialog, crosshairs_dialog, "crosshairs_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (crosshairs_dialog, dialog_vbox26, "dialog_vbox26");
   GLADE_HOOKUP_OBJECT (crosshairs_dialog, vbox87, "vbox87");
   GLADE_HOOKUP_OBJECT (crosshairs_dialog, label119, "label119");
   GLADE_HOOKUP_OBJECT (crosshairs_dialog, frame72, "frame72");
   GLADE_HOOKUP_OBJECT (crosshairs_dialog, vbox88, "vbox88");
   GLADE_HOOKUP_OBJECT (crosshairs_dialog, crosshairs_on_radiobutton, "crosshairs_on_radiobutton");
   GLADE_HOOKUP_OBJECT (crosshairs_dialog, crosshairs_off_radiobutton, "crosshairs_off_radiobutton");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(crosshairs_dialog, dialog_action_area26, "dialog_action_area26");
+  GLADE_HOOKUP_OBJECT_NO_REF (crosshairs_dialog, dialog_action_area26, "dialog_action_area26");
   GLADE_HOOKUP_OBJECT (crosshairs_dialog, display_crosshairs_ok_button, "display_crosshairs_ok_button");
 
   return crosshairs_dialog;
@@ -13019,8 +12999,8 @@ create_add_alt_conf_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_alt_conf_dialog, add_alt_conf_dialog, "add_alt_conf_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_alt_conf_dialog, dialog_vbox27, "dialog_vbox27");
+  GLADE_HOOKUP_OBJECT_NO_REF (add_alt_conf_dialog, add_alt_conf_dialog, "add_alt_conf_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (add_alt_conf_dialog, dialog_vbox27, "dialog_vbox27");
   GLADE_HOOKUP_OBJECT (add_alt_conf_dialog, vbox89, "vbox89");
   GLADE_HOOKUP_OBJECT (add_alt_conf_dialog, label120, "label120");
   GLADE_HOOKUP_OBJECT (add_alt_conf_dialog, frame73, "frame73");
@@ -13028,7 +13008,7 @@ create_add_alt_conf_dialog (void)
   GLADE_HOOKUP_OBJECT (add_alt_conf_dialog, add_alt_conf_ca_radiobutton, "add_alt_conf_ca_radiobutton");
   GLADE_HOOKUP_OBJECT (add_alt_conf_dialog, add_alt_conf_whole_single_residue_radiobutton, "add_alt_conf_whole_single_residue_radiobutton");
   GLADE_HOOKUP_OBJECT (add_alt_conf_dialog, add_alt_conf_residue_range_radiobutton, "add_alt_conf_residue_range_radiobutton");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_alt_conf_dialog, dialog_action_area27, "dialog_action_area27");
+  GLADE_HOOKUP_OBJECT_NO_REF (add_alt_conf_dialog, dialog_action_area27, "dialog_action_area27");
   GLADE_HOOKUP_OBJECT (add_alt_conf_dialog, hbox60, "hbox60");
   GLADE_HOOKUP_OBJECT (add_alt_conf_dialog, add_alt_conf_cancel_button, "add_alt_conf_cancel_button");
 
@@ -13168,8 +13148,8 @@ create_validation_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(validation_dialog, validation_dialog, "validation_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(validation_dialog, dialog_vbox28, "dialog_vbox28");
+  GLADE_HOOKUP_OBJECT_NO_REF (validation_dialog, validation_dialog, "validation_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (validation_dialog, dialog_vbox28, "dialog_vbox28");
   GLADE_HOOKUP_OBJECT (validation_dialog, frame74, "frame74");
   GLADE_HOOKUP_OBJECT (validation_dialog, vbox91, "vbox91");
   GLADE_HOOKUP_OBJECT (validation_dialog, label121, "label121");
@@ -13183,7 +13163,7 @@ create_validation_dialog (void)
   GLADE_HOOKUP_OBJECT (validation_dialog, label124, "label124");
   GLADE_HOOKUP_OBJECT (validation_dialog, validation_dialog_baddie_number_entry, "validation_dialog_baddie_number_entry");
   GLADE_HOOKUP_OBJECT (validation_dialog, label125, "label125");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(validation_dialog, dialog_action_area28, "dialog_action_area28");
+  GLADE_HOOKUP_OBJECT_NO_REF (validation_dialog, dialog_action_area28, "dialog_action_area28");
   GLADE_HOOKUP_OBJECT (validation_dialog, hbox61, "hbox61");
   GLADE_HOOKUP_OBJECT (validation_dialog, validation_dialog_next_button, "validation_dialog_next_button");
   GLADE_HOOKUP_OBJECT (validation_dialog, validation_dialog_prev_button, "validation_dialog_prev_button");
@@ -13301,13 +13281,13 @@ create_run_state_file_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_state_file_dialog, run_state_file_dialog, "run_state_file_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_state_file_dialog, dialog_vbox29, "dialog_vbox29");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_state_file_dialog, run_state_file_dialog, "run_state_file_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_state_file_dialog, dialog_vbox29, "dialog_vbox29");
   GLADE_HOOKUP_OBJECT (run_state_file_dialog, vbox191, "vbox191");
   GLADE_HOOKUP_OBJECT (run_state_file_dialog, label127, "label127");
   GLADE_HOOKUP_OBJECT (run_state_file_dialog, mols_vbox, "mols_vbox");
   GLADE_HOOKUP_OBJECT (run_state_file_dialog, label300, "label300");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_state_file_dialog, dialog_action_area29, "dialog_action_area29");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_state_file_dialog, dialog_action_area29, "dialog_action_area29");
   GLADE_HOOKUP_OBJECT (run_state_file_dialog, hbox66, "hbox66");
   GLADE_HOOKUP_OBJECT (run_state_file_dialog, run_state_file_ok_button, "run_state_file_ok_button");
   GLADE_HOOKUP_OBJECT (run_state_file_dialog, alignment63, "alignment63");
@@ -13416,8 +13396,8 @@ create_edit_backbone_torsions_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(edit_backbone_torsions_dialog, edit_backbone_torsions_dialog, "edit_backbone_torsions_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(edit_backbone_torsions_dialog, dialog_vbox30, "dialog_vbox30");
+  GLADE_HOOKUP_OBJECT_NO_REF (edit_backbone_torsions_dialog, edit_backbone_torsions_dialog, "edit_backbone_torsions_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (edit_backbone_torsions_dialog, dialog_vbox30, "dialog_vbox30");
   GLADE_HOOKUP_OBJECT (edit_backbone_torsions_dialog, frame75, "frame75");
   GLADE_HOOKUP_OBJECT (edit_backbone_torsions_dialog, vbox93, "vbox93");
   GLADE_HOOKUP_OBJECT (edit_backbone_torsions_dialog, frame82, "frame82");
@@ -13426,7 +13406,7 @@ create_edit_backbone_torsions_dialog (void)
   GLADE_HOOKUP_OBJECT (edit_backbone_torsions_dialog, frame83, "frame83");
   GLADE_HOOKUP_OBJECT (edit_backbone_torsions_dialog, edit_backbone_torsions_rotate_carbonyl_hscale, "edit_backbone_torsions_rotate_carbonyl_hscale");
   GLADE_HOOKUP_OBJECT (edit_backbone_torsions_dialog, label302, "label302");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(edit_backbone_torsions_dialog, dialog_action_area30, "dialog_action_area30");
+  GLADE_HOOKUP_OBJECT_NO_REF (edit_backbone_torsions_dialog, dialog_action_area30, "dialog_action_area30");
   GLADE_HOOKUP_OBJECT (edit_backbone_torsions_dialog, hbox67, "hbox67");
   GLADE_HOOKUP_OBJECT (edit_backbone_torsions_dialog, edit_backbone_torsion_ok_button, "edit_backbone_torsion_ok_button");
   GLADE_HOOKUP_OBJECT (edit_backbone_torsions_dialog, edit_backbone_torsion_cancel_button, "edit_backbone_torsion_cancel_button");
@@ -13549,8 +13529,8 @@ create_start_workflow_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(start_workflow_dialog, start_workflow_dialog, "start_workflow_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(start_workflow_dialog, dialog_vbox31, "dialog_vbox31");
+  GLADE_HOOKUP_OBJECT_NO_REF (start_workflow_dialog, start_workflow_dialog, "start_workflow_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (start_workflow_dialog, dialog_vbox31, "dialog_vbox31");
   GLADE_HOOKUP_OBJECT (start_workflow_dialog, frame76, "frame76");
   GLADE_HOOKUP_OBJECT (start_workflow_dialog, vbox94, "vbox94");
   GLADE_HOOKUP_OBJECT (start_workflow_dialog, workflow_radiobutton_coords_only, "workflow_radiobutton_coords_only");
@@ -13558,11 +13538,11 @@ create_start_workflow_dialog (void)
   GLADE_HOOKUP_OBJECT (start_workflow_dialog, workflow_radiobutton_coords_and_map, "workflow_radiobutton_coords_and_map");
   GLADE_HOOKUP_OBJECT (start_workflow_dialog, workflow_radiobutton_map_from_dataset, "workflow_radiobutton_map_from_dataset");
   GLADE_HOOKUP_OBJECT (start_workflow_dialog, workstate_radiobutton_clean_slate, "workstate_radiobutton_clean_slate");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(start_workflow_dialog, dialog_action_area31, "dialog_action_area31");
+  GLADE_HOOKUP_OBJECT_NO_REF (start_workflow_dialog, dialog_action_area31, "dialog_action_area31");
   GLADE_HOOKUP_OBJECT (start_workflow_dialog, hbox68, "hbox68");
   GLADE_HOOKUP_OBJECT (start_workflow_dialog, workflow_ok_button, "workflow_ok_button");
   GLADE_HOOKUP_OBJECT (start_workflow_dialog, workflow_cancel_button, "workflow_cancel_button");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(start_workflow_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   gtk_widget_grab_focus (workflow_ok_button);
   gtk_widget_grab_default (workflow_ok_button);
@@ -13620,13 +13600,13 @@ create_select_fitting_map_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(select_fitting_map_dialog, select_fitting_map_dialog, "select_fitting_map_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(select_fitting_map_dialog, dialog_vbox32, "dialog_vbox32");
+  GLADE_HOOKUP_OBJECT_NO_REF (select_fitting_map_dialog, select_fitting_map_dialog, "select_fitting_map_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (select_fitting_map_dialog, dialog_vbox32, "dialog_vbox32");
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, frame77, "frame77");
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, vbox95, "vbox95");
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, label128, "label128");
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, select_map_for_fitting_combobox, "select_map_for_fitting_combobox");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(select_fitting_map_dialog, dialog_action_area32, "dialog_action_area32");
+  GLADE_HOOKUP_OBJECT_NO_REF (select_fitting_map_dialog, dialog_action_area32, "dialog_action_area32");
   GLADE_HOOKUP_OBJECT (select_fitting_map_dialog, select_map_for_fitting_button, "select_map_for_fitting_button");
 
   gtk_widget_grab_focus (select_map_for_fitting_button);
@@ -13670,10 +13650,10 @@ create_run_refmac_help_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_help_dialog, run_refmac_help_dialog, "run_refmac_help_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_help_dialog, dialog_vbox33, "dialog_vbox33");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_help_dialog, run_refmac_help_dialog, "run_refmac_help_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_help_dialog, dialog_vbox33, "dialog_vbox33");
   GLADE_HOOKUP_OBJECT (run_refmac_help_dialog, label129, "label129");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_help_dialog, dialog_action_area33, "dialog_action_area33");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_help_dialog, dialog_action_area33, "dialog_action_area33");
   GLADE_HOOKUP_OBJECT (run_refmac_help_dialog, run_refmac_help_dialog_ok_button, "run_refmac_help_dialog_ok_button");
 
   return run_refmac_help_dialog;
@@ -13731,13 +13711,13 @@ create_no_restraints_info_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_restraints_info_dialog, no_restraints_info_dialog, "no_restraints_info_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_restraints_info_dialog, dialog_vbox34, "dialog_vbox34");
+  GLADE_HOOKUP_OBJECT_NO_REF (no_restraints_info_dialog, no_restraints_info_dialog, "no_restraints_info_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (no_restraints_info_dialog, dialog_vbox34, "dialog_vbox34");
   GLADE_HOOKUP_OBJECT (no_restraints_info_dialog, frame78, "frame78");
   GLADE_HOOKUP_OBJECT (no_restraints_info_dialog, vbox299, "vbox299");
   GLADE_HOOKUP_OBJECT (no_restraints_info_dialog, label131, "label131");
   GLADE_HOOKUP_OBJECT (no_restraints_info_dialog, no_restraints_extra_label, "no_restraints_extra_label");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_restraints_info_dialog, dialog_action_area34, "dialog_action_area34");
+  GLADE_HOOKUP_OBJECT_NO_REF (no_restraints_info_dialog, dialog_action_area34, "dialog_action_area34");
   GLADE_HOOKUP_OBJECT (no_restraints_info_dialog, no_restraints_info_dialog_button, "no_restraints_info_dialog_button");
 
   return no_restraints_info_dialog;
@@ -13784,11 +13764,11 @@ create_no_cif_dictionary_bonds_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_cif_dictionary_bonds_dialog, no_cif_dictionary_bonds_dialog, "no_cif_dictionary_bonds_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_cif_dictionary_bonds_dialog, dialog_vbox35, "dialog_vbox35");
+  GLADE_HOOKUP_OBJECT_NO_REF (no_cif_dictionary_bonds_dialog, no_cif_dictionary_bonds_dialog, "no_cif_dictionary_bonds_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (no_cif_dictionary_bonds_dialog, dialog_vbox35, "dialog_vbox35");
   GLADE_HOOKUP_OBJECT (no_cif_dictionary_bonds_dialog, frame79, "frame79");
   GLADE_HOOKUP_OBJECT (no_cif_dictionary_bonds_dialog, label132, "label132");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_cif_dictionary_bonds_dialog, dialog_action_area35, "dialog_action_area35");
+  GLADE_HOOKUP_OBJECT_NO_REF (no_cif_dictionary_bonds_dialog, dialog_action_area35, "dialog_action_area35");
   GLADE_HOOKUP_OBJECT (no_cif_dictionary_bonds_dialog, no_cif_dictionary_bonds_ok_button, "no_cif_dictionary_bonds_ok_button");
 
   return no_cif_dictionary_bonds_dialog;
@@ -13854,14 +13834,14 @@ create_ligand_big_blob_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ligand_big_blob_dialog, ligand_big_blob_dialog, "ligand_big_blob_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ligand_big_blob_dialog, dialog_vbox36, "dialog_vbox36");
+  GLADE_HOOKUP_OBJECT_NO_REF (ligand_big_blob_dialog, ligand_big_blob_dialog, "ligand_big_blob_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (ligand_big_blob_dialog, dialog_vbox36, "dialog_vbox36");
   GLADE_HOOKUP_OBJECT (ligand_big_blob_dialog, vbox97, "vbox97");
   GLADE_HOOKUP_OBJECT (ligand_big_blob_dialog, label133, "label133");
   GLADE_HOOKUP_OBJECT (ligand_big_blob_dialog, scrolledwindow8, "scrolledwindow8");
   GLADE_HOOKUP_OBJECT (ligand_big_blob_dialog, viewport4, "viewport4");
   GLADE_HOOKUP_OBJECT (ligand_big_blob_dialog, ligand_big_blob_vbox, "ligand_big_blob_vbox");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ligand_big_blob_dialog, dialog_action_area36, "dialog_action_area36");
+  GLADE_HOOKUP_OBJECT_NO_REF (ligand_big_blob_dialog, dialog_action_area36, "dialog_action_area36");
   GLADE_HOOKUP_OBJECT (ligand_big_blob_dialog, ligand_big_blob_dismiss_button, "ligand_big_blob_dismiss_button");
 
   return ligand_big_blob_dialog;
@@ -14044,8 +14024,8 @@ create_edit_chi_angles_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(edit_chi_angles_dialog, edit_chi_angles_dialog, "edit_chi_angles_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(edit_chi_angles_dialog, dialog_vbox37, "dialog_vbox37");
+  GLADE_HOOKUP_OBJECT_NO_REF (edit_chi_angles_dialog, edit_chi_angles_dialog, "edit_chi_angles_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (edit_chi_angles_dialog, dialog_vbox37, "dialog_vbox37");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, vbox98, "vbox98");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, edit_chi_angles_dialog_edit_mode_label, "edit_chi_angles_dialog_edit_mode_label");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, scrolledwindow9, "scrolledwindow9");
@@ -14067,11 +14047,11 @@ create_edit_chi_angles_dialog (void)
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, hbox409, "hbox409");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, image6897, "image6897");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, label740, "label740");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(edit_chi_angles_dialog, dialog_action_area37, "dialog_action_area37");
+  GLADE_HOOKUP_OBJECT_NO_REF (edit_chi_angles_dialog, dialog_action_area37, "dialog_action_area37");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, hbox71, "hbox71");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, edit_chi_angles_dialog_ok_button, "edit_chi_angles_dialog_ok_button");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, edit_chi_angles_cancel_button, "edit_chi_angles_cancel_button");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(edit_chi_angles_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   gtk_widget_grab_focus (edit_chi_angles_dialog_ok_button);
   gtk_widget_grab_default (edit_chi_angles_dialog_ok_button);
@@ -14431,8 +14411,8 @@ create_check_waters_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(check_waters_dialog, check_waters_dialog, "check_waters_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(check_waters_dialog, dialog_vbox38, "dialog_vbox38");
+  GLADE_HOOKUP_OBJECT_NO_REF (check_waters_dialog, check_waters_dialog, "check_waters_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (check_waters_dialog, dialog_vbox38, "dialog_vbox38");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, vbox100, "vbox100");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, hbox73, "hbox73");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, label136, "label136");
@@ -14482,11 +14462,11 @@ create_check_waters_dialog (void)
   GLADE_HOOKUP_OBJECT (check_waters_dialog, label244, "label244");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_OR_radiobutton, "check_waters_OR_radiobutton");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_AND_radiobutton, "check_waters_AND_radiobutton");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(check_waters_dialog, dialog_action_area38, "dialog_action_area38");
+  GLADE_HOOKUP_OBJECT_NO_REF (check_waters_dialog, dialog_action_area38, "dialog_action_area38");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, hbox78, "hbox78");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_ok_button, "check_waters_ok_button");
   GLADE_HOOKUP_OBJECT (check_waters_dialog, check_waters_cancel_button, "check_waters_cancel_button");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(check_waters_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   return check_waters_dialog;
 }
@@ -14602,8 +14582,8 @@ create_geometry_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(geometry_dialog, geometry_dialog, "geometry_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(geometry_dialog, dialog_vbox39, "dialog_vbox39");
+  GLADE_HOOKUP_OBJECT_NO_REF (geometry_dialog, geometry_dialog, "geometry_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (geometry_dialog, dialog_vbox39, "dialog_vbox39");
   GLADE_HOOKUP_OBJECT (geometry_dialog, vbox102, "vbox102");
   GLADE_HOOKUP_OBJECT (geometry_dialog, geometry_distance_togglebutton, "geometry_distance_togglebutton");
   GLADE_HOOKUP_OBJECT (geometry_dialog, geometry_angle_togglebutton, "geometry_angle_togglebutton");
@@ -14613,9 +14593,9 @@ create_geometry_dialog (void)
   GLADE_HOOKUP_OBJECT (geometry_dialog, geometry_clear_last_distance_button, "geometry_clear_last_distance_button");
   GLADE_HOOKUP_OBJECT (geometry_dialog, geometry_clear_all_distances_button, "geometry_clear_all_distances_button");
   GLADE_HOOKUP_OBJECT (geometry_dialog, geometry_clear_atom_labels_button, "geometry_clear_atom_labels_button");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(geometry_dialog, dialog_action_area39, "dialog_action_area39");
+  GLADE_HOOKUP_OBJECT_NO_REF (geometry_dialog, dialog_action_area39, "dialog_action_area39");
   GLADE_HOOKUP_OBJECT (geometry_dialog, geometry_dialog_close_button, "geometry_dialog_close_button");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(geometry_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   return geometry_dialog;
 }
@@ -14667,12 +14647,12 @@ create_new_ligands_info_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(new_ligands_info_dialog, new_ligands_info_dialog, "new_ligands_info_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(new_ligands_info_dialog, dialog_vbox40, "dialog_vbox40");
+  GLADE_HOOKUP_OBJECT_NO_REF (new_ligands_info_dialog, new_ligands_info_dialog, "new_ligands_info_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (new_ligands_info_dialog, dialog_vbox40, "dialog_vbox40");
   GLADE_HOOKUP_OBJECT (new_ligands_info_dialog, vbox103, "vbox103");
   GLADE_HOOKUP_OBJECT (new_ligands_info_dialog, new_ligands_info_dialog_label, "new_ligands_info_dialog_label");
   GLADE_HOOKUP_OBJECT (new_ligands_info_dialog, label148, "label148");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(new_ligands_info_dialog, dialog_action_area40, "dialog_action_area40");
+  GLADE_HOOKUP_OBJECT_NO_REF (new_ligands_info_dialog, dialog_action_area40, "dialog_action_area40");
   GLADE_HOOKUP_OBJECT (new_ligands_info_dialog, new_ligands_info_dialog_ok_button, "new_ligands_info_dialog_ok_button");
 
   gtk_widget_grab_default (new_ligands_info_dialog_ok_button);
@@ -14715,10 +14695,10 @@ create_no_new_ligands_info_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_new_ligands_info_dialog, no_new_ligands_info_dialog, "no_new_ligands_info_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_new_ligands_info_dialog, dialog_vbox41, "dialog_vbox41");
+  GLADE_HOOKUP_OBJECT_NO_REF (no_new_ligands_info_dialog, no_new_ligands_info_dialog, "no_new_ligands_info_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (no_new_ligands_info_dialog, dialog_vbox41, "dialog_vbox41");
   GLADE_HOOKUP_OBJECT (no_new_ligands_info_dialog, label149, "label149");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_new_ligands_info_dialog, dialog_action_area41, "dialog_action_area41");
+  GLADE_HOOKUP_OBJECT_NO_REF (no_new_ligands_info_dialog, dialog_action_area41, "dialog_action_area41");
   GLADE_HOOKUP_OBJECT (no_new_ligands_info_dialog, no_new_ligands_info_dialog_ok_button, "no_new_ligands_info_dialog_ok_button");
 
   gtk_widget_grab_default (no_new_ligands_info_dialog_ok_button);
@@ -14780,14 +14760,14 @@ create_zoom_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(zoom_dialog, zoom_dialog, "zoom_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(zoom_dialog, dialog_vbox42, "dialog_vbox42");
+  GLADE_HOOKUP_OBJECT_NO_REF (zoom_dialog, zoom_dialog, "zoom_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (zoom_dialog, dialog_vbox42, "dialog_vbox42");
   GLADE_HOOKUP_OBJECT (zoom_dialog, vbox104, "vbox104");
   GLADE_HOOKUP_OBJECT (zoom_dialog, label150, "label150");
   GLADE_HOOKUP_OBJECT (zoom_dialog, frame86, "frame86");
   GLADE_HOOKUP_OBJECT (zoom_dialog, zoom_hscale, "zoom_hscale");
   GLADE_HOOKUP_OBJECT (zoom_dialog, label303, "label303");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(zoom_dialog, dialog_action_area42, "dialog_action_area42");
+  GLADE_HOOKUP_OBJECT_NO_REF (zoom_dialog, dialog_action_area42, "dialog_action_area42");
   GLADE_HOOKUP_OBJECT (zoom_dialog, zoom_dialog_ok_button, "zoom_dialog_ok_button");
 
   return zoom_dialog;
@@ -14913,8 +14893,8 @@ create_libcheck_monomer_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(libcheck_monomer_dialog, libcheck_monomer_dialog, "libcheck_monomer_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(libcheck_monomer_dialog, dialog_vbox43, "dialog_vbox43");
+  GLADE_HOOKUP_OBJECT_NO_REF (libcheck_monomer_dialog, libcheck_monomer_dialog, "libcheck_monomer_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (libcheck_monomer_dialog, dialog_vbox43, "dialog_vbox43");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, vbox105, "vbox105");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, no_libcheck_frame, "no_libcheck_frame");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, alignment132, "alignment132");
@@ -14928,7 +14908,7 @@ create_libcheck_monomer_dialog (void)
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, alignment160, "alignment160");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, label785, "label785");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, label784, "label784");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(libcheck_monomer_dialog, dialog_action_area43, "dialog_action_area43");
+  GLADE_HOOKUP_OBJECT_NO_REF (libcheck_monomer_dialog, dialog_action_area43, "dialog_action_area43");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, hbox81, "hbox81");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, libcheck_monomer_ok_button, "libcheck_monomer_ok_button");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, libcheck_monomer_cancel_button, "libcheck_monomer_cancel_button");
@@ -15044,15 +15024,15 @@ create_recover_coordinates_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(recover_coordinates_dialog, recover_coordinates_dialog, "recover_coordinates_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(recover_coordinates_dialog, dialog_vbox44, "dialog_vbox44");
+  GLADE_HOOKUP_OBJECT_NO_REF (recover_coordinates_dialog, recover_coordinates_dialog, "recover_coordinates_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (recover_coordinates_dialog, dialog_vbox44, "dialog_vbox44");
   GLADE_HOOKUP_OBJECT (recover_coordinates_dialog, frame88, "frame88");
   GLADE_HOOKUP_OBJECT (recover_coordinates_dialog, vbox107, "vbox107");
   GLADE_HOOKUP_OBJECT (recover_coordinates_dialog, label153, "label153");
   GLADE_HOOKUP_OBJECT (recover_coordinates_dialog, recover_coordinates_read_coords_label, "recover_coordinates_read_coords_label");
   GLADE_HOOKUP_OBJECT (recover_coordinates_dialog, label154, "label154");
   GLADE_HOOKUP_OBJECT (recover_coordinates_dialog, recover_coordinates_backup_coordinates_label, "recover_coordinates_backup_coordinates_label");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(recover_coordinates_dialog, dialog_action_area44, "dialog_action_area44");
+  GLADE_HOOKUP_OBJECT_NO_REF (recover_coordinates_dialog, dialog_action_area44, "dialog_action_area44");
   GLADE_HOOKUP_OBJECT (recover_coordinates_dialog, hbox82, "hbox82");
   GLADE_HOOKUP_OBJECT (recover_coordinates_dialog, recover_coordinates_ok_button, "recover_coordinates_ok_button");
   GLADE_HOOKUP_OBJECT (recover_coordinates_dialog, alignment72, "alignment72");
@@ -15154,15 +15134,15 @@ create_centre_atom_label_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(centre_atom_label_dialog, centre_atom_label_dialog, "centre_atom_label_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(centre_atom_label_dialog, dialog_vbox45, "dialog_vbox45");
+  GLADE_HOOKUP_OBJECT_NO_REF (centre_atom_label_dialog, centre_atom_label_dialog, "centre_atom_label_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (centre_atom_label_dialog, dialog_vbox45, "dialog_vbox45");
   GLADE_HOOKUP_OBJECT (centre_atom_label_dialog, frame89, "frame89");
   GLADE_HOOKUP_OBJECT (centre_atom_label_dialog, vbox108, "vbox108");
   GLADE_HOOKUP_OBJECT (centre_atom_label_dialog, label155, "label155");
   GLADE_HOOKUP_OBJECT (centre_atom_label_dialog, centre_atom_label_radiobutton_on, "centre_atom_label_radiobutton_on");
   GLADE_HOOKUP_OBJECT (centre_atom_label_dialog, centre_atom_label_radiobutton_off, "centre_atom_label_radiobutton_off");
   GLADE_HOOKUP_OBJECT (centre_atom_label_dialog, label166, "label166");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(centre_atom_label_dialog, dialog_action_area45, "dialog_action_area45");
+  GLADE_HOOKUP_OBJECT_NO_REF (centre_atom_label_dialog, dialog_action_area45, "dialog_action_area45");
   GLADE_HOOKUP_OBJECT (centre_atom_label_dialog, centre_atom_label_ok_button, "centre_atom_label_ok_button");
   GLADE_HOOKUP_OBJECT (centre_atom_label_dialog, alignment73, "alignment73");
   GLADE_HOOKUP_OBJECT (centre_atom_label_dialog, hbox240, "hbox240");
@@ -15236,11 +15216,11 @@ create_chi_angle_help_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(chi_angle_help_dialog, chi_angle_help_dialog, "chi_angle_help_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(chi_angle_help_dialog, dialog_vbox46, "dialog_vbox46");
+  GLADE_HOOKUP_OBJECT_NO_REF (chi_angle_help_dialog, chi_angle_help_dialog, "chi_angle_help_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (chi_angle_help_dialog, dialog_vbox46, "dialog_vbox46");
   GLADE_HOOKUP_OBJECT (chi_angle_help_dialog, frame96, "frame96");
   GLADE_HOOKUP_OBJECT (chi_angle_help_dialog, label156, "label156");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(chi_angle_help_dialog, dialog_action_area46, "dialog_action_area46");
+  GLADE_HOOKUP_OBJECT_NO_REF (chi_angle_help_dialog, dialog_action_area46, "dialog_action_area46");
   GLADE_HOOKUP_OBJECT (chi_angle_help_dialog, help_chi_angles_dismiss_button, "help_chi_angles_dismiss_button");
   GLADE_HOOKUP_OBJECT (chi_angle_help_dialog, alignment74, "alignment74");
   GLADE_HOOKUP_OBJECT (chi_angle_help_dialog, hbox241, "hbox241");
@@ -15306,10 +15286,10 @@ create_no_symmetry_warning_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_symmetry_warning_dialog, no_symmetry_warning_dialog, "no_symmetry_warning_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_symmetry_warning_dialog, dialog_vbox47, "dialog_vbox47");
+  GLADE_HOOKUP_OBJECT_NO_REF (no_symmetry_warning_dialog, no_symmetry_warning_dialog, "no_symmetry_warning_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (no_symmetry_warning_dialog, dialog_vbox47, "dialog_vbox47");
   GLADE_HOOKUP_OBJECT (no_symmetry_warning_dialog, label157, "label157");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_symmetry_warning_dialog, dialog_action_area47, "dialog_action_area47");
+  GLADE_HOOKUP_OBJECT_NO_REF (no_symmetry_warning_dialog, dialog_action_area47, "dialog_action_area47");
   GLADE_HOOKUP_OBJECT (no_symmetry_warning_dialog, no_symmetry_warning_ok_button, "no_symmetry_warning_ok_button");
   GLADE_HOOKUP_OBJECT (no_symmetry_warning_dialog, alignment75, "alignment75");
   GLADE_HOOKUP_OBJECT (no_symmetry_warning_dialog, hbox242, "hbox242");
@@ -15363,11 +15343,11 @@ create_nothing_to_recover_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nothing_to_recover_dialog, nothing_to_recover_dialog, "nothing_to_recover_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nothing_to_recover_dialog, dialog_vbox48, "dialog_vbox48");
+  GLADE_HOOKUP_OBJECT_NO_REF (nothing_to_recover_dialog, nothing_to_recover_dialog, "nothing_to_recover_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (nothing_to_recover_dialog, dialog_vbox48, "dialog_vbox48");
   GLADE_HOOKUP_OBJECT (nothing_to_recover_dialog, frame97, "frame97");
   GLADE_HOOKUP_OBJECT (nothing_to_recover_dialog, label158, "label158");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nothing_to_recover_dialog, dialog_action_area48, "dialog_action_area48");
+  GLADE_HOOKUP_OBJECT_NO_REF (nothing_to_recover_dialog, dialog_action_area48, "dialog_action_area48");
   GLADE_HOOKUP_OBJECT (nothing_to_recover_dialog, nothing_to_recover_ok_button, "nothing_to_recover_ok_button");
 
   gtk_widget_grab_focus (nothing_to_recover_ok_button);
@@ -15532,8 +15512,8 @@ create_superpose_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(superpose_dialog, superpose_dialog, "superpose_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(superpose_dialog, dialog_vbox49, "dialog_vbox49");
+  GLADE_HOOKUP_OBJECT_NO_REF (superpose_dialog, superpose_dialog, "superpose_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (superpose_dialog, dialog_vbox49, "dialog_vbox49");
   GLADE_HOOKUP_OBJECT (superpose_dialog, vbox109, "vbox109");
   GLADE_HOOKUP_OBJECT (superpose_dialog, label159, "label159");
   GLADE_HOOKUP_OBJECT (superpose_dialog, frame98, "frame98");
@@ -15554,7 +15534,7 @@ create_superpose_dialog (void)
   GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_dialog_moving_chain_combobox, "superpose_dialog_moving_chain_combobox");
   GLADE_HOOKUP_OBJECT (superpose_dialog, label305, "label305");
   GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_dialog_move_copy_checkbutton, "superpose_dialog_move_copy_checkbutton");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(superpose_dialog, dialog_action_area49, "dialog_action_area49");
+  GLADE_HOOKUP_OBJECT_NO_REF (superpose_dialog, dialog_action_area49, "dialog_action_area49");
   GLADE_HOOKUP_OBJECT (superpose_dialog, hbox83, "hbox83");
   GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_dialog_superpose_button, "superpose_dialog_superpose_button");
   GLADE_HOOKUP_OBJECT (superpose_dialog, superpose_dialog_cancel_button, "superpose_dialog_cancel_button");
@@ -15618,11 +15598,11 @@ create_superpose_nonsense_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(superpose_nonsense_dialog, superpose_nonsense_dialog, "superpose_nonsense_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(superpose_nonsense_dialog, dialog_vbox50, "dialog_vbox50");
+  GLADE_HOOKUP_OBJECT_NO_REF (superpose_nonsense_dialog, superpose_nonsense_dialog, "superpose_nonsense_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (superpose_nonsense_dialog, dialog_vbox50, "dialog_vbox50");
   GLADE_HOOKUP_OBJECT (superpose_nonsense_dialog, frame100, "frame100");
   GLADE_HOOKUP_OBJECT (superpose_nonsense_dialog, label161, "label161");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(superpose_nonsense_dialog, dialog_action_area50, "dialog_action_area50");
+  GLADE_HOOKUP_OBJECT_NO_REF (superpose_nonsense_dialog, dialog_action_area50, "dialog_action_area50");
   GLADE_HOOKUP_OBJECT (superpose_nonsense_dialog, hbox149, "hbox149");
   GLADE_HOOKUP_OBJECT (superpose_nonsense_dialog, superpose_nonsense_ok_button, "superpose_nonsense_ok_button");
   GLADE_HOOKUP_OBJECT (superpose_nonsense_dialog, superpose_nonsense_cancel_button, "superpose_nonsense_cancel_button");
@@ -15673,11 +15653,11 @@ create_add_terminal_residue_finds_none_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_terminal_residue_finds_none_dialog, add_terminal_residue_finds_none_dialog, "add_terminal_residue_finds_none_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_terminal_residue_finds_none_dialog, dialog_vbox51, "dialog_vbox51");
+  GLADE_HOOKUP_OBJECT_NO_REF (add_terminal_residue_finds_none_dialog, add_terminal_residue_finds_none_dialog, "add_terminal_residue_finds_none_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (add_terminal_residue_finds_none_dialog, dialog_vbox51, "dialog_vbox51");
   GLADE_HOOKUP_OBJECT (add_terminal_residue_finds_none_dialog, frame101, "frame101");
   GLADE_HOOKUP_OBJECT (add_terminal_residue_finds_none_dialog, label162, "label162");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_terminal_residue_finds_none_dialog, dialog_action_area51, "dialog_action_area51");
+  GLADE_HOOKUP_OBJECT_NO_REF (add_terminal_residue_finds_none_dialog, dialog_action_area51, "dialog_action_area51");
   GLADE_HOOKUP_OBJECT (add_terminal_residue_finds_none_dialog, add_terminal_residue_finds_none_ok_button, "add_terminal_residue_finds_none_ok_button");
 
   return add_terminal_residue_finds_none_dialog;
@@ -15725,11 +15705,11 @@ create_no_bad_chiral_volumes_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_bad_chiral_volumes_dialog, no_bad_chiral_volumes_dialog, "no_bad_chiral_volumes_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_bad_chiral_volumes_dialog, dialog_vbox52, "dialog_vbox52");
+  GLADE_HOOKUP_OBJECT_NO_REF (no_bad_chiral_volumes_dialog, no_bad_chiral_volumes_dialog, "no_bad_chiral_volumes_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (no_bad_chiral_volumes_dialog, dialog_vbox52, "dialog_vbox52");
   GLADE_HOOKUP_OBJECT (no_bad_chiral_volumes_dialog, frame105, "frame105");
   GLADE_HOOKUP_OBJECT (no_bad_chiral_volumes_dialog, label170, "label170");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(no_bad_chiral_volumes_dialog, dialog_action_area52, "dialog_action_area52");
+  GLADE_HOOKUP_OBJECT_NO_REF (no_bad_chiral_volumes_dialog, dialog_action_area52, "dialog_action_area52");
   GLADE_HOOKUP_OBJECT (no_bad_chiral_volumes_dialog, no_bad_chiral_volumes_dialog_ok_button, "no_bad_chiral_volumes_dialog_ok_button");
 
   return no_bad_chiral_volumes_dialog;
@@ -15803,13 +15783,13 @@ create_check_chiral_volumes_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(check_chiral_volumes_dialog, check_chiral_volumes_dialog, "check_chiral_volumes_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(check_chiral_volumes_dialog, dialog_vbox53, "dialog_vbox53");
+  GLADE_HOOKUP_OBJECT_NO_REF (check_chiral_volumes_dialog, check_chiral_volumes_dialog, "check_chiral_volumes_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (check_chiral_volumes_dialog, dialog_vbox53, "dialog_vbox53");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, frame106, "frame106");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, vbox111, "vbox111");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, label171, "label171");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, check_chiral_volumes_molecule_combobox, "check_chiral_volumes_molecule_combobox");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(check_chiral_volumes_dialog, dialog_action_area53, "dialog_action_area53");
+  GLADE_HOOKUP_OBJECT_NO_REF (check_chiral_volumes_dialog, dialog_action_area53, "dialog_action_area53");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, hbox85, "hbox85");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, check_chiral_volumes_ok_button, "check_chiral_volumes_ok_button");
   GLADE_HOOKUP_OBJECT (check_chiral_volumes_dialog, check_chiral_volumes_cancel_button, "check_chiral_volumes_cancel_button");
@@ -15884,12 +15864,12 @@ create_bad_chiral_volumes_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(bad_chiral_volumes_dialog, bad_chiral_volumes_dialog, "bad_chiral_volumes_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(bad_chiral_volumes_dialog, dialog_vbox54, "dialog_vbox54");
+  GLADE_HOOKUP_OBJECT_NO_REF (bad_chiral_volumes_dialog, bad_chiral_volumes_dialog, "bad_chiral_volumes_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (bad_chiral_volumes_dialog, dialog_vbox54, "dialog_vbox54");
   GLADE_HOOKUP_OBJECT (bad_chiral_volumes_dialog, scrolledwindow10, "scrolledwindow10");
   GLADE_HOOKUP_OBJECT (bad_chiral_volumes_dialog, viewport6, "viewport6");
   GLADE_HOOKUP_OBJECT (bad_chiral_volumes_dialog, chiral_volume_baddies_vbox, "chiral_volume_baddies_vbox");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(bad_chiral_volumes_dialog, dialog_action_area54, "dialog_action_area54");
+  GLADE_HOOKUP_OBJECT_NO_REF (bad_chiral_volumes_dialog, dialog_action_area54, "dialog_action_area54");
   GLADE_HOOKUP_OBJECT (bad_chiral_volumes_dialog, chiral_volume_baddies_dialog_cancel_button, "chiral_volume_baddies_dialog_cancel_button");
   GLADE_HOOKUP_OBJECT (bad_chiral_volumes_dialog, alignment76, "alignment76");
   GLADE_HOOKUP_OBJECT (bad_chiral_volumes_dialog, hbox243, "hbox243");
@@ -15942,11 +15922,11 @@ create_rigid_body_refinement_failed_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(rigid_body_refinement_failed_dialog, rigid_body_refinement_failed_dialog, "rigid_body_refinement_failed_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(rigid_body_refinement_failed_dialog, dialog_vbox55, "dialog_vbox55");
+  GLADE_HOOKUP_OBJECT_NO_REF (rigid_body_refinement_failed_dialog, rigid_body_refinement_failed_dialog, "rigid_body_refinement_failed_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (rigid_body_refinement_failed_dialog, dialog_vbox55, "dialog_vbox55");
   GLADE_HOOKUP_OBJECT (rigid_body_refinement_failed_dialog, frame107, "frame107");
   GLADE_HOOKUP_OBJECT (rigid_body_refinement_failed_dialog, label172, "label172");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(rigid_body_refinement_failed_dialog, dialog_action_area55, "dialog_action_area55");
+  GLADE_HOOKUP_OBJECT_NO_REF (rigid_body_refinement_failed_dialog, dialog_action_area55, "dialog_action_area55");
   GLADE_HOOKUP_OBJECT (rigid_body_refinement_failed_dialog, rigid_body_refinement_failed_dialog_ok_button, "rigid_body_refinement_failed_dialog_ok_button");
 
   return rigid_body_refinement_failed_dialog;
@@ -16004,10 +15984,10 @@ create_baton_mode_make_skeleton_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_mode_make_skeleton_dialog, baton_mode_make_skeleton_dialog, "baton_mode_make_skeleton_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_mode_make_skeleton_dialog, dialog_vbox56, "dialog_vbox56");
+  GLADE_HOOKUP_OBJECT_NO_REF (baton_mode_make_skeleton_dialog, baton_mode_make_skeleton_dialog, "baton_mode_make_skeleton_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (baton_mode_make_skeleton_dialog, dialog_vbox56, "dialog_vbox56");
   GLADE_HOOKUP_OBJECT (baton_mode_make_skeleton_dialog, label173, "label173");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_mode_make_skeleton_dialog, dialog_action_area56, "dialog_action_area56");
+  GLADE_HOOKUP_OBJECT_NO_REF (baton_mode_make_skeleton_dialog, dialog_action_area56, "dialog_action_area56");
   GLADE_HOOKUP_OBJECT (baton_mode_make_skeleton_dialog, hbox86, "hbox86");
   GLADE_HOOKUP_OBJECT (baton_mode_make_skeleton_dialog, baton_mode_calculate_skeleton_ok_button, "baton_mode_calculate_skeleton_ok_button");
   GLADE_HOOKUP_OBJECT (baton_mode_make_skeleton_dialog, baton_mode_calculate_skeleton_cancel_button, "baton_mode_calculate_skeleton_cancel_button");
@@ -16149,8 +16129,8 @@ create_merge_molecules_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(merge_molecules_dialog, merge_molecules_dialog, "merge_molecules_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(merge_molecules_dialog, dialog_vbox57, "dialog_vbox57");
+  GLADE_HOOKUP_OBJECT_NO_REF (merge_molecules_dialog, merge_molecules_dialog, "merge_molecules_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (merge_molecules_dialog, dialog_vbox57, "dialog_vbox57");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, frame109, "frame109");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, vbox114, "vbox114");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, label178, "label178");
@@ -16160,7 +16140,7 @@ create_merge_molecules_dialog (void)
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, label179, "label179");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, merge_molecules_combobox, "merge_molecules_combobox");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, label180, "label180");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(merge_molecules_dialog, dialog_action_area57, "dialog_action_area57");
+  GLADE_HOOKUP_OBJECT_NO_REF (merge_molecules_dialog, dialog_action_area57, "dialog_action_area57");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, hbox89, "hbox89");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, merge_molecules_ok_button, "merge_molecules_ok_button");
   GLADE_HOOKUP_OBJECT (merge_molecules_dialog, alignment77, "alignment77");
@@ -16472,8 +16452,8 @@ create_mutate_sequence_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(mutate_sequence_dialog, mutate_sequence_dialog, "mutate_sequence_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(mutate_sequence_dialog, dialog_vbox58, "dialog_vbox58");
+  GLADE_HOOKUP_OBJECT_NO_REF (mutate_sequence_dialog, mutate_sequence_dialog, "mutate_sequence_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (mutate_sequence_dialog, dialog_vbox58, "dialog_vbox58");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, frame110, "frame110");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, vbox116, "vbox116");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, function_for_molecule_label, "function_for_molecule_label");
@@ -16502,7 +16482,7 @@ create_mutate_sequence_dialog (void)
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, label187, "label187");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_sequence_do_autofit_checkbutton, "mutate_sequence_do_autofit_checkbutton");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_sequence_use_ramachandran_restraints_checkbutton, "mutate_sequence_use_ramachandran_restraints_checkbutton");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(mutate_sequence_dialog, dialog_action_area58, "dialog_action_area58");
+  GLADE_HOOKUP_OBJECT_NO_REF (mutate_sequence_dialog, dialog_action_area58, "dialog_action_area58");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, hbox92, "hbox92");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_sequence_ok_button, "mutate_sequence_ok_button");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, alignment79, "alignment79");
@@ -16767,8 +16747,8 @@ create_bond_parameters_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(bond_parameters_dialog, bond_parameters_dialog, "bond_parameters_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(bond_parameters_dialog, dialog_vbox59, "dialog_vbox59");
+  GLADE_HOOKUP_OBJECT_NO_REF (bond_parameters_dialog, bond_parameters_dialog, "bond_parameters_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (bond_parameters_dialog, dialog_vbox59, "dialog_vbox59");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, vbox117, "vbox117");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, hbox93, "hbox93");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, label189, "label189");
@@ -16789,7 +16769,7 @@ create_bond_parameters_dialog (void)
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, draw_ncs_ghosts_yes_radiobutton, "draw_ncs_ghosts_yes_radiobutton");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, draw_ncs_ghosts_no_radiobutton, "draw_ncs_ghosts_no_radiobutton");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, label309, "label309");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(bond_parameters_dialog, dialog_action_area59, "dialog_action_area59");
+  GLADE_HOOKUP_OBJECT_NO_REF (bond_parameters_dialog, dialog_action_area59, "dialog_action_area59");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, hbox105, "hbox105");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, bond_parameters_apply_button, "bond_parameters_apply_button");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, alignment82, "alignment82");
@@ -16806,7 +16786,7 @@ create_bond_parameters_dialog (void)
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, hbox251, "hbox251");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, image6000, "image6000");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, label420, "label420");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(bond_parameters_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   return bond_parameters_dialog;
 }
@@ -17034,8 +17014,8 @@ create_renumber_residue_range_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(renumber_residue_range_dialog, renumber_residue_range_dialog, "renumber_residue_range_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(renumber_residue_range_dialog, dialog_vbox60, "dialog_vbox60");
+  GLADE_HOOKUP_OBJECT_NO_REF (renumber_residue_range_dialog, renumber_residue_range_dialog, "renumber_residue_range_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (renumber_residue_range_dialog, dialog_vbox60, "dialog_vbox60");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, frame113, "frame113");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, vbox120, "vbox120");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, label192, "label192");
@@ -17065,11 +17045,11 @@ create_renumber_residue_range_dialog (void)
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, hbox97, "hbox97");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, label197, "label197");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_offset_entry, "renumber_residue_range_offset_entry");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(renumber_residue_range_dialog, dialog_action_area60, "dialog_action_area60");
+  GLADE_HOOKUP_OBJECT_NO_REF (renumber_residue_range_dialog, dialog_action_area60, "dialog_action_area60");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, hbox98, "hbox98");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_ok_button, "renumber_residue_range_ok_button");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_cancel_button, "renumber_residue_range_cancel_button");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(renumber_residue_range_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   return renumber_residue_range_dialog;
 }
@@ -17252,8 +17232,8 @@ create_add_OXT_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_OXT_dialog, add_OXT_dialog, "add_OXT_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_OXT_dialog, dialog_vbox61, "dialog_vbox61");
+  GLADE_HOOKUP_OBJECT_NO_REF (add_OXT_dialog, add_OXT_dialog, "add_OXT_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (add_OXT_dialog, dialog_vbox61, "dialog_vbox61");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, frame114, "frame114");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, vbox121, "vbox121");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, label198, "label198");
@@ -17270,7 +17250,7 @@ create_add_OXT_dialog (void)
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, add_OXT_residue_hbox, "add_OXT_residue_hbox");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, add_OXT_residue_radiobutton, "add_OXT_residue_radiobutton");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, add_OXT_residue_entry, "add_OXT_residue_entry");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_OXT_dialog, dialog_action_area61, "dialog_action_area61");
+  GLADE_HOOKUP_OBJECT_NO_REF (add_OXT_dialog, dialog_action_area61, "dialog_action_area61");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, hbox99, "hbox99");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, add_OXT_ok_button, "add_OXT_ok_button");
   GLADE_HOOKUP_OBJECT (add_OXT_dialog, alignment85, "alignment85");
@@ -17351,11 +17331,11 @@ create_ligand_no_blobs_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ligand_no_blobs_dialog, ligand_no_blobs_dialog, "ligand_no_blobs_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ligand_no_blobs_dialog, dialog_vbox62, "dialog_vbox62");
+  GLADE_HOOKUP_OBJECT_NO_REF (ligand_no_blobs_dialog, ligand_no_blobs_dialog, "ligand_no_blobs_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (ligand_no_blobs_dialog, dialog_vbox62, "dialog_vbox62");
   GLADE_HOOKUP_OBJECT (ligand_no_blobs_dialog, frame117, "frame117");
   GLADE_HOOKUP_OBJECT (ligand_no_blobs_dialog, label203, "label203");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ligand_no_blobs_dialog, dialog_action_area62, "dialog_action_area62");
+  GLADE_HOOKUP_OBJECT_NO_REF (ligand_no_blobs_dialog, dialog_action_area62, "dialog_action_area62");
   GLADE_HOOKUP_OBJECT (ligand_no_blobs_dialog, hbox106, "hbox106");
   GLADE_HOOKUP_OBJECT (ligand_no_blobs_dialog, ligand_no_blobs_OK_button, "ligand_no_blobs_OK_button");
   GLADE_HOOKUP_OBJECT (ligand_no_blobs_dialog, alignment87, "alignment87");
@@ -17477,8 +17457,8 @@ create_new_close_molecules_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(new_close_molecules_dialog, new_close_molecules_dialog, "new_close_molecules_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(new_close_molecules_dialog, dialog_vbox67, "dialog_vbox67");
+  GLADE_HOOKUP_OBJECT_NO_REF (new_close_molecules_dialog, new_close_molecules_dialog, "new_close_molecules_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (new_close_molecules_dialog, dialog_vbox67, "dialog_vbox67");
   GLADE_HOOKUP_OBJECT (new_close_molecules_dialog, frame121, "frame121");
   GLADE_HOOKUP_OBJECT (new_close_molecules_dialog, vbox126, "vbox126");
   GLADE_HOOKUP_OBJECT (new_close_molecules_dialog, hbox107, "hbox107");
@@ -17487,7 +17467,7 @@ create_new_close_molecules_dialog (void)
   GLADE_HOOKUP_OBJECT (new_close_molecules_dialog, scrolledwindow16, "scrolledwindow16");
   GLADE_HOOKUP_OBJECT (new_close_molecules_dialog, viewport9, "viewport9");
   GLADE_HOOKUP_OBJECT (new_close_molecules_dialog, new_delete_molecules_vbox, "new_delete_molecules_vbox");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(new_close_molecules_dialog, dialog_action_area67, "dialog_action_area67");
+  GLADE_HOOKUP_OBJECT_NO_REF (new_close_molecules_dialog, dialog_action_area67, "dialog_action_area67");
   GLADE_HOOKUP_OBJECT (new_close_molecules_dialog, hbox108, "hbox108");
   GLADE_HOOKUP_OBJECT (new_close_molecules_dialog, new_delete_molecules_ok_button, "new_delete_molecules_ok_button");
   GLADE_HOOKUP_OBJECT (new_close_molecules_dialog, alignment88, "alignment88");
@@ -17647,8 +17627,8 @@ create_unmodelled_blobs_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(unmodelled_blobs_dialog, unmodelled_blobs_dialog, "unmodelled_blobs_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(unmodelled_blobs_dialog, dialog_vbox68, "dialog_vbox68");
+  GLADE_HOOKUP_OBJECT_NO_REF (unmodelled_blobs_dialog, unmodelled_blobs_dialog, "unmodelled_blobs_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (unmodelled_blobs_dialog, dialog_vbox68, "dialog_vbox68");
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, vbox127, "vbox127");
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, vbox128, "vbox128");
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, frame122, "frame122");
@@ -17663,7 +17643,7 @@ create_unmodelled_blobs_dialog (void)
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, hbox111, "hbox111");
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, find_blobs_peak_level_entry, "find_blobs_peak_level_entry");
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, label214, "label214");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(unmodelled_blobs_dialog, hbox109, "hbox109");
+  GLADE_HOOKUP_OBJECT_NO_REF (unmodelled_blobs_dialog, hbox109, "hbox109");
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, hbox110, "hbox110");
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, find_blobs_ok_button, "find_blobs_ok_button");
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, alignment89, "alignment89");
@@ -17671,7 +17651,7 @@ create_unmodelled_blobs_dialog (void)
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, image6005, "image6005");
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, label425, "label425");
   GLADE_HOOKUP_OBJECT (unmodelled_blobs_dialog, find_blobs_cancel_button, "find_blobs_cancel_button");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(unmodelled_blobs_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   gtk_widget_grab_focus (find_blobs_ok_button);
   gtk_widget_grab_default (find_blobs_ok_button);
@@ -17717,11 +17697,11 @@ create_chiral_restraints_problem_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(chiral_restraints_problem_dialog, chiral_restraints_problem_dialog, "chiral_restraints_problem_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(chiral_restraints_problem_dialog, dialog_vbox69, "dialog_vbox69");
+  GLADE_HOOKUP_OBJECT_NO_REF (chiral_restraints_problem_dialog, chiral_restraints_problem_dialog, "chiral_restraints_problem_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (chiral_restraints_problem_dialog, dialog_vbox69, "dialog_vbox69");
   GLADE_HOOKUP_OBJECT (chiral_restraints_problem_dialog, frame125, "frame125");
   GLADE_HOOKUP_OBJECT (chiral_restraints_problem_dialog, chiral_volume_restraints_problem_label, "chiral_volume_restraints_problem_label");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(chiral_restraints_problem_dialog, dialog_action_area68, "dialog_action_area68");
+  GLADE_HOOKUP_OBJECT_NO_REF (chiral_restraints_problem_dialog, dialog_action_area68, "dialog_action_area68");
   GLADE_HOOKUP_OBJECT (chiral_restraints_problem_dialog, chiral_restraints_problem_ok_button, "chiral_restraints_problem_ok_button");
 
   return chiral_restraints_problem_dialog;
@@ -17878,8 +17858,8 @@ create_check_waters_diff_map_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(check_waters_diff_map_dialog, check_waters_diff_map_dialog, "check_waters_diff_map_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(check_waters_diff_map_dialog, dialog_vbox70, "dialog_vbox70");
+  GLADE_HOOKUP_OBJECT_NO_REF (check_waters_diff_map_dialog, check_waters_diff_map_dialog, "check_waters_diff_map_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (check_waters_diff_map_dialog, dialog_vbox70, "dialog_vbox70");
   GLADE_HOOKUP_OBJECT (check_waters_diff_map_dialog, vbox132, "vbox132");
   GLADE_HOOKUP_OBJECT (check_waters_diff_map_dialog, vbox133, "vbox133");
   GLADE_HOOKUP_OBJECT (check_waters_diff_map_dialog, frame126, "frame126");
@@ -17892,7 +17872,7 @@ create_check_waters_diff_map_dialog (void)
   GLADE_HOOKUP_OBJECT (check_waters_diff_map_dialog, label217, "label217");
   GLADE_HOOKUP_OBJECT (check_waters_diff_map_dialog, no_models_with_waters_frame, "no_models_with_waters_frame");
   GLADE_HOOKUP_OBJECT (check_waters_diff_map_dialog, label221, "label221");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(check_waters_diff_map_dialog, dialog_action_area69, "dialog_action_area69");
+  GLADE_HOOKUP_OBJECT_NO_REF (check_waters_diff_map_dialog, dialog_action_area69, "dialog_action_area69");
   GLADE_HOOKUP_OBJECT (check_waters_diff_map_dialog, hbox112, "hbox112");
   GLADE_HOOKUP_OBJECT (check_waters_diff_map_dialog, check_waters_diff_map_ok_button, "check_waters_diff_map_ok_button");
   GLADE_HOOKUP_OBJECT (check_waters_diff_map_dialog, alignment90, "alignment90");
@@ -17976,12 +17956,12 @@ create_interesting_waters_by_difference_map_check_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(interesting_waters_by_difference_map_check_dialog, interesting_waters_by_difference_map_check_dialog, "interesting_waters_by_difference_map_check_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(interesting_waters_by_difference_map_check_dialog, dialog_vbox71, "dialog_vbox71");
+  GLADE_HOOKUP_OBJECT_NO_REF (interesting_waters_by_difference_map_check_dialog, interesting_waters_by_difference_map_check_dialog, "interesting_waters_by_difference_map_check_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (interesting_waters_by_difference_map_check_dialog, dialog_vbox71, "dialog_vbox71");
   GLADE_HOOKUP_OBJECT (interesting_waters_by_difference_map_check_dialog, scrolledwindow17, "scrolledwindow17");
   GLADE_HOOKUP_OBJECT (interesting_waters_by_difference_map_check_dialog, viewport10, "viewport10");
   GLADE_HOOKUP_OBJECT (interesting_waters_by_difference_map_check_dialog, interesting_waters_by_difference_map_check_vbox, "interesting_waters_by_difference_map_check_vbox");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(interesting_waters_by_difference_map_check_dialog, dialog_action_area70, "dialog_action_area70");
+  GLADE_HOOKUP_OBJECT_NO_REF (interesting_waters_by_difference_map_check_dialog, dialog_action_area70, "dialog_action_area70");
   GLADE_HOOKUP_OBJECT (interesting_waters_by_difference_map_check_dialog, interesting_waters_by_difference_map_check_ok_button, "interesting_waters_by_difference_map_check_ok_button");
   GLADE_HOOKUP_OBJECT (interesting_waters_by_difference_map_check_dialog, alignment102, "alignment102");
   GLADE_HOOKUP_OBJECT (interesting_waters_by_difference_map_check_dialog, hbox269, "hbox269");
@@ -18047,14 +18027,14 @@ create_nothing_bad_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nothing_bad_dialog, nothing_bad_dialog, "nothing_bad_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nothing_bad_dialog, dialog_vbox72, "dialog_vbox72");
+  GLADE_HOOKUP_OBJECT_NO_REF (nothing_bad_dialog, nothing_bad_dialog, "nothing_bad_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (nothing_bad_dialog, dialog_vbox72, "dialog_vbox72");
   GLADE_HOOKUP_OBJECT (nothing_bad_dialog, frame128, "frame128");
   GLADE_HOOKUP_OBJECT (nothing_bad_dialog, hbox443, "hbox443");
   GLADE_HOOKUP_OBJECT (nothing_bad_dialog, info_dialog_info_image, "info_dialog_info_image");
   GLADE_HOOKUP_OBJECT (nothing_bad_dialog, info_dialog_warning_image, "info_dialog_warning_image");
   GLADE_HOOKUP_OBJECT (nothing_bad_dialog, nothing_bad_label, "nothing_bad_label");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nothing_bad_dialog, dialog_action_area71, "dialog_action_area71");
+  GLADE_HOOKUP_OBJECT_NO_REF (nothing_bad_dialog, dialog_action_area71, "dialog_action_area71");
   GLADE_HOOKUP_OBJECT (nothing_bad_dialog, nothing_bad_ok_button, "nothing_bad_ok_button");
 
   gtk_widget_grab_focus (nothing_bad_ok_button);
@@ -18125,13 +18105,13 @@ create_skeletonize_map_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(skeletonize_map_dialog, skeletonize_map_dialog, "skeletonize_map_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(skeletonize_map_dialog, dialog_vbox73, "dialog_vbox73");
+  GLADE_HOOKUP_OBJECT_NO_REF (skeletonize_map_dialog, skeletonize_map_dialog, "skeletonize_map_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (skeletonize_map_dialog, dialog_vbox73, "dialog_vbox73");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, frame130, "frame130");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, vbox134, "vbox134");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, label218, "label218");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, skeletonize_map_combobox, "skeletonize_map_combobox");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(skeletonize_map_dialog, dialog_action_area72, "dialog_action_area72");
+  GLADE_HOOKUP_OBJECT_NO_REF (skeletonize_map_dialog, dialog_action_area72, "dialog_action_area72");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, hbox113, "hbox113");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, skeletonize_map_dialog_ok_button, "skeletonize_map_dialog_ok_button");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, skeletonize_map_dialog_cancel_button, "skeletonize_map_dialog_cancel_button");
@@ -18219,8 +18199,8 @@ create_antialiasing_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(antialiasing_dialog, antialiasing_dialog, "antialiasing_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(antialiasing_dialog, dialog_vbox74, "dialog_vbox74");
+  GLADE_HOOKUP_OBJECT_NO_REF (antialiasing_dialog, antialiasing_dialog, "antialiasing_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (antialiasing_dialog, dialog_vbox74, "dialog_vbox74");
   GLADE_HOOKUP_OBJECT (antialiasing_dialog, frame131, "frame131");
   GLADE_HOOKUP_OBJECT (antialiasing_dialog, vbox135, "vbox135");
   GLADE_HOOKUP_OBJECT (antialiasing_dialog, label219, "label219");
@@ -18228,7 +18208,7 @@ create_antialiasing_dialog (void)
   GLADE_HOOKUP_OBJECT (antialiasing_dialog, vbox136, "vbox136");
   GLADE_HOOKUP_OBJECT (antialiasing_dialog, antialias_dialog_yes_radiobutton, "antialias_dialog_yes_radiobutton");
   GLADE_HOOKUP_OBJECT (antialiasing_dialog, antialias_dialog_no_radiobutton, "antialias_dialog_no_radiobutton");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(antialiasing_dialog, dialog_action_area73, "dialog_action_area73");
+  GLADE_HOOKUP_OBJECT_NO_REF (antialiasing_dialog, dialog_action_area73, "dialog_action_area73");
   GLADE_HOOKUP_OBJECT (antialiasing_dialog, antialiasing_dialog_ok_button, "antialiasing_dialog_ok_button");
 
   gtk_widget_grab_focus (antialiasing_dialog_ok_button);
@@ -18310,13 +18290,13 @@ create_geometry_graphs_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(geometry_graphs_dialog, geometry_graphs_dialog, "geometry_graphs_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(geometry_graphs_dialog, dialog_vbox75, "dialog_vbox75");
+  GLADE_HOOKUP_OBJECT_NO_REF (geometry_graphs_dialog, geometry_graphs_dialog, "geometry_graphs_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (geometry_graphs_dialog, dialog_vbox75, "dialog_vbox75");
   GLADE_HOOKUP_OBJECT (geometry_graphs_dialog, vbox199, "vbox199");
   GLADE_HOOKUP_OBJECT (geometry_graphs_dialog, geometry_graphs_label, "geometry_graphs_label");
   GLADE_HOOKUP_OBJECT (geometry_graphs_dialog, geometry_graphs_scrolledwindow, "geometry_graphs_scrolledwindow");
   GLADE_HOOKUP_OBJECT (geometry_graphs_dialog, geometry_graphs_viewport, "geometry_graphs_viewport");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(geometry_graphs_dialog, dialog_action_area74, "dialog_action_area74");
+  GLADE_HOOKUP_OBJECT_NO_REF (geometry_graphs_dialog, dialog_action_area74, "dialog_action_area74");
   GLADE_HOOKUP_OBJECT (geometry_graphs_dialog, geometry_graphs_ok_button, "geometry_graphs_ok_button");
   GLADE_HOOKUP_OBJECT (geometry_graphs_dialog, alignment92, "alignment92");
   GLADE_HOOKUP_OBJECT (geometry_graphs_dialog, hbox259, "hbox259");
@@ -18437,8 +18417,8 @@ create_stereo_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(stereo_dialog, stereo_dialog, "stereo_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(stereo_dialog, dialog_vbox76, "dialog_vbox76");
+  GLADE_HOOKUP_OBJECT_NO_REF (stereo_dialog, stereo_dialog, "stereo_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (stereo_dialog, dialog_vbox76, "dialog_vbox76");
   GLADE_HOOKUP_OBJECT (stereo_dialog, frame133, "frame133");
   GLADE_HOOKUP_OBJECT (stereo_dialog, vbox137, "vbox137");
   GLADE_HOOKUP_OBJECT (stereo_dialog, label222, "label222");
@@ -18449,7 +18429,7 @@ create_stereo_dialog (void)
   GLADE_HOOKUP_OBJECT (stereo_dialog, stereo_dialog_side_by_side_stereo_crosseyed_radiobutton, "stereo_dialog_side_by_side_stereo_crosseyed_radiobutton");
   GLADE_HOOKUP_OBJECT (stereo_dialog, stereo_dialog_side_by_side_stereo_walleyed_radiobutton, "stereo_dialog_side_by_side_stereo_walleyed_radiobutton");
   GLADE_HOOKUP_OBJECT (stereo_dialog, stereo_dialog_zalman_stereo_radiobutton, "stereo_dialog_zalman_stereo_radiobutton");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(stereo_dialog, dialog_action_area75, "dialog_action_area75");
+  GLADE_HOOKUP_OBJECT_NO_REF (stereo_dialog, dialog_action_area75, "dialog_action_area75");
   GLADE_HOOKUP_OBJECT (stereo_dialog, stereo_dialog_ok_button, "stereo_dialog_ok_button");
 
   gtk_widget_grab_focus (stereo_dialog_ok_button);
@@ -20845,8 +20825,8 @@ create_preferences (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(preferences, preferences, "preferences");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(preferences, dialog_vbox77, "dialog_vbox77");
+  GLADE_HOOKUP_OBJECT_NO_REF (preferences, preferences, "preferences");
+  GLADE_HOOKUP_OBJECT_NO_REF (preferences, dialog_vbox77, "dialog_vbox77");
   GLADE_HOOKUP_OBJECT (preferences, hbox114, "hbox114");
   GLADE_HOOKUP_OBJECT (preferences, frame137, "frame137");
   GLADE_HOOKUP_OBJECT (preferences, preferences_toolbar, "preferences_toolbar");
@@ -21171,7 +21151,7 @@ create_preferences (void)
   GLADE_HOOKUP_OBJECT (preferences, preferences_spin_speed_entry, "preferences_spin_speed_entry");
   GLADE_HOOKUP_OBJECT (preferences, label573, "label573");
   GLADE_HOOKUP_OBJECT (preferences, label592, "label592");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(preferences, hbuttonbox5, "hbuttonbox5");
+  GLADE_HOOKUP_OBJECT_NO_REF (preferences, hbuttonbox5, "hbuttonbox5");
   GLADE_HOOKUP_OBJECT (preferences, hbox115, "hbox115");
   GLADE_HOOKUP_OBJECT (preferences, preferences_reset_button, "preferences_reset_button");
   GLADE_HOOKUP_OBJECT (preferences, alignment110, "alignment110");
@@ -21179,7 +21159,7 @@ create_preferences (void)
   GLADE_HOOKUP_OBJECT (preferences, image6181, "image6181");
   GLADE_HOOKUP_OBJECT (preferences, label590, "label590");
   GLADE_HOOKUP_OBJECT (preferences, preferences_ok_button, "preferences_ok_button");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(preferences, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   return preferences;
 }
@@ -21253,12 +21233,12 @@ create_diff_map_peaks_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(diff_map_peaks_dialog, diff_map_peaks_dialog, "diff_map_peaks_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(diff_map_peaks_dialog, dialog_vbox78, "dialog_vbox78");
+  GLADE_HOOKUP_OBJECT_NO_REF (diff_map_peaks_dialog, diff_map_peaks_dialog, "diff_map_peaks_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (diff_map_peaks_dialog, dialog_vbox78, "dialog_vbox78");
   GLADE_HOOKUP_OBJECT (diff_map_peaks_dialog, scrolledwindow18, "scrolledwindow18");
   GLADE_HOOKUP_OBJECT (diff_map_peaks_dialog, viewport11, "viewport11");
   GLADE_HOOKUP_OBJECT (diff_map_peaks_dialog, diff_map_peaks_vbox, "diff_map_peaks_vbox");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(diff_map_peaks_dialog, dialog_action_area77, "dialog_action_area77");
+  GLADE_HOOKUP_OBJECT_NO_REF (diff_map_peaks_dialog, dialog_action_area77, "dialog_action_area77");
   GLADE_HOOKUP_OBJECT (diff_map_peaks_dialog, diff_map_peaks_dialog_ok_button, "diff_map_peaks_dialog_ok_button");
   GLADE_HOOKUP_OBJECT (diff_map_peaks_dialog, alignment99, "alignment99");
   GLADE_HOOKUP_OBJECT (diff_map_peaks_dialog, hbox266, "hbox266");
@@ -21477,8 +21457,8 @@ create_generate_diff_map_peaks_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(generate_diff_map_peaks_dialog, generate_diff_map_peaks_dialog, "generate_diff_map_peaks_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(generate_diff_map_peaks_dialog, dialog_vbox79, "dialog_vbox79");
+  GLADE_HOOKUP_OBJECT_NO_REF (generate_diff_map_peaks_dialog, generate_diff_map_peaks_dialog, "generate_diff_map_peaks_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (generate_diff_map_peaks_dialog, dialog_vbox79, "dialog_vbox79");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, frame138, "frame138");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, vbox141, "vbox141");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, frame139, "frame139");
@@ -21502,7 +21482,7 @@ create_generate_diff_map_peaks_dialog (void)
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, generate_diff_map_peaks_positive_level_checkbutton, "generate_diff_map_peaks_positive_level_checkbutton");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, generate_diff_map_peaks_negative_level_checkbutton, "generate_diff_map_peaks_negative_level_checkbutton");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, label313, "label313");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(generate_diff_map_peaks_dialog, dialog_action_area78, "dialog_action_area78");
+  GLADE_HOOKUP_OBJECT_NO_REF (generate_diff_map_peaks_dialog, dialog_action_area78, "dialog_action_area78");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, hbox116, "hbox116");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, generate_diff_map_peaks_ok_button, "generate_diff_map_peaks_ok_button");
   GLADE_HOOKUP_OBJECT (generate_diff_map_peaks_dialog, alignment100, "alignment100");
@@ -21636,8 +21616,8 @@ create_ncs_maps_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ncs_maps_dialog, ncs_maps_dialog, "ncs_maps_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ncs_maps_dialog, dialog_vbox80, "dialog_vbox80");
+  GLADE_HOOKUP_OBJECT_NO_REF (ncs_maps_dialog, ncs_maps_dialog, "ncs_maps_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (ncs_maps_dialog, dialog_vbox80, "dialog_vbox80");
   GLADE_HOOKUP_OBJECT (ncs_maps_dialog, frame143, "frame143");
   GLADE_HOOKUP_OBJECT (ncs_maps_dialog, vbox147, "vbox147");
   GLADE_HOOKUP_OBJECT (ncs_maps_dialog, frame146, "frame146");
@@ -21652,7 +21632,7 @@ create_ncs_maps_dialog (void)
   GLADE_HOOKUP_OBJECT (ncs_maps_dialog, label231, "label231");
   GLADE_HOOKUP_OBJECT (ncs_maps_dialog, ncs_maps_maps_vbox, "ncs_maps_maps_vbox");
   GLADE_HOOKUP_OBJECT (ncs_maps_dialog, label315, "label315");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ncs_maps_dialog, dialog_action_area79, "dialog_action_area79");
+  GLADE_HOOKUP_OBJECT_NO_REF (ncs_maps_dialog, dialog_action_area79, "dialog_action_area79");
   GLADE_HOOKUP_OBJECT (ncs_maps_dialog, hbox118, "hbox118");
   GLADE_HOOKUP_OBJECT (ncs_maps_dialog, ncs_maps_ok_button, "ncs_maps_ok_button");
   GLADE_HOOKUP_OBJECT (ncs_maps_dialog, ncs_maps_cancel_button, "ncs_maps_cancel_button");
@@ -21682,7 +21662,7 @@ create_popup_info_window (void)
   gtk_misc_set_padding (GTK_MISC (info_label), 10, 10);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(popup_info_window, popup_info_window, "popup_info_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (popup_info_window, popup_info_window, "popup_info_window");
   GLADE_HOOKUP_OBJECT (popup_info_window, frame147, "frame147");
   GLADE_HOOKUP_OBJECT (popup_info_window, info_label, "info_label");
 
@@ -21798,8 +21778,8 @@ create_pointer_distances_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(pointer_distances_dialog, pointer_distances_dialog, "pointer_distances_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(pointer_distances_dialog, dialog_vbox81, "dialog_vbox81");
+  GLADE_HOOKUP_OBJECT_NO_REF (pointer_distances_dialog, pointer_distances_dialog, "pointer_distances_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (pointer_distances_dialog, dialog_vbox81, "dialog_vbox81");
   GLADE_HOOKUP_OBJECT (pointer_distances_dialog, frame148, "frame148");
   GLADE_HOOKUP_OBJECT (pointer_distances_dialog, vbox150, "vbox150");
   GLADE_HOOKUP_OBJECT (pointer_distances_dialog, pointer_distances_checkbutton, "pointer_distances_checkbutton");
@@ -21811,7 +21791,7 @@ create_pointer_distances_dialog (void)
   GLADE_HOOKUP_OBJECT (pointer_distances_dialog, label235, "label235");
   GLADE_HOOKUP_OBJECT (pointer_distances_dialog, label234, "label234");
   GLADE_HOOKUP_OBJECT (pointer_distances_dialog, label233, "label233");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(pointer_distances_dialog, dialog_action_area80, "dialog_action_area80");
+  GLADE_HOOKUP_OBJECT_NO_REF (pointer_distances_dialog, dialog_action_area80, "dialog_action_area80");
   GLADE_HOOKUP_OBJECT (pointer_distances_dialog, pointer_distances_ok_button, "pointer_distances_ok_button");
 
   return pointer_distances_dialog;
@@ -21924,8 +21904,8 @@ create_align_and_mutate_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(align_and_mutate_dialog, align_and_mutate_dialog, "align_and_mutate_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(align_and_mutate_dialog, dialog_vbox82, "dialog_vbox82");
+  GLADE_HOOKUP_OBJECT_NO_REF (align_and_mutate_dialog, align_and_mutate_dialog, "align_and_mutate_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (align_and_mutate_dialog, dialog_vbox82, "dialog_vbox82");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, frame149, "frame149");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, vbox151, "vbox151");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, label239, "label239");
@@ -21937,7 +21917,7 @@ create_align_and_mutate_dialog (void)
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, scrolledwindow19, "scrolledwindow19");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_sequence_text, "align_and_mutate_sequence_text");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_autofit_checkbutton, "align_and_mutate_autofit_checkbutton");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(align_and_mutate_dialog, dialog_action_area81, "dialog_action_area81");
+  GLADE_HOOKUP_OBJECT_NO_REF (align_and_mutate_dialog, dialog_action_area81, "dialog_action_area81");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, hbox120, "hbox120");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_ok_button, "align_and_mutate_ok_button");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_cancel_button, "align_and_mutate_cancel_button");
@@ -22096,8 +22076,8 @@ create_ramachandran_plot_differences_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ramachandran_plot_differences_dialog, ramachandran_plot_differences_dialog, "ramachandran_plot_differences_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ramachandran_plot_differences_dialog, dialog_vbox83, "dialog_vbox83");
+  GLADE_HOOKUP_OBJECT_NO_REF (ramachandran_plot_differences_dialog, ramachandran_plot_differences_dialog, "ramachandran_plot_differences_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (ramachandran_plot_differences_dialog, dialog_vbox83, "dialog_vbox83");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, vbox152, "vbox152");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, label242, "label242");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, frame150, "frame150");
@@ -22117,7 +22097,7 @@ create_ramachandran_plot_differences_dialog (void)
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_second_chain_checkbutton, "ramachandran_plot_differences_second_chain_checkbutton");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_second_chain_combobox, "ramachandran_plot_differences_second_chain_combobox");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, label317, "label317");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ramachandran_plot_differences_dialog, dialog_action_area82, "dialog_action_area82");
+  GLADE_HOOKUP_OBJECT_NO_REF (ramachandran_plot_differences_dialog, dialog_action_area82, "dialog_action_area82");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, hbox122, "hbox122");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_ok_button, "ramachandran_plot_differences_ok_button");
   GLADE_HOOKUP_OBJECT (ramachandran_plot_differences_dialog, ramachandran_plot_differences_cancel_button, "ramachandran_plot_differences_cancel_button");
@@ -22192,12 +22172,12 @@ create_checked_waters_baddies_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(checked_waters_baddies_dialog, checked_waters_baddies_dialog, "checked_waters_baddies_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(checked_waters_baddies_dialog, dialog_vbox84, "dialog_vbox84");
+  GLADE_HOOKUP_OBJECT_NO_REF (checked_waters_baddies_dialog, checked_waters_baddies_dialog, "checked_waters_baddies_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (checked_waters_baddies_dialog, dialog_vbox84, "dialog_vbox84");
   GLADE_HOOKUP_OBJECT (checked_waters_baddies_dialog, scrolledwindow20, "scrolledwindow20");
   GLADE_HOOKUP_OBJECT (checked_waters_baddies_dialog, viewport12, "viewport12");
   GLADE_HOOKUP_OBJECT (checked_waters_baddies_dialog, checked_waters_baddies_vbox, "checked_waters_baddies_vbox");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(checked_waters_baddies_dialog, dialog_action_area83, "dialog_action_area83");
+  GLADE_HOOKUP_OBJECT_NO_REF (checked_waters_baddies_dialog, dialog_action_area83, "dialog_action_area83");
   GLADE_HOOKUP_OBJECT (checked_waters_baddies_dialog, checked_waters_baddies_cancel_button, "checked_waters_baddies_cancel_button");
   GLADE_HOOKUP_OBJECT (checked_waters_baddies_dialog, alignment93, "alignment93");
   GLADE_HOOKUP_OBJECT (checked_waters_baddies_dialog, hbox260, "hbox260");
@@ -22315,8 +22295,8 @@ create_nucleic_acid_base_chooser_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nucleic_acid_base_chooser_dialog, nucleic_acid_base_chooser_dialog, "nucleic_acid_base_chooser_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nucleic_acid_base_chooser_dialog, dialog_vbox85, "dialog_vbox85");
+  GLADE_HOOKUP_OBJECT_NO_REF (nucleic_acid_base_chooser_dialog, nucleic_acid_base_chooser_dialog, "nucleic_acid_base_chooser_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (nucleic_acid_base_chooser_dialog, dialog_vbox85, "dialog_vbox85");
   GLADE_HOOKUP_OBJECT (nucleic_acid_base_chooser_dialog, frame155, "frame155");
   GLADE_HOOKUP_OBJECT (nucleic_acid_base_chooser_dialog, vbox160, "vbox160");
   GLADE_HOOKUP_OBJECT (nucleic_acid_base_chooser_dialog, base_chooser_A_button, "base_chooser_A_button");
@@ -22324,7 +22304,7 @@ create_nucleic_acid_base_chooser_dialog (void)
   GLADE_HOOKUP_OBJECT (nucleic_acid_base_chooser_dialog, base_chooser_G_button, "base_chooser_G_button");
   GLADE_HOOKUP_OBJECT (nucleic_acid_base_chooser_dialog, base_chooser_T_button, "base_chooser_T_button");
   GLADE_HOOKUP_OBJECT (nucleic_acid_base_chooser_dialog, base_chooser_U_button, "base_chooser_U_button");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nucleic_acid_base_chooser_dialog, dialog_action_area84, "dialog_action_area84");
+  GLADE_HOOKUP_OBJECT_NO_REF (nucleic_acid_base_chooser_dialog, dialog_action_area84, "dialog_action_area84");
   GLADE_HOOKUP_OBJECT (nucleic_acid_base_chooser_dialog, base_chooser_cancel_button, "base_chooser_cancel_button");
   GLADE_HOOKUP_OBJECT (nucleic_acid_base_chooser_dialog, alignment94, "alignment94");
   GLADE_HOOKUP_OBJECT (nucleic_acid_base_chooser_dialog, hbox261, "hbox261");
@@ -22566,8 +22546,8 @@ create_change_chain_id_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(change_chain_id_dialog, change_chain_id_dialog, "change_chain_id_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(change_chain_id_dialog, dialog_vbox86, "dialog_vbox86");
+  GLADE_HOOKUP_OBJECT_NO_REF (change_chain_id_dialog, change_chain_id_dialog, "change_chain_id_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (change_chain_id_dialog, dialog_vbox86, "dialog_vbox86");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, frame156, "frame156");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, vbox161, "vbox161");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, label246, "label246");
@@ -22593,7 +22573,7 @@ create_change_chain_id_dialog (void)
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, hbox129, "hbox129");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, label252, "label252");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, change_chains_new_chain_id, "change_chains_new_chain_id");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(change_chain_id_dialog, dialog_action_area85, "dialog_action_area85");
+  GLADE_HOOKUP_OBJECT_NO_REF (change_chain_id_dialog, dialog_action_area85, "dialog_action_area85");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, hbox124, "hbox124");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, change_chains_rechain_button, "change_chains_rechain_button");
   GLADE_HOOKUP_OBJECT (change_chain_id_dialog, alignment95, "alignment95");
@@ -22760,8 +22740,8 @@ create_doc_urls_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(doc_urls_dialog, doc_urls_dialog, "doc_urls_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(doc_urls_dialog, dialog_vbox87, "dialog_vbox87");
+  GLADE_HOOKUP_OBJECT_NO_REF (doc_urls_dialog, doc_urls_dialog, "doc_urls_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (doc_urls_dialog, dialog_vbox87, "dialog_vbox87");
   GLADE_HOOKUP_OBJECT (doc_urls_dialog, frame158, "frame158");
   GLADE_HOOKUP_OBJECT (doc_urls_dialog, table3, "table3");
   GLADE_HOOKUP_OBJECT (doc_urls_dialog, label274, "label274");
@@ -22776,9 +22756,9 @@ create_doc_urls_dialog (void)
   GLADE_HOOKUP_OBJECT (doc_urls_dialog, doc_1_entry, "doc_1_entry");
   GLADE_HOOKUP_OBJECT (doc_urls_dialog, label255, "label255");
   GLADE_HOOKUP_OBJECT (doc_urls_dialog, label254, "label254");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(doc_urls_dialog, dialog_action_area86, "dialog_action_area86");
+  GLADE_HOOKUP_OBJECT_NO_REF (doc_urls_dialog, dialog_action_area86, "dialog_action_area86");
   GLADE_HOOKUP_OBJECT (doc_urls_dialog, on_line_documentation_ok_button, "on_line_documentation_ok_button");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(doc_urls_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   return doc_urls_dialog;
 }
@@ -23058,8 +23038,8 @@ create_other_model_tools_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(other_model_tools_dialog, other_model_tools_dialog, "other_model_tools_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(other_model_tools_dialog, dialog_vbox89, "dialog_vbox89");
+  GLADE_HOOKUP_OBJECT_NO_REF (other_model_tools_dialog, other_model_tools_dialog, "other_model_tools_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (other_model_tools_dialog, dialog_vbox89, "dialog_vbox89");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, frame160, "frame160");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, vbox163, "vbox163");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, model_refine_dialog_find_waters_button, "model_refine_dialog_find_waters_button");
@@ -23090,13 +23070,13 @@ create_other_model_tools_dialog (void)
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, other_tools_RNA_button, "other_tools_RNA_button");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, other_tools_base_pair_toggle_button, "other_tools_base_pair_toggle_button");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, set_undo_molecule_button, "set_undo_molecule_button");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(other_model_tools_dialog, dialog_action_area88, "dialog_action_area88");
+  GLADE_HOOKUP_OBJECT_NO_REF (other_model_tools_dialog, dialog_action_area88, "dialog_action_area88");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, other_modelling_tools_close_button, "other_modelling_tools_close_button");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, alignment97, "alignment97");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, hbox264, "hbox264");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, image6013, "image6013");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, label433, "label433");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(other_model_tools_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   return other_model_tools_dialog;
 }
@@ -23271,8 +23251,8 @@ create_symmetry_controller_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(symmetry_controller_dialog, symmetry_controller_dialog, "symmetry_controller_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(symmetry_controller_dialog, dialog_vbox90, "dialog_vbox90");
+  GLADE_HOOKUP_OBJECT_NO_REF (symmetry_controller_dialog, symmetry_controller_dialog, "symmetry_controller_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (symmetry_controller_dialog, dialog_vbox90, "dialog_vbox90");
   GLADE_HOOKUP_OBJECT (symmetry_controller_dialog, vbox167, "vbox167");
   GLADE_HOOKUP_OBJECT (symmetry_controller_dialog, scrolledwindow24, "scrolledwindow24");
   GLADE_HOOKUP_OBJECT (symmetry_controller_dialog, symmetry_control_viewport, "symmetry_control_viewport");
@@ -23290,7 +23270,7 @@ create_symmetry_controller_dialog (void)
   GLADE_HOOKUP_OBJECT (symmetry_controller_dialog, display_sphere_radiobutton_molecule_0, "display_sphere_radiobutton_molecule_0");
   GLADE_HOOKUP_OBJECT (symmetry_controller_dialog, label320, "label320");
   GLADE_HOOKUP_OBJECT (symmetry_controller_dialog, label319, "label319");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(symmetry_controller_dialog, dialog_action_area89, "dialog_action_area89");
+  GLADE_HOOKUP_OBJECT_NO_REF (symmetry_controller_dialog, dialog_action_area89, "dialog_action_area89");
   GLADE_HOOKUP_OBJECT (symmetry_controller_dialog, symmetry_controller_ok_button, "symmetry_controller_ok_button");
 
   return symmetry_controller_dialog;
@@ -23488,8 +23468,8 @@ create_ncs_control_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ncs_control_dialog, ncs_control_dialog, "ncs_control_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ncs_control_dialog, dialog_vbox91, "dialog_vbox91");
+  GLADE_HOOKUP_OBJECT_NO_REF (ncs_control_dialog, ncs_control_dialog, "ncs_control_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (ncs_control_dialog, dialog_vbox91, "dialog_vbox91");
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, vbox170, "vbox170");
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, label263, "label263");
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, scrolledwindow25, "scrolledwindow25");
@@ -23513,13 +23493,13 @@ create_ncs_control_dialog (void)
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, radiobutton4, "radiobutton4");
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, radiobutton5, "radiobutton5");
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, label321, "label321");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ncs_control_dialog, dialog_action_area90, "dialog_action_area90");
+  GLADE_HOOKUP_OBJECT_NO_REF (ncs_control_dialog, dialog_action_area90, "dialog_action_area90");
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, ncs_control_ok_button, "ncs_control_ok_button");
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, alignment98, "alignment98");
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, hbox265, "hbox265");
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, image6014, "image6014");
   GLADE_HOOKUP_OBJECT (ncs_control_dialog, label434, "label434");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ncs_control_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   return ncs_control_dialog;
 }
@@ -23619,8 +23599,8 @@ create_lsq_plane_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(lsq_plane_dialog, lsq_plane_dialog, "lsq_plane_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(lsq_plane_dialog, dialog_vbox92, "dialog_vbox92");
+  GLADE_HOOKUP_OBJECT_NO_REF (lsq_plane_dialog, lsq_plane_dialog, "lsq_plane_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (lsq_plane_dialog, dialog_vbox92, "dialog_vbox92");
   GLADE_HOOKUP_OBJECT (lsq_plane_dialog, lsq_plane_frame, "lsq_plane_frame");
   GLADE_HOOKUP_OBJECT (lsq_plane_dialog, vbox177, "vbox177");
   GLADE_HOOKUP_OBJECT (lsq_plane_dialog, lsq_plane_add_atom_radiobutton, "lsq_plane_add_atom_radiobutton");
@@ -23630,7 +23610,7 @@ create_lsq_plane_dialog (void)
   GLADE_HOOKUP_OBJECT (lsq_plane_dialog, label267, "label267");
   GLADE_HOOKUP_OBJECT (lsq_plane_dialog, lsq_plane_deviant_atom_radiobutton, "lsq_plane_deviant_atom_radiobutton");
   GLADE_HOOKUP_OBJECT (lsq_plane_dialog, label322, "label322");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(lsq_plane_dialog, dialog_action_area91, "dialog_action_area91");
+  GLADE_HOOKUP_OBJECT_NO_REF (lsq_plane_dialog, dialog_action_area91, "dialog_action_area91");
   GLADE_HOOKUP_OBJECT (lsq_plane_dialog, lsq_plane_ok_button, "lsq_plane_ok_button");
 
   return lsq_plane_dialog;
@@ -23806,8 +23786,8 @@ create_coords_colour_control_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(coords_colour_control_dialog, coords_colour_control_dialog, "coords_colour_control_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(coords_colour_control_dialog, dialog_vbox93, "dialog_vbox93");
+  GLADE_HOOKUP_OBJECT_NO_REF (coords_colour_control_dialog, coords_colour_control_dialog, "coords_colour_control_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (coords_colour_control_dialog, dialog_vbox93, "dialog_vbox93");
   GLADE_HOOKUP_OBJECT (coords_colour_control_dialog, vbox178, "vbox178");
   GLADE_HOOKUP_OBJECT (coords_colour_control_dialog, label268, "label268");
   GLADE_HOOKUP_OBJECT (coords_colour_control_dialog, scrolledwindow26, "scrolledwindow26");
@@ -23832,7 +23812,7 @@ create_coords_colour_control_dialog (void)
   GLADE_HOOKUP_OBJECT (coords_colour_control_dialog, frame172, "frame172");
   GLADE_HOOKUP_OBJECT (coords_colour_control_dialog, bond_parameters_rotate_colour_map_c_only_checkbutton, "bond_parameters_rotate_colour_map_c_only_checkbutton");
   GLADE_HOOKUP_OBJECT (coords_colour_control_dialog, label324, "label324");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(coords_colour_control_dialog, dialog_action_area92, "dialog_action_area92");
+  GLADE_HOOKUP_OBJECT_NO_REF (coords_colour_control_dialog, dialog_action_area92, "dialog_action_area92");
   GLADE_HOOKUP_OBJECT (coords_colour_control_dialog, coord_colour_control_ok_button, "coord_colour_control_ok_button");
 
   gtk_widget_grab_default (coord_colour_control_ok_button);
@@ -24019,8 +23999,8 @@ create_nucleotide_builder_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nucleotide_builder_dialog, nucleotide_builder_dialog, "nucleotide_builder_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nucleotide_builder_dialog, dialog_vbox94, "dialog_vbox94");
+  GLADE_HOOKUP_OBJECT_NO_REF (nucleotide_builder_dialog, nucleotide_builder_dialog, "nucleotide_builder_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (nucleotide_builder_dialog, dialog_vbox94, "dialog_vbox94");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, vbox179, "vbox179");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, label282, "label282");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, frame164, "frame164");
@@ -24039,7 +24019,7 @@ create_nucleotide_builder_dialog (void)
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, vbox183, "vbox183");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, label286, "label286");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, nucleotide_sequence, "nucleotide_sequence");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(nucleotide_builder_dialog, dialog_action_area93, "dialog_action_area93");
+  GLADE_HOOKUP_OBJECT_NO_REF (nucleotide_builder_dialog, dialog_action_area93, "dialog_action_area93");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, hbox142, "hbox142");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, ideal_rna_ok_button, "ideal_rna_ok_button");
   GLADE_HOOKUP_OBJECT (nucleotide_builder_dialog, alignment61, "alignment61");
@@ -24165,13 +24145,13 @@ create_move_molecule_here_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(move_molecule_here_dialog, move_molecule_here_dialog, "move_molecule_here_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(move_molecule_here_dialog, dialog_vbox95, "dialog_vbox95");
+  GLADE_HOOKUP_OBJECT_NO_REF (move_molecule_here_dialog, move_molecule_here_dialog, "move_molecule_here_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (move_molecule_here_dialog, dialog_vbox95, "dialog_vbox95");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, vbox184, "vbox184");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, label287, "label287");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, move_molecule_here_big_molecules_checkbutton, "move_molecule_here_big_molecules_checkbutton");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, move_molecule_here_combobox, "move_molecule_here_combobox");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(move_molecule_here_dialog, dialog_action_area94, "dialog_action_area94");
+  GLADE_HOOKUP_OBJECT_NO_REF (move_molecule_here_dialog, dialog_action_area94, "dialog_action_area94");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, hbox143, "hbox143");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, move_molecule_here_ok_button, "move_molecule_here_ok_button");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, alignment59, "alignment59");
@@ -24183,7 +24163,7 @@ create_move_molecule_here_dialog (void)
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, hbox211, "hbox211");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, image1529, "image1529");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, label385, "label385");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(move_molecule_here_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   return move_molecule_here_dialog;
 }
@@ -24350,8 +24330,8 @@ create_monomer_search_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(monomer_search_dialog, monomer_search_dialog, "monomer_search_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(monomer_search_dialog, dialog_vbox96, "dialog_vbox96");
+  GLADE_HOOKUP_OBJECT_NO_REF (monomer_search_dialog, monomer_search_dialog, "monomer_search_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (monomer_search_dialog, dialog_vbox96, "dialog_vbox96");
   GLADE_HOOKUP_OBJECT (monomer_search_dialog, vbox185, "vbox185");
   GLADE_HOOKUP_OBJECT (monomer_search_dialog, frame168, "frame168");
   GLADE_HOOKUP_OBJECT (monomer_search_dialog, vbox186, "vbox186");
@@ -24371,7 +24351,7 @@ create_monomer_search_dialog (void)
   GLADE_HOOKUP_OBJECT (monomer_search_dialog, scrolledwindow27, "scrolledwindow27");
   GLADE_HOOKUP_OBJECT (monomer_search_dialog, monomer_search_results_viewport, "monomer_search_results_viewport");
   GLADE_HOOKUP_OBJECT (monomer_search_dialog, monomer_search_results_vbox, "monomer_search_results_vbox");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(monomer_search_dialog, dialog_action_area95, "dialog_action_area95");
+  GLADE_HOOKUP_OBJECT_NO_REF (monomer_search_dialog, dialog_action_area95, "dialog_action_area95");
   GLADE_HOOKUP_OBJECT (monomer_search_dialog, hbox144, "hbox144");
   GLADE_HOOKUP_OBJECT (monomer_search_dialog, monomer_library_search_dialog_cancel_button, "monomer_library_search_dialog_cancel_button");
   GLADE_HOOKUP_OBJECT (monomer_search_dialog, alignment128, "alignment128");
@@ -24665,8 +24645,8 @@ create_least_squares_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(least_squares_dialog, least_squares_dialog, "least_squares_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(least_squares_dialog, dialog_vbox97, "dialog_vbox97");
+  GLADE_HOOKUP_OBJECT_NO_REF (least_squares_dialog, least_squares_dialog, "least_squares_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (least_squares_dialog, dialog_vbox97, "dialog_vbox97");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, vbox187, "vbox187");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, frame170, "frame170");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, vbox189, "vbox189");
@@ -24695,7 +24675,7 @@ create_least_squares_dialog (void)
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_match_type_calpha_radiobutton, "least_squares_match_type_calpha_radiobutton");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label325, "label325");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_move_copy_checkbutton, "least_squares_move_copy_checkbutton");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(least_squares_dialog, dialog_action_area96, "dialog_action_area96");
+  GLADE_HOOKUP_OBJECT_NO_REF (least_squares_dialog, dialog_action_area96, "dialog_action_area96");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, hbox146, "hbox146");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_ok_button, "least_squares_ok_button");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, alignment55, "alignment55");
@@ -24900,8 +24880,8 @@ create_sft_dialog (void)
   gtk_widget_set_can_default (okbutton1, 1);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(sft_dialog, sft_dialog, "sft_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(sft_dialog, dialog_vbox98, "dialog_vbox98");
+  GLADE_HOOKUP_OBJECT_NO_REF (sft_dialog, sft_dialog, "sft_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (sft_dialog, dialog_vbox98, "dialog_vbox98");
   GLADE_HOOKUP_OBJECT (sft_dialog, vbox193, "vbox193");
   GLADE_HOOKUP_OBJECT (sft_dialog, frame175, "frame175");
   GLADE_HOOKUP_OBJECT (sft_dialog, alignment69, "alignment69");
@@ -24929,7 +24909,7 @@ create_sft_dialog (void)
   GLADE_HOOKUP_OBJECT (sft_dialog, radiobutton7, "radiobutton7");
   GLADE_HOOKUP_OBJECT (sft_dialog, radiobutton8, "radiobutton8");
   GLADE_HOOKUP_OBJECT (sft_dialog, label394, "label394");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(sft_dialog, dialog_action_area97, "dialog_action_area97");
+  GLADE_HOOKUP_OBJECT_NO_REF (sft_dialog, dialog_action_area97, "dialog_action_area97");
   GLADE_HOOKUP_OBJECT (sft_dialog, cancelbutton1, "cancelbutton1");
   GLADE_HOOKUP_OBJECT (sft_dialog, okbutton1, "okbutton1");
 
@@ -25003,7 +24983,7 @@ create_aboutdialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(aboutdialog, aboutdialog, "aboutdialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (aboutdialog, aboutdialog, "aboutdialog");
 
   return aboutdialog;
 }
@@ -25128,8 +25108,8 @@ create_globularize_dialog (void)
   gtk_widget_set_can_default (globularize_cancel_button, 1);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(globularize_dialog, globularize_dialog, "globularize_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(globularize_dialog, dialog_vbox99, "dialog_vbox99");
+  GLADE_HOOKUP_OBJECT_NO_REF (globularize_dialog, globularize_dialog, "globularize_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (globularize_dialog, dialog_vbox99, "dialog_vbox99");
   GLADE_HOOKUP_OBJECT (globularize_dialog, vbox200, "vbox200");
   GLADE_HOOKUP_OBJECT (globularize_dialog, label439, "label439");
   GLADE_HOOKUP_OBJECT (globularize_dialog, globularize_molecule_molecule_chooser_combobox, "globularize_molecule_molecule_chooser_combobox");
@@ -25144,7 +25124,7 @@ create_globularize_dialog (void)
   GLADE_HOOKUP_OBJECT (globularize_dialog, globularize_centre_y_entry, "globularize_centre_y_entry");
   GLADE_HOOKUP_OBJECT (globularize_dialog, globularize_centre_z_entry, "globularize_centre_z_entry");
   GLADE_HOOKUP_OBJECT (globularize_dialog, label440, "label440");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(globularize_dialog, dialog_action_area98, "dialog_action_area98");
+  GLADE_HOOKUP_OBJECT_NO_REF (globularize_dialog, dialog_action_area98, "dialog_action_area98");
   GLADE_HOOKUP_OBJECT (globularize_dialog, globularize_ok_button, "globularize_ok_button");
   GLADE_HOOKUP_OBJECT (globularize_dialog, globularize_cancel_button, "globularize_cancel_button");
 
@@ -25166,7 +25146,7 @@ create_splash_screen_alternate_1_window (void)
   gtk_container_add (GTK_CONTAINER (splash_screen_alternate_1_window), image6024);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(splash_screen_alternate_1_window, splash_screen_alternate_1_window, "splash_screen_alternate_1_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (splash_screen_alternate_1_window, splash_screen_alternate_1_window, "splash_screen_alternate_1_window");
   GLADE_HOOKUP_OBJECT (splash_screen_alternate_1_window, image6024, "image6024");
 
   return splash_screen_alternate_1_window;
@@ -25242,14 +25222,14 @@ create_coords_filechooserdialog1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(coords_filechooserdialog1, coords_filechooserdialog1, "coords_filechooserdialog1");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(coords_filechooserdialog1, dialog_vbox100, "dialog_vbox100");
+  GLADE_HOOKUP_OBJECT_NO_REF (coords_filechooserdialog1, coords_filechooserdialog1, "coords_filechooserdialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (coords_filechooserdialog1, dialog_vbox100, "dialog_vbox100");
   GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, hbox383, "hbox383");
   GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, frame177, "frame177");
   GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, alignment104, "alignment104");
   GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, coords_filechooserdialog1_recentre_combobox, "coords_filechooserdialog1_recentre_combobox");
   GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, label441, "label441");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(coords_filechooserdialog1, dialog_action_area99, "dialog_action_area99");
+  GLADE_HOOKUP_OBJECT_NO_REF (coords_filechooserdialog1, dialog_action_area99, "dialog_action_area99");
   GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, button5, "button5");
   GLADE_HOOKUP_OBJECT (coords_filechooserdialog1, button6, "button6");
 
@@ -25297,9 +25277,9 @@ create_dataset_filechooserdialog1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(dataset_filechooserdialog1, dataset_filechooserdialog1, "dataset_filechooserdialog1");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(dataset_filechooserdialog1, dialog_vbox101, "dialog_vbox101");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(dataset_filechooserdialog1, dialog_action_area100, "dialog_action_area100");
+  GLADE_HOOKUP_OBJECT_NO_REF (dataset_filechooserdialog1, dataset_filechooserdialog1, "dataset_filechooserdialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (dataset_filechooserdialog1, dialog_vbox101, "dialog_vbox101");
+  GLADE_HOOKUP_OBJECT_NO_REF (dataset_filechooserdialog1, dialog_action_area100, "dialog_action_area100");
   GLADE_HOOKUP_OBJECT (dataset_filechooserdialog1, button7, "button7");
   GLADE_HOOKUP_OBJECT (dataset_filechooserdialog1, button8, "button8");
 
@@ -25372,13 +25352,13 @@ create_map_name_filechooserdialog1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(map_name_filechooserdialog1, map_name_filechooserdialog1, "map_name_filechooserdialog1");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(map_name_filechooserdialog1, dialog_vbox102, "dialog_vbox102");
+  GLADE_HOOKUP_OBJECT_NO_REF (map_name_filechooserdialog1, map_name_filechooserdialog1, "map_name_filechooserdialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (map_name_filechooserdialog1, dialog_vbox102, "dialog_vbox102");
   GLADE_HOOKUP_OBJECT (map_name_filechooserdialog1, frame178, "frame178");
   GLADE_HOOKUP_OBJECT (map_name_filechooserdialog1, alignment105, "alignment105");
   GLADE_HOOKUP_OBJECT (map_name_filechooserdialog1, map_filechooser_is_difference_map_button, "map_filechooser_is_difference_map_button");
   GLADE_HOOKUP_OBJECT (map_name_filechooserdialog1, label442, "label442");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(map_name_filechooserdialog1, dialog_action_area101, "dialog_action_area101");
+  GLADE_HOOKUP_OBJECT_NO_REF (map_name_filechooserdialog1, dialog_action_area101, "dialog_action_area101");
   GLADE_HOOKUP_OBJECT (map_name_filechooserdialog1, button9, "button9");
   GLADE_HOOKUP_OBJECT (map_name_filechooserdialog1, button10, "button10");
 
@@ -25426,9 +25406,9 @@ create_phs_coordinates_filechooserdialog1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(phs_coordinates_filechooserdialog1, phs_coordinates_filechooserdialog1, "phs_coordinates_filechooserdialog1");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(phs_coordinates_filechooserdialog1, dialog_vbox103, "dialog_vbox103");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(phs_coordinates_filechooserdialog1, dialog_action_area102, "dialog_action_area102");
+  GLADE_HOOKUP_OBJECT_NO_REF (phs_coordinates_filechooserdialog1, phs_coordinates_filechooserdialog1, "phs_coordinates_filechooserdialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (phs_coordinates_filechooserdialog1, dialog_vbox103, "dialog_vbox103");
+  GLADE_HOOKUP_OBJECT_NO_REF (phs_coordinates_filechooserdialog1, dialog_action_area102, "dialog_action_area102");
   GLADE_HOOKUP_OBJECT (phs_coordinates_filechooserdialog1, button11, "button11");
   GLADE_HOOKUP_OBJECT (phs_coordinates_filechooserdialog1, button12, "button12");
 
@@ -25503,15 +25483,15 @@ create_save_coords_filechooserdialog1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_coords_filechooserdialog1, save_coords_filechooserdialog1, "save_coords_filechooserdialog1");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_coords_filechooserdialog1, dialog_vbox104, "dialog_vbox104");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_coords_filechooserdialog1, save_coords_filechooserdialog1, "save_coords_filechooserdialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_coords_filechooserdialog1, dialog_vbox104, "dialog_vbox104");
   GLADE_HOOKUP_OBJECT (save_coords_filechooserdialog1, hbox413, "hbox413");
   GLADE_HOOKUP_OBJECT (save_coords_filechooserdialog1, checkbutton_aniso, "checkbutton_aniso");
   GLADE_HOOKUP_OBJECT (save_coords_filechooserdialog1, checkbutton_hydrogens, "checkbutton_hydrogens");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_coords_filechooserdialog1, dialog_action_area103, "dialog_action_area103");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_coords_filechooserdialog1, dialog_action_area103, "dialog_action_area103");
   GLADE_HOOKUP_OBJECT (save_coords_filechooserdialog1, button13, "button13");
   GLADE_HOOKUP_OBJECT (save_coords_filechooserdialog1, button14, "button14");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_coords_filechooserdialog1, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   gtk_widget_grab_default (button14);
   return save_coords_filechooserdialog1;
@@ -25557,9 +25537,9 @@ create_cif_dictionary_filechooserdialog1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(cif_dictionary_filechooserdialog1, cif_dictionary_filechooserdialog1, "cif_dictionary_filechooserdialog1");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(cif_dictionary_filechooserdialog1, dialog_vbox105, "dialog_vbox105");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(cif_dictionary_filechooserdialog1, dialog_action_area104, "dialog_action_area104");
+  GLADE_HOOKUP_OBJECT_NO_REF (cif_dictionary_filechooserdialog1, cif_dictionary_filechooserdialog1, "cif_dictionary_filechooserdialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (cif_dictionary_filechooserdialog1, dialog_vbox105, "dialog_vbox105");
+  GLADE_HOOKUP_OBJECT_NO_REF (cif_dictionary_filechooserdialog1, dialog_action_area104, "dialog_action_area104");
   GLADE_HOOKUP_OBJECT (cif_dictionary_filechooserdialog1, button15, "button15");
   GLADE_HOOKUP_OBJECT (cif_dictionary_filechooserdialog1, button16, "button16");
 
@@ -25610,9 +25590,9 @@ create_run_script_filechooserdialog1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_script_filechooserdialog1, run_script_filechooserdialog1, "run_script_filechooserdialog1");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_script_filechooserdialog1, dialog_vbox106, "dialog_vbox106");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_script_filechooserdialog1, dialog_action_area105, "dialog_action_area105");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_script_filechooserdialog1, run_script_filechooserdialog1, "run_script_filechooserdialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_script_filechooserdialog1, dialog_vbox106, "dialog_vbox106");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_script_filechooserdialog1, dialog_action_area105, "dialog_action_area105");
   GLADE_HOOKUP_OBJECT (run_script_filechooserdialog1, button17, "button17");
   GLADE_HOOKUP_OBJECT (run_script_filechooserdialog1, button18, "button18");
 
@@ -25669,9 +25649,9 @@ create_save_symmetry_coords_filechooserdialog1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_symmetry_coords_filechooserdialog1, save_symmetry_coords_filechooserdialog1, "save_symmetry_coords_filechooserdialog1");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_symmetry_coords_filechooserdialog1, dialog_vbox107, "dialog_vbox107");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_symmetry_coords_filechooserdialog1, dialog_action_area106, "dialog_action_area106");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_symmetry_coords_filechooserdialog1, save_symmetry_coords_filechooserdialog1, "save_symmetry_coords_filechooserdialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_symmetry_coords_filechooserdialog1, dialog_vbox107, "dialog_vbox107");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_symmetry_coords_filechooserdialog1, dialog_action_area106, "dialog_action_area106");
   GLADE_HOOKUP_OBJECT (save_symmetry_coords_filechooserdialog1, button19, "button19");
   GLADE_HOOKUP_OBJECT (save_symmetry_coords_filechooserdialog1, button20, "button20");
 
@@ -25728,9 +25708,9 @@ create_save_state_filechooserdialog1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_state_filechooserdialog1, save_state_filechooserdialog1, "save_state_filechooserdialog1");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_state_filechooserdialog1, dialog_vbox108, "dialog_vbox108");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_state_filechooserdialog1, dialog_action_area107, "dialog_action_area107");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_state_filechooserdialog1, save_state_filechooserdialog1, "save_state_filechooserdialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_state_filechooserdialog1, dialog_vbox108, "dialog_vbox108");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_state_filechooserdialog1, dialog_action_area107, "dialog_action_area107");
   GLADE_HOOKUP_OBJECT (save_state_filechooserdialog1, button21, "button21");
   GLADE_HOOKUP_OBJECT (save_state_filechooserdialog1, button22, "button22");
 
@@ -25784,9 +25764,9 @@ create_screendump_filechooserdialog1 (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(screendump_filechooserdialog1, screendump_filechooserdialog1, "screendump_filechooserdialog1");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(screendump_filechooserdialog1, dialog_vbox109, "dialog_vbox109");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(screendump_filechooserdialog1, dialog_action_area108, "dialog_action_area108");
+  GLADE_HOOKUP_OBJECT_NO_REF (screendump_filechooserdialog1, screendump_filechooserdialog1, "screendump_filechooserdialog1");
+  GLADE_HOOKUP_OBJECT_NO_REF (screendump_filechooserdialog1, dialog_vbox109, "dialog_vbox109");
+  GLADE_HOOKUP_OBJECT_NO_REF (screendump_filechooserdialog1, dialog_action_area108, "dialog_action_area108");
   GLADE_HOOKUP_OBJECT (screendump_filechooserdialog1, button23, "button23");
   GLADE_HOOKUP_OBJECT (screendump_filechooserdialog1, button24, "button24");
 
@@ -25857,13 +25837,13 @@ create_fixed_atom_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(fixed_atom_dialog, fixed_atom_dialog, "fixed_atom_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(fixed_atom_dialog, dialog_vbox110, "dialog_vbox110");
+  GLADE_HOOKUP_OBJECT_NO_REF (fixed_atom_dialog, fixed_atom_dialog, "fixed_atom_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (fixed_atom_dialog, dialog_vbox110, "dialog_vbox110");
   GLADE_HOOKUP_OBJECT (fixed_atom_dialog, vbox204, "vbox204");
   GLADE_HOOKUP_OBJECT (fixed_atom_dialog, fix_atom_togglebutton, "fix_atom_togglebutton");
   GLADE_HOOKUP_OBJECT (fixed_atom_dialog, unfix_atom_togglebutton, "unfix_atom_togglebutton");
   GLADE_HOOKUP_OBJECT (fixed_atom_dialog, clear_fixed_atoms_button, "clear_fixed_atoms_button");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(fixed_atom_dialog, dialog_action_area109, "dialog_action_area109");
+  GLADE_HOOKUP_OBJECT_NO_REF (fixed_atom_dialog, dialog_action_area109, "dialog_action_area109");
   GLADE_HOOKUP_OBJECT (fixed_atom_dialog, fixed_atom_close_button, "fixed_atom_close_button");
 
   return fixed_atom_dialog;
@@ -26295,8 +26275,8 @@ create_add_reps_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_reps_dialog, add_reps_dialog, "add_reps_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_reps_dialog, dialog_vbox111, "dialog_vbox111");
+  GLADE_HOOKUP_OBJECT_NO_REF (add_reps_dialog, add_reps_dialog, "add_reps_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (add_reps_dialog, dialog_vbox111, "dialog_vbox111");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, vbox267, "vbox267");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, label608, "label608");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, add_reps_molecule_combobox, "add_reps_molecule_combobox");
@@ -26353,7 +26333,7 @@ create_add_reps_dialog (void)
   GLADE_HOOKUP_OBJECT (add_reps_dialog, label619, "label619");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, label809, "label809");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, hseparator19, "hseparator19");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(add_reps_dialog, dialog_action_area110, "dialog_action_area110");
+  GLADE_HOOKUP_OBJECT_NO_REF (add_reps_dialog, dialog_action_area110, "dialog_action_area110");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, add_rep_add_rep_button, "add_rep_add_rep_button");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, alignment118, "alignment118");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, hbox335, "hbox335");
@@ -26456,8 +26436,8 @@ create_display_additional_representations_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(display_additional_representations_dialog, display_additional_representations_dialog, "display_additional_representations_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(display_additional_representations_dialog, dialog_vbox112, "dialog_vbox112");
+  GLADE_HOOKUP_OBJECT_NO_REF (display_additional_representations_dialog, display_additional_representations_dialog, "display_additional_representations_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (display_additional_representations_dialog, dialog_vbox112, "dialog_vbox112");
   GLADE_HOOKUP_OBJECT (display_additional_representations_dialog, vbox273, "vbox273");
   GLADE_HOOKUP_OBJECT (display_additional_representations_dialog, label626, "label626");
   GLADE_HOOKUP_OBJECT (display_additional_representations_dialog, scrolledwindow28, "scrolledwindow28");
@@ -26469,7 +26449,7 @@ create_display_additional_representations_dialog (void)
   GLADE_HOOKUP_OBJECT (display_additional_representations_dialog, checkbutton10, "checkbutton10");
   GLADE_HOOKUP_OBJECT (display_additional_representations_dialog, checkbutton11, "checkbutton11");
   GLADE_HOOKUP_OBJECT (display_additional_representations_dialog, label627, "label627");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(display_additional_representations_dialog, dialog_action_area111, "dialog_action_area111");
+  GLADE_HOOKUP_OBJECT_NO_REF (display_additional_representations_dialog, dialog_action_area111, "dialog_action_area111");
   GLADE_HOOKUP_OBJECT (display_additional_representations_dialog, display_additional_representations_close_button, "display_additional_representations_close_button");
 
   return display_additional_representations_dialog;
@@ -26766,8 +26746,8 @@ create_restraints_editor_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(restraints_editor_dialog, restraints_editor_dialog, "restraints_editor_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(restraints_editor_dialog, dialog_vbox1, "dialog_vbox1");
+  GLADE_HOOKUP_OBJECT_NO_REF (restraints_editor_dialog, restraints_editor_dialog, "restraints_editor_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (restraints_editor_dialog, dialog_vbox1, "dialog_vbox1");
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, vbox1, "vbox1");
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, restraints_editor_notebook, "restraints_editor_notebook");
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, scrolledwindow4, "scrolledwindow4");
@@ -26802,7 +26782,7 @@ create_restraints_editor_dialog (void)
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, hbox2, "hbox2");
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, image1, "image1");
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, label28, "label28");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(restraints_editor_dialog, dialog_action_area1, "dialog_action_area1");
+  GLADE_HOOKUP_OBJECT_NO_REF (restraints_editor_dialog, dialog_action_area1, "dialog_action_area1");
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, restraints_editor_close_button, "restraints_editor_close_button");
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, alignment3, "alignment3");
   GLADE_HOOKUP_OBJECT (restraints_editor_dialog, hbox4, "hbox4");
@@ -26924,13 +26904,13 @@ create_residue_editor_select_monomer_type_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(residue_editor_select_monomer_type_dialog, residue_editor_select_monomer_type_dialog, "residue_editor_select_monomer_type_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(residue_editor_select_monomer_type_dialog, dialog_vbox113, "dialog_vbox113");
+  GLADE_HOOKUP_OBJECT_NO_REF (residue_editor_select_monomer_type_dialog, residue_editor_select_monomer_type_dialog, "residue_editor_select_monomer_type_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (residue_editor_select_monomer_type_dialog, dialog_vbox113, "dialog_vbox113");
   GLADE_HOOKUP_OBJECT (residue_editor_select_monomer_type_dialog, vbox276, "vbox276");
   GLADE_HOOKUP_OBJECT (residue_editor_select_monomer_type_dialog, label633, "label633");
   GLADE_HOOKUP_OBJECT (residue_editor_select_monomer_type_dialog, residue_editor_select_monomer_type_combobox, "residue_editor_select_monomer_type_combobox");
   GLADE_HOOKUP_OBJECT (residue_editor_select_monomer_type_dialog, label634, "label634");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(residue_editor_select_monomer_type_dialog, dialog_action_area112, "dialog_action_area112");
+  GLADE_HOOKUP_OBJECT_NO_REF (residue_editor_select_monomer_type_dialog, dialog_action_area112, "dialog_action_area112");
   GLADE_HOOKUP_OBJECT (residue_editor_select_monomer_type_dialog, residue_editor_select_monomer_type_ok_button, "residue_editor_select_monomer_type_ok_button");
   GLADE_HOOKUP_OBJECT (residue_editor_select_monomer_type_dialog, alignment121, "alignment121");
   GLADE_HOOKUP_OBJECT (residue_editor_select_monomer_type_dialog, hbox337, "hbox337");
@@ -26994,9 +26974,9 @@ create_save_restraint_chooserdialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_restraint_chooserdialog, save_restraint_chooserdialog, "save_restraint_chooserdialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_restraint_chooserdialog, dialog_vbox114, "dialog_vbox114");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(save_restraint_chooserdialog, dialog_action_area113, "dialog_action_area113");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_restraint_chooserdialog, save_restraint_chooserdialog, "save_restraint_chooserdialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_restraint_chooserdialog, dialog_vbox114, "dialog_vbox114");
+  GLADE_HOOKUP_OBJECT_NO_REF (save_restraint_chooserdialog, dialog_action_area113, "dialog_action_area113");
   GLADE_HOOKUP_OBJECT (save_restraint_chooserdialog, button27, "button27");
   GLADE_HOOKUP_OBJECT (save_restraint_chooserdialog, button28, "button28");
 
@@ -27040,10 +27020,10 @@ create_run_refmac_nolabels_help_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_nolabels_help_dialog, run_refmac_nolabels_help_dialog, "run_refmac_nolabels_help_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_nolabels_help_dialog, vbox277, "vbox277");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_nolabels_help_dialog, run_refmac_nolabels_help_dialog, "run_refmac_nolabels_help_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_nolabels_help_dialog, vbox277, "vbox277");
   GLADE_HOOKUP_OBJECT (run_refmac_nolabels_help_dialog, label639, "label639");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_nolabels_help_dialog, hbuttonbox6, "hbuttonbox6");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_nolabels_help_dialog, hbuttonbox6, "hbuttonbox6");
   GLADE_HOOKUP_OBJECT (run_refmac_nolabels_help_dialog, run_refmac_nolabels_help_dialog_ok_button, "run_refmac_nolabels_help_dialog_ok_button");
 
   return run_refmac_nolabels_help_dialog;
@@ -27232,8 +27212,8 @@ create_coot_references_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(coot_references_dialog, coot_references_dialog, "coot_references_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(coot_references_dialog, dialog_vbox115, "dialog_vbox115");
+  GLADE_HOOKUP_OBJECT_NO_REF (coot_references_dialog, coot_references_dialog, "coot_references_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (coot_references_dialog, dialog_vbox115, "dialog_vbox115");
   GLADE_HOOKUP_OBJECT (coot_references_dialog, hbox348, "hbox348");
   GLADE_HOOKUP_OBJECT (coot_references_dialog, toolbar2, "toolbar2");
   GLADE_HOOKUP_OBJECT (coot_references_dialog, coot_references_coot_toolbutton, "coot_references_coot_toolbutton");
@@ -27255,7 +27235,7 @@ create_coot_references_dialog (void)
   GLADE_HOOKUP_OBJECT (coot_references_dialog, scrolledwindow30, "scrolledwindow30");
   GLADE_HOOKUP_OBJECT (coot_references_dialog, coot_bibtext_textview, "coot_bibtext_textview");
   GLADE_HOOKUP_OBJECT (coot_references_dialog, label652, "label652");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(coot_references_dialog, dialog_action_area114, "dialog_action_area114");
+  GLADE_HOOKUP_OBJECT_NO_REF (coot_references_dialog, dialog_action_area114, "dialog_action_area114");
   GLADE_HOOKUP_OBJECT (coot_references_dialog, coot_references_closebutton, "coot_references_closebutton");
 
   return coot_references_dialog;
@@ -27298,10 +27278,10 @@ create_run_refmac_file_help_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_file_help_dialog, run_refmac_file_help_dialog, "run_refmac_file_help_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_file_help_dialog, dialog_vbox116, "dialog_vbox116");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_file_help_dialog, run_refmac_file_help_dialog, "run_refmac_file_help_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_file_help_dialog, dialog_vbox116, "dialog_vbox116");
   GLADE_HOOKUP_OBJECT (run_refmac_file_help_dialog, label654, "label654");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_file_help_dialog, dialog_action_area115, "dialog_action_area115");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_file_help_dialog, dialog_action_area115, "dialog_action_area115");
   GLADE_HOOKUP_OBJECT (run_refmac_file_help_dialog, run_refmac_file_help_dialog_ok_button, "run_refmac_file_help_dialog_ok_button");
 
   return run_refmac_file_help_dialog;
@@ -27342,10 +27322,10 @@ create_run_refmac_sad_help_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_sad_help_dialog, run_refmac_sad_help_dialog, "run_refmac_sad_help_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_sad_help_dialog, dialog_vbox117, "dialog_vbox117");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_sad_help_dialog, run_refmac_sad_help_dialog, "run_refmac_sad_help_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_sad_help_dialog, dialog_vbox117, "dialog_vbox117");
   GLADE_HOOKUP_OBJECT (run_refmac_sad_help_dialog, label661, "label661");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_sad_help_dialog, dialog_action_area116, "dialog_action_area116");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_sad_help_dialog, dialog_action_area116, "dialog_action_area116");
   GLADE_HOOKUP_OBJECT (run_refmac_sad_help_dialog, run_refmac_sad_help_dialog_ok_button, "run_refmac_sad_help_dialog_ok_button");
 
   return run_refmac_sad_help_dialog;
@@ -27394,9 +27374,9 @@ create_run_refmac_mtz_filechooserdialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_mtz_filechooserdialog, run_refmac_mtz_filechooserdialog, "run_refmac_mtz_filechooserdialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_mtz_filechooserdialog, dialog_vbox118, "dialog_vbox118");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(run_refmac_mtz_filechooserdialog, dialog_action_area117, "dialog_action_area117");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_mtz_filechooserdialog, run_refmac_mtz_filechooserdialog, "run_refmac_mtz_filechooserdialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_mtz_filechooserdialog, dialog_vbox118, "dialog_vbox118");
+  GLADE_HOOKUP_OBJECT_NO_REF (run_refmac_mtz_filechooserdialog, dialog_action_area117, "dialog_action_area117");
   GLADE_HOOKUP_OBJECT (run_refmac_mtz_filechooserdialog, button30, "button30");
   GLADE_HOOKUP_OBJECT (run_refmac_mtz_filechooserdialog, button31, "button31");
 
@@ -27582,8 +27562,8 @@ create_fast_ss_search_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(fast_ss_search_dialog, fast_ss_search_dialog, "fast_ss_search_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(fast_ss_search_dialog, dialog_vbox120, "dialog_vbox120");
+  GLADE_HOOKUP_OBJECT_NO_REF (fast_ss_search_dialog, fast_ss_search_dialog, "fast_ss_search_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (fast_ss_search_dialog, dialog_vbox120, "dialog_vbox120");
   GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, vbox301, "vbox301");
   GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, hbox387, "hbox387");
   GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, fast_sss_dialog_helix_checkbutton, "fast_sss_dialog_helix_checkbutton");
@@ -27601,7 +27581,7 @@ create_fast_ss_search_dialog (void)
   GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, fast_sss_dialog_local_checkbutton, "fast_sss_dialog_local_checkbutton");
   GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, fast_sss_dialog_radius_combobox, "fast_sss_dialog_radius_combobox");
   GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, label713, "label713");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(fast_ss_search_dialog, dialog_action_area119, "dialog_action_area119");
+  GLADE_HOOKUP_OBJECT_NO_REF (fast_ss_search_dialog, dialog_action_area119, "dialog_action_area119");
   GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, fast_sss_dialog_citation_button, "fast_sss_dialog_citation_button");
   GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, alignment134, "alignment134");
   GLADE_HOOKUP_OBJECT (fast_ss_search_dialog, hbox396, "hbox396");
@@ -27787,8 +27767,8 @@ create_map_sharpening_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(map_sharpening_dialog, map_sharpening_dialog, "map_sharpening_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(map_sharpening_dialog, dialog_vbox121, "dialog_vbox121");
+  GLADE_HOOKUP_OBJECT_NO_REF (map_sharpening_dialog, map_sharpening_dialog, "map_sharpening_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (map_sharpening_dialog, dialog_vbox121, "dialog_vbox121");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, vbox302, "vbox302");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, label728, "label728");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, map_sharpening_molecule_combobox, "map_sharpening_molecule_combobox");
@@ -27805,7 +27785,7 @@ create_map_sharpening_dialog (void)
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, hbox436, "hbox436");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, image10853, "image10853");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, label789, "label789");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(map_sharpening_dialog, dialog_action_area120, "dialog_action_area120");
+  GLADE_HOOKUP_OBJECT_NO_REF (map_sharpening_dialog, dialog_action_area120, "dialog_action_area120");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, map_sharpening_ok_button, "map_sharpening_ok_button");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, alignment139, "alignment139");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, hbox402, "hbox402");
@@ -27816,7 +27796,7 @@ create_map_sharpening_dialog (void)
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, hbox403, "hbox403");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, image6894, "image6894");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, label730, "label730");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(map_sharpening_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   return map_sharpening_dialog;
 }
@@ -27911,8 +27891,8 @@ create_baton_build_params_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_build_params_dialog, baton_build_params_dialog, "baton_build_params_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_build_params_dialog, dialog_vbox122, "dialog_vbox122");
+  GLADE_HOOKUP_OBJECT_NO_REF (baton_build_params_dialog, baton_build_params_dialog, "baton_build_params_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (baton_build_params_dialog, dialog_vbox122, "dialog_vbox122");
   GLADE_HOOKUP_OBJECT (baton_build_params_dialog, vbox304, "vbox304");
   GLADE_HOOKUP_OBJECT (baton_build_params_dialog, hbox405, "hbox405");
   GLADE_HOOKUP_OBJECT (baton_build_params_dialog, label735, "label735");
@@ -27921,10 +27901,10 @@ create_baton_build_params_dialog (void)
   GLADE_HOOKUP_OBJECT (baton_build_params_dialog, label736, "label736");
   GLADE_HOOKUP_OBJECT (baton_build_params_dialog, baton_build_params_chain_id_entry, "baton_build_params_chain_id_entry");
   GLADE_HOOKUP_OBJECT (baton_build_params_dialog, baton_build_params_backwards_checkbutton, "baton_build_params_backwards_checkbutton");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_build_params_dialog, dialog_action_area121, "dialog_action_area121");
+  GLADE_HOOKUP_OBJECT_NO_REF (baton_build_params_dialog, dialog_action_area121, "dialog_action_area121");
   GLADE_HOOKUP_OBJECT (baton_build_params_dialog, baton_build_params_ok_button, "baton_build_params_ok_button");
   GLADE_HOOKUP_OBJECT (baton_build_params_dialog, baton_build_params_cancel_button, "baton_build_params_cancel_button");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(baton_build_params_dialog, tooltips, "tooltips");
+  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   return baton_build_params_dialog;
 }
@@ -27975,11 +27955,11 @@ create_pisa_interfaces_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(pisa_interfaces_dialog, pisa_interfaces_dialog, "pisa_interfaces_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(pisa_interfaces_dialog, dialog_vbox123, "dialog_vbox123");
+  GLADE_HOOKUP_OBJECT_NO_REF (pisa_interfaces_dialog, pisa_interfaces_dialog, "pisa_interfaces_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (pisa_interfaces_dialog, dialog_vbox123, "dialog_vbox123");
   GLADE_HOOKUP_OBJECT (pisa_interfaces_dialog, scrolledwindow31, "scrolledwindow31");
   GLADE_HOOKUP_OBJECT (pisa_interfaces_dialog, pisa_interfaces_treeview, "pisa_interfaces_treeview");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(pisa_interfaces_dialog, dialog_action_area122, "dialog_action_area122");
+  GLADE_HOOKUP_OBJECT_NO_REF (pisa_interfaces_dialog, dialog_action_area122, "dialog_action_area122");
   GLADE_HOOKUP_OBJECT (pisa_interfaces_dialog, button32, "button32");
   GLADE_HOOKUP_OBJECT (pisa_interfaces_dialog, pisa_interfces_close_button, "pisa_interfces_close_button");
 
@@ -28046,7 +28026,7 @@ create_scheme_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(scheme_window, scheme_window, "scheme_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (scheme_window, scheme_window, "scheme_window");
   GLADE_HOOKUP_OBJECT (scheme_window, vbox306, "vbox306");
   GLADE_HOOKUP_OBJECT (scheme_window, hbox412, "hbox412");
   GLADE_HOOKUP_OBJECT (scheme_window, label746, "label746");
@@ -28116,12 +28096,12 @@ create_remarks_browser_molecule_chooser_dialog (void)
                           NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(remarks_browser_molecule_chooser_dialog, remarks_browser_molecule_chooser_dialog, "remarks_browser_molecule_chooser_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(remarks_browser_molecule_chooser_dialog, dialog_vbox124, "dialog_vbox124");
+  GLADE_HOOKUP_OBJECT_NO_REF (remarks_browser_molecule_chooser_dialog, remarks_browser_molecule_chooser_dialog, "remarks_browser_molecule_chooser_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (remarks_browser_molecule_chooser_dialog, dialog_vbox124, "dialog_vbox124");
   GLADE_HOOKUP_OBJECT (remarks_browser_molecule_chooser_dialog, frame296, "frame296");
   GLADE_HOOKUP_OBJECT (remarks_browser_molecule_chooser_dialog, alignment154, "alignment154");
   GLADE_HOOKUP_OBJECT (remarks_browser_molecule_chooser_dialog, label760, "label760");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(remarks_browser_molecule_chooser_dialog, dialog_action_area123, "dialog_action_area123");
+  GLADE_HOOKUP_OBJECT_NO_REF (remarks_browser_molecule_chooser_dialog, dialog_action_area123, "dialog_action_area123");
   GLADE_HOOKUP_OBJECT (remarks_browser_molecule_chooser_dialog, remarks_browser_molecule_chooser_cancel_button, "remarks_browser_molecule_chooser_cancel_button");
   GLADE_HOOKUP_OBJECT (remarks_browser_molecule_chooser_dialog, remarks_browser_molecule_chooser_ok_button, "remarks_browser_molecule_chooser_ok_button");
 
@@ -28204,8 +28184,8 @@ create_fix_nomenclature_errors_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(fix_nomenclature_errors_dialog, fix_nomenclature_errors_dialog, "fix_nomenclature_errors_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(fix_nomenclature_errors_dialog, dialog_vbox125, "dialog_vbox125");
+  GLADE_HOOKUP_OBJECT_NO_REF (fix_nomenclature_errors_dialog, fix_nomenclature_errors_dialog, "fix_nomenclature_errors_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (fix_nomenclature_errors_dialog, dialog_vbox125, "dialog_vbox125");
   GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, vbox311, "vbox311");
   GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, hbox417, "hbox417");
   GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, image9619, "image9619");
@@ -28213,7 +28193,7 @@ create_fix_nomenclature_errors_dialog (void)
   GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, scrolledwindow33, "scrolledwindow33");
   GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, viewport21, "viewport21");
   GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, nomenclature_errors_vbox, "nomenclature_errors_vbox");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(fix_nomenclature_errors_dialog, dialog_action_area124, "dialog_action_area124");
+  GLADE_HOOKUP_OBJECT_NO_REF (fix_nomenclature_errors_dialog, dialog_action_area124, "dialog_action_area124");
   GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, fix_nomenclature_errors_ok_button, "fix_nomenclature_errors_ok_button");
   GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, fix_nomenclature_errors_cancel_button, "fix_nomenclature_errors_cancel_button");
 
@@ -28333,8 +28313,8 @@ create_multi_residue_torsion_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(multi_residue_torsion_dialog, multi_residue_torsion_dialog, "multi_residue_torsion_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(multi_residue_torsion_dialog, dialog_vbox127, "dialog_vbox127");
+  GLADE_HOOKUP_OBJECT_NO_REF (multi_residue_torsion_dialog, multi_residue_torsion_dialog, "multi_residue_torsion_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (multi_residue_torsion_dialog, dialog_vbox127, "dialog_vbox127");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, vbox321, "vbox321");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, label769, "label769");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, scrolledwindow35, "scrolledwindow35");
@@ -28347,7 +28327,7 @@ create_multi_residue_torsion_dialog (void)
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, image9926, "image9926");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, label771, "label771");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, hseparator17, "hseparator17");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(multi_residue_torsion_dialog, dialog_action_area126, "dialog_action_area126");
+  GLADE_HOOKUP_OBJECT_NO_REF (multi_residue_torsion_dialog, dialog_action_area126, "dialog_action_area126");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, multi_residue_torsion_OK_button, "multi_residue_torsion_OK_button");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, multi_residue_torsion_cancel_button, "multi_residue_torsion_cancel_button");
 
@@ -28419,14 +28399,14 @@ create_multi_residue_torsion_pick_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(multi_residue_torsion_pick_dialog, multi_residue_torsion_pick_dialog, "multi_residue_torsion_pick_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(multi_residue_torsion_pick_dialog, dialog_vbox128, "dialog_vbox128");
+  GLADE_HOOKUP_OBJECT_NO_REF (multi_residue_torsion_pick_dialog, multi_residue_torsion_pick_dialog, "multi_residue_torsion_pick_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (multi_residue_torsion_pick_dialog, dialog_vbox128, "dialog_vbox128");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, vbox322, "vbox322");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, label772, "label772");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, multi_residue_torsion_pick_auto_select_checkbutton, "multi_residue_torsion_pick_auto_select_checkbutton");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, multi_residue_torsion_pick_auto_refine_checkbutton, "multi_residue_torsion_pick_auto_refine_checkbutton");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, hseparator18, "hseparator18");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(multi_residue_torsion_pick_dialog, dialog_action_area127, "dialog_action_area127");
+  GLADE_HOOKUP_OBJECT_NO_REF (multi_residue_torsion_pick_dialog, dialog_action_area127, "dialog_action_area127");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, multi_residue_torsion_pick_apply_button, "multi_residue_torsion_pick_apply_button");
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, multi_residue_torsion_pick_cancel_button, "multi_residue_torsion_pick_cancel_button");
 
@@ -28459,7 +28439,7 @@ create_keyboard_goto_residue_window (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(keyboard_goto_residue_window, keyboard_goto_residue_window, "keyboard_goto_residue_window");
+  GLADE_HOOKUP_OBJECT_NO_REF (keyboard_goto_residue_window, keyboard_goto_residue_window, "keyboard_goto_residue_window");
   GLADE_HOOKUP_OBJECT (keyboard_goto_residue_window, keyboard_go_to_residue_entry, "keyboard_go_to_residue_entry");
 
   gtk_widget_grab_focus (keyboard_go_to_residue_entry);
@@ -28551,8 +28531,8 @@ create_mogul_geometry_results_table_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(mogul_geometry_results_table_dialog, mogul_geometry_results_table_dialog, "mogul_geometry_results_table_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(mogul_geometry_results_table_dialog, dialog_vbox129, "dialog_vbox129");
+  GLADE_HOOKUP_OBJECT_NO_REF (mogul_geometry_results_table_dialog, mogul_geometry_results_table_dialog, "mogul_geometry_results_table_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (mogul_geometry_results_table_dialog, dialog_vbox129, "dialog_vbox129");
   GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, mogul_notebook, "mogul_notebook");
   GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, scrolledwindow36, "scrolledwindow36");
   GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, mogul_bonds_treeview, "mogul_bonds_treeview");
@@ -28563,7 +28543,7 @@ create_mogul_geometry_results_table_dialog (void)
   GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, scrolledwindow38, "scrolledwindow38");
   GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, mogul_torsions_treeview, "mogul_torsions_treeview");
   GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, label776, "label776");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(mogul_geometry_results_table_dialog, dialog_action_area128, "dialog_action_area128");
+  GLADE_HOOKUP_OBJECT_NO_REF (mogul_geometry_results_table_dialog, dialog_action_area128, "dialog_action_area128");
   GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, mogul_geometry_dialog_close_button, "mogul_geometry_dialog_close_button");
 
   return mogul_geometry_results_table_dialog;
@@ -28630,12 +28610,12 @@ create_build_na_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(build_na_dialog, build_na_dialog, "build_na_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(build_na_dialog, dialog_vbox130, "dialog_vbox130");
+  GLADE_HOOKUP_OBJECT_NO_REF (build_na_dialog, build_na_dialog, "build_na_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (build_na_dialog, dialog_vbox130, "dialog_vbox130");
   GLADE_HOOKUP_OBJECT (build_na_dialog, hbox428, "hbox428");
   GLADE_HOOKUP_OBJECT (build_na_dialog, label778, "label778");
   GLADE_HOOKUP_OBJECT (build_na_dialog, build_na_dialog_radius_entry, "build_na_dialog_radius_entry");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(build_na_dialog, dialog_action_area129, "dialog_action_area129");
+  GLADE_HOOKUP_OBJECT_NO_REF (build_na_dialog, dialog_action_area129, "dialog_action_area129");
   GLADE_HOOKUP_OBJECT (build_na_dialog, build_na_dialog_cancelbutton, "build_na_dialog_cancelbutton");
   GLADE_HOOKUP_OBJECT (build_na_dialog, build_na_dialog_okbutton, "build_na_dialog_okbutton");
 
@@ -28797,8 +28777,8 @@ create_ligand_check_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ligand_check_dialog, ligand_check_dialog, "ligand_check_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ligand_check_dialog, dialog_vbox130, "dialog_vbox130");
+  GLADE_HOOKUP_OBJECT_NO_REF (ligand_check_dialog, ligand_check_dialog, "ligand_check_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (ligand_check_dialog, dialog_vbox130, "dialog_vbox130");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, vbox323, "vbox323");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, ligand_check_ligand_spec_label, "ligand_check_ligand_spec_label");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, table7, "table7");
@@ -28818,7 +28798,7 @@ create_ligand_check_dialog (void)
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, label780, "label780");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, label781, "label781");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, ligand_check_db_label, "ligand_check_db_label");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(ligand_check_dialog, dialog_action_area129, "dialog_action_area129");
+  GLADE_HOOKUP_OBJECT_NO_REF (ligand_check_dialog, dialog_action_area129, "dialog_action_area129");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, ligand_check_cancelbutton, "ligand_check_cancelbutton");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, ligand_check_okbutton, "ligand_check_okbutton");
 
@@ -28923,8 +28903,8 @@ create_generic_objects_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(generic_objects_dialog, generic_objects_dialog, "generic_objects_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(generic_objects_dialog, dialog_vbox131, "dialog_vbox131");
+  GLADE_HOOKUP_OBJECT_NO_REF (generic_objects_dialog, generic_objects_dialog, "generic_objects_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (generic_objects_dialog, dialog_vbox131, "dialog_vbox131");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, hbox433, "hbox433");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_display_all_togglebutton, "generic_objects_display_all_togglebutton");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_scrolledwindow, "generic_objects_scrolledwindow");
@@ -28936,7 +28916,7 @@ create_generic_objects_dialog (void)
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, hbox432, "hbox432");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, image10618, "image10618");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, label782, "label782");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(generic_objects_dialog, dialog_action_area130, "dialog_action_area130");
+  GLADE_HOOKUP_OBJECT_NO_REF (generic_objects_dialog, dialog_action_area130, "dialog_action_area130");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_dialog_closebutton, "generic_objects_dialog_closebutton");
 
   return generic_objects_dialog;
@@ -29016,15 +28996,15 @@ create_export_map_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(export_map_dialog, export_map_dialog, "export_map_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(export_map_dialog, dialog_vbox132, "dialog_vbox132");
+  GLADE_HOOKUP_OBJECT_NO_REF (export_map_dialog, export_map_dialog, "export_map_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (export_map_dialog, dialog_vbox132, "dialog_vbox132");
   GLADE_HOOKUP_OBJECT (export_map_dialog, vbox324, "vbox324");
   GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_map_combobox, "export_map_map_combobox");
   GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_fragment_hbox, "export_map_fragment_hbox");
   GLADE_HOOKUP_OBJECT (export_map_dialog, label786, "label786");
   GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_radius_entry, "export_map_radius_entry");
   GLADE_HOOKUP_OBJECT (export_map_dialog, label787, "label787");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(export_map_dialog, dialog_action_area131, "dialog_action_area131");
+  GLADE_HOOKUP_OBJECT_NO_REF (export_map_dialog, dialog_action_area131, "dialog_action_area131");
   GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_dialog_ok_button, "export_map_dialog_ok_button");
   GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_dialog_cancel_button, "export_map_dialog_cancel_button");
 
@@ -29070,9 +29050,9 @@ create_export_map_filechooserdialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(export_map_filechooserdialog, export_map_filechooserdialog, "export_map_filechooserdialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(export_map_filechooserdialog, dialog_vbox133, "dialog_vbox133");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(export_map_filechooserdialog, dialog_action_area132, "dialog_action_area132");
+  GLADE_HOOKUP_OBJECT_NO_REF (export_map_filechooserdialog, export_map_filechooserdialog, "export_map_filechooserdialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (export_map_filechooserdialog, dialog_vbox133, "dialog_vbox133");
+  GLADE_HOOKUP_OBJECT_NO_REF (export_map_filechooserdialog, dialog_action_area132, "dialog_action_area132");
   GLADE_HOOKUP_OBJECT (export_map_filechooserdialog, export_map_filechooserdialog_cancel_button, "export_map_filechooserdialog_cancel_button");
   GLADE_HOOKUP_OBJECT (export_map_filechooserdialog, export_map_filechooserdialog_save_button, "export_map_filechooserdialog_save_button");
 
@@ -29186,8 +29166,8 @@ create_cfc_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(cfc_dialog, cfc_dialog, "cfc_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(cfc_dialog, dialog_vbox134, "dialog_vbox134");
+  GLADE_HOOKUP_OBJECT_NO_REF (cfc_dialog, cfc_dialog, "cfc_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (cfc_dialog, dialog_vbox134, "dialog_vbox134");
   GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_notebook, "cfc_notebook");
   GLADE_HOOKUP_OBJECT (cfc_dialog, scrolledwindow40, "scrolledwindow40");
   GLADE_HOOKUP_OBJECT (cfc_dialog, viewport27, "viewport27");
@@ -29203,7 +29183,7 @@ create_cfc_dialog (void)
   GLADE_HOOKUP_OBJECT (cfc_dialog, viewport25, "viewport25");
   GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_waters_vbox, "cfc_waters_vbox");
   GLADE_HOOKUP_OBJECT (cfc_dialog, label793, "label793");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(cfc_dialog, dialog_action_area133, "dialog_action_area133");
+  GLADE_HOOKUP_OBJECT_NO_REF (cfc_dialog, dialog_action_area133, "dialog_action_area133");
   GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_dialog_closebutton, "cfc_dialog_closebutton");
 
   return cfc_dialog;
@@ -29356,8 +29336,8 @@ create_curlew_dialog (void)
                     NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(curlew_dialog, curlew_dialog, "curlew_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(curlew_dialog, dialog_vbox135, "dialog_vbox135");
+  GLADE_HOOKUP_OBJECT_NO_REF (curlew_dialog, curlew_dialog, "curlew_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (curlew_dialog, dialog_vbox135, "dialog_vbox135");
   GLADE_HOOKUP_OBJECT (curlew_dialog, hbox450, "hbox450");
   GLADE_HOOKUP_OBJECT (curlew_dialog, image12118, "image12118");
   GLADE_HOOKUP_OBJECT (curlew_dialog, hbox445, "hbox445");
@@ -29379,7 +29359,7 @@ create_curlew_dialog (void)
   GLADE_HOOKUP_OBJECT (curlew_dialog, hbox449, "hbox449");
   GLADE_HOOKUP_OBJECT (curlew_dialog, image12117, "image12117");
   GLADE_HOOKUP_OBJECT (curlew_dialog, label816, "label816");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(curlew_dialog, dialog_action_area134, "dialog_action_area134");
+  GLADE_HOOKUP_OBJECT_NO_REF (curlew_dialog, dialog_action_area134, "dialog_action_area134");
   GLADE_HOOKUP_OBJECT (curlew_dialog, curlew_dialog_closebutton, "curlew_dialog_closebutton");
 
   return curlew_dialog;
@@ -29482,8 +29462,8 @@ create_refinement_restraints_sliders_dialog (void)
   gtk_widget_set_can_default (okbutton2, 1);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(refinement_restraints_sliders_dialog, refinement_restraints_sliders_dialog, "refinement_restraints_sliders_dialog");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(refinement_restraints_sliders_dialog, dialog_vbox136, "dialog_vbox136");
+  GLADE_HOOKUP_OBJECT_NO_REF (refinement_restraints_sliders_dialog, refinement_restraints_sliders_dialog, "refinement_restraints_sliders_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (refinement_restraints_sliders_dialog, dialog_vbox136, "dialog_vbox136");
   GLADE_HOOKUP_OBJECT (refinement_restraints_sliders_dialog, vbox331, "vbox331");
   GLADE_HOOKUP_OBJECT (refinement_restraints_sliders_dialog, hbox452, "hbox452");
   GLADE_HOOKUP_OBJECT (refinement_restraints_sliders_dialog, label825, "label825");
@@ -29497,7 +29477,7 @@ create_refinement_restraints_sliders_dialog (void)
   GLADE_HOOKUP_OBJECT (refinement_restraints_sliders_dialog, hscale6, "hscale6");
   GLADE_HOOKUP_OBJECT (refinement_restraints_sliders_dialog, label831, "label831");
   GLADE_HOOKUP_OBJECT (refinement_restraints_sliders_dialog, hscale7, "hscale7");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing(refinement_restraints_sliders_dialog, dialog_action_area135, "dialog_action_area135");
+  GLADE_HOOKUP_OBJECT_NO_REF (refinement_restraints_sliders_dialog, dialog_action_area135, "dialog_action_area135");
   GLADE_HOOKUP_OBJECT (refinement_restraints_sliders_dialog, cancelbutton2, "cancelbutton2");
   GLADE_HOOKUP_OBJECT (refinement_restraints_sliders_dialog, okbutton2, "okbutton2");
 

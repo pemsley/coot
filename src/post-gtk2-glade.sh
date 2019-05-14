@@ -62,9 +62,6 @@ $SED -e 's/#include "callbacks.h.gtk2"/#include "callbacks.h"/' \
         /png/s/create_pixmap (preferences, /gtk_image_new_from_stock (/
         /png/s/);/, GTK_ICON_SIZE_BUTTON);/
         }' \
-    -e 's/tmp_image = .*rtz.svg/#ifdef GTK_TYPE_MENU_TOOL_BUTTON\n  &/' \
-    -e 's/set_tooltip .*model_toolbar_rot_trans_toolbutton.*;/&\n#endif\n/' \
-    -e 's/ *GLADE_HOOKUP_OBJECT .*model_toolbar_rot_trans_toolbutton.*/#ifdef GTK_TYPE_MENU_TOOL_BUTTON\n  &\n#endif/' \
     -e 's/ gtk_combo_box_append_text .GTK_COMBO_BOX / gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT /' \
     -e 's/ gtk_combo_box_new_text / gtk_combo_box_text_new /' \
     -e 's?  GtkTooltips *?  // GtkTooltips ?' \
@@ -104,3 +101,9 @@ bash fixup-interface.h.sh
 # / GTK_WIDGET_SET_FLAGS .* GTK_CAN_DEFAULT / {print "  gtk_widget_set_can_default " $2, "1);" }
 
 #    -e 's? GLADE_HOOKUP_OBJECT_NO_REF ? // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing?'
+
+# We don't care about old gtks now
+#    -e 's/tmp_image = .*rtz.svg/#ifdef GTK_TYPE_MENU_TOOL_BUTTON\n  &/'
+#    -e 's/set_tooltip .*model_toolbar_rot_trans_toolbutton.*;/&\n#endif\n/' 
+#    -e 's/ *GLADE_HOOKUP_OBJECT .*model_toolbar_rot_trans_toolbutton.*/#ifdef GTK_TYPE_MENU_TOOL_BUTTON\n  &\n#endif/' 
+
