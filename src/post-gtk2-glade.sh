@@ -73,8 +73,6 @@ $SED -e 's/#include "callbacks.h.gtk2"/#include "callbacks.h"/' \
     -e 's? gtk_tool_item_set_tooltip ? // gtk_tool_item_set_tooltip ?' \
     -e 's? gtk_dialog_set_has_separator ? // gtk_dialog_set_has_separator ?' \
     -e 's? gtk_toolbar_set_orientation (GTK_TOOLBAR ? gtk_orientable_set_orientation (GTK_ORIENTABLE ?' \
-    -e 's? GTK_WIDGET_UNSET_FLAGS ? // GTK_WIDGET_UNSET_FLAGS ?' \
-    -e 's? GTK_WIDGET_SET_FLAGS ? // GTK_WIDGET_SET_FLAGS ?' \
     -e 's/gtk_widget_ref (widget), (GDestroyNotify) gtk_widget_unref)/g_object_ref (widget), (GDestroyNotify) g_object_unref)/' \
     -e 's/ gtk_about_dialog_set_name / gtk_about_dialog_set_program_name /' \
     -e 's? GLADE_HOOKUP_OBJECT_NO_REF ? // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing?' \
@@ -87,7 +85,11 @@ $SED -e 's/#include "callbacks.h.gtk2"/#include "callbacks.h"/' \
     -e 's/ gtk_hbox_new .FALSE/ gtk_box_new (GTK_ORIENTATION_HORIZONTAL/' \
     -e 's/ gtk_hbox_new .TRUE/  gtk_box_new (GTK_ORIENTATION_HORIZONTAL/' \
     gtk2-interface.c \
-    | awk '/ = GTK_DIALOG/ {f=$4; gsub("[(]", "", f); gsub("[)].*", "", f); print(" ", $1, "=", "gtk_dialog_get_content_area(", f, ");")}
+    | awk '
+/ = GTK_DIALOG/ {f=$4; gsub("[(]", "", f); gsub("[)].*", "", f); print(" ", $1, "=", "gtk_dialog_get_content_area(", f, ");")}
+/ GTK_WIDGET_SET_FLAGS .* GTK_CAN_DEFAULT/ {print "  gtk_widget_set_can_default " $2, "1);" ; next }
+/ GTK_WIDGET_SET_FLAGS .* GTK_CAN_FOCUS/   {print "  gtk_widget_set_can_focus " $2, "1);" ; next }
+/ GTK_WIDGET_UNSET_FLAGS .* GTK_CAN_FOCUS/   {print "  gtk_widget_set_can_focus " $2, "0);" ; next }
 $0 !~ "= GTK_DIALOG"
     ' \
     > gtk2-interface.post-sed
@@ -95,3 +97,8 @@ $0 !~ "= GTK_DIALOG"
 sh fixup-gtk2-interface.sh gtk2-interface.post-sed
 bash fixup-interface.h.sh
 
+#    -e 's? GTK_WIDGET_SET_FLAGS ? // GTK_WIDGET_SET_FLAGS ?'
+#   -e 's? GTK_WIDGET_UNSET_FLAGS ? // GTK_WIDGET_UNSET_FLAGS ?' \
+#    -e 's? GTK_WIDGET_SET_FLAGS ? gtk_widget_set_can_default ?' \
+ 
+# / GTK_WIDGET_SET_FLAGS .* GTK_CAN_DEFAULT / {print "  gtk_widget_set_can_default " $2, "1);" }
