@@ -2030,6 +2030,8 @@ int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc 
 
    // graphics_info_t g;
    // return g.fill_combobox_with_map_mtz_options(option_menu, signalfunc);
+
+   return -1;
 }
 
 // Similar to fill_option_menu_with_coordinates_options, but I moved
@@ -2039,8 +2041,21 @@ int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc 
 int fill_combobox_with_map_options(GtkWidget *combobox, GtkSignalFunc signalfunc) {
 
    graphics_info_t g;
-   g.fill_combobox_with_map_options(combobox, signalfunc, -1);
-   return -1;
+   int imol_active = -1;
+   int ii = imol_refinement_map();
+   if (is_valid_map_molecule(ii)) {
+      imol_active = ii;
+   } else {
+      for (int i=0; i<g.n_molecules(); i++) {
+	 if (is_valid_map_molecule(i)) {
+	    imol_active = i;
+	    break;
+	 }
+      }
+   }
+   g.fill_combobox_with_map_options(combobox, signalfunc, imol_active);
+   return imol_active;
+
 }
 
 // This is for maps which come from mtz (i.e. have SFs)
@@ -4149,7 +4164,7 @@ char* get_text_for_density_size_widget() {
    // Dontcha just *love" this sort coding! (yeuch)
    // 
    text = (char *) malloc(100);
-   snprintf(text,100,"%-5.1f", g.box_radius);
+   snprintf(text,100,"%-5.1f", g.box_radius_xray);
 
    return text;
 
@@ -5917,11 +5932,15 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
 
    float sharpening_limit = graphics_info_t::map_sharpening_scale_limit;
    GtkWidget *w = create_map_sharpening_dialog();
-   GtkSignalFunc signal_func = G_CALLBACK(map_sharpening_map_select);
 
-   GtkWidget *option_menu = lookup_widget(w, "map_sharpening_optionmenu");
+   // GtkSignalFunc signal_func = G_CALLBACK(map_sharpening_map_select);
+   // GtkWidget *option_menu = lookup_widget(w, "map_sharpening_optionmenu");
+   // int imol = fill_option_menu_with_map_mtz_options(option_menu, signal_func);
 
-   int imol = fill_option_menu_with_map_mtz_options(option_menu, signal_func);
+   graphics_info_t g;
+   GCallback signal_func = G_CALLBACK(map_sharpening_map_select_combobox_changed);
+   GtkWidget *combobx = lookup_widget(w, "map_sharpening_molecule_combobox");
+   int imol = g.fill_combobox_with_map_mtz_options(combobx, signal_func);
 
    if (is_valid_map_molecule(imol)) {
       graphics_info_t::imol_map_sharpening = imol;
@@ -5945,7 +5964,6 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
       // set to sharpening value
       gtk_adjustment_set_value(GTK_ADJUSTMENT(adj), graphics_info_t::molecules[imol].sharpen_b_factor());
    
-#if (GTK_MAJOR_VERSION > 2) || (GTK_MINOR_VERSION > 14)
       int ticks = 3;  // number of ticks on the (one) side (not including centre tick)
       for (int i=0; i<=2*ticks; i++) {
 	 float p = float (i-ticks) * (1.0/float(ticks)) * sharpening_limit;
@@ -5956,7 +5974,6 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
       }
       gtk_scale_add_mark(GTK_SCALE(h_scale), -sharpening_limit, GTK_POS_BOTTOM, "\nSharpen");
       gtk_scale_add_mark(GTK_SCALE(h_scale),  sharpening_limit, GTK_POS_BOTTOM, "\nBlur");
-#endif   
 
       // Don't display the cancel button.
       GtkWidget *c = lookup_widget(w, "map_sharpening_cancel_button");
@@ -5980,6 +5997,11 @@ calc_and_set_optimal_b_factor ( GtkWidget *w ) {
 	GtkAdjustment *adj = GTK_RANGE(h_scale)->adjustment;
         gtk_adjustment_set_value(adj, Bopt);
 }
+
+void map_sharpening_map_select_combobox_changed(GtkWidget *widget, gpointer data) {
+
+}
+
 
 void
 map_sharpening_map_select(GtkWidget *item, GtkPositionType pos) {

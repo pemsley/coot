@@ -1754,11 +1754,11 @@ void set_density_size_from_widget(const char *text) {
    tmp = atof(text);
 
    if ((tmp > 0.0) && (tmp < 9999.9)) {
-      g.box_radius = tmp;
+      g.box_radius_xray = tmp;
    } else {
 
       cout << "Cannot interpret " << text << ".  Assuming 10A" << endl;
-      g.box_radius = 10.0;
+      g.box_radius_xray = 10.0;
    }
    //
    for (int ii=0; ii<g.n_molecules(); ii++) {
@@ -1768,10 +1768,23 @@ void set_density_size_from_widget(const char *text) {
    graphics_draw();
 }
 
+void set_map_radius_em(float radius) {
+
+   graphics_info_t g;
+   g.box_radius_em = radius;
+   for (int ii=0; ii<g.n_molecules(); ii++)
+      g.molecules[ii].update_map();
+   graphics_draw();
+   std::string cmd = "set-radius-em";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(radius);
+   add_to_history_typed(cmd, args);
+}
+
 void set_density_size(float f) {
 
    graphics_info_t g;
-   g.box_radius = f;
+   g.box_radius_xray = f;
    for (int ii=0; ii<g.n_molecules(); ii++) {
       g.molecules[ii].update_map();
    }
@@ -1804,9 +1817,9 @@ void set_map_radius(float f) {
 
 /*! \brief return the extent of the box/radius of electron density contours */
 float get_map_radius() {
-  float ret = graphics_info_t::box_radius;
+  float ret = graphics_info_t::box_radius_xray;
   return ret;
-} 
+}
 
 
 

@@ -1481,8 +1481,11 @@ int auto_read_do_difference_map_too_state();
 char* get_text_for_density_size_widget(); /* const gchar *text */
 void set_density_size_from_widget(const char *text);
 
-/*! \brief set the extent of the box/radius of electron density contours */
+/*! \brief set the extent of the box/radius of electron density contours for x-ray maps */
 void set_map_radius(float f);
+
+/*! \brief set the extent of the box/radius of electron density contours for EM map*/
+void set_map_radius_em(float radius);
 
 /*! \brief another (old) way of setting the radius of the map */
 void set_density_size(float f);

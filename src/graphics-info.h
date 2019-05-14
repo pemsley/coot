@@ -1187,7 +1187,7 @@ public:
    static float zoom;
    static short int quanta_like_zoom_flag; 
 
-   static float box_radius;
+   static float box_radius_xray;
    static float box_radius_em;
 
    static float iso_level_increment; 
@@ -2475,7 +2475,8 @@ public:
 						   std::vector<int> map_molecule_numbers,
 						   int imol_active_position);
 
-   void fill_combobox_with_map_options(GtkWidget *combobox, 
+   // return the imol of the active item molecule
+   int fill_combobox_with_map_options(GtkWidget *combobox, 
 				       GCallback signal_func,
 				       int imol_active_position);
 
