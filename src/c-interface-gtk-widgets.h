@@ -332,6 +332,7 @@ void store_window_position(int window_type, GtkWidget *w);
 void store_window_size(int window_type, GtkWidget *w);
 
 void skeletonize_map_by_optionmenu(GtkWidget *optionmenu);
+void skeletonize_map_by_combobox(GtkWidget *combobox);
 void skeletonize_map_single_map_maybe(GtkWidget *window, int imol); 
 
 GtkWidget *wrapped_create_skeleton_dialog();

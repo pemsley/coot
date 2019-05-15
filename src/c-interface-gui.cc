@@ -4578,12 +4578,19 @@ void apply_bond_parameters(GtkWidget *w) {
    graphics_draw();
 }
 
-void skeletonize_map_by_optionmenu(GtkWidget *optionmenu) {
+// void skeletonize_map_by_optionmenu(GtkWidget *optionmenu) {
+
+//    graphics_info_t g;
+//    g.skeletonize_map_by_optionmenu(optionmenu);
+
+// }
+
+void skeletonize_map_by_combobox(GtkWidget *combobox) {
 
    graphics_info_t g;
-   g.skeletonize_map_by_optionmenu(optionmenu);
-
+   g.skeletonize_map_by_combobox(combobox);
 }
+
 
 void
 skeletonize_map_single_map_maybe(GtkWidget *window, int imol) { 

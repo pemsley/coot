@@ -4397,12 +4397,14 @@ void
 on_skeleton_ok_button_clicked          (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *window = lookup_widget(GTK_WIDGET(button),
-				    "skeleton_dialog");
+  GtkWidget *window = lookup_widget(GTK_WIDGET(button), "skeleton_dialog");
   GtkWidget *optionmenu = lookup_widget(window, "skeleton_map_optionmenu");
+  GtkWidget *combobox   = lookup_widget(window, "skeleton_map_combobox");
+
   int do_baton_mode = GPOINTER_TO_INT(user_data);
 
-  skeletonize_map_by_optionmenu(optionmenu);
+/*   skeletonize_map_by_optionmenu(optionmenu); */
+  skeletonize_map_by_combobox(combobox);
   gtk_widget_destroy(window);
   if (do_baton_mode)
     try_set_draw_baton(1);
@@ -4414,8 +4416,7 @@ void
 on_skeleton_cancel_button_clicked      (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *window = lookup_widget(GTK_WIDGET(button),
-				    "skeleton_dialog");
+  GtkWidget *window = lookup_widget(GTK_WIDGET(button), "skeleton_dialog");
   gtk_widget_destroy(window);
 }
 
