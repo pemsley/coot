@@ -16894,12 +16894,10 @@ create_bond_parameters_dialog (void)
   GtkWidget *vbox117;
   GtkWidget *hbox93;
   GtkWidget *label189;
-  GtkWidget *bond_parameters_molecule_optionmenu;
-  GtkWidget *label190;
+  GtkWidget *bond_parameters_molecule_combobox;
   GtkWidget *frame111;
   GtkWidget *vbox118;
   GtkWidget *hbox94;
-  GtkWidget *bond_parameters_bond_width_optionmenu;
   GtkWidget *bond_parameters_bond_width_combobox;
   GtkWidget *label191;
   GtkWidget *label307;
@@ -16957,14 +16955,9 @@ create_bond_parameters_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox93), label189, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label189), GTK_JUSTIFY_CENTER);
 
-  bond_parameters_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (bond_parameters_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox93), bond_parameters_molecule_optionmenu, FALSE, FALSE, 0);
-
-  label190 = gtk_label_new ("   ");
-  gtk_widget_show (label190);
-  gtk_box_pack_start (GTK_BOX (hbox93), label190, FALSE, FALSE, 0);
-  gtk_label_set_justify (GTK_LABEL (label190), GTK_JUSTIFY_CENTER);
+  bond_parameters_molecule_combobox = gtk_combo_box_text_new ();
+  gtk_widget_show (bond_parameters_molecule_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox93), bond_parameters_molecule_combobox, FALSE, FALSE, 0);
 
   frame111 = gtk_frame_new (NULL);
   gtk_widget_show (frame111);
@@ -16979,13 +16972,10 @@ create_bond_parameters_dialog (void)
   gtk_widget_show (hbox94);
   gtk_box_pack_start (GTK_BOX (vbox118), hbox94, TRUE, TRUE, 0);
 
-  bond_parameters_bond_width_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (bond_parameters_bond_width_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox94), bond_parameters_bond_width_optionmenu, FALSE, FALSE, 0);
-
   bond_parameters_bond_width_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (bond_parameters_bond_width_combobox);
-  gtk_box_pack_start (GTK_BOX (hbox94), bond_parameters_bond_width_combobox, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox94), bond_parameters_bond_width_combobox, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (bond_parameters_bond_width_combobox, 55, -1);
 
   label191 = gtk_label_new ("  pixels  ");
   gtk_widget_show (label191);
@@ -17145,12 +17135,10 @@ create_bond_parameters_dialog (void)
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, vbox117, "vbox117");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, hbox93, "hbox93");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, label189, "label189");
-  GLADE_HOOKUP_OBJECT (bond_parameters_dialog, bond_parameters_molecule_optionmenu, "bond_parameters_molecule_optionmenu");
-  GLADE_HOOKUP_OBJECT (bond_parameters_dialog, label190, "label190");
+  GLADE_HOOKUP_OBJECT (bond_parameters_dialog, bond_parameters_molecule_combobox, "bond_parameters_molecule_combobox");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, frame111, "frame111");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, vbox118, "vbox118");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, hbox94, "hbox94");
-  GLADE_HOOKUP_OBJECT (bond_parameters_dialog, bond_parameters_bond_width_optionmenu, "bond_parameters_bond_width_optionmenu");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, bond_parameters_bond_width_combobox, "bond_parameters_bond_width_combobox");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, label191, "label191");
   GLADE_HOOKUP_OBJECT (bond_parameters_dialog, label307, "label307");

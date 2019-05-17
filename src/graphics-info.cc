@@ -5843,15 +5843,26 @@ graphics_info_t::set_moving_atoms(atom_selection_container_t asc,
    moving_atoms_asc_type = new_coords_type;
 } 
 
-//   static
-void graphics_info_t::bond_parameters_molecule_menu_item_select(GtkWidget *item, GtkPositionType pos) {
+// //   static
+// void graphics_info_t::bond_parameters_molecule_menu_item_select(GtkWidget *item, GtkPositionType pos) {
+
+//    graphics_info_t g;
+//    g.bond_parameters_molecule = pos;
+//    GtkWidget *w = lookup_widget(GTK_WIDGET(item), "bond_parameters_dialog");
+//    fill_bond_parameters_internals(w, pos); // pos is imol
+// }
+
+// static
+void graphics_info_t::bond_parameters_molecule_combobox_changed(GtkWidget *combobox, gpointer data) {
 
    graphics_info_t g;
-   g.bond_parameters_molecule = pos;
-   GtkWidget *w = lookup_widget(GTK_WIDGET(item), "bond_parameters_dialog");
-   fill_bond_parameters_internals(w, pos); // pos is imol
+   int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
+   g.bond_parameters_molecule = imol;
+   GtkWidget *w = lookup_widget(GTK_WIDGET(combobox), "bond_parameters_dialog");
+   fill_bond_parameters_internals(w, imol);
 
-} 
+}
+
 
 
 void

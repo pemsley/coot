@@ -4501,7 +4501,9 @@ GtkWidget *wrapped_create_bond_parameters_dialog() {
 
    GtkWidget *combobox = lookup_widget(widget, "bond_parameters_molecule_combobox");
 
-   GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(g.bond_parameters_molecule_menu_item_select);
+   // GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(g.bond_parameters_molecule_menu_item_select);
+
+   GCallback callback_func = G_CALLBACK(g.bond_parameters_molecule_combobox_changed);
 
    // fill the colour map rotation entry
 

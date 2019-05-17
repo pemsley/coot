@@ -2785,7 +2785,9 @@ public:
    // bond thickness
    void set_bond_thickness(int imol, float thick);
    static int bond_thickness_intermediate_value; // not intermediate atoms
-   static void bond_parameters_molecule_menu_item_select(GtkWidget *item, GtkPositionType pos); 
+   // static void bond_parameters_molecule_menu_item_select(GtkWidget *item, GtkPositionType pos); 
+   static void bond_parameters_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
+   static void bond_parameters_bond_width_combobox_changed(GtkWidget *combobox, gpointer data);
    static int bond_parameters_molecule;
    static void fill_bond_parameters_internals(GtkWidget *w, int imol);
    static void bond_width_item_select(GtkWidget *item, GtkPositionType pos);

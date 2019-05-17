@@ -34413,35 +34413,14 @@ search (this may not work well)</property>
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="bond_parameters_molecule_optionmenu">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
+		<placeholder/>
 	      </child>
 
 	      <child>
-		<widget class="GtkLabel" id="label190">
+		<widget class="GtkComboBox" id="bond_parameters_molecule_combobox">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">   </property>
-		  <property name="use_underline">False</property>
-		  <property name="use_markup">False</property>
-		  <property name="justify">GTK_JUSTIFY_CENTER</property>
-		  <property name="wrap">False</property>
-		  <property name="selectable">False</property>
-		  <property name="xalign">0.5</property>
-		  <property name="yalign">0.5</property>
-		  <property name="xpad">0</property>
-		  <property name="ypad">0</property>
-		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-		  <property name="width_chars">-1</property>
-		  <property name="single_line_mode">False</property>
-		  <property name="angle">0</property>
+		  <property name="add_tearoffs">False</property>
+		  <property name="focus_on_click">True</property>
 		</widget>
 		<packing>
 		  <property name="padding">0</property>
@@ -34478,28 +34457,20 @@ search (this may not work well)</property>
 		      <property name="spacing">0</property>
 
 		      <child>
-			<widget class="GtkOptionMenu" id="bond_parameters_bond_width_optionmenu">
-			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="history">-1</property>
-			</widget>
-			<packing>
-			  <property name="padding">0</property>
-			  <property name="expand">False</property>
-			  <property name="fill">False</property>
-			</packing>
+			<placeholder/>
 		      </child>
 
 		      <child>
 			<widget class="GtkComboBox" id="bond_parameters_bond_width_combobox">
+			  <property name="width_request">55</property>
 			  <property name="visible">True</property>
 			  <property name="add_tearoffs">False</property>
 			  <property name="focus_on_click">True</property>
 			</widget>
 			<packing>
 			  <property name="padding">0</property>
-			  <property name="expand">True</property>
-			  <property name="fill">True</property>
+			  <property name="expand">False</property>
+			  <property name="fill">False</property>
 			</packing>
 		      </child>
 
