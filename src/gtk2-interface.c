@@ -22879,7 +22879,7 @@ create_change_chain_id_dialog (void)
   gtk_widget_show (hbox127);
   gtk_box_pack_start (GTK_BOX (vbox162), hbox127, TRUE, TRUE, 0);
 
-  change_chain_residue_range_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Use Residue Range");
+  change_chain_residue_range_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Use Residue Range ");
   gtk_widget_show (change_chain_residue_range_yes_radiobutton);
   gtk_box_pack_start (GTK_BOX (hbox127), change_chain_residue_range_yes_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (change_chain_residue_range_yes_radiobutton), change_chain_residue_range_no_radiobutton_group);
@@ -22890,7 +22890,7 @@ create_change_chain_id_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox127), change_chain_id_residue_range_hbox, TRUE, TRUE, 0);
   gtk_widget_set_sensitive (change_chain_id_residue_range_hbox, FALSE);
 
-  label249 = gtk_label_new ("from  ");
+  label249 = gtk_label_new (" from  ");
   gtk_widget_show (label249);
   gtk_box_pack_start (GTK_BOX (change_chain_id_residue_range_hbox), label249, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label249), GTK_JUSTIFY_CENTER);
