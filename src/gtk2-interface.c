@@ -32,6 +32,7 @@ GtkWidget*
 create_window1 (void)
 {
   GtkWidget *window1;
+  GtkWidget *main_window_outer_vbox;
   GtkWidget *main_window_hbox;
   GtkWidget *main_window_model_fit_dialog_frame_left;
   GtkWidget *vbox1;
@@ -338,7 +339,6 @@ create_window1 (void)
   GtkWidget *label456;
   GtkWidget *main_window_graphics_frame;
   GtkWidget *main_window_graphics_hbox;
-  GtkWidget *main_window_statusbar;
   GtkWidget *main_window_model_fit_dialog_frame;
   GtkWidget *model_fit_refine_toolbar_handlebox;
   GtkWidget *model_toolbar;
@@ -394,7 +394,7 @@ create_window1 (void)
   GtkWidget *model_toolbar_main_icons;
   GtkWidget *model_toolbar_all_icons;
   GtkWidget *model_toolbar_user_defined1;
-  GtkWidget *gtkhtml_frame;
+  GtkWidget *main_window_statusbar;
   GtkAccelGroup *accel_group;
   GtkTooltips *tooltips;
 
@@ -405,9 +405,13 @@ create_window1 (void)
   window1 = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title (GTK_WINDOW (window1), "Coot");
 
+  main_window_outer_vbox = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (main_window_outer_vbox);
+  gtk_container_add (GTK_CONTAINER (window1), main_window_outer_vbox);
+
   main_window_hbox = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (main_window_hbox);
-  gtk_container_add (GTK_CONTAINER (window1), main_window_hbox);
+  gtk_box_pack_start (GTK_BOX (main_window_outer_vbox), main_window_hbox, TRUE, TRUE, 0);
 
   main_window_model_fit_dialog_frame_left = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (main_window_hbox), main_window_model_fit_dialog_frame_left, FALSE, FALSE, 0);
@@ -1715,10 +1719,6 @@ create_window1 (void)
   gtk_widget_show (main_window_graphics_hbox);
   gtk_container_add (GTK_CONTAINER (main_window_graphics_frame), main_window_graphics_hbox);
 
-  main_window_statusbar = gtk_statusbar_new ();
-  gtk_widget_show (main_window_statusbar);
-  gtk_box_pack_start (GTK_BOX (vbox1), main_window_statusbar, FALSE, FALSE, 0);
-
   main_window_model_fit_dialog_frame = gtk_frame_new (NULL);
   gtk_widget_show (main_window_model_fit_dialog_frame);
   gtk_box_pack_start (GTK_BOX (main_window_hbox), main_window_model_fit_dialog_frame, FALSE, FALSE, 0);
@@ -1733,7 +1733,6 @@ create_window1 (void)
   model_toolbar = gtk_toolbar_new ();
   gtk_widget_show (model_toolbar);
   gtk_container_add (GTK_CONTAINER (model_fit_refine_toolbar_handlebox), model_toolbar);
-  gtk_container_set_border_width (GTK_CONTAINER (model_toolbar), 3);
   gtk_toolbar_set_style (GTK_TOOLBAR (model_toolbar), GTK_TOOLBAR_ICONS);
   gtk_toolbar_set_orientation (GTK_TOOLBAR (model_toolbar), GTK_ORIENTATION_VERTICAL);
   tmp_toolbar_icon_size = gtk_toolbar_get_icon_size (GTK_TOOLBAR (model_toolbar));
@@ -2054,8 +2053,9 @@ create_window1 (void)
   gtk_widget_show (model_toolbar_user_defined1);
   gtk_container_add (GTK_CONTAINER (model_toolbar_setting1_menu), model_toolbar_user_defined1);
 
-  gtkhtml_frame = gtk_frame_new (NULL);
-  gtk_box_pack_start (GTK_BOX (main_window_hbox), gtkhtml_frame, TRUE, TRUE, 0);
+  main_window_statusbar = gtk_statusbar_new ();
+  gtk_widget_show (main_window_statusbar);
+  gtk_box_pack_start (GTK_BOX (main_window_outer_vbox), main_window_statusbar, FALSE, FALSE, 0);
 
   g_signal_connect ((gpointer) window1, "configure_event",
                     G_CALLBACK (on_window1_configure_event),
@@ -2462,12 +2462,6 @@ create_window1 (void)
   g_signal_connect ((gpointer) button26, "clicked",
                     G_CALLBACK (on_accept_reject_refinement_docked_reject_button_clicked),
                     NULL);
-  g_signal_connect ((gpointer) main_window_statusbar, "text_pushed",
-                    G_CALLBACK (on_main_window_statusbar_text_pushed),
-                    NULL);
-  g_signal_connect ((gpointer) main_window_statusbar, "text_popped",
-                    G_CALLBACK (on_main_window_statusbar_text_popped),
-                    NULL);
   g_signal_connect ((gpointer) model_toolbar, "style_changed",
                     G_CALLBACK (on_model_toolbar_style_changed),
                     NULL);
@@ -2577,9 +2571,16 @@ create_window1 (void)
   g_signal_connect ((gpointer) model_toolbar_user_defined1, "activate",
                     G_CALLBACK (on_model_toolbar_user_defined1_activate),
                     NULL);
+  g_signal_connect ((gpointer) main_window_statusbar, "text_pushed",
+                    G_CALLBACK (on_main_window_statusbar_text_pushed),
+                    NULL);
+  g_signal_connect ((gpointer) main_window_statusbar, "text_popped",
+                    G_CALLBACK (on_main_window_statusbar_text_popped),
+                    NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (window1, window1, "window1");
+  GLADE_HOOKUP_OBJECT (window1, main_window_outer_vbox, "main_window_outer_vbox");
   GLADE_HOOKUP_OBJECT (window1, main_window_hbox, "main_window_hbox");
   GLADE_HOOKUP_OBJECT (window1, main_window_model_fit_dialog_frame_left, "main_window_model_fit_dialog_frame_left");
   GLADE_HOOKUP_OBJECT (window1, vbox1, "vbox1");
@@ -2883,7 +2884,6 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, label456, "label456");
   GLADE_HOOKUP_OBJECT (window1, main_window_graphics_frame, "main_window_graphics_frame");
   GLADE_HOOKUP_OBJECT (window1, main_window_graphics_hbox, "main_window_graphics_hbox");
-  GLADE_HOOKUP_OBJECT (window1, main_window_statusbar, "main_window_statusbar");
   GLADE_HOOKUP_OBJECT (window1, main_window_model_fit_dialog_frame, "main_window_model_fit_dialog_frame");
   GLADE_HOOKUP_OBJECT (window1, model_fit_refine_toolbar_handlebox, "model_fit_refine_toolbar_handlebox");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar, "model_toolbar");
@@ -2939,7 +2939,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_main_icons, "model_toolbar_main_icons");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_all_icons, "model_toolbar_all_icons");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_user_defined1, "model_toolbar_user_defined1");
-  GLADE_HOOKUP_OBJECT (window1, gtkhtml_frame, "gtkhtml_frame");
+  GLADE_HOOKUP_OBJECT (window1, main_window_statusbar, "main_window_statusbar");
   GLADE_HOOKUP_OBJECT_NO_REF (window1, tooltips, "tooltips");
 
   gtk_widget_grab_default (button25);
@@ -4169,7 +4169,6 @@ create_show_symmetry_window (void)
   symmetry_colorbutton = gtk_color_button_new ();
   gtk_widget_show (symmetry_colorbutton);
   gtk_box_pack_start (GTK_BOX (hbox8), symmetry_colorbutton, FALSE, FALSE, 4);
-  gtk_color_button_set_title (GTK_COLOR_BUTTON (symmetry_colorbutton), "Pick a Colour");
 
   label810 = gtk_label_new ("    ");
   gtk_widget_show (label810);
