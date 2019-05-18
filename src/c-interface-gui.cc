@@ -5923,6 +5923,7 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
    graphics_info_t g;
    GCallback signal_func = G_CALLBACK(map_sharpening_map_select_combobox_changed);
    GtkWidget *combobx = lookup_widget(w, "map_sharpening_molecule_combobox");
+
    int imol = g.fill_combobox_with_map_mtz_options(combobx, signal_func);
 
    if (is_valid_map_molecule(imol)) {
@@ -5941,8 +5942,9 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
 			     g_object_ref (adj),
 			     (GDestroyNotify) g_object_unref);
 
-      gtk_signal_connect(GTK_OBJECT(adj), "value_changed",
-			 GTK_SIGNAL_FUNC(map_sharpening_value_changed), NULL);
+      g_signal_connect(G_OBJECT(adj), "value_changed",
+		       G_CALLBACK(map_sharpening_value_changed),
+		       NULL);
    
       // set to sharpening value
       gtk_adjustment_set_value(GTK_ADJUSTMENT(adj), graphics_info_t::molecules[imol].sharpen_b_factor());
@@ -5983,6 +5985,9 @@ calc_and_set_optimal_b_factor ( GtkWidget *w ) {
 
 void map_sharpening_map_select_combobox_changed(GtkWidget *widget, gpointer data) {
 
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(widget));
+   graphics_info_t::imol_map_sharpening = imol;
+
 }
 
 
@@ -6000,9 +6005,10 @@ void map_sharpening_value_changed (GtkAdjustment *adj,
 				   GtkWidget *window) {
 
    int imol = graphics_info_t::imol_map_sharpening;
+   float value = gtk_adjustment_get_value(adj);
+   // std::cout << "sharpen " << imol << " by " << value << std::endl;
    if (is_valid_map_molecule(imol)) {
-      // std::cout << "sharpen " << imol << " by " << adj->value << std::endl;
-      sharpen(imol, adj->value);
+      sharpen(imol, value);
    } 
 }
 

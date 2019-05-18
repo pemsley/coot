@@ -90,6 +90,7 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
    int n_data = 0;
    int n_tweaked = 0;
    int n_count = 0;
+   bool verbose = false;
    bool debugging = false;
 
    if (debugging) { 
@@ -235,11 +236,13 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
       map_max_   = mv.max_density;
       map_min_   = mv.min_density;
       sharpen_b_factor_ = b_factor;
-   
-      std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
-      std::cout << "      Map sigma: ....... " << map_sigma_ << std::endl;
-      std::cout << "      Map maximum: ..... " << map_max_ << std::endl;
-      std::cout << "      Map minimum: ..... " << map_min_ << std::endl;
+
+      if (verbose) {
+	 std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
+	 std::cout << "      Map sigma: ....... " << map_sigma_ << std::endl;
+	 std::cout << "      Map maximum: ..... " << map_max_ << std::endl;
+	 std::cout << "      Map minimum: ..... " << map_min_ << std::endl;
+      }
 
       // dynamic contour level setting, (not perfect but better than
       // not compensating for the absolute level decreasing).
