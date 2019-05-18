@@ -410,6 +410,8 @@ GtkWidget *wrapped_create_mutate_sequence_dialog();
 void do_mutate_sequence(GtkWidget *dialog); 
 void mutate_sequence_molecule_menu_item_activate(GtkWidget *item, 
 						 GtkPositionType pos);
+void mutate_sequence_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
+
 /* void fill_chain_option_menu(GtkWidget *chain_option_menu, int imol); */
 /* the generic form of the above - also used by superpose chain optionmenu */
 /* void fill_chain_option_menu_with_callback(GtkWidget *chain_option_menu, 
@@ -417,7 +419,7 @@ void mutate_sequence_molecule_menu_item_activate(GtkWidget *item,
 					  GtkSignalFunc callback); */
 void mutate_sequence_chain_option_menu_item_activate (GtkWidget *item,
 						      GtkPositionType pos);
-
+void mutate_sequence_chain_combobox_changed(GtkWidget *combobox, gpointer data);
 /* My Rama-Search Loop fit */
 GtkWidget *wrapped_fit_loop_rama_search_dialog();
 void fit_loop_from_widget(GtkWidget *w);

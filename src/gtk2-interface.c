@@ -4169,6 +4169,7 @@ create_show_symmetry_window (void)
   symmetry_colorbutton = gtk_color_button_new ();
   gtk_widget_show (symmetry_colorbutton);
   gtk_box_pack_start (GTK_BOX (hbox8), symmetry_colorbutton, FALSE, FALSE, 4);
+  gtk_color_button_set_title (GTK_COLOR_BUTTON (symmetry_colorbutton), "Pick a Colour");
 
   label810 = gtk_label_new ("    ");
   gtk_widget_show (label810);
@@ -16533,11 +16534,9 @@ create_mutate_sequence_dialog (void)
   GtkWidget *frame110;
   GtkWidget *vbox116;
   GtkWidget *function_for_molecule_label;
-  GtkWidget *mutate_molecule_optionmenu;
   GtkWidget *mutate_molecule_combobox;
   GtkWidget *hbox90;
   GtkWidget *label182;
-  GtkWidget *mutate_molecule_chain_optionmenu;
   GtkWidget *mutate_molecule_chain_combobox;
   GtkWidget *hbox91;
   GtkWidget *label183;
@@ -16600,11 +16599,6 @@ create_mutate_sequence_dialog (void)
   gtk_label_set_justify (GTK_LABEL (function_for_molecule_label), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (function_for_molecule_label), 7.45058e-09, 0.5);
 
-  mutate_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (mutate_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox116), mutate_molecule_optionmenu, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (mutate_molecule_optionmenu), 2);
-
   mutate_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (mutate_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox116), mutate_molecule_combobox, TRUE, TRUE, 0);
@@ -16619,13 +16613,10 @@ create_mutate_sequence_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox90), label182, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label182), GTK_JUSTIFY_CENTER);
 
-  mutate_molecule_chain_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (mutate_molecule_chain_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox90), mutate_molecule_chain_optionmenu, FALSE, FALSE, 0);
-
   mutate_molecule_chain_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (mutate_molecule_chain_combobox);
-  gtk_box_pack_start (GTK_BOX (hbox90), mutate_molecule_chain_combobox, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox90), mutate_molecule_chain_combobox, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (mutate_molecule_chain_combobox, 50, -1);
 
   hbox91 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox91);
@@ -16837,11 +16828,9 @@ create_mutate_sequence_dialog (void)
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, frame110, "frame110");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, vbox116, "vbox116");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, function_for_molecule_label, "function_for_molecule_label");
-  GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_molecule_optionmenu, "mutate_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_molecule_combobox, "mutate_molecule_combobox");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, hbox90, "hbox90");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, label182, "label182");
-  GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_molecule_chain_optionmenu, "mutate_molecule_chain_optionmenu");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_molecule_chain_combobox, "mutate_molecule_chain_combobox");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, hbox91, "hbox91");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, label183, "label183");
@@ -22244,11 +22233,9 @@ create_align_and_mutate_dialog (void)
   GtkWidget *frame149;
   GtkWidget *vbox151;
   GtkWidget *label239;
-  GtkWidget *align_and_mutate_molecule_optionmenu;
   GtkWidget *align_and_mutate_molecule_combobox;
   GtkWidget *hbox121;
   GtkWidget *label240;
-  GtkWidget *align_and_mutate_chain_optionmenu;
   GtkWidget *align_and_mutate_chain_combobox;
   GtkWidget *label241;
   GtkWidget *scrolledwindow19;
@@ -22281,10 +22268,6 @@ create_align_and_mutate_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label239), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label239), 0, 0.5);
 
-  align_and_mutate_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (align_and_mutate_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox151), align_and_mutate_molecule_optionmenu, FALSE, FALSE, 0);
-
   align_and_mutate_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (align_and_mutate_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox151), align_and_mutate_molecule_combobox, TRUE, TRUE, 0);
@@ -22298,10 +22281,6 @@ create_align_and_mutate_dialog (void)
   gtk_widget_show (label240);
   gtk_box_pack_start (GTK_BOX (hbox121), label240, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label240), GTK_JUSTIFY_CENTER);
-
-  align_and_mutate_chain_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (align_and_mutate_chain_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox121), align_and_mutate_chain_optionmenu, FALSE, FALSE, 0);
 
   align_and_mutate_chain_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (align_and_mutate_chain_combobox);
@@ -22358,11 +22337,9 @@ create_align_and_mutate_dialog (void)
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, frame149, "frame149");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, vbox151, "vbox151");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, label239, "label239");
-  GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_molecule_optionmenu, "align_and_mutate_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_molecule_combobox, "align_and_mutate_molecule_combobox");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, hbox121, "hbox121");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, label240, "label240");
-  GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_chain_optionmenu, "align_and_mutate_chain_optionmenu");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, align_and_mutate_chain_combobox, "align_and_mutate_chain_combobox");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, label241, "label241");
   GLADE_HOOKUP_OBJECT (align_and_mutate_dialog, scrolledwindow19, "scrolledwindow19");

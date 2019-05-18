@@ -2619,7 +2619,7 @@ public:
    static short int rotamer_auto_fit_do_post_refine_flag; 
 
    // mutate sequence
-   static std::string mutate_sequence_chain_from_optionmenu;
+   static std::string mutate_sequence_chain_from_combobox;
    static int         mutate_sequence_imol;
 
    // align and mutate
