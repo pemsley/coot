@@ -312,15 +312,25 @@ GtkWidget *wrapped_create_remarks_browser_molecule_chooser_dialog() {
 
 void fill_remarks_browswer_chooser(GtkWidget *w) {
 
-   GtkWidget *option_menu = lookup_widget(w, "remarks_browser_molecule_chooser_optionmenu");
-   if (option_menu) {
+   GtkWidget *combobox = lookup_widget(w, "remarks_browser_molecule_combobox");
+   if (combobox) {
       graphics_info_t g;
-      GCallback callback_func = G_CALLBACK(remarks_browswer_molecule_item_select);
+      // GCallback callback_func = G_CALLBACK(remarks_browswer_molecule_item_select);
+      GCallback callback_func = G_CALLBACK(remarks_browswer_molecule_combobox_changed);
       int imol = first_coords_imol();
       graphics_info_t::imol_remarks_browswer = imol;
-      g.fill_combobox_with_coordinates_options(option_menu, callback_func, imol);
-   } 
+      g.fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+   } else {
+      std::cout << "failed to get combobox" << std::endl;
+   }
 }
+
+void remarks_browswer_molecule_combobox_changed(GtkWidget *combobox, gpointer data) {
+
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t::imol_remarks_browswer = imol;
+}
+
 
 
 void remarks_browswer_molecule_item_select(GtkWidget *item, GtkPositionType pos) {

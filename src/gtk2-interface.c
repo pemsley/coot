@@ -28636,8 +28636,7 @@ create_remarks_browser_molecule_chooser_dialog (void)
   GtkWidget *remarks_browser_molecule_chooser_dialog;
   GtkWidget *dialog_vbox124;
   GtkWidget *frame296;
-  GtkWidget *alignment154;
-  GtkWidget *remarks_browser_molecule_chooser_optionmenu;
+  GtkWidget *remarks_browser_molecule_combobox;
   GtkWidget *label760;
   GtkWidget *dialog_action_area123;
   GtkWidget *remarks_browser_molecule_chooser_cancel_button;
@@ -28657,15 +28656,9 @@ create_remarks_browser_molecule_chooser_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (frame296), 4);
   gtk_frame_set_shadow_type (GTK_FRAME (frame296), GTK_SHADOW_NONE);
 
-  alignment154 = gtk_alignment_new (0.5, 0.5, 1, 1);
-  gtk_widget_show (alignment154);
-  gtk_container_add (GTK_CONTAINER (frame296), alignment154);
-  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment154), 0, 0, 12, 0);
-
-  remarks_browser_molecule_chooser_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (remarks_browser_molecule_chooser_optionmenu);
-  gtk_container_add (GTK_CONTAINER (alignment154), remarks_browser_molecule_chooser_optionmenu);
-  gtk_container_set_border_width (GTK_CONTAINER (remarks_browser_molecule_chooser_optionmenu), 3);
+  remarks_browser_molecule_combobox = gtk_combo_box_text_new ();
+  gtk_widget_show (remarks_browser_molecule_combobox);
+  gtk_container_add (GTK_CONTAINER (frame296), remarks_browser_molecule_combobox);
 
   label760 = gtk_label_new ("");
   gtk_widget_show (label760);
@@ -28697,8 +28690,7 @@ create_remarks_browser_molecule_chooser_dialog (void)
   GLADE_HOOKUP_OBJECT_NO_REF (remarks_browser_molecule_chooser_dialog, remarks_browser_molecule_chooser_dialog, "remarks_browser_molecule_chooser_dialog");
   GLADE_HOOKUP_OBJECT_NO_REF (remarks_browser_molecule_chooser_dialog, dialog_vbox124, "dialog_vbox124");
   GLADE_HOOKUP_OBJECT (remarks_browser_molecule_chooser_dialog, frame296, "frame296");
-  GLADE_HOOKUP_OBJECT (remarks_browser_molecule_chooser_dialog, alignment154, "alignment154");
-  GLADE_HOOKUP_OBJECT (remarks_browser_molecule_chooser_dialog, remarks_browser_molecule_chooser_optionmenu, "remarks_browser_molecule_chooser_optionmenu");
+  GLADE_HOOKUP_OBJECT (remarks_browser_molecule_chooser_dialog, remarks_browser_molecule_combobox, "remarks_browser_molecule_combobox");
   GLADE_HOOKUP_OBJECT (remarks_browser_molecule_chooser_dialog, label760, "label760");
   GLADE_HOOKUP_OBJECT_NO_REF (remarks_browser_molecule_chooser_dialog, dialog_action_area123, "dialog_action_area123");
   GLADE_HOOKUP_OBJECT (remarks_browser_molecule_chooser_dialog, remarks_browser_molecule_chooser_cancel_button, "remarks_browser_molecule_chooser_cancel_button");

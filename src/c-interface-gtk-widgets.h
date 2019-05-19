@@ -189,7 +189,8 @@ GdkColor remark_number_to_colour(int remark_number);
 
 GtkWidget *wrapped_create_remarks_browser_molecule_chooser_dialog();
 void fill_remarks_browswer_chooser(GtkWidget *w);
-void remarks_browswer_molecule_item_select(GtkWidget *item, GtkPositionType pos);
+// void remarks_browswer_molecule_item_select(GtkWidget *item, GtkPositionType pos);
+void remarks_browswer_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
 
 void fill_about_window(GtkWidget *widget);
 void add_coot_references_button(GtkWidget *widget);
