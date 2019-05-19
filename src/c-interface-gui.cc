@@ -294,15 +294,25 @@ GtkWidget *wrapped_create_remarks_browser_molecule_chooser_dialog() {
 
 void fill_remarks_browswer_chooser(GtkWidget *w) {
 
-   GtkWidget *option_menu = lookup_widget(w, "remarks_browser_molecule_chooser_optionmenu");
-   if (option_menu) {
+   GtkWidget *combobox = lookup_widget(w, "remarks_browser_molecule_combobox");
+   if (combobox) {
       graphics_info_t g;
-      GCallback callback_func = G_CALLBACK(remarks_browswer_molecule_item_select);
+      // GCallback callback_func = G_CALLBACK(remarks_browswer_molecule_item_select);
+      GCallback callback_func = G_CALLBACK(remarks_browswer_molecule_combobox_changed);
       int imol = first_coords_imol();
       graphics_info_t::imol_remarks_browswer = imol;
-      g.fill_combobox_with_coordinates_options(option_menu, callback_func, imol);
-   } 
+      g.fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+   } else {
+      std::cout << "failed to get combobox" << std::endl;
+   }
 }
+
+void remarks_browswer_molecule_combobox_changed(GtkWidget *combobox, gpointer data) {
+
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t::imol_remarks_browswer = imol;
+}
+
 
 
 void remarks_browswer_molecule_item_select(GtkWidget *item, GtkPositionType pos) {
@@ -3381,7 +3391,7 @@ void fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
 // 					       signal_func,
 // 					       imol_active_position);
 
-   std::cout << "100% full of wronability fill_option_menu_with_coordinates_options"
+   std::cout << "100% full of wrongability: fill_option_menu_with_coordinates_options"
 	     << std::endl;
 }
 
@@ -4253,7 +4263,7 @@ GtkWidget *wrapped_create_bond_parameters_dialog() {
 
    GtkWidget *combobox = lookup_widget(widget, "bond_parameters_molecule_combobox");
 
-   GCallback callback_func = NULL; // GTK_SIGNAL_FUNC(g.bond_parameters_molecule_menu_item_select);
+   GCallback callback_func = G_CALLBACK(g.bond_parameters_molecule_combobox_changed);
 
    // fill the colour map rotation entry
 
@@ -4330,12 +4340,19 @@ void apply_bond_parameters(GtkWidget *w) {
    graphics_draw();
 }
 
-void skeletonize_map_by_optionmenu(GtkWidget *optionmenu) {
+// void skeletonize_map_by_optionmenu(GtkWidget *optionmenu) {
+
+//    graphics_info_t g;
+//    g.skeletonize_map_by_optionmenu(optionmenu);
+
+// }
+
+void skeletonize_map_by_combobox(GtkWidget *combobox) {
 
    graphics_info_t g;
-   g.skeletonize_map_by_optionmenu(optionmenu);
-
+   g.skeletonize_map_by_combobox(combobox);
 }
+
 
 void
 skeletonize_map_single_map_maybe(GtkWidget *window, int imol) { 
@@ -5016,7 +5033,8 @@ GtkWidget *wrapped_create_add_additional_representation_gui() {
    if (graphics_info_t::use_graphics_interface_flag) {
       w = create_add_reps_dialog();
       // update/generate the option menu menu as usual.
-      GtkWidget *option_menu = lookup_widget(w, "add_rep_molecule_optionmenu");
+      // GtkWidget *option_menu = lookup_widget(w, "add_rep_molecule_optionmenu");
+      GtkWidget *combobox = lookup_widget(w, "add_reps_molecule_combobox");
       GtkWidget *chain_id_entry = lookup_widget(w, "add_rep_chain_id_entry");
       GtkWidget *resno_start_entry = lookup_widget(w, "add_rep_resno_start_entry");
       GtkWidget *resno_end_entry = lookup_widget(w, "add_rep_resno_end_entry");
@@ -5031,9 +5049,13 @@ GtkWidget *wrapped_create_add_additional_representation_gui() {
       GtkWidget *add_reps_ball_and_stick_radiobutton = lookup_widget(w, "add_rep_rep_ball_and_stick_radiobutton");
       GtkWidget *add_rep_bond_width_combobox = lookup_widget(w, "add_rep_bond_width_combobox");
 
-      GCallback signal_func = G_CALLBACK(add_reps_molecule_option_menu_item_select);
-      int imol_active_position = graphics_info_t::add_reps_molecule_option_menu_item_select_molecule;
-      fill_option_menu_with_coordinates_options(option_menu,  signal_func, imol_active_position);
+      // GtkSignalFunc signal_func = GTK_SIGNAL_FUNC(add_reps_molecule_option_menu_item_select);
+      GCallback signal_func = G_CALLBACK(add_reps_molecule_combobox_changed);
+
+      int imol_active_position = graphics_info_t::add_reps_molecule_combobox_molecule;
+
+      // fill_option_menu_with_coordinates_options(option_menu,  signal_func, imol_active_position);
+      fill_combobox_with_coordinates_options(combobox, signal_func, imol_active_position);
 
 #ifdef HAVE_GTK_COMBO_BOX_GET_ACTIVE_TEXT
       // set the active item to be the 8
@@ -5043,28 +5065,40 @@ GtkWidget *wrapped_create_add_additional_representation_gui() {
    return w;
 }
 
+void add_reps_molecule_combobox_changed(GtkWidget *combobox, gpointer data) {
+
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t::add_reps_molecule_combobox_molecule = imol;
+
+}
 
 void add_reps_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos) { 
    graphics_info_t::add_reps_molecule_option_menu_item_select_molecule = pos;
 }
 
 
-void add_additional_representation_by_widget(GtkWidget *w) {
-   GtkWidget *option_menu = lookup_widget(w, "add_rep_molecule_optionmenu");
-   
-   GtkWidget *chain_id_entry = lookup_widget(w, "add_rep_chain_id_entry");
-   GtkWidget *resno_start_entry = lookup_widget(w, "add_rep_resno_start_entry");
-   GtkWidget *resno_end_entry = lookup_widget(w, "add_rep_resno_end_entry");
-   GtkWidget *ins_code_entry = lookup_widget(w, "add_rep_ins_code_entry");
-   GtkWidget *string_selection_entry = lookup_widget(w, "add_rep_selection_string_entry");
+void add_additional_representation_by_widget(GtkWidget *dialog) {
 
-   GtkWidget *position_radiobutton = lookup_widget(w, "add_rep_radiobutton_position");
-   GtkWidget *resno_radiobutton = lookup_widget(w, "add_rep_radiobutton_res_number");
-   GtkWidget *selection_string_radiobutton = lookup_widget(w, "add_rep_radiobutton_selection_string");
+   // decode the widgets and add the representation here.
 
-   GtkWidget *add_reps_fat_bonds_radiobutton = lookup_widget(w, "add_rep_rep_fat_bonds_radiobutton");
-   GtkWidget *add_reps_ball_and_stick_radiobutton = lookup_widget(w, "add_rep_rep_ball_and_stick_radiobutton");
-   GtkWidget *add_rep_bond_width_combobox = lookup_widget(w, "add_rep_bond_width_combobox");
+   // GtkWidget *option_menu = lookup_widget(w, "add_rep_molecule_optionmenu");
+   GtkWidget *combobox = lookup_widget(dialog, "add_reps_molecule_combobox");
+
+   GtkWidget *chain_id_entry    = lookup_widget(dialog, "add_rep_chain_id_entry");
+   GtkWidget *resno_start_entry = lookup_widget(dialog, "add_rep_resno_start_entry");
+   GtkWidget *resno_end_entry   = lookup_widget(dialog, "add_rep_resno_end_entry");
+   GtkWidget *ins_code_entry    = lookup_widget(dialog, "add_rep_ins_code_entry");
+   GtkWidget *string_selection_entry = lookup_widget(dialog, "add_rep_selection_string_entry");
+
+   GtkWidget *position_radiobutton = lookup_widget(dialog, "add_rep_radiobutton_position");
+   GtkWidget *resno_radiobutton    = lookup_widget(dialog, "add_rep_radiobutton_res_number");
+   GtkWidget *selection_string_radiobutton = lookup_widget(dialog, "add_rep_radiobutton_selection_string");
+
+   GtkWidget *add_reps_fat_bonds_radiobutton = lookup_widget(dialog, "add_rep_rep_fat_bonds_radiobutton");
+   GtkWidget *add_rep_bond_width_combobox = lookup_widget(dialog, "add_rep_bond_width_combobox");
+   GtkWidget *add_reps_ball_and_stick_radiobutton = lookup_widget(dialog, "add_rep_rep_ball_and_stick_radiobutton");
+
+   int imol_active = 0;
 
    float bond_width = 8;
    int bonds_box_type = coot::NORMAL_BONDS;
@@ -5074,6 +5108,7 @@ void add_additional_representation_by_widget(GtkWidget *w) {
    }
    bool draw_H_flag = 1;
    gchar* bond_width_text = 0;
+
 #ifdef HAVE_GTK_COMBO_BOX_GET_ACTIVE_TEXT
    bond_width_text = gtk_combo_box_get_active_text(GTK_COMBO_BOX(add_rep_bond_width_combobox));
 #else
@@ -5090,10 +5125,13 @@ void add_additional_representation_by_widget(GtkWidget *w) {
       
    if (representation_type == coot::BALL_AND_STICK)
       bond_width = 0.15; // not 8
-   
+
    graphics_info_t g;
    GtkWidget *dcw = g.display_control_window();
-   int imol = graphics_info_t::add_reps_molecule_option_menu_item_select_molecule;
+
+   // int imol = graphics_info_t::add_reps_molecule_option_menu_item_select_molecule;
+   int imol = graphics_info_t::add_reps_molecule_combobox_molecule;
+
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(position_radiobutton))) {
       std::pair<bool, std::pair<int, coot::atom_spec_t> > aas = active_atom_spec();
       if (aas.first) {
@@ -5566,6 +5604,7 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
    graphics_info_t g;
    GCallback signal_func = G_CALLBACK(map_sharpening_map_select_combobox_changed);
    GtkWidget *combobx = lookup_widget(w, "map_sharpening_molecule_combobox");
+
    int imol_prefered = imol_refinement_map();
    int imol = g.fill_combobox_with_map_mtz_options(combobx, signal_func, imol_prefered);
 
@@ -5623,6 +5662,9 @@ calc_and_set_optimal_b_factor ( GtkWidget *w ) {
 
 void map_sharpening_map_select_combobox_changed(GtkWidget *widget, gpointer data) {
 
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(widget));
+   graphics_info_t::imol_map_sharpening = imol;
+
 }
 
 
@@ -5640,10 +5682,11 @@ void map_sharpening_value_changed (GtkAdjustment *adj,
 				   GtkWidget *window) {
 
    int imol = graphics_info_t::imol_map_sharpening;
+   float value = gtk_adjustment_get_value(adj);
+   // std::cout << "sharpen " << imol << " by " << value << std::endl;
    if (is_valid_map_molecule(imol)) {
-      // std::cout << "sharpen " << imol << " by " << adj->value << std::endl;
-      sharpen(imol, gtk_adjustment_get_value(adj));
-   } 
+      sharpen(imol, value);
+   }
 }
 
 void set_baton_build_params_from_widget(GtkWidget *params_dialog) {

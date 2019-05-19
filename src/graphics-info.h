@@ -1773,7 +1773,8 @@ public:
    static short int rot_trans_zone_rotates_about_zone_centre;
 
    // additional representation
-   static int add_reps_molecule_option_menu_item_select_molecule; // option menu 
+   static int add_reps_molecule_option_menu_item_select_molecule; // option menu
+   static int add_reps_molecule_combobox_molecule;
 
    static coot::fixed_atom_pick_state_t in_fixed_atom_define;
    static GtkWidget *fixed_atom_dialog;
@@ -2490,11 +2491,14 @@ public:
 
    GtkWidget *wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_label);
    void skeletonize_map_by_optionmenu(GtkWidget *optionmenu);
+   void skeletonize_map_by_combobox(GtkWidget *combobox);
 
    static void on_skeleton_ok_button_dynamic_clicked (GtkButton       *button,
 						      gpointer         user_data);
    int try_set_draw_baton(short int i);
 
+
+   void fill_combobox_with_skeleton_options(GtkWidget *combobox);
 
    void set_on_off_skeleton_radio_buttons(GtkWidget *skeleton_frame); 
    void set_on_off_single_map_skeleton_radio_buttons(GtkWidget *skeleton_frame, 
@@ -2517,7 +2521,8 @@ public:
    static void refinement_map_select(GtkWidget *item, GtkPositionType pos);
    static void refinement_map_select_add_columns(GtkWidget *item, GtkPositionType pos);
    static void select_refinement_map_combobox_changed(GtkWidget *combobox, gpointer data);
-   static void   skeleton_map_select(GtkWidget *item, GtkPositionType pos);
+   // static void   skeleton_map_select(GtkWidget *item, GtkPositionType pos);
+   static void skeleton_map_combobox_changed(GtkWidget *combobox, gpointer data);
    static int map_for_skeletonize; // used by skeletonize_map; 
    static void   skeletonize_map(int imol, short int prune_flag);
    static void unskeletonize_map(int imol);
@@ -2622,7 +2627,7 @@ public:
    static short int rotamer_auto_fit_do_post_refine_flag; 
 
    // mutate sequence
-   static std::string mutate_sequence_chain_from_optionmenu;
+   static std::string mutate_sequence_chain_from_combobox;
    static int         mutate_sequence_imol;
 
    // align and mutate
@@ -2788,7 +2793,9 @@ public:
    // bond thickness
    void set_bond_thickness(int imol, float thick);
    static int bond_thickness_intermediate_value; // not intermediate atoms
-   static void bond_parameters_molecule_menu_item_select(GtkWidget *item, GtkPositionType pos); 
+   // static void bond_parameters_molecule_menu_item_select(GtkWidget *item, GtkPositionType pos); 
+   static void bond_parameters_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
+   static void bond_parameters_bond_width_combobox_changed(GtkWidget *combobox, gpointer data);
    static int bond_parameters_molecule;
    static void fill_bond_parameters_internals(GtkWidget *w, int imol);
    static void bond_width_item_select(GtkWidget *item, GtkPositionType pos);

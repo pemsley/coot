@@ -948,6 +948,7 @@ graphics_info_t::wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_lab
 
    GtkWidget *w = create_skeleton_dialog();
    GtkWidget *option_menu = lookup_widget(w, "skeleton_map_optionmenu");
+   GtkWidget *combobox    = lookup_widget(w, "skeleton_map_combobox");
    GtkWidget *frame = lookup_widget(w, "skeleton_dialog_on_off_frame");
    GtkWidget *label = lookup_widget(w, "ca_baton_mode_needs_skel_label");
    GtkWidget *ok_button = lookup_widget(w, "skeleton_ok_button");
@@ -960,6 +961,7 @@ graphics_info_t::wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_lab
       show_baton_dialog = 1;
    }
 
+
    g_signal_connect(G_OBJECT(ok_button),
 		    "clicked",
 		    G_CALLBACK(on_skeleton_ok_button_dynamic_clicked),
@@ -970,8 +972,7 @@ graphics_info_t::wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_lab
       gtk_widget_show(label);
    } 
    set_initial_map_for_skeletonize();
-   std::cout << "GTK3 FIXME skeleton " << std::endl;
-   // fill_option_menu_with_skeleton_options(option_menu);
+   fill_combobox_with_skeleton_options(combobox);
    set_on_off_skeleton_radio_buttons(frame);
    return w;
 }
@@ -980,32 +981,67 @@ graphics_info_t::wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_lab
 // static
 void
 graphics_info_t::on_skeleton_ok_button_dynamic_clicked (GtkButton       *button,
-							gpointer         user_data)
-{
-  GtkWidget *window = lookup_widget(GTK_WIDGET(button),
-				    "skeleton_dialog");
-  GtkWidget *optionmenu = lookup_widget(window, "skeleton_map_optionmenu");
-  int do_baton_mode = GPOINTER_TO_INT(user_data);
+							gpointer         user_data) {
 
-  std::cout << "do_baton_mode:: " << do_baton_mode << std::endl;
+   GtkWidget *window = lookup_widget(GTK_WIDGET(button), "skeleton_dialog");
 
-  graphics_info_t g;
-  g.skeletonize_map_by_optionmenu(optionmenu);
-  gtk_widget_destroy(window);
-  if (do_baton_mode) {
-     int state = g.try_set_draw_baton(1);
-     if (state) {
-	GtkWidget *w = create_baton_dialog();
-	gtk_widget_show(w);
-     } 
-  }
+   // GtkWidget *optionmenu = lookup_widget(window, "skeleton_map_optionmenu");
+   GtkWidget *combobox = lookup_widget(window, "skeleton_map_combobox");
 
+   int do_baton_mode = GPOINTER_TO_INT(user_data);
+
+   std::cout << "do_baton_mode:: " << do_baton_mode << std::endl;
+
+   graphics_info_t g;
+   // g.skeletonize_map_by_optionmenu(optionmenu);
+   g.skeletonize_map_by_combobox(combobox);
+   gtk_widget_destroy(window);
+   if (do_baton_mode) {
+      int state = g.try_set_draw_baton(1);
+      if (state) {
+	 GtkWidget *w = create_baton_dialog();
+	 gtk_widget_show(w);
+      }
+   }
 }
 
-void
-graphics_info_t::skeletonize_map_by_optionmenu(GtkWidget *optionmenu) {
+// void
+// graphics_info_t::skeletonize_map_by_optionmenu(GtkWidget *optionmenu) {
 
-   GtkWidget *window = lookup_widget(GTK_WIDGET(optionmenu), "skeleton_dialog");
+//    GtkWidget *window = lookup_widget(GTK_WIDGET(optionmenu), "skeleton_dialog");
+
+//    GtkWidget *on_radio_button = NULL;
+//    GtkWidget *prune_check_button = NULL;
+
+//    on_radio_button = lookup_widget(window, "skeleton_on_radiobutton");
+
+//    short int do_it = 0; 
+//    short int prune_it = 0;
+//    if (! is_valid_map_molecule(graphics_info_t::map_for_skeletonize)) {
+//       std::cout << "ERROR:: Trapped a bad map for skeletoning!" << std::endl;
+//    } else {
+//       if (GTK_TOGGLE_BUTTON(on_radio_button)->active) { 
+// 	 do_it = 1;
+//       }
+//       prune_check_button = lookup_widget(window,"skeleton_prune_and_colour_checkbutton");
+//       if (GTK_TOGGLE_BUTTON(prune_check_button)->active) { 
+// 	 prune_it = 1;
+//       }
+
+//       if (do_it)
+// 	 graphics_info_t::skeletonize_map(graphics_info_t::map_for_skeletonize, prune_it);
+//       else {
+// 	 std::cout << "INFO:: unskeletonizing map number "
+// 		   << graphics_info_t::map_for_skeletonize << std::endl;
+// 	 graphics_info_t::unskeletonize_map(graphics_info_t::map_for_skeletonize);
+//       }
+//    }
+// }
+
+void
+graphics_info_t::skeletonize_map_by_combobox(GtkWidget *combobox) {
+
+   GtkWidget *window = lookup_widget(GTK_WIDGET(combobox), "skeleton_dialog");
 
    GtkWidget *on_radio_button = NULL;
    GtkWidget *prune_check_button = NULL;
@@ -1014,7 +1050,7 @@ graphics_info_t::skeletonize_map_by_optionmenu(GtkWidget *optionmenu) {
 
    short int do_it = 0; 
    short int prune_it = 0;
-   if (! is_valid_map_molecule(graphics_info_t::map_for_skeletonize)) {
+   if (! is_valid_map_molecule(map_for_skeletonize)) {
       std::cout << "ERROR:: Trapped a bad map for skeletoning!" << std::endl;
    } else {
       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(on_radio_button))) {
@@ -1033,7 +1069,9 @@ graphics_info_t::skeletonize_map_by_optionmenu(GtkWidget *optionmenu) {
 	 graphics_info_t::unskeletonize_map(graphics_info_t::map_for_skeletonize);
       }
    }
-} 
+}
+
+
 
 
 int
@@ -1051,43 +1089,21 @@ graphics_info_t::try_set_draw_baton(short int i) {
 }
 
 
+void
+graphics_info_t::fill_combobox_with_skeleton_options(GtkWidget *combobox) {
 
-// void
-// graphics_info_t::fill_option_menu_with_skeleton_options(GtkWidget *option_menu) {  /* a wrapper */
+   graphics_info_t g;
+   GCallback signalfunc = G_CALLBACK(skeleton_map_combobox_changed);
+   fill_combobox_with_map_options(combobox, signalfunc, imol_refinement_map);
+}
 
-//    graphics_info_t g;
-//    GCallback signalfunc = G_CALLBACK(graphics_info_t::skeleton_map_select);
-//    g.fill_option_menu_with_map_options(option_menu, signalfunc,
-// 				       graphics_info_t::map_for_skeletonize);
+void
+graphics_info_t::skeleton_map_combobox_changed(GtkWidget *combobox, gpointer data) {
 
-// }
+   graphics_info_t g;
+   g.map_for_skeletonize = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
+}
 
-
-// // static
-// void
-// graphics_info_t::skeleton_map_select(GtkWidget *item, GtkPositionType pos) { 
-
-//    graphics_info_t g;
-//    g.map_for_skeletonize = pos;
-
-//    // So now we have changed the map to skeletonize (or that has been
-//    // skeletonized).  We need to look up the radio buttons and set
-//    // them according to whether this map has a skeleton or not.
-//    //
-//    // Recall that for radio buttons, you have to set them on, setting
-//    // them off doesn't work.
-//    //
-//    GtkWidget *on_button  = lookup_widget(item, "skeleton_on_radiobutton");
-//    GtkWidget *off_button = lookup_widget(item, "skeleton_off_radiobutton");
-//    if (graphics_info_t::molecules[g.map_for_skeletonize].has_xmap()) {
-//       if (graphics_info_t::molecules[g.map_for_skeletonize].fc_skeleton_draw_on) {
-// 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(on_button), TRUE);
-//       } else {
-// 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(off_button), TRUE);
-//       }
-//    }
-
-// }
 
 
 #if 0
@@ -3599,41 +3615,22 @@ graphics_info_t::check_chiral_volume_molecule_combobox_changed(GtkWidget *w, gpo
 }
 
 
-// static
-//
-// imol can be -1 (for no molecules available)
-// 
-void graphics_info_t::fill_bond_parameters_internals(GtkWidget *w,
-						    int imol) {
-
-   std::cout << "GTK-FIXME fill_bond_parameters_internals() needs GTK3 version" << std::endl;
-
-#if 0   
-   // We don't do these 2 any more because they have been moved to
-   // bond colour dialog:
-   // fill the colour map rotation entry
-   // check the Carbons only check button
-
-   // fill the molecule bond width option menu
-
-   // check the draw hydrogens check button
-
-   // and now also set the adjustment on the hscale
+void
+graphics_info_t::fill_bond_parameters_internals(GtkWidget *w, int imol) {
 
    graphics_info_t g;
 
-   GtkWidget *bond_width_option_menu = lookup_widget(w, "bond_parameters_bond_width_optionmenu");
+   // GtkWidget *bond_width_option_menu = lookup_widget(w, "bond_parameters_bond_width_optionmenu");
+   GtkWidget *bond_width_combobox = lookup_widget(w, "bond_parameters_bond_width_combobox");
+
    GtkWidget *draw_hydrogens_yes_radiobutton  = lookup_widget(w, "draw_hydrogens_yes_radiobutton");
    GtkWidget *draw_hydrogens_no_radiobutton   = lookup_widget(w, "draw_hydrogens_no_radiobutton");
    GtkWidget *draw_ncs_ghosts_yes_radiobutton = lookup_widget(w, "draw_ncs_ghosts_yes_radiobutton");
    GtkWidget *draw_ncs_ghosts_no_radiobutton  = lookup_widget(w, "draw_ncs_ghosts_no_radiobutton");
 
-   // bye bye entry
-//    gtk_entry_set_text(GTK_ENTRY(entry),
-// 		      float_to_string(rotate_colour_map_on_read_pdb).c_str());
-
    g.bond_thickness_intermediate_value = -1;
-   
+
+   /*
    // Fill the bond width option menu.
    // Put a redraw on the menu item activate callback.
    // We do the thing with the new menu for the option_menu
@@ -3651,7 +3648,7 @@ void graphics_info_t::fill_bond_parameters_internals(GtkWidget *w,
 	    current_bond_width = molecules[imol].bond_thickness();
 	 }
       }
-   }
+      }
 
    for (int i=1; i<21; i++) {
       std::string s = int_to_string(i);
@@ -3667,6 +3664,50 @@ void graphics_info_t::fill_bond_parameters_internals(GtkWidget *w,
    }
    gtk_menu_set_active(GTK_MENU(menu), current_bond_width-1); // 0 offset
    gtk_option_menu_set_menu(GTK_OPTION_MENU(bond_width_option_menu), menu);
+   */
+
+   // Now the combobox version of that:
+
+   int current_bond_width = 3;
+   if (is_valid_model_molecule(imol))
+      current_bond_width = molecules[imol].bond_thickness();
+
+   std::cout << "debug current_bond_width " << current_bond_width << std::endl;
+
+   GtkTreeModel *model_from_combobox = gtk_combo_box_get_model(GTK_COMBO_BOX(bond_width_combobox));
+   GtkListStore *store_from_model = GTK_LIST_STORE(model_from_combobox);
+   gtk_list_store_clear(store_from_model);
+
+   GtkListStore *store = gtk_list_store_new(1, G_TYPE_INT);
+   GtkTreeIter iter;
+   int idx_active = -1;
+   for (int i=1; i<21; i++) {
+
+      std::string ss = int_to_string(imol);
+      gtk_list_store_append(store, &iter);
+      gtk_list_store_set(store, &iter, 0, i, -1);
+
+      // doesn't work (because there is not yet a connection between the
+      // iter/moodel and the combobox)
+      // gtk_combo_box_set_active_iter(GTK_COMBO_BOX(bond_width_combobox), &iter);
+
+      if (i == current_bond_width) {
+	 idx_active = i-1;
+      }
+   }
+
+   GtkTreeModel *model = GTK_TREE_MODEL(store);
+   GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
+   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(bond_width_combobox), renderer, TRUE);
+   gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(bond_width_combobox), renderer, "text", 0, NULL);
+   gtk_combo_box_set_model(GTK_COMBO_BOX(bond_width_combobox), model);
+
+   if (idx_active >= 0)
+      gtk_combo_box_set_active(GTK_COMBO_BOX(bond_width_combobox), 4);
+
+   GCallback combobox_changed_func = G_CALLBACK(bond_parameters_bond_width_combobox_changed);
+   g_signal_connect(bond_width_combobox, "changed", combobox_changed_func, NULL);
+
 
    // Draw Hydrogens?
    if (imol >= 0 ) {
@@ -3680,6 +3721,7 @@ void graphics_info_t::fill_bond_parameters_internals(GtkWidget *w,
 	 }
       }
    }
+
 
    // Draw NCS ghosts?
    if (imol >= 0 ) {
@@ -3724,8 +3766,31 @@ void graphics_info_t::fill_bond_parameters_internals(GtkWidget *w,
    else 
       gtk_widget_set_sensitive(frame, TRUE);
 
-#endif
 }
+
+// static
+void
+graphics_info_t::bond_parameters_bond_width_combobox_changed(GtkWidget *combobox, gpointer data) {
+
+   int id = gtk_combo_box_get_active(GTK_COMBO_BOX(combobox));
+
+   // we can't treat this as a comboboxtext if we have added numbers to it (not text)
+   //
+   // char *txt = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
+
+   // because of the way items were added. I don't know how to connect the active item
+   // to an int in the general case (of a combobox). Frustration. Question for EB.
+   //
+   if (id >= 0) {
+      graphics_info_t g;
+      int bw = 1 + id;
+      GtkWidget *molecule_combobox = lookup_widget(combobox, "bond_parameters_molecule_combobox");
+      int imol = g.combobox_get_imol(GTK_COMBO_BOX(molecule_combobox));
+      g.set_bond_thickness(imol, bw);
+   }
+
+}
+
 
 
 void
@@ -3843,18 +3908,18 @@ void graphics_info_t::bonds_colour_rotation_adjustment_changed(GtkAdjustment *ad
    
 }
 
-// static
-void
-graphics_info_t::bond_width_item_select(GtkWidget *item, GtkPositionType pos) {
+// // static
+// void
+// graphics_info_t::bond_width_item_select(GtkWidget *item, GtkPositionType pos) {
 
-   graphics_info_t g;
-   g.bond_thickness_intermediate_value = pos;
-   if (g.bond_thickness_intermediate_value > 0) {
-      int imol = g.bond_parameters_molecule;
-      if (is_valid_model_molecule(imol)) 
-	 g.set_bond_thickness(imol, g.bond_thickness_intermediate_value);
-   }
-}
+//    graphics_info_t g;
+//    g.bond_thickness_intermediate_value = pos;
+//    if (g.bond_thickness_intermediate_value > 0) {
+//       int imol = g.bond_parameters_molecule;
+//       if (is_valid_model_molecule(imol))
+// 	 g.set_bond_thickness(imol, g.bond_thickness_intermediate_value);
+//    }
+// }
 
 
 void
@@ -3962,9 +4027,9 @@ graphics_info_t::fill_combobox_with_chain_options(GtkWidget *combobox,
 #if (GTK_MAJOR_VERSION > 2)
    gtk_combo_box_text_remove_all(cb_as_text);
 #else
-   GtkTreeModel *model_from_combobox = gtk_combo_box_get_model(GTK_COMBO_BOX (combobox));
-   GtkListStore *store = GTK_LIST_STORE(model_from_combobox);
-   gtk_list_store_clear(store);
+   GtkTreeModel *model_from_combobox = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox));
+   GtkListStore *store_from_model = GTK_LIST_STORE(model_from_combobox);
+   gtk_list_store_clear(store_from_model);
 #endif
 
    if (is_valid_model_molecule(imol)) {

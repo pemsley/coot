@@ -46,7 +46,6 @@ GtkWidget* create_find_waters_dialog (void);
 GtkWidget* create_environment_distance_dialog (void);
 GtkWidget* create_residue_type_chooser_window (void);
 GtkWidget* create_delete_item_dialog (void);
-GtkWidget* create_close_molecule_dialog (void);
 GtkWidget* create_residue_info_dialog (void);
 GtkWidget* create_hints_dialog (void);
 GtkWidget* create_rotamer_selection_dialog (void);

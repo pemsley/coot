@@ -702,6 +702,8 @@ short int graphics_info_t::in_torsion_define = 0;
 short int graphics_info_t::fix_chiral_volume_before_refinement_flag = 1;
 int       graphics_info_t::check_chiral_volume_molecule = 0;
 int       graphics_info_t::add_reps_molecule_option_menu_item_select_molecule = 0; // option menu
+int       graphics_info_t::add_reps_molecule_combobox_molecule = 0;
+
 short int graphics_info_t::refinement_immediate_replacement_flag = 0;
 short int graphics_info_t::show_chiral_volume_errors_dialog_flag = 1; // on by default
 
@@ -1032,7 +1034,7 @@ int graphics_info_t::mutate_residue_atom_index = -1;
 int graphics_info_t::mutate_residue_imol = -1;
 atom_selection_container_t asc;
 atom_selection_container_t graphics_info_t::standard_residues_asc = asc;
-std::string graphics_info_t::mutate_sequence_chain_from_optionmenu;
+std::string graphics_info_t::mutate_sequence_chain_from_combobox;
 int         graphics_info_t::mutate_sequence_imol;
 int         graphics_info_t::align_and_mutate_imol;
 // std::string graphics_info_t::align_and_mutate_chain_from_optionmenu;

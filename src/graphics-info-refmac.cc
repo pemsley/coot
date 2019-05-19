@@ -111,7 +111,8 @@ int
 graphics_info_t::fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, 
 						       GtkSignalFunc signal_func) {
 
-   return fill_option_menu_with_map_options_generic(option_menu, signal_func, 1);
+   int imol_active = imol_refinement_map;
+   return fill_option_menu_with_map_options_generic(option_menu, signal_func, imol_active);
 }
 #endif
 
@@ -119,13 +120,13 @@ int
 graphics_info_t::fill_combobox_with_map_mtz_options(GtkWidget *combobox, GCallback signal_func,
 						    int imol_active) {
 
-   std::cout << "fill fill_combobox_with_map_mtz_options" << combobox << std::endl;
-
-   return 0;
+   int imol = fill_combobox_with_map_options(combobox, signal_func, imol_active);
+   return imol;
 }
 
 
 #if 0
+
 int
 graphics_info_t::fill_option_menu_with_map_options_generic(GtkWidget *option_menu, 
                                                            GtkSignalFunc signal_func,

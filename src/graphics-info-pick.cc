@@ -1073,7 +1073,7 @@ int graphics_info_t::move_reference_chain_to_symm_chain_position() {
 	 std::cout << "bad pick " << std::endl;
 	 std::string s = "Symm Atom not found at centre.  Are you centred on a symm atom?";
 	 add_status_bar_text(s);
-	 gdk_beep();
+	 // gdk_beep();
       }
    }
    return r;

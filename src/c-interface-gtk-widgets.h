@@ -189,7 +189,8 @@ GdkColor remark_number_to_colour(int remark_number);
 
 GtkWidget *wrapped_create_remarks_browser_molecule_chooser_dialog();
 void fill_remarks_browswer_chooser(GtkWidget *w);
-void remarks_browswer_molecule_item_select(GtkWidget *item, GtkPositionType pos);
+// void remarks_browswer_molecule_item_select(GtkWidget *item, GtkPositionType pos);
+void remarks_browswer_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
 
 void fill_about_window(GtkWidget *widget);
 void add_coot_references_button(GtkWidget *widget);
@@ -332,6 +333,7 @@ void store_window_position(int window_type, GtkWidget *w);
 void store_window_size(int window_type, GtkWidget *w);
 
 void skeletonize_map_by_optionmenu(GtkWidget *optionmenu);
+void skeletonize_map_by_combobox(GtkWidget *combobox);
 void skeletonize_map_single_map_maybe(GtkWidget *window, int imol); 
 
 GtkWidget *wrapped_create_skeleton_dialog();
@@ -419,6 +421,8 @@ GtkWidget *wrapped_create_mutate_sequence_dialog();
 void do_mutate_sequence(GtkWidget *dialog); 
 void mutate_sequence_molecule_menu_item_activate(GtkWidget *item, 
 						 GtkPositionType pos);
+void mutate_sequence_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
+
 /* void fill_chain_option_menu(GtkWidget *chain_option_menu, int imol); */
 /* the generic form of the above - also used by superpose chain optionmenu */
 /* void fill_chain_option_menu_with_callback(GtkWidget *chain_option_menu, 
@@ -426,7 +430,7 @@ void mutate_sequence_molecule_menu_item_activate(GtkWidget *item,
 					  GtkSignalFunc callback); */
 void mutate_sequence_chain_option_menu_item_activate (GtkWidget *item,
 						      GtkPositionType pos);
-
+void mutate_sequence_chain_combobox_changed(GtkWidget *combobox, gpointer data);
 /* My Rama-Search Loop fit */
 GtkWidget *wrapped_fit_loop_rama_search_dialog();
 void fit_loop_from_widget(GtkWidget *w);
@@ -697,6 +701,8 @@ void apply_bond_parameters(GtkWidget *w);
 GtkWidget *wrapped_create_add_additional_representation_gui();
 void add_additional_representation_by_widget(GtkWidget *w);
 void add_reps_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos);
+void add_reps_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
+
 
 void   set_map_dynamic_map_sampling_checkbutton(GtkWidget *checkbutton);
 void   set_map_dynamic_map_display_size_checkbutton(GtkWidget *checkbutton);

@@ -886,7 +886,8 @@ GtkWidget *wrapped_create_mutate_sequence_dialog() {
 
    GtkWidget *combobox_molecule = lookup_widget(w, "mutate_molecule_combobox");
    GtkWidget *combobox_chain    = lookup_widget(w, "mutate_molecule_chain_combobox");
-   GCallback callback_func      = G_CALLBACK(mutate_sequence_molecule_menu_item_activate);
+   // GCallback callback_func      = G_CALLBACK(mutate_sequence_molecule_menu_item_activate);
+   GCallback callback_func      = G_CALLBACK(mutate_sequence_molecule_combobox_changed);
 
    // Get the default molecule and fill chain optionmenu with the molecules chains:
    int imol = -1; 
@@ -900,7 +901,7 @@ GtkWidget *wrapped_create_mutate_sequence_dialog() {
       graphics_info_t::mutate_sequence_imol = imol;
       GCallback callback = G_CALLBACK(mutate_sequence_chain_option_menu_item_activate);
       std::string set_chain = graphics_info_t::fill_combobox_with_chain_options(combobox_chain, imol, callback);
-      graphics_info_t::mutate_sequence_chain_from_optionmenu = set_chain;
+      // graphics_info_t::mutate_sequence_chain_from_optionmenu = set_chain;
    } else {
       graphics_info_t::mutate_sequence_imol = -1; // flag for can't mutate
    }
@@ -908,6 +909,20 @@ GtkWidget *wrapped_create_mutate_sequence_dialog() {
    std::cout << "DEBUG:: filling option menu with default molecule " << imol << std::endl;
    g.fill_combobox_with_coordinates_options(combobox_molecule, callback_func, imol);
    return w;
+}
+
+
+void mutate_sequence_molecule_combobox_changed(GtkWidget *combobox, gpointer data) {
+
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t::mutate_sequence_imol = imol;
+   GCallback chain_callback_func = G_CALLBACK(mutate_sequence_chain_combobox_changed);
+   GtkWidget *chain_combobox = lookup_widget(combobox, "mutate_molecule_chain_combobox");
+   graphics_info_t g;
+   std::string set_chain = g.fill_combobox_with_chain_options(chain_combobox, imol, chain_callback_func);
+   // graphics_info_t::mutate_sequence_chain_from_optionmenu = set_chain;
+   graphics_info_t::mutate_sequence_chain_from_combobox = set_chain;
+
 }
 
 void mutate_sequence_molecule_menu_item_activate(GtkWidget *item, 
@@ -928,14 +943,19 @@ void mutate_sequence_molecule_menu_item_activate(GtkWidget *item,
    std::string set_chain = graphics_info_t::fill_combobox_with_chain_options(chain_option_menu,
 									     pos, callback_func);
 
-   graphics_info_t::mutate_sequence_chain_from_optionmenu = set_chain;
+   // graphics_info_t::mutate_sequence_chain_from_optionmenu = set_chain;
 }
 
+void mutate_sequence_chain_combobox_changed(GtkWidget *combobox, gpointer data) {
+
+   std::string at = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
+   graphics_info_t::mutate_sequence_chain_from_combobox = at;
+}
 
 void mutate_sequence_chain_option_menu_item_activate (GtkWidget *item,
 						      GtkPositionType pos) { 
 
-   graphics_info_t::mutate_sequence_chain_from_optionmenu = menu_item_label(item);
+   // graphics_info_t::mutate_sequence_chain_from_optionmenu = menu_item_label(item);
 }
 
 
@@ -975,9 +995,8 @@ void do_mutate_sequence(GtkWidget *dialog) {
 #else    
    short int state_lang = 0;
 #endif
-#endif   
-   
-   
+#endif
+
    // decode the dialog here
 
    GtkWidget *entry1 = lookup_widget(dialog, "mutate_molecule_resno_1_entry");
@@ -1010,8 +1029,13 @@ void do_mutate_sequence(GtkWidget *dialog) {
    // set the imol and chain_id:
    // 
    int imol = graphics_info_t::mutate_sequence_imol;
-   std::string chain_id = graphics_info_t::mutate_sequence_chain_from_optionmenu;
 
+   std::string chain_id = graphics_info_t::mutate_sequence_chain_from_combobox;
+
+   std::cout << "------- do_mutate_sequence() " << dialog << " with chain-id "
+	     << chain_id << std::endl;
+   
+   
    // Auto fit?
    GtkWidget *checkbutton = lookup_widget(dialog, "mutate_sequence_do_autofit_checkbutton"); 
    short int autofit_flag = 0;
@@ -1184,7 +1208,7 @@ void fit_loop_from_widget(GtkWidget *dialog) {
    // set the imol and chain_id:
    // 
    int imol = graphics_info_t::mutate_sequence_imol;
-   std::string chain_id = graphics_info_t::mutate_sequence_chain_from_optionmenu;
+   std::string chain_id; // = graphics_info_t::mutate_sequence_chain_from_optionmenu;
 
    // Auto fit?
    GtkWidget *checkbutton = lookup_widget(dialog, "mutate_sequence_do_autofit_checkbutton"); 
@@ -1289,7 +1313,12 @@ GtkWidget *wrapped_create_align_and_mutate_dialog() {
    GCallback    chain_callback = G_CALLBACK(align_and_mutate_chain_combobox_changed);
 
    int imol = graphics_info_t::align_and_mutate_imol;
-   if (imol == -1 || (! g.molecules[imol].has_model())) { 
+   bool try_again = false;
+
+   if (imol == -1) try_again = true;
+   if (! is_valid_model_molecule(imol)) try_again = true;
+
+   if (try_again) {
       for (int i=0; i<g.n_molecules(); i++) {
 	 if (g.molecules[i].has_model()) {
 	    imol = i;
