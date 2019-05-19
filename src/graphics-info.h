@@ -1765,7 +1765,8 @@ public:
    static short int rot_trans_zone_rotates_about_zone_centre;
 
    // additional representation
-   static int add_reps_molecule_option_menu_item_select_molecule; // option menu 
+   static int add_reps_molecule_option_menu_item_select_molecule; // option menu
+   static int add_reps_molecule_combobox_molecule;
 
    static coot::fixed_atom_pick_state_t in_fixed_atom_define;
    static GtkWidget *fixed_atom_dialog;

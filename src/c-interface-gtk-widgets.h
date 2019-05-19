@@ -690,6 +690,8 @@ void apply_bond_parameters(GtkWidget *w);
 GtkWidget *wrapped_create_add_additional_representation_gui();
 void add_additional_representation_by_widget(GtkWidget *w);
 void add_reps_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos);
+void add_reps_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
+
 
 void   set_map_dynamic_map_sampling_checkbutton(GtkWidget *checkbutton);
 void   set_map_dynamic_map_display_size_checkbutton(GtkWidget *checkbutton);

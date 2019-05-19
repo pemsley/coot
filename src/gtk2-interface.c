@@ -26454,7 +26454,6 @@ create_add_reps_dialog (void)
   GtkWidget *dialog_vbox111;
   GtkWidget *vbox267;
   GtkWidget *label608;
-  GtkWidget *add_rep_molecule_optionmenu;
   GtkWidget *add_reps_molecule_combobox;
   GtkWidget *frame271;
   GtkWidget *alignment117;
@@ -26502,7 +26501,6 @@ create_add_reps_dialog (void)
   GtkWidget *hbox334;
   GtkWidget *label622;
   GtkWidget *add_rep_bond_width_combobox;
-  GtkWidget *add_reps_bond_width_combobox;
   GtkWidget *label620;
   GtkWidget *frame270;
   GtkWidget *alignment116;
@@ -26538,10 +26536,6 @@ create_add_reps_dialog (void)
   gtk_widget_show (label608);
   gtk_box_pack_start (GTK_BOX (vbox267), label608, FALSE, FALSE, 0);
   gtk_misc_set_padding (GTK_MISC (label608), 3, 4);
-
-  add_rep_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (add_rep_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox267), add_rep_molecule_optionmenu, FALSE, FALSE, 0);
 
   add_reps_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (add_reps_molecule_combobox);
@@ -26780,10 +26774,6 @@ create_add_reps_dialog (void)
   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "19");
   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (add_rep_bond_width_combobox), "20");
 
-  add_reps_bond_width_combobox = gtk_combo_box_text_new ();
-  gtk_widget_show (add_reps_bond_width_combobox);
-  gtk_box_pack_start (GTK_BOX (hbox334), add_reps_bond_width_combobox, TRUE, TRUE, 0);
-
   label620 = gtk_label_new ("");
   gtk_widget_show (label620);
   gtk_frame_set_label_widget (GTK_FRAME (frame269), label620);
@@ -26882,7 +26872,6 @@ create_add_reps_dialog (void)
   GLADE_HOOKUP_OBJECT_NO_REF (add_reps_dialog, dialog_vbox111, "dialog_vbox111");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, vbox267, "vbox267");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, label608, "label608");
-  GLADE_HOOKUP_OBJECT (add_reps_dialog, add_rep_molecule_optionmenu, "add_rep_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, add_reps_molecule_combobox, "add_reps_molecule_combobox");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, frame271, "frame271");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, alignment117, "alignment117");
@@ -26928,7 +26917,6 @@ create_add_reps_dialog (void)
   GLADE_HOOKUP_OBJECT (add_reps_dialog, hbox334, "hbox334");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, label622, "label622");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, add_rep_bond_width_combobox, "add_rep_bond_width_combobox");
-  GLADE_HOOKUP_OBJECT (add_reps_dialog, add_reps_bond_width_combobox, "add_reps_bond_width_combobox");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, label620, "label620");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, frame270, "frame270");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, alignment116, "alignment116");

@@ -54910,16 +54910,7 @@ have a Spanish Coot because of Miguel's work.
 	  </child>
 
 	  <child>
-	    <widget class="GtkOptionMenu" id="add_rep_molecule_optionmenu">
-	      <property name="visible">True</property>
-	      <property name="can_focus">True</property>
-	      <property name="history">-1</property>
-	    </widget>
-	    <packing>
-	      <property name="padding">0</property>
-	      <property name="expand">False</property>
-	      <property name="fill">False</property>
-	    </packing>
+	    <placeholder/>
 	  </child>
 
 	  <child>
@@ -55685,16 +55676,7 @@ have a Spanish Coot because of Miguel's work.
 				      </child>
 
 				      <child>
-					<widget class="GtkComboBox" id="add_reps_bond_width_combobox">
-					  <property name="visible">True</property>
-					  <property name="add_tearoffs">False</property>
-					  <property name="focus_on_click">True</property>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
+					<placeholder/>
 				      </child>
 				    </widget>
 				    <packing>
