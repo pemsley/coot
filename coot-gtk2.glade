@@ -23150,6 +23150,23 @@ programs to which you may be more accustomed.
 			      <property name="spacing">0</property>
 
 			      <child>
+				<placeholder/>
+			      </child>
+
+			      <child>
+				<widget class="GtkComboBox" id="run_refmac_map_combobox">
+				  <property name="visible">True</property>
+				  <property name="add_tearoffs">False</property>
+				  <property name="focus_on_click">True</property>
+				</widget>
+				<packing>
+				  <property name="padding">0</property>
+				  <property name="expand">True</property>
+				  <property name="fill">True</property>
+				</packing>
+			      </child>
+
+			      <child>
 				<widget class="GtkLabel" id="label686">
 				  <property name="visible">True</property>
 				  <property name="label" translatable="yes">    </property>
@@ -23189,19 +23206,6 @@ programs to which you may be more accustomed.
 				  <property name="padding">2</property>
 				  <property name="expand">False</property>
 				  <property name="fill">False</property>
-				</packing>
-			      </child>
-
-			      <child>
-				<widget class="GtkComboBox" id="run_refmac_map_combobox">
-				  <property name="visible">True</property>
-				  <property name="add_tearoffs">False</property>
-				  <property name="focus_on_click">True</property>
-				</widget>
-				<packing>
-				  <property name="padding">0</property>
-				  <property name="expand">True</property>
-				  <property name="fill">True</property>
 				</packing>
 			      </child>
 			    </widget>
@@ -23885,7 +23889,12 @@ programs to which you may be more accustomed.
 		  </child>
 
 		  <child>
+		    <placeholder/>
+		  </child>
+
+		  <child>
 		    <widget class="GtkComboBox" id="run_refmac_ncycle_combobox">
+		      <property name="width_request">40</property>
 		      <property name="visible">True</property>
 		      <property name="add_tearoffs">False</property>
 		      <property name="focus_on_click">True</property>

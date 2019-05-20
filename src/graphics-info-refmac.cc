@@ -281,8 +281,10 @@ graphics_info_t::fill_combobox_with_map_options(GtkWidget *combobox,
       if (is_valid_map_molecule(i))
 	 maps_vec.push_back(i);
 
-   fill_combobox_with_molecule_options(combobox, signal_func, imol_active_position, maps_vec);
+   fill_combobox_with_molecule_options(combobox, signal_func, imol_active_position,
+				       maps_vec);
 
+   return -1; // Hmm. Needs checking
 }
 
 
@@ -352,6 +354,107 @@ graphics_info_t::fill_option_menu_with_refmac_options(GtkWidget *option_menu) {
 }
 #endif
 
+void
+graphics_info_t::fill_combobox_with_refmac_methods_options(GtkWidget *combobox) {
+
+   std::cout << "in fill_combobox_with_refmac_methods_options " << combobox << std::endl;
+
+   std::vector<std::string> v;
+   v.push_back("restrained refinement ");
+   v.push_back("rigid body refinement ");
+   v.push_back("TLS & restrained refinement ");
+   for (unsigned int i=0; i<v.size(); i++)
+      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), v[i].c_str());
+
+   gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
+   g_signal_connect(combobox, "changed",
+		    G_CALLBACK(refmac_refinement_method_combobox_changed), NULL);
+}
+
+void
+graphics_info_t::fill_combobox_with_refmac_phase_input_options(GtkWidget *combobox) {
+
+   std::vector<std::string> v;
+   v.push_back("no prior phase information");
+   v.push_back("phase and FOM");
+   v.push_back("Hendrickson-Lattman coefficients");
+   v.push_back("SAD data directly");
+   for (unsigned int i=0; i<v.size(); i++)
+      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), v[i].c_str());
+
+   gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
+   g_signal_connect(combobox, "changed",
+		    G_CALLBACK(refmac_refinement_phase_info_combobox_changed), NULL);
+}
+
+// These are mtz files actually.  Change the name of this function
+void
+graphics_info_t::fill_combobox_with_refmac_labels_options(GtkWidget *combobox) {
+
+   // maybe we need gtk_combo_box_text_remove_all here.
+
+   std::vector<std::pair<int, std::string> > mtz_files;
+   for (int i=0; i<n_molecules(); i++) {
+      if (is_valid_map_molecule(i)) {
+	 std::string mtz_filename = molecules[i].Refmac_mtz_filename();
+	 if (! mtz_filename.empty()) {
+	    bool already_in_list = false;
+	    for (unsigned int k=0; k<mtz_files.size(); k++) {
+	       if (mtz_filename == mtz_files[k].second) {
+		  already_in_list = true;
+		  break;
+	       }
+	    }
+	    if (! already_in_list)
+	       mtz_files.push_back(std::pair<int, std::string> (i, mtz_filename));
+	 }
+      }
+   }
+   // now, using mtz_files, fill the menu and connect signals
+   //
+   if (mtz_files.size() > 0) {
+      for (unsigned int j=0; j<mtz_files.size(); j++) {
+	 int i = mtz_files[j].first;
+	 const std::string &mtz_filename = mtz_files[j].second;
+	 gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), mtz_filename.c_str());
+      }
+
+      gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
+   }
+
+}
+
+// to fill the labels directly from a from an mtz file (used in TWIN refinement)
+void
+graphics_info_t::fill_combobox_with_refmac_file_labels_options(GtkWidget *combobox) {
+
+   GtkWidget *mtz_file_label = lookup_widget(combobox, "run_refmac_mtz_file_label");
+
+   for (int i=0; i<n_molecules(); i++) {
+      std::string fn = molecules[i].Refmac_file_mtz_filename();
+      if (! fn.empty()) {
+	 gtk_label_set_text(GTK_LABEL(mtz_file_label), fn.c_str());
+      }
+   }
+
+}
+
+void
+graphics_info_t::fill_combobox_with_refmac_ncycles_options(GtkWidget *combobox) {
+
+   GtkComboBoxText *cb = GTK_COMBO_BOX_TEXT(combobox);
+   gtk_combo_box_text_append_text(cb, "1");
+   gtk_combo_box_text_append_text(cb, "2");
+   gtk_combo_box_text_append_text(cb, "5");
+   gtk_combo_box_text_append_text(cb, "8");
+   gtk_combo_box_text_append_text(cb, "10");
+   gtk_combo_box_text_append_text(cb, "16");
+   gtk_combo_box_text_append_text(cb, "24");
+
+   gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 3);
+
+}
+
 #if 0
 void
 graphics_info_t::fill_option_menu_with_refmac_methods_options(GtkWidget *option_menu) {
@@ -419,7 +522,6 @@ graphics_info_t::fill_option_menu_with_refmac_phase_input_options(GtkWidget *opt
 }
 #endif
 
-
 #if 0
 // These are mtz files actually.  Change the name of this function
 void
@@ -433,7 +535,7 @@ graphics_info_t::fill_option_menu_with_refmac_labels_options(GtkWidget *option_m
    GtkWidget *menuitem;
    std::vector<std::pair<int, std::string> > mtz_files;
    for (int i=0; i<n_molecules(); i++) {
-      if (is_valid_map_molecule(i)) { 
+      if (is_valid_map_molecule(i)) {
 
 	 // first make a list with all mtz files and at the same time filter out duplicates
 	 // 
@@ -698,6 +800,28 @@ graphics_info_t::refmac_change_phase_input(GtkWidget *item, GtkPositionType pos)
 
 }
 
+// static
+void
+graphics_info_t::refmac_refinement_phase_info_combobox_changed(GtkWidget *combobox, gpointer data) {
+
+   std::vector<std::string> v;
+   v.push_back("no prior phase information");
+   v.push_back("phase and FOM");
+   v.push_back("Hendrickson-Lattman coefficients");
+   v.push_back("SAD data directly");
+
+   gchar *at = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
+   if (at) {
+      std::string active_text(at);
+      for (std::size_t i=0; i<v.size(); i++) {
+	 if (active_text == v[i]) {
+	    set_refmac_phase_input(i);
+	 }
+      }
+   }
+}
+
+
 void 
 graphics_info_t::set_refmac_refinement_method(int method) {
 
@@ -729,6 +853,27 @@ graphics_info_t::refmac_change_refinement_method(GtkWidget *item, GtkPositionTyp
   set_refmac_refinement_method(pos);
 
 }
+
+
+// static
+void
+graphics_info_t::refmac_refinement_method_combobox_changed(GtkWidget *combobox, gpointer data) {
+
+   gchar *at = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
+   if (at) {
+      std::string active_text(at);
+      std::vector<std::string> v;
+      v.push_back("restrained refinement ");
+      v.push_back("rigid body refinement ");
+      v.push_back("TLS & restrained refinement ");
+      for (std::size_t i=0; i<v.size(); i++) {
+	 if (active_text == v[i]) {
+	    set_refmac_refinement_method(i);
+	 }
+      }
+   }
+}
+
 
 void
 graphics_info_t::set_refmac_n_cycles(int no_cycles) {

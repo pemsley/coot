@@ -3892,15 +3892,13 @@ on_run_refmac_map_mtz_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-#if 0				/* Need comboboxes */
-  GtkWidget *map_optionmenu  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_optionmenu");
-  GtkWidget *active_menu_item;
+
+  /* I am not sure that this - or below does the right thing */
+
+  GtkWidget *map_combobox = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_combobox");
   if (gtk_toggle_button_get_active(togglebutton)) {
-
-    printf("GTK3 FIXME\n");
-
+    fill_combobox_with_refmac_labels_options(map_combobox);
   }
-#endif
 }
 
 
@@ -3909,13 +3907,13 @@ on_run_refmac_mtz_file_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
+  /* I am not sure that this - or the above does the right thing */
 
-#if 0				/* Need comboboxes */
-  GtkWidget *map_optionmenu  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_optionmenu");
+  GtkWidget *map_combobox = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_combobox");
   if (gtk_toggle_button_get_active(togglebutton)) {
-    fill_option_menu_with_refmac_file_labels_options(map_optionmenu);
+    fill_combobox_with_refmac_file_labels_options(map_combobox);
   }
-#endif
+
 }
 
 

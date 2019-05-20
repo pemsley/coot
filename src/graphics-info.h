@@ -2504,15 +2504,12 @@ public:
    void set_on_off_single_map_skeleton_radio_buttons(GtkWidget *skeleton_frame, 
 						     int i); 
    void set_contour_sigma_button_and_entry(GtkWidget *window, int imol);
-
-   /*
-   void fill_option_menu_with_refmac_options(GtkWidget *option_menu);
-   void fill_option_menu_with_refmac_methods_options(GtkWidget *option_menu);
-   void fill_option_menu_with_refmac_phase_input_options(GtkWidget *option_menu);
-   void fill_option_menu_with_refmac_labels_options(GtkWidget *option_menu);
-   void fill_option_menu_with_refmac_file_labels_options(GtkWidget *option_menu);
-   void fill_option_menu_with_refmac_ncycle_options(GtkWidget *option_menu);
-   */
+      
+   void fill_combobox_with_refmac_methods_options(GtkWidget *combobox);
+   void fill_combobox_with_refmac_phase_input_options(GtkWidget *combobox);
+   void fill_combobox_with_refmac_labels_options(GtkWidget *combobox);
+   void fill_combobox_with_refmac_file_labels_options(GtkWidget *combobox); 
+   void fill_combobox_with_refmac_ncycles_options(GtkWidget *combobox);
 
    void update_refmac_column_labels_frame(GtkWidget *optionmenu, 
 					  GtkWidget *fobs_menu, GtkWidget *fiobs_menu, GtkWidget *fpm_menu,
@@ -2545,8 +2542,10 @@ public:
    static int refmac_ncycles;
    static void set_refmac_refinement_method(int method);
    static void refmac_change_refinement_method(GtkWidget *item, GtkPositionType pos);
+   static void refmac_refinement_method_combobox_changed(GtkWidget *combobox, gpointer data);
    static void set_refmac_phase_input(int phase_flag);
    static void refmac_change_phase_input(GtkWidget *item, GtkPositionType pos);
+   static void refmac_refinement_phase_info_combobox_changed(GtkWidget *combobox, gpointer data);
    static void set_refmac_use_tls(int state);
    static void set_refmac_use_twin(int state);
    static void set_refmac_use_sad(int state);
