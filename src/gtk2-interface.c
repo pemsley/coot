@@ -11557,10 +11557,8 @@ create_run_refmac_dialog (void)
   GtkWidget *vbox81;
   GtkWidget *hbox347;
   GtkWidget *label645;
-  GtkWidget *run_refmac_method_optionmenu;
   GtkWidget *run_refmac_method_combobox;
   GtkWidget *label646;
-  GtkWidget *run_refmac_phase_input_optionmenu;
   GtkWidget *run_refmac_phase_input_combobox;
   GtkWidget *label647;
   GtkWidget *run_refmac_extra_refinement_options_frame;
@@ -11595,10 +11593,9 @@ create_run_refmac_dialog (void)
   GtkWidget *label688;
   GtkWidget *frame282;
   GtkWidget *hbox370;
-  GtkWidget *run_refmac_map_optionmenu;
+  GtkWidget *run_refmac_map_combobox;
   GtkWidget *label686;
   GtkWidget *run_refmac_help_button;
-  GtkWidget *run_refmac_map_combobox;
   GtkWidget *run_refmac_mtz_file_radiobutton;
   GtkWidget *run_refmac_mtz_file_hbox;
   GtkWidget *label689;
@@ -11647,7 +11644,6 @@ create_run_refmac_dialog (void)
   GtkWidget *frame276;
   GtkWidget *hbox346;
   GtkWidget *label644;
-  GtkWidget *run_refmac_ncycle_optionmenu;
   GtkWidget *run_refmac_ncycle_combobox;
   GtkWidget *frame275;
   GtkWidget *run_refmac_ncs_checkbutton;
@@ -11686,10 +11682,6 @@ create_run_refmac_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label645), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label645), 6, 0);
 
-  run_refmac_method_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (run_refmac_method_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox347), run_refmac_method_optionmenu, FALSE, FALSE, 0);
-
   run_refmac_method_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (run_refmac_method_combobox);
   gtk_box_pack_start (GTK_BOX (hbox347), run_refmac_method_combobox, TRUE, TRUE, 0);
@@ -11699,10 +11691,6 @@ create_run_refmac_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox347), label646, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label646), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label646), 6, 0);
-
-  run_refmac_phase_input_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (run_refmac_phase_input_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox347), run_refmac_phase_input_optionmenu, FALSE, FALSE, 0);
 
   run_refmac_phase_input_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (run_refmac_phase_input_combobox);
@@ -11864,10 +11852,9 @@ create_run_refmac_dialog (void)
   gtk_widget_show (hbox370);
   gtk_container_add (GTK_CONTAINER (frame282), hbox370);
 
-  run_refmac_map_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (run_refmac_map_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox370), run_refmac_map_optionmenu, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (run_refmac_map_optionmenu), 1);
+  run_refmac_map_combobox = gtk_combo_box_text_new ();
+  gtk_widget_show (run_refmac_map_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox370), run_refmac_map_combobox, TRUE, TRUE, 0);
 
   label686 = gtk_label_new ("    ");
   gtk_widget_show (label686);
@@ -11878,10 +11865,6 @@ create_run_refmac_dialog (void)
   gtk_widget_show (run_refmac_help_button);
   gtk_box_pack_start (GTK_BOX (hbox370), run_refmac_help_button, FALSE, FALSE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (run_refmac_help_button), 1);
-
-  run_refmac_map_combobox = gtk_combo_box_text_new ();
-  gtk_widget_show (run_refmac_map_combobox);
-  gtk_box_pack_start (GTK_BOX (hbox370), run_refmac_map_combobox, TRUE, TRUE, 0);
 
   run_refmac_mtz_file_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Choose an mtz file for refmac:");
   gtk_widget_show (run_refmac_mtz_file_radiobutton);
@@ -12095,13 +12078,10 @@ create_run_refmac_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label644), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label644), 6, 0);
 
-  run_refmac_ncycle_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (run_refmac_ncycle_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox346), run_refmac_ncycle_optionmenu, FALSE, FALSE, 0);
-
   run_refmac_ncycle_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (run_refmac_ncycle_combobox);
   gtk_box_pack_start (GTK_BOX (hbox346), run_refmac_ncycle_combobox, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (run_refmac_ncycle_combobox, 40, -1);
 
   frame275 = gtk_frame_new (NULL);
   gtk_widget_show (frame275);
@@ -12155,9 +12135,6 @@ create_run_refmac_dialog (void)
   gtk_widget_show (run_refmac_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox56), run_refmac_cancel_button, TRUE, FALSE, 0);
 
-  g_signal_connect ((gpointer) run_refmac_phase_input_optionmenu, "changed",
-                    G_CALLBACK (on_run_refmac_phase_input_optionmenu_changed),
-                    NULL);
   g_signal_connect ((gpointer) run_refmac_tls_checkbutton, "toggled",
                     G_CALLBACK (on_run_refmac_tls_checkbutton_toggled),
                     NULL);
@@ -12172,9 +12149,6 @@ create_run_refmac_dialog (void)
                     NULL);
   g_signal_connect ((gpointer) run_refmac_map_mtz_radiobutton, "toggled",
                     G_CALLBACK (on_run_refmac_map_mtz_radiobutton_toggled),
-                    NULL);
-  g_signal_connect ((gpointer) run_refmac_map_optionmenu, "changed",
-                    G_CALLBACK (on_run_refmac_map_optionmenu_changed),
                     NULL);
   g_signal_connect ((gpointer) run_refmac_help_button, "clicked",
                     G_CALLBACK (on_run_refmac_help_button_clicked),
@@ -12210,10 +12184,8 @@ create_run_refmac_dialog (void)
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, vbox81, "vbox81");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, hbox347, "hbox347");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label645, "label645");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_method_optionmenu, "run_refmac_method_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_method_combobox, "run_refmac_method_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label646, "label646");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_phase_input_optionmenu, "run_refmac_phase_input_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_phase_input_combobox, "run_refmac_phase_input_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label647, "label647");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_extra_refinement_options_frame, "run_refmac_extra_refinement_options_frame");
@@ -12247,10 +12219,9 @@ create_run_refmac_dialog (void)
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label688, "label688");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, frame282, "frame282");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, hbox370, "hbox370");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_map_optionmenu, "run_refmac_map_optionmenu");
+  GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_map_combobox, "run_refmac_map_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label686, "label686");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_help_button, "run_refmac_help_button");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_map_combobox, "run_refmac_map_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_mtz_file_radiobutton, "run_refmac_mtz_file_radiobutton");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_mtz_file_hbox, "run_refmac_mtz_file_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label689, "label689");
@@ -12299,7 +12270,6 @@ create_run_refmac_dialog (void)
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, frame276, "frame276");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, hbox346, "hbox346");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label644, "label644");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_ncycle_optionmenu, "run_refmac_ncycle_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_ncycle_combobox, "run_refmac_ncycle_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, frame275, "frame275");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, run_refmac_ncs_checkbutton, "run_refmac_ncs_checkbutton");

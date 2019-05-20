@@ -742,41 +742,60 @@ void
 wrapped_create_run_refmac_dialog() {
    
    GtkWidget *window = create_run_refmac_dialog();
-   GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(refmac_molecule_button_select);
+   // GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(refmac_molecule_button_select);
+   GCallback callback_func = G_CALLBACK(refmac_molecule_button_select);
+
    GtkWidget *diff_map_button = lookup_widget(window, "run_refmac_diff_map_checkbutton");
-   GtkWidget *optionmenu;
    int imol_coords = first_coords_imol();
-   int have_file = 0;
+   bool have_file = false;
 
    GtkWidget *labels = lookup_widget(window, "run_refmac_column_labels_frame");
    GtkWidget *ncs_button = lookup_widget(window, "run_refmac_ncs_checkbutton");
    GtkWidget *mtz_file_radiobutton = lookup_widget(window, "run_refmac_mtz_file_radiobutton");
-   optionmenu = lookup_widget(window, "run_refmac_method_optionmenu");
-   fill_option_menu_with_refmac_methods_options(optionmenu);
 
-   optionmenu = lookup_widget(window, "run_refmac_phase_input_optionmenu");
-   fill_option_menu_with_refmac_phase_input_options(optionmenu);
-   if (GTK_TOGGLE_BUTTON(mtz_file_radiobutton)->active) have_file = 1;
+   // GtkWidget *optionmenu;
+   // optionmenu = lookup_widget(window, "run_refmac_method_optionmenu");
+   // fill_option_menu_with_refmac_methods_options(optionmenu);
+
+   GtkWidget *combobox;
+   combobox = lookup_widget(window, "run_refmac_method_combobox");
+   fill_combobox_with_refmac_methods_options(combobox);
+
+   // optionmenu = lookup_widget(window, "run_refmac_phase_input_optionmenu");
+   // fill_option_menu_with_refmac_phase_input_options(optionmenu);
+   // if (GTK_TOGGLE_BUTTON(mtz_file_radiobutton)->active) have_file = 1;
+
+   combobox = lookup_widget(window, "run_refmac_phase_input_combobox");
+   fill_combobox_with_refmac_phase_input_options(combobox);
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mtz_file_radiobutton)))
+      have_file = true;
 
    set_refmac_molecule(imol_coords);
 
-   optionmenu = lookup_widget(window, "run_refmac_coords_optionmenu");
-   fill_option_menu_with_coordinates_options(optionmenu, callback_func, imol_coords);
+   // optionmenu = lookup_widget(window, "run_refmac_coords_optionmenu");
+   // fill_option_menu_with_coordinates_options(optionmenu, callback_func, imol_coords);
 
-   optionmenu = lookup_widget(window, "run_refmac_map_optionmenu");
-   
+   combobox = lookup_widget(window, "run_refmac_coords_combobox");
+   fill_combobox_with_coordinates_options(combobox, callback_func, imol_coords);
+
+   // optionmenu = lookup_widget(window, "run_refmac_map_optionmenu");
    /*  fill_option_menu_with_refmac_options(optionmenu); */
-   fill_option_menu_with_refmac_labels_options(optionmenu); // change the name of this function -
-                                                            // they are molecules with refmac mtz files.
+   // fill_option_menu_with_refmac_labels_options(optionmenu); // change the name of this function -
+   // they are molecules with refmac mtz files.
+
+   combobox = lookup_widget(window, "run_refmac_map_combobox");
+   fill_combobox_with_refmac_labels_options(combobox);
 
    /* to set the labels set the active item; only if not twin and
       if we really want the labels from map mtz*/
    if (refmac_use_twin_state() == 0 && have_file == 0) {
-      GtkWidget *active_menu_item =
-	 gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu))));
-      if (active_menu_item) {
-	 gtk_menu_item_activate(GTK_MENU_ITEM(active_menu_item));
-      }
+      
+      // GtkWidget *active_menu_item =
+      // gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu))));
+      //      if (active_menu_item) {
+      // gtk_menu_item_activate(GTK_MENU_ITEM(active_menu_item));
+      // }
+
    }
 
    if (refmac_runs_with_nolabels()) {
@@ -805,7 +824,8 @@ wrapped_create_run_refmac_dialog() {
 	 const gchar *mtz_filename = get_saved_refmac_file_filename();
 	 if (mtz_filename) {
 	    gtk_label_set_text(GTK_LABEL(mtz_file_label), mtz_filename);
-	    fill_option_menu_with_refmac_file_labels_options(optionmenu);
+	    // fill_option_menu_with_refmac_file_labels_options(optionmenu);
+	    fill_combobox_with_refmac_file_labels_options(combobox);
 	 }
 	 if (refmac_use_twin_state()) {
 	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), TRUE);
@@ -828,8 +848,11 @@ wrapped_create_run_refmac_dialog() {
       gtk_widget_show(labels);
    }
 
-   optionmenu = lookup_widget(window, "run_refmac_ncycle_optionmenu");
-   fill_option_menu_with_refmac_ncycle_options(optionmenu);
+   // optionmenu = lookup_widget(window, "run_refmac_ncycle_optionmenu");
+   // fill_option_menu_with_refmac_ncycle_options(optionmenu);
+
+   combobox = lookup_widget(window, "run_refmac_ncycle_combobox");
+   fill_combobox_with_refmac_ncycles_options(combobox);
 
    /* set the ncs button depending on state */
    if (refmac_use_ncs_state()) {
@@ -838,16 +861,55 @@ wrapped_create_run_refmac_dialog() {
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ncs_button), FALSE);
    }
 
-   optionmenu = lookup_widget(window, "run_refmac_ccp4i_optionmenu");
-   clear_refmac_ccp4i_project();
-   add_ccp4i_projects_to_optionmenu(optionmenu, 
-				    COOT_COORDS_FILE_SELECTION,
-				    GTK_SIGNAL_FUNC(run_refmac_ccp4i_option_menu_signal_func));
+   /*  I don't care about CCP4i
+       optionmenu = lookup_widget(window, "run_refmac_ccp4i_optionmenu");
+       clear_refmac_ccp4i_project();
+       add_ccp4i_projects_to_optionmenu(optionmenu, 
+       COOT_COORDS_FILE_SELECTION,
+       GTK_SIGNAL_FUNC(run_refmac_ccp4i_option_menu_signal_func));
+       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(diff_map_button), TRUE);
 
-   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(diff_map_button), TRUE);
+   */
+				    
 
    gtk_widget_show(window);
 }
+
+/* --------------- Refmac Comboboxes --------------------- */
+
+
+
+void fill_combobox_with_refmac_methods_options(GtkWidget *combobox) {
+
+   graphics_info_t g;
+   g.fill_combobox_with_refmac_methods_options(combobox);
+}
+
+void fill_combobox_with_refmac_phase_input_options(GtkWidget *combobox) {
+
+   graphics_info_t g;
+   g.fill_combobox_with_refmac_phase_input_options(combobox);
+}
+
+void fill_combobox_with_refmac_labels_options(GtkWidget *combobox) {
+
+   graphics_info_t g;
+   g.fill_combobox_with_refmac_labels_options(combobox);
+
+}
+
+void fill_combobox_with_refmac_file_labels_options(GtkWidget *combobox) {
+
+   graphics_info_t g;
+   g.fill_combobox_with_refmac_file_labels_options(combobox);
+}
+
+void fill_combobox_with_refmac_ncycles_options(GtkWidget *combobox) {
+
+   graphics_info_t g;
+   g.fill_combobox_with_refmac_ncycles_options(combobox);
+}
+
 
 
 // Not needed? because we look at the active menu item at OK button-press time?

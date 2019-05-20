@@ -4135,17 +4135,23 @@ on_run_refmac_map_mtz_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *map_optionmenu  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_optionmenu");
-  GtkWidget *active_menu_item;
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    /* update the map column labels */
+
+  /*
+    GtkWidget *map_optionmenu  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_optionmenu");
+    GtkWidget *active_menu_item;
+    if (gtk_toggle_button_get_active(togglebutton)) {
     fill_option_menu_with_refmac_labels_options(map_optionmenu);
     active_menu_item = gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(map_optionmenu))));
     if (active_menu_item) {
-      gtk_menu_item_activate(GTK_MENU_ITEM(active_menu_item));
+    gtk_menu_item_activate(GTK_MENU_ITEM(active_menu_item));
     }
-  }
+    }
+  */
 
+  GtkWidget *map_combobox = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_combobox");
+  if (gtk_toggle_button_get_active(togglebutton)) {
+    fill_combobox_with_refmac_labels_options(map_combobox);
+  }
 }
 
 
@@ -4154,9 +4160,16 @@ on_run_refmac_mtz_file_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
+  /*
   GtkWidget *map_optionmenu  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_optionmenu");
   if (gtk_toggle_button_get_active(togglebutton)) {
     fill_option_menu_with_refmac_file_labels_options(map_optionmenu);
+  }
+  */
+
+  GtkWidget *map_combobox = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_combobox");
+  if (gtk_toggle_button_get_active(togglebutton)) {
+    fill_combobox_with_refmac_file_labels_options(map_combobox);
   }
 }
 

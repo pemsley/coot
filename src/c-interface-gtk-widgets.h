@@ -840,6 +840,14 @@ void save_refmac_phase_params_to_map(int imol_map,
 				     const char *hlc,
 				     const char *hld);
 
+/* --------------- Refmac Comboboxes --------------------- */
+
+void fill_combobox_with_refmac_methods_options(GtkWidget *combobox);
+void fill_combobox_with_refmac_phase_input_options(GtkWidget *combobox);
+void fill_combobox_with_refmac_labels_options(GtkWidget *combobox);
+void fill_combobox_with_refmac_file_labels_options(GtkWidget *combobox);
+void fill_combobox_with_refmac_ncycles_options(GtkWidget *combobox);
+
 /*  ----------------------------------------------------------------------- */
 /*                      Atom pull restraint                                 */
 /*  ----------------------------------------------------------------------- */
