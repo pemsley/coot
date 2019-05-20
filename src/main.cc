@@ -148,6 +148,8 @@ int setup_database();
 #include "widget-headers.hh" // put these somewhere else? better name? -------- GTK-FIME
 #include "sound.hh"
 
+#include "draw-2.hh"
+
 // This main is used for both python/guile useage and unscripted. 
 int
 main (int argc, char *argv[]) {
@@ -209,6 +211,7 @@ main (int argc, char *argv[]) {
       g_type_class_unref (g_type_class_ref (GTK_TYPE_IMAGE_MENU_ITEM));
       g_object_set (gtk_settings_get_default (), "gtk-menu-images", TRUE, NULL);
       glutInit(&argc, argv);
+
    } else {
 
       // not needed from 2.36
@@ -294,7 +297,10 @@ main (int argc, char *argv[]) {
 // 			 cld.hardware_stereo_flag);
 
       // GTK3
-      glarea = gl_gtk3_widget(vbox, 0);
+      // glarea = gl_gtk3_widget(vbox, 0);
+
+      glarea = my_gtkglarea(vbox);
+      my_glarea_add_signals_and_events(glarea);
 
       if (true) {
 	 // application icon:

@@ -27,6 +27,15 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#ifdef GRAPHICS_TESTING
+
+// #define glGenVertexArrays glGenVertexArraysAPPLE
+// #define glDeleteVertexArrays glDeleteVertexArraysAPPLE
+// #define glBindVertexArray glBindVertexArrayAPPLE
+
+#include <epoxy/gl.h>
+
+#endif // GRAPHICS_TESTING
 
 #include "compat/coot-sysdep.h"
 
@@ -757,13 +766,6 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
    }
 }
 
-#ifdef GRAPHICS_TESTING
-
-#define glGenVertexArrays glGenVertexArraysAPPLE
-#define glDeleteVertexArrays glDeleteVertexArraysAPPLE
-#define glBindVertexArray glBindVertexArrayAPPLE
-
-#endif // GRAPHICS_TESTING
 
 void
 molecule_class_info_t::setup_glsl_map_rendering() {

@@ -3,6 +3,8 @@
 #include <Python.h>
 #endif // USE_PYTHON
 
+#include <epoxy/gl.h>
+
 #include "globjects.h"
 #include "trackball.h"
 #include "graphics-info.h"
@@ -14,13 +16,13 @@
 
 #ifdef GRAPHICS_TESTING
 
-static int programID_global = -1;
-static int location_global = -1;
-GLuint VertexArrayID = -1;
+// int programID_global = -1;
+// int location_global = -1;
+// GLuint VertexArrayID = -1;
 
-#define glGenVertexArrays glGenVertexArraysAPPLE
-#define glDeleteVertexArrays glDeleteVertexArraysAPPLE
-#define glBindVertexArray glBindVertexArrayAPPLE
+// #define glGenVertexArrays glGenVertexArraysAPPLE
+// #define glDeleteVertexArrays glDeleteVertexArraysAPPLE
+// #define glBindVertexArray glBindVertexArrayAPPLE
 
 #endif // GRAPHICS_TESTING
 
@@ -892,11 +894,6 @@ debug_eye_position(GtkWidget *widget) {
    to_generic_object_add_point(go, "red", 4, pt.x(), pt.y(), pt.z());
    set_display_generic_object(go, 1);
 }
-
-struct shader_program_source {
-   std::string VertexSource;
-   std::string FragmentSource;
-};
 
 shader_program_source
 parse_shader(const std::string &file_name) {

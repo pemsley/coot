@@ -3960,7 +3960,7 @@ gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
       g.do_post_drag_refinement_maybe();
    } else {
 
-      int x_as_int, y_as_int;
+      int x_as_int = 0, y_as_int = 0;
       GdkModifierType state;
       GdkWindow *window = gtk_widget_get_window(widget);
 

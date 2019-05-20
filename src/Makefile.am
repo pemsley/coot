@@ -400,6 +400,7 @@ coot_bin_SOURCES = \
         curlew.hh                \
         dots-representation.hh   \
 	draw.cc                  \
+	draw-2.cc                \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
 	draw-generic-display-objects.cc \
