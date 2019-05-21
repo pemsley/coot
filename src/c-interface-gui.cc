@@ -4649,46 +4649,35 @@ GtkWidget *wrapped_create_skeleton_dialog() {
 
 void save_coordinates_using_widget(GtkWidget *widget) {
 
-   // the widget that we get passed is the fileselection widget
+   // the widget that we get passed is the filechooser dialog
+   // the data was set in on_save_coords_dialog_save_button_clicked.
 
-   char *stuff =  (char *) gtk_object_get_user_data(GTK_OBJECT(widget));
+   {
 
-   if (! stuff) {
-
-      std::cout << "Ooops no data associated with that widget - "
-		<< " no molecules with coordinates?" << std::endl;
-
-   } else { 
-
-      int imol = *((int *) stuff);
+      gpointer data = g_object_get_data(G_OBJECT(widget), "imol");
+      int imol = GPOINTER_TO_INT(data);
       bool save_hydrogens = 1;
       bool save_aniso_records = 1;
 
-      // How do we get the filename?
+      // get the filename?
 
       const gchar *filename;
-#if (GTK_MAJOR_VERSION > 1)
-
       GtkWidget *chk_but = lookup_widget(GTK_WIDGET(widget), "checkbutton_hydrogens");
-      if (! GTK_TOGGLE_BUTTON(chk_but)->active)
+      if (! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(chk_but)))
 	 save_hydrogens = 0;
       chk_but = lookup_widget(GTK_WIDGET(widget), "checkbutton_aniso");
-      if (! GTK_TOGGLE_BUTTON(chk_but)->active)
+      if (! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(chk_but)))
 	 save_aniso_records = 0;
       
       if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE)  {
-      	filename = gtk_file_chooser_get_filename
-	 (GTK_FILE_CHOOSER(widget));
+	 filename = gtk_file_chooser_get_filename
+	    (GTK_FILE_CHOOSER(widget));
       } else {
-	filename = gtk_file_selection_get_filename
-	   (GTK_FILE_SELECTION(widget));
-     }
-#else
-      filename = gtk_file_selection_get_filename
-	 (GTK_FILE_SELECTION(widget));
-#endif
+	 filename = gtk_file_selection_get_filename
+	    (GTK_FILE_SELECTION(widget));
+      }
 
-      std::cout << "save coordinates for molecule "
+      std::cout << "INFO:: save coordinates for molecule "
 		<< imol << " to file " << filename << std::endl;
 
       graphics_info_t g;
