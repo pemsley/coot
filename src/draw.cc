@@ -263,8 +263,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       if (true) {
 	 glPushMatrix();
 	 glLoadIdentity(); // this doesn't seem to have an effect on mol-triangles lighting
-	 GLfloat  light_0_position[] = {  1.0,   0.0,   0.0, 0.0}; // 1 is positional, 0 is directional
-	 GLfloat  light_1_position[] = {  0.6, -20.7,   1.0, 0.0};
+	 GLfloat  light_0_position[] = {  0.7,   0.0,   0.7, 0.0}; // 1 is positional, 0 is directional
+	 GLfloat  light_1_position[] = { -0.3,   0.2,   1.0, 0.0};
 	 GLfloat  light_2_position[] = {  0.7,  -0.7,  21.0, 0.0};
 	 GLfloat  light_3_position[] = {  0.7,  -0.7,  21.0, 0.0};
 	 GLfloat  light_4_position[] = {  0.7,   0.7, -21.0, 0.0};

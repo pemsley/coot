@@ -4400,27 +4400,30 @@ GtkWidget *wrapped_create_skeleton_dialog() {
 
 void save_coordinates_using_widget(GtkWidget *widget) {
 
-   // the widget that we get passed is the fileselection widget
+   // the widget that we get passed is the filechooser dialog
+   // the data was set in on_save_coords_dialog_save_button_clicked.
 
    {
-      int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "imol"));
+
+      gpointer data = g_object_get_data(G_OBJECT(widget), "imol");
+      int imol = GPOINTER_TO_INT(data);
+
       bool save_hydrogens = 1;
       bool save_aniso_records = 1;
 
-      // How do we get the filename?
+      // get the filename?
 
       const gchar *filename;
-
       GtkWidget *chk_but = lookup_widget(GTK_WIDGET(widget), "checkbutton_hydrogens");
       if (! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(chk_but)))
 	 save_hydrogens = 0;
       chk_but = lookup_widget(GTK_WIDGET(widget), "checkbutton_aniso");
       if (! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(chk_but)))
 	 save_aniso_records = 0;
-      
+
       filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(widget));
 
-      std::cout << "save coordinates for molecule "
+      std::cout << "INFO:: save coordinates for molecule "
 		<< imol << " to file " << filename << std::endl;
 
       graphics_info_t g;

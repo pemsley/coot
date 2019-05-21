@@ -1974,7 +1974,9 @@ on_save_coords_dialog_save_button_clicked (GtkButton       *button,
     imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
     chooser = coot_save_coords_chooser();
     g_object_set_data(G_OBJECT(chooser), "imol", GINT_TO_POINTER(imol));
+    set_file_for_save_fileselection(chooser); /* chooser */
     gtk_widget_show(chooser);
+    set_transient_and_position(COOT_UNDEFINED_WINDOW, chooser);
   }
   gtk_widget_destroy(dialog);
 
