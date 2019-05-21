@@ -1974,7 +1974,7 @@ on_save_coords_dialog_save_button_clicked (GtkButton       *button,
     imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
     chooser = coot_save_coords_chooser();
     g_object_set_data(G_OBJECT(chooser), "imol", GINT_TO_POINTER(imol));
-    set_file_for_save_fileselection(chooser); /* chooser */
+    set_file_for_save_filechooser(chooser);
     gtk_widget_show(chooser);
     set_transient_and_position(COOT_UNDEFINED_WINDOW, chooser);
   }
@@ -8055,17 +8055,12 @@ on_save_state1_activate                (GtkMenuItem     *menuitem,
 {
 /*    save_state(); old inteface - before DK. */
 
-   GtkWidget *fileselection = coot_save_state_chooser();
-   /*   gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),  
-	save_state_file_name_raw()); */
-   set_filename_for_filechooserselection(fileselection,
-					 save_state_file_name_raw());
-
-   add_filename_filter_button(fileselection, COOT_SCRIPTS_FILE_SELECTION);
-   add_ccp4i_project_optionmenu(fileselection, 
-                                COOT_SCRIPTS_FILE_SELECTION);
-   set_file_selection_dialog_size(fileselection);
-   gtk_widget_show(fileselection);
+   GtkWidget *file_chooser = coot_save_state_chooser();
+   gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(file_chooser), save_state_file_name_raw());
+   add_filename_filter_button(file_chooser, COOT_SCRIPTS_FILE_SELECTION);
+   /* add_ccp4i_project_optionmenu(fileselection, COOT_SCRIPTS_FILE_SELECTION); */
+   set_file_selection_dialog_size(file_chooser);
+   gtk_widget_show(file_chooser);
 }
 
 

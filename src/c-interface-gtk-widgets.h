@@ -276,7 +276,8 @@ void save_symmetry_coords_from_fileselection(GtkWidget *fileselection);
 void set_directory_for_fileselection(GtkWidget *coords_fileselection1); 
 void save_directory_from_fileselection(const GtkWidget *fileselection);
 void save_directory_for_saving_from_fileselection(const GtkWidget *fileselection);
-void set_file_for_save_fileselection(GtkWidget *fileselection);
+// void set_file_for_save_fileselection(GtkWidget *fileselection);
+void set_file_for_save_filechooser(GtkWidget *filechooser);
 
 void fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame);
 

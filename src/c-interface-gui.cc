@@ -4372,20 +4372,11 @@ skeletonize_map_single_map_maybe(GtkWidget *window, int imol) {
    } 
 }
 
-#if 0
-void set_file_for_save_fileselection(GtkWidget *fileselection) { 
+void set_file_for_save_filechooser(GtkWidget *fileselection) { 
 
    graphics_info_t g;
-
-   if (g.gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
-      g.set_file_for_save_filechooser(fileselection);
-   }
-
-   if (g.gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
-      g.set_file_for_save_fileselection(fileselection);
-   }
+   g.set_file_for_save_filechooser(fileselection);
 }
-#endif
 
 
 
@@ -4927,18 +4918,17 @@ void on_export_map_dialog_ok_button_clicked_cc(GtkButton *button) {
 // we add a universal function to set the file names
 // in file chooser or selector
 
-void set_filename_for_filechooserselection(GtkWidget *fileselection,
-					   const gchar *filename) {
-
-   bool chooser = 0;
-
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
-      chooser = 1;
-      gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fileselection),
-					filename);     
-   }
-
-}
+// void set_filename_for_filechooserselection(GtkWidget *fileselection,
+// const gchar *filename) {
+// 
+// bool chooser = 0;
+   // if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
+      // chooser = 1;
+      // gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fileselection),
+					// filename);     
+   // }
+// 
+// }
 
 // functions to dock the accept/reject dialog
 void set_accept_reject_dialog_docked(int istate){
