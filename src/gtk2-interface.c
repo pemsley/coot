@@ -337,8 +337,6 @@ create_window1 (void)
   GtkWidget *label456;
   GtkWidget *main_window_graphics_frame;
   GtkWidget *main_window_graphics_hbox;
-  GtkWidget *main_window_model_fit_dialog_frame;
-  GtkWidget *model_fit_refine_toolbar_handlebox;
   GtkWidget *model_toolbar;
   GtkWidget *toolitem4;
   GtkWidget *model_toolbar_refine_control_button;
@@ -1709,20 +1707,9 @@ create_window1 (void)
   gtk_widget_show (main_window_graphics_hbox);
   gtk_container_add (GTK_CONTAINER (main_window_graphics_frame), main_window_graphics_hbox);
 
-  main_window_model_fit_dialog_frame = gtk_frame_new (NULL);
-  gtk_widget_show (main_window_model_fit_dialog_frame);
-  gtk_box_pack_start (GTK_BOX (main_window_hbox), main_window_model_fit_dialog_frame, FALSE, FALSE, 0);
-
-  model_fit_refine_toolbar_handlebox = gtk_handle_box_new ();
-  gtk_widget_show (model_fit_refine_toolbar_handlebox);
-  gtk_container_add (GTK_CONTAINER (main_window_model_fit_dialog_frame), model_fit_refine_toolbar_handlebox);
-  gtk_handle_box_set_shadow_type (GTK_HANDLE_BOX (model_fit_refine_toolbar_handlebox), GTK_SHADOW_NONE);
-  gtk_handle_box_set_handle_position (GTK_HANDLE_BOX (model_fit_refine_toolbar_handlebox), GTK_POS_TOP);
-  gtk_handle_box_set_snap_edge (GTK_HANDLE_BOX (model_fit_refine_toolbar_handlebox), GTK_POS_RIGHT);
-
   model_toolbar = gtk_toolbar_new ();
   gtk_widget_show (model_toolbar);
-  gtk_container_add (GTK_CONTAINER (model_fit_refine_toolbar_handlebox), model_toolbar);
+  gtk_box_pack_start (GTK_BOX (main_window_hbox), model_toolbar, FALSE, FALSE, 0);
   gtk_toolbar_set_style (GTK_TOOLBAR (model_toolbar), GTK_TOOLBAR_ICONS);
   gtk_orientable_set_orientation (GTK_ORIENTABLE (model_toolbar), GTK_ORIENTATION_VERTICAL);
   tmp_toolbar_icon_size = gtk_toolbar_get_icon_size (GTK_TOOLBAR (model_toolbar));
@@ -2866,8 +2853,6 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, label456, "label456");
   GLADE_HOOKUP_OBJECT (window1, main_window_graphics_frame, "main_window_graphics_frame");
   GLADE_HOOKUP_OBJECT (window1, main_window_graphics_hbox, "main_window_graphics_hbox");
-  GLADE_HOOKUP_OBJECT (window1, main_window_model_fit_dialog_frame, "main_window_model_fit_dialog_frame");
-  GLADE_HOOKUP_OBJECT (window1, model_fit_refine_toolbar_handlebox, "model_fit_refine_toolbar_handlebox");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar, "model_toolbar");
   GLADE_HOOKUP_OBJECT (window1, toolitem4, "toolitem4");
   GLADE_HOOKUP_OBJECT (window1, model_toolbar_refine_control_button, "model_toolbar_refine_control_button");
@@ -4075,7 +4060,6 @@ create_show_symmetry_window (void)
   symmetry_colorbutton = gtk_color_button_new ();
   gtk_widget_show (symmetry_colorbutton);
   gtk_box_pack_start (GTK_BOX (hbox8), symmetry_colorbutton, FALSE, FALSE, 4);
-  gtk_color_button_set_title (GTK_COLOR_BUTTON (symmetry_colorbutton), "Pick a Colour");
 
   label810 = gtk_label_new ("    ");
   gtk_widget_show (label810);
