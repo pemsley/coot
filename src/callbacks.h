@@ -4746,6 +4746,7 @@ void
 on_curlew1_activate              (GtkMenuItem     *menuitem,
                                   gpointer         user_data);
 
+void
 on_show_symmetry_no_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
