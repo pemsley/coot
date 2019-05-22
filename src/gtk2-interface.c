@@ -4045,11 +4045,6 @@ create_show_symmetry_window (void)
   GtkWidget *unit_cell_no_radiobutton;
   GtkWidget *label278;
   GtkWidget *hbox133;
-  GtkWidget *show_symmetry_apply_button;
-  GtkWidget *alignment21;
-  GtkWidget *hbox172;
-  GtkWidget *image1490;
-  GtkWidget *label346;
   GtkWidget *show_symmetry_ok_button;
   GtkWidget *alignment22;
   GtkWidget *hbox173;
@@ -4170,6 +4165,7 @@ create_show_symmetry_window (void)
   symmetry_colorbutton = gtk_color_button_new ();
   gtk_widget_show (symmetry_colorbutton);
   gtk_box_pack_start (GTK_BOX (hbox8), symmetry_colorbutton, FALSE, FALSE, 4);
+  gtk_color_button_set_title (GTK_COLOR_BUTTON (symmetry_colorbutton), "Pick a Colour");
 
   label810 = gtk_label_new ("    ");
   gtk_widget_show (label810);
@@ -4238,27 +4234,6 @@ create_show_symmetry_window (void)
   gtk_widget_show (hbox133);
   gtk_box_pack_start (GTK_BOX (vbox10), hbox133, FALSE, FALSE, 9);
 
-  show_symmetry_apply_button = gtk_button_new ();
-  gtk_widget_show (show_symmetry_apply_button);
-  gtk_box_pack_start (GTK_BOX (hbox133), show_symmetry_apply_button, TRUE, TRUE, 4);
-  GTK_WIDGET_SET_FLAGS (show_symmetry_apply_button, GTK_CAN_DEFAULT);
-
-  alignment21 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment21);
-  gtk_container_add (GTK_CONTAINER (show_symmetry_apply_button), alignment21);
-
-  hbox172 = gtk_hbox_new (FALSE, 2);
-  gtk_widget_show (hbox172);
-  gtk_container_add (GTK_CONTAINER (alignment21), hbox172);
-
-  image1490 = gtk_image_new_from_stock ("gtk-apply", GTK_ICON_SIZE_BUTTON);
-  gtk_widget_show (image1490);
-  gtk_box_pack_start (GTK_BOX (hbox172), image1490, FALSE, FALSE, 0);
-
-  label346 = gtk_label_new_with_mnemonic ("  Apply  ");
-  gtk_widget_show (label346);
-  gtk_box_pack_start (GTK_BOX (hbox172), label346, FALSE, FALSE, 0);
-
   show_symmetry_ok_button = gtk_button_new ();
   gtk_widget_show (show_symmetry_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox133), show_symmetry_ok_button, TRUE, TRUE, 4);
@@ -4280,23 +4255,35 @@ create_show_symmetry_window (void)
   gtk_widget_show (label347);
   gtk_box_pack_start (GTK_BOX (hbox173), label347, FALSE, FALSE, 0);
 
+  g_signal_connect ((gpointer) show_symmetry_no_radiobutton, "toggled",
+                    G_CALLBACK (on_show_symmetry_no_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) show_symmetry_yes_radiobutton, "toggled",
+                    G_CALLBACK (on_show_symmetry_yes_radiobutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) symmetry_always_on_checkbutton, "toggled",
                     G_CALLBACK (on_symmetry_always_on_checkbutton_toggled),
                     NULL);
   g_signal_connect ((gpointer) show_symmetry_molecule_control_button, "clicked",
                     G_CALLBACK (on_show_symmetry_molecule_control_button_clicked),
                     NULL);
+  g_signal_connect ((gpointer) symmetry_radius_entry, "key_release_event",
+                    G_CALLBACK (on_symmetry_radius_entry_key_release_event),
+                    NULL);
   g_signal_connect ((gpointer) symmetry_colorbutton, "color_set",
                     G_CALLBACK (on_symmetry_colorbutton_color_set),
+                    NULL);
+  g_signal_connect ((gpointer) hscale_symmetry_colour, "value_changed",
+                    G_CALLBACK (on_hscale_symmetry_colour_value_changed),
+                    NULL);
+  g_signal_connect ((gpointer) show_symmetry_expanded_labels_checkbutton, "toggled",
+                    G_CALLBACK (on_show_symmetry_expanded_labels_checkbutton_toggled),
                     NULL);
   g_signal_connect ((gpointer) unit_cell_yes_radiobutton, "toggled",
                     G_CALLBACK (on_unit_cell_yes_radiobutton_toggled),
                     NULL);
   g_signal_connect ((gpointer) unit_cell_no_radiobutton, "toggled",
                     G_CALLBACK (on_unit_cell_no_radiobutton_toggled),
-                    NULL);
-  g_signal_connect ((gpointer) show_symmetry_apply_button, "clicked",
-                    G_CALLBACK (on_show_symmetry_apply_button_clicked),
                     NULL);
   g_signal_connect ((gpointer) show_symmetry_ok_button, "clicked",
                     G_CALLBACK (on_show_symmetry_ok_button_clicked),
@@ -4341,19 +4328,12 @@ create_show_symmetry_window (void)
   GLADE_HOOKUP_OBJECT (show_symmetry_window, unit_cell_no_radiobutton, "unit_cell_no_radiobutton");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, label278, "label278");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, hbox133, "hbox133");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, show_symmetry_apply_button, "show_symmetry_apply_button");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, alignment21, "alignment21");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, hbox172, "hbox172");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, image1490, "image1490");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, label346, "label346");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, show_symmetry_ok_button, "show_symmetry_ok_button");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, alignment22, "alignment22");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, hbox173, "hbox173");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, image1491, "image1491");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, label347, "label347");
 
-  gtk_widget_grab_focus (show_symmetry_apply_button);
-  gtk_widget_grab_default (show_symmetry_apply_button);
   return show_symmetry_window;
 }
 
