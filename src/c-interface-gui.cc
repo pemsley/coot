@@ -4137,8 +4137,7 @@ GtkWidget *wrapped_create_show_symmetry_window() {
    
 /* The Colour Merge hscale */
 
-   hscale = GTK_SCALE(lookup_widget(show_symm_window,
-				    "hscale_symmetry_colour"));
+   hscale = GTK_SCALE(lookup_widget(show_symm_window, "hscale_symmetry_colour"));
    
    adjustment = GTK_ADJUSTMENT 
       (gtk_adjustment_new(0.5, 0.0, 3.0, 0.02, 0.05, 2.0));
@@ -4224,16 +4223,13 @@ GtkWidget *wrapped_create_show_symmetry_window() {
 void symmetry_colour_adjustment_changed (GtkAdjustment *adj, 
 					 GtkWidget *window) { 
 
+   float f = gtk_adjustment_get_value(adj);
 
    // does a graphics_draw() for us...
-   set_symmetry_colour_merge(adj->value); /* this adjusts
-				             graphics_info_t::
-					     symm_colour_merge_weight,
-					     which is a double
-					     array.  But we only
-					     ever use the 0th
-					     position of it in
-					     combine_colour() */
+   set_symmetry_colour_merge(f); /* this adjusts graphics_info_t::
+				    symm_colour_merge_weight, which is a double
+				    array.  But we only ever use the 0th
+				    position of it in combine_colour() */
 }
 
 

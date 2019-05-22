@@ -12768,7 +12768,8 @@ on_hscale_symmetry_colour_value_changed
                                         (GtkRange        *range,
                                         gpointer         user_data)
 {
-
+  gdouble f = gtk_range_get_value(range);
+  set_symmetry_colour_merge(f);
 }
 
 
@@ -12778,5 +12779,9 @@ on_show_symmetry_expanded_labels_checkbutton_toggled
                                         gpointer         user_data)
 {
 
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton)))
+     set_symmetry_atom_labels_expanded(1);
+   else
+     set_symmetry_atom_labels_expanded(0);
 }
 
