@@ -1895,9 +1895,8 @@ gboolean on_accession_code_entry_key_press_event (GtkWidget       *widget,
  /* go somewhere if keypress was a carriage return  */
 
   if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) { 
-    handle_get_accession_code(widget); 
-  } 
-
+    handle_get_accession_code(widget);
+  }
   return FALSE;
 }
 
@@ -12862,8 +12861,61 @@ on_symmetry_always_on_checkbutton_toggled (GtkToggleButton *togglebutton,
 void
 on_curlew1_activate              (GtkMenuItem     *menuitem,
                                   gpointer         user_data) {
-
   curlew();
+}
+
+on_show_symmetry_no_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data) {
+
+  if (gtk_toggle_button_get_active(togglebutton)) {
+      set_show_symmetry_master(0);
+  }
+}
+
+
+void
+on_show_symmetry_yes_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  if (gtk_toggle_button_get_active(togglebutton)) {
+      set_show_symmetry_master(1);
+  }
+}
+
+
+gboolean
+on_symmetry_radius_entry_key_release_event
+                                        (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data)
+{
+
+  const char *text;
+  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) { 
+    text = gtk_entry_get_text(GTK_ENTRY(widget));
+    set_symmetry_size_from_widget(text);
+  }
+  return TRUE;
+}
+
+
+void
+on_hscale_symmetry_colour_value_changed
+                                        (GtkRange        *range,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_show_symmetry_expanded_labels_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
 
 }
 

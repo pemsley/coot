@@ -4746,4 +4746,27 @@ void
 on_curlew1_activate              (GtkMenuItem     *menuitem,
                                   gpointer         user_data);
 
+on_show_symmetry_no_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
 
+void
+on_show_symmetry_yes_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+gboolean
+on_symmetry_radius_entry_key_release_event
+                                        (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data);
+
+void
+on_hscale_symmetry_colour_value_changed
+                                        (GtkRange        *range,
+                                        gpointer         user_data);
+
+void
+on_show_symmetry_expanded_labels_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
