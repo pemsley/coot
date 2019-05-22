@@ -8777,3 +8777,36 @@ Tue 30 Apr 2019 15:30:25 BST
 
    Good stuff - not sure how to get the vulkan directory :-)
 
+---
+Tue  7 May 2019 00:16:49 BST
+
+   deprecated gtk:
+
+-  box_main = gtk_vbox_new (FALSE, 10);
++  box_main = gtk_box_new (GTK_ORIENTATION_VERTICAL, 10);
+
+
+---
+Fri 10 May 2019 05:51:46 BST
+
+   Oh boy:
+
+   On Mac OS X, GTK3+ is only native
+   On Mac OS X, GTK3+ has no connection to OpenGL
+
+   https://apple.stackexchange.com/questions/205404/how-can-i-get-gdk-x11-3-0-on-os-x
+   https://mail.gnome.org/archives/gtk-list/2017-January/msg00020.html
+
+
+---
+Fri 10 May 2019 17:01:54 BST
+
+   It might be that wxFormBuilder can generate C++ from glade-3 output.
+
+---
+Sun 12 May 2019 14:38:04 BST
+
+   Lots of good stuff about how to work with GTK3 on Mac OS X:
+
+   https://wiki.gnome.org/Projects/GTK/OSX
+
