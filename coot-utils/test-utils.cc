@@ -700,6 +700,21 @@ int test_nxmap(int argc, char **argv) {
 
 }
 
+void
+nxmap_fft_to(const clipper::Xmap<float> &xmap,
+	     clipper::HKL_data<clipper::data32::F_phi> &fphidata) {
+
+   float mg = coot::util::max_gridding(xmap);
+   clipper::Resolution reso(2.0 * mg);
+   clipper::HKL_info myhkl(xmap.spacegroup(), xmap.cell(), reso, true);
+   // clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
+   fphidata.init(myhkl, xmap.cell());
+
+   // clipper::Xmap<float> xmap = somehow nxmap-to-xmap
+
+   xmap.fft_to(fphidata);
+}
+
 int
 test_nxmap_edcalc(int argc, char **argv) {
 
@@ -731,10 +746,12 @@ test_nxmap_edcalc(int argc, char **argv) {
       spec_5.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
 
       std::cout << "Making nxmap... " << std::endl;
-      clipper::NXmap<float> nxmap_ref = coot::util::make_nxmap(xmap, asc.mol, few_residues_selection_handle);
+      clipper::NXmap<float> nxmap_ref =
+	 coot::util::make_nxmap(xmap, asc.mol, few_residues_selection_handle);
       std::cout << "ED calc..." << std::endl;
-      clipper::NXmap<float> nxmap_edcalc = coot::util::make_edcalc_map(nxmap_ref,  // for metrics
-								       asc.mol, few_residues_selection_handle);
+      clipper::NXmap<float> nxmap_edcalc =
+	 coot::util::make_edcalc_map(nxmap_ref,  // for metrics
+				     asc.mol, few_residues_selection_handle);
 
       asc.mol->DeleteSelection(few_residues_selection_handle);
 
@@ -749,6 +766,43 @@ test_nxmap_edcalc(int argc, char **argv) {
       mapout.set_cell(xmap.cell());
       mapout.export_nxmap(nxmap_ref);
       mapout.close_write();
+
+      clipper::HKL_data<clipper::data32::F_phi> fphi_calc;
+      clipper::HKL_data<clipper::data32::F_phi> fphi_ref;
+
+      std::cout << "fft-calc" << std::endl;
+      nxmap_fft_to(xmap, fphi_calc);
+
+      // how do I make an xmap from an nxmap for ref? Too hard for now.
+
+      std::cout << "fft-ref" << std::endl;
+      nxmap_fft_to(xmap, fphi_ref);
+
+      std::cout << "done ffts" << std::endl;
+      int n_f_calc = fphi_calc.data_size();
+      int n_f_ref  = fphi_ref.data_size();
+
+      // std::cout << "info:: n_f_calc " << fphi_calc.debug() << std::endl;
+      // std::cout << "info:: n_f_ref  " << n_f_ref  << std::endl;
+
+      // fphi_calc.debug();
+      // fphi_ref.debug();
+
+      int count = 0;
+      clipper::HKL_info::HKL_reference_index hri;
+
+      hri = fphi_calc.first();
+      if (hri.last()) {
+	 std::cout << "booo... first is last " << std::endl;
+      }
+      for (hri = fphi_calc.first(); !hri.last(); hri.next()) {
+	 std::cout << "   " << fphi_calc[hri].f() << " " << fphi_ref[hri].f()
+		   << std::endl;
+
+	 count++;
+	 if (count == 10)
+	    break;
+      }
 
       // bricks
 
@@ -784,6 +838,50 @@ test_nxmap_edcalc(int argc, char **argv) {
    }
    return 1;
 }
+
+int
+test_xmap_edcalc(int argc, char **argv) {
+
+   if (argc <= 2) {
+      std::cout << "Usage: " << argv[0] << " map_file_name pdb_file_name" << std::endl;
+   } else {
+      std::string map_file_name = argv[1];
+      std::string pdb_file_name = argv[2];
+      clipper::CCP4MAPfile file;
+      clipper::Xmap<float> xmap;
+      file.open_read(map_file_name);
+      file.import_xmap(xmap);
+      std::cout << "Getting atoms... " << std::endl;
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
+
+      // now a few residues
+      coot::residue_spec_t spec_1("A", 10, "");
+      coot::residue_spec_t spec_2("A", 11, "");
+      coot::residue_spec_t spec_3("A", 12, "");
+      coot::residue_spec_t spec_4("A", 13, "");
+      coot::residue_spec_t spec_5("A", 14, "");
+
+      int few_residues_selection_handle = asc.mol->NewSelection();
+
+      spec_1.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_NEW);
+      spec_2.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+      spec_3.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+      spec_4.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+      spec_5.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+
+      clipper::Xmap<float> calc_atom_map(mmdb::Manager *mol,
+					 int atom_selection_handle, 
+					 const clipper::Cell &cell,
+					 const clipper::Spacegroup &space_group,
+					 const clipper::Grid_sampling &sampling);
+
+      asc.mol->DeleteSelection(few_residues_selection_handle);
+
+   }
+
+   return 0;
+}
+
 
 int
 test_string_split() {
@@ -970,13 +1068,16 @@ int main(int argc, char **argv) {
    if (false)
       test_string_split();
    
+   if (true)
+      test_xmap_edcalc(argc, argv);
+
    if (false)
       test_nxmap_edcalc(argc, argv);
 
    if (false)
       test_helix_like(argc, argv);
 
-   if (true)
+   if (false)
       test_merge_fragments(argc, argv);
 
    return 0;
