@@ -4153,6 +4153,15 @@ char* get_text_for_density_size_widget() {
    return text;
 
 }
+
+char *
+get_text_for_density_size_em_widget() {
+   graphics_info_t g;
+   char *text = (char *) malloc(100);
+   snprintf(text,100,"%-5.1f", g.box_radius_em);
+   return text;
+}
+
 GtkWidget *wrapped_create_show_symmetry_window() {
 
    GtkWidget *show_symm_window = create_show_symmetry_window();

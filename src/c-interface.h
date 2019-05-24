@@ -1481,6 +1481,10 @@ int auto_read_do_difference_map_too_state();
 char* get_text_for_density_size_widget(); /* const gchar *text */
 void set_density_size_from_widget(const char *text);
 
+/* MOVE-ME to c-interface-gtk-widgets.h */
+char *get_text_for_density_size_em_widget();
+void set_density_size_em_from_widget(const char *text);
+
 /*! \brief set the extent of the box/radius of electron density contours for x-ray maps */
 void set_map_radius(float f);
 

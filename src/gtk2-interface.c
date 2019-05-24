@@ -3511,12 +3511,16 @@ create_global_map_properties_window (void)
   GtkWidget *map_properties_vbox;
   GtkWidget *label5;
   GtkWidget *frame4;
-  GtkWidget *hbox5;
+  GtkWidget *vbox332;
+  GtkWidget *table10;
   GtkWidget *label6;
-  GtkWidget *entry1;
+  GtkWidget *map_radius_xray_entry;
   GtkWidget *label7;
-  GtkWidget *map_radius_apply_button;
-  GtkWidget *label275;
+  GtkWidget *map_radius_xray_apply_button;
+  GtkWidget *label832;
+  GtkWidget *map_radius_em_entry;
+  GtkWidget *label833;
+  GtkWidget *map_radius_em_button;
   GtkWidget *frame24;
   GtkWidget *hbox17;
   GtkWidget *label32;
@@ -3568,32 +3572,69 @@ create_global_map_properties_window (void)
   gtk_widget_show (frame4);
   gtk_box_pack_start (GTK_BOX (map_properties_vbox), frame4, TRUE, TRUE, 0);
 
-  hbox5 = gtk_hbox_new (FALSE, 0);
-  gtk_widget_show (hbox5);
-  gtk_container_add (GTK_CONTAINER (frame4), hbox5);
+  vbox332 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox332);
+  gtk_container_add (GTK_CONTAINER (frame4), vbox332);
 
-  label6 = gtk_label_new ("Map Radius: ");
+  table10 = gtk_table_new (2, 4, FALSE);
+  gtk_widget_show (table10);
+  gtk_box_pack_start (GTK_BOX (vbox332), table10, TRUE, TRUE, 0);
+
+  label6 = gtk_label_new ("Map Radius x-ray: ");
   gtk_widget_show (label6);
-  gtk_box_pack_start (GTK_BOX (hbox5), label6, FALSE, FALSE, 7);
+  gtk_table_attach (GTK_TABLE (table10), label6, 0, 1, 0, 1,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
   gtk_label_set_justify (GTK_LABEL (label6), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_padding (GTK_MISC (label6), 8, 0);
 
-  entry1 = gtk_entry_new ();
-  gtk_widget_show (entry1);
-  gtk_box_pack_start (GTK_BOX (hbox5), entry1, FALSE, TRUE, 11);
+  map_radius_xray_entry = gtk_entry_new ();
+  gtk_widget_show (map_radius_xray_entry);
+  gtk_table_attach (GTK_TABLE (table10), map_radius_xray_entry, 1, 2, 0, 1,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
 
   label7 = gtk_label_new ("\303\205ngstr\303\266m");
   gtk_widget_show (label7);
-  gtk_box_pack_start (GTK_BOX (hbox5), label7, FALSE, FALSE, 18);
+  gtk_table_attach (GTK_TABLE (table10), label7, 2, 3, 0, 1,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
   gtk_label_set_justify (GTK_LABEL (label7), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_padding (GTK_MISC (label7), 8, 0);
 
-  map_radius_apply_button = gtk_button_new_with_mnemonic ("  Apply  ");
-  gtk_widget_show (map_radius_apply_button);
-  gtk_box_pack_start (GTK_BOX (hbox5), map_radius_apply_button, FALSE, FALSE, 0);
+  map_radius_xray_apply_button = gtk_button_new_with_mnemonic ("  Apply  ");
+  gtk_widget_show (map_radius_xray_apply_button);
+  gtk_table_attach (GTK_TABLE (table10), map_radius_xray_apply_button, 3, 4, 0, 1,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
 
-  label275 = gtk_label_new ("  ");
-  gtk_widget_show (label275);
-  gtk_box_pack_start (GTK_BOX (hbox5), label275, FALSE, FALSE, 0);
-  gtk_label_set_justify (GTK_LABEL (label275), GTK_JUSTIFY_CENTER);
+  label832 = gtk_label_new ("Map Radius EM: ");
+  gtk_widget_show (label832);
+  gtk_table_attach (GTK_TABLE (table10), label832, 0, 1, 1, 2,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_misc_set_alignment (GTK_MISC (label832), 0, 0.5);
+  gtk_misc_set_padding (GTK_MISC (label832), 8, 0);
+
+  map_radius_em_entry = gtk_entry_new ();
+  gtk_widget_show (map_radius_em_entry);
+  gtk_table_attach (GTK_TABLE (table10), map_radius_em_entry, 1, 2, 1, 2,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_entry_set_invisible_char (GTK_ENTRY (map_radius_em_entry), 9679);
+
+  label833 = gtk_label_new ("\303\205ngstr\303\266m");
+  gtk_widget_show (label833);
+  gtk_table_attach (GTK_TABLE (table10), label833, 2, 3, 1, 2,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_label_set_justify (GTK_LABEL (label833), GTK_JUSTIFY_CENTER);
+
+  map_radius_em_button = gtk_button_new_with_mnemonic ("Apply");
+  gtk_widget_show (map_radius_em_button);
+  gtk_table_attach (GTK_TABLE (table10), map_radius_em_button, 3, 4, 1, 2,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
 
   frame24 = gtk_frame_new (NULL);
   gtk_widget_show (frame24);
@@ -3727,11 +3768,17 @@ create_global_map_properties_window (void)
   gtk_widget_show (label351);
   gtk_box_pack_start (GTK_BOX (hbox177), label351, FALSE, FALSE, 0);
 
-  g_signal_connect ((gpointer) entry1, "key_press_event",
+  g_signal_connect ((gpointer) map_radius_xray_entry, "key_press_event",
                     G_CALLBACK (on_entry1_key_press_event),
                     NULL);
-  g_signal_connect ((gpointer) map_radius_apply_button, "clicked",
+  g_signal_connect ((gpointer) map_radius_xray_apply_button, "clicked",
                     G_CALLBACK (on_map_radius_apply_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) map_radius_em_entry, "key_press_event",
+                    G_CALLBACK (on_map_radius_em_entry_key_press_event),
+                    NULL);
+  g_signal_connect ((gpointer) map_radius_em_button, "clicked",
+                    G_CALLBACK (on_map_radius_em_button_clicked),
                     NULL);
   g_signal_connect ((gpointer) map_dynamic_map_sampling_checkbutton, "toggled",
                     G_CALLBACK (on_map_dynamic_map_sampling_checkbutton_toggled),
@@ -3751,12 +3798,16 @@ create_global_map_properties_window (void)
   GLADE_HOOKUP_OBJECT (global_map_properties_window, map_properties_vbox, "map_properties_vbox");
   GLADE_HOOKUP_OBJECT (global_map_properties_window, label5, "label5");
   GLADE_HOOKUP_OBJECT (global_map_properties_window, frame4, "frame4");
-  GLADE_HOOKUP_OBJECT (global_map_properties_window, hbox5, "hbox5");
+  GLADE_HOOKUP_OBJECT (global_map_properties_window, vbox332, "vbox332");
+  GLADE_HOOKUP_OBJECT (global_map_properties_window, table10, "table10");
   GLADE_HOOKUP_OBJECT (global_map_properties_window, label6, "label6");
-  GLADE_HOOKUP_OBJECT (global_map_properties_window, entry1, "entry1");
+  GLADE_HOOKUP_OBJECT (global_map_properties_window, map_radius_xray_entry, "map_radius_xray_entry");
   GLADE_HOOKUP_OBJECT (global_map_properties_window, label7, "label7");
-  GLADE_HOOKUP_OBJECT (global_map_properties_window, map_radius_apply_button, "map_radius_apply_button");
-  GLADE_HOOKUP_OBJECT (global_map_properties_window, label275, "label275");
+  GLADE_HOOKUP_OBJECT (global_map_properties_window, map_radius_xray_apply_button, "map_radius_xray_apply_button");
+  GLADE_HOOKUP_OBJECT (global_map_properties_window, label832, "label832");
+  GLADE_HOOKUP_OBJECT (global_map_properties_window, map_radius_em_entry, "map_radius_em_entry");
+  GLADE_HOOKUP_OBJECT (global_map_properties_window, label833, "label833");
+  GLADE_HOOKUP_OBJECT (global_map_properties_window, map_radius_em_button, "map_radius_em_button");
   GLADE_HOOKUP_OBJECT (global_map_properties_window, frame24, "frame24");
   GLADE_HOOKUP_OBJECT (global_map_properties_window, hbox17, "hbox17");
   GLADE_HOOKUP_OBJECT (global_map_properties_window, label32, "label32");

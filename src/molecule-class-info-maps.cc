@@ -304,6 +304,12 @@ molecule_class_info_t::update_map_internal() {
       if (is_EM_map())
 	 radius = graphics_info_t::box_radius_em;
 
+      if (false)
+	 std::cout << "in update_map_internal() " << radius << " vs x "
+		   << graphics_info_t::box_radius_xray << " em "
+		   << graphics_info_t::box_radius_em << " is-em: "
+		   << is_EM_map() << std::endl;
+
       coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
 			 graphics_info_t::RotationCentre_y(),
 			 graphics_info_t::RotationCentre_z());
@@ -1856,7 +1862,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 	 }
 	 return -1;
       }
-   }      
+   }
 
    // was a regular file, let's check the extension:
    // 
@@ -1872,7 +1878,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
    } else { 
       tstring = filename.substr(islash + 1);
    }
-   
+
    bool good_extension_flag = 0;
    for (unsigned int iextension=0; iextension<acceptable_extensions.size(); iextension++) {
       std::string::size_type imap = tstring.rfind(acceptable_extensions[iextension]);
@@ -1881,7 +1887,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 	 break;
       }
    }
-      
+
    // not really extension checking, just that it has it in the
    // filename:
    if (good_extension_flag == 0) { 

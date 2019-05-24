@@ -387,18 +387,17 @@ void
 on_density_ok_button_clicked           (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkEntry      *entry; 
-
-/*    entry_char_type *text; */
+   int imol = 0;		/* FIXME, not needed */
+   GtkWidget *entry;
    const char *text;
-   int imol = 0;		/*  FIXME */
 
-   entry = (GTK_ENTRY(lookup_widget(GTK_WIDGET(button), "entry1")));
-   text = gtk_entry_get_text(entry);
+   GtkEntry *entry_xray = GTK_ENTRY(lookup_widget(GTK_WIDGET(button), "map_radius_xray_entry"));
+   GtkEntry *entry_em   = GTK_ENTRY(lookup_widget(GTK_WIDGET(button), "map_radius_em_entry"));
+   const char *text_xray = gtk_entry_get_text(entry_xray);
+   const char *text_em   = gtk_entry_get_text(entry_em);
 
- /*   printf("We found entry text: %s\n", text); */
-
-   set_density_size_from_widget(text);
+   set_density_size_from_widget(text_xray);
+   set_density_size_em_from_widget(text_em);
 
    /* Now the increment of the iso level entry */
 
@@ -440,22 +439,21 @@ void
 on_density_size1_activate              (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-   GtkWidget *density_window;
-   GtkWidget *entry; 
+   GtkWidget *entry = 0;
    GtkWidget *checkbutton;
    char *text;
-   int imol = 0;		/* FIXME */
+   int imol = 0;		/* FIXME , not needed*/
    
-   density_window = create_global_map_properties_window();
-   entry = lookup_widget(density_window, "entry1");
+   GtkWidget *density_window = create_global_map_properties_window();
 
+   GtkEntry *entry_xray = GTK_ENTRY(lookup_widget(GTK_WIDGET(density_window), "map_radius_xray_entry"));
+   GtkEntry *entry_em   = GTK_ENTRY(lookup_widget(GTK_WIDGET(density_window), "map_radius_em_entry"));
    text = get_text_for_density_size_widget(); /* const gchar *text */
-   
-  /* Question to self: is this GTK_ENTRY necessary 
-     if entry is an GtkEntry? */
-   gtk_entry_set_text(GTK_ENTRY(entry), text);
-
-   free (text); 
+   gtk_entry_set_text(entry_xray, text);
+   text = get_text_for_density_size_em_widget(); /* const gchar *text */
+   gtk_entry_set_text(entry_em, text);
+   free (text);
+   text = 0;
   
  /* Now the iso level increment entry  */
 
@@ -9346,7 +9344,7 @@ on_entry1_key_press_event              (GtkWidget       *widget,
                                         GdkEventKey     *event,
                                         gpointer         user_data)
 {
-  GtkEntry *entry = (GTK_ENTRY(lookup_widget(widget, "entry1")));
+  GtkEntry *entry = (GTK_ENTRY(lookup_widget(widget, "map_radius_xray_entry")));
   const char *text = gtk_entry_get_text(entry);
   if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) { 
     set_density_size_from_widget(text);
@@ -9359,7 +9357,7 @@ void
 on_map_radius_apply_button_clicked     (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkEntry *entry = (GTK_ENTRY(lookup_widget(GTK_WIDGET(button), "entry1")));
+   GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(button), "map_radius_xray_entry"));
    const char *text = gtk_entry_get_text(entry);
    set_density_size_from_widget(text);
 }
@@ -12923,5 +12921,31 @@ on_show_symmetry_expanded_labels_checkbutton_toggled
      set_symmetry_atom_labels_expanded(1);
    else
      set_symmetry_atom_labels_expanded(0);
+}
+
+
+void
+on_map_radius_em_button_clicked        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+  GtkEntry *entry = (GTK_ENTRY(lookup_widget(button, "map_radius_em_entry")));
+  const char *text = gtk_entry_get_text(entry);
+  printf("set_density_size_em_from_widget() %s\n", text);
+  set_density_size_em_from_widget(text);
+}
+
+
+gboolean
+on_map_radius_em_entry_key_press_event (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data)
+{
+
+  GtkEntry *entry = (GTK_ENTRY(lookup_widget(widget, "map_radius_em_entry")));
+  const char *text = gtk_entry_get_text(entry);
+  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter)
+    set_density_size_em_from_widget(text);
+  return FALSE;
 }
 

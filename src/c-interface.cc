@@ -1748,16 +1748,15 @@ PyObject *map_statistics_py(int imol) {
 
 void set_density_size_from_widget(const char *text) {
 
-   float tmp;
    graphics_info_t g;
 
-   tmp = atof(text);
+   float tmp = atof(text);
 
    if ((tmp > 0.0) && (tmp < 9999.9)) {
       g.box_radius_xray = tmp;
    } else {
-
-      cout << "Cannot interpret " << text << ".  Assuming 10A" << endl;
+      std::cout << "ERROR:: set_density_size_from_widget() Cannot interpret \""
+		<< text << "\".  Assuming 10A" << std::endl;
       g.box_radius_xray = 10.0;
    }
    //
@@ -1767,6 +1766,25 @@ void set_density_size_from_widget(const char *text) {
    }
    graphics_draw();
 }
+
+void
+set_density_size_em_from_widget(const char *text) {
+
+   float tmp = atof(text);
+   graphics_info_t g;
+   if (tmp > 0.0) {
+      g.box_radius_em = tmp;
+      for (int ii=0; ii<g.n_molecules(); ii++)
+	 if (is_valid_map_molecule(ii))
+	    g.molecules[ii].update_map();
+   } else {
+      std::cout << "ERROR:: set_density_size_from_widget() Cannot interpret \""
+		<< text << "\".  Assuming 55A" << std::endl;
+      g.box_radius_em = 55.0;
+   }
+   graphics_draw();
+}
+
 
 void set_map_radius_em(float radius) {
 

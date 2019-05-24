@@ -4771,3 +4771,16 @@ void
 on_show_symmetry_expanded_labels_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
+
+void
+on_map_radius_em_entry_changed         (GtkEditable     *editable,
+                                        gpointer         user_data);
+
+void
+on_map_radius_em_button_clicked        (GtkButton       *button,
+                                        gpointer         user_data);
+
+gboolean
+on_map_radius_em_entry_key_press_event (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data);
