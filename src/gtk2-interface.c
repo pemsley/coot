@@ -12889,7 +12889,6 @@ create_skeleton_dialog (void)
   GtkWidget *ca_baton_mode_needs_skel_label;
   GtkWidget *label117;
   GtkWidget *frame71;
-  GtkWidget *skeleton_map_optionmenu;
   GtkWidget *skeleton_map_combobox;
   GtkWidget *skeleton_dialog_on_off_frame;
   GtkWidget *vbox85;
@@ -12930,10 +12929,6 @@ create_skeleton_dialog (void)
   gtk_widget_show (frame71);
   gtk_box_pack_start (GTK_BOX (vbox84), frame71, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (frame71), 2);
-
-  skeleton_map_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (skeleton_map_optionmenu);
-  gtk_container_add (GTK_CONTAINER (frame71), skeleton_map_optionmenu);
 
   skeleton_map_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (skeleton_map_combobox);
@@ -12999,7 +12994,6 @@ create_skeleton_dialog (void)
   GLADE_HOOKUP_OBJECT (skeleton_dialog, ca_baton_mode_needs_skel_label, "ca_baton_mode_needs_skel_label");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, label117, "label117");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, frame71, "frame71");
-  GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_map_optionmenu, "skeleton_map_optionmenu");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_map_combobox, "skeleton_map_combobox");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_dialog_on_off_frame, "skeleton_dialog_on_off_frame");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, vbox85, "vbox85");
