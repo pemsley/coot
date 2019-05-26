@@ -249,6 +249,49 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 
 }
 
+bool
+coot::residue_sorter(const std::pair<bool, mmdb::Residue *> &r1,
+		     const std::pair<bool, mmdb::Residue *> &r2) {
+
+   std::string chain_id_1 = r1.second->GetChainID();
+   std::string chain_id_2 = r2.second->GetChainID();
+   if (chain_id_1 < chain_id_2) {
+      return true;
+   } else {
+      if (chain_id_1 > chain_id_2) {
+	 return false;
+      } else {
+	 if (r1.second->index < r2.second->index) {
+	    return true;
+	 } else {
+	    if (r1.second->index > r2.second->index) {
+	       return false;
+	    } else {
+	       if (r1.second->GetSeqNum() < r2.second->GetSeqNum()) {
+		  return true;
+	       } else {
+		  if (r1.second->GetSeqNum() > r2.second->GetSeqNum()) {
+		     return false;
+		  } else {
+		     std::string ins_code_1 = r1.second->GetInsCode();
+		     std::string ins_code_2 = r2.second->GetInsCode();
+		     if (ins_code_1 < ins_code_2) {
+			return true;
+		     } else {
+			if (ins_code_1 > ins_code_2) {
+			   return false;
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return false;
+}
+
+
 // 20081106 construct from a vector of residues, each of which
 // has a flag attached that denotes whether or not it is a fixed
 // residue (it would be set, for example in the case of flanking
@@ -274,6 +317,14 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
    for(unsigned int i=0; i<residues.size(); i++)
       if (residues[i].second)
          residues_local.push_back(residues[i]);
+
+   // now sort those residues so that polymer linking is easy
+   std::sort(residues_local.begin(), residues_local.end(), residue_sorter);
+   if (false) // sorting function should return false at the end (because sorting function is called
+              // with the same argument for left and right hand side, I think (std::sort testing for sanity?)
+      for (std::size_t i=0; i<residues_local.size(); i++)
+	 std::cout << "    " << residue_spec_t(residues_local[i].second)
+		   << " has index " << residues_local[i].second->index << std::endl;
 
    residues_vec = residues_local;
    init_from_residue_vec(residues_local, geom, mol_in, fixed_atom_specs);
@@ -2399,6 +2450,16 @@ coot::restraints_container_t::make_restraints(int imol,
 					      bool do_link_restraints,
 					      bool do_flank_restraints) {
 
+
+#if 0
+   make_restraints_ng(imol, geom, flags_in, do_residue_internal_torsions, do_trans_peptide_restraints,
+		      rama_plot_target_weight, do_rama_plot_restraints,
+		      do_auto_helix_restraints, do_auto_strand_restraints,
+		      sec_struct_pseudo_bonds, do_link_restraints, do_flank_restraints);
+
+   return restraints_vec.size();
+#endif
+
    // if a peptide is trans, add a restraint to penalize non-trans configuration
    // (currently a torsion restraint on peptide w of 180)
    //
@@ -2470,8 +2531,9 @@ coot::restraints_container_t::make_restraints(int imol,
       // sets bonded_pairs_container (note that this doesn't make bonded pairs for
       // residues that are not in the given set of residues) i.e. no bonds
       // between a CYS and a CYS that is in the residue set.
-      if (do_link_restraints_internal)
+      if (do_link_restraints_internal) {
 	 make_link_restraints(geom, do_rama_plot_restraints, do_trans_peptide_restraints);
+      }
 
       if (false)
 	 std::cout << "after make_link_restraints() bonded_pairs_container has size "
