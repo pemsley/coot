@@ -29739,7 +29739,7 @@ create_curlew_dialog (void)
 
   curlew_install_button = gtk_button_new ();
   gtk_widget_show (curlew_install_button);
-  gtk_box_pack_start (GTK_BOX (hbox448), curlew_install_button, FALSE, FALSE, 0);
+  gtk_box_pack_end (GTK_BOX (hbox448), curlew_install_button, FALSE, FALSE, 0);
 
   alignment170 = gtk_alignment_new (0.5, 0.5, 0, 0);
   gtk_widget_show (alignment170);
