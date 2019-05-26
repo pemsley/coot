@@ -1521,8 +1521,8 @@ void add_filechooser_filter_button(GtkWidget *fileselection,
   int i = 0;
   std::vector<std::string> globs;
 
-  GtkFileFilter *filterall = gtk_file_filter_new ();
-  GtkFileFilter *filterselect = gtk_file_filter_new ();
+  GtkFileFilter *filterall    = gtk_file_filter_new();
+  GtkFileFilter *filterselect = gtk_file_filter_new();
 
   gtk_file_filter_set_name (filterall, "all-files");
   gtk_file_filter_add_pattern (filterall, "*");
@@ -3577,11 +3577,16 @@ void unset_go_to_atom_widget() {
 
 // not really a button select, its a menu item select
 void
-save_molecule_coords_button_select(GtkWidget *item, GtkPositionType pos) { 
+save_molecule_coords_combobox_changed(GtkWidget *combobox, gpointer data) {
 
    // graphics_info_t g;
-   // std::cout << "INFO:: Save coords molecule now: " << pos << std::endl;
-   graphics_info_t::save_imol = pos;
+
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+
+   std::cout << "INFO:: save_molecule_coords_button_select(): Save coords molecule save_imol now: "
+	     << imol << std::endl;
+
+   graphics_info_t::save_imol = imol;
 }
 
 

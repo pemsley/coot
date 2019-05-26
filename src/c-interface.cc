@@ -4005,6 +4005,7 @@ int save_molecule_number_from_option_menu() {
 
 /* access from callback.c, not to be used in scripting, I suggest. */
 void set_save_molecule_number(int imol) {
+
    graphics_info_t::save_imol = imol;
 }
 

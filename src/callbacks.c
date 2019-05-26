@@ -388,7 +388,7 @@ on_density_ok_button_clicked           (GtkButton       *button,
                                         gpointer         user_data)
 {
    int imol = 0;		/* FIXME, not needed */
-   GtkWidget *entry;
+   GtkEntry *entry;
    const char *text;
 
    GtkEntry *entry_xray = GTK_ENTRY(lookup_widget(GTK_WIDGET(button), "map_radius_xray_entry"));
@@ -401,8 +401,7 @@ on_density_ok_button_clicked           (GtkButton       *button,
 
    /* Now the increment of the iso level entry */
 
-   entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(button),
-				   "iso_level_increment_entry"));
+   entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(button), "iso_level_increment_entry"));
 
    text = gtk_entry_get_text(entry);
 
@@ -2115,11 +2114,12 @@ on_save_coordinates1_activate          (GtkMenuItem     *menuitem,
 {
   GtkWidget *widget;
   GtkWidget *combobox; 
-  GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(save_molecule_coords_button_select);
+  GCallback callback_func = G_CALLBACK(save_molecule_coords_combobox_changed);
   int imol = first_coords_imol();
   int imol_unsaved = first_unsaved_coords_imol();
   if (imol_unsaved != -1) 
     imol = imol_unsaved;
+  printf("in on_save_coordinates1_activate() with imol_unsaved %d\n", imol_unsaved);
   set_save_molecule_number(imol); /* set *save* molecule number */
 
   widget = create_save_coords_dialog(); 
@@ -12929,7 +12929,7 @@ on_map_radius_em_button_clicked        (GtkButton       *button,
                                         gpointer         user_data)
 {
 
-  GtkEntry *entry = (GTK_ENTRY(lookup_widget(button, "map_radius_em_entry")));
+  GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(button), "map_radius_em_entry"));
   const char *text = gtk_entry_get_text(entry);
   printf("set_density_size_em_from_widget() %s\n", text);
   set_density_size_em_from_widget(text);

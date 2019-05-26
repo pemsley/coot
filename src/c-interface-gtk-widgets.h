@@ -354,7 +354,7 @@ void save_coordinates_using_widget(GtkWidget *widget); /* do a get_user_data for
  
 /* not really a button select, its a menu item select */
 /* not productive */
-void save_molecule_coords_button_select(GtkWidget *item, GtkPositionType pos); 
+void save_molecule_coords_combobox_changed(GtkWidget *combobox, gpointer data);
 
 GtkWidget *wrapped_create_goto_atom_window();
 void fill_go_to_atom_window(GtkWidget *widget);

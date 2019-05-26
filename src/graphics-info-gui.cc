@@ -758,6 +758,7 @@ graphics_info_t::set_directory_for_filechooser(GtkWidget *fileselection) const {
 
 void
 graphics_info_t::set_file_for_save_filechooser(GtkWidget *fileselection) const {
+
    // just like set_directory_for_filechooser actually, but we give
    // it the full filename, not just the directory.
 
@@ -783,9 +784,12 @@ graphics_info_t::set_file_for_save_filechooser(GtkWidget *fileselection) const {
 	}
       }
 
-      std::cout << "INFO:: Setting fileselection with file: " << full_name
-                << std::endl;
+      if (false)
+	 std::cout << "INFO:: Setting fileselection with file: " << full_name
+		   << std::endl;
+
       if (g_file_test(full_name.c_str(), G_FILE_TEST_EXISTS)) {
+
          gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(fileselection),
                                       full_name.c_str());
 	 // we shouldnt need to call set_current_name and the filename
@@ -794,6 +798,7 @@ graphics_info_t::set_file_for_save_filechooser(GtkWidget *fileselection) const {
 	 gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fileselection),
 					   stripped_name.c_str());
       } else {
+
          gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fileselection),
                                       directory_for_saving_for_filechooser.c_str());
          gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fileselection),
