@@ -4061,57 +4061,63 @@ graphics_info_t::fill_renumber_residue_range_dialog(GtkWidget *window) {
 
    graphics_info_t g;
 
-   GtkWidget *molecule_option_menu =
-      lookup_widget(window, "renumber_residue_range_molecule_optionmenu");
-//    GtkWidget *chain_option_menu =
-//       lookup_widget(window, "renumber_residue_range_chain_optionmenu");
+   // GtkWidget *molecule_option_menu = lookup_widget(window, "renumber_residue_range_molecule_optionmenu");
+
+   GtkWidget *molecule_combobox = lookup_widget(window, "renumber_residue_range_combobox");
+
+   // GtkWidget *chain_option_menu = lookup_widget(window, "renumber_residue_range_chain_optionmenu");
    
    // renumber_residue_range_resno_1_entry
    // renumber_residue_range_resno_2_entry
    // renumber_residue_range_offset_entry
 
    // fill molecules option menu
-   GtkSignalFunc callback_func = 
-      GTK_SIGNAL_FUNC(graphics_info_t::renumber_residue_range_molecule_menu_item_select);
+   //    GtkSignalFunc callback_func = 
+   //       GTK_SIGNAL_FUNC(graphics_info_t::renumber_residue_range_molecule_menu_item_select);
+   GCallback callback_func = G_CALLBACK(renumber_residue_range_molecule_combobox_changed);
 
    // g.fill_option_menu_with_coordinates_options(molecule_option_menu, callback_func);
 
    short int set_last_active_flag = 0;
-   int imol = renumber_residue_range_molecule;
-   g.fill_option_menu_with_coordinates_options_internal_2(molecule_option_menu, callback_func,
-							  set_last_active_flag, imol);
+   int imol_active = renumber_residue_range_molecule;
+
+   // g.fill_option_menu_with_coordinates_options_internal_2(molecule_option_menu, callback_func,
+   // set_last_active_flag, imol);
+
+   g.fill_combobox_with_coordinates_options(molecule_combobox, callback_func, imol_active);
 
 }
 
 void
 graphics_info_t::fill_renumber_residue_range_internal(GtkWidget *w, int imol) {
 
-   GtkWidget *chain_combobox =
-      lookup_widget(w, "renumber_residue_range_chain_combobox");
-   GtkSignalFunc callback_func = 
-      GTK_SIGNAL_FUNC(graphics_info_t::renumber_residue_range_chain_menu_item_select);
+   GtkWidget *chain_combobox = lookup_widget(w, "renumber_residue_range_chain_combobox");
+   GCallback callback_func = G_CALLBACK(renumber_residue_range_chain_combobox_changed);
    std::string a = fill_combobox_with_chain_options(chain_combobox, imol, callback_func);
    if (a != "no-chain") {
       graphics_info_t::renumber_residue_range_chain = a;
    } 
 }
 
-
 void
-graphics_info_t::renumber_residue_range_molecule_menu_item_select(GtkWidget *item,
-								  GtkPositionType pos) {
-   graphics_info_t::renumber_residue_range_molecule = pos;
-   GtkWidget *window = lookup_widget(GTK_WIDGET(item),
-				     "renumber_residue_range_dialog");
+graphics_info_t::renumber_residue_range_molecule_combobox_changed(GtkWidget *combobox,
+								  gpointer data) {
+
    graphics_info_t g;
-   g.fill_renumber_residue_range_internal(window, pos);
+   int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
+   renumber_residue_range_molecule = imol;
+   GtkWidget *window = lookup_widget(combobox, "renumber_residue_range_dialog");
+   g.fill_renumber_residue_range_internal(window, imol);
+   
 }
 
+// static
 void
-graphics_info_t::renumber_residue_range_chain_menu_item_select(GtkWidget *item,
-					        	       GtkPositionType pos) {
+graphics_info_t::renumber_residue_range_chain_combobox_changed(GtkWidget *combobox, gpointer data) {
 
-   graphics_info_t::renumber_residue_range_chain = menu_item_label(item);
+   graphics_info_t g;
+   std::string c = g.get_active_label_in_comboboxtext(GTK_COMBO_BOX_TEXT(combobox));
+   g.renumber_residue_range_chain = c;
 }
 
 

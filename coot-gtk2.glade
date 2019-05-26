@@ -34507,17 +34507,7 @@ search (this may not work well)</property>
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="renumber_residue_range_molecule_optionmenu">
-		  <property name="border_width">2</property>
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
+		<placeholder/>
 	      </child>
 
 	      <child>
@@ -34565,10 +34555,15 @@ search (this may not work well)</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="renumber_residue_range_chain_optionmenu">
+		    <placeholder/>
+		  </child>
+
+		  <child>
+		    <widget class="GtkComboBox" id="renumber_residue_range_chain_combobox">
+		      <property name="width_request">40</property>
 		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">-1</property>
+		      <property name="add_tearoffs">False</property>
+		      <property name="focus_on_click">True</property>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>

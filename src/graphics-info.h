@@ -3356,12 +3356,13 @@ public:
 
    // ----- renumber residue range -------
    static void fill_renumber_residue_range_dialog(GtkWidget *w);
-   static void renumber_residue_range_molecule_menu_item_select(GtkWidget *item,
-								GtkPositionType pos);
+   static void renumber_residue_range_molecule_combobox_changed(GtkWidget *combobox,
+								gpointer data);
    static int renumber_residue_range_molecule;
    static std::string renumber_residue_range_chain;
    void fill_renumber_residue_range_internal(GtkWidget *w, int imol);
    static void renumber_residue_range_chain_menu_item_select(GtkWidget *item, GtkPositionType pos);
+   static void renumber_residue_range_chain_combobox_changed(GtkWidget *combobox, gpointer data);
 
    // -------- public toggle button control: ---------
    void untoggle_model_fit_refine_buttons_except(const std::string &button_name);

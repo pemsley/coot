@@ -17013,11 +17013,10 @@ create_renumber_residue_range_dialog (void)
   GtkWidget *frame113;
   GtkWidget *vbox120;
   GtkWidget *label192;
-  GtkWidget *renumber_residue_range_molecule_optionmenu;
   GtkWidget *renumber_residue_range_combobox;
   GtkWidget *hbox95;
   GtkWidget *label193;
-  GtkWidget *renumber_residue_range_chain_optionmenu;
+  GtkWidget *renumber_residue_range_chain_combobox;
   GtkWidget *hbox96;
   GtkWidget *label194;
   GtkWidget *frame305;
@@ -17074,11 +17073,6 @@ create_renumber_residue_range_dialog (void)
   gtk_misc_set_alignment (GTK_MISC (label192), 0.04, 0.5);
   gtk_misc_set_padding (GTK_MISC (label192), 3, 5);
 
-  renumber_residue_range_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (renumber_residue_range_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox120), renumber_residue_range_molecule_optionmenu, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (renumber_residue_range_molecule_optionmenu), 2);
-
   renumber_residue_range_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (renumber_residue_range_combobox);
   gtk_box_pack_start (GTK_BOX (vbox120), renumber_residue_range_combobox, TRUE, TRUE, 0);
@@ -17092,9 +17086,10 @@ create_renumber_residue_range_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox95), label193, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label193), GTK_JUSTIFY_CENTER);
 
-  renumber_residue_range_chain_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (renumber_residue_range_chain_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox95), renumber_residue_range_chain_optionmenu, FALSE, FALSE, 0);
+  renumber_residue_range_chain_combobox = gtk_combo_box_text_new ();
+  gtk_widget_show (renumber_residue_range_chain_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox95), renumber_residue_range_chain_combobox, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (renumber_residue_range_chain_combobox, 40, -1);
 
   hbox96 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox96);
@@ -17244,11 +17239,10 @@ create_renumber_residue_range_dialog (void)
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, frame113, "frame113");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, vbox120, "vbox120");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, label192, "label192");
-  GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_molecule_optionmenu, "renumber_residue_range_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_combobox, "renumber_residue_range_combobox");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, hbox95, "hbox95");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, label193, "label193");
-  GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_chain_optionmenu, "renumber_residue_range_chain_optionmenu");
+  GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_chain_combobox, "renumber_residue_range_chain_combobox");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, hbox96, "hbox96");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, label194, "label194");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, frame305, "frame305");
