@@ -1026,6 +1026,8 @@ namespace coot {
       // The bool is the "atoms of this residue are fixed" flag.
       std::vector<std::pair<bool,mmdb::Residue *> > residues_vec;
       std::set<mmdb::Residue *> residues_vec_moving_set;
+      std::map<mmdb::Residue *, std::set<mmdb::Residue *> > fixed_neighbours_set;
+      void debug_sets() const;
       int udd_bond_angle;  // for is a bond, angle or not (0).
       int udd_atom_index_handle; // for indexing into the atoms array.
 
@@ -1663,9 +1665,10 @@ namespace coot {
 	 void write_angles_map(const std::string &file_name) const;
       };
 
-      void make_link_restraints_ng(const protein_geometry &geom,
-				   bool do_rama_plot_retraints,
-				   bool do_trans_peptide_restraints);
+      std::map<mmdb::Residue *, unsigned int>
+      make_link_restraints_ng(const protein_geometry &geom,
+			      bool do_rama_plot_retraints,
+			      bool do_trans_peptide_restraints);
       void make_polymer_links_ng(const protein_geometry &geom,
 				 bool do_rama_plot_restraints,
 				 bool do_trans_peptide_restraints,
@@ -1699,6 +1702,8 @@ namespace coot {
 
       void make_non_bonded_contact_restraints_ng(int imol, const reduced_angle_info_container_t &raic,
 						 const protein_geometry &geom);
+
+      void make_flanking_atoms_restraints_ng(const std::map<mmdb::Residue *, unsigned int> &residue_link_count_map) const;
 
       int add_link_bond(std::string link_type,
 			mmdb::PResidue first, mmdb::PResidue second,

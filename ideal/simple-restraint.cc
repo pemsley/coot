@@ -303,7 +303,7 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
 						     const std::vector<atom_spec_t> &fixed_atom_specs,
 						     const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
 
-   // std::cout << "-------------------- in restraints_container_t() constructor " << std::endl;
+   std::cout << "-------------------- in restraints_container_t() constructor_in mol: " << mol_in << std::endl;
    istart_minus_flag = false; // used in make_flanking_atoms_rama_restraints
    iend_plus_flag = false;
 
@@ -328,6 +328,8 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
 
    residues_vec = residues_local;
    init_from_residue_vec(residues_local, geom, mol_in, fixed_atom_specs);
+
+
 }
 
 coot::restraints_container_t::restraints_container_t(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
@@ -714,6 +716,8 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
                           // init doesn't set bonded_pairs_container (make_restraints does that).
 
    std::map<mmdb::Residue *, std::set<mmdb::Residue *> > neighbour_set = residues_near_residues(residues_vec, mol, dist_crit);
+   fixed_neighbours_set = neighbour_set;
+
    std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it_map;
 
    bonded_pair_container_t bpc = bonded_flanking_residues_by_residue_vector(neighbour_set, geom);
@@ -930,6 +934,47 @@ coot::restraints_container_t::debug_atoms() const {
 		<< " fixed: " << is_fixed << std::endl;
    }
 }
+
+void
+coot::restraints_container_t::debug_sets() const {
+
+   std::cout << "-------------------- in debug_sets() residues_vec: " << std::endl;
+   for (std::size_t i=0; i<residues_vec.size(); i++)
+      std::cout << "   " << residues_vec[i].first << " " << residue_spec_t(residues_vec[i].second)
+		<< std::endl;
+
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
+   for (it=fixed_neighbours_set.begin(); it!=fixed_neighbours_set.end(); it++) {
+      std::cout << "    " << residue_spec_t(it->first) << std::endl;
+      const std::set<mmdb::Residue *> &s = it->second;
+      std::set<mmdb::Residue *>::const_iterator its;
+      for (its=s.begin(); its!=s.end(); its++) {
+	 std::cout << "     fixed neigb: " << residue_spec_t(*its) << std::endl;
+      }
+   }
+
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	 std::cout << "   Chain " << chain_p->GetChainID() << std::endl;
+	 int nres = chain_p->GetNumberOfResidues();
+	 for (int ires=0; ires<nres; ires++) {
+	    mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	    std::cout << "      " << residue_spec_t(residue_p) << std::endl;
+	    int n_atoms = residue_p->GetNumberOfAtoms();
+	    for (int iat=0; iat<n_atoms; iat++) {
+	       mmdb::Atom *at = residue_p->GetAtom(iat);
+	       std::cout << " make_restraints_ng:      " << atom_spec_t(at) << std::endl;
+	    }
+	 }
+      }
+   }
+
+}
+
 
 void
 coot::restraints_container_t::pre_sanitize_as_needed(std::vector<refinement_lights_info_t> lights) {

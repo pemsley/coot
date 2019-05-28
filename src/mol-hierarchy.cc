@@ -222,7 +222,27 @@ void check_chiral_volumes(int imol) {
       }
    }
       
+   // ---- print mol 
 
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	 std::cout << "   Chain " << chain_p->GetChainID() << std::endl;
+	 int nres = chain_p->GetNumberOfResidues();
+	 for (int ires=0; ires<nres; ires++) {
+	    mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	    std::cout << "      " << residue_spec_t(residue_p) << std::endl;
+	    int n_atoms = residue_p->GetNumberOfAtoms();
+	    for (int iat=0; iat<n_atoms; iat++) {
+	       mmdb::Atom *at = residue_p->GetAtom(iat);
+	       std::cout << "       " << atom_spec_t(at) << std::endl;
+	    }
+	 }
+      }
+   }
       
 
    // ---- simple version 

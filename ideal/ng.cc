@@ -16,6 +16,9 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 						 bool do_link_restraints,
 						 bool do_flank_restraints) {
 
+   std::cout << "-------------------- in make_restraints_ng() mol: " << mol << std::endl;
+   debug_sets();
+
    auto tp_0 = std::chrono::high_resolution_clock::now();
    restraints_usage_flag = flags_in;
    if (n_atoms) {
@@ -23,17 +26,24 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       make_monomer_restraints(imol, geom, do_residue_internal_torsions);
       auto tp_1 = std::chrono::high_resolution_clock::now();
 
-      make_link_restraints_ng(geom, do_rama_plot_restraints, do_trans_peptide_restraints);
+      std::map<mmdb::Residue *, unsigned int> residue_link_count_map =
+	 make_link_restraints_ng(geom, do_rama_plot_restraints, do_trans_peptide_restraints);
+
       auto tp_2 = std::chrono::high_resolution_clock::now();
       // now, what is linked to what?
       // that is in bonded_atom_indices. That is a vector of what is bonded or angle-bonded
       // to each atom.
 
-      reduced_angle_info_container_t raic(restraints_vec);
+      // don't forget about rama to flanking residues here:
+
+      make_flanking_atoms_restraints_ng(residue_link_count_map);
 
       auto tp_3 = std::chrono::high_resolution_clock::now();
-      make_non_bonded_contact_restraints_ng(imol, raic, geom);
+      reduced_angle_info_container_t raic(restraints_vec);
+
       auto tp_4 = std::chrono::high_resolution_clock::now();
+      make_non_bonded_contact_restraints_ng(imol, raic, geom);
+      auto tp_5 = std::chrono::high_resolution_clock::now();
 
       auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
       auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
@@ -41,8 +51,74 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 		<< d10 << " links: " << d21 << " " << " milliseconds " << std::endl;
 
    }
-   return 0;
+   make_df_restraints_indices();
+   make_distortion_electron_density_ranges();
+
+   // info();  - are the NBCs correct?
+
+   return restraints_vec.size();
 }
+
+void
+coot::restraints_container_t::make_flanking_atoms_restraints_ng(const std::map<mmdb::Residue *, unsigned int>
+ &residue_link_count_map) const {
+
+   // residue 20 is being refined, we need to make link restraints to residues 19 and 21 using
+   // fixed_neighbours_set
+   //
+   // residues_vec contains residue 20
+   //
+   // fixed_neighbours_set are the (fixed) neighbours of residue 20.
+   // 
+   // mol contains residue 20 and the residues around it (made by the function that
+   // creates the restraints object)
+
+   if (true) {
+      std::cout << "residue_link_count_map size " << residue_link_count_map.size() << std::endl;
+      std::map<mmdb::Residue *, unsigned int>::const_iterator it;
+      for (it=residue_link_count_map.begin();
+	   it!=residue_link_count_map.end(); it++) {
+	 std::cout << "        residue_link_count_map: "
+		   << residue_spec_t(it->first) << " " << it->second << std::endl;
+      }
+   }
+
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
+   for (it=fixed_neighbours_set.begin(); it!=fixed_neighbours_set.end(); it++) {
+      mmdb::Residue *residue_p = it->first;
+      std::cout << "Considering residue " << residue_spec_t(residue_p) << " for link restraints"
+		<< std::endl;
+
+      unsigned int n_link_for_residue = 0;
+      std::map<mmdb::Residue *, unsigned int>::const_iterator itm = residue_link_count_map.find(residue_p);
+      if (itm != residue_link_count_map.end()) {
+	 n_link_for_residue = itm->second;
+      } else {
+	 if (true)
+	    std::cout << "OOps " << residue_spec_t(residue_p) << " not found in link map" << std::endl;
+      }
+
+      // was it polymer linked at both ends?
+      //
+      if (n_link_for_residue != 2) {
+
+	 int index_for_residue = residue_p->index;
+	 const std::set<mmdb::Residue *> &s = it->second;
+	 std::set<mmdb::Residue *>::const_iterator its;
+	 for (its=s.begin(); its!=s.end(); its++) {
+	    mmdb::Residue *neighb = *its;
+	    int index_for_neighb = neighb->index;
+	    int index_delta = index_for_neighb - index_for_residue;
+	    if (index_delta == -1 || index_delta == 1) {
+	       std::cout << "     fixed neigb: " << residue_spec_t(*its) << std::endl;
+	    }
+	 }
+      }
+   }
+   
+   
+}
+
 
 // Use raic to know what is 1-4 related
 void
@@ -83,6 +159,15 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
       mmdb::Atom *at_1 = atom[i];
       std::set<unsigned int>::const_iterator it;
       for (it=n_set.begin(); it!=n_set.end(); it++) {
+
+	 // bonded_atom_indices should be a vector of *sets*!
+	 // use bonded_atom_indices[i].find(*it)
+	 if (std::find(bonded_atom_indices[i].begin(),
+		       bonded_atom_indices[i].end(), *it) != bonded_atom_indices[i].end()) {
+	    // std::cout << "found a bonded atom pair " << i << " " << *it << std::endl;
+	    continue;
+	 }
+	 
 	 mmdb::Atom *at_2 = atom[*it];
 
 	 if (fixed_atom_indices.find(i) != fixed_atom_indices.end())
@@ -355,6 +440,7 @@ coot::restraints_container_t::try_make_peptide_link_ng(const coot::protein_geome
 			   // Rama restraints here!
 
 			   status = true;
+
 			}
 		     }
 		  }
@@ -697,7 +783,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
    return lrc;
 }
 
-void
+std::map<mmdb::Residue *, unsigned int>
 coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geometry &geom,
 						      bool do_rama_plot_restraints,
 						      bool do_trans_peptide_restraints) {
@@ -725,4 +811,5 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
    std::cout << "------------------- timing for make_link_restraints_ng(): : "
 	     << d10 << " " << d21 << " " << d32 << " milliseconds " << std::endl;
 
+   return residue_link_count_map;
 }
