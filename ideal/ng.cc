@@ -36,6 +36,36 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 
       // This should be a trivial class (that also contains the link type)
       // not a pair (you can keep the variable name though)
+
+#if 0
+      // Heres's a clue:  We should add them both ways when they are made,
+      // so it's cleaner to check if they are there later on in the code (say,
+      // rama code)
+      //
+      class linked_residue_pair {
+      public:
+	 mmdb::Residue *r1;
+	 mmdb::Residue *r2;
+	 std::string link_type;
+	 linked_residue_pair(mmdb::Residue *r1_in, mmdb::Residue *r2_in) : r1(r1_in), r2(r2_in) {}
+	 linked_residue_pair(mmdb::Residue *r1_in, mmdb::Residue *r2_in, const std::string &s) : r1(r1_in), r2(r2_in), link_type(s) {}
+	 bool match_p(mmdb::Residue *test_pair_1, mmdb::Residue *test_pair_2) const {
+	    if (r1 == test_pair_1)
+	       if (r2 == test_pair_2)
+		  return true;
+	    return false;
+	 }
+	 // this class will be used in a std::map, so it needs operator==() and
+	 // operator<()
+	 bool operator==(const linked_residue_pair &lrp) {
+	    return match_p(lrp.r1, lrp.r2);
+	 }
+	 bool operator<(const linked_residue_pair &lrp) {
+	    return (lrp.r1 < r1);
+	 }
+      };
+#endif
+
       std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > residue_pair_link_set;
 
       make_link_restraints_ng(geom,
@@ -247,17 +277,7 @@ coot::restraints_container_t::make_rama_plot_restraints(const std::map<mmdb::Res
 	 for (its=s.begin(); its!=s.end(); its++) {
 	    mmdb::Residue *neighb = *its;
 
-	    // Let's say that we refine residue 21,22,23.
-	    // Residue 21 needs to be flanking-linked to residue 20.
-	    // fixed_neighbours_set can contain residue
-	    // 22 as a neighbour of 21. We don't want to link 22 to 21 here.
-	    // because we have done it in the polymer function. Let's
-	    // see if we can find 21-22 here in residue_link_vector_map.
-	    //
-	    // If we are refining just one residue, there will be nothing in the
-	    // residue_link_vector_map, so only skip this one (continue)
-	    // if we can find the key and the neighb is in the vector (set) of
-	    // residues to whicih this residue is already linked.
+	    // see notes in make_flanking_atoms_restraints_ng()
 
 	    std::map<mmdb::Residue *, std::vector<mmdb::Residue *> >::const_iterator itm;
 	    itm = residue_link_vector_map.find(residue_p);
