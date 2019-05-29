@@ -303,7 +303,6 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
 						     const std::vector<atom_spec_t> &fixed_atom_specs,
 						     const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
 
-   std::cout << "-------------------- in restraints_container_t() constructor_in mol: " << mol_in << std::endl;
    istart_minus_flag = false; // used in make_flanking_atoms_rama_restraints
    iend_plus_flag = false;
 
@@ -967,7 +966,7 @@ coot::restraints_container_t::debug_sets() const {
 	    int n_atoms = residue_p->GetNumberOfAtoms();
 	    for (int iat=0; iat<n_atoms; iat++) {
 	       mmdb::Atom *at = residue_p->GetAtom(iat);
-	       std::cout << " make_restraints_ng:      " << atom_spec_t(at) << std::endl;
+	       std::cout << "   " << atom_spec_t(at) << std::endl;
 	    }
 	 }
       }
@@ -1153,6 +1152,9 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       std::cout << "debug:: minimize_inner called with usage_flags " << usage_flags << std::endl;
       debug_atoms();
    }
+
+   // BOND + density fail: BONDS regularize works
+   // restraints_usage_flag = BONDS_AND_ANGLES;
 
    // We get ~1ms/residue with bond and angle terms and no density terms.
 
@@ -4597,7 +4599,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 	          std::cout << "adding non-bonded contact restraint index " 
 			    << i << " to index " << filtered_non_bonded_atom_indices[i][j]
 			    << " "
-			    << atom_spec_t(atom[i]) << " to " 
+			    << atom_spec_t(atom[i]) << " to "
 			    << atom_spec_t(atom[filtered_non_bonded_atom_indices[i][j]])
 			    << "  types: " << type_1 <<  " " << type_2 <<  " fixed: "
 			    << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << "   current: " << dd
@@ -4628,6 +4630,14 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 				  i, filtered_non_bonded_atom_indices[i][j],
 				  type_1, type_2, is_H_non_bonded_contact,
 				  fixed_atom_flags, dist_min);
+
+	       if (true)
+		  std::cout << "Adding NBC " << i << " " << filtered_non_bonded_atom_indices[i][j]
+			    << " " << type_1 << " " << type_2 << " " 
+			    << is_H_non_bonded_contact << " "
+			    << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << " "
+			    << dist_min <<  "\n";
+
 	       r.n_atoms_from_all_restraints = n_atoms; // for debugging crash in non-bonded contact
 	                                                // restraints
 	       r.restraints_index = restraints_vec.size(); // likewise

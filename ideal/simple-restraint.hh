@@ -1665,16 +1665,16 @@ namespace coot {
 	 void write_angles_map(const std::string &file_name) const;
       };
 
-      std::map<mmdb::Residue *, unsigned int>
+      std::map<mmdb::Residue *, std::vector<mmdb::Residue *> >
       make_link_restraints_ng(const protein_geometry &geom,
 			      bool do_rama_plot_retraints,
 			      bool do_trans_peptide_restraints);
       void make_polymer_links_ng(const protein_geometry &geom,
 				 bool do_rama_plot_restraints,
 				 bool do_trans_peptide_restraints,
-				 std::map<mmdb::Residue *, unsigned int> *residue_link_count_map_p,
+				 std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_count_map_p,
 				 std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p);
-      void fill_residue_link_count_map_ng(std::map<mmdb::Residue *, unsigned int> *residue_link_count_map_p) const;
+
       bool is_fully_linked_ng(mmdb::Residue *r,
 			      const std::map<mmdb::Residue *, unsigned int> &residue_link_count_map) const;
       std::pair<bool, link_restraints_counts> try_make_peptide_link_ng(const coot::protein_geometry &geom,
@@ -1683,11 +1683,10 @@ namespace coot {
 								       bool do_rama_plot_restraints,
 								       bool do_trans_peptide_restraints);
       std::pair<bool, link_restraints_counts> try_make_phosphodiester_link_ng(const coot::protein_geometry &geom,
-								       std::pair<bool, mmdb::Residue *> res_1,
-								       std::pair<bool, mmdb::Residue *> res_2,
-									      bool do_trans_peptide_restraints);
+									      std::pair<bool, mmdb::Residue *> res_1,
+									      std::pair<bool, mmdb::Residue *> res_2);
       link_restraints_counts make_other_types_of_link(const coot::protein_geometry &geom,
-						      const std::map<mmdb::Residue *, unsigned int> &residue_link_count_map,
+						      const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_count_map,
 						      std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > residue_pair_link_set);
       link_restraints_counts make_link_restraints_for_link_ng(const std::string &link_type,
 							      mmdb::Residue *res_1,
@@ -1703,7 +1702,10 @@ namespace coot {
       void make_non_bonded_contact_restraints_ng(int imol, const reduced_angle_info_container_t &raic,
 						 const protein_geometry &geom);
 
-      void make_flanking_atoms_restraints_ng(const std::map<mmdb::Residue *, unsigned int> &residue_link_count_map) const;
+      void make_flanking_atoms_restraints_ng(const coot::protein_geometry &geom,
+					     const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map,
+					     bool do_rama_plot_restraints,
+					     bool do_trans_peptide_restraints);
 
       int add_link_bond(std::string link_type,
 			mmdb::PResidue first, mmdb::PResidue second,
