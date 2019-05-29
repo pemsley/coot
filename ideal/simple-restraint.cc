@@ -2498,7 +2498,7 @@ coot::restraints_container_t::make_restraints(int imol,
 					      bool do_flank_restraints) {
 
 
-#if 0
+#if 1
    make_restraints_ng(imol, geom, flags_in, do_residue_internal_torsions, do_trans_peptide_restraints,
 		      rama_plot_target_weight, do_rama_plot_restraints,
 		      do_auto_helix_restraints, do_auto_strand_restraints,
@@ -6281,6 +6281,15 @@ coot::restraints_container_t::add_planes(int idr, mmdb::PPAtom res_selection,
 
    }
    return n_plane_restr; 
+}
+
+
+int
+coot::restraints_container_t::add_rama(const coot::rama_triple_t &rt, const coot::protein_geometry &geom) {
+
+   return add_rama(rt.link_type, rt.r_1, rt.r_2, rt.r_3,
+		   rt.fixed_1, rt.fixed_2, rt.fixed_3,
+		   geom);
 }
 
 

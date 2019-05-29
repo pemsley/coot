@@ -22,13 +22,26 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
    restraints_usage_flag = flags_in;
+   rama_plot_weight = rama_plot_target_weight;
    if (n_atoms) {
       mark_OXT(geom);
       make_monomer_restraints(imol, geom, do_residue_internal_torsions);
       auto tp_1 = std::chrono::high_resolution_clock::now();
 
-      std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > residue_link_vector_map =
-	 make_link_restraints_ng(geom, do_rama_plot_restraints, do_trans_peptide_restraints);
+      // This should be a set, not a vector, i.e.
+      // std::map<mmdb::Residue *, std::set<mmdb::Residue *> > residue_link_set_map;
+
+      // Fix that in the lab.
+      std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > residue_link_vector_map;
+
+      // This should be a trivial class (that also contains the link type)
+      // not a pair (you can keep the variable name though)
+      std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > residue_pair_link_set;
+
+      make_link_restraints_ng(geom,
+			      do_rama_plot_restraints, do_trans_peptide_restraints,
+			      &residue_link_vector_map,
+			      &residue_pair_link_set);
 
       auto tp_2 = std::chrono::high_resolution_clock::now();
       // now, what is linked to what?
@@ -39,6 +52,7 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 
       make_flanking_atoms_restraints_ng(geom,
 					residue_link_vector_map,
+					residue_pair_link_set,
 					do_rama_plot_restraints, do_trans_peptide_restraints);
 
       auto tp_3 = std::chrono::high_resolution_clock::now();
@@ -47,6 +61,11 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       auto tp_4 = std::chrono::high_resolution_clock::now();
       make_non_bonded_contact_restraints_ng(imol, raic, geom);
       auto tp_5 = std::chrono::high_resolution_clock::now();
+
+      if (do_rama_plot_restraints)
+	 make_rama_plot_restraints(residue_link_vector_map,
+				   residue_pair_link_set,
+				   geom);
 
       if (false) {
 	 auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
@@ -73,6 +92,7 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 void
 coot::restraints_container_t::make_flanking_atoms_restraints_ng(const coot::protein_geometry &geom,
 								const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map,
+								const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set,
 								bool do_rama_plot_restraints,
 								bool do_trans_peptide_restraints) {
 
@@ -118,8 +138,8 @@ coot::restraints_container_t::make_flanking_atoms_restraints_ng(const coot::prot
 	 for (its=s.begin(); its!=s.end(); its++) {
 	    mmdb::Residue *neighb = *its;
 
-	    // Let's say that we refine residue 21,22,23
-	    // Reside 21 needs to be flanking-linked to residue 20.
+	    // Let's say that we refine residue 21,22,23.
+	    // Residue 21 needs to be flanking-linked to residue 20.
 	    // fixed_neighbours_set can contain residue
 	    // 22 as a neighbour of 21. We don't want to link 22 to 21 here.
 	    // because we have done it in the polymer function. Let's
@@ -172,6 +192,111 @@ coot::restraints_container_t::make_flanking_atoms_restraints_ng(const coot::prot
       }
    }
 
+}
+
+void
+coot::restraints_container_t::make_rama_plot_restraints(const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map,
+							const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set,
+							const coot::protein_geometry &geom) {
+
+   // (1) Find rama_triples from residues_vec
+   // (2) Find rama_triples from flanking residues
+   //        we find residues like we do for finding flanking residues in make_flanking_atoms_restraints_ng
+
+   // (1)
+   int n_residues = residues_vec.size() -1 ; // no need to test the one at the end, it won't have a (moving)
+                                             // downstream neighbour
+   int residues_vec_size = residues_vec.size();
+
+   for (int i=1; i<n_residues; i++) {
+
+      if (residues_vec_size > (i+1)) {
+	 mmdb::Residue *residue_prev_p = residues_vec[i-1].second;
+	 mmdb::Residue *residue_this_p = residues_vec[i  ].second;
+	 mmdb::Residue *residue_next_p = residues_vec[i+1].second;
+	 std::string link_type("TRANS");             /* we need to transfer link_type too! */
+	 rama_triple_t triple(residues_vec[i-1].second,
+			      residues_vec[i  ].second,
+			      residues_vec[i+1].second,
+			      link_type, false, false, false);
+	 add_rama(triple, geom);
+      }
+   }
+
+   // (2)
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
+   for (it=fixed_neighbours_set.begin(); it!=fixed_neighbours_set.end(); it++) {
+      mmdb::Residue *residue_p = it->first;
+
+      unsigned int n_link_for_residue = 0;
+      std::map<mmdb::Residue *, std::vector<mmdb::Residue *> >::const_iterator itm = residue_link_vector_map.find(residue_p);
+      if (itm != residue_link_vector_map.end()) {
+	 n_link_for_residue = itm->second.size();
+      }
+
+      // was it polymer-linked at both ends?
+      //
+      if (n_link_for_residue != 2) {
+
+	 mmdb::Residue *residue_prev_p = 0;
+	 mmdb::Residue *residue_next_p = 0;
+
+	 int index_for_residue = residue_p->index;
+	 const std::set<mmdb::Residue *> &s = it->second;
+	 std::set<mmdb::Residue *>::const_iterator its;
+	 for (its=s.begin(); its!=s.end(); its++) {
+	    mmdb::Residue *neighb = *its;
+
+	    // Let's say that we refine residue 21,22,23.
+	    // Residue 21 needs to be flanking-linked to residue 20.
+	    // fixed_neighbours_set can contain residue
+	    // 22 as a neighbour of 21. We don't want to link 22 to 21 here.
+	    // because we have done it in the polymer function. Let's
+	    // see if we can find 21-22 here in residue_link_vector_map.
+	    //
+	    // If we are refining just one residue, there will be nothing in the
+	    // residue_link_vector_map, so only skip this one (continue)
+	    // if we can find the key and the neighb is in the vector (set) of
+	    // residues to whicih this residue is already linked.
+
+	    std::map<mmdb::Residue *, std::vector<mmdb::Residue *> >::const_iterator itm;
+	    itm = residue_link_vector_map.find(residue_p);
+	    if (itm != residue_link_vector_map.end()) {
+	       if (std::find(itm->second.begin(), itm->second.end(), neighb) != itm->second.end())
+		  continue;
+	    }
+
+	    if (residue_p->chain != neighb->chain)
+	       continue;
+
+	    int index_for_neighb = neighb->index;
+	    int index_delta = index_for_neighb - index_for_residue;
+	    if (index_delta == -1)
+	       std::cout << "        found upstream fixed neigb: " << residue_spec_t(*its) << std::endl;
+	    if (index_delta == 1)
+	       std::cout << "        found downstream fixed neigb: " << residue_spec_t(*its) << std::endl;
+
+	    if (residue_prev_p && residue_next_p) {
+
+	       bool fixed_prev = true;
+	       bool fixed_next = true;
+	       std::pair<mmdb::Residue *, mmdb::Residue *> test_pair_1(residue_prev_p, residue_p);
+	       std::pair<mmdb::Residue *, mmdb::Residue *> test_pair_2(residue_p, residue_next_p);
+	       if (residue_pair_link_set.find(test_pair_1) != residue_pair_link_set.end())
+		  fixed_prev = false;
+	       if (residue_pair_link_set.find(test_pair_2) != residue_pair_link_set.end())
+		  fixed_next = false;
+	       std::string link_type("TRANS");             /* we need to transfer link_type too! */
+	       rama_triple_t triple(residue_prev_p,
+				    residue_p,
+				    residue_next_p,
+				    link_type, fixed_prev, false, fixed_next);
+	       add_rama(triple, geom);
+	       break;
+	    }
+	 }
+      }
+   }
 }
 
 
@@ -742,7 +867,7 @@ coot::restraints_container_t::make_polymer_links_ng(const coot::protein_geometry
 coot::restraints_container_t::link_restraints_counts
 coot::restraints_container_t::make_other_types_of_link(const coot::protein_geometry &geom,
 						       const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map,
-						       std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > residue_pair_link_set) {
+						       const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set) {
 
    // ------------- Generic/non-polymer and carbohydrate Links -------------------
 
@@ -884,28 +1009,27 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
    return lrc;
 }
 
-std::map<mmdb::Residue *, std::vector<mmdb::Residue * > >
+// std::pair<std::map<mmdb::Residue *, std::vector<mmdb::Residue * > >, std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > >
+
+void
 coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geometry &geom,
 						      bool do_rama_plot_restraints,
-						      bool do_trans_peptide_restraints) {
+						      bool do_trans_peptide_restraints,
+						      std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_vector_map_p,
+						      std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p) {
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
 
-   // This should be a set, not a vector, i.e.
-   // std::map<mmdb::Residue *, std::set<mmdb::Residue *> > residue_link_set_map;
-   // Fix that in the lab.
-   std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > residue_link_vector_map;
-   std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > residue_pair_link_set;
    auto tp_1 = std::chrono::high_resolution_clock::now();
 
    // residue 2 will be linked to residue 1 no matter how far apart they are
    //
    make_polymer_links_ng(geom, do_rama_plot_restraints, do_trans_peptide_restraints,
-			 &residue_link_vector_map,
-			 &residue_pair_link_set);
+			 residue_link_vector_map_p,
+			 residue_pair_link_set_p);
 
    auto tp_2 = std::chrono::high_resolution_clock::now();
-   make_other_types_of_link(geom, residue_link_vector_map, residue_pair_link_set);
+   make_other_types_of_link(geom, *residue_link_vector_map_p, *residue_pair_link_set_p);
 
    auto tp_3 = std::chrono::high_resolution_clock::now();
    auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
@@ -914,5 +1038,4 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
    std::cout << "------------------- timing for make_link_restraints_ng(): : "
 	     << d10 << " " << d21 << " " << d32 << " milliseconds " << std::endl;
 
-   return residue_link_vector_map;
 }

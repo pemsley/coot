@@ -1665,10 +1665,12 @@ namespace coot {
 	 void write_angles_map(const std::string &file_name) const;
       };
 
-      std::map<mmdb::Residue *, std::vector<mmdb::Residue *> >
+      void
       make_link_restraints_ng(const protein_geometry &geom,
 			      bool do_rama_plot_retraints,
-			      bool do_trans_peptide_restraints);
+			      bool do_trans_peptide_restraints,
+			      std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_vector_map_p,
+			      std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p);
       void make_polymer_links_ng(const protein_geometry &geom,
 				 bool do_rama_plot_restraints,
 				 bool do_trans_peptide_restraints,
@@ -1687,7 +1689,7 @@ namespace coot {
 									      std::pair<bool, mmdb::Residue *> res_2);
       link_restraints_counts make_other_types_of_link(const coot::protein_geometry &geom,
 						      const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_count_map,
-						      std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > residue_pair_link_set);
+						      const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set);
       link_restraints_counts make_link_restraints_for_link_ng(const std::string &link_type,
 							      mmdb::Residue *res_1,
 							      mmdb::Residue *res_2,
@@ -1703,9 +1705,13 @@ namespace coot {
 						 const protein_geometry &geom);
 
       void make_flanking_atoms_restraints_ng(const coot::protein_geometry &geom,
-					     const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map,
+					     const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map_p,
+					     const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set_p,
 					     bool do_rama_plot_restraints,
 					     bool do_trans_peptide_restraints);
+      void make_rama_plot_restraints(const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map,
+				     const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set,
+				     const protein_geometry &geom);
 
       int add_link_bond(std::string link_type,
 			mmdb::PResidue first, mmdb::PResidue second,
@@ -1743,6 +1749,8 @@ namespace coot {
 		   bool is_fixed_second_res,
 		   bool is_fixed_third_res,
 		   const protein_geometry &geom);
+
+      int add_rama(const rama_triple_t &rt, const coot::protein_geometry &geom);
 
       int add_link_plane(std::string link_type,
 			 mmdb::PResidue first, mmdb::PResidue second,
