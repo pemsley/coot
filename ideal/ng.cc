@@ -367,6 +367,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
    for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
       fixed_atom_flags_set.insert(*it);
 
+   // I think that contacts_by_bricks should take a set of ints
    contacts_by_bricks cb(atom, n_atoms, fixed_atom_flags_set);
    cb.set_dist_max(dist_max);
    std::vector<std::set<unsigned int> > vcontacts;
@@ -378,24 +379,17 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
       std::set<unsigned int>::const_iterator it;
       for (it=n_set.begin(); it!=n_set.end(); it++) {
 
-	 // bonded_atom_indices should be a vector of *sets*!
-	 // use bonded_atom_indices[i].find(*it)
-	 // if (std::find(bonded_atom_indices[i].begin(),
-	 // bonded_atom_indices[i].end(), *it) != bonded_atom_indices[i].end()) {
-	 // std::cout << "found a bonded atom pair " << i << " " << *it << std::endl;
-	 // continue;
-
 	 if (bonded_atom_indices[i].find(*it) != bonded_atom_indices[i].end())
 	    continue;
 
-	 int j = *it;
-	 mmdb::Atom *at_2 = atom[*it];
+	 const unsigned int &j = *it;
+	 mmdb::Atom *at_2 = atom[j];
 
 	 if (fixed_atom_indices.find(i) != fixed_atom_indices.end())
 	    if (fixed_atom_indices.find(*it) != fixed_atom_indices.end())
 	       continue;
 
-	 if (*it < i) /* only add NBC one way round */
+	 if (j < i) /* only add NBC one way round */
 	    continue;
 
 	 std::string res_name_1 = at_1->GetResName();
@@ -406,7 +400,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 	 const std::string &type_1 = energy_type_for_atom[i];
 	 const std::string &type_2 = energy_type_for_atom[i];
 
-	 std::vector<bool> fixed_atom_flags = make_fixed_flags(i, *it);
+	 std::vector<bool> fixed_atom_flags = make_fixed_flags(i, j);
 
 	 double dist_min = 3.4;
 
