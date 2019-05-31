@@ -2335,7 +2335,7 @@ SCM amplitude_vs_resolution_scm(int imol_map) {
    SCM r = SCM_EOL;
    if (is_valid_map_molecule(imol_map)) {
       graphics_info_t g;
-      clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+      const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
       // amplitude_vs_resolution decides the number of bins
       std::vector<coot::amplitude_vs_resolution_point> data = coot::util::amplitude_vs_resolution(xmap);
       std::cout << "amplitude_vs_resolution_scm() with data.size() " << data.size() << std::endl;
@@ -2346,15 +2346,33 @@ SCM amplitude_vs_resolution_scm(int imol_map) {
 	 r = scm_cons(n, r);
       }
 
-      std::pair<bool, float> l1(true, 0.12);
-      std::pair<bool, float> l2(true, 0.29);
+      std::pair<bool, float> l1(true,  0.05); // 4.5A
+      std::pair<bool, float> l2(false, 0.29); // 1.8A
       float b = coot::util::b_factor(data, l1, l2);
-      std::cout << "............ b-factor: " << b << std::endl;
+      std::cout << "### b-factor: " << b << std::endl;
    }
    r = scm_reverse(r);
    return r;
 }
 #endif
+
+float
+b_factor_from_map(int imol_map) {
+
+   float b_factor = -1;
+   if (is_valid_map_molecule(imol_map)) {
+      graphics_info_t g;
+      const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+      // amplitude_vs_resolution decides the number of bins
+      std::vector<coot::amplitude_vs_resolution_point> data = coot::util::amplitude_vs_resolution(xmap);
+      std::cout << "b_factor_from_map() with data.size() " << data.size() << std::endl;
+      std::pair<bool, float> l1(true,  0.05); // 4.5A
+      std::pair<bool, float> l2(false, 0.29); // 1.8A
+      float b = coot::util::b_factor(data, l1, l2);
+      std::cout << "### b-factor: " << b << std::endl;
+   }
+   return b_factor;
+}
 
 #ifdef USE_PYTHON
 PyObject *amplitude_vs_resolution_py(int imol_map) {

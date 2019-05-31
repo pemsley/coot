@@ -251,6 +251,15 @@ PyObject *amplitude_vs_resolution_py(int mol_map);
 SCM amplitude_vs_resolution_scm(int mol_map);
 #endif
 
+//! \brief b-factor from map
+//!
+//! calculate structure factors and use the amplitudes to estimate
+//! the B-factor of the data using a wilson plot using a low resolution
+//! limit of 4.5A.
+//! @return -1 when given a bad map or there were no data beyond 4.5A
+//!
+float b_factor_from_map(int imol_map);
+
 //! \brief return the colour triple of the imolth map
 //! 
 //! (e.g.: (list 0.4 0.6 0.8). If invalid imol return scheme false.
