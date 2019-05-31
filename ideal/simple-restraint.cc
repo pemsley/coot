@@ -4802,11 +4802,18 @@ coot::restraints_container_t::check_for_1_4_relation(int idx_1, int idx_2,
 
 coot::restraints_container_t::reduced_angle_info_container_t::reduced_angle_info_container_t(const std::vector<coot::simple_restraint> &r) {
 
+   init(r);
+
+}
+
+void
+coot::restraints_container_t::reduced_angle_info_container_t::init(const std::vector<coot::simple_restraint> &r) {
+
    // this map is constructed correctly.  If you are here it's because
-   // you expect an angle restraint that not there.
+   // you expect an angle restraint that is not there.
    // 
    for (unsigned int ii=0; ii<r.size(); ii++) {
-      if (r[ii].restraint_type == coot::ANGLE_RESTRAINT) {
+      if (r[ii].restraint_type == ANGLE_RESTRAINT) {
 	 std::pair<int, int> p_1(r[ii].atom_index_2, r[ii].atom_index_3);
 	 std::pair<int, int> p_2(r[ii].atom_index_2, r[ii].atom_index_1);
 	 angles[r[ii].atom_index_1].push_back(p_1);
@@ -4814,6 +4821,7 @@ coot::restraints_container_t::reduced_angle_info_container_t::reduced_angle_info
       }
    }
 }
+
 
 void
 coot::restraints_container_t::reduced_angle_info_container_t::write_angles_map(const std::string &file_name) const {

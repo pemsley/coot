@@ -86,10 +86,10 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 					do_rama_plot_restraints, do_trans_peptide_restraints);
 
       auto tp_3 = std::chrono::high_resolution_clock::now();
-      reduced_angle_info_container_t raic(restraints_vec);
+      raic.init(restraints_vec);
 
       auto tp_4 = std::chrono::high_resolution_clock::now();
-      make_non_bonded_contact_restraints_ng(imol, raic, geom);
+      make_non_bonded_contact_restraints_ng(imol, geom);
       auto tp_5 = std::chrono::high_resolution_clock::now();
 
       if (do_rama_plot_restraints)
@@ -338,7 +338,6 @@ coot::restraints_container_t::make_rama_plot_restraints(const std::map<mmdb::Res
 // Use raic to know what is 1-4 related
 void
 coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
-								    const coot::restraints_container_t::reduced_angle_info_container_t &raic,
 								    const coot::protein_geometry &geom) {
 
    // potentially multithreadable.
@@ -352,6 +351,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
    // maybe this could be a class variable? How long does it take
    // to fill it?
    //
+   auto tp_0 = std::chrono::high_resolution_clock::now();
    std::vector<std::string> energy_type_for_atom(n_atoms);
 
    // needs timing test - might be slow
@@ -359,6 +359,9 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
       mmdb::Atom *at = atom[i];
       energy_type_for_atom[i] = get_type_energy(imol, at, geom);
    }
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+   std::cout << "   info:: make_non_bonded_contact_restraints_ng(): energy types " << d10 << " microseconds\n";
 
    std::map<std::string, std::pair<bool, std::vector<std::list<std::string> > > > residue_ring_map_cache;
 
@@ -398,7 +401,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 	 int res_no_2 = at_2->GetSeqNum();
 
 	 const std::string &type_1 = energy_type_for_atom[i];
-	 const std::string &type_2 = energy_type_for_atom[i];
+	 const std::string &type_2 = energy_type_for_atom[j];
 
 	 std::vector<bool> fixed_atom_flags = make_fixed_flags(i, j);
 
@@ -407,6 +410,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 	 bool in_same_residue_flag = (at_1->residue == at_2->residue);
 	 bool in_same_ring_flag = true;
 
+	 // part of this test is not needed.
 	 if (at_2->residue != at_1->residue) {
 	    in_same_ring_flag    = false;
 	    in_same_residue_flag = false;

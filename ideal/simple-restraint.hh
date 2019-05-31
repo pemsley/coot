@@ -1659,12 +1659,15 @@ namespace coot {
 
       class reduced_angle_info_container_t {
       public:
+	 reduced_angle_info_container_t() {}
 	 reduced_angle_info_container_t(const std::vector<simple_restraint> &r);
+	 void init(const std::vector<simple_restraint> &r);
 	 std::map<int, std::vector<std::pair<int, int> > > angles;
 	 bool is_1_4(int i, int j) const;
 	 void write_angles_map(const std::string &file_name) const;
       };
 
+      reduced_angle_info_container_t raic;
       void
       make_link_restraints_ng(const protein_geometry &geom,
 			      bool do_rama_plot_retraints,
@@ -1701,8 +1704,7 @@ namespace coot {
 					    mmdb::Residue *res_2,
 					    const coot::protein_geometry &geom) const;
 
-      void make_non_bonded_contact_restraints_ng(int imol, const reduced_angle_info_container_t &raic,
-						 const protein_geometry &geom);
+      void make_non_bonded_contact_restraints_ng(int imol, const protein_geometry &geom);
 
       void make_flanking_atoms_restraints_ng(const coot::protein_geometry &geom,
 					     const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map_p,
