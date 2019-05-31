@@ -1705,6 +1705,10 @@ namespace coot {
 					    const coot::protein_geometry &geom) const;
 
       void make_non_bonded_contact_restraints_ng(int imol, const protein_geometry &geom);
+      std::vector<std::set<int> > non_bonded_contacts_atom_indices; // these can now get updated on the fly.
+                                                       // We need to keep a record of what has
+                                                       // already been added as a restraint
+                                                       // before we add a new one.
 
       void make_flanking_atoms_restraints_ng(const coot::protein_geometry &geom,
 					     const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map_p,
@@ -1883,6 +1887,7 @@ namespace coot {
       bool none_are_fixed_p(const std::vector<bool> &fixed_atom_indices) const;
 
       unsigned int n_times_called; // so that we can do certain things only the first time
+      unsigned int n_small_cycles_accumulator;
 
       // what is the energy type of the atom to which the Hydrogen atom is bonded?
       //
@@ -2158,6 +2163,9 @@ namespace coot {
       //
       refinement_results_t minimize(restraint_usage_Flags);
       refinement_results_t minimize(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
+      refinement_results_t minimize(int imol, restraint_usage_Flags usage_flags,
+				    int nsteps_max, short int print_initial_chi_sq_flag,
+				    const protein_geometry &geom);
       refinement_results_t minimize_inner(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
       void fix_chiral_atoms_maybe(gsl_vector *s);
 

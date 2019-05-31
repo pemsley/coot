@@ -89,6 +89,7 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       raic.init(restraints_vec);
 
       auto tp_4 = std::chrono::high_resolution_clock::now();
+      non_bonded_contacts_atom_indices.resize(n_atoms);
       make_non_bonded_contact_restraints_ng(imol, geom);
       auto tp_5 = std::chrono::high_resolution_clock::now();
 
@@ -340,7 +341,11 @@ void
 coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 								    const coot::protein_geometry &geom) {
 
+   // std::cout << "make_non_bonded_contact_restraints_ng() " << restraints_vec.size() << " "  << std::endl;
+
    // potentially multithreadable.
+
+   // relies on non_bonded_contacts_atom_indices begin allocated to the correct size (n_atoms).
 
    // raic can be a member of the class
    // to make it: reduced_angle_info_container_t raic(restraints_vec);
@@ -349,7 +354,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 
    // cache the energy types:
    // maybe this could be a class variable? How long does it take
-   // to fill it?
+   // to fill it? ~1ms for rnase.
    //
    auto tp_0 = std::chrono::high_resolution_clock::now();
    std::vector<std::string> energy_type_for_atom(n_atoms);
@@ -382,10 +387,14 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
       std::set<unsigned int>::const_iterator it;
       for (it=n_set.begin(); it!=n_set.end(); it++) {
 
-	 if (bonded_atom_indices[i].find(*it) != bonded_atom_indices[i].end())
+	 const unsigned int &j = *it;
+
+	 if (bonded_atom_indices[i].find(j) != bonded_atom_indices[i].end())
 	    continue;
 
-	 const unsigned int &j = *it;
+	 if (non_bonded_contacts_atom_indices[i].find(j) != non_bonded_contacts_atom_indices[i].end())
+	    continue;
+
 	 mmdb::Atom *at_2 = atom[j];
 
 	 if (fixed_atom_indices.find(i) != fixed_atom_indices.end())
@@ -579,6 +588,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 	 }
 
 
+	 non_bonded_contacts_atom_indices[i].insert(j);
 	 simple_restraint::nbc_function_t nbcf = simple_restraint::LENNARD_JONES;
 	 simple_restraint r(NON_BONDED_CONTACT_RESTRAINT,
 			    nbcf, i, *it,
@@ -600,6 +610,9 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 
       }
    }
+   make_df_restraints_indices();
+   make_distortion_electron_density_ranges();
+
 }
 
 

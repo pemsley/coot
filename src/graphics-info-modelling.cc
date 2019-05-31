@@ -398,7 +398,9 @@ graphics_info_t::refinement_loop_threaded() {
 	 graphics_info_t::refinement_of_last_restraints_needs_reset_flag = false;
       }
 
-      coot::refinement_results_t rr = g.last_restraints->minimize(flags, spf, pr_chi_sqds);
+      // coot::refinement_results_t rr = g.last_restraints->minimize(flags, spf, pr_chi_sqds);
+      coot::refinement_results_t rr = g.last_restraints->minimize(imol_moving_atoms, flags,
+								  spf, pr_chi_sqds, *Geom_p());
       // std::cout << "refinement_loop_threaded() minimize() returned" << std::endl;
 
       graphics_info_t::saved_dragged_refinement_results = rr;

@@ -489,6 +489,7 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
    lennard_jones_epsilon = 0.1;
    cryo_em_mode = true;
    n_times_called = 0;
+   n_small_cycles_accumulator = 0;
    m_s = 0;
    x = 0;
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
@@ -1110,26 +1111,53 @@ coot::restraints_container_t::setup_minimize() {
 // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
 //
 coot::refinement_results_t
-coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags, 
+coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 				       int nsteps_max,
 				       short int print_initial_chi_sq_flag) {
 
+   std::cout << "------------ ::minimize() basic " << restraints_vec.size() << std::endl;
    n_times_called++;
    if (n_times_called == 1 || needs_reset)
       setup_minimize();
 
-   unsigned int n_steps_per_relcalc_nbcs = 1000;
+   refinement_results_t rr = minimize_inner(usage_flags, nsteps_max, print_initial_chi_sq_flag);
 
-   if (n_times_called%n_steps_per_relcalc_nbcs == 0) {
-      // recalc_nbcs();
-      // setup_minimize();
+   return rr;
+}
+
+// return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
+//
+coot::refinement_results_t
+coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_flags, int nsteps_max,
+				       short int print_initial_chi_sq_flag,
+				       const coot::protein_geometry &geom) {
+
+   // std::cout << "------------ ::minimize() " << restraints_vec.size() << std::endl;
+
+   unsigned int n_steps_per_relcalc_nbcs = 3000000;
+
+   n_times_called++;
+   n_small_cycles_accumulator += n_times_called * nsteps_max;
+
+   if (n_times_called == 1 || needs_reset)
+      setup_minimize();
+
+   if (n_small_cycles_accumulator >= n_steps_per_relcalc_nbcs) {
+      auto tp_0 = std::chrono::high_resolution_clock::now();
+      make_non_bonded_contact_restraints_ng(imol, geom);
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+      setup_minimize();
+      auto tp_2 = std::chrono::high_resolution_clock::now();
+      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+      std::cout << "minimize() nbc updates " << d10 << " " << d21 << " milliseconds" << std::endl;
+      n_small_cycles_accumulator = 0;
    }
  
    refinement_results_t rr = minimize_inner(usage_flags, nsteps_max, print_initial_chi_sq_flag);
 
    return rr;
 }
-
 
 // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
 //
