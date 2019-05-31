@@ -105,6 +105,17 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       }
 
    }
+
+   if (sec_struct_pseudo_bonds == coot::HELIX_PSEUDO_BONDS)
+      make_helix_pseudo_bond_restraints();
+
+   if (sec_struct_pseudo_bonds == coot::STRAND_PSEUDO_BONDS)
+      make_strand_pseudo_bond_restraints();
+
+   if (do_auto_helix_restraints)
+      make_helix_pseudo_bond_restraints_from_res_vec_auto();
+
+
    make_df_restraints_indices();
    make_distortion_electron_density_ranges();
 
