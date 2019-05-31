@@ -1117,10 +1117,16 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
    n_times_called++;
    if (n_times_called == 1 || needs_reset)
       setup_minimize();
+
+   unsigned int n_steps_per_relcalc_nbcs = 1000;
+
+   if (n_times_called%n_steps_per_relcalc_nbcs == 0) {
+      // recalc_nbcs();
+      // setup_minimize();
+   }
  
    refinement_results_t rr = minimize_inner(usage_flags, nsteps_max, print_initial_chi_sq_flag);
 
-   // std::cout << "minimize() returns " << rr.progress << std::endl;
    return rr;
 }
 
@@ -5182,15 +5188,16 @@ coot::restraints_container_t::construct_non_bonded_contact_list_conventional() {
 
 		    if (! matched_oxt) { 
 
-		       for (unsigned int j=0; j<bonded_atom_indices[atom_index].size(); j++) { 
-		 
-			  if (bonded_atom_indices[atom_index][j] == atom_index_inner) { 
-			     was_bonded_flag = 1;
+		       std::set<int>::const_iterator it;
+		       for (it=bonded_atom_indices[atom_index].begin();
+			    it!=bonded_atom_indices[atom_index].end(); it++) {
+			  if (*it == atom_index_inner) {
+			     was_bonded_flag = true;
 			     break;
-			  } 
+			  }
 		       }
-		 
-		       if (was_bonded_flag == 0) { 
+		       
+		       if (was_bonded_flag == 0) {
 			  non_bonded_atom_indices[atom_index].push_back(atom_index_inner);
 		       }
 		    }
@@ -5258,8 +5265,9 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
       for (unsigned int i=0; i<bonded_atom_indices.size(); i++) {
 	 std::cout << "  " << i << " " << atom_spec_t(atom[i]) << " " << bonded_atom_indices[i].size()
 		   << " |  ";
-	 for (unsigned int j=0; j<bonded_atom_indices[i].size(); j++)
-	    std::cout << " " << bonded_atom_indices[i][j];
+	 // interate through a set now.
+	 // for (unsigned int j=0; j<bonded_atom_indices[i].size(); j++)
+	 // std::cout << " " << bonded_atom_indices[i][j];
 	 std::cout << "\n";
       }
    }
@@ -5305,7 +5313,8 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 	       // bonded_atom_indices contains indices of atoms that
 	       // are angle-related (not just directly bonded)
 	       // 
-	       if (is_member_p(bonded_atom_indices[i], j)) {
+	       //if (is_member_p(bonded_atom_indices[i], j)) {
+	       if (bonded_atom_indices[i].find(j) != bonded_atom_indices[i].end()) {
 
 		  // debug bonded atoms
 		  
@@ -5392,7 +5401,8 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 
 			   // Simple part, the residues were not bonded to each other.
 
-			   if (! is_member_p(bonded_atom_indices[iat], jat)) {
+			   // if (! is_member_p(bonded_atom_indices[iat], jat)) {
+			   if (bonded_atom_indices[iat].find(jat) != bonded_atom_indices[iat].end()) {
 
 			      // atom j is not bonded to atom i, is it close? (i.e. within dist_crit?)
 			      clipper::Coord_orth pt1(atom[iat]->x, atom[iat]->y, atom[iat]->z);
@@ -5668,11 +5678,14 @@ coot::restraints_container_t::add_N_terminal_residue_bonds_and_angles_to_hydroge
 	       n_bond_restraints++;
 	       rc.n_bond_restraints++;
 	       rc.n_angle_restraints++;
-	       bonded_atom_indices[atom_index_1].push_back(atom_index_2);
-	       bonded_atom_indices[atom_index_2].push_back(atom_index_1);
-	       bonded_atom_indices[atom_index_1].push_back(atom_index_3);
-	       bonded_atom_indices[atom_index_3].push_back(atom_index_1);
-
+	       // bonded_atom_indices[atom_index_1].push_back(atom_index_2);
+	       // bonded_atom_indices[atom_index_2].push_back(atom_index_1);
+	       // bonded_atom_indices[atom_index_1].push_back(atom_index_3);
+	       // bonded_atom_indices[atom_index_3].push_back(atom_index_1);
+	       bonded_atom_indices[atom_index_1].insert(atom_index_2);
+	       bonded_atom_indices[atom_index_2].insert(atom_index_1);
+	       bonded_atom_indices[atom_index_1].insert(atom_index_3);
+	       bonded_atom_indices[atom_index_3].insert(atom_index_1);
 	    }
 	 }
 
@@ -5795,8 +5808,8 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 		     if (udd_get_data_status_1 == mmdb::UDDATA_Ok &&
 			 udd_get_data_status_2 == mmdb::UDDATA_Ok) { 
 		  
-			bonded_atom_indices[index1].push_back(index2);
-			bonded_atom_indices[index2].push_back(index1);
+			bonded_atom_indices[index1].insert(index2);
+			bonded_atom_indices[index2].insert(index1);
 
 			// this needs to be fixed for fixed atom (rather
 			// than just knowing that these are not flanking
@@ -5920,8 +5933,8 @@ coot::restraints_container_t::add_angles(int idr, mmdb::PPAtom res_selection,
 			   // set the UDD flag for this residue being bonded/angle with 
 			   // the other
 			
-			   bonded_atom_indices[index1].push_back(index3);
-			   bonded_atom_indices[index3].push_back(index1);
+			   bonded_atom_indices[index1].insert(index3);
+			   bonded_atom_indices[index3].insert(index1);
 		  
 			   // this needs to be fixed for fixed atom (rather
 			   // than just knowing that these are not flanking

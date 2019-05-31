@@ -97,11 +97,15 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 				   residue_pair_link_set,
 				   geom);
 
-      if (false) {
+      if (true) {
 	 auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
 	 auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+	 auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+	 auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
+	 auto d54 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_5 - tp_4).count();
 	 std::cout << "------------------- timing for make_restraints_ng(): monomers: "
-		   << d10 << " links: " << d21 << " " << " milliseconds " << std::endl;
+		   << d10 << " links: " << d21 << " flank: " << d32 << " raic: " << d43 << " nbc: " << d54
+		   << " milliseconds " << std::endl;
       }
 
    }
@@ -345,6 +349,9 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
    float dist_max = 8.0;
 
    // cache the energy types:
+   // maybe this could be a class variable? How long does it take
+   // to fill it?
+   //
    std::vector<std::string> energy_type_for_atom(n_atoms);
 
    // needs timing test - might be slow
@@ -373,11 +380,13 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 
 	 // bonded_atom_indices should be a vector of *sets*!
 	 // use bonded_atom_indices[i].find(*it)
-	 if (std::find(bonded_atom_indices[i].begin(),
-		       bonded_atom_indices[i].end(), *it) != bonded_atom_indices[i].end()) {
-	    // std::cout << "found a bonded atom pair " << i << " " << *it << std::endl;
+	 // if (std::find(bonded_atom_indices[i].begin(),
+	 // bonded_atom_indices[i].end(), *it) != bonded_atom_indices[i].end()) {
+	 // std::cout << "found a bonded atom pair " << i << " " << *it << std::endl;
+	 // continue;
+
+	 if (bonded_atom_indices[i].find(*it) != bonded_atom_indices[i].end())
 	    continue;
-	 }
 
 	 int j = *it;
 	 mmdb::Atom *at_2 = atom[*it];
