@@ -48,12 +48,6 @@
 #include <glob.h> // for globbing.
 #endif
 
-
-#include <gtk/gtk.h>
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-
-
-# else 
 #include <iostream>
 #include <string>
 #include <vector>
@@ -354,8 +348,3 @@ on_filename_filter_toggle_button_toggled(GtkButton       *button,
       std::cout << "no fileselection found from sort button\n";
    }
 }
-
-
-
-#endif // GTK2
-

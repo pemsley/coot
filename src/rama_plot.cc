@@ -307,6 +307,7 @@ coot::rama_plot::create_dynarama_window() {
                gtk_builder_connect_signals (builder, dynawin);
                g_object_unref (G_OBJECT (builder));
                status = add_from_file_status;
+	       gtk_widget_hide(rama_stats_label2);
          }
       }
    }
@@ -542,7 +543,7 @@ coot::rama_plot::setup_internal(float level_prefered, float level_allowed) {
    displayed_rama_type = clipper::Ramachandran::All5;
 #endif
 
-   // cliper defaults: 
+   // clipper defaults:
    rama_threshold_preferred = 0.01; 
    rama_threshold_allowed = 0.0005; 
 
@@ -2473,17 +2474,17 @@ coot::rama_plot::counts_to_stats_frame(const coot::rama_stats_container_t &sc) {
       int n_outliers = sc.n_ramas - sc.n_preferred - sc.n_allowed;
       float outlr_frac = float(n_outliers)/float(sc.n_ramas);
 
-      std::string pref_str = "In Preferred Regions:  ";
+      std::string pref_str = "In Favoured Regions:  ";
       pref_str += coot::util::int_to_string(sc.n_preferred);
       pref_str += "  (";
       pref_str += coot::util::float_to_string(100.0*pref_frac);
       pref_str += "%)";
-	 
-      std::string allow_str = "In Allowed Regions:  ";
-      allow_str += coot::util::int_to_string(sc.n_allowed);
-      allow_str += "  (";
-      allow_str += coot::util::float_to_string(100.0*allow_frac);
-      allow_str += "%)";
+
+//       std::string allow_str = "In Allowed Regions:  ";
+//       allow_str += coot::util::int_to_string(sc.n_allowed);
+//       allow_str += "  (";
+//       allow_str += coot::util::float_to_string(100.0*allow_frac);
+//       allow_str += "%)";
 	 
       std::string outlr_str = "Outliers:  ";
       outlr_str += coot::util::int_to_string(n_outliers);
@@ -2492,8 +2493,8 @@ coot::rama_plot::counts_to_stats_frame(const coot::rama_stats_container_t &sc) {
       outlr_str += "%)";
 
       gtk_label_set_text(GTK_LABEL(rama_stats_label1),  pref_str.c_str());
-      gtk_label_set_text(GTK_LABEL(rama_stats_label2), allow_str.c_str());
       gtk_label_set_text(GTK_LABEL(rama_stats_label3), outlr_str.c_str());
+      // gtk_label_set_text(GTK_LABEL(rama_stats_label2), allow_str.c_str());
 
       gtk_widget_show(rama_stats_frame);
 	 

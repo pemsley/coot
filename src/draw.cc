@@ -9,6 +9,21 @@
 
 #include "draw.hh"
 
+// #define GRAPHICS_TESTING
+
+
+#ifdef GRAPHICS_TESTING
+
+static int programID_global = -1;
+static int location_global = -1;
+GLuint VertexArrayID = -1;
+
+#define glGenVertexArrays glGenVertexArraysAPPLE
+#define glDeleteVertexArrays glDeleteVertexArraysAPPLE
+#define glBindVertexArray glBindVertexArrayAPPLE
+
+#endif // GRAPHICS_TESTING
+
 void
 stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
 
@@ -215,14 +230,12 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       m.from_quaternion(graphics_info_t::quat); // consider a constructor.
       glMultMatrixf(m.get());
 
-
       // Translate the scene to the the view centre
       // i.e. the screenrotation center is at (X(), Y(), Z())
       //
       glTranslatef(-graphics_info_t::RotationCentre_x(),
 		   -graphics_info_t::RotationCentre_y(),
 		   -graphics_info_t::RotationCentre_z());
-
 
       draw_molecular_triangles(widget);
 
@@ -246,8 +259,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       if (true) {
 	 glPushMatrix();
 	 glLoadIdentity(); // this doesn't seem to have an effect on mol-triangles lighting
-	 GLfloat  light_0_position[] = {  1.0,   0.0,   0.0, 0.0}; // 1 is positional, 0 is directional
-	 GLfloat  light_1_position[] = {  0.6, -20.7,   1.0, 0.0};
+	 GLfloat  light_0_position[] = {  0.7,   0.0,   0.7, 0.0}; // 1 is positional, 0 is directional
+	 GLfloat  light_1_position[] = { -0.3,   0.2,   1.0, 0.0};
 	 GLfloat  light_2_position[] = {  0.7,  -0.7,  21.0, 0.0};
 	 GLfloat  light_3_position[] = {  0.7,  -0.7,  21.0, 0.0};
 	 GLfloat  light_4_position[] = {  0.7,   0.7, -21.0, 0.0};
@@ -292,6 +305,36 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       glMatrixMode(GL_MODELVIEW);
 
+#ifdef GRAPHICS_TESTING
+      // GLSL density maps
+
+      // this should not be a graphics_info_t variable. Needs to be put into molecule/map
+      bool do_flat_shading = graphics_info_t::do_flat_shading_for_solid_density_surface;
+      // do_flat_shading = false; // turn off
+      if (do_flat_shading) {
+	 glUseProgram(programID_global);
+
+	 glLineWidth(graphics_info_t::map_line_width);
+	 for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+	    if (graphics_info_t::molecules[ii].n_vertices_for_VertexArray > 0) {
+	       if (false)
+		  std::cout << "GLSL for imol " << ii << " binding "
+			    << graphics_info_t::molecules[ii].m_VertexArrayID << " "
+			    << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
+			    << std::endl;
+	       glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID);
+	       glDrawElements(GL_LINES, graphics_info_t::molecules[ii].n_vertices_for_VertexArray,
+			      GL_UNSIGNED_INT, nullptr);
+	       glBindVertexArray(0); // unbind
+	    }
+	 }
+	 glUseProgram(0);
+      }
+
+      // draw_single_triangle();
+
+#endif // GRAPHICS_TESTING
+
       // do we need to turn on the lighting?
       int n_display_list_objects = 0;
 
@@ -321,7 +364,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
  	       graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
 	    glDisable(GL_LIGHTING);
 	 }
-
+	 
 	 if (graphics_info_t::molecules[ii].draw_animated_ligand_interactions_flag) { 
 	    glEnable(GL_LIGHTING);
 	    glEnable(GL_LIGHT0);
@@ -372,7 +415,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 //
 	 graphics_info_t::molecules[ii].draw_skeleton(is_bb);
       }
-
 
       // atom pull restraint
       graphics_info_t::draw_atom_pull_restraint();
@@ -484,6 +526,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // show_lighting();
 
    } // gtkgl make area current test
+
 
    gdkglext_finish_frame(widget);
    return TRUE;
@@ -622,11 +665,12 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
 //    if (i == 0)
 //       return TRUE;
 
+#ifdef USE_PYTHON
    // Hamish function
    if (! graphics_info_t::python_draw_function_string.empty()) {
       PyRun_SimpleString(graphics_info_t::python_draw_function_string.c_str());
    }
- 
+#endif
    if (graphics_info_t::display_mode == coot::HARDWARE_STEREO_MODE) {
       draw_hardware_stereo(widget, event);
    } else {
@@ -835,3 +879,192 @@ debug_eye_position(GtkWidget *widget) {
    to_generic_object_add_point(go, "red", 4, pt.x(), pt.y(), pt.z());
    set_display_generic_object(go, 1);
 }
+
+struct shader_program_source {
+   std::string VertexSource;
+   std::string FragmentSource;
+};
+
+shader_program_source
+parse_shader(const std::string &file_name) {
+
+   enum class ShaderType { NONE = -1, VERTEX = 0, FRAGMENT = 1 };
+
+   ShaderType type = ShaderType::NONE;
+   shader_program_source ss;
+   std::ifstream f(file_name.c_str());
+   if (f) {
+      std::string line;
+      while(std::getline(f, line)) {
+	 if (line.find("#shader") != std::string::npos) {
+	    if (line.find("vertex") != std::string::npos)
+	       type = ShaderType::VERTEX;
+	    if (line.find("fragment") != std::string::npos)
+	       type = ShaderType::FRAGMENT;
+	 } else {
+	    if (type == ShaderType::VERTEX)
+	       ss.VertexSource += line + "\n";
+	    if (type == ShaderType::FRAGMENT)
+	       ss.FragmentSource += line + "\n";
+	 }
+      }
+   } else {
+      std::cout << "Failed to open " << file_name  << std::endl;
+   }
+   return ss;
+}
+
+unsigned int compile_shader(const std::string &source, unsigned int type) {
+
+#ifdef GRAPHICS_TESTING
+   std::string type_s = "vertex";
+   if (type == GL_FRAGMENT_SHADER)
+      type_s = "fragment";
+   unsigned int id = glCreateShader(type);
+   const char *s = source.c_str();
+   int l = source.size() + 1;
+   glShaderSource(id,  1,  &s, &l);
+   glCompileShader(id);
+
+   int result;
+   glGetShaderiv(id, GL_COMPILE_STATUS, &result);
+   if (result == GL_FALSE) {
+      int length;
+      glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
+      char message[length+1];
+      glGetShaderInfoLog(id, length, &length, message);
+      std::cout << "Failed to compile " << type_s << " shader: " << message << std::endl;
+   } else {
+      std::cout << "glCompileShader() result was good for " << type_s << " shader " << std::endl;
+   } 
+   return id;
+#else
+   return 0;
+#endif
+}
+
+std::string file_to_string(const std::string &file_name) {
+
+   std::ifstream f(file_name.c_str());
+   if (f) {
+      std::string s((std::istreambuf_iterator<char>(f)),
+		    std::istreambuf_iterator<char>());
+      return s;
+   } else {
+      return std::string("");
+   }
+}
+
+unsigned int CreateShader(const std::string &vertex_shader, const std::string &fragment_shader) {
+
+#ifdef GRAPHICS_TESTING
+   unsigned int program  = glCreateProgram();
+   unsigned int vs = compile_shader(vertex_shader, GL_VERTEX_SHADER);
+   unsigned int fs = compile_shader(fragment_shader, GL_FRAGMENT_SHADER);
+
+   glAttachShader(program, vs);
+   glAttachShader(program, fs);
+   glLinkProgram(program);
+   glValidateProgram(program);
+
+   glDeleteShader(vs);
+   glDeleteShader(fs);
+
+   return program;
+#else
+
+   return 0;
+
+#endif // GRAPHICS_TESTING
+
+}
+
+void setup_for_single_triangle() {
+
+#ifdef GRAPHICS_TESTING
+
+   std::cout << "---------- setup for single triangle: " << glGetString(GL_VERSION) << std::endl;
+
+   {
+      float positions[12] = {
+	 -0.5,  -0.5, -0.0,
+   	 -0.5,   0.5, -0.0,
+  	  0.5,   0.5, -0.0,
+	  0.5,  -0.5, -0.0
+      };
+
+      unsigned int indices[8] { 0,1,1,2,2,3,3,0 };
+
+      // GLuint VertexArrayID;
+      glGenVertexArrays(1, &VertexArrayID);
+      glBindVertexArray(VertexArrayID);
+
+      GLuint vertexbuffer;
+      glGenBuffers(1, &vertexbuffer);
+      glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+      glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, &positions[0], GL_STATIC_DRAW);
+      glEnableVertexAttribArray(0);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+      unsigned int ibo;
+      glGenBuffers(1, &ibo);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 8, &indices[0], GL_STATIC_DRAW);
+
+      std::cout << "----------- parse and create shader " << std::endl;
+      shader_program_source sps = parse_shader("Basic.shader");
+      unsigned int programID = CreateShader(sps.VertexSource, sps.FragmentSource);
+      programID_global = programID;
+      std::cout << "----------- created shader program " << programID << std::endl;
+
+      glBindAttribLocation(programID, 0, "position");
+
+      // int ul = glGetUniformLocation(programID, "u_Color");
+      // std::cout << "Got glGetUniformLocation for u_Color " << ul << std::endl;
+      // location_global = ul;
+
+   }
+#endif // GRAPHICS_TESTING
+}
+
+void draw_single_triangle() {
+
+#ifdef GRAPHICS_TESTING
+
+   glBindVertexArray(VertexArrayID);
+   glUseProgram(programID_global);
+   glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, nullptr);
+   glBindVertexArray(0); // unbind
+   glUseProgram(0);
+
+#endif // GRAPHICS_TESTING
+}
+
+/* Basic.shader
+
+#shader vertex
+
+#version 120
+
+uniform mat4 mygl_ModelViewMatrix;
+uniform mat4 mygl_ProjectionMatrix;
+uniform mat3 mygl_NormalMatrix;
+
+attribute vec3 position;
+
+void main() {
+
+   gl_Position = gl_ModelViewProjectionMatrix * vec4(position, 1.0);
+
+}
+
+#shader fragment
+
+#version 120
+
+void main() {
+
+  gl_FragColor = vec4(0.6, 0.1, 0.4, 1.0);
+
+}
+*/

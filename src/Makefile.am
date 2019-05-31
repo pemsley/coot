@@ -126,6 +126,7 @@ coot_wrap_guile_pre.cc:      $(top_srcdir)/src/c-interface.h    \
 			     $(top_srcdir)/src/c-interface-generic-objects.h \
                              $(top_srcdir)/src/sdf-interface.hh \
                              $(top_srcdir)/src/cfc.hh \
+                             $(top_srcdir)/src/curlew.h \
                              $(top_srcdir)/src/curlew.hh \
                              $(top_srcdir)/src/validation.hh \
                              $(top_srcdir)/src/cmtz-interface.hh \
@@ -152,6 +153,7 @@ coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
                          $(top_srcdir)/src/c-interface-ligands-swig.hh \
 			 $(top_srcdir)/src/sdf-interface.hh   \
                          $(top_srcdir)/src/cfc.hh \
+                         $(top_srcdir)/src/curlew.h \
                          $(top_srcdir)/src/curlew.hh \
 	                 $(top_srcdir)/src/validation.hh \
                          $(top_srcdir)/src/c-interface-mogul.hh
@@ -295,6 +297,7 @@ coot_bin_SOURCES = \
 	c-interface-generic-objects.h	 \
 	c-interface-geometry-distortion.hh \
 	c-interface-gui.cc	 \
+	c-interface-gui.hh	 \
 	c-interface-gtk2.cc	 \
 	c-interface-gtk-widgets.h \
 	c-interface-info.cc	 \
@@ -394,6 +397,7 @@ coot_bin_SOURCES = \
 	coot-version.hh          \
 	data-pair-remover.hh     \
 	coot_wrap_guile.cc       \
+        curlew.h                 \
         curlew.hh                \
         dots-representation.hh   \
 	draw.cc                  \
@@ -452,7 +456,6 @@ coot_bin_SOURCES = \
 	guile-fixups.h		 \
 	history_list.hh		 \
         idles.hh                 \
-	interface.c	 	 \
 	interface.h              \
         manipulation-modes.hh    \
 	lsq-dialog-values.hh     \

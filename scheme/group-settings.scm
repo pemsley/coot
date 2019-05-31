@@ -22,7 +22,7 @@
 (let ((os-type (vector-ref (uname) 0)))
 
   (if (string=? os-type "Linux")
-      (set-display-lists-for-maps 0))
+      (set-display-lists-for-maps 1))
 
   (if (string=? os-type "Linux")
       (set-browser-interface "firefox"))
@@ -32,14 +32,8 @@
 	(set-display-lists-for-maps 0)
 	(set-browser-interface "open"))))
 
-;; York setting for molprobity. 
-;; 
-; (set! *probe-command* "/y/people/emsley/coot/Linux/bin/probe.2.11.050121.linux.RH9")
-; (set! *reduce-command* "/y/people/emsley/coot/Linux/bin/reduce.2.21.030604")
-
 (set! *probe-command* "probe")
 (set! *reduce-command* "reduce")
-
     
 ;; The rapper installation dir.  This is just a guess, that it is
 ;; installed in the users home directory.

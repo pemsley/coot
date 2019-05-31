@@ -9,6 +9,7 @@
 #include "cc-interface.hh" // for pythonize_command_name()
 #include "cc-interface-scripting.hh"
 #include "c-interface-scm.hh"
+#include "c-interface-python.hh"
 
 coot::command_arg_t
 coot::scripting_function(const std::string &function_name,
@@ -89,9 +90,11 @@ PyObject *
 graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
 							 const graphical_bonds_container &bonds_box) const {
 
-   // imol is added into the atom specs so that the atoms know the molecule they were part of
+   // imol is added into the atom specs so that the atoms know the molecule they were part of.
 
-   int n_data_item_types = 4; // bonds and angles, rama and cis-peptides
+   // You can't use Py_False to fill the lists/tuples
+
+   int n_data_item_types = 8; // bonds and angles, rama and cis-peptides
 
    PyObject *r = PyTuple_New(n_data_item_types);
 
@@ -128,55 +131,63 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
 	    PyTuple_SetItem(coords_py, 2, PyFloat_FromDouble(pt.z()));
 	    PyTuple_SetItem(atom_info_quad_py, 0, coords_py);
 	    PyTuple_SetItem(atom_info_quad_py, 1, PyBool_FromLong(is_H_flag));
-	    // PyTuple_SetItem(atom_info_quad_py, 2, PyString_FromString(s.c_str())); old
 	    PyTuple_SetItem(atom_info_quad_py, 2, atom_spec_py);
 	    PyTuple_SetItem(atom_info_quad_py, 3, atom_index_py);
 	    PyTuple_SetItem(atom_set_py, i, atom_info_quad_py);
 	 }
 	 PyTuple_SetItem(all_atom_positions_py, icol, atom_set_py);
       }
-      PyTuple_SetItem(r, 0, all_atom_positions_py);
+      PyTuple_SetItem(r, 0, PyString_FromString("atom-positions"));
+      PyTuple_SetItem(r, 1, all_atom_positions_py);
    } else {
-      PyObject *empty_py = PyTuple_New(0);
-      PyTuple_SetItem(r, 0, empty_py);
+      PyTuple_SetItem(r, 0, PyString_FromString("atom-positions"));
+      PyTuple_SetItem(r, 1, PyList_New(0));
    }
+
    PyObject *bonds_tuple = PyTuple_New(bonds_box.num_colours);
-   for (int i=0; i<bonds_box.num_colours; i++) {
-      graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
-      PyObject *line_set_py = PyTuple_New(bonds_box.bonds_[i].num_lines);
-      for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
-	 const graphics_line_t::cylinder_class_t &cc = ll.pair_list[j].cylinder_class;
-	 // int ri = ll.pair_list[j].residue_index; // set to -1 by constructor, overwite if possible
-	 int iat_1 = ll.pair_list[j].atom_index_1;
-	 int iat_2 = ll.pair_list[j].atom_index_2;
+   for (int icol=0; icol<bonds_box.num_colours; icol++) {
+      graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[icol];
+      // Python doesn't like me creating a tuple of size 0. So in that case, let's make an empty list
+      PyObject *line_set_py = 0;
+      if (bonds_box.bonds_[icol].num_lines == 0) {
+	 line_set_py = PyList_New(0);
+      } else {
+	 // happy path
+	 line_set_py = PyTuple_New(bonds_box.bonds_[icol].num_lines);
+	 for (int j=0; j< bonds_box.bonds_[icol].num_lines; j++) {
+	    const graphics_line_t::cylinder_class_t &cc = ll.pair_list[j].cylinder_class;
+	    int iat_1 = ll.pair_list[j].atom_index_1;
+	    int iat_2 = ll.pair_list[j].atom_index_2;
 
-	 PyObject *p0_py   = PyTuple_New(3);
-	 PyObject *p1_py   = PyTuple_New(3);
-	 PyObject *positions_and_order_py = PyTuple_New(5);
-	 PyObject *order_py = PyInt_FromLong(cc);
-	 PyObject *atom_index_1_py = PyInt_FromLong(iat_1);
-	 PyObject *atom_index_2_py = PyInt_FromLong(iat_2);
-	 PyTuple_SetItem(p0_py, 0, PyFloat_FromDouble(ll.pair_list[j].positions.getStart().get_x()));
-	 PyTuple_SetItem(p0_py, 1, PyFloat_FromDouble(ll.pair_list[j].positions.getStart().get_y()));
-	 PyTuple_SetItem(p0_py, 2, PyFloat_FromDouble(ll.pair_list[j].positions.getStart().get_z()));
-	 PyTuple_SetItem(p1_py, 0, PyFloat_FromDouble(ll.pair_list[j].positions.getFinish().get_x()));
-	 PyTuple_SetItem(p1_py, 1, PyFloat_FromDouble(ll.pair_list[j].positions.getFinish().get_y()));
-	 PyTuple_SetItem(p1_py, 2, PyFloat_FromDouble(ll.pair_list[j].positions.getFinish().get_z()));
-	 PyTuple_SetItem(positions_and_order_py, 0, p0_py);
-	 PyTuple_SetItem(positions_and_order_py, 1, p1_py);
-	 PyTuple_SetItem(positions_and_order_py, 2, order_py);
-	 PyTuple_SetItem(positions_and_order_py, 3, atom_index_1_py);
-	 PyTuple_SetItem(positions_and_order_py, 4, atom_index_2_py);
-	 PyTuple_SetItem(line_set_py, j, positions_and_order_py);
+	    PyObject *p0_py   = PyTuple_New(3);
+	    PyObject *p1_py   = PyTuple_New(3);
+	    PyObject *positions_and_order_py = PyTuple_New(5);
+	    PyObject *order_py = PyInt_FromLong(cc);
+	    PyObject *atom_index_1_py = PyInt_FromLong(iat_1);
+	    PyObject *atom_index_2_py = PyInt_FromLong(iat_2);
+	    PyTuple_SetItem(p0_py, 0, PyFloat_FromDouble(ll.pair_list[j].positions.getStart().get_x()));
+	    PyTuple_SetItem(p0_py, 1, PyFloat_FromDouble(ll.pair_list[j].positions.getStart().get_y()));
+	    PyTuple_SetItem(p0_py, 2, PyFloat_FromDouble(ll.pair_list[j].positions.getStart().get_z()));
+	    PyTuple_SetItem(p1_py, 0, PyFloat_FromDouble(ll.pair_list[j].positions.getFinish().get_x()));
+	    PyTuple_SetItem(p1_py, 1, PyFloat_FromDouble(ll.pair_list[j].positions.getFinish().get_y()));
+	    PyTuple_SetItem(p1_py, 2, PyFloat_FromDouble(ll.pair_list[j].positions.getFinish().get_z()));
+	    PyTuple_SetItem(positions_and_order_py, 0, p0_py);
+	    PyTuple_SetItem(positions_and_order_py, 1, p1_py);
+	    PyTuple_SetItem(positions_and_order_py, 2, order_py);
+	    PyTuple_SetItem(positions_and_order_py, 3, atom_index_1_py);
+	    PyTuple_SetItem(positions_and_order_py, 4, atom_index_2_py);
+	    PyTuple_SetItem(line_set_py, j, positions_and_order_py);
+	 }
       }
-      PyTuple_SetItem(bonds_tuple, i, line_set_py);
+      PyTuple_SetItem(bonds_tuple, icol, line_set_py);
    }
-   PyTuple_SetItem(r, 1, bonds_tuple);
+   PyTuple_SetItem(r, 2, PyString_FromString("bonds"));
+   PyTuple_SetItem(r, 3, bonds_tuple);
 
-   PyObject *rama_info_py = PyList_New(bonds_box.n_ramachandran_goodness_spots);
-   if (bonds_box.n_ramachandran_goodness_spots > 0) {
-      PyObject *rama_info_py = PyList_New(bonds_box.n_ramachandran_goodness_spots);
-      for (int i=0; i<bonds_box.n_ramachandran_goodness_spots; i++) {
+   int n_rama_spots = bonds_box.n_ramachandran_goodness_spots;
+   PyObject *rama_info_py = PyList_New(n_rama_spots);
+   if (n_rama_spots > 0) {
+      for (int i=0; i<n_rama_spots; i++) {
 	 const std::pair<coot::Cartesian, float> &p = bonds_box.ramachandran_goodness_spots_ptr[i];
 	 PyObject *p_py = PyTuple_New(2);
 	 PyObject *pos_py = PyList_New(3);
@@ -192,7 +203,8 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
 	 PyList_SetItem(rama_info_py, i, p_py);
       }
    }
-   PyTuple_SetItem(r, 2, rama_info_py);
+   PyTuple_SetItem(r, 4, PyString_FromString("rama-goodness"));
+   PyTuple_SetItem(r, 5, rama_info_py);
 
    PyObject *cis_peptides_py = PyList_New(bonds_box.n_cis_peptide_markups);
    for (int i=0; i<bonds_box.n_cis_peptide_markups; i++) {
@@ -210,15 +222,17 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
       PyList_SetItem(cis_pep_py, 2, atom_index_list_py);
       PyList_SetItem(cis_peptides_py, i, cis_pep_py);
    }
-   PyTuple_SetItem(r, 3, cis_peptides_py);
+   PyTuple_SetItem(r, 6, PyString_FromString("cis-peptides"));
+   PyTuple_SetItem(r, 7, cis_peptides_py);
 
    return r;
+
 }
 
 PyObject *
 graphics_info_t::get_intermediate_atoms_bonds_representation() {
 
-   // I need to think about what to do if the bonds were not redraw
+   // I need to think about what to do if the bonds were not redrawn
    // since last time.
 
    PyObject *r = Py_False;
@@ -227,7 +241,6 @@ graphics_info_t::get_intermediate_atoms_bonds_representation() {
       if (moving_atoms_asc->mol) {
 
          unsigned int unlocked = 0;
-         // while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1)) {
          while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
             std::cout << "in get_intermediate_atoms_bonds_representation(), waiting for bonds lock" << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(1));

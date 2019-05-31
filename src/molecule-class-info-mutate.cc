@@ -87,8 +87,8 @@ molecule_class_info_t::mutate(int resno, const std::string &insertion_code,
 
       if (nSelResidues < 1) {
 	 std::cout << "WARNING:: Can't find residue (mutate) "
-		   << resno << " " << insertion_code << " "
-		   << chain_id << "\n";
+		   << resno << " " << insertion_code << " chain-id \""
+		   << chain_id << "\"\n";
       } else {
 	 res = SelResidues[0];
 	 istat = mutate(res, residue_type); // 1 is good.

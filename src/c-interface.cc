@@ -1748,17 +1748,16 @@ PyObject *map_statistics_py(int imol) {
 
 void set_density_size_from_widget(const char *text) {
 
-   float tmp;
    graphics_info_t g;
 
-   tmp = atof(text);
+   float tmp = atof(text);
 
    if ((tmp > 0.0) && (tmp < 9999.9)) {
-      g.box_radius = tmp;
+      g.box_radius_xray = tmp;
    } else {
-
-      cout << "Cannot interpret " << text << ".  Assuming 10A" << endl;
-      g.box_radius = 10.0;
+      std::cout << "ERROR:: set_density_size_from_widget() Cannot interpret \""
+		<< text << "\".  Assuming 10A" << std::endl;
+      g.box_radius_xray = 10.0;
    }
    //
    for (int ii=0; ii<g.n_molecules(); ii++) {
@@ -1768,10 +1767,42 @@ void set_density_size_from_widget(const char *text) {
    graphics_draw();
 }
 
+void
+set_density_size_em_from_widget(const char *text) {
+
+   float tmp = atof(text);
+   graphics_info_t g;
+   if (tmp > 0.0) {
+      g.box_radius_em = tmp;
+      for (int ii=0; ii<g.n_molecules(); ii++)
+	 if (is_valid_map_molecule(ii))
+	    g.molecules[ii].update_map();
+   } else {
+      std::cout << "ERROR:: set_density_size_from_widget() Cannot interpret \""
+		<< text << "\".  Assuming 55A" << std::endl;
+      g.box_radius_em = 55.0;
+   }
+   graphics_draw();
+}
+
+
+void set_map_radius_em(float radius) {
+
+   graphics_info_t g;
+   g.box_radius_em = radius;
+   for (int ii=0; ii<g.n_molecules(); ii++)
+      g.molecules[ii].update_map();
+   graphics_draw();
+   std::string cmd = "set-radius-em";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(radius);
+   add_to_history_typed(cmd, args);
+}
+
 void set_density_size(float f) {
 
    graphics_info_t g;
-   g.box_radius = f;
+   g.box_radius_xray = f;
    for (int ii=0; ii<g.n_molecules(); ii++) {
       g.molecules[ii].update_map();
    }
@@ -1804,9 +1835,9 @@ void set_map_radius(float f) {
 
 /*! \brief return the extent of the box/radius of electron density contours */
 float get_map_radius() {
-  float ret = graphics_info_t::box_radius;
+  float ret = graphics_info_t::box_radius_xray;
   return ret;
-} 
+}
 
 
 
@@ -3974,6 +4005,7 @@ int save_molecule_number_from_option_menu() {
 
 /* access from callback.c, not to be used in scripting, I suggest. */
 void set_save_molecule_number(int imol) {
+
    graphics_info_t::save_imol = imol;
 }
 
@@ -5736,14 +5768,6 @@ void set_refinement_ramachandran_restraints_weight_from_text(int idx, const char
 void set_refine_params_dialog_more_control_frame_is_active(int state) {
 
    graphics_info_t::refine_params_dialog_extra_control_frame_is_visible = state;
-}
-
-
-
-void chiral_volume_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos) { 
-
-   graphics_info_t::chiral_volume_molecule_option_menu_item_select_molecule = pos;
-
 }
 
 

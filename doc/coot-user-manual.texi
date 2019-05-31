@@ -2134,7 +2134,7 @@ number 0 chain ``A''):
 
 @code{(set-match-element match2)}
 
-@code{(apply-lst-matches 0 1)} ; match molecule number 1 onto molecule number 0.
+@code{(apply-lsq-matches 0 1)} ; match molecule number 1 onto molecule number 0.
 
 @c %% @itemize 
 @c %% @item @code{(define match1 (list 840 850 "A" 440 450 "B" 'all))}

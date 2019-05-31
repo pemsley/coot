@@ -5010,7 +5010,7 @@ void write_ccp4mg_picture_description(const char *filename) {
 	    std::string f   = g.molecules[imol].save_f_col;
 	    std::string w   = g.molecules[imol].save_weight_col;
 	    float lev       = g.molecules[imol].contour_level;
-	    float r         = g.box_radius;
+	    float r         = g.box_radius_xray;
 	    // first create a colour
 	    map_colour_stream << "   coot_mapcolour" << imol << " = ["<<
 	       graphics_info_t::molecules[imol].map_colour[0][0] << ", " <<

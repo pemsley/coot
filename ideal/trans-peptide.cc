@@ -110,7 +110,7 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
 						      atom_4_sel[iffat]->GetInsCode(),
 						      atom_4_sel[iffat]->residue->GetChainID());
 
-			   if (false) 
+			   if (false)
 			      std::cout << "trans-peptide restraint.... "
 					<< " from atoms \n    "
 					<< atom_1_sel[ifat]->name << " " 
@@ -145,14 +145,25 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
 				    if (other_fixed_flags[ii])
 				       fixed_flags[ii] = true;
 
-				 if (none_are_fixed_p(fixed_flags)) {
 
-				    if (false) {
+				 // why did I have this test here?
+				 //
+				 // if (none_are_fixed_p(fixed_flags)) ...
+				 //
+				 // it seems that I didn't want to make trans restraints if there
+				 // were fixed atoms in the restraint.
+				 // I am now (20190528) not convinced that that's such a bad idea
+				 // So now I enable trans-peptide links to residues with fixed atoms
+
+				 if (true) {
+
+				    if (false) { // debug
 				       std::cout << "debug:: making trans-peptide restraint with fixed flags: ";
 				       for (std::size_t jj=0; jj<fixed_flags.size(); jj++)
 					  std::cout << " " << fixed_flags[jj];
 				       std::cout << std::endl;
 				    }
+
 				    double target_omega = 180.0;
 				    double esd = 2.0; // 5.0 lets slip 72A in 2bmd to trans
 				    // esd = 0.2; // 20171228 trial - does this beat the plane restraints?

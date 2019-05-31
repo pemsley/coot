@@ -106,9 +106,7 @@
 #include "rotate-translate-modes.hh"
 #include "rotamer-search-modes.hh"
 
-#ifdef WII_INTERFACE_WIIUSE
-#include "wiiuse.h"
-#endif // WII_INTERFACE_WIIUSE
+#include "draw.hh"
 
 std::vector<molecule_class_info_t> graphics_info_t::molecules;
 std::atomic<bool> molecule_class_info_t::draw_vector_sets_lock(false);
@@ -426,8 +424,8 @@ short int graphics_info_t::print_initial_chi_squareds_flag = 0;
 
 short int graphics_info_t::show_symmetry = 0; 
 
-float    graphics_info_t::box_radius = 12.6;
-float    graphics_info_t::box_radius_em = 100;
+float    graphics_info_t::box_radius_xray = 12.6;
+float    graphics_info_t::box_radius_em   = 55;
 
 
 int      graphics_info_t::debug_atom_picking = 0;
@@ -655,7 +653,7 @@ int         graphics_info_t::go_to_ligand_n_atoms_limit = 6;
 int         graphics_info_t::go_to_atom_mol_menu_active_position = -1; // unset
                                                                        // initially.
 GtkWidget  *graphics_info_t::go_to_atom_window = NULL;
-int         graphics_info_t::go_to_atom_menu_label_n_chars_max = 30;
+int         graphics_info_t::go_to_atom_menu_label_n_chars_max = 40;
 
 GtkWidget *graphics_info_t::model_fit_refine_dialog = NULL;
 short int  graphics_info_t::model_fit_refine_dialog_was_sucked = 0;
@@ -698,8 +696,10 @@ short int graphics_info_t::in_distance_define = 0;
 short int graphics_info_t::in_angle_define = 0;
 short int graphics_info_t::in_torsion_define = 0;
 short int graphics_info_t::fix_chiral_volume_before_refinement_flag = 1;
-int       graphics_info_t::chiral_volume_molecule_option_menu_item_select_molecule = 0; // option menu
+int       graphics_info_t::check_chiral_volume_molecule = 0;
 int       graphics_info_t::add_reps_molecule_option_menu_item_select_molecule = 0; // option menu
+int       graphics_info_t::add_reps_molecule_combobox_molecule = 0;
+
 short int graphics_info_t::refinement_immediate_replacement_flag = 0;
 short int graphics_info_t::show_chiral_volume_errors_dialog_flag = 1; // on by default
 
@@ -1030,10 +1030,11 @@ int graphics_info_t::mutate_residue_atom_index = -1;
 int graphics_info_t::mutate_residue_imol = -1;
 atom_selection_container_t asc;
 atom_selection_container_t graphics_info_t::standard_residues_asc = asc;
-std::string graphics_info_t::mutate_sequence_chain_from_optionmenu;
+std::string graphics_info_t::mutate_sequence_chain_from_combobox;
 int         graphics_info_t::mutate_sequence_imol;
 int         graphics_info_t::align_and_mutate_imol;
-std::string graphics_info_t::align_and_mutate_chain_from_optionmenu;
+// std::string graphics_info_t::align_and_mutate_chain_from_optionmenu;
+std::string graphics_info_t::align_and_mutate_chain_from_combobox;
 int         graphics_info_t::nsv_canvas_pixel_limit = 22500;
 
 mmdb::realtype    graphics_info_t::alignment_wgap   = -3.0; // was -0.5 (Bob) // was -3.0;
@@ -1764,7 +1765,9 @@ init_gl_widget(GtkWidget *widget) {
    // 
    glEnable(GL_DEPTH_TEST);
 
-   glEnable(GL_POINT_SMOOTH); // cirlces not squares
+   // glDepthFunc(GL_LESS); what does this do?
+
+   glEnable(GL_POINT_SMOOTH); // circles not squares
    
    if (g.do_anti_aliasing_flag)
       glEnable(GL_LINE_SMOOTH);
@@ -1799,9 +1802,12 @@ init_gl_widget(GtkWidget *widget) {
    // gtk_idle_add((GtkFunction)animate, widget);
 
    // should be in graphics_info_t?
+   //
    setup_for_mol_triangles();
 
-  return TRUE;
+   // setup_for_single_triangle();
+
+   return TRUE;
 }
 
 void
@@ -3697,30 +3703,30 @@ draw_axes(GL_matrix &m) {
       glBegin(GL_LINES);
 
       // axes
-      glVertex3f(0.0, 0.0, 0.0);
-      glVertex3f(0.2, 0.0, 0.0);
+      glVertex3f(0.0f, 0.0f, 0.0f);
+      glVertex3f(0.2f, 0.0f, 0.0f);
 
-      glVertex3f(0.0, 0.0, 0.0);
-      glVertex3f(0.0, 0.2, 0.0);
+      glVertex3f(0.0f, 0.0f, 0.0f);
+      glVertex3f(0.0f, 0.2f, 0.0f);
 
-      glVertex3f(0.0, 0.0, 0.0);
-      glVertex3f(0.0, 0.0, 0.2);
+      glVertex3f(0.0f, 0.0f, 0.0f);
+      glVertex3f(0.0f, 0.0f, 0.2f);
 
       // arrowheads:
-      glVertex3f(0.2,  0.0,  0.0);
-      glVertex3f(0.18, 0.02, 0.0);
-      glVertex3f(0.2,  0.0,  0.0);
-      glVertex3f(0.18, -0.02, 0.0);
+      glVertex3f(0.2f,   0.0f,  0.0f);
+      glVertex3f(0.18f,  0.02f, 0.0f);
+      glVertex3f(0.2f,   0.0f,  0.0f);
+      glVertex3f(0.18f, -0.02f, 0.0f);
 
-      glVertex3f(0.0,  0.2,   0.0);
-      glVertex3f(0.0,  0.18,  0.02);
-      glVertex3f(0.0,  0.2,   0.0);
-      glVertex3f(0.0,  0.18, -0.02);
+      glVertex3f(0.0f,  0.2f,   0.0f);
+      glVertex3f(0.0f,  0.18f,  0.02f);
+      glVertex3f(0.0f,  0.2f,   0.0f);
+      glVertex3f(0.0f,  0.18f, -0.02f);
 
-      glVertex3f(0.0,   0.0,   0.2);
-      glVertex3f(0.02,  0.0,   0.18);
-      glVertex3f(0.0,   0.0,   0.2);
-      glVertex3f(-0.02,  0.0,   0.18);
+      glVertex3f(0.0f,   0.0f,   0.2f);
+      glVertex3f(0.02f,  0.0f,   0.18f);
+      glVertex3f(0.0f,   0.0f,   0.2f);
+      glVertex3f(-0.02f, 0.0f,   0.18f);
       
       glEnd();
 

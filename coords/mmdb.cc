@@ -79,7 +79,7 @@ centre_of_molecule(atom_selection_container_t SelAtom) {
 
 // should be a const reference in an ideal world.
 //
-ostream& operator<<(ostream& s, mmdb::Atom &atom) {
+std::ostream& operator<<(std::ostream& s, mmdb::Atom &atom) {
 
    //
    s << atom.GetModelNum() << "/" << atom.GetChainID() << "/"
@@ -94,7 +94,7 @@ ostream& operator<<(ostream& s, mmdb::Atom &atom) {
   
 // needs <iostream.h>
 // 
-ostream& operator<<(ostream& s, mmdb::PAtom atom) {
+std::ostream& operator<<(std::ostream& s, mmdb::PAtom atom) {
 
    //
    if (atom) { 

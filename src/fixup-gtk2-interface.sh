@@ -1,5 +1,17 @@
 
-cp gtk2-interface.c gtk2-interface.c.copy
+# use a better awk if we can find it
+if [ -d $HOME/awk/bin ] ; then
+   export PATH=$HOME/awk/bin:$PATH
+fi
+
+if [ -z "$1" ] ; then
+   echo error in fixup-gtk2-interface.sh
+   exit 2
+fi
+
+cp $1 $1.copy
+
+
 awk '
 BEGIN { count = 0; }
 
@@ -19,7 +31,7 @@ $0 !~ "\"confirm_overwrite\"," {
   print "#if (GTK_MINOR_VERSION > 9)" ; 
   print $0; 
   count = 1;
-}' gtk2-interface.c.copy > gtk2-interface.c.copy-2
+}' $1.copy > gtk2-interface.c.copy-2
 
 awk -f ../ifdef-for-create-aboutdialog.awk gtk2-interface.c.copy-2 > gtk2-interface.c.copy-3
 awk -f  gtk2-interface-rot-trans-fixup.awk gtk2-interface.c.copy-3 > gtk2-interface.c.copy-4

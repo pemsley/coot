@@ -786,6 +786,11 @@ public:        //                      public
       theMapContours.first = 0;
       theMapContours.second = 0;
       is_em_map_cached_flag = -1; // unset
+      n_vertices_for_VertexArray = 0;
+      m_VertexArrayID =  0;
+
+      // draw vectors
+      draw_vector_sets.reserve(120);
 
       // don't show strict ncs unless it's turned on.
       show_strict_ncs_flag = 1;
@@ -943,7 +948,7 @@ public:        //                      public
 
    void set_map_is_displayed_as_standard_lines(short int state) {
       draw_it_for_map_standard_lines = state;
-   } 
+   }
 
    void do_solid_surface_for_density(short int on_off_flag);
 
@@ -1374,22 +1379,13 @@ public:        //                      public
    
    void dynamically_transform(coot::CartesianPairInfo v);
 
-   void clear_draw_vecs() {
-      for (std::size_t i=0; i<draw_vector_sets.size(); i++)
-	 delete draw_vector_sets[i].data;
-      draw_vector_sets.clear();
-      draw_vector_sets.reserve(12);
-   }
-   void add_draw_vecs_to_set(const coot::CartesianPairInfo &cpi) {
-      draw_vector_sets.push_back(cpi);
-   }
+   void clear_draw_vecs();
+
+   void add_draw_vecs_to_set(const coot::CartesianPairInfo &cpi);
    
    // for negative the other map.
    // 
-   void set_diff_map_draw_vecs(const coot::CartesianPair* c, int n) { 
-      delete [] diff_map_draw_vectors;
-      diff_map_draw_vectors = c; n_diff_map_draw_vectors = n; 
-   }
+   void set_diff_map_draw_vecs(const coot::CartesianPair* c, int n);
 
    void update_map_triangles(float radius, coot::Cartesian centre); 
 
@@ -2144,8 +2140,8 @@ public:        //                      public
 				coot::protein_geometry *geom_p); // external usage
    bool residue_has_oxt_p(mmdb::Residue *residue) const; // used by above.  Dont add if returns true.
 
-   std::pair<short int, int>  last_residue_in_chain(const std::string &chain_id) const;
-   std::pair<short int, int> first_residue_in_chain(const std::string &chain_id) const;
+   std::pair<bool, int>  last_residue_in_chain(const std::string &chain_id) const;
+   std::pair<bool, int> first_residue_in_chain(const std::string &chain_id) const;
 
    // return NULL on no last residue.
    mmdb::Residue *last_residue_in_chain(mmdb::Chain *chain_p) const;
@@ -2971,6 +2967,10 @@ public:        //                      public
 					bool do_flat_shading) const;
    void draw_solid_density_surface(bool do_flat_shading);
    void set_draw_solid_density_surface(bool state);
+   void setup_glsl_map_rendering();
+   GLuint m_VertexArrayID;
+   GLuint n_vertices_for_VertexArray;
+
    float density_surface_opacity;
    void setup_density_surface_material(bool solid_mode, float opacity,
 				       bool is_negative_level = 0); // shininess, material colour etc.

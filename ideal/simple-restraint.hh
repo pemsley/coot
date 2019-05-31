@@ -127,7 +127,7 @@ namespace coot {
 }
 
 // we don't want to compile anything if we don't have gsl
-#ifdef HAVE_GSL  
+#ifdef HAVE_GSL
 
 #include <map>
 
@@ -152,7 +152,7 @@ namespace coot {
 // for protein dictionary container:
 #include "geometry/protein-geometry.hh"
 
-// For Kevin's (Log) Ramachandran Plot and derivativesn
+// For Kevin's (Log) Ramachandran Plot and derivatives
 #include "lograma.h"
 // For ZO's Ramachandran Plot and derivatives
 #include "zo-rama.hh"
@@ -166,7 +166,7 @@ namespace coot {
 
 namespace coot {
 
-   
+
    // restraint types:
    // 
    enum restraint_type_t {BOND_RESTRAINT=1, ANGLE_RESTRAINT=2, TORSION_RESTRAINT=4, PLANE_RESTRAINT=8,
@@ -267,6 +267,8 @@ namespace coot {
       } 
    };
 
+   bool residue_sorter(const std::pair<bool, mmdb::Residue *> &r1,
+		       const std::pair<bool, mmdb::Residue *> &r2);
 
    // ---------------------------------------------------------------
    // ---------------------------------------------------------------
@@ -1024,6 +1026,8 @@ namespace coot {
       // The bool is the "atoms of this residue are fixed" flag.
       std::vector<std::pair<bool,mmdb::Residue *> > residues_vec;
       std::set<mmdb::Residue *> residues_vec_moving_set;
+      std::map<mmdb::Residue *, std::set<mmdb::Residue *> > fixed_neighbours_set;
+      void debug_sets() const;
       int udd_bond_angle;  // for is a bond, angle or not (0).
       int udd_atom_index_handle; // for indexing into the atoms array.
 
@@ -1624,7 +1628,91 @@ namespace coot {
       std::string find_glycosidic_linkage_type(mmdb::Residue *first, mmdb::Residue *second,
 					       const protein_geometry &geom,
 					       bool use_links_in_molecule) const;
-   
+
+      // -------------------------- ng restraint generation ------------------------
+
+      class link_restraints_counts {
+      public:
+	 link_restraints_counts() {
+	    n_link_bond_restr = 0;
+	    n_link_angle_restr = 0;
+	    n_link_trans_peptide = 0;
+	    n_link_plane_restr = 0;
+	 }
+	 unsigned int n_link_bond_restr;
+	 unsigned int n_link_angle_restr;
+	 unsigned int n_link_plane_restr;
+	 unsigned int n_link_trans_peptide;
+	 void add(const link_restraints_counts &lrc) {
+	    n_link_bond_restr    += lrc.n_link_bond_restr;
+	    n_link_angle_restr   += lrc.n_link_angle_restr;
+	    n_link_plane_restr   += lrc.n_link_plane_restr;
+	    n_link_trans_peptide += lrc.n_link_trans_peptide;
+	 }
+	 void report() const {
+	    std::cout << "   Made " << n_link_bond_restr    << " link bond restraints\n";
+	    std::cout << "   Made " << n_link_angle_restr   << " link angle restraints\n";
+	    std::cout << "   Made " << n_link_plane_restr   << " link plane restraints\n";
+	    std::cout << "   Made " << n_link_trans_peptide << " link trans-peptide restraints\n";
+	 }
+      };
+
+      class reduced_angle_info_container_t {
+      public:
+	 reduced_angle_info_container_t(const std::vector<simple_restraint> &r);
+	 std::map<int, std::vector<std::pair<int, int> > > angles;
+	 bool is_1_4(int i, int j) const;
+	 void write_angles_map(const std::string &file_name) const;
+      };
+
+      void
+      make_link_restraints_ng(const protein_geometry &geom,
+			      bool do_rama_plot_retraints,
+			      bool do_trans_peptide_restraints,
+			      std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_vector_map_p,
+			      std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p);
+      void make_polymer_links_ng(const protein_geometry &geom,
+				 bool do_rama_plot_restraints,
+				 bool do_trans_peptide_restraints,
+				 std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_count_map_p,
+				 std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p);
+
+      bool is_fully_linked_ng(mmdb::Residue *r,
+			      const std::map<mmdb::Residue *, unsigned int> &residue_link_count_map) const;
+      std::pair<bool, link_restraints_counts> try_make_peptide_link_ng(const coot::protein_geometry &geom,
+								       std::pair<bool, mmdb::Residue *> res_1,
+								       std::pair<bool, mmdb::Residue *> res_2,
+								       bool do_rama_plot_restraints,
+								       bool do_trans_peptide_restraints);
+      std::pair<bool, link_restraints_counts> try_make_phosphodiester_link_ng(const coot::protein_geometry &geom,
+									      std::pair<bool, mmdb::Residue *> res_1,
+									      std::pair<bool, mmdb::Residue *> res_2);
+      link_restraints_counts make_other_types_of_link(const coot::protein_geometry &geom,
+						      const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_count_map,
+						      const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set);
+      link_restraints_counts make_link_restraints_for_link_ng(const std::string &link_type,
+							      mmdb::Residue *res_1,
+							      mmdb::Residue *res_2,
+							      bool is_fixed_first_residue,
+							      bool is_fixed_second_residue,
+							      bool do_trans_peptide_restraints,
+							      const protein_geometry &geom);
+      std::string find_peptide_link_type_ng(mmdb::Residue *res_1,
+					    mmdb::Residue *res_2,
+					    const coot::protein_geometry &geom) const;
+
+      void make_non_bonded_contact_restraints_ng(int imol, const reduced_angle_info_container_t &raic,
+						 const protein_geometry &geom);
+
+      void make_flanking_atoms_restraints_ng(const coot::protein_geometry &geom,
+					     const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map_p,
+					     const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set_p,
+					     bool do_rama_plot_restraints,
+					     bool do_trans_peptide_restraints);
+      void make_rama_plot_restraints(const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map,
+				     const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set,
+				     const protein_geometry &geom);
+
       int add_link_bond(std::string link_type,
 			mmdb::PResidue first, mmdb::PResidue second,
 			short int is_fixed_first_res,
@@ -1662,6 +1750,8 @@ namespace coot {
 		   bool is_fixed_third_res,
 		   const protein_geometry &geom);
 
+      int add_rama(const rama_triple_t &rt, const coot::protein_geometry &geom);
+
       int add_link_plane(std::string link_type,
 			 mmdb::PResidue first, mmdb::PResidue second,
 			 short int is_fixed_first_res,
@@ -1682,13 +1772,6 @@ namespace coot {
       // bonded_atom_indices also contain 1-3 atoms of angles
       std::vector<std::vector<int> > bonded_atom_indices;
 
-      class reduced_angle_info_container_t {
-      public:
-	 reduced_angle_info_container_t(const std::vector<simple_restraint> &r);
-	 std::map<int, std::vector<std::pair<int, int> > > angles;
-	 bool is_1_4(int i, int j) const;
-	 void write_angles_map(const std::string &file_name) const;
-      };
       bool check_for_1_4_relation(int i, int j) const;
       bool check_for_1_4_relation(int i, int j, const reduced_angle_info_container_t &ai) const;
       bool check_for_O_C_1_5_relation(mmdb::Atom *at_1, mmdb::Atom *at_2) const;  // check either way round
@@ -1813,7 +1896,7 @@ namespace coot {
 
       // my_df_electron_density and electron_density_score need access
       // to fixed_atom_indices.
-      std::vector<int> fixed_atom_indices;
+      std::set<int> fixed_atom_indices;
 
       // In all of these constructors the mmdb::PPAtom that is passed, either
       // explicitly or as part of an atom_selection_container_t has the
@@ -1963,7 +2046,7 @@ namespace coot {
 			     int n_moving_residue_atoms, // e.g. 21
 			     mmdb::PResidue previous_residue, // e.g. residue 15
 			     mmdb::PResidue next_atom,
-			     const std::vector<int> &fixed_atom_indices,
+			     const std::set<int> &fixed_atom_indices,
 			     clipper::Xmap<float> *map_p_in);
 
       restraints_container_t(const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
@@ -2105,6 +2188,19 @@ namespace coot {
       // simple_restraint) using the coordinates () and the dictionary of
       // restraints, protein_geometry geom.
       int make_restraints(int imol,
+			  const protein_geometry &geom,
+			  restraint_usage_Flags flags,
+			  bool do_residue_internal_torsions,
+			  bool do_trans_peptide_restraints,
+			  float rama_plot_target_weight,
+			  bool do_rama_plot_retraints,
+			  bool do_auto_helix_restraints,
+			  bool do_auto_strand_restraints,
+			  pseudo_restraint_bond_type sec_struct_pseudo_bonds,
+			  bool do_link_restraints=true,
+			  bool do_flank_restraints=true);
+
+      int make_restraints_ng(int imol,
 			  const protein_geometry &geom,
 			  restraint_usage_Flags flags,
 			  bool do_residue_internal_torsions,

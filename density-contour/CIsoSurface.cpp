@@ -1714,9 +1714,6 @@ CIsoSurface<T>::returnTriangles(const clipper::Xmap<T>& xmap,
 				coot::Cartesian centre,
 				bool is_em_map) const {
 
-#ifdef ANALYSE_CONTOURING_TIMING
-   auto tp_0 = std::chrono::high_resolution_clock::now();
-#endif
    coot::CartesianPairInfo result_wrapper;
 
    // result_wrapper.data = result;
@@ -1726,14 +1723,8 @@ CIsoSurface<T>::returnTriangles(const clipper::Xmap<T>& xmap,
    T nv = xmap.grid_sampling().nv();
    T nw = xmap.grid_sampling().nw();
 
-#ifdef ANALYSE_CONTOURING_TIMING
-   auto tp_1 = std::chrono::high_resolution_clock::now();
-#endif
    result_wrapper.data = new coot::CartesianPair[m_nTriangles*3]; // at most it can be this
    result_wrapper.size = 0; // indexer of the result array.
-#ifdef ANALYSE_CONTOURING_TIMING
-   auto tp_2 = std::chrono::high_resolution_clock::now();
-#endif
 
    clipper::Coord_frac cf;
    clipper::Coord_orth co1, co2, co3;

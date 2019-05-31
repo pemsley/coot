@@ -96,7 +96,6 @@
 
 #include "guile-fixups.h"
 
-
 int
 graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu, 
 						   GtkSignalFunc signal_func) {
@@ -106,11 +105,21 @@ graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
 
 int
 graphics_info_t::fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, 
-						   GtkSignalFunc signal_func) {
+						       GtkSignalFunc signal_func) {
 
-   return fill_option_menu_with_map_options_generic(option_menu, signal_func, 1);
+   int imol_active = imol_refinement_map;
+   return fill_option_menu_with_map_options_generic(option_menu, signal_func, imol_active);
 }
 
+int
+graphics_info_t::fill_combobox_with_map_mtz_options(GtkWidget *combobox, GtkSignalFunc signal_func) {
+
+   int imol_active = imol_refinement_map;
+   int imol = fill_combobox_with_map_options(combobox, signal_func, imol_active);
+   return imol;
+}
+
+// return the active molecule number.
 int
 graphics_info_t::fill_option_menu_with_map_options_generic(GtkWidget *option_menu, 
                                                            GtkSignalFunc signal_func,
@@ -247,6 +256,117 @@ graphics_info_t::fill_option_menu_with_map_options_internal(GtkWidget *option_me
    gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
 }
 
+int
+graphics_info_t::fill_combobox_with_map_options(GtkWidget *combobox, 
+						GCallback signal_func,
+						int imol_active_position) {
+
+   // delete this function on merge
+   
+   std::vector<int> maps_vec;
+   for (int i=0; i<n_molecules(); i++)
+      if (is_valid_map_molecule(i))
+	 maps_vec.push_back(i);
+
+   GtkListStore *store = gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
+   GtkTreeIter iter;
+   int active_idx = 0;
+   int n_mol = maps_vec.size();
+   int imol_set = -1; // the imol of the active item. Start as unset
+   for (unsigned int imap=0; imap<maps_vec.size(); imap++) {
+      int imol = maps_vec[imap];
+      std::string ss; // = int_to_string(imol); done in renderer now.
+      ss += " " ;
+      int ilen = molecules[imol].name_.length();
+      int left_size = ilen-go_to_atom_menu_label_n_chars_max;
+      if (left_size <= 0)
+	 left_size = 0;
+      else
+	 ss += "...";
+      ss += molecules[imol].name_.substr(left_size, ilen);
+
+      gtk_list_store_append(store, &iter);
+      gtk_list_store_set(store, &iter, 0, imol, 1, ss.c_str(), -1);
+
+      if (imol == imol_active_position) {
+	 active_idx = imap;
+	 imol_set = imol;
+      } else {
+	 if (imap == 0) {
+	    imol_set = imol;
+	 }
+      }
+   }
+
+   if (signal_func)
+      g_signal_connect(combobox, "changed", signal_func, NULL);
+   GtkTreeModel *model = GTK_TREE_MODEL(store);
+   GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
+   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox), renderer, TRUE);
+   gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(combobox), renderer, "text", 1, NULL);
+   gtk_combo_box_set_model(GTK_COMBO_BOX(combobox), model);
+
+   // maybe this can go into the above loop?
+   if (maps_vec.size() > 0)
+      gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), active_idx);
+
+   return imol_set;
+
+}
+
+void
+graphics_info_t::fill_combobox_with_difference_map_options(GtkWidget *combobox, 
+							   GCallback signal_func,
+							   int imol_active_position) {
+
+   std::vector<int> maps_vec;
+   for (int i=0; i<n_molecules(); i++) {
+      if (molecules[i].is_difference_map_p())
+	 maps_vec.push_back(i);
+   }
+
+   // we could factor this out - it is more or less the same as
+   // fill_combobox_with_coordinates_options
+   
+   GtkListStore *store = gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
+   GtkTreeIter iter;
+   int active_idx = 0;
+   int n_mol = maps_vec.size();
+   for (unsigned int imap=0; imap<maps_vec.size(); imap++) {
+      int imol = maps_vec[imap];
+      std::string ss; // = int_to_string(imol); done in renderer now.
+      ss += " " ;
+      int ilen = molecules[imol].name_.length();
+      int left_size = ilen-go_to_atom_menu_label_n_chars_max;
+      if (left_size <= 0)
+	 left_size = 0;
+      else
+	 ss += "...";
+      ss += molecules[imol].name_.substr(left_size, ilen);
+
+      gtk_list_store_append(store, &iter);
+      gtk_list_store_set(store, &iter, 0, imol, 1, ss.c_str(), -1);
+
+      if (imol == imol_active_position)
+	 active_idx = imap;
+
+   }
+
+   if (signal_func)
+      g_signal_connect(combobox, "changed", signal_func, NULL);
+   GtkTreeModel *model = GTK_TREE_MODEL(store);
+   GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
+   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox), renderer, TRUE);
+   gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(combobox), renderer, "text", 1, NULL);
+   gtk_combo_box_set_model(GTK_COMBO_BOX(combobox), model);
+
+   // maybe this can go into the above loop?
+   if (maps_vec.size() > 0)
+      gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), active_idx);
+
+}
+
+
 // These are of course *maps*.
 void
 graphics_info_t::fill_option_menu_with_refmac_options(GtkWidget *option_menu) {
@@ -294,6 +414,108 @@ graphics_info_t::fill_option_menu_with_refmac_options(GtkWidget *option_menu) {
 			    menu);
 
 }
+
+void
+graphics_info_t::fill_combobox_with_refmac_methods_options(GtkWidget *combobox) {
+
+   std::cout << "in fill_combobox_with_refmac_methods_options " << combobox << std::endl;
+
+   std::vector<std::string> v;
+   v.push_back("restrained refinement ");
+   v.push_back("rigid body refinement ");
+   v.push_back("TLS & restrained refinement ");
+   for (unsigned int i=0; i<v.size(); i++)
+      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), v[i].c_str());
+
+   gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
+   g_signal_connect(combobox, "changed",
+		    G_CALLBACK(refmac_refinement_method_combobox_changed), NULL);
+}
+
+void
+graphics_info_t::fill_combobox_with_refmac_phase_input_options(GtkWidget *combobox) {
+
+   std::vector<std::string> v;
+   v.push_back("no prior phase information");
+   v.push_back("phase and FOM");
+   v.push_back("Hendrickson-Lattman coefficients");
+   v.push_back("SAD data directly");
+   for (unsigned int i=0; i<v.size(); i++)
+      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), v[i].c_str());
+
+   gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
+   g_signal_connect(combobox, "changed",
+		    G_CALLBACK(refmac_refinement_phase_info_combobox_changed), NULL);
+}
+
+// These are mtz files actually.  Change the name of this function
+void
+graphics_info_t::fill_combobox_with_refmac_labels_options(GtkWidget *combobox) {
+
+   // maybe we need gtk_combo_box_text_remove_all here.
+
+   std::vector<std::pair<int, std::string> > mtz_files;
+   for (int i=0; i<n_molecules(); i++) {
+      if (is_valid_map_molecule(i)) {
+	 std::string mtz_filename = molecules[i].Refmac_mtz_filename();
+	 if (! mtz_filename.empty()) {
+	    bool already_in_list = false;
+	    for (unsigned int k=0; k<mtz_files.size(); k++) {
+	       if (mtz_filename == mtz_files[k].second) {
+		  already_in_list = true;
+		  break;
+	       }
+	    }
+	    if (! already_in_list)
+	       mtz_files.push_back(std::pair<int, std::string> (i, mtz_filename));
+	 }
+      }
+   }
+   // now, using mtz_files, fill the menu and connect signals
+   //
+   if (mtz_files.size() > 0) {
+      for (unsigned int j=0; j<mtz_files.size(); j++) {
+	 int i = mtz_files[j].first;
+	 const std::string &mtz_filename = mtz_files[j].second;
+	 gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), mtz_filename.c_str());
+      }
+
+      gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
+   }
+
+}
+
+// to fill the labels directly from a from an mtz file (used in TWIN refinement)
+void
+graphics_info_t::fill_combobox_with_refmac_file_labels_options(GtkWidget *combobox) {
+
+   GtkWidget *mtz_file_label = lookup_widget(combobox, "run_refmac_mtz_file_label");
+
+   for (int i=0; i<n_molecules(); i++) {
+      std::string fn = molecules[i].Refmac_file_mtz_filename();
+      if (! fn.empty()) {
+	 gtk_label_set_text(GTK_LABEL(mtz_file_label), fn.c_str());
+      }
+   }
+
+}
+
+void
+graphics_info_t::fill_combobox_with_refmac_ncycles_options(GtkWidget *combobox) {
+
+   GtkComboBoxText *cb = GTK_COMBO_BOX_TEXT(combobox);
+   gtk_combo_box_text_append_text(cb, "1");
+   gtk_combo_box_text_append_text(cb, "2");
+   gtk_combo_box_text_append_text(cb, "5");
+   gtk_combo_box_text_append_text(cb, "8");
+   gtk_combo_box_text_append_text(cb, "10");
+   gtk_combo_box_text_append_text(cb, "16");
+   gtk_combo_box_text_append_text(cb, "24");
+
+   gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 3);
+
+}
+
 
 void
 graphics_info_t::fill_option_menu_with_refmac_methods_options(GtkWidget *option_menu) {
@@ -358,6 +580,8 @@ graphics_info_t::fill_option_menu_with_refmac_phase_input_options(GtkWidget *opt
 
 }
 
+
+
 // These are mtz files actually.  Change the name of this function
 void
 graphics_info_t::fill_option_menu_with_refmac_labels_options(GtkWidget *option_menu) {
@@ -370,7 +594,7 @@ graphics_info_t::fill_option_menu_with_refmac_labels_options(GtkWidget *option_m
    GtkWidget *menuitem;
    std::vector<std::pair<int, std::string> > mtz_files;
    for (int i=0; i<n_molecules(); i++) {
-      if (is_valid_map_molecule(i)) { 
+      if (is_valid_map_molecule(i)) {
 
 	 // first make a list with all mtz files and at the same time filter out duplicates
 	 // 
@@ -583,6 +807,17 @@ graphics_info_t::refinement_map_select_add_columns(GtkWidget *item, GtkPositionT
    g.set_refinement_map(pos);
 }
 
+// static
+void
+graphics_info_t::select_refinement_map_combobox_changed(GtkWidget *combobox, gpointer data) {
+
+   graphics_info_t g;
+   int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
+   g.set_refinement_map(imol);
+
+}
+
+
 void 
 graphics_info_t::set_refmac_phase_input(int phase_flag) {
 
@@ -619,6 +854,28 @@ graphics_info_t::refmac_change_phase_input(GtkWidget *item, GtkPositionType pos)
 
 }
 
+// static
+void
+graphics_info_t::refmac_refinement_phase_info_combobox_changed(GtkWidget *combobox, gpointer data) {
+
+   std::vector<std::string> v;
+   v.push_back("no prior phase information");
+   v.push_back("phase and FOM");
+   v.push_back("Hendrickson-Lattman coefficients");
+   v.push_back("SAD data directly");
+
+   gchar *at = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
+   if (at) {
+      std::string active_text(at);
+      for (std::size_t i=0; i<v.size(); i++) {
+	 if (active_text == v[i]) {
+	    set_refmac_phase_input(i);
+	 }
+      }
+   }
+}
+
+
 void 
 graphics_info_t::set_refmac_refinement_method(int method) {
 
@@ -650,6 +907,27 @@ graphics_info_t::refmac_change_refinement_method(GtkWidget *item, GtkPositionTyp
   set_refmac_refinement_method(pos);
 
 }
+
+
+// static
+void
+graphics_info_t::refmac_refinement_method_combobox_changed(GtkWidget *combobox, gpointer data) {
+
+   gchar *at = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
+   if (at) {
+      std::string active_text(at);
+      std::vector<std::string> v;
+      v.push_back("restrained refinement ");
+      v.push_back("rigid body refinement ");
+      v.push_back("TLS & restrained refinement ");
+      for (std::size_t i=0; i<v.size(); i++) {
+	 if (active_text == v[i]) {
+	    set_refmac_refinement_method(i);
+	 }
+      }
+   }
+}
+
 
 void
 graphics_info_t::set_refmac_n_cycles(int no_cycles) {

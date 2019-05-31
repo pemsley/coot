@@ -53,10 +53,11 @@ namespace coot {
       float get_y() const { return y_;};
       float get_z() const { return z_;};
    
-      // actually, I don't like the gets part of the variable name.
-      float x() const { return x_;};
-      float y() const { return y_;};
-      float z() const { return z_;};
+      // actually, I don't like the gets part of the variable name. Make const ref also.
+
+      const float &x() const { return x_;};
+      const float &y() const { return y_;};
+      const float &z() const { return z_;};
 
       Cartesian(float xi, float yi, float zi) { x_ = xi; y_ = yi; z_ = zi; }
       Cartesian();
@@ -218,9 +219,12 @@ namespace coot {
 
    public:
 
+      CartesianPairInfo() {
+	 data = 0;
+	 size = 0;
+      }
       CartesianPair *data;
       int size;
-      
    };
 
 

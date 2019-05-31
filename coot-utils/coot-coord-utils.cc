@@ -326,6 +326,9 @@ coot::residues_near_residue(mmdb::Residue *res_ref,
 			    mmdb::Manager *mol,
 			    float radius) {
 
+   if (false)
+      std::cout << "debug:: residues_near_residue of " << residue_spec_t(res_ref) << std::endl;
+
    mmdb::PPAtom atom_selection = NULL;
    int n_selected_atoms;
    std::vector<mmdb::Residue *> close_residues;

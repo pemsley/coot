@@ -83,8 +83,10 @@ coot::numerical_gradients(gsl_vector *v,
    if (false) {
       std::cout << "debug:: in numerical_gradients() here are the " << restraints->fixed_atom_indices.size()
 		<< " fixed_atom indices: \n";
-      for (std::size_t ii=0; ii<restraints->fixed_atom_indices.size(); ii++)
-	 std::cout << " " << restraints->fixed_atom_indices[ii];
+
+      std::set<int>::const_iterator it;
+      for (it=restraints->fixed_atom_indices.begin(); it!=restraints->fixed_atom_indices.end(); it++)
+	 std::cout << " " << *it;
       std::cout << "\n";
    }
 
@@ -177,7 +179,6 @@ void coot::my_df(const gsl_vector *v,
 
 
    // std::cout << "debug:: entered my_df(): v size " << v->size << std::endl;
-
 
    // first extract the object from params
    //

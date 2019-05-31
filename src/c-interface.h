@@ -1481,8 +1481,15 @@ int auto_read_do_difference_map_too_state();
 char* get_text_for_density_size_widget(); /* const gchar *text */
 void set_density_size_from_widget(const char *text);
 
-/*! \brief set the extent of the box/radius of electron density contours */
+/* MOVE-ME to c-interface-gtk-widgets.h */
+char *get_text_for_density_size_em_widget();
+void set_density_size_em_from_widget(const char *text);
+
+/*! \brief set the extent of the box/radius of electron density contours for x-ray maps */
 void set_map_radius(float f);
+
+/*! \brief set the extent of the box/radius of electron density contours for EM map*/
+void set_map_radius_em(float radius);
 
 /*! \brief another (old) way of setting the radius of the map */
 void set_density_size(float f);
@@ -4960,7 +4967,9 @@ PyObject *find_terminal_residue_type_py(int imol, const char *chain_id, int resn
 
   @return the number of atoms added
 */
+#ifdef USE_PYTHON
 int add_residue_with_atoms_py(int imol, PyObject *residue_spec, const std::string &res_name, PyObject *list_of_atoms);
+#endif
 #endif /* c++ */
 
 /* \} */

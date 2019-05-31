@@ -1,0 +1,1061 @@
+
+#include "simple-restraint.hh"
+#include "coot-utils/contacts-by-bricks.hh"
+
+int
+coot::restraints_container_t::make_restraints_ng(int imol,
+						 const coot::protein_geometry &geom,
+						 coot::restraint_usage_Flags flags_in,
+						 bool do_residue_internal_torsions,
+						 bool do_trans_peptide_restraints,
+						 float rama_plot_target_weight,
+						 bool do_rama_plot_restraints,
+						 bool do_auto_helix_restraints,
+						 bool do_auto_strand_restraints,
+						 coot::pseudo_restraint_bond_type sec_struct_pseudo_bonds,
+						 bool do_link_restraints,
+						 bool do_flank_restraints) {
+
+   // debug_sets();
+
+   // restraints_usage_flag = BONDS_AND_ANGLES; // debugging
+
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+   restraints_usage_flag = flags_in;
+   rama_plot_weight = rama_plot_target_weight;
+   if (n_atoms) {
+      mark_OXT(geom);
+      make_monomer_restraints(imol, geom, do_residue_internal_torsions);
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+
+      // This should be a set, not a vector, i.e.
+      // std::map<mmdb::Residue *, std::set<mmdb::Residue *> > residue_link_set_map;
+
+      // Fix that in the lab.
+      std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > residue_link_vector_map;
+
+      // This should be a trivial class (that also contains the link type)
+      // not a pair (you can keep the variable name though)
+
+#if 0
+      // Heres's a clue:  We should add them both ways when they are made,
+      // so it's cleaner to check if they are there later on in the code (say,
+      // rama code)
+      //
+      class linked_residue_pair {
+      public:
+	 mmdb::Residue *r1;
+	 mmdb::Residue *r2;
+	 std::string link_type;
+	 linked_residue_pair(mmdb::Residue *r1_in, mmdb::Residue *r2_in) : r1(r1_in), r2(r2_in) {}
+	 linked_residue_pair(mmdb::Residue *r1_in, mmdb::Residue *r2_in, const std::string &s) : r1(r1_in), r2(r2_in), link_type(s) {}
+	 bool match_p(mmdb::Residue *test_pair_1, mmdb::Residue *test_pair_2) const {
+	    if (r1 == test_pair_1)
+	       if (r2 == test_pair_2)
+		  return true;
+	    return false;
+	 }
+	 // this class will be used in a std::map, so it needs operator==() and
+	 // operator<()
+	 bool operator==(const linked_residue_pair &lrp) {
+	    return match_p(lrp.r1, lrp.r2);
+	 }
+	 bool operator<(const linked_residue_pair &lrp) {
+	    return (lrp.r1 < r1);
+	 }
+      };
+#endif
+
+      std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > residue_pair_link_set;
+
+      make_link_restraints_ng(geom,
+			      do_rama_plot_restraints, do_trans_peptide_restraints,
+			      &residue_link_vector_map,
+			      &residue_pair_link_set);
+
+      auto tp_2 = std::chrono::high_resolution_clock::now();
+      // now, what is linked to what?
+      // that is in bonded_atom_indices. That is a vector of what is bonded or angle-bonded
+      // to each atom.
+
+      // don't forget about rama to flanking residues here:
+
+      make_flanking_atoms_restraints_ng(geom,
+					residue_link_vector_map,
+					residue_pair_link_set,
+					do_rama_plot_restraints, do_trans_peptide_restraints);
+
+      auto tp_3 = std::chrono::high_resolution_clock::now();
+      reduced_angle_info_container_t raic(restraints_vec);
+
+      auto tp_4 = std::chrono::high_resolution_clock::now();
+      make_non_bonded_contact_restraints_ng(imol, raic, geom);
+      auto tp_5 = std::chrono::high_resolution_clock::now();
+
+      if (do_rama_plot_restraints)
+	 make_rama_plot_restraints(residue_link_vector_map,
+				   residue_pair_link_set,
+				   geom);
+
+      if (false) {
+	 auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+	 auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+	 std::cout << "------------------- timing for make_restraints_ng(): monomers: "
+		   << d10 << " links: " << d21 << " " << " milliseconds " << std::endl;
+      }
+
+   }
+   make_df_restraints_indices();
+   make_distortion_electron_density_ranges();
+
+   // info();  - are the NBCs correct?
+
+   return restraints_vec.size();
+}
+
+
+// residue_link_count_map should be residue_link_info_map - the data of the map should be
+// a vector of linked residues (we can get the index of those residues if needed)
+// but more importantly perhaps, filter them out of the residues near the A and C residues
+// of our (say) A-B-C residue triplet.
+//
+void
+coot::restraints_container_t::make_flanking_atoms_restraints_ng(const coot::protein_geometry &geom,
+								const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map,
+								const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set,
+								bool do_rama_plot_restraints,
+								bool do_trans_peptide_restraints) {
+
+   bool debug = false;
+
+   // residue 20 is being refined, we need to make link restraints to residues 19 and 21 using
+   // fixed_neighbours_set
+   //
+   // residues_vec contains residue 20
+   //
+   // fixed_neighbours_set are the (fixed) neighbours of residue 20.
+   // 
+   // mol contains residue 20 and the residues around it (made by the function that
+   // creates the restraints object)
+
+   if (false) { // debugging
+      std::cout << "residue_link_count_map size " << residue_link_vector_map.size() << std::endl;
+      std::map<mmdb::Residue *, std::vector<mmdb::Residue *> >::const_iterator it;
+      for (it=residue_link_vector_map.begin();
+	   it!=residue_link_vector_map.end(); it++) {
+	 std::cout << "        residue_link_vector_map key: "
+		   << residue_spec_t(it->first) << " " << std::endl;
+      }
+   }
+
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
+   for (it=fixed_neighbours_set.begin(); it!=fixed_neighbours_set.end(); it++) {
+      mmdb::Residue *residue_p = it->first;
+
+      unsigned int n_link_for_residue = 0;
+      std::map<mmdb::Residue *, std::vector<mmdb::Residue *> >::const_iterator itm = residue_link_vector_map.find(residue_p);
+      if (itm != residue_link_vector_map.end()) {
+	 n_link_for_residue = itm->second.size();
+      }
+
+      // was it polymer-linked at both ends?
+      //
+      if (n_link_for_residue != 2) {
+
+	 int index_for_residue = residue_p->index;
+	 const std::set<mmdb::Residue *> &s = it->second;
+	 std::set<mmdb::Residue *>::const_iterator its;
+	 for (its=s.begin(); its!=s.end(); its++) {
+	    mmdb::Residue *neighb = *its;
+
+	    // Let's say that we refine residue 21,22,23.
+	    // Residue 21 needs to be flanking-linked to residue 20.
+	    // fixed_neighbours_set can contain residue
+	    // 22 as a neighbour of 21. We don't want to link 22 to 21 here.
+	    // because we have done it in the polymer function. Let's
+	    // see if we can find 21-22 here in residue_link_vector_map.
+	    //
+	    // If we are refining just one residue, there will be nothing in the
+	    // residue_link_vector_map, so only skip this one (continue)
+	    // if we can find the key and the neighb is in the vector (set) of
+	    // residues to whicih this residue is already linked.
+
+	    std::map<mmdb::Residue *, std::vector<mmdb::Residue *> >::const_iterator itm;
+	    itm = residue_link_vector_map.find(residue_p);
+	    if (itm != residue_link_vector_map.end()) {
+	       if (std::find(itm->second.begin(), itm->second.end(), neighb) != itm->second.end())
+		  continue;
+	    }
+
+	    int index_for_neighb = neighb->index;
+	    int index_delta = index_for_neighb - index_for_residue;
+	    if (index_delta == -1 || index_delta == 1) {
+	       std::cout << "        fixed neigb: " << residue_spec_t(*its) << std::endl;
+
+	       std::pair<bool, mmdb::Residue *> pair_1(true,  neighb);
+	       std::pair<bool, mmdb::Residue *> pair_2(false, residue_p);
+
+	       // if this is a link onto the N of this residue, then we need
+	       // to call try_make_peptide_link_ng with the arguments the other way
+	       // around
+	       //
+	       if (index_delta == 1) std::swap(pair_1, pair_2);
+
+	       if (debug)
+		  std::cout << "making flanking-peptide link: "
+			    << residue_spec_t(pair_1.second) << " fixed: " << pair_1.first << "  "
+			    << residue_spec_t(pair_2.second) << " fixed: " << pair_2.first << "  "
+			    << std::endl;
+
+	       std::pair<bool, link_restraints_counts> peptide_result =
+		  try_make_peptide_link_ng(geom,
+					   pair_1,
+					   pair_2,
+					   do_rama_plot_restraints,
+					   do_trans_peptide_restraints);
+
+	       if (! peptide_result.first) {
+		  try_make_phosphodiester_link_ng(geom, pair_1, pair_2);
+	       }
+	    }
+	 }
+      }
+   }
+
+}
+
+void
+coot::restraints_container_t::make_rama_plot_restraints(const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map,
+							const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set,
+							const coot::protein_geometry &geom) {
+
+   // (1) Find rama_triples from residues_vec
+   // (2) Find rama_triples from flanking residues
+   //        we find residues like we do for finding flanking residues in make_flanking_atoms_restraints_ng
+
+   // (1)
+   int n_residues = residues_vec.size() -1 ; // no need to test the one at the end, it won't have a (moving)
+                                             // downstream neighbour
+   int residues_vec_size = residues_vec.size();
+
+   for (int i=1; i<n_residues; i++) {
+
+      if (residues_vec_size > (i+1)) {
+	 mmdb::Residue *residue_prev_p = residues_vec[i-1].second;
+	 mmdb::Residue *residue_this_p = residues_vec[i  ].second;
+	 mmdb::Residue *residue_next_p = residues_vec[i+1].second;
+	 std::string link_type("TRANS");             /* we need to transfer link_type too! */
+	 rama_triple_t triple(residues_vec[i-1].second,
+			      residues_vec[i  ].second,
+			      residues_vec[i+1].second,
+			      link_type, false, false, false);
+	 add_rama(triple, geom);
+      }
+   }
+
+   // (2)
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
+   for (it=fixed_neighbours_set.begin(); it!=fixed_neighbours_set.end(); it++) {
+      mmdb::Residue *residue_p = it->first;
+
+      unsigned int n_link_for_residue = 0;
+      std::map<mmdb::Residue *, std::vector<mmdb::Residue *> >::const_iterator itm = residue_link_vector_map.find(residue_p);
+      if (itm != residue_link_vector_map.end()) {
+	 n_link_for_residue = itm->second.size();
+      }
+
+      // was it polymer-linked at both ends?
+      //
+      if (n_link_for_residue != 2) {
+
+	 mmdb::Residue *residue_prev_p = 0;
+	 mmdb::Residue *residue_next_p = 0;
+
+	 int index_for_residue = residue_p->index;
+	 const std::set<mmdb::Residue *> &s = it->second;
+	 std::set<mmdb::Residue *>::const_iterator its;
+	 for (its=s.begin(); its!=s.end(); its++) {
+	    mmdb::Residue *neighb = *its;
+
+	    // see notes in make_flanking_atoms_restraints_ng()
+
+	    std::map<mmdb::Residue *, std::vector<mmdb::Residue *> >::const_iterator itm;
+	    itm = residue_link_vector_map.find(residue_p);
+	    if (itm != residue_link_vector_map.end()) {
+	       if (std::find(itm->second.begin(), itm->second.end(), neighb) != itm->second.end())
+		  continue;
+	    }
+
+	    if (residue_p->chain != neighb->chain)
+	       continue;
+
+	    int index_for_neighb = neighb->index;
+	    int index_delta = index_for_neighb - index_for_residue;
+	    if (index_delta == -1)
+	       std::cout << "        found upstream fixed neigb: " << residue_spec_t(*its) << std::endl;
+	    if (index_delta == 1)
+	       std::cout << "        found downstream fixed neigb: " << residue_spec_t(*its) << std::endl;
+
+	    if (residue_prev_p && residue_next_p) {
+
+	       bool fixed_prev = true;
+	       bool fixed_next = true;
+	       std::pair<mmdb::Residue *, mmdb::Residue *> test_pair_1(residue_prev_p, residue_p);
+	       std::pair<mmdb::Residue *, mmdb::Residue *> test_pair_2(residue_p, residue_next_p);
+	       if (residue_pair_link_set.find(test_pair_1) != residue_pair_link_set.end())
+		  fixed_prev = false;
+	       if (residue_pair_link_set.find(test_pair_2) != residue_pair_link_set.end())
+		  fixed_next = false;
+	       std::string link_type("TRANS");             /* we need to transfer link_type too! */
+	       rama_triple_t triple(residue_prev_p,
+				    residue_p,
+				    residue_next_p,
+				    link_type, fixed_prev, false, fixed_next);
+	       add_rama(triple, geom);
+	       break;
+	    }
+	 }
+      }
+   }
+}
+
+
+// Use raic to know what is 1-4 related
+void
+coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
+								    const coot::restraints_container_t::reduced_angle_info_container_t &raic,
+								    const coot::protein_geometry &geom) {
+
+   // potentially multithreadable.
+
+   // raic can be a member of the class
+   // to make it: reduced_angle_info_container_t raic(restraints_vec);
+
+   float dist_max = 8.0;
+
+   // cache the energy types:
+   std::vector<std::string> energy_type_for_atom(n_atoms);
+
+   // needs timing test - might be slow
+   for (int i=0; i<n_atoms; i++) {
+      mmdb::Atom *at = atom[i];
+      energy_type_for_atom[i] = get_type_energy(imol, at, geom);
+   }
+
+   std::map<std::string, std::pair<bool, std::vector<std::list<std::string> > > > residue_ring_map_cache;
+
+   std::set<unsigned int> fixed_atom_flags_set; // signed to unsigned conversion - bleugh.
+   std::set<int>::const_iterator it;
+   for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
+      fixed_atom_flags_set.insert(*it);
+
+   contacts_by_bricks cb(atom, n_atoms, fixed_atom_flags_set);
+   cb.set_dist_max(dist_max);
+   std::vector<std::set<unsigned int> > vcontacts;
+   cb.find_the_contacts(&vcontacts);
+
+   for (std::size_t i=0; i<vcontacts.size(); i++) {
+      const std::set<unsigned int> &n_set = vcontacts[i];
+      mmdb::Atom *at_1 = atom[i];
+      std::set<unsigned int>::const_iterator it;
+      for (it=n_set.begin(); it!=n_set.end(); it++) {
+
+	 // bonded_atom_indices should be a vector of *sets*!
+	 // use bonded_atom_indices[i].find(*it)
+	 if (std::find(bonded_atom_indices[i].begin(),
+		       bonded_atom_indices[i].end(), *it) != bonded_atom_indices[i].end()) {
+	    // std::cout << "found a bonded atom pair " << i << " " << *it << std::endl;
+	    continue;
+	 }
+
+	 int j = *it;
+	 mmdb::Atom *at_2 = atom[*it];
+
+	 if (fixed_atom_indices.find(i) != fixed_atom_indices.end())
+	    if (fixed_atom_indices.find(*it) != fixed_atom_indices.end())
+	       continue;
+
+	 if (*it < i) /* only add NBC one way round */
+	    continue;
+
+	 std::string res_name_1 = at_1->GetResName();
+	 std::string res_name_2 = at_2->GetResName();
+	 int res_no_1 = at_1->GetSeqNum();
+	 int res_no_2 = at_2->GetSeqNum();
+
+	 const std::string &type_1 = energy_type_for_atom[i];
+	 const std::string &type_2 = energy_type_for_atom[i];
+
+	 std::vector<bool> fixed_atom_flags = make_fixed_flags(i, *it);
+
+	 double dist_min = 3.4;
+
+	 bool in_same_residue_flag = (at_1->residue == at_2->residue);
+	 bool in_same_ring_flag = true;
+
+	 if (at_2->residue != at_1->residue) {
+	    in_same_ring_flag    = false;
+	    in_same_residue_flag = false;
+	 }
+
+	 if (in_same_ring_flag) {
+	    std::string atom_name_1 = at_1->GetAtomName();
+	    std::string atom_name_2 = at_2->GetAtomName();
+
+	    // in_same_ring_flag = restraints_map[at_2->residue].second.in_same_ring(atom_name_1,
+	    //                                                                       atom_name_2);
+
+	    in_same_ring_flag = is_in_same_ring(imol, at_2->residue,
+						residue_ring_map_cache,
+						atom_name_1, atom_name_2, geom);
+	 }
+
+	 // this doesn't check 1-4 over a moving->non-moving peptide link (see comment above function)
+	 // because the non-moving atom doesn't have angle restraints.
+	 //
+	 bool is_1_4_related = raic.is_1_4(i, j);
+
+	 if (false)
+	    std::cout << "here C with at_1 " << atom_spec_t(at_1) << " at_2 " << atom_spec_t(at_2)
+		      << " is_1_4_related " << is_1_4_related << std::endl;
+
+	 if (is_1_4_related) {
+	    dist_min = 2.64; // was 2.7 but c.f. guanine ring distances
+	    if (is_hydrogen(at_1))
+	       dist_min -= 0.7;
+	    if (is_hydrogen(at_2))
+	       dist_min -= 0.7;
+	 } else {
+
+	    std::pair<bool, double> nbc_dist = geom.get_nbc_dist(type_1, type_2,
+								 in_same_residue_flag,
+								 in_same_ring_flag);
+
+	    if (nbc_dist.first) {
+
+	       // In a helix O(n) is close to C(n+1), we should allow it.
+	       // 
+	       bool is_O_C_1_5_related = check_for_O_C_1_5_relation(at_1, at_2);
+
+	       if (is_O_C_1_5_related) {
+		  dist_min = 2.84;
+	       } else {
+
+		  // Perhaps we don't have angle restraints to both atoms because one
+		  // of the atoms is fixed (and thus miss that these have a 1-4 relationship).
+		  // e.g. O(n) [moving] -> CA(n+1) [fixed]
+		  // 
+		  // (this test will fail on insertion codes)
+		  //
+
+		  bool strange_exception = false;
+		  int rn_diff = abs(res_no_2 - res_no_1);
+		  if (rn_diff == 1) {
+		     std::string atom_name_1 = at_1->GetAtomName();
+		     std::string atom_name_2 = at_2->GetAtomName();
+		     if (fixed_atom_flags.size()) {
+			if (fixed_atom_flags[0] || fixed_atom_flags[1]) {
+			   if (atom_name_1 == " O  ")
+			      if (atom_name_2 == " CA ") 
+				 strange_exception = true;
+			   if (atom_name_1 == " CA ")
+			      if (atom_name_2 == " O  ")
+				 strange_exception = true;
+			   if (atom_name_1 == " N  ")
+			      if (atom_name_2 == " CB ")
+				 strange_exception = true;
+			   if (atom_name_1 == " CB ")
+			      if (atom_name_2 == " N  ")
+				 strange_exception = true;
+			   if (atom_name_1 == " C  ")
+			      if (atom_name_2 == " CB ")
+				 strange_exception = true;
+			}
+		     }
+		     if (strange_exception)
+			dist_min = 2.7;
+
+		     // Strange that these are not marked as 1-4 related.  Fix here...
+		     // HA-CA-N-C can be down to ~2.4A.
+		     // HA-CA-C-N can be down to ~2.41A.
+		     if (res_no_2 > res_no_1) {
+			if (atom_name_1 == " C  ") {
+			   if (atom_name_2 == " HA " || atom_name_2 == "HA2" || atom_name_2 == " HA3") {
+			      strange_exception = true;
+			      dist_min = 2.4;
+			   }
+			}
+			if (atom_name_1 == " HA " || atom_name_1 == "HA2" || atom_name_1 == " HA3") {
+			   if (atom_name_2 == " N  ") {
+			      strange_exception = true;
+			      dist_min = 2.41;
+			   }
+			}
+			if (atom_name_1 == " N  ") {
+			   if (atom_name_2 == " H  ") {
+			      strange_exception = true;
+			      dist_min = 2.4;
+			   }
+			}
+		     } else {
+			if (atom_name_1 == " HA " || atom_name_1 == "HA2" || atom_name_1 == " HA3") {
+			   if (atom_name_2 == " C  ") {
+			      strange_exception = true;
+			      dist_min = 2.4;
+			   }
+			}
+			if (atom_name_1 == " N  ") {
+			   if (atom_name_2 == " HA " || atom_name_2 == "HA2" || atom_name_2 == " HA3") {
+			      strange_exception = true;
+			      dist_min = 2.41;
+			   }
+			}
+			if (atom_name_2 == " N  ") {
+			   if (atom_name_1 == " H  ") {
+			      strange_exception = true;
+			      dist_min = 2.4;
+			   }
+			}
+		     }
+		  }
+		  if (rn_diff == 2) { 
+		     if (fixed_atom_flags.size()) {
+			if (fixed_atom_flags[0] || fixed_atom_flags[1]) {
+			   std::string atom_name_1 = at_1->GetAtomName();
+			   std::string atom_name_2 = at_2->GetAtomName();
+			   if (atom_name_1 == " C  ")
+			      if (atom_name_2 == " N  ")
+				 strange_exception = true;
+			   if (atom_name_1 == " N  ")
+			      if (atom_name_2 == " C  ")
+				 strange_exception = true; // 3.1 would be enough
+
+			   if (strange_exception)
+			      dist_min = 2.7;
+			}
+		     }
+		  }
+
+		  if (! strange_exception)
+		     dist_min = nbc_dist.second;
+	       }
+	    } else {
+	       // short/standard value
+	       dist_min = 2.8;
+	    }
+	 }
+
+	 bool is_H_non_bonded_contact = false;
+
+	 if (is_hydrogen(at_1)) {
+	    is_H_non_bonded_contact = true;
+	    if (H_parent_atom_is_donor(at_1))
+	       if (is_acceptor(type_2, geom))
+		  dist_min -= 0.7;
+	 }
+	 if (is_hydrogen(at_2)) {
+	    is_H_non_bonded_contact = true;
+	    if (H_parent_atom_is_donor(at_2))
+	       if (is_acceptor(type_1, geom))
+		  dist_min -= 0.7;
+	 }
+
+
+	 simple_restraint::nbc_function_t nbcf = simple_restraint::LENNARD_JONES;
+	 simple_restraint r(NON_BONDED_CONTACT_RESTRAINT,
+			    nbcf, i, *it,
+			    energy_type_for_atom[i],
+			    energy_type_for_atom[*it],
+			    is_H_non_bonded_contact,
+			    fixed_atom_flags, dist_min);
+	 if (false) // debug
+	    std::cout << "Adding NBC " << i << " " << *it << " " << energy_type_for_atom[i] << " " 
+		      << energy_type_for_atom[*it] << " "
+		      << is_H_non_bonded_contact << " "
+		      << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << " "
+		      << dist_min <<  "\n";
+
+	 r.n_atoms_from_all_restraints = n_atoms; // for debugging crash in non-bonded contact
+                                                  // restraints
+	 r.restraints_index = restraints_vec.size(); // likewise
+	 restraints_vec.push_back(r);
+
+      }
+   }
+}
+
+
+coot::restraints_container_t::link_restraints_counts
+coot::restraints_container_t::make_link_restraints_for_link_ng(const std::string &link_type,
+							       mmdb::Residue *res_1,
+							       mmdb::Residue *res_2,
+							       bool is_fixed_first_residue,
+							       bool is_fixed_second_residue,
+							       bool do_trans_peptide_restraints,
+							       const coot::protein_geometry &geom) {
+
+   link_restraints_counts lrc;
+
+   if (restraints_usage_flag & BONDS_MASK)
+      lrc.n_link_bond_restr += add_link_bond(link_type,
+					     res_1, res_2,
+					     is_fixed_first_residue,
+					     is_fixed_second_residue,
+					     geom);
+
+   if (restraints_usage_flag & ANGLES_MASK)
+      lrc.n_link_angle_restr += add_link_angle(link_type,
+					   res_1, res_2,
+					   is_fixed_first_residue,
+					   is_fixed_second_residue,
+					   geom);
+
+   if (restraints_usage_flag & TRANS_PEPTIDE_MASK) {
+      if (do_trans_peptide_restraints) {
+	 lrc.n_link_trans_peptide += add_link_trans_peptide(res_1, res_2,
+							    is_fixed_first_residue,
+							    is_fixed_second_residue,
+							    geom);
+      } else {
+	 std::cout << "trans-pep not in restraints_usage_flag" << std::endl;
+      }
+   }
+
+   if (restraints_usage_flag & PLANES_MASK)
+      lrc.n_link_plane_restr += add_link_plane(link_type,
+					   res_1, res_2,
+					   is_fixed_first_residue,
+					   is_fixed_second_residue,
+					   geom);
+   return lrc;
+}
+
+std::string
+coot::restraints_container_t::find_peptide_link_type_ng(mmdb::Residue *res_1,
+							mmdb::Residue *res_2,
+							const coot::protein_geometry &geom) const {
+
+   std::string link_type;
+
+   std::string t1;
+   std::string t2;
+
+   std::string residue_type_1 = res_1->name;
+   std::string residue_type_2 = res_2->name;
+
+   for (unsigned int idr=0; idr<geom.size(); idr++) {
+      if (dictionary_name_matches_coords_resname(geom.three_letter_code(idr), residue_type_1)) {
+	 t1 = geom[idr].second.residue_info.group;
+	 break;
+      }
+   }
+   for (unsigned int idr=0; idr<geom.size(); idr++) {
+      if (dictionary_name_matches_coords_resname(geom.three_letter_code(idr), residue_type_2)) {
+	 t2 = geom[idr].second.residue_info.group;
+	 break;
+      }
+   }
+
+   // This should be true because we do a test on amino acid type at the start of try_make_peptide_link_ng
+   //
+   if (t1 == "L-peptide" || t1 == "D-peptide" || t1 == "M-peptide" || t1 == "P-peptide" || t1 == "peptide") {
+      if (t2 == "L-peptide" || t2 == "D-peptide" || t2 == "M-peptide" || t2 == "P-peptide" || t2 == "peptide") {
+	 if (residue_type_2 == "PRO" || residue_type_2 == "HYP") {
+	    link_type = "PTRANS";
+	 } else {
+	    link_type = "TRANS";
+	 }
+      }
+   }
+
+   // CIS and PCIS will need a torsion check around
+   // r1::CA - r1::C - r2::N - r2::CA
+
+   return link_type;
+}
+
+
+
+std::pair<bool, coot::restraints_container_t::link_restraints_counts>
+coot::restraints_container_t::try_make_peptide_link_ng(const coot::protein_geometry &geom,
+						       std::pair<bool, mmdb::Residue *> res_1_pair,
+						       std::pair<bool, mmdb::Residue *> res_2_pair,
+						       bool do_rama_plot_restraints,
+						       bool do_trans_peptide_restraints) {
+
+   mmdb::Residue *res_1 = res_1_pair.second;
+   mmdb::Residue *res_2 = res_2_pair.second;
+   std::string res_name_1(res_1->GetResName());
+   std::string res_name_2(res_2->GetResName());
+   bool status = false;
+   link_restraints_counts lrc;
+
+   if (util::is_standard_amino_acid_name(res_name_1)) {
+      if (util::is_standard_amino_acid_name(res_name_2)) {
+	 mmdb::Atom **residue_1_atoms = 0;
+	 mmdb::Atom **residue_2_atoms = 0;
+	 int n_residue_1_atoms;
+	 int n_residue_2_atoms;
+	 res_1->GetAtomTable(residue_1_atoms, n_residue_1_atoms);
+	 res_2->GetAtomTable(residue_2_atoms, n_residue_2_atoms);
+	 for (int iat_1=0; iat_1<n_residue_1_atoms; iat_1++) {
+	    mmdb::Atom *at_1 = residue_1_atoms[iat_1];
+	    std::string at_name_1(at_1->GetAtomName());
+	    if (at_name_1 == " C  ") { // PDBv3 FIXE
+	       std::string alt_conf_1(at_1->altLoc);
+	       for (int iat_2=0; iat_2<n_residue_2_atoms; iat_2++) {
+		  mmdb::Atom *at_2 = residue_2_atoms[iat_2];
+		  std::string at_name_2(at_2->GetAtomName());
+		  if (at_name_2 == " N  ") { // PDBv3 FIXE
+		     std::string alt_conf_2(at_2->altLoc);
+		     if (alt_conf_1 == alt_conf_2 || alt_conf_1.empty() || alt_conf_2.empty()) {
+
+			// find_peptide_link_type_ng doesn't test the geometry -
+			// just the residues types
+			std::string link_type = find_peptide_link_type_ng(res_1, res_2, geom);
+			if (! link_type.empty()) {
+			   bool is_fixed_first_residue  = res_1_pair.first;
+			   bool is_fixed_second_residue = res_2_pair.first;
+			   lrc = make_link_restraints_for_link_ng(link_type, res_1, res_2,
+								  is_fixed_first_residue,
+								  is_fixed_second_residue,
+								  do_trans_peptide_restraints,
+								  geom);
+
+			   // Rama restraints here!
+
+			   status = true;
+
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   return std::pair<bool, coot::restraints_container_t::link_restraints_counts>(status, lrc);
+
+}
+
+std::pair<bool, coot::restraints_container_t::link_restraints_counts>
+coot::restraints_container_t::try_make_phosphodiester_link_ng(const coot::protein_geometry &geom,
+							      std::pair<bool, mmdb::Residue *> res_1_pair,
+							      std::pair<bool, mmdb::Residue *> res_2_pair) {
+
+   mmdb::Residue *res_1 = res_1_pair.second;
+   mmdb::Residue *res_2 = res_2_pair.second;
+   std::string res_name_1(res_1->GetResName());
+   std::string res_name_2(res_2->GetResName());
+   bool status = false;
+   link_restraints_counts lrc;
+
+   if (util::is_standard_amino_acid_name(res_name_1)) {
+      if (util::is_standard_amino_acid_name(res_name_2)) {
+	 mmdb::Atom **residue_1_atoms = 0;
+	 mmdb::Atom **residue_2_atoms = 0;
+	 int n_residue_1_atoms;
+	 int n_residue_2_atoms;
+	 res_1->GetAtomTable(residue_1_atoms, n_residue_1_atoms);
+	 res_2->GetAtomTable(residue_2_atoms, n_residue_2_atoms);
+	 for (int iat_1=0; iat_1<n_residue_1_atoms; iat_1++) {
+	    mmdb::Atom *at_1 = residue_1_atoms[iat_1];
+	    std::string at_name_1(at_1->GetAtomName());
+	    if (at_name_1 == " C  ") { // PDBv3 FIXE
+	       std::string alt_conf_1(at_1->altLoc);
+	       for (int iat_2=0; iat_2<n_residue_2_atoms; iat_2++) {
+		  mmdb::Atom *at_2 = residue_2_atoms[iat_2];
+		  std::string at_name_2(at_2->GetAtomName());
+		  if (at_name_2 == " N  ") { // PDBv3 FIXE
+		     std::string alt_conf_2(at_2->altLoc);
+		     if (alt_conf_1 == alt_conf_2 || alt_conf_1.empty() || alt_conf_2.empty()) {
+
+			// find_peptide_link_type_ng doesn't test the geometry -
+			// just the residues types
+			std::string link_type = find_peptide_link_type_ng(res_1, res_2, geom);
+			if (! link_type.empty()) {
+			   bool is_fixed_first_residue  = res_1_pair.first;
+			   bool is_fixed_second_residue = res_2_pair.first;
+			   lrc = make_link_restraints_for_link_ng(link_type, res_1, res_2,
+								  is_fixed_first_residue,
+								  is_fixed_second_residue,
+								  false, geom);
+			   status = true;
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   return std::pair<bool, coot::restraints_container_t::link_restraints_counts>(status, lrc);
+
+}
+
+void
+coot::restraints_container_t::make_polymer_links_ng(const coot::protein_geometry &geom,
+						    bool do_rama_plot_restraints,
+						    bool do_trans_peptide_restraints,
+						    std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_vector_map_p,
+						    std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p) {
+
+   // make_polymer_links_ng uses the residues_vec (which is sorted in initialization)
+   // so, only the passed active atoms are consider for polymer links
+
+   std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set = *residue_pair_link_set_p;
+
+   link_restraints_counts accum_links;
+
+   // the residues are sorted by now, we can't have a forward link on the last residue of residues_vec
+   //
+   int n=residues_vec.size()-1;
+   for (int i1=0; i1<n; i1++) {
+      int i2=i1+1;
+
+      if (residues_vec[i1].first && residues_vec[i2].first)
+	 continue;
+
+      mmdb::Residue *res_1 = residues_vec[i1].second;
+      mmdb::Residue *res_2 = residues_vec[i2].second;
+
+      std::string res_name_1(res_1->GetResName());
+      std::string res_name_2(res_2->GetResName());
+      if (res_name_1 == "HOH") continue; // break?
+      if (res_name_2 == "HOH") continue;
+
+      if (res_1->chain == res_2->chain) {
+	 int serial_delta = res_2->index - res_1->index;
+
+	 if (serial_delta == 1) {
+	    // possibly polymer
+
+	    int res_no_delta = res_2->GetSeqNum() - res_1->GetSeqNum();
+
+	    std::pair<bool, link_restraints_counts> results;
+	    // first test for normal peptide residue
+	    //
+	    if (res_no_delta == 1) {
+
+	       // this can fail if there are missing link (C,N) atoms
+	       results = try_make_peptide_link_ng(geom, residues_vec[i1], residues_vec[i2],
+						  do_rama_plot_restraints,
+						  do_trans_peptide_restraints);
+	    } else {
+	       if (res_no_delta == 0) { // insertion code?
+		  std::string ins_code_1(res_1->GetInsCode());
+		  std::string ins_code_2(res_2->GetInsCode());
+		  if (ins_code_1 != ins_code_2) {
+		     results = try_make_peptide_link_ng(geom, residues_vec[i1], residues_vec[i2],
+							do_rama_plot_restraints,
+							do_trans_peptide_restraints);
+		  }
+	       }
+	    }
+
+	    if (results.first) {
+	       accum_links.add(results.second);
+	    } else {
+	       results = try_make_phosphodiester_link_ng(geom, residues_vec[i1], residues_vec[i2]);
+	    }
+
+	    if (results.first) {
+
+	       // make a note that those residues were linked
+
+	       (*residue_link_vector_map_p)[res_1].push_back(res_2);
+	       (*residue_link_vector_map_p)[res_2].push_back(res_1);
+
+	       std::pair<mmdb::Residue *, mmdb::Residue *> residue_pair_f(res_1, res_2);
+	       std::pair<mmdb::Residue *, mmdb::Residue *> residue_pair_b(res_2, res_1);
+	       residue_pair_link_set.insert(residue_pair_f);
+	       residue_pair_link_set.insert(residue_pair_b);
+	    }
+	 }
+      }
+   }
+
+   accum_links.report();
+
+}
+
+
+// non polymer links and carbohydrate links.
+// And metal links
+coot::restraints_container_t::link_restraints_counts
+coot::restraints_container_t::make_other_types_of_link(const coot::protein_geometry &geom,
+						       const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map,
+						       const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set) {
+
+   // ------------- Generic/non-polymer and carbohydrate Links -------------------
+
+   link_restraints_counts lrc;
+
+   if (false) {
+      std::cout << "debug----------- fixed_atom_indices " << std::endl;
+      std::set<int>::const_iterator it;
+      for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
+	 std::cout << "   fixed atoms: " << *it << std::endl;
+   }
+
+   class new_linked_residue {
+   public:
+      new_linked_residue(mmdb::Atom *at_1, mmdb::Atom *at_2,
+			 mmdb::Residue *res_1, mmdb::Residue *res_2,
+			 const std::string &link_type,
+			 bool order_switch_flag) : at_1(at_1), at_2(at_2), res_1(res_1), res_2(res_2),
+						   link_type(link_type), order_switch_flag(order_switch_flag) {}
+      mmdb::Atom *at_1, *at_2;
+      mmdb::Residue *res_1, *res_2;
+      std::string link_type;
+      bool order_switch_flag;
+      bool match_p(mmdb::Residue *r1, mmdb::Residue *r2) const {
+	 if (r1 == res_1 && r2 == res_2) {
+	    return true;
+	 } else {
+	    return (r2 == res_1 && r1 == res_2);
+	 }
+      }
+   };
+
+   class new_linked_residue_list {
+   public:
+      new_linked_residue_list() {}
+      std::vector<new_linked_residue> nlr_vec;
+      void insert(mmdb::Atom *at_1, mmdb::Atom *at_2,
+		  mmdb::Residue *res_1, mmdb::Residue *res_2,
+		  const std::string &link_type,
+		  bool order_switch_flag) {
+	 bool found = already_added(res_1, res_2);
+	 if (! found) {
+	    new_linked_residue nlr(at_1, at_2, res_1, res_2, link_type, order_switch_flag);
+	    nlr_vec.push_back(nlr);
+	 }
+      }
+      bool already_added(mmdb::Residue *r1, mmdb::Residue *r2) const {
+	 bool found = false;
+	 for (std::size_t i=0; i<nlr_vec.size(); i++) {
+	    if (nlr_vec[i].match_p(r1, r2)) {
+	       found = true;
+	       break;
+	    }
+	 }
+	 return found;
+      }
+   };
+
+   new_linked_residue_list nlrs;
+
+   std::set<unsigned int> fixed_atom_flags_set;
+   std::set<int>::const_iterator it;
+   for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
+      fixed_atom_flags_set.insert(*it);
+   contacts_by_bricks cb(atom, n_atoms, fixed_atom_flags_set);
+   cb.set_dist_max(3.0);
+   std::vector<std::set<unsigned int> > vcontacts;
+   bool only_between_different_residues_flag = true;
+   cb.find_the_contacts(&vcontacts, only_between_different_residues_flag);
+
+   for (std::size_t i=0; i<vcontacts.size(); i++) {
+      const std::set<unsigned int> &n_set = vcontacts[i];
+      mmdb::Atom *at_1 = atom[i];
+      // if (! is_fully_linked_ng(at_1->residue, residue_link_count_map)) {
+      if (true) {
+	 std::set<unsigned int>::const_iterator it;
+	 for (it=n_set.begin(); it!=n_set.end(); it++) {
+	    mmdb::Atom *at_2 = atom[*it];
+
+	    mmdb::Residue *res_1 = at_1->residue;
+	    mmdb::Residue *res_2 = at_2->residue;
+
+	    if (res_1 == res_2) {
+	       // these should not be here - they should be filtered out in contacts_by_bricks.
+	       // At some state test if this is still needed.
+	       continue;
+	    }
+
+	    if (at_2->residue->chain == at_1->residue->chain) {
+
+	       // no links for non-moving bumping residues
+	       //
+	       if (fixed_atom_indices.find(i) != fixed_atom_indices.end())
+		  if (fixed_atom_indices.find(*it) != fixed_atom_indices.end())
+		     continue;
+
+	       // at_2 might have a lower residue number than at_1.
+
+	       // At this stage most of the contacts will be peptide contacts (generally speaking)
+	       // How can I know if the residues of these atoms have already been linked
+	       // (quite likely they will have been)
+
+	       std::pair<mmdb::Residue *, mmdb::Residue *> test_residue_pair(res_1, res_2);
+
+	       if (residue_pair_link_set.find(test_residue_pair) == residue_pair_link_set.end())  {
+		  // it was a new pair.
+
+		  if (false) {
+		     std::cout << "failed to find these residues in the polyer-linked set: "
+			       << residue_spec_t(res_1) << " "
+			       << residue_spec_t(res_2) << std::endl;
+		     std::cout << "Here are the pairs in the linked set " << std::endl;
+		     std::set<std::pair<mmdb::Residue *, mmdb::Residue *> >::const_iterator it;
+		     for (it=residue_pair_link_set.begin(); it!=residue_pair_link_set.end(); it++)
+			std::cout << "   " << residue_spec_t(it->first) << " " << residue_spec_t(it->second) << std::endl;
+		  }
+
+		  mmdb::Residue *res_1 = at_1->residue;
+		  mmdb::Residue *res_2 = at_2->residue;
+
+		  if (nlrs.already_added(res_1, res_2))
+		     continue;
+
+		  // not sure that this is what I want now, really
+		  std::pair<std::string, bool> lt = find_link_type_complicado(res_1, res_2, geom);
+		  // Returns first (link_type) as "" if not found, second is order switch flag
+		  if (! lt.first.empty()) {
+		     std::cout << "Make a link restraints " << residue_spec_t(res_1) << " " << residue_spec_t(res_2)
+			       << " with type " << lt.first << " and order switch " << lt.second
+			       << std::endl;
+		     nlrs.insert(at_1, at_2, res_1, res_2, lt.first, lt.second);
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   return lrc;
+}
+
+// std::pair<std::map<mmdb::Residue *, std::vector<mmdb::Residue * > >, std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > >
+
+void
+coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geometry &geom,
+						      bool do_rama_plot_restraints,
+						      bool do_trans_peptide_restraints,
+						      std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_vector_map_p,
+						      std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p) {
+
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+
+   // residue 2 will be linked to residue 1 no matter how far apart they are
+   //
+   make_polymer_links_ng(geom, do_rama_plot_restraints, do_trans_peptide_restraints,
+			 residue_link_vector_map_p,
+			 residue_pair_link_set_p);
+
+   auto tp_2 = std::chrono::high_resolution_clock::now();
+   make_other_types_of_link(geom, *residue_link_vector_map_p, *residue_pair_link_set_p);
+
+   auto tp_3 = std::chrono::high_resolution_clock::now();
+   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+   std::cout << "------------------- timing for make_link_restraints_ng(): : "
+	     << d10 << " " << d21 << " " << d32 << " milliseconds " << std::endl;
+
+}

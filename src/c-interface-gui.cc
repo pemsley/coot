@@ -82,6 +82,10 @@
 #include "coords/mmdb.h"  // for centre of molecule
 #include "clipper/core/clipper_instance.h"
 
+#include "c-interface-gui.hh"
+
+// I think this test is wrong. New gtk doesn't have get active text.
+// Use a gtkcomboboxtext for that.
 #if (GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION > 5))
 #define HAVE_GTK_COMBO_BOX_GET_ACTIVE_TEXT
 #endif
@@ -308,15 +312,25 @@ GtkWidget *wrapped_create_remarks_browser_molecule_chooser_dialog() {
 
 void fill_remarks_browswer_chooser(GtkWidget *w) {
 
-   GtkWidget *option_menu = lookup_widget(w, "remarks_browser_molecule_chooser_optionmenu");
-   if (option_menu) {
+   GtkWidget *combobox = lookup_widget(w, "remarks_browser_molecule_combobox");
+   if (combobox) {
       graphics_info_t g;
-      GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(remarks_browswer_molecule_item_select);
+      // GCallback callback_func = G_CALLBACK(remarks_browswer_molecule_item_select);
+      GCallback callback_func = G_CALLBACK(remarks_browswer_molecule_combobox_changed);
       int imol = first_coords_imol();
       graphics_info_t::imol_remarks_browswer = imol;
-      g.fill_option_menu_with_coordinates_options(option_menu, callback_func, imol);
-   } 
+      g.fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+   } else {
+      std::cout << "failed to get combobox" << std::endl;
+   }
 }
+
+void remarks_browswer_molecule_combobox_changed(GtkWidget *combobox, gpointer data) {
+
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t::imol_remarks_browswer = imol;
+}
+
 
 
 void remarks_browswer_molecule_item_select(GtkWidget *item, GtkPositionType pos) {
@@ -369,10 +383,10 @@ void show_set_undo_molecule_chooser() {
 GtkWidget *wrapped_create_undo_molecule_chooser_dialog() {
 
    GtkWidget *w = create_undo_molecule_chooser_dialog();
-   GtkWidget *option_menu = lookup_widget(w, "undo_molecule_chooser_option_menu");
+   GtkWidget *combobox = lookup_widget(w, "undo_molecule_chooser_combobox");
    graphics_info_t g;
    
-   g.fill_option_menu_with_undo_options(option_menu);
+   g.fill_combobox_with_undo_options(combobox);
    return w;
 } 
 
@@ -463,10 +477,21 @@ void save_refmac_phase_params_to_map(int imol_map,
 
 }
 
+// get string for column 0 (which are strings)
+std::string
+get_active_label_in_combobox(GtkComboBox *combobox) {
+
+   graphics_info_t g;
+   return g.get_active_label_in_combobox(combobox);
+}
 
 void handle_column_label_make_fourier(GtkWidget *column_label_window) {
 
-  GtkWidget *refmac_checkbutton;
+   if (false)
+      std::cout << "---- handle_column_label_make_fourier() with column_label_window "
+		<< column_label_window << std::endl;
+
+   GtkWidget *refmac_checkbutton;
    int icol; 
    int use_weights = 0;
    int is_diff_map;
@@ -491,13 +516,6 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
    GtkEntry *low_entry;
    GtkEntry *high_entry;
 
-  std::string phi_label;
-  std::string f_label;
-  std::string w_label;
-  std::string fobs_col;
-  std::string sigfobs_col;
-  std::string r_free_col;
-
   /* Was the "Use Weights checkbutton clicked?  */
 
    check_weights = GTK_CHECK_BUTTON(lookup_widget(GTK_WIDGET(column_label_window), 
@@ -517,118 +535,107 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
 
    if (GTK_TOGGLE_BUTTON(is_diff_map_checkbutton)->active) { 
      is_diff_map = 1;
-   } else{ 
+   } else {
      is_diff_map = 0;
    }
-     
-   coot::mtz_column_types_info_t *saved_f_phi_columns
-      = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(column_label_window));
+   void *t = g_object_get_data(G_OBJECT(column_label_window), "f_phi_columns");
+   coot::mtz_column_types_info_t *saved_f_phi_columns = static_cast<coot::mtz_column_types_info_t *> (t);
+
+   if (! saved_f_phi_columns)
+      return;
 
    const char *object_mtz_filename = saved_f_phi_columns->mtz_filename.c_str();
+
    /* Get the values that the user has selected in the option menu
       buttons. */ 
 
-   icol = saved_f_phi_columns->selected_phi_col; 
-   if (icol == -1) { 
-     printf("WARNING!!!! No phi col was set!!!!!!! \n");
-   } else { 
-      phi_label = saved_f_phi_columns->phi_cols[icol].column_label; 
+   {
+      GtkWidget *amplitudes_combobox = lookup_widget(column_label_window,
+						     "column_selector_amplitudes_combobox");
+      GtkWidget *phases_combobox = lookup_widget(column_label_window,
+						 "column_selector_phases_combobox");
+      GtkWidget *weights_combobox = lookup_widget(column_label_window,
+						 "column_selector_weights_combobox");
+      std::string phi_label;
+      std::string f_label;
+      std::string w_label;
+      std::string fobs_col;
+      std::string sigfobs_col;
+      std::string r_free_col;
 
-     icol = saved_f_phi_columns->selected_f_col;
-     if (icol < int(saved_f_phi_columns->f_cols.size()))
-	f_label = saved_f_phi_columns->f_cols[icol].column_label;
-     else {
-	f_label = saved_f_phi_columns->d_cols[icol-saved_f_phi_columns->f_cols.size()].column_label;
-	is_anomalous_flag = 1;
-     }
-   
-     if (use_weights) { 
-	std::cout << " Making map from " << f_label << " " << phi_label << " and "
-		  << w_label << std::endl;
-	icol = saved_f_phi_columns->selected_weight_col;
-	if (icol < int(saved_f_phi_columns->weight_cols.size()))
-	   w_label = saved_f_phi_columns->weight_cols[icol].column_label;
-     } else { 
-	std::cout << " Making map from " << f_label << " and " << phi_label << std::endl;
-     } 
+      f_label = get_active_label_in_combobox(GTK_COMBO_BOX(amplitudes_combobox));
+      phi_label = get_active_label_in_combobox(GTK_COMBO_BOX(phases_combobox));
 
-     /* is the resolution limit check button in use? */
-     resolution_limit_check_button = 
-       GTK_CHECK_BUTTON(lookup_widget(GTK_WIDGET(column_label_window), 
-				       "column_labels_use_resolution_limits_checkbutton"));
-     if (GTK_TOGGLE_BUTTON(resolution_limit_check_button)->active) { 
+      if (use_weights) {
+	 w_label = get_active_label_in_combobox(GTK_COMBO_BOX(weights_combobox));
+	 std::cout << " Making map from " << f_label << " " << phi_label << " and "
+		   << w_label << std::endl;
+      } else {
+	 std::cout << " Making map from " << f_label << " and " << phi_label << std::endl;
+      }
 
-       /* yes, it is.. */
+      /* is the resolution limit check button in use? */
+      resolution_limit_check_button = 
+	 GTK_CHECK_BUTTON(lookup_widget(GTK_WIDGET(column_label_window), 
+					"column_labels_use_resolution_limits_checkbutton"));
+      if (GTK_TOGGLE_BUTTON(resolution_limit_check_button)->active) { 
 
-       low_entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(column_label_window),
-			     "column_labels_reso_low_entry"));
-       high_entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(column_label_window),
-			      "column_labels_reso_high_entry"));
+	 /* yes, it is.. */
 
-       low_reso_lim  = get_positive_float_from_entry(low_entry);
-       high_reso_lim = get_positive_float_from_entry(high_entry);
-       std::cout << "Resolution limits: low: " << low_reso_lim << " and high: "
-		 << high_reso_lim << std::endl;
-       if (high_reso_lim > 0.0001)
-	  use_resolution_limits_flag = 1;
-       // if low_reso_lim is not set, presume that it was 999.9;
-       if (low_reso_lim < 0.0)
-	  low_reso_lim = 999.9;
-     }
+	 low_entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(column_label_window),
+					     "column_labels_reso_low_entry"));
+	 high_entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(column_label_window),
+					      "column_labels_reso_high_entry"));
 
-     /* Refmac label stuff */
+	 low_reso_lim  = get_positive_float_from_entry(low_entry);
+	 high_reso_lim = get_positive_float_from_entry(high_entry);
+	 std::cout << "Resolution limits: low: " << low_reso_lim << " and high: "
+		   << high_reso_lim << std::endl;
+	 if (high_reso_lim > 0.0001)
+	    use_resolution_limits_flag = 1;
+	 // if low_reso_lim is not set, presume that it was 999.9;
+	 if (low_reso_lim < 0.0)
+	    low_reso_lim = 999.9;
+      }
 
-     refmac_checkbutton = lookup_widget(GTK_WIDGET(column_label_window),
-					"refmac_column_labels_checkbutton");
+      /* Refmac label stuff */
 
-     if (GTK_TOGGLE_BUTTON(refmac_checkbutton)->active) { 
+      refmac_checkbutton = lookup_widget(GTK_WIDGET(column_label_window),
+					 "refmac_column_labels_checkbutton");
 
-       have_refmac_params = 1; 
+      if (GTK_TOGGLE_BUTTON(refmac_checkbutton)->active) { 
 
-       /* find the refmac option menu */
-       fobs_option_menu    = lookup_widget(column_label_window, "refmac_fobs_optionmenu");
-       sigfobs_option_menu = lookup_widget(column_label_window, "refmac_sigfobs_optionmenu");
-       r_free_option_menu  = lookup_widget(column_label_window, "refmac_rfree_optionmenu");
-  
-       /* find the refmac menus */
-       fobs_menu    = gtk_option_menu_get_menu(GTK_OPTION_MENU(fobs_option_menu));
-       sigfobs_menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(sigfobs_option_menu));
-       r_free_menu  = gtk_option_menu_get_menu(GTK_OPTION_MENU(r_free_option_menu));
+	 have_refmac_params = 1; 
 
-       /* now assign the columns */
-       icol = saved_f_phi_columns->selected_refmac_fobs_col;
-       fobs_col = saved_f_phi_columns->f_cols[icol].column_label;
+	 GtkWidget *fobs_combobox    = lookup_widget(column_label_window,
+						     "column_label_selector_refmac_fobs_combobox");
+	 GtkWidget *sigfobs_combobox = lookup_widget(column_label_window,
+						     "column_label_selector_refmac_sigfobs_combobox");
+	 GtkWidget *r_free_combobox  = lookup_widget(column_label_window,
+						     "column_label_selector_refmac_rfree_combobox");
 
-       icol = saved_f_phi_columns->selected_refmac_sigfobs_col;
-       sigfobs_col = saved_f_phi_columns->sigf_cols[icol].column_label;
+	 fobs_col    = get_active_label_in_combobox(GTK_COMBO_BOX(fobs_combobox));
+	 sigfobs_col = get_active_label_in_combobox(GTK_COMBO_BOX(fobs_combobox));
+	 r_free_col  = get_active_label_in_combobox(GTK_COMBO_BOX(fobs_combobox));
+      }
 
-       icol = saved_f_phi_columns->selected_refmac_r_free_col; /* magic -1 if not set */
-       if (icol >= 0) { 
-	 // 
-	 sensible_r_free_col = 1;
-	 r_free_col = saved_f_phi_columns->r_free_cols[icol].column_label;
-       } else { 
-	 sensible_r_free_col = 0;
-	 r_free_col = "";
-       }
-     }
+      std::cout << "---------------------- Here" << std::endl;
 
-
-     /* And proceed with the actual map-making. 
-	If use_weights is 1, then weights should be used.*/
-     make_and_draw_map_with_reso_with_refmac_params(object_mtz_filename,
-						    f_label.c_str(),
-						    phi_label.c_str(), 
-						    w_label.c_str(),
-						    use_weights, is_diff_map, 
-						    have_refmac_params,
-						    fobs_col.c_str(),
-						    sigfobs_col.c_str(),
-						    r_free_col.c_str(), 
-						    sensible_r_free_col, 
-						    is_anomalous_flag,
-						    use_resolution_limits_flag,
-						    low_reso_lim, high_reso_lim);
+      /* And proceed with the actual map-making. 
+	 If use_weights is 1, then weights should be used.*/
+      make_and_draw_map_with_reso_with_refmac_params(object_mtz_filename,
+						     f_label.c_str(),
+						     phi_label.c_str(), 
+						     w_label.c_str(),
+						     use_weights, is_diff_map, 
+						     have_refmac_params,
+						     fobs_col.c_str(),
+						     sigfobs_col.c_str(),
+						     r_free_col.c_str(), 
+						     sensible_r_free_col, 
+						     is_anomalous_flag,
+						     use_resolution_limits_flag,
+						     low_reso_lim, high_reso_lim);
    }
    /* We can destroy the column_label_window top level widget now. */
    gtk_widget_destroy(column_label_window);
@@ -637,11 +644,33 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
 
 
 
-void fill_f_optionmenu_with_expert_options(GtkWidget *f_optionmenu) {
+// void fill_f_optionmenu_with_expert_options(GtkWidget *f_optionmenu) {
 
-   coot::fill_f_optionmenu(f_optionmenu, 1);
+//    coot::fill_f_optionmenu(f_optionmenu, 1);
+
+// }
+
+void fill_combobox_with_expert_options(GtkWidget *amplitudes_combobox) {
+
+   // data for this widget is set in... coot::column_selector_using_cmtz(const std::string &filename)
+
+   GtkWidget *column_label_window = lookup_widget(amplitudes_combobox, "column_label_window");
+   coot::mtz_column_types_info_t *saved_f_phi_columns
+      = static_cast<coot::mtz_column_types_info_t *> (g_object_get_data(G_OBJECT(column_label_window),
+									"f_phi_columns"));
+   if (saved_f_phi_columns) {
+      const coot::mtz_column_types_info_t &col_labs = *saved_f_phi_columns;
+      int f_prefered_idx = col_labs.get_prefered_f_col_idx();
+      std::vector<coot::mtz_type_label> labels = col_labs.f_cols;
+      std::vector<coot::mtz_type_label> d_labels = col_labs.d_cols;
+      labels.insert(labels.end(), d_labels.begin(), d_labels.end());
+      my_combo_box_text_add_items(GTK_COMBO_BOX(amplitudes_combobox), labels, f_prefered_idx);
+   } else {
+      std::cout << "failed to lookup" << std::endl;
+   }
 
 }
+
 
 void fill_about_window(GtkWidget *widget) {
 
@@ -1492,8 +1521,8 @@ void add_filechooser_filter_button(GtkWidget *fileselection,
   int i = 0;
   std::vector<std::string> globs;
 
-  GtkFileFilter *filterall = gtk_file_filter_new ();
-  GtkFileFilter *filterselect = gtk_file_filter_new ();
+  GtkFileFilter *filterall    = gtk_file_filter_new();
+  GtkFileFilter *filterselect = gtk_file_filter_new();
 
   gtk_file_filter_set_name (filterall, "all-files");
   gtk_file_filter_add_pattern (filterall, "*");
@@ -1790,7 +1819,7 @@ void add_recentre_on_read_pdb_checkbutton(GtkWidget *fileselection) {
    
    if (doit) {
 
-      if (0) { 
+      if (0) {
       
 	 GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
 	 GtkWidget *button = gtk_check_button_new_with_label("Recentre");
@@ -1978,24 +2007,47 @@ void guile_window_enter_callback( GtkWidget *widget,
 }
 #endif //  USE_GUILE
 
+// This is for maps which come from mtz (i.e. have SFs)
+int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signalfunc) {
+
+   // graphics_info_t g;
+   // return g.fill_combobox_with_map_mtz_options(option_menu, signalfunc);
+
+   std::cout << "option menu cruft" << std::endl;
+
+   return -1;
+}
 
 // Similar to fill_option_menu_with_coordinates_options, but I moved
 // it to graphics_info_t because it is also used when there is an
 // ambiguity in the map for refinement (graphics_info_t::refine)
 // 
-int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signalfunc) {
+int fill_combobox_with_map_options(GtkWidget *combobox, GtkSignalFunc signalfunc) {
 
    graphics_info_t g;
+   int imol_active = -1;
+   int ii = imol_refinement_map();
+   if (is_valid_map_molecule(ii)) {
+      imol_active = ii;
+   } else {
+      for (int i=0; i<g.n_molecules(); i++) {
+	 if (is_valid_map_molecule(i)) {
+	    imol_active = i;
+	    break;
+	 }
+      }
+   }
+   g.fill_combobox_with_map_options(combobox, signalfunc, imol_active);
+   return imol_active;
 
-   return g.fill_option_menu_with_map_options(option_menu, signalfunc);
 }
 
 // This is for maps which come from mtz (i.e. have SFs)
-int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signalfunc) {
+int fill_combobox_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signalfunc) {
 
    graphics_info_t g;
 
-   return g.fill_option_menu_with_map_mtz_options(option_menu, signalfunc);
+   return g.fill_combobox_with_map_mtz_options(option_menu, signalfunc);
 }
 
 
@@ -2444,24 +2496,26 @@ void set_refine_params_toggle_buttons(GtkWidget *button) {
    } 
 } 
 
-void fill_chiral_volume_molecule_option_menu(GtkWidget *w) { 
+// void fill_chiral_volume_molecule_option_menu(GtkWidget *w) { 
+// }
 
-   GtkWidget *optionmenu = lookup_widget(w, "check_chiral_volumes_molecule_optionmenu");
+
+void fill_chiral_volume_molecule_combobox(GtkWidget *dialog) {
+
+   GtkWidget *combobox = lookup_widget(dialog, "check_chiral_volumes_molecule_combobox");
 
    // now set chiral_volume_molecule_option_menu_item_select_molecule to the top of the list
    for (int i=0; i<graphics_info_t::n_molecules(); i++) { 
       if (graphics_info_t::molecules[i].has_model()) {
-	 graphics_info_t::chiral_volume_molecule_option_menu_item_select_molecule = i;
+	 graphics_info_t::check_chiral_volume_molecule = i;
 	 break;
       } 
    }
-   int imol = graphics_info_t::chiral_volume_molecule_option_menu_item_select_molecule;
-   GtkSignalFunc callback_func =
-      GTK_SIGNAL_FUNC(chiral_volume_molecule_option_menu_item_select);
-
    graphics_info_t g;
-   g.fill_option_menu_with_coordinates_options(optionmenu, callback_func, imol);
+   int imol = graphics_info_t::check_chiral_volume_molecule;
+   GCallback callback_func = G_CALLBACK(g.check_chiral_volume_molecule_combobox_changed);
 
+   g.fill_combobox_with_coordinates_options(combobox, callback_func, imol);
 }
 
 
@@ -3512,15 +3566,6 @@ int cns_file_has_phases_p(const char *cns_file_name) {
 /*                        go to atom widget                                 */
 /*  ----------------------------------------------------------------------- */
 
-// return -1 on error
-//
-int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget) { 
-
-   graphics_info_t g;
-   return g.go_to_atom_molecule_optionmenu_active_molecule(widget);
-}
-
-
 void save_go_to_atom_widget(GtkWidget *widget) { /* store in a static */
    graphics_info_t::go_to_atom_window = widget;
 }
@@ -3532,11 +3577,16 @@ void unset_go_to_atom_widget() {
 
 // not really a button select, its a menu item select
 void
-save_molecule_coords_button_select(GtkWidget *item, GtkPositionType pos) { 
+save_molecule_coords_combobox_changed(GtkWidget *combobox, gpointer data) {
 
    // graphics_info_t g;
-   // std::cout << "INFO:: Save coords molecule now: " << pos << std::endl;
-   graphics_info_t::save_imol = pos;
+
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+
+   std::cout << "INFO:: save_molecule_coords_button_select(): Save coords molecule save_imol now: "
+	     << imol << std::endl;
+
+   graphics_info_t::save_imol = imol;
 }
 
 
@@ -3548,17 +3598,30 @@ void fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
 					       int imol_active_position) {
 
    graphics_info_t g;
-   g.fill_option_menu_with_coordinates_options(option_menu,
-					       signal_func,
-					       imol_active_position);
+//    g.fill_option_menu_with_coordinates_options(option_menu,
+// 					       signal_func,
+// 					       imol_active_position);
+
+   std::cout << "100% full of wrongability: fill_option_menu_with_coordinates_options"
+	     << std::endl;
 }
 
-void fill_option_menu_with_coordinates_options_unsaved_first(GtkWidget *option_menu, 
-							     GtkSignalFunc signal_func,
-							     int imol_active_position) {
-   // a mess.  This function could be deleted.
-   fill_option_menu_with_coordinates_options(option_menu, signal_func, imol_active_position);
-} 
+void fill_combobox_with_coordinates_options(GtkWidget *combobox,
+					    GCallback signal_func,
+					    int imol_active_position) {
+   graphics_info_t g;
+   g.fill_combobox_with_coordinates_options(combobox, signal_func, imol_active_position);
+
+}
+
+
+// void fill_option_menu_with_coordinates_options_unsaved_first(GtkWidget *option_menu, 
+// 							     GtkSignalFunc signal_func,
+// 							     int imol_active_position) {
+//    // a mess.  This function could be deleted.
+//    fill_option_menu_with_coordinates_options(option_menu, signal_func, imol_active_position);
+// }
+
 
 
 
@@ -3656,14 +3719,12 @@ new_close_molecules(GtkWidget *window) {
    if (closed_something_flag) { 
       if (graphics_info_t::go_to_atom_window) { 
 	 graphics_info_t g;
-	 GtkWidget *optionmenu = lookup_widget(graphics_info_t::go_to_atom_window, 
-					       "go_to_atom_molecule_optionmenu");
-	 // g.fill_go_to_atom_option_menu(optionmenu);
+	 GtkWidget *combobox = lookup_widget(graphics_info_t::go_to_atom_window, 
+					       "go_to_atom_molecule_combobox");
 	 int gimol = g.go_to_atom_molecule();
-	 
-	 GtkSignalFunc callback_func =
-	    GTK_SIGNAL_FUNC(graphics_info_t::go_to_atom_mol_menu_item_select);
-	 g.fill_option_menu_with_coordinates_options(optionmenu, callback_func, gimol);
+
+	 GCallback callback_func = G_CALLBACK(graphics_info_t::go_to_atom_mol_combobox_changed);
+	 g.fill_combobox_with_coordinates_options(combobox, callback_func, gimol);
       }
       graphics_draw();
    }
@@ -4092,11 +4153,20 @@ char* get_text_for_density_size_widget() {
    // Dontcha just *love" this sort coding! (yeuch)
    // 
    text = (char *) malloc(100);
-   snprintf(text,100,"%-5.1f", g.box_radius);
+   snprintf(text,100,"%-5.1f", g.box_radius_xray);
 
    return text;
 
 }
+
+char *
+get_text_for_density_size_em_widget() {
+   graphics_info_t g;
+   char *text = (char *) malloc(100);
+   snprintf(text,100,"%-5.1f", g.box_radius_em);
+   return text;
+}
+
 GtkWidget *wrapped_create_show_symmetry_window() {
 
    GtkWidget *show_symm_window = create_show_symmetry_window();
@@ -4146,8 +4216,7 @@ GtkWidget *wrapped_create_show_symmetry_window() {
    
 /* The Colour Merge hscale */
 
-   hscale = GTK_SCALE(lookup_widget(show_symm_window,
-				    "hscale_symmetry_colour"));
+   hscale = GTK_SCALE(lookup_widget(show_symm_window, "hscale_symmetry_colour"));
    
    adjustment = GTK_ADJUSTMENT 
       (gtk_adjustment_new(0.5, 0.0, 3.0, 0.02, 0.05, 2.0));
@@ -4233,16 +4302,13 @@ GtkWidget *wrapped_create_show_symmetry_window() {
 void symmetry_colour_adjustment_changed (GtkAdjustment *adj, 
 					 GtkWidget *window) { 
 
+   float f = gtk_adjustment_get_value(adj);
 
    // does a graphics_draw() for us...
-   set_symmetry_colour_merge(adj->value); /* this adjusts
-				             graphics_info_t::
-					     symm_colour_merge_weight,
-					     which is a double
-					     array.  But we only
-					     ever use the 0th
-					     position of it in
-					     combine_colour() */
+   set_symmetry_colour_merge(f); /* this adjusts graphics_info_t::
+				    symm_colour_merge_weight, which is a double
+				    array.  But we only ever use the 0th
+				    position of it in combine_colour() */
 }
 
 
@@ -4392,7 +4458,7 @@ void set_scroll_wheel_map(int imap) {
 }
 
 
-void add_on_map_scroll_whell_choices(GtkWidget *menu) {
+void add_on_map_scroll_wheel_choices(GtkWidget *menu) {
 
    GtkSignalFunc callback =
       GTK_SIGNAL_FUNC(map_scroll_wheel_mol_selector_activate);
@@ -4449,13 +4515,15 @@ add_map_scroll_wheel_mol_menu_item(int imol, const std::string &name,
 
 GtkWidget *wrapped_create_bond_parameters_dialog() {
 
+   graphics_info_t g;
+
    GtkWidget *widget = create_bond_parameters_dialog();
 
-   GtkWidget *optionmenu =
-      lookup_widget(widget, "bond_parameters_molecule_optionmenu");
+   GtkWidget *combobox = lookup_widget(widget, "bond_parameters_molecule_combobox");
 
-   GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(graphics_info_t::bond_parameters_molecule_menu_item_select);
+   // GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(g.bond_parameters_molecule_menu_item_select);
 
+   GCallback callback_func = G_CALLBACK(g.bond_parameters_molecule_combobox_changed);
 
    // fill the colour map rotation entry
 
@@ -4471,7 +4539,6 @@ GtkWidget *wrapped_create_bond_parameters_dialog() {
    // want bond_parameters_molecule to be set to first_coords_imol()
    // i.e. imol.
 
-   graphics_info_t g;
    int imol = first_coords_imol(); // can be -1;
    if (g.bond_parameters_molecule >= 0)
       if (g.molecules[g.bond_parameters_molecule].has_model())
@@ -4482,7 +4549,7 @@ GtkWidget *wrapped_create_bond_parameters_dialog() {
       // g.bond_parameters_molecule not set yet.
       g.bond_parameters_molecule = imol;
 
-   g.fill_option_menu_with_coordinates_options(optionmenu, callback_func, imol);
+   g.fill_combobox_with_coordinates_options(combobox, callback_func, imol);
    graphics_info_t::fill_bond_parameters_internals(widget, imol);
 
    return widget;
@@ -4533,12 +4600,19 @@ void apply_bond_parameters(GtkWidget *w) {
    graphics_draw();
 }
 
-void skeletonize_map_by_optionmenu(GtkWidget *optionmenu) {
+// void skeletonize_map_by_optionmenu(GtkWidget *optionmenu) {
+
+//    graphics_info_t g;
+//    g.skeletonize_map_by_optionmenu(optionmenu);
+
+// }
+
+void skeletonize_map_by_combobox(GtkWidget *combobox) {
 
    graphics_info_t g;
-   g.skeletonize_map_by_optionmenu(optionmenu);
-
+   g.skeletonize_map_by_combobox(combobox);
 }
+
 
 void
 skeletonize_map_single_map_maybe(GtkWidget *window, int imol) { 
@@ -4585,46 +4659,35 @@ GtkWidget *wrapped_create_skeleton_dialog() {
 
 void save_coordinates_using_widget(GtkWidget *widget) {
 
-   // the widget that we get passed is the fileselection widget
+   // the widget that we get passed is the filechooser dialog
+   // the data was set in on_save_coords_dialog_save_button_clicked.
 
-   char *stuff =  (char *) gtk_object_get_user_data(GTK_OBJECT(widget));
+   {
 
-   if (! stuff) {
-
-      std::cout << "Ooops no data associated with that widget - "
-		<< " no molecules with coordinates?" << std::endl;
-
-   } else { 
-
-      int imol = *((int *) stuff);
+      gpointer data = g_object_get_data(G_OBJECT(widget), "imol");
+      int imol = GPOINTER_TO_INT(data);
       bool save_hydrogens = 1;
       bool save_aniso_records = 1;
 
-      // How do we get the filename?
+      // get the filename?
 
       const gchar *filename;
-#if (GTK_MAJOR_VERSION > 1)
-
       GtkWidget *chk_but = lookup_widget(GTK_WIDGET(widget), "checkbutton_hydrogens");
-      if (! GTK_TOGGLE_BUTTON(chk_but)->active)
+      if (! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(chk_but)))
 	 save_hydrogens = 0;
       chk_but = lookup_widget(GTK_WIDGET(widget), "checkbutton_aniso");
-      if (! GTK_TOGGLE_BUTTON(chk_but)->active)
+      if (! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(chk_but)))
 	 save_aniso_records = 0;
       
       if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE)  {
-      	filename = gtk_file_chooser_get_filename
-	 (GTK_FILE_CHOOSER(widget));
+	 filename = gtk_file_chooser_get_filename
+	    (GTK_FILE_CHOOSER(widget));
       } else {
-	filename = gtk_file_selection_get_filename
-	   (GTK_FILE_SELECTION(widget));
-     }
-#else
-      filename = gtk_file_selection_get_filename
-	 (GTK_FILE_SELECTION(widget));
-#endif
+	 filename = gtk_file_selection_get_filename
+	    (GTK_FILE_SELECTION(widget));
+      }
 
-      std::cout << "save coordinates for molecule "
+      std::cout << "INFO:: save coordinates for molecule "
 		<< imol << " to file " << filename << std::endl;
 
       graphics_info_t g;
@@ -4708,21 +4771,33 @@ void post_go_to_atom_window() {
 
 void fill_go_to_atom_window(GtkWidget *widget) {
 
+   // make this a wrapper function for a graphics_info_t function
+   // After the GTK3 build is working - FIXME
+
+     graphics_info_t g;
+     int gimol = g.go_to_atom_molecule();
      GtkWidget *option_menu; 
      GtkWidget *chain_entry;
      GtkWidget *residue_entry; 
      GtkWidget *atom_name_entry; 
      GtkWidget *residue_gtklist;
-     gchar *text; 
+     gchar *text;
      GtkWidget *scrolled_window;
 
-/* First lets do the molecule optionmenu. */
 
-     graphics_info_t g;
+#if 0
+     /* First lets do the molecule optionmenu. */
      GtkSignalFunc callback_func =
       GTK_SIGNAL_FUNC(graphics_info_t::go_to_atom_mol_menu_item_select);
-     option_menu = lookup_widget(GTK_WIDGET(widget), 
+     option_menu = lookup_widget(GTK_WIDGET(widget),
 				 "go_to_atom_molecule_optionmenu");
+#endif
+
+     // GCallback callback_func = G_CALLBACK(graphics_info_t::go_to_atom_mol_combobox_item_select);
+     GCallback callback_func = G_CALLBACK(graphics_info_t::go_to_atom_mol_combobox_changed);
+     GtkWidget *combobox = lookup_widget(widget, "go_to_atom_molecule_combobox");
+     g.fill_combobox_with_coordinates_options(combobox, callback_func, gimol);
+
      
      /* These are in a special order: The residue is done first
 	because it is set to a magic number (-9999 (or so)) initially.
@@ -4748,10 +4823,12 @@ void fill_go_to_atom_window(GtkWidget *widget) {
 
      /* Now that the go to atom molecule has been set, we can use it
 	to fill the molecule option menu */
-     int gimol = g.go_to_atom_molecule();
+
+#if 0 // no option_menu
      g.fill_option_menu_with_coordinates_options(option_menu,
 						 callback_func,
 						 gimol);
+#endif
 
      /* The chain entry */
 
@@ -5307,7 +5384,8 @@ GtkWidget *wrapped_create_add_additional_representation_gui() {
    if (graphics_info_t::use_graphics_interface_flag) {
       w = create_add_reps_dialog();
       // update/generate the option menu menu as usual.
-      GtkWidget *option_menu = lookup_widget(w, "add_rep_molecule_optionmenu");
+      // GtkWidget *option_menu = lookup_widget(w, "add_rep_molecule_optionmenu");
+      GtkWidget *combobox = lookup_widget(w, "add_reps_molecule_combobox");
       GtkWidget *chain_id_entry = lookup_widget(w, "add_rep_chain_id_entry");
       GtkWidget *resno_start_entry = lookup_widget(w, "add_rep_resno_start_entry");
       GtkWidget *resno_end_entry = lookup_widget(w, "add_rep_resno_end_entry");
@@ -5322,10 +5400,13 @@ GtkWidget *wrapped_create_add_additional_representation_gui() {
       GtkWidget *add_reps_ball_and_stick_radiobutton = lookup_widget(w, "add_rep_rep_ball_and_stick_radiobutton");
       GtkWidget *add_rep_bond_width_combobox = lookup_widget(w, "add_rep_bond_width_combobox");
 
-      GtkSignalFunc signal_func = 
-	 GTK_SIGNAL_FUNC(add_reps_molecule_option_menu_item_select);
-      int imol_active_position = graphics_info_t::add_reps_molecule_option_menu_item_select_molecule;
-      fill_option_menu_with_coordinates_options(option_menu,  signal_func, imol_active_position);
+      // GtkSignalFunc signal_func = GTK_SIGNAL_FUNC(add_reps_molecule_option_menu_item_select);
+      GCallback signal_func = G_CALLBACK(add_reps_molecule_combobox_changed);
+
+      int imol_active_position = graphics_info_t::add_reps_molecule_combobox_molecule;
+
+      // fill_option_menu_with_coordinates_options(option_menu,  signal_func, imol_active_position);
+      fill_combobox_with_coordinates_options(combobox, signal_func, imol_active_position);
 
 #ifdef HAVE_GTK_COMBO_BOX_GET_ACTIVE_TEXT
       // set the active item to be the 8
@@ -5335,37 +5416,50 @@ GtkWidget *wrapped_create_add_additional_representation_gui() {
    return w;
 }
 
+void add_reps_molecule_combobox_changed(GtkWidget *combobox, gpointer data) {
+
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t::add_reps_molecule_combobox_molecule = imol;
+
+}
 
 void add_reps_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos) { 
    graphics_info_t::add_reps_molecule_option_menu_item_select_molecule = pos;
 }
 
 
-void add_additional_representation_by_widget(GtkWidget *w) {
-   GtkWidget *option_menu = lookup_widget(w, "add_rep_molecule_optionmenu");
-   
-   GtkWidget *chain_id_entry = lookup_widget(w, "add_rep_chain_id_entry");
-   GtkWidget *resno_start_entry = lookup_widget(w, "add_rep_resno_start_entry");
-   GtkWidget *resno_end_entry = lookup_widget(w, "add_rep_resno_end_entry");
-   GtkWidget *ins_code_entry = lookup_widget(w, "add_rep_ins_code_entry");
-   GtkWidget *string_selection_entry = lookup_widget(w, "add_rep_selection_string_entry");
+void add_additional_representation_by_widget(GtkWidget *dialog) {
 
-   GtkWidget *position_radiobutton = lookup_widget(w, "add_rep_radiobutton_position");
-   GtkWidget *resno_radiobutton = lookup_widget(w, "add_rep_radiobutton_res_number");
-   GtkWidget *selection_string_radiobutton = lookup_widget(w, "add_rep_radiobutton_selection_string");
+   // decode the widgets and add the representation here.
 
-   GtkWidget *add_reps_fat_bonds_radiobutton = lookup_widget(w, "add_rep_rep_fat_bonds_radiobutton");
-   GtkWidget *add_reps_ball_and_stick_radiobutton = lookup_widget(w, "add_rep_rep_ball_and_stick_radiobutton");
-   GtkWidget *add_rep_bond_width_combobox = lookup_widget(w, "add_rep_bond_width_combobox");
+   // GtkWidget *option_menu = lookup_widget(w, "add_rep_molecule_optionmenu");
+   GtkWidget *combobox = lookup_widget(dialog, "add_reps_molecule_combobox");
+
+   GtkWidget *chain_id_entry    = lookup_widget(dialog, "add_rep_chain_id_entry");
+   GtkWidget *resno_start_entry = lookup_widget(dialog, "add_rep_resno_start_entry");
+   GtkWidget *resno_end_entry   = lookup_widget(dialog, "add_rep_resno_end_entry");
+   GtkWidget *ins_code_entry    = lookup_widget(dialog, "add_rep_ins_code_entry");
+   GtkWidget *string_selection_entry = lookup_widget(dialog, "add_rep_selection_string_entry");
+
+   GtkWidget *position_radiobutton = lookup_widget(dialog, "add_rep_radiobutton_position");
+   GtkWidget *resno_radiobutton    = lookup_widget(dialog, "add_rep_radiobutton_res_number");
+   GtkWidget *selection_string_radiobutton = lookup_widget(dialog, "add_rep_radiobutton_selection_string");
+
+   GtkWidget *add_reps_fat_bonds_radiobutton = lookup_widget(dialog, "add_rep_rep_fat_bonds_radiobutton");
+   GtkWidget *add_rep_bond_width_combobox = lookup_widget(dialog, "add_rep_bond_width_combobox");
+   GtkWidget *add_reps_ball_and_stick_radiobutton = lookup_widget(dialog, "add_rep_rep_ball_and_stick_radiobutton");
+
+   int imol_active = 0;
 
    float bond_width = 8;
    int bonds_box_type = coot::NORMAL_BONDS;
    short int representation_type = coot::SIMPLE_LINES;
-   if (GTK_TOGGLE_BUTTON(add_reps_ball_and_stick_radiobutton)->active) {
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(add_reps_ball_and_stick_radiobutton))) {
       representation_type = coot::BALL_AND_STICK;
    }
    bool draw_H_flag = 1;
    gchar* bond_width_text = 0;
+
 #ifdef HAVE_GTK_COMBO_BOX_GET_ACTIVE_TEXT
    bond_width_text = gtk_combo_box_get_active_text(GTK_COMBO_BOX(add_rep_bond_width_combobox));
 #else
@@ -5382,11 +5476,14 @@ void add_additional_representation_by_widget(GtkWidget *w) {
       
    if (representation_type == coot::BALL_AND_STICK)
       bond_width = 0.15; // not 8
-   
+
    graphics_info_t g;
    GtkWidget *dcw = g.display_control_window();
-   int imol = graphics_info_t::add_reps_molecule_option_menu_item_select_molecule;
-   if (GTK_TOGGLE_BUTTON(position_radiobutton)->active) {
+
+   // int imol = graphics_info_t::add_reps_molecule_option_menu_item_select_molecule;
+   int imol = graphics_info_t::add_reps_molecule_combobox_molecule;
+
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(position_radiobutton))) {
       std::pair<bool, std::pair<int, coot::atom_spec_t> > aas = active_atom_spec();
       if (aas.first) {
 	 int imol_active = aas.second.first;
@@ -5402,7 +5499,7 @@ void add_additional_representation_by_widget(GtkWidget *w) {
 								asi, dcw, glci, g.Geom_p());
       } 
    } 
-   if (GTK_TOGGLE_BUTTON(resno_radiobutton)->active) {
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(resno_radiobutton))) {
       // std::cout << "By chainid/resno" << std::endl;
       std::string chain_id = gtk_entry_get_text(GTK_ENTRY(chain_id_entry));
       std::string resno_1s = gtk_entry_get_text(GTK_ENTRY(resno_start_entry));
@@ -5420,7 +5517,7 @@ void add_additional_representation_by_widget(GtkWidget *w) {
 									asi, dcw, glci, g.Geom_p());
       } 
    }
-   if (GTK_TOGGLE_BUTTON(selection_string_radiobutton)->active) {
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(selection_string_radiobutton))) {
       // std::cout << "By selection string" << std::endl;
       std::string s = gtk_entry_get_text(GTK_ENTRY(string_selection_entry));
       coot::atom_selection_info_t asi(s);
@@ -5847,11 +5944,16 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
 
    float sharpening_limit = graphics_info_t::map_sharpening_scale_limit;
    GtkWidget *w = create_map_sharpening_dialog();
-   GtkSignalFunc signal_func = G_CALLBACK(map_sharpening_map_select);
 
-   GtkWidget *option_menu = lookup_widget(w, "map_sharpening_optionmenu");
+   // GtkSignalFunc signal_func = G_CALLBACK(map_sharpening_map_select);
+   // GtkWidget *option_menu = lookup_widget(w, "map_sharpening_optionmenu");
+   // int imol = fill_option_menu_with_map_mtz_options(option_menu, signal_func);
 
-   int imol = fill_option_menu_with_map_mtz_options(option_menu, signal_func);
+   graphics_info_t g;
+   GCallback signal_func = G_CALLBACK(map_sharpening_map_select_combobox_changed);
+   GtkWidget *combobx = lookup_widget(w, "map_sharpening_molecule_combobox");
+
+   int imol = g.fill_combobox_with_map_mtz_options(combobx, signal_func);
 
    if (is_valid_map_molecule(imol)) {
       graphics_info_t::imol_map_sharpening = imol;
@@ -5869,13 +5971,13 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
 			     g_object_ref (adj),
 			     (GDestroyNotify) g_object_unref);
 
-      gtk_signal_connect(GTK_OBJECT(adj), "value_changed",
-			 GTK_SIGNAL_FUNC(map_sharpening_value_changed), NULL);
+      g_signal_connect(G_OBJECT(adj), "value_changed",
+		       G_CALLBACK(map_sharpening_value_changed),
+		       NULL);
    
       // set to sharpening value
       gtk_adjustment_set_value(GTK_ADJUSTMENT(adj), graphics_info_t::molecules[imol].sharpen_b_factor());
    
-#if (GTK_MAJOR_VERSION > 2) || (GTK_MINOR_VERSION > 14)
       int ticks = 3;  // number of ticks on the (one) side (not including centre tick)
       for (int i=0; i<=2*ticks; i++) {
 	 float p = float (i-ticks) * (1.0/float(ticks)) * sharpening_limit;
@@ -5886,7 +5988,6 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
       }
       gtk_scale_add_mark(GTK_SCALE(h_scale), -sharpening_limit, GTK_POS_BOTTOM, "\nSharpen");
       gtk_scale_add_mark(GTK_SCALE(h_scale),  sharpening_limit, GTK_POS_BOTTOM, "\nBlur");
-#endif   
 
       // Don't display the cancel button.
       GtkWidget *c = lookup_widget(w, "map_sharpening_cancel_button");
@@ -5911,6 +6012,14 @@ calc_and_set_optimal_b_factor ( GtkWidget *w ) {
         gtk_adjustment_set_value(adj, Bopt);
 }
 
+void map_sharpening_map_select_combobox_changed(GtkWidget *widget, gpointer data) {
+
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(widget));
+   graphics_info_t::imol_map_sharpening = imol;
+
+}
+
+
 void
 map_sharpening_map_select(GtkWidget *item, GtkPositionType pos) {
 
@@ -5925,9 +6034,10 @@ void map_sharpening_value_changed (GtkAdjustment *adj,
 				   GtkWidget *window) {
 
    int imol = graphics_info_t::imol_map_sharpening;
+   float value = gtk_adjustment_get_value(adj);
+   // std::cout << "sharpen " << imol << " by " << value << std::endl;
    if (is_valid_map_molecule(imol)) {
-      // std::cout << "sharpen " << imol << " by " << adj->value << std::endl;
-      sharpen(imol, adj->value);
+      sharpen(imol, value);
    } 
 }
 

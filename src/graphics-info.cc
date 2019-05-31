@@ -2171,7 +2171,7 @@ graphics_info_t::draw_moving_atoms_atoms(bool against_a_dark_background) {
       // glPointSize(2);
 
       float zsc = graphics_info_t::zoom;
-      glPointSize(560.0/zsc);
+      glPointSize(960.0/zsc);
 
       // GLdouble point_size_data[2];
       // glGetDoublev(GL_POINT_SIZE_RANGE, point_size_data);
@@ -3513,7 +3513,7 @@ graphics_info_t::set_imol_refinement_map(int imol) {
       r = imol;
    }
    return r;
-} 
+}
 
 // for threading, static
 void
@@ -3522,73 +3522,70 @@ graphics_info_t::update_maps_for_mols(const std::vector<int> &mol_idxs) {
       graphics_info_t::molecules[mol_idxs[i]].update_map();
 }
 
-// move (on) up
-#ifdef HAVE_CXX_THREAD
 #include <thread>
-// #include <future>
-#endif // HAVE_CXX_THREAD
-// remember to link with -std=c++11 to get thread constructors
-
 
 
 void
 graphics_info_t::update_maps() {
 
-   // put it in it's own file xxx_threaded.cc and
-   // link that with -std=c++11 (or use macros to work out correct flags)
-
    if (GetActiveMapDrag() == 1) {
 
-#ifndef HAVE_CXX_THREAD
-      for (int ii=0; ii<n_molecules(); ii++) { 
-	 if (molecules[ii].has_xmap()) { 
-	    molecules[ii].update_map(); // to take account
-	                                // of new rotation centre.
-	 }
-      }
-#else
-      // unsigned int n_threads = 4;
-      unsigned int n_threads = coot::get_max_number_of_threads();
-      // std::cout << "got n_threads: " << n_threads << std::endl;
+      // now map updates are internally threaded - we don't need
+      // this extra threaded mechanism (makes things crash?)
 
-      if (n_threads == 0) {
+      bool do_threaded_map_updates = false;
+
+      if (! do_threaded_map_updates) {
 	 for (int ii=0; ii<n_molecules(); ii++) {
 	    if (molecules[ii].has_xmap()) {
 	       molecules[ii].update_map(); // to take account
 	       // of new rotation centre.
 	    }
 	 }
+
       } else {
-	 std::vector<std::thread> threads;
-	 std::vector<int> molecules_with_maps;
-	 for (int ii=0; ii<n_molecules(); ii++) {
-	    if (molecules[ii].has_xmap()) {
-	       molecules_with_maps.push_back(ii);
+
+	 // unsigned int n_threads = 4;
+	 unsigned int n_threads = coot::get_max_number_of_threads();
+	 // std::cout << "got n_threads: " << n_threads << std::endl;
+
+	 if (n_threads == 0) {
+	    for (int ii=0; ii<n_molecules(); ii++) {
+	       if (molecules[ii].has_xmap()) {
+		  molecules[ii].update_map(); // to take account
+		  // of new rotation centre.
+	       }
 	    }
+	 } else {
+	    std::vector<std::thread> threads;
+	    std::vector<int> molecules_with_maps;
+	    for (int ii=0; ii<n_molecules(); ii++) {
+	       if (molecules[ii].has_xmap()) { // or nxmap
+		  molecules_with_maps.push_back(ii);
+	       }
+	    }
+
+	    // we must make sure that the threads don't update the same map
+	    //
+
+	    std::vector<std::vector<int> > maps_vec_vec(n_threads);
+	    unsigned int thread_idx = 0;
+	    // put the maps in maps_vec_vec
+	    for (unsigned int ii=0; ii<molecules_with_maps.size(); ii++) {
+	       maps_vec_vec[thread_idx].push_back(molecules_with_maps[ii]);
+	       thread_idx++;
+	       if (thread_idx == n_threads) thread_idx = 0;
+	    }
+
+	    for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
+	       const std::vector<int> &mv = maps_vec_vec[i_thread];
+	       threads.push_back(std::thread(update_maps_for_mols, mv));
+	    }
+	    for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
+	       threads.at(i_thread).join();
+
 	 }
-
-	 // we must make sure that the threads don't update the same map
-	 //
-
-	 std::vector<std::vector<int> > maps_vec_vec(n_threads);
-	 unsigned int thread_idx = 0;
-	 // put the maps in maps_vec_vec
-	 for (unsigned int ii=0; ii<molecules_with_maps.size(); ii++) {
-	    maps_vec_vec[thread_idx].push_back(molecules_with_maps[ii]);
-	    thread_idx++;
-	    if (thread_idx == n_threads) thread_idx = 0;
-	 }
-
-	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
-	    const std::vector<int> &mv = maps_vec_vec[i_thread];
-	    threads.push_back(std::thread(update_maps_for_mols, mv));
-	 }
-	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
-	    threads.at(i_thread).join();
-
       }
-#endif // HAVE_CXX_THREAD
-
    } // active map drag test
 }
 
@@ -4224,8 +4221,8 @@ graphics_info_t::create_molecule_and_display(std::vector<coot::scored_skel_coord
    // now add atoms:
    for (unsigned int i=0; i<pos_position.size(); i++) {
       coot::Cartesian c(pos_position[i].position.x(),
-		  pos_position[i].position.y(),
-		  pos_position[i].position.z());
+			pos_position[i].position.y(),
+			pos_position[i].position.z());
       cv.push_back(c);
    }
    molecules[imol].add_multiple_dummies(cv);
@@ -4323,7 +4320,9 @@ graphics_info_t::apply_undo() {
 	 GtkWidget *dialog = create_undo_molecule_chooser_dialog();
 	 GtkWidget *option_menu = lookup_widget(dialog,
 						"undo_molecule_chooser_option_menu");
-	 fill_option_menu_with_undo_options(option_menu);
+	 // fill_option_menu_with_undo_options(option_menu);
+	 GtkWidget *combobox = lookup_widget(dialog, "undo_molecule_chooser_combobox");
+	 fill_combobox_with_undo_options(combobox);
 	 gtk_widget_show(dialog);
       }
    } else {
@@ -4392,9 +4391,8 @@ graphics_info_t::apply_redo() {
    int umol = Undo_molecule(coot::REDO);
    if (umol == -2) { // ambiguity
       GtkWidget *dialog = create_undo_molecule_chooser_dialog();
-      GtkWidget *option_menu = lookup_widget(dialog,
-					     "undo_molecule_chooser_option_menu");
-      fill_option_menu_with_undo_options(option_menu);
+      GtkWidget *combobox = lookup_widget(dialog, "undo_molecule_chooser_combobox");
+      fill_combobox_with_undo_options(combobox);
       gtk_widget_show(dialog);
    } else {
       if (umol == -1) { // unset
@@ -5845,15 +5843,26 @@ graphics_info_t::set_moving_atoms(atom_selection_container_t asc,
    moving_atoms_asc_type = new_coords_type;
 } 
 
-//   static
-void graphics_info_t::bond_parameters_molecule_menu_item_select(GtkWidget *item, GtkPositionType pos) {
+// //   static
+// void graphics_info_t::bond_parameters_molecule_menu_item_select(GtkWidget *item, GtkPositionType pos) {
+
+//    graphics_info_t g;
+//    g.bond_parameters_molecule = pos;
+//    GtkWidget *w = lookup_widget(GTK_WIDGET(item), "bond_parameters_dialog");
+//    fill_bond_parameters_internals(w, pos); // pos is imol
+// }
+
+// static
+void graphics_info_t::bond_parameters_molecule_combobox_changed(GtkWidget *combobox, gpointer data) {
 
    graphics_info_t g;
-   g.bond_parameters_molecule = pos;
-   GtkWidget *w = lookup_widget(GTK_WIDGET(item), "bond_parameters_dialog");
-   fill_bond_parameters_internals(w, pos); // pos is imol
+   int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
+   g.bond_parameters_molecule = imol;
+   GtkWidget *w = lookup_widget(GTK_WIDGET(combobox), "bond_parameters_dialog");
+   fill_bond_parameters_internals(w, imol);
 
-} 
+}
+
 
 
 void

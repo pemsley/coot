@@ -124,6 +124,10 @@ void fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
 void fill_option_menu_with_coordinates_options_unsaved_first(GtkWidget *option_menu, 
 							     GtkSignalFunc signal_func,
 							     int imol_active_position);
+void fill_combobox_with_coordinates_options(GtkWidget *combobox,
+					    GCallback signal_func,
+					    int imol_active);
+
 GtkWidget *coot_file_chooser();
 
 GtkWidget *coot_dataset_chooser();
@@ -172,7 +176,8 @@ GtkWidget *main_hbox();
 /* entry_info_t entry_to_number(GtkWidget *entry);  */
 
 void manage_refmac_column_selection(GtkWidget *w);
-void fill_f_optionmenu_with_expert_options(GtkWidget *f_optionmenu);
+/* void fill_f_optionmenu_with_expert_options(GtkWidget *f_optionmenu); */
+void fill_combobox_with_expert_options(GtkWidget *f_optionmenu);
 void handle_column_label_make_fourier(GtkWidget *column_label_window);
 void wrapped_create_run_refmac_dialog();
 
@@ -184,7 +189,8 @@ GdkColor remark_number_to_colour(int remark_number);
 
 GtkWidget *wrapped_create_remarks_browser_molecule_chooser_dialog();
 void fill_remarks_browswer_chooser(GtkWidget *w);
-void remarks_browswer_molecule_item_select(GtkWidget *item, GtkPositionType pos);
+// void remarks_browswer_molecule_item_select(GtkWidget *item, GtkPositionType pos);
+void remarks_browswer_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
 
 void fill_about_window(GtkWidget *widget);
 void add_coot_references_button(GtkWidget *widget);
@@ -244,7 +250,7 @@ void map_colour_mol_selector_activate (GtkMenuItem     *menuitem,
 void my_delete_menu_items(GtkWidget *widget, void *data);
 
 /* similarly for the scrollwheel */
-void add_on_map_scroll_whell_choices(GtkWidget *menu);
+void add_on_map_scroll_wheel_choices(GtkWidget *menu);
 void map_scroll_wheel_mol_selector_activate (GtkMenuItem     *menuitem,
 					     gpointer         user_data);
 
@@ -327,6 +333,7 @@ void store_window_position(int window_type, GtkWidget *w);
 void store_window_size(int window_type, GtkWidget *w);
 
 void skeletonize_map_by_optionmenu(GtkWidget *optionmenu);
+void skeletonize_map_by_combobox(GtkWidget *combobox);
 void skeletonize_map_single_map_maybe(GtkWidget *window, int imol); 
 
 GtkWidget *wrapped_create_skeleton_dialog();
@@ -347,7 +354,7 @@ void save_coordinates_using_widget(GtkWidget *widget); /* do a get_user_data for
  
 /* not really a button select, its a menu item select */
 /* not productive */
-void save_molecule_coords_button_select(GtkWidget *item, GtkPositionType pos); 
+void save_molecule_coords_combobox_changed(GtkWidget *combobox, gpointer data);
 
 GtkWidget *wrapped_create_goto_atom_window();
 void fill_go_to_atom_window(GtkWidget *widget);
@@ -361,7 +368,7 @@ int goto_previous_atom_maybe_new(GtkWidget *window);
  
 int apply_go_to_atom_values(GtkWidget * window);
 
-int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget); 
+// int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget);  DELETE-ME
 
 void clear_atom_list(GtkWidget *atom_gtklist);
 
@@ -389,8 +396,9 @@ void do_merge_molecules_gui();
 void do_merge_molecules(GtkWidget *dialog);
 void fill_vbox_with_coordinates_options(GtkWidget *vbox,
 					GtkSignalFunc checkbox_callback_func);
-void merge_molecules_menu_item_activate(GtkWidget *item, 
-					GtkPositionType pos);
+/* void merge_molecules_menu_item_activate(GtkWidget *item,  */
+/* 					GtkPositionType pos); */
+void merge_molecules_master_molecule_combobox_changed(GtkWidget *w, gpointer data);
 void on_merge_molecules_check_button_toggled (GtkToggleButton *togglebutton,
 					      gpointer         user_data);
 
@@ -403,6 +411,8 @@ GtkWidget *wrapped_create_mutate_sequence_dialog();
 void do_mutate_sequence(GtkWidget *dialog); 
 void mutate_sequence_molecule_menu_item_activate(GtkWidget *item, 
 						 GtkPositionType pos);
+void mutate_sequence_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
+
 /* void fill_chain_option_menu(GtkWidget *chain_option_menu, int imol); */
 /* the generic form of the above - also used by superpose chain optionmenu */
 /* void fill_chain_option_menu_with_callback(GtkWidget *chain_option_menu, 
@@ -410,7 +420,7 @@ void mutate_sequence_molecule_menu_item_activate(GtkWidget *item,
 					  GtkSignalFunc callback); */
 void mutate_sequence_chain_option_menu_item_activate (GtkWidget *item,
 						      GtkPositionType pos);
-
+void mutate_sequence_chain_combobox_changed(GtkWidget *combobox, gpointer data);
 /* My Rama-Search Loop fit */
 GtkWidget *wrapped_fit_loop_rama_search_dialog();
 void fit_loop_from_widget(GtkWidget *w);
@@ -423,10 +433,15 @@ void wrapped_fit_loop_db_loop_dialog();
 GtkWidget *wrapped_create_align_and_mutate_dialog();
 /* return the handled_state, so that we know if we should kill the dialog or not */
 int do_align_mutate_sequence(GtkWidget *w);
-void align_and_mutate_molecule_menu_item_activate(GtkWidget *item, 
-						  GtkPositionType pos);
-void align_and_mutate_chain_option_menu_item_activate (GtkWidget *item,
-						       GtkPositionType pos);
+
+/* void align_and_mutate_molecule_menu_item_activate(GtkWidget *item,  */
+/* 						  GtkPositionType pos); */
+/* void align_and_mutate_chain_option_menu_item_activate (GtkWidget *item, */
+/* 						       GtkPositionType pos); */
+
+void align_and_mutate_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
+void align_and_mutate_chain_combobox_changed(GtkWidget *combobox, gpointer data);
+
 GtkWidget *wrapped_create_renumber_residue_range_dialog();
 void renumber_residues_from_widget(GtkWidget *window);
 
@@ -434,6 +449,7 @@ GtkWidget *wrapped_create_change_chain_id_dialog();
 void change_chain_id_by_widget(GtkWidget *w);
 void change_chain_ids_mol_option_menu_item_activate(GtkWidget *item,
 						    GtkPositionType pos);
+void change_chain_ids_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
 void change_chain_ids_chain_menu_item_activate(GtkWidget *item,
 					       GtkPositionType pos);
 void setup_guile_window_entry(GtkWidget *entry); 
@@ -484,8 +500,9 @@ void estimate_map_weight(GtkWidget *entry);
 
 
 void check_chiral_volumes_from_widget(GtkWidget *window); 
-void fill_chiral_volume_molecule_option_menu(GtkWidget *w);
-void chiral_volume_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos);
+/* void fill_chiral_volume_molecule_option_menu(GtkWidget *w); */
+void fill_chiral_volume_molecule_combobox(GtkWidget *w);
+/* void chiral_volume_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos); */
 
 
 /*  ----------------------------------------------------------------------- */
@@ -594,13 +611,25 @@ void resize_rama_canvas(GtkWidget *widget, GdkEventConfigure *event);
 
 GtkWidget *wrapped_ramachandran_plot_differences_dialog();
 int  do_ramachandran_plot_differences_by_widget(GtkWidget *w); /* return status */
-void fill_ramachandran_plot_differences_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
-								       int is_first_mol_flag);
-void ramachandran_plot_differences_mol_option_menu_activate_first(GtkWidget *item, GtkPositionType pos);
-void ramachandran_plot_differences_mol_option_menu_activate_second(GtkWidget *item, GtkPositionType pos);
-void ramachandran_plot_differences_chain_option_menu_activate_first(GtkWidget *item, GtkPositionType pos);
-void ramachandran_plot_differences_chain_option_menu_activate_second(GtkWidget *item, GtkPositionType pos);
- 
+
+// void fill_ramachandran_plot_differences_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
+// 								       int is_first_mol_flag);
+// void fill_ramachandran_plot_differences_combobox_with_chain_options(GtkWidget *chain_optionmenu, 
+// 								    int is_first_mol_flag);
+
+void fill_ramachandran_plot_differences_combobox_with_chain_options(GtkWidget *chain_combobox,
+								    int is_first_mol_flag);
+
+/* void ramachandran_plot_differences_mol_option_menu_activate_first(GtkWidget *item, GtkPositionType pos); */
+/* void ramachandran_plot_differences_mol_option_menu_activate_second(GtkWidget *item, GtkPositionType pos); */
+/* void ramachandran_plot_differences_chain_option_menu_activate_first(GtkWidget *item, GtkPositionType pos); */
+/* void ramachandran_plot_differences_chain_option_menu_activate_second(GtkWidget *item, GtkPositionType pos); */
+
+void ramachandran_plot_differences_mol_combobox_first_changed(GtkWidget *cb, gpointer data);
+void ramachandran_plot_differences_mol_combobox_second_changed(GtkWidget *cb, gpointer data);
+void ramachandran_plot_differences_chain_combobox_first_changed(GtkWidget *cb, gpointer data);
+void ramachandran_plot_differences_chain_combobox_second_changed(GtkWidget *cb, gpointer data);
+
 void set_sequence_view_is_displayed(GtkWidget *widget, int imol); 
 
 void set_ligand_cluster_sigma_level_from_widget(GtkWidget *button);
@@ -662,6 +691,8 @@ void apply_bond_parameters(GtkWidget *w);
 GtkWidget *wrapped_create_add_additional_representation_gui();
 void add_additional_representation_by_widget(GtkWidget *w);
 void add_reps_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos);
+void add_reps_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
+
 
 void   set_map_dynamic_map_sampling_checkbutton(GtkWidget *checkbutton);
 void   set_map_dynamic_map_display_size_checkbutton(GtkWidget *checkbutton);
@@ -701,10 +732,12 @@ void apply_add_OXT_from_widget(GtkWidget *w);
    and calls the graphics_info_t function. */
 void fill_chi_angles_vbox(GtkWidget *vbox);
 GtkWidget *wrapped_create_check_waters_dialog();
-void check_waters_molecule_menu_item_activate(GtkWidget *item, 
-					      GtkPositionType pos);
-void check_water_by_difference_maps_option_menu_item_select(GtkWidget *item, 
-							    GtkPositionType pos);
+void check_waters_molecule_combobox_changed(GtkWidget *combobox, 
+					    gpointer data);
+// void check_water_by_difference_maps_option_menu_item_select(GtkWidget *item, 
+// 							    GtkPositionType pos);
+void check_water_by_difference_maps_combobox_changed(GtkWidget *combobox,
+						     gpointer data);
 void do_check_waters_by_widget(GtkWidget *dialog);
 void store_checked_waters_baddies_dialog(GtkWidget *dialog);
 
@@ -729,8 +762,9 @@ void fill_lsq_option_menu_with_chain_options(GtkWidget *chain_optionmenu,
 
 void execute_superpose(GtkWidget *w);
 GtkWidget *wrapped_create_superpose_dialog(); /* used by callback */
-void fill_superpose_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
- 						   int is_reference_structure_flag);
+/*void fill_superpose_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
+  int is_reference_structure_flag); */
+void fill_superpose_combobox_with_chain_options(GtkWidget *combobox, int is_ref_flag);
 void update_lsq_dialog_store_values(GtkWidget *w);
 
  
@@ -750,6 +784,8 @@ void map_sharpening_map_select(GtkWidget *item, GtkPositionType pos);
 void map_sharpening_value_changed (GtkAdjustment *adj, GtkWidget *window);
 int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signalfunc);
 int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signalfunc);
+
+void map_sharpening_map_select_combobox_changed(GtkWidget *combobox, gpointer data);
 
 void calc_and_set_optimal_b_factor ( GtkWidget *w ) ;
 
@@ -803,6 +839,14 @@ void save_refmac_phase_params_to_map(int imol_map,
 				     const char *hlb,
 				     const char *hlc,
 				     const char *hld);
+
+/* --------------- Refmac Comboboxes --------------------- */
+
+void fill_combobox_with_refmac_methods_options(GtkWidget *combobox);
+void fill_combobox_with_refmac_phase_input_options(GtkWidget *combobox);
+void fill_combobox_with_refmac_labels_options(GtkWidget *combobox);
+void fill_combobox_with_refmac_file_labels_options(GtkWidget *combobox);
+void fill_combobox_with_refmac_ncycles_options(GtkWidget *combobox);
 
 /*  ----------------------------------------------------------------------- */
 /*                      Atom pull restraint                                 */

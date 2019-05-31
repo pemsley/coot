@@ -32,10 +32,11 @@
 #include "coot-coord-utils.hh"
 #include "coot-density-stats.hh"
 #include <mmdb2/mmdb_manager.h>
+#include "amp-reso.hh"
 
 namespace coot {
 
-   namespace util { 
+   namespace util {
 
       clipper::RTop_orth make_rtop_orth_from(mmdb::mat44 mat);
 
@@ -122,9 +123,31 @@ namespace coot {
 				       const clipper::Xmap<float> &xmap,
 				       bool main_chain_only_flag = false);
 
+      clipper::Xmap<float> sharpen_blur_map(const clipper::Xmap<float> &xmap_in, float b_factor);
+
+      // pass a pointer to a vector of maps that has the same size as the number of B-factors
+      //
+      void multi_sharpen_blur_map(const clipper::Xmap<float> &xmap_in,
+			    const std::vector<float> &b_factors,
+			    std::vector<clipper::Xmap<float> > *maps_p);
+
+      // not sure if this works ATM
       clipper::Xmap<float> sharpen_map(const clipper::Xmap<float> &xmap_in,
 				       float sharpen_factor);
-      
+
+      // if n_bins is -1, let the function decide how many bins
+      //
+      // actually, we return bins of amplitude squares.
+      std::vector<amplitude_vs_resolution_point>
+      amplitude_vs_resolution(const clipper::Xmap<float> &xmap_in,
+			      int n_bins = -1);
+
+      // pass a flag for the resolution limit saying if this limit should be used.
+      // rule of thumb: low resolution limit 0.12
+      float b_factor(const std::vector<amplitude_vs_resolution_point> &fsqrd_data,
+		     std::pair<bool, float> reso_low_invresolsq  = std::pair<bool, float>(false, -1),
+		     std::pair<bool, float> reso_higy_invresolsq = std::pair<bool, float>(false, -1));
+
       clipper::Xmap<float> transform_map(const clipper::Xmap<float> &xmap_in,
 					 const clipper::Spacegroup &new_space_group,
 					 const clipper::Cell &new_cell,
@@ -376,8 +399,6 @@ namespace coot {
             return (mrt.dist_sq < dist_sq);
          }
       };
-
-
 
 
       class segment_map {

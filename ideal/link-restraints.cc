@@ -584,7 +584,7 @@ coot::restraints_container_t::make_link_restraints_by_linear(const coot::protein
    coot::bonded_pair_container_t bonded_residue_pairs =
       bonded_residues_conventional(selHnd, geom);
 
-   if (0) 
+   if (0)
       std::cout << "debug -------- in make_link_restraints_by_linear() "
 		<< bonded_residue_pairs.size() << " bonded residue pairs "
 		<< std::endl;
@@ -610,18 +610,27 @@ coot::restraints_container_t::make_link_restraints_from_res_vec(const coot::prot
    bool debug = false;
    // this determines the link type
 
+   auto tp_0 = std::chrono::high_resolution_clock::now();
    bonded_pair_container_t bonded_residue_pairs = bonded_residues_from_res_vec(geom);
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   std::cout << "INFO:: Timing for bonded_residues_from_res_vec " << d10 << " milliseconds" << std::endl;
 
    if (false) {
       std::cout << "   DEBUG:: in make_link_restraints_from_res_vec() found "
 		<< bonded_residue_pairs.size() << " bonded residues " << std::endl;
       for (std::size_t i=0; i<bonded_residue_pairs.size(); i++) {
 	 const bonded_pair_t &bp = bonded_residue_pairs.bonded_residues[i];
-	 std::cout << "   " << i << " " << residue_spec_t(bp.res_1) << " " << residue_spec_t(bp.res_2) << std::endl;
+	 std::cout << "   " << i << " " << residue_spec_t(bp.res_1) << " " << residue_spec_t(bp.res_2)
+		   << std::endl;
       }
    }
 
+   auto tp_2 = std::chrono::high_resolution_clock::now();
    int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, do_trans_peptide_restraints, "Link");
+   auto tp_3 = std::chrono::high_resolution_clock::now();
+   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+   std::cout << "INFO:: Timing for make_link_restraints_by_pairs " << d32 << " milliseconds" << std::endl;
 
    if (do_rama_plot_restraints)
       add_rama_links_from_res_vec(bonded_residue_pairs, geom);

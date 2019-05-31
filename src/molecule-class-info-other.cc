@@ -5419,7 +5419,9 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
    }
 
    std::cout << "------- resulting_merge_info has size " << resulting_merge_info.size() << std::endl;
-   std::cout << "-------- resulting_merge_info[0] " << resulting_merge_info[0].spec << std::endl;
+   if (!resulting_merge_info.empty())
+      std::cout << "-------- resulting_merge_info[0] " << resulting_merge_info[0].spec << std::endl;
+
    return std::pair<int, std::vector<merge_molecule_results_info_t> > (istat, resulting_merge_info);
 }
 
@@ -6254,10 +6256,10 @@ molecule_class_info_t::change_residue_number(const std::string &chain_id,
 
 
 // for add OXT
-std::pair<short int, int>
+std::pair<bool, int>
 molecule_class_info_t::last_residue_in_chain(const std::string &chain_id) const {
 
-   std::pair<short int, int> p(0,0);
+   std::pair<short int, int> p(false,0);
    int biggest_resno = -99999;
 
    if (atom_sel.n_selected_atoms > 0) {
@@ -6274,7 +6276,7 @@ molecule_class_info_t::last_residue_in_chain(const std::string &chain_id) const 
 	       residue_p = chain_p->GetResidue(ires);
 	       if (residue_p->GetSeqNum() > biggest_resno) {
 		  biggest_resno = residue_p->GetSeqNum();
-		  p.first = 1;
+		  p.first = true;
 	       }
 	    }
 	 }
@@ -6285,10 +6287,10 @@ molecule_class_info_t::last_residue_in_chain(const std::string &chain_id) const 
 }
 
 
-std::pair<short int, int> 
-molecule_class_info_t::first_residue_in_chain(const std::string &chain_id) const { 
+std::pair<bool, int> 
+molecule_class_info_t::first_residue_in_chain(const std::string &chain_id) const {
 
-   std::pair<short int, int> p(0,0);
+   std::pair<bool, int> p(false,0);
    int smallest_resno = 999999;
 
    if (atom_sel.n_selected_atoms > 0) {
@@ -6305,7 +6307,7 @@ molecule_class_info_t::first_residue_in_chain(const std::string &chain_id) const
 	       residue_p = chain_p->GetResidue(ires);
 	       if (residue_p->GetSeqNum() < smallest_resno) {
 		  smallest_resno = residue_p->GetSeqNum();
-		  p.first = 1;
+		  p.first = true;
 	       }
 	    }
 	 }
