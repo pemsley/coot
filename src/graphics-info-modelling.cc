@@ -1528,37 +1528,29 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
       // Now the flanking residues:
       //
       std::vector<mmdb::Residue *> flankers_in_reference_mol;
+      flankers_in_reference_mol.reserve(32); // say
 
-      for (unsigned int ires=0; ires<residues.size(); ires++) {
-	 mmdb::Residue *res_ref = residues[ires];
-	 std::vector<mmdb::Residue *> neighbours =
-	    coot::residues_near_residue(res_ref, mol_in, dist_crit);
-	 // now add the elements of neighbours if they are not already
-	 // in flankers_in_reference_mol (and not in residues either of
-	 // course)
-	 // 
-	 for (unsigned int in=0; in<neighbours.size(); in++) { 
-	    bool found = false;
-	    for (unsigned int iflank=0; iflank<flankers_in_reference_mol.size(); iflank++) {
-	       if (neighbours[in] == flankers_in_reference_mol[iflank]) {
-		  found = true;
-		  break;
-	       }
-	    }
-
-	    // in residues?
-	    if (! found) {
-	       for (unsigned int ii=0; ii<residues.size(); ii++) {
-		  if (neighbours[in] == residues[ii]) {
-		     found = 1;
-		     break;
-		  } 
-	       } 
-	    } 
-	    
-	    if (! found) {
-	       flankers_in_reference_mol.push_back(neighbours[in]);
-	    }
+      // find the residues that are close to the residues of
+      // residues that are not part of residues
+      //
+      // We don't have quite the function that we need in coot-utils,
+      // so we need to munge residues in to local_residues:
+      std::vector<std::pair<bool, mmdb::Residue *> > local_residues;
+      local_residues.reserve(residues.size());
+      for (std::size_t ires=0; ires<residues.size(); ires++)
+	 local_residues[ires] = std::pair<bool, mmdb::Residue *>(false, residues[ires]);
+      std::map<mmdb::Residue *, std::set<mmdb::Residue *> > rnr =
+	 coot::residues_near_residues(local_residues, mol_in, dist_crit);
+      // now fill @var{flankers_in_reference_mol} from rnr, avoiding residues
+      // already in @var{residues}.
+      std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
+      for (it=rnr.begin(); it!=rnr.end(); it++) {
+	 const std::set<mmdb::Residue *> &s = it->second;
+	 std::set<mmdb::Residue *>::const_iterator its;
+	 for (its=s.begin(); its!=s.end(); its++) {
+	    mmdb::Residue *tres = *its;
+	    if (std::find(residues.begin(), residues.end(), tres) == residues.end())
+	       flankers_in_reference_mol.push_back(tres);
 	 }
       }
 
