@@ -1538,7 +1538,7 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
       // We don't have quite the function that we need in coot-utils,
       // so we need to munge residues in to local_residues:
       std::vector<std::pair<bool, mmdb::Residue *> > local_residues;
-      local_residues.reserve(residues.size());
+      local_residues.resize(residues.size());
       for (std::size_t ires=0; ires<residues.size(); ires++)
 	 local_residues[ires] = std::pair<bool, mmdb::Residue *>(false, residues[ires]);
       std::map<mmdb::Residue *, std::set<mmdb::Residue *> > rnr =
