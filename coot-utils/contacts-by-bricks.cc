@@ -193,7 +193,7 @@ coot::contacts_by_bricks::find_the_contacts_in_bricks(std::vector<std::set<unsig
    }
    auto tp_1 = std::chrono::high_resolution_clock::now();
    auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-   std::cout << "------- in bricks: " << d10 << " milliseconds " << std::endl;
+   // std::cout << "------- in bricks: " << d10 << " milliseconds " << std::endl;
 
    // std::cout << "Found n_in_brick " << n_in_brick << std::endl;
 }

@@ -1374,6 +1374,10 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 long T4 = glutGet(GLUT_ELAPSED_TIME);
 	 std::cout << "INFO:: " << float(T4-T3)/1000.0 << " seconds for statistics\n";
 
+	 std::cout << "      Map extents: ..... "
+		   << xmap.grid_sampling().nu() << " "
+		   << xmap.grid_sampling().nv() << " "
+		   << xmap.grid_sampling().nw() << " " << std::endl;
 	 std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
 	 std::cout << "      Map sigma: ....... " << map_sigma_ << std::endl;
 	 std::cout << "      Map maximum: ..... " << map_max_ << std::endl;
@@ -2040,6 +2044,10 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 	 set_initial_contour_level();
       }
 
+      std::cout << "      Map extents: ..... "
+		<< xmap.grid_sampling().nu() << " "
+		<< xmap.grid_sampling().nv() << " "
+		<< xmap.grid_sampling().nw() << " " << std::endl;
       std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
       std::cout << "      Map rmsd: ........ " << map_sigma_ << std::endl;
       std::cout << "      Map maximum: ..... " << map_max_ << std::endl;

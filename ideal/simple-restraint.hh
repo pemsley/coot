@@ -1027,6 +1027,7 @@ namespace coot {
       std::vector<std::pair<bool,mmdb::Residue *> > residues_vec;
       std::set<mmdb::Residue *> residues_vec_moving_set;
       std::map<mmdb::Residue *, std::set<mmdb::Residue *> > fixed_neighbours_set;
+      void fill_fixed_neighbours_set();
       void debug_sets() const;
       int udd_bond_angle;  // for is a bond, angle or not (0).
       int udd_atom_index_handle; // for indexing into the atoms array.
@@ -1632,13 +1633,22 @@ namespace coot {
       // -------------------------- ng restraint generation ------------------------
 
       class link_restraints_counts {
-      public:
-	 link_restraints_counts() {
+	 void init() {
 	    n_link_bond_restr = 0;
 	    n_link_angle_restr = 0;
 	    n_link_trans_peptide = 0;
 	    n_link_plane_restr = 0;
+	    link_type = "link";
 	 }
+      public:
+	 link_restraints_counts() {
+	    init();
+	 }
+	 link_restraints_counts(const std::string &s) {
+	    init();
+	    link_type = s; // e.g. "flank"
+	 }
+	 std::string link_type;
 	 unsigned int n_link_bond_restr;
 	 unsigned int n_link_angle_restr;
 	 unsigned int n_link_plane_restr;
@@ -1650,21 +1660,24 @@ namespace coot {
 	    n_link_trans_peptide += lrc.n_link_trans_peptide;
 	 }
 	 void report() const {
-	    std::cout << "   Made " << n_link_bond_restr    << " link bond restraints\n";
-	    std::cout << "   Made " << n_link_angle_restr   << " link angle restraints\n";
-	    std::cout << "   Made " << n_link_plane_restr   << " link plane restraints\n";
-	    std::cout << "   Made " << n_link_trans_peptide << " link trans-peptide restraints\n";
+	    std::cout << "   Made " << n_link_bond_restr    << " " << link_type << " bond restraints\n";
+	    std::cout << "   Made " << n_link_angle_restr   << " " << link_type << " angle restraints\n";
+	    std::cout << "   Made " << n_link_plane_restr   << " " << link_type << " plane restraints\n";
+	    std::cout << "   Made " << n_link_trans_peptide << " " << link_type << " trans-peptide restraints\n";
 	 }
       };
 
       class reduced_angle_info_container_t {
       public:
+	 reduced_angle_info_container_t() {}
 	 reduced_angle_info_container_t(const std::vector<simple_restraint> &r);
+	 void init(const std::vector<simple_restraint> &r);
 	 std::map<int, std::vector<std::pair<int, int> > > angles;
 	 bool is_1_4(int i, int j) const;
 	 void write_angles_map(const std::string &file_name) const;
       };
 
+      reduced_angle_info_container_t raic;
       void
       make_link_restraints_ng(const protein_geometry &geom,
 			      bool do_rama_plot_retraints,
@@ -1701,12 +1714,17 @@ namespace coot {
 					    mmdb::Residue *res_2,
 					    const coot::protein_geometry &geom) const;
 
-      void make_non_bonded_contact_restraints_ng(int imol, const reduced_angle_info_container_t &raic,
-						 const protein_geometry &geom);
+      void make_non_bonded_contact_restraints_ng(int imol, const protein_geometry &geom);
+      std::vector<std::set<int> > non_bonded_contacts_atom_indices; // these can now get updated on the fly.
+                                                       // We need to keep a record of what has
+                                                       // already been added as a restraint
+                                                       // before we add a new one.
 
+      // update residue_link_vector_map_p and residue_pair_link_set if new links are made
+      //
       void make_flanking_atoms_restraints_ng(const coot::protein_geometry &geom,
-					     const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map_p,
-					     const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set_p,
+					     std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_vector_map_p,
+					     std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p,
 					     bool do_rama_plot_restraints,
 					     bool do_trans_peptide_restraints);
       void make_rama_plot_restraints(const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map,
@@ -1770,7 +1788,7 @@ namespace coot {
 			 const protein_geometry &geom);
       void symmetry_non_bonded_contacts(bool p);
       // bonded_atom_indices also contain 1-3 atoms of angles
-      std::vector<std::vector<int> > bonded_atom_indices;
+      std::vector<std::set<int> > bonded_atom_indices;
 
       bool check_for_1_4_relation(int i, int j) const;
       bool check_for_1_4_relation(int i, int j, const reduced_angle_info_container_t &ai) const;
@@ -1881,6 +1899,7 @@ namespace coot {
       bool none_are_fixed_p(const std::vector<bool> &fixed_atom_indices) const;
 
       unsigned int n_times_called; // so that we can do certain things only the first time
+      unsigned int n_small_cycles_accumulator;
 
       // what is the energy type of the atom to which the Hydrogen atom is bonded?
       //
@@ -2156,6 +2175,9 @@ namespace coot {
       //
       refinement_results_t minimize(restraint_usage_Flags);
       refinement_results_t minimize(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
+      refinement_results_t minimize(int imol, restraint_usage_Flags usage_flags,
+				    int nsteps_max, short int print_initial_chi_sq_flag,
+				    const protein_geometry &geom);
       refinement_results_t minimize_inner(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
       void fix_chiral_atoms_maybe(gsl_vector *s);
 

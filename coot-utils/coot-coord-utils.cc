@@ -445,6 +445,32 @@ coot::residues_near_residues(const std::vector<std::pair<bool,mmdb::Residue *> >
 
    if (mol) {
 
+      if (false) {
+	 std::cout << "residues_near_residues: debug mol:" << mol << std::endl;
+	 for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+	    std::cout << "debug:: residues_near_residues Model " << imod << std::endl;
+	    mmdb::Model *model_p = mol->GetModel(imod);
+	    if (model_p) {
+	       int n_chains = model_p->GetNumberOfChains();
+	       for (int ichain=0; ichain<n_chains; ichain++) {
+		  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+		  std::cout << "  debug:: residues_near_residuesChain " << chain_p->GetChainID() << std::endl;
+		  int nres = chain_p->GetNumberOfResidues();
+		  for (int ires=0; ires<nres; ires++) {
+		     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+		     std::cout << "    debug:: residues_near_residues " << residue_spec_t(residue_p)
+			       << " " << residue_p << std::endl;
+		     int n_atoms = residue_p->GetNumberOfAtoms();
+		     for (int iat=0; iat<n_atoms; iat++) {
+			mmdb::Atom *at = residue_p->GetAtom(iat);
+			std::cout << "        " << atom_spec_t(at) << std::endl;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+
       int SelectionHandle = mol->NewSelection(); // d
       mol->SelectAtoms(SelectionHandle, 0, "*",
 		       mmdb::ANY_RES, // starting resno, an int
@@ -508,8 +534,9 @@ coot::residues_near_residues(const std::vector<std::pair<bool,mmdb::Residue *> >
 			      break;
 			   }
 			}
-			if (key_is_in_input_vector)
+			if (key_is_in_input_vector) {
 			   m[key].insert(data);
+			}
 		     }
 		  }
 	       }
@@ -3518,7 +3545,7 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
 
    // So, first make a vector of residue sets, one residue set for each chain.
    std::vector<chain_id_residue_vec_helper_t> residues_of_chain;
-   
+
    for (unsigned int i=0; i<res_vec.size(); i++) { 
       std::string chain_id = res_vec[i]->GetChainID();
       
@@ -3580,6 +3607,8 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
 
    mmdb::Manager *mol = new mmdb::Manager;
    mmdb::Model *model_p = new mmdb::Model;
+   int index_from_reference_residue_handle = mol->RegisterUDInteger(mmdb::UDR_RESIDUE,
+								    "index from reference residue");
    int udd_atom_index_handle = - 1;
    if (old_mol)
       udd_atom_index_handle = old_mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
@@ -3593,6 +3622,7 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
 	 // deep_copy_this_residue() doesn't copy TER atoms
 	 mmdb::Residue *residue_old_p = residues_of_chain[ich].residues[ires];
 	 mmdb::Residue *residue_new_p = deep_copy_this_residue(residue_old_p);
+	 residue_new_p->PutUDData(index_from_reference_residue_handle, residue_old_p->index);
 	 mmdb::Atom **new_residue_atoms = 0;
 	 mmdb::Atom **old_residue_atoms = 0;
 	 int n_old_residue_atoms;

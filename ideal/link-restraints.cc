@@ -106,8 +106,8 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
 			   // set the UDD flag for this residue being bonded/angle with 
 			   // the other
 
-			   bonded_atom_indices[index1].push_back(index2);
-			   bonded_atom_indices[index2].push_back(index1);
+			   bonded_atom_indices[index1].insert(index2);
+			   bonded_atom_indices[index2].insert(index1);
 
 			   fixed_atom_flags[0] = is_fixed_first;
 			   fixed_atom_flags[1] = is_fixed_second;
@@ -286,8 +286,8 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
 				 }
 
 			     
-				 bonded_atom_indices[index1].push_back(index3);
-				 bonded_atom_indices[index3].push_back(index1);
+				 bonded_atom_indices[index1].insert(index3);
+				 bonded_atom_indices[index3].insert(index1);
 
 				 std::vector<bool> other_fixed_flags = make_fixed_flags(index1,
 											index2,

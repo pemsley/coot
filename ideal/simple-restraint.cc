@@ -318,11 +318,13 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
          residues_local.push_back(residues[i]);
 
    // now sort those residues so that polymer linking is easy
+   // sorting function should return false at the end - because sorting function is called
+   // with the same argument for left and right hand side, I think (std::sort testing for sanity?)
    std::sort(residues_local.begin(), residues_local.end(), residue_sorter);
-   if (false) // sorting function should return false at the end (because sorting function is called
-              // with the same argument for left and right hand side, I think (std::sort testing for sanity?)
+
+   if (false)
       for (std::size_t i=0; i<residues_local.size(); i++)
-	 std::cout << "    " << residue_spec_t(residues_local[i].second)
+	 std::cout << "    restraints_container_t() constructor: " << residue_spec_t(residues_local[i].second)
 		   << " has index " << residues_local[i].second->index << std::endl;
 
    residues_vec = residues_local;
@@ -489,6 +491,7 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
    lennard_jones_epsilon = 0.1;
    cryo_em_mode = true;
    n_times_called = 0;
+   n_small_cycles_accumulator = 0;
    m_s = 0;
    x = 0;
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
@@ -645,15 +648,6 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 						    mmdb::Manager *mol_in,
 						    const std::vector<atom_spec_t> &fixed_atom_specs) {
 
-   if (false) {
-      for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
-         if (residues_vec[ir].second) {
-           std::cout << "INFO:: starting init_from_residue_vec() residue " << residues_vec[ir].second << std::endl;
-         } else {
-           std::cout << "ERROR:: starting init_from_residue_vec() NUll residue " << ir << std::endl;
-         }
-      }
-   }
    // This function is called from the constructor.
    // make_restraints() is called after this function by the user of this class.
    
@@ -664,6 +658,16 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
       return;
    }
    residues_vec.resize(residues.size());
+
+   if (false) {
+      for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
+         if (residues_vec[ir].second) {
+           std::cout << "INFO:: starting init_from_residue_vec() residue " << residues_vec[ir].second << std::endl;
+         } else {
+           std::cout << "ERROR:: starting init_from_residue_vec() NUll residue " << ir << std::endl;
+         }
+      }
+   }
 
    // residues_vec = residues;
    for (std::size_t i=0; i<residues.size(); i++)
@@ -714,10 +718,30 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
                           // This function is called by init but not make_restraints.
                           // init doesn't set bonded_pairs_container (make_restraints does that).
 
-   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > neighbour_set = residues_near_residues(residues_vec, mol, dist_crit);
-   fixed_neighbours_set = neighbour_set;
 
+   // fill neighbour_set from rnr (excluding residues of residues_vec):
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > rnr = residues_near_residues(residues_vec, mol, dist_crit);
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > neighbour_set;
    std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it_map;
+
+   for(it_map=rnr.begin(); it_map!=rnr.end(); it_map++) {
+      mmdb::Residue *r = it_map->first;
+      const std::set<mmdb::Residue *> &s = it_map->second;
+      std::set<mmdb::Residue *>::const_iterator it_set;
+      for (it_set=s.begin(); it_set!=s.end(); it_set++) {
+	 bool found = false;
+	 for (std::size_t i=0; i<residues_vec.size(); i++) {
+	    if (*it_set == residues_vec[i].second) {
+	       found = true;
+	       break;
+	    }
+	 }
+	 if (! found) {
+	    neighbour_set[r].insert(*it_set);
+	 }
+      }
+   }
+
 
    bonded_pair_container_t bpc = bonded_flanking_residues_by_residue_vector(neighbour_set, geom);
 
@@ -841,6 +865,47 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
       }
    }
 
+   // fill fixed_neighbours_set:
+   //
+   // to do this quicker, lets make a map of the residues in residues_vec that
+   // are fixed - I could use residues_vec_moving_set above.
+   //
+   fixed_neighbours_set.clear();
+   std::set<mmdb::Residue *> fixed_residue_set;
+   for (std::size_t i=0; i<residues_vec.size(); i++)
+      if (residues_vec[i].first)
+	 fixed_residue_set.insert(residues_vec[i].second);
+
+   if (false) { // debug
+      for(it_map=rnr.begin(); it_map!=rnr.end(); it_map++) {
+	 mmdb::Residue *r = it_map->first;
+	 std::cout << "###### debugging rnr: Residue " << coot::residue_spec_t(r) << std::endl;
+	 const std::set<mmdb::Residue *> &s = it_map->second;
+	 std::set<mmdb::Residue *>::const_iterator it_set;
+	 for (it_set=s.begin(); it_set!=s.end(); it_set++) {
+	    mmdb::Residue *residue_neighb = *it_set;
+	    std::cout << "###### debugging rnr:    Neighb: " << coot::residue_spec_t(residue_neighb)
+		      << " " << residue_neighb << std::endl;
+	 }
+      }
+   }
+
+   
+   for(it_map=rnr.begin(); it_map!=rnr.end(); it_map++) {
+      mmdb::Residue *r = it_map->first;
+      const std::set<mmdb::Residue *> &s = it_map->second;
+      std::set<mmdb::Residue *>::const_iterator it_set;
+      for (it_set=s.begin(); it_set!=s.end(); it_set++) {
+	 mmdb::Residue *residue_neighb = *it_set;
+	 // if residue_neigh is fixed and r is not then add residue_neigh as a neighbour of r
+	 if (residues_vec_moving_set.find(residue_neighb) == residues_vec_moving_set.end()) {
+	    if (residues_vec_moving_set.find(r) != residues_vec_moving_set.end()) {
+	       fixed_neighbours_set[r].insert(residue_neighb);
+	    }
+	 }
+      }
+   }
+
    init_shared_post(fixed_atom_specs); // use n_atoms, fills fixed_atom_indices
 
    if (false) {
@@ -869,11 +934,6 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 		   << atom[iat]->GetResName() << " fixed: " << fixed_flag << std::endl;
       }
    }
-
-
-   std::cout << "Done init_from_residue_vec()" << std::endl;
-   
-   
 }
 
 
@@ -944,7 +1004,7 @@ coot::restraints_container_t::debug_sets() const {
 
    std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
    for (it=fixed_neighbours_set.begin(); it!=fixed_neighbours_set.end(); it++) {
-      std::cout << "    " << residue_spec_t(it->first) << std::endl;
+      std::cout << "   Moving residue " << residue_spec_t(it->first) << std::endl;
       const std::set<mmdb::Residue *> &s = it->second;
       std::set<mmdb::Residue *>::const_iterator its;
       for (its=s.begin(); its!=s.end(); its++) {
@@ -1110,20 +1170,68 @@ coot::restraints_container_t::setup_minimize() {
 // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
 //
 coot::refinement_results_t
-coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags, 
+coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 				       int nsteps_max,
 				       short int print_initial_chi_sq_flag) {
 
+   std::cout << "------------ ::minimize() basic " << restraints_vec.size() << std::endl;
    n_times_called++;
    if (n_times_called == 1 || needs_reset)
       setup_minimize();
- 
+
    refinement_results_t rr = minimize_inner(usage_flags, nsteps_max, print_initial_chi_sq_flag);
 
-   // std::cout << "minimize() returns " << rr.progress << std::endl;
    return rr;
 }
 
+// return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
+//
+coot::refinement_results_t
+coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_flags, int nsteps_max,
+				       short int print_initial_chi_sq_flag,
+				       const coot::protein_geometry &geom) {
+
+   // std::cout << "------------ ::minimize() " << restraints_vec.size() << std::endl;
+
+   unsigned int n_steps_per_relcalc_nbcs = 3000000;
+
+   n_times_called++;
+   n_small_cycles_accumulator += n_times_called * nsteps_max;
+
+   if (n_times_called == 1 || needs_reset)
+      setup_minimize();
+
+#if 0
+
+   // This doesn't work - and on reflection as to why that is, it *cannot* work.
+   // make_non_bonded_contact_restraints_ng() works using the residues of the
+   // input moolecule - and they are not going to change as the atoms in the atom
+   // vector move around.  We need a function that takes the atoms in atom and
+   // finds neighbours in mol - which is extremely not how refinement works in Coot,
+   // because we find the residues to refine before refinement.
+   //
+   // It will take quite a rewrite to fix this - pass the moving residues and mol
+   // and let a function in this class work out what the "residues near residues"
+   // are. This is quite doable, but not for now - updating NBCs is not as
+   // important as OpenGLv3 (shader) graphics.
+
+   if (n_small_cycles_accumulator >= n_steps_per_relcalc_nbcs) {
+      auto tp_0 = std::chrono::high_resolution_clock::now();
+      make_non_bonded_contact_restraints_ng(imol, geom);
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+      setup_minimize();
+      auto tp_2 = std::chrono::high_resolution_clock::now();
+      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+      std::cout << "minimize() nbc updates " << d10 << " " << d21 << " milliseconds" << std::endl;
+      n_small_cycles_accumulator = 0;
+   }
+#endif
+
+   refinement_results_t rr = minimize_inner(usage_flags, nsteps_max, print_initial_chi_sq_flag);
+
+   return rr;
+}
 
 // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
 //
@@ -4796,11 +4904,18 @@ coot::restraints_container_t::check_for_1_4_relation(int idx_1, int idx_2,
 
 coot::restraints_container_t::reduced_angle_info_container_t::reduced_angle_info_container_t(const std::vector<coot::simple_restraint> &r) {
 
+   init(r);
+
+}
+
+void
+coot::restraints_container_t::reduced_angle_info_container_t::init(const std::vector<coot::simple_restraint> &r) {
+
    // this map is constructed correctly.  If you are here it's because
-   // you expect an angle restraint that not there.
+   // you expect an angle restraint that is not there.
    // 
    for (unsigned int ii=0; ii<r.size(); ii++) {
-      if (r[ii].restraint_type == coot::ANGLE_RESTRAINT) {
+      if (r[ii].restraint_type == ANGLE_RESTRAINT) {
 	 std::pair<int, int> p_1(r[ii].atom_index_2, r[ii].atom_index_3);
 	 std::pair<int, int> p_2(r[ii].atom_index_2, r[ii].atom_index_1);
 	 angles[r[ii].atom_index_1].push_back(p_1);
@@ -4808,6 +4923,7 @@ coot::restraints_container_t::reduced_angle_info_container_t::reduced_angle_info
       }
    }
 }
+
 
 void
 coot::restraints_container_t::reduced_angle_info_container_t::write_angles_map(const std::string &file_name) const {
@@ -5182,15 +5298,16 @@ coot::restraints_container_t::construct_non_bonded_contact_list_conventional() {
 
 		    if (! matched_oxt) { 
 
-		       for (unsigned int j=0; j<bonded_atom_indices[atom_index].size(); j++) { 
-		 
-			  if (bonded_atom_indices[atom_index][j] == atom_index_inner) { 
-			     was_bonded_flag = 1;
+		       std::set<int>::const_iterator it;
+		       for (it=bonded_atom_indices[atom_index].begin();
+			    it!=bonded_atom_indices[atom_index].end(); it++) {
+			  if (*it == atom_index_inner) {
+			     was_bonded_flag = true;
 			     break;
-			  } 
+			  }
 		       }
-		 
-		       if (was_bonded_flag == 0) { 
+		       
+		       if (was_bonded_flag == 0) {
 			  non_bonded_atom_indices[atom_index].push_back(atom_index_inner);
 		       }
 		    }
@@ -5258,8 +5375,9 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
       for (unsigned int i=0; i<bonded_atom_indices.size(); i++) {
 	 std::cout << "  " << i << " " << atom_spec_t(atom[i]) << " " << bonded_atom_indices[i].size()
 		   << " |  ";
-	 for (unsigned int j=0; j<bonded_atom_indices[i].size(); j++)
-	    std::cout << " " << bonded_atom_indices[i][j];
+	 // interate through a set now.
+	 // for (unsigned int j=0; j<bonded_atom_indices[i].size(); j++)
+	 // std::cout << " " << bonded_atom_indices[i][j];
 	 std::cout << "\n";
       }
    }
@@ -5305,7 +5423,8 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 	       // bonded_atom_indices contains indices of atoms that
 	       // are angle-related (not just directly bonded)
 	       // 
-	       if (is_member_p(bonded_atom_indices[i], j)) {
+	       //if (is_member_p(bonded_atom_indices[i], j)) {
+	       if (bonded_atom_indices[i].find(j) != bonded_atom_indices[i].end()) {
 
 		  // debug bonded atoms
 		  
@@ -5392,7 +5511,8 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 
 			   // Simple part, the residues were not bonded to each other.
 
-			   if (! is_member_p(bonded_atom_indices[iat], jat)) {
+			   // if (! is_member_p(bonded_atom_indices[iat], jat)) {
+			   if (bonded_atom_indices[iat].find(jat) != bonded_atom_indices[iat].end()) {
 
 			      // atom j is not bonded to atom i, is it close? (i.e. within dist_crit?)
 			      clipper::Coord_orth pt1(atom[iat]->x, atom[iat]->y, atom[iat]->z);
@@ -5668,11 +5788,14 @@ coot::restraints_container_t::add_N_terminal_residue_bonds_and_angles_to_hydroge
 	       n_bond_restraints++;
 	       rc.n_bond_restraints++;
 	       rc.n_angle_restraints++;
-	       bonded_atom_indices[atom_index_1].push_back(atom_index_2);
-	       bonded_atom_indices[atom_index_2].push_back(atom_index_1);
-	       bonded_atom_indices[atom_index_1].push_back(atom_index_3);
-	       bonded_atom_indices[atom_index_3].push_back(atom_index_1);
-
+	       // bonded_atom_indices[atom_index_1].push_back(atom_index_2);
+	       // bonded_atom_indices[atom_index_2].push_back(atom_index_1);
+	       // bonded_atom_indices[atom_index_1].push_back(atom_index_3);
+	       // bonded_atom_indices[atom_index_3].push_back(atom_index_1);
+	       bonded_atom_indices[atom_index_1].insert(atom_index_2);
+	       bonded_atom_indices[atom_index_2].insert(atom_index_1);
+	       bonded_atom_indices[atom_index_1].insert(atom_index_3);
+	       bonded_atom_indices[atom_index_3].insert(atom_index_1);
 	    }
 	 }
 
@@ -5795,8 +5918,8 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 		     if (udd_get_data_status_1 == mmdb::UDDATA_Ok &&
 			 udd_get_data_status_2 == mmdb::UDDATA_Ok) { 
 		  
-			bonded_atom_indices[index1].push_back(index2);
-			bonded_atom_indices[index2].push_back(index1);
+			bonded_atom_indices[index1].insert(index2);
+			bonded_atom_indices[index2].insert(index1);
 
 			// this needs to be fixed for fixed atom (rather
 			// than just knowing that these are not flanking
@@ -5920,8 +6043,8 @@ coot::restraints_container_t::add_angles(int idr, mmdb::PPAtom res_selection,
 			   // set the UDD flag for this residue being bonded/angle with 
 			   // the other
 			
-			   bonded_atom_indices[index1].push_back(index3);
-			   bonded_atom_indices[index3].push_back(index1);
+			   bonded_atom_indices[index1].insert(index3);
+			   bonded_atom_indices[index3].insert(index1);
 		  
 			   // this needs to be fixed for fixed atom (rather
 			   // than just knowing that these are not flanking
