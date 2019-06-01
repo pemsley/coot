@@ -909,10 +909,12 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	       int n_chains = model_p->GetNumberOfChains();
 	       for (int ichain=0; ichain<n_chains; ichain++) {
 		  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+		  std::cout << "residues_mol_and_res_vec mol: chain: " << chain_p->GetChainID() << std::endl;
 		  int nres = chain_p->GetNumberOfResidues();
 		  for (int ires=0; ires<nres; ires++) {
 		     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-		     std::cout << "^^^   residue " << coot::residue_spec_t(residue_p) << " residue "
+		     std::cout << "residues_mol_and_res_vec mol:   residue "
+			       << coot::residue_spec_t(residue_p) << " residue "
 			       << residue_p << " chain " << residue_p->chain << " index "
 			       << residue_p->index << std::endl;
 		  }
@@ -1450,8 +1452,9 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 						    std::string alt_conf) {
 
    float dist_crit = 5.0;
+   bool debug = false;
 
-   if (false) { // debug
+   if (debug) {
       std::cout << "############ starting create_mmdbmanager_from_res_vector() with these "
 		<< " residues " << std::endl;
       for (std::size_t ii=0; ii<residues.size(); ii++)
@@ -1481,10 +1484,20 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 
    if (residues.size() > 0) { 
 
+      // Also add the index of the reference residue (the one in molecules[imol].atom_selection.mol)
+      // to the molecule that we are construction here. So that we can properly link
+      // the residues in restraints_container (there we rather need to know the references indices,
+      // not the indices from the fragment molecule)
+      //
       std::pair<bool, mmdb::Manager *> n_mol_1 =
 	 coot::util::create_mmdbmanager_from_residue_vector(residues, mol_in);
 
-      if (true) {
+      // check that first is sane, so indent all this lot (when it works)
+      
+      int index_from_reference_residue_handle =
+	 n_mol_1.second->GetUDDHandle(mmdb::UDR_RESIDUE, "index from reference residue");
+
+      if (false) { // debug
 	 if (n_mol_1.first) {
 	    int imod = 1;
 	    mmdb::Model *model_p = n_mol_1.second->GetModel(imod);
@@ -1552,7 +1565,8 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 	 for (its=s.begin(); its!=s.end(); its++) {
 	    mmdb::Residue *tres = *its;
 	    if (std::find(residues.begin(), residues.end(), tres) == residues.end())
-	       flankers_in_reference_mol.push_back(tres);
+	       if (std::find(flankers_in_reference_mol.begin(), flankers_in_reference_mol.end(), tres) == flankers_in_reference_mol.end())
+		  flankers_in_reference_mol.push_back(tres);
 	 }
       }
 
@@ -1565,7 +1579,7 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 		   << " flanking residues" << std::endl;
 
 	 for (unsigned int ires=0; ires<flankers_in_reference_mol.size(); ires++)
-	    std::cout << "      " << ires << " "
+	    std::cout << "     #### flankers_in_reference_mol: " << ires << " "
 		      << coot::residue_spec_t(flankers_in_reference_mol[ires]) << std::endl;
       }
 
@@ -1591,17 +1605,22 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 	    model_p->AddChain(chain_p);
 	 }
 
+	 if (false)
+	    std::cout << "debug:: flankers_in_reference_mol " << ires << " "
+		      << coot::residue_spec_t(flankers_in_reference_mol[ires]) << " "
+		      << "had index " << flankers_in_reference_mol[ires]->index
+		      << std::endl;
+
 	 r = coot::deep_copy_this_residue(flankers_in_reference_mol[ires],
 					  alt_conf, whole_res_flag,
 					  atom_index_udd_handle);
+	 r->PutUDData(index_from_reference_residue_handle, flankers_in_reference_mol[ires]->index);
 	 if (r) {
 
 	    // copy over the atom indices. UDDAtomIndexHandle in mol_n becomes UDDOldAtomIndexHandle
 	    // indices in the returned molecule
 
-	    int sni = find_serial_number_for_insert(r->GetSeqNum(),
-						    r->GetInsCode(),
-						    chain_p);
+	    int sni = find_serial_number_for_insert(r->GetSeqNum(), r->GetInsCode(), chain_p);
 	    if (sni == -1)
 	       chain_p->AddResidue(r); // at the end
 	    else
@@ -1622,7 +1641,7 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
    //
    coot::util::pdbcleanup_serial_residue_numbers(new_mol);
 
-   if (false) {
+   if (debug) {
       int imod = 1;
       mmdb::Model *model_p = new_mol->GetModel(imod);
       if (model_p) {
@@ -1640,7 +1659,7 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
       }
    }
 
-   if (false)
+   if (debug)
       std::cout << "DEBUG:: in create_mmdbmanager_from_res_vector: " << rv.size()
 		<< " free residues and " << n_flanker << " flankers" << std::endl;
 

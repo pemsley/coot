@@ -318,11 +318,13 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
          residues_local.push_back(residues[i]);
 
    // now sort those residues so that polymer linking is easy
+   // sorting function should return false at the end - because sorting function is called
+   // with the same argument for left and right hand side, I think (std::sort testing for sanity?)
    std::sort(residues_local.begin(), residues_local.end(), residue_sorter);
-   if (false) // sorting function should return false at the end (because sorting function is called
-              // with the same argument for left and right hand side, I think (std::sort testing for sanity?)
+
+   if (false)
       for (std::size_t i=0; i<residues_local.size(); i++)
-	 std::cout << "    " << residue_spec_t(residues_local[i].second)
+	 std::cout << "    restraints_container_t() constructor: " << residue_spec_t(residues_local[i].second)
 		   << " has index " << residues_local[i].second->index << std::endl;
 
    residues_vec = residues_local;
@@ -646,15 +648,6 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 						    mmdb::Manager *mol_in,
 						    const std::vector<atom_spec_t> &fixed_atom_specs) {
 
-   if (false) {
-      for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
-         if (residues_vec[ir].second) {
-           std::cout << "INFO:: starting init_from_residue_vec() residue " << residues_vec[ir].second << std::endl;
-         } else {
-           std::cout << "ERROR:: starting init_from_residue_vec() NUll residue " << ir << std::endl;
-         }
-      }
-   }
    // This function is called from the constructor.
    // make_restraints() is called after this function by the user of this class.
    
@@ -665,6 +658,16 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
       return;
    }
    residues_vec.resize(residues.size());
+
+   if (false) {
+      for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
+         if (residues_vec[ir].second) {
+           std::cout << "INFO:: starting init_from_residue_vec() residue " << residues_vec[ir].second << std::endl;
+         } else {
+           std::cout << "ERROR:: starting init_from_residue_vec() NUll residue " << ir << std::endl;
+         }
+      }
+   }
 
    // residues_vec = residues;
    for (std::size_t i=0; i<residues.size(); i++)
@@ -715,10 +718,30 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
                           // This function is called by init but not make_restraints.
                           // init doesn't set bonded_pairs_container (make_restraints does that).
 
-   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > neighbour_set = residues_near_residues(residues_vec, mol, dist_crit);
-   fixed_neighbours_set = neighbour_set;
 
+   // fill neighbour_set from rnr (excluding residues of residues_vec):
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > rnr = residues_near_residues(residues_vec, mol, dist_crit);
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > neighbour_set;
    std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it_map;
+
+   for(it_map=rnr.begin(); it_map!=rnr.end(); it_map++) {
+      mmdb::Residue *r = it_map->first;
+      const std::set<mmdb::Residue *> &s = it_map->second;
+      std::set<mmdb::Residue *>::const_iterator it_set;
+      for (it_set=s.begin(); it_set!=s.end(); it_set++) {
+	 bool found = false;
+	 for (std::size_t i=0; i<residues_vec.size(); i++) {
+	    if (*it_set == residues_vec[i].second) {
+	       found = true;
+	       break;
+	    }
+	 }
+	 if (! found) {
+	    neighbour_set[r].insert(*it_set);
+	 }
+      }
+   }
+
 
    bonded_pair_container_t bpc = bonded_flanking_residues_by_residue_vector(neighbour_set, geom);
 
@@ -842,6 +865,47 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
       }
    }
 
+   // fill fixed_neighbours_set:
+   //
+   // to do this quicker, lets make a map of the residues in residues_vec that
+   // are fixed - I could use residues_vec_moving_set above.
+   //
+   fixed_neighbours_set.clear();
+   std::set<mmdb::Residue *> fixed_residue_set;
+   for (std::size_t i=0; i<residues_vec.size(); i++)
+      if (residues_vec[i].first)
+	 fixed_residue_set.insert(residues_vec[i].second);
+
+   if (false) { // debug
+      for(it_map=rnr.begin(); it_map!=rnr.end(); it_map++) {
+	 mmdb::Residue *r = it_map->first;
+	 std::cout << "###### debugging rnr: Residue " << coot::residue_spec_t(r) << std::endl;
+	 const std::set<mmdb::Residue *> &s = it_map->second;
+	 std::set<mmdb::Residue *>::const_iterator it_set;
+	 for (it_set=s.begin(); it_set!=s.end(); it_set++) {
+	    mmdb::Residue *residue_neighb = *it_set;
+	    std::cout << "###### debugging rnr:    Neighb: " << coot::residue_spec_t(residue_neighb)
+		      << " " << residue_neighb << std::endl;
+	 }
+      }
+   }
+
+   
+   for(it_map=rnr.begin(); it_map!=rnr.end(); it_map++) {
+      mmdb::Residue *r = it_map->first;
+      const std::set<mmdb::Residue *> &s = it_map->second;
+      std::set<mmdb::Residue *>::const_iterator it_set;
+      for (it_set=s.begin(); it_set!=s.end(); it_set++) {
+	 mmdb::Residue *residue_neighb = *it_set;
+	 // if residue_neigh is fixed and r is not then add residue_neigh as a neighbour of r
+	 if (residues_vec_moving_set.find(residue_neighb) == residues_vec_moving_set.end()) {
+	    if (residues_vec_moving_set.find(r) != residues_vec_moving_set.end()) {
+	       fixed_neighbours_set[r].insert(residue_neighb);
+	    }
+	 }
+      }
+   }
+
    init_shared_post(fixed_atom_specs); // use n_atoms, fills fixed_atom_indices
 
    if (false) {
@@ -940,7 +1004,7 @@ coot::restraints_container_t::debug_sets() const {
 
    std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
    for (it=fixed_neighbours_set.begin(); it!=fixed_neighbours_set.end(); it++) {
-      std::cout << "    " << residue_spec_t(it->first) << std::endl;
+      std::cout << "   Moving residue " << residue_spec_t(it->first) << std::endl;
       const std::set<mmdb::Residue *> &s = it->second;
       std::set<mmdb::Residue *>::const_iterator its;
       for (its=s.begin(); its!=s.end(); its++) {

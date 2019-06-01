@@ -1105,6 +1105,12 @@ namespace coot {
 
       // we pass the mol_old so that selected header info can be transfered also
       // currently only LINKs.
+      //
+      // Also add the index of the reference residue (the one in molecules[imol].atom_selection.mol)
+      // to the molecule that we are construction here. So that we can properly link
+      // the residues in restraints_container (there we rather need to know the references indices,
+      // not the indices from the fragment molecule). The label (for lookup later) is
+      // "index from reference residue".
       std::pair<bool, mmdb::Manager *>
       create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec,
 					    mmdb::Manager *mol_old);
