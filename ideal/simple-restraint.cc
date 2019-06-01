@@ -870,11 +870,6 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 		   << atom[iat]->GetResName() << " fixed: " << fixed_flag << std::endl;
       }
    }
-
-
-   std::cout << "Done init_from_residue_vec()" << std::endl;
-   
-   
 }
 
 
@@ -1142,6 +1137,20 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
    if (n_times_called == 1 || needs_reset)
       setup_minimize();
 
+#if 0
+
+   // This doesn't work - and on reflection as to why that is, it *cannot* work.
+   // make_non_bonded_contact_restraints_ng() works using the residues of the
+   // input moolecule - and they are not going to change as the atoms in the atom
+   // vector move around.  We need a function that takes the atoms in atom and
+   // finds neighbours in mol - which is extremely not how refinement works in Coot,
+   // because we find the residues to refine before refinement.
+   //
+   // It will take quite a rewrite to fix this - pass the moving residues and mol
+   // and let a function in this class work out what the "residues near residues"
+   // are. This is quite doable, but not for now - updating NBCs is not as
+   // important as OpenGLv3 (shader) graphics.
+
    if (n_small_cycles_accumulator >= n_steps_per_relcalc_nbcs) {
       auto tp_0 = std::chrono::high_resolution_clock::now();
       make_non_bonded_contact_restraints_ng(imol, geom);
@@ -1153,7 +1162,8 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
       std::cout << "minimize() nbc updates " << d10 << " " << d21 << " milliseconds" << std::endl;
       n_small_cycles_accumulator = 0;
    }
- 
+#endif
+
    refinement_results_t rr = minimize_inner(usage_flags, nsteps_max, print_initial_chi_sq_flag);
 
    return rr;
