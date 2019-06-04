@@ -40,6 +40,7 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
 					    short int is_fixed_second,
 					    const coot::protein_geometry &geom) {
 
+   bool debug = false;
 
    mmdb::PPAtom first_sel;
    mmdb::PPAtom second_sel;
@@ -58,13 +59,15 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
       std::cout << "no atoms in second residue!? " << std::endl;
    }
 
-//    std::cout << "INFO:: geom.link_size() is " << geom.link_size() << std::endl;
-//    std::cout << "first residue:\n";
-//    for (int i=0; i<n_first_res_atoms; i++)
-//       std::cout << "    " << first_sel[i]->name  << " " << first_sel[i]->GetSeqNum() << "\n";
-//    std::cout << "second residue:\n";
-//    for (int i=0; i<n_second_res_atoms; i++)
-//       std::cout << "    " << second_sel[i]->name  << " " << second_sel[i]->GetSeqNum() << "\n";
+   if (debug) {
+      std::cout << "INFO:: geom.link_size() is " << geom.link_size() << std::endl;
+      std::cout << "first residue:\n";
+      for (int i=0; i<n_first_res_atoms; i++)
+	 std::cout << "    " << first_sel[i]->name  << " " << first_sel[i]->GetSeqNum() << "\n";
+      std::cout << "second residue:\n";
+      for (int i=0; i<n_second_res_atoms; i++)
+	 std::cout << "    " << second_sel[i]->name  << " " << second_sel[i]->GetSeqNum() << "\n";
+   }
 
    int nbond = 0;
    for (int i=0; i<geom.link_size(); i++) {
@@ -87,12 +90,13 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
 
 		     if (pdb_atom_name_2 == geom.link(i).link_bond_restraint[j].atom_id_2_4c()) {
 
-//   			std::cout << "DEBUG::  adding " << link_type << " bond for "
-// 				  << first->seqNum
-//    				  << " -> " << second->seqNum << " atoms " 
-// 				  << first_sel [ifat]->GetAtomName() << " to "
-// 				  << second_sel[isat]->GetAtomName() 
-// 				  << std::endl;
+			if (debug)
+			   std::cout << "DEBUG::  adding " << link_type << " bond for "
+				     << first->seqNum
+				     << " -> " << second->seqNum << " atoms "
+				     << first_sel [ifat]->GetAtomName() << " to "
+				     << second_sel[isat]->GetAtomName()
+				     << std::endl;
 
 			// Now, do the alt confs match?
 			//

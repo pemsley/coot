@@ -6183,6 +6183,9 @@ coot::restraints_container_t::add_chirals(int idr, mmdb::PPAtom res_selection,
       // for now, let's just reject restraints that are a "both",
       // better would be to check the geometry and refine to the one
       // that is closest.
+
+      const dict_chiral_restraint_t &dcr = geom[idr].second.chiral_restraint[ic];
+
       if (!geom[idr].second.chiral_restraint[ic].is_a_both_restraint()) { 
 	 for (int iat1=0; iat1<i_no_res_atoms; iat1++) {
 	    std::string pdb_atom_name1(res_selection[iat1]->name);
@@ -6228,8 +6231,11 @@ coot::restraints_container_t::add_chirals(int idr, mmdb::PPAtom res_selection,
 				    // If so, set chiral_hydrogen_index to the atom index.
 				    // If not set to -1.
 				    //
-				    int chiral_hydrogen_index = get_chiral_hydrogen_index(indexc, index1, index2, index3);
-				    
+
+				    int chiral_hydrogen_index_old = get_chiral_hydrogen_index(indexc, index1, index2, index3);
+
+				    int chiral_hydrogen_index = get_chiral_hydrogen_index(indexc, index1, index2, index3, dcr);
+
 				    if (fabs(geom[idr].second.chiral_restraint[ic].target_volume()) < 1000.0 &&
 					fabs(geom[idr].second.chiral_restraint[ic].target_volume()) > 0.00001) {
 
@@ -6286,7 +6292,25 @@ coot::restraints_container_t::add_chirals(int idr, mmdb::PPAtom res_selection,
    return n_chiral_restr;
 }
 
+int
+coot::restraints_container_t::get_chiral_hydrogen_index(int indexc, int index_1, int index_2, int index_3,
+							const coot::dict_chiral_restraint_t &dcr) const {
 
+   int idx_chiral = -1;
+   int n_hydrogen = 0;
+   if (is_hydrogen(atom[index_1])) { n_hydrogen++; idx_chiral = index_1; }
+   if (is_hydrogen(atom[index_2])) { n_hydrogen++; idx_chiral = index_2; }
+   if (is_hydrogen(atom[index_3])) { n_hydrogen++; idx_chiral = index_3; }
+
+   if (n_hydrogen == 1) {
+      return idx_chiral;
+   } else {
+      return -1;
+   }
+}
+
+
+// ------------------ old, slow -----------------------------
 // is there a single hydrogen connected to this chiral centre?
 // If so, return the index, if not return -1
 // 

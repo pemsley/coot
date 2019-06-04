@@ -637,6 +637,24 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 
 }
 
+coot::restraints_container_t::link_restraints_counts
+coot::restraints_container_t::make_link_restraints_for_link_ng(const coot::new_linked_residue_t &nlr,
+							       const coot::protein_geometry &geom) {
+
+   bool do_trans_peptide_restraints = false; // we are not linking peptides with this function
+
+   // order switch is done (if needed) in the constructor of new_linked_residue_t
+
+   return make_link_restraints_for_link_ng(nlr.link_type,
+					   nlr.res_1,
+					   nlr.res_2,
+					   nlr.is_fixed_first,
+					   nlr.is_fixed_second,
+					   do_trans_peptide_restraints,
+					   geom);
+
+}
+
 
 coot::restraints_container_t::link_restraints_counts
 coot::restraints_container_t::make_link_restraints_for_link_ng(const std::string &link_type,
@@ -651,6 +669,7 @@ coot::restraints_container_t::make_link_restraints_for_link_ng(const std::string
 
    if (false)
       std::cout << "make_link_restraints_for_link_ng(): "
+		<< " type: " << link_type << " "
 		<< residue_spec_t(res_1) << " " << residue_spec_t(res_2) << " "
 		<< is_fixed_first_residue << " " << is_fixed_second_residue << " "
 		<< restraints_usage_flag << std::endl;
@@ -676,9 +695,10 @@ coot::restraints_container_t::make_link_restraints_for_link_ng(const std::string
 							    is_fixed_second_residue,
 							    geom);
       } else {
-	 std::cout << "make_link_restraints_for_link_ng(): trans-pep flag off "
-		   << residue_spec_t(res_1) << " " << residue_spec_t(res_2) << " "
-		   << restraints_usage_flag << std::endl;
+	 if (false) // debug (we don't want to try to add trans-pep restraints for SS bonds (for example))
+	    std::cout << "make_link_restraints_for_link_ng(): trans-pep flag off "
+		      << residue_spec_t(res_1) << " " << residue_spec_t(res_2) << " "
+		      << restraints_usage_flag << std::endl;
       }
    }
 
@@ -962,7 +982,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 
    // ------------- Generic/non-polymer and carbohydrate Links -------------------
 
-   link_restraints_counts lrc;
+   link_restraints_counts lrc("CHO-SS-and-other");
 
    if (false) {
       std::cout << "debug----------- fixed_atom_indices " << std::endl;
@@ -971,53 +991,8 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 	 std::cout << "   fixed atoms: " << *it << std::endl;
    }
 
-   class new_linked_residue {
-   public:
-      new_linked_residue(mmdb::Atom *at_1, mmdb::Atom *at_2,
-			 mmdb::Residue *res_1, mmdb::Residue *res_2,
-			 const std::string &link_type,
-			 bool order_switch_flag) : at_1(at_1), at_2(at_2), res_1(res_1), res_2(res_2),
-						   link_type(link_type), order_switch_flag(order_switch_flag) {}
-      mmdb::Atom *at_1, *at_2;
-      mmdb::Residue *res_1, *res_2;
-      std::string link_type;
-      bool order_switch_flag;
-      bool match_p(mmdb::Residue *r1, mmdb::Residue *r2) const {
-	 if (r1 == res_1 && r2 == res_2) {
-	    return true;
-	 } else {
-	    return (r2 == res_1 && r1 == res_2);
-	 }
-      }
-   };
 
-   class new_linked_residue_list {
-   public:
-      new_linked_residue_list() {}
-      std::vector<new_linked_residue> nlr_vec;
-      void insert(mmdb::Atom *at_1, mmdb::Atom *at_2,
-		  mmdb::Residue *res_1, mmdb::Residue *res_2,
-		  const std::string &link_type,
-		  bool order_switch_flag) {
-	 bool found = already_added(res_1, res_2);
-	 if (! found) {
-	    new_linked_residue nlr(at_1, at_2, res_1, res_2, link_type, order_switch_flag);
-	    nlr_vec.push_back(nlr);
-	 }
-      }
-      bool already_added(mmdb::Residue *r1, mmdb::Residue *r2) const {
-	 bool found = false;
-	 for (std::size_t i=0; i<nlr_vec.size(); i++) {
-	    if (nlr_vec[i].match_p(r1, r2)) {
-	       found = true;
-	       break;
-	    }
-	 }
-	 return found;
-      }
-   };
-
-   new_linked_residue_list nlrs;
+   new_linked_residue_list_t nlrs;
 
    std::set<unsigned int> fixed_atom_flags_set;
    std::set<int>::const_iterator it;
@@ -1079,24 +1054,35 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 		  mmdb::Residue *res_1 = at_1->residue;
 		  mmdb::Residue *res_2 = at_2->residue;
 
-		  if (nlrs.already_added(res_1, res_2))
+		  if (nlrs.already_added_p(res_1, res_2))
 		     continue;
 
 		  // not sure that this is what I want now, really
 		  std::pair<std::string, bool> lt = find_link_type_complicado(res_1, res_2, geom);
 		  // Returns first (link_type) as "" if not found, second is order switch flag
 		  if (! lt.first.empty()) {
-		     std::cout << "make_other_types_of_link(): FIXME: now make a link restraints "
-			       << residue_spec_t(res_1) << " " << residue_spec_t(res_2)
-			       << " with type " << lt.first << " and order switch " << lt.second
-			       << std::endl;
-		     nlrs.insert(at_1, at_2, res_1, res_2, lt.first, lt.second);
+		     // this is not the place to make peptide links, event thoug find_link_type_complicado()
+		     // will return a peptide link (for links that were not made before (perhaps because
+		     // missing atoms)).
+		     if ((lt.first != "TRANS") && (lt.first != "PTRANS") && (lt.first != "CIS") && (lt.first != "PCIS")) {
+			std::cout << "DEBUG:: make_other_types_of_link(): now making a link restraints "
+				  << residue_spec_t(res_1) << " " << residue_spec_t(res_2)
+				  << " with type " << lt.first << " and order switch " << lt.second
+				  << std::endl;
+			bool fixed_1 = (fixed_atom_flags_set.find(i)   != fixed_atom_flags_set.end());
+			bool fixed_2 = (fixed_atom_flags_set.find(*it) != fixed_atom_flags_set.end());
+
+			nlrs.insert(at_1, at_2, res_1, res_2, fixed_1, fixed_2, lt.first, lt.second);
+		     }
 		  }
 	       }
 	    }
 	 }
       }
    }
+
+   for (std::size_t i=0; i<nlrs.size(); i++)
+      lrc.add(make_link_restraints_for_link_ng(nlrs[i], geom));
 
    return lrc;
 }
@@ -1117,9 +1103,7 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
 
    auto tp_1 = std::chrono::high_resolution_clock::now();
 
-   // now, what is linked to what?
-   // that is in bonded_atom_indices. That is a vector of what is bonded or angle-bonded
-   // to each atom.
+   // bonded_atom_indices is a vector of what is bonded or angle-bonded to each atom.
 
    make_flanking_atoms_restraints_ng(geom,
 				     residue_link_vector_map_p,
@@ -1129,7 +1113,8 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
 
    auto tp_2 = std::chrono::high_resolution_clock::now();
 
-   make_other_types_of_link(geom, *residue_link_vector_map_p, *residue_pair_link_set_p);
+   link_restraints_counts others = make_other_types_of_link(geom, *residue_link_vector_map_p, *residue_pair_link_set_p);
+   others.report();
 
    auto tp_3 = std::chrono::high_resolution_clock::now();
    auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();

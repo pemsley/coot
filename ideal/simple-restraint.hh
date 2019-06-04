@@ -152,6 +152,9 @@ namespace coot {
 // for protein dictionary container:
 #include "geometry/protein-geometry.hh"
 
+#include "new-linked-residue-t.hh"
+
+
 // For Kevin's (Log) Ramachandran Plot and derivatives
 #include "lograma.h"
 // For ZO's Ramachandran Plot and derivatives
@@ -317,6 +320,7 @@ namespace coot {
       // allocator for geometry_distortion_info_t
       simple_restraint() {
 	 is_user_defined_restraint = 0;
+	 chiral_hydrogen_index = -1;
       }
 
       // Bond
@@ -1690,8 +1694,6 @@ namespace coot {
 				 std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_count_map_p,
 				 std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p);
 
-      bool is_fully_linked_ng(mmdb::Residue *r,
-			      const std::map<mmdb::Residue *, unsigned int> &residue_link_count_map) const;
       std::pair<bool, link_restraints_counts> try_make_peptide_link_ng(const coot::protein_geometry &geom,
 								       std::pair<bool, mmdb::Residue *> res_1,
 								       std::pair<bool, mmdb::Residue *> res_2,
@@ -1710,6 +1712,10 @@ namespace coot {
 							      bool is_fixed_second_residue,
 							      bool do_trans_peptide_restraints,
 							      const protein_geometry &geom);
+
+      link_restraints_counts make_link_restraints_for_link_ng(const new_linked_residue_t &nlr,
+							      const protein_geometry &geom);
+
       std::string find_peptide_link_type_ng(mmdb::Residue *res_1,
 					    mmdb::Residue *res_2,
 					    const coot::protein_geometry &geom) const;
@@ -1851,6 +1857,7 @@ namespace coot {
       bool check_through_ring_bonds(gsl_vector *v); // and shorten them if needed (non-const *v)
       void push_chiral_hydrogen(const simple_restraint &chiral_restraint, gsl_vector *v);
       int get_chiral_hydrogen_index(int indexc, int index1, int index2, int index3) const;
+      int get_chiral_hydrogen_index(int indexc, int index1, int index_2, int index_3, const dict_chiral_restraint_t &dcr) const;
       bool has_inverted_chiral_centre(const simple_restraint &chiral_restraint,
 				      const gsl_vector *v) const;
       bool has_tiny_chiral_centre_volume(const simple_restraint &chiral_restraint,

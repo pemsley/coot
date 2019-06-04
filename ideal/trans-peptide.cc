@@ -86,29 +86,10 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
 				 			   
 			if (pdb_atom_name_4 == " CA ") {
 
-			   int index1 = get_asc_index(atom_1_sel[ifat]->name,
-						      atom_1_sel[ifat]->altLoc,
-						      atom_1_sel[ifat]->residue->seqNum,
-						      atom_1_sel[ifat]->GetInsCode(),
-						      atom_1_sel[ifat]->GetChainID());
-			
-			   int index2 = get_asc_index(atom_2_sel[isat]->name,
-						      atom_2_sel[isat]->altLoc,
-						      atom_2_sel[isat]->residue->seqNum,
-						      atom_2_sel[isat]->GetInsCode(),
-						      atom_2_sel[isat]->GetChainID());
-
-			   int index3 = get_asc_index(atom_3_sel[itat]->name,
-						      atom_3_sel[itat]->altLoc,
-						      atom_3_sel[itat]->residue->seqNum,
-						      atom_3_sel[itat]->GetInsCode(),
-						      atom_3_sel[itat]->GetChainID());
-
-			   int index4 = get_asc_index(atom_4_sel[iffat]->name,
-						      atom_4_sel[iffat]->altLoc,
-						      atom_4_sel[iffat]->residue->seqNum,
-						      atom_4_sel[iffat]->GetInsCode(),
-						      atom_4_sel[iffat]->residue->GetChainID());
+			   int index1 = get_asc_index(atom_1_sel[ifat]);
+			   int index2 = get_asc_index(atom_2_sel[isat]);
+			   int index3 = get_asc_index(atom_3_sel[itat]);
+			   int index4 = get_asc_index(atom_4_sel[iffat]);
 
 			   if (false)
 			      std::cout << "trans-peptide restraint.... "
