@@ -633,7 +633,8 @@ coot::restraints_container_t::set_fixed_during_refinement_udd() {
    for (int i=0; i<n_atoms; i++) {
       mmdb::Atom *at = atom[i];
       // std::cout << "  setting fixed udd flag on atom " << atom_spec_t(at) << std::endl;
-      if (std::find(fixed_atom_indices.begin(), fixed_atom_indices.end(), i) == fixed_atom_indices.end())
+      // if (std::find(fixed_atom_indices.begin(), fixed_atom_indices.end(), i) == fixed_atom_indices.end())
+      if (fixed_atom_indices.find(i) == fixed_atom_indices.end())
 	 at->PutUDData(uddHnd, 0);
       else
 	 at->PutUDData(uddHnd, 1);
