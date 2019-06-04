@@ -8777,6 +8777,9 @@ Tue 30 Apr 2019 15:30:25 BST
 
    Good stuff - not sure how to get the vulkan directory :-)
 
+   Vulkan Fish! and other things:
+   https://developer.nvidia.com/gameworks-vulkan-and-opengl-samples
+
 ---
 Tue  7 May 2019 00:16:49 BST
 
@@ -8809,4 +8812,41 @@ Sun 12 May 2019 14:38:04 BST
    Lots of good stuff about how to work with GTK3 on Mac OS X:
 
    https://wiki.gnome.org/Projects/GTK/OSX
+
+---
+Wed 22 May 2019 11:34:42 BST
+
+    look at this:
+
+    https://wiki.fysik.dtu.dk/ase/
+
+    and this:
+
+    https://www.macinchem.org/blog/files/90966f824efe7fbbf2f0b4f56526b658-2202.php
+    LigandScout 4.2 Released
+
+---
+Thu 23 May 2019 10:38:58 BST
+
+   Javascript viewers:
+
+   https://www.macinchem.org/scientificsoftware/jsmolviewers.php
+
+   https://biasmv.github.io/pv/demo.html # outlined
+
+---
+Fri 24 May 2019 18:12:50 BST
+
+   flatpak for GNOME:
+
+   https://wiki.gnome.org/Newcomers/BuildProject
+
+   Build GTK4 and test Vulkan
+
+---
+Mon 27 May 2019 01:38:52 CEST
+
+   using Vulkan and glm and glfw for pretty pictures:
+
+   https://www.reddit.com/r/vulkan/comments/brvdan/the_story_of_optimizing_a_vulkan_program/
 
