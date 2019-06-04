@@ -3229,6 +3229,50 @@ coot::protein_geometry::get_vdw_radius(const std::string &atom_name,
    return r;
 }
 
+// calculated once and then stored
+bool
+coot::protein_geometry::atom_is_metal(mmdb::Atom *atom) const {
+
+   // PDBv3 FIXME
+
+   bool status = false;
+   std::string atom_name(atom->GetAtomName());
+   if (atom_name == "NA" || atom_name == "CA" || atom_name == "LI") {
+      return true;
+   } else {
+      if (atom_name == "BE" || atom_name == "K" || atom_name == "RB") {
+	 return true;
+      } else {
+	 if (atom_name == "SR" || atom_name == "CS" || atom_name == "BA") {
+	    return true;
+	 } else {
+	    if (atom_name == "SC" || atom_name == "TI" || atom_name == "V" || atom_name == "CR") {
+	       return true;
+	    } else {
+	       if (atom_name == "MN" || atom_name == "FE" || atom_name == "CO" || atom_name == "NI") {
+		  return true;
+	       } else {
+		  if (atom_name == "CU" || atom_name == "ZN" || atom_name == "ZR" || atom_name == "MO") {
+		     return true;
+		  } else {
+		     if (atom_name == "AG" || atom_name == "AU" || atom_name == "PT" || atom_name == "HG") {
+			return true;
+		     } else {
+			if (atom_name == "OS" || atom_name == "PB" || atom_name == " K" || atom_name == " W") {
+			   return true;
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   return status;
+}
+
+
 // expand to 4c, the atom_id, give that it should match an atom of the type comp_id.
 // Used in chem mods, when we don't know the comp_id until residue modification time.
 // 

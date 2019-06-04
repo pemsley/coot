@@ -507,13 +507,13 @@ coot::protein_geometry::get_nbc_dist(const std::string &energy_type_1,
 				     bool in_same_residue_flag,
 				     bool in_same_ring_flag) const {
 
-   if (in_same_ring_flag)
-      std::cout << "::::::::::::::::::::::::::::: nbc of atoms in same ring " << std::endl;
+   if (false)
+      if (in_same_ring_flag)
+	 std::cout << "::::::::::::::::::::::::::::: nbc of atoms in same ring " << std::endl;
 
    float radius_1;
    float radius_2;
-   //mmdb::Atom at_1 = mmdb::Atom();
-   //mmdb::Atom at_2 = mmdb::Atom();
+
    mmdb::Atom *at_1 = new mmdb::Atom(); // for metal check 
    mmdb::Atom *at_2 = new mmdb::Atom();
    
@@ -610,7 +610,94 @@ coot::protein_geometry::get_nbc_dist(const std::string &energy_type_1,
    delete at_1;
    delete at_2;
    return r;
-} 
+}
+
+
+// faster, when the caller has cached the metal state
+std::pair<bool, double>
+coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
+					const std::string &energy_type_2,
+					bool is_metal_atom_1,
+					bool is_metal_atom_2,
+					bool in_same_residue_flag,
+					bool in_same_ring_flag) const {
+
+   std::pair<bool, double> r(false, 0);
+
+   std::map<std::string, coot::energy_lib_atom>::const_iterator it_1 = energy_lib.atom_map.find(energy_type_1);
+   std::map<std::string, coot::energy_lib_atom>::const_iterator it_2 = energy_lib.atom_map.find(energy_type_2);
+
+   if (it_1 != energy_lib.atom_map.end()) {
+      if (it_2 != energy_lib.atom_map.end()) {
+
+	 float radius_1 = it_1->second.vdw_radius;
+	 float radius_2 = it_1->second.vdw_radius;
+
+	 if (is_metal_atom_1) radius_1 = it_1->second.ion_radius;
+	 if (is_metal_atom_2) radius_2 = it_2->second.ion_radius;
+	 r.second = radius_1 + radius_2;
+
+	 if (in_same_residue_flag) {
+	    // I need to reject atoms that have bond (done), angle and
+	    // torsion interactions from NBC interactions, I think.  Then
+	    // I can set r.second multiplier to 1.0 maybe.
+	    //
+	    r.second *= 0.84;
+	 }
+
+	 if (in_same_ring_flag) {
+	    // ring atoms should not be NBCed to each other.  Not sure
+	    // that 5 atom rings need to be excluded in this manner.
+	    //
+	    if (it_1->first == "CR15" || it_1->first == "CR16" || it_1->first == "CR1"  ||
+		it_1->first == "CR6"  || it_1->first == "CR5"  || it_1->first == "CR5"  ||
+		it_1->first == "CR56" || it_1->first == "CR5"  || it_1->first == "CR66" ||
+		it_1->first == "NPA"  || it_1->first == "NPB"  || it_1->first == "NRD5" ||
+		it_1->first == "NRD6" || it_1->first == "NR15" || it_1->first == "NR16" ||
+		it_1->first == "NR6"  || it_1->first == "NR5") {
+
+	       if (it_2->first == "CR15" || it_2->first == "CR16" || it_2->first == "CR1"  ||
+		   it_2->first == "CR6"  || it_2->first == "CR5"  || it_2->first == "CR5"  ||
+		   it_2->first == "CR56" || it_2->first == "CR5"  || it_2->first == "CR66" ||
+		   it_2->first == "NPA"  || it_2->first == "NPB"  || it_2->first == "NRD5" ||
+		   it_2->first == "NRD6" || it_2->first == "NR15" || it_2->first == "NR16" ||
+		   it_2->first == "NR6"  || it_2->first == "NR5") {
+		  r.second = 2.2;
+	       }
+	    }
+	 }
+
+	 // hydrogen bonds can be closer
+	 //
+	 if ((it_1->second.hb_type == coot::HB_DONOR ||
+	      it_1->second.hb_type == coot::HB_BOTH  ||
+	      it_1->second.hb_type == coot::HB_HYDROGEN) &&
+	     (it_2->second.hb_type == coot::HB_ACCEPTOR ||
+	      it_2->second.hb_type == coot::HB_BOTH)) {
+	    r.second -= 0.5;
+	    // actual hydrogens to acceptors can be shorter still
+	    if (it_1->second.hb_type == coot::HB_HYDROGEN)
+	       r.second -=0.3;
+	 }
+
+	 if ((it_2->second.hb_type == coot::HB_DONOR ||
+	      it_2->second.hb_type == coot::HB_BOTH  ||
+	      it_2->second.hb_type == coot::HB_HYDROGEN) &&
+	     (it_1->second.hb_type == coot::HB_ACCEPTOR ||
+	      it_1->second.hb_type == coot::HB_BOTH)) {
+	    r.second -= 0.5;
+	    // as above
+	    if (it_1->second.hb_type == coot::HB_HYDROGEN)
+	       r.second -=0.3;
+	 }
+
+         r.first = true;
+      }
+   }
+   return r;
+}
+
+
 
 // throw a std::runtime_error if bond not found
 // 

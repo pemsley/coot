@@ -1007,6 +1007,7 @@ namespace coot {
 
       std::vector<simple_restraint> restraints_vec; 
       mmdb::PPAtom atom;
+      std::vector<bool> atom_is_metal;
       bool from_residue_vector;
       int SelHnd_atom; // the selection handle for the atom array.
 		       // Note to self: when restraints_container_t

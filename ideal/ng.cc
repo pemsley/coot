@@ -476,9 +476,11 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 	       dist_min -= 0.7;
 	 } else {
 
-	    std::pair<bool, double> nbc_dist = geom.get_nbc_dist(type_1, type_2,
-								 in_same_residue_flag,
-								 in_same_ring_flag);
+	    std::pair<bool, double> nbc_dist = geom.get_nbc_dist_v2(type_1, type_2,
+								    atom_is_metal[i],
+								    atom_is_metal[j],
+								    in_same_residue_flag,
+								    in_same_ring_flag);
 
 	    if (nbc_dist.first) {
 

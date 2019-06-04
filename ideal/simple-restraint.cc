@@ -865,6 +865,10 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 	 atom_index++;
       }
    }
+   atom_is_metal.resize(n_atoms, false);
+   for (int iat=0; iat<n_atoms; iat++) {
+      atom_is_metal[iat] = geom.atom_is_metal(atom[iat]);
+   }
 
    // fill fixed_neighbours_set:
    //
