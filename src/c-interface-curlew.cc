@@ -36,6 +36,7 @@ using json = nlohmann::json;
 
 #include "graphics-info.h" // for extensions register // after json.hpp
 
+#include "curlew.h"
 #include "curlew.hh"
 
 

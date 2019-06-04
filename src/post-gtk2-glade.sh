@@ -69,4 +69,4 @@ $SED -e 's/#include "callbacks.h.gtk2"/#include "callbacks.h"/' \
 
 cp gtk2-interface.post-sed gtk2-interface.c
 sh fixup-gtk2-interface.sh
-
+bash fixup-interface.h.sh
