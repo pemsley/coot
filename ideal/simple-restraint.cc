@@ -6233,7 +6233,7 @@ coot::restraints_container_t::add_chirals(int idr, mmdb::PPAtom res_selection,
 				    // If not set to -1.
 				    //
 
-				    int chiral_hydrogen_index_old = get_chiral_hydrogen_index(indexc, index1, index2, index3);
+				    // int chiral_hydrogen_index_old = get_chiral_hydrogen_index(indexc, index1, index2, index3);
 
 				    int chiral_hydrogen_index = get_chiral_hydrogen_index(indexc, index1, index2, index3, dcr);
 

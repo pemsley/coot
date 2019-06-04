@@ -788,6 +788,39 @@ graphics_info_t::debug_refinement() {
 }
 
 
+coot::refinement_results_t
+graphics_info_t::refine_molecule(int imol, mmdb::Manager *mol) {
+
+   // This path is needed/is necessary when interactively refining ribosomes
+
+   bool use_map_flag = true;
+   coot::refinement_results_t rr = generate_molecule_from_molecule_and_refine(imol, mol, use_map_flag);
+
+   if (rr.found_restraints_flag) {
+      graphics_draw();
+      if (! refinement_immediate_replacement_flag) {
+	 if (use_graphics_interface_flag) {
+	    do_accept_reject_dialog("Refinement", rr);
+	    check_and_warn_inverted_chirals_and_cis_peptides();
+	 }
+      }
+   }
+   return rr;
+
+}
+
+coot::refinement_results_t
+graphics_info_t::refine_chain(int imol, const std::string &chain_id, mmdb::Manager *mol) {
+
+   // fill me in at some stage, something along the lines of refine_molecule()
+   // Note that make_moving_atoms_asc() is slow if it's done residue by residue
+   // So write another version of  make_moving_atoms_asc() that takes the whole chain.
+
+   coot::refinement_results_t rr(0, GSL_CONTINUE, "");
+
+   return rr;
+}
+
 
 coot::refinement_results_t 
 graphics_info_t::refine_residues_vec(int imol, 
@@ -832,6 +865,177 @@ graphics_info_t::regularize_residues_vec(int imol,
    return rr;
 }
 
+
+// copy the functionality of generate_molecule_and_refine() but don't mess about with residues (until you have to)
+// Factor out the construction of last_restraints and make_restraints(). Don't repeat that.
+//
+coot::refinement_results_t
+graphics_info_t::generate_molecule_from_molecule_and_refine(int imol, mmdb::Manager *mol, bool use_map_flag) {
+
+   // Note that make_moving_atoms_asc() is slow if it's done residue by residue.
+   // So write another version of make_moving_atoms_asc() that takes the whole mol (trivial).
+
+   coot::refinement_results_t rr(0, GSL_CONTINUE, "");
+
+   std::cout << "fill me in" << std::endl;
+
+   // check that if we are using a map that it is valid
+
+   // Need this for the molecule:
+//       std::vector<std::string> residue_types = coot::util::residue_types_in_residue_vec(residues);
+//       // use try_dynamic_add()
+//       bool have_restraints = geom_p->have_dictionary_for_residue_types(residue_types, imol,
+// 								       cif_dictionary_read_number);
+//       cif_dictionary_read_number += residue_types.size();
+
+   // check that the names of the atoms match the dictionary:
+// 	    bool check_hydrogens_too_flag = false;
+// 	    std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
+// 	       icheck_atoms = Geom_p()->atoms_match_dictionary(imol, residues, check_hydrogens_too_flag, false);
+
+   // then create an mmdb::Manager that is the moving molecule
+   // make a vector of all the residues in moving molecule (to be used in refinement).
+
+   // set imol_moving_atoms = imol;
+   // set moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
+
+   // save moving_atoms_n_cis_peptides for use with the dialog later:
+   // int n_cis = coot::util::count_cis_peptides(local_moving_atoms_asc.mol);
+   // moving_atoms_n_cis_peptides = n_cis;
+
+   // std::vector<coot::atom_spec_t> fixed_atom_specs = molecules[imol].get_fixed_atoms();
+
+   // then call the (factored out in the future): last_restraints = new restraints_container_t(...)
+
+   return rr;
+}
+
+#ifdef  HAVE_GSL
+
+// return the state of having found restraints.
+bool
+graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Residue *> > &local_residues,
+				      const std::vector<mmdb::Link> &links,
+				      const coot::protein_geometry &geom,
+				      mmdb::Manager *mol_for_residue_selection,
+				      const std::vector<coot::atom_spec_t> &fixed_atom_specs,
+				      coot::restraint_usage_Flags flags,
+				      bool use_map_flag,
+				      const clipper::Xmap<float> *xmap_p) {
+
+   if (last_restraints) {
+      std::cout << "----------------------------------------------" << std::endl;
+      std::cout << "----------------------------------------------" << std::endl;
+      std::cout << "    ERROR:: A: last_restraints not cleared up " << std::endl;
+      std::cout << "----------------------------------------------" << std::endl;
+      std::cout << "----------------------------------------------" << std::endl;
+   }
+
+   if (false) { // these are the passed residues, nothing more.
+      std::cout << "debug:: on construction of restraints_container_t local_residues: "
+		<< std::endl;
+      for (std::size_t jj=0; jj<local_residues.size(); jj++) {
+	 std::cout << "   " << coot::residue_spec_t(local_residues[jj].second)
+		   << " is fixed: " << local_residues[jj].first << std::endl;
+      }
+   }
+
+   moving_atoms_extra_restraints_representation.clear();
+   continue_threaded_refinement_loop = true; // no longer set in refinement_loop_threaded()
+
+   // the refinment of torsion seems a bit confused? If it's in flags, why does it need an flag
+   // of its own? I suspect that it doesn't. For now I will keep it (as it was).
+   //
+   bool do_residue_internal_torsions = false;
+   if (do_torsion_restraints) {
+      do_residue_internal_torsions = 1;
+   }
+
+   last_restraints = new
+      coot::restraints_container_t(local_residues,
+				   links,
+				   *Geom_p(),
+				   mol_for_residue_selection,
+				   fixed_atom_specs, xmap_p);
+
+   // This seems not to work yet.
+   // last_restraints->set_dist_crit_for_bonded_pairs(9.0);
+
+   if (use_map_flag)
+      last_restraints->add_map(geometry_vs_map_weight);
+
+   unsigned int n_threads = coot::get_max_number_of_threads();
+   if (n_threads > 0)
+      last_restraints->thread_pool(&static_thread_pool, n_threads);
+
+   if (true)
+      std::cout << "---------- debug:: in generate_molecule_and_refine() "
+		<< " calling restraints.make_restraints() with imol "
+		<< imol_moving_atoms << " "
+		<< molecules[imol_moving_atoms].extra_restraints.has_restraints()
+		<<  " " << molecules[imol_moving_atoms].extra_restraints.bond_restraints.size()
+		<< std::endl;
+
+   all_atom_pulls_off();
+   int n_restraints = last_restraints->make_restraints(imol_moving_atoms,
+						       *Geom_p(), flags,
+						       do_residue_internal_torsions,
+						       do_trans_peptide_restraints,
+						       rama_plot_restraint_weight,
+						       do_rama_restraints,
+						       true, true,
+						       pseudo_bonds_type);
+   // link and flank args default true
+
+   last_restraints->set_geman_mcclure_alpha(geman_mcclure_alpha);
+   last_restraints->set_lennard_jones_epsilon(graphics_info_t::lennard_jones_epsilon);
+   last_restraints->set_rama_type(restraints_rama_type);
+   last_restraints->set_rama_plot_weight(rama_restraints_weight); // >2? danger of non-convergence
+   // if planar peptide restraints are used
+
+   // Oh, I see... it's not just the non-Bonded contacts of the hydrogens.
+   // It's the planes, chiral and angles too. Possibly bonds too.
+   // How about marking non-H atoms in restraints that contain H atoms as
+   // "invisible"? i.e. non-H atoms are not influenced by the positions of the
+   // Hydrogen atoms (but Hydrogen atoms *are* influenced by the positions of the
+   // non-Hydrogen atoms). This seems like a lot of work. Might be easier to turn
+   // off angle restraints for H-X-X (but not H-X-H) in the first instance, that
+   // should go most of the way to what "invisible" atoms would do, I imagine.
+   // is_H_non_bonded_contact should be renamed to is_H_turn_offable_restraint
+   // or something.
+   //
+   // last_restraints->set_apply_H_non_bonded_contacts(false);
+
+   if (molecules[imol_moving_atoms].extra_restraints.has_restraints())
+      last_restraints->add_extra_restraints(imol_moving_atoms, molecules[imol_moving_atoms].extra_restraints, *Geom_p());
+
+   if (do_numerical_gradients)
+      last_restraints->set_do_numerical_gradients();
+
+   bool found_restraints_flag = false;
+
+   if (last_restraints->size() > 0) {
+
+      thread_for_refinement_loop_threaded();
+      found_restraints_flag = true;
+      // rr.found_restraints_flag = true;
+
+      if (refinement_immediate_replacement_flag) {
+	 // wait until refinement finishes
+	 while (restraints_lock)
+	    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+      }
+
+   } else {
+      GtkWidget *widget = create_no_restraints_info_dialog();
+      gtk_widget_show(widget);
+   }
+
+   return found_restraints_flag;
+}
+#endif // HAVE_GSL
+
+
 // simple mmdb::Residue * interface to refinement.  20081216
 //
 coot::refinement_results_t
@@ -851,7 +1055,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
       float weight = geometry_vs_map_weight;
       // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
       coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
-      short int do_residue_internal_torsions = 0;
+      bool do_residue_internal_torsions = false;
       if (do_torsion_restraints) { 
 	 do_residue_internal_torsions = 1;
 	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
@@ -963,105 +1167,14 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	       if (is_valid_map_molecule(imol_for_map))
 		  xmap_p = &molecules[imol_for_map].xmap;
 
-	       if (last_restraints) {
-		  std::cout << "----------------------------------------------" << std::endl;
-		  std::cout << "----------------------------------------------" << std::endl;
-		  std::cout << "    ERROR:: A: last_restraints not cleared up " << std::endl;
-		  std::cout << "----------------------------------------------" << std::endl;
-		  std::cout << "----------------------------------------------" << std::endl;
-	       }
+	       bool found_restraints_flag = make_last_restraints(local_residues,
+								 local_moving_atoms_asc.links,
+								 *Geom_p(),
+								 residues_mol_and_res_vec.first,
+								 fixed_atom_specs,
+								 flags, use_map_flag, xmap_p);
+	       rr.found_restraints_flag = found_restraints_flag;
 
-	       if (false) { // these are the passed residues, nothing more.
-		  std::cout << "debug:: on construction of restraints_container_t local_residues: "
-			    << std::endl;
-		  for (std::size_t jj=0; jj<local_residues.size(); jj++) {
-		     std::cout << "   " << coot::residue_spec_t(local_residues[jj].second)
-			       << " is fixed: " << local_residues[jj].first << std::endl;
-		  }
-	       }
-
-	       moving_atoms_extra_restraints_representation.clear();
-               continue_threaded_refinement_loop = true; // no longer set in refinement_loop_threaded()
-	       last_restraints = new
-		  coot::restraints_container_t(local_residues,
-					       local_moving_atoms_asc.links,
-					       *Geom_p(),
-					       residues_mol_and_res_vec.first,
-					       fixed_atom_specs, xmap_p);
-
-	       // This seems not to work yet.
-	       // last_restraints->set_dist_crit_for_bonded_pairs(9.0);
-
-	       if (use_map_flag)
-		  last_restraints->add_map(weight);
-
-#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
-
-	       unsigned int n_threads = coot::get_max_number_of_threads();
-	       if (n_threads > 0)
-		  last_restraints->thread_pool(&static_thread_pool, n_threads);
-
-#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
-
-	       if (true)
-		  std::cout << "---------- debug:: in generate_molecule_and_refine() "
-			    << " calling restraints.make_restraints() with imol "
-			    << imol << " "
-			    << molecules[imol].extra_restraints.has_restraints()
-			    <<  " " << molecules[imol].extra_restraints.bond_restraints.size()
-			    << std::endl;
-
-               all_atom_pulls_off();
-	       int n_restraints = last_restraints->make_restraints(imol,
-								   *Geom_p(), flags,
-								   do_residue_internal_torsions,
-								   do_trans_peptide_restraints,
-								   rama_plot_restraint_weight,
-								   do_rama_restraints,
-								   true, true,
-								   pseudo_bonds_type);
-            	                                                   // link and flank args default true
-
-	       last_restraints->set_geman_mcclure_alpha(geman_mcclure_alpha);
-               last_restraints->set_lennard_jones_epsilon(graphics_info_t::lennard_jones_epsilon);
-               last_restraints->set_rama_type(restraints_rama_type);
-               last_restraints->set_rama_plot_weight(rama_restraints_weight); // >2? danger of non-convergence
-                                                                              // if planar peptide restraints are used
-
-	       // Oh, I see... it's not just the non-Bonded contacts of the hydrogens.
-	       // It's the planes, chiral and angles too. Possibly bonds too.
-	       // How about marking non-H atoms in restraints that contain H atoms as
-	       // "invisible"? i.e. non-H atoms are not influenced by the positions of the
-	       // Hydrogen atoms (but Hydrogen atoms *are* influenced by the positions of the
-	       // non-Hydrogen atoms). This seems like a lot of work. Might be easier to turn
-	       // off angle restraints for H-X-X (but not H-X-H) in the first instance, that
-	       // should go most of the way to what "invisible" atoms would do, I imagine.
-	       // is_H_non_bonded_contact should be renamed to is_H_turn_offable_restraint
-	       // or something.
-	       //
-	       // last_restraints->set_apply_H_non_bonded_contacts(false);
-
-	       if (molecules[imol].extra_restraints.has_restraints())
-		  last_restraints->add_extra_restraints(imol, molecules[imol].extra_restraints, *Geom_p());
-
-	       if (do_numerical_gradients)
-		  last_restraints->set_do_numerical_gradients();
-
-	       if (last_restraints->size() > 0) {
-
-		  thread_for_refinement_loop_threaded();
-		  rr.found_restraints_flag = true;
-
-                  if (refinement_immediate_replacement_flag) {
-                     // wait until refinement finishes
-                     while (restraints_lock)
-                        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-                  }
-
-	       } else {
-		  GtkWidget *widget = create_no_restraints_info_dialog();
-		  gtk_widget_show(widget);
-	       }
 	    }
 	 }
       } else {
@@ -1614,8 +1727,9 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 	 r = coot::deep_copy_this_residue(flankers_in_reference_mol[ires],
 					  alt_conf, whole_res_flag,
 					  atom_index_udd_handle);
-	 r->PutUDData(index_from_reference_residue_handle, flankers_in_reference_mol[ires]->index);
 	 if (r) {
+
+	    r->PutUDData(index_from_reference_residue_handle, flankers_in_reference_mol[ires]->index);
 
 	    // copy over the atom indices. UDDAtomIndexHandle in mol_n becomes UDDOldAtomIndexHandle
 	    // indices in the returned molecule
@@ -4989,7 +5103,7 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 	 }
       }
    }
-#endif // HAVE_GSL   
+#endif // HAVE_GSL
 }
 
 

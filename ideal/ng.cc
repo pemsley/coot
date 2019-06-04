@@ -704,10 +704,11 @@ coot::restraints_container_t::make_link_restraints_for_link_ng(const std::string
 
    if (restraints_usage_flag & PLANES_MASK)
       lrc.n_link_plane_restr += add_link_plane(link_type,
-					   res_1, res_2,
-					   is_fixed_first_residue,
-					   is_fixed_second_residue,
-					   geom);
+					       res_1, res_2,
+					       is_fixed_first_residue,
+					       is_fixed_second_residue,
+					       geom);
+
    return lrc;
 }
 
@@ -822,6 +823,8 @@ coot::restraints_container_t::try_make_peptide_link_ng(const coot::protein_geome
 
 }
 
+#include "coot-utils/coot-coord-extras.hh"
+
 std::pair<bool, coot::restraints_container_t::link_restraints_counts>
 coot::restraints_container_t::try_make_phosphodiester_link_ng(const coot::protein_geometry &geom,
 							      std::pair<bool, mmdb::Residue *> res_1_pair,
@@ -834,8 +837,9 @@ coot::restraints_container_t::try_make_phosphodiester_link_ng(const coot::protei
    bool status = false;
    link_restraints_counts lrc;
 
-   if (util::is_standard_amino_acid_name(res_name_1)) {
-      if (util::is_standard_amino_acid_name(res_name_2)) {
+   if (util::is_nucleotide_by_dict(res_1, geom)) {
+      if (util::is_nucleotide_by_dict(res_2, geom)) {
+	 
 	 mmdb::Atom **residue_1_atoms = 0;
 	 mmdb::Atom **residue_2_atoms = 0;
 	 int n_residue_1_atoms;
@@ -845,27 +849,25 @@ coot::restraints_container_t::try_make_phosphodiester_link_ng(const coot::protei
 	 for (int iat_1=0; iat_1<n_residue_1_atoms; iat_1++) {
 	    mmdb::Atom *at_1 = residue_1_atoms[iat_1];
 	    std::string at_name_1(at_1->GetAtomName());
-	    if (at_name_1 == " C  ") { // PDBv3 FIXE
+	    if (at_name_1 == " O3'") { // PDBv3 FIXE
 	       std::string alt_conf_1(at_1->altLoc);
 	       for (int iat_2=0; iat_2<n_residue_2_atoms; iat_2++) {
 		  mmdb::Atom *at_2 = residue_2_atoms[iat_2];
 		  std::string at_name_2(at_2->GetAtomName());
-		  if (at_name_2 == " N  ") { // PDBv3 FIXE
+		  if (at_name_2 == " P  ") { // PDBv3 FIXE
 		     std::string alt_conf_2(at_2->altLoc);
 		     if (alt_conf_1 == alt_conf_2 || alt_conf_1.empty() || alt_conf_2.empty()) {
 
 			// find_peptide_link_type_ng doesn't test the geometry -
 			// just the residues types
-			std::string link_type = find_peptide_link_type_ng(res_1, res_2, geom);
-			if (! link_type.empty()) {
-			   bool is_fixed_first_residue  = res_1_pair.first;
-			   bool is_fixed_second_residue = res_2_pair.first;
-			   lrc = make_link_restraints_for_link_ng(link_type, res_1, res_2,
-								  is_fixed_first_residue,
-								  is_fixed_second_residue,
-								  false, geom);
-			   status = true;
-			}
+			std::string link_type = "p";
+			bool is_fixed_first_residue  = res_1_pair.first;
+			bool is_fixed_second_residue = res_2_pair.first;
+			lrc = make_link_restraints_for_link_ng(link_type, res_1, res_2,
+							       is_fixed_first_residue,
+							       is_fixed_second_residue,
+							       false, geom);
+			status = true;
 		     }
 		  }
 	       }
@@ -950,6 +952,9 @@ coot::restraints_container_t::make_polymer_links_ng(const coot::protein_geometry
 	       accum_links.add(results.second);
 	    } else {
 	       results = try_make_phosphodiester_link_ng(geom, residues_vec[i1], residues_vec[i2]);
+	       if (results.first) {
+		  accum_links.add(results.second);
+	       }
 	    }
 
 	    if (results.first) {

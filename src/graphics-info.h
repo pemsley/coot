@@ -719,10 +719,19 @@ class graphics_info_t {
 
 #ifdef  HAVE_GSL
    static coot::restraints_container_t *last_restraints;
-#endif // HAVE_GSL   
+
+   // return the state of having found restraints.
+   bool make_last_restraints(const std::vector<std::pair<bool,mmdb::Residue *> > &local_resiudes,
+			     const std::vector<mmdb::Link> &links,
+			     const coot::protein_geometry &geom,
+			     mmdb::Manager *mol_for_residue_selection,
+			     const std::vector<coot::atom_spec_t> &fixed_atom_specs,
+			     coot::restraint_usage_Flags flags,
+			     bool use_map_flag,
+			     const clipper::Xmap<float> *xmap_p);
+#endif // HAVE_GSL
+
    // the mode flag is public:
-
-
    void run_post_manipulation_hook(int imol, int mode);
    // which uses the following...
 #ifdef USE_GUILE
@@ -771,7 +780,7 @@ class graphics_info_t {
    void handle_rama_plot_update(coot::rama_plot *plot);
 #endif
 
-#ifdef HAVE_GSL   
+#ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    // Geometry Graphs:
    coot::geometry_graphs * geometry_graph_dialog_to_object(GtkWidget *w) const {
@@ -1975,6 +1984,8 @@ public:
 				  const std::string &alt_conf,
 				  mmdb::Manager *mol, 
 				  bool use_map_flag);
+   coot::refinement_results_t
+     generate_molecule_from_molecule_and_refine(int imol, mmdb::Manager *mol, bool use_map_flag);
 
    coot::refinement_results_t
      refine_residues_vec(int imol,
@@ -1986,6 +1997,8 @@ public:
 			     const std::vector<mmdb::Residue *> &residues,
 			     const std::string &alt_conf,
 			     mmdb::Manager *mol);
+   coot::refinement_results_t refine_molecule(int imol, mmdb::Manager *mol);
+   coot::refinement_results_t refine_chain(int imol, const std::string &chain_id, mmdb::Manager *mol);
 			       
 
    // on reading a pdb file, we get a list of residues, use these to
@@ -3076,7 +3089,7 @@ public:
        return last_restraints->size();
      }
    }
-#endif // HAVE_GSL   
+#endif // HAVE_GSL
    static int dragged_refinement_steps_per_frame;
    static short int dragged_refinement_refine_per_frame_flag;
    static bool refinement_move_atoms_with_zero_occupancy_flag;
