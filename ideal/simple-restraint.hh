@@ -167,6 +167,9 @@ namespace coot {
 #define RADTODEG 57.29577793
 #endif
 
+// for conversion between the old atom index and new atom index for extra bond restraints
+#define ATOM_INDEX_MAX 500000 // is that enough?
+
 namespace coot {
 
 
@@ -1008,12 +1011,14 @@ namespace coot {
       std::vector<simple_restraint> restraints_vec; 
       mmdb::PPAtom atom;
       std::vector<bool> atom_is_metal;
+      std::vector<int>  old_atom_index_to_new_atom_index;
+      void fill_old_to_new_index_vector(); // for fast extra bond (GM) restraints
       bool from_residue_vector;
       int SelHnd_atom; // the selection handle for the atom array.
 		       // Note to self: when restraints_container_t
 		       // goes out of scope, we should do a
 		       // mol->DeleteSelection(SelHnd_atom).
-      // atom_selection_container_t asc;
+
 
       gsl_multimin_fdfminimizer *m_s;
       double m_initial_step_size;
@@ -2281,6 +2286,8 @@ namespace coot {
       void add_extra_parallel_plane_restraints(int imol,
 					       const extra_restraints_t &extra_restraints,
 					       const protein_geometry &geom);
+      // can I find the atoms using the atom indices from the original molecule?
+      bool try_add_using_old_atom_indices(const extra_restraints_t::extra_bond_restraint_t &ebr);
 
       // rama_type is public, maybe instead use get_rama_type()
       enum { RAMA_TYPE_ZO, RAMA_TYPE_LOGRAMA };

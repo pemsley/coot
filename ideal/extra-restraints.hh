@@ -196,6 +196,7 @@ namespace coot {
 	 for (unsigned int i=0; i<r.parallel_plane_restraints.size(); i++)
 	    parallel_plane_restraints.push_back(r.parallel_plane_restraints[i]);
       }
+
       void delete_restraints_for_residue(const residue_spec_t &rs);
       // updates restraint on atom if it can, else adds
       void add_start_pos_restraint(const atom_spec_t &atom_1_in, double esd_in) {
