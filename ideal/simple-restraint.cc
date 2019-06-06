@@ -3717,6 +3717,8 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 	 // now combine mod_counts with local
       }
    }
+
+   // local.report(false);
    return local;
 }
 
@@ -5934,7 +5936,7 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 			// 
 			std::vector<bool> fixed_flags = make_fixed_flags(index1, index2);
 
-			if (false)
+			if (debug)
 			   std::cout << "creating (monomer) bond restraint, idr " << idr
 				     << " with fixed flags "
 				     << fixed_flags[0] << " " << fixed_flags[1] << " "

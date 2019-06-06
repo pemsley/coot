@@ -119,12 +119,15 @@ public:
       atom_selection = 0;
       mol = 0; 
    }
-   
+
    void delete_atom_selection() { 
       mol->DeleteSelection(SelectionHandle);
       n_selected_atoms = 0;
       atom_selection = 0;
    }
+
+   // sets UDDOldAtomIndexHandle
+   void add_old_atom_indices();
 
    //! return 0,0,0 on no centre.
    //! centre is not weighted by occupancy or atomic number

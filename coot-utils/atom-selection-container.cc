@@ -89,7 +89,7 @@ get_atom_selection(std::string pdb_name,
 	  lig_build::molfile_molecule_t m;
 	  m.read(pdb_name);
 	  asc = coot::mdl_mol_to_asc(m);
-       } 
+       }
 #else        
        lig_build::molfile_molecule_t m;
        m.read(pdb_name);
@@ -216,7 +216,7 @@ get_atom_selection(std::string pdb_name,
 	  asc = make_asc(asc.mol);
 
 	  // debug atom names
-	  if (0) { 
+	  if (false) {
 	     for (int i=0; i<asc.n_selected_atoms; i++) {
 		std::cout << i << " "
 			  << asc.atom_selection[i]->GetChainID() << " "
@@ -226,6 +226,7 @@ get_atom_selection(std::string pdb_name,
 	  }
 
 	  fix_element_name_lengths(asc.mol); // should not be needed with new mmdb
+
 	  if (convert_to_v2_name_flag)
 	     fix_nucleic_acid_residue_names(asc);
 	  fix_away_atoms(asc);
@@ -631,7 +632,7 @@ make_asc(mmdb::Manager *mol, bool transfer_atom_index_flag) {
    int nSelAtoms;
    asc.mol->GetSelIndex(asc.SelectionHandle, asc.atom_selection, asc.n_selected_atoms);
 
-   int uddHnd = mol->RegisterUDInteger(mmdb::UDR_ATOM , "atom index");
+   int uddHnd = mol->RegisterUDInteger(mmdb::UDR_ATOM, "atom index");
    if (uddHnd < 0) {
       std::cout << "ERROR:: ----------------- atom index registration failed.\n";
    } else {
@@ -650,6 +651,17 @@ make_asc(mmdb::Manager *mol, bool transfer_atom_index_flag) {
    }
 
    return asc;
+}
+
+void
+atom_selection_container_t::add_old_atom_indices() {
+
+   if (mol) {
+      UDDOldAtomIndexHandle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "old atom index");
+      for (int i=0; i<n_selected_atoms; i++)
+	 atom_selection[i]->PutUDData(UDDOldAtomIndexHandle, i);
+   }
+
 }
 
 
