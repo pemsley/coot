@@ -3117,10 +3117,11 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
 						     bool allow_minimal_flag) const {
 
    int r = -1;
+   bool debug = false;
 
    unsigned int nrest = dict_res_restraints.size();
    for (unsigned int i=0; i<nrest; i++) {
-      if (false)
+      if (debug)
 	 std::cout << "in get_monomer_restraints_index() comparing \""
 		   << dict_res_restraints[i].second.residue_info.comp_id << "\" vs \"" << monomer_type
 		   << "\" and " << dict_res_restraints[i].first << " " <<  imol_enc
@@ -3149,7 +3150,6 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
       }
    }
    
-
    if (r == -1) {
       // OK, that failed to, perhaps there is a synonym?
       for (unsigned int i=0; i<residue_name_synonyms.size(); i++) { 
@@ -3158,7 +3158,7 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
 	       int ndict = dict_res_restraints.size();
 	       for (int j=0; j<ndict; j++) {
 		  if (dict_res_restraints[j].second.residue_info.comp_id == residue_name_synonyms[i].comp_id) {
-		     r = i;
+		     r = j;
 		     break;
 		  }
 	       }
