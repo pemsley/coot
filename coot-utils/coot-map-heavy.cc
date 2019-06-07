@@ -21,6 +21,7 @@
  */
 
 
+#include <thread>
 
 #include "clipper/core/map_interp.h"
 #include "clipper/core/hkl_compute.h"
@@ -31,7 +32,6 @@
 #include "coot-map-utils.hh"
 #include "coot-coord-utils.hh"
 #include "coot-coord-extras.hh" // torsionable-bonds
-
 
 #ifdef HAVE_GSL
 // return status success (something moved = 1) or error/failure (0)
@@ -471,8 +471,32 @@ coot::util::make_rtop_orth_for_jiggle_atoms(float jiggle_trans_scale_factor,
 #include "atom-selection-container.hh"
 #include "coords/mmdb-crystal.h"
 
+typedef clipper::NXmap<float>::Map_reference_index NRI;
+
+void
+xmap_to_nxmap_workpackage(const clipper::Xmap<float> &xmap,
+			  clipper::NXmap<float> *nxmap_p,
+			  const std::pair<NRI, NRI> &start_stop) {
+
+   std::cout << "starting workpackage" << std::endl;
+
+   clipper::Coord_grid offset =
+      xmap.coord_map(nxmap_p->coord_orth(clipper::Coord_map(0.0,0.0,0.0))).coord_grid();
+
+   std::cout << "debug:: " << start_stop.first.index() << " " << start_stop.second.index() << std::endl;
+
+   clipper::Xmap<float>::Map_reference_coord ix(xmap);
+   for (NRI inx = start_stop.first; inx.index() != start_stop.second.index(); inx.next()) {
+      ix.set_coord(inx.coord() + offset);
+      (*nxmap_p)[inx] = xmap[ix];
+   }
+}
+
 clipper::NXmap<float>
 coot::util::make_nxmap(const clipper::Xmap<float> &xmap, mmdb::Manager *mol, int SelectionHandle, float border) {
+
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+   bool debug = false;
 
    std::pair<clipper::Coord_orth, clipper::Coord_orth> p = util::extents(mol, SelectionHandle);
 
@@ -515,11 +539,61 @@ coot::util::make_nxmap(const clipper::Xmap<float> &xmap, mmdb::Manager *mol, int
    clipper::Xmap<float>::Map_reference_coord ix(xmap);
    clipper::Coord_grid offset =
       xmap.coord_map(nxmap.coord_orth(clipper::Coord_map(0.0,0.0,0.0))).coord_grid();
-   typedef clipper::NXmap<float>::Map_reference_index NRI;
-   for (NRI inx = nxmap.first(); !inx.last(); inx.next()) {
-      ix.set_coord(inx.coord() + offset);
-      nxmap[inx] = xmap[ix];
+   int n_threads = 4; // the number of layers
+   std::vector<std::pair<NRI, NRI> > map_ref_start_stops(n_threads);
+   int nu = nxmap.grid().nu();
+   int nv = nxmap.grid().nv();
+   int nw = nxmap.grid().nw();
+   int nu_step = nu/n_threads;
+   // round that up if not exact
+   if ((nu_step * n_threads) < nu)
+      nu_step++;
+   if (debug) {
+      std::cout << "nxmap size() " << nxmap.grid().size() << std::endl;
+      std::cout << "nxmap grid() " << nxmap.grid().format() << std::endl;
+      std::cout << "nu " << nu << " nv " << nv << " nw " << nw << std::endl;
+      std::cout << "nu_step " << nu_step << std::endl;
    }
+
+   // MaxInt (32): 2,147,483,647
+
+   // Is there a more elegant way to get an NRI for the end of the grid?
+   NRI grid_end(nxmap, clipper::Coord_grid(nu-1, nv-1, nw)); // first bad index
+   if (debug)
+      std::cout << "grid_end: " << grid_end.index() << " " << grid_end.coord().format() << std::endl;
+   for (int i=0; i<n_threads; i++) {
+      NRI layer_start = NRI(nxmap, clipper::Coord_grid(nu_step*i,     0, 0));
+      NRI layer_end   = NRI(nxmap, clipper::Coord_grid(nu_step*(i+1), 0, 0));
+      if (layer_end.index() > nxmap.grid().size())
+	 layer_end = grid_end;
+      map_ref_start_stops[i] = std::pair<NRI, NRI> (layer_start, layer_end);
+      if (debug)
+	 std::cout << "debug::" << layer_start.index() << " " << layer_end.index() << std::endl;
+   }
+
+   bool single_thread_method = false;
+   if (single_thread_method) {
+      for (NRI inx = nxmap.first(); !inx.last(); inx.next()) {
+	 ix.set_coord(inx.coord() + offset);
+	 nxmap[inx] = xmap[ix];
+      }
+   } else {
+      std::vector<std::thread> threads;
+      for (int i=0; i<n_threads; i++) {
+	 threads.push_back(std::thread(xmap_to_nxmap_workpackage,
+				       std::cref(xmap), &nxmap, std::cref(map_ref_start_stops[i])));
+	 std::this_thread::sleep_for(std::chrono::microseconds(1));
+      }
+
+      for (int i=0; i<n_threads; i++)
+	 threads[i].join();
+   }
+   if (debug)
+      std::cout << "returning from make_nxmap() " << nxmap.grid().format() << std::endl;
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   if (false)
+      std::cout << "------------------- make_nxmap() timing: " << d10 << " milliseconds " << std::endl;
    return nxmap;
 }
 
