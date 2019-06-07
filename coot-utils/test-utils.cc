@@ -589,6 +589,32 @@ void density_for_atoms_multithread(int thread_index,
 
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
+int test_nxmap_simple(int argc, char **argv) {
+
+   int status = 0;
+
+   if (argc <= 2) {
+      std::cout << "Usage: " << argv[0] << " map_file_name pdb_file_name" << std::endl;
+   } else {
+      // Happy path
+      std::string map_file_name = argv[1];
+      std::string pdb_file_name = argv[2];
+      clipper::CCP4MAPfile file;
+      clipper::Xmap<float> xmap;
+      file.open_read(map_file_name);
+      file.import_xmap(xmap);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
+      clipper::NXmap<float> nxmap = coot::util::make_nxmap(xmap, asc);
+
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write("nxmap.map");
+      mapout.set_cell(xmap.cell());
+      mapout.export_nxmap(nxmap);
+      mapout.close_write();
+   }
+   return 1;
+}
+
 int test_nxmap(int argc, char **argv) {
 
    int status = 0;
@@ -1012,7 +1038,7 @@ test_merge_fragments(int argc, char **argv) {
 
 int main(int argc, char **argv) {
 
-   if (1)
+   if (0)
       test_all_atom_overlaps();
 
    if (0)
@@ -1053,14 +1079,11 @@ int main(int argc, char **argv) {
    if (0)
       test_reduce();
 
-//    if (true)
-//       test_cp();
+   if (false)
+       test_cp();
 
    if (false)
       test_soi(argc, argv);
-
-   if (false)
-      test_nxmap(argc, argv);
 
    if (false)
       test_bonded_atoms(argc, argv);
@@ -1068,7 +1091,7 @@ int main(int argc, char **argv) {
    if (false)
       test_string_split();
    
-   if (true)
+   if (false)
       test_xmap_edcalc(argc, argv);
 
    if (false)
@@ -1079,6 +1102,9 @@ int main(int argc, char **argv) {
 
    if (false)
       test_merge_fragments(argc, argv);
+
+   if (true)
+      test_nxmap_simple(argc, argv);
 
    return 0;
 }
