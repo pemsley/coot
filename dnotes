@@ -8971,3 +8971,8 @@ Sun 12 May 2019 14:38:04 BST
 
    https://wiki.gnome.org/Projects/GTK/OSX
 
+---
+Thu  6 Jun 22:13:09 BST 2019
+
+   Here is how to get rid of gtk_misc_get_type and others:
+   https://github.com/abrt/libreport/commit/fbd0a76180633c7d50be01ea69ad734749db18a8

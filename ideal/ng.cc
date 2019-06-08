@@ -89,6 +89,11 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       non_bonded_contacts_atom_indices.resize(n_atoms_limit_for_nbc);
       // the non-threaded version has a different limit on the
       // non_bonded_contacts_atom_indices (so, out of range if you use it?)
+
+      if (! thread_pool_p) {
+         std::cout << "--------- ERROR:: - thread pool was not set! ---------" << std::endl;
+         // and yet we continue... that's bad news.
+      }
       make_non_bonded_contact_restraints_using_threads_ng(imol, geom);
       auto tp_5 = std::chrono::high_resolution_clock::now();
 
@@ -649,13 +654,14 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
       std::string et = get_type_energy(imol, at, geom);
       energy_type_for_atom[i] = et;
       if (H_parent_atom_is_donor(at))
-	 H_atom_parent_atom_is_donor_vec[i] = true;
+         H_atom_parent_atom_is_donor_vec[i] = true;
       if (is_acceptor(et, geom))
-	 atom_is_acceptor_vec[i] = true;
+         atom_is_acceptor_vec[i] = true;
    }
    auto tp_1 = std::chrono::high_resolution_clock::now();
-   auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
-   // std::cout << "   info:: make_non_bonded_contact_restraints_ng(): energy types " << d10 << " microseconds\n";
+   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   std::cout << "------------------ timings: make_non_bonded_contact_restraints_ng(): energy types "
+             << d10 << " milliseconds\n";
 
    std::map<std::string, std::pair<bool, std::vector<std::list<std::string> > > > residue_ring_map_cache;
 
@@ -664,12 +670,15 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
    for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
       fixed_atom_flags_set.insert(*it);
 
+   auto tp_2 = std::chrono::high_resolution_clock::now();
    float dist_max = 8.0;
    // I think that contacts_by_bricks should take a set of ints
    contacts_by_bricks cb(atom, n_atoms, fixed_atom_flags_set);
    cb.set_dist_max(dist_max);
    std::vector<std::set<unsigned int> > vcontacts;
    cb.find_the_contacts(&vcontacts);
+
+   auto tp_2a = std::chrono::high_resolution_clock::now();
 
    if (n_threads == 0) n_threads = 1;
 
@@ -683,22 +692,33 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
    if ((n_per_thread * static_cast<int>(n_threads)) < n_atoms_limit_for_nbc)
       n_per_thread += 1;
 
+   auto tp_2b = std::chrono::high_resolution_clock::now();
+
    for (unsigned int i=0; i<n_threads; i++) {
       unsigned int start = n_per_thread * i;
       unsigned int stop = n_per_thread * (i+1); // test uses <
       if (stop > static_cast<unsigned int>(n_atoms_limit_for_nbc))
-	 stop = static_cast<unsigned int>(n_atoms_limit_for_nbc);
+        stop = static_cast<unsigned int>(n_atoms_limit_for_nbc);
       std::pair<unsigned int, unsigned int> p(start, stop);
       start_stop_pairs_vec.push_back(p);
    }
+
+   auto tp_2c = std::chrono::high_resolution_clock::now();
 
    std::vector<std::vector<simple_restraint> > nbc_restraints;
    nbc_restraints.resize(n_threads);
    for (std::size_t i=0; i<n_threads; i++)
       nbc_restraints[i].reserve(n_per_thread*80);
 
+   auto d2a = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2a - tp_2 ).count();
+   auto d2b = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2b - tp_2a).count();
+   auto d2c = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2c - tp_2b).count();
+   std::cout << "------------------ timings: make_non_bonded_contact_restraints_ng(): find_the_contacts(): "
+             << d2a << " start-stop-reserve: " << d2b << " start-stop-push: " << d2c << " milliseconds\n";
+
    std::atomic<unsigned int> done_count(0);
 
+   auto tp_3 = std::chrono::high_resolution_clock::now();
    for (std::size_t i=0; i<n_threads; i++) {
       thread_pool_p->push(make_non_bonded_contact_restraints_workpackage_ng,
 			  imol,
@@ -719,10 +739,13 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
 			  std::ref(done_count));
    }
 
+   auto tp_4 = std::chrono::high_resolution_clock::now();
+
    // wait for the thread pool to empty - not the right way.
    while (done_count != n_threads) {
       std::this_thread::sleep_for(std::chrono::microseconds(10000));
    }
+   auto tp_5 = std::chrono::high_resolution_clock::now();
 
    // OK now we are back to this thread, add the nbc_restraints to restraints_vec
    //
@@ -733,6 +756,15 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
    // do I want to use std::move here?
    for (std::size_t i=0; i<n_threads; i++)
       restraints_vec.insert(restraints_vec.end(), nbc_restraints[i].begin(), nbc_restraints[i].end());
+
+   auto tp_6 = std::chrono::high_resolution_clock::now();
+   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+   auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
+   auto d54 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_5 - tp_4).count();
+   auto d65 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_6 - tp_5).count();
+
+   std::cout << "----------------- timings: non-bonded contacts "  << d32 << " dispatching threads: " << d43 << " waiting: " << d54
+             << " adding NBCs to restraints" << d65 << std::endl;
 
 }
 
