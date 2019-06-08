@@ -780,6 +780,12 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    for (unsigned int i=0; i<residues.size(); i++)
       all_residues.push_back(residues[i].second);
 
+   // we don't need to calculate the NBC for all atoms - just these ones:
+   n_atoms_limit_for_nbc = 0;
+   for (unsigned int i=0; i<residues.size(); i++)
+      n_atoms_limit_for_nbc += residues[i].second->GetNumberOfAtoms();
+
+
    // Include only the fixed residues, because they are the flankers,
    // the other residues are the ones in the passed residues vector.
    // We don't have members of bonded_pair_container_t that are both
@@ -868,6 +874,10 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    atom_is_metal.resize(n_atoms, false);
    for (int iat=0; iat<n_atoms; iat++) {
       atom_is_metal[iat] = geom.atom_is_metal(atom[iat]);
+   }
+   atom_is_hydrogen.resize(n_atoms, false);
+   for (int iat=0; iat<n_atoms; iat++) {
+      atom_is_hydrogen[iat] = is_hydrogen(atom[iat]);
    }
 
    // fill fixed_neighbours_set:
@@ -4777,13 +4787,16 @@ coot::restraints_container_t::is_acceptor(const std::string &energy_type,
 
 // the bool in the residue_ring_map_cache is a flag that means "I've
 // tried before to look this residue up and failed".
-// 
+//
+// static
 bool
 coot::restraints_container_t::is_in_same_ring(int imol, mmdb::Residue *residue_p,
 					      std::map<std::string, std::pair<bool, std::vector<std::list<std::string> > > > &residue_ring_map_cache,
 					      const std::string &atom_name_1,
 					      const std::string &atom_name_2,
-					      const coot::protein_geometry &geom) const {
+					      const coot::protein_geometry &geom) {
+
+   // maybe lists are slow.
    bool r = false;
 
    std::map<std::string, std::pair<bool, std::vector<std::list<std::string> > > > residue_ring_map;
@@ -5045,9 +5058,11 @@ coot::restraints_container_t::check_for_1_4_relation(int idx_1, int idx_2) const
    return is_1_4;
 }
 
-// check either way round
+// check either way round.
+//
+// this can be static.
 bool
-coot::restraints_container_t::check_for_O_C_1_5_relation(mmdb::Atom *at_1, mmdb::Atom *at_2) const {
+coot::restraints_container_t::check_for_O_C_1_5_relation(mmdb::Atom *at_1, mmdb::Atom *at_2) {
 
    // PDBv3 FIXME.
    

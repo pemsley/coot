@@ -1009,8 +1009,12 @@ namespace coot {
    private:
 
       std::vector<simple_restraint> restraints_vec; 
+      int n_atoms;
+      int n_atoms_limit_for_nbc; // the neighbours in non_bonded_contacts_atom_indices are only useful
+                                 // for the moving atoms.
       mmdb::PPAtom atom;
       std::vector<bool> atom_is_metal;
+      std::vector<bool> atom_is_hydrogen;
       std::vector<int>  old_atom_index_to_new_atom_index;
       void fill_old_to_new_index_vector(); // for fast extra bond (GM) restraints
       bool from_residue_vector;
@@ -1024,7 +1028,6 @@ namespace coot {
       double m_initial_step_size;
       double m_tolerance;
       double *par;
-      int n_atoms;
       double m_grad_lim;
       gsl_vector *x; // these are the variables, x_k, y_k, z_k, x_l etc.
       bool are_all_one_atom_residues; 
@@ -1727,12 +1730,33 @@ namespace coot {
 					    const coot::protein_geometry &geom) const;
 
       void make_non_bonded_contact_restraints_ng(int imol, const protein_geometry &geom);
+      void make_non_bonded_contact_restraints_using_threads_ng(int imol, const protein_geometry &geom);
       std::vector<std::set<int> > non_bonded_contacts_atom_indices; // these can now get updated on the fly.
                                                        // We need to keep a record of what has
                                                        // already been added as a restraint
                                                        // before we add a new one.
 
-      // update residue_link_vector_map_p and residue_pair_link_set if new links are made
+      // threaded workpackage
+      static
+      void make_non_bonded_contact_restraints_workpackage_ng(int ithread,
+							     int imol,
+							     const coot::protein_geometry &geom,
+							     const std::vector<std::set<int> > &bonded_atom_indices,
+							     const reduced_angle_info_container_t &raic,
+							     const std::vector<std::set<unsigned int> > &vcontacts,
+							     std::pair<unsigned int, unsigned int> atom_index_range_pair,
+							     const std::set<int> &fixed_atom_indices,
+							     const std::vector<std::string> &energy_type_for_atom,
+							     mmdb::PPAtom atom,
+							     const std::vector<bool> &atom_is_metal,
+							     const std::vector<bool> &atom_is_hydrogen,
+							     const std::vector<bool> &H_atom_parent_atom_is_donor_vec,
+							     const std::vector<bool> &atom_is_acceptor_vec,
+							     std::vector<std::set<int> > *non_bonded_contacts_atom_indices_p,
+							     std::vector<simple_restraint> *nbc_restraints_fragment_p,
+							     std::atomic<unsigned int> &done_count);
+
+   // update residue_link_vector_map_p and residue_pair_link_set if new links are made
       //
       void make_flanking_atoms_restraints_ng(const coot::protein_geometry &geom,
 					     std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_vector_map_p,
@@ -1804,7 +1828,7 @@ namespace coot {
 
       bool check_for_1_4_relation(int i, int j) const;
       bool check_for_1_4_relation(int i, int j, const reduced_angle_info_container_t &ai) const;
-      bool check_for_O_C_1_5_relation(mmdb::Atom *at_1, mmdb::Atom *at_2) const;  // check either way round
+      static bool check_for_O_C_1_5_relation(mmdb::Atom *at_1, mmdb::Atom *at_2);  // check either way round
 
 
       int make_non_bonded_contact_restraints(int imol, const bonded_pair_container_t &bpc, const protein_geometry &geom);
@@ -1812,11 +1836,11 @@ namespace coot {
 					     const bonded_pair_container_t &bpc,
 					     const reduced_angle_info_container_t &ai,
 					     const protein_geometry &geom);
-      bool is_in_same_ring(int imol, mmdb::Residue *residue_p,
-			   std::map<std::string, std::pair<bool, std::vector<std::list<std::string> > > > &residue_ring_map_cache,
-			   const std::string &atom_name_1,
-			   const std::string &atom_name_2,
-			   const coot::protein_geometry &geom) const;
+      static bool is_in_same_ring(int imol, mmdb::Residue *residue_p,
+				  std::map<std::string, std::pair<bool, std::vector<std::list<std::string> > > > &residue_ring_map_cache,
+				  const std::string &atom_name_1,
+				  const std::string &atom_name_2,
+				  const coot::protein_geometry &geom);
 
       bool is_acceptor(const std::string &energy_type,
 		       const coot::protein_geometry &geom) const;

@@ -79,8 +79,17 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       raic.init(restraints_vec);
 
       auto tp_4 = std::chrono::high_resolution_clock::now();
-      non_bonded_contacts_atom_indices.resize(n_atoms);
-      make_non_bonded_contact_restraints_ng(imol, geom);
+
+      // the non-bonded contact atoms at the end of the atoms array
+      // don't have (forward) neighbours, so we don't want to
+      // calculate NBC restraints for them (and don't use
+      // them when splitting non-bonded contacts into range sets).
+      //
+
+      non_bonded_contacts_atom_indices.resize(n_atoms_limit_for_nbc);
+      // the non-threaded version has a different limit on the
+      // non_bonded_contacts_atom_indices (so, out of range if you use it?)
+      make_non_bonded_contact_restraints_using_threads_ng(imol, geom);
       auto tp_5 = std::chrono::high_resolution_clock::now();
 
       if (do_rama_plot_restraints)
@@ -356,8 +365,378 @@ coot::restraints_container_t::make_rama_plot_restraints(const std::map<mmdb::Res
    }
 }
 
+// static
+void
+coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(int ithread,
+										int imol,
+										const coot::protein_geometry &geom,
+										const std::vector<std::set<int> > &bonded_atom_indices,
+										const reduced_angle_info_container_t &raic,
+										const std::vector<std::set<unsigned int> > &vcontacts,
+										std::pair<unsigned int, unsigned int> atom_index_range_pair,
+										const std::set<int> &fixed_atom_indices,
+										const std::vector<std::string> &energy_type_for_atom,
+										mmdb::PPAtom atom,
+										const std::vector<bool> &atom_is_metal,
+										const std::vector<bool> &atom_is_hydrogen,
+										const std::vector<bool> &H_atom_parent_atom_is_donor_vec,
+										const std::vector<bool> &atom_is_acceptor_vec,
+										std::vector<std::set<int> > *non_bonded_contacts_atom_indices_p,
+										std::vector<simple_restraint> *nbc_restraints_fragment_p,
+										std::atomic<unsigned int> &done_count) {
 
-// Use raic to know what is 1-4 related
+   // make_fixed_flags() will have to be done in place using fixed_atom_indices
+
+   // think about is_in_same ring without a cache. Hmm.
+
+   // pointer to reference
+   std::vector<std::set<int> > &non_bonded_contacts_atom_indices = *non_bonded_contacts_atom_indices_p;
+   std::map<std::string, std::pair<bool, std::vector<std::list<std::string> > > > residue_ring_map_cache;
+
+   float dist_max = 8.0; // needed?
+
+   for (unsigned int i=atom_index_range_pair.first; i<atom_index_range_pair.second; i++) {
+
+      const std::set<unsigned int> &n_set = vcontacts[i];
+      mmdb::Atom *at_1 = atom[i];
+      // std::cout << "base atom: " << atom_spec_t(at_1) << std::endl;
+
+      // std::cout << "Here with i " << i << " which has " << n_set.size() << " neighbours " << std::endl;
+      std::set<unsigned int>::const_iterator it;
+      for (it=n_set.begin(); it!=n_set.end(); it++) {
+
+	 const unsigned int &j = *it;
+
+	 if (bonded_atom_indices[i].find(j) != bonded_atom_indices[i].end())
+	 continue;
+
+	 // for updating non-bonded contacts
+	 if (non_bonded_contacts_atom_indices[i].find(j) != non_bonded_contacts_atom_indices[i].end())
+	    continue;
+
+	 mmdb::Atom *at_2 = atom[j];
+
+	 if (fixed_atom_indices.find(i) != fixed_atom_indices.end())
+	    if (fixed_atom_indices.find(*it) != fixed_atom_indices.end())
+	       continue;
+
+	 if (j < i) /* only add NBC one way round */
+	    continue;
+
+	 std::string res_name_1 = at_1->GetResName();
+	 std::string res_name_2 = at_2->GetResName();
+	 int res_no_1 = at_1->GetSeqNum();
+	 int res_no_2 = at_2->GetSeqNum();
+
+	 const std::string &type_1 = energy_type_for_atom[i];
+	 const std::string &type_2 = energy_type_for_atom[j];
+
+	 // std::vector<bool> fixed_atom_flags = make_fixed_flags(i, j);
+	 std::vector<bool> fixed_atom_flags(2, false);
+	 if (fixed_atom_indices.find(i) != fixed_atom_indices.end()) fixed_atom_flags[0] = true;
+	 if (fixed_atom_indices.find(j) != fixed_atom_indices.end()) fixed_atom_flags[1] = true;
+
+	 double dist_min = 3.4;
+
+	 bool in_same_residue_flag = (at_1->residue == at_2->residue);
+	 bool in_same_ring_flag = true;
+
+	 // part of this test is not needed.
+	 if (at_2->residue != at_1->residue) {
+	    in_same_ring_flag    = false;
+	    in_same_residue_flag = false;
+	 }
+
+	 if (in_same_ring_flag) {
+	    std::string atom_name_1 = at_1->GetAtomName();
+	    std::string atom_name_2 = at_2->GetAtomName();
+
+	    // in_same_ring_flag = restraints_map[at_2->residue].second.in_same_ring(atom_name_1,
+	    //                                                                       atom_name_2);
+
+	    in_same_ring_flag = is_in_same_ring(imol, at_2->residue,
+						residue_ring_map_cache,
+						atom_name_1, atom_name_2, geom);
+	 }
+
+	 // this doesn't check 1-4 over a moving->non-moving peptide link (see comment above function)
+	 // because the non-moving atom doesn't have angle restraints.
+	 //
+	 bool is_1_4_related = raic.is_1_4(i, j);
+
+	 if (false)
+	    std::cout << "here with at_1 " << atom_spec_t(at_1) << " at_2 " << atom_spec_t(at_2)
+		      << " is_1_4_related " << is_1_4_related << std::endl;
+
+	 if (is_1_4_related) {
+
+	    dist_min = 2.64; // was 2.7 but c.f. guanine ring distances
+	    if (atom_is_hydrogen[i]) dist_min -= 0.7;
+	    if (atom_is_hydrogen[j]) dist_min -= 0.7;
+
+	 } else {
+
+	    std::pair<bool, double> nbc_dist = geom.get_nbc_dist_v2(type_1, type_2,
+								    atom_is_metal[i],
+								    atom_is_metal[j],
+								    in_same_residue_flag,
+								    in_same_ring_flag);
+
+	    if (nbc_dist.first) {
+
+	       // In a helix O(n) is close to C(n+1), we should allow it.
+	       //
+	       bool is_O_C_1_5_related = check_for_O_C_1_5_relation(at_1, at_2);
+
+	       if (is_O_C_1_5_related) {
+		  dist_min = 2.84;
+	       } else {
+
+		  // Perhaps we don't have angle restraints to both atoms because one
+		  // of the atoms is fixed (and thus miss that these have a 1-4 relationship).
+		  // e.g. O(n) [moving] -> CA(n+1) [fixed]
+		  //
+		  // (this test will fail on insertion codes)
+		  //
+
+		  bool strange_exception = false;
+		  int rn_diff = abs(res_no_2 - res_no_1);
+		  if (rn_diff == 1) {
+		     std::string atom_name_1 = at_1->GetAtomName();
+		     std::string atom_name_2 = at_2->GetAtomName();
+		     if (fixed_atom_flags.size()) {
+			if (fixed_atom_flags[0] || fixed_atom_flags[1]) {
+			   if (atom_name_1 == " O  ")
+			      if (atom_name_2 == " CA ")
+				 strange_exception = true;
+			   if (atom_name_1 == " CA ")
+			      if (atom_name_2 == " O  ")
+				 strange_exception = true;
+			   if (atom_name_1 == " N  ")
+			      if (atom_name_2 == " CB ")
+				 strange_exception = true;
+			   if (atom_name_1 == " CB ")
+			      if (atom_name_2 == " N  ")
+				 strange_exception = true;
+			   if (atom_name_1 == " C  ")
+			      if (atom_name_2 == " CB ")
+				 strange_exception = true;
+			}
+		     }
+		     if (strange_exception)
+			dist_min = 2.7;
+
+		     // Strange that these are not marked as 1-4 related.  Fix here...
+		     // HA-CA-N-C can be down to ~2.4A.
+		     // HA-CA-C-N can be down to ~2.41A.
+		     if (res_no_2 > res_no_1) {
+			if (atom_name_1 == " C  ") {
+			   if (atom_name_2 == " HA " || atom_name_2 == "HA2" || atom_name_2 == " HA3") {
+			      strange_exception = true;
+			      dist_min = 2.4;
+			   }
+			}
+			if (atom_name_1 == " HA " || atom_name_1 == "HA2" || atom_name_1 == " HA3") {
+			   if (atom_name_2 == " N  ") {
+			      strange_exception = true;
+			      dist_min = 2.41;
+			   }
+			}
+			if (atom_name_1 == " N  ") {
+			   if (atom_name_2 == " H  ") {
+			      strange_exception = true;
+			      dist_min = 2.4;
+			   }
+			}
+		     } else {
+			if (atom_name_1 == " HA " || atom_name_1 == "HA2" || atom_name_1 == " HA3") {
+			   if (atom_name_2 == " C  ") {
+			      strange_exception = true;
+			      dist_min = 2.4;
+			   }
+			}
+			if (atom_name_1 == " N  ") {
+			   if (atom_name_2 == " HA " || atom_name_2 == "HA2" || atom_name_2 == " HA3") {
+			      strange_exception = true;
+			      dist_min = 2.41;
+			   }
+			}
+			if (atom_name_2 == " N  ") {
+			   if (atom_name_1 == " H  ") {
+			      strange_exception = true;
+			      dist_min = 2.4;
+			   }
+			}
+		     }
+		  }
+		  if (rn_diff == 2) {
+		     if (fixed_atom_flags.size()) {
+			if (fixed_atom_flags[0] || fixed_atom_flags[1]) {
+			   std::string atom_name_1 = at_1->GetAtomName();
+			   std::string atom_name_2 = at_2->GetAtomName();
+			   if (atom_name_1 == " C  ")
+			      if (atom_name_2 == " N  ")
+				 strange_exception = true;
+			   if (atom_name_1 == " N  ")
+			      if (atom_name_2 == " C  ")
+				 strange_exception = true; // 3.1 would be enough
+
+			   if (strange_exception)
+			      dist_min = 2.7;
+			}
+		     }
+		  }
+
+		  if (! strange_exception)
+		     dist_min = nbc_dist.second;
+	       }
+	    } else {
+	       // short/standard value
+	       dist_min = 2.8;
+	    }
+	 }
+
+	 bool is_H_non_bonded_contact = false;
+
+	 if (atom_is_hydrogen[i]) {
+	    is_H_non_bonded_contact = true;
+	    if (H_atom_parent_atom_is_donor_vec[i])
+	       if (atom_is_acceptor_vec[j])
+		  dist_min -= 0.7;
+	 }
+	 if (atom_is_hydrogen[j]) {
+	    is_H_non_bonded_contact = true;
+	    if (H_atom_parent_atom_is_donor_vec[j])
+	       if (atom_is_acceptor_vec[i])
+		  dist_min -= 0.7;
+	 }
+
+
+	 non_bonded_contacts_atom_indices[i].insert(j);
+	 simple_restraint::nbc_function_t nbcf = simple_restraint::LENNARD_JONES;
+	 simple_restraint r(NON_BONDED_CONTACT_RESTRAINT,
+			    nbcf, i, *it,
+			    energy_type_for_atom[i],
+			    energy_type_for_atom[*it],
+			    is_H_non_bonded_contact,
+			    fixed_atom_flags, dist_min);
+	 nbc_restraints_fragment_p->push_back(r);
+
+	 if (false) // debug
+	    std::cout << "Adding NBC " << i << " " << *it << " " << energy_type_for_atom[i] << " "
+		      << energy_type_for_atom[*it] << " "
+		      << is_H_non_bonded_contact << " "
+		      << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << " "
+		      << dist_min <<  "\n";
+      }
+   }
+
+   done_count += 1; // atomic
+}
+
+void
+coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_ng(int imol,
+										  const coot::protein_geometry &geom) {
+
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+   std::vector<std::string> energy_type_for_atom(n_atoms);
+   std::vector<bool> H_atom_parent_atom_is_donor_vec(n_atoms, false);
+   std::vector<bool> atom_is_acceptor_vec(n_atoms, false);
+
+   // needs timing test - might be slow (it isn't)
+   for (int i=0; i<n_atoms; i++) {
+      mmdb::Atom *at = atom[i];
+      std::string et = get_type_energy(imol, at, geom);
+      energy_type_for_atom[i] = et;
+      if (H_parent_atom_is_donor(at))
+	 H_atom_parent_atom_is_donor_vec[i] = true;
+      if (is_acceptor(et, geom))
+	 atom_is_acceptor_vec[i] = true;
+   }
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+   // std::cout << "   info:: make_non_bonded_contact_restraints_ng(): energy types " << d10 << " microseconds\n";
+
+   std::map<std::string, std::pair<bool, std::vector<std::list<std::string> > > > residue_ring_map_cache;
+
+   std::set<unsigned int> fixed_atom_flags_set; // signed to unsigned conversion - bleugh.
+   std::set<int>::const_iterator it;
+   for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
+      fixed_atom_flags_set.insert(*it);
+
+   float dist_max = 8.0;
+   // I think that contacts_by_bricks should take a set of ints
+   contacts_by_bricks cb(atom, n_atoms, fixed_atom_flags_set);
+   cb.set_dist_max(dist_max);
+   std::vector<std::set<unsigned int> > vcontacts;
+   cb.find_the_contacts(&vcontacts);
+
+   if (n_threads == 0) n_threads = 1;
+
+   // n_threads is a class data member
+   std::vector<std::pair<unsigned int, unsigned int> > start_stop_pairs_vec;
+   start_stop_pairs_vec.reserve(n_threads);
+
+   // n_atoms is int, n_threads is unsigned int, what a mess
+   //
+   int n_per_thread = n_atoms_limit_for_nbc/static_cast<int>(n_threads);
+   if ((n_per_thread * static_cast<int>(n_threads)) < n_atoms_limit_for_nbc)
+      n_per_thread += 1;
+
+   for (unsigned int i=0; i<n_threads; i++) {
+      unsigned int start = n_per_thread * i;
+      unsigned int stop = n_per_thread * (i+1); // test uses <
+      if (stop > static_cast<unsigned int>(n_atoms_limit_for_nbc))
+	 stop = static_cast<unsigned int>(n_atoms_limit_for_nbc);
+      std::pair<unsigned int, unsigned int> p(start, stop);
+      start_stop_pairs_vec.push_back(p);
+   }
+
+   std::vector<std::vector<simple_restraint> > nbc_restraints;
+   nbc_restraints.resize(n_threads);
+   for (std::size_t i=0; i<n_threads; i++)
+      nbc_restraints[i].reserve(n_per_thread*80);
+
+   std::atomic<unsigned int> done_count(0);
+
+   for (std::size_t i=0; i<n_threads; i++) {
+      thread_pool_p->push(make_non_bonded_contact_restraints_workpackage_ng,
+			  imol,
+			  std::cref(geom),
+			  std::cref(bonded_atom_indices),
+			  std::cref(raic),
+			  std::cref(vcontacts),
+			  start_stop_pairs_vec[i],
+			  std::cref(fixed_atom_indices),
+			  std::cref(energy_type_for_atom),
+			  atom,
+			  std::cref(atom_is_metal),
+			  std::cref(atom_is_hydrogen),
+			  std::cref(H_atom_parent_atom_is_donor_vec),
+			  std::cref(atom_is_acceptor_vec),
+			  &non_bonded_contacts_atom_indices,
+			  &(nbc_restraints[i]),
+			  std::ref(done_count));
+   }
+
+   // wait for the thread pool to empty - not the right way.
+   while (done_count != n_threads) {
+      std::this_thread::sleep_for(std::chrono::microseconds(10000));
+   }
+
+   // OK now we are back to this thread, add the nbc_restraints to restraints_vec
+   //
+   int n_extra_restraints = 0;
+   for (std::size_t i=0; i<n_threads; i++)
+      n_extra_restraints += nbc_restraints.size();
+   restraints_vec.reserve(restraints_vec.size() + n_extra_restraints);
+   // do I want to use std::move here?
+   for (std::size_t i=0; i<n_threads; i++)
+      restraints_vec.insert(restraints_vec.end(), nbc_restraints[i].begin(), nbc_restraints[i].end());
+
+}
+
+
 void
 coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 								    const coot::protein_geometry &geom) {
@@ -365,6 +744,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
    // std::cout << "make_non_bonded_contact_restraints_ng() " << restraints_vec.size() << " "  << std::endl;
 
    // potentially multithreadable.
+
+   // Use raic to know what is 1-4 related
 
    // relies on non_bonded_contacts_atom_indices begin allocated to the correct size (n_atoms).
 
@@ -379,11 +760,18 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
    //
    auto tp_0 = std::chrono::high_resolution_clock::now();
    std::vector<std::string> energy_type_for_atom(n_atoms);
+   std::vector<bool> H_atom_parent_atom_is_donor_vec(n_atoms, false);
+   std::vector<bool> atom_is_acceptor_vec(n_atoms, false);
 
-   // needs timing test - might be slow
+   // needs timing test - might be slow (it isn't)
    for (int i=0; i<n_atoms; i++) {
       mmdb::Atom *at = atom[i];
-      energy_type_for_atom[i] = get_type_energy(imol, at, geom);
+      std::string et = get_type_energy(imol, at, geom);
+      energy_type_for_atom[i] = et;
+      if (H_parent_atom_is_donor(at))
+	 H_atom_parent_atom_is_donor_vec[i] = true;
+      if (is_acceptor(et, geom))
+	 atom_is_acceptor_vec[i] = true;
    }
    auto tp_1 = std::chrono::high_resolution_clock::now();
    auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
