@@ -1736,6 +1736,7 @@ namespace coot {
                                                        // already been added as a restraint
                                                        // before we add a new one.
 
+#ifndef __NVCC__
       // threaded workpackage
       static
       void make_non_bonded_contact_restraints_workpackage_ng(int ithread,
@@ -1755,8 +1756,9 @@ namespace coot {
 							     std::vector<std::set<int> > *non_bonded_contacts_atom_indices_p,
 							     std::vector<simple_restraint> *nbc_restraints_fragment_p,
 							     std::atomic<unsigned int> &done_count);
+#endif
 
-   // update residue_link_vector_map_p and residue_pair_link_set if new links are made
+      // update residue_link_vector_map_p and residue_pair_link_set if new links are made
       //
       void make_flanking_atoms_restraints_ng(const coot::protein_geometry &geom,
 					     std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_vector_map_p,
