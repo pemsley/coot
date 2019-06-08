@@ -345,6 +345,7 @@ void
 coot::restraints_container_t::fill_old_to_new_index_vector() {
 
    bool debug = false;
+
    int hnd = mol->GetUDDHandle(mmdb::UDR_ATOM, "old atom index");
    old_atom_index_to_new_atom_index.resize(ATOM_INDEX_MAX, -1);
    for (int i=0; i<n_atoms; i++) {
@@ -421,17 +422,26 @@ bool
 coot::restraints_container_t::try_add_using_old_atom_indices(const extra_restraints_t::extra_bond_restraint_t &ebr) 
 {
    bool success = false;
-   int idx_1_old = ebr.atom_1.int_user_data; // where do these get set? (the seem to work though!)
+   bool debug = false;
+
+   int idx_1_old = ebr.atom_1.int_user_data; // where do these get set? (they seem to work though!)
    int idx_2_old = ebr.atom_2.int_user_data;
+
+   if (debug)
+      std::cout << "debug:: idx_1_old: " << idx_1_old << " idx_2_old: " << idx_2_old << "\n";
+
    if (idx_1_old >= 0 && idx_1_old < ATOM_INDEX_MAX) {
       if (idx_2_old >= 0 && idx_2_old < ATOM_INDEX_MAX) {
 	 int index_1 = old_atom_index_to_new_atom_index[idx_1_old];
 	 int index_2 = old_atom_index_to_new_atom_index[idx_2_old];
+	 if (debug)
+	    std::cout << "debug:: index_1: " << index_1 << " index_2: " << index_2 << "\n";
 	 if ((index_1 != -1) && (index_2 != -1)) { 
 	    std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
 	    add_geman_mcclure_distance(GEMAN_MCCLURE_DISTANCE_RESTRAINT, index_1, index_2, fixed_flags,
 				       ebr.bond_dist, ebr.esd);
-	    // std::cout << "GM done fast" << std::endl;
+	    if (debug)
+	       std::cout << "GM done fast" << std::endl;
 	    success = true;
 	 }
       }

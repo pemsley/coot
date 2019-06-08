@@ -3662,14 +3662,16 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 
    if (false)
       std::cout << "--------------- make_monomer_restraints_by_residue() called "
-		<< residue_spec_t(residue_p)
-		<<  " and using type :" << pdb_resname << ": and imol "
-		<< imol << " do_residue_internal_torsions: "
-		<< do_residue_internal_torsions << std::endl;
+                << residue_spec_t(residue_p)
+                <<  " and using type :" << pdb_resname << ": and imol "
+                << imol << " do_residue_internal_torsions: "
+                << do_residue_internal_torsions << std::endl;
 
    // idr: index dictionary residue
    int idr = geom.get_monomer_restraints_index(pdb_resname, imol, false);
    if (idr >= 0) {
+
+      const dictionary_residue_restraints_t &dict = geom[idr].second;
 
       // if (geom[idr].comp_id == pdb_resname) {
       // old style comp_id usage
@@ -3688,18 +3690,18 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
       // geom[idr].bond_restraint[ib].
 
       residue_p->GetAtomTable(res_selection, i_no_res_atoms);
-		  
+
       if (i_no_res_atoms > 0) {
 
-	 if (util::is_standard_amino_acid_name(pdb_resname))
-	    local += add_N_terminal_residue_bonds_and_angles_to_hydrogens(residue_p);
+      if (util::is_standard_amino_acid_name(pdb_resname))
+         local += add_N_terminal_residue_bonds_and_angles_to_hydrogens(residue_p);
 
-	 if (restraints_usage_flag & BONDS_MASK)
-	    local.n_bond_restraints += add_bonds(idr, res_selection, i_no_res_atoms,
+      if (restraints_usage_flag & BONDS_MASK)
+         local.n_bond_restraints += add_bonds(idr, res_selection, i_no_res_atoms,
 						 residue_p, geom);
-	    
-	 if (restraints_usage_flag & ANGLES_MASK)
-	    local.n_angle_restraints += add_angles(idr, res_selection, i_no_res_atoms,
+
+      if (restraints_usage_flag & ANGLES_MASK)
+         local.n_angle_restraints += add_angles(idr, res_selection, i_no_res_atoms,
 						   residue_p, geom);
 
 	 if (restraints_usage_flag & TORSIONS_MASK) {
@@ -3725,6 +3727,8 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 	 // now combine mod_counts with local
       }
    }
+
+   // local.report(false);
    return local;
 }
 
@@ -5947,7 +5951,7 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 			// 
 			std::vector<bool> fixed_flags = make_fixed_flags(index1, index2);
 
-			if (false)
+			if (debug)
 			   std::cout << "creating (monomer) bond restraint, idr " << idr
 				     << " with fixed flags "
 				     << fixed_flags[0] << " " << fixed_flags[1] << " "
