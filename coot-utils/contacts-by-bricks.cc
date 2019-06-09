@@ -3,6 +3,7 @@
 #include <chrono>
 #include <thread>
 
+#include "utils/coot-utils.hh"
 #include "utils/split-indices.hh"
 #include "contacts-by-bricks.hh"
 
@@ -27,7 +28,10 @@ coot::contacts_by_bricks::contacts_by_bricks(mmdb::PAtom *atoms_in, int n_atoms_
    for(it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
       fixed_flags[*it] = true;
 
-   unsigned int n_thread_sets = 3; // or num threads?
+   unsigned int n_threads = get_max_number_of_threads();
+   unsigned int n_thread_sets = n_threads -1;
+   if (n_thread_sets < 1)
+      n_thread_sets = 1;
    split_indices(&thread_index_sets, n_bricks, n_thread_sets);
 
 }
@@ -193,7 +197,7 @@ coot::contacts_by_bricks::find_the_contacts_in_bricks(std::vector<std::set<unsig
    }
    auto tp_1 = std::chrono::high_resolution_clock::now();
    auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-   // std::cout << "------- in bricks: " << d10 << " milliseconds " << std::endl;
+   std::cout << "------- contacts_by_bricks(): in bricks: " << d10 << " milliseconds " << std::endl;
 
    // std::cout << "Found n_in_brick " << n_in_brick << std::endl;
 }
@@ -237,6 +241,8 @@ coot::contacts_by_bricks::find_the_contacts_between_bricks_multi_thread(std::vec
    float dist_max_sqrd = dist_nbc_max * dist_nbc_max;
 
    std::vector<std::thread> threads;
+
+   std::cout << "find_the_contacts_between_bricks_multi_thread using " << thread_index_sets.size() << " threads\n";
    for (std::size_t ii=0; ii<thread_index_sets.size(); ii++) {
       const std::vector<unsigned int> &index_set = thread_index_sets[ii];
       threads.push_back(std::thread(find_the_contacts_between_bricks_multi_thread_workpackage,
@@ -246,6 +252,10 @@ coot::contacts_by_bricks::find_the_contacts_between_bricks_multi_thread(std::vec
    }
    for (std::size_t ii=0; ii<thread_index_sets.size(); ii++)
       threads[ii].join();
+
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   std::cout << "------- contacts_by_bricks(): between_brick_multi: " << d10 << " milliseconds " << std::endl;
 
 }
 
