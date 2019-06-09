@@ -108,7 +108,7 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 	 auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
 	 auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
 	 auto d54 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_5 - tp_4).count();
-	 std::cout << "------------------- timing for make_restraints_ng(): monomers: "
+	 std::cout << "------------------ timings: for make_restraints_ng(): monomers: "
 		   << d10 << " links: " << d21 << " flank: " << d32 << " raic: " << d43 << " nbc: " << d54
 		   << " milliseconds " << std::endl;
       }
@@ -755,7 +755,9 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
    restraints_vec.reserve(restraints_vec.size() + n_extra_restraints);
    // do I want to use std::move here?
    for (std::size_t i=0; i<n_threads; i++)
-      restraints_vec.insert(restraints_vec.end(), nbc_restraints[i].begin(), nbc_restraints[i].end());
+      // restraints_vec.insert(restraints_vec.end(), nbc_restraints[i].begin(), nbc_restraints[i].end());
+      std::move(nbc_restraints[i].begin(), nbc_restraints[i].end(), std::back_inserter(restraints_vec));
+
 
    auto tp_6 = std::chrono::high_resolution_clock::now();
    auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
@@ -763,8 +765,9 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
    auto d54 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_5 - tp_4).count();
    auto d65 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_6 - tp_5).count();
 
-   std::cout << "----------------- timings: non-bonded contacts "  << d32 << " dispatching threads: " << d43 << " waiting: " << d54
-             << " adding NBCs to restraints" << d65 << std::endl;
+   std::cout << "------------------ timings: non-bonded contacts "  << d32
+	     << " dispatching threads: " << d43 << " waiting: " << d54
+             << " adding NBCs to restraints " << d65 << std::endl;
 
 }
 
@@ -1547,7 +1550,7 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
    auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
    auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
    auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
-   std::cout << "------------------- timing for make_link_restraints_ng(): polymers: "
+   std::cout << "------------------ timings: for make_link_restraints_ng(): polymers: "
 	     << d10 << " flanking: " << d21 << " others: " << d32 << " milliseconds " << std::endl;
 
 }
