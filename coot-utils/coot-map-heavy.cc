@@ -478,12 +478,12 @@ xmap_to_nxmap_workpackage(const clipper::Xmap<float> &xmap,
 			  clipper::NXmap<float> *nxmap_p,
 			  const std::pair<NRI, NRI> &start_stop) {
 
-   std::cout << "starting workpackage" << std::endl;
+   // std::cout << "starting workpackage" << std::endl;
 
    clipper::Coord_grid offset =
       xmap.coord_map(nxmap_p->coord_orth(clipper::Coord_map(0.0,0.0,0.0))).coord_grid();
 
-   std::cout << "debug:: " << start_stop.first.index() << " " << start_stop.second.index() << std::endl;
+   // std::cout << "debug:: " << start_stop.first.index() << " " << start_stop.second.index() << std::endl;
 
    clipper::Xmap<float>::Map_reference_coord ix(xmap);
    for (NRI inx = start_stop.first; inx.index() != start_stop.second.index(); inx.next()) {
@@ -503,7 +503,7 @@ coot::util::make_nxmap(const clipper::Xmap<float> &xmap, mmdb::Manager *mol, int
    clipper::Coord_orth p1 = p.first;
    clipper::Coord_orth p2 = p.second;
 
-   std::cout << "debug:: make_nxmap() extents " << p.first.format() << " " << p.second.format() << std::endl;
+   // std::cout << "debug:: make_nxmap() extents " << p.first.format() << " " << p.second.format() << std::endl;
 
    p1 -= clipper::Coord_orth(border,border,border);
    p2 += clipper::Coord_orth(border,border,border);
