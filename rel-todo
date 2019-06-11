@@ -1,6 +1,8 @@
 
    For Release 0.8.9.3
 
+   o Refinement on an alt conf should refine just the atoms with that alt conf.
+
    o density fit graph should say both the map and the model in the title
 
    o other people running the crash catcher. Is it sufficiently robust? coot-experimental?
@@ -88,10 +90,6 @@ Thread 0 Crashed:: Dispatch queue: com.apple.main-thread
 ----
 
    For Release 0.8.9.2
-
-   o edit chi angles gives the wrong chi angles for chi2? update_residue_by_chi_change() uses
-     tree.rotate_about() with 2 atoms as the arguments.  tree should preferentially
-     choose N as the base atom, if it is an option. Also, CG1 rather than CG2.
 
    o validation outliers gui in the release, in the gui.
 
