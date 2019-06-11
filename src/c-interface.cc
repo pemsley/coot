@@ -482,6 +482,8 @@ void set_convert_to_v2_atom_names(short int state) {
 }
 
 
+// get rid of this at some stage
+void init_other_buffers();
 
 
 int handle_read_draw_molecule_with_recentre(const char *filename,
@@ -489,7 +491,14 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 
    int r = -1;
    //
-   // cout << "handle_read_draw_molecule: handling " << filename << endl;
+
+
+   std::cout << "handle_read_draw_molecule: handling ----------  " << filename << std::endl;
+
+   // there is no scritping :-)
+   graphics_info_t::draw_the_other_things = true;
+   init_other_buffers();
+   gtk_widget_queue_draw(graphics_info_t::glarea);
    
    graphics_info_t g;
    if (! filename)

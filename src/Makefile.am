@@ -53,6 +53,11 @@ MAKE_COOT_WRAP_PYTHON_XXX=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-pyth
 
 ##########################################################################
 
+
+# put these into configure
+GLM_CXXFLAGS = -I$(HOME)/Projects/glm
+EPOXY_LIBS = -lepoxy
+
 CANVAS_CFLAGS = $(GTKCANVAS_CFLAGS) $(GNOME_CANVAS_CFLAGS)
 CANVAS_LIBS   = $(GTKCANVAS_LIBS) $(GNOME_CANVAS_LIBS)
 
@@ -210,6 +215,7 @@ AM_CPPFLAGS = \
 	$(GUILE_GTK_CFLAGS)		\
 	$(GUILE_CFLAGS)			\
 	$(CANVAS_CFLAGS) 		\
+        $(GLM_CXXFLAGS)                 \
 	$(SWIG_FLAGS)			\
 	$(GTKGL_CONTEXT_CFLAGS)		\
         $(GOOCANVAS_CFLAGS)             \
@@ -616,6 +622,7 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 		$(GUILE_LDFLAGS)	\
 		$(GLOB_LIBS)		\
 		$(GTKGL_CONTEXT_LIBS) 	\
+                $(EPOXY_LIBS)           \
 		$(GLUT_LIBS)		\
 		$(CANVAS_LIBS) 		\
 		$(GSL_LIBS)		\

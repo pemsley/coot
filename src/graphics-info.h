@@ -50,6 +50,9 @@
 
 #include <gtk/gtkglarea.h> // Shiny new OpenGL interface
 
+#include <glm/gtc/quaternion.hpp> 
+#include <glm/gtx/quaternion.hpp>
+
 #ifdef HAVE_CXX_THREAD
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #include <utils/ctpl.h>
@@ -124,6 +127,9 @@
 #include "graphics-ligand-view.hh"
 
 #include "restraints-editor.hh"
+
+#include "Transform.hh"
+#include "Camera.hh"
 
 #ifdef USE_GUILE
 #include <libguile.h>
@@ -946,13 +952,13 @@ public:
 #endif // WII_INTERFACE_WIIUSE
 
    static void graphics_draw() {
-     if (glarea) { 
-       gtk_widget_draw(glarea, NULL);
+     if (glarea) {
+       gtk_widget_queue_draw(glarea);
        if (make_movie_flag)
 	 dump_a_movie_image();
      }
      if (glarea_2)
-       gtk_widget_draw(glarea_2, NULL);
+       gtk_widget_queue_draw(glarea_2);
    }
 
 
@@ -3962,6 +3968,28 @@ string   static std::string sessionid;
 
    static int jed_flip_intermediate_atoms();
    static int crankshaft_peptide_rotation_optimization_intermediate_atoms();
+
+   // ---------------------------------------------
+
+   static GtkWidget *test_hscale_x;
+   static GtkWidget *test_hscale_y;
+   static GtkWidget *test_hscale_z;
+   /* model-view-projection matrix */
+   static float *mvp;
+   static float *test_rotation_angles;
+   static int mvp_location;
+   static glm::quat glm_quat;
+
+   static benny::Camera camera;
+   static Transform transform;
+
+   // testing
+   static bool draw_the_other_things;
+   static GLuint other_triangles_vertexarray_id;
+   static GLuint other_triangles_array_buffer_id;
+   static GLuint other_triangles_index_buffer_id;
+   // ---------------------------------------------
+
 
 #ifdef HAVE_CXX_THREAD
    static std::atomic<bool> restraints_lock;

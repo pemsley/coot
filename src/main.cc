@@ -148,6 +148,7 @@ int setup_database();
 #include "widget-headers.hh" // put these somewhere else? better name? -------- GTK-FIME
 #include "sound.hh"
 
+#include "draw.hh" // for test_gtk3_adjustment_changed() - maybe that should go elsewhere?
 #include "draw-2.hh"
 
 // This main is used for both python/guile useage and unscripted. 
@@ -286,11 +287,11 @@ main (int argc, char *argv[]) {
 #endif
 
       GtkWidget *model_toolbar = lookup_widget(window1, "model_toolbar");
-      std::cout << "here wiith model_toolbar " << model_toolbar << std::endl;
       gtk_widget_show(model_toolbar);
       
       gtk_window_set_title(GTK_WINDOW (window1), main_title.c_str());
       GtkWidget *vbox = lookup_widget(window1, "vbox1");
+      GtkWidget *graphics_hbox = lookup_widget(window1, "main_window_graphics_hbox");
 
       // Gtk2
 //       glarea = gl_extras(lookup_widget(window1, "vbox1"),
@@ -299,9 +300,36 @@ main (int argc, char *argv[]) {
       // GTK3
       // glarea = gl_gtk3_widget(vbox, 0);
 
-      glarea = my_gtkglarea(vbox);
+      glarea = my_gtkglarea(graphics_hbox);
       my_glarea_add_signals_and_events(glarea);
+      graphics_info_t::glarea = glarea; // have I done this elsewhere?
 
+      // add in some adjustment
+      GtkAdjustment *x_adjustment = gtk_adjustment_new(5.0, 1.0, 11.0, 0.001, 0.01, 2.0);
+      GtkAdjustment *y_adjustment = gtk_adjustment_new(5.0, 1.0, 11.0, 0.001, 0.01, 2.0);
+      GtkAdjustment *z_adjustment = gtk_adjustment_new(5.0, 1.0, 11.0, 0.001, 0.01, 2.0);
+
+      graphics_info_t::test_hscale_x = gtk_hscale_new(x_adjustment);
+      graphics_info_t::test_hscale_y = gtk_hscale_new(y_adjustment);
+      graphics_info_t::test_hscale_z = gtk_hscale_new(z_adjustment);
+
+      // gtk_range_set_adjustment(GTK_RANGE(hscale), GTK_ADJUSTMENT(adj));
+
+      g_signal_connect(G_OBJECT(x_adjustment), "value_changed",
+		       G_CALLBACK(test_gtk3_adjustment_changed), GINT_TO_POINTER(0));
+      g_signal_connect(G_OBJECT(y_adjustment), "value_changed",
+		       G_CALLBACK(test_gtk3_adjustment_changed), GINT_TO_POINTER(1));
+      g_signal_connect(G_OBJECT(z_adjustment), "value_changed",
+		       G_CALLBACK(test_gtk3_adjustment_changed), GINT_TO_POINTER(2));
+
+      gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(graphics_info_t::test_hscale_x), FALSE, FALSE, 2);
+      gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(graphics_info_t::test_hscale_y), FALSE, FALSE, 2);
+      gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(graphics_info_t::test_hscale_z), FALSE, FALSE, 2);
+
+      gtk_widget_show(GTK_WIDGET(graphics_info_t::test_hscale_x));
+      gtk_widget_show(GTK_WIDGET(graphics_info_t::test_hscale_y));
+      gtk_widget_show(GTK_WIDGET(graphics_info_t::test_hscale_z));
+      
       if (true) {
 	 // application icon:
 	 setup_application_icon(GTK_WINDOW(window1));

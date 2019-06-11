@@ -198,7 +198,7 @@ short int graphics_info_t::in_side_by_side_stereo_mode = 0;
 short int graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 0;
 
 // display list for maps?
-short int graphics_info_t::display_lists_for_maps_flag = 1;
+short int graphics_info_t::display_lists_for_maps_flag = 0;
 
 //
 int graphics_info_t::save_imol = -1;
@@ -426,7 +426,7 @@ short int graphics_info_t::print_initial_chi_squareds_flag = 0;
 
 short int graphics_info_t::show_symmetry = 0; 
 
-float    graphics_info_t::box_radius_xray = 12.6;
+float    graphics_info_t::box_radius_xray = 3.4; // set this to something sensible when the drawing works.
 float    graphics_info_t::box_radius_em   = 100;
 
 
@@ -1422,6 +1422,20 @@ std::shared_ptr<Renderer>   graphics_info_t::mol_tri_renderer    = 0;
 std::shared_ptr<SceneSetup> graphics_info_t::mol_tri_scene_setup = 0;
 #endif
 #endif // USE_MOLECULES_TO_TRIANGLES
+
+// --------------------------------------------------------------------------------------------
+// test stuff
+GtkWidget *graphics_info_t::test_hscale_x = 0;
+GtkWidget *graphics_info_t::test_hscale_y = 0;
+GtkWidget *graphics_info_t::test_hscale_z = 0;
+
+float *graphics_info_t::test_rotation_angles = new float[3];
+float *graphics_info_t::mvp = new float[16];
+int    graphics_info_t::mvp_location = -1;
+glm::quat graphics_info_t::glm_quat;
+
+// --------------------------------------------------------------------------------------------
+
 
 GtkWidget *
 gl_gtk3_widget(GtkWidget *vbox, short int try_stereo_flag) {

@@ -56,6 +56,7 @@
 /*  ----------------------------------------------------------------------- */
 void set_display_lists_for_maps(int istat) {
 
+   std::cout << "-------------- set_display_lists_for_maps " << istat << std::endl;
    graphics_info_t::display_lists_for_maps_flag = istat;
 
    if (graphics_info_t::use_graphics_interface_flag) {

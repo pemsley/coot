@@ -796,7 +796,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    }
 
 
-   if (true) {
+   if (false) {
 
       try {
 	 int imol_map   = scm_to_int(i_scm);
@@ -823,6 +823,12 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       catch (const std::runtime_error &rte) {
 	 std::cout << "ERROR:: " << rte.what() << std::endl;
       }
+   }
+
+   if (true) {
+      init_other_buffers();
+      graphics_info_t::draw_the_other_things = true;
+      gtk_widget_queue_draw(glarea);
    }
 
    return r;

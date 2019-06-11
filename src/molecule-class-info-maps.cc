@@ -92,6 +92,12 @@
 #include "coot-utils/coot-map-heavy.hh"
 #include "ligand/ligand.hh"
 
+
+void
+molecule_class_info_t::gtk3_draw() {
+
+}
+
 // 
 void
 molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz_factor) {
@@ -317,6 +323,9 @@ molecule_class_info_t::update_map_internal() {
 			 graphics_info_t::RotationCentre_y(),
 			 graphics_info_t::RotationCentre_z());
 
+      std::cout << "Here with display_lists_for_maps_flag " << graphics_info_t::display_lists_for_maps_flag
+		<< std::endl;
+
       update_map_triangles(radius, rc);  // NXMAP-FIXME
       if (graphics_info_t::use_graphics_interface_flag) {
 	 if (graphics_info_t::display_lists_for_maps_flag) {
@@ -396,7 +405,7 @@ molecule_class_info_t::compile_density_map_display_list(short int first_or_secon
 	 
 	 glEndList();
       } else {
-	 std::cout << "Error:: Oops! bad display list index for SIDE_BY_SIDE_MAIN! " << std::endl;
+	 std::cout << "Error:: Oops! bad display list index for SIDE_BY_SIDE MAIN! " << std::endl;
       } 
    } 
    if (first_or_second == SIDE_BY_SIDE_SECONDARY) { 
@@ -695,7 +704,13 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 
 	 // if "cut-glass mode", then make re-wire to use map GLSL triangles
 	 //
+
+	 std::cout << "------------------ update_map_triangles() here 1 ------------ "
+		   << graphics_info_t::do_flat_shading_for_solid_density_surface
+		   << std::endl;
+
 	 if (graphics_info_t::do_flat_shading_for_solid_density_surface) {
+	    std::cout << "------------------ update_map_triangles() here 2 ------------" << std::endl;
 	    setup_glsl_map_rendering(); // turn tri_con into buffers.
 	 }
 
@@ -770,50 +785,136 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
 void
 molecule_class_info_t::setup_glsl_map_rendering() {
 
+   std::cout << "------------------ setup_glsl_map_rendering() here A ------------" << std::endl;
 #ifdef GRAPHICS_TESTING
 
+   std::cout << "------------------ setup_glsl_map_rendering() here B ------------" << tri_con.point_indices.size() << std::endl;
    // This is called from update_map_triangles().
 
    // using coot::density_contour_triangles_container_t tri_con;
 
-   // transfer the points
-   float *points = new float[3 * tri_con.points.size()];
-   for (std::size_t i=0; i<tri_con.points.size(); i++) {
-      points[3*i  ] = tri_con.points[i].x();
-      points[3*i+1] = tri_con.points[i].y();
-      points[3*i+2] = tri_con.points[i].z();
+   if (false) {
+      float positions[18] = {
+	 -0.35,  -0.35, -0.2,
+	 -0.35,   0.35, -0.2,
+	  0.35,   0.35, -0.2,
+	  0.68,  -0.34, -0.2,
+	 -0.15,  -0.34,  0.2,
+	  0.45,   0.34, -0.2
+      };
+
+      unsigned int indices[12] { 0,1,1,2,2,0,   3,4,4,5,5,3 };
+
+      n_vertices_for_VertexArray = 12;
+
+      glGenVertexArrays(1, &m_VertexArrayID);
+      glBindVertexArray(m_VertexArrayID);
+
+      glGenBuffers(1, &m_VertexBufferID);
+      glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
+      glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 18, &positions[0], GL_STATIC_DRAW);
+      glEnableVertexAttribArray(0);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+      // unsigned int ibo;
+      glGenBuffers(1, &m_IndexBufferID);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 12, &indices[0], GL_STATIC_DRAW);
+
    }
 
-   // transfer the indices
-   n_vertices_for_VertexArray = 6 * tri_con.point_indices.size();
-   int *indices = new int[n_vertices_for_VertexArray];
-   for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
-      indices[6*i  ] = tri_con.point_indices[i].pointID[0];
-      indices[6*i+1] = tri_con.point_indices[i].pointID[1];
-      indices[6*i+2] = tri_con.point_indices[i].pointID[1];
-      indices[6*i+3] = tri_con.point_indices[i].pointID[2];
-      indices[6*i+4] = tri_con.point_indices[i].pointID[2];
-      indices[6*i+5] = tri_con.point_indices[i].pointID[0];
+   if (true) { // real map
+
+      // transfer the points
+      float *points = new float[3 * tri_con.points.size()];
+      for (std::size_t i=0; i<tri_con.points.size(); i++) {
+	 points[3*i  ] = tri_con.points[i].x();
+	 points[3*i+1] = tri_con.points[i].y();
+	 points[3*i+2] = tri_con.points[i].z();
+
+	 points[3*i  ] = 2.0 * coot::util::random()/float(RAND_MAX) - 2.0;
+	 points[3*i+1] = 2.0 * coot::util::random()/float(RAND_MAX) - 2.0;
+	 points[3*i+2] = 2.0 * coot::util::random()/float(RAND_MAX) - 2.0;
+
+	 if (false)
+	    std::cout << "points " << i << " " << points[3*i] << " " << points[3*i+1] << " " << points[3*i+2]
+		      << " " << std::endl;
+      }
+
+      // transfer the indices
+      n_vertices_for_VertexArray = 6 * tri_con.point_indices.size();
+
+      std::cout << "Here with n_vertices_for_VertexArray " << n_vertices_for_VertexArray << std::endl;
+
+      // if (n_vertices_for_VertexArray > 240)
+      // n_vertices_for_VertexArray = 240;
+
+      std::cout << "Here with n_vertices_for_VertexArray " << n_vertices_for_VertexArray << std::endl;
+
+      int *indices = new int[n_vertices_for_VertexArray];
+      for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
+      // for (std::size_t i=0; i<40; i++) {
+	 indices[6*i  ] = tri_con.point_indices[i].pointID[0];
+	 indices[6*i+1] = tri_con.point_indices[i].pointID[1];
+	 indices[6*i+2] = tri_con.point_indices[i].pointID[1];
+	 indices[6*i+3] = tri_con.point_indices[i].pointID[2];
+	 indices[6*i+4] = tri_con.point_indices[i].pointID[2];
+	 indices[6*i+5] = tri_con.point_indices[i].pointID[0];
+      }
+
+      glGenVertexArrays(1, &m_VertexArrayID);
+      GLenum err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glGenVertexArrays() " << err
+		<< " for m_VertexArrayID " << m_VertexArrayID << std::endl;
+      glBindVertexArray(m_VertexArrayID);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glBindVertexArray() " << err
+		<< " for m_VertexArrayID " << m_VertexArrayID << std::endl;
+
+      glGenBuffers(1, &m_VertexBufferID);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glGenBuffers() err " << err << std::endl;
+      glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
+      int n_bytes_for_tri_con_points = sizeof(float) * 3 * tri_con.points.size();
+      std::cout << "debug:: n_bytes_for_tri_con_points " << n_bytes_for_tri_con_points << std::endl;
+      glBufferData(GL_ARRAY_BUFFER, n_bytes_for_tri_con_points, &points[0], GL_STATIC_DRAW);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glBufferData() err " << err << std::endl;
+      glEnableVertexAttribArray(0);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glEnableVertexAttribArray() err " << err << std::endl;
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
+
+      // unsigned int ibo;
+      glGenBuffers(1, &m_IndexBufferID);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glGenBuffers() " << err << std::endl;
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glBindBuffer() " << err << std::endl;
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_vertices_for_VertexArray,
+		   &indices[0], GL_STATIC_DRAW);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
+
+      // test
+      
+      glBindVertexArray(m_VertexArrayID);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() again try glBindVertexArray() " << err
+		<< " for m_VertexArrayID " << m_VertexArrayID << std::endl;
+
+      // delete [] points;
+      // delete [] indices;
+
    }
 
-   glGenVertexArrays(1, &m_VertexArrayID);
-   glBindVertexArray(m_VertexArrayID);
-
-   GLuint vertexbuffer;
-   glGenBuffers(1, &vertexbuffer);
-   glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-   glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * tri_con.points.size(), &points[0], GL_STATIC_DRAW);
-   glEnableVertexAttribArray(0);
-   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-   unsigned int ibo;
-   glGenBuffers(1, &ibo);
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_vertices_for_VertexArray,
-		&indices[0], GL_STATIC_DRAW);
-
-   delete [] points;
-   delete [] indices;
+   
+   std::cout << "------------------ setup_glsl_map_rendering() here C ------------" << n_vertices_for_VertexArray << std::endl;
 
 #endif // GRAPHICS_TESTING
 

@@ -787,7 +787,9 @@ public:        //                      public
       theMapContours.second = 0;
       is_em_map_cached_flag = -1; // unset
       n_vertices_for_VertexArray = 0;
-      m_VertexArrayID =  0;
+      m_VertexArrayID  = -1;
+      m_VertexBufferID = -1;
+      m_IndexBufferID  = -1;
 
       // draw vectors
       draw_vector_sets.reserve(120);
@@ -1214,6 +1216,8 @@ public:        //                      public
    // atom labels
    //
 
+   void gtk3_draw();
+   
    // These are not const because set_bond_colour_by_mol_no() gets called.
    // maybe needs fixing.  Similarly  set_symm_bond_colour_mol_and_symop().
    bool display_stick_mode_atoms_flag;
@@ -2970,6 +2974,8 @@ public:        //                      public
    void setup_glsl_map_rendering();
    GLuint m_VertexArrayID;
    GLuint n_vertices_for_VertexArray;
+   GLuint m_VertexBufferID;
+   GLuint m_IndexBufferID;
 
    float density_surface_opacity;
    void setup_density_surface_material(bool solid_mode, float opacity,
