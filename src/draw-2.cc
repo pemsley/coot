@@ -235,9 +235,12 @@ draw_other_triangle(GtkGLArea *glarea) {
 void
 gtk3_draw_molecules() {
 
+   // not needed I think
+   // gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glarea));
+
    std::cout << "in gtk3_draw_molecules() " << std::endl;
 
-   glLineWidth(7.0);
+   glLineWidth(1.0);
    GLenum err = glGetError();
    if (err) std::cout << "gtk3_draw_molecules() glLineWidth " << err << std::endl;
    
@@ -318,7 +321,10 @@ on_glarea_realize(GtkGLArea *glarea) {
 gboolean
 on_glarea_render(GtkGLArea *glarea) {
 
+   // is this needed?
+   gtk_gl_area_make_current(glarea);
    GLenum err = glGetError();
+   if (err) std::cout << "on_glarea_render() start " << err << std::endl;
 
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
       if (graphics_info_t::molecules[ii].n_vertices_for_VertexArray > 0) {
@@ -344,8 +350,8 @@ on_glarea_render(GtkGLArea *glarea) {
 
    // 
 
-   if (graphics_info_t::draw_the_other_things)
-      draw_other_triangle(glarea);
+   // if (graphics_info_t::draw_the_other_things)
+   // draw_other_triangle(glarea);
 
    draw_triangle(glarea);
 

@@ -426,7 +426,7 @@ short int graphics_info_t::print_initial_chi_squareds_flag = 0;
 
 short int graphics_info_t::show_symmetry = 0; 
 
-float    graphics_info_t::box_radius_xray = 3.4; // set this to something sensible when the drawing works.
+float    graphics_info_t::box_radius_xray = 15.4;
 float    graphics_info_t::box_radius_em   = 100;
 
 
