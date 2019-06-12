@@ -162,7 +162,7 @@ void test_lsq_improve() {
 	 // mol_2->WritePDBASCII("lsq-improved.pdb");
 	 
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << "lsq_improve ERROR::" << rte.what() << std::endl;
       }
    }

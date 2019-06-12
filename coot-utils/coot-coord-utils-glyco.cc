@@ -313,7 +313,7 @@ coot::beam_in_linked_residue::get_residue() const {
 	    at_O6->z = new_pos.z();
 	 }
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << "WARNING:: " << rte.what() << std::endl;
       }
    }
@@ -461,7 +461,7 @@ coot::beam_in_linked_residue::get_residue_raw() const {
 	    }
 	 }
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 // no chem mod for that link, that's fine.
 	 
 	 // std::cout << "DEBUG:: no chem mod for link " << link_type

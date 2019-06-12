@@ -85,7 +85,7 @@ coot::helix_params_t::calc_A() {
 				  sp*ct, -cp*ct, -st,
 				  sp*st, -cp*st, ct);
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "WARNING::" << rte.what() << std::endl;
    } 
 
