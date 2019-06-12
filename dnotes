@@ -8978,6 +8978,7 @@ Thu  6 Jun 22:13:09 BST 2019
    https://github.com/abrt/libreport/commit/fbd0a76180633c7d50be01ea69ad734749db18a8
 
 ---
+<<<<<<< Updated upstream
 Wed 12 Jun 2019 03:07:48 BST
 
    Thinking about getting rid of plane restraints for CuDA: replace
@@ -8997,3 +8998,10 @@ Wed 12 Jun 2019 09:13:48 BST
    http://graphics.cs.kuleuven.be/publications/BLD13OCCSVO/
 
    https://www.forceflow.be/2013/10/07/morton-encodingdecoding-through-bit-interleaving-implementations/
+
+Tue 11 Jun 22:39:15 BST 2019
+
+
+https://stackoverflow.com/questions/14519267/algorithm-for-generating-a-3d-hilbert-space-filling-curve-in-python
+
+http://www.math.uwaterloo.ca/~wgilbert/Research/HilbertCurve/HilbertCurve.html
