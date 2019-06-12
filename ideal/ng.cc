@@ -1255,6 +1255,14 @@ coot::restraints_container_t::try_make_phosphodiester_link_ng(const coot::protei
 							      std::pair<bool, mmdb::Residue *> res_1_pair,
 							      std::pair<bool, mmdb::Residue *> res_2_pair) {
 
+   // if this ever happens in real life, this can be enabled:
+   //
+   bool use_distance_cut_off = false; // distance test for residues that are not tandem in sequence
+                                      // but are tandem in index.
+   const float distance_cut_off = 5.0; // residues with O3' and P more thant this that are
+                                 // not tandem in sequence will not be linked
+   const float distance_cut_off_srd = distance_cut_off * distance_cut_off;
+
    mmdb::Residue *res_1 = res_1_pair.second;
    mmdb::Residue *res_2 = res_2_pair.second;
    std::string res_name_1(res_1->GetResName());
@@ -1264,7 +1272,7 @@ coot::restraints_container_t::try_make_phosphodiester_link_ng(const coot::protei
 
    if (util::is_nucleotide_by_dict(res_1, geom)) {
       if (util::is_nucleotide_by_dict(res_2, geom)) {
-	 
+
 	 mmdb::Atom **residue_1_atoms = 0;
 	 mmdb::Atom **residue_2_atoms = 0;
 	 int n_residue_1_atoms;
@@ -1282,6 +1290,17 @@ coot::restraints_container_t::try_make_phosphodiester_link_ng(const coot::protei
 		  if (at_name_2 == " P  ") { // PDBv3 FIXE
 		     std::string alt_conf_2(at_2->altLoc);
 		     if (alt_conf_1 == alt_conf_2 || alt_conf_1.empty() || alt_conf_2.empty()) {
+
+			if (use_distance_cut_off) {
+			   int res_no_1 = res_1->GetSeqNum();
+			   int res_no_2 = res_2->GetSeqNum();
+			   if ((res_2-res_1) > 1) {
+			      clipper::Coord_orth pt_1 = coot::co(at_1);
+			      clipper::Coord_orth pt_2 = coot::co(at_1);
+			      if ((pt_2-pt_1).lengthsq() > distance_cut_off_srd)
+				 continue;
+			   }
+			}
 
 			// find_peptide_link_type_ng doesn't test the geometry -
 			// just the residues types
@@ -1347,6 +1366,10 @@ coot::restraints_container_t::make_polymer_links_ng(const coot::protein_geometry
 
 	 serial_delta = ref_index_2 - ref_index_1;
 
+	 // but I don't think that this correctly deals with
+	 // antibodies that have missing residue numbers - but
+	 // are linked with a peptide: 19-20-22-23
+
 	 if (serial_delta == 1) {
 	    // possibly polymer
 
@@ -1376,9 +1399,12 @@ coot::restraints_container_t::make_polymer_links_ng(const coot::protein_geometry
 	    if (results.first) {
 	       accum_links.add(results.second);
 	    } else {
-	       results = try_make_phosphodiester_link_ng(geom, residues_vec[i1], residues_vec[i2]);
-	       if (results.first) {
-		  accum_links.add(results.second);
+
+	       if (res_no_delta < 2) {
+		  results = try_make_phosphodiester_link_ng(geom, residues_vec[i1], residues_vec[i2]);
+		  if (results.first) {
+		     accum_links.add(results.second);
+		  }
 	       }
 	    }
 
