@@ -6991,6 +6991,11 @@ PyObject *all_molecule_ramachandran_region_py(int imol);
 #endif /* USE_PYTHON */
 #endif /* __cplusplus */
 
+/*! \brief globularize the molecule.
+
+This is not guaranteed to generate the correct biological entity, but will bring together
+molecules (chains/domains) that are dispersed throughout the unit cell.
+  */
 void globularize(int imol);
 
 #ifdef __cplusplus

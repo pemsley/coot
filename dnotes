@@ -8976,3 +8976,24 @@ Thu  6 Jun 22:13:09 BST 2019
 
    Here is how to get rid of gtk_misc_get_type and others:
    https://github.com/abrt/libreport/commit/fbd0a76180633c7d50be01ea69ad734749db18a8
+
+---
+Wed 12 Jun 2019 03:07:48 BST
+
+   Thinking about getting rid of plane restraints for CuDA: replace
+   by improper dihedrals:
+
+   https://salilab.org/modeller/9v6/manual/node436.html
+   Use [van Schaik et al., 1993] to handle numerical instability.
+
+
+---
+Wed 12 Jun 2019 09:13:48 BST
+
+   For faster map iterpolation in CUDA:
+
+   Z-order curves/Morton 3d:
+
+   http://graphics.cs.kuleuven.be/publications/BLD13OCCSVO/
+
+   https://www.forceflow.be/2013/10/07/morton-encodingdecoding-through-bit-interleaving-implementations/
