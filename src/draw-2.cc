@@ -249,7 +249,8 @@ gtk3_draw_molecules() {
    std::cout << "   gtk3_draw_molecules() glUseProgram with GL err " << err << std::endl;
 
    glm::mat4 mvp_1 = glm::toMat4(graphics_info_t::glm_quat);
-   glm::vec3 sc(0.2f, 0.2f, 0.2f);
+   float z = graphics_info_t::zoom * 0.04;
+   glm::vec3 sc(z,z,z);
    glm::mat4 mvp = glm::scale(mvp_1, sc);
 
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
@@ -359,7 +360,6 @@ on_glarea_render(GtkGLArea *glarea) {
    err = glGetError();
    if (err) std::cout << "on_glarea_render gtk3_draw_molecules() " << err << std::endl;
 
-
    glFlush ();
    err = glGetError();
    if (err) std::cout << "on_glarea_render E err " << err << std::endl;
@@ -403,14 +403,14 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
 gboolean
 on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 
-   std::cout << "press!" << std::endl;
+   std::cout << "button press!" << std::endl;
    return TRUE;
 }
 
 gboolean
 on_glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 
-   std::cout << "release!" << std::endl;
+   std::cout << "button release!" << std::endl;
    return TRUE;
 }
 
@@ -440,21 +440,26 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
 
    std::cout << "on_glarea_key_press_notify() " << std::endl;
    graphics_info_t g;
-   int s = graphics_info_t::scroll_wheel_map;
-   if (s < graphics_info_t::n_molecules()) { 
-      if (s >= 0) { 
-	 if (! graphics_info_t::molecules[s].has_xmap()) {  // NXMAP-FIXME
-	    s = -1; // NO MAP
-	 }
-      }
-   } else {
-      s = -1; // NO MAP
+
+   if (event->keyval == GDK_KEY_m) {
+      std::cout << "Zoom in " << std::endl;
+      graphics_info_t::zoom *= 0.9;
+   }
+   if (event->keyval == GDK_KEY_n) {
+      std::cout << "Zoom out " << std::endl;
+      graphics_info_t::zoom *= 1.1;
    }
 
-   graphics_info_t::molecules[s].pending_contour_level_change_count--;
-   int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
-   g.set_density_level_string(s, g.molecules[s].contour_level);
-   g.display_density_level_this_image = 1;
+   if (event->keyval == GDK_KEY_minus) {
+      int s = graphics_info_t::scroll_wheel_map;
+      if (graphics_info_t::is_valid_map_molecule(s)) {
+	 graphics_info_t::molecules[s].pending_contour_level_change_count--;
+	 int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
+	 g.set_density_level_string(s, g.molecules[s].contour_level);
+	 g.display_density_level_this_image = 1;
+      }
+   }
+
    gtk_widget_queue_draw(widget);
 
    return TRUE;
@@ -474,6 +479,10 @@ void my_glarea_add_signals_and_events(GtkWidget *glarea) {
    gtk_widget_add_events(glarea, GDK_BUTTON_RELEASE_MASK);
    gtk_widget_add_events(glarea, GDK_BUTTON1_MOTION_MASK);
    gtk_widget_add_events(glarea, GDK_KEY_PRESS_MASK);
+
+   // key presses for the glarea:
+   gtk_widget_set_can_focus(glarea, TRUE);
+   gtk_widget_grab_focus(glarea);
 
    g_signal_connect(glarea, "realize", G_CALLBACK(on_glarea_realize), NULL);
    g_signal_connect(glarea, "render",  G_CALLBACK(on_glarea_render),  NULL);
