@@ -281,7 +281,7 @@ gtk3_draw_molecules() {
    glm::mat4 mvp = glm::scale(mvp_1, sc);
 
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-      if (true)
+      if (false)
          std::cout << "   gtk3_draw_molecules(): imol " << ii << " array_id and n_vertices_for_VertexArray: "
 		   << graphics_info_t::molecules[ii].m_VertexArrayID << " "
 		   << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
@@ -365,22 +365,7 @@ on_glarea_render(GtkGLArea *glarea) {
    GLenum err = glGetError();
    if (err) std::cout << "on_glarea_render() start " << err << std::endl;
 
-   for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-      if (graphics_info_t::molecules[ii].n_vertices_for_VertexArray > 0) {
-	 if (true)
-	    std::cout << "   gtk3_draw_molecules(): imol " << ii << " array_id and n_vertices_for_VertexArray: "
-		      << graphics_info_t::molecules[ii].m_VertexArrayID << " "
-		      << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
-		      << std::endl;
-	 glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID);
-	 err = glGetError();
-	 if (err) std::cout << "on_glarea_render test-bind err " << err << std::endl;
-      }
-   }
-
-   
-   if (err) std::cout << "on_glarea_render A err " << err << std::endl;
-   glClearColor (0.1, 0.1, 0.1, 1.0);
+   glClearColor (0.0, 0.0, 0.0, 1.0);
    err = glGetError();
    if (err) std::cout << "on_glarea_render B err " << err << std::endl;
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  
@@ -462,15 +447,17 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 
    int r = 0;
    graphics_info_t g;
-   double delta_x = event->x - graphics_info_t::mouse_current_x;
-   double delta_y = event->y - graphics_info_t::mouse_current_y;
 
    graphics_info_t::mouse_current_x = event->x;
    graphics_info_t::mouse_current_y = event->y;
 
-   coot::CartesianPair vec_x_y = screen_x_to_real_space_vector(widget);
-   // std::cout << vec_x_y.getStart() << " " << vec_x_y.getFinish() << std::endl;
-   g.add_to_RotationCentre(vec_x_y, -delta_x*0.2, -delta_y*0.2);
+   if (false) { // middle-mouse pan
+      double delta_x = event->x - graphics_info_t::mouse_current_x;
+      double delta_y = event->y - graphics_info_t::mouse_current_y;
+      coot::CartesianPair vec_x_y = screen_x_to_real_space_vector(widget);
+      // std::cout << vec_x_y.getStart() << " " << vec_x_y.getFinish() << std::endl;
+      g.add_to_RotationCentre(vec_x_y, -delta_x*0.2, -delta_y*0.2);
+   }
 
    if (true) {
 
@@ -479,58 +466,15 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
       int w = allocation.width;
       int h = allocation.height;
 
-      std::cout << "GetMouseBeginX() and current x " << g.GetMouseBeginX() << " " << 
-
-      std::cout << "\ndebug params for trackball_to_quaternion(): "
-		<< (2.0*g.GetMouseBeginX() - w) << " " << w << " "
-		<< (h - 2.0*g.GetMouseBeginY()) << " " << h << " "
-		<< (2.0*g.mouse_current_x - w) << " " << w << " "
-		<< (h - 2.0*g.mouse_current_y) << " " << h << " "
-		<< g.get_trackball_size()
-		<< std::endl;
-
-      float spin_quat[4];
-      trackball(spin_quat,
-		(2.0*g.GetMouseBeginX() - allocation.width) /allocation.width,
-		(allocation.height - 2.0*g.GetMouseBeginY())/allocation.height,
-		(2.0*g.mouse_current_x - allocation.width)  /allocation.width,
-		(allocation.height -  2.0*g.mouse_current_y)/allocation.height,
-		g.get_trackball_size());
-
       glm::quat tb_quat =
 	 g.trackball_to_quaternion((2.0*g.GetMouseBeginX() - w)/w, (h - 2.0*g.GetMouseBeginY())/h,
 				   (2.0*g.mouse_current_x - w)/w,  (h - 2.0*g.mouse_current_y)/h,
 				   g.get_trackball_size());
 
-      std::cout << "spin_quat:         "
-		<< std::fixed << std::right << std::setw(8)
-		<< spin_quat[0] << "    " << spin_quat[1] << "    " << spin_quat[2] << "    " << spin_quat[3]
-		<< std::endl;
+      glm::mat4 mat_from_quat = glm::toMat4(tb_quat);
 
-      std::cout << "tb_quat:           "
- 		<< std::fixed << std::right << std::setw(8)
-		<< tb_quat.x << "    " << tb_quat.y << "    " << tb_quat.z << "    " << tb_quat.w << std::endl;
-
-      glm::quat tb_quat_massaged(tb_quat.x, tb_quat.y, tb_quat.z, tb_quat.w);
-
-      if (false)
-	 std::cout << "glm_quat: "
-		   << graphics_info_t::glm_quat.x << " "
-		   << graphics_info_t::glm_quat.y << " "
-		   << graphics_info_t::glm_quat.z << " "
-		   << graphics_info_t::glm_quat.w << std::endl;
-
-      glm::mat4 mat_from_quat = glm::transpose(glm::toMat4(tb_quat));
-      std::cout << "Here is mat_from_quat:\n" << glm::to_string(mat_from_quat) << std::endl;
-
-      GL_matrix m;
-      m.from_quaternion(spin_quat);
-      std::cout << "Here is m: (old style):\n" << m << std::endl;
-
-      // glm::quat normalized_tb_quat(glm::normalize(tb_quat));
       glm::quat product = tb_quat * graphics_info_t::glm_quat;
-      // graphics_info_t::glm_quat = glm::normalize(product);
-      graphics_info_t::glm_quat = product;
+      graphics_info_t::glm_quat = glm::normalize(product);
    }
 
    // for next motion
