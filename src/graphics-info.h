@@ -128,8 +128,8 @@
 
 #include "restraints-editor.hh"
 
-#include "Transform.hh"
-#include "Camera.hh"
+// #include "Transform.hh"
+// #include "Camera.hh"
 
 #ifdef USE_GUILE
 #include <libguile.h>
@@ -3980,8 +3980,8 @@ string   static std::string sessionid;
    static int mvp_location;
    static glm::quat glm_quat;
 
-   static benny::Camera camera;
-   static Transform transform;
+   // static benny::Camera camera;
+   // static Transform transform;
 
    // testing
    static bool draw_the_other_things;

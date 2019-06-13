@@ -6,8 +6,8 @@
 #include "graphics-info.h"
 
 
-benny::Camera graphics_info_t::camera = benny::Camera();
-Transform     graphics_info_t::transform = Transform();
+// benny::Camera graphics_info_t::camera = benny::Camera();
+// Transform     graphics_info_t::transform = Transform();
 
 void
 graphics_info_t::init() {
@@ -26,12 +26,12 @@ graphics_info_t::init() {
       for (int i=0; i<4; i++) 
 	 mvp[i*4+i] = 1.0;
 
-      transform = Transform(glm::vec3(0.0, 0.0, 0.0),
-                            glm::vec3(0.0, 0.0, 0.0),
-                            glm::vec3(1.0, 1.0, 1.0));
+      // transform = Transform(glm::vec3(0.0, 0.0, 0.0),
+      //                       glm::vec3(0.0, 0.0, 0.0),
+      //                       glm::vec3(1.0, 1.0, 1.0));
 
       float aspect = 1.2;
-      camera = benny::Camera(glm::vec3(0.0f,0.0f,-3.5f), 70, aspect, 0.1f, 500.0f);
+      // camera = benny::Camera(glm::vec3(0.0f,0.0f,-3.5f), 70, aspect, 0.1f, 500.0f);
 
       which_eye = FRONT_EYE;
 

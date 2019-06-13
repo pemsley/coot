@@ -40,7 +40,7 @@ void test_gtk3_adjustment_changed(GtkAdjustment *adj, GtkWidget *window) {
    
    float delta = 0.1 * (value - 5.0f);
 
-   glm::vec3 EulerAngles;
+   glm::vec3 EulerAngles(0,0,0);
 
    if (idx_axis == 0) EulerAngles = glm::vec3(delta, 0, 0);
    if (idx_axis == 1) EulerAngles = glm::vec3(0, delta, 0);
@@ -982,6 +982,7 @@ unsigned int compile_shader(const std::string &source, unsigned int type) {
    } 
    return id;
 #else
+   std::cout << "compile_shader() return non-graphics testing 0 " << std::endl;
    return 0;
 #endif
 }
