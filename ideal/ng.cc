@@ -1296,7 +1296,7 @@ coot::restraints_container_t::try_make_phosphodiester_link_ng(const coot::protei
 			   int res_no_2 = res_2->GetSeqNum();
 			   if ((res_2-res_1) > 1) {
 			      clipper::Coord_orth pt_1 = coot::co(at_1);
-			      clipper::Coord_orth pt_2 = coot::co(at_1);
+			      clipper::Coord_orth pt_2 = coot::co(at_2);
 			      if ((pt_2-pt_1).lengthsq() > distance_cut_off_srd)
 				 continue;
 			   }
