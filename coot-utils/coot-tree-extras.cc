@@ -1414,7 +1414,7 @@ coot::atom_tree_t::set_dihedral(const coot::map_index_t &i1,
 		   << current_dihedral_angle << "  " << angle << "  " << diff << "  "
 		   << dihedral_angle << std::endl;
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << rte.what() << std::endl;
       std::string mess = "Torsion failure for index ";
       mess += util::int_to_string(i1.index());
