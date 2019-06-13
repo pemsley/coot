@@ -1432,7 +1432,7 @@ GtkWidget *graphics_info_t::test_hscale_z = 0;
 float *graphics_info_t::test_rotation_angles = new float[3];
 float *graphics_info_t::mvp = new float[16];
 int    graphics_info_t::mvp_location = -1;
-glm::quat graphics_info_t::glm_quat;
+glm::quat graphics_info_t::glm_quat = glm::quat(1,0,0,0);
 
 // --------------------------------------------------------------------------------------------
 

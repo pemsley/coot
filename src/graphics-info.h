@@ -3983,6 +3983,9 @@ string   static std::string sessionid;
    // static benny::Camera camera;
    // static Transform transform;
 
+   float trackball_project_to_sphere(float r, float x, float y) const;
+   glm::quat trackball_to_quaternion(float p1x, float p1y, float p2x, float p2y, float trackball_size) const;
+
    // testing
    static bool draw_the_other_things;
    static GLuint other_triangles_vertexarray_id;

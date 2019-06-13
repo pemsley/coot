@@ -449,6 +449,7 @@ coot_bin_SOURCES = \
 	graphics-info-scripting.cc	\
 	graphics-info-state.cc	 \
 	graphics-info-superpose.cc	\
+	graphics-info-trackball.cc	\
 	graphics-ligand-view.cc	 \
 	graphics-ligand-view.hh	 \
 	gl-matrix.cc 		 \

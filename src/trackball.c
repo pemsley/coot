@@ -50,6 +50,7 @@
  * Gavin Bell
  */
 #include <math.h>
+#include <stdio.h>
 #include "trackball.h"
 
 /*
@@ -167,9 +168,10 @@ trackball(float q[4], float p1x, float p1y, float p2x, float p2y, float trackbal
 
     if (p1x == p2x && p1y == p2y) {
         /* Zero rotation */
-        vzero(q);
-        q[3] = 1.0;
-        return;
+      printf("new: zero rotation\n");
+      vzero(q);
+      q[3] = 1.0;
+      return;
     }
 
     d_mult = trackball_size - 0.3; /* or some such */
@@ -180,6 +182,9 @@ trackball(float q[4], float p1x, float p1y, float p2x, float p2y, float trackbal
      */
     vset(p1,p1x,p1y,tb_project_to_sphere(trackball_size,p1x,p1y));
     vset(p2,p2x,p2y,tb_project_to_sphere(trackball_size,p2x,p2y));
+
+    // printf("trackball-orig: p1: %8.3f %8.3f %8.3f\n", p1[0], p1[1], p1[2]);
+    // printf("trackball-orig: p2: %8.3f %8.3f %8.3f\n", p2[0], p2[1], p2[2]);
 
     /*
      *  Now, we want the cross product of P1 and P2
@@ -193,12 +198,16 @@ trackball(float q[4], float p1x, float p1y, float p2x, float p2y, float trackbal
 /*     t = vlength(d) / (2.0*TRACKBALLSIZE); */
     t = vlength(d) * d_mult / (trackball_size);
 
+    // printf("trackball-orig: t: %8.3f\n", t);
+
     /*
      * Avoid problems with out-of-control values...
      */
     if (t > 1.0) t = 1.0;
     if (t < -1.0) t = -1.0;
     phi = 2.0 * asin(t);
+
+    // printf("trackball-orig: phi: %8.3f\n", phi);
 
     axis_to_quat(a,phi,q);
 }
@@ -210,9 +219,11 @@ void
 axis_to_quat(float a[3], float phi, float q[4])
 {
     vnormal(a);
+    //printf("trackball-orig: a-norm: %8.3f %8.3f %8.3f\n", a[0], a[1], a[2]);
     vcopy(a,q);
     vscale(q,sin(phi/2.0));
     q[3] = cos(phi/2.0);
+    printf("trackball-orig: q0: %8.3f q1 %8.3f q2 %8.3f q3 %8.3f\n", q[0], q[1], q[2], q[3]);
 }
 
 /*

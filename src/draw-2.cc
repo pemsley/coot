@@ -3,6 +3,9 @@
 #include <Python.h>
 #endif // USE_PYTHON
 
+#include <glm/ext.hpp>
+#include <glm/gtx/string_cast.hpp>  // to_string()
+
 #include <iostream>
 #include <iomanip>
 #include <string>
@@ -109,15 +112,9 @@ void init_other_buffers() {
 
       unsigned int indices[12] { 0,1,1,2,2,0,   3,4,4,5,5,3 };
 
-      GLenum err = glGetError();
-      std::cout << "start of init_other_buffers() err " << err << std::endl;
-
-      // doesn't fix the error on glGenVertexArrays below
-      // gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glarea));
-
       // GLuint VertexArrayID;
       glGenVertexArrays(1, &graphics_info_t::other_triangles_vertexarray_id);
-      err = glGetError();
+      GLenum err = glGetError();
       std::cout << "init_other_buffers(): glGenVertexArrays err " << err << std::endl;
       glBindVertexArray(graphics_info_t::other_triangles_vertexarray_id);
       err = glGetError();
@@ -188,11 +185,13 @@ void draw_triangle(GtkGLArea *glarea) {
       glm::vec3 sc(0.2f, 0.2f, 0.2f);
       glm::mat4 mvp = glm::scale(mvp_1, sc);
 
-      std::cout << "debug:: draw_triangle()       local mvp: ";
-      for (unsigned int i=0; i<4; i++)
-	 for (unsigned int j=0; j<4; j++)
-	    std::cout << std::setw(8) << mvp[i][j] << " ";
-      std::cout << std::endl;
+      if (false) {
+	 std::cout << "debug:: draw_triangle()       local mvp: ";
+	 for (unsigned int i=0; i<4; i++)
+	    for (unsigned int j=0; j<4; j++)
+	       std::cout << std::setw(8) << mvp[i][j] << " ";
+	 std::cout << std::endl;
+      }
       glUniformMatrix4fv(graphics_info_t::mvp_location, 1, GL_FALSE, &mvp[0][0]);
       err = glGetError();
       if (err) std::cout << "draw_triangle() glUniformMatrix4fv() " << err << std::endl;
@@ -266,7 +265,7 @@ gtk3_draw_molecules() {
    // not needed I think
    // gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glarea));
 
-   std::cout << "in gtk3_draw_molecules() " << std::endl;
+   // std::cout << "in gtk3_draw_molecules() " << std::endl;
 
    glLineWidth(1.0);
    GLenum err = glGetError();
@@ -274,7 +273,7 @@ gtk3_draw_molecules() {
    
    glUseProgram(programID_global);
    err = glGetError();
-   std::cout << "   gtk3_draw_molecules() glUseProgram with GL err " << err << std::endl;
+   if (err) std::cout << "   gtk3_draw_molecules() glUseProgram with GL err " << err << std::endl;
 
    glm::mat4 mvp_1 = glm::toMat4(graphics_info_t::glm_quat);
    float z = graphics_info_t::zoom * 0.04;
@@ -289,9 +288,10 @@ gtk3_draw_molecules() {
 		   << std::endl;
       if (graphics_info_t::molecules[ii].n_vertices_for_VertexArray > 0) {
          glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID);
-         GLenum err = glGetError();
-         std::cout << "   gtk3_draw_molecules() glBindVertexArray() " << graphics_info_t::molecules[ii].m_VertexArrayID
-		   << " with GL err " << err << std::endl;
+         err = glGetError();
+         if (err) std::cout << "   gtk3_draw_molecules() glBindVertexArray() "
+			    << graphics_info_t::molecules[ii].m_VertexArrayID
+			    << " with GL err " << err << std::endl;
 
          glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
          glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBufferID);
@@ -303,9 +303,9 @@ gtk3_draw_molecules() {
          glDrawElements(GL_LINES, graphics_info_t::molecules[ii].n_vertices_for_VertexArray,
                         GL_UNSIGNED_INT, nullptr);
          err = glGetError();
-         std::cout << "   gtk3_draw_molecules() glDrawElements() n_vertices: "
-		   << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
-		   << " with GL err " << err << std::endl;
+         if (err) std::cout << "   gtk3_draw_molecules() glDrawElements() n_vertices: "
+			    << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
+			    << " with GL err " << err << std::endl;
       }
    }
 }
@@ -426,7 +426,10 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
 
    if (g.is_valid_map_molecule(imol_scroll)) {
       // use direction
-      graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count--;
+      if (direction == 1)
+	 graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count--;
+      if (direction == -1)
+	 graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count++;
       int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
       std::cout << "Now contour level is " << g.molecules[imol_scroll].contour_level << std::endl;
       g.set_density_level_string(imol_scroll, g.molecules[imol_scroll].contour_level);
@@ -455,21 +458,84 @@ on_glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 gboolean
 on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 
-   std::cout << "motion: starting on_glarea_motion_notify() " << widget << std::endl;
+   // std::cout << "motion: starting on_glarea_motion_notify() " << widget << std::endl;
 
    int r = 0;
    graphics_info_t g;
    double delta_x = event->x - graphics_info_t::mouse_current_x;
    double delta_y = event->y - graphics_info_t::mouse_current_y;
 
+   graphics_info_t::mouse_current_x = event->x;
+   graphics_info_t::mouse_current_y = event->y;
+
    coot::CartesianPair vec_x_y = screen_x_to_real_space_vector(widget);
-   std::cout << vec_x_y.getStart() << " " << vec_x_y.getFinish() << std::endl;
+   // std::cout << vec_x_y.getStart() << " " << vec_x_y.getFinish() << std::endl;
    g.add_to_RotationCentre(vec_x_y, -delta_x*0.2, -delta_y*0.2);
-   // adjust g.transform here. Use a better name.
-   
-   // g.SetMouseBegin(event->x,event->y);
+
+   if (true) {
+
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(widget, &allocation);
+      int w = allocation.width;
+      int h = allocation.height;
+
+      std::cout << "GetMouseBeginX() and current x " << g.GetMouseBeginX() << " " << 
+
+      std::cout << "\ndebug params for trackball_to_quaternion(): "
+		<< (2.0*g.GetMouseBeginX() - w) << " " << w << " "
+		<< (h - 2.0*g.GetMouseBeginY()) << " " << h << " "
+		<< (2.0*g.mouse_current_x - w) << " " << w << " "
+		<< (h - 2.0*g.mouse_current_y) << " " << h << " "
+		<< g.get_trackball_size()
+		<< std::endl;
+
+      float spin_quat[4];
+      trackball(spin_quat,
+		(2.0*g.GetMouseBeginX() - allocation.width) /allocation.width,
+		(allocation.height - 2.0*g.GetMouseBeginY())/allocation.height,
+		(2.0*g.mouse_current_x - allocation.width)  /allocation.width,
+		(allocation.height -  2.0*g.mouse_current_y)/allocation.height,
+		g.get_trackball_size());
+
+      glm::quat tb_quat =
+	 g.trackball_to_quaternion((2.0*g.GetMouseBeginX() - w)/w, (h - 2.0*g.GetMouseBeginY())/h,
+				   (2.0*g.mouse_current_x - w)/w,  (h - 2.0*g.mouse_current_y)/h,
+				   g.get_trackball_size());
+
+      std::cout << "spin_quat:         "
+		<< std::fixed << std::right << std::setw(8)
+		<< spin_quat[0] << "    " << spin_quat[1] << "    " << spin_quat[2] << "    " << spin_quat[3]
+		<< std::endl;
+
+      std::cout << "tb_quat:           "
+ 		<< std::fixed << std::right << std::setw(8)
+		<< tb_quat.x << "    " << tb_quat.y << "    " << tb_quat.z << "    " << tb_quat.w << std::endl;
+
+      glm::quat tb_quat_massaged(tb_quat.x, tb_quat.y, tb_quat.z, tb_quat.w);
+
+      if (false)
+	 std::cout << "glm_quat: "
+		   << graphics_info_t::glm_quat.x << " "
+		   << graphics_info_t::glm_quat.y << " "
+		   << graphics_info_t::glm_quat.z << " "
+		   << graphics_info_t::glm_quat.w << std::endl;
+
+      glm::mat4 mat_from_quat = glm::transpose(glm::toMat4(tb_quat));
+      std::cout << "Here is mat_from_quat:\n" << glm::to_string(mat_from_quat) << std::endl;
+
+      GL_matrix m;
+      m.from_quaternion(spin_quat);
+      std::cout << "Here is m: (old style):\n" << m << std::endl;
+
+      // glm::quat normalized_tb_quat(glm::normalize(tb_quat));
+      glm::quat product = tb_quat * graphics_info_t::glm_quat;
+      // graphics_info_t::glm_quat = glm::normalize(product);
+      graphics_info_t::glm_quat = product;
+   }
+
+   // for next motion
+   g.SetMouseBegin(event->x,event->y);
    gtk_widget_queue_draw(widget);
-   std::cout << "motion: done glarea_motion_notify()" << std::endl;
    return TRUE;
 }
 
