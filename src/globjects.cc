@@ -357,7 +357,7 @@ int graphics_info_t::file_selection_dialog_y_size = -1;
 double graphics_info_t::mouse_current_x = 0.0; 
 double graphics_info_t::mouse_current_y = 0.0;
 float* graphics_info_t::quat = new float[4]; 
-float graphics_info_t::trackball_size = 0.8; // for kevin
+float graphics_info_t::trackball_size = 12.8; // better for me for now. was 0.8
 
 // residue reorientation on "space"
 bool graphics_info_t::reorienting_next_residue_mode = false;

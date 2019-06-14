@@ -430,6 +430,8 @@ gboolean
 on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 
    std::cout << "button press!" << std::endl;
+   graphics_info_t g;
+   g.SetMouseBegin(event->x,event->y);
    return TRUE;
 }
 
