@@ -278,7 +278,17 @@ gtk3_draw_molecules() {
    glm::mat4 mvp_1 = glm::toMat4(graphics_info_t::glm_quat);
    float z = graphics_info_t::zoom * 0.04;
    glm::vec3 sc(z,z,z);
-   glm::mat4 mvp = glm::scale(mvp_1, sc);
+   glm::mat4 projection_matrix = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 0.1f, 100.0f);
+   glm::mat4 view_matrix = glm::mat4(1.0);
+
+   // view_matrix is for translation and scaling only.
+   //
+   glm::vec3 rc = graphics_info_t::get_rotation_centre();
+   view_matrix = glm::translate(view_matrix, rc);
+   view_matrix = glm::scale(view_matrix, sc);
+
+   // glm::mat4 mvp = glm::scale(mvp_1, sc);
+   glm::mat4 mvp = projection_matrix * view_matrix * mvp_1;
 
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
       if (false)
@@ -374,8 +384,10 @@ on_glarea_render(GtkGLArea *glarea) {
 
    // 
 
+   // get rid of this?
    // if (graphics_info_t::draw_the_other_things)
    // draw_other_triangle(glarea);
+
 
    draw_triangle(glarea);
 
@@ -419,6 +431,7 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
       std::cout << "Now contour level is " << g.molecules[imol_scroll].contour_level << std::endl;
       g.set_density_level_string(imol_scroll, g.molecules[imol_scroll].contour_level);
       g.display_density_level_this_image = 1;
+      g.update_maps();
       gtk_widget_queue_draw(widget);
    } else {
       std::cout << "No map" << std::endl;
@@ -445,23 +458,15 @@ on_glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 gboolean
 on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 
-   // std::cout << "motion: starting on_glarea_motion_notify() " << widget << std::endl;
-
    int r = 0;
    graphics_info_t g;
 
-   graphics_info_t::mouse_current_x = event->x;
-   graphics_info_t::mouse_current_y = event->y;
+   // split this function up before it gets too big.
 
-   if (false) { // middle-mouse pan
-      double delta_x = event->x - graphics_info_t::mouse_current_x;
-      double delta_y = event->y - graphics_info_t::mouse_current_y;
-      coot::CartesianPair vec_x_y = screen_x_to_real_space_vector(widget);
-      // std::cout << vec_x_y.getStart() << " " << vec_x_y.getFinish() << std::endl;
-      g.add_to_RotationCentre(vec_x_y, -delta_x*0.2, -delta_y*0.2);
-   }
+   g.mouse_current_x = event->x;
+   g.mouse_current_y = event->y;
 
-   if (true) {
+   if (event->state & GDK_BUTTON1_MASK) {
 
       GtkAllocation allocation;
       gtk_widget_get_allocation(widget, &allocation);
@@ -479,6 +484,53 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
       graphics_info_t::glm_quat = glm::normalize(product);
    }
 
+
+   if (event->state & GDK_BUTTON2_MASK) {
+      double delta_x = event->x - g.GetMouseBeginX();
+      double delta_y = event->y - g.GetMouseBeginY();
+      // coot::CartesianPair vec_x_y = screen_x_to_real_space_vector(widget);
+      // std::cout << "debug:: screen to real space: " << vec_x_y.getStart() << " " << vec_x_y.getFinish() << std::endl;
+      // g.add_to_RotationCentre(vec_x_y, -delta_x*0.2, -delta_y*0.2);
+
+      glm::mat4 mvp_1 = glm::toMat4(graphics_info_t::glm_quat);
+      float z = graphics_info_t::zoom * 0.04;
+      glm::vec3 sc(z,z,z);
+      glm::mat4 projection_matrix = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 0.1f, 100.0f);
+      glm::mat4 view_matrix = glm::mat4(1.0);
+
+      // or do I want -g.get_rotation_centre()?
+      view_matrix = glm::translate(view_matrix, g.get_rotation_centre());
+      view_matrix = glm::scale(view_matrix, sc);
+      glm::vec3 rc = graphics_info_t::get_rotation_centre();
+
+      // glm::mat4 mvp = glm::scale(mvp_1, sc);
+      glm::mat4 mvp = projection_matrix * view_matrix * mvp_1;
+
+      glm::mat4 mvp_inv = glm::inverse(mvp);
+
+      glm::vec4 sp1(g.GetMouseBeginX(), g.GetMouseBeginY(), 0.0f, 0.0f);
+      glm::vec4 sp2(g.mouse_current_x,  g.mouse_current_y,  0.0f, 0.0f);
+
+      glm::vec4 pt_1 = sp1 * mvp_inv;
+      glm::vec4 pt_2 = sp2 * mvp_inv;
+
+      glm::vec4 delta = sp2 - sp1;
+      std::cout << "delta: " << glm::to_string(delta) << std::endl;
+
+      g.add_to_rotation_centre(delta);
+      int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
+   }
+
+   if (event->state & GDK_BUTTON3_MASK) {
+      double delta_x = event->x - g.GetMouseBeginX();
+      double delta_y = event->y - g.GetMouseBeginY();
+      double fx = 1.0f +  delta_x/400.0;
+      double fy = 1.0f +  delta_y/400.0;
+      if (fx > 0.0) g.zoom *= fx;
+      if (fy > 0.0) g.zoom *= fy;
+      // std::cout << "now zoom: " << g.zoom << std::endl;
+   }
+
    // for next motion
    g.SetMouseBegin(event->x,event->y);
    gtk_widget_queue_draw(widget);
@@ -491,11 +543,11 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
    std::cout << "on_glarea_key_press_notify() " << std::endl;
    graphics_info_t g;
 
-   if (event->keyval == GDK_KEY_m) {
+   if (event->keyval == GDK_KEY_n) {
       std::cout << "Zoom in " << std::endl;
       graphics_info_t::zoom *= 0.9;
    }
-   if (event->keyval == GDK_KEY_n) {
+   if (event->keyval == GDK_KEY_m) {
       std::cout << "Zoom out " << std::endl;
       graphics_info_t::zoom *= 1.1;
    }
@@ -540,6 +592,11 @@ void my_glarea_add_signals_and_events(GtkWidget *glarea) {
    gtk_widget_add_events(glarea, GDK_BUTTON_PRESS_MASK);
    gtk_widget_add_events(glarea, GDK_BUTTON_RELEASE_MASK);
    gtk_widget_add_events(glarea, GDK_BUTTON1_MOTION_MASK);
+   gtk_widget_add_events(glarea, GDK_BUTTON2_MOTION_MASK);
+   gtk_widget_add_events(glarea, GDK_BUTTON3_MOTION_MASK);
+   gtk_widget_add_events(glarea, GDK_BUTTON1_MASK);
+   gtk_widget_add_events(glarea, GDK_BUTTON2_MASK);
+   gtk_widget_add_events(glarea, GDK_BUTTON3_MASK);
    gtk_widget_add_events(glarea, GDK_KEY_PRESS_MASK);
 
    // key presses for the glarea:
