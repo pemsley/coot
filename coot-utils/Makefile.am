@@ -72,10 +72,12 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 #    $(top_builddir)/utils/libcoot-utils.la 
 #    $(CLIPPER_LIBS) $(MMDB_LIBS)
 
+# this needs to be linked with clipper the (ubuntu 18.04) linker tells me - what uses clipper
+# in the source files for libcoot-coord-utils?
 libcoot_coord_utils_la_LIBADD = \
     $(top_builddir)/lidia-core/libcoot-lidia-core.la \
     $(top_builddir)/geometry/libcoot-geometry.la \
-    $(GSL_LIBS) $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(PYTHON_LIBS)
+    $(CLIPPER_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(PYTHON_LIBS)
 
 
 libcoot_coord_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
