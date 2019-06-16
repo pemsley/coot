@@ -288,14 +288,15 @@ gtk3_draw_molecules() {
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    view_matrix = glm::translate(view_matrix, -rc);
    view_matrix = glm::scale(view_matrix, sc);
-   std::cout << "gtk3_draw_molecules() with rc " << glm::to_string(rc) << std::endl;
+   std::cout << "gtk3_draw_molecules() with rc " << glm::to_string(rc)
+             << " and zoom z " << z << std::endl;
 
    // glm::mat4 mvp = glm::scale(mvp_1, sc);
    glm::mat4 mvp = projection_matrix * view_matrix * mvp_1;
 
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
       if (graphics_info_t::molecules[ii].n_vertices_for_VertexArray > 0) {
-         if (true)
+         if (false)
             std::cout << "   gtk3_draw_molecules(): imol " << ii
                       << " array_id and n_vertices_for_VertexArray: "
 		      << graphics_info_t::molecules[ii].m_VertexArrayID << " "
@@ -500,6 +501,11 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
       //                     glm::mat4 const& proj,
       //                     glm::ivec4 const& viewport);
 
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(widget, &allocation);
+      int w = allocation.width;
+      int h = allocation.height;
+
       glm::mat4 mvp_1 = glm::toMat4(graphics_info_t::glm_quat);
       float z = graphics_info_t::zoom * 0.04;
       glm::vec3 sc(z,z,z);
@@ -510,21 +516,27 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
       view_matrix = glm::translate(view_matrix, -rc);
       view_matrix = glm::scale(view_matrix, sc);
 
-      glm::mat4 mvp = projection_matrix * view_matrix * mvp_1;
-      glm::mat4 mvp_inv = glm::inverse(mvp);
+      float mouseX_1 = g.GetMouseBeginX() / (w * 0.5f) - 1.0f;
+      float mouseY_1 = g.GetMouseBeginY() / (h * 0.5f) - 1.0f;
+      float mouseX_2 = g.mouse_current_x  / (w * 0.5f) - 1.0f;
+      float mouseY_2 = g.mouse_current_y  / (h * 0.5f) - 1.0f;
 
-      glm::vec4 sp1(g.GetMouseBeginX(), g.GetMouseBeginY(), 0.0f, 0.0f);
-      glm::vec4 sp2(g.mouse_current_x,  g.mouse_current_y,  0.0f, 0.0f);
+      glm::mat4 vp_inv = glm::inverse(projection_matrix * view_matrix);
 
-      glm::vec4 pt_1 = sp1 * mvp_inv;
-      glm::vec4 pt_2 = sp2 * mvp_inv;
+      glm::vec4 screenPos_1 = glm::vec4(mouseX_1, -mouseY_1, 1.0f, 1.0f);
+      glm::vec4 screenPos_2 = glm::vec4(mouseX_2, -mouseY_2, 1.0f, 1.0f);
+      glm::vec4 worldPos_1 = vp_inv * screenPos_1;
+      glm::vec4 worldPos_2 = vp_inv * screenPos_2;
 
-      glm::vec4 delta = pt_2 - pt_1;
-      std::cout << "delta: " << glm::to_string(delta) << std::endl;
+      glm::vec4 delta(worldPos_1 - worldPos_2);
 
-      g.add_to_rotation_centre(delta * 0.1f);
+      std::cout << glm::to_string(screenPos_1) << " " << glm::to_string(screenPos_2) << " "
+                << glm::to_string(delta) << std::endl;
+
+      g.add_to_rotation_centre(delta * z);
       std::cout << "add a contourer" << std::endl;
       int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
+
    }
 
    if (event->state & GDK_BUTTON3_MASK) {
