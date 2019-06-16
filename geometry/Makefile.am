@@ -52,12 +52,14 @@ libcoot_geometry_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # libcoot_geometry_la_CXXFLAGS = -g -O1
 
+# we can't link coot-compare-dictionaries or coot-make-shelx-restraints
+# correct at the moment.
 check_PROGRAMS = test-geometry test-read-components test-ccp4srs \
+	coot-compare-dictionaries          \
+	coot-make-shelx-restraints         \
 	coot-dictionary-bond-distributions
 
 bin_PROGRAMS = \
-	coot-compare-dictionaries          \
-	coot-make-shelx-restraints         \
 	coot-available-comp-id
 
 test_geometry_SOURCES = test-geometry.cc

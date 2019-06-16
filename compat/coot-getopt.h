@@ -145,8 +145,8 @@ struct option
    errors, only prototype getopt for the GNU C library.  */
 /* extern int getopt (int __argc, char *const *__argv, const char *__shortopts); as it was 20110816 */
 
-// #define HACK_THROW_ throw()
-#define HACK_THROW_ 
+#define HACK_THROW_ throw()
+// #define HACK_THROW_ 
 extern int getopt (int __argc, char *const *__argv, const char *__shortopts) HACK_THROW_;
 
 # else /* not __GNU_LIBRARY__ */

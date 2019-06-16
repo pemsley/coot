@@ -1424,12 +1424,7 @@ std::shared_ptr<SceneSetup> graphics_info_t::mol_tri_scene_setup = 0;
 #endif // USE_MOLECULES_TO_TRIANGLES
 
 // --------------------------------------------------------------------------------------------
-// test stuff
-GtkWidget *graphics_info_t::test_hscale_x = 0;
-GtkWidget *graphics_info_t::test_hscale_y = 0;
-GtkWidget *graphics_info_t::test_hscale_z = 0;
 
-float *graphics_info_t::test_rotation_angles = new float[3];
 float *graphics_info_t::mvp = new float[16];
 int    graphics_info_t::mvp_location = -1;
 glm::quat graphics_info_t::glm_quat = glm::quat(1,0,0,0);
@@ -3539,6 +3534,8 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 // 
 gint idle_contour_function(gpointer data) {
 
+   std::cout << "idle_contour_function() started" << std::endl;
+
    gint continue_status = 0;
    bool something_changed = false;
 
@@ -3568,6 +3565,7 @@ gint idle_contour_function(gpointer data) {
 	    }
 
             graphics_info_t g;
+            std::cout << "idle_contour_function() update_maps()" << std::endl;
 	    g.molecules[imol].update_map();
 	    continue_status = 0;
             g.set_density_level_string(imol, g.molecules[imol].contour_level);
@@ -3708,6 +3706,7 @@ draw_axes(GL_matrix &m) {
       glMatrixMode(GL_MODELVIEW);
 
       // If we don't have this, we can't see the axes
+
       glGetFloatv(GL_MODELVIEW_MATRIX, mat_p);
       
       glPushMatrix();

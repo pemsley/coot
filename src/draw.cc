@@ -26,36 +26,6 @@
 #endif // GRAPHICS_TESTING
 
 
-void test_gtk3_adjustment_changed(GtkAdjustment *adj, GtkWidget *window) {
-
-   graphics_info_t g;
-
-   double value = gtk_adjustment_get_value(adj);
-
-   int idx_axis = 0;
-   if (adj == gtk_range_get_adjustment(GTK_RANGE(g.test_hscale_y)))
-      idx_axis = 1;
-   if (adj == gtk_range_get_adjustment(GTK_RANGE(g.test_hscale_z)))
-      idx_axis = 2;
-   
-   float delta = 0.1 * (value - 5.0f);
-
-   glm::vec3 EulerAngles(0,0,0);
-
-   if (idx_axis == 0) EulerAngles = glm::vec3(delta, 0, 0);
-   if (idx_axis == 1) EulerAngles = glm::vec3(0, delta, 0);
-   if (idx_axis == 2) EulerAngles = glm::vec3(0, 0, delta);
-   
-   glm::quat quat_delta(EulerAngles);
-   glm::quat normalized_quat_delta(glm::normalize(quat_delta));
-   glm::quat product = normalized_quat_delta * g.glm_quat;
-   g.glm_quat = glm::normalize(product);
-
-   gtk_widget_queue_draw(g.glarea);
-
-}
-
-
 
 void
 stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {

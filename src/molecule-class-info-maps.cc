@@ -323,9 +323,6 @@ molecule_class_info_t::update_map_internal() {
 			 graphics_info_t::RotationCentre_y(),
 			 graphics_info_t::RotationCentre_z());
 
-      std::cout << "Here with display_lists_for_maps_flag " << graphics_info_t::display_lists_for_maps_flag
-		<< std::endl;
-
       update_map_triangles(radius, rc);  // NXMAP-FIXME
       if (graphics_info_t::use_graphics_interface_flag) {
 	 if (graphics_info_t::display_lists_for_maps_flag) {
@@ -711,7 +708,8 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 
 	 if (graphics_info_t::do_flat_shading_for_solid_density_surface) {
 	    std::cout << "------------------ update_map_triangles() here 2 with centre "
-		      << centre << " ------------" << std::endl;
+		      << centre << " and contour level " << contour_level
+                      << " ------------" << std::endl;
 	    setup_glsl_map_rendering(); // turn tri_con into buffers.
 	 }
 

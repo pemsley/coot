@@ -3971,12 +3971,8 @@ string   static std::string sessionid;
 
    // ---------------------------------------------
 
-   static GtkWidget *test_hscale_x;
-   static GtkWidget *test_hscale_y;
-   static GtkWidget *test_hscale_z;
    /* model-view-projection matrix */
    static float *mvp;
-   static float *test_rotation_angles;
    static int mvp_location;
    static glm::quat glm_quat;
    static glm::vec3 get_rotation_centre() {

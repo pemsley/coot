@@ -2326,6 +2326,7 @@ graphics_info_t::draw_ramachandran_goodness_spots() {
 void
 graphics_info_t::draw_rotamer_probability_object() {
 
+#if 0
    graphics_info_t g;
    std::vector<coot::generic_display_object_t::dodec_t> dodecs = g.get_rotamer_dodecs();
 
@@ -2361,6 +2362,7 @@ graphics_info_t::draw_rotamer_probability_object() {
       }
       glDisable(GL_LIGHTING);
    }
+#endif
 }
 
 // can this be const?

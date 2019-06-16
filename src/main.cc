@@ -304,32 +304,6 @@ main (int argc, char *argv[]) {
       my_glarea_add_signals_and_events(glarea);
       graphics_info_t::glarea = glarea; // have I done this elsewhere?
 
-      // add in some adjustment
-      GtkAdjustment *x_adjustment = gtk_adjustment_new(5.0, 1.0, 11.0, 0.001, 0.01, 2.0);
-      GtkAdjustment *y_adjustment = gtk_adjustment_new(5.0, 1.0, 11.0, 0.001, 0.01, 2.0);
-      GtkAdjustment *z_adjustment = gtk_adjustment_new(5.0, 1.0, 11.0, 0.001, 0.01, 2.0);
-
-      graphics_info_t::test_hscale_x = gtk_hscale_new(x_adjustment);
-      graphics_info_t::test_hscale_y = gtk_hscale_new(y_adjustment);
-      graphics_info_t::test_hscale_z = gtk_hscale_new(z_adjustment);
-
-      // gtk_range_set_adjustment(GTK_RANGE(hscale), GTK_ADJUSTMENT(adj));
-
-      g_signal_connect(G_OBJECT(x_adjustment), "value_changed",
-		       G_CALLBACK(test_gtk3_adjustment_changed), GINT_TO_POINTER(0));
-      g_signal_connect(G_OBJECT(y_adjustment), "value_changed",
-		       G_CALLBACK(test_gtk3_adjustment_changed), GINT_TO_POINTER(1));
-      g_signal_connect(G_OBJECT(z_adjustment), "value_changed",
-		       G_CALLBACK(test_gtk3_adjustment_changed), GINT_TO_POINTER(2));
-
-      gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(graphics_info_t::test_hscale_x), FALSE, FALSE, 2);
-      gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(graphics_info_t::test_hscale_y), FALSE, FALSE, 2);
-      gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(graphics_info_t::test_hscale_z), FALSE, FALSE, 2);
-
-      gtk_widget_show(GTK_WIDGET(graphics_info_t::test_hscale_x));
-      gtk_widget_show(GTK_WIDGET(graphics_info_t::test_hscale_y));
-      gtk_widget_show(GTK_WIDGET(graphics_info_t::test_hscale_z));
-      
       if (true) {
 	 // application icon:
 	 setup_application_icon(GTK_WINDOW(window1));
