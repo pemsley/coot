@@ -474,10 +474,10 @@ coot::util::make_rtop_orth_for_jiggle_atoms(float jiggle_trans_scale_factor,
 typedef clipper::NXmap<float>::Map_reference_index NRI;
 
 std::vector<std::pair<NRI, NRI> >
-make_map_reference_index_start_stops(const clipper::NXmap<float> &nxmap, int n_threads) {
+coot::make_map_reference_index_start_stops(const clipper::NXmap<float> &nxmap, int n_threads) {
 
    std::vector<std::pair<NRI, NRI> > map_ref_start_stops(n_threads);
-   bool debug = true;
+   bool debug = false;
 
    int nu = nxmap.grid().nu();
    int nv = nxmap.grid().nv();
@@ -497,10 +497,10 @@ make_map_reference_index_start_stops(const clipper::NXmap<float> &nxmap, int n_t
       NRI layer_start = NRI(nxmap, clipper::Coord_grid(nu_step*i,     0, 0));
       NRI layer_end   = NRI(nxmap, clipper::Coord_grid(nu_step*(i+1), 0, 0));
       if (layer_end.index() > nxmap.grid().size())
-	 layer_end = grid_end;
+         layer_end = grid_end;
       map_ref_start_stops[i] = std::pair<NRI, NRI> (layer_start, layer_end);
       if (debug)
-	 std::cout << "debug::" << layer_start.index() << " " << layer_end.index() << std::endl;
+       	 std::cout << "debug::" << layer_start.index() << " " << layer_end.index() << std::endl;
    }
    return map_ref_start_stops;
 }
