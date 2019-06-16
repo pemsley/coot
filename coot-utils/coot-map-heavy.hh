@@ -33,6 +33,9 @@
 
 namespace coot {
 
+   std::vector<std::pair<clipper::NXmap<float>::Map_reference_index, clipper::NXmap<float>::Map_reference_index> >
+   make_map_reference_index_start_stops(const clipper::NXmap<float> &nxmap, int n_threads);
+
    namespace util { 
 
 #ifdef HAVE_GSL
