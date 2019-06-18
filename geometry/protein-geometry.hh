@@ -502,6 +502,43 @@ namespace coot {
    };
    std::ostream& operator<<(std::ostream &s, const dict_chiral_restraint_t &rest);
 
+   // ------------------------------------------------------------------------
+   // class dict_improper_dihedral_restraint_t
+   // ------------------------------------------------------------------------
+   //
+   class dict_improper_dihedral_restraint_t : public basic_dict_restraint_t {
+
+      // c.f. a chiral restraint, atom id 2 is the "chiral" atom (the
+      // "base" of the tetrahedron).
+      std::string local_atom_id_1;
+      std::string local_atom_id_2;
+      std::string local_atom_id_3;
+      std::string local_atom_id_4;
+      double volume_sigma_;
+
+   public:
+
+      dict_improper_dihedral_restraint_t() {};
+      dict_improper_dihedral_restraint_t(const std::string &atom_id_1_in,
+			                 const std::string &atom_id_2_in,
+			                 const std::string &atom_id_3_in,
+			                 const std::string &atom_id_4_in) {
+	 local_atom_id_1 = atom_id_1_in;
+	 local_atom_id_2 = atom_id_2_in;
+	 local_atom_id_3 = atom_id_3_in;
+	 local_atom_id_4 = atom_id_4_in;
+	 volume_sigma_  = 1.0; // willl need fixing
+      }
+      std::string atom_id_1_4c() const { return atom_id_mmdb_expand(local_atom_id_1);}
+      std::string atom_id_2_4c() const { return atom_id_mmdb_expand(local_atom_id_2);}
+      std::string atom_id_3_4c() const { return atom_id_mmdb_expand(local_atom_id_3);}
+      std::string atom_id_4_4c() const { return atom_id_mmdb_expand(local_atom_id_4);}
+      std::string get_atom_id_centre() const { return local_atom_id_2; }
+      double volume_sigma()  const { return volume_sigma_;}
+      friend std::ostream& operator<<(std::ostream &s, const dict_improper_dihedral_restraint_t &rest);
+   };
+   std::ostream& operator<<(std::ostream &s, const dict_improper_dihedral_restraint_t &rest);
+
 
    // ------------------------------------------------------------------------
    // class dict_atom
@@ -715,12 +752,13 @@ namespace coot {
       // std::string comp_id; // i.e. residue type name
       std::string comp_id() const { return residue_info.comp_id; }
       std::vector <dict_chem_comp_tree_t> tree;
-      int read_number; 
+      int read_number;
       std::vector    <dict_bond_restraint_t>    bond_restraint;
       std::vector   <dict_angle_restraint_t>   angle_restraint;
       std::vector <dict_torsion_restraint_t> torsion_restraint;
       std::vector  <dict_chiral_restraint_t>  chiral_restraint;
       std::vector   <dict_plane_restraint_t>   plane_restraint;
+      std::vector   <dict_improper_dihedral_restraint_t>   improper_dihedral_restraint;
       pdbx_chem_comp_descriptor_container_t descriptors;
       // Return 1 for hydrogen or deuterium, 0 for not found or not a hydrogen.
       bool is_hydrogen(const std::string &atom_name) const;
@@ -738,6 +776,16 @@ namespace coot {
       // compares atoms of torsion_restraint vs the ring atoms.
       // bool is_ring_torsion(const dict_torsion_restraint_t &torsion_restraint) const;
       bool is_ring_torsion(const atom_name_quad &quad) const;
+
+      // I think that 20 improper dihedrals can be calculated faster than a plane restraint
+      // on the graphics card (and possibly CPU):
+      // So if this is a plane restraint, what are the sets of 4 atoms for the
+      // improper dihedrals? Atoms to be constructed in "known" order.
+      // Call this after the restraint has been filled (well, the angle restraints, at least).
+      // Maybe instead of returning, I want to fill a
+      // std::vector<improper_dihedral_restraints_t> improper_restraint
+      // It will look like a chiral restraint.
+      std::vector<atom_name_quad> plane_restraint_to_improper_dihedrals(unsigned int i) const;
 
       void write_cif(const std::string &filename) const;
       // look up the atom id in the atom_info (dict_atom vector)
@@ -2091,6 +2139,14 @@ namespace coot {
       void use_unimodal_ring_torsion_restraints(int imol, const std::string &res_name,
 						const std::vector<atom_name_torsion_quad> &tors_info_vec,
 						int mmcif_read_number);
+
+      // to use improper dihedrals rather than plane restraints, call this
+      // after reading restraints. Fills the improper dihedral restraints
+      // If you read new restraints, you will need to call this function again
+      // and then delete_plane_restraints().
+      //
+      void plane_restraint_to_improper_dihedrals();
+      void delete_plane_restraints();
 
 
 #ifdef HAVE_CCP4SRS
