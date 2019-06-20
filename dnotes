@@ -8481,6 +8481,8 @@ Tue  4 Sep 2018 16:15:01 BST
 
    Fitting to maps described here?
 
+   Fit in map:
+   https://www.cgl.ucsf.edu/chimera/docs/UsersGuide/midas/fitmap.html
 
 ---
 Fri 21 Sep 2018 10:49:26 BST
@@ -8849,4 +8851,25 @@ Mon 27 May 2019 01:38:52 CEST
    using Vulkan and glm and glfw for pretty pictures:
 
    https://www.reddit.com/r/vulkan/comments/brvdan/the_story_of_optimizing_a_vulkan_program/
+
+---
+Thu 13 Jun 2019 08:24:13 BST
+
+   Ray tracing - ends with glass duck
+   https://github.com/ssloy/tinyraytracer/wiki/Part-1:-understandable-raytracing
+
+---
+Wed 19 Jun 2019 15:38:48 CDT
+
+   To solve the canberra problem:
+
+   sudo apt install libcanberra-gtk-module libcanberra-gtk3-module
+
+
+---
+Thu 20 Jun 2019 15:41:02 CDT
+
+   focus follow mouse:
+
+   gsettings set org.gnome.desktop.wm.preferences focus-mode 'sloppy'
 

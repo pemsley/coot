@@ -3,6 +3,8 @@
 
    o density fit graph should say both the map and the model in the title
 
+   o allow backup format to be mmdb-binary.
+
    o other people running the crash catcher. Is it sufficiently robust? coot-experimental?
      Run the hal-built binary on pc4
 
