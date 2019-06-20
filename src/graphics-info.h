@@ -2491,8 +2491,8 @@ public:
 
    // return the imol of the active item molecule
    int fill_combobox_with_map_options(GtkWidget *combobox, 
-				       GCallback signal_func,
-				       int imol_active_position);
+				      GCallback signal_func,
+				      int imol_active_position);
 
    void fill_combobox_with_difference_map_options(GtkWidget *combobox, 
 						  GCallback signal_func,

@@ -2022,7 +2022,7 @@ int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc 
 // it to graphics_info_t because it is also used when there is an
 // ambiguity in the map for refinement (graphics_info_t::refine)
 // 
-int fill_combobox_with_map_options(GtkWidget *combobox, GtkSignalFunc signalfunc) {
+int fill_combobox_with_map_options(GtkWidget *combobox, GCallback signalfunc) {
 
    graphics_info_t g;
    int imol_active = -1;
@@ -5222,12 +5222,22 @@ void export_map_gui(short int export_map_fragment) {
    }
 
    GtkWidget *option_menu = lookup_widget(w, "export_map_map_optionmenu");
+
+   GtkWidget *combobox = lookup_widget(w, "export_map_map_combobox");
+
    graphics_info_t g;
-   g.fill_option_menu_with_map_options(option_menu, NULL); // we don't want to do anything when the menu is
-                                                        // pressed. We do want to know what the active
-                                                        // item was.
+
+   // g.fill_option_menu_with_map_options(option_menu, NULL);
+
+   // we don't want to do anything when the menu is
+   // pressed. We do want to know what the active
+   // item was.
 
    g_object_set_data(G_OBJECT(w), "is_map_fragment", GINT_TO_POINTER(export_map_fragment));
+
+   int imol_active = imol_refinement_map();
+
+   g.fill_combobox_with_map_options(combobox, NULL, imol_active);
 
    gtk_widget_show(w);
 
@@ -5237,29 +5247,25 @@ void on_export_map_dialog_ok_button_clicked_cc(GtkButton *button) {
 
    GtkWidget *w = lookup_widget(GTK_WIDGET(button), "export_map_dialog");
 
-   GtkWidget *option_menu = lookup_widget(GTK_WIDGET(button), "export_map_map_optionmenu");
+   GtkWidget *combobox = lookup_widget(GTK_WIDGET(button), "export_map_map_combobox");
+
    GtkWidget *text_entry  = lookup_widget(GTK_WIDGET(button), "export_map_radius_entry");
    int is_map_fragment = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "is_map_fragment"));
-   int imol_map = -1;
-   GtkWidget *file_selection_dialog;
    const gchar *entry_text = gtk_entry_get_text(GTK_ENTRY(text_entry));
 
-   GtkWidget *active_menu_item =
-      gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu))));
+   int imol_map = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
 
+   if (true) {
 
-   if (active_menu_item) { 
-      imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(active_menu_item), "map_molecule_number"));
-      file_selection_dialog = create_export_map_filechooserdialog();
+      GtkWidget *file_chooser_dialog = create_export_map_filechooserdialog();
       unsigned int l = std::string(entry_text).length();
       char *c = new char [l + 1];
       strncpy(c, entry_text, l+1);
-      g_object_set_data(G_OBJECT(file_selection_dialog), "is_map_fragment",  GINT_TO_POINTER(is_map_fragment));
-      // std::cout << "here in on_export_map_dialog_ok_button_clicked_cc() c is :" << c << ":" << std::endl;
-      g_object_set_data(G_OBJECT(file_selection_dialog), "export_map_radius_entry_text",  c);
-      g_object_set_data(G_OBJECT(file_selection_dialog), "map_molecule_number",  GINT_TO_POINTER(imol_map));
-      set_transient_and_position(COOT_UNDEFINED_WINDOW, file_selection_dialog);
-      gtk_widget_show(file_selection_dialog);
+      g_object_set_data(G_OBJECT(file_chooser_dialog), "is_map_fragment",  GINT_TO_POINTER(is_map_fragment));
+      g_object_set_data(G_OBJECT(file_chooser_dialog), "export_map_radius_entry_text",  c);
+      g_object_set_data(G_OBJECT(file_chooser_dialog), "map_molecule_number",  GINT_TO_POINTER(imol_map));
+      set_transient_and_position(COOT_UNDEFINED_WINDOW, file_chooser_dialog);
+      gtk_widget_show(file_chooser_dialog);
    }
   
    gtk_widget_destroy(w);

@@ -12391,16 +12391,21 @@ on_export_map_filechooserdialog_response
                                         gint             response_id,
 					 gpointer         user_data) { 
 
-  int imol_map;
-  int is_map_fragment;
-  char *txt;
-  const char *filename;
+  int imol_map = -1;
+  int is_map_fragment = 0;
+  char *txt = 0;
+  const char *filename = 0;
 
   if (response_id == GTK_RESPONSE_OK) {
     imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "map_molecule_number")); 
     is_map_fragment = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "is_map_fragment")); 
-    txt = g_object_get_data(G_OBJECT(dialog), "export_map_radius_entry_text");
-    filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog)); 
+    if (is_map_fragment) {
+      txt = g_object_get_data(G_OBJECT(dialog), "export_map_radius_entry_text");
+    }
+
+    if (GTK_IS_FILE_CHOOSER(dialog)) {
+      filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog)); 
+    }
 
     if (is_map_fragment) { 
       export_map_fragment_with_text_radius(imol_map, txt, filename);
