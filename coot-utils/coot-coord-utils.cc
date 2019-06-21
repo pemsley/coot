@@ -3541,7 +3541,13 @@ coot::util::create_mmdbmanager_from_res_selection(mmdb::Manager *orig_mol,
 // 
 std::pair<bool, mmdb::Manager *>
 coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec,
-						   mmdb::Manager *old_mol) {
+						   mmdb::Manager *old_mol,
+						   const std::pair<bool,std::string> &use_alt_conf) {
+
+   // If use_alt_conf first is true then
+   //    if use_alt_conf second is not blank
+   // then copy atoms that have blank alt conf and those
+   // with altconfs that match use_alt_conf.second.
 
    // So, first make a vector of residue sets, one residue set for each chain.
    std::vector<chain_id_residue_vec_helper_t> residues_of_chain;
@@ -3619,44 +3625,50 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
       mmdb::Chain *chain_p = new mmdb::Chain;
       chain_p->SetChainID(residues_of_chain[ich].chain_id.c_str());
       for (unsigned int ires=0; ires<residues_of_chain[ich].residues.size(); ires++) {
-	 // deep_copy_this_residue() doesn't copy TER atoms
-	 mmdb::Residue *residue_old_p = residues_of_chain[ich].residues[ires];
-	 mmdb::Residue *residue_new_p = deep_copy_this_residue(residue_old_p);
-	 residue_new_p->PutUDData(index_from_reference_residue_handle, residue_old_p->index);
-	 mmdb::Atom **new_residue_atoms = 0;
-	 mmdb::Atom **old_residue_atoms = 0;
-	 int n_old_residue_atoms;
-	 int n_new_residue_atoms;
-	 residue_old_p->GetAtomTable(old_residue_atoms, n_old_residue_atoms);
-	 residue_new_p->GetAtomTable(new_residue_atoms, n_new_residue_atoms);
+	 mmdb::Residue *residue_new_p =
+            coot::util::deep_copy_this_residue(residues_of_chain[ich].residues[ires],
+					       use_alt_conf);
 
-	 // transfer the atom indices
-         if  (old_mol) {
-	    // residue_new_p doesn't have TER atoms, but residue_old_p might,
-	    // so deal with that here.
-	    for (int iat=0; iat<n_old_residue_atoms; iat++) {
-	       if (iat < n_new_residue_atoms) {
-	          mmdb::Atom *at_old = old_residue_atoms[iat];
-	          mmdb::Atom *at_new = new_residue_atoms[iat];
-		  std::string at_name_old = at_old->GetAtomName();
-		  std::string at_name_new = at_new->GetAtomName();
-		  if (at_name_old == at_name_new) {
-		     std::string alt_conf_old = at_old->altLoc;
-		     std::string alt_conf_new = at_new->altLoc;
-		     if (alt_conf_new == alt_conf_old) {
-			int idx = -1;
-			if (at_old->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok) {
-			   at_new->PutUDData(udd_old_atom_index_handle, idx);
-			} else {
-			   std::cout << __FUNCTION__ << " oops extracting idx from input mol atom" << std::endl;
+	 if (residue_new_p) {
+
+	    // deep_copy_this_residue() doesn't copy TER atoms
+	    mmdb::Residue *residue_old_p = residues_of_chain[ich].residues[ires];
+	    mmdb::Residue *residue_new_p = deep_copy_this_residue(residue_old_p);
+	    residue_new_p->PutUDData(index_from_reference_residue_handle, residue_old_p->index);
+	    mmdb::Atom **new_residue_atoms = 0;
+	    mmdb::Atom **old_residue_atoms = 0;
+	    int n_old_residue_atoms;
+	    int n_new_residue_atoms;
+	    residue_old_p->GetAtomTable(old_residue_atoms, n_old_residue_atoms);
+	    residue_new_p->GetAtomTable(new_residue_atoms, n_new_residue_atoms);
+
+	    // transfer the atom indices
+	    if  (old_mol) {
+	       // residue_new_p doesn't have TER atoms, but residue_old_p might,
+	       // so deal with that here.
+	       for (int iat=0; iat<n_old_residue_atoms; iat++) {
+		  if (iat < n_new_residue_atoms) {
+		     mmdb::Atom *at_old = old_residue_atoms[iat];
+		     mmdb::Atom *at_new = new_residue_atoms[iat];
+		     std::string at_name_old = at_old->GetAtomName();
+		     std::string at_name_new = at_new->GetAtomName();
+		     if (at_name_old == at_name_new) {
+			std::string alt_conf_old = at_old->altLoc;
+			std::string alt_conf_new = at_new->altLoc;
+			if (alt_conf_new == alt_conf_old) {
+			   int idx = -1;
+			   if (at_old->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok) {
+			      at_new->PutUDData(udd_old_atom_index_handle, idx);
+			   } else {
+			      std::cout << __FUNCTION__ << " oops extracting idx from input mol atom" << std::endl;
+			   }
 			}
 		     }
 		  }
-               }
+	       }
 	    }
+	    chain_p->AddResidue(residue_new_p);
 	 }
-
-	 chain_p->AddResidue(residue_new_p);
       }
       model_p->AddChain(chain_p);
    }
@@ -4247,7 +4259,7 @@ coot::util::deep_copy_this_residue_add_chain(mmdb::Residue *residue,
 					     bool attach_to_new_chain_flag) {
 
    mmdb::Residue *rres = NULL;
-   if (residue) { 
+   if (residue) {
       rres = new mmdb::Residue;
       mmdb::Chain   *chain_p = NULL;
       if (attach_to_new_chain_flag) { 
@@ -4285,7 +4297,7 @@ coot::util::deep_copy_this_residue(mmdb::Residue *residue) {
 
    mmdb::Residue *rres = NULL;
 
-   if (residue) { 
+   if (residue) {
       rres = new mmdb::Residue;
       rres->seqNum = residue->GetSeqNum();
       strcpy(rres->name, residue->name);
@@ -4307,6 +4319,54 @@ coot::util::deep_copy_this_residue(mmdb::Residue *residue) {
    }
    return rres;
 }
+
+// As above but use the alt conf flags to filter copied atoms.
+// Can return 0 if there are no atoms copied
+//
+// If use_alt_conf first is true then
+//    if use_alt_conf second is not blank
+// then copy atoms that have blank alt conf and those
+// with altconfs that match use_alt_conf.second.
+mmdb::Residue *
+coot::util::deep_copy_this_residue(mmdb::Residue *residue,
+				   const std::pair<bool,std::string> &use_alt_conf) {
+
+   mmdb::Residue *rres = NULL;
+
+   if (residue) {
+      rres = new mmdb::Residue;
+      rres->seqNum = residue->GetSeqNum();
+      strcpy(rres->name, residue->name);
+      // BL says:: should copy insCode too, maybe more things...
+      strncpy(rres->insCode, residue->GetInsCode(), 3);
+
+      mmdb::PPAtom residue_atoms = 0;
+      int nResidueAtoms;
+      residue->GetAtomTable(residue_atoms, nResidueAtoms);
+      mmdb::Atom *atom_p;
+
+      for(int iat=0; iat<nResidueAtoms; iat++) {
+	 mmdb::Atom *at = residue_atoms[iat];
+	 if (! at->isTer()) {
+
+	    if (use_alt_conf.first) {
+	       std::string alt_conf = at->altLoc;
+	       if (! alt_conf.empty())
+		  if (alt_conf != use_alt_conf.second)
+		     continue;
+	    }
+	    atom_p = new mmdb::Atom;
+	    atom_p->Copy(residue_atoms[iat]);
+	    rres->AddAtom(atom_p);
+	 }
+      }
+
+      // should I check the number of added atoms before returning rres? Hmm.
+   }
+
+   return rres;
+}
+
 
 
 // Note, we also create a chain and add this residue to that chain.

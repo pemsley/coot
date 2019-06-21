@@ -142,13 +142,15 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 
    // This now wraps refine_residues_vec
 
-//    std::cout << "DEBUG:: In copy_mol_and_refine() refine range: "
-// 	     << "chain  :" << chain_id_1 << ": "
-// 	     << resno_1 << " :" << inscode_1 << ": "
-// 	     << resno_2 << " :" << inscode_2 << ": "
-// 	     << "coords mol: " << imol_for_atoms << " map mol: " << imol_for_map
-// 	     << std::endl;
-      
+   if (false)
+      std::cout << "DEBUG:: In copy_mol_and_refine() refine range: "
+		<< "chain  :" << chain_id_1 << ": "
+		<< resno_1 << " :" << inscode_1 << ": "
+		<< resno_2 << " :" << inscode_2 << ": "
+		<< " altconf \"" << altconf << "\" "
+		<< "coords mol: " << imol_for_atoms << " map mol: " << imol_for_map
+		<< std::endl;
+
    short int irest = 0; // make 1 when restraints found.
 
    coot::refinement_results_t rr(0, GSL_CONTINUE, "");
@@ -302,8 +304,6 @@ graphics_info_t::info_dialog_missing_refinement_residues(const std::vector<std::
    }
    info_dialog(problem_residues);
 }
-
-
 
 
 int
@@ -829,6 +829,11 @@ graphics_info_t::refine_residues_vec(int imol,
 				     mmdb::Manager *mol) {
 
    bool use_map_flag = 1;
+
+   if (true)
+      std::cout << "debug:: in refine_residues_vec() with altconf \""
+		<< alt_conf << "\"" << std::endl;
+
    coot::refinement_results_t rr = generate_molecule_and_refine(imol, residues, alt_conf, mol, use_map_flag);
 
    short int istat = rr.found_restraints_flag;
@@ -1565,8 +1570,8 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 						    std::string alt_conf) {
 
    float dist_crit = 5.0;
+   mmdb::Manager *new_mol = 0;
    bool debug = false;
-
    if (debug) {
       std::cout << "############ starting create_mmdbmanager_from_res_vector() with these "
 		<< " residues " << std::endl;
@@ -1590,20 +1595,23 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
       }
    }
 
-   mmdb::Manager *new_mol = nullptr;
    std::vector<mmdb::Residue *> rv; // gets checked 
    
    int n_flanker = 0; // a info/debugging counter
 
-   if (residues.size() > 0) { 
+   if (residues.size() > 0) {
 
       // Also add the index of the reference residue (the one in molecules[imol].atom_selection.mol)
       // to the molecule that we are construction here. So that we can properly link
       // the residues in restraints_container (there we rather need to know the references indices,
       // not the indices from the fragment molecule)
       //
+
+      std::pair<bool,std::string> use_alt_conf(false, "");
+      if (! alt_conf.empty())
+	 use_alt_conf = std::pair<bool, std::string> (true, alt_conf);
       std::pair<bool, mmdb::Manager *> n_mol_1 =
-	 coot::util::create_mmdbmanager_from_residue_vector(residues, mol_in);
+	 coot::util::create_mmdbmanager_from_residue_vector(residues, mol_in, use_alt_conf);
 
       // check that first is sane, so indent all this lot (when it works)
       
@@ -1647,6 +1655,20 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 	 for (int ires=0; ires<nres; ires++) { 
 	    mmdb::Residue *residue_p = chain_p->GetResidue(ires);
 	    rv.push_back(residue_p);
+	 }
+      }
+
+      if (false) {
+	 for (std::size_t ir=0; ir<rv.size(); ir++) {
+	    mmdb::Residue *r = rv[ir];
+	    std::cout << "Moving Residue " << coot::residue_spec_t(r) << std::endl;
+	    mmdb::Atom **residue_atoms = 0;
+	    int n_residue_atoms;
+	    r->GetAtomTable(residue_atoms, n_residue_atoms);
+	    for (int iat=0; iat<n_residue_atoms; iat++) {
+	       mmdb::Atom *at = residue_atoms[iat];
+	       std::cout << "    " << coot::atom_spec_t(at) << std::endl;
+	    }
 	 }
       }
 
@@ -1727,6 +1749,7 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 	 r = coot::deep_copy_this_residue(flankers_in_reference_mol[ires],
 					  alt_conf, whole_res_flag,
 					  atom_index_udd_handle);
+
 	 if (r) {
 
 	    r->PutUDData(index_from_reference_residue_handle, flankers_in_reference_mol[ires]->index);
@@ -1735,6 +1758,18 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 	    // indices in the returned molecule
 
 	    int sni = find_serial_number_for_insert(r->GetSeqNum(), r->GetInsCode(), chain_p);
+
+	    if (false) { // debug
+	       mmdb::Atom **residue_atoms = 0;
+	       int n_residue_atoms;
+	       std::cout << "Flanker Residue " << coot::residue_spec_t(r) << std::endl;
+	       r->GetAtomTable(residue_atoms, n_residue_atoms);
+	       for (int iat=0; iat<n_residue_atoms; iat++) {
+		  mmdb::Atom *at = residue_atoms[iat];
+		  std::cout << "    " << coot::atom_spec_t(at) << std::endl;
+	       }
+	    }
+
 	    if (sni == -1)
 	       chain_p->AddResidue(r); // at the end
 	    else
@@ -2275,18 +2310,21 @@ graphics_info_t::refine_residue_range(int imol,
 				      const std::string &altconf,
 				      short int is_water_like_flag) {
 
-//    std::cout << "DEBUG:: ================ refine_residue_range: "
-// 	     << imol << " " << chain_id_1
-//  	     << " " <<  resno_1 << ":" << ins_code_1 << ":"
-//  	     << " " <<  resno_2 << ":" << ins_code_2 << ":"
-//  	     << " " << ":" << altconf << ": " << is_water_like_flag << std::endl;
+   if (true)
+      std::cout << "DEBUG:: ================ refine_residue_range: "
+		<< imol << " " << chain_id_1
+		<< " " <<  resno_1 << ":" << ins_code_1 << ":"
+		<< " " <<  resno_2 << ":" << ins_code_2 << ":"
+		<< " " << ":" << altconf << ": " << is_water_like_flag << std::endl;
 
    coot::refinement_results_t rr;
    
    int imol_map = Imol_Refinement_Map();
+
    if (imol_map == -1) { // magic number check,
       // if not -1, then it has been set by user
       show_select_map_dialog();
+
    } else { 
 
       // if ( chain_id_1 != chain_id_2 ) {
