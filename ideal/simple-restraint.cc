@@ -5951,15 +5951,24 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 			// 
 			std::vector<bool> fixed_flags = make_fixed_flags(index1, index2);
 
-			if (debug)
+			if (debug) {
+			   std::string altconf_1("\"");
+			   altconf_1 += atom[index1]->altLoc;
+			   altconf_1 += "\"";
+			   std::string altconf_2("\"");
+			   altconf_2 += atom[index2]->altLoc;
+			   altconf_2 += "\"";
 			   std::cout << "creating (monomer) bond restraint, idr " << idr
 				     << " with fixed flags "
 				     << fixed_flags[0] << " " << fixed_flags[1] << " "
 				     << atom[index1]->GetSeqNum() << " "
-				     << atom[index1]->name << " to "
+				     << "\"" << atom[index1]->name << "\" "
+				     << std::setw(3) << altconf_1 << " to "
 				     << atom[index2]->GetSeqNum() << " "
-				     << atom[index2]->name
-				     << " restraint index " << n_bond_restr << "\n";
+				     << "\"" << atom[index2]->name << "\" "
+				     << std::setw(3) << altconf_2 << " "
+				     << "bond restraint index " << n_bond_restr << "\n";
+			}
 			try {
 			   add(BOND_RESTRAINT, index1, index2,
 			       fixed_flags,

@@ -167,7 +167,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
    short int have_flanking_residue_at_start = 0;
    short int have_flanking_residue_at_end = 0;
    short int have_disulfide_residues = 0;  // other residues are included in the
-                                        // residues_mol for disulfide restraints.
+                                           // residues_mol for disulfide restraints.
    
    // 9 Sept 2003: The atom selection goes mad if residue with seqnum
    // iend_res+1 does not exist, but is not at the end of the chain.
