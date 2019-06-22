@@ -1610,6 +1610,7 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
       std::pair<bool,std::string> use_alt_conf(false, "");
       if (! alt_conf.empty())
 	 use_alt_conf = std::pair<bool, std::string> (true, alt_conf);
+
       std::pair<bool, mmdb::Manager *> n_mol_1 =
 	 coot::util::create_mmdbmanager_from_residue_vector(residues, mol_in, use_alt_conf);
 
@@ -1632,10 +1633,9 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 		     int n_atoms = residue_p->GetNumberOfAtoms();
 		     for (int iat=0; iat<n_atoms; iat++) {
 			mmdb::Atom *at = residue_p->GetAtom(iat);
-			int idx = -1;
-			if (false)
-			   std::cout << "   create_mmdbmanager_from_residue_vector() returns this mol atom "
-				     << iat << " " << coot::atom_spec_t(at) << " with idx " << idx << std::endl;
+			int idx = -1; // what did I mean by this?
+			std::cout << "   create_mmdbmanager_from_residue_vector() returns this mol atom "
+				  << iat << " " << coot::atom_spec_t(at) << " with idx " << idx << std::endl;
 		     }
 		  }
 	       }
