@@ -1237,7 +1237,7 @@ coot::restraints_container_t::try_make_peptide_link_ng(const coot::protein_geome
 			   bool is_fixed_first_residue  = res_1_pair.first;
 			   bool is_fixed_second_residue = res_2_pair.first;
 
-			   if (true) {
+			   if (false) {
 			      std::cout << "adding link bond: "
 					<< atom_spec_t(at_1) << " " << atom_spec_t(at_2) << std::endl;
 			   }
