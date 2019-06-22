@@ -2013,12 +2013,17 @@ on_find_ligand_ok_button_clicked       (GtkButton       *button,
 {
    GtkWidget *window;
 
-   execute_get_mols_ligand_search(GTK_WIDGET(button));
-				/* which then runs
-				   execute_ligand_search */
-   window = lookup_widget(GTK_WIDGET(button), "find_ligand_dialog");
-   free_ligand_search_user_data(GTK_WIDGET(button));
-   gtk_widget_destroy(window);
+   int n_ligands = execute_get_mols_ligand_search(GTK_WIDGET(button));
+			                    	/* which then runs
+				                   execute_ligand_search */
+
+   if (n_ligands > 0) {
+     window = lookup_widget(GTK_WIDGET(button), "find_ligand_dialog");
+     free_ligand_search_user_data(GTK_WIDGET(button));
+     gtk_widget_destroy(window);
+   } else {
+     info_dialog("WARNING:: No ligands were selected");
+   }
 }
 
 

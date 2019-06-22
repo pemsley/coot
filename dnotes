@@ -9068,3 +9068,20 @@ Thu 20 Jun 2019 15:41:02 CDT
 
    gsettings set org.gnome.desktop.wm.preferences focus-mode 'sloppy'
 
+
+---
+Fri 21 Jun 2019 14:31:08 CDT
+
+   o phenix ncs-from-map:
+
+     https://www.phenix-online.org/documentation/reference/find_ncs_from_density.html
+
+
+---
+Fri 21 Jun 2019 14:59:40 CDT
+
+   Conan: the C / C++ Package Manager for Developers
+
+   open source, decentralized and multi-platform package manager to create and
+   share all your native binaries.
+
