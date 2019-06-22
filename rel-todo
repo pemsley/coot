@@ -4,6 +4,8 @@
    o Find Ligands: if the ligand was not specified, don't dismiss the dialog (unless there are
      no ligands)
 
+* Done.
+
    o density fit graph should say both the map and the model in the title
 
    o allow backup format to be mmdb-binary.
