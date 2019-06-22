@@ -3633,7 +3633,6 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
 
 	    // deep_copy_this_residue() doesn't copy TER atoms
 	    mmdb::Residue *residue_old_p = residues_of_chain[ich].residues[ires];
-	    mmdb::Residue *residue_new_p = deep_copy_this_residue(residue_old_p);
 	    residue_new_p->PutUDData(index_from_reference_residue_handle, residue_old_p->index);
 	    mmdb::Atom **new_residue_atoms = 0;
 	    mmdb::Atom **old_residue_atoms = 0;
