@@ -1520,7 +1520,7 @@ graphics_info_t::set_refinement_map(int i) {
 void
 graphics_info_t::accept_moving_atoms() {
 
-   if (false) {
+   if (true) {
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms is " << imol_moving_atoms
 	        << std::endl;
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms type is "

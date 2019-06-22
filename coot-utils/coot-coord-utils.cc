@@ -3645,21 +3645,60 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
 	    if  (old_mol) {
 	       // residue_new_p doesn't have TER atoms, but residue_old_p might,
 	       // so deal with that here.
-	       for (int iat=0; iat<n_old_residue_atoms; iat++) {
-		  if (iat < n_new_residue_atoms) {
-		     mmdb::Atom *at_old = old_residue_atoms[iat];
-		     mmdb::Atom *at_new = new_residue_atoms[iat];
-		     std::string at_name_old = at_old->GetAtomName();
-		     std::string at_name_new = at_new->GetAtomName();
-		     if (at_name_old == at_name_new) {
-			std::string alt_conf_old = at_old->altLoc;
-			std::string alt_conf_new = at_new->altLoc;
-			if (alt_conf_new == alt_conf_old) {
-			   int idx = -1;
-			   if (at_old->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok) {
-			      at_new->PutUDData(udd_old_atom_index_handle, idx);
+
+	       if (n_old_residue_atoms == n_new_residue_atoms) {
+
+		  // easy path, no need to deal with altconfs in one residue but not in the other
+
+		  for (int iat=0; iat<n_old_residue_atoms; iat++) {
+		     if (iat < n_new_residue_atoms) {
+			mmdb::Atom *at_old = old_residue_atoms[iat];
+			mmdb::Atom *at_new = new_residue_atoms[iat];
+			std::string at_name_old = at_old->GetAtomName();
+			std::string at_name_new = at_new->GetAtomName();
+			if (at_name_old == at_name_new) {
+			   std::string alt_conf_old = at_old->altLoc;
+			   std::string alt_conf_new = at_new->altLoc;
+			   if (alt_conf_new == alt_conf_old) {
+			      int idx = -1;
+			      if (at_old->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok) {
+				 at_new->PutUDData(udd_old_atom_index_handle, idx);
+				 if (false)
+				    std::cout << "debug:: giving at " << atom_spec_t(at_new)
+					      << " the old index " << idx << std::endl;
+			      } else {
+				 std::cout << __FUNCTION__ << " oops extracting idx from input mol atom" << std::endl;
+			      }
 			   } else {
-			      std::cout << __FUNCTION__ << " oops extracting idx from input mol atom" << std::endl;
+			      std::cout << "debug:: oops " << __FUNCTION__ << " mismatch altconf reject "
+					<< atom_spec_t(at_old) << std::endl;
+			   }
+			}
+		     } else {
+			std::cout << "debug:: oops " << __FUNCTION__ << " indexing reject "
+				  << atom_spec_t(old_residue_atoms[iat]) << std::endl;
+		     }
+		  }
+	       } else {
+
+		  // this happens when the old residue has alt confs on atoms and new residue
+		  // does not have both A and B alt confs
+
+		  for (int iat=0; iat<n_new_residue_atoms; iat++) {
+		     mmdb::Atom *at_new = new_residue_atoms[iat];
+		     std::string at_name_new = at_new->GetAtomName();
+		     std::string alt_conf_new = at_new->altLoc;
+		     for (int jat=0; jat<n_old_residue_atoms; jat++) {
+			mmdb::Atom *at_old = old_residue_atoms[jat];
+			std::string at_name_old = at_old->GetAtomName();
+			if (at_name_old == at_name_new) {
+			   std::string alt_conf_old = at_old->altLoc;
+			   if (alt_conf_new == alt_conf_old) {
+			      int idx = -1;
+			      if (at_old->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok) {
+				 at_new->PutUDData(udd_old_atom_index_handle, idx);
+				 break;
+			      }
 			   }
 			}
 		     }
