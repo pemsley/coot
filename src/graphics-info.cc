@@ -3651,7 +3651,7 @@ graphics_info_t::create_pointer_atom_molecule_maybe() const {
 	 }
       }
    }
-      
+
    if (i == -1) { 
       // user did not explicictly set the molecule, the usual case:
 

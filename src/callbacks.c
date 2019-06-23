@@ -3822,13 +3822,11 @@ on_pointer_atom_type_ok_button_clicked (GtkButton       *button,
                                         gpointer         user_data)
 {
 
-  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button),
-				    "pointer_atom_type_dialog");
+  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "pointer_atom_type_dialog");
   GtkToggleButton *tbut;
 
   GtkWidget *entry = lookup_widget(GTK_WIDGET(button), "pointer_atom_type_other_entry");
   const char *entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
-
 
   if (strlen(entry_text) > 0) { 
     place_typed_atom_at_pointer(entry_text);

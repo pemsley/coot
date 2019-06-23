@@ -293,88 +293,17 @@ void move_molecule_here_by_widget(GtkWidget *w) {
    add_to_history(command_strings);
 }
 
-// This is a copy - more or less - of
-// fill_option_menu_with_coordinates_options, except we also add at
-// the top "New Molecule" if a molecule by the name of "Pointer Atoms"
-// is not found.
-// 
-// Note that we can't use fill_option_menu_with_coordinates_options
-// and add to it because gtk_menu_set_active fails/is ignored.
-// 
-// fill_pointer_atom_molecule_option_menu
-// 
-void fill_place_atom_molecule_option_menu(GtkWidget *optionmenu) { 
 
-   GtkSignalFunc callback_func = 
-      GTK_SIGNAL_FUNC(graphics_info_t::pointer_atom_molecule_menu_item_activate);
-   GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu));
-   if (menu) 
-      gtk_widget_destroy(menu);
-   menu = gtk_menu_new();
+void fill_place_atom_molecule_combobox(GtkWidget *combobox) {
 
-   GtkWidget *menuitem;
-   int pointer_atoms_mol = -1;
+   graphics_info_t g;
+   GCallback callback_func = G_CALLBACK(g.pointer_atom_molecule_combobox_changed);
+   int imol_active = first_coords_imol();
+   g.user_pointer_atom_molecule = imol_active;
+   g.fill_combobox_with_coordinates_options(combobox, callback_func, imol_active);
 
-   for (int imol=0; imol<graphics_n_molecules(); imol++) {
-      if (graphics_info_t::molecules[imol].has_model()) { 
-	 if (graphics_info_t::molecules[imol].name_ == "Pointer Atoms") { 
-	    pointer_atoms_mol = imol;
-	 } 
-      }
-   }
-
-   int menu_index = 0;
-
-   if (pointer_atoms_mol == -1) { 
-      // There were no pointer atoms so let's create "New Molecule" at
-      // the top of the list.
-      // 
-      GtkWidget *menu_item = gtk_menu_item_new_with_label("New Molecule");
-      int imol_new = -10;
-      gtk_signal_connect(GTK_OBJECT(menu_item), "activate",
-			 callback_func,
-			 GINT_TO_POINTER(imol_new));
-      gtk_menu_append(GTK_MENU(menu), menu_item); 
-      gtk_widget_show(menu_item); 
-      gtk_menu_set_active(GTK_MENU(menu), 0);
-      menu_index = 0;
-   }
-
-   for (int imol=0; imol<graphics_n_molecules(); imol++) {
-      if (graphics_info_t::molecules[imol].has_model()) {
-	 std::string ss = graphics_info_t::int_to_string(imol);
-	 ss += " " ;
-	 int ilen = graphics_info_t::molecules[imol].name_.length();
-	 int left_size = ilen-graphics_info_t::go_to_atom_menu_label_n_chars_max;
-	 if (left_size <= 0) {
-	    // no chop
-	    left_size = 0;
-	 } else {
-	    // chop
-	    ss += "...";
-	 }
-	 ss += graphics_info_t::molecules[imol].name_.substr(left_size, ilen);
-	 menuitem =  gtk_menu_item_new_with_label (ss.c_str());
-	 menu_index++;
-	 gtk_signal_connect (GTK_OBJECT (menuitem), "activate",
-			     callback_func,
-			     GINT_TO_POINTER(imol));
-	 gtk_menu_append(GTK_MENU(menu), menuitem); 
-	 gtk_widget_show(menuitem);
-
-	 // set any previously saved active position:
-	 if (graphics_info_t::user_pointer_atom_molecule == imol) {
-	    std::cout << "setting active menu item to "
-		      << menu_index << std::endl;
-	    gtk_menu_set_active(GTK_MENU(menu), menu_index);
-	 }
-      }
-   }
-   
-   /* Link the new menu to the optionmenu widget */
-   gtk_option_menu_set_menu(GTK_OPTION_MENU(optionmenu),
-			    menu);
 }
+
 
 /* Now the refinement weight can be set from an entry in the refine_params_dialog. */
 void set_refinement_weight_from_entry(GtkWidget *entry) {
@@ -412,12 +341,16 @@ void place_atom_at_pointer_by_window() {
    // put up a widget which has a OK callback button which does a 
    // g.place_typed_atom_at_pointer();
    GtkWidget *window = create_pointer_atom_type_dialog();
+
+
+   //   GtkSignalFunc callback_func =
+   // 	GTK_SIGNAL_FUNC(graphics_info_t::pointer_atom_molecule_menu_item_activate);
    
-   GtkWidget *optionmenu = lookup_widget(window, "pointer_atom_molecule_optionmenu");
-   //       GtkSignalFunc callback_func =
-   // 	 GTK_SIGNAL_FUNC(graphics_info_t::pointer_atom_molecule_menu_item_activate);
-   
-   fill_place_atom_molecule_option_menu(optionmenu);
+   // GtkWidget *optionmenu = lookup_widget(window, "pointer_atom_molecule_optionmenu");
+   //   fill_place_atom_molecule_option_menu(optionmenu);
+
+   GtkWidget *combobox = lookup_widget(window, "pointer_atom_molecule_combobox");
+   fill_place_atom_molecule_combobox(combobox);
    gtk_widget_show(window);
 
 }

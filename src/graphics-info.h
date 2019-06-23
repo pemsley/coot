@@ -1660,9 +1660,7 @@ public:
    static int gtk2_chooser_overwrite_flag;
 
    void apply_go_to_atom_from_widget(GtkWidget *widget); 
-   static void pointer_atom_molecule_menu_item_activate(GtkWidget *item, 
-							GtkPositionType pos);
-
+   static void pointer_atom_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
 
    // return success status
    int intelligent_next_atom_centring(GtkWidget *widget);

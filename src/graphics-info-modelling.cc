@@ -4442,21 +4442,12 @@ graphics_info_t::place_dummy_atom_at_pointer() {
 void 
 graphics_info_t::place_typed_atom_at_pointer(const std::string &type) { 
 
-   int imol = create_pointer_atom_molecule_maybe();
-   if (imol >= 0 && imol < n_molecules()) {
-      if (molecules[imol].open_molecule_p()) { 
-	 molecules[imol].add_typed_pointer_atom(RotationCentre(), type); // update bonds
-
-	 update_environment_distances_by_rotation_centre_maybe(imol);
-	 
-	 graphics_draw();
-      } else {
-	 std::cout << "ERROR:: invalid (closed) molecule in place_typed_atom_at_pointer: "
-		   << imol << std::endl;
-      }
-   } else {
-      std::cout << "WARNING:: invalid molecule number in place_typed_atom_at_pointer"
-		<< imol << std::endl;
+   int imol = user_pointer_atom_molecule;
+   graphics_info_t g;
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].add_typed_pointer_atom(RotationCentre(), type); // update bonds
+      update_environment_distances_by_rotation_centre_maybe(imol);
+      graphics_draw();
    }
 }
 

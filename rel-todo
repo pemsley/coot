@@ -1,6 +1,8 @@
 
    For Release 0.8.9.3
 
+   o 26S Proteosome EMDB-4002
+
    o Find Ligands: if the ligand was not specified, don't dismiss the dialog (unless there are
      no ligands)
 
