@@ -3411,12 +3411,14 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
 
    int do_disulphide_flag = 1;
    int model_number = 0; // flag for all models
+   bool do_sticks_for_waters = true;
 
    if (single_model_view_current_model_number != 0)
       model_number = single_model_view_current_model_number;
    
    Bond_lines_container bonds(atom_sel, imol_no, no_bonds_to_these_atoms,
-			      geom_p, do_disulphide_flag, draw_hydrogens_flag, model_number);
+			      geom_p, do_disulphide_flag, draw_hydrogens_flag,
+			      model_number, "dummy", false, false, false);
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::NORMAL_BONDS;

@@ -2049,9 +2049,10 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       if (molecules[imol_moving_atoms].draw_hydrogens())
 	 draw_hydrogens_flag = 1;
       std::set<int> dummy;
+      bool do_sticks_for_waters = true; // otherwise waters are (tiny) discs.
       Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, dummy, Geom_p(),
-				 do_disulphide_flag, draw_hydrogens_flag, 0,
-				 do_rama_markup, do_rota_markup, tables_pointer);
+				 do_disulphide_flag, draw_hydrogens_flag, 0, "dummy",
+				 do_rama_markup, do_rota_markup, do_sticks_for_waters, tables_pointer);
       unsigned int unlocked = false;
       while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
          std::this_thread::sleep_for(std::chrono::milliseconds(1));
