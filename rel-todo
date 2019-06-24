@@ -3,6 +3,8 @@
 
    o 26S Proteosome EMDB-4002
 
+   o if balls and sticks representation then draw balls for waters, not sticks
+
    o Find Ligands: if the ligand was not specified, don't dismiss the dialog (unless there are
      no ligands)
 

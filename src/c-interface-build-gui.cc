@@ -830,9 +830,12 @@ GtkWidget *wrapped_create_mutate_sequence_dialog() {
    }
    if (imol >= 0) {
       graphics_info_t::mutate_sequence_imol = imol;
-      GCallback callback = G_CALLBACK(mutate_sequence_chain_option_menu_item_activate);
+      // GCallback callback = G_CALLBACK(mutate_sequence_chain_option_menu_item_activate);
+
+      GCallback callback = G_CALLBACK(mutate_sequence_chain_combobox_changed);
       std::string set_chain = graphics_info_t::fill_combobox_with_chain_options(combobox_chain, imol, callback);
-      // graphics_info_t::mutate_sequence_chain_from_optionmenu = set_chain;
+      graphics_info_t::mutate_sequence_chain_from_combobox = set_chain;
+
    } else {
       graphics_info_t::mutate_sequence_imol = -1; // flag for can't mutate
    }
@@ -846,6 +849,7 @@ GtkWidget *wrapped_create_mutate_sequence_dialog() {
 void mutate_sequence_molecule_combobox_changed(GtkWidget *combobox, gpointer data) {
 
    int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+
    graphics_info_t::mutate_sequence_imol = imol;
    GCallback chain_callback_func = G_CALLBACK(mutate_sequence_chain_combobox_changed);
    GtkWidget *chain_combobox = lookup_widget(combobox, "mutate_molecule_chain_combobox");
@@ -879,8 +883,9 @@ void mutate_sequence_molecule_menu_item_activate(GtkWidget *item,
 
 void mutate_sequence_chain_combobox_changed(GtkWidget *combobox, gpointer data) {
 
-   std::string at = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
-   graphics_info_t::mutate_sequence_chain_from_combobox = at;
+   char *atc = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
+   if (atc)
+      graphics_info_t::mutate_sequence_chain_from_combobox = atc;
 }
 
 void mutate_sequence_chain_option_menu_item_activate (GtkWidget *item,
@@ -963,15 +968,12 @@ void do_mutate_sequence(GtkWidget *dialog) {
 
    std::string chain_id = graphics_info_t::mutate_sequence_chain_from_combobox;
 
-   std::cout << "------- do_mutate_sequence() " << dialog << " with chain-id "
-	     << chain_id << std::endl;
-   
    
    // Auto fit?
    GtkWidget *checkbutton = lookup_widget(dialog, "mutate_sequence_do_autofit_checkbutton"); 
    short int autofit_flag = 0;
 
-   if (GTK_TOGGLE_BUTTON(checkbutton)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
       autofit_flag = 1;
 
    if (imol>= 0) { // redundant
@@ -1139,19 +1141,20 @@ void fit_loop_from_widget(GtkWidget *dialog) {
    // set the imol and chain_id:
    // 
    int imol = graphics_info_t::mutate_sequence_imol;
-   std::string chain_id; // = graphics_info_t::mutate_sequence_chain_from_optionmenu;
+
+   std::string chain_id = graphics_info_t::mutate_sequence_chain_from_combobox;
 
    // Auto fit?
    GtkWidget *checkbutton = lookup_widget(dialog, "mutate_sequence_do_autofit_checkbutton"); 
    short int autofit_flag = 0;
 
-   if (GTK_TOGGLE_BUTTON(checkbutton)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
       autofit_flag = 1;
 
    // use Ramachandran restraints?
    int use_rama_restraints = 0;
    GtkWidget *rama_checkbutton   = lookup_widget(dialog, "mutate_sequence_use_ramachandran_restraints_checkbutton");
-   if (GTK_TOGGLE_BUTTON(rama_checkbutton)->active) 
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rama_checkbutton)))
       use_rama_restraints = 1;
 
    if (imol>= 0) { // redundant
@@ -1168,7 +1171,7 @@ void fit_loop_from_widget(GtkWidget *dialog) {
 	 gtk_text_buffer_get_iter_at_offset(tb, &startiter, 0);
 	 gtk_text_buffer_get_iter_at_offset(tb, &enditer, -1);
 	 txt = gtk_text_buffer_get_text(tb, &startiter, &enditer, 0);
-	 
+
 	 if (txt) {
 	    std::string sequence(txt);
 	    sequence = coot::util::plain_text_to_sequence(sequence);
@@ -1264,7 +1267,7 @@ GtkWidget *wrapped_create_align_and_mutate_dialog() {
 								 chain_callback);
       g.align_and_mutate_chain_from_combobox = set_chain;
    }
-   
+
    return w;
 }
 
