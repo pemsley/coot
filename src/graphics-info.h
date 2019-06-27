@@ -3995,6 +3995,10 @@ string   static std::string sessionid;
    static GLuint other_triangles_vertexarray_id;
    static GLuint other_triangles_array_buffer_id;
    static GLuint other_triangles_index_buffer_id;
+   static GLuint programID_for_central_cube;
+   static GLuint central_cube_vertexarray_id;
+   static GLuint central_cube_array_buffer_id;
+   static GLuint central_cube_index_buffer_id;
    // ---------------------------------------------
 
 
