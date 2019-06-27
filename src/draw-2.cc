@@ -318,7 +318,10 @@ gtk3_draw_molecules() {
    glm::mat4 mvp_1 = glm::toMat4(graphics_info_t::glm_quat);
    float z = graphics_info_t::zoom * 0.04;
    glm::vec3 sc(z,z,z);
-   glm::mat4 projection_matrix = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 0.1f, 100.0f);
+   float screen_ratio = static_cast<float>(graphics_info_t::graphics_x_size)/static_cast<float>(graphics_info_t::graphics_y_size);
+
+   float ortho_size = 50.0f; // a function of graphics_info_t::zoom?
+   glm::mat4 projection_matrix = glm::ortho(-ortho_size * screen_ratio, ortho_size * screen_ratio, -ortho_size, ortho_size, -ortho_size, ortho_size);
    glm::mat4 view_matrix = glm::mat4(1.0);
 
    // view_matrix is for translation and scaling only.
@@ -391,7 +394,7 @@ draw_central_cube(GtkGLArea *glarea) {
       glm::mat4 mvp_1 = glm::toMat4(graphics_info_t::glm_quat);
       float z = graphics_info_t::zoom * 0.0002;
       glm::vec3 sc(z,z,z);
-      std::cout << "z " << z << std::endl;
+      // std::cout << "z " << z << std::endl;
       // glm::vec3 sc(0.2f, 0.2f, 0.2f);
       glm::mat4 mvp = glm::scale(mvp_1, sc);
 
@@ -511,6 +514,10 @@ void
 on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 
    std::cout << "resize!" << std::endl;
+   graphics_info_t g;
+   g.graphics_x_size = width;
+   g.graphics_y_size = height;
+
 }
 
 gboolean
@@ -604,7 +611,7 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
       // the molecules, currently gtk3_draw_molecules().
       //
       glm::mat4 mvp_1 = glm::toMat4(graphics_info_t::glm_quat);
-      glm::mat4 projection_matrix = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 0.1f, 100.0f);
+      glm::mat4 projection_matrix = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, -50.0f, 50.0f);
       glm::mat4 view_matrix = glm::mat4(1.0);
 
       glm::vec3 rc = graphics_info_t::get_rotation_centre();
@@ -625,8 +632,9 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
       glm::vec4 delta(worldPos_1 - worldPos_2);
 
       g.add_to_rotation_centre(delta);
+      g.update_maps();
 
-      // std::cout << "add a contourer" << std::endl;
+      std::cout << "add a contourer" << std::endl;
       // doesn't trigger the contouring - don't know why yet.
       int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
 
