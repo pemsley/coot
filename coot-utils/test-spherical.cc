@@ -31,7 +31,7 @@ void calc_almn(const clipper::Xmap<float> &xmap, clipper::Coord_orth &pos) {
 
    float r = 10;
    std::cout << "almn here" << std::endl;
-   
+
    clipper::Grid_sampling grid = xmap.grid_sampling();
    clipper::Cell cell = xmap.cell();
    clipper::Grid_range gr(cell, grid, r);
@@ -45,7 +45,7 @@ void calc_almn(const clipper::Xmap<float> &xmap, clipper::Coord_orth &pos) {
    i0 = MRC(xmap, g0);
    std::cout << "grid_range " << gr.format() << std::endl;
    for (iu = i0; iu.coord().u() <= g1.u(); iu.next_u()) {
-      for ( iv = iu; iv.coord().v() <= g1.v(); iv.next_v() ) { 
+      for ( iv = iu; iv.coord().v() <= g1.v(); iv.next_v() ) {
 	 for ( iw = iv; iw.coord().w() <= g1.w(); iw.next_w() ) {
 	    c0 = iw.coord_orth() - pos;
 	    float rho = xmap[iw];
@@ -53,7 +53,7 @@ void calc_almn(const clipper::Xmap<float> &xmap, clipper::Coord_orth &pos) {
 	 }
       }
    }
-} 
+}
 
 void test_spherical() {
    
@@ -62,7 +62,7 @@ void test_spherical() {
    int n_bins = 100;
    
    for (int iv=0; iv<n_bins; iv++) { 
-      double x = -1 + 2* double(iv)/double(n_bins);
+      double x = -1.0 + 2.0 * static_cast<double>(iv)/static_cast<double>(n_bins);
       gsl_sf_result result;
       int success = gsl_sf_legendre_sphPlm_e(l, m, x, &result);
       // std::cout << "success: " << success << std::endl;
