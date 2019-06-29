@@ -3693,15 +3693,15 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 
       if (i_no_res_atoms > 0) {
 
-      if (util::is_standard_amino_acid_name(pdb_resname))
-         local += add_N_terminal_residue_bonds_and_angles_to_hydrogens(residue_p);
+	 if (util::is_standard_amino_acid_name(pdb_resname))
+	    local += add_N_terminal_residue_bonds_and_angles_to_hydrogens(residue_p);
 
-      if (restraints_usage_flag & BONDS_MASK)
-         local.n_bond_restraints += add_bonds(idr, res_selection, i_no_res_atoms,
+	 if (restraints_usage_flag & BONDS_MASK)
+	    local.n_bond_restraints += add_bonds(idr, res_selection, i_no_res_atoms,
 						 residue_p, geom);
 
-      if (restraints_usage_flag & ANGLES_MASK)
-         local.n_angle_restraints += add_angles(idr, res_selection, i_no_res_atoms,
+	 if (restraints_usage_flag & ANGLES_MASK)
+	    local.n_angle_restraints += add_angles(idr, res_selection, i_no_res_atoms,
 						   residue_p, geom);
 
 	 if (restraints_usage_flag & TORSIONS_MASK) {
