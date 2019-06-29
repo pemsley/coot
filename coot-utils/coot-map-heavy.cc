@@ -467,10 +467,6 @@ coot::util::make_rtop_orth_for_jiggle_atoms(float jiggle_trans_scale_factor,
 
 }
 
-// needed?
-#include "atom-selection-container.hh"
-#include "coords/mmdb-crystal.h"
-
 typedef clipper::NXmap<float>::Map_reference_index NRI;
 
 std::vector<std::pair<NRI, NRI> >

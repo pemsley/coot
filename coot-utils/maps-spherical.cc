@@ -30,8 +30,6 @@
 #include "emma.hh"
 #include "peak-search.hh"
 #include "xmap-stats.hh" // needed?
-#include "coords/mmdb.h"
-
 
 void
 coot::util::emma::sfs_from_boxed_molecule(mmdb::Manager *mol_orig, float border) {
@@ -61,7 +59,6 @@ coot::util::emma::sfs_from_boxed_molecule(mmdb::Manager *mol_orig, float border)
       double y_range = e.second.y() - e.first.y();
       double z_range = e.second.z() - e.first.z();
 
-      centre = centre_of_molecule(mol);
       std::cout << "DEBUG:: molecule  centre after recentering: "
 		<< centre.first << " " << centre.second.format() << std::endl;
 
@@ -399,8 +396,9 @@ coot::util::spherically_averaged_molecule(const atom_selection_container_t &asc,
    std::vector<std::pair<double, double> > vp;
 
    std::pair<clipper::Coord_orth, clipper::Coord_orth> e = extents(asc.mol);
-   coot::Cartesian cc = centre_of_molecule(asc);
-   clipper::Coord_orth c(cc.x(), cc.y(), cc.z());
+   std::pair<bool, clipper::Coord_orth> cc = centre_of_molecule(asc.mol);
+   if (!cc.first) return vp;
+   clipper::Coord_orth c = cc.second;
 
    double diag_len_sqrd = (e.second - e.first).lengthsq();
    double diag_len = sqrt(diag_len_sqrd);

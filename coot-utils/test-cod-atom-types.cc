@@ -31,9 +31,7 @@ int main(int argc, char **argv) {return 0;}
 #include "lidia-core/bond-record-container-t.hh"
 #include "lidia-core/primes.hh"
 
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
-
+#include "atom-selection-container.hh"
 
 mmdb::Residue *
 get_residue(coot::residue_spec_t residue_spec, mmdb::Manager *mol) {
