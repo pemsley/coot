@@ -2974,8 +2974,10 @@ public:        //                      public
    void setup_glsl_map_rendering();
    GLuint m_VertexArrayID;
    GLuint n_vertices_for_VertexArray;
+   GLuint n_indices_for_triangles;
    GLuint m_VertexBufferID;
    GLuint m_IndexBufferID;
+   GLuint m_IndexBuffer_for_triangles_ID; // solid and transparent surfaces
 
    float density_surface_opacity;
    void setup_density_surface_material(bool solid_mode, float opacity,

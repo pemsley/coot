@@ -782,11 +782,9 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 	      points[3*i+2] = 0.32 * tri_con.points[i].z();
       }
 
-      // transfer the indices
+      // transfer the indices - one of these variables has the wrong name - one is for lines and the other is for triangles
       n_vertices_for_VertexArray = 6 * tri_con.point_indices.size();
-
-      // if (n_vertices_for_VertexArray > 240)
-      // n_vertices_for_VertexArray = 240;
+      n_indices_for_triangles    = 3 * tri_con.point_indices.size();
 
       std::cout << "Here with n_vertices_for_VertexArray " << n_vertices_for_VertexArray << std::endl;
 
@@ -798,6 +796,13 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 	 indices[6*i+3] = tri_con.point_indices[i].pointID[2];
 	 indices[6*i+4] = tri_con.point_indices[i].pointID[2];
 	 indices[6*i+5] = tri_con.point_indices[i].pointID[0];
+      }
+
+      int *indices_for_triangles = new int[n_indices_for_triangles];
+      for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
+	 indices_for_triangles[3*i  ] = tri_con.point_indices[i].pointID[0];
+	 indices_for_triangles[3*i+1] = tri_con.point_indices[i].pointID[1];
+	 indices_for_triangles[3*i+2] = tri_con.point_indices[i].pointID[2];
       }
 
       // why is this needed?
@@ -842,6 +847,18 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       err = glGetError();
       std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
 
+
+      glGenBuffers(1, &m_IndexBuffer_for_triangles_ID);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glGenBuffers() for m_IndexBuffer_for_triangles_ID " << err << std::endl;
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_triangles_ID);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glBindBuffer() for triangles " << err << std::endl;
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_indices_for_triangles,
+		   &indices_for_triangles[0], GL_STATIC_DRAW);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
+
       // test
 
       glBindVertexArray(m_VertexArrayID);
@@ -851,6 +868,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
       // delete [] points;
       // delete [] indices;
+      // delete [] indices_for_triangles;
 
    }
 

@@ -315,54 +315,101 @@ gtk3_draw_molecules() {
    if (err) std::cout << "   gtk3_draw_molecules() glUseProgram with GL err "
                       << err << std::endl;
 
-   glm::mat4 mvp_1 = glm::toMat4(graphics_info_t::glm_quat);
+   glm::mat4 model_matrix = glm::toMat4(graphics_info_t::glm_quat);
    float z = graphics_info_t::zoom * 0.04;
    glm::vec3 sc(z,z,z);
    float screen_ratio = static_cast<float>(graphics_info_t::graphics_x_size)/static_cast<float>(graphics_info_t::graphics_y_size);
 
    float ortho_size = 50.0f; // a function of graphics_info_t::zoom?
-   glm::mat4 projection_matrix = glm::ortho(-ortho_size * screen_ratio, ortho_size * screen_ratio, -ortho_size, ortho_size, -ortho_size, ortho_size);
+   glm::mat4 projection_matrix = glm::ortho(-ortho_size * screen_ratio, ortho_size * screen_ratio,
+					    -ortho_size, ortho_size,
+					    -ortho_size, -0.1f*ortho_size);
+   // glm::mat4 projection_matrix = glm::perspective(static_cast<float>(glm::radians(70.0)), screen_ratio, 1.0f, 500.0f);
    glm::mat4 view_matrix = glm::mat4(1.0);
 
-   // view_matrix is for translation and scaling only.
+   // view_matrix is for translation and scaling only. Is it? view_matrix is the word coordinate -> camera coordinates
    //
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    view_matrix = glm::translate(view_matrix, -rc);
+   // std::cout << "view matrix A: " << glm::to_string(view_matrix) << std::endl;
    view_matrix = glm::scale(view_matrix, sc);
    if (false)
       std::cout << "gtk3_draw_molecules() with rc " << glm::to_string(rc)
                 << " and zoom z " << z << std::endl;
 
-   // glm::mat4 mvp = glm::scale(mvp_1, sc);
-   glm::mat4 mvp = projection_matrix * view_matrix * mvp_1;
+   // std::cout << "view matrix B: " << glm::to_string(view_matrix) << std::endl;
+
+   glm::mat4 mvp = projection_matrix * view_matrix * model_matrix;
+
+   std::cout << "mvp  matrix:   " << glm::to_string(mvp) << std::endl;
+
+   glEnable(GL_CULL_FACE);
+   glEnable(GL_DEPTH_TEST);
+   glDepthFunc(GL_LESS);
+
+   // glDisable(GL_DEPTH_TEST);
+   // glDepthFunc(GL_ALWAYS);
 
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
       if (graphics_info_t::molecules[ii].n_vertices_for_VertexArray > 0) {
-         if (false)
-            std::cout << "   gtk3_draw_molecules(): imol " << ii
-                      << " array_id and n_vertices_for_VertexArray: "
-		      << graphics_info_t::molecules[ii].m_VertexArrayID << " "
-		      << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
-		      << std::endl;
-         glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID);
-         err = glGetError();
-         if (err) std::cout << "   gtk3_draw_molecules() glBindVertexArray() "
-			    << graphics_info_t::molecules[ii].m_VertexArrayID
-			    << " with GL err " << err << std::endl;
 
-         glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
-         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBufferID);
+	 if (false) { // draw with lines
+	    if (false)
+	       std::cout << "   gtk3_draw_molecules(): imol " << ii
+			 << " array_id and n_vertices_for_VertexArray: "
+			 << graphics_info_t::molecules[ii].m_VertexArrayID << " "
+			 << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
+			 << std::endl;
+	    glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID);
+	    err = glGetError();
+	    if (err) std::cout << "   gtk3_draw_molecules() glBindVertexArray() "
+			       << graphics_info_t::molecules[ii].m_VertexArrayID
+			       << " with GL err " << err << std::endl;
 
-         glUniformMatrix4fv(graphics_info_t::mvp_location, 1, GL_FALSE, &mvp[0][0]);
-         err = glGetError();
-         if (err) std::cout << "   gtk3_draw_molecules() glUniformMatrix4fv() " << err << std::endl;
+	    glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
+	    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBufferID);
 
-         glDrawElements(GL_LINES, graphics_info_t::molecules[ii].n_vertices_for_VertexArray,
-                        GL_UNSIGNED_INT, nullptr);
-         err = glGetError();
-         if (err) std::cout << "   gtk3_draw_molecules() glDrawElements() n_vertices: "
-			    << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
-			    << " with GL err " << err << std::endl;
+	    glUniformMatrix4fv(graphics_info_t::mvp_location, 1, GL_FALSE, &mvp[0][0]);
+	    err = glGetError();
+	    if (err) std::cout << "   gtk3_draw_molecules() glUniformMatrix4fv() " << err << std::endl;
+
+	    glDrawElements(GL_LINES, graphics_info_t::molecules[ii].n_vertices_for_VertexArray,
+			   GL_UNSIGNED_INT, nullptr);
+	    err = glGetError();
+	    if (err) std::cout << "   gtk3_draw_molecules() glDrawElements() n_vertices: "
+			       << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
+			       << " with GL err " << err << std::endl;
+	 }
+
+	 if (true) { // draw as a solid object
+	    if (true)
+	       std::cout << "   gtk3_draw_molecules(): imol " << ii
+			 << " array_id and n_vertices_for_VertexArray: "
+			 << graphics_info_t::molecules[ii].m_VertexArrayID << " "
+			 << graphics_info_t::molecules[ii].n_indices_for_triangles
+			 << std::endl;
+
+	    glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID);
+	    err = glGetError();
+	    if (err) std::cout << "   gtk3_draw_molecules() glBindVertexArray() "
+			       << graphics_info_t::molecules[ii].m_VertexArrayID
+			       << " with GL err " << err << std::endl;
+
+	    glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
+	    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBuffer_for_triangles_ID);
+
+	    glUniformMatrix4fv(graphics_info_t::mvp_location, 1, GL_FALSE, &mvp[0][0]);
+	    err = glGetError();
+	    if (err) std::cout << "   gtk3_draw_molecules() glUniformMatrix4fv() " << err << std::endl;
+
+	    glDrawElements(GL_TRIANGLES, graphics_info_t::molecules[ii].n_indices_for_triangles,
+			   GL_UNSIGNED_INT, nullptr);
+
+	    err = glGetError();
+	    if (err) std::cout << "   gtk3_draw_molecules() glDrawElements() n_indices_for_triangles "
+			       << graphics_info_t::molecules[ii].n_indices_for_triangles
+			       << " with GL err " << err << std::endl;
+	 }
       }
    }
 }
@@ -456,6 +503,9 @@ on_glarea_realize(GtkGLArea *glarea) {
    }
 
    glEnable(GL_DEPTH_TEST);
+   glDepthFunc(GL_GREATER); // what does this do?
+   // glDisable(GL_DEPTH_TEST);
+   // glDepthFunc(GL_ALWAYS);
 
    // Make antialised lines
    glEnable (GL_BLEND);
@@ -479,7 +529,7 @@ on_glarea_render(GtkGLArea *glarea) {
    GLenum err = glGetError();
    if (err) std::cout << "on_glarea_render() start " << err << std::endl;
 
-   glClearColor (0.0, 0.0, 0.0, 1.0);
+   glClearColor (0.3, 0.2, 0.3, 1.0);
    err = glGetError();
    if (err) std::cout << "on_glarea_render B err " << err << std::endl;
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -633,14 +683,14 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 
       g.add_to_rotation_centre(delta);
       g.update_maps();
-
-      std::cout << "add a contourer" << std::endl;
-      // doesn't trigger the contouring - don't know why yet.
       int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
 
    }
 
    if (event->state & GDK_BUTTON3_MASK) {
+
+      // Zooming
+
       double delta_x = event->x - g.GetMouseBeginX();
       double delta_y = event->y - g.GetMouseBeginY();
       double fx = 1.0f +  delta_x/300.0;
@@ -672,7 +722,7 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
    }
 
    if (event->keyval == GDK_KEY_i) {
-      float delta = 0.1;
+      float delta = 0.02;
       glm::vec3 EulerAngles(0, delta, 0);
       glm::quat quat_delta(EulerAngles);
       glm::quat normalized_quat_delta(glm::normalize(quat_delta));
