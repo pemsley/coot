@@ -532,14 +532,15 @@ coot::minimol::residue::residue(mmdb::Residue* residue_p) {
    mmdb::PPAtom residue_atoms;
    residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
    for (int i=0; i<nResidueAtoms; i++) {
-      addatom(std::string(residue_atoms[i]->name),
-	      std::string(residue_atoms[i]->element),
-	      residue_atoms[i]->x,
-	      residue_atoms[i]->y,
-	      residue_atoms[i]->z,
-	      std::string(residue_atoms[i]->altLoc),
-	      residue_atoms[i]->occupancy,
-	      residue_atoms[i]->tempFactor);
+      if (! residue_atoms[i]->isTer())
+	 addatom(std::string(residue_atoms[i]->name),
+		 std::string(residue_atoms[i]->element),
+		 residue_atoms[i]->x,
+		 residue_atoms[i]->y,
+		 residue_atoms[i]->z,
+		 std::string(residue_atoms[i]->altLoc),
+		 residue_atoms[i]->occupancy,
+		 residue_atoms[i]->tempFactor);
    }
 }
 
