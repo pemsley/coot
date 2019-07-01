@@ -1054,6 +1054,9 @@ test_make_a_difference_map(int argc, char **argv) {
    if (argc <= 2) {
       std::cout << "Usage: " << argv[0] << " map_file_name pdb_file_name" << std::endl;
    } else {
+
+      // ----- 1 ------------------ Parse
+
       std::string map_file_name = argv[1];
       std::string pdb_file_name = argv[2];
       clipper::CCP4MAPfile file;
@@ -1074,6 +1077,8 @@ test_make_a_difference_map(int argc, char **argv) {
       // spec_3.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
       // spec_4.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
       // spec_5.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+
+      // ----- 2 ------------------ Make Calc Map
 
       auto tp_0 = std::chrono::high_resolution_clock::now();
       clipper::Xmap<float> xmap_calc = coot::util::calc_atom_map(asc.mol,
@@ -1099,6 +1104,8 @@ test_make_a_difference_map(int argc, char **argv) {
 	 }
       }
 
+      // ----- 3 ------------------ Get Amp vs Reso data for B-factor from map
+
       std::vector<coot::amplitude_vs_resolution_point> pts_ref  = coot::util::amplitude_vs_resolution(xmap,      15);
       std::vector<coot::amplitude_vs_resolution_point> pts_calc = coot::util::amplitude_vs_resolution(xmap_calc, 15);
 
@@ -1111,6 +1118,8 @@ test_make_a_difference_map(int argc, char **argv) {
 	 }
       }
 
+
+      // ----- 4 ------------------ Get B-factors from maps
 
       // asc.mol->DeleteSelection(few_residues_selection_handle);
 
@@ -1133,7 +1142,7 @@ test_make_a_difference_map(int argc, char **argv) {
 
       std::cout << "b1 " << b1 << " b2 " << b2 << std::endl;
 
-      // -------------
+      // ----- 5 ------------------ Calculate Structure Factors
 
       clipper::HKL_info myhkl(xmap.spacegroup(), xmap.cell(), reso, true);
 
@@ -1173,6 +1182,8 @@ test_make_a_difference_map(int argc, char **argv) {
          }
       }
 
+      // ----- 6 ------------------ Scale and get stats for R-factor
+
       double sum_f_ref  = 0.0;
       double sum_f_calc = 0.0;
 
@@ -1184,7 +1195,7 @@ test_make_a_difference_map(int argc, char **argv) {
       std::vector<double> sum_fo_sqrd_for_bin(n_bins, 0.0);
       std::vector<unsigned int > counts_for_bin(n_bins, 0);
 
-      // if this was data from an mtz say, we'd need to check for isnan, but it's from a map
+      // if these are data from an mtz say, we'd need to check for isnan, but it's from a map
       // so there is no nan data.
 
       for (hri = fphi_ref.first(); !hri.last(); hri.next())
@@ -1237,9 +1248,14 @@ test_make_a_difference_map(int argc, char **argv) {
 	     break;
       }
 
+      // ----- 7 ------------------ Make Fo-Fc
+
       // difference map
       for (hri = fphi_calc.first(); !hri.last(); hri.next())
           fphi_ref[hri].f() -= fphi_calc[hri].f();
+
+      // ----- 8 ------------------ Make Difference map
+
       xmap.fft_from(fphi_ref);
       if (true) {
          clipper::CCP4MAPfile outmapfile;
@@ -1248,6 +1264,7 @@ test_make_a_difference_map(int argc, char **argv) {
          outmapfile.close_write();
       }
 
+      // ----- 9 ------------------ Print Tables of R-factors and stats
 
       for(unsigned int ii=0; ii<n_bins; ii++) {
          if (counts_for_bin[ii] == 0) continue;
@@ -1256,15 +1273,18 @@ test_make_a_difference_map(int argc, char **argv) {
                    << "  fc "      << std::setw(10) <<  sum_fc_for_bin[ii]/static_cast<double>(counts_for_bin[ii])
                    << "  fo "      << std::setw(10) << sum_bot_for_bin[ii]/static_cast<double>(counts_for_bin[ii])
                    << "  delta: "  << std::setw(10) << sum_top_for_bin[ii]/static_cast<double>(counts_for_bin[ii])
-                   << " R-factor " << std::setw(10) << std::right << std::setprecision(3) << std::fixed << sum_top_for_bin[ii]/sum_bot_for_bin[ii]
-                   << std::endl;
+                   << " R-factor " << std::setw(10) << std::right << std::setprecision(3) << std::fixed
+		   << sum_top_for_bin[ii]/sum_bot_for_bin[ii] << std::endl;
       }
+
+      // ----- 10 ------------------ The Speed of things
 
       auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
       auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
       auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
       auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
-      std::cout << "d10 " << d10 << " ms  d21 " << d21 << " ms  d32 " << d32 << " ms  d43 " << d43 << " ms " << std::endl;
+      std::cout << "d10 " << d10 << " ms  d21 " << d21 << " ms  d32 " << d32 << " ms  d43 " << d43 << " ms "
+		<< std::endl;
 
    }
    return status;
