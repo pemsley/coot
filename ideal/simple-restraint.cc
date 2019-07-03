@@ -3693,15 +3693,15 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 
       if (i_no_res_atoms > 0) {
 
-      if (util::is_standard_amino_acid_name(pdb_resname))
-         local += add_N_terminal_residue_bonds_and_angles_to_hydrogens(residue_p);
+	 if (util::is_standard_amino_acid_name(pdb_resname))
+	    local += add_N_terminal_residue_bonds_and_angles_to_hydrogens(residue_p);
 
-      if (restraints_usage_flag & BONDS_MASK)
-         local.n_bond_restraints += add_bonds(idr, res_selection, i_no_res_atoms,
+	 if (restraints_usage_flag & BONDS_MASK)
+	    local.n_bond_restraints += add_bonds(idr, res_selection, i_no_res_atoms,
 						 residue_p, geom);
 
-      if (restraints_usage_flag & ANGLES_MASK)
-         local.n_angle_restraints += add_angles(idr, res_selection, i_no_res_atoms,
+	 if (restraints_usage_flag & ANGLES_MASK)
+	    local.n_angle_restraints += add_angles(idr, res_selection, i_no_res_atoms,
 						   residue_p, geom);
 
 	 if (restraints_usage_flag & TORSIONS_MASK) {
@@ -5951,15 +5951,24 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 			// 
 			std::vector<bool> fixed_flags = make_fixed_flags(index1, index2);
 
-			if (debug)
+			if (debug) {
+			   std::string altconf_1("\"");
+			   altconf_1 += atom[index1]->altLoc;
+			   altconf_1 += "\"";
+			   std::string altconf_2("\"");
+			   altconf_2 += atom[index2]->altLoc;
+			   altconf_2 += "\"";
 			   std::cout << "creating (monomer) bond restraint, idr " << idr
 				     << " with fixed flags "
 				     << fixed_flags[0] << " " << fixed_flags[1] << " "
 				     << atom[index1]->GetSeqNum() << " "
-				     << atom[index1]->name << " to "
+				     << "\"" << atom[index1]->name << "\" "
+				     << std::setw(3) << altconf_1 << " to "
 				     << atom[index2]->GetSeqNum() << " "
-				     << atom[index2]->name
-				     << " restraint index " << n_bond_restr << "\n";
+				     << "\"" << atom[index2]->name << "\" "
+				     << std::setw(3) << altconf_2 << " "
+				     << "bond restraint index " << n_bond_restr << "\n";
+			}
 			try {
 			   add(BOND_RESTRAINT, index1, index2,
 			       fixed_flags,

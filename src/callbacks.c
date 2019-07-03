@@ -2013,12 +2013,17 @@ on_find_ligand_ok_button_clicked       (GtkButton       *button,
 {
    GtkWidget *window;
 
-   execute_get_mols_ligand_search(GTK_WIDGET(button));
-				/* which then runs
-				   execute_ligand_search */
-   window = lookup_widget(GTK_WIDGET(button), "find_ligand_dialog");
-   free_ligand_search_user_data(GTK_WIDGET(button));
-   gtk_widget_destroy(window);
+   int n_ligands = execute_get_mols_ligand_search(GTK_WIDGET(button));
+			                    	/* which then runs
+				                   execute_ligand_search */
+
+   if (n_ligands > 0) {
+     window = lookup_widget(GTK_WIDGET(button), "find_ligand_dialog");
+     free_ligand_search_user_data(GTK_WIDGET(button));
+     gtk_widget_destroy(window);
+   } else {
+     info_dialog("WARNING:: No ligands were selected");
+   }
 }
 
 
@@ -3817,13 +3822,11 @@ on_pointer_atom_type_ok_button_clicked (GtkButton       *button,
                                         gpointer         user_data)
 {
 
-  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button),
-				    "pointer_atom_type_dialog");
+  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "pointer_atom_type_dialog");
   GtkToggleButton *tbut;
 
   GtkWidget *entry = lookup_widget(GTK_WIDGET(button), "pointer_atom_type_other_entry");
   const char *entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
-
 
   if (strlen(entry_text) > 0) { 
     place_typed_atom_at_pointer(entry_text);
@@ -12391,16 +12394,21 @@ on_export_map_filechooserdialog_response
                                         gint             response_id,
 					 gpointer         user_data) { 
 
-  int imol_map;
-  int is_map_fragment;
-  char *txt;
-  const char *filename;
+  int imol_map = -1;
+  int is_map_fragment = 0;
+  char *txt = 0;
+  const char *filename = 0;
 
   if (response_id == GTK_RESPONSE_OK) {
     imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "map_molecule_number")); 
     is_map_fragment = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "is_map_fragment")); 
-    txt = g_object_get_data(G_OBJECT(dialog), "export_map_radius_entry_text");
-    filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog)); 
+    if (is_map_fragment) {
+      txt = g_object_get_data(G_OBJECT(dialog), "export_map_radius_entry_text");
+    }
+
+    if (GTK_IS_FILE_CHOOSER(dialog)) {
+      filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog)); 
+    }
 
     if (is_map_fragment) { 
       export_map_fragment_with_text_radius(imol_map, txt, filename);

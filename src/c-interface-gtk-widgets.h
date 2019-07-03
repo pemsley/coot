@@ -668,8 +668,9 @@ void set_ligand_dialog_real_space_refine_sites_checkbutton_state(GtkWidget *togg
 
 
  
-/*  info is stored in graphics_info_t beforehand */
-void execute_get_mols_ligand_search(GtkWidget *button); 
+/*  info is stored in graphics_info_t beforehand, return the number of ligands found.
+    We don't want to dismiss the dialog if the number of ligands found is 0 */
+int execute_get_mols_ligand_search(GtkWidget *button);
 
 /* This has pointers to Coord_orths poked into it, let's clear them
    up. */
@@ -719,7 +720,7 @@ set_graphics_rotamer_dialog(GtkWidget *w);
 
 void setup_alt_conf_with_dialog(GtkWidget *dialog); 
 
-void fill_place_atom_molecule_option_menu(GtkWidget *optionmenu);
+void fill_place_atom_molecule_combobox(GtkWidget *combobox);
  
 void set_baton_build_params_from_widget(GtkWidget *params_dialog);
 void baton_mode_calculate_skeleton(GtkWidget *window);

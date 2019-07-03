@@ -1,55 +1,45 @@
 
    For Release 0.8.9.3
 
-   o Find Ligands: if the ligand was not specified, don't dismiss the dialog (unless there are no ligands)
+   o Refine a bit of distorted RNA
+     Marc Leibundgut 26/06/2019.
 
-   o if the chaid-id has more then 1 char in the chain id then say that the output 
-     will be problematic in a PDB file (or some such) [Oliver Clarke]
+   o if balls and sticks representation then draw balls for waters, not sticks
+
+* Done.
+
+   o Make a "I like the graphics size and postion" - like for dialogs.
+
+* Done.
+
+   o backup format change to mmdb-binary.
+
+* It is now cif if input was cif, that will do for now.
+
+   o Find Ligands: if the ligand was not specified, don't dismiss the dialog (unless there are
+     no ligands)
+
+* Done.
+
+   o density fit graph should say both the map and the model in the title
+
+* Done.
+
+   o other people running the crash catcher. Is it sufficiently robust? coot-experimental?
+     Run the hal-built binary on pc4
+
+   o Refine residues with alt confs (e.g. A71)
+
+* Done.
 
    o Message from Charles:
 
 Thread 0 Crashed:: Dispatch queue: com.apple.main-thread
-0   libcoot-geometry.0.dylib      	0x0000000101816419 coot::operator<<(std::ostream&, coot::residue_spec_t const&) + 9
-1   coot-bin                      	0x0000000100593724 molecule_class_info_t::merge_molecules(std::vector<atom_selection_container_t, std::allocator<atom_selection_container_t> > const&) + 2580
-2   coot-bin                      	0x00000001000827d1 merge_molecules_by_vector(std::vector<int, std::allocator<int> > const&, int) + 1057
-3   coot-bin                      	0x00000001000c66fd do_merge_molecules + 141
-4   coot-bin                      	0x000000010023fc0e on_merge_molecules_ok_button_clicked + 46
-5   libgobject-2.0.0.dylib        	0x0000000105ddd286 g_cclosure_marshal_VOID__VOIDv + 38
-6   libgobject-2.0.0.dylib        	0x0000000105dda2c2 _g_closure_invoke_va + 402
-7   libgobject-2.0.0.dylib        	0x0000000105dfa8f0 g_signal_emit + 3152
-8   libgtk-x11-2.0.0.dylib        	0x00000001050cfa14 gtk_button_clicked + 216
-9   libgtk-x11-2.0.0.dylib        	0x00000001050d1bee gtk_real_button_released + 114
-10  libgobject-2.0.0.dylib        	0x0000000105ddd286 g_cclosure_marshal_VOID__VOIDv + 38
-11  libgobject-2.0.0.dylib        	0x0000000105dda8c0 g_type_class_meta_marshalv + 32
-12  libgobject-2.0.0.dylib        	0x0000000105dda2c2 _g_closure_invoke_va + 402
-13  libgobject-2.0.0.dylib        	0x0000000105dfa8f0 g_signal_emit + 3152
-14  libgtk-x11-2.0.0.dylib        	0x00000001050cf93a gtk_button_released + 216
-15  libgtk-x11-2.0.0.dylib        	0x00000001050d1850 gtk_button_button_release + 72
-16  libgtk-x11-2.0.0.dylib        	0x00000001052159b1 _gtk_marshal_BOOLEAN__BOXED + 333
-17  libgobject-2.0.0.dylib        	0x0000000105dda886 g_type_class_meta_marshal + 70
-18  libgobject-2.0.0.dylib        	0x0000000105dd9c9e g_closure_invoke + 382
-19  libgobject-2.0.0.dylib        	0x0000000105dfb69d signal_emit_unlocked_R + 2365
-20  libgobject-2.0.0.dylib        	0x0000000105dfa532 g_signal_emit + 2194
-21  libgtk-x11-2.0.0.dylib        	0x000000010543078d gtk_widget_event_internal + 815
-22  libgtk-x11-2.0.0.dylib        	0x0000000105430199 gtk_widget_event + 339
-23  libgtk-x11-2.0.0.dylib        	0x0000000105212fcf gtk_propagate_event + 825
-24  libgtk-x11-2.0.0.dylib        	0x0000000105211353 gtk_main_do_event + 1747
-25  libgdk-x11-2.0.0.dylib        	0x000000010585f2f4 gdk_event_dispatch + 160
-26  libglib-2.0.0.dylib           	0x0000000105eb3880 g_main_context_iterate + 1360
-27  libglib-2.0.0.dylib           	0x0000000105eadb66 g_main_loop_run + 566
-28  libgtk-x11-2.0.0.dylib        	0x0000000105210568 gtk_main + 274
-29  coot-bin                      	0x0000000100049275 inner_main(void*, int, char**) + 2277
-30  libguile.17.dylib             	0x000000010256f62f invoke_main_func + 31
-31  libguile.17.dylib             	0x000000010252621d c_body + 13
-32  libguile.17.dylib             	0x00000001025d157c scm_c_catch + 460
-33  libguile.17.dylib             	0x00000001025262d3 scm_c_with_continuation_barrier + 147
-34  libguile.17.dylib             	0x00000001025cc960 scm_with_guile + 208
-35  libguile.17.dylib             	0x000000010256f5f6 scm_boot_guile + 38
-36  coot-bin                      	0x0000000100030e24 start + 52
+0   libcoot-geometry.0.dylib 0x0000000101816419 coot::operator<<(std::ostream&, coot::residue_spec_t const&) + 9
+
+* Done
 
    o Huw (from York) sent a message about pygtk usage. Needs to be incorportated.
-
-   o Make the ligand fitting progress bar work for the fitting part (use 2 progress bars?)
 
    o Fix up dialog in RCrane, like above hopefully.
 
@@ -73,7 +63,17 @@ Thread 0 Crashed:: Dispatch queue: com.apple.main-thread
 
    o Fetch molecule favipiravir doesn't work
 
+* It does now.
+
    o fix the colours of (say) 5vic in Calpha Backbone mode
+
+   o refine residue ranges with ins codes (antibodies)
+
+* Seriously consider not doing this - it is terrible spaghetti - and works in the 0.9 rewrite.
+
+   o Make the ligand fitting progress bar work for the fitting part (use 2 progress bars?)
+
+* Punt. Sorry Keith.
 
 ----
 

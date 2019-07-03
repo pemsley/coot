@@ -510,13 +510,14 @@ int fill_ligands_dialog_ligands_bits(GtkWidget *find_ligand_dialog) {
 // implement it now - i.e. invoke a post-check function that creates
 // the coot::ligand object.
 //
-void execute_get_mols_ligand_search(GtkWidget *button) {
+int execute_get_mols_ligand_search(GtkWidget *button) {
 
    graphics_info_t g;
    GtkWidget *ligand_button;
    std::vector<int> chief_ligand_many_atoms; // caches imols with lots
 					     // of atoms.
-   std::vector<std::pair<int, bool> > wiggly_ligand_info; 
+   std::vector<std::pair<int, bool> > wiggly_ligand_info;
+   int n_ligands = 0;
 
    // extract the sigma level and stick it in
    // graphics_info_t::ligand_cluster_sigma_level
@@ -618,26 +619,22 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
 	 wiggly_str += g.int_to_string(imol);
 	 GtkWidget *wiggly_button = lookup_widget(button, wiggly_str.c_str());
 		  
-	 if (ligand_button && wiggly_button) { 
+	 if (ligand_button && wiggly_button) {
 	    if (GTK_TOGGLE_BUTTON(ligand_button)->active) {
-	       
+	       n_ligands++;
+
 	       bool wiggly_state = 0;
 	       if (GTK_TOGGLE_BUTTON(wiggly_button)->active)
 		  wiggly_state = 1;
 	       wiggly_ligand_info.push_back(std::pair<int, bool> (imol, wiggly_state));
-// 	       std::cout << "DEBUG:: wiggly info: " << imol <<  " " << wiggly_state
-// 			 << " pushed back" << std::endl;
 	       found_active_button_for_ligands = 1;
 	       int n_atoms = g.molecules[imol].atom_sel.n_selected_atoms;
-	       if (n_atoms > 100) {
+	       if (n_atoms > 200) {
 		  std::cout << "WARNING:: molecule " << imol
 			    << " has unexpectedly many atoms ("
 			    << n_atoms << ")" << std::endl;
 		  chief_ligand_many_atoms.push_back(imol);
 	       } 
-// 	    } else {
-// 	       std::cout << "DEBUG:: button " << ligand_str
-// 			 << " was not active" << std::endl;
 	    }
 	 } else {
 	    std::cout << ligand_str << " widget not found in "
@@ -714,6 +711,7 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
 		   << std::endl;
    }
 
+   return n_ligands;
 }
 
 // q_ligands is questionable ligands (i.e. very large)

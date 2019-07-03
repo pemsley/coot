@@ -472,7 +472,14 @@ namespace coot {
 
       bool is_EM_map(const clipper::Xmap<float> &xmap);
 
-      
+
+      typedef std::pair<double, double> phitheta;
+
+      std::vector<phitheta> make_phi_thetas(unsigned int n_pts);
+      float average_of_sample_map_at_sphere_points(clipper::Coord_orth &centre,
+						   float radius,
+						   const std::vector<phitheta> &phi_thetas,
+						   clipper::Xmap<float> &xmap);
    }
 }
 

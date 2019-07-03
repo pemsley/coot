@@ -510,6 +510,7 @@ class Bond_lines_container {
    int udd_has_ca_handle;
    float b_factor_scale;
    bool for_GL_solid_model_rendering;
+   bool do_sticks_for_waters;
 
    // we rely on SelAtom.atom_selection being properly constucted to
    // contain all atoms
@@ -737,8 +738,10 @@ public:
 			int include_disulphides,
 			int include_hydrogens,
 			int model_number,
+			std::string dummy,
 			bool do_rama_markup=false,
 			bool do_rota_markup=false,
+			bool do_sticks_for_waters=true,
 			coot::rotamer_probability_tables *tables_p=0);
 
    Bond_lines_container(atom_selection_container_t, int imol, float max_dist);

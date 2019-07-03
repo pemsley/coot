@@ -8597,6 +8597,8 @@ Tue  4 Sep 2018 16:15:01 BST
 
    Fitting to maps described here?
 
+   Fit in map:
+   https://www.cgl.ucsf.edu/chimera/docs/UsersGuide/midas/fitmap.html
 
 ---
 Fri 21 Sep 2018 10:49:26 BST
@@ -8938,6 +8940,9 @@ Tue 30 Apr 2019 15:30:25 BST
 
    Good stuff - not sure how to get the vulkan directory :-)
 
+   Vulkan Fish! and other things:
+   https://developer.nvidia.com/gameworks-vulkan-and-opengl-samples
+
 ---
 Tue  7 May 2019 00:16:49 BST
 
@@ -8978,7 +8983,6 @@ Thu  6 Jun 22:13:09 BST 2019
    https://github.com/abrt/libreport/commit/fbd0a76180633c7d50be01ea69ad734749db18a8
 
 ---
-<<<<<<< Updated upstream
 Wed 12 Jun 2019 03:07:48 BST
 
    Thinking about getting rid of plane restraints for CuDA: replace
@@ -9000,8 +9004,111 @@ Wed 12 Jun 2019 09:13:48 BST
    https://www.forceflow.be/2013/10/07/morton-encodingdecoding-through-bit-interleaving-implementations/
 
 Tue 11 Jun 22:39:15 BST 2019
+---
+
+   https://stackoverflow.com/questions/14519267/algorithm-for-generating-a-3d-hilbert-space-filling-curve-in-python
+
+   http://www.math.uwaterloo.ca/~wgilbert/Research/HilbertCurve/HilbertCurve.html
+
+---
+Wed 22 May 2019 11:34:42 BST
+
+    look at this:
+
+    https://wiki.fysik.dtu.dk/ase/
+
+    and this:
+
+    https://www.macinchem.org/blog/files/90966f824efe7fbbf2f0b4f56526b658-2202.php
+    LigandScout 4.2 Released
+
+---
+Thu 23 May 2019 10:38:58 BST
+
+   Javascript viewers:
+
+   https://www.macinchem.org/scientificsoftware/jsmolviewers.php
+
+   https://biasmv.github.io/pv/demo.html # outlined
+
+---
+Fri 24 May 2019 18:12:50 BST
+
+   flatpak for GNOME:
+
+   https://wiki.gnome.org/Newcomers/BuildProject
+
+   Build GTK4 and test Vulkan
+
+---
+Mon 27 May 2019 01:38:52 CEST
+
+   using Vulkan and glm and glfw for pretty pictures:
+
+   https://www.reddit.com/r/vulkan/comments/brvdan/the_story_of_optimizing_a_vulkan_program/
+
+---
+Thu 13 Jun 2019 08:24:13 BST
+
+   Ray tracing - ends with glass duck
+   https://github.com/ssloy/tinyraytracer/wiki/Part-1:-understandable-raytracing
+
+---
+Wed 19 Jun 2019 15:38:48 CDT
+
+   To solve the canberra problem:
+
+   sudo apt install libcanberra-gtk-module libcanberra-gtk3-module
 
 
-https://stackoverflow.com/questions/14519267/algorithm-for-generating-a-3d-hilbert-space-filling-curve-in-python
+---
+Thu 20 Jun 2019 15:41:02 CDT
 
-http://www.math.uwaterloo.ca/~wgilbert/Research/HilbertCurve/HilbertCurve.html
+   focus follow mouse:
+
+   gsettings set org.gnome.desktop.wm.preferences focus-mode 'sloppy'
+
+
+---
+Fri 21 Jun 2019 14:31:08 CDT
+
+   o phenix ncs-from-map:
+
+     https://www.phenix-online.org/documentation/reference/find_ncs_from_density.html
+
+
+---
+Fri 21 Jun 2019 14:59:40 CDT
+
+   Conan: the C / C++ Package Manager for Developers
+
+   open source, decentralized and multi-platform package manager to create and
+   share all your native binaries.
+
+---
+Mon 24 Jun 2019 09:41:38 CDT
+
+   PDBe: ccdutils rdkit library
+
+
+---
+Mon 24 Jun 2019 10:14:03 CDT
+
+   Pavel lecture:
+
+   o 3noq real Rama outlier
+     5a9z lots of Rama outliers.
+     Voth and Shing 2007 for Hydrogen bond definition
+
+---
+Mon 24 Jun 2019 10:15:05 CDT
+
+   o Mac OSX and Gtk: John Ralls https://discourse.gnome.org/t/say-hello-thread/82/35
+
+
+
+---
+Mon 24 Jun 2019 10:15:28 CDT
+
+   o Dominika OS: Ubuntu 16.04
+

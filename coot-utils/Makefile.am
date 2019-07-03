@@ -131,8 +131,9 @@ libcoot_map_heavy_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # lidia-core functions moved here because they use coot-utils functions
 #
-check_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elastic test-spherical glyco-torsions \
-	test-tt-morph test-coot-probe test-chem-feat test-cod-atom-types dictionary-atom-types cod-db-access
+check_PROGRAMS = test-h-bonds testshelxreader test-coot-utils test-hole test-elastic test-spherical glyco-torsions \
+	test-tt-morph test-coot-probe test-chem-feat test-cod-atom-types dictionary-atom-types cod-db-access \
+	test-emma
 
 
 # test_zo_chi_table_SOURCES = test-zo-chi-table.cc
@@ -153,13 +154,17 @@ test_coot_probe_LDADD =          \
 testshelxreader_SOURCES = test-shelx-reader.cc
 testshelxreader_LDADD =  ./libcoot-coord-utils.la 
 
+test_emma_SOURCES = test-emma.cc
+test_emma_LDADD =  libcoot-map-utils.la \
+	$(top_builddir)/coords/libcoot-coords.la
+
 #	$(top_builddir)/geometry/libcoot-geometry.la 
 #       $(top_builddir)/mini-mol/libcoot-mini-mol.la 
 #       $(top_builddir)/utils/libcoot-utils.la
 
 # other test binaries may need to be linked like this too
-testcootutils_SOURCES = test-utils.cc
-testcootutils_LDADD = \
+test_coot_utils_SOURCES = test-utils.cc
+test_coot_utils_LDADD = \
 	./libcoot-map-heavy.la    \
 	./libcoot-map-utils.la    \
 	./libcoot-coord-extras.la \

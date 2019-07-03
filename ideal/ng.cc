@@ -414,6 +414,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
       const std::set<unsigned int> &n_set = vcontacts[i];
       mmdb::Atom *at_1 = atom[i];
+      std::string alt_conf_1(at_1->altLoc);
       // std::cout << "base atom: " << atom_spec_t(at_1) << std::endl;
 
       // std::cout << "Here with i " << i << " which has " << n_set.size() << " neighbours " << std::endl;
@@ -430,6 +431,12 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 	    continue;
 
 	 mmdb::Atom *at_2 = atom[j];
+	 std::string alt_conf_2(at_2->altLoc);
+
+	 if (!alt_conf_1.empty())        // alt confs don't see each other
+	    if (!alt_conf_2.empty())
+	       if (alt_conf_1 != alt_conf_2)
+		  continue;
 
 	 if (fixed_atom_indices.find(i) != fixed_atom_indices.end())
 	    if (fixed_atom_indices.find(*it) != fixed_atom_indices.end())
@@ -1202,8 +1209,8 @@ coot::restraints_container_t::try_make_peptide_link_ng(const coot::protein_geome
 
    if (false)
       std::cout << "try_make_peptide_link_ng():         "
-		<< residue_spec_t(res_1_pair.second) << " " << residue_spec_t(res_2_pair.second) << " "
-		<< residue_spec_t(res_1_pair.first) << " " << residue_spec_t(res_2_pair.first) << " rama "
+		<< residue_spec_t(res_1_pair.second) << " " << residue_spec_t(res_2_pair.second) << " fixed-1: "
+		<< res_1_pair.first << " fixed-2: " << res_2_pair.first << " rama "
 		<< do_rama_plot_restraints << " trans " << do_trans_peptide_restraints << std::endl;
 
    mmdb::Residue *res_1 = res_1_pair.second;
@@ -1239,6 +1246,11 @@ coot::restraints_container_t::try_make_peptide_link_ng(const coot::protein_geome
 			if (! link_type.empty()) {
 			   bool is_fixed_first_residue  = res_1_pair.first;
 			   bool is_fixed_second_residue = res_2_pair.first;
+
+			   if (false) {
+			      std::cout << "adding link bond: "
+					<< atom_spec_t(at_1) << " " << atom_spec_t(at_2) << std::endl;
+			   }
 			   lrc = make_link_restraints_for_link_ng(link_type, res_1, res_2,
 								  is_fixed_first_residue,
 								  is_fixed_second_residue,

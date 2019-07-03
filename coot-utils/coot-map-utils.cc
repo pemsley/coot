@@ -574,7 +574,7 @@ coot::util::b_factor(const std::vector<coot::amplitude_vs_resolution_point> &fsq
       const amplitude_vs_resolution_point &d = fsqrd_data[i];
       float reso = d.get_invresolsq();
       float lf = log10(d.get_average_fsqrd());
-      if (false)
+      if (true)
 	 std::cout << "debug::raw " << d.count << " " << reso << " " << lf << " "
 		   << reso_low_invresolsq.first << " " << reso_low_invresolsq.second << " "
 		   << reso_high_invresolsq.first << " " << reso_high_invresolsq.second << std::endl;
@@ -595,21 +595,21 @@ coot::util::b_factor(const std::vector<coot::amplitude_vs_resolution_point> &fsq
       }
    }
 
-   std::cout << "data size " << data.size() << std::endl;
+   std::cout << "debug:: b_fact(): data size " << data.size() << std::endl;
    if (data.size() > 1) {
       unsigned int n = data.size();
       double *x_p = new double[n];
       double *y_p = new double[n];
       for (std::size_t i=0; i<data.size(); i++) {
-	 // std::cout << "debug::b-factor estimation: adding graph data " << data[i].first << " " << data[i].second << std::endl;
-	 x_p[i] = 2.0 * data[i].first;
+	 std::cout << "debug::b-factor estimation: adding graph data " << data[i].first << " " << data[i].second << std::endl;
+	 x_p[i] = data[i].first;
 	 y_p[i] = data[i].second;
       }
       double cov00, cov01, cov11, sum_sq;
       double c_0, c_1; // c and m
       gsl_fit_linear(x_p, 1, y_p, 1, n, &c_0, &c_1, &cov00, &cov01, &cov11, &sum_sq);
       // b = -8.0 * M_PI * M_PI * c_1;
-      b = -c_1;
+      b = -0.5 * c_1;
       delete [] x_p;
       delete [] y_p;
    }

@@ -294,7 +294,7 @@
 			      (format #t "------------ That was not well-fitting. Deleting ~s: ~%"
 				      preped-new-res-spec)
 			      (delete-extra-restraints-for-residue-spec imol preped-new-res-spec)
-			      (delete-residue-by-spec imol preped-new-res-spec)
+			      (delete-residue-by-spec preped-new-res-spec)
 			      ;; restore glyco-tree residues from imol-save
 			      (replace-fragment imol imol-save "//")
 			      ;; (with-auto-accept (refine-residues imol local-ls))

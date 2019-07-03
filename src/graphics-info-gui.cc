@@ -1812,16 +1812,17 @@ graphics_info_t::residue_info_release_memory(GtkWidget *dialog) {
    } 
 } 
 
-// static 
+// static
 void
-graphics_info_t::pointer_atom_molecule_menu_item_activate(GtkWidget *item, 
-							  GtkPositionType pos) {
+graphics_info_t::pointer_atom_molecule_combobox_changed(GtkWidget *combobox, gpointer data) {
 
    graphics_info_t g;
-   //    std::cout << "DEBUG:: pointer_atom_molecule_menu_item_activate sets user_pointer_atom_molecule to " << pos << std::endl;
-   g.user_pointer_atom_molecule = pos;
+   int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
+   std::cout << "debug:: changed to imol " << imol << std::endl;
+   g.user_pointer_atom_molecule = imol;
 
 }
+
 
 
    

@@ -3411,12 +3411,14 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
 
    int do_disulphide_flag = 1;
    int model_number = 0; // flag for all models
+   bool do_sticks_for_waters = true;
 
    if (single_model_view_current_model_number != 0)
       model_number = single_model_view_current_model_number;
    
    Bond_lines_container bonds(atom_sel, imol_no, no_bonds_to_these_atoms,
-			      geom_p, do_disulphide_flag, draw_hydrogens_flag, model_number);
+			      geom_p, do_disulphide_flag, draw_hydrogens_flag,
+			      model_number, "dummy", false, false, false);
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::NORMAL_BONDS;
@@ -4519,10 +4521,10 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 	 bool is_ter_state = atom->isTer();
 	 std::cout << "DEBUG:: in replace_coords, intermediate atom: chain-id :"
 		   << atom->residue->GetChainID() <<  ": "
-		   << atom->residue->seqNum << " inscode :" 
-		   << atom->GetInsCode() << ": name :" 
-		   << atom->name << ": altloc :"
-		   << atom->altLoc << ": occupancy: "
+		   << atom->residue->seqNum << " inscode \""
+		   << atom->GetInsCode() << "\" name \""
+		   << atom->name << "\" altloc \""
+		   << atom->altLoc << "\" occupancy: "
 		   << atom->occupancy << " :"
 		   << " TER state: " << is_ter_state << std::endl;
       }
@@ -4547,22 +4549,25 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 	 if (asc.UDDOldAtomIndexHandle >= 0) { // OK for fast atom indexing
 
 	    if (debug)
-	       std::cout << "... OK for fast atom indexing, asc.UDDOldAtomIndexHandle: " << asc.UDDOldAtomIndexHandle
+	       std::cout << "... OK for fast atom indexing, asc.UDDOldAtomIndexHandle: "
+			 << asc.UDDOldAtomIndexHandle
 			 << " for atom " << coot::atom_spec_t(atom) << std::endl;
 
 	    if (atom->GetUDData(asc.UDDOldAtomIndexHandle, tmp_index) == mmdb::UDDATA_Ok) {
-	       if (tmp_index >= 0) { 
-		  if (moving_atom_matches(atom, tmp_index)) { 
+	       if (debug)
+		  std::cout << "OK, good GetUDData() for atom " << coot::atom_spec_t(atom) << std::endl;
+	       if (tmp_index >= 0) {
+		  if (moving_atom_matches(atom, tmp_index)) {
 		     // std::cout << "      DEBUG:: successfully found old atom index" << std::endl;
 		     idx = tmp_index;
 		  } else {
-		     // std::cout << "      DEBUG:: atom index mismatch" << std::endl;
+		     // std::cout << "DEBUG:: atom index mismatch" << std::endl;
 		     idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
 							atom->residue->seqNum,
 							std::string(atom->GetInsCode()),
 							std::string(atom->name),
 							std::string(atom->altLoc));
-		     // std::cout << "      DEBUG:: full_atom_spec_to_atom_index gives index: " << idx << std::endl;
+		     // std::cout << "DEBUG:: full_atom_spec_to_atom_index gives index: " << idx << std::endl;
 		  }
 	       } else {
 		  // This shouldn't happen.
@@ -4575,11 +4580,11 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 	       }
 	    } else {
 	       std::cout << "ERROR:: non-bad handle (" << asc.UDDOldAtomIndexHandle 
-			 <<  "), but bad GetUDData for atom " << coot::atom_spec_t(atom) << std::endl;
+			 <<  "), but bad GetUDData() for atom " << coot::atom_spec_t(atom) << std::endl;
 	    }
 	 } else {
 
-	    if (false)
+	    if (debug)
 	       std::cout << "DEBUG:: asc.UDDOldAtomIndexHandle is "
 			 << asc.UDDOldAtomIndexHandle << " using full atom spec to atom index..."
 			 << std::endl;
@@ -6842,10 +6847,15 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
 
       time_string += g.int_to_string(history_index);
       //time_string += ".mmdbbin";
-      if (! is_from_shelx_ins_flag) 
-	 time_string += ".pdb";
-      else 
+      if (! is_from_shelx_ins_flag) {
+	 if (coot::is_mmcif_filename(name_)) {
+	    time_string += ".cif";
+	 } else {
+	    time_string += ".pdb";
+	 }
+      } else {
 	 time_string += ".res";
+      }
 
 #if defined(_MSC_VER)
       // we can do now too (I hope for all of them?!?)
@@ -6968,13 +6978,16 @@ molecule_class_info_t::make_backup() { // changes history details
 	    // 
 	    int istat;
 	    if (! is_from_shelx_ins_flag) {
-	       istat = write_atom_selection_file(atom_sel, backup_file_name, gz);
+	       bool write_as_cif = false;
+	       if (coot::is_mmcif_filename(name_))
+		  write_as_cif = true;
+	       istat = write_atom_selection_file(atom_sel, backup_file_name, write_as_cif, gz);
 	       // WriteMMDBF returns 0 on success, else mmdb:Error_CantOpenFile (15)
 	       if (istat) { 
-             std::string warn;
-             warn = "WARNING:: WritePDBASCII failed! Return status ";
-             warn += istat;
-             g.info_dialog_and_text(warn);
+		  std::string warn;
+		  warn = "WARNING:: WritePDBASCII failed! Return status ";
+		  warn += istat;
+		  g.info_dialog_and_text(warn);
 	       }
 	    } else { 
 	       std::pair<int, std::string> p = write_shelx_ins_file(backup_file_name);

@@ -31,7 +31,6 @@
 #include "peak-search.hh"
 #include "xmap-stats.hh" // needed?
 
-
 void
 coot::util::emma::sfs_from_boxed_molecule(mmdb::Manager *mol_orig, float border) {
 
@@ -51,7 +50,7 @@ coot::util::emma::sfs_from_boxed_molecule(mmdb::Manager *mol_orig, float border)
    mol->GetSelIndex(SelHnd, atom_selection, n_selected_atoms);
 
    std::pair<bool, clipper::Coord_orth> centre = centre_of_molecule(mol);
-   if (centre.first) { 
+   if (centre.first) {
 
       // move the coordinates so that the middle of the molecule is at the origin.
       // shift(mol, -centre.second);
@@ -157,8 +156,8 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
    float radius_range = radius_max - radius_min;
    float radius_mid = (radius_max + radius_min)*0.5;
    // store T(k) 
-   std::complex<double> zero_c(0,0);
-   std::vector<std::complex<double> > T(N+1, zero_c);
+   std::complex<double> zero_c(0.0, 0.0);
+   std::vector<std::complex<double> > T(N+1.0, zero_c);
    for (float r_k_i=1; r_k_i<=N; r_k_i++) {
       float w_k = gl.weight  (r_k_i);
       float r_k = gl.abscissa(r_k_i);
@@ -376,4 +375,96 @@ coot::util::emma::test() const {
 
    std::cout << "--------------------- start test -------------" << std::endl;
    std::cout << "--------------------- done test -------------" << std::endl;
+}
+
+
+// put atoms on grid, calc sfs then average by invresolsq
+// Hmm.. This is the wrong way I think
+std::vector<std::pair<double, double> >
+coot::util::emma::spherically_averaged_FT() {
+
+   std::vector<std::pair<double, double> > vp;
+   int n_bins = 10;
+
+   return vp;
+}
+
+std::vector<std::pair<double, double> >
+coot::util::spherically_averaged_molecule(const atom_selection_container_t &asc,
+					  float angstroms_per_bin) {
+
+   std::vector<std::pair<double, double> > vp;
+
+   std::pair<clipper::Coord_orth, clipper::Coord_orth> e = extents(asc.mol);
+   std::pair<bool, clipper::Coord_orth> cc = centre_of_molecule(asc.mol);
+   if (!cc.first) return vp;
+   clipper::Coord_orth c = cc.second;
+
+   double diag_len_sqrd = (e.second - e.first).lengthsq();
+   double diag_len = sqrt(diag_len_sqrd);
+   double radius_max = 0.5 * diag_len;
+
+   int n_bins = static_cast<int>(radius_max/angstroms_per_bin) + 1;
+   vp.resize(n_bins);
+   for (int ibin=0; ibin<n_bins; ibin++) {
+      vp[ibin].first  = (static_cast<float>(ibin) + 0.5) * angstroms_per_bin;
+      vp[ibin].second = 0.0;
+   }
+
+
+   for (int iat=0; iat<asc.n_selected_atoms; iat++) {
+      mmdb::Atom *at = asc.atom_selection[iat];
+      clipper::Coord_orth co = coot::co(at);
+      float dist = std::sqrt((co - c).lengthsq());
+      int bin_id = dist / angstroms_per_bin;
+      if (bin_id >= n_bins) {
+	 std::cout << "bin error! " << std::endl;
+      } else {
+	 vp[bin_id].second += 1.0;
+      }
+   }
+
+   return vp;
+}
+
+std::vector<coot::util::phitheta>
+coot::util::make_phi_thetas(unsigned int n_pts) {
+
+   std::vector<phitheta> v;
+
+   // ideally I should push these around so that they are equidistant
+   //
+   double recip = 1.0/static_cast<double> (RAND_MAX);
+   for (std::size_t i=0; i<n_pts; i++) {
+      double theta = 2 * M_PI * random() * recip; // longitude
+      double phi = acos(2.0*random()*recip-1.0);  // latitude
+      v.push_back(std::pair<double, double>(phi, theta));
+   }
+
+   return v;
+}
+
+
+float
+coot::util::average_of_sample_map_at_sphere_points(clipper::Coord_orth &centre,
+						   float radius,
+						   const std::vector<coot::util::phitheta> &phi_thetas,
+						   clipper::Xmap<float> &xmap) {
+   float r = 0.0;
+
+   double sum = 0.0;
+   for (std::size_t i=0; i<phi_thetas.size(); i++) {
+      const double &phi   = phi_thetas[i].first;
+      const double &theta = phi_thetas[i].second;
+      clipper::Coord_orth pt(radius * cos(theta) * sin(phi),
+			     radius * sin(theta) * sin(phi),
+			     radius * cos(phi));
+      //std::cout << "phi " << phi << " theta " << theta  << " pt: " << pt.format() << std::endl;
+      pt += centre;
+      sum += density_at_point_by_linear_interpolation(xmap, pt);
+   }
+   r = sum/static_cast<double>(phi_thetas.size());
+
+   return r;
+
 }

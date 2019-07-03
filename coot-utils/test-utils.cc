@@ -21,6 +21,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <chrono>
 
 #include "clipper/core/rotation.h"
 
@@ -1035,6 +1036,261 @@ test_merge_fragments(int argc, char **argv) {
    return 1;
 }
 
+#include <fstream>
+
+int
+test_make_a_difference_map(int argc, char **argv) {
+
+   // This function is for all map and all model - not a model selection
+   // that is quite a bit more tricky.
+
+   // B-factor scaling:
+   // <f^2> = k <Fo^2> * exp(-2B * r)
+   //    where r = 1/d^2 where d is in A.
+   // -2B * r + ln(k) = log(<f^2>/<Fo^2>)
+
+   int status = 1;
+
+   if (argc <= 2) {
+      std::cout << "Usage: " << argv[0] << " map_file_name pdb_file_name" << std::endl;
+   } else {
+
+      // ----- 1 ------------------ Parse
+
+      std::string map_file_name = argv[1];
+      std::string pdb_file_name = argv[2];
+      clipper::CCP4MAPfile file;
+      clipper::Xmap<float> xmap;
+      file.open_read(map_file_name);
+      file.import_xmap(xmap);
+      std::cout << "Getting atoms... " << std::endl;
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
+
+      // Matching structure factors on an atom selection is a different function.
+      //
+      // now a few residues
+      // coot::residue_spec_t spec_1("A", 10, "");
+      // coot::residue_spec_t spec_2("A", 11, "");
+      // int few_residues_selection_handle = asc.mol->NewSelection();
+      // spec_1.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_NEW);
+      // spec_2.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+      // spec_3.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+      // spec_4.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+      // spec_5.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+
+      // ----- 2 ------------------ Make Calc Map
+
+      auto tp_0 = std::chrono::high_resolution_clock::now();
+      clipper::Xmap<float> xmap_calc = coot::util::calc_atom_map(asc.mol,
+					                         asc.SelectionHandle,
+					                         xmap.cell(),
+					                         xmap.spacegroup(),
+					                         xmap.grid_sampling());
+
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+      if (true) {
+         clipper::CCP4MAPfile outmapfile;
+         outmapfile.open_write("test-calc.map");
+         outmapfile.export_xmap(xmap_calc);
+         outmapfile.close_write();
+      }
+
+
+      if (false) {
+	 xmap_calc = xmap;
+         clipper::Xmap_base::Map_reference_index ix;
+         for (ix = xmap_calc.first(); !ix.last(); ix.next() ) {
+	    xmap_calc[ix] = xmap[ix] * 2.0 + 0.11;
+	 }
+      }
+
+      // ----- 3 ------------------ Get Amp vs Reso data for B-factor from map
+
+      std::vector<coot::amplitude_vs_resolution_point> pts_ref  = coot::util::amplitude_vs_resolution(xmap,      15);
+      std::vector<coot::amplitude_vs_resolution_point> pts_calc = coot::util::amplitude_vs_resolution(xmap_calc, 15);
+
+      if (true) { // debugging B-factor estimation
+	 for (unsigned int ii=0; ii< pts_ref.size(); ii++) {
+            std::cout << "pts_ref " << pts_ref[ii].average << " " << pts_ref[ii].resolution_recip << std::endl;
+	 }
+	 for (unsigned int ii=0; ii< pts_ref.size(); ii++) {
+            std::cout << "pts_calc " << pts_calc[ii].average << " " << pts_calc[ii].resolution_recip << std::endl;
+	 }
+      }
+
+
+      // ----- 4 ------------------ Get B-factors from maps
+
+      // asc.mol->DeleteSelection(few_residues_selection_handle);
+
+      // clipper::HKL_data<clipper::data32::F_phi> fphi_calc;
+      // clipper::HKL_data<clipper::data32::F_phi> fphi_ref;
+
+      clipper::Resolution reso(1.06);
+      float reso_min_for_scaling = 0.05; // 4.47A or so is the minimum resolution
+                                         // for B-factor scaling
+                                         // If there are only data below that
+                                         // then use simple (1 parameter) scaling.
+      double reso_max = 0.29; // inv res sq., calculate this from an analysis of the map f values
+      reso_max = 0.89; // 1pwg
+
+      std::pair<bool, float> reso_low_invresolsq(true, 0.05);
+      std::pair<bool, float> reso_high_invresolsq(true, reso_max);
+
+      float b1 = coot::util::b_factor(pts_ref,  reso_low_invresolsq, reso_high_invresolsq);
+      float b2 = coot::util::b_factor(pts_calc, reso_low_invresolsq, reso_high_invresolsq);
+
+      std::cout << "b1 " << b1 << " b2 " << b2 << std::endl;
+
+      // ----- 5 ------------------ Calculate Structure Factors
+
+      clipper::HKL_info myhkl(xmap.spacegroup(), xmap.cell(), reso, true);
+
+      clipper::HKL_data< clipper::datatypes::F_phi<float> > fphi_calc(myhkl);
+      clipper::HKL_data< clipper::datatypes::F_phi<float> > fphi_ref(myhkl);
+
+      std::cout << "fft-calc" << std::endl;
+      auto tp_2 = std::chrono::high_resolution_clock::now();
+      xmap_calc.fft_to(fphi_calc);
+
+      auto tp_3 = std::chrono::high_resolution_clock::now();
+      std::cout << "fft-ref" << std::endl;
+      xmap.fft_to(fphi_ref);
+      auto tp_4 = std::chrono::high_resolution_clock::now();
+
+      int count = 0;
+      clipper::HKL_info::HKL_reference_index hri;
+      hri = fphi_calc.first();
+      if (hri.last()) {
+	 std::cout << "booo... first is last " << std::endl;
+      }
+      if (true) { // just check that the SFS contain data
+         for (hri = fphi_ref.first(); !hri.last(); hri.next()) {
+	    std::cout << "   " << hri.hkl().format() << " " << fphi_ref[hri].f() << " " << fphi_ref[hri].phi()
+		      << std::endl;
+	    count++;
+	    if (count == 10)
+	       break;
+         }
+         count = 0;
+         for (hri = fphi_calc.first(); !hri.last(); hri.next()) {
+	    std::cout << "   " << hri.hkl().format() << " " << fphi_calc[hri].f() << " " << fphi_calc[hri].phi()
+		      << std::endl;
+	    count++;
+	    if (count == 10)
+	       break;
+         }
+      }
+
+      // ----- 6 ------------------ Scale and get stats for R-factor
+
+      double sum_f_ref  = 0.0;
+      double sum_f_calc = 0.0;
+
+      const unsigned int n_bins = 20;
+      std::vector<double> sum_top_for_bin(n_bins, 0.0);
+      std::vector<double> sum_bot_for_bin(n_bins, 0.0);
+      std::vector<double> sum_fc_for_bin(n_bins, 0.0);
+      std::vector<double> sum_fc_sqrd_for_bin(n_bins, 0.0);
+      std::vector<double> sum_fo_sqrd_for_bin(n_bins, 0.0);
+      std::vector<unsigned int > counts_for_bin(n_bins, 0);
+
+      // if these are data from an mtz say, we'd need to check for isnan, but it's from a map
+      // so there is no nan data.
+
+      for (hri = fphi_ref.first(); !hri.last(); hri.next())
+          if (hri.hkl() != clipper::HKL(0,0,0)) {
+             float irs = hri.invresolsq();
+             if (irs < reso_max)
+                if (irs >= reso_min_for_scaling)
+                   sum_f_ref += fphi_ref[hri].f();
+          }
+      for (hri = fphi_calc.first(); !hri.last(); hri.next()) {
+          if (hri.hkl() != clipper::HKL(0,0,0)) {
+             float irs = hri.invresolsq();
+             if (irs < reso_max)
+                if (irs >= reso_min_for_scaling)
+                   sum_f_calc += fphi_calc[hri].f();
+          }
+      }
+      double sf = sum_f_ref/sum_f_calc;
+
+      std::cout << "scale: " << sf << std::endl;
+      for (hri = fphi_calc.first(); !hri.last(); hri.next()) {
+          if (hri.hkl() != clipper::HKL(0,0,0)) {
+             float irs = hri.invresolsq();
+             if (irs < reso_max) {
+                if (irs >= reso_min_for_scaling) {
+		   float b_delta = 0.0;
+                   fphi_calc[hri].f() *= 1.0 * sf * exp(-b_delta * irs * 0.25);
+                   float delta = fphi_ref[hri].f() - fphi_calc[hri].f();
+                   int bin_no = static_cast<int>(n_bins * irs/reso_max);
+                   if (bin_no == n_bins) bin_no = n_bins -1; // might catch a reflection (or 2)
+                   sum_fc_for_bin[bin_no]  += fphi_calc[hri].f();
+                   sum_top_for_bin[bin_no] += fabsf(delta);
+                   sum_bot_for_bin[bin_no] += fabsf(fphi_ref[hri].f());
+                   sum_fo_sqrd_for_bin[bin_no] +=  fphi_ref[hri].f() *  fphi_ref[hri].f();
+                   sum_fc_sqrd_for_bin[bin_no] += fphi_calc[hri].f() * fphi_calc[hri].f();
+                   counts_for_bin[bin_no]++;
+                }
+             }
+          }
+      }
+
+      std::ofstream f("sfs.tab");
+      for (hri = fphi_calc.first(); !hri.last(); hri.next()) {
+          float delta = fphi_ref[hri].f() - fphi_calc[hri].f();
+          float irs = hri.invresolsq();
+          f << "   " << hri.hkl().format() << " ref: " << fphi_ref[hri].f() << " calc: " << fphi_calc[hri].f()
+            << " delta " << delta << " resolution " << irs << "\n";
+	  count++;
+	  if (count == 1000000)
+	     break;
+      }
+
+      // ----- 7 ------------------ Make Fo-Fc
+
+      // difference map
+      for (hri = fphi_calc.first(); !hri.last(); hri.next())
+          fphi_ref[hri].f() -= fphi_calc[hri].f();
+
+      // ----- 8 ------------------ Make Difference map
+
+      xmap.fft_from(fphi_ref);
+      if (true) {
+         clipper::CCP4MAPfile outmapfile;
+         outmapfile.open_write("test-difference-map.map");
+         outmapfile.export_xmap(xmap);
+         outmapfile.close_write();
+      }
+
+      // ----- 9 ------------------ Print Tables of R-factors and stats
+
+      for(unsigned int ii=0; ii<n_bins; ii++) {
+         if (counts_for_bin[ii] == 0) continue;
+         std::cout << std::setw(2) << ii << " " << reso_max * static_cast<float>(ii)/static_cast<float>(n_bins) << " "
+                   << std::setw(4) << counts_for_bin[ii]
+                   << "  fc "      << std::setw(10) <<  sum_fc_for_bin[ii]/static_cast<double>(counts_for_bin[ii])
+                   << "  fo "      << std::setw(10) << sum_bot_for_bin[ii]/static_cast<double>(counts_for_bin[ii])
+                   << "  delta: "  << std::setw(10) << sum_top_for_bin[ii]/static_cast<double>(counts_for_bin[ii])
+                   << " R-factor " << std::setw(10) << std::right << std::setprecision(3) << std::fixed
+		   << sum_top_for_bin[ii]/sum_bot_for_bin[ii] << std::endl;
+      }
+
+      // ----- 10 ------------------ The Speed of things
+
+      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+      auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+      auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
+      std::cout << "d10 " << d10 << " ms  d21 " << d21 << " ms  d32 " << d32 << " ms  d43 " << d43 << " ms "
+		<< std::endl;
+
+   }
+   return status;
+}
+
+
 
 int main(int argc, char **argv) {
 
@@ -1103,8 +1359,11 @@ int main(int argc, char **argv) {
    if (false)
       test_merge_fragments(argc, argv);
 
-   if (true)
+   if (false)
       test_nxmap_simple(argc, argv);
+
+   if (true)
+      test_make_a_difference_map(argc, argv);
 
    return 0;
 }

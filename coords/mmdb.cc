@@ -117,6 +117,7 @@ std::ostream& operator<<(std::ostream& s, mmdb::PAtom atom) {
 int
 write_atom_selection_file(atom_selection_container_t asc,
 			  const std::string &filename,
+			  bool write_as_cif_flag,
 			  mmdb::byte gz,
 			  bool write_hydrogens,     // optional arg
 			  bool write_aniso_records, // optional arg
@@ -127,8 +128,8 @@ write_atom_selection_file(atom_selection_container_t asc,
    coot::util::remove_wrong_cis_peptides(asc.mol);
    mmdb::Manager *mol = asc.mol;
    bool mol_needs_deleting = false; // unless mol is reassigned...
-   
-   if (coot::is_mmcif_filename(filename)) {
+
+   if (write_as_cif_flag) {
 
       ierr = mol->WriteCIFASCII(filename.c_str());
 
