@@ -4925,7 +4925,10 @@ void
 lbg_info_t::get_drug_using_entry_text() {
 
    const char *txt = gtk_entry_get_text(GTK_ENTRY(lbg_get_drug_entry));
-   get_drug(txt);
+   if (txt)
+      get_drug(std::string(txt));
+   else
+      std::cout << "ERROR:: null text in get_drug_using_entry_text() " << std::endl;
 } 
 
 // get mol file and load it

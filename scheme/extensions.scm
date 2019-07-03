@@ -1598,6 +1598,10 @@
 	 (lambda ()
 	   (set-refinement-immediate-replacement 0)))
 
+   (add-simple-coot-menu-menuitem
+       submenu-settings "Save Graphics Size and Position"
+	    (lambda ()
+			 (graphics-window-size-and-position-to-preferences)))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-settings "Save Dialog Positions..."

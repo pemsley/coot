@@ -2223,6 +2223,10 @@ void   set_graphics_window_position(int x_pos, int y_pos);
 /*! \brief store the graphics window position */
 void store_graphics_window_position(int x_pos, int y_pos); /*  "configure_event" callback */
 
+/*! \brief store the graphics window position and size to zenops-graphics-window-size-and-postion.scm in
+ *         the preferences directory. */
+void graphics_window_size_and_position_to_preferences();
+
 /*! \brief draw a frame */
 void graphics_draw(); 	/* and wrapper interface to gtk_widget_draw(glarea)  */
 

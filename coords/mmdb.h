@@ -35,7 +35,8 @@ centre_of_molecule(atom_selection_container_t SelAtom);
 
 
 int write_atom_selection_file(atom_selection_container_t asc,
-			      const std::string &filename, 
+			      const std::string &filename,
+			      bool write_as_cif_flag,
 			      mmdb::byte gz,
 			      bool write_hydrogens = 1,  // optional arg
 			      bool write_aniso_records = 1,  // optional arg
