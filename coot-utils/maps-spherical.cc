@@ -60,7 +60,6 @@ coot::util::emma::sfs_from_boxed_molecule(mmdb::Manager *mol_orig, float border)
       double y_range = e.second.y() - e.first.y();
       double z_range = e.second.z() - e.first.z();
 
-      centre = centre_of_molecule(mol);
       std::cout << "DEBUG:: molecule  centre after recentering: "
 		<< centre.first << " " << centre.second.format() << std::endl;
 
