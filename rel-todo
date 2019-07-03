@@ -1,7 +1,14 @@
 
    For Release 0.8.9.3
 
+   o Make a "I like the graphics size and postion" - like for dialogs.
+
+   o Refine a bit of distorted RNA
+     Marc Leibundgut 26/06/2019.
+
    o backup format change to mmdb-binary.
+
+* It is now cif if input was cif = that will do for now.
 
    o Find Ligands: if the ligand was not specified, don't dismiss the dialog (unless there are
      no ligands)
@@ -18,9 +25,6 @@
    o Refine residues with alt confs (e.g. A71)
 
 * Done.
-
-   o if the chaid-id has more then 1 char in the chain id then say that the output 
-     will be problematic in a PDB file (or some such) [Oliver Clarke]
 
    o Message from Charles:
 
