@@ -613,11 +613,15 @@ molecule_class_info_t::crankshaft_peptide_rotation_optimization(const coot::resi
 								unsigned int n_peptides,
 								const clipper::Xmap<float> &xmap,
 								float map_weight,
-								int n_samples) {
+								int n_samples,
+								ctpl::thread_pool *thread_pool_p,
+								int n_threads) {
+   if (n_threads < 1) n_threads = 1;
    int n_solutions = 1;
+
    std::vector<mmdb::Manager *> mols =
       coot::crankshaft::crank_refine_and_score(rs, n_peptides, xmap, atom_sel.mol, map_weight,
-					       n_samples, n_solutions);
+					       n_samples, n_solutions, thread_pool_p, n_threads);
 
    if (mols.size() == 1) {
       make_backup();
