@@ -919,7 +919,15 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_back
 	       rgb[1] = bespoke_carbon_atoms_colour[1];
 	       rgb[2] = bespoke_carbon_atoms_colour[2];
 	    } else {
-	       rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
+	       if (i == 0) {
+		  if (imol_no == 0) {
+		     rgb[0] = 0.8; rgb[1] =  0.5; rgb[2] =  0.1;
+		  } else {
+		     rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
+		  }
+	       } else {
+		  rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
+	       }
 	    }
 	    break;
 	 case YELLOW_BOND: 
@@ -3434,7 +3442,8 @@ molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist) {
    bonds.do_Ca_bonds(atom_sel, min_dist, max_dist);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS;
-   // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
+   // std::cout << "DEBUG()::"  << __FUNCTION__ << "() ca: bonds_box_type is now "
+   // << bonds_box_type << std::endl;
 
 }
 

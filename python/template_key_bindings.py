@@ -46,7 +46,7 @@ def delete_residue_sidechain_key():
     with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                aa_ins_code, aa_atom_name, aa_alt_conf]:
         delete_residue_sidechain(aa_imol, aa_chain_id, aa_res_no,
-                                 aa_ins_code, aa_alt_conf)
+                                 aa_ins_code, 0)
 add_key_binding("Delete Residue Sidechain", "K",
                 lambda: delete_residue_sidechain_key())
 
