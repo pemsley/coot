@@ -1379,7 +1379,11 @@ void crankshaft_peptide_rotation_optimization_scm(int imol, SCM residue_spec_scm
       if (is_valid_map_molecule(imol_map)) {
 	 const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
 	 float w = g.geometry_vs_map_weight;
-	 g.molecules[imol].crankshaft_peptide_rotation_optimization(rs, n_peptides, xmap, w, n_samples);
+	 int n_threads = coot::get_max_number_of_threads() - 1;
+	 if (n_threads < 1) n_threads = 1;
+
+	 g.molecules[imol].crankshaft_peptide_rotation_optimization(rs, n_peptides, xmap, w, n_samples,
+								    &g.static_thread_pool, n_threads);
 	 g.update_validation_graphs(imol);
 	 graphics_draw();
       }
@@ -1401,7 +1405,10 @@ void crankshaft_peptide_rotation_optimization_py(int imol, PyObject *residue_spe
       if (is_valid_map_molecule(imol_map)) {
 	 const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
 	 float w = g.geometry_vs_map_weight;
-	 g.molecules[imol].crankshaft_peptide_rotation_optimization(rs, n_peptides, xmap, w, n_samples);
+	 int n_threads = coot::get_max_number_of_threads() - 1;
+	 if (n_threads < 1) n_threads = 1;
+	 g.molecules[imol].crankshaft_peptide_rotation_optimization(rs, n_peptides, xmap, w, n_samples,
+								    &g.static_thread_pool, n_threads);
 	 g.update_validation_graphs(imol);
 	 graphics_draw();
       }

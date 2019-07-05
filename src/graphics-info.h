@@ -47,25 +47,11 @@
 #include <gdk/gdkgldrawable.h>
 #include <gtk/gtkgl.h>
 
-#ifdef HAVE_CXX_THREAD
-#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #include <utils/ctpl.h>
-#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
-#endif // HAVE_CXX_THREAD
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
-#ifdef HAVE_CXX11
 #include <CXXClasses/RendererGLSL.hpp>
-#endif // HAVE_CXX11
 #endif // USE_MOLECULES_TO_TRIANGLES
-
-#ifdef WII_INTERFACE_WIIUSE
-#include "wiiuse.h"
-#endif // WII_INTERFACE_WIIUSE
-
-#ifdef WII_INTERFACE
-#include "cwiid.h"
-#endif 
 
 #include "clipper/core/xmap.h"
 
@@ -4015,17 +4001,11 @@ string   static std::string sessionid;
   void set_python_draw_function(const std::string &f) { python_draw_function_string = f; }
 #endif // USE_PYTHON
 
-#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
-#ifdef HAVE_CXX_THREAD
    static ctpl::thread_pool static_thread_pool;
-#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
-#endif
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
-#ifdef HAVE_CXX11
    static std::shared_ptr<Renderer> mol_tri_renderer;
    static std::shared_ptr<SceneSetup>   mol_tri_scene_setup;
-#endif
 #endif // USE_MOLECULES_TO_TRIANGLES
 
 };

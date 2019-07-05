@@ -485,6 +485,9 @@ graphics_info_t::crankshaft_peptide_rotation_optimization_intermediate_atoms() {
 
    // there is some repeated code here, consider factoring it out.
 
+   int n_threads = coot::get_max_number_of_threads() - 1;
+   if (n_threads < 1) n_threads = 1;
+
    int status = 0;
    if (moving_atoms_asc) {
       if (moving_atoms_asc->n_selected_atoms > 0) {
@@ -524,7 +527,7 @@ graphics_info_t::crankshaft_peptide_rotation_optimization_intermediate_atoms() {
 	       std::vector<mmdb::Manager *> mols =
 		  coot::crankshaft::crank_refine_and_score(residue_spec, n_peptides, xmap,
 							   moving_atoms_asc->mol, w,
-							   n_samples, n_solutions);
+							   n_samples, n_solutions, &static_thread_pool, n_threads);
 	       if (mols.size() == 1) { // not 0
 
 		  // this feels super-dangerous, replacing the coordinates of the atoms

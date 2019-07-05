@@ -20,6 +20,13 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 
    // restraints_usage_flag = BONDS_AND_ANGLES; // debugging
 
+   if (! thread_pool_p) {
+         std::cout << "ERROR:: " << __FUNCTION__ << " --- thread pool was not set! ---------"
+		   << std::endl;
+	 std::cout << "ERROR:: make_restraints_ng() stops before it starts" << std::endl;
+	 return -1;
+   }
+
    auto tp_0 = std::chrono::high_resolution_clock::now();
    restraints_usage_flag = flags_in;
    rama_plot_weight = rama_plot_target_weight;
@@ -91,9 +98,12 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       // non_bonded_contacts_atom_indices (so, out of range if you use it?)
 
       if (! thread_pool_p) {
-         std::cout << "--------- ERROR:: - thread pool was not set! ---------" << std::endl;
+         std::cout << "--------- ERROR:: " << __FUNCTION__ << " - thread pool was not set! ---------"
+		   << std::endl;
          // and yet we continue... that's bad news.
+	 std::cout << "Bad things will now happen" << std::endl;
       }
+
       make_non_bonded_contact_restraints_using_threads_ng(imol, geom);
       auto tp_5 = std::chrono::high_resolution_clock::now();
 

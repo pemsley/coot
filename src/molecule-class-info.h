@@ -3307,7 +3307,8 @@ public:        //                      public
 						 unsigned int n_peptides,
 						 const clipper::Xmap<float> &xmap,
 						 float map_weight,
-						 int n_samples);
+						 int n_samples,
+						 ctpl::thread_pool *thread_pool_p, int n_threads);
 
    std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > peptide_C_N_pairs(const std::vector<mmdb::Residue *> &residues) const;
 
