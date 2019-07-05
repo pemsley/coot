@@ -2,6 +2,8 @@
 #include <atomic>
 
 #include <clipper/core/xmap.h>
+
+#include "utils/ctpl.h"
 #include "mini-mol/mini-mol.hh"
 #include "geometry/protein-geometry.hh"
 
@@ -206,7 +208,8 @@ namespace coot {
       void refine_end(coot::minimol::fragment *many_residues,
 		      int seqnum, int offset,
 		      const protein_geometry &geom,
-		      const clipper::Xmap<float> &xmap_in);
+		      const clipper::Xmap<float> &xmap_in,
+		      ctpl::thread_pool *thread_pool_p, int n_threads);
 
       // because kludge, this needs to be public
       bool does_residue_fit(const coot::minimol::residue &res,

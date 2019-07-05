@@ -741,10 +741,9 @@ coot::multi_build_terminal_residue_addition::forwards_2018(unsigned int iseed,
 							   bool debug_trials) {
 
 
-#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
    unsigned int n_threads = coot::get_max_number_of_threads();
+   if (n_threads < 1) n_threads = 1;
    ctpl::thread_pool thread_pool(n_threads);
-#endif
 
    minimol::fragment many_residues; // add residue to this, and return it
    many_residues.addresidue(res_p, false);
@@ -774,10 +773,10 @@ coot::multi_build_terminal_residue_addition::forwards_2018(unsigned int iseed,
                                         // downweight solutions that have density where PRO CD is.
 
       residue_by_phi_psi addres("C", res_p, chain_id, residue_type, 20);
-#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+
       if (n_threads >= 1)
 	    addres.thread_pool(&thread_pool, n_threads);
-#endif
+
       if (debug_trials)
 	 addres.write_trial_pdbs();
       addres.set_upstream_neighbour(res_prev_p);
@@ -812,7 +811,7 @@ coot::multi_build_terminal_residue_addition::forwards_2018(unsigned int iseed,
       // refine res and its neighbour and one more, update the atoms of many_residues
       //
       int offset = 1;
-      refine_end(&many_residues, res.seqnum, offset, geom, xmap);
+      refine_end(&many_residues, res.seqnum, offset, geom, xmap, &thread_pool, n_threads);
 
       // copy res after refinement.  Maybe I can use a reference?
 
@@ -924,10 +923,11 @@ coot::multi_build_terminal_residue_addition::backwards_2018(unsigned int iseed,
 							    const clipper::Xmap<float> &xmap,
 							    std::pair<float, float> mv,
 							    bool debug_trials) {
-#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+
    unsigned int n_threads = get_max_number_of_threads();
+   if (n_threads < 1) n_threads = 1;
    ctpl::thread_pool thread_pool(n_threads);
-#endif
+
    minimol::fragment many_residues;
    many_residues.addresidue(res_p, false);
 
@@ -953,10 +953,8 @@ coot::multi_build_terminal_residue_addition::backwards_2018(unsigned int iseed,
       std::string residue_type = "ALA"; // for the first try. If it's ALA we will add CB.
       residue_by_phi_psi addres("MN", res_p, chain_id, residue_type, 20);
 
-#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
-      if (n_threads >= 1)
-	    addres.thread_pool(&thread_pool, n_threads);
-#endif
+      addres.thread_pool(&thread_pool, n_threads);
+
       addres.set_downstream_neighbour(res_prev_p);
       addres.import_map_from(xmap);
       minimol::fragment f = addres.best_fit_phi_psi(n_trials, -1); // offset = -1
@@ -984,7 +982,7 @@ coot::multi_build_terminal_residue_addition::backwards_2018(unsigned int iseed,
 	 many_residues[res.seqnum].addatom(" CB ", " C", cbeta_info.second, "", 1.0, 30.0);
       }
       int offset = -1;
-      refine_end(&many_residues, res.seqnum, offset, geom, xmap);
+      refine_end(&many_residues, res.seqnum, offset, geom, xmap, &thread_pool, n_threads);
       // now extract res from many residues now that it has been updated.
       res = many_residues[res.seqnum];
       happy_fit = does_residue_fit(res, xmap, mv);
@@ -1122,15 +1120,14 @@ coot::multi_build_terminal_residue_addition::try_to_recover_from_bad_fit_forward
    rpp.set_upstream_neighbour(res_prev_p);
    rpp.import_map_from(xmap);
 
-#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
    // Without adding the thread pool, we go through a different code path in fit_terminal_residue_generic()
    // and that can be useful for debugging.
    //
    unsigned int n_threads_max = coot::get_max_number_of_threads();
+   if (n_threads_max < 1) n_threads_max = 1;
+
    ctpl::thread_pool thread_pool(n_threads_max); // pass the tread pool
-   if (n_threads_max >= 1)
-      rpp.thread_pool(&thread_pool, n_threads_max);
-#endif
+   rpp.thread_pool(&thread_pool, n_threads_max);
 
    minimol::fragment f = rpp.best_fit_phi_psi(n_trials * 8, 1);
 
@@ -1139,7 +1136,7 @@ coot::multi_build_terminal_residue_addition::try_to_recover_from_bad_fit_forward
    // No, it's not. Add refinement.
 
    int new_res_seqnum = res_p->GetSeqNum()+1;
-   refine_end(&f, new_res_seqnum, 1, geom, xmap);
+   refine_end(&f, new_res_seqnum, 1, geom, xmap, &thread_pool, n_threads_max);
 
    const minimol::residue &res = f[new_res_seqnum];
    bool liberal_fit = true;
@@ -1224,6 +1221,10 @@ coot::multi_build_terminal_ALA(int offset, // direction
 			       const clipper::Xmap<float> &xmap,
 			       std::pair<float, float> mv,
 			       bool debug_trials) {
+
+   unsigned int n_threads = coot::get_max_number_of_threads();
+   if (n_threads < 1) n_threads = 1;
+   ctpl::thread_pool thread_pool(n_threads);
 
    // kludge, for backwards compatibility. Maybe I should just delete this function
    //
@@ -1322,7 +1323,7 @@ coot::multi_build_terminal_ALA(int offset, // direction
 
 	    // refine res and its neighbour, update the atoms of many_residues
 	    //
-	    mbtra.refine_end(&many_residues, res.seqnum, offset, geom, xmap);
+	    mbtra.refine_end(&many_residues, res.seqnum, offset, geom, xmap, &thread_pool, n_threads);
 
 	    // ------------- For next round ----------------
 	    //
@@ -1347,7 +1348,8 @@ void
 coot::multi_build_terminal_residue_addition::refine_end(coot::minimol::fragment *many_residues,
 							int seqnum, int offset,
 							const coot::protein_geometry &geom,
-							const clipper::Xmap<float> &xmap) {
+							const clipper::Xmap<float> &xmap,
+							ctpl::thread_pool *thread_pool_p, int n_threads) {
 
    mmdb::Manager *mol = new mmdb::Manager; // d
    mmdb::Model *model_p = new mmdb::Model;
@@ -1425,6 +1427,7 @@ coot::multi_build_terminal_residue_addition::refine_end(coot::minimol::fragment 
       }
    }
    restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs, &xmap);
+   restraints.thread_pool(thread_pool_p, n_threads);
 
    // Does this make things slower? (seems so, try passing the thread pool
    // or test how long it takes to create and add).
@@ -1436,7 +1439,7 @@ coot::multi_build_terminal_residue_addition::refine_end(coot::minimol::fragment 
 
    pseudo_restraint_bond_type pseudos = NO_PSEUDO_BONDS;
    bool do_internal_torsions = false;
-   float weight = 60;
+   float weight = 60.0f;
 
    restraints.set_quiet_reporting();
    restraints.add_map(weight);

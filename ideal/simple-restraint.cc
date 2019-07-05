@@ -2353,6 +2353,10 @@ coot::electron_density_score_from_restraints_using_atom_index_range(int thread_i
 
    if (restraints_p->include_map_terms() == 1) {
 
+      if (false)
+	 std::cout << "debug:: " << __FUNCTION__ << "() range: "
+		   << atom_index_range.first << " " << atom_index_range.second << std::endl;
+
       for (unsigned int iat=atom_index_range.first; iat<atom_index_range.second; iat++) {
 
 	 // we get a crash around here. Protect from wrong index into v vector
