@@ -1,10 +1,33 @@
 
    For Release 0.8.9.3
 
-   o Make a "I like the graphics size and postion" - like for dialogs.
+   o read pdb3siu.ent and write it out as a cif. ::: 2
 
-   o Refine a bit of distorted RNA
-     Marc Leibundgut 26/06/2019.
+   o Add a residue to a residue that has a TER. The TER is kept on the added-to-residue.
+     It should not be. [Christine Gee] ::: 1
+
+   o Read in a PDB file that has a TER. Write it out as a mmCIF. It has a blank atom at the
+     end - it should not [Nigel Moriarty]. mmdb bug? ::: 1
+
+   o Huw (from York) sent a message about pygtk usage. Needs to be incorportated. ::: 1
+
+   o Fix up dialog in RCrane, like above hopefully.  ::: 1
+
+   o Refine a bit of distorted RNA: Marc Leibundgut 26/06/2019.
+
+* Won't fix in 0.8.9.x.
+
+   o crash: Use CCP4 Coot, Accept Baton Atom then JED flip. ::: 0.5
+
+* Can't reproduce.
+
+   o Patterson for Randy
+
+* Done.
+
+   o Make a "I like the graphics size and position" - like for dialogs.
+
+* Done.
 
    o backup format change to mmdb-binary.
 
@@ -33,20 +56,6 @@ Thread 0 Crashed:: Dispatch queue: com.apple.main-thread
 
 * Done
 
-   o Huw (from York) sent a message about pygtk usage. Needs to be incorportated.
-
-   o Fix up dialog in RCrane, like above hopefully.
-
-   o crash: Use CCP4 Coot, Accept Baton Atom then JED flip.
-
-   o Add a residue to a residue that is has a TER. The TER is kept on the added-to-residue.
-     It should not be. [Christine Gee]
-
-   o Read in a PDB file that has a TER. Write it out as a mmCIF. It has a blank atom at the
-     end - it should not [Nigel Moriarty].
-
-   o Patterson for Randy
-
    o Torsion general - message if atoms are not in the same residue
 
    o Torsion general - message if atoms were double-picked
@@ -61,13 +70,15 @@ Thread 0 Crashed:: Dispatch queue: com.apple.main-thread
 
    o fix the colours of (say) 5vic in Calpha Backbone mode
 
+* Done.
+
    o refine residue ranges with ins codes (antibodies)
 
 * Seriously consider not doing this - it is terrible spaghetti - and works in the 0.9 rewrite.
 
    o Make the ligand fitting progress bar work for the fitting part (use 2 progress bars?)
 
-* Punt. Sorry Keith.
+* Punt. Nice to have, but too much rewiring. Sorry Keith.
 
 ----
 

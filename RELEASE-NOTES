@@ -1,4 +1,24 @@
 
+  Pre-Release 0.8.9.3
+
+  o FEATURE: Add a menu item to save graphics window size and position
+
+  o CHANGE:  Give the map number in the title bar of the density fit validation graph [EJD]
+
+  o CHANGE:  Don't dismiss the ligands dialog if the search was made with 0 ligands (QoL)
+
+  o CHANGE:  Symmetry Dialog changes are applied immediately - after the guidelines
+
+  o CHANGE:  Curlew has a place on the File menu
+
+  o BUG-FIX: Fix crash on merge molecules
+
+  o BUG-FIX: Refinement of residues with alt-confs improved
+
+  o BUG-FIX: Fix indexing of reflection in FFT for Patterson from Intensities [Randy Read]
+
+  o BUG-FIX: Fix colour of the first molecule in CA/Backbone mode [Ronan]
+
 -----
 
   Release 0.8.9.2
