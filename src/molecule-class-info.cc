@@ -1602,7 +1602,7 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
 							      bool is_anomalous_map,
 							      bool swap_difference_map_colours) {
 
-   if (true)
+   if (false)
       std::cout << "------------------- initialize_map_things_on_read_molecule() "
 		<< " imol_no " << imol_no << " is_anomalous_map: " << is_anomalous_map
 		<< " is difference map " << is_diff_map << " swapcol: " << swap_difference_map_colours
@@ -9098,3 +9098,84 @@ molecule_class_info_t::print_secondary_structure_info() {
    }
 }
 
+
+// static
+int
+molecule_class_info_t::watch_coordinates_file(gpointer data) {
+
+   int status = 1;
+
+   updating_coordinates_molecule_parameters_t *ucp = static_cast<updating_coordinates_molecule_parameters_t *>(data);
+   const updating_coordinates_molecule_parameters_t &rucp = *ucp;
+
+   std::cout << "watching " << rucp.imol << " " << rucp.pdb_file_name << std::endl;
+   status = graphics_info_t::molecules[rucp.imol].update_coordinates_molecule_if_changed(rucp);
+   return status;
+}
+
+// bool continue_watching_coordinates_file;
+// updating_coordinates_molecule_parameters_t updating_coordinates_molecule_previous;
+
+int
+molecule_class_info_t::update_coordinates_molecule_if_changed(const updating_coordinates_molecule_parameters_t &ucp_in) {
+
+   int status = 1;
+   if (continue_watching_coordinates_file) {
+      bool update_it = false;
+
+      updating_coordinates_molecule_parameters_t ucp = ucp_in;
+      struct stat s;
+      int status = stat(ucp.pdb_file_name.c_str(), &s);
+      if (status != 0) {
+	 std::cout << "WARNING:: update_map_from_mtz_if_changed() Error reading "
+		   << ucp.pdb_file_name << std::endl;
+      } else {
+	 if (!S_ISREG (s.st_mode)) {
+	    std::cout << "WARNING:: update_map_from_mtz_if_changed() not a reguular file: "
+		      << ucp.pdb_file_name << std::endl;
+	    continue_watching_coordinates_file = false;
+	 } else {
+	    // happy path
+	    ucp.ctime = s.st_ctimespec;
+	 }
+      }
+
+      if (true)
+	 std::cout << "#### ctime comparision: imol << " << imol_no << " was "
+		   << updating_coordinates_molecule_previous.ctime.tv_sec << " " << updating_coordinates_molecule_previous.ctime.tv_nsec
+		   << " now " << ucp.ctime.tv_sec << " " << ucp.ctime.tv_nsec
+		   << std::endl;
+
+      if (ucp.ctime.tv_sec > updating_coordinates_molecule_previous.ctime.tv_sec) {
+	 update_it = true;
+      } else {
+	 if (ucp.ctime.tv_sec == updating_coordinates_molecule_previous.ctime.tv_sec) {
+	    if (ucp.ctime.tv_nsec > updating_coordinates_molecule_previous.ctime.tv_nsec) {
+	       update_it = true;
+	    }
+	 }
+      }
+      if (update_it) {
+
+	 std::string cwd = coot::util::current_working_dir();
+	 short int reset_rotation_centre = 0;
+	 short int is_undo_or_redo = 0;
+	 bool allow_duplseqnum = true;
+	 bool v2_convert_flag = false;
+
+	 handle_read_draw_molecule(imol_no, ucp.pdb_file_name, cwd,
+				   reset_rotation_centre,
+				   is_undo_or_redo,
+				   allow_duplseqnum,
+				   v2_convert_flag,
+				   bond_width,
+				   Bonds_box_type(),
+				   false);
+	 updating_coordinates_molecule_previous = ucp;
+	 graphics_info_t::graphics_draw();
+      }
+   } else {
+      status = 0;
+   }
+   return status;
+}

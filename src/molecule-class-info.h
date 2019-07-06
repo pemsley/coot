@@ -120,6 +120,7 @@ namespace molecule_map_type {
 #include "rama-rota-score.hh"
 #include "merge-molecule-results-info-t.hh"
 #include "updating-map-params.hh"
+#include "updating-coordinates-molecule-parameters.hh"
 
 namespace coot {
 
@@ -3189,6 +3190,10 @@ public:        //                      public
    updating_map_params_t updating_map_previous;
    int update_map_from_mtz_if_changed(const updating_map_params_t &rump);
 
+   static int watch_coordinates_file(gpointer data);
+   bool continue_watching_coordinates_file;
+   updating_coordinates_molecule_parameters_t updating_coordinates_molecule_previous;
+   int update_coordinates_molecule_if_changed(const updating_coordinates_molecule_parameters_t &p);
 
 };
 

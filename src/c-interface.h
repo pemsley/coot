@@ -644,6 +644,9 @@ float idle_function_rotate_angle();
   filename (can be pdb, cif or shelx format)  */
 int handle_read_draw_molecule(const char *filename);
 
+
+int make_updating_model_molecule(const char *filename);
+
 /*! \brief enable reading PDB/pdbx files with duplicate sequence numbers */
 void allow_duplicate_sequence_numbers();
 
@@ -1435,7 +1438,7 @@ int make_updating_map(const char *mtz_file_name,
 		      int use_weights, int is_diff_map);
 
 
-void stop_updating_map(int imol);
+void stop_updating_molecule(int imol);
 
 #ifdef __cplusplus
 #ifdef USE_GUILE

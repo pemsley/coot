@@ -3422,7 +3422,6 @@ molecule_class_info_t::watch_mtz(gpointer data) {
 
    updating_map_params_t *ump = static_cast<updating_map_params_t *>(data);
    const updating_map_params_t &rump = *ump;
-   graphics_info_t::molecules[rump.imol].continue_watching_mtz = true;
    status = graphics_info_t::molecules[rump.imol].update_map_from_mtz_if_changed(rump);
    return status;
 }
@@ -3483,6 +3482,7 @@ molecule_class_info_t::update_map_from_mtz_if_changed(const updating_map_params_
 			   ump.is_difference_map,
 			   graphics_info_t::map_sampling_rate);
 	 updating_map_previous = ump;
+	 graphics_info_t::graphics_draw();
       }
    } else {
       status = 0;

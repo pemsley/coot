@@ -437,8 +437,6 @@ int make_updating_map(const char *mtz_file_name,
    int status = 1;
    int imol = make_and_draw_map(mtz_file_name, f_col, phi_col, weight_col, use_weights, is_diff_map);;;
 
-   std::cout << "debug:: in make_updating_map() imol_map " << imol << std::endl;
-
    if (is_valid_map_molecule(imol)) {
       // use a better constructor?
       updating_map_params_t *ump = new updating_map_params_t(imol, mtz_file_name,
@@ -454,11 +452,15 @@ int make_updating_map(const char *mtz_file_name,
 }
 
 
-void stop_updating_map(int imol) {
+void stop_updating_molecule(int imol) {
 
    if (is_valid_map_molecule(imol)) {
       // stop watch
       graphics_info_t::molecules[imol].continue_watching_mtz = false;
+   }
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].continue_watching_coordinates_file = false;
    }
 
 }
