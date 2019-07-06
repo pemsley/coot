@@ -1394,7 +1394,7 @@ int map_line_width_state();
 int make_and_draw_map(const char *mtz_file_name, 
 		      const char *f_col, const char *phi_col, 
 		      const char *weight,
-		      int use_weights, int is_diff_map); 
+		      int use_weights, int is_diff_map);
 
 /*! \brief as the above function, execpt set refmac parameters too
 
@@ -1428,6 +1428,14 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 						   short int use_reso_limits,
 						   float low_reso_limit,
 						   float high_reso_lim);
+
+int make_updating_map(const char *mtz_file_name, 
+		      const char *f_col, const char *phi_col, 
+		      const char *weight,
+		      int use_weights, int is_diff_map);
+
+
+void stop_updating_map(int imol);
 
 #ifdef __cplusplus
 #ifdef USE_GUILE

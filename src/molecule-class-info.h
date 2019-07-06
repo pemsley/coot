@@ -119,6 +119,7 @@ namespace molecule_map_type {
 #include "atom-name-bits.hh"
 #include "rama-rota-score.hh"
 #include "merge-molecule-results-info-t.hh"
+#include "updating-map-params.hh"
 
 namespace coot {
 
@@ -797,6 +798,9 @@ public:        //                      public
 
       // single model view
       single_model_view_current_model_number = 0; // all models
+
+      // mtz updating
+      continue_watching_mtz = false;
    }
 
    int handle_read_draw_molecule(int imol_no_in,
@@ -3179,6 +3183,11 @@ public:        //                      public
 
    mean_and_variance<float> map_histogram_values;
    mean_and_variance<float> set_and_get_histogram_values(unsigned int n_bins); // fill above
+
+   static int watch_mtz(gpointer data); // return 0 to stop watching
+   bool continue_watching_mtz;
+   updating_map_params_t updating_map_previous;
+   int update_map_from_mtz_if_changed(const updating_map_params_t &rump);
 
 
 };
