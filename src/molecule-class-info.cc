@@ -9140,7 +9140,7 @@ molecule_class_info_t::update_coordinates_molecule_if_changed(const updating_coo
 	 }
       }
 
-      if (true)
+      if (false)
          std::cout << "#### ctime comparision: imol << " << imol_no << " was "
             << updating_coordinates_molecule_previous.ctime.tv_sec << " " << updating_coordinates_molecule_previous.ctime.tv_nsec
             << " now " << ucp.ctime.tv_sec << " " << ucp.ctime.tv_nsec
