@@ -3,8 +3,8 @@
 
    o read pdb3siu.ent and write it out as a cif. ::: 2
 
-   o Add a residue to a residue that has a TER. The TER is kept on the added-to-residue.
-     It should not be. [Christine Gee] ::: 1
+   o add a property/timeout to a map (or model) that looks at a file and if it gets updated
+     then it recreates itself from that file.
 
    o Read in a PDB file that has a TER. Write it out as a mmCIF. It has a blank atom at the
      end - it should not [Nigel Moriarty]. mmdb bug? ::: 1
@@ -12,6 +12,14 @@
    o Huw (from York) sent a message about pygtk usage. Needs to be incorportated. ::: 1
 
    o Fix up dialog in RCrane, like above hopefully.  ::: 1
+
+   o other people running the crash catcher. Is it sufficiently robust? coot-experimental?
+     Run the hal-built binary on pc4
+
+   o Add a residue to a residue that has a TER. The TER is kept on the added-to-residue.
+     It should not be. [Christine Gee] ::: 1
+
+* Fixed already.
 
    o Refine a bit of distorted RNA: Marc Leibundgut 26/06/2019.
 
@@ -41,9 +49,6 @@
    o density fit graph should say both the map and the model in the title
 
 * Done.
-
-   o other people running the crash catcher. Is it sufficiently robust? coot-experimental?
-     Run the hal-built binary on pc4
 
    o Refine residues with alt confs (e.g. A71)
 
