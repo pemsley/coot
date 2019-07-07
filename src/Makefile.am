@@ -516,6 +516,7 @@ coot_bin_SOURCES = \
 	ncs.hh 		         \
 	model-view.hh 		 \
 	updating-map-params.hh   \
+	updating-coordinates-molecule-parameters.hh \
 	view.hh 		 \
 	view.cc 		 \
 	new-centre.hh            \
