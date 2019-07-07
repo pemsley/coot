@@ -6291,7 +6291,13 @@ molecule_class_info_t::save_coordinates(const std::string filename,
    } else {
       mmdb::byte bz = mmdb::io::GZM_NONE;
 
-      ierr = write_atom_selection_file(atom_sel, filename, bz,
+      bool write_as_cif = false;
+      if (coot::is_mmcif_filename(filename))
+         write_as_cif = true;
+
+      std::cout << "in save_coordinates() write_as_cif is " <<  write_as_cif << std::endl;
+
+      ierr = write_atom_selection_file(atom_sel, filename, write_as_cif, bz,
                                        save_hydrogens, save_aniso_records,
                                        save_conect_records);
    }
