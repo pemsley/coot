@@ -3,6 +3,8 @@
 
   o FEATURE: Add a menu item to save graphics window size and position
 
+  o FEATURE: make_updating_model_molecule() and make_updating_map() added to the API.
+
   o CHANGE:  Give the map number in the title bar of the density fit validation graph [EJD]
 
   o CHANGE:  Don't dismiss the ligands dialog if the search was made with 0 ligands (QoL)
