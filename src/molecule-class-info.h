@@ -2978,6 +2978,7 @@ public:        //                      public
    GLuint m_VertexBufferID;
    GLuint m_IndexBufferID;
    GLuint m_IndexBuffer_for_triangles_ID; // solid and transparent surfaces
+   GLuint m_NormalBufferID;
 
    float density_surface_opacity;
    void setup_density_surface_material(bool solid_mode, float opacity,
