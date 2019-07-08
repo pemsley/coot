@@ -45,8 +45,7 @@ void main() {
   m  = 0.9 * gl_FragCoord.z;
   gl_FragColor = mix(line_color, background_color, m);
   gl_FragColor = line_color;
-  gl_FragColor = vec4(vec3(1.0 - gl_FragCoord.z), 1.0);
-  // gl_FragColor = vec4(Depth, Depth, Depth, 1.0);
+  gl_FragColor = vec4(vec3(1.0 - gl_FragCoord.z), 1.0) * dp;
 
   
 
