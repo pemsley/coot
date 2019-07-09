@@ -1633,7 +1633,7 @@ namespace coot {
       enum restraint_addition_mode_t { AUTO_HELIX, EVERYTHING_HELICAL};
       void make_helix_pseudo_bond_restraints();
       void make_strand_pseudo_bond_restraints();
-      void make_helix_pseudo_bond_restraints_from_res_vec(restraint_addition_mode_t restraint_addition_mode);
+      void make_helix_pseudo_bond_restraints_from_res_vec();
       void make_helix_pseudo_bond_restraints_from_res_vec_auto();
 
       bool link_infos_are_glycosidic_p(const std::vector<std::pair<chem_link, bool> > &link_infos) const;
@@ -2438,6 +2438,9 @@ namespace coot {
       std::pair<unsigned int, unsigned int> restraints_limits_start_pos;
       std::pair<unsigned int, unsigned int> restraints_limits_trans_peptide;
       // std::pair<unsigned int, unsigned int> restraints_limits_target_pos; // atom pull
+
+      // so that each thread gets a more or less similar number of plane restraints
+      void disperse_plane_restraints();
 
       void set_geman_mcclure_alpha(double alpha_in) { geman_mcclure_alpha = alpha_in; }
 

@@ -4701,12 +4701,35 @@ coot::util::occupancy_sum(mmdb::PAtom *atoms, int n_atoms) {
 
 short int
 coot::util::is_nucleotide(mmdb::Residue *residue_p) {
-   
+
+   // Ancient function!
+
    short int nuc = 0;
 
    if (residue_p) { 
       std::string type(residue_p->name); // all spaces cut
 
+      if (type == "A") {
+	 nuc = 1;
+      } else {
+	 if (type == "C") {
+	    nuc = 1;
+	 } else {
+	    if (type == "G") {
+	       nuc = 1;
+	    } else {
+	       if (type == "T") {
+		  nuc = 1;
+	       } else {
+		  if (type == "U") {
+		     nuc = 1;
+		  }
+	       }
+	    }
+	 }
+      }
+      if (nuc) return nuc;
+      
       if (type == "Ad") { 
 	 nuc = 1;
       } else { 
