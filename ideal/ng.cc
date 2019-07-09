@@ -160,6 +160,8 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 	 std::vector<stack_and_pair::paired_residues_info_t> pr =
 	    sp.paired_residues(mol, residues_vec, all_atoms_are_moving_flag, geom);
 
+	 auto tp_8 = std::chrono::high_resolution_clock::now();
+
 	 unsigned int n_base_pairing_bonds = 0;
 	 for (std::size_t i=0; i<pr.size(); i++) {
 	    for (std::size_t j=0; j<pr[i].atom_pair_vec.size(); j++) {
@@ -177,15 +179,16 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 	 }
 	 std::cout << "   Make " << n_base_pairing_bonds << " base pairing Hydrogen bonds"
 		   << std::endl;
-	 auto tp_8 = std::chrono::high_resolution_clock::now();
+	 auto tp_9 = std::chrono::high_resolution_clock::now();
 
 	 add_extra_restraints(imol, extra_restraints, geom);
-	 auto tp_9 = std::chrono::high_resolution_clock::now();
-	 auto d76 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_7 - tp_6).count();
-	 auto d87 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_8 - tp_7).count();
-	 auto d98 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_9 - tp_8).count();
+	 auto tp_10 = std::chrono::high_resolution_clock::now();
+	 auto d76  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_7  - tp_6).count();
+	 auto d87  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_8  - tp_7).count();
+	 auto d98  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_9  - tp_8).count();
+	 auto d109 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_10 - tp_8).count();
 	 std::cout << "------------------ timings: for make_restraints_ng(): stacking and pairing: "
-		   << d76 << " " << d87 << " " << d98 << std::endl;
+		   << d76 << " " << d87 << " " << d98 << " " << d109 << std::endl;
       }
 
       make_df_restraints_indices();
