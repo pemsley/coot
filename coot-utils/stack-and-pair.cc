@@ -200,6 +200,8 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
 				      bool residues_are_all_moving_flag,
 				      const coot::protein_geometry &geom) {
 
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+
    std::vector<coot::stack_and_pair::paired_residues_info_t> v;
    std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > atom_vec;
 
@@ -216,11 +218,14 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
    int n_selected_atoms_all;
    mol->GetSelIndex(selection_handle_all, selected_atoms_all, n_selected_atoms_all);
 
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+
    if (residues_are_all_moving_flag) {
       selection_handle_moving = selection_handle_all;
       n_selected_atoms_moving = n_selected_atoms_all;
       selected_atoms_moving = selected_atoms_all;
    } else {
+      auto tp_2 = std::chrono::high_resolution_clock::now();
       selection_handle_moving = mol->NewSelection(); // d
       for (unsigned int ires=0; ires<residues_vec.size(); ires++) {
 	 if (residues_vec[ires].first == false) {
@@ -238,9 +243,15 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
 			     );
 	 }
       }
+      auto tp_3 = std::chrono::high_resolution_clock::now();
+      auto d32 = std::chrono::duration_cast<std::chrono::microseconds>(tp_3 - tp_3).count();
+      std::cout << "------------------ timings: for residues SelectAtoms() "
+		<< d32 << std::endl;
       mol->GetSelIndex(selection_handle_moving, selected_atoms_moving, n_selected_atoms_moving);
    }
    
+   auto tp_4 = std::chrono::high_resolution_clock::now();
+   auto tp_5 = std::chrono::high_resolution_clock::now();
    if (n_selected_atoms_moving > 1) {
 
       // Does this selection contain nucleic acid?
@@ -255,6 +266,7 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
 	 int n_contacts;
 	 long i_contact_group = 1;
 
+	 tp_4 = std::chrono::high_resolution_clock::now();
 	 mol->SeekContacts(selected_atoms_moving, n_selected_atoms_moving,
 			   selected_atoms_all, n_selected_atoms_all,
 			   0.01, dist_crit,
@@ -264,6 +276,7 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
 
 	 std::cout << "pairing:: found n_contacts in atom selection: " << n_contacts << std::endl;
 
+	 tp_5 = std::chrono::high_resolution_clock::now();
 	 if (n_contacts > 0) {
 	    if (pscontact) {
 
@@ -332,6 +345,7 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
 	 }
       }
    }
+   auto tp_6 = std::chrono::high_resolution_clock::now();
 
 
    // If there are 2 or more bonds to any residue from the same (other) residue, then we should add
@@ -371,10 +385,21 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
 	 v.push_back(pri);
       }
    }
+   auto tp_7 = std::chrono::high_resolution_clock::now();
 
    mol->DeleteSelection(selection_handle_all);
    mol->DeleteSelection(selection_handle_moving);
 
+   auto tp_8 = std::chrono::high_resolution_clock::now();
+
+   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   auto d54 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_5 - tp_4).count();
+   auto d65 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_6 - tp_5).count();
+   auto d76 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_7 - tp_6).count();
+   auto d87 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_8 - tp_7).count();
+   std::cout << "------------------ timings: for paired_residues(): "
+	     << d10 << " " << d54 << " " << d65 << " "
+	     << d76 << "  " << d87 << " " << std::endl;
    return v;
 }
 
