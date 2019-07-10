@@ -244,9 +244,9 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
 	 }
       }
       auto tp_3 = std::chrono::high_resolution_clock::now();
-      auto d32 = std::chrono::duration_cast<std::chrono::microseconds>(tp_3 - tp_3).count();
+      auto d32 = std::chrono::duration_cast<std::chrono::microseconds>(tp_3 - tp_2).count();
       std::cout << "------------------ timings: for residues SelectAtoms() "
-		<< d32 << std::endl;
+		<< d32 << " ms" << std::endl;
       mol->GetSelIndex(selection_handle_moving, selected_atoms_moving, n_selected_atoms_moving);
    }
    
@@ -274,11 +274,17 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
 			   pscontact, n_contacts,
 			   0, &my_matt, i_contact_group);
 
-	 std::cout << "pairing:: found n_contacts in atom selection: " << n_contacts << std::endl;
+	 if (false)
+	    std::cout << "pairing:: found n_contacts in atom selection: " << n_contacts << std::endl;
 
 	 tp_5 = std::chrono::high_resolution_clock::now();
 	 if (n_contacts > 0) {
 	    if (pscontact) {
+
+	       // interesting Hydrogen bonds - but not base pairing
+	       std::set<std::string> excluded_oxygens;
+	       excluded_oxygens.insert(" OP1"); excluded_oxygens.insert(" OP2"); excluded_oxygens.insert(" O2'");
+	       excluded_oxygens.insert(" O3'"); excluded_oxygens.insert(" O5'");
 
 	       int hb_type_udd_handle = mark_donors_and_acceptors(mol, selection_handle_all, geom); // using UDD data
 
@@ -324,13 +330,40 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
 
 					  if (similar_normals(at_1->residue, at_2->residue, normal_map)) {
 
-					     if (false)
-						std::cout << "Push back an atom pair!"
-							  << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
-							  << std::endl;
+					     // also, to stop base pairing the residue above
+					     // or below, we need to check the dot product
+					     // of the base and the line between the H-bonded atoms.
+					     // They should be almost pependicular - and won't be
+					     // when this base is paired with the (wrong) base
+					     // above or below on the other side.
 
-					     std::pair<mmdb::Atom *, mmdb::Atom *> p(at_1, at_2);
-					     atom_vec.push_back(p);
+					     clipper::Coord_orth pt_1 = co(at_1);
+					     clipper::Coord_orth pt_2 = co(at_2);
+					     clipper::Coord_orth atom_atom_unit_vector((pt_2 - pt_1).unit());
+
+					     double dp_1 = clipper::Coord_orth::dot(atom_atom_unit_vector, normal_map[at_1->residue]);
+					     double dp_2 = clipper::Coord_orth::dot(atom_atom_unit_vector, normal_map[at_2->residue]);
+
+					     if (false) {
+						std::cout << " dot product 1 " << dp_1 << " " << atom_spec_t(at_1) << " " << atom_spec_t(at_2) << "\n";
+						std::cout << " dot product 2 " << dp_2 << " " << atom_spec_t(at_1) << " " << atom_spec_t(at_2) << "\n";
+					     }
+
+					     if (std::abs(dp_1) < 0.5) {
+						if (std::abs(dp_2) < 0.5) {
+
+						   // no ribose or phosphate atoms:
+						   std::string name_1(at_1->name);
+						   std::string name_2(at_2->name);
+						   if (excluded_oxygens.find(name_1) == excluded_oxygens.end()) {
+						      if (excluded_oxygens.find(name_2) == excluded_oxygens.end()) {
+
+							 std::pair<mmdb::Atom *, mmdb::Atom *> p(at_1, at_2);
+							 atom_vec.push_back(p);
+						      }
+						   }
+						}
+					     }
 					  }
 				       }
 				    }

@@ -172,9 +172,11 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 	       at_1->GetUDData(udd_atom_index_handle, index_1);
 	       at_2->GetUDData(udd_atom_index_handle, index_2);
 	       std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
-	       // This should be hydrogen bond type (whatever that means)
-	       add(BOND_RESTRAINT, index_1, index_2, fixed_flags, 2.8, 0.05, 1.2);
-	       n_base_pairing_bonds++;
+	       if (!fixed_flags[0] || fixed_flags[1]) {
+		  // This should be hydrogen bond type (whatever that means)
+		  add(BOND_RESTRAINT, index_1, index_2, fixed_flags, 2.8, 0.05, 1.2);
+		  n_base_pairing_bonds++;
+	       }
 	    }
 	 }
 	 std::cout << "   Make " << n_base_pairing_bonds << " base pairing Hydrogen bonds"
@@ -188,7 +190,7 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 	 auto d98  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_9  - tp_8).count();
 	 auto d109 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_10 - tp_8).count();
 	 std::cout << "------------------ timings: for make_restraints_ng(): stacking and pairing: "
-		   << d76 << " " << d87 << " " << d98 << " " << d109 << std::endl;
+		   << d76 << " " << d87 << " " << d98 << " " << d109 <<std::endl;
       }
 
       make_df_restraints_indices();
