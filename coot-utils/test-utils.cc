@@ -1216,6 +1216,8 @@ test_make_a_difference_map(int argc, char **argv) {
 	 for (std::size_t jj=0; jj<debug_B_offsets.size(); jj++) {
 	    float B_offset = debug_B_offsets[jj];
 
+	    xmap_calc.fft_to(fphi_calc);
+
 	    std::vector<double> sum_top_for_bin(n_bins, 0.0);
 	    std::vector<double> sum_bot_for_bin(n_bins, 0.0);
 	    std::vector<double> sum_fc_for_bin(n_bins, 0.0);
