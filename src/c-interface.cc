@@ -470,6 +470,25 @@ int handle_read_draw_molecule(const char *filename) {
    return handle_read_draw_molecule_with_recentre(filename, r);
 }
 
+int make_updating_model_molecule(const char *filename) {
+
+   int status = 1;
+   int imol = handle_read_draw_molecule_with_recentre(filename, 0);
+
+   if (is_valid_model_molecule(imol)) {
+      updating_coordinates_molecule_parameters_t *ucp =
+	 new updating_coordinates_molecule_parameters_t(filename);
+      graphics_info_t::molecules[imol].continue_watching_coordinates_file = true;
+      GSourceFunc f = GSourceFunc(graphics_info_t::molecules[imol].watch_coordinates_file);
+      guint updating_mol_timeout_idx = g_timeout_add(500, f, ucp);
+      graphics_info_t::molecules[imol].continue_watching_mtz = true;
+   } else {
+      status = 0;
+   }
+   return status;
+}
+
+
 void allow_duplicate_sequence_numbers() {
 
    graphics_info_t::allow_duplseqnum = true;

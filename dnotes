@@ -8909,8 +8909,42 @@ Fri 21 Jun 2019 14:59:40 CDT
    share all your native binaries.
 
 ---
+
 Mon  8 Jul 18:12:26 BST 2019
 
   Jiffies, linux ticks, Hz
 
   $ getconf CLK_TCK
+
+
+---
+Mon 24 Jun 2019 09:41:38 CDT
+
+   PDBe: ccdutils rdkit library
+
+---
+Mon 24 Jun 2019 10:14:03 CDT
+
+   Pavel lecture:
+
+   o 3noq real Rama outlier
+     5a9z lots of Rama outliers.
+     Voth and Shing 2007 for Hydrogen bond definition
+
+---
+Mon 24 Jun 2019 10:15:05 CDT
+
+   o Mac OSX and Gtk: John Ralls https://discourse.gnome.org/t/say-hello-thread/82/35
+
+
+---
+Mon 24 Jun 2019 10:15:28 CDT
+
+   o Dominika OS: Ubuntu 16.04
+
+
+---
+Wed  3 Jul 2019 04:21:00 BST
+
+   o 26S Proteosome EMDB-4002
+

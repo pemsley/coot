@@ -691,7 +691,6 @@ void add_coot_references_button(GtkWidget *widget) {
 
 GtkWidget *wrapped_create_coot_references_dialog() {
   
-#if (((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 5)) || GTK_MAJOR_VERSION > 2)
   GtkWidget *references_dialog;
   GtkWidget *coot_reference_button;
   references_dialog = create_coot_references_dialog();
@@ -699,15 +698,10 @@ GtkWidget *wrapped_create_coot_references_dialog() {
   g_signal_emit_by_name(G_OBJECT(coot_reference_button), "clicked");
   gtk_widget_show(references_dialog);
   return references_dialog;
-#else
-  GtkWidget *w = 0;
-  return w;
-#endif // GTK_MAJOR_VERSION
 
 }
 
 
-#ifdef COOT_USE_GTK2_INTERFACE
 void fill_references_notebook(GtkToolButton *toolbutton, int reference_id) {
 
   GtkWidget *notebook;
@@ -1008,7 +1002,6 @@ void fill_references_notebook(GtkToolButton *toolbutton, int reference_id) {
   gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), 0);
 
 }
-#endif // GTK_MAJOR_VERSION
 
 void set_graphics_window_size(int x_size, int y_size) {
 
@@ -1020,13 +1013,8 @@ void set_graphics_window_size(int x_size, int y_size) {
 	 GtkWidget *win = lookup_widget(g.glarea, "window1");
 	 GtkWindow *window = GTK_WINDOW(win);
 
-#if (GTK_MAJOR_VERSION > 1)
          gtk_window_resize(window, x_size, y_size);
-#else
-	 // does this do a configure_event?  If so, then we don't need
-	 // to do the graphics_draw() below.
-         gtk_window_set_default_size(window, x_size, y_size);
-#endif
+
 	 while (gtk_events_pending())
 	    gtk_main_iteration();
 	 while (gdk_events_pending())
@@ -1178,6 +1166,53 @@ store_window_position(int window_type, GtkWidget *widget) {
    }
 }
 
+#include "utils/coot-utils.hh"
+
+
+/*! \brief store the graphics window position and size to zenops-graphics-window-size-and-postion.scm in
+ *         the preferences directory. */
+void graphics_window_size_and_position_to_preferences() {
+
+   // Note to self: is there a "get preferences dir" function?
+   char *h = getenv("HOME");
+   if (h) {
+      std::string pref_dir = coot::util::append_dir_dir(h, ".coot-preferences");
+      if (! coot::is_directory_p(pref_dir)) {
+         // make it
+	 // pref_dir = coot::get_directory(pref_dir); // oops not in this branch.
+	 struct stat s;
+	 int fstat = stat(pref_dir.c_str(), &s);
+	 if (fstat == -1 ) { // file not exist
+	    int status = coot::util::create_directory(pref_dir);
+	 }
+      }
+      if (coot::is_directory_p(pref_dir)) {
+         graphics_info_t g;
+         int x  = g.graphics_x_position;
+         int y  = g.graphics_y_position;
+         int xs = g.graphics_x_size;
+         int ys = g.graphics_y_size;
+	 std::string file_name = coot::util::append_dir_file(pref_dir, "xenops-graphics.scm");
+	 std::ofstream f(file_name.c_str());
+	 if (f) {
+	    f << "(set-graphics-window-position " << x  << " " << y  << ")\n";
+	    f << "(set-graphics-window-size     " << xs << " " << ys << ")\n";
+	 }
+	 f.close();
+	 file_name = coot::util::append_dir_file(pref_dir, "xenops-graphics.py");
+	 std::ofstream fp(file_name.c_str());
+	 if (fp) {
+	    fp << "set_graphics_window_position(" << x  << ", " << y << ")\n";
+	    fp << "set_graphics_window_size(" << xs << ", " << ys << ")\n";
+	 }
+	 fp.close();
+      }
+
+   }
+
+}
+
+
 /* a general purpose version of the above, where we pass a widget flag */
 void
 store_window_size(int window_type, GtkWidget *widget) {
@@ -1191,7 +1226,7 @@ store_window_size(int window_type, GtkWidget *widget) {
 void set_file_selection_dialog_size(GtkWidget *dialog) {
 
    if (graphics_info_t::file_selection_dialog_x_size > 0) {
-#if (GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION > 2))
+
       if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
 //          gtk_widget_set_size_request(dialog,
 //  			   graphics_info_t::file_selection_dialog_x_size,
@@ -1204,11 +1239,6 @@ void set_file_selection_dialog_size(GtkWidget *dialog) {
  			   graphics_info_t::file_selection_dialog_x_size,
 			   graphics_info_t::file_selection_dialog_y_size);
       }
-#else
-      gtk_widget_set_usize(dialog,
-			   graphics_info_t::file_selection_dialog_x_size,
-			   graphics_info_t::file_selection_dialog_y_size);
-#endif // GTK_MAJOR
    }
 }
 

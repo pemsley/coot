@@ -515,6 +515,8 @@ coot_bin_SOURCES = \
 	atom-selection.hh 	 \
 	ncs.hh 		         \
 	model-view.hh 		 \
+	updating-map-params.hh   \
+	updating-coordinates-molecule-parameters.hh \
 	view.hh 		 \
 	view.cc 		 \
 	new-centre.hh            \

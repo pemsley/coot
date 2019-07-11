@@ -193,11 +193,12 @@ molecule_class_info_t::make_patterson_using_intensities(std::string mtz_file_nam
 	 clipper::HKL_data<clipper::data32::F_phi> fphi(hklp);
 	 typedef clipper::HKL_data_base::HKL_reference_index HRI;
 	 for (HRI ih = fphi.first(); !ih.last(); ih.next()) {
-	    // clipper::data32::F_sigF f = fsig[ih.hkl()];
-	    fphi[ih].phi() = 0.0;
-	    if ( !isig[ih].missing() ) {
-	       fphi[ih].f() = isig[ih].I();
+	    if (!isig[ih.hkl()].missing()) {
+	       fphi[ih].f() =  isig[ih.hkl()].I();
+	    } else {
+	       fphi[ih].f() = 0.0;
 	    }
+	    fphi[ih].phi() = 0.0;
 	 }
 	 clipper::Grid_sampling grid;
 	 grid.init(pspgr, cell, reso);
