@@ -8349,7 +8349,7 @@ Article (PDF Available) Proceedings of the National Academy of Sciences 114(12):
 The HIV-1 envelope glycoprotein structure: nailing down a moving target
 Article
 Jan 2017IMMUNOL REV
-Andrew B WardIan A Wilson
+Andrew B Ward Ian A Wilson
 
 
 
@@ -8481,6 +8481,8 @@ Tue  4 Sep 2018 16:15:01 BST
 
    Fitting to maps described here?
 
+   Fit in map:
+   https://www.cgl.ucsf.edu/chimera/docs/UsersGuide/midas/fitmap.html
 
 ---
 Fri 21 Sep 2018 10:49:26 BST
@@ -8850,6 +8852,7 @@ Mon 27 May 2019 01:38:52 CEST
 
    https://www.reddit.com/r/vulkan/comments/brvdan/the_story_of_optimizing_a_vulkan_program/
 
+
 ----
 Wed  1 May 16:03:37 BST 2019
 
@@ -8867,3 +8870,47 @@ Tue  7 May 17:38:42 BST 2019
    https://situs.biomachina.org/tutorial_saxs.html
 
 
+---
+Thu 13 Jun 2019 08:24:13 BST
+
+   Ray tracing - ends with glass duck
+   https://github.com/ssloy/tinyraytracer/wiki/Part-1:-understandable-raytracing
+
+---
+Wed 19 Jun 2019 15:38:48 CDT
+
+   To solve the canberra problem:
+
+   sudo apt install libcanberra-gtk-module libcanberra-gtk3-module
+
+
+---
+Thu 20 Jun 2019 15:41:02 CDT
+
+   focus follow mouse:
+
+   gsettings set org.gnome.desktop.wm.preferences focus-mode 'sloppy'
+
+
+---
+Fri 21 Jun 2019 14:31:08 CDT
+
+   o phenix ncs-from-map:
+
+     https://www.phenix-online.org/documentation/reference/find_ncs_from_density.html
+
+
+---
+Fri 21 Jun 2019 14:59:40 CDT
+
+   Conan: the C / C++ Package Manager for Developers
+
+   open source, decentralized and multi-platform package manager to create and
+   share all your native binaries.
+
+---
+Mon  8 Jul 18:12:26 BST 2019
+
+  Jiffies, linux ticks, Hz
+
+  $ getconf CLK_TCK

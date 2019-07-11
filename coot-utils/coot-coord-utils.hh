@@ -1076,7 +1076,8 @@ namespace coot {
       // currently only LINKs.
       std::pair<bool, mmdb::Manager *>
       create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec,
-					    mmdb::Manager *mol_old);
+					     mmdb::Manager *mol_old,
+					     const std::pair<bool,std::string> &use_alt_conf = std::pair<bool, std::string>(false, ""));
 
       // ignore atom index transfer, return NULL on error.
       // 
@@ -1137,6 +1138,15 @@ namespace coot {
       //
       mmdb::Residue *deep_copy_this_residue(mmdb::Residue *residue);
       
+      // As above but use the alt conf flags to filter copied atoms.
+      // Can return 0 if there are no atoms copied
+      //
+      // If use_alt_conf first is true then
+      //    if use_alt_conf second is not blank
+      // then copy atoms that have blank alt conf and those
+      // with altconfs that match use_alt_conf.second.
+      mmdb::Residue *deep_copy_this_residue(mmdb::Residue *residue,
+					    const std::pair<bool,std::string> &use_alt_conf);
 
       mmdb::Residue *copy_and_delete_hydrogens(mmdb::Residue *residue_in);
       
