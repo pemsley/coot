@@ -191,48 +191,42 @@
 	(chain-id (list-ref res-spec 1))
 	(res-no   (list-ref res-spec 2))
 	(ins-code (list-ref res-spec 3)))
-    (let ((current-steps/frame (dragged-refinement-steps-per-frame))
-	  (current-rama-state (refine-ramachandran-angles-state)))
-      (set-dragged-refinement-steps-per-frame 400)
+    (let ((current-rama-state (refine-ramachandran-angles-state)))
       (let ((res-name (residue-name imol chain-id res-no ins-code)))
-	(if (string? res-name)
-	    (if (not (string=? res-name "HOH"))
-		(map (lambda (alt-conf)
-		       (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
-		       (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
-		       (rotate-y-scene 10 0.3) ; n-frames frame-interval(degrees)
-		       (with-no-backups imol
-					(with-auto-accept
-					 (refine-auto-range imol chain-id res-no alt-conf)))
-		       (rotate-y-scene 10 0.3))
-		     (residue-alt-confs imol chain-id res-no ins-code))))))))
-    
+		  (if (string? res-name)
+				(if (not (string=? res-name "HOH"))
+					 (map (lambda (alt-conf)
+							  (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
+							  (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
+							  (rotate-y-scene 10 0.3) ; n-frames frame-interval(degrees)
+							  (with-no-backups imol
+													 (with-auto-accept
+													  (refine-auto-range imol chain-id res-no alt-conf)))
+							  (rotate-y-scene 10 0.3))
+							(residue-alt-confs imol chain-id res-no ins-code))))))))
+
 
 (define (fit-protein-rama-fit-function res-spec imol-map)
   (let ((imol     (list-ref res-spec 0))
-	(chain-id (list-ref res-spec 1))
-	(res-no   (list-ref res-spec 2))
-	(ins-code (list-ref res-spec 3)))
-    (let ((current-steps/frame (dragged-refinement-steps-per-frame))
-	  (current-rama-state (refine-ramachandran-angles-state)))
-      (set-dragged-refinement-steps-per-frame 400)
+		  (chain-id (list-ref res-spec 1))
+		  (res-no   (list-ref res-spec 2))
+		  (ins-code (list-ref res-spec 3)))
+    (let ((current-rama-state (refine-ramachandran-angles-state)))
       (let ((res-name (residue-name imol chain-id res-no ins-code)))
-	(if (string? res-name)
-	    (if (not (string=? res-name "HOH"))
-		(begin
-		  (map (lambda (alt-conf)
-			 (set-refine-ramachandran-angles 1)
-			 (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
-			 (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
-			 (rotate-y-scene 10 0.3) ; n-frames frame-interval(degrees)
-			  (with-no-backups imol
-					   (with-auto-accept
-					    (refine-auto-range imol chain-id res-no alt-conf)))
-			 (rotate-y-scene 10 0.3))
-		       (residue-alt-confs imol chain-id res-no ins-code))
-		  (set-refine-ramachandran-angles current-rama-state)
-		  (set-dragged-refinement-steps-per-frame current-steps/frame))))))))
-
+		  (if (string? res-name)
+				(if (not (string=? res-name "HOH"))
+					 (begin
+						(map (lambda (alt-conf)
+								 (set-refine-ramachandran-angles 1)
+								 (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
+								 (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
+								 (rotate-y-scene 10 0.3) ; n-frames frame-interval(degrees)
+								 (with-no-backups imol
+														(with-auto-accept
+														 (refine-auto-range imol chain-id res-no alt-conf)))
+								 (rotate-y-scene 10 0.3))
+							  (residue-alt-confs imol chain-id res-no ins-code))
+						(set-refine-ramachandran-angles current-rama-state))))))))
     
 
 ;; func is a refinement function that takes 2 args, one a residue
@@ -426,20 +420,17 @@
 
   (let ((imol-map (imol-refinement-map)))
     (if (not (valid-map-molecule? imol-map))
-	(info-dialog "Oops, must set map to refine to")
-	(let ((current-steps/frame (dragged-refinement-steps-per-frame))
-	      (current-rama-state (refine-ramachandran-angles-state)))
-	  (let ((refine-func
-		 (lambda (chain-id res-no)
-		   (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
-		   (refine-auto-range imol chain-id res-no "")
-		   (accept-regularizement))))
-	    
-	    (set-dragged-refinement-steps-per-frame 400)
-	    (set-refine-ramachandran-angles 1)
-	    (stepped-refine-protein-with-refine-func imol refine-func 1)
-	    (set-refine-ramachandran-angles current-rama-state)
-	    (set-dragged-refinement-steps-per-frame current-steps/frame))))))
+		  (info-dialog "Oops, must set map to refine to")
+		  (let ((current-rama-state (refine-ramachandran-angles-state)))
+			 (let ((refine-func
+					  (lambda (chain-id res-no)
+						 (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
+						 (refine-auto-range imol chain-id res-no "")
+						 (accept-regularizement))))
+
+				(set-refine-ramachandran-angles 1)
+				(stepped-refine-protein-with-refine-func imol refine-func 1)
+				(set-refine-ramachandran-angles current-rama-state))))))
 
 ;; 
 (define (stepped-refine-protein-with-refine-func imol refine-func . res-step)
