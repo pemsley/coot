@@ -1192,120 +1192,45 @@ test_make_a_difference_map(int argc, char **argv) {
       // if these are data from an mtz say, we'd need to check for isnan, but it's from a map
       // so there is no nan data.
 
-      for (hri = fphi_ref.first(); !hri.last(); hri.next())
-          if (hri.hkl() != clipper::HKL(0,0,0)) {
-             float irs = hri.invresolsq();
-             if (irs < reso_max)
-                if (irs >= reso_min_for_scaling)
-                   sum_f_ref += fphi_ref[hri].f();
-          }
+      std::vector<double> sum_fo(n_bins, 0.0);
+      std::vector<double> sum_fc(n_bins, 0.0);
+      std::vector<unsigned int> counts(n_bins, 0);
+
       for (hri = fphi_calc.first(); !hri.last(); hri.next()) {
-          if (hri.hkl() != clipper::HKL(0,0,0)) {
-             float irs = hri.invresolsq();
-             if (irs < reso_max)
-                if (irs >= reso_min_for_scaling)
-                   sum_f_calc += fphi_calc[hri].f();
-          }
-      }
-      double sf = sum_f_ref/sum_f_calc;
-
-      std::vector<float> debug_K_scales  = {0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5};
-      std::vector<float> debug_B_offsets = {-20.0, -15.0, -10.0, -5.0, -2.0, 0.0, 2.0, 5.0, 10.0, 15.0, 20.0};
-      for (std::size_t ii=0; ii<debug_K_scales.size(); ii++) {
-	 float K_scale = debug_K_scales[ii];
-	 for (std::size_t jj=0; jj<debug_B_offsets.size(); jj++) {
-	    float B_offset = debug_B_offsets[jj];
-
-	    xmap_calc.fft_to(fphi_calc);
-
-	    std::vector<double> sum_top_for_bin(n_bins, 0.0);
-	    std::vector<double> sum_bot_for_bin(n_bins, 0.0);
-	    std::vector<double> sum_fc_for_bin(n_bins, 0.0);
-	    std::vector<double> sum_fc_sqrd_for_bin(n_bins, 0.0);
-	    std::vector<double> sum_fo_sqrd_for_bin(n_bins, 0.0);
-	    std::vector<unsigned int> counts_for_bin(n_bins, 0);
-
-	    std::cout << "scale: " << sf << " * " << K_scale << " b-offset " << B_offset << std::endl;
-	    for (hri = fphi_calc.first(); !hri.last(); hri.next()) {
-	       if (hri.hkl() != clipper::HKL(0,0,0)) {
-		  float irs = hri.invresolsq();
-		  if (irs < reso_max) {
-		     if (irs >= reso_min_for_scaling) {
-			float b_delta = 0.0;
-			fphi_calc[hri].f() *= K_scale * sf * exp(-(b_delta+B_offset) * irs * 0.25);
-			// std::cout << "adding " << fphi_calc[hri].f() << std::endl;
-			float delta = fabsf(fphi_ref[hri].f()) - fabsf(fphi_calc[hri].f());
-			int bin_no = static_cast<int>(n_bins * irs/reso_max);
-			if (bin_no == n_bins) bin_no = n_bins -1; // might catch a reflection (or 8)
-			sum_fc_for_bin[bin_no]  += fphi_calc[hri].f();
-			sum_top_for_bin[bin_no] += fabsf(delta);
-			sum_bot_for_bin[bin_no] += fabsf(fphi_ref[hri].f());
-			sum_fo_sqrd_for_bin[bin_no] +=  fphi_ref[hri].f() *  fphi_ref[hri].f();
-			sum_fc_sqrd_for_bin[bin_no] += fphi_calc[hri].f() * fphi_calc[hri].f();
-			counts_for_bin[bin_no]++;
-		     }
-		  }
+	 if (hri.hkl() != clipper::HKL(0,0,0)) {
+	    float irs = hri.invresolsq();
+	    if (irs < reso_max) {
+	       int bin_idx = static_cast<int>(static_cast<float>(n_bins) * irs/reso_max);
+	       if (bin_idx == n_bins) bin_idx--;
+	       if (irs >= reso_min_for_scaling) {
+		  sum_fc[bin_idx] += fabs(fphi_calc[hri].f());
+		  counts[bin_idx]++;
 	       }
 	    }
-
-	    // ----- 9 ------------------ Print Tables of R-factors and stats
-
-	    double sum_for_top = 0.0;
-	    double sum_for_bot = 0.0;
-	    for(unsigned int ii=0; ii<n_bins; ii++) {
-	       if (counts_for_bin[ii] == 0) continue;
-
-	       double nd(counts_for_bin[ii]);
-	       sum_for_top += sum_top_for_bin[ii];
-	       sum_for_bot += sum_bot_for_bin[ii];
-	       std::cout << std::setw(2) << ii << " " << reso_max * static_cast<float>(ii)/n_bins << " "
-			 << std::setw(4) << counts_for_bin[ii]
-			 << "  fc "      << std::setw(10) <<  sum_fc_for_bin[ii]/nd
-			 << "  fo "      << std::setw(10) << sum_bot_for_bin[ii]/nd
-			 << "  delta: "  << std::setw(10) << sum_top_for_bin[ii]/nd
-			 << " R-factor " << std::setw(10) << std::right << std::setprecision(3) << std::fixed
-			 << sum_top_for_bin[ii]/sum_bot_for_bin[ii] << std::endl;
-	    }
-	    std::cout << "R-factor overall " << sum_for_top/sum_for_bot << std::endl;
 	 }
       }
 
-      std::ofstream f("sfs.tab");
-      for (hri = fphi_calc.first(); !hri.last(); hri.next()) {
-          float delta = fphi_ref[hri].f() - fphi_calc[hri].f();
-          float irs = hri.invresolsq();
-          f << "   " << hri.hkl().format() << " ref: " << fphi_ref[hri].f() << " calc: " << fphi_calc[hri].f()
-            << " delta " << delta << " resolution " << irs << "\n";
-	  count++;
-	  if (count == 1000000)
-	     break;
+      for (hri = fphi_ref.first(); !hri.last(); hri.next()) {
+	 if (hri.hkl() != clipper::HKL(0,0,0)) {
+	    float irs = hri.invresolsq();
+	    if (irs < reso_max) {
+	       int bin_no = static_cast<int>(n_bins * irs/reso_max);
+	       if (bin_no == n_bins) bin_no--;
+	       if (irs >= reso_min_for_scaling)
+		  sum_fo[bin_no] += fabs(fphi_ref[hri].f());
+	    }
+	 }
       }
 
-      // ----- 7 ------------------ Make Fo-Fc
-
-      // difference map
-      for (hri = fphi_calc.first(); !hri.last(); hri.next())
-          fphi_ref[hri].f() -= fphi_calc[hri].f();
-
-      // ----- 8 ------------------ Make Difference map
-
-      xmap.fft_from(fphi_ref);
-      if (true) {
-         clipper::CCP4MAPfile outmapfile;
-         outmapfile.open_write("test-difference-map.map");
-         outmapfile.export_xmap(xmap);
-         outmapfile.close_write();
+      for (std::size_t i=0; i<n_bins; i++) {
+	 float bin_reso = reso_max * (static_cast<float>(i)/static_cast<float>(n_bins) + 0.5);
+	 if (counts[i] > 0) {
+	    std::cout << i << " " << bin_reso << " "
+		      << sum_fo[i]/static_cast<float>(counts[i]) << " "
+		      << sum_fc[i]/static_cast<float>(counts[i]) << " "
+		      << sum_fo[i]/sum_fc[i] << "\n";
+	 }
       }
-
-      // ----- 10 ------------------ The Speed of things
-
-      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-      auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
-      auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
-      std::cout << "d10 " << d10 << " ms  d21 " << d21 << " ms  d32 " << d32 << " ms  d43 " << d43 << " ms "
-		<< std::endl;
-
    }
    return status;
 }
