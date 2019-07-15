@@ -1,18 +1,18 @@
 /* src/graphics-info-lsq.cc
- * 
+ *
  * Copyright 2004 by The University of York
  * Author: Paul Emsley
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -37,7 +37,7 @@
 #endif
 
 #include <gtk/gtk.h>  // must come after mmdb_manager on MacOS X Darwin
-#include <GL/glut.h>  // for some reason...  // Eh?
+ // #include <GL/glut.h>  // for some reason...  // Eh?
 
 #include "clipper/core/rotation.h"
 
@@ -65,11 +65,11 @@ graphics_info_t::apply_lsq(int imol_ref, int imol_moving,
 
    return lsq_get_and_apply_matrix_maybe(imol_ref, imol_moving, matches, 1);
 }
-   
+
 // sometimes we just want the matrix but not to actually move the coordinates.
 std::pair<int, clipper::RTop_orth>
 graphics_info_t::lsq_get_and_apply_matrix_maybe(int imol_ref, int imol_moving,
-						const std::vector<coot::lsq_range_match_info_t> &matches, 
+						const std::vector<coot::lsq_range_match_info_t> &matches,
 						bool apply_matrix) {
 
    int status = 0;
@@ -107,7 +107,7 @@ graphics_info_t::lsq_get_and_apply_matrix_maybe(int imol_ref, int imol_moving,
 		  std::cout << "INFO:: Rotation in CCP4 Polar Angles: "
 			    << clipper::Rotation(rtop_info.second.rot()).polar_ccp4().format()
 			    << std::endl;
-		  
+
 
 		  if (apply_matrix) {
 		     molecules[imol_moving].transform_by(rtop_info.second);

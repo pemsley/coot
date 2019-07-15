@@ -1,19 +1,19 @@
 /* src/graphics-info.cc
- * 
+ *
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by the University of York
  * Copyright 2007, 2008, 2009 by the University of Oxford
  * Copyright 2015 by Medical Research Council
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -21,9 +21,9 @@
  */
 
 // See also the below function, which should be used in future.
-// 
+//
 // c.f. the other function:
-// graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu, 
+// graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
 // 						   GtkSignalFunc signal_func,
 //						   int imol_active_position).
 //
@@ -48,7 +48,7 @@
 #endif
 
 #include <gtk/gtk.h>  // must come after mmdb_manager on MacOS X Darwin
-#include <GL/glut.h>  // for some reason...  // Eh?
+// #include <GL/glut.h>  // for some reason...  // Eh?
 
 #include <iostream>
 #include <dirent.h>   // for refmac dictionary files
@@ -99,7 +99,7 @@
 
 #if 0
 int
-graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu, 
+graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
 						   GtkSignalFunc signal_func) {
 
    return fill_option_menu_with_map_options_generic(option_menu, signal_func);
@@ -108,7 +108,7 @@ graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
 
 #if 0
 int
-graphics_info_t::fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, 
+graphics_info_t::fill_option_menu_with_map_mtz_options(GtkWidget *option_menu,
 						       GtkSignalFunc signal_func) {
 
    int imol_active = imol_refinement_map;
@@ -128,7 +128,7 @@ graphics_info_t::fill_combobox_with_map_mtz_options(GtkWidget *combobox, GCallba
 #if 0
 
 int
-graphics_info_t::fill_option_menu_with_map_options_generic(GtkWidget *option_menu, 
+graphics_info_t::fill_option_menu_with_map_options_generic(GtkWidget *option_menu,
                                                            GtkSignalFunc signal_func,
                                                            int mtz_only) {
 
@@ -140,7 +140,7 @@ graphics_info_t::fill_option_menu_with_map_options_generic(GtkWidget *option_men
       gtk_widget_destroy(menu);
    menu = gtk_menu_new();
    int menu_index = 0;
-   
+
    for (int i=0; i<n_molecules(); i++) {
       if (is_valid_map_molecule(i)) {
          if (not mtz_only ||
@@ -149,7 +149,7 @@ graphics_info_t::fill_option_menu_with_map_options_generic(GtkWidget *option_men
                 label += " ";
                 label += molecules[i].name_for_display_manager();
 
-	 
+
                 menuitem = gtk_menu_item_new_with_label(label.c_str());
                 if (signal_func)
                    gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
@@ -158,7 +158,7 @@ graphics_info_t::fill_option_menu_with_map_options_generic(GtkWidget *option_men
                 g_object_set_data(G_OBJECT(menuitem), "map_molecule_number", GINT_TO_POINTER(i));
                 gtk_menu_append(GTK_MENU(menu), menuitem);
                 gtk_widget_show(menuitem);
-                if (active_map_mol_no == -1) { 
+                if (active_map_mol_no == -1) {
                    active_map_mol_no = i;
                    gtk_menu_set_active(GTK_MENU(menu), menu_index);
                 }
@@ -174,11 +174,11 @@ graphics_info_t::fill_option_menu_with_map_options_generic(GtkWidget *option_men
 
 #if 0
 // c.f. the other function:
-// graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu, 
+// graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
 // 						   GtkSignalFunc signal_func)
-// 
+//
 void
-graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu, 
+graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
 						   GtkSignalFunc signal_func,
 						   int imol_active_position) {
 
@@ -189,7 +189,7 @@ graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
       gtk_widget_destroy(menu);
    menu = gtk_menu_new();
    int menu_index = 0;
-   
+
    for (int i=0; i<n_molecules(); i++) {
       if (is_valid_map_molecule(i)) {
 	 char s[200];
@@ -215,7 +215,7 @@ graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
 
 #if 0
 void
-graphics_info_t::fill_option_menu_with_difference_map_options(GtkWidget *option_menu, 
+graphics_info_t::fill_option_menu_with_difference_map_options(GtkWidget *option_menu,
 							      GtkSignalFunc signal_func,
 							      int imol_active_position) {
 
@@ -227,14 +227,14 @@ graphics_info_t::fill_option_menu_with_difference_map_options(GtkWidget *option_
 
    fill_option_menu_with_map_options_internal(option_menu, signal_func, maps_vec,
 					      imol_active_position);
-   
+
 }
 #endif
 
 
 #if 0
 void
-graphics_info_t::fill_option_menu_with_map_options_internal(GtkWidget *option_menu, 
+graphics_info_t::fill_option_menu_with_map_options_internal(GtkWidget *option_menu,
 							    GtkSignalFunc signal_func,
 							    std::vector<int> map_molecule_numbers,
 							    int imol_active_position) {
@@ -246,7 +246,7 @@ graphics_info_t::fill_option_menu_with_map_options_internal(GtkWidget *option_me
       gtk_widget_destroy(menu);
    menu = gtk_menu_new();
    int menu_index = 0;
-   
+
    for (unsigned int imap=0; imap<map_molecule_numbers.size(); imap++) {
       int imap_int = imap;
       int i = map_molecule_numbers[imap];
@@ -273,7 +273,7 @@ graphics_info_t::fill_option_menu_with_map_options_internal(GtkWidget *option_me
 
 
 int
-graphics_info_t::fill_combobox_with_map_options(GtkWidget *combobox, 
+graphics_info_t::fill_combobox_with_map_options(GtkWidget *combobox,
 						GCallback signal_func,
 						int imol_active_position) {
    std::vector<int> maps_vec;
@@ -289,7 +289,7 @@ graphics_info_t::fill_combobox_with_map_options(GtkWidget *combobox,
 
 
 void
-graphics_info_t::fill_combobox_with_difference_map_options(GtkWidget *combobox, 
+graphics_info_t::fill_combobox_with_difference_map_options(GtkWidget *combobox,
 							   GCallback signal_func,
 							   int imol_active_position) {
 
@@ -314,9 +314,9 @@ graphics_info_t::fill_option_menu_with_refmac_options(GtkWidget *option_menu) {
       gtk_widget_destroy(menu);
    menu = gtk_menu_new();
 
-   
+
    GtkWidget *menuitem;
-   
+
    for (int i=0; i<n_molecules(); i++) {
       if (molecules[i].Have_sensible_refmac_params()) {
 	 char s[200];
@@ -329,14 +329,14 @@ graphics_info_t::fill_option_menu_with_refmac_options(GtkWidget *option_menu) {
 	 // We do a menu_get_active in
 	 // save_go_to_atom_mol_menu_active_position.  Hmmm... Does
 	 // that function exist?  I don't see it!
-	 // 
+	 //
 	 // we set user data on the menu item, so that when this goto
 	 // Atom widget is cancelled, we can whatever was the molecule
 	 // number corresponding to the active position of the menu
 	 //
 	 // Should be freed in on_go_to_atom_cancel_button_clicked
 	 // (callbacks.c)
-	 // 
+	 //
 	 gtk_object_set_user_data(GTK_OBJECT(menuitem), GINT_TO_POINTER(i));
 
 	 gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
@@ -465,7 +465,7 @@ graphics_info_t::fill_option_menu_with_refmac_methods_options(GtkWidget *option_
   if (menu)
     gtk_widget_destroy(menu);
   menu = gtk_menu_new();
-   
+
   std::vector<std::string> v;
   v.push_back("restrained refinement ");
   v.push_back("rigid body refinement ");
@@ -504,7 +504,7 @@ graphics_info_t::fill_option_menu_with_refmac_phase_input_options(GtkWidget *opt
   v.push_back("phase and FOM");
   v.push_back("Hendrickson-Lattman coefficients");
   v.push_back("SAD data directly");
-  
+
   for (unsigned int i=0; i<v.size(); i++) {
     menuitem = gtk_menu_item_new_with_label((char *) v[i].c_str());
     gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
@@ -538,7 +538,7 @@ graphics_info_t::fill_option_menu_with_refmac_labels_options(GtkWidget *option_m
       if (is_valid_map_molecule(i)) {
 
 	 // first make a list with all mtz files and at the same time filter out duplicates
-	 // 
+	 //
 	 std::string mtz_filename = molecules[i].Refmac_mtz_filename();
 	 if (! mtz_filename.empty()) {
 	    bool already_in_list = false;
@@ -556,24 +556,24 @@ graphics_info_t::fill_option_menu_with_refmac_labels_options(GtkWidget *option_m
    }
 
    // now, using mtz_files, fill the menu and connect signals
-   // 
+   //
    for (unsigned int j=0; j<mtz_files.size(); j++) {
       int i = mtz_files[j].first;
       std::string mtz_filename = mtz_files[j].second;
-     
+
       menuitem = gtk_menu_item_new_with_label(mtz_filename.c_str());
 
       // We do a menu_get_active in
       // save_go_to_atom_mol_menu_active_position.  Hmmm... Does
       // that function exist?  I don't see it!
-      // 
+      //
       // we set user data on the menu item, so that when this goto
       // Atom widget is cancelled, we can whatever was the molecule
       // number corresponding to the active position of the menu
       //
       // Should be freed in on_go_to_atom_cancel_button_clicked
       // (callbacks.c)
-      // 
+      //
       gtk_object_set_user_data(GTK_OBJECT(menuitem), GINT_TO_POINTER(i));
 
       gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
@@ -587,7 +587,7 @@ graphics_info_t::fill_option_menu_with_refmac_labels_options(GtkWidget *option_m
    if (mtz_files.size() > 0) {
       gtk_menu_set_active(GTK_MENU(menu), 0);
    }
-   
+
    /* Link the new menu to the optionmenu widget */
    gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
 
@@ -643,7 +643,7 @@ graphics_info_t::fill_option_menu_with_refmac_file_labels_options(GtkWidget *opt
       GtkWidget *fom_menu          = gtk_option_menu_get_menu(GTK_OPTION_MENU(fom_optionmenu));
       GtkWidget *hl_optionmenu     = lookup_widget(option_menu, "refmac_dialog_hl_optionmenu");
       GtkWidget *hl_menu           = gtk_option_menu_get_menu(GTK_OPTION_MENU(hl_optionmenu));
-      
+
       GtkWidget *menu;
       if (fiobs_menu) {
 	gtk_widget_destroy(fiobs_menu);
@@ -700,7 +700,7 @@ graphics_info_t::fill_option_menu_with_refmac_ncycle_options(GtkWidget *option_m
   if (menu)
     gtk_widget_destroy(menu);
   menu = gtk_menu_new();
-   
+
   std::vector<int> v = *preset_number_refmac_cycles;
 
   for (unsigned int i=0; i<v.size(); i++) {
@@ -723,7 +723,7 @@ graphics_info_t::fill_option_menu_with_refmac_ncycle_options(GtkWidget *option_m
     }
   }
   if (! found) {
-    std::cout <<"INFO:: could not find given no of cycles " << target_cycle << 
+    std::cout <<"INFO:: could not find given no of cycles " << target_cycle <<
       " in preset list. Set to default 5!" <<std::endl;
     gtk_menu_set_active(GTK_MENU(menu), 4);
   }
@@ -764,11 +764,11 @@ graphics_info_t::select_refinement_map_combobox_changed(GtkWidget *combobox, gpo
 }
 
 
-void 
+void
 graphics_info_t::set_refmac_phase_input(int phase_flag) {
 
   graphics_info_t g;
-  
+
   switch (phase_flag) {
 
   case coot::refmac::NO_PHASES:
@@ -822,11 +822,11 @@ graphics_info_t::refmac_refinement_phase_info_combobox_changed(GtkWidget *combob
 }
 
 
-void 
+void
 graphics_info_t::set_refmac_refinement_method(int method) {
 
   graphics_info_t g;
-  
+
   switch (method) {
 
   case coot::refmac::RESTRAINED:
@@ -907,7 +907,7 @@ void
 graphics_info_t::set_refmac_use_tls(int state) {
 
   graphics_info_t g;
-  
+
   switch (state) {
 
   case coot::refmac::TLS_ON:
@@ -929,7 +929,7 @@ void
 graphics_info_t::set_refmac_use_twin(int state) {
 
   graphics_info_t g;
-  
+
   switch (state) {
 
   case coot::refmac::TWIN_ON:
@@ -953,7 +953,7 @@ void
 graphics_info_t::set_refmac_use_sad(int state) {
 
   graphics_info_t g;
-  
+
   switch (state) {
 
   case coot::refmac::SAD_ON:
@@ -977,7 +977,7 @@ void
 graphics_info_t::set_refmac_use_ncs(int state) {
 
   graphics_info_t g;
-  
+
   switch (state) {
 
   case coot::refmac::NCS_ON:
@@ -998,7 +998,7 @@ void
 graphics_info_t::set_refmac_use_intensities(int state) {
 
   graphics_info_t g;
-  
+
   switch (state) {
 
   case coot::refmac::AMPLITUDES:
@@ -1019,9 +1019,9 @@ void
 graphics_info_t::set_refmac_used_mtz_file(int state) {
 
   graphics_info_t g;
-  
+
   switch (state) {
-    
+
   case coot::refmac::MTZ:
     g.refmac_used_mtz_file_flag = coot::refmac::MTZ;
     break;
@@ -1065,13 +1065,13 @@ graphics_info_t::store_refmac_params(const std::string &mtz_filename,
 				     int r_free_flag) {
 
   have_sensible_refmac_params = 1; // true
-  refmac_mtz_file_filename = mtz_filename; 
+  refmac_mtz_file_filename = mtz_filename;
   refmac_fobs_col = fobs_col;
   refmac_sigfobs_col = sigfobs_col;
   refmac_r_free_col = r_free_col;
   refmac_r_free_flag_sensible = r_free_flag;
 
-  std::cout << "INFO:: Stored refmac parameters (for file): " 
+  std::cout << "INFO:: Stored refmac parameters (for file): "
 	    << refmac_fobs_col << " "
 	    << refmac_sigfobs_col;
   if (r_free_flag)
@@ -1095,7 +1095,7 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
 
   coot::mtz_column_types_info_t *saved_f_phi_columns
     = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(dialog));
-  
+
   if (not refmac_use_twin_flag && not GTK_TOGGLE_BUTTON(mtz_file_radiobutton)->active) {
     menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(map_optionmenu));
     GtkWidget *active_item = gtk_menu_get_active(GTK_MENU(menu));
@@ -1142,8 +1142,8 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
 	    saved_f_phi_columns->selected_refmac_sigfobs_col = j;
 	    gtk_menu_set_active(GTK_MENU(fobs_menu), fobs_sigfobs_pair);
 	    break_flag = true;
-	    break;	    
-	  }	  
+	    break;
+	  }
 	  fobs_sigfobs_pair += 1;
 	}
       }
@@ -1151,7 +1151,7 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
 	break;
       }
     }
-      
+
     for (unsigned int i=0; i<saved_f_phi_columns->r_free_cols.size(); i++) {
       if (saved_f_phi_columns->r_free_cols[i].column_label == r_free_string) {
 	gtk_menu_set_active(GTK_MENU(r_free_menu), i);
@@ -1186,7 +1186,7 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
     if (saved_f_phi_columns->r_free_cols.size() > 0) {
       gtk_menu_set_active(GTK_MENU(r_free_menu), 0);
       saved_f_phi_columns->selected_refmac_r_free_col = 0;
-    } 
+    }
   }
 
   // update the phase info, no matter if used or not (as it may when changing the phase input)
@@ -1208,7 +1208,7 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
     saved_f_phi_columns->selected_refmac_hlc_col = 2;
     saved_f_phi_columns->selected_refmac_hld_col = 3;
   }
-  
+
   // if we have saved parameters use these
   if (imol_map_refmac > -1) {
     // find phases
@@ -1260,6 +1260,6 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
 	}
       }
     }
-  } 
+  }
 }
 #endif

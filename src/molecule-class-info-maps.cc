@@ -80,7 +80,7 @@
 #include "coot-utils/xmap-stats.hh"
 
 #include "graphics-info.h"
-#include <GL/glut.h> // needed (only?) for wirecube
+// #include <GL/glut.h> // needed (only?) for wirecube
 #include "globjects.h" // for set_bond_colour()
 #include "skeleton/graphical_skel.h"
 
@@ -1266,7 +1266,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
    //clipper::MTZcrystal mtzxtl;
 
    long T0 = 0; // timer
-   T0 = glutGet(GLUT_ELAPSED_TIME);
+   T0 = 0; // glutGet(GLUT_ELAPSED_TIME);
 
    clipper::CCP4MTZfile mtzin;
    mtzin.open_read( mtz_file_name );       // open new file
@@ -1316,7 +1316,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 mtzin.close_read();
       }
 
-      long T1 = glutGet(GLUT_ELAPSED_TIME);
+      long T1 = 0; // glutGet(GLUT_ELAPSED_TIME);
 
       int n_reflections = fphidata.num_obs();
       std::cout << "INFO:: Number of observed reflections: " << n_reflections << "\n";
@@ -1350,7 +1350,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 xmap.init( fphidata.spacegroup(), fphidata.cell(), gs); // 1.5 default
 	 // 	 cout << "Grid..." << xmap.grid_sampling().format() << "\n";
 
-	 long T2 = glutGet(GLUT_ELAPSED_TIME);
+	 long T2 = 0; // glutGet(GLUT_ELAPSED_TIME);
 // 	 std::cout << "MTZ:: debug:: " << myhkl.spacegroup().symbol_hm() << " "
 // 		   << myhkl.cell().descr().a() << " "
 // 		   << myhkl.cell().descr().b() << " "
@@ -1375,10 +1375,13 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 xmap.fft_from( fphidata );                  // generate map
 	 // cout << "done fft..." << endl;
 
-	 long T3 = glutGet(GLUT_ELAPSED_TIME);
+	 long T3 = 0; // glutGet(GLUT_ELAPSED_TIME);
+   #if 0
 	 std::cout << "INFO:: " << float(T1-T0)/1000.0 << " seconds to read MTZ file\n";
 	 std::cout << "INFO:: " << float(T2-T1)/1000.0 << " seconds to initialize map\n";
 	 std::cout << "INFO:: " << float(T3-T2)/1000.0 << " seconds for FFT\n";
+   #endif
+   std::cout << "Fix Timers\n";
 	 update_map_in_display_control_widget();
 
 	 // Fill the class variables:
@@ -1409,7 +1412,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 original_fphis.init(fphidata.spacegroup(),fphidata.cell(),fphidata.hkl_sampling());
 	 original_fphis = fphidata;
 
-	 long T4 = glutGet(GLUT_ELAPSED_TIME);
+	 long T4 = 0; // glutGet(GLUT_ELAPSED_TIME);
 	 std::cout << "INFO:: " << float(T4-T3)/1000.0 << " seconds for statistics\n";
 
 	 std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
@@ -1423,9 +1426,9 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 // update_map_scroll_wheel_menu_manual(g.n_molecules, name_.c_str());
 
 	 update_map();
-	 long T5 = glutGet(GLUT_ELAPSED_TIME);
-	 std::cout << "INFO:: " << float(T5-T4)/1000.0 << " seconds for contour map\n";
-	 std::cout << "INFO:: " << float(T5-T0)/1000.0 << " seconds in total\n";
+	 long T5 = 0; // glutGet(GLUT_ELAPSED_TIME);
+	 //std::cout << "INFO:: " << float(T5-T4)/1000.0 << " seconds for contour map\n";
+	 //std::cout << "INFO:: " << float(T5-T0)/1000.0 << " seconds in total\n";
 
 	 // save state strings
 
@@ -1512,7 +1515,7 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
 
    try {
       long T0 = 0; // timer
-      T0 = glutGet(GLUT_ELAPSED_TIME);
+      T0 = 0; // glutGet(GLUT_ELAPSED_TIME);
 
       clipper::CNS_HKLfile cnsin;
       cnsin.open_read( cns_file_name );       // open new file
@@ -1537,7 +1540,7 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
       initialize_map_things_on_read_molecule(mol_name,
 					     is_diff_map, false,
 					     g.swap_difference_map_colours);
-      long T1 = glutGet(GLUT_ELAPSED_TIME);
+      long T1 = 0; // glutGet(GLUT_ELAPSED_TIME);
 
       int n_reflections = fphidata.num_obs();
       std::cout << "Number of OBSERVED reflections: " << n_reflections << "\n";
@@ -1555,13 +1558,13 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
       xmap.init( fphidata.spacegroup(), fphidata.cell(), gs ); // 1.5 default
       // 	 cout << "Grid..." << xmap.grid_sampling().format() << "\n";
 
-      long T2 = glutGet(GLUT_ELAPSED_TIME);
+      long T2 = 0; // glutGet(GLUT_ELAPSED_TIME);
 
       // cout << "doing fft..." << endl;
       xmap.fft_from( fphidata );                  // generate map
       // cout << "done fft..." << endl;
 
-      long T3 = glutGet(GLUT_ELAPSED_TIME);
+      long T3 = 0; // glutGet(GLUT_ELAPSED_TIME);
       std::cout << "INFO:: " << float(T1-T0)/1000.0 << " seconds to read CNS file\n";
       std::cout << "INFO:: " << float(T2-T1)/1000.0 << " seconds to initialize map\n";
       std::cout << "INFO:: " << float(T3-T2)/1000.0 << " seconds for FFT\n";
@@ -1590,7 +1593,7 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
       original_fphis.init(fphidata.spacegroup(),fphidata.cell(),fphidata.hkl_sampling());
       original_fphis = fphidata;
 
-      long T4 = glutGet(GLUT_ELAPSED_TIME);
+      long T4 = 0; // glutGet(GLUT_ELAPSED_TIME);
       std::cout << "INFO:: " << float(T4-T3)/1000.0 << " seconds for statistics\n";
 
       std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
@@ -1601,7 +1604,7 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
       set_initial_contour_level();
 
       update_map();
-      long T5 = glutGet(GLUT_ELAPSED_TIME);
+      long T5 = 0; // glutGet(GLUT_ELAPSED_TIME);
       std::cout << "INFO:: " << float(T5-T4)/1000.0 << " seconds for contour map\n";
       std::cout << "INFO:: " << float(T5-T0)/1000.0 << " seconds in total\n";
       return 1;

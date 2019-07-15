@@ -1,19 +1,19 @@
 /* src/graphics-info.cc
- * 
+ *
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by the University of York
  * Copyright 2007, 2008, 2009 by the University of Oxford
  * Copyright 2014, 2015, 2016 by Medical Research Council
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -39,7 +39,7 @@
 #endif
 
 #include <gtk/gtk.h>  // must come after mmdb_manager on MacOS X Darwin
-#include <GL/glut.h>  // Timing
+// #include <GL/glut.h>  // Timing
 
 #include <iostream>
 #include <dirent.h>   // for refmac dictionary files
@@ -96,16 +96,16 @@
 #include "geometry/dict-utils.hh"
 
 // A few non-class members - should be somewhere else, I guess.
-// 
-void initialize_graphics_molecules() { 
+//
+void initialize_graphics_molecules() {
   graphics_info_t g;
-  g.initialize_molecules(); 
+  g.initialize_molecules();
 }
 
 // return a vector of the current valid map molecules
 std::vector<int>
 graphics_info_t::valid_map_molecules() const {
-   
+
    std::vector<int> v;
    for (unsigned int i=0; i<molecules.size(); i++)
       if (is_valid_map_molecule(i))
@@ -116,7 +116,7 @@ graphics_info_t::valid_map_molecules() const {
 
 // return the new molecule number
 // static
-int graphics_info_t::create_molecule() { 
+int graphics_info_t::create_molecule() {
    int imol = molecules.size();
    try {
       molecules.push_back(molecule_class_info_t(imol));
@@ -129,17 +129,18 @@ int graphics_info_t::create_molecule() {
 }
 
 void
-graphics_info_t::post_recentre_update_and_redraw() { 
+graphics_info_t::post_recentre_update_and_redraw() {
 
    //
-   int t0 = glutGet(GLUT_ELAPSED_TIME);
+   int t0 = 0; // glutGet(GLUT_ELAPSED_TIME);
+   std::cout << "Fix timer in post_recentre_update_and_redraw()\n";
    for (int ii=0; ii<n_molecules(); ii++) {
       molecules[ii].update_clipper_skeleton();
       molecules[ii].update_map();  // uses statics in graphics_info_t
                                    // and redraw the screen using the new map
    }
-	 
-   int t1 = glutGet(GLUT_ELAPSED_TIME);
+
+   int t1 = 0; // glutGet(GLUT_ELAPSED_TIME);
    std::cout << "Elapsed time for map contouring: " << t1-t0 << "ms" << std::endl;
 
    for (int ii=0; ii<n_molecules(); ii++) {
@@ -160,12 +161,12 @@ GdkColor colour_by_distortion(float dist) {
    col.pixel = 1;
    col.blue  = 0;
 
-   if (dist < 0.0) { 
+   if (dist < 0.0) {
       // black for negative numbers
       col.red   = 0;
       col.green = 0;
    } else {
-      if (dist < 1.4 /* was 2.0 before Tickle-fix */) { 
+      if (dist < 1.4 /* was 2.0 before Tickle-fix */) {
 	 col.red   = 0;
 	 col.green = 55535;
       } else {
@@ -203,7 +204,7 @@ GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
    //   plot_value = 20*plot_value -80;
 
    GdkColor col;
-   float scale = 10.0; 
+   float scale = 10.0;
 
    col.pixel = 1;
    col.blue  = 0;
@@ -253,7 +254,7 @@ GdkColor colour_by_rama_plot_distortion(float plot_value, int rama_type) {
       }
    }
    return col;
-} 
+}
 
 
 
@@ -273,11 +274,11 @@ void graphics_info_t::SetMouseClicked(double x, double y) {
    mouse_clicked_begin.second = y;
 }
 
-// static 
+// static
 GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label) {
 
    GtkWidget *w = NULL;
-   if (use_graphics_interface_flag) { 
+   if (use_graphics_interface_flag) {
       w = create_nothing_bad_dialog();
       GtkWidget *label_widget = lookup_widget(w, "nothing_bad_label");
       gtk_label_set_use_markup(GTK_LABEL(label_widget), TRUE); // needed?
@@ -294,7 +295,7 @@ GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label)
 }
 
 void
-graphics_info_t::set_do_anti_aliasing(int state) { 
+graphics_info_t::set_do_anti_aliasing(int state) {
 
   short int old_flag = graphics_info_t::do_anti_aliasing_flag;
   graphics_info_t::do_anti_aliasing_flag = state;
@@ -320,16 +321,16 @@ void
 graphics_info_t::draw_anti_aliasing() {
 
    // Bernie code?
-   // 
+   //
    // PE 20090426 JB reports a crash here (I'm guessing it's here -
    // top of the stack was the callback
    // on_background_white1_activate()).  Can't reproduce crash.
    //
    // I did however change to using background_is_black_p().
-  
+
   // first for stereo
   if (glarea_2) {
-    if (make_current_gl_context(glarea_2)) { 
+    if (make_current_gl_context(glarea_2)) {
       if (do_anti_aliasing_flag) {
 	// should we also add a (quality) hint here?
 	glEnable(GL_LINE_SMOOTH);
@@ -403,7 +404,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 	    // imol_enc is the latest model added that contains this comp_id
 	    //
 	    is_non_auto_load_comp_id = true;
-	    
+
 	    for (int ii=(n_molecules()-1); ii>=0; ii--){
 	       if (is_valid_model_molecule(ii)) {
 		  imol_enc = ii;
@@ -417,7 +418,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 	 imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
    }
 
-   coot::read_refmac_mon_lib_info_t rmit = 
+   coot::read_refmac_mon_lib_info_t rmit =
    geom_p->init_refmac_mon_lib(cif_dictionary_filename,
 			       cif_dictionary_read_number,
 			       imol_enc);
@@ -467,19 +468,19 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 
 
 // Ideally don't redraw everything, just those that have a residue with name res_name
-// 
+//
 void
 graphics_info_t::redraw_molecules_with_residue(const std::string &res_name) {
 
    for (unsigned int i=0; i<molecules.size(); i++) {
       if (is_valid_model_molecule(i)) {
-	 if (molecules[i].has_residue_with_name(res_name)) { 
+	 if (molecules[i].has_residue_with_name(res_name)) {
 	    molecules[i].make_bonds_type_checked();
 	 }
       }
    }
    graphics_draw();
-} 
+}
 
 
 void
@@ -516,33 +517,33 @@ graphics_info_t::import_all_refmac_cifs() {
 	       struct dirent *dir_ent;
 
 	       // loop until the end of the filelist (readdir returns NULL)
-	       // 
+	       //
 	       while (1) {
 		  dir_ent = readdir(lib_dir);
 		  if (dir_ent == NULL) {
 		     break;
 		  } else {
-		     
+
 		     std::string sub_dir_part(std::string(dir_ent->d_name));
 
-		     if ( ! (sub_dir_part == ".") ) { 
+		     if ( ! (sub_dir_part == ".") ) {
 			std::string subdirname = add_dir_file(monomer_dir, sub_dir_part);
-			
+
 			// we need to test that sub_dir_part is a directory:
 			// (if not, silently skip over it)
 			//
 			status = stat(subdirname.c_str() , &buf);
-			if (S_ISDIR(buf.st_mode)) { 
+			if (S_ISDIR(buf.st_mode)) {
 
 			   DIR *sub_dir = opendir(subdirname.c_str());
-			
+
 			   if (sub_dir == NULL) {
 			      std::cout << "An ERROR occured on opening the subdirectory "
 					<< subdirname << std::endl;
 			   } else {
-			   
+
 			      struct dirent *sub_dir_ent;
-			   
+
 			      while (1) {
 				 sub_dir_ent = readdir(sub_dir);
 				 if (sub_dir_ent == NULL) {
@@ -552,7 +553,7 @@ graphics_info_t::import_all_refmac_cifs() {
 				       add_dir_file(subdirname, std::string(sub_dir_ent->d_name));
 				    status = stat(cif_filename.c_str(), &buf);
 				    if (status == 0) {
-				       if (S_ISREG(buf.st_mode)) { 
+				       if (S_ISREG(buf.st_mode)) {
 					  add_cif_dictionary(cif_filename,
 							     coot::protein_geometry::IMOL_ENC_ANY, 0);
 				       }
@@ -570,9 +571,9 @@ graphics_info_t::import_all_refmac_cifs() {
 	 } else {
 	    std::cout << "Failure to import - " << coot_refmac_lib_dir
 		      << " is not a directory\n";
-	 } 
+	 }
       }
-   } 
+   }
 }
 
 // a static
@@ -711,7 +712,7 @@ graphics_info_t::setRotationCentre(int index, int imol) {
    mmdb::PAtom atom = molecules[imol].atom_sel.atom_selection[index];
 
    float x = atom->x;
-   float y = atom->y; 
+   float y = atom->y;
    float z = atom->z;
 
    set_old_rotation_centre(RotationCentre());
@@ -737,7 +738,7 @@ graphics_info_t::setRotationCentre(int index, int imol) {
       quat[2] = q.q2;
       quat[3] = q.q3;
    }
-   
+
 
    update_ramachandran_plot_point_maybe(imol, atom);
    setup_graphics_ligand_view(imol, atom->residue, atom->altLoc);
@@ -752,9 +753,9 @@ graphics_info_t::setRotationCentre(int index, int imol) {
       }
       if (show_symmetry)
 	 update_symmetry_environment_graphics_object(index, imol);
-   } else { 
+   } else {
 
-      if (label_atom_on_recentre_flag) { 
+      if (label_atom_on_recentre_flag) {
 	 molecules[imol].unlabel_last_atom();
 	 molecules[imol].add_to_labelled_atom_list(index);
       }
@@ -782,8 +783,8 @@ graphics_info_t::update_ramachandran_plot_point_maybe(int imol, const coot::resi
       // need to put show appropriate background here. Make a function to show
       // background by passing residue spec.
       update_ramachandran_plot_background_from_res_spec(plot, imol, res_spec);
-   } 
-#endif // HAVE_GTK_CANVAS      
+   }
+#endif // HAVE_GTK_CANVAS
 
 }
 
@@ -844,7 +845,7 @@ graphics_info_t::update_ramachandran_plot_background_from_res_spec(coot::rama_pl
 #endif // HAVE_GOOCANVAS
 
 // called from accept_moving_atoms()
-void 
+void
 graphics_info_t::update_ramachandran_plot_point_maybe(int imol, atom_selection_container_t moving_atoms) {
 
    // get the centre residue from moving atoms when 1 or 3 residue are
@@ -854,8 +855,8 @@ graphics_info_t::update_ramachandran_plot_point_maybe(int imol, atom_selection_c
    if (aa_spec_pair.first) {
       coot::residue_spec_t r(aa_spec_pair.second.second);
       update_ramachandran_plot_point_maybe(imol, r);
-   } 
-} 
+   }
+}
 
 
 
@@ -863,13 +864,13 @@ graphics_info_t::update_ramachandran_plot_point_maybe(int imol, atom_selection_c
 // before this gets activated. The atom index and imol must be right
 // because they are used without protection i) to get to
 // the right molecule_class_info_t and then the right atom.
-// 
+//
 void
 graphics_info_t::update_environment_distances_maybe(int index, int imol) {
 
-   if (environment_show_distances) { 
+   if (environment_show_distances) {
       if (go_to_atom_molecule() < n_molecules()) {
- 	 if (is_valid_model_molecule(imol)) { 
+ 	 if (is_valid_model_molecule(imol)) {
  	    update_environment_graphics_object(index, imol);
  	    if (show_symmetry)
   	       update_symmetry_environment_graphics_object(index, imol);
@@ -881,24 +882,24 @@ graphics_info_t::update_environment_distances_maybe(int index, int imol) {
 // Return imol = -1 if no (close) atoms found.
 //
 // Ignore molecules that are not displayed.
-// 
+//
 // index, imol
-std::pair<int, int> 
+std::pair<int, int>
 graphics_info_t::get_closest_atom() const {
    // int index, int imol
-   
+
    std::pair <float, int> dist_info;
    float dist_min = 999999999;
    coot::Cartesian rc = RotationCentre();
    int imol_close = -1;
    int index_close = -1;
 
-   for (int imol=0; imol<n_molecules(); imol++) { 
+   for (int imol=0; imol<n_molecules(); imol++) {
 
-      if (molecules[imol].has_model()) { 
-	 if (molecules[imol].is_displayed_p()) { 
+      if (molecules[imol].has_model()) {
+	 if (molecules[imol].is_displayed_p()) {
 	    dist_info = molecules[imol].nearest_atom(rc);
-	    if (dist_info.first < dist_min) { 
+	    if (dist_info.first < dist_min) {
 	       imol_close = imol;
 	       index_close = dist_info.second;
 	       dist_min = dist_info.first;
@@ -907,43 +908,43 @@ graphics_info_t::get_closest_atom() const {
       }
    }
    return std::pair<int, int>(index_close, imol_close);
-} 
+}
 
 
 void
 graphics_info_t::setRotationCentre(const symm_atom_info_t &symm_atom_info) {
 
    std::cout << "setRotationCentre by symmetry atom" << std::endl;
-   
+
    // Invalid read according to valgrind
    mmdb::PAtom atom = symm_atom_info.trans_sel[symm_atom_info.atom_index];
 
-   if (atom) { 
+   if (atom) {
       float x = atom->x; // invalid read according to valgrind.
       float y = atom->y; // ditto
       float z = atom->z; // ditto
-      
-      rotation_centre_x = x; 
-      rotation_centre_y = y; 
+
+      rotation_centre_x = x;
+      rotation_centre_y = y;
       rotation_centre_z = z;
-   } else { 
+   } else {
       std::cout << "ERROR:: NULL atom in setRotationCentre(symm_atom_info_t)\n";
    }
 }
 
 void
-graphics_info_t::setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom) { 
+graphics_info_t::setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom) {
 
    if (false)
-      std::cout << "INFO:: setRotationCentre by symmetry hybrid atom " 
-		<< hybrid_atom.atom << " at " 
+      std::cout << "INFO:: setRotationCentre by symmetry hybrid atom "
+		<< hybrid_atom.atom << " at "
 		<< hybrid_atom.pos << std::endl;
-   
+
    rotation_centre_x = hybrid_atom.pos.x();
    rotation_centre_y = hybrid_atom.pos.y();
    rotation_centre_z = hybrid_atom.pos.z();
 
-} 
+}
 
 
 void
@@ -976,12 +977,12 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
    // for theta (0->2pi) for frac (0,1)
    // how about acc = sin(theta) + pi * 0.032 * sin(3 * theta)
    // so v  = ? -cos(theta) + pi * 0.032 * 3 * -cos(3*theta)
-   
+
    float xd = x - rotation_centre_x;
    float yd = y - rotation_centre_y;
    float zd = z - rotation_centre_z;
    if ( (xd*xd + yd*yd + zd*zd) < smooth_scroll_limit*smooth_scroll_limit ) {
-      
+
 
       float pre_zoom = zoom;
 
@@ -991,7 +992,7 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
       float stepping_x = frac*xd;
       float stepping_y = frac*yd;
       float stepping_z = frac*zd;
-   
+
       float rc_x_start = rotation_centre_x;
       float rc_y_start = rotation_centre_y;
       float rc_z_start = rotation_centre_z;
@@ -1009,7 +1010,7 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
 	 rotation_centre_z = rc_z_start + v_acc * zd;
 	 graphics_draw();
       }
-   
+
       smooth_scroll_on = 0;
    }
 }
@@ -1024,7 +1025,7 @@ graphics_info_t::smooth_scroll_maybe_stepped_acceleration(float x, float y, floa
    float zd = z - rotation_centre_z;
 
    float pre_zoom = zoom;
-   
+
    float frac = 1/float (smooth_scroll_steps);
    float stepping_x = frac*xd;
    float stepping_y = frac*yd;
@@ -1035,7 +1036,7 @@ graphics_info_t::smooth_scroll_maybe_stepped_acceleration(float x, float y, floa
    float zoom_out;
    if (zoom_in != 0.0)      // silly user/divide by zero protection
       zoom_out = 1/zoom_in;
-   else 
+   else
       zoom_out = 1;
 
    // This bit of code doesn't get executed (practically ever).
@@ -1051,7 +1052,7 @@ graphics_info_t::smooth_scroll_maybe_stepped_acceleration(float x, float y, floa
    if ( (xd*xd + yd*yd + zd*zd) < smooth_scroll_limit*smooth_scroll_limit ) {
       smooth_scroll_on = 1; // flag to stop wirecube being drawn.
 
-      if (0) { 
+      if (0) {
 
 	 for (int ii=0; ii<smooth_scroll_steps; ii++) {
 	    rotation_centre_x += stepping_x;
@@ -1067,15 +1068,15 @@ graphics_info_t::smooth_scroll_maybe_stepped_acceleration(float x, float y, floa
 
 	 // -6x^2 +6x parametric function
 	 if (smooth_scroll_steps > 0) {
-	    
+
 	    float rotation_centre_x_start = rotation_centre_x;
 	    float rotation_centre_y_start = rotation_centre_y;
 	    float rotation_centre_z_start = rotation_centre_z;
-	       
+
 	    for (int ii=0; ii<smooth_scroll_steps; ii++) {
 	       float range_frac = float(ii)/float(smooth_scroll_steps);
 	       float f_x = (-2*range_frac*range_frac*range_frac + 3*range_frac*range_frac);
-	       
+
 	       rotation_centre_x = rotation_centre_x_start + f_x*xd;
 	       rotation_centre_y = rotation_centre_y_start + f_x*yd;
 	       rotation_centre_z = rotation_centre_z_start + f_x*zd;
@@ -1091,7 +1092,7 @@ graphics_info_t::smooth_scroll_maybe_stepped_acceleration(float x, float y, floa
    }
 
    // Also not executed generally.
-   if (smooth_scroll_do_zoom && pre_zoom < 70.0 ) { 
+   if (smooth_scroll_do_zoom && pre_zoom < 70.0 ) {
       if ( (xd*xd + yd*yd + zd*zd) > smooth_scroll_limit*smooth_scroll_limit ) {
 	 for (int ii=0; ii<(n_extra_steps + smooth_scroll_steps); ii++) {
 	    graphics_info_t::zoom *= zoom_out; // typically 0.9
@@ -1109,7 +1110,7 @@ graphics_info_t::displayed_map_imols() const {
 
    std::vector<int> is;
    for (int i=0; i<n_molecules(); i++) {
-      if (molecules[i].has_xmap()) { 
+      if (molecules[i].has_xmap()) {
 	 if (molecules[i].is_displayed_p()) {
 	    is.push_back(i);
 	 }
@@ -1146,7 +1147,7 @@ graphics_info_t::undisplay_all_model_molecules_except(int imol) {
 	 state = 1;
       if (is_valid_model_molecule(i)) {
 	 molecules[i].set_mol_is_displayed(state); // raw, no callbacks
-	 molecules[i].set_mol_is_active(state);    // 
+	 molecules[i].set_mol_is_active(state);    //
 	 if (display_control_window()) {
 	    set_display_control_button_state(imol, "Displayed", state);
 	    set_display_control_button_state(imol, "Active",   state);
@@ -1192,7 +1193,7 @@ graphics_info_t::setRotationCentreSimple(const coot::Cartesian &c) {
    rotation_centre_z = c.get_z();
 
 }
-   
+
 void
 graphics_info_t::setRotationCentre(coot::Cartesian centre) {
 
@@ -1233,7 +1234,8 @@ graphics_info_t::ShowFPS(){
 
    long t = 0;
 
-   t = glutGet(GLUT_ELAPSED_TIME);
+   t = 0; // glutGet(GLUT_ELAPSED_TIME);
+   std::cout << "Fix timer in ShowFPS()\n";
    if (t - graphics_info_t::T0 >= 5000) {
       GLfloat seconds = (t-T0)/1000.0;
       GLfloat fps = GLfloat (Frames)/seconds;
@@ -1257,21 +1259,21 @@ graphics_info_t::ShowFPS(){
 // We need to reset the Frames so that the first time we get a FPS
 // response we are not including all those frames that were made
 // without the timer being on.
-// 
+//
 void
 graphics_info_t::SetShowFPS(int t) {
 
    show_fps_flag = t;
    Frames = 0;
-} 
-   
+}
+
 //
 void
 graphics_info_t::SetActiveMapDrag(int t) {
 
    active_map_drag_flag = t;
 
-} 
+}
 
 
 void
@@ -1279,13 +1281,14 @@ graphics_info_t::set_font_size(int size) {
 
 //    cout << "graphics_info_t::setting atom_label_font_size to "
 // 	<< size << endl;
-   
+
    atom_label_font_size = size;
-   
+
+#if 0
    if (size == 2) {
       atom_label_font = GLUT_BITMAP_HELVETICA_12;
    } else {
-      if (size < 2) { 
+      if (size < 2) {
       atom_label_font = GLUT_BITMAP_HELVETICA_10;
       } else {
 	if (size == 3) {
@@ -1307,7 +1310,7 @@ graphics_info_t::set_font_size(int size) {
 	}
       }
    }
-
+#endif
    // make the labels (if there are any) change now
 
    graphics_draw();
@@ -1325,7 +1328,7 @@ graphics_info_t::update_map_colour_menu()
 
 // virtual trackball
 void
-graphics_info_t::set_vt_surface(int v){ 
+graphics_info_t::set_vt_surface(int v){
 
    if (v == 1) { // VT_FLAT
       //
@@ -1337,35 +1340,35 @@ graphics_info_t::set_vt_surface(int v){
 }
 
 int
-graphics_info_t::vt_surface_status() const { 
+graphics_info_t::vt_surface_status() const {
    int status = 2;
    if (trackball_size > 5)
       status = 1;
    return status;
-} 
+}
 
 // phs reading
 //
 std::string
 graphics_info_t::get_phs_filename() const {
 
-   return phs_filename; 
+   return phs_filename;
 
 }
 
 void
 graphics_info_t::set_phs_filename(std::string filename) {
 
-   phs_filename = filename; 
+   phs_filename = filename;
 
-} 
+}
 
 
 
 
 // static
 void
-graphics_info_t::skeletonize_map(int imol, short int prune_it) { 
+graphics_info_t::skeletonize_map(int imol, short int prune_it) {
 
    graphics_info_t g;
 
@@ -1375,68 +1378,68 @@ graphics_info_t::skeletonize_map(int imol, short int prune_it) {
       if (g.molecules[imol].fc_skeleton_draw_on == 0) {
 	 g.molecules[imol].fc_skeleton_draw_on = 1;
 
-	 //       mean_and_variance<float> mv = 
-	 // 	 map_density_distribution(g.molecules[imol].xmap,0); 
+	 //       mean_and_variance<float> mv =
+	 // 	 map_density_distribution(g.molecules[imol].xmap,0);
 
 	 clipper::Map_stats stats(g.molecules[imol].xmap);
 
-	 std::cout << "INFO:: Mean and sigma of map: " << stats.mean() << " and " 
+	 std::cout << "INFO:: Mean and sigma of map: " << stats.mean() << " and "
 		   << stats.std_dev() << std::endl;
-      
-	 float map_cutoff = stats.mean() + 1.5*stats.std_dev(); 
+
+	 float map_cutoff = stats.mean() + 1.5*stats.std_dev();
 	 g.skeleton_level = map_cutoff;
-	    
+
 	 // derived from sktest:
-	 // 
-	 g.molecules[imol].xskel_cowtan.init(g.molecules[imol].xmap.spacegroup(), 
+	 //
+	 g.molecules[imol].xskel_cowtan.init(g.molecules[imol].xmap.spacegroup(),
 					     g.molecules[imol].xmap.cell(),
 					     g.molecules[imol].xmap.grid_sampling());
-      
-	 std::cout << "INFO:: making skeleton cowtan..." << std::endl; 
+
+	 std::cout << "INFO:: making skeleton cowtan..." << std::endl;
 	 GraphicalSkel cowtan(g.molecules[imol].xmap,
 			      g.molecules[imol].xskel_cowtan); //fill xskel_cowtan
 
 	 g.molecules[imol].xskel_is_filled = 1; // TRUE
-      
+
 	 // various experiments....
-      
+
 	 // cowtan.tip_filter(xmap, &xskl); // tinker with xskel_cowtan
-      
+
 	 //cowtan.prune(g.molecules[imol].xmap_list[imap],
 	 //	 &g.molecules[imol].xskel_cowtan);
-      
+
 	 //
 	 cowtan.Pprune(g.molecules[imol].xmap,
 		       &g.molecules[imol].xskel_cowtan,
 		       map_cutoff);
 
-	 if (prune_it) { 
-	    BuildCas bc(g.molecules[imol].xmap, map_cutoff); 
+	 if (prune_it) {
+	    BuildCas bc(g.molecules[imol].xmap, map_cutoff);
 
 	    // mark segments by connectivity
-	    // 
-	    int nsegments = bc.count_and_mark_segments(g.molecules[imol].xskel_cowtan, 
+	    //
+	    int nsegments = bc.count_and_mark_segments(g.molecules[imol].xskel_cowtan,
 						       g.molecules[imol].xmap,
-						       map_cutoff); 
-	 
-	    cout << "INFO:: There were " << nsegments << " different segments" << endl; 
-	 
+						       map_cutoff);
+
+	    cout << "INFO:: There were " << nsegments << " different segments" << endl;
+
 	    bc.transfer_segment_map(&g.molecules[imol].xskel_cowtan);
 	    g.molecules[imol].set_colour_skeleton_by_segment(); // use random colours
 
-	 } else { 
+	 } else {
 	    g.molecules[imol].set_colour_skeleton_by_level(); // use conventional
 							      // colouring, (just
 							      // sets a flag)
-	 } 
-      
-      
+	 }
+
+
 	 // now display the skeleton
-      
+
 	 g.molecules[imol].update_clipper_skeleton();
 	 graphics_draw();
 
-      } else { 
+      } else {
 	 std::cout << "This map has a skeleton already" << std::endl;
       }
    }
@@ -1444,16 +1447,16 @@ graphics_info_t::skeletonize_map(int imol, short int prune_it) {
 
 // static
 void
-graphics_info_t::set_initial_map_for_skeletonize() { 
+graphics_info_t::set_initial_map_for_skeletonize() {
 
    // Initially map_for_skeletonize is -1;
-   
-   if (graphics_info_t::map_for_skeletonize == -1) { 
-      for (int imol=0; imol<n_molecules();imol++) { 
-	 if (graphics_info_t::molecules[imol].has_xmap()) { 
+
+   if (graphics_info_t::map_for_skeletonize == -1) {
+      for (int imol=0; imol<n_molecules();imol++) {
+	 if (graphics_info_t::molecules[imol].has_xmap()) {
 	    graphics_info_t::map_for_skeletonize = imol;
 	    break;
-	 } 
+	 }
       }
    }
 }
@@ -1464,22 +1467,22 @@ graphics_info_t::unskeletonize_map(int imol) {
 
    graphics_info_t g;
 
-   if (imol >= 0) { 
+   if (imol >= 0) {
       g.molecules[imol].unskeletonize_map();
       graphics_draw();
-   } else { 
+   } else {
       std::cout << "Map skeleton not selected from optionmenu." << std::endl;
       std::cout << "Please try again and this time, select "
 		<< "a map from the optionmenu" << std::endl;
-   } 
-} 
+   }
+}
 
 
 
 
 // Do we need to delete the old regularize_object_bonds_box?
 // Yes, well, clear_up() it.
-// 
+//
 void
 graphics_info_t::clear_moving_atoms_object() {
 
@@ -1497,7 +1500,7 @@ graphics_info_t::clear_moving_atoms_object() {
    regularize_object_bonds_box = empty_box;
 
    dynamic_distances.clear();
-   
+
    graphics_draw();
 }
 
@@ -1514,7 +1517,7 @@ graphics_info_t::set_refinement_map(int i) {
 //
 // We want to put the moving parts back into the object that we were
 // regularizing (imol_moving_atoms).
-// 
+//
 void
 graphics_info_t::accept_moving_atoms() {
 
@@ -1529,7 +1532,7 @@ graphics_info_t::accept_moving_atoms() {
       molecules[imol_moving_atoms].add_coords(*moving_atoms_asc);
    } else {
       bool mzo = refinement_move_atoms_with_zero_occupancy_flag;
-      if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE_CHANGE_ALTCONF) { 
+      if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE_CHANGE_ALTCONF) {
 	 molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 1, mzo); // doesn't dealloc moving_atoms_asc
 	 update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
       } else {
@@ -1542,7 +1545,7 @@ graphics_info_t::accept_moving_atoms() {
 	 } else {
 	    if (moving_atoms_asc_type == coot::NEW_COORDS_INSERT) {
 	       molecules[imol_moving_atoms].insert_coords(*moving_atoms_asc);
-	    } else { 
+	    } else {
 	       if  (moving_atoms_asc_type == coot::NEW_COORDS_INSERT_CHANGE_ALTCONF) {
 		  molecules[imol_moving_atoms].insert_coords_change_altconf(*moving_atoms_asc);
 	       } else {
@@ -1560,7 +1563,7 @@ graphics_info_t::accept_moving_atoms() {
    if (graphics_info_t::reset_b_factor_moved_atoms_flag) {
      molecules[imol_moving_atoms].set_b_factor_atom_selection(*moving_atoms_asc, graphics_info_t::default_new_atoms_b_factor, 1);
    }
-   
+
    if (do_probe_dots_post_refine_flag) {
       setup_for_probe_dots_on_chis_molprobity(imol_moving_atoms);
    }
@@ -1598,7 +1601,7 @@ graphics_info_t::accept_moving_atoms() {
 
 void
 graphics_info_t::run_post_manipulation_hook(int imol, int mode) {
-   
+
 #if defined USE_GUILE && !defined WINDOWS_MINGW
    run_post_manipulation_hook_scm(imol, mode);
 #endif // GUILE
@@ -1661,7 +1664,7 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
      PyTuple_SetItem(tuple, 0, res);
      //PyString_Format(p, tuple);
      PyObject *msg = PyString_Format(fmt, tuple);
-     
+
      std::cout << PyString_AsString(msg)<<std::endl;;
      Py_DECREF(msg);
    }
@@ -1740,7 +1743,7 @@ graphics_info_t::run_post_set_rotation_centre_hook_py() {
 
 void
 graphics_info_t::update_environment_distances_by_rotation_centre_maybe(int imol_in) {
-   
+
    // Oh this is grimly "long hand".
    graphics_info_t g;
    if (g.environment_show_distances) {
@@ -1758,7 +1761,7 @@ graphics_info_t::update_environment_distances_by_rotation_centre_maybe(int imol_
 
 
 void
-graphics_info_t::clear_up_moving_atoms() { 
+graphics_info_t::clear_up_moving_atoms() {
 
    // Note to self: why don't I do a delete moving_atoms_asc somewhere here?
    // Where does the moving_atoms_asc->mol go?
@@ -1772,7 +1775,7 @@ graphics_info_t::clear_up_moving_atoms() {
    // can't continue (lock is restraints_lock).
 
    // bool compare_exchange_weak (T& expected, T desired);
-   // when "expected" equals the value of restraint_lock, compare_exchange_weak() returns 
+   // when "expected" equals the value of restraint_lock, compare_exchange_weak() returns
    // true and replaces "desired" as the value of restraints lock - atomically of course.
    // If the values are not equal, then we want to sleep/wait for a bit - hence
    // enter the while loop.
@@ -1800,7 +1803,7 @@ graphics_info_t::clear_up_moving_atoms() {
    continue_threaded_refinement_loop = false;
 
    if (moving_atoms_asc->atom_selection != NULL) {
-      if (moving_atoms_asc->n_selected_atoms > 0) { 
+      if (moving_atoms_asc->n_selected_atoms > 0) {
 	 moving_atoms_asc->mol->DeleteSelection(moving_atoms_asc->SelectionHandle);
 	 moving_atoms_asc->atom_selection = NULL;
       } else {
@@ -1814,13 +1817,13 @@ graphics_info_t::clear_up_moving_atoms() {
       // << std::endl;
    }
    if (moving_atoms_asc->mol != NULL) {
-      if (moving_atoms_asc->n_selected_atoms > 0) { 
-	 moving_atoms_asc->mol = NULL; 
+      if (moving_atoms_asc->n_selected_atoms > 0) {
+	 moving_atoms_asc->mol = NULL;
       } else {
 	 std::cout << "WARNING:: attempting to delete non-NULL moving_atoms_asc.mol" << std::endl;
 	 std::cout << "but moving_atoms_asc.n_selected_atoms == 0" << std::endl;
 	 std::cout << "ignoring " << std::endl;
-      } 
+      }
    } else {
       if (false) {
 	 std::cout << "attempting to delete NULL moving_atoms_asc.mol" << std::endl;
@@ -1876,7 +1879,7 @@ graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
    // first delete the old plot for this molecule (if it exists)
-   // 
+   //
    if (imol < graphics_info_t::n_molecules() && imol >= 0) {
 
       // Clear out the old one if it was there.
@@ -1888,16 +1891,16 @@ graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
       }
       coot::set_validation_graph(imol, coot::RAMACHANDRAN_PLOT, dyna_toplev);
    }
-#endif // HAVE_GTK_CANVAS   
+#endif // HAVE_GTK_CANVAS
 }
 
 void
 graphics_info_t::delete_molecule_from_from_display_manager(int imol, bool was_map) {
 
    // delete from display manager combo box
-   // 
+   //
    GtkWidget *dc_window = display_control_window();
-   // 
+   //
    if (dc_window) { // is being displayed
       std::string display_frame_name = "display_mol_frame_";
       if (was_map)
@@ -1919,7 +1922,7 @@ graphics_info_t::delete_molecule_from_from_display_manager(int imol, bool was_ma
 // molecule in the molecules array.  [Otherwise as we move moving
 // atoms, the static molecule's atoms move (but note that their bonds
 // are not updated)].
-// 
+//
 void
 graphics_info_t::make_moving_atoms_graphics_object(int imol,
 						   const atom_selection_container_t &asc) {
@@ -1927,11 +1930,11 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
    if (! moving_atoms_asc) {
       std::cout << "info:: make_moving_atoms_graphics_object() makes a new moving_atoms_asc" << std::endl;
       moving_atoms_asc = new atom_selection_container_t;
-   } else { 
+   } else {
       // moving_atoms_asc->clear_up(); // crash.  Much complexity to fix the crash, I think.
       // i.e. the clear_up() should be here - I think the problem lies elsewhere.
       // Not clearing up here produces a memory leak, I think (not a bad one (for some reason!)).
-   } 
+   }
 
    *moving_atoms_asc = asc;
 
@@ -1976,7 +1979,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 
          // we shouldn't draw bonds if they have been deleted in clear_up_moving_atoms():
          if (moving_atoms_asc->atom_selection) {
- 
+
             // moving_atoms_lock is a bool
             bool unlocked = false;
             while (! moving_atoms_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
@@ -2084,7 +2087,7 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
       }
 
       if (against_a_dark_background) {
-	 // now we want to draw out our bonds in white, 
+	 // now we want to draw out our bonds in white,
 	 glColor3f (0.9, 0.9, 0.9);
       } else {
 	 glColor3f (0.4, 0.4, 0.4);
@@ -2123,11 +2126,11 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
             current_bond_width = new_bond_width;
          }
 
-	 glBegin(GL_LINES); 
+	 glBegin(GL_LINES);
 	 for (int j=0; j< regularize_object_bonds_box.bonds_[i].num_lines; j++) {
-	   
+
 	    coot::CartesianPair &pair = ll.pair_list[j].positions;
-	    
+
 	    glVertex3f(pair.getStart().get_x(),
 		       pair.getStart().get_y(),
 		       pair.getStart().get_z());
@@ -2240,10 +2243,10 @@ graphics_info_t::draw_moving_atoms_peptide_markup() {
 
 // Display the graphical object of the regularization.
 // static
-void 
+void
 graphics_info_t::draw_ramachandran_goodness_spots() {
 
-#if 0   
+#if 0
    if (graphics_info_t::regularize_object_bonds_box.num_colours > 0) {
       if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
 
@@ -2288,7 +2291,7 @@ graphics_info_t::draw_ramachandran_goodness_spots() {
 	    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
 	    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
 	    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-	       
+
 	    glPushMatrix();
 	    glTranslatef(pos.x(), pos.y(), pos.z());
 	    // gluDisk(quad, 0, base, slices, 2);
@@ -2300,7 +2303,7 @@ graphics_info_t::draw_ramachandran_goodness_spots() {
       }
 
       // we don't want disks any more
-      if (false) { 
+      if (false) {
 	 if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
 	    for (int i=0; i<graphics_info_t::regularize_object_bonds_box.n_ramachandran_goodness_spots; i++) {
 	       const coot::Cartesian &pos = regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].first;
@@ -2315,7 +2318,7 @@ graphics_info_t::draw_ramachandran_goodness_spots() {
 	       glPopMatrix();
 	    }
 	 }
-      } 
+      }
    }
 #endif
 }
@@ -2349,7 +2352,7 @@ graphics_info_t::draw_rotamer_probability_object() {
 	 const coot::generic_display_object_t::dodec_t &dodec = dodecs[i];
 	 GLfloat  mat_diffuse[]  = {dodec.col.red,
 				    dodec.col.green,
-				    dodec.col.blue, 
+				    dodec.col.blue,
 				    feature_opacity};
 	 GLfloat  mat_specular[]  = {0.3, 0.3, 0.3, 1.0};
 	 GLfloat  mat_shininess[] = {100};
@@ -2396,7 +2399,7 @@ graphics_info_t::get_rotamer_dodecs() {
 
 
 // This does (draws) symmetry too.
-// 
+//
 // static
 void
 graphics_info_t::draw_environment_graphics_object() {
@@ -2407,15 +2410,15 @@ graphics_info_t::draw_environment_graphics_object() {
 	 g.environment_graphics_object_internal(environment_object_bonds_box);
 	 if (g.show_symmetry)
 	    g.environment_graphics_object_internal(symmetry_environment_object_bonds_box);
-      } 
-   } 
+      }
+   }
 }
 
 // static
 void
 graphics_info_t::picked_intermediate_atom_graphics_object() {
 
-   if (flash_intermediate_atom_pick_flag) { 
+   if (flash_intermediate_atom_pick_flag) {
       glPointSize(12.0);
       glColor3f(0.99, 0.99, 0.2);
       // for some reason, I have to add the point twice and use
@@ -2429,10 +2432,10 @@ graphics_info_t::picked_intermediate_atom_graphics_object() {
 		 intermediate_flash_point.z());
       glEnd();
    }
-} 
+}
 
 // This is the GL rendering of the environment bonds box
-// 
+//
 void
 graphics_info_t::environment_graphics_object_internal(const graphical_bonds_container &env_bonds_box) const {
 
@@ -2444,11 +2447,11 @@ graphics_info_t::environment_graphics_object_internal(const graphical_bonds_cont
       // glEnable(GL_LIGHT1);
       environment_graphics_object_internal_tubes(env_bonds_box); // GL cylinders and disks
       glDisable(GL_LIGHTING);
-   } 
+   }
 }
 
 // This is the GL rendering of the environment bonds box
-// 
+//
 void
 graphics_info_t::environment_graphics_object_internal_lines(const graphical_bonds_container &env_bonds_box) const {
    if (environment_show_distances == 1) {
@@ -2462,7 +2465,7 @@ graphics_info_t::environment_graphics_object_internal_lines(const graphical_bond
 	 float dark_bg_cor = 0.0;
 	 if (! background_is_black_p())
 	    dark_bg_cor = 0.29;
-	 
+
 	 glLineStipple (1, 0x00FF);
 	 for (int i=0; i< env_bonds_box.num_colours; i++) {
 
@@ -2474,20 +2477,20 @@ graphics_info_t::environment_graphics_object_internal_lines(const graphical_bond
 	       if (!environment_distances_show_h_bonds)
 		  display_these_distances_flag = 0;
 
-	    if (display_these_distances_flag) { 
+	    if (display_these_distances_flag) {
 	       ll = env_bonds_box.bonds_[i]; // lightweight
 	       float it = float(i);
-	       if (it > 1.0) 
+	       if (it > 1.0)
 		  it = 1.0;
 
 	       // now we want to draw out our bonds in various colour,
 	       // according to if they have a carbon or not.
-	       // 
+	       //
 	       glColor3f (0.8-dark_bg_cor, 0.8-0.4*it-dark_bg_cor, 0.4+0.5*it-dark_bg_cor);
 	       // These get turned off and set to 1 when writing stroke characters
 	       glEnable(GL_LINE_STIPPLE);
 	       glLineWidth(2.0);
-	    
+
 	       glBegin(GL_LINES);
 	       for (int j=0; j< env_bonds_box.bonds_[i].num_lines; j++) {
 		  const coot::CartesianPair &pair = ll.pair_list[j].positions;
@@ -2515,14 +2518,14 @@ graphics_info_t::environment_graphics_object_internal_lines(const graphical_bond
 }
 
 // This is the GL rendering of the environment bonds box
-// 
+//
 void
 graphics_info_t::environment_graphics_object_internal_tubes(const graphical_bonds_container &env_bonds_box) const {
 
    if (environment_show_distances == 1) {
 
       if (env_bonds_box.num_colours > 0) {
-	 
+
 	 coot::Cartesian text_pos;
 	 float dist;
 
@@ -2542,23 +2545,23 @@ graphics_info_t::environment_graphics_object_internal_tubes(const graphical_bond
 	       if (!environment_distances_show_h_bonds)
 		  display_these_distances_flag = 0;
 
-	    if (display_these_distances_flag) { 
+	    if (display_these_distances_flag) {
 	       graphical_bonds_lines_list<graphics_line_t> ll = env_bonds_box.bonds_[i]; // lightweight
 	       float it = float(i);
-	       if (it > 1.0) 
+	       if (it > 1.0)
 		  it = 1.0;
 
 	       // now we want to draw out our bonds in various colour,
 	       // according to if they have a carbon or not.
-	       // 
+	       //
 	       glColor3f (0.8-dark_bg_cor, 0.8-0.4*it-dark_bg_cor, 0.4+0.5*it-dark_bg_cor);
-	    
+
 	       for (int j=0; j< env_bonds_box.bonds_[i].num_lines; j++) {
 		  const coot::CartesianPair &pair = ll.pair_list[j].positions;
 
 		  unsigned int n_parts = 15;
 		  for (unsigned int ipart=0; ipart<n_parts; ipart++) {
-		     if (coot::util::even_p(ipart)) { 
+		     if (coot::util::even_p(ipart)) {
 			environment_graphics_object_internal_tube(pair, ipart, n_parts);
 		     }
 		  }
@@ -2646,7 +2649,7 @@ graphics_info_t::printString_internal(const std::string &s,
 
       glScaled(sf, sf, sf);
 
-      if (do_unproject) { 
+      if (do_unproject) {
 	 coot::Cartesian b = unproject(1);
 	 coot::Cartesian f = unproject(0);
 	 coot::Cartesian b_to_f_cart = f - b;
@@ -2674,30 +2677,32 @@ graphics_info_t::printString_internal(const std::string &s,
 	 mat[12] = 0; mat[13] = 0; mat[14] = 0; mat[15] = 1;
 
 	 glMultMatrixf(mat);
-	 
-      }
-      
 
+      }
+
+#if 0
       void *font = GLUT_STROKE_ROMAN;
       if (mono_font)
-	 font = GLUT_STROKE_MONO_ROMAN;
-      
-      for (unsigned int i=0; i<s.length(); i++) { 
-	 glutStrokeCharacter(font, s[i]);
-	 // space characters are full-width (105) - I don't like that, so slim them down
-	 if (s[i] == ' ')
-	    glTranslatef(-40, 0, 0);
-      }
+	       font = GLUT_STROKE_MONO_ROMAN;
+#endif
+      for (unsigned int i=0; i<s.length(); i++) {
+	       // glutStrokeCharacter(font, s[i]);
+	       // space characters are full-width (105) - I don't like that, so slim them down
+	       if (s[i] == ' ')
+	          glTranslatef(-40, 0, 0);
+    }
 
-      glPopMatrix();
+    glPopMatrix();
 
-   } else { 
-   
+   } else {
+
+#if 0
       glRasterPos3f(x,y,z);
       glPushAttrib (GL_LIST_BIT);
       for (unsigned int i = 0; i < s.length(); i++)
-	 glutBitmapCharacter (graphics_info_t::atom_label_font, s[i]);
+	       glutBitmapCharacter (graphics_info_t::atom_label_font, s[i]);
       glPopAttrib();
+#endif
    }
 }
 
@@ -2705,7 +2710,7 @@ graphics_info_t::printString_internal(const std::string &s,
 void
 graphics_info_t::environment_graphics_object_internal_tube(const coot::CartesianPair &pair,
 							   int ipart, int n_parts) const {
-   
+
    coot::Cartesian bond_vec = pair.getFinish() - pair.getStart();
    coot::Cartesian bond_frag = bond_vec * (1.0/double(n_parts));
    coot::Cartesian base_point = pair.getStart() + (bond_frag * float(ipart));
@@ -2720,15 +2725,15 @@ graphics_info_t::graphics_object_internal_single_tube(const coot::Cartesian &bas
 						      const coot::Cartesian &end_point,
 						      const double &radius,
 						      const coot::tube_end_t &end_type) const {
-   
+
 #if 0 // Old OpenGL
    double top =  radius;
    double base = radius;
    int slices  = 12;
    int stacks  = 2;
-   
+
    glPushMatrix();
-	       
+
    coot::Cartesian bond_frag = end_point - base_point;
    double height = bond_frag.amplitude();
 
@@ -2736,13 +2741,13 @@ graphics_info_t::graphics_object_internal_single_tube(const coot::Cartesian &bas
 
 
    // 	    This code from ccp4mg's cprimitive.cc (but modified)
-   //  	    ----- 
+   //  	    -----
    double ax;
-   double rx = 0; 
+   double rx = 0;
    double ry = 0;
    double length = height;
    double vz = bond_frag.z();
-	 
+
    bool rot_x = false;
    if(fabs(vz)>1e-7){
       ax = 180.0/M_PI*acos(vz/length);
@@ -2756,8 +2761,8 @@ graphics_info_t::graphics_object_internal_single_tube(const coot::Cartesian &bas
       if(vy<0) ax = -ax;
       rot_x = true;
    }
-	 
-   if (rot_x) { 
+
+   if (rot_x) {
       glRotated(90.0, 0.0, 1.0, 0.0);
       glRotated(ax,  -1.0, 0.0, 0.0);
    } else {
@@ -2768,7 +2773,7 @@ graphics_info_t::graphics_object_internal_single_tube(const coot::Cartesian &bas
    GLUquadric* quad = gluNewQuadric();
    gluCylinder(quad, base, top, height, slices, stacks);
 
-   if (end_type == coot::FLAT_ENDS) { 
+   if (end_type == coot::FLAT_ENDS) {
       glScalef(1.0, 1.0, -1.0);
       gluDisk(quad, 0, base, slices, 2);
       glScalef(1.0, 1.0, -1.0);
@@ -2784,8 +2789,8 @@ graphics_info_t::graphics_object_internal_single_tube(const coot::Cartesian &bas
       glTranslated(0,0,height);
       gluSphere(sphere_quad, top, sphere_slices, sphere_stacks);
       gluDeleteQuadric(sphere_quad);
-   } 
-   
+   }
+
    gluDeleteQuadric(quad);
    glPopMatrix();
 #endif
@@ -2793,18 +2798,18 @@ graphics_info_t::graphics_object_internal_single_tube(const coot::Cartesian &bas
 
 void
 graphics_info_t::graphics_object_internal_arrow(const coot::Cartesian &base_point,
-						const coot::Cartesian &end_point, 
+						const coot::Cartesian &end_point,
 						float fraction_head_size,
 						const double &radius) const {
 
-#if 0   
+#if 0
    double top =  radius;
    double base = radius;
    int slices  = 12;
    int stacks  = 2;
-   
+
    glPushMatrix();
-	       
+
    coot::Cartesian bond_frag = end_point - base_point;
    double height = bond_frag.amplitude();
 
@@ -2812,13 +2817,13 @@ graphics_info_t::graphics_object_internal_arrow(const coot::Cartesian &base_poin
 
 
    // 	    This code from ccp4mg's cprimitive.cc (but modified)
-   //  	    ----- 
+   //  	    -----
    double ax;
-   double rx = 0; 
+   double rx = 0;
    double ry = 0;
    double length = height;
    double vz = bond_frag.z();
-	 
+
    bool rot_x = false;
    if(fabs(vz)>1e-7){
       ax = 180.0/M_PI*acos(vz/length);
@@ -2832,8 +2837,8 @@ graphics_info_t::graphics_object_internal_arrow(const coot::Cartesian &base_poin
       if(vy<0) ax = -ax;
       rot_x = true;
    }
-	 
-   if (rot_x) { 
+
+   if (rot_x) {
       glRotated(90.0, 0.0, 1.0, 0.0);
       glRotated(ax,  -1.0, 0.0, 0.0);
    } else {
@@ -2844,11 +2849,11 @@ graphics_info_t::graphics_object_internal_arrow(const coot::Cartesian &base_poin
    GLUquadric* quad_1 = gluNewQuadric();
    GLUquadric* quad_2 = gluNewQuadric();
    GLUquadric* quad_3 = gluNewQuadric();
-   
+
    gluCylinder(quad_1, base, top, height, slices, stacks);
    glTranslated(0, 0, height);
    gluCylinder(quad_2, 2*base, 0, fraction_head_size * height, slices, stacks);
-   
+
    glScalef(1.0, 1.0, -1.0);
    gluDisk(quad_3, 0, base, slices, 2);
 
@@ -2862,7 +2867,7 @@ graphics_info_t::graphics_object_internal_arrow(const coot::Cartesian &base_poin
 
 void
 graphics_info_t::graphics_object_internal_torus(const coot::Cartesian &base_point,
-						const coot::Cartesian &end_point, 
+						const coot::Cartesian &end_point,
 						const double &radius_1,
 						const double &radius_2,
 						int n_ring_atoms) const {
@@ -2872,14 +2877,14 @@ graphics_info_t::graphics_object_internal_torus(const coot::Cartesian &base_poin
    double fraction_head_size = 0.3;
    int slices  = 12;
    int stacks  = 2;
-   
+
    coot::Cartesian bond_frag = end_point - base_point;
    double height = bond_frag.amplitude();
-   
-   if (height > 0.0) { 
+
+   if (height > 0.0) {
       glPushMatrix();
       glTranslatef(base_point.x(), base_point.y(), base_point.z());
-      
+
       // we need to rotate the world so that the normal (bond_frag) is
       // along the z axis.  (maybe it already is - say, we are looking at
       // the feats from a raw prodrg result - which is aligned in the XY
@@ -2903,12 +2908,12 @@ graphics_info_t::graphics_object_internal_torus(const coot::Cartesian &base_poin
       if (n_ring_atoms == 5)
 	 // this makes the ring brighter.  I don't know why.
 	 glScalef(0.95, 0.95, 0.48);
-      else 
+      else
 	 glScalef(1.1, 1.1, 0.55);
       glutSolidTorus(radius_1, radius_2, 20, 32);
       glPopMatrix();
    }
-#endif   
+#endif
 }
 
 void
@@ -2919,20 +2924,20 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
 					      const coot::Cartesian &normal,
 					      float r, float radius_inner) {
 
-#if 0   
+#if 0
    glPushMatrix();
-   
+
    double cos_theta_y = normal.z();
    double theta_y_rad = acos(cos_theta_y);
    double theta_z_rad = atan2(normal.y(), normal.x());
    double theta_z = clipper::Util::rad2d(theta_z_rad);
    double theta_y = clipper::Util::rad2d(theta_y_rad);
-	 
+
    glTranslatef(start_point.x(), start_point.y(), start_point.z());
-   
+
    glRotated(theta_z, 0, 0, 1); // not negative.  I don't know why.
    glRotated(theta_y, 0, 1, 0); //   ditto.
-	 
+
    // where is the normal after these rotations?
 
    // sin_t = sin(-theta_x_rad);
@@ -2973,9 +2978,9 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
 
    // end_angle is less than start angle.
    double angle_step = -6.0; // degrees
-   
+
    glBegin(GL_QUADS);
-	       
+
    for (float a=start_angle; a>=end_angle; a+=angle_step) {
       float b = a + angle_step;
       if (b < end_angle) b = end_angle;
@@ -2985,7 +2990,7 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
       clipper::Coord_orth pt_next_unit(cos(clipper::Util::d2rad(b)), sin(clipper::Util::d2rad(b)), 0);
 
       // perpendicular to pt_this_unit is the direction of the circle tangent.
-      // To get that, we rotate about the z-axis: 
+      // To get that, we rotate about the z-axis:
       clipper::Mat33<double> z_90_mat(0, -1, 0, 1, 0, 0, 0, 0, 1);
       clipper::RTop_orth z_90_rtop(z_mat, clipper::Coord_orth(0,0,0));
 
@@ -2994,7 +2999,7 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
 
       clipper::Coord_orth this_circle_tangent(clipper::Coord_orth::cross(pt_this, norm_rot_2));
       clipper::Coord_orth next_circle_tangent(clipper::Coord_orth::cross(pt_next, norm_rot_2));
-	    
+
       // and a point on the ring that we shall rotate about the tangent
       clipper::Coord_orth pt_ring_this = pt_this + radius_inner * pt_this_unit;
       clipper::Coord_orth pt_ring_next = pt_next + radius_inner * pt_next_unit;
@@ -3016,13 +3021,13 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
 
 	 // and the inner next of those points, i.e. neighbours
 	 // on the same inner ring.
-	 // 
+	 //
 	 clipper::Coord_orth pt_multi_this_plus =
 	    coot::util::rotate_around_vector(this_circle_tangent,
 					     pt_ring_this,
 					     pt_this,
 					     clipper::Util::d2rad(iangle+inner_angle_step));
-	       
+
 	 clipper::Coord_orth pt_multi_next_plus =
 	    coot::util::rotate_around_vector(next_circle_tangent,
 					     pt_ring_next,
@@ -3052,17 +3057,17 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
       }
    }
    glEnd();
-   
+
    glPopMatrix();
-#endif   
+#endif
 }
 
 void
 graphics_info_t::graphics_object_internal_dodec(const coot::generic_display_object_t::dodec_t &dodec) {
 
-#if 0   
+#if 0
    glPushMatrix();
-	       
+
    glTranslated(dodec.position.x(), dodec.position.y(), dodec.position.z());
    glScaled(dodec.size, dodec.size, dodec.size);
 
@@ -3070,7 +3075,7 @@ graphics_info_t::graphics_object_internal_dodec(const coot::generic_display_obje
 
    if (false) {
       glBegin(GL_POINTS);
-      for (unsigned int i=0; i<v.size(); i++) { 
+      for (unsigned int i=0; i<v.size(); i++) {
 	 glVertex3d(v[i].x(), v[i].y(), v[i].z());
       }
       glEnd();
@@ -3106,8 +3111,8 @@ graphics_info_t::graphics_object_internal_pentakis_dodec(const coot::generic_dis
    // bool smooth_shading = true;
    bool smooth_shading = false;
 
-   if (smooth_shading) { 
-   
+   if (smooth_shading) {
+
       for (unsigned int i=0; i<12; i++) {
 
 	 std::vector<unsigned int> face = penta_dodec.pkdd.d.face(i);
@@ -3117,7 +3122,7 @@ graphics_info_t::graphics_object_internal_pentakis_dodec(const coot::generic_dis
 	 // first the base point (tip of the triangles/pyrimid)
 	 clipper::Coord_orth pvu(pv[i].unit());
 	 glNormal3d(pvu.x(), pvu.y(), pvu.z());
-	 glVertex3d(pv[i].x(), pv[i].y(), pv[i].z()); 
+	 glVertex3d(pv[i].x(), pv[i].y(), pv[i].z());
 
 	 for (unsigned int j=0; j<=4; j++) {
 	    const clipper::Coord_orth &pt = v[face[j]];
@@ -3148,7 +3153,7 @@ graphics_info_t::graphics_object_internal_pentakis_dodec(const coot::generic_dis
 	    clipper::Coord_orth v2(v[face[idx_2]] - pv[i]);
 	    clipper::Coord_orth cp(clipper::Coord_orth::cross(v2, v1));
 	    clipper::Coord_orth cpu(cp.unit());
-	    
+
 	    glNormal3d(cpu.x(), cpu.y(), cpu.z());
 
 	    glBegin(GL_TRIANGLES);
@@ -3178,14 +3183,14 @@ graphics_info_t::update_symmetry_environment_graphics_object(int atom_index, int
 
    symmetry_environment_object_bonds_box =
       molecules[imol].make_symmetry_environment_bonds_box(atom_index, geom_p);
-} 
+}
 
 // Just a stub.  Not used currently.
-// 
-std::string graphics_info_t::make_mmdb_atom_string_from_go_to_atom() { 
+//
+std::string graphics_info_t::make_mmdb_atom_string_from_go_to_atom() {
 
    std::string a;
-   return a; 
+   return a;
 
 }
 
@@ -3201,7 +3206,7 @@ graphics_info_t::set_density_level_string(int imol, float dlevel) {
 
    graphics_info_t g;
    float map_sigma = g.molecules[imol].map_sigma();
-   
+
    display_density_level_screen_string = "map " + int_to_string(imol);
    display_density_level_screen_string += " level = ";
    display_density_level_screen_string += float_to_string_using_dec_pl(dlevel, 3);
@@ -3238,9 +3243,9 @@ graphics_info_t::display_geometry_distance(int imol1, const coot::Cartesian &p1,
    return dist;
 }
 
-// double 
+// double
 // graphics_info_t::display_geometry_distance_symm(int imol1, const coot::Cartesian &p1,
-// 						int imol2, const coot::Cartesian &p2) { 
+// 						int imol2, const coot::Cartesian &p2) {
 
 
 //    coot::simple_distance_object_t p(imol1, clipper::Coord_orth(p1.x(), p1.y(), p1.z()),
@@ -3249,7 +3254,7 @@ graphics_info_t::display_geometry_distance(int imol1, const coot::Cartesian &p1,
 //    graphics_draw();
 //    double d =  (p1-p2).length();
 //    return d;
-// } 
+// }
 
 void
 graphics_info_t::display_geometry_angle() const {
@@ -3258,7 +3263,7 @@ graphics_info_t::display_geometry_angle() const {
 //    mmdb::Atom *atom1 = molecules[geometry_atom_index_1_mol_no].atom_sel.atom_selection[geometry_atom_index_1];
 //    mmdb::Atom *atom2 = molecules[geometry_atom_index_2_mol_no].atom_sel.atom_selection[geometry_atom_index_2];
 //    mmdb::Atom *atom3 = molecules[geometry_atom_index_3_mol_no].atom_sel.atom_selection[geometry_atom_index_3];
-      
+
    clipper::Coord_orth p1(angle_tor_pos_1.x(), angle_tor_pos_1.y(), angle_tor_pos_1.z());
    clipper::Coord_orth p2(angle_tor_pos_2.x(), angle_tor_pos_2.y(), angle_tor_pos_2.z());
    clipper::Coord_orth p3(angle_tor_pos_3.x(), angle_tor_pos_3.y(), angle_tor_pos_3.z());
@@ -3286,19 +3291,19 @@ graphics_info_t::display_geometry_angle() const {
 
    // no symmetry version, we only have pos now
 //    std::cout << "       angle atom 1: "
-// 	     << "(" << geometry_atom_index_2_mol_no << ") " 
+// 	     << "(" << geometry_atom_index_2_mol_no << ") "
 // 	     << atom1->name << "/"
 // 	     << atom1->GetChainID()  << "/"
 // 	     << atom1->GetSeqNum()   << "/"
 // 	     << atom1->GetResName() << std::endl;
 //    std::cout << "       angle atom 2: "
-// 	     << "(" << geometry_atom_index_2_mol_no << ") " 
+// 	     << "(" << geometry_atom_index_2_mol_no << ") "
 // 	     << atom2->name << "/"
 // 	     << atom2->GetChainID()  << "/"
 // 	     << atom2->GetSeqNum()   << "/"
 // 	     << atom2->GetResName() << std::endl;
 //    std::cout << "       angle atom 3: "
-// 	     << "(" << geometry_atom_index_2_mol_no << ") " 
+// 	     << "(" << geometry_atom_index_2_mol_no << ") "
 // 	     << atom3->name << "/"
 // 	     << atom3->GetChainID()  << "/"
 // 	     << atom3->GetSeqNum()   << "/"
@@ -3325,7 +3330,7 @@ graphics_info_t::set_angle_tors(int imol,
 				const coot::atom_spec_t &as4) {
 
    bool r = 0;
-   if (is_valid_model_molecule(imol)) { 
+   if (is_valid_model_molecule(imol)) {
       mmdb::Atom *at1 = molecules[imol].get_atom(as1);
       mmdb::Atom *at2 = molecules[imol].get_atom(as2);
       mmdb::Atom *at3 = molecules[imol].get_atom(as3);
@@ -3342,7 +3347,7 @@ graphics_info_t::set_angle_tors(int imol,
       if (! at4)
 	 std::cout << "   WARNING:: atom not found in molecule #"
 		   << imol << " " << as4 << std::endl;
-      
+
       if (at1 && at2 && at3 && at4) {
 	 angle_tor_pos_1 = coot::Cartesian(at1->x, at1->y, at1->z);
 	 angle_tor_pos_2 = coot::Cartesian(at2->x, at2->y, at2->z);
@@ -3352,12 +3357,12 @@ graphics_info_t::set_angle_tors(int imol,
       }
    }
    return r;
-} 
+}
 
 void
 graphics_info_t::display_geometry_torsion() const {
 
-   double torsion = get_geometry_torsion(); 
+   double torsion = get_geometry_torsion();
 
    display_density_level_this_image = 1;
    display_density_level_screen_string = "  Torsion:  ";
@@ -3365,11 +3370,11 @@ graphics_info_t::display_geometry_torsion() const {
    display_density_level_screen_string += " degrees";
    add_status_bar_text(display_density_level_screen_string);
    graphics_draw();
-   
+
 }
 
 double
-graphics_info_t::get_geometry_torsion() const { 
+graphics_info_t::get_geometry_torsion() const {
 
    clipper::Coord_orth p1(angle_tor_pos_1.x(), angle_tor_pos_1.y(), angle_tor_pos_1.z());
    clipper::Coord_orth p2(angle_tor_pos_2.x(), angle_tor_pos_2.y(), angle_tor_pos_2.z());
@@ -3404,25 +3409,25 @@ graphics_info_t::get_geometry_torsion() const {
    // Now we just save the positions, so we can't give this nice
    // geometry list, ho hum...
 //    std::cout << "       angle atom 1: "
-// 	     << "(" << geometry_atom_index_1_mol_no << ") " 
+// 	     << "(" << geometry_atom_index_1_mol_no << ") "
 // 	     << atom1->name << "/"
 // 	     << atom1->GetChainID()  << "/"
 // 	     << atom1->GetSeqNum()   << "/"
 // 	     << atom1->GetResName() << std::endl;
 //    std::cout << "       angle atom 2: "
-// 	     << "(" << geometry_atom_index_2_mol_no << ") " 
+// 	     << "(" << geometry_atom_index_2_mol_no << ") "
 // 	     << atom2->name << "/"
 // 	     << atom2->GetChainID()  << "/"
 // 	     << atom2->GetSeqNum()   << "/"
 // 	     << atom2->GetResName() << std::endl;
 //    std::cout << "       angle atom 3: "
-// 	     << "(" << geometry_atom_index_3_mol_no << ") " 
+// 	     << "(" << geometry_atom_index_3_mol_no << ") "
 // 	     << atom3->name << "/"
 // 	     << atom3->GetChainID()  << "/"
 // 	     << atom3->GetSeqNum()   << "/"
 // 	     << atom3->GetResName() << std::endl;
 //    std::cout << "       angle atom 4: "
-// 	     << "(" << geometry_atom_index_4_mol_no << ") " 
+// 	     << "(" << geometry_atom_index_4_mol_no << ") "
 // 	     << atom4->name << "/"
 // 	     << atom4->GetChainID()  << "/"
 // 	     << atom4->GetSeqNum()   << "/"
@@ -3445,7 +3450,7 @@ graphics_info_t::pepflip() {
    model_fit_refine_unactive_togglebutton("model_refine_dialog_pepflip_togglebutton");
 }
 
- 
+
 // ----------------------------------------------------------
 //                     some utilities:
 // ----------------------------------------------------------
@@ -3494,11 +3499,11 @@ graphics_info_t::Imol_Refinement_Map() const {
 
    // check the molecules for maps - we can assign if there is only
    // one non-difference map.
-   // 
+   //
    std::vector<int> direct_maps;
-   for (int imol=0; imol<n_molecules(); imol++) { 
+   for (int imol=0; imol<n_molecules(); imol++) {
       if (molecules[imol].has_xmap()) {
-	 if (! molecules[imol].is_difference_map_p()) { 
+	 if (! molecules[imol].is_difference_map_p()) {
 	    direct_maps.push_back(imol);
 	 }
       }
@@ -3516,7 +3521,7 @@ int
 graphics_info_t::set_imol_refinement_map(int imol) {
 
    int r = -1;
-   if (molecules[imol].has_xmap()) { 
+   if (molecules[imol].has_xmap()) {
       imol_refinement_map = imol;
       r = imol;
    }
@@ -3605,7 +3610,7 @@ graphics_info_t::add_vector_to_RotationCentre(const coot::Cartesian &vec) {
    rotation_centre_z += vec.z();
 
    update_maps();
-   for (int ii=0; ii<n_molecules(); ii++) { 
+   for (int ii=0; ii<n_molecules(); ii++) {
       molecules[ii].update_symmetry();
    }
    graphics_draw();
@@ -3618,11 +3623,11 @@ mmdb::Atom *
 graphics_info_t::find_atom_in_moving_atoms(const coot::atom_spec_t &at) const {
 
    mmdb::Atom *cat = NULL;
-   if (moving_atoms_asc->mol != NULL) { 
+   if (moving_atoms_asc->mol != NULL) {
 
       int SelHnd = coot::get_selection_handle(moving_atoms_asc->mol, at);
-      int nSelAtoms; 
-      mmdb::PPAtom local_SelAtom = NULL; 
+      int nSelAtoms;
+      mmdb::PPAtom local_SelAtom = NULL;
       moving_atoms_asc->mol->GetSelIndex(SelHnd, local_SelAtom, nSelAtoms);
       if (nSelAtoms > 0)
 	 cat = local_SelAtom[0];
@@ -3631,22 +3636,22 @@ graphics_info_t::find_atom_in_moving_atoms(const coot::atom_spec_t &at) const {
        for(int i=0; i<nSelAtoms; i++)
  	 std::cout << "      " << i << "  " << local_SelAtom[i] << std::endl;
       moving_atoms_asc->mol->DeleteSelection(SelHnd);
-   } else { 
+   } else {
      std::cout << "WARNING:: OOps: moving_atoms_asc->mol is NULL" << std::endl;
-   } 
+   }
    return cat;
 }
 
 
 
 int
-graphics_info_t::load_db_main() { 
+graphics_info_t::load_db_main() {
    return 1;
 }
 
 
 
-// 
+//
 int
 graphics_info_t::create_pointer_atom_molecule_maybe() const {
 
@@ -3659,8 +3664,8 @@ graphics_info_t::create_pointer_atom_molecule_maybe() const {
 	 }
       }
    }
-      
-   if (i == -1) { 
+
+   if (i == -1) {
       // user did not explicictly set the molecule, the usual case:
 
       for (int imol=0; imol<n_molecules(); imol++) {
@@ -3670,9 +3675,9 @@ graphics_info_t::create_pointer_atom_molecule_maybe() const {
 	    }
 	 }
       }
-	     
+
       // If we get here, it was not found, let's create one:
-	 
+
       std::cout << "Creating a molecule for Pointer Atoms" << std::endl;
       mmdb::Manager *MMDBManager = new mmdb::Manager();
 
@@ -3680,10 +3685,10 @@ graphics_info_t::create_pointer_atom_molecule_maybe() const {
       // Yes.
       mmdb::Model *model_p = new mmdb::Model;
       mmdb::Chain *chain_p = new mmdb::Chain;
-   
+
       model_p->AddChain(chain_p);
       MMDBManager->AddModel(model_p);
-   
+
       atom_selection_container_t asc = make_asc(MMDBManager);
       int imol = create_molecule();
       graphics_info_t g;
@@ -3703,10 +3708,10 @@ graphics_info_t::update_things_on_move_and_redraw() {
 
 void
 graphics_info_t::update_things_on_move() {
-   
-   for (int ii=0; ii<n_molecules(); ii++) { 
+
+   for (int ii=0; ii<n_molecules(); ii++) {
       molecules[ii].update_map();
-      molecules[ii].update_clipper_skeleton(); 
+      molecules[ii].update_clipper_skeleton();
       molecules[ii].update_symmetry();
    }
    setup_graphics_ligand_view_aa();
@@ -3717,7 +3722,7 @@ bool
 graphics_info_t::start_baton_here() {
 
    baton_root = RotationCentre();
-   
+
    int imol_for_skel = imol_for_skeleton(); // if unset, sets and
 					    // returns if only one
 					    // map, else return -1
@@ -3735,7 +3740,7 @@ graphics_info_t::start_baton_here() {
       } else {
 
 	 // 20091218 It is as it was - No map.
-	 // 
+	 //
 	 GtkWidget *w = create_baton_mode_make_skeleton_dialog();
 	 g_object_set_data(G_OBJECT(w), "imol", GINT_TO_POINTER(imol_for_skel));
 	 gtk_widget_show(w);
@@ -3748,18 +3753,18 @@ graphics_info_t::start_baton_here() {
       clipper::Coord_grid dummy_cg;
       short int use_dummy_cg = 0;
       baton_next_directions(imol_for_skel, NULL, baton_root, dummy_cg, use_dummy_cg);
-      baton_next_ca_options_index = 0; 
+      baton_next_ca_options_index = 0;
       baton_tip = baton_tip_by_ca_option(baton_next_ca_options_index);
       return 1;
    }
 }
 
 // Fill baton_next_ca_options, used in accept_baton_position() and
-// several other functions.  
-// 
+// several other functions.
+//
 // Generate the "Atom Guide Points" molecule (based on
 // baton_next_ca_options) and display it.
-// 
+//
 void
 graphics_info_t::baton_next_directions(int imol_for_skel, mmdb::Atom *latest_atom,
 				       const coot::Cartesian &baton_root_in,
@@ -3769,10 +3774,10 @@ graphics_info_t::baton_next_directions(int imol_for_skel, mmdb::Atom *latest_ato
 
 //    std::cout << "DEBUG in baton_next_directions imol_for_skel is "
 // 	     << imol_for_skel << std::endl;
-         
+
    std::vector<clipper::Coord_orth> previous_ca_positions;
    // store the position of the just accepted atom as a previous atom
-   // 
+   //
    // previous_ca_positions.push_back(to_coord_orth(baton_root_in));
    int imol_baton_atoms = baton_build_atoms_molecule();
 
@@ -3782,7 +3787,7 @@ graphics_info_t::baton_next_directions(int imol_for_skel, mmdb::Atom *latest_ato
    if (latest_atom == NULL) {
       previous_ca_positions.push_back(to_coord_orth(baton_root_in));
    } else {
-      previous_ca_positions = molecules[imol_baton_atoms].previous_baton_atom(latest_atom, 
+      previous_ca_positions = molecules[imol_baton_atoms].previous_baton_atom(latest_atom,
 									      baton_build_direction_flag);
    }
 //    std::cout << "DEBUG: in graphics: cg_start: " << cg_start.format() << "  "
@@ -3791,11 +3796,11 @@ graphics_info_t::baton_next_directions(int imol_for_skel, mmdb::Atom *latest_ato
 								     cg_start,
 								     use_cg_start,
 								     3.8,
-								     skeleton_level, 
+								     skeleton_level,
 								     max_skeleton_search_depth);
 
    // Print out the baton_next_ca_options
-   // 
+   //
    std::cout << "-- baton_next_ca_options" << std::endl;
    for(unsigned int i=0; i<baton_next_ca_options->size(); i++) {
       std::cout << "   " << (*baton_next_ca_options)[i].score  << "  "
@@ -3804,7 +3809,7 @@ graphics_info_t::baton_next_directions(int imol_for_skel, mmdb::Atom *latest_ato
    std::cout << "--" << std::endl;
 
    // Graphics the baton_next_ca_options
-   // 
+   //
    std::string molname("Baton Atom Guide Points");
    if (baton_tmp_atoms_to_new_molecule) {
       create_molecule_and_display(*baton_next_ca_options, molname);
@@ -3851,8 +3856,8 @@ graphics_info_t::draw_baton_object() {
       glVertex3f(rp_2.x(), rp_2.y(), rp_2.z());
       glEnd();
    }
-   
-} 
+
+}
 
 // aka imol_for_baton_atoms()
 int
@@ -3867,12 +3872,12 @@ graphics_info_t::baton_build_atoms_molecule() const {
       }
    }
 
-   if (0) { 
+   if (0) {
       std::cout << "------------- existing molecule names: " << std::endl;
       for (int im=0; im<n_molecules(); im++)
 	 std::cout << im << " " << molecules[im].name_ << std::endl;
    }
-   
+
 
    std::cout << "INFO:: Creating a molecule for Baton Atoms" << std::endl;
    // not found, let's create one:
@@ -3883,7 +3888,7 @@ graphics_info_t::baton_build_atoms_molecule() const {
    mmdb::Model *model_p = new mmdb::Model;
    mmdb::Chain *chain_p = new mmdb::Chain;
    chain_p->SetChainID(baton_build_chain_id.c_str());
-   
+
    model_p->AddChain(chain_p);
    MMDBManager->AddModel(model_p);
 
@@ -3905,16 +3910,16 @@ graphics_info_t::baton_build_atoms_molecule() const {
       std::cout << "INFO:: setting spacegroup of Baton Atoms to be: " << spacegroup << std::endl;
       std::cout << "INFO:: setting cell of Baton Atoms to be: "
 		<< molecules[imol_for_skel].xskel_cowtan.cell().format() << std::endl;
-      
+
       int istat_spgr = MMDBManager->SetSpaceGroup(spacegroup.c_str());
       if (istat_spgr != 0) {
 	 std::cout << "WARNING:: Problem:: mmdb does not understand space group: " << spacegroup << std::endl;
-      }  
-      
+      }
+
    } else {
       std::cout << "WARNING: skeleton not found - no symmetry for Baton Atoms " << std::endl;
    }
-   
+
    atom_selection_container_t asc = make_asc(MMDBManager);
    asc.SelectionHandle = -1;
    imol = create_molecule();
@@ -3922,7 +3927,7 @@ graphics_info_t::baton_build_atoms_molecule() const {
 
    std::cout << "INFO:: returning baton atom molecule " << imol << std::endl;
    return imol;
-} 
+}
 
 void
 graphics_info_t::accept_baton_position() {
@@ -3937,7 +3942,7 @@ graphics_info_t::accept_baton_position() {
 
    std::cout << "--------------------- in accept_baton_position() imol is " << imol << std::endl;
    if (imol >= 0) {
-      baton_atom = molecules[imol].add_baton_atom(baton_tip, 
+      baton_atom = molecules[imol].add_baton_atom(baton_tip,
 						  baton_build_start_resno,
 						  baton_build_chain_id,
 						  baton_build_params_active,
@@ -3952,7 +3957,7 @@ graphics_info_t::accept_baton_position() {
 	    mmdb::Chain *chain_p = new mmdb::Chain;
 	    chain_p->SetChainID("A");
 	    model_p->AddChain(chain_p);
-	    baton_atom = molecules[imol].add_baton_atom(baton_tip, 
+	    baton_atom = molecules[imol].add_baton_atom(baton_tip,
 							baton_build_start_resno,
 							baton_build_chain_id,
 							baton_build_params_active,
@@ -3966,7 +3971,7 @@ graphics_info_t::accept_baton_position() {
 				     // molecule_class_info_t::add_baton_atom
 				     // can work it out.
    }
-   std::cout << "setting screen rotation centre to " << baton_tip << std::endl; 
+   std::cout << "setting screen rotation centre to " << baton_tip << std::endl;
    setRotationCentre(baton_tip);
    for(int ii=0; ii<n_molecules(); ii++) {
       // but not skeleton, lets do skeleton only on a middle-mouse recentre
@@ -3975,12 +3980,12 @@ graphics_info_t::accept_baton_position() {
    }
 
    // debug
-   // 
-   // std::cout << "DEBUG:: in accept_baton_position baton_atom is " 
+   //
+   // std::cout << "DEBUG:: in accept_baton_position baton_atom is "
    // << baton_atom << std::endl;
 
    // But first show us the options for the next point as dummy atoms
-   // 
+   //
 
    // int imol_for_skel = imol_for_skeleton();
    // internally set the baton_next_ca_options
@@ -3991,25 +3996,25 @@ graphics_info_t::accept_baton_position() {
       short int use_cg = 1;
       std::cout << "DEBUG:: accept_baton_position: " << baton_next_ca_options->size() << " "
 		<< baton_next_ca_options_index << std::endl;
-      if (baton_next_ca_options->size() > 0) { 
+      if (baton_next_ca_options->size() > 0) {
 	 clipper::Coord_grid cg = (*baton_next_ca_options)[baton_next_ca_options_index].near_grid_pos;
 	 baton_next_directions(imol_for_skel, baton_atom, baton_tip, cg, use_cg); // old tip
       } else {
 	 clipper::Coord_grid cg;
 	 use_cg = 0;
 	 baton_next_directions(imol_for_skel, baton_atom, baton_tip, cg, use_cg);
-      } 
+      }
    }
-						   
+
    // Now set the baton tip to the next point:
-   
+
    // set these for redraw
    baton_root = baton_tip;
    baton_next_ca_options_index = 0; // for next
    baton_length = 3.8; // reset to to optimal
 
    baton_tip = baton_tip_by_ca_option(baton_next_ca_options_index);
-      
+
    graphics_draw();
 }
 
@@ -4023,12 +4028,12 @@ graphics_info_t::baton_tip_by_ca_option(int index) const {
 
    if (!baton_next_ca_options) {
       std::cout << "ERROR: baton_next_ca_options is NULL\n";
-   } else { 
+   } else {
       if (uindex >= baton_next_ca_options->size()) {
 	 if ((uindex == 0) && (baton_next_ca_options->size() == 0)) {
 	    std::cout << "INFO:: no baton next positions from here\n";
 	    tip_pos = non_skeleton_tip_pos();
-	 } else { 
+	 } else {
 	    std::cout << "ERROR: bad baton_next_ca_options index: "
 		      << index << " size " << baton_next_ca_options->size()
 		      << std::endl;
@@ -4040,7 +4045,7 @@ graphics_info_t::baton_tip_by_ca_option(int index) const {
 	 coot::Cartesian target_point = to_cartesian((*baton_next_ca_options)[index].position);
 	 std::cout << "Ca option " << index << " score: "
 		   << (*baton_next_ca_options)[index].score << std::endl;
-	 
+
 	 coot::Cartesian target_dir = target_point - baton_root;
 
 	 target_dir.unit_vector_yourself();
@@ -4066,7 +4071,7 @@ graphics_info_t::non_skeleton_tip_pos() const {
 
 // Gawd, Kevin's having an effect on me.. (my programming at least...)
 // "const double &" indeed?  Tsk! Whatever next?
-// 
+//
 void
 graphics_info_t::rotate_baton(const double &x, const double &y) {
 
@@ -4076,7 +4081,7 @@ graphics_info_t::rotate_baton(const double &x, const double &y) {
 
    diff  = mouse_current_x - GetMouseBeginX();
    diff += mouse_current_y - GetMouseBeginY();
-   
+
    coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
    coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
    coot::Cartesian screen_z = (front - centre);
@@ -4088,12 +4093,12 @@ graphics_info_t::rotate_baton(const double &x, const double &y) {
 
    baton_tip = to_cartesian(new_pos);
    graphics_draw();
-} 
+}
 
 void
 graphics_info_t::toggle_baton_mode() {
 
-   if (baton_mode == 0) { 
+   if (baton_mode == 0) {
       baton_mode = 1;
       std::cout << "INFO::baton rotation mode on." << std::endl;
    } else {
@@ -4106,7 +4111,7 @@ void
 graphics_info_t::baton_tip_try_another() {
 
    baton_next_ca_options_index++;
-   
+
    // make baton_next_ca_options_index an unsigned int
    if (baton_next_ca_options_index >= int(baton_next_ca_options->size())) {
       std::cout << "info: cycling back to start of ca options" << std::endl;
@@ -4125,7 +4130,7 @@ graphics_info_t::baton_tip_previous() {
       baton_next_ca_options_index = int(baton_next_ca_options->size()-1);
    } else {
       baton_next_ca_options_index--;
-   } 
+   }
    baton_tip = baton_tip_by_ca_option(baton_next_ca_options_index);
    graphics_draw();
 }
@@ -4173,20 +4178,20 @@ graphics_info_t::baton_build_delete_last_residue() {
 	 if (imol_for_skel >= 0) {
 	    short int use_cg = 1;
 	    // recall std::vector<coot::scored_skel_coord> *baton_next_ca_options;
-	    // 
+	    //
 	    std::pair <short int,clipper::Coord_grid> cg =
 	       molecules[imol_for_skel].search_for_skeleton_near(new_centre_cart);
 
 	    if (cg.first)
 	       baton_next_directions(imol_for_skel, new_centre.second, new_centre_cart, cg.second, use_cg);
-	 } 
+	 }
 	 baton_next_ca_options_index = 0;
 	 baton_length = 3.8;
 	 baton_tip = baton_tip_by_ca_option(baton_next_ca_options_index);
       }
-   } 
+   }
    graphics_draw();
-} 
+}
 
 
 // should be similar to Imol for refinement?
@@ -4202,7 +4207,7 @@ graphics_info_t::imol_for_skeleton() const {
 //    int nmaps = 0;
 //    int only_map;
 
-//     if (map_for_skeletonize == -1) { 
+//     if (map_for_skeletonize == -1) {
 //        for (int imol=0; imol<n_molecules; imol++) {
 //  	 if (molecules[imol].has_map()) {
 //  	    nmaps++;
@@ -4213,9 +4218,9 @@ graphics_info_t::imol_for_skeleton() const {
 //  	 map_for_skeletonize = only_map;
 //        }
 //     }
-   
+
    return map_for_skeletonize;
-} 
+}
 
 ;
 void
@@ -4237,17 +4242,17 @@ graphics_info_t::create_molecule_and_display(std::vector<coot::scored_skel_coord
 
 // as above, except we update molecule with name molname to the
 // pos_positions (and delete everything else).
-// 
+//
 void
 graphics_info_t::update_molecule_to(std::vector<coot::scored_skel_coord> &pos_position,
 					  const std::string &molname) {
 
    int imol = lookup_molecule_name(molname);
 
-   if (pos_position.size() > 0) { 
+   if (pos_position.size() > 0) {
       if (is_valid_model_molecule(imol)) {
 	 graphics_info_t::molecules[imol].update_molecule_to(pos_position);
-      } else { 
+      } else {
 	 create_molecule_and_display(pos_position, molname);
       }
    } else {
@@ -4259,7 +4264,7 @@ graphics_info_t::update_molecule_to(std::vector<coot::scored_skel_coord> &pos_po
 // return -1 on no such map.
 int
 graphics_info_t::lookup_molecule_name(const std::string &molname) const {
-   
+
    for (int imol=0; imol<n_molecules(); imol++) {
       if (is_valid_map_molecule(imol) || (is_valid_model_molecule(imol))) {
 	 if (0)
@@ -4275,7 +4280,7 @@ graphics_info_t::lookup_molecule_name(const std::string &molname) const {
 }
 
 
-  
+
 int
 graphics_info_t::create_empty_molecule(const std::string &molname) {
 
@@ -4285,17 +4290,17 @@ graphics_info_t::create_empty_molecule(const std::string &molname) {
 
    mmdb::Model *model_p = new mmdb::Model;
    mmdb::Chain *chain_p = new mmdb::Chain;
-   
+
    model_p->AddChain(chain_p);
    MMDBManager->AddModel(model_p);
-   
+
    atom_selection_container_t asc = make_asc(MMDBManager);
    int imol = create_molecule();
    molecules[imol].install_model(imol, asc, graphics_info_t::Geom_p(), molname, 1);
    asc.read_error_message = "No error";
    asc.read_success = 1;
    return imol;
-} 
+}
 
 
 // ------------------------------------------------------------------
@@ -4313,8 +4318,8 @@ graphics_info_t::create_empty_molecule(const std::string &molname) {
 // But we need to modify the response of Undo_molecule() depending on
 // whether it was asked by apply_undo or apply_redo, we do that by
 // passing an enumerated type.
-// 
-// 
+//
+//
 int
 graphics_info_t::apply_undo() {
 
@@ -4322,7 +4327,7 @@ graphics_info_t::apply_undo() {
    int umol = Undo_molecule(coot::UNDO);
    // std::cout << "DEBUG:: undo molecule : " << umol << std::endl;
    if (umol == -2) {
-      if (use_graphics_interface_flag) { 
+      if (use_graphics_interface_flag) {
 	 GtkWidget *dialog = create_undo_molecule_chooser_dialog();
 	 GtkWidget *option_menu = lookup_widget(dialog,
 						"undo_molecule_chooser_option_menu");
@@ -4338,16 +4343,16 @@ graphics_info_t::apply_undo() {
       } else {
 
 	 std::string cwd = coot::util::current_working_dir();
-	 if (molecules[umol].Have_modifications_p()) { 
-	    if (molecules[umol].is_displayed_p()) { 
+	 if (molecules[umol].Have_modifications_p()) {
+	    if (molecules[umol].is_displayed_p()) {
 	       state = molecules[umol].apply_undo(cwd);
-	       if (use_graphics_interface_flag) { 
+	       if (use_graphics_interface_flag) {
 		  graphics_draw();
-		  
+
 		  // need to update the atom and residue list in Go To Atom widget
 		  // (maybe)
 		  update_go_to_atom_window_on_changed_mol(umol);
-		  
+
 		  // update the ramachandran, if there was one
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 		  GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
@@ -4359,10 +4364,10 @@ graphics_info_t::apply_undo() {
 		  atom_selection_container_t u_asc = molecules[umol].atom_sel;
 
 		  update_geometry_graphs(u_asc, umol);
-#endif // HAVE_GTK_CANVAS   
+#endif // HAVE_GTK_CANVAS
 	       }
 	    } else {
-	       if (use_graphics_interface_flag) { 
+	       if (use_graphics_interface_flag) {
 		  std::string s = "WARNING:: Coot will not undo modifications on a \n";
 		  s += "molecule that is not displayed";
 		  GtkWidget *w = wrapped_nothing_bad_dialog(s);
@@ -4371,7 +4376,7 @@ graphics_info_t::apply_undo() {
 	    }
 	 } else {
 	    undo_molecule = -1; // reset it
-	    if (use_graphics_interface_flag) { 
+	    if (use_graphics_interface_flag) {
 	       std::cout << "WARNING:: !!!  Changing the molecule to which "
 			 << "\"Undo\"s are done." << std::endl;
 	       std::string s = "WARNING:: Changing to Undo molecule";
@@ -4388,11 +4393,11 @@ graphics_info_t::apply_undo() {
    return state;
 }
 
-int 
-graphics_info_t::apply_redo() { 
+int
+graphics_info_t::apply_redo() {
 
    int state = 0;
-   
+
    int umol = Undo_molecule(coot::REDO);
    if (umol == -2) { // ambiguity
       GtkWidget *dialog = create_undo_molecule_chooser_dialog();
@@ -4410,7 +4415,7 @@ graphics_info_t::apply_redo() {
 	    std::string cwd = coot::util::current_working_dir();
 	    state = molecules[umol].apply_redo(cwd);
 	    graphics_draw();
-	    
+
 	    // need to update the atom and residue list in Go To Atom widget
 	    // (maybe)
 	    update_go_to_atom_window_on_changed_mol(umol);
@@ -4443,19 +4448,19 @@ graphics_info_t::apply_redo() {
 //
 // When the widget gets created, the redo button is always insensitve
 // - it should depend on if there are redoable molecules.
-// 
+//
 void
 graphics_info_t::activate_redo_button() {
 
    GtkWidget *dialog = model_fit_refine_dialog;
 
-   
-   if (dialog) { 
+
+   if (dialog) {
       // which it should be!
       GtkWidget *button = lookup_widget(dialog, "model_refine_dialog_redo_button");
       gtk_widget_set_sensitive(button, TRUE);
    }
-} 
+}
 
 
 
@@ -4466,13 +4471,13 @@ int
 graphics_info_t::Undo_molecule(coot::undo_type undo_type) const {
 
    int r = -1;
-   if (is_valid_model_molecule(undo_molecule)) { 
+   if (is_valid_model_molecule(undo_molecule)) {
       r = undo_molecule;
    } else {
-      int n_mol = 0; 
+      int n_mol = 0;
       for (int imol=0; imol<n_molecules(); imol++) {
 
-	 if (undo_type == coot::UNDO) { 
+	 if (undo_type == coot::UNDO) {
 	    if (molecules[imol].Have_modifications_p()) {
 	       n_mol++;
 	       r = imol;
@@ -4499,7 +4504,7 @@ graphics_info_t::set_bond_thickness(int imol, float t) {
 
    if (imol < n_molecules()) {
       if (imol >= 0) {
-	 if (graphics_info_t::molecules[imol].has_model()) { 
+	 if (graphics_info_t::molecules[imol].has_model()) {
 	    molecules[imol].set_bond_thickness(t);
 	    graphics_draw();
 	 }
@@ -4508,25 +4513,25 @@ graphics_info_t::set_bond_thickness(int imol, float t) {
       std::cout << "Ignoring attempt to set bond with for molecule "
 		<< imol << std::endl;
    }
-} 
+}
 
 void
 graphics_info_t::set_bond_thickness_intermediate_atoms(float t) {
 
    bond_thickness_intermediate_atoms = t;
 
-} 
+}
 
 void
-graphics_info_t::crosshairs_text() const { 
+graphics_info_t::crosshairs_text() const {
 
-   if (draw_crosshairs_flag > 0) { 
+   if (draw_crosshairs_flag > 0) {
       std::cout << "Crosshair ticks: 1.54A (C-C bond), 2.7A (H-bond), 3.8A (Ca-Ca)\n";
    }
-} 
+}
 
 // Thank you for this idea Stuart Makay
-// 
+//
 void
 graphics_info_t::pick_cursor_maybe() {
 
@@ -4538,7 +4543,7 @@ graphics_info_t::pick_cursor_maybe() {
 void
 graphics_info_t::pick_cursor_real() {
 
-   if (use_graphics_interface_flag) { 
+   if (use_graphics_interface_flag) {
       //    GdkCursorType c = GDK_CROSSHAIR;
       GdkCursorType c = pick_cursor_index;
       GdkCursor *cursor;
@@ -4551,10 +4556,10 @@ graphics_info_t::pick_cursor_real() {
 
 // static
 void
-graphics_info_t::normal_cursor() { 
+graphics_info_t::normal_cursor() {
 
-   if (use_graphics_interface_flag) { 
-      if (control_key_for_rotate_flag) { 
+   if (use_graphics_interface_flag) {
+      if (control_key_for_rotate_flag) {
 	 GdkCursorType c = GDK_LEFT_PTR;
 	 GdkCursor *cursor;
 	 cursor = gdk_cursor_new (c);
@@ -4567,9 +4572,9 @@ graphics_info_t::normal_cursor() {
 
 // static
 void
-graphics_info_t::watch_cursor() { 
+graphics_info_t::watch_cursor() {
 
-   if (use_graphics_interface_flag) { 
+   if (use_graphics_interface_flag) {
       GdkCursorType c = GDK_WATCH;
       GdkCursor *cursor;
       cursor = gdk_cursor_new (c);
@@ -4584,9 +4589,9 @@ graphics_info_t::watch_cursor() {
 
 // static
 void
-graphics_info_t::fleur_cursor() { 
+graphics_info_t::fleur_cursor() {
 
-   if (use_graphics_interface_flag) { 
+   if (use_graphics_interface_flag) {
       GdkCursorType c = GDK_FLEUR;
       GdkCursor *cursor;
       cursor = gdk_cursor_new (c);
@@ -4599,46 +4604,46 @@ graphics_info_t::fleur_cursor() {
 
 
 // static
-short int 
-graphics_info_t::alt_conf_split_type_number() { 
-   
+short int
+graphics_info_t::alt_conf_split_type_number() {
+
    return graphics_info_t::alt_conf_split_type;
 
-} 
+}
 
 
 
-// The start of the edit one residue with the pullable point in the 
+// The start of the edit one residue with the pullable point in the
 // Ramachandran.  Currently disabled, but will be a nice feature in future.
-// 
+//
 void
 graphics_info_t::execute_edit_phi_psi(int atom_index, int imol) {
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS) 
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    std::pair<double, double> phi_psi = molecules[imol].get_phi_psi(atom_index);
 
-   if (phi_psi.first > -200.0) { 
+   if (phi_psi.first > -200.0) {
       coot::rama_plot *plot = new coot::rama_plot;
 
       plot->init("phi/psi-edit");  // magic string
-      coot::util::phi_psi_t phipsi(phi_psi.first, phi_psi.second, "resname", 
+      coot::util::phi_psi_t phipsi(phi_psi.first, phi_psi.second, "resname",
 				   "moving residue", 1, "inscode", "chainid");
       plot->draw_it(phipsi);
-      
+
       moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
       imol_moving_atoms = imol;
       short int whole_res_flag = 1;
-      atom_selection_container_t residue_asc = 
+      atom_selection_container_t residue_asc =
 	 graphics_info_t::molecules[imol].edit_residue_pull_residue(atom_index,
 								    whole_res_flag);
       make_moving_atoms_graphics_object(imol, residue_asc);
-      
+
       graphics_draw();
 
-   } else { 
+   } else {
       std::cout << "Can't find ramachandran angles for this residue" << std::endl;
-   } 
-#endif // HAVE_GTK_CANVAS   
+   }
+#endif // HAVE_GTK_CANVAS
 }
 
 void
@@ -4647,7 +4652,7 @@ graphics_info_t::rama_plot_for_single_phi_psi(int imol, int atom_index) {
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    std::pair<double, double> phi_psi = molecules[imol].get_phi_psi(atom_index);
 
-   if (phi_psi.first > -200.0) { 
+   if (phi_psi.first > -200.0) {
       // coot::rama_plot *plot = new coot::rama_plot;
       edit_phi_psi_plot = new coot::rama_plot;
 
@@ -4661,10 +4666,10 @@ graphics_info_t::rama_plot_for_single_phi_psi(int imol, int atom_index) {
       label = int_to_string(resno);
       label += chain_id;
 
-      coot::util::phi_psi_t phipsi(phi_psi.first, phi_psi.second, "resname", 
+      coot::util::phi_psi_t phipsi(phi_psi.first, phi_psi.second, "resname",
 				   label, 1, "inscode", "chainid");
       edit_phi_psi_plot->draw_it(phipsi);
-      
+
    }
 #endif // HAVE_GTK_CANVAS
 }
@@ -4675,7 +4680,7 @@ graphics_info_t::rama_plot_for_2_phi_psis(int imol, int atom_index) {
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    std::pair<double, double> phi_psi = molecules[imol].get_phi_psi(atom_index);
 
-   if (phi_psi.first > -200.0) { 
+   if (phi_psi.first > -200.0) {
 
       edit_phi_psi_plot = new coot::rama_plot;
 
@@ -4689,30 +4694,30 @@ graphics_info_t::rama_plot_for_2_phi_psis(int imol, int atom_index) {
       label = int_to_string(resno);
       label += chain_id;
 
-      coot::util::phi_psi_t phipsi(phi_psi.first, phi_psi.second, "resname", 
+      coot::util::phi_psi_t phipsi(phi_psi.first, phi_psi.second, "resname",
 				   label, 1, "inscode", "chainid");
       edit_phi_psi_plot->draw_it(phipsi);
-      
+
    }
 #endif // HAVE_GTK_CANVAS
 }
 
 // activated from the edit torsion angles cancel button (and OK button, I
 // suppose).
-// 
-void 
+//
+void
 graphics_info_t::destroy_edit_backbone_rama_plot() {  // only one of these.
 
    printf("start graphics_info_t::destroy_edit_backbone_rama_plot()\n");
 
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-   if (edit_phi_psi_plot) { 
+   if (edit_phi_psi_plot) {
       // we need to get to the widget "dynarama_window" and destroy it.
       edit_phi_psi_plot->destroy_yourself();
       edit_phi_psi_plot = 0; // Richard Baxter bug
-   } else { 
+   } else {
       std::cout << "WARNING:: edit_phi_psi_plot is NULL\n";
-   } 
+   }
 #endif // HAVE_GTK_CANVAS
    printf("done in graphics_info_t::destroy_edit_backbone_rama_plot()\n");
 }
@@ -4720,7 +4725,7 @@ graphics_info_t::destroy_edit_backbone_rama_plot() {  // only one of these.
 
 // This is called as part of the callback of moving a point in the ramachandran
 // edit window
-// 
+//
 // We (Kevin and I) currently don't like the way the atoms move, so the button
 // is invisible now.  However, it will be reinstated in the future, when we
 // change residue_edit_phi_psi to use torsion restraints.  residue_edit_phi_psi
@@ -4728,9 +4733,9 @@ graphics_info_t::destroy_edit_backbone_rama_plot() {  // only one of these.
 // The box should be coloured according to distortion.  We should add a help
 // button underneath the canvas (perhaps not visible unless made so, when we are
 // in a edit-one-residue situation) [25Feb2004].
-// 
+//
 void
-graphics_info_t::set_edit_phi_psi_to(double phi, double psi) { 
+graphics_info_t::set_edit_phi_psi_to(double phi, double psi) {
 
    // tinker with the coordinates of the moving_atoms_asc
 
@@ -4739,7 +4744,7 @@ graphics_info_t::set_edit_phi_psi_to(double phi, double psi) {
    if (istat) {
       // You would do this much less heay-weightedly if you have your
       // bonding already sorted out here.
-      // 
+      //
       int do_disulphide_flag = 0;
       Bond_lines_container bonds(*moving_atoms_asc, do_disulphide_flag);
       regularize_object_bonds_box.clear_up();
@@ -4754,13 +4759,13 @@ graphics_info_t::set_edit_phi_psi_to(double phi, double psi) {
 // Here is 1) - (or more precisely in
 // wrapped_create_edit_chi_angles_dialog) i.e. where we make create
 // the buttons for the torsions.
-// 
+//
 // These torsion labels/indices must match:
 // 2) update_residue_by_chi_change()/ chi_angles::change_by()
-// 
+//
 // Particularly we should exclude hydrogen rotations consistently.
 // Note that setup_flash_bond_internal() needs to be consistent too.
-// 
+//
 void
 graphics_info_t::execute_edit_chi_angles(int atom_index, int imol) {
 
@@ -4791,10 +4796,10 @@ graphics_info_t::execute_edit_chi_angles(int atom_index, int imol) {
       // belt and braces:
       if ( (res_type == "GLY") || (res_type == "ALA") ) {
 	 std::cout << "This residue does not have chi angles (GLY/ALA)." << std::endl;
-      } else { 
+      } else {
 
 	 // copy the residue, just like we do in execute_edit_phi_psi:
-	 // 
+	 //
 	 moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
 	 imol_moving_atoms = imol;
 	 short int whole_res_flag = 0; // We only want to pull the
@@ -4802,7 +4807,7 @@ graphics_info_t::execute_edit_chi_angles(int atom_index, int imol) {
 				       // conformation (and this
 				       // includes atoms with altconf
 				       // "").
-	 atom_selection_container_t residue_asc = 
+	 atom_selection_container_t residue_asc =
 	    graphics_info_t::molecules[imol].edit_residue_pull_residue(atom_index,
 								       whole_res_flag);
 
@@ -4810,7 +4815,7 @@ graphics_info_t::execute_edit_chi_angles(int atom_index, int imol) {
 
 	 edit_chi_edit_type mode = EDIT_CHI;
 	 int ires = wrapped_create_edit_chi_angles_dialog(res_type, mode);
-	 if (ires > 0) { 
+	 if (ires > 0) {
 	    std::cout << "Use the 1,2,3,4 keys to select rotamers, 0 for "
 		      << "normal rotation mode" << std::endl;
 	    make_moving_atoms_graphics_object(imol, residue_asc);
@@ -4849,10 +4854,10 @@ graphics_info_t::setup_for_probe_dots_on_chis_molprobity(int imol) {
 
       // make a directory where the probe dots will go:
       int dir_status = coot::util::create_directory("coot-molprobity");
-      
+
       int n_atoms = moving_atoms_asc->n_selected_atoms;
       molecules[imol].atom_sel.mol->WritePDBASCII("molprobity-tmp-reference-file.pdb");
-      
+
       // so find the centre and radius of the set of moving atoms:
       coot::Cartesian acc(0,0,0);
       for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
@@ -4895,13 +4900,13 @@ graphics_info_t::setup_flash_bond_using_moving_atom_internal(int i_torsion_index
    // std::cout << "flash bond i_torsion_index: " << i_torsion_index << std::endl;
 
    // get the residue type and from that the atom name pairs:
-   // 
+   //
    if (! moving_atoms_asc) {
       std::cout << "ERROR: moving_atoms_asc is NULL" << std::endl;
    } else {
       if (moving_atoms_asc->n_selected_atoms == 0) {
 	 std::cout << "ERROR: no atoms in moving_atoms_asc" << std::endl;
-      } else { 
+      } else {
 	 mmdb::Model *model_p = moving_atoms_asc->mol->GetModel(1);
 	 if (model_p) {
 	    mmdb::Chain *chain_p = model_p->GetChain(0);
@@ -4911,13 +4916,13 @@ graphics_info_t::setup_flash_bond_using_moving_atom_internal(int i_torsion_index
 
 		  std::string residue_type(residue_p->GetResName());
 		  bool add_reverse_contacts = 0;
-		  
+
 		  std::pair<std::string, std::string> atom_names;
 
 		  std::pair<short int, coot::dictionary_residue_restraints_t> r =
 		     geom_p->get_monomer_restraints(residue_type, imol_moving_atoms);
 
-		  if (r.first) { 
+		  if (r.first) {
 		     std::vector <coot::dict_torsion_restraint_t> torsion_restraints =
 			r.second.get_non_const_torsions(find_hydrogen_torsions_flag);
 
@@ -4925,14 +4930,14 @@ graphics_info_t::setup_flash_bond_using_moving_atom_internal(int i_torsion_index
 
 			atom_names.first  = torsion_restraints[i_torsion_index].atom_id_2_4c();
 			atom_names.second = torsion_restraints[i_torsion_index].atom_id_3_4c();
-		  
+
 			if ((atom_names.first != "") &&
 			    (atom_names.second != "")) {
-		     
+
 			   mmdb::PPAtom residue_atoms;
 			   int nResidueAtoms;
 			   residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
-		     
+
 			   if (nResidueAtoms > 0) { // of course it is!
 			      for (int iat1=0; iat1<nResidueAtoms; iat1++) {
 				 std::string ra1=residue_atoms[iat1]->name;
@@ -4959,8 +4964,8 @@ graphics_info_t::setup_flash_bond_using_moving_atom_internal(int i_torsion_index
 				 }
 			      }
 			   }
-			} 
-		     } 
+			}
+		     }
 		  }
 	       }
 	    }
@@ -4982,7 +4987,7 @@ graphics_info_t::draw_atom_pull_restraint() {
 
    // don't draw this if there are not intermediate atoms shown.
 
-#if 0   
+#if 0
    if (! regularize_object_bonds_box.empty()) {
       if (moving_atoms_asc->n_selected_atoms) {
 	 for (std::size_t i=0; i<atom_pulls.size(); i++) {
@@ -4998,7 +5003,7 @@ graphics_info_t::draw_atom_pull_restraint() {
 		  bool do_gl_lines = false;
 		  bool do_arrow    = true;
 
-		  if (do_gl_lines) { 
+		  if (do_gl_lines) {
 		     float ll = clipper::Coord_orth::length(pt_start, pt_end);
 		     float dash_density = 8;
 		     int n_dashes = int(dash_density * ll);
@@ -5016,7 +5021,7 @@ graphics_info_t::draw_atom_pull_restraint() {
 
 			   glVertex3f(p1.x(), p1.y(), p1.z());
 			   glVertex3f(p2.x(), p2.y(), p2.z());
-	       
+
 			}
 			visible = !visible;
 		     }
@@ -5027,7 +5032,7 @@ graphics_info_t::draw_atom_pull_restraint() {
 
 		     double radius = 0.1;
 		     double fraction_head_size = 0.1;
-		  
+
 		     double top =  radius;
 		     double base = radius;
 		     int slices  = 12;
@@ -5045,20 +5050,20 @@ graphics_info_t::draw_atom_pull_restraint() {
 		     glEnable(GL_LIGHT0); // enabled here
 		     glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
 		     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-   
+
 		     glPushMatrix();
-	       
+
 		     clipper::Coord_orth bond_frag = pt_end - pt_start;
 		     double height = sqrt(bond_frag.lengthsq());
 
 		     glTranslatef(pt_start.x(), pt_start.y(), pt_start.z());
 
 		     double ax;
-		     double rx = 0; 
+		     double rx = 0;
 		     double ry = 0;
 		     double length = height;
 		     double vz = bond_frag.z();
-	 
+
 		     bool rot_x = false;
 		     if (fabs(vz)>1e-7) {
 			ax = 180.0/M_PI*acos(vz/length);
@@ -5072,8 +5077,8 @@ graphics_info_t::draw_atom_pull_restraint() {
 			if(vy<0) ax = -ax;
 			rot_x = true;
 		     }
-	 
-		     if (rot_x) { 
+
+		     if (rot_x) {
 			glRotated(90.0, 0.0, 1.0, 0.0);
 			glRotated(ax,  -1.0, 0.0, 0.0);
 		     } else {
@@ -5084,11 +5089,11 @@ graphics_info_t::draw_atom_pull_restraint() {
 		     GLUquadric* quad_1 = gluNewQuadric();
 		     GLUquadric* quad_2 = gluNewQuadric();
 		     GLUquadric* quad_3 = gluNewQuadric();
-   
+
 		     gluCylinder(quad_1, base, top, height, slices, stacks);
 		     glTranslated(0, 0, height);
 		     gluCylinder(quad_2, 2*base, 0, fraction_head_size * height, slices, stacks);
-   
+
 		     glScalef(1.0, 1.0, -1.0);
 		     gluDisk(quad_3, 0, base, slices, 2);
 
@@ -5098,17 +5103,17 @@ graphics_info_t::draw_atom_pull_restraint() {
 		     glPopMatrix();
 		     glDisable(GL_LIGHTING);
 
-		  } 
+		  }
 	       } else {
 
 		  // we don't want to see this (e.g. when we change the sphere
 		  // position and the saved pull atom is not in this region)
-	       
+
 		  // std::cout << "draw_atom_pull_restraint(): failed to find the atom "
 		  // << atom_pull.spec << std::endl;
-	       
+
 	       }
-	    } 
+	    }
 	 }
       }
    }
@@ -5140,7 +5145,7 @@ graphics_info_t::clear_atom_pull_restraint(const coot::atom_spec_t &spec, bool r
 }
 
 // setup and draw
-// 
+//
 void
 graphics_info_t::setup_flash_bond(int imol,
 				  coot::residue_spec_t spec,
@@ -5152,7 +5157,7 @@ graphics_info_t::setup_flash_bond(int imol,
 	 std::string residue_type = residue_p->GetResName();
 	 std::pair<short int, coot::dictionary_residue_restraints_t> r =
 	    geom_p->get_monomer_restraints(residue_type, imol);
-	 
+
 	 if (r.first) {
 	    std::vector <coot::dict_torsion_restraint_t> torsion_restraints =
 	       r.second.get_non_const_torsions(find_hydrogen_torsions_flag);
@@ -5162,13 +5167,13 @@ graphics_info_t::setup_flash_bond(int imol,
 	       std::pair<std::string, std::string> atom_names;
 	       atom_names.first  = torsion_restraints[i_bond].atom_id_2_4c();
 	       atom_names.second = torsion_restraints[i_bond].atom_id_3_4c();
-		  
+
 	       if ((atom_names.first != "") && (atom_names.second != "")) {
-		     
+
 		  mmdb::PPAtom residue_atoms;
 		  int nResidueAtoms;
 		  residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
-		     
+
 		  if (nResidueAtoms > 0) {
 		     for (int iat1=0; iat1<nResidueAtoms; iat1++) {
 			std::string ra1=residue_atoms[iat1]->name;
@@ -5179,7 +5184,7 @@ graphics_info_t::setup_flash_bond(int imol,
 			      std::string alt_conf_2 = residue_atoms[iat2]->altLoc;
 			      if (ra2 == atom_names.second) {
 
-				 if (alt_conf_1 == alt_conf_2) { 
+				 if (alt_conf_1 == alt_conf_2) {
 
 				    draw_chi_angle_flash_bond_flag = 1;
 				    clipper::Coord_orth p1(residue_atoms[iat1]->x,
@@ -5192,7 +5197,7 @@ graphics_info_t::setup_flash_bond(int imol,
 				    if (false)
 				       std::cout << "flash bond: "
 						 << coot::atom_spec_t(residue_atoms[iat1])
-						 << " - " 
+						 << " - "
 						 << coot::atom_spec_t(residue_atoms[iat2])
 						 << std::endl;
 
@@ -5236,11 +5241,11 @@ void graphics_info_t::draw_chi_angles_flash_bond() {
 // ----------------------------------------------------------------------------
 
 void
-graphics_info_t::set_last_map_colour(double f1, double f2, double f3) const { 
+graphics_info_t::set_last_map_colour(double f1, double f2, double f3) const {
 
-   int imap = -1; 
-   for (int i=0; i<n_molecules(); i++) { 
-      if (molecules[i].has_xmap()) { 
+   int imap = -1;
+   for (int i=0; i<n_molecules(); i++) {
+      if (molecules[i].has_xmap()) {
 	 imap = i;
       }
    }
@@ -5253,7 +5258,7 @@ graphics_info_t::set_last_map_colour(double f1, double f2, double f3) const {
       colours[1] = f2;
       colours[2] = f3;
 
-      if (use_graphics_interface_flag) { 
+      if (use_graphics_interface_flag) {
 	 molecules[imap].handle_map_colour_change(colours, swap_difference_map_colours,
 						  GL_CONTEXT_MAIN);
 	 if (display_mode_use_secondary_p()) {
@@ -5262,7 +5267,7 @@ graphics_info_t::set_last_map_colour(double f1, double f2, double f3) const {
 						     GL_CONTEXT_SECONDARY);
 	    make_gl_context_current(GL_CONTEXT_MAIN);
 	 }
-      } 
+      }
       delete [] colours;
    }
 }
@@ -5270,9 +5275,9 @@ graphics_info_t::set_last_map_colour(double f1, double f2, double f3) const {
 void
 graphics_info_t::set_last_map_contour_level(float level) {
 
-   int imap = -1; 
-   for (int i=0; i<n_molecules(); i++) { 
-      if (molecules[i].has_xmap()) { 
+   int imap = -1;
+   for (int i=0; i<n_molecules(); i++) {
+      if (molecules[i].has_xmap()) {
 	 imap = i;
       }
    }
@@ -5287,9 +5292,9 @@ graphics_info_t::set_last_map_contour_level(float level) {
 void
 graphics_info_t::set_last_map_contour_level_by_sigma(float f) {
 
-   int imap = -1; 
-   for (int i=0; i<n_molecules(); i++) { 
-      if (molecules[i].has_xmap()) { 
+   int imap = -1;
+   for (int i=0; i<n_molecules(); i++) {
+      if (molecules[i].has_xmap()) {
 	 imap = i;
       }
    }
@@ -5299,22 +5304,22 @@ graphics_info_t::set_last_map_contour_level_by_sigma(float f) {
    } else {
       molecules[imap].set_contour_level_by_sigma(f);
    }
-} 
+}
 
 
 // And turn it on.
-void 
-graphics_info_t::set_last_map_sigma_step(float f) { 
+void
+graphics_info_t::set_last_map_sigma_step(float f) {
 
    int imap = -1;
-   for (int i=0; i<n_molecules(); i++) { 
-      if (molecules[i].has_xmap()) { 
+   for (int i=0; i<n_molecules(); i++) {
+      if (molecules[i].has_xmap()) {
 	 imap = i;
       }
    }
 
    if (imap == -1) {
-      std::cout << "No maps available for the setting of contour step" 
+      std::cout << "No maps available for the setting of contour step"
 		<< std::endl;
    } else {
 //       molecules[imap].contour_by_sigma_flag = 1;
@@ -5348,10 +5353,10 @@ graphics_info_t::draw_geometry_objects() {
 
       const std::vector<coot::simple_distance_object_t> &d = *distance_object_vec;
       for (int i=0; i<ndist; i++) {
-	 if (is_valid_model_molecule(d[i].imol_start)) { 
+	 if (is_valid_model_molecule(d[i].imol_start)) {
 	    if (is_valid_model_molecule(d[i].imol_end)) {
-	       if (molecules[d[i].imol_start].is_displayed_p()) { 
-		  if (molecules[d[i].imol_end].is_displayed_p()) { 
+	       if (molecules[d[i].imol_start].is_displayed_p()) {
+		  if (molecules[d[i].imol_end].is_displayed_p()) {
 		     glVertex3d( d[i].start_pos.x(),
 				 d[i].start_pos.y(),
 				 d[i].start_pos.z());
@@ -5367,12 +5372,12 @@ graphics_info_t::draw_geometry_objects() {
       glDisable(GL_LINE_STIPPLE);
 
       for (int i=0; i<ndist; i++) {
-	 if (is_valid_model_molecule(d[i].imol_start)) { 
+	 if (is_valid_model_molecule(d[i].imol_start)) {
 	    if (is_valid_model_molecule(d[i].imol_end)) {
-	       if (molecules[d[i].imol_start].is_displayed_p()) { 
-		  if (molecules[d[i].imol_end].is_displayed_p()) { 
-		     text_pos = d[i].start_pos + 
-			0.5 * ( d[i].end_pos - d[i].start_pos + 
+	       if (molecules[d[i].imol_start].is_displayed_p()) {
+		  if (molecules[d[i].imol_end].is_displayed_p()) {
+		     text_pos = d[i].start_pos +
+			0.5 * ( d[i].end_pos - d[i].start_pos +
 				clipper::Coord_orth(0.0, 0.1, 0.1));
 		     dist = clipper::Coord_orth::length( d[i].start_pos,
 							 d[i].end_pos);
@@ -5382,8 +5387,8 @@ graphics_info_t::draw_geometry_objects() {
 	    }
 	 }
       }
-      
-      
+
+
    }
 
    if (dynamic_distances.size() > 0) {
@@ -5409,13 +5414,13 @@ graphics_info_t::draw_dynamic_distances() {
 
 void
 coot::intermediate_atom_distance_t::draw_dynamic_distance() const {
-   
+
    //glEnable(GL_LINE_STIPPLE);
    glBegin(GL_LINES);
    glVertex3d(dynamic_atom->x,
 	      dynamic_atom->y,
 	      dynamic_atom->z);
-   
+
    glVertex3d(static_position.x(),
 	      static_position.y(),
 	      static_position.z());
@@ -5441,7 +5446,7 @@ void
 graphics_info_t::draw_pointer_distances_objects() {
 
    // and pointer distances:
-   
+
    if (pointer_distances_object_vec->size() > 0) {
       double dist;
       clipper::Coord_orth text_pos;
@@ -5459,8 +5464,8 @@ graphics_info_t::draw_pointer_distances_objects() {
 		     (*pointer_distances_object_vec)[i].second.y(),
 		     (*pointer_distances_object_vec)[i].second.z());
 	 glEnd();
-	 text_pos = (*pointer_distances_object_vec)[i].first + 
-	    0.5 * ( (*pointer_distances_object_vec)[i].second - (*pointer_distances_object_vec)[i].first + 
+	 text_pos = (*pointer_distances_object_vec)[i].first +
+	    0.5 * ( (*pointer_distances_object_vec)[i].second - (*pointer_distances_object_vec)[i].first +
 		   clipper::Coord_orth(0.0, 0.1, 0.1));
 	 // glRasterPos3d(text_pos.x(), text_pos.y(), text_pos.z());
 	 dist = clipper::Coord_orth::length( (*pointer_distances_object_vec)[i].first, (*pointer_distances_object_vec)[i].second);
@@ -5468,7 +5473,7 @@ graphics_info_t::draw_pointer_distances_objects() {
       }
       glDisable(GL_LINE_STIPPLE);
    }
-} 
+}
 
 // update_pointer_distances() you might say
 void
@@ -5481,10 +5486,10 @@ graphics_info_t::make_pointer_distance_objects() {
    std::vector<clipper::Coord_orth> distances;
    std::vector<clipper::Coord_orth> mol_distances;
 
-   if (show_pointer_distances_flag) { 
+   if (show_pointer_distances_flag) {
       for (int imol=0; imol<n_molecules(); imol++) {
 	 if (molecules[imol].has_model()) {
-	    if (molecules[imol].is_displayed_p()) { 
+	    if (molecules[imol].is_displayed_p()) {
 	       if (molecules[imol].atom_selection_is_pickable()) {
 		  mol_distances = molecules[imol].distances_to_point(cen,
 								     pointer_min_dist,
@@ -5498,7 +5503,7 @@ graphics_info_t::make_pointer_distance_objects() {
 	    }
 	 }
       }
-   
+
       pointer_distances_object_vec->clear();
       for (unsigned int id=0; id<distances.size(); id++) {
 	 pointer_distances_object_vec->push_back(std::pair<clipper::Coord_orth, clipper::Coord_orth> (distances[id], cen));
@@ -5517,10 +5522,10 @@ graphics_info_t::clear_pointer_distances() {
 std::ostream&
 coot::operator<<(std::ostream &s, simple_distance_object_t o) {
 
-   s << "simple-distance: start-mol " << o.imol_start << " end-mol " << o.imol_end << " " 
+   s << "simple-distance: start-mol " << o.imol_start << " end-mol " << o.imol_end << " "
      << o.start_pos.format() << " " << o.end_pos.format();
    return s;
-} 
+}
 
 
 void
@@ -5549,6 +5554,7 @@ graphics_info_t::draw_generic_text() {
 
    // should be const, I think.
 
+#if 0
    if (generic_texts_p->size() > 0 ) {
       // GLfloat pink[3] =  { 1.0, 0.8, 0.8 };
       GLfloat pink[3] =  { font_colour.red, font_colour.green, font_colour.blue };
@@ -5556,25 +5562,26 @@ graphics_info_t::draw_generic_text() {
       glPushAttrib (GL_LIST_BIT);
       void *font = graphics_info_t::atom_label_font;
       font = GLUT_BITMAP_TIMES_ROMAN_24;
-      glDisable(GL_FOG); 
+      glDisable(GL_FOG);
       for (unsigned int i=0; i<generic_texts_p->size(); i++) {
 	 const coot::generic_text_object_t &gto = (*generic_texts_p)[i];
 	 glRasterPos3f(gto.x, gto.y, gto.z);
 	 for (unsigned int is = 0; is < gto.s.length(); is++)
 	    glutBitmapCharacter (font, gto.s[is]);
       }
-      glEnable(GL_FOG); 
+      glEnable(GL_FOG);
       glPopAttrib ();
    }
+#endif
 }
 
 // static
 coot::colour_holder
 coot::generic_display_object_t::colour_values_from_colour_name(const std::string &c) {
 
-   coot::colour_holder colour; 
-   colour.red = 0.4; 
-   colour.green = 0.4; 
+   coot::colour_holder colour;
+   colour.red = 0.4;
+   colour.green = 0.4;
    colour.blue = 0.4;
 
    if (c.length() == 7) {
@@ -5584,63 +5591,62 @@ coot::generic_display_object_t::colour_values_from_colour_name(const std::string
    }
 
    if (c == "blue") {
-      colour.red = 0.1; 
-      colour.green = 0.1; 
+      colour.red = 0.1; colour.green = 0.1;
       colour.blue = 0.8;
    } else {
       if (c == "sky") {
-	 colour.red = 0.53 * 0.6; 
-	 colour.green = 0.81 * 0.6; 
+	 colour.red = 0.53 * 0.6;
+	 colour.green = 0.81 * 0.6;
 	 colour.blue = 0.92 * 0.6;
       } else {
 	 if (c == "green") {
-	    colour.red   = 0.05; 
-	    colour.green = 0.8; 
+	    colour.red   = 0.05;
+	    colour.green = 0.8;
 	    colour.blue  = 0.05;
 	 } else {
 	    if (c == "greentint") {
-	       colour.red = 0.45; 
-	       colour.green = 0.63; 
+	       colour.red = 0.45;
+	       colour.green = 0.63;
 	       colour.blue = 0.45;
-	    } else { 
+	    } else {
 	       if (c == "sea") {
-		  colour.red = 0.1; 
-		  colour.green = 0.6; 
+		  colour.red = 0.1;
+		  colour.green = 0.6;
 		  colour.blue = 0.6;
 	       } else {
 		  if (c == "yellow") {
-		     colour.red = 0.8; 
-		     colour.green = 0.8; 
+		     colour.red = 0.8;
+		     colour.green = 0.8;
 		     colour.blue = 0.0;
 		  } else {
 		     if (c == "yellowtint") {
-			colour.red = 0.65; 
-			colour.green = 0.65; 
+			colour.red = 0.65;
+			colour.green = 0.65;
 			colour.blue = 0.4;
 		     } else {
 			if (c == "orange") {
-			   colour.red = 0.9; 
-			   colour.green = 0.6; 
+			   colour.red = 0.9;
+			   colour.green = 0.6;
 			   colour.blue = 0.1;
 			} else {
 			   if (c == "red") {
-			      colour.red = 0.9; 
-			      colour.green = 0.1; 
+			      colour.red = 0.9;
+			      colour.green = 0.1;
 			      colour.blue = 0.1;
 			   } else {
 			      if (c == "hotpink") {
-				 colour.red = 0.9; 
-				 colour.green = 0.2; 
+				 colour.red = 0.9;
+				 colour.green = 0.2;
 				 colour.blue = 0.6;
 			      } else {
 				 if (c == "cyan") {
-				    colour.red = 0.1; 
-				    colour.green = 0.7; 
+				    colour.red = 0.1;
+				    colour.green = 0.7;
 				    colour.blue = 0.7;
 				 } else {
 				    if (c == "aquamarine") {
-				       colour.red = 0.1; 
-				       colour.green = 0.8; 
+				       colour.red = 0.1;
+				       colour.green = 0.8;
 				       colour.blue = 0.6;
 				    } else {
 				       if (c == "forestgreen") {
@@ -5680,7 +5686,7 @@ coot::generic_display_object_t::colour_values_from_colour_name(const std::string
 							 }
 						      }
 						   }
-						} 
+						}
 					     }
 					  }
 				       }
@@ -5693,33 +5699,33 @@ coot::generic_display_object_t::colour_values_from_colour_name(const std::string
 		  }
 	       }
 	    }
-	 } 
-      } 
+	 }
+      }
    }
 
 //    std::cout << "debug:: in colour_values_from_colour_name from colour " << c
 // 	     << " we assign colour values "
-// 	     << colour[0] << " " 
-// 	     << colour[1] << " " 
+// 	     << colour[0] << " "
+// 	     << colour[1] << " "
 // 	     << colour[2] << "\n";
    return colour;
-} 
+}
 
 
 // ----------------- done generic objects -----------------------------
 
 
 void
-graphics_info_t::remove_all_atom_labels() { 
+graphics_info_t::remove_all_atom_labels() {
 
-   for (int i=0; i<n_molecules(); i++) { 
-      if (molecules[i].has_model()) { 
+   for (int i=0; i<n_molecules(); i++) {
+      if (molecules[i].has_model()) {
 	 molecules[i].remove_atom_labels();
-      } 
-   } 
+      }
+   }
    graphics_draw();
 
-} 
+}
 
 
 // static
@@ -5740,9 +5746,9 @@ graphics_info_t::ccp4_defs_file_name() {
 
 #if defined(WINDOWS_MINGW)|| defined(_MSC_VER)
     std::string path = "/CCP4/windows/directories.def";
-#else    
+#else
     std::string path = "/.CCP4/unix/directories.def";
-#endif     
+#endif
    std::string filename = home + path;
 
    return filename;
@@ -5750,32 +5756,32 @@ graphics_info_t::ccp4_defs_file_name() {
 
 
 void
-graphics_info_t::add_coordinates_glob_extension(const std::string &extension) { 
+graphics_info_t::add_coordinates_glob_extension(const std::string &extension) {
 
    coordinates_glob_extensions->push_back(extension);
-} 
-  
+}
+
 
 void
-graphics_info_t::add_data_glob_extension(const std::string &extension) { 
+graphics_info_t::add_data_glob_extension(const std::string &extension) {
    data_glob_extensions->push_back(extension);
 
-} 
+}
 
 void
-graphics_info_t::add_map_glob_extension(const std::string &extension) { 
+graphics_info_t::add_map_glob_extension(const std::string &extension) {
    map_glob_extensions->push_back(extension);
 
-} 
+}
 
 void
-graphics_info_t::add_dictionary_glob_extension(const std::string &extension) { 
+graphics_info_t::add_dictionary_glob_extension(const std::string &extension) {
    dictionary_glob_extensions->push_back(extension);
 
-} 
+}
 
 void
-graphics_info_t::remove_coordinates_glob_extension(const std::string &extension) { 
+graphics_info_t::remove_coordinates_glob_extension(const std::string &extension) {
 
   std::vector<std::string>::iterator it;
   for (it = coordinates_glob_extensions->begin(); it<coordinates_glob_extensions->end(); it++) {
@@ -5785,11 +5791,11 @@ graphics_info_t::remove_coordinates_glob_extension(const std::string &extension)
       // avoid since it could happen that you have multiples of same entry
     }
   }
-} 
-  
+}
+
 
 void
-graphics_info_t::remove_data_glob_extension(const std::string &extension) { 
+graphics_info_t::remove_data_glob_extension(const std::string &extension) {
 
   std::vector<std::string>::iterator it;
   for (it = data_glob_extensions->begin(); it<data_glob_extensions->end(); it++) {
@@ -5797,10 +5803,10 @@ graphics_info_t::remove_data_glob_extension(const std::string &extension) {
       data_glob_extensions->erase(it);
     }
   }
-} 
+}
 
 void
-graphics_info_t::remove_map_glob_extension(const std::string &extension) { 
+graphics_info_t::remove_map_glob_extension(const std::string &extension) {
 
   std::vector<std::string>::iterator it;
   for (it = map_glob_extensions->begin(); it<map_glob_extensions->end(); it++) {
@@ -5808,10 +5814,10 @@ graphics_info_t::remove_map_glob_extension(const std::string &extension) {
       map_glob_extensions->erase(it);
     }
   }
-} 
+}
 
 void
-graphics_info_t::remove_dictionary_glob_extension(const std::string &extension) { 
+graphics_info_t::remove_dictionary_glob_extension(const std::string &extension) {
 
   std::vector<std::string>::iterator it;
   for (it = dictionary_glob_extensions->begin(); it<dictionary_glob_extensions->end(); it++) {
@@ -5833,7 +5839,7 @@ graphics_info_t::check_chiral_volumes(int imol) {
 	 std::pair<std::vector<std::string>, std::vector <coot::atom_spec_t> > v =
 	    molecules[imol].bad_chiral_volumes();
 	 GtkWidget *w = wrapped_check_chiral_volumes_dialog(v.second, imol);
-	 if (w) 
+	 if (w)
 	    gtk_widget_show(w);
 	 if (v.first.size() != 0) { // bad, there was at least one residue not found in dic.
 	    GtkWidget *wcc = wrapped_create_chiral_restraints_problem_dialog(v.first);
@@ -5851,7 +5857,7 @@ graphics_info_t::set_moving_atoms(atom_selection_container_t asc,
    imol_moving_atoms = imol;
    make_moving_atoms_graphics_object(imol, asc);
    moving_atoms_asc_type = new_coords_type;
-} 
+}
 
 // //   static
 // void graphics_info_t::bond_parameters_molecule_menu_item_select(GtkWidget *item, GtkPositionType pos) {
@@ -5907,7 +5913,7 @@ graphics_info_t::rotamer_dialog_neighbour_rotamer(int istep) {
 	 std::string button_name = "rotamer_selection_button_rot_";
 	 button_name += int_to_string(i);
 	 button = lookup_widget(g.rotamer_dialog, button_name.c_str());
-	 if (button) { 
+	 if (button) {
 	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
 	       ifound_active_button = 1;
 	       active_button_number = i;
@@ -5935,7 +5941,7 @@ graphics_info_t::rotamer_dialog_neighbour_rotamer(int istep) {
 
 	 std::cout << "GTK-FIXME rotamer_dialog_neighbour_rotamer() gtk_signal_emit_by_name()" << std::endl;
 	 //gtk_signal_emit_by_name(GTK_OBJECT(new_button), "clicked");
-      
+
       } else {
 	 std::cout << "ERROR:: not active rotamer button found " << std::endl;
       }
@@ -5959,7 +5965,7 @@ graphics_info_t::rotamer_dialog_previous_rotamer() {
 
 
 // -------- keyboard difference map peak control: ------------
-// static 
+// static
 void graphics_info_t::difference_map_peaks_next_peak() {
    graphics_info_t::difference_map_peaks_neighbour_peak(1);
 }
@@ -5990,7 +5996,7 @@ void graphics_info_t::difference_map_peaks_neighbour_peak(int istep) { // could 
 	    }
 	 } else {
 	    std::cout << "DEBUG:: Failed to find button " << button_name << "\n";
-	 } 
+	 }
       }
       if (ifound_active_button) {
 	 if (istep == 1) {
@@ -6009,7 +6015,7 @@ void graphics_info_t::difference_map_peaks_neighbour_peak(int istep) { // could 
 					    button_name.c_str());
       std::cout << "GTK-FIXME difference_map_peaks_neighbour_peak() gtk_signal_emit_by_name() " << std::endl;
       // gtk_signal_emit_by_name(GTK_OBJECT(new_button), "clicked");
-      
+
    } else {
       std::cout << "ERROR:: difference_map_peaks_neighbour_peak called in error\n";
    }
@@ -6027,7 +6033,7 @@ graphics_info_t::checked_waters_next_baddie(int dir) {
       bool ifound_active_button = 0;
       int active_button_number = -99; // set later
       int new_active_button_number = -99; // set later
-      
+
       for (int i=0; i<n_baddies; i++) {
 	 std::string button_name = "checked_waters_baddie_button_";
 	 button_name += int_to_string(i);
@@ -6069,20 +6075,20 @@ graphics_info_t::checked_waters_next_baddie(int dir) {
 #ifdef USE_GUILE
 // static
 SCM
-graphics_info_t::safe_scheme_command(const std::string &scheme_command) { 
+graphics_info_t::safe_scheme_command(const std::string &scheme_command) {
 
    // FIXME!
-   SCM handler = scm_c_eval_string ("(lambda (key . args) (display (list \"(safe_scheme_command) Error in proc: key: \" key \" args: \" args)) (newline))"); 
+   SCM handler = scm_c_eval_string ("(lambda (key . args) (display (list \"(safe_scheme_command) Error in proc: key: \" key \" args: \" args)) (newline))");
 
    // I am undecided if I want this or not:
-   // std::cout << "debug:: safe running :" << scheme_command << ":" << std::endl; 
-   std::string thunk("(lambda() "); 
-   thunk += scheme_command; 
+   // std::cout << "debug:: safe running :" << scheme_command << ":" << std::endl;
+   std::string thunk("(lambda() ");
+   thunk += scheme_command;
    thunk += " )";
    SCM scm_thunk = SCM_BOOL_F;
 
    // try/catch does not make flow control come back here when bad thunk.
-   // 
+   //
    scm_thunk = scm_c_eval_string(thunk.c_str());
    SCM v = scm_catch(SCM_BOOL_T, scm_thunk, handler);
 
@@ -6096,19 +6102,19 @@ graphics_info_t::safe_scheme_command(const std::string &scheme_command) {
 #endif // USE_GUILE
 
 void graphics_info_t::run_user_defined_click_func() {
-   
+
 #if defined USE_GUILE && ! defined WINDOWS_MINGW
 
-   if (scm_is_true(scm_procedure_p(user_defined_click_scm_func))) { 
+   if (scm_is_true(scm_procedure_p(user_defined_click_scm_func))) {
       SCM arg_list = SCM_EOL;
       for (unsigned int i=0; i<user_defined_atom_pick_specs.size(); i++) {
 	 SCM spec_scm = atom_spec_to_scm(user_defined_atom_pick_specs[i]);
 	 SCM spec_with_model_num = scm_cons(SCM_MAKINUM(user_defined_atom_pick_specs[i].model_number),
 					    spec_scm);
 	 arg_list = scm_cons(spec_with_model_num, arg_list);
-      } 
+      }
       arg_list = scm_reverse(arg_list);
-      
+
       // what are we running? Print it out.
       SCM dest = SCM_BOOL_F;
       SCM mess = scm_makfrom0str("~s");
@@ -6116,7 +6122,7 @@ void graphics_info_t::run_user_defined_click_func() {
       SCM da = scm_simple_format(dest, mess, scm_list_1(arg_list));
       std::cout << "INFO applying " << scm_to_locale_string(ds) << " on "
 		<< scm_to_locale_string(da) << std::endl;
-      
+
       SCM rest = SCM_EOL;
       SCM v = scm_apply_1(user_defined_click_scm_func, arg_list, rest);
    }
@@ -6132,7 +6138,7 @@ void graphics_info_t::run_user_defined_click_func() {
 		  << user_defined_click_py_func->ob_type->tp_name<<std::endl;
       } else {
 	 // what are we running? Print it out.
-	 std::cout << "INFO applying > " 
+	 std::cout << "INFO applying > "
 		   << PyEval_GetFuncName(user_defined_click_py_func)
 		   << " < on ";
 
@@ -6142,7 +6148,7 @@ void graphics_info_t::run_user_defined_click_func() {
 	    // we need to add the model number too
 	    PyObject *model_number_py = PyInt_FromLong(user_defined_atom_pick_specs[i].model_number);
 	    PyList_Insert(spec_py, 0, model_number_py);
-        
+
 	    // continue output from above
 	    PyObject *fmt = PyString_FromString("[%i,%i,'%s',%i,'%s','%s','%s']");
 	    PyObject *msg = PyString_Format(fmt, PyList_AsTuple(spec_py));
@@ -6152,7 +6158,7 @@ void graphics_info_t::run_user_defined_click_func() {
 	    Py_DECREF(msg);
 	 }
 	 std::cout <<std::endl; // end ouput
-      
+
 	 if (PyTuple_Check(arg_list_py)) {
 	    if (!PyCallable_Check(user_defined_click_py_func)) {
 	       std::cout << "WARNING:: python user click function should have been callable." << std::endl;
@@ -6167,12 +6173,12 @@ void graphics_info_t::run_user_defined_click_func() {
 	 } else {
 	    Py_DECREF(arg_list_py);
 	    std::cout<<"ERROR:: executing user_defined_click" <<std::endl;
-	 }      
+	 }
       }
    }
 
 #endif // USE_PYTHON
-} 
+}
 
 
 #ifdef USE_GUILE
@@ -6188,7 +6194,7 @@ graphics_info_t::atom_spec_to_scm(const coot::atom_spec_t &spec) const {
    r = scm_cons(SCM_MAKINUM(spec.int_user_data), r);
 
    return r;
-} 
+}
 #endif
 
 #ifdef USE_PYTHON
@@ -6206,7 +6212,7 @@ graphics_info_t::atom_spec_to_py(const coot::atom_spec_t &spec) const {
   PyList_SetItem(r, 5, PyString_FromString(spec.alt_conf.c_str()));
 
   return r;
-} 
+}
 #endif
 
 #ifdef USE_GUILE
@@ -6229,16 +6235,16 @@ graphics_info_t::process_socket_string_waiting() {
       graphics_info_t g;
       std::string s = g.state_command(v, coot::STATE_SCM);
       r = safe_scheme_command(s);
-      
+
    }
    return r;
-} 
+}
 #endif
 
-// static 
+// static
 gboolean
 graphics_info_t::process_socket_string_waiting_bool(gpointer user_data) {
- 
+
 #ifdef USE_GUILE
    if (graphics_info_t::have_socket_string_waiting_flag) {
       graphics_info_t::have_socket_string_waiting_flag = 0; // draw() looks here
@@ -6258,7 +6264,7 @@ graphics_info_t::process_socket_string_waiting_bool(gpointer user_data) {
 
       // really the right way?  Perhaps we should just stick to scheme
       // internals?
-      if (0) { 
+      if (0) {
 	 std::vector<std::string> v;
 	 v.push_back("eval-socket-string");
 	 v.push_back(coot::util::single_quote(ss));
@@ -6272,12 +6278,12 @@ graphics_info_t::process_socket_string_waiting_bool(gpointer user_data) {
    graphics_info_t::socket_string_waiting_mutex_lock = 0; // we're done.  release lock.
 
 #endif // USE_GUILE
-   
-   return FALSE; 
+
+   return FALSE;
 }
 
 
-// static 
+// static
 gboolean
 graphics_info_t::process_socket_python_string_waiting_bool(gpointer user_data) {
 
@@ -6290,7 +6296,7 @@ graphics_info_t::process_socket_python_string_waiting_bool(gpointer user_data) {
    }
 #endif // USE_PYTHON
    return FALSE;
-} 
+}
 
 
 // static
@@ -6312,10 +6318,10 @@ graphics_info_t::backslash_filename(const std::string &s) { // needed for window
 void
 graphics_info_t::render_lsq_plane_atoms() {  // put a blob at atoms in lsq_plane_atom_positions
 
-   if (lsq_plane_atom_positions->size() > 0) { 
+   if (lsq_plane_atom_positions->size() > 0) {
       glColor3f(0.6, 0.6, 0.9);
       glPointSize(8.0);
-      glBegin(GL_POINTS); 
+      glBegin(GL_POINTS);
       for (unsigned int i=0; i<lsq_plane_atom_positions->size(); i++) {
 	 glVertex3f((*lsq_plane_atom_positions)[i].x(),
 		    (*lsq_plane_atom_positions)[i].y(),
@@ -6339,7 +6345,7 @@ graphics_info_t::measure_lsq_plane_deviant_atom(int imol, int atom_index) {
 	 std::pair<float,float> d_pair =
 	    coot::lsq_plane_deviation(*lsq_plane_atom_positions, p);
 	 float d = d_pair.first;
-	 
+
 	 std::string s("Atom ");
 	 s += at->name;
 	 std::string a(at->altLoc);
@@ -6361,7 +6367,7 @@ graphics_info_t::measure_lsq_plane_deviant_atom(int imol, int atom_index) {
       }
    }
    return r;
-} 
+}
 
 
 int
@@ -6380,7 +6386,7 @@ graphics_info_t::add_lsq_plane_atom(int imol, int atom_index) {
       lsq_plane_atom_positions->push_back(p);
       graphics_draw();
    }
-   return 0; 
+   return 0;
 }
 
 int
@@ -6395,7 +6401,7 @@ graphics_info_t::remove_last_lsq_plane_atom() {
 
 
 
-// molecule_info_class_t draw_bonds() function use this to see if the point is within the 
+// molecule_info_class_t draw_bonds() function use this to see if the point is within the
 // distance from the screen centre.
 // Maybe this is not the best place for this function?
 // static
@@ -6417,7 +6423,7 @@ graphics_info_t::is_within_display_radius(const coot::CartesianPair &p) {
 
 }
 
-// molecule_info_class_t draw_bonds() function use this to see if the point is within the 
+// molecule_info_class_t draw_bonds() function use this to see if the point is within the
 // distance from the screen centre.
 // Maybe this is not the best place for this function?
 // static

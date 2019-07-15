@@ -48,14 +48,14 @@ WITH_GUILE_CFLAGS=$(COOT_STDTYPES) $(COOT_USE_GUILE)
 
 MAKE_COOT_WRAP_GUILE=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-guile.sh "$(GUILE_CONFIG)"
 
-MAKE_COOT_WRAP_PYTHON_XXX=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-python.sh 
+MAKE_COOT_WRAP_PYTHON_XXX=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-python.sh
 
 
 ##########################################################################
 
 
 # put these into configure
-GLM_CXXFLAGS = -I$(HOME)/Projects/glm
+GLM_CXXFLAGS = -I$(HOME)/Projects/glm/include
 EPOXY_LIBS = -lepoxy
 
 CANVAS_CFLAGS = $(GTKCANVAS_CFLAGS) $(GNOME_CANVAS_CFLAGS)
@@ -66,8 +66,8 @@ GTKGL_CONTEXT_CFLAGS = $(GTKGL_CFLAGS) $(GTKGLEXT_CFLAGS)
 GTKGL_CONTEXT_LIBS   = $(GTKGL_LIBS) $(GTKGLEXT_LIBS)
 
 # remove this from coot dependencies:
-# 	$(top_builddir)/mmtz-extras/libcoot-mmtz-extras.la 
-#	
+# 	$(top_builddir)/mmtz-extras/libcoot-mmtz-extras.la
+#
 
 COOT_EXTRA_LIBS = \
 	$(top_builddir)/lbg/libcoot-lidia.la      		\

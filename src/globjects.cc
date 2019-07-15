@@ -54,7 +54,7 @@
 #   include <GL/glu.h>
 #endif
 
-#include <GL/glut.h> // needed for wirecube and wiresphere.
+// #include <GL/glut.h> // needed for wirecube and wiresphere.
 
 #ifdef WINDOWS_MINGW
 // in windows we need these for some newer openGL functions
@@ -523,7 +523,7 @@ float graphics_info_t::clipping_back  = 0.0;
 
 //
 int       graphics_info_t::atom_label_font_size = 2; // medium
-void     *graphics_info_t::atom_label_font = GLUT_BITMAP_HELVETICA_12;
+void     *graphics_info_t::atom_label_font = 0; //GLUT_BITMAP_HELVETICA_12;
 int       graphics_info_t::label_atom_on_recentre_flag = 1;
 int       graphics_info_t::symmetry_atom_labels_expanded_flag = 0;
 coot::colour_holder graphics_info_t::font_colour = coot::colour_holder(1.0, 0.8, 0.8);
@@ -3643,7 +3643,8 @@ get_idle_function_rock_target_angle() {
 
    graphics_info_t g;
 
-   long t = glutGet(GLUT_ELAPSED_TIME);
+   long t = 0; // glutGet(GLUT_ELAPSED_TIME);
+   std::cout << "Fix get_idle_function_rock_target_angle() timer\n";
    long delta_t = t - g.time_holder_for_rocking;
    double rock_sf = 0.001 * g.idle_function_rock_freq_scale_factor;
 

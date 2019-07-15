@@ -1,19 +1,19 @@
 /* src/graphics-info.cc
- * 
+ *
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by the University of York
  * Copyright 2007, 2008, 2009 by the University of Oxford
  * Copyright 2014, 2016 by Medical Research Council
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -40,7 +40,7 @@
 #include <algorithm>
 
 #include <gtk/gtk.h>  // must come after mmdb_manager on MacOS X Darwin
-#include <GL/glut.h>  // for some reason...  // Eh?
+// #include <GL/glut.h>  // for some reason...  // Eh?
 
 #include <iostream>
 #include <dirent.h>   // for refmac dictionary files
@@ -93,15 +93,15 @@
 // e.g. fit type is "Rigid Body Fit" or "Regularization" etc.
 //
 // if fit_type is "Torsion General" show the Reverse button.
-// 
+//
 void do_accept_reject_dialog(std::string fit_type, const coot::refinement_results_t &rr) {
 
    bool debug = false;
    GtkWidget *window = wrapped_create_accept_reject_refinement_dialog();
-   GtkWindow *main_window = GTK_WINDOW(lookup_widget(graphics_info_t::glarea, 
+   GtkWindow *main_window = GTK_WINDOW(lookup_widget(graphics_info_t::glarea,
 						     "window1"));
    GtkWidget *label = NULL;
-   
+
    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
       label = lookup_widget(GTK_WIDGET(window),
 			    "accept_dialog_accept_docked_label_string");
@@ -121,7 +121,7 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 	 add_accept_reject_lights(window, rr);
       }
    }
-   
+
    std::string txt = "";
    txt += "Accept ";
    txt += fit_type;
@@ -141,25 +141,25 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
    } else {
       std::cout << "::::::::::::::::::::: missing widget :::::::::::::::::::::::"
 		<< std::endl;
-   } 
-   
+   }
+
 
    // Was this a torsion general, in which we need to active the reverse button?
    GtkWidget *reverse_button;
    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED) {
       reverse_button = lookup_widget(window, "accept_reject_docked_reverse_button");
       if (fit_type == "Torsion General") {
-	 gtk_widget_show(reverse_button);	
+	 gtk_widget_show(reverse_button);
       } else {
 	 gtk_widget_hide(reverse_button);
       }
    } else {
       if (fit_type == "Torsion General") {
 	 reverse_button = lookup_widget(window, "accept_reject_reverse_button");
-	 gtk_widget_show(reverse_button);	
+	 gtk_widget_show(reverse_button);
       }
    }
-   
+
    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
       // we need to show some individual widget to make sure we get the right amount
       // of light boxes
@@ -174,7 +174,7 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
    if (graphics_info_t::accept_reject_dialog_docked_flag != coot::DIALOG_DOCKED){
 
       // gtk_window_set_transient_for(GTK_WINDOW(window), main_window);
-      
+
       // now set the position, if it was set:
 
       if (true)
@@ -183,10 +183,10 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 		   << " "
 		   << graphics_info_t::accept_reject_dialog_y_position
 		   << std::endl;
-      if ((graphics_info_t::accept_reject_dialog_x_position > -100) && 
+      if ((graphics_info_t::accept_reject_dialog_x_position > -100) &&
 	  (graphics_info_t::accept_reject_dialog_y_position > -100)) {
 	 if (true)
-	    std::cout << "Fix the uposition Here...... inside if setting ..... " 
+	    std::cout << "Fix the uposition Here...... inside if setting ..... "
 		      << graphics_info_t::accept_reject_dialog_x_position
 		      << " "
 		      << graphics_info_t::accept_reject_dialog_y_position
@@ -195,7 +195,7 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 	 // gtk_widget_set_uposition(window,
 	// 			  graphics_info_t::accept_reject_dialog_x_position,
 	// 			  graphics_info_t::accept_reject_dialog_y_position);
-	 gtk_window_move(GTK_WINDOW(window), 
+	 gtk_window_move(GTK_WINDOW(window),
 			 graphics_info_t::accept_reject_dialog_x_position,
 			 graphics_info_t::accept_reject_dialog_y_position);
       }
@@ -213,7 +213,7 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
    boxes.push_back(std::pair<std::string, std::string>("Chirals",                "chirals_"));
    boxes.push_back(std::pair<std::string, std::string>("Non-bonded", "non_bonded_contacts_"));
    boxes.push_back(std::pair<std::string, std::string>("Rama",                      "rama_"));
- 
+
    GtkWidget *frame;
    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED) {
      frame = lookup_widget(window, "accept_reject_lights_frame_docked");
@@ -237,16 +237,16 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
      }
      GtkWidget *w = lookup_widget(frame, event_box_name.c_str());
      // here comes the hiding
-     if (w && graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED) { 
+     if (w && graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED) {
        std::cout << "GTK-FIXME" << std::endl;
        // GtkWidget *p = w->parent;
        // gtk_widget_hide(p);
      }
      for (unsigned int i_rest_type=0; i_rest_type<ref_results.lights.size(); i_rest_type++) {
        if (ref_results.lights[i_rest_type].name == boxes[ibox].first) {
-         if (w) { 
+         if (w) {
            GtkWidget *p = 0; // w->parent;
-           if (boxes[ibox].first != "Rama") { 
+           if (boxes[ibox].first != "Rama") {
              GdkColor color = colour_by_distortion(ref_results.lights[i_rest_type].value);
              set_colour_accept_reject_event_box(w, &color);
            } else {
@@ -261,11 +261,11 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
          } else {
            std::cout << "ERROR:: lookup of event_box_name: " << event_box_name
                      << " failed" << std::endl;
-         } 
+         }
 
 	    // we do not add labels for the docked box
 	    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
-	    
+
 	       std::string label_name = stub + "label";
 	       GtkWidget *label = lookup_widget(frame, label_name.c_str());
 	       gtk_label_set_text(GTK_LABEL(label), ref_results.lights[i_rest_type].label.c_str());
@@ -285,7 +285,7 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
 
 // Actually, it seems that this does not do anything for GTK == 1. So
 // the function that calls it is not compiled (for Gtk1).
-// 
+//
 void set_colour_accept_reject_event_box(GtkWidget *eventbox, GdkColor *col) {
    gtk_widget_modify_bg(eventbox, GTK_STATE_NORMAL, col);
 }
@@ -342,12 +342,12 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
    } else {
       if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG){
 
-	 if (text_type == coot::CHIRAL_CENTRES) { 
+	 if (text_type == coot::CHIRAL_CENTRES) {
 	    // std::cout << "------- here with rr.info_text \"" << rr.info_text << "\"" << std::endl;
 	    gtk_label_set_text(GTK_LABEL(chiral_centre_label), rr.info_text.c_str());
 	    gtk_widget_show(chiral_centre_label);
 	 }
-	
+
       } else {
 
 	 // we have a docked accept/reject dialog
@@ -370,7 +370,7 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 
 	 std::string tips_info_chirals;
 	 std::string tips_info_cis;
-	
+
 	 if (cis_pep_warn > -1) {
 	    // we have extra cis peptides
 
@@ -415,7 +415,7 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 	 std::cout << "update_accept_reject_dialog_with_results() extra text is "
 		   << rr.info_text << std::endl;
       }
-   } 
+   }
    if (rr.lights.size() > 0)
       add_accept_reject_lights(accept_reject_dialog, rr);
 }
@@ -430,7 +430,7 @@ wrapped_create_accept_reject_refinement_dialog() {
   } else {
      if (graphics_info_t::accept_reject_dialog)
 	w = graphics_info_t::accept_reject_dialog;
-     else 
+     else
 	w = create_accept_reject_refinement_dialog();
   }
   graphics_info_t::accept_reject_dialog = w;
@@ -475,8 +475,8 @@ graphics_info_t::info_dialog(const std::string &s, bool use_markup) {
 
 void
 graphics_info_t::info_dialog_and_text(const std::string &s, bool use_markup) {
-   
-  if (graphics_info_t::use_graphics_interface_flag) { 
+
+  if (graphics_info_t::use_graphics_interface_flag) {
      info_dialog(s, use_markup);
    }
    std::cout<< s <<std::endl;
@@ -490,14 +490,14 @@ graphics_info_t::info_dialog_alignment(coot::chain_mutation_info_container_t mut
    std::string s = mutation_info.alignment_string;
 
    GtkWidget *dialog = info_dialog(s); // get trashed by markup text
-   if (dialog) { 
+   if (dialog) {
       GtkWidget *label = lookup_widget(dialog, "nothing_bad_label");
       gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
 
       // guessing that we need > 6, could be more than 6.
 #if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 6) ) || GTK_MAJOR_VERSION > 2)
       gtk_label_set_markup(GTK_LABEL(label), s.c_str());
-#endif       
+#endif
    }
 }
 
@@ -520,7 +520,7 @@ graphics_info_t::info_dialog_refinement_non_matching_atoms(std::vector<std::pair
    }
 
    GtkWidget *dialog = info_dialog(s); // get trashed by markup text
-   if (dialog) { 
+   if (dialog) {
       GtkWidget *label = lookup_widget(dialog, "nothing_bad_label");
       gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
    }
@@ -530,11 +530,11 @@ graphics_info_t::info_dialog_refinement_non_matching_atoms(std::vector<std::pair
 
 // To be used to (typically) get the menu item text label from chain
 // option menus (rather than the ugly/broken casting of
-// GtkPositionType data.  
+// GtkPositionType data.
 // static
 std::string
 graphics_info_t::menu_item_label(GtkWidget *menu_item) {
-   
+
    // do we need this function? try commenting it out :-)
 
    gchar *text = 0;
@@ -550,14 +550,14 @@ graphics_info_t::menu_item_label(GtkWidget *menu_item) {
    if (text) {
       std::string s(text);
       return s;
-   } else { 
+   } else {
       return std::string("");
    }
 }
 
 
 
-// static 
+// static
 void
 graphics_info_t::store_window_position(int window_type, GtkWidget *widget) {
 
@@ -571,7 +571,7 @@ graphics_info_t::store_window_position(int window_type, GtkWidget *widget) {
    // instead just move the body of the c-interface.cc's function here
    // and make the c-interface.cc just a one line which calls this
    // function.
-   
+
    gint upositionx, upositiony;
    GdkWindow *window = gtk_widget_get_window(widget);
    gdk_window_get_root_origin(window, &upositionx, &upositiony);
@@ -587,16 +587,16 @@ graphics_info_t::store_window_position(int window_type, GtkWidget *widget) {
    }
 }
 
-// static 
+// static
 void
 graphics_info_t::set_transient_and_position(int widget_type, GtkWidget *window) {
 
    GtkWindow *main_window =
       GTK_WINDOW(lookup_widget(graphics_info_t::glarea, "window1"));
    gtk_window_set_transient_for(GTK_WINDOW(window), main_window);
-   
+
    if (widget_type == COOT_EDIT_CHI_DIALOG) {
-	 
+
       if (graphics_info_t::edit_chi_angles_dialog_x_position > -100) {
 	 if (graphics_info_t::edit_chi_angles_dialog_y_position > -100) {
 	    std::cout << "GTK3 FIXME set_transient_and_position() no gtk_widget_set_uposition" << std::endl;
@@ -609,7 +609,7 @@ graphics_info_t::set_transient_and_position(int widget_type, GtkWidget *window) 
 
 
    // perhaps we should do something like this for all transient dialogs, hmmm...
-   // 
+   //
    if (widget_type == COOT_ROTAMER_SELECTION_DIALOG) {
       bool done_set_pos = false;
       if (graphics_info_t::rotamer_selection_dialog_x_position > -100) {
@@ -625,7 +625,7 @@ graphics_info_t::set_transient_and_position(int widget_type, GtkWidget *window) 
 	 int x_pos = graphics_info_t::graphics_x_position - 100;
 	 int y_pos = graphics_info_t::graphics_y_position + 100;
 	 if (x_pos < 5) x_pos = 5;
-	 
+
 	    std::cout << "GTK3 FIXME set_transient_and_position() no gtk_widget_set_uposition" << std::endl;
 	 // gtk_widget_set_uposition(window, x_pos, y_pos);
       }
@@ -636,7 +636,7 @@ graphics_info_t::set_transient_and_position(int widget_type, GtkWidget *window) 
 void
 graphics_info_t::add_status_bar_text(const std::string &text) const {
 
-   if (use_graphics_interface_flag) { 
+   if (use_graphics_interface_flag) {
       if (statusbar) {
 	 std::string sbt = text;
 	 // If it is "too long" chop it down.
@@ -649,7 +649,7 @@ graphics_info_t::add_status_bar_text(const std::string &text) const {
 	 max_width = allocation.width/4 -38;
 	 if (sbt.length() > max_width) { // some number
 	    // -------------------------
-	    //        |                |  
+	    //        |                |
 	    //     200-130            200
 	    int l = sbt.length();
 	    std::string short_text = text.substr(l-max_width, max_width);
@@ -710,15 +710,15 @@ graphics_info_t::set_directory_for_fileselection(GtkWidget *fileselection) const
 #endif
 
 #if 0 // so long fileslection!
-void 
-graphics_info_t::set_file_for_save_fileselection(GtkWidget *fileselection) const { 
+void
+graphics_info_t::set_file_for_save_fileselection(GtkWidget *fileselection) const {
 
    // just like set_directory_for_fileselection actually, but we give
    // it the full filename, not just the directory.
 
    int imol = save_imol;
-   if (imol >= 0 && imol < graphics_info_t::n_molecules()) { 
-      std::string stripped_name = 
+   if (imol >= 0 && imol < graphics_info_t::n_molecules()) {
+      std::string stripped_name =
 	 graphics_info_t::molecules[imol].stripped_save_name_suggestion();
       std::string full_name = stripped_name;
       if (! directory_for_saving_for_fileselection.empty())
@@ -799,7 +799,7 @@ graphics_info_t::set_file_for_save_filechooser(GtkWidget *fileselection) const {
 	// if we have a directory in the fileselection path we take this
 	if (graphics_info_t::directory_for_saving_for_fileselection != "") {
 	  directory_for_saving_for_filechooser = graphics_info_t::directory_for_saving_for_fileselection;
-	  
+
 	} else {
 	  // otherwise we make one
 	  gchar *current_dir = g_get_current_dir();
@@ -834,7 +834,7 @@ graphics_info_t::set_file_for_save_filechooser(GtkWidget *fileselection) const {
 // struggle in C, I seem to recall]).
 //
 // scroll_wheel_map must be set correctly before coming here.
-// 
+//
 // static
 void
 graphics_info_t::activate_scroll_radio_button_in_display_manager(int imol) {
@@ -851,12 +851,12 @@ graphics_info_t::activate_scroll_radio_button_in_display_manager(int imol) {
 //       }
 //    }
 
-   
+
    graphics_info_t g;
    if (g.display_control_window()) {
 
       // toggle all the other maps off of being scrolled map and this one on.
-      for (unsigned int i=0; i<molecules.size(); i++) { 
+      for (unsigned int i=0; i<molecules.size(); i++) {
 	 if (is_valid_map_molecule(i)) {
 	    std::string wname = "map_scroll_button_";
 	    wname += graphics_info_t::int_to_string(i);
@@ -867,10 +867,10 @@ graphics_info_t::activate_scroll_radio_button_in_display_manager(int imol) {
 	       } else {
 		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), FALSE);
 	       }
-	    } 
+	    }
 	 }
       }
-   } 
+   }
 }
 
 
@@ -883,19 +883,19 @@ graphics_info_t::show_select_map_dialog() {
       GtkWidget *widget = create_select_fitting_map_dialog();
 
       int imol_map = Imol_Refinement_Map();
-      
+
       // If no map has been set before, set the map to the top of the
       // list (if there are maps in the list)
-      // 
-      if (imol_map == -1) { 
-	 for (int imol=0; imol<n_molecules(); imol++) { 
+      //
+      if (imol_map == -1) {
+	 for (int imol=0; imol<n_molecules(); imol++) {
 	    if (molecules[imol].has_xmap()) {
 	       imol_refinement_map = imol;
 	       break;
 	    }
 	 }
       }
-      
+
       // GtkWidget *optionmenu = lookup_widget(GTK_WIDGET(widget),
       // "select_map_for_fitting_optionmenu");
 
@@ -903,7 +903,7 @@ graphics_info_t::show_select_map_dialog() {
       // fill_option_menu_with_map_options(optionmenu,
       // GTK_SIGNAL_FUNC(graphics_info_t::refinement_map_select),
       // imol_refinement_map);
-      
+
       // Old notes:
       // now activate the first menu item, i.e. creating this menu is as
       // if the first item in the menu was activated:
@@ -944,7 +944,7 @@ graphics_info_t::show_select_map_dialog() {
 
 
 GtkWidget *
-graphics_info_t::wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_label) { 
+graphics_info_t::wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_label) {
 
    GtkWidget *w = create_skeleton_dialog();
    GtkWidget *option_menu = lookup_widget(w, "skeleton_map_optionmenu");
@@ -956,7 +956,7 @@ graphics_info_t::wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_lab
    // add user data to the OK button, we use it to determine if we go
    // on to display the baton dialog
    int show_baton_dialog = 0;
-   
+
    if (show_ca_mode_needs_skel_label) {
       show_baton_dialog = 1;
    }
@@ -966,11 +966,11 @@ graphics_info_t::wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_lab
 		    "clicked",
 		    G_CALLBACK(on_skeleton_ok_button_dynamic_clicked),
 		    GINT_TO_POINTER(show_baton_dialog));
-		      
-   
+
+
    if (show_ca_mode_needs_skel_label) {
       gtk_widget_show(label);
-   } 
+   }
    set_initial_map_for_skeletonize();
    fill_combobox_with_skeleton_options(combobox);
    set_on_off_skeleton_radio_buttons(frame);
@@ -1015,16 +1015,16 @@ graphics_info_t::on_skeleton_ok_button_dynamic_clicked (GtkButton       *button,
 
 //    on_radio_button = lookup_widget(window, "skeleton_on_radiobutton");
 
-//    short int do_it = 0; 
+//    short int do_it = 0;
 //    short int prune_it = 0;
 //    if (! is_valid_map_molecule(graphics_info_t::map_for_skeletonize)) {
 //       std::cout << "ERROR:: Trapped a bad map for skeletoning!" << std::endl;
 //    } else {
-//       if (GTK_TOGGLE_BUTTON(on_radio_button)->active) { 
+//       if (GTK_TOGGLE_BUTTON(on_radio_button)->active) {
 // 	 do_it = 1;
 //       }
 //       prune_check_button = lookup_widget(window,"skeleton_prune_and_colour_checkbutton");
-//       if (GTK_TOGGLE_BUTTON(prune_check_button)->active) { 
+//       if (GTK_TOGGLE_BUTTON(prune_check_button)->active) {
 // 	 prune_it = 1;
 //       }
 
@@ -1048,7 +1048,7 @@ graphics_info_t::skeletonize_map_by_combobox(GtkWidget *combobox) {
 
    on_radio_button = lookup_widget(window, "skeleton_on_radiobutton");
 
-   short int do_it = 0; 
+   short int do_it = 0;
    short int prune_it = 0;
    if (! is_valid_map_molecule(map_for_skeletonize)) {
       std::cout << "ERROR:: Trapped a bad map for skeletoning!" << std::endl;
@@ -1075,15 +1075,15 @@ graphics_info_t::skeletonize_map_by_combobox(GtkWidget *combobox) {
 
 
 int
-graphics_info_t::try_set_draw_baton(short int i) { 
+graphics_info_t::try_set_draw_baton(short int i) {
    graphics_info_t g;
-   if (i) { 
+   if (i) {
       bool have_skeled_map_state = g.start_baton_here();
       if (have_skeled_map_state)
 	 g.draw_baton_flag = 1;
    } else {
       g.draw_baton_flag = 0;
-   } 
+   }
    graphics_draw();
    return g.draw_baton_flag;
 }
@@ -1108,7 +1108,7 @@ graphics_info_t::skeleton_map_combobox_changed(GtkWidget *combobox, gpointer dat
 
 #if 0
 void
-graphics_info_t::fill_option_menu_with_coordinates_options(GtkWidget *option_menu, 
+graphics_info_t::fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
 							   GtkSignalFunc signal_func,
 							   int imol_active_position) {
 
@@ -1121,15 +1121,15 @@ graphics_info_t::fill_option_menu_with_coordinates_options(GtkWidget *option_men
    // menu is not GTK_MENU on Gtk2 Ubuntu kalypso 64 bit
    if (GTK_IS_MENU(menu))
       gtk_widget_destroy(menu);
-   
+
    menu = gtk_menu_new();
 
    GtkWidget *menuitem;
-   int item_count = 0; 
+   int item_count = 0;
 
    for (int imol=0; imol<n_molecules(); imol++) {
 
-      if (molecules[imol].has_model() > 0) { 
+      if (molecules[imol].has_model() > 0) {
 
 	 std::string ss = int_to_string(imol);
 	 ss += " " ;
@@ -1141,7 +1141,7 @@ graphics_info_t::fill_option_menu_with_coordinates_options(GtkWidget *option_men
 	 } else {
 	    // chop
 	    ss += "...";
-	 } 
+	 }
 
 	 ss += molecules[imol].name_.substr(left_size, ilen);
 
@@ -1149,9 +1149,9 @@ graphics_info_t::fill_option_menu_with_coordinates_options(GtkWidget *option_men
 
 	 gtk_signal_connect (GTK_OBJECT (menuitem), "activate",
 			     signal_func,
-			     GINT_TO_POINTER(imol)); 
+			     GINT_TO_POINTER(imol));
 
-	 gtk_menu_append(GTK_MENU(menu), menuitem); 
+	 gtk_menu_append(GTK_MENU(menu), menuitem);
 	 gtk_widget_show(menuitem);
  	 if (imol == imol_active_position) {
  	    gtk_menu_set_active(GTK_MENU(menu), item_count);
@@ -1159,8 +1159,8 @@ graphics_info_t::fill_option_menu_with_coordinates_options(GtkWidget *option_men
 	 item_count++;
       }
    }
-   
-//    gtk_menu_set_active(GTK_MENU(menu), imol_active_position); 
+
+//    gtk_menu_set_active(GTK_MENU(menu), imol_active_position);
 
    /* Link the new menu to the optionmenu widget */
    gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu),
@@ -1171,8 +1171,8 @@ graphics_info_t::fill_option_menu_with_coordinates_options(GtkWidget *option_men
 
 #if 0
 void
-graphics_info_t::fill_option_menu_with_coordinates_options_possibly_small(GtkWidget *option_menu, 
-									  GtkSignalFunc callback_func, 
+graphics_info_t::fill_option_menu_with_coordinates_options_possibly_small(GtkWidget *option_menu,
+									  GtkSignalFunc callback_func,
 									  int imol_active,
 									  bool fill_with_small_molecule_only_flag) {
 
@@ -1195,58 +1195,58 @@ graphics_info_t::fill_option_menu_with_coordinates_options_possibly_small(GtkWid
 
 
 void
-graphics_info_t::set_on_off_skeleton_radio_buttons(GtkWidget *skeleton_frame) { 
-   GtkWidget *on_button = lookup_widget(skeleton_frame, 
+graphics_info_t::set_on_off_skeleton_radio_buttons(GtkWidget *skeleton_frame) {
+   GtkWidget *on_button = lookup_widget(skeleton_frame,
 					"skeleton_on_radiobutton");
-   GtkWidget *off_button = lookup_widget(skeleton_frame, 
+   GtkWidget *off_button = lookup_widget(skeleton_frame,
 					 "skeleton_off_radiobutton");
 
    int imol = map_for_skeletonize;
-   if (imol >= 0) { 
-      if (molecules[imol].xskel_is_filled) { 
+   if (imol >= 0) {
+      if (molecules[imol].xskel_is_filled) {
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(on_button),  TRUE);
       } else {
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(off_button), TRUE);
       }
-   } 
-} 
+   }
+}
 
-void 
-graphics_info_t::set_on_off_single_map_skeleton_radio_buttons(GtkWidget *skeleton_frame, 
-							      int imol) { 
-   GtkWidget *on_button = lookup_widget(skeleton_frame, 
+void
+graphics_info_t::set_on_off_single_map_skeleton_radio_buttons(GtkWidget *skeleton_frame,
+							      int imol) {
+   GtkWidget *on_button = lookup_widget(skeleton_frame,
 					"single_map_skeleton_on_radiobutton");
-   GtkWidget *off_button = lookup_widget(skeleton_frame, 
+   GtkWidget *off_button = lookup_widget(skeleton_frame,
 					 "single_map_skeleton_off_radiobutton");
 
-   if (imol >= 0) { 
-      if (molecules[imol].xskel_is_filled) { 
+   if (imol >= 0) {
+      if (molecules[imol].xskel_is_filled) {
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(on_button),  TRUE);
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(off_button), FALSE);
       } else {
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(on_button),  FALSE);
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(off_button), TRUE);
       }
-   } 
+   }
 }
 
 void
-graphics_info_t::set_contour_sigma_button_and_entry(GtkWidget *window, int imol) { 
+graphics_info_t::set_contour_sigma_button_and_entry(GtkWidget *window, int imol) {
 
    GtkWidget *entry = lookup_widget(window, "single_map_sigma_step_entry");
    GtkWidget *checkbutton = lookup_widget(window, "single_map_sigma_checkbutton");
 
-   if (imol < n_molecules()) { 
+   if (imol < n_molecules()) {
       if (molecules[imol].has_xmap()) {
 	 float v = molecules[imol].contour_sigma_step;
 	 gtk_entry_set_text(GTK_ENTRY(entry), float_to_string(v).c_str());
-	 if (molecules[imol].contour_by_sigma_flag) { 
+	 if (molecules[imol].contour_by_sigma_flag) {
 	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-	 } else { 
+	 } else {
 	    gtk_widget_set_sensitive(entry, FALSE);
 	 }
 
-	 
+
 	 GtkWidget *level_entry =
 	    lookup_widget(window, "single_map_properties_contour_level_entry");
 	 float lev = molecules[imol].contour_level;
@@ -1327,10 +1327,10 @@ graphics_info_t::fill_output_residue_info_widget(GtkWidget *widget, int imol,
    std::pair<bool, std::string> p = g.Geom_p()->get_monomer_name(residue_name, imol);
    if (p.first) {
       gtk_label_set_text(GTK_LABEL(residue_name_widget), p.second.c_str());
-   } 
-   
-   
-   residue_info_n_atoms = n_atoms; 
+   }
+
+
+   residue_info_n_atoms = n_atoms;
    for (int i=0; i<n_atoms; i++)
       graphics_info_t::fill_output_residue_info_widget_atom(table, imol, atoms[i], i);
 }
@@ -1388,8 +1388,8 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol
    left_attach = 1;
    right_attach = left_attach + 1;
    coot::select_atom_info *ai = new coot::select_atom_info;
-   *ai = coot::select_atom_info(iatom, imol, 
-				std::string(atom->GetChainID()), 
+   *ai = coot::select_atom_info(iatom, imol,
+				std::string(atom->GetChainID()),
 				atom->GetSeqNum(),
 				std::string(atom->GetInsCode()),
 				std::string(atom->name),
@@ -1397,7 +1397,7 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol
 
    std::string widget_name = "residue_info_occ_entry_";
    widget_name += int_to_string(iatom);
-   // 
+   //
    GtkWidget *residue_info_occ_entry = gtk_entry_new ();
    // gtk_widget_ref (residue_info_occ_entry);
    g_object_set_data_full(G_OBJECT (residue_info_dialog_local),
@@ -1438,7 +1438,7 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol
 		      graphics_info_t::float_to_string(atom->tempFactor).c_str());
    gtk_widget_set_size_request(residue_info_b_factor_entry, 40, -2);
    g_object_set_data(G_OBJECT(residue_info_b_factor_entry), "select_atom_info", ai);
-   gtk_widget_set_events(residue_info_b_factor_entry, 
+   gtk_widget_set_events(residue_info_b_factor_entry,
 			 GDK_KEY_PRESS_MASK     |
 			 GDK_KEY_RELEASE_MASK);
    gtk_table_attach(GTK_TABLE(table), residue_info_b_factor_entry,
@@ -1460,15 +1460,15 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol
    left_attach = 4;
    right_attach = left_attach + 1;
    ai = new coot::select_atom_info;
-   *ai = coot::select_atom_info(iatom, imol, 
-				std::string(atom->GetChainID()), 
+   *ai = coot::select_atom_info(iatom, imol,
+				std::string(atom->GetChainID()),
 				atom->GetSeqNum(),
 				std::string(atom->GetInsCode()),
 				std::string(atom->name),
 				std::string(atom->altLoc));
    widget_name = "residue_info_altloc_entry_";
    widget_name += int_to_string(iatom);
-   // 
+   //
    GtkWidget *residue_info_altloc_entry = gtk_entry_new ();
    // gtk_widget_ref (residue_info_altloc_entry);
    g_object_set_data_full(G_OBJECT (residue_info_dialog_local),
@@ -1482,27 +1482,27 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol
    gtk_table_attach(GTK_TABLE(table), residue_info_altloc_entry,
 		    left_attach, right_attach, top_attach, bottom_attach,
 		    xopt, yopt, xpad, ypad);
-   
+
 
 
 }
 
-// static 
+// static
 gboolean
 graphics_info_t::on_residue_info_master_atom_occ_changed (GtkWidget       *widget,
 							  GdkEventKey     *event,
 							  gpointer         user_data) {
    const gchar *s = gtk_entry_get_text(GTK_ENTRY(widget));
-   if (s) { 
+   if (s) {
       // consider strtof:
-      // 
+      //
       // double f = atof(s);
       graphics_info_t::residue_info_pending_edit_occ = 1;
-      
+
       graphics_info_t g;
       g.residue_info_edit_occ_apply_to_other_entries_maybe(widget);
    }
-   return TRUE; 
+   return TRUE;
 }
 
 // static
@@ -1514,12 +1514,12 @@ graphics_info_t::on_residue_info_master_atom_b_factor_changed (GtkWidget       *
    // Let's get the entry value:
    //
    const gchar *s = gtk_entry_get_text(GTK_ENTRY(widget));
-   if (s) { 
+   if (s) {
       // consider strtof:
-      // 
+      //
       // float f = atof(s);
       graphics_info_t::residue_info_pending_edit_b_factor = 1;
-      
+
       graphics_info_t g;
       g.residue_info_edit_b_factor_apply_to_other_entries_maybe(widget);
    }
@@ -1529,30 +1529,30 @@ graphics_info_t::on_residue_info_master_atom_b_factor_changed (GtkWidget       *
 
 
 
-//static 
+//static
 void
 graphics_info_t::residue_info_edit_b_factor_apply_to_other_entries_maybe(GtkWidget *start_entry) {
 
    // first find the checkbox:
-   GtkWidget *dialog = lookup_widget(start_entry, "residue_info_dialog"); 
+   GtkWidget *dialog = lookup_widget(start_entry, "residue_info_dialog");
    GtkWidget *checkbutton = lookup_widget(dialog, "residue_info_b_factor_apply_all_checkbutton");
    std::string widget_name;
    GtkWidget *entry;
 
-   if (! checkbutton) { 
-      std::cout << "ERROR:: could not find checkbutton" << std::endl; 
-   } else { 
+   if (! checkbutton) {
+      std::cout << "ERROR:: could not find checkbutton" << std::endl;
+   } else {
       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) {
-	 
+
 	 // propogate the change to the other b-factor widgets
 	 std::string entry_text(gtk_entry_get_text(GTK_ENTRY(start_entry)));
 	 for (int i=0; i<graphics_info_t::residue_info_n_atoms; i++) {
 	    widget_name = "residue_info_b_factor_entry_";
 	    widget_name += int_to_string(i);
 	    entry = lookup_widget(dialog, widget_name.c_str());
-	    if (entry) { 
+	    if (entry) {
 	       gtk_entry_set_text(GTK_ENTRY(entry), entry_text.c_str());
-	    } else { 
+	    } else {
 	       std::cout << "ERROR: no entry\n";
 	    }
 	 }
@@ -1561,12 +1561,12 @@ graphics_info_t::residue_info_edit_b_factor_apply_to_other_entries_maybe(GtkWidg
 }
 
 
-//static 
+//static
 void
 graphics_info_t::residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *master_occ_entry) {
 
    // first find the checkbox:
-   GtkWidget *dialog = lookup_widget(master_occ_entry, "residue_info_dialog"); 
+   GtkWidget *dialog = lookup_widget(master_occ_entry, "residue_info_dialog");
    GtkWidget *occ_checkbutton = lookup_widget(dialog, "residue_info_occ_apply_all_checkbutton");
    GtkWidget *alt_checkbutton = lookup_widget(dialog, "residue_info_occ_apply_to_altconf_checkbutton");
    GtkWidget *alt_entry       = lookup_widget(dialog, "residue_info_occ_apply_to_alt_conf_entry");
@@ -1574,18 +1574,18 @@ graphics_info_t::residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *m
    GtkWidget *atom_occ_entry;
    GtkWidget *atom_alt_conf_entry;
 
-   if (! occ_checkbutton) { 
+   if (! occ_checkbutton) {
       std::cout << "ERROR:: could not find checkbutton" << std::endl;
-   } else { 
+   } else {
       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(occ_checkbutton))) {
-	 
+
 	 // propogate the change to the other b-factor widgets
 	 std::string entry_text(gtk_entry_get_text(GTK_ENTRY(master_occ_entry)));
 	 for (int i=0; i<graphics_info_t::residue_info_n_atoms; i++) {
 	    widget_name = "residue_info_occ_entry_";
 	    widget_name += int_to_string(i);
 	    atom_occ_entry = lookup_widget(dialog, widget_name.c_str());
-	    if (atom_occ_entry) { 
+	    if (atom_occ_entry) {
 	       gtk_entry_set_text(GTK_ENTRY(atom_occ_entry), entry_text.c_str());
 	    } else {
 	       std::cout << "ERROR: no entry\n";
@@ -1620,8 +1620,8 @@ graphics_info_t::residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *m
 
 // static
 void
-graphics_info_t::residue_info_add_b_factor_edit(coot::select_atom_info sai, 
-						float val) { 
+graphics_info_t::residue_info_add_b_factor_edit(coot::select_atom_info sai,
+						float val) {
 
    graphics_info_t g;
    short int made_substitution_flag = 0;
@@ -1632,7 +1632,7 @@ graphics_info_t::residue_info_add_b_factor_edit(coot::select_atom_info sai,
 	 break;
       }
    }
-   if (! made_substitution_flag) { 
+   if (! made_substitution_flag) {
       sai.add_b_factor_edit(val);
       g.residue_info_edits->push_back(sai);
    }
@@ -1640,8 +1640,8 @@ graphics_info_t::residue_info_add_b_factor_edit(coot::select_atom_info sai,
 
 // static
 void
-graphics_info_t::residue_info_add_occ_edit(coot::select_atom_info sai, 
-					   float val) { 
+graphics_info_t::residue_info_add_occ_edit(coot::select_atom_info sai,
+					   float val) {
 
    graphics_info_t g;
    short int made_substitution_flag = 0;
@@ -1652,7 +1652,7 @@ graphics_info_t::residue_info_add_occ_edit(coot::select_atom_info sai,
 	 break;
       }
    }
-   if (! made_substitution_flag) { 
+   if (! made_substitution_flag) {
       sai.add_occ_edit(val);
       g.residue_info_edits->push_back(sai);
    }
@@ -1672,15 +1672,15 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
    GtkWidget *table = lookup_widget(dialog, "residue_info_atom_table");
 
    GList *container_list = gtk_container_get_children(GTK_CONTAINER(table));
-   
+
    // The children are a list, gone in "backward", just like we'd been
    // consing onto a list as we added widgets to the table.
-   // 
+   //
    int len = g_list_length(container_list);
    std::cout << "=== The table has " << len << " elements" << std::endl;
-   
+
    for(int i=0; i < len; i+=5) {
-      if ((i+1) < len) { 
+      if ((i+1) < len) {
 	 GtkWidget *widget_alt = (GtkWidget*) g_list_nth_data(container_list, i);
 	 GtkWidget *widget_b   = (GtkWidget*) g_list_nth_data(container_list, i+2);
 	 GtkWidget *widget_o   = (GtkWidget*) g_list_nth_data(container_list, i+3);
@@ -1690,7 +1690,7 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 // 	 std::cout << "o_text :" <<o_text << std::endl;
 
 	 // Handle OCCUPANCY edits
-	 // 
+	 //
 	 coot::select_atom_info *ai =
 	    (coot::select_atom_info *) g_object_get_data(G_OBJECT(widget_o), "select_atom_info");
 	 if (ai) {
@@ -1700,12 +1700,12 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 	    std::pair<short int, float>  occ_entry =
 	       graphics_info_t::float_from_entry(GTK_WIDGET(widget_o));
 	    if (occ_entry.first) {
-	       if (at) { 
+	       if (at) {
 		  if (abs(occ_entry.second - at->occupancy) > 0.009) {
 		     coot::select_atom_info local_at = *ai;
 		     local_at.add_occ_edit(occ_entry.second);
 		     local_atom_edits.push_back(local_at);
-		  } 
+		  }
 	       }
 	    }
 	 } else {
@@ -1720,7 +1720,7 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 	    std::pair<short int, float>  temp_entry =
 	       graphics_info_t::float_from_entry(GTK_WIDGET(widget_b));
 	    if (temp_entry.first) {
-	       if (at) { 
+	       if (at) {
 		  // std::cout << "    temp comparison " << temp_entry.second
 		  // << " " << at->tempFactor << std::endl;
 		  if (abs(temp_entry.second - at->tempFactor) > 0.009) {
@@ -1738,7 +1738,7 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 	    imol = ai->molecule_number;  // hehe
 	    mmdb::Atom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
 	    std::string entry_text = gtk_entry_get_text(GTK_ENTRY(widget_alt));
-	    if (at) { 
+	    if (at) {
 	       coot::select_atom_info local_at = *ai;
 	       local_at.add_altloc_edit(entry_text);
 	       local_atom_edits.push_back(local_at);
@@ -1761,43 +1761,43 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 // static
 // (should be called by the destroy event and the close button)
 void
-graphics_info_t::residue_info_release_memory(GtkWidget *dialog) { 
+graphics_info_t::residue_info_release_memory(GtkWidget *dialog) {
 
    GtkWidget *entry;
-   for (int i=0; i<residue_info_n_atoms; i++) { 
+   for (int i=0; i<residue_info_n_atoms; i++) {
       std::string widget_name = "residue_info_b_factor_entry_";
       widget_name += int_to_string(i);
       entry = lookup_widget(dialog, widget_name.c_str());
-      if (entry) { 
+      if (entry) {
 	 coot::select_atom_info *sai_p =
 	    (coot::select_atom_info *) g_object_get_data(G_OBJECT(entry), "select_atom_info");
-	 if (sai_p) { 
+	 if (sai_p) {
 	    // delete sai_p; // memory bug.  We cant do this
 	    // std::cout << "hmmm.. not deleting sai_p" << std::endl;
-	 } else { 
-	    std::cout << "ERROR:: no user data in b-factor entry widget\n"; 
-	 } 
+	 } else {
+	    std::cout << "ERROR:: no user data in b-factor entry widget\n";
+	 }
       }
       // same for occ entry:
       widget_name = "residue_info_occ_entry_";
       widget_name += int_to_string(i);
       entry = lookup_widget(dialog, widget_name.c_str());
-      if (entry) { 
+      if (entry) {
 	 coot::select_atom_info *sai_p =
 	    (coot::select_atom_info *) g_object_get_data(G_OBJECT(entry), "select_atom_info");
-	 if (sai_p) { 
+	 if (sai_p) {
 	    // std::cout << "not deleting sai_p" << std::endl;
 	    // delete sai_p; // memory bug.  We cant do this
-	 } else { 
-	    std::cout << "ERROR:: no user data in occ entry widget\n"; 
+	 } else {
+	    std::cout << "ERROR:: no user data in occ entry widget\n";
 	 }
       }
-   } 
-} 
+   }
+}
 
-// static 
+// static
 void
-graphics_info_t::pointer_atom_molecule_menu_item_activate(GtkWidget *item, 
+graphics_info_t::pointer_atom_molecule_menu_item_activate(GtkWidget *item,
 							  GtkPositionType pos) {
 
    graphics_info_t g;
@@ -1807,12 +1807,12 @@ graphics_info_t::pointer_atom_molecule_menu_item_activate(GtkWidget *item,
 }
 
 
-#if 0   
+#if 0
 // We are passed an GtkOptionMenu *option_menu
 //
 void
 graphics_info_t::fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
-							   GtkSignalFunc callback_func) { 
+							   GtkSignalFunc callback_func) {
 
    short int set_last_active_flag = 0;
    fill_option_menu_with_coordinates_options_internal(option_menu, callback_func, set_last_active_flag);
@@ -1822,12 +1822,12 @@ graphics_info_t::fill_option_menu_with_coordinates_options(GtkWidget *option_men
 
 #if 0
 // See Changelog 2004-05-05
-// 
+//
 // We are passed an GtkOptionMenu *option_menu
 //
 void
 graphics_info_t::fill_option_menu_with_coordinates_options_internal(GtkWidget *option_menu,
-								    GtkSignalFunc callback_func, 
+								    GtkSignalFunc callback_func,
 								    short int set_last_active_flag) {
 
    int imol_active = -1; // To allow the function to work as it used to.
@@ -1969,7 +1969,7 @@ graphics_info_t::fill_combobox_with_coordinates_options_with_set_last(GtkWidget 
 // 20100629 this was used in fill_renumber_residue_range_dialog() - the modern way, I guess.
 void
 graphics_info_t::fill_option_menu_with_coordinates_options_internal_2(GtkWidget *option_menu,
-								      GtkSignalFunc callback_func, 
+								      GtkSignalFunc callback_func,
 								      short int set_last_active_flag,
 								      int imol_active) {
 
@@ -1990,7 +1990,7 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
 								      GtkSignalFunc callback_func,
 								      std::vector<int> fill_with_these_molecules,
 								      short int set_last_active_flag,
-								      int imol_active) { 
+								      int imol_active) {
 
    // like the column labels from an mtz file, similarly fill this
    // option_menu with items that correspond to molecules that have
@@ -2002,14 +2002,14 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
    //                           go_to_atom_molecule_optionmenu_menu);
    //
    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
-   
+
 
    // for the strangeness of destroying and re-adding the menu to the
    // option menu, set the comments in the
    // fill_close_option_menu_with_all_molecule_options function
 
    // menu is not GTK_MENU on Gtk2 Ubuntu kalypso 64 bit
-   if (menu) 
+   if (menu)
       gtk_widget_destroy(menu);
 
    /* Create a menu for the optionmenu button.  The various molecule
@@ -2034,8 +2034,8 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
    for (unsigned int idx=0; idx<fill_with_these_molecules.size(); idx++) {
 
       int jmol = fill_with_these_molecules[idx];
-      
-      if (molecules[jmol].has_model()) { 
+
+      if (molecules[jmol].has_model()) {
 
 	 std::string ss = int_to_string(jmol);
 	 ss += " " ;
@@ -2047,16 +2047,16 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
 	 } else {
 	    // chop
 	    ss += "...";
-	 } 
+	 }
 	 ss += molecules[jmol].name_.substr(left_size, ilen);
 	 menuitem = gtk_menu_item_new_with_label (ss.c_str());
 
 	 // std::cout << "user pointer to int on callback set to " << jmol << std::endl;
-	 
+
 	 gtk_signal_connect (GTK_OBJECT (menuitem), "activate",
 			     // GTK_SIGNAL_FUNC(go_to_atom_mol_button_select),
 			     callback_func,
-			     GINT_TO_POINTER(jmol)); 
+			     GINT_TO_POINTER(jmol));
 
 	 // Note that we probably don't need to do the following
 	 // because we already pass a GINT_TO_POINTER(jmol) in the
@@ -2064,29 +2064,29 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
 	 //
 	 // But on reflection.. perhaps we do because we do a
 	 // menu_get_active in save_go_to_atom_mol_menu_active_position
-	 // 
+	 //
 	 // we set user data on the menu item, so that when this goto
 	 // Atom widget is cancelled, we can whatever was the molecule
 	 // number corresponding to the active position of the menu
 	 //
 	 // Should be freed in on_go_to_atom_cancel_button_clicked
 	 // (callbacks.c)
-	 // 
-	  
+	 //
+
 	 gtk_object_set_user_data(GTK_OBJECT(menuitem), GINT_TO_POINTER(jmol));
-	 gtk_menu_append(GTK_MENU(menu), menuitem); 
+	 gtk_menu_append(GTK_MENU(menu), menuitem);
 
 	 // std::cout << " comparing " << jmol << " and imol_active " << imol_active << std::endl;
 	 if (jmol == imol_active)
 	    gtk_menu_set_active(GTK_MENU(menu), menu_index);
 
 	 // we do need this bit of course:
-	 gtk_widget_show(menuitem); 
+	 gtk_widget_show(menuitem);
 	 last_menu_item_index++;
-	 menu_index++; 
+	 menu_index++;
       }
    }
-   
+
    // set any previously saved active position:
    // but overridden by flag:
    if (set_last_active_flag) {
@@ -2094,11 +2094,11 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
       // last_menu_item_index is 2, but the item index of the last
       // item is 2 - 1.
       //
-      gtk_menu_set_active(GTK_MENU(menu), (last_menu_item_index-1)); 
+      gtk_menu_set_active(GTK_MENU(menu), (last_menu_item_index-1));
    } else {
       // the old way (ie. not ..._with_active_mol() mechanism)
       if (imol_active == -1) {
-	 gtk_menu_set_active(GTK_MENU(menu), (last_menu_item_index-1)); 
+	 gtk_menu_set_active(GTK_MENU(menu), (last_menu_item_index-1));
       }
    }
 
@@ -2111,13 +2111,13 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
 #if 0
 void
 graphics_info_t::fill_option_menu_with_coordinates_options_internal_with_active_mol(GtkWidget *option_menu,
-										    GtkSignalFunc callback_func, 
+										    GtkSignalFunc callback_func,
 										    int imol_active) {
 
    short int set_last_active_flag = 0;
    fill_option_menu_with_coordinates_options_internal_2(option_menu, callback_func,
 							set_last_active_flag, imol_active);
-} 
+}
 #endif
 
 #if 0
@@ -2125,9 +2125,9 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_with_active_
 void
 graphics_info_t::fill_option_menu_with_undo_options(GtkWidget *option_menu) {
 
-   
+
    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
-   if (menu) 
+   if (menu)
       gtk_widget_destroy(menu);
    menu = gtk_menu_new();
 
@@ -2139,8 +2139,8 @@ graphics_info_t::fill_option_menu_with_undo_options(GtkWidget *option_menu) {
    int pos_count = 0;
 
    for (int i=0; i<n_molecules(); i++) {
-      // if (molecules[i].has_model()) { 
-      if (molecules[i].atom_sel.mol) { 
+      // if (molecules[i].has_model()) {
+      if (molecules[i].atom_sel.mol) {
 	 if (molecules[i].Have_modifications_p()) {
 	    if (undo_local == -1)
 	       undo_local = i;
@@ -2157,7 +2157,7 @@ graphics_info_t::fill_option_menu_with_undo_options(GtkWidget *option_menu) {
 	    gtk_widget_show(menuitem);
 	    if (i == undo_molecule)
 	       gtk_menu_set_active(GTK_MENU(menu), pos_count);
-	    pos_count++; 
+	    pos_count++;
 	 }
       }
    }
@@ -2178,8 +2178,8 @@ graphics_info_t::fill_combobox_with_undo_options(GtkWidget *combobox) {
    // make the first undo molecule (a molecule with changes) be the active one.
    int imol_active = -1;
    for (int i=0; i<n_molecules(); i++) {
-      if (molecules[i].has_model()) { 
-	 if (molecules[i].atom_sel.mol) { 
+      if (molecules[i].has_model()) {
+	 if (molecules[i].atom_sel.mol) {
 	    if (molecules[i].Have_modifications_p()) {
 	       imol_active = i;
 	       break;
@@ -2193,7 +2193,7 @@ graphics_info_t::fill_combobox_with_undo_options(GtkWidget *combobox) {
 }
 
 
- 
+
 // static
 void
 graphics_info_t::refinement_map_combobox_changed(GtkWidget *c, gpointer data) {
@@ -2216,19 +2216,19 @@ graphics_info_t::undo_molecule_combobox_changed(GtkWidget *combobox, gpointer da
 
 void
 graphics_info_t::set_baton_build_params(int istart_resno,
-					const char *chain_id, 
-					const char *backwards) { 
+					const char *chain_id,
+					const char *backwards) {
 
    baton_build_params_active = 1; // don't ignore baton_build_params
 				  // in placing atom.
    baton_build_start_resno = istart_resno;
    std::string dir(backwards);
-   if (dir == "backwards") { 
+   if (dir == "backwards") {
       baton_build_direction_flag = -1;
-   } else { 
-      if (dir == "forwards") { 
+   } else {
+      if (dir == "forwards") {
 	 baton_build_direction_flag = 1;
-      } else { 
+      } else {
 	 baton_build_direction_flag = 0; // unknown.
       }
    }
@@ -2237,15 +2237,15 @@ graphics_info_t::set_baton_build_params(int istart_resno,
 }
 
 void
-graphics_info_t::model_fit_refine_unactive_togglebutton(const std::string &button_name) const { 
+graphics_info_t::model_fit_refine_unactive_togglebutton(const std::string &button_name) const {
 
    if (model_fit_refine_dialog) {
       GtkWidget *toggle_button = lookup_widget(model_fit_refine_dialog, button_name.c_str());
       if (toggle_button)
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
-      else 
+      else
 	 std::cout << "ERROR:: failed to find button: " << button_name << std::endl;
-      
+
    } else {
       // std::cout << "DEBUG:: model_fit_refine_dialog not found" << std::endl;
    }
@@ -2285,8 +2285,8 @@ graphics_info_t::model_fit_refine_unactive_togglebutton(const std::string &butto
    // model_refine_dialog_edit_phi_psi_togglebutton or
    // model_refine_dialog_edit_backbone_torsions_togglebutton, we
    // don't have toolbar equivalents of those.
-   // 
-   if (toolbar_button_name != "not-found") { 
+   //
+   if (toolbar_button_name != "not-found") {
       GtkWidget *toggle_button = lookup_widget(graphics_info_t::glarea,
 					       toolbar_button_name.c_str());
 //       std::cout << "DEBUG:: toggle_button for gtk2 toolbar: " << button_name << "->"
@@ -2299,19 +2299,19 @@ graphics_info_t::model_fit_refine_unactive_togglebutton(const std::string &butto
 	  gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(toggle_button), FALSE);
       }
    }
-   
-} 
+
+}
 
 
 void
-graphics_info_t::other_modelling_tools_unactive_togglebutton(const std::string &button_name) const { 
+graphics_info_t::other_modelling_tools_unactive_togglebutton(const std::string &button_name) const {
 
    if (other_modelling_tools_dialog) {
       GtkWidget *toggle_button = lookup_widget(other_modelling_tools_dialog,
 					       button_name.c_str());
       if (toggle_button)
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
-      else 
+      else
 	 std::cout << "ERROR:: failed to find button: " << button_name
 		   << std::endl;
    }
@@ -2328,10 +2328,10 @@ graphics_info_t::wrapped_create_edit_chi_angles_dialog(const std::string &res_ty
    if (mode == RESIDUE_PARTIAL_ALT_LOCS) {
       gtk_window_set_title(GTK_WINDOW(dialog), "Add Alternative Conformer Split by Torsion");
    }
-   
+
    set_transient_and_position(COOT_EDIT_CHI_DIALOG, dialog);
 
-   
+
    // Fill the vbox with buttons with atom labels about which there
    // are rotatable torsions:
    //
@@ -2369,7 +2369,7 @@ graphics_info_t::clear_out_container(GtkWidget *vbox) {
 
    std::cout << "GTK3 FIXME clear_out_container() " << std::endl;
 
-#if 0   
+#if 0
    GList *ls = gtk_container_children(GTK_CONTAINER(vbox));
 
    while (ls) {
@@ -2377,11 +2377,11 @@ graphics_info_t::clear_out_container(GtkWidget *vbox) {
       gtk_widget_destroy(w);
       ls = ls->next;
    }
-#endif   
-} 
+#endif
+}
 
 
-int 
+int
 graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type,
 				      edit_chi_edit_type mode) {
 
@@ -2393,16 +2393,16 @@ graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type,
    int n_non_const_torsions = -1; // unset
 
    clear_out_container(vbox);
-   
+
    std::pair<short int, coot::dictionary_residue_restraints_t> p =
       Geom_p()->get_monomer_restraints(monomer_type, imol);
-   
+
    if (p.first) {
 
       std::vector <coot::dict_torsion_restraint_t> torsion_restraints =
 	 p.second.get_non_const_torsions(find_hydrogen_torsions_flag);
       n_non_const_torsions = torsion_restraints.size();
-   
+
       // We introduce here ichi (which gets incremented if the current
       // torsion is not const), we do that so that we have consistent
       // indexing in the torsions vector with chi_angles's change_by()
@@ -2412,7 +2412,7 @@ graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type,
       for (unsigned int i=0; i<torsion_restraints.size(); i++) {
 	 if (!torsion_restraints[i].is_const()) {
 	    std::string label = "  ";
-	    label += torsion_restraints[i].id(); 
+	    label += torsion_restraints[i].id();
 	    label += "  ";
 	    label += torsion_restraints[i].atom_id_2_4c();
 	    label += " <--> ";
@@ -2442,7 +2442,7 @@ graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type,
 	    int int_mode = static_cast<int> (mode);
 	    g_object_set_data(G_OBJECT(button), "i_bond", GINT_TO_POINTER(ichi));
 	    g_object_set_data(G_OBJECT(button), "chi_edit_mode", GINT_TO_POINTER(int_mode));
-	    
+
 	    gtk_widget_set_name(button, "edit_chi_angles_button");
 	    gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
 	    gtk_container_set_border_width(GTK_CONTAINER(button), 2);
@@ -2452,7 +2452,7 @@ graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type,
       }
    }
    return n_non_const_torsions;
-} 
+}
 
 // static
 void
@@ -2466,7 +2466,7 @@ graphics_info_t::on_change_current_chi_button_clicked(GtkButton *button,
 
    int i_mode = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "chi_edit_mode"));
    edit_chi_edit_type mode = static_cast<edit_chi_edit_type> (i_mode);
-   
+
    int i_bond = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "i_bond"));
    std::cout << "on_change_current_chi_button_clicked "
 	     << g.edit_chi_current_chi << " mode " << mode
@@ -2479,14 +2479,14 @@ graphics_info_t::on_change_current_chi_button_clicked(GtkButton *button,
 
       // to get access to event, I need to use a callback for button-release
       // not button clicked
-      // 
+      //
       // if (event->state & GDK_CONTROL_MASK)
       //    wag_the_dog = true;
-      
+
       g.residue_partial_alt_locs_split_residue(i_bond, wag_the_dog);
       graphics_draw();
    }
-} 
+}
 
 // static
 void
@@ -2500,7 +2500,7 @@ graphics_info_t::on_change_current_chi_button_entered(GtkButton *button,
 }
 
 // static
-void 
+void
 graphics_info_t::on_change_current_chi_motion_notify(GtkWidget *button, GdkEventMotion *event) {
 
    graphics_info_t g;
@@ -2527,7 +2527,7 @@ graphics_info_t::on_change_current_chi_motion_notify(GtkWidget *button, GdkEvent
       int delta_y = event->y - *old_y;
       if (abs(delta_y) > abs(delta_x)) {
 	 if (abs(delta_y) < 20) {
-	    if (mode == EDIT_CHI) 
+	    if (mode == EDIT_CHI)
 	       g.setup_flash_bond_using_moving_atom_internal(i_bond);
 	    if (mode == RESIDUE_PARTIAL_ALT_LOCS)
 	       g.setup_flash_bond(imol_residue_partial_alt_locs,
@@ -2558,15 +2558,15 @@ graphics_info_t::on_change_current_chi_motion_notify(GtkWidget *button, GdkEvent
 // Create a moving atoms molecule, consisting of the Ca(n), Ca(n+1) of
 // the peptide, N(n) C(n+1), O(n+1).  Note the alt conf should be the
 // same (we can have altconfed mainchain).
-// 
+//
 void
-graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) { 
-   
+graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
+
    // if not the same altconf for all atoms, give up (for now).
-   // 
+   //
    // Do an atom selection of this residue and the previous one
    // (unless this was a N, then do this one and the next)
-   // 
+   //
    // Run through the atom selection finding the atoms.  put the atoms
    // into new residues (appropriate) and construct a mol and and asc
    // and make that the moving atoms asc.  Be sure to put the residue
@@ -2575,13 +2575,13 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
    // means that get_first_atom_with_atom_name() will work like we
    // want it to.
 
-   if (imol < n_molecules()) { 
-      if (molecules[imol].has_model()) { 
-	 if (atom_index < molecules[imol].atom_sel.n_selected_atoms) { 
+   if (imol < n_molecules()) {
+      if (molecules[imol].has_model()) {
+	 if (atom_index < molecules[imol].atom_sel.n_selected_atoms) {
 	    mmdb::Atom *this_atom_p = molecules[imol].atom_sel.atom_selection[atom_index];
 	    int offset = 0; // usually this and next residue
 	    std::string this_atname(this_atom_p->name);
-	    if (this_atname == " N  ") { 
+	    if (this_atname == " N  ") {
 	       offset = -1;
 	    }
 	    int this_res = this_atom_p->GetSeqNum();
@@ -2590,7 +2590,7 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 	    char *ins_code = this_atom_p->GetInsCode();
 	    char *altconf  = this_atom_p->altLoc;
 	    std::string a_tmp(altconf);
-	    if (a_tmp != "") { 
+	    if (a_tmp != "") {
 	       a_tmp += ",";
 	    }
 	    char *search_altconf = (char *) a_tmp.c_str();
@@ -2616,7 +2616,7 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 	       // We construct a moving atom asc atom by atom...
 	       mmdb::Atom *next_ca = NULL, *next_n = NULL;
 	       mmdb::Atom *this_c = NULL, *this_o = NULL, *this_ca = NULL;
-	       
+
 	       // and the extra atoms that we need (we extract the
 	       // coordinates) to construct a pair of ramachandran
 	       // points in the rama_plot:
@@ -2630,33 +2630,33 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 
 	       // You can add (this) hydrogen to that list if you want.
 	       mmdb::Atom *at;
-	       // 
-	       for (int iat=0; iat<nSelAtoms; iat++) { 
+	       //
+	       for (int iat=0; iat<nSelAtoms; iat++) {
 		  at = SelectAtoms[iat];
-		  if (at->GetSeqNum() == (this_res + offset) ) { 
+		  if (at->GetSeqNum() == (this_res + offset) ) {
 		     std::string n(at->name);
-		     if (n == " CA ") { 
+		     if (n == " CA ") {
 			this_ca = at;
 		     }
-		     if (n == " O  ") { 
+		     if (n == " O  ") {
 			this_o = at;
 		     }
-		     if (n == " C  ") { 
+		     if (n == " C  ") {
 			this_c = at;
 		     }
-		     if (n == " N  ") { 
+		     if (n == " N  ") {
 			this_n = at;
 		     }
 		  }
-		  if (at->GetSeqNum() == (this_res + 1 + offset) ) { 
+		  if (at->GetSeqNum() == (this_res + 1 + offset) ) {
 		     std::string n(at->name);
-		     if (n == " CA ") { 
+		     if (n == " CA ") {
 			next_ca = at;
 		     }
-		     if (n == " N  ") { 
+		     if (n == " N  ") {
 			next_n = at;
 		     }
-		     if (n == " C  ") { 
+		     if (n == " C  ") {
 			next_c = at;
 		     }
 		  }
@@ -2678,16 +2678,16 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 	       int nSelAtoms_prev_c;
 	       mmdb::PPAtom SelectAtoms_prev_c;
 
-	       molecules[imol].atom_sel.mol->GetSelIndex(SelHnd_prev_c, 
-							 SelectAtoms_prev_c, 
+	       molecules[imol].atom_sel.mol->GetSelIndex(SelHnd_prev_c,
+							 SelectAtoms_prev_c,
 							 nSelAtoms_prev_c);
-	       if (nSelAtoms_prev_c > 0) { 
+	       if (nSelAtoms_prev_c > 0) {
 		  prev_c = SelectAtoms_prev_c[0];
-	       } else { 
+	       } else {
 		  std::cout << "Oops:: didn't find prev_c\n";
-	       } 
+	       }
 	       molecules[imol].atom_sel.mol->DeleteSelection(SelHnd_prev_c);
-	       
+
 	       // And similarly for next_plus_1_n:
 	       int SelHnd_next_plus_1_n = molecules[imol].atom_sel.mol->NewSelection();
 	       molecules[imol].atom_sel.mol->SelectAtoms (SelHnd_next_plus_1_n, 0, chain_id,
@@ -2703,18 +2703,18 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 	       int nSelAtoms_next_plus_1_n;
 	       mmdb::PPAtom SelectAtoms_next_plus_1_n;
 
-	       molecules[imol].atom_sel.mol->GetSelIndex(SelHnd_next_plus_1_n, 
-							 SelectAtoms_next_plus_1_n, 
+	       molecules[imol].atom_sel.mol->GetSelIndex(SelHnd_next_plus_1_n,
+							 SelectAtoms_next_plus_1_n,
 							 nSelAtoms_next_plus_1_n);
-	       if (nSelAtoms_next_plus_1_n > 0) { 
+	       if (nSelAtoms_next_plus_1_n > 0) {
 		  next_plus_1_n = SelectAtoms_next_plus_1_n[0];
 	       } else {
 		  std::cout << "Oops:: didn't find next + 1 N\n";
-	       } 
+	       }
 	       molecules[imol].atom_sel.mol->DeleteSelection(SelHnd_next_plus_1_n);
 
-	       
-	       if (next_ca && next_n && this_ca && this_o && this_c) { 
+
+	       if (next_ca && next_n && this_ca && this_o && this_c) {
 
 		  // new addition 25Feb2004
 		  rama_plot_for_2_phi_psis(imol, atom_index);
@@ -2730,23 +2730,23 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 		  res2->seqNum = next_ca->GetSeqNum();
 		  chain->SetChainID(this_ca->GetChainID());
 
-		  at = new mmdb::Atom; 
+		  at = new mmdb::Atom;
 		  at->Copy(this_ca);
 		  res1->AddAtom(at);
 
-		  at = new mmdb::Atom; 
+		  at = new mmdb::Atom;
 		  at->Copy(this_c);
 		  res1->AddAtom(at);
 
-		  at = new mmdb::Atom; 
+		  at = new mmdb::Atom;
 		  at->Copy(this_o);
 		  res1->AddAtom(at);
 
-		  at = new mmdb::Atom; 
+		  at = new mmdb::Atom;
 		  at->Copy(next_ca);
 		  res2->AddAtom(at);
 
-		  at = new mmdb::Atom; 
+		  at = new mmdb::Atom;
 		  at->Copy(next_n);
 		  res2->AddAtom(at);
 
@@ -2763,11 +2763,11 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 		  make_moving_atoms_graphics_object(imol, asc);
 
 		  // save the fixed end points:
-		  backbone_torsion_end_ca_1 = 
+		  backbone_torsion_end_ca_1 =
 		     clipper::Coord_orth(this_ca->x, this_ca->y, this_ca->z);
-		  backbone_torsion_end_ca_2 = 
+		  backbone_torsion_end_ca_2 =
 		     clipper::Coord_orth(next_ca->x, next_ca->y, next_ca->z);
-		  
+
 
 		  // add to rama_points:
 		  rama_points.clear();
@@ -2784,12 +2784,12 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 								next_n->y,
 								next_n->z));
 
-		  if (this_n) 
+		  if (this_n)
 		     rama_points.add("this_n",  clipper::Coord_orth(this_n->x,
 								    this_n->y,
 								    this_n->z));
 
-		  if (next_c) 
+		  if (next_c)
 		     rama_points.add("next_c",  clipper::Coord_orth(next_c->x,
 								    next_c->y,
 								    next_c->z));
@@ -2804,9 +2804,9 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 								   prev_c->y,
 								   prev_c->z));
 
-// 		  std::cout << "DEBUG:: backbone_torsion_end_ca_1: " 
+// 		  std::cout << "DEBUG:: backbone_torsion_end_ca_1: "
 // 			    << backbone_torsion_end_ca_1.format() << std::endl;
-// 		  std::cout << "DEBUG:: backbone_torsion_end_ca_2: " 
+// 		  std::cout << "DEBUG:: backbone_torsion_end_ca_2: "
 // 			    << backbone_torsion_end_ca_2.format() << std::endl;
 
 		  graphics_draw();
@@ -2817,27 +2817,27 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
         GtkWidget *adj;
         adj = lookup_widget(widget, "edit_backbone_torsions_rotate_carbonyl_adjustment");
         g_signal_emit_by_name(G_OBJECT(adj), "value_changed");
-		  
-	       } else { 
-		  std::cout << "WARNING:: not all atoms found in " 
+
+	       } else {
+		  std::cout << "WARNING:: not all atoms found in "
 			    << "execute_setup_backbone_torsion_edit" << std::endl;
-		     
-	       } 
+
+	       }
 	    }
-	    // 
+	    //
 	    molecules[imol].atom_sel.mol->DeleteSelection(SelectionHandle);
-	 } 
+	 }
       }
    }
 }
 
 void
-graphics_info_t::set_edit_backbone_adjustments(GtkWidget *widget) { 
+graphics_info_t::set_edit_backbone_adjustments(GtkWidget *widget) {
 
-   GtkWidget *hscale_peptide = lookup_widget(widget, 
+   GtkWidget *hscale_peptide = lookup_widget(widget,
 					     "edit_backbone_torsions_rotate_peptide_hscale");
 
-   GtkWidget *hscale_carbonyl = lookup_widget(widget, 
+   GtkWidget *hscale_carbonyl = lookup_widget(widget,
 					     "edit_backbone_torsions_rotate_carbonyl_hscale");
 
 //    gfloat value,
@@ -2852,7 +2852,7 @@ graphics_info_t::set_edit_backbone_adjustments(GtkWidget *widget) {
    g_signal_connect(G_OBJECT(adjustment), "value_changed",
 		    G_CALLBACK(graphics_info_t::edit_backbone_peptide_changed_func), NULL);
 
-   
+
    // and the carbonyl:
    adjustment = GTK_ADJUSTMENT(gtk_adjustment_new(0.0, -180.0, 360.0, 0.1, 1.0, 180));
    gtk_range_set_adjustment(GTK_RANGE(hscale_carbonyl), adjustment);
@@ -2867,59 +2867,59 @@ graphics_info_t::set_edit_backbone_adjustments(GtkWidget *widget) {
 
 // static
 void
-graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidget *window) { 
-   
+graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidget *window) {
+
    graphics_info_t g;
    // std::cout << "change backbone peptide by: " << adj->value << std::endl;
-   
+
    std::pair<short int, clipper::Coord_orth> this_c = rama_points.get("this_c");
    std::pair<short int, clipper::Coord_orth> this_o = rama_points.get("this_o");
    std::pair<short int, clipper::Coord_orth> next_n = rama_points.get("next_n");
 
-   if (this_c.first && this_o.first && next_n.first) { 
+   if (this_c.first && this_o.first && next_n.first) {
       mmdb::Atom *n_atom_p = coot::get_first_atom_with_atom_name(" N  ", *moving_atoms_asc);
       mmdb::Atom *c_atom_p = coot::get_first_atom_with_atom_name(" C  ", *moving_atoms_asc);
       mmdb::Atom *o_atom_p = coot::get_first_atom_with_atom_name(" O  ", *moving_atoms_asc);
-      
+
       double rad_angle = clipper::Util::d2rad(gtk_adjustment_get_value(adj));
-      clipper::Coord_orth new_c = 
+      clipper::Coord_orth new_c =
 	 coot::util::rotate_around_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
 				this_c.second,
 				backbone_torsion_end_ca_1, rad_angle);
-      clipper::Coord_orth new_o = 
+      clipper::Coord_orth new_o =
 	 coot::util::rotate_around_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
 					  this_o.second,
 					  backbone_torsion_end_ca_1, rad_angle);
-      clipper::Coord_orth new_n = 
+      clipper::Coord_orth new_n =
 	 coot::util::rotate_around_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
 					  next_n.second,
 					  backbone_torsion_end_ca_1, rad_angle);
       n_atom_p->x = new_n.x();
       n_atom_p->y = new_n.y();
       n_atom_p->z = new_n.z();
-  
+
       c_atom_p->x = new_c.x();
       c_atom_p->y = new_c.y();
       c_atom_p->z = new_c.z();
-      
+
       o_atom_p->x = new_o.x();
       o_atom_p->y = new_o.y();
       o_atom_p->z = new_o.z();
 
-      std::pair<std::pair<double, double>, std::pair<double, double> > pp = 
+      std::pair<std::pair<double, double>, std::pair<double, double> > pp =
 	 g.phi_psi_pairs_from_moving_atoms();
-      
-//    std::cout << pp.first.first  << " " << pp.first.second << "      " 
+
+//    std::cout << pp.first.first  << " " << pp.first.second << "      "
 // 	     << pp.second.first << " " << pp.second.second << std::endl;
 
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
-      if (edit_phi_psi_plot) { 
+      if (edit_phi_psi_plot) {
 	 std::vector <coot::util::phi_psi_t> vp;
 	 std::string label = int_to_string(c_atom_p->GetSeqNum());
-	 if (pp.first.first > -200) { 
+	 if (pp.first.first > -200) {
 	    label += c_atom_p->GetChainID();
-	    coot::util::phi_psi_t phipsi1(clipper::Util::rad2d(pp.first.first), 
+	    coot::util::phi_psi_t phipsi1(clipper::Util::rad2d(pp.first.first),
 					  clipper::Util::rad2d(pp.first.second),
 					  "resname", label, 1, "inscode", "chainid");
 	    vp.push_back(phipsi1);
@@ -2927,38 +2927,38 @@ graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidge
 	 if (pp.second.first > -200) {
 	    label = int_to_string(n_atom_p->GetSeqNum());
 	    label += n_atom_p->GetChainID();
-	    coot::util::phi_psi_t phipsi2(clipper::Util::rad2d(pp.second.first), 
+	    coot::util::phi_psi_t phipsi2(clipper::Util::rad2d(pp.second.first),
 					  clipper::Util::rad2d(pp.second.second),
 					  "resname", label, 1, "inscode", "chainid");
 
 	    vp.push_back(phipsi2);
 	 }
-	 if (vp.size() > 0) 
+	 if (vp.size() > 0)
 	    edit_phi_psi_plot->draw_it(vp);
-      } 
+      }
 #endif // HAVE_GTK_CANVAS
       regularize_object_bonds_box.clear_up();
       int imol = 0; // should be fine for backbone edits
       g.make_moving_atoms_graphics_object(imol, *moving_atoms_asc);
       graphics_draw();
 
-   } else { 
-      std::cout << "ERROR:: can't find rama points in edit_backbone_peptide_changed_func" 
+   } else {
+      std::cout << "ERROR:: can't find rama points in edit_backbone_peptide_changed_func"
 		<< std::endl;
-   } 
-} 
+   }
+}
 
-// static 
+// static
 void
-graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidget *window) { 
+graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidget *window) {
 
    graphics_info_t g;
    // std::cout << "change backbone peptide by: " << adj->value << std::endl;
-   
+
    std::pair<short int, clipper::Coord_orth> this_c = rama_points.get("this_c");
    std::pair<short int, clipper::Coord_orth> this_o = rama_points.get("this_o");
 
-   if (this_c.first && this_o.first) { 
+   if (this_c.first && this_o.first) {
       mmdb::Atom *c_atom_p = coot::get_first_atom_with_atom_name(" C  ", *moving_atoms_asc);
       mmdb::Atom *o_atom_p = coot::get_first_atom_with_atom_name(" O  ", *moving_atoms_asc);
       mmdb::Atom *n_atom_p = coot::get_first_atom_with_atom_name(" N  ", *moving_atoms_asc);
@@ -2966,11 +2966,11 @@ graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidg
       clipper::Coord_orth carbonyl_n_pos(n_atom_p->x, n_atom_p->y, n_atom_p->z);
 
       double rad_angle = clipper::Util::d2rad(gtk_adjustment_get_value(adj));
-      clipper::Coord_orth new_c = 
+      clipper::Coord_orth new_c =
 	 coot::util::rotate_around_vector(carbonyl_n_pos - backbone_torsion_end_ca_1,
 					  this_c.second,
 					  backbone_torsion_end_ca_1, rad_angle);
-      clipper::Coord_orth new_o = 
+      clipper::Coord_orth new_o =
 	 coot::util::rotate_around_vector(carbonyl_n_pos - backbone_torsion_end_ca_1,
 					  this_o.second,
 					  backbone_torsion_end_ca_1, rad_angle);
@@ -2978,47 +2978,47 @@ graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidg
       c_atom_p->x = new_c.x();
       c_atom_p->y = new_c.y();
       c_atom_p->z = new_c.z();
-      
+
       o_atom_p->x = new_o.x();
       o_atom_p->y = new_o.y();
       o_atom_p->z = new_o.z();
 
-      std::pair<std::pair<double, double>, std::pair<double, double> > pp = 
+      std::pair<std::pair<double, double>, std::pair<double, double> > pp =
 	 g.phi_psi_pairs_from_moving_atoms();
-      
-//    std::cout << pp.first.first  << " " << pp.first.second << "      " 
+
+//    std::cout << pp.first.first  << " " << pp.first.second << "      "
 // 	     << pp.second.first << " " << pp.second.second << std::endl;
 
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
-      if (edit_phi_psi_plot) { 
+      if (edit_phi_psi_plot) {
 	 std::vector <coot::util::phi_psi_t> vp;
 	 std::string label = int_to_string(c_atom_p->GetSeqNum());
-	 if (pp.first.first > -200) { 
+	 if (pp.first.first > -200) {
        label += " ";
        label += c_atom_p->GetChainID();
        label += " ";
        label += c_atom_p->GetResName();
-	    coot::util::phi_psi_t phipsi1(clipper::Util::rad2d(pp.first.first), 
+	    coot::util::phi_psi_t phipsi1(clipper::Util::rad2d(pp.first.first),
 					  clipper::Util::rad2d(pp.first.second),
 					  "resname", label, 1, "inscode", "chainid");
 	    vp.push_back(phipsi1);
 	 }
-	 if (pp.second.first > -200) { 
+	 if (pp.second.first > -200) {
 	    label = int_to_string(n_atom_p->GetSeqNum());
        label += " ";
 	    label += n_atom_p->GetChainID();
        label += " ";
        label += n_atom_p->GetResName();
-	    coot::util::phi_psi_t phipsi2(clipper::Util::rad2d(pp.second.first), 
+	    coot::util::phi_psi_t phipsi2(clipper::Util::rad2d(pp.second.first),
 					  clipper::Util::rad2d(pp.second.second),
 					  "resname", label, 1, "inscode", "chainid");
 
 	    vp.push_back(phipsi2);
 	 }
-	 if (vp.size() > 0) 
+	 if (vp.size() > 0)
 	    edit_phi_psi_plot->draw_it(vp);
-      } 
+      }
 
 #endif // HAVE_GTK_CANVAS
       regularize_object_bonds_box.clear_up();
@@ -3026,10 +3026,10 @@ graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidg
       g.make_moving_atoms_graphics_object(imol, *moving_atoms_asc);
       graphics_draw();
 
-   } else { 
-      std::cout << "ERROR:: can't find rama points in edit_backbone_peptide_changed_func" 
+   } else {
+      std::cout << "ERROR:: can't find rama points in edit_backbone_peptide_changed_func"
 		<< std::endl;
-   } 
+   }
 }
 
 
@@ -3037,7 +3037,7 @@ graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidg
 
 // Tinker with the moving atoms
 void
-graphics_info_t::change_peptide_carbonyl_by(double angle) { 
+graphics_info_t::change_peptide_carbonyl_by(double angle) {
 
 //    std::cout << "move carbonyl by " << angle << std::endl;
    mmdb::Atom *n_atom_p = coot::get_first_atom_with_atom_name(" N  ", *moving_atoms_asc);
@@ -3049,12 +3049,12 @@ graphics_info_t::change_peptide_carbonyl_by(double angle) {
    clipper::Coord_orth carbonyl_o_pos(o_atom_p->x, o_atom_p->y, o_atom_p->z);
 
    double rad_angle = clipper::Util::d2rad(angle);
-   
-   clipper::Coord_orth new_c = 
+
+   clipper::Coord_orth new_c =
       coot::util::rotate_around_vector(carbonyl_n_pos - backbone_torsion_end_ca_1,
 			  carbonyl_c_pos,
 			  carbonyl_n_pos, rad_angle);
-   clipper::Coord_orth new_o = 
+   clipper::Coord_orth new_o =
       coot::util::rotate_around_vector(carbonyl_n_pos - backbone_torsion_end_ca_1,
 			  carbonyl_o_pos,
 			  carbonyl_n_pos, rad_angle);
@@ -3067,32 +3067,32 @@ graphics_info_t::change_peptide_carbonyl_by(double angle) {
    o_atom_p->y = new_o.y();
    o_atom_p->z = new_o.z();
 
-   std::pair<std::pair<double, double>, std::pair<double, double> > pp = 
+   std::pair<std::pair<double, double>, std::pair<double, double> > pp =
       phi_psi_pairs_from_moving_atoms();
-   
-//    std::cout << pp.first.first  << " " << pp.first.second << "      " 
+
+//    std::cout << pp.first.first  << " " << pp.first.second << "      "
 // 	     << pp.second.first << " " << pp.second.second << std::endl;
-   
+
 
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
-   if (edit_phi_psi_plot) { 
+   if (edit_phi_psi_plot) {
       std::vector <coot::util::phi_psi_t> vp;
       std::string label = int_to_string(c_atom_p->GetSeqNum());
       label += c_atom_p->GetChainID();
-      coot::util::phi_psi_t phipsi1(clipper::Util::rad2d(pp.first.first), 
+      coot::util::phi_psi_t phipsi1(clipper::Util::rad2d(pp.first.first),
 				    clipper::Util::rad2d(pp.first.second),
 				    "resname", label, 1, "inscode", "chainid");
       label = int_to_string(n_atom_p->GetSeqNum());
       label += n_atom_p->GetChainID();
-      coot::util::phi_psi_t phipsi2(clipper::Util::rad2d(pp.second.first), 
+      coot::util::phi_psi_t phipsi2(clipper::Util::rad2d(pp.second.first),
 				    clipper::Util::rad2d(pp.second.second),
 				    "resname", label, 1, "inscode", "chainid");
 
       vp.push_back(phipsi1);
       vp.push_back(phipsi2);
       edit_phi_psi_plot->draw_it(vp);
-   } 
+   }
 
 #endif // HAVE_GTK_CANVAS
 
@@ -3100,12 +3100,12 @@ graphics_info_t::change_peptide_carbonyl_by(double angle) {
    int imol = 0; // should be fine for backbone edits
    make_moving_atoms_graphics_object(imol, *moving_atoms_asc);
    graphics_draw();
-} 
+}
 
 
 // Return a pair of phi psi's for the residue of the carbonyl and the next
-// residue.  
-// 
+// residue.
+//
 // If for some reason the pair is incalculable, put phi (first) to -2000.
 //
 std::pair<std::pair<double, double>, std::pair<double, double> >
@@ -3129,8 +3129,8 @@ graphics_info_t::phi_psi_pairs_from_moving_atoms() {
    std::pair<short int, clipper::Coord_orth> next_ca     = rama_points.get("next_ca");
    std::pair<short int, clipper::Coord_orth> next_c      = rama_points.get("next_c");
    std::pair<short int, clipper::Coord_orth> next_plus_n = rama_points.get("next+1_n");
-   
-   if (prev_c.first && this_ca.first && this_n.first) { 
+
+   if (prev_c.first && this_ca.first && this_n.first) {
 
       // we can calculate the first ramachadran phi/psi pair
       double phi = clipper::Coord_orth::torsion(prev_c.second, this_n.second,  this_ca.second, this_c);
@@ -3139,17 +3139,17 @@ graphics_info_t::phi_psi_pairs_from_moving_atoms() {
       p.first.first  = phi;
       p.first.second = psi;
 
-   } else { 
+   } else {
 
       // can't get the first ramachandran point
       p.first.first = -2000;
 
    }
 
-   if (next_ca.first && next_c.first && next_plus_n.first) { 
+   if (next_ca.first && next_c.first && next_plus_n.first) {
 
       // we can calculate the first ramachadran phi/psi pair
-      
+
       double phi = clipper::Coord_orth::torsion(this_c, next_n, next_ca.second, next_c.second);
       double psi = clipper::Coord_orth::torsion(next_n, next_ca.second, next_c.second, next_plus_n.second);
 
@@ -3160,14 +3160,14 @@ graphics_info_t::phi_psi_pairs_from_moving_atoms() {
 
       // can't get the second ramachandran point
       p.second.first = -2000;
-   } 
+   }
 
 
    return p;
-} 
+}
 // Tinker with the moving atoms
 void
-graphics_info_t::change_peptide_peptide_by(double angle) { 
+graphics_info_t::change_peptide_peptide_by(double angle) {
 
 //    std::cout << "move peptide by " << angle << std::endl;
 
@@ -3181,16 +3181,16 @@ graphics_info_t::change_peptide_peptide_by(double angle) {
 
    double rad_angle = clipper::Util::d2rad(angle);
 
-   clipper::Coord_orth new_c = 
+   clipper::Coord_orth new_c =
       coot::util::rotate_around_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
 			  carbonyl_c_pos,
 			  backbone_torsion_end_ca_1, rad_angle);
-   clipper::Coord_orth new_o = 
+   clipper::Coord_orth new_o =
       coot::util::rotate_around_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
 			  carbonyl_o_pos,
 			  backbone_torsion_end_ca_1, rad_angle);
 
-   clipper::Coord_orth new_n = 
+   clipper::Coord_orth new_n =
       coot::util::rotate_around_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
 			  carbonyl_n_pos,
 			  backbone_torsion_end_ca_1, rad_angle);
@@ -3207,31 +3207,31 @@ graphics_info_t::change_peptide_peptide_by(double angle) {
    o_atom_p->y = new_o.y();
    o_atom_p->z = new_o.z();
 
-   std::pair<std::pair<double, double>, std::pair<double, double> > pp = 
+   std::pair<std::pair<double, double>, std::pair<double, double> > pp =
       phi_psi_pairs_from_moving_atoms();
-   
-//    std::cout << pp.first.first  << " " << pp.first.second << "      " 
+
+//    std::cout << pp.first.first  << " " << pp.first.second << "      "
 // 	     << pp.second.first << " " << pp.second.second << std::endl;
 
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
-   if (edit_phi_psi_plot) { 
+   if (edit_phi_psi_plot) {
       std::vector <coot::util::phi_psi_t> vp;
       std::string label = int_to_string(c_atom_p->GetSeqNum());
       label += c_atom_p->GetChainID();
-      coot::util::phi_psi_t phipsi1(clipper::Util::rad2d(pp.first.first), 
+      coot::util::phi_psi_t phipsi1(clipper::Util::rad2d(pp.first.first),
 				    clipper::Util::rad2d(pp.first.second),
 				    "resname", label, 1, "inscode", "chainid");
       label = int_to_string(n_atom_p->GetSeqNum());
       label += n_atom_p->GetChainID();
-      coot::util::phi_psi_t phipsi2(clipper::Util::rad2d(pp.second.first), 
+      coot::util::phi_psi_t phipsi2(clipper::Util::rad2d(pp.second.first),
 				    clipper::Util::rad2d(pp.second.second),
 				    "resname", label, 1, "inscode", "chainid");
 
       vp.push_back(phipsi1);
       vp.push_back(phipsi2);
       edit_phi_psi_plot->draw_it(vp);
-   } 
+   }
 
 #endif // HAVE_GTK_CANVAS
 
@@ -3239,35 +3239,35 @@ graphics_info_t::change_peptide_peptide_by(double angle) {
    int imol = 0; // should be fine for backbone edits
    make_moving_atoms_graphics_object(imol, *moving_atoms_asc);
    graphics_draw();
-} 
-
-
-void 
-graphics_info_t::set_backbone_torsion_peptide_button_start_pos(int ix, int iy) { 
-   backbone_torsion_peptide_button_start_pos_x = ix;
-   backbone_torsion_peptide_button_start_pos_y = iy;
-} 
-
-void 
-graphics_info_t::set_backbone_torsion_carbonyl_button_start_pos(int ix, int iy) { 
-   backbone_torsion_carbonyl_button_start_pos_x = ix;
-   backbone_torsion_carbonyl_button_start_pos_y = iy;
-} 
+}
 
 
 void
-graphics_info_t::change_peptide_peptide_by_current_button_pos(int ix, int iy) { 
+graphics_info_t::set_backbone_torsion_peptide_button_start_pos(int ix, int iy) {
+   backbone_torsion_peptide_button_start_pos_x = ix;
+   backbone_torsion_peptide_button_start_pos_y = iy;
+}
+
+void
+graphics_info_t::set_backbone_torsion_carbonyl_button_start_pos(int ix, int iy) {
+   backbone_torsion_carbonyl_button_start_pos_x = ix;
+   backbone_torsion_carbonyl_button_start_pos_y = iy;
+}
+
+
+void
+graphics_info_t::change_peptide_peptide_by_current_button_pos(int ix, int iy) {
 
    double diff = 0.05* (ix - backbone_torsion_peptide_button_start_pos_x);
    change_peptide_peptide_by(diff);
-} 
+}
 
 void
-graphics_info_t::change_peptide_carbonyl_by_current_button_pos(int ix, int iy) { 
+graphics_info_t::change_peptide_carbonyl_by_current_button_pos(int ix, int iy) {
 
    double diff = 0.05 * (ix - backbone_torsion_carbonyl_button_start_pos_x);
    change_peptide_carbonyl_by(diff);
-} 
+}
 
 //      ----------------- sequence view ----------------
 #if defined (HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
@@ -3286,7 +3286,7 @@ graphics_info_t::get_sequence_view(int imol) {
 	 r = (coot::sequence_view *) gtk_object_get_user_data(GTK_OBJECT(w));
 	 // std::cout << "DEBUG:: user data from " << w << " is " << r << std::endl;
       }
-   } 
+   }
    return r;
 }
 #endif // HAVE_GTK_CANVAS
@@ -3313,14 +3313,14 @@ graphics_info_t::set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
 
       coot::set_validation_graph(imol, coot::SEQUENCE_VIEW, widget);
    }
-#endif // HAVE_GTK_CANVAS   
+#endif // HAVE_GTK_CANVAS
 }
 
-void 
-graphics_info_t::unset_geometry_dialog_distance_togglebutton() { 
+void
+graphics_info_t::unset_geometry_dialog_distance_togglebutton() {
 
-   if (geometry_dialog) { 
-      GtkWidget *toggle_button = lookup_widget(geometry_dialog, 
+   if (geometry_dialog) {
+      GtkWidget *toggle_button = lookup_widget(geometry_dialog,
 					       "geometry_distance_togglebutton");
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
    }
@@ -3329,8 +3329,8 @@ graphics_info_t::unset_geometry_dialog_distance_togglebutton() {
 void
 graphics_info_t::unset_geometry_dialog_dynamic_distance_togglebutton() {
 
-   if (geometry_dialog) { 
-      GtkWidget *toggle_button = lookup_widget(geometry_dialog, 
+   if (geometry_dialog) {
+      GtkWidget *toggle_button = lookup_widget(geometry_dialog,
 					       "geometry_dynamic_distance_togglebutton");
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
    }
@@ -3338,10 +3338,10 @@ graphics_info_t::unset_geometry_dialog_dynamic_distance_togglebutton() {
 
 
 void
-graphics_info_t::unset_geometry_dialog_angle_togglebutton() { 
+graphics_info_t::unset_geometry_dialog_angle_togglebutton() {
 
-   if (geometry_dialog) { 
-      GtkWidget *toggle_button = lookup_widget(geometry_dialog, 
+   if (geometry_dialog) {
+      GtkWidget *toggle_button = lookup_widget(geometry_dialog,
 					       "geometry_angle_togglebutton");
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
    }
@@ -3349,10 +3349,10 @@ graphics_info_t::unset_geometry_dialog_angle_togglebutton() {
 
 
 void
-graphics_info_t::unset_geometry_dialog_torsion_togglebutton() { 
+graphics_info_t::unset_geometry_dialog_torsion_togglebutton() {
 
-   if (geometry_dialog) { 
-      GtkWidget *toggle_button = lookup_widget(geometry_dialog, 
+   if (geometry_dialog) {
+      GtkWidget *toggle_button = lookup_widget(geometry_dialog,
 					       "geometry_torsion_togglebutton");
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
    }
@@ -3360,7 +3360,7 @@ graphics_info_t::unset_geometry_dialog_torsion_togglebutton() {
 
 
 void
-graphics_info_t::set_zoom_adjustment(GtkWidget *widget) { 
+graphics_info_t::set_zoom_adjustment(GtkWidget *widget) {
 
    GtkWidget *zoom_hscale = lookup_widget(widget, "zoom_hscale");
 
@@ -3378,7 +3378,7 @@ graphics_info_t::set_zoom_adjustment(GtkWidget *widget) {
 
 // static
 void
-graphics_info_t::zoom_adj_changed(GtkAdjustment *adj, GtkWidget *window) { 
+graphics_info_t::zoom_adj_changed(GtkAdjustment *adj, GtkWidget *window) {
    graphics_info_t g;
 
 //    double scaled = pow(M_E, -adj->value);
@@ -3388,22 +3388,22 @@ graphics_info_t::zoom_adj_changed(GtkAdjustment *adj, GtkWidget *window) {
    g.zoom = gtk_adjustment_get_value(adj);
    graphics_draw();
 
-} 
+}
 
 
 // ----------------------------------------------------------------------------
-//                check waters 
+//                check waters
 // ----------------------------------------------------------------------------
-// 
+//
 void
-graphics_info_t::check_waters_by_difference_map(int imol_waters, int imol_diff_map, 
+graphics_info_t::check_waters_by_difference_map(int imol_waters, int imol_diff_map,
 						int interactive_flag) {
 
    if (is_valid_model_molecule(imol_waters)) {
-      if (is_valid_map_molecule(imol_diff_map)) { 
+      if (is_valid_map_molecule(imol_diff_map)) {
 	 if (molecules[imol_diff_map].is_difference_map_p()) {
 	    std::vector <coot::atom_spec_t> v = molecules[imol_waters].check_waters_by_difference_map(molecules[imol_diff_map].xmap, check_waters_by_difference_map_sigma_level);
-	    if (interactive_flag) { 
+	    if (interactive_flag) {
 	       GtkWidget *w = wrapped_create_checked_waters_by_variance_dialog(v, imol_waters);
 	       gtk_widget_show(w);
 	    }
@@ -3416,12 +3416,12 @@ graphics_info_t::check_waters_by_difference_map(int imol_waters, int imol_diff_m
       }
    } else {
       std::cout << "molecule " <<  imol_waters << "has no model\n";
-   } 
+   }
 }
 
 // results widget:
-// 
-// 
+//
+//
 
 GtkWidget *
 graphics_info_t::wrapped_create_checked_waters_by_variance_dialog(const std::vector <coot::atom_spec_t> &v, int imol) {
@@ -3434,7 +3434,7 @@ graphics_info_t::wrapped_create_checked_waters_by_variance_dialog(const std::vec
       GtkWidget *button;
       coot::atom_spec_t *atom_spec;
       GSList *gr_group = NULL;
-      
+
       for (unsigned int i=0; i<v.size(); i++) {
 
 	 std::cout << "Suspicious water: "
@@ -3458,7 +3458,7 @@ graphics_info_t::wrapped_create_checked_waters_by_variance_dialog(const std::vec
 	 gr_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON (button));
 	 atom_spec = new coot::atom_spec_t(v[i]);
 	 atom_spec->int_user_data = imol;
-      
+
 	 g_signal_connect(G_OBJECT(button), "clicked",
 			  G_CALLBACK(on_generic_atom_spec_button_clicked),
 			  atom_spec);
@@ -3469,7 +3469,7 @@ graphics_info_t::wrapped_create_checked_waters_by_variance_dialog(const std::vec
 	 gtk_container_set_border_width(GTK_CONTAINER(frame), 2);
 	 gtk_widget_show(button);
 	 gtk_widget_show(frame);
-      } 
+      }
    } else {
       std::cout << "There are no unusual waters\n";
       std::string s = "There were no strange/anomalous waters\n";
@@ -3480,7 +3480,7 @@ graphics_info_t::wrapped_create_checked_waters_by_variance_dialog(const std::vec
 }
 
 
-// static 
+// static
 void
 graphics_info_t::on_generic_atom_spec_button_clicked (GtkButton *button,
 						      gpointer user_data) {
@@ -3489,10 +3489,10 @@ graphics_info_t::on_generic_atom_spec_button_clicked (GtkButton *button,
 
       graphics_info_t g;
       coot::atom_spec_t *atom_spec = (coot::atom_spec_t *) user_data;
-//       std::cout << "atom_spec: " 
+//       std::cout << "atom_spec: "
 // 		<< atom_spec->chain << " " << atom_spec->resno << " " << atom_spec->atom_name
 // 		<< std::endl;
-   
+
       g.set_go_to_atom_molecule(atom_spec->int_user_data);
       g.set_go_to_atom_chain_residue_atom_name(atom_spec->chain_id.c_str(),
 					       atom_spec->res_no,
@@ -3527,21 +3527,21 @@ graphics_info_t::wrapped_check_chiral_volumes_dialog(const std::vector <coot::at
 						     int imol) {
 
    GtkWidget *w = NULL;
-   
+
    std::cout  << "There were " << v.size() << " bad chiral volumes: " << std::endl;
 
    if (v.size() > 0) {
       GtkWidget *button;
       w = create_bad_chiral_volumes_dialog ();
-      GtkWidget *bad_chiral_volume_atom_vbox = 
+      GtkWidget *bad_chiral_volume_atom_vbox =
 	 lookup_widget(w, "chiral_volume_baddies_vbox");
       coot::atom_spec_t *atom_spec;
-      for (unsigned int i=0; i<v.size(); i++) { 
+      for (unsigned int i=0; i<v.size(); i++) {
 	 std::cout << "  "
-		   << v[i].chain_id << " " 
-		   << v[i].res_no << " " 
-		   << v[i].atom_name << " " 
-		   << v[i].alt_conf << " " 
+		   << v[i].chain_id << " "
+		   << v[i].res_no << " "
+		   << v[i].atom_name << " "
+		   << v[i].alt_conf << " "
 		   << "\n";
 
 	 // c.f. how we add rotamers: (fill_rotamer_selection_buttons)
@@ -3558,7 +3558,7 @@ graphics_info_t::wrapped_check_chiral_volumes_dialog(const std::vector <coot::at
 	 button = gtk_button_new_with_label(button_label.c_str());
 	 atom_spec = new coot::atom_spec_t(v[i]);
 	 atom_spec->int_user_data = imol;
-      
+
 	 g_signal_connect(G_OBJECT(button), "clicked",
 			  G_CALLBACK(on_inverted_chiral_volume_button_clicked),
 			  atom_spec);
@@ -3572,11 +3572,11 @@ graphics_info_t::wrapped_check_chiral_volumes_dialog(const std::vector <coot::at
    } else {
       std::cout << "Congratulations: there are no bad chiral volumes in this molecule.\n";
       w = create_no_bad_chiral_volumes_dialog();
-   } 
+   }
    return w;
 }
 
-// static 
+// static
 void
 graphics_info_t::on_inverted_chiral_volume_button_clicked (GtkButton       *button,
 							   gpointer         user_data) {
@@ -3585,16 +3585,16 @@ graphics_info_t::on_inverted_chiral_volume_button_clicked (GtkButton       *butt
    // This function may get called for an "unclick" too.  It may need
    // an active? test like the generic atom spec button callback.  But
    // perhaps not.
-   
+
    graphics_info_t g;
    coot::atom_spec_t *atom_spec = (coot::atom_spec_t *) user_data;
-//    std::cout << "atom_spec: " 
+//    std::cout << "atom_spec: "
 // 	     << atom_spec->chain << " "
 // 	     << atom_spec->resno << " "
 // 	     << atom_spec->atom_name << " "
 // 	     << atom_spec->alt_conf << " "
 // 	     << std::endl;
-   
+
    g.set_go_to_atom_molecule(atom_spec->int_user_data);
    g.set_go_to_atom_chain_residue_atom_name(atom_spec->chain_id.c_str(),
 					    atom_spec->res_no,
@@ -3634,10 +3634,10 @@ graphics_info_t::fill_bond_parameters_internals(GtkWidget *w, int imol) {
    // Fill the bond width option menu.
    // Put a redraw on the menu item activate callback.
    // We do the thing with the new menu for the option_menu
-   // 
+   //
    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(bond_width_option_menu));
    GCallback signal_func = G_CALLBACK(graphics_info_t::bond_width_item_select);
-   if (menu) 
+   if (menu)
       gtk_widget_destroy(menu);
    menu = gtk_menu_new();
    GtkWidget *menu_item;
@@ -3728,7 +3728,7 @@ graphics_info_t::fill_bond_parameters_internals(GtkWidget *w, int imol) {
       if (imol < n_molecules()) {
 	 if (molecules[imol].has_model()) {
 	    if (molecules[imol].draw_ncs_ghosts_p()) {
-	       if (molecules[imol].ncs_ghosts_have_rtops_p()) { 
+	       if (molecules[imol].ncs_ghosts_have_rtops_p()) {
 		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(draw_ncs_ghosts_yes_radiobutton), TRUE);
 	       } else {
 		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(draw_ncs_ghosts_no_radiobutton), TRUE);
@@ -3749,21 +3749,21 @@ graphics_info_t::fill_bond_parameters_internals(GtkWidget *w, int imol) {
 	       make_insensitive = 0;
 	    } else {
 	       std::cout << "INFO:: in fill_bond_parameters_internals no NCS for  "
-			 << imol << "\n"; 
+			 << imol << "\n";
 	    }
 	 } else {
 	    std::cout << "ERROR:: bad imol in fill_bond_parameters_internals no model "
-		      << imol << "\n"; 
+		      << imol << "\n";
 	 }
       } else {
-	 std::cout << "ERROR:: bad imol in fill_bond_parameters_internals i " << imol << "\n"; 
+	 std::cout << "ERROR:: bad imol in fill_bond_parameters_internals i " << imol << "\n";
       }
    } else {
-      std::cout << "ERROR:: bad imol in fill_bond_parameters_internals " << imol << "\n"; 
+      std::cout << "ERROR:: bad imol in fill_bond_parameters_internals " << imol << "\n";
    }
    if (make_insensitive)
       gtk_widget_set_sensitive(frame, FALSE);
-   else 
+   else
       gtk_widget_set_sensitive(frame, TRUE);
 
 }
@@ -3821,9 +3821,9 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
    GtkWidget *label269;
    GtkWidget *label270;
    GtkWidget *coords_colour_hscale_mol_N;
-   
+
    for (int imol=0; imol<n_molecules(); imol++) {
-      if (molecules[imol].has_model()) { 
+      if (molecules[imol].has_model()) {
 
 	 std::string m = "Molecule ";
 	 m += coot::util::int_to_string(imol);
@@ -3861,7 +3861,7 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 	 g_signal_connect(G_OBJECT(adjustment_mol), "value_changed",
 			  G_CALLBACK(bonds_colour_rotation_adjustment_changed), NULL);
 	 g_object_set_data(G_OBJECT(adjustment_mol), "imol", GINT_TO_POINTER(imol));
-	 
+
 	 // gtk_widget_ref (coords_colour_hscale_mol_N);
 	 g_object_set_data_full(G_OBJECT (coords_colour_control_dialog),
 				"coords_colour_hscale_mol_N",
@@ -3881,21 +3881,21 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 	 gtk_widget_show(frame_molecule_N);
       }
    }
-   
+
 }
 
-// static 
+// static
 void graphics_info_t::bond_parameters_colour_rotation_adjustment_changed(GtkAdjustment *adj,
 									 GtkWidget *window) {
 
    graphics_info_t g;
    g.rotate_colour_map_on_read_pdb = gtk_adjustment_get_value(adj);
    graphics_draw(); // unnecessary.
-   
+
 }
 
 
-// static 
+// static
 void graphics_info_t::bonds_colour_rotation_adjustment_changed(GtkAdjustment *adj,
 							       GtkWidget *window) {
 
@@ -3905,7 +3905,7 @@ void graphics_info_t::bonds_colour_rotation_adjustment_changed(GtkAdjustment *ad
       molecules[imol].bonds_colour_map_rotation = gtk_adjustment_get_value(adj);
    }
    graphics_draw();
-   
+
 }
 
 // // static
@@ -3947,7 +3947,7 @@ graphics_info_t::add_OXT_molecule_combobox_changed(GtkWidget *widget, gpointer d
    GtkWidget *chain_combobox = lookup_widget(widget, "add_OXT_chain_combobox");
    GCallback func = G_CALLBACK(add_OXT_chain_combobox_changed);
    fill_combobox_with_chain_options(chain_combobox, imol, func);
-   
+
 }
 
 
@@ -4055,11 +4055,11 @@ graphics_info_t::fill_combobox_with_chain_options(GtkWidget *combobox,
 
 #if 0
 // return the string at the top of the list:
-// 
+//
 //static
 std::string graphics_info_t::fill_option_menu_with_chain_options(GtkWidget *option_menu,
 								 int imol,
-								 GCallback signal_func, 
+								 GCallback signal_func,
 								 const std::string &active_chain_id) {
 
    std::pair<bool, std::string> top_string(false, "no-chain-set-in-fill_option_menu_with_chain_options");
@@ -4083,13 +4083,13 @@ std::string graphics_info_t::fill_option_menu_with_chain_options(GtkWidget *opti
 	    if (i==0) {
 	       top_string.first = true;
 	       top_string.second = chains[i];
-	    } 
+	    }
 	    gtk_menu_set_active(GTK_MENU(menu), i);
-	 } 
+	 }
       }
       /* Link the new menu to the optionmenu widget */
       gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
-   } 
+   }
    return top_string.second;
 }
 #endif
@@ -4100,20 +4100,20 @@ void
 graphics_info_t::fill_renumber_residue_range_dialog(GtkWidget *window) {
 
    // surely deletable?
-#if 0   
+#if 0
    graphics_info_t g;
 
    GtkWidget *molecule_option_menu =
       lookup_widget(window, "renumber_residue_range_molecule_optionmenu");
 //    GtkWidget *chain_option_menu =
 //       lookup_widget(window, "renumber_residue_range_chain_optionmenu");
-   
+
    // renumber_residue_range_resno_1_entry
    // renumber_residue_range_resno_2_entry
    // renumber_residue_range_offset_entry
 
    // fill molecules option menu
-   GCallback callback_func = 
+   GCallback callback_func =
       G_CALLBACK(graphics_info_t::renumber_residue_range_molecule_menu_item_select);
 
    // g.fill_option_menu_with_coordinates_options(molecule_option_menu, callback_func);
@@ -4137,7 +4137,7 @@ graphics_info_t::fill_renumber_residue_range_internal(GtkWidget *w, int imol) {
    std::string a = fill_combobox_with_chain_options(chain_combobox, imol, callback_func);
    if (a != "no-chain") {
       graphics_info_t::renumber_residue_range_chain = a;
-   } 
+   }
 }
 
 
@@ -4191,7 +4191,7 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pai
 						     label.c_str());
       std::string button_name = "difference_map_peaks_button_";
       button_name += int_to_string(i);
-      
+
       diff_map_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON (radio_button));
       // gtk_widget_ref (radio_button);
       g_object_set_data_full(G_OBJECT (w),
@@ -4201,12 +4201,12 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pai
       coot::diff_map_peak_helper_data *hd = new coot::diff_map_peak_helper_data;
       hd->ipeak = i;
       hd->pos = centres[i].first;
-	 
+
       // *iuser_data = i;
       g_signal_connect (G_OBJECT (radio_button), "toggled",
 			  G_CALLBACK(on_diff_map_peak_button_selection_toggled),
 			  hd);
-             
+
        gtk_widget_show (radio_button);
        frame = gtk_frame_new(NULL);
        gtk_container_add(GTK_CONTAINER(frame), radio_button);
@@ -4219,7 +4219,7 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pai
    // not used in the callback now that the button contains a pointer
    // to this info:
    diff_map_peaks->resize(0);
-   for (unsigned int i=0; i<centres.size(); i++) 
+   for (unsigned int i=0; i<centres.size(); i++)
       diff_map_peaks->push_back(centres[i].first);
    max_diff_map_peaks = centres.size();
 
@@ -4237,14 +4237,14 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pai
 }
 
 
-// static 
+// static
 void
 graphics_info_t::on_diff_map_peak_button_selection_toggled (GtkButton       *button,
 							    gpointer         user_data) {
 
    coot::diff_map_peak_helper_data *hd = (coot::diff_map_peak_helper_data *) user_data;
    // int i = hd->ipeak;
-   
+
    graphics_info_t g;
    // std::cout << "button number " << i << " pressed\n";
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
@@ -4260,11 +4260,11 @@ graphics_info_t::on_diff_map_peak_button_selection_toggled (GtkButton       *but
       std::string s = "Difference map peak number ";
       s += int_to_string(hd->ipeak);
       g.add_status_bar_text(s);
-   } 
+   }
 }
 
 
-// static 
+// static
 std::pair<short int, float>
 graphics_info_t::float_from_entry(GtkWidget *entry) {
 
@@ -4296,7 +4296,7 @@ graphics_info_t::int_from_entry(GtkWidget *entry) {
 GtkWidget *graphics_info_t::wrapped_create_symmetry_controller_dialog() const {
 
    GtkWidget *w = symmetry_controller_dialog;
-   if (! w) { 
+   if (! w) {
       w = create_symmetry_controller_dialog();
       symmetry_controller_dialog = w;
       for (int imol=0; imol<n_molecules(); imol++) {
@@ -4306,7 +4306,7 @@ GtkWidget *graphics_info_t::wrapped_create_symmetry_controller_dialog() const {
    }
 #if (GTK_MAJOR_VERSION > 1)
    gtk_window_deiconify(GTK_WINDOW(w));
-#endif    
+#endif
    return w;
 }
 
@@ -4320,21 +4320,21 @@ graphics_info_t::wrapped_create_lsq_plane_dialog() {
    lsq_plane_dialog = w;
    GtkWindow *main_window = GTK_WINDOW(lookup_widget(glarea, "window1"));
    gtk_window_set_transient_for(GTK_WINDOW(w), main_window);
-   
+
    return w;
-} 
+}
 
 
-// 
+//
 GtkWidget *
 wrapped_create_multi_residue_torsion_dialog(const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &pairs) {
 
    GtkWidget *w = create_multi_residue_torsion_dialog();
    GtkWidget *vbox = lookup_widget(GTK_WIDGET(w), "multi_residue_torsion_vbox");
-   graphics_info_t::multi_residue_torsion_reverse_fragment_mode = 0; // reset every time 
+   graphics_info_t::multi_residue_torsion_reverse_fragment_mode = 0; // reset every time
 
 
-   for (unsigned int i=0; i<pairs.size(); i++) { 
+   for (unsigned int i=0; i<pairs.size(); i++) {
       std::string s;
       s += pairs[i].first->name;
       s += " ";
@@ -4368,11 +4368,11 @@ graphics_info_t::on_multi_residue_torsion_button_clicked(GtkButton *button,
    graphics_info_t g;
    int i = GPOINTER_TO_INT(user_data);
    GtkWidget *check_button = lookup_widget(GTK_WIDGET(button), "multi_residue_torsion_reverse_checkbutton");
-   std::pair<coot::atom_spec_t, coot::atom_spec_t> *atom_spec_pair =   
+   std::pair<coot::atom_spec_t, coot::atom_spec_t> *atom_spec_pair =
       static_cast<std::pair<coot::atom_spec_t, coot::atom_spec_t> *> (g_object_get_data (G_OBJECT (button), "spec_pair"));
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check_button)))
       g.multi_residue_torsion_reverse_fragment_mode = 1;
-   else 
+   else
       g.multi_residue_torsion_reverse_fragment_mode = 0;
 
    if (atom_spec_pair) {
@@ -4380,7 +4380,7 @@ graphics_info_t::on_multi_residue_torsion_button_clicked(GtkButton *button,
 	 if (moving_atoms_asc->mol) {
 	    int index_1 = -1; // unset
 	    int index_2 = -1; // unset
-	    for (int ii=0; ii<g.moving_atoms_asc->n_selected_atoms; ii++) { 
+	    for (int ii=0; ii<g.moving_atoms_asc->n_selected_atoms; ii++) {
 	       coot::atom_spec_t moving_spec_1(moving_atoms_asc->atom_selection[ii]);
 	       if (moving_spec_1 == atom_spec_pair->first)
 		  index_1 = ii;
@@ -4393,7 +4393,7 @@ graphics_info_t::on_multi_residue_torsion_button_clicked(GtkButton *button,
 
 	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check_button)))
 	       g.multi_residue_torsion_reverse_fragment_mode = 1;
-	    
+
 	    if (index_1 == -1) {
 	       std::cout << "ERROR:: index_1 not found " << std::endl;
 	    } else {
