@@ -3847,8 +3847,10 @@ void make_image_povray(const char *filename) {
    povray(pov_name.c_str());
 #ifdef USE_GUILE
 
-   int x_size = graphics_info_t::glarea->allocation.width;
-   int y_size = graphics_info_t::glarea->allocation.height;
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
+   int x_size = allocation.width;
+   int y_size = allocation.height;
    std::string cmd("(raytrace 'povray ");
    cmd += single_quote(pov_name);
    cmd += " ";
@@ -3860,10 +3862,12 @@ void make_image_povray(const char *filename) {
    cmd += ")";
    safe_scheme_command(cmd);
 
-#else   
+#else
 #ifdef USE_PYTHON
-   int x_size = graphics_info_t::glarea->allocation.width;
-   int y_size = graphics_info_t::glarea->allocation.height;
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
+   int x_size = allocation.width;
+   int y_size = allocation.height;
    std::string cmd("raytrace('povray',");
    cmd += single_quote(coot::util::intelligent_debackslash(pov_name));
    cmd += ",";
@@ -3883,8 +3887,10 @@ void make_image_povray_py(const char *filename) {
    std::string pov_name = filename;
    pov_name += ".pov";
    povray(pov_name.c_str());
-   int x_size = graphics_info_t::glarea->allocation.width;
-   int y_size = graphics_info_t::glarea->allocation.height;
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
+   int x_size = allocation.width;
+   int y_size = allocation.height;
    std::string cmd("raytrace('povray',");
    cmd += single_quote(coot::util::intelligent_debackslash(pov_name));
    cmd += ",";
@@ -3900,10 +3906,10 @@ void make_image_povray_py(const char *filename) {
 
 
 void
-autobuild_ca_off() { 
+autobuild_ca_off() {
 
-   graphics_info_t g; 
-   g.autobuild_flag = 0; 
+   graphics_info_t g;
+   g.autobuild_flag = 0;
 
 }
 
@@ -7491,14 +7497,14 @@ void set_background_colour(double red, double green, double blue) {
        g.background_colour[0] = red; 
        g.background_colour[1] = green; 
        g.background_colour[2] = blue; 
-       glFogfv(GL_FOG_COLOR, g.background_colour);
+       // glFogfv(GL_FOG_COLOR, g.background_colour);
      }
      g.make_current_gl_context(g.glarea);
      glClearColor(red,green,blue,1.0);
      g.background_colour[0] = red; 
      g.background_colour[1] = green; 
      g.background_colour[2] = blue; 
-     glFogfv(GL_FOG_COLOR, g.background_colour);
+     // glFogfv(GL_FOG_COLOR, g.background_colour);
      if (g.do_anti_aliasing_flag) {
        // update the antialias?!
        g.draw_anti_aliasing();
@@ -7519,11 +7525,11 @@ redraw_background() {
      if(g.glarea_2) {
        g.make_current_gl_context(g.glarea_2);
        glClearColor(red,green,blue,1.0);
-       glFogfv(GL_FOG_COLOR, g.background_colour);
+       // glFogfv(GL_FOG_COLOR, g.background_colour);
      }
      g.make_current_gl_context(g.glarea);
      glClearColor(red,green,blue,1.0);
-     glFogfv(GL_FOG_COLOR, g.background_colour);
+     // glFogfv(GL_FOG_COLOR, g.background_colour);
      graphics_draw();
    }
 

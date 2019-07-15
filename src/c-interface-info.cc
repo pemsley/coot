@@ -2693,8 +2693,11 @@ PyObject *get_pointer_position_frac_py() {
       double x = g.GetMouseBeginX();
       double y = g.GetMouseBeginY();
 
-      double x_max = g.glarea->allocation.width;
-      double y_max = g.glarea->allocation.height;
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(g.glarea, &allocation);
+
+      double x_max = allocation.width;
+      double y_max = allocation.height;
 
       double xf = x/x_max;
       double yf = y/y_max;
