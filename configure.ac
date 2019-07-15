@@ -119,7 +119,7 @@ fi
 # This seems not to be returning the correct value
 # AM_PATH_LIBPNG
 # so try this:
-PKG_CHECK_MODULES([LIBPNG], [libpng >= 1.5])
+PKG_CHECK_MODULES([LIBPNG], [libpng >= 1.2])
 
 # and while we are thinking about images, let's check for Cairo also
 PKG_CHECK_MODULES([CAIRO], [cairo >= 1.14])
@@ -199,7 +199,7 @@ coot_gtk2=TRUE
 
 
 # AM_PATH_GTK(2.4.14)
-PKG_CHECK_MODULES(GTK, gtk+-3.0 >= 3.20)
+PKG_CHECK_MODULES(GTK, gtk+-3.0 >= 3.18)
 
 # libgnomecanvas is not provided on new GNU/Linux systems.
 # So until all libgnomecanvas-using code is replaced I will have to install that myself
@@ -232,9 +232,10 @@ AC_SUBST([COOT_OPENGL_LIBS], [${COOT_OPENGL_LIBS}])
 
 dnl =========================== GLUT ================================
 
+dnl goodbye glut
 dnl Check for GLUT
 #
-AM_PATH_GLUT(, [echo You need the GLUT utility library; exit 1], AC_MSG_ERROR([Cannot find proper GLUT version]))
+dnl AM_PATH_GLUT(, [echo You need the GLUT utility library; exit 1], AC_MSG_ERROR([Cannot find proper GLUT version]))
 
 
 dnl =========================== Python and Guile ======================
