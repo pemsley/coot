@@ -1,4 +1,6 @@
 
+#include <chrono>
+
 #include "coot-coord-utils.hh"
 #include "stack-and-pair.hh"
 
@@ -220,6 +222,8 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
 
    auto tp_1 = std::chrono::high_resolution_clock::now();
 
+   // hack
+   residues_are_all_moving_flag = true;
    if (residues_are_all_moving_flag) {
       selection_handle_moving = selection_handle_all;
       n_selected_atoms_moving = n_selected_atoms_all;
@@ -228,8 +232,8 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
       auto tp_2 = std::chrono::high_resolution_clock::now();
       selection_handle_moving = mol->NewSelection(); // d
       for (unsigned int ires=0; ires<residues_vec.size(); ires++) {
-	 if (residues_vec[ires].first == false) {
-	    mol->SelectAtoms(selection_handle_moving, 1,
+      if (residues_vec[ires].first == false) {
+         mol->SelectAtoms(selection_handle_moving, 1,
 			     residues_vec[ires].second->GetChainID(),
 			     residues_vec[ires].second->GetSeqNum(),
 			     residues_vec[ires].second->GetInsCode(),
@@ -241,12 +245,13 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
 			     "*",  // alt loc.
 			     mmdb::SKEY_OR
 			     );
-	 }
+         }
       }
       auto tp_3 = std::chrono::high_resolution_clock::now();
       auto d32 = std::chrono::duration_cast<std::chrono::microseconds>(tp_3 - tp_2).count();
       std::cout << "------------------ timings: for residues SelectAtoms() "
-		<< d32 << " ms" << std::endl;
+                << d32 << " ms" << std::endl;
+
       mol->GetSelIndex(selection_handle_moving, selected_atoms_moving, n_selected_atoms_moving);
    }
    
