@@ -1432,10 +1432,8 @@ coot::multi_build_terminal_residue_addition::refine_end(coot::minimol::fragment 
    // Does this make things slower? (seems so, try passing the thread pool
    // or test how long it takes to create and add).
    //
-// #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
-//    ctpl::thread_pool thread_pool(coot::get_max_number_of_threads());
-//    restraints.thread_pool(&thread_pool, get_max_number_of_threads());
-// #endif
+   ctpl::thread_pool thread_pool(coot::get_max_number_of_threads());
+   restraints.thread_pool(&thread_pool, get_max_number_of_threads());
 
    pseudo_restraint_bond_type pseudos = NO_PSEUDO_BONDS;
    bool do_internal_torsions = false;

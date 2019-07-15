@@ -179,6 +179,8 @@ int main(int argc, char **argv) {
 	 acell[5] = clipper::Util::rad2d(xmap.cell().descr().gamma());
 	 std::string spacegroup_str_hm = xmap.spacegroup().symbol_hm();
 
+	 std::cout << "here with pdb_file_name " << pdb_file_name << std::endl;
+
 	 if (pdb_file_name.empty()) {
 
 	    std::vector<std::pair<std::string, std::string> > sequences;
@@ -203,7 +205,7 @@ int main(int argc, char **argv) {
 	    coot::trace t(xmap);
 	    if (coot::file_exists(pdb_file_name)) {
 	       mmdb::Manager *mol = new mmdb::Manager;
-	       std::cout << "Reading coordinate file: " << pdb_file_name.c_str() << "\n";
+	       std::cout << "Reading coordinate file for seeding: " << pdb_file_name.c_str() << "\n";
 	       mmdb::ERROR_CODE err = mol->ReadCoorFile(pdb_file_name.c_str());
 	       if (err) {
 		  std::cout << "There was an error reading " << pdb_file_name.c_str() << ". \n";
@@ -212,6 +214,7 @@ int main(int argc, char **argv) {
 		  delete mol;
 	       } else {
 
+		  std::cout << "here with chain_id " << chain_id << std::endl;
 		  if (! chain_id.empty()) {
 		     int res_no = -999;
 		     if (! res_no_str.empty()) {
@@ -224,6 +227,8 @@ int main(int argc, char **argv) {
 			}
 		     }
 		     if (res_no > -999) {
+
+			std::cout << "Here 1 " << res_no << std::endl;
 			self_seed = false;
 			coot::residue_spec_t spec(chain_id, res_no, "");
 			mmdb::Residue *r = coot::util::get_residue(spec, mol);
