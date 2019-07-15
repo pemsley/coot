@@ -825,11 +825,13 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       }
    }
 
+#if 0 // what is this doing here? Added to the wrong file?
    if (true) {
       init_other_buffers();
       graphics_info_t::draw_the_other_things = true;
       gtk_widget_queue_draw(glarea);
    }
+#endif
 
    return r;
 }
