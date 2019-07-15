@@ -691,10 +691,11 @@ coot_density_score_by_residue_bin_LDADD  =	\
 dynarama_bin_SOURCES = dynarama-main.cc rama_plot.cc rama_mousey.cc
 dynarama_bin_LDADD = \
         $(top_builddir)/coords/libcoot-coords.la                \
-        $(top_builddir)/utils/libcoot-utils.la  \
+        $(top_builddir)/utils/libcoot-utils.la                  \
         $(top_builddir)/coot-utils/libcoot-coord-utils.la       \
+        $(top_builddir)/geometry/libcoot-geometry.la            \
         $(top_builddir)/coot-surface/libcoot-surface.la         \
-        $(top_builddir)/compat/libcoot-compat.la  \
+        $(top_builddir)/compat/libcoot-compat.la                \
         $(CLIPPER_LIBS)         \
         $(MMDB_LIBS)            \
         $(GLOB_LIBS)            \
