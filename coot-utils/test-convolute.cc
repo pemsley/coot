@@ -12,7 +12,7 @@
 
 void thread_fill_a_map() {
 
-   int n_threads = 1;
+   int n_threads = 8;
 
    clipper::Xmap<float> xmap; // not blank in real code
 
@@ -31,7 +31,7 @@ void thread_fill_a_map() {
    std::vector<std::pair<MRI, MRI> > map_ref_start_stops =
       coot::make_map_reference_index_start_stops(xmap, n_threads);
 
-   for (int i=0; i<n_threads; i++) {
+   for (unsigned int i=0; i<map_ref_start_stops.size(); i++) {
       std::cout << "checking returned start stops:    " << i << " "
 		<< map_ref_start_stops[i].first.coord().format() << " "
 		<< map_ref_start_stops[i].first.index() << " "
@@ -51,7 +51,7 @@ void thread_fill_a_map() {
          xmap[ix] += 1.0; // or whatever
       }
    };
-   for (int i=0; i<n_threads; i++) {
+   for (unsigned int i=0; i<map_ref_start_stops.size(); i++) {
       std::cout << "making a thread with start stops: "
 		<< map_ref_start_stops[i].first.coord().format() << " "
 		<< map_ref_start_stops[i].first.index() << " "
@@ -59,7 +59,7 @@ void thread_fill_a_map() {
 		<< map_ref_start_stops[i].second.index() << "\n";
       threads.push_back(std::thread(l, std::ref(xmap), std::cref(map_ref_start_stops[i])));
    }
-   for (int i=0; i<n_threads; i++)
+   for (unsigned int i=0; i<map_ref_start_stops.size(); i++)
       threads[i].join();
 
    // if needed.
@@ -146,6 +146,9 @@ get_spherically_averaged_density_value(const std::vector<std::pair<double, doubl
 int main(int argc, char **argv) {
 
    int status = 0;
+
+   thread_fill_a_map();
+   return 0;
 
    if (argc > 3) {
 
