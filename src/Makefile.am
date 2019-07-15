@@ -559,7 +559,7 @@ coot_bin_SOURCES = \
 
 if COOT_USE_PYTHON
    coot_bin_SOURCES += coot_wrap_python.cc
-   EXTRA_DIST += coot_wrap_python_pre.cc 
+   EXTRA_DIST += coot_wrap_python_pre.cc
 endif
 if COOT_USE_PYTHON
    dist_python_PYTHON = coot.py coot.pth
@@ -598,14 +598,14 @@ coot_fix_nomenclature_errors_LDADD = \
 		$(L_BOOST_PYTHON)
 
 # removed from fix_nomenclature_errors_LDADD:
-#        $(RDKIT_LIBS)		
+#        $(RDKIT_LIBS)
 #        $(L_BOOST_PYTHON)	# also needs PYTHON_LIBS, I guess?
 
 # coot_bin_LDFLAGS = -static -lstdc++
 coot_bin_LDFLAGS =
 
 # coot_bin_CXXFLAGS=-Wl,--export-dynamic -dynamiclib
-#  -Wl,-undefined -Wl,dynamic_lookup 
+#  -Wl,-undefined -Wl,dynamic_lookup
 
 # 20101220 Note: when libtool/ltmain.sh is fixed, OPENMP_CFLAGS will
 # not be needed here. So says Justin Lecher (see email).
@@ -624,7 +624,7 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 		$(GLOB_LIBS)		\
 		$(GTKGL_CONTEXT_LIBS) 	\
                 $(EPOXY_LIBS)           \
-		$(GLUT_LIBS)		\
+		$(GLUT_LIBS) -lGL	\
 		$(CANVAS_LIBS) 		\
 		$(GSL_LIBS)		\
 		$(MYSQL_LIBS)		\
@@ -634,7 +634,8 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 		$(L_BOOST_PYTHON)	\
 		$(GOOCANVAS_LIBS)       \
 		$(SQLITE3_LIBS)         \
-		@GTK_LIBS@
+		@GTK_LIBS@ \
+		-lpthread
 
 
 #		$(INTLLIBS) 		Fix when GETTEXT workds
