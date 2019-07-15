@@ -998,7 +998,7 @@ int probe_available_p() {
       int was_boolean_flag = scm_is_true(scm_boolean_p(scm_thunk));
 
       if (was_boolean_flag) { 
-	 if (scm_is_true(scm_thunk) == 1) {
+	 if (scm_is_true(scm_thunk)) {
 	    r = 1;
 	 } else {
 	    r = 0;
@@ -2712,6 +2712,7 @@ int clashes_with_symmetry(int imol, const char *chain_id, int res_no, const char
 //! B-factor distribution histogram
 void b_factor_distribution_graph(int imol) {
 
+#if HAVE_GOOCANVAS
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       coot::b_factor_histogram b(mol);
@@ -2740,6 +2741,7 @@ void b_factor_distribution_graph(int imol) {
       g->show_dialog();
 
    }
+#endif // HAVE_GOOCANVASHAVE_GOOCANVAS
 }
 
 
