@@ -22,6 +22,7 @@
 
 
 #include <thread>
+#include <iomanip>
 
 #include "clipper/core/map_interp.h"
 #include "clipper/core/hkl_compute.h"
@@ -468,6 +469,66 @@ coot::util::make_rtop_orth_for_jiggle_atoms(float jiggle_trans_scale_factor,
 }
 
 typedef clipper::NXmap<float>::Map_reference_index NRI;
+typedef clipper::Xmap<float>::Map_reference_index  MRI;
+
+std::vector<std::pair<clipper::Xmap<float>::Map_reference_index,
+		      clipper::Xmap<float>::Map_reference_index> >
+coot::make_map_reference_index_start_stops(const clipper::Xmap<float> &xmap, int n_threads_in) {
+
+   std::cout << "make_map_reference_index_start_stops() for xmap doesn't work" << std::endl;
+
+   unsigned int n_threads = n_threads_in;
+   std::vector<std::pair<MRI, MRI> > map_ref_start_stops(n_threads);
+   bool debug = true;
+
+   clipper::Grid_range gr = xmap.grid_asu();
+
+   unsigned int nu = gr.nu();
+   unsigned int nv = gr.nv();
+   unsigned int nw = gr.nw();
+   unsigned int grid_max_index = gr.size();
+
+   unsigned int nw_step = nw/n_threads;
+   if ((nw_step * n_threads) < nw)
+      nw_step++;
+
+   if (debug) {
+      std::cout << "xmap grid range " << gr.format() << " " << gr.size() << std::endl;
+      std::cout << "nu " << nu << " nv " << nv << " nw " << nw << std::endl;
+      std::cout << "n-threads: " << n_threads << " nw_step: " << nw_step << std::endl;
+   }
+
+   for (unsigned int i=0; i<n_threads; i++) {
+      unsigned int j = i + 1;
+      unsigned int i_step = i * nw_step;
+      unsigned int j_step = j * nw_step;
+      if (j_step > nu) j_step = nu; // first invalid grid point
+      clipper::Coord_grid pos_1(0, 0, i_step);
+      clipper::Coord_grid pos_2(0, 0, j_step);
+      MRI mri_1(xmap, pos_1);
+      MRI mri_2(xmap, pos_2);
+      MRI mri_check_zero(xmap, clipper::Coord_grid(0,0,0));
+      std::cout << "mri_check_zero " << mri_check_zero.coord().format() << " "
+		<< mri_check_zero.index() << std::endl;
+      std::cout  << "new pair for thread " << i << " start: "
+		 << mri_1.coord().format() << " " << mri_1.index() << std::endl;
+      std::cout  << "new pair for thread " << i << " stop : "
+		 << mri_2.coord().format() << " " << mri_2.index() << std::endl;
+      map_ref_start_stops[i] = std::pair<MRI, MRI>(mri_1, mri_2);
+   }
+
+   std::cout << "Here 1 " << std::endl;
+   for (unsigned int i=0; i<n_threads; i++) {
+      std::cout << "checking before returning start stops: " << i << " start: "
+		<< map_ref_start_stops[i].first.coord().format() << " "
+		<< map_ref_start_stops[i].first.index() << " end: "
+		<< map_ref_start_stops[i].second.coord().format() << " "
+		<< map_ref_start_stops[i].second.index() << "\n";
+   }
+
+   std::cout << "Here 2 " << std::endl;
+   return map_ref_start_stops;
+}
 
 std::vector<std::pair<NRI, NRI> >
 coot::make_map_reference_index_start_stops(const clipper::NXmap<float> &nxmap, int n_threads) {
