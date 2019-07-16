@@ -234,13 +234,13 @@ coot::setup_refmac_parameters(GtkWidget *window,
 #endif  
 
   // comboboxes
-  GtkWidget *fobs_comboxbox    = lookup_widget(window, "column_label_selector_refmac_fobs_combobox");
-  GtkWidget *sigfobs_comboxbox = lookup_widget(window, "column_label_selector_refmac_sigfobs_combobox");
-  GtkWidget *rfree_comboxbox   = lookup_widget(window, "column_label_selector_refmac_rfree_combobox");
+  GtkWidget *fobs_combobox    = lookup_widget(window, "column_label_selector_refmac_fobs_combobox");
+  GtkWidget *sigfobs_combobox = lookup_widget(window, "column_label_selector_refmac_sigfobs_combobox");
+  GtkWidget *rfree_combobox   = lookup_widget(window, "column_label_selector_refmac_rfree_combobox");
 
-  my_combo_box_text_add_items(GTK_COMBO_BOX(fobs_comboxbox), col_labs.f_cols, 0);
-  my_combo_box_text_add_items(GTK_COMBO_BOX(sigfobs_comboxbox), col_labs.sigf_cols, 0);
-  my_combo_box_text_add_items(GTK_COMBO_BOX(rfree_comboxbox), col_labs.r_free_cols, 0);
+  my_combo_box_text_add_items(GTK_COMBO_BOX(fobs_combobox), col_labs.f_cols, 0);
+  my_combo_box_text_add_items(GTK_COMBO_BOX(sigfobs_combobox), col_labs.sigf_cols, 0);
+  my_combo_box_text_add_items(GTK_COMBO_BOX(rfree_combobox), col_labs.r_free_cols, 0);
 
 
 }

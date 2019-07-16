@@ -3937,7 +3937,8 @@ graphics_info_t::get_active_label_in_combobox(GtkComboBox *combobox) const {
       const char *f_label_cstr = g_value_get_string(&f_label_as_value);
       f_label = f_label_cstr;
    } else {
-      std::cout << "in get_active_label_in_combobox(): Bad state" << std::endl;
+      std::cout << "in get_active_label_in_combobox(): Bad state for get_active_iter"
+		<< std::endl;
    }
    return f_label;
 }
