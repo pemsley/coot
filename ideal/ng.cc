@@ -136,62 +136,7 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       if (do_auto_helix_restraints)
 	 make_helix_pseudo_bond_restraints_from_res_vec_auto();
 
-      // put this in its own function
-      {
-	 auto tp_6 = std::chrono::high_resolution_clock::now();
-	 stack_and_pair sp(mol, residues_vec);
-	 std::vector<stack_and_pair::stacked_planes_info_t> stacked_residues = sp.stacked_residues(mol);
-
-	 // using spec indirection - this is not fast
-	 extra_restraints_t extra_restraints;
-	 for (std::size_t i=0; i<stacked_residues.size(); i++) {
-	    parallel_planes_t ppr(residue_spec_t(stacked_residues[i].res_1),
-				  residue_spec_t(stacked_residues[i].res_2),
-				  stacked_residues[i].atom_names_1,
-				  stacked_residues[i].atom_names_2,
-				  "", "");
-	    extra_restraints.parallel_plane_restraints.push_back(ppr);
-	 }
-      
-	 auto tp_7 = std::chrono::high_resolution_clock::now();
-
-	 // base pairs:
-	 bool all_atoms_are_moving_flag = false; // can be true in the future.
-	 std::vector<stack_and_pair::paired_residues_info_t> pr =
-	    sp.paired_residues(mol, residues_vec, all_atoms_are_moving_flag, geom);
-
-	 auto tp_8 = std::chrono::high_resolution_clock::now();
-
-	 unsigned int n_base_pairing_bonds = 0;
-	 for (std::size_t i=0; i<pr.size(); i++) {
-	    for (std::size_t j=0; j<pr[i].atom_pair_vec.size(); j++) {
-	       mmdb::Atom *at_1 = pr[i].atom_pair_vec[j].first;
-	       mmdb::Atom *at_2 = pr[i].atom_pair_vec[j].second;
-	       int index_1 = -1;
-	       int index_2 = -1;
-	       at_1->GetUDData(udd_atom_index_handle, index_1);
-	       at_2->GetUDData(udd_atom_index_handle, index_2);
-	       std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
-	       if (!fixed_flags[0] || fixed_flags[1]) {
-		  // This should be hydrogen bond type (whatever that means)
-		  add(BOND_RESTRAINT, index_1, index_2, fixed_flags, 2.8, 0.05, 1.2);
-		  n_base_pairing_bonds++;
-	       }
-	    }
-	 }
-	 std::cout << "   Make " << n_base_pairing_bonds << " base pairing Hydrogen bonds"
-		   << std::endl;
-	 auto tp_9 = std::chrono::high_resolution_clock::now();
-
-	 add_extra_restraints(imol, extra_restraints, geom);
-	 auto tp_10 = std::chrono::high_resolution_clock::now();
-	 auto d76  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_7  - tp_6).count();
-	 auto d87  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_8  - tp_7).count();
-	 auto d98  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_9  - tp_8).count();
-	 auto d109 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_10 - tp_8).count();
-	 std::cout << "------------------ timings: for make_restraints_ng(): stacking and pairing: "
-		   << d76 << " " << d87 << " " << d98 << " " << d109 <<std::endl;
-      }
+      make_base_pairing_and_stacking_restraints_ng(imol, geom);
 
       make_df_restraints_indices();
       make_distortion_electron_density_ranges();
@@ -202,6 +147,65 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 
 
    return restraints_vec.size();
+}
+
+void
+coot::restraints_container_t::make_base_pairing_and_stacking_restraints_ng(int imol, const coot::protein_geometry &geom) {
+
+   auto tp_6 = std::chrono::high_resolution_clock::now();
+   stack_and_pair sp(mol, residues_vec);
+   std::vector<stack_and_pair::stacked_planes_info_t> stacked_residues = sp.stacked_residues(mol);
+
+   // using spec indirection - this is not fast
+   extra_restraints_t extra_restraints;
+   for (std::size_t i=0; i<stacked_residues.size(); i++) {
+      parallel_planes_t ppr(residue_spec_t(stacked_residues[i].res_1),
+                            residue_spec_t(stacked_residues[i].res_2),
+                            stacked_residues[i].atom_names_1,
+                            stacked_residues[i].atom_names_2,
+                            "", "");
+      extra_restraints.parallel_plane_restraints.push_back(ppr);
+   }
+
+   auto tp_7 = std::chrono::high_resolution_clock::now();
+
+   // base pairs:
+   bool all_atoms_are_moving_flag = false; // can be true in the future.
+   std::vector<stack_and_pair::paired_residues_info_t> pr =
+      sp.paired_residues(mol, residues_vec, all_atoms_are_moving_flag, geom);
+
+   auto tp_8 = std::chrono::high_resolution_clock::now();
+
+   unsigned int n_base_pairing_bonds = 0;
+   for (std::size_t i=0; i<pr.size(); i++) {
+      for (std::size_t j=0; j<pr[i].atom_pair_vec.size(); j++) {
+         mmdb::Atom *at_1 = pr[i].atom_pair_vec[j].first;
+         mmdb::Atom *at_2 = pr[i].atom_pair_vec[j].second;
+         int index_1 = -1;
+         int index_2 = -1;
+         at_1->GetUDData(udd_atom_index_handle, index_1);
+         at_2->GetUDData(udd_atom_index_handle, index_2);
+         std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
+         if (!fixed_flags[0] || fixed_flags[1]) {
+            // This should be hydrogen bond type (whatever that means)
+            add(BOND_RESTRAINT, index_1, index_2, fixed_flags, 2.8, 0.05, 1.2);
+            n_base_pairing_bonds++;
+         }
+      }
+   }
+   std::cout << "   Made " << n_base_pairing_bonds << " base pairing Hydrogen bonds"
+             << std::endl;
+   auto tp_9 = std::chrono::high_resolution_clock::now();
+
+   add_extra_restraints(imol, extra_restraints, geom);
+   auto tp_10 = std::chrono::high_resolution_clock::now();
+   auto d76  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_7  - tp_6).count();
+   auto d87  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_8  - tp_7).count();
+   auto d98  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_9  - tp_8).count();
+   auto d109 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_10 - tp_8).count();
+   std::cout << "------------------ timings: for make_restraints_ng(): stacking and pairing: "
+             << d76 << " " << d87 << " " << d98 << " " << d109 << " ms" << std::endl;
+
 }
 
 

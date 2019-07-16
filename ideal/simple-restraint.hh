@@ -1765,6 +1765,9 @@ namespace coot {
 					     std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p,
 					     bool do_rama_plot_restraints,
 					     bool do_trans_peptide_restraints);
+
+      void make_base_pairing_and_stacking_restraints_ng(int imol, const protein_geometry &geom);
+
       void make_rama_plot_restraints(const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map,
 				     const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set,
 				     const protein_geometry &geom);
