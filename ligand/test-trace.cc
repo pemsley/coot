@@ -93,6 +93,9 @@ int main(int argc, char **argv) {
 
       int ch;
       int option_index = 0;
+
+      // it seems that this loop gets skipped. not sure why (coot_getopt_long() returns -1)
+
       while ( -1 !=
 	      (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index))) {
 
@@ -102,11 +105,14 @@ int main(int argc, char **argv) {
 	    if (optarg) {
 	       std::string arg_str = long_options[option_index].name;
 
+	       std::cout << "arg_str (loop) " << arg_str << std::endl;
+
 	       if (arg_str == "pdbin") {
 		  pdb_file_name = optarg;
 	       }
 	       if (arg_str == "mapin") {
 		  map_file_name = optarg;
+		  std::cout << "debug:: setting map_file_name to " << map_file_name << std::endl;
 	       }
 	       if (arg_str == "pdbout") {
 		  output_pdb = optarg;
@@ -139,6 +145,8 @@ int main(int argc, char **argv) {
       clipper::Xmap<float> xmap;
       if (! f_col_label.empty()) {
 	 if (! phi_col_label.empty()) {
+	    std::cout << "Read mtz file " << hklin_file_name
+		      << " " << f_col_label << " " << phi_col_label<< std::endl;
 	    bool use_weights = false;
 	    bool is_diff_map = false;
 	    bool stat = coot::util::map_fill_from_mtz(&xmap, hklin_file_name,
@@ -146,23 +154,32 @@ int main(int argc, char **argv) {
 						      use_weights, is_diff_map);
 	 }
       }
-      if (coot::file_exists(map_file_name)) {
 
-	 try {
-	    std::cout << "reading map " << map_file_name << std::endl;
-	    clipper::CCP4MAPfile file;
-	    file.open_read(map_file_name);
-	    file.import_xmap(xmap);
-	    file.close_read();
-	 }
-	 // problem reading the map, perhaps?
-	 //
-	 catch (const clipper::Message_fatal &mess) {
-	    std::cout << "ERROR:: " << mess.text() << std::endl;
+      if (! map_file_name.empty()) {
+	 if (coot::file_exists(map_file_name)) {
+
+	    try {
+	       std::cout << "reading map " << map_file_name << std::endl;
+	       clipper::CCP4MAPfile file;
+	       file.open_read(map_file_name);
+	       file.import_xmap(xmap);
+	       file.close_read();
+	    }
+	    // problem reading the map, perhaps?
+	    //
+	    catch (const clipper::Message_fatal &mess) {
+	       std::cout << "ERROR:: " << mess.text() << std::endl;
+	    }
+	 } else {
+	    std::cout << "Map " << map_file_name << " does not exist " << std::endl;
 	 }
       }
 
-      if (! xmap.is_null()) {
+      if (xmap.is_null()) {
+
+	 std::cout << "xmap is null " << std::endl;
+
+      } else {
 
 	 coot::protein_geometry geom;
 	 geom.set_verbose(0);

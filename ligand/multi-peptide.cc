@@ -124,8 +124,6 @@ coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_
    acell[5] = clipper::Util::rad2d(xmap.cell().descr().gamma());
    std::string spacegroup_str_hm = xmap.spacegroup().symbol_hm();
 
-#ifdef HAVE_CXX_THREAD
-
    // We need to worry about fragment store going out of scope.
    // How about: wait for this async to terminate before finishing this function
    //
@@ -149,9 +147,9 @@ coot::multi_build_terminal_residue_addition::start_from_map(const coot::protein_
       std::cout << sequences[ii].first << "  " << sequences[ii].second << std::endl;
    }
 
-#endif // HAVE_CXX_THREAD
+   unsigned int n_seeds_max = 10; // seeds.size();
 
-   for (std::size_t iseed=0; iseed<seeds.size(); iseed++) {
+   for (std::size_t iseed=0; iseed<n_seeds_max; iseed++) {
       coot::minimol::molecule mmm(seeds[iseed]);
       mmdb::Manager *mol = mmm.pcmmdbmanager();
       mmdb::Residue *r = coot::util::get_residue(coot::residue_spec_t("A", 99, ""), mol);
@@ -774,8 +772,7 @@ coot::multi_build_terminal_residue_addition::forwards_2018(unsigned int iseed,
 
       residue_by_phi_psi addres("C", res_p, chain_id, residue_type, 20);
 
-      if (n_threads >= 1)
-	    addres.thread_pool(&thread_pool, n_threads);
+      addres.thread_pool(&thread_pool, n_threads);
 
       if (debug_trials)
 	 addres.write_trial_pdbs();
