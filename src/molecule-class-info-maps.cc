@@ -688,9 +688,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 
       if (draw_it_for_solid_density_surface) {
          tri_con = my_isosurface.GenerateTriangles_from_Xmap(xmap,
-            contour_level,
-            dy_radius, centre,
-            isample_step);
+            contour_level, dy_radius, centre, isample_step);
 
          if (xmap_is_diff_map) {
             tri_con_diff_map_neg = my_isosurface.GenerateTriangles_from_Xmap(xmap,
@@ -770,6 +768,10 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 #ifdef GRAPHICS_TESTING
 
    std::cout << "------------------ setup_glsl_map_rendering() here B ------------" << tri_con.point_indices.size() << std::endl;
+
+   std::cout << "------------------ setup_glsl_map_rendering() here C ------------" << tri_con.normals.size() << " normals"
+	     << std::endl;
+
    // This is called from update_map_triangles().
 
    if (true) { // real map
@@ -782,11 +784,9 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 	      points[3*i+2] = 0.32 * tri_con.points[i].z();
       }
 
-      // transfer the indices
+      // transfer the indices - one of these variables has the wrong name - one is for lines and the other is for triangles
       n_vertices_for_VertexArray = 6 * tri_con.point_indices.size();
-
-      // if (n_vertices_for_VertexArray > 240)
-      // n_vertices_for_VertexArray = 240;
+      n_indices_for_triangles    = 3 * tri_con.point_indices.size();
 
       std::cout << "Here with n_vertices_for_VertexArray " << n_vertices_for_VertexArray << std::endl;
 
@@ -800,6 +800,22 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 	 indices[6*i+5] = tri_con.point_indices[i].pointID[0];
       }
 
+      int *indices_for_triangles = new int[n_indices_for_triangles];
+      for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
+	 indices_for_triangles[3*i  ] = tri_con.point_indices[i].pointID[0];
+	 indices_for_triangles[3*i+1] = tri_con.point_indices[i].pointID[1];
+	 indices_for_triangles[3*i+2] = tri_con.point_indices[i].pointID[2];
+      }
+
+      // each index has a normal
+      int n_normals = tri_con.points.size();
+      float *normals = new float[3 * n_normals];
+      for (int i=0; i<n_normals; i++) {
+	 normals[3*i  ] = tri_con.normals[i].x();
+	 normals[3*i+1] = tri_con.normals[i].y();
+	 normals[3*i+2] = tri_con.normals[i].z();
+      }
+
       // why is this needed?
       gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glarea));
 
@@ -811,6 +827,22 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       err = glGetError();
       std::cout << "setup_glsl_map_rendering() glBindVertexArray() " << err
 		<< " for m_VertexArrayID " << m_VertexArrayID << std::endl;
+
+      glGenBuffers(1, &m_NormalBufferID);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glGenBuffers() for normals err " << err << std::endl;
+      glBindBuffer(GL_ARRAY_BUFFER, m_NormalBufferID);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
+      glBufferData(GL_ARRAY_BUFFER, n_normals * 3 * sizeof(float), &normals[0], GL_STATIC_DRAW);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glBufferData() for normals err " << err << std::endl;
+      glEnableVertexAttribArray(1);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glEnableVertexAttribArray() err normals " << err << std::endl;
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
 
       glGenBuffers(1, &m_VertexBufferID);
       err = glGetError();
@@ -842,6 +874,18 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       err = glGetError();
       std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
 
+
+      glGenBuffers(1, &m_IndexBuffer_for_triangles_ID);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glGenBuffers() for m_IndexBuffer_for_triangles_ID " << err << std::endl;
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_triangles_ID);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glBindBuffer() for triangles " << err << std::endl;
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_indices_for_triangles,
+		   &indices_for_triangles[0], GL_STATIC_DRAW);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
+
       // test
 
       glBindVertexArray(m_VertexArrayID);
@@ -849,13 +893,14 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       std::cout << "setup_glsl_map_rendering() again try glBindVertexArray() " << err
 		<< " for m_VertexArrayID " << m_VertexArrayID << std::endl;
 
-      // delete [] points;
-      // delete [] indices;
+      delete [] points;
+      delete [] indices;
+      delete [] indices_for_triangles;
 
    }
 
 
-   std::cout << "------------------ setup_glsl_map_rendering() here C ------------" << n_vertices_for_VertexArray << std::endl;
+   std::cout << "------------------ setup_glsl_map_rendering() here -end- ------------" << n_vertices_for_VertexArray << std::endl;
 
 #endif // GRAPHICS_TESTING
 
