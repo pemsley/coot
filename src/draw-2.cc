@@ -35,7 +35,7 @@ void init_central_cube_shaders() {
    unsigned int programID = CreateShader(sps.VertexSource, sps.FragmentSource);
    err = glGetError();
    std::cout << "init_central_cube_shaders() CreateShader() returned programID " << programID
-	     << " for file " << shader_file_name << " with err " << err << std::endl;
+       << " for file " << shader_file_name << " with err " << err << std::endl;
    graphics_info_t::programID_for_central_cube = programID;
    std::cout << "----------- created shader program " << programID << std::endl;
 
@@ -70,7 +70,7 @@ void init_shaders() {
              << err << std::endl;
    programID_global = programID;
    std::cout << "----------- created shader program " << programID << " for " << shader_file_name
-	     << std::endl;
+       << std::endl;
 
    glBindAttribLocation(programID, 0, "position");
    err = glGetError();
@@ -104,14 +104,14 @@ void init_central_cube() {
 
    {
       float positions[24] = {
-	 -0.5,  -0.5, -0.5,
-	 -0.5,  -0.5,  0.5,
-	 -0.5,   0.5, -0.5,
-	 -0.5,   0.5,  0.5,
-	  0.5,  -0.5, -0.5,
-	  0.5,  -0.5,  0.5,
-	  0.5,   0.5, -0.5,
-	  0.5,   0.5,  0.5
+         -0.5,  -0.5, -0.5,
+         -0.5,  -0.5,  0.5,
+         -0.5,   0.5, -0.5,
+         -0.5,   0.5,  0.5,
+         0.5,  -0.5, -0.5,
+         0.5,  -0.5,  0.5,
+         0.5,   0.5, -0.5,
+         0.5,   0.5,  0.5
       };
 
       // number of lines * 2:
@@ -151,12 +151,12 @@ GLuint graphics_info_t::other_triangles_index_buffer_id = -1;
 void init_other_buffers() {
 
       float positions[18] = {
-	 -0.35,  -0.35, -0.2,
-	 -0.35,   0.35, -0.2,
-	  0.35,   0.35, -0.2,
-	  0.68,  -0.34, -0.2,
-	 -0.15,  -0.34,  0.2,
-	  0.45,   0.34, -0.2
+   -0.35,  -0.35, -0.2,
+   -0.35,   0.35, -0.2,
+    0.35,   0.35, -0.2,
+    0.68,  -0.34, -0.2,
+   -0.15,  -0.34,  0.2,
+    0.45,   0.34, -0.2
       };
 
       unsigned int indices[12] { 0,1,1,2,2,0,   3,4,4,5,5,3 };
@@ -170,7 +170,7 @@ void init_other_buffers() {
       std::cout << "init_other_buffers(): glBindVertexArray err " << err << std::endl;
 
       std::cout << "init_other_buffers(): binding to graphics_info_t::other_triangles_vertexarray_id "
-		<< graphics_info_t::other_triangles_vertexarray_id << std::endl;
+                << graphics_info_t::other_triangles_vertexarray_id << std::endl;
 
 
 
@@ -234,11 +234,11 @@ void draw_triangle(GtkGLArea *glarea) {
       glm::mat4 mvp = glm::scale(mvp_1, sc);
 
       if (false) {
-	 std::cout << "debug:: draw_triangle()       local mvp: ";
-	 for (unsigned int i=0; i<4; i++)
-	    for (unsigned int j=0; j<4; j++)
-	       std::cout << std::setw(8) << mvp[i][j] << " ";
-	 std::cout << std::endl;
+         std::cout << "debug:: draw_triangle()       local mvp: ";
+         for (unsigned int i=0; i<4; i++)
+         for (unsigned int j=0; j<4; j++)
+         std::cout << std::setw(8) << mvp[i][j] << " ";
+         std::cout << std::endl;
       }
       glUniformMatrix4fv(graphics_info_t::mvp_location, 1, GL_FALSE, &mvp[0][0]);
       err = glGetError();
@@ -278,31 +278,31 @@ draw_other_triangle(GtkGLArea *glarea) {
 
       if (! err) {
 
-	 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::other_triangles_index_buffer_id);
-	 err = glGetError();
-	 if (err) std::cout << "draw_other_triangle(): glBindBuffer() index err " << err << std::endl;
+   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::other_triangles_index_buffer_id);
+   err = glGetError();
+   if (err) std::cout << "draw_other_triangle(): glBindBuffer() index err " << err << std::endl;
 
-	 if (! err) {
-	    glUseProgram(programID_global);
-	    err = glGetError();
-	    if (err) std::cout << "draw_other_triangle() C err " << err << std::endl;
+   if (! err) {
+      glUseProgram(programID_global);
+      err = glGetError();
+      if (err) std::cout << "draw_other_triangle() C err " << err << std::endl;
 
-	    glm::mat4 mvp = glm::toMat4(graphics_info_t::glm_quat);
+      glm::mat4 mvp = glm::toMat4(graphics_info_t::glm_quat);
 
-	    std::cout << "debug:: draw_other_triangle() local mvp: ";
-	    for (unsigned int i=0; i<4; i++)
-	       for (unsigned int j=0; j<4; j++)
-		  std::cout << std::setw(8) << mvp[i][j] << " ";
-	    std::cout << std::endl;
+      std::cout << "debug:: draw_other_triangle() local mvp: ";
+      for (unsigned int i=0; i<4; i++)
+         for (unsigned int j=0; j<4; j++)
+      std::cout << std::setw(8) << mvp[i][j] << " ";
+      std::cout << std::endl;
 
-	    glUniformMatrix4fv(graphics_info_t::mvp_location, 1, GL_FALSE, &mvp[0][0]);
-	    err = glGetError();
-	    if (err) std::cout << "draw_other_triangle() glUniformMatrix4fv() err " << err << std::endl;
+      glUniformMatrix4fv(graphics_info_t::mvp_location, 1, GL_FALSE, &mvp[0][0]);
+      err = glGetError();
+      if (err) std::cout << "draw_other_triangle() glUniformMatrix4fv() err " << err << std::endl;
 
-	    glDrawElements(GL_LINES, 12, GL_UNSIGNED_INT, nullptr);
-	    err = glGetError();
-	    if (err) std::cout << "draw_other_triangle() glDrawElements() " << err << std::endl;
-	 }
+      glDrawElements(GL_LINES, 12, GL_UNSIGNED_INT, nullptr);
+      err = glGetError();
+      if (err) std::cout << "draw_other_triangle() glDrawElements() " << err << std::endl;
+   }
       }
    }
 }
@@ -331,8 +331,8 @@ gtk3_draw_molecules() {
 
    float ortho_size = 50.0f; // a function of graphics_info_t::zoom?
    glm::mat4 projection_matrix = glm::ortho(-ortho_size * screen_ratio, ortho_size * screen_ratio,
-					    -ortho_size, ortho_size,
-					    -0.1f * ortho_size, -ortho_size);
+              -ortho_size, ortho_size,
+              -0.1f * ortho_size, -ortho_size);
    // glm::mat4 projection_matrix = glm::perspective(static_cast<float>(glm::radians(70.0)), screen_ratio, 1.0f, 500.0f);
    glm::mat4 view_matrix = glm::mat4(1.0);
 
@@ -363,63 +363,64 @@ gtk3_draw_molecules() {
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
       if (graphics_info_t::molecules[ii].n_vertices_for_VertexArray > 0) {
 
-	 if (false) { // draw with lines
-	    if (false)
-	       std::cout << "   gtk3_draw_molecules(): imol " << ii
-			 << " array_id and n_vertices_for_VertexArray: "
-			 << graphics_info_t::molecules[ii].m_VertexArrayID << " "
-			 << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
-			 << std::endl;
-	    glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID);
-	    err = glGetError();
-	    if (err) std::cout << "   gtk3_draw_molecules() glBindVertexArray() "
-			       << graphics_info_t::molecules[ii].m_VertexArrayID
-			       << " with GL err " << err << std::endl;
+         bool draw_with_lines = true;
+         if (draw_with_lines) { // draw with lines
+            if (false) //debug
+               std::cout << "   gtk3_draw_molecules(): imol " << ii
+                         << " array_id and n_vertices_for_VertexArray: "
+                         << graphics_info_t::molecules[ii].m_VertexArrayID << " "
+                         << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
+                         << std::endl;
+            glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID);
+            err = glGetError();
+            if (err) std::cout << "   gtk3_draw_molecules() glBindVertexArray() "
+            << graphics_info_t::molecules[ii].m_VertexArrayID
+            << " with GL err " << err << std::endl;
 
-	    glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
-	    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBufferID);
+            glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBufferID);
 
-	    glUniformMatrix4fv(graphics_info_t::mvp_location, 1, GL_FALSE, &mvp[0][0]);
-	    err = glGetError();
-	    if (err) std::cout << "   gtk3_draw_molecules() glUniformMatrix4fv() " << err << std::endl;
+            glUniformMatrix4fv(graphics_info_t::mvp_location, 1, GL_FALSE, &mvp[0][0]);
+            err = glGetError();
+            if (err) std::cout << "   gtk3_draw_molecules() glUniformMatrix4fv() " << err << std::endl;
 
-	    glDrawElements(GL_LINES, graphics_info_t::molecules[ii].n_vertices_for_VertexArray,
-			   GL_UNSIGNED_INT, nullptr);
-	    err = glGetError();
-	    if (err) std::cout << "   gtk3_draw_molecules() glDrawElements() n_vertices: "
-			       << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
-			       << " with GL err " << err << std::endl;
-	 }
+            glDrawElements(GL_LINES, graphics_info_t::molecules[ii].n_vertices_for_VertexArray,
+               GL_UNSIGNED_INT, nullptr);
+               err = glGetError();
+               if (err) std::cout << "   gtk3_draw_molecules() glDrawElements() n_vertices: "
+               << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
+               << " with GL err " << err << std::endl;
+         }
 
-	 if (true) { // draw as a solid object
-	    if (true)
-	       std::cout << "   gtk3_draw_molecules(): imol " << ii
-			 << " array_id and n_vertices_for_VertexArray: "
-			 << graphics_info_t::molecules[ii].m_VertexArrayID << " "
-			 << graphics_info_t::molecules[ii].n_indices_for_triangles
-			 << std::endl;
+         if (!draw_with_lines) { // draw as a solid object
+            if (true)
+               std::cout << "   gtk3_draw_molecules(): imol " << ii
+                         << " array_id and n_vertices_for_VertexArray: "
+                         << graphics_info_t::molecules[ii].m_VertexArrayID << " "
+                         << graphics_info_t::molecules[ii].n_indices_for_triangles
+                         << std::endl;
 
-	    glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID);
-	    err = glGetError();
-	    if (err) std::cout << "   gtk3_draw_molecules() glBindVertexArray() "
-			       << graphics_info_t::molecules[ii].m_VertexArrayID
-			       << " with GL err " << err << std::endl;
+                         glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID);
+                         err = glGetError();
+                         if (err) std::cout << "   gtk3_draw_molecules() glBindVertexArray() "
+                         << graphics_info_t::molecules[ii].m_VertexArrayID
+                         << " with GL err " << err << std::endl;
 
-	    glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
-	    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBuffer_for_triangles_ID);
+                         glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
+                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBuffer_for_triangles_ID);
 
-	    glUniformMatrix4fv(graphics_info_t::mvp_location, 1, GL_FALSE, &mvp[0][0]);
-	    err = glGetError();
-	    if (err) std::cout << "   gtk3_draw_molecules() glUniformMatrix4fv() " << err << std::endl;
+                         glUniformMatrix4fv(graphics_info_t::mvp_location, 1, GL_FALSE, &mvp[0][0]);
+                         err = glGetError();
+                         if (err) std::cout << "   gtk3_draw_molecules() glUniformMatrix4fv() " << err << std::endl;
 
-	    glDrawElements(GL_TRIANGLES, graphics_info_t::molecules[ii].n_indices_for_triangles,
-			   GL_UNSIGNED_INT, nullptr);
+                         glDrawElements(GL_TRIANGLES, graphics_info_t::molecules[ii].n_indices_for_triangles,
+                            GL_UNSIGNED_INT, nullptr);
 
-	    err = glGetError();
-	    if (err) std::cout << "   gtk3_draw_molecules() glDrawElements() n_indices_for_triangles "
-			       << graphics_info_t::molecules[ii].n_indices_for_triangles
-			       << " with GL err " << err << std::endl;
-	 }
+                            err = glGetError();
+                            if (err) std::cout << "   gtk3_draw_molecules() glDrawElements() n_indices_for_triangles "
+                            << graphics_info_t::molecules[ii].n_indices_for_triangles
+                            << " with GL err " << err << std::endl;
+         }
       }
    }
 }
@@ -456,11 +457,11 @@ draw_central_cube(GtkGLArea *glarea) {
       glm::mat4 mvp = glm::scale(mvp_1, sc);
 
       if (false) {
-	       std::cout << "debug:: draw_central_cube()       local mvp: ";
-	       for (unsigned int i=0; i<4; i++)
-	          for (unsigned int j=0; j<4; j++)
-	             std::cout << std::setw(8) << mvp[i][j] << " ";
-	       std::cout << std::endl;
+         std::cout << "debug:: draw_central_cube()       local mvp: ";
+         for (unsigned int i=0; i<4; i++)
+            for (unsigned int j=0; j<4; j++)
+               std::cout << std::setw(8) << mvp[i][j] << " ";
+         std::cout << std::endl;
       }
       glUniformMatrix4fv(graphics_info_t::mvp_location, 1, GL_FALSE, &mvp[0][0]);
       err = glGetError();
@@ -490,7 +491,10 @@ void
 on_glarea_realize(GtkGLArea *glarea) {
 
    std::cout << "realize!" << std::endl;
+
    gtk_gl_area_make_current(glarea);
+   gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
+
    GLenum err = glGetError();
    std::cout << "start on_glarea_realize() err is " << err << std::endl;
 
@@ -526,8 +530,8 @@ on_glarea_realize(GtkGLArea *glarea) {
 
 #if 0
    transform = Transform(glm::vec3(0.0, 0.0, 0.0),   // position
-			 glm::vec3(0.0, 0.0, 0.0),   // rotation
-			 glm::vec3(1.0, 1.0, 1.0));  // scales
+       glm::vec3(0.0, 0.0, 0.0),   // rotation
+       glm::vec3(1.0, 1.0, 1.0));  // scales
 #endif
 
 }
@@ -598,9 +602,9 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
    if (g.is_valid_map_molecule(imol_scroll)) {
       // use direction
       if (direction == 1)
-	 graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count--;
+         graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count--;
       if (direction == -1)
-	 graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count++;
+         graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count++;
       int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
       std::cout << "####### Now contour level for map " << imol_scroll << "is "
                 << g.molecules[imol_scroll].contour_level << std::endl;
@@ -649,9 +653,9 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
       int h = allocation.height;
 
       glm::quat tb_quat =
-	 g.trackball_to_quaternion((2.0*g.GetMouseBeginX() - w)/w, (h - 2.0*g.GetMouseBeginY())/h,
-				   (2.0*g.mouse_current_x - w)/w,  (h - 2.0*g.mouse_current_y)/h,
-				   g.get_trackball_size());
+         g.trackball_to_quaternion((2.0*g.GetMouseBeginX() - w)/w, (h - 2.0*g.GetMouseBeginY())/h,
+           (2.0*g.mouse_current_x - w)/w,  (h - 2.0*g.mouse_current_y)/h,
+           g.get_trackball_size());
 
       glm::mat4 mat_from_quat = glm::toMat4(tb_quat);
 
@@ -746,12 +750,12 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
       int s = graphics_info_t::scroll_wheel_map;
       if (graphics_info_t::is_valid_map_molecule(s)) {
          if (event->keyval == GDK_KEY_minus)
-	    graphics_info_t::molecules[s].pending_contour_level_change_count--;
+            graphics_info_t::molecules[s].pending_contour_level_change_count--;
          if (event->keyval == GDK_KEY_plus)
-	    graphics_info_t::molecules[s].pending_contour_level_change_count++;
-	 int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
-	 g.set_density_level_string(s, g.molecules[s].contour_level);
-	 g.display_density_level_this_image = 1;
+            graphics_info_t::molecules[s].pending_contour_level_change_count++;
+         int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
+         g.set_density_level_string(s, g.molecules[s].contour_level);
+         g.display_density_level_this_image = 1;
       }
    }
 
