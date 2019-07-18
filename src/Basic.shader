@@ -25,8 +25,9 @@ in vec3 Normal;
 
 void main() {
 
-  vec4 line_color = vec4(0.3, 0.5, 0.7, 1.0);
   vec4 background_color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+  vec4 line_color = vec4(0.4, 0.5, 0.7, 1.0);
+  line_color = vec4(0.4, 0.5, 1.0, 1.0);
 
   vec3 lightdir = normalize(vec3(-2,-1,4));
   vec4 color = vec4(0.4, 0.6, 0.7, 1.0);
@@ -45,7 +46,7 @@ void main() {
   m  = 0.9 * gl_FragCoord.z;
   gl_FragColor = mix(line_color, background_color, m);
   gl_FragColor = line_color;
-  gl_FragColor = vec4(vec3(1.0 - gl_FragCoord.z), 1.0) * dp;
+  gl_FragColor = vec4(vec3(1.0 - gl_FragCoord.z), 1.0) * line_color * dp;
 
   
 
