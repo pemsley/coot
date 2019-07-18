@@ -307,6 +307,31 @@ draw_other_triangle(GtkGLArea *glarea) {
    }
 }
 
+glm::mat4 get_molecule_mvp() {
+
+   float screen_ratio = static_cast<float>(graphics_info_t::graphics_x_size)/static_cast<float>(graphics_info_t::graphics_y_size);
+   // presumes that we are in the correct programID
+
+   // I don't think that the quaternion belongs to the model matrix, it should be
+   // part of the view matrix I think.
+   glm::mat4 model_matrix = glm::mat4(1.0);
+
+   float z = graphics_info_t::zoom * 0.04;
+   glm::vec3 sc(z,z,z);
+   float ortho_size = 50.0;
+   glm::mat4 projection_matrix = glm::ortho(-ortho_size * screen_ratio, ortho_size * screen_ratio,
+                                            -ortho_size, ortho_size,
+                                             0.2f * ortho_size, -ortho_size);
+   glm::vec3 rc = graphics_info_t::get_rotation_centre();
+   glm::mat4 view_matrix = glm::toMat4(graphics_info_t::glm_quat);
+   view_matrix = glm::scale(view_matrix, sc);
+   view_matrix = glm::translate(view_matrix, -rc * 0.1f * z);
+
+   glm::mat4 mvp = projection_matrix * view_matrix * model_matrix;
+
+   return mvp;
+}
+
 void
 gtk3_draw_molecules() {
 
@@ -324,33 +349,9 @@ gtk3_draw_molecules() {
    if (err) std::cout << "   gtk3_draw_molecules() glUseProgram with GL err "
                       << err << std::endl;
 
-   glm::mat4 model_matrix = glm::toMat4(graphics_info_t::glm_quat);
-   float z = graphics_info_t::zoom * 0.04;
-   glm::vec3 sc(z,z,z);
-   float screen_ratio = static_cast<float>(graphics_info_t::graphics_x_size)/static_cast<float>(graphics_info_t::graphics_y_size);
+   glm::mat4 mvp = get_molecule_mvp();
 
-   float ortho_size = 50.0f; // a function of graphics_info_t::zoom?
-   glm::mat4 projection_matrix = glm::ortho(-ortho_size * screen_ratio, ortho_size * screen_ratio,
-              -ortho_size, ortho_size,
-              -0.1f * ortho_size, -ortho_size);
-   // glm::mat4 projection_matrix = glm::perspective(static_cast<float>(glm::radians(70.0)), screen_ratio, 1.0f, 500.0f);
-   glm::mat4 view_matrix = glm::mat4(1.0);
-
-   // view_matrix is for translation and scaling only. Is it? view_matrix is the word coordinate -> camera coordinates
-   //
-   glm::vec3 rc = graphics_info_t::get_rotation_centre();
-   view_matrix = glm::translate(view_matrix, -rc);
-   // std::cout << "view matrix A: " << glm::to_string(view_matrix) << std::endl;
-   view_matrix = glm::scale(view_matrix, sc);
-   if (false)
-      std::cout << "gtk3_draw_molecules() with rc " << glm::to_string(rc)
-                << " and zoom z " << z << std::endl;
-
-   // std::cout << "view matrix B: " << glm::to_string(view_matrix) << std::endl;
-
-   glm::mat4 mvp = projection_matrix * view_matrix * model_matrix;
-
-   std::cout << "mvp matrix:   " << glm::to_string(mvp) << std::endl;
+   // std::cout << "mvp matrix:   " << glm::to_string(mvp) << std::endl;
 
    // glEnable(GL_CULL_FACE);
 
@@ -524,9 +525,11 @@ on_glarea_realize(GtkGLArea *glarea) {
    // glDepthFunc(GL_ALWAYS);
 
    // Make antialised lines
-   glEnable (GL_BLEND);
-   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-   glEnable(GL_LINE_SMOOTH);
+   if (false) {
+      glEnable (GL_BLEND);
+      glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      glEnable(GL_LINE_SMOOTH);
+   }
 
 #if 0
    transform = Transform(glm::vec3(0.0, 0.0, 0.0),   // position
@@ -673,22 +676,15 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
       int w = allocation.width;
       int h = allocation.height;
 
-      // projection and view are copied from the part where the actually draw
-      // the molecules, currently gtk3_draw_molecules().
-      //
-      glm::mat4 mvp_1 = glm::toMat4(graphics_info_t::glm_quat);
-      glm::mat4 projection_matrix = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, -50.0f, 50.0f);
-      glm::mat4 view_matrix = glm::mat4(1.0);
+      glm::mat4 mvp = get_molecule_mvp(); // modeglml matrix includes orientation with the quaternion
 
-      glm::vec3 rc = graphics_info_t::get_rotation_centre();
-      view_matrix = glm::translate(view_matrix, -rc);
 
       float mouseX_1 = g.GetMouseBeginX() / (w * 0.5f) - 1.0f;
       float mouseY_1 = g.GetMouseBeginY() / (h * 0.5f) - 1.0f;
       float mouseX_2 = g.mouse_current_x  / (w * 0.5f) - 1.0f;
       float mouseY_2 = g.mouse_current_y  / (h * 0.5f) - 1.0f;
 
-      glm::mat4 vp_inv = glm::inverse(projection_matrix * view_matrix);
+      glm::mat4 vp_inv = glm::inverse(mvp);
 
       glm::vec4 screenPos_1 = glm::vec4(mouseX_1, -mouseY_1, 1.0f, 1.0f);
       glm::vec4 screenPos_2 = glm::vec4(mouseX_2, -mouseY_2, 1.0f, 1.0f);
