@@ -55,7 +55,7 @@ MAKE_COOT_WRAP_PYTHON_XXX=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-pyth
 
 
 # put these into configure
-GLM_CXXFLAGS = -I$(HOME)/Projects/glm/include
+GLM_CXXFLAGS = -I$(HOME)/glm/include
 EPOXY_LIBS = -lepoxy
 
 CANVAS_CFLAGS = $(GTKCANVAS_CFLAGS) $(GNOME_CANVAS_CFLAGS)

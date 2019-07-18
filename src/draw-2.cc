@@ -3,8 +3,9 @@
 #include <Python.h>
 #endif // USE_PYTHON
 
-#include <glm/ext.hpp>
-#include <glm/gtx/string_cast.hpp>  // to_string()
+// #define GLM_ENABLE_EXPERIMENTAL // # for norm things
+// #include <glm/ext.hpp>
+// #include <glm/gtx/string_cast.hpp>  // to_string()
 
 #include <iostream>
 #include <iomanip>
@@ -335,11 +336,6 @@ glm::mat4 get_molecule_mvp() {
 void
 gtk3_draw_molecules() {
 
-   // not needed I think
-   // gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glarea));
-
-   // std::cout << "in gtk3_draw_molecules() " << std::endl;
-
    glLineWidth(1.0);
    GLenum err = glGetError();
    if (err) std::cout << "gtk3_draw_molecules() glLineWidth " << err << std::endl;
@@ -349,17 +345,11 @@ gtk3_draw_molecules() {
    if (err) std::cout << "   gtk3_draw_molecules() glUseProgram with GL err "
                       << err << std::endl;
 
+
    glm::mat4 mvp = get_molecule_mvp();
-
-   // std::cout << "mvp matrix:   " << glm::to_string(mvp) << std::endl;
-
-   // glEnable(GL_CULL_FACE);
 
    glEnable(GL_DEPTH_TEST); // this needs to be in the draw loop!?
    glDepthFunc(GL_LESS);
-
-   // glDisable(GL_DEPTH_TEST);
-   // glDepthFunc(GL_ALWAYS);
 
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
       if (graphics_info_t::molecules[ii].n_vertices_for_VertexArray > 0) {
