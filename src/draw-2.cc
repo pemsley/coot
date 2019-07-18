@@ -310,8 +310,11 @@ draw_other_triangle(GtkGLArea *glarea) {
 
 glm::mat4 get_molecule_mvp() {
 
-   float screen_ratio = static_cast<float>(graphics_info_t::graphics_x_size)/static_cast<float>(graphics_info_t::graphics_y_size);
    // presumes that we are in the correct programID
+
+   float w = static_cast<float>(graphics_info_t::graphics_x_size);
+   float h = static_cast<float>(graphics_info_t::graphics_y_size);
+   float screen_ratio = w/h;
 
    // I don't think that the quaternion belongs to the model matrix, it should be
    // part of the view matrix I think.
@@ -322,16 +325,16 @@ glm::mat4 get_molecule_mvp() {
    float ortho_size = 50.0;
    glm::mat4 projection_matrix = glm::ortho(-ortho_size * screen_ratio, ortho_size * screen_ratio,
                                             -ortho_size, ortho_size,
-                                            0.2f * ortho_size, -ortho_size);
+                                            0.2f * ortho_size, -ortho_size); // wrong way round?
 
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    glm::mat4 view_matrix = glm::toMat4(graphics_info_t::glm_quat);
    view_matrix = glm::scale(view_matrix, sc);
-   view_matrix = glm::translate(view_matrix, -rc * 0.1f * z);
+   view_matrix = glm::translate(view_matrix, -rc);
 
 #if 0
    // for fun/testing
-   // turn off scaling
+   // turn off view scaling when tinkering with this?
    GtkAllocation allocation;
    gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
    int w = allocation.width;
