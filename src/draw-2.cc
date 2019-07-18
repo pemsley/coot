@@ -322,11 +322,25 @@ glm::mat4 get_molecule_mvp() {
    float ortho_size = 50.0;
    glm::mat4 projection_matrix = glm::ortho(-ortho_size * screen_ratio, ortho_size * screen_ratio,
                                             -ortho_size, ortho_size,
-                                             0.2f * ortho_size, -ortho_size);
+                                            0.2f * ortho_size, -ortho_size);
+
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    glm::mat4 view_matrix = glm::toMat4(graphics_info_t::glm_quat);
    view_matrix = glm::scale(view_matrix, sc);
    view_matrix = glm::translate(view_matrix, -rc * 0.1f * z);
+
+#if 0
+   // for fun/testing
+   // turn off scaling
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+   float ar = static_cast<float>(w)/static_cast<float>(h);
+   float fov = 24.0f/z;
+   std::cout << "fov " << fov << std::endl;
+   glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(fov), ar, 2.1f, 1000.0f);
+#endif
 
    glm::mat4 mvp = projection_matrix * view_matrix * model_matrix;
 
@@ -336,7 +350,7 @@ glm::mat4 get_molecule_mvp() {
 void
 gtk3_draw_molecules() {
 
-   glLineWidth(1.0);
+   glLineWidth(1.0f);
    GLenum err = glGetError();
    if (err) std::cout << "gtk3_draw_molecules() glLineWidth " << err << std::endl;
 
@@ -538,7 +552,7 @@ on_glarea_render(GtkGLArea *glarea) {
    GLenum err = glGetError();
    if (err) std::cout << "on_glarea_render() start " << err << std::endl;
 
-   glClearColor (0.3, 0.3, 0.3, 1.0);
+   glClearColor (0.14, 0.14, 0.14, 1.0);
    err = glGetError();
    if (err) std::cout << "on_glarea_render B err " << err << std::endl;
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
