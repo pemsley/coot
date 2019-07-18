@@ -379,8 +379,8 @@ gtk3_draw_molecules() {
             glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID);
             err = glGetError();
             if (err) std::cout << "   gtk3_draw_molecules() glBindVertexArray() "
-            << graphics_info_t::molecules[ii].m_VertexArrayID
-            << " with GL err " << err << std::endl;
+                               << graphics_info_t::molecules[ii].m_VertexArrayID
+                               << " with GL err " << err << std::endl;
 
             glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBufferID);
@@ -393,8 +393,8 @@ gtk3_draw_molecules() {
                GL_UNSIGNED_INT, nullptr);
                err = glGetError();
                if (err) std::cout << "   gtk3_draw_molecules() glDrawElements() n_vertices: "
-               << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
-               << " with GL err " << err << std::endl;
+                                  << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
+                                  << " with GL err " << err << std::endl;
          }
 
          if (!draw_with_lines) { // draw as a solid object
@@ -405,26 +405,26 @@ gtk3_draw_molecules() {
                          << graphics_info_t::molecules[ii].n_indices_for_triangles
                          << std::endl;
 
-                         glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID);
-                         err = glGetError();
-                         if (err) std::cout << "   gtk3_draw_molecules() glBindVertexArray() "
-                         << graphics_info_t::molecules[ii].m_VertexArrayID
-                         << " with GL err " << err << std::endl;
+            glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID);
+            err = glGetError();
+            if (err) std::cout << "   gtk3_draw_molecules() glBindVertexArray() "
+                               << graphics_info_t::molecules[ii].m_VertexArrayID
+                               << " with GL err " << err << std::endl;
 
-                         glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
-                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBuffer_for_triangles_ID);
+            glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBuffer_for_triangles_ID);
 
-                         glUniformMatrix4fv(graphics_info_t::mvp_location, 1, GL_FALSE, &mvp[0][0]);
-                         err = glGetError();
-                         if (err) std::cout << "   gtk3_draw_molecules() glUniformMatrix4fv() " << err << std::endl;
+            glUniformMatrix4fv(graphics_info_t::mvp_location, 1, GL_FALSE, &mvp[0][0]);
+            err = glGetError();
+            if (err) std::cout << "   gtk3_draw_molecules() glUniformMatrix4fv() " << err << std::endl;
 
-                         glDrawElements(GL_TRIANGLES, graphics_info_t::molecules[ii].n_indices_for_triangles,
-                            GL_UNSIGNED_INT, nullptr);
+            glDrawElements(GL_TRIANGLES, graphics_info_t::molecules[ii].n_indices_for_triangles,
+                           GL_UNSIGNED_INT, nullptr);
 
-                            err = glGetError();
-                            if (err) std::cout << "   gtk3_draw_molecules() glDrawElements() n_indices_for_triangles "
-                            << graphics_info_t::molecules[ii].n_indices_for_triangles
-                            << " with GL err " << err << std::endl;
+            err = glGetError();
+            if (err) std::cout << "   gtk3_draw_molecules() glDrawElements() n_indices_for_triangles "
+                               << graphics_info_t::molecules[ii].n_indices_for_triangles
+                               << " with GL err " << err << std::endl;
          }
       }
    }
