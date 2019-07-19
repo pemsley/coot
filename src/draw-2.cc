@@ -367,8 +367,20 @@ glm::mat4 get_view_rotation() {
    return view_matrix;
 }
 
-void
-gtk3_draw_molecules() {
+void draw_model_molecules() {
+
+   // Pass these the the vertex shader as uniforms (as we do for maps)
+   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 view_rotation = get_view_rotation(); // hhmm... naming
+
+   for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+      if (graphics_info_t::molecules[ii].n_map_vertices_for_VertexArray > 0) {
+      }
+   }
+
+}
+
+void draw_map_molecules() {
 
    glLineWidth(1.0f);
    GLenum err = glGetError();
@@ -387,7 +399,7 @@ gtk3_draw_molecules() {
    glDepthFunc(GL_LESS);
 
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-      if (graphics_info_t::molecules[ii].n_vertices_for_VertexArray > 0) {
+      if (graphics_info_t::molecules[ii].n_map_vertices_for_VertexArray > 0) {
 
          bool draw_with_lines = true;
          if (draw_with_lines) { // draw with lines
@@ -395,7 +407,7 @@ gtk3_draw_molecules() {
                std::cout << "   gtk3_draw_molecules(): imol " << ii
                          << " array_id and n_vertices_for_VertexArray: "
                          << graphics_info_t::molecules[ii].m_VertexArrayID << " "
-                         << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
+                         << graphics_info_t::molecules[ii].n_map_vertices_for_VertexArray
                          << std::endl;
             glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID);
             err = glGetError();
@@ -411,11 +423,11 @@ gtk3_draw_molecules() {
             err = glGetError();
             if (err) std::cout << "   gtk3_draw_molecules() glUniformMatrix4fv() " << err << std::endl;
 
-            glDrawElements(GL_LINES, graphics_info_t::molecules[ii].n_vertices_for_VertexArray,
+            glDrawElements(GL_LINES, graphics_info_t::molecules[ii].n_map_vertices_for_VertexArray,
                            GL_UNSIGNED_INT, nullptr);
             err = glGetError();
             if (err) std::cout << "   gtk3_draw_molecules() glDrawElements() n_vertices: "
-                               << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
+                               << graphics_info_t::molecules[ii].n_map_vertices_for_VertexArray
                                << " with GL err " << err << std::endl;
          }
 
@@ -453,6 +465,15 @@ gtk3_draw_molecules() {
          }
       }
    }
+}
+
+
+void
+draw_molecules() {
+
+   draw_map_molecules();
+   draw_model_molecules();
+
 }
 
 void
@@ -596,7 +617,7 @@ on_glarea_render(GtkGLArea *glarea) {
    // draw_triangle(glarea);
 
    draw_central_cube(glarea);
-   gtk3_draw_molecules();
+   draw_molecules();
 
    err = glGetError();
    if (err) std::cout << "on_glarea_render gtk3_draw_molecules() " << err << std::endl;

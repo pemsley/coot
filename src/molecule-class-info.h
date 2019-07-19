@@ -786,7 +786,8 @@ public:        //                      public
       theMapContours.first = 0;
       theMapContours.second = 0;
       is_em_map_cached_flag = -1; // unset
-      n_vertices_for_VertexArray = 0;
+      n_map_vertices_for_VertexArray = 0;
+      n_model_vertices_for_VertexArray = 0;
       m_VertexArrayID  = -1;
       m_VertexBufferID = -1;
       m_IndexBufferID  = -1;
@@ -2973,8 +2974,9 @@ public:        //                      public
    void draw_solid_density_surface(bool do_flat_shading);
    void set_draw_solid_density_surface(bool state);
    void setup_glsl_map_rendering();
-   GLuint m_VertexArrayID;
-   GLuint n_vertices_for_VertexArray;
+   GLuint m_VertexArrayID; // map or model
+   GLuint n_map_vertices_for_VertexArray; // use this to decide if a map or model should be drawn.
+   GLuint n_model_vertices_for_VertexArray;
    GLuint n_indices_for_triangles;
    GLuint m_VertexBufferID;
    GLuint m_IndexBufferID;

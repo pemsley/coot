@@ -367,7 +367,7 @@ coot::Cartesian unproject_xyz(int x, int y, float screen_z) {
    GLint viewport[4];
    GLdouble mvmatrix[16], projmatrix[16];
    GLint realy;  /*  OpenGL y coordinate position  */
-   GLdouble wx, wy, wz;  /*  returned world x, y, z coords  */
+   GLdouble wx=0, wy=0, wz=0;  /*  returned world x, y, z coords  */
 
       
    glGetIntegerv (GL_VIEWPORT, viewport);
