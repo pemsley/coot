@@ -1427,6 +1427,7 @@ std::shared_ptr<SceneSetup> graphics_info_t::mol_tri_scene_setup = 0;
 
 float *graphics_info_t::mvp = new float[16];
 int    graphics_info_t::mvp_location = -1;
+int    graphics_info_t::view_rotation_location = -1;
 glm::quat graphics_info_t::glm_quat = glm::quat(1,0,0,0);
 GLuint graphics_info_t::programID_for_central_cube = 0;
 GLuint graphics_info_t::central_cube_vertexarray_id = 0;
