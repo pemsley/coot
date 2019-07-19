@@ -790,6 +790,7 @@ public:        //                      public
       m_VertexArrayID  = -1;
       m_VertexBufferID = -1;
       m_IndexBufferID  = -1;
+      m_ColourBufferID = -1;
 
       // draw vectors
       draw_vector_sets.reserve(120);
@@ -2979,6 +2980,7 @@ public:        //                      public
    GLuint m_IndexBufferID;
    GLuint m_IndexBuffer_for_triangles_ID; // solid and transparent surfaces
    GLuint m_NormalBufferID;
+   GLuint m_ColourBufferID;
 
    float density_surface_opacity;
    void setup_density_surface_material(bool solid_mode, float opacity,

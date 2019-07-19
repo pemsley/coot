@@ -815,6 +815,15 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          normals[3*i+2] = tri_con.normals[i].z();
       }
 
+      int n_colours = n_indices_for_triangles;
+      float *colours = new float[4 * n_colours];
+      for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
+         colours[4*i  ] = 0.9f;
+         colours[4*i+1] = 0.6f;
+         colours[4*i+2] = 0.3f;
+         colours[4*i+3] = 1.0f;
+      }
+
       // why is this needed?
       gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glarea));
 
@@ -827,22 +836,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       std::cout << "setup_glsl_map_rendering() glBindVertexArray() " << err
                 << " for m_VertexArrayID " << m_VertexArrayID << std::endl;
 
-      glGenBuffers(1, &m_NormalBufferID);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glGenBuffers() for normals err " << err << std::endl;
-      glBindBuffer(GL_ARRAY_BUFFER, m_NormalBufferID);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
-      glBufferData(GL_ARRAY_BUFFER, n_normals * 3 * sizeof(float), &normals[0], GL_STATIC_DRAW);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glBufferData() for normals err " << err << std::endl;
-      glEnableVertexAttribArray(1);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glEnableVertexAttribArray() err normals " << err << std::endl;
-      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
-
+      // positions
       glGenBuffers(1, &m_VertexBufferID);
       err = glGetError();
       std::cout << "setup_glsl_map_rendering() glGenBuffers() err " << err << std::endl;
@@ -861,6 +855,44 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       err = glGetError();
       std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
 
+
+      // normals
+      glGenBuffers(1, &m_NormalBufferID);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glGenBuffers() for normals err " << err << std::endl;
+      glBindBuffer(GL_ARRAY_BUFFER, m_NormalBufferID);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
+      glBufferData(GL_ARRAY_BUFFER, n_normals * 3 * sizeof(float), &normals[0], GL_STATIC_DRAW);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glBufferData() for normals err " << err << std::endl;
+      glEnableVertexAttribArray(1);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glEnableVertexAttribArray() err normals " << err << std::endl;
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
+
+
+      // colours
+      glGenBuffers(1, &m_ColourBufferID);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glGenBuffers() for colours err " << err << std::endl;
+      glBindBuffer(GL_ARRAY_BUFFER, m_ColourBufferID);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
+      glBufferData(GL_ARRAY_BUFFER, n_colours * 4 * sizeof(float), &colours[0], GL_STATIC_DRAW);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glBufferData() for colours err " << err << std::endl;
+      glEnableVertexAttribArray(2);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glEnableVertexAttribArray() err colours " << err << std::endl;
+      glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, 0);
+      err = glGetError();
+      std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
+
+
+      
       // unsigned int ibo;
       glGenBuffers(1, &m_IndexBufferID);
       err = glGetError();
@@ -895,6 +927,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       delete [] points;
       delete [] indices;
       delete [] indices_for_triangles;
+      delete [] colours;
 
    }
 

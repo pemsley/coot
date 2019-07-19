@@ -5,6 +5,7 @@
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
+layout(location = 2) in vec4 colour;
 
 uniform mat4 mvp;
 uniform mat4 view_rotation;
@@ -19,7 +20,8 @@ void main() {
    vec4 n = view_rotation * vec4(normal, 1.0);
    Normal = normalize(n).xyz;
 
-   line_color = vec4(0.6, 0.7, 1.0, 1.0); // this can be a uniform
+   line_color = vec4(0.2, 0.7, 0.2, 1.0); // this can be a uniform
+   line_color = colour;
 }
 
 #shader fragment
@@ -33,12 +35,15 @@ void main() {
 
   vec4 background_color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
-  vec3 lightdir = normalize(vec3(-2,-1,20));
+  vec3 lightdir = normalize(vec3(-2,-1,5));
   float dp = dot(Normal, -lightdir);
 
   float m  = clamp(gl_FragCoord.x, 0.0f, 1.0f);
   // gl_FragCoord.z seems to have a range of 0-1, unlike gl_FragCoord.x, which seems to be -100,100 or so.
   gl_FragColor = vec4(vec3(1.0 - gl_FragCoord.z), 1.0) * line_color * dp;
+
+  
+  // interesting effects gl_FragColor += vec4(0.2, 0.2, 0.2, 1.0);
 
   
 
