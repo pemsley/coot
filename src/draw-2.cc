@@ -439,6 +439,9 @@ gtk3_draw_molecules() {
             glUniformMatrix4fv(graphics_info_t::mvp_location, 1, GL_FALSE, &mvp[0][0]);
             err = glGetError();
             if (err) std::cout << "   gtk3_draw_molecules() glUniformMatrix4fv() " << err << std::endl;
+            glUniformMatrix4fv(graphics_info_t::view_rotation_location, 1, GL_FALSE, &view_rotation[0][0]);
+            err = glGetError();
+            if (err) std::cout << "   gtk3_draw_molecules() glUniformMatrix4fv() " << err << std::endl;
 
             glDrawElements(GL_TRIANGLES, graphics_info_t::molecules[ii].n_indices_for_triangles,
                            GL_UNSIGNED_INT, nullptr);

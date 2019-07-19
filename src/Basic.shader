@@ -20,7 +20,6 @@ void main() {
    vec4 n = view_rotation * vec4(normal, 1.0);
    Normal = normalize(n).xyz;
 
-   line_color = vec4(0.2, 0.7, 0.2, 1.0); // this can be a uniform
    line_color = colour;
 }
 
@@ -43,8 +42,8 @@ void main() {
   gl_FragColor = vec4(vec3(1.0 - gl_FragCoord.z), 1.0) * line_color * dp;
 
   
-  // interesting effects gl_FragColor += vec4(0.2, 0.2, 0.2, 1.0);
-
+  // interesting effects of this kind: gl_FragColor += vec4(0.2, 0.2, 0.2, 1.0);
+  // I want to make the back face be grey, not black.
   
 
 }
