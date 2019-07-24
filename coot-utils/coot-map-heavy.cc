@@ -480,47 +480,32 @@ coot::make_map_reference_index_start_stops(const clipper::Xmap<float> &xmap, int
    unsigned int n_threads = n_threads_in;
    std::vector<std::pair<MRI, MRI> > map_ref_start_stops;
    bool debug = true;
-
-   clipper::Grid_range gr = xmap.grid_asu();
-
-   unsigned int nu = gr.nu();
-   unsigned int nv = gr.nv();
-   unsigned int nw = gr.nw();
-   unsigned int grid_max_index = gr.size();
-
-   if (debug) {
-      std::cout << "xmap ASU grid range " << gr.format() << " " << gr.size() << std::endl;
-      std::cout << "xmap grid sampling " << xmap.grid_sampling().format() << std::endl;
-      std::cout << "nu " << nu << " nv " << nv << " nw " << nw << std::endl;
-      // std::cout << "n-threads: " << n_threads << " nu_step: " << nu_step << std::endl;
-   }
-
-   unsigned int idx_max = 0;
-   unsigned int iu_max = 0;
-   for (unsigned int iu=0; iu<nu; iu++) {
-      clipper::Coord_grid pos(iu, 0, 0);
-      MRI mri(xmap, pos);
-      unsigned int idx = mri.index();
-      if (idx > idx_max) {
-	 idx_max = idx;
-	 iu_max = iu;
-      }
-   }
-
-   std::cout << "Here with iu_max " << iu_max << std::endl;
-
-   unsigned int nu_step = iu_max/n_threads;
-   if ((nu_step * n_threads) < iu_max)
-      nu_step++;
-   for (unsigned int i=0; i<n_threads; i++) {
-      MRI layer_start = MRI(xmap, clipper::Coord_grid(nu_step*i,     0, 0));
-      MRI layer_end   = MRI(xmap, clipper::Coord_grid(nu_step*(i+1), 0, 0));
-      if (layer_end.index() > layer_start.index()) {
-	 map_ref_start_stops.push_back(std::pair<MRI, MRI> (layer_start, layer_end));
+   unsigned int count = 0;
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = xmap.first(); !ix.last(); ix.next())
+      count++;
+   unsigned int n_per_thread = count/n_threads;
+   if (n_per_thread * n_threads < count)
+      n_per_thread += 1;
+   unsigned int i_count = 0;
+   MRI start_ix = xmap.first();
+   MRI stop_ix;
+   for (ix = xmap.first(); !ix.last(); ix.next()) {
+      if (i_count == n_per_thread) {
+	 stop_ix =  ix; // first out of range
+	 std::pair<MRI, MRI> p(start_ix, stop_ix);
+	 map_ref_start_stops.push_back(p);
+	 start_ix = ix;
+	 i_count = 0;
       } else {
-	 // layer_end = MRI(xmap.grid_sampling().size());
+	 i_count++;
       }
    }
+   if (! map_ref_start_stops.back().second.last()) {
+      std::pair<MRI, MRI> p(start_ix, ix);
+      map_ref_start_stops.push_back(p);
+   }
+
    return map_ref_start_stops;
 }
 

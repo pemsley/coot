@@ -12,7 +12,7 @@
 
 void thread_fill_a_map() {
 
-   int n_threads = 8;
+   int n_threads = 5;
 
    clipper::Xmap<float> xmap; // not blank in real code
 
@@ -26,7 +26,9 @@ void thread_fill_a_map() {
       std::cout << "WARNING:: failed to open " << file_name << std::endl;
    }
 
+
    typedef clipper::Xmap<float>::Map_reference_index MRI;
+
    // this function does't work - needs some debugging.
    std::vector<std::pair<MRI, MRI> > map_ref_start_stops =
       coot::make_map_reference_index_start_stops(xmap, n_threads);
@@ -40,6 +42,39 @@ void thread_fill_a_map() {
    }
 
    std::vector<std::thread> threads;
+
+   unsigned int i_count_basic = 0;
+   unsigned int i_count_from_start_stops = 0;
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = xmap.first(); !ix.last(); ix.next())
+      xmap[ix] = 0.0;
+
+   for (ix = xmap.first(); !ix.last(); ix.next())
+      i_count_basic += 1;
+   for (unsigned int i=0; i<map_ref_start_stops.size(); i++) {
+      const std::pair<MRI, MRI> &ss = map_ref_start_stops[i];      
+      for (MRI ix = ss.first; ix.index() != ss.second.index(); ix.next())
+	 i_count_from_start_stops += 1;
+   }
+
+   unsigned int n_zero = 0;
+   unsigned int n_one  = 0;
+   unsigned int n_greater = 0;
+   for (ix = xmap.first(); !ix.last(); ix.next()) {
+      if (xmap[ix] < 0.5)
+	 n_zero++;
+      else
+	 if (xmap[ix] < 1.001) {
+	    n_greater++;
+	 } else {
+	    n_one++;
+	 }
+   }
+   std::cout << "DEBUG:: counts n_zero: " << n_zero << " " << n_one << " " << n_one << std::endl;
+   
+
+   std::cout << "compare counts: basic: " << i_count_basic << " vs " << i_count_from_start_stops
+	     << std::endl;
 
    // this is for editing the xmap. If you don't want to do that,
    // pass it a const and use std::cref() in the calling function.
