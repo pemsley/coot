@@ -104,6 +104,24 @@ test_rama_plot_SOURCES = test-rama-plot.cc
 
 test_rama_plot_LDADD = ./libcoot-ideal.la
 
+# test_cuda_SOURCES = test-cuda-main.cc test-cuda.cu
+# test_cuda_LDADD = ./libcoot-ideal.la $(CUDA_LDFLAGS)
+
+NVCC=nvcc
+
+#        $(NVCC) --generate-code arch=compute_60,code=sm_70 --device-link cuda-refine.o  cuda-restraints.o  nxmap-cuda.o -o gpucode.o
+
+gpucode.o:
+        $(NVCC) --generate-code --device-link test-cuda.o -o gpucode.o
+
+
+
+test-cuda.o: $(top_srcdir)/ideal/test-cuda.cu
+	$(NVCC) $(DEFS) $(CUDA_CFLAGS) -std=c++11 -I. -DCLIPPER_HAS_TOP8000 -DMMDB_HAS_LINK_DISTANCE -O0 -c -o $@ $^
+
+test-cuda$(EXEEXT): test-cuda-main.o test-cuda.o gpucode.o
+	$(NVCC) -o $@ $^ -L$(libdir) -lcoot-ideal $(CUDA_LDFLAGS) -lcudart -lcuda
+
 # test_indexing_SOURCES = test-indexing.cc
 
 # note that we need libcoot-coords only because we use 

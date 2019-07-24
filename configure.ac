@@ -97,6 +97,13 @@ AC_SUBST(COOT_STDTYPES)
 eval EXPORT_DYNAMIC_FLAG_SPEC=$export_dynamic_flag_spec
 AC_SUBST(EXPORT_DYNAMIC_FLAG_SPEC)
 
+AX_CHECK_CUDA
+
+AC_ARG_WITH(cuda, [  --with-cuda build CUDA-based refinement],
+ xx_cuda="yes",
+ xx_cuda=="no")
+AM_CONDITIONAL([COND_WITH_CUDA], [test "$xx_cuda" = yes])
+
 
 dnl We need to put a PKG_CHECK_MODULES in early so that pkg-config is
 dnl setup first (it seems to be a side-effect of using PKG_CHECK_MODULES), 
