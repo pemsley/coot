@@ -39,11 +39,14 @@ void main() {
 
   float m  = clamp(gl_FragCoord.x, 0.0f, 1.0f);
   // gl_FragCoord.z seems to have a range of 0-1, unlike gl_FragCoord.x, which seems to be -100,100 or so.
-  gl_FragColor = vec4(vec3(1.0 - gl_FragCoord.z), 1.0) * line_color * dp;
+  vec4 col1 = vec4(vec3(1.0 - gl_FragCoord.z), 1.0) * line_color * dp;
+  vec4 col2 = vec4(vec3(1.0 - gl_FragCoord.z), 1.0) * line_color;
+  float flat_frac = 0.5;
+  gl_FragColor = col1 * (1.0 - flat_frac) + col2 * flat_frac;
 
-  
+
   // interesting effects of this kind: gl_FragColor += vec4(0.2, 0.2, 0.2, 1.0);
   // I want to make the back face be grey, not black.
-  
+
 
 }

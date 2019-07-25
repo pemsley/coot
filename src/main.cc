@@ -492,7 +492,7 @@ void load_gtk_resources() {
       gtkrcfile = s;
    }
 
-   // std::cout << "Acquiring application resources from " << gtkrcfile << std::endl;
+    std::cout << "Acquiring application resources from " << gtkrcfile << std::endl;
    gtk_rc_add_default_file(gtkrcfile.c_str());
 
 }

@@ -355,7 +355,7 @@ coot::Cartesian unproject(float screen_z) {
 }
 
 coot::Cartesian unproject_xyz(int x, int y, float screen_z) {
-   
+
    //cout << "using mouse coords: "
    //	<< x << " (" << info.GetMouseBeginX() << "), "
    //	<< y << " (" << info.GetMouseBeginY() << ") "
@@ -367,9 +367,9 @@ coot::Cartesian unproject_xyz(int x, int y, float screen_z) {
    GLint viewport[4];
    GLdouble mvmatrix[16], projmatrix[16];
    GLint realy;  /*  OpenGL y coordinate position  */
-   GLdouble wx, wy, wz;  /*  returned world x, y, z coords  */
+   GLdouble wx=0, wy=0, wz=0;  /*  returned world x, y, z coords  */
 
-      
+
    glGetIntegerv (GL_VIEWPORT, viewport);
    glGetDoublev (GL_MODELVIEW_MATRIX, mvmatrix);
    glGetDoublev (GL_PROJECTION_MATRIX, projmatrix);
@@ -382,11 +382,11 @@ coot::Cartesian unproject_xyz(int x, int y, float screen_z) {
 
    // we need a non-GLU unproject
 
-   // gluUnProject (x_as_double, realy_as_double, screen_z, 
-   // mvmatrix, projmatrix, viewport, &wx, &wy, &wz); 
+   // gluUnProject (x_as_double, realy_as_double, screen_z,
+   // mvmatrix, projmatrix, viewport, &wx, &wy, &wz);
 
 
-   // printf ("World coords at z=%f are (%f, %f, %f)\n", 
+   // printf ("World coords at z=%f are (%f, %f, %f)\n",
    // screen_z, wx, wy, wz);
 
    return coot::Cartesian(wx, wy, wz);

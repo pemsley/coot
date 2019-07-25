@@ -819,8 +819,8 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       float *colours = new float[4 * n_colours];
       for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
          colours[4*i  ] = 0.5f;
-         colours[4*i+1] = 0.6f;
-         colours[4*i+2] = 0.7f;
+         colours[4*i+1] = 0.7f;
+         colours[4*i+2] = 0.95f;
          colours[4*i+3] = 1.0f;
       }
 
@@ -830,7 +830,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       glGenVertexArrays(1, &m_VertexArrayID);
       GLenum err = glGetError();
       std::cout << "setup_glsl_map_rendering() glGenVertexArrays() " << err
-		<< " for m_VertexArrayID " << m_VertexArrayID << std::endl;
+		          << " for m_VertexArrayID " << m_VertexArrayID << std::endl;
       glBindVertexArray(m_VertexArrayID);
       err = glGetError();
       std::cout << "setup_glsl_map_rendering() glBindVertexArray() " << err
@@ -892,7 +892,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
 
 
-      
+
       // unsigned int ibo;
       glGenBuffers(1, &m_IndexBufferID);
       err = glGetError();
@@ -913,7 +913,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       err = glGetError();
       std::cout << "setup_glsl_map_rendering() glBindBuffer() for triangles " << err << std::endl;
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_indices_for_triangles,
-		   &indices_for_triangles[0], GL_STATIC_DRAW);
+		             &indices_for_triangles[0], GL_STATIC_DRAW);
       err = glGetError();
       std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
 

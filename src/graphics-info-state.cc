@@ -1,18 +1,18 @@
 /* src/graphics-info-state.cc
- * 
+ *
  * Copyright 2002, 2003, 2004, 2005, 2006 The University of York
  * Copyright 2007, 2009 by The University of Oxford.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
@@ -43,7 +43,7 @@
 // save state
 //
 // Pick a language, and write a single state file.
-// 
+//
 int
 graphics_info_t::save_state_file(const std::string &filename) {
 
@@ -53,7 +53,7 @@ graphics_info_t::save_state_file(const std::string &filename) {
 #ifdef USE_PYTHON
    il = coot::PYTHON_SCRIPT;
 #endif // USE_PYTHON
-   
+
 #if defined USE_GUILE
    il = coot::SCHEME_SCRIPT;
 #endif // USE_GUILE
@@ -66,11 +66,11 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 
    // std::cout << "DEBUG:: ============================== saving state " << il
    //           << std::endl;
-   
+
    std::vector<std::string> commands;
-   
+
    std::string comment_str;
-   if (il == coot::SCHEME_SCRIPT) { 
+   if (il == coot::SCHEME_SCRIPT) {
       comment_str = "; These commands are the saved state of coot.  You can evaluate them\n";
       comment_str += "; using \"Calculate->Run Script...\".";
    } else {
@@ -79,7 +79,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
       comment_str += "# using \"Calculate->Run Script...\".";
    }
    commands.push_back(comment_str);
-   
+
    std::vector<std::string> mod_data_start = save_state_data_and_models(il);
    for (unsigned int im=0; im<mod_data_start.size(); im++)
       commands.push_back(mod_data_start[im]);
@@ -88,7 +88,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 
    // std::cout << "DEBUG in state: " << graphics_x_size << " " << graphics_y_size
    // << std::endl;
-   
+
    if ( ! ((graphics_x_size == GRAPHICS_WINDOW_X_START_SIZE) &&
 	   (graphics_y_size != GRAPHICS_WINDOW_Y_START_SIZE)) ) {
       commands.push_back(state_command("set-graphics-window-size",
@@ -100,7 +100,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    if (! main_window_title.empty())
       commands.push_back(state_command("set-main-window-title", single_quote(main_window_title), il));
 
-   
+
    // now the positions of all the major dialogs:
    if (graphics_info_t::model_fit_refine_x_position > -1)
       commands.push_back(state_command("set-model-fit-refine-dialog-position",
@@ -159,7 +159,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    commands.push_back(state_command("set-iso-level-increment", iso_level_increment, il, v));
    commands.push_back(state_command("set-diff-map-iso-level-increment", diff_map_iso_level_increment, il, v));
 
-   
+
    commands.push_back(state_command("set-colour-map-rotation-on-read-pdb",
 				    rotate_colour_map_on_read_pdb, il));
    commands.push_back(state_command("set-colour-map-rotation-on-read-pdb-flag",
@@ -178,14 +178,14 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    // show unit cell: per molecule (hmm)
    // commands.push_back(state_command("set-aniso-limit", show_aniso_atoms_radius_flag, il));
 
-   
+
    commands.push_back(state_command("set-symmetry-size", symmetry_search_radius, il));
    commands.push_back(state_command("set-symmetry-colour-merge", float(symmetry_colour_merge_weight), il));
    commands.push_back(state_command("set-symmetry-colour",
 				    symmetry_colour[0],
 				    symmetry_colour[1],
 				    symmetry_colour[2], il));
-				    
+
    // FIXME
    //    commands.push_back(state_command("set-symmetry-whole-chain", symmetry_whole_chain_flag, il));
    commands.push_back(state_command("set-symmetry-atom-labels-expanded", symmetry_atom_labels_expanded_flag, il));
@@ -200,9 +200,9 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    commands.push_back(state_command("set-default-bond-thickness", default_bond_width, il));
 
    // cif dictionary
-   if (cif_dictionary_filename_vec->size() > 0) { 
+   if (cif_dictionary_filename_vec->size() > 0) {
       for (unsigned int i=0; i<cif_dictionary_filename_vec->size(); i++) {
-	 commands.push_back(state_command("read-cif-dictionary", 
+	 commands.push_back(state_command("read-cif-dictionary",
 					  single_quote((*cif_dictionary_filename_vec)[i]), il));
       }
    }
@@ -246,12 +246,12 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    // number not being disturbed by pre-existing molecules in coot.
    // Perhaps we should have toggle-last-map-display
    // toggle-last-mol-display toggle-last-mol-active functions.
-   // 
+   //
    int molecule_count = 0;
    int scroll_wheel_map_for_state = -1; // unset
    for (int i=0; i<n_molecules(); i++) {
       // NXMAP-FIXME
-      if (molecules[i].has_xmap() || molecules[i].has_nxmap() || molecules[i].has_model()) { 
+      if (molecules[i].has_xmap() || molecules[i].has_nxmap() || molecules[i].has_model()) {
 	 // i.e. it was not Closed...
 	 command_strings = molecules[i].save_state_command_strings();
 	 if (command_strings.size() > 0) {
@@ -259,7 +259,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 	    std::vector <std::string> display_strings;
 	    std::vector <std::string>  active_strings;
 	    // colour
-	    if (molecules[i].has_model()) { 
+	    if (molecules[i].has_model()) {
 	       display_strings.clear();
 	       display_strings.push_back("set-molecule-bonds-colour-map-rotation");
 	       display_strings.push_back(int_to_string(molecule_count));
@@ -296,7 +296,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 	       display_strings.push_back(int_to_string(molecule_count));
 	       display_strings.push_back(int_to_string(molecules[i].draw_hydrogens()));
 	       commands.push_back(state_command(display_strings, il));
-	       
+
 	       // symmetry issues:
 	       if (molecules[i].symmetry_as_calphas) {
 		  // default would be not CAlphas
@@ -334,7 +334,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 // 	       std::cout << "molecules[i].Bonds_box_type() is "
 // 			 << molecules[i].Bonds_box_type()
 // 			 << std::endl;
-	       
+
 	       if (molecules[i].Bonds_box_type() != coot::NORMAL_BONDS) {
 		  if (molecules[i].Bonds_box_type() == coot::CA_BONDS) {
 		     active_strings.clear();
@@ -412,18 +412,18 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 		  // simply turns on (or off) all representations.  The display manager does not
 		  // save the state of this button (if it is off, closed and then openned then the
 		  // "all" button is not shown!)
-		  
+
 // 		  active_strings.clear();
 // 		  active_strings.push_back("set-show-all-additional-representations");
 // 		  active_strings.push_back(int_to_string(molecule_count));
 // 		  active_strings.push_back(int_to_string(0));
 // 		  commands.push_back(state_command(active_strings, il));
 
-		  
+
 		  for (unsigned int iar=0; iar<molecules[i].add_reps.size(); iar++) {
 		     active_strings.clear();
 		     if (molecules[i].add_reps[iar].atom_sel_info.type ==
-			 coot::atom_selection_info_t::BY_ATTRIBUTES) { 
+			 coot::atom_selection_info_t::BY_ATTRIBUTES) {
 			active_strings.push_back("additional-representation-by-attributes");
 			active_strings.push_back(int_to_string(molecule_count));
 			active_strings.push_back(single_quote(molecules[i].add_reps[iar].atom_sel_info.chain_id));
@@ -437,7 +437,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 			commands.push_back(state_command(active_strings, il));
 		     }
 		     if (molecules[i].add_reps[iar].atom_sel_info.type ==
-			 coot::atom_selection_info_t::BY_STRING) { 
+			 coot::atom_selection_info_t::BY_STRING) {
 			active_strings.push_back("additional-representation-by-string");
 			active_strings.push_back(int_to_string(molecule_count));
 			active_strings.push_back(single_quote(molecules[i].add_reps[iar].atom_sel_info.atom_selection_str));
@@ -447,10 +447,10 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 			active_strings.push_back(int_to_string(molecules[i].add_reps[iar].draw_hydrogens_flag));
 			commands.push_back(state_command(active_strings, il));
 		     }
-		     
+
 		     // now save the on/off state of the add. rep.  Default is on, so only write out
 		     // the on/off status if the add rep is not shown.
-		     // 
+		     //
 		     if (! molecules[i].add_reps[iar].show_it) {
 			active_strings.clear();
 			active_strings.push_back("set-show-additional-representation");
@@ -459,7 +459,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 			active_strings.push_back(int_to_string(0));
 			commands.push_back(state_command(active_strings, il));
 		     }
-		  } 
+		  }
 	       }
 
 	       // Is there a sequence associated with this model?
@@ -481,7 +481,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 	    }
 
 	    // Maps:
-	    // 
+	    //
 	    if (molecules[i].has_xmap()) {  // NXMAP-FIXME
 
 	       // map opacity
@@ -529,13 +529,13 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 	       display_strings.push_back(int_to_string(molecule_count));
 	       display_strings.push_back(int_to_string(1));
 	       commands.push_back(state_command(display_strings, il));
-	    } 
+	    }
 	 }
 
 	 if (i==go_to_atom_molecule_)
 	    local_go_to_atom_mol = molecule_count;
 
-	 molecule_count++; 
+	 molecule_count++;
       }
    }
 
@@ -548,7 +548,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    // last things to do:
 
    // did we find a map that was the scroll wheel map?
-   // 
+   //
    if (scroll_wheel_map_for_state != -1) {
       std::vector <std::string> display_strings;
       display_strings.push_back("set-scroll-wheel-map");
@@ -575,7 +575,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    // distance geometry
    for (unsigned int idist=0; idist<distance_object_vec->size(); idist++) {
       const coot::simple_distance_object_t &sdo = (*distance_object_vec)[idist];
-      if (is_valid_model_molecule(sdo.imol_start)) { 
+      if (is_valid_model_molecule(sdo.imol_start)) {
 	 if (is_valid_model_molecule(sdo.imol_end)) {
 	    std::vector<std::string> s(9);
 	    s[0] = "add-geometry-distance";
@@ -609,14 +609,14 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
       command_strings.push_back(single_quote(go_to_atom_atom_name_));
       commands.push_back(state_command(command_strings, il));
    }
-   
-   
+
+
    // view things: rotation centre and zoom. Sanity check the zoom first.
    //
    //
    float zoom_f = zoom/100.0;
    if (zoom_f < 0.1) zoom_f = 0.1;
-   commands.push_back(state_command("scale-zoom", zoom_f, il)); 
+   commands.push_back(state_command("scale-zoom", zoom_f, il));
    commands.push_back(state_command("set-rotation-centre", X(), Y(), Z(), il));
 
    // the orientation
@@ -632,7 +632,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    }
 
    // stereo mode
-   // 
+   //
    // in_side_by_side_stereo_mode is not used, Baah.
    if (display_mode == coot::SIDE_BY_SIDE_STEREO) {
       int stereo_display_mode = 0;
@@ -642,7 +642,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
       int stereo_display_mode = 1;
       commands.push_back(state_command("side-by-side-stereo-mode", stereo_display_mode, il));
    }
-   // 
+   //
    if (stereo_mode_state() == 1)
       commands.push_back(state_command("hardware-stereo-mode", il));
 
@@ -656,7 +656,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
       commands.push_back(state_command("post-display-control-window", il));
 
    short int istat = 0;
-   if (! disable_state_script_writing) { 
+   if (! disable_state_script_writing) {
       istat = write_state(commands, filename);
       if (istat) {
 	 std::string s = "Status file ";
@@ -693,20 +693,20 @@ graphics_info_t::save_state_data_and_models(short int lang_flag) const {
    }
 
    // add the cif dictionaries:
-   if (cif_dictionary_filename_vec->size() > 0) { 
+   if (cif_dictionary_filename_vec->size() > 0) {
       for (unsigned int i=0; i<cif_dictionary_filename_vec->size(); i++) {
 	 std::string sd = ";;molecule-info: Dictionary: ";
 	 // sd += (*cif_dictionary_filename_vec)[i];
 	 std::string s = (*cif_dictionary_filename_vec)[i];
 	 std::string::size_type islash = s.find_last_of("/");
-	 if (islash != std::string::npos) { 
+	 if (islash != std::string::npos) {
 	    s = s.substr(islash+1, s.length());
 	 }
 	 sd += s;
 	 v.push_back(sd);
       }
    }
-   
+
    // add a hash at the start for python comments
    if (lang_flag == 2) {
       for (unsigned int i=0; i<v.size(); i++) {
@@ -718,17 +718,17 @@ graphics_info_t::save_state_data_and_models(short int lang_flag) const {
 
 // return a list of molecule names to be added to the "Run State
 // script?" dialog. The state script is filename, of course
-// 
+//
 std::vector<std::string>
 graphics_info_t::save_state_data_and_models(const std::string &filename,
-					    short int lang_flag) const { 
+					    short int lang_flag) const {
 
    std::vector<std::string> v;
    std::string mol_prefix = ";;molecule-info:";
    if (lang_flag == 2) { // python
-      mol_prefix = "#" + mol_prefix; 
+      mol_prefix = "#" + mol_prefix;
    }
-   
+
    std::ifstream f(filename.c_str());
    if (f) {
       std::string s;
@@ -746,15 +746,15 @@ graphics_info_t::save_state_data_and_models(const std::string &filename,
 	       v.push_back(m);
 	    } else {
 	       // std::cout << "no space found" << std::endl;
-	    } 
+	    }
 	 } else {
 	    // std::cout << "no prefix found" << std::endl;
-	 } 
+	 }
       }
    }
    f.close();
    return v;
-} 
+}
 
 
 
@@ -764,14 +764,14 @@ graphics_info_t::save_state() {
    int r = 0;
 
    // 20140410:
-   // 
+   //
    // This is a mess (but better than it was yesterday).  This needs a
    // re-think about when the state file is written (and when
    // run_state_file_status is set/unset).
 
    //    std::cout << "in save_state() run_state_file_status was " << run_state_file_status
    // << std::endl;
-   
+
    if (run_state_file_status) {
       short int il = coot::SCHEME_SCRIPT;
 #ifdef USE_GUILE
@@ -781,20 +781,20 @@ graphics_info_t::save_state() {
 	 // std::cout << "state_file_was_run_flag was false" << std::endl;
       }
 #endif // USE_GUILE
-      
+
 #ifdef USE_PYTHON
       il = coot::PYTHON_SCRIPT;
-      // BL says:: grrr. This was a baddy using state_file_was_run_flag 
+      // BL says:: grrr. This was a baddy using state_file_was_run_flag
       // here. No idea what writing a state file has to do with running one.
-      if (1) 
+      if (1)
 	 r = save_state_file("0-coot.state.py", il);
-#endif // USE_PYTHON   
+#endif // USE_PYTHON
       return r;
    }
    return 0;
 }
 
-std::string 
+std::string
 graphics_info_t::state_command(const std::string &str,
 			       int i1,
 			       short int state_lang) const {
@@ -805,7 +805,7 @@ graphics_info_t::state_command(const std::string &str,
    return state_command(command_strings,state_lang);
 }
 
-std::string 
+std::string
 graphics_info_t::state_command(const std::string &str,
 			       int i1,
 			       int i2,
@@ -818,7 +818,7 @@ graphics_info_t::state_command(const std::string &str,
    return state_command(command_strings,state_lang);
 }
 
-std::string 
+std::string
 graphics_info_t::state_command(const std::string &str,
 			       float f,
 			       short int state_lang) const {
@@ -829,7 +829,7 @@ graphics_info_t::state_command(const std::string &str,
    return state_command(command_strings,state_lang);
 }
 
-std::string 
+std::string
 graphics_info_t::state_command(const std::string &str,
 			       float f,
 			       short int state_lang,
@@ -841,7 +841,7 @@ graphics_info_t::state_command(const std::string &str,
    return state_command(command_strings,state_lang);
 }
 
-std::string 
+std::string
 graphics_info_t::state_command(const std::string &str,
 			       float f1,
 			       float f2,
@@ -857,7 +857,7 @@ graphics_info_t::state_command(const std::string &str,
 }
 
 
-std::string 
+std::string
 graphics_info_t::state_command(const std::string &str, short int state_lang) const {
 
    std::vector<std::string> command;
@@ -867,25 +867,25 @@ graphics_info_t::state_command(const std::string &str, short int state_lang) con
 
 // command arg interface
 std::string
-graphics_info_t::state_command(const std::string &str, 
-			       const std::string &str2, 
-			       short int state_lang) { 
+graphics_info_t::state_command(const std::string &str,
+			       const std::string &str2,
+			       short int state_lang) {
 
    std::vector<std::string> command;
    command.push_back(str);
    command.push_back(str2);
    return state_command(command,state_lang);
 
-} 
+}
 
-   
-std::string 
+
+std::string
 graphics_info_t::state_command(const std::vector<std::string> &strs,
 			       short int state_lang) const {
 
    std::string command = "";
-   
-   if (strs.size() > 0) { 
+
+   if (strs.size() > 0) {
       if (state_lang == coot::STATE_SCM) {
 	 command = "(";
 	 for (int i=0; i<(int(strs.size())-1); i++) {
@@ -895,36 +895,36 @@ graphics_info_t::state_command(const std::vector<std::string> &strs,
 	 command += strs.back();
 	 command += ")";
       }
-   
+
       if (state_lang == coot::STATE_PYTHON) {
-	 if (strs.size() > 0) { 
+	 if (strs.size() > 0) {
 	    command = pythonize_command_name(strs[0]);
 	    command += " (";
 	    for (int i=1; i<(int(strs.size())-1); i++) {
 	       command += strs[i];
 	       command += ", ";
 	    }
-	    if (strs.size() > 1) 
+	    if (strs.size() > 1)
 	       command += strs.back();
 	    command +=  ")";
 	 }
-      } 
+      }
    }
    return command;
-} 
+}
 
 // Return success status.
-// 
-short int 
+//
+short int
 graphics_info_t::write_state(const std::vector<std::string> &commands,
 			     const std::string &filename) const {
 
    bool do_c_mode = 1;
 
    short int istat = 1;
-   if (do_c_mode) { 
+   if (do_c_mode) {
       istat = write_state_c_mode(commands, filename);
-   } else { 
+   } else {
       istat = write_state_fstream_mode(commands, filename);
    }
    return istat;
@@ -933,15 +933,15 @@ graphics_info_t::write_state(const std::vector<std::string> &commands,
 // 20090914-PE: this has been optioned out.  It was causing a crash on
 // Mac OSX (of some kind - not all). I suspect a deeper issue.  The
 // code seems clean to me.
-// 
+//
 // Return success status.
-// 
-short int 
+//
+short int
 graphics_info_t::write_state_fstream_mode(const std::vector<std::string> &commands,
 					  const std::string &filename) const {
 
    short int istat = 1;
-   
+
    // std::cout << "writing state" << std::endl;
    std::ofstream f(filename.c_str());
 
@@ -950,7 +950,7 @@ graphics_info_t::write_state_fstream_mode(const std::vector<std::string> &comman
 	 f << commands[i] << std::endl;
       }
       f.flush();  // fixes valgrind problem?
-      
+
       // f.close(); 20090914-PE comment out because it causes a crash
       // on Mac OS X (these days) (it didn't before I recently updated
       // the coot dependencies with fink).  However, given the above
@@ -964,7 +964,7 @@ graphics_info_t::write_state_fstream_mode(const std::vector<std::string> &comman
       // Note, of course, that the close() here is not necessary as
       // the ofstream f will get a flush() and close() when it goes
       // out of scope at the end of this function.
-      
+
       std::cout << "State file " << filename << " written." << std::endl;
 
    } else {
@@ -977,15 +977,15 @@ graphics_info_t::write_state_fstream_mode(const std::vector<std::string> &comman
 
 
 // Return success status.
-// 
-short int 
+//
+short int
 graphics_info_t::write_state_c_mode(const std::vector<std::string> &commands,
 				    const std::string &filename) const {
 
    short int istat = 0;
 
    FILE *file = fopen(filename.c_str(), "w");
-   if (file) { 
+   if (file) {
       for (unsigned int i=0; i<commands.size(); i++) {
 	 fputs(commands[i].c_str(), file);
 	 fputs("\n", file);
@@ -995,7 +995,7 @@ graphics_info_t::write_state_c_mode(const std::vector<std::string> &commands,
    } else {
       std::cout << "WARNING: couldn't write settings commands to file " << filename
 		<< std::endl;
-   } 
+   }
    return istat;
 }
 
@@ -1021,18 +1021,18 @@ void
 graphics_info_t::fill_unsaved_changes_dialog(GtkWidget *dialog) const {
 
    GtkWidget *vbox = lookup_widget(GTK_WIDGET(dialog),
-				   "unsaved_changes_molecule_vbox");
+   "unsaved_changes_molecule_vbox");
 
    int menu_index=0;
    for (int imol=0; imol<n_molecules(); imol++) {
       if (molecules[imol].Have_unsaved_changes_p()) {
-	 std::string labelstr = int_to_string(imol);
-	 labelstr += "  ";
-	 labelstr += molecules[imol].name_;
-	 GtkWidget *label = gtk_label_new(labelstr.c_str());
-	 gtk_widget_show(label);
-	 gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-	 gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
+         std::string labelstr = int_to_string(imol);
+         labelstr += "  ";
+         labelstr += molecules[imol].name_;
+         GtkWidget *label = gtk_label_new(labelstr.c_str());
+         gtk_widget_show(label);
+         // gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f); gtk3 fix alignment
+         gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
       }
    }
 }
@@ -1043,11 +1043,11 @@ graphics_info_t::fill_unsaved_changes_dialog(GtkWidget *dialog) const {
 /*                         history                                           */
 /*  ------------------------------------------------------------------------ */
 
-void 
-graphics_info_t::add_history_command(const std::vector<std::string> &command_strings) { 
-   
+void
+graphics_info_t::add_history_command(const std::vector<std::string> &command_strings) {
+
    history_list.history_strings.push_back(command_strings);
-} 
+}
 
 // Being a maniac, I thought to write out the history in scm and py.
 // On reflection, I think I might be a nutter (200402xx?).
@@ -1055,15 +1055,15 @@ graphics_info_t::add_history_command(const std::vector<std::string> &command_str
 // Well, it seems I am still a nutter, but instead of keeping 2
 // histories, I will keep one history that can be formatted as either
 // (20050328).
-// 
+//
 int
-graphics_info_t::save_history() const { 
+graphics_info_t::save_history() const {
 
-   int istate = 0; 
+   int istate = 0;
    std::string history_file_name("0-coot-history");
    std::vector<std::vector<std::string> > raw_command_strings = history_list.history_list();
    std::vector<std::string> languaged_commands;
-   if (python_history) { 
+   if (python_history) {
       for (unsigned int i=0; i<raw_command_strings.size(); i++)
 	 languaged_commands.push_back(pythonize_command_strings(raw_command_strings[i]));
       std::string file = history_file_name + ".py";
@@ -1084,7 +1084,7 @@ std::string
 graphics_info_t::pythonize_command_strings(const std::vector<std::string> &command_strings) {
 
    std::string command;
-   if (command_strings.size() > 0) { 
+   if (command_strings.size() > 0) {
       command = pythonize_command_name(command_strings[0]);
       command += " (";
       for (int i=1; i<(int(command_strings.size())-1); i++) {
@@ -1105,7 +1105,7 @@ std::string
 graphics_info_t::schemize_command_strings(const std::vector<std::string> &command_strings) {
 
    std::string command;
-   bool done = 0; 
+   bool done = 0;
 #ifdef USE_GUILE
    if (command_strings.size() == 2) {
       if (command_strings[0] == DIRECT_SCM_STRING) {
@@ -1113,9 +1113,9 @@ graphics_info_t::schemize_command_strings(const std::vector<std::string> &comman
 	 done = 1;
       }
    }
-#endif // USE_GUILE   
+#endif // USE_GUILE
 
-   if (! done) { 
+   if (! done) {
       command = "(";
       for (int i=0; i<(int(command_strings.size())-1); i++) {
 	 command += command_strings[i];
@@ -1141,5 +1141,4 @@ graphics_info_t::file_type_coords(const std::string &file_name) {
 		 ext) != coordinates_glob_extensions->end())
       state = 1;
    return state;
-} 
-
+}

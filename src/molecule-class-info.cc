@@ -1,4 +1,3 @@
-
 /* src/molecule-class-info.cc
  *
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
@@ -26,6 +25,8 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include <epoxy/gl.h>
+
 #include "compat/coot-sysdep.h"
 
 #include <stdlib.h>
@@ -42,6 +43,10 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+
+#define _USE_MATH_DEFINES
+#include <cmath>
+const double pi = M_PI;
 
 #include <string.h> // strcmp
 
@@ -148,16 +153,16 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 
    if (atom_sel.read_success == 1) {
 
-      // LINK info:
-      int n_models = atom_sel.mol->GetNumberOfModels();
-      std::cout << "INFO:: Found " << n_models << " models\n";
-      for (int imod=1; imod<=n_models; imod++) {
-	 mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-	 if (model_p) {
-	    int n_links = model_p->GetNumberOfLinks();
-	    std::cout << "   Model "  << imod << " had " << n_links
-		      << " links\n";}
-      }
+		// LINK info:
+		int n_models = atom_sel.mol->GetNumberOfModels();
+		std::cout << "INFO:: Found " << n_models << " models\n";
+		for (int imod=1; imod<=n_models; imod++) {
+			mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+			if (model_p) {
+				int n_links = model_p->GetNumberOfLinks();
+				std::cout << "   Model "  << imod << " had " << n_links
+				          << " links\n";}
+			}
 
 
       //
@@ -175,10 +180,10 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
       //
       int err = atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
       if (warn_about_missing_symmetry_flag) {
-	 if (err != mmdb::SYMOP_Ok) {
-	    std::cout << "WARNING:: No symmetry available for this molecule"
-		      << std::endl;
-	 }
+	      if (err != mmdb::SYMOP_Ok) {
+	         std::cout << "WARNING:: No symmetry available for this molecule"
+		                << std::endl;
+	      }
       }
 
       // initialize some things.
@@ -192,41 +197,41 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
       add_molecular_symmetry_matrices(); // process REMARK 350 BIOMT[123]
 
       if (molecule_is_all_c_alphas()) {
-	 ca_representation();
+	      ca_representation();
       } else {
 
-	 if (! is_undo_or_redo) {
-	    // 	 std::cout << "DEBUG:: filling ghost info in
-	    // 	 handle_read_draw_molecule" << std::endl;
-	    short int do_rtops_flag = 0;
-	    // 0.7 is not used (I think) if do_rtops_flag is 0.
-	    // hack to fix Mac bug/strangeness
+			if (! is_undo_or_redo) {
+				// 	 std::cout << "DEBUG:: filling ghost info in
+				// 	 handle_read_draw_molecule" << std::endl;
+				short int do_rtops_flag = 0;
+				// 0.7 is not used (I think) if do_rtops_flag is 0.
+				// hack to fix Mac bug/strangeness
 
-	    // It only makes sense to do NCS chain searching on
-	    // crystallographic models.  Which generally only have one
-	    // model per manager.  This may change in future...
-	    int nmodels = atom_sel.mol->GetNumberOfModels();
-	    if (nmodels == 1) {
-	       fill_ghost_info(do_rtops_flag, 0.7); // returns nghosts
-	       // std::cout << "INFO:: found " << nghosts << " ghosts\n";
-	    }
-	 } else {
-	    update_mols_in_additional_representations(); //uses atom_sel.mol
-	 }
-	 // Generate bonds and save them in the graphical_bonds_container
-	 // which has static data members.
-	 //
-	 if (bonds_box_type == coot::UNSET_TYPE)
-	    bonds_box_type = coot::NORMAL_BONDS;
-	 make_bonds_type_checked();
-      }
+				// It only makes sense to do NCS chain searching on
+				// crystallographic models.  Which generally only have one
+				// model per manager.  This may change in future...
+				int nmodels = atom_sel.mol->GetNumberOfModels();
+				if (nmodels == 1) {
+					fill_ghost_info(do_rtops_flag, 0.7); // returns nghosts
+					// std::cout << "INFO:: found " << nghosts << " ghosts\n";
+				}
+			} else {
+				update_mols_in_additional_representations(); //uses atom_sel.mol
+			}
+			// Generate bonds and save them in the graphical_bonds_container
+			// which has static data members.
+			//
+			if (bonds_box_type == coot::UNSET_TYPE)
+			bonds_box_type = coot::NORMAL_BONDS;
+			make_bonds_type_checked();
+		}
 
-      draw_it = 1;
-      if (g.show_symmetry == 1) {
-	 if (show_symmetry) {  // internal
-	    update_symmetry();
-	 }
-      }
+		draw_it = 1;
+		if (g.show_symmetry == 1) {
+			if (show_symmetry) {  // internal
+				update_symmetry();
+			}
+		}
 
       // Now, we have no map assocaited with this molecule,
       // so we set the draw_vects to zero.
@@ -2318,35 +2323,35 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
       graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
 
       if (bonds_box.bonds_[i].thin_lines_flag) {
-	 if (use_variable_bond_width)
-	    glLineWidth(30.0f * p_bond_width * 0.5 / zsc);
-	 else
-	    glLineWidth(p_bond_width * 0.5);
+ 			if (use_variable_bond_width)
+	    		glLineWidth(30.0f * p_bond_width * 0.5 / zsc);
+		 	else
+	    		glLineWidth(p_bond_width * 0.5);
       } else {
-	 if (use_variable_bond_width)
-	    glLineWidth(30.0f * p_bond_width / zsc);
-	 else
-	    glLineWidth(p_bond_width);
+ 			if (use_variable_bond_width)
+	   		glLineWidth(30.0f * p_bond_width / zsc);
+	 		else
+	    		glLineWidth(p_bond_width);
       }
 
       // 20180210 molecules from simulation trajectories can have lots of bonds
       // Let's by-pass this test.
       if (false) {
-	 if (bonds_box.bonds_[i].num_lines > 1024000) {
-	    std::cout << "Fencepost heuristic failure bonds_box.bonds_[i].num_lines "
-		      << bonds_box.bonds_[i].num_lines << std::endl;
-	 }
+    		if (bonds_box.bonds_[i].num_lines > 1024000) {
+            std::cout << "Fencepost heuristic failure bonds_box.bonds_[i].num_lines "
+                      << bonds_box.bonds_[i].num_lines << std::endl;
+         }
       }
 
       if (bonds_box_type != coot::COLOUR_BY_RAINBOW_BONDS) {
-	 // if test suggested by Ezra Peisach.
-	 if (bonds_box.bonds_[i].num_lines > 0) {
-	    if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS) {
-	       set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
-	    } else {
-	       set_bond_colour_by_mol_no(i, against_a_dark_background); // outside inner loop
-	    }
-	 }
+         // if test suggested by Ezra Peisach.
+            if (bonds_box.bonds_[i].num_lines > 0) {
+               if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS) {
+          set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
+       } else {
+          set_bond_colour_by_mol_no(i, against_a_dark_background); // outside inner loop
+      }
+   }
       } else {
 	 set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
       }
@@ -3403,10 +3408,10 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
 
    std::set<int>::const_iterator it;
    if (false) { // debug no_bonds_to_these_atoms
-      for(it=no_bonds_to_these_atoms.begin(); it!=no_bonds_to_these_atoms.end(); it++) {
-	 int idx = *it;
-	 mmdb::Atom *at = atom_sel.atom_selection[idx];
-	 std::cout << "No bond to    " << idx << " " << coot::atom_spec_t(at) << std::endl;
+      for (it=no_bonds_to_these_atoms.begin(); it!=no_bonds_to_these_atoms.end(); it++) {
+         int idx = *it;
+         mmdb::Atom *at = atom_sel.atom_selection[idx];
+         std::cout << "No bond to    " << idx << " " << coot::atom_spec_t(at) << std::endl;
       }
    }
 
@@ -3579,6 +3584,15 @@ molecule_class_info_t::make_bonds_type_checked(bool add_residue_indices) {
    //
    gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
 
+  	// make glsl triangles
+   shader.init("a.shader");
+   glUseProgram(shader.get_program_id());
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "Error in glUseProgram()\n";
+   make_glsl_bonds_type_checked();
+
+   // all these will need to be changed or removed
    update_additional_representations(glci, g.Geom_p());
    update_fixed_atom_positions();
    update_ghosts();
@@ -3587,6 +3601,282 @@ molecule_class_info_t::make_bonds_type_checked(bool add_residue_indices) {
    if (debug)
       std::cout << "--- make_bonds_type_checked() done " << std::endl;
 }
+
+void
+molecule_class_info_t::make_glsl_bonds_type_checked() {
+
+   unsigned int n_slices = 20;
+   unsigned int n_stacks = 4;
+   int sum_n_triangles = 0;
+   int sum_n_vertices = 0;
+
+   for (int i=0; i<bonds_box.num_colours; i++) {
+      graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
+      unsigned int n_triangles = n_slices * n_stacks * ll.num_lines * 2;
+      sum_n_triangles += n_triangles;
+      sum_n_vertices += n_slices * (n_stacks+1) * ll.num_lines;
+   }
+
+   if (sum_n_triangles > 0) {
+      n_vertices_for_model_VertexArray = sum_n_vertices;
+      n_indices_for_model_triangles = sum_n_triangles * 3;
+      unsigned int     *flat_indices = new unsigned int[sum_n_triangles * 3];
+      unsigned int     *flat_indices_start = flat_indices;
+      unsigned int ifi = 0; // index into flat indices - running
+      generic_vertex *vertices = new generic_vertex[sum_n_vertices];
+      generic_vertex *vertices_start = vertices;
+      unsigned int iv = 0; // index into vertices - running
+      glm::vec4 *colours = new glm::vec4[sum_n_vertices]; // temporary
+
+      float radius = 0.14f;
+
+      bool do_real = true;
+      unsigned int idx_running = 0;
+      if (do_real) {
+
+         // setup a few colours
+         std::vector<glm::vec4> index_to_colour(bonds_box.num_colours);
+         for (int i=0; i<bonds_box.num_colours; i++) {
+            index_to_colour[i] = glm::vec4(0.5, 0.5, 0.5, 1.0);
+            if (i == 0) index_to_colour[i] = glm::vec4(0.8, 0.8, 0.5, 1.0);
+            if (i == 1) index_to_colour[i] = glm::vec4(0.9, 0.9, 0.2, 1.0);
+            if (i == 2) index_to_colour[i] = glm::vec4(0.9, 0.3, 0.3, 1.0);
+            if (i == 3) index_to_colour[i] = glm::vec4(0.2, 0.4, 0.9, 1.0);
+            if (i == 4) index_to_colour[i] = glm::vec4(0.5, 0.2, 0.5, 1.0);
+         }
+
+         for (int i=0; i<bonds_box.num_colours; i++) {
+            graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
+
+            unsigned int n_triangles = n_slices * n_stacks * ll.num_lines * 2;
+            for (int j=0; j< ll.num_lines; j++) {
+
+               const coot::CartesianPair &pospair = ll.pair_list[j].positions;
+               const coot::Cartesian &start  = pospair.getStart();
+               const coot::Cartesian &finish = pospair.getFinish();
+
+               coot::Cartesian b = finish - start;
+               float bl = b.length();
+               // fill vertices and indices
+               cylinder c(pospair, radius, radius, bl, n_slices, n_stacks);
+               // indices are a bit hard - they need to be offset
+               for (std::size_t j=0; j<c.triangle_indices_vec.size(); j++) {
+                  if (false) {
+                     std::cout << "reindex A " <<  c.triangle_indices_vec[j].idx[0] << " to " << ifi << std::endl;
+                     std::cout << "reindex B " <<  c.triangle_indices_vec[j].idx[1] << " to " << ifi+1 << std::endl;
+                     std::cout << "reindex C " <<  c.triangle_indices_vec[j].idx[2] << " to " << ifi+2 << std::endl;
+                  }
+                  flat_indices[ifi  ] = c.triangle_indices_vec[j].idx[0]+iv;
+                  flat_indices[ifi+1] = c.triangle_indices_vec[j].idx[1]+iv;
+                  flat_indices[ifi+2] = c.triangle_indices_vec[j].idx[2]+iv;
+                  ifi += 3;
+               }
+               for (std::size_t j=0; j<c.vertices.size(); j++) {
+                  vertices[iv] = c.vertices[j];
+                  // set the colour:
+                  vertices[iv].colour = index_to_colour[i];
+                  iv++;
+               }
+            }
+         }
+
+         // set the colours
+         for (unsigned int i=0; i<n_vertices_for_model_VertexArray; i++) {
+            float r1 = static_cast<float>(coot::util::random())/static_cast<float>(RAND_MAX);
+            float r2 = static_cast<float>(coot::util::random())/static_cast<float>(RAND_MAX);
+            float r3 = static_cast<float>(coot::util::random())/static_cast<float>(RAND_MAX);
+            colours[i] = glm::vec4(r1, r2, r3, 1.0);
+            float f = static_cast<float>(i)/static_cast<float>(n_vertices_for_model_VertexArray);
+            colours[i] = glm::vec4(f + r1*0.1, f+r2*0.2, f + r3 * 0.2, 1.0);
+         }
+      }
+
+      gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glarea));
+
+      glGenVertexArrays(1, &m_VertexArray_for_model_ID);
+      GLenum err = glGetError();
+      std::cout << "glsl for bonds() glGenVertexArrays() " << err
+		          << " for m_VertexArray_for_model_ID " << m_VertexArray_for_model_ID
+                << std::endl;
+      glBindVertexArray(m_VertexArray_for_model_ID);
+      err = glGetError();
+      std::cout << "glsl for bonds() glBindVertexArray() " << err
+                << " for m_VertexArray_for_model_ID " << m_VertexArray_for_model_ID
+                << std::endl;
+
+      // vertices/positions, 0
+      glGenBuffers(1, &m_VertexBuffer_for_model_ID);
+      err = glGetError(); if (err) std::cout << "GL error bonds 3\n";
+      glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer_for_model_ID);
+      err = glGetError(); if (err) std::cout << "GL error bonds 4\n";
+      GLuint n_bytes = sizeof(generic_vertex) * n_vertices_for_model_VertexArray;
+      std::cout << "n_bytes: " << n_bytes << std::endl;
+      glBufferData(GL_ARRAY_BUFFER, n_bytes, vertices, GL_STATIC_DRAW);
+      err = glGetError(); if (err) std::cout << "GL error bonds 5\n";
+      glEnableVertexAttribArray(0);
+      err = glGetError(); if (err) std::cout << "GL error bonds 6\n";
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), 0);
+      err = glGetError(); if (err) std::cout << "GL error bonds 7\n";
+
+      //  normal, 1
+      glGenBuffers(1, &m_NormalBuffer_for_model_ID);
+      err = glGetError(); if (err) std::cout << "GL error bonds 8\n";
+      glBindBuffer(GL_ARRAY_BUFFER, m_NormalBuffer_for_model_ID);
+      err = glGetError(); if (err) std::cout << "GL error bonds 9\n";
+      glBufferData(GL_ARRAY_BUFFER, n_bytes, vertices, GL_STATIC_DRAW); // not needed because its the same buffer data
+      err = glGetError(); if (err) std::cout << "GL error bonds 10\n";
+      glEnableVertexAttribArray(1);
+      err = glGetError(); if (err) std::cout << "GL error bonds 11\n";
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(sizeof(glm::vec3)));
+      err = glGetError(); if (err) std::cout << "GL error bonds 12\n";
+
+      //  colour, 2
+      glGenBuffers(1, &m_ColourBuffer_for_modelID);
+      err = glGetError(); if (err) std::cout << "GL error bonds 13\n";
+      // glBindBuffer(GL_ARRAY_BUFFER, m_ColourBuffer_for_modelID);
+      // n_bytes = n_vertices_for_model_VertexArray * sizeof(glm::vec4);
+      // glBufferData(GL_ARRAY_BUFFER, n_bytes, &colours[0], GL_STATIC_DRAW);
+      // err = glGetError(); if (err) std::cout << "GL error bonds 14\n";
+      glEnableVertexAttribArray(2);
+      err = glGetError(); if (err) std::cout << "GL error bonds 16\n";
+      glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
+      //glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, 0);
+      err = glGetError(); if (err) std::cout << "GL error bonds 17\n";
+
+      // translate position
+      glEnableVertexAttribArray(3);
+      glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(2 * sizeof(glm::vec3) + sizeof(glm::vec4)));
+      err = glGetError(); if (err) std::cout << "GL error bonds 17aa\n";
+
+
+      // model matrix (orientation)
+      // glGenBuffers(1, &m_ModelMatrix_for_model_ID);
+      //err = glGetError(); if (err) std::cout << "GL error bonds 17a\n";
+      glEnableVertexAttribArray(4);
+      glEnableVertexAttribArray(5);
+      glEnableVertexAttribArray(6);
+      glEnableVertexAttribArray(7);
+      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+      glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(3 * sizeof(glm::vec3) + 1 * sizeof(glm::vec4)));
+      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+      glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(3 * sizeof(glm::vec3) + 2 * sizeof(glm::vec4)));
+      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+      glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(3 * sizeof(glm::vec3) + 3 * sizeof(glm::vec4)));
+      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+      glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(3 * sizeof(glm::vec3) + 4 * sizeof(glm::vec4)));
+      err = glGetError(); if (err) std::cout << "GL error bonds 17b\n";
+      glVertexAttribDivisor(4, 0);
+      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+      glVertexAttribDivisor(5, 0);
+      err = glGetError(); if (err) std::cout << "GL error bonds 17d\n";
+      glVertexAttribDivisor(6, 0);
+      err = glGetError(); if (err) std::cout << "GL error bonds 17e\n";
+      glVertexAttribDivisor(7, 0);
+      err = glGetError(); if (err) std::cout << "GL error bonds 17f\n";
+
+
+
+      // indices
+      glGenBuffers(1, &m_IndexBuffer_for_model_ID);
+      err = glGetError(); if (err) std::cout << "GL error bonds 18\n";
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_model_ID);
+      err = glGetError(); if (err) std::cout << "GL error bonds 18\n";
+      n_bytes = sum_n_triangles * 3 * sizeof(unsigned int);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, flat_indices, GL_STATIC_DRAW);
+
+      glBindVertexArray(m_VertexArray_for_model_ID);
+      err = glGetError();
+      std::cout << "make_glsl_bonds_type_checked() again try glBindVertexArray() " << err
+		          << " for m_VertexArray_for_model_ID " << m_VertexArray_for_model_ID << std::endl;
+
+   }
+}
+
+// put at the top
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/string_cast.hpp>  // to_string()
+
+// Make triangles for a cylinder along the z axis
+//
+// top_radius is currently ignored, cylinders only
+// This should have a less generic name.
+//
+cylinder::cylinder(const coot::CartesianPair &pospair,
+                   float base_radius, float top_radius, float height,
+                   unsigned int n_slices, unsigned int n_stacks) {
+
+		// n_stacks*n_slices = 12
+		// cylinder_vertex vertices[12];
+		// n_triangles = n_stacks * n_slices * 2;
+		// tri_indices cylinder_indices[24];
+
+      const coot::Cartesian &start  = pospair.getStart();
+      const coot::Cartesian &finish = pospair.getFinish();
+      coot::Cartesian b = finish - start;
+      b.unit_vector_yourself();
+      glm::vec3 normal(b.x(), b.y(), b.z());
+      glm::mat4 ori = glm::orientation(normal, glm::vec3(0.0, 0.0, 1.0));
+
+      std::cout << "ori " << glm::to_string(ori) << "\n";
+
+      triangle_indices_vec.resize(n_stacks * n_slices * 2);
+      vertices.resize((n_stacks + 1) * n_slices);
+      unsigned int idx = 0;
+
+		float one_over_n_slices = 1.0/static_cast<float>(n_slices);
+		float height_step = height/static_cast<float>(n_stacks);
+		for (unsigned int i_stack=0; i_stack<=n_stacks; i_stack++) {
+         // std::cout << "i_stack " << i_stack << std::endl;
+			for (unsigned int i_slice=0; i_slice<n_slices; i_slice++) {
+            // std::cout << "   i_slice " << i_slice << std::endl;
+				float z_this = i_stack * height_step;
+				if (i_stack == n_stacks) z_this = height;
+				float theta_this = 2.0 * pi * static_cast<float>(i_slice) * one_over_n_slices;
+
+				float x = cosf(theta_this);
+				float y = sinf(theta_this);
+
+				int idx = i_stack*n_slices + i_slice;
+            glm::vec3 sp(x*base_radius, y*base_radius, z_this);
+            glm::vec3 t(start.x(), start.y(), start.z());
+            // t *= 2.0; // protein scaling hack - makes it look good, but is wrong.
+            // std::cout << "      vertex idx " << idx << std::endl;
+            vertices[idx].pos = sp;
+            vertices[idx].normal = glm::vec3(x,y,0.0f);
+            vertices[idx].model_matrix = ori;
+            vertices[idx].translate_position = t;
+            // vertices[idx].model_matrix = glm::translate(vertices[idx].model_matrix, t);
+            idx++;
+			}
+		}
+
+		// indices
+		for (unsigned int i_stack=0; i_stack<n_stacks; i_stack++) {
+			unsigned int i_slice_last = n_slices-1;
+			for (unsigned int i_slice=0; i_slice<n_slices; i_slice++) {
+				unsigned int idx_0 = i_stack*n_slices + i_slice;
+				unsigned int idx_1 = i_stack*n_slices + i_slice + 1;
+				unsigned int idx_2 = (i_stack+1)*n_slices + i_slice;
+				unsigned int idx_3 = (i_stack+1)*n_slices + i_slice + 1;
+				if (i_slice == i_slice_last) {
+					idx_1 = i_stack*n_slices;
+					idx_3 = (i_stack+1)*n_slices;
+				}
+
+            // std::cout << "t1: " << idx_0 << " " << idx_1 << " " << idx_2 << std::endl;
+            // std::cout << "t2: " << idx_1 << " " << idx_3 << " " << idx_2 << std::endl;
+				tri_indices ti_1(idx_0, idx_1, idx_2);
+				tri_indices ti_2(idx_1, idx_3, idx_2); // both clockwise
+				int idx = i_stack*n_slices + i_slice;
+            // std::cout << "   indices idx " << idx << " " << triangle_indices_vec.size() << std::endl;
+				triangle_indices_vec[2*idx  ] = ti_1;
+				triangle_indices_vec[2*idx+1] = ti_2;
+			}
+		}
+      // std::cout << "Finished cylinder constructor" << std::endl;
+	}
+
+
 
 void
 molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices) {
