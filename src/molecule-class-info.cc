@@ -3841,10 +3841,13 @@ cylinder::cylinder(const coot::CartesianPair &pospair,
             glm::vec3 t(start.x(), start.y(), start.z());
             // t *= 2.0; // protein scaling hack - makes it look good, but is wrong.
             // std::cout << "      vertex idx " << idx << std::endl;
-            vertices[idx].pos = sp;
-            vertices[idx].normal = glm::vec3(x,y,0.0f);
-            vertices[idx].model_matrix = ori;
-            vertices[idx].translate_position = t;
+
+            generic_vertex &v = vertices[idx];
+
+            v.pos = sp;
+            v.normal = glm::vec3(x,y,0.0f);
+            v.model_matrix = ori;
+            v.translate_position = t;
             // vertices[idx].model_matrix = glm::translate(vertices[idx].model_matrix, t);
             idx++;
 			}
