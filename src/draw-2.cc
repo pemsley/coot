@@ -332,9 +332,14 @@ glm::mat4 get_molecule_mvp() {
    float z = graphics_info_t::zoom * 0.04;
    glm::vec3 sc(z,z,z);
    float ortho_size = 90.0;
+
+   GLfloat near_scale = 0.5;
+   GLfloat near = -near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.1 + 1.0);
+   GLfloat far  =        0.30*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.1 + 1.0);
+
    glm::mat4 projection_matrix = glm::ortho(-ortho_size * screen_ratio, ortho_size * screen_ratio,
                                             -ortho_size, ortho_size,
-                                            0.2f * ortho_size, -ortho_size); // wrong way round?
+                                            far, near); // wrong way round?
 
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    std::cout << "rotation centre " << glm::to_string(rc) << std::endl;
