@@ -168,7 +168,7 @@ glm::mat4 get_molecule_mvp() {
    glm::vec3 sc(z,z,z);
    float ortho_size = 90.0;
 
-   GLfloat near_scale = 0.5;  /// from provious draw code
+   GLfloat near_scale = 0.2;  /// from provious draw code
    GLfloat near = -near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.1 + 1.0);
    GLfloat far  =        0.30*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.1 + 1.0);
 
@@ -369,6 +369,10 @@ draw_central_cube(GtkGLArea *glarea) {
 
    if (true) {
 
+
+      // Note to self: use the same shader as for models. You will need
+      // to do move the cube to the rotattion centre.
+
       GtkAllocation allocation;
       gtk_widget_get_allocation(GTK_WIDGET(glarea), &allocation);
       int w = allocation.width;
@@ -390,8 +394,8 @@ draw_central_cube(GtkGLArea *glarea) {
       glm::vec3 sc(z,z,z);
       // std::cout << "z " << z << std::endl;
       // glm::vec3 sc(0.2f, 0.2f, 0.2f);
-      glm::mat4 m1  = glm::scale(view_orientation, sc);
-      glm::mat4 mvp = glm::scale(m1, glm::vec3(4.0*aspect_ratio, 1.0, 1.0));
+      glm::mat4 mvp  = glm::scale(view_orientation, sc);
+      // glm::mat4 mvp = glm::scale(m1, glm::vec3(4.0*aspect_ratio, 1.0, 1.0));
 
       if (false) {
          std::cout << "debug:: draw_central_cube()       local mvp: ";
