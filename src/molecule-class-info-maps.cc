@@ -785,6 +785,8 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
       // transfer the indices - one of these variables has the wrong name - one is for lines and the other is for triangles
       n_vertices_for_VertexArray = 6 * tri_con.point_indices.size();
+      // That's wrong I think, let me try again
+      // n_vertices_for_VertexArray = 3 * tri_con.points.size();  // Crash. Hmm.
       n_indices_for_triangles    = 3 * tri_con.point_indices.size();
 
       // std::cout << "Here with n_vertices_for_VertexArray " << n_vertices_for_VertexArray << std::endl;
@@ -815,7 +817,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          normals[3*i+2] = tri_con.normals[i].z();
       }
 
-      int n_colours = n_indices_for_triangles;
+      int n_colours = n_vertices_for_VertexArray;
       float *colours = new float[4 * n_colours];
       for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
          colours[4*i  ] = 0.5f;

@@ -22,11 +22,14 @@ void Shader::init(const std::string &file_name) {
          std::cout << "debug() Shader::init() program_id " << program_id << std::endl;
          if (true) {
             set_uniform_locations();
-            glBindAttribLocation(program_id, 0, "position"); // use set_attribute_locations()
-            glBindAttribLocation(program_id, 1, "normal");   // for consistency
-            glBindAttribLocation(program_id, 2, "colour");
-            glBindAttribLocation(program_id, 3, "translate_position");
-            glBindAttribLocation(program_id, 4, "model_matrix");
+            glBindAttribLocation(program_id, 0, "model_matrix_0");
+            glBindAttribLocation(program_id, 1, "model_matrix_1");
+            glBindAttribLocation(program_id, 2, "model_matrix_2");
+            glBindAttribLocation(program_id, 3, "model_matrix_3");
+            glBindAttribLocation(program_id, 4, "position"); // use set_attribute_locations()
+            glBindAttribLocation(program_id, 5, "normal");   // for consistency
+            glBindAttribLocation(program_id, 6, "colour");
+            glBindAttribLocation(program_id, 7, "translate_position");
          }
       } else {
          std::cout << "Empty Fragment Shader source\n";
