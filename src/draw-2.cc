@@ -224,6 +224,7 @@ void draw_map_molecules() {
 
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
       if (! graphics_info_t::is_valid_map_molecule(ii)) continue;
+      if (! graphics_info_t::molecules[ii].draw_it_for_map) continue;
       if (graphics_info_t::molecules[ii].n_vertices_for_VertexArray > 0) {
 
          bool draw_with_lines = true;

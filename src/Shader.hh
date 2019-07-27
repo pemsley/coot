@@ -5,6 +5,7 @@ class Shader {
       void parse(const std::string &file_name);
       unsigned int compile_shader(const std::string &source, ShaderType type) const;
       void set_uniform_locations();
+      void set_attribute_locations();
       unsigned int create() const;
       std::string VertexSource;
       std::string FragmentSource;

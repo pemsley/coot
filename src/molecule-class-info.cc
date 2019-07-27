@@ -3585,7 +3585,7 @@ molecule_class_info_t::make_bonds_type_checked(bool add_residue_indices) {
    gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
 
   	// make glsl triangles
-   shader.init("a.shader");
+   shader.init("model.shader");
    glUseProgram(shader.get_program_id());
    GLenum err = glGetError();
    if (err)
@@ -3718,39 +3718,36 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       glEnableVertexAttribArray(0);
       glEnableVertexAttribArray(1);
       glEnableVertexAttribArray(2);
+      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(0 * sizeof(glm::vec3)));
+      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(1 * sizeof(glm::vec3)));
+      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+      glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
+      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+
+      // translate position, 3, size 3 floats
       glEnableVertexAttribArray(3);
-      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
-      glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(0 * sizeof(glm::vec4)));
-      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
-      glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(1 * sizeof(glm::vec4)));
-      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
-      glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(2 * sizeof(glm::vec4)));
-      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
-      glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(3 * sizeof(glm::vec4)));
-      err = glGetError(); if (err) std::cout << "GL error bonds 17b\n";
+      glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(3 * sizeof(glm::vec3)));
+      err = glGetError(); if (err) std::cout << "GL error bonds 17aa\n";
 
       // positions, 4, size 3 floats
       glEnableVertexAttribArray(4);
       err = glGetError(); if (err) std::cout << "GL error bonds 6\n";
-      glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(4 * sizeof(glm::vec4)));
+      glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(4 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 7\n";
 
       //  normals, 5, size 3 floats
       glEnableVertexAttribArray(5);
       err = glGetError(); if (err) std::cout << "GL error bonds 11\n";
-      glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(4 * sizeof(glm::vec4) + sizeof(glm::vec3)));
+      glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(5 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 12\n";
 
       //  colours, 6, size 4 floats
       glEnableVertexAttribArray(6);
       err = glGetError(); if (err) std::cout << "GL error bonds 16\n";
-      glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(4 * sizeof(glm::vec4) + 2 * sizeof(glm::vec3)));
+      glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(6 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 17\n";
-
-      // translate position, 7, size 3 floats
-      glEnableVertexAttribArray(7);
-      glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(5 * sizeof(glm::vec4) + 2 * sizeof(glm::vec3)));
-      err = glGetError(); if (err) std::cout << "GL error bonds 17aa\n";
 
 
       // Inidices
@@ -3823,9 +3820,8 @@ cylinder::cylinder(const coot::CartesianPair &pospair,
 
             v.pos = sp;
             v.normal = glm::vec3(x,y,0.0f);
-            v.model_matrix = ori;
-            v.translate_position = t;
-            // v.model_matrix = glm::translate(v.model_matrix, t);
+            v.model_rotation_matrix = glm::transpose(ori);
+            v.model_translation = t;
             idx++;
          }
       }

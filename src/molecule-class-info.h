@@ -259,11 +259,11 @@ public:
 
 class generic_vertex {
 public:
-   glm::mat4 model_matrix; // orientation
-   glm::vec3 pos;   // use glm::vec3 here when you get it working
+   glm::mat3 model_rotation_matrix; // orientation
+   glm::vec3 model_translation; // the coordinates of the first atom of the bond
+   glm::vec3 pos;
    glm::vec3 normal; // normalized when set
    glm::vec4 colour;
-   glm::vec3 translate_position; // the coordinates of the first atom of the bond
 };
 
 class cylinder {

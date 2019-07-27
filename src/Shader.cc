@@ -22,14 +22,7 @@ void Shader::init(const std::string &file_name) {
          std::cout << "debug() Shader::init() program_id " << program_id << std::endl;
          if (true) {
             set_uniform_locations();
-            glBindAttribLocation(program_id, 0, "model_matrix_0");
-            glBindAttribLocation(program_id, 1, "model_matrix_1");
-            glBindAttribLocation(program_id, 2, "model_matrix_2");
-            glBindAttribLocation(program_id, 3, "model_matrix_3");
-            glBindAttribLocation(program_id, 4, "position"); // use set_attribute_locations()
-            glBindAttribLocation(program_id, 5, "normal");   // for consistency
-            glBindAttribLocation(program_id, 6, "colour");
-            glBindAttribLocation(program_id, 7, "translate_position");
+            set_attribute_locations();
          }
       } else {
          std::cout << "Empty Fragment Shader source\n";
@@ -37,6 +30,19 @@ void Shader::init(const std::string &file_name) {
    } else {
       std::cout << "Empty Vertex Shader source\n";
    }
+}
+
+void
+Shader::set_attribute_locations() {
+
+            glBindAttribLocation(program_id, 0, "model_rotation_matrix_0");
+            glBindAttribLocation(program_id, 1, "model_rotation_matrix_1");
+            glBindAttribLocation(program_id, 2, "model_rotation_matrix_2");
+            glBindAttribLocation(program_id, 3, "position");
+            glBindAttribLocation(program_id, 4, "normal");
+            glBindAttribLocation(program_id, 5, "colour");
+            glBindAttribLocation(program_id, 6, "translate_position");
+
 }
 
 void Shader::set_uniform_locations() {
