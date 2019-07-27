@@ -228,13 +228,7 @@ void draw_map_molecules() {
       if (graphics_info_t::molecules[ii].n_vertices_for_VertexArray > 0) {
 
          bool draw_with_lines = true;
-         if (draw_with_lines) { // draw with lines
-            if (false) //debug
-               std::cout << "   draw_map_molecules(): imol " << ii
-                         << " array_id and n_vertices_for_VertexArray: "
-                         << graphics_info_t::molecules[ii].m_VertexArrayID << " "
-                         << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
-                         << std::endl;
+         if (draw_with_lines) {
             glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID);
             err = glGetError();
             if (err) std::cout << "   draw_map_molecules() glBindVertexArray() "
@@ -303,6 +297,7 @@ draw_model_molecules() {
 
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
       if (! graphics_info_t::is_valid_model_molecule(ii)) continue;
+      if (! graphics_info_t::molecules[ii].draw_it) continue;
       std::cout << "imol " << ii << " n_vertices_for_model_VertexArray "
                 << graphics_info_t::molecules[ii].n_vertices_for_model_VertexArray << std::endl;
       if (graphics_info_t::molecules[ii].n_vertices_for_model_VertexArray > 0) {
@@ -332,7 +327,13 @@ draw_model_molecules() {
          if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() " << err << std::endl;
          glUniformMatrix4fv(view_rotation_location, 1, GL_FALSE, &view_rotation[0][0]);
          err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() " << err << std::endl;
+         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() for mvp " << err << std::endl;
+
+         GLuint background_colour_uniform_location = graphics_info_t::molecules[ii].shader.background_colour_uniform_location;
+         glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
+         glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
+         err = glGetError();
+         if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for background " << err << std::endl;
 
          // draw with the vertex count, not the index count.
          GLuint n_verts = graphics_info_t::molecules[ii].n_indices_for_model_triangles;
@@ -484,7 +485,8 @@ on_glarea_render(GtkGLArea *glarea) {
    if (err) std::cout << "on_glarea_render() start " << err << std::endl;
 
    glClearColor (0.24, 0.24, 0.24, 1.0);
-   // glClearColor (0.0, 0.0, 0.0, 1.0);
+   const glm::vec3 &bg = graphics_info_t::background_colour;
+   glClearColor (bg[0], bg[1], bg[2], 1.0);
    err = glGetError();
    if (err) std::cout << "on_glarea_render B err " << err << std::endl;
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

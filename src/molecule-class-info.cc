@@ -3791,7 +3791,7 @@ cylinder::cylinder(const coot::CartesianPair &pospair,
       glm::vec3 normal(b.x(), b.y(), b.z());
       glm::mat4 ori = glm::orientation(normal, glm::vec3(0.0, 0.0, 1.0));
 
-      std::cout << "ori " << glm::to_string(ori) << "\n";
+      // std::cout << "ori " << glm::to_string(ori) << "\n";
 
       triangle_indices_vec.resize(n_stacks * n_slices * 2);
       vertices.resize((n_stacks + 1) * n_slices);

@@ -17,4 +17,5 @@ public:
    unsigned int get_program_id() const { return program_id; }
    unsigned int view_rotation_uniform_location;
    unsigned int mvp_uniform_location;
+   unsigned int background_colour_uniform_location;
 };

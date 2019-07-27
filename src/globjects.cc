@@ -868,7 +868,7 @@ coot::Cartesian graphics_info_t::probe_dots_on_chis_molprobity_centre = coot::Ca
 float graphics_info_t::probe_dots_on_chis_molprobity_radius = 6.0;
 bool graphics_info_t::do_coot_probe_dots_during_refine_flag = false;
 
-float* graphics_info_t::background_colour = new float[4];
+glm::vec3 graphics_info_t::background_colour = glm::vec3(0.2, 0.2, 0.2);
 
 //
 short int graphics_info_t::delete_item_atom = 0;
@@ -1734,14 +1734,6 @@ init(GtkWidget *widget)
 
    graphics_info_t g;
 
-   if (g.background_colour == NULL) {
-      g.background_colour = new float[4];
-      g.background_colour[0] = 0.0;
-      g.background_colour[1] = 0.0;
-      g.background_colour[2] = 0.0;
-      g.background_colour[3] = 1.0;
-   }
-
    // The cosine->sine lookup table, used in picking.
    //
    // The data in it are static, so we can get to them anywhere
@@ -1791,7 +1783,7 @@ init_gl_widget(GtkWidget *widget) {
    // glFogf(GL_FOG_START, 0.0);
    glFogf(GL_FOG_END, 20.0);
 
-   glFogfv(GL_FOG_COLOR, g.background_colour);
+   // glFogfv(GL_FOG_COLOR, g.background_colour);
 
    // Exponential fog
    //

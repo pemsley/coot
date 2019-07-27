@@ -12,18 +12,15 @@
 void
 graphics_info_t::init() {
 
-      for (int i=0; i<4; i++) 
-	 background_colour[i] = 0.0;
-
 #ifdef WINDOWS_MINGW
       prefer_python = 1;
 #endif
 
-      for (int i=0; i<4; i++) 
-	 for (int j=0; j<4; j++) 
+      for (int i=0; i<4; i++)
+	 for (int j=0; j<4; j++)
 	    mvp[i*4+j] = 0.0;
 
-      for (int i=0; i<4; i++) 
+      for (int i=0; i<4; i++)
 	 mvp[i*4+i] = 1.0;
 
       // transform = Transform(glm::vec3(0.0, 0.0, 0.0),

@@ -2050,7 +2050,7 @@ public:
    static std::vector<std::string> command_line_accession_codes;
 
    // background colour
-   static float *background_colour;
+   static glm::vec3 background_colour;
    static bool background_is_black_p();
 
    // dynarama: a list of dynarama canvases, each of which has

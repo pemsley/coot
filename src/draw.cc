@@ -137,7 +137,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       glFogf(GL_FOG_START, -20.0);
       glFogf(GL_FOG_END, 20.0);
       glDepthFunc (GL_LESS);
-      glFogfv(GL_FOG_COLOR, graphics_info_t::background_colour);
+      // glFogfv(GL_FOG_COLOR, graphics_info_t::background_colour);
       glEnable(GL_DEPTH_TEST);
 
       // BL:: this is code for Zalman monitor. Maybe can be somewhere else!?

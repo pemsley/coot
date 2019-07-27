@@ -51,8 +51,10 @@ void Shader::set_uniform_locations() {
    err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 1: " << err << std::endl;
    view_rotation_uniform_location = glGetUniformLocation(program_id, "view_rotation");
    err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 2: " << err << std::endl;
+   background_colour_uniform_location = glGetUniformLocation(program_id, "background_colour");
+   err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 3: " << err << std::endl;
    std::cout << "debug:: set_uniform_locations() " << mvp_uniform_location << " " << view_rotation_uniform_location
-             << std::endl;
+             << " " << background_colour_uniform_location << std::endl;
 }
 
 void Shader::parse(const std::string &file_name) {
