@@ -50,19 +50,15 @@ void main() {
 
   vec3 lightdir = normalize(vec3(-2,-1,5));
   float dp = dot(Normal, -lightdir);
-  // vec4 bg_colour = vec4(0.24, 0.24, 0.24, 1.0);
-
-  float m = clamp(gl_FragCoord.x, 0.0f, 1.0f);
-  // gl_FragCoord.z seems to have a range of 0-1, unlike gl_FragCoord.x, which seems to be -100,100 or so.
 
   float f_1 = 1.0 - gl_FragCoord.z; // because glm::ortho() near and far are reversed?
   float f_2 = 1.0 - abs(f_1 - 0.7)/0.7;
   vec4 col_1 = vec4(vec3(f_2), 1.0) * tri_color;
   vec4 col_2 = col_1 * dp;
 
-  float flat_frac = 0.3;
+  float flat_frac = 0.2;
   vec4 c_1 = col_2 * (1.0 - flat_frac) + col_1 * flat_frac;
-  vec4 c_2 = bg_colour + c_1 * 0.76;
+  vec4 c_2 = mix(bg_colour, c_1, f_1);
 
   out_col = c_2;
 

@@ -45,10 +45,10 @@ Shader::set_attribute_locations() {
       glBindAttribLocation(program_id, 0, "model_rotation_matrix_0");
       glBindAttribLocation(program_id, 1, "model_rotation_matrix_1");
       glBindAttribLocation(program_id, 2, "model_rotation_matrix_2");
-      glBindAttribLocation(program_id, 3, "position");
-      glBindAttribLocation(program_id, 4, "normal");
-      glBindAttribLocation(program_id, 5, "colour");
-      glBindAttribLocation(program_id, 6, "translate_position");
+      glBindAttribLocation(program_id, 3, "model_translation");
+      glBindAttribLocation(program_id, 4, "position");
+      glBindAttribLocation(program_id, 5, "normal");
+      glBindAttribLocation(program_id, 6, "colour");
    }
    if (entity_type == Entity_t::MAP) {
       glBindAttribLocation(program_id, 0, "position");
