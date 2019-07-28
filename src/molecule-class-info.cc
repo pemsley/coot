@@ -3751,7 +3751,6 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(6 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 17\n";
 
-
       // Indices
       glGenBuffers(1, &m_IndexBuffer_for_model_ID);
       err = glGetError(); if (err) std::cout << "GL error bonds 18\n";
@@ -3759,11 +3758,6 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       err = glGetError(); if (err) std::cout << "GL error bonds 18\n";
       n_bytes = sum_n_triangles * 3 * sizeof(unsigned int);
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, flat_indices, GL_STATIC_DRAW);
-
-      glBindVertexArray(m_VertexArray_for_model_ID);
-      err = glGetError();
-      std::cout << "make_glsl_bonds_type_checked() again try glBindVertexArray() " << err
-             << " for m_VertexArray_for_model_ID " << m_VertexArray_for_model_ID << std::endl;
 
    }
 }

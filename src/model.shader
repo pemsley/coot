@@ -48,13 +48,17 @@ layout(location = 0) out vec4 out_col;
 
 void main() {
 
-  vec3 lightdir = normalize(vec3(-2,-1,5));
-  float dp = dot(Normal, -lightdir);
+  vec3 lightdir_1 = normalize(vec3(-2,-1,5));
+  vec3 lightdir_2 = normalize(vec3(2,1,2));
+  float dp_l1 = dot(Normal, -lightdir_1);
+  float dp_l2 = dot(Normal, -lightdir_2);
 
   float f_1 = 1.0 - gl_FragCoord.z; // because glm::ortho() near and far are reversed?
   float f_2 = 1.0 - abs(f_1 - 0.7)/0.7;
   vec4 col_1 = vec4(vec3(f_2), 1.0) * tri_color;
-  vec4 col_2 = col_1 * dp;
+  vec4 col_2_1 = col_1 * dp_l1;
+  vec4 col_2_2 = col_1 * dp_l2;
+  vec4 col_2 = col_2_1 + col_2_2;
 
   float flat_frac = 0.2;
   vec4 c_1 = col_2 * (1.0 - flat_frac) + col_1 * flat_frac;
