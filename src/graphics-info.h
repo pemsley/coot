@@ -4002,6 +4002,9 @@ string   static std::string sessionid;
    static GLuint central_cube_array_buffer_id;
    static GLuint central_cube_index_buffer_id;
    static Shader shader_for_maps;
+   static long frame_counter;
+   static long frame_counter_at_last_display;
+   static std::chrono::time_point<std::chrono::system_clock> previous_frame_time;
    // ---------------------------------------------
 
 

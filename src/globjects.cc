@@ -546,7 +546,7 @@ short int graphics_info_t::swap_difference_map_colours = 0; // default: not in J
 
 // No idle functions to start (but setting them to zero doesn't set that - the
 // idle functions are added by gtk_idle_add()).
-int   graphics_info_t::idle_function_spin_rock_token = 0;
+int   graphics_info_t::idle_function_spin_rock_token = -1; // magic "unset" value
 long  graphics_info_t::time_holder_for_rocking = 0;
 double graphics_info_t::idle_function_rock_amplitude_scale_factor = 1.0;
 double graphics_info_t::idle_function_rock_freq_scale_factor = 1.0;
@@ -1436,6 +1436,10 @@ GLuint graphics_info_t::central_cube_index_buffer_id = 0;
 // GLuint graphics_info_t::programID_for_maps = 0; in a shader now  - as
 //programID_for_central_cube should be
 Shader graphics_info_t::shader_for_maps;
+std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
+long graphics_info_t::frame_counter = 0;
+long graphics_info_t::frame_counter_at_last_display = 0;
+
 // --------------------------------------------------------------------------------------------
 
 

@@ -453,6 +453,8 @@ on_glarea_realize(GtkGLArea *glarea) {
 gboolean
 on_glarea_render(GtkGLArea *glarea) {
 
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+
    // is this needed?
    gtk_gl_area_make_current(glarea);
    GLenum err = glGetError();
@@ -486,6 +488,11 @@ on_glarea_render(GtkGLArea *glarea) {
    glFlush ();
    err = glGetError();
    if (err) std::cout << "on_glarea_render E err " << err << std::endl;
+
+   graphics_info_t::frame_counter++;
+   // auto tp_1 = std::chrono::high_resolution_clock::now();
+   // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+   // std::cout << "INFO:: Timing for frame render " << d10 << " microseconds" << std::endl;
 
   return FALSE;
 }
@@ -629,6 +636,37 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
    return TRUE;
 }
 
+gint
+spin_func(gpointer data) {
+
+   float delta = 0.02;
+   glm::vec3 EulerAngles(0, delta, 0);
+   glm::quat quat_delta(EulerAngles);
+   glm::quat normalized_quat_delta(glm::normalize(quat_delta));
+   glm::quat product = normalized_quat_delta * graphics_info_t::glm_quat;
+   graphics_info_t::glm_quat = glm::normalize(product);
+   gtk_widget_queue_draw(graphics_info_t::glarea);
+
+   std::chrono::time_point<std::chrono::system_clock> tp_now = std::chrono::high_resolution_clock::now();
+   std::chrono::time_point<std::chrono::system_clock> tp_nowa = std::chrono::high_resolution_clock::now();
+   std::chrono::time_point<std::chrono::system_clock> tp_nowb = std::chrono::high_resolution_clock::now();
+   std::chrono::duration<double> elapsed_seconds = tp_now - graphics_info_t::previous_frame_time;
+   std::chrono::duration<double> elapsed_secondsA = tp_now - graphics_info_t::previous_frame_time;
+   std::chrono::duration<double> elapsed_secondsB = tp_now - graphics_info_t::previous_frame_time;
+   if (elapsed_seconds.count() > 1.0) {
+      float nf = graphics_info_t::frame_counter - graphics_info_t::frame_counter_at_last_display;
+      std::cout << "Frame/second: " << 1000 * elapsed_seconds.count()/nf << " milliseconds\n";
+      graphics_info_t::previous_frame_time = tp_now;
+      graphics_info_t::frame_counter_at_last_display = graphics_info_t::frame_counter;
+   }
+
+   // kludge/race condition?
+   if (graphics_info_t::idle_function_spin_rock_token == -1)
+      return FALSE;
+   else
+      return TRUE;
+}
+
 gboolean
 on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
 
@@ -655,12 +693,16 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
    }
 
    if (event->keyval == GDK_KEY_i) {
-      float delta = 0.02;
-      glm::vec3 EulerAngles(0, delta, 0);
-      glm::quat quat_delta(EulerAngles);
-      glm::quat normalized_quat_delta(glm::normalize(quat_delta));
-      glm::quat product = normalized_quat_delta * graphics_info_t::glm_quat;
-      graphics_info_t::glm_quat = glm::normalize(product);
+      std::cout << "Debug idle_function_spin_rock_token " << graphics_info_t::idle_function_spin_rock_token
+                << std::endl;
+      if (graphics_info_t::idle_function_spin_rock_token != -1) {
+         std::cout << "Removing the idle function\n";
+         g_idle_remove_by_data(GINT_TO_POINTER(66)); // just a kludge for the moment
+         graphics_info_t::idle_function_spin_rock_token = -1;
+      } else {
+         int toi = g_timeout_add(5, spin_func, GINT_TO_POINTER(66));
+         graphics_info_t::idle_function_spin_rock_token = toi;
+      }
    }
 
    if (event->keyval == GDK_KEY_minus || event->keyval == GDK_KEY_plus) {
