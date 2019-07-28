@@ -15,6 +15,10 @@ Shader::Shader(const std::string &file_name) {
 }
 
 void Shader::init(const std::string &file_name) {
+   // don't init if we have already been init.
+   // (maybe this is not the best way of dealing with double-reading)
+   if (! VertexSource.empty())
+      return;
    parse(file_name);
    if (! VertexSource.empty()) {
       if (! FragmentSource.empty()) {
@@ -35,13 +39,13 @@ void Shader::init(const std::string &file_name) {
 void
 Shader::set_attribute_locations() {
 
-            glBindAttribLocation(program_id, 0, "model_rotation_matrix_0");
-            glBindAttribLocation(program_id, 1, "model_rotation_matrix_1");
-            glBindAttribLocation(program_id, 2, "model_rotation_matrix_2");
-            glBindAttribLocation(program_id, 3, "position");
-            glBindAttribLocation(program_id, 4, "normal");
-            glBindAttribLocation(program_id, 5, "colour");
-            glBindAttribLocation(program_id, 6, "translate_position");
+   glBindAttribLocation(program_id, 0, "model_rotation_matrix_0");
+   glBindAttribLocation(program_id, 1, "model_rotation_matrix_1");
+   glBindAttribLocation(program_id, 2, "model_rotation_matrix_2");
+   glBindAttribLocation(program_id, 3, "position");
+   glBindAttribLocation(program_id, 4, "normal");
+   glBindAttribLocation(program_id, 5, "colour");
+   glBindAttribLocation(program_id, 6, "translate_position");
 
 }
 
@@ -60,19 +64,21 @@ void Shader::set_uniform_locations() {
 void Shader::parse(const std::string &file_name) {
    std::ifstream f(file_name.c_str());
    if (f) {
+      VertexSource.clear();
+      FragmentSource.clear();
       std::string line;
       ShaderType type(ShaderType::NONE);
       while(std::getline(f, line)) {
          if (line.find("#shader") != std::string::npos) {
             if (line.find("vertex") != std::string::npos)
-            type = ShaderType::VERTEX;
+               type = ShaderType::VERTEX;
             if (line.find("fragment") != std::string::npos)
-            type = ShaderType::FRAGMENT;
+               type = ShaderType::FRAGMENT;
          } else {
             if (type == ShaderType::VERTEX)
-            VertexSource += line + "\n";
+               VertexSource += line + "\n";
             if (type == ShaderType::FRAGMENT)
-            FragmentSource += line + "\n";
+               FragmentSource += line + "\n";
          }
       }
    } else {
