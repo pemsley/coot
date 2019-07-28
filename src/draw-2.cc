@@ -131,10 +131,11 @@ glm::mat4 get_molecule_mvp() {
    GLfloat far  =      -near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.1 + 1.0);
    GLfloat near =  0.30*near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.1 + 1.0);
 
-   std::cout << "near: " << near << " far " << far
-             << " clipping_front " << graphics_info_t::clipping_front
-             << " clipping_back " << graphics_info_t::clipping_back
-             << std::endl;
+   if (false)
+      std::cout << "near: " << near << " far " << far
+                << " clipping_front " << graphics_info_t::clipping_front
+                << " clipping_back " << graphics_info_t::clipping_back
+                << std::endl;
 
    glm::mat4 projection_matrix = glm::ortho(-ortho_size * screen_ratio, ortho_size * screen_ratio,
                                             -ortho_size, ortho_size,
@@ -270,8 +271,10 @@ draw_model_molecules() {
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
       if (! graphics_info_t::is_valid_model_molecule(ii)) continue;
       if (! graphics_info_t::molecules[ii].draw_it) continue;
-      std::cout << "imol " << ii << " n_vertices_for_model_VertexArray "
-                << graphics_info_t::molecules[ii].n_vertices_for_model_VertexArray << std::endl;
+
+      if (false)
+         std::cout << "imol " << ii << " n_vertices_for_model_VertexArray "
+                   << graphics_info_t::molecules[ii].n_vertices_for_model_VertexArray << std::endl;
       if (graphics_info_t::molecules[ii].n_vertices_for_model_VertexArray > 0) {
          // OOps - every model has its own shader - that's a mistake
          GLuint pid = graphics_info_t::molecules[ii].shader.get_program_id();
@@ -292,7 +295,7 @@ draw_model_molecules() {
 
          GLuint mvp_location = graphics_info_t::molecules[ii].shader.mvp_uniform_location;
          GLuint view_rotation_location = graphics_info_t::molecules[ii].shader.view_rotation_uniform_location;
-         std::cout << "  draw_model_molecules() locations " << mvp_location << " " << view_rotation_location << std::endl;
+         // std::cout << "  draw_model_molecules() locations " << mvp_location << " " << view_rotation_location << std::endl;
 
          glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
          err = glGetError();
@@ -309,8 +312,7 @@ draw_model_molecules() {
 
          // draw with the vertex count, not the index count.
          GLuint n_verts = graphics_info_t::molecules[ii].n_indices_for_model_triangles;
-         // n_verts = 6;
-         std::cout << "   Drawing " << n_verts << " model vertices" << std::endl;
+         //std::cout << "   Drawing " << n_verts << " model vertices" << std::endl;
          glDrawElements(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr);
          err = glGetError();
          if (err) std::cout << "   error draw_model_molecules() glDrawElements() "
@@ -510,7 +512,6 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
 
    graphics_info_t g;
    int imol_scroll = graphics_info_t::scroll_wheel_map;
-   imol_scroll = 0;
 
    if (g.is_valid_map_molecule(imol_scroll)) {
       // use direction
