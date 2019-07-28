@@ -814,10 +814,11 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
       int n_colours = n_vertices_for_VertexArray;
       float *colours = new float[4 * n_colours];
+      unsigned int idx_map = 0;
       for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
-         colours[4*i  ] = 0.5f;
-         colours[4*i+1] = 0.7f;
-         colours[4*i+2] = 0.95f;
+         colours[4*i  ] = map_colour[idx_map][0];
+         colours[4*i+1] = map_colour[idx_map][1];
+         colours[4*i+2] = map_colour[idx_map][2];
          colours[4*i+3] = 1.0f;
       }
 
