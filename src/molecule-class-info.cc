@@ -48,6 +48,9 @@
 #include <cmath>
 const double pi = M_PI;
 
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/string_cast.hpp>  // to_string()
+
 #include <string.h> // strcmp
 
 #include <mmdb2/mmdb_manager.h>
@@ -3750,7 +3753,7 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       err = glGetError(); if (err) std::cout << "GL error bonds 17\n";
 
 
-      // Inidices
+      // Indices
       glGenBuffers(1, &m_IndexBuffer_for_model_ID);
       err = glGetError(); if (err) std::cout << "GL error bonds 18\n";
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_model_ID);
@@ -3765,10 +3768,6 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
 
    }
 }
-
-// put at the top
-#include <glm/gtx/rotate_vector.hpp>
-#include <glm/gtx/string_cast.hpp>  // to_string()
 
 // Make triangles for a cylinder along the z axis
 //

@@ -425,7 +425,7 @@ draw_central_cube(GtkGLArea *glarea) {
 GtkWidget *my_gtkglarea(GtkWidget *vbox) {
 
    GtkWidget *w = gtk_gl_area_new();
-   gtk_widget_set_size_request(w, 700, 700);
+   gtk_widget_set_size_request(w, 900, 900);
    gtk_box_pack_start(GTK_BOX(vbox), w, TRUE, TRUE, 2);
    return w;
 }
@@ -661,6 +661,7 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
 
    std::cout << "on_glarea_key_press_notify() " << std::endl;
    graphics_info_t g;
+   gboolean handled = false;
 
    if (event->keyval == GDK_KEY_n) {
       std::cout << "Zoom in " << std::endl;
@@ -669,6 +670,20 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
    if (event->keyval == GDK_KEY_m) {
       std::cout << "Zoom out " << std::endl;
       graphics_info_t::zoom *= 1.1;
+   }
+
+   // think about the more generic adjust_clipping()
+   if (event->keyval == GDK_KEY_d) {
+      float clipping_max = 15.0; // max orth box "Z"
+      if (graphics_info_t::clipping_front < 15.0) {
+         graphics_info_t::clipping_back  += 0.4;
+         graphics_info_t::clipping_front += 0.4;
+      }
+   }
+
+   if (event->keyval == GDK_KEY_f) {
+         graphics_info_t::clipping_front -= 0.4;
+         graphics_info_t::clipping_front -= 0.4;
    }
 
    if (event->keyval == GDK_KEY_i) {
@@ -695,7 +710,7 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
 
    gtk_widget_queue_draw(widget);
 
-   return TRUE;
+   return handled;
 
 }
 

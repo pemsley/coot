@@ -3015,6 +3015,7 @@ public:        //                      public
    void draw_solid_density_surface(bool do_flat_shading);
    void set_draw_solid_density_surface(bool state);
    void setup_glsl_map_rendering();
+   std::vector<generic_vertex> make_generic_vertices_for_atoms() const;
    GLuint m_VertexArrayID;
    GLuint n_vertices_for_VertexArray;
    GLuint n_indices_for_triangles;
