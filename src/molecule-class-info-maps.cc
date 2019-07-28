@@ -829,14 +829,14 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       // why is this needed?
       gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glarea));
 
-      glGenVertexArrays(1, &m_VertexArrayID);
+      glGenVertexArrays(1, &m_VertexArrayID_for_map);
       GLenum err = glGetError();
       std::cout << "setup_glsl_map_rendering() glGenVertexArrays() " << err
-		          << " for m_VertexArrayID " << m_VertexArrayID << std::endl;
-      glBindVertexArray(m_VertexArrayID);
+		          << " for m_VertexArrayID " << m_VertexArrayID_for_map << std::endl;
+      glBindVertexArray(m_VertexArrayID_for_map);
       err = glGetError();
       std::cout << "setup_glsl_map_rendering() glBindVertexArray() " << err
-                << " for m_VertexArrayID " << m_VertexArrayID << std::endl;
+                << " for m_VertexArrayID " << m_VertexArrayID_for_map << std::endl;
 
       // positions
       glGenBuffers(1, &m_VertexBufferID);
@@ -918,13 +918,6 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 		             &indices_for_triangles[0], GL_STATIC_DRAW);
       err = glGetError();
       std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
-
-      // test
-
-      glBindVertexArray(m_VertexArrayID);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() again try glBindVertexArray() " << err
-		<< " for m_VertexArrayID " << m_VertexArrayID << std::endl;
 
       delete [] points;
       delete [] indices;

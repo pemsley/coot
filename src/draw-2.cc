@@ -68,7 +68,7 @@ void init_shaders() {
    err = glGetError();
    std::cout << "init_shaders() CreateShader() returned " << programID << " with err "
              << err << std::endl;
-   programID_global = programID;
+   graphics_info_t::programID_for_maps = programID;
    std::cout << "----------- created shader program " << programID << " for " << shader_file_name
        << std::endl;
 
@@ -168,9 +168,9 @@ glm::mat4 get_molecule_mvp() {
    glm::vec3 sc(z,z,z);
    float ortho_size = 90.0;
 
-   GLfloat near_scale = 0.2;  /// from provious draw code
-   GLfloat near = -near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.1 + 1.0);
-   GLfloat far  =        0.30*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.1 + 1.0);
+   GLfloat near_scale = 2.6;  /// from provious draw code
+   GLfloat near =      -near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.1 + 1.0);
+   GLfloat far  =  0.30*near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.1 + 1.0);
 
    glm::mat4 projection_matrix = glm::ortho(-ortho_size * screen_ratio, ortho_size * screen_ratio,
                                             -ortho_size, ortho_size,
@@ -210,7 +210,7 @@ void draw_map_molecules() {
    GLenum err = glGetError();
    if (err) std::cout << "gtk3_draw_molecules() glLineWidth " << err << std::endl;
 
-   glUseProgram(programID_global);
+   glUseProgram(graphics_info_t::programID_for_maps);
    err = glGetError();
    if (err) std::cout << "   gtk3_draw_molecules() glUseProgram with GL err "
                       << err << std::endl;
@@ -227,12 +227,12 @@ void draw_map_molecules() {
       if (! graphics_info_t::molecules[ii].draw_it_for_map) continue;
       if (graphics_info_t::molecules[ii].n_vertices_for_VertexArray > 0) {
 
-         bool draw_with_lines = true;
+         bool draw_with_lines = false;
          if (draw_with_lines) {
-            glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID);
+            glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID_for_map);
             err = glGetError();
             if (err) std::cout << "   draw_map_molecules() glBindVertexArray() "
-                               << graphics_info_t::molecules[ii].m_VertexArrayID
+                               << graphics_info_t::molecules[ii].m_VertexArrayID_for_map
                                << " with GL err " << err << std::endl;
 
             glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
@@ -256,14 +256,14 @@ void draw_map_molecules() {
             if (true)
                std::cout << "   draw_map_molecules(): imol " << ii
                          << " array_id and n_vertices_for_VertexArray: "
-                         << graphics_info_t::molecules[ii].m_VertexArrayID << " "
+                         << graphics_info_t::molecules[ii].m_VertexArrayID_for_map << " "
                          << graphics_info_t::molecules[ii].n_indices_for_triangles
                          << std::endl;
 
-            glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID);
+            glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID_for_map);
             err = glGetError();
             if (err) std::cout << "   draw_map_molecules() glBindVertexArray() "
-                               << graphics_info_t::molecules[ii].m_VertexArrayID
+                               << graphics_info_t::molecules[ii].m_VertexArrayID_for_map
                                << " with GL err " << err << std::endl;
 
             glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
@@ -674,16 +674,11 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
 
    // think about the more generic adjust_clipping()
    if (event->keyval == GDK_KEY_d) {
-      float clipping_max = 15.0; // max orth box "Z"
-      if (graphics_info_t::clipping_front < 15.0) {
-         graphics_info_t::clipping_back  += 0.4;
-         graphics_info_t::clipping_front += 0.4;
-      }
+      adjust_clipping(1.0);
    }
 
    if (event->keyval == GDK_KEY_f) {
-         graphics_info_t::clipping_front -= 0.4;
-         graphics_info_t::clipping_front -= 0.4;
+      adjust_clipping(-1.0);
    }
 
    if (event->keyval == GDK_KEY_i) {

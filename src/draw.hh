@@ -25,8 +25,8 @@ struct shader_program_source {
 shader_program_source parse_shader(const std::string &file_name);
 unsigned int CreateShader(const std::string &vertex_shader, const std::string &fragment_shader);
 
-static int programID_global;
-static GLuint VertexArrayID;
+// static int programID_global;
+// static GLuint VertexArrayID;
 // static GLuint molecules_imol_VertexArrayID[10];
 // static int location_global;
 

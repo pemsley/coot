@@ -319,17 +319,17 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       bool do_flat_shading = graphics_info_t::do_flat_shading_for_solid_density_surface;
       // do_flat_shading = false; // turn off
       if (do_flat_shading) {
-	 glUseProgram(programID_global);
+	 // glUseProgram(programID_global);
 
 	 glLineWidth(graphics_info_t::map_line_width);
 	 for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
 	    if (graphics_info_t::molecules[ii].n_vertices_for_VertexArray > 0) {
 	       if (false)
 		  std::cout << "GLSL for imol " << ii << " binding "
-			    << graphics_info_t::molecules[ii].m_VertexArrayID << " "
+			    << graphics_info_t::molecules[ii].m_VertexArrayID_for_map << " "
 			    << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
 			    << std::endl;
-	       glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID);
+	       glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID_for_map);
 	       glDrawElements(GL_LINES, graphics_info_t::molecules[ii].n_vertices_for_VertexArray,
 			      GL_UNSIGNED_INT, nullptr);
 	       glBindVertexArray(0); // unbind
@@ -988,62 +988,11 @@ unsigned int CreateShader(const std::string &vertex_shader, const std::string &f
 }
 
 void setup_for_single_triangle() {
-
-
-   std::cout << "---------- setup for single triangle: " << glGetString(GL_VERSION) << std::endl;
-
-   {
-      float positions[12] = {
-	 -0.5,  -0.5, -0.0,
-   	 -0.5,   0.5, -0.0,
-  	  0.5,   0.5, -0.0,
-	  0.5,  -0.5, -0.0
-      };
-
-      unsigned int indices[8] { 0,1,1,2,2,3,3,0 };
-
-      // GLuint VertexArrayID;
-      glGenVertexArrays(1, &VertexArrayID);
-      glBindVertexArray(VertexArrayID);
-
-      GLuint vertexbuffer;
-      glGenBuffers(1, &vertexbuffer);
-      glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-      glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, &positions[0], GL_STATIC_DRAW);
-      glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-      unsigned int ibo;
-      glGenBuffers(1, &ibo);
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 8, &indices[0], GL_STATIC_DRAW);
-
-      std::cout << "----------- parse and create shader " << std::endl;
-      shader_program_source sps = parse_shader("Basic.shader");
-      unsigned int programID = CreateShader(sps.VertexSource, sps.FragmentSource);
-      programID_global = programID;
-      std::cout << "----------- created shader program " << programID << std::endl;
-
-      glBindAttribLocation(programID, 0, "position");
-
-      // int ul = glGetUniformLocation(programID, "u_Color");
-      // std::cout << "Got glGetUniformLocation for u_Color " << ul << std::endl;
-      // location_global = ul;
-
-   }
+   // delete this
 }
 
 void draw_single_triangle() {
-
-#ifdef GRAPHICS_TESTING
-
-   glBindVertexArray(VertexArrayID);
-   glUseProgram(programID_global);
-   glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, nullptr);
-   glBindVertexArray(0); // unbind
-   glUseProgram(0);
-
-#endif // GRAPHICS_TESTING
+   // delete this
 }
 
 /* Basic.shader

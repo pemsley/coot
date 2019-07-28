@@ -1433,6 +1433,7 @@ GLuint graphics_info_t::programID_for_central_cube = 0;
 GLuint graphics_info_t::central_cube_vertexarray_id = 0;
 GLuint graphics_info_t::central_cube_array_buffer_id = 0;
 GLuint graphics_info_t::central_cube_index_buffer_id = 0;
+GLuint graphics_info_t::programID_for_maps = 0;
 // --------------------------------------------------------------------------------------------
 
 
@@ -2616,13 +2617,13 @@ adjust_clipping(double d) {
 
    if (d>0) {
       if (graphics_info_t::clipping_back < 15.0) {
-	 set_clipping_front(graphics_info_t::clipping_front + d);
-	 set_clipping_back (graphics_info_t::clipping_front + d);
+         set_clipping_front(graphics_info_t::clipping_front + d);
+         set_clipping_back (graphics_info_t::clipping_front + d);
       }
    } else {
       if (graphics_info_t::clipping_back > -15.2) {
-	 set_clipping_front(graphics_info_t::clipping_front + d);
-	 set_clipping_back (graphics_info_t::clipping_front + d);
+         set_clipping_front(graphics_info_t::clipping_front + d);
+         set_clipping_back (graphics_info_t::clipping_front + d);
       }
    }
 }

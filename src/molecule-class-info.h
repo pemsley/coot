@@ -823,7 +823,7 @@ public:        //                      public
       n_vertices_for_model_VertexArray = 0;
       n_indices_for_triangles = 0;
       // Assigning to GLuint. Hmm
-      m_VertexArrayID  = -1;
+      m_VertexArrayID_for_map  = -1;
       m_VertexBufferID = -1;
       m_IndexBufferID  = -1;
       m_ColourBufferID = -1;
@@ -3016,7 +3016,9 @@ public:        //                      public
    void set_draw_solid_density_surface(bool state);
    void setup_glsl_map_rendering();
    std::vector<generic_vertex> make_generic_vertices_for_atoms() const;
-   GLuint m_VertexArrayID;
+
+   GLuint m_VertexArrayID_for_map;
+
    GLuint n_vertices_for_VertexArray;
    GLuint n_indices_for_triangles;
    GLuint m_VertexBufferID;
