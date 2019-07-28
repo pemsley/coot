@@ -854,7 +854,7 @@ public:        //                      public
 
       // solid surface density representation
       //
-      draw_it_for_solid_density_surface = 0;
+      // draw_it_for_solid_density_surface = 0;
       density_surface_opacity = 0.5;
 
       // animated ligand interaction representation
@@ -3007,7 +3007,7 @@ public:        //                      public
    void clear_extra_restraints();
 
    // --------- (transparent) solid rendering of density ------------------
-   bool draw_it_for_solid_density_surface;
+   // bool draw_it_for_solid_density_surface;  // everything is "solid" now (calculate normals)
    coot::density_contour_triangles_container_t tri_con;
    coot::density_contour_triangles_container_t tri_con_diff_map_neg; // negative contour
    void display_solid_surface_triangles(const coot::density_contour_triangles_container_t &tri_con,

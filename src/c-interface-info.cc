@@ -1,5 +1,5 @@
 /* src/c-interface.cc
- * 
+ *
  * Copyright 2002, 2003, 2004, 2005, 2006 The University of York
  * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
@@ -9,17 +9,17 @@
  * Copyright 2007, 2008 by Bernhard Lohkamp
  * Copyright 2007, 2008 The University of York
  * Copyright 2012, 2013, 2015, 2016 by Medical Research Council
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -51,7 +51,7 @@
 #include <windows.h>
 #define snprintf _snprintf
 #endif
- 
+
 #include "globjects.h" //includes gtk/gtk.h
 
 #include "callbacks.h"
@@ -92,8 +92,8 @@
 //
 #ifdef USE_PYTHON
 #include "Python.h"
-#if (PY_MINOR_VERSION > 4) 
-// no fixup needed 
+#if (PY_MINOR_VERSION > 4)
+// no fixup needed
 #else
 #define Py_ssize_t int
 #endif
@@ -115,7 +115,7 @@ SCM coot_has_python_p() {
    SCM r = SCM_BOOL_F;
 #ifdef USE_PYTHON
    r = SCM_BOOL_T;
-#endif    
+#endif
    return r;
 }
 #endif
@@ -132,7 +132,7 @@ PyObject *coot_has_guile() {
 #endif
 
 bool coot_can_do_lidia_p() {
-   
+
    bool r = false;
 
 #ifdef HAVE_GOOCANVAS
@@ -140,9 +140,9 @@ bool coot_can_do_lidia_p() {
    r = true;
 #endif
 #endif
-   
+
    return r;
-   
+
 }
 
 
@@ -156,7 +156,7 @@ float molecule_centre_internal(int imol, int iaxis) {
    float fstat = -10000;
 
    if (is_valid_model_molecule(imol)) {
-      if (iaxis >=0 && iaxis <=2) { 
+      if (iaxis >=0 && iaxis <=2) {
 	 coot::Cartesian c =
 	    centre_of_molecule(graphics_info_t::molecules[imol].atom_sel);
 	 if (iaxis == 0)
@@ -196,24 +196,24 @@ void do_residue_info_dialog() {
       s += "Deal with them first.";
       GtkWidget *w = wrapped_nothing_bad_dialog(s);
       gtk_widget_show(w);
-   } else { 
+   } else {
       std::cout << "Click on an atom..." << std::endl;
       graphics_info_t g;
       g.in_residue_info_define = 1;
       pick_cursor_maybe();
       graphics_info_t::pick_pending_flag = 1;
    }
-} 
+}
 
 #ifdef USE_GUILE
 SCM sequence_info(int imol) {
 
    SCM r = SCM_BOOL_F;
 
-   if (is_valid_model_molecule(imol)) { 
+   if (is_valid_model_molecule(imol)) {
       std::vector<std::pair<std::string, std::string> > seq =
 	 graphics_info_t::molecules[imol].sequence_info();
-      
+
       if (seq.size() > 0) {
 	 r = SCM_EOL;
 	 // unsigned int does't work here because then the termination
@@ -230,7 +230,7 @@ SCM sequence_info(int imol) {
       }
    }
    return r;
-} 
+}
 #endif // USE_GUILE
 
 
@@ -239,8 +239,8 @@ PyObject *sequence_info_py(int imol) {
 
    PyObject *r = Py_False;
 
-   if (is_valid_model_molecule(imol)) { 
-      
+   if (is_valid_model_molecule(imol)) {
+
       std::vector<std::pair<std::string, std::string> > seq =
 	 graphics_info_t::molecules[imol].sequence_info();
 
@@ -269,16 +269,16 @@ PyObject *sequence_info_py(int imol) {
       Py_INCREF(r);
    }
    return r;
-} 
+}
 #endif // USE_PYTHON
 
 
 // Called from a graphics-info-defines routine, would you believe? :)
 //
-// This should be a graphics_info_t function. 
+// This should be a graphics_info_t function.
 //
 // The reader is graphics_info_t::apply_residue_info_changes(GtkWidget *dialog);
-// 
+//
 void output_residue_info_dialog(int imol, int atom_index) {
 
    if (graphics_info_t::residue_info_edits->size() > 0) {
@@ -288,11 +288,11 @@ void output_residue_info_dialog(int imol, int atom_index) {
       GtkWidget *w = wrapped_nothing_bad_dialog(s);
       gtk_widget_show(w);
 
-   } else { 
+   } else {
 
       if (imol <graphics_info_t::n_molecules()) {
 	 if (graphics_info_t::molecules[imol].has_model()) {
-	    if (atom_index < graphics_info_t::molecules[imol].atom_sel.n_selected_atoms) { 
+	    if (atom_index < graphics_info_t::molecules[imol].atom_sel.n_selected_atoms) {
 
 	       graphics_info_t g;
 	       output_residue_info_as_text(atom_index, imol);
@@ -303,15 +303,15 @@ void output_residue_info_dialog(int imol, int atom_index) {
 	       selected_atom->residue->GetAtomTable(atoms,n_atoms);
 	       GtkWidget *widget = wrapped_create_residue_info_dialog();
 
-	       mmdb::Residue *residue = selected_atom->residue; 
+	       mmdb::Residue *residue = selected_atom->residue;
 	       coot::residue_spec_t *res_spec_p =
 		  new coot::residue_spec_t(residue->GetChainID(),
 					   residue->GetSeqNum(),
 					   residue->GetInsCode());
-	       
+
 	       // fill the master atom
 	       GtkWidget *master_occ_entry =
-		  lookup_widget(widget, "residue_info_master_atom_occ_entry"); 
+		  lookup_widget(widget, "residue_info_master_atom_occ_entry");
 	       GtkWidget *master_b_factor_entry =
 		  lookup_widget(widget, "residue_info_master_atom_b_factor_entry");
 
@@ -327,7 +327,7 @@ void output_residue_info_dialog(int imol, int atom_index) {
 	       gtk_entry_set_text(GTK_ENTRY(master_occ_entry), "1.00");
 	       gtk_entry_set_text(GTK_ENTRY(master_b_factor_entry),
 				  graphics_info_t::float_to_string(graphics_info_t::default_new_atoms_b_factor).c_str());
-					   
+
 	       g_object_set_data(G_OBJECT(widget), "res_spec_p",  res_spec_p);
 	       g.fill_output_residue_info_widget(widget, imol, residue_name, atoms, n_atoms);
 	       gtk_widget_show(widget);
@@ -355,7 +355,7 @@ void output_residue_info_dialog(int imol, int atom_index) {
 			      text += " alt conf: ";
 			      text += chis[i_chi_set].alt_conf;
 			      text += " ";
-			   } 
+			   }
 			   text += coot::util::float_to_string(chis[i_chi_set].chi_angles[ich].second);
 			   text += " degrees";
 			   gtk_label_set_text(GTK_LABEL(label), text.c_str());
@@ -383,7 +383,7 @@ void output_residue_info_dialog(int imol, int atom_index) {
 
 void
 residue_info_dialog(int imol, const char *chain_id, int resno, const char *ins_code) {
-   
+
    if (is_valid_model_molecule(imol)) {
       int atom_index = -1;
       mmdb::Residue *res = graphics_info_t::molecules[imol].residue_from_external(resno, ins_code, chain_id);
@@ -394,8 +394,8 @@ residue_info_dialog(int imol, const char *chain_id, int resno, const char *ins_c
 	 mmdb::Atom *at = residue_atoms[0];
 	 int handle = graphics_info_t::molecules[imol].atom_sel.UDDAtomIndexHandle;
 	 int ierr = at->GetUDData(handle, atom_index);
-	 if (ierr == mmdb::UDDATA_Ok) { 
-	    if (atom_index != -1) { 
+	 if (ierr == mmdb::UDDATA_Ok) {
+	    if (atom_index != -1) {
 	       output_residue_info_dialog(imol, atom_index);
 	    }
 	 }
@@ -422,20 +422,20 @@ residue_info_dialog(int imol, const char *chain_id, int resno, const char *ins_c
 // class shall be called select_atom_info, it shall contain the
 // molecule number, the chain id, the residue number, the insertion
 // code, the atom name, the atom altconf.
-// 
+//
 
 
-void output_residue_info_as_text(int atom_index, int imol) { 
-   
+void output_residue_info_as_text(int atom_index, int imol) {
+
    // It would be cool to flash the residue here.
    // (heh - it is).
-   // 
+   //
    graphics_info_t g;
    mmdb::Atom *picked_atom = g.molecules[imol].atom_sel.atom_selection[atom_index];
 
-   if (picked_atom) { 
-   
-      g.flash_selection(imol, 
+   if (picked_atom) {
+
+      g.flash_selection(imol,
 			picked_atom->residue->seqNum,
 			picked_atom->GetInsCode(),
 			picked_atom->residue->seqNum,
@@ -446,14 +446,14 @@ void output_residue_info_as_text(int atom_index, int imol) {
       mmdb::PAtom *atoms = NULL;
       int n_atoms = 0;
       mmdb::Residue *residue_p = picked_atom->residue;
-      if (residue_p) { 
+      if (residue_p) {
          residue_p->GetAtomTable(atoms,n_atoms);
-         if (atoms) { 
-            for (int i=0; i<n_atoms; i++) { 
+         if (atoms) {
+            for (int i=0; i<n_atoms; i++) {
                mmdb::Atom *at = atoms[i];
-               if (at) { 
+               if (at) {
 	          std::string segid = atoms[i]->segID;
-	          std::cout << "(" << imol << ") \"" 
+	          std::cout << "(" << imol << ") \""
 		            << at->name << "\"/"
 		            << at->GetModelNum()
 		            << "/\""
@@ -462,16 +462,16 @@ void output_residue_info_as_text(int atom_index, int imol) {
 		            << at->GetResName()
 		            << "\", \""
 		            << segid
-		            << "\" occ: " 
-		            << at->occupancy 
+		            << "\" occ: "
+		            << at->occupancy
 		            << " with B-factor: "
 		            << at->tempFactor
 		            << " element: \""
 		            << at->element
 		            << "\""
 		            << " at " << "("
-		            << at->x << "," 
-                            << at->y << "," 
+		            << at->x << ","
+                            << at->y << ","
 		            << at->z << ")" << std::endl;
                }
             }
@@ -480,7 +480,7 @@ void output_residue_info_as_text(int atom_index, int imol) {
 
       // chi angles:
       coot::primitive_chi_angles chi_angles(picked_atom->residue);
-      try { 
+      try {
 	 std::vector<coot::alt_confed_chi_angles> chis = chi_angles.get_chi_angles();
 	 if (chis.size() > 0) {
 	    unsigned int i_chi_set = 0;
@@ -496,7 +496,7 @@ void output_residue_info_as_text(int atom_index, int imol) {
       }
       catch (const std::runtime_error &mess) {
 	 std::cout << mess.what() << std::endl;
-      } 
+      }
 
    }
    std::string cmd = "output-residue-info-as-text";
@@ -507,7 +507,7 @@ void output_residue_info_as_text(int atom_index, int imol) {
 }
 
 // Actually I want to return a scheme object with occ, pos, b-factor info
-// 
+//
 void
 output_atom_info_as_text(int imol, const char *chain_id, int resno,
 			 const char *inscode, const char *atname,
@@ -520,26 +520,26 @@ output_atom_info_as_text(int imol, const char *chain_id, int resno,
 							std::string(inscode),
 							std::string(atname),
 							std::string(altconf));
-      
+
       mmdb::Atom *atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[index];
-      std::cout << "(" << imol << ") " 
+      std::cout << "(" << imol << ") "
 		<< atom->name << "/"
 		<< atom->GetModelNum()
 		<< "/"
 		<< atom->GetChainID()  << "/"
 		<< atom->GetSeqNum()   << "/"
 		<< atom->GetResName()
-		<< ", occ: " 
-		<< atom->occupancy 
+		<< ", occ: "
+		<< atom->occupancy
 		<< " with B-factor: "
 		<< atom->tempFactor
 		<< " element: \""
 		<< atom->element
 		<< "\""
 		<< " at " << "("
-		<< atom->x << "," << atom->y << "," 
+		<< atom->x << "," << atom->y << ","
 		<< atom->z << ")" << std::endl;
-      try { 
+      try {
 	 // chi angles:
 	 coot::primitive_chi_angles chi_angles(atom->residue);
 	 std::vector<coot::alt_confed_chi_angles> chis = chi_angles.get_chi_angles();
@@ -576,8 +576,8 @@ std::string atom_info_as_text_for_statusbar(int atom_index, int imol) {
   std::string ai;
   ai = "";
   if (is_valid_model_molecule(imol)) {
-     if (atom_index >= 0) { 
-	if (atom_index < graphics_info_t::molecules[imol].atom_sel.n_selected_atoms) { 
+     if (atom_index >= 0) {
+	if (atom_index < graphics_info_t::molecules[imol].atom_sel.n_selected_atoms) {
 	   mmdb::Atom *at =
 	      graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
 	   std::string alt_conf_bit("");
@@ -619,12 +619,12 @@ std::string atom_info_as_text_for_statusbar(int atom_index, int imol) {
 
 
 std::string
-atom_info_as_text_for_statusbar(int atom_index, int imol, 
+atom_info_as_text_for_statusbar(int atom_index, int imol,
                                 const std::pair<symm_trans_t, Cell_Translation> &sts) {
 
   std::string ai;
   ai = "";
-  if (is_valid_model_molecule(imol)) {      
+  if (is_valid_model_molecule(imol)) {
     mmdb::Atom *at = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
     std::string alt_conf_bit("");
     if (strncmp(at->altLoc, "", 1))
@@ -668,13 +668,13 @@ atom_info_as_text_for_statusbar(int atom_index, int imol,
 
 
 #ifdef USE_GUILE
-// (list occ temp-factor element x y z) or #f 
+// (list occ temp-factor element x y z) or #f
 SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
 			 const char *ins_code, const char *atname,
 			 const char *altconf) {
 
    SCM r = SCM_BOOL_F;
-   
+
    if (is_valid_model_molecule(imol)) {
       int index =
 	 graphics_info_t::molecules[imol].full_atom_spec_to_atom_index(std::string(chain_id),
@@ -682,7 +682,7 @@ SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
 								       std::string(ins_code),
 								       std::string(atname),
 								       std::string(altconf));
-      if (index > -1) { 
+      if (index > -1) {
 	 mmdb::Atom *atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[index];
 
 	 r = SCM_EOL;
@@ -720,7 +720,7 @@ PyObject *atom_info_string_py(int imol, const char *chain_id, int resno,
 			      const char *altconf) {
 
    PyObject *r = Py_False;
-   
+
    if (is_valid_model_molecule(imol)) {
       int index =
          graphics_info_t::molecules[imol].full_atom_spec_to_atom_index(std::string(chain_id),
@@ -728,7 +728,7 @@ PyObject *atom_info_string_py(int imol, const char *chain_id, int resno,
                                                                        std::string(ins_code),
                                                                        std::string(atname),
                                                                        std::string(altconf));
-      if (index > -1) { 
+      if (index > -1) {
          mmdb::Atom *atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[index];
 
 	 r = PyList_New(6);
@@ -844,7 +844,7 @@ SCM py_to_scm(PyObject *o) {
 		  if (o == Py_None) {
 		     s = SCM_UNSPECIFIED;
 		  }
-	       } 
+	       }
 	    }
 	 }
       }
@@ -858,7 +858,7 @@ SCM py_to_scm(PyObject *o) {
 // Return residue specs for residues that have atoms that are
 // closer than radius Angstroems to any atom in the residue
 // specified by res_in.
-// 
+//
 #ifdef USE_GUILE
 SCM residues_near_residue(int imol, SCM residue_in, float radius) {
 
@@ -880,7 +880,7 @@ SCM residues_near_residue(int imol, SCM residue_in, float radius) {
 	 res_spec = scm_cons(scm_makfrom0str(v[i].chain_id.c_str()), res_spec);
 	 r = scm_cons(res_spec, r);
       }
-   } 
+   }
    return r;
 }
 #endif // USE_GUILE
@@ -1005,7 +1005,7 @@ PyObject *residues_near_residues_py(int imol, PyObject *residues_in, float radiu
 // specified by res_in.
 //
 // This will return a list of residue specifiers as triples
-// 
+//
 #ifdef USE_PYTHON
 PyObject *residues_near_residue_py(int imol, PyObject *residue_spec_in, float radius) {
 
@@ -1015,8 +1015,8 @@ PyObject *residues_near_residue_py(int imol, PyObject *residue_spec_in, float ra
 	 std::pair<bool, coot::residue_spec_t> rspec =
 	    make_residue_spec_py(residue_spec_in);
 
-	 if (rspec.first) { 
-	 
+	 if (rspec.first) {
+
 	    std::vector<coot::residue_spec_t> v =
 	       graphics_info_t::molecules[imol].residues_near_residue(rspec.second, radius);
 	    for (unsigned int i=0; i<v.size(); i++) {
@@ -1033,7 +1033,7 @@ PyObject *residues_near_residue_py(int imol, PyObject *residue_spec_in, float ra
 	 std::cout << "ERROR:: residues_near_residue_py() res_spec_in not a list"
 		   << std::endl;
       }
-   } 
+   }
    return r;
 }
 #endif // USE_PYTHON
@@ -1057,7 +1057,7 @@ SCM residues_near_position_scm(int imol, SCM pt_in_scm, float radius) {
 	 double z = scm_to_double(scm_list_ref(pt_in_scm, SCM_MAKINUM(2)));
 
 	 clipper::Coord_orth pt(x,y,z);
-	 
+
 	 mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
 	 std::vector<mmdb::Residue *> v = coot::residues_near_position(pt, mol, radius);
 	 for (unsigned int i=0; i<v.size(); i++) {
@@ -1067,8 +1067,8 @@ SCM residues_near_position_scm(int imol, SCM pt_in_scm, float radius) {
       }
    }
    return r;
-} 
-#endif 
+}
+#endif
 
 #ifdef USE_PYTHON
 PyObject *residues_near_position_py(int imol, PyObject *pt_in_py, float radius) {
@@ -1088,7 +1088,7 @@ PyObject *residues_near_position_py(int imol, PyObject *pt_in_py, float radius) 
 	double z = PyFloat_AsDouble(PyList_GetItem(pt_in_py, 2));
 
 	clipper::Coord_orth pt(x,y,z);
-	 
+
 	mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
 	std::vector<mmdb::Residue *> v = coot::residues_near_position(pt, mol, radius);
 	for (unsigned int i=0; i<v.size(); i++) {
@@ -1099,10 +1099,10 @@ PyObject *residues_near_position_py(int imol, PyObject *pt_in_py, float radius) 
       }
    }
    return r;
-} 
+}
 #endif
 
-//! find the active residue, find the near residues (within radius) 
+//! find the active residue, find the near residues (within radius)
 //! create a new molecule, run reduce on that, import hydrogens from
 //! the result and apply them to the molecule of the active residue.
 void hydrogenate_region(float radius) {
@@ -1123,15 +1123,15 @@ void hydrogenate_region(float radius) {
 	 coot::util::create_directory("coot-molprobity"); // exists already maybe? Handled.
 
 	 std::string name_part = graphics_info_t::molecules[imol].Refmac_name_stub() + ".pdb";
-	 
+
 	 std::string pdb_in_file_name  = "hydrogenate-region-in-"  + name_part;
 	 std::string pdb_out_file_name = "hydrogenate-region-out-" + name_part;
-	 
+
 	 std::string pdb_in =  coot::util::append_dir_file("coot-molprobity", pdb_in_file_name);
 	 std::string pdb_out = coot::util::append_dir_file("coot-molprobity", pdb_out_file_name);
-	 
+
 	 new_mol->WritePDBASCII(pdb_in.c_str());
-	 
+
 	 if (graphics_info_t::prefer_python) {
 #ifdef USE_PYTHON
 
@@ -1166,19 +1166,19 @@ void hydrogenate_region(float radius) {
 	    scheme_command += " ";
 	    scheme_command += single_quote(pdb_out);
 	    scheme_command += ")";
-	    
+
 	    SCM r = safe_scheme_command(scheme_command);
 	    if (scm_is_true(r)) {
 	       graphics_info_t::molecules[imol].add_hydrogens_from_file(pdb_out);
 	    }
-#endif 	 
+#endif
 	 }
 
 	 graphics_draw();
 	 delete new_mol;
-	 
-      } 
-   } 
+
+      }
+   }
 }
 
 
@@ -1251,14 +1251,14 @@ coot::residue_spec_t residue_spec_from_py(PyObject *residue_in) {
 //    (list (list atom-name alt-conf)
 //          (list occ temp-fact element)
 //          (list x y z)))
-// 
+//
 SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code) {
 
   SCM r = SCM_BOOL_F;
   if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int imod = 1;
-      
+
       mmdb::Model *model_p = mol->GetModel(imod);
       mmdb::Chain *chain_p;
       // run over chains of the existing mol
@@ -1266,15 +1266,15 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 std::string chain_id_mol(chain_p->GetChainID());
-	 if (chain_id_mol == std::string(chain_id)) { 
+	 if (chain_id_mol == std::string(chain_id)) {
 	    int nres = chain_p->GetNumberOfResidues();
 	    mmdb::PResidue residue_p;
 	    mmdb::Atom *at;
 
-	    for (int ires=0; ires<nres; ires++) { 
+	    for (int ires=0; ires<nres; ires++) {
 	       residue_p = chain_p->GetResidue(ires);
 	       std::string res_ins_code(residue_p->GetInsCode());
-	       if (residue_p->GetSeqNum() == resno) { 
+	       if (residue_p->GetSeqNum() == resno) {
 		  if (res_ins_code == std::string(ins_code)) {
 		     int n_atoms = residue_p->GetNumberOfAtoms();
 		     SCM at_info = SCM_BOOL(0);
@@ -1286,7 +1286,7 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 		     for (int iat=0; iat<n_atoms; iat++) {
 			at = residue_p->GetAtom(iat);
                         if (at->Ter) continue; //ignore TER records
-                        
+
 			at_x  = scm_float2num(at->x);
 			at_y  = scm_float2num(at->y);
 			at_z  = scm_float2num(at->z);
@@ -1334,7 +1334,7 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int udd_handle     = graphics_info_t::molecules[imol].atom_sel.UDDAtomIndexHandle;
       int imod = 1;
-      
+
       mmdb::Model *model_p = mol->GetModel(imod);
       mmdb::Chain *chain_p;
       // run over chains of the existing mol
@@ -1342,17 +1342,17 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
       for (int ichain=0; ichain<nchains; ichain++) {
          chain_p = model_p->GetChain(ichain);
          std::string chain_id_mol(chain_p->GetChainID());
-         if (chain_id_mol == std::string(chain_id)) { 
+         if (chain_id_mol == std::string(chain_id)) {
             int nres = chain_p->GetNumberOfResidues();
             mmdb::PResidue residue_p;
             mmdb::Atom *at;
 
             // why use this bizarre contrivance to get a null list for
             // starting? I must be missing something.
-            for (int ires=0; ires<nres; ires++) { 
+            for (int ires=0; ires<nres; ires++) {
                residue_p = chain_p->GetResidue(ires);
                std::string res_ins_code(residue_p->GetInsCode());
-               if (residue_p->GetSeqNum() == resno) { 
+               if (residue_p->GetSeqNum() == resno) {
                   if (res_ins_code == std::string(ins_code)) {
                      int n_atoms = residue_p->GetNumberOfAtoms();
 		     PyObject *at_info = Py_False;
@@ -1521,9 +1521,9 @@ SCM chain_fragments_scm(int imol, short int screen_output_also) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       std::vector<coot::fragment_info_t> f = g.molecules[imol].get_fragment_info(screen_output_also);
-   } 
+   }
    return r;
-} 
+}
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
@@ -1533,7 +1533,7 @@ PyObject *chain_fragments_py(int imol, short int screen_output_also) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       std::vector<coot::fragment_info_t> f = g.molecules[imol].get_fragment_info(screen_output_also);
-   } 
+   }
 
    if (PyBool_Check(r)) {
       Py_INCREF(r);
@@ -1564,7 +1564,7 @@ SCM goto_next_atom_maybe_scm(const char *chain_id, int resno, const char *ins_co
    SCM r = SCM_BOOL_F;
 
    int imol = go_to_atom_molecule_number();
-   if (is_valid_model_molecule(imol)) { 
+   if (is_valid_model_molecule(imol)) {
 
       graphics_info_t g;
       coot::Cartesian rc = g.RotationCentre();
@@ -1598,7 +1598,7 @@ SCM goto_prev_atom_maybe_scm(const char *chain_id, int resno, const char *ins_co
 
    SCM r = SCM_BOOL_F;
    int imol = go_to_atom_molecule_number();
-   if (is_valid_model_molecule(imol)) { 
+   if (is_valid_model_molecule(imol)) {
 
       graphics_info_t g;
       coot::Cartesian rc = g.RotationCentre();
@@ -1622,8 +1622,8 @@ SCM goto_prev_atom_maybe_scm(const char *chain_id, int resno, const char *ins_co
       }
    }
    return r;
-} 
-#endif 
+}
+#endif
 
 #ifdef USE_PYTHON
 // Pass the current values, return new values
@@ -1635,7 +1635,7 @@ PyObject *goto_next_atom_maybe_py(const char *chain_id, int resno, const char *i
    PyObject *r = Py_False;
 
    int imol = go_to_atom_molecule_number();
-   if (is_valid_model_molecule(imol)) { 
+   if (is_valid_model_molecule(imol)) {
 
       graphics_info_t g;
       coot::Cartesian rc = g.RotationCentre();
@@ -1670,7 +1670,7 @@ PyObject *goto_prev_atom_maybe_py(const char *chain_id, int resno, const char *i
 
    PyObject *r = Py_False;
    int imol = go_to_atom_molecule_number();
-   if (is_valid_model_molecule(imol)) { 
+   if (is_valid_model_molecule(imol)) {
 
       graphics_info_t g;
       coot::Cartesian rc = g.RotationCentre();
@@ -1697,28 +1697,28 @@ PyObject *goto_prev_atom_maybe_py(const char *chain_id, int resno, const char *i
      Py_INCREF(r);
    }
    return r;
-} 
+}
 #endif // USE_PYTHON
 
 // A C++ function interface:
-// 
+//
 int set_go_to_atom_from_spec(const coot::atom_spec_t &atom_spec) {
 
    int success = 0;
    graphics_info_t g;
 
-   if (! atom_spec.empty()) { 
-      g.set_go_to_atom_chain_residue_atom_name(atom_spec.chain_id.c_str(), 
+   if (! atom_spec.empty()) {
+      g.set_go_to_atom_chain_residue_atom_name(atom_spec.chain_id.c_str(),
 					       atom_spec.res_no,
-					       atom_spec.ins_code.c_str(), 
+					       atom_spec.ins_code.c_str(),
 					       atom_spec.atom_name.c_str(),
 					       atom_spec.alt_conf.c_str());
-      
-      success = g.try_centre_from_new_go_to_atom(); 
+
+      success = g.try_centre_from_new_go_to_atom();
       if (success)
 	 update_things_on_move_and_redraw();
    }
-   return success; 
+   return success;
 }
 
 int set_go_to_atom_from_res_spec(const coot::residue_spec_t &spec) {
@@ -1727,7 +1727,7 @@ int set_go_to_atom_from_res_spec(const coot::residue_spec_t &spec) {
    graphics_info_t g;
    int imol = g.go_to_atom_molecule();
 
-   if (is_valid_model_molecule(imol)) { 
+   if (is_valid_model_molecule(imol)) {
       coot::atom_spec_t atom_spec = g.molecules[imol].intelligent_this_residue_atom(spec);
       if (! atom_spec.empty()) {
 	 success = set_go_to_atom_from_spec(atom_spec);
@@ -1751,19 +1751,19 @@ int set_go_to_atom_from_atom_spec_scm(SCM atom_spec_scm) {
 #endif // USE_GUILE
 
 
-#endif 
+#endif
 
 #ifdef USE_PYTHON
 int set_go_to_atom_from_res_spec_py(PyObject *residue_spec_py) {
 
    std::pair<bool, coot::residue_spec_t> spec = make_residue_spec_py(residue_spec_py);
-   if (spec.first) { 
+   if (spec.first) {
       return set_go_to_atom_from_res_spec(spec.second);
-   } else { 
+   } else {
       return -1;
    }
-} 
-#endif 
+}
+#endif
 
 
 #ifdef USE_PYTHON
@@ -1786,7 +1786,7 @@ std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec() {
 PyObject *active_atom_spec_py() {
 
    PyObject *rv = PyTuple_New(2);
-   
+
    std::pair<bool, std::pair<int, coot::atom_spec_t> > r = active_atom_spec();
       PyObject *state_py = Py_True;
       PyObject *mol_no = PyInt_FromLong(r.second.first);
@@ -1796,7 +1796,7 @@ PyObject *active_atom_spec_py() {
       state_py = Py_False;
    }
    Py_INCREF(state_py);
-   
+
    PyTuple_SetItem(tuple_inner, 0, mol_no);
    PyTuple_SetItem(tuple_inner, 1, spec);
    PyTuple_SetItem(rv, 0, state_py);
@@ -1807,13 +1807,13 @@ PyObject *active_atom_spec_py() {
 
 
 #ifdef USE_GUILE
-//* \brief 
+//* \brief
 // Return a list of (list imol chain-id resno ins-code atom-name
 // alt-conf) for atom that is closest to the screen centre.  If there
 // are multiple models with the same coordinates at the screen centre,
 // return the attributes of the atom in the highest number molecule
 // number.
-// 
+//
 SCM active_residue() {
 
    SCM s = SCM_BOOL(0);
@@ -1827,7 +1827,7 @@ SCM active_residue() {
       s = scm_cons(scm_int2num(pp.second.second.res_no) , s);
       s = scm_cons(scm_makfrom0str(pp.second.second.chain_id.c_str()) , s);
       s = scm_cons(scm_int2num(pp.second.first) ,s);
-   } 
+   }
    return s;
 }
 #endif // USE_GUILE
@@ -1837,12 +1837,12 @@ SCM active_residue() {
 //!
 //! Return a list of (list imol chain-id resno ins-code atom-name
 //! alt-conf (list x y z)) for atom that is closest to the screen
-//! centre in the given molecule (unlike active-residue, potentila CA 
-//! substition is not performed).  If there is no atom, or if imol is 
+//! centre in the given molecule (unlike active-residue, potentila CA
+//! substition is not performed).  If there is no atom, or if imol is
 //! not a valid model molecule, return scheme false.
-//! 
+//!
 SCM closest_atom_simple_scm() {
-   
+
    SCM s = SCM_BOOL(0);
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = graphics_info_t::active_atom_spec_simple();
 
@@ -1856,7 +1856,7 @@ SCM closest_atom_simple_scm() {
       s = scm_cons(scm_int2num(pp.second.first), s);
    }
    return s;
-} 
+}
 #endif // USE_GUILE
 
 
@@ -1878,7 +1878,7 @@ PyObject *active_residue_py() {
    }
    if (PyBool_Check(s)) {
      Py_INCREF(s);
-   }   
+   }
    return s;
 }
 #endif // PYTHON
@@ -1888,12 +1888,12 @@ PyObject *active_residue_py() {
 //!
 //! Return a list of (list imol chain-id resno ins-code atom-name
 //! alt-conf (list x y z)) for atom that is closest to the screen
-//! centre in the given molecule (unlike active-residue, potentila CA 
-//! substition is not performed).  If there is no atom, or if imol is 
+//! centre in the given molecule (unlike active-residue, potentila CA
+//! substition is not performed).  If there is no atom, or if imol is
 //! not a valid model molecule, return scheme false.
-//! 
+//!
 PyObject *closest_atom_simple_py() {
-   
+
    PyObject *s = Py_False;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = graphics_info_t::active_atom_spec_simple();
    if (pp.first) {
@@ -1907,9 +1907,9 @@ PyObject *closest_atom_simple_py() {
    }
    if (PyBool_Check(s)) {
      Py_INCREF(s);
-   }   
+   }
    return s;
-} 
+}
 #endif // USE_PYTHON
 
 
@@ -1935,8 +1935,8 @@ SCM closest_atom(int imol) {
       }
    }
    return r;
-} 
-#endif 
+}
+#endif
 
 #ifdef USE_PYTHON
 PyObject *closest_atom_py(int imol) {
@@ -1964,7 +1964,7 @@ PyObject *closest_atom_py(int imol) {
      Py_INCREF(r);
    }
    return r;
-} 
+}
 #endif // USE_PYTHON
 
 #ifdef USE_GUILE
@@ -1993,7 +1993,7 @@ SCM closest_atom_raw_scm() {
    }
    return r;
 }
-#endif 
+#endif
 
 #ifdef USE_PYTHON
 PyObject *closest_atom_raw_py() {
@@ -2032,7 +2032,7 @@ PyObject *closest_atom_raw_py() {
 /*! \brief update the Go To Atom widget entries to atom closest to
   screen centre. */
 void update_go_to_atom_from_current_position() {
-   
+
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
    if (pp.first) {
       set_go_to_atom_molecule(pp.second.first);
@@ -2051,11 +2051,11 @@ SCM generic_string_vector_to_list_internal(const std::vector<std::string> &v) {
    for (int i=v.size()-1; i>=0; i--) {
       r = scm_cons(scm_makfrom0str(v[i].c_str()), r);
    }
-   return r; 
+   return r;
 }
 #endif // USE_GUILE
 
-// BL says:: python version 
+// BL says:: python version
 #ifdef USE_PYTHON
 PyObject *generic_string_vector_to_list_internal_py(const std::vector<std::string> &v) {
 
@@ -2083,10 +2083,10 @@ generic_list_to_string_vector_internal(SCM l) {
       SCM le = scm_list_ref(l, SCM_MAKINUM(i));
       std::string s = scm_to_locale_string(le);
       r.push_back(s);
-   } 
-   
+   }
+
 #else
-   
+
    int l_length = gh_scm2int(l_length_scm);
    for (int i=0; i<l_length; i++) {
       SCM le = scm_list_ref(l, SCM_MAKINUM(i));
@@ -2110,11 +2110,11 @@ generic_list_to_string_vector_internal_py(PyObject *l) {
       PyObject *le = PyList_GetItem(l, i);
       std::string s = PyString_AsString(le);
       r.push_back(s);
-   } 
+   }
 
    return r;
 }
-   
+
 #endif // USE_PYTHON
 
 #ifdef USE_GUILE
@@ -2124,7 +2124,7 @@ SCM generic_int_vector_to_list_internal(const std::vector<int> &v) {
    for (int i=v.size()-1; i>=0; i--) {
       r = scm_cons(scm_int2num(v[i]), r);
    }
-   return r; 
+   return r;
 }
 #endif // USE_GUILE
 
@@ -2132,11 +2132,11 @@ SCM generic_int_vector_to_list_internal(const std::vector<int> &v) {
 PyObject *generic_int_vector_to_list_internal_py(const std::vector<int> &v) {
 
    PyObject *r;
-   r = PyList_New(v.size()); 
+   r = PyList_New(v.size());
    for (int i=v.size()-1; i>=0; i--) {
       PyList_SetItem(r, i, PyInt_FromLong(v[i]));
    }
-   return r; 
+   return r;
 }
 #endif // USE_PYTHON
 
@@ -2206,7 +2206,7 @@ SCM inverse_rtop_scm(SCM rtop_scm) {
    }
    return rtop_to_scm(r);
 
-} 
+}
 #endif // USE_GUILE
 
 
@@ -2284,7 +2284,7 @@ PyObject *inverse_rtop_py(PyObject *rtop_py) {
 /*! \brief Return as a list of strings the symmetry operators of the
   given molecule. If imol is a not a valid molecule, return an empty
   list.*/
-// 
+//
 SCM get_symmetry(int imol) {
 
    SCM r = SCM_CAR(scm_listofnull);
@@ -2294,9 +2294,9 @@ SCM get_symmetry(int imol) {
 	 graphics_info_t::molecules[imol].get_symop_strings();
       r = generic_string_vector_to_list_internal(symop_list);
    }
-   return r; 
-} 
-#endif 
+   return r;
+}
+#endif
 
 // BL says:: python's get_symmetry:
 #ifdef USE_PYTHON
@@ -2351,7 +2351,7 @@ int undo_symmetry_view() {
 	 }
 	 // so we have a set of matrices and origins shifts, find the
 	 // one that brings us closest to an atom in imol
-	 // 
+	 //
 	 g.unapply_symmetry_to_view(imol, symm_mat_and_pre_shift_vec);
       }
    } else {
@@ -2385,14 +2385,14 @@ int first_molecule_with_symmetry_displayed() {
 
 void residue_info_apply_all_checkbutton_toggled() {
 
-} 
+}
 
 
 void apply_residue_info_changes(GtkWidget *widget) {
    graphics_info_t g;
    g.apply_residue_info_changes(widget);
    graphics_draw();
-} 
+}
 
 void do_distance_define() {
 
@@ -2402,7 +2402,7 @@ void do_distance_define() {
    g.in_distance_define = 1;
    g.pick_pending_flag = 1;
 
-} 
+}
 
 void do_angle_define() {
 
@@ -2412,7 +2412,7 @@ void do_angle_define() {
    g.in_angle_define = 1;
    g.pick_pending_flag = 1;
 
-} 
+}
 
 void do_torsion_define() {
 
@@ -2422,7 +2422,7 @@ void do_torsion_define() {
    g.in_torsion_define = 1;
    g.pick_pending_flag = 1;
 
-} 
+}
 
 void clear_simple_distances() {
    graphics_info_t g;
@@ -2433,7 +2433,7 @@ void clear_simple_distances() {
    add_to_history_typed(cmd, args);
 }
 
-void clear_last_simple_distance() { 
+void clear_last_simple_distance() {
 
    graphics_info_t g;
    g.clear_last_simple_distance();
@@ -2441,7 +2441,7 @@ void clear_last_simple_distance() {
    std::string cmd = "clear-last-simple-distance";
    std::vector<coot::command_arg_t> args;
    add_to_history_typed(cmd, args);
-} 
+}
 
 
 void clear_residue_info_edit_list() {
@@ -2465,7 +2465,7 @@ void fill_environment_widget(GtkWidget *widget) {
    entry = lookup_widget(widget, "environment_distance_min_entry");
    snprintf(text, 99, "%-5.1f", g.environment_min_distance);
    gtk_entry_set_text(GTK_ENTRY(entry), text);
-   
+
    entry = lookup_widget(widget, "environment_distance_max_entry");
    snprintf(text, 99, "%-5.1f" ,g.environment_max_distance);
    gtk_entry_set_text(GTK_ENTRY(entry), text);
@@ -2473,7 +2473,7 @@ void fill_environment_widget(GtkWidget *widget) {
 
    GtkWidget *toggle_button;
    toggle_button = lookup_widget(widget, "environment_distance_checkbutton");
-   
+
    if (g.environment_show_distances == 1) {
       // we have to (temporarily) set the flag to 0 because the
       // set_active creates an event which causes
@@ -2488,7 +2488,7 @@ void fill_environment_widget(GtkWidget *widget) {
       // std::cout << "filling: button is inactive" << std::endl;
    }
    // set the label button
-   toggle_button = lookup_widget(widget, 
+   toggle_button = lookup_widget(widget,
                                  "environment_distance_label_atom_checkbutton");
    if (g.environment_distance_label_atom) {
      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), 1);
@@ -2497,11 +2497,11 @@ void fill_environment_widget(GtkWidget *widget) {
    }
 }
 
-// Called when the OK button of the environment distances dialog is clicked 
+// Called when the OK button of the environment distances dialog is clicked
 // (just before it is destroyed).
-// 
+//
 void execute_environment_settings(GtkWidget *widget) {
-   
+
    GtkWidget *entry;
    float val;
    graphics_info_t g;
@@ -2515,7 +2515,7 @@ void execute_environment_settings(GtkWidget *widget) {
 		<< g.environment_min_distance << std::endl;
    } else {
       g.environment_min_distance = val;
-   } 
+   }
 
    entry = lookup_widget(widget, "environment_distance_max_entry");
    text = gtk_entry_get_text(GTK_ENTRY(entry));
@@ -2543,7 +2543,7 @@ void execute_environment_settings(GtkWidget *widget) {
    // not sure that this is necessary now that the toggle function is
    // active
    std::pair<int, int> r =  g.get_closest_atom();
-   if (r.first >= 0) { 
+   if (r.first >= 0) {
       g.mol_no_for_environment_distances = r.second;
       g.update_environment_distances_maybe(r.first, r.second);
    }
@@ -2594,7 +2594,7 @@ void set_environment_distances_distance_limits(float min_dist, float max_dist) {
 
 void set_show_environment_distances_as_solid(int state) {
    graphics_info_t::display_environment_graphics_object_as_solid_flag = state;
-} 
+}
 
 void set_environment_distances_label_atom(int state) {
   graphics_info_t::environment_distance_label_atom = state;
@@ -2607,16 +2607,16 @@ add_geometry_distance(int imol_1, float x_1, float y_1, float z_1, int imol_2, f
    double d = g.display_geometry_distance(imol_1, coot::Cartesian(x_1, y_1, z_1),
 					  imol_2, coot::Cartesian(x_2, y_2, z_2));
    return d;
-} 
+}
 
 #ifdef USE_GUILE
 double
 add_atom_geometry_distance_scm(int imol_1, SCM atom_spec_1, int imol_2, SCM atom_spec_2) {
 
-   double d = -1; 
+   double d = -1;
    if (is_valid_model_molecule(imol_1)) {
       if (is_valid_model_molecule(imol_2)) {
-	 
+
 	 graphics_info_t g;
 	 coot::atom_spec_t spec_1 = atom_spec_from_scm_expression(atom_spec_1);
 	 coot::atom_spec_t spec_2 = atom_spec_from_scm_expression(atom_spec_2);
@@ -2624,7 +2624,7 @@ add_atom_geometry_distance_scm(int imol_1, SCM atom_spec_1, int imol_2, SCM atom
 	 mmdb::Atom *at_2 = g.molecules[imol_2].get_atom(spec_2);
 	 if (! at_1) {
 	    std::cout << "WARNING:: atom not found from spec " << spec_1 << std::endl;
-	 } else { 
+	 } else {
 	    if (! at_2) {
 	       std::cout << "WARNING:: atom not found from spec " << spec_2 << std::endl;
 	    } else {
@@ -2637,8 +2637,8 @@ add_atom_geometry_distance_scm(int imol_1, SCM atom_spec_1, int imol_2, SCM atom
 	 }
       }
    }
-   return d; 
-} 
+   return d;
+}
 #endif
 
 #ifdef USE_PYTHON
@@ -2647,7 +2647,7 @@ double add_atom_geometry_distance_py(int imol_1, PyObject *atom_spec_1, int imol
    double d = -1;
    if (is_valid_model_molecule(imol_1)) {
       if (is_valid_model_molecule(imol_2)) {
-	 
+
 	 graphics_info_t g;
 	 coot::atom_spec_t spec_1 = atom_spec_from_python_expression(atom_spec_1);
 	 coot::atom_spec_t spec_2 = atom_spec_from_python_expression(atom_spec_2);
@@ -2655,7 +2655,7 @@ double add_atom_geometry_distance_py(int imol_1, PyObject *atom_spec_1, int imol
 	 mmdb::Atom *at_2 = g.molecules[imol_2].get_atom(spec_2);
 	 if (! at_1) {
 	    std::cout << "WARNING:: atom not found from spec " << spec_1 << std::endl;
-	 } else { 
+	 } else {
 	    if (! at_2) {
 	       std::cout << "WARNING:: atom not found from spec " << spec_2 << std::endl;
 	    } else {
@@ -2668,8 +2668,8 @@ double add_atom_geometry_distance_py(int imol_1, PyObject *atom_spec_1, int imol
 	 }
       }
    }
-   return d; 
-} 
+   return d;
+}
 #endif
 
 
@@ -2721,8 +2721,8 @@ void set_show_pointer_distances(int istate) {
 
    std::cout << "in set_show_pointer_distances: state: "
 	     << istate << std::endl;
-   
-   if (istate == 0) { 
+
+   if (istate == 0) {
       graphics_info_t::show_pointer_distances_flag = 0;
       graphics_info_t g;
       g.clear_pointer_distances();
@@ -2750,7 +2750,7 @@ int  show_pointer_distances_state() {
 
 
 
-void fill_single_map_properties_dialog(GtkWidget *window, int imol) { 
+void fill_single_map_properties_dialog(GtkWidget *window, int imol) {
 
    GtkWidget *cell_text = lookup_widget(window, "single_map_properties_cell_text");
    GtkWidget *spgr_text = lookup_widget(window, "single_map_properties_sg_text");
@@ -2790,15 +2790,15 @@ void fill_single_map_properties_dialog(GtkWidget *window, int imol) {
    GtkWidget *scale = lookup_widget(window, "map_opacity_hscale");
 
    graphics_info_t g;
-   if (g.molecules[imol].draw_it_for_solid_density_surface) {
-      if (g.do_flat_shading_for_solid_density_surface)
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rb_2), TRUE);
-      else 
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rb_3), TRUE);
+   if (true) {
+      if (false)
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rb_2), TRUE);
+      else
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rb_3), TRUE);
    } else {
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rb_1), TRUE);
    }
-   
+
    GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(scale));
    float op = g.molecules[imol].density_surface_opacity;
    gtk_adjustment_set_value(adjustment, 100.0*op);
@@ -2812,7 +2812,7 @@ void fill_single_map_properties_dialog(GtkWidget *window, int imol) {
    if (map_contour_frame) {
       fill_map_histogram_widget(imol, alignment);
    }
-} 
+}
 
 #include "goograph/goograph.hh"
 #include "coot-utils/xmap-stats.hh"
@@ -2893,7 +2893,7 @@ fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
 		     double contour_level_bar_width = sqrt(mv.variance) * 0.1;
 		     if (false)
 			std::cout << "::::: set_extents() X: "
-				  << mv.mean-2*sqrt(mv.variance) << " " 
+				  << mv.mean-2*sqrt(mv.variance) << " "
 				  << mv.mean+2*sqrt(mv.variance) << "\n";
 		     if (y_max_secondary > 0) {
 			double y_max_graph = y_max_secondary * 1.3;
@@ -2972,7 +2972,7 @@ set_axis_orientation_matrix_usage(int state) {
    args.push_back(state);
    add_to_history_typed(cmd, args);
 
-} 
+}
 
 
 
@@ -3001,7 +3001,7 @@ void toggle_dynamic_map_display_size() {
    } else {
       g.dynamic_map_size_display = 1;
    }
-} 
+}
 
 void   set_map_dynamic_map_sampling_checkbutton(GtkWidget *checkbutton) {
 
@@ -3017,19 +3017,19 @@ set_map_dynamic_map_display_size_checkbutton(GtkWidget *checkbutton) {
 
    graphics_info_t g;
    if (g.dynamic_map_size_display) {
-      g.dynamic_map_size_display = 0; 
+      g.dynamic_map_size_display = 0;
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), 1);
    }
-} 
+}
 
 void
 set_dynamic_map_size_display_on() {
    graphics_info_t::dynamic_map_size_display = 1;
-} 
+}
 void
 set_dynamic_map_size_display_off() {
    graphics_info_t::dynamic_map_size_display = 0;
-} 
+}
 int
 get_dynamic_map_size_display(){
    int ret = graphics_info_t::dynamic_map_size_display;
@@ -3052,7 +3052,7 @@ get_dynamic_map_sampling(){
 void
 set_dynamic_map_zoom_offset(int i) {
    graphics_info_t::dynamic_map_zoom_offset = i;
-} 
+}
 
 
 
@@ -3068,7 +3068,7 @@ void add_to_history(const std::vector<std::string> &command_strings) {
    graphics_info_t g;
    g.add_history_command(command_strings);
 
-   if (g.console_display_commands.display_commands_flag) { 
+   if (g.console_display_commands.display_commands_flag) {
 
       char esc = 27;
       // std::string esc = "esc";
@@ -3081,8 +3081,8 @@ void add_to_history(const std::vector<std::string> &command_strings) {
 	if (GetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &ConCurInfo)) {
 	  // we have a DOS shell
 	  SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
-				  FOREGROUND_RED | 
-				  FOREGROUND_GREEN | 
+				  FOREGROUND_RED |
+				  FOREGROUND_GREEN |
 				  FOREGROUND_BLUE |
 				  FOREGROUND_INTENSITY);
 	} else {
@@ -3139,8 +3139,8 @@ void add_to_history(const std::vector<std::string> &command_strings) {
 	  default:
 	    //white
 	    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
-				    FOREGROUND_RED | 
-				    FOREGROUND_GREEN | 
+				    FOREGROUND_RED |
+				    FOREGROUND_GREEN |
 				    FOREGROUND_BLUE);
 	  }
 	} else {
@@ -3161,15 +3161,15 @@ void add_to_history(const std::vector<std::string> &command_strings) {
       std::cout << graphics_info_t::pythonize_command_strings(command_strings);
 #endif // USE_PYTHON
 #endif // USE_GUILE/MINGW
-      
+
       if (g.console_display_commands.hilight_flag) {// hilight off
 #ifdef WINDOWS_MINGW
 	CONSOLE_CURSOR_INFO ConCurInfo;
 	if (GetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &ConCurInfo)) {
 	  // we have a DOS shell (reset to white)
 	  SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
-				  FOREGROUND_RED | 
-				  FOREGROUND_GREEN | 
+				  FOREGROUND_RED |
+				  FOREGROUND_GREEN |
 				  FOREGROUND_BLUE);
 	} else {
 	  // MSYS shell
@@ -3206,7 +3206,7 @@ void add_to_history_simple(const std::string &s) {
    std::vector<std::string> command_strings;
    command_strings.push_back(s);
    add_to_history(command_strings);
-} 
+}
 
 std::string
 single_quote(const std::string &s) {
@@ -3214,7 +3214,7 @@ single_quote(const std::string &s) {
    r += s;
    r += "\"";
    return r;
-} 
+}
 
 std::string pythonize_command_name(const std::string &s) {
 
@@ -3223,11 +3223,11 @@ std::string pythonize_command_name(const std::string &s) {
       if (s[i] == '-') {
 	 ss += '_';
       } else {
-	 ss += s[i];	 
+	 ss += s[i];
       }
    }
    return ss;
-} 
+}
 
 std::string schemize_command_name(const std::string &s) {
 
@@ -3236,7 +3236,7 @@ std::string schemize_command_name(const std::string &s) {
       if (s[i] == '_') {
 	 ss += '-';
       } else {
-	 ss += s[i];	 
+	 ss += s[i];
       }
    }
    return ss;
@@ -3250,7 +3250,7 @@ int db_query_insert(const std::string &insert_string) {
 
       time_t timep = time(0);
       long int li = timep;
-      
+
       clipper::String query("insert into session");
       query += " (userid, sessionid, command, commandnumber, timeasint)";
       query += " values ('";
@@ -3270,7 +3270,7 @@ int db_query_insert(const std::string &insert_string) {
 //       query += "('pemsley', 'sesh', 'xxx', ";
 //       query += graphics_info_t::int_to_string(graphics_info_t::query_number);
 //       query += ") ;";
-      
+
 //       std::cout << "query: " << query << std::endl;
       unsigned long length = query.length();
       v = mysql_real_query(graphics_info_t::mysql, query.c_str(), length);
@@ -3278,13 +3278,13 @@ int db_query_insert(const std::string &insert_string) {
 	 if (v == CR_COMMANDS_OUT_OF_SYNC)
 	    std::cout << "WARNING:: MYSQL Commands executed in an"
 		      << " improper order" << std::endl;
-	 if (v == CR_SERVER_GONE_ERROR) 
+	 if (v == CR_SERVER_GONE_ERROR)
 	    std::cout << "WARNING:: MYSQL Server gone!"
 		      << std::endl;
-	 if (v == CR_SERVER_LOST) 
+	 if (v == CR_SERVER_LOST)
 	    std::cout << "WARNING:: MYSQL Server lost during query!"
 		      << std::endl;
-	 if (v == CR_UNKNOWN_ERROR) 
+	 if (v == CR_UNKNOWN_ERROR)
 	    std::cout << "WARNING:: MYSQL Server transaction had "
 		      << "an uknown error!" << std::endl;
 	 std::cout << "history: mysql_real_query returned " << v
@@ -3308,12 +3308,12 @@ void add_to_database(const std::vector<std::string> &command_strings) {
 
 
 #ifdef USE_MYSQL_DATABASE
-// 
+//
 void db_finish_up() {
 
    db_query_insert(";#finish");
 
-} 
+}
 #endif // USE_MYSQL_DATABASE
 
 
@@ -3342,7 +3342,7 @@ void print_all_history_in_python() {
 }
 
 /*! \brief set a flag to show the text command equivalent of gui
-  commands in the console as they happen. 
+  commands in the console as they happen.
 
   1 for on, 0 for off. */
 void set_console_display_commands_state(short int istate) {
@@ -3362,11 +3362,11 @@ void set_console_display_commands_hilights(short int bold_flag, short int colour
 
 std::string languagize_command(const std::vector<std::string> &command_parts) {
 
-   short int language = 0; 
+   short int language = 0;
 #ifdef USE_PYTHON
 #ifdef USE_GUILE
    language = coot::STATE_SCM;
-#else   
+#else
    language = coot::STATE_PYTHON;
 #endif
 #endif
@@ -3382,7 +3382,7 @@ std::string languagize_command(const std::vector<std::string> &command_parts) {
       if (language == coot::STATE_SCM)
 	 s = graphics_info_t::schemize_command_strings(command_parts);
    }
-   return s; 
+   return s;
 }
 
 
@@ -3416,7 +3416,7 @@ void save_state_file_py(const char *filename) {
    std::vector<coot::command_arg_t> args;
    args.push_back(single_quote(filename));
    add_to_history_typed(cmd, args);
-} 
+}
 
 
 
@@ -3433,7 +3433,7 @@ SCM save_coords_name_suggestion_scm(int imol) {
       r = scm_from_locale_string(s.c_str());
    }
    return r;
-} 
+}
 #endif /*  USE_GUILE */
 
 
@@ -3447,7 +3447,7 @@ PyObject *save_coords_name_suggestion_py(int imol) {
    }
 
    return r;
-} 
+}
 #endif /*  USE_PYTHON */
 
 
@@ -3478,9 +3478,9 @@ float model_resolution(int imol) {
    float r = -1;
    if (is_valid_model_molecule(imol)) {
       r = graphics_info_t::molecules[imol].atom_sel.mol->GetResolution();
-   } 
+   }
    return r;
-} 
+}
 
 
 
@@ -3547,7 +3547,7 @@ const char *mtz_fp_for_map(int imol_map) {
    add_to_history_typed(cmd, args);
    const char *s = strdup(fp.c_str());
    return s;
-} 
+}
 
 /*! \brief return the phases column in mtz file that was use to generate
   the map
@@ -3567,7 +3567,7 @@ const char *mtz_phi_for_map(int imol_map) {
    add_to_history_typed(cmd, args);
    const char *s = strdup(phi.c_str());
    return s;
-   
+
 }
 
 /*! \brief return the weight column in the mtz file that was use to
@@ -3618,7 +3618,7 @@ SCM map_parameters_scm(int imol) {
       r = SCM_EOL;
       if (graphics_info_t::molecules[imol].save_use_weights)
 	 r = scm_cons(SCM_BOOL_T, r);
-      else 
+      else
 	 r = scm_cons(SCM_BOOL_F, r);
       r = scm_cons(scm_makfrom0str(graphics_info_t::molecules[imol].save_weight_col.c_str()), r);
       r = scm_cons(scm_makfrom0str(graphics_info_t::molecules[imol].save_phi_col.c_str()), r);
@@ -3664,7 +3664,7 @@ SCM cell_scm(int imol) {
    SCM r = SCM_BOOL_F;
    if (is_valid_map_molecule(imol) || (is_valid_model_molecule(imol))) {
       std::pair<bool, clipper::Cell> cell = graphics_info_t::molecules[imol].cell();
-      if (cell.first) { 
+      if (cell.first) {
 	 r = SCM_EOL;
 	 r = scm_cons(scm_double2num(clipper::Util::rad2d(cell.second.descr().gamma())), r);
 	 r = scm_cons(scm_double2num(clipper::Util::rad2d(cell.second.descr().beta() )), r);
@@ -3673,9 +3673,9 @@ SCM cell_scm(int imol) {
 	 r = scm_cons(scm_double2num(cell.second.descr().b()), r);
 	 r = scm_cons(scm_double2num(cell.second.descr().a()), r);
       }
-   } 
+   }
    return r;
-} 
+}
 #endif // USE_GUILE
 
 
@@ -3686,7 +3686,7 @@ PyObject *cell_py(int imol) {
    PyObject *r = Py_False;
    if (is_valid_map_molecule(imol) || (is_valid_model_molecule(imol))) {
       std::pair<bool, clipper::Cell> cell = graphics_info_t::molecules[imol].cell();
-      if (cell.first) { 
+      if (cell.first) {
 	 r = PyList_New(6);
 	 PyList_SetItem(r, 0, PyFloat_FromDouble(cell.second.descr().a()));
 	 PyList_SetItem(r, 1, PyFloat_FromDouble(cell.second.descr().b()));
@@ -3695,12 +3695,12 @@ PyObject *cell_py(int imol) {
 	 PyList_SetItem(r, 4, PyFloat_FromDouble(clipper::Util::rad2d(cell.second.descr().beta())));
 	 PyList_SetItem(r, 5, PyFloat_FromDouble(clipper::Util::rad2d(cell.second.descr().gamma())));
       }
-   } 
+   }
    if (PyBool_Check(r)) {
      Py_INCREF(r);
    }
    return r;
-} 
+}
 #endif // USE_PYTHON
 
 
@@ -3710,8 +3710,8 @@ PyObject *cell_py(int imol) {
 int place_text(const char *text, float x, float y, float z, int size) {
 
    int handle = graphics_info_t::generic_texts_p->size();
-   std::string s(text); 
-   coot::generic_text_object_t o(s, handle, x, y, z); 
+   std::string s(text);
+   coot::generic_text_object_t o(s, handle, x, y, z);
    graphics_info_t::generic_texts_p->push_back(o);
    //   return graphics_info_t::generic_text->size() -1; // the index of the
 	  					    // thing we just
@@ -3727,7 +3727,7 @@ int place_text(const char *text, float x, float y, float z, int size) {
    graphics_draw();
 
    return handle; // same value as above.
-} 
+}
 
 void remove_text(int text_handle) {
 
@@ -3751,7 +3751,7 @@ void remove_text(int text_handle) {
 void edit_text(int text_handle, const char *str) {
 
    graphics_info_t g;
-   if (str) { 
+   if (str) {
       if (text_handle >= 0) {
 	 unsigned int ui_text_handle = text_handle;
 	 if (ui_text_handle < g.generic_texts_p->size()) {
@@ -3776,7 +3776,7 @@ int text_index_near_position(float x, float y, float z, float rad) {
    double best_dist = 999999999.9; // not (long) integer, conversion to double problems in GCC 4.1.2
 
    std::cout << "size: " << g.generic_texts_p->size() << std::endl;
-   
+
    for (unsigned int i=0; i<g.generic_texts_p->size(); i++) {
       std::cout << "i " << i << std::endl;
       clipper::Coord_orth p1(x,y,z);
@@ -3785,7 +3785,7 @@ int text_index_near_position(float x, float y, float z, float rad) {
 			     (*g.generic_texts_p)[i].z);
       double d = (p1-p2).lengthsq();
       std::cout << "   d " << d  << std::endl;
-      if (d < rad*rad) { 
+      if (d < rad*rad) {
 	 if (d < best_dist) {
 	    best_dist = d;
 	    r = i;
@@ -3832,7 +3832,7 @@ debug_dictionary() {
 SCM dictionary_entries_scm() {
    std::vector<std::string> comp_ids = dictionary_entries();
    return generic_string_vector_to_list_internal(comp_ids);
-} 
+}
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
@@ -3840,7 +3840,7 @@ PyObject *dictionary_entries_py() {
 
    std::vector<std::string> comp_ids = dictionary_entries();
    return generic_string_vector_to_list_internal_py(comp_ids);
-} 
+}
 #endif // USE_PYTHON
 
 
@@ -3854,7 +3854,7 @@ SCM cif_file_for_comp_id_scm(const std::string &comp_id) {
    int imol = 0; // dummy. Hmm.
    std::string f = g.Geom_p()->get_cif_file_name(comp_id, imol);
    return scm_makfrom0str(f.c_str());
-} 
+}
 #endif // GUILE
 
 
@@ -3864,7 +3864,7 @@ PyObject *cif_file_for_comp_id_py(const std::string &comp_id) {
    int imol = 0; // dummy. Hmm.
    graphics_info_t g;
    return PyString_FromString(g.Geom_p()->get_cif_file_name(comp_id, imol).c_str());
-} 
+}
 #endif // PYTHON
 
 // can throw and std::runtime_error exception
@@ -3885,7 +3885,7 @@ SCM SMILES_for_comp_id_scm(const std::string &comp_id) {
    }
    catch (const std::runtime_error &rte) {
       std::cout << "WARNING:: " << rte.what() << std::endl;
-   } 
+   }
    return r;
 }
 #endif
@@ -3900,11 +3900,11 @@ PyObject *SMILES_for_comp_id_py(const std::string &comp_id) {
    }
    catch (const std::runtime_error &rte) {
       std::cout << "WARNING:: " << rte.what() << std::endl;
-   } 
+   }
    if (PyBool_Check(r))
       Py_INCREF(r);
    return r;
-} 
+}
 #endif // USE_PYTHON
 
 
@@ -3915,7 +3915,7 @@ PyObject *SMILES_for_comp_id_py(const std::string &comp_id) {
 SCM monomer_restraints(const char *monomer_type) {
 
    int imol = 0; // dummy.  This should be passed?
-   
+
    SCM r = SCM_BOOL_F;
 
    graphics_info_t g;
@@ -3948,7 +3948,7 @@ SCM monomer_restraints(const char *monomer_type) {
       std::vector<coot::dict_atom> atom_info = restraints.atom_info;
       int n_atoms = atom_info.size();
       SCM atom_info_list = SCM_EOL;
-      for (int iat=0; iat<n_atoms; iat++) { 
+      for (int iat=0; iat<n_atoms; iat++) {
 	 SCM atom_attributes_list = SCM_EOL;
 	 atom_attributes_list = scm_cons(scm_makfrom0str(atom_info[iat].atom_id_4c.c_str()),   atom_attributes_list);
 	 atom_attributes_list = scm_cons(scm_makfrom0str(atom_info[iat].type_symbol.c_str()),  atom_attributes_list);
@@ -3969,7 +3969,7 @@ SCM monomer_restraints(const char *monomer_type) {
 
       // ------------------ Bonds -------------------------
       SCM bond_restraint_list = SCM_EOL;
-      
+
       for (unsigned int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
 	 const coot::dict_bond_restraint_t &bond_restraint = restraints.bond_restraint[ibond];
 	 std::string a1 = bond_restraint.atom_id_1_4c();
@@ -3978,7 +3978,7 @@ SCM monomer_restraints(const char *monomer_type) {
 	 SCM bond_restraint_scm = SCM_EOL;
 	 SCM esd_scm = SCM_BOOL_F;
 	 SCM d_scm   = SCM_BOOL_F;
-	 try { 
+	 try {
 	    double esd = bond_restraint.value_esd();
 	    double d   = bond_restraint.value_dist();
 	    esd_scm = scm_double2num(esd);
@@ -3986,7 +3986,7 @@ SCM monomer_restraints(const char *monomer_type) {
 	 }
 	 catch (const std::runtime_error &rte) {
 	    // we use the default values of #f, if the esd or dist is not set.
-	 } 
+	 }
 	 bond_restraint_scm = scm_cons(esd_scm, bond_restraint_scm);
 	 bond_restraint_scm = scm_cons(d_scm,   bond_restraint_scm);
 	 bond_restraint_scm = scm_cons(scm_makfrom0str(type.c_str()), bond_restraint_scm);
@@ -4102,7 +4102,7 @@ SCM monomer_restraints(const char *monomer_type) {
       // chiral_restraints_container = scm_cons(chiral_restraint_list, chiral_restraints_container);
       chiral_restraints_container = scm_cons(scm_makfrom0str("_chem_comp_chir"), chiral_restraint_list);
 
-      
+
       r = scm_cons( chiral_restraints_container, r);
       r = scm_cons(  plane_restraints_container, r);
       r = scm_cons(torsion_restraints_container, r);
@@ -4113,7 +4113,7 @@ SCM monomer_restraints(const char *monomer_type) {
 
    }
    return r;
-} 
+}
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
@@ -4140,12 +4140,12 @@ PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol)
    } else {
 
       r = PyDict_New();
-	 
+
       coot::dictionary_residue_restraints_t restraints = p.second;
 
       // ------------------ chem_comp -------------------------
       coot::dict_chem_comp_t info = restraints.residue_info;
-      
+
       PyObject *chem_comp_py = PyList_New(7);
       PyList_SetItem(chem_comp_py, 0, PyString_FromString(info.comp_id.c_str()));
       PyList_SetItem(chem_comp_py, 1, PyString_FromString(info.three_letter_code.c_str()));
@@ -4154,16 +4154,16 @@ PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol)
       PyList_SetItem(chem_comp_py, 4, PyInt_FromLong(info.number_atoms_all));
       PyList_SetItem(chem_comp_py, 5, PyInt_FromLong(info.number_atoms_nh));
       PyList_SetItem(chem_comp_py, 6, PyString_FromString(info.description_level.c_str()));
-      
+
       // Put chem_comp_py into a dictionary?
       PyDict_SetItem(r, PyString_FromString("_chem_comp"), chem_comp_py);
 
-      
+
       // ------------------ chem_comp_atom -------------------------
       std::vector<coot::dict_atom> atom_info = restraints.atom_info;
       int n_atoms = atom_info.size();
       PyObject *atom_info_list = PyList_New(n_atoms);
-      for (int iat=0; iat<n_atoms; iat++) { 
+      for (int iat=0; iat<n_atoms; iat++) {
 	 PyObject *atom_attributes_list = PyList_New(5);
 	 PyList_SetItem(atom_attributes_list, 0, PyString_FromString(atom_info[iat].atom_id_4c.c_str()));
 	 PyList_SetItem(atom_attributes_list, 1, PyString_FromString(atom_info[iat].type_symbol.c_str()));
@@ -4189,7 +4189,7 @@ PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol)
 	 PyObject *py_value_dist = Py_False;
 	 PyObject *py_value_esd = Py_False;
 
-	 try { 
+	 try {
 	    double d   = restraints.bond_restraint[ibond].value_dist();
 	    double esd = restraints.bond_restraint[ibond].value_esd();
 	    py_value_dist = PyFloat_FromDouble(d);
@@ -4204,7 +4204,7 @@ PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol)
 	    if (PyBool_Check(py_value_esd))
 	       Py_INCREF(py_value_esd);
 	 }
-	 
+
 	 PyObject *bond_restraint = PyList_New(5);
 	 PyList_SetItem(bond_restraint, 0, PyString_FromString(a1.c_str()));
 	 PyList_SetItem(bond_restraint, 1, PyString_FromString(a2.c_str()));
@@ -4236,7 +4236,7 @@ PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol)
 
       PyDict_SetItem(r, PyString_FromString("_chem_comp_angle"), angle_restraint_list);
 
-      
+
       // ------------------ Torsions -------------------------
       PyObject *torsion_restraint_list = PyList_New(restraints.torsion_restraint.size());
       for (unsigned int itorsion=0; itorsion<restraints.torsion_restraint.size(); itorsion++) {
@@ -4266,7 +4266,7 @@ PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol)
       PyObject *plane_restraints_list = PyList_New(restraints.plane_restraint.size());
       for (unsigned int iplane=0; iplane<restraints.plane_restraint.size(); iplane++) {
 	 PyObject *atom_list = PyList_New(restraints.plane_restraint[iplane].n_atoms());
-	 for (int iat=0; iat<restraints.plane_restraint[iplane].n_atoms(); iat++) { 
+	 for (int iat=0; iat<restraints.plane_restraint[iplane].n_atoms(); iat++) {
 	    std::string at = restraints.plane_restraint[iplane][iat].first;
 	    PyList_SetItem(atom_list, iat, PyString_FromString(at.c_str()));
 	 }
@@ -4283,7 +4283,7 @@ PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol)
       // ------------------ Chirals -------------------------
       PyObject *chiral_restraint_list = PyList_New(restraints.chiral_restraint.size());
       for (unsigned int ichiral=0; ichiral<restraints.chiral_restraint.size(); ichiral++) {
-	 
+
 	 std::string a1 = restraints.chiral_restraint[ichiral].atom_id_1_4c();
 	 std::string a2 = restraints.chiral_restraint[ichiral].atom_id_2_4c();
 	 std::string a3 = restraints.chiral_restraint[ichiral].atom_id_3_4c();
@@ -4350,7 +4350,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			if (chem_comp_info_length != 7) {
 			   std::cout << "WARNING:: chem_comp_info length " << chem_comp_info_length
 				     << " should be " << 7 << std::endl;
-			} else { 
+			} else {
 			   SCM  comp_id_scm = scm_list_ref(chem_comp_info_scm, SCM_MAKINUM(0));
 			   SCM      tlc_scm = scm_list_ref(chem_comp_info_scm, SCM_MAKINUM(1));
 			   SCM     name_scm = scm_list_ref(chem_comp_info_scm, SCM_MAKINUM(2));
@@ -4377,7 +4377,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 						       des_lev);
 			      residue_info = n;
 			   }
-			} 
+			}
 		     }
 
 		     if (restraints_type == "_chem_comp_atom") {
@@ -4389,11 +4389,11 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			   SCM chem_comp_atom_scm = scm_list_ref(chem_comp_atoms, SCM_MAKINUM(iat));
 			   SCM chem_comp_atom_length_scm = scm_length(chem_comp_atom_scm);
 			   int chem_comp_atom_length = scm_to_int(chem_comp_atom_length_scm);
-			   
+
 			   if (chem_comp_atom_length != 5) {
 			      std::cout << "WARNING:: chem_comp_atom length " << chem_comp_atom_length
 					<< " should be " << 5 << std::endl;
-			   } else { 
+			   } else {
 			      SCM atom_id_scm  = scm_list_ref(chem_comp_atom_scm, SCM_MAKINUM(0));
 			      SCM element_scm  = scm_list_ref(chem_comp_atom_scm, SCM_MAKINUM(1));
 			      SCM energy_scm   = scm_list_ref(chem_comp_atom_scm, SCM_MAKINUM(2));
@@ -4409,7 +4409,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 				 short int valid_partial_charge = 1;
 				 if SCM_FALSEP(valid_pc_scm)
 				    valid_partial_charge = 0;
-				 coot::dict_atom at(atom_id, atom_id, element, energy, 
+				 coot::dict_atom at(atom_id, atom_id, element, energy,
 						    std::pair<bool, float>(valid_partial_charge,
 									   partial_charge));
 
@@ -4417,9 +4417,9 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			      }
 			   }
 			}
-			
+
 		     }
-		     
+
 
 		     if (restraints_type == "_chem_comp_bond") {
 			SCM bond_restraints_list_scm = SCM_CDR(rest_container);
@@ -4434,7 +4434,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			   if (bond_restraint_length != 5) {
 			      std::cout << "WARNING:: bond_restraint_length " << bond_restraint_length
 					<< " should be " << 5 << std::endl;
-			   } else { 
+			   } else {
 			      SCM atom_1_scm = scm_list_ref(bond_restraint, SCM_MAKINUM(0));
 			      SCM atom_2_scm = scm_list_ref(bond_restraint, SCM_MAKINUM(1));
 			      SCM type_scm   = scm_list_ref(bond_restraint, SCM_MAKINUM(2));
@@ -4467,7 +4467,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			   if (angle_restraint_length != 5) {
 			      std::cout << "WARNING:: angle_restraint_length length "
 					<< angle_restraint_length << " should be " << 5 << std::endl;
-			   } else { 
+			   } else {
 			      SCM atom_1_scm = scm_list_ref(angle_restraint, SCM_MAKINUM(0));
 			      SCM atom_2_scm = scm_list_ref(angle_restraint, SCM_MAKINUM(1));
 			      SCM atom_3_scm = scm_list_ref(angle_restraint, SCM_MAKINUM(2));
@@ -4498,7 +4498,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			   SCM torsion_restraint = scm_list_ref(torsion_restraints_list, SCM_MAKINUM(itr));
 			   SCM torsion_restraint_length_scm = scm_length(torsion_restraint);
 			   int torsion_restraint_length = scm_to_int(torsion_restraint_length_scm);
-			   
+
 			   if (torsion_restraint_length == 8) {
 			      SCM torsion_id_scm = scm_list_ref(torsion_restraint, SCM_MAKINUM(0));
 			      SCM atom_1_scm     = scm_list_ref(torsion_restraint, SCM_MAKINUM(1));
@@ -4513,7 +4513,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 				  scm_is_true(scm_string_p(atom_3_scm)) &&
 				  scm_is_true(scm_string_p(atom_4_scm)) &&
 				  scm_is_true(scm_number_p(torsion_scm)) &&
-				  scm_is_true(scm_number_p(esd_scm)) && 
+				  scm_is_true(scm_number_p(esd_scm)) &&
 				  scm_is_true(scm_number_p(period_scm))) {
 				 std::string torsion_id = scm_to_locale_string(torsion_id_scm);
 				 std::string atom_1     = scm_to_locale_string(atom_1_scm);
@@ -4531,7 +4531,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			   }
 			}
 		     }
-		     
+
 		     if (restraints_type == "_chem_comp_plane_atom") {
 			SCM plane_restraints_list = SCM_CDR(rest_container);
 			SCM plane_restraints_list_length_scm = scm_length(plane_restraints_list);
@@ -4551,26 +4551,26 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			      SCM atom_list_length_scm = scm_length(atom_list_scm);
 			      int atom_list_length = scm_to_int(atom_list_length_scm);
 			      bool atoms_pass = 1;
-			      for (int iat=0; iat<atom_list_length; iat++) { 
+			      for (int iat=0; iat<atom_list_length; iat++) {
 				 SCM atom_scm   = scm_list_ref(atom_list_scm, SCM_MAKINUM(iat));
 				 plane_atoms.push_back(atom_scm);
 				 if (!scm_string_p(atom_scm))
 				    atoms_pass = 0;
 			      }
-			   
-			      if (atoms_pass && scm_string_p(plane_id_scm) &&  scm_number_p(esd_scm)) { 
+
+			      if (atoms_pass && scm_string_p(plane_id_scm) &&  scm_number_p(esd_scm)) {
 				 std::vector<std::string> atom_names;
 				 for (unsigned int i=0; i<plane_atoms.size(); i++)
 				    atom_names.push_back(std::string(scm_to_locale_string(plane_atoms[i])));
 
 				 std::string plane_id = scm_to_locale_string(plane_id_scm);
 				 double esd           = scm_to_double(esd_scm);
-				 if (atom_names.size() > 0) { 
+				 if (atom_names.size() > 0) {
 				    coot::dict_plane_restraint_t rest(plane_id, atom_names[0], esd);
 
 				    for (unsigned int i=1; i<atom_names.size(); i++) {
 				       rest.push_back_atom(atom_names[i], esd);
-				    } 
+				    }
 				    plane_restraints.push_back(rest);
 				    // std::cout << "plane restraint: " << rest << std::endl;
 				 }
@@ -4578,8 +4578,8 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			   }
 			}
 		     }
-		     
-		     
+
+
 		     if (restraints_type == "_chem_comp_chir") {
 			SCM chiral_restraints_list = SCM_CDR(rest_container);
 			SCM chiral_restraints_list_length_scm = scm_length(chiral_restraints_list);
@@ -4599,7 +4599,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			      SCM chiral_vol_sign_scm = scm_list_ref(chiral_restraint, SCM_MAKINUM(5));
 			      // SCM esd_scm      = scm_list_ref(chiral_restraint, SCM_MAKINUM(6));
 			      if (scm_string_p(atom_1_scm) && scm_string_p(atom_2_scm) &&
-				  scm_string_p(atom_3_scm) && scm_string_p(atom_c_scm)) { 
+				  scm_string_p(atom_3_scm) && scm_string_p(atom_c_scm)) {
 				 std::string chiral_id = scm_to_locale_string(chiral_id_scm);
 				 std::string atom_1 = scm_to_locale_string(atom_1_scm);
 				 std::string atom_2 = scm_to_locale_string(atom_2_scm);
@@ -4610,7 +4610,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 				 coot::dict_chiral_restraint_t rest(chiral_id,
 								    atom_c, atom_1, atom_2, atom_3,
 								    chiral_vol_sign);
-				 
+
 				 chiral_restraints.push_back(rest);
 			      }
 			   }
@@ -4637,7 +4637,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
       monomer_restraints.chiral_restraint  = chiral_restraints;
       monomer_restraints.plane_restraint   = plane_restraints;
       monomer_restraints.residue_info      = residue_info;
-      monomer_restraints.atom_info         = atoms; 
+      monomer_restraints.atom_info         = atoms;
 
       // the imol is not specified, we want to replace the restraints that
       // can be used by any molecule
@@ -4726,7 +4726,7 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 	       int n_bonds = PyObject_Length(bond_restraint_list);
 	       for (int i_bond=0; i_bond<n_bonds; i_bond++) {
 		  PyObject *bond_restraint = PyList_GetItem(bond_restraint_list, i_bond);
-		  if (PyObject_Length(bond_restraint) == 5) { 
+		  if (PyObject_Length(bond_restraint) == 5) {
 		     PyObject *atom_1_py = PyList_GetItem(bond_restraint, 0);
 		     PyObject *atom_2_py = PyList_GetItem(bond_restraint, 1);
 		     PyObject *type_py   = PyList_GetItem(bond_restraint, 2);
@@ -4736,7 +4736,7 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 		     if (PyString_Check(atom_1_py) &&
 			 PyString_Check(atom_2_py) &&
 			 PyString_Check(type_py) &&
-			 PyFloat_Check(dist_py) && 
+			 PyFloat_Check(dist_py) &&
 			 PyFloat_Check(esd_py)) {
 			std::string atom_1 = PyString_AsString(atom_1_py);
 			std::string atom_2 = PyString_AsString(atom_2_py);
@@ -4758,7 +4758,7 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 	       int n_angles = PyObject_Length(angle_restraint_list);
 	       for (int i_angle=0; i_angle<n_angles; i_angle++) {
 		  PyObject *angle_restraint = PyList_GetItem(angle_restraint_list, i_angle);
-		  if (PyObject_Length(angle_restraint) == 5) { 
+		  if (PyObject_Length(angle_restraint) == 5) {
 		     PyObject *atom_1_py = PyList_GetItem(angle_restraint, 0);
 		     PyObject *atom_2_py = PyList_GetItem(angle_restraint, 1);
 		     PyObject *atom_3_py = PyList_GetItem(angle_restraint, 2);
@@ -4768,7 +4768,7 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 		     if (PyString_Check(atom_1_py) &&
 			 PyString_Check(atom_2_py) &&
 			 PyString_Check(atom_3_py) &&
-			 PyFloat_Check(angle_py) && 
+			 PyFloat_Check(angle_py) &&
 			 PyFloat_Check(esd_py)) {
 			std::string atom_1 = PyString_AsString(atom_1_py);
 			std::string atom_2 = PyString_AsString(atom_2_py);
@@ -4790,9 +4790,9 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 	       for (int i_torsion=0; i_torsion<n_torsions; i_torsion++) {
 		  PyObject *torsion_restraint = PyList_GetItem(torsion_restraint_list, i_torsion);
 		  if (PyObject_Length(torsion_restraint) == 7) { // info for Nigel.
-		     std::cout << "torsions now have 8 elements starting with the torsion id\n"; 
-		  } 
-		  if (PyObject_Length(torsion_restraint) == 8) { 
+		     std::cout << "torsions now have 8 elements starting with the torsion id\n";
+		  }
+		  if (PyObject_Length(torsion_restraint) == 8) {
 		     PyObject *id_py     = PyList_GetItem(torsion_restraint, 0);
 		     PyObject *atom_1_py = PyList_GetItem(torsion_restraint, 1);
 		     PyObject *atom_2_py = PyList_GetItem(torsion_restraint, 2);
@@ -4806,9 +4806,9 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 			 PyString_Check(atom_2_py) &&
 			 PyString_Check(atom_3_py) &&
 			 PyString_Check(atom_4_py) &&
-			 PyFloat_Check(torsion_py) && 
-			 PyFloat_Check(esd_py)    && 
-			 PyInt_Check(period_py)) { 
+			 PyFloat_Check(torsion_py) &&
+			 PyFloat_Check(esd_py)    &&
+			 PyInt_Check(period_py)) {
 			std::string id     = PyString_AsString(id_py);
 			std::string atom_1 = PyString_AsString(atom_1_py);
 			std::string atom_2 = PyString_AsString(atom_2_py);
@@ -4832,7 +4832,7 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 	       int n_chirals = PyObject_Length(chiral_restraint_list);
 	       for (int i_chiral=0; i_chiral<n_chirals; i_chiral++) {
 		  PyObject *chiral_restraint = PyList_GetItem(chiral_restraint_list, i_chiral);
-		  if (PyObject_Length(chiral_restraint) == 7) { 
+		  if (PyObject_Length(chiral_restraint) == 7) {
 		     PyObject *chiral_id_py= PyList_GetItem(chiral_restraint, 0);
 		     PyObject *atom_c_py   = PyList_GetItem(chiral_restraint, 1);
 		     PyObject *atom_1_py   = PyList_GetItem(chiral_restraint, 2);
@@ -4845,8 +4845,8 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 			 PyString_Check(atom_2_py) &&
 			 PyString_Check(atom_3_py) &&
 			 PyString_Check(atom_c_py) &&
-			 PyString_Check(chiral_id_py) && 
-			 PyFloat_Check(esd_py)    && 
+			 PyString_Check(chiral_id_py) &&
+			 PyFloat_Check(esd_py)    &&
 			 PyInt_Check(vol_sign_py)) {
 			std::string chiral_id = PyString_AsString(chiral_id_py);
 			std::string atom_c    = PyString_AsString(atom_c_py);
@@ -4856,7 +4856,7 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 			float  esd            = PyFloat_AsDouble(esd_py);
 			int  vol_sign         = PyInt_AsLong(vol_sign_py);
 			coot::dict_chiral_restraint_t rest(chiral_id,
-							   atom_c, atom_1, atom_2, atom_3, 
+							   atom_c, atom_1, atom_2, atom_3,
 							   vol_sign);
 			chiral_restraints.push_back(rest);
 		     }
@@ -4911,7 +4911,7 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
        }
     }
       }
-	
+
       coot::dictionary_residue_restraints_t monomer_restraints(monomer_type, 1);
       monomer_restraints.bond_restraint    = bond_restraints;
       monomer_restraints.angle_restraint   = angle_restraints;
@@ -4919,7 +4919,7 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
       monomer_restraints.chiral_restraint  = chiral_restraints;
       monomer_restraints.plane_restraint   = plane_restraints;
       monomer_restraints.residue_info      = residue_info;
-      monomer_restraints.atom_info         = atoms; 
+      monomer_restraints.atom_info         = atoms;
 
       // the imol is not specified, we want to replace the restraints that
       // can be used by any molecule
@@ -4928,13 +4928,13 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
       bool s = g.Geom_p()->replace_monomer_restraints(monomer_type, imol_enc, monomer_restraints);
       if (s)
 	 retval = Py_True;
-      
+
    }
    if (PyBool_Check(retval)) {
      Py_INCREF(retval);
    }
    return retval;
-} 
+}
 #endif // USE_PYTHON
 
 
@@ -4998,7 +4998,7 @@ void write_ccp4mg_picture_description(const char *filename) {
 	    mg_stream << "\n";
 	    mg_stream << "MolDisp (\n";
 	    mg_stream << "    select    = 'all',\n";
-	    mg_stream << "    colour    = 'atomtype',\n"; 
+	    mg_stream << "    colour    = 'atomtype',\n";
 	    mg_stream << "    style     = 'BONDS',\n";
 	    mg_stream << "    selection_parameters = {\n";
 	    mg_stream << "                'neighb_rad' : '5.0',\n";
@@ -5079,22 +5079,22 @@ char *get_atom_colour_from_mol_no(int imol, const char *element) {
    int i_element;
    i_element = atom_colour(element);
    switch (i_element) {
-   case YELLOW_BOND: 
+   case YELLOW_BOND:
       rgb[0] = 0.8; rgb[1] =  0.8; rgb[2] =  0.3;
       break;
-   case BLUE_BOND: 
+   case BLUE_BOND:
       rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  1.0;
       break;
-   case RED_BOND: 
+   case RED_BOND:
       rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
       break;
    case GREEN_BOND:
       rgb[0] = 0.1; rgb[1] =  0.99; rgb[2] =  0.1;
       break;
-   case GREY_BOND: 
+   case GREY_BOND:
       rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
       break;
-   case HYDROGEN_GREY_BOND: 
+   case HYDROGEN_GREY_BOND:
       rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
       break;
    case MAGENTA_BOND:
@@ -5115,7 +5115,7 @@ char *get_atom_colour_from_mol_no(int imol, const char *element) {
    case DARK_BROWN_BOND:
       rgb[0] = 0.4; rgb[1] =  0.4; rgb[2] = 0.02;
       break;
-      
+
    default:
       rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
       rgb = rotate_rgb(rgb, float(imol*26.0/360.0));
@@ -5126,9 +5126,9 @@ char *get_atom_colour_from_mol_no(int imol, const char *element) {
    // 21. is the default colour map rotation
    rgb = rotate_rgb(rgb, float(1.0 - 21.0/360.0));
    if (graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag) {
-      if (i_element == YELLOW_BOND) { 
+      if (i_element == YELLOW_BOND) {
 	 rgb = rotate_rgb(rgb, rotation_size);
-      } 
+      }
    } else {
 //       std::cout << "DEBUG: rotating coordinates colour map by "
 //                 << rotation_size * 360.0 << " degrees " << std::endl;
@@ -5155,7 +5155,7 @@ void write_restraints_cif_dictionary(const char *monomer_type, const char *file_
 
    int imol = 0;
    graphics_info_t g;
-   std::pair<short int, coot::dictionary_residue_restraints_t> r = 
+   std::pair<short int, coot::dictionary_residue_restraints_t> r =
       g.Geom_p()->get_monomer_restraints(monomer_type, imol);
    if (!r.first) {
       std::string s =  "Failed to find ";
@@ -5166,7 +5166,7 @@ void write_restraints_cif_dictionary(const char *monomer_type, const char *file_
    } else {
       r.second.write_cif(file_name);
    }
-} 
+}
 
 /*  ----------------------------------------------------------------------- */
 /*                  PKGDATDDIR                                              */
@@ -5184,7 +5184,7 @@ SCM get_pkgdatadir_scm() {
 
    std::string pkgdatadir = PKGDATADIR;
    return scm_from_locale_string(pkgdatadir.c_str());
-} 
+}
 #endif
 
 
@@ -5197,7 +5197,7 @@ int refmac_runs_with_nolabels() {
 
   int ret = 0;
 
- 
+
 #ifdef USE_GUILE
   SCM refmac_version = safe_scheme_command("(get-refmac-version)");
   if (scm_is_true(scm_list_p(refmac_version))) {
@@ -5211,7 +5211,7 @@ int refmac_runs_with_nolabels() {
 	}
      }
   }
-  
+
 #else
 #ifdef USE_PYTHON
   PyObject *refmac_version;
@@ -5230,7 +5230,7 @@ int refmac_runs_with_nolabels() {
   Py_XDECREF(refmac_version);
 #endif
 #endif
-  
+
 
   return ret;
 }
@@ -5260,7 +5260,7 @@ SCM ccp4i_projects_scm() {
    }
    r = scm_reverse(r);
    return r;
-} 
+}
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
@@ -5277,7 +5277,7 @@ PyObject *ccp4i_projects_py() {
       Py_XDECREF(p);
    }
    return r;
-} 
+}
 #endif // USE_PYTHON
 
 
@@ -5286,12 +5286,12 @@ PyObject *ccp4i_projects_py() {
 SCM remarks_scm(int imol) {
 
    SCM r = SCM_EOL;
-   
+
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       mmdb::TitleContainer *tc_p = mol->GetRemarks();
       int l = tc_p->Length();
-      for (int i=0; i<l; i++) { 
+      for (int i=0; i<l; i++) {
 	 mmdb::Remark *cr = static_cast<mmdb::Remark *> (tc_p->GetContainerClass(i));
 	 SCM a_scm = SCM_MAKINUM(cr->remarkNum);
 	 SCM b_scm = scm_makfrom0str(cr->remark);
@@ -5344,10 +5344,10 @@ SCM residue_centre_scm(int imol, const char *chain_id, int resno, const char *in
 	 r = SCM_LIST3(scm_double2num(rr.second.x()),
 		       scm_double2num(rr.second.y()),
 		       scm_double2num(rr.second.z()));
-      } 
-   } 
+      }
+   }
    return r;
-} 
+}
 
 #endif
 
@@ -5365,21 +5365,21 @@ PyObject *residue_centre_py(int imol, const char *chain_id, int resno, const cha
 	 PyList_SetItem(r, 0, PyFloat_FromDouble(rr.second.x()));
 	 PyList_SetItem(r, 1, PyFloat_FromDouble(rr.second.y()));
 	 PyList_SetItem(r, 2, PyFloat_FromDouble(rr.second.z()));
-      } 
-   } 
+      }
+   }
    if (PyBool_Check(r)) {
       Py_INCREF(r);
    }
    return r;
-} 
+}
 
 #endif
 
 #ifdef USE_PYTHON
 // the expanded form of this is in c-interface.h
-PyObject *residue_centre_from_spec_py(int imol, 
+PyObject *residue_centre_from_spec_py(int imol,
 				      PyObject *spec_py) {
-   
+
    PyObject *r = Py_False;
    std::pair<bool, coot::residue_spec_t> spec = make_residue_spec_py(spec_py);
 
@@ -5416,7 +5416,7 @@ SCM link_info_scm(int imol) {
 
 	    mmdb::Model *model_p = mol->GetModel(imod);
 	    int n_links = model_p->GetNumberOfLinks();
-	    if (n_links > 0) { 
+	    if (n_links > 0) {
 	       for (int i_link=1; i_link<=n_links; i_link++) {
 		  mmdb::PLink link = model_p->GetLink(i_link);
 
@@ -5434,7 +5434,7 @@ SCM link_info_scm(int imol) {
    return r;
 }
 
-#endif 
+#endif
 
 
 
@@ -5449,7 +5449,7 @@ PyObject *link_info_py(int imol) {
 	 for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
 	    mmdb::Model *model_p = mol->GetModel(imod);
 	    int n_links = model_p->GetNumberOfLinks();
-	    if (n_links > 0) { 
+	    if (n_links > 0) {
 	       for (int i_link=1; i_link<=n_links; i_link++) {
 		  mmdb::PLink link = model_p->GetLink(i_link);
 		  std::pair<coot::atom_spec_t, coot::atom_spec_t> atoms = coot::link_atoms(link, model_p);
@@ -5466,4 +5466,4 @@ PyObject *link_info_py(int imol) {
    return r;
 }
 
-#endif 
+#endif

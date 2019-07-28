@@ -343,10 +343,9 @@ molecule_class_info_t::update_map_internal() {
 void
 molecule_class_info_t::set_draw_solid_density_surface(bool state) {
 
-   draw_it_for_solid_density_surface = state;
-   if (state) {
-      update_map(); // gets solid triangles too.
-   }
+   // is this function needed now?
+
+   update_map(); // gets solid triangles too.
 }
 
 
@@ -654,17 +653,15 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
    }
 
    if (!xmap.is_null()) {
-      if (! draw_it_for_solid_density_surface) {
 
+      if (false) {
+         // keep this because it uses threads for contouring
 	      clear_draw_vecs();
-
 	      std::vector<std::thread> threads;
 	      int n_reams = coot::get_max_number_of_threads();
-
       	for (int ii=0; ii<n_reams; ii++) {
 	         int iream_start = ii;
 	         int iream_end   = ii+1;
-
 	         threads.push_back(std::thread(gensurf_and_add_vecs_threaded_workpackage,
 					  &xmap,
 					  contour_level, dy_radius, centre,
@@ -688,7 +685,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
             set_diff_map_draw_vecs(v.data, v.size);
       }
 
-      if (draw_it_for_solid_density_surface) {
+      if (true) {
          tri_con = my_isosurface.GenerateTriangles_from_Xmap(xmap,
             contour_level, dy_radius, centre, isample_step);
 
@@ -698,8 +695,6 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
                   dy_radius, centre,
                   isample_step);
          }
-         //std::cout << "Pre-setup_glsl_map_rendering() tricon.points size "
-         //          << tri_con.points.size() << std::endl;
          setup_glsl_map_rendering(); // turn tri_con into buffers.
       }
    }
@@ -940,56 +935,55 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
       return; //
 
    if (draw_it_for_map) {
-      if (draw_it_for_solid_density_surface) {
+      if (true) {
 
-	 coot::Cartesian front = unproject(0.0);
-	 coot::Cartesian back  = unproject(1.0);
+         coot::Cartesian front = unproject(0.0);
+         coot::Cartesian back  = unproject(1.0);
 
-	 glEnable(GL_LIGHTING);
-	 glEnable(GL_LIGHT0);
-	 glEnable(GL_LIGHT1);
-	 // glEnable(GL_LIGHT2); // OK, for maps
-	 glEnable (GL_BLEND);
-	 glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+         glEnable(GL_LIGHTING);
+         glEnable(GL_LIGHT0);
+         glEnable(GL_LIGHT1);
+         // glEnable(GL_LIGHT2); // OK, for maps
+         glEnable (GL_BLEND);
+         glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	 if (density_surface_opacity < 1.0) {
-	    clipper::Coord_orth front_cl(front.x(), front.y(), front.z());
-	    clipper::Coord_orth  back_cl( back.x(),  back.y(),  back.z());
-	    tri_con.depth_sort(back_cl, front_cl);
-	    // std::cout << " sorted" << std::endl;
-	    if (xmap_is_diff_map)
-	       tri_con_diff_map_neg.depth_sort(back_cl, front_cl);
-	 } else {
+         if (density_surface_opacity < 1.0) {
+            clipper::Coord_orth front_cl(front.x(), front.y(), front.z());
+            clipper::Coord_orth  back_cl( back.x(),  back.y(),  back.z());
+            tri_con.depth_sort(back_cl, front_cl);
+            // std::cout << " sorted" << std::endl;
+            if (xmap_is_diff_map)
+            tri_con_diff_map_neg.depth_sort(back_cl, front_cl);
+         } else {
 
-	    // glEnable(GL_CULL_FACE); // eek! surfaces goes dark...
+            // glEnable(GL_CULL_FACE); // eek! surfaces goes dark...
 
-	 }
+         }
 
-	 // solid_mode is 1 for density maps represented without
-	 // density lines - typically for representation of EM maps
-	 // and smooth shaded.  The lighting needs to be more ambient
-	 // and the material surface has colour (shared with the
-	 // colour of the map lines).
+         // solid_mode is 1 for density maps represented without
+         // density lines - typically for representation of EM maps
+         // and smooth shaded.  The lighting needs to be more ambient
+         // and the material surface has colour (shared with the
+         // colour of the map lines).
 
-	 bool solid_mode = ! do_flat_shading;
+         bool solid_mode = ! do_flat_shading;
 
-	 setup_density_surface_material(solid_mode, density_surface_opacity);
+         setup_density_surface_material(solid_mode, density_surface_opacity);
 
-	 glEnable(GL_POLYGON_OFFSET_FILL);
-	 glPolygonOffset(2.0, 2.0);
-	 glColor4f(0.2, 0.2, 0.2, density_surface_opacity);
-	 display_solid_surface_triangles(tri_con, do_flat_shading);
+         glEnable(GL_POLYGON_OFFSET_FILL);
+         glPolygonOffset(2.0, 2.0);
+         glColor4f(0.2, 0.2, 0.2, density_surface_opacity);
+         display_solid_surface_triangles(tri_con, do_flat_shading);
 
-	 if (xmap_is_diff_map) {
-	    bool is_neg = 1;
-	    setup_density_surface_material(solid_mode, density_surface_opacity, is_neg);
-	    display_solid_surface_triangles(tri_con_diff_map_neg, do_flat_shading);
-	 }
+         if (xmap_is_diff_map) {
+            bool is_neg = 1;
+            setup_density_surface_material(solid_mode, density_surface_opacity, is_neg);
+            display_solid_surface_triangles(tri_con_diff_map_neg, do_flat_shading);
+         }
 
-	 glDisable(GL_POLYGON_OFFSET_FILL);
-	 glDisable(GL_LIGHT2);
-	 glDisable(GL_LIGHTING);
-
+         glDisable(GL_POLYGON_OFFSET_FILL);
+         glDisable(GL_LIGHT2);
+         glDisable(GL_LIGHTING);
       }
    }
 }

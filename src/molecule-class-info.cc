@@ -2787,16 +2787,15 @@ molecule_class_info_t::add_dipole(const std::vector<coot::residue_spec_t> &res_s
 
    if (pairs.size() > 0) {
       try {
-    coot::dipole dl(pairs);
-    dipoles.push_back(dl);
-    id = dipoles.size() -1;
-    d = dl;
+         coot::dipole dl(pairs);
+         dipoles.push_back(dl);
+         id = dipoles.size() -1;
+         d = dl;
       }
       catch (const std::runtime_error &mess) {
-       std::cout << mess.what() << std::endl;
+         std::cout << mess.what() << std::endl;
       }
    }
-
    return std::pair<coot::dipole, int> (d,id);
 }
 

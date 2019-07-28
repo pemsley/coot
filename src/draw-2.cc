@@ -123,13 +123,22 @@ glm::mat4 get_molecule_mvp() {
    glm::vec3 sc(z,z,z);
    float ortho_size = 90.0;
 
-   GLfloat near_scale = 0.3;  /// from provious draw code
-   GLfloat near =      -near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.1 + 1.0);
-   GLfloat far  =  0.30*near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.1 + 1.0);
+   // start: clipping front and back are 0
+   // with large depth of field: clipping_front is -10, clipping_back is -9
+   // with narrow depth of field: 5 and 6.
+
+   GLfloat near_scale = 0.3;
+   GLfloat far  =      -near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.1 + 1.0);
+   GLfloat near =  0.30*near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.1 + 1.0);
+
+   std::cout << "near: " << near << " far " << far
+             << " clipping_front " << graphics_info_t::clipping_front
+             << " clipping_back " << graphics_info_t::clipping_back
+             << std::endl;
 
    glm::mat4 projection_matrix = glm::ortho(-ortho_size * screen_ratio, ortho_size * screen_ratio,
                                             -ortho_size, ortho_size,
-                                            far, near); // wrong way round?
+                                            near, far); // wrong way round?
 
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    // std::cout << "rotation centre " << glm::to_string(rc) << std::endl;
