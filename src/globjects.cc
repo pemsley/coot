@@ -1433,7 +1433,9 @@ GLuint graphics_info_t::programID_for_central_cube = 0;
 GLuint graphics_info_t::central_cube_vertexarray_id = 0;
 GLuint graphics_info_t::central_cube_array_buffer_id = 0;
 GLuint graphics_info_t::central_cube_index_buffer_id = 0;
-GLuint graphics_info_t::programID_for_maps = 0;
+// GLuint graphics_info_t::programID_for_maps = 0; in a shader now  - as
+//programID_for_central_cube should be
+Shader graphics_info_t::shader_for_maps;
 // --------------------------------------------------------------------------------------------
 
 

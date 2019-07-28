@@ -10,15 +10,17 @@ Shader::Shader() {
    program_id = 0; // unset
 }
 
-Shader::Shader(const std::string &file_name) {
-   init(file_name);
+Shader::Shader(const std::string &file_name, Shader::Entity_t e) {
+   init(file_name, e);
 }
 
-void Shader::init(const std::string &file_name) {
+void Shader::init(const std::string &file_name, Shader::Entity_t e) {
    // don't init if we have already been init.
    // (maybe this is not the best way of dealing with double-reading)
    if (! VertexSource.empty())
       return;
+
+   entity_type = e;
    parse(file_name);
    if (! VertexSource.empty()) {
       if (! FragmentSource.empty()) {
@@ -39,14 +41,20 @@ void Shader::init(const std::string &file_name) {
 void
 Shader::set_attribute_locations() {
 
-   glBindAttribLocation(program_id, 0, "model_rotation_matrix_0");
-   glBindAttribLocation(program_id, 1, "model_rotation_matrix_1");
-   glBindAttribLocation(program_id, 2, "model_rotation_matrix_2");
-   glBindAttribLocation(program_id, 3, "position");
-   glBindAttribLocation(program_id, 4, "normal");
-   glBindAttribLocation(program_id, 5, "colour");
-   glBindAttribLocation(program_id, 6, "translate_position");
-
+   if (entity_type == Entity_t::MODEL) {
+      glBindAttribLocation(program_id, 0, "model_rotation_matrix_0");
+      glBindAttribLocation(program_id, 1, "model_rotation_matrix_1");
+      glBindAttribLocation(program_id, 2, "model_rotation_matrix_2");
+      glBindAttribLocation(program_id, 3, "position");
+      glBindAttribLocation(program_id, 4, "normal");
+      glBindAttribLocation(program_id, 5, "colour");
+      glBindAttribLocation(program_id, 6, "translate_position");
+   }
+   if (entity_type == Entity_t::MAP) {
+      glBindAttribLocation(program_id, 0, "position");
+      glBindAttribLocation(program_id, 1, "normal");
+      glBindAttribLocation(program_id, 2, "colour");
+   }
 }
 
 void Shader::set_uniform_locations() {
@@ -82,7 +90,7 @@ void Shader::parse(const std::string &file_name) {
          }
       }
    } else {
-      std::cout << "Failed to open " << file_name  << std::endl;
+      std::cout << "WARNING:: Shade::parse(): Failed to open " << file_name  << std::endl;
    }
 }
 

@@ -1,6 +1,9 @@
 
 
 class Shader {
+public:
+   enum class Entity_t { NONE = -1, MODEL, MAP};
+private:
    enum class ShaderType { NONE = -1, VERTEX = 0, FRAGMENT = 1, GEOMETRY = 2 };
    void parse(const std::string &file_name);
    unsigned int compile_shader(const std::string &source, ShaderType type) const;
@@ -9,10 +12,11 @@ class Shader {
    unsigned int create() const;
    std::string VertexSource;
    std::string FragmentSource;
+   Entity_t entity_type;
 public:
    Shader();
-   Shader(const std::string &file_name);
-   void init(const std::string &file_name);
+   Shader(const std::string &file_name, Entity_t e);
+   void init(const std::string &file_name, Entity_t e);
    unsigned int program_id;
    unsigned int get_program_id() const { return program_id; }
    unsigned int view_rotation_uniform_location;

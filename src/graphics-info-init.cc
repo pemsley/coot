@@ -16,12 +16,13 @@ graphics_info_t::init() {
       prefer_python = 1;
 #endif
 
-      for (int i=0; i<4; i++)
-	 for (int j=0; j<4; j++)
-	    mvp[i*4+j] = 0.0;
 
-      for (int i=0; i<4; i++)
-	 mvp[i*4+i] = 1.0;
+   for (int i=0; i<4; i++)
+	   for (int j=0; j<4; j++)
+	      mvp[i*4+j] = 0.0;
+
+   for (int i=0; i<4; i++)
+	   mvp[i*4+i] = 1.0;
 
       // transform = Transform(glm::vec3(0.0, 0.0, 0.0),
       //                       glm::vec3(0.0, 0.0, 0.0),
@@ -50,7 +51,7 @@ graphics_info_t::init() {
       // for Justin Lecher and Gentoo who test before installing (and
       // they need a way to specify the data dir (before installing
       // it's not in PKGDATADIR)).
-      // 
+      //
       std::string tables_dir = PKGDATADIR;
 
       char *data_dir = getenv("COOT_DATA_DIR");
@@ -77,8 +78,8 @@ graphics_info_t::init() {
       symmetry_colour[1] = 0.2;
       symmetry_colour[2] = 0.8;
 
-      // use_graphics_interface_flag = 1;  don't (re)set this here, 
-      // it is set as a static and possibly modified by immediate 
+      // use_graphics_interface_flag = 1;  don't (re)set this here,
+      // it is set as a static and possibly modified by immediate
       // handling of command line data in main.cc
 
       // moving_atoms_asc gets filled in copy_mol_and_regularize, not
@@ -130,7 +131,7 @@ graphics_info_t::init() {
       ligand_big_blobs = new std::vector<clipper::Coord_orth>;
 
       // rot_trans adjustments:
-      for (int i=0; i<6; i++) 
+      for (int i=0; i<6; i++)
 	 previous_rot_trans_adjustment[i] = -10000;
 
       // merging molecules
@@ -205,7 +206,7 @@ graphics_info_t::init() {
       preferences_colour_tabs = new std::vector<std::string>;
       preferences_map_tabs = new std::vector<std::string>;
       preferences_other_tabs = new std::vector<std::string>;
-      
+
       preferences_general_tabs->push_back("preferences_file_selection");
       preferences_general_tabs->push_back("preferences_dock_accept_dialog");
       preferences_general_tabs->push_back("preferences_hid");
@@ -213,14 +214,14 @@ graphics_info_t::init() {
       preferences_general_tabs->push_back("preferences_model_toolbar_style");
       preferences_general_tabs->push_back("preferences_smooth_scroll");
       preferences_general_tabs->push_back("preferences_main_toolbar_style");
-      
+
       preferences_bond_tabs->push_back("preferences_bond_parameters");
       preferences_bond_tabs->push_back("preferences_bond_colours");
-      
+
       preferences_map_tabs->push_back("preferences_map_parameters");
       preferences_map_tabs->push_back("preferences_map_colours");
-      preferences_map_tabs->push_back("preferences_map_drag");      
-      
+      preferences_map_tabs->push_back("preferences_map_drag");
+
       preferences_geometry_tabs->push_back("preferences_cis_peptides");
 
       preferences_colour_tabs->push_back("preferences_background_colour");
@@ -374,4 +375,3 @@ graphics_info_t::init() {
       preset_number_refmac_cycles->push_back(50);
 
    }
-

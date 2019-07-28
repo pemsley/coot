@@ -3588,7 +3588,7 @@ molecule_class_info_t::make_bonds_type_checked(bool add_residue_indices) {
    gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
 
   	// make glsl triangles
-   shader.init("model.shader");
+   shader.init("model.shader", Shader::Entity_t::MODEL);
    glUseProgram(shader.get_program_id());
    GLenum err = glGetError();
    if (err)
