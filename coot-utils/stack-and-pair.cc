@@ -155,13 +155,23 @@ coot::stack_and_pair::mark_donors_and_acceptors(mmdb::Manager *mol, int selectio
    int n_sel_atoms;
    mol->GetSelIndex(selection_handle, sel_atoms, n_sel_atoms);
 
+   std::map<std::string, int> atom_to_h_bond_type_map;
+
    int udd_h_bond_type_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "hb_type");
    for (int i=0; i<n_sel_atoms; i++) {
       mmdb::Atom *at = sel_atoms[i];
       std::string name = at->name;
       std::string res_name = at->GetResName();
-      int h_bond_type = geom.get_h_bond_type(name, res_name, protein_geometry::IMOL_ENC_ANY);
-      at->PutUDData(udd_h_bond_type_handle, h_bond_type);
+
+      std::map<std::string, int>::const_iterator it;
+      std::string atom_name_plus_res_name = name + "+" + res_name;
+      it = atom_to_h_bond_type_map.find(atom_name_plus_res_name);
+      if (it != atom_to_h_bond_type_map.end()) {
+	 at->PutUDData(udd_h_bond_type_handle, it->second);
+      } else {
+	 int h_bond_type = geom.get_h_bond_type(name, res_name, protein_geometry::IMOL_ENC_ANY);
+	 at->PutUDData(udd_h_bond_type_handle, h_bond_type);
+      }
    }
 
    return udd_h_bond_type_handle;

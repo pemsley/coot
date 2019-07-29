@@ -49769,37 +49769,7 @@ Nucleotide Builder
 		  </child>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="nucleotide_builder_type_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">0</property>
-
-		      <child>
-			<widget class="GtkMenu" id="menu2">
-
-			  <child>
-			    <widget class="GtkMenuItem" id="rna1">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">RNA</property>
-			      <property name="use_underline">True</property>
-			    </widget>
-			  </child>
-
-			  <child>
-			    <widget class="GtkMenuItem" id="dna1">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">DNA</property>
-			      <property name="use_underline">True</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>
@@ -49863,37 +49833,7 @@ Nucleotide Builder
 		  </child>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="nucleotide_builder_form_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">0</property>
-
-		      <child>
-			<widget class="GtkMenu" id="menu3">
-
-			  <child>
-			    <widget class="GtkMenuItem" id="a1">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">A</property>
-			      <property name="use_underline">True</property>
-			    </widget>
-			  </child>
-
-			  <child>
-			    <widget class="GtkMenuItem" id="b1">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">B</property>
-			      <property name="use_underline">True</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>
@@ -49957,37 +49897,7 @@ Nucleotide Builder
 		  </child>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="nucleotide_builder_strand_optionmenu">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="history">0</property>
-
-		      <child>
-			<widget class="GtkMenu" id="menu4">
-
-			  <child>
-			    <widget class="GtkMenuItem" id="double_stranded1">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">Double Stranded</property>
-			      <property name="use_underline">True</property>
-			    </widget>
-			  </child>
-
-			  <child>
-			    <widget class="GtkMenuItem" id="single_stranded1">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">Single Stranded</property>
-			      <property name="use_underline">True</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>
