@@ -130,7 +130,7 @@ convolute_map(const std::vector<std::pair<double, double> > &sam,
    }
 
    std::cout << "Map count " << count << std::endl;
-
+#if 0 // single threaded
    count = 0;
    for (ix_1 = xmap.first(); !ix_1.last(); ix_1.next()) {
       clipper::Coord_map  cm_1 = ix_1.coord().coord_map();
@@ -153,6 +153,51 @@ convolute_map(const std::vector<std::pair<double, double> > &sam,
 	 std::cout.flush();
       }
    }
+#endif
+
+   unsigned int n_threads = 4;
+   typedef clipper::Xmap<float>::Map_reference_index MRI;
+   std::vector<std::pair<MRI, MRI> > map_ref_start_stops =
+      coot::make_map_reference_index_start_stops(xmap, n_threads);
+   auto l = [](const clipper::Xmap<float> &xmap,
+	       const std::pair<MRI, MRI> &ss,
+	       const std::vector<std::pair<double, double> > &sam,
+	       float angstroms_per_bin, clipper::Xmap<float> *r_xmap_p) {
+      std::cout << "info:: start: " << ss.first.coord().format() << " " << ss.first.index()
+                << "   end " << ss.second.coord().format() << " " << ss.second.index() << std::endl;
+      double mol_radius = 26;
+      double dd_crit = mol_radius * mol_radius;
+      for (MRI ix_1 = ss.first; ix_1.index() != ss.second.index(); ix_1.next()) {
+	 clipper::Coord_map  cm_1 = ix_1.coord().coord_map();
+	 clipper::Coord_frac cf_1 = cm_1.coord_frac(xmap.grid_sampling());
+	 clipper::Coord_orth co_1 = cf_1.coord_orth(xmap.cell());
+	 for (MRI ix_2 = xmap.first(); !ix_2.last(); ix_2.next()) {
+	    clipper::Coord_map  cm_2 = ix_2.coord().coord_map();
+	    clipper::Coord_frac cf_2 = cm_2.coord_frac(xmap.grid_sampling());
+	    clipper::Coord_orth co_2 = cf_2.coord_orth(xmap.cell());
+	    double dd = (co_2-co_1).lengthsq();
+	    if (dd < dd_crit) {
+	       float d = static_cast<float>(std::sqrt(dd));
+	       float cf = get_spherically_averaged_density_value(sam, angstroms_per_bin, d);
+	       (*r_xmap_p)[ix_1] += cf;
+	    }
+	 }
+      }
+   };
+   std::vector<std::thread> threads;
+   for (unsigned int i=0; i<map_ref_start_stops.size(); i++) {
+      const std::pair<MRI, MRI> &ss = map_ref_start_stops[i];
+      std::cout << "making a thread with start stops: "
+		<< map_ref_start_stops[i].first.coord().format() << " "
+		<< map_ref_start_stops[i].first.index() << " "
+		<< map_ref_start_stops[i].second.coord().format() << " "
+		<< map_ref_start_stops[i].second.index() << "\n";
+      threads.push_back(std::thread(l, std::cref(xmap), std::cref(map_ref_start_stops[i]),
+				    std::cref(sam), angstroms_per_bin, &r));
+   }
+   for (unsigned int i=0; i<threads.size(); i++)
+      threads[i].join();
+
    std::cout << std::endl;
 
    return r;
@@ -182,8 +227,8 @@ int main(int argc, char **argv) {
 
    int status = 0;
 
-   thread_fill_a_map();
-   return 0;
+   // thread_fill_a_map();
+   // return 0;
 
    if (argc > 3) {
 
