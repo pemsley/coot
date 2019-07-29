@@ -475,8 +475,6 @@ std::vector<std::pair<clipper::Xmap<float>::Map_reference_index,
 		      clipper::Xmap<float>::Map_reference_index> >
 coot::make_map_reference_index_start_stops(const clipper::Xmap<float> &xmap, int n_threads_in) {
 
-   std::cout << "make_map_reference_index_start_stops() for xmap doesn't work" << std::endl;
-
    unsigned int n_threads = n_threads_in;
    std::vector<std::pair<MRI, MRI> > map_ref_start_stops;
    bool debug = true;
