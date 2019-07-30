@@ -470,6 +470,25 @@ int handle_read_draw_molecule(const char *filename) {
    return handle_read_draw_molecule_with_recentre(filename, r);
 }
 
+int make_updating_model_molecule(const char *filename) {
+
+   int status = 1;
+   int imol = handle_read_draw_molecule_with_recentre(filename, 0);
+
+   if (is_valid_model_molecule(imol)) {
+      updating_coordinates_molecule_parameters_t *ucp =
+	 new updating_coordinates_molecule_parameters_t(filename);
+      graphics_info_t::molecules[imol].continue_watching_coordinates_file = true;
+      GSourceFunc f = GSourceFunc(graphics_info_t::molecules[imol].watch_coordinates_file);
+      guint updating_mol_timeout_idx = g_timeout_add(500, f, ucp);
+      graphics_info_t::molecules[imol].continue_watching_mtz = true;
+   } else {
+      status = 0;
+   }
+   return status;
+}
+
+
 void allow_duplicate_sequence_numbers() {
 
    graphics_info_t::allow_duplseqnum = true;
@@ -8024,6 +8043,8 @@ void sharpen_with_gompertz_scaling(int imol, float b_factor,
 /*  ----------------------------------------------------------------------- */
 int add_view_here(const char *view_name) {
 
+   std::cout << "------------------ debug: in add_view_here() with view name " << view_name << std::endl;
+
    std::string name(view_name);
    float quat[4];
    for (int i=0; i<4; i++)
@@ -8032,12 +8053,21 @@ int add_view_here(const char *view_name) {
    coot::Cartesian rc = g.RotationCentre();
    float zoom = graphics_info_t::zoom;
    coot::view_info_t view(quat, rc, zoom, name);
-   graphics_info_t::views->push_back(view);
-   return (graphics_info_t::views->size() -1);
+
+   std::cout << "------------ in add_view_here() made a view with name: " << view.view_name << std::endl;
+   std::cout << "------------ in add_view_here() made a view: " << view << std::endl;
+   int n_views = graphics_info_t::views.size();
+   graphics_info_t::views.push_back(view);
+   int this_view_index = n_views;
+
+   std::cout << "------------ in add_view_here() back is " << graphics_info_t::views.back() << std::endl;
+   return this_view_index;
 }
 
 int add_view_raw(float rcx, float rcy, float rcz, float quat0, float quat1, 
-		  float quat2, float quat3, float zoom, const char *view_name) {
+                 float quat2, float quat3, float zoom, const char *view_name) {
+
+   std::cout << "------------------ add_view_raw() " << view_name << std::endl;
 
    float quat[4];
    quat[0] = quat0;
@@ -8046,8 +8076,8 @@ int add_view_raw(float rcx, float rcy, float rcz, float quat0, float quat1,
    quat[3] = quat3;
    coot::Cartesian rc(rcx, rcy, rcz);
    coot::view_info_t v(quat, rc, zoom, view_name);
-   graphics_info_t::views->push_back(v);
-   return (graphics_info_t::views->size() -1);
+   graphics_info_t::views.push_back(v);
+   return (graphics_info_t::views.size() -1);
 }
 
 
@@ -8058,22 +8088,18 @@ int remove_named_view(const char *view_name) {
    std::string vn(view_name);
    std::vector<coot::view_info_t> new_views;
 
-   // don't push back the view if it has the same name and if we
-   // haven't found a view with that name before.
-   for (unsigned int iv=0; iv<graphics_info_t::views->size(); iv++) {
-      if ((*graphics_info_t::views)[iv].view_name == vn) {
-	 if (found == 1) {
-	    new_views.push_back((*graphics_info_t::views)[iv]);
-	 }
-	 found = 1;
-      } else {
-	 new_views.push_back((*graphics_info_t::views)[iv]);
+   // This should be part of the view container class
+   //
+   unsigned int n_views = graphics_info_t::views.size();
+   std::vector<coot::view_info_t>::iterator it; // needs to be const_iterator? depending on c++ version?
+   for (it=graphics_info_t::views.begin(); it!=graphics_info_t::views.end(); it++) {
+      if (it->view_name == vn) {
+         graphics_info_t::views.erase(it);
+         break;
       }
    }
-   if (found) {
-      r = 1;
-      *graphics_info_t::views = new_views;
-   }
+
+   
    std::vector<std::string> command_strings;
    command_strings.push_back("remove_named_view");
    command_strings.push_back(single_quote(coot::util::intelligent_debackslash(view_name)));
@@ -8084,12 +8110,19 @@ int remove_named_view(const char *view_name) {
 /*! \brief the given view number */
 void remove_view(int view_number) {
 
-   std::vector<coot::view_info_t> new_views;
-   for (unsigned int iv=0; iv<graphics_info_t::views->size(); iv++) {
-      if (int(iv) != view_number)
-	 new_views.push_back((*graphics_info_t::views)[iv]);
+   int n_views = graphics_info_t::views.size();
+   if (view_number >= 0) {
+      if (view_number < n_views) {
+         std::vector<coot::view_info_t>::iterator it; // needs to be const_iterator? depending on c++ version?
+         int idx = 0;
+         for (it=graphics_info_t::views.begin(); it!=graphics_info_t::views.end(); it++, idx++) {
+            if (idx == view_number) {
+               graphics_info_t::views.erase(it);
+               break;
+            }
+         }
+      }
    }
-   *graphics_info_t::views = new_views;
 
    std::string cmd = "remove-view";
    std::vector<coot::command_arg_t> args;
@@ -8107,16 +8140,13 @@ void play_views() {
    if (graphics_info_t::views_play_speed > 0.0)
       play_speed = graphics_info_t::views_play_speed;
    
-//    std::cout << "DEBUG:: # Views "<< graphics_info_t::views->size() << std::endl;
-   for (unsigned int iv=0; iv<graphics_info_t::views->size(); iv++) {
-      coot::view_info_t view1 = (*graphics_info_t::views)[iv];
+   for (unsigned int iv=0; iv<graphics_info_t::views.size(); iv++) {
+      coot::view_info_t view1 = graphics_info_t::views[iv];
       // std::cout << "DEBUG:: View "<< iv << " " << view1.view_name << std::endl;
       if (! (view1.is_simple_spin_view_flag ||
 	     view1.is_action_view_flag)) {
-	 if ((iv+1) < graphics_info_t::views->size()) { 
-// 	    std::cout << "DEBUG:: interpolating to  "<< iv+1 << " "
-// 		      << view1.view_name << std::endl;
-	    coot::view_info_t view2 = (*graphics_info_t::views)[iv+1];
+	 if ((iv+1) < graphics_info_t::views.size()) { 
+	    coot::view_info_t view2 = graphics_info_t::views[iv+1];
 	    if (! (view2.is_simple_spin_view_flag ||
 		   view2.is_action_view_flag)) { 
 	       coot::view_info_t::interpolate(view1, view2, nsteps);
@@ -8125,15 +8155,15 @@ void play_views() {
 	 }
       } else {
 	 // a simple spin  or an action view here:
-// 	    std::cout << "DEBUG:: simple spin "
-// 		      << view1.view_name << std::endl;
+         // 	    std::cout << "DEBUG:: simple spin "
+         // 		      << view1.view_name << std::endl;
 	 int n_spin_steps = int (float (view1.n_spin_steps) / play_speed);
 	 float dps = view1.degrees_per_step*0.5 * play_speed;
 	 rotate_y_scene(n_spin_steps, dps);
-	 if ((iv+1) < graphics_info_t::views->size()) { 
+	 if ((iv+1) < graphics_info_t::views.size()) { 
  	    std::cout << "DEBUG:: interpolating to  "<< iv+1 << " "
  		      << view1.view_name << std::endl;
-	    coot::view_info_t view2 = (*graphics_info_t::views)[iv+1];
+	    coot::view_info_t view2 = graphics_info_t::views[iv+1];
 	    if (!view2.is_simple_spin_view_flag && !view2.is_action_view_flag) {
 	       // the quat was not set because this is a simple
 	       // rotate, so we must generate it from the current
@@ -8162,24 +8192,15 @@ void remove_this_view() {
    float zoom =  g.zoom;
 
    int r=0;
-   bool found = 0;
+   bool found = false;
    coot::view_info_t v(quat, rc, zoom, "");
 
-   // don't push back the view if it has the same name and if we
-   // haven't found a view with that name before.
-   std::vector<coot::view_info_t> new_views;
-   for (unsigned int iv=0; iv<graphics_info_t::views->size(); iv++) {
-      if ((*graphics_info_t::views)[iv].matches_view(v)) {
-	 if (found == 1) {
-	    new_views.push_back((*graphics_info_t::views)[iv]);
-	 }
-      } else {
-	 new_views.push_back((*graphics_info_t::views)[iv]);
+   std::vector<coot::view_info_t>::iterator it; // needs to be const_iterator? depending on c++ version?
+   for (it=graphics_info_t::views.begin(); it!=graphics_info_t::views.end(); it++) {
+      if (it->matches_view(v)) {
+         graphics_info_t::views.erase(it);
+         break;
       }
-   }
-   if (found) {
-      r = 1;
-      *graphics_info_t::views = new_views;
    }
    add_to_history_simple("remove-this-view");
 }
@@ -8195,15 +8216,17 @@ int go_to_first_view(int snap_to_view_flag) {
 }
 
 void clear_all_views() {
-   graphics_info_t::views->clear();
+
+   std::cout << "---------------- clear_all_views() " << std::endl;
+   graphics_info_t::views.clear();
 }
 
 int go_to_view_number(int view_number, int snap_to_view_flag) {
 
    int r = 0;
    graphics_info_t g;
-   if ((int(graphics_info_t::views->size()) > view_number) && (view_number >= 0)) {
-      coot::view_info_t view = (*graphics_info_t::views)[view_number];
+   if ((int(graphics_info_t::views.size()) > view_number) && (view_number >= 0)) {
+      coot::view_info_t view = graphics_info_t::views[view_number];
       if (view.is_simple_spin_view_flag) {
 	 int nsteps = 2000;
          nsteps = 500;
@@ -8230,7 +8253,7 @@ int go_to_view_number(int view_number, int snap_to_view_flag) {
 	       if (graphics_info_t::views_play_speed > 0.000000001)
 		  nsteps = int(2000.0/graphics_info_t::views_play_speed);
 	       coot::view_info_t::interpolate(this_view,
-					      (*graphics_info_t::views)[view_number], nsteps);
+					      graphics_info_t::views[view_number], nsteps);
 	    }
 	 }
 	 update_things_on_move_and_redraw();
@@ -8247,8 +8270,19 @@ int go_to_view_number(int view_number, int snap_to_view_flag) {
 
 /*! \brief return the number of views */
 int n_views() {
+
+
+   if (true) {
+      std::cout << "debug in n_views(): with n_views " <<  graphics_info_t::views.size() << std::endl;
+      unsigned int nv =  graphics_info_t::views.size();
+      for (unsigned int i=0; i<nv; i++) {
+         std::cout << "debug:: n_views() " << i << " has name " << graphics_info_t::views.at(i).view_name
+                   << " " << graphics_info_t::views.at(i) << std::endl;
+      }
+   }
+
    add_to_history_simple("n-views");
-   return graphics_info_t::views->size();
+   return graphics_info_t::views.size();
 }
 
 /*! \brief return the name of the given view, if view_number does not
@@ -8257,10 +8291,10 @@ int n_views() {
 SCM view_name(int view_number) {
 
    SCM r = SCM_BOOL_F;
-   int n_view = graphics_info_t::views->size();
+   int n_view = graphics_info_t::views.size();
    if (view_number < n_view)
       if (view_number >= 0) {
-	 std::string name = (*graphics_info_t::views)[view_number].view_name;
+	 std::string name = graphics_info_t::views[view_number].view_name;
 	 r = scm_makfrom0str(name.c_str());
       }
    return r;
@@ -8271,10 +8305,10 @@ PyObject *view_name_py(int view_number) {
 
    PyObject *r;
    r = Py_False;
-   int n_view = graphics_info_t::views->size();
+   int n_view = graphics_info_t::views.size();
    if (view_number < n_view)
       if (view_number >= 0) {
-         std::string name = (*graphics_info_t::views)[view_number].view_name;
+         std::string name = graphics_info_t::views[view_number].view_name;
          r = PyString_FromString(name.c_str());
       }
    if (PyBool_Check(r)) {
@@ -8290,8 +8324,8 @@ SCM view_description(int view_number) {
 
    SCM r = SCM_BOOL_F;
    if (view_number >= 0)
-      if (view_number < int(graphics_info_t::views->size())) {
-	 std::string d = (*graphics_info_t::views)[view_number].description;
+      if (view_number < int(graphics_info_t::views.size())) {
+	 std::string d = graphics_info_t::views[view_number].description;
 	 if (d != "") {
 	    r = scm_makfrom0str(d.c_str());
 	 }
@@ -8305,8 +8339,8 @@ PyObject *view_description_py(int view_number) {
    PyObject *r;
    r = Py_False;
    if (view_number >= 0)
-      if (view_number < int(graphics_info_t::views->size())) {
-         std::string d = (*graphics_info_t::views)[view_number].description;
+      if (view_number < int(graphics_info_t::views.size())) {
+         std::string d = graphics_info_t::views[view_number].description;
          if (d != "") {
             r = PyString_FromString(d.c_str());
          }
@@ -8323,7 +8357,7 @@ PyObject *view_description_py(int view_number) {
 /*! \brief save views to view_file_name */
 void save_views(const char *view_file_name) {
 
-   unsigned int n_views = graphics_info_t::views->size();
+   unsigned int n_views = graphics_info_t::views.size();
    if (n_views > 0) {
       std::ofstream f(view_file_name);
       if (! f) {
@@ -8338,7 +8372,7 @@ void save_views(const char *view_file_name) {
 #endif // PYTHON
 #endif // GUILE
 	 for (unsigned int i=0; i<n_views; i++) {
-	    f << (*graphics_info_t::views)[i];
+	    f << graphics_info_t::views[i];
 	 }
 	 std::string s = "Views written to file ";
 	 s += view_file_name;
@@ -8355,29 +8389,32 @@ int add_action_view(const char *view_name, const char *action_function) {
    std::string name(view_name);
    std::string func(action_function);
    coot::view_info_t view(name, func);  // an action view
-   graphics_info_t::views->push_back(view);
-   return (graphics_info_t::views->size() -1);
+   graphics_info_t::views.push_back(view);
+   return (graphics_info_t::views.size() -1);
 }
 
 // return the view number of the new view
 int insert_action_view_after_view(int view_number, const char *view_name, const char *action_function) {
+
+   // FIX this                                                                  
+
    int r = -1; 
    std::string name(view_name);
    std::string func(action_function);
    coot::view_info_t view(name, func);  // an action view
-   int n_views = graphics_info_t::views->size(); 
+   int n_views = graphics_info_t::views.size(); 
    if (view_number >= n_views) {
-      graphics_info_t::views->push_back(view);
-      r = (graphics_info_t::views->size() -1);
+      graphics_info_t::views.push_back(view);
+      r = (graphics_info_t::views.size() -1);
    } else {
       // insert a view
       std::vector <coot::view_info_t> new_views;
       for (int iview=0; iview<n_views; iview++) {
-	 new_views.push_back((*graphics_info_t::views)[iview]);
+	 new_views.push_back(graphics_info_t::views[iview]);
 	 if (iview == view_number)
 	    new_views.push_back(view);
       }
-      *graphics_info_t::views = new_views; // bleuch.
+      graphics_info_t::views = new_views; // bleuch.
       r = view_number + 1;
    }
    return r;
@@ -8385,9 +8422,9 @@ int insert_action_view_after_view(int view_number, const char *view_name, const 
 
 void add_view_description(int view_number, const char *descr) {
 
-   if (view_number < int(graphics_info_t::views->size()))
+   if (view_number < int(graphics_info_t::views.size()))
       if (view_number >= 0)
-	 (*graphics_info_t::views)[view_number].add_description(descr);
+	 graphics_info_t::views[view_number].add_description(descr);
 }
 
 #ifdef USE_GUILE
@@ -8572,18 +8609,20 @@ void go_to_view_py(PyObject *view) {
 int add_spin_view(const char *view_name, int n_steps, float degrees_total) {
 
    coot::view_info_t v(view_name, n_steps, degrees_total);
-   graphics_info_t::views->push_back(v);
+   graphics_info_t::views.push_back(v);
+
    std::string cmd = "add-spin-view";
    std::vector<coot::command_arg_t> args;
    args.push_back(view_name);
    args.push_back(n_steps);
    args.push_back(degrees_total);
    add_to_history_typed(cmd, args);
-   return (graphics_info_t::views->size() -1);
+   return (graphics_info_t::views.size() -1);
 }
 
 void set_views_play_speed(float f) {
    graphics_info_t::views_play_speed = f;
+
    std::string cmd = "set-views-play-speed";
    std::vector<coot::command_arg_t> args;
    args.push_back(f);

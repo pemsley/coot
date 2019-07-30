@@ -892,36 +892,7 @@ public:
    enum { USE_PYTHON_STATE_COMMANDS = 2, USE_SCM_STATE_COMMANDS = 1 };
 
    // 
-   void initialize_molecules() { 
-     
-      // I don't like the way that this is currently done. 
-      // 
-      // I would like to pass i, the molecule number to the constuctor.
-      // How do I do that?      You can't.
-      // 
-      // Actually you can, just use it as you would a constructor.
-      //
-      // std::cout << "initializing molecules..."; 
-      // molecules = new molecule_class_info_t[n_molecules_max];
-     // std::cout << "done" << std::endl;
-/*       for (int i=0; i<n_molecules_max; i++) { */
-/*          molecules[i].set_mol_number(i);  */
-/*       } */
-
-/* Old style array of molecules code */
-/*       for (int i=0; i<n_molecules_max; i++) { */
-/* 	 dynarama_is_displayed[i]      = NULL; */
-/* 	 sequence_view_is_displayed[i] = NULL; */
-/* 	 geometry_graph[i]             = NULL; */
-/* 	 b_factor_variance_graph[i]    = NULL; */
-/* 	 residue_density_fit_graph[i]  = NULL; */
-/* 	 omega_distortion_graph[i]     = NULL; */
-/* 	 rotamer_graph[i]              = NULL; */
-/* 	 ncs_diffs_graph[i]            = NULL; */
-/*       } */
-
-   }
-
+   void initialize_molecules() { }
 
    void init();
 
@@ -3745,7 +3716,7 @@ string   static std::string sessionid;
    static std::pair<std::string, std::string> db_userid_username;
 #endif
 
-   static std::vector<coot::view_info_t> *views;
+   static std::vector<coot::view_info_t> views;
    static float views_play_speed;
 
    static std::string movie_file_prefix;

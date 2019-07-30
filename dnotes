@@ -8466,7 +8466,7 @@ Article (PDF Available) Proceedings of the National Academy of Sciences 114(12):
 The HIV-1 envelope glycoprotein structure: nailing down a moving target
 Article
 Jan 2017IMMUNOL REV
-Andrew B WardIan A Wilson
+Andrew B Ward Ian A Wilson
 
 
 
@@ -9047,6 +9047,24 @@ Mon 27 May 2019 01:38:52 CEST
 
    https://www.reddit.com/r/vulkan/comments/brvdan/the_story_of_optimizing_a_vulkan_program/
 
+
+----
+Wed  1 May 16:03:37 BST 2019
+
+   https://stackoverflow.com/questions/4305911/opengl-depth-sorting
+   https://stackoverflow.com/questions/6352908/opengl-transparency-translucency?noredirect=1&lq=1
+   http://developer.download.nvidia.com/SDK/10/opengl/src/dual_depth_peeling/doc/DualDepthPeeling.pdf
+   http://www.humus.name/index.php?page=3D&ID=61
+   https://community.khronos.org/t/easy-depth-sorting-almost-maybe/59832
+
+
+----
+Tue  7 May 17:38:42 BST 2019
+
+   SAXS tutorial/envelope info
+   https://situs.biomachina.org/tutorial_saxs.html
+
+
 ---
 Thu 13 Jun 2019 08:24:13 BST
 
@@ -9086,10 +9104,18 @@ Fri 21 Jun 2019 14:59:40 CDT
    share all your native binaries.
 
 ---
+
+Mon  8 Jul 18:12:26 BST 2019
+
+  Jiffies, linux ticks, Hz
+
+  $ getconf CLK_TCK
+
+
+---
 Mon 24 Jun 2019 09:41:38 CDT
 
    PDBe: ccdutils rdkit library
-
 
 ---
 Mon 24 Jun 2019 10:14:03 CDT
@@ -9106,9 +9132,27 @@ Mon 24 Jun 2019 10:15:05 CDT
    o Mac OSX and Gtk: John Ralls https://discourse.gnome.org/t/say-hello-thread/82/35
 
 
-
 ---
 Mon 24 Jun 2019 10:15:28 CDT
 
    o Dominika OS: Ubuntu 16.04
 
+
+---
+Wed  3 Jul 2019 04:21:00 BST
+
+   o 26S Proteosome EMDB-4002
+
+---
+Tue 16 Jul 22:59:11 BST 2019
+
+   what is this?
+
+   https://github.com/exokitxr/exokit
+
+---
+Fri 26 Jul 20:51:17 BST 2019
+
+   o OpenGL tutorials: including SSAO:
+
+     http://ogldev.atspace.co.uk/

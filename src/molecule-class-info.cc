@@ -1,21 +1,21 @@
 
 /* src/molecule-class-info.cc
- * 
+ *
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Copyright 2007 by Paul Emsley
  * Copyright 2007, 2008, 2009 by The University of Oxford
  * Copyright 2013, 2014, 2015, 2016 by Medical Research Council
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -76,7 +76,7 @@
 #include "gl-matrix.h"
 #include "graphics-info.h"
 
-#include "coords/Bond_lines_ext.h"  
+#include "coords/Bond_lines_ext.h"
 #include "globjects.h" // for set_bond_colour(), r_50
 
 #include "coot-utils/coot-coord-utils.hh"
@@ -86,7 +86,7 @@
 
 #ifndef CLIPPER_MAP_INTERP
 #include "clipper/core/map_interp.h"
-#endif 
+#endif
 
 #include "ligand/ligand.hh"
 #include "ligand/residue_by_phi_psi.hh"
@@ -101,7 +101,7 @@
 
 // Return the molecule number of the molecule that we just filled.
 // Return -1 if there was a failure.
-// 
+//
 int
 molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 						 std::string filename,
@@ -132,7 +132,7 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 
    // stat check the link targets not the link itself, lstat stats the
    // link itself.
-   // 
+   //
    if (status != 0 || !S_ISREG (s.st_mode)) {
       std::cout << "WARNING:: Error reading " << filename << std::endl;
       if (S_ISDIR(s.st_mode)) {
@@ -141,7 +141,7 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
       return -1; // which is status in an error
    }
 
-				    
+
    // Read in pdb, [shelx files use the read_shelx_ins_file method]
    //
    atom_sel = get_atom_selection(filename, allow_duplseqnum, convert_to_v2_atom_names_flag);
@@ -153,26 +153,26 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
       std::cout << "INFO:: Found " << n_models << " models\n";
       for (int imod=1; imod<=n_models; imod++) {
 	 mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-	 if (model_p) { 
+	 if (model_p) {
 	    int n_links = model_p->GetNumberOfLinks();
 	    std::cout << "   Model "  << imod << " had " << n_links
-		      << " links\n";} 
+		      << " links\n";}
       }
-      
+
 
       //
       // and move mol_class_info to indexed molecule[n_molecules];
       // note indexing difficulties/considerations.
-      
+
       // save it in the static molecule_class_info_t
       //
-      
+
       // mmdb::CMMDBCryst *cryst_p =  (atom_sel.mol)->get_cell_p();
-      
+
       mmdb::mat44 my_matt;
 
-      // 
-      // 
+      //
+      //
       int err = atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
       if (warn_about_missing_symmetry_flag) {
 	 if (err != mmdb::SYMOP_Ok) {
@@ -180,7 +180,7 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 		      << std::endl;
 	 }
       }
-      
+
       // initialize some things.
       //
 //       std::cout << "initialize_coordinate_things_on_read_molecule_internal for mol no "
@@ -195,7 +195,7 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 	 ca_representation();
       } else {
 
-	 if (! is_undo_or_redo) { 
+	 if (! is_undo_or_redo) {
 	    // 	 std::cout << "DEBUG:: filling ghost info in
 	    // 	 handle_read_draw_molecule" << std::endl;
 	    short int do_rtops_flag = 0;
@@ -206,13 +206,13 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 	    // crystallographic models.  Which generally only have one
 	    // model per manager.  This may change in future...
 	    int nmodels = atom_sel.mol->GetNumberOfModels();
-	    if (nmodels == 1) { 
+	    if (nmodels == 1) {
 	       fill_ghost_info(do_rtops_flag, 0.7); // returns nghosts
 	       // std::cout << "INFO:: found " << nghosts << " ghosts\n";
 	    }
 	 } else {
 	    update_mols_in_additional_representations(); //uses atom_sel.mol
-	 } 
+	 }
 	 // Generate bonds and save them in the graphical_bonds_container
 	 // which has static data members.
 	 //
@@ -228,27 +228,27 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 	 }
       }
 
-      // Now, we have no map assocaited with this molecule, 
+      // Now, we have no map assocaited with this molecule,
       // so we set the draw_vects to zero.
-      // 
+      //
       // However, in future, we will have maps associated with
       // coordinates, so we should put a test here first before
       // we:
       //
 
       // debug();
-      
+
       //
       if (g.recentre_on_read_pdb || imol_no_in == 0)  // n_molecules is updated
 						      // in c-interface.cc
-	 if (reset_rotation_centre) 
-	    g.setRotationCentre(::centre_of_molecule(atom_sel)); 
+	 if (reset_rotation_centre)
+	    g.setRotationCentre(::centre_of_molecule(atom_sel));
 
-      // update the maps so that they appear around the new centre. 
-      // 
-      if (reset_rotation_centre) 
+      // update the maps so that they appear around the new centre.
+      //
+      if (reset_rotation_centre)
 	 for (int ii=0; ii<g.n_molecules(); ii++) {
-	    g.molecules[ii].update_map(); 
+	    g.molecules[ii].update_map();
 	 }
 
       // save state strings
@@ -274,11 +274,11 @@ molecule_class_info_t::space_group() const {
 
    if (has_model()) {
       // I want just the symmetry
-      
+
       try { // for now
 	 std::pair<clipper::Cell, clipper::Spacegroup> cell_sg =
 	    coot::util::get_cell_symm(atom_sel.mol);
-	 if (!cell_sg.second.is_null()) { 
+	 if (!cell_sg.second.is_null()) {
 	    p.first = 1;
 	    p.second = cell_sg.second;
 	 }
@@ -294,14 +294,14 @@ std::pair<bool, clipper::Cell>
 molecule_class_info_t::cell() const {
 
    // NXMAP-FIXME
-   
+
    clipper::Cell cell;
    std::pair<bool, clipper::Cell> p(0, cell);
    if (has_xmap()) {
       p = std::pair<bool, clipper::Cell> (1, xmap.cell());
-   } 
+   }
 
-   if (has_model()) { 
+   if (has_model()) {
       mmdb::realtype a[6];
       mmdb::realtype vol;
       int orthcode;
@@ -312,7 +312,7 @@ molecule_class_info_t::cell() const {
 			      clipper::Util::d2rad(a[5]));
       p.first = 1;
       p.second = clipper::Cell(cdr);
-   } 
+   }
    return p;
 }
 
@@ -348,7 +348,7 @@ molecule_class_info_t::centre_of_molecule() const {
 
 float
 molecule_class_info_t::size_of_molecule() const {
-   
+
    double d2_sum = 0;
    float r = 0;
    coot::Cartesian centre = centre_of_molecule();
@@ -356,9 +356,9 @@ molecule_class_info_t::size_of_molecule() const {
       for (int i=0; i<atom_sel.n_selected_atoms; i++) {
 	 double d =
 	    (atom_sel.atom_selection[i]->x - centre.x()) *
-	    (atom_sel.atom_selection[i]->x - centre.x()) + 
+	    (atom_sel.atom_selection[i]->x - centre.x()) +
 	    (atom_sel.atom_selection[i]->y - centre.y()) *
-	    (atom_sel.atom_selection[i]->y - centre.y()) + 
+	    (atom_sel.atom_selection[i]->y - centre.y()) +
 	    (atom_sel.atom_selection[i]->z - centre.z()) *
 	    (atom_sel.atom_selection[i]->z - centre.z());
 	 // std::cout << i << " adding in d = " << d << std::endl;
@@ -366,7 +366,7 @@ molecule_class_info_t::size_of_molecule() const {
       }
       double msd = d2_sum/double(atom_sel.n_selected_atoms);
       r = sqrt(msd);
-//       std::cout << " for imol = " << imol_no << " " 
+//       std::cout << " for imol = " << imol_no << " "
 // 	       << r << " = sqrt(" << msd << ") " << " = sqrt("
 // 	       << d2_sum << "/" << atom_sel.n_selected_atoms << ")" << std::endl;
    }
@@ -378,14 +378,14 @@ std::string
 molecule_class_info_t::show_spacegroup() const {
 
    std::string s("No spacegroup");
-   
+
    if (has_model()) {
       char *st = atom_sel.mol->GetSpaceGroup();
       if (st)
 	 s = st;
    }
-   
-   if (has_xmap()) 
+
+   if (has_xmap())
       s = xmap.spacegroup().symbol_hm();
 
    return s;
@@ -420,7 +420,7 @@ molecule_class_info_t::closest_atom(const coot::Cartesian &pt, bool ca_check_fla
    for (int iat=0; iat<atom_sel.n_selected_atoms; iat++) {
       mmdb::Atom *at = atom_sel.atom_selection[iat];
       std::string chain_id_from_at(at->GetChainID());
-      if ((chain_id_from_at == chain_id) || !use_this_chain_id) { 
+      if ((chain_id_from_at == chain_id) || !use_this_chain_id) {
 	 float d2 = (at->x - pt.x()) * (at->x - pt.x());
 	 d2 += (at->y - pt.y()) * (at->y - pt.y());
 	 d2 += (at->z - pt.z()) * (at->z - pt.z());
@@ -436,7 +436,7 @@ molecule_class_info_t::closest_atom(const coot::Cartesian &pt, bool ca_check_fla
 	       mmdb::PPAtom residue_atoms;
 	       res->GetAtomTable(residue_atoms, natoms);
 	       for (int iatom=0; iatom<natoms; iatom++) {
-		  if (! residue_atoms[iatom]->isTer()) { 
+		  if (! residue_atoms[iatom]->isTer()) {
 		     if (! strcmp(residue_atoms[iatom]->name, " CA ")) {
 			if (! strcmp(residue_atoms[iatom]->altLoc, at->altLoc)) {
 			   at_best = residue_atoms[iatom];
@@ -448,7 +448,7 @@ molecule_class_info_t::closest_atom(const coot::Cartesian &pt, bool ca_check_fla
 	 }
       }
    }
-   if (at_best) { 
+   if (at_best) {
       at_info.dist = sqrt(dist_best);
       at_info.atom = at_best;
       at_info.imol = imol_no;
@@ -473,7 +473,7 @@ void
 molecule_class_info_t::install_model(int imol_no_in,
 				     atom_selection_container_t asc,
 				     const coot::protein_geometry *geom_p,
-				     const std::string &name, 
+				     const std::string &name,
 				     short int display_in_display_control_widget_status,
 				     bool is_from_shelx_ins, // default false
 				     bool warn_about_missing_symmetry_flag // default false
@@ -495,7 +495,7 @@ void
 molecule_class_info_t::install_model_with_ghosts(int imol_no_in,
 						 atom_selection_container_t asc,
 						 const coot::protein_geometry *geom_p,
-						 const std::string &name, 
+						 const std::string &name,
 						 short int display_in_display_control_widget_status,
 						 const std::vector<coot::ghost_molecule_display_t> &ncs_ghosts_in,
 						 bool is_from_shelx_ins, // default false
@@ -512,7 +512,7 @@ molecule_class_info_t::install_model_with_ghosts(int imol_no_in,
    atom_sel = asc;
 
    mmdb::mat44 my_matt;
-   
+
    int err = asc.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
    if (warn_about_missing_symmetry_flag)
       if (err != 0)
@@ -522,10 +522,10 @@ molecule_class_info_t::install_model_with_ghosts(int imol_no_in,
    std::set<int> dummy;
    makebonds(geom_p, dummy);
    if (g.show_symmetry == 1)
-      if (show_symmetry) 
+      if (show_symmetry)
 	 update_symmetry();
 
-   have_unsaved_changes_flag = 1; 
+   have_unsaved_changes_flag = 1;
 
    short int is_undo_or_redo = 0;
 
@@ -557,7 +557,7 @@ molecule_class_info_t::install_model(int imol_no_in,
 
    atom_selection_container_t asc = make_asc(mol);
    install_model(imol_no_in, asc, geom_p, mol_name, display_in_display_control_widget_status, is_from_shelx_ins, warn_about_missing_symmetry_flag);
-} 
+}
 
 
 
@@ -566,8 +566,8 @@ molecule_class_info_t::label_atoms(int brief_atom_labels_flag,
 				   short int seg_ids_in_atom_labels_flag) {
 
    if (draw_it) {
-      
-      if (has_model()) { 
+
+      if (has_model()) {
 
 	 // keep a list of atoms that have labels (either in graphics_info
 	 // or mol_class_info) and loop over them calling label_atom(i)
@@ -581,7 +581,7 @@ molecule_class_info_t::label_atoms(int brief_atom_labels_flag,
 	 // also remove labels from atom indexes list of over the end.
 	 for (int ii=0; ii<n_atoms_to_label ; ii++)
 	    label_atom(labelled_atom_index_list[ii], brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
-      
+
 	 n_atoms_to_label = labelled_symm_atom_index_list.size();
 
 	 for (int ii=0; ii<n_atoms_to_label ; ii++) {
@@ -597,7 +597,7 @@ molecule_class_info_t::trim_atom_label_table() {
    int new_max_atom_index = atom_sel.n_selected_atoms;
 
    // 20120721 Yes, it was.  There is a better way, using a functor.
-   // 
+   //
 //    // Man, this is a clumsy way of removing specific ints from a vector<int>.
 //    // It's needed because as we do an erase, the labelled_atom_index_list changes
 //    // so that we were double erasing an element:
@@ -610,7 +610,7 @@ molecule_class_info_t::trim_atom_label_table() {
 //    // vector<int> and reassign labelled_atom_index_list at the end.
 //    //
 //    // Anyway, this seems to work as it is, so I'll leave it for now.
-//    // 
+//    //
 
    // modern
    //
@@ -631,10 +631,10 @@ molecule_class_info_t::trim_atom_label_table() {
 
 void
 molecule_class_info_t::anisotropic_atoms() {
-   
+
    int c; // atom colour
 
-   if (has_model()) { 
+   if (has_model()) {
       graphics_info_t g; // bleugh
       bool is_bb = g.background_is_black_p(); //
 
@@ -652,18 +652,19 @@ molecule_class_info_t::anisotropic_atoms() {
 	    float rad_50, r;
 
 	    for (int i=0; i<atom_sel.n_selected_atoms; i++) {
-      
+
 	       // put a wiresphere at the atom positions
-	 
+
 	       if (atom_sel.atom_selection[i]->u11 > 0) {
 
 		  std::string ele = atom_sel.atom_selection[i]->element;
+
 		  // if (draw_hydrogens_flag || ! mmdb_utils::is_hydrogen(ele))
 		  if (draw_hydrogens_flag || ele != " H") {
 	 
 		     glLineWidth(1.0);
 		     glPushMatrix();
-	 
+
 		     x1 = atom_sel.atom_selection[i]->x;
 		     y1 = atom_sel.atom_selection[i]->y;
 		     z1 = atom_sel.atom_selection[i]->z;
@@ -676,18 +677,18 @@ molecule_class_info_t::anisotropic_atoms() {
 
 		     // are we either inside the distance or there is no distance set?
 		     //
-		     if ( (d2 <= mc_r2) || (g.show_aniso_atoms_radius_flag == 0) ) { 
-	    
+		     if ( (d2 <= mc_r2) || (g.show_aniso_atoms_radius_flag == 0) ) {
+
 			c = atom_colour(atom_sel.atom_selection[i]->element);
 			set_bond_colour_by_mol_no(c, is_bb);
-	       
-			GL_matrix mat(atom_sel.atom_selection[i]->u11, 
+
+			GL_matrix mat(atom_sel.atom_selection[i]->u11,
 				      atom_sel.atom_selection[i]->u12,
 				      atom_sel.atom_selection[i]->u13,
-				      atom_sel.atom_selection[i]->u12, 
+				      atom_sel.atom_selection[i]->u12,
 				      atom_sel.atom_selection[i]->u22,
 				      atom_sel.atom_selection[i]->u23,
-				      atom_sel.atom_selection[i]->u13, 
+				      atom_sel.atom_selection[i]->u13,
 				      atom_sel.atom_selection[i]->u23,
 				      atom_sel.atom_selection[i]->u33);
 
@@ -698,7 +699,7 @@ molecule_class_info_t::anisotropic_atoms() {
 			// std::cout << "Choleskied: " << std::endl;
 			// mat.cholesky().print_matrix();
 			std::pair<bool,GL_matrix> chol_pair = mat.cholesky();
-			if (chol_pair.first) { 
+			if (chol_pair.first) {
 			   glMultMatrixf(chol_pair.second.get());
 			   rad_50 = r_50(atom_sel.atom_selection[i]->element);
 			   r = rad_50_and_prob_to_radius(rad_50,
@@ -710,7 +711,7 @@ molecule_class_info_t::anisotropic_atoms() {
 			   std::cout << "Bad Anistropic Us for " << atom_sel.atom_selection[i]
 				     << std::endl;
 			}
-		     } 
+		     }
 		     glPopMatrix();
 		  }
 	       }
@@ -725,7 +726,7 @@ coot::colour_t
 molecule_class_info_t::get_bond_colour_by_mol_no(int i, bool against_a_dark_background) {
 
    coot::colour_t rgb;
-   
+
    if (bonds_rotate_colour_map_flag == 0) {
       set_bond_colour(i);
    } else {
@@ -736,7 +737,7 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int i, bool against_a_dark_back
 // 		<< bonds_colour_map_rotation << " for imol " << imol_no << std::endl;
 
       // rotation_size typically then: 2*32/360 = 0.178
-      
+
       while (rotation_size > 1.0) { // no more black bonds?
 	 rotation_size -= 1.0;
       }
@@ -752,7 +753,7 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int i, bool against_a_dark_back
 		      << " H-grey "  << HYDROGEN_GREY_BOND << " "
 		      << " magenta " << MAGENTA_BOND << " "
 		      << std::endl;
-	 
+
 	 switch (i) {
 	 case CARBON_BOND:
 	    if (use_bespoke_grey_colour_for_carbon_atoms) {
@@ -761,26 +762,26 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int i, bool against_a_dark_back
 	       rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
 	    }
 	    break;
-	 case YELLOW_BOND: 
+	 case YELLOW_BOND:
 	    rgb[0] = 0.6; rgb[1] =  0.9; rgb[2] =  0.3;
 	    break;
-	 case BLUE_BOND: 
+	 case BLUE_BOND:
 	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  1.0;
 	    break;
-	 case RED_BOND: 
+	 case RED_BOND:
 	    rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
 	    break;
 	 case GREEN_BOND:
 	    rgb[0] = 0.1; rgb[1] =  0.99; rgb[2] =  0.1;
 	    break;
-	 case GREY_BOND: 
+	 case GREY_BOND:
 	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
 	    break;
-	 case HYDROGEN_GREY_BOND: 
+	 case HYDROGEN_GREY_BOND:
 	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
 	    break;
 	    // replaced in mmdb-extras.h
-	    //       case white:   
+	    //       case white:
 	    // 	 rgb[0] = 0.99; rgb[1] =  0.99; rgb[2] = 0.99;
 	    // 	 break;
 	 case MAGENTA_BOND:
@@ -801,33 +802,32 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int i, bool against_a_dark_back
 	 case DARK_BROWN_BOND:
 	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
 	    break;
-      
 	 default:
 	    rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
 	    rgb.rotate(i*26.0/360.0);
 	 }
 
       } else {
-	 
+
 	 // against a white background.  Less pale, darker, more saturated.
 
 	 switch (i) {
-	 case YELLOW_BOND: 
+	 case YELLOW_BOND:
 	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.0;
 	    break;
-	 case BLUE_BOND: 
+	 case BLUE_BOND:
 	    rgb[0] = 0.1; rgb[1] =  0.1; rgb[2] =  0.7;
 	    break;
-	 case RED_BOND: 
+	 case RED_BOND:
 	    rgb[0] = 0.7; rgb[1] =  0.0; rgb[2] =  0.0;
 	    break;
 	 case GREEN_BOND:
 	    rgb[0] = 0.1; rgb[1] =  0.7; rgb[2] =  0.1;
 	    break;
-	 case GREY_BOND: 
+	 case GREY_BOND:
 	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.5;
 	    break;
-	 case HYDROGEN_GREY_BOND: 
+	 case HYDROGEN_GREY_BOND:
 	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
 	    break;
 	 case MAGENTA_BOND:
@@ -879,9 +879,9 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int i, bool against_a_dark_back
 
 
 // fix the name to something involving rotation perhaps?
-// 
+//
 // not const because bond_colour_internal is set.
-void 
+void
 molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_background) {
 
    if (bonds_rotate_colour_map_flag == 0) {
@@ -895,7 +895,7 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_back
 // 		<< bonds_colour_map_rotation << " for imol " << imol_no << std::endl;
 
       // rotation_size typically then: 2*32/360 = 0.178
-      
+
       while (rotation_size > 1.0) { // no more black bonds?
 	 rotation_size -= 1.0;
       }
@@ -930,26 +930,26 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_back
 	       }
 	    }
 	    break;
-	 case YELLOW_BOND: 
+	 case YELLOW_BOND:
 	    rgb[0] = 0.6; rgb[1] =  0.9; rgb[2] =  0.3;
 	    break;
-	 case BLUE_BOND: 
+	 case BLUE_BOND:
 	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  1.0;
 	    break;
-	 case RED_BOND: 
+	 case RED_BOND:
 	    rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
 	    break;
 	 case GREEN_BOND:
 	    rgb[0] = 0.03; rgb[1] =  0.7; rgb[2] =  0.03;
 	    break;
-	 case GREY_BOND: 
+	 case GREY_BOND:
 	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
 	    break;
-	 case HYDROGEN_GREY_BOND: 
+	 case HYDROGEN_GREY_BOND:
 	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
 	    break;
 	    // replaced in mmdb-extras.h
-	    //       case white:   
+	    //       case white:
 	    // 	 rgb[0] = 0.99; rgb[1] =  0.99; rgb[2] = 0.99;
 	    // 	 break;
 	 case MAGENTA_BOND:
@@ -977,26 +977,26 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_back
 	 }
 
       } else {
-	 
+
 	 // against a white background.  Less pale, darker, more saturated.
 
 	 switch (i) {
-	 case YELLOW_BOND: 
+	 case YELLOW_BOND:
 	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.0;
 	    break;
-	 case BLUE_BOND: 
+	 case BLUE_BOND:
 	    rgb[0] = 0.1; rgb[1] =  0.1; rgb[2] =  0.7;
 	    break;
-	 case RED_BOND: 
+	 case RED_BOND:
 	    rgb[0] = 0.7; rgb[1] =  0.0; rgb[2] =  0.0;
 	    break;
 	 case GREEN_BOND:
 	    rgb[0] = 0.1; rgb[1] =  0.7; rgb[2] =  0.1;
 	    break;
-	 case GREY_BOND: 
+	 case GREY_BOND:
 	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.5;
 	    break;
-	 case HYDROGEN_GREY_BOND: 
+	 case HYDROGEN_GREY_BOND:
 	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
 	    break;
 	 case MAGENTA_BOND:
@@ -1062,16 +1062,16 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_back
 
 
 // aka rainbow - or maybe b factor, occupancy or user defined colour index
-// 
+//
 void
 molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds_box_type) {
 
    std::vector<float> rgb(3);
    rgb[0] = 0.2f; rgb[1] =  0.2f; rgb[2] =  0.8f; // blue
-   
+
    bool done = false;
    int offset = 0; // blue starts at 0
-   
+
    if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS) {
       if (i == 0) {
 	 rgb[0] = 0.8f; rgb[1] =  0.8f; rgb[2] =  0.8f; // white
@@ -1085,9 +1085,9 @@ molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds
    }
    if (! done) {
       float max_colour = 30;
-   
+
       // 30 is the size of rainbow colours, 0 -> 1.0 is the range of rainbow colours
-   
+
       float rotation_size = 1.0 - float(i-offset) * 0.7/max_colour;
       rgb = rotate_rgb(rgb, rotation_size);
    }
@@ -1109,9 +1109,9 @@ molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds
 // We find a box (symm: 2 trans: 0 0 0), but we don't find any atoms
 // in it, but we still get though to bonds,
 // bonds.make_graphical_symmetry_bonds
-// 
+//
 // But there are no bonds generated.
-// 
+//
 void
 molecule_class_info_t::update_symmetry() {
 
@@ -1119,29 +1119,29 @@ molecule_class_info_t::update_symmetry() {
 
    // a bit of a hack...
    int shift_search_size = g.symmetry_shift_search_size;
-      
+
    if ((graphics_info_t::show_symmetry == 1) &&
        (show_symmetry == 1)) {
 
       // don't do stuff until we have read in a molecule.
       //
       if (draw_it == 1) {
-      
+
 	 molecule_extents_t extents(atom_sel, g.symmetry_search_radius);
 	 coot::Cartesian point = g.RotationCentre();
-      
+
 	 // cout << "extents " << extents << endl;
 	 // cout << "point:  " << point << endl;
 	 std::vector<std::pair<symm_trans_t, Cell_Translation> > symm_trans_boxes =
 	    extents.which_boxes(point, atom_sel, shift_search_size);
 
-//   	 std::cout << "DEBUG:: symm_trans_boxes.size() is " 
+//   	 std::cout << "DEBUG:: symm_trans_boxes.size() is "
 //   		   << symm_trans_boxes.size() << std::endl;
 //   	 std::cout << "Here are the symms we should check:" << std::endl;
 //    	 for(int ii=0; ii<symm_trans_boxes.size(); ii++)
 //   	    std::cout << ii << " " << symm_trans_boxes[ii].first << " "
 //  		      << symm_trans_boxes[ii].second << std::endl;
-	 
+
 
 	 if (symm_trans_boxes.size() > 0) {
 
@@ -1167,7 +1167,7 @@ molecule_class_info_t::update_symmetry() {
 
 	    bool do_intermolecular_symmetry_bonds = false; // for now
 
-	    symmetry_bonds_box = 
+	    symmetry_bonds_box =
 	       bonds.addSymmetry_vector_symms(atom_sel, imol_no,
 					      point,
 					      graphics_info_t::symmetry_search_radius,
@@ -1176,7 +1176,7 @@ molecule_class_info_t::update_symmetry() {
 					      symmetry_whole_chain_flag,
 					      draw_hydrogens_flag,
 					      do_intermolecular_symmetry_bonds);
-	    
+
 	 } else {
 	    Bond_lines_container bonds(NO_SYMMETRY_BONDS);
 	 }
@@ -1187,7 +1187,7 @@ molecule_class_info_t::update_symmetry() {
 	    }
 	 }
 
-      } else { 
+      } else {
 	 // cout << "update_symmetry: no molecule yet" << endl;
       }
    }
@@ -1198,14 +1198,14 @@ molecule_class_info_t::draw_extra_restraints_representation() {
 
    if (draw_it) {
       if (draw_it_for_extra_restraints) {
-	 if (extra_restraints_representation.bonds.size() > 0) { 
+	 if (extra_restraints_representation.bonds.size() > 0) {
 	    glLineWidth(1.0);
-	    if (extra_restraints_representation_for_bonds_go_to_CA) { 
+	    if (extra_restraints_representation_for_bonds_go_to_CA) {
 	       glLineWidth(3.0);
 	    } else {
-	    } 
+	    }
 	    glColor3f(0.6, 0.6, 0.8);
-	    
+
 	    glBegin(GL_LINES);
 	    for (unsigned int ib=0; ib<extra_restraints_representation.bonds.size(); ib++) {
 
@@ -1213,7 +1213,7 @@ molecule_class_info_t::draw_extra_restraints_representation() {
 		  extra_restraints_representation.bonds[ib];
 
 	       // red if actual distance is greater than target
-	       // 
+	       //
 	       double d_sqd = (res.second - res.first).clipper::Coord_orth::lengthsq();
 
 	       if (res.esd > 0) {
@@ -1258,7 +1258,7 @@ molecule_class_info_t::draw_parallel_plane_restraints_representation() {
 
    if (draw_it) {
       if (draw_it_for_extra_restraints) {
-	 if (extra_restraints_representation.parallel_planes.size() > 0) { 
+	 if (extra_restraints_representation.parallel_planes.size() > 0) {
 	    glLineWidth(2.0);
 	    glColor3f(0.55, 0.55, 0.3);
 	    glBegin(GL_LINES);
@@ -1314,7 +1314,7 @@ molecule_class_info_t::draw_parallel_plane_restraints_representation() {
 	 }
 	 glEnd();
       }
-   } 
+   }
 }
 
 
@@ -1327,41 +1327,41 @@ molecule_class_info_t::draw_coord_unit_cell(const coot::colour_holder &cell_colo
    // (perhaps use (atom_sel.mol==NULL) instead?) (no).
 
    // (same test as has_model()):
-   if (atom_sel.n_selected_atoms > 0) { 
+   if (atom_sel.n_selected_atoms > 0) {
 
       if (show_unit_cell_flag == 1) {
 
-	 if (draw_it) { 
-	 
+	 if (draw_it) {
+
 	    if (have_unit_cell == 1) {
 
 	       glLineWidth(2.0);
 	       glColor3f(cell_colour.red, cell_colour.green, cell_colour.blue);
-	 
+
 	       float corners[8][3] = {
-		  {0,0,0}, //0 
-		  {0,0,1}, //1 
-		  {0,1,0}, //2 
-		  {0,1,1}, //3 
-		  {1,0,0}, //4 
-		  {1,0,1}, //5 
-		  {1,1,0}, //6 
-		  {1,1,1}};//7 
+		  {0,0,0}, //0
+		  {0,0,1}, //1
+		  {0,1,0}, //2
+		  {0,1,1}, //3
+		  {1,0,0}, //4
+		  {1,0,1}, //5
+		  {1,1,0}, //6
+		  {1,1,1}};//7
 
 	       mmdb::realtype x_orth, y_orth, z_orth;
 	       // rsc = real_space_corners
 	       float rsc[8][3];
 
 	       for (int ii=0; ii<8; ii++) {
-	    
+
 		  atom_sel.mol->Frac2Orth(corners[ii][0], corners[ii][1], corners[ii][2],
 					  x_orth, y_orth, z_orth);
-	    
+
 		  rsc[ii][0] = x_orth;
 		  rsc[ii][1] = y_orth;
 		  rsc[ii][2] = z_orth;
 	       }
-	 
+
 	       draw_unit_cell_internal(rsc);
 	    }
 	 }
@@ -1373,38 +1373,38 @@ molecule_class_info_t::draw_coord_unit_cell(const coot::colour_holder &cell_colo
 void
 molecule_class_info_t::draw_map_unit_cell(const coot::colour_holder &cell_colour) {
 
-   if (has_xmap()) { 
+   if (has_xmap()) {
       if (show_unit_cell_flag == 1) {
-      
-	 if (draw_it_for_map) { 
-	    
+
+	 if (draw_it_for_map) {
+
 	    // rsc = real_space_corners
 	    float rsc[8][3];
-	    
+
 	    glLineWidth(2.0);
 	    glColor3f(cell_colour.red, cell_colour.green, cell_colour.blue);
-	    
+
 	    float corners[8][3] = {
-	       {0,0,0}, //0 
-	       {0,0,1}, //1 
-	       {0,1,0}, //2 
-	       {0,1,1}, //3 
-	       {1,0,0}, //4 
-	       {1,0,1}, //5 
-	       {1,1,0}, //6 
-	       {1,1,1}};//7 
-	    
+	       {0,0,0}, //0
+	       {0,0,1}, //1
+	       {0,1,0}, //2
+	       {0,1,1}, //3
+	       {1,0,0}, //4
+	       {1,0,1}, //5
+	       {1,1,0}, //6
+	       {1,1,1}};//7
+
 	    for (int ii=0; ii<8; ii++) {
-	       
+
 	       clipper::Coord_frac c_f(corners[ii][0],corners[ii][1],corners[ii][2]);
-	       
+
 	       clipper::Coord_orth c_o = c_f.coord_orth(xmap.cell());
-	       
+
 	       rsc[ii][0] = c_o.x();
 	       rsc[ii][1] = c_o.y();
 	       rsc[ii][2] = c_o.z();
 	    }
-	    draw_unit_cell_internal(rsc); 
+	    draw_unit_cell_internal(rsc);
 	 }
       }
    }
@@ -1422,38 +1422,38 @@ molecule_class_info_t::draw_unit_cell_internal(float rsc[8][3]) {
 
    p.push_back(coot::CartesianPair(coot::Cartesian(rsc[0][0], rsc[0][1], rsc[0][2]),
 				   coot::Cartesian(rsc[2][0], rsc[2][1], rsc[2][2])));
-	 
+
    p.push_back(coot::CartesianPair(coot::Cartesian(rsc[0][0], rsc[0][1], rsc[0][2]),
 				   coot::Cartesian(rsc[4][0], rsc[4][1], rsc[4][2])));
 
    // top right front connections
    p.push_back(coot::CartesianPair(coot::Cartesian(rsc[6][0], rsc[6][1], rsc[6][2]),
 				   coot::Cartesian(rsc[4][0], rsc[4][1], rsc[4][2])));
-	 
+
    p.push_back(coot::CartesianPair(coot::Cartesian(rsc[6][0], rsc[6][1], rsc[6][2]),
 				   coot::Cartesian(rsc[2][0], rsc[2][1], rsc[2][2])));
-	 
+
    p.push_back(coot::CartesianPair(coot::Cartesian(rsc[6][0], rsc[6][1], rsc[6][2]),
 				   coot::Cartesian(rsc[7][0], rsc[7][1], rsc[7][2])));
-	 
+
    // from 5
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[5][0], rsc[5][1], rsc[5][2]), 
+   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[5][0], rsc[5][1], rsc[5][2]),
 				   coot::Cartesian(rsc[7][0], rsc[7][1], rsc[7][2])));
 
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[5][0], rsc[5][1], rsc[5][2]), 
+   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[5][0], rsc[5][1], rsc[5][2]),
 				   coot::Cartesian(rsc[4][0], rsc[4][1], rsc[4][2])));
 
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[5][0], rsc[5][1], rsc[5][2]), 
+   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[5][0], rsc[5][1], rsc[5][2]),
 				   coot::Cartesian(rsc[1][0], rsc[1][1], rsc[1][2])));
 
    // from 3
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[3][0], rsc[3][1], rsc[3][2]), 
+   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[3][0], rsc[3][1], rsc[3][2]),
 				   coot::Cartesian(rsc[1][0], rsc[1][1], rsc[1][2])));
 
    p.push_back(coot::CartesianPair(coot::Cartesian(rsc[3][0], rsc[3][1], rsc[3][2]),
 				   coot::Cartesian(rsc[7][0], rsc[7][1], rsc[7][2])));
 
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[3][0], rsc[3][1], rsc[3][2]), 
+   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[3][0], rsc[3][1], rsc[3][2]),
 				   coot::Cartesian(rsc[2][0], rsc[2][1], rsc[2][2])));
 
    float x1, y1, z1;
@@ -1470,24 +1470,24 @@ molecule_class_info_t::draw_unit_cell_internal(float rsc[8][3]) {
 	 x2 = p[i].getStart().x() + (j+0.1)*diff.x();
 	 y2 = p[i].getStart().y() + (j+0.1)*diff.y();
 	 z2 = p[i].getStart().z() + (j+0.1)*diff.z();
-	 
+
 	 glVertex3f(x1, y1, z1);
 	 glVertex3f(x2, y2, z2);
       }
    }
    glEnd();
 
-	   
+
 	 // add a label
 // 	 glColor3f(1.0, 1.0, 1.0);
 // 	 glColor3f(1.0, 0.2, 1.0);
-   // glRasterPos3f(-1.6, -1.6,-1.6);      
+   // glRasterPos3f(-1.6, -1.6,-1.6);
    graphics_info_t::printString("0", -1.6, -1.6,-1.6);
    // glRasterPos3f(rsc[1][0]-1, rsc[1][1], rsc[1][2]+1);
    graphics_info_t::printString("C", rsc[1][0]-1, rsc[1][1], rsc[1][2]+1);
-   // glRasterPos3f(rsc[2][0]+1, rsc[2][1], rsc[2][2]+1);      
+   // glRasterPos3f(rsc[2][0]+1, rsc[2][1], rsc[2][2]+1);
    graphics_info_t::printString("B", rsc[2][0]+1, rsc[2][1], rsc[2][2]+1);
-   // glRasterPos3f(rsc[4][0]+1, rsc[4][1]+1, rsc[4][2]-1);      
+   // glRasterPos3f(rsc[4][0]+1, rsc[4][1]+1, rsc[4][2]-1);
    graphics_info_t::printString("A", rsc[4][0]+1, rsc[4][1]+1, rsc[4][2]-1);
 
 
@@ -1499,16 +1499,16 @@ molecule_class_info_t::draw_unit_cell_internal(float rsc[8][3]) {
 //
 void
 molecule_class_info_t::initialize_coordinate_things_on_read_molecule(std::string molecule_name) {
-   
+
    // presume not an undo/redo by default:
    initialize_coordinate_things_on_read_molecule_internal(molecule_name, 0);
 }
 
 // If we are a redo/undo, then we don't want to update (add a) mol in
 // display control widget
-// 
+//
 // Or a non graphics_info_t::molecules[] usage of this class.
-// 
+//
 void
 molecule_class_info_t::initialize_coordinate_things_on_read_molecule_internal(std::string molecule_name,
 									      short int is_undo_or_redo) {
@@ -1516,11 +1516,11 @@ molecule_class_info_t::initialize_coordinate_things_on_read_molecule_internal(st
    //
    name_ = molecule_name;
 
-   // 
+   //
    draw_it = 1; // by default, display it, we change change this later, if we want.
 
    //
-   if (! is_undo_or_redo) { 
+   if (! is_undo_or_redo) {
       bonds_colour_map_rotation = (imol_no + 1) * graphics_info_t::rotate_colour_map_on_read_pdb;
       while (bonds_colour_map_rotation > 360.0)
 	 bonds_colour_map_rotation -= 360.0;
@@ -1529,7 +1529,7 @@ molecule_class_info_t::initialize_coordinate_things_on_read_molecule_internal(st
 // 		<< bonds_colour_map_rotation << " for imol no " << imol_no << std::endl;
    }
 
-   if (! is_undo_or_redo) { 
+   if (! is_undo_or_redo) {
       // std::cout << "DEBUG:: not an undo/redo!\n";
       new_coords_mol_in_display_control_widget(); // uses draw_it
    }
@@ -1544,22 +1544,22 @@ molecule_class_info_t::set_symm_bond_colour_mol(int icol) {
 		    combine_colour(0.8,1),
 		    combine_colour(0.1,2));
 	 break;
-      case BLUE_BOND: 
+      case BLUE_BOND:
 	 glColor3f (combine_colour(0.2,0),
 		    combine_colour(0.2,1),
 		    combine_colour(0.8,2));
 	 break;
-      case RED_BOND: 
+      case RED_BOND:
 	 glColor3f (combine_colour(0.8,0),
 		    combine_colour(0.1,1),
 		    combine_colour(0.1,2));
 	 break;
-      case YELLOW_BOND: 
+      case YELLOW_BOND:
 	 glColor3f (combine_colour(0.7,0),
 		    combine_colour(0.7,1),
 		    combine_colour(0.0,2));
 	 break;
-      
+
       default:
 	 glColor3f (combine_colour(0.7, 0),
 		    combine_colour(0.8, 1),
@@ -1573,16 +1573,16 @@ molecule_class_info_t::set_symm_bond_colour_mol_and_symop(int icol, int isymop) 
 //    std::cout << "in set_symm_bond_colour_mol_and_symop " << imol_no << " " << icol << " "
 // 	     << isymop << " symmetry_rotate_colour_map_flag: "
 // 	     << symmetry_rotate_colour_map_flag << "\n";
-   
-   if (symmetry_rotate_colour_map_flag) { 
-      if (symmetry_colour_by_symop_flag) { 
+
+   if (symmetry_rotate_colour_map_flag) {
+      if (symmetry_colour_by_symop_flag) {
 	 set_symm_bond_colour_mol_rotate_colour_map(icol, isymop);
-      } else { 
+      } else {
 	 set_symm_bond_colour_mol_rotate_colour_map(icol, 0);
       }
    } else {
       set_symm_bond_colour_mol(icol);
-   } 
+   }
 
 }
 
@@ -1603,28 +1603,28 @@ molecule_class_info_t::set_symm_bond_colour_mol_rotate_colour_map(int icol, int 
       rgb_new = rotate_rgb(t_colours, rotation_size);
       glColor3f (rgb_new[0], rgb_new[1], rgb_new[2]);
       break;
-   case BLUE_BOND: 
+   case BLUE_BOND:
       t_colours[0] = combine_colour(0.2, 0);
       t_colours[1] = combine_colour(0.2, 1);
       t_colours[2] = combine_colour(0.8, 2);
       rgb_new = rotate_rgb(t_colours, rotation_size);
       glColor3f (rgb_new[0], rgb_new[1], rgb_new[2]);
       break;
-   case RED_BOND: 
+   case RED_BOND:
       t_colours[0] = combine_colour(0.8, 0);
       t_colours[1] = combine_colour(0.1, 1);
       t_colours[2] = combine_colour(0.1, 2);
       rgb_new = rotate_rgb(t_colours, rotation_size);
       glColor3f (rgb_new[0], rgb_new[1], rgb_new[2]);
       break;
-   case YELLOW_BOND: 
+   case YELLOW_BOND:
       t_colours[0] = combine_colour(0.7, 0);
       t_colours[1] = combine_colour(0.7, 1);
       t_colours[2] = combine_colour(0.0, 2);
       rgb_new = rotate_rgb(t_colours, rotation_size);
       glColor3f (rgb_new[0], rgb_new[1], rgb_new[2]);
       break;
-      
+
    default:
       t_colours[0] = combine_colour(0.6, 0);
       t_colours[1] = combine_colour(0.7, 1);
@@ -1645,7 +1645,7 @@ molecule_class_info_t::combine_colour(float v, int col_part_index) {
 }
 
 // amount is not in degrees, it is in fractions of a circle, e.g. 10/360.
-// 
+//
 void
 molecule_class_info_t::rotate_rgb_in_place(float *rgb, const float &amount) const {
 
@@ -1660,11 +1660,17 @@ molecule_class_info_t::rotate_rgb_in_place(float *rgb, const float &amount) cons
 // This allocated memory for xmap_is_diff_map, xmap_is_filled and
 // contour_level, but *does not filll them!*
 // So they need to be filled after calling this function.
-void 
+void
 molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecule_name,
 							      bool is_diff_map,
 							      bool is_anomalous_map,
 							      bool swap_difference_map_colours) {
+
+   if (false)
+      std::cout << "------------------- initialize_map_things_on_read_molecule() "
+		<< " imol_no " << imol_no << " is_anomalous_map: " << is_anomalous_map
+		<< " is difference map " << is_diff_map << " swapcol: " << swap_difference_map_colours
+		<< std::endl;
 
    // unset coordinates, this is not a set of coordinates:
    atom_sel.n_selected_atoms = 0;
@@ -1688,11 +1694,11 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
    map_colour = new double*[10];
 
    map_colour[0] = new double[4];
-   if (is_diff_map) { 
-      if (! swap_difference_map_colours) { 
+   if (is_diff_map) {
+      if (! swap_difference_map_colours) {
 	 if (! is_anomalous_map) {
-	    map_colour[0][0] = 0.2; 
-	    map_colour[0][1] = 0.6; 
+	    map_colour[0][0] = 0.2;
+	    map_colour[0][1] = 0.6;
 	    map_colour[0][2] = 0.2;
 	 } else {
 	    map_colour[0][0] = 0.6;
@@ -1715,8 +1721,8 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
       map_colour[0][0] = rgb_new[0];
       map_colour[0][1] = rgb_new[1];
       map_colour[0][2] = rgb_new[2];
-   } 
-      
+   }
+
    // negative contour level
    //
    map_colour[1] = new double[4];
@@ -1731,10 +1737,10 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
 	 map_colour[1][2] = 0.45;
       }
    } else {
-      map_colour[1][0] = 0.2; 
-      map_colour[1][1] = 0.6; 
+      map_colour[1][0] = 0.2;
+      map_colour[1][1] = 0.6;
       map_colour[1][2] = 0.2;
-   } 
+   }
    name_ = molecule_name;
 
    draw_it_for_map = 1;
@@ -1742,32 +1748,32 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
 
    // We can't call this untill xmap_is_filled[0] has been assigned,
    // and here we only make room for it.
-   // 
+   //
    // update_map_in_display_control_widget();
-   
+
 }
 
 
 void
-molecule_class_info_t::update_mol_in_display_control_widget() const { 
+molecule_class_info_t::update_mol_in_display_control_widget() const {
 
    graphics_info_t g;
 
    // we don't want to add a display control hbox if we are simply
    // doing an undo: This is now deal with by the calling function.
-   // 
+   //
 //    std::cout << "update_mol_in_display_control_widget() now" << std::endl;
 //    std::cout << "update_mol_in_display_control_widget() passed derefrerence imol_no_ptr: "
 // 	     << *imol_no_ptr << std::endl;
    std::string dmn = name_for_display_manager();
-   if (g.display_control_window()) 
-      update_name_in_display_control_molecule_combo_box(g.display_control_window(), 
-							dmn.c_str(), 
+   if (g.display_control_window())
+      update_name_in_display_control_molecule_combo_box(g.display_control_window(),
+							dmn.c_str(),
 							imol_no);
 }
 
 void
-molecule_class_info_t::new_coords_mol_in_display_control_widget() const { 
+molecule_class_info_t::new_coords_mol_in_display_control_widget() const {
 
    graphics_info_t g;
 
@@ -1777,11 +1783,11 @@ molecule_class_info_t::new_coords_mol_in_display_control_widget() const {
    bool show_add_reps_flag = 0;
    if (add_reps.size() > 0)
       show_add_reps_flag = 1;
-   
+
    std::string dmn = name_for_display_manager();
    if (g.display_control_window()) {
-      display_control_molecule_combo_box(g.display_control_window(), 
-					 dmn.c_str(), 
+      display_control_molecule_combo_box(g.display_control_window(),
+					 dmn.c_str(),
 					 imol_no, show_add_reps_flag);
       if (add_reps.size() > 0) {
 	 GtkWidget *vbox = display_control_add_reps_container(g.display_control_window(), imol_no);
@@ -1791,17 +1797,17 @@ molecule_class_info_t::new_coords_mol_in_display_control_widget() const {
 	    name += add_reps[iar].info_string();
 	    display_control_add_reps(vbox, imol_no, iar, add_reps[iar].show_it,
 				     add_reps[iar].bonds_box_type, name);
-	 } 
-      } 
+	 }
+      }
    }
-   
+
 }
 
 std::string
-molecule_class_info_t::name_for_display_manager() const { 
+molecule_class_info_t::name_for_display_manager() const {
 
    std::string s("");
-   if (graphics_info_t::show_paths_in_display_manager_flag) { 
+   if (graphics_info_t::show_paths_in_display_manager_flag) {
       s = name_;
    } else {
       if (has_model()) {
@@ -1810,7 +1816,7 @@ molecule_class_info_t::name_for_display_manager() const {
 #else
 	 std::string::size_type islash = name_.find_last_of("/");
 #endif // MINGW
-	 if (islash == std::string::npos) { 
+	 if (islash == std::string::npos) {
 	    s = name_;
 	 } else {
 	    s = name_.substr(islash+1, name_.length());
@@ -1825,15 +1831,15 @@ molecule_class_info_t::name_for_display_manager() const {
 
 	 std::vector<std::string> v = coot::util::split_string(name_, " ");
 	 for (unsigned int i=0; i<v.size(); i++) {
-	    if (i > 0) 
+	    if (i > 0)
 	       s += " ";
 	    std::pair<std::string, std::string> p = coot::util::split_string_on_last_slash(v[i]);
 	    if (p.second == "")
 	       s += v[i];
-	    else 
+	    else
 	       s += p.second;
 	 }
-      } 
+      }
    }
    return s;
 }
@@ -1851,7 +1857,7 @@ molecule_class_info_t::dotted_chopped_name() const {
    } else {
       // chop
       ss += "...";
-   } 
+   }
    ss += name_.substr(left_size, ilen);
    return ss;
 }
@@ -1862,10 +1868,10 @@ void
 molecule_class_info_t::add_to_labelled_atom_list(int atom_index) {
 
    // note initialization n_labelled_atoms is 0;
-   // 
+   //
    if (is_in_labelled_list(atom_index) == 1) {
       unlabel_atom(atom_index);
-   } else { 
+   } else {
       labelled_atom_index_list.push_back(atom_index);
    }
 }
@@ -1875,7 +1881,7 @@ molecule_class_info_t::add_to_labelled_atom_list(int atom_index) {
 
 //    return labelled_atom_index_list[i];
 
-// } 
+// }
 
 
 // Olde Pointere Stuff.  Delete when you feel it should go.
@@ -1890,7 +1896,7 @@ molecule_class_info_t::add_to_labelled_atom_list(int atom_index) {
 void
 molecule_class_info_t::unlabel_atom(int atom_index) {
 
-   // 
+   //
    // Remove atom_index from the list of atoms to be labelled.
    //
    std::vector<int>::iterator it;
@@ -1938,28 +1944,28 @@ molecule_class_info_t::does_residue_exist_p(const std::string &chain_id,
    int state = 0;
    if (atom_sel.n_selected_atoms > 0) {
       int n_models = atom_sel.mol->GetNumberOfModels();
-      for (int imod=1; imod<=n_models; imod++) { 
-	 
+      for (int imod=1; imod<=n_models; imod++) {
+
 	 mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
 	 mmdb::Chain *chain_p;
 	 // run over chains of the existing mol
 	 int nchains = model_p->GetNumberOfChains();
-	 if (nchains <= 0) { 
+	 if (nchains <= 0) {
 	    std::cout << "ERROR:: bad nchains in molecule " << nchains
 		      << std::endl;
-	 } else { 
+	 } else {
 	    for (int ichain=0; ichain<nchains; ichain++) {
 	       chain_p = model_p->GetChain(ichain);
-	       if (chain_p == NULL) {  
+	       if (chain_p == NULL) {
 		  // This should not be necessary. It seem to be a
 		  // result of mmdb corruption elsewhere - possibly
 		  // DeleteChain in update_molecule_to().
 		  std::cout << "NULL chain in ... " << std::endl;
 	       } else {
 		  mmdb::PResidue residue_p;
-		  if (chain_id == chain_p->GetChainID()) { 
+		  if (chain_id == chain_p->GetChainID()) {
 		     int nres = chain_p->GetNumberOfResidues();
-		     for (int ires=0; ires<nres; ires++) { 
+		     for (int ires=0; ires<nres; ires++) {
 			residue_p = chain_p->GetResidue(ires);
 			if (resno == residue_p->seqNum) {
 			   if (inscode == residue_p->GetInsCode()) {
@@ -1990,7 +1996,7 @@ molecule_class_info_t::add_atom_to_labelled_symm_atom_list(int atom_index,
 
    if ( is_in_labelled_symm_list(atom_index) == 1 ) {
       unlabel_symm_atom(atom_index);
-   } else { 
+   } else {
       labelled_symm_atom_index_list.push_back(atom_index);
       std::pair<symm_trans_t, Cell_Translation> p(symm_trans, pre_shift_cell_trans);
       labelled_symm_atom_symm_trans_.push_back(p);
@@ -2005,7 +2011,7 @@ molecule_class_info_t::add_atom_to_labelled_symm_atom_list(int atom_index,
 
 
 
-std::pair<symm_trans_t, Cell_Translation> 
+std::pair<symm_trans_t, Cell_Translation>
 molecule_class_info_t::labelled_symm_atom_symm_trans(int i) {
 
    return labelled_symm_atom_symm_trans_[i];
@@ -2021,15 +2027,15 @@ molecule_class_info_t::labelled_symm_atom_symm_trans(int i) {
 
 void
 molecule_class_info_t::unlabel_symm_atom(int atom_index) {
-   
+
    std::vector<int>::iterator it;
    for (it = labelled_symm_atom_index_list.begin();
 	it != labelled_symm_atom_index_list.end();
 	it++) {
-      if ( *it == atom_index) { 
+      if ( *it == atom_index) {
 	 labelled_symm_atom_index_list.erase(it);
 	 break;
-      } 
+      }
    }
 }
 
@@ -2049,7 +2055,7 @@ molecule_class_info_t::is_in_labelled_symm_list(int i) {
 }
 
 
-int molecule_class_info_t::add_atom_label(char *chain_id, int iresno, char *atom_id) { 
+int molecule_class_info_t::add_atom_label(char *chain_id, int iresno, char *atom_id) {
 
    // int i = atom_index(chain_id, iresno, atom_id);
    int i = atom_spec_to_atom_index(std::string(chain_id),
@@ -2060,21 +2066,21 @@ int molecule_class_info_t::add_atom_label(char *chain_id, int iresno, char *atom
    else
       std::cout << atom_id << "/" << iresno << "/" << chain_id
 		<< " is not found in this molecule: (" <<  imol_no << ") "
-		<< name_ << std::endl; 
+		<< name_ << std::endl;
 
-   return i; 
+   return i;
 }
 
 
 int molecule_class_info_t::remove_atom_label(char *chain_id, int iresno, char *atom_id) {
 
    int i = atom_index(chain_id, iresno, atom_id);
-   if (i > 0) 
+   if (i > 0)
       unlabel_atom(i);
    return i;
 }
 
- 
+
 void
 molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
 				     bool against_a_dark_background,
@@ -2121,7 +2127,7 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
 void
 molecule_class_info_t::zero_occupancy_spots() const {
 
-   if (bonds_box.n_zero_occ_spots > 0) { 
+   if (bonds_box.n_zero_occ_spots > 0) {
 
       const std::pair<bool, float> &use_radius_limit = graphics_info_t::model_display_radius;
 
@@ -2130,7 +2136,7 @@ molecule_class_info_t::zero_occupancy_spots() const {
       //glPointSize(145.0/zsc);
       // scale the pointer with the bond width
       glPointSize(30.0/std::min(zsc,(float)20)*std::max(bond_width, (float)4));
-      glBegin(GL_POINTS); 
+      glBegin(GL_POINTS);
       for (int i=0; i<bonds_box.n_zero_occ_spots; i++) {
 
 	 if ((use_radius_limit.first == false) ||
@@ -2147,13 +2153,13 @@ molecule_class_info_t::zero_occupancy_spots() const {
 void
 molecule_class_info_t::deuterium_spots() const {
 
-   if (bonds_box.n_deuterium_spots > 0) { 
+   if (bonds_box.n_deuterium_spots > 0) {
 
       glColor3f(1.0, 0.2, 0.4);
       float zsc = graphics_info_t::zoom;
       glPointSize(165.0/zsc);
-      glBegin(GL_POINTS); 
-      for (int i=0; i<bonds_box.n_deuterium_spots; i++) { 
+      glBegin(GL_POINTS);
+      for (int i=0; i<bonds_box.n_deuterium_spots; i++) {
 	 glVertex3f(bonds_box.deuterium_spots_ptr[i].x(),
 		    bonds_box.deuterium_spots_ptr[i].y(),
 		    bonds_box.deuterium_spots_ptr[i].z());
@@ -2182,7 +2188,7 @@ molecule_class_info_t::draw_cis_peptide_markups() const {
 	    } else {
 	       glColor3f(0.2, 0.7, 0.2);
 	    }
-	    
+
 	    coot::Cartesian fan_centre = m.pt_ca_1.mid_point(m.pt_ca_2);
 
 	    if ((! use_radius_limit.first)
@@ -2199,7 +2205,7 @@ molecule_class_info_t::draw_cis_peptide_markups() const {
 	       coot::Cartesian pt_ca_2 = m.pt_ca_2 + v4 * 0.15;
 
 	       glBegin(GL_TRIANGLE_FAN);
-	 
+
 	       glVertex3f(fan_centre.x(), fan_centre.y(), fan_centre.z());
 	       glVertex3f(pt_ca_1.x(), pt_ca_1.y(), pt_ca_1.z());
 	       glVertex3f(pt_c_1.x(),  pt_c_1.y(),  pt_c_1.z());
@@ -2238,7 +2244,7 @@ molecule_class_info_t::draw_fixed_atom_positions() const {
 
       glColor3f(0.6, 0.95, 0.6);
       glPointSize(10.5);
-      glBegin(GL_POINTS); 
+      glBegin(GL_POINTS);
       for (unsigned int i=0; i<fixed_atom_positions.size(); i++) {
 	 glVertex3f(fixed_atom_positions[i].x(),
 		    fixed_atom_positions[i].y(),
@@ -2251,17 +2257,17 @@ molecule_class_info_t::draw_fixed_atom_positions() const {
 void
 molecule_class_info_t::display_ghost_bonds(int ighost) {
 
-   
+
    // hack in a value
    bool against_a_dark_background = true;
-   
+
    if (ighost<int(ncs_ghosts.size())) {
       if (ncs_ghosts[ighost].display_it_flag) {
 	 glLineWidth(ghost_bond_width);
 	 int c;
 	 for (int i=0; i<ncs_ghosts[ighost].bonds_box.num_colours; i++) {
 	    c = atom_colour(atom_sel.atom_selection[i]->element);
-	    if (ncs_ghosts[ighost].bonds_box.bonds_[i].num_lines > 0) 
+	    if (ncs_ghosts[ighost].bonds_box.bonds_[i].num_lines > 0)
 	       set_bond_colour_by_mol_no(ighost, against_a_dark_background);
 	    glBegin(GL_LINES);
 	    for (int j=0; j< ncs_ghosts[ighost].bonds_box.bonds_[i].num_lines; j++) {
@@ -2361,13 +2367,13 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 
       if (with_gl_lines) {
 
-	 glBegin(GL_LINES); 
+	 glBegin(GL_LINES);
 	 for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
 
 	    const coot::CartesianPair &pospair = ll.pair_list[j].positions;
 	    const coot::Cartesian &start  = ll.pair_list[j].positions.getStart();
 	    const coot::Cartesian &finish = ll.pair_list[j].positions.getFinish();
-	    
+
 	    glVertex3f(start.get_x(),
 		       start.get_y(),
 		       start.get_z());
@@ -2468,7 +2474,7 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 
    if (display_it) {
 
-      if (bonds_box.atom_centres_) { 
+      if (bonds_box.atom_centres_) {
 
 	 // pass this?
 	 const std::pair<bool, float> &use_radius_limit = graphics_info_t::model_display_radius;
@@ -2478,7 +2484,7 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 
 	 float zsc = graphics_info_t::zoom;
 	 glPointSize(280.0/zsc);
-	    
+
 	 glBegin(GL_POINTS);
 	 // for a big molecule, it's a factor of 10 or more slower
 	 // to put glColor3f in the middle of the loop.
@@ -2490,7 +2496,7 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 	 // if we have hydrogens, we want the balls to be placed slightly in front of the atom so that
 	 // the hydrogen sticks don't appear and disappear behind the atom circle as the molecule is rotated
 	 // Note that this delta for atom interacts with the highlight.
-	 // 
+	 //
 	 coot::Cartesian z_delta = (front - back) * 0.003;
 	 for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
 	    set_bond_colour_by_mol_no(icol, against_a_dark_background);
@@ -2514,6 +2520,7 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 	 glEnd();
 
 
+
 	 // highlights?
 	 // 
 	 if (true) {
@@ -2521,7 +2528,7 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 	    zsc = graphics_info_t::zoom;
 
 	    if (zsc < 40) { // only draw highlights if we are close enough (zoomed in) to see them
-	    
+
 	       coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
 	       coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
 	       coot::Cartesian right  = unproject_xyz(1, 0, 0.5);
@@ -2544,10 +2551,11 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 
 	       // the position offset should be clamped between point_size_data[0] and point_size_data[1]
 	       //
-	       // 
+	       //
 	       GLdouble point_size_data[2];
 	       glGetDoublev(GL_POINT_SIZE_RANGE, point_size_data);
 	       float off = 0.03;
+
 
 	       if (ball_point_size > point_size_data[1]) { 
 		  off *= (point_size_data[1]/ball_point_size);
@@ -2557,7 +2565,7 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 
 	       // the offset doesn't depend on zoom (until it does (implicitly) by the ball size going bigger
 	       // than the graphics card wants to draw it).
-	       // 
+	       //
 	       coot::Cartesian offset = screen_x * off;
 	       offset += screen_y * (-off * 1.25);
 	       offset += z_delta * 2.0;
@@ -2576,7 +2584,7 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 		  // cc.average(coot::colour_t(0.9, 0.9, 0.9));
 		  cc.brighter(1.15);
 		  glColor3f(cc[0], cc[1], cc[2]);
-		  for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) { 
+		  for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
 		     // no points for hydrogens
 		     if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
 
@@ -2601,7 +2609,7 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 	       glBegin(GL_POINTS);
 	       glColor3f(0.9, 0.9, 0.9);
 	       for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
-		  for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) { 
+		  for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
 		     // no points for hydrogens
 		     if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
 			if ((single_model_view_current_model_number == 0) ||
@@ -2625,7 +2633,7 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
    }
 }
 
-coot::Cartesian 
+coot::Cartesian
 molecule_class_info_t::get_vector_pependicular_to_screen_z(const coot::Cartesian &front,
 							   const coot::Cartesian &back,
 							   const coot::Cartesian &bond_dir,
@@ -2641,7 +2649,7 @@ molecule_class_info_t::get_vector_pependicular_to_screen_z(const coot::Cartesian
 
    p1.unit_vector_yourself();
    p1 *= zoom * 0.0004 * p_bond_width;
-   
+
    return p1;
 }
 
@@ -2651,26 +2659,26 @@ molecule_class_info_t::display_symmetry_bonds() {
 
    // We may come here after having done additional_representations -
    // which would change the line width.
-   // 
+   //
    glLineWidth(bond_width);
 
    if ((show_symmetry == 1) && (graphics_info_t::show_symmetry == 1)) {
       int isymop;
 
-      for (unsigned int isym=0; isym<symmetry_bonds_box.size(); isym++) { 
+      for (unsigned int isym=0; isym<symmetry_bonds_box.size(); isym++) {
 	 // isymop = isym;
 	 isymop = symmetry_bonds_box[isym].second.first.isym();
 
 	 if (symmetry_bonds_box[isym].first.symmetry_has_been_created == 1) {
-	 
+
 	    for (int icol=0; icol<symmetry_bonds_box[isym].first.num_colours; icol++) {
-	 
+
 	       set_symm_bond_colour_mol_and_symop(icol, isymop);
 	       int linesdrawn = 0;
-	    
+
 	       graphical_bonds_lines_list<graphics_line_t> &ll = symmetry_bonds_box[isym].first.symmetry_bonds_[icol];
-	 
-	       glBegin(GL_LINES); 
+
+	       glBegin(GL_LINES);
 	       for (int j=0; j< symmetry_bonds_box[isym].first.symmetry_bonds_[icol].num_lines; j++) {
 
 		  glVertex3f(ll.pair_list[j].positions.getStart().get_x(),
@@ -2696,23 +2704,23 @@ molecule_class_info_t::display_symmetry_bonds() {
 
 	    const graphical_bonds_container &gbc = strict_ncs_bonds_box[isn].first;
 
-	    if (0) 
+	    if (0)
 	       std::cout << "here 3: isn "
-			 << isn << " created_flag: " 
+			 << isn << " created_flag: "
 			 << gbc.symmetry_has_been_created << " "
 			 << "\n" ;
-	    
+
 	    // std::cout << "display_symmetry_bonds() here 5A " << gbc.symmetry_has_been_created
 	    // << std::endl;
 
             if (gbc.symmetry_has_been_created == 1) {
 
 	       // std::cout << "display_symmetry_bonds() here 6 " << std::endl;
-	       
+
 	       if (false)
 		  std::cout << "num_colours: " << gbc.num_colours
 			    << std::endl;
-	       
+
 	       for (int icol=0; icol<gbc.num_colours; icol++) {
 
 		  if (0)
@@ -2720,17 +2728,17 @@ molecule_class_info_t::display_symmetry_bonds() {
 			       << "icol: " << icol << " num lines: "
 			       << gbc.symmetry_bonds_[icol].num_lines
 			       << "\n" ;
-	       
+
 		  set_symm_bond_colour_mol_and_symop(icol, isn);
 		  int linesdrawn = 0;
-	    
+
 		  graphical_bonds_lines_list<graphics_line_t> &ll = gbc.symmetry_bonds_[icol];
-	 
-		  glBegin(GL_LINES); 
+
+		  glBegin(GL_LINES);
 		  for (int j=0; j< gbc.symmetry_bonds_[icol].num_lines; j++) {
 
 		     // pair = ll.pair_list[j];
-	    
+
 		     glVertex3f(ll.pair_list[j].positions.getStart().get_x(),
 				ll.pair_list[j].positions.getStart().get_y(),
 				ll.pair_list[j].positions.getStart().get_z());
@@ -2759,14 +2767,14 @@ molecule_class_info_t::add_dipole(const std::vector<coot::residue_spec_t> &res_s
    int id = -1;
    coot::dipole d;
    std::vector<std::pair<coot::dictionary_residue_restraints_t, mmdb::Residue *> > pairs;
-   
-   for (unsigned int ires=0; ires<res_specs.size(); ires++) { 
+
+   for (unsigned int ires=0; ires<res_specs.size(); ires++) {
       mmdb::Residue *residue_p = get_residue(res_specs[ires]);
-      
+
       if (residue_p) {
 	 try {
 	    std::string res_type = residue_p->GetResName();
-	    std::pair<short int, coot::dictionary_residue_restraints_t> rp = 
+	    std::pair<short int, coot::dictionary_residue_restraints_t> rp =
 	       geom.get_monomer_restraints(res_type, imol_no);
 	    if (rp.first) {
 	       std::pair<coot::dictionary_residue_restraints_t, mmdb::Residue *> p(rp.second, residue_p);
@@ -2774,18 +2782,18 @@ molecule_class_info_t::add_dipole(const std::vector<coot::residue_spec_t> &res_s
 	    } else {
 	       std::cout << "INFO:: no monomer restraints found for "
 			 << coot::residue_spec_t(residue_p) << " type: " << res_type << std::endl;
-	    } 
+	    }
 	 }
 	 catch (const std::runtime_error &mess) {
 	    std::cout << mess.what() << std::endl;
 	 }
       } else {
 	 std::cout << "   add_dipole: trapped null residue" << std::endl;
-      } 
+      }
    }
 
    if (pairs.size() > 0) {
-      try { 
+      try {
 	 coot::dipole dl(pairs);
 	 dipoles.push_back(dl);
 	 id = dipoles.size() -1;
@@ -2795,8 +2803,8 @@ molecule_class_info_t::add_dipole(const std::vector<coot::residue_spec_t> &res_s
 	    std::cout << mess.what() << std::endl;
       }
    }
-   
-   return std::pair<coot::dipole, int> (d,id); 
+
+   return std::pair<coot::dipole, int> (d,id);
 }
 
 void
@@ -2821,8 +2829,8 @@ molecule_class_info_t::draw_dipoles() const {
 
    if (! draw_it)
       return;
-   
-   if (dipoles.size() > 0) { 
+
+   if (dipoles.size() > 0) {
       glPushMatrix();
       glLineWidth(2.0);
       std::vector<clipper::Coord_orth> arrow_points;
@@ -2837,7 +2845,7 @@ molecule_class_info_t::draw_dipoles() const {
                                                           // esthetics
 
       // Guide-line object
-      if (0) { 
+      if (0) {
 	 glColor3f(0.8,0.6,0.4);
 	 for (unsigned int i=0; i<dipoles.size(); i++) {
 	    clipper::Coord_orth pt = dipoles[i].position();
@@ -2863,7 +2871,7 @@ molecule_class_info_t::draw_dipoles() const {
 	 clipper::Coord_orth d_unit = dipoles[i].get_unit_dipole();
 
 	 // make an arbitrary vector not parallel to d_unit.
-	 // 
+	 //
 	 clipper::Coord_orth arb(0,0.1,0.9);
 	 if (d_unit.y() < d_unit.z())
 	    arb = clipper::Coord_orth(0.0, 0.9, 0.1);
@@ -2873,7 +2881,7 @@ molecule_class_info_t::draw_dipoles() const {
 	 clipper::Coord_orth p1(clipper::Coord_orth::cross(arb, d_unit).unit());
 	 clipper::Coord_orth p2(clipper::Coord_orth::cross( p1, d_unit).unit());
 	 clipper::Coord_orth p3 = d_unit;
-	 
+
 	 GL_matrix m(p1.x(), p1.y(), p1.z(),
 		     p2.x(), p2.y(), p2.z(),
 		     p3.x(), p3.y(), p3.z());
@@ -2889,7 +2897,7 @@ molecule_class_info_t::draw_dipoles() const {
 	 std::vector<clipper::Coord_orth> local_arrow_points = arrow_points;
 	 for (unsigned int i=0; i<arrow_points.size(); i++)
 	    local_arrow_points[i] = 0.181818181818181818181818181818181818 * ds * arrow_points[i];
-	       
+
 	 for (unsigned int i=0; i<local_arrow_points.size()-1; i++) {
 	    glVertex3d(local_arrow_points[i].x(),
 		       local_arrow_points[i].y(),
@@ -2943,7 +2951,7 @@ coot::atom_selection_info_t::select_atoms(mmdb::Manager *mol) const {
    if (type == BY_STRING) {
       SelHnd = mol->NewSelection();
       mol->Select(SelHnd, mmdb::STYPE_ATOM, atom_selection_str.c_str(), mmdb::SKEY_NEW);
-   } 
+   }
    return SelHnd;
 }
 
@@ -2960,11 +2968,11 @@ coot::atom_selection_info_t::mmdb_string() const {
       if (resno_end != resno_start) {
 	 s += "-";
 	 s += coot::util::int_to_string(resno_end);
-      } else { 
+      } else {
 	 if (!ins_code.empty()) {
 	    s += ".";
 	    s += ins_code;
-	 } 
+	 }
       }
    }
    return s;
@@ -2974,14 +2982,14 @@ coot::atom_selection_info_t::mmdb_string() const {
 void
 coot::additional_representations_t::fill_bonds_box() {
 
-   if (representation_type != coot::BALL_AND_STICK) { 
+   if (representation_type != coot::BALL_AND_STICK) {
       atom_selection_container_t atom_sel;
 
       atom_sel.mol = mol;
       atom_sel.SelectionHandle = mol->NewSelection();
-   
+
       if (atom_sel_info.type == coot::atom_selection_info_t::BY_ATTRIBUTES) {
-      
+
 	 mol->SelectAtoms(atom_sel.SelectionHandle,
 			  0, atom_sel_info.chain_id.c_str(),
 			  atom_sel_info.resno_start, atom_sel_info.ins_code.c_str(),
@@ -2989,16 +2997,16 @@ coot::additional_representations_t::fill_bonds_box() {
 			  "*", "*", "*", "*");
       }
       if (atom_sel_info.type == coot::atom_selection_info_t::BY_STRING) {
-	 mol->Select(atom_sel.SelectionHandle, mmdb::STYPE_ATOM, 
+	 mol->Select(atom_sel.SelectionHandle, mmdb::STYPE_ATOM,
 		     atom_sel_info.atom_selection_str.c_str(),
 		     mmdb::SKEY_NEW);
-      
+
       }
       mol->GetSelIndex(atom_sel.SelectionHandle,
 		       atom_sel.atom_selection,
 		       atom_sel.n_selected_atoms);
 
-      if (bonds_box_type == coot::NORMAL_BONDS) { 
+      if (bonds_box_type == coot::NORMAL_BONDS) {
 	 Bond_lines_container bonds(atom_sel, 1, draw_hydrogens_flag);
 	 bonds_box.clear_up();
 	 bonds_box = bonds.make_graphical_bonds();
@@ -3013,16 +3021,16 @@ coot::additional_representations_t::info_string() const {
    std::string s("Fat Bonds: ");
 
    if (representation_type == coot::BALL_AND_STICK) {
-     s = "Ball and Stick: "; 
+     s = "Ball and Stick: ";
    }
 
    if (representation_type == coot::STICKS) {
-     s = "Sticks: "; 
+     s = "Sticks: ";
    }
 
    if (atom_sel_info.type == coot::atom_selection_info_t::BY_STRING)
       s += atom_sel_info.atom_selection_str;
-   if (atom_sel_info.type == coot::atom_selection_info_t::BY_ATTRIBUTES) { 
+   if (atom_sel_info.type == coot::atom_selection_info_t::BY_ATTRIBUTES) {
       s += atom_sel_info.chain_id;
       s += " ";
       s += coot::util::int_to_string(atom_sel_info.resno_start);
@@ -3033,12 +3041,12 @@ coot::additional_representations_t::info_string() const {
       s += atom_sel_info.ins_code;
    }
    return s;
-} 
+}
 
 
 int
 molecule_class_info_t::add_additional_representation(int representation_type,
-						     const int &bonds_box_type, 
+						     const int &bonds_box_type,
 						     float bonds_width,
 						     bool draw_hydrogens_flag,
 						     const coot::atom_selection_info_t &info,
@@ -3067,7 +3075,7 @@ molecule_class_info_t::add_additional_representation(int representation_type,
    bool  do_spheres     = true;
 
    coot::additional_representations_t rep(atom_sel.mol,
-					  representation_type, 
+					  representation_type,
 					  bonds_box_type,
 					  bonds_width, sphere_size, do_spheres,
 					  draw_hydrogens_flag, info);
@@ -3085,20 +3093,20 @@ molecule_class_info_t::add_additional_representation(int representation_type,
       if ((display_list_handle_index >= 0) &&
 	  (display_list_handle_index < n_display_list_tags)) {
 	 add_reps[n_rep].add_display_list_handle(display_list_handle_index);
-      } 
+      }
    }
-     
+
    return n_rep;
 }
 
 
 // representation_number should be an unsigned int.
 int
-molecule_class_info_t::adjust_additional_representation(int represenation_number, 
-							const int &bonds_box_type_in, 
+molecule_class_info_t::adjust_additional_representation(int represenation_number,
+							const int &bonds_box_type_in,
 							float bonds_width,
 							bool draw_hydrogens_flag,
-							const coot::atom_selection_info_t &info, 
+							const coot::atom_selection_info_t &info,
 							bool show_it_flag_in) {
    return -1;
 }
@@ -3110,10 +3118,10 @@ molecule_class_info_t::clear_additional_representation(int representation_number
    int n_add_reps = add_reps.size();
    if (n_add_reps > representation_number) {
       if (representation_number >= 0) {
-	 add_reps[representation_number].clear(); 
-      } 
-   } 
-} 
+	 add_reps[representation_number].clear();
+      }
+   }
+}
 
 void
 molecule_class_info_t::set_show_additional_representation(int representation_number,
@@ -3124,7 +3132,7 @@ molecule_class_info_t::set_show_additional_representation(int representation_num
       if (representation_number >= 0) {
 	 add_reps[representation_number].show_it = on_off_flag;
 	 if (add_reps[representation_number].representation_type == coot::BALL_AND_STICK ||
-	     add_reps[representation_number].representation_type == coot::STICKS) { 
+	     add_reps[representation_number].representation_type == coot::STICKS) {
 	   int dl_index = add_reps[representation_number].display_list_handle;
 	   // std::cout << "Ball and stick add rep toggled to " << on_off_flag << std::endl;
 	   display_list_tags[dl_index].display_it = on_off_flag;
@@ -3156,7 +3164,7 @@ molecule_class_info_t::all_additional_representations_off_except(int rep_no,
 
 
 // Return a pair.
-// 
+//
 // If first string of length 0 on error to construct dataname(s).
 std::pair<std::string, std::string>
 molecule_class_info_t::make_import_datanames(const std::string &f_col_in,
@@ -3177,7 +3185,7 @@ molecule_class_info_t::make_import_datanames(const std::string &f_col_in,
    std::string::size_type islash_f   =      f_col.find_last_of("/");
    std::string::size_type islash_phi =    phi_col.find_last_of("/");
 #endif // MINGW
-   short int label_error = 0; 
+   short int label_error = 0;
 
    if (islash_f != std::string::npos) {
       // f_col is of form e.g. xxx/yyy/FWT
@@ -3195,7 +3203,7 @@ molecule_class_info_t::make_import_datanames(const std::string &f_col_in,
 	 label_error = 1;
    }
 
-   if (use_weights) { 
+   if (use_weights) {
 #ifdef WINDOWS_MINGW
       std::string::size_type islash_fom = coot::util::intelligent_debackslash(weight_col).find_last_of("/");
 #else
@@ -3210,12 +3218,12 @@ molecule_class_info_t::make_import_datanames(const std::string &f_col_in,
       }
    }
 
-  
+
    std::pair<std::string, std::string> p("", "");
 
    if (!label_error) {
       std::string no_xtal_dataset_prefix= "/*/*/";
-      if (use_weights) { 
+      if (use_weights) {
 	 p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " +      f_col + "]";
 	 p.second = no_xtal_dataset_prefix + "[" + phi_col + " " + weight_col + "]";
       } else {
@@ -3237,7 +3245,7 @@ molecule_class_info_t::filter_by_resolution(clipper::HKL_data< clipper::datatype
    int n_data = 0;
    int n_reset = 0;
 
-      
+
    for (clipper::HKL_info::HKL_reference_index hri = fphidata->first(); !hri.last(); hri.next()) {
 //        std::cout << "high: " << inv_high << " low: " << inv_low
 //  		<< " data: " << hri.invresolsq() << std::endl;
@@ -3248,7 +3256,7 @@ molecule_class_info_t::filter_by_resolution(clipper::HKL_data< clipper::datatype
       } else {
 	 (*fphidata)[hri].f() = 0.0;
 	 n_reset++;
-      } 
+      }
    }
    std::cout << "Chopped " << n_reset << " data out of " << n_data << std::endl;
 }
@@ -3257,13 +3265,13 @@ molecule_class_info_t::filter_by_resolution(clipper::HKL_data< clipper::datatype
 void
 molecule_class_info_t::label_symmetry_atom(int i) {
    //
- 
+
    // same test as has_model():
    if (has_model()) {
 
       unsigned int i_unsigned(i);
-      
-      if (i_unsigned < labelled_symm_atom_index_list.size()) { 
+
+      if (i_unsigned < labelled_symm_atom_index_list.size()) {
 
 	 int iatom_index = labelled_symm_atom_index_list[i];
 
@@ -3272,22 +3280,22 @@ molecule_class_info_t::label_symmetry_atom(int i) {
 	    // look at translate_atom_with_pre_shift(), it translate
 	    // the negative of the passed translation, so print the
 	    // negative.
-	    // 
+	    //
 	    std::pair <symm_trans_t, Cell_Translation> st = labelled_symm_atom_symm_trans_[i];
 	    std::pair <symm_trans_t, Cell_Translation> st_inv(st.first, st.second.inv());
 	    std::string label =
 	       make_symm_atom_label_string(atom_sel.atom_selection[iatom_index], st_inv);
 
 	    GLfloat blueish[3] = { 0.7, 0.7, 1.0 };
-	 
+
 	    glColor3fv(blueish);
-	 
+
 	    coot::Cartesian symm_point = translate_atom_with_pre_shift(atom_sel, iatom_index, st);
 
 // 	    glRasterPos3f(symm_point.get_x(),
 // 			  symm_point.get_y()+0.02,
 // 			  symm_point.get_z()+0.02);
-	 
+
 	    graphics_info_t::printString(label,
 					 symm_point.get_x(),
 					 symm_point.get_y()+0.02,
@@ -3306,41 +3314,41 @@ molecule_class_info_t::make_atom_label_string(unsigned int ith_labelled_atom,
    std::string label = make_atom_label_string(at, brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
    clipper::Coord_orth p = coot::co(at);
    p += clipper::Coord_orth(0.02, 0.02, 0.02);
-   
+
    return std::pair<std::string, clipper::Coord_orth>(label, p);
 }
 
-// Put a label at the ith atom of mol_class_info::atom_selection. 
+// Put a label at the ith atom of mol_class_info::atom_selection.
 //
 void
 molecule_class_info_t::label_atom(int i, int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag) {
 
    if (has_model()) {
 
-      if (i < atom_sel.n_selected_atoms) { 
+      if (i < atom_sel.n_selected_atoms) {
 
 	 mmdb::PAtom atom = (atom_sel.atom_selection)[i];
 
-	 if (atom) { 
+	 if (atom) {
 
 	    std::string label = make_atom_label_string(atom, brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
-      
+
 	    // GLfloat white[3] = { 1.0, 1.0, 1.0 };
 	    GLfloat pink[3] =  { graphics_info_t::font_colour.red,
 				 graphics_info_t::font_colour.green,
 				 graphics_info_t::font_colour.blue };
-      
+
 	    // glClear(GL_COLOR_BUFFER_BIT);
 	    glColor3fv(pink);
 	    // glShadeModel (GL_FLAT);
-      
+
 	    // glRasterPos3f((atom)->x, (atom)->y+0.02, (atom)->z +0.02);
 	    graphics_info_t::printString(label, (atom)->x, (atom)->y+0.02, (atom)->z +0.02);
-      
+
 	 }
-      } else { 
-	 std::cout << "INFO:: trying to label atom out of range: " 
-		   << i << " " << atom_sel.n_selected_atoms 
+      } else {
+	 std::cout << "INFO:: trying to label atom out of range: "
+		   << i << " " << atom_sel.n_selected_atoms
 		   << " Removing label\n";
 	 unlabel_atom(i);
       }
@@ -3350,7 +3358,7 @@ molecule_class_info_t::label_atom(int i, int brief_atom_labels_flag, short int s
 
 void
 molecule_class_info_t::set_have_unit_cell_flag_maybe(bool warn_about_missing_symmetry_flag) {
-   
+
    // mmdb::CMMDBCryst *cryst_p = atom_sel.mol->get_cell_p();
 
    mmdb::mat44 my_matt;
@@ -3361,7 +3369,7 @@ molecule_class_info_t::set_have_unit_cell_flag_maybe(bool warn_about_missing_sym
       have_unit_cell = 0;
       if (warn_about_missing_symmetry_flag)
 	 std::cout << "WARNING:: No Symmetry for this model" << std::endl;
-   } else { 
+   } else {
       have_unit_cell = 1;
    }
 }
@@ -3432,7 +3440,7 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
    bonds_box_type = coot::NORMAL_BONDS;
    if (! draw_hydrogens_flag)
       bonds_box_type = coot::BONDS_NO_HYDROGENS;
-   
+
 }
 
 void
@@ -3448,6 +3456,7 @@ molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist) {
 }
 
 void
+
 molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist, const std::set<int> &no_bonds_to_these_atom_indices) {
 
    Bond_lines_container bonds(graphics_info_t::Geom_p(), no_bonds_to_these_atom_indices);
@@ -3465,29 +3474,30 @@ molecule_class_info_t::make_ca_bonds() {
 }
 
 void
-molecule_class_info_t::make_ca_plus_ligands_bonds(coot::protein_geometry *geom_p) { 
+molecule_class_info_t::make_ca_plus_ligands_bonds(coot::protein_geometry *geom_p) {
 
    Bond_lines_container bonds(geom_p);
    bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7, draw_hydrogens_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
-   
+
    // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
 }
 
 void
-molecule_class_info_t::make_ca_plus_ligands_and_sidechains_bonds(coot::protein_geometry *geom_p) { 
+molecule_class_info_t::make_ca_plus_ligands_and_sidechains_bonds(coot::protein_geometry *geom_p) {
 
    Bond_lines_container bonds(geom_p);
    bonds.do_Ca_plus_ligands_and_sidechains_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7,
                                                  0.01, 1.9, draw_hydrogens_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS;
-   
+
    // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
 }
 
 void
+
 molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_to_these_atoms,
 						  short int change_c_only_flag) {
 
@@ -3502,33 +3512,33 @@ molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_
 
    bonds_box_type = coot::COLOUR_BY_CHAIN_BONDS;
 
-   if (graphics_info_t::glarea) 
+   if (graphics_info_t::glarea)
       graphics_info_t::graphics_draw();
 }
 
 void
-molecule_class_info_t::make_colour_by_molecule_bonds() { 
+molecule_class_info_t::make_colour_by_molecule_bonds() {
 
-   // 
+   //
    Bond_lines_container bonds;
    bonds.do_colour_by_molecule_bonds(atom_sel, draw_hydrogens_flag);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::COLOUR_BY_MOLECULE_BONDS;
 
-   if (graphics_info_t::glarea) 
+   if (graphics_info_t::glarea)
       graphics_info_t::graphics_draw();
 
 }
 
 
 
-void 
+void
 molecule_class_info_t::make_bonds_type_checked(bool add_residue_indices) {
 
    bool debug = false;
-   if (debug) 
+   if (debug)
       std::cout << "--- make_bonds_type_checked() called  with bonds_box_type "
-		<< bonds_box_type << " vs " 
+		<< bonds_box_type << " vs "
 		<< "NORMAL_BONDS " << coot::NORMAL_BONDS << " "
 		<< "BONDS_NO_HYDROGENS " << coot::BONDS_NO_HYDROGENS << " "
 		<< "COLOUR_BY_CHAIN_BONDS " << coot::COLOUR_BY_CHAIN_BONDS << " "
@@ -3540,8 +3550,8 @@ molecule_class_info_t::make_bonds_type_checked(bool add_residue_indices) {
    // Delete this in due course
    graphics_info_t g; // urgh!  (But the best solution?)
    coot::protein_geometry *geom_p = g.Geom_p();
-   
    std::set<int> dummy;
+
    if (bonds_box_type == coot::NORMAL_BONDS)
       makebonds(geom_p, dummy);
    if (bonds_box_type == coot::BONDS_NO_HYDROGENS)
@@ -3582,13 +3592,13 @@ molecule_class_info_t::make_bonds_type_checked(bool add_residue_indices) {
                                                              // Perhaps we need two functions
                                                              // user_defined_colours_representation_all()
                                                              // user_defined_colours_representation_Calpha() [+ ligands]
-   
+
    // bleugh. But if we don't do this here, where *do* we do it?
    // Should the glci be passed to make_bonds_type_checked()?  Urgh.
    // That is called from many places....
-   // 
+   //
    gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
-   
+
    update_additional_representations(glci, g.Geom_p());
    update_fixed_atom_positions();
    update_ghosts();
@@ -3628,7 +3638,7 @@ molecule_class_info_t::update_bonds_using_phenix_geo(const coot::phenix_geo_bond
    Bond_lines_container bonds(atom_sel.mol, b);
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
-   
+
 
 }
 
@@ -3672,7 +3682,7 @@ molecule_class_info_t::single_model_view_prev_model_number() {
 	    // OK
 	 } else {
 	    prev = n;
-	 } 
+	 }
 	 mmdb::Model *model = atom_sel.mol->GetModel(prev);
 	 if (model) {
 	    model_no = prev;
@@ -3680,7 +3690,7 @@ molecule_class_info_t::single_model_view_prev_model_number() {
       }
    }
    single_model_view_model_number(model_no);
-   return model_no; 
+   return model_no;
 }
 
 int
@@ -3694,7 +3704,7 @@ molecule_class_info_t::single_model_view_next_model_number() {
 	    // OK
 	 } else {
 	    next = 1;
-	 } 
+	 }
 	 mmdb::Model *model = atom_sel.mol->GetModel(next);
 	 if (model) {
 	    model_no = next;
@@ -3702,7 +3712,7 @@ molecule_class_info_t::single_model_view_next_model_number() {
       }
    }
    single_model_view_model_number(model_no);
-   return model_no; 
+   return model_no;
 }
 
 
@@ -3718,14 +3728,14 @@ molecule_class_info_t::update_additional_representations(const gl_context_info_t
       } else {
 
 	 // let's remove the old/current dlo from the tags list before we add a new one.
-	 
+
 	 int old_handle = add_reps[i].display_list_handle;
 	 remove_display_list_object_with_handle(old_handle);
 
 	 int handle = make_ball_and_stick(add_reps[i].atom_sel_info.mmdb_string(),
-					  add_reps[i].bond_width, 
-					  add_reps[i].sphere_radius, 
-					  add_reps[i].draw_atom_spheres_flag, 
+					  add_reps[i].bond_width,
+					  add_reps[i].sphere_radius,
+					  add_reps[i].draw_atom_spheres_flag,
 					  gl_info, geom);
 	 int n_display_list_tags = display_list_tags.size();
 	 if ((handle >= 0) && (handle < n_display_list_tags))
@@ -3739,24 +3749,24 @@ molecule_class_info_t::update_additional_representations(const gl_context_info_t
 void
 molecule_class_info_t::remove_display_list_object_with_handle(int handle_index) {
 
-//    for (unsigned int i=0; i<display_list_tags.size(); i++) { 
+//    for (unsigned int i=0; i<display_list_tags.size(); i++) {
 //       std::cout << "   display_list_tags: index " << i << " tag " << display_list_tags[i].tag;
 //       if (display_list_tags[i].is_closed)
 // 	 std::cout << " closed";
 //       std::cout << std::endl;
 //    }
-   
+
 //    std::cout << "closing display_list_tags number..." << handle_index
 // 	     << " which has GL tag " << display_list_tags[handle_index].tag << std::endl;
    display_list_tags[handle_index].close_yourself();
-} 
+}
 
 void
 molecule_class_info_t::update_mols_in_additional_representations() {
 
    // std::cout << "........................... update_mols_in_additional_representations() called..."
    // << std::endl;
-   
+
    for (unsigned int i=0; i<add_reps.size(); i++) {
       add_reps[i].change_mol(atom_sel.mol);
    }
@@ -3767,7 +3777,7 @@ void
 molecule_class_info_t::update_fixed_atom_positions() {
 
    fixed_atom_positions.clear();
-   bool found_match = 0; 
+   bool found_match = 0;
    for(unsigned int i=0; i<fixed_atom_specs.size(); i++) {
       int ifast_index = fixed_atom_specs[i].int_user_data;
       if (ifast_index != -1) {
@@ -3777,8 +3787,8 @@ molecule_class_info_t::update_fixed_atom_positions() {
 	       found_match = 1;
 	       coot::Cartesian pos(at->x, at->y, at->z);
 	       fixed_atom_positions.push_back(pos);
-	    } 
-	 } 
+	    }
+	 }
       }
       if (! found_match) {
 	 // use a slower method to find atom
@@ -3805,7 +3815,7 @@ molecule_class_info_t::update_extra_restraints_representation() {
    extra_restraints_representation.clear();
    update_extra_restraints_representation_bonds();
    update_extra_restraints_representation_parallel_planes();
-   
+
 }
 
 void
@@ -3817,7 +3827,7 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 
    if (! draw_it_for_extra_restraints || ! draw_it)
       return;
-   
+
    for (unsigned int i=0; i<extra_restraints.bond_restraints.size(); i++) {
       mmdb::Atom *at_1 = NULL;
       mmdb::Atom *at_2 = NULL;
@@ -3831,9 +3841,9 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 	 extra_restraints.bond_restraints[i];
 
       // set p1 from ifast_index_1 (if possible)
-      // 
+      //
       if (ifast_index_1 != -1) {
-	 if (ifast_index_1 < atom_sel.n_selected_atoms) { 
+	 if (ifast_index_1 < atom_sel.n_selected_atoms) {
 	    at_1 = atom_sel.atom_selection[ifast_index_1];
 	    if (extra_restraints.bond_restraints[i].atom_1.matches_spec(at_1)) {
 	       p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
@@ -3843,7 +3853,7 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
       }
       if (! ifound_1) {
 	 int idx = full_atom_spec_to_atom_index(extra_restraints.bond_restraints[i].atom_1);
-	 if (idx != -1) { 
+	 if (idx != -1) {
 	    at_1 = atom_sel.atom_selection[idx];
 	    if (extra_restraints.bond_restraints[i].atom_1.matches_spec(at_1)) {
 	       p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
@@ -3853,9 +3863,9 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
       }
 
       // set p2 from ifast_index_2 (if possible)
-      // 
+      //
       if (ifast_index_2 != -1) {
-	 if (ifast_index_2 < atom_sel.n_selected_atoms) { 
+	 if (ifast_index_2 < atom_sel.n_selected_atoms) {
 	    at_2 = atom_sel.atom_selection[ifast_index_2];
 	    if (extra_restraints.bond_restraints[i].atom_2.matches_spec(at_2)) {
 	       p2 = clipper::Coord_orth(at_2->x, at_2->y, at_2->z);
@@ -3865,7 +3875,7 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
       }
       if (! ifound_2) {
 	 int idx = full_atom_spec_to_atom_index(extra_restraints.bond_restraints[i].atom_2);
-	 if (idx != -1) { 
+	 if (idx != -1) {
 	    at_2 = atom_sel.atom_selection[idx];
 	    if (extra_restraints.bond_restraints[i].atom_2.matches_spec(at_2)) {
 	       p2 = clipper::Coord_orth(at_2->x, at_2->y, at_2->z);
@@ -3878,7 +3888,7 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 
       if (! ifound_1) {
 	 std::cout << "no spec for " << extra_restraints.bond_restraints[i].atom_1 << std::endl;
-      } 
+      }
 
       if (ifound_1 && ifound_2) {
 
@@ -3888,7 +3898,7 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 	 double dist = sqrt(dist_sq);
 	 double this_n_sigma = (dist - res.bond_dist)/res.esd;
 
-	 if (0) 
+	 if (0)
 	    std::cout << "comparing this_n_sigma " << this_n_sigma << " with "
 		      << extra_restraints_representation.prosmart_restraint_display_limit_low << " "
 		      << extra_restraints_representation.prosmart_restraint_display_limit_high << " and to-CA-mode "
@@ -3896,7 +3906,7 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 		      << "\n";
 
 	 if (this_n_sigma >= extra_restraints_representation.prosmart_restraint_display_limit_high ||
-	     this_n_sigma <= extra_restraints_representation.prosmart_restraint_display_limit_low) { 
+	     this_n_sigma <= extra_restraints_representation.prosmart_restraint_display_limit_low) {
 	    if (extra_restraints_representation_for_bonds_go_to_CA) {
 	       if (at_1->residue != at_2->residue) {
 		  int idx_1 = intelligent_this_residue_atom(at_1->residue);
@@ -3919,7 +3929,7 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 			if (0)
 			   std::cout << "idash " << idash << " n_dashes " << n_dashes << " visible "
 				     << visible << std::endl;
-			if (visible) { 
+			if (visible) {
 			   double frac_s = double(idash  )/double(n_dashes);
 			   double frac_e = double(idash+1)/double(n_dashes);
 			   clipper::Coord_orth dash_pos_1 = ca_p1 + frac_s * (ca_p2 - ca_p1);
@@ -3932,13 +3942,13 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 			visible = !visible;
 		     }
 		  }
-	       } 
+	       }
 	    } else {
 	       // Normal case - not CA exception
 	       extra_restraints_representation.add_bond(p1, p2, res.bond_dist, res.esd);
 	    }
 	 }
-      } 
+      }
    }
 }
 
@@ -3958,7 +3968,7 @@ molecule_class_info_t::update_extra_restraints_representation_parallel_planes() 
       mmdb::Residue *r_2 = get_residue(pp.plane_2_atoms.res_spec);
 
       if (r_1 && r_2) {
-	
+
 	 std::string res_type_1 = r_1->GetResName();
 	 std::string res_type_2 = r_2->GetResName();
 	 std::pair<bool, coot::dictionary_residue_restraints_t> dri_1 = geom.get_monomer_restraints(res_type_1, imol_no);
@@ -4008,30 +4018,30 @@ molecule_class_info_t::update_extra_restraints_representation_parallel_planes() 
 	    }
 	 }
 
-	 if (p_1_positions.size() > 2) { 
-	    if (p_2_positions.size() > 2) { 
+	 if (p_1_positions.size() > 2) {
+	    if (p_2_positions.size() > 2) {
 	       coot::lsq_plane_info_t pi_1(p_1_positions);
 	       coot::lsq_plane_info_t pi_2(p_2_positions);
 	       extra_restraints_representation.add_parallel_plane(pi_1, pi_2);
 	    }
 	 }
-      } 
+      }
    }
-} 
+}
 
 
 // export the molecule in atom_selection_container_t atom_sel;
-// 
+//
 int
-molecule_class_info_t::export_coordinates(std::string filename) const { 
+molecule_class_info_t::export_coordinates(std::string filename) const {
 
    //
-   int err = atom_sel.mol->WritePDBASCII(filename.c_str()); 
-   
-   if (err) { 
+   int err = atom_sel.mol->WritePDBASCII(filename.c_str());
+
+   if (err) {
       std::cout << "WARNING:: export coords: There was an error in writing "
-		<< filename << std::endl; 
-      std::cout << mmdb::GetErrorDescription(mmdb::ERROR_CODE(err)) << std::endl; 
+		<< filename << std::endl;
+      std::cout << mmdb::GetErrorDescription(mmdb::ERROR_CODE(err)) << std::endl;
       graphics_info_t g;
       std::string s = "ERROR:: writing coordinates file ";
       s += filename;
@@ -4042,7 +4052,7 @@ molecule_class_info_t::export_coordinates(std::string filename) const {
       s += " saved successfully";
       graphics_info_t g;
       g.add_status_bar_text(s);
-   } 
+   }
    return err;
 }
 
@@ -4057,14 +4067,14 @@ molecule_class_info_t::get_residue_range_as_mol(const std::string &chain_id,
    mmdb::Manager *mol_new = new mmdb::Manager;
    mmdb::Model *model_new = new mmdb::Model;
    mmdb::Chain *chain_new = new mmdb::Chain;
-   
+
    mmdb::realtype cell[6];
    mmdb::realtype vol;
    int orthcode;
    char *spacegroup_str = atom_sel.mol->GetSpaceGroup();
    atom_sel.mol->GetCell(cell[0], cell[1], cell[2],
 			 cell[3], cell[4], cell[5],
-			 vol, orthcode); 
+			 vol, orthcode);
    mol_new->SetCell(cell[0], cell[1], cell[2],
 		    cell[3], cell[4], cell[5], orthcode);
    mol_new->SetSpaceGroup(spacegroup_str);
@@ -4074,10 +4084,10 @@ molecule_class_info_t::get_residue_range_as_mol(const std::string &chain_id,
    int nchains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<nchains; ichain++) {
       chain_p = model_p->GetChain(ichain);
-      if (std::string(chain_p->GetChainID()) == chain_id) { 
+      if (std::string(chain_p->GetChainID()) == chain_id) {
 	 int nres = chain_p->GetNumberOfResidues();
 	 mmdb::PResidue residue_p;
-	 for (int ires=0; ires<nres; ires++) { 
+	 for (int ires=0; ires<nres; ires++) {
 	    residue_p = chain_p->GetResidue(ires);
 	    if (residue_p->GetSeqNum() >= resno_start) {
 	       if (residue_p->GetSeqNum() <= resno_end) {
@@ -4096,7 +4106,7 @@ molecule_class_info_t::get_residue_range_as_mol(const std::string &chain_id,
    mol_new->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    mol_new->FinishStructEdit();
    return mol_new;
-} 
+}
 
 
 std::string
@@ -4112,7 +4122,7 @@ molecule_class_info_t::make_symm_atom_label_string(mmdb::PAtom atom,
 // This took one minute to write.
 //
 // And then another 2 to add the alt location code (and test it).
-// 
+//
 std::string
 molecule_class_info_t::make_atom_label_string(mmdb::PAtom atom,
 					      int brief_atom_labels_flag,
@@ -4151,7 +4161,7 @@ molecule_class_info_t::make_atom_label_string(mmdb::PAtom atom,
 	 s += " ";
       }
       s += chain_id;
-   } else { 
+   } else {
       s += "/";
       s += g.int_to_string(res_no);
       s += ins_code;
@@ -4173,18 +4183,18 @@ molecule_class_info_t::make_atom_label_string(mmdb::PAtom atom,
 }
 
 // Don't use this function.
-// 
+//
 // For labelling from guile and replacing coordinates and others.
-// 
+//
 // Return -1 on failure to find match
-int 
-molecule_class_info_t::atom_spec_to_atom_index(std::string chain, int resno, 
-					       std::string atom_name) const { 
+int
+molecule_class_info_t::atom_spec_to_atom_index(std::string chain, int resno,
+					       std::string atom_name) const {
 
-   int iatom_index = -1; 
+   int iatom_index = -1;
    int selHnd = atom_sel.mol->NewSelection();
 
-   atom_sel.mol->SelectAtoms(selHnd, 0, chain.c_str(), 
+   atom_sel.mol->SelectAtoms(selHnd, 0, chain.c_str(),
 			     resno, "*", // start, insertion code
 			     resno, "*", // end, insertion code
 			     "*", // residue name
@@ -4193,17 +4203,17 @@ molecule_class_info_t::atom_spec_to_atom_index(std::string chain, int resno,
 			     "*"); // alt locs
 
    int nSelAtoms;
-   mmdb::PPAtom local_SelAtom; 
+   mmdb::PPAtom local_SelAtom;
    atom_sel.mol->GetSelIndex(selHnd, local_SelAtom, nSelAtoms);
 
    if (nSelAtoms == 0) {
       std::cout << "Sorry (atom_spec_to_atom_index): Could not find " << atom_name << "/"
 		<< resno << "/" << chain << " in this molecule: ("
-		<<  imol_no << ") " << name_ << std::endl; 
+		<<  imol_no << ") " << name_ << std::endl;
 
       // debug:
       selHnd = atom_sel.mol->NewSelection();
-      
+
       atom_sel.mol->SelectAtoms(selHnd, 0, "*",
 				mmdb::ANY_RES, "*", // start, insertion code
 				mmdb::ANY_RES, "*", // end, insertion code
@@ -4217,18 +4227,18 @@ molecule_class_info_t::atom_spec_to_atom_index(std::string chain, int resno,
       std::cout << "There were " << nSelAtoms << " atoms with resno "
 		<< resno << std::endl;
 
-      
+
    } else {
       // compare pointers
       for (int i=0; i<atom_sel.n_selected_atoms; i++) {
 	 if (atom_sel.atom_selection[i] == local_SelAtom[0]) {
 	    iatom_index = i;
-	    break; 
+	    break;
 	 }
       }
-   } 
-   return iatom_index; 
-}			    
+   }
+   return iatom_index;
+}
 
 int
 molecule_class_info_t::atom_to_atom_index(mmdb::Atom *at) const {
@@ -4252,7 +4262,7 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const coot::atom_spec_t &ato
 				       atom_spec.atom_name,
 				       atom_spec.alt_conf);
 
-} 
+}
 
 
 // return -1 on no atom found.
@@ -4263,7 +4273,7 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
 						    const std::string &atom_name,
 						    const std::string &alt_conf) const {
 
-   int iatom_index = -1; 
+   int iatom_index = -1;
 
    // some protection for null molecule.
    if (! atom_sel.mol) {
@@ -4276,7 +4286,7 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
    int selHnd = atom_sel.mol->NewSelection();
    int idx = 0;
 
-   atom_sel.mol->SelectAtoms(selHnd, 0, chain.c_str(), 
+   atom_sel.mol->SelectAtoms(selHnd, 0, chain.c_str(),
 			    resno, insertion_code.c_str(), // start, insertion code
 			    resno, insertion_code.c_str(), // end, insertion code
 			    "*", // residue name
@@ -4285,24 +4295,24 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
 			    alt_conf.c_str()); // alt locs
 
    int nSelAtoms;
-   mmdb::PPAtom local_SelAtom; 
+   mmdb::PPAtom local_SelAtom;
    atom_sel.mol->GetSelIndex(selHnd, local_SelAtom, nSelAtoms);
 
    if (false)
       std::cout << "DEBUG:: full_atom_spec_to_atom_index() for :" << chain << ": "
-		<< resno << " :" << insertion_code << ": :" 
+		<< resno << " :" << insertion_code << ": :"
 		<< atom_name << ": :" << alt_conf << ": finds " << nSelAtoms <<  " atoms\n";
 
-   if (nSelAtoms == 0) { 
+   if (nSelAtoms == 0) {
 
       std::cout << "WARNING:: full_atom_spec_to_atom_index() Could not find "
 		<< "\"" << atom_name << "\"," << "\"" << alt_conf  << "\"" << "/"
 		<< resno << insertion_code << "/" << chain << " in this molecule: ("
-		<<  imol_no << ") " << name_ << std::endl; 
-      
+		<<  imol_no << ") " << name_ << std::endl;
+
       int selHnd2 = atom_sel.mol->NewSelection(); // d
-      
-      atom_sel.mol->SelectAtoms(selHnd2, 0, 
+
+      atom_sel.mol->SelectAtoms(selHnd2, 0,
 				chain.c_str(),
 				resno, "*", // start, insertion code
 				resno, "*", // end, insertion code
@@ -4319,8 +4329,8 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
 		   << " (cf MinInt4) " << mmdb::MinInt4 << "\n";
 	 if (resno == mmdb::MinInt4) {
 	    std::cout << "      residue with resno MinInt4\n";
-	 } else { 
-	    for (int i=0; i<nSelAtoms; i++) { 
+	 } else {
+	    for (int i=0; i<nSelAtoms; i++) {
 	       std::cout << "      " << local_SelAtom[i] << "\n";
 	    }
 	 }
@@ -4328,28 +4338,28 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
 
       atom_sel.mol->DeleteSelection(selHnd2);
 
-   } else { 
+   } else {
 
       if (nSelAtoms != 1) {
 	 // the wildcard atom selection case "*HO2"
 	 short int found = 0;
-	 for (int i=0; i<nSelAtoms; i++) { 
-	    if (std::string(local_SelAtom[i]->GetChainID()) == chain) { 
-	       if (local_SelAtom[i]->residue->seqNum == resno) { 
-		  if (std::string(local_SelAtom[i]->GetInsCode()) == insertion_code) { 
-		     if (std::string(local_SelAtom[i]->name) == atom_name) { 
-			if (std::string(local_SelAtom[i]->altLoc) == alt_conf) { 
+	 for (int i=0; i<nSelAtoms; i++) {
+	    if (std::string(local_SelAtom[i]->GetChainID()) == chain) {
+	       if (local_SelAtom[i]->residue->seqNum == resno) {
+		  if (std::string(local_SelAtom[i]->GetInsCode()) == insertion_code) {
+		     if (std::string(local_SelAtom[i]->name) == atom_name) {
+			if (std::string(local_SelAtom[i]->altLoc) == alt_conf) {
 			   found = 0;
 			   idx = i;
 			   break;
-			} 
+			}
 		     }
 		  }
 	       }
 	    }
-	 } 
+	 }
       }
-      
+
       int iatom_index_udd = -1;
       int ic;
       if (local_SelAtom[idx]->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == mmdb::UDDATA_Ok) {
@@ -4360,16 +4370,16 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
    atom_sel.mol->DeleteSelection(selHnd); // Oh dear, this should have
 					  // been in place for years
 					  // (shouldn't it?) 20071121
-   return iatom_index; 
+   return iatom_index;
 }
 //       // compare pointers
 //       for (int i=0; i<atom_sel.n_selected_atoms; i++) {
 // 	 if (atom_sel.atom_selection[i] == local_SelAtom[0]) {
 // 	    iatom_index = i;
-// 	    break; 
+// 	    break;
 // 	 }
 //       }
-	 // 	 if (iatom_index != iatom_index_udd) { 
+	 // 	 if (iatom_index != iatom_index_udd) {
 	 // 	    std::cout << "ERROR: atom indexes (UDD test) dont match "
 	 // 		      << iatom_index << " " << iatom_index_udd << std::endl;
 	 // 	 }
@@ -4381,7 +4391,7 @@ bool
 molecule_class_info_t::moving_atom_matches(mmdb::Atom *at, int this_mol_index_maybe) const {
 
    bool matches = false;
-   if (atom_sel.n_selected_atoms > 0) { 
+   if (atom_sel.n_selected_atoms > 0) {
       if (this_mol_index_maybe >= atom_sel.n_selected_atoms) {
 	 return false;
       } else {
@@ -4416,13 +4426,13 @@ molecule_class_info_t::moving_atom_matches(mmdb::Atom *at, int this_mol_index_ma
 
 
 // Another attempt at that:
-// 
+//
 // find "by hand" the atom with the given characteristics in
 // the atom selection.
 //
 // return -1 if atom not found.
 // Note we have to search for " CA " etc
-// 
+//
 int molecule_class_info_t::atom_index(const char *chain_id, int iresno, const char *atom_id) {
 
    int n = atom_sel.n_selected_atoms;
@@ -4435,29 +4445,29 @@ int molecule_class_info_t::atom_index(const char *chain_id, int iresno, const ch
       }
    }
 
-   return -1; 
+   return -1;
 }
-int 
+int
 molecule_class_info_t::atom_index_first_atom_in_residue(const std::string &chain_id,
 		                  		        int iresno,
 				                        const std::string &ins_code) const {
 
    bool tacf = 0; // test_alt_conf_flag
-   return atom_index_first_atom_in_residue_internal(chain_id, iresno, ins_code, "", tacf); 
+   return atom_index_first_atom_in_residue_internal(chain_id, iresno, ins_code, "", tacf);
 }
 
-int 
+int
 molecule_class_info_t::atom_index_first_atom_in_residue(const std::string &chain_id,
 		                  		        int iresno,
 				                        const std::string &ins_code,
 							const std::string &alt_conf) const {
-   
+
    bool tacf = 1; // test_alt_conf_flag
-   return atom_index_first_atom_in_residue_internal(chain_id, iresno, ins_code, alt_conf, tacf); 
+   return atom_index_first_atom_in_residue_internal(chain_id, iresno, ins_code, alt_conf, tacf);
 
 }
 
-int 
+int
 molecule_class_info_t::atom_index_first_atom_in_residue_internal(const std::string &chain_id,
 								 int iresno,
 								 const std::string &ins_code,
@@ -4469,7 +4479,7 @@ molecule_class_info_t::atom_index_first_atom_in_residue_internal(const std::stri
    int nSelResidues;
    mmdb::PPResidue SelResidues;
    atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, 1,
-			chain_id.c_str(), 
+			chain_id.c_str(),
 			iresno, ins_code.c_str(),
 			iresno, ins_code.c_str(),
 			"*",  // residue name
@@ -4487,7 +4497,7 @@ molecule_class_info_t::atom_index_first_atom_in_residue_internal(const std::stri
 	 SelResidues[ires]->GetAtomTable(residue_atoms, natoms);
 	 for (int iatom=0; iatom<natoms; iatom++) {
 	    if (test_alt_conf_flag == 0
-		|| alt_conf == residue_atoms[iatom]->altLoc) { 
+		|| alt_conf == residue_atoms[iatom]->altLoc) {
 	       if (residue_atoms[iatom]->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == mmdb::UDDATA_Ok) {
 		  index = ic;
 		  break;
@@ -4540,7 +4550,7 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
    }
 
    // For each atom in the new set of atoms:
-   // 
+   //
    for (int i=0; i<asc.n_selected_atoms; i++) {
       int idx = -1;
       mmdb::Atom *atom = asc.atom_selection[i];
@@ -4563,6 +4573,7 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 			 << " for atom " << coot::atom_spec_t(atom) << std::endl;
 
 	    if (atom->GetUDData(asc.UDDOldAtomIndexHandle, tmp_index) == mmdb::UDDATA_Ok) {
+
 	       if (debug)
 		  std::cout << "OK, good GetUDData() for atom " << coot::atom_spec_t(atom) << std::endl;
 	       if (tmp_index >= 0) {
@@ -4588,8 +4599,10 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 						     std::string(atom->altLoc));
 	       }
 	    } else {
+
 	       std::cout << "ERROR:: non-bad handle (" << asc.UDDOldAtomIndexHandle 
 			 <<  "), but bad GetUDData() for atom " << coot::atom_spec_t(atom) << std::endl;
+
 	    }
 	 } else {
 
@@ -4607,21 +4620,21 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 	       std::cout << "DEBUG:: idx: " << idx << "\n";
 	       std::cout << "ERROR:: failed to find atom in molecule: chain-id :"
 			 << std::string(atom->residue->GetChainID()) <<  ": res_no "
-			 << atom->residue->seqNum << " inscode :" 
-			 << std::string(atom->GetInsCode()) << ": name :" 
+			 << atom->residue->seqNum << " inscode :"
+			 << std::string(atom->GetInsCode()) << ": name :"
 			 << std::string(atom->name) << ": altloc :"
 			 << std::string(atom->altLoc) << ":" << std::endl;
 	    }
 	 }
 
-	 if (change_altconf_occs_flag) { 
+	 if (change_altconf_occs_flag) {
 	    if (idx >= 0) {
 	       n_atom++;
 	       mmdb::Atom *mol_atom = atom_sel.atom_selection[idx];
 	       float atom_occ = atom->occupancy;
 	       // if this is a shelx molecule, then we don't change
 	       // occupancies this way.  We do it by changing the FVAR
-	       if (is_from_shelx_ins_flag) { 
+	       if (is_from_shelx_ins_flag) {
 		  atom_occ = mol_atom->occupancy;
 
 		  // OK, one more go.  We have an occupancy of 31 or -31
@@ -4633,7 +4646,7 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 		  // value had been set to.
 
 		  int fvar_number = coot::ShelxIns::shelx_occ_to_fvar(atom_occ);
-		  if (fvar_number > 1) { 
+		  if (fvar_number > 1) {
 		     // 	       std::cout << "DEBUG:: replace_coords: setting fvar number "
 		     // 			 <<  fvar_number << " (generated from occ " << atom_occ << ") to "
 		     // 			 << graphics_info_t::add_alt_conf_new_atoms_occupancy << std::endl;
@@ -4646,7 +4659,7 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 					      atom->z,
 					      atom_occ,
 					      mol_atom->tempFactor);
-	       } else { 
+	       } else {
 		  if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag))
 		     mol_atom->SetCoordinates(atom->x,
 					      atom->y,
@@ -4656,9 +4669,9 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 	       }
 
 	       // similarly we adjust occupancy if this is not a shelx molecule
-	       if (! is_from_shelx_ins_flag) { 
+	       if (! is_from_shelx_ins_flag) {
 		  adjust_occupancy_other_residue_atoms(mol_atom, mol_atom->residue, 0);
-	       } 
+	       }
 	       // std::cout << atom << " coords replace " << idx << " " << mol_atom << std::endl;
 	    } else {
 	       std::cout << "ERROR:: bad atom index in replace_coords replacing atom: "
@@ -4726,14 +4739,14 @@ molecule_class_info_t::movable_atom(mmdb::Atom *mol_atom, bool replace_coords_wi
 // Typically, this is called by fit terminal residue, which has its
 // mol created from a pcmmdbmanager() from the molecule of the
 // residue, so this is fine in this case.
-// 
+//
 void
 molecule_class_info_t::insert_coords(const atom_selection_container_t &asc) {
 
    // for each residue in the asc, do a InsResidue into its chain:
 
    if (! (atom_sel.n_selected_atoms > 0) ) {
-      std::cout << "ERROR: Can't insert_coords this asc  - no atoms in molecule!\n"; 
+      std::cout << "ERROR: Can't insert_coords this asc  - no atoms in molecule!\n";
    } else {
 
       // pointer comparison
@@ -4745,11 +4758,11 @@ molecule_class_info_t::insert_coords(const atom_selection_container_t &asc) {
 	 insert_coords_internal(asc);
       }
    }
-} 
+}
 
 // This does and InsResidue or an AddResidue() as appropriate.
-// 
-void 
+//
+void
 molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &asc) {
 
    // run over each chain, residue of the asc (if terminal residue
@@ -4757,7 +4770,7 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 
    short int inserted = 0; // not inserted yet
    mmdb::Chain *asc_chain;
-   int imod = 1; 
+   int imod = 1;
    mmdb::Model *asc_model_p = asc.mol->GetModel(imod);
    int asc_n_chains = asc_model_p->GetNumberOfChains();
    for (int i_asc_chain=0; i_asc_chain<asc_n_chains; i_asc_chain++) {
@@ -4767,7 +4780,7 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 // 		<< "asc_chain (chain id: " << asc_chain->GetChainID()
 // 		<< ")." << std::endl;
 
-      int udd_atom_index = asc.UDDAtomIndexHandle; 
+      int udd_atom_index = asc.UDDAtomIndexHandle;
 
       for (int ires_asc=0; ires_asc<nres_asc; ires_asc++) {
 	 mmdb::Residue *asc_residue = asc_chain->GetResidue(ires_asc);
@@ -4789,7 +4802,7 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 	    if (asc_chain_str == mol_chain_str) {
 
 	       // insert that residue!
-	       mmdb::PResidue res = 
+	       mmdb::PResidue res =
 		  coot::deep_copy_this_residue(asc_residue, "", 1, udd_atom_index);
 // 	       std::cout  << "DEBUG:: inserting residue in chain "
 // 			  << mol_chain << " residue number "
@@ -4806,7 +4819,7 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 // 	       std::cout << "DEBUG:: returned serial_number: " << serial_number
 // 			 << std::endl;
 
-	       if (res) { 
+	       if (res) {
 
 		  if (serial_number.first != -1) {
 		     // insert at this position (other residues are
@@ -4814,11 +4827,11 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 		     chain->InsResidue(res, serial_number.first);
 		     coot::copy_segid(serial_number.second, res);
 		     inserted = 1;
-		  } else { 
+		  } else {
 
 		     // std::cout << "DEBUG:: insert_coords_internal() add residue\n";
 		     mmdb::Residue *last_residue = last_residue_in_chain(chain);
-		     if (last_residue) { 
+		     if (last_residue) {
 
 			if (0) {   // debug::
 			   int nat = last_residue->GetNumberOfAtoms();
@@ -4827,7 +4840,7 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 					<< last_residue->GetAtom(iat) << std::endl;
 			   }
 			}
-			
+
 			chain->AddResidue(res);
 			coot::copy_segid(last_residue, res);
 			inserted = 1;
@@ -4837,7 +4850,7 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 	    }
 	    //if (inserted) break;
 	 }
-      
+
 
 	 if (! inserted) {
 	    // OK, there was no chain in the current mol that matches
@@ -4852,15 +4865,15 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 	    std::cout << "DEBUG:: Creating a new chain " << asc_chain->GetChainID()
 		      << std::endl;
 
-	    mmdb::Residue *res = 
+	    mmdb::Residue *res =
 	       coot::deep_copy_this_residue(asc_residue, "", 1, udd_atom_index);
-	    if (res) { 
+	    if (res) {
 	       new_chain->AddResidue(res);
 	       atom_sel.mol->FinishStructEdit(); // so that we don't keep adding a
 	                                         // new Chain to atom_sel.mol
 	    }
 
-	 } 
+	 }
 	 //if (inserted) break;
       }
       //if (inserted) break;
@@ -4871,7 +4884,7 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 
 
 
-void 
+void
 molecule_class_info_t::insert_coords_change_altconf(const atom_selection_container_t &asc) {
 
    // There are 2 things we want to do here.
@@ -4882,7 +4895,7 @@ molecule_class_info_t::insert_coords_change_altconf(const atom_selection_contain
    // altconf.
    // (see table in // molecule_class_info_t::make_new_alt_conf()
    // [molecule-class-info-other.cc]
-   // 
+   //
 
    // The second thing is the change the occ of the existing atoms:
    // 1 atom:  new_occ_existing_atom = 1 - occ_new_atom;
@@ -4891,10 +4904,10 @@ molecule_class_info_t::insert_coords_change_altconf(const atom_selection_contain
 //    std::cout << "DEBUG:: ----------------- in insert_coords_change_altconf ------ " << std::endl;
 //    std::cout << "DEBUG:: IN insert_coords_change_altconf" << std::endl;
    make_backup();
-   
+
    // OK if we were from a shelx ins file, then we have to create a
    // new FVAR for this new alt conf thingy.
-   int shelx_occ_fvar_number = -1; 
+   int shelx_occ_fvar_number = -1;
    if (is_from_shelx_ins_flag) {
       // OK, what was the occupancy?
       if (asc.n_selected_atoms > 0) {
@@ -4905,15 +4918,15 @@ molecule_class_info_t::insert_coords_change_altconf(const atom_selection_contain
 	 // to SHELX file so if shelx ins file has 1 FVAR value, then we've just
 	 // created shelx FVAR 3.
 	 shelx_occ_fvar_number += 1;  // so thats (e.g.) 1 x the 20th FVAR
-      } 
+      }
    }
-   
+
    char *chain_id;
    char *atom_name;
    int  resno;
-   float occ; 
+   float occ;
    mmdb::Atom *at;
-   for(int i=0; i<asc.n_selected_atoms; i++) { 
+   for(int i=0; i<asc.n_selected_atoms; i++) {
       at = asc.atom_selection[i];
       chain_id  = at->GetChainID();
       atom_name = at->GetAtomName();
@@ -4931,17 +4944,17 @@ molecule_class_info_t::insert_coords_change_altconf(const atom_selection_contain
 				resno, inscode,
 				"*", // residue name
 				atom_name,
-				"*", 
+				"*",
 				"*"); // alt-loc
       int nSelAtoms;
       mmdb::PPAtom local_SelAtom;
       atom_sel.mol->GetSelIndex(selHnd, local_SelAtom, nSelAtoms);
 
-      if (nSelAtoms == 0) { 
+      if (nSelAtoms == 0) {
 	 // debugging
 // 	       std::cout << "add alt conf: skipping " << atom_name << "/"
 // 		<< resno << "/" << chain_id << " in this molecule: ("
-// 		<<  imol_no << ") " << name_ << std::endl; 
+// 		<<  imol_no << ") " << name_ << std::endl;
       } else {
 
 	 // Let's deal with every atom in this residue that that has
@@ -4950,7 +4963,7 @@ molecule_class_info_t::insert_coords_change_altconf(const atom_selection_contain
 	 // first check for atoms with alt conf "" and move them over if needed
 	 for (int iat=0; iat<nSelAtoms; iat++) {
 	    std::string current_alt_conf = local_SelAtom[iat]->altLoc;
-	    if (current_alt_conf == "") { 
+	    if (current_alt_conf == "") {
 	       std::string new_alt_conf("A");
 	       // force it down the atom's throat :)
 	       strncpy(local_SelAtom[0]->altLoc, new_alt_conf.c_str(), 2);
@@ -4959,7 +4972,7 @@ molecule_class_info_t::insert_coords_change_altconf(const atom_selection_contain
 
 	 if (shelx_occ_fvar_number == -1) {
 	    // i.e. was not from a shelx ins file (normal case):
-	    // 
+	    //
 	    // now stuff occupancies in...
 	    for (int iat=0; iat<nSelAtoms; iat++) {
 	       // local_SelAtom[0]->occupancy = 1.0 - occ; // complemetary (1+1 atom case)
@@ -4967,7 +4980,7 @@ molecule_class_info_t::insert_coords_change_altconf(const atom_selection_contain
 
 	       // 20091227 But don't add atoms with negative
 	       // occupancy, e.g. the residue before the split was at
-	       // zero occupancy. 
+	       // zero occupancy.
 	       if (local_SelAtom[iat]->occupancy < 0.0)
 		  local_SelAtom[iat]->occupancy = 0.0;
 	    }
@@ -4984,10 +4997,10 @@ molecule_class_info_t::insert_coords_change_altconf(const atom_selection_contain
 	    }  else {
 	       local_SelAtom[0]->occupancy = -shelx_occ_fvar_number;
 	    }
-	 } 
+	 }
       }
       atom_sel.mol->DeleteSelection(selHnd);
-   } 
+   }
    insert_coords_atoms_into_residue_internal(asc, shelx_occ_fvar_number);
 
 }
@@ -4999,8 +5012,8 @@ molecule_class_info_t::insert_coords_change_altconf(const atom_selection_contain
 // -1 is passed as shelx_occ_fvar_number if this atom was not from a
 // SHELX ins file.  If shelx_occ_fvar_number > 1, then use this as the
 // new atom's occupancy.
-// 
-void 
+//
+void
 molecule_class_info_t::insert_coords_atoms_into_residue_internal(const atom_selection_container_t &asc,
 								 int shelx_occ_fvar_number) {
 
@@ -5016,8 +5029,8 @@ molecule_class_info_t::insert_coords_atoms_into_residue_internal(const atom_sele
 
 //    std::cout << "DEBUG in insert_coords_atoms_into_residue_internal afix handles:"
 // 	     << afix_handle_this_mol << " " << afix_handle_intermediate_mol << std::endl;
-   
-   for(int i=0; i<asc.n_selected_atoms; i++) { 
+
+   for(int i=0; i<asc.n_selected_atoms; i++) {
       at = asc.atom_selection[i];
       chain_id  = at->GetChainID();
       atom_name = at->GetAtomName();
@@ -5029,7 +5042,7 @@ molecule_class_info_t::insert_coords_atoms_into_residue_internal(const atom_sele
       int nSelResidues;
       mmdb::PPResidue SelResidues;
       atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, 1,
-			   chain_id, 
+			   chain_id,
 			   resno, "*",
 			   resno, "*",
 			   "*",  // residue name
@@ -5039,12 +5052,12 @@ molecule_class_info_t::insert_coords_atoms_into_residue_internal(const atom_sele
 			   mmdb::SKEY_NEW // selection key
 			   );
       atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
-      
-      if (nSelResidues != 1) { 
+
+      if (nSelResidues != 1) {
 	 std::cout << "ERROR:: something broken in residue selection in ";
 	 std::cout << "insert_coords_atoms_into_residue_internal: got " << nSelResidues
 		   << " residues." << std::endl;
-      } else { 
+      } else {
 	 mmdb::Atom *t = new mmdb::Atom;
 	 t->Copy(at);
 	 SelResidues[0]->AddAtom(t);
@@ -5069,21 +5082,21 @@ molecule_class_info_t::insert_coords_atoms_into_residue_internal(const atom_sele
 	       }
 
  	    } else {
-	       if (is_from_shelx_ins_flag) 
+	       if (is_from_shelx_ins_flag)
 		  std::cout << "ERROR:: attempt to get UDD afix number from "
 			    << "intermediate molecule failed " << at << std::endl;
- 	    } 
+ 	    }
 	 } else {
 	    std::cout << "ERROR:: bad afix handle for intermediate molecule in "
 		      << "insert_coords_atoms_into_residue_internal"
 		      << afix_handle_intermediate_mol << " " << at << std::endl;
-	 } 
-      } 
+	 }
+      }
       atom_sel.mol->DeleteSelection(selHnd);
-   } 
+   }
    atom_sel.mol->FinishStructEdit();
    update_molecule_after_additions();
-} 
+}
 
 // We need to find the serial number of the residue after the residue
 // we want to insert (i.e. the new residue will be inserted just
@@ -5099,13 +5112,13 @@ molecule_class_info_t::find_serial_number_for_insert(int seqnum_for_new,
    std::pair<int, std::string> current_diff(999999, "");
    int n_chains = atom_sel.mol->GetNumberOfChains(1);
    mmdb::Residue *res = NULL;
-   
+
    for (int i_chain=0; i_chain<n_chains; i_chain++) {
-      
+
       mmdb::Chain *chain_p = atom_sel.mol->GetChain(1,i_chain);
 
       if (chain_p) {
-      
+
 	 std::string mol_chain(chain_p->GetChainID());
 
 	 if (chain_id == mol_chain) {
@@ -5153,7 +5166,7 @@ molecule_class_info_t::add_terminal_residue_using_phi_psi(const std::string &cha
    if (! res) {
       std::cout << "WARNING:: add_terminal_residue_using_phi_psi() residue not found for \""
 		<< chain_id << "\" " << res_no << std::endl;
-   } else { 
+   } else {
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       res->GetAtomTable(residue_atoms, n_residue_atoms);
@@ -5161,16 +5174,16 @@ molecule_class_info_t::add_terminal_residue_using_phi_psi(const std::string &cha
 	 mmdb::Atom *at = residue_atoms[0];
 	 int atom_indx = get_atom_index(at);
 	 if (atom_indx < 0) {
-	    // This should not happen.  
+	    // This should not happen.
 	    std::cout << "WARNING:: add_terminal_residue_using_phi_psi() "
 		      << "Failed to get atom index for 0th atom in \""
 		      << chain_id << "\" " << res_no << std::endl;
-	 } else { 
+	 } else {
 	    std::string term_type = get_term_type(atom_indx);
 	    int found_atoms_count = 0;
 	    clipper::Coord_orth previous_ca, previous_c, previous_n;
 	    mmdb::Atom *C_terminal_this_residue_O = NULL;
-	    for (int iat=0; iat<n_residue_atoms; iat++) { 
+	    for (int iat=0; iat<n_residue_atoms; iat++) {
 	       std::string atom_name = residue_atoms[iat]->name;
 
 	       // PDBv3 FIXME.
@@ -5224,7 +5237,7 @@ molecule_class_info_t::add_terminal_residue_using_phi_psi(const std::string &cha
 		  std::cout << "Bad for N current atom selection " << std::endl;
 	       } else {
 		  r = coot::build_C_terminal_ALA(phi, psi, res_no+1,
-						 previous_n, 
+						 previous_n,
 						 previous_ca,
 						 previous_c,
 						 30);
@@ -5235,30 +5248,30 @@ molecule_class_info_t::add_terminal_residue_using_phi_psi(const std::string &cha
 
 		     // Also, we need to move the O of the current
 		     // atom into the plane of the CA
-		     // 
+		     //
 		     if (C_terminal_this_residue_O) {
 			std::pair<bool, clipper::Coord_orth> ca_new(false, clipper::Coord_orth(0,0,0));
 			std::pair<bool, clipper::Coord_orth>  n_new(false, clipper::Coord_orth(0,0,0));
 
 			// PDBv3 FIXME.
 			// now get ca_new and n_new from r:
-			for (unsigned int jat=0; jat<r.n_atoms(); jat++) { 
-			   if (r[jat].name == " CA ") { 
+			for (unsigned int jat=0; jat<r.n_atoms(); jat++) {
+			   if (r[jat].name == " CA ") {
 			      ca_new.first = true;
 			      ca_new.second = r[jat].pos;
 			   }
-			   if (r[jat].name == " N  ") { 
+			   if (r[jat].name == " N  ") {
 			      n_new.first = true;
 			      n_new.second = r[jat].pos;
 			   }
 			}
 			// If we found them (we should have), generate
 			// a new pos for this O and apply it.
-			if (ca_new.first && n_new.first) { 
+			if (ca_new.first && n_new.first) {
 			   double torsion_ca_n_c_o = clipper::Util::d2rad(0.0);
 			   double angle_n_c_o      = clipper::Util::d2rad(132.02);
 			   // bond/attach to the previous_c.
-			   clipper::Coord_orth new_pos(ca_new.second, 
+			   clipper::Coord_orth new_pos(ca_new.second,
 						       n_new.second,
 						       previous_c,
 						       1.23, angle_n_c_o, torsion_ca_n_c_o);
@@ -5385,38 +5398,38 @@ molecule_class_info_t::add_coords(const atom_selection_container_t &asc) {
    // std::cout << "DEBUG:: ----------------- in add_coords ----------- " << std::endl;
 
    make_backup();
-   
+
    for (int i=0; i<asc.n_selected_atoms; i++) {
       int idone = 0;
       atom = asc.atom_selection[i];
       // chain = atom->GetChain();
-      
+
       // run over chains of the existing mol
       int nchains = atom_sel.mol->GetNumberOfChains(1);
-      for (int ichain=0; ichain<nchains; ichain++) { 
-	 
+      for (int ichain=0; ichain<nchains; ichain++) {
+
 	 chain = atom_sel.mol->GetChain(1,ichain);
 	 std::string atom_chain_id(atom->GetChainID());
 	 std::string mol_chain_id(chain->GetChainID());
-	 
+
 	 if (atom_chain_id == mol_chain_id) {
 
 	    // int iseqno_at = atom->GetSeqNum();
 	    int nres = chain->GetNumberOfResidues();
-	    for (int ires=0; ires<nres; ires++) { 
+	    for (int ires=0; ires<nres; ires++) {
 	       mmdb::PResidue res = chain->GetResidue(ires);
 	       if (res) { // fixes bug 030813, but best way?
 		          // 030814, ah, we discover FinishStructEdit().
-		  if (res->GetSeqNum() == atom->GetSeqNum()) { 
+		  if (res->GetSeqNum() == atom->GetSeqNum()) {
 		     int natom = res->GetNumberOfAtoms();
 		     for (int iat=0; iat<natom; iat++) {
-			
+
 			mol_atom = res->GetAtom(atom->GetAtomName());
 			if (mol_atom) { // we got a match
 			   // replace the coordinates then
-			   
+
 			   // This should not happen very often
-			   std::cout << "add_coords: replacing " << mol_atom 
+			   std::cout << "add_coords: replacing " << mol_atom
 				     << " with new atom " << atom << std::endl;
 			   mol_atom->SetCoordinates(atom->x,
 						    atom->y,
@@ -5425,12 +5438,12 @@ molecule_class_info_t::add_coords(const atom_selection_container_t &asc) {
 						    mol_atom->tempFactor);
 			   idone = 1;
 			   break;
-			   
-			} else { 
-			   
-			   std::cout << "adding atom to existing residue " 
-				     << atom << " (already has " 
-				     << res->GetNumberOfAtoms() << " atoms)" 
+
+			} else {
+
+			   std::cout << "adding atom to existing residue "
+				     << atom << " (already has "
+				     << res->GetNumberOfAtoms() << " atoms)"
 				     << std::endl;
 			   mmdb::Atom *new_atom = new mmdb::Atom;
 			   new_atom->Copy(atom);
@@ -5438,7 +5451,7 @@ molecule_class_info_t::add_coords(const atom_selection_container_t &asc) {
 			   new_atom->occupancy = 1.0;
 			   new_atom->tempFactor = 10.0;
 			   // chain id:
-			   if (0) 
+			   if (0)
 			      std::cout << "setting chainid of this new atom from :"
 					<< new_atom->GetChainID() << ": to :"
 					<< atom->GetChainID() << ":" << std::endl;
@@ -5455,9 +5468,9 @@ molecule_class_info_t::add_coords(const atom_selection_container_t &asc) {
 	 }
       }
 
-      if (idone == 0) { 
+      if (idone == 0) {
 
-	 std::cout << "adding whole residue triggered by atom " 
+	 std::cout << "adding whole residue triggered by atom "
 		   << atom << " ";
 	 std::cout << " with element " << atom->element << std::endl;
 
@@ -5465,7 +5478,7 @@ molecule_class_info_t::add_coords(const atom_selection_container_t &asc) {
 	 // atom_p is a new atom that we are adding to a new residue
 	 // (that we are adding to an existing chain (that we do a
 	 // lookup to find)).
-	 // 
+	 //
 	 mmdb::Residue *res_p = new mmdb::Residue;
 	 mmdb::Atom *atom_p = new mmdb::Atom;
 	 // mmdb::Chain *chain_p = atom_sel.mol->GetChain(1,0);
@@ -5480,7 +5493,7 @@ molecule_class_info_t::add_coords(const atom_selection_container_t &asc) {
 	 res_p->SetResID(atom->residue->name,
 			 atom->GetSeqNum(),
 			 atom->GetInsCode());
-	 
+
 	 // add to end:
 	 atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 	 atom_sel.mol->FinishStructEdit();
@@ -5495,31 +5508,31 @@ molecule_class_info_t::add_coords(const atom_selection_container_t &asc) {
    //
 
    // Uncomment when we have fixed the bug, this seems not to be it.
-   // 
+   //
    // clear out the old
    // if (atom_sel.atom_selection != NULL)
    // delete [] atom_sel.atom_selection;
-   
+
    // and in with the new:
-   int selHnd = atom_sel.mol->NewSelection(); 
+   int selHnd = atom_sel.mol->NewSelection();
    atom_sel.mol->SelectAtoms(selHnd, 0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,
 			    "*","*",  // EndInsertionCode, RNames
 			    "*","*",  // ANames, Elements
 			    "*" );    // Alternate locations.
 
    int old_n_atoms = atom_sel.n_selected_atoms;
-   atom_sel.mol->GetSelIndex(selHnd, 
-			     atom_sel.atom_selection, 
+   atom_sel.mol->GetSelIndex(selHnd,
+			     atom_sel.atom_selection,
 			     atom_sel.n_selected_atoms);
 
-   std::cout << "INFO:: old n_atoms: " << old_n_atoms << " new: " 
+   std::cout << "INFO:: old n_atoms: " << old_n_atoms << " new: "
 	     << atom_sel.n_selected_atoms << std::endl;
 
-   have_unsaved_changes_flag = 1; 
+   have_unsaved_changes_flag = 1;
 
    make_bonds_type_checked();
    // std::cout << "DEBUG:: ---------------- done add_coords ----------- " << std::endl;
-} 
+}
 
 // save to default file name if has unsaved changes.  Return non-zero on problem.
 int
@@ -5545,25 +5558,25 @@ molecule_class_info_t::close_yourself() {
    bool was_coords = false;
 
    name_ = ""; // not "Baton Atoms" or anything now.
-   
+
    if (atom_sel.n_selected_atoms > 0)
       was_coords = 1;
 
    if (has_xmap()) {
       was_xmap = true;
       was_map = true;
-   } 
+   }
 
-   if (has_nxmap()) { 
+   if (has_nxmap()) {
       was_map = true;
       was_nxmap = true;
-   } 
+   }
 
    // delete from display manager combo box
-   // 
+   //
    graphics_info_t g;
    GtkWidget *display_control_window = g.display_control_window();
-   // 
+   //
    if (display_control_window) { // is being displayed
       std::string display_frame_name = "display_mol_frame_";
       if (was_map)
@@ -5579,7 +5592,7 @@ molecule_class_info_t::close_yourself() {
       }
    }
 
-   if (was_coords) { 
+   if (was_coords) {
       atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
       delete atom_sel.mol;
    }
@@ -5651,26 +5664,26 @@ molecule_class_info_t::intelligent_next_atom(const std::string &chain_id,
    // for the first residue that has higher residue number than resno.
 
    int i_atom_index = -1; // failure initially.
-   if (atom_sel.n_selected_atoms <= 0 || atom_sel.mol == NULL) { 
+   if (atom_sel.n_selected_atoms <= 0 || atom_sel.mol == NULL) {
       std::cout << "ERROR:: trying to move to (next) atom of a closed molecule!\n";
    } else {
 
       mmdb::Residue *next_residue = NULL;
 
       // Note: we may not be at this residue.
-      // 
+      //
       coot::residue_spec_t this_residue_spec(chain_id, resno, ins_code);
 
       mmdb::Residue *this_residue = get_residue(this_residue_spec);
 
       if (this_residue) {
-	 
+
 	 if (close_to_residue(this_residue, rc)) {
-	    
-	    // === move on to next one === 
+
+	    // === move on to next one ===
 
 	    // Can we do that by residue index?
-	    // 
+	    //
 	    int ser_num = this_residue->index;
 	    if (ser_num != -1) {
 	       // yes...
@@ -5684,20 +5697,20 @@ molecule_class_info_t::intelligent_next_atom(const std::string &chain_id,
 		  mmdb::Residue *residue_p = get_residue(next_residue_spec);
 		  if (residue_p)
 		     next_residue = residue_p;
-	       } 
+	       }
 	    } else {
-	       // no... 
+	       // no...
 	       // this_residue was not properly inserted into the
 	       // chain for some reason.
-	       // 
+	       //
 	       coot::residue_spec_t next_residue_spec(chain_id, resno+1, "");
 	       mmdb::Residue *residue_p = get_residue(next_residue_spec);
 	       if (residue_p)
 		  next_residue = residue_p;
-	    } 
+	    }
 
 	    if (next_residue) {
-	       
+
 	       i_atom_index = intelligent_this_residue_atom(next_residue);
 
 	    } else {
@@ -5707,15 +5720,15 @@ molecule_class_info_t::intelligent_next_atom(const std::string &chain_id,
 	       //
 
 	       next_residue = next_residue_missing_residue(this_residue);
-	       if (next_residue) { 
+	       if (next_residue) {
 		  i_atom_index = intelligent_this_residue_atom(next_residue);
 	       } else {
 		  // we are on the last atom then.
 		  i_atom_index = 0;
-		  
-	       } 
+
+	       }
 	    }
-	    
+
 	 } else {
 	    // Go (back) to this one - because we had moved away from it.
 	    i_atom_index = intelligent_this_residue_atom(this_residue);
@@ -5726,16 +5739,16 @@ molecule_class_info_t::intelligent_next_atom(const std::string &chain_id,
 	 // higher residue number than resno.
 
 	 // the residue is not found for this_residue_spec
-	 // 
+	 //
 	 next_residue = next_residue_missing_residue(this_residue_spec);
 
-	 if (next_residue) 
+	 if (next_residue)
 	    i_atom_index = intelligent_this_residue_atom(next_residue);
 
-      } 
+      }
    }
    return i_atom_index;
-} 
+}
 
 
 // Return the atom index of the "previous" atom
@@ -5755,15 +5768,15 @@ molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
    // We don't handle the "last_residue" in molecule case, the analog
    // of first_residue in the intelligent_next_atom() function.
    // (Maybe we should?)
-   
+
    int i_atom_index = -1;
-   if (atom_sel.n_selected_atoms <= 0 || atom_sel.mol == NULL) { 
+   if (atom_sel.n_selected_atoms <= 0 || atom_sel.mol == NULL) {
       std::cout << "ERROR:: trying to move to (next) atom of a closed molecule!\n";
    } else {
 
       mmdb::Residue *prev_residue_candidate = NULL;
       mmdb::Residue *prev_residue = NULL;
-      bool found_this_residue = false; 
+      bool found_this_residue = false;
       int imod = 1;
       mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
       mmdb::Chain *chain_p;
@@ -5775,11 +5788,11 @@ molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
 	 if ((chain_id == this_chain_id) || (found_this_residue && !prev_residue)) {
 	    int nres = chain_p->GetNumberOfResidues();
 	    mmdb::PResidue residue_p;
-	    for (int ires=0; ires<nres; ires++) { 
+	    for (int ires=0; ires<nres; ires++) {
 	       residue_p = chain_p->GetResidue(ires);
 	       if (residue_p->GetSeqNum() == resno) {
 		  if (ins_code == residue_p->GetInsCode()) {
-		     if (chain_id == this_chain_id) { 
+		     if (chain_id == this_chain_id) {
 			found_this_residue = true;
 			if (prev_residue_candidate) {
 			   prev_residue = prev_residue_candidate;
@@ -5800,24 +5813,24 @@ molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
       // OK, we can get here by going backward through the chain
       // (Shift Spacing) and have just deleted the atom we are centred
       // on.
-      // 
+      //
       // So, in the chain of the atom we just deleted, find the first
       // residue that is more than the seqnum of the atom we just
       // deleted, and the residue before that (prev_residue_candidate)
-      // 
+      //
       if (! found_this_residue) {
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    chain_p = model_p->GetChain(ichain);
 	    if (chain_id == chain_p->GetChainID()) {
 	       int nres = chain_p->GetNumberOfResidues();
 	       mmdb::PResidue residue_p;
-	       for (int ires=0; ires<nres; ires++) { 
+	       for (int ires=0; ires<nres; ires++) {
 		  residue_p = chain_p->GetResidue(ires);
-		  if (residue_p->GetSeqNum() > resno) { 
+		  if (residue_p->GetSeqNum() > resno) {
 		     if (prev_residue_candidate)
 			prev_residue = prev_residue_candidate;
 		     break;
-		  } 
+		  }
 		  prev_residue_candidate = residue_p;
 	       }
 	    }
@@ -5828,7 +5841,7 @@ molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
       // want to go back to protein (in that case
       // prev_residue_candidate would not have been set because it
       // never passes the chain id test)
-      // 
+      //
       if (! prev_residue) {
 	 mmdb::Chain *prev_chain = NULL;
 	 mmdb::Chain *prev_chain_candidate = NULL;
@@ -5836,7 +5849,7 @@ molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    chain_p = model_p->GetChain(ichain);
 	    if (chain_id == chain_p->GetChainID()) {
-	       if (prev_chain_candidate) { 
+	       if (prev_chain_candidate) {
 		  prev_chain = prev_chain_candidate;
 		  break;
 	       }
@@ -5846,7 +5859,7 @@ molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
 	 if (prev_chain) {
 	    // the last residue in prev_chain then:
 	    int nres = prev_chain->GetNumberOfResidues();
-	    if (nres > 0) 
+	    if (nres > 0)
 	       prev_residue = prev_chain->GetResidue(nres-1);
 	 } else {
 	    // OK the passed (current) residue was the first in the
@@ -5854,16 +5867,16 @@ molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
 	    chain_p = model_p->GetChain(nchains-1);
 	    if (chain_p) {
 	       int nres = chain_p->GetNumberOfResidues();
-	       if (nres > 0) 
+	       if (nres > 0)
 		  prev_residue = chain_p->GetResidue(nres-1);
 	    }
-	 } 
-      } 
-      
+	 }
+      }
+
       if (prev_residue)
 	 i_atom_index = intelligent_this_residue_atom(prev_residue);
    }
-   
+
    return i_atom_index;
 }
 
@@ -5871,7 +5884,7 @@ molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
 // If there is a CA in this residue then return the index of that
 // atom, if not, then return the index of the first atom in the
 // residue.
-// 
+//
 // Return -1 on no atoms in residue.
 //
 int
@@ -5879,9 +5892,9 @@ molecule_class_info_t::intelligent_this_residue_atom(mmdb::Residue *res_p) const
 
    mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
-   int ir = -1; 
+   int ir = -1;
 
-   if (res_p) { 
+   if (res_p) {
       res_p->GetAtomTable(residue_atoms, nResidueAtoms);
       for (int i=0; i<nResidueAtoms; i++) {
 	 std::string atom_name(residue_atoms[i]->name);
@@ -5896,7 +5909,7 @@ molecule_class_info_t::intelligent_this_residue_atom(mmdb::Residue *res_p) const
 	 }
       }
 
-      if (ir == -1) { 
+      if (ir == -1) {
 	 if (nResidueAtoms > 0) {
 	    ir = atom_to_atom_index(residue_atoms[0]);
 	    if (ir == -1)
@@ -5911,12 +5924,12 @@ molecule_class_info_t::intelligent_this_residue_atom(mmdb::Residue *res_p) const
    return ir;
 }
 
-coot::atom_spec_t 
+coot::atom_spec_t
 molecule_class_info_t::intelligent_this_residue_atom(const coot::residue_spec_t &rs) const {
 
    coot::atom_spec_t atom_spec;
    mmdb::Residue *res_p = get_residue(rs);
-   if (res_p) { 
+   if (res_p) {
       mmdb::Atom *at = intelligent_this_residue_mmdb_atom(res_p);
       if (at) {
 	 atom_spec = coot::atom_spec_t(at);
@@ -5929,15 +5942,15 @@ molecule_class_info_t::intelligent_this_residue_atom(const coot::residue_spec_t 
 // If there is a CA in this residue then return that atom (pointer)
 // atom, if not, then return the index of the first atom in the
 // residue.
-// 
+//
 // Return NULL on no atoms in residue.
 //
 mmdb::Atom *
 molecule_class_info_t::intelligent_this_residue_mmdb_atom(mmdb::Residue *res_p) const {
 
    mmdb::Atom *null_at = NULL;
-   
-   if (res_p) { 
+
+   if (res_p) {
       mmdb::PPAtom residue_atoms = 0;
       int nResidueAtoms;
       res_p->GetAtomTable(residue_atoms, nResidueAtoms);
@@ -5956,20 +5969,20 @@ molecule_class_info_t::intelligent_this_residue_mmdb_atom(mmdb::Residue *res_p) 
 
 // Return pointer to atom " CA ", or the first atom in the residue, or
 // null (no residue or atoms error):
-// 
+//
 mmdb::Atom *
 molecule_class_info_t::atom_intelligent(const std::string &chain_id, int resno,
-					const std::string &ins_code) const { 
+					const std::string &ins_code) const {
 
-   mmdb::Atom *at = NULL; 
+   mmdb::Atom *at = NULL;
 
-   if (atom_sel.n_selected_atoms > 0) { 
+   if (atom_sel.n_selected_atoms > 0) {
       int selHnd = atom_sel.mol->NewSelection(); // d
       mmdb::PPResidue SelResidue;
       int nSelResidues;
 
       atom_sel.mol->Select (selHnd, mmdb::STYPE_RESIDUE, 0,
-			    chain_id.c_str(), 
+			    chain_id.c_str(),
 			    resno, ins_code.c_str(),
 			    resno, ins_code.c_str(),
 			    "*",  // residue name
@@ -5980,11 +5993,11 @@ molecule_class_info_t::atom_intelligent(const std::string &chain_id, int resno,
 			    );
 
       atom_sel.mol->GetSelIndex(selHnd, SelResidue, nSelResidues);
-      
+
       if (nSelResidues == 0) {
 	 std::cout << "INFO:: No selected residues" << std::endl;
       } else {
-	 
+
 	 mmdb::PPAtom residue_atoms;
 	 int nResidueAtoms;
 	 SelResidue[0]->GetAtomTable(residue_atoms, nResidueAtoms);
@@ -5993,18 +6006,18 @@ molecule_class_info_t::atom_intelligent(const std::string &chain_id, int resno,
 	 } else {
 	    short int found_it = 0;
 	    std::string CA = " CA "; // PDBv3 FIXME
-	    for (int i=0; i<nResidueAtoms; i++) { 
-	       if (std::string(residue_atoms[i]->name) == CA) { 
+	    for (int i=0; i<nResidueAtoms; i++) {
+	       if (std::string(residue_atoms[i]->name) == CA) {
 		  at = residue_atoms[i];
 		  found_it = 1;
 		  break;
 	       }
-	    } 
-	    if (! found_it) 
+	    }
+	    if (! found_it)
 	       at = residue_atoms[0];
 	 }
       }
-      atom_sel.mol->DeleteSelection(selHnd); 
+      atom_sel.mol->DeleteSelection(selHnd);
    }
    return at;
 }
@@ -6028,15 +6041,15 @@ molecule_class_info_t::close_to_residue(mmdb::Residue *residue_p, coot::Cartesia
 	    if (d < 1.0) {
 	       status = true;
 	       break;
-	    } 
+	    }
 	 }
-      } 
+      }
    }
    return status;
 }
 
 // residue for spec is missing, return the next residue.
-// 
+//
 mmdb::Residue *
 molecule_class_info_t::next_residue_missing_residue(const coot::residue_spec_t &spec) const {
 
@@ -6053,7 +6066,7 @@ molecule_class_info_t::next_residue_missing_residue(const coot::residue_spec_t &
       if (chain_id == spec.chain_id) {
 	 found_chain = true;
 	 mmdb::Residue *residue_p;
-	 for (int ires=0; ires<nres; ires++) { 
+	 for (int ires=0; ires<nres; ires++) {
 	    residue_p = chain_p->GetResidue(ires);
 	    if (residue_p->GetSeqNum() > spec.res_no) {
 	       r = residue_p;
@@ -6066,7 +6079,7 @@ molecule_class_info_t::next_residue_missing_residue(const coot::residue_spec_t &
 	 // OK, so spec was at the end of the chain, the previous
 	 // chain, just return the first residue of this chain.
 	 if (found_chain) {
-	    for (int ires=0; ires<nres; ires++) { 
+	    for (int ires=0; ires<nres; ires++) {
 	       r = chain_p->GetResidue(ires);
 	       break;
 	    }
@@ -6088,9 +6101,9 @@ void
 molecule_class_info_t::add_pointer_atom(coot::Cartesian pos) {
 
 
-   if (atom_sel.mol) { 
+   if (atom_sel.mol) {
       mmdb::Chain *chain_p = water_chain();
-      
+
       if (! chain_p) {
 	 // we have to make one then
 	 chain_p = new mmdb::Chain;
@@ -6100,7 +6113,7 @@ molecule_class_info_t::add_pointer_atom(coot::Cartesian pos) {
 	 mmdb::Model *model_p = atom_sel.mol->GetModel(1);
 	 model_p->AddChain(chain_p);
       }
-   
+
       make_backup();
       std::string mol_chain_id(chain_p->GetChainID());
       // int ires_prev = chain_p->GetNumberOfResidues();
@@ -6124,18 +6137,18 @@ molecule_class_info_t::add_pointer_atom(coot::Cartesian pos) {
       atom_sel = make_asc(atom_sel.mol);
       std::cout << atom_p << " added to molecule" << std::endl;
 
-      have_unsaved_changes_flag = 1; 
+      have_unsaved_changes_flag = 1;
       make_bonds_type_checked();
    }
 }
 
-// This is a bit messy, I'm afraid - we test single atom twice. If you use this for 
+// This is a bit messy, I'm afraid - we test single atom twice. If you use this for
 // a multiatom other than SO4 and P04, you will need to add it to the type test
-// 
-void 
-molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::string &type) { 
+//
+void
+molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::string &type) {
 
-   bool single_atom = true; 
+   bool single_atom = true;
 
    // std::cout << "INFO:: adding atom of type " << type << " at " << pos << std::endl;
    make_backup();
@@ -6157,7 +6170,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
       chain_p = new mmdb::Chain;
       pre_existing_chain_flag = 0;
    }
-   
+
    std::pair<short int, std::string> mol_chain_id = unused_chain_id();
    mmdb::Residue *res_p = new mmdb::Residue;
 
@@ -6165,7 +6178,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
    if (type == "PO4") single_atom = 0;
    if (type == "SO4") single_atom = 0;
 
-   if (single_atom) { 
+   if (single_atom) {
       mmdb::Atom *atom_p = new mmdb::Atom;
       float occ;
       if (is_from_shelx_ins_flag)
@@ -6176,7 +6189,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 			     graphics_info_t::default_new_atoms_b_factor);
       atom_p->Het = 1; // it's a HETATM.
 
-      if (type == "Water") { 
+      if (type == "Water") {
 
 	 // special rule for water: we add a water to a water chain if
 	 // possible
@@ -6187,19 +6200,19 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 
 	 mmdb::Chain *w = water_chain();
 	 int wresno = 1;
-	 
+
 	 if (w) {
 	    // remove a TER atom if it exists on the last residue
 	    // prior to insertion of a new residue.
 	    remove_TER_on_last_residue(w);
-	    
+
 	    // Now add atom to chain w.
 	    std::pair<short int, int> wresno_pair = next_residue_number_in_chain(w);
-	    if (wresno_pair.first) { 
+	    if (wresno_pair.first) {
 	       wresno = wresno_pair.second;
-	    } else { 
+	    } else {
 	       wresno = 1;
-	    } 
+	    }
 	    res_p->seqNum = wresno;
 	    res_p->AddAtom(atom_p);
 	    w->AddResidue(res_p);
@@ -6209,12 +6222,12 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 	    atom_sel = make_asc(atom_sel.mol);
 	    have_unsaved_changes_flag = 1;
 	    make_bonds_type_checked();
-	    
-	 } else { 
+
+	 } else {
 	    // There was no water chain
 	    res_p->AddAtom(atom_p);
 	    std::cout << atom_p << " added to molecule (and new chain)" << std::endl;
-	    if (!pre_existing_chain_flag) { 
+	    if (!pre_existing_chain_flag) {
 	       chain_p->SetChainID(mol_chain_id.second.c_str());
 	       atom_sel.mol->GetModel(1)->AddChain(chain_p);
 	    }
@@ -6225,9 +6238,9 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 	    atom_sel = make_asc(atom_sel.mol);
 	    have_unsaved_changes_flag = 1;
 	    make_bonds_type_checked();
-	 } 
-      } else { 
-	
+	 }
+      } else {
+
   	 // Not water
 	 std::string element = "";
 
@@ -6238,7 +6251,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 
 	       res_p->AddAtom(atom_p);
 	       std::cout << atom_p << " added to molecule" << std::endl;
-	       if (! pre_existing_chain_flag) { 
+	       if (! pre_existing_chain_flag) {
 		  chain_p->SetChainID(mol_chain_id.second.c_str());
 		  atom_sel.mol->GetModel(1)->AddChain(chain_p);
 	       }
@@ -6251,7 +6264,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 
 		  // was an empty chain.  Handle the shelx case:
 
-		  if (! is_from_shelx_ins_flag) { 
+		  if (! is_from_shelx_ins_flag) {
 		     res_p->seqNum = 1 ; // start of a new chain.
 		  } else {
 		     // in a shelx molecule, we can't make the residue
@@ -6271,25 +6284,25 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 	    // Add this element to the sfac (redundancy check in the addition function
 	    if (is_from_shelx_ins_flag) {
 	       shelxins.add_sfac(element);
-	    } 
+	    }
 	    chain_p->AddResidue(res_p);
 	    atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 	    atom_sel.mol->FinishStructEdit();
 	    atom_sel = make_asc(atom_sel.mol);
 	    have_unsaved_changes_flag = 1;
 	    make_bonds_type_checked();
-	 } else { 
+	 } else {
 	    std::cout << "WARNING:: Can't find new chain for new atom\n";
-	 } 
+	 }
       } // type was water, or not
 
-   } else { 
+   } else {
       // multi atom:
 
-      if (mol_chain_id.first || pre_existing_chain_flag) { 
+      if (mol_chain_id.first || pre_existing_chain_flag) {
 	 add_pointer_multiatom(res_p, pos, type);
 	 coot::hetify_residue_atoms(res_p);
-	 if (! pre_existing_chain_flag) { 
+	 if (! pre_existing_chain_flag) {
 	    chain_p->SetChainID(mol_chain_id.second.c_str());
 	    atom_sel.mol->GetModel(1)->AddChain(chain_p);
 	 }
@@ -6297,18 +6310,18 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 	 int previous_max = 0;
 	 if (ires_prev_pair.first) { // was not an empty chain
 	    previous_max =  ires_prev_pair.second;
-	 } 
+	 }
 	 res_p->seqNum = previous_max + 1;
-	 
+
 	 chain_p->AddResidue(res_p);
 	 atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 	 atom_sel.mol->FinishStructEdit();
 	 atom_sel = make_asc(atom_sel.mol);
 	 have_unsaved_changes_flag = 1;
 	 make_bonds_type_checked();
-      } else { 
+      } else {
 	 std::cout << "WARNING:: Can't find new chain for new atom\n";
-      } 
+      }
    }
    // or we could just use update_molecule_after_additions() there.
 }
@@ -6316,44 +6329,44 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 
 // return status [1 means "usable"] and a chain id [status = 0 when
 // there are 2*26 chains...]
-// 
+//
 std::pair<bool, std::string>
-molecule_class_info_t::unused_chain_id() const { 
+molecule_class_info_t::unused_chain_id() const {
 
    std::string r("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
-   std::pair<bool, std::string> s(false,""); 
+   std::pair<bool, std::string> s(false,"");
    mmdb::Chain *chain_p;
-   if (atom_sel.n_selected_atoms > 0) { 
+   if (atom_sel.n_selected_atoms > 0) {
       mmdb::Model *model_p = atom_sel.mol->GetModel(1);
       int nchains = model_p->GetNumberOfChains();
-   
+
       for (int ich=0; ich<nchains; ich++) {
 	 chain_p = model_p->GetChain(ich);
 	 std::string this_chain_id = chain_p->GetChainID();
 	 std::string::size_type idx = r.find(this_chain_id);
 	 if (idx != std::string::npos) {
 	    r.erase(idx,1);
-	 } 
+	 }
       }
-      if (r.length()) { 
+      if (r.length()) {
 	 s.first = true;
 	 s.second = r.substr(0,1);
       }
    } else {
       s.first = true;
       s.second = "A";
-   } 
+   }
    return s;
-} 
+}
 
-void 
-molecule_class_info_t::add_pointer_multiatom(mmdb::Residue *res_p, 
+void
+molecule_class_info_t::add_pointer_multiatom(mmdb::Residue *res_p,
 					     const coot::Cartesian &pos, const std::string &type) {
-   
+
    coot::Cartesian p;
    float bf = graphics_info_t::default_new_atoms_b_factor;
    res_p->SetResName(type.c_str());
-   if (type == "SO4") { 
+   if (type == "SO4") {
       mmdb::Atom *atom_p;
 
       atom_p = new mmdb::Atom;
@@ -6362,37 +6375,37 @@ molecule_class_info_t::add_pointer_multiatom(mmdb::Residue *res_p,
       atom_p->SetAtomName(" S  ");
       atom_p->SetElementName(" S");
       res_p->AddAtom(atom_p);
-      
+
       atom_p = new mmdb::Atom;
       p = pos + coot::Cartesian( 1.227, 0.000, -0.813);
       atom_p->SetCoordinates(p.x(), p.y(), p.z(), 1.0, bf);
       atom_p->SetAtomName(" O1 ");
       atom_p->SetElementName(" O");
       res_p->AddAtom(atom_p);
-      
+
       atom_p = new mmdb::Atom;
       p = pos + coot::Cartesian(-1.227, 0.000, -0.813);
       atom_p->SetCoordinates(p.x(), p.y(), p.z(), 1.0, bf);
       atom_p->SetAtomName(" O2 ");
       atom_p->SetElementName(" O");
       res_p->AddAtom(atom_p);
-      
+
       atom_p = new mmdb::Atom;
       p = pos + coot::Cartesian(  0.000, -1.263, 0.740);
       atom_p->SetCoordinates(p.x(), p.y(), p.z(), 1.0, bf);
       atom_p->SetAtomName(" O3 ");
       atom_p->SetElementName(" O");
       res_p->AddAtom(atom_p);
-      
+
       atom_p = new mmdb::Atom;
       p = pos + coot::Cartesian( 0.000, 1.263, 0.740);
       atom_p->SetCoordinates(p.x(), p.y(), p.z(), 1.0, bf);
       atom_p->SetAtomName(" O4 ");
       atom_p->SetElementName(" O");
       res_p->AddAtom(atom_p);
-   } 
+   }
 
-   if (type == "PO4") { 
+   if (type == "PO4") {
       mmdb::Atom *atom_p;
 
       atom_p = new mmdb::Atom;
@@ -6401,37 +6414,37 @@ molecule_class_info_t::add_pointer_multiatom(mmdb::Residue *res_p,
       atom_p->SetAtomName(" P  ");
       atom_p->SetElementName(" P");
       res_p->AddAtom(atom_p);
-      
+
       atom_p = new mmdb::Atom;
       p = pos + coot::Cartesian( 1.315,   0.599,  -0.691 );
       atom_p->SetCoordinates(p.x(), p.y(), p.z(), 1.0, bf);
       atom_p->SetAtomName(" O1 ");
       atom_p->SetElementName(" O");
       res_p->AddAtom(atom_p);
-      
+
       atom_p = new mmdb::Atom;
       p = pos + coot::Cartesian( -1.315,   0.599,  -0.691);
       atom_p->SetCoordinates(p.x(), p.y(), p.z(), 1.0, bf);
       atom_p->SetAtomName(" O2 ");
       atom_p->SetElementName(" O");
       res_p->AddAtom(atom_p);
-      
+
       atom_p = new mmdb::Atom;
       p = pos + coot::Cartesian( 0.000,  -1.587,  -0.055);
       atom_p->SetCoordinates(p.x(), p.y(), p.z(), 1.0, bf);
       atom_p->SetAtomName(" O3 ");
       atom_p->SetElementName(" O");
       res_p->AddAtom(atom_p);
-      
+
       atom_p = new mmdb::Atom;
       p = pos + coot::Cartesian( 0.000,   0.434,   1.457);
       atom_p->SetCoordinates(p.x(), p.y(), p.z(), 1.0, bf);
       atom_p->SetAtomName(" O4 ");
       atom_p->SetElementName(" O");
       res_p->AddAtom(atom_p);
-   } 
+   }
 
-} 
+}
 
 
 // ----------------------------------------------------------------------
@@ -6457,8 +6470,14 @@ molecule_class_info_t::save_coordinates(const std::string filename,
    } else {
       mmdb::byte bz = mmdb::io::GZM_NONE;
 
-      ierr = write_atom_selection_file(atom_sel, filename, bz,
-                                       save_hydrogens, save_aniso_records, 
+      bool write_as_cif = false;
+      if (coot::is_mmcif_filename(filename))
+         write_as_cif = true;
+
+      std::cout << "in save_coordinates() write_as_cif is " <<  write_as_cif << std::endl;
+
+      ierr = write_atom_selection_file(atom_sel, filename, write_as_cif, bz,
+                                       save_hydrogens, save_aniso_records,
                                        save_conect_records);
    }
 
@@ -6483,13 +6502,13 @@ molecule_class_info_t::save_coordinates(const std::string filename,
 
       name_ = filename;  // hmm... // update go to atom widget now? FIXME.
       std::string::size_type icoot = filename.rfind("-coot-");
-      if (icoot != std::string::npos) { 
+      if (icoot != std::string::npos) {
 	 coot_save_index++;
       }
-      update_mol_in_display_control_widget();  // FIXME. 
+      update_mol_in_display_control_widget();  // FIXME.
    }
    return ierr;
-} 
+}
 
 
 
@@ -6509,18 +6528,18 @@ molecule_class_info_t::Have_unsaved_changes_p() const {
 // ----------------------------------------------------------------------
 
 
-// Recall that the chain is set by the creation of the empty molecule in 
+// Recall that the chain is set by the creation of the empty molecule in
 // graphics_info_t::baton_build_atoms_molecule();
 // direction_flag is +1 for forward building, -1 for backwards direction.
 //
 // In the case of direction_flag being negative, I think that residues
 // (atoms) will go into the chain with their seqNums in decreasing
 // order.  The may need to be sorted later, I think (maybe not).
-// 
+//
 mmdb::Atom *
-molecule_class_info_t::add_baton_atom(coot::Cartesian pos, 
+molecule_class_info_t::add_baton_atom(coot::Cartesian pos,
 				      int istart_resno,
-				      const std::string &chain_id, 
+				      const std::string &chain_id,
 				      short int iresno_active,
 				      short int direction_flag) {
 
@@ -6546,7 +6565,7 @@ molecule_class_info_t::add_baton_atom(coot::Cartesian pos,
 	 break;
       }
    }
-   
+
    if (! chain_p) {
       // 20100125 can't do this today, the second arg to the
       // constructor is a char * (not const)
@@ -6556,7 +6575,7 @@ molecule_class_info_t::add_baton_atom(coot::Cartesian pos,
       model_p->AddChain(chain_p);
    }
 
-   
+
    std::string mol_chain_id(chain_p->GetChainID());
    int n_res = chain_p->GetNumberOfResidues();
 
@@ -6564,19 +6583,19 @@ molecule_class_info_t::add_baton_atom(coot::Cartesian pos,
    // if this is the first atom to be added in the chain, we get the
    // seqnum from the passed istart_resno otherwise it is the seqnum
    // of the previous residue, plus or minus one.
-   // 
-   int this_res_seqnum; 
+   //
+   int this_res_seqnum;
    if (n_res == 0) {
       this_res_seqnum = istart_resno;
-   } else { 
+   } else {
 
-      if (iresno_active == 0) { 
+      if (iresno_active == 0) {
 	 int ires_prev = chain_p->GetResidue(n_res-1)->seqNum; // seqnum of the last
                                                                // residue in chain.
 	 this_res_seqnum = ires_prev + 1*direction_flag;
-      } else { 
+      } else {
 	 this_res_seqnum = istart_resno;
-      } 
+      }
    }
 
    mmdb::Residue *res_p = new mmdb::Residue;
@@ -6596,7 +6615,7 @@ molecule_class_info_t::add_baton_atom(coot::Cartesian pos,
    atom_sel = make_asc(atom_sel.mol);
    std::cout << atom_p << " added to molecule" << std::endl;
 
-   have_unsaved_changes_flag = 1; 
+   have_unsaved_changes_flag = 1;
    make_ca_bonds(2.4, 4.7);
 
    return atom_p;
@@ -6605,17 +6624,17 @@ molecule_class_info_t::add_baton_atom(coot::Cartesian pos,
 // Return a vector of upto 3 positions of the most latestly added
 // atoms with the most lastest atom addition (that is the passed atom)
 // in the back() slot of the vector.
-// 
+//
 std::vector<clipper::Coord_orth>
 molecule_class_info_t::previous_baton_atom(mmdb::Atom* latest_atom_addition,
 					   short int direction) const {
    std::vector<clipper::Coord_orth> positions;
-   int direction_sign = +1; 
+   int direction_sign = +1;
 
    if (direction == 1) { // building forward, look in negative
 			 // direction for previously build atoms.
       direction_sign = +1;
-   } else { 
+   } else {
       direction_sign = -1; // building backward, look in positive
 			   // direction for previously build atoms.
    }
@@ -6624,19 +6643,19 @@ molecule_class_info_t::previous_baton_atom(mmdb::Atom* latest_atom_addition,
    char *chain = latest_atom_addition->GetChainID();
    // does the CA for the (ires_last_atom-2) exist?
    int selHnd = atom_sel.mol->NewSelection();
-	 
+
    atom_sel.mol->SelectAtoms(selHnd, 0, chain,
-			     ires_last_atom-2*direction_sign, "*", 
 			     ires_last_atom-2*direction_sign, "*",
-			     "*", " CA ", "*", "*"); 
-      
+			     ires_last_atom-2*direction_sign, "*",
+			     "*", " CA ", "*", "*");
+
    int nSelAtoms;
-   mmdb::PPAtom local_SelAtom; 
+   mmdb::PPAtom local_SelAtom;
    atom_sel.mol->GetSelIndex(selHnd, local_SelAtom, nSelAtoms);
-      
+
    if (nSelAtoms == 0) {
       std::cout << "residue with sequence number " << ires_last_atom - 2*direction_sign
-		<< " not found for ires_last_atom = " << ires_last_atom 
+		<< " not found for ires_last_atom = " << ires_last_atom
 		<< " with direction_sign = " << direction_sign << "\n";
    } else {
       positions.push_back(clipper::Coord_orth(local_SelAtom[0]->x,
@@ -6649,14 +6668,14 @@ molecule_class_info_t::previous_baton_atom(mmdb::Atom* latest_atom_addition,
 
    // does the CA for the (ires_last_atom-1) exist?
    selHnd = atom_sel.mol->NewSelection();
-      
+
    atom_sel.mol->SelectAtoms(selHnd, 0, chain,
-			     ires_last_atom-direction_sign, "*", 
 			     ires_last_atom-direction_sign, "*",
-			     "*", " CA ", "*", "*"); 
+			     ires_last_atom-direction_sign, "*",
+			     "*", " CA ", "*", "*");
 
    atom_sel.mol->GetSelIndex(selHnd, local_SelAtom, nSelAtoms);
-      
+
    if (nSelAtoms == 0) {
       std::cout << "residue with sequence number " << ires_last_atom - direction_sign
 		<< " not found\n";
@@ -6668,14 +6687,14 @@ molecule_class_info_t::previous_baton_atom(mmdb::Atom* latest_atom_addition,
    atom_sel.mol->DeleteSelection(selHnd);
 
    // And finally this one is guaranteed to exist:
-   // 
+   //
    positions.push_back(clipper::Coord_orth(latest_atom_addition->x,
 					   latest_atom_addition->y,
 					   latest_atom_addition->z));
 
    return positions;
-   
-} 
+
+}
 
 #include "build/CalphaBuild.hh"
 
@@ -6687,15 +6706,15 @@ molecule_class_info_t::next_ca_by_skel(const std::vector<clipper::Coord_orth> &p
 				       float map_cut_off,
 				       int max_skeleton_search_depth) const {
 
-   std::vector<coot::scored_skel_coord> t; 
+   std::vector<coot::scored_skel_coord> t;
    coot::CalphaBuild buildca(max_skeleton_search_depth);
 
 //     std::cout << "DEBUG:: ------ "
 //  	     << "in molecule_class_info_t::next_ca_by_skel skeleton_treenodemap_is_filled is "
 // 	      << skeleton_treenodemap_is_filled << " for molecule " << imol_no << std::endl;
 
-    
-   if (skeleton_treenodemap_is_filled) { 
+
+   if (skeleton_treenodemap_is_filled) {
       t = buildca.next_ca_by_skel(previous_ca_positions,
 				  coord_grid_start,
 				  use_coord_grid_start_flag,
@@ -6707,7 +6726,7 @@ molecule_class_info_t::next_ca_by_skel(const std::vector<clipper::Coord_orth> &p
       std::cout << "treenodemap is not filled" << std::endl;
    }
    return t;
-} 
+}
 
 #include <time.h>
 
@@ -6719,7 +6738,7 @@ molecule_class_info_t::add_dummy_atom(coot::Cartesian pos) {
 
    // 20150803-PE FIXME - pass Geom_p().
    graphics_info_t g;
-   coot::protein_geometry *geom_p = g.Geom_p(); 
+   coot::protein_geometry *geom_p = g.Geom_p();
 
    int nchains = atom_sel.mol->GetNumberOfChains(1);
 
@@ -6731,7 +6750,7 @@ molecule_class_info_t::add_dummy_atom(coot::Cartesian pos) {
    make_backup();
 
    mmdb::Chain *chain_p = atom_sel.mol->GetChain(1,0);
-   
+
    std::string mol_chain_id(chain_p->GetChainID());
    int ires_prev = chain_p->GetNumberOfResidues();
 
@@ -6752,7 +6771,7 @@ molecule_class_info_t::add_dummy_atom(coot::Cartesian pos) {
    atom_sel = make_asc(atom_sel.mol);
    // std::cout << atom_p << " added to molecule" << std::endl;
 
-   have_unsaved_changes_flag = 1; 
+   have_unsaved_changes_flag = 1;
    makebonds(0.0, 0.0, geom_p);
 
 }
@@ -6762,15 +6781,15 @@ molecule_class_info_t::add_dummy_atom(coot::Cartesian pos) {
 // backups:
 
 // Backup filename: return a stub.
-// 
+//
 std::string
-molecule_class_info_t::save_molecule_filename(const std::string &dir) { 
+molecule_class_info_t::save_molecule_filename(const std::string &dir) {
 
    std::string time_string = save_time_string;
    graphics_info_t g;
-   
+
    if ((history_index == 0) ||
-       history_index != max_history_index) { 
+       history_index != max_history_index) {
 
       time_string = dir;
 
@@ -6790,7 +6809,7 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
       for (int i=0; i<slen; i++)
 #if defined(__WIN32__) || defined(__CYGWIN__) || defined(WINDOWS_MINGW)
 // BL says: we change /, \ and : to _ in windows
-         if (clean_name[i] == '/' || clean_name[i] == '\\' 
+         if (clean_name[i] == '/' || clean_name[i] == '\\'
                              || clean_name[i] == ':')
             clean_name[i] = '_';
 #else
@@ -6800,14 +6819,14 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
 
       time_string += clean_name;
       time_string += "_";
-      
+
       // add in the time component:
 
 #if defined(__CYGWIN__) || defined(_MSC_VER)
 
       // but not if we are in windows:
 
-#else      
+#else
       time_t t;
       time(&t);
       char *chars_time = ctime(&t);
@@ -6826,19 +6845,19 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
 
       // strip off the trailing newline:
       slen = time_string.length();
-      if (slen > 2) 
+      if (slen > 2)
 	 time_string = time_string.substr(0,slen-1);
-      
+
       // convert spaces to underscores
-      // 
+      //
       for (unsigned int i=0; i<time_string.length(); i++)
 	 if (time_string[i] == ' ')
 	    time_string[i] = '_';
-	    
+
 #if defined(__WIN32__) || defined(__CYGWIN__) || defined(WINDOWS_MINGW) || defined(_MSC_VER)
 
       // convert : to underscores in windows
-      // 
+      //
 #ifndef WINDOWS_MINGW
       // BL say: nonsense since we would transform the directory C: here.
       // we have done it before already
@@ -6847,7 +6866,7 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
 	    time_string[i] = '_';
 #endif // MINGW
 #endif // other win32
-      
+
       time_string += "_modification_";
 
       save_time_string = time_string; // why do we do this?  Ah, because we want the
@@ -6878,16 +6897,16 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
         }
       }
 #endif
-      
+
    } else {
       // (this is not the first save molecule that we have done)
-      
+
       // add to the stub that we have previously generated.
       //
       time_string += g.int_to_string(history_index);
-      if (! is_from_shelx_ins_flag) 
+      if (! is_from_shelx_ins_flag)
 	 time_string += ".pdb";
-      else 
+      else
 	 time_string += ".res";
 #if defined(_MSC_VER)
       // same here
@@ -6898,14 +6917,14 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
         }
       }
 #endif
-   } 
+   }
    return time_string;
 }
 
 // Return like mkdir: mkdir returns zero on success, or -1 if an  error  occurred
 //
 // if it already exists as a dir, return 0 of course.
-// 
+//
 int
 molecule_class_info_t::make_maybe_backup_dir(const std::string &backup_dir) const {
 
@@ -6916,24 +6935,24 @@ molecule_class_info_t::make_maybe_backup_dir(const std::string &backup_dir) cons
 //
 // If successful, increase history_index and if not in a backup
 // increase max_history_index too.
-// 
+//
 int
 molecule_class_info_t::make_backup() { // changes history details
 
   graphics_info_t g;
-   if (backup_this_molecule) { 
+   if (backup_this_molecule) {
       std::string backup_dir("coot-backup");
 
       //shall we use the environment variable instead?
       char *env_var = getenv("COOT_BACKUP_DIR");
-      if (env_var) { 
+      if (env_var) {
 	 struct stat buf;
 
          // we better debackslash the directory (for windows)
 	 std::string tmp_dir = env_var;
          tmp_dir = coot::util::intelligent_debackslash(tmp_dir);
 	 int err = stat(tmp_dir.c_str(), &buf);
-	 
+
 	 if (!err) {
 	    if (! S_ISDIR(buf.st_mode)) {
 	       env_var = NULL;
@@ -6984,7 +7003,7 @@ molecule_class_info_t::make_backup() { // changes history details
 #endif
 	    // Writing out a modified binary mmdb like this results in the
 	    // file being unreadable (crash in mmdb read).
-	    // 
+	    //
 	    int istat;
 	    if (! is_from_shelx_ins_flag) {
 	       bool write_as_cif = false;
@@ -6992,22 +7011,22 @@ molecule_class_info_t::make_backup() { // changes history details
 		  write_as_cif = true;
 	       istat = write_atom_selection_file(atom_sel, backup_file_name, write_as_cif, gz);
 	       // WriteMMDBF returns 0 on success, else mmdb:Error_CantOpenFile (15)
-	       if (istat) { 
+	       if (istat) {
 		  std::string warn;
 		  warn = "WARNING:: WritePDBASCII failed! Return status ";
 		  warn += istat;
 		  g.info_dialog_and_text(warn);
 	       }
-	    } else { 
+	    } else {
 	       std::pair<int, std::string> p = write_shelx_ins_file(backup_file_name);
 	       istat = p.first;
 	    }
-		  
+
 	    save_history_file_name(backup_file_name);
 	    if (history_index == max_history_index)
 	       max_history_index++;
 	    history_index++;
-	 } 
+	 }
       } else {
 	 std::cout << "BACKUP:: Ooops - no atoms to backup for this empty molecule"
 		   << std::endl;
@@ -7026,17 +7045,17 @@ molecule_class_info_t::save_history_file_name(const std::string &file) {
 
    // First, history_index is zero and the vec is zero,
    // normal service, then another backup: history_index is 1 and vec is 1.
-   // 
+   //
    if (history_index == int(history_filename_vec.size())) {
       history_filename_vec.push_back(file);
    } else {
       // we have gone back in history.
-      // 
+      //
       if (history_index < int(history_filename_vec.size())) {
 	 history_filename_vec[history_index] = file;
       }
    }
-} 
+}
 
 // restore from (previous) backup
 void
@@ -7053,7 +7072,7 @@ molecule_class_info_t::restore_from_backup(int history_offset,
 		<< " " << history_index << std::endl;
       std::string save_name = name_;
       if (hist_vec_index < int(history_filename_vec.size()) &&
-	  hist_vec_index >= 0) { 
+	  hist_vec_index >= 0) {
 	 std::string filename = history_filename_vec[hist_vec_index];
 	 //      history_index = hist_index;
 	 short int reset_rotation_centre = 0;
@@ -7074,7 +7093,7 @@ molecule_class_info_t::restore_from_backup(int history_offset,
 				   Bonds_box_type(),
 				   false);
 	 save_state_command_strings_ = save_save_state;
-	 imol_no = save_imol; 
+	 imol_no = save_imol;
 	 name_ = save_name;
       }
    } else {
@@ -7133,7 +7152,7 @@ molecule_class_info_t::restore_from_backup(int history_offset,
 // [It would be cool to have the Redo button greyed out when there are
 // no redos availabile (set its state when either it or undo is
 // pressed)]
-// 
+//
 // initially it should be greyed out (insensitive).
 
 // restore from (next) backup
@@ -7147,7 +7166,7 @@ molecule_class_info_t::apply_undo(const std::string &cwd) {
 
    if (history_index > 0) {
       int offset = -1;
-      if (history_index == max_history_index) { 
+      if (history_index == max_history_index) {
 	 make_backup(); // increments history_index
 	 offset--;
       }
@@ -7157,8 +7176,8 @@ molecule_class_info_t::apply_undo(const std::string &cwd) {
 
       // So that we don't get asked to save the molecule on exist when
       // we have reverted all our modifications:
-      // 
-      if (history_index == 0) { 
+      //
+      if (history_index == 0) {
 	 have_unsaved_changes_flag = 0;
       }
    }
@@ -7179,22 +7198,22 @@ molecule_class_info_t::apply_redo(const std::string &cwd) {
 
       // When there are 3 backups made and we are viewing molecule 2,
       // we don't want to restore from history_filename_vec[3]:
-      // 
-      if (int(history_filename_vec.size()) > (history_index + 1)) { 
-	 restore_from_backup(+1, cwd); 
-	 history_index++; 
+      //
+      if (int(history_filename_vec.size()) > (history_index + 1)) {
+	 restore_from_backup(+1, cwd);
+	 history_index++;
 	 state = 1;
 	 have_unsaved_changes_flag = 1;
       } else {
 	 std::cout << "Not redoing history file vec: " << history_filename_vec.size()
 		   << " " << history_index << std::endl;
-      } 
+      }
    } else {
       std::cout << "Not redoing history: " << max_history_index
 		<< " " << history_index << std::endl;
    }
    return state;
-} 
+}
 
 
 
@@ -7205,7 +7224,7 @@ molecule_class_info_t::model_view_residue_button_labels() const {
 
    std::vector<coot::model_view_residue_button_info_t> v;
 
-   if (atom_sel.n_selected_atoms > 0) { 
+   if (atom_sel.n_selected_atoms > 0) {
 
       int nchains = atom_sel.mol->GetNumberOfChains(1);
 
@@ -7220,23 +7239,23 @@ molecule_class_info_t::model_view_residue_button_labels() const {
 	 mmdb::Chain *chain;
 	 // run over chains of the existing mol
 	 nchains = model_p->GetNumberOfChains();
-	 if (nchains <= 0) { 
+	 if (nchains <= 0) {
 	    std::cout << "bad nchains in model_view_residue_button_info_t: "
 		      << nchains << std::endl;
-	 } else { 
+	 } else {
 	    for (int ichain=0; ichain<nchains; ichain++) {
 	       chain = model_p->GetChain(ichain);
-	       if (chain == NULL) {  
+	       if (chain == NULL) {
 		  // This should not be necessary. It seem to be a
 		  // result of mmdb corruption elsewhere - possibly
 		  // DeleteChain in update_molecule_to().
 		  std::cout << "NULL chain in model_view_residue_button_info_t: "
 			    << std::endl;
-	       } else { 
+	       } else {
 		  int nres = chain->GetNumberOfResidues();
-		  for (int ires=0; ires<nres; ires++) { 
+		  for (int ires=0; ires<nres; ires++) {
 		     mmdb::PResidue residue_p = chain->GetResidue(ires);
-		     std::string button_label = 
+		     std::string button_label =
 			g.int_to_string(residue_p->GetSeqNum());
 		     button_label += " ";
 		     button_label += residue_p->GetChainID();
@@ -7255,7 +7274,7 @@ molecule_class_info_t::model_view_residue_button_labels() const {
 }
 
 // return vector of atom list (aka button) info for this residue
-// 
+//
 std::vector<coot::model_view_atom_button_info_t>
 molecule_class_info_t::model_view_atom_button_labels(const std::string &chain_id,
 						     int seqno,
@@ -7266,41 +7285,41 @@ molecule_class_info_t::model_view_atom_button_labels(const std::string &chain_id
 
    // protection against the molecule having been deleted after the
    // gtklist widget was created:
-   
-   if (atom_sel.n_selected_atoms > 0) { 
+
+   if (atom_sel.n_selected_atoms > 0) {
 
       mmdb::Chain *chain;
-      
+
       // first we have to find the residue res_p (from which we will get the atoms)
       //
       int nchains = atom_sel.mol->GetNumberOfChains(1);
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain = atom_sel.mol->GetChain(1, ichain);
-	 if (chain == NULL) { 
+	 if (chain == NULL) {
 	    // This should not be necessary. It seem to be a result of
 	    // mmdb corruption elsewhere - possibly DeleteChain in
 	    // update_molecule_to().
 	    std::cout << "ERROR getting chain in model_view_atom_button_info_t\n";
-	 } else { 
+	 } else {
 	    std::string residue_chain_id(chain_id); // passed from residue list
 	    std::string mol_chain_id(chain->GetChainID());
 	    if (residue_chain_id == mol_chain_id) {
 	       int nres = chain->GetNumberOfResidues();
-	       for (int ires=0; ires<nres; ires++) { 
+	       for (int ires=0; ires<nres; ires++) {
 		  mmdb::PResidue res_p = chain->GetResidue(ires);
 		  if (res_p->GetSeqNum() == seqno) {
 		     std::string ins_code_res(res_p->GetInsCode());
-		     if (ins_code_res == ins_code) { 
-      
+		     if (ins_code_res == ins_code) {
+
 			mmdb::PPAtom residue_atoms;
 			int nResidueAtoms;
 
 			res_p->GetAtomTable(residue_atoms, nResidueAtoms);
 			for (int i=0; i<nResidueAtoms; i++) {
-			   if (! residue_atoms[i]->isTer()) { 
+			   if (! residue_atoms[i]->isTer()) {
 			      std::string button_label = residue_atoms[i]->name;
 			      std::string altConf = residue_atoms[i]->altLoc;
-			      if (altConf != "") { 
+			      if (altConf != "") {
 				 button_label += ",";
 				 button_label += altConf;
 			      }
@@ -7308,15 +7327,15 @@ molecule_class_info_t::model_view_atom_button_labels(const std::string &chain_id
 			      button_label += g.float_to_string(residue_atoms[i]->occupancy);
 			      button_label += " bf=";
 			      button_label += g.float_to_string(residue_atoms[i]->tempFactor);
-			   
+
 			      v.push_back(coot::model_view_atom_button_info_t(button_label, residue_atoms[i]));
 			   }
 			}
 		     }
 		  }
 	       }
-	    } 
-	 } 
+	    }
+	 }
       }
    }
    return v;
@@ -7340,7 +7359,7 @@ molecule_class_info_t::model_view_residue_tree_labels() const {
 	       std::string chain_label("Chain ");
 	       chain_label += chain_p->GetChainID();
 	       v.push_back(coot::model_view_atom_tree_chain_t(chain_label));
-	 
+
 	       if (! chain_p) {
 		  std::cout << "ERROR getting chain in model_view_residue_tree_labels\n";
 	       } else {
@@ -7369,19 +7388,19 @@ molecule_class_info_t::model_view_residue_tree_labels() const {
 
 
 // Return 0 on failure.
-short int 
+short int
 molecule_class_info_t::move_std_residue(mmdb::Residue *moving_residue,
 					const mmdb::Residue *reference_residue) const {
 
-   std::map<std::string, clipper::RTop_orth> rtops = 
-      coot::util::get_ori_to_this_res((mmdb::Residue *)reference_residue); 
+   std::map<std::string, clipper::RTop_orth> rtops =
+      coot::util::get_ori_to_this_res((mmdb::Residue *)reference_residue);
 
    short int istat = 0; // success
 
-   if (!reference_residue) { 
+   if (!reference_residue) {
       std::cout << "This should not happen!" << std::endl;
       std::cout << "null reference residue in move_std_residue" << std::endl;
-   } else { 
+   } else {
 
       if (rtops.size()) { // successful attempt to get the matrix
 	 mmdb::PPAtom residue_atoms = NULL;
@@ -7402,10 +7421,6 @@ molecule_class_info_t::move_std_residue(mmdb::Residue *moving_residue,
 
 	    for (int iat=0; iat<nResidueAtoms; iat++) {
 	       if (residue_atoms[iat]) {
-// 		  std::cout  << "residue atom " << iat << " coords: " 
-// 			     << residue_atoms[iat]->x << " "
-// 			     << residue_atoms[iat]->y << " "
-// 			     << residue_atoms[iat]->z << std::endl;
 		  clipper::Coord_orth co(residue_atoms[iat]->x,
 					 residue_atoms[iat]->y,
 					 residue_atoms[iat]->z);
@@ -7413,28 +7428,28 @@ molecule_class_info_t::move_std_residue(mmdb::Residue *moving_residue,
 
 		  std::map<std::string, clipper::RTop_orth>::const_iterator it = rtops.find(alt_conf);
 
-		  if (it != rtops.end()) { 
+		  if (it != rtops.end()) {
 		     clipper::Coord_orth rotted = co.transform(it->second); // an rtop
 		     residue_atoms[iat]->x = rotted.x();
 		     residue_atoms[iat]->y = rotted.y();
 		     residue_atoms[iat]->z = rotted.z();
 		  }
-	       } else { 
+	       } else {
 		  istat = 0;
 		  std::cout << "ERROR:: null residue atom in moving residue in move_std_residue: iat: "
 			    << iat << std::endl;
 	       }
 	    }
 	 }
-      } else { 
+      } else {
 	 istat = 0; // failure
 	 std::cout << "DISASTER - failed to generate RTop for move_std_residue\n";
-	 if (reference_residue) { 
-	    // 	 molecule-class-info.cc:4184: passing `const mmdb::Residue' as `this' 
+	 if (reference_residue) {
+	    // 	 molecule-class-info.cc:4184: passing `const mmdb::Residue' as `this'
 	    // argument of `int mmdb::Residue::GetSeqNum ()' discards qualifiers
 	    mmdb::Residue *tmp = (mmdb::Residue *) reference_residue;
-	    std::cout << "mainchain atoms missing from residue " 
-		      << tmp->GetSeqNum() 
+	    std::cout << "mainchain atoms missing from residue "
+		      << tmp->GetSeqNum()
 		      << tmp->GetChainID() << std::endl;
 	 } else {
 	    std::cout << "This should not happen!" << std::endl;
@@ -7469,14 +7484,14 @@ molecule_class_info_t::set_have_unsaved_changes_from_outside() {
 //
 // Get a deep copy:
 // return NULL on failure
-// 
+//
 mmdb::Residue *
 molecule_class_info_t::get_standard_residue_instance(const std::string &residue_type) {
 
    graphics_info_t g;
    mmdb::Residue *std_residue = NULL;
-   
-   if (g.standard_residues_asc.read_success) { 
+
+   if (g.standard_residues_asc.read_success) {
 //      std::cout << "DEBUG:: There are " << g.standard_residues_asc.n_selected_atoms
 // 	       << " atoms in standard_residues_asc" << std::endl;
      int selHnd = g.standard_residues_asc.mol->NewSelection();
@@ -7495,13 +7510,13 @@ molecule_class_info_t::get_standard_residue_instance(const std::string &residue_
      int nSelResidues;
 
      g.standard_residues_asc.mol->GetSelIndex(selHnd, SelResidue, nSelResidues);
-   
+
      if (nSelResidues != 1) {
        std::cout << "This should never happen - ";
        std::cout << "badness in get_standard_residue_instance, we selected " << nSelResidues
 		 << " residues looking for residues of type :" << residue_type << ":\n";
      } else {
-       std_residue = coot::deep_copy_this_residue(SelResidue[0], "", 1, 
+       std_residue = coot::deep_copy_this_residue(SelResidue[0], "", 1,
 						  g.standard_residues_asc.UDDAtomIndexHandle);
      }
      g.standard_residues_asc.mol->DeleteSelection(selHnd);
@@ -7511,12 +7526,12 @@ molecule_class_info_t::get_standard_residue_instance(const std::string &residue_
 
 
 // return the number of residues in chain with chain_id, return -1 on error
-// 
+//
 int
 molecule_class_info_t::chain_n_residues(const char *chain_id) const {
 
    int r = -1;
-   
+
    if (atom_sel.n_selected_atoms > 0) {
       int nchains = atom_sel.mol->GetNumberOfChains(1);
       for (int ichain=0; ichain<nchains; ichain++) {
@@ -7527,7 +7542,7 @@ molecule_class_info_t::chain_n_residues(const char *chain_id) const {
 	 }
       }
    }
-   return r; 
+   return r;
 }
 
 
@@ -7575,7 +7590,7 @@ molecule_class_info_t::n_atoms() const {
 	    }
 	 }
       }
-   } 
+   }
    return r;
 }
 
@@ -7585,29 +7600,29 @@ void
 molecule_class_info_t::store_refmac_params(const std::string &mtz_filename,
 					   const std::string &fobs_col,
 					   const std::string &sigfobs_col,
-					   const std::string &r_free_col, 
-					   int r_free_flag) { 
+					   const std::string &r_free_col,
+					   int r_free_flag) {
 
    have_sensible_refmac_params = 1; // true
-   refmac_mtz_filename = mtz_filename; 
+   refmac_mtz_filename = mtz_filename;
    refmac_fobs_col = fobs_col;
    refmac_sigfobs_col = sigfobs_col;
    refmac_r_free_col = r_free_col;
    refmac_r_free_flag_sensible = r_free_flag;
 
-   std::cout << "INFO:: Stored refmac parameters: " 
+   std::cout << "INFO:: Stored refmac parameters: "
 	     << refmac_fobs_col << " "
 	     << refmac_sigfobs_col;
    if (r_free_flag)
       std::cout << " " << refmac_r_free_col << " is sensible." << std::endl;
    else
       std::cout << " the r-free-flag is not sensible" << std::endl;
-} 
+}
 
 void
-molecule_class_info_t::store_refmac_mtz_filename(const std::string &mtz_filename) { 
+molecule_class_info_t::store_refmac_mtz_filename(const std::string &mtz_filename) {
 
-   refmac_mtz_filename = mtz_filename; 
+   refmac_mtz_filename = mtz_filename;
 }
 
 void
@@ -7617,25 +7632,25 @@ molecule_class_info_t::store_refmac_phase_params(const std::string &phi,
 						 const std::string &hlb,
 						 const std::string &hlc,
 						 const std::string &hld) {
-  
+
    // std::cout << "BL DEBUG:: in store refmac pahse params" <<std::endl;
   have_refmac_phase_params = 1; // true
   refmac_phi_col = phi;
   refmac_fom_col = fom;
-  refmac_hla_col = hla; 
-  refmac_hlb_col = hlb; 
-  refmac_hlc_col = hlc; 
-  refmac_hld_col = hld; 
+  refmac_hla_col = hla;
+  refmac_hlb_col = hlb;
+  refmac_hlc_col = hlc;
+  refmac_hld_col = hld;
 }
 
 
 // return 0 on success
-// 
+//
 int
 molecule_class_info_t::write_pdb_file(const std::string &filename) {
 
    int err = 1; // fail
-   if (atom_sel.n_selected_atoms > 0) { 
+   if (atom_sel.n_selected_atoms > 0) {
       std::string ext = coot::util::file_name_extension(filename);
       if (coot::util::extension_is_for_shelx_coords(ext)) {
 	 write_shelx_ins_file(filename);
@@ -7645,7 +7660,7 @@ molecule_class_info_t::write_pdb_file(const std::string &filename) {
 	 err = coot::write_coords_pdb(atom_sel.mol, filename);
       }
    }
-   return err; 
+   return err;
 }
 
 
@@ -7675,7 +7690,7 @@ molecule_class_info_t::write_cif_file(const std::string &filename) {
 // All the atoms of water_mol need to be in a
 // chain that has a different chain id to all the chains in this
 // molecule.  Else fail (return status 0).
-// 
+//
 int
 molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule &water_mol) {
 
@@ -7687,10 +7702,10 @@ molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule
    //
    int nchains = atom_sel.mol->GetNumberOfChains(1);
    mmdb::Chain *chain_p = NULL;
-   mmdb::Chain *solvent_chain_p = NULL; 
+   mmdb::Chain *solvent_chain_p = NULL;
    short int i_have_solvent_chain_flag = 0;
-   for (int ichain=0; ichain<nchains; ichain++) { 
-      
+   for (int ichain=0; ichain<nchains; ichain++) {
+
       chain_p = atom_sel.mol->GetChain(1,ichain);
       if (chain_p->isSolventChain()) {
 	 solvent_chain_p = chain_p;
@@ -7705,7 +7720,7 @@ molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule
    // atom the the residue (of course).
    //
    if (i_have_solvent_chain_flag == 0) {
-      
+
       // We didn't manage to find a solvent chain.
       // We need to create a new chain.
       chain_p = new mmdb::Chain;
@@ -7713,14 +7728,14 @@ molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule
       std::pair<bool, std::string> u = unused_chain_id();
       if (u.first)
 	 chain_p->SetChainID(u.second.c_str());
-      else 
+      else
 	 chain_p->SetChainID("Z");
    } else {
       chain_p = solvent_chain_p; // put it back, (kludgey, should use
 				 // solvent_chain_p from here, not chain_p).
       // OK, we also need to remove any TER cards that are in that chain_p
       remove_TER_on_last_residue(solvent_chain_p);
-   } 
+   }
 
 //    std::cout << "Debug:: choose chain " << chain_p->GetChainID()
 // 	     << " with have_solvent flag: " << i_have_solvent_chain_flag
@@ -7731,11 +7746,11 @@ molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule
 //       short int flag = isSolvent(rtmp->name);
 // 	 std::cout << rtmp->name << " is solvent? " << flag << std::endl;
 //    }
-   
+
    std::pair<short int, int> p = coot::util::max_resno_in_chain(chain_p);
    float bf = graphics_info_t::default_new_atoms_b_factor; // 20.0 by default
    int max_resno;
-   if (p.first) { 
+   if (p.first) {
       max_resno = p.second;
    } else {
       max_resno = 0;
@@ -7758,8 +7773,8 @@ molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule
 	    for (unsigned int iatom=0; iatom<water_mol[ifrag][ires].atoms.size(); iatom++) {
 	       new_residue_p = new mmdb::Residue;
 	       new_residue_p->SetResName("HOH");
-	       new_residue_p->seqNum = prev_max_resno + 1 + water_count; 
-	       water_count++; 
+	       new_residue_p->seqNum = prev_max_resno + 1 + water_count;
+	       water_count++;
 	       new_atom_p = new mmdb::Atom;
 	       new_atom_p->SetCoordinates(water_mol[ifrag][ires][iatom].pos.x(),
 					  water_mol[ifrag][ires][iatom].pos.y(),
@@ -7780,7 +7795,7 @@ molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule
       atom_sel.mol->FinishStructEdit();
       update_molecule_after_additions(); // sets unsaved changes flag
    }
-   
+
    return istat;
 }
 
@@ -7788,13 +7803,13 @@ molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule
 // molecule... somehow).  All the atoms of water_mol need to be in a
 // chain that has a different chain id to all the chains in this
 // molecule.  Else fail (return status 0).
-// 
+//
 int
 molecule_class_info_t::append_to_molecule(const coot::minimol::molecule &water_mol) {
 
    int istat = 0; // fail status initially.
    int n_atom = 0;  // 0 new atoms added initially.
-   
+
    if (atom_sel.n_selected_atoms > 0) {
 
       make_backup();
@@ -7807,19 +7822,19 @@ molecule_class_info_t::append_to_molecule(const coot::minimol::molecule &water_m
 // 		   << " is " << water_mol[ifrag].fragment_id << std::endl;
 
 	 short int imatch = 0;
-	 
+
 	 // Run over chains of the existing mol, to see if there
 	 // already exists a chain with the same chain id as the
 	 // waters we want to add.  Only if imatch is 0 does this
 	 // function do anything.
-	 // 
+	 //
 	 int nchains = atom_sel.mol->GetNumberOfChains(1);
 	 mmdb::Chain *chain;
-	 for (int ichain=0; ichain<nchains; ichain++) { 
-	 
+	 for (int ichain=0; ichain<nchains; ichain++) {
+
 	    chain = atom_sel.mol->GetChain(1,ichain);
 	    std::string mol_chain_id(chain->GetChainID());
-	 
+
 	    if (water_mol.fragments[ifrag].fragment_id == mol_chain_id) {
 	       //
 	       imatch = 1;
@@ -7856,7 +7871,7 @@ molecule_class_info_t::append_to_molecule(const coot::minimol::molecule &water_m
 		  strcpy(new_residue_p->name, water_mol[ifrag][ires].name.c_str());
 		  new_chain_p->AddResidue(new_residue_p);
 		  for (unsigned int iatom=0; iatom<water_mol[ifrag][ires].atoms.size(); iatom++) {
-		     
+
 		     new_atom_p = new mmdb::Atom;
 		     new_atom_p->SetAtomName(water_mol[ifrag][ires][iatom].name.c_str());
 		     new_atom_p->SetElementName(water_mol[ifrag][ires][iatom].element.c_str());
@@ -7865,7 +7880,7 @@ molecule_class_info_t::append_to_molecule(const coot::minimol::molecule &water_m
 						water_mol[ifrag][ires][iatom].pos.z(),
 						1.0, graphics_info_t::default_new_atoms_b_factor);
 		     new_residue_p->AddAtom(new_atom_p);
-		     n_atom++; 
+		     n_atom++;
 		  }
 	       }
 	    }
@@ -7873,14 +7888,14 @@ molecule_class_info_t::append_to_molecule(const coot::minimol::molecule &water_m
       }
 
       std::cout << "INFO:: " << n_atom << " atoms added to molecule." << std::endl;
-      if (n_atom > 0) { 
+      if (n_atom > 0) {
 	 atom_sel.mol->FinishStructEdit();
 	 update_molecule_after_additions(); // sets unsaved changes flag
       }
    }
 
    return istat;
-} 
+}
 
 
 void
@@ -7890,7 +7905,7 @@ molecule_class_info_t::update_molecule_after_additions() {
    atom_sel = make_asc(atom_sel.mol); // does the udd stuff too.
    have_unsaved_changes_flag = 1;
    make_bonds_type_checked();
-} 
+}
 
 std::string
 molecule_class_info_t::Refmac_in_name() const {
@@ -7920,14 +7935,14 @@ molecule_class_info_t::Refmac_name_stub() const {
 
    // shall we try to take into account ccp4i refmac naming?
    // OK:
-   // Here is an example: 
-   // demo.pdb         -> demo_refmac1.pdb 
-   // demo_refmac1.pdb -> demo_refmac2.pdb 
+   // Here is an example:
+   // demo.pdb         -> demo_refmac1.pdb
+   // demo_refmac1.pdb -> demo_refmac2.pdb
 
    std::string refmac_name = "pre-refmac.pdb"; // default
 
    // First strip off the path of name_:
-   std::string stripped_name; 
+   std::string stripped_name;
    // /a/b.mtz -> b.mtz
 #ifdef WINDOWS_MINGW
    std::string::size_type islash = coot::util::intelligent_debackslash(name_).find_last_of("/");
@@ -7941,18 +7956,18 @@ molecule_class_info_t::Refmac_name_stub() const {
       // std::cout << "DEBUG:: slash found at " << islash << std::endl;
       // stripped_name = name_.substr(islash+1, name_.length());
       stripped_name = name_.substr(islash+1);
-   } 
-   // std::cout << "DEBUG:: stripped_name: " << stripped_name << std::endl;      
+   }
+   // std::cout << "DEBUG:: stripped_name: " << stripped_name << std::endl;
 
-   
+
    std::string::size_type irefmac = stripped_name.rfind("-refmac");
    std::string::size_type irefmac_ccp4i = stripped_name.rfind("_refmac");
-   
+
    if (irefmac == string::npos) { // not found
 
       // so was it a ccp4i refmac pdb file?
 
-      if ( ! (irefmac_ccp4i == string::npos) ) { 
+      if ( ! (irefmac_ccp4i == string::npos) ) {
 	 // it *was* a ccp4i pdb file:
 	 //
 	 refmac_name = stripped_name.substr(0,irefmac_ccp4i) + "_refmac";
@@ -7966,15 +7981,15 @@ molecule_class_info_t::Refmac_name_stub() const {
 
 	 // std::cout << "DEBUG:: ipdb not found" << std::endl;
 	 // just tack "refmac-2.pdb" on to the name then
-	 refmac_name = stripped_name + "_refmac"; 
-	 refmac_name += graphics_info_t::int_to_string(refmac_count); 
+	 refmac_name = stripped_name + "_refmac";
+	 refmac_name += graphics_info_t::int_to_string(refmac_count);
 
       } else {
 	 // is a pdb:
 
 	 // std::cout << "DEBUG:: ipdb *was* found" << std::endl;
-	 refmac_name = stripped_name.substr(0,ipdb) + "_refmac"; 
-	 refmac_name += graphics_info_t::int_to_string(refmac_count); 
+	 refmac_name = stripped_name.substr(0,ipdb) + "_refmac";
+	 refmac_name += graphics_info_t::int_to_string(refmac_count);
       }
    } else {
 
@@ -7994,7 +8009,7 @@ std::string
 molecule_class_info_t::name_sans_extension(short int include_path_flag) const {
 
    std::string outstring = name_;
-   
+
    std::string::size_type ipdb = name_.rfind(".pdb");
    if (ipdb != std::string::npos)
       outstring = name_.substr(0, ipdb);
@@ -8007,7 +8022,7 @@ molecule_class_info_t::name_sans_extension(short int include_path_flag) const {
      if (islash != std::string::npos)
        outstring = outstring.substr(islash+1);
    }
-      
+
    return outstring;
 }
 
@@ -8018,10 +8033,10 @@ molecule_class_info_t::update_molecule_to(std::vector<coot::scored_skel_coord> &
 	     << " skeleton positions" << std::endl;
 
    if (has_model()) {
-      mmdb::Model *model_p = atom_sel.mol->GetModel(1); 
-      
-      if (! model_p) { 
-	 std::cout << "ERROR:: Disaster in finding model_p in update_molecule_to" 
+      mmdb::Model *model_p = atom_sel.mol->GetModel(1);
+
+      if (! model_p) {
+	 std::cout << "ERROR:: Disaster in finding model_p in update_molecule_to"
 		   << std::endl;
       } else {
 	 mmdb::Chain *chain_p;
@@ -8035,7 +8050,7 @@ molecule_class_info_t::update_molecule_to(std::vector<coot::scored_skel_coord> &
 	 if (chain_p) {
 	    model_p->AddChain(chain_p);
 	    add_multiple_dummies(chain_p, pos_position);
-	 } else { 
+	 } else {
 	    std::cout << "ERROR:: creating chain in mol::update_molecule_to" << std::endl;
 	 }
       }
@@ -8045,7 +8060,7 @@ molecule_class_info_t::update_molecule_to(std::vector<coot::scored_skel_coord> &
 }
 
 // function callable from graphics_info_t::create_molecule_and_display()
-// 
+//
 void
 molecule_class_info_t::add_multiple_dummies(const std::vector<coot::scored_skel_coord> &pos_position) {
 
@@ -8065,7 +8080,7 @@ molecule_class_info_t::add_multiple_dummies(const std::vector<coot::scored_skel_
 // we presume that the chain exists.  This exists so that we dont do a
 // backup every time we add a dummy atom (as is done using
 // add_dummy_atom().
-// 
+//
 void
 molecule_class_info_t::add_multiple_dummies(mmdb::Chain *chain_p,
 					    const std::vector<coot::scored_skel_coord> &pos_position) {
@@ -8073,12 +8088,12 @@ molecule_class_info_t::add_multiple_dummies(mmdb::Chain *chain_p,
 
    // 20150803-PE FIXME - pass Geom_p().
    graphics_info_t g;
-   coot::protein_geometry *geom_p = g.Geom_p(); 
+   coot::protein_geometry *geom_p = g.Geom_p();
 
    if (pos_position.size() > 0) {
       make_backup(); // maybe
    }
-   
+
    for (unsigned int i=0; i<pos_position.size(); i++) {
       mmdb::Residue *res_p = new mmdb::Residue;
       mmdb::Atom *atom_p = new mmdb::Atom;
@@ -8101,25 +8116,25 @@ molecule_class_info_t::add_multiple_dummies(mmdb::Chain *chain_p,
    if (false)
       std::cout << "DEBUG:: add_multiple_dummies finishing.. "
 		<< pos_position.size() << std::endl;
-   
+
    // Actually, we want to run this code when there are no new guide
    // points too.  This sets atom_sel.SelectionHandle properly, which
    // is needed in close_yourself, where a DeleteSelection() is done
    // to give back the memory.
-   
+
    atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    atom_sel.mol->FinishStructEdit();
    atom_sel = make_asc(atom_sel.mol);
-   have_unsaved_changes_flag = 1; 
+   have_unsaved_changes_flag = 1;
    makebonds(0.0, 0.0, geom_p);
-} 
+}
 
 void
 molecule_class_info_t::add_multiple_dummies(const std::vector<coot::Cartesian> &pos_position) {
 
    // 20150803-PE FIXME - pass Geom_p().
    graphics_info_t g;
-   coot::protein_geometry *geom_p = g.Geom_p(); 
+   coot::protein_geometry *geom_p = g.Geom_p();
 
    if (atom_sel.mol) {
       mmdb::Model *model_p = atom_sel.mol->GetModel(1);
@@ -8128,8 +8143,8 @@ molecule_class_info_t::add_multiple_dummies(const std::vector<coot::Cartesian> &
 	 mmdb::Chain *chain_p = model_p->GetChain(0);
 	 if (pos_position.size() > 0) {
 	    make_backup(); // maybe
-	    
-	    for (unsigned int i=0; i< pos_position.size(); i++) { 
+
+	    for (unsigned int i=0; i< pos_position.size(); i++) {
 	       mmdb::Residue *res_p = new mmdb::Residue;
 	       mmdb::Atom *atom_p = new mmdb::Atom;
 	       chain_p->AddResidue(res_p);
@@ -8138,7 +8153,7 @@ molecule_class_info_t::add_multiple_dummies(const std::vector<coot::Cartesian> &
 				      pos_position[i].y(),
 				      pos_position[i].z(), 1.0,
 				      graphics_info_t::default_new_atoms_b_factor);
-	    
+
 	       atom_p->SetElementName(" O");
 	       res_p->AddAtom(atom_p);
 	       res_p->seqNum = i + 1;
@@ -8147,7 +8162,7 @@ molecule_class_info_t::add_multiple_dummies(const std::vector<coot::Cartesian> &
 	    atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 	    atom_sel.mol->FinishStructEdit();
 	    atom_sel = make_asc(atom_sel.mol);
-	    have_unsaved_changes_flag = 1; 
+	    have_unsaved_changes_flag = 1;
 	    makebonds(0.0, 0.0, geom_p);
 	 }
       }
@@ -8156,14 +8171,14 @@ molecule_class_info_t::add_multiple_dummies(const std::vector<coot::Cartesian> &
 
 
 // return an empty vector on failure, a vector of size 6 on success:
-// 
-std::pair<std::vector<float>, std::string> 
-molecule_class_info_t::get_cell_and_symm() const { 
+//
+std::pair<std::vector<float>, std::string>
+molecule_class_info_t::get_cell_and_symm() const {
 
    std::pair<std::vector<float>, std::string> cell_spgr;
-   
+
    mmdb::mat44 my_matt;
-   if (atom_sel.mol) { 
+   if (atom_sel.mol) {
       int err = atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
       if (err != 0) {
 	 std::cout << "!! Warning:: No symmetry available for this template molecule"
@@ -8178,7 +8193,7 @@ molecule_class_info_t::get_cell_and_symm() const {
       }
    }
    return cell_spgr;
-} 
+}
 
 void
 molecule_class_info_t::set_mmdb_cell_and_symm(std::pair<std::vector<float>, std::string> cell_spgr) {
@@ -8188,12 +8203,12 @@ molecule_class_info_t::set_mmdb_cell_and_symm(std::pair<std::vector<float>, std:
       atom_sel.mol->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
       atom_sel.mol->SetSpaceGroup(cell_spgr.second.c_str());
       std::cout << "successfully set cell and symmetry" << std::endl;
-   } else { 
+   } else {
       std::cout << "WARNING:: failure to set cell on this molecule" << std::endl;
-   } 
+   }
 }
 
-bool 
+bool
 molecule_class_info_t::set_mmdb_symm(const std::string &spg) {
 
    atom_sel.mol->SetSpaceGroup(spg.c_str());
@@ -8202,21 +8217,21 @@ molecule_class_info_t::set_mmdb_symm(const std::string &spg) {
    if (new_sg_chars)
       new_sg = new_sg_chars;
    return (new_sg == spg);
-} 
+}
 
 // Return atom_index of -1 when no nearest atom.
-// 
+//
 std::pair<float, int>
-molecule_class_info_t::nearest_atom(const coot::Cartesian &pos) const { 
+molecule_class_info_t::nearest_atom(const coot::Cartesian &pos) const {
 
-   float min_dist = 999999999; 
+   float min_dist = 999999999;
    float d;
    int atom_index = -1;
 
-   for(int i=0; i<atom_sel.n_selected_atoms; i++) { 
+   for(int i=0; i<atom_sel.n_selected_atoms; i++) {
       coot::Cartesian a(atom_sel.atom_selection[i]->x, atom_sel.atom_selection[i]->y, atom_sel.atom_selection[i]->z);
       d =  fabs((pos-a).length());
-      if (d < min_dist) { 
+      if (d < min_dist) {
 	 min_dist = d;
 	 atom_index = i;
       }
@@ -8258,9 +8273,9 @@ molecule_class_info_t::map_colours() const {
 }
 
 // perhaps there is a better place for this?
-// 
-std::vector<std::string> 
-molecule_class_info_t::set_map_colour_strings() const { 
+//
+std::vector<std::string>
+molecule_class_info_t::set_map_colour_strings() const {
 
    // return something like
    // (list "set_last_map_colour" "0.2" "0.3" "0.4")
@@ -8273,13 +8288,13 @@ molecule_class_info_t::set_map_colour_strings() const {
    r.push_back(graphics_info_t::float_to_string(map_colour[0][1]));
    r.push_back(graphics_info_t::float_to_string(map_colour[0][2]));
 
-   return r;   
-} 
+   return r;
+}
 
 
 // and symm labels.
 void
-molecule_class_info_t::remove_atom_labels() { 
+molecule_class_info_t::remove_atom_labels() {
 
    labelled_atom_index_list.clear();
    labelled_symm_atom_index_list.clear();
@@ -8290,13 +8305,13 @@ molecule_class_info_t::eigen_flip_residue(const std::string &chain_id, int resno
 
 
    coot::minimol::molecule m;
-   
+
    mmdb::Residue *res = get_residue(chain_id, resno, "");
    if (!res) {
       std::cout << "DEBUG:: residue not found " << chain_id << " " << resno
 		<< " in molecule number " << MoleculeNumber()
 		<< std::endl;
-   } else { 
+   } else {
       // make_backup();
 
       coot::ligand lig;
@@ -8305,14 +8320,14 @@ molecule_class_info_t::eigen_flip_residue(const std::string &chain_id, int resno
       f.residues.push_back(res);
       coot::minimol::molecule ligand;
       ligand.fragments.push_back(f);
-      
+
       ligand_flip_number++;
       if (ligand_flip_number == 4)
 	 ligand_flip_number = 0;
 
       lig.install_ligand(ligand);
       m = lig.flip_ligand(ligand_flip_number);
-      
+
       make_bonds_type_checked();
       have_unsaved_changes_flag = 1;
 
@@ -8322,7 +8337,7 @@ molecule_class_info_t::eigen_flip_residue(const std::string &chain_id, int resno
 }
 
 // return non blank string on a problem (so that it can be written to the status bar)
-// 
+//
 std::string
 molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 				const std::string &atom_name,
@@ -8336,7 +8351,7 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
    // But this does have_unsaved_changes_flag and make_backup.
 
    std::string problem_string;
-   
+
    mmdb::Residue *residue = get_residue(spec);
    if (! residue) {
       std::cout << "WARNING:: no residue " << spec << " found in molecule" << std::endl;
@@ -8348,7 +8363,7 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residue->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (int iat=0; iat<n_residue_atoms; iat++) { 
+      for (int iat=0; iat<n_residue_atoms; iat++) {
 	 std::string an(residue_atoms[iat]->name);
 	 if (an == atom_name) {
 	    std::string ac(residue_atoms[iat]->altLoc);
@@ -8356,28 +8371,27 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 	       clicked_atom = residue_atoms[iat];
 	       clicked_atom_idx = iat;
 	       break;
-	    } 
+	    }
 	 }
       }
 
       if (! clicked_atom) {
 	 std::cout << "WARNING:: atom \"" << atom_name << "\" not found in residue " << std::endl;
       } else {
-      
 	 std::string monomer_type = residue->GetResName();
 
 	 std::pair<bool, coot::dictionary_residue_restraints_t> p =
 	    geom->get_monomer_restraints(monomer_type, imol_no);
-   
+
 	 if (! p.first) {
 	    std::cout << "WARNING residue type " << monomer_type << " not found in dictionary" << std::endl;
-	 } else { 
+	 } else {
 	    bool iht = false;  // include_hydrogen_torsions_flag
 	    std::vector<coot::dict_torsion_restraint_t> all_torsions = p.second.get_non_const_torsions(iht);
 
 	    if (all_torsions.size() == 0) {
 	       problem_string = "There are no non-CONST torsions for this residue type";
-	    } else { 
+	    } else {
 	       std::vector<std::vector<std::string> > ring_atoms_sets = p.second.get_ligand_ring_list();
 	       std::vector<coot::dict_torsion_restraint_t> interesting_torsions;
 	       for (unsigned int it=0; it<all_torsions.size(); it++) {
@@ -8400,7 +8414,7 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 		  residue_asc.n_selected_atoms = n_residue_atoms;
 		  residue_asc.atom_selection = residue_atoms;
 		  residue_asc.mol = 0;
-	       
+
 		  coot::contact_info contact = coot::getcontacts(residue_asc, monomer_type, imol_no, geom);
 		  std::vector<std::vector<int> > contact_indices =
 		     contact.get_contact_indices_with_reverse_contacts();
@@ -8427,7 +8441,7 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 
 
 // return a non-empty string on a problem
-// 
+//
 std::string
 molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
 					 const std::vector<coot::dict_torsion_restraint_t> &interesting_torsions,
@@ -8442,7 +8456,7 @@ molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
 
    std::string problem_string;
    unsigned int selected_idx = 0;
-   
+
    if (interesting_torsions.size() > 0) {
 
       unsigned int best_fragment_size = 9999;
@@ -8452,16 +8466,16 @@ molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
 	    std::string atn_1 = interesting_torsions[i].atom_id_2_4c();
 	    std::string atn_2 = interesting_torsions[i].atom_id_3_4c();
 	    bool reverse = false; // dummy value
-	    
+
 	    std::pair<unsigned int, unsigned int> p = tree.fragment_sizes(atn_1, atn_2, reverse);
 	    if (p.first < best_fragment_size) {
 	       best_fragment_size = p.first;
 	       selected_idx = i;
-	    } 
+	    }
 	    if (p.second < best_fragment_size) {
 	       best_fragment_size = p.second;
 	       selected_idx = i;
-	    } 
+	    }
 	 }
       }
 
@@ -8469,11 +8483,11 @@ molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
 					 atom_name, atom_idx, invert_selection);
    }
    return problem_string;
-} 
+}
 
 
 // return a non-null string on a problem
-// 
+//
 std::string
 molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
 					 const coot::dict_torsion_restraint_t &torsion,
@@ -8505,7 +8519,7 @@ molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
 
    int period = torsion.periodicity();
 
-   if (period > 1) { 
+   if (period > 1) {
 
       double angle = 360/double(period);
       std::pair<unsigned int, unsigned int> p = tree.fragment_sizes(atn_1, atn_2, false);
@@ -8526,14 +8540,14 @@ molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
       problem_string += clipper::String(period);
    }
    return problem_string;
-} 
+}
 
 
 
 // So that we can move around all the atoms of a ligand (typically)
-// 
-void 
-molecule_class_info_t::translate_by(float x, float y, float z) { 
+//
+void
+molecule_class_info_t::translate_by(float x, float y, float z) {
 
    if (has_model()) {
       make_backup();
@@ -8565,26 +8579,26 @@ molecule_class_info_t::translate_by_internal(const clipper::Coord_orth &co, mmdb
 
 
 // Sets coot_save_index maybe (using set_coot_save_index()).
-// 
-std::string 
-molecule_class_info_t::stripped_save_name_suggestion() { 
+//
+std::string
+molecule_class_info_t::stripped_save_name_suggestion() {
 
    std::string s;
-   
+
    std::string stripped_name1;
 #ifdef WINDOWS_MINGW
    std::string::size_type islash = coot::util::intelligent_debackslash(name_).find_last_of("/");
 #else
    std::string::size_type islash = name_.find_last_of("/");
 #endif // MINGW
-   if (islash == std::string::npos) { 
+   if (islash == std::string::npos) {
       stripped_name1 = name_;
    } else {
       stripped_name1 = name_.substr(islash+1, name_.length());
    }
    // so we have got rid of the pathname.
    // now lets get rid of the extension
-   // 
+   //
    std::string::size_type ibrk   = stripped_name1.rfind(".brk");
    std::string::size_type ibrkgz = stripped_name1.rfind(".brk.gz");
    std::string::size_type ipdb   = stripped_name1.rfind(".pdb");
@@ -8593,12 +8607,12 @@ molecule_class_info_t::stripped_save_name_suggestion() {
    std::string::size_type icoot  = stripped_name1.rfind("-coot-");
 
    std::string stripped_name2;
-   if (icoot == std::string::npos) { 
-      if (ibrk == std::string::npos) { 
-	 if (ibrkgz == std::string::npos) { 
-	    if (ipdb == std::string::npos) { 
-	       if (ires == std::string::npos) { 
-		  if (ipdbgz == std::string::npos) { 
+   if (icoot == std::string::npos) {
+      if (ibrk == std::string::npos) {
+	 if (ibrkgz == std::string::npos) {
+	    if (ipdb == std::string::npos) {
+	       if (ires == std::string::npos) {
+		  if (ipdbgz == std::string::npos) {
 		     stripped_name2 = stripped_name1;
 		  } else {
 		     stripped_name2 = stripped_name1.substr(0, ipdbgz);
@@ -8612,7 +8626,7 @@ molecule_class_info_t::stripped_save_name_suggestion() {
 	 } else {
 	    stripped_name2 = stripped_name1.substr(0, ibrkgz);
 	 }
-      } else { 
+      } else {
 	 stripped_name2 = stripped_name1.substr(0, ibrk);
       }
    } else {
@@ -8626,50 +8640,50 @@ molecule_class_info_t::stripped_save_name_suggestion() {
    // suggest a .ins extension, not .pdb
    if (!is_from_shelx_ins_flag) {
       stripped_name2 += ".pdb";
-   } else { 
+   } else {
       stripped_name2 += ".ins";
    }
 
-//    std::cout << "DEBUG:: stripped_save_name_suggestion: " 
+//    std::cout << "DEBUG:: stripped_save_name_suggestion: "
 // 	     << stripped_name2 << std::endl;
 
    return stripped_name2;
-} 
+}
 
-int 
-molecule_class_info_t::set_coot_save_index(const std::string &filename) { 
+int
+molecule_class_info_t::set_coot_save_index(const std::string &filename) {
 
    // std::cout << "extracting from :" << filename << std::endl;
 
    // filename is something like: "-coot-12.pdb".
-   // 
+   //
    // We want to find 12 and set coot_save_index to 12 + 1, which gets
    // used to suggest the next saved filename.
-   // 
+   //
 
    std::string twelve_pdb = filename.substr(6);
    // std::cout << "twelve_pdb:"<< twelve_pdb << std::endl;
-   
+
    std::string::size_type ipdb   = twelve_pdb.rfind(".pdb");
-   if (ipdb != std::string::npos) { 
+   if (ipdb != std::string::npos) {
       // .pdb was found
       std::string twelve = twelve_pdb.substr(0,ipdb);
       int i = atoi(twelve.c_str());
       // std::cout << "found i: " << i << std::endl;
       if (i >= 0 && i<100000)
 	 coot_save_index = i+1;
-   } 
-   return coot_save_index; 
-} 
+   }
+   return coot_save_index;
+}
 
 
 void
-molecule_class_info_t::transform_by(mmdb::mat44 mat) { 
+molecule_class_info_t::transform_by(mmdb::mat44 mat) {
 
 #ifdef HAVE_GSL
-   if (has_model()) { 
+   if (has_model()) {
       clipper::Coord_orth co;
-      clipper::Coord_orth trans_pos; 
+      clipper::Coord_orth trans_pos;
       make_backup();
       clipper::Mat33<double> clipper_mat(mat[0][0], mat[0][1], mat[0][2],
 					 mat[1][0], mat[1][1], mat[1][2],
@@ -8684,17 +8698,17 @@ molecule_class_info_t::transform_by(mmdb::mat44 mat) {
       std::cout << "  Rotation - polar (omega,phi,kappa)  " << clipper::Util::rad2d(polar.omega()) << " " << clipper::Util::rad2d(polar.phi()) << " " << clipper::Util::rad2d(polar.kappa()) << std::endl;
       std::cout << "  Rotation - euler (alpha,beta,gamma) " << clipper::Util::rad2d(euler.alpha()) << " " << clipper::Util::rad2d(euler.beta()) << " " << clipper::Util::rad2d(euler.gamma()) << std::endl;
       std::cout << "  Translation - Angstroms             " << cco.x() << " " << cco.y() << " " << cco.z() << " " << std::endl;
-      for (int i=0; i<atom_sel.n_selected_atoms; i++) { 
+      for (int i=0; i<atom_sel.n_selected_atoms; i++) {
 	 // atom_sel.atom_selection[i]->Transform(mat); // doesn't compile!
 	 // Argh.  sigh.  Use clipper. c.f. graphics_info_t::fill_hybrid_atoms()
-	 co = clipper::Coord_orth(atom_sel.atom_selection[i]->x, 
-				  atom_sel.atom_selection[i]->y, 
+	 co = clipper::Coord_orth(atom_sel.atom_selection[i]->x,
+				  atom_sel.atom_selection[i]->y,
 				  atom_sel.atom_selection[i]->z);
 	 trans_pos = co.transform(rtop);
 	 atom_sel.atom_selection[i]->x = trans_pos.x();
 	 atom_sel.atom_selection[i]->y = trans_pos.y();
 	 atom_sel.atom_selection[i]->z = trans_pos.z();
-      } 
+      }
       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       have_unsaved_changes_flag = 1;
@@ -8718,24 +8732,24 @@ molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop) {
       atom_sel.mol->GetCell(cell_params[0], cell_params[1], cell_params[2],
 			    cell_params[3], cell_params[4], cell_params[5],
 			    vol, orthcode);
-      
+
       clipper::Cell cell(clipper::Cell_descr(cell_params[0],
 					     cell_params[1],
 					     cell_params[2],
 					     clipper::Util::d2rad(cell_params[3]),
 					     clipper::Util::d2rad(cell_params[4]),
-					     clipper::Util::d2rad(cell_params[5]))); 
+					     clipper::Util::d2rad(cell_params[5])));
       std::cout << "INFO:: fractional coordinates matrix:" << std::endl;
       std::cout << rtop.rtop_frac(cell).format() << std::endl;
    } else {
       std::cout << "No unit cell for this molecule, hence no fractional matrix." << std::endl;
    }
    clipper::Coord_orth co;
-   clipper::Coord_orth trans_pos; 
-   if (has_model()) { 
+   clipper::Coord_orth trans_pos;
+   if (has_model()) {
       for (int i=0; i<atom_sel.n_selected_atoms; i++) {
-	 co = clipper::Coord_orth(atom_sel.atom_selection[i]->x, 
-				  atom_sel.atom_selection[i]->y, 
+	 co = clipper::Coord_orth(atom_sel.atom_selection[i]->x,
+				  atom_sel.atom_selection[i]->y,
 				  atom_sel.atom_selection[i]->z);
 	 trans_pos = co.transform(rtop);
 	 atom_sel.atom_selection[i]->x = trans_pos.x();
@@ -8771,11 +8785,11 @@ molecule_class_info_t::transform_by_internal(const clipper::RTop_orth &rtop, mmd
 
    if (has_model()) {
       clipper::Coord_orth co;
-      clipper::Coord_orth trans_pos; 
+      clipper::Coord_orth trans_pos;
       mmdb::PPAtom residue_atoms;
       int n_residue_atoms;
       residue_moving->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (int iatom=0; iatom<n_residue_atoms; iatom++) { 
+      for (int iatom=0; iatom<n_residue_atoms; iatom++) {
 	 clipper::Coord_orth p(residue_atoms[iatom]->x,
 			       residue_atoms[iatom]->y,
 			       residue_atoms[iatom]->z);
@@ -8796,7 +8810,7 @@ molecule_class_info_t::transform_zone_by(const std::string &chain_id, int resno_
 
    if (make_backup_flag)
       make_backup();
-   
+
    bool transformed_something = 0;
    if (resno_end < resno_start)
       std::swap(resno_end, resno_start);
@@ -8808,16 +8822,16 @@ molecule_class_info_t::transform_zone_by(const std::string &chain_id, int resno_
    int nchains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<nchains; ichain++) {
       chain_p = model_p->GetChain(ichain);
-      if (chain_id == chain_p->GetChainID()) { 
+      if (chain_id == chain_p->GetChainID()) {
 	 int nres = chain_p->GetNumberOfResidues();
 	 mmdb::Residue *residue_p;
 	 mmdb::Atom *at;
-	 for (int ires=0; ires<nres; ires++) { 
+	 for (int ires=0; ires<nres; ires++) {
 	    residue_p = chain_p->GetResidue(ires);
 	    int this_resno = residue_p->GetSeqNum();
 	    std::string this_ins_code = residue_p->GetInsCode();
 	    if ((this_resno >= resno_start) &&
-		(this_resno <= resno_end)) { 
+		(this_resno <= resno_end)) {
 	       if (this_ins_code == ins_code) {
 		  transform_by_internal(rtop, residue_p);
 		  transformed_something = 1;
@@ -8832,14 +8846,14 @@ molecule_class_info_t::transform_zone_by(const std::string &chain_id, int resno_
       atom_sel.mol->FinishStructEdit();
       have_unsaved_changes_flag = 1;
       make_bonds_type_checked();
-   } 
-} 
+   }
+}
 
 
 
 void
 molecule_class_info_t::set_contour_level(float f) {
-   if (has_xmap()  || has_nxmap()) { 
+   if (has_xmap()  || has_nxmap()) {
       contour_level = f;
       update_map();
    }
@@ -8847,7 +8861,7 @@ molecule_class_info_t::set_contour_level(float f) {
 
 void
 molecule_class_info_t::set_contour_level_by_sigma(float f) {
-   if (has_xmap() || has_nxmap()) { 
+   if (has_xmap() || has_nxmap()) {
       contour_level = f * map_sigma_;
       update_map();
    }
@@ -8856,19 +8870,19 @@ molecule_class_info_t::set_contour_level_by_sigma(float f) {
 std::vector <std::string>
 molecule_class_info_t::get_map_contour_strings() const {
 
-   std::vector <std::string> s; 
+   std::vector <std::string> s;
    s.push_back("set-last-map-contour-level");
    char cs[100];
    snprintf(cs, 99, "%e", contour_level);
    s.push_back(cs);
 
    return s;
-} 
+}
 
 std::vector <std::string>
 molecule_class_info_t::get_map_contour_sigma_step_strings() const {
 
-   std::vector <std::string> s; 
+   std::vector <std::string> s;
    s.push_back("set-last-map-sigma-step");
    s.push_back(graphics_info_t::float_to_string(contour_sigma_step));
 
@@ -8881,34 +8895,34 @@ molecule_class_info_t::get_map_contour_sigma_step_strings() const {
 }
 
 short int
-molecule_class_info_t::contoured_by_sigma_p() const { 
+molecule_class_info_t::contoured_by_sigma_p() const {
    return contour_by_sigma_flag;
-} 
+}
 
 
 
 mmdb::Chain *
-molecule_class_info_t::water_chain() const { 
+molecule_class_info_t::water_chain() const {
 
    mmdb::Chain *water_chain = 0;
 
-   if (has_model()) { 
+   if (has_model()) {
 
       mmdb::Model *model_p = atom_sel.mol->GetModel(1);
       mmdb::Residue *residue_p;
       mmdb::Chain *chain_p;
-      
+
       if (model_p) {
 
 	 if (is_from_shelx_ins_flag) {
 	    water_chain = water_chain_from_shelx_ins();
-	 } else { 
+	 } else {
 	    int nchains = model_p->GetNumberOfChains();
 	    for (int ich=0; ich<nchains; ich++) {
 	       chain_p = model_p->GetChain(ich);
 	       int nres = chain_p->GetNumberOfResidues();
-	       short int all_water_flag = 1; 
-	       for (int ires=0; ires<nres; ires++) { 
+	       short int all_water_flag = 1;
+	       for (int ires=0; ires<nres; ires++) {
 		  residue_p = chain_p->GetResidue(ires);
 		  std::string resname(residue_p->name);
 		  if (! ( (resname == "WAT") || (resname == "HOH"))) {
@@ -8916,13 +8930,13 @@ molecule_class_info_t::water_chain() const {
 		     break;
 		  }
 	       }
-	       if (all_water_flag) { 
+	       if (all_water_flag) {
 		  water_chain = chain_p;
 		  break;
 	       }
 	    }
 	 }
-      } 
+      }
    }
    return water_chain;
 }
@@ -8935,7 +8949,7 @@ molecule_class_info_t::water_chain_from_shelx_ins() const {
    mmdb::Chain *water_chain = 0;
    mmdb::Model *model_p = atom_sel.mol->GetModel(1);
 
-   if (has_model()) { 
+   if (has_model()) {
       int nchains = model_p->GetNumberOfChains();
       for (int ich=0; ich<nchains; ich++) {
 	 water_chain = model_p->GetChain(ich);
@@ -8948,18 +8962,18 @@ molecule_class_info_t::water_chain_from_shelx_ins() const {
 // return state, max_resno + 1, or 0, 1 of no residues in chain.
 //
 // new_res_no_by_hundreds is default false
-std::pair<short int, int> 
+std::pair<short int, int>
 molecule_class_info_t::next_residue_number_in_chain(mmdb::Chain *w,
 						    bool new_res_no_by_hundreds) const {
 
    std::pair<short int, int> p(0,1);
    int max_res_no = -9999;
 
-   if (w) { 
+   if (w) {
       int nres = w->GetNumberOfResidues();
       mmdb::Residue *residue_p;
       if (nres > 0) {
-	 for (int ires=nres-1; ires>=0; ires--) { 
+	 for (int ires=nres-1; ires>=0; ires--) {
 	    residue_p = w->GetResidue(ires);
 	    if (residue_p->seqNum > max_res_no) {
 	       max_res_no = residue_p->seqNum;
@@ -9037,7 +9051,7 @@ molecule_class_info_t::chain_id_for_shelxl_residue_number(int shelxl_resno) cons
    int imod = 1;
    bool found_it = 0;
    std::string chain_id_unshelxed = "not-found";
-      
+
    mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
    mmdb::Chain *chain_p;
    // run over chains of the existing mol
@@ -9046,7 +9060,7 @@ molecule_class_info_t::chain_id_for_shelxl_residue_number(int shelxl_resno) cons
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
       mmdb::PResidue residue_p;
-      for (int ires=0; ires<nres; ires++) { 
+      for (int ires=0; ires<nres; ires++) {
 	 residue_p = chain_p->GetResidue(ires);
 	 int resno = residue_p->GetSeqNum();
 	 if (resno == shelxl_resno) {
@@ -9070,7 +9084,7 @@ void
 molecule_class_info_t::debug(bool debug_atoms_also_flag) const {
 
    int imod = 1;
-      
+
    mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
    mmdb::Chain *chain_p;
    // run over chains of the existing mol
@@ -9080,7 +9094,7 @@ molecule_class_info_t::debug(bool debug_atoms_also_flag) const {
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
       mmdb::PResidue residue_p;
-      for (int ires=0; ires<nres; ires++) { 
+      for (int ires=0; ires<nres; ires++) {
 	 residue_p = chain_p->GetResidue(ires);
 	 if (residue_p) {
 	    std::cout << "debug():  " << residue_p->GetResName() << " "
@@ -9122,16 +9136,16 @@ molecule_class_info_t::mark_atom_as_fixed(const coot::atom_spec_t &atom_spec, bo
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 std::string chain_id_model = chain_p->GetChainID();
-	 if (atom_spec.chain_id == chain_id_model) { 
+	 if (atom_spec.chain_id == chain_id_model) {
 	    int nres = chain_p->GetNumberOfResidues();
 	    mmdb::PResidue residue_p;
 	    mmdb::Atom *at;
-	    for (int ires=0; ires<nres; ires++) { 
+	    for (int ires=0; ires<nres; ires++) {
 	       residue_p = chain_p->GetResidue(ires);
 	       int resno_model = residue_p->GetSeqNum();
-	       if (resno_model == atom_spec.res_no) { 
+	       if (resno_model == atom_spec.res_no) {
 		  int n_atoms = residue_p->GetNumberOfAtoms();
-		  
+
 		  for (int iat=0; iat<n_atoms; iat++) {
 		     at = residue_p->GetAtom(iat);
 		     if (atom_spec.matches_spec(at)) {
@@ -9148,7 +9162,7 @@ molecule_class_info_t::mark_atom_as_fixed(const coot::atom_spec_t &atom_spec, bo
 			   fixed_atom_specs.push_back(atom_spec_local);
 			   std::cout << "INFO:: " << atom_spec << " marked as fixed"
 				     << std::endl;
-			   found = 1; 
+			   found = 1;
 			} else {
 			   //  try to remove at from marked list
 			   if (fixed_atom_specs.size() > 0) {
@@ -9184,7 +9198,7 @@ molecule_class_info_t::move_waters_to_around_protein() {
 
    make_backup();
    int r = coot::util::move_waters_around_protein(atom_sel.mol);
-   have_unsaved_changes_flag = 1; 
+   have_unsaved_changes_flag = 1;
    make_bonds_type_checked();
    return r;
 }
@@ -9194,7 +9208,7 @@ molecule_class_info_t::move_hetgroups_to_around_protein() {
 
    make_backup();
    coot::util::move_hetgroups_around_protein(atom_sel.mol);
-   have_unsaved_changes_flag = 1; 
+   have_unsaved_changes_flag = 1;
    make_bonds_type_checked();
 }
 
@@ -9229,10 +9243,10 @@ molecule_class_info_t::max_water_distance() {
    }
 
    // now protein_positions and water_positions are filled.
-   if (protein_positions.size() > 0) { 
+   if (protein_positions.size() > 0) {
       if (water_positions.size() > 0) {
 	 double max_water_dist_2 = -1.0;
-	 for (unsigned int iw=0; iw<water_positions.size(); iw++) { 
+	 for (unsigned int iw=0; iw<water_positions.size(); iw++) {
 	    double best_dist_2 = 999999999.9;
 	    for (unsigned int ip=0; ip<protein_positions.size(); ip++) {
 	       double d2 = (water_positions[iw]-protein_positions[ip]).lengthsq();
@@ -9242,14 +9256,14 @@ molecule_class_info_t::max_water_distance() {
 	    }
 	    if (best_dist_2 > max_water_dist_2) {
 	       max_water_dist_2 = best_dist_2;
-	    } 
+	    }
 	 }
 	 if (max_water_dist_2 > 0.0)
 	    f = sqrt(max_water_dist_2);
       }
    }
    return f;
-} 
+}
 
 
 // ---- utility function --- (so that we know to delete hydrogens
@@ -9264,7 +9278,7 @@ molecule_class_info_t::molecule_has_hydrogens() const {
       if (ele == " H") {
 	 r = 1;
 	 break;
-      } 
+      }
       if (ele == " D") {
 	 r = 1;
 	 break;
@@ -9278,9 +9292,91 @@ void
 molecule_class_info_t::print_secondary_structure_info() {
 
    int n_models = atom_sel.mol->GetNumberOfModels();
-   for (int imod=1; imod<=n_models; imod++) { 
+   for (int imod=1; imod<=n_models; imod++) {
       mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
       coot::util::print_secondary_structure_info(model_p);
    }
 }
 
+
+// static
+int
+molecule_class_info_t::watch_coordinates_file(gpointer data) {
+
+   int status = 1;
+
+   updating_coordinates_molecule_parameters_t *ucp = static_cast<updating_coordinates_molecule_parameters_t *>(data);
+   const updating_coordinates_molecule_parameters_t &rucp = *ucp;
+
+   std::cout << "watching " << rucp.imol << " " << rucp.pdb_file_name << std::endl;
+   status = graphics_info_t::molecules[rucp.imol].update_coordinates_molecule_if_changed(rucp);
+   return status;
+}
+
+// bool continue_watching_coordinates_file;
+// updating_coordinates_molecule_parameters_t updating_coordinates_molecule_previous;
+
+int
+molecule_class_info_t::update_coordinates_molecule_if_changed(const updating_coordinates_molecule_parameters_t &ucp_in) {
+
+   int status = 1;
+   if (continue_watching_coordinates_file) {
+      bool update_it = false;
+
+      updating_coordinates_molecule_parameters_t ucp = ucp_in;
+      struct stat s;
+      int status = stat(ucp.pdb_file_name.c_str(), &s);
+      if (status != 0) {
+	 std::cout << "WARNING:: update_map_from_mtz_if_changed() Error reading "
+		   << ucp.pdb_file_name << std::endl;
+      } else {
+	 if (!S_ISREG (s.st_mode)) {
+	    std::cout << "WARNING:: update_map_from_mtz_if_changed() not a reguular file: "
+		      << ucp.pdb_file_name << std::endl;
+	    continue_watching_coordinates_file = false;
+	 } else {
+	    // happy path
+	    // ucp.ctime = s.st_ctimespec; ?? mac?
+	    ucp.ctime = s.st_ctim;
+	 }
+      }
+
+      if (false)
+         std::cout << "#### ctime comparision: imol << " << imol_no << " was "
+            << updating_coordinates_molecule_previous.ctime.tv_sec << " " << updating_coordinates_molecule_previous.ctime.tv_nsec
+            << " now " << ucp.ctime.tv_sec << " " << ucp.ctime.tv_nsec
+            << std::endl;
+
+      if (ucp.ctime.tv_sec > updating_coordinates_molecule_previous.ctime.tv_sec) {
+	 update_it = true;
+      } else {
+	 if (ucp.ctime.tv_sec == updating_coordinates_molecule_previous.ctime.tv_sec) {
+	    if (ucp.ctime.tv_nsec > updating_coordinates_molecule_previous.ctime.tv_nsec) {
+	       update_it = true;
+	    }
+	 }
+      }
+      if (update_it) {
+
+	 std::string cwd = coot::util::current_working_dir();
+	 short int reset_rotation_centre = 0;
+	 short int is_undo_or_redo = 0;
+	 bool allow_duplseqnum = true;
+	 bool v2_convert_flag = false;
+
+	 handle_read_draw_molecule(imol_no, ucp.pdb_file_name, cwd,
+				   reset_rotation_centre,
+				   is_undo_or_redo,
+				   allow_duplseqnum,
+				   v2_convert_flag,
+				   bond_width,
+				   Bonds_box_type(),
+				   false);
+	 updating_coordinates_molecule_previous = ucp;
+	 graphics_info_t::graphics_draw();
+      }
+   } else {
+      status = 0;
+   }
+   return status;
+}

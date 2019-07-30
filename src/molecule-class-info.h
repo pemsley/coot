@@ -133,7 +133,8 @@ namespace molecule_map_type {
 #include "rama-rota-score.hh"
 #include "merge-molecule-results-info-t.hh"
 #include "density-results-container-t.hh"
-
+#include "updating-map-params.hh"
+#include "updating-coordinates-molecule-parameters.hh"
 
 namespace coot {
 
@@ -819,6 +820,9 @@ public:        //                      public
 
       // single model view
       single_model_view_current_model_number = 0; // all models
+
+      // mtz updating
+      continue_watching_mtz = false;
 
    }
 
@@ -3315,6 +3319,15 @@ public:        //                      public
    mean_and_variance<float> map_histogram_values;
    mean_and_variance<float> set_and_get_histogram_values(unsigned int n_bins); // fill above
 
+   static int watch_mtz(gpointer data); // return 0 to stop watching
+   bool continue_watching_mtz;
+   updating_map_params_t updating_map_previous;
+   int update_map_from_mtz_if_changed(const updating_map_params_t &rump);
+
+   static int watch_coordinates_file(gpointer data);
+   bool continue_watching_coordinates_file;
+   updating_coordinates_molecule_parameters_t updating_coordinates_molecule_previous;
+   int update_coordinates_molecule_if_changed(const updating_coordinates_molecule_parameters_t &p);
 
 };
 

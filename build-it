@@ -2600,7 +2600,9 @@ if test -n "$build_clipper" ; then
     pwd
     date
 
+    # this seems to have already been applied in 2.1.20180802
     # patch the hkl_data.h header
+    # needs testing
     # sed -ibackup -e 's/int i = 0; i < list.size(); i++/unsigned int i = 0; i < list.size(); i++/' clipper/core/hkl_data.h
     
     # --- make clipper

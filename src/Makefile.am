@@ -545,6 +545,8 @@ coot_bin_SOURCES = \
 	model-view.hh 		 \
 	validation.hh            \
 	validation.cc            \
+	updating-map-params.hh   \
+	updating-coordinates-molecule-parameters.hh \
 	view.hh 		 \
 	view.cc 		 \
 	new-centre.hh            \

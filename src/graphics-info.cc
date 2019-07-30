@@ -2613,6 +2613,7 @@ graphics_info_t::printString_for_density_level(const std::string &s,
 					       const double &x, const double &y, const double &z) {
 
    double sf = 0.00028;
+   sf = 0.00030;
    graphics_info_t::printString_internal(s, x, y, z, false, false, sf);
 }
 
@@ -2645,7 +2646,8 @@ graphics_info_t::printString_internal(const std::string &s,
       glPushMatrix();
       glTranslated(x,y,z);
 
-      glScaled(sf, sf, sf);
+      float aspect = static_cast<float>(graphics_x_size)/static_cast<float>(graphics_y_size);
+      glScaled(sf/aspect, sf, sf);
 
       if (do_unproject) { 
 	 coot::Cartesian b = unproject(1);

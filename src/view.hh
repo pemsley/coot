@@ -60,6 +60,7 @@ namespace coot {
 	 n_spin_steps = v_in.n_spin_steps;
 	 degrees_per_step = v_in.degrees_per_step;
 	 action = v_in.action;
+         view_name = v_in.view_name;
 	 for (std::size_t i=0; i<4; i++)
 	    quat[i] = v_in.quat[i];
       }
