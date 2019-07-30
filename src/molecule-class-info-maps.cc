@@ -3447,7 +3447,8 @@ molecule_class_info_t::update_map_from_mtz_if_changed(const updating_map_params_
 	    continue_watching_mtz = false;
 	 } else {
 	    // happy path
-	    ump.ctime = s.st_ctimespec;
+	    // ump.ctime = s.st_ctimespec; // mac version?
+	    ump.ctime = s.st_ctim;
 	 }
       }
 

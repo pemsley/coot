@@ -9142,7 +9142,8 @@ molecule_class_info_t::update_coordinates_molecule_if_changed(const updating_coo
 	    continue_watching_coordinates_file = false;
 	 } else {
 	    // happy path
-	    ucp.ctime = s.st_ctimespec;
+	    // ucp.ctime = s.st_ctimespec; ?? mac?
+	    ucp.ctime = s.st_ctim;
 	 }
       }
 
