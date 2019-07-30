@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iomanip>
 #include <thread>
+#include <cmath>
 
 #include <clipper/ccp4/ccp4_map_io.h>
 
@@ -155,7 +156,7 @@ convolute_map(const std::vector<std::pair<double, double> > &sam,
    }
 #endif
 
-   unsigned int n_threads = 4;
+   unsigned int n_threads = coot::get_max_number_of_threads();
    typedef clipper::Xmap<float>::Map_reference_index MRI;
    std::vector<std::pair<MRI, MRI> > map_ref_start_stops =
       coot::make_map_reference_index_start_stops(xmap, n_threads);
@@ -167,6 +168,7 @@ convolute_map(const std::vector<std::pair<double, double> > &sam,
                 << "   end " << ss.second.coord().format() << " " << ss.second.index() << std::endl;
       double mol_radius = 26;
       double dd_crit = mol_radius * mol_radius;
+      unsigned int count = 0;
       for (MRI ix_1 = ss.first; ix_1.index() != ss.second.index(); ix_1.next()) {
 	 clipper::Coord_map  cm_1 = ix_1.coord().coord_map();
 	 clipper::Coord_frac cf_1 = cm_1.coord_frac(xmap.grid_sampling());
@@ -175,13 +177,15 @@ convolute_map(const std::vector<std::pair<double, double> > &sam,
 	    clipper::Coord_map  cm_2 = ix_2.coord().coord_map();
 	    clipper::Coord_frac cf_2 = cm_2.coord_frac(xmap.grid_sampling());
 	    clipper::Coord_orth co_2 = cf_2.coord_orth(xmap.cell());
-	    double dd = (co_2-co_1).lengthsq();
+	    float dd = (co_2-co_1).lengthsq();
 	    if (dd < dd_crit) {
-	       float d = static_cast<float>(std::sqrt(dd));
+	       float d = sqrtf(dd);
 	       float cf = get_spherically_averaged_density_value(sam, angstroms_per_bin, d);
-	       (*r_xmap_p)[ix_1] += cf;
+	       (*r_xmap_p)[ix_1] += xmap[ix_1] * cf;
 	    }
 	 }
+         count++;
+         if (count %1000 == 0) std::cout << count << std::endl;
       }
    };
    std::vector<std::thread> threads;
