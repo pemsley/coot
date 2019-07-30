@@ -1,6 +1,11 @@
 
    For Release 0.8.9.3
 
+   o what is the map grid? Tell me in the map preferences.
+
+   o add a function to set the window title (dont' for get to check
+     for use-graphics)
+
    o Refinement on an alt conf should refine just the atoms with that alt conf.
 
    o Read in a PDB file that has a TER. Write it out as a mmCIF. It has a blank atom at the

@@ -1013,7 +1013,7 @@ public:
       generic_texts_p = new std::vector<coot::generic_text_object_t>;
 
       // views
-      views = new std::vector<coot::view_info_t>;
+      // views = new std::vector<coot::view_info_t>;
 
       // glob extensions:
       coordinates_glob_extensions = new std::vector<std::string>;
@@ -3918,7 +3918,7 @@ string   static std::string sessionid;
    static std::pair<std::string, std::string> db_userid_username;
 #endif
 
-   static std::vector<coot::view_info_t> *views;
+   static std::vector<coot::view_info_t> views;
    static float views_play_speed;
 
    static std::string movie_file_prefix;

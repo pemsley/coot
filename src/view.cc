@@ -142,6 +142,9 @@ coot::operator<<(std::ostream &f, const coot::view_info_t &view) {
    // position quaternion zoom view-name
    //
 
+
+   std::cout << "debug: in view output operator(): view_name is \"" << view.view_name << "\"" << std::endl;
+
 #ifdef USE_GUILE
    if (! view.is_simple_spin_view_flag) { 
       f << "(add-view ";

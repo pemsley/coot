@@ -1,6 +1,7 @@
 ;;;; Copyright 2007 by Paul Emsley
 ;;;; 
-;;;; This program is free software; you can redistribute it and/or modify
+;;;; This program
+   or modify
 ;;;; it under the terms of the GNU General Public License as published by
 ;;;; the Free Software Foundation; either version 3 of the License, or (at
 ;;;; your option) any later version.
@@ -1449,29 +1450,28 @@
 
     (define (local-view-name)
       (let loop ((view-count 0))
-	(let ((str (string-append "View"
-				  (if (> view-count 0)
-				      (string-append "-"
-						     (number->string view-count))
-				      ""))))
-	  ;; now is a view already called str?
-	  (let iloop ((jview 0))
-	    (let ((jview-name (view-name jview)))
+        (let ((str (string-append "View"
+                                  (if (> view-count 0)
+                                      (string-append "-" (number->string view-count))
+                                      ""))))
+          ;; now is a view already called str?
+          (let iloop ((jview 0))
+            (let ((jview-name (view-name jview)))
 
-	      (cond 
-	       ((>= jview (n-views)) str)
-	       ((eq? #f jview-name) str)
-	       ((string=? str jview-name) (loop (+ view-count 1)))
-	       (else
-		(iloop (+ jview 1)))))))))
+              (cond
+               ((>= jview (n-views)) str)
+               ((eq? #f jview-name) str)
+               ((string=? str jview-name) (loop (+ view-count 1)))
+               (else
+                (iloop (+ jview 1)))))))))
 
     ;; main line
     ;; 
     (let ((view-name (local-view-name)))
       (generic-single-entry "View Name: " view-name " Add View " 
-			    (lambda (text)
-			      (let ((new-view-number (add-view-here text)))
-				(add-view-to-views-panel text new-view-number)))))))
+                            (lambda (text)
+                              (let ((new-view-number (add-view-here text)))
+                                (add-view-to-views-panel text new-view-number)))))))
 				
 
 ;; 
@@ -1479,11 +1479,9 @@
 
   (if *views-dialog-vbox*
       (let ((button (gtk-button-new-with-label view-name)))
-	(gtk-signal-connect button "clicked" (lambda ()
-					       (go-to-view-number 
-						view-number 0)))
-	(gtk-box-pack-start *views-dialog-vbox* button #f #f 2)
-	(gtk-widget-show button))))
+        (gtk-signal-connect button "clicked" (lambda () (go-to-view-number view-number 0)))
+        (gtk-box-pack-start *views-dialog-vbox* button #f #f 2)
+        (gtk-widget-show button))))
 
 
 ;; geometry is an improper list of ints.
@@ -1663,47 +1661,47 @@
   (lambda ()
 
     (let* ((number-of-views (n-views))
-	   (buttons 
+           (buttons
 
-	    (let loop ((button-number 0)
-		       (ls '()))
+            (let loop ((button-number 0)
+                       (ls '()))
 
-	      (cond 
-	       ((= number-of-views button-number) (reverse ls))
-	       (else 
-		(let ((button-label (view-name button-number)))
-		  (if button-label
-		      (let ((desciption (view-description button-number)))
-			(if (eq? #f desciption)
-			    (loop (+ button-number 1) 
-				  (cons 
-				   (list button-label
-					 (lambda ()
-					   (go-to-view-number button-number 0)))
-				   ls))
-			    (loop (+ button-number 1)
-				  (cons 
-				   (list button-label
-					 (lambda ()
-					   (go-to-view-number button-number 0))
-					 desciption)
-					ls))))
+              (cond
+               ((= number-of-views button-number) (reverse ls))
+               (else
+                (let ((button-label (view-name button-number)))
+                  (if button-label
+                      (let ((desciption (view-description button-number)))
+                        (if (eq? #f desciption)
+                            (loop (+ button-number 1)
+                                  (cons
+                                   (list button-label
+                                         (lambda ()
+                                           (go-to-view-number button-number 0)))
+                                   ls))
+                            (loop (+ button-number 1)
+                                  (cons
+                                   (list button-label
+                                         (lambda ()
+                                           (go-to-view-number button-number 0))
+                                         desciption)
+                                   ls))))
 
-		      (loop (+ button-number 1) ls))))))))
+                      (loop (+ button-number 1) ls))))))))
       (let ((all-buttons
-	     (if (> (length buttons) 1)
-		 (let ((view-button (list "  Play Views " 
-					  (lambda ()
-					    (go-to-first-view 1)
-					    (usleep 100000)
-					    (play-views)))))
-		   (reverse (cons view-button (reverse buttons))))
-		 buttons)))
-      
-	(let ((views-vbox
-	       (dialog-box-of-buttons " Views " (cons 200 140) all-buttons "  Close  ")))
+             (if (> (length buttons) 1)
+                 (let ((view-button (list "  Play Views "
+                                          (lambda ()
+                                            (go-to-first-view 1)
+                                            (usleep 100000)
+                                            (play-views)))))
+                   (reverse (cons view-button (reverse buttons))))
+                 buttons)))
 
-	  (set! *views-dialog-vbox* views-vbox))))))
+        (let ((views-vbox
+               (dialog-box-of-buttons " Views " (cons 200 140) all-buttons "  Close  ")))
+
+          (set! *views-dialog-vbox* views-vbox))))))
 
    
 ;   (* nudge (apply + (map * (list-ref tvm 0) ori)))
@@ -1734,7 +1732,7 @@
 		;; rc + tvm*nudge
 		(apply set-rotation-centre 
 		       (map + rc (screen-coords-nudge tvm nudge axes))))))
-	 (buttons 
+	 (buttons
 	  (list 
 	   (list "Nudge +X" (lambda () (f (list  1 0 0))))
 	   (list "Nudge -X" (lambda () (f (list -1 0 0))))
@@ -2459,7 +2457,7 @@
 	     *key-bindings*))))
       
       (let loop ((items scm+py-keybindings))
-	(cond 
+	(cond
 	 ((null? items) 'done)
 	 (else 
 	  (if (string? (list-ref (car items) 3)) 
@@ -2471,7 +2469,7 @@
 	  (loop (cdr items)))))
       
       (let loop ((items (map (lambda (x) (cons 'dum x)) std-key-bindings)))
-	(cond 
+	(cond
 	 ((null? items) 'done)
 	 (else 
 	  (box-for-binding (car items) std-frame-vbox #f)
@@ -2568,9 +2566,9 @@
 	(insert-string "  Yep - there really is no news\n" text-2))
 	
       ; (format #t "coot-news-info called with args: ~s~%" args)
-      (cond 
+      (cond
        ((= (length args) 1)
-	  (cond 
+	  (cond
 	   ((eq? (car args) 'stop) (stop))
 	   ((eq? (car args) 'status)
 	    status)
