@@ -15,6 +15,7 @@ uniform mat4 mvp;
 uniform mat4 view_rotation; // the quaternion attached to what the mouse has done
 uniform vec4 background_colour;
 
+out vec3 frag_pos;
 out vec3 Normal;
 out vec4 tri_color;
 out vec4 bg_colour;
@@ -31,7 +32,7 @@ void main() {
    vec4 n2 = view_rotation * n1;
 
    Normal = normalize(n2.xyz);
-
+   frag_pos =  p3.xyz;
    tri_color = colour;
    bg_colour = background_colour;
 }
@@ -40,6 +41,7 @@ void main() {
 
 #version 330 core
 
+in vec3 frag_pos;
 in vec3 Normal;
 in vec4 tri_color;
 in vec4 bg_colour;
@@ -67,7 +69,10 @@ void main() {
   vec4 c_2 = mix(bg_colour, c_1, f_1);
 
   // is this right? Looks like it might be
-  vec3 view_dir = vec3(0.0, 0.0, 1.0); // viewing from positive z is a good idea.
+  vec3 eye_pos =  vec3(0.0, 0.0, 1.0);
+
+  vec3 view_dir = eye_pos - frag_pos; // view_dir.z positive is a good idea.
+  view_dir = normalize(view_dir);
 
   vec3 norm_2 = Normal;
   norm_2 += normalize(norm_2);
