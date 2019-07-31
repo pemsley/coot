@@ -128,13 +128,13 @@ glm::mat4 get_molecule_mvp() {
    // with narrow depth of field: 5 and 6.
 
    GLfloat near_scale = 0.3;
-   GLfloat far  =      -near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.1 + 1.0);
-   GLfloat near =  0.30*near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.1 + 1.0);
+   GLfloat far  =      -near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.3 + 1.0);
+   GLfloat near =  0.30*near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.3 + 1.0);
 
    if (false)
       std::cout << "near: " << near << " far " << far
                 << " clipping_front " << graphics_info_t::clipping_front
-                << " clipping_back " << graphics_info_t::clipping_back
+                << " clipping_back "  << graphics_info_t::clipping_back
                 << std::endl;
 
    glm::mat4 projection_matrix = glm::ortho(-ortho_size * screen_ratio, ortho_size * screen_ratio,

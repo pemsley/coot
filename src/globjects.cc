@@ -868,7 +868,8 @@ coot::Cartesian graphics_info_t::probe_dots_on_chis_molprobity_centre = coot::Ca
 float graphics_info_t::probe_dots_on_chis_molprobity_radius = 6.0;
 bool graphics_info_t::do_coot_probe_dots_during_refine_flag = false;
 
-glm::vec3 graphics_info_t::background_colour = glm::vec3(0.1, 0.1, 0.1);
+float grey_level = 0.24;
+glm::vec3 graphics_info_t::background_colour = glm::vec3(grey_level, grey_level, grey_level);
 
 //
 short int graphics_info_t::delete_item_atom = 0;
@@ -2622,12 +2623,13 @@ void
 adjust_clipping(double d) {
 
    if (d>0) {
-      if (graphics_info_t::clipping_back < 15.0) {
+      // I am not sure that this limit does any good these days
+      if (graphics_info_t::clipping_back < 65.0) {
          set_clipping_front(graphics_info_t::clipping_front + d);
          set_clipping_back (graphics_info_t::clipping_front + d);
       }
    } else {
-      if (graphics_info_t::clipping_back > -15.2) {
+      if (graphics_info_t::clipping_back > -65.2) {
          set_clipping_front(graphics_info_t::clipping_front + d);
          set_clipping_back (graphics_info_t::clipping_front + d);
       }
