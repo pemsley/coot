@@ -2462,57 +2462,57 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 
 
 void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds_container &bonds_box,
-      const coot::Cartesian &front,
-      const coot::Cartesian &back,
-      bool against_a_dark_background) {
+                                                           const coot::Cartesian &front,
+                                                           const coot::Cartesian &back,
+                                                           bool against_a_dark_background) {
    bool display_it = display_stick_mode_atoms_flag;
 
    if (display_it) {
 
       if (bonds_box.atom_centres_) {
 
-    // pass this?
-    const std::pair<bool, float> &use_radius_limit = graphics_info_t::model_display_radius;
+         // pass this?
+         const std::pair<bool, float> &use_radius_limit = graphics_info_t::model_display_radius;
 
-    // std::cout << "draw " << bonds_box.n_atom_centres_ << " atom centres "
-    // << std::endl;
+         // std::cout << "draw " << bonds_box.n_atom_centres_ << " atom centres "
+         // << std::endl;
 
-    float zsc = graphics_info_t::zoom;
-    glPointSize(280.0/zsc);
+         float zsc = graphics_info_t::zoom;
+         glPointSize(280.0/zsc);
 
-    glBegin(GL_POINTS);
-    // for a big molecule, it's a factor of 10 or more slower
-    // to put glColor3f in the middle of the loop.
-    //
-    // Hence we use sets of atoms consolidated by their colour index
+         glBegin(GL_POINTS);
+         // for a big molecule, it's a factor of 10 or more slower
+         // to put glColor3f in the middle of the loop.
+         //
+         // Hence we use sets of atoms consolidated by their colour index
 
-    // colour by chain atom have atoms of a single colour currently
+         // colour by chain atom have atoms of a single colour currently
 
-    // if we have hydrogens, we want the balls to be placed slightly in front of the atom so that
-    // the hydrogen sticks don't appear and disappear behind the atom circle as the molecule is rotated
-    // Note that this delta for atom interacts with the highlight.
-    //
-    coot::Cartesian z_delta = (front - back) * 0.003;
-    for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
-       set_bond_colour_by_mol_no(icol, against_a_dark_background);
-       for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
-          // no points for hydrogens
-          if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
+         // if we have hydrogens, we want the balls to be placed slightly in front of the atom so that
+         // the hydrogen sticks don't appear and disappear behind the atom circle as the molecule is rotated
+         // Note that this delta for atom interacts with the highlight.
+         //
+         coot::Cartesian z_delta = (front - back) * 0.003;
+         for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+            set_bond_colour_by_mol_no(icol, against_a_dark_background);
+            for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
+               // no points for hydrogens
+               if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
 
-     if ((single_model_view_current_model_number == 0) ||
-         (single_model_view_current_model_number == bonds_box.consolidated_atom_centres[icol].points[i].model_number)) {
+                  if ((single_model_view_current_model_number == 0) ||
+                      (single_model_view_current_model_number == bonds_box.consolidated_atom_centres[icol].points[i].model_number)) {
 
-        if ((use_radius_limit.first == false) ||
-    (graphics_info_t::is_within_display_radius(bonds_box.consolidated_atom_centres[icol].points[i].position))) {
+                     if ((use_radius_limit.first == false) ||
+                         (graphics_info_t::is_within_display_radius(bonds_box.consolidated_atom_centres[icol].points[i].position))) {
 
-   const coot::Cartesian &fake_pt = bonds_box.consolidated_atom_centres[icol].points[i].position;
-   glVertex3f(fake_pt.x()+z_delta.x(), fake_pt.y()+z_delta.y(), fake_pt.z()+z_delta.z());
-        }
-     }
-          }
-       }
-    }
-    glEnd();
+                        const coot::Cartesian &fake_pt = bonds_box.consolidated_atom_centres[icol].points[i].position;
+                        glVertex3f(fake_pt.x()+z_delta.x(), fake_pt.y()+z_delta.y(), fake_pt.z()+z_delta.z());
+                     }
+                  }
+               }
+            }
+         }
+         glEnd();
 
 
     // highlights?
@@ -2551,10 +2551,10 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
           float off = 0.03;
 
           if (ball_point_size > point_size_data[1]) {
-     off *= (point_size_data[1]/ball_point_size);
-     ball_point_size = point_size_data[1];
-     hlit_point_size = (40.0/280.0) * point_size_data[1];
-          }
+             off *= (point_size_data[1]/ball_point_size);
+             ball_point_size = point_size_data[1];
+             hlit_point_size = (40.0/280.0) * point_size_data[1];
+         }
 
           // the offset doesn't depend on zoom (until it does (implicitly) by the ball size going bigger
           // than the graphics card wants to draw it).
@@ -2564,38 +2564,38 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
           offset += z_delta * 2.0;
 
           if (false)
-     std::cout << "got point size range " << point_size_data[0] << " "
-       << point_size_data[1] << " " << zsc << " "
-       << hlit_point_size << std::endl;
-          // point_size_data on pc:  -> 1 and  63.375
-          // point_size_data on mbp: -> 1 and 255.875
+             std::cout << "got point size range " << point_size_data[0] << " "
+                       << point_size_data[1] << " " << zsc << " "
+                       << hlit_point_size << std::endl;
+         // point_size_data on pc:  -> 1 and  63.375
+         // point_size_data on mbp: -> 1 and 255.875
 
-          glPointSize(hlit_point_size * 3);
-          glBegin(GL_POINTS);
-          for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
-     coot::colour_t cc = get_bond_colour_by_mol_no(icol, against_a_dark_background);
-     // cc.average(coot::colour_t(0.9, 0.9, 0.9));
-     cc.brighter(1.15);
-     glColor3f(cc[0], cc[1], cc[2]);
-     for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
-        // no points for hydrogens
-        if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
+         glPointSize(hlit_point_size * 3);
+         glBegin(GL_POINTS);
+         for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+            coot::colour_t cc = get_bond_colour_by_mol_no(icol, against_a_dark_background);
+            // cc.average(coot::colour_t(0.9, 0.9, 0.9));
+            cc.brighter(1.15);
+            glColor3f(cc[0], cc[1], cc[2]);
+            for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
+               // no points for hydrogens
+               if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
 
-   if ((single_model_view_current_model_number == 0) ||
-       (single_model_view_current_model_number == bonds_box.consolidated_atom_centres[icol].points[i].model_number)) {
+                  if ((single_model_view_current_model_number == 0) ||
+                  (single_model_view_current_model_number == bonds_box.consolidated_atom_centres[icol].points[i].model_number)) {
 
-      if ((use_radius_limit.first == false) ||
-          (graphics_info_t::is_within_display_radius(bonds_box.consolidated_atom_centres[icol].points[i].position))) {
+                     if ((use_radius_limit.first == false) ||
+                     (graphics_info_t::is_within_display_radius(bonds_box.consolidated_atom_centres[icol].points[i].position))) {
 
-         const coot::Cartesian &pos = bonds_box.consolidated_atom_centres[icol].points[i].position;
-         coot::Cartesian pt = pos + offset;
-         glVertex3f(pt.x(), pt.y(), pt.z());
-      }
-   }
-        }
-     }
-          }
-          glEnd();
+                        const coot::Cartesian &pos = bonds_box.consolidated_atom_centres[icol].points[i].position;
+                        coot::Cartesian pt = pos + offset;
+                        glVertex3f(pt.x(), pt.y(), pt.z());
+                     }
+                  }
+               }
+            }
+         }
+         glEnd();
 
           // shiny
           glPointSize(hlit_point_size * 0.8);
@@ -3612,12 +3612,32 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
    int sum_n_triangles = 0;
    int sum_n_vertices = 0;
 
+   // setup a few colours
+   std::vector<glm::vec4> index_to_colour(bonds_box.num_colours);
+   for (int i=0; i<bonds_box.num_colours; i++) {
+      index_to_colour[i] = glm::vec4(0.5, 0.5, 0.5, 1.0);
+      if (i == 0) index_to_colour[i] = glm::vec4(0.8, 0.8, 0.5, 1.0);
+      if (i == 1) index_to_colour[i] = glm::vec4(0.9, 0.9, 0.2, 1.0);
+      if (i == 2) index_to_colour[i] = glm::vec4(0.9, 0.3, 0.3, 1.0);
+      if (i == 3) index_to_colour[i] = glm::vec4(0.2, 0.4, 0.9, 1.0);
+      if (i == 4) index_to_colour[i] = glm::vec4(0.5, 0.2, 0.5, 1.0);
+   }
+
    for (int i=0; i<bonds_box.num_colours; i++) {
       graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
       unsigned int n_triangles = n_slices * n_stacks * ll.num_lines * 2;
       sum_n_triangles += n_triangles;
       sum_n_vertices += n_slices * (n_stacks+1) * ll.num_lines;
    }
+
+   std::pair<std::vector<generic_vertex>, std::vector<tri_indices> > atom_bits = make_generic_vertices_for_atoms(index_to_colour);
+
+   unsigned int sum_n_vertices_start_atoms  = sum_n_vertices;
+   unsigned int sum_n_triangles_start_atoms = sum_n_triangles;
+   sum_n_vertices  += atom_bits.first.size();
+   sum_n_triangles += atom_bits.second.size();
+   const std::vector<generic_vertex> &atom_vertices  = atom_bits.first;
+   const std::vector<tri_indices>    &atom_triangles = atom_bits.second;
 
    if (sum_n_triangles > 0) {
       n_vertices_for_model_VertexArray = sum_n_vertices;
@@ -3628,24 +3648,27 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       generic_vertex *vertices = new generic_vertex[sum_n_vertices];
       generic_vertex *vertices_start = vertices;
       unsigned int iv = 0; // index into vertices - running
-      glm::vec4 *colours = new glm::vec4[sum_n_vertices]; // temporary
 
-      float radius = 0.14f;
+      std::cout << "---------------------- n atom vertices:  " << atom_vertices.size() << std::endl;
+      std::cout << "---------------------- n atom triangles: " << atom_triangles.size() << std::endl;
+
+      for(unsigned int i=0; i<atom_vertices.size(); i++){
+         const generic_vertex &v = atom_vertices[i];
+         vertices[sum_n_vertices_start_atoms+i] = atom_vertices[i];
+      }
+      for (unsigned int i=0; i<atom_triangles.size(); i++) {
+         const tri_indices &t = atom_triangles[i];
+         flat_indices[3*(sum_n_triangles_start_atoms + i)  ] = t.idx[0] + sum_n_vertices_start_atoms;
+         flat_indices[3*(sum_n_triangles_start_atoms + i)+1] = t.idx[1] + sum_n_vertices_start_atoms;
+         flat_indices[3*(sum_n_triangles_start_atoms + i)+2] = t.idx[2] + sum_n_vertices_start_atoms;
+      }
+
+
+      float radius = 0.13f;
 
       bool do_real = true;
       unsigned int idx_running = 0;
       if (do_real) {
-
-         // setup a few colours
-         std::vector<glm::vec4> index_to_colour(bonds_box.num_colours);
-         for (int i=0; i<bonds_box.num_colours; i++) {
-            index_to_colour[i] = glm::vec4(0.5, 0.5, 0.5, 1.0);
-            if (i == 0) index_to_colour[i] = glm::vec4(0.8, 0.8, 0.5, 1.0);
-            if (i == 1) index_to_colour[i] = glm::vec4(0.9, 0.9, 0.2, 1.0);
-            if (i == 2) index_to_colour[i] = glm::vec4(0.9, 0.3, 0.3, 1.0);
-            if (i == 3) index_to_colour[i] = glm::vec4(0.2, 0.4, 0.9, 1.0);
-            if (i == 4) index_to_colour[i] = glm::vec4(0.5, 0.2, 0.5, 1.0);
-         }
 
          for (int i=0; i<bonds_box.num_colours; i++) {
             graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
@@ -3681,17 +3704,10 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
                }
             }
          }
-
-         // set the colours
-         for (unsigned int i=0; i<n_vertices_for_model_VertexArray; i++) {
-            float r1 = static_cast<float>(coot::util::random())/static_cast<float>(RAND_MAX);
-            float r2 = static_cast<float>(coot::util::random())/static_cast<float>(RAND_MAX);
-            float r3 = static_cast<float>(coot::util::random())/static_cast<float>(RAND_MAX);
-            colours[i] = glm::vec4(r1, r2, r3, 1.0);
-            float f = static_cast<float>(i)/static_cast<float>(n_vertices_for_model_VertexArray);
-            colours[i] = glm::vec4(f + r1*0.1, f+r2*0.2, f + r3 * 0.2, 1.0);
-         }
       }
+
+      // now the atom parts:
+
 
       gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glarea));
 

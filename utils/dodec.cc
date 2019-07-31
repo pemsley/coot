@@ -1,18 +1,18 @@
 /* utils/dodec.cc
- * 
+ *
  * Copyright 2013 by Medical Research Council
  * Author: Paul Emsley
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -35,7 +35,7 @@ dodec::dodec() {
    clipper::Coord_orth p1(-rr3,  rr3,  rr3);
    clipper::Coord_orth p2( rr3, -rr3,  rr3);
    clipper::Coord_orth p3( rr3,  rr3, -rr3);
-   
+
    clipper::Coord_orth p4(-rr3, -rr3,  rr3);
    clipper::Coord_orth p5(-rr3,  rr3, -rr3);
    clipper::Coord_orth p6( rr3, -rr3, -rr3);
@@ -56,16 +56,16 @@ dodec::dodec() {
    clipper::Coord_orth p18( pdr3, 0, -r3p);
    clipper::Coord_orth p19(-pdr3, 0, -r3p);
 
-   points.push_back(p0 ); points.push_back(p1 ); points.push_back(p2 ); 
-   points.push_back(p3 ); points.push_back(p4 ); points.push_back(p5 ); 
-   points.push_back(p6 ); points.push_back(p7 ); points.push_back(p8 ); 
-   points.push_back(p9 ); points.push_back(p10); points.push_back(p11); 
-   points.push_back(p12); points.push_back(p13); points.push_back(p14); 
-   points.push_back(p15); points.push_back(p16); points.push_back(p17); 
+   points.push_back(p0 ); points.push_back(p1 ); points.push_back(p2 );
+   points.push_back(p3 ); points.push_back(p4 ); points.push_back(p5 );
+   points.push_back(p6 ); points.push_back(p7 ); points.push_back(p8 );
+   points.push_back(p9 ); points.push_back(p10); points.push_back(p11);
+   points.push_back(p12); points.push_back(p13); points.push_back(p14);
+   points.push_back(p15); points.push_back(p16); points.push_back(p17);
    points.push_back(p18); points.push_back(p19);
 
    assign_face_rings();
-   
+
 }
 
 void
@@ -73,8 +73,8 @@ dodec::test(const std::string &file_name) const {
 
    std::ofstream f(file_name.c_str());
 
-   if (f) { 
-      for (unsigned int i=0; i<points.size(); i++) { 
+   if (f) {
+      for (unsigned int i=0; i<points.size(); i++) {
 	 f << "  "
 	   << points[i].x() << " "
 	   << points[i].y() << " "
@@ -92,10 +92,10 @@ dodec::face(unsigned int face_number) const {
 
 void
 dodec::assign_face_rings() {
-   
+
    std::vector<std::pair<unsigned int, unsigned int> > pairs;
-   
-   for (unsigned int i=0; i<points.size(); i++) { 
+
+   for (unsigned int i=0; i<points.size(); i++) {
       for (unsigned int j=0; j<points.size(); j++) {
 	 if (i != j) {
 	    double d = (points[i]-points[j]).lengthsq();
@@ -135,7 +135,7 @@ dodec::assign_face_rings() {
 				    } else {
 				       // don't be perverse
 				       rings.push_back(ring);
-				    } 
+				    }
 				 }
 			      }
 			   }
@@ -151,7 +151,7 @@ dodec::assign_face_rings() {
    if (false) {
       for (unsigned int ii=0; ii<rings.size(); ii++) {
 	 std::cout << "ring: ";
-	 for (unsigned int jj=0; jj<rings[ii].size(); jj++) { 
+	 for (unsigned int jj=0; jj<rings[ii].size(); jj++) {
 	    std::cout << " " << rings[ii][jj];
 	 }
 	 std::cout << std::endl;
@@ -198,7 +198,7 @@ pentakis_dodec::init() {
    pyrimid_vertices.resize(12);
 
    for (unsigned int i=0; i<12; i++) {
-      
+
       // these are the indices of the vertices that make up the given face
       std::vector<unsigned int> v = d.face(i);
 
@@ -209,7 +209,7 @@ pentakis_dodec::init() {
       clipper::Coord_orth face_centre_sum(0,0,0);
 
       for (unsigned int j=0; j<5; j++) {
-	 face_centre_sum += coords[v[j]];
+         face_centre_sum += coords[v[j]];
       }
 
       clipper::Coord_orth face_centre(0.2 * face_centre_sum);

@@ -3015,7 +3015,7 @@ public:        //                      public
    void draw_solid_density_surface(bool do_flat_shading);
    void set_draw_solid_density_surface(bool state);
    void setup_glsl_map_rendering();
-   std::vector<generic_vertex> make_generic_vertices_for_atoms() const;
+   std::pair<std::vector<generic_vertex>, std::vector<tri_indices> > make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour) const;
 
    GLuint m_VertexArrayID_for_map;
 

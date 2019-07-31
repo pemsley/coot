@@ -17,6 +17,7 @@ public:
    std::vector<clipper::Coord_orth> coords() const { return points; }
    // ordered set of points
    std::vector<unsigned int> face(unsigned int face_number) const; // only call with 0->11 inclusive
+   const clipper::Coord_orth &get_point(const unsigned int &idx) const { return points[idx]; }
    void test(const std::string &file_name) const;
 };
 

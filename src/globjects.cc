@@ -518,8 +518,8 @@ GtkWidget *graphics_info_t::statusbar = NULL;
 guint      graphics_info_t::statusbar_context_id = 0;
 std::string graphics_info_t::main_window_title;
 
-float graphics_info_t::clipping_front = -3.0;
-float graphics_info_t::clipping_back  = -2.0;
+float graphics_info_t::clipping_front = -7.0;
+float graphics_info_t::clipping_back  = -6.0;
 
 //
 int       graphics_info_t::atom_label_font_size = 2; // medium
@@ -868,7 +868,7 @@ coot::Cartesian graphics_info_t::probe_dots_on_chis_molprobity_centre = coot::Ca
 float graphics_info_t::probe_dots_on_chis_molprobity_radius = 6.0;
 bool graphics_info_t::do_coot_probe_dots_during_refine_flag = false;
 
-glm::vec3 graphics_info_t::background_colour = glm::vec3(0.2, 0.2, 0.2);
+glm::vec3 graphics_info_t::background_colour = glm::vec3(0.1, 0.1, 0.1);
 
 //
 short int graphics_info_t::delete_item_atom = 0;

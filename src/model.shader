@@ -48,8 +48,8 @@ layout(location = 0) out vec4 out_col;
 
 void main() {
 
-  vec3 lightdir_1 = normalize(vec3(-2,-1,5));
-  vec3 lightdir_2 = normalize(vec3(2,1,2));
+  vec3 lightdir_1 = normalize(vec3(-2, -2,  3)); // positive z means light from my side of the screen
+  vec3 lightdir_2 = normalize(vec3( 2, -2,  3));
   float dp_l1 = dot(Normal, -lightdir_1);
   float dp_l2 = dot(Normal, -lightdir_2);
 
