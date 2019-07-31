@@ -51,7 +51,7 @@ layout(location = 0) out vec4 out_col;
 void main() {
 
   vec4 light_colour = vec4(0.04, 0.04, 0.04, 1.0);
-  float specular_strength = 0.0000005;
+  float specular_strength = 0.0005;
   vec3 lightdir_1 = normalize(vec3(-2, -2,  3)); // positive z means light from my side of the screen
   vec3 lightdir_2 = normalize(vec3( 2, -2,  3));
   float dp_l1 = dot(Normal, -lightdir_1);
@@ -84,6 +84,8 @@ void main() {
   float spec = pow(dp_view_reflect, 6.2);
   vec4 specular = specular_strength * spec * light_colour;
 
+  // funny effects, the fog should be applied last - after
+  // the specular has been added, not here. Fix this later.
   out_col = c_2 + specular;
 
 }
