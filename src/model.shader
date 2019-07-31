@@ -30,7 +30,7 @@ void main() {
    vec4 n1 = vec4(normal * model_rotation_matrix, 1.0);
    vec4 n2 = view_rotation * n1;
 
-   Normal = normalize(n2).xyz;
+   Normal = normalize(n2.xyz);
 
    tri_color = colour;
    bg_colour = background_colour;
@@ -48,6 +48,8 @@ layout(location = 0) out vec4 out_col;
 
 void main() {
 
+  vec4 light_colour = vec4(0.04, 0.04, 0.04, 1.0);
+  float specular_strength = 0.0000005;
   vec3 lightdir_1 = normalize(vec3(-2, -2,  3)); // positive z means light from my side of the screen
   vec3 lightdir_2 = normalize(vec3( 2, -2,  3));
   float dp_l1 = dot(Normal, -lightdir_1);
@@ -64,7 +66,19 @@ void main() {
   vec4 c_1 = col_2 * (1.0 - flat_frac) + col_1 * flat_frac;
   vec4 c_2 = mix(bg_colour, c_1, f_1);
 
-  out_col = c_2;
+  // is this right? Looks like it might be
+  vec3 view_dir = vec3(0.0, 0.0, 1.0); // viewing from positive z is a good idea.
 
+  vec3 norm_2 = Normal;
+  norm_2 += normalize(norm_2);
+  vec3 reflect_dir = reflect(-lightdir_1, norm_2);
+
+  float dp_view_reflect = dot(view_dir, reflect_dir);
+  dp_view_reflect = max(dp_view_reflect, 0.0);
+
+  float spec = pow(dp_view_reflect, 6.2);
+  vec4 specular = specular_strength * spec * light_colour;
+
+  out_col = c_2 + specular;
 
 }
