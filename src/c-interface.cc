@@ -2121,6 +2121,30 @@ get_map_colour(int imol) {
    return colour;
 }
 
+GdkRGBA get_map_gdk_colour(int imol) {
+
+   GdkRGBA col;
+   if (is_valid_map_molecule(imol)) {
+      col.red   = graphics_info_t::molecules[imol].map_colour[0][0];
+      col.green = graphics_info_t::molecules[imol].map_colour[0][1];
+      col.blue  = graphics_info_t::molecules[imol].map_colour[0][2];
+   }
+   return col;
+}
+
+
+void on_single_map_properties_colour_dialog_response(GtkDialog *dialog,
+                                                     gint       response_id,
+                                                     gpointer   user_data) {
+   if (response_id == GTK_RESPONSE_OK) {
+      GdkRGBA color;
+      gtk_color_chooser_get_rgba (GTK_COLOR_CHOOSER (dialog), &color);
+      // gtk_widget_queue_draw();
+      std::cout << "Do something\n";
+   }
+   gtk_widget_destroy (GTK_WIDGET (dialog));
+}
+
 //! \brief return the colour of the imolth map (e.g.: (list 0.4 0.6
 //0.8). If invalid imol return #f.
 //
