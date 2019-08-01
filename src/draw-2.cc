@@ -129,7 +129,7 @@ glm::mat4 get_molecule_mvp() {
 
    GLfloat near_scale = 0.3;
    GLfloat far  =      -near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.3 + 1.0);
-   GLfloat near =  0.30*near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.3 + 1.0);
+   GLfloat near =  0.10*near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.3 + 1.0);
 
    if (false)
       std::cout << "near: " << near << " far " << far
